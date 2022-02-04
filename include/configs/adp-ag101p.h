@@ -15,8 +15,6 @@
  */
 #define CONFIG_USE_INTERRUPT
 
-#define CONFIG_BOOTP_SERVERIP
-
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_MEM_REMAP
 #endif
@@ -286,9 +284,6 @@
  * There are 4 banks supported for this Controller,
  * but we have only 1 bank connected to flash on board
  */
-#ifndef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
-#endif
 #define CONFIG_SYS_FLASH_BANKS_SIZES {0x4000000}
 
 /* max number of sectors on one chip */

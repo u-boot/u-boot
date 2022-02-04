@@ -463,7 +463,7 @@ struct device_node *of_find_node_by_phandle(phandle handle)
  * @propname:	name of the property to be searched.
  * @len:	requested length of property value
  *
- * @return the property value on success, -EINVAL if the property does not
+ * Return: the property value on success, -EINVAL if the property does not
  * exist, -ENODATA if property does not have a value, and -EOVERFLOW if the
  * property data isn't large enough.
  */

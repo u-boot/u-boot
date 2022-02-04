@@ -476,7 +476,7 @@ enum clock_id get_periph_clock_id(enum periph_id periph_id, int source)
  * @param source	PLL id of required parent clock
  * @param mux_bits	Set to number of bits in mux register: 2 or 4
  * @param divider_bits	Set to number of divider bits (8 or 16)
- * @return mux value (0-4, or -1 if not found)
+ * Return: mux value (0-4, or -1 if not found)
  */
 int get_periph_clock_source(enum periph_id periph_id,
 		enum clock_id parent, int *mux_bits, int *divider_bits)
@@ -548,7 +548,7 @@ void reset_set_enable(enum periph_id periph_id, int enable)
  * provided.
  *
  * @param clk_id	Clock ID according to tegra20 device tree binding
- * @return peripheral ID, or PERIPH_ID_NONE if the clock ID is invalid
+ * Return: peripheral ID, or PERIPH_ID_NONE if the clock ID is invalid
  */
 enum periph_id clk_id_to_periph_id(int clk_id)
 {

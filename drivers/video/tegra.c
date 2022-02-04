@@ -262,7 +262,7 @@ static int setup_window(struct disp_ctl_win *win,
  * @param blob			Device tree blob
  * @param priv			Driver's private data
  * @param default_lcd_base	Default address of LCD frame buffer
- * @return 0 if ok, -1 on error (unsupported bits per pixel)
+ * Return: 0 if ok, -1 on error (unsupported bits per pixel)
  */
 static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 			       void *default_lcd_base)

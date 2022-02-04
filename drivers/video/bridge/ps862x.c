@@ -33,7 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * @param addr_off	offset from the i2c base address for ps8622
  * @param reg_addr	register address to write
  * @param value		value to be written
- * @return 0 on success, non-0 on failure
+ * Return: 0 on success, non-0 on failure
  */
 static int ps8622_write(struct udevice *dev, unsigned addr_off,
 			unsigned char reg_addr, unsigned char value)

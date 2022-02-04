@@ -500,7 +500,7 @@ static void store_result(struct hash_algo *algo, const uint8_t *sum,
  * @allow_env_vars:	non-zero to permit storing the result to an environment
  *			variable. If 0 then verify_str is assumed to be an
  *			address, and the * prefix is not expected.
- * @return 0 if ok, non-zero on error
+ * Return: 0 if ok, non-zero on error
  */
 static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
 			    uint8_t *vsum, int allow_env_vars)

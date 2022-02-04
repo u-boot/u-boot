@@ -1207,7 +1207,7 @@ config ARCH_ZYNQMP
 	select DM_SERIAL
 	select DM_SPI if SPI
 	select DM_SPI_FLASH if DM_SPI
-	select FIRMWARE
+	imply FIRMWARE
 	select GICV2
 	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
@@ -1217,7 +1217,7 @@ config ARCH_ZYNQMP
 	select SPL_DM_SPI if SPI && SPL_DM
 	select SPL_DM_SPI_FLASH if SPL_DM_SPI
 	select SPL_DM_MAILBOX if SPL
-	select SPL_FIRMWARE if SPL
+	imply SPL_FIRMWARE if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
 	select ZYNQMP_IPI
@@ -1228,6 +1228,7 @@ config ARCH_ZYNQMP
 	imply FAT_WRITE
 	imply MP
 	imply DM_USB_GADGET
+	imply ZYNQMP_GPIO_MODEPIN if DM_GPIO && USB
 
 config ARCH_TEGRA
 	bool "NVIDIA Tegra"
@@ -1868,6 +1869,7 @@ config ARCH_STM32MP
 	imply OF_LIBFDT_OVERLAY
 	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 	imply USE_PREBOOT
+	imply TIMESTAMP
 	help
 	  Support for STM32MP SoC family developed by STMicroelectronics,
 	  MPUs based on ARM cortex A core

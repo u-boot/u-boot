@@ -57,7 +57,7 @@ struct nvdata_state {
  * number used by the sandbox emulation.
  *
  * @index: Index to use (FIRMWARE_NV_INDEX, etc.)
- * @return associated space (enum sandbox_nv_space)
+ * Return: associated space (enum sandbox_nv_space)
  */
 int sb_tpm_index_to_seq(uint index);
 

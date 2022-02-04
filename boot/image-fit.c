@@ -191,7 +191,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	const char *keyname;
 	uint8_t *value;
 	int value_len;
-	char *algo;
+	const char *algo;
 	const char *padding;
 	bool required;
 	int ret, i;
@@ -1063,11 +1063,11 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
  *     0, on success
  *     -1, on failure
  */
-int fit_image_hash_get_algo(const void *fit, int noffset, char **algo)
+int fit_image_hash_get_algo(const void *fit, int noffset, const char **algo)
 {
 	int len;
 
-	*algo = (char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
+	*algo = (const char *)fdt_getprop(fit, noffset, FIT_ALGO_PROP, &len);
 	if (*algo == NULL) {
 		fit_get_debug(fit, noffset, FIT_ALGO_PROP, len);
 		return -1;
@@ -1265,7 +1265,7 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 {
 	uint8_t value[FIT_MAX_HASH_LEN];
 	int value_len;
-	char *algo;
+	const char *algo;
 	uint8_t *fit_value;
 	int fit_value_len;
 	int ignore;
@@ -1309,7 +1309,8 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 }
 
 int fit_image_verify_with_data(const void *fit, int image_noffset,
-			       const void *data, size_t size)
+			       const void *key_blob, const void *data,
+			       size_t size)
 {
 	int		noffset = 0;
 	char		*err_msg = "";
@@ -1319,7 +1320,7 @@ int fit_image_verify_with_data(const void *fit, int image_noffset,
 	/* Verify all required signatures */
 	if (FIT_IMAGE_ENABLE_VERIFY &&
 	    fit_image_verify_required_sigs(fit, image_noffset, data, size,
-					   gd_fdt_blob(), &verify_all)) {
+					   key_blob, &verify_all)) {
 		err_msg = "Unable to verify required signature";
 		goto error;
 	}
@@ -1342,8 +1343,8 @@ int fit_image_verify_with_data(const void *fit, int image_noffset,
 		} else if (FIT_IMAGE_ENABLE_VERIFY && verify_all &&
 				!strncmp(name, FIT_SIG_NODENAME,
 					strlen(FIT_SIG_NODENAME))) {
-			ret = fit_image_check_sig(fit, noffset, data,
-							size, -1, &err_msg);
+			ret = fit_image_check_sig(fit, noffset, data, size,
+						  gd_fdt_blob(), -1, &err_msg);
 
 			/*
 			 * Show an indication on failure, but do not return
@@ -1406,7 +1407,8 @@ int fit_image_verify(const void *fit, int image_noffset)
 		goto err;
 	}
 
-	return fit_image_verify_with_data(fit, image_noffset, data, size);
+	return fit_image_verify_with_data(fit, image_noffset, gd_fdt_blob(),
+					  data, size);
 
 err:
 	printf("error!\n%s in '%s' image node\n", err_msg,
@@ -1595,7 +1597,7 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp)
  *
  * @fit: FIT to check
  * @parent: Parent node to check
- * @return 0 if OK, -EADDRNOTAVAIL is a node has a name containing '@'
+ * Return: 0 if OK, -EADDRNOTAVAIL is a node has a name containing '@'
  */
 static int fdt_check_no_at(const void *fit, int parent)
 {
@@ -1961,7 +1963,7 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 /**
  * fit_get_image_type_property() - get property name for IH_TYPE_...
  *
- * @return the properly name where we expect to find the image in the
+ * Return: the properly name where we expect to find the image in the
  * config node
  */
 static const char *fit_get_image_type_property(int type)

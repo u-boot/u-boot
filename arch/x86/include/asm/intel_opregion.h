@@ -239,7 +239,7 @@ struct __packed optionrom_vbt {
  *
  * This is called from ACPI code and OS drivers
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int intel_gma_init_igd_opregion(struct udevice *dev,
 				struct igd_opregion *opregion);

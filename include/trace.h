@@ -55,7 +55,7 @@ void trace_print_stats(void);
  * @param buff		Buffer in which to place data, or NULL to count size
  * @param buff_size	Size of buffer
  * @param needed	Returns number of bytes used / needed
- * @return 0 if ok, -1 on error (buffer exhausted)
+ * Return: 0 if ok, -1 on error (buffer exhausted)
  */
 int trace_list_functions(void *buff, size_t buff_size, size_t *needed);
 

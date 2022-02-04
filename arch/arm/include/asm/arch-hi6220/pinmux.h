@@ -74,7 +74,7 @@ struct hi6220_pinmux1_regs {
  * pull-up/down and drive strength.
  *
  * @param peripheral	peripheral to be configured
- * @return 0 if ok, -1 on error (e.g. unsupported peripheral)
+ * Return: 0 if ok, -1 on error (e.g. unsupported peripheral)
  */
 int hi6220_pinmux_config(int peripheral);
 

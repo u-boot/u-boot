@@ -74,7 +74,6 @@
  * - U-Boot environment
  */
 #define CONFIG_SYS_FLASH_BASE		0x24000000
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
 
 /* Timeout values in ticks */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */

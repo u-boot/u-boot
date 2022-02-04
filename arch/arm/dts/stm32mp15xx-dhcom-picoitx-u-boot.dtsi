@@ -11,4 +11,8 @@
 	};
 };
 
-/delete-node/ &ksz8851;
+/delete-node/ &ks8851;
+
+&usbotg_hs {
+	dr_mode = "peripheral";
+};

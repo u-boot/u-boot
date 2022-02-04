@@ -107,8 +107,8 @@ static int bootcount_syscon_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 	if (reg_size != 4) {
-		dev_err(dev, "%s: Unsupported register size: %d\n", __func__,
-			reg_size);
+		dev_err(dev, "%s: Unsupported register size: %pa\n", __func__,
+			&reg_size);
 		return -EINVAL;
 	}
 

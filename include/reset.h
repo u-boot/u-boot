@@ -190,7 +190,7 @@ struct reset_ctl_bulk *devm_reset_bulk_get_optional_by_node(struct udevice *dev,
  * @index:	The index of the reset signal to request, within the client's
  *		list of reset signals.
  * @reset_ctl	A pointer to a reset control struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_get_by_index(struct udevice *dev, int index,
 		       struct reset_ctl *reset_ctl);
@@ -205,7 +205,7 @@ int reset_get_by_index(struct udevice *dev, int index,
  * @index:	The index of the reset signal to request, within the client's
  *		list of reset signals.
  * @reset_ctl	A pointer to a reset control struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_get_by_index_nodev(ofnode node, int index,
 			     struct reset_ctl *reset_ctl);
@@ -222,7 +222,7 @@ int reset_get_by_index_nodev(ofnode node, int index,
  *
  * @dev:	The client device.
  * @bulk	A pointer to a reset control bulk struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_get_bulk(struct udevice *dev, struct reset_ctl_bulk *bulk);
 
@@ -240,7 +240,7 @@ int reset_get_bulk(struct udevice *dev, struct reset_ctl_bulk *bulk);
  * @name:	The name of the reset signal to request, within the client's
  *		list of reset signals.
  * @reset_ctl:	A pointer to a reset control struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_get_by_name(struct udevice *dev, const char *name,
 		      struct reset_ctl *reset_ctl);
@@ -250,7 +250,7 @@ int reset_get_by_name(struct udevice *dev, const char *name,
  *
  * @reset_ctl:	A reset control struct.
  *
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_request(struct reset_ctl *reset_ctl);
 
@@ -259,7 +259,7 @@ int reset_request(struct reset_ctl *reset_ctl);
  *
  * @reset_ctl:	A reset control struct that was previously successfully
  *		requested by reset_get_by_*().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_free(struct reset_ctl *reset_ctl);
 
@@ -273,7 +273,7 @@ int reset_free(struct reset_ctl *reset_ctl);
  *
  * @reset_ctl:	A reset control struct that was previously successfully
  *		requested by reset_get_by_*().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_assert(struct reset_ctl *reset_ctl);
 
@@ -288,7 +288,7 @@ int reset_assert(struct reset_ctl *reset_ctl);
  *
  * @bulk:	A reset control bulk struct that was previously successfully
  *		requested by reset_get_bulk().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_assert_bulk(struct reset_ctl_bulk *bulk);
 
@@ -301,7 +301,7 @@ int reset_assert_bulk(struct reset_ctl_bulk *bulk);
  *
  * @reset_ctl:	A reset control struct that was previously successfully
  *		requested by reset_get_by_*().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_deassert(struct reset_ctl *reset_ctl);
 
@@ -315,7 +315,7 @@ int reset_deassert(struct reset_ctl *reset_ctl);
  *
  * @bulk:	A reset control bulk struct that was previously successfully
  *		requested by reset_get_bulk().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_deassert_bulk(struct reset_ctl_bulk *bulk);
 
@@ -323,7 +323,7 @@ int reset_deassert_bulk(struct reset_ctl_bulk *bulk);
  * rst_status - Check reset signal status.
  *
  * @reset_ctl:	The reset signal to check.
- * @return 0 if deasserted, positive if asserted, or a negative
+ * Return: 0 if deasserted, positive if asserted, or a negative
  *           error code.
  */
 int reset_status(struct reset_ctl *reset_ctl);
@@ -337,7 +337,7 @@ int reset_status(struct reset_ctl *reset_ctl);
  * @reset_ctl:	A reset struct array that was previously successfully
  *		requested by reset_get_by_*().
  * @count	Number of reset contained in the array
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int reset_release_all(struct reset_ctl *reset_ctl, int count);
 
@@ -351,7 +351,7 @@ int reset_release_all(struct reset_ctl *reset_ctl, int count);
  *
  * @bulk:	A reset control bulk struct that was previously successfully
  *		requested by reset_get_bulk().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 static inline int reset_release_bulk(struct reset_ctl_bulk *bulk)
 {
@@ -462,7 +462,7 @@ static inline int reset_release_bulk(struct reset_ctl_bulk *bulk)
  * reset_valid() - check if reset is valid
  *
  * @reset_ctl:		the reset to check
- * @return TRUE if valid, or FALSE
+ * Return: TRUE if valid, or FALSE
  */
 static inline bool reset_valid(struct reset_ctl *reset_ctl)
 {

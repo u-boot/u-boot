@@ -56,6 +56,13 @@ struct crypto_algo crypto_algos[] = {
 		.verify = rsa_verify,
 	},
 	{
+		.name = "rsa3072",
+		.key_len = RSA3072_BYTES,
+		.sign = rsa_sign,
+		.add_verify_data = rsa_add_verify_data,
+		.verify = rsa_verify,
+	},
+	{
 		.name = "rsa4096",
 		.key_len = RSA4096_BYTES,
 		.sign = rsa_sign,

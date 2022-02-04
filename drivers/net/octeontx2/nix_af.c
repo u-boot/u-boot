@@ -336,7 +336,7 @@ int npa_af_shutdown(struct npa_af *npa_af)
  *
  * @param nix     Handle to setup
  *
- * @return 0, or negative on failure
+ * Return: 0, or negative on failure
  */
 static int nix_af_setup_sq(struct nix *nix)
 {
@@ -445,7 +445,7 @@ static int nix_af_setup_sq(struct nix *nix)
  * @param cindex Context index
  * @param resp   Result pointer
  *
- * @return	0 for success, -EBUSY on failure
+ * Return:	0 for success, -EBUSY on failure
  */
 static int nix_aq_issue_command(struct nix_af *nix_af,
 				int lf,

@@ -16,6 +16,6 @@
  * @param c	The character to set each byte of the region to.
  * @param n	The number of bytes to set.
  *
- * @return	The physical address of the memory which was set.
+ * Return:	The physical address of the memory which was set.
  */
 phys_addr_t arch_phys_memset(phys_addr_t s, int c, phys_size_t n);

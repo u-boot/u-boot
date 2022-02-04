@@ -46,7 +46,7 @@
  * This is needed by FSP-M which uses the High Precision Event Timer.
  *
  * @dev: P2SB device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int p2sb_early_init(struct udevice *dev)
 {

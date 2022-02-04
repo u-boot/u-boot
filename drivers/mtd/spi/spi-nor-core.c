@@ -3707,8 +3707,8 @@ int spi_nor_scan(struct spi_nor *nor)
 	int ret;
 	int cfi_mtd_nb = 0;
 
-#ifdef CONFIG_SYS_MAX_FLASH_BANKS
-	cfi_mtd_nb = CONFIG_SYS_MAX_FLASH_BANKS;
+#ifdef CONFIG_FLASH_CFI_MTD
+	cfi_mtd_nb = CFI_FLASH_BANKS;
 #endif
 
 	/* Reset SPI protocol for all commands. */

@@ -13,6 +13,7 @@ import concurrent.futures
 import re
 import sys
 
+from binman import comp_util
 from binman.entry import Entry
 from binman import state
 from dtoc import fdt_util
@@ -775,7 +776,7 @@ class Entry_section(Entry):
         data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
-            data = tools.Decompress(indata, child.compress)
+            data = comp_util.decompress(indata, child.compress)
             if child.uncomp_size:
                 tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
                             (child.GetPath(), len(indata), child.compress,
@@ -805,6 +806,7 @@ class Entry_section(Entry):
         Args:
             allow_fake_blob: True if allowed, False if not allowed
         """
+        super().SetAllowFakeBlob(allow_fake)
         for entry in self._entries.values():
             entry.SetAllowFakeBlob(allow_fake)
 
@@ -829,6 +831,17 @@ class Entry_section(Entry):
         """
         for entry in self._entries.values():
             entry.CheckFakedBlobs(faked_blobs_list)
+
+    def check_missing_bintools(self, missing_list):
+        """Check if any entries in this section have missing bintools
+
+        If there are missing bintools, these are added to the list
+
+        Args:
+            missing_list: List of Bintool objects to be added to
+        """
+        for entry in self._entries.values():
+            entry.check_missing_bintools(missing_list)
 
     def _CollectEntries(self, entries, entries_by_name, add_entry):
         """Collect all the entries in an section
@@ -879,3 +892,7 @@ class Entry_section(Entry):
     def CheckAltFormats(self, alt_formats):
         for entry in self._entries.values():
             entry.CheckAltFormats(alt_formats)
+
+    def AddBintools(self, tools):
+        for entry in self._entries.values():
+            entry.AddBintools(tools)

@@ -66,7 +66,7 @@ static int srcfile_depth; /* = 0 */
  * @param dirname	Directory to look in, or NULL for none
  * @param fname		Filename to look for
  * @param fp		Set to NULL if file did not open
- * @return allocated filename on success (caller must free), NULL on failure
+ * Return: allocated filename on success (caller must free), NULL on failure
  */
 static char *try_open(const char *dirname, const char *fname, FILE **fp)
 {
@@ -93,7 +93,7 @@ static char *try_open(const char *dirname, const char *fname, FILE **fp)
  *
  * @param fname	Filename to open
  * @param fp	Returns pointer to opened FILE, or NULL on failure
- * @return pointer to allocated filename, which caller must free
+ * Return: pointer to allocated filename, which caller must free
  */
 static char *fopen_any_on_path(const char *fname, FILE **fp)
 {

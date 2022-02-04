@@ -108,7 +108,7 @@ static void *lib_test_get_esrt(void)
  * @esrt: pointer to the ESRT
  * @img_info: an image_info_descriptor output by the FMP get_image_info
  *
- * @return: true if matching ESRT entry is found and if all the ESRT entry fields match the
+ * Return: true if matching ESRT entry is found and if all the ESRT entry fields match the
  * corresponding @img_info fields.
  */
 static bool lib_test_check_uuid_entry(struct efi_system_resource_table *esrt,
@@ -121,28 +121,28 @@ static bool lib_test_check_uuid_entry(struct efi_system_resource_table *esrt,
 	for (u32 idx = 0; idx < filled_entries; idx++) {
 		if (!guidcmp(&entry[idx].fw_class, &img_info->image_type_id)) {
 			if (entry[idx].fw_version != img_info->version) {
-				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
+				efi_st_error("ESRT field mismatch for entry with fw_class=%pU\n",
 					     &img_info->image_type_id);
 				return false;
 			}
 
 			if (entry[idx].lowest_supported_fw_version !=
 				img_info->lowest_supported_image_version) {
-				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
+				efi_st_error("ESRT field mismatch for entry with fw_class=%pU\n",
 					     &img_info->image_type_id);
 				return false;
 			}
 
 			if (entry[idx].last_attempt_version !=
 				img_info->last_attempt_version) {
-				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
+				efi_st_error("ESRT field mismatch for entry with fw_class=%pU\n",
 					     &img_info->image_type_id);
 				return false;
 			}
 
 			if (entry[idx].last_attempt_status !=
 				img_info->last_attempt_status) {
-				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
+				efi_st_error("ESRT field mismatch for entry with fw_class=%pU\n",
 					     &img_info->image_type_id);
 				return false;
 			}
@@ -168,7 +168,7 @@ static bool lib_test_check_uuid_entry(struct efi_system_resource_table *esrt,
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
@@ -185,7 +185,7 @@ static int setup(const efi_handle_t handle,
  *
  * Uninstall the test FMP.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int teardown(void)
 {

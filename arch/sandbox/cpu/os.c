@@ -718,7 +718,7 @@ static int make_exec(char *fname, const void *data, int size)
  * @argvp:  Returns newly allocated args list
  * @add_args: Arguments to add, each a string
  * @count: Number of arguments in @add_args
- * @return 0 if OK, -ENOMEM if out of memory
+ * Return: 0 if OK, -ENOMEM if out of memory
  */
 static int add_args(char ***argvp, char *add_args[], int count)
 {
@@ -764,7 +764,7 @@ static int add_args(char ***argvp, char *add_args[], int count)
  * execs it.
  *
  * @fname: Filename to exec
- * @return does not return on success, any return value is an error
+ * Return: does not return on success, any return value is an error
  */
 static int os_jump_to_file(const char *fname, bool delete_it)
 {

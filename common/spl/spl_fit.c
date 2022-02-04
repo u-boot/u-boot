@@ -321,7 +321,8 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	if (CONFIG_IS_ENABLED(FIT_SIGNATURE)) {
 		printf("## Checking hash(es) for Image %s ... ",
 		       fit_get_name(fit, node, NULL));
-		if (!fit_image_verify_with_data(fit, node, src, length))
+		if (!fit_image_verify_with_data(fit, node, gd_fdt_blob(), src,
+						length))
 			return -EPERM;
 		puts("OK\n");
 	}

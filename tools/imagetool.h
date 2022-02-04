@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include <u-boot/sha1.h>
 
+#include <image.h>
+
 #include "fdt_host.h"
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
@@ -69,6 +71,7 @@ struct image_tool_params {
 	const char *keydest;	/* Destination .dtb for public key */
 	const char *keyfile;	/* Filename of private or public key */
 	const char *comment;	/* Comment to add to signature node */
+	const char *algo_name;	/* Algorithm name to use hashing/signing */
 	int require_keys;	/* 1 to mark signing keys as 'required' */
 	int file_size;		/* Total size of output file */
 	int orig_file_size;	/* Original size for file before padding */
@@ -83,6 +86,7 @@ struct image_tool_params {
 	int bl_len;		/* Block length in byte for external data */
 	const char *engine_id;	/* Engine to use for signing */
 	bool reset_timestamp;	/* Reset the timestamp on an existing image */
+	struct image_summary summary;	/* results of signing process */
 };
 
 /*
@@ -176,7 +180,7 @@ struct image_type_params *imagetool_get_type(int type);
  * supported image type. If verification is successful, this prints
  * the respective header.
  *
- * @return 0 on success, negative if input image format does not match with
+ * Return: 0 on success, negative if input image format does not match with
  * any of supported image types
  */
 int imagetool_verify_print_header(
@@ -195,7 +199,7 @@ int imagetool_verify_print_header(
  * @tparams: image type parameters
  * @params: mkimage parameters
  *
- * @return 0 on success, negative if input image format does not match with
+ * Return: 0 on success, negative if input image format does not match with
  * the given image type
  */
 int imagetool_verify_print_header_by_type(
@@ -229,7 +233,7 @@ int imagetool_save_subimage(
  *
  * @params:	mkimage parameters
  * @fname:	filename to check
- * @return size of file, or -ve value on error
+ * Return: size of file, or -ve value on error
  */
 int imagetool_get_filesize(struct image_tool_params *params, const char *fname);
 
@@ -243,7 +247,7 @@ int imagetool_get_filesize(struct image_tool_params *params, const char *fname);
  *
  * @cmdname:	command name
  * @fallback:	timestamp to use if SOURCE_DATE_EPOCH isn't set
- * @return timestamp based on SOURCE_DATE_EPOCH
+ * Return: timestamp based on SOURCE_DATE_EPOCH
  */
 time_t imagetool_get_source_date(
 	const char *cmdname,
@@ -271,11 +275,13 @@ int rockchip_copy_image(int fd, struct image_tool_params *mparams);
  *  b) we need a API call to get the respective section symbols */
 #if defined(__MACH__)
 #include <mach-o/getsect.h>
+#include <mach-o/dyld.h>
 
 #define INIT_SECTION(name)  do {					\
 		unsigned long name ## _len;				\
 		char *__cat(pstart_, name) = getsectdata("__DATA",	\
 			#name, &__cat(name, _len));			\
+		__cat(pstart_, name) += _dyld_get_image_vmaddr_slide(0);\
 		char *__cat(pstop_, name) = __cat(pstart_, name) +	\
 			__cat(name, _len);				\
 		__cat(__start_, name) = (void *)__cat(pstart_, name);	\

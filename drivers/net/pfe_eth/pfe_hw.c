@@ -128,7 +128,7 @@ static void pe_pmem_memcpy_to32(int id, u32 dst, const void *src,
  * @param[in] addr		PMEM read address (must be aligned on size)
  * @param[in] size		Number of bytes to read (maximum 4, must not
  *				cross 32bit boundaries)
- * @return			the data read (in PE endianness, i.e BE).
+ * Return:			the data read (in PE endianness, i.e BE).
  */
 u32 pe_pmem_read(int id, u32 addr, u8 size)
 {
@@ -176,7 +176,7 @@ void pe_dmem_write(int id, u32 val, u32 addr, u8 size)
  * @param[in] addr		DMEM read address (must be aligned on size)
  * @param[in] size		Number of bytes to read (maximum 4, must not
  *				cross 32bit boundaries)
- * @return			the data read (in PE endianness, i.e BE).
+ * Return:			the data read (in PE endianness, i.e BE).
  */
 u32 pe_dmem_read(int id, u32 addr, u8 size)
 {
@@ -222,7 +222,7 @@ static void class_bus_write(u32 val, u32 addr, u8 size)
  * through indirect access registers.
  * @param[in] addr	Address to read from (must be aligned on size)
  * @param[in] size	Number of bytes to read (1, 2 or 4)
- * @return		the read data
+ * Return:		the read data
  */
 static u32 class_bus_read(u32 addr, u8 size)
 {

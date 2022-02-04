@@ -22,7 +22,7 @@
  * Secure memory run command
  *
  * @param   sec_mem_cmd  Secure memory command register
- * @return  cmd_status  Secure memory command status register
+ * Return:  cmd_status  Secure memory command status register
  */
 uint32_t secmem_set_cmd(uint32_t sec_mem_cmd)
 {
@@ -52,7 +52,7 @@ uint32_t secmem_set_cmd(uint32_t sec_mem_cmd)
  *
  * @param   page  Number of the page to allocate.
  * @param   partition  Number of the partition to allocate.
- * @return  0 on success, ERROR_IN_PAGE_ALLOC otherwise
+ * Return:  0 on success, ERROR_IN_PAGE_ALLOC otherwise
  */
 int caam_page_alloc(uint8_t page_num, uint8_t partition_num)
 {

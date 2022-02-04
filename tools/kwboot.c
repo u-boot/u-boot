@@ -63,7 +63,6 @@ static unsigned char kwboot_msg_debug[] = {
 #define EOT	4	/* sender end of block transfer */
 #define ACK	6	/* target block ack */
 #define NAK	21	/* target block negative ack */
-#define CAN	24	/* target/sender transfer cancellation */
 
 #define KWBOOT_XM_BLKSZ	128 /* xmodem block size */
 
@@ -75,7 +74,7 @@ struct kwboot_block {
 	uint8_t csum;
 } __packed;
 
-#define KWBOOT_BLK_RSP_TIMEO 1000 /* ms */
+#define KWBOOT_BLK_RSP_TIMEO 2000 /* ms */
 #define KWBOOT_HDR_RSP_TIMEO 10000 /* ms */
 
 /* ARM code to change baudrate */
@@ -293,13 +292,15 @@ static int blk_rsp_timeo = KWBOOT_BLK_RSP_TIMEO;
 static ssize_t
 kwboot_write(int fd, const char *buf, size_t len)
 {
-	size_t tot = 0;
+	ssize_t tot = 0;
 
 	while (tot < len) {
 		ssize_t wr = write(fd, buf + tot, len - tot);
 
-		if (wr < 0)
-			return -1;
+		if (wr < 0 && errno == EINTR)
+			continue;
+		else if (wr < 0)
+			return wr;
 
 		tot += wr;
 	}
@@ -408,15 +409,19 @@ kwboot_tty_recv(int fd, void *buf, size_t len, int timeo)
 
 	do {
 		nfds = select(fd + 1, &rfds, NULL, NULL, &tv);
-		if (nfds < 0)
+		if (nfds < 0 && errno == EINTR)
+			continue;
+		else if (nfds < 0)
 			goto out;
-		if (!nfds) {
+		else if (!nfds) {
 			errno = ETIMEDOUT;
 			goto out;
 		}
 
 		n = read(fd, buf, len);
-		if (n <= 0)
+		if (n < 0 && errno == EINTR)
+			continue;
+		else if (n <= 0)
 			goto out;
 
 		buf = (char *)buf + n;
@@ -718,6 +723,7 @@ out:
 static int
 kwboot_bootmsg(int tty, void *msg)
 {
+	struct kwboot_block block;
 	int rc;
 	char c;
 	int count;
@@ -748,7 +754,40 @@ kwboot_bootmsg(int tty, void *msg)
 
 	kwboot_printv("\n");
 
-	return rc;
+	if (rc)
+		return rc;
+
+	/*
+	 * At this stage we have sent more boot message patterns and BootROM
+	 * (at least on Armada XP and 385) started interpreting sent bytes as
+	 * part of xmodem packets. If BootROM is expecting SOH byte as start of
+	 * a xmodem packet and it receives byte 0xff, then it throws it away and
+	 * sends a NAK reply to host. If BootROM does not receive any byte for
+	 * 2s when expecting some continuation of the xmodem packet, it throws
+	 * away the partially received xmodem data and sends NAK reply to host.
+	 *
+	 * Therefore for starting xmodem transfer we have two options: Either
+	 * wait 2s or send 132 0xff bytes (which is the size of xmodem packet)
+	 * to ensure that BootROM throws away any partially received data.
+	 */
+
+	/* flush output queue with remaining boot message patterns */
+	tcflush(tty, TCOFLUSH);
+
+	/* send one xmodem packet with 0xff bytes to force BootROM to re-sync */
+	memset(&block, 0xff, sizeof(block));
+	kwboot_tty_send(tty, &block, sizeof(block), 0);
+
+	/*
+	 * Sending 132 bytes via 115200B/8-N-1 takes 11.45 ms, reading 132 bytes
+	 * takes 11.45 ms, so waiting for 30 ms should be enough.
+	 */
+	usleep(30 * 1000);
+
+	/* flush remaining NAK replies from input queue */
+	tcflush(tty, TCIFLUSH);
+
+	return 0;
 }
 
 static int
@@ -826,7 +865,7 @@ _now(void)
 static int
 _is_xm_reply(char c)
 {
-	return c == ACK || c == NAK || c == CAN;
+	return c == ACK || c == NAK;
 }
 
 static int
@@ -840,9 +879,6 @@ _xm_reply_to_error(int c)
 		break;
 	case NAK:
 		errno = EBADMSG;
-		break;
-	case CAN:
-		errno = ECANCELED;
 		break;
 	default:
 		errno = EPROTO;
@@ -879,7 +915,8 @@ kwboot_baud_magic_handle(int fd, char c, int baudrate)
 }
 
 static int
-kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
+kwboot_xm_recv_reply(int fd, char *c, int stop_on_non_xm,
+		     int ignore_nak_reply,
 		     int allow_non_xm, int *non_xm_print,
 		     int baudrate, int *baud_changed)
 {
@@ -899,8 +936,14 @@ kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
 		}
 
 		/* If received xmodem reply, end. */
-		if (_is_xm_reply(*c))
+		if (_is_xm_reply(*c)) {
+			if (*c == NAK && ignore_nak_reply) {
+				timeout = recv_until - _now();
+				if (timeout >= 0)
+					continue;
+			}
 			break;
+		}
 
 		/*
 		 * If receiving/printing non-xmodem text output is allowed and
@@ -928,10 +971,8 @@ kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
 				*non_xm_print = 1;
 			}
 		} else {
-			if (nak_on_non_xm) {
-				*c = NAK;
+			if (stop_on_non_xm)
 				break;
-			}
 			timeout = recv_until - _now();
 			if (timeout < 0) {
 				errno = ETIMEDOUT;
@@ -945,7 +986,7 @@ kwboot_xm_recv_reply(int fd, char *c, int nak_on_non_xm,
 
 static int
 kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
-		    int *done_print, int baudrate)
+		    int *done_print, int baudrate, int allow_retries)
 {
 	int non_xm_print, baud_changed;
 	int rc, err, retries;
@@ -959,7 +1000,7 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 	do {
 		rc = kwboot_tty_send(fd, block, sizeof(*block), 1);
 		if (rc)
-			return rc;
+			goto err;
 
 		if (allow_non_xm && !*done_print) {
 			kwboot_progress(100, '.');
@@ -968,29 +1009,32 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block, int allow_non_xm,
 		}
 
 		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  retries > 8,
 					  allow_non_xm, &non_xm_print,
 					  baudrate, &baud_changed);
 		if (rc)
-			goto can;
+			goto err;
 
-		if (!allow_non_xm && c != ACK)
-			kwboot_progress(-1, '+');
-	} while (c == NAK && retries++ < 16);
+		if (!allow_non_xm && c != ACK) {
+			if (c == NAK && allow_retries && retries + 1 < 16)
+				kwboot_progress(-1, '+');
+			else
+				kwboot_progress(-1, 'E');
+		}
+	} while (c == NAK && allow_retries && retries++ < 16);
 
 	if (non_xm_print)
 		kwboot_printv("\n");
 
 	if (allow_non_xm && baudrate && !baud_changed) {
 		fprintf(stderr, "Baudrate was not changed\n");
-		rc = -1;
 		errno = EPROTO;
-		goto can;
+		return -1;
 	}
 
 	return _xm_reply_to_error(c);
-can:
+err:
 	err = errno;
-	kwboot_tty_send_char(fd, CAN);
 	kwboot_printv("\n");
 	errno = err;
 	return rc;
@@ -1011,6 +1055,7 @@ kwboot_xm_finish(int fd)
 			return rc;
 
 		rc = kwboot_xm_recv_reply(fd, &c, retries < 3,
+					  retries > 8,
 					  0, NULL, 0, NULL);
 		if (rc)
 			return rc;
@@ -1043,8 +1088,30 @@ kwboot_xmodem_one(int tty, int *pnum, int header, const uint8_t *data,
 
 		last_block = (left <= blksz);
 
+		/*
+		 * Handling of repeated xmodem packets is completely broken in
+		 * Armada 385 BootROM - it completely ignores xmodem packet
+		 * numbers, they are only used for checksum verification.
+		 * BootROM can handle a retry of the xmodem packet only during
+		 * the transmission of kwbimage header and only if BootROM
+		 * itself sent NAK response to previous attempt (it does it on
+		 * checksum failure). During the transmission of kwbimage data
+		 * part, BootROM always expects next xmodem packet, even if it
+		 * sent NAK to previous attempt - there is absolutely no way to
+		 * repair incorrectly transmitted xmodem packet during kwbimage
+		 * data part upload. Also, if kwboot receives non-ACK/NAK
+		 * response (meaning that original BootROM response was damaged
+		 * on UART) there is no way to detect if BootROM accepted xmodem
+		 * packet or not and no way to check if kwboot could repeat the
+		 * packet or not.
+		 *
+		 * Stop transfer and return failure if kwboot receives unknown
+		 * reply if non-xmodem reply is not allowed (for all xmodem
+		 * packets except the last header packet) or when non-ACK reply
+		 * is received during data part transfer.
+		 */
 		rc = kwboot_xm_sendblock(tty, &block, header && last_block,
-					 &done_print, baudrate);
+					 &done_print, baudrate, header);
 		if (rc)
 			goto out;
 
@@ -1080,10 +1147,6 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 	 * followed by the header. So align header size to xmodem block size.
 	 */
 	hdrsz += (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) % KWBOOT_XM_BLKSZ;
-
-	kwboot_printv("Waiting 2s and flushing tty\n");
-	sleep(2); /* flush isn't effective without it */
-	tcflush(tty, TCIOFLUSH);
 
 	pnum = 1;
 
@@ -1568,6 +1631,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 			 * baudrate (which should be 115200) and do not touch
 			 * UART MPP configuration.
 			 */
+			hdr->flags |= 0x1;
 			hdr->options &= ~0x1F;
 			hdr->options |= MAIN_HDR_V1_OPT_BAUD_DEFAULT;
 			hdr->options |= 0 << 3;
@@ -1672,6 +1736,8 @@ main(int argc, char **argv)
 	size_t size;
 	size_t after_img_rsv;
 	int baudrate;
+	int prev_optind;
+	int c;
 
 	rv = 1;
 	tty = -1;
@@ -1689,22 +1755,32 @@ main(int argc, char **argv)
 	kwboot_verbose = isatty(STDOUT_FILENO);
 
 	do {
-		int c = getopt(argc, argv, "hb:ptaB:dD:q:s:o:");
+		prev_optind = optind;
+		c = getopt(argc, argv, "hbptaB:dD:q:s:o:");
 		if (c < 0)
 			break;
 
 		switch (c) {
 		case 'b':
+			if (imgpath || bootmsg || debugmsg)
+				goto usage;
 			bootmsg = kwboot_msg_boot;
-			imgpath = optarg;
+			if (prev_optind == optind)
+				goto usage;
+			if (argv[optind] && argv[optind][0] != '-')
+				imgpath = argv[optind++];
 			break;
 
 		case 'D':
+			if (imgpath || bootmsg || debugmsg)
+				goto usage;
 			bootmsg = NULL;
 			imgpath = optarg;
 			break;
 
 		case 'd':
+			if (imgpath || bootmsg || debugmsg)
+				goto usage;
 			debugmsg = kwboot_msg_debug;
 			break;
 
@@ -1744,13 +1820,13 @@ main(int argc, char **argv)
 		}
 	} while (1);
 
-	if (!bootmsg && !term && !debugmsg)
-		goto usage;
-
-	if (argc - optind < 1)
+	if (!bootmsg && !term && !debugmsg && !imgpath)
 		goto usage;
 
 	ttypath = argv[optind++];
+
+	if (optind != argc)
+		goto usage;
 
 	tty = kwboot_open_tty(ttypath, imgpath ? 115200 : baudrate);
 	if (tty < 0) {

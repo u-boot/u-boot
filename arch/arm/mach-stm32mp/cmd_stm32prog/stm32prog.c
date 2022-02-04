@@ -835,8 +835,8 @@ static int treat_partition_list(struct stm32prog_data *data)
 		/* skip partition with IP="none" */
 		if (part->target == STM32PROG_NONE) {
 			if (IS_SELECT(part)) {
-				stm32prog_err("Layout: selected none phase = 0x%x",
-					      part->id);
+				stm32prog_err("Layout: selected none phase = 0x%x for part %s",
+					      part->id, part->name);
 				return -EINVAL;
 			}
 			continue;
@@ -844,14 +844,14 @@ static int treat_partition_list(struct stm32prog_data *data)
 
 		if (part->id == PHASE_FLASHLAYOUT ||
 		    part->id > PHASE_LAST_USER) {
-			stm32prog_err("Layout: invalid phase = 0x%x",
-				      part->id);
+			stm32prog_err("Layout: invalid phase = 0x%x for part %s",
+				      part->id, part->name);
 			return -EINVAL;
 		}
 		for (j = i + 1; j < data->part_nb; j++) {
 			if (part->id == data->part_array[j].id) {
-				stm32prog_err("Layout: duplicated phase 0x%x at line %d and %d",
-					      part->id, i, j);
+				stm32prog_err("Layout: duplicated phase 0x%x for part %s and %s",
+					      part->id, part->name, data->part_array[j].name);
 				return -EINVAL;
 			}
 		}

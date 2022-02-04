@@ -38,7 +38,7 @@ struct cros_ec_keyb_priv {
  * @param keys		List of keys that we have detected
  * @param max_count	Maximum number of keys to return
  * @param samep		Set to true if this scan repeats the last, else false
- * @return number of pressed keys, 0 for none, -EIO on error
+ * Return: number of pressed keys, 0 for none, -EIO on error
  */
 static int check_for_keys(struct udevice *dev, struct key_matrix_key *keys,
 			  int max_count, bool *samep)
@@ -112,7 +112,7 @@ static int check_for_keys(struct udevice *dev, struct key_matrix_key *keys,
  * characters
  *
  * @param input		Input configuration
- * @return 1, to indicate that we have something to look at
+ * Return: 1, to indicate that we have something to look at
  */
 int cros_ec_kbc_check(struct input_config *input)
 {
@@ -176,7 +176,7 @@ int cros_ec_kbc_check(struct input_config *input)
  * @param blob		Device tree blob
  * @param node		Node to decode from
  * @param config	Configuration data read from fdt
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 static int cros_ec_keyb_decode_fdt(struct udevice *dev,
 				   struct cros_ec_keyb_priv *config)

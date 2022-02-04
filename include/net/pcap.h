@@ -10,7 +10,7 @@
  * @paddr	physicaly memory address to store buffer
  * @size	maximum size of capture file in memory
  *
- * @return	0 on success, -ERROR on error
+ * Return:	0 on success, -ERROR on error
  */
 int pcap_init(phys_addr_t paddr, unsigned long size);
 
@@ -19,28 +19,28 @@ int pcap_init(phys_addr_t paddr, unsigned long size);
  *
  * @start	if true, start capture if false stop capture
  *
- * @return	0 on success, -ERROR on error
+ * Return:	0 on success, -ERROR on error
  */
 int pcap_start_stop(bool start);
 
 /**
  * pcap_clear() - clear pcap capture buffer and statistics
  *
- * @return	0 on success, -ERROR on error
+ * Return:	0 on success, -ERROR on error
  */
 int pcap_clear(void);
 
 /**
  * pcap_print_status() - print status of pcap capture
  *
- * @return	0 on success, -ERROR on error
+ * Return:	0 on success, -ERROR on error
  */
 int pcap_print_status(void);
 
 /**
  * pcap_active() - check if pcap is enabled
  *
- * @return	TRUE if active, FALSE if not.
+ * Return:	TRUE if active, FALSE if not.
  */
 bool pcap_active(void);
 
@@ -50,6 +50,6 @@ bool pcap_active(void);
  * @packet:	packet to post
  * @len:	packet length in bytes
  * @outgoing	packet direction (outgoing/incoming)
- * @return	0 on success, -ERROR on error
+ * Return:	0 on success, -ERROR on error
  */
 int pcap_post(const void *packet, size_t len, bool outgoing);

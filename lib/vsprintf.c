@@ -255,7 +255,7 @@ static char *number(char *buf, char *end, u64 num,
 	return buf;
 }
 
-static char *string(char *buf, char *end, char *s, int field_width,
+static char *string(char *buf, char *end, const char *s, int field_width,
 		int precision, int flags)
 {
 	int len, i;
@@ -387,12 +387,14 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
  *   %pUB:   01020304-0506-0708-090A-0B0C0D0E0F10
  *   %pUl:   04030201-0605-0807-090a-0b0c0d0e0f10
  *   %pUL:   04030201-0605-0807-090A-0B0C0D0E0F10
+ *   %pUs:   GUID text representation if known or fallback to %pUl
  */
 static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
 			 int precision, int flags, const char *fmt)
 {
 	char uuid[UUID_STR_LEN + 1];
 	int str_format;
+	const char *str;
 
 	switch (*(++fmt)) {
 	case 'L':
@@ -403,6 +405,13 @@ static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
 		break;
 	case 'B':
 		str_format = UUID_STR_FORMAT_STD | UUID_STR_UPPER_CASE;
+		break;
+	case 's':
+		str = uuid_guid_get_str(addr);
+		if (str)
+			return string(buf, end, str,
+				      field_width, precision, flags);
+		str_format = UUID_STR_FORMAT_GUID;
 		break;
 	default:
 		str_format = UUID_STR_FORMAT_STD;

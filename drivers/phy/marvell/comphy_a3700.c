@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <fdtdec.h>
+#include <fdt_support.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -985,12 +985,12 @@ void comphy_dedicated_phys_init(void)
 
 static int find_available_node_by_compatible(int offset, const char *compatible)
 {
-	do {
-		offset = fdt_node_offset_by_compatible(gd->fdt_blob, offset,
-						       compatible);
-	} while (offset > 0 && !fdtdec_get_is_enabled(gd->fdt_blob, offset));
+	fdt_for_each_node_by_compatible(offset, gd->fdt_blob, offset,
+					compatible)
+		if (fdtdec_get_is_enabled(gd->fdt_blob, offset))
+			return offset;
 
-	return offset;
+	return -1;
 }
 
 static bool comphy_a3700_find_lane(const int nodes[3], int node,

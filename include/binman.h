@@ -29,7 +29,7 @@ struct binman_entry {
  * @name: Name of entry
  * @bufp: Returns a pointer to the entry
  * @sizep: Returns the size of the entry
- * @return 0 on success, -EPERM if the ROM offset is not set, -ENOENT if the
+ * Return: 0 on success, -EPERM if the ROM offset is not set, -ENOENT if the
  *	entry cannot be found, other error code other error
  */
 int binman_entry_map(ofnode parent, const char *name, void **bufp, int *sizep);
@@ -57,7 +57,7 @@ int binman_get_rom_offset(void);
  *
  * @name: Path to entry to examine (e.g. "/read-only/u-boot")
  * @entry: Returns information about the entry
- * @return 0 if OK, -ENOENT if the path is not found, other -ve value if the
+ * Return: 0 if OK, -ENOENT if the path is not found, other -ve value if the
  *	binman information is invalid (missing image-pos or size)
  */
 int binman_entry_find(const char *name, struct binman_entry *entry);
@@ -66,7 +66,7 @@ int binman_entry_find(const char *name, struct binman_entry *entry);
  * binman_section_find_node() - Find a binman node
  *
  * @name: Name of node to look for
- * @return Node that was found, ofnode_null() if not found
+ * Return: Node that was found, ofnode_null() if not found
  */
 ofnode binman_section_find_node(const char *name);
 
@@ -78,7 +78,7 @@ ofnode binman_section_find_node(const char *name);
  *
  * @name: Name of subnode, typically a section. This must be in the top-level
  *	binman node
- * @return 0 if OK, -EINVAL if there is no /binman node, -ECHILD if multiple
+ * Return: 0 if OK, -EINVAL if there is no /binman node, -ECHILD if multiple
  *	images are being used but the first image is not available, -ENOENT if
  *	the requested subnode cannot be found
  */
@@ -89,7 +89,7 @@ int binman_select_subnode(const char *name);
  *
  * This locates the binary symbol information in the device tree ready for use
  *
- * @return 0 if OK, -ENOMEM if out of memory, -EINVAL if there is no binman node
+ * Return: 0 if OK, -ENOMEM if out of memory, -EINVAL if there is no binman node
  */
 int binman_init(void);
 

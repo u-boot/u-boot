@@ -55,7 +55,7 @@ int set_spi_clk(int periph_id, unsigned int rate);
  *
  * @param peripheral	Peripheral id
  *
- * @return frequency of the peripheral clk
+ * Return: frequency of the peripheral clk
  */
 unsigned long clock_get_periph_rate(int peripheral);
 

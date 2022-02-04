@@ -14,8 +14,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
-
 /* SPL */
 #define CONFIG_SPL_STACK		0x20000
 
@@ -27,7 +25,6 @@
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	(SZ_512K / 0x200)
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(SZ_32K / 0x200)
-#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	(SZ_1M / 0x200)
 
 /* Memory configuration */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */

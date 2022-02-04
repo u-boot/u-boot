@@ -29,7 +29,13 @@ ifneq ($(CONFIG_CHARSET),)
 obj-y += charset.o
 endif
 endif
-obj-$(CONFIG_USB_TTY) += circbuf.o
+
+ifdef CONFIG_USB_TTY
+obj-y += circbuf.o
+else
+obj-$(CONFIG_CIRCBUF) += circbuf.o
+endif
+
 obj-y += crc8.o
 obj-y += crc16.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
@@ -58,11 +64,12 @@ obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
 endif
 
-obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi/
+obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi/
 obj-$(CONFIG_$(SPL_)MD5) += md5.o
 obj-$(CONFIG_ECDSA) += ecdsa/
 obj-$(CONFIG_$(SPL_)RSA) += rsa/
 obj-$(CONFIG_HASH) += hash-checksum.o
+obj-$(CONFIG_BLAKE2) += blake2/blake2b.o
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
 obj-$(CONFIG_SHA512) += sha512.o

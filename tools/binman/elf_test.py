@@ -99,17 +99,17 @@ class TestElf(unittest.TestCase):
         """Test that we can obtain a symbol from the ELF file"""
         fname = self.ElfTestFile('u_boot_ucode_ptr')
         syms = elf.GetSymbols(fname, [])
-        self.assertIn('.ucode', syms)
+        self.assertIn('_dt_ucode_base_size', syms)
 
     def testRegexSymbols(self):
         """Test that we can obtain from the ELF file by regular expression"""
         fname = self.ElfTestFile('u_boot_ucode_ptr')
         syms = elf.GetSymbols(fname, ['ucode'])
-        self.assertIn('.ucode', syms)
+        self.assertIn('_dt_ucode_base_size', syms)
         syms = elf.GetSymbols(fname, ['missing'])
-        self.assertNotIn('.ucode', syms)
+        self.assertNotIn('_dt_ucode_base_size', syms)
         syms = elf.GetSymbols(fname, ['missing', 'ucode'])
-        self.assertIn('.ucode', syms)
+        self.assertIn('_dt_ucode_base_size', syms)
 
     def testMissingFile(self):
         """Test that a missing file is detected"""

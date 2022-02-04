@@ -112,7 +112,7 @@ struct phandle_1_arg;
  * @dev: Device containing the phandle
  * @cells: Phandle info
  * @clock: A pointer to a clock struct to initialise
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_get_by_phandle(struct udevice *dev, const struct phandle_1_arg *cells,
 		       struct clk *clk);
@@ -130,7 +130,7 @@ int clk_get_by_phandle(struct udevice *dev, const struct phandle_1_arg *cells,
  * @index:	The index of the clock to request, within the client's list of
  *		clocks.
  * @clock	A pointer to a clock struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
 
@@ -144,7 +144,7 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
  * @index:	The index of the clock to request, within the client's list of
  *		clocks.
  * @clock	A pointer to a clock struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk);
 
@@ -159,7 +159,7 @@ int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk);
  *
  * @dev:	The client device.
  * @bulk	A pointer to a clock bulk struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk);
 
@@ -176,7 +176,7 @@ int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk);
  * @name:	The name of the clock to request, within the client's list of
  *		clocks.
  * @clock:	A pointer to a clock struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
 
@@ -189,7 +189,7 @@ int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk);
  * @name:	The name of the clock to request, within the client's list of
  *		clocks.
  * @clock:	A pointer to a clock struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk);
 
@@ -249,7 +249,7 @@ struct clk *devm_clk_get_optional(struct udevice *dev, const char *id);
  * @clk:	A clock struct array that was previously successfully
  *		requested by clk_request/get_by_*().
  * @count	Number of clock contained in the array
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int clk_release_all(struct clk *clk, int count);
 
@@ -351,7 +351,7 @@ static inline int clk_set_defaults(struct udevice *dev, int stage)
  *
  * @clk:	A clock bulk struct that was previously successfully
  *		requested by clk_get_bulk().
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 static inline int clk_release_bulk(struct clk_bulk *bulk)
 {
@@ -371,7 +371,7 @@ static inline int clk_release_bulk(struct clk_bulk *bulk)
  * @clock:	A pointer to a clock struct to initialize. The caller must
  *		have already initialized any field in this struct which the
  *		clock provider uses to identify the clock.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_request(struct udevice *dev, struct clk *clk);
 
@@ -380,7 +380,7 @@ int clk_request(struct udevice *dev, struct clk *clk);
  *
  * @clock:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int clk_free(struct clk *clk);
 
@@ -389,7 +389,7 @@ int clk_free(struct clk *clk);
  *
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return clock rate in Hz on success, 0 for invalid clock, or -ve error code
+ * Return: clock rate in Hz on success, 0 for invalid clock, or -ve error code
  *	   for other errors.
  */
 ulong clk_get_rate(struct clk *clk);
@@ -399,7 +399,7 @@ ulong clk_get_rate(struct clk *clk);
  *
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return pointer to parent's struct clk, or error code passed as pointer
+ * Return: pointer to parent's struct clk, or error code passed as pointer
  */
 struct clk *clk_get_parent(struct clk *clk);
 
@@ -408,7 +408,7 @@ struct clk *clk_get_parent(struct clk *clk);
  *
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return clock rate in Hz, or -ve error code.
+ * Return: clock rate in Hz, or -ve error code.
  */
 long long clk_get_parent_rate(struct clk *clk);
 
@@ -431,7 +431,7 @@ long long clk_get_parent_rate(struct clk *clk);
  * @clk: A clock struct that was previously successfully requested by
  *       clk_request/get_by_*().
  * @rate: desired clock rate in Hz.
- * @return rounded rate in Hz, or -ve error code.
+ * Return: rounded rate in Hz, or -ve error code.
  */
 ulong clk_round_rate(struct clk *clk, ulong rate);
 
@@ -441,7 +441,7 @@ ulong clk_round_rate(struct clk *clk, ulong rate);
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
  * @rate:	New clock rate in Hz.
- * @return new rate, or -ve error code.
+ * Return: new rate, or -ve error code.
  */
 ulong clk_set_rate(struct clk *clk, ulong rate);
 
@@ -452,7 +452,7 @@ ulong clk_set_rate(struct clk *clk, ulong rate);
  *		clk_request/get_by_*().
  * @parent:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return new rate, or -ve error code.
+ * Return: new rate, or -ve error code.
  */
 int clk_set_parent(struct clk *clk, struct clk *parent);
 
@@ -461,7 +461,7 @@ int clk_set_parent(struct clk *clk, struct clk *parent);
  *
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int clk_enable(struct clk *clk);
 
@@ -470,7 +470,7 @@ int clk_enable(struct clk *clk);
  *
  * @bulk:	A clock bulk struct that was previously successfully requested
  *		by clk_get_bulk().
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int clk_enable_bulk(struct clk_bulk *bulk);
 
@@ -479,7 +479,7 @@ int clk_enable_bulk(struct clk_bulk *bulk);
  *
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int clk_disable(struct clk *clk);
 
@@ -488,7 +488,7 @@ int clk_disable(struct clk *clk);
  *
  * @bulk:	A clock bulk struct that was previously successfully requested
  *		by clk_get_bulk().
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int clk_disable_bulk(struct clk_bulk *bulk);
 
@@ -511,7 +511,7 @@ bool clk_is_match(const struct clk *p, const struct clk *q);
  *
  * @clkp:	A pointer to clock struct that has been found among added clocks
  *              to UCLASS_CLK
- * @return zero on success, or -ENOENT on error
+ * Return: zero on success, or -ENOENT on error
  */
 int clk_get_by_id(ulong id, struct clk **clkp);
 
@@ -520,7 +520,7 @@ int clk_get_by_id(ulong id, struct clk **clkp);
  *
  * @clk		A pointer to the clk
  *
- * @return true on binded, or false on no
+ * Return: true on binded, or false on no
  */
 bool clk_dev_binded(struct clk *clk);
 
@@ -606,7 +606,7 @@ static inline bool clk_dev_binded(struct clk *clk)
  * clk_valid() - check if clk is valid
  *
  * @clk:	the clock to check
- * @return true if valid, or false
+ * Return: true if valid, or false
  */
 static inline bool clk_valid(struct clk *clk)
 {

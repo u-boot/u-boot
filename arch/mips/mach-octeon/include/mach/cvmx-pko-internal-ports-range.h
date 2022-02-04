@@ -14,7 +14,7 @@
  *                    are requested.
  * @param  count      the number of internal ports requested
  *
- * @return  0 on success
+ * Return:  0 on success
  *         -1 on failure
  */
 int cvmx_pko_internal_ports_alloc(int interface, int port, u64 count);
@@ -26,7 +26,7 @@ int cvmx_pko_internal_ports_alloc(int interface, int port, u64 count);
  * @param  port       the index of the port within in the interface for which the internal ports
  *                    are requested.
  *
- * @return  0 on success
+ * Return:  0 on success
  *         -1 on failure
  */
 int cvmx_pko_internal_ports_free(int interface, int port);

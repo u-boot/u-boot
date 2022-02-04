@@ -6,4 +6,6 @@
 #ifndef __ASM_ACPI_TABLE_H__
 #define __ASM_ACPI_TABLE_H__
 
+ulong write_acpi_tables(ulong start);
+
 #endif /* __ASM_ACPI_TABLE_H__ */

@@ -213,7 +213,7 @@ void cvmx_ipd_set_wqe_pool_buffer_count(u64 buffer_count);
  * @param drop_thresh
  *               All incoming packets will be dropped when there are less
  *               than this many free packet buffers in FPA 0.
- * @return Zero on success. Negative on failure
+ * Return: Zero on success. Negative on failure
  */
 int cvmx_ipd_setup_red_queue(int queue, int pass_thresh, int drop_thresh);
 
@@ -226,7 +226,7 @@ int cvmx_ipd_setup_red_queue(int queue, int pass_thresh, int drop_thresh);
  * @param drop_thresh
  *               All incoming packets will be dropped when there are less
  *               than this many free packet buffers in FPA 0.
- * @return Zero on success. Negative on failure
+ * Return: Zero on success. Negative on failure
  */
 int cvmx_ipd_setup_red(int pass_thresh, int drop_thresh);
 

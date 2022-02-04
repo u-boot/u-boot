@@ -53,7 +53,7 @@ struct scmi_msg {
  *
  * @dev:	SCMI agent device
  * @msg:	Message structure reference
- * @return 0 on success and a negative errno on failure
+ * Return: 0 on success and a negative errno on failure
  */
 int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg);
 
@@ -61,7 +61,7 @@ int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg);
  * scmi_to_linux_errno() - Convert an SCMI error code into a Linux errno code
  *
  * @scmi_errno:	SCMI error code value
- * @return 0 for successful status and a negative errno otherwise
+ * Return: 0 for successful status and a negative errno otherwise
  */
 int scmi_to_linux_errno(s32 scmi_errno);
 

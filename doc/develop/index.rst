@@ -21,6 +21,7 @@ Implementation
    logging
    makefiles
    menus
+   printf
    uefi/index
    version
 
@@ -61,3 +62,11 @@ Refactoring
    checkpatch
    coccinelle
    moveconfig
+
+Code quality
+------------
+
+.. toctree::
+   :maxdepth: 1
+
+   python_cq

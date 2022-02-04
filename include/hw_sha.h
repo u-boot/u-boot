@@ -65,7 +65,7 @@ void hw_sha1(const uchar *in_addr, uint buflen, uchar *out_addr,
  *
  * @algo: Pointer to the hash_algo struct
  * @ctxp: Pointer to the pointer of the context for hashing
- * @return 0 if ok, -ve on error
+ * Return: 0 if ok, -ve on error
  */
 int hw_sha_init(struct hash_algo *algo, void **ctxp);
 
@@ -79,7 +79,7 @@ int hw_sha_init(struct hash_algo *algo, void **ctxp);
  * @buf: Pointer to the buffer being hashed
  * @size: Size of the buffer being hashed
  * @is_last: 1 if this is the last update; 0 otherwise
- * @return 0 if ok, -ve on error
+ * Return: 0 if ok, -ve on error
  */
 int hw_sha_update(struct hash_algo *algo, void *ctx, const void *buf,
 		  unsigned int size, int is_last);
@@ -93,7 +93,7 @@ int hw_sha_update(struct hash_algo *algo, void *ctx, const void *buf,
  * @ctx: Pointer to the context for hashing
  * @dest_buf: Pointer to the destination buffer where hash is to be copied
  * @size: Size of the buffer being hashed
- * @return 0 if ok, -ve on error
+ * Return: 0 if ok, -ve on error
  */
 int hw_sha_finish(struct hash_algo *algo, void *ctx, void *dest_buf,
 		  int size);

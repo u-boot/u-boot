@@ -67,7 +67,7 @@ struct fdt_cros_ec {
  * @param dev		CROS-EC device
  * @param id		Place to put the ID
  * @param maxlen	Maximum length of the ID field
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_read_id(struct udevice *dev, char *id, int maxlen);
 
@@ -78,7 +78,7 @@ int cros_ec_read_id(struct udevice *dev, char *id, int maxlen);
  *
  * @param dev		CROS-EC device
  * @param scan		Place to put the scan results
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan);
 
@@ -88,7 +88,7 @@ int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan);
  * Send a message requesting the next event and return the result.
  *
  * @param event		Place to put the event.
- * @return 0 if ok, <0 on error.
+ * Return: 0 if ok, <0 on error.
  */
 int cros_ec_get_next_event(struct udevice *dev,
 			   struct ec_response_get_next_event *event);
@@ -98,7 +98,7 @@ int cros_ec_get_next_event(struct udevice *dev,
  *
  * @param dev		CROS-EC device
  * @param image		Destination for image identifier
- * @return 0 if ok, <0 on error
+ * Return: 0 if ok, <0 on error
  */
 int cros_ec_read_current_image(struct udevice *dev,
 			       enum ec_current_image *image);
@@ -109,7 +109,7 @@ int cros_ec_read_current_image(struct udevice *dev,
  * @param dev		CROS-EC device
  * @param hash_offset	Offset in flash to read from
  * @param hash		Destination for hash information
- * @return 0 if ok, <0 on error
+ * Return: 0 if ok, <0 on error
  */
 int cros_ec_read_hash(struct udevice *dev, uint hash_offset,
 		      struct ec_response_vboot_hash *hash);
@@ -122,7 +122,7 @@ int cros_ec_read_hash(struct udevice *dev, uint hash_offset,
  * @param dev		CROS-EC device
  * @param cmd		Reboot command
  * @param flags         Flags for reboot command (EC_REBOOT_FLAG_*)
- * @return 0 if ok, <0 on error
+ * Return: 0 if ok, <0 on error
  */
 int cros_ec_reboot(struct udevice *dev, enum ec_reboot_cmd cmd, uint8_t flags);
 
@@ -133,7 +133,7 @@ int cros_ec_reboot(struct udevice *dev, enum ec_reboot_cmd cmd, uint8_t flags);
  * If no external interrupt is configured, this always returns 1.
  *
  * @param dev		CROS-EC device
- * @return 0 if no interrupt is pending
+ * Return: 0 if no interrupt is pending
  */
 int cros_ec_interrupt_pending(struct udevice *dev);
 
@@ -151,7 +151,7 @@ enum {
  *
  * @param blob		Device tree blob containing setup information
  * @param cros_ecp        Returns pointer to the cros_ec device, or NULL if none
- * @return 0 if we got an cros_ec device and all is well (or no cros_ec is
+ * Return: 0 if we got an cros_ec device and all is well (or no cros_ec is
  *	expected), -ve if we should have an cros_ec device but failed to find
  *	one, or init failed (-CROS_EC_ERR_...).
  */
@@ -170,7 +170,7 @@ int cros_ec_info(struct udevice *dev, struct ec_response_mkbp_info *info);
  *
  * @param dev		CROS-EC device
  * @param events_ptr	Destination for event flags.  Not changed on error.
- * @return 0 if ok, <0 on error
+ * Return: 0 if ok, <0 on error
  */
 int cros_ec_get_host_events(struct udevice *dev, uint32_t *events_ptr);
 
@@ -179,7 +179,7 @@ int cros_ec_get_host_events(struct udevice *dev, uint32_t *events_ptr);
  *
  * @param dev		CROS-EC device
  * @param events	Event flags to clear
- * @return 0 if ok, <0 on error
+ * Return: 0 if ok, <0 on error
  */
 int cros_ec_clear_host_events(struct udevice *dev, uint32_t events);
 
@@ -192,7 +192,7 @@ int cros_ec_clear_host_events(struct udevice *dev, uint32_t events);
  * @param set_flags	New flag values; only bits in set_mask are applied;
  *                      ignored if set_mask=0.
  * @param prot          Destination for updated protection state from EC.
- * @return 0 if ok, <0 on error
+ * Return: 0 if ok, <0 on error
  */
 int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
 			  uint32_t set_flags,
@@ -202,7 +202,7 @@ int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
  * Run internal tests on the cros_ec interface.
  *
  * @param dev		CROS-EC device
- * @return 0 if ok, <0 if the test failed
+ * Return: 0 if ok, <0 if the test failed
  */
 int cros_ec_test(struct udevice *dev);
 
@@ -212,7 +212,7 @@ int cros_ec_test(struct udevice *dev);
  * @param dev		CROS-EC device
  * @param image		the content to write
  * @param imafge_size	content length
- * @return 0 if ok, <0 if the test failed
+ * Return: 0 if ok, <0 if the test failed
  */
 int cros_ec_flash_update_rw(struct udevice *dev, const uint8_t  *image,
 			    int image_size);
@@ -220,7 +220,7 @@ int cros_ec_flash_update_rw(struct udevice *dev, const uint8_t  *image,
 /**
  * Return a pointer to the board's CROS-EC device
  *
- * @return pointer to CROS-EC device, or NULL if none is available
+ * Return: pointer to CROS-EC device, or NULL if none is available
  */
 struct udevice *board_get_cros_ec_dev(void);
 
@@ -302,7 +302,7 @@ void cros_ec_dump_data(const char *name, int cmd, const uint8_t *data, int len);
  *
  * @param data	Data block to checksum
  * @param size	Size of data block in bytes
- * @return checksum value (0 to 255)
+ * Return: checksum value (0 to 255)
  */
 int cros_ec_calc_checksum(const uint8_t *data, int size);
 
@@ -321,7 +321,7 @@ int cros_ec_flash_erase(struct udevice *dev, uint32_t offset, uint32_t size);
  * @param data		Pointer to data buffer to read into
  * @param offset	Offset within flash to read from
  * @param size		Number of bytes to read
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_flash_read(struct udevice *dev, uint8_t *data, uint32_t offset,
 		       uint32_t size);
@@ -353,7 +353,7 @@ int cros_ec_read_flashinfo(struct udevice *dev,
  * @param data		Pointer to data buffer to write
  * @param offset	Offset within flash to write to.
  * @param size		Number of bytes to write
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_flash_write(struct udevice *dev, const uint8_t *data,
 			uint32_t offset, uint32_t size);
@@ -365,7 +365,7 @@ int cros_ec_flash_write(struct udevice *dev, const uint8_t *data,
  * @param region	Flash region to query
  * @param offset	Returns offset of flash region in EC flash
  * @param size		Returns size of flash region
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_flash_offset(struct udevice *dev, enum ec_flash_region region,
 			 uint32_t *offset, uint32_t *size);
@@ -383,7 +383,7 @@ int cros_ec_get_sku_id(struct udevice *dev);
  *
  * @param dev		CROS-EC device
  * @param block		Buffer of VbNvContext to be read/write
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_read_nvdata(struct udevice *dev, uint8_t *block, int size);
 int cros_ec_write_nvdata(struct udevice *dev, const uint8_t *block, int size);
@@ -393,7 +393,7 @@ int cros_ec_write_nvdata(struct udevice *dev, const uint8_t *block, int size);
  *
  * @param dev		CROS-EC device
  * @param versionp	This is set to point to the version information
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_read_version(struct udevice *dev,
 			 struct ec_response_get_version **versionp);
@@ -403,7 +403,7 @@ int cros_ec_read_version(struct udevice *dev,
  *
  * @param dev		CROS-EC device
  * @param versionp	This is set to point to the build string
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_read_build_info(struct udevice *dev, char **strp);
 
@@ -413,7 +413,7 @@ int cros_ec_read_build_info(struct udevice *dev, char **strp);
  * @param dev		CROS-EC device
  * @param index		index of the LDO/FET to switch
  * @param state		new state of the LDO/FET : EC_LDO_STATE_ON|OFF
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state);
 
@@ -423,7 +423,7 @@ int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state);
  * @param dev		CROS-EC device
  * @param index		index of the LDO/FET to switch
  * @param state		current state of the LDO/FET : EC_LDO_STATE_ON|OFF
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state);
 
@@ -433,7 +433,7 @@ int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state);
  * This permits delayed reporting of the EC error if it failed during
  * early init.
  *
- * @return error (0 if there was no error, -ve if there was an error)
+ * Return: error (0 if there was no error, -ve if there was an error)
  */
 int cros_ec_get_error(void);
 
@@ -468,7 +468,7 @@ int cros_ec_i2c_tunnel(struct udevice *dev, int port, struct i2c_msg *msg,
 /**
  * cros_ec_get_events_b() - Get event mask B
  *
- * @return value of event mask, default value of 0 if it could not be read
+ * Return: value of event mask, default value of 0 if it could not be read
  */
 uint64_t cros_ec_get_events_b(struct udevice *dev);
 
@@ -477,7 +477,7 @@ uint64_t cros_ec_get_events_b(struct udevice *dev);
  *
  * Any pending events in the B range are cleared
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_clear_events_b(struct udevice *dev, uint64_t mask);
 
@@ -486,7 +486,7 @@ int cros_ec_clear_events_b(struct udevice *dev, uint64_t mask);
  *
  * @param dev		CROS-EC device
  * @param region	Flash region to query
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_efs_verify(struct udevice *dev, enum ec_flash_region region);
 
@@ -499,7 +499,7 @@ int cros_ec_efs_verify(struct udevice *dev, enum ec_flash_region region);
  *
  * @param dev		CROS-EC device
  * @param flags		Flags to use (EC_BATTERY_CUTOFF_FLAG_...)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_battery_cutoff(struct udevice *dev, uint8_t flags);
 
@@ -512,7 +512,7 @@ int cros_ec_battery_cutoff(struct udevice *dev, uint8_t flags);
  * @param dev		CROS-EC device
  * @param index		Index of the pwm
  * @param duty		Desired duty cycle, in 0..EC_PWM_MAX_DUTY range.
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_set_pwm_duty(struct udevice *dev, uint8_t index, uint16_t duty);
 
@@ -524,7 +524,7 @@ int cros_ec_set_pwm_duty(struct udevice *dev, uint8_t index, uint16_t duty);
  *
  * @param dev		CROS-EC device
  * @param limit_powerp	Returns whether power is limited (0 or 1)
- * @return 0 if OK, -ENOSYS if the EC does not support this comment, -EINVAL
+ * Return: 0 if OK, -ENOSYS if the EC does not support this comment, -EINVAL
  *		if the EC returned an invalid response
  */
 int cros_ec_read_limit_power(struct udevice *dev, int *limit_powerp);
@@ -534,7 +534,7 @@ int cros_ec_read_limit_power(struct udevice *dev, int *limit_powerp);
  *
  * @param dev		CROS-EC device
  * @param flags		Flags to use (EC_POWER_BUTTON_...)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_config_powerbtn(struct udevice *dev, uint32_t flags);
 
@@ -544,7 +544,7 @@ int cros_ec_config_powerbtn(struct udevice *dev, uint32_t flags);
  * Determines whether a lid close event is reported
  *
  * @param dev		CROS-EC device
- * @return shufdown mas if OK, -ve on error
+ * Return: shufdown mas if OK, -ve on error
  */
 int cros_ec_get_lid_shutdown_mask(struct udevice *dev);
 
@@ -555,7 +555,7 @@ int cros_ec_get_lid_shutdown_mask(struct udevice *dev);
  *
  * @param dev		CROS-EC device
  * @param enable	true to enable reporting, false to disable
- * @return shufdown mas if OK, -ve on error
+ * Return: shufdown mas if OK, -ve on error
  */
 int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable);
 
@@ -567,7 +567,7 @@ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable);
  *
  * @dev: CROS-EC device
  * @handshakep: If non-NULL, returns received handshake value on error
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_hello(struct udevice *dev, uint *handshakep);
 
@@ -578,7 +578,7 @@ int cros_ec_hello(struct udevice *dev, uint *handshakep);
  *
  * @dev: CROS-EC device
  * @featuresp: Returns a bitmask of supported features
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_get_features(struct udevice *dev, u64 *featuresp);
 
@@ -587,7 +587,7 @@ int cros_ec_get_features(struct udevice *dev, u64 *featuresp);
  *
  * @dev: CROS-EC device
  * @feature: Feature number to check (enum ec_feature_code)
- * @return true if supported, false if not, -ve on error
+ * Return: true if supported, false if not, -ve on error
  */
 int cros_ec_check_feature(struct udevice *dev, uint feature);
 
@@ -595,7 +595,7 @@ int cros_ec_check_feature(struct udevice *dev, uint feature);
  * cros_ec_get_switches() - Get switches value
  *
  * @dev: CROS-EC device
- * @return switches value, or -ENOSYS if not supported, or other -ve value on
+ * Return: switches value, or -ENOSYS if not supported, or other -ve value on
  *	other error
  */
 int cros_ec_get_switches(struct udevice *dev);
@@ -604,7 +604,7 @@ int cros_ec_get_switches(struct udevice *dev);
  * cros_ec_vstore_supported() - Check if vstore is supported
  *
  * @dev: CROS-EC device
- * @return false if not supported, true if supported, -ve on error
+ * Return: false if not supported, true if supported, -ve on error
  */
 int cros_ec_vstore_supported(struct udevice *dev);
 
@@ -613,7 +613,7 @@ int cros_ec_vstore_supported(struct udevice *dev);
  *
  * @dev: CROS-EC device
  * @lockedp: mask of locked slots
- * @return number of vstore slots supported by the EC,, -ve on error
+ * Return: number of vstore slots supported by the EC,, -ve on error
  */
 int cros_ec_vstore_info(struct udevice *dev, u32 *lockedp);
 
@@ -623,7 +623,7 @@ int cros_ec_vstore_info(struct udevice *dev, u32 *lockedp);
  * @dev: CROS-EC device
  * @slot: vstore slot to read from
  * @data: buffer to store read data, must be EC_VSTORE_SLOT_SIZE bytes
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_vstore_read(struct udevice *dev, int slot, uint8_t *data);
 
@@ -638,7 +638,7 @@ int cros_ec_vstore_read(struct udevice *dev, int slot, uint8_t *data);
  * @slot: vstore slot to write into
  * @data: data to write
  * @size: size of data in bytes
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_vstore_write(struct udevice *dev, int slot, const uint8_t *data,
 			 size_t size);

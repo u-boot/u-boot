@@ -44,8 +44,9 @@ int ecdsa_sign(struct image_sign_info *info, const struct image_region region[],
  *
  * @info:	Specifies key and FIT information
  * @keydest:	Destination FDT blob for public key data
- * @return: 0, on success, -ENOSPC if the keydest FDT blob ran out of space,
- * other -ve value on error
+ * @return: node offset within the FDT blob where the data was written on
+ *	success, -ENOSPC if the keydest FDT blob ran out of space, other -ve
+ *	value on other error
  */
 int ecdsa_add_verify_data(struct image_sign_info *info, void *keydest);
 
@@ -57,7 +58,7 @@ int ecdsa_add_verify_data(struct image_sign_info *info, void *keydest);
  * @data_len:	Data length
  * @sig:	Signature
  * @sig_len:	Number of bytes in signature
- * @return 0 if verified, -ve on error
+ * Return: 0 if verified, -ve on error
  */
 int ecdsa_verify(struct image_sign_info *info,
 		 const struct image_region region[], int region_count,

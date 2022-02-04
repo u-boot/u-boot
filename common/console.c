@@ -213,7 +213,7 @@ static int console_setfile(int file, struct stdio_dev * dev)
  * console_dev_is_serial() - Check if a stdio device is a serial device
  *
  * @sdev: Device to check
- * @return true if this device is in the serial uclass (or for pre-driver-model,
+ * Return: true if this device is in the serial uclass (or for pre-driver-model,
  * whether it is called "serial".
  */
 static bool console_dev_is_serial(struct stdio_dev *sdev)

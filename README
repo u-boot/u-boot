@@ -1138,11 +1138,6 @@ The following options need to be configured:
 		server to contact when using the "tftboot" command.
 		(Environment variable "serverip")
 
-		CONFIG_KEEP_SERVERADDR
-
-		Keeps the server's MAC address, in the env 'serveraddr'
-		for passing to bootargs (like Linux's netconsole option)
-
 - Gateway IP address:
 		CONFIG_GATEWAYIP
 
@@ -1207,9 +1202,6 @@ The following options need to be configured:
 		CONFIG_BOOTP_TIMEOFFSET
 		CONFIG_BOOTP_VENDOREX
 		CONFIG_BOOTP_MAY_FAIL
-
-		CONFIG_BOOTP_SERVERIP - TFTP server will be the serverip
-		environment variable, not the BOOTP server.
 
 		CONFIG_BOOTP_MAY_FAIL - If the DHCP server is not found
 		after the configured retry count, the call will fail
@@ -1879,10 +1871,6 @@ The following options need to be configured:
 		CONFIG_SPL_INIT_MINIMAL
 		Arch init code should be built for a very small image
 
-		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
-		Sector to load kernel uImage from when MMC is being
-		used in raw mode (for Falcon mode)
-
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS
 		Sector and number of sectors to load kernel argument
@@ -2156,9 +2144,6 @@ Configuration Settings:
 - CONFIG_SYS_BOOT_GET_KBD:
 		Enables allocating and saving a kernel copy of the bd_info in
 		space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
-
-- CONFIG_SYS_MAX_FLASH_BANKS:
-		Max number of Flash memory banks
 
 - CONFIG_SYS_MAX_FLASH_SECT:
 		Max number of sectors on a Flash chip

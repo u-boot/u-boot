@@ -151,7 +151,7 @@ struct video_ops {
  *
  * @addrp:	On entry, the top of available memory. On exit, the new top,
  *		after allocating the required memory.
- * @return 0
+ * Return: 0
  */
 int video_reserve(ulong *addrp);
 
@@ -160,7 +160,7 @@ int video_reserve(ulong *addrp);
  * video_clear() - Clear a device's frame buffer to background color.
  *
  * @dev:	Device to clear
- * @return 0
+ * Return: 0
  */
 int video_clear(struct udevice *dev);
 #endif /* CONFIG_DM_VIDEO */
@@ -202,7 +202,7 @@ void video_sync_all(void);
  *		- if a coordinate is -ve then it will be offset to the
  *		  left/top of the centre by that many pixels
  *		- if a coordinate is positive it will be used unchnaged.
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		      bool align);
@@ -211,7 +211,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
  * video_get_xsize() - Get the width of the display in pixels
  *
  * @dev:	Device to check
- * @return device frame buffer width in pixels
+ * Return: device frame buffer width in pixels
  */
 int video_get_xsize(struct udevice *dev);
 
@@ -219,7 +219,7 @@ int video_get_xsize(struct udevice *dev);
  * video_get_ysize() - Get the height of the display in pixels
  *
  * @dev:	Device to check
- * @return device frame buffer height in pixels
+ * Return: device frame buffer height in pixels
  */
 int video_get_ysize(struct udevice *dev);
 
@@ -251,7 +251,7 @@ void video_set_default_colors(struct udevice *dev, bool invert);
  * @dev: Vidconsole device being updated
  * @from: Start/end address within the framebuffer (->fb)
  * @to: Other address within the frame buffer
- * @return 0 if OK, -EFAULT if the start address is before the start of the
+ * Return: 0 if OK, -EFAULT if the start address is before the start of the
  *	frame buffer start
  */
 int video_sync_copy(struct udevice *dev, void *from, void *to);
@@ -260,7 +260,7 @@ int video_sync_copy(struct udevice *dev, void *from, void *to);
  * video_sync_copy_all() - Sync the entire framebuffer to the copy
  *
  * @dev: Vidconsole device being updated
- * @return 0 (always)
+ * Return: 0 (always)
  */
 int video_sync_copy_all(struct udevice *dev);
 #else
@@ -279,7 +279,7 @@ static inline int video_sync_copy_all(struct udevice *dev)
 /**
  * video_is_active() - Test if one video device it active
  *
- * @return true if at least one video device is active, else false.
+ * Return: true if at least one video device is active, else false.
  */
 bool video_is_active(void);
 
@@ -299,28 +299,28 @@ int video_display_bitmap(ulong bmp_image, int x, int y);
 /**
  * Get the width of the screen in pixels
  *
- * @return width of screen in pixels
+ * Return: width of screen in pixels
  */
 int video_get_pixel_width(void);
 
 /**
  * Get the height of the screen in pixels
  *
- * @return height of screen in pixels
+ * Return: height of screen in pixels
  */
 int video_get_pixel_height(void);
 
 /**
  * Get the number of text lines/rows on the screen
  *
- * @return number of rows
+ * Return: number of rows
  */
 int video_get_screen_rows(void);
 
 /**
  * Get the number of text columns on the screen
  *
- * @return number of columns
+ * Return: number of columns
  */
 int video_get_screen_columns(void);
 

@@ -423,7 +423,7 @@ static int apic_wait_timeout(int total_delay, const char *msg)
  *
  * @num_aps: Number of APs we expect to find
  * @ap_count: Initially zero. Incremented by this function for each AP found
- * @return 0 if all APs were set up correctly or there are none to set up,
+ * Return: 0 if all APs were set up correctly or there are none to set up,
  *	-ENOSPC if the SIPI vector is too high in memory,
  *	-ETIMEDOUT if the ICR is busy or the second SIPI fails to complete
  *	-EIO if not all APs check in correctly
@@ -536,7 +536,7 @@ static int bsp_do_flight_plan(struct udevice *cpu, struct mp_flight_plan *plan,
  *
  * @devp: If non-NULL, returns CPU device corresponding to the BSP
  * @cpu_countp: If non-NULL, returns the total number of CPUs
- * @return CPU number of the BSP, or -ve on error. If multiprocessing is not
+ * Return: CPU number of the BSP, or -ve on error. If multiprocessing is not
  *	enabled, returns 0
  */
 static int get_bsp(struct udevice **devp, int *cpu_countp)
@@ -573,7 +573,7 @@ static int get_bsp(struct udevice **devp, int *cpu_countp)
  * pointer to new instructions
  *
  * @slot: Pointer to the AP's callback slot
- * @return value of that pointer
+ * Return: value of that pointer
  */
 static struct mp_callback *read_callback(struct mp_callback **slot)
 {
@@ -610,7 +610,7 @@ static void store_callback(struct mp_callback **slot, struct mp_callback *val)
  * @num_cpus: The number of CPUs in the system (= number of APs + 1)
  * @expire_ms: Timeout to wait for all APs to finish, in milliseconds, or 0 for
  *	no timeout
- * @return 0 if OK, -ETIMEDOUT if one or more APs failed to respond in time
+ * Return: 0 if OK, -ETIMEDOUT if one or more APs failed to respond in time
  */
 static int run_ap_work(struct mp_callback *callback, struct udevice *bsp,
 		       int num_cpus, uint expire_ms)
@@ -670,7 +670,7 @@ static int run_ap_work(struct mp_callback *callback, struct udevice *bsp,
  *
  * @cpu: CPU that is waiting
  * @unused: Optional argument provided by struct mp_flight_record, not used here
- * @return Does not return
+ * Return: Does not return
  */
 static int ap_wait_for_instruction(struct udevice *cpu, void *unused)
 {

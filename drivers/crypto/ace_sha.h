@@ -306,7 +306,7 @@ struct exynos_ace_sfr {
  *			should allocate at least 32 bytes at pOut in advance.
  * @param hash_type SHA1 or SHA256
  *
- * @return		0 on Success, -1 on Failure (Timeout)
+ * Return:		0 on Success, -1 on Failure (Timeout)
  */
 int ace_sha_hash_digest(const uchar * in_addr, uint buflen,
 			uchar * out_addr, uint hash_type);

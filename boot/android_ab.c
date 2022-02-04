@@ -22,7 +22,7 @@
  *
  * @param[in] abc bootloader control block
  *
- * @return crc32 sum
+ * Return: crc32 sum
  */
 static uint32_t ab_control_compute_crc(struct bootloader_control *abc)
 {
@@ -38,7 +38,7 @@ static uint32_t ab_control_compute_crc(struct bootloader_control *abc)
  *
  * @param[in] abc bootloader control block
  *
- * @return 0 on success and a negative on error
+ * Return: 0 on success and a negative on error
  */
 static int ab_control_default(struct bootloader_control *abc)
 {
@@ -81,7 +81,7 @@ static int ab_control_default(struct bootloader_control *abc)
  * @param[in] part_info Partition in 'dev_desc' where to read from, normally
  *			the "misc" partition should be used
  * @param[out] pointer to pointer to bootloader_control data
- * @return 0 on success and a negative on error
+ * Return: 0 on success and a negative on error
  */
 static int ab_control_create_from_disk(struct blk_desc *dev_desc,
 				       const struct disk_partition *part_info,
@@ -131,7 +131,7 @@ static int ab_control_create_from_disk(struct blk_desc *dev_desc,
  * @param[in] part_info Partition on the 'dev_desc' where to write
  * @param[in] abc Pointer to the boot control struct and the extra bytes after
  *                it up to the nearest block boundary
- * @return 0 on success and a negative on error
+ * Return: 0 on success and a negative on error
  */
 static int ab_control_store(struct blk_desc *dev_desc,
 			    const struct disk_partition *part_info,
@@ -160,7 +160,7 @@ static int ab_control_store(struct blk_desc *dev_desc,
  *
  * @param[in] a The first bootable slot metadata
  * @param[in] b The second bootable slot metadata
- * @return Negative if the slot "a" is better, positive of the slot "b" is
+ * Return: Negative if the slot "a" is better, positive of the slot "b" is
  *         better or 0 if they are equally good.
  */
 static int ab_compare_slots(const struct slot_metadata *a,

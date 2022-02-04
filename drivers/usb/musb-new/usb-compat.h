@@ -72,7 +72,7 @@ static inline int usb_hcd_unmap_urb_for_dma(struct usb_hcd *hcd,
  * usb_dev_get_parent() - Get the parent of a USB device
  *
  * @udev: USB struct containing information about the device
- * @return associated device for which udev == dev_get_parent_priv(dev)
+ * Return: associated device for which udev == dev_get_parent_priv(dev)
  */
 struct usb_device *usb_dev_get_parent(struct usb_device *udev);
 

@@ -59,7 +59,7 @@ DM_TEST(dm_test_video_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
  *
  * @uts:	Test state
  * @dev:	Video device
- * @return compressed size of the frame buffer, or -ve on error
+ * Return: compressed size of the frame buffer, or -ve on error
  */
 static int compress_frame_buffer(struct unit_test_state *uts,
 				 struct udevice *dev)
@@ -120,7 +120,7 @@ static int select_vidconsole(struct unit_test_state *uts, const char *drv_name)
  *
  * @uts: Test state
  * @devp: Returns video device
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int video_get_nologo(struct unit_test_state *uts, struct udevice **devp)
 {
@@ -233,7 +233,7 @@ DM_TEST(dm_test_video_ansi, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
  *		2=upside down, 3=90 degree counterclockwise)
  * @wrap_size:	Expected size of compressed frame buffer for the wrap test
  * @scroll_size: Same for the scroll test
- * @return 0 on success
+ * Return: 0 on success
  */
 static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 				   int wrap_size, int scroll_size)

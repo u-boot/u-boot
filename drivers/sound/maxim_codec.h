@@ -34,7 +34,7 @@ struct maxim_priv {
  * @param reg	reg number to be write
  * @param data	data to be writen to the above registor
  *
- * @return	int value 1 for change, 0 for no change or negative error code.
+ * Return:	int value 1 for change, 0 for no change or negative error code.
  */
 int maxim_i2c_write(struct maxim_priv *priv, unsigned int reg,
 		    unsigned char data);
@@ -46,7 +46,7 @@ int maxim_i2c_write(struct maxim_priv *priv, unsigned int reg,
  * @param reg	reg number to be read
  * @param data	address of read data to be stored
  *
- * @return	int value 0 for success, -1 in case of error.
+ * Return:	int value 0 for success, -1 in case of error.
  */
 unsigned int maxim_i2c_read(struct maxim_priv *priv, unsigned int reg,
 			    unsigned char *data);
@@ -59,7 +59,7 @@ unsigned int maxim_i2c_read(struct maxim_priv *priv, unsigned int reg,
  * @param mask	register mask
  * @param value	new value
  *
- * @return int value 0 for success, non-zero error code.
+ * Return: int value 0 for success, non-zero error code.
  */
 int maxim_bic_or(struct maxim_priv *priv, unsigned int reg, unsigned char mask,
 		 unsigned char value);

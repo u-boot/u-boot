@@ -130,7 +130,7 @@ struct dsa_pdata {
  * @tailroom:	Size, in bytes, of tailroom needed for the DSA tag.
  *		Total headroom and tailroom size should not exceed
  *		DSA_MAX_OVR.
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom);
 
@@ -142,7 +142,7 @@ int dsa_set_tagging(struct udevice *dev, ushort headroom, ushort tailroom);
  * Can be called at driver probe time or later.
  *
  * @dev:	DSA device pointer
- * @return Master Eth 'udevice' pointer if OK, NULL on error
+ * Return: Master Eth 'udevice' pointer if OK, NULL on error
  */
 struct udevice *dsa_get_master(struct udevice *dev);
 
@@ -153,7 +153,7 @@ struct udevice *dsa_get_master(struct udevice *dev);
  *
  * @dev:	DSA switch udevice pointer
  * @port:	Port index
- * @return OF node reference if OK, NULL on error
+ * Return: OF node reference if OK, NULL on error
  */
 ofnode dsa_port_get_ofnode(struct udevice *dev, int port);
 
@@ -164,7 +164,7 @@ ofnode dsa_port_get_ofnode(struct udevice *dev, int port);
  * Can be called at driver probe time or later.
  *
  * @pdev:	DSA port device pointer
- * @return 'dsa_port_pdata' pointer if OK, NULL on error
+ * Return: 'dsa_port_pdata' pointer if OK, NULL on error
  */
 static inline struct dsa_port_pdata *
 	dsa_port_get_pdata(struct udevice *pdev)

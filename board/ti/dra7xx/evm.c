@@ -628,7 +628,7 @@ int get_voltrail_opp(int rail_offset)
 /**
  * @brief board_init
  *
- * @return 0
+ * Return: 0
  */
 int board_init(void)
 {

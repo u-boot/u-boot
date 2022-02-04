@@ -102,7 +102,7 @@ static struct tmu_info gbl_info;
  * then calculate and calibrate it's value
  * in degree celsius.
  *
- * @return	current temperature of the chip as sensed by TMU
+ * Return:	current temperature of the chip as sensed by TMU
  */
 static int get_cur_temp(struct tmu_info *info)
 {
@@ -135,7 +135,7 @@ static int get_cur_temp(struct tmu_info *info)
  * Monitors status of the TMU device and exynos temperature
  *
  * @param temp	pointer to the current temperature value
- * @return	enum tmu_status_t value, code indicating event to execute
+ * Return:	enum tmu_status_t value, code indicating event to execute
  */
 enum tmu_status_t tmu_monitor(int *temp)
 {
@@ -177,7 +177,7 @@ enum tmu_status_t tmu_monitor(int *temp)
  *
  * @param info	pointer to the tmu_info struct
  * @param blob  FDT blob
- * @return	int value, 0 for success
+ * Return:	int value, 0 for success
  */
 static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
 {
@@ -332,7 +332,7 @@ static void tmu_setup_parameters(struct tmu_info *info)
  * Initialize TMU device
  *
  * @param blob  FDT blob
- * @return	int value, 0 for success
+ * Return:	int value, 0 for success
  */
 int tmu_init(const void *blob)
 {

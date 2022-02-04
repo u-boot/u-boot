@@ -437,7 +437,7 @@ static inline int octeon_has_feature_OCTEON_FEATURE_PTP(void)
 /*
  * Answer ``Is the bit for feature set in the bitmap?''
  * @param feature
- * @return 1 when the feature is present and 0 otherwise, -1 in case of error.
+ * Return: 1 when the feature is present and 0 otherwise, -1 in case of error.
  */
 #define octeon_has_feature(feature_x) octeon_has_feature_##feature_x()
 

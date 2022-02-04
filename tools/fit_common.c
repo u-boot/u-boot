@@ -26,9 +26,17 @@
 int fit_verify_header(unsigned char *ptr, int image_size,
 			struct image_tool_params *params)
 {
-	if (fdt_check_header(ptr) != EXIT_SUCCESS ||
-	    fit_check_format(ptr, IMAGE_SIZE_INVAL))
+	int ret;
+
+	if (fdt_check_header(ptr) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
+
+	ret = fit_check_format(ptr, IMAGE_SIZE_INVAL);
+	if (ret) {
+		if (ret != -EADDRNOTAVAIL)
+			return EXIT_FAILURE;
+		fprintf(stderr, "Image contains unit addresses @, this will break signing\n");
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -110,4 +118,73 @@ err:
 		unlink(fname);
 
 	return -1;
+}
+
+int copyfile(const char *src, const char *dst)
+{
+	int fd_src = -1, fd_dst = -1;
+	void *buf = NULL;
+	ssize_t size;
+	size_t count;
+	int ret = -1;
+
+	fd_src = open(src, O_RDONLY);
+	if (fd_src < 0) {
+		printf("Can't open file %s (%s)\n", src, strerror(errno));
+		goto out;
+	}
+
+	fd_dst = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	if (fd_dst < 0) {
+		printf("Can't open file %s (%s)\n", dst, strerror(errno));
+		goto out;
+	}
+
+	buf = calloc(1, 512);
+	if (!buf) {
+		printf("Can't allocate buffer to copy file\n");
+		goto out;
+	}
+
+	while (1) {
+		size = read(fd_src, buf, 512);
+		if (size < 0) {
+			printf("Can't read file %s\n", src);
+			goto out;
+		}
+		if (!size)
+			break;
+
+		count = size;
+		size = write(fd_dst, buf, count);
+		if (size < 0) {
+			printf("Can't write file %s\n", dst);
+			goto out;
+		}
+	}
+
+	ret = 0;
+
+ out:
+	if (fd_src >= 0)
+		close(fd_src);
+	if (fd_dst >= 0)
+		close(fd_dst);
+	if (buf)
+		free(buf);
+
+	return ret;
+}
+
+void summary_show(struct image_summary *summary, const char *imagefile,
+		  const char *keydest)
+{
+	if (summary->sig_offset) {
+		printf("Signature written to '%s', node '%s'\n", imagefile,
+		       summary->sig_path);
+		if (keydest) {
+			printf("Public key written to '%s', node '%s'\n",
+			       keydest, summary->keydest_path);
+		}
+	}
 }

@@ -96,7 +96,7 @@ static int convert_ciu_fuse_to_physical_core(int core, int max_cores)
  * @param	num_tads	number of tads
  * @param	max_cores	maximum number of cores
  *
- * @return	void
+ * Return:	void
  */
 void fill_tad_corecount(u64 coremask, int tad_blown_count[], int num_tads,
 			int max_cores)
@@ -132,7 +132,7 @@ u64 get_core_pattern(int num_tads, int max_cores)
  * CIU_FUSE register value. For other models there is no difference.
  *
  * @param ciu_fuse_value	fuse value from CIU_FUSE register
- * @return logical coremask of CIU_FUSE value.
+ * Return: logical coremask of CIU_FUSE value.
  */
 u64 get_logical_coremask(u64 ciu_fuse_value)
 {
@@ -173,7 +173,7 @@ u64 get_logical_coremask(u64 ciu_fuse_value)
  * If the fuses are blown and locked, they are the definitive coremask.
  *
  * @param pcm	pointer to coremask to fill in
- * @return pointer to coremask
+ * Return: pointer to coremask
  */
 struct cvmx_coremask *octeon_get_available_coremask(struct cvmx_coremask *pcm)
 {

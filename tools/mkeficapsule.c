@@ -7,6 +7,7 @@
 #include <getopt.h>
 #include <malloc.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,27 +52,132 @@ static struct option options[] = {
 static void print_usage(void)
 {
 	printf("Usage: %s [options] <output file>\n"
-	       "Options:\n"
+		"Options:\n"
 
-	       "\t-f, --fit <fit image>       new FIT image file\n"
-	       "\t-r, --raw <raw image>       new raw image file\n"
-	       "\t-i, --index <index>         update image index\n"
-	       "\t-I, --instance <instance>   update hardware instance\n"
-	       "\t-h, --help                  print a help message\n",
-	       tool_name);
+		"\t-f, --fit <fit image>       new FIT image file\n"
+		"\t-r, --raw <raw image>       new raw image file\n"
+		"\t-i, --index <index>         update image index\n"
+		"\t-I, --instance <instance>   update hardware instance\n"
+		"\t-h, --help                  print a help message\n",
+		tool_name);
 }
 
+/**
+ * read_bin_file - read a firmware binary file
+ * @bin:	Path to a firmware binary file
+ * @data:	Pointer to pointer of allocated buffer
+ * @bin_size:	Size of allocated buffer
+ *
+ * Read out a content of binary, @bin, into @data.
+ * A caller should free @data.
+ *
+ * Return:
+ * * 0  - on success
+ * * -1 - on failure
+ */
+static int read_bin_file(char *bin, void **data, off_t *bin_size)
+{
+	FILE *g;
+	struct stat bin_stat;
+	void *buf;
+	size_t size;
+	int ret = 0;
+
+	g = fopen(bin, "r");
+	if (!g) {
+		fprintf(stderr, "cannot open %s\n", bin);
+		return -1;
+	}
+	if (stat(bin, &bin_stat) < 0) {
+		fprintf(stderr, "cannot determine the size of %s\n", bin);
+		ret = -1;
+		goto err;
+	}
+	if (bin_stat.st_size > SIZE_MAX) {
+		fprintf(stderr, "file size is too large for malloc: %s\n", bin);
+		ret = -1;
+		goto err;
+	}
+	buf = malloc(bin_stat.st_size);
+	if (!buf) {
+		fprintf(stderr, "cannot allocate memory: %zx\n",
+			(size_t)bin_stat.st_size);
+		ret = -1;
+		goto err;
+	}
+
+	size = fread(buf, 1, bin_stat.st_size, g);
+	if (size < bin_stat.st_size) {
+		fprintf(stderr, "read failed (%zx)\n", size);
+		ret = -1;
+		goto err;
+	}
+
+	*data = buf;
+	*bin_size = bin_stat.st_size;
+err:
+	fclose(g);
+
+	return ret;
+}
+
+/**
+ * write_capsule_file - write a capsule file
+ * @bin:	FILE stream
+ * @data:	Pointer to data
+ * @bin_size:	Size of data
+ *
+ * Write out data, @data, with the size @bin_size.
+ *
+ * Return:
+ * * 0  - on success
+ * * -1 - on failure
+ */
+static int write_capsule_file(FILE *f, void *data, size_t size, const char *msg)
+{
+	size_t size_written;
+
+	size_written = fwrite(data, 1, size, f);
+	if (size_written < size) {
+		fprintf(stderr, "%s: write failed (%zx != %zx)\n", msg,
+			size_written, size);
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
+ * create_fwbin - create an uefi capsule file
+ * @path:	Path to a created capsule file
+ * @bin:	Path to a firmware binary to encapsulate
+ * @guid:	GUID of related FMP driver
+ * @index:	Index number in capsule
+ * @instance:	Instance number in capsule
+ * @mcount:	Monotonic count in authentication information
+ * @private_file:	Path to a private key file
+ * @cert_file:	Path to a certificate file
+ *
+ * This function actually does the job of creating an uefi capsule file.
+ * All the arguments must be supplied.
+ * If either @private_file ror @cert_file is NULL, the capsule file
+ * won't be signed.
+ *
+ * Return:
+ * * 0  - on success
+ * * -1 - on failure
+ */
 static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 			unsigned long index, unsigned long instance)
 {
 	struct efi_capsule_header header;
 	struct efi_firmware_management_capsule_header capsule;
 	struct efi_firmware_management_capsule_image_header image;
-	FILE *f, *g;
-	struct stat bin_stat;
-	u8 *data;
-	size_t size;
+	FILE *f;
+	void *data;
+	off_t bin_size;
 	u64 offset;
+	int ret;
 
 #ifdef DEBUG
 	printf("For output: %s\n", path);
@@ -79,25 +185,28 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	printf("\tindex: %ld\n\tinstance: %ld\n", index, instance);
 #endif
 
-	g = fopen(bin, "r");
-	if (!g) {
-		printf("cannot open %s\n", bin);
-		return -1;
-	}
-	if (stat(bin, &bin_stat) < 0) {
-		printf("cannot determine the size of %s\n", bin);
-		goto err_1;
-	}
-	data = malloc(bin_stat.st_size);
-	if (!data) {
-		printf("cannot allocate memory: %zx\n", (size_t)bin_stat.st_size);
-		goto err_1;
-	}
+	f = NULL;
+	data = NULL;
+	ret = -1;
+
+	/*
+	 * read a firmware binary
+	 */
+	if (read_bin_file(bin, &data, &bin_size))
+		goto err;
+
+	/*
+	 * write a capsule file
+	 */
 	f = fopen(path, "w");
 	if (!f) {
-		printf("cannot open %s\n", path);
-		goto err_2;
+		fprintf(stderr, "cannot open %s\n", path);
+		goto err;
 	}
+
+	/*
+	 * capsule file header
+	 */
 	header.capsule_guid = efi_guid_fm_capsule;
 	header.header_size = sizeof(header);
 	/* TODO: The current implementation ignores flags */
@@ -105,70 +214,57 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	header.capsule_image_size = sizeof(header)
 					+ sizeof(capsule) + sizeof(u64)
 					+ sizeof(image)
-					+ bin_stat.st_size;
+					+ bin_size;
+	if (write_capsule_file(f, &header, sizeof(header),
+			       "Capsule header"))
+		goto err;
 
-	size = fwrite(&header, 1, sizeof(header), f);
-	if (size < sizeof(header)) {
-		printf("write failed (%zx)\n", size);
-		goto err_3;
-	}
-
+	/*
+	 * firmware capsule header
+	 * This capsule has only one firmware capsule image.
+	 */
 	capsule.version = 0x00000001;
 	capsule.embedded_driver_count = 0;
 	capsule.payload_item_count = 1;
-	size = fwrite(&capsule, 1, sizeof(capsule), f);
-	if (size < (sizeof(capsule))) {
-		printf("write failed (%zx)\n", size);
-		goto err_3;
-	}
-	offset = sizeof(capsule) + sizeof(u64);
-	size = fwrite(&offset, 1, sizeof(offset), f);
-	if (size < sizeof(offset)) {
-		printf("write failed (%zx)\n", size);
-		goto err_3;
-	}
+	if (write_capsule_file(f, &capsule, sizeof(capsule),
+			       "Firmware capsule header"))
+		goto err;
 
+	offset = sizeof(capsule) + sizeof(u64);
+	if (write_capsule_file(f, &offset, sizeof(offset),
+			       "Offset to capsule image"))
+		goto err;
+
+	/*
+	 * firmware capsule image header
+	 */
 	image.version = 0x00000003;
 	memcpy(&image.update_image_type_id, guid, sizeof(*guid));
 	image.update_image_index = index;
 	image.reserved[0] = 0;
 	image.reserved[1] = 0;
 	image.reserved[2] = 0;
-	image.update_image_size = bin_stat.st_size;
+	image.update_image_size = bin_size;
 	image.update_vendor_code_size = 0; /* none */
 	image.update_hardware_instance = instance;
 	image.image_capsule_support = 0;
+	if (write_capsule_file(f, &image, sizeof(image),
+			       "Firmware capsule image header"))
+		goto err;
 
-	size = fwrite(&image, 1, sizeof(image), f);
-	if (size < sizeof(image)) {
-		printf("write failed (%zx)\n", size);
-		goto err_3;
-	}
-	size = fread(data, 1, bin_stat.st_size, g);
-	if (size < bin_stat.st_size) {
-		printf("read failed (%zx)\n", size);
-		goto err_3;
-	}
-	size = fwrite(data, 1, bin_stat.st_size, f);
-	if (size < bin_stat.st_size) {
-		printf("write failed (%zx)\n", size);
-		goto err_3;
-	}
+	/*
+	 * firmware binary
+	 */
+	if (write_capsule_file(f, data, bin_size, "Firmware binary"))
+		goto err;
 
-	fclose(f);
-	fclose(g);
+	ret = 0;
+err:
+	if (f)
+		fclose(f);
 	free(data);
 
-	return 0;
-
-err_3:
-	fclose(f);
-err_2:
-	free(data);
-err_1:
-	fclose(g);
-
-	return -1;
+	return ret;
 }
 
 /*
@@ -194,7 +290,7 @@ int main(int argc, char **argv)
 		switch (c) {
 		case 'f':
 			if (file) {
-				printf("Image already specified\n");
+				fprintf(stderr, "Image already specified\n");
 				return -1;
 			}
 			file = optarg;
@@ -202,7 +298,7 @@ int main(int argc, char **argv)
 			break;
 		case 'r':
 			if (file) {
-				printf("Image already specified\n");
+				fprintf(stderr, "Image already specified\n");
 				return -1;
 			}
 			file = optarg;
@@ -234,7 +330,7 @@ int main(int argc, char **argv)
 
 	if (create_fwbin(argv[optind], file, guid, index, instance)
 			< 0) {
-		printf("Creating firmware capsule failed\n");
+		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);
 	}
 

@@ -13,7 +13,7 @@
  * @base: base address of the mpfs system register.
  * @clk_rate: the mpfs pll clock rate.
  * @parent_name: a pointer to parent clock name.
- * @return zero on success, or a negative error code.
+ * Return: zero on success, or a negative error code.
  */
 int mpfs_clk_register_cfgs(void __iomem *base, u32 clk_rate,
 			   const char *parent_name);
@@ -23,7 +23,7 @@ int mpfs_clk_register_cfgs(void __iomem *base, u32 clk_rate,
  * @base: base address of the mpfs system register.
  * @clk_rate: the mpfs pll clock rate.
  * @parent_name: a pointer to parent clock name.
- * @return zero on success, or a negative error code.
+ * Return: zero on success, or a negative error code.
  */
 int mpfs_clk_register_periphs(void __iomem *base, u32 clk_rate,
 			      const char *parent_name);
@@ -35,7 +35,7 @@ int mpfs_clk_register_periphs(void __iomem *base, u32 clk_rate,
  * @table: a pointer to clock divider table.
  * @width: width of the divider bit field.
  * @flags: common clock framework flags.
- * @return divider value on success, or a negative error code.
+ * Return: divider value on success, or a negative error code.
  */
 int divider_get_val(unsigned long rate, unsigned long parent_rate,
 		    const struct clk_div_table *table,

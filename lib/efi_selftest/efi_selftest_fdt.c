@@ -51,7 +51,7 @@ static uint32_t f2h(fdt32_t val)
  *
  * @property	name of the property
  * @node	name of the node or NULL for root node
- * @return	value of the property
+ * Return:	value of the property
  */
 static char *get_property(const u16 *property, const u16 *node)
 {
@@ -165,7 +165,7 @@ static void *efi_st_get_config_table(const efi_guid_t *guid)
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup(const efi_handle_t img_handle,
 		 const struct efi_system_table *systable)
@@ -192,7 +192,7 @@ static int setup(const efi_handle_t img_handle,
 /*
  * Execute unit test.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int execute(void)
 {

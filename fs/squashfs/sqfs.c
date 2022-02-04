@@ -728,6 +728,8 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 	*inode_table = malloc(metablks_count * SQFS_METADATA_BLOCK_SIZE);
 	if (!*inode_table) {
 		ret = -ENOMEM;
+		printf("Error: failed to allocate squashfs inode_table of size %i, increasing CONFIG_SYS_MALLOC_LEN could help\n",
+		       metablks_count * SQFS_METADATA_BLOCK_SIZE);
 		goto free_itb;
 	}
 

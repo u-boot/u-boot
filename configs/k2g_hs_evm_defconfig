@@ -13,6 +13,7 @@ CONFIG_TARGET_K2G_EVM=y
 CONFIG_ENV_SIZE=0x40000
 CONFIG_DEFAULT_DEVICE_TREE="keystone-k2g-evm"
 CONFIG_DISTRO_DEFAULTS=y
+CONFIG_TIMESTAMP=y
 CONFIG_FIT_IMAGE_POST_PROCESS=y
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_BOOTCOMMAND="run findfdt; run envboot; run run_mon_hs; run init_${boot}; run get_fit_${boot}; bootm ${addr_fit}#${name_fdt}"

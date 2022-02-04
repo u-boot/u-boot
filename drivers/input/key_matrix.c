@@ -22,7 +22,7 @@
  * @param config	Keyboard matrix config
  * @param keys		List of keys to check
  * @param valid		Number of valid keypresses to check
- * @return 0 if no ghosting is possible, 1 if it is
+ * Return: 0 if no ghosting is possible, 1 if it is
  */
 static int has_ghosting(struct key_matrix *config, struct key_matrix_key *keys,
 			int valid)
@@ -103,7 +103,7 @@ int key_matrix_decode(struct key_matrix *config, struct key_matrix_key keys[],
  * @param len           Number of entries in keycode table
  * @param map_keycode   Key code to find in the map
  * @param pos           Returns position of map_keycode, if found, else -1
- * @return map  Pointer to allocated map
+ * Return: map  Pointer to allocated map
  */
 static uchar *create_keymap(struct key_matrix *config, const u32 *data, int len,
 			    int map_keycode, int *pos)

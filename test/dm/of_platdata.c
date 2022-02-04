@@ -103,7 +103,7 @@ DM_TEST(dm_test_of_plat_props, UT_TESTF_SCAN_PDATA);
  * @uts: Test state
  * @parent: Parent to search
  * @found: bool array to update
- * @return 0 if OK, non-zero on error
+ * Return: 0 if OK, non-zero on error
  */
 static int find_driver_info(struct unit_test_state *uts, struct udevice *parent,
 			    bool found[])

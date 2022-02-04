@@ -623,31 +623,5 @@ directory''')
     return 0
 
 
-def fiptool(fname, *fip_args):
-    """Run fiptool with provided arguments
-
-    If the tool fails then this function raises an exception and prints out the
-    output and stderr.
-
-    Args:
-        fname (str): Filename of FIP
-        *fip_args: List of arguments to pass to fiptool
-
-    Returns:
-        CommandResult: object containing the results
-
-    Raises:
-        ValueError: the tool failed to run
-    """
-    args = ['fiptool', fname] + list(fip_args)
-    result = command.RunPipe([args], capture=not VERBOSE,
-                             capture_stderr=not VERBOSE, raise_on_error=False)
-    if result.return_code:
-        print(result.stderr, file=sys.stderr)
-        raise ValueError("Failed to run (error %d): '%s'" %
-                         (result.return_code, ' '.join(args)))
-    return result
-
-
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:], OUR_FILE))  # pragma: no cover

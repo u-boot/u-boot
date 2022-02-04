@@ -272,6 +272,7 @@ static const struct udevice_id zynq_serial_ids[] = {
 	{ .compatible = "xlnx,xuartps" },
 	{ .compatible = "cdns,uart-r1p8" },
 	{ .compatible = "cdns,uart-r1p12" },
+	{ .compatible = "xlnx,zynqmp-uart" },
 	{ }
 };
 

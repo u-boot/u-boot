@@ -50,7 +50,7 @@ void table_fill_string(char *dest, const char *src, size_t n, char pad);
  * Multi-Processor table and ACPI table. Whether a specific type of
  * configuration table is written is controlled by a Kconfig option.
  *
- * @return 0 if OK, -ENOSPC if table too large
+ * Return: 0 if OK, -ENOSPC if table too large
  */
 int write_tables(void);
 

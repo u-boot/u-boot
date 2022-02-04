@@ -554,7 +554,7 @@ void write_coreboot_table(u32 addr, struct memory_area *cfg_tables);
 /**
  * locate_coreboot_table() - Try to find coreboot tables at standard locations
  *
- * @return address of table that was found, or -ve error number
+ * Return: address of table that was found, or -ve error number
  */
 long locate_coreboot_table(void);
 

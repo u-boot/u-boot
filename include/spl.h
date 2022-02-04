@@ -29,6 +29,7 @@ struct image_header;
 
 struct blk_desc;
 struct image_header;
+struct spl_boot_device;
 
 /*
  * u_boot_first_phase() - check if this is the first U-Boot phase
@@ -106,7 +107,7 @@ enum u_boot_phase {
  *       ...
  *    }
  *
- * @return U-Boot phase
+ * Return: U-Boot phase
  */
 static inline enum u_boot_phase spl_phase(void)
 {
@@ -127,7 +128,7 @@ static inline enum u_boot_phase spl_phase(void)
 /**
  * spl_prev_phase() - Figure out the previous U-Boot phase
  *
- * @return the previous phase from this one, e.g. if called in SPL this returns
+ * Return: the previous phase from this one, e.g. if called in SPL this returns
  *	PHASE_TPL, if TPL is enabled
  */
 static inline enum u_boot_phase spl_prev_phase(void)
@@ -144,7 +145,7 @@ static inline enum u_boot_phase spl_prev_phase(void)
 /**
  * spl_next_phase() - Figure out the next U-Boot phase
  *
- * @return the next phase from this one, e.g. if called in TPL this returns
+ * Return: the next phase from this one, e.g. if called in TPL this returns
  *	PHASE_SPL
  */
 static inline enum u_boot_phase spl_next_phase(void)
@@ -159,7 +160,7 @@ static inline enum u_boot_phase spl_next_phase(void)
 /**
  * spl_phase_name() - Get the name of the current phase
  *
- * @return phase name
+ * Return: phase name
  */
 static inline const char *spl_phase_name(enum u_boot_phase phase)
 {
@@ -180,7 +181,7 @@ static inline const char *spl_phase_name(enum u_boot_phase phase)
  * spl_phase_prefix() - Get the prefix  of the current phase
  *
  * @phase: Phase to look up
- * @return phase prefix ("spl", "tpl", etc.)
+ * Return: phase prefix ("spl", "tpl", etc.)
  */
 static inline const char *spl_phase_prefix(enum u_boot_phase phase)
 {
@@ -291,7 +292,7 @@ ulong spl_get_image_size(void);
  * This returns the address that the next stage is linked to run at, i.e.
  * CONFIG_SPL_TEXT_BASE or CONFIG_SYS_TEXT_BASE
  *
- * @return text-base address
+ * Return: text-base address
  */
 ulong spl_get_image_text_base(void);
 
@@ -340,6 +341,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
  * Returns 0 on success.
  */
 int spl_load_legacy_img(struct spl_image_info *spl_image,
+			struct spl_boot_device *bootdev,
 			struct spl_load_info *load, ulong header);
 
 /**
@@ -435,9 +437,10 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
  *
  * @spl_image: Image description to set up
  * @header image header to parse
- * @return 0 if a header was correctly parsed, -ve on error
+ * Return: 0 if a header was correctly parsed, -ve on error
  */
 int spl_parse_image_header(struct spl_image_info *spl_image,
+			   const struct spl_boot_device *bootdev,
 			   const struct image_header *header);
 
 void spl_board_prepare_for_linux(void);
@@ -458,6 +461,17 @@ void spl_board_prepare_for_optee(void *fdt);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);
 int spl_board_boot_device(u32 boot_device);
+
+/**
+ * spl_board_loader_name() - Return a name for the loader
+ *
+ * This is a weak function which might be overridden by the board code. With
+ * that a board specific value for the device where the U-Boot will be loaded
+ * from can be set. By default it returns NULL.
+ *
+ * @boot_device:	ID of the device which SPL wants to load U-Boot from.
+ */
+const char *spl_board_loader_name(u32 boot_device);
 
 /**
  * jump_to_image_linux() - Jump to a Linux kernel from SPL
@@ -484,7 +498,7 @@ void __noreturn jump_to_image_optee(struct spl_image_info *spl_image);
  * wants to load the kernel or U-Boot. This function should be provided by
  * the board.
  *
- * @return 0 if SPL should start the kernel, 1 if U-Boot must be started
+ * Return: 0 if SPL should start the kernel, 1 if U-Boot must be started
  */
 int spl_start_uboot(void);
 
@@ -541,7 +555,9 @@ struct spl_image_loader {
 static inline const char *spl_loader_name(const struct spl_image_loader *loader)
 {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	return loader->name;
+	const char *name;
+	name = spl_board_loader_name(loader->boot_device);
+	return name ?: loader->name;
 #else
 	return NULL;
 #endif
@@ -574,18 +590,22 @@ static inline const char *spl_loader_name(const struct spl_image_loader *loader)
 
 /* SPL FAT image functions */
 int spl_load_image_fat(struct spl_image_info *spl_image,
+		       struct spl_boot_device *bootdev,
 		       struct blk_desc *block_dev, int partition,
 		       const char *filename);
 int spl_load_image_fat_os(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev,
 			  struct blk_desc *block_dev, int partition);
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image);
 
 /* SPL EXT image functions */
 int spl_load_image_ext(struct spl_image_info *spl_image,
+		       struct spl_boot_device *bootdev,
 		       struct blk_desc *block_dev, int partition,
 		       const char *filename);
 int spl_load_image_ext_os(struct spl_image_info *spl_image,
+			  struct spl_boot_device *bootdev,
 			  struct blk_desc *block_dev, int partition);
 
 /**
@@ -628,7 +648,7 @@ void spl_board_init(void);
  * This will normally be true, but if U-Boot jumps to second U-Boot, it will
  * be false. This should be implemented by board-specific code.
  *
- * @return true if U-Boot booted from SPL, else false
+ * Return: true if U-Boot booted from SPL, else false
  */
 bool spl_was_boot_source(void);
 
@@ -637,7 +657,7 @@ bool spl_was_boot_source(void);
  * @param usb_index - usb controller number
  * @param mmc_dev -  mmc device nubmer
  *
- * @return 0 on success, otherwise error code
+ * Return: 0 on success, otherwise error code
  */
 int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
 
@@ -653,7 +673,7 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
  * @param raw_part	Partition to load from (in RAW mode)
  * @param raw_sect	Sector to load from (in RAW mode)
  *
- * @return 0 on success, otherwise error code
+ * Return: 0 on success, otherwise error code
  */
 int spl_mmc_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev,
@@ -669,7 +689,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
  * @param raw_part	Fat partition to load from
  * @param filename	Name of file to load
  *
- * @return 0 on success, otherwise error code
+ * Return: 0 on success, otherwise error code
  */
 int spl_usb_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev,

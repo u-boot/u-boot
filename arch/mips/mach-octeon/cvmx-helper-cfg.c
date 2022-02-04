@@ -206,7 +206,7 @@ uint64_t cvmx_helper_cfg_opt_get(cvmx_helper_cfg_option_t opt)
  * initialize the queue allocation list. the existing static allocation result
  * is used as a starting point to ensure backward compatibility.
  *
- * @return  0 on success
+ * Return:  0 on success
  *         -1 on failure
  */
 int cvmx_pko_queue_grp_alloc(u64 start, uint64_t end, uint64_t count)
@@ -333,7 +333,7 @@ int init_cvmx_pko_que_range(void)
  * @param  port   the port for which the queues are requested
  * @param  count  the number of queues requested
  *
- * @return  0 on success
+ * Return:  0 on success
  *         -1 on failure
  */
 static int cvmx_pko_queue_alloc(u64 port, int count)
@@ -381,7 +381,7 @@ static int cvmx_pko_queue_alloc(u64 port, int count)
  *
  * @param  port   the port for which the queues are returned
  *
- * @return  0 on success
+ * Return:  0 on success
  *         -1 on failure
  */
 int cvmx_pko_queue_free(uint64_t port)
@@ -730,7 +730,7 @@ int cvmx_helper_cfg_ipd2pko_port_num(int ipd_port)
  * Return the number of queues to be assigned to this pko_port
  *
  * @param pko_port
- * @return the number of queues for this pko_port
+ * Return: the number of queues for this pko_port
  *
  */
 static int cvmx_helper_cfg_dft_nqueues(int pko_port)
@@ -815,7 +815,7 @@ static int cvmx_helper_cfg_init_pko_iports_and_queues_using_static_config(void)
  * @param xiface  interface to check
  * @param index      port index in the interface
  *
- * @return status of the port present or not.
+ * Return: status of the port present or not.
  */
 int cvmx_helper_is_port_valid(int xiface, int index)
 {
@@ -1325,7 +1325,7 @@ void cvmx_helper_set_port_fdt_node_offset(int xiface, int index, int node_offset
  *
  * @param xiface	node and interface
  * @param index		port index
- * @return		node offset of port or -1 if invalid
+ * Return:		node offset of port or -1 if invalid
  */
 int cvmx_helper_get_port_fdt_node_offset(int xiface, int index)
 {
@@ -1343,7 +1343,7 @@ int cvmx_helper_get_port_fdt_node_offset(int xiface, int index)
  * @param[out]	xiface		xinterface of match
  * @param[out]	index		port index of match
  *
- * @return	0 if found, -1 if not found
+ * Return:	0 if found, -1 if not found
  */
 int cvmx_helper_cfg_get_xiface_index_by_fdt_node_offset(int of_offset, int *xiface, int *index)
 {
@@ -1392,7 +1392,7 @@ void cvmx_helper_set_phy_fdt_node_offset(int xiface, int index, int node_offset)
  *
  * @param xiface	node and interface
  * @param index		port index
- * @return		node offset of phy or -1 if invalid
+ * Return:		node offset of phy or -1 if invalid
  */
 int cvmx_helper_get_phy_fdt_node_offset(int xiface, int index)
 {
@@ -1428,7 +1428,7 @@ void cvmx_helper_set_port_autonegotiation(int xiface, int index, bool enable)
  * @param xiface	node and interface
  * @param index		port index
  *
- * @return 0 if autonegotiation is disabled, 1 if enabled.
+ * Return: 0 if autonegotiation is disabled, 1 if enabled.
  */
 bool cvmx_helper_get_port_autonegotiation(int xiface, int index)
 {
@@ -1463,7 +1463,7 @@ void cvmx_helper_set_port_fec(int xiface, int index, bool enable)
  * @param xiface	node and interface
  * @param index		port index
  *
- * @return false if fec is disabled, true if enabled.
+ * Return: false if fec is disabled, true if enabled.
  */
 bool cvmx_helper_get_port_fec(int xiface, int index)
 {
@@ -1653,7 +1653,7 @@ void cvmx_helper_set_port_phy_info(int xiface, int index, struct cvmx_phy_info *
  * @param xiface	node and interface
  * @param index		port index
  *
- * @return pointer to PHY information data structure or NULL if not set
+ * Return: pointer to PHY information data structure or NULL if not set
  */
 struct cvmx_phy_info *cvmx_helper_get_port_phy_info(int xiface, int index)
 {
@@ -1671,7 +1671,7 @@ struct cvmx_phy_info *cvmx_helper_get_port_phy_info(int xiface, int index)
  * @param xiface	node and interface
  * @param index		portindex
  *
- * @return pointer to the PHY LED information data structure or NULL if not
+ * Return: pointer to the PHY LED information data structure or NULL if not
  *	   present
  */
 struct cvmx_phy_gpio_leds *cvmx_helper_get_port_phy_leds(int xiface, int index)
@@ -1750,7 +1750,7 @@ void cvmx_helper_cfg_get_rgmii_tx_clk_delay(int xiface, int index, bool *bypass,
  * @param xiface	node and interface
  * @param index		port index
  *
- * @return offset in device tree or -1 if error or not defined.
+ * Return: offset in device tree or -1 if error or not defined.
  */
 int cvmx_helper_cfg_get_sfp_fdt_offset(int xiface, int index)
 {
@@ -1785,7 +1785,7 @@ void cvmx_helper_cfg_set_sfp_fdt_offset(int xiface, int index, int sfp_of_offset
  * @param xiface	node and interface
  * @param index		port index
  *
- * @return pointer to vsc7224 data structure or NULL if not present
+ * Return: pointer to vsc7224 data structure or NULL if not present
  */
 struct cvmx_vsc7224_chan *cvmx_helper_cfg_get_vsc7224_chan_info(int xiface, int index)
 {
@@ -1820,7 +1820,7 @@ void cvmx_helper_cfg_set_vsc7224_chan_info(int xiface, int index,
  * @param xiface	node and interface
  * @param index		port index
  *
- * @return pointer to avsp5410 data structure or NULL if not present
+ * Return: pointer to avsp5410 data structure or NULL if not present
  */
 struct cvmx_avsp5410 *cvmx_helper_cfg_get_avsp5410_info(int xiface, int index)
 {
@@ -1853,7 +1853,7 @@ void cvmx_helper_cfg_set_avsp5410_info(int xiface, int index, struct cvmx_avsp54
  * @param	xiface	node and interface
  * @param	index	port index
  *
- * @return	pointer to SFP data structure or NULL if none
+ * Return:	pointer to SFP data structure or NULL if none
  */
 struct cvmx_fdt_sfp_info *cvmx_helper_cfg_get_sfp_info(int xiface, int index)
 {

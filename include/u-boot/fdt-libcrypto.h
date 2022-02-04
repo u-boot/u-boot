@@ -19,7 +19,7 @@
  * @prop_name:	What to call the property in the FDT
  * @num:	pointer to a libcrypto big number
  * @num_bits:	How big is 'num' in bits?
- * @return 0 if all good all working, -ve on horror
+ * Return: 0 if all good all working, -ve on horror
  */
 int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 		   BIGNUM *num, int num_bits);

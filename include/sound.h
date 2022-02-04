@@ -116,7 +116,7 @@ int sound_setup(struct udevice *dev);
  * @dev: Sound device
  * @msecs: Duration of beep in milliseconds
  * @frequency_hz: Frequency of the beep in Hertz
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int sound_beep(struct udevice *dev, int msecs, int frequency_hz);
 
@@ -128,7 +128,7 @@ int sound_beep(struct udevice *dev, int msecs, int frequency_hz);
  *
  * @dev: Sound device
  * @frequency_hz: Beep frequency in hertz
- * @return if OK, -ve on error
+ * Return: if OK, -ve on error
  */
 int sound_start_beep(struct udevice *dev, int frequency_hz);
 
@@ -138,7 +138,7 @@ int sound_start_beep(struct udevice *dev, int frequency_hz);
  * This tells the sound hardware to stop a previously started beep.
  *
  * @dev: Sound device
- * @return if OK, -ve on error
+ * Return: if OK, -ve on error
  */
 int sound_stop_beep(struct udevice *dev);
 

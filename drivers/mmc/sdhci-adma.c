@@ -64,7 +64,7 @@ void sdhci_prepare_adma_table(struct sdhci_adma_desc *table,
 /**
  * sdhci_adma_init() - initialize the ADMA descriptor table
  *
- * @return pointer to the allocated descriptor table or NULL in case of an
+ * Return: pointer to the allocated descriptor table or NULL in case of an
  * error.
  */
 struct sdhci_adma_desc *sdhci_adma_init(void)

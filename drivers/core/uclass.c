@@ -46,7 +46,7 @@ struct uclass *uclass_find(enum uclass_id key)
  * uclass_add() - Create new uclass in list
  * @id: Id number to create
  * @ucp: Returns pointer to uclass, or NULL on error
- * @return 0 on success, -ve on error
+ * Return: 0 on success, -ve on error
  *
  * The new uclass is added to the list. There must be only one uclass for
  * each id.

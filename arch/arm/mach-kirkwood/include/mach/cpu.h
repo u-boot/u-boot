@@ -68,6 +68,9 @@ enum kwcpu_attrib {
 #define KW_DEFADR_SPIF		0xE8000000
 #define KW_DEFADR_BOOTROM	0xF8000000
 
+#define KW_DEFADR_PCI_MEM_SIZE	(1024 * 1024 * 256)
+#define KW_DEFADR_PCI_IO_SIZE	(1024 * 64)
+
 struct mbus_win {
 	u32 base;
 	u32 size;

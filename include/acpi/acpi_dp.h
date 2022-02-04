@@ -124,7 +124,7 @@ struct acpi_dp {
  * acpi_dp_new_table() - Start a new Device Property table
  *
  * @ref: ACPI reference (e.g. "_DSD")
- * @return pointer to table, or NULL if out of memory
+ * Return: pointer to table, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_new_table(const char *ref);
 
@@ -136,7 +136,7 @@ struct acpi_dp *acpi_dp_new_table(const char *ref);
  * @dp: Table to add this property to
  * @name: Name of property, or NULL for none
  * @value: Integer value
- * @return pointer to new node, or NULL if out of memory
+ * Return: pointer to new node, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_add_integer(struct acpi_dp *dp, const char *name,
 				    u64 value);
@@ -149,7 +149,7 @@ struct acpi_dp *acpi_dp_add_integer(struct acpi_dp *dp, const char *name,
  * @dp: Table to add this property to
  * @name: Name of property, or NULL for none
  * @string: String value
- * @return pointer to new node, or NULL if out of memory
+ * Return: pointer to new node, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_add_string(struct acpi_dp *dp, const char *name,
 				   const char *string);
@@ -162,7 +162,7 @@ struct acpi_dp *acpi_dp_add_string(struct acpi_dp *dp, const char *name,
  * @dp: Table to add this property to
  * @name: Name of property, or NULL for none
  * @reference: Reference value
- * @return pointer to new node, or NULL if out of memory
+ * Return: pointer to new node, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_add_reference(struct acpi_dp *dp, const char *name,
 				      const char *reference);
@@ -175,7 +175,7 @@ struct acpi_dp *acpi_dp_add_reference(struct acpi_dp *dp, const char *name,
  *
  * @dp: Table to add this property to
  * @name: Name of property, or NULL for none
- * @return pointer to new node, or NULL if out of memory
+ * Return: pointer to new node, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_add_array(struct acpi_dp *dp, struct acpi_dp *array);
 
@@ -187,7 +187,7 @@ struct acpi_dp *acpi_dp_add_array(struct acpi_dp *dp, struct acpi_dp *array);
  *
  * @dp: Table to add this property to
  * @name: Name of property, or NULL for none
- * @return pointer to new array node, or NULL if out of memory
+ * Return: pointer to new array node, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_add_integer_array(struct acpi_dp *dp, const char *name,
 					  u64 *array, int len);
@@ -200,7 +200,7 @@ struct acpi_dp *acpi_dp_add_integer_array(struct acpi_dp *dp, const char *name,
  * @dp: Table to add this child to
  * @name: Name of child, or NULL for none
  * @child: Child node to add
- * @return pointer to new child node, or NULL if out of memory
+ * Return: pointer to new child node, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_add_child(struct acpi_dp *dp, const char *name,
 				  struct acpi_dp *child);
@@ -217,7 +217,7 @@ struct acpi_dp *acpi_dp_add_child(struct acpi_dp *dp, const char *name,
  * @index: Index of the GPIO resource in _CRS starting from zero
  * @pin: Pin in the GPIO resource, typically zero
  * @polarity: GPIO polarity. Note that ACPI_IRQ_ACTIVE_BOTH is not supported
- * @return pointer to new node, or NULL if out of memory
+ * Return: pointer to new node, or NULL if out of memory
  */
 struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
 				 const char *ref, int index, int pin,
@@ -230,7 +230,7 @@ struct acpi_dp *acpi_dp_add_gpio(struct acpi_dp *dp, const char *name,
  *
  * @ctx: ACPI context
  * @table: Table to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_dp_write(struct acpi_ctx *ctx, struct acpi_dp *table);
 
@@ -242,7 +242,7 @@ int acpi_dp_write(struct acpi_ctx *ctx, struct acpi_dp *table);
  * @node: Node to copy from
  * @dp: DP to copy to
  * @prop: Property name to copy
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_dp_ofnode_copy_int(ofnode node, struct acpi_dp *dp, const char *prop);
 
@@ -254,7 +254,7 @@ int acpi_dp_ofnode_copy_int(ofnode node, struct acpi_dp *dp, const char *prop);
  * @node: Node to copy from
  * @dp: DP to copy to
  * @prop: Property name to copy
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_dp_ofnode_copy_str(ofnode node, struct acpi_dp *dp, const char *prop);
 
@@ -266,7 +266,7 @@ int acpi_dp_ofnode_copy_str(ofnode node, struct acpi_dp *dp, const char *prop);
  * @dev: Device to copy from
  * @dp: DP to copy to
  * @prop: Property name to copy
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_dp_dev_copy_int(const struct udevice *dev, struct acpi_dp *dp,
 			 const char *prop);
@@ -279,7 +279,7 @@ int acpi_dp_dev_copy_int(const struct udevice *dev, struct acpi_dp *dp,
  * @dev: Device to copy from
  * @dp: DP to copy to
  * @prop: Property name to copy
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_dp_dev_copy_str(const struct udevice *dev, struct acpi_dp *dp,
 			 const char *prop);

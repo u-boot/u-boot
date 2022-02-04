@@ -16,10 +16,6 @@
 
 /* settings we don;t want on this board */
 
-#ifndef CONFIG_SPL_BUILD
-# define CONFIG_TIMESTAMP
-#endif
-
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /* Clock Defines */

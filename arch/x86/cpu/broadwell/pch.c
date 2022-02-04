@@ -522,7 +522,7 @@ static void serialio_init_once(bool acpi_mode)
 /**
  * pch_serialio_init() - set up serial I/O devices
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int pch_serialio_init(void)
 {

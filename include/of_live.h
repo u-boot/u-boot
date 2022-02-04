@@ -16,7 +16,7 @@ struct device_node;
  *
  * @fdt_blob: Input tree to convert
  * @rootp: Returns live tree that was created
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int of_live_build(const void *fdt_blob, struct device_node **rootp);
 

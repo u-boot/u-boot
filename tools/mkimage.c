@@ -10,6 +10,7 @@
 #include "imagetool.h"
 #include "mkimage.h"
 #include "imximage.h"
+#include <fit_common.h>
 #include <image.h>
 #include <version.h>
 #ifdef __linux__
@@ -146,7 +147,6 @@ static int add_content(int type, const char *fname)
 	return 0;
 }
 
-#define OPT_STRING "a:A:b:B:c:C:d:D:e:Ef:Fk:i:K:ln:N:p:O:rR:qstT:vVx"
 static void process_args(int argc, char **argv)
 {
 	char *ptr;
@@ -155,7 +155,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-		   "a:A:b:B:c:C:d:D:e:Ef:FG:k:i:K:ln:N:p:O:rR:qstT:vVx")) != -1) {
+		   "a:A:b:B:c:C:d:D:e:Ef:FG:k:i:K:ln:N:p:o:O:rR:qstT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -250,6 +250,9 @@ static void process_args(int argc, char **argv)
 			break;
 		case 'N':
 			params.engine_id = optarg;
+			break;
+		case 'o':
+			params.algo_name = optarg;
 			break;
 		case 'O':
 			params.os = genimg_get_os_id(optarg);
@@ -433,11 +436,12 @@ int main(int argc, char **argv)
 				params.cmdname, params.imagefile);
 			exit (EXIT_FAILURE);
 #endif
-		} else if ((unsigned)sbuf.st_size < tparams->header_size) {
+		} else if (sbuf.st_size < (off_t)tparams->header_size) {
 			fprintf (stderr,
-				"%s: Bad size: \"%s\" is not valid image: size %ld < %u\n",
+				"%s: Bad size: \"%s\" is not valid image: size %llu < %u\n",
 				params.cmdname, params.imagefile,
-				sbuf.st_size, tparams->header_size);
+				(unsigned long long) sbuf.st_size,
+				tparams->header_size);
 			exit (EXIT_FAILURE);
 		} else {
 			size = sbuf.st_size;
@@ -469,6 +473,9 @@ int main(int argc, char **argv)
 
 		(void) munmap((void *)ptr, sbuf.st_size);
 		(void) close (ifd);
+		if (!retval)
+			summary_show(&params.summary, params.imagefile,
+				     params.keydest);
 
 		exit (retval);
 	}

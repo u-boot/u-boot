@@ -56,7 +56,7 @@ int pxe_get_file_size(ulong *sizep)
  *
  * @outbuf: Buffer to write string to
  * @outbuf_len: length of buffer
- * @return 1 if OK, -ENOSPC if buffer is too small, -ENOENT is there is no
+ * Return: 1 if OK, -ENOSPC if buffer is too small, -ENOENT is there is no
  *	current ethernet device
  */
 int format_mac_pxe(char *outbuf, size_t outbuf_len)

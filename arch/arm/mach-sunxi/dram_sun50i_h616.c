@@ -360,7 +360,7 @@ static bool mctl_phy_read_calibration(struct dram_para *para)
 			}
 		}
 
-		setbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 1);
+		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 1);
 	}
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 0x30);
@@ -720,7 +720,7 @@ static bool mctl_phy_init(struct dram_para *para)
 	writel(0x80, SUNXI_DRAM_PHY0_BASE + 0x3dc);
 	writel(0x80, SUNXI_DRAM_PHY0_BASE + 0x45c);
 
-	if (IS_ENABLED(DRAM_ODT_EN))
+	if (IS_ENABLED(CONFIG_DRAM_ODT_EN))
 		mctl_phy_configure_odt();
 
 	clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 4, 7, 0xa);

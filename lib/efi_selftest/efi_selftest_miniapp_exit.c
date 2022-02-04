@@ -21,7 +21,7 @@ static efi_guid_t loaded_image_protocol_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
  *
  * @image_handle:	handle of the loaded image
  * @systable:		system table
- * @return:		status code
+ * Return:		status code
  */
 static efi_status_t EFIAPI check_loaded_image_protocol
 		(efi_handle_t image_handle, struct efi_system_table *systable)
@@ -60,7 +60,7 @@ static efi_status_t EFIAPI check_loaded_image_protocol
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	status code
+ * Return:	status code
  */
 efi_status_t EFIAPI efi_main(efi_handle_t handle,
 			     struct efi_system_table *systable)

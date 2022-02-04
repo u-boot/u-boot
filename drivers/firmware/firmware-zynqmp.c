@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
 #include <zynqmp_firmware.h>
@@ -19,6 +20,7 @@
 #define PMUFW_PAYLOAD_ARG_CNT	8
 
 #define XST_PM_NO_ACCESS	2002L
+#define XST_PM_ALREADY_CONFIGURED	2009L
 
 struct zynqmp_power {
 	struct mbox_chan tx_chan;
@@ -97,12 +99,20 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 	int err;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
 
-	printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		printf("Loading new PMUFW cfg obj (%ld bytes)\n", size);
+
+	flush_dcache_range((ulong)cfg_obj, (ulong)(cfg_obj + size));
 
 	err = xilinx_pm_request(PM_SET_CONFIGURATION, (u32)(u64)cfg_obj, 0, 0,
 				0, ret_payload);
 	if (err == XST_PM_NO_ACCESS) {
 		printf("PMUFW no permission to change config object\n");
+		return;
+	}
+
+	if (err == XST_PM_ALREADY_CONFIGURED) {
+		debug("PMUFW Node is already configured\n");
 		return;
 	}
 

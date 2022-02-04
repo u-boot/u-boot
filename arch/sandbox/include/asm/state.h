@@ -134,7 +134,7 @@ struct sandbox_state {
  *	data set for start-of-day.
  *	@param blob: Pointer to device tree blob, or NULL if no data to read
  *	@param node: Node offset to read from
- *	@return 0 if OK, -ve on error
+ *	Return: 0 if OK, -ve on error
  *
  * @write: Function to write state to FDT
  *	The caller will ensure that there is a node ready for the state. The
@@ -186,7 +186,7 @@ struct sandbox_state_io {
 /**
  * Gets a pointer to the current state.
  *
- * @return pointer to state
+ * Return: pointer to state
  */
 struct sandbox_state *state_get_current(void);
 
@@ -198,7 +198,7 @@ struct sandbox_state *state_get_current(void);
  *
  * @param state		Sandbox state to update
  * @param fname		Filename of device tree file to read from
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int sandbox_read_state(struct sandbox_state *state, const char *fname);
 
@@ -212,7 +212,7 @@ int sandbox_read_state(struct sandbox_state *state, const char *fname);
  *
  * @param state		Sandbox state to update
  * @param fname		Filename of device tree file to write to
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int sandbox_write_state(struct sandbox_state *state, const char *fname);
 
@@ -247,7 +247,7 @@ void state_set_skip_delays(bool skip_delays);
 /**
  * See if delays should be skipped
  *
- * @return true if delays should be skipped, false if they should be honoured
+ * Return: true if delays should be skipped, false if they should be honoured
  */
 bool state_get_skip_delays(void);
 
@@ -274,7 +274,7 @@ int state_init(void);
  * Uninitialize the test system state, writing out state if configured to
  * do so.
  *
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int state_uninit(void);
 

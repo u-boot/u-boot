@@ -343,7 +343,7 @@ static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
  * @comp_type:		Compression type being used (IH_COMP_...)
  * @uncomp_size:	Number of bytes uncompressed
  * @ret:		errno error code received from compression library
- * @return Appropriate BOOTM_ERR_ error code
+ * Return: Appropriate BOOTM_ERR_ error code
  */
 static int handle_decomp_error(int comp_type, size_t uncomp_size, int ret)
 {
@@ -434,7 +434,7 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 /**
  * bootm_disable_interrupts() - Disable interrupts in preparation for load/boot
  *
- * @return interrupt flag (0 if interrupts were disabled, non-zero if they were
+ * Return: interrupt flag (0 if interrupts were disabled, non-zero if they were
  *	enabled)
  */
 ulong bootm_disable_interrupts(void)
@@ -481,7 +481,7 @@ ulong bootm_disable_interrupts(void)
  *
  * @buf: Buffer containing the string to process
  * @maxlen: Maximum length of buffer
- * @return 0 if OK, -ENOSPC if @maxlen is too small
+ * Return: 0 if OK, -ENOSPC if @maxlen is too small
  */
 static int fixup_silent_linux(char *buf, int maxlen)
 {
@@ -551,7 +551,7 @@ static int fixup_silent_linux(char *buf, int maxlen)
  *
  * @buf: Buffer containing the string to process
  * @maxlen: Maximum length of buffer
- * @return 0 if OK, -ENOSPC if @maxlen is too small
+ * Return: 0 if OK, -ENOSPC if @maxlen is too small
  */
 static int process_subst(char *buf, int maxlen)
 {
@@ -655,7 +655,7 @@ int bootm_process_cmdline_env(int flags)
  * @param states	Mask containing states to run (BOOTM_STATE_...)
  * @param images	Image header information
  * @param boot_progress 1 to show boot progress, 0 to not do this
- * @return 0 if ok, something else on error. Some errors will cause this
+ * Return: 0 if ok, something else on error. Some errors will cause this
  *	function to perform a reboot! If states contains BOOTM_STATE_OS_GO
  *	then the intent is to boot an OS, so this function will not return
  *	unless the image type is standalone.

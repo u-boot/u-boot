@@ -94,7 +94,7 @@ struct rtc_ops {
 	* @dev:		Device to write to
 	* @reg:		Register to write
 	* @value:	Value to write
-	* @return 0 if OK, -ve on error
+	* Return: 0 if OK, -ve on error
 	*/
 	int (*write8)(struct udevice *dev, unsigned int reg, int val);
 };
@@ -107,7 +107,7 @@ struct rtc_ops {
  *
  * @dev:	Device to read from
  * @time:	Place to put the current time
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_rtc_get(struct udevice *dev, struct rtc_time *time);
 
@@ -116,7 +116,7 @@ int dm_rtc_get(struct udevice *dev, struct rtc_time *time);
  *
  * @dev:	Device to read from
  * @time:	Time to write into the RTC
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_rtc_set(struct udevice *dev, struct rtc_time *time);
 
@@ -129,7 +129,7 @@ int dm_rtc_set(struct udevice *dev, struct rtc_time *time);
  * the caller.
  *
  * @dev:	Device to read from
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_rtc_reset(struct udevice *dev);
 
@@ -140,7 +140,7 @@ int dm_rtc_reset(struct udevice *dev);
  * @reg:	First register to read
  * @buf:	Output buffer
  * @len:	Number of registers to read
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf, unsigned int len);
 
@@ -151,7 +151,7 @@ int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf, unsigned int len
  * @reg:	First register to write
  * @buf:	Input buffer
  * @len:	Number of registers to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int dm_rtc_write(struct udevice *dev, unsigned int reg,
 		 const u8 *buf, unsigned int len);
@@ -161,7 +161,7 @@ int dm_rtc_write(struct udevice *dev, unsigned int reg,
  *
  * @dev:	Device to read from
  * @reg:	Register to read
- * @return value read, or -ve on error
+ * Return: value read, or -ve on error
  */
 int rtc_read8(struct udevice *dev, unsigned int reg);
 
@@ -171,7 +171,7 @@ int rtc_read8(struct udevice *dev, unsigned int reg);
  * @dev:	Device to write to
  * @reg:	Register to write
  * @value:	Value to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int rtc_write8(struct udevice *dev, unsigned int reg, int val);
 
@@ -181,7 +181,7 @@ int rtc_write8(struct udevice *dev, unsigned int reg, int val);
  * @dev:	Device to read from
  * @reg:	Offset to start reading from
  * @valuep:	Place to put the value that is read
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int rtc_read16(struct udevice *dev, unsigned int reg, u16 *valuep);
 
@@ -191,7 +191,7 @@ int rtc_read16(struct udevice *dev, unsigned int reg, u16 *valuep);
  * @dev:	Device to write to
  * @reg:	Register to start writing to
  * @value:	Value to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int rtc_write16(struct udevice *dev, unsigned int reg, u16 value);
 
@@ -201,7 +201,7 @@ int rtc_write16(struct udevice *dev, unsigned int reg, u16 value);
  * @dev:	Device to read from
  * @reg:	Offset to start reading from
  * @valuep:	Place to put the value that is read
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int rtc_read32(struct udevice *dev, unsigned int reg, u32 *valuep);
 
@@ -211,7 +211,7 @@ int rtc_read32(struct udevice *dev, unsigned int reg, u32 *valuep);
  * @dev:	Device to write to
  * @reg:	Register to start writing to
  * @value:	Value to write
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int rtc_write32(struct udevice *dev, unsigned int reg, u32 value);
 
@@ -231,7 +231,7 @@ void rtc_enable_32khz_output(void);
  * rtc_read8() - Read an 8-bit register
  *
  * @reg:	Register to read
- * @return value read
+ * Return: value read
  */
 int rtc_read8(int reg);
 
@@ -247,7 +247,7 @@ void rtc_write8(int reg, uchar val);
  * rtc_read32() - Read a 32-bit value from the RTC
  *
  * @reg:	Offset to start reading from
- * @return value read
+ * Return: value read
  */
 u32 rtc_read32(int reg);
 
@@ -269,7 +269,7 @@ void rtc_init(void);
  * is_leap_year - Check if year is a leap year
  *
  * @year	Year
- * @return	1 if leap year
+ * Return:	1 if leap year
  */
 static inline bool is_leap_year(unsigned int year)
 {
@@ -283,7 +283,7 @@ static inline bool is_leap_year(unsigned int year)
  * It sets time->tm_wdaay to the correct day of the week.
  *
  * @time:	Time to inspect. tm_wday is updated
- * @return 0 if OK, -EINVAL if the weekday could not be determined
+ * Return: 0 if OK, -EINVAL if the weekday could not be determined
  */
 int rtc_calc_weekday(struct rtc_time *time);
 
@@ -309,7 +309,7 @@ void rtc_to_tm(u64 time_t, struct rtc_time *time);
  * Note that tm_wday and tm_yday are ignored.
  *
  * @time:	Broken-out time to convert
- * @return corresponding time_t value, seconds since 1970-01-01 00:00:00
+ * Return: corresponding time_t value, seconds since 1970-01-01 00:00:00
  */
 unsigned long rtc_mktime(const struct rtc_time *time);
 

@@ -116,7 +116,7 @@ int cvmx_create_global_resource_range(struct global_resource_tag tag, int neleme
  * @param nelements is the number of elements to be allocated.
  * @param owner is a 64 bit number that identifes the owner of this range.
  * @aligment specifes the required alignment of the returned base number.
- * @return returns the base of the allocated range. -1 return value indicates
+ * Return: returns the base of the allocated range. -1 return value indicates
  * failure.
  */
 int cvmx_allocate_global_resource_range(struct global_resource_tag tag, u64 owner, int nelements,
@@ -133,7 +133,7 @@ int cvmx_allocate_global_resource_range(struct global_resource_tag tag, u64 owne
  * @param owner is a 64 bit number that identifes the owner of the allocated
  * elements.
  * @param allocated_elements returns indexs of the allocated entries.
- * @return returns 0 on success and -1 on failure.
+ * Return: returns 0 on success and -1 on failure.
  */
 int cvmx_resource_alloc_many(struct global_resource_tag tag, u64 owner, int nelements,
 			     int allocated_elements[]);
@@ -148,7 +148,7 @@ int cvmx_resource_alloc_reverse(struct global_resource_tag, u64 owner);
  * @param nelements is the number of elements to be allocated.
  * @param owner is a 64 bit number that identifes the owner of this range.
  * @base specifies the base start of nelements.
- * @return returns the base of the allocated range. -1 return value indicates
+ * Return: returns the base of the allocated range. -1 return value indicates
  * failure.
  */
 int cvmx_reserve_global_resource_range(struct global_resource_tag tag, u64 owner, int base,
@@ -160,7 +160,7 @@ int cvmx_reserve_global_resource_range(struct global_resource_tag tag, u64 owner
  * @param tag is the tag of the global resource range.
  * @param base is the base number
  * @param nelements is the number of elements that are to be freed.
- * @return returns 0 if successful and -1 on failure.
+ * Return: returns 0 if successful and -1 on failure.
  */
 int cvmx_free_global_resource_range_with_base(struct global_resource_tag tag, int base,
 					      int nelements);
@@ -172,7 +172,7 @@ int cvmx_free_global_resource_range_with_base(struct global_resource_tag tag, in
  * @param tag is the tag of the global resource range.
  * @param bases is an array containing the bases to be freed.
  * @param nelements is the number of elements that are to be freed.
- * @return returns 0 if successful and -1 on failure.
+ * Return: returns 0 if successful and -1 on failure.
  */
 int cvmx_free_global_resource_range_multiple(struct global_resource_tag tag, int bases[],
 					     int nelements);
@@ -182,7 +182,7 @@ int cvmx_free_global_resource_range_multiple(struct global_resource_tag tag, int
  * specified tag.
  * @param tag is the tag of the global resource range.
  * @param owner is the owner of resources that are to be freed.
- * @return returns 0 if successful and -1 on failure.
+ * Return: returns 0 if successful and -1 on failure.
  */
 int cvmx_free_global_resource_range_with_owner(struct global_resource_tag tag, int owner);
 

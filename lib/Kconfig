@@ -202,6 +202,24 @@ config LIB_HW_RAND
 
 endchoice
 
+config SUPPORT_ACPI
+	bool
+	help
+	  Enable this if your arch or board can support generating ACPI
+	  (Advanced Configuration and Power Interface) tables. In this case
+	  U-Boot can generate these tables and pass them to the Operating
+	  System.
+
+config GENERATE_ACPI_TABLE
+	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
+	depends on SUPPORT_ACPI
+	select QFW if QEMU
+	help
+	  The Advanced Configuration and Power Interface (ACPI) specification
+	  provides an open standard for device configuration and management
+	  by the operating system. It defines platform-independent interfaces
+	  for configuration and power management monitoring.
+
 config SPL_TINY_MEMSET
 	bool "Use a very small memset() in SPL"
 	help
@@ -299,6 +317,9 @@ config TRACE_EARLY_ADDR
 	  the size is too small then the message which says the amount of early
 	  data being coped will the the same as the
 
+config CIRCBUF
+	bool "Enable circular buffer support"
+
 source lib/dhry/Kconfig
 
 menu "Security support"
@@ -366,6 +387,14 @@ config LIBAVB
 endmenu
 
 menu "Hashing Support"
+
+config BLAKE2
+	bool "Enable BLAKE2 support"
+	help
+	  This option enables support of hashing using BLAKE2B algorithm.
+	  The hash is calculated in software.
+	  The BLAKE2 algorithm produces a hash value (digest) between 1 and
+	  64 bytes.
 
 config SHA1
 	bool "Enable SHA1 support"

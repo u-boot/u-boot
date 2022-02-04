@@ -656,7 +656,7 @@ int fdtdec_lookup_phandle(const void *blob, int node, const char *prop_name)
  * @param min_len	minimum property length in bytes
  * @param err		0 if ok, or -FDT_ERR_NOTFOUND if the property is not
 			found, or -FDT_ERR_BADLAYOUT if not enough data
- * @return pointer to cell, which is only valid if err == 0
+ * Return: pointer to cell, which is only valid if err == 0
  */
 static const void *get_prop_check_min_len(const void *blob, int node,
 					  const char *prop_name, int min_len,
@@ -1220,7 +1220,7 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 /**
  * fdt_find_separate() - Find a devicetree at the end of the image
  *
- * @return pointer to FDT blob
+ * Return: pointer to FDT blob
  */
 static void *fdt_find_separate(void)
 {

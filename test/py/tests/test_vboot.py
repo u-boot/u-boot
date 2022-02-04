@@ -45,6 +45,8 @@ TESTDATA = [
     ['sha256-pss-pad', 'sha256', '-pss', '-E -p 0x10000', False, False],
     ['sha256-pss-required', 'sha256', '-pss', None, True, False],
     ['sha256-pss-pad-required', 'sha256', '-pss', '-E -p 0x10000', True, True],
+    ['sha384-basic', 'sha384', '', None, False, False],
+    ['sha384-pad', 'sha384', '', '-E -p 0x10000', False, False],
 ]
 
 @pytest.mark.boardspec('sandbox')
@@ -180,10 +182,16 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
             name: Name of of the key (e.g. 'dev')
         """
         public_exponent = 65537
+
+        if sha_algo == "sha384":
+            rsa_keygen_bits = 3072
+        else:
+            rsa_keygen_bits = 2048
+
         util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %s%s.key '
-                     '-pkeyopt rsa_keygen_bits:2048 '
+                     '-pkeyopt rsa_keygen_bits:%d '
                      '-pkeyopt rsa_keygen_pubexp:%d' %
-                     (tmpdir, name, public_exponent))
+                     (tmpdir, name, rsa_keygen_bits, public_exponent))
 
         # Create a certificate containing the public key
         util.run_and_log(cons, 'openssl req -batch -new -x509 -key %s%s.key '

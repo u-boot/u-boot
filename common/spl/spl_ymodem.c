@@ -112,7 +112,7 @@ int spl_ymodem_load_image(struct spl_image_info *spl_image,
 			addr += res;
 		}
 
-		ret = spl_parse_image_header(spl_image, ih);
+		ret = spl_parse_image_header(spl_image, bootdev, ih);
 		if (ret)
 			return ret;
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
@@ -135,7 +135,7 @@ int spl_ymodem_load_image(struct spl_image_info *spl_image,
 			size += res;
 	} else {
 		ih = (struct image_header *)buf;
-		ret = spl_parse_image_header(spl_image, ih);
+		ret = spl_parse_image_header(spl_image, bootdev, ih);
 		if (ret)
 			goto end_stream;
 #ifdef CONFIG_SPL_GZIP

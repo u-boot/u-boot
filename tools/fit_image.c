@@ -73,7 +73,9 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 						params->comment,
 						params->require_keys,
 						params->engine_id,
-						params->cmdname);
+						params->cmdname,
+						params->algo_name,
+						&params->summary);
 	}
 
 	if (dest_blob) {
@@ -524,8 +526,9 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	/* Check if an offset for the external data was set. */
 	if (params->external_offset > 0) {
 		if (params->external_offset < new_size) {
-			debug("External offset %x overlaps FIT length %x\n",
-			      params->external_offset, new_size);
+			fprintf(stderr,
+				"External offset %x overlaps FIT length %x\n",
+				params->external_offset, new_size);
 			ret = -EINVAL;
 			goto err;
 		}
@@ -651,62 +654,6 @@ err_munmap:
 err:
 	free(fdt);
 	close(fd);
-	return ret;
-}
-
-static int copyfile(const char *src, const char *dst)
-{
-	int fd_src = -1, fd_dst = -1;
-	void *buf = NULL;
-	ssize_t size;
-	size_t count;
-	int ret = -1;
-
-	fd_src = open(src, O_RDONLY);
-	if (fd_src < 0) {
-		printf("Can't open file %s (%s)\n", src, strerror(errno));
-		goto out;
-	}
-
-	fd_dst = open(dst, O_WRONLY | O_CREAT, 0666);
-	if (fd_dst < 0) {
-		printf("Can't open file %s (%s)\n", dst, strerror(errno));
-		goto out;
-	}
-
-	buf = calloc(1, 512);
-	if (!buf) {
-		printf("Can't allocate buffer to copy file\n");
-		goto out;
-	}
-
-	while (1) {
-		size = read(fd_src, buf, 512);
-		if (size < 0) {
-			printf("Can't read file %s\n", src);
-			goto out;
-		}
-		if (!size)
-			break;
-
-		count = size;
-		size = write(fd_dst, buf, count);
-		if (size < 0) {
-			printf("Can't write file %s\n", dst);
-			goto out;
-		}
-	}
-
-	ret = 0;
-
- out:
-	if (fd_src >= 0)
-		close(fd_src);
-	if (fd_dst >= 0)
-		close(fd_dst);
-	if (buf)
-		free(buf);
-
 	return ret;
 }
 
@@ -883,11 +830,6 @@ static int fit_extract_contents(void *ptr, struct image_tool_params *params)
 
 	/* Indent string is defined in header image.h */
 	p = IMAGE_INDENT_STRING;
-
-	if (fit_check_format(fit, IMAGE_SIZE_INVAL)) {
-		printf("Bad FIT image format\n");
-		return -1;
-	}
 
 	/* Find images parent node offset */
 	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);

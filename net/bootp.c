@@ -148,9 +148,11 @@ static int check_reply_packet(uchar *pkt, unsigned dest, unsigned src,
 
 static void store_bootp_params(struct bootp_hdr *bp)
 {
-#if !defined(CONFIG_BOOTP_SERVERIP)
 	struct in_addr tmp_ip;
 	bool overwrite_serverip = true;
+
+	if (IS_ENABLED(CONFIG_BOOTP_SERVERIP))
+		return;
 
 #if defined(CONFIG_BOOTP_PREFER_SERVERIP)
 	overwrite_serverip = false;
@@ -179,7 +181,6 @@ static void store_bootp_params(struct bootp_hdr *bp)
 	 */
 	if (*net_boot_file_name)
 		env_set("bootfile", net_boot_file_name);
-#endif
 }
 
 /*

@@ -26,7 +26,7 @@ struct dm_spmi_ops {
  * @usid	SlaveID
  * @pid		Peripheral ID
  * @reg:	Register to read
- * @return value read on success or negative value of errno.
+ * Return: value read on success or negative value of errno.
  */
 int spmi_reg_read(struct udevice *dev, int usid, int pid, int reg);
 
@@ -38,7 +38,7 @@ int spmi_reg_read(struct udevice *dev, int usid, int pid, int reg);
  * @pid		Peripheral ID
  * @reg:	Register to write
  * @value:	Value to write
- * @return 0 on success or negative value of errno.
+ * Return: 0 on success or negative value of errno.
  */
 int spmi_reg_write(struct udevice *dev, int usid, int pid, int reg,
 		   uint8_t value);

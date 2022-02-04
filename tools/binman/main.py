@@ -35,6 +35,7 @@ sys.pycache_prefix = os.path.relpath(our_path, srctree)
 # in PYTHONPATH)
 sys.path.insert(2, our1_path)
 
+from binman import bintool
 from patman import test_util
 
 # Bring in the libfdt module
@@ -68,6 +69,7 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
             name to execute (as in 'binman test testSections', for example)
         toolpath: List of paths to use for tools
     """
+    from binman import bintool_test
     from binman import cbfs_util_test
     from binman import elf_test
     from binman import entry_test
@@ -85,9 +87,9 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     test_util.RunTestSuites(
         result, debug, verbosity, test_preserve_dirs, processes, test_name,
         toolpath,
-        [entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
-         elf_test.TestElf, image_test.TestImage, cbfs_util_test.TestCbfs,
-         fip_util_test.TestFip])
+        [bintool_test.TestBintool, entry_test.TestEntry, ftest.TestFunctional,
+         fdt_test.TestFdt, elf_test.TestElf, image_test.TestImage,
+         cbfs_util_test.TestCbfs, fip_util_test.TestFip])
 
     return test_util.ReportResult('binman', test_name, result)
 
@@ -127,6 +129,9 @@ def RunBinman(args):
             ret_code = RunTests(args.debug, args.verbosity, args.processes,
                                 args.test_preserve_dirs, args.tests,
                                 args.toolpath)
+
+    elif args.cmd == 'bintool-docs':
+        control.write_bintool_docs(bintool.Bintool.get_tool_list())
 
     elif args.cmd == 'entry-docs':
         control.WriteEntryDocs(control.GetEntryModules())

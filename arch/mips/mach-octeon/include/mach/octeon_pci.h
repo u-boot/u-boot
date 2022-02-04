@@ -61,7 +61,7 @@ u32 octeon_pci_bus_to_phys(u32 bus);
  * @param	pf	- PCIe config space pf num
  * @param[out]	id	- override device and vendor ID
  *
- * @return	0 if override found, 1 if not found.
+ * Return:	0 if override found, 1 if not found.
  */
 int octeon_find_pcie_id_override(unsigned int address, unsigned int pf, u32 *id);
 

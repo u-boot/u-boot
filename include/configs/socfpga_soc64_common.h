@@ -136,7 +136,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * Flash configurations
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
 
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)

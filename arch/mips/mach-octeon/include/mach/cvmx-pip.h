@@ -946,7 +946,7 @@ static inline void cvmx_pip_bsel_config(int bit, int offset, int skip)
 /**
  * Get the entry for the Bit Select Extractor Table.
  * @param work   pointer to work queue entry
- * @return       Index of the Bit Select Extractor Table
+ * Return:       Index of the Bit Select Extractor Table
  */
 static inline int cvmx_pip_get_bsel_table_index(cvmx_wqe_t *work)
 {

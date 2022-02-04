@@ -180,7 +180,7 @@ struct efi_system_resource_entry *esrt_find_entry(efi_guid_t *img_fw_class)
 	/* Check if the image with img_fw_class is already in the ESRT. */
 	for (u32 idx = 0; idx < filled_entries; idx++) {
 		if (!guidcmp(&entry[idx].fw_class, img_fw_class)) {
-			EFI_PRINT("ESRT found entry for image %pUl at index %u\n",
+			EFI_PRINT("ESRT found entry for image %pUs at index %u\n",
 				  img_fw_class, idx);
 			return &entry[idx];
 		}
@@ -202,7 +202,7 @@ struct efi_system_resource_entry *esrt_find_entry(efi_guid_t *img_fw_class)
 	 */
 	esrt->fw_resource_count++;
 	entry[filled_entries].fw_class = *img_fw_class;
-	EFI_PRINT("ESRT allocated new entry for image %pUl at index %u\n",
+	EFI_PRINT("ESRT allocated new entry for image %pUs at index %u\n",
 		  img_fw_class, filled_entries);
 
 	return &entry[filled_entries];
@@ -291,7 +291,7 @@ efi_status_t efi_esrt_add_from_fmp(struct efi_firmware_management_protocol *fmp)
 				EFI_PRINT("ESRT entry mismatches image_type\n");
 
 		} else {
-			EFI_PRINT("ESRT failed to add entry for %pUl\n",
+			EFI_PRINT("ESRT failed to add entry for %pUs\n",
 				  &cur_img_info->image_type_id);
 			continue;
 		}

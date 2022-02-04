@@ -19,11 +19,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CLKIN_25M 25000000UL
 
 /* MAC Clock Delay settings */
-#define MAC12_DEF_DELAY_1G		0x0041b75d
-#define MAC12_DEF_DELAY_100M	0x00417410
-#define MAC12_DEF_DELAY_10M		0x00417410
-#define MAC34_DEF_DELAY_1G		0x0010438a
-#define MAC34_DEF_DELAY_100M	0x00104208
+#define MAC12_DEF_DELAY_1G		0x0028a410
+#define MAC12_DEF_DELAY_100M		0x00410410
+#define MAC12_DEF_DELAY_10M		0x00410410
+#define MAC34_DEF_DELAY_1G		0x00104208
+#define MAC34_DEF_DELAY_100M		0x00104208
 #define MAC34_DEF_DELAY_10M		0x00104208
 
 /*
@@ -481,7 +481,7 @@ static ulong ast2600_clk_get_rate(struct clk *clk)
 /**
  * @brief	lookup PLL divider config by input/output rate
  * @param[in]	*pll - PLL descriptor
- * @return	true - if PLL divider config is found, false - else
+ * Return:	true - if PLL divider config is found, false - else
  * The function caller shall fill "pll->in" and "pll->out",
  * then this function will search the lookup table
  * to find a valid PLL divider configuration.

@@ -39,7 +39,7 @@ struct hwspinlock {
  * @index:	The index of the hardware spinlock to request, within the
  *		client's list of hardware spinlock.
  * @hws:	A pointer to a hardware spinlock struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int hwspinlock_get_by_index(struct udevice *dev,
 			    int index, struct hwspinlock *hws);

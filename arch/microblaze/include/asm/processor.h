@@ -8,7 +8,7 @@
 
 /* References to section boundaries */
 
-extern char __end[];
+extern char _end[];
 extern char __text_start[];
 
 /* Microblaze board initialization function */

@@ -307,7 +307,7 @@ const char *octeon_model_get_string_buffer(u32 chip_id, char *buffer);
 /**
  * Return the octeon family, i.e., ProcessorID of the PrID register.
  *
- * @return the octeon family on success, ((u32)-1) on error.
+ * Return: the octeon family on success, ((u32)-1) on error.
  */
 static inline u32 cvmx_get_octeon_family(void)
 {

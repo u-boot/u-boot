@@ -142,7 +142,6 @@
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024		/* sectors per device */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000		/* Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Write Timeout (ms) */

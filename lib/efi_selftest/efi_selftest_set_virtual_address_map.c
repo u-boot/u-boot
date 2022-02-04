@@ -73,7 +73,7 @@ static void EFIAPI notify(struct efi_event *event, void *context)
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
@@ -176,7 +176,7 @@ static int setup(const efi_handle_t handle,
  * The triggering of the EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE event is checked via
  * the call count of the notification function.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int execute(void)
 {

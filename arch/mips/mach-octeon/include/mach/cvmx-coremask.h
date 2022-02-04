@@ -101,7 +101,7 @@ struct cvmx_coremask {
  * @param node		starting node number
  * @param node_mask	node mask to use to find the next node
  *
- * @return next node number or -1 if no more nodes are available
+ * Return: next node number or -1 if no more nodes are available
  */
 static inline int cvmx_coremask_next_node(int node, u8 node_mask)
 {
@@ -132,7 +132,7 @@ static inline int cvmx_coremask_next_node(int node, u8 node_mask)
  *
  * @param pcm is the pointer to the coremask.
  * @param core
- * @return 1 if core is set and 0 if not.
+ * Return: 1 if core is set and 0 if not.
  */
 static inline int cvmx_coremask_is_core_set(const struct cvmx_coremask *pcm,
 					    int core)
@@ -149,7 +149,7 @@ static inline int cvmx_coremask_is_core_set(const struct cvmx_coremask *pcm,
  * Is ``current core'' set in the coremask?
  *
  * @param pcm is the pointer to the coremask.
- * @return 1 if core is set and 0 if not.
+ * Return: 1 if core is set and 0 if not.
  */
 static inline int cvmx_coremask_is_self_set(const struct cvmx_coremask *pcm)
 {
@@ -159,7 +159,7 @@ static inline int cvmx_coremask_is_self_set(const struct cvmx_coremask *pcm)
 /**
  * Is coremask empty?
  * @param pcm is the pointer to the coremask.
- * @return 1 if *pcm is empty (all zeros), 0 if not empty.
+ * Return: 1 if *pcm is empty (all zeros), 0 if not empty.
  */
 static inline int cvmx_coremask_is_empty(const struct cvmx_coremask *pcm)
 {
@@ -177,7 +177,7 @@ static inline int cvmx_coremask_is_empty(const struct cvmx_coremask *pcm)
  *
  * @param pcm is the pointer to the coremask.
  * @param core
- * @return 0.
+ * Return: 0.
  */
 static inline int cvmx_coremask_set_core(struct cvmx_coremask *pcm, int core)
 {
@@ -194,7 +194,7 @@ static inline int cvmx_coremask_set_core(struct cvmx_coremask *pcm, int core)
  * Set ``current core'' in the coremask.
  *
  * @param pcm is the pointer to the coremask.
- * @return 0.
+ * Return: 0.
  */
 static inline int cvmx_coremask_set_self(struct cvmx_coremask *pcm)
 {
@@ -206,7 +206,7 @@ static inline int cvmx_coremask_set_self(struct cvmx_coremask *pcm)
  *
  * @param pcm is the pointer to the coremask.
  * @param core
- * @return 0.
+ * Return: 0.
  */
 static inline int cvmx_coremask_clear_core(struct cvmx_coremask *pcm, int core)
 {
@@ -223,7 +223,7 @@ static inline int cvmx_coremask_clear_core(struct cvmx_coremask *pcm, int core)
  * Clear ``current core'' from the coremask.
  *
  * @param pcm is the pointer to the coremask.
- * @return 0.
+ * Return: 0.
  */
 static inline int cvmx_coremask_clear_self(struct cvmx_coremask *pcm)
 {
@@ -235,7 +235,7 @@ static inline int cvmx_coremask_clear_self(struct cvmx_coremask *pcm)
  *
  * @param pcm is the pointer to the coremask.
  * @param core
- * @return 0.
+ * Return: 0.
  */
 static inline int cvmx_coremask_toggle_core(struct cvmx_coremask *pcm, int core)
 {
@@ -252,7 +252,7 @@ static inline int cvmx_coremask_toggle_core(struct cvmx_coremask *pcm, int core)
  * Toggle ``current core'' in the coremask.
  *
  * @param pcm is the pointer to the coremask.
- * @return 0.
+ * Return: 0.
  */
 static inline int cvmx_coremask_toggle_self(struct cvmx_coremask *pcm)
 {
@@ -288,7 +288,7 @@ static inline void cvmx_coremask_set64_node(struct cvmx_coremask *pcm,
  * Gets the lower 64-bits of the coremask
  *
  * @param[in] pcm - pointer to coremask
- * @return 64-bit coremask for the first node
+ * Return: 64-bit coremask for the first node
  */
 static inline u64 cvmx_coremask_get64(const struct cvmx_coremask *pcm)
 {
@@ -300,7 +300,7 @@ static inline u64 cvmx_coremask_get64(const struct cvmx_coremask *pcm)
  *
  * @param[in] pcm - pointer to coremask
  * @param node - node to get coremask for
- * @return 64-bit coremask for the first node
+ * Return: 64-bit coremask for the first node
  */
 static inline u64 cvmx_coremask_get64_node(const struct cvmx_coremask *pcm,
 					   u8 node)
@@ -312,7 +312,7 @@ static inline u64 cvmx_coremask_get64_node(const struct cvmx_coremask *pcm,
  * Gets the lower 32-bits of the coremask for compatibility
  *
  * @param[in] pcm - pointer to coremask
- * @return 32-bit coremask for the first node
+ * Return: 32-bit coremask for the first node
  * @deprecated This function is to maintain compatibility with older
  *             SDK applications and may disappear at some point.
  * This function is not compatible with the CN78XX or any other
@@ -515,7 +515,7 @@ static inline int cvmx_coremask_get_first_core(const struct cvmx_coremask *pcm)
  * @param core - starting core to check (can be -1 for core 0)
  * @param pcm - pointer to coremask to check for the next core.
  *
- * @return next core following the core parameter or -1 if no more cores.
+ * Return: next core following the core parameter or -1 if no more cores.
  */
 static inline int cvmx_coremask_next_core(int core,
 					  const struct cvmx_coremask *pcm)
@@ -597,7 +597,7 @@ static inline void cvmx_coremask_copy(struct cvmx_coremask *dest,
  * @param[in]  pcm  pointer to the coremask to test against
  * @param[in]  core core to check
  *
- * @return  1 if the core is first core in the coremask, 0 otherwise
+ * Return:  1 if the core is first core in the coremask, 0 otherwise
  *
  */
 static inline int cvmx_coremask_is_core_first_core(const struct cvmx_coremask *pcm,
@@ -634,7 +634,7 @@ static inline int cvmx_coremask_is_core_first_core(const struct cvmx_coremask *p
  *
  * @param[in] pcm - pointer to core mask
  *
- * @return number of bits set in the coremask
+ * Return: number of bits set in the coremask
  */
 static inline int cvmx_coremask_get_core_count(const struct cvmx_coremask *pcm)
 {
@@ -652,7 +652,7 @@ static inline int cvmx_coremask_get_core_count(const struct cvmx_coremask *pcm)
  *
  * @param core - core number (0-1023)
  *
- * @return node number core belongs to
+ * Return: node number core belongs to
  */
 static inline int cvmx_coremask_core_to_node(int core)
 {
@@ -678,7 +678,7 @@ static inline int cvmx_coremask_core_on_node(int core)
  * @param main - main coremask to test
  * @param subset - subset coremask to test
  *
- * @return 0 if the subset contains cores not in the main coremask or 1 if
+ * Return: 0 if the subset contains cores not in the main coremask or 1 if
  *         the subset is fully contained in the main coremask.
  */
 static inline int cvmx_coremask_is_subset(const struct cvmx_coremask *main,
@@ -699,7 +699,7 @@ static inline int cvmx_coremask_is_subset(const struct cvmx_coremask *main,
  * @param c1 - main coremask to test
  * @param c2 - subset coremask to test
  *
- * @return 1 if coremask c1 intersects coremask c2, 0 if they are exclusive
+ * Return: 1 if coremask c1 intersects coremask c2, 0 if they are exclusive
  */
 static inline int cvmx_coremask_intersects(const struct cvmx_coremask *c1,
 					   const struct cvmx_coremask *c2)
@@ -735,7 +735,7 @@ static inline void cvmx_coremask_mask_node(struct cvmx_coremask *pcm, int node)
  *
  * @param[in] pcm - pointer to core mask
  *
- * @return nothing
+ * Return: nothing
  */
 void cvmx_coremask_print(const struct cvmx_coremask *pcm);
 

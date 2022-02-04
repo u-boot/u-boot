@@ -62,6 +62,7 @@ config ARM
 	select ARCH_SUPPORTS_LTO
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
+	select SUPPORT_ACPI
 	select SUPPORT_OF_CONTROL
 
 config M68K
@@ -152,6 +153,7 @@ config SANDBOX
 	select SYS_CACHE_SHIFT_4
 	select IRQ
 	select SUPPORT_EXTENSION_SCAN
+	select SUPPORT_ACPI
 	imply BITREVERSE
 	select BLOBLIST
 	imply LTO
@@ -175,6 +177,7 @@ config SANDBOX
 	imply AVB_VERIFY
 	imply LIBAVB
 	imply CMD_AVB
+	imply PARTITION_TYPE_GUID
 	imply SCP03
 	imply CMD_SCP03
 	imply UDP_FUNCTION_FASTBOOT
@@ -200,6 +203,7 @@ config SANDBOX
 	imply CMD_EXTENSION
 	imply KEYBOARD
 	imply PHYSMEM
+	imply GENERATE_ACPI_TABLE
 
 config SH
 	bool "SuperH architecture"
@@ -216,6 +220,7 @@ config X86
 	select HAVE_PRIVATE_LIBGCC
 	select OF_CONTROL
 	select PCI
+	select SUPPORT_ACPI
 	select SUPPORT_OF_CONTROL
 	select SYS_CACHE_SHIFT_6
 	select TIMER
@@ -253,9 +258,10 @@ config X86
 	imply PCH
 	imply PHYSMEM
 	imply RTC_MC146818
-	imply ACPIGEN if !QEMU
+	imply ACPIGEN if !QEMU && !EFI_APP
 	imply SYSINFO if GENERATE_SMBIOS_TABLE
 	imply SYSINFO_SMBIOS if GENERATE_SMBIOS_TABLE
+	imply TIMESTAMP
 
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM

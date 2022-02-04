@@ -32,7 +32,7 @@ struct rkvop_driverdata {
  * successfully initialised).
  *
  * @dev:	device
- * @return 0 if OK, -ve if something went wrong
+ * Return: 0 if OK, -ve if something went wrong
  */
 int rk_vop_probe(struct udevice *dev);
 
@@ -44,7 +44,7 @@ int rk_vop_probe(struct udevice *dev);
  *     (32 BPP) x VIDEO_ROCKCHIP_MAX_XRES x VIDEO_ROCKCHIP_MAX_YRES
  *
  * @dev:	device
- * @return 0 (always OK)
+ * Return: 0 (always OK)
  */
 int rk_vop_bind(struct udevice *dev);
 

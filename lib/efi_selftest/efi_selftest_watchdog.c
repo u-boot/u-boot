@@ -65,7 +65,7 @@ static void EFIAPI notify(struct efi_event *event, void *context)
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
@@ -98,7 +98,7 @@ static int setup(const efi_handle_t handle,
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup_timer(const efi_handle_t handle,
 		       const struct efi_system_table *systable)
@@ -112,7 +112,7 @@ static int setup_timer(const efi_handle_t handle,
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup_reboot(const efi_handle_t handle,
 			const struct efi_system_table *systable)
@@ -126,7 +126,7 @@ static int setup_reboot(const efi_handle_t handle,
  *
  * Close the events created in setup.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int teardown(void)
 {
@@ -166,7 +166,7 @@ static int teardown(void)
  * Run a 1350 ms single shot timer and check that the 600ms timer has
  * been called 2 times.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int execute(void)
 {

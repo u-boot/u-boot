@@ -62,7 +62,7 @@ struct spl_machine_param {
  * Validate signature and return a pointer to the parameter table.  If the
  * signature is invalid, call panic() and never return.
  *
- * @return pointer to the parameter table if signature matched or never return.
+ * Return: pointer to the parameter table if signature matched or never return.
  */
 struct spl_machine_param *spl_get_machine_params(void);
 

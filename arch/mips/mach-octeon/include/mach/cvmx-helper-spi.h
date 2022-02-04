@@ -19,7 +19,7 @@
  *
  * @param interface Interface to probe
  *
- * @return Number of ports on the interface. Zero to disable.
+ * Return: Number of ports on the interface. Zero to disable.
  */
 int __cvmx_helper_spi_probe(int interface);
 int __cvmx_helper_spi_enumerate(int interface);
@@ -32,7 +32,7 @@ int __cvmx_helper_spi_enumerate(int interface);
  *
  * @param interface Interface to bring up
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_spi_enable(int interface);
 
@@ -45,7 +45,7 @@ int __cvmx_helper_spi_enable(int interface);
  *
  * @param ipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t __cvmx_helper_spi_link_get(int ipd_port);
 
@@ -60,7 +60,7 @@ cvmx_helper_link_info_t __cvmx_helper_spi_link_get(int ipd_port);
  * @param ipd_port  IPD/PKO port to configure
  * @param link_info The new link state
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_spi_link_set(int ipd_port, cvmx_helper_link_info_t link_info);
 

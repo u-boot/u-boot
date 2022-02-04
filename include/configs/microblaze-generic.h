@@ -21,9 +21,6 @@
 # define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
-/* setting reset address */
-/*#define	CONFIG_SYS_RESET_ADDRESS	CONFIG_SYS_TEXT_BASE*/
-
 /* Stack location before relocation */
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_TEXT_BASE - \
 					 CONFIG_SYS_MALLOC_F_LEN)
@@ -32,7 +29,6 @@
 /* ?empty sector */
 # define CONFIG_SYS_FLASH_EMPTY_INFO	1
 /* max number of memory banks */
-# define CONFIG_SYS_MAX_FLASH_BANKS	1
 /* max number of sectors on one chip */
 # define CONFIG_SYS_MAX_FLASH_SECT	2048
 #endif
@@ -57,8 +53,6 @@
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 
 /* architecture dependent code */
-#define	CONFIG_SYS_USR_EXCEP	/* user exception */
-
 #if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
 #define BOOT_TARGET_DEVICES_PXE(func)	func(PXE, pxe, na)
 #else

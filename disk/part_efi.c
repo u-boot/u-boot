@@ -221,8 +221,7 @@ void part_print_efi(struct blk_desc *dev_desc)
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
 	int i = 0;
-	char uuid[UUID_STR_LEN + 1];
-	unsigned char *uuid_bin;
+	unsigned char *uuid;
 
 	/* This function validates AND fills in the GPT header and PTE */
 	if (find_valid_gpt(dev_desc, gpt_head, &gpt_pte) != 1)
@@ -245,17 +244,13 @@ void part_print_efi(struct blk_desc *dev_desc)
 			le64_to_cpu(gpt_pte[i].ending_lba),
 			print_efiname(&gpt_pte[i]));
 		printf("\tattrs:\t0x%016llx\n", gpt_pte[i].attributes.raw);
-		uuid_bin = (unsigned char *)gpt_pte[i].partition_type_guid.b;
-		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
-		printf("\ttype:\t%s\n", uuid);
-		if (CONFIG_IS_ENABLED(PARTITION_TYPE_GUID)) {
-			const char *type = uuid_guid_get_str(uuid_bin);
-			if (type)
-				printf("\ttype:\t%s\n", type);
-		}
-		uuid_bin = (unsigned char *)gpt_pte[i].unique_partition_guid.b;
-		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
-		printf("\tguid:\t%s\n", uuid);
+		uuid = (unsigned char *)gpt_pte[i].partition_type_guid.b;
+		if (CONFIG_IS_ENABLED(PARTITION_TYPE_GUID))
+			printf("\ttype:\t%pUl\n\t\t(%pUs)\n", uuid, uuid);
+		else
+			printf("\ttype:\t%pUl\n", uuid);
+		uuid = (unsigned char *)gpt_pte[i].unique_partition_guid.b;
+		printf("\tguid:\t%pUl\n", uuid);
 	}
 
 	/* Remember to free pte */
@@ -331,7 +326,7 @@ static int part_test_efi(struct blk_desc *dev_desc)
  * set_protective_mbr(): Set the EFI protective MBR
  * @param dev_desc - block device descriptor
  *
- * @return - zero on success, otherwise error
+ * Return: - zero on success, otherwise error
  */
 static int set_protective_mbr(struct blk_desc *dev_desc)
 {

@@ -20,6 +20,8 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
+#define CMU_DEVCLKEN0_SD0	BIT(22)
+
 void owl_clk_init(struct owl_clk_priv *priv)
 {
 	u32 bus_clk = 0, core_pll, dev_pll;
@@ -92,6 +94,9 @@ int owl_clk_enable(struct clk *clk)
 		setbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_ETH);
 		setbits_le32(priv->base + CMU_ETHERNETPLL, 5);
 		break;
+	case CLK_SD0:
+		setbits_le32(priv->base + CMU_DEVCLKEN0, CMU_DEVCLKEN0_SD0);
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -121,11 +126,103 @@ int owl_clk_disable(struct clk *clk)
 	case CLK_ETHERNET:
 		clrbits_le32(priv->base + CMU_DEVCLKEN1, CMU_DEVCLKEN1_ETH);
 		break;
+	case CLK_SD0:
+		clrbits_le32(priv->base + CMU_DEVCLKEN0, CMU_DEVCLKEN0_SD0);
+		break;
 	default:
 		return -EINVAL;
 	}
 
 	return 0;
+}
+
+static ulong get_sd_parent_rate(struct owl_clk_priv *priv, u32 dev_index)
+{
+	ulong rate;
+	u32 reg;
+
+	reg = readl(priv->base + (CMU_SD0CLK + dev_index * 0x4));
+	/* Clock output of DEV/NAND_PLL
+	 * Range: 48M ~ 756M
+	 * Frequency= PLLCLK * 6
+	 */
+	if (reg & 0x200)
+		rate = readl(priv->base + CMU_NANDPLL) & 0x7f;
+	else
+		rate = readl(priv->base + CMU_DEVPLL) & 0x7f;
+
+	rate *= 6000000;
+
+	return rate;
+}
+
+static ulong owl_get_sd_clk_rate(struct owl_clk_priv *priv, int sd_index)
+{
+	uint div, val;
+	ulong parent_rate = get_sd_parent_rate(priv, sd_index);
+
+	val = readl(priv->base + (CMU_SD0CLK + sd_index * 0x4));
+	div = (val & 0x1f) + 1;
+
+	return (parent_rate / div);
+}
+
+static ulong owl_set_sd_clk_rate(struct owl_clk_priv *priv, ulong rate,
+				 int sd_index)
+{
+	uint div, val;
+	ulong parent_rate = get_sd_parent_rate(priv, sd_index);
+
+	if (rate == 0)
+		return rate;
+
+	div = (parent_rate / rate);
+
+	val = readl(priv->base + (CMU_SD0CLK + sd_index * 0x4));
+	/* Bits 4..0 is used to program div value and bit 8 to enable
+	 * divide by 128 circuit
+	 */
+	val &= ~0x11f;
+	if (div >= 128) {
+		div = div / 128;
+		val |= 0x100; /* enable divide by 128 circuit */
+	}
+	val |= ((div - 1) & 0x1f);
+	writel(val, priv->base + (CMU_SD0CLK + sd_index * 0x4));
+
+	return owl_get_sd_clk_rate(priv, 0);
+}
+
+static ulong owl_clk_get_rate(struct clk *clk)
+{
+	struct owl_clk_priv *priv = dev_get_priv(clk->dev);
+	ulong rate;
+
+	switch (clk->id) {
+	case CLK_SD0:
+		rate = owl_get_sd_clk_rate(priv, 0);
+		break;
+	default:
+		return -ENOENT;
+	}
+
+	return rate;
+}
+
+static ulong owl_clk_set_rate(struct clk *clk, ulong rate)
+{
+	struct owl_clk_priv *priv = dev_get_priv(clk->dev);
+	ulong new_rate;
+
+	switch (clk->id) {
+	case CLK_SD0:
+		new_rate = owl_set_sd_clk_rate(priv, rate, 0);
+		break;
+	default:
+		return -ENOENT;
+	}
+
+	return new_rate;
 }
 
 static int owl_clk_probe(struct udevice *dev)
@@ -145,6 +242,8 @@ static int owl_clk_probe(struct udevice *dev)
 static const struct clk_ops owl_clk_ops = {
 	.enable = owl_clk_enable,
 	.disable = owl_clk_disable,
+	.get_rate = owl_clk_get_rate,
+	.set_rate = owl_clk_set_rate,
 };
 
 static const struct udevice_id owl_clk_ids[] = {

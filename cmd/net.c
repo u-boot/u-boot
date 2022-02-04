@@ -152,16 +152,14 @@ static void netboot_update_env(void)
 		ip_to_string(net_ip, tmp);
 		env_set("ipaddr", tmp);
 	}
-#if !defined(CONFIG_BOOTP_SERVERIP)
 	/*
 	 * Only attempt to change serverip if net/bootp.c:store_net_params()
 	 * could have set it
 	 */
-	if (net_server_ip.s_addr) {
+	if (!IS_ENABLED(CONFIG_BOOTP_SERVERIP) && net_server_ip.s_addr) {
 		ip_to_string(net_server_ip, tmp);
 		env_set("serverip", tmp);
 	}
-#endif
 	if (net_dns_server.s_addr) {
 		ip_to_string(net_dns_server, tmp);
 		env_set("dnsip", tmp);

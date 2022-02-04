@@ -258,7 +258,7 @@ error:
  * @select: name of FDT to select, or NULL for any
  * @arch: expected FDT architecture
  * @fdt_addrp: pointer to a ulong variable, will hold FDT pointer
- * @return 0 if OK, -ENOPKG if no FDT (but an error should not be reported),
+ * Return: 0 if OK, -ENOPKG if no FDT (but an error should not be reported),
  *	other -ve value on other error
  */
 

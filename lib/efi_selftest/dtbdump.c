@@ -160,7 +160,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
  * Convert FDT value to host endianness.
  *
  * @val		FDT value
- * @return	converted value
+ * Return:	converted value
  */
 static u32 f2h(fdt32_t val)
 {
@@ -495,7 +495,7 @@ efi_status_t do_save(u16 *filename)
  *
  * @handle:	handle of the loaded image
  * @systab:	system table
- * @return:	status code
+ * Return:	status code
  */
 efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 			     struct efi_system_table *systab)

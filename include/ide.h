@@ -64,7 +64,7 @@ void ide_led(uchar led, uchar status);
 /**
  * board_start_ide() - Start up the board IDE interfac
  *
- * @return 0 if ok
+ * Return: 0 if ok
  */
 int board_start_ide(void);
 

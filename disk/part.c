@@ -713,7 +713,7 @@ int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
  * @param[in] dev_part_str Input string argument, like "0.1#misc"
  * @param[out] dev_desc Place to store the device description pointer
  * @param[out] part_info Place to store the partition information
- * @return 0 on success, or a negative on error
+ * Return: 0 on success, or a negative on error
  */
 static int part_get_info_by_dev_and_name(const char *dev_iface,
 					 const char *dev_part_str,

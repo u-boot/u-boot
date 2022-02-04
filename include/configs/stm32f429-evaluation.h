@@ -21,7 +21,6 @@
  */
 
 #define CONFIG_SYS_MAX_FLASH_SECT	12
-#define CONFIG_SYS_MAX_FLASH_BANKS	2
 
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 

@@ -157,7 +157,7 @@ typedef unsigned long int uintptr_t;
 /**
  * tools_build() - check if we are building host tools
  *
- * @return true if building for the host, false if for a target
+ * Return: true if building for the host, false if for a target
  */
 static inline bool tools_build(void)
 {

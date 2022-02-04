@@ -52,7 +52,7 @@ char lmac_speed_to_str[][8] = {
  *
  * @param instance	instance to find
  *
- * @return	pointer to lmac data structure or NULL if not found
+ * Return:	pointer to lmac data structure or NULL if not found
  */
 struct lmac *nix_get_cgx_lmac(int lmac_instance)
 {

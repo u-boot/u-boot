@@ -91,7 +91,7 @@ void fastboot_okay(const char *reason, char *response)
  */
 int __weak fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC_DEV)
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 	static const char * const boot_cmds[] = {
 		[FASTBOOT_REBOOT_REASON_BOOTLOADER] = "bootonce-bootloader",
 		[FASTBOOT_REBOOT_REASON_FASTBOOTD] = "boot-fastboot",

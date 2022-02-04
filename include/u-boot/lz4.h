@@ -13,7 +13,7 @@
  * @srcn: Length of source data
  * @dst: Destination for uncompressed data
  * @dstn: Returns length of uncompressed data
- * @return 0 if OK, -EPROTONOSUPPORT if the magic number or version number are
+ * Return: 0 if OK, -EPROTONOSUPPORT if the magic number or version number are
  *	not recognised or independent blocks are used, -EINVAL if the reserved
  *	fields are non-zero, or input is overrun, -EENOBUFS if the destination
  *	buffer is overrun, -EEPROTO if the compressed data causes an error in

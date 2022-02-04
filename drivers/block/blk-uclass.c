@@ -172,7 +172,7 @@ struct blk_desc *blk_get_by_device(struct udevice *dev)
  * @if_type:	Interface type
  * @devnum:	Device number (0 = first)
  * @descp:	Returns block device descriptor on success
- * @return 0 on success, -ENODEV if there is no such device and no device
+ * Return: 0 on success, -ENODEV if there is no such device and no device
  * with a higher device number, -ENOENT if there is no such device but there
  * is one with a higher number, or other -ve on other error.
  */

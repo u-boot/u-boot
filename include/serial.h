@@ -293,7 +293,7 @@ struct serial_dev_priv {
  *
  * @dev: Device pointer
  * @serial_config: Returns config information (see SERIAL_... above)
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int serial_getconfig(struct udevice *dev, uint *config);
 
@@ -305,7 +305,7 @@ int serial_getconfig(struct udevice *dev, uint *config);
  *
  * @dev: Device pointer
  * @serial_config: number of bits, parity and number of stopbits to use
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int serial_setconfig(struct udevice *dev, uint config);
 
@@ -314,7 +314,7 @@ int serial_setconfig(struct udevice *dev, uint config);
  *
  * @dev: Device pointer
  * @info: struct serial_device_info to fill
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int serial_getinfo(struct udevice *dev, struct serial_device_info *info);
 
@@ -333,7 +333,7 @@ void sh_serial_initialize(void);
  * The total size of the output must be less than CONFIG_SYS_PBSIZE.
  *
  * @fmt: Printf format string, followed by format arguments
- * @return number of characters written
+ * Return: number of characters written
  */
 int serial_printf(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));

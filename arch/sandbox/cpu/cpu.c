@@ -73,7 +73,7 @@ int cleanup_before_linux_select(int flags)
  * which we can use to map back to the pointer later.
  *
  * @ptr: Pointer to check
- * @return true if this is within sandbox emulated DRAM, false if not
+ * Return: true if this is within sandbox emulated DRAM, false if not
  */
 static bool is_in_sandbox_mem(const void *ptr)
 {

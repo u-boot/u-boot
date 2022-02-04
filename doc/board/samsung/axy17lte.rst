@@ -14,8 +14,8 @@ It is loaded as an Android boot image through SBOOT.
 
 Phone specs
 -----------
-A3 (SM-320) (a3y17lte)
-^^^^^^^^^^^^^^^^^^^^^^
+A3 (SM-A320) (a3y17lte)
+^^^^^^^^^^^^^^^^^^^^^^^
 - 4.7 AMOLED display
 - Exynos 7870 SoC
 - 16GB flash
@@ -23,8 +23,8 @@ A3 (SM-320) (a3y17lte)
 
 .. A3 2017 wiki page: https://en.wikipedia.org/wiki/Samsung_Galaxy_A3_(2017)
 
-A5 (SM-520) (a5y17lte)
-^^^^^^^^^^^^^^^^^^^^^^
+A5 (SM-A520) (a5y17lte)
+^^^^^^^^^^^^^^^^^^^^^^^
 - 5.2 AMOLED display
 - Exynos 7880 SoC
 - 32GB flash
@@ -32,8 +32,8 @@ A5 (SM-520) (a5y17lte)
 
 .. A5 2017 wiki page: https://en.wikipedia.org/wiki/Samsung_Galaxy_A5_(2017)
 
-A7 (SM-720) (a5y17lte)
-^^^^^^^^^^^^^^^^^^^^^^
+A7 (SM-A720) (a5y17lte)
+^^^^^^^^^^^^^^^^^^^^^^^
 - 5.7 AMOLED display
 - Exynos 7880 SoC
 - 32GB flash

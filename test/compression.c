@@ -457,7 +457,7 @@ static int compress_using_none(struct unit_test_state *uts,
  *
  * @comp_type:	Compression type to test
  * @compress:	Our function to compress data
- * @return 0 if OK, non-zero on failure
+ * Return: 0 if OK, non-zero on failure
  */
 static int run_bootm_test(struct unit_test_state *uts, int comp_type,
 			  mutate_func compress)

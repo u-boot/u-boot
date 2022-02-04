@@ -27,7 +27,7 @@ void qsort(void *base, size_t nmemb, size_t size,
  *
  * @s1: First string to compare
  * @s2: Second string to compare
- * @return comparison value (less than, equal to, or greater than 0)
+ * Return: comparison value (less than, equal to, or greater than 0)
  */
 int strcmp_compar(const void *s1, const void *s2);
 

@@ -17,7 +17,7 @@ void timestamp_add_now(enum timestamp_id id);
 /**
  * timestamp_add_to_bootstage - Add important coreboot timestamps to bootstage
  *
- * @return 0 if ok, -1 if no timestamps were found
+ * Return: 0 if ok, -1 if no timestamps were found
  */
 int timestamp_add_to_bootstage(void);
 

@@ -11,7 +11,7 @@
  * @param node		node to read from
  * @param byte_addr	address to read
  *
- * @return fuse value: 0 or 1
+ * Return: fuse value: 0 or 1
  */
 static inline u8 cvmx_fuse_read_byte_node(u8 node, int byte_addr)
 {
@@ -31,7 +31,7 @@ static inline u8 cvmx_fuse_read_byte_node(u8 node, int byte_addr)
  * Read a byte of fuse data
  * @param byte_addr   address to read
  *
- * @return fuse value: 0 or 1
+ * Return: fuse value: 0 or 1
  */
 static inline u8 cvmx_fuse_read_byte(int byte_addr)
 {
@@ -44,7 +44,7 @@ static inline u8 cvmx_fuse_read_byte(int byte_addr)
  * @param node   Node number
  * @param fuse   Fuse number (0-1024)
  *
- * @return fuse value: 0 or 1
+ * Return: fuse value: 0 or 1
  */
 static inline int cvmx_fuse_read_node(u8 node, int fuse)
 {
@@ -56,7 +56,7 @@ static inline int cvmx_fuse_read_node(u8 node, int fuse)
  *
  * @param fuse   Fuse number (0-1024)
  *
- * @return fuse value: 0 or 1
+ * Return: fuse value: 0 or 1
  */
 static inline int cvmx_fuse_read(int fuse)
 {

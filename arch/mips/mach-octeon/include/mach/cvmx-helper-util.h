@@ -82,7 +82,7 @@ typedef struct cvmx_xiface cvmx_xiface_t;
  *
  * @param xiface interface with node information
  *
- * @return struct that contains node and interface number.
+ * Return: struct that contains node and interface number.
  */
 static inline struct cvmx_xiface cvmx_helper_xiface_to_node_interface(int xiface)
 {
@@ -237,7 +237,7 @@ static inline void cvmx_wqe_pki_free(cvmx_wqe_t *work)
  *
  * @param mode   Mode to convert
  *
- * @return String
+ * Return: String
  */
 const char *cvmx_helper_interface_mode_to_string(cvmx_helper_interface_mode_t mode);
 
@@ -252,7 +252,7 @@ int cvmx_helper_dump_packet(cvmx_wqe_t *work);
 /**
  * Get the version of the CVMX libraries.
  *
- * @return Version string. Note this buffer is allocated statically
+ * Return: Version string. Note this buffer is allocated statically
  *         and will be shared by all callers.
  */
 const char *cvmx_helper_get_version(void);
@@ -266,7 +266,7 @@ const char *cvmx_helper_get_version(void);
  * @param xiface Interface to configure
  * @param num_ports Number of ports on the interface
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_setup_gmx(int xiface, int num_ports);
 
@@ -276,7 +276,7 @@ int __cvmx_helper_setup_gmx(int xiface, int num_ports);
  *
  * @param interface
  *
- * @return the number of pko_ports on the interface.
+ * Return: the number of pko_ports on the interface.
  */
 int __cvmx_helper_get_num_pko_ports(int interface);
 
@@ -287,7 +287,7 @@ int __cvmx_helper_get_num_pko_ports(int interface);
  * @param interface Interface to use
  * @param port      Port on the interface
  *
- * @return IPD port number
+ * Return: IPD port number
  */
 int cvmx_helper_get_ipd_port(int interface, int port);
 
@@ -298,7 +298,7 @@ int cvmx_helper_get_ipd_port(int interface, int port);
  * @param interface Interface to use
  * @param port      Port on the interface
  *
- * @return PKO port number and -1 on error.
+ * Return: PKO port number and -1 on error.
  */
 int cvmx_helper_get_pko_port(int interface, int port);
 
@@ -308,7 +308,7 @@ int cvmx_helper_get_pko_port(int interface, int port);
  *
  * @param interface Interface to use
  *
- * @return IPD/PKO port number
+ * Return: IPD/PKO port number
  */
 static inline int cvmx_helper_get_first_ipd_port(int interface)
 {
@@ -323,7 +323,7 @@ int cvmx_helper_ports_on_interface(int interface);
  *
  * @param interface Interface to use
  *
- * @return IPD/PKO port number
+ * Return: IPD/PKO port number
  *
  * Note: for o68, the last ipd port on an interface does not always equal to
  * the first plus the number of ports as the ipd ports are not contiguous in
@@ -354,7 +354,7 @@ void cvmx_helper_free_packet_data(cvmx_wqe_t *work);
  *
  * @param ipd_port IPD/PKO port number
  *
- * @return Interface number
+ * Return: Interface number
  */
 int cvmx_helper_get_interface_num(int ipd_port);
 
@@ -364,7 +364,7 @@ int cvmx_helper_get_interface_num(int ipd_port);
  *
  * @param ipd_port IPD/PKO port number
  *
- * @return Interface index number
+ * Return: Interface index number
  */
 int cvmx_helper_get_interface_index_num(int ipd_port);
 
@@ -374,7 +374,7 @@ int cvmx_helper_get_interface_index_num(int ipd_port);
  * @param xiface  Interface
  * @param index   index of the port in the interface
  *
- * @return port kind on sucicess  and -1 on failure
+ * Return: port kind on sucicess  and -1 on failure
  */
 int cvmx_helper_get_pknd(int xiface, int index);
 
@@ -384,7 +384,7 @@ int cvmx_helper_get_pknd(int xiface, int index);
  * @param interface  Interface
  * @param port       index of the port in the interface
  *
- * @return port kind on sucicess  and -1 on failure
+ * Return: port kind on sucicess  and -1 on failure
  */
 int cvmx_helper_get_bpid(int interface, int port);
 

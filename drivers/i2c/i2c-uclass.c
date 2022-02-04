@@ -53,7 +53,7 @@ void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs)
  * @offset:	Byte offset within chip
  * @offset_buf:	Place to put byte offset
  * @msg:	Message buffer
- * @return 0 if OK, -EADDRNOTAVAIL if the offset length is 0. In that case the
+ * Return: 0 if OK, -EADDRNOTAVAIL if the offset length is 0. In that case the
  * message is still set up but will not contain an offset.
  */
 static int i2c_setup_offset(struct dm_i2c_chip *chip, uint offset,
@@ -268,7 +268,7 @@ int dm_i2c_reg_clrset(struct udevice *dev, uint offset, u32 clr, u32 set)
  * @bus:	Bus to probe
  * @chip_addr:	Chip address to probe
  * @flags:	Flags for the chip
- * @return 0 if found, -ENOSYS if the driver is invalid, -EREMOTEIO if the chip
+ * Return: 0 if found, -ENOSYS if the driver is invalid, -EREMOTEIO if the chip
  * does not respond to probe
  */
 static int i2c_probe_chip(struct udevice *bus, uint chip_addr,

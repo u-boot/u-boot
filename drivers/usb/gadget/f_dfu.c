@@ -336,6 +336,8 @@ static int state_dfu_idle(struct f_dfu *f_dfu,
 		f_dfu->dfu_state = DFU_STATE_dfuUPLOAD_IDLE;
 		f_dfu->blk_seq_num = 0;
 		value = handle_upload(req, len);
+		if (value >= 0 && value < len)
+			f_dfu->dfu_state = DFU_STATE_dfuIDLE;
 		break;
 	case USB_REQ_DFU_ABORT:
 		/* no zlp? */

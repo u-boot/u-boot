@@ -51,7 +51,7 @@ static const struct efi_device_path_vendor ROOT = {
  * Determine if an MMC device is an SD card.
  *
  * @desc	block device descriptor
- * @return	true if the device is an SD card
+ * Return:	true if the device is an SD card
  */
 static bool is_sd(struct blk_desc *desc)
 {
@@ -223,7 +223,7 @@ struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
  * Determine the last device path node that is not the end node.
  *
  * @dp		device path
- * @return	last node before the end node if it exists
+ * Return:	last node before the end node if it exists
  *		otherwise NULL
  */
 const struct efi_device_path *efi_dp_last_node(const struct efi_device_path *dp)
@@ -572,7 +572,7 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
  *
  * @buf		pointer to the end of the device path
  * @dev		device
- * @return	pointer to the end of the device path
+ * Return:	pointer to the end of the device path
  */
 __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 {

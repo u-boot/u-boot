@@ -185,13 +185,36 @@ Binman is intended to replace all of this, with ifdtool left to handle only
 the configuration of the Intel-format descriptor.
 
 
-Running binman
---------------
+Installing binman
+-----------------
 
 First install prerequisites, e.g::
 
     sudo apt-get install python-pyelftools python3-pyelftools lzma-alone \
         liblz4-tool
+
+You can run binman directly if you put it on your PATH. But if you want to
+install into your `~/.local` Python directory, use::
+
+    pip install tools/patman tools/dtoc tools/binman
+
+Note that binman makes use of libraries from patman and dtoc, which is why these
+need to be installed. Also you need `libfdt` and `pylibfdt` which can be
+installed like this::
+
+   git clone git://git.kernel.org/pub/scm/utils/dtc/dtc.git
+   cd dtc
+   pip install .
+   make NO_PYTHON=1 install
+
+This installs the `libfdt.so` library into `~/lib` so you can use
+`LD_LIBRARY_PATH=~/lib` when running binman. If you want to install it in the
+system-library directory, replace the last line with::
+
+   make NO_PYTHON=1 PREFIX=/ install
+
+Running binman
+--------------
 
 Type::
 
@@ -707,7 +730,7 @@ The above feature ensures that the devicetree is clearly separated from the
 U-Boot executable and can be updated separately by binman as needed. It can be
 disabled with the --no-expanded flag if required.
 
-The same applies for u-boot-spl and u-boot-spl. In those cases, the expansion
+The same applies for u-boot-spl and u-boot-tpl. In those cases, the expansion
 includes the BSS padding, so for example::
 
     spl {
@@ -1004,6 +1027,77 @@ by increasing the -v/--verbosity from the default of 1:
 You can use BINMAN_VERBOSE=5 (for example) when building to select this.
 
 
+Bintools
+========
+
+`Bintool` is the name binman gives to a binary tool which it uses to create and
+manipulate binaries that binman cannot handle itself. Bintools are often
+necessary since Binman only supports a subset of the available file formats
+natively.
+
+Many SoC vendors invent ways to load code into their SoC using new file formats,
+sometimes changing the format with successive SoC generations. Sometimes the
+tool is available as Open Source. Sometimes it is a pre-compiled binary that
+must be downloaded from the vendor's website. Sometimes it is available in
+source form but difficult or slow to build.
+
+Even for images that use bintools, binman still assembles the image from its
+image description. It may handle parts of the image natively and part with
+various bintools.
+
+Binman relies on these tools so provides various features to manage them:
+
+- Determining whether the tool is currently installed
+- Downloading or building the tool
+- Determining the version of the tool that is installed
+- Deciding which tools are needed to build an image
+
+The Bintool class is an interface to the tool, a thin level of abstration, using
+Python functions to run the tool for each purpose (e.g. creating a new
+structure, adding a file to an existing structure) rather than just lists of
+string arguments.
+
+As with external blobs, bintools (which are like 'external' tools) can be
+missing. When building an image requires a bintool and it is not installed,
+binman detects this and reports the problem, but continues to build an image.
+This is useful in CI systems which want to check that everything is correct but
+don't have access to the bintools.
+
+To make this work, all calls to bintools (e.g. with Bintool.run_cmd()) must cope
+with the tool being missing, i.e. when None is returned, by:
+
+- Calling self.record_missing_bintool()
+- Setting up some fake contents so binman can continue
+
+Of course the image will not work, but binman reports which bintools are needed
+and also provide a way to fetch them.
+
+To see the available bintools, use::
+
+    binman tool --list
+
+To fetch tools which are missing, use::
+
+    binman tool --fetch missing
+
+You can also use `--fetch all` to fetch all tools or `--fetch <tool>` to fetch
+a particular tool. Some tools are built from source code, in which case you will
+need to have at least the `build-essential` and `git` packages installed.
+
+Bintool Documentation
+=====================
+
+To provide details on the various bintools supported by binman, bintools.rst is
+generated from the source code using:
+
+    binman bintool-docs >tools/binman/bintools.rst
+
+.. toctree::
+   :maxdepth: 2
+
+   bintools
+
+
 Technical details
 =================
 
@@ -1136,6 +1230,35 @@ implementations target 100% test coverage. Run 'binman test -T' to check this.
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu)::
 
    $ sudo apt-get install python-coverage python3-coverage python-pytest
+
+
+Error messages
+--------------
+
+This section provides some guidance for some of the less obvious error messages
+produced by binman.
+
+
+Expected __bss_size symbol
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example::
+
+   binman: Node '/binman/u-boot-spl-ddr/u-boot-spl/u-boot-spl-bss-pad':
+      Expected __bss_size symbol in spl/u-boot-spl
+
+This indicates that binman needs the `__bss_size` symbol to be defined in the
+SPL binary, where `spl/u-boot-spl` is the ELF file containing the symbols. The
+symbol tells binman the size of the BSS region, in bytes. It needs this to be
+able to pad the image so that the following entries do not overlap the BSS,
+which would cause them to be overwritte by variable access in SPL.
+
+This symbols is normally defined in the linker script, immediately after
+_bss_start and __bss_end are defined, like this::
+
+    __bss_size = __bss_end - __bss_start;
+
+You may need to add it to your linker script if you get this error.
 
 
 Concurrent tests

@@ -456,6 +456,10 @@ struct global_data {
 	 * @acpi_ctx: ACPI context pointer
 	 */
 	struct acpi_ctx *acpi_ctx;
+	/**
+	 * @acpi_start: Start address of ACPI tables
+	 */
+	ulong acpi_start;
 #endif
 #if CONFIG_IS_ENABLED(GENERATE_SMBIOS_TABLE)
 	/**
@@ -512,8 +516,12 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 
 #ifdef CONFIG_GENERATE_ACPI_TABLE
 #define gd_acpi_ctx()		gd->acpi_ctx
+#define gd_acpi_start()		gd->acpi_start
+#define gd_set_acpi_start(addr)	gd->acpi_start = addr
 #else
 #define gd_acpi_ctx()		NULL
+#define gd_acpi_start()		0UL
+#define gd_set_acpi_start(addr)
 #endif
 
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)

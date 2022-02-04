@@ -527,15 +527,18 @@ handle_exception (struct pt_regs *regs)
  * kgdb_init must be called *after* the
  * monitor is relocated into ram
  */
-void
-kgdb_init(void)
+int kgdb_init(void)
 {
+	puts("KGDB:  ");
+
 	kgdb_serial_init();
 	debugger_exception_handler = handle_exception;
 	initialized = 1;
 
 	putDebugStr("kgdb ready\n");
 	puts("ready\n");
+
+	return 0;
 }
 
 void

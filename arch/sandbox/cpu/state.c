@@ -101,7 +101,7 @@ err_open:
  * @state: Sandbox state
  * @io: Method to use for reading state
  * @blob: FDT containing state
- * @return 0 if OK, -EINVAL if the read function returned failure
+ * Return: 0 if OK, -EINVAL if the read function returned failure
  */
 int sandbox_read_state_nodes(struct sandbox_state *state,
 			     struct sandbox_state_io *io, const void *blob)
@@ -190,7 +190,7 @@ int sandbox_read_state(struct sandbox_state *state, const char *fname)
  *
  * @state: Sandbox state
  * @io: Method to use for writing state
- * @return 0 if OK, -EIO if there is a fatal error (such as out of space
+ * Return: 0 if OK, -EIO if there is a fatal error (such as out of space
  * for adding the data), -EINVAL if the write function failed.
  */
 int sandbox_write_state_node(struct sandbox_state *state,

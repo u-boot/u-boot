@@ -14,7 +14,8 @@ int sdp_init(int controller_index);
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
 
-int spl_sdp_handle(int controller_index, struct spl_image_info *spl_image);
+int spl_sdp_handle(int controller_index, struct spl_image_info *spl_image,
+		   struct spl_boot_device *bootdev);
 #else
 int sdp_handle(int controller_index);
 #endif

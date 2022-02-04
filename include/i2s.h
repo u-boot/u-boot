@@ -108,7 +108,7 @@ struct i2s_ops {
  * @dev: I2C device
  * @data: Data buffer to play
  * @data_size: Size of data buffer in bytes
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int i2s_tx_data(struct udevice *dev, void *data, uint data_size);
 
@@ -118,7 +118,7 @@ int i2s_tx_data(struct udevice *dev, void *data, uint data_size);
  * @param pi2s_tx	pointer of i2s transmitter parameter structure.
  * @param data		address of the data buffer
  * @param data_size	size of the data (in bytes)
- * @return		int value 0 for success, -1 in case of error
+ * Return:		int value 0 for success, -1 in case of error
  */
 int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, void *data,
 			 uint data_size);

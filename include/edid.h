@@ -277,7 +277,7 @@ void edid_print_info(struct edid1_info *edid_info);
  * Check the EDID info.
  *
  * @param info  The EDID info to be checked
- * @return 0 on valid, or -1 on invalid
+ * Return: 0 on valid, or -1 on invalid
  */
 int edid_check_info(struct edid1_info *info);
 
@@ -286,7 +286,7 @@ int edid_check_info(struct edid1_info *info);
  *
  * @param edid_block	EDID block data
  *
- * @return 0 on success, or a negative errno on error
+ * Return: 0 on success, or a negative errno on error
  */
 int edid_check_checksum(u8 *edid_block);
 
@@ -298,7 +298,7 @@ int edid_check_checksum(u8 *edid_block);
  * @param hmax	Returns the maxium horizontal rate
  * @param vmin	Returns the minimum vertical rate
  * @param vmax	Returns the maxium vertical rate
- * @return 0 on success, or -1 on error
+ * Return: 0 on success, or -1 on error
  */
 int edid_get_ranges(struct edid1_info *edid, unsigned int *hmin,
 		    unsigned int *hmax, unsigned int *vmin,
@@ -319,7 +319,7 @@ struct display_timing;
  * @param mode_valid	Callback validating mode, returning true is mode is
  *			supported, false otherwise.
  * @parem valid_priv	Pointer to private data for mode_valid callback
- * @return 0 if timings are OK, -ve on error
+ * Return: 0 if timings are OK, -ve on error
  */
 int edid_get_timing_validate(u8 *buf, int buf_size,
 			     struct display_timing *timing,
@@ -337,7 +337,7 @@ int edid_get_timing_validate(u8 *buf, int buf_size,
  * @param panel_bits_per_colourp	Place to put the number of bits per
  *			colour supported by the panel. This will be set to
  *			-1 if not available
- * @return 0 if timings are OK, -ve on error
+ * Return: 0 if timings are OK, -ve on error
  */
 int edid_get_timing(u8 *buf, int buf_size, struct display_timing *timing,
 		    int *panel_bits_per_colourp);

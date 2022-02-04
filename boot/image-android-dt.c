@@ -14,7 +14,7 @@
  * Check if image header is correct.
  *
  * @param hdr_addr Start address of DT image
- * @return true if header is correct or false if header is incorrect
+ * Return: true if header is correct or false if header is incorrect
  */
 bool android_dt_check_header(ulong hdr_addr)
 {
@@ -36,7 +36,7 @@ bool android_dt_check_header(ulong hdr_addr)
  * @param[out] addr If not NULL, will contain address to specified FDT
  * @param[out] size If not NULL, will contain size of specified FDT
  *
- * @return true on success or false on error
+ * Return: true on success or false on error
  */
 bool android_dt_get_fdt_by_index(ulong hdr_addr, u32 index, ulong *addr,
 				 u32 *size)

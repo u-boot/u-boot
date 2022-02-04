@@ -57,7 +57,7 @@ static enum caam_hash_algos get_hash_type(struct hash_algo *algo)
  *
  * @ctxp: Pointer to the pointer of the context for hashing
  * @caam_algo: Enum for SHA1 or SHA256
- * @return 0 if ok, -ENOMEM on error
+ * Return: 0 if ok, -ENOMEM on error
  */
 static int caam_hash_init(void **ctxp, enum caam_hash_algos caam_algo)
 {
@@ -80,7 +80,7 @@ static int caam_hash_init(void **ctxp, enum caam_hash_algos caam_algo)
  * @size: Size of the buffer being hashed
  * @is_last: 1 if this is the last update; 0 otherwise
  * @caam_algo: Enum for SHA1 or SHA256
- * @return 0 if ok, -EINVAL on error
+ * Return: 0 if ok, -EINVAL on error
  */
 static int caam_hash_update(void *hash_ctx, const void *buf,
 			    unsigned int size, int is_last,
@@ -126,7 +126,7 @@ static int caam_hash_update(void *hash_ctx, const void *buf,
  * @dest_buf: Pointer to the destination buffer where hash is to be copied
  * @size: Size of the buffer being hashed
  * @caam_algo: Enum for SHA1 or SHA256
- * @return 0 if ok, -EINVAL on error
+ * Return: 0 if ok, -EINVAL on error
  */
 static int caam_hash_finish(void *hash_ctx, void *dest_buf,
 			    int size, enum caam_hash_algos caam_algo)

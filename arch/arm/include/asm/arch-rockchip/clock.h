@@ -129,7 +129,7 @@ struct sysreset_reg {
  *
  * @input_rate:		Input clock rate in Hz
  * @output_rate:	Output clock rate in Hz
- * @return divisor register value to use
+ * Return: divisor register value to use
  */
 static inline u32 clk_get_divisor(ulong input_rate, uint output_rate)
 {
@@ -144,14 +144,14 @@ static inline u32 clk_get_divisor(ulong input_rate, uint output_rate)
 /**
  * rockchip_get_cru() - get a pointer to the clock/reset unit registers
  *
- * @return pointer to registers, or -ve error on error
+ * Return: pointer to registers, or -ve error on error
  */
 void *rockchip_get_cru(void);
 
 /**
  * rockchip_get_pmucru() - get a pointer to the clock/reset unit registers
  *
- * @return pointer to registers, or -ve error on error
+ * Return: pointer to registers, or -ve error on error
  */
 void *rockchip_get_pmucru(void);
 
@@ -168,7 +168,7 @@ int rockchip_get_clk(struct udevice **devp);
  * @pdev: clock udevice
  * @reg_offset: the first offset in cru for softreset registers
  * @reg_number: the reg numbers of softreset registers
- * @return 0 success, or error value
+ * Return: 0 success, or error value
  */
 int rockchip_reset_bind(struct udevice *pdev, u32 reg_offset, u32 reg_number);
 

@@ -56,7 +56,6 @@
  */
 #define CONFIG_SYS_FLASH_SIZE		256 /* max FLASH size is 256M */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1   /* max num of flash banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	512 /* max num of sects on one chip */
 #define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
 

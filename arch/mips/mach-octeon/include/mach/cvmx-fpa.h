@@ -36,7 +36,7 @@ typedef struct cvmx_fpa_pool_config cvmx_fpa_pool_config_t;
  * Return the name of the pool
  *
  * @param pool_num   Pool to get the name of
- * @return The name
+ * Return: The name
  */
 const char *cvmx_fpa_get_name(int pool_num);
 
@@ -97,7 +97,7 @@ static inline cvmx_fpa3_gaura_t cvmx_fpa1_pool_to_fpa3_aura(cvmx_fpa1_pool_t poo
  * Get a new block from the FPA
  *
  * @param pool   Pool to get the block from
- * @return Pointer to the block or NULL on failure
+ * Return: Pointer to the block or NULL on failure
  */
 static inline void *cvmx_fpa_alloc(u64 pool)
 {
@@ -135,7 +135,7 @@ static inline void cvmx_fpa_async_alloc(u64 scr_addr, u64 pool)
  * @param pool Pool the block came from.  Must be the same value
  * passed to cvmx_fpa_async_alloc.
  *
- * @return Pointer to the block or NULL on failure
+ * Return: Pointer to the block or NULL on failure
  */
 static inline void *cvmx_fpa_async_alloc_finish(u64 scr_addr, u64 pool)
 {
@@ -194,7 +194,7 @@ static inline void cvmx_fpa_free(void *ptr, u64 pool, u64 num_cache_lines)
  * @param block_size Size for each block controlled by the FPA
  * @param num_blocks Number of blocks
  *
- * @return the pool number on Success,
+ * Return: the pool number on Success,
  *         -1 on failure
  */
 int cvmx_fpa_setup_pool(int pool, const char *name, void *buffer, u64 block_size, u64 num_blocks);
@@ -204,7 +204,7 @@ int cvmx_fpa_shutdown_pool(int pool);
 /**
  * Gets the block size of buffer in specified pool
  * @param pool	 Pool to get the block size from
- * @return       Size of buffer in specified pool
+ * Return:       Size of buffer in specified pool
  */
 unsigned int cvmx_fpa_get_block_size(int pool);
 

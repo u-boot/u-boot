@@ -101,7 +101,7 @@ uint sanbox_i2c_eeprom_get_prev_offset(struct udevice *dev);
  * @use_system_time:	true to use system time, false to use @base_time
  * @offset:		RTC offset from current system/base time (-1 for no
  *			change)
- * @return old value of RTC offset
+ * Return: old value of RTC offset
  */
 long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
 				int offset);
@@ -111,7 +111,7 @@ long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
  *
  * @dev:		RTC device to adjust
  * @base_time:		New base system time (set to -1 for no change)
- * @return old base time
+ * Return: old base time
  */
 long sandbox_i2c_rtc_get_set_base_time(struct udevice *dev, long base_time);
 
@@ -135,7 +135,7 @@ int sandbox_osd_get_mem(struct udevice *dev, u8 *buf, size_t buflen);
  * @duty_ns: Current duty cycle of the PWM in nanoseconds
  * @enable: true if the PWM is enabled
  * @polarity: true if the PWM polarity is active high
- * @return 0 if OK, -ENOSPC if the PWM number is invalid
+ * Return: 0 if OK, -ENOSPC if the PWM number is invalid
  */
 int sandbox_pwm_get_config(struct udevice *dev, uint channel, uint *period_nsp,
 			   uint *duty_nsp, bool *enablep, bool *polarityp);
@@ -164,7 +164,7 @@ void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
  * This data is provided to the sandbox driver by the I2S tx_data() method.
  *
  * @dev: Device to check
- * @return sum of audio data
+ * Return: sum of audio data
  */
 int sandbox_get_i2s_sum(struct udevice *dev);
 
@@ -174,14 +174,14 @@ int sandbox_get_i2s_sum(struct udevice *dev);
  * This is used in the sound test
  *
  * @dev: Device to check
- * @return call count for the setup() method
+ * Return: call count for the setup() method
  */
 int sandbox_get_setup_called(struct udevice *dev);
 
 /**
  * sandbox_get_sound_active() - Returns whether sound play is in progress
  *
- * @return true if active, false if not
+ * Return: true if active, false if not
  */
 int sandbox_get_sound_active(struct udevice *dev);
 
@@ -191,7 +191,7 @@ int sandbox_get_sound_active(struct udevice *dev);
  * This data is provided to the sandbox driver by the sound play() method.
  *
  * @dev: Device to check
- * @return sum of audio data
+ * Return: sum of audio data
  */
 int sandbox_get_sound_sum(struct udevice *dev);
 
@@ -207,7 +207,7 @@ void sandbox_set_allow_beep(struct udevice *dev, bool allow);
  * sandbox_get_beep_frequency() - Get the frequency of the current beep
  *
  * @dev: Device to check
- * @return frequency of beep, if there is an active beep, else 0
+ * Return: frequency of beep, if there is an active beep, else 0
  */
 int sandbox_get_beep_frequency(struct udevice *dev);
 
@@ -215,7 +215,7 @@ int sandbox_get_beep_frequency(struct udevice *dev);
  * sandbox_spi_get_speed() - Get current speed setting of a sandbox spi bus
  *
  * @dev: Device to check
- * @return current bus speed
+ * Return: current bus speed
  */
 uint sandbox_spi_get_speed(struct udevice *dev);
 
@@ -223,7 +223,7 @@ uint sandbox_spi_get_speed(struct udevice *dev);
  * sandbox_spi_get_mode() - Get current mode setting of a sandbox spi bus
  *
  * @dev: Device to check
- * @return current mode
+ * Return: current mode
  */
 uint sandbox_spi_get_mode(struct udevice *dev);
 
@@ -231,7 +231,7 @@ uint sandbox_spi_get_mode(struct udevice *dev);
  * sandbox_get_pch_spi_protect() - Get the PCI SPI protection status
  *
  * @dev: Device to check
- * @return 0 if not protected, 1 if protected
+ * Return: 0 if not protected, 1 if protected
  */
 int sandbox_get_pch_spi_protect(struct udevice *dev);
 
@@ -239,7 +239,7 @@ int sandbox_get_pch_spi_protect(struct udevice *dev);
  * sandbox_get_pci_ep_irq_count() - Get the PCI EP IRQ count
  *
  * @dev: Device to check
- * @return irq count
+ * Return: irq count
  */
 int sandbox_get_pci_ep_irq_count(struct udevice *dev);
 
@@ -254,7 +254,7 @@ int sandbox_get_pci_ep_irq_count(struct udevice *dev);
  * @type: Type of BAR (PCI_BASE_ADDRESS_SPACE_IO or
  *		PCI_BASE_ADDRESS_MEM_TYPE_32)
  * @size: Size of BAR in bytes
- * @return BAR value to return from emulator
+ * Return: BAR value to return from emulator
  */
 uint sandbox_pci_read_bar(u32 barval, int type, uint size);
 
@@ -283,7 +283,7 @@ void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags);
  * @dev: Device to check
  * @index: PWM channel index
  * @duty: Current duty cycle in 0..EC_PWM_MAX_DUTY range.
- * @return 0 if OK, -ENOSPC if the PWM number is invalid
+ * Return: 0 if OK, -ENOSPC if the PWM number is invalid
  */
 int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty);
 
@@ -298,7 +298,7 @@ int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty);
  *
  * @dev: Device to adjust
  * @l2bpp: depth to set
- * @return 0 if the device was already active, other error if it fails to probe
+ * Return: 0 if the device was already active, other error if it fails to probe
  * after the change
  */
 int sandbox_sdl_set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp);

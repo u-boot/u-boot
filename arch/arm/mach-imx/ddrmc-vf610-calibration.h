@@ -38,7 +38,7 @@ enum edge {
  *
  * @param ddrmr_regs - memory controller registers
  *
- * @return 0 on success, otherwise error code
+ * Return: 0 on success, otherwise error code
  */
 int ddrmc_calibration(struct ddrmr_regs *ddrmr);
 

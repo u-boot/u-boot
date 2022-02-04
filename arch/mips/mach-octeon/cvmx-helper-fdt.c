@@ -54,7 +54,7 @@ struct mux_compat {
  *
  * @param	size	number of bytes to allocate
  *
- * @return	pointer to allocated memory or NULL if out of memory.
+ * Return:	pointer to allocated memory or NULL if out of memory.
  *		Alignment is set to 8-bytes.
  */
 void *__cvmx_fdt_alloc(size_t size)
@@ -85,7 +85,7 @@ void __cvmx_fdt_free(void *ptr, size_t size)
  * @param[in,out] lenp		Number of phandles, input max number
  * @param[out]	nodes		Array of phandle nodes
  *
- * @return	-ve error code on error or 0 for success
+ * Return:	-ve error code on error or 0 for success
  */
 int cvmx_fdt_lookup_phandles(const void *fdt_addr, int node,
 			     const char *prop_name, int *lenp,
@@ -116,7 +116,7 @@ int cvmx_fdt_lookup_phandles(const void *fdt_addr, int node,
  * @param[in]	fdt_addr	Address of FDT
  * @param	node		FDT node number
  *
- * @return	CPU node number or error if negative
+ * Return:	CPU node number or error if negative
  */
 int cvmx_fdt_get_cpu_node(const void *fdt_addr, int node)
 {
@@ -147,7 +147,7 @@ int cvmx_fdt_get_cpu_node(const void *fdt_addr, int node)
  *
  * @param[in]	fdt_addr	Address of FDT
  *
- * @return	Size of flat device tree in bytes or error if negative.
+ * Return:	Size of flat device tree in bytes or error if negative.
  */
 int cvmx_fdt_get_fdt_size(const void *fdt_addr)
 {
@@ -167,7 +167,7 @@ int cvmx_fdt_get_fdt_size(const void *fdt_addr)
  * @param[in]	strlist		Array of FDT device compatibility strings,
  *				must end with NULL or empty string.
  *
- * @return	0 if at least one item matches, 1 if no matches
+ * Return:	0 if at least one item matches, 1 if no matches
  */
 int cvmx_fdt_node_check_compatible_list(const void *fdt_addr, int node, const char *const *strlist)
 {
@@ -187,7 +187,7 @@ int cvmx_fdt_node_check_compatible_list(const void *fdt_addr, int node, const ch
  * @param	strlist		Array of FDT device compatibility strings, must
  *				end with NULL or empty string.
  *
- * @return	next matching node or -1 if no more matches.
+ * Return:	next matching node or -1 if no more matches.
  */
 int cvmx_fdt_node_offset_by_compatible_list(const void *fdt_addr, int startoffset,
 					    const char *const *strlist)
@@ -221,7 +221,7 @@ void cvmx_sfp_attach_phy(struct cvmx_fdt_sfp_info *sfp, struct cvmx_phy_info *ph
  * @param	sfp		Handle to SFP data structure
  * @param	ipd_port	Port to assign it to
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  */
 int cvmx_sfp_set_ipd_port(struct cvmx_fdt_sfp_info *sfp, int ipd_port)
 {
@@ -269,7 +269,7 @@ int cvmx_sfp_set_ipd_port(struct cvmx_fdt_sfp_info *sfp, int ipd_port)
  * @param		of_offset	Offset of vsc7224 node
  * @param[in,out]	vsc7224		Data structure to hold the data
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  */
 static int cvmx_fdt_parse_vsc7224_channels(const void *fdt_addr, int of_offset,
 					   struct cvmx_vsc7224 *vsc7224)
@@ -437,7 +437,7 @@ static int cvmx_fdt_parse_vsc7224_channels(const void *fdt_addr, int of_offset,
  *
  * @param[in]	fdt_addr	Address of flat device tree
  *
- * @return	0 for success, error otherwise
+ * Return:	0 for success, error otherwise
  */
 int __cvmx_fdt_parse_vsc7224(const void *fdt_addr)
 {
@@ -530,7 +530,7 @@ int __cvmx_fdt_parse_vsc7224(const void *fdt_addr)
  *
  * @param[in]	fdt_addr	Address of flat device tree
  *
- * @return	0 for success, error otherwise
+ * Return:	0 for success, error otherwise
  */
 int __cvmx_fdt_parse_avsp5410(const void *fdt_addr)
 {
@@ -665,7 +665,7 @@ int __cvmx_fdt_parse_avsp5410(const void *fdt_addr)
  * @param	of_offset	Offset of QSFP node
  * @param[out]	sfp_info	Pointer to sfp info to fill in
  *
- * @return	0 for success
+ * Return:	0 for success
  */
 static int cvmx_parse_qsfp(const void *fdt_addr, int of_offset, struct cvmx_fdt_sfp_info *sfp_info)
 {
@@ -684,7 +684,7 @@ static int cvmx_parse_qsfp(const void *fdt_addr, int of_offset, struct cvmx_fdt_
  * @param	of_offset	Offset of SFP node
  * @param[out]	sfp_info	Pointer to sfp info to fill in
  *
- * @return	0 for success
+ * Return:	0 for success
  */
 static int cvmx_parse_sfp(const void *fdt_addr, int of_offset, struct cvmx_fdt_sfp_info *sfp_info)
 {
@@ -702,7 +702,7 @@ static int cvmx_parse_sfp(const void *fdt_addr, int of_offset, struct cvmx_fdt_s
  * @param	of_offset	Offset of SFP node
  * @param[out]	sfp_info	Pointer to sfp info to fill in
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  */
 static int cvmx_parse_sfp_eeprom(const void *fdt_addr, int of_offset,
 				 struct cvmx_fdt_sfp_info *sfp_info)
@@ -741,7 +741,7 @@ static int cvmx_parse_sfp_eeprom(const void *fdt_addr, int of_offset,
  *
  * @param[in]	fdt_addr	Address of flat device tree
  *
- * @return pointer to sfp info or NULL if error
+ * Return: pointer to sfp info or NULL if error
  */
 struct cvmx_fdt_sfp_info *cvmx_helper_fdt_parse_sfp_info(const void *fdt_addr, int of_offset)
 {
@@ -806,7 +806,7 @@ error_exit:
  * @param	of_offset	fdt offset of slice
  * @param	phy_info	phy_info data structure
  *
- * @return	slice number if non-negative, otherwise error
+ * Return:	slice number if non-negative, otherwise error
  */
 static int cvmx_fdt_parse_cs4343_slice(const void *fdt_addr, int of_offset,
 				       struct cvmx_phy_info *phy_info)
@@ -905,7 +905,7 @@ static int cvmx_fdt_parse_cs4343_slice(const void *fdt_addr, int of_offset,
  * @param	of_offset	offset of slice or phy in device tree
  * @param	phy_info	phy_info data structure to fill in
  *
- * @return	0 for success, -1 on error
+ * Return:	0 for success, -1 on error
  */
 int cvmx_fdt_parse_cs4343(const void *fdt_addr, int of_offset, struct cvmx_phy_info *phy_info)
 {

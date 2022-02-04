@@ -545,13 +545,13 @@ static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
 	}
 
 	/* try black-list first */
-	if (efi_signature_lookup_digest(regs, dbx)) {
+	if (efi_signature_lookup_digest(regs, dbx, true)) {
 		EFI_PRINT("Image is not signed and its digest found in \"dbx\"\n");
 		goto out;
 	}
 
 	/* try white-list */
-	if (efi_signature_lookup_digest(regs, db))
+	if (efi_signature_lookup_digest(regs, db, false))
 		ret = true;
 	else
 		EFI_PRINT("Image is not signed and its digest not found in \"db\" or \"dbx\"\n");
@@ -633,7 +633,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		goto err;
 	}
 
-	if (efi_signature_lookup_digest(regs, dbx)) {
+	if (efi_signature_lookup_digest(regs, dbx, true)) {
 		EFI_PRINT("Image's digest was found in \"dbx\"\n");
 		goto err;
 	}
@@ -676,7 +676,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 				continue;
 			}
 			if (guidcmp(auth, &efi_guid_cert_type_pkcs7)) {
-				EFI_PRINT("Certificate type not supported: %pUl\n",
+				EFI_PRINT("Certificate type not supported: %pUs\n",
 					  auth);
 				continue;
 			}
@@ -734,7 +734,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 
 		EFI_PRINT("Signature was not verified by \"db\"\n");
 
-		if (efi_signature_lookup_digest(regs, db)) {
+		if (efi_signature_lookup_digest(regs, db, false)) {
 			ret = true;
 			break;
 		}

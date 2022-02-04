@@ -39,7 +39,7 @@
  *
  * @dev:	SATA device
  * @idx:	Register index to read
- * @return value read from register
+ * Return: value read from register
  */
 u32 pch_common_sir_read(struct udevice *dev, int idx);
 

@@ -371,12 +371,9 @@ void do_fixup_by_compat(void *fdt, const char *compat,
 		debug(" %.2x", *(u8*)(val+i));
 	debug("\n");
 #endif
-	off = fdt_node_offset_by_compatible(fdt, -1, compat);
-	while (off != -FDT_ERR_NOTFOUND) {
+	fdt_for_each_node_by_compatible(off, fdt, -1, compat)
 		if (create || (fdt_get_property(fdt, off, prop, NULL) != NULL))
 			fdt_setprop(fdt, off, prop, val, len);
-		off = fdt_node_offset_by_compatible(fdt, off, compat);
-	}
 }
 
 void do_fixup_by_compat_u32(void *fdt, const char *compat,
@@ -996,10 +993,9 @@ void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
 
 	for (i = 0; i < node_info_size; i++) {
 		idx = 0;
-		noff = -1;
 
-		while ((noff = fdt_node_offset_by_compatible(blob, noff,
-						node_info[i].compat)) >= 0) {
+		fdt_for_each_node_by_compatible(noff, blob, -1,
+						node_info[i].compat) {
 			const char *prop;
 
 			prop = fdt_getprop(blob, noff, "status", NULL);
@@ -1473,14 +1469,12 @@ out:
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off)
 {
-	int len, off = fdt_node_offset_by_compatible(blob, -1, compat);
-	while (off != -FDT_ERR_NOTFOUND) {
+	int len, off;
+
+	fdt_for_each_node_by_compatible(off, blob, -1, compat) {
 		const fdt32_t *reg = fdt_getprop(blob, off, "reg", &len);
-		if (reg) {
-			if (compat_off == fdt_translate_address(blob, off, reg))
-				return off;
-		}
-		off = fdt_node_offset_by_compatible(blob, off, compat);
+		if (reg && compat_off == fdt_translate_address(blob, off, reg))
+			return off;
 	}
 
 	return -FDT_ERR_NOTFOUND;
@@ -2049,7 +2043,7 @@ int fdt_overlay_apply_verbose(void *fdt, void *fdto)
  * fdt_valid() - Check if an FDT is valid. If not, change it to NULL
  *
  * @blobp: Pointer to FDT pointer
- * @return 1 if OK, 0 if bad (in which case *blobp is set to NULL)
+ * Return: 1 if OK, 0 if bad (in which case *blobp is set to NULL)
  */
 int fdt_valid(struct fdt_header **blobp)
 {

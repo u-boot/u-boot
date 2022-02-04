@@ -40,6 +40,7 @@ config STM32MP15x
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select OF_BOARD if TFABOOT
 	select OF_BOARD_SETUP
 	select PINCTRL_STM32
 	select STM32_RCC
@@ -68,9 +69,7 @@ choice
 config TARGET_ST_STM32MP15x
 	bool "STMicroelectronics STM32MP15x boards"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
-	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
@@ -85,9 +84,7 @@ config TARGET_ST_STM32MP15x
 config TARGET_MICROGEA_STM32MP1
 	bool "Engicam MicroGEA STM32MP1 SOM"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
-	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
@@ -112,9 +109,7 @@ config TARGET_MICROGEA_STM32MP1
 config TARGET_ICORE_STM32MP1
 	bool "Engicam i.Core STM32MP1 SOM"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
-	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
 	imply DISABLE_CONSOLE
@@ -136,8 +131,6 @@ config TARGET_ICORE_STM32MP1
 config TARGET_DH_STM32MP1_PDK2
 	bool "DH STM32MP1 PDK2"
 	select STM32MP15x
-	imply BOOTCOUNT_LIMIT
-	imply CMD_BOOTCOUNT
 	help
 		Target the DH PDK2 development kit with STM32MP15x SoM.
 
@@ -173,6 +166,7 @@ config STM32_ETZPC
 	bool "STM32 Extended TrustZone Protection"
 	depends on STM32MP15x
 	default y
+	imply BOOTP_SERVERIP
 	help
 	  Say y to enable STM32 Extended TrustZone Protection
 
@@ -202,7 +196,7 @@ config PRE_CON_BUF_SZ
 config BOOTSTAGE_STASH_ADDR
 	default 0xC3000000
 
-if BOOTCOUNT_LIMIT
+if BOOTCOUNT_GENERIC
 config SYS_BOOTCOUNT_SINGLEWORD
 	default y
 

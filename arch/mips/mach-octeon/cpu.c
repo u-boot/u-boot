@@ -89,7 +89,7 @@ int mach_cpu_init(void)
 /**
  * Returns number of cores
  *
- * @return	number of CPU cores for the specified node
+ * Return:	number of CPU cores for the specified node
  */
 static int cavm_octeon_num_cores(void)
 {

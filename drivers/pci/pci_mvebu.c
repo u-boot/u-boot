@@ -498,6 +498,13 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	mvebu_pcie_set_local_bus_nr(pcie, 0);
 	mvebu_pcie_set_local_dev_nr(pcie, 1);
 
+	/*
+	 * Kirkwood arch code already maps mbus windows for PCIe IO and MEM.
+	 * So skip calling mvebu_mbus_add_window_by_id() function as it would
+	 * fail on error "conflicts with another window" which means conflict
+	 * with existing PCIe window mappings.
+	 */
+#ifndef CONFIG_ARCH_KIRKWOOD
 	if (resource_size(&pcie->mem) &&
 	    mvebu_mbus_add_window_by_id(pcie->mem_target, pcie->mem_attr,
 					(phys_addr_t)pcie->mem.start,
@@ -519,6 +526,7 @@ static int mvebu_pcie_probe(struct udevice *dev)
 		pcie->io.start = 0;
 		pcie->io.end = -1;
 	}
+#endif
 
 	/* Setup windows and configure host bridge */
 	mvebu_pcie_setup_wins(pcie);
@@ -725,10 +733,17 @@ static int mvebu_pcie_bind(struct udevice *parent)
 	}
 	ports_count = 0;
 
+#ifdef CONFIG_ARCH_KIRKWOOD
+	mem.start = KW_DEFADR_PCI_MEM;
+	mem.end = KW_DEFADR_PCI_MEM + KW_DEFADR_PCI_MEM_SIZE - 1;
+	io.start = KW_DEFADR_PCI_IO;
+	io.end = KW_DEFADR_PCI_IO + KW_DEFADR_PCI_IO_SIZE - 1;
+#else
 	mem.start = MBUS_PCI_MEM_BASE;
 	mem.end = MBUS_PCI_MEM_BASE + MBUS_PCI_MEM_SIZE - 1;
 	io.start = MBUS_PCI_IO_BASE;
 	io.end = MBUS_PCI_IO_BASE + MBUS_PCI_IO_SIZE - 1;
+#endif
 
 	/* First phase: Fill mvebu_pcie struct for each port */
 	ofnode_for_each_subnode(subnode, dev_ofnode(parent)) {
@@ -809,6 +824,7 @@ static int mvebu_pcie_bind(struct udevice *parent)
 static const struct udevice_id mvebu_pcie_ids[] = {
 	{ .compatible = "marvell,armada-xp-pcie" },
 	{ .compatible = "marvell,armada-370-pcie" },
+	{ .compatible = "marvell,kirkwood-pcie" },
 	{ }
 };
 

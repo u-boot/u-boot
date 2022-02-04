@@ -15,7 +15,7 @@
  *
  * @param xiface Interface to probe
  *
- * @return Number of RGMII/GMII/MII ports (0-4).
+ * Return: Number of RGMII/GMII/MII ports (0-4).
  */
 int __cvmx_helper_rgmii_probe(int xiface);
 
@@ -35,7 +35,7 @@ void cvmx_helper_rgmii_internal_loopback(int port);
  *
  * @param xiface PKO Interface to configure (0 or 1)
  *
- * @return Zero on success
+ * Return: Zero on success
  */
 int __cvmx_helper_rgmii_enable(int xiface);
 
@@ -48,7 +48,7 @@ int __cvmx_helper_rgmii_enable(int xiface);
  *
  * @param ipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t __cvmx_helper_gmii_link_get(int ipd_port);
 
@@ -61,7 +61,7 @@ cvmx_helper_link_info_t __cvmx_helper_gmii_link_get(int ipd_port);
  *
  * @param ipd_port IPD/PKO port to query
  *
- * @return Link state
+ * Return: Link state
  */
 cvmx_helper_link_info_t __cvmx_helper_rgmii_link_get(int ipd_port);
 
@@ -76,7 +76,7 @@ cvmx_helper_link_info_t __cvmx_helper_rgmii_link_get(int ipd_port);
  * @param ipd_port  IPD/PKO port to configure
  * @param link_info The new link state
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int __cvmx_helper_rgmii_link_set(int ipd_port, cvmx_helper_link_info_t link_info);
 
@@ -92,7 +92,7 @@ int __cvmx_helper_rgmii_link_set(int ipd_port, cvmx_helper_link_info_t link_info
  * @param enable_external
  *                 Non zero if you want external loopback
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int __cvmx_helper_rgmii_configure_loopback(int ipd_port, int enable_internal, int enable_external);
 

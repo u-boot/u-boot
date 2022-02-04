@@ -44,7 +44,7 @@ static void read_u8_prop(ofnode node, char *name, size_t count, u8 *dst)
  *         Set to 0 if the property is expected to be a scalar
  * @dst:   Pointer to destination of where to save the value(s) read
  *         from devicetree
- * @return 0 on success, -ve on error
+ * Return: 0 on success, -ve on error
  */
 static int read_u16_prop(ofnode node, char *name, size_t count, u16 *dst)
 {
@@ -196,7 +196,7 @@ static void read_swizzle_prop(ofnode node, char *name, size_t count, u8 *dst)
  * @fsp_bindings: Binding describing which devicetree properties should
  *                be stored where in the FSP configuration structure
  *                The end of the list is declared by a NULL pointer in propname
- * @return 0 on success, -ve on error
+ * Return: 0 on success, -ve on error
  *
  * This function reads the configuration for FSP from the provided
  * devicetree node and saves it in the FSP configuration structure.

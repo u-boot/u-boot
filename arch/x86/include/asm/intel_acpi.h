@@ -22,7 +22,7 @@ struct udevice;
  * @core_id: CPU core number, as numbered by the SoC
  * @c_state_map: Information about each C state
  * @num_cstates: Number of entries in @c_state_map
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int acpi_generate_cpu_header(struct acpi_ctx *ctx, int core_id,
 			     const struct acpi_cstate *c_state_map,

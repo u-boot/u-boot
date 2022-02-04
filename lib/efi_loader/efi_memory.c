@@ -452,7 +452,7 @@ static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
  * @memory_type		usage type of the allocated memory
  * @pages		number of pages to be allocated
  * @memory		allocated memory
- * @return		status code
+ * Return:		status code
  */
 efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 				enum efi_memory_type memory_type,
@@ -680,7 +680,7 @@ efi_status_t efi_free_pool(void *buffer)
  * @map_key		key for the memory map
  * @descriptor_size	size of an individual memory descriptor
  * @descriptor_version	version number of the memory descriptor structure
- * @return		status code
+ * Return:		status code
  */
 efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				struct efi_mem_desc *memory_map,

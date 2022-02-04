@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <acpi/acpi_device.h>
 #include <dm/acpi.h>
 #include <dm/device-internal.h>
@@ -19,11 +20,26 @@
 
 #define MAX_ACPI_ITEMS	100
 
-/* Type of table that we collected */
+/**
+ * Type of table that we collected
+ *
+ * @TYPE_NONE: Not yet known
+ * @TYPE_SSDT: Items in the Secondary System Description Table
+ * @TYPE_DSDT: Items in the Differentiated System Description Table
+ * @TYPE_OTHER: Other (whole)
+ */
 enum gen_type_t {
 	TYPE_NONE,
 	TYPE_SSDT,
 	TYPE_DSDT,
+	TYPE_OTHER,
+};
+
+const char *gen_type_str[] = {
+	"-",
+	"ssdt",
+	"dsdt",
+	"other",
 };
 
 /* Type of method to call */
@@ -42,12 +58,16 @@ typedef int (*acpi_method)(const struct udevice *dev, struct acpi_ctx *ctx);
  *
  * @dev: Device that generated this data
  * @type: Table type it refers to
- * @buf: Buffer containing the data
+ * @writer: Writer that wrote this table
+ * @base: Pointer to base of table in its original location
+ * @buf: Buffer allocated to contain the data (NULL if not allocated)
  * @size: Size of the data in bytes
  */
 struct acpi_item {
 	struct udevice *dev;
+	const struct acpi_writer *writer;
 	enum gen_type_t type;
+	const char *base;
 	char *buf;
 	int size;
 };
@@ -103,16 +123,18 @@ int acpi_get_path(const struct udevice *dev, char *out_path, int maxlen)
 }
 
 /**
- * acpi_add_item() - Add a new item to the list of data collected
+ * add_item() - Add a new item to the list of data collected
  *
  * @ctx: ACPI context
- * @dev: Device that generated the data
+ * @dev: Device that generated the data, if type != TYPE_OTHER
+ * @writer: Writer entry that generated the data, if type == TYPE_OTHER
  * @type: Table type it refers to
  * @start: The start of the data (the end is obtained from ctx->current)
- * @return 0 if OK, -ENOSPC if too many items, -ENOMEM if out of memory
+ * Return: 0 if OK, -ENOSPC if too many items, -ENOMEM if out of memory
  */
-static int acpi_add_item(struct acpi_ctx *ctx, struct udevice *dev,
-			 enum gen_type_t type, void *start)
+static int add_item(struct acpi_ctx *ctx, struct udevice *dev,
+		    const struct acpi_writer *writer, enum gen_type_t type,
+		    void *start)
 {
 	struct acpi_item *item;
 	void *end = ctx->current;
@@ -124,14 +146,18 @@ static int acpi_add_item(struct acpi_ctx *ctx, struct udevice *dev,
 
 	item = &acpi_item[item_count];
 	item->dev = dev;
+	item->writer = writer;
 	item->type = type;
 	item->size = end - start;
+	item->base = start;
 	if (!item->size)
 		return 0;
-	item->buf = malloc(item->size);
-	if (!item->buf)
-		return log_msg_ret("mem", -ENOMEM);
-	memcpy(item->buf, start, item->size);
+	if (type != TYPE_OTHER) {
+		item->buf = malloc(item->size);
+		if (!item->buf)
+			return log_msg_ret("mem", -ENOMEM);
+		memcpy(item->buf, start, item->size);
+	}
 	item_count++;
 	log_debug("* %s: Added type %d, %p, size %x\n", dev->name, type, start,
 		  item->size);
@@ -139,17 +165,28 @@ static int acpi_add_item(struct acpi_ctx *ctx, struct udevice *dev,
 	return 0;
 }
 
+int acpi_add_other_item(struct acpi_ctx *ctx, const struct acpi_writer *writer,
+			void *start)
+{
+	return add_item(ctx, NULL, writer, TYPE_OTHER, start);
+}
+
 void acpi_dump_items(enum acpi_dump_option option)
 {
 	int i;
 
+	printf("Seq  Type       Base   Size  Device/Writer\n");
+	printf("---  -----  --------   ----  -------------\n");
 	for (i = 0; i < item_count; i++) {
 		struct acpi_item *item = &acpi_item[i];
 
-		printf("dev '%s', type %d, size %x\n", item->dev->name,
-		       item->type, item->size);
+		printf("%3x  %-5s  %8lx  %5x  %s\n", i,
+		       gen_type_str[item->type],
+		       (ulong)map_to_sysmem(item->base), item->size,
+		       item->dev ? item->dev->name : item->writer->name);
 		if (option == ACPI_DUMP_CONTENTS) {
-			print_buffer(0, item->buf, 1, item->size, 0);
+			print_buffer(0, item->buf ? item->buf : item->base, 1,
+				     item->size, 0);
 			printf("\n");
 		}
 	}
@@ -162,7 +199,7 @@ static struct acpi_item *find_acpi_item(const char *devname)
 	for (i = 0; i < item_count; i++) {
 		struct acpi_item *item = &acpi_item[i];
 
-		if (!strcmp(devname, item->dev->name))
+		if (item->dev && !strcmp(devname, item->dev->name))
 			return item;
 	}
 
@@ -179,7 +216,7 @@ static struct acpi_item *find_acpi_item(const char *devname)
  * @start: Start position to put the sorted items. The items will follow each
  *	other in sorted order
  * @type: Type of items to sort
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int sort_acpi_item_type(struct acpi_ctx *ctx, void *start,
 			       enum gen_type_t type)
@@ -266,19 +303,18 @@ int acpi_recurse_method(struct acpi_ctx *ctx, struct udevice *parent,
 
 	func = acpi_get_method(parent, method);
 	if (func) {
-		void *start = ctx->current;
-
 		log_debug("- method %d, %s %p\n", method, parent->name, func);
 		ret = device_of_to_plat(parent);
 		if (ret)
 			return log_msg_ret("ofdata", ret);
+		ctx->tab_start = ctx->current;
 		ret = func(parent, ctx);
 		if (ret)
 			return log_msg_ret("func", ret);
 
 		/* Add the item to the internal list */
 		if (type != TYPE_NONE) {
-			ret = acpi_add_item(ctx, parent, type, start);
+			ret = add_item(ctx, parent, NULL, type, ctx->tab_start);
 			if (ret)
 				return log_msg_ret("add", ret);
 		}

@@ -27,10 +27,11 @@ config BOOTP_SEND_HOSTNAME
 config NET_RANDOM_ETHADDR
 	bool "Random ethaddr if unset"
 	help
-	  Selecting this will allow the Ethernet interface to function
-	  even when the ethaddr variable for that interface is unset.
-	  A new MAC address will be generated on every boot and it will
-	  not be added to the environment.
+	  Selecting this will allow the Ethernet interface to function even
+	  when the ethaddr variable for that interface is unset.  In this case,
+	  a random MAC address in the locally administered address space is
+	  generated. It will be saved to the appropriate environment variable,
+	  too.
 
 config NETCONSOLE
 	bool "NetConsole support"
@@ -97,5 +98,29 @@ config SERVERIP_FROM_PROXYDHCP_DELAY_MS
 	  Amount of additional time to wait for ProxyDHCP response after
 		receiving response from main DHCP server. Has no effect if
 		SERVERIP_FROM_PROXYDHCP is false.
+
+config KEEP_SERVERADDR
+	bool "Write the server's MAC address to 'serveraddr'"
+	default y if SANDBOX
+	help
+	  Keeps the server's MAC address, in the env 'serveraddr'
+	  for passing to bootargs (like Linux's netconsole option). If this is
+	  enabled, when an ARP reply is received, the server's IP address is
+	  written there.
+
+config UDP_CHECKSUM
+	bool "Check the UDP checksum"
+	default y if SANDBOX
+	help
+	  Enable this to verify the checksum on UDP packets. If the checksum
+	  is wrong then the packet is discussed and an error is shown, like
+	  "UDP wrong checksum 29374a23 30ff3826"
+
+config BOOTP_SERVERIP
+	bool "Use the 'serverip' env var for tftp, not bootp"
+	help
+	  Enable this if the TFTP server will be the 'serverip' environment
+	  variable, not the BOOTP server. This affects the operation of both
+	  bootp and tftp.
 
 endif   # if NET

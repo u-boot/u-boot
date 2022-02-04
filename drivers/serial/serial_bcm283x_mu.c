@@ -140,7 +140,7 @@ static const struct udevice_id bcm283x_mu_serial_id[] = {
  * The serial device will only work properly if it has been muxed to the serial
  * pins by firmware. Check whether that happened here.
  *
- * @return true if serial device is muxed, false if not
+ * Return: true if serial device is muxed, false if not
  */
 static bool bcm283x_is_serial_muxed(void)
 {

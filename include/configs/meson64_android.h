@@ -283,6 +283,8 @@
 	EXTRA_ANDROID_ENV_SETTINGS                                    \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \
+	"fastboot_raw_partition_bootloader=0x1 0xfff mmcpart 1\0"     \
+	"fastboot_raw_partition_bootenv=0x0 0xfff mmcpart 2\0"        \
 	ANDROIDBOOT_GET_CURRENT_SLOT_CMD                              \
 	AVB_VERIFY_CMD                                                \
 	"force_avb=0\0"                                               \

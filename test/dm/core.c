@@ -579,7 +579,7 @@ DM_TEST(dm_test_uclass, 0);
  *		receive an incrementing value
  * @child:	If not NULL, then the child device pointers are written into
  *		this array.
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 static int create_children(struct unit_test_state *uts, struct udevice *parent,
 			   int count, int key, struct udevice *child[])

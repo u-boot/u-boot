@@ -824,7 +824,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 	efi_status_t ret = EFI_SUCCESS;
 	u16 *dst;
 
-	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
+	EFI_ENTRY("%p, %pUs, %p, %p", file, info_type, buffer_size, buffer);
 
 	if (!file || !info_type || !buffer_size ||
 	    (*buffer_size && !buffer)) {
@@ -924,7 +924,7 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_UNSUPPORTED;
 
-	EFI_ENTRY("%p, %pUl, %zu, %p", file, info_type, buffer_size, buffer);
+	EFI_ENTRY("%p, %pUs, %zu, %p", file, info_type, buffer_size, buffer);
 
 	if (!guidcmp(info_type, &efi_file_info_guid)) {
 		struct efi_file_info *info = (struct efi_file_info *)buffer;
@@ -1084,7 +1084,7 @@ static const struct efi_file_handle efi_file_handle_protocol = {
  * efi_file_from_path() - open file via device path
  *
  * @fp:		device path
- * @return:	EFI_FILE_PROTOCOL for the file or NULL
+ * Return:	EFI_FILE_PROTOCOL for the file or NULL
  */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 {

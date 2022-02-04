@@ -149,7 +149,7 @@ static int pci_rom_probe(struct udevice *dev, struct pci_rom_header **hdrp)
  * @ram_headerp:	Returns a pointer to the image in RAM
  * @allocedp:		Returns true if @ram_headerp was allocated and needs
  *			to be freed
- * @return 0 if OK, -ve on error. Note that @allocedp is set up regardless of
+ * Return: 0 if OK, -ve on error. Note that @allocedp is set up regardless of
  * the error state. Even if this function returns an error, it may have
  * allocated memory.
  */

@@ -39,7 +39,7 @@ struct omap4_scrm_regs *const scrm = (struct omap4_scrm_regs *)0x4a30a000;
 /**
  * @brief board_init
  *
- * @return 0
+ * Return: 0
  */
 int board_init(void)
 {
@@ -215,7 +215,7 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs
  * such as power configurations, ethernet initialization as phase2 of
  * boot sequence
  *
- * @return 0
+ * Return: 0
  */
 int misc_init_r(void)
 {

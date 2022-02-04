@@ -36,7 +36,7 @@
  * @param elem_size Size of each element
  * @param msg       Text string to show when allocation fails
  *
- * @return A valid memory location or NULL on failure
+ * Return: A valid memory location or NULL on failure
  */
 static void *nix_memalloc(int num_elements, size_t elem_size, const char *msg)
 {

@@ -60,7 +60,7 @@ int wdt_reset(struct udevice *dev);
  *
  * @dev: WDT Device
  * @flags: Driver specific flags
- * @return 0 if OK -ve on error. If wdt action is system reset,
+ * Return: 0 if OK -ve on error. If wdt action is system reset,
  * this function may never return.
  */
 int wdt_expire_now(struct udevice *dev, ulong flags);

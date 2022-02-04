@@ -12,7 +12,6 @@
 /*
  * CFI flash
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */

@@ -1,8 +1,0 @@
-// SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
-/*
- * Copyright (C) Linaro Ltd 2019 - All Rights Reserved
- * Author: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
- */
-
-/* This is kept for backward compatibility and will be removed */
-#include "stm32mp15xx-dhcor-avenger96.dts"

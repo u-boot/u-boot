@@ -58,7 +58,7 @@ static int spl_net_load_image(struct spl_image_info *spl_image,
 	} else {
 		debug("Legacy image\n");
 
-		rv = spl_parse_image_header(spl_image, header);
+		rv = spl_parse_image_header(spl_image, bootdev, header);
 		if (rv)
 			return rv;
 

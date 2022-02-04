@@ -31,6 +31,7 @@
 #endif
 
 static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
+		struct spl_boot_device *bootdev,
 		struct blk_desc *stor_dev, unsigned long sector)
 {
 	struct image_header *header;
@@ -45,7 +46,7 @@ static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
 	if (count == 0)
 		return -EIO;
 
-	ret = spl_parse_image_header(spl_image, header);
+	ret = spl_parse_image_header(spl_image, bootdev, header);
 	if (ret)
 		return ret;
 
@@ -90,18 +91,18 @@ static int spl_sata_load_image(struct spl_image_info *spl_image,
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
 	if (spl_start_uboot() ||
-	    spl_load_image_fat_os(spl_image, stor_dev,
+	    spl_load_image_fat_os(spl_image, bootdev, stor_dev,
 				  CONFIG_SYS_SATA_FAT_BOOT_PARTITION))
 #endif
 	{
 		err = -ENOSYS;
 
 		if (IS_ENABLED(CONFIG_SPL_FS_FAT)) {
-			err = spl_load_image_fat(spl_image, stor_dev,
+			err = spl_load_image_fat(spl_image, bootdev, stor_dev,
 					CONFIG_SYS_SATA_FAT_BOOT_PARTITION,
 					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 		} else if (IS_ENABLED(CONFIG_SPL_SATA_RAW_U_BOOT_USE_SECTOR)) {
-			err = spl_sata_load_image_raw(spl_image, stor_dev,
+			err = spl_sata_load_image_raw(spl_image, bootdev, stor_dev,
 				CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR);
 		}
 	}

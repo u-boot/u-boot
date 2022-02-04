@@ -43,7 +43,7 @@ static u8 *image;
  * Decompress the disk image.
  *
  * @image	decompressed disk image
- * @return	status code
+ * Return:	status code
  */
 static efi_status_t decompress(u8 **image)
 {
@@ -79,7 +79,7 @@ static efi_status_t decompress(u8 **image)
  *
  * @handle:	handle of the loaded image
  * @systable:	system table
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
@@ -96,7 +96,7 @@ static int setup(const efi_handle_t handle,
 /*
  * Tear down unit test.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int teardown(void)
 {
@@ -117,7 +117,7 @@ static int teardown(void)
  *
  * Load and start the application image.
  *
- * @return:	EFI_ST_SUCCESS for success
+ * Return:	EFI_ST_SUCCESS for success
  */
 static int execute(void)
 {

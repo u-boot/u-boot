@@ -270,7 +270,7 @@ static inline void cvmx_pko_send_packet_prepare(u64 port __attribute__((unused))
  * @param use_locking
  *               CVMX_PKO_LOCK_NONE, CVMX_PKO_LOCK_ATOMIC_TAG, or CVMX_PKO_LOCK_CMD_QUEUE
  *
- * @return returns CVMX_PKO_SUCCESS on success, or error code on failure of output
+ * Return: returns CVMX_PKO_SUCCESS on success, or error code on failure of output
  */
 static inline cvmx_pko_return_value_t
 cvmx_hwpko_send_packet_finish(u64 ipd_port, u64 queue, cvmx_pko_command_word0_t pko_command,
@@ -313,7 +313,7 @@ cvmx_hwpko_send_packet_finish(u64 ipd_port, u64 queue, cvmx_pko_command_word0_t 
  * @param use_locking
  *               CVMX_PKO_LOCK_NONE, CVMX_PKO_LOCK_ATOMIC_TAG, or CVMX_PKO_LOCK_CMD_QUEUE
  *
- * @return returns CVMX_PKO_SUCCESS on success, or error code on failure of output
+ * Return: returns CVMX_PKO_SUCCESS on success, or error code on failure of output
  */
 static inline cvmx_pko_return_value_t
 cvmx_hwpko_send_packet_finish3(u64 ipd_port, u64 queue, cvmx_pko_command_word0_t pko_command,
@@ -358,7 +358,7 @@ int cvmx_pko_get_num_pko_ports(int interface, int index);
  * for the port.
  *
  * @param port   IPD port number
- * @return Base output queue
+ * Return: Base output queue
  */
 int cvmx_pko_get_base_queue(int port);
 
@@ -366,7 +366,7 @@ int cvmx_pko_get_base_queue(int port);
  * For a given port number, return the number of pko output queues.
  *
  * @param port   IPD port number
- * @return Number of output queues
+ * Return: Number of output queues
  */
 int cvmx_pko_get_num_queues(int port);
 
@@ -407,7 +407,7 @@ void cvmx_pko_get_port_status(u64 ipd_port, u64 clear, cvmx_pko_port_status_t *s
  * @param burst     Maximum number of packets to burst in a row before rate
  *                  limiting cuts in.
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_pko_rate_limit_packets(int port, int packets_s, int burst);
 
@@ -420,7 +420,7 @@ int cvmx_pko_rate_limit_packets(int port, int packets_s, int burst);
  * @param burst  Maximum number of bits to burst before rate
  *               limiting cuts in.
  *
- * @return Zero on success, negative on failure
+ * Return: Zero on success, negative on failure
  */
 int cvmx_pko_rate_limit_bits(int port, u64 bits_s, int burst);
 
@@ -432,7 +432,7 @@ int cvmx_pko_rate_limit_bits(int port, u64 bits_s, int burst);
  * @param interface
  * @param index
  *
- * @return negative on error.
+ * Return: negative on error.
  *
  * This applies only to the non-loopback interfaces.
  *
@@ -444,7 +444,7 @@ int __cvmx_pko_get_pipe(int interface, int index);
  * for the port.
  *
  * @param pko_port   PKO port number
- * @return           Base output queue
+ * Return:           Base output queue
  */
 int cvmx_pko_get_base_queue_pkoid(int pko_port);
 
@@ -453,7 +453,7 @@ int cvmx_pko_get_base_queue_pkoid(int pko_port);
  * for the port.
  *
  * @param pko_port	PKO port number
- * @return		the number of output queues
+ * Return:		the number of output queues
  */
 int cvmx_pko_get_num_queues_pkoid(int pko_port);
 
@@ -495,7 +495,7 @@ static inline void cvmx_pko_doorbell_pkoid(u64 pko_port, u64 queue, u64 len)
  * @param use_locking
  *               CVMX_PKO_LOCK_NONE, CVMX_PKO_LOCK_ATOMIC_TAG, or CVMX_PKO_LOCK_CMD_QUEUE
  *
- * @return returns CVMX_PKO_SUCCESS on success, or error code on failure of output
+ * Return: returns CVMX_PKO_SUCCESS on success, or error code on failure of output
  */
 static inline cvmx_pko_return_value_t
 cvmx_hwpko_send_packet_finish_pkoid(int pko_port, u64 queue, cvmx_pko_command_word0_t pko_command,
@@ -533,7 +533,7 @@ cvmx_hwpko_send_packet_finish_pkoid(int pko_port, u64 queue, cvmx_pko_command_wo
  * @param use_locking
  *               CVMX_PKO_LOCK_NONE, CVMX_PKO_LOCK_ATOMIC_TAG, or CVMX_PKO_LOCK_CMD_QUEUE
  *
- * @return returns CVMX_PKO_SUCCESS on success, or error code on failure of output
+ * Return: returns CVMX_PKO_SUCCESS on success, or error code on failure of output
  */
 static inline cvmx_pko_return_value_t
 cvmx_hwpko_send_packet_finish3_pkoid(u64 pko_port, u64 queue, cvmx_pko_command_word0_t pko_command,
@@ -561,7 +561,7 @@ cvmx_hwpko_send_packet_finish3_pkoid(u64 pko_port, u64 queue, cvmx_pko_command_w
  * Obtain the number of PKO commands pending in a queue
  *
  * @param queue is the queue identifier to be queried
- * @return the number of commands pending transmission or -1 on error
+ * Return: the number of commands pending transmission or -1 on error
  */
 int cvmx_pko_queue_pend_count(cvmx_cmd_queue_id_t queue);
 

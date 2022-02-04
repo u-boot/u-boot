@@ -103,9 +103,7 @@ static int get_lmac_fdt_node(const void *fdt, int search_node, int search_bgx, i
 	int parent;
 
 	/* Iterate through all bgx ports */
-	node = -1;
-	while ((node = fdt_node_offset_by_compatible((void *)fdt, node,
-						     compat)) >= 0) {
+	fdt_for_each_node_by_compatible(node, (void *)fdt, -1, compat) {
 		/* Get the node and bgx from the physical address */
 		parent = fdt_parent_offset(fdt, node);
 		reg = fdt_getprop(fdt, parent, "reg", &len);
@@ -146,9 +144,8 @@ static int get_mix_fdt_node(const void *fdt, int search_node, int search_index)
 	int node;
 
 	/* Iterate through all the mix fdt nodes */
-	node = -1;
-	while ((node = fdt_node_offset_by_compatible((void *)fdt, node,
-						     "cavium,octeon-7890-mix")) >= 0) {
+	fdt_for_each_node_by_compatible(node, (void *)fdt, -1,
+					"cavium,octeon-7890-mix") {
 		int parent;
 		int len;
 		const char *name;

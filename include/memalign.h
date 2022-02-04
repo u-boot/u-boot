@@ -103,7 +103,7 @@
  *
  * @size:	Minimum number of bytes to allocate
  *
- * @return pointer to new memory region, or NULL if there is no more memory
+ * Return: pointer to new memory region, or NULL if there is no more memory
  * available.
  */
 static inline void *malloc_cache_aligned(size_t size)

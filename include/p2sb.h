@@ -63,7 +63,7 @@ struct p2sb_ops {
  *
  * @dev: P2SB device
  * @hide: true to hide the device, false to show it
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  */
 int p2sb_set_hide(struct udevice *dev, bool hide);
 
@@ -74,7 +74,7 @@ int p2sb_set_hide(struct udevice *dev, bool hide);
  *
  * @dev: Device to read from
  * @offset: Offset within device to read
- * @return value read
+ * Return: value read
  */
 uint pcr_read32(struct udevice *dev, uint offset);
 uint pcr_read16(struct udevice *dev, uint offset);
@@ -149,7 +149,7 @@ static inline void pcr_clrbits8(struct udevice *dev, uint offset, uint clr)
  *
  * @dev: Child device (whose parent is UCLASS_P2SB)
  * @portid: Port ID of child device
- * @return 0 if OK, -ENODEV is the p2sb device could not be found
+ * Return: 0 if OK, -ENODEV is the p2sb device could not be found
  */
 int p2sb_set_port_id(struct udevice *dev, int portid);
 
@@ -157,7 +157,7 @@ int p2sb_set_port_id(struct udevice *dev, int portid);
  * p2sb_get_port_id() - Get the port ID for a p2sb child device
  *
  * @dev: Child device (whose parent is UCLASS_P2SB)
- * @return Port ID of that child
+ * Return: Port ID of that child
  */
 int p2sb_get_port_id(struct udevice *dev);
 
@@ -166,7 +166,7 @@ int p2sb_get_port_id(struct udevice *dev);
  *
  * @dev: Child device (whose parent is UCLASS_P2SB)
  * @offset: Offset within that child's address space
- * @return pointer to that offset within the child's address space
+ * Return: pointer to that offset within the child's address space
  */
 void *pcr_reg_address(struct udevice *dev, uint offset);
 

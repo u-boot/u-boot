@@ -211,7 +211,6 @@ static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	addr = hextoul(argv[2], NULL);
 	size = hextoul(argv[3], NULL);
-	flush_dcache_range((ulong)addr, (ulong)(addr + size));
 
 	zynqmp_pmufw_load_config_object((const void *)(uintptr_t)addr,
 					(size_t)size);

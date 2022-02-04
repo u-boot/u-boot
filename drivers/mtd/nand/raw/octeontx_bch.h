@@ -75,7 +75,7 @@ int octeontx_bch_wait(struct bch_vf *vf, union bch_resp *resp,
  * @param[out] ecc	8-byte aligned pointer to where ecc data should go
  * @param[in] resp	pointer to where responses will be written.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 int octeontx_bch_encode(struct bch_vf *vf, dma_addr_t block, u16 block_size,
 			u8 bch_level, dma_addr_t ecc, dma_addr_t resp);
@@ -95,7 +95,7 @@ int octeontx_bch_encode(struct bch_vf *vf, dma_addr_t block, u16 block_size,
  *				This should not be the same as block_ecc_in.
  * @param[in] resp		pointer to where responses will be written.
  *
- * @return Zero on success, negative on failure.
+ * Return: Zero on success, negative on failure.
  */
 
 int octeontx_bch_decode(struct bch_vf *vf, dma_addr_t block_ecc_in,
@@ -124,7 +124,7 @@ static inline void octeontx_bch_write_doorbell(u64 num_commands,
  * In this case, the initial probe returns success but the actual probing
  * is deferred until the BCH VF has been probed.
  *
- * @return	0 for success, otherwise error
+ * Return:	0 for success, otherwise error
  */
 int octeontx_pci_nand_deferred_probe(void);
 

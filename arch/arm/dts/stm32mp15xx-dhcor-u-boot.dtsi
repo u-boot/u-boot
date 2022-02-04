@@ -15,6 +15,11 @@
 
 / {
 	u-boot,dm-pre-reloc;
+
+	aliases {
+		eeprom0 = &eeprom0;
+	};
+
 	config {
 		dh,ddr3-coding-gpios = <&gpiog 0 0>, <&gpiog 1 0>;
 		dh,som-coding-gpios = <&gpioz 7 0>, <&gpiof 3 0>;
@@ -27,6 +32,10 @@
 
 &i2c4 {
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+
+	eeprom0: eeprom@53 {
+	};
 };
 
 &i2c4_pins_a {
@@ -38,6 +47,15 @@
 
 &pmic {
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+
+	regulators {
+		u-boot,dm-spl;
+	};
+};
+
+&pwr_regulators {
+	u-boot,dm-spl;
 };
 
 &qspi {
@@ -151,4 +169,36 @@
 		cfg = < 3 98 5 7 5 PQR(1,1,1) >;
 		u-boot,dm-pre-reloc;
 	};
+};
+
+&reg11 {
+	u-boot,dm-spl;
+};
+
+&reg18 {
+	u-boot,dm-spl;
+};
+
+&usbotg_hs {
+	u-boot,dm-spl;
+};
+
+&usbphyc {
+	u-boot,dm-spl;
+};
+
+&usbphyc_port0 {
+	u-boot,dm-spl;
+};
+
+&usbphyc_port1 {
+	u-boot,dm-spl;
+};
+
+&vdd_io {
+	u-boot,dm-spl;
+};
+
+&vdd_usb {
+	u-boot,dm-spl;
 };

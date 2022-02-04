@@ -69,7 +69,7 @@ static int menukey;
  * before starting to enter the password.
  *
  * @etime: Timeout value ticks (stop when get_ticks() reachs this)
- * @return 0 if autoboot should continue, 1 if it should stop
+ * Return: 0 if autoboot should continue, 1 if it should stop
  */
 static int passwd_abort_crypt(uint64_t etime)
 {
@@ -143,7 +143,7 @@ static int slow_equals(u8 *a, u8 *b, int len)
  * This checks for the user entering a SHA256 hash within a given time.
  *
  * @etime: Timeout value ticks (stop when get_ticks() reachs this)
- * @return 0 if autoboot should continue, 1 if it should stop
+ * Return: 0 if autoboot should continue, 1 if it should stop
  */
 static int passwd_abort_sha256(uint64_t etime)
 {
@@ -219,7 +219,7 @@ static int passwd_abort_sha256(uint64_t etime)
  * This checks for the user entering a string within a given time.
  *
  * @etime: Timeout value ticks (stop when get_ticks() reachs this)
- * @return 0 if autoboot should continue, 1 if it should stop
+ * Return: 0 if autoboot should continue, 1 if it should stop
  */
 static int passwd_abort_key(uint64_t etime)
 {
@@ -315,7 +315,7 @@ static void flush_stdin(void)
  * sha256-fallback has been enabled via the config setting
  * `AUTOBOOT_SHA256_FALLBACK`.
  *
- * @return `false` if we must not fall-back, `true` if plain sha256 should be tried
+ * Return: `false` if we must not fall-back, `true` if plain sha256 should be tried
  */
 static bool fallback_to_sha256(void)
 {

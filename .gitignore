@@ -95,6 +95,14 @@ GTAGS
 
 # Python cache
 __pycache__
+
+# Python code coverage output (python3-coverage html)
+/htmlcov/
+
+# pylint files
+/pylint.cur
+/pylint.out/
+
 /H743 addresses.xlsx
 /ST_STM32H743_TraceBuffer.pex
 /arch/arm/include/asm/arch.link

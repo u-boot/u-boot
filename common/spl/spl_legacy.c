@@ -76,6 +76,7 @@ static inline int spl_image_get_comp(const struct image_header *hdr)
 }
 
 int spl_load_legacy_img(struct spl_image_info *spl_image,
+			struct spl_boot_device *bootdev,
 			struct spl_load_info *load, ulong header)
 {
 	__maybe_unused SizeT lzma_len;
@@ -87,7 +88,7 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 	/* Read header into local struct */
 	load->read(load, header, sizeof(hdr), &hdr);
 
-	ret = spl_parse_image_header(spl_image, &hdr);
+	ret = spl_parse_image_header(spl_image, bootdev, &hdr);
 	if (ret)
 		return ret;
 

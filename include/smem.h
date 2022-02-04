@@ -57,7 +57,7 @@ struct smem_ops {
  * @host:	remote processor id, or -1
  * @item:	smem item handle
  * @size:	number of bytes to be allocated
- * @return 0 if OK, -ve on error
+ * Return: 0 if OK, -ve on error
  *
  * Allocate space for a given smem item of size @size, given that the item is
  * not yet allocated.
@@ -69,7 +69,7 @@ int smem_alloc(struct udevice *dev, unsigned int host, unsigned int item, size_t
  * @host:	the remote processor, or -1 for all processors.
  * @item:	smem item handle
  * @size:	pointer to be filled out with size of the item
- * @return	pointer on success, NULL on error
+ * Return:	pointer on success, NULL on error
  *
  * Looks up smem item and returns pointer to it. Size of smem
  * item is returned in @size.
@@ -80,7 +80,7 @@ void *smem_get(struct udevice *dev, unsigned int host, unsigned int item, size_t
  * smem_get_free_space() - retrieve amount of free space in a partition
  * @host:	the remote processor identifying a partition, or -1
  *			for all processors.
- * @return	size in bytes, -ve on error
+ * Return:	size in bytes, -ve on error
  *
  * To be used by smem clients as a quick way to determine if any new
  * allocations has been made.

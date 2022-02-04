@@ -179,7 +179,7 @@ struct dma {
  * @index:	The index of the DMA to request, within the client's list of
  *		DMA channels.
  * @dma:	A pointer to a DMA struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int dma_get_by_index(struct udevice *dev, int index, struct dma *dma);
 
@@ -196,7 +196,7 @@ int dma_get_by_index(struct udevice *dev, int index, struct dma *dma);
  * @name:	The name of the DMA to request, within the client's list of
  *		DMA channels.
  * @dma:	A pointer to a DMA struct to initialize.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int dma_get_by_name(struct udevice *dev, const char *name, struct dma *dma);
 # else
@@ -225,7 +225,7 @@ static inline int dma_get_by_name(struct udevice *dev, const char *name,
  * @dma: A pointer to a DMA struct to initialize. The caller must
  *	 have already initialized any field in this struct which the
  *	 DMA provider uses to identify the DMA channel.
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int dma_request(struct udevice *dev, struct dma *dma);
 
@@ -234,7 +234,7 @@ int dma_request(struct udevice *dev, struct dma *dma);
  *
  * @dma: A DMA struct that was previously successfully requested by
  *	 dma_request/get_by_*().
- * @return 0 if OK, or a negative error code.
+ * Return: 0 if OK, or a negative error code.
  */
 int dma_free(struct dma *dma);
 
@@ -243,7 +243,7 @@ int dma_free(struct dma *dma);
  *
  * @dma: A DMA struct that was previously successfully requested by
  *	 dma_request/get_by_*().
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int dma_enable(struct dma *dma);
 
@@ -252,7 +252,7 @@ int dma_enable(struct dma *dma);
  *
  * @dma: A DMA struct that was previously successfully requested by
  *	 dma_request/get_by_*().
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int dma_disable(struct dma *dma);
 
@@ -266,7 +266,7 @@ int dma_disable(struct dma *dma);
  *	 dma_request/get_by_*().
  * @dst: The receive buffer pointer.
  * @size: The receive buffer size
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int dma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size);
 
@@ -277,7 +277,7 @@ int dma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size);
  *	 dma_request/get_by_*().
  * @dst: The destination pointer.
  * @metadata: DMA driver's channel specific data
- * @return length of received data on success, or zero - no data,
+ * Return: length of received data on success, or zero - no data,
  * or -ve error code.
  */
 int dma_receive(struct dma *dma, void **dst, void *metadata);
@@ -290,7 +290,7 @@ int dma_receive(struct dma *dma, void **dst, void *metadata);
  * @src: The source pointer.
  * @len: Length of the data to be sent (number of bytes).
  * @metadata: DMA driver's channel specific data
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int dma_send(struct dma *dma, void *src, size_t len, void *metadata);
 
@@ -302,7 +302,7 @@ int dma_send(struct dma *dma, void *src, size_t len, void *metadata);
  *            configuration data client needs
  * @cfg_data: Pointer to store pointer to DMA driver specific
  *            configuration data for the given cfg_id (output param)
- * @return zero on success, or -ve error code.
+ * Return: zero on success, or -ve error code.
  */
 int dma_get_cfg(struct dma *dma, u32 cfg_id, void **cfg_data);
 #endif /* CONFIG_DMA_CHANNELS */
@@ -315,7 +315,7 @@ int dma_get_cfg(struct dma *dma, u32 cfg_id, void **cfg_data);
  * @transfer_type - transfer type should be one/multiple of
  *		    DMA_SUPPORTS_*
  * @devp - udevice pointer to return the found device
- * @return - will return on success and devp will hold the
+ * Return: - will return on success and devp will hold the
  *	     pointer to the device
  */
 int dma_get_device(u32 transfer_type, struct udevice **devp);
@@ -327,7 +327,7 @@ int dma_get_device(u32 transfer_type, struct udevice **devp);
  * @dst - destination pointer
  * @src - souce pointer
  * @len - data length to be copied
- * @return - on successful transfer returns no of bytes
+ * Return: - on successful transfer returns no of bytes
 	     transferred and on failure return error code.
  */
 int dma_memcpy(void *dst, void *src, size_t len);

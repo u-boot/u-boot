@@ -237,7 +237,7 @@ void ns16550_reinit(struct ns16550 *com_port, int baud_divisor);
  * @port:	UART port
  * @clock:	UART input clock speed in Hz
  * @baudrate:	Required baud rate
- * @return baud rate divisor that should be used
+ * Return: baud rate divisor that should be used
  */
 int ns16550_calc_divisor(struct ns16550 *port, int clock, int baudrate);
 
@@ -257,7 +257,7 @@ int ns16550_serial_of_to_plat(struct udevice *dev);
  * ns16550_serial_probe() - probe a serial port
  *
  * This sets up the serial port ready for use, except for the baud rate
- * @return 0, or -ve on error
+ * Return: 0, or -ve on error
  */
 int ns16550_serial_probe(struct udevice *dev);
 

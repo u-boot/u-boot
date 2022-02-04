@@ -57,7 +57,6 @@
 /* Ethernet need */
 #ifdef CONFIG_DWC_ETH_QOS
 #define CONFIG_SERVERIP                 192.168.1.1
-#define CONFIG_BOOTP_SERVERIP
 #define CONFIG_SYS_AUTOLOAD		"no"
 #endif
 
@@ -138,7 +137,6 @@
 #endif
 
 #define STM32MP_EXTRA \
-	"altbootcmd=run bootcmd\0" \
 	"env_check=if env info -p -d -q; then env save; fi\0" \
 	"boot_net_usb_start=true\0"
 
