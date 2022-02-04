@@ -452,9 +452,6 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 	  values, then choose this option, and create a file included as
 	  <asm/arch/boot0.h> which contains the required assembler code.
 
-config ARM_CORTEX_CPU_IS_UP
-	bool
-
 config USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy"
 	default y if !ARM64

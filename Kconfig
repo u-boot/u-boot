@@ -246,9 +246,10 @@ config SYS_MALLOC_F_LEN
 config SYS_MALLOC_LEN
 	hex "Define memory for Dynamic allocation"
 	default 0x2000000 if ARCH_ROCKCHIP || ARCH_OMAP2PLUS || ARCH_MESON
-	default 0x4020000 if ARCH_SUNXI && !MACH_SUN8I_V3S
 	default 0x200000 if ARCH_BMIPS || X86
-	default 0x220000 if ARCH_SUNXI && MACH_SUN8I_V3S
+	default 0x120000 if MACH_SUNIV
+	default 0x220000 if MACH_SUN8I_V3S
+	default 0x4020000 if ARCH_SUNXI
 	default 0x400000
 	help
 	  This defines memory to be allocated for Dynamic allocation
@@ -391,8 +392,9 @@ config SYS_LOAD_ADDR
 	hex "Address in memory to use by default"
 	default 0x01000000 if ARCH_SOCFPGA
 	default 0x02000000 if PPC || X86
+	default 0x81000000 if MACH_SUNIV
 	default 0x22000000 if MACH_SUN9I
-	default 0x42000000 if ARCH_SUNXI && !MACH_SUN9I
+	default 0x42000000 if ARCH_SUNXI
 	default 0x82000000 if ARCH_KEYSTONE || ARCH_OMAP2PLUS || ARCH_K3
 	default 0x82000000 if ARCH_MX6 && (MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)
 	default 0x12000000 if ARCH_MX6 && !(MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)

@@ -23,7 +23,8 @@ void clock_init_safe(void)
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-#if !defined(CONFIG_MACH_SUNXI_H3_H5) && !defined(CONFIG_MACH_SUN50I)
+#if !defined(CONFIG_MACH_SUNXI_H3_H5) && !defined(CONFIG_MACH_SUN50I) && \
+	!defined(CONFIG_MACH_SUNIV)
 	struct sunxi_prcm_reg * const prcm =
 		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
 
@@ -49,9 +50,11 @@ void clock_init_safe(void)
 
 	writel(AHB1_ABP1_DIV_DEFAULT, &ccm->ahb1_apb1_div);
 
-	writel(MBUS_CLK_DEFAULT, &ccm->mbus0_clk_cfg);
-	if (IS_ENABLED(CONFIG_MACH_SUN6I))
-		writel(MBUS_CLK_DEFAULT, &ccm->mbus1_clk_cfg);
+	if (!IS_ENABLED(CONFIG_MACH_SUNIV)) {
+		writel(MBUS_CLK_DEFAULT, &ccm->mbus0_clk_cfg);
+		if (IS_ENABLED(CONFIG_MACH_SUN6I))
+			writel(MBUS_CLK_DEFAULT, &ccm->mbus1_clk_cfg);
+	}
 
 #if defined(CONFIG_MACH_SUN8I_R40) && defined(CONFIG_SUNXI_AHCI)
 	setbits_le32(&ccm->sata_pll_cfg, CCM_SATA_PLL_DEFAULT);
@@ -87,22 +90,36 @@ void clock_init_uart(void)
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-	/* uart clock source is apb2 */
-	writel(APB2_CLK_SRC_OSC24M|
-	       APB2_CLK_RATE_N_1|
-	       APB2_CLK_RATE_M(1),
-	       &ccm->apb2_div);
+#ifdef CONFIG_MACH_SUNIV
+		/* suniv doesn't have apb2, UART clock source is always apb1 */
 
-	/* open the clock for uart */
-	setbits_le32(&ccm->apb2_gate,
-		     CLK_GATE_OPEN << (APB2_GATE_UART_SHIFT +
-				       CONFIG_CONS_INDEX - 1));
+		/* open the clock for uart */
+		setbits_le32(&ccm->apb1_gate,
+			     CLK_GATE_OPEN << (APB1_GATE_UART_SHIFT +
+					       CONFIG_CONS_INDEX - 1));
 
-	/* deassert uart reset */
-	setbits_le32(&ccm->apb2_reset_cfg,
-		     1 << (APB2_RESET_UART_SHIFT +
-			   CONFIG_CONS_INDEX - 1));
+		/* deassert uart reset */
+		setbits_le32(&ccm->apb1_reset_cfg,
+			     1 << (APB1_RESET_UART_SHIFT +
+				   CONFIG_CONS_INDEX - 1));
 #else
+		/* uart clock source is apb2 */
+		writel(APB2_CLK_SRC_OSC24M|
+		       APB2_CLK_RATE_N_1|
+		       APB2_CLK_RATE_M(1),
+		       &ccm->apb2_div);
+
+		/* open the clock for uart */
+		setbits_le32(&ccm->apb2_gate,
+			     CLK_GATE_OPEN << (APB2_GATE_UART_SHIFT +
+					       CONFIG_CONS_INDEX - 1));
+
+		/* deassert uart reset */
+		setbits_le32(&ccm->apb2_reset_cfg,
+			     1 << (APB2_RESET_UART_SHIFT +
+				   CONFIG_CONS_INDEX - 1));
+#endif	/* !CONFIG_MACH_SUNIV */
+#else	/* CONFIG_CONS_INDEX >= 5 */
 	/* enable R_PIO and R_UART clocks, and de-assert resets */
 	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_UART);
 #endif
@@ -125,10 +142,15 @@ void clock_set_pll1(unsigned int clk)
 	}
 
 	/* Switch to 24MHz clock while changing PLL1 */
-	writel(AXI_DIV_3 << AXI_DIV_SHIFT |
-	       ATB_DIV_2 << ATB_DIV_SHIFT |
-	       CPU_CLK_SRC_OSC24M << CPU_CLK_SRC_SHIFT,
-	       &ccm->cpu_axi_cfg);
+	if (IS_ENABLED(CONFIG_MACH_SUNIV)) {
+		writel(CPU_CLK_SRC_OSC24M << CPU_CLK_SRC_SHIFT,
+		       &ccm->cpu_axi_cfg);
+	} else {
+		writel(AXI_DIV_3 << AXI_DIV_SHIFT |
+		       ATB_DIV_2 << ATB_DIV_SHIFT |
+		       CPU_CLK_SRC_OSC24M << CPU_CLK_SRC_SHIFT,
+		       &ccm->cpu_axi_cfg);
+	}
 
 	/*
 	 * sun6i: PLL1 rate = ((24000000 * n * k) >> 0) / m   (p is ignored)
@@ -140,10 +162,15 @@ void clock_set_pll1(unsigned int clk)
 	sdelay(200);
 
 	/* Switch CPU to PLL1 */
-	writel(AXI_DIV_3 << AXI_DIV_SHIFT |
-	       ATB_DIV_2 << ATB_DIV_SHIFT |
-	       CPU_CLK_SRC_PLL1 << CPU_CLK_SRC_SHIFT,
-	       &ccm->cpu_axi_cfg);
+	if (IS_ENABLED(CONFIG_MACH_SUNIV)) {
+		writel(CPU_CLK_SRC_PLL1 << CPU_CLK_SRC_SHIFT,
+		       &ccm->cpu_axi_cfg);
+	} else {
+		writel(AXI_DIV_3 << AXI_DIV_SHIFT |
+		       ATB_DIV_2 << ATB_DIV_SHIFT |
+		       CPU_CLK_SRC_PLL1 << CPU_CLK_SRC_SHIFT,
+		       &ccm->cpu_axi_cfg);
+	}
 }
 #endif
 
@@ -317,7 +344,10 @@ unsigned int clock_get_pll6(void)
 	uint32_t rval = readl(&ccm->pll6_cfg);
 	int n = ((rval & CCM_PLL6_CTRL_N_MASK) >> CCM_PLL6_CTRL_N_SHIFT) + 1;
 	int k = ((rval & CCM_PLL6_CTRL_K_MASK) >> CCM_PLL6_CTRL_K_SHIFT) + 1;
-	return 24000000 * n * k / 2;
+	if (IS_ENABLED(CONFIG_MACH_SUNIV))
+		return 24000000 * n * k;
+	else
+		return 24000000 * n * k / 2;
 }
 
 unsigned int clock_get_mipi_pll(void)
