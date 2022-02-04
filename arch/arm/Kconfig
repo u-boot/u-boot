@@ -1138,7 +1138,6 @@ config ARCH_VERSAL
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select GICV3
-	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SOC_DEVICE
 	imply BOARD_LATE_INIT
@@ -1164,7 +1163,6 @@ config ARCH_ZYNQ
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
-	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SPI
 	select SPL_BOARD_INIT if SPL
@@ -1191,7 +1189,6 @@ config ARCH_ZYNQMP_R5
 	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
-	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	imply CMD_DM
 	imply DM_USB_GADGET
@@ -1209,7 +1206,6 @@ config ARCH_ZYNQMP
 	select DM_SPI_FLASH if DM_SPI
 	imply FIRMWARE
 	select GICV2
-	select GPIO_EXTRA_HEADER
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
