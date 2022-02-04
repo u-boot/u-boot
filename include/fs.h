@@ -17,6 +17,7 @@ struct cmd_tbl;
 #define FS_TYPE_UBIFS	4
 #define FS_TYPE_BTRFS	5
 #define FS_TYPE_SQUASHFS 6
+#define FS_TYPE_EROFS   7
 
 struct blk_desc;
 
