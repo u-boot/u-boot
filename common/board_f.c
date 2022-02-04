@@ -895,7 +895,6 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_VID) && !defined(CONFIG_SPL)
 	init_func_vid,
 #endif
-
 #ifndef CONFIG_TARGET_STM32H743_NUCLEO
 	announce_dram_init,
 	dram_init,		/* configure available RAM banks */
