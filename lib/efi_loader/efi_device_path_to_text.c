@@ -122,16 +122,26 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_MSG_UART: {
 		struct efi_device_path_uart *uart =
 			(struct efi_device_path_uart *)dp;
-		s += sprintf(s, "Uart(%lld,%d,%d,", uart->baud_rate,
-			     uart->data_bits, uart->parity);
-		switch (uart->stop_bits) {
-		case 2:
-			s += sprintf(s, "1.5)");
-			break;
-		default:
+		const char parity_str[6] = {'D', 'N', 'E', 'O', 'M', 'S'};
+		const char *stop_bits_str[4] = { "D", "1", "1.5", "2" };
+
+		s += sprintf(s, "Uart(%lld,%d,", uart->baud_rate,
+			     uart->data_bits);
+
+		/*
+		 * Parity and stop bits can either both use keywords or both use
+		 * numbers but numbers and keywords should not be mixed. Let's
+		 * go for keywords as this is what EDK II does. For illegal
+		 * values fall back to numbers.
+		 */
+		if (uart->parity < 6)
+			s += sprintf(s, "%c,", parity_str[uart->parity]);
+		else
+			s += sprintf(s, "%d,", uart->parity);
+		if (uart->stop_bits < 4)
+			s += sprintf(s, "%s)", stop_bits_str[uart->stop_bits]);
+		else
 			s += sprintf(s, "%d)", uart->stop_bits);
-			break;
-		}
 		break;
 	}
 	case DEVICE_PATH_SUB_TYPE_MSG_USB: {
