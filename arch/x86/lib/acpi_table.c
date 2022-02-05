@@ -161,28 +161,6 @@ int acpi_write_madt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 }
 ACPI_WRITER(5x86, NULL, acpi_write_madt, 0);
 
-int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
-			      u16 seg_nr, u8 start, u8 end)
-{
-	memset(mmconfig, 0, sizeof(*mmconfig));
-	mmconfig->base_address_l = base;
-	mmconfig->base_address_h = 0;
-	mmconfig->pci_segment_group_number = seg_nr;
-	mmconfig->start_bus_number = start;
-	mmconfig->end_bus_number = end;
-
-	return sizeof(struct acpi_mcfg_mmconfig);
-}
-
-__weak u32 acpi_fill_mcfg(u32 current)
-{
-	current += acpi_create_mcfg_mmconfig
-		((struct acpi_mcfg_mmconfig *)current,
-		CONFIG_PCIE_ECAM_BASE, 0x0, 0x0, 255);
-
-	return current;
-}
-
 /**
  * acpi_create_tcpa() - Create a TCPA table
  *
@@ -479,38 +457,6 @@ int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	return 0;
 }
 ACPI_WRITER(4gnvs, "GNVS", acpi_write_gnvs, 0);
-
-/* MCFG is defined in the PCI Firmware Specification 3.0 */
-int acpi_write_mcfg(struct acpi_ctx *ctx, const struct acpi_writer *entry)
-{
-	struct acpi_table_header *header;
-	struct acpi_mcfg *mcfg;
-	u32 current;
-
-	mcfg = ctx->current;
-	header = &mcfg->header;
-
-	current = (u32)mcfg + sizeof(struct acpi_mcfg);
-
-	memset(mcfg, '\0', sizeof(struct acpi_mcfg));
-
-	/* Fill out header fields */
-	acpi_fill_header(header, "MCFG");
-	header->length = sizeof(struct acpi_mcfg);
-	header->revision = 1;
-
-	current = acpi_fill_mcfg(current);
-
-	/* (Re)calculate length and checksum */
-	header->length = current - (u32)mcfg;
-	header->checksum = table_compute_checksum(mcfg, header->length);
-
-	acpi_inc(ctx, mcfg->header.length);
-	acpi_add_table(ctx, mcfg);
-
-	return 0;
-}
-ACPI_WRITER(5mcfg, "MCFG", acpi_write_mcfg, 0);
 
 /**
  * acpi_write_hpet() - Write out a HPET table
