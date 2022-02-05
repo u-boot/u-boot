@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * efi_selftest_pos
+ * efi_selftest_fdt
  *
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
+ * Copyright (c) 2022 Ventana Micro Systems Inc
  *
- * Test the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.
- *
- * The following services are tested:
- * OutputString, TestString, SetAttribute.
+ * Check the device tree, test the RISCV_EFI_BOOT_PROTOCOL.
  */
 
+#include <efi_riscv.h>
 #include <efi_selftest.h>
 #include <linux/libfdt.h>
 
@@ -22,6 +21,8 @@ static const char *fdt;
 
 static const efi_guid_t fdt_guid = EFI_FDT_GUID;
 static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
+static const efi_guid_t riscv_efi_boot_protocol_guid =
+				RISCV_EFI_BOOT_PROTOCOL_GUID;
 
 /**
  * f2h() - convert FDT value to host endianness.
@@ -189,6 +190,29 @@ static int setup(const efi_handle_t img_handle,
 	return EFI_ST_SUCCESS;
 }
 
+__maybe_unused static efi_status_t get_boot_hartid(efi_uintn_t *efi_hartid)
+{
+	efi_status_t ret;
+	struct riscv_efi_boot_protocol *prot;
+
+	/* Get RISC-V boot protocol */
+	ret = boottime->locate_protocol(&riscv_efi_boot_protocol_guid, NULL,
+					(void **)&prot);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("RISC-V Boot Protocol not available\n");
+		return EFI_ST_FAILURE;
+	}
+
+	/* Get boot hart ID from EFI protocol */
+	ret = prot->get_boot_hartid(prot, efi_hartid);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Could not retrieve boot hart ID\n");
+		return EFI_ST_FAILURE;
+	}
+
+	return EFI_ST_SUCCESS;
+}
+
 /*
  * Execute unit test.
  *
@@ -220,19 +244,37 @@ static int execute(void)
 			return EFI_ST_FAILURE;
 		}
 	}
-	str = get_property(u"boot-hartid", u"chosen");
 	if (IS_ENABLED(CONFIG_RISCV)) {
-		if (str) {
-			efi_st_printf("boot-hartid: %u\n",
-				      f2h(*(fdt32_t *)str));
-			ret = boottime->free_pool(str);
-			if (ret != EFI_SUCCESS) {
-				efi_st_error("FreePool failed\n");
+		u32 fdt_hartid;
+
+		str = get_property(u"boot-hartid", u"chosen");
+		if (!str) {
+			efi_st_error("boot-hartid missing in devicetree\n");
+			return EFI_ST_FAILURE;
+		}
+		fdt_hartid = f2h(*(fdt32_t *)str);
+		efi_st_printf("boot-hartid: %u\n", fdt_hartid);
+
+		ret = boottime->free_pool(str);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("FreePool failed\n");
+			return EFI_ST_FAILURE;
+		}
+
+		if (IS_ENABLED(CONFIG_EFI_RISCV_BOOT_PROTOCOL)) {
+			efi_uintn_t efi_hartid;
+			int r;
+
+			r = get_boot_hartid(&efi_hartid);
+			if (r != EFI_ST_SUCCESS)
+				return r;
+			/* Boot hart ID should be same */
+			if (efi_hartid != fdt_hartid) {
+				efi_st_error("boot-hartid differs: prot 0x%p, DT 0x%.8x\n",
+					     (void *)(uintptr_t)efi_hartid,
+					     fdt_hartid);
 				return EFI_ST_FAILURE;
 			}
-		} else {
-			efi_st_error("boot-hartid not found\n");
-			return EFI_ST_FAILURE;
 		}
 	}
 
