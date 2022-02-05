@@ -499,6 +499,8 @@ int acpi_write_mcfg(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	header->length = sizeof(struct acpi_mcfg);
 	header->revision = 1;
 
+	current = acpi_fill_mcfg(current);
+
 	/* (Re)calculate length and checksum */
 	header->length = current - (u32)mcfg;
 	header->checksum = table_compute_checksum(mcfg, header->length);
