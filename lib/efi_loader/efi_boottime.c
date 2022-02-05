@@ -467,7 +467,7 @@ static efi_status_t EFIAPI efi_allocate_pool_ext(int pool_type,
 {
 	efi_status_t r;
 
-	EFI_ENTRY("%d, %zd, %p", pool_type, size, buffer);
+	EFI_ENTRY("%d, %zu, %p", pool_type, size, buffer);
 	r = efi_allocate_pool(pool_type, size, buffer);
 	return EFI_EXIT(r);
 }
@@ -914,7 +914,7 @@ static efi_status_t EFIAPI efi_wait_for_event(efi_uintn_t num_events,
 {
 	int i;
 
-	EFI_ENTRY("%zd, %p, %p", num_events, event, index);
+	EFI_ENTRY("%zu, %p, %p", num_events, event, index);
 
 	/* Check parameters */
 	if (!num_events || !event)
@@ -2028,7 +2028,7 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	efi_status_t ret;
 	void *dest_buffer;
 
-	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
+	EFI_ENTRY("%d, %p, %pD, %p, %zu, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
 
 	if (!image_handle || (!source_buffer && !file_path) ||

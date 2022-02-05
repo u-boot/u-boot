@@ -97,6 +97,7 @@ UNICODE_TEST(unicode_test_u16_strcpy);
 static int unicode_test_string16(struct unit_test_state *uts)
 {
 	char buf[20];
+	int ret;
 
 	/* Test length and precision */
 	memset(buf, 0xff, sizeof(buf));
@@ -129,6 +130,36 @@ static int unicode_test_string16(struct unit_test_state *uts)
 	memset(buf, 0xff, sizeof(buf));
 	sprintf(buf, "%ls", i3);
 	ut_asserteq_str("i3?", buf);
+
+	memset(buf, 0xff, sizeof(buf));
+	ret = snprintf(buf, 4, "%ls", c1);
+	ut_asserteq(6, ret);
+	ut_asserteq_str("U-B", buf);
+
+	memset(buf, 0xff, sizeof(buf));
+	ret = snprintf(buf, 6, "%ls", c2);
+	ut_asserteq_str("kafb", buf);
+	ut_asserteq(9, ret);
+
+	memset(buf, 0xff, sizeof(buf));
+	ret = snprintf(buf, 7, "%ls", c2);
+	ut_asserteq_str("kafb\xC3\xA1", buf);
+	ut_asserteq(9, ret);
+
+	memset(buf, 0xff, sizeof(buf));
+	ret = snprintf(buf, 8, "%ls", c3);
+	ut_asserteq_str("\xE6\xBD\x9C\xE6\xB0\xB4", buf);
+	ut_asserteq(9, ret);
+
+	memset(buf, 0xff, sizeof(buf));
+	ret = snprintf(buf, 11, "%ls", c4);
+	ut_asserteq_str("\xF0\x90\x92\x8D\xF0\x90\x92\x96", buf);
+	ut_asserteq(12, ret);
+
+	memset(buf, 0xff, sizeof(buf));
+	ret = snprintf(buf, 4, "%ls", c4);
+	ut_asserteq_str("", buf);
+	ut_asserteq(12, ret);
 
 	return 0;
 }
