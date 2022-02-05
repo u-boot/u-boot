@@ -1843,7 +1843,7 @@ quiet_cmd_gen_envp = ENVP    $@
 			-I$(srctree)/arch/$(ARCH)/include \
 			$< -o $@; \
 	else \
-		echo -n >$@ ; \
+		touch $@ ; \
 	fi
 include/generated/env.in: include/generated/env.txt FORCE
 	$(call cmd,gen_envp)
@@ -1860,7 +1860,7 @@ quiet_cmd_envc = ENVC    $@
 	elif [ -n "$(ENV_SOURCE_FILE)" ]; then \
 		echo "Missing file $(ENV_FILE_CFG)"; \
 	else \
-		echo -n >$@ ; \
+		touch $@ ; \
 	fi
 
 include/generated/env.txt: $(wildcard $(ENV_FILE)) FORCE
