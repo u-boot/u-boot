@@ -886,16 +886,16 @@
 		compatible = "sandbox,misc_sandbox";
 	};
 
-	mmc2 {
+	mmc2: mmc2 {
 		compatible = "sandbox,mmc";
 		non-removable;
 	};
 
-	mmc1 {
+	mmc1: mmc1 {
 		compatible = "sandbox,mmc";
 	};
 
-	mmc0 {
+	mmc0: mmc0 {
 		compatible = "sandbox,mmc";
 	};
 
@@ -1608,6 +1608,11 @@
 			reg = <0 0x10>;
 			compatible = "sandbox,regmap_test";
 		};
+	};
+
+	fwu-mdata {
+		compatible = "sandbox,fwu-mdata";
+		fwu-mdata-store = <&mmc0>;
 	};
 };
 
