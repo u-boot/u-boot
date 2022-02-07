@@ -532,11 +532,13 @@
 	eth_5: eth@10003000 {
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
+		mac-address = [ 02 00 11 22 33 46 ];
 	};
 
 	eth_3: sbe5 {
 		compatible = "sandbox,eth";
 		reg = <0x10005000 0x1000>;
+		mac-address = [ 02 00 11 22 33 45 ];
 	};
 
 	eth@10004000 {
@@ -547,6 +549,7 @@
 	phy_eth0: phy-test-eth {
 		compatible = "sandbox,eth";
 		reg = <0x10007000 0x1000>;
+		mac-address = [ 02 00 11 22 33 49 ];
 		phy-handle = <&ethphy1>;
 		phy-mode = "2500base-x";
 	};
@@ -554,6 +557,7 @@
 	dsa_eth0: dsa-test-eth {
 		compatible = "sandbox,eth";
 		reg = <0x10006000 0x1000>;
+		mac-address = [ 02 00 11 22 33 48 ];
 	};
 
 	dsa-test {
