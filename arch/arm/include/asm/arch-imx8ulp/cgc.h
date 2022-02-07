@@ -6,11 +6,15 @@
 #ifndef _ASM_ARCH_CGC_H
 #define _ASM_ARCH_CGC_H
 
-enum cgc1_clk {
+enum cgc_clk {
 	DUMMY0_CLK,
 	DUMMY1_CLK,
 	LPOSC,
+	NIC_APCLK,
+	NIC_PERCLK,
+	XBAR_APCLK,
 	XBAR_BUSCLK,
+	AD_SLOWCLK,
 	SOSC,
 	SOSC_DIV1,
 	SOSC_DIV2,
@@ -34,6 +38,28 @@ enum cgc1_clk {
 	PLL3_PFD2_DIV2,
 	PLL3_PFD3_DIV1,
 	PLL3_PFD3_DIV2,
+	LVDS,
+	LPAV_AXICLK,
+	LPAV_AHBCLK,
+	LPAV_BUSCLK,
+	PLL4,
+	PLL4_VCODIV,
+	PLL4_PFD0,
+	PLL4_PFD1,
+	PLL4_PFD2,
+	PLL4_PFD3,
+	PLL4_PFD0_DIV1,
+	PLL4_PFD0_DIV2,
+	PLL4_PFD1_DIV1,
+	PLL4_PFD1_DIV2,
+	PLL4_PFD2_DIV1,
+	PLL4_PFD2_DIV2,
+	PLL4_PFD3_DIV1,
+	PLL4_PFD3_DIV2,
+	CM33_BUSCLK,
+	PLL1_VCO_DIV,
+	PLL0_PFD2_DIV,
+	PLL0_PFD1_DIV,
 };
 
 struct cgc1_regs {
@@ -119,12 +145,17 @@ struct cgc2_regs {
 	u32 lvdscfg;
 };
 
-u32 cgc1_clk_get_rate(enum cgc1_clk clk);
+u32 cgc_clk_get_rate(enum cgc_clk clk);
 void cgc1_pll3_init(void);
 void cgc1_pll2_init(void);
 void cgc1_soscdiv_init(void);
 void cgc1_init_core_clk(void);
 void cgc2_pll4_init(void);
 void cgc2_ddrclk_config(u32 src, u32 div);
-u32 cgc1_sosc_div(enum cgc1_clk clk);
+void cgc2_ddrclk_wait_unlock(void);
+u32 cgc1_sosc_div(enum cgc_clk clk);
+void cgc1_enet_stamp_sel(u32 clk_src);
+void cgc2_pll4_pfd_config(enum cgc_clk pllpfd, u32 pfd);
+void cgc2_pll4_pfddiv_config(enum cgc_clk pllpfddiv, u32 div);
+void cgc2_lpav_init(enum cgc_clk clk);
 #endif

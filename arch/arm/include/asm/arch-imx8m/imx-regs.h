@@ -80,8 +80,10 @@
 #include <linux/bitops.h>
 #include <stdbool.h>
 
-#define GPR_TZASC_EN		BIT(0)
-#define GPR_TZASC_EN_LOCK	BIT(16)
+#define GPR_TZASC_EN					BIT(0)
+#define GPR_TZASC_ID_SWAP_BYPASS		BIT(1)
+#define GPR_TZASC_EN_LOCK				BIT(16)
+#define GPR_TZASC_ID_SWAP_BYPASS_LOCK	BIT(17)
 
 #define SRC_SCR_M4_ENABLE_OFFSET	3
 #define SRC_SCR_M4_ENABLE_MASK		BIT(3)

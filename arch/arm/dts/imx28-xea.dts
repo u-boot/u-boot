@@ -41,6 +41,15 @@
 		enable-active-high;
 		regulator-boot-on;
 	};
+
+	reg_usb_5v: regulator-usb-5v {
+		compatible = "regulator-fixed";
+		regulator-name = "usb_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio1 28 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
 };
 
 &mac0 {
@@ -86,27 +95,49 @@
 		spi-max-frequency = <40000000>;
 		reg = <0>;
 
-		partition@0 {
-			label = "SPL (spi)";
-			reg = <0x0 0x10000>;
-			read-only;
-		};
-		partition@1 {
-			label = "u-boot (spi)";
-			reg = <0x10000 0x70000>;
-			read-only;
-		};
-		partition@2 {
-			label = "uboot-env (spi)";
-			reg = <0x80000 0x20000>;
-		};
-		partition@3 {
-			label = "kernel (spi)";
-			reg = <0x100000 0x400000>;
-		};
-		partition@4 {
-			label = "swupdate (spi)";
-			reg = <0x50000 0x800000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			partition@0 {
+				    label = "SPL";
+				    reg = <0x0 0x10000>;
+				    read-only;
+			};
+			partition@10000 {
+				    label = "u-boot";
+				    reg = <0x10000 0x70000>;
+				    read-only;
+			};
+			partition@80000 {
+				    label = "uboot-env1";
+				    reg = <0x80000 0x10000>;
+			};
+			partition@90000 {
+				    label = "uboot-env2";
+				    reg = <0x90000 0x10000>;
+			};
+			partition@A0000 {
+				    label = "rescue";
+				    reg = <0xA0000 0xF40000>;
+			};
+			partition@FE0000 {
+				    label = "spl-boot-data1";
+				    reg = <0xFE0000 0x10000>;
+			};
+			partition@FF0000 {
+				    label = "spl-boot-data2";
+				    reg = <0xFF0000 0x10000>;
+			};
 		};
 	};
+};
+
+&usb0 {
+	vbus-supply = <&reg_usb_5v>;
+	status = "okay";
+};
+
+&usbphy0 {
+	status = "okay";
 };

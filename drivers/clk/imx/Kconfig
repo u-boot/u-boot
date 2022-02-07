@@ -74,6 +74,7 @@ config SPL_CLK_IMXRT1020
 	depends on ARCH_IMXRT && SPL
 	select SPL_CLK
 	select SPL_CLK_CCF
+	select SPL_CLK_COMPOSITE_CCF
 	help
 	  This enables SPL DM/DTS support for clock driver in i.MXRT1020
 
@@ -82,6 +83,7 @@ config CLK_IMXRT1020
 	depends on ARCH_IMXRT
 	select CLK
 	select CLK_CCF
+	select CLK_COMPOSITE_CCF
 	help
 	  This enables support clock driver for i.MXRT1020 platforms.
 
@@ -90,6 +92,7 @@ config SPL_CLK_IMXRT1050
 	depends on ARCH_IMXRT && SPL
 	select SPL_CLK
 	select SPL_CLK_CCF
+	select SPL_CLK_COMPOSITE_CCF
 	help
 	  This enables SPL DM/DTS support for clock driver in i.MXRT1050
 
@@ -98,5 +101,6 @@ config CLK_IMXRT1050
 	depends on ARCH_IMXRT
 	select CLK
 	select CLK_CCF
+	select CLK_COMPOSITE_CCF
 	help
 	  This enables support clock driver for i.MXRT1050 platforms.

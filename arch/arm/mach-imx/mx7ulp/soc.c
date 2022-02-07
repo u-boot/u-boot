@@ -13,6 +13,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/hab.h>
+#include <asm/mach-imx/sys_proto.h>
 #include <asm/setup.h>
 #include <linux/bitops.h>
 
@@ -77,6 +78,7 @@ enum bt_mode get_boot_mode(void)
 
 int arch_cpu_init(void)
 {
+	enable_ca7_smp();
 	return 0;
 }
 

@@ -366,11 +366,13 @@ static void init_bandgap(void)
 	 *	111 - set REFTOP_VBGADJ[2:0] to 3b'111,
 	 */
 	if (is_mx6ull()) {
+		static const u32 map[] = {6, 1, 2, 3, 4, 5, 0, 7};
+
 		val = readl(&fuse->mem0);
 		val >>= OCOTP_MEM0_REFTOP_TRIM_SHIFT;
 		val &= 0x7;
 
-		writel(val << BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ_SHIFT,
+		writel(map[val] << BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ_SHIFT,
 		       &anatop->ana_misc0_set);
 	}
 }
@@ -487,6 +489,9 @@ int arch_cpu_init(void)
 	if (is_mx6dqp())
 		noc_setup();
 #endif
+
+	enable_ca7_smp();
+
 	return 0;
 }
 
@@ -498,8 +503,7 @@ __weak int board_mmc_get_env_dev(int devno)
 
 static int mmc_get_boot_dev(void)
 {
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-	u32 soc_sbmr = readl(&src_regs->sbmr1);
+	u32 soc_sbmr = imx6_src_get_boot_mode();
 	u32 bootsel;
 	int devno;
 

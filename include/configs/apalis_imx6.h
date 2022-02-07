@@ -108,10 +108,6 @@
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
-	"bootcmd=run distro_bootcmd ; " \
-		"usb start ; " \
-		"setenv stdout serial,vidconsole; " \
-		"setenv stdin serial,usbkbd\0" \
 	"boot_file=zImage\0" \
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off vmalloc=400M\0" \

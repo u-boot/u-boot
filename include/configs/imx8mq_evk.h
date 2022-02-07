@@ -61,13 +61,13 @@
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
-	"scriptaddr=0x43500000\0" \
-	"kernel_addr_r=0x40880000\0" \
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=Image\0" \
 	"console=ttymxc0,115200\0" \
-	"fdt_addr=0x43000000\0"			\
+	"fdt_addr_r=0x43000000\0"			\
 	"boot_fdt=try\0" \
-	"fdt_file=imx8mq-evk.dtb\0" \
+	"fdtfile=imx8mq-evk.dtb\0" \
 	"initrd_addr=0x43800000\0"		\
 	"bootm_size=0x10000000\0" \
 	"mmcpart=1\0" \

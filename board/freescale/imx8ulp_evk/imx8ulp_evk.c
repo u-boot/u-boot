@@ -12,6 +12,7 @@
 #include <asm/arch/sys_proto.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,10 +49,65 @@ int board_phy_config(struct phy_device *phydev)
 }
 #endif
 
+#define I2C_PAD_CTRL	(PAD_CTL_ODE)
+static const iomux_cfg_t lpi2c0_pads[] = {
+	IMX8ULP_PAD_PTA8__LPI2C0_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	IMX8ULP_PAD_PTA9__LPI2C0_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL),
+};
+
+#define TPM_PAD_CTRL	(PAD_CTL_DSE)
+static const iomux_cfg_t tpm0_pads[] = {
+	IMX8ULP_PAD_PTA3__TPM0_CH2 | MUX_PAD_CTRL(TPM_PAD_CTRL),
+};
+
+void mipi_dsi_mux_panel(void)
+{
+	int ret;
+	struct gpio_desc desc;
+
+	/* It is temp solution to directly access i2c, need change to rpmsg later */
+
+	/* enable lpi2c0 clock and iomux */
+	imx8ulp_iomux_setup_multiple_pads(lpi2c0_pads, ARRAY_SIZE(lpi2c0_pads));
+	writel(0xD2000000, 0x28091060);
+
+	ret = dm_gpio_lookup_name("gpio@20_9", &desc);
+	if (ret) {
+		printf("%s lookup gpio@20_9 failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	ret = dm_gpio_request(&desc, "dsi_mux");
+	if (ret) {
+		printf("%s request dsi_mux failed ret = %d\n", __func__, ret);
+		return;
+	}
+
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+}
+
+void mipi_dsi_panel_backlight(void)
+{
+	/* It is temp solution to directly access pwm, need change to rpmsg later */
+	imx8ulp_iomux_setup_multiple_pads(tpm0_pads, ARRAY_SIZE(tpm0_pads));
+	writel(0xD4000001, 0x28091054);
+
+	/* Use center-aligned PWM mode, CPWMS=1, MSnB:MSnA = 10, ELSnB:ELSnA = 00 */
+	writel(1000, 0x28095018);
+	writel(1000, 0x28095034); /* MOD = CV, full duty */
+	writel(0x28, 0x28095010);
+	writel(0x20, 0x28095030);
+}
+
 int board_init(void)
 {
 	if (IS_ENABLED(CONFIG_FEC_MXC))
 		setup_fec();
+
+	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+		mipi_dsi_mux_panel();
+		mipi_dsi_panel_backlight();
+	}
 
 	return 0;
 }
