@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <log.h>
 #include <zynqmp_firmware.h>
 #include <asm/cache.h>
@@ -226,8 +227,27 @@ static const struct udevice_id zynqmp_firmware_ids[] = {
 	{ }
 };
 
+static int zynqmp_firmware_bind(struct udevice *dev)
+{
+	int ret;
+	struct udevice *child;
+
+	if (IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN)) {
+		ret = device_bind_driver_to_node(dev, "zynqmp_power_domain",
+						 "zynqmp_power_domain",
+						 dev_ofnode(dev), &child);
+		if (ret) {
+			printf("zynqmp power domain driver is not bound: %d\n", ret);
+			return ret;
+		}
+	}
+
+	return dm_scan_fdt_dev(dev);
+}
+
 U_BOOT_DRIVER(zynqmp_firmware) = {
 	.id = UCLASS_FIRMWARE,
 	.name = "zynqmp_firmware",
 	.of_match = zynqmp_firmware_ids,
+	.bind = zynqmp_firmware_bind,
 };
