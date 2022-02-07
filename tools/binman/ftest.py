@@ -5133,6 +5133,31 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         finally:
             shutil.rmtree(tmpdir)
 
+    def testFitSubentryUsesBintool(self):
+        """Test that binman FIT subentries can use bintools"""
+        command.test_result = self._HandleGbbCommand
+        entry_args = {
+            'keydir': 'devkeys',
+            'bmpblk': 'bmpblk.bin',
+        }
+        data, _, _, _ = self._DoReadFileDtb('220_fit_subentry_bintool.dts',
+                entry_args=entry_args)
+
+        expected = (GBB_DATA + GBB_DATA + tools.GetBytes(0, 8) +
+                    tools.GetBytes(0, 0x2180 - 16))
+        self.assertIn(expected, data)
+
+    def testFitSubentryMissingBintool(self):
+        """Test that binman reports missing bintools for FIT subentries"""
+        entry_args = {
+            'keydir': 'devkeys',
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('220_fit_subentry_bintool.dts',
+                    force_missing_bintools='futility', entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: futility")
 
 if __name__ == "__main__":
     unittest.main()

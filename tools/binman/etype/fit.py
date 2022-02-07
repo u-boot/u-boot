@@ -311,4 +311,18 @@ class Entry_fit(Entry):
             section.SetAllowMissing(allow_missing)
 
     def AddBintools(self, tools):
+        for section in self._fit_sections.values():
+            section.AddBintools(tools)
         self.mkimage = self.AddBintool(tools, 'mkimage')
+
+    def check_missing_bintools(self, missing_list):
+        """Check if any entries in this section have missing bintools
+
+        If there are missing bintools, these are added to the list
+
+        Args:
+            missing_list: List of Bintool objects to be added to
+        """
+        super().check_missing_bintools(missing_list)
+        for entry in self._fit_sections.values():
+            entry.check_missing_bintools(missing_list)
