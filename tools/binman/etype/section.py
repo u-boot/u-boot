@@ -840,6 +840,7 @@ class Entry_section(Entry):
         Args:
             missing_list: List of Bintool objects to be added to
         """
+        super().check_missing_bintools(missing_list)
         for entry in self._entries.values():
             entry.check_missing_bintools(missing_list)
 
