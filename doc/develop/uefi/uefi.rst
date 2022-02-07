@@ -277,6 +277,8 @@ Enable ``CONFIG_OPTEE``, ``CONFIG_CMD_OPTEE_RPMB`` and ``CONFIG_EFI_MM_COMM_TEE`
 
 [1] https://optee.readthedocs.io/en/latest/building/efi_vars/stmm.html
 
+.. _uefi_capsule_update_ref:
+
 Enabling UEFI Capsule Update feature
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -376,6 +378,16 @@ image should be 3. The dfu alt number can be obtained by running the
 following command::
 
     dfu list
+
+When the FWU Multi Bank Update feature is enabled on the platform, the
+image index is used only to identify the image index with the image
+GUID. The image index would not correspond to the dfu alt number. This
+is because the FWU feature supports multiple partitions(banks) of
+updatable images, and the actual dfu alt number to which the image is
+to be written to is determined at runtime, based on the value of the
+update bank to which the image is to be written. For more information
+on the FWU Multi Bank Update feature, please refer `doc
+<doc/develop/uefi/fwu_updates.rst>`__.
 
 When using the FMP for FIT images, the image index value needs to be
 set to 1.
