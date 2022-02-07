@@ -1770,7 +1770,7 @@ main(int argc, char **argv)
 			bootmsg = kwboot_msg_boot;
 			if (prev_optind == optind)
 				goto usage;
-			if (argv[optind] && argv[optind][0] != '-')
+			if (optind < argc - 1 && argv[optind] && argv[optind][0] != '-')
 				imgpath = argv[optind++];
 			break;
 
