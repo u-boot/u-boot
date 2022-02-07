@@ -6,9 +6,12 @@
 #include <common.h>
 #include <dm.h>
 #include <ahci.h>
+#include <generic-phy.h>
 #include <log.h>
+#include <reset.h>
 #include <scsi.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/ioport.h>
 
 /* Vendor Specific Register Offsets */
@@ -181,6 +184,47 @@ static int sata_ceva_bind(struct udevice *dev)
 static int sata_ceva_probe(struct udevice *dev)
 {
 	struct ceva_sata_priv *priv = dev_get_priv(dev);
+	struct phy phy;
+	int ret;
+	struct reset_ctl_bulk resets;
+
+	ret = generic_phy_get_by_index(dev, 0, &phy);
+	if (!ret) {
+		dev_dbg(dev, "Perform PHY initialization\n");
+		ret = generic_phy_init(&phy);
+		if (ret)
+			return ret;
+	} else if (ret != -ENOENT) {
+		dev_dbg(dev, "could not get phy (err %d)\n", ret);
+		return ret;
+	}
+
+	/* reset is optional */
+	ret = reset_get_bulk(dev, &resets);
+	if (ret && ret != -ENOTSUPP && ret != -ENOENT) {
+		dev_dbg(dev, "Getting reset fails (err %d)\n", ret);
+		return ret;
+	}
+
+	/* Just trigger reset when reset is specified */
+	if (!ret) {
+		dev_dbg(dev, "Perform IP reset\n");
+		ret = reset_deassert_bulk(&resets);
+		if (ret) {
+			dev_dbg(dev, "Reset fails (err %d)\n", ret);
+			reset_release_bulk(&resets);
+			return ret;
+		}
+	}
+
+	if (phy.dev) {
+		dev_dbg(dev, "Perform PHY power on\n");
+		ret = generic_phy_power_on(&phy);
+		if (ret) {
+			dev_dbg(dev, "PHY power on failed (err %d)\n", ret);
+			return ret;
+		}
+	}
 
 	ceva_init_sata(priv);
 
