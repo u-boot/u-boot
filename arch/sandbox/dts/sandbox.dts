@@ -63,7 +63,6 @@
 	eth@10002000 {
 		compatible = "sandbox,eth";
 		reg = <0x10002000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 00];
 	};
 
 	host-fs {

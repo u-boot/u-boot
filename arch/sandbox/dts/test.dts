@@ -527,31 +527,26 @@
 	eth@10002000 {
 		compatible = "sandbox,eth";
 		reg = <0x10002000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 00];
 	};
 
 	eth_5: eth@10003000 {
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 11];
 	};
 
 	eth_3: sbe5 {
 		compatible = "sandbox,eth";
 		reg = <0x10005000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 33];
 	};
 
 	eth@10004000 {
 		compatible = "sandbox,eth";
 		reg = <0x10004000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 22];
 	};
 
 	phy_eth0: phy-test-eth {
 		compatible = "sandbox,eth";
 		reg = <0x10007000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 77];
 		phy-handle = <&ethphy1>;
 		phy-mode = "2500base-x";
 	};
@@ -559,7 +554,6 @@
 	dsa_eth0: dsa-test-eth {
 		compatible = "sandbox,eth";
 		reg = <0x10006000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 66];
 	};
 
 	dsa-test {

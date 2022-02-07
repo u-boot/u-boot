@@ -395,9 +395,11 @@ static void sb_eth_stop(struct udevice *dev)
 static int sb_eth_write_hwaddr(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
 
 	debug("eth_sandbox %s: Write HW ADDR - %pM\n", dev->name,
 	      pdata->enetaddr);
+	memcpy(priv->fake_host_hwaddr, pdata->enetaddr, ARP_HLEN);
 	return 0;
 }
 
@@ -419,16 +421,8 @@ static int sb_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
-	const u8 *mac;
 
 	pdata->iobase = dev_read_addr(dev);
-
-	mac = dev_read_u8_array_ptr(dev, "fake-host-hwaddr", ARP_HLEN);
-	if (!mac) {
-		printf("'fake-host-hwaddr' is missing from the DT\n");
-		return -EINVAL;
-	}
-	memcpy(priv->fake_host_hwaddr, mac, ARP_HLEN);
 	priv->disabled = false;
 	priv->tx_handler = sb_default_handler;
 
