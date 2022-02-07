@@ -203,6 +203,15 @@ static int sandbox_i2c_rtc_bind(struct udevice *dev)
 	return 0;
 }
 
+static int sandbox_i2c_rtc_probe(struct udevice *dev)
+{
+	const u8 mac[] = { 0x02, 0x00, 0x11, 0x22, 0x33, 0x48 };
+	struct sandbox_i2c_rtc_plat_data *plat = dev_get_plat(dev);
+
+	memcpy(&plat->reg[0x40], mac, sizeof(mac));
+	return 0;
+}
+
 static const struct udevice_id sandbox_i2c_rtc_ids[] = {
 	{ .compatible = "sandbox,i2c-rtc-emul" },
 	{ }
@@ -213,6 +222,7 @@ U_BOOT_DRIVER(sandbox_i2c_rtc_emul) = {
 	.id		= UCLASS_I2C_EMUL,
 	.of_match	= sandbox_i2c_rtc_ids,
 	.bind		= sandbox_i2c_rtc_bind,
+	.probe		= sandbox_i2c_rtc_probe,
 	.priv_auto	= sizeof(struct sandbox_i2c_rtc),
 	.plat_auto	= sizeof(struct sandbox_i2c_rtc_plat_data),
 	.ops		= &sandbox_i2c_rtc_emul_ops,
