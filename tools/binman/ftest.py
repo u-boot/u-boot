@@ -3850,6 +3850,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFitImageSubentryAlignment(self):
         """Test relative alignability of FIT image subentries"""
+        self._SetupSplElf()
         entry_args = {
             'test-id': TEXT_DATA,
         }
@@ -5143,8 +5144,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data, _, _, _ = self._DoReadFileDtb('220_fit_subentry_bintool.dts',
                 entry_args=entry_args)
 
-        expected = (GBB_DATA + GBB_DATA + tools.GetBytes(0, 8) +
-                    tools.GetBytes(0, 0x2180 - 16))
+        expected = (GBB_DATA + GBB_DATA + tools.get_bytes(0, 8) +
+                    tools.get_bytes(0, 0x2180 - 16))
         self.assertIn(expected, data)
 
     def testFitSubentryMissingBintool(self):
