@@ -11,3 +11,4 @@ Toradex
    colibri_imx7
    colibri-imx8x
    verdin-imx8mm
+   verdin-imx8mp

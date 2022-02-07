@@ -1,0 +1,132 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright 2022 Toradex
+ */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		u-boot,dm-spl;
+		wdt = <&wdog1>;
+	};
+};
+
+&clk {
+	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+
+};
+
+&eqos {
+	compatible = "fsl,imx-eqos";
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&i2c2 {
+	u-boot,dm-spl;
+};
+
+&i2c3 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_reg_usdhc2_vmmc {
+	u-boot,dm-spl;
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&pinctrl_uart3 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2_gpio {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc3 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_wdog {
+	u-boot,dm-spl;
+};
+
+&pmic {
+	u-boot,dm-spl;
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,dm-spl;
+};
+
+&uart3 {
+	u-boot,dm-spl;
+};
+
+&usdhc2 {
+	assigned-clock-parents = <&clk IMX8MP_SYS_PLL1_400M>;
+	assigned-clock-rates = <400000000>;
+	assigned-clocks = <&clk IMX8MP_CLK_USDHC2>;
+	sd-uhs-ddr50;
+	sd-uhs-sdr104;
+	u-boot,dm-spl;
+};
+
+&usdhc3 {
+	assigned-clock-parents = <&clk IMX8MP_SYS_PLL1_400M>;
+	assigned-clock-rates = <400000000>;
+	assigned-clocks = <&clk IMX8MP_CLK_USDHC3>;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+	u-boot,dm-spl;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};

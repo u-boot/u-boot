@@ -132,6 +132,13 @@ config TARGET_VERDIN_IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
+config TARGET_VERDIN_IMX8MP
+	bool "Support Toradex Verdin iMX8M Plus module"
+	select BINMAN
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MM_BEACON
 	bool "imx8mm Beacon Embedded devkit"
 	select BINMAN
@@ -195,5 +202,6 @@ source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
+source "board/toradex/verdin-imx8mp/Kconfig"
 
 endif
