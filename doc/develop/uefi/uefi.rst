@@ -277,6 +277,8 @@ Enable ``CONFIG_OPTEE``, ``CONFIG_CMD_OPTEE_RPMB`` and ``CONFIG_EFI_MM_COMM_TEE`
 
 [1] https://optee.readthedocs.io/en/latest/building/efi_vars/stmm.html
 
+.. _uefi_capsule_update_ref:
+
 Enabling UEFI Capsule Update feature
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
