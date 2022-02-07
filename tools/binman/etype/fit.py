@@ -293,6 +293,57 @@ class Entry_fit(Entry_section):
         data = fdt.GetContents()
         return data
 
+    def SetImagePos(self, image_pos):
+        """Set the position in the image
+
+        This sets each subentry's offsets, sizes and positions-in-image
+        according to where they ended up in the packed FIT file.
+
+        Args:
+            image_pos: Position of this entry in the image
+        """
+        super().SetImagePos(image_pos)
+
+        # If mkimage is missing we'll have empty data,
+        # which will cause a FDT_ERR_BADMAGIC error
+        if self.mkimage in self.missing_bintools:
+            return
+
+        fdt = Fdt.FromData(self.GetData())
+        fdt.Scan()
+
+        for path, section in self._entries.items():
+            node = fdt.GetNode(path)
+
+            data_prop = node.props.get("data")
+            data_pos = fdt_util.GetInt(node, "data-position")
+            data_offset = fdt_util.GetInt(node, "data-offset")
+            data_size = fdt_util.GetInt(node, "data-size")
+
+            # Contents are inside the FIT
+            if data_prop is not None:
+                # GetOffset() returns offset of a fdt_property struct,
+                # which has 3 fdt32_t members before the actual data.
+                offset = data_prop.GetOffset() + 12
+                size = len(data_prop.bytes)
+
+            # External offset from the base of the FIT
+            elif data_pos is not None:
+                offset = data_pos
+                size = data_size
+
+            # External offset from the end of the FIT, not used in binman
+            elif data_offset is not None: # pragma: no cover
+                offset = fdt.GetFdtObj().totalsize() + data_offset
+                size = data_size
+
+            # This should never happen
+            else: # pragma: no cover
+                self.Raise("%s: missing data properties" % (path))
+
+            section.SetOffsetSize(offset, size)
+            section.SetImagePos(self.image_pos)
+
     def AddBintools(self, tools):
         super().AddBintools(tools)
         self.mkimage = self.AddBintool(tools, 'mkimage')
