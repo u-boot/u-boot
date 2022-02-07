@@ -147,6 +147,35 @@ static int dm_test_eth_act(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_eth_act, UT_TESTF_SCAN_FDT);
 
+/* Ensure that all addresses are loaded properly */
+static int dm_test_ethaddr(struct unit_test_state *uts)
+{
+	static const char *const addr[] = {
+		"02:00:11:22:33:44",
+		"02:00:11:22:33:48", /* dsa slave */
+		"02:00:11:22:33:45",
+		"02:00:11:22:33:48", /* dsa master */
+		"02:00:11:22:33:46",
+		"02:00:11:22:33:47",
+		"02:00:11:22:33:48", /* dsa slave */
+		"02:00:11:22:33:49",
+	};
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(addr); i++) {
+		char addrname[10];
+
+		if (i)
+			snprintf(addrname, sizeof(addrname), "eth%daddr", i + 1);
+		else
+			strcpy(addrname, "ethaddr");
+		ut_asserteq_str(addr[i], env_get(addrname));
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_ethaddr, UT_TESTF_SCAN_FDT);
+
 /* The asserts include a return on fail; cleanup in the caller */
 static int _dm_test_eth_rotate1(struct unit_test_state *uts)
 {
