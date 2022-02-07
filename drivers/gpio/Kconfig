@@ -57,6 +57,15 @@ config GPIO_HOG
 	  is a mechanism providing automatic GPIO request and config-
 	  uration as part of the gpio-controller's driver probe function.
 
+config SPL_GPIO_HOG
+	bool "Enable GPIO hog support in SPL"
+	depends on SPL_GPIO_SUPPORT
+	help
+	  Enable gpio hog support in SPL
+	  The GPIO chip may contain GPIO hog definitions. GPIO hogging
+	  is a mechanism providing automatic GPIO request and config-
+	  uration as part of the gpio-controller's driver probe function.
+
 config DM_GPIO_LOOKUP_LABEL
 	bool "Enable searching for gpio labelnames"
 	depends on DM_GPIO

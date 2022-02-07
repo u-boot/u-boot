@@ -20,6 +20,7 @@
 #include <serial.h>
 #include <spl.h>
 #include <asm/global_data.h>
+#include <asm-generic/gpio.h>
 #include <asm/u-boot.h>
 #include <nand.h>
 #include <fat.h>
@@ -742,6 +743,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			hang();
 		}
 	}
+
+	if (CONFIG_IS_ENABLED(GPIO_HOG))
+		gpio_hog_probe_all();
 
 #if CONFIG_IS_ENABLED(BOARD_INIT)
 	spl_board_init();
