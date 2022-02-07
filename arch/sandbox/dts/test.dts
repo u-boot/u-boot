@@ -532,7 +532,8 @@
 	eth_5: eth@10003000 {
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
-		mac-address = [ 02 00 11 22 33 46 ];
+		nvmem-cells = <&eth5_addr>;
+		nvmem-cell-names = "mac-address";
 	};
 
 	eth_3: sbe5 {
@@ -913,7 +914,13 @@
 	};
 
 	misc-test {
+		#address-cells = <1>;
+		#size-cells = <1>;
 		compatible = "sandbox,misc_sandbox";
+
+		eth5_addr: mac-address@10 {
+			reg = <0x10 6>;
+		};
 	};
 
 	mmc2 {
