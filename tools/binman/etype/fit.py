@@ -237,6 +237,11 @@ class Entry_fit(Entry):
         self._fdt = Fdt.FromData(fdt.as_bytearray())
         self._fdt.Scan()
 
+    def ExpandEntries(self):
+        super().ExpandEntries()
+        for section in self._fit_sections.values():
+            section.ExpandEntries()
+
     def ObtainContents(self):
         """Obtain the contents of the FIT
 

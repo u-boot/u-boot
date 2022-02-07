@@ -61,6 +61,9 @@ PPC_MPC85XX_BR_DATA   = b'ppcmpc85xxbr'
 U_BOOT_NODTB_DATA     = b'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = b'splnodtb with microcode pointer somewhere in here'
 U_BOOT_TPL_NODTB_DATA = b'tplnodtb with microcode pointer somewhere in here'
+U_BOOT_EXP_DATA       = U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA
+U_BOOT_SPL_EXP_DATA   = U_BOOT_SPL_NODTB_DATA + U_BOOT_SPL_DTB_DATA
+U_BOOT_TPL_EXP_DATA   = U_BOOT_TPL_NODTB_DATA + U_BOOT_TPL_DTB_DATA
 FSP_DATA              = b'fsp'
 CMC_DATA              = b'cmc'
 VBT_DATA              = b'vbt'
@@ -3713,13 +3716,7 @@ class TestFunctional(unittest.TestCase):
         """Test that zero-size overlapping regions are ignored"""
         self._DoTestFile('160_pack_overlap_zero.dts')
 
-    def testSimpleFit(self):
-        """Test an image with a FIT inside"""
-        data = self._DoReadFile('161_fit.dts')
-        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
-        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
-        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
-
+    def _CheckSimpleFitData(self, fit_data, kernel_data, fdt1_data):
         # The data should be inside the FIT
         dtb = fdt.Fdt.FromData(fit_data)
         dtb.Scan()
@@ -3752,8 +3749,26 @@ class TestFunctional(unittest.TestCase):
         self.assertIsNotNone(data_sizes)
         self.assertEqual(2, len(data_sizes))
         # Format is "4 Bytes = 0.00 KiB = 0.00 MiB" so take the first word
-        self.assertEqual(len(U_BOOT_DATA), int(data_sizes[0].split()[0]))
-        self.assertEqual(len(U_BOOT_SPL_DTB_DATA), int(data_sizes[1].split()[0]))
+        self.assertEqual(len(kernel_data), int(data_sizes[0].split()[0]))
+        self.assertEqual(len(fdt1_data), int(data_sizes[1].split()[0]))
+
+    def testSimpleFit(self):
+        """Test an image with a FIT inside"""
+        data = self._DoReadFile('161_fit.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+
+        self._CheckSimpleFitData(fit_data, U_BOOT_DATA, U_BOOT_SPL_DTB_DATA)
+
+    def testSimpleFitExpandsSubentries(self):
+        """Test that FIT images expand their subentries"""
+        data = self._DoReadFileDtb('161_fit.dts', use_expanded=True)[0]
+        self.assertEqual(U_BOOT_EXP_DATA, data[:len(U_BOOT_EXP_DATA)])
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        fit_data = data[len(U_BOOT_EXP_DATA):-len(U_BOOT_NODTB_DATA)]
+
+        self._CheckSimpleFitData(fit_data, U_BOOT_EXP_DATA, U_BOOT_SPL_DTB_DATA)
 
     def testFitExternal(self):
         """Test an image with an FIT with external images"""
