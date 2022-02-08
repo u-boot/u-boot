@@ -548,6 +548,23 @@ class Node:
         self.subnodes.append(subnode)
         return subnode
 
+    def Delete(self):
+        """Delete a node
+
+        The node is deleted and the offset cache is invalidated.
+
+        Args:
+            node (Node): Node to delete
+
+        Raises:
+            ValueError if the node does not exist
+        """
+        CheckErr(self._fdt._fdt_obj.del_node(self.Offset()),
+                 "Node '%s': delete" % self.path)
+        parent = self.parent
+        self._fdt.Invalidate()
+        parent.subnodes.remove(self)
+
     def Sync(self, auto_resize=False):
         """Sync node changes back to the device tree
 
