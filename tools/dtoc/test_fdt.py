@@ -531,6 +531,14 @@ class TestProp(unittest.TestCase):
         self.node.AddData('data', tools.get_bytes(65, 20000))
         self.dtb.Sync(auto_resize=True)
 
+    def test_string_list(self):
+        """Test adding string-list property to a node"""
+        val = ['123', '456']
+        self.node.AddStringList('stringlist', val)
+        self.dtb.Sync(auto_resize=True)
+        data = self.fdt.getprop(self.node.Offset(), 'stringlist')
+        self.assertEqual(b'123\x00456\0', data)
+
     def testFromData(self):
         dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())
         self.assertEqual(dtb2.GetContents(), self.dtb.GetContents())
