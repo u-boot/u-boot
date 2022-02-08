@@ -49,9 +49,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 *boot_params_ptr = NULL;
 
+#if CONFIG_IS_ENABLED(BINMAN_SYMBOLS)
 /* See spl.h for information about this */
 binman_sym_declare(ulong, u_boot_any, image_pos);
 binman_sym_declare(ulong, u_boot_any, size);
+#endif
 
 #ifdef CONFIG_TPL
 binman_sym_declare(ulong, u_boot_spl, image_pos);
@@ -140,6 +142,7 @@ void spl_fixup_fdt(void *fdt_blob)
 #endif
 }
 
+#if CONFIG_IS_ENABLED(BINMAN_SYMBOLS)
 ulong spl_get_image_pos(void)
 {
 	return spl_phase() == PHASE_TPL ?
@@ -153,6 +156,7 @@ ulong spl_get_image_size(void)
 		binman_sym(ulong, u_boot_spl, size) :
 		binman_sym(ulong, u_boot_any, size);
 }
+#endif /* BINMAN_SYMBOLS */
 
 ulong spl_get_image_text_base(void)
 {
