@@ -501,6 +501,24 @@ class Node:
         val = bytes(val, 'utf-8')
         return self.AddData(prop_name, val + b'\0')
 
+    def AddStringList(self, prop_name, val):
+        """Add a new string-list property to a node
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to add
+            val (list of str): List of strings to add
+
+        Returns:
+            Prop added
+        """
+        out = b''
+        for string in val:
+            out += bytes(string, 'utf-8') + b'\0'
+        return self.AddData(prop_name, out)
+
     def AddInt(self, prop_name, val):
         """Add a new integer property to a node
 
