@@ -142,12 +142,80 @@ class Entry_fit(Entry_section):
         super().ReadNode()
 
     def ReadEntries(self):
+        def _process_prop(pname, prop):
+            """Process special properties
+
+            Handles properties with generated values. At present the only
+            supported property is 'default', i.e. the default device tree in
+            the configurations node.
+
+            Args:
+                pname (str): Name of property
+                prop (Prop): Property to process
+            """
+            if pname == 'default':
+                val = prop.value
+                # Handle the 'default' property
+                if val.startswith('@'):
+                    if not self._fdts:
+                        return
+                    if not self._fit_default_dt:
+                        self.Raise("Generated 'default' node requires default-dt entry argument")
+                    if self._fit_default_dt not in self._fdts:
+                        self.Raise("default-dt entry argument '%s' not found in fdt list: %s" %
+                                   (self._fit_default_dt,
+                                    ', '.join(self._fdts)))
+                    seq = self._fdts.index(self._fit_default_dt)
+                    val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
+                    fsw.property_string(pname, val)
+                    return
+            fsw.property(pname, prop.bytes)
+
+        def _generate_node(subnode, depth, in_images):
+            """Generate nodes from a template
+
+            This creates one node for each member of self._fdts using the
+            provided template. If a property value contains 'NAME' it is
+            replaced with the filename of the FDT. If a property value contains
+            SEQ it is replaced with the node sequence number, where 1 is the
+            first.
+
+            Args:
+                subnode (None): Generator node to process
+                depth: Current node depth (0 is the base 'fit' node)
+                in_images: True if this is inside the 'images' node, so that
+                    'data' properties should be generated
+            """
+            if self._fdts:
+                # Generate nodes for each FDT
+                for seq, fdt_fname in enumerate(self._fdts):
+                    node_name = subnode.name[1:].replace('SEQ', str(seq + 1))
+                    fname = tools.get_input_filename(fdt_fname + '.dtb')
+                    with fsw.add_node(node_name):
+                        for pname, prop in subnode.props.items():
+                            val = prop.bytes.replace(
+                                b'NAME', tools.to_bytes(fdt_fname))
+                            val = val.replace(
+                                b'SEQ', tools.to_bytes(str(seq + 1)))
+                            fsw.property(pname, val)
+
+                        # Add data for 'images' nodes (but not 'config')
+                        if depth == 1 and in_images:
+                            fsw.property('data', tools.read_file(fname))
+            else:
+                if self._fdts is None:
+                    if self._fit_list_prop:
+                        self.Raise("Generator node requires '%s' entry argument" %
+                                   self._fit_list_prop.value)
+                    else:
+                        self.Raise("Generator node requires 'fit,fdt-list' property")
+
         def _AddNode(base_node, depth, node):
             """Add a node to the FIT
 
             Args:
                 base_node: Base Node of the FIT (with 'description' property)
-                depth: Current node depth (0 is the base node)
+                depth: Current node depth (0 is the base 'fit' node)
                 node: Current node to process
 
             There are two cases to deal with:
@@ -157,23 +225,7 @@ class Entry_fit(Entry_section):
             """
             for pname, prop in node.props.items():
                 if not pname.startswith('fit,'):
-                    if pname == 'default':
-                        val = prop.value
-                        # Handle the 'default' property
-                        if val.startswith('@'):
-                            if not self._fdts:
-                                continue
-                            if not self._fit_default_dt:
-                                self.Raise("Generated 'default' node requires default-dt entry argument")
-                            if self._fit_default_dt not in self._fdts:
-                                self.Raise("default-dt entry argument '%s' not found in fdt list: %s" %
-                                           (self._fit_default_dt,
-                                            ', '.join(self._fdts)))
-                            seq = self._fdts.index(self._fit_default_dt)
-                            val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
-                            fsw.property_string(pname, val)
-                            continue
-                    fsw.property(pname, prop.bytes)
+                    _process_prop(pname, prop)
 
             rel_path = node.path[len(base_node.path):]
             in_images = rel_path.startswith('/images')
@@ -198,31 +250,7 @@ class Entry_fit(Entry_section):
                     # fsw.add_node() or _AddNode() for it.
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
-                    if self._fdts:
-                        # Generate notes for each FDT
-                        for seq, fdt_fname in enumerate(self._fdts):
-                            node_name = subnode.name[1:].replace('SEQ',
-                                                                 str(seq + 1))
-                            fname = tools.get_input_filename(fdt_fname + '.dtb')
-                            with fsw.add_node(node_name):
-                                for pname, prop in subnode.props.items():
-                                    val = prop.bytes.replace(
-                                        b'NAME', tools.to_bytes(fdt_fname))
-                                    val = val.replace(
-                                        b'SEQ', tools.to_bytes(str(seq + 1)))
-                                    fsw.property(pname, val)
-
-                                # Add data for 'fdt' nodes (but not 'config')
-                                if depth == 1 and in_images:
-                                    fsw.property('data',
-                                                 tools.read_file(fname))
-                    else:
-                        if self._fdts is None:
-                            if self._fit_list_prop:
-                                self.Raise("Generator node requires '%s' entry argument" %
-                                           self._fit_list_prop.value)
-                            else:
-                                self.Raise("Generator node requires 'fit,fdt-list' property")
+                    _generate_node(subnode, depth, in_images)
                 else:
                     with fsw.add_node(subnode.name):
                         _AddNode(base_node, depth + 1, subnode)
