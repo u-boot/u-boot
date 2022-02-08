@@ -491,6 +491,8 @@ struct efi_register_notify_event {
 /* List of all events registered by RegisterProtocolNotify() */
 extern struct list_head efi_register_notify_events;
 
+/* called at pre-initialization */
+int efi_init_early(void);
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
 /* Install device tree */

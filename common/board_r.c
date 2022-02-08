@@ -789,7 +789,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_mem,
 #endif
 #ifdef CONFIG_EFI_SETUP_EARLY
-	(init_fnc_t)efi_init_obj_list,
+	efi_init_early,
 #endif
 	run_main_loop,
 };
