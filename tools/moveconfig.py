@@ -1606,12 +1606,31 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
             for linenum in sorted(linenums, reverse=True):
                 add_imply_rule(config[CONFIG_LEN:], fname, linenum)
 
+def defconfig_matches(configs, re_match):
+    """Check if any CONFIG option matches a regex
+
+    The match must be complete, i.e. from the start to end of the CONFIG option.
+
+    Args:
+        configs (dict): Dict of CONFIG options:
+            key: CONFIG option
+            value: Value of option
+        re_match (re.Pattern): Match to check
+
+    Returns:
+        bool: True if any CONFIG matches the regex
+    """
+    for cfg in configs:
+        m_cfg = re_match.match(cfg)
+        if m_cfg and m_cfg.span()[1] == len(cfg):
+            return True
+    return False
 
 def do_find_config(config_list):
     """Find boards with a given combination of CONFIGs
 
     Params:
-        config_list: List of CONFIG options to check (each a string consisting
+        config_list: List of CONFIG options to check (each a regex consisting
             of a config option, with or without a CONFIG_ prefix. If an option
             is preceded by a tilde (~) then it must be false, otherwise it must
             be true)
@@ -1643,8 +1662,9 @@ def do_find_config(config_list):
         # running for the next stage
         in_list = out
         out = set()
+        re_match = re.compile(cfg)
         for defc in in_list:
-            has_cfg = cfg in config_db[defc]
+            has_cfg = defconfig_matches(config_db[defc], re_match)
             if has_cfg == want:
                 out.add(defc)
     if adhoc:
