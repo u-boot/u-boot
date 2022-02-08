@@ -48,6 +48,7 @@ static int apple_dart_probe(struct udevice *dev)
 
 static const struct udevice_id apple_dart_ids[] = {
 	{ .compatible = "apple,t8103-dart" },
+	{ .compatible = "apple,t6000-dart" },
 	{ /* sentinel */ }
 };
 
