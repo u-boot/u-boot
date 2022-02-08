@@ -51,16 +51,10 @@ class Entry_mkimage(Entry):
         self.ReadEntries()
 
     def ObtainContents(self):
-        data = b''
-        for entry in self._mkimage_entries.values():
-            # First get the input data and put it in a file. If not available,
-            # try later.
-            if not entry.ObtainContents():
-                return False
-            data += entry.GetData()
-        uniq = self.GetUniqueName()
-        input_fname = tools.get_output_filename('mkimage.%s' % uniq)
-        tools.write_file(input_fname, data)
+        data, input_fname, uniq = self.collect_contents_to_file(
+            self._mkimage_entries.values(), 'mkimage')
+        if data is False:
+            return False
         output_fname = tools.get_output_filename('mkimage-out.%s' % uniq)
         if self.mkimage.run_cmd('-d', input_fname, *self._args,
                                 output_fname) is not None:
