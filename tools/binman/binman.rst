@@ -1358,6 +1358,92 @@ development, since dealing with exceptions and problems in threads is more
 difficult. This avoids any use of ThreadPoolExecutor.
 
 
+Collecting data for an entry type
+---------------------------------
+
+Some entry types deal with data obtained from others. For example,
+`Entry_mkimage` calls the `mkimage` tool with data from its subnodes::
+
+    mkimage {
+        args = "-n test -T script";
+
+        u-boot-spl {
+        };
+
+        u-boot {
+        };
+    };
+
+This shows mkimage being passed a file consisting of SPL and U-Boot proper. It
+is create by calling `Entry.collect_contents_to_file()`. Note that in this case,
+the data is passed to mkimage for processing but does not appear separately in
+the image. It may not appear at all, depending on what mkimage does. The
+contents of the `mkimage` entry are entirely dependent on the processing done
+by the entry, with the provided subnodes (`u-boot-spl` and `u-boot`) simply
+providing the input data for that processing.
+
+Note that `Entry.collect_contents_to_file()` simply concatenates the data from
+the different entries together, with no control over alignment, etc. Another
+approach is to subclass `Entry_section` so that those features become available,
+such as `size` and `pad-byte`. Then the contents of the entry can be obtained by
+calling `BuildSectionData()`.
+
+There are other ways to obtain data also, depending on the situation. If the
+entry type is simply signing data which exists elsewhere in the image, then
+you can use `Entry_collection`  as a base class. It lets you use a property
+called `content` which lists the entries containing data to be processed. This
+is used by `Entry_vblock`, for example::
+
+    u_boot: u-boot {
+    };
+    vblock {
+        content = <&u_boot &dtb>;
+        keyblock = "firmware.keyblock";
+        signprivate = "firmware_data_key.vbprivk";
+        version = <1>;
+        kernelkey = "kernel_subkey.vbpubk";
+        preamble-flags = <1>;
+    };
+
+    dtb: u-boot-dtb {
+    };
+
+which shows an image containing `u-boot` and `u-boot-dtb`, with the `vblock`
+image collecting their contents to produce input for its signing process,
+without affecting those entries, which still appear in the final image
+untouched.
+
+Another example is where an entry type needs several independent pieces of input
+to function. For example, `Entry_fip` allows a number of different binary blobs
+to be placed in their own individual places in a custom data structure in the
+output image. To make that work you can add subnodes for each of them and call
+`Entry.Create()` on each subnode, as `Entry_fip` does. Then the data for each
+blob can come from any suitable place, such as an `Entry_u_boot` or an
+`Entry_blob` or anything else::
+
+    atf-fip {
+        fip-hdr-flags = /bits/ 64 <0x123>;
+        soc-fw {
+            fip-flags = /bits/ 64 <0x123456789abcdef>;
+            filename = "bl31.bin";
+        };
+
+        u-boot {
+            fip-uuid = [fc 65 13 92 4a 5b 11 ec
+                    94 35 ff 2d 1c fc 79 9c];
+        };
+    };
+
+The `soc-fw` node is a `blob-ext` (i.e. it reads in a named binary file) whereas
+`u-boot` is a normal entry type. This works because `Entry_fip` selects the
+`blob-ext` entry type if the node name (here `soc-fw`) is recognised as being
+a known blob type.
+
+When adding new entry types you are encouraged to use subnodes to provide the
+data for processing, unless the `content` approach is more suitable. Ad-hoc
+properties and other methods of obtaining data are discouraged, since it adds to
+confusion for users.
+
 History / Credits
 -----------------
 
