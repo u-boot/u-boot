@@ -182,8 +182,23 @@ config TARGET_IMX8MM_CL_IOT_GATE_OPTEE
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 	select SUPPORT_EXTENSION_SCAN
+
+config TARGET_IMX8MP_RSB3720A1_4G
+	bool "Support i.MX8MP RSB3720A1 4G"
+	select BINMAN
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
+config TARGET_IMX8MP_RSB3720A1_6G
+	bool "Support i.MX8MP RSB3720A1 6G"
+	select BINMAN
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
 endchoice
 
+source "board/advantech/imx8mp_rsb3720a1/Kconfig"
 source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
 source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
