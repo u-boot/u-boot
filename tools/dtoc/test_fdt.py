@@ -652,6 +652,21 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(['test'],
                          fdt_util.GetStringList(self.node, 'missing', ['test']))
 
+    def testGetArgs(self):
+        node = self.dtb.GetNode('/orig-node')
+        self.assertEqual(['message'], fdt_util.GetArgs(self.node, 'stringval'))
+        self.assertEqual(
+            ['multi-word', 'message'],
+            fdt_util.GetArgs(self.node, 'stringarray'))
+        self.assertEqual([], fdt_util.GetArgs(self.node, 'boolval'))
+        self.assertEqual(['-n', 'first', 'second', '-p', '123,456', '-x'],
+                         fdt_util.GetArgs(node, 'args'))
+        with self.assertRaises(ValueError) as exc:
+            fdt_util.GetArgs(self.node, 'missing')
+        self.assertIn(
+            "Node '/spl-test': Expected property 'missing'",
+            str(exc.exception))
+
     def testGetBool(self):
         self.assertEqual(True, fdt_util.GetBool(self.node, 'boolval'))
         self.assertEqual(False, fdt_util.GetBool(self.node, 'missing'))

@@ -184,6 +184,18 @@ def GetStringList(node, propname, default=None):
         return [strval]
     return value
 
+def GetArgs(node, propname):
+    prop = node.props.get(propname)
+    if not prop:
+        raise ValueError(f"Node '{node.path}': Expected property '{propname}'")
+    if prop.bytes:
+        value = GetStringList(node, propname)
+    else:
+        value = []
+    lists = [v.split() for v in value]
+    args = [x for l in lists for x in l]
+    return args
+
 def GetBool(node, propname, default=False):
     """Get an boolean from a property
 
