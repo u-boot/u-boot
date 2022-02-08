@@ -56,8 +56,8 @@ class FakeSection:
 def BuildElfTestFiles(target_dir):
     """Build ELF files used for testing in binman
 
-    This compiles and links the test files into the specified directory. It the
-    Makefile and source files in the binman test/ directory.
+    This compiles and links the test files into the specified directory. It uses
+    the Makefile and source files in the binman test/ directory.
 
     Args:
         target_dir: Directory to put the files into
@@ -257,6 +257,33 @@ class TestElf(unittest.TestCase):
         fname = self.ElfTestFile('embed_data')
         offset = elf.GetSymbolFileOffset(fname, ['missing_sym'])
         self.assertEqual({}, offset)
+
+    def test_read_segments(self):
+        """Test for read_segments()"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        fname = self.ElfTestFile('embed_data')
+        segments, entry = elf.read_segments(tools.ReadFile(fname))
+
+    def test_read_segments_fail(self):
+        """Test for read_segments() without elftools"""
+        try:
+            old_val = elf.ELF_TOOLS
+            elf.ELF_TOOLS = False
+            fname = self.ElfTestFile('embed_data')
+            with self.assertRaises(ValueError) as e:
+                elf.read_segments(tools.ReadFile(fname))
+            self.assertIn('Python elftools package is not available',
+                          str(e.exception))
+        finally:
+            elf.ELF_TOOLS = old_val
+
+    def test_read_segments_bad_data(self):
+        """Test for read_segments() with an invalid ELF file"""
+        fname = self.ElfTestFile('embed_data')
+        with self.assertRaises(ValueError) as e:
+            elf.read_segments(tools.GetBytes(100, 100))
+        self.assertIn('Magic number does not match', str(e.exception))
 
 
 if __name__ == '__main__':
