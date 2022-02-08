@@ -54,8 +54,8 @@ binman_sym_declare(ulong, u_boot_any, image_pos);
 binman_sym_declare(ulong, u_boot_any, size);
 
 #ifdef CONFIG_TPL
-binman_sym_declare(ulong, spl, image_pos);
-binman_sym_declare(ulong, spl, size);
+binman_sym_declare(ulong, u_boot_spl, image_pos);
+binman_sym_declare(ulong, u_boot_spl, size);
 #endif
 
 /* Define board data structure */
@@ -143,14 +143,14 @@ void spl_fixup_fdt(void *fdt_blob)
 ulong spl_get_image_pos(void)
 {
 	return spl_phase() == PHASE_TPL ?
-		binman_sym(ulong, spl, image_pos) :
+		binman_sym(ulong, u_boot_spl, image_pos) :
 		binman_sym(ulong, u_boot_any, image_pos);
 }
 
 ulong spl_get_image_size(void)
 {
 	return spl_phase() == PHASE_TPL ?
-		binman_sym(ulong, spl, size) :
+		binman_sym(ulong, u_boot_spl, size) :
 		binman_sym(ulong, u_boot_any, size);
 }
 
