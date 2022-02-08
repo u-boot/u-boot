@@ -1402,6 +1402,14 @@ Some ideas:
 - Detect invalid properties in nodes
 - Sort the fdtmap by offset
 - Output temporary files to a different directory
+- Rationalise the fdt, fdt_util and pylibfdt modules which currently have some
+  overlapping and confusing functionality
+- Update the fdt library to use a better format for Prop.value (the current one
+  is useful for dtoc but not much else)
+- Figure out how to make Fdt support changing the node order, so that
+  Node.AddSubnode() can support adding a node before another, existing node.
+  Perhaps it should completely regenerate the flat tree?
+
 
 --
 Simon Glass <sjg@chromium.org>
