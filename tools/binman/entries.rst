@@ -554,10 +554,10 @@ For example, this creates an image containing a FIT with U-Boot SPL::
     };
 
 U-Boot supports creating fdt and config nodes automatically. To do this,
-pass an of-list property (e.g. -a of-list=file1 file2). This tells binman
-that you want to generates nodes for two files: file1.dtb and file2.dtb
-The fit,fdt-list property (see above) indicates that of-list should be used.
-If the property is missing you will get an error.
+pass an `of-list` property (e.g. `-a of-list=file1 file2`). This tells
+binman that you want to generates nodes for two files: `file1.dtb` and
+`file2.dtb`. The `fit,fdt-list` property (see above) indicates that
+`of-list` should be used. If the property is missing you will get an error.
 
 Then add a 'generator node', a node with a name starting with '@'::
 
@@ -569,10 +569,11 @@ Then add a 'generator node', a node with a name starting with '@'::
         };
     };
 
-This tells binman to create nodes fdt-1 and fdt-2 for each of your two
+This tells binman to create nodes `fdt-1` and `fdt-2` for each of your two
 files. All the properties you specify will be included in the node. This
 node acts like a template to generate the nodes. The generator node itself
 does not appear in the output - it is replaced with what binman generates.
+A 'data' property is created with the contents of the FDT file.
 
 You can create config nodes in a similar way::
 
@@ -586,8 +587,8 @@ You can create config nodes in a similar way::
         };
     };
 
-This tells binman to create nodes config-1 and config-2, i.e. a config for
-each of your two files.
+This tells binman to create nodes `config-1` and `config-2`, i.e. a config
+for each of your two files.
 
 Available substitutions for '@' nodes are:
 
