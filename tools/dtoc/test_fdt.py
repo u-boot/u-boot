@@ -539,6 +539,15 @@ class TestProp(unittest.TestCase):
         data = self.fdt.getprop(self.node.Offset(), 'stringlist')
         self.assertEqual(b'123\x00456\0', data)
 
+    def test_delete_node(self):
+        """Test deleting a node"""
+        old_offset = self.fdt.path_offset('/spl-test')
+        self.assertGreater(old_offset, 0)
+        self.node.Delete()
+        self.dtb.Sync()
+        new_offset = self.fdt.path_offset('/spl-test', libfdt.QUIET_NOTFOUND)
+        self.assertEqual(-libfdt.NOTFOUND, new_offset)
+
     def testFromData(self):
         dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())
         self.assertEqual(dtb2.GetContents(), self.dtb.GetContents())
