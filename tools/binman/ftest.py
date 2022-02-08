@@ -2076,7 +2076,7 @@ class TestFunctional(unittest.TestCase):
     def testHashBadAlgo(self):
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb('092_hash_bad_algo.dts', update_dtb=True)
-        self.assertIn("Node '/binman/u-boot': Unknown hash algorithm",
+        self.assertIn("Node '/binman/u-boot': Unknown hash algorithm 'invalid'",
                       str(e.exception))
 
     def testHashSection(self):
