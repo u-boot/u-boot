@@ -62,5 +62,6 @@
 
 	orig-node {
 		orig = <1 23 4>;
+		args = "-n first", "second", "-p", "123,456", "-x";
 	};
 };
