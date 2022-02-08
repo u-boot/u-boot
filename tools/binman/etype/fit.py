@@ -14,7 +14,14 @@ from dtoc import fdt_util
 from dtoc.fdt import Fdt
 from patman import tools
 
+# Supported operations, with the fit,operation property
+OP_GEN_FDT_NODES = range(1)
+OPERATIONS = {
+    'gen-fdt-nodes': OP_GEN_FDT_NODES,
+    }
+
 class Entry_fit(Entry_section):
+
     """Flat Image Tree (FIT)
 
     This calls mkimage to create a FIT (U-Boot Flat Image Tree) based on the
@@ -46,6 +53,68 @@ class Entry_fit(Entry_section):
                 };
             };
         };
+
+    More complex setups can be created, with generated nodes, as described
+    below.
+
+    Properties (in the 'fit' node itself)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Special properties have a `fit,` prefix, indicating that they should be
+    processed but not included in the final FIT.
+
+    The top-level 'fit' node supports the following special properties:
+
+        fit,external-offset
+            Indicates that the contents of the FIT are external and provides the
+            external offset. This is passed to mkimage via the -E and -p flags.
+
+        fit,fdt-list
+            Indicates the entry argument which provides the list of device tree
+            files for the gen-fdt-nodes operation (as below). This is often
+            `of-list` meaning that `-a of-list="dtb1 dtb2..."` should be passed
+            to binman.
+
+    Substitutions
+    ~~~~~~~~~~~~~
+
+    Node names and property values support a basic string-substitution feature.
+    Available substitutions for '@' nodes (and property values) are:
+
+    SEQ:
+        Sequence number of the generated fdt (1, 2, ...)
+    NAME
+        Name of the dtb as provided (i.e. without adding '.dtb')
+
+    The `default` property, if present, will be automatically set to the name
+    if of configuration whose devicetree matches the `default-dt` entry
+    argument, e.g. with `-a default-dt=sun50i-a64-pine64-lts`.
+
+    Available substitutions for property values in these nodes are:
+
+    DEFAULT-SEQ:
+        Sequence number of the default fdt, as provided by the 'default-dt'
+        entry argument
+
+    Available operations
+    ~~~~~~~~~~~~~~~~~~~~
+
+    You can add an operation to an '@' node to indicate which operation is
+    required::
+
+        @fdt-SEQ {
+            fit,operation = "gen-fdt-nodes";
+            ...
+        };
+
+    Available operations are:
+
+    gen-fdt-nodes
+        Generate FDT nodes as above. This is the default if there is no
+        `fit,operation` property.
+
+    Generating nodes from an FDT list (gen-fdt-nodes)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     U-Boot supports creating fdt and config nodes automatically. To do this,
     pass an `of-list` property (e.g. `-a of-list=file1 file2`). This tells
@@ -84,31 +153,8 @@ class Entry_fit(Entry_section):
     This tells binman to create nodes `config-1` and `config-2`, i.e. a config
     for each of your two files.
 
-    Available substitutions for '@' nodes are:
-
-    SEQ:
-        Sequence number of the generated fdt (1, 2, ...)
-    NAME
-        Name of the dtb as provided (i.e. without adding '.dtb')
-
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
-
-    The 'default' property, if present, will be automatically set to the name
-    if of configuration whose devicetree matches the 'default-dt' entry
-    argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
-
-    Available substitutions for '@' property values are
-
-    DEFAULT-SEQ:
-        Sequence number of the default fdt,as provided by the 'default-dt' entry
-        argument
-
-    Properties (in the 'fit' node itself):
-        fit,external-offset: Indicates that the contents of the FIT are external
-            and provides the external offset. This is passsed to mkimage via
-            the -E and -p flags.
-
     """
     def __init__(self, section, etype, node):
         """
@@ -142,6 +188,26 @@ class Entry_fit(Entry_section):
         self.ReadEntries()
         super().ReadNode()
 
+    def _get_operation(self, subnode):
+        """Get the operation referenced by a subnode
+
+        Args:
+            subnode (Node): Subnode (of the FIT) to check
+
+        Returns:
+            int: Operation to perform
+
+        Raises:
+            ValueError: Invalid operation name
+        """
+        oper_name = subnode.props.get('fit,operation')
+        if not oper_name:
+            return OP_GEN_FDT_NODES
+        oper = OPERATIONS.get(oper_name.value)
+        if not oper:
+            self.Raise(f"Unknown operation '{oper_name.value}'")
+        return oper
+
     def ReadEntries(self):
         def _process_prop(pname, prop):
             """Process special properties
@@ -172,8 +238,8 @@ class Entry_fit(Entry_section):
                     return
             fsw.property(pname, prop.bytes)
 
-        def _generate_node(subnode, depth, in_images):
-            """Generate nodes from a template
+        def _scan_gen_fdt_nodes(subnode, depth, in_images):
+            """Generate FDT nodes
 
             This creates one node for each member of self._fdts using the
             provided template. If a property value contains 'NAME' it is
@@ -210,6 +276,25 @@ class Entry_fit(Entry_section):
                                    self._fit_list_prop.value)
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
+
+        def _scan_node(subnode, depth, in_images):
+            """Generate nodes from a template
+
+            This creates one node for each member of self._fdts using the
+            provided template. If a property value contains 'NAME' it is
+            replaced with the filename of the FDT. If a property value contains
+            SEQ it is replaced with the node sequence number, where 1 is the
+            first.
+
+            Args:
+                subnode (None): Generator node to process
+                depth: Current node depth (0 is the base 'fit' node)
+                in_images: True if this is inside the 'images' node, so that
+                    'data' properties should be generated
+            """
+            oper = self._get_operation(subnode)
+            if oper == OP_GEN_FDT_NODES:
+                _scan_gen_fdt_nodes(subnode, depth, in_images)
 
         def _AddNode(base_node, depth, node):
             """Add a node to the FIT
@@ -251,7 +336,7 @@ class Entry_fit(Entry_section):
                     # fsw.add_node() or _AddNode() for it.
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
-                    _generate_node(subnode, depth, in_images)
+                    _scan_node(subnode, depth, in_images)
                 else:
                     with fsw.add_node(subnode.name):
                         _AddNode(base_node, depth + 1, subnode)

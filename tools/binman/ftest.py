@@ -5303,6 +5303,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('222_tee_os.dts')
         self.assertEqual(TEE_OS_DATA, data[:len(TEE_OS_DATA)])
 
+    def testFitFdtOper(self):
+        """Check handling of a specified FIT operation"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+        }
+        self._DoReadFileDtb(
+            '223_fit_fdt_oper.dts',
+            entry_args=entry_args,
+            extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+
+    def testFitFdtBadOper(self):
+        """Check handling of an FDT map when the section cannot be found"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb('224_fit_bad_oper.dts')
+        self.assertIn("Node '/binman/fit': Unknown operation 'unknown'",
+                      str(exc.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
