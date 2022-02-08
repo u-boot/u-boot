@@ -356,6 +356,8 @@ class Node:
 
         offset = fdt_obj.first_subnode(self._offset, QUIET_NOTFOUND)
         for subnode in self.subnodes:
+            if subnode._offset is None:
+                continue
             if subnode.name != fdt_obj.get_name(offset):
                 raise ValueError('Internal error, node name mismatch %s != %s' %
                                  (subnode.name, fdt_obj.get_name(offset)))

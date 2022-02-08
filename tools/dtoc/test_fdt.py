@@ -272,6 +272,17 @@ class TestNode(unittest.TestCase):
 
         self.dtb.Sync(auto_resize=True)
 
+    def testAddOneNode(self):
+        """Testing deleting and adding a subnode before syncing"""
+        subnode = self.node.AddSubnode('subnode')
+        self.node.AddSubnode('subnode2')
+        self.dtb.Sync(auto_resize=True)
+
+        # Delete a node and add a new one
+        subnode.Delete()
+        self.node.AddSubnode('subnode3')
+        self.dtb.Sync()
+
     def testRefreshNameMismatch(self):
         """Test name mismatch when syncing nodes and properties"""
         prop = self.node.AddInt('integer-a', 12)
