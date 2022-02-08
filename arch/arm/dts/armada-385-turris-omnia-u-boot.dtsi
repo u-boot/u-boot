@@ -38,6 +38,7 @@
 	};
 };
 
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 &spi0 {
 	u-boot,dm-pre-reloc;
 
@@ -56,6 +57,7 @@
 		};
 	};
 };
+#endif
 
 &uart0 {
 	u-boot,dm-pre-reloc;

@@ -328,9 +328,10 @@ int board_network_enable(struct mii_dev *bus)
 	return 0;
 }
 
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
+#ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 	int ret;
 	int spi_off;
 	int parts_off;
@@ -424,6 +425,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return 0;
 	}
 
+#endif
 	return 0;
 }
 #endif
