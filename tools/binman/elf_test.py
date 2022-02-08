@@ -263,7 +263,7 @@ class TestElf(unittest.TestCase):
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
         fname = self.ElfTestFile('embed_data')
-        segments, entry = elf.read_segments(tools.ReadFile(fname))
+        segments, entry = elf.read_segments(tools.read_file(fname))
 
     def test_read_segments_fail(self):
         """Test for read_segments() without elftools"""
@@ -272,7 +272,7 @@ class TestElf(unittest.TestCase):
             elf.ELF_TOOLS = False
             fname = self.ElfTestFile('embed_data')
             with self.assertRaises(ValueError) as e:
-                elf.read_segments(tools.ReadFile(fname))
+                elf.read_segments(tools.read_file(fname))
             self.assertIn('Python elftools package is not available',
                           str(e.exception))
         finally:
@@ -282,7 +282,7 @@ class TestElf(unittest.TestCase):
         """Test for read_segments() with an invalid ELF file"""
         fname = self.ElfTestFile('embed_data')
         with self.assertRaises(ValueError) as e:
-            elf.read_segments(tools.GetBytes(100, 100))
+            elf.read_segments(tools.get_bytes(100, 100))
         self.assertIn('Magic number does not match', str(e.exception))
 
 

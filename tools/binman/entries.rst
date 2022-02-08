@@ -931,6 +931,17 @@ This calls mkimage to create an imximage with u-boot-spl.bin as the input
 file. The output from mkimage then becomes part of the image produced by
 binman.
 
+To use CONFIG options in the arguments, use a string list instead, as in
+this example which also produces four arguments::
+
+    mkimage {
+        args = "-n", CONFIG_SYS_SOC, "-T imximage";
+
+        u-boot-spl {
+        };
+    };
+
+
 
 
 Entry: opensbi: RISC-V OpenSBI fw_dynamic blob
