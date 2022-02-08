@@ -163,8 +163,8 @@ Consider sunxi. It has the following steps:
 
 Binman is intended to replace the last step. The U-Boot build system builds
 u-boot.bin and sunxi-spl.bin. Binman can then take over creation of
-sunxi-spl.bin (by calling mksunxiboot, or hopefully one day mkimage). In any
-case, it would then create the image from the component parts.
+sunxi-spl.bin by calling mksunxiboot or mkimage. In any case, it would then
+create the image from the component parts.
 
 This simplifies the U-Boot Makefile somewhat, since various pieces of logic
 can be replaced by a call to binman.
