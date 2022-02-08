@@ -91,7 +91,20 @@ SIZES = {
     'SZ_4G':  0x100000000
 }
 
+RE_REMOVE_DEFCONFIG = re.compile(r'(.*)_defconfig')
+
 ### helper functions ###
+def remove_defconfig(defc):
+    """Drop the _defconfig suffix on a string
+
+    Args:
+        defc (str): String to convert
+
+    Returns:
+        str: string with the '_defconfig' suffix removed
+    """
+    return RE_REMOVE_DEFCONFIG.match(defc)[1]
+
 def check_top_directory():
     """Exit if we are not at the top of source directory."""
     for fname in 'README', 'Licenses':
@@ -1638,7 +1651,7 @@ def do_find_config(config_list):
         print(f"Error: Not in Kconfig: %s" % ' '.join(adhoc))
     else:
         print(f'{len(out)} matches')
-        print(' '.join(out))
+        print(' '.join([remove_defconfig(item) for item in out]))
 
 
 def prefix_config(cfg):
