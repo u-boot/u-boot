@@ -362,6 +362,10 @@ struct prcm_regs {
 	/* IPU */
 	u32 cm_ipu_clkstctrl;
 	u32 cm_ipu_i2c5_clkctrl;
+	u32 cm_ipu1_clkstctrl;
+	u32 cm_ipu1_ipu1_clkctrl;
+	u32 cm_ipu2_clkstctrl;
+	u32 cm_ipu2_ipu2_clkctrl;
 
 	/*l3main1 edma*/
 	u32 cm_l3main1_tptc1_clkctrl;
@@ -632,6 +636,12 @@ void do_disable_clocks(u32 const *clk_domains,
 		       u8 wait_for_disable);
 #endif /* CONFIG_OMAP44XX || CONFIG_OMAP54XX */
 
+void do_enable_ipu_clocks(u32 const *clk_domains,
+			  u32 const *clk_modules_hw_auto,
+			  u32 const *clk_modules_explicit_en,
+			  u8 wait_for_enable);
+void enable_ipu1_clocks(void);
+void enable_ipu2_clocks(void);
 void setup_post_dividers(u32 const base,
 			const struct dpll_params *params);
 u32 omap_ddr_clk(void);

@@ -31,6 +31,7 @@
 #include <twl4030.h>
 #include <i2c.h>
 #include <video_fb.h>
+#include <keyboard.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/setup.h>
@@ -579,10 +580,10 @@ static u8 keybuf_head;
 static u8 keybuf_tail;
 
 /*
- * Routine: rx51_kp_init
+ * Routine: rx51_kp_start
  * Description: Initialize HW keyboard.
  */
-int rx51_kp_init(void)
+static int rx51_kp_start(struct udevice *dev)
 {
 	int ret = 0;
 	u8 ctrl;
@@ -656,7 +657,7 @@ static void rx51_kp_fill(u8 k, u8 mods)
  * Routine: rx51_kp_tstc
  * Description: Test if key was pressed (from buffer).
  */
-int rx51_kp_tstc(struct stdio_dev *sdev)
+static int rx51_kp_tstc(struct udevice *dev)
 {
 	u8 c, r, dk, i;
 	u8 intr;
@@ -712,13 +713,35 @@ int rx51_kp_tstc(struct stdio_dev *sdev)
  * Routine: rx51_kp_getc
  * Description: Get last pressed key (from buffer).
  */
-int rx51_kp_getc(struct stdio_dev *sdev)
+static int rx51_kp_getc(struct udevice *dev)
 {
 	keybuf_head %= KEYBUF_SIZE;
-	while (!rx51_kp_tstc(sdev))
+	while (!rx51_kp_tstc(dev))
 		WATCHDOG_RESET();
 	return keybuf[keybuf_head++];
 }
+
+static int rx51_kp_probe(struct udevice *dev)
+{
+	struct keyboard_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct stdio_dev *sdev = &uc_priv->sdev;
+
+	strcpy(sdev->name, "keyboard");
+	return input_stdio_register(sdev);
+}
+
+static const struct keyboard_ops rx51_kp_ops = {
+	.start = rx51_kp_start,
+	.tstc = rx51_kp_tstc,
+	.getc = rx51_kp_getc,
+};
+
+U_BOOT_DRIVER(rx51_kp) = {
+	.name = "rx51_kp",
+	.id = UCLASS_KEYBOARD,
+	.probe = rx51_kp_probe,
+	.ops = &rx51_kp_ops,
+};
 
 static const struct mmc_config rx51_mmc_cfg = {
 	.host_caps = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS,
@@ -752,4 +775,8 @@ U_BOOT_DRVINFOS(rx51_i2c) = {
 
 U_BOOT_DRVINFOS(rx51_watchdog) = {
 	{ "rx51_watchdog" },
+};
+
+U_BOOT_DRVINFOS(rx51_kp) = {
+	{ "rx51_kp" },
 };

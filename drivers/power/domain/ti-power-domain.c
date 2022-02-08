@@ -79,6 +79,11 @@ static const struct soc_attr ti_k3_soc_pd_data[] = {
 		.family = "J7200",
 		.data = &j7200_pd_platdata,
 	},
+#elif CONFIG_SOC_K3_J721S2
+	{
+		.family = "J721S2",
+		.data = &j721s2_pd_platdata,
+	},
 #endif
 	{ /* sentinel */ }
 };

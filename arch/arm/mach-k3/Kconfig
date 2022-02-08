@@ -10,6 +10,9 @@ config SOC_K3_AM6
 config SOC_K3_J721E
 	bool "TI's K3 based J721E SoC Family Support"
 
+config SOC_K3_J721S2
+	bool "TI's K3 based J721S2 SoC Family Support"
+
 config SOC_K3_AM642
 	bool "TI's K3 based AM642 SoC Family Support"
 
@@ -21,7 +24,7 @@ config SYS_SOC
 config SYS_K3_NON_SECURE_MSRAM_SIZE
 	hex
 	default 0x80000 if SOC_K3_AM6
-	default 0x100000 if SOC_K3_J721E
+	default 0x100000 if SOC_K3_J721E || SOC_K3_J721S2
 	default 0x1c0000 if SOC_K3_AM642
 	help
 	  Describes the total size of the MCU or OCMC MSRAM present on
@@ -32,7 +35,7 @@ config SYS_K3_NON_SECURE_MSRAM_SIZE
 config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 	hex
 	default 0x58000 if SOC_K3_AM6
-	default 0xc0000 if SOC_K3_J721E
+	default 0xc0000 if SOC_K3_J721E || SOC_K3_J721S2
 	default 0x180000 if SOC_K3_AM642
 	help
 	  Describes the maximum size of the image that ROM can download
@@ -41,14 +44,14 @@ config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 config SYS_K3_MCU_SCRATCHPAD_BASE
 	hex
 	default 0x40280000 if SOC_K3_AM6
-	default 0x40280000 if SOC_K3_J721E
+	default 0x40280000 if SOC_K3_J721E || SOC_K3_J721S2
 	help
 	  Describes the base address of MCU Scratchpad RAM.
 
 config SYS_K3_MCU_SCRATCHPAD_SIZE
 	hex
 	default 0x200 if SOC_K3_AM6
-	default 0x200 if SOC_K3_J721E
+	default 0x200 if SOC_K3_J721E || SOC_K3_J721S2
 	help
 	  Describes the size of MCU Scratchpad RAM.
 
@@ -56,6 +59,7 @@ config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	hex
 	default 0x41c7fbfc if SOC_K3_AM6
 	default 0x41cffbfc if SOC_K3_J721E
+	default 0x41cfdbfc if SOC_K3_J721S2
 	default 0x701bebfc if SOC_K3_AM642
 	help
 	  Address at which ROM stores the value which determines if SPL
@@ -156,7 +160,7 @@ config K3_ATF_LOAD_ADDR
 
 config K3_DM_FW
 	bool "Separate DM firmware image"
-	depends on SPL && CPU_V7R && SOC_K3_J721E && !CLK_TI_SCI && !TI_SCI_POWER_DOMAIN
+	depends on SPL && CPU_V7R && (SOC_K3_J721E || SOC_K3_J721S2) && !CLK_TI_SCI && !TI_SCI_POWER_DOMAIN
 	default y
 	help
 	  Enabling this will indicate that the system has separate DM
@@ -169,4 +173,5 @@ source "board/ti/am65x/Kconfig"
 source "board/ti/am64x/Kconfig"
 source "board/ti/j721e/Kconfig"
 source "board/siemens/iot2050/Kconfig"
+source "board/ti/j721s2/Kconfig"
 endif

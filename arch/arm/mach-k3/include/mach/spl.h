@@ -14,6 +14,10 @@
 #include "j721e_spl.h"
 #endif
 
+#ifdef CONFIG_SOC_K3_J721S2
+#include "j721s2_spl.h"
+#endif
+
 #ifdef CONFIG_SOC_K3_AM642
 #include "am64_spl.h"
 #endif

@@ -62,7 +62,7 @@ choice
 	depends on K3_DDRSS
 	prompt "K3 DDRSS Arch Support"
 
-	default K3_J721E_DDRSS if SOC_K3_J721E
+	default K3_J721E_DDRSS if SOC_K3_J721E || SOC_K3_J721S2
 	default K3_AM64_DDRSS if SOC_K3_AM642
 
 config K3_J721E_DDRSS

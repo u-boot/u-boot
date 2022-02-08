@@ -520,6 +520,8 @@ ARM TI
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-ti.git
+F:	arch/arm/dts/am57xx*
+F:	arch/arm/dts/dra7*
 F:	arch/arm/mach-davinci/
 F:	arch/arm/mach-k3/
 F:	arch/arm/mach-keystone/
@@ -539,9 +541,11 @@ F:	drivers/phy/omap-usb2-phy.c
 F:	drivers/phy/phy-ti-am654.c
 F:	drivers/phy/ti-pipe3-phy.c
 F:	drivers/ram/k3*
+F:	drivers/remoteproc/ipu_rproc.c
 F:	drivers/remoteproc/k3_system_controller.c
 F:	drivers/remoteproc/pruc_rpoc.c
 F:	drivers/remoteproc/ti*
+F:	drivers/reset/reset-dra7.c
 F:	drivers/reset/reset-ti-sci.c
 F:	drivers/rtc/davinci.c
 F:	drivers/serial/serial_omap.c

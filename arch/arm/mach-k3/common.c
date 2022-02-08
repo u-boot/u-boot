@@ -156,12 +156,14 @@ void init_env(void)
 #endif
 }
 
-#ifdef CONFIG_FS_LOADER
 int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
 {
 	struct udevice *fsdev;
 	char *name = NULL;
 	int size = 0;
+
+	if (!IS_ENABLED(CONFIG_FS_LOADER))
+		return 0;
 
 	*loadaddr = 0;
 #ifdef CONFIG_SPL_ENV_SUPPORT
@@ -186,12 +188,6 @@ int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
 
 	return size;
 }
-#else
-int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
-{
-	return 0;
-}
-#endif
 
 __weak void release_resources_for_core_shutdown(void)
 {

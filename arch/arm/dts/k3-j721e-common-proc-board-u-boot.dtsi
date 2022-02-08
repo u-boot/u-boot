@@ -232,3 +232,18 @@
 &usb_serdes_mux {
 	u-boot,mux-autoprobe;
 };
+
+&serdes0 {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+};
+
+&serdes0_pcie_link {
+	assigned-clocks = <&serdes0 CDNS_SIERRA_PLL_CMNLC>;
+	assigned-clock-parents = <&wiz0_pll1_refclk>;
+};
+
+&serdes0_qsgmii_link {
+	assigned-clocks = <&serdes0 CDNS_SIERRA_PLL_CMNLC1>;
+	assigned-clock-parents = <&wiz0_pll1_refclk>;
+};

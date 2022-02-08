@@ -159,6 +159,32 @@ static inline unsigned long find_first_bit(const unsigned long *addr, unsigned l
 	     (bit) < (size);					\
 	     (bit) = find_next_bit((addr), (size), (bit) + 1))
 
+static inline unsigned long
+bitmap_find_next_zero_area(unsigned long *map,
+			   unsigned long size,
+			   unsigned long start,
+			   unsigned int nr, unsigned long align_mask)
+{
+	unsigned long index, end, i;
+again:
+	index = find_next_zero_bit(map, size, start);
+
+	/*
+	 * Align allocation
+	 */
+	index = (index + align_mask) & ~align_mask;
+
+	end = index + nr;
+	if (end > size)
+		return end;
+	i = find_next_bit(map, end, index);
+	if (i < end) {
+		start = i + 1;
+		goto again;
+	}
+	return index;
+}
+
 static inline void bitmap_fill(unsigned long *dst, unsigned int nbits)
 {
 	if (small_const_nbits(nbits)) {
