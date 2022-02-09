@@ -597,7 +597,7 @@ static void parse_hwpart_user_enh_size(struct mmc *mmc,
 				       struct mmc_hwpart_conf *pconf,
 				       char *argv)
 {
-	int ret;
+	int i, ret;
 
 	pconf->user.enh_size = 0;
 
@@ -606,7 +606,7 @@ static void parse_hwpart_user_enh_size(struct mmc *mmc,
 		ret = mmc_send_ext_csd(mmc, ext_csd);
 		if (ret)
 			return;
-		/* This value is in 512B block units */
+		/* The enh_size value is in 512B block units */
 		pconf->user.enh_size =
 			((ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT + 2] << 16) +
 			(ext_csd[EXT_CSD_MAX_ENH_SIZE_MULT + 1] << 8) +
@@ -614,6 +614,24 @@ static void parse_hwpart_user_enh_size(struct mmc *mmc,
 			ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
 			ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
 		pconf->user.enh_size -= pconf->user.enh_start;
+		for (i = 0; i < ARRAY_SIZE(mmc->capacity_gp); i++) {
+			/*
+			 * If the eMMC already has GP partitions set,
+			 * subtract their size from the maximum USER
+			 * partition size.
+			 *
+			 * Else, if the command was used to configure new
+			 * GP partitions, subtract their size from maximum
+			 * USER partition size.
+			 */
+			if (mmc->capacity_gp[i]) {
+				/* The capacity_gp is in 1B units */
+				pconf->user.enh_size -= mmc->capacity_gp[i] >> 9;
+			} else if (pconf->gp_part[i].size) {
+				/* The gp_part[].size is in 512B units */
+				pconf->user.enh_size -= pconf->gp_part[i].size;
+			}
+		}
 	} else {
 		pconf->user.enh_size = dectoul(argv, NULL);
 	}
