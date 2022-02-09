@@ -5160,5 +5160,29 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertRegex(err,
                          "Image 'main-section'.*missing bintools.*: futility")
 
+    def testFitSubentryHashSubnode(self):
+        """Test an image with a FIT inside"""
+        data, _, _, out_dtb_name = self._DoReadFileDtb(
+            '221_fit_subentry_hash.dts', use_real_dtb=True, update_dtb=True)
+
+        mkimage_dtb = fdt.Fdt.FromData(data)
+        mkimage_dtb.Scan()
+        binman_dtb = fdt.Fdt(out_dtb_name)
+        binman_dtb.Scan()
+
+        # Check that binman didn't add hash values
+        fnode = binman_dtb.GetNode('/binman/fit/images/kernel/hash')
+        self.assertNotIn('value', fnode.props)
+
+        fnode = binman_dtb.GetNode('/binman/fit/images/fdt-1/hash')
+        self.assertNotIn('value', fnode.props)
+
+        # Check that mkimage added hash values
+        fnode = mkimage_dtb.GetNode('/images/kernel/hash')
+        self.assertIn('value', fnode.props)
+
+        fnode = mkimage_dtb.GetNode('/images/fdt-1/hash')
+        self.assertIn('value', fnode.props)
+
 if __name__ == "__main__":
     unittest.main()
