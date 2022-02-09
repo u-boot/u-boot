@@ -71,6 +71,7 @@ static struct dm_pmic_ops tps65941_ops = {
 
 static const struct udevice_id tps65941_ids[] = {
 	{ .compatible = "ti,tps659411", .data = TPS659411 },
+	{ .compatible = "ti,tps659412", .data = TPS659411 },
 	{ .compatible = "ti,tps659413", .data = TPS659413 },
 	{ .compatible = "ti,lp876441",  .data =  LP876441 },
 	{ }
