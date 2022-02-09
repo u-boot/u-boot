@@ -23,6 +23,7 @@ stages:
       - script: |
           sfx.exe -y -o%CD:~0,2%\
           %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syyuu"
+          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Su"
         displayName: 'Update MSYS2'
       - script: |
           %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel"
