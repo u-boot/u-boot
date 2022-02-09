@@ -88,8 +88,17 @@ int dram_init_banksize(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	if (!strcmp(name, "k3-j721e-common-proc-board"))
-		return 0;
+	bool eeprom_read = board_ti_was_eeprom_read();
+
+	if (!eeprom_read || board_is_j721e_som()) {
+		if (!strcmp(name, "k3-j721e-common-proc-board") ||
+		    !strcmp(name, "k3-j721e-r5-common-proc-board"))
+			return 0;
+	} else if (board_is_j721e_sk()) {
+		if (!strcmp(name, "k3-j721e-sk") ||
+		    !strcmp(name, "k3-j721e-r5-sk"))
+			return 0;
+	}
 
 	return -1;
 }
@@ -152,6 +161,9 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 int do_board_detect(void)
 {
 	int ret;
+
+	if (board_ti_was_eeprom_read())
+		return 0;
 
 	ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
 					 CONFIG_EEPROM_CHIP_ADDRESS);
