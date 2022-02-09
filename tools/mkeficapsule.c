@@ -15,21 +15,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-typedef __u8 u8;
-typedef __u16 u16;
-typedef __u32 u32;
-typedef __u64 u64;
-typedef __s16 s16;
-typedef __s32 s32;
+#include <linux/kconfig.h>
 
-#define aligned_u64 __aligned_u64
+#include <gnutls/gnutls.h>
+#include <gnutls/pkcs7.h>
+#include <gnutls/abstract.h>
 
-#ifndef __packed
-#define __packed __attribute__((packed))
-#endif
-
-#include <efi.h>
-#include <efi_api.h>
+#include "eficapsule.h"
 
 static const char *tool_name = "mkeficapsule";
 
@@ -38,12 +30,19 @@ efi_guid_t efi_guid_image_type_uboot_fit =
 		EFI_FIRMWARE_IMAGE_TYPE_UBOOT_FIT_GUID;
 efi_guid_t efi_guid_image_type_uboot_raw =
 		EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID;
+efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
+
+static const char *opts_short = "f:r:i:I:v:p:c:m:dh";
 
 static struct option options[] = {
 	{"fit", required_argument, NULL, 'f'},
 	{"raw", required_argument, NULL, 'r'},
 	{"index", required_argument, NULL, 'i'},
 	{"instance", required_argument, NULL, 'I'},
+	{"private-key", required_argument, NULL, 'p'},
+	{"certificate", required_argument, NULL, 'c'},
+	{"monotonic-count", required_argument, NULL, 'm'},
+	{"dump-sig", no_argument, NULL, 'd'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
@@ -57,9 +56,39 @@ static void print_usage(void)
 		"\t-r, --raw <raw image>       new raw image file\n"
 		"\t-i, --index <index>         update image index\n"
 		"\t-I, --instance <instance>   update hardware instance\n"
+		"\t-p, --private-key <privkey file>  private key file\n"
+		"\t-c, --certificate <cert file>     signer's certificate file\n"
+		"\t-m, --monotonic-count <count>     monotonic count\n"
+		"\t-d, --dump_sig              dump signature (*.p7)\n"
 		"\t-h, --help                  print a help message\n",
 		tool_name);
 }
+
+/**
+ * auth_context - authentication context
+ * @key_file:	Path to a private key file
+ * @cert_file:	Path to a certificate file
+ * @image_data:	Pointer to firmware data
+ * @image_size:	Size of firmware data
+ * @auth:	Authentication header
+ * @sig_data:	Signature data
+ * @sig_size:	Size of signature data
+ *
+ * Data structure used in create_auth_data(). @key_file through
+ * @image_size are input parameters. @auth, @sig_data and @sig_size
+ * are filled in by create_auth_data().
+ */
+struct auth_context {
+	char *key_file;
+	char *cert_file;
+	uint8_t *image_data;
+	size_t image_size;
+	struct efi_firmware_image_authentication auth;
+	uint8_t *sig_data;
+	size_t sig_size;
+};
+
+static int dump_sig;
 
 /**
  * read_bin_file - read a firmware binary file
@@ -74,7 +103,7 @@ static void print_usage(void)
  * * 0  - on success
  * * -1 - on failure
  */
-static int read_bin_file(char *bin, void **data, off_t *bin_size)
+static int read_bin_file(char *bin, uint8_t **data, off_t *bin_size)
 {
 	FILE *g;
 	struct stat bin_stat;
@@ -147,6 +176,205 @@ static int write_capsule_file(FILE *f, void *data, size_t size, const char *msg)
 }
 
 /**
+ * create_auth_data - compose authentication data in capsule
+ * @auth_context:	Pointer to authentication context
+ *
+ * Fill up an authentication header (.auth) and signature data (.sig_data)
+ * in @auth_context, using library functions from openssl.
+ * All the parameters in @auth_context must be filled in by a caller.
+ *
+ * Return:
+ * * 0  - on success
+ * * -1 - on failure
+ */
+static int create_auth_data(struct auth_context *ctx)
+{
+	gnutls_datum_t cert;
+	gnutls_datum_t key;
+	off_t file_size;
+	gnutls_privkey_t pkey;
+	gnutls_x509_crt_t x509;
+	gnutls_pkcs7_t pkcs7;
+	gnutls_datum_t data;
+	gnutls_datum_t signature;
+	int ret;
+
+	ret = read_bin_file(ctx->cert_file, &cert.data, &file_size);
+	if (ret < 0)
+		return -1;
+	if (file_size > UINT_MAX)
+		return -1;
+	cert.size = file_size;
+
+	ret = read_bin_file(ctx->key_file, &key.data, &file_size);
+	if (ret < 0)
+		return -1;
+	if (ret < 0)
+		return -1;
+	if (file_size > UINT_MAX)
+		return -1;
+	key.size = file_size;
+
+	/*
+	 * For debugging,
+	 * gnutls_global_set_time_function(mytime);
+	 * gnutls_global_set_log_function(tls_log_func);
+	 * gnutls_global_set_log_level(6);
+	 */
+
+	ret = gnutls_privkey_init(&pkey);
+	if (ret < 0) {
+		fprintf(stderr, "error in gnutls_privkey_init(): %s\n",
+			gnutls_strerror(ret));
+		return -1;
+	}
+
+	ret = gnutls_x509_crt_init(&x509);
+	if (ret < 0) {
+		fprintf(stderr, "error in gnutls_x509_crt_init(): %s\n",
+			gnutls_strerror(ret));
+		return -1;
+	}
+
+	/* load a private key */
+	ret = gnutls_privkey_import_x509_raw(pkey, &key, GNUTLS_X509_FMT_PEM,
+					     0, 0);
+	if (ret < 0) {
+		fprintf(stderr,
+			"error in gnutls_privkey_import_x509_raw(): %s\n",
+			gnutls_strerror(ret));
+		return -1;
+	}
+
+	/* load x509 certificate */
+	ret = gnutls_x509_crt_import(x509, &cert, GNUTLS_X509_FMT_PEM);
+	if (ret < 0) {
+		fprintf(stderr, "error in gnutls_x509_crt_import(): %s\n",
+			gnutls_strerror(ret));
+		return -1;
+	}
+
+	/* generate a PKCS #7 structure */
+	ret = gnutls_pkcs7_init(&pkcs7);
+	if (ret < 0) {
+		fprintf(stderr, "error in gnutls_pkcs7_init(): %s\n",
+			gnutls_strerror(ret));
+		return -1;
+	}
+
+	/* sign */
+	/*
+	 * Data should have
+	 *  * firmware image
+	 *  * monotonic count
+	 * in this order!
+	 * See EDK2's FmpAuthenticatedHandlerRsa2048Sha256()
+	 */
+	data.size = ctx->image_size + sizeof(ctx->auth.monotonic_count);
+	data.data = malloc(data.size);
+	if (!data.data) {
+		fprintf(stderr, "allocating memory (0x%x) failed\n", data.size);
+		return -1;
+	}
+	memcpy(data.data, ctx->image_data, ctx->image_size);
+	memcpy(data.data + ctx->image_size, &ctx->auth.monotonic_count,
+	       sizeof(ctx->auth.monotonic_count));
+
+	ret = gnutls_pkcs7_sign(pkcs7, x509, pkey, &data, NULL, NULL,
+				GNUTLS_DIG_SHA256,
+				/* GNUTLS_PKCS7_EMBED_DATA? */
+				GNUTLS_PKCS7_INCLUDE_CERT |
+				GNUTLS_PKCS7_INCLUDE_TIME);
+	if (ret < 0) {
+		fprintf(stderr, "error in gnutls_pkcs7)sign(): %s\n",
+			gnutls_strerror(ret));
+		return -1;
+	}
+
+	/* export */
+	ret = gnutls_pkcs7_export2(pkcs7, GNUTLS_X509_FMT_DER, &signature);
+	if (ret < 0) {
+		fprintf(stderr, "error in gnutls_pkcs7_export2: %s\n",
+			gnutls_strerror(ret));
+		return -1;
+	}
+	ctx->sig_data = signature.data;
+	ctx->sig_size = signature.size;
+
+	/* fill auth_info */
+	ctx->auth.auth_info.hdr.dwLength = sizeof(ctx->auth.auth_info)
+						+ ctx->sig_size;
+	ctx->auth.auth_info.hdr.wRevision = WIN_CERT_REVISION_2_0;
+	ctx->auth.auth_info.hdr.wCertificateType = WIN_CERT_TYPE_EFI_GUID;
+	memcpy(&ctx->auth.auth_info.cert_type, &efi_guid_cert_type_pkcs7,
+	       sizeof(efi_guid_cert_type_pkcs7));
+
+	/*
+	 * For better clean-ups,
+	 * gnutls_pkcs7_deinit(pkcs7);
+	 * gnutls_privkey_deinit(pkey);
+	 * gnutls_x509_crt_deinit(x509);
+	 * free(cert.data);
+	 * free(key.data);
+	 * if error
+	 *   gnutls_free(signature.data);
+	 */
+
+	return 0;
+}
+
+/**
+ * dump_signature - dump out a signature
+ * @path:	Path to a capsule file
+ * @signature:	Signature data
+ * @sig_size:	Size of signature data
+ *
+ * Signature data pointed to by @signature will be saved into
+ * a file whose file name is @path with ".p7" suffix.
+ *
+ * Return:
+ * * 0  - on success
+ * * -1 - on failure
+ */
+static int dump_signature(const char *path, uint8_t *signature, size_t sig_size)
+{
+	char *sig_path;
+	FILE *f;
+	size_t size;
+	int ret = -1;
+
+	sig_path = malloc(strlen(path) + 3 + 1);
+	if (!sig_path)
+		return ret;
+
+	sprintf(sig_path, "%s.p7", path);
+	f = fopen(sig_path, "w");
+	if (!f)
+		goto err;
+
+	size = fwrite(signature, 1, sig_size, f);
+	if (size == sig_size)
+		ret = 0;
+
+	fclose(f);
+err:
+	free(sig_path);
+	return ret;
+}
+
+/**
+ * free_sig_data - free out signature data
+ * @ctx:	Pointer to authentication context
+ *
+ * Free signature data allocated in create_auth_data().
+ */
+static void free_sig_data(struct auth_context *ctx)
+{
+	if (ctx->sig_size)
+		gnutls_free(ctx->sig_data);
+}
+
+/**
  * create_fwbin - create an uefi capsule file
  * @path:	Path to a created capsule file
  * @bin:	Path to a firmware binary to encapsulate
@@ -167,23 +395,25 @@ static int write_capsule_file(FILE *f, void *data, size_t size, const char *msg)
  * * -1 - on failure
  */
 static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
-			unsigned long index, unsigned long instance)
+			unsigned long index, unsigned long instance,
+			uint64_t mcount, char *privkey_file, char *cert_file)
 {
 	struct efi_capsule_header header;
 	struct efi_firmware_management_capsule_header capsule;
 	struct efi_firmware_management_capsule_image_header image;
+	struct auth_context auth_context;
 	FILE *f;
-	void *data;
+	uint8_t *data;
 	off_t bin_size;
-	u64 offset;
+	uint64_t offset;
 	int ret;
 
 #ifdef DEBUG
-	printf("For output: %s\n", path);
-	printf("\tbin: %s\n\ttype: %pUl\n", bin, guid);
-	printf("\tindex: %ld\n\tinstance: %ld\n", index, instance);
+	fprintf(stderr, "For output: %s\n", path);
+	fprintf(stderr, "\tbin: %s\n\ttype: %pUl\n", bin, guid);
+	fprintf(stderr, "\tindex: %lu\n\tinstance: %lu\n", index, instance);
 #endif
-
+	auth_context.sig_size = 0;
 	f = NULL;
 	data = NULL;
 	ret = -1;
@@ -193,6 +423,27 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	 */
 	if (read_bin_file(bin, &data, &bin_size))
 		goto err;
+
+	/* first, calculate signature to determine its size */
+	if (privkey_file && cert_file) {
+		auth_context.key_file = privkey_file;
+		auth_context.cert_file = cert_file;
+		auth_context.auth.monotonic_count = mcount;
+		auth_context.image_data = data;
+		auth_context.image_size = bin_size;
+
+		if (create_auth_data(&auth_context)) {
+			fprintf(stderr, "Signing firmware image failed\n");
+			goto err;
+		}
+
+		if (dump_sig &&
+		    dump_signature(path, auth_context.sig_data,
+				   auth_context.sig_size)) {
+			fprintf(stderr, "Creating signature file failed\n");
+			goto err;
+		}
+	}
 
 	/*
 	 * write a capsule file
@@ -211,9 +462,12 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	/* TODO: The current implementation ignores flags */
 	header.flags = CAPSULE_FLAGS_PERSIST_ACROSS_RESET;
 	header.capsule_image_size = sizeof(header)
-					+ sizeof(capsule) + sizeof(u64)
+					+ sizeof(capsule) + sizeof(uint64_t)
 					+ sizeof(image)
 					+ bin_size;
+	if (auth_context.sig_size)
+		header.capsule_image_size += sizeof(auth_context.auth)
+				+ auth_context.sig_size;
 	if (write_capsule_file(f, &header, sizeof(header),
 			       "Capsule header"))
 		goto err;
@@ -229,7 +483,7 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 			       "Firmware capsule header"))
 		goto err;
 
-	offset = sizeof(capsule) + sizeof(u64);
+	offset = sizeof(capsule) + sizeof(uint64_t);
 	if (write_capsule_file(f, &offset, sizeof(offset),
 			       "Offset to capsule image"))
 		goto err;
@@ -244,12 +498,31 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	image.reserved[1] = 0;
 	image.reserved[2] = 0;
 	image.update_image_size = bin_size;
+	if (auth_context.sig_size)
+		image.update_image_size += sizeof(auth_context.auth)
+				+ auth_context.sig_size;
 	image.update_vendor_code_size = 0; /* none */
 	image.update_hardware_instance = instance;
 	image.image_capsule_support = 0;
+	if (auth_context.sig_size)
+		image.image_capsule_support |= CAPSULE_SUPPORT_AUTHENTICATION;
 	if (write_capsule_file(f, &image, sizeof(image),
 			       "Firmware capsule image header"))
 		goto err;
+
+	/*
+	 * signature
+	 */
+	if (auth_context.sig_size) {
+		if (write_capsule_file(f, &auth_context.auth,
+				       sizeof(auth_context.auth),
+				       "Authentication header"))
+			goto err;
+
+		if (write_capsule_file(f, auth_context.sig_data,
+				       auth_context.sig_size, "Signature"))
+			goto err;
+	}
 
 	/*
 	 * firmware binary
@@ -261,28 +534,43 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 err:
 	if (f)
 		fclose(f);
+	free_sig_data(&auth_context);
 	free(data);
 
 	return ret;
 }
 
-/*
- * Usage:
- *   $ mkeficapsule -f <firmware binary> <output file>
+/**
+ * main - main entry function of mkeficapsule
+ * @argc:	Number of arguments
+ * @argv:	Array of pointers to arguments
+ *
+ * Create an uefi capsule file, optionally signing it.
+ * Parse all the arguments and pass them on to create_fwbin().
+ *
+ * Return:
+ * * 0  - on success
+ * * -1 - on failure
  */
 int main(int argc, char **argv)
 {
 	char *file;
 	efi_guid_t *guid;
 	unsigned long index, instance;
+	uint64_t mcount;
+	char *privkey_file, *cert_file;
 	int c, idx;
 
 	file = NULL;
 	guid = NULL;
 	index = 0;
 	instance = 0;
+	mcount = 0;
+	privkey_file = NULL;
+	cert_file = NULL;
+	dump_sig = 0;
 	for (;;) {
-		c = getopt_long(argc, argv, "f:r:i:I:v:h", options, &idx);
+		c = getopt_long(argc, argv, opts_short, options, &idx);
 		if (c == -1)
 			break;
 
@@ -290,7 +578,7 @@ int main(int argc, char **argv)
 		case 'f':
 			if (file) {
 				fprintf(stderr, "Image already specified\n");
-				return -1;
+				exit(EXIT_FAILURE);
 			}
 			file = optarg;
 			guid = &efi_guid_image_type_uboot_fit;
@@ -298,7 +586,7 @@ int main(int argc, char **argv)
 		case 'r':
 			if (file) {
 				fprintf(stderr, "Image already specified\n");
-				return -1;
+				exit(EXIT_FAILURE);
 			}
 			file = optarg;
 			guid = &efi_guid_image_type_uboot_raw;
@@ -309,14 +597,38 @@ int main(int argc, char **argv)
 		case 'I':
 			instance = strtoul(optarg, NULL, 0);
 			break;
+		case 'p':
+			if (privkey_file) {
+				fprintf(stderr,
+					"Private Key already specified\n");
+				exit(EXIT_FAILURE);
+			}
+			privkey_file = optarg;
+			break;
+		case 'c':
+			if (cert_file) {
+				fprintf(stderr,
+					"Certificate file already specified\n");
+				exit(EXIT_FAILURE);
+			}
+			cert_file = optarg;
+			break;
+		case 'm':
+			mcount = strtoul(optarg, NULL, 0);
+			break;
+		case 'd':
+			dump_sig = 1;
+			break;
 		case 'h':
 			print_usage();
-			return 0;
+			exit(EXIT_SUCCESS);
 		}
 	}
 
-	/* need an output file */
-	if (argc != optind + 1) {
+	/* check necessary parameters */
+	if ((argc != optind + 1) || !file ||
+	    ((privkey_file && !cert_file) ||
+	     (!privkey_file && cert_file))) {
 		print_usage();
 		exit(EXIT_FAILURE);
 	}
@@ -327,8 +639,8 @@ int main(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
-	if (create_fwbin(argv[optind], file, guid, index, instance)
-			< 0) {
+	if (create_fwbin(argv[optind], file, guid, index, instance,
+			 mcount, privkey_file, cert_file) < 0) {
 		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);
 	}
