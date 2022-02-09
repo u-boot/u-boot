@@ -14,7 +14,7 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-
+#include <uuid/uuid.h>
 #include <linux/kconfig.h>
 
 #include <gnutls/gnutls.h>
@@ -32,11 +32,12 @@ efi_guid_t efi_guid_image_type_uboot_raw =
 		EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID;
 efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-static const char *opts_short = "f:r:i:I:v:p:c:m:dh";
+static const char *opts_short = "frg:i:I:v:p:c:m:dh";
 
 static struct option options[] = {
-	{"fit", required_argument, NULL, 'f'},
-	{"raw", required_argument, NULL, 'r'},
+	{"fit", no_argument, NULL, 'f'},
+	{"raw", no_argument, NULL, 'r'},
+	{"guid", required_argument, NULL, 'g'},
 	{"index", required_argument, NULL, 'i'},
 	{"instance", required_argument, NULL, 'I'},
 	{"private-key", required_argument, NULL, 'p'},
@@ -49,11 +50,12 @@ static struct option options[] = {
 
 static void print_usage(void)
 {
-	printf("Usage: %s [options] <output file>\n"
+	fprintf(stderr, "Usage: %s [options] <image blob> <output file>\n"
 		"Options:\n"
 
-		"\t-f, --fit <fit image>       new FIT image file\n"
-		"\t-r, --raw <raw image>       new raw image file\n"
+		"\t-f, --fit                   FIT image type\n"
+		"\t-r, --raw                   raw image type\n"
+		"\t-g, --guid <guid string>    guid for image blob type\n"
 		"\t-i, --index <index>         update image index\n"
 		"\t-I, --instance <instance>   update hardware instance\n"
 		"\t-p, --private-key <privkey file>  private key file\n"
@@ -541,6 +543,37 @@ err:
 }
 
 /**
+ * convert_uuid_to_guid() - convert UUID to GUID
+ * @buf:	UUID binary
+ *
+ * UUID and GUID have the same data structure, but their binary
+ * formats are different due to the endianness. See lib/uuid.c.
+ * Since uuid_parse() can handle only UUID, this function must
+ * be called to get correct data for GUID when parsing a string.
+ *
+ * The correct data will be returned in @buf.
+ */
+void convert_uuid_to_guid(unsigned char *buf)
+{
+	unsigned char c;
+
+	c = buf[0];
+	buf[0] = buf[3];
+	buf[3] = c;
+	c = buf[1];
+	buf[1] = buf[2];
+	buf[2] = c;
+
+	c = buf[4];
+	buf[4] = buf[5];
+	buf[5] = c;
+
+	c = buf[6];
+	buf[6] = buf[7];
+	buf[7] = c;
+}
+
+/**
  * main - main entry function of mkeficapsule
  * @argc:	Number of arguments
  * @argv:	Array of pointers to arguments
@@ -554,14 +587,13 @@ err:
  */
 int main(int argc, char **argv)
 {
-	char *file;
 	efi_guid_t *guid;
+	unsigned char uuid_buf[16];
 	unsigned long index, instance;
 	uint64_t mcount;
 	char *privkey_file, *cert_file;
 	int c, idx;
 
-	file = NULL;
 	guid = NULL;
 	index = 0;
 	instance = 0;
@@ -576,20 +608,33 @@ int main(int argc, char **argv)
 
 		switch (c) {
 		case 'f':
-			if (file) {
-				fprintf(stderr, "Image already specified\n");
+			if (guid) {
+				fprintf(stderr,
+					"Image type already specified\n");
 				exit(EXIT_FAILURE);
 			}
-			file = optarg;
 			guid = &efi_guid_image_type_uboot_fit;
 			break;
 		case 'r':
-			if (file) {
-				fprintf(stderr, "Image already specified\n");
+			if (guid) {
+				fprintf(stderr,
+					"Image type already specified\n");
 				exit(EXIT_FAILURE);
 			}
-			file = optarg;
 			guid = &efi_guid_image_type_uboot_raw;
+			break;
+		case 'g':
+			if (guid) {
+				fprintf(stderr,
+					"Image type already specified\n");
+				exit(EXIT_FAILURE);
+			}
+			if (uuid_parse(optarg, uuid_buf)) {
+				fprintf(stderr, "Wrong guid format\n");
+				exit(EXIT_FAILURE);
+			}
+			convert_uuid_to_guid(uuid_buf);
+			guid = (efi_guid_t *)uuid_buf;
 			break;
 		case 'i':
 			index = strtoul(optarg, NULL, 0);
@@ -626,20 +671,14 @@ int main(int argc, char **argv)
 	}
 
 	/* check necessary parameters */
-	if ((argc != optind + 1) || !file ||
+	if ((argc != optind + 2) || !guid ||
 	    ((privkey_file && !cert_file) ||
 	     (!privkey_file && cert_file))) {
 		print_usage();
 		exit(EXIT_FAILURE);
 	}
 
-	/* need a fit image file or raw image file */
-	if (!file) {
-		print_usage();
-		exit(EXIT_SUCCESS);
-	}
-
-	if (create_fwbin(argv[optind], file, guid, index, instance,
+	if (create_fwbin(argv[argc - 1], argv[argc - 2], guid, index, instance,
 			 mcount, privkey_file, cert_file) < 0) {
 		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);

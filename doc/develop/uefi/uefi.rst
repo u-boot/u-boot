@@ -375,8 +375,8 @@ and used by the steps highlighted below.
       --private-key CRT.key \
       --certificate CRT.crt \
       --index 1 --instance 0 \
-      [--fit <FIT image> | --raw <raw image>] \
-      <capsule_file_name>
+      [--fit | --raw | --guid <guid-string] \
+      <image_blob> <capsule_file_name>
 
 4. Insert the signature list into a device tree in the following format::
 
