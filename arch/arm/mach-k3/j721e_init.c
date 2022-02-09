@@ -19,6 +19,8 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <dm/root.h>
+#include <fdtdec.h>
 #include <mmc.h>
 #include <remoteproc.h>
 
@@ -135,6 +137,59 @@ static void store_boot_info_from_rom(void)
 	       sizeof(struct rom_extended_boot_data));
 }
 
+#ifdef CONFIG_SPL_OF_LIST
+void do_dt_magic(void)
+{
+	int ret, rescan, mmc_dev = -1;
+	static struct mmc *mmc;
+
+	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT))
+		do_board_detect();
+
+	/*
+	 * Board detection has been done.
+	 * Let us see if another dtb wouldn't be a better match
+	 * for our board
+	 */
+	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+		ret = fdtdec_resetup(&rescan);
+		if (!ret && rescan) {
+			dm_uninit();
+			dm_init_and_scan(true);
+		}
+	}
+
+	/*
+	 * Because of multi DTB configuration, the MMC device has
+	 * to be re-initialized after reconfiguring FDT inorder to
+	 * boot from MMC. Do this when boot mode is MMC and ROM has
+	 * not loaded SYSFW.
+	 */
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_MMC1:
+		mmc_dev = 0;
+		break;
+	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
+		mmc_dev = 1;
+		break;
+	}
+
+	if (mmc_dev > 0 && !is_rom_loaded_sysfw(&bootdata)) {
+		ret = mmc_init_device(mmc_dev);
+		if (!ret) {
+			mmc = find_mmc_device(mmc_dev);
+			if (mmc) {
+				ret = mmc_init(mmc);
+				if (ret) {
+					printf("mmc init failed with error: %d\n", ret);
+				}
+			}
+		}
+	}
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
 #if defined(CONFIG_K3_J721E_DDRSS) || defined(CONFIG_K3_LOAD_SYSFW)
@@ -179,6 +234,10 @@ void board_init_f(ulong dummy)
 	 */
 	k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata),
 			k3_mmc_stop_clock, k3_mmc_restart_clock);
+
+#ifdef CONFIG_SPL_OF_LIST
+	do_dt_magic();
+#endif
 
 	/*
 	 * Force probe of clk_k3 driver here to ensure basic default clock
