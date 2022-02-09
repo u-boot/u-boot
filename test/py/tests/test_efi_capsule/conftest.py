@@ -86,6 +86,9 @@ def efi_capsule_data(request, u_boot_config):
         check_call('cd %s; %s/tools/mkeficapsule --index 1 --raw u-boot.bin.new Test02' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid E2BB9C06-70E9-4B14-97A3-5A7913176E3F u-boot.bin.new Test03' %
+                   (data_dir, u_boot_config.build_dir),
+                   shell=True)
         if capsule_auth_enabled:
             # firmware signed with proper key
             check_call('cd %s; '
