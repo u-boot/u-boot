@@ -28,8 +28,6 @@
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
-#define CONFIG_REMAKE_ELF
-
 /* Flat Device Tree Definitions */
 
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)

@@ -27,8 +27,6 @@
 
 #endif
 
-#define CONFIG_REMAKE_ELF
-
 /* ENET Config */
 #if defined(CONFIG_FEC_MXC)
 #define CONFIG_ETHPRIME                 "FEC"

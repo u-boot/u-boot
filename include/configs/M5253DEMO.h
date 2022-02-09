@@ -23,21 +23,8 @@
 
 #ifdef CONFIG_IDE
 /* ATA */
-#	define CONFIG_IDE_RESET		1
 #	define CONFIG_IDE_PREINIT	1
-#	define CONFIG_ATAPI
 #	undef CONFIG_LBA48
-
-#	define CONFIG_SYS_IDE_MAXBUS		1
-#	define CONFIG_SYS_IDE_MAXDEVICE	2
-
-#	define CONFIG_SYS_ATA_BASE_ADDR	(CONFIG_SYS_MBAR2 + 0x800)
-#	define CONFIG_SYS_ATA_IDE0_OFFSET	0
-
-#	define CONFIG_SYS_ATA_DATA_OFFSET	0xA0	/* Offset for data I/O */
-#	define CONFIG_SYS_ATA_REG_OFFSET	0xA0	/* Offset for normal register accesses */
-#	define CONFIG_SYS_ATA_ALT_OFFSET	0xC0	/* Offset for alternate registers */
-#	define CONFIG_SYS_ATA_STRIDE		4	/* Interval between registers */
 #endif
 
 #define CONFIG_DRIVER_DM9000

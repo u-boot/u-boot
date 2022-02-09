@@ -182,11 +182,11 @@ class TestFunctional(unittest.TestCase):
         self._buildman_pathname = sys.argv[0]
         self._buildman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         command.test_result = self._HandleCommand
+        bsettings.Setup(None)
+        bsettings.AddFile(settings_data)
         self.setupToolchains()
         self._toolchains.Add('arm-gcc', test=False)
         self._toolchains.Add('powerpc-gcc', test=False)
-        bsettings.Setup(None)
-        bsettings.AddFile(settings_data)
         self._boards = board.Boards()
         for brd in boards:
             self._boards.AddBoard(board.Board(*brd))
@@ -623,4 +623,6 @@ class TestFunctional(unittest.TestCase):
         with test_util.capture_sys_output() as (stdout, stderr):
             self.assertEqual(102, self._RunControl('-o', self._output_dir,
                                                    test_thread_exceptions=True))
-        self.assertIn('Thread exception: test exception', stdout.getvalue())
+        self.assertIn(
+            'Thread exception (use -T0 to run without threads): test exception',
+            stdout.getvalue())

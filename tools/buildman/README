@@ -1095,6 +1095,55 @@ This will write the full build into /tmp/build including object files. You must
 specify the output directory with -o when using -w.
 
 
+Changing the configuration
+==========================
+
+Sometimes it is useful to change the CONFIG options for a build on the fly. This
+can be used to build a board (or multiple) with a few changes to see the impact.
+The -a option supports this:
+
+   -a <cfg>
+
+where <cfg> is a CONFIG option (with or without the CONFIG_ prefix) to enable.
+For example:
+
+    buildman -a CMD_SETEXPR_FMT
+
+will build with CONFIG_CMD_SETEXPR_FMT enabled.
+
+You can disable options by preceding them with tilde (~). You can specify the
+-a option multiple times:
+
+    buildman -a CMD_SETEXPR_FMT -a ~CMDLINE
+
+Some options have values, in which case you can change them:
+
+    buildman -a 'BOOTCOMMAND="echo hello"' CONFIG_SYS_LOAD_ADDR=0x1000
+
+Note that you must put quotes around string options and the whole thing must be
+in single quotes, to make sure the shell leave it alone.
+
+If you try to set an option that does not exist, or that cannot be changed for
+some other reason (e.g. it is 'selected' by another option), then buildman
+shows an error:
+
+   buildman --board sandbox -a FRED
+   Building current source for 1 boards (1 thread, 32 jobs per thread)
+       0    0    0 /1       -1      (starting)errs
+   Some CONFIG adjustments did not take effect. This may be because
+   the request CONFIGs do not exist or conflict with others.
+
+   Failed adjustments:
+
+   FRED                  Missing expected line: CONFIG_FRED=y
+
+
+One major caveat with this feature with branches (-b) is that buildman does not
+name the output directories differently when you change the configuration, so
+doing the same build again with different configuration will not trigger a
+rebuild. You can use -f to work around that.
+
+
 Other options
 =============
 

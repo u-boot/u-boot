@@ -138,7 +138,6 @@
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
 
-#define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48
 
 #define CONFIG_HWCONFIG

@@ -10,6 +10,7 @@ import sys
 
 from buildman import board
 from buildman import bsettings
+from buildman import cfgutil
 from buildman import toolchain
 from buildman.builder import Builder
 from patman import command
@@ -321,6 +322,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             output_dir = os.path.join(options.output_dir, dirname)
         if clean_dir and os.path.exists(output_dir):
             shutil.rmtree(output_dir)
+    adjust_cfg = cfgutil.convert_list_to_dict(options.adjust_cfg)
+
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step,
@@ -332,7 +335,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             squash_config_y=not options.preserve_config_y,
             warnings_as_errors=options.warnings_as_errors,
             work_in_output=options.work_in_output,
-            test_thread_exceptions=test_thread_exceptions)
+            test_thread_exceptions=test_thread_exceptions,
+            adjust_cfg=adjust_cfg)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func

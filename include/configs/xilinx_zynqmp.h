@@ -10,8 +10,6 @@
 #ifndef __XILINX_ZYNQMP_H
 #define __XILINX_ZYNQMP_H
 
-#define CONFIG_REMAKE_ELF
-
 /* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
 
 /* Generic Interrupt Controller Definitions */

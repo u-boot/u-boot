@@ -32,7 +32,6 @@
 
 /* SATA driver configuration */
 #ifdef CONFIG_SATA
-#define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_LBA48
 #endif /* CONFIG_SATA */
 

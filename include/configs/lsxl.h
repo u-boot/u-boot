@@ -96,7 +96,6 @@
 #endif /* CONFIG_CMD_NET */
 
 #ifdef CONFIG_SATA
-#define CONFIG_SYS_SATA_MAX_DEVICE 1
 #define CONFIG_SYS_64BIT_LBA
 #define CONFIG_LBA48
 #endif

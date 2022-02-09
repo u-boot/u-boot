@@ -9,6 +9,10 @@
 #include <asm/cache.h>
 #include <linux/dma-direction.h>
 
+/* Fix this to the maximum */
+#define SCSI_MAX_DEVICE \
+	(CONFIG_SYS_SCSI_MAX_SCSI_ID * CONFIG_SYS_SCSI_MAX_LUN)
+
 struct udevice;
 
 struct scsi_cmd {

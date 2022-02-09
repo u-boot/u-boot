@@ -6,8 +6,6 @@
 #ifndef __THUNDERX_88XX_H__
 #define __THUNDERX_88XX_H__
 
-#define CONFIG_REMAKE_ELF
-
 #define CONFIG_THUNDERX
 
 #define CONFIG_SYS_64BIT

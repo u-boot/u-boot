@@ -720,17 +720,6 @@ The following options need to be configured:
 		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 
-- IDE Reset method:
-		CONFIG_IDE_RESET - is this is defined, IDE Reset will
-		be performed by calling the function
-			ide_set_reset(int reset)
-		which has to be defined in a board specific file
-
-- ATAPI Support:
-		CONFIG_ATAPI
-
-		Set this to enable ATAPI support.
-
 - LBA48 Support
 		CONFIG_LBA48
 
@@ -742,16 +731,6 @@ The following options need to be configured:
 		CONFIG_SYS_64BIT_LBA:
 			When enabled, makes the IDE subsystem use 64bit sector addresses.
 			Default is 32bit.
-
-- SCSI Support:
-		CONFIG_SYS_SCSI_MAX_LUN [8], CONFIG_SYS_SCSI_MAX_SCSI_ID [7] and
-		CONFIG_SYS_SCSI_MAX_DEVICE [CONFIG_SYS_SCSI_MAX_SCSI_ID *
-		CONFIG_SYS_SCSI_MAX_LUN] can be adjusted to define the
-		maximum numbers of LUNs, SCSI ID's and target
-		devices.
-
-		The environment variable 'scsidevs' is set to the number of
-		SCSI devices found during the last scan.
 
 - NETWORK Support (PCI):
 		CONFIG_E1000_SPI
@@ -2392,14 +2371,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_CCSR_DO_NOT_RELOCATE:
 		If this macro is defined, then CONFIG_SYS_CCSRBAR_PHYS will be
 		forced to a value that ensures that CCSR is not relocated.
-
-- CONFIG_IDE_AHB:
-		Most IDE controllers were designed to be connected with PCI
-		interface. Only few of them were designed for AHB interface.
-		When software is doing ATA command and data transfer to
-		IDE devices through IDE-AHB controller, some additional
-		registers accessing to these kind of IDE-AHB controller
-		is required.
 
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're

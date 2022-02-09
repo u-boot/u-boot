@@ -250,7 +250,7 @@ class Builder:
                  mrproper=False, per_board_out_dir=False,
                  config_only=False, squash_config_y=False,
                  warnings_as_errors=False, work_in_output=False,
-                 test_thread_exceptions=False):
+                 test_thread_exceptions=False, adjust_cfg=None):
         """Create a new Builder object
 
         Args:
@@ -280,6 +280,15 @@ class Builder:
             test_thread_exceptions: Uses for tests only, True to make the
                 threads raise an exception instead of reporting their result.
                 This simulates a failure in the code somewhere
+            adjust_cfg_list (list of str): List of changes to make to .config
+                file before building. Each is one of (where C is the config
+                option with or without the CONFIG_ prefix)
+
+                    C to enable C
+                    ~C to disable C
+                    C=val to set the value of C (val must have quotes if C is
+                        a string Kconfig
+
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -315,6 +324,8 @@ class Builder:
         self.squash_config_y = squash_config_y
         self.config_filenames = BASE_CONFIG_FILENAMES
         self.work_in_output = work_in_output
+        self.adjust_cfg = adjust_cfg
+
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
         self._terminated = False
@@ -1747,6 +1758,7 @@ class Builder:
             job.commits = commits
             job.keep_outputs = keep_outputs
             job.work_in_output = self.work_in_output
+            job.adjust_cfg = self.adjust_cfg
             job.step = self._step
             if self.num_threads:
                 self.queue.put(job)
