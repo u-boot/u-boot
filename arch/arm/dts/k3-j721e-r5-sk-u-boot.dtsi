@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include "k3-j721e-sk-u-boot.dtsi"
+
+/ {
+	chosen {
+		firmware-loader = &fs_loader0;
+	};
+
+	aliases {
+		remoteproc0 = &sysctrler;
+		remoteproc1 = &a72_0;
+		remoteproc2 = &main_r5fss0_core0;
+		remoteproc3 = &main_r5fss0_core1;
+	};
+
+	fs_loader0: fs_loader@0 {
+		u-boot,dm-pre-reloc;
+		compatible = "u-boot,fs-loader";
+	};
+};
+
+&tps659412 {
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		u-boot,dm-spl;
+	};
+};
