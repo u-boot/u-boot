@@ -186,6 +186,8 @@ class Entry_fit(Entry_section):
                 # 'data' property later.
                 entry = Entry.Create(self.section, node, etype='section')
                 entry.ReadNode()
+                # The hash subnodes here are for mkimage, not binman.
+                entry.SetUpdateHash(False)
                 self._entries[rel_path] = entry
 
             for subnode in node.subnodes:
@@ -294,13 +296,3 @@ class Entry_fit(Entry_section):
     def AddBintools(self, tools):
         super().AddBintools(tools)
         self.mkimage = self.AddBintool(tools, 'mkimage')
-
-    def AddMissingProperties(self, have_image_pos):
-        # We don't want to interfere with any hash properties in the FIT, so
-        # disable this for now.
-        pass
-
-    def SetCalculatedProperties(self):
-        # We don't want to interfere with any hash properties in the FIT, so
-        # disable this for now.
-        pass

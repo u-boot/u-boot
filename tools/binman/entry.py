@@ -78,6 +78,8 @@ class Entry(object):
         external: True if this entry contains an external binary blob
         bintools: Bintools used by this entry (only populated for Image)
         missing_bintools: List of missing bintools for this entry
+        update_hash: True if this entry's "hash" subnode should be
+            updated with a hash of the entry contents
     """
     def __init__(self, section, etype, node, name_prefix=''):
         # Put this here to allow entry-docs and help to work without libfdt
@@ -111,6 +113,7 @@ class Entry(object):
         self.allow_fake = False
         self.bintools = {}
         self.missing_bintools = []
+        self.update_hash = True
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -315,9 +318,11 @@ class Entry(object):
 
         if self.compress != 'none':
             state.AddZeroProp(self._node, 'uncomp-size')
-        err = state.CheckAddHashProp(self._node)
-        if err:
-            self.Raise(err)
+
+        if self.update_hash:
+            err = state.CheckAddHashProp(self._node)
+            if err:
+                self.Raise(err)
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
@@ -333,7 +338,9 @@ class Entry(object):
                 state.SetInt(self._node, 'orig-size', self.orig_size, True)
         if self.uncomp_size is not None:
             state.SetInt(self._node, 'uncomp-size', self.uncomp_size)
-        state.CheckSetHashValue(self._node, self.GetData)
+
+        if self.update_hash:
+            state.CheckSetHashValue(self._node, self.GetData)
 
     def ProcessFdt(self, fdt):
         """Allow entries to adjust the device tree
@@ -1108,3 +1115,11 @@ features to produce new behaviours.
         btool = bintool.Bintool.create(name)
         tools[name] = btool
         return btool
+
+    def SetUpdateHash(self, update_hash):
+        """Set whether this entry's "hash" subnode should be updated
+
+        Args:
+            update_hash: True if hash should be updated, False if not
+        """
+        self.update_hash = update_hash
