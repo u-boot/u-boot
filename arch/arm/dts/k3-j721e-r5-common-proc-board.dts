@@ -259,10 +259,10 @@
 		regulators: regulators {
 			u-boot,dm-spl;
 			buck12_reg: buck12 {
-				/*VDD_MPU*/
+				/*VDD_CPU*/
 				regulator-name = "buck12";
-				regulator-min-microvolt = <800000>;
-				regulator-max-microvolt = <1250000>;
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <900000>;
 				regulator-always-on;
 				regulator-boot-on;
 				u-boot,dm-spl;
