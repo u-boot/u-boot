@@ -151,8 +151,6 @@
  * struct pcie_advk - Advk PCIe controller state
  *
  * @base:        The base address of the register space.
- * @first_busno: Bus number of the PCIe root-port.
- *               This may vary depending on the PCIe setup.
  * @sec_busno:   Bus number for the device behind the PCIe root-port.
  * @dev:         The pointer to PCI uclass device.
  * @reset_gpio:  GPIO descriptor for PERST.
@@ -162,7 +160,6 @@
  */
 struct pcie_advk {
 	void			*base;
-	int			first_busno;
 	int			sec_busno;
 	struct udevice		*dev;
 	struct gpio_desc	reset_gpio;
@@ -194,8 +191,8 @@ static inline uint advk_readl(struct pcie_advk *pcie, uint reg)
 static bool pcie_advk_addr_valid(struct pcie_advk *pcie,
 				 int busno, u8 dev, u8 func)
 {
-	/* On the primary (local) bus there is only one PCI Bridge */
-	if (busno == pcie->first_busno && (dev != 0 || func != 0))
+	/* On the root bus there is only one PCI Bridge */
+	if (busno == 0 && (dev != 0 || func != 0))
 		return false;
 
 	/*
@@ -353,17 +350,17 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/*
-	 * The configuration space of the PCI Bridge on primary (first) bus is
+	 * The configuration space of the PCI Bridge on the root bus (zero) is
 	 * not accessible via PIO transfers like all other PCIe devices. PCI
 	 * Bridge config registers are available directly in Aardvark memory
 	 * space starting at offset zero. The PCI Bridge config space is of
 	 * Type 0, but the BAR registers (including ROM BAR) don't have the same
 	 * meaning as in the PCIe specification. Therefore do not access BAR
 	 * registers and non-common registers (those which have different
-	 * meaning for Type 0 and Type 1 config space) of the primary PCI Bridge
+	 * meaning for Type 0 and Type 1 config space) of the PCI Bridge
 	 * and instead read their content from driver virtual cfgcache[].
 	 */
-	if (busno == pcie->first_busno) {
+	if (busno == 0) {
 		if ((offset >= 0x10 && offset < 0x34) || (offset >= 0x38 && offset < 0x3c))
 			data = pcie->cfgcache[(offset - 0x10) / 4];
 		else
@@ -543,7 +540,7 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 	 * zero. Type 1 specific registers are not available, so we write their
 	 * content only into driver virtual cfgcache[].
 	 */
-	if (busno == pcie->first_busno) {
+	if (busno == 0) {
 		if ((offset >= 0x10 && offset < 0x34) ||
 		    (offset >= 0x38 && offset < 0x3c)) {
 			data = pcie->cfgcache[(offset - 0x10) / 4];
@@ -559,9 +556,6 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 			data = pci_conv_size_to_32(data, value, offset, size);
 			advk_writel(pcie, data, ADVK_ROOT_PORT_PCI_CFG_OFF + (offset & ~3));
 		}
-
-		if (offset == PCI_PRIMARY_BUS)
-			pcie->first_busno = data & 0xff;
 
 		if (offset == PCI_SECONDARY_BUS ||
 		    (offset == PCI_PRIMARY_BUS && size != PCI_SIZE_8))
