@@ -484,6 +484,22 @@
 #define PCI_EXP_DEVCAP		4	/* Device capabilities */
 #define  PCI_EXP_DEVCAP_FLR	0x10000000 /* Function Level Reset */
 #define PCI_EXP_DEVCTL		8	/* Device Control */
+#define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
+#define  PCI_EXP_DEVCTL_PAYLOAD_128B 0x0000 /* 128 Bytes */
+#define  PCI_EXP_DEVCTL_PAYLOAD_256B 0x0020 /* 256 Bytes */
+#define  PCI_EXP_DEVCTL_PAYLOAD_512B 0x0040 /* 512 Bytes */
+#define  PCI_EXP_DEVCTL_PAYLOAD_1024B 0x0060 /* 1024 Bytes */
+#define  PCI_EXP_DEVCTL_PAYLOAD_2048B 0x0080 /* 2048 Bytes */
+#define  PCI_EXP_DEVCTL_PAYLOAD_4096B 0x00a0 /* 4096 Bytes */
+#define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
+#define  PCI_EXP_DEVCTL_NOSNOOP_EN 0x0800  /* Enable No Snoop */
+#define  PCI_EXP_DEVCTL_READRQ	0x7000	/* Max_Read_Request_Size */
+#define  PCI_EXP_DEVCTL_READRQ_128B  0x0000 /* 128 Bytes */
+#define  PCI_EXP_DEVCTL_READRQ_256B  0x1000 /* 256 Bytes */
+#define  PCI_EXP_DEVCTL_READRQ_512B  0x2000 /* 512 Bytes */
+#define  PCI_EXP_DEVCTL_READRQ_1024B 0x3000 /* 1024 Bytes */
+#define  PCI_EXP_DEVCTL_READRQ_2048B 0x4000 /* 2048 Bytes */
+#define  PCI_EXP_DEVCTL_READRQ_4096B 0x5000 /* 4096 Bytes */
 #define  PCI_EXP_DEVCTL_BCR_FLR	0x8000  /* Bridge Configuration Retry / FLR */
 #define PCI_EXP_LNKCAP		12	/* Link Capabilities */
 #define  PCI_EXP_LNKCAP_SLS	0x0000000f /* Supported Link Speeds */
@@ -521,6 +537,14 @@
 #define  PCI_EXP_LNKCTL2_TLS_2_5GT 0x0001 /* Target Link Speed 2.5GT/s */
 #define  PCI_EXP_LNKCTL2_TLS_5_0GT 0x0002 /* Target Link Speed 5.0GT/s */
 #define  PCI_EXP_LNKCTL2_TLS_8_0GT 0x0003 /* Target Link Speed 8.0GT/s */
+
+/* Advanced Error Reporting */
+#define PCI_ERR_CAP		24	/* Advanced Error Capabilities */
+#define  PCI_ERR_CAP_FEP(x)	((x) & 31)	/* First Error Pointer */
+#define  PCI_ERR_CAP_ECRC_GENC	0x00000020	/* ECRC Generation Capable */
+#define  PCI_ERR_CAP_ECRC_GENE	0x00000040	/* ECRC Generation Enable */
+#define  PCI_ERR_CAP_ECRC_CHKC	0x00000080	/* ECRC Check Capable */
+#define  PCI_ERR_CAP_ECRC_CHKE	0x00000100	/* ECRC Check Enable */
 
 /* Single Root I/O Virtualization Registers */
 #define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */

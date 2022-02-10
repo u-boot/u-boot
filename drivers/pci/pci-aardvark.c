@@ -35,28 +35,10 @@
 #include <linux/delay.h>
 #include <linux/ioport.h>
 
-/* PCIe core registers */
-#define PCIE_CORE_CMD_STATUS_REG				0x4
-#define     PCIE_CORE_CMD_IO_ACCESS_EN				BIT(0)
-#define     PCIE_CORE_CMD_MEM_ACCESS_EN				BIT(1)
-#define     PCIE_CORE_CMD_MEM_IO_REQ_EN				BIT(2)
-#define PCIE_CORE_DEV_REV_REG					0x8
-#define PCIE_CORE_EXP_ROM_BAR_REG				0x30
-#define PCIE_CORE_PCIEXP_CAP_OFF				0xc0
-#define PCIE_CORE_DEV_CTRL_STATS_REG				0xc8
-#define     PCIE_CORE_DEV_CTRL_STATS_RELAX_ORDER_DISABLE	(0 << 4)
-#define     PCIE_CORE_DEV_CTRL_STATS_SNOOP_DISABLE		(0 << 11)
-#define     PCIE_CORE_DEV_CTRL_STATS_MAX_PAYLOAD_SIZE		0x2
-#define     PCIE_CORE_DEV_CTRL_STATS_MAX_PAYLOAD_SIZE_SHIFT	5
-#define     PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SIZE		0x2
-#define     PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SIZE_SHIFT	12
-#define PCIE_CORE_LINK_CTRL_STAT_REG				0xd0
-#define     PCIE_CORE_LINK_TRAINING				BIT(5)
-#define PCIE_CORE_ERR_CAPCTL_REG				0x118
-#define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX			BIT(5)
-#define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN			BIT(6)
-#define     PCIE_CORE_ERR_CAPCTL_ECRC_CHECK			BIT(7)
-#define     PCIE_CORE_ERR_CAPCTL_ECRC_CHECK_RCV			BIT(8)
+/* PCIe Root Port register offsets */
+#define ADVK_ROOT_PORT_PCI_CFG_OFF		0x0
+#define ADVK_ROOT_PORT_PCI_EXP_OFF		0xc0
+#define ADVK_ROOT_PORT_PCI_ERR_OFF		0x100
 
 /* PIO registers base address and register offsets */
 #define PIO_BASE_ADDR				0x4000
@@ -394,7 +376,7 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 		if ((offset >= 0x10 && offset < 0x34) || (offset >= 0x38 && offset < 0x3c))
 			data = pcie->cfgcache[(offset - 0x10) / 4];
 		else
-			data = advk_readl(pcie, offset & ~3);
+			data = advk_readl(pcie, ADVK_ROOT_PORT_PCI_CFG_OFF + (offset & ~3));
 
 		if ((offset & ~3) == (PCI_HEADER_TYPE & ~3)) {
 			/*
@@ -406,14 +388,13 @@ static int pcie_advk_read_config(const struct udevice *bus, pci_dev_t bdf,
 			data |= PCI_HEADER_TYPE_BRIDGE << 16;
 		}
 
-		if ((offset & ~3) == PCIE_CORE_PCIEXP_CAP_OFF + PCI_EXP_RTCTL) {
+		if ((offset & ~3) == ADVK_ROOT_PORT_PCI_EXP_OFF + PCI_EXP_RTCTL) {
 			/* CRSSVE bit is stored only in cache */
 			if (pcie->cfgcrssve)
 				data |= PCI_EXP_RTCTL_CRSSVE;
 		}
 
-		if ((offset & ~3) == PCIE_CORE_PCIEXP_CAP_OFF +
-				     (PCI_EXP_RTCAP & ~3)) {
+		if ((offset & ~3) == ADVK_ROOT_PORT_PCI_EXP_OFF + (PCI_EXP_RTCAP & ~3)) {
 			/* CRS is emulated below, so set CRSVIS capability */
 			data |= PCI_EXP_RTCAP_CRSVIS << 16;
 		}
@@ -583,9 +564,9 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 				data = 0x0;
 			pcie->cfgcache[(offset - 0x10) / 4] = data;
 		} else {
-			data = advk_readl(pcie, offset & ~3);
+			data = advk_readl(pcie, ADVK_ROOT_PORT_PCI_CFG_OFF + (offset & ~3));
 			data = pci_conv_size_to_32(data, value, offset, size);
-			advk_writel(pcie, data, offset & ~3);
+			advk_writel(pcie, data, ADVK_ROOT_PORT_PCI_CFG_OFF + (offset & ~3));
 		}
 
 		if (offset == PCI_PRIMARY_BUS)
@@ -595,7 +576,7 @@ static int pcie_advk_write_config(struct udevice *bus, pci_dev_t bdf,
 		    (offset == PCI_PRIMARY_BUS && size != PCI_SIZE_8))
 			pcie->sec_busno = (data >> 8) & 0xff;
 
-		if ((offset & ~3) == PCIE_CORE_PCIEXP_CAP_OFF + PCI_EXP_RTCTL)
+		if ((offset & ~3) == ADVK_ROOT_PORT_PCI_EXP_OFF + PCI_EXP_RTCTL)
 			pcie->cfgcrssve = data & PCI_EXP_RTCTL_CRSSVE;
 
 		return 0;
@@ -834,26 +815,25 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 	 * Type 1 registers is redirected to the virtual cfgcache[] buffer,
 	 * which avoids changing unrelated registers.
 	 */
-	reg = advk_readl(pcie, PCIE_CORE_DEV_REV_REG);
+	reg = advk_readl(pcie, ADVK_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 	reg &= ~0xffffff00;
 	reg |= (PCI_CLASS_BRIDGE_PCI << 8) << 8;
-	advk_writel(pcie, reg, PCIE_CORE_DEV_REV_REG);
+	advk_writel(pcie, reg, ADVK_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 
-	/* Set Advanced Error Capabilities and Control PF0 register */
-	reg = PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX |
-		PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN |
-		PCIE_CORE_ERR_CAPCTL_ECRC_CHECK |
-		PCIE_CORE_ERR_CAPCTL_ECRC_CHECK_RCV;
-	advk_writel(pcie, reg, PCIE_CORE_ERR_CAPCTL_REG);
+	/* Enable generation and checking of ECRC on PCIe Root Port */
+	reg = advk_readl(pcie, ADVK_ROOT_PORT_PCI_ERR_OFF + PCI_ERR_CAP);
+	reg |= PCI_ERR_CAP_ECRC_GENE | PCI_ERR_CAP_ECRC_CHKE;
+	advk_writel(pcie, reg, ADVK_ROOT_PORT_PCI_ERR_OFF + PCI_ERR_CAP);
 
-	/* Set PCIe Device Control and Status 1 PF0 register */
-	reg = PCIE_CORE_DEV_CTRL_STATS_RELAX_ORDER_DISABLE |
-		(PCIE_CORE_DEV_CTRL_STATS_MAX_PAYLOAD_SIZE <<
-		 PCIE_CORE_DEV_CTRL_STATS_MAX_PAYLOAD_SIZE_SHIFT) |
-		(PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SIZE <<
-		 PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SIZE_SHIFT) |
-		PCIE_CORE_DEV_CTRL_STATS_SNOOP_DISABLE;
-	advk_writel(pcie, reg, PCIE_CORE_DEV_CTRL_STATS_REG);
+	/* Set PCIe Device Control register on PCIe Root Port */
+	reg = advk_readl(pcie, ADVK_ROOT_PORT_PCI_EXP_OFF + PCI_EXP_DEVCTL);
+	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
+	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
+	reg &= ~PCI_EXP_DEVCTL_PAYLOAD;
+	reg &= ~PCI_EXP_DEVCTL_READRQ;
+	reg |= PCI_EXP_DEVCTL_PAYLOAD_512B;
+	reg |= PCI_EXP_DEVCTL_READRQ_512B;
+	advk_writel(pcie, reg, ADVK_ROOT_PORT_PCI_EXP_OFF + PCI_EXP_DEVCTL);
 
 	/* Program PCIe Control 2 to disable strict ordering */
 	reg = PCIE_CORE_CTRL2_RESERVED |
@@ -994,11 +974,9 @@ static int pcie_advk_remove(struct udevice *dev)
 	for (i = 0; i < OB_WIN_COUNT; i++)
 		pcie_advk_disable_ob_win(pcie, i);
 
-	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
-	reg &= ~(PCIE_CORE_CMD_MEM_ACCESS_EN |
-		 PCIE_CORE_CMD_IO_ACCESS_EN |
-		 PCIE_CORE_CMD_MEM_IO_REQ_EN);
-	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
+	reg = advk_readl(pcie, ADVK_ROOT_PORT_PCI_CFG_OFF + PCI_COMMAND);
+	reg &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+	advk_writel(pcie, reg, ADVK_ROOT_PORT_PCI_CFG_OFF + PCI_COMMAND);
 
 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
 	reg &= ~LINK_TRAINING_EN;
