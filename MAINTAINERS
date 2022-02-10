@@ -278,11 +278,20 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
 F:	arch/arm/mach-mvebu/
 F:	drivers/ata/ahci_mvebu.c
+F:	drivers/clk/mvebu/
 F:	drivers/ddr/marvell/
 F:	drivers/gpio/mvebu_gpio.c
+F:	drivers/i2c/mvtwsi.c
+F:	drivers/mmc/xenon_sdhci.c
+F:	drivers/phy/marvell/
+F:	drivers/pinctrl/mvebu/
+F:	drivers/rtc/armada38x.c
 F:	drivers/spi/kirkwood_spi.c
+F:	drivers/spi/mvebu_a3700_spi.c
 F:	drivers/pci/pcie_dw_mvebu.c
+F:	drivers/watchdog/armada-37xx-wdt.c
 F:	drivers/watchdog/orion_wdt.c
+F:	include/configs/mv-common.h
 
 ARM MARVELL PCIE CONTROLLER DRIVERS
 M:	Pali Rohár <pali@kernel.org>

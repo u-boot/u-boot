@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2022 Tony Dinh <mibodhi@gmail.com>
  * Copyright (C) 2009-2012
  * Wojciech Dubowik <wojciech.dubowik@neratec.com>
  * Luka Perkov <luka@openwrt.org>
@@ -7,14 +8,19 @@
 
 #include <common.h>
 #include <init.h>
-#include <miiphy.h>
+#include <netdev.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include <asm/global_data.h>
-#include "iconnect.h"
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define ICONNECT_OE_LOW                 (~BIT(7))
+#define ICONNECT_OE_HIGH                (~BIT(10))
+#define ICONNECT_OE_VAL_LOW             (0)
+#define ICONNECT_OE_VAL_HIGH            BIT(10)
 
 int board_early_init_f(void)
 {
@@ -85,9 +91,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int board_eth_init(struct bd_info *bis)
+{
+	return cpu_eth_init(bis);
+}
+
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
