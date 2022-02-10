@@ -866,6 +866,14 @@ config PXA_SERIAL
 	  If you have a machine based on a Marvell XScale PXA2xx CPU you
 	  can enable its onboard serial ports by enabling this option.
 
+config HTIF_CONSOLE
+	bool "RISC-V HTIF console support"
+	depends on DM_SERIAL && 64BIT
+	help
+	  Select this to enable host transfer interface (HTIF) based serial
+	  console. The HTIF device is quite common in RISC-V emulators and
+	  RISC-V ISS so this driver allows using U-Boot on such platforms.
+
 config SIFIVE_SERIAL
 	bool "SiFive UART support"
 	depends on DM_SERIAL
