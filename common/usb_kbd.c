@@ -17,6 +17,9 @@
 #include <stdio_dev.h>
 #include <watchdog.h>
 #include <asm/byteorder.h>
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
+#endif
 
 #include <usb.h>
 
@@ -118,7 +121,7 @@ struct usb_kbd_pdata {
 extern int __maybe_unused net_busy_flag;
 
 /* The period of time between two calls of usb_kbd_testc(). */
-static unsigned long __maybe_unused kbd_testc_tms;
+static unsigned long kbd_testc_tms;
 
 /* Puts character in the queue and sets up the in and out pointer. */
 static void usb_kbd_put_queue(struct usb_kbd_pdata *data, u8 c)
@@ -394,21 +397,39 @@ static int usb_kbd_testc(struct stdio_dev *sdev)
 	struct usb_device *usb_kbd_dev;
 	struct usb_kbd_pdata *data;
 
+	/*
+	 * Polling the keyboard for an event can take dozens of milliseconds.
+	 * Add a delay between polls to avoid blocking activity which polls
+	 * rapidly, like the UEFI console timer.
+	 */
+	unsigned long poll_delay = CONFIG_SYS_HZ / 50;
+
 #ifdef CONFIG_CMD_NET
 	/*
 	 * If net_busy_flag is 1, NET transfer is running,
 	 * then we check key-pressed every second (first check may be
 	 * less than 1 second) to improve TFTP booting performance.
 	 */
-	if (net_busy_flag && (get_timer(kbd_testc_tms) < CONFIG_SYS_HZ))
-		return 0;
-	kbd_testc_tms = get_timer(0);
+	if (net_busy_flag)
+		poll_delay = CONFIG_SYS_HZ;
 #endif
+
+#ifdef CONFIG_SANDBOX
+	/*
+	 * Skip delaying polls if a test requests it.
+	 */
+	if (state_get_skip_delays())
+		poll_delay = 0;
+#endif
+
 	dev = stdio_get_by_name(sdev->name);
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	data = usb_kbd_dev->privptr;
 
-	usb_kbd_poll_for_event(usb_kbd_dev);
+	if (get_timer(kbd_testc_tms) >= poll_delay) {
+		usb_kbd_poll_for_event(usb_kbd_dev);
+		kbd_testc_tms = get_timer(0);
+	}
 
 	return !(data->usb_in_pointer == data->usb_out_pointer);
 }
