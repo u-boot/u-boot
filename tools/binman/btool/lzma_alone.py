@@ -65,13 +65,13 @@ class Bintoollzma_alone(bintool.Bintool):
             bytes: Compressed data
         """
         with tempfile.NamedTemporaryFile(prefix='comp.tmp',
-                                         dir=tools.GetOutputDir()) as inf:
-            tools.WriteFile(inf.name, indata)
+                                         dir=tools.get_output_dir()) as inf:
+            tools.write_file(inf.name, indata)
             with tempfile.NamedTemporaryFile(prefix='compo.otmp',
-                                             dir=tools.GetOutputDir()) as outf:
+                                             dir=tools.get_output_dir()) as outf:
                 args = ['e', inf.name, outf.name, '-lc1', '-lp0', '-pb0', '-d8']
                 self.run_cmd(*args, binary=True)
-                return tools.ReadFile(outf.name)
+                return tools.read_file(outf.name)
 
     def decompress(self, indata):
         """Decompress data with lzma_alone
@@ -83,13 +83,13 @@ class Bintoollzma_alone(bintool.Bintool):
             bytes: Decompressed data
         """
         with tempfile.NamedTemporaryFile(prefix='decomp.tmp',
-                                         dir=tools.GetOutputDir()) as inf:
-            tools.WriteFile(inf.name, indata)
+                                         dir=tools.get_output_dir()) as inf:
+            tools.write_file(inf.name, indata)
             with tempfile.NamedTemporaryFile(prefix='compo.otmp',
-                                             dir=tools.GetOutputDir()) as outf:
+                                             dir=tools.get_output_dir()) as outf:
                 args = ['d', inf.name, outf.name]
                 self.run_cmd(*args, binary=True)
-                return tools.ReadFile(outf.name, binary=True)
+                return tools.read_file(outf.name, binary=True)
 
     def fetch(self, method):
         """Fetch handler for lzma_alone

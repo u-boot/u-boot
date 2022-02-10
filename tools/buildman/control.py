@@ -18,7 +18,7 @@ from patman import gitutil
 from patman import patchstream
 from patman import terminal
 from patman import tools
-from patman.terminal import Print
+from patman.terminal import tprint
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""
@@ -73,7 +73,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options,
     if commits:
         for upto in range(0, len(series.commits), options.step):
             commit = series.commits[upto]
-            print('   ', col.Color(col.YELLOW, commit.hash[:8], bright=False), end=' ')
+            print('   ', col.build(col.YELLOW, commit.hash[:8], bright=False), end=' ')
             print(commit.subject)
     print()
     for arg in why_selected:
@@ -85,7 +85,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options,
             len(why_selected['all'])))
     if board_warnings:
         for warning in board_warnings:
-            print(col.Color(col.YELLOW, warning))
+            print(col.build(col.YELLOW, warning))
 
 def ShowToolchainPrefix(boards, toolchains):
     """Show information about a the tool chain used by one or more boards
@@ -135,12 +135,12 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     global builder
 
     if options.full_help:
-        tools.PrintFullHelp(
+        tools.print_full_help(
             os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
         )
         return 0
 
-    gitutil.Setup()
+    gitutil.setup()
     col = terminal.Color()
 
     options.git_dir = os.path.join(options.git, '.git')
@@ -152,14 +152,14 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if options.fetch_arch:
         if options.fetch_arch == 'list':
             sorted_list = toolchains.ListArchs()
-            print(col.Color(col.BLUE, 'Available architectures: %s\n' %
+            print(col.build(col.BLUE, 'Available architectures: %s\n' %
                             ' '.join(sorted_list)))
             return 0
         else:
             fetch_arch = options.fetch_arch
             if fetch_arch == 'all':
                 fetch_arch = ','.join(toolchains.ListArchs())
-                print(col.Color(col.CYAN, '\nDownloading toolchains: %s' %
+                print(col.build(col.CYAN, '\nDownloading toolchains: %s' %
                                 fetch_arch))
             for arch in fetch_arch.split(','):
                 print()
@@ -177,11 +177,11 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         return 0
 
     if options.incremental:
-        print(col.Color(col.RED,
+        print(col.build(col.RED,
                         'Warning: -I has been removed. See documentation'))
     if not options.output_dir:
         if options.work_in_output:
-            sys.exit(col.Color(col.RED, '-w requires that you specify -o'))
+            sys.exit(col.build(col.RED, '-w requires that you specify -o'))
         options.output_dir = '..'
 
     # Work out what subset of the boards we are building
@@ -218,12 +218,12 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                                                        requested_boards)
     selected = boards.GetSelected()
     if not len(selected):
-        sys.exit(col.Color(col.RED, 'No matching boards found'))
+        sys.exit(col.build(col.RED, 'No matching boards found'))
 
     if options.print_prefix:
         err = ShowToolchainPrefix(boards, toolchains)
         if err:
-            sys.exit(col.Color(col.RED, err))
+            sys.exit(col.build(col.RED, err))
         return 0
 
     # Work out how many commits to build. We want to build everything on the
@@ -236,30 +236,30 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             count = 1
         else:
             if has_range:
-                count, msg = gitutil.CountCommitsInRange(options.git_dir,
+                count, msg = gitutil.count_commits_in_range(options.git_dir,
                                                          options.branch)
             else:
-                count, msg = gitutil.CountCommitsInBranch(options.git_dir,
+                count, msg = gitutil.count_commits_in_branch(options.git_dir,
                                                           options.branch)
             if count is None:
-                sys.exit(col.Color(col.RED, msg))
+                sys.exit(col.build(col.RED, msg))
             elif count == 0:
-                sys.exit(col.Color(col.RED, "Range '%s' has no commits" %
+                sys.exit(col.build(col.RED, "Range '%s' has no commits" %
                                    options.branch))
             if msg:
-                print(col.Color(col.YELLOW, msg))
+                print(col.build(col.YELLOW, msg))
             count += 1   # Build upstream commit also
 
     if not count:
         str = ("No commits found to process in branch '%s': "
                "set branch's upstream or use -c flag" % options.branch)
-        sys.exit(col.Color(col.RED, str))
+        sys.exit(col.build(col.RED, str))
     if options.work_in_output:
         if len(selected) != 1:
-            sys.exit(col.Color(col.RED,
+            sys.exit(col.build(col.RED,
                                '-w can only be used with a single board'))
         if count != 1:
-            sys.exit(col.Color(col.RED,
+            sys.exit(col.build(col.RED,
                                '-w can only be used with a single commit'))
 
     # Read the metadata from the commits. First look at the upstream commit,
@@ -276,9 +276,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             if has_range:
                 range_expr = options.branch
             else:
-                range_expr = gitutil.GetRangeInBranch(options.git_dir,
+                range_expr = gitutil.get_range_in_branch(options.git_dir,
                                                       options.branch)
-            upstream_commit = gitutil.GetUpstream(options.git_dir,
+            upstream_commit = gitutil.get_upstream(options.git_dir,
                                                   options.branch)
             series = patchstream.get_metadata_for_list(upstream_commit,
                 options.git_dir, 1, series=None, allow_overwrite=True)
@@ -307,7 +307,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if not options.step:
         options.step = len(series.commits) - 1
 
-    gnu_make = command.Output(os.path.join(options.git,
+    gnu_make = command.output(os.path.join(options.git,
             'scripts/show-gnu-make'), raise_on_error=False).rstrip()
     if not gnu_make:
         sys.exit('GNU Make not found')
@@ -362,7 +362,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         else:
             commits = None
 
-        Print(GetActionSummary(options.summary, commits, board_selected,
+        tprint(GetActionSummary(options.summary, commits, board_selected,
                                options))
 
         # We can't show function sizes without board details at present

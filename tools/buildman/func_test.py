@@ -205,8 +205,8 @@ class TestFunctional(unittest.TestCase):
         self._test_branch = TEST_BRANCH
 
         # Avoid sending any output and clear all terminal output
-        terminal.SetPrintTestMode()
-        terminal.GetPrintTestLines()
+        terminal.set_print_test_mode()
+        terminal.get_print_test_lines()
 
     def tearDown(self):
         shutil.rmtree(self._base_dir)
@@ -217,7 +217,7 @@ class TestFunctional(unittest.TestCase):
         self._toolchains.Add('gcc', test=False)
 
     def _RunBuildman(self, *args):
-        return command.RunPipe([[self._buildman_pathname] + list(args)],
+        return command.run_pipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
     def _RunControl(self, *args, boards=None, clean_dir=False,
@@ -267,11 +267,11 @@ class TestFunctional(unittest.TestCase):
     def testGitSetup(self):
         """Test gitutils.Setup(), from outside the module itself"""
         command.test_result = command.CommandResult(return_code=1)
-        gitutil.Setup()
+        gitutil.setup()
         self.assertEqual(gitutil.use_no_decorate, False)
 
         command.test_result = command.CommandResult(return_code=0)
-        gitutil.Setup()
+        gitutil.setup()
         self.assertEqual(gitutil.use_no_decorate, True)
 
     def _HandleCommandGitLog(self, args):
@@ -407,7 +407,7 @@ class TestFunctional(unittest.TestCase):
             stage: Stage that we are at (mrproper, config, build)
             cwd: Directory where make should be run
             args: Arguments to pass to make
-            kwargs: Arguments to pass to command.RunPipe()
+            kwargs: Arguments to pass to command.run_pipe()
         """
         self._make_calls += 1
         if stage == 'mrproper':
@@ -422,7 +422,7 @@ class TestFunctional(unittest.TestCase):
                 if arg.startswith('O='):
                     out_dir = arg[2:]
             fname = os.path.join(cwd or '', out_dir, 'u-boot')
-            tools.WriteFile(fname, b'U-Boot')
+            tools.write_file(fname, b'U-Boot')
             if type(commit) is not str:
                 stderr = self._error.get((brd.target, commit.sequence))
             if stderr:
@@ -438,7 +438,7 @@ class TestFunctional(unittest.TestCase):
         print(len(lines))
         for line in lines:
             print(line)
-        #self.print_lines(terminal.GetPrintTestLines())
+        #self.print_lines(terminal.get_print_test_lines())
 
     def testNoBoards(self):
         """Test that buildman aborts when there are no boards"""
@@ -450,7 +450,7 @@ class TestFunctional(unittest.TestCase):
         """Very simple test to invoke buildman on the current source"""
         self.setupToolchains();
         self._RunControl('-o', self._output_dir)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
         self.assertIn('Building current source for %d boards' % len(boards),
                       lines[0].text)
 
@@ -463,7 +463,7 @@ class TestFunctional(unittest.TestCase):
         """Test that missing toolchains are detected"""
         self.setupToolchains();
         ret_code = self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
 
         # Buildman always builds the upstream commit as well
         self.assertIn('Building %d commits for %d boards' %

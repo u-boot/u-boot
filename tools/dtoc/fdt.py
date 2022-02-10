@@ -396,7 +396,7 @@ class Node:
             prop_name: Name of property
         """
         self.props[prop_name] = Prop(self, None, prop_name,
-                                     tools.GetBytes(0, 4))
+                                     tools.get_bytes(0, 4))
 
     def AddEmptyProp(self, prop_name, len):
         """Add a property with a fixed data size, for filling in later
@@ -408,7 +408,7 @@ class Node:
             prop_name: Name of property
             len: Length of data in property
         """
-        value = tools.GetBytes(0, len)
+        value = tools.get_bytes(0, len)
         self.props[prop_name] = Prop(self, None, prop_name, value)
 
     def _CheckProp(self, prop_name):

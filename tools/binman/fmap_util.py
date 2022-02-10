@@ -70,7 +70,7 @@ def ConvertName(field_names, fields):
             value: value of that field (string for the ones we support)
     """
     name_index = field_names.index('name')
-    fields[name_index] = tools.ToBytes(NameToFmap(fields[name_index]))
+    fields[name_index] = tools.to_bytes(NameToFmap(fields[name_index]))
 
 def DecodeFmap(data):
     """Decode a flashmap into a header and list of areas

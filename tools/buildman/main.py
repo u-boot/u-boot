@@ -41,12 +41,12 @@ def RunTests(skip_net_tests, verboose, args):
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
-    test_util.RunTestSuites(
+    test_util.run_test_suites(
         result, False, verboose, False, None, test_name, [],
         [test.TestBuild, func_test.TestFunctional,
          'buildman.toolchain', 'patman.gitutil'])
 
-    return test_util.ReportResult('buildman', test_name, result)
+    return test_util.report_result('buildman', test_name, result)
 
 options, args = cmdline.ParseArgs()
 

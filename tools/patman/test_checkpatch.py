@@ -82,13 +82,13 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
         return inname
 
     def run_checkpatch(self):
-        return checkpatch.CheckPatch(self.get_patch(), show_types=True)
+        return checkpatch.check_patch(self.get_patch(), show_types=True)
 
 
 class TestPatch(unittest.TestCase):
     """Test the u_boot_line() function in checkpatch.pl"""
 
-    def testBasic(self):
+    def test_basic(self):
         """Test basic filter operation"""
         data='''
 
@@ -164,7 +164,7 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
         os.remove(inname)
         os.remove(expname)
 
-    def GetData(self, data_type):
+    def get_data(self, data_type):
         data='''From 4924887af52713cabea78420eff03badea8f0035 Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Thu, 7 Apr 2011 10:14:41 -0700
@@ -284,18 +284,18 @@ index 0000000..2234c87
             print('not implemented')
         return data % (signoff, license, tab, indent, tab)
 
-    def SetupData(self, data_type):
+    def setup_data(self, data_type):
         inhandle, inname = tempfile.mkstemp()
         infd = os.fdopen(inhandle, 'w')
-        data = self.GetData(data_type)
+        data = self.get_data(data_type)
         infd.write(data)
         infd.close()
         return inname
 
-    def testGood(self):
+    def test_good(self):
         """Test checkpatch operation"""
-        inf = self.SetupData('good')
-        result = checkpatch.CheckPatch(inf)
+        inf = self.setup_data('good')
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, True)
         self.assertEqual(result.problems, [])
         self.assertEqual(result.errors, 0)
@@ -304,9 +304,9 @@ index 0000000..2234c87
         self.assertEqual(result.lines, 62)
         os.remove(inf)
 
-    def testNoSignoff(self):
-        inf = self.SetupData('no-signoff')
-        result = checkpatch.CheckPatch(inf)
+    def test_no_signoff(self):
+        inf = self.setup_data('no-signoff')
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 1)
         self.assertEqual(result.errors, 1)
@@ -315,9 +315,9 @@ index 0000000..2234c87
         self.assertEqual(result.lines, 62)
         os.remove(inf)
 
-    def testNoLicense(self):
-        inf = self.SetupData('no-license')
-        result = checkpatch.CheckPatch(inf)
+    def test_no_license(self):
+        inf = self.setup_data('no-license')
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 1)
         self.assertEqual(result.errors, 0)
@@ -326,9 +326,9 @@ index 0000000..2234c87
         self.assertEqual(result.lines, 62)
         os.remove(inf)
 
-    def testSpaces(self):
-        inf = self.SetupData('spaces')
-        result = checkpatch.CheckPatch(inf)
+    def test_spaces(self):
+        inf = self.setup_data('spaces')
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 3)
         self.assertEqual(result.errors, 0)
@@ -337,9 +337,9 @@ index 0000000..2234c87
         self.assertEqual(result.lines, 62)
         os.remove(inf)
 
-    def testIndent(self):
-        inf = self.SetupData('indent')
-        result = checkpatch.CheckPatch(inf)
+    def test_indent(self):
+        inf = self.setup_data('indent')
+        result = checkpatch.check_patch(inf)
         self.assertEqual(result.ok, False)
         self.assertEqual(len(result.problems), 1)
         self.assertEqual(result.errors, 0)
@@ -348,7 +348,7 @@ index 0000000..2234c87
         self.assertEqual(result.lines, 62)
         os.remove(inf)
 
-    def checkSingleMessage(self, pm, msg, pmtype = 'warning'):
+    def check_single_message(self, pm, msg, pmtype = 'warning'):
         """Helper function to run checkpatch and check the result
 
         Args:
@@ -366,50 +366,50 @@ index 0000000..2234c87
         self.assertEqual(len(result.problems), 1)
         self.assertIn(msg, result.problems[0]['cptype'])
 
-    def testUclass(self):
+    def test_uclass(self):
         """Test for possible new uclass"""
         pm = PatchMaker()
         pm.add_line('include/dm/uclass-id.h', 'UCLASS_WIBBLE,')
-        self.checkSingleMessage(pm, 'NEW_UCLASS')
+        self.check_single_message(pm, 'NEW_UCLASS')
 
-    def testLivetree(self):
+    def test_livetree(self):
         """Test for using the livetree API"""
         pm = PatchMaker()
         pm.add_line('common/main.c', 'fdtdec_do_something()')
-        self.checkSingleMessage(pm, 'LIVETREE')
+        self.check_single_message(pm, 'LIVETREE')
 
-    def testNewCommand(self):
+    def test_new_command(self):
         """Test for adding a new command"""
         pm = PatchMaker()
         pm.add_line('common/main.c', 'do_wibble(struct cmd_tbl *cmd_tbl)')
-        self.checkSingleMessage(pm, 'CMD_TEST')
+        self.check_single_message(pm, 'CMD_TEST')
 
-    def testPreferIf(self):
+    def test_prefer_if(self):
         """Test for using #ifdef"""
         pm = PatchMaker()
         pm.add_line('common/main.c', '#ifdef CONFIG_YELLOW')
         pm.add_line('common/init.h', '#ifdef CONFIG_YELLOW')
         pm.add_line('fred.dtsi', '#ifdef CONFIG_YELLOW')
-        self.checkSingleMessage(pm, "PREFER_IF")
+        self.check_single_message(pm, "PREFER_IF")
 
-    def testCommandUseDefconfig(self):
+    def test_command_use_defconfig(self):
         """Test for enabling/disabling commands using preprocesor"""
         pm = PatchMaker()
         pm.add_line('common/main.c', '#undef CONFIG_CMD_WHICH')
-        self.checkSingleMessage(pm, 'DEFINE_CONFIG_CMD', 'error')
+        self.check_single_message(pm, 'DEFINE_CONFIG_CMD', 'error')
 
-    def testBarredIncludeInHdr(self):
+    def test_barred_include_in_hdr(self):
         """Test for using a barred include in a header file"""
         pm = PatchMaker()
         #pm.add_line('include/myfile.h', '#include <common.h>')
         pm.add_line('include/myfile.h', '#include <dm.h>')
-        self.checkSingleMessage(pm, 'BARRED_INCLUDE_IN_HDR', 'error')
+        self.check_single_message(pm, 'BARRED_INCLUDE_IN_HDR', 'error')
 
-    def testConfigIsEnabledConfig(self):
+    def test_config_is_enabled_config(self):
         """Test for accidental CONFIG_IS_ENABLED(CONFIG_*) calls"""
         pm = PatchMaker()
         pm.add_line('common/main.c', 'if (CONFIG_IS_ENABLED(CONFIG_CLK))')
-        self.checkSingleMessage(pm, 'CONFIG_IS_ENABLED_CONFIG', 'error')
+        self.check_single_message(pm, 'CONFIG_IS_ENABLED_CONFIG', 'error')
 
     def check_struct(self, auto, suffix, warning):
         """Check one of the warnings for struct naming
@@ -423,17 +423,17 @@ index 0000000..2234c87
         pm.add_line('common/main.c', '.%s = sizeof(struct(fred)),' % auto)
         pm.add_line('common/main.c', '.%s = sizeof(struct(mary%s)),' %
                     (auto, suffix))
-        self.checkSingleMessage(
+        self.check_single_message(
             pm, warning, "struct 'fred' should have a %s suffix" % suffix)
 
-    def testDmDriverAuto(self):
+    def test_dm_driver_auto(self):
         """Check for the correct suffix on 'struct driver' auto members"""
         self.check_struct('priv_auto', '_priv', 'PRIV_AUTO')
         self.check_struct('plat_auto', '_plat', 'PLAT_AUTO')
         self.check_struct('per_child_auto', '_priv', 'CHILD_PRIV_AUTO')
         self.check_struct('per_child_plat_auto', '_plat', 'CHILD_PLAT_AUTO')
 
-    def testDmUclassAuto(self):
+    def test_dm_uclass_auto(self):
         """Check for the correct suffix on 'struct uclass' auto members"""
         # Some of these are omitted since they match those from struct driver
         self.check_struct('per_device_auto', '_priv', 'DEVICE_PRIV_AUTO')
@@ -443,11 +443,11 @@ index 0000000..2234c87
         """Check one of the checks for strn(cpy|cat)"""
         pm = PatchMaker()
         pm.add_line('common/main.c', "strn%s(foo, bar, sizeof(foo));" % func)
-        self.checkSingleMessage(pm, "STRL",
+        self.check_single_message(pm, "STRL",
             "strl%s is preferred over strn%s because it always produces a nul-terminated string\n"
             % (func, func))
 
-    def testStrl(self):
+    def test_strl(self):
         """Check for uses of strn(cat|cpy)"""
         self.check_strl("cat");
         self.check_strl("cpy");

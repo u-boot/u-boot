@@ -60,14 +60,14 @@ class Entry_text(Entry):
         super().__init__(section, etype, node)
         value = fdt_util.GetString(self._node, 'text')
         if value:
-            value = tools.ToBytes(value)
+            value = tools.to_bytes(value)
         else:
             label, = self.GetEntryArgsOrProps([EntryArg('text-label', str)])
             self.text_label = label
             if self.text_label:
                 value, = self.GetEntryArgsOrProps([EntryArg(self.text_label,
                                                             str)])
-                value = tools.ToBytes(value) if value is not None else value
+                value = tools.to_bytes(value) if value is not None else value
         self.value = value
 
     def ObtainContents(self):

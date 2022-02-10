@@ -75,29 +75,29 @@ def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
         dts_input = os.path.join(tmpdir, 'source.dts')
         dtb_output = os.path.join(tmpdir, 'source.dtb')
     else:
-        dts_input = tools.GetOutputFilename('source.dts')
-        dtb_output = tools.GetOutputFilename('source.dtb')
+        dts_input = tools.get_output_filename('source.dts')
+        dtb_output = tools.get_output_filename('source.dtb')
 
     search_paths = [os.path.join(os.getcwd(), 'include')]
     root, _ = os.path.splitext(fname)
-    cc, args = tools.GetTargetCompileTool('cc')
+    cc, args = tools.get_target_compile_tool('cc')
     args += ['-E', '-P', '-x', 'assembler-with-cpp', '-D__ASSEMBLY__']
     args += ['-Ulinux']
     for path in search_paths:
         args.extend(['-I', path])
     args += ['-o', dts_input, fname]
-    command.Run(cc, *args)
+    command.run(cc, *args)
 
     # If we don't have a directory, put it in the tools tempdir
     search_list = []
     for path in search_paths:
         search_list.extend(['-i', path])
-    dtc, args = tools.GetTargetCompileTool('dtc')
+    dtc, args = tools.get_target_compile_tool('dtc')
     args += ['-I', 'dts', '-o', dtb_output, '-O', 'dtb',
             '-W', 'no-unit_address_vs_reg']
     args.extend(search_list)
     args.append(dts_input)
-    command.Run(dtc, *args, capture_stderr=capture_stderr)
+    command.run(dtc, *args, capture_stderr=capture_stderr)
     return dtb_output
 
 def GetInt(node, propname, default=None):

@@ -148,7 +148,7 @@ class TestBuild(unittest.TestCase):
         self.toolchains.Add('gcc', test=False)
 
         # Avoid sending any output
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         self._col = terminal.Color()
 
         self.base_dir = tempfile.mkdtemp()
@@ -182,10 +182,10 @@ class TestBuild(unittest.TestCase):
                            col.YELLOW if outcome == OUTCOME_WARN else col.RED)
         expect = '%10s: ' % arch
         # TODO(sjg@chromium.org): If plus is '', we shouldn't need this
-        expect += ' ' + col.Color(expected_colour, plus)
+        expect += ' ' + col.build(expected_colour, plus)
         expect += '  '
         for board in boards:
-            expect += col.Color(expected_colour, ' %s' % board)
+            expect += col.build(expected_colour, ' %s' % board)
         self.assertEqual(text, expect)
 
     def _SetupTest(self, echo_lines=False, threads=1, **kwdisplay_args):
@@ -209,7 +209,7 @@ class TestBuild(unittest.TestCase):
         # associated with each. This calls our Make() to inject the fake output.
         build.BuildBoards(self.commits, board_selected, keep_outputs=False,
                           verbose=False)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
         count = 0
         for line in lines:
             if line.text.strip():
@@ -221,8 +221,8 @@ class TestBuild(unittest.TestCase):
         build.SetDisplayOptions(**kwdisplay_args);
         build.ShowSummary(self.commits, board_selected)
         if echo_lines:
-            terminal.EchoPrintTestLines()
-        return iter(terminal.GetPrintTestLines())
+            terminal.echo_print_test_lines()
+        return iter(terminal.get_print_test_lines())
 
     def _CheckOutput(self, lines, list_error_boards=False,
                      filter_dtb_warnings=False,
@@ -254,12 +254,12 @@ class TestBuild(unittest.TestCase):
             new_lines = []
             for line in lines:
                 if boards:
-                    expect = self._col.Color(colour, prefix + '(')
-                    expect += self._col.Color(self._col.MAGENTA, boards,
+                    expect = self._col.build(colour, prefix + '(')
+                    expect += self._col.build(self._col.MAGENTA, boards,
                                               bright=False)
-                    expect += self._col.Color(colour, ') %s' % line)
+                    expect += self._col.build(colour, ') %s' % line)
                 else:
-                    expect = self._col.Color(colour, prefix + line)
+                    expect = self._col.build(colour, prefix + line)
                 new_lines.append(expect)
             return '\n'.join(new_lines)
 
@@ -317,12 +317,12 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(next(lines).text, '04: %s' % commits[3][1])
         if filter_migration_warnings:
             expect = '%10s: ' % 'powerpc'
-            expect += ' ' + col.Color(col.GREEN, '')
+            expect += ' ' + col.build(col.GREEN, '')
             expect += '  '
-            expect += col.Color(col.GREEN, ' %s' % 'board2')
-            expect += ' ' + col.Color(col.YELLOW, 'w+')
+            expect += col.build(col.GREEN, ' %s' % 'board2')
+            expect += ' ' + col.build(col.YELLOW, 'w+')
             expect += '  '
-            expect += col.Color(col.YELLOW, ' %s' % 'board3')
+            expect += col.build(col.YELLOW, ' %s' % 'board3')
             self.assertEqual(next(lines).text, expect)
         else:
             self.assertSummary(next(lines).text, 'powerpc', 'w+',
@@ -607,7 +607,7 @@ class TestBuild(unittest.TestCase):
 
     def testPrepareOutputSpace(self):
         def _Touch(fname):
-            tools.WriteFile(os.path.join(base_dir, fname), b'')
+            tools.write_file(os.path.join(base_dir, fname), b'')
 
         base_dir = tempfile.mkdtemp()
 

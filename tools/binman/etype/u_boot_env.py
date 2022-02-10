@@ -27,7 +27,7 @@ class Entry_u_boot_env(Entry_blob):
         self.fill_value = fdt_util.GetByte(self._node, 'fill-byte', 0)
 
     def ReadBlobContents(self):
-        indata = tools.ReadFile(self._pathname)
+        indata = tools.read_file(self._pathname)
         data = b''
         for line in indata.splitlines():
             data += line + b'\0'
@@ -35,7 +35,7 @@ class Entry_u_boot_env(Entry_blob):
         pad = self.size - len(data) - 5
         if pad < 0:
             self.Raise("'u-boot-env' entry too small to hold data (need %#x more bytes)" % -pad)
-        data += tools.GetBytes(self.fill_value, pad)
+        data += tools.get_bytes(self.fill_value, pad)
         crc = zlib.crc32(data)
         buf = struct.pack('<I', crc) + b'\x01' + data
         self.SetContents(buf)

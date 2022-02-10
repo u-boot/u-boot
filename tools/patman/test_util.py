@@ -23,7 +23,7 @@ except:
     use_concurrent = False
 
 
-def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
+def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None,
                     extra_args=None):
     """Run tests and check that we get 100% coverage
 
@@ -61,7 +61,7 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
            '--omit "%s" %s %s %s -P1' % (prefix, ','.join(glob_list),
                                          prog, extra_args or '', test_cmd))
     os.system(cmd)
-    stdout = command.Output('python3-coverage', 'report')
+    stdout = command.output('python3-coverage', 'report')
     lines = stdout.splitlines()
     if required:
         # Convert '/path/to/name.py' just the module name 'name'
@@ -102,7 +102,7 @@ def capture_sys_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
-def ReportResult(toolname:str, test_name: str, result: unittest.TestResult):
+def report_result(toolname:str, test_name: str, result: unittest.TestResult):
     """Report the results from a suite of tests
 
     Args:
@@ -139,8 +139,8 @@ def ReportResult(toolname:str, test_name: str, result: unittest.TestResult):
     return 0
 
 
-def RunTestSuites(result, debug, verbosity, test_preserve_dirs, processes,
-                  test_name, toolpath, class_and_module_list):
+def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
+                    test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
 
     Args:

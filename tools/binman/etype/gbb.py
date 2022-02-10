@@ -70,14 +70,14 @@ class Entry_gbb(Entry):
 
     def ObtainContents(self):
         gbb = 'gbb.bin'
-        fname = tools.GetOutputFilename(gbb)
+        fname = tools.get_output_filename(gbb)
         if not self.size:
             self.Raise('GBB must have a fixed size')
         gbb_size = self.size
         bmpfv_size = gbb_size - 0x2180
         if bmpfv_size < 0:
             self.Raise('GBB is too small (minimum 0x2180 bytes)')
-        keydir = tools.GetInputFilename(self.keydir)
+        keydir = tools.get_input_filename(self.keydir)
 
         stdout = self.futility.gbb_create(
             fname, [0x100, 0x1000, bmpfv_size, 0x1000])
@@ -88,14 +88,14 @@ class Entry_gbb(Entry):
                 rootkey='%s/root_key.vbpubk' % keydir,
                 recoverykey='%s/recovery_key.vbpubk' % keydir,
                 flags=self.gbb_flags,
-                bmpfv=tools.GetInputFilename(self.bmpblk))
+                bmpfv=tools.get_input_filename(self.bmpblk))
 
         if stdout is not None:
-            self.SetContents(tools.ReadFile(fname))
+            self.SetContents(tools.read_file(fname))
         else:
             # Bintool is missing; just use the required amount of zero data
             self.record_missing_bintool(self.futility)
-            self.SetContents(tools.GetBytes(0, gbb_size))
+            self.SetContents(tools.get_bytes(0, gbb_size))
 
         return True
 

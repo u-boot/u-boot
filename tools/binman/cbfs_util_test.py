@@ -36,7 +36,7 @@ class TestCbfs(unittest.TestCase):
     def setUpClass(cls):
         # Create a temporary directory for test files
         cls._indir = tempfile.mkdtemp(prefix='cbfs_util.')
-        tools.SetInputDirs([cls._indir])
+        tools.set_input_dirs([cls._indir])
 
         # Set up some useful data files
         TestCbfs._make_input_file('u-boot.bin', U_BOOT_DATA)
@@ -45,7 +45,7 @@ class TestCbfs(unittest.TestCase):
 
         # Set up a temporary output directory, used by the tools library when
         # compressing files
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
         cls.cbfstool = bintool.Bintool.create('cbfstool')
         cls.have_cbfstool = cls.cbfstool.is_present()
@@ -58,7 +58,7 @@ class TestCbfs(unittest.TestCase):
         if cls._indir:
             shutil.rmtree(cls._indir)
         cls._indir = None
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     @classmethod
     def _make_input_file(cls, fname, contents):
@@ -71,7 +71,7 @@ class TestCbfs(unittest.TestCase):
             Full pathname of file created
         """
         pathname = os.path.join(cls._indir, fname)
-        tools.WriteFile(pathname, contents)
+        tools.write_file(pathname, contents)
         return pathname
 
     def _check_hdr(self, data, size, offset=0, arch=cbfs_util.ARCHITECTURE_X86):
@@ -176,12 +176,12 @@ class TestCbfs(unittest.TestCase):
             base = [(1 << 32) - size + b for b in base]
         self.cbfstool.add_raw(
             cbfs_fname, 'u-boot',
-            tools.GetInputFilename(compress and 'compress' or 'u-boot.bin'),
+            tools.get_input_filename(compress and 'compress' or 'u-boot.bin'),
             compress[0] if compress else None,
             base[0] if base else None)
         self.cbfstool.add_raw(
             cbfs_fname, 'u-boot-dtb',
-            tools.GetInputFilename(compress and 'compress' or 'u-boot.dtb'),
+            tools.get_input_filename(compress and 'compress' or 'u-boot.dtb'),
             compress[1] if compress else None,
             base[1] if base else None)
         return cbfs_fname
@@ -198,10 +198,10 @@ class TestCbfs(unittest.TestCase):
         """
         if not self.have_cbfstool or not self.have_lz4:
             return
-        expect = tools.ReadFile(cbfstool_fname)
+        expect = tools.read_file(cbfstool_fname)
         if expect != data:
-            tools.WriteFile('/tmp/expect', expect)
-            tools.WriteFile('/tmp/actual', data)
+            tools.write_file('/tmp/expect', expect)
+            tools.write_file('/tmp/actual', data)
             print('diff -y <(xxd -g1 /tmp/expect) <(xxd -g1 /tmp/actual) | colordiff')
             self.fail('cbfstool produced a different result')
 
@@ -482,7 +482,7 @@ class TestCbfs(unittest.TestCase):
 
         size = 0xb0
         cbw = CbfsWriter(size)
-        cbw.add_file_stage('u-boot', tools.ReadFile(elf_fname))
+        cbw.add_file_stage('u-boot', tools.read_file(elf_fname))
 
         data = cbw.get_data()
         cbfs = self._check_hdr(data, size)

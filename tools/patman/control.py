@@ -18,7 +18,7 @@ from patman import terminal
 
 def setup():
     """Do required setup before doing anything"""
-    gitutil.Setup()
+    gitutil.setup()
 
 def prepare_patches(col, branch, count, start, end, ignore_binary, signoff):
     """Figure out what patches to generate, then generate them
@@ -45,17 +45,17 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff):
     """
     if count == -1:
         # Work out how many patches to send if we can
-        count = (gitutil.CountCommitsToBranch(branch) - start)
+        count = (gitutil.count_commits_to_branch(branch) - start)
 
     if not count:
         str = 'No commits found to process - please use -c flag, or run:\n' \
               '  git branch --set-upstream-to remote/branch'
-        sys.exit(col.Color(col.RED, str))
+        sys.exit(col.build(col.RED, str))
 
     # Read the metadata from the commits
     to_do = count - end
     series = patchstream.get_metadata(branch, start, to_do)
-    cover_fname, patch_files = gitutil.CreatePatches(
+    cover_fname, patch_files = gitutil.create_patches(
         branch, start, to_do, ignore_binary, series, signoff)
 
     # Fix up the patch files to our liking, and insert the cover letter
@@ -86,7 +86,7 @@ def check_patches(series, patch_files, run_checkpatch, verbose):
 
     # Check the patches, and run them through 'git am' just to be sure
     if run_checkpatch:
-        ok = checkpatch.CheckPatches(verbose, patch_files)
+        ok = checkpatch.check_patches(verbose, patch_files)
     else:
         ok = True
     return ok
@@ -138,18 +138,18 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
     if its_a_go:
-        cmd = gitutil.EmailPatches(
+        cmd = gitutil.email_patches(
             series, cover_fname, patch_files, dry_run, not ignore_bad_tags,
             cc_file, in_reply_to=in_reply_to, thread=thread,
             smtp_server=smtp_server)
     else:
-        print(col.Color(col.RED, "Not sending emails due to errors/warnings"))
+        print(col.build(col.RED, "Not sending emails due to errors/warnings"))
 
     # For a dry run, just show our actions as a sanity check
     if dry_run:
         series.ShowActions(patch_files, cmd, process_tags)
         if not its_a_go:
-            print(col.Color(col.RED, "Email would not be sent"))
+            print(col.build(col.RED, "Email would not be sent"))
 
     os.remove(cc_file)
 
@@ -167,7 +167,7 @@ def send(args):
     ok = check_patches(series, patch_files, args.check_patch,
                        args.verbose)
 
-    ok = ok and gitutil.CheckSuppressCCConfig()
+    ok = ok and gitutil.check_suppress_cc_config()
 
     its_a_go = ok or args.ignore_errors
     email_patches(
@@ -204,7 +204,7 @@ def patchwork_status(branch, count, start, end, dest_branch, force,
     """
     if count == -1:
         # Work out how many patches to send if we can
-        count = (gitutil.CountCommitsToBranch(branch) - start)
+        count = (gitutil.count_commits_to_branch(branch) - start)
 
     series = patchstream.get_metadata(branch, start, count - end)
     warnings = 0

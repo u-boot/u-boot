@@ -357,7 +357,6 @@ static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
 {
 	_serial_putc(sdev->priv, ch);
 }
-#endif
 
 static void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 {
@@ -373,6 +372,7 @@ static int serial_stub_tstc(struct stdio_dev *sdev)
 {
 	return _serial_tstc(sdev->priv);
 }
+#endif
 #endif
 
 /**

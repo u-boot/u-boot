@@ -245,7 +245,7 @@ def collect_patches(series, series_id, url, rest_api=call_rest_api):
     count = len(patch_dict)
     num_commits = len(series.commits)
     if count != num_commits:
-        tout.Warning('Warning: Patchwork reports %d patches, series has %d' %
+        tout.warning('Warning: Patchwork reports %d patches, series has %d' %
                      (count, num_commits))
 
     patches = []
@@ -257,7 +257,7 @@ def collect_patches(series, series_id, url, rest_api=call_rest_api):
         patch.parse_subject(pw_patch['name'])
         patches.append(patch)
     if warn_count > 1:
-        tout.Warning('   (total of %d warnings)' % warn_count)
+        tout.warning('   (total of %d warnings)' % warn_count)
 
     # Sort patches by patch number
     patches = sorted(patches, key=lambda x: x.seq)
@@ -338,9 +338,9 @@ def show_responses(rtags, indent, is_new):
     for tag in sorted(rtags.keys()):
         people = rtags[tag]
         for who in sorted(people):
-            terminal.Print(indent + '%s %s: ' % ('+' if is_new else ' ', tag),
+            terminal.tprint(indent + '%s %s: ' % ('+' if is_new else ' ', tag),
                            newline=False, colour=col.GREEN, bright=is_new)
-            terminal.Print(who, colour=col.WHITE, bright=is_new)
+            terminal.tprint(who, colour=col.WHITE, bright=is_new)
             count += 1
     return count
 
@@ -437,7 +437,7 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
 
     patch_for_commit, _, warnings = compare_with_series(series, patches)
     for warn in warnings:
-        tout.Warning(warn)
+        tout.warning(warn)
 
     patch_list = [patch_for_commit.get(c) for c in range(len(series.commits))]
 
@@ -455,7 +455,7 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
         patch = patch_for_commit.get(seq)
         if not patch:
             continue
-        terminal.Print('%3d %s' % (patch.seq, patch.subject[:50]),
+        terminal.tprint('%3d %s' % (patch.seq, patch.subject[:50]),
                        colour=col.BLUE)
         cmt = series.commits[seq]
         base_rtags = cmt.rtags
@@ -466,15 +466,15 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
         num_to_add += show_responses(new_rtags, indent, True)
         if show_comments:
             for review in review_list[seq]:
-                terminal.Print('Review: %s' % review.meta, colour=col.RED)
+                terminal.tprint('Review: %s' % review.meta, colour=col.RED)
                 for snippet in review.snippets:
                     for line in snippet:
                         quoted = line.startswith('>')
-                        terminal.Print('    %s' % line,
+                        terminal.tprint('    %s' % line,
                                        colour=col.MAGENTA if quoted else None)
-                    terminal.Print()
+                    terminal.tprint()
 
-    terminal.Print("%d new response%s available in patchwork%s" %
+    terminal.tprint("%d new response%s available in patchwork%s" %
                    (num_to_add, 's' if num_to_add != 1 else '',
                     '' if dest_branch
                     else ' (use -d to write them to a new branch)'))
@@ -482,6 +482,6 @@ def check_patchwork_status(series, series_id, branch, dest_branch, force,
     if dest_branch:
         num_added = create_branch(series, new_rtag_list, branch,
                                   dest_branch, force, test_repo)
-        terminal.Print(
+        terminal.tprint(
             "%d response%s added from patchwork into new branch '%s'" %
             (num_added, 's' if num_added != 1 else '', dest_branch))

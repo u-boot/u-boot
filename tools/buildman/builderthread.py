@@ -122,7 +122,7 @@ class BuilderThread(threading.Thread):
                         config - called to configure for a board
                         build - the main make invocation - it does the build
             args: A list of arguments to pass to 'make'
-            kwargs: A list of keyword arguments to pass to command.RunPipe()
+            kwargs: A list of keyword arguments to pass to command.run_pipe()
 
         Returns:
             CommandResult object
@@ -219,7 +219,7 @@ class BuilderThread(threading.Thread):
                     commit = self.builder.commits[commit_upto]
                     if self.builder.checkout:
                         git_dir = os.path.join(work_dir, '.git')
-                        gitutil.Checkout(commit.hash, git_dir, work_dir,
+                        gitutil.checkout(commit.hash, git_dir, work_dir,
                                          force=True)
                 else:
                     commit = 'current'
@@ -375,7 +375,7 @@ class BuilderThread(threading.Thread):
             lines = []
             for fname in BASE_ELF_FILENAMES:
                 cmd = ['%snm' % self.toolchain.cross, '--size-sort', fname]
-                nm_result = command.RunPipe([cmd], capture=True,
+                nm_result = command.run_pipe([cmd], capture=True,
                         capture_stderr=True, cwd=result.out_dir,
                         raise_on_error=False, env=env)
                 if nm_result.stdout:
@@ -385,7 +385,7 @@ class BuilderThread(threading.Thread):
                         print(nm_result.stdout, end=' ', file=fd)
 
                 cmd = ['%sobjdump' % self.toolchain.cross, '-h', fname]
-                dump_result = command.RunPipe([cmd], capture=True,
+                dump_result = command.run_pipe([cmd], capture=True,
                         capture_stderr=True, cwd=result.out_dir,
                         raise_on_error=False, env=env)
                 rodata_size = ''
@@ -400,7 +400,7 @@ class BuilderThread(threading.Thread):
                             rodata_size = fields[2]
 
                 cmd = ['%ssize' % self.toolchain.cross, fname]
-                size_result = command.RunPipe([cmd], capture=True,
+                size_result = command.run_pipe([cmd], capture=True,
                         capture_stderr=True, cwd=result.out_dir,
                         raise_on_error=False, env=env)
                 if size_result.stdout:
@@ -411,7 +411,7 @@ class BuilderThread(threading.Thread):
             cmd = ['%sobjcopy' % self.toolchain.cross, '-O', 'binary',
                    '-j', '.rodata.default_environment',
                    'env/built-in.o', 'uboot.env']
-            command.RunPipe([cmd], capture=True,
+            command.run_pipe([cmd], capture=True,
                             capture_stderr=True, cwd=result.out_dir,
                             raise_on_error=False, env=env)
             ubootenv = os.path.join(result.out_dir, 'uboot.env')
