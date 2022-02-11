@@ -597,7 +597,7 @@ class PatchStream:
         if 'prefix' in self.series:
             parts.append(self.series['prefix'])
         if 'postfix' in self.series:
-            parts.append(self.serties['postfix'])
+            parts.append(self.series['postfix'])
         if 'version' in self.series:
             parts.append("v%s" % self.series['version'])
 

@@ -62,8 +62,8 @@ def prepare_output_dir(dirname, preserve=False):
             try:
                 os.makedirs(outdir)
             except OSError as err:
-                raise CmdError("Cannot make output directory '%s': '%s'" %
-                                (outdir, err.strerror))
+                raise ValueError(
+                    f"Cannot make output directory 'outdir': 'err.strerror'")
         tout.debug("Using output directory '%s'" % outdir)
     else:
         outdir = tempfile.mkdtemp(prefix='binman.')
@@ -160,7 +160,7 @@ def get_input_filename_glob(pattern):
         A list of matching files in all input directories
     """
     if not indir:
-        return glob.glob(fname)
+        return glob.glob(pattern)
     files = []
     for dirname in indir:
         pathname = os.path.join(dirname, pattern)
@@ -201,7 +201,7 @@ def path_has_file(path_spec, fname):
             return True
     return False
 
-def get_host_compile_tool(name):
+def get_host_compile_tool(env, name):
     """Get the host-specific version for a compile tool
 
     This checks the environment variables that specify which version of
@@ -356,7 +356,7 @@ def run_result(name, *args, **kwargs):
             name, extra_args = get_target_compile_tool(name)
             args = tuple(extra_args) + args
         elif for_host:
-            name, extra_args = get_host_compile_tool(name)
+            name, extra_args = get_host_compile_tool(env, name)
             args = tuple(extra_args) + args
         name = os.path.expanduser(name)  # Expand paths containing ~
         all_args = (name,) + args

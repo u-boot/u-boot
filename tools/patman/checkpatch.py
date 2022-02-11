@@ -125,7 +125,7 @@ def check_patch_parse(checkpatch_output, verbose=False):
     Returns:
         namedtuple containing:
             ok: False=failure, True=ok
-            problems: List of problems, each a dict:
+            problems (list of problems): each a dict:
                 'type'; error or warning
                 'msg': text message
                 'file' : filename
@@ -252,6 +252,8 @@ def check_patches(verbose, args):
             if (len(result.problems) != result.errors + result.warnings +
                     result.checks):
                 print("Internal error: some problems lost")
+            # Python seems to get confused by this
+            # pylint: disable=E1133
             for item in result.problems:
                 sys.stderr.write(
                     get_warning_msg(col, item.get('type', '<unknown>'),
