@@ -1763,7 +1763,7 @@ class Builder:
             if self.num_threads:
                 self.queue.put(job)
             else:
-                results = self._single_builder.RunJob(job)
+                self._single_builder.RunJob(job)
 
         if self.num_threads:
             term = threading.Thread(target=self.queue.join)

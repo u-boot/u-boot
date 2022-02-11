@@ -30,8 +30,8 @@ from patman import terminal
 from patman import test_util
 
 def RunTests(skip_net_tests, verboose, args):
-    import func_test
-    import test
+    from buildman import func_test
+    from buildman import test
     import doctest
 
     result = unittest.TestResult()

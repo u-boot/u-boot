@@ -123,10 +123,10 @@ def adjust_cfg_file(fname, adjust_cfg):
                  C=val to set the value of C (val must have quotes if C is
                      a string Kconfig)
     """
-    lines = tools.ReadFile(fname, binary=False).splitlines()
+    lines = tools.read_file(fname, binary=False).splitlines()
     out_lines = adjust_cfg_lines(lines, adjust_cfg)
     out = '\n'.join(out_lines) + '\n'
-    tools.WriteFile(fname, out, binary=False)
+    tools.write_file(fname, out, binary=False)
 
 def convert_list_to_dict(adjust_cfg_list):
     """Convert a list of config changes into the dict used by adjust_cfg_file()
@@ -219,7 +219,7 @@ def check_cfg_file(fname, adjust_cfg):
     Returns:
         str: None if OK, else an error string listing the problems
     """
-    lines = tools.ReadFile(fname, binary=False).splitlines()
+    lines = tools.read_file(fname, binary=False).splitlines()
     bad_cfgs = check_cfg_lines(lines, adjust_cfg)
     if bad_cfgs:
         out = [f'{cfg:20}  {line}' for cfg, line in bad_cfgs]
