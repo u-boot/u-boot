@@ -991,7 +991,7 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Section '/binman': Size 0x7 (7) does not match "
                       "align-size 0x8 (8)", str(e.exception))
 
-    def testPackAlignPowerOf2(self):
+    def testPackAlignPowerOf2Inv(self):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('020_pack_inv_image_align_power2.dts')
@@ -3714,7 +3714,7 @@ class TestFunctional(unittest.TestCase):
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'main-section'.*missing.*: intel-ifwi")
 
-    def testPackOverlap(self):
+    def testPackOverlapZero(self):
         """Test that zero-size overlapping regions are ignored"""
         self._DoTestFile('160_pack_overlap_zero.dts')
 
@@ -4094,13 +4094,6 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('171_fit_fdt_missing_prop.dts')
         self.assertIn("Generator node requires 'fit,fdt-list' property",
                       str(e.exception))
-
-    def testFitFdtEmptyList(self):
-        """Test handling of an empty 'of-list' entry arg"""
-        entry_args = {
-            'of-list': '',
-        }
-        data = self._DoReadFileDtb('170_fit_fdt.dts', entry_args=entry_args)[0]
 
     def testFitFdtMissing(self):
         """Test handling of a missing 'default-dt' entry arg"""
@@ -4975,16 +4968,6 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(0, fent.flags)
         self.assertEqual(ATF_BL2U_DATA, fent.data)
         self.assertEqual(True, fent.valid)
-
-    def testFipOther(self):
-        """Basic FIP with something that isn't a external blob"""
-        data = self._DoReadFile('204_fip_other.dts')
-        hdr, fents = fip_util.decode_fip(data)
-
-        self.assertEqual(2, len(fents))
-        fent = fents[1]
-        self.assertEqual('rot-cert', fent.fip_type)
-        self.assertEqual(b'aa', fent.data)
 
     def testFipOther(self):
         """Basic FIP with something that isn't a external blob"""

@@ -116,7 +116,7 @@ class TestElf(unittest.TestCase):
         entry = FakeEntry(10)
         section = FakeSection()
         with self.assertRaises(ValueError) as e:
-            syms = elf.LookupAndWriteSymbols('missing-file', entry, section)
+            elf.LookupAndWriteSymbols('missing-file', entry, section)
         self.assertIn("Filename 'missing-file' not found in input path",
                       str(e.exception))
 
@@ -126,7 +126,7 @@ class TestElf(unittest.TestCase):
         section = FakeSection()
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         with self.assertRaises(ValueError) as e:
-            syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
+            elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertIn('entry_path has offset 4 (size 8) but the contents size '
                       'is a', str(e.exception))
 
@@ -139,8 +139,7 @@ class TestElf(unittest.TestCase):
         entry = FakeEntry(10)
         section = FakeSection()
         elf_fname = self.ElfTestFile('u_boot_binman_syms_bad')
-        self.assertEqual(elf.LookupAndWriteSymbols(elf_fname, entry, section),
-                         None)
+        elf.LookupAndWriteSymbols(elf_fname, entry, section)
 
     def testBadSymbolSize(self):
         """Test that an attempt to use an 8-bit symbol are detected
@@ -152,7 +151,7 @@ class TestElf(unittest.TestCase):
         section = FakeSection()
         elf_fname =self.ElfTestFile('u_boot_binman_syms_size')
         with self.assertRaises(ValueError) as e:
-            syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
+            elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertIn('has size 1: only 4 and 8 are supported',
                       str(e.exception))
 
@@ -165,7 +164,7 @@ class TestElf(unittest.TestCase):
         entry = FakeEntry(24)
         section = FakeSection(sym_value=None)
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
-        syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
+        elf.LookupAndWriteSymbols(elf_fname, entry, section)
         self.assertEqual(tools.get_bytes(255, 20) + tools.get_bytes(ord('a'), 4),
                                                                   entry.data)
 
@@ -177,7 +176,7 @@ class TestElf(unittest.TestCase):
             section = FakeSection()
             elf_fname = self.ElfTestFile('u_boot_binman_syms')
             with test_util.capture_sys_output() as (stdout, stderr):
-                syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
+                elf.LookupAndWriteSymbols(elf_fname, entry, section)
             self.assertTrue(len(stdout.getvalue()) > 0)
         finally:
             tout.init(tout.WARNING)

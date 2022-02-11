@@ -8,6 +8,9 @@
 from binman.entry import Entry
 from binman.etype.blob import Entry_blob
 
+# This is imported if needed
+state = None
+
 class Entry_blob_dtb(Entry_blob):
     """A blob that holds a device tree
 

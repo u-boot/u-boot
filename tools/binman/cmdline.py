@@ -7,7 +7,7 @@
 
 import argparse
 from argparse import ArgumentParser
-import state
+from binman import state
 
 def make_extract_parser(subparsers):
     """make_extract_parser: Make a subparser for the 'extract' command

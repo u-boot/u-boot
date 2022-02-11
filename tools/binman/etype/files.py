@@ -13,6 +13,8 @@ from binman.etype.section import Entry_section
 from dtoc import fdt_util
 from patman import tools
 
+# This is imported if needed
+state = None
 
 class Entry_files(Entry_section):
     """A set of files arranged in a section
