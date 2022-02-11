@@ -175,11 +175,11 @@ pie_fixup_done:
 	bl	lowlevel_init
 
 #if defined(CONFIG_ARMV8_SPIN_TABLE) && !defined(CONFIG_SPL_BUILD)
-	branch_if_master x0, x1, master_cpu
+	branch_if_master x0, master_cpu
 	b	spin_table_secondary_jump
 	/* never return */
 #elif defined(CONFIG_ARMV8_MULTIENTRY)
-	branch_if_master x0, x1, master_cpu
+	branch_if_master x0, master_cpu
 
 	/*
 	 * Slave CPUs
@@ -305,7 +305,7 @@ WEAK(lowlevel_init)
 #endif
 
 #ifdef CONFIG_ARMV8_MULTIENTRY
-	branch_if_master x0, x1, 2f
+	branch_if_master x0, 2f
 
 	/*
 	 * Slave should wait for master clearing spin table.

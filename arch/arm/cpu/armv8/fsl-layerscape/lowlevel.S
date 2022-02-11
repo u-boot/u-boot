@@ -200,7 +200,7 @@ ENTRY(lowlevel_init)
 #endif
 
 100:
-	branch_if_master x0, x1, 2f
+	branch_if_master x0, 2f
 
 #if defined(CONFIG_MP) && defined(CONFIG_ARMV8_MULTIENTRY)
 	/*

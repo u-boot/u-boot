@@ -38,7 +38,7 @@ slave_wait_atf:
 #endif
 
 #ifdef CONFIG_ARMV8_MULTIENTRY
-	branch_if_master x0, x1, 2f
+	branch_if_master x0, 2f
 
 	/*
 	 * Slave should wait for master clearing spin table.

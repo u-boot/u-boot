@@ -121,19 +121,10 @@ lr	.req	x30
  */
 .macro	branch_if_slave, xreg, slave_label
 #ifdef CONFIG_ARMV8_MULTIENTRY
-	/* NOTE: MPIDR handling will be erroneous on multi-cluster machines */
 	mrs	\xreg, mpidr_el1
-	tst	\xreg, #0xff		/* Test Affinity 0 */
-	b.ne	\slave_label
-	lsr	\xreg, \xreg, #8
-	tst	\xreg, #0xff		/* Test Affinity 1 */
-	b.ne	\slave_label
-	lsr	\xreg, \xreg, #8
-	tst	\xreg, #0xff		/* Test Affinity 2 */
-	b.ne	\slave_label
-	lsr	\xreg, \xreg, #16
-	tst	\xreg, #0xff		/* Test Affinity 3 */
-	b.ne	\slave_label
+	and	\xreg, \xreg,  0xffffffffff	/* clear bits [63:40] */
+	and	\xreg, \xreg, ~0x00ff000000	/* also clear bits [31:24] */
+	cbnz	\xreg, \slave_label
 #endif
 .endm
 
@@ -141,16 +132,12 @@ lr	.req	x30
  * Branch if current processor is a master,
  * choose processor with all zero affinity value as the master.
  */
-.macro	branch_if_master, xreg1, xreg2, master_label
+.macro	branch_if_master, xreg, master_label
 #ifdef CONFIG_ARMV8_MULTIENTRY
-	/* NOTE: MPIDR handling will be erroneous on multi-cluster machines */
-	mrs	\xreg1, mpidr_el1
-	lsr	\xreg2, \xreg1, #32
-	lsl	\xreg2, \xreg2, #32
-	lsl	\xreg1, \xreg1, #40
-	lsr	\xreg1, \xreg1, #40
-	orr	\xreg1, \xreg1, \xreg2
-	cbz	\xreg1, \master_label
+	mrs	\xreg, mpidr_el1
+	and	\xreg, \xreg,  0xffffffffff	/* clear bits [63:40] */
+	and	\xreg, \xreg, ~0x00ff000000	/* also clear bits [31:24] */
+	cbz	\xreg, \master_label
 #else
 	b	\master_label
 #endif
