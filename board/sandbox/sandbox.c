@@ -124,3 +124,10 @@ int board_late_init(void)
 	return 0;
 }
 #endif
+
+#if defined(CONFIG_FWU_MDATA_GPT_BLK)
+int fwu_plat_get_alt_num(struct udevice *dev, void *ident)
+{
+	return 1;
+}
+#endif
