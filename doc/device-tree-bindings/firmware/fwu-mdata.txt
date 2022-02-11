@@ -1,0 +1,18 @@
+FWU Metadata Access Devicetree Binding
+
+The FWU Multi Bank Update feature uses a metadata structure, stored on
+a separate partition for keeping information on the set of updatable
+images. The device tree node provides information on the storage
+device that contains the FWU metadata.
+
+Required properties :
+
+- compatible : "u-boot,fwu-mdata-gpt";
+- fwu-mdata-store : should point to the storage device which contains
+		    the FWU metadata partition.
+
+Example :
+	fwu-mdata {
+		compatible = "u-boot,fwu-mdata-gpt";
+		fwu-mdata-store = <&sdmmc1>;
+	};
