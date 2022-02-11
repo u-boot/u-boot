@@ -126,6 +126,8 @@ pie_fixup_done:
 	b	0f
 2:	mrs	x1, hcr_el2
 	tbnz	x1, #34, 1f			/* HCR_EL2.E2H */
+	orr	x1, x1, #HCR_EL2_AMO_EL2	/* Route SErrors to EL2 */
+	msr	hcr_el2, x1
 	set_vbar vbar_el2, x0
 	mov	x0, #0x33ff
 	msr	cptr_el2, x0			/* Enable FP/SIMD */
@@ -134,6 +136,7 @@ pie_fixup_done:
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
+	msr	daifclr, #0x4			/* Unmask SError interrupts */
 
 #ifdef COUNTER_FREQUENCY
 	branch_if_not_highest_el x0, 4f

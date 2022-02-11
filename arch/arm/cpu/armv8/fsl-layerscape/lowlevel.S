@@ -74,15 +74,6 @@ ENDPROC(smp_kick_all_cpus)
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
-	/* unmask SError and abort */
-	msr daifclr, #4
-
-	/* Set HCR_EL2[AMO] so SError @EL2 is taken */
-	mrs	x0, hcr_el2
-	orr	x0, x0, #0x20			/* AMO */
-	msr	hcr_el2, x0
-	isb
-
 	switch_el x1, 1f, 100f, 100f	/* skip if not in EL3 */
 1:
 
