@@ -287,7 +287,7 @@ HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
 HOSTCC       = cc
 HOSTCXX      = c++
-KBUILD_HOSTCFLAGS   := -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer \
+KBUILD_HOSTCFLAGS   := -Wall -Wstrict-prototypes -Wno-char-subscripts -O2 -fomit-frame-pointer \
 		$(HOST_LFS_CFLAGS) $(HOSTCFLAGS)
 KBUILD_HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
 KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
@@ -298,7 +298,7 @@ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 # Some Linux distributions (including RHEL7, SLES13, Debian 8) still
 # have older compilers as their default, so we make it explicit for
 # these that our host tools are GNU11 (i.e. C11 w/ GNU extensions).
-CSTD_FLAG := -std=gnu11 -Wno-char-subscripts
+CSTD_FLAG := -std=gnu11
 KBUILD_HOSTCFLAGS += $(CSTD_FLAG)
 
 ifeq ($(HOSTOS),cygwin)
