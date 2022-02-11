@@ -57,6 +57,7 @@ enum uclass_id {
 	UCLASS_ETH_PHY,		/* Ethernet PHY device */
 	UCLASS_FIRMWARE,	/* Firmware */
 	UCLASS_FS_FIRMWARE_LOADER,		/* Generic loader */
+	UCLASS_FWU_MDATA,	/* FWU Metadata Access */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
 	UCLASS_HASH,		/* Hash device */
 	UCLASS_HWSPINLOCK,	/* Hardware semaphores */
