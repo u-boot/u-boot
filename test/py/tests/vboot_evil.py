@@ -482,4 +482,5 @@ if __name__ == '__main__':
         print('valid attack names: [fakeroot, kernel@]')
         sys.exit(1)
 
-    add_evil_node(sys.argv[1:])
+    in_fname, out_fname, kernel_fname, attack = sys.argv[1:]
+    add_evil_node(in_fname, out_fname, kernel_fname, attack)
