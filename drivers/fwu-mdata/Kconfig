@@ -1,0 +1,7 @@
+config DM_FWU_MDATA
+	bool "Driver support for accessing FWU Metadata"
+	depends on DM
+	help
+	  Enable support for accessing FWU Metadata partitions. The
+	  FWU Metadata partitions reside on the same storage device
+	  which contains the other FWU updatable firmware images.
