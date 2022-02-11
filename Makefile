@@ -287,7 +287,7 @@ HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
 HOSTCC       = cc
 HOSTCXX      = c++
-KBUILD_HOSTCFLAGS   := -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer \
+KBUILD_HOSTCFLAGS   := -Wall -Wstrict-prototypes -Wno-char-subscripts -O2 -fomit-frame-pointer \
 		$(HOST_LFS_CFLAGS) $(HOSTCFLAGS)
 KBUILD_HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
 KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
@@ -302,7 +302,7 @@ CSTD_FLAG := -std=gnu11
 KBUILD_HOSTCFLAGS += $(CSTD_FLAG)
 
 ifeq ($(HOSTOS),cygwin)
-KBUILD_HOSTCFLAGS	+= -ansi
+KBUILD_HOSTCFLAGS	+= -D__kernel_daddr_t=int -D__kernel_ino_t="unsigned long"
 endif
 
 # Mac OS X / Darwin's C preprocessor is Apple specific.  It

@@ -1057,8 +1057,9 @@ int fdtdec_setup_mem_size_base(void)
 
 	gd->ram_size = (phys_size_t)(res.end - res.start + 1);
 	gd->ram_base = (unsigned long)res.start;
-	debug("%s: Initial DRAM size %llx\n", __func__,
-	      (unsigned long long)gd->ram_size);
+	printf("%s: RAM at %llx size %llx\n", __func__,
+           (unsigned long long)gd->ram_base,
+           (unsigned long long)gd->ram_size);
 
 	return 0;
 }
@@ -1104,7 +1105,7 @@ int fdtdec_setup_memory_banksize(void)
 		gd->bd->bi_dram[bank].size =
 			(phys_size_t)(res.end - res.start + 1);
 
-		debug("%s: DRAM Bank #%d: start = 0x%llx, size = 0x%llx\n",
+		debug("%s: RAM Bank #%d: start = 0x%llx, size = 0x%llx\n",
 		      __func__, bank,
 		      (unsigned long long)gd->bd->bi_dram[bank].start,
 		      (unsigned long long)gd->bd->bi_dram[bank].size);
@@ -1151,7 +1152,7 @@ int fdtdec_setup_mem_size_base_lowest(void)
 		if (gd->ram_base > base && size) {
 			gd->ram_base = base;
 			gd->ram_size = size;
-			debug("%s: Initial DRAM base %lx size %lx\n",
+			debug("%s: Initial RAM base %lx size %lx\n",
 			      __func__, base, (unsigned long)size);
 		}
 	}
