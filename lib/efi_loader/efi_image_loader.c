@@ -517,53 +517,6 @@ err:
 
 #ifdef CONFIG_EFI_SECURE_BOOT
 /**
- * efi_image_unsigned_authenticate() - authenticate unsigned image with
- * SHA256 hash
- * @regs:	List of regions to be verified
- *
- * If an image is not signed, it doesn't have a signature. In this case,
- * its message digest is calculated and it will be compared with one of
- * hash values stored in signature databases.
- *
- * Return:	true if authenticated, false if not
- */
-static bool efi_image_unsigned_authenticate(struct efi_image_regions *regs)
-{
-	struct efi_signature_store *db = NULL, *dbx = NULL;
-	bool ret = false;
-
-	dbx = efi_sigstore_parse_sigdb(u"dbx");
-	if (!dbx) {
-		EFI_PRINT("Getting signature database(dbx) failed\n");
-		goto out;
-	}
-
-	db = efi_sigstore_parse_sigdb(u"db");
-	if (!db) {
-		EFI_PRINT("Getting signature database(db) failed\n");
-		goto out;
-	}
-
-	/* try black-list first */
-	if (efi_signature_lookup_digest(regs, dbx, true)) {
-		EFI_PRINT("Image is not signed and its digest found in \"dbx\"\n");
-		goto out;
-	}
-
-	/* try white-list */
-	if (efi_signature_lookup_digest(regs, db, false))
-		ret = true;
-	else
-		EFI_PRINT("Image is not signed and its digest not found in \"db\" or \"dbx\"\n");
-
-out:
-	efi_sigstore_free(db);
-	efi_sigstore_free(dbx);
-
-	return ret;
-}
-
-/**
  * efi_image_authenticate() - verify a signature of signed image
  * @efi:	Pointer to image
  * @efi_size:	Size of @efi
@@ -608,14 +561,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	if (!efi_image_parse(new_efi, efi_size, &regs, &wincerts,
 			     &wincerts_len)) {
 		EFI_PRINT("Parsing PE executable image failed\n");
-		goto err;
-	}
-
-	if (!wincerts) {
-		/* The image is not signed */
-		ret = efi_image_unsigned_authenticate(regs);
-
-		goto err;
+		goto out;
 	}
 
 	/*
@@ -624,18 +570,18 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	db = efi_sigstore_parse_sigdb(u"db");
 	if (!db) {
 		EFI_PRINT("Getting signature database(db) failed\n");
-		goto err;
+		goto out;
 	}
 
 	dbx = efi_sigstore_parse_sigdb(u"dbx");
 	if (!dbx) {
 		EFI_PRINT("Getting signature database(dbx) failed\n");
-		goto err;
+		goto out;
 	}
 
 	if (efi_signature_lookup_digest(regs, dbx, true)) {
 		EFI_PRINT("Image's digest was found in \"dbx\"\n");
-		goto err;
+		goto out;
 	}
 
 	/*
@@ -678,7 +624,8 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 			if (guidcmp(auth, &efi_guid_cert_type_pkcs7)) {
 				EFI_PRINT("Certificate type not supported: %pUs\n",
 					  auth);
-				continue;
+				ret = false;
+				goto out;
 			}
 
 			auth += sizeof(efi_guid_t);
@@ -686,7 +633,8 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		} else if (wincert->wCertificateType
 				!= WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
 			EFI_PRINT("Certificate type not supported\n");
-			continue;
+			ret = false;
+			goto out;
 		}
 
 		msg = pkcs7_parse_message(auth, auth_size);
@@ -717,32 +665,32 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		 */
 		/* try black-list first */
 		if (efi_signature_verify_one(regs, msg, dbx)) {
+			ret = false;
 			EFI_PRINT("Signature was rejected by \"dbx\"\n");
-			continue;
+			goto out;
 		}
 
 		if (!efi_signature_check_signers(msg, dbx)) {
+			ret = false;
 			EFI_PRINT("Signer(s) in \"dbx\"\n");
-			continue;
+			goto out;
 		}
 
 		/* try white-list */
 		if (efi_signature_verify(regs, msg, db, dbx)) {
 			ret = true;
-			break;
+			continue;
 		}
 
 		EFI_PRINT("Signature was not verified by \"db\"\n");
-
-		if (efi_signature_lookup_digest(regs, db, false)) {
-			ret = true;
-			break;
-		}
-
-		EFI_PRINT("Image's digest was not found in \"db\" or \"dbx\"\n");
 	}
 
-err:
+
+	/* last resort try the image sha256 hash in db */
+	if (!ret && efi_signature_lookup_digest(regs, db, false))
+		ret = true;
+
+out:
 	efi_sigstore_free(db);
 	efi_sigstore_free(dbx);
 	pkcs7_free_message(msg);
