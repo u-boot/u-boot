@@ -595,16 +595,12 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	int sdhc_clk = priv->sdhc_clk;
 	uint clk;
 
-	if (IS_ENABLED(ARCH_MXC)) {
 #if IS_ENABLED(CONFIG_MX53)
-		/* For i.MX53 eSDHCv3, SYSCTL.SDCLKFS may not be set to 0. */
-		pre_div = (regs == (struct fsl_esdhc *)MMC_SDHC3_BASE_ADDR) ? 2 : 1;
+	/* For i.MX53 eSDHCv3, SYSCTL.SDCLKFS may not be set to 0. */
+	pre_div = (regs == (struct fsl_esdhc *)MMC_SDHC3_BASE_ADDR) ? 2 : 1;
 #else
-		pre_div = 1;
+	pre_div = 1;
 #endif
-	} else {
-		pre_div = 2;
-	}
 
 	while (sdhc_clk / (16 * pre_div * ddr_pre_div) > clock && pre_div < 256)
 		pre_div *= 2;
@@ -1006,11 +1002,6 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 		/* Disable DLL_CTRL delay line */
 		esdhc_write32(&regs->dllctrl, 0x0);
 	}
-
-#ifndef ARCH_MXC
-	/* Enable cache snooping */
-	esdhc_write32(&regs->scr, 0x00000040);
-#endif
 
 	if (IS_ENABLED(CONFIG_FSL_USDHC))
 		esdhc_setbits32(&regs->vendorspec,
