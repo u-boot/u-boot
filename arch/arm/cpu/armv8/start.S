@@ -192,6 +192,7 @@ slave_cpu:
 	br	x0			/* branch to the given address */
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 master_cpu:
+	msr	SPSel, #1		/* make sure we use SP_ELx */
 	bl	_main
 
 /*-----------------------------------------------------------------------*/
