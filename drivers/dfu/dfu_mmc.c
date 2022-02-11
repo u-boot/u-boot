@@ -337,34 +337,34 @@ void dfu_free_entity_mmc(struct dfu_entity *dfu)
  *	4th (optional):
  *		mmcpart <num> (access to HW eMMC partitions)
  */
-int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
+int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char **argv, int argc)
 {
 	const char *entity_type;
 	ssize_t second_arg;
 	size_t third_arg;
-
 	struct mmc *mmc;
+	char *s;
 
-	const char *argv[3];
-	const char **parg = argv;
-
-	dfu->data.mmc.dev_num = dectoul(devstr, NULL);
-
-	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
-		*parg = strsep(&s, " ");
-		if (*parg == NULL) {
-			pr_err("Invalid number of arguments.\n");
-			return -ENODEV;
-		}
+	if (argc < 3) {
+		pr_err("The number of parameters are not enough.\n");
+		return -EINVAL;
 	}
+
+	dfu->data.mmc.dev_num = dectoul(devstr, &s);
+	if (*s)
+		return -EINVAL;
 
 	entity_type = argv[0];
 	/*
 	 * Base 0 means we'll accept (prefixed with 0x or 0) base 16, 8,
 	 * with default 10.
 	 */
-	second_arg = simple_strtol(argv[1], NULL, 0);
-	third_arg = simple_strtoul(argv[2], NULL, 0);
+	second_arg = simple_strtol(argv[1], &s, 0);
+	if (*s)
+		return -EINVAL;
+	third_arg = simple_strtoul(argv[2], &s, 0);
+	if (*s)
+		return -EINVAL;
 
 	mmc = find_mmc_device(dfu->data.mmc.dev_num);
 	if (mmc == NULL) {
@@ -389,10 +389,14 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		 * Check for an extra entry at dfu_alt_info env variable
 		 * specifying the mmc HW defined partition number
 		 */
-		if (s)
-			if (!strcmp(strsep(&s, " "), "mmcpart"))
-				dfu->data.mmc.hw_partition =
-					simple_strtoul(s, NULL, 0);
+		if (argc > 3) {
+			if (argc != 5 || strcmp(argv[3], "mmcpart")) {
+				pr_err("DFU mmc raw accept 'mmcpart <partnum>' option.\n");
+				return -EINVAL;
+			}
+			dfu->data.mmc.hw_partition =
+				simple_strtoul(argv[4], NULL, 0);
+		}
 
 	} else if (!strcmp(entity_type, "part")) {
 		struct disk_partition partinfo;
@@ -411,13 +415,18 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 		 * Check for an extra entry at dfu_alt_info env variable
 		 * specifying the mmc HW defined partition number
 		 */
-		if (s)
-			if (!strcmp(strsep(&s, " "), "offset"))
-				offset = simple_strtoul(s, NULL, 0);
+		if (argc > 3) {
+			if (argc != 5 || strcmp(argv[3], "offset")) {
+				pr_err("DFU mmc raw accept 'mmcpart <partnum>' option.\n");
+				return -EINVAL;
+			}
+			dfu->data.mmc.hw_partition =
+				simple_strtoul(argv[4], NULL, 0);
+		}
 
 		dfu->layout			= DFU_RAW_ADDR;
 		dfu->data.mmc.lba_start		= partinfo.start + offset;
-		dfu->data.mmc.lba_size		= partinfo.size-offset;
+		dfu->data.mmc.lba_size		= partinfo.size - offset;
 		dfu->data.mmc.lba_blk_size	= partinfo.blksz;
 	} else if (!strcmp(entity_type, "fat")) {
 		dfu->layout = DFU_FS_FAT;

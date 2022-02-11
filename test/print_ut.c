@@ -370,6 +370,18 @@ static int snprint(struct unit_test_state *uts)
 	char buf[10] = "xxxxxxxxx";
 	int ret;
 
+	ret = snprintf(buf, 5, "%d", 12345678);
+	ut_asserteq_str("1234", buf);
+	ut_asserteq(8, ret);
+	ret = snprintf(buf, 5, "0x%x", 0x1234);
+	ut_asserteq_str("0x12", buf);
+	ut_asserteq(6, ret);
+	ret = snprintf(buf, 5, "0x%08x", 0x1234);
+	ut_asserteq_str("0x00", buf);
+	ut_asserteq(10, ret);
+	ret = snprintf(buf, 3, "%s", "abc");
+	ut_asserteq_str("ab", buf);
+	ut_asserteq(3, ret);
 	ret = snprintf(buf, 4, "%s:%s", "abc", "def");
 	ut_asserteq(0, buf[3]);
 	ut_asserteq(7, ret);

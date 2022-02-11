@@ -71,7 +71,9 @@ struct image_tool_params {
 	const char *keydest;	/* Destination .dtb for public key */
 	const char *keyfile;	/* Filename of private or public key */
 	const char *comment;	/* Comment to add to signature node */
-	const char *algo_name;	/* Algorithm name to use hashing/signing */
+	/* Algorithm name to use for hashing/signing or NULL to use the one
+	 * specified in the its */
+	const char *algo_name;
 	int require_keys;	/* 1 to mark signing keys as 'required' */
 	int file_size;		/* Total size of output file */
 	int orig_file_size;	/* Original size for file before padding */

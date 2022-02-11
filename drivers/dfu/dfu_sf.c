@@ -13,6 +13,7 @@
 #include <spi_flash.h>
 #include <jffs2/load_kernel.h>
 #include <linux/mtd/mtd.h>
+#include <linux/ctype.h>
 
 static int dfu_get_medium_size_sf(struct dfu_entity *dfu, u64 *size)
 {
@@ -165,9 +166,9 @@ static struct spi_flash *parse_dev(char *devstr)
 	return dev;
 }
 
-int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
+int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char **argv, int argc)
 {
-	char *st;
+	char *s;
 	char *devstr_bkup = strdup(devstr);
 
 	dfu->data.sf.dev = parse_dev(devstr_bkup);
@@ -178,14 +179,18 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 	dfu->dev_type = DFU_DEV_SF;
 	dfu->max_buf_size = dfu->data.sf.dev->sector_size;
 
-	st = strsep(&s, " ");
-	if (!strcmp(st, "raw")) {
+	if (argc != 3)
+		return -EINVAL;
+	if (!strcmp(argv[0], "raw")) {
 		dfu->layout = DFU_RAW_ADDR;
-		dfu->data.sf.start = hextoul(s, &s);
-		s++;
-		dfu->data.sf.size = hextoul(s, &s);
+		dfu->data.sf.start = hextoul(argv[1], &s);
+		if (*s)
+			return -EINVAL;
+		dfu->data.sf.size = hextoul(argv[2], &s);
+		if (*s)
+			return -EINVAL;
 	} else if (CONFIG_IS_ENABLED(DFU_SF_PART) &&
-		   (!strcmp(st, "part") || !strcmp(st, "partubi"))) {
+		   (!strcmp(argv[0], "part") || !strcmp(argv[0], "partubi"))) {
 		char mtd_id[32];
 		struct mtd_device *mtd_dev;
 		u8 part_num;
@@ -194,9 +199,12 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 
 		dfu->layout = DFU_RAW_ADDR;
 
-		dev = dectoul(s, &s);
-		s++;
-		part = dectoul(s, &s);
+		dev = dectoul(argv[1], &s);
+		if (*s)
+			return -EINVAL;
+		part = dectoul(argv[2], &s);
+		if (*s)
+			return -EINVAL;
 
 		sprintf(mtd_id, "%s%d,%d", "nor", dev, part - 1);
 		printf("using id '%s'\n", mtd_id);
@@ -210,10 +218,10 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char *s)
 		}
 		dfu->data.sf.start = pi->offset;
 		dfu->data.sf.size = pi->size;
-		if (!strcmp(st, "partubi"))
+		if (!strcmp(argv[0], "partubi"))
 			dfu->data.sf.ubi = 1;
 	} else {
-		printf("%s: Memory layout (%s) not supported!\n", __func__, st);
+		printf("%s: Memory layout (%s) not supported!\n", __func__, argv[0]);
 		spi_flash_free(dfu->data.sf.dev);
 		return -1;
 	}
