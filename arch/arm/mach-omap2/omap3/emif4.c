@@ -35,7 +35,7 @@ u32 is_mem_sdr(void)
  * get_sdr_cs_size -
  *  - Get size of chip select 0/1
  */
-u32 get_sdr_cs_size(u32 cs)
+static u32 get_sdr_cs_size(u32 cs)
 {
 	u32 size = 0;
 

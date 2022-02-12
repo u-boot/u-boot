@@ -33,11 +33,8 @@ struct board_sdrc_timings {
 void prcm_init(void);
 void per_clocks_enable(void);
 void ehci_clocks_enable(void);
-
 void memif_init(void);
 void sdrc_init(void);
-void do_sdrc_init(u32, u32);
-
 void get_board_mem_timings(struct board_sdrc_timings *timings);
 int identify_nand_chip(int *mfr, int *id);
 void emif4_init(void);
@@ -60,12 +57,10 @@ void invalidate_dcache(u32);
 u32 wait_on_value(u32, u32, void *, u32);
 void cancel_out(u32 *num, u32 *den, u32 den_limit);
 void sdelay(unsigned long);
-void make_cs1_contiguous(void);
 int omap_nand_switch_ecc(uint32_t, uint32_t);
 void power_init_r(void);
 void do_omap3_emu_romcode_call(u32 service_id, u32 parameters);
 void omap3_set_aux_cr_secure(u32 acr);
 u32 warm_reset(void);
-
 void save_omap_boot_params(void);
 #endif
