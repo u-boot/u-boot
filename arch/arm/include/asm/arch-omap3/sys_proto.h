@@ -45,16 +45,12 @@ void gpmc_init(void);
 void enable_gpmc_cs_config(const u32 *gpmc_config, const struct gpmc_cs *cs,
 				u32 base, u32 size);
 void set_gpmc_cs0(int flash_type);
-
 void watchdog_init(void);
 void set_muxconf_regs(void);
-
 u32 get_cpu_family(void);
 u32 get_cpu_rev(void);
-u32 get_sku_id(void);
 u32 is_gpmc_muxed(void);
 u32 get_gpmc0_type(void);
-u32 get_gpmc0_width(void);
 u32 is_running_in_sdram(void);
 u32 is_running_in_sram(void);
 u32 is_running_in_flash(void);
