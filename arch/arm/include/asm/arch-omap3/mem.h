@@ -480,7 +480,6 @@ void mem_init(void);
 u32 is_mem_sdr(void);
 u32 mem_ok(u32 cs);
 
-u32 get_sdr_cs_size(u32);
 u32 get_sdr_cs_offset(u32);
 
 #endif	/* __ASSEMBLY__ */
