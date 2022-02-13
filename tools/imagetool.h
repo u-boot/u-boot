@@ -178,33 +178,19 @@ struct image_type_params *imagetool_get_type(int type);
 /*
  * imagetool_verify_print_header() - verifies the image header
  *
- * Scan registered image types and verify the image_header for each
- * supported image type. If verification is successful, this prints
- * the respective header.
- *
- * Return: 0 on success, negative if input image format does not match with
- * any of supported image types
- */
-int imagetool_verify_print_header(
-	void *ptr,
-	struct stat *sbuf,
-	struct image_type_params *tparams,
-	struct image_tool_params *params);
-
-/*
- * imagetool_verify_print_header_by_type() - verifies the image header
- *
  * Verify the image_header for the image type given by tparams.
+ * If tparams is NULL then scan registered image types and verify the
+ * image_header for each supported image type.
  * If verification is successful, this prints the respective header.
  * @ptr: pointer the the image header
  * @sbuf: stat information about the file pointed to by ptr
- * @tparams: image type parameters
+ * @tparams: image type parameters or NULL
  * @params: mkimage parameters
  *
  * Return: 0 on success, negative if input image format does not match with
  * the given image type
  */
-int imagetool_verify_print_header_by_type(
+int imagetool_verify_print_header(
 	void *ptr,
 	struct stat *sbuf,
 	struct image_type_params *tparams,
