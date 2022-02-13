@@ -192,3 +192,7 @@
 &serdes0 {
 	u-boot,dm-spl;
 };
+
+&main_r5fss0 {
+	ti,cluster-mode = <0>;
+};
