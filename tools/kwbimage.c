@@ -2226,11 +2226,13 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 		ehdr0 = (struct ext_hdr_v0 *)(mhdr0 + 1);
 		if (ehdr0->offset) {
 			for (regdata = (struct ext_hdr_v0_reg *)((uint8_t *)ptr + ehdr0->offset);
-			     (uint8_t *)regdata < (uint8_t *)ptr + header_size && regdata->raddr &&
-			     regdata->rdata;
+			     (uint8_t *)regdata < (uint8_t *)ptr + header_size &&
+			     (regdata->raddr || regdata->rdata);
 			     regdata++)
 				fprintf(f, "DATA 0x%08x 0x%08x\n", le32_to_cpu(regdata->raddr),
 					le32_to_cpu(regdata->rdata));
+			if ((uint8_t *)regdata != (uint8_t *)ptr + ehdr0->offset)
+				fprintf(f, "DATA 0x0 0x0\n");
 		}
 	}
 
