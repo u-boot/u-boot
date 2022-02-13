@@ -21,6 +21,11 @@ void _hw_exception_handler (void)
 	printf("Hardware exception at 0x%x address\n", address);
 	R17(address);
 	printf("Return address from exception 0x%x\n", address);
+
+	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_DELAY_SLOT_EXCEP) &&
+	    (state & 0x1000))
+		puts("Exception in delay slot\n");
+
 	switch (state & 0x1f) {	/* mask on exception cause */
 	case 0x1:
 		puts("Unaligned data access exception\n");
@@ -40,11 +45,6 @@ void _hw_exception_handler (void)
 	case 0x7:
 		puts("Priviledged or stack protection violation exception\n");
 		break;
-#if CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_DELAY_SLOT_EXCEP)
-	case 0x1000:
-		puts("Exception in delay slot\n");
-		break;
-#endif
 	default:
 		puts("Undefined cause\n");
 		break;
