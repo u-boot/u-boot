@@ -40,7 +40,7 @@ void _hw_exception_handler (void)
 	case 0x7:
 		puts("Priviledged or stack protection violation exception\n");
 		break;
-#ifdef MICROBLAZE_V5
+#if CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_DELAY_SLOT_EXCEP)
 	case 0x1000:
 		puts("Exception in delay slot\n");
 		break;

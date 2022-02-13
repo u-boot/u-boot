@@ -47,6 +47,15 @@ config XILINX_MICROBLAZE0_USR_EXCEP
 	  the exception vector table. The user exception vector is located at
 	  C_BASE_VECTORS + 0x8 address.
 
+config XILINX_MICROBLAZE0_DELAY_SLOT_EXCEP
+	bool "MicroBlaze delay slot exception support"
+	default y
+	help
+	  Enable this option if the MicroBlaze processor supports exceptions
+	  caused by delay slot instructions (processor version >= v5.00). When
+	  enabled, the hw exception handler will print a message indicating
+	  whether the exception was triggered by a delay slot instruction.
+
 config XILINX_MICROBLAZE0_VECTOR_BASE_ADDR
 	hex "Location of MicroBlaze vectors"
 	default 0x0
