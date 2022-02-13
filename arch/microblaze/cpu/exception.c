@@ -38,7 +38,7 @@ void _hw_exception_handler (void)
 
 		printf("Unaligned %sword access\n", ((state & 0x800) ? "" : "half"));
 		printf("Unaligned %s access\n", ((state & 0x400) ? "store" : "load"));
-		printf("Register R%x\n", (state & 0x3E) >> 5);
+		printf("Register R%x\n", (state & 0x3E0) >> 5);
 		break;
 	case 0x2:
 		puts("Illegal op-code exception\n");
