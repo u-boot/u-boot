@@ -35,6 +35,10 @@ void _hw_exception_handler (void)
 	switch (state & 0x1f) {	/* mask on exception cause */
 	case 0x1:
 		puts("Unaligned data access exception\n");
+
+		printf("Unaligned %sword access\n", ((state & 0x800) ? "" : "half"));
+		printf("Unaligned %s access\n", ((state & 0x400) ? "store" : "load"));
+		printf("Register R%x\n", (state & 0x3E) >> 5);
 		break;
 	case 0x2:
 		puts("Illegal op-code exception\n");
@@ -57,9 +61,6 @@ void _hw_exception_handler (void)
 	}
 
 	printf("Return address from exception 0x%x\n", address);
-	printf("Unaligned %sword access\n", ((state & 0x800) ? "" : "half"));
-	printf("Unaligned %s access\n", ((state & 0x400) ? "store" : "load"));
-	printf("Register R%x\n", (state & 0x3E) >> 5);
 	hang();
 }
 
