@@ -155,12 +155,9 @@ static int a37xx_wdt_probe(struct udevice *dev)
 	struct a37xx_wdt *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
-	addr = dev_read_addr_index(dev, 0);
-	if (addr == FDT_ADDR_T_NONE)
-		goto err;
-	priv->sel_reg = (void __iomem *)addr;
+	priv->sel_reg = (void __iomem *)MVEBU_REGISTER(0x0d064);
 
-	addr = dev_read_addr_index(dev, 1);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		goto err;
 	priv->reg = (void __iomem *)addr;
