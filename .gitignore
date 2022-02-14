@@ -26,7 +26,6 @@
 *.o.*
 *.order
 *.patch
-*.s
 *.su
 *.swp
 *.tab.[ch]
@@ -119,3 +118,5 @@ __pycache__
 /uboot.und/id.txt
 /uboot.und/settings.xml
 /H743.jdebug.user
+/lib/asm-offsets.s
+/arch/arm/lib/asm-offsets.s

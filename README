@@ -1,3 +1,14 @@
+This is a fork of u-boot which adds support for the STM32H743 Nucleo board.
+This board will not run any sort of Linux, but u-boot itself is useful for
+board testing, loading small programs, and other forms of experimentation.
+This build of u-boot runs entirely from on-chip memory. The code runs from
+flash (it is not relocated to RAM). There is 1/2 megabyte of on-chip RAM
+available for downloading programs.
+
+The remainder of this README is the regular Denx version.
+===========================================================================
+
+
 # SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000 - 2013
