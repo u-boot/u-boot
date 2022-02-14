@@ -313,7 +313,7 @@
 			};
 
 			comphy: comphy@18300 {
-				compatible = "marvell,mvebu-comphy", "marvell,comphy-armada-3700";
+				compatible = "marvell,comphy-a3700";
 				reg = <0x18300 0x28>,
 				      <0x1f300 0x3d000>;
 				#address-cells = <1>;
