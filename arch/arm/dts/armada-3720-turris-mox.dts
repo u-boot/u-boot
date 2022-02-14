@@ -120,7 +120,7 @@
 	};
 };
 
-&sdhci1 {
+&sdhci0 {
 	wp-inverted;
 	bus-width = <4>;
 	cd-gpios = <&gpionb 10 GPIO_ACTIVE_HIGH>;
