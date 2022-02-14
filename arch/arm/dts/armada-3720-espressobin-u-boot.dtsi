@@ -21,3 +21,11 @@
 	};
 };
 #endif
+
+/*
+ * U-Boot requires to have this eMMC node by default in "okay" status. U-Boot
+ * at runtime changes status to "disabled" if eMMC is not present on the board.
+ */
+&sdhci0 {
+	status = "okay";
+};
