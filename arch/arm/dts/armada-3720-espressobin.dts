@@ -104,7 +104,7 @@
 	phys = <&comphy2 0>;
 };
 
-&sdhci0 {
+&sdhci1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdio_pins>;
 	bus-width = <4>;
@@ -114,7 +114,7 @@
 };
 
 /* U11 */
-&sdhci1 {
+&sdhci0 {
 	non-removable;
 	bus-width = <8>;
 	mmc-ddr-1_8v;
