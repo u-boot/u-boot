@@ -358,6 +358,7 @@ static const struct udevice_id ds1307_rtc_ids[] = {
 	{ .compatible = "dallas,ds1337", .data = ds_1337 },
 	{ .compatible = "dallas,ds1339", .data = ds_1339 },
 	{ .compatible = "dallas,ds1340", .data = ds_1340 },
+	{ .compatible = "microchip,mcp7940x", .data = mcp794xx },
 	{ .compatible = "microchip,mcp7941x", .data = mcp794xx },
 	{ .compatible = "st,m41t11", .data = m41t11 },
 	{ }
