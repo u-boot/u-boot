@@ -167,6 +167,7 @@ static int bsec_power_safmem(u32 base, bool power)
 
 /**
  * bsec_shadow_register() - copy safmen otp to bsec data
+ * @dev: bsec IP device
  * @base: base address of bsec IP
  * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
  * Return: 0 if no error
@@ -210,6 +211,7 @@ static int bsec_shadow_register(struct udevice *dev, u32 base, u32 otp)
 
 /**
  * bsec_read_shadow() - read an otp data value from shadow
+ * @dev: bsec IP device
  * @base: base address of bsec IP
  * @val: read value
  * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
@@ -224,6 +226,7 @@ static int bsec_read_shadow(struct udevice *dev, u32 base, u32 *val, u32 otp)
 
 /**
  * bsec_write_shadow() - write value in BSEC data register in shadow
+ * @dev: bsec IP device
  * @base: base address of bsec IP
  * @val: value to write
  * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
@@ -242,6 +245,7 @@ static int bsec_write_shadow(struct udevice *dev, u32 base, u32 val, u32 otp)
 
 /**
  * bsec_program_otp() - program a bit in SAFMEM
+ * @dev: bsec IP device
  * @base: base address of bsec IP
  * @val: value to program
  * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
