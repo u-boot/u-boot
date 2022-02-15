@@ -757,7 +757,7 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 	int i, wins;
 	u32 reg;
 
-	/* Set to Direct mode */
+	/* Set from Command to Direct mode */
 	reg = advk_readl(pcie, ADVK_CORE_CTRL_CONFIG);
 	reg &= ~ADVK_CORE_CTRL_CONFIG_COMMAND_MODE;
 	advk_writel(pcie, reg, ADVK_CORE_CTRL_CONFIG);
