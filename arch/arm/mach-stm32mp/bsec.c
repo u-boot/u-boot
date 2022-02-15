@@ -18,6 +18,7 @@
 #include <linux/iopoll.h>
 
 #define BSEC_OTP_MAX_VALUE		95
+#define BSEC_OTP_UPPER_START		32
 #define BSEC_TIMEOUT_US			10000
 
 /* BSEC REGISTER OFFSET (base relative) */
@@ -41,6 +42,7 @@
 /* BSEC_CONTROL Register */
 #define BSEC_READ			0x000
 #define BSEC_WRITE			0x100
+#define BSEC_LOCK			0x200
 
 /* LOCK Register */
 #define OTP_LOCK_MASK			0x1F
@@ -60,6 +62,11 @@
  * Value must corresponding to the bit number in the register
  */
 #define BSEC_LOCK_PROGRAM		0x04
+
+/*
+ * OTP status: bit 0 permanent lock
+ */
+#define BSEC_LOCK_PERM			BIT(0)
 
 /**
  * bsec_lock() - manage lock for each type SR/SP/SW
@@ -284,6 +291,65 @@ static int bsec_program_otp(struct udevice *dev, long base, u32 val, u32 otp)
 	return ret;
 }
 
+/**
+ * bsec_permanent_lock_otp() - permanent lock of OTP in SAFMEM
+ * @dev: bsec IP device
+ * @base: base address of bsec IP
+ * @otp: otp number (0 - BSEC_OTP_MAX_VALUE)
+ * Return: 0 if no error
+ */
+static int bsec_permanent_lock_otp(struct udevice *dev, long base, uint32_t otp)
+{
+	int ret;
+	bool power_up = false;
+	u32 val, addr;
+
+	/* check if safemem is power up */
+	if (!(readl(base + BSEC_OTP_STATUS_OFF) & BSEC_MODE_PWR_MASK)) {
+		ret = bsec_power_safmem(base, true);
+		if (ret)
+			return ret;
+
+		power_up = true;
+	}
+
+	/*
+	 * low OTPs = 2 bits word for low OTPs, 1 bits per word for upper OTP
+	 * and only 16 bits used in WRDATA
+	 */
+	if (otp < BSEC_OTP_UPPER_START) {
+		addr = otp / 8;
+		val = 0x03 << ((otp * 2) & 0xF);
+	} else {
+		addr = BSEC_OTP_UPPER_START / 8 +
+		       ((otp - BSEC_OTP_UPPER_START) / 16);
+		val = 0x01 << (otp & 0xF);
+	}
+
+	/* set value in write register*/
+	writel(val, base + BSEC_OTP_WRDATA_OFF);
+
+	/* set BSEC_OTP_CTRL_OFF with the otp addr and lock request*/
+	writel(addr | BSEC_WRITE | BSEC_LOCK, base + BSEC_OTP_CTRL_OFF);
+
+	/* check otp status*/
+	ret = readl_poll_timeout(base + BSEC_OTP_STATUS_OFF,
+				 val, (val & BSEC_MODE_BUSY_MASK) == 0,
+				 BSEC_TIMEOUT_US);
+	if (ret)
+		return ret;
+
+	if (val & BSEC_MODE_PROGFAIL_MASK)
+		ret = -EACCES;
+	else
+		ret = bsec_check_error(base, otp);
+
+	if (power_up)
+		bsec_power_safmem(base, false);
+
+	return ret;
+}
+
 /* BSEC MISC driver *******************************************************/
 struct stm32mp_bsec_plat {
 	u32 base;
@@ -339,9 +405,14 @@ static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 static int stm32mp_bsec_read_lock(struct udevice *dev, u32 *val, u32 otp)
 {
 	struct stm32mp_bsec_plat *plat = dev_get_plat(dev);
+	u32 wrlock;
 
 	/* return OTP permanent write lock status */
-	*val = bsec_read_lock(plat->base + BSEC_WRLOCK_OFF, otp);
+	wrlock = bsec_read_lock(plat->base + BSEC_WRLOCK_OFF, otp);
+
+	*val = 0;
+	if (wrlock)
+		*val = BSEC_LOCK_PERM;
 
 	return 0;
 }
@@ -377,15 +448,22 @@ static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 
 static int stm32mp_bsec_write_lock(struct udevice *dev, u32 val, u32 otp)
 {
-	if (!IS_ENABLED(CONFIG_ARM_SMCCC) || IS_ENABLED(CONFIG_SPL_BUILD))
-		return -ENOTSUPP;
+	struct stm32mp_bsec_plat *plat;
 
-	if (val == 1)
+	/* only permanent write lock is supported in U-Boot */
+	if (!(val & BSEC_LOCK_PERM)) {
+		dev_dbg(dev, "lock option without BSEC_LOCK_PERM: %x\n", val);
+		return 0; /* nothing to do */
+	}
+
+	if (IS_ENABLED(CONFIG_ARM_SMCCC) && !IS_ENABLED(CONFIG_SPL_BUILD))
 		return stm32_smc_exec(STM32_SMC_BSEC,
 				      STM32_SMC_WRLOCK_OTP,
 				      otp, 0);
-	if (val == 0)
-		return 0; /* nothing to do */
+
+	plat = dev_get_plat(dev);
+
+	return bsec_permanent_lock_otp(dev, plat->base, otp);
 
 	return -EINVAL;
 }
