@@ -78,7 +78,6 @@ struct mvebu_pcie {
 	bool is_x4;
 	int devfn;
 	u32 lane_mask;
-	int first_busno;
 	int sec_busno;
 	char name[16];
 	unsigned int mem_target;
@@ -140,12 +139,12 @@ static inline struct mvebu_pcie *hose_to_pcie(struct pci_controller *hose)
 static bool mvebu_pcie_valid_addr(struct mvebu_pcie *pcie,
 				  int busno, int dev, int func)
 {
-	/* On primary bus is only one PCI Bridge */
-	if (busno == pcie->first_busno && (dev != 0 || func != 0))
+	/* On the root bus is only one PCI Bridge */
+	if (busno == 0 && (dev != 0 || func != 0))
 		return false;
 
 	/* Access to other buses is possible when link is up */
-	if (busno != pcie->first_busno && !mvebu_pcie_link_up(pcie))
+	if (busno != 0 && !mvebu_pcie_link_up(pcie))
 		return false;
 
 	/* On secondary bus can be only one PCIe device */
@@ -173,15 +172,15 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/*
-	 * The configuration space of the PCI Bridge on primary (first) bus is
+	 * The configuration space of the PCI Bridge on the root bus (zero) is
 	 * of Type 0 but the BAR registers (including ROM BAR) don't have the
 	 * same meaning as in the PCIe specification. Therefore do not access
 	 * BAR registers and non-common registers (those which have different
 	 * meaning for Type 0 and Type 1 config space) of the PCI Bridge and
 	 * instead read their content from driver virtual cfgcache[].
 	 */
-	if (busno == pcie->first_busno && ((offset >= 0x10 && offset < 0x34) ||
-					   (offset >= 0x38 && offset < 0x3c))) {
+	if (busno == 0 && ((offset >= 0x10 && offset < 0x34) ||
+			   (offset >= 0x38 && offset < 0x3c))) {
 		data = pcie->cfgcache[(offset - 0x10) / 4];
 		debug("(addr,size,val)=(0x%04x, %d, 0x%08x) from cfgcache\n",
 		      offset, size, data);
@@ -190,10 +189,10 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/*
-	 * PCI bridge is device 0 at primary bus but mvebu has it mapped on
-	 * secondary bus with device number 1.
+	 * PCI bridge is device 0 at the root bus (zero) but mvebu has it
+	 * mapped on secondary bus with device number 1.
 	 */
-	if (busno == pcie->first_busno)
+	if (busno == 0)
 		addr = PCI_CONF1_EXT_ADDRESS(pcie->sec_busno, 1, 0, offset);
 	else
 		addr = PCI_CONF1_EXT_ADDRESS(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
@@ -216,8 +215,7 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 		return -EINVAL;
 	}
 
-	if (busno == pcie->first_busno &&
-	    (offset & ~3) == (PCI_HEADER_TYPE & ~3)) {
+	if (busno == 0 && (offset & ~3) == (PCI_HEADER_TYPE & ~3)) {
 		/*
 		 * Change Header Type of PCI Bridge device to Type 1
 		 * (0x01, used by PCI Bridges) because mvebu reports
@@ -257,10 +255,10 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 	 * config registers are not available, so we write their content only
 	 * into driver virtual cfgcache[].
 	 * And as explained in mvebu_pcie_probe(), mvebu has its own specific
-	 * way for configuring primary and secondary bus numbers.
+	 * way for configuring secondary bus number.
 	 */
-	if (busno == pcie->first_busno && ((offset >= 0x10 && offset < 0x34) ||
-					   (offset >= 0x38 && offset < 0x3c))) {
+	if (busno == 0 && ((offset >= 0x10 && offset < 0x34) ||
+			   (offset >= 0x38 && offset < 0x3c))) {
 		debug("Writing to cfgcache only\n");
 		data = pcie->cfgcache[(offset - 0x10) / 4];
 		data = pci_conv_size_to_32(data, value, offset, size);
@@ -270,12 +268,6 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 		    (offset & ~3) == PCI_ROM_ADDRESS1)
 			data = 0x0;
 		pcie->cfgcache[(offset - 0x10) / 4] = data;
-		/* mvebu has its own way how to set PCI primary bus number */
-		if (offset == PCI_PRIMARY_BUS) {
-			pcie->first_busno = data & 0xff;
-			debug("Primary bus number was changed to %d\n",
-			      pcie->first_busno);
-		}
 		/* mvebu has its own way how to set PCI secondary bus number */
 		if (offset == PCI_SECONDARY_BUS ||
 		    (offset == PCI_PRIMARY_BUS && size != PCI_SIZE_8)) {
@@ -288,10 +280,10 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 	}
 
 	/*
-	 * PCI bridge is device 0 at primary bus but mvebu has it mapped on
-	 * secondary bus with device number 1.
+	 * PCI bridge is device 0 at the root bus (zero) but mvebu has it
+	 * mapped on secondary bus with device number 1.
 	 */
-	if (busno == pcie->first_busno)
+	if (busno == 0)
 		addr = PCI_CONF1_EXT_ADDRESS(pcie->sec_busno, 1, 0, offset);
 	else
 		addr = PCI_CONF1_EXT_ADDRESS(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
@@ -473,9 +465,9 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	 * target device equals local device number then request is routed to
 	 * PCI Bridge which represent local PCIe Root Port.
 	 *
-	 * It means that PCI primary and secondary buses shares one bus number
+	 * It means that PCI root and secondary buses shares one bus number
 	 * which is configured via local bus number. Determination if config
-	 * request should go to primary or secondary bus is done based on local
+	 * request should go to root or secondary bus is done based on local
 	 * device number.
 	 *
 	 * PCIe is point-to-point bus, so at secondary bus is always exactly one
@@ -487,13 +479,13 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	 * secondary bus number. Set it to 0 as U-Boot CONFIG_PCI_PNP code will
 	 * later configure it via config write requests to the correct value.
 	 * mvebu_pcie_write_config() catches config write requests which tries
-	 * to change primary/secondary bus number and correctly updates local
-	 * bus number based on new secondary bus number.
+	 * to change secondary bus number and correctly updates local bus number
+	 * based on new secondary bus number.
 	 *
 	 * With this configuration is PCI Bridge available at secondary bus as
-	 * device number 1. But it must be available at primary bus as device
+	 * device number 1. But it must be available at root bus (zero) as device
 	 * number 0. So in mvebu_pcie_read_config() and mvebu_pcie_write_config()
-	 * functions rewrite address to the real one when accessing primary bus.
+	 * functions rewrite address to the real one when accessing the root bus.
 	 */
 	mvebu_pcie_set_local_bus_nr(pcie, 0);
 	mvebu_pcie_set_local_dev_nr(pcie, 1);
