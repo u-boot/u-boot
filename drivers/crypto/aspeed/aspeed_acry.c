@@ -103,7 +103,7 @@ static int aspeed_acry_mod_exp(struct udevice *dev, const uint8_t *sig, uint32_t
 	while (1) {
 		reg = readl(acry->base + ACRY_RSA_INT_STS);
 		if ((reg & ACRY_RSA_INT_STS_RSA_READY) && (reg & ACRY_RSA_INT_STS_RSA_CMPLT)) {
-			writel(reg, ACRY_RSA_INT_STS);
+			writel(reg, acry->base + ACRY_RSA_INT_STS);
 			break;
 		}
 		udelay(20);
