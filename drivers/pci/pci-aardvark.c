@@ -645,11 +645,8 @@ retry:
  * @pcie: The PCI device to access
  *
  * Wait up to 1 second for link training to be accomplished.
- *
- * Return 1 (true) if link training ends up with link up success.
- * Return 0 (false) if link training ends up with link up failure.
  */
-static int pcie_advk_wait_for_link(struct pcie_advk *pcie)
+static void pcie_advk_wait_for_link(struct pcie_advk *pcie)
 {
 	int retries;
 
@@ -657,15 +654,13 @@ static int pcie_advk_wait_for_link(struct pcie_advk *pcie)
 	for (retries = 0; retries < LINK_MAX_RETRIES; retries++) {
 		if (pcie_advk_link_up(pcie)) {
 			printf("PCIe: Link up\n");
-			return 0;
+			return;
 		}
 
 		udelay(LINK_WAIT_TIMEOUT);
 	}
 
 	printf("PCIe: Link down\n");
-
-	return -ETIMEDOUT;
 }
 
 /*
@@ -898,8 +893,7 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 		return -EINVAL;
 
 	/* Wait for PCIe link up */
-	if (pcie_advk_wait_for_link(pcie))
-		return -ENXIO;
+	pcie_advk_wait_for_link(pcie);
 
 	return 0;
 }
