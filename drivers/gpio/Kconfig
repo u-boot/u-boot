@@ -127,6 +127,13 @@ config ATMEL_PIO4
 	  may be dedicated as a general purpose I/O or be assigned to
 	  a function of an embedded peripheral.
 
+config ASPEED_GPIO
+	bool "Aspeed GPIO Driver"
+	help
+	  Say yes here to support the Aspeed GPIO driver. The controller
+	  is found in the AST2400, AST2500 and AST2600 BMC SoCs and
+	  provides access to over 200 GPIOs on each chip.
+
 config DA8XX_GPIO
 	bool "DA8xx GPIO Driver"
 	help
