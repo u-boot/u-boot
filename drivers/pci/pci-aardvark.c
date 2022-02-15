@@ -178,6 +178,23 @@ static inline uint advk_readl(struct pcie_advk *pcie, uint reg)
 }
 
 /**
+ * pcie_advk_link_up() - Check if PCIe link is up or not
+ *
+ * @pcie: The PCI device to access
+ *
+ * Return true on link up.
+ * Return false on link down.
+ */
+static bool pcie_advk_link_up(struct pcie_advk *pcie)
+{
+	u32 val, ltssm_state;
+
+	val = advk_readl(pcie, ADVK_LMI_PHY_CFG0);
+	ltssm_state = (val & ADVK_LMI_PHY_CFG0_LTSSM_MASK) >> ADVK_LMI_PHY_CFG0_LTSSM_SHIFT;
+	return ltssm_state >= ADVK_LMI_PHY_CFG0_LTSSM_L0 && ltssm_state < ADVK_LMI_PHY_CFG0_LTSSM_DISABLED;
+}
+
+/**
  * pcie_advk_addr_valid() - Check for valid bus address
  *
  * @pcie: Pointer to the PCI bus
@@ -193,6 +210,10 @@ static bool pcie_advk_addr_valid(struct pcie_advk *pcie,
 {
 	/* On the root bus there is only one PCI Bridge */
 	if (busno == 0 && (dev != 0 || func != 0))
+		return false;
+
+	/* Access to other buses is possible when link is up */
+	if (busno != 0 && !pcie_advk_link_up(pcie))
 		return false;
 
 	/*
@@ -616,23 +637,6 @@ retry:
 	if (ret == -EAGAIN && retry_count < PIO_MAX_RETRIES)
 		goto retry;
 	return ret;
-}
-
-/**
- * pcie_advk_link_up() - Check if PCIe link is up or not
- *
- * @pcie: The PCI device to access
- *
- * Return 1 (true) on link up.
- * Return 0 (false) on link down.
- */
-static int pcie_advk_link_up(struct pcie_advk *pcie)
-{
-	u32 val, ltssm_state;
-
-	val = advk_readl(pcie, ADVK_LMI_PHY_CFG0);
-	ltssm_state = (val & ADVK_LMI_PHY_CFG0_LTSSM_MASK) >> ADVK_LMI_PHY_CFG0_LTSSM_SHIFT;
-	return ltssm_state >= ADVK_LMI_PHY_CFG0_LTSSM_L0 && ltssm_state < ADVK_LMI_PHY_CFG0_LTSSM_DISABLED;
 }
 
 /**
