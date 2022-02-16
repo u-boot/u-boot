@@ -66,6 +66,10 @@
 	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"	\
 	"findfdt="							\
 		"setenv name_fdt ${default_device_tree};"		\
+		"if test $board_name = j721e; then "			\
+			"setenv name_fdt k3-j721e-common-proc-board.dtb; fi;" \
+		"if test $board_name = j721e-eaik || test $board_name = j721e-sk; then "		\
+			"setenv name_fdt k3-j721e-sk.dtb; fi;"	\
 		"setenv fdtfile ${name_fdt}\0"				\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\

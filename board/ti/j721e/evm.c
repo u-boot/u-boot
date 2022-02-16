@@ -30,6 +30,9 @@
 #define board_is_j721e_som()	(board_ti_k3_is("J721EX-PM1-SOM") || \
 				 board_ti_k3_is("J721EX-PM2-SOM"))
 
+#define board_is_j721e_sk()	(board_ti_k3_is("J721EX-EAIK") || \
+				 board_ti_k3_is("J721EX-SK"))
+
 #define board_is_j7200_som()	(board_ti_k3_is("J7200X-PM1-SOM") || \
 				 board_ti_k3_is("J7200X-PM2-SOM"))
 
@@ -85,8 +88,17 @@ int dram_init_banksize(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	if (!strcmp(name, "k3-j721e-common-proc-board"))
-		return 0;
+	bool eeprom_read = board_ti_was_eeprom_read();
+
+	if (!eeprom_read || board_is_j721e_som()) {
+		if (!strcmp(name, "k3-j721e-common-proc-board") ||
+		    !strcmp(name, "k3-j721e-r5-common-proc-board"))
+			return 0;
+	} else if (board_is_j721e_sk()) {
+		if (!strcmp(name, "k3-j721e-sk") ||
+		    !strcmp(name, "k3-j721e-r5-sk"))
+			return 0;
+	}
 
 	return -1;
 }
@@ -150,11 +162,20 @@ int do_board_detect(void)
 {
 	int ret;
 
+	if (board_ti_was_eeprom_read())
+		return 0;
+
 	ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
 					 CONFIG_EEPROM_CHIP_ADDRESS);
-	if (ret)
-		pr_err("Reading on-board EEPROM at 0x%02x failed %d\n",
-		       CONFIG_EEPROM_CHIP_ADDRESS, ret);
+	if (ret) {
+		printf("EEPROM not available at 0x%02x, trying to read at 0x%02x\n",
+		       CONFIG_EEPROM_CHIP_ADDRESS, CONFIG_EEPROM_CHIP_ADDRESS + 1);
+		ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
+						 CONFIG_EEPROM_CHIP_ADDRESS + 1);
+		if (ret)
+			pr_err("Reading on-board EEPROM at 0x%02x failed %d\n",
+			       CONFIG_EEPROM_CHIP_ADDRESS + 1, ret);
+	}
 
 	return ret;
 }
@@ -170,45 +191,6 @@ int checkboard(void)
 		printf("Board: %s rev %s\n", ep->name, ep->version);
 
 	return 0;
-}
-
-static void setup_board_eeprom_env(void)
-{
-	char *name = "j721e";
-
-	if (do_board_detect())
-		goto invalid_eeprom;
-
-	if (board_is_j721e_som())
-		name = "j721e";
-	else if (board_is_j7200_som())
-		name = "j7200";
-	else
-		printf("Unidentified board claims %s in eeprom header\n",
-		       board_ti_get_name());
-
-invalid_eeprom:
-	set_board_info_env_am6(name);
-}
-
-static void setup_serial(void)
-{
-	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
-	unsigned long board_serial;
-	char *endp;
-	char serial_string[17] = { 0 };
-
-	if (env_get("serial#"))
-		return;
-
-	board_serial = hextoul(ep->serial, &endp);
-	if (*endp != '\0') {
-		pr_err("Error: Can't set serial# to %s\n", ep->serial);
-		return;
-	}
-
-	snprintf(serial_string, sizeof(serial_string), "%016lx", board_serial);
-	env_set("serial#", serial_string);
 }
 
 /*
@@ -447,6 +429,48 @@ void configure_serdes_sierra(void)
 		printf("phy_power_on failed !!\n");
 }
 
+#ifdef CONFIG_BOARD_LATE_INIT
+static void setup_board_eeprom_env(void)
+{
+	char *name = "j721e";
+
+	if (do_board_detect())
+		goto invalid_eeprom;
+
+	if (board_is_j721e_som())
+		name = "j721e";
+	else if (board_is_j721e_sk())
+		name = "j721e-sk";
+	else if (board_is_j7200_som())
+		name = "j7200";
+	else
+		printf("Unidentified board claims %s in eeprom header\n",
+		       board_ti_get_name());
+
+invalid_eeprom:
+	set_board_info_env_am6(name);
+}
+
+static void setup_serial(void)
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+	unsigned long board_serial;
+	char *endp;
+	char serial_string[17] = { 0 };
+
+	if (env_get("serial#"))
+		return;
+
+	board_serial = hextoul(ep->serial, &endp);
+	if (*endp != '\0') {
+		pr_err("Error: Can't set serial# to %s\n", ep->serial);
+		return;
+	}
+
+	snprintf(serial_string, sizeof(serial_string), "%016lx", board_serial);
+	env_set("serial#", serial_string);
+}
+
 int board_late_init(void)
 {
 	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)) {
@@ -454,7 +478,8 @@ int board_late_init(void)
 		setup_serial();
 
 		/* Check for and probe any plugged-in daughtercards */
-		probe_daughtercards();
+		if (board_is_j721e_som() || board_is_j7200_som())
+			probe_daughtercards();
 	}
 
 	if (board_is_j7200_som())
@@ -465,6 +490,7 @@ int board_late_init(void)
 
 	return 0;
 }
+#endif
 
 void spl_board_init(void)
 {
@@ -475,8 +501,10 @@ void spl_board_init(void)
 
 	if ((IS_ENABLED(CONFIG_TARGET_J721E_A72_EVM) ||
 	     IS_ENABLED(CONFIG_TARGET_J7200_A72_EVM)) &&
-	    IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT))
-		probe_daughtercards();
+	    IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)) {
+		if (!board_is_j721e_sk())
+			probe_daughtercards();
+	}
 
 #ifdef CONFIG_ESM_K3
 	if (board_ti_k3_is("J721EX-PM2-SOM")) {

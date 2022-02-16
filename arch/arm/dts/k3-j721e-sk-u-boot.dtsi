@@ -1,0 +1,280 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include <dt-bindings/net/ti-dp83867.h>
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &timer1;
+	};
+
+	aliases {
+		ethernet0 = &cpsw_port1;
+		spi0 = &ospi0;
+		remoteproc0 = &mcu_r5fss0_core0;
+		remoteproc1 = &mcu_r5fss0_core1;
+		remoteproc2 = &main_r5fss0_core0;
+		remoteproc3 = &main_r5fss0_core1;
+		remoteproc4 = &main_r5fss1_core0;
+		remoteproc5 = &main_r5fss1_core1;
+		remoteproc6 = &c66_0;
+		remoteproc7 = &c66_1;
+		remoteproc8 = &c71_0;
+		i2c0 = &wkup_i2c0;
+		i2c1 = &mcu_i2c0;
+		i2c2 = &main_i2c0;
+		mmc1 = &main_sdhci1;  /* SD Card */
+	};
+};
+
+&cbass_main{
+	u-boot,dm-spl;
+
+	main_navss {
+		u-boot,dm-spl;
+	};
+};
+
+&cbass_mcu_wakeup {
+	u-boot,dm-spl;
+
+	timer1: timer@40400000 {
+		compatible = "ti,omap5430-timer";
+		reg = <0x0 0x40400000 0x0 0x80>;
+		ti,timer-alwon;
+		clock-frequency = <25000000>;
+		u-boot,dm-spl;
+	};
+
+	mcu-navss {
+		u-boot,dm-spl;
+
+		ringacc@2b800000 {
+			reg =	<0x0 0x2b800000 0x0 0x400000>,
+				<0x0 0x2b000000 0x0 0x400000>,
+				<0x0 0x28590000 0x0 0x100>,
+				<0x0 0x2a500000 0x0 0x40000>,
+				<0x0 0x28440000 0x0 0x40000>;
+			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
+			u-boot,dm-spl;
+		};
+
+		dma-controller@285c0000 {
+			reg =	<0x0 0x285c0000 0x0 0x100>,
+				<0x0 0x284c0000 0x0 0x4000>,
+				<0x0 0x2a800000 0x0 0x40000>,
+				<0x0 0x284a0000 0x0 0x4000>,
+				<0x0 0x2aa00000 0x0 0x40000>,
+				<0x0 0x28400000 0x0 0x2000>;
+			reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+					    "tchanrt", "rflow";
+			u-boot,dm-spl;
+		};
+	};
+
+	chipid@43000014 {
+		u-boot,dm-spl;
+	};
+};
+
+&secure_proxy_main {
+	u-boot,dm-spl;
+};
+
+&dmsc {
+	u-boot,dm-spl;
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		u-boot,dm-spl;
+	};
+};
+
+&k3_pds {
+	u-boot,dm-spl;
+};
+
+&k3_clks {
+	u-boot,dm-spl;
+};
+
+&k3_reset {
+	u-boot,dm-spl;
+};
+
+&wkup_pmx0 {
+	u-boot,dm-spl;
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+};
+
+&main_uart0 {
+	u-boot,dm-spl;
+};
+
+&mcu_uart0 {
+	u-boot,dm-spl;
+};
+
+&main_sdhci0 {
+	status = "disabled";
+};
+
+&main_sdhci1 {
+	u-boot,dm-spl;
+};
+
+&wiz3_pll1_refclk {
+	assigned-clocks = <&wiz3_pll1_refclk>, <&wiz3_pll0_refclk>;
+	assigned-clock-parents = <&k3_clks 295 0>, <&k3_clks 295 9>;
+};
+
+&main_usbss0_pins_default {
+	u-boot,dm-spl;
+};
+
+&usbss0 {
+	u-boot,dm-spl;
+};
+
+&usb0 {
+	dr_mode = "host";
+	u-boot,dm-spl;
+};
+
+&wiz2_pll1_refclk {
+	assigned-clocks = <&wiz2_pll1_refclk>, <&wiz2_pll0_refclk>;
+	assigned-clock-parents = <&k3_clks 294 0>, <&k3_clks 294 11>;
+};
+
+&main_usbss1_pins_default {
+	u-boot,dm-spl;
+};
+
+&usbss1 {
+	u-boot,dm-spl;
+};
+
+&usb1 {
+	dr_mode = "host";
+	u-boot,dm-spl;
+};
+
+&mcu_cpsw {
+	reg = <0x0 0x46000000 0x0 0x200000>,
+	      <0x0 0x40f00200 0x0 0x2>;
+	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
+
+	cpsw-phy-sel@40f04040 {
+		compatible = "ti,am654-cpsw-phy-sel";
+		reg= <0x0 0x40f04040 0x0 0x4>;
+		reg-names = "gmii-sel";
+	};
+};
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
+};
+
+&mcu_i2c0 {
+	u-boot,dm-spl;
+};
+
+&mcu_i2c1 {
+	status = "disabled";
+};
+
+&main_i2c0 {
+	status = "disabled";
+};
+
+&main_i2c1 {
+	status = "disabled";
+};
+
+&main_i2c2 {
+	status = "disabled";
+};
+
+&main_i2c3 {
+	status = "disabled";
+};
+
+&main_i2c4 {
+	status = "disabled";
+};
+
+&main_i2c5 {
+	status = "disabled";
+};
+
+&main_i2c6 {
+	status = "disabled";
+};
+
+&mcu_i2c0_pins_default {
+	u-boot,dm-spl;
+};
+
+&mcu_fss0_ospi0_pins_default {
+	u-boot,dm-spl;
+};
+
+&fss {
+	u-boot,dm-spl;
+};
+
+&ospi0 {
+	u-boot,dm-spl;
+
+	flash@0 {
+		u-boot,dm-spl;
+
+		partition@3fc0000 {
+			label = "ospi.phypattern";
+			reg = <0x3fc0000 0x40000>;
+			u-boot,dm-spl;
+		};
+	};
+};
+
+&serdes_ln_ctrl {
+	u-boot,mux-autoprobe;
+};
+
+&usb_serdes_mux {
+	u-boot,mux-autoprobe;
+};
+
+&pcie0_rc {
+	status = "disabled";
+};
+
+&pcie1_rc {
+	status = "disabled";
+};
+
+&pcie0_ep {
+	status = "disabled";
+};
+
+&pcie1_ep {
+	status = "disabled";
+};
+
+&dss {
+	status = "disabled";
+};
