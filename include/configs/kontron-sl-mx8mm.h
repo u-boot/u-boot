@@ -67,15 +67,20 @@
 
 #define FEC_QUIRK_ENET_MAC
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define ENV_MEM_LAYOUT_SETTINGS \
+	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=0x42000000\0" \
-	"fdt_addr_r=0x44000000\0" \
-	"ramdisk_addr_r=0x46400000\0" \
-	"pxefile_addr_r=0x46000000\0" \
-	"scriptaddr=0x46000000\0" \
+	"fdt_addr_r=0x48000000\0" \
+	"fdtoverlay_addr_r=0x49000000\0" \
+	"ramdisk_addr_r=0x48080000\0" \
+	"scriptaddr=0x40000000\0"\
+	"pxefile_addr_r=0x40100000\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
 	"dfu_alt_info=sf 0:0=flash-bin raw 0x400 0x1f0000\0" \
 	"bootdelay=3\0" \
 	"hostname=" CONFIG_HOSTNAME "\0" \
+	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 
 #endif /* __KONTRON_MX8MM_CONFIG_H */
