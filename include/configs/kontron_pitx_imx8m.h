@@ -41,12 +41,13 @@
 #endif
 
 #define ENV_MEM_LAYOUT_SETTINGS \
-	"kernel_addr_r=0x40880000\0" \
-	"fdt_addr_r=0x43000000\0" \
-	"scriptaddr=0x43500000\0" \
-	"initrd_addr=0x43800000\0" \
-	"pxefile_addr_r=0x43500000\0" \
-	"bootm_size=0x10000000\0" \
+	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_addr_r=0x42000000\0" \
+	"fdt_addr_r=0x48000000\0" \
+	"fdtoverlay_addr_r=0x49000000\0" \
+	"ramdisk_addr_r=0x48080000\0" \
+	"scriptaddr=0x40000000\0" \
+	"pxefile_addr_r=0x40100000\0"
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
