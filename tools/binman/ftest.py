@@ -87,6 +87,7 @@ ATF_BL31_DATA         = b'bl31'
 TEE_OS_DATA           = b'this is some tee OS data'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
+TI_SYSFW_DATA         = b'sysfw'
 SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
@@ -195,6 +196,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('tee-pager.bin', TEE_OS_DATA)
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
+        TestFunctional._MakeInputFile('sysfw.bin', TI_SYSFW_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
 
         # Add a few .dtb files for testing
@@ -5529,6 +5531,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test an image with a pre-load header with an invalid key"""
         with self.assertRaises(ValueError) as e:
             data = self._DoReadFile('231_pre_load_invalid_key.dts')
+    
+    def testPackTiSysfw(self):
+        """Test that an image with a SYSFW binary can be created"""
+        data = self._DoReadFile('232_ti_sysfw.dts')
+        self.assertEqual(TI_SYSFW_DATA, data[:len(TI_SYSFW_DATA)])
 
     def _CheckSafeUniqueNames(self, *images):
         """Check all entries of given images for unsafe unique names"""
