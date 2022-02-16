@@ -22,6 +22,7 @@ Implementation
    makefiles
    menus
    printf
+   smbios
    uefi/index
    version
 

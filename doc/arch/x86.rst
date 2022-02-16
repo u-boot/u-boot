@@ -732,7 +732,7 @@ SMBIOS tables
 To generate SMBIOS tables in U-Boot, for use by the OS, enable the
 CONFIG_GENERATE_SMBIOS_TABLE option. The easiest way to provide the values to
 use is via the device tree. For details see
-device-tree-bindings/sysinfo/smbios.txt
+:download:`smbios.txt <../device-tree-bindings/sysinfo/smbios.txt>`.
 
 TODO List
 ---------
