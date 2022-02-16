@@ -139,7 +139,7 @@ class ConsoleBase(object):
             self.p.close()
         self.logstream.close()
 
-    def wait_for_boot_prompt(self):
+    def wait_for_boot_prompt(self, loop_num = 1):
         """Wait for the boot up until command prompt. This is for internal use only.
         """
         try:
@@ -149,22 +149,24 @@ class ConsoleBase(object):
             env_spl_skipped = self.config.env.get('env__spl_skipped', False)
             env_spl2_skipped = self.config.env.get('env__spl2_skipped', True)
 
-            if config_spl and config_spl_serial and not env_spl_skipped:
-                m = self.p.expect([pattern_u_boot_spl_signon] +
-                                  self.bad_patterns)
+            while loop_num > 0:
+                loop_num -= 1
+                if config_spl and config_spl_serial and not env_spl_skipped:
+                    m = self.p.expect([pattern_u_boot_spl_signon] +
+                                      self.bad_patterns)
+                    if m != 0:
+                        raise Exception('Bad pattern found on SPL console: ' +
+                                        self.bad_pattern_ids[m - 1])
+                if not env_spl2_skipped:
+                    m = self.p.expect([pattern_u_boot_spl2_signon] +
+                                      self.bad_patterns)
+                    if m != 0:
+                        raise Exception('Bad pattern found on SPL2 console: ' +
+                                        self.bad_pattern_ids[m - 1])
+                m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
                 if m != 0:
-                    raise Exception('Bad pattern found on SPL console: ' +
+                    raise Exception('Bad pattern found on console: ' +
                                     self.bad_pattern_ids[m - 1])
-            if not env_spl2_skipped:
-                m = self.p.expect([pattern_u_boot_spl2_signon] +
-                                  self.bad_patterns)
-                if m != 0:
-                    raise Exception('Bad pattern found on SPL2 console: ' +
-                                    self.bad_pattern_ids[m - 1])
-            m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
-            if m != 0:
-                raise Exception('Bad pattern found on console: ' +
-                                self.bad_pattern_ids[m - 1])
             self.u_boot_version_string = self.p.after
             while True:
                 m = self.p.expect([self.prompt_compiled,
@@ -372,7 +374,7 @@ class ConsoleBase(object):
         finally:
             self.p.timeout = orig_timeout
 
-    def ensure_spawned(self):
+    def ensure_spawned(self, expect_reset=False):
         """Ensure a connection to a correctly running U-Boot instance.
 
         This may require spawning a new Sandbox process or resetting target
@@ -381,7 +383,9 @@ class ConsoleBase(object):
         This is an internal function and should not be called directly.
 
         Args:
-            None.
+            expect_reset: Boolean indication whether this boot is expected
+                to be reset while the 1st boot process after main boot before
+                prompt. False by default.
 
         Returns:
             Nothing.
@@ -400,7 +404,11 @@ class ConsoleBase(object):
             if not self.config.gdbserver:
                 self.p.timeout = 30000
             self.p.logfile_read = self.logstream
-            self.wait_for_boot_prompt()
+            if expect_reset:
+                loop_num = 2
+            else:
+                loop_num = 1
+            self.wait_for_boot_prompt(loop_num = loop_num)
             self.at_prompt = True
             self.at_prompt_logevt = self.logstream.logfile.cur_evt
         except Exception as ex:
@@ -433,10 +441,10 @@ class ConsoleBase(object):
             pass
         self.p = None
 
-    def restart_uboot(self):
+    def restart_uboot(self, expect_reset=False):
         """Shut down and restart U-Boot."""
         self.cleanup_spawn()
-        self.ensure_spawned()
+        self.ensure_spawned(expect_reset)
 
     def get_spawn_output(self):
         """Return the start-up output from U-Boot
