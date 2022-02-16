@@ -142,8 +142,6 @@ static void build_mem_map(void)
 
 void enable_caches(void)
 {
-	build_mem_map();
-
 	icache_enable();
 	dcache_enable();
 }
@@ -151,6 +149,8 @@ void enable_caches(void)
 int a3700_dram_init(void)
 {
 	int win;
+
+	build_mem_map();
 
 	gd->ram_size = 0;
 	for (win = 0; win < MVEBU_CPU_DEC_WINS; ++win) {
