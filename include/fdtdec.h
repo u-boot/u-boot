@@ -1169,7 +1169,6 @@ int fdtdec_setup(void);
  */
 int fdtdec_board_setup(const void *fdt_blob);
 
-#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 /**
  * fdtdec_resetup()  - Set up the device tree again
  *
@@ -1188,7 +1187,6 @@ int fdtdec_board_setup(const void *fdt_blob);
  * Return: 0 if OK, -ve on error
  */
 int fdtdec_resetup(int *rescan);
-#endif
 
 /**
  * Board-specific FDT initialization. Returns the address to a device tree blob.
