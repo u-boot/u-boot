@@ -40,6 +40,7 @@ It only support basic block read/write functions in the NVMe driver.
 Config options
 --------------
 CONFIG_NVME	Enable NVMe device support
+CONFIG_NVME_PCI	Enable PCIe NVMe device support
 CONFIG_CMD_NVME	Enable basic NVMe commands
 
 Usage in U-Boot

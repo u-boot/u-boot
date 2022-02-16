@@ -523,7 +523,7 @@ static int wiz_reset_deassert(struct reset_ctl *reset_ctl)
 		return ret;
 	}
 
-	if (wiz->lane_phy_type[id - 1] == PHY_TYPE_PCIE)
+	if (wiz->lane_phy_type[id - 1] == PHY_TYPE_DP)
 		ret = regmap_field_write(wiz->p_enable[id - 1], P_ENABLE);
 	else
 		ret = regmap_field_write(wiz->p_enable[id - 1], P_ENABLE_FORCE);

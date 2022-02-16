@@ -30,6 +30,78 @@
 #define DDRSS_V2A_R1_MAT_REG			0x0020
 #define DDRSS_ECC_CTRL_REG			0x0120
 
+#define SINGLE_DDR_SUBSYSTEM	0x1
+#define MULTI_DDR_SUBSYSTEM	0x2
+
+#define MULTI_DDR_CFG0  0x00114100
+#define MULTI_DDR_CFG1  0x00114104
+#define DDR_CFG_LOAD    0x00114110
+
+enum intrlv_gran {
+	GRAN_128B,
+	GRAN_512B,
+	GRAN_2KB,
+	GRAN_4KB,
+	GRAN_16KB,
+	GRAN_32KB,
+	GRAN_512KB,
+	GRAN_1GB,
+	GRAN_1_5GB,
+	GRAN_2GB,
+	GRAN_3GB,
+	GRAN_4GB,
+	GRAN_6GB,
+	GRAN_8GB,
+	GRAN_16GB
+};
+
+enum intrlv_size {
+	SIZE_0,
+	SIZE_128MB,
+	SIZE_256MB,
+	SIZE_512MB,
+	SIZE_1GB,
+	SIZE_2GB,
+	SIZE_3GB,
+	SIZE_4GB,
+	SIZE_6GB,
+	SIZE_8GB,
+	SIZE_12GB,
+	SIZE_16GB,
+	SIZE_32GB
+};
+
+struct k3_ddrss_data {
+	u32 flags;
+};
+
+enum ecc_enable {
+	DISABLE_ALL = 0,
+	ENABLE_0,
+	ENABLE_1,
+	ENABLE_ALL
+};
+
+enum emif_config {
+	INTERLEAVE_ALL = 0,
+	SEPR0,
+	SEPR1
+};
+
+enum emif_active {
+	EMIF_0 = 1,
+	EMIF_1,
+	EMIF_ALL
+};
+
+struct k3_msmc {
+	enum intrlv_gran gran;
+	enum intrlv_size size;
+	enum ecc_enable enable;
+	enum emif_config config;
+	enum emif_active active;
+};
+
 struct k3_ddrss_desc {
 	struct udevice *dev;
 	void __iomem *ddrss_ss_cfg;
@@ -42,13 +114,11 @@ struct k3_ddrss_desc {
 	u32 ddr_freq2;
 	u32 ddr_fhs_cnt;
 	struct udevice *vtt_supply;
+	u32 instance;
+	lpddr4_obj *driverdt;
+	lpddr4_config config;
+	lpddr4_privatedata pd;
 };
-
-static lpddr4_obj *driverdt;
-static lpddr4_config config;
-static lpddr4_privatedata pd;
-
-static struct k3_ddrss_desc *ddrss;
 
 struct reginitdata {
 	u32 ctl_regs[LPDDR4_INTR_CTL_REG_COUNT];
@@ -83,15 +153,16 @@ struct reginitdata {
 		offset = offset * 10 + (*i - '0'); } \
 	} while (0)
 
-static u32 k3_lpddr4_read_ddr_type(void)
+static u32 k3_lpddr4_read_ddr_type(const lpddr4_privatedata *pd)
 {
 	u32 status = 0U;
 	u32 offset = 0U;
 	u32 regval = 0U;
 	u32 dram_class = 0U;
+	struct k3_ddrss_desc *ddrss = (struct k3_ddrss_desc *)pd->ddr_instance;
 
 	TH_OFFSET_FROM_REG(LPDDR4__DRAM_CLASS__REG, CTL_SHIFT, offset);
-	status = driverdt->readreg(&pd, LPDDR4_CTL_REGS, offset, &regval);
+	status = ddrss->driverdt->readreg(pd, LPDDR4_CTL_REGS, offset, &regval);
 	if (status > 0U) {
 		printf("%s: Failed to read DRAM_CLASS\n", __func__);
 		hang();
@@ -102,23 +173,23 @@ static u32 k3_lpddr4_read_ddr_type(void)
 	return dram_class;
 }
 
-static void k3_lpddr4_freq_update(void)
+static void k3_lpddr4_freq_update(struct k3_ddrss_desc *ddrss)
 {
 	unsigned int req_type, counter;
 
 	for (counter = 0; counter < ddrss->ddr_fhs_cnt; counter++) {
 		if (wait_for_bit_le32(ddrss->ddrss_ctrl_mmr +
-				      CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS, 0x80,
+				      CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS + ddrss->instance * 0x10, 0x80,
 				      true, 10000, false)) {
 			printf("Timeout during frequency handshake\n");
 			hang();
 		}
 
 		req_type = readl(ddrss->ddrss_ctrl_mmr +
-				 CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS) & 0x03;
+				 CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS + ddrss->instance * 0x10) & 0x03;
 
-		debug("%s: received freq change req: req type = %d, req no. = %d\n",
-		      __func__, req_type, counter);
+		debug("%s: received freq change req: req type = %d, req no. = %d, instance = %d\n",
+		      __func__, req_type, counter, ddrss->instance);
 
 		if (req_type == 1)
 			clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq1);
@@ -132,31 +203,32 @@ static void k3_lpddr4_freq_update(void)
 			printf("%s: Invalid freq request type\n", __func__);
 
 		writel(0x1, ddrss->ddrss_ctrl_mmr +
-		       CTRLMMR_DDR4_FSP_CLKCHNG_ACK_OFFS);
+		       CTRLMMR_DDR4_FSP_CLKCHNG_ACK_OFFS + ddrss->instance * 0x10);
 		if (wait_for_bit_le32(ddrss->ddrss_ctrl_mmr +
-				      CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS, 0x80,
+				      CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS + ddrss->instance * 0x10, 0x80,
 				      false, 10, false)) {
 			printf("Timeout during frequency handshake\n");
 			hang();
 		}
 		writel(0x0, ddrss->ddrss_ctrl_mmr +
-		       CTRLMMR_DDR4_FSP_CLKCHNG_ACK_OFFS);
+		       CTRLMMR_DDR4_FSP_CLKCHNG_ACK_OFFS + ddrss->instance * 0x10);
 	}
 }
 
-static void k3_lpddr4_ack_freq_upd_req(void)
+static void k3_lpddr4_ack_freq_upd_req(const lpddr4_privatedata *pd)
 {
 	u32 dram_class;
+	struct k3_ddrss_desc *ddrss = (struct k3_ddrss_desc *)pd->ddr_instance;
 
 	debug("--->>> LPDDR4 Initialization is in progress ... <<<---\n");
 
-	dram_class = k3_lpddr4_read_ddr_type();
+	dram_class = k3_lpddr4_read_ddr_type(pd);
 
 	switch (dram_class) {
 	case DENALI_CTL_0_DRAM_CLASS_DDR4:
 		break;
 	case DENALI_CTL_0_DRAM_CLASS_LPDDR4:
-		k3_lpddr4_freq_update();
+		k3_lpddr4_freq_update(ddrss);
 		break;
 	default:
 		printf("Unrecognized dram_class cannot update frequency!\n");
@@ -167,8 +239,9 @@ static int k3_ddrss_init_freq(struct k3_ddrss_desc *ddrss)
 {
 	u32 dram_class;
 	int ret;
+	lpddr4_privatedata *pd = &ddrss->pd;
 
-	dram_class = k3_lpddr4_read_ddr_type();
+	dram_class = k3_lpddr4_read_ddr_type(pd);
 
 	switch (dram_class) {
 	case DENALI_CTL_0_DRAM_CLASS_DDR4:
@@ -196,7 +269,7 @@ static void k3_lpddr4_info_handler(const lpddr4_privatedata *pd,
 				   lpddr4_infotype infotype)
 {
 	if (infotype == LPDDR4_DRV_SOC_PLL_UPDATE)
-		k3_lpddr4_ack_freq_upd_req();
+		k3_lpddr4_ack_freq_upd_req(pd);
 }
 
 static int k3_ddrss_power_on(struct k3_ddrss_desc *ddrss)
@@ -235,6 +308,7 @@ static int k3_ddrss_power_on(struct k3_ddrss_desc *ddrss)
 static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 {
 	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
+	struct k3_ddrss_data *ddrss_data = (struct k3_ddrss_data *)dev_get_driver_data(dev);
 	phys_addr_t reg;
 	int ret;
 
@@ -274,6 +348,17 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 	if (ret)
 		dev_err(dev, "clk get failed for osc clk %d\n", ret);
 
+	/* Reading instance number for multi ddr subystems */
+	if (ddrss_data->flags & MULTI_DDR_SUBSYSTEM) {
+		ret = dev_read_u32(dev, "instance", &ddrss->instance);
+		if (ret) {
+			dev_err(dev, "missing instance property");
+			return -EINVAL;
+		}
+	} else {
+		ddrss->instance = 0;
+	}
+
 	ret = dev_read_u32(dev, "ti,ddr-freq1", &ddrss->ddr_freq1);
 	if (ret)
 		dev_err(dev, "ddr freq1 not populated %d\n", ret);
@@ -289,12 +374,13 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 	return ret;
 }
 
-void k3_lpddr4_probe(void)
+void k3_lpddr4_probe(struct k3_ddrss_desc *ddrss)
 {
 	u32 status = 0U;
 	u16 configsize = 0U;
+	lpddr4_config *config = &ddrss->config;
 
-	status = driverdt->probe(&config, &configsize);
+	status = ddrss->driverdt->probe(config, &configsize);
 
 	if ((status != 0) || (configsize != sizeof(lpddr4_privatedata))
 	    || (configsize > SRAM_MAX)) {
@@ -305,25 +391,30 @@ void k3_lpddr4_probe(void)
 	}
 }
 
-void k3_lpddr4_init(void)
+void k3_lpddr4_init(struct k3_ddrss_desc *ddrss)
 {
 	u32 status = 0U;
+	lpddr4_config *config = &ddrss->config;
+	lpddr4_obj *driverdt = ddrss->driverdt;
+	lpddr4_privatedata *pd = &ddrss->pd;
 
-	if ((sizeof(pd) != sizeof(lpddr4_privatedata))
-	    || (sizeof(pd) > SRAM_MAX)) {
+	if ((sizeof(*pd) != sizeof(lpddr4_privatedata)) || (sizeof(*pd) > SRAM_MAX)) {
 		printf("%s: FAIL\n", __func__);
 		hang();
 	}
 
-	config.ctlbase = (struct lpddr4_ctlregs_s *)ddrss->ddrss_ss_cfg;
-	config.infohandler = (lpddr4_infocallback) k3_lpddr4_info_handler;
+	config->ctlbase = (struct lpddr4_ctlregs_s *)ddrss->ddrss_ss_cfg;
+	config->infohandler = (lpddr4_infocallback) k3_lpddr4_info_handler;
 
-	status = driverdt->init(&pd, &config);
+	status = driverdt->init(pd, config);
+
+	/* linking ddr instance to lpddr4  */
+	pd->ddr_instance = (void *)ddrss;
 
 	if ((status > 0U) ||
-	    (pd.ctlbase != (struct lpddr4_ctlregs_s *)config.ctlbase) ||
-	    (pd.ctlinterrupthandler != config.ctlinterrupthandler) ||
-	    (pd.phyindepinterrupthandler != config.phyindepinterrupthandler)) {
+	    (pd->ctlbase != (struct lpddr4_ctlregs_s *)config->ctlbase) ||
+	    (pd->ctlinterrupthandler != config->ctlinterrupthandler) ||
+	    (pd->phyindepinterrupthandler != config->phyindepinterrupthandler)) {
 		printf("%s: FAIL\n", __func__);
 		hang();
 	} else {
@@ -331,7 +422,8 @@ void k3_lpddr4_init(void)
 	}
 }
 
-void populate_data_array_from_dt(struct reginitdata *reginit_data)
+void populate_data_array_from_dt(struct k3_ddrss_desc *ddrss,
+				 struct reginitdata *reginit_data)
 {
 	int ret, i;
 
@@ -363,22 +455,24 @@ void populate_data_array_from_dt(struct reginitdata *reginit_data)
 		reginit_data->phy_regs_offs[i] = i;
 }
 
-void k3_lpddr4_hardware_reg_init(void)
+void k3_lpddr4_hardware_reg_init(struct k3_ddrss_desc *ddrss)
 {
 	u32 status = 0U;
 	struct reginitdata reginitdata;
+	lpddr4_obj *driverdt = ddrss->driverdt;
+	lpddr4_privatedata *pd = &ddrss->pd;
 
-	populate_data_array_from_dt(&reginitdata);
+	populate_data_array_from_dt(ddrss, &reginitdata);
 
-	status = driverdt->writectlconfig(&pd, reginitdata.ctl_regs,
+	status = driverdt->writectlconfig(pd, reginitdata.ctl_regs,
 					  reginitdata.ctl_regs_offs,
 					  LPDDR4_INTR_CTL_REG_COUNT);
 	if (!status)
-		status = driverdt->writephyindepconfig(&pd, reginitdata.pi_regs,
+		status = driverdt->writephyindepconfig(pd, reginitdata.pi_regs,
 						       reginitdata.pi_regs_offs,
 						       LPDDR4_INTR_PHY_INDEP_REG_COUNT);
 	if (!status)
-		status = driverdt->writephyconfig(&pd, reginitdata.phy_regs,
+		status = driverdt->writephyconfig(pd, reginitdata.phy_regs,
 						  reginitdata.phy_regs_offs,
 						  LPDDR4_INTR_PHY_REG_COUNT);
 	if (status) {
@@ -387,27 +481,29 @@ void k3_lpddr4_hardware_reg_init(void)
 	}
 }
 
-void k3_lpddr4_start(void)
+void k3_lpddr4_start(struct k3_ddrss_desc *ddrss)
 {
 	u32 status = 0U;
 	u32 regval = 0U;
 	u32 offset = 0U;
+	lpddr4_obj *driverdt = ddrss->driverdt;
+	lpddr4_privatedata *pd = &ddrss->pd;
 
 	TH_OFFSET_FROM_REG(LPDDR4__START__REG, CTL_SHIFT, offset);
 
-	status = driverdt->readreg(&pd, LPDDR4_CTL_REGS, offset, &regval);
+	status = driverdt->readreg(pd, LPDDR4_CTL_REGS, offset, &regval);
 	if ((status > 0U) || ((regval & TH_FLD_MASK(LPDDR4__START__FLD)) != 0U)) {
 		printf("%s: Pre start FAIL\n", __func__);
 		hang();
 	}
 
-	status = driverdt->start(&pd);
+	status = driverdt->start(pd);
 	if (status > 0U) {
 		printf("%s: FAIL\n", __func__);
 		hang();
 	}
 
-	status = driverdt->readreg(&pd, LPDDR4_CTL_REGS, offset, &regval);
+	status = driverdt->readreg(pd, LPDDR4_CTL_REGS, offset, &regval);
 	if ((status > 0U) || ((regval & TH_FLD_MASK(LPDDR4__START__FLD)) != 1U)) {
 		printf("%s: Post start FAIL\n", __func__);
 		hang();
@@ -419,8 +515,7 @@ void k3_lpddr4_start(void)
 static int k3_ddrss_probe(struct udevice *dev)
 {
 	int ret;
-
-	ddrss = dev_get_priv(dev);
+	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
@@ -439,16 +534,17 @@ static int k3_ddrss_probe(struct udevice *dev)
 	writel(0x0, ddrss->ddrss_ss_cfg + DDRSS_ECC_CTRL_REG);
 #endif
 
-	driverdt = lpddr4_getinstance();
-	k3_lpddr4_probe();
-	k3_lpddr4_init();
-	k3_lpddr4_hardware_reg_init();
+	ddrss->driverdt = lpddr4_getinstance();
+
+	k3_lpddr4_probe(ddrss);
+	k3_lpddr4_init(ddrss);
+	k3_lpddr4_hardware_reg_init(ddrss);
 
 	ret = k3_ddrss_init_freq(ddrss);
 	if (ret)
 		return ret;
 
-	k3_lpddr4_start();
+	k3_lpddr4_start(ddrss);
 
 	return ret;
 }
@@ -462,9 +558,18 @@ static struct ram_ops k3_ddrss_ops = {
 	.get_info = k3_ddrss_get_info,
 };
 
+static const struct k3_ddrss_data k3_data = {
+	.flags = SINGLE_DDR_SUBSYSTEM,
+};
+
+static const struct k3_ddrss_data j721s2_data = {
+	.flags = MULTI_DDR_SUBSYSTEM,
+};
+
 static const struct udevice_id k3_ddrss_ids[] = {
-	{.compatible = "ti,am64-ddrss"},
-	{.compatible = "ti,j721e-ddrss"},
+	{.compatible = "ti,am64-ddrss", .data = (ulong)&k3_data, },
+	{.compatible = "ti,j721e-ddrss", .data = (ulong)&k3_data, },
+	{.compatible = "ti,j721s2-ddrss", .data = (ulong)&j721s2_data, },
 	{}
 };
 
@@ -475,4 +580,93 @@ U_BOOT_DRIVER(k3_ddrss) = {
 	.ops			= &k3_ddrss_ops,
 	.probe			= k3_ddrss_probe,
 	.priv_auto		= sizeof(struct k3_ddrss_desc),
+};
+
+static int k3_msmc_set_config(struct k3_msmc *msmc)
+{
+	u32 ddr_cfg0 = 0;
+	u32 ddr_cfg1 = 0;
+
+	ddr_cfg0 |= msmc->gran << 24;
+	ddr_cfg0 |= msmc->size << 16;
+	/* heartbeat_per, bit[4:0] setting to 3 is advisable */
+	ddr_cfg0 |= 3;
+
+	/* Program MULTI_DDR_CFG0 */
+	writel(ddr_cfg0, MULTI_DDR_CFG0);
+
+	ddr_cfg1 |= msmc->enable << 16;
+	ddr_cfg1 |= msmc->config << 8;
+	ddr_cfg1 |= msmc->active;
+
+	/* Program MULTI_DDR_CFG1 */
+	writel(ddr_cfg1, MULTI_DDR_CFG1);
+
+	/* Program DDR_CFG_LOAD */
+	writel(0x60000000, DDR_CFG_LOAD);
+
+	return 0;
+}
+
+static int k3_msmc_probe(struct udevice *dev)
+{
+	struct k3_msmc *msmc = dev_get_priv(dev);
+	int ret = 0;
+
+	/* Read the granular size from DT */
+	ret = dev_read_u32(dev, "intrlv-gran", &msmc->gran);
+	if (ret) {
+		dev_err(dev, "missing intrlv-gran property");
+		return -EINVAL;
+	}
+
+	/* Read the interleave region from DT */
+	ret = dev_read_u32(dev, "intrlv-size", &msmc->size);
+	if (ret) {
+		dev_err(dev, "missing intrlv-size property");
+		return -EINVAL;
+	}
+
+	/* Read ECC enable config */
+	ret = dev_read_u32(dev, "ecc-enable", &msmc->enable);
+	if (ret) {
+		dev_err(dev, "missing ecc-enable property");
+		return -EINVAL;
+	}
+
+	/* Read EMIF configuration */
+	ret = dev_read_u32(dev, "emif-config", &msmc->config);
+	if (ret) {
+		dev_err(dev, "missing emif-config property");
+		return -EINVAL;
+	}
+
+	/* Read EMIF active */
+	ret = dev_read_u32(dev, "emif-active", &msmc->active);
+	if (ret) {
+		dev_err(dev, "missing emif-active property");
+		return -EINVAL;
+	}
+
+	ret = k3_msmc_set_config(msmc);
+	if (ret) {
+		dev_err(dev, "error setting msmc config");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static const struct udevice_id k3_msmc_ids[] = {
+	{ .compatible = "ti,j721s2-msmc"},
+	{}
+};
+
+U_BOOT_DRIVER(k3_msmc) = {
+	.name = "k3_msmc",
+	.of_match = k3_msmc_ids,
+	.id = UCLASS_MISC,
+	.probe = k3_msmc_probe,
+	.priv_auto = sizeof(struct k3_msmc),
+	.flags = DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };

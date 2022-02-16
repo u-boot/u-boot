@@ -91,7 +91,7 @@ $(PLUGIN).bin:
 endif
 
 quiet_cmd_cpp_cfg = CFGS    $@
-      cmd_cpp_cfg = $(CPP) $(cpp_flags) -x c -o $@ $<
+      cmd_cpp_cfg = $(CPP) $(cpp_flags) -D__ASSEMBLY__ -x c -o $@ $<
 
 # mkimage source config file
 IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%)

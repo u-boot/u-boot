@@ -8,6 +8,10 @@
 
 #include <asm/arch/cgc.h>
 
+enum pcc1_entry {
+	ADC1_PCC1_SLOT = 34,
+};
+
 enum pcc3_entry {
 	DMA1_MP_PCC3_SLOT = 1,
 	DMA1_CH0_PCC3_SLOT = 2,
@@ -90,6 +94,68 @@ enum pcc4_entry {
 	RGPIOF_PCC4_SLOT = 31,
 };
 
+enum pcc5_entry {
+	DMA2_MP_PCC5_SLOT = 0,
+	DMA2_CH0_PCC5_SLOT = 1,
+	DMA2_CH1_PCC5_SLOT = 2,
+	DMA2_CH2_PCC5_SLOT = 3,
+	DMA2_CH3_PCC5_SLOT = 4,
+	DMA2_CH4_PCC5_SLOT = 5,
+	DMA2_CH5_PCC5_SLOT = 6,
+	DMA2_CH6_PCC5_SLOT = 7,
+	DMA2_CH7_PCC5_SLOT = 8,
+	DMA2_CH8_PCC5_SLOT = 9,
+	DMA2_CH9_PCC5_SLOT = 10,
+	DMA2_CH10_PCC5_SLOT = 11,
+	DMA2_CH11_PCC5_SLOT = 12,
+	DMA2_CH12_PCC5_SLOT = 13,
+	DMA2_CH13_PCC5_SLOT = 14,
+	DMA2_CH14_PCC5_SLOT = 15,
+	DMA2_CH15_PCC5_SLOT = 16,
+	DMA2_CH16_PCC5_SLOT = 17,
+	DMA2_CH17_PCC5_SLOT = 18,
+	DMA2_CH18_PCC5_SLOT = 19,
+	DMA2_CH19_PCC5_SLOT = 20,
+	DMA2_CH20_PCC5_SLOT = 21,
+	DMA2_CH21_PCC5_SLOT = 22,
+	DMA2_CH22_PCC5_SLOT = 23,
+	DMA2_CH23_PCC5_SLOT = 24,
+	DMA2_CH24_PCC5_SLOT = 25,
+	DMA2_CH25_PCC5_SLOT = 26,
+	DMA2_CH26_PCC5_SLOT = 27,
+	DMA2_CH27_PCC5_SLOT = 28,
+	DMA2_CH28_PCC5_SLOT = 29,
+	DMA2_CH29_PCC5_SLOT = 30,
+	DMA2_CH30_PCC5_SLOT = 31,
+	DMA2_CH31_PCC5_SLOT = 32,
+	MU2_B_PCC5_SLOT = 33,
+	MU3_B_PCC5_SLOT = 34,
+	SEMA42_2_PCC5_SLOT = 35,
+	CMC2_PCC5_SLOT = 36,
+	AVD_SIM_PCC5_SLOT = 37,
+	LPAV_CGC_PCC5_SLOT = 38,
+	PCC5_PCC5_SLOT = 39,
+	TPM8_PCC5_SLOT = 40,
+	SAI6_PCC5_SLOT = 41,
+	SAI7_PCC5_SLOT = 42,
+	SPDIF_PCC5_SLOT = 43,
+	ISI_PCC5_SLOT = 44,
+	CSI_REGS_PCC5_SLOT = 45,
+	CSI_PCC5_SLOT = 47,
+	DSI_PCC5_SLOT = 48,
+	WDOG5_PCC5_SLOT = 50,
+	EPDC_PCC5_SLOT = 51,
+	PXP_PCC5_SLOT = 52,
+	SFA2_PCC5_SLOT = 53,
+	GPU2D_PCC5_SLOT = 60,
+	GPU3D_PCC5_SLOT = 61,
+	DCNANO_PCC5_SLOT = 62,
+	LPDDR4_PCC5_SLOT = 66,
+	CSI_CLK_UI_PCC5_SLOT = 67,
+	CSI_CLK_ESC_PCC5_SLOT = 68,
+	RGPIOD_PCC5_SLOT = 69,
+};
+
 /* PCC registers */
 #define PCC_PR_OFFSET	31
 #define PCC_PR_MASK		(0x1 << PCC_PR_OFFSET)
@@ -130,10 +196,10 @@ struct pcc_entry {
 };
 
 int pcc_clock_enable(int pcc_controller, int pcc_clk_slot, bool enable);
-int pcc_clock_sel(int pcc_controller, int pcc_clk_slot, enum cgc1_clk src);
+int pcc_clock_sel(int pcc_controller, int pcc_clk_slot, enum cgc_clk src);
 int pcc_clock_div_config(int pcc_controller, int pcc_clk_slot, bool frac, u8 div);
 bool pcc_clock_is_enable(int pcc_controller, int pcc_clk_slot);
-int pcc_clock_get_clksrc(int pcc_controller, int pcc_clk_slot, enum cgc1_clk *src);
+int pcc_clock_get_clksrc(int pcc_controller, int pcc_clk_slot, enum cgc_clk *src);
 int pcc_reset_peripheral(int pcc_controller, int pcc_clk_slot, bool reset);
 u32 pcc_clock_get_rate(int pcc_controller, int pcc_clk_slot);
 #endif

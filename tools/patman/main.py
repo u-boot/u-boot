@@ -42,7 +42,7 @@ parser.add_argument('-e', '--end', type=int, default=0,
     help='Commits to skip at end of patch list')
 parser.add_argument('-D', '--debug', action='store_true',
     help='Enabling debugging (provides a full traceback on error)')
-parser.add_argument('-p', '--project', default=project.DetectProject(),
+parser.add_argument('-p', '--project', default=project.detect_project(),
                     help="Project name; affects default option values and "
                     "aliases [default: %(default)s]")
 parser.add_argument('-P', '--patchwork-url',
@@ -134,25 +134,13 @@ if args.cmd == 'test':
     import doctest
     from patman import func_test
 
-    sys.argv = [sys.argv[0]]
     result = unittest.TestResult()
-    suite = unittest.TestSuite()
-    loader = unittest.TestLoader()
-    for module in (test_checkpatch.TestPatch, func_test.TestFunctional):
-        if args.testname:
-            try:
-                suite.addTests(loader.loadTestsFromName(args.testname, module))
-            except AttributeError:
-                continue
-        else:
-            suite.addTests(loader.loadTestsFromTestCase(module))
-    suite.run(result)
+    test_util.run_test_suites(
+        result, False, False, False, None, None, None,
+        [test_checkpatch.TestPatch, func_test.TestFunctional,
+         'gitutil', 'settings', 'terminal'])
 
-    for module in ['gitutil', 'settings', 'terminal']:
-        suite = doctest.DocTestSuite(module)
-        suite.run(result)
-
-    sys.exit(test_util.ReportResult('patman', args.testname, result))
+    sys.exit(test_util.report_result('patman', args.testname, result))
 
 # Process commits, produce patches files, check them, email them
 elif args.cmd == 'send':
@@ -171,7 +159,7 @@ elif args.cmd == 'send':
         fd.close()
 
     elif args.full_help:
-        tools.PrintFullHelp(
+        tools.print_full_help(
             os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
         )
 
@@ -189,7 +177,7 @@ elif args.cmd == 'status':
                                  args.dest_branch, args.force,
                                  args.show_comments, args.patchwork_url)
     except Exception as e:
-        terminal.Print('patman: %s: %s' % (type(e).__name__, e),
+        terminal.tprint('patman: %s: %s' % (type(e).__name__, e),
                        colour=terminal.Color.RED)
         if args.debug:
             print()

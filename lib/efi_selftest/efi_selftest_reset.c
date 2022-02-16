@@ -33,7 +33,7 @@ static int setup(const efi_handle_t handle,
  */
 static int execute(void)
 {
-	u16 reset_data[] = L"Reset by selftest";
+	u16 reset_data[] = u"Reset by selftest";
 
 	runtime->reset_system(EFI_RESET_COLD, EFI_SUCCESS,
 			      sizeof(reset_data), reset_data);

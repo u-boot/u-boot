@@ -20,6 +20,11 @@
 #include <errno.h>
 #include <linux/list.h>
 
+#ifdef CONFIG_DM_RNG
+#include <dm.h>
+#include <rng.h>
+#endif
+
 #include <splash.h>
 #include <asm/io.h>
 
@@ -309,6 +314,67 @@ static int label_localboot(struct pxe_label *label)
 	debug("running: %s\n", localcmd);
 
 	return run_command_list(localcmd, strlen(localcmd), 0);
+}
+
+/*
+ * label_boot_kaslrseed generate kaslrseed from hw rng
+ */
+
+static void label_boot_kaslrseed(void)
+{
+#ifdef CONFIG_DM_RNG
+	ulong fdt_addr;
+	struct fdt_header *working_fdt;
+	size_t n = 0x8;
+	struct udevice *dev;
+	u64 *buf;
+	int nodeoffset;
+	int err;
+
+	/* Get the main fdt and map it */
+	fdt_addr = hextoul(env_get("fdt_addr_r"), NULL);
+	working_fdt = map_sysmem(fdt_addr, 0);
+	err = fdt_check_header(working_fdt);
+	if (err)
+		return;
+
+	/* add extra size for holding kaslr-seed */
+	/* err is new fdt size, 0 or negtive */
+	err = fdt_shrink_to_minimum(working_fdt, 512);
+	if (err <= 0)
+		return;
+
+	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
+		printf("No RNG device\n");
+		return;
+	}
+
+	nodeoffset = fdt_find_or_add_subnode(working_fdt, 0, "chosen");
+	if (nodeoffset < 0) {
+		printf("Reading chosen node failed\n");
+		return;
+	}
+
+	buf = malloc(n);
+	if (!buf) {
+		printf("Out of memory\n");
+		return;
+	}
+
+	if (dm_rng_read(dev, buf, n)) {
+		printf("Reading RNG failed\n");
+		goto err;
+	}
+
+	err = fdt_setprop(working_fdt, nodeoffset, "kaslr-seed", buf, sizeof(buf));
+	if (err < 0) {
+		printf("Unable to set kaslr-seed on chosen node: %s\n", fdt_strerror(err));
+		goto err;
+	}
+err:
+	free(buf);
+#endif
+	return;
 }
 
 /**
@@ -631,6 +697,9 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 				}
 			}
 
+		if (label->kaslrseed)
+			label_boot_kaslrseed();
+
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 			if (label->fdtoverlays)
 				label_boot_fdtoverlay(ctx, label);
@@ -710,6 +779,7 @@ enum token_type {
 	T_ONTIMEOUT,
 	T_IPAPPEND,
 	T_BACKGROUND,
+	T_KASLRSEED,
 	T_INVALID
 };
 
@@ -741,6 +811,7 @@ static const struct token keywords[] = {
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
 	{"background", T_BACKGROUND,},
+	{"kaslrseed", T_KASLRSEED,},
 	{NULL, T_INVALID}
 };
 
@@ -1192,6 +1263,10 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 
 		case T_IPAPPEND:
 			err = parse_integer(c, &label->ipappend);
+			break;
+
+		case T_KASLRSEED:
+			label->kaslrseed = 1;
 			break;
 
 		case T_EOL:

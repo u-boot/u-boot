@@ -19,14 +19,5 @@
 					"stderr=serial,vidconsole\0"
 
 /* ATA/IDE support */
-#define CONFIG_SYS_IDE_MAXBUS		2
-#define CONFIG_SYS_IDE_MAXDEVICE	4
-#define CONFIG_SYS_ATA_BASE_ADDR	0
-#define CONFIG_SYS_ATA_DATA_OFFSET	0
-#define CONFIG_SYS_ATA_REG_OFFSET	0
-#define CONFIG_SYS_ATA_ALT_OFFSET	0
-#define CONFIG_SYS_ATA_IDE0_OFFSET	0x1f0
-#define CONFIG_SYS_ATA_IDE1_OFFSET	0x170
-#define CONFIG_ATAPI
 
 #endif	/* __CONFIG_H */

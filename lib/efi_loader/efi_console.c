@@ -25,6 +25,8 @@ struct cout_mode {
 	int present;
 };
 
+__maybe_unused static struct efi_object uart_obj;
+
 static struct cout_mode efi_cout_modes[] = {
 	/* EFI Mode 0 is 80x25 and always present */
 	{
@@ -1258,37 +1260,33 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
 efi_status_t efi_console_register(void)
 {
 	efi_status_t r;
-	efi_handle_t console_output_handle;
-	efi_handle_t console_input_handle;
+	struct efi_device_path *dp;
 
 	/* Set up mode information */
 	query_console_size();
 
-	/* Create handles */
-	r = efi_create_handle(&console_output_handle);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
+	/* Install protocols on root node */
+	r = EFI_CALL(efi_install_multiple_protocol_interfaces
+		     (&efi_root,
+		      &efi_guid_text_output_protocol, &efi_con_out,
+		      &efi_guid_text_input_protocol, &efi_con_in,
+		      &efi_guid_text_input_ex_protocol, &efi_con_in_ex,
+		      NULL));
 
-	r = efi_add_protocol(console_output_handle,
-			     &efi_guid_text_output_protocol, &efi_con_out);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
-	systab.con_out_handle = console_output_handle;
-	systab.stderr_handle = console_output_handle;
+	/* Create console node and install device path protocols */
+	if (CONFIG_IS_ENABLED(DM_SERIAL)) {
+		dp = efi_dp_from_uart();
+		if (!dp)
+			goto out_of_memory;
 
-	r = efi_create_handle(&console_input_handle);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
+		/* Hook UART up to the device list */
+		efi_add_handle(&uart_obj);
 
-	r = efi_add_protocol(console_input_handle,
-			     &efi_guid_text_input_protocol, &efi_con_in);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
-	systab.con_in_handle = console_input_handle;
-	r = efi_add_protocol(console_input_handle,
-			     &efi_guid_text_input_ex_protocol, &efi_con_in_ex);
-	if (r != EFI_SUCCESS)
-		goto out_of_memory;
+		/* Install device path */
+		r = efi_add_protocol(&uart_obj, &efi_guid_device_path, dp);
+		if (r != EFI_SUCCESS)
+			goto out_of_memory;
+	}
 
 	/* Create console events */
 	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,

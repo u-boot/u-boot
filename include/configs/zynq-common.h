@@ -9,8 +9,6 @@
 #ifndef __CONFIG_ZYNQ_COMMON_H
 #define __CONFIG_ZYNQ_COMMON_H
 
-#define CONFIG_REMAKE_ELF
-
 /* Cache options */
 #ifndef CONFIG_SYS_L2CACHE_OFF
 # define CONFIG_SYS_L2_PL310

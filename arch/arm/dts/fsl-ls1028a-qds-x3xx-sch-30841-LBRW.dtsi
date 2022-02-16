@@ -29,24 +29,28 @@
 
 &mscc_felix_port0 {
 	status = "okay";
+	managed = "in-band-status";
 	phy-mode = "usxgmii";
 	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@00}>;
 };
 
 &mscc_felix_port1 {
 	status = "okay";
+	managed = "in-band-status";
 	phy-mode = "usxgmii";
 	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@01}>;
 };
 
 &mscc_felix_port2 {
 	status = "okay";
+	managed = "in-band-status";
 	phy-mode = "usxgmii";
 	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@02}>;
 };
 
 &mscc_felix_port3 {
 	status = "okay";
+	managed = "in-band-status";
 	phy-mode = "usxgmii";
 	phy-handle = <&{/soc/i2c@2000000/fpga@66/mux-mdio@54/mdio@50/phy@03}>;
 };

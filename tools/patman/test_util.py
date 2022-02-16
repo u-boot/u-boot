@@ -4,6 +4,7 @@
 #
 
 from contextlib import contextmanager
+import doctest
 import glob
 import multiprocessing
 import os
@@ -22,7 +23,7 @@ except:
     use_concurrent = False
 
 
-def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
+def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None,
                     extra_args=None):
     """Run tests and check that we get 100% coverage
 
@@ -60,7 +61,7 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None,
            '--omit "%s" %s %s %s -P1' % (prefix, ','.join(glob_list),
                                          prog, extra_args or '', test_cmd))
     os.system(cmd)
-    stdout = command.Output('python3-coverage', 'report')
+    stdout = command.output('python3-coverage', 'report')
     lines = stdout.splitlines()
     if required:
         # Convert '/path/to/name.py' just the module name 'name'
@@ -101,7 +102,7 @@ def capture_sys_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
-def ReportResult(toolname:str, test_name: str, result: unittest.TestResult):
+def report_result(toolname:str, test_name: str, result: unittest.TestResult):
     """Report the results from a suite of tests
 
     Args:
@@ -138,8 +139,8 @@ def ReportResult(toolname:str, test_name: str, result: unittest.TestResult):
     return 0
 
 
-def RunTestSuites(result, debug, verbosity, test_preserve_dirs, processes,
-                  test_name, toolpath, test_class_list):
+def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
+                    test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
 
     Args:
@@ -154,11 +155,13 @@ def RunTestSuites(result, debug, verbosity, test_preserve_dirs, processes,
         processes: Number of processes to use to run tests (None=same as #CPUs)
         test_name: Name of test to run, or None for all
         toolpath: List of paths to use for tools
-        test_class_list: List of test classes to run
+        class_and_module_list: List of test classes (type class) and module
+           names (type str) to run
     """
-    for module in []:
-        suite = doctest.DocTestSuite(module)
-        suite.run(result)
+    for module in class_and_module_list:
+        if isinstance(module, str) and (not test_name or test_name == module):
+            suite = doctest.DocTestSuite(module)
+            suite.run(result)
 
     sys.argv = [sys.argv[0]]
     if debug:
@@ -171,7 +174,9 @@ def RunTestSuites(result, debug, verbosity, test_preserve_dirs, processes,
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    for module in test_class_list:
+    for module in class_and_module_list:
+        if isinstance(module, str):
+            continue
         # Test the test module about our arguments, if it is interested
         if hasattr(module, 'setup_test_args'):
             setup_test_args = getattr(module, 'setup_test_args')

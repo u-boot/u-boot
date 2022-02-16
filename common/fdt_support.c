@@ -988,7 +988,7 @@ void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
 {
 	struct mtd_device *dev;
 	int i, idx;
-	int noff;
+	int noff, parts;
 	bool inited = false;
 
 	for (i = 0; i < node_info_size; i++) {
@@ -1014,7 +1014,12 @@ void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
 
 			dev = device_find(node_info[i].type, idx++);
 			if (dev) {
-				if (fdt_node_set_part_info(blob, noff, dev))
+				parts = fdt_subnode_offset(blob, noff,
+							   "partitions");
+				if (parts < 0)
+					parts = noff;
+
+				if (fdt_node_set_part_info(blob, parts, dev))
 					return; /* return on error */
 			}
 		}

@@ -62,7 +62,6 @@ Build U-Boot
 .. code-block:: bash
 
    $ make kontron-sl-mx8mm_defconfig
-   $ export ATF_LOAD_ADDR=0x920000
    $ make
 
 Burn the flash.bin to SD card at an offset of 33 KiB:

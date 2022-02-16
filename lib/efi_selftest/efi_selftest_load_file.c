@@ -101,7 +101,7 @@ static struct {
 			FILE_NAME_SIZE * sizeof(u16),
 		}
 	},
-	L"\\lf.efi",
+	u"\\lf.efi",
 	{
 		DEVICE_PATH_TYPE_END,
 		DEVICE_PATH_SUB_TYPE_END,
@@ -152,7 +152,7 @@ static struct {
 			FILE_NAME_SIZE * sizeof(u16),
 		}
 	},
-	L"\\lf2.efi",
+	u"\\lf2.efi",
 	{
 		DEVICE_PATH_TYPE_END,
 		DEVICE_PATH_SUB_TYPE_END,

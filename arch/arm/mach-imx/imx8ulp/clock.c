@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PLL_USB_LOCK_MASK		(0x01 << 31)
 #define PCC5_LPDDR4_ADDR 0x2da70108
 
-static void lpuart_set_clk(u32 index, enum cgc1_clk clk)
+static void lpuart_set_clk(u32 index, enum cgc_clk clk)
 {
 	const u32 lpuart_pcc_slots[] = {
 		LPUART4_PCC3_SLOT,
@@ -97,12 +97,18 @@ void ddrphy_pll_lock(void)
 
 void init_clk_ddr(void)
 {
+	/* disable the ddr pcc */
+	writel(0xc0000000, PCC5_LPDDR4_ADDR);
+
 	/* enable pll4 and ddrclk*/
 	cgc2_pll4_init();
 	cgc2_ddrclk_config(1, 1);
 
 	/* enable ddr pcc */
 	writel(0xd0000000, PCC5_LPDDR4_ADDR);
+
+	/* Wait until ddrclk reg lock bit is cleared, so that the div update is finished */
+	cgc2_ddrclk_wait_unlock();
 
 	/* for debug */
 	/* setclkout_ddr(); */
@@ -140,6 +146,9 @@ int set_ddr_clk(u32 phy_freq_mhz)
 		printf("ddr phy clk %uMhz is not supported\n", phy_freq_mhz);
 		return -EINVAL;
 	}
+
+	/* Wait until ddrclk reg lock bit is cleared, so that the div update is finished */
+	cgc2_ddrclk_wait_unlock();
 
 	return 0;
 }
@@ -186,6 +195,9 @@ int enable_i2c_clk(unsigned char enable, u32 i2c_num)
 		LPI2C7_PCC4_SLOT << 8 | 4,
 	};
 
+	if (i2c_num == 0)
+		return 0;
+
 	if (i2c_num < 4 || i2c_num > 7)
 		return -EINVAL;
 
@@ -213,6 +225,9 @@ u32 imx_get_i2cclk(u32 i2c_num)
 		LPI2C6_PCC4_SLOT << 8 | 4,
 		LPI2C7_PCC4_SLOT << 8 | 4,
 	};
+
+	if (i2c_num == 0)
+		return 24000000;
 
 	if (i2c_num < 4 || i2c_num > 7)
 		return 0;
@@ -317,6 +332,99 @@ int enable_usb_pll(ulong usb_phy_base)
 	return 0;
 }
 
+void enable_mipi_dsi_clk(unsigned char enable)
+{
+	if (enable) {
+		pcc_clock_enable(5, DSI_PCC5_SLOT, false);
+		pcc_reset_peripheral(5, DSI_PCC5_SLOT, true);
+		pcc_clock_sel(5, DSI_PCC5_SLOT, PLL4_PFD3_DIV2);
+		pcc_clock_div_config(5, DSI_PCC5_SLOT, 0, 6);
+		pcc_clock_enable(5, DSI_PCC5_SLOT, true);
+		pcc_reset_peripheral(5, DSI_PCC5_SLOT, false);
+	} else {
+		pcc_clock_enable(5, DSI_PCC5_SLOT, false);
+		pcc_reset_peripheral(5, DSI_PCC5_SLOT, true);
+	}
+}
+
+void enable_adc1_clk(bool enable)
+{
+	if (enable) {
+		pcc_clock_enable(1, ADC1_PCC1_SLOT, false);
+		pcc_clock_sel(1, ADC1_PCC1_SLOT, CM33_BUSCLK);
+		pcc_clock_enable(1, ADC1_PCC1_SLOT, true);
+		pcc_reset_peripheral(1, ADC1_PCC1_SLOT, false);
+	} else {
+		pcc_clock_enable(1, ADC1_PCC1_SLOT, false);
+	}
+}
+
+void reset_lcdclk(void)
+{
+	/* Disable clock and reset dcnano*/
+	pcc_clock_enable(5, DCNANO_PCC5_SLOT, false);
+	pcc_reset_peripheral(5, DCNANO_PCC5_SLOT, true);
+}
+
+void mxs_set_lcdclk(u32 base_addr, u32 freq_in_khz)
+{
+	u8 pcd, best_pcd = 0;
+	u32 frac, rate, parent_rate, pfd, div;
+	u32 best_pfd = 0, best_frac = 0, best = 0, best_div = 0;
+	u32 pll4_rate;
+
+	pcc_clock_enable(5, DCNANO_PCC5_SLOT, false);
+
+	pll4_rate = cgc_clk_get_rate(PLL4);
+	pll4_rate = pll4_rate / 1000;  /* Change to khz*/
+
+	debug("PLL4 rate %ukhz\n", pll4_rate);
+
+	for (pfd = 12; pfd <= 35; pfd++) {
+		parent_rate = pll4_rate;
+		parent_rate = parent_rate * 18 / pfd;
+
+		for (div = 1; div <= 64; div++) {
+			parent_rate = parent_rate / div;
+
+			for (pcd = 0; pcd < 8; pcd++) {
+				for (frac = 0; frac < 2; frac++) {
+					if (pcd == 0 && frac == 1)
+						continue;
+
+					rate = parent_rate * (frac + 1) / (pcd + 1);
+					if (rate > freq_in_khz)
+						continue;
+
+					if (best == 0 || rate > best) {
+						best = rate;
+						best_pfd = pfd;
+						best_frac = frac;
+						best_pcd = pcd;
+						best_div = div;
+					}
+				}
+			}
+		}
+	}
+
+	if (best == 0) {
+		printf("Can't find parent clock for LCDIF, target freq: %u\n", freq_in_khz);
+		return;
+	}
+
+	debug("LCD target rate %ukhz, best rate %ukhz, frac %u, pcd %u, best_pfd %u, best_div %u\n",
+	      freq_in_khz, best, best_frac, best_pcd, best_pfd, best_div);
+
+	cgc2_pll4_pfd_config(PLL4_PFD0, best_pfd);
+	cgc2_pll4_pfddiv_config(PLL4_PFD0_DIV1, best_div - 1);
+
+	pcc_clock_sel(5, DCNANO_PCC5_SLOT, PLL4_PFD0_DIV1);
+	pcc_clock_div_config(5, DCNANO_PCC5_SLOT, best_frac, best_pcd + 1);
+	pcc_clock_enable(5, DCNANO_PCC5_SLOT, true);
+	pcc_reset_peripheral(5, DCNANO_PCC5_SLOT, false);
+}
+
 u32 mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
@@ -327,7 +435,7 @@ u32 mxc_get_clock(enum mxc_clock clk)
 	case MXC_ESDHC3_CLK:
 		return pcc_clock_get_rate(4, SDHC2_PCC4_SLOT);
 	case MXC_ARM_CLK:
-		return cgc1_clk_get_rate(PLL2);
+		return cgc_clk_get_rate(PLL2);
 	default:
 		return 0;
 	}
@@ -376,16 +484,40 @@ int do_mx8ulp_showclocks(struct cmd_tbl *cmdtp, int flag, int argc, char * const
 	printf("SDHC1 %8d MHz\n", pcc_clock_get_rate(4, SDHC1_PCC4_SLOT) / 1000000);
 	printf("SDHC2 %8d MHz\n", pcc_clock_get_rate(4, SDHC2_PCC4_SLOT) / 1000000);
 
-	printf("SOSC %8d MHz\n", cgc1_clk_get_rate(SOSC) / 1000000);
-	printf("FRO %8d MHz\n", cgc1_clk_get_rate(FRO) / 1000000);
-	printf("PLL2 %8d MHz\n", cgc1_clk_get_rate(PLL2) / 1000000);
-	printf("PLL3 %8d MHz\n", cgc1_clk_get_rate(PLL3) / 1000000);
-	printf("PLL3_VCODIV %8d MHz\n", cgc1_clk_get_rate(PLL3_VCODIV) / 1000000);
-	printf("PLL3_PFD0 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD0) / 1000000);
-	printf("PLL3_PFD1 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD1) / 1000000);
-	printf("PLL3_PFD2 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD2) / 1000000);
-	printf("PLL3_PFD3 %8d MHz\n", cgc1_clk_get_rate(PLL3_PFD3) / 1000000);
+	printf("SOSC %8d MHz\n", cgc_clk_get_rate(SOSC) / 1000000);
+	printf("FRO %8d MHz\n", cgc_clk_get_rate(FRO) / 1000000);
+	printf("PLL2 %8d MHz\n", cgc_clk_get_rate(PLL2) / 1000000);
+	printf("PLL3 %8d MHz\n", cgc_clk_get_rate(PLL3) / 1000000);
+	printf("PLL3_VCODIV %8d MHz\n", cgc_clk_get_rate(PLL3_VCODIV) / 1000000);
+	printf("PLL3_PFD0 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD0) / 1000000);
+	printf("PLL3_PFD1 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD1) / 1000000);
+	printf("PLL3_PFD2 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD2) / 1000000);
+	printf("PLL3_PFD3 %8d MHz\n", cgc_clk_get_rate(PLL3_PFD3) / 1000000);
 
+	printf("PLL4_PFD0 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD0) / 1000000);
+	printf("PLL4_PFD1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD1) / 1000000);
+	printf("PLL4_PFD2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD2) / 1000000);
+	printf("PLL4_PFD3 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD3) / 1000000);
+
+	printf("PLL4_PFD0_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD0_DIV1) / 1000000);
+	printf("PLL4_PFD0_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD0_DIV2) / 1000000);
+	printf("PLL4_PFD1_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD1_DIV1) / 1000000);
+	printf("PLL4_PFD1_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD1_DIV2) / 1000000);
+
+	printf("PLL4_PFD2_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD2_DIV1) / 1000000);
+	printf("PLL4_PFD2_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD2_DIV2) / 1000000);
+	printf("PLL4_PFD3_DIV1 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD3_DIV1) / 1000000);
+	printf("PLL4_PFD3_DIV2 %8d MHz\n", cgc_clk_get_rate(PLL4_PFD3_DIV2) / 1000000);
+
+	printf("LPAV_AXICLK %8d MHz\n", cgc_clk_get_rate(LPAV_AXICLK) / 1000000);
+	printf("LPAV_AHBCLK %8d MHz\n", cgc_clk_get_rate(LPAV_AHBCLK) / 1000000);
+	printf("LPAV_BUSCLK %8d MHz\n", cgc_clk_get_rate(LPAV_BUSCLK) / 1000000);
+	printf("NIC_APCLK %8d MHz\n", cgc_clk_get_rate(NIC_APCLK) / 1000000);
+
+	printf("NIC_PERCLK %8d MHz\n", cgc_clk_get_rate(NIC_PERCLK) / 1000000);
+	printf("XBAR_APCLK %8d MHz\n", cgc_clk_get_rate(XBAR_APCLK) / 1000000);
+	printf("XBAR_BUSCLK %8d MHz\n", cgc_clk_get_rate(XBAR_BUSCLK) / 1000000);
+	printf("AD_SLOWCLK %8d MHz\n", cgc_clk_get_rate(AD_SLOWCLK) / 1000000);
 	return 0;
 }
 

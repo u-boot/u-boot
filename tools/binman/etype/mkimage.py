@@ -48,12 +48,12 @@ class Entry_mkimage(Entry):
                 return False
             data += entry.GetData()
         uniq = self.GetUniqueName()
-        input_fname = tools.GetOutputFilename('mkimage.%s' % uniq)
-        tools.WriteFile(input_fname, data)
-        output_fname = tools.GetOutputFilename('mkimage-out.%s' % uniq)
+        input_fname = tools.get_output_filename('mkimage.%s' % uniq)
+        tools.write_file(input_fname, data)
+        output_fname = tools.get_output_filename('mkimage-out.%s' % uniq)
         if self.mkimage.run_cmd('-d', input_fname, *self._args,
                                 output_fname) is not None:
-            self.SetContents(tools.ReadFile(output_fname))
+            self.SetContents(tools.read_file(output_fname))
         else:
             # Bintool is missing; just use the input data as the output
             self.record_missing_bintool(self.mkimage)

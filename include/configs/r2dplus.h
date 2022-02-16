@@ -30,19 +30,6 @@
 #define	CONFIG_SYS_PLL_SETTLING_TIME	100/* in us */
 
 /*
- * IDE support
- */
-#define CONFIG_IDE_RESET	1
-#define CONFIG_SYS_PIO_MODE		1
-#define CONFIG_SYS_IDE_MAXBUS		1 /* IDE bus */
-#define CONFIG_SYS_IDE_MAXDEVICE	1
-#define CONFIG_SYS_ATA_BASE_ADDR	0xb4000000
-#define CONFIG_SYS_ATA_STRIDE		2 /* 1bit shift */
-#define CONFIG_SYS_ATA_DATA_OFFSET	0x1000	/* data reg offset */
-#define CONFIG_SYS_ATA_REG_OFFSET	0x1000	/* reg offset */
-#define CONFIG_SYS_ATA_ALT_OFFSET	0x800	/* alternate register offset */
-
-/*
  * SuperH PCI Bridge Configration
  */
 #define CONFIG_SH7751_PCI

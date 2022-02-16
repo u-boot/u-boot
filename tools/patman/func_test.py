@@ -45,7 +45,7 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
-        terminal.SetPrintTestMode(False)
+        terminal.set_print_test_mode(False)
 
     @staticmethod
     def _get_path(fname):
@@ -114,7 +114,7 @@ class TestFunctional(unittest.TestCase):
 
         return cover_fname, fname_list
 
-    def testBasic(self):
+    def test_basic(self):
         """Tests the basic flow of patman
 
         This creates a series from some hard-coded patches build from a simple
@@ -208,7 +208,7 @@ class TestFunctional(unittest.TestCase):
             cc_file = series.MakeCcFile(process_tags, cover_fname,
                                         not ignore_bad_tags, add_maintainers,
                                         None)
-            cmd = gitutil.EmailPatches(
+            cmd = gitutil.email_patches(
                 series, cover_fname, args, dry_run, not ignore_bad_tags,
                 cc_file, in_reply_to=in_reply_to, thread=None)
             series.ShowActions(args, cmd, process_tags)
@@ -338,7 +338,7 @@ Changes in v2:
             text (str): Text to put into the file
         """
         path = os.path.join(self.gitdir, fname)
-        tools.WriteFile(path, text, binary=False)
+        tools.write_file(path, text, binary=False)
         index = self.repo.index
         index.add(fname)
         author = pygit2.Signature('Test user', 'test@email.com')
@@ -455,7 +455,7 @@ complicated as possible''')
         repo.branches.local.create('base', base_target)
         return repo
 
-    def testBranch(self):
+    def test_branch(self):
         """Test creating patches from a branch"""
         repo = self.make_git_tree()
         target = repo.lookup_reference('refs/heads/first')
@@ -466,7 +466,7 @@ complicated as possible''')
             os.chdir(self.gitdir)
 
             # Check that it can detect the current branch
-            self.assertEqual(2, gitutil.CountCommitsToBranch(None))
+            self.assertEqual(2, gitutil.count_commits_to_branch(None))
             col = terminal.Color()
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
@@ -476,7 +476,7 @@ complicated as possible''')
             self.assertEqual(2, len(patch_files))
 
             # Check that it can detect a different branch
-            self.assertEqual(3, gitutil.CountCommitsToBranch('second'))
+            self.assertEqual(3, gitutil.count_commits_to_branch('second'))
             with capture_sys_output() as _:
                 _, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
@@ -494,7 +494,7 @@ complicated as possible''')
         finally:
             os.chdir(orig_dir)
 
-    def testTags(self):
+    def test_tags(self):
         """Test collection of tags in a patchstream"""
         text = '''This is a patch
 
@@ -508,7 +508,7 @@ Tested-by: %s
             'Reviewed-by': {self.joe, self.mary},
             'Tested-by': {self.leb}})
 
-    def testInvalidTag(self):
+    def test_invalid_tag(self):
         """Test invalid tag in a patchstream"""
         text = '''This is a patch
 
@@ -519,7 +519,7 @@ Serie-version: 2
         self.assertEqual("Line 3: Invalid tag = 'Serie-version: 2'",
                          str(exc.exception))
 
-    def testMissingEnd(self):
+    def test_missing_end(self):
         """Test a missing END tag"""
         text = '''This is a patch
 
@@ -532,7 +532,7 @@ Signed-off-by: Fred
         self.assertEqual(["Missing 'END' in section 'cover'"],
                          pstrm.commit.warn)
 
-    def testMissingBlankLine(self):
+    def test_missing_blank_line(self):
         """Test a missing blank line after a tag"""
         text = '''This is a patch
 
@@ -545,7 +545,7 @@ Signed-off-by: Fred
         self.assertEqual(["Missing 'blank line' in section 'Series-changes'"],
                          pstrm.commit.warn)
 
-    def testInvalidCommitTag(self):
+    def test_invalid_commit_tag(self):
         """Test an invalid Commit-xxx tag"""
         text = '''This is a patch
 
@@ -554,7 +554,7 @@ Commit-fred: testing
         pstrm = PatchStream.process_text(text)
         self.assertEqual(["Line 3: Ignoring Commit-fred"], pstrm.commit.warn)
 
-    def testSelfTest(self):
+    def test_self_test(self):
         """Test a tested by tag by this user"""
         test_line = 'Tested-by: %s@napier.com' % os.getenv('USER')
         text = '''This is a patch
@@ -564,7 +564,7 @@ Commit-fred: testing
         pstrm = PatchStream.process_text(text)
         self.assertEqual(["Ignoring '%s'" % test_line], pstrm.commit.warn)
 
-    def testSpaceBeforeTab(self):
+    def test_space_before_tab(self):
         """Test a space before a tab"""
         text = '''This is a patch
 
@@ -573,7 +573,7 @@ Commit-fred: testing
         pstrm = PatchStream.process_text(text)
         self.assertEqual(["Line 3/0 has space before tab"], pstrm.commit.warn)
 
-    def testLinesAfterTest(self):
+    def test_lines_after_test(self):
         """Test detecting lines after TEST= line"""
         text = '''This is a patch
 
@@ -584,7 +584,7 @@ here
         pstrm = PatchStream.process_text(text)
         self.assertEqual(["Found 2 lines after TEST="], pstrm.commit.warn)
 
-    def testBlankLineAtEnd(self):
+    def test_blank_line_at_end(self):
         """Test detecting a blank line at the end of a file"""
         text = '''This is a patch
 
@@ -611,7 +611,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             ["Found possible blank line(s) at end of file 'lib/fdtdec.c'"],
             pstrm.commit.warn)
 
-    def testNoUpstream(self):
+    def test_no_upstream(self):
         """Test CountCommitsToBranch when there is no upstream"""
         repo = self.make_git_tree()
         target = repo.lookup_reference('refs/heads/base')
@@ -622,7 +622,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             orig_dir = os.getcwd()
             os.chdir(self.gitdir)
             with self.assertRaises(ValueError) as exc:
-                gitutil.CountCommitsToBranch(None)
+                gitutil.count_commits_to_branch(None)
             self.assertIn(
                 "Failed to determine upstream: fatal: no upstream configured for branch 'base'",
                 str(exc.exception))
@@ -648,7 +648,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
                     {'id': '1', 'name': 'Some patch'}]}
         raise ValueError('Fake Patchwork does not understand: %s' % subpath)
 
-    def testStatusMismatch(self):
+    def test_status_mismatch(self):
         """Test Patchwork patches not matching the series"""
         series = Series()
 
@@ -657,7 +657,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertIn('Warning: Patchwork reports 1 patches, series has 0',
                       err.getvalue())
 
-    def testStatusReadPatch(self):
+    def test_status_read_patch(self):
         """Test handling a single patch in Patchwork"""
         series = Series()
         series.commits = [Commit('abcd')]
@@ -669,7 +669,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('1', patch.id)
         self.assertEqual('Some patch', patch.raw_subject)
 
-    def testParseSubject(self):
+    def test_parse_subject(self):
         """Test parsing of the patch subject"""
         patch = status.Patch('1')
 
@@ -731,7 +731,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('RESEND', patch.prefix)
         self.assertEqual(None, patch.version)
 
-    def testCompareSeries(self):
+    def test_compare_series(self):
         """Test operation of compare_with_series()"""
         commit1 = Commit('abcd')
         commit1.subject = 'Subject 1'
@@ -833,7 +833,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             return patch.comments
         raise ValueError('Fake Patchwork does not understand: %s' % subpath)
 
-    def testFindNewResponses(self):
+    def test_find_new_responses(self):
         """Test operation of find_new_responses()"""
         commit1 = Commit('abcd')
         commit1.subject = 'Subject 1'
@@ -907,10 +907,10 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
 
         series = Series()
         series.commits = [commit1, commit2]
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         status.check_patchwork_status(series, '1234', None, None, False, False,
                                       None, self._fake_patchwork2)
-        lines = iter(terminal.GetPrintTestLines())
+        lines = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
                          next(lines))
@@ -971,7 +971,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
             return patch.comments
         raise ValueError('Fake Patchwork does not understand: %s' % subpath)
 
-    def testCreateBranch(self):
+    def test_create_branch(self):
         """Test operation of create_branch()"""
         repo = self.make_git_tree()
         branch = 'first'
@@ -1021,11 +1021,11 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         # 4 responses added from patchwork into new branch 'first2'
         # <unittest.result.TestResult run=8 errors=0 failures=0>
 
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         status.check_patchwork_status(series, '1234', branch, dest_branch,
                                       False, False, None, self._fake_patchwork3,
                                       repo)
-        lines = terminal.GetPrintTestLines()
+        lines = terminal.get_print_test_lines()
         self.assertEqual(12, len(lines))
         self.assertEqual(
             "4 responses added from patchwork into new branch 'first2'",
@@ -1058,7 +1058,7 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.assertEqual('Reviewed-by: %s' % self.mary, next(lines))
         self.assertEqual('Tested-by: %s' % self.leb, next(lines))
 
-    def testParseSnippets(self):
+    def test_parse_snippets(self):
         """Test parsing of review snippets"""
         text = '''Hi Fred,
 
@@ -1088,7 +1088,7 @@ Even more
 
 And another comment
 
-> @@ -153,8 +143,13 @@ def CheckPatch(fname, show_types=False):
+> @@ -153,8 +143,13 @@ def check_patch(fname, show_types=False):
 >  further down on the file
 >  and more code
 > +Addition here
@@ -1131,7 +1131,7 @@ line8
               '> Code line 7', '> Code line 8', '> Code line 9',
               'And another comment'],
              ['> File: file.c',
-              '> Line: 153 / 143: def CheckPatch(fname, show_types=False):',
+              '> Line: 153 / 143: def check_patch(fname, show_types=False):',
               '>  and more code', '> +Addition here', '> +Another addition here',
               '>  codey', '>  more codey', 'and another thing in same file'],
              ['> File: file.c', '> Line: 253 / 243',
@@ -1141,7 +1141,7 @@ line8
               'line2', 'line3', 'line4', 'line5', 'line6', 'line7', 'line8']],
             pstrm.snippets)
 
-    def testReviewSnippets(self):
+    def test_review_snippets(self):
         """Test showing of review snippets"""
         def _to_submitter(who):
             m_who = re.match('(.*) <(.*)>', who)
@@ -1196,7 +1196,7 @@ On some date Fred wrote:
 > +    def __str__(self):
 > +        return self.subject
 > +
->      def AddChange(self, version, info):
+>      def add_change(self, version, info):
 >          """Add a new change line to the change list for a version.
 >
 A comment
@@ -1223,10 +1223,10 @@ Reviewed-by: %s
 
         series = Series()
         series.commits = [commit1, commit2]
-        terminal.SetPrintTestMode()
+        terminal.set_print_test_mode()
         status.check_patchwork_status(series, '1234', None, None, False, True,
                                       None, self._fake_patchwork2)
-        lines = iter(terminal.GetPrintTestLines())
+        lines = iter(terminal.get_print_test_lines())
         col = terminal.Color()
         self.assertEqual(terminal.PrintLine('  1 Subject 1', col.BLUE),
                          next(lines))
@@ -1280,7 +1280,7 @@ Reviewed-by: %s
         self.assertEqual(terminal.PrintLine(
             '    > +', col.MAGENTA), next(lines))
         self.assertEqual(
-            terminal.PrintLine('    >      def AddChange(self, version, info):',
+            terminal.PrintLine('    >      def add_change(self, version, info):',
                                col.MAGENTA),
             next(lines))
         self.assertEqual(terminal.PrintLine(
@@ -1296,7 +1296,7 @@ Reviewed-by: %s
             '4 new responses available in patchwork (use -d to write them to a new branch)',
             None), next(lines))
 
-    def testInsertTags(self):
+    def test_insert_tags(self):
         """Test inserting of review tags"""
         msg = '''first line
 second line.'''

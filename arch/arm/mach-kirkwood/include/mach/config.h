@@ -59,18 +59,11 @@
 #ifdef CONFIG_IDE
 #define __io
 /* Data, registers and alternate blocks are at the same offset */
-#define CONFIG_SYS_ATA_DATA_OFFSET	(0x0100)
-#define CONFIG_SYS_ATA_REG_OFFSET	(0x0100)
-#define CONFIG_SYS_ATA_ALT_OFFSET	(0x0100)
 /* Each 8-bit ATA register is aligned to a 4-bytes address */
-#define CONFIG_SYS_ATA_STRIDE		4
 /* Controller supports 48-bits LBA addressing */
 #define CONFIG_LBA48
 /* CONFIG_IDE requires some #defines for ATA registers */
-#define CONFIG_SYS_IDE_MAXBUS		2
-#define CONFIG_SYS_IDE_MAXDEVICE	2
 /* ATA registers base is at SATA controller base */
-#define CONFIG_SYS_ATA_BASE_ADDR	MV_SATA_BASE
 #endif /* CONFIG_IDE */
 
 /* Use common timer */

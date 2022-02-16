@@ -413,6 +413,40 @@ void configure_serdes_torrent(void)
 		printf("phy_power_on failed !!\n");
 }
 
+void configure_serdes_sierra(void)
+{
+	struct udevice *dev, *lnk_dev;
+	struct phy serdes;
+	int ret, count, i;
+
+	if (!IS_ENABLED(CONFIG_PHY_CADENCE_SIERRA))
+		return;
+
+	ret = uclass_get_device_by_driver(UCLASS_PHY,
+					  DM_DRIVER_GET(sierra_phy_provider),
+					  &dev);
+	if (ret)
+		printf("Sierra init failed:%d\n", ret);
+
+	serdes.dev = dev;
+	serdes.id = 0;
+
+	count = device_get_child_count(dev);
+	for (i = 0; i < count; i++) {
+		ret = device_get_child(dev, i, &lnk_dev);
+		if (ret)
+			printf("probe of sierra child node %d failed\n", i);
+	}
+
+	ret = generic_phy_init(&serdes);
+	if (ret)
+		printf("phy_init failed!!\n");
+
+	ret = generic_phy_power_on(&serdes);
+	if (ret)
+		printf("phy_power_on failed !!\n");
+}
+
 int board_late_init(void)
 {
 	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)) {
@@ -425,6 +459,9 @@ int board_late_init(void)
 
 	if (board_is_j7200_som())
 		configure_serdes_torrent();
+
+	if (board_is_j721e_som())
+		configure_serdes_sierra();
 
 	return 0;
 }

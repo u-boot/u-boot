@@ -32,9 +32,12 @@ int __weak dfu_read_medium_virt(struct dfu_entity *dfu, u64 offset,
 	return 0;
 }
 
-int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr, char *s)
+int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr, char **argv, int argc)
 {
 	debug("%s: devstr = %s\n", __func__, devstr);
+
+	if (argc != 0)
+		return -EINVAL;
 
 	dfu->dev_type = DFU_DEV_VIRT;
 	dfu->layout = DFU_RAW_ADDR;

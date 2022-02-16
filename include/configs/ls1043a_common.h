@@ -26,8 +26,6 @@
 #define SPL_NO_IFC
 #endif
 
-#define CONFIG_REMAKE_ELF
-
 #include <asm/arch/stream_id_lsch2.h>
 #include <asm/arch/config.h>
 

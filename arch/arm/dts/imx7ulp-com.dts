@@ -6,6 +6,7 @@
 /dts-v1/;
 
 #include "imx7ulp.dtsi"
+#include "imx7ulp-com-u-boot.dtsi"
 
 / {
 	model = "Embedded Artists i.MX7ULP COM";

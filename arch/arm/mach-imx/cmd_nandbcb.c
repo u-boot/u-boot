@@ -132,6 +132,7 @@ static struct platform_config imx8q_plat_config = {
 
 /* boot search related variables and definitions */
 static int g_boot_search_count = 4;
+static int g_boot_secondary_offset;
 static int g_boot_search_stride;
 static int g_pages_per_stride;
 
@@ -275,9 +276,9 @@ static int nandbcb_set_boot_config(int argc, char * const argv[],
 	boot_stream2_address = ((maxsize - boot_stream1_address) / 2 +
 			       boot_stream1_address);
 
-	if (boot_cfg->secondary_boot_stream_off_in_MB)
+	if (g_boot_secondary_offset)
 		boot_stream2_address =
-			(loff_t)boot_cfg->secondary_boot_stream_off_in_MB * 1024 * 1024;
+			(loff_t)g_boot_secondary_offset * 1024 * 1024;
 
 	max_boot_stream_size = boot_stream2_address - boot_stream1_address;
 
@@ -650,7 +651,7 @@ static int write_fcb(struct boot_config *boot_cfg, struct fcb_block *fcb)
 			};
 
 			ret = mtd_write_oob(mtd, off, &ops);
-			printf("NAND FCB write to 0x%llxx offset 0x%zx written: %s\n", off, ops.len, ret ? "ERROR" : "OK");
+			printf("NAND FCB write to 0x%llx offset 0x%zx written: %s\n", off, ops.len, ret ? "ERROR" : "OK");
 		}
 
 		if (ret)
@@ -1269,6 +1270,36 @@ static bool check_fingerprint(void *data, int fingerprint)
 	return (*(int *)(data + off) == fingerprint);
 }
 
+static int fuse_secondary_boot(u32 bank, u32 word, u32 mask, u32 off)
+{
+	int err;
+	u32 val;
+	int ret;
+
+	err = fuse_read(bank, word, &val);
+	if (err)
+		return 0;
+
+	val = (val & mask) >> off;
+
+	if (val > 10)
+		return 0;
+
+	switch (val) {
+	case 0:
+		ret = 4;
+		break;
+	case 1:
+		ret = 1;
+		break;
+	default:
+		ret = 2 << val;
+		break;
+	}
+
+	return ret;
+};
+
 static int fuse_to_search_count(u32 bank, u32 word, u32 mask, u32 off)
 {
 	int err;
@@ -1504,6 +1535,11 @@ static int do_nandbcb(struct cmd_tbl *cmdtp, int flag, int argc,
 			g_boot_search_count = fuse_to_search_count(2, 2, 0x6000, 13);
 		printf("search count set to %d from fuse\n",
 		       g_boot_search_count);
+	}
+
+	if (plat_config.misc_flags & FIRMWARE_SECONDARY_FIXED_ADDR) {
+		if (is_imx8mn())
+			g_boot_secondary_offset = fuse_secondary_boot(2, 1, 0xff0000, 16);
 	}
 
 	cmd = argv[1];

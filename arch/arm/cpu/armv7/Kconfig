@@ -76,4 +76,9 @@ config ARMV7_LPAE
 	Say Y here to use the long descriptor page table format. This is
 	required if U-Boot runs in HYP mode.
 
+config SPL_ARMV7_SET_CORTEX_SMPEN
+	bool
+	help
+	  Enable the ARM Cortex ACTLR.SMP enable bit on SPL startup.
+
 endif

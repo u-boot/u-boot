@@ -75,6 +75,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 }
 #endif
 
+#ifdef CONFIG_SPL_BUILD
 static int gpio_init(void)
 {
 	__maybe_unused uint val;
@@ -86,7 +87,8 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUNXI_GPIO_INPUT);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUNXI_GPIO_INPUT);
 #endif
-#if defined(CONFIG_MACH_SUN8I) && !defined(CONFIG_MACH_SUN8I_R40)
+#if (defined(CONFIG_MACH_SUN8I) && !defined(CONFIG_MACH_SUN8I_R40)) || \
+    defined(CONFIG_MACH_SUNIV)
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUN8I_GPF_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUN8I_GPF_UART0);
 #else
@@ -94,6 +96,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF_UART0);
 #endif
 	sunxi_gpio_set_pull(SUNXI_GPF(4), 1);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUNIV)
+	sunxi_gpio_set_cfgpin(SUNXI_GPE(0), SUNIV_GPE_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPE(1), SUNIV_GPE_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPE(1), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_MACH_SUN4I) || \
 				 defined(CONFIG_MACH_SUN7I) || \
 				 defined(CONFIG_MACH_SUN8I_R40))
@@ -172,7 +178,6 @@ static int gpio_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_BOARD_LOAD_IMAGE) && defined(CONFIG_SPL_BUILD)
 static int spl_board_load_image(struct spl_image_info *spl_image,
 				struct spl_boot_device *bootdev)
 {
@@ -183,63 +188,6 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 }
 SPL_LOAD_IMAGE_METHOD("FEL", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 #endif
-
-void s_init(void)
-{
-	/*
-	 * Undocumented magic taken from boot0, without this DRAM
-	 * access gets messed up (seems cache related).
-	 * The boot0 sources describe this as: "config ema for cache sram"
-	 */
-#if defined CONFIG_MACH_SUN6I
-	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
-#elif defined CONFIG_MACH_SUN8I
-	__maybe_unused uint version;
-
-	/* Unlock sram version info reg, read it, relock */
-	setbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
-	version = readl(SUNXI_SRAMC_BASE + 0x24) >> 16;
-	clrbits_le32(SUNXI_SRAMC_BASE + 0x24, (1 << 15));
-
-	/*
-	 * Ideally this would be a switch case, but we do not know exactly
-	 * which versions there are and which version needs which settings,
-	 * so reproduce the per SoC code from the BSP.
-	 */
-#if defined CONFIG_MACH_SUN8I_A23
-	if (version == 0x1650)
-		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
-	else /* 0x1661 ? */
-		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0xc0);
-#elif defined CONFIG_MACH_SUN8I_A33
-	if (version != 0x1667)
-		setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0xc0);
-#endif
-	/* A83T BSP never modifies SUNXI_SRAMC_BASE + 0x44 */
-	/* No H3 BSP, boot0 seems to not modify SUNXI_SRAMC_BASE + 0x44 */
-#endif
-
-#if !defined(CONFIG_ARM_CORTEX_CPU_IS_UP) && !defined(CONFIG_ARM64)
-	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
-	asm volatile(
-		"mrc p15, 0, r0, c1, c0, 1\n"
-		"orr r0, r0, #1 << 6\n"
-		"mcr p15, 0, r0, c1, c0, 1\n"
-		::: "r0");
-#endif
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
-	/* Enable non-secure access to some peripherals */
-	tzpc_init();
-#endif
-
-	clock_init();
-	timer_init();
-	gpio_init();
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	i2c_init_board();
-#endif
-	eth_init_board();
-}
 
 #define SUNXI_INVALID_BOOT_SOURCE	-1
 
@@ -328,18 +276,61 @@ unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 	return sector;
 }
 
+#ifdef CONFIG_MACH_SUNIV
+/*
+ * The suniv BROM does not pass the boot media type to SPL, so we try with the
+ * boot sequence in BROM: mmc0->spinor->fail.
+ * TODO: This has the slight chance of being wrong (invalid SPL signature,
+ * but valid U-Boot legacy image on the SD card), but this should be rare.
+ * It looks like we can deduce from some BROM state upon entering the SPL
+ * (registers, SP, or stack itself) where the BROM was coming from and use
+ * that here.
+ */
+void board_boot_order(u32 *spl_boot_list)
+{
+	/*
+	 * See the comments above in sunxi_get_boot_device() for information
+	 * about FEL boot.
+	 */
+	if (!is_boot0_magic(SPL_ADDR + 4)) {
+		spl_boot_list[0] = BOOT_DEVICE_BOARD;
+		return;
+	}
+
+	spl_boot_list[0] = BOOT_DEVICE_MMC1;
+	spl_boot_list[1] = BOOT_DEVICE_SPI;
+}
+#else
 u32 spl_boot_device(void)
 {
 	return sunxi_get_boot_device();
 }
+#endif
+
+__weak void sunxi_sram_init(void)
+{
+}
 
 void board_init_f(ulong dummy)
 {
+	sunxi_sram_init();
+
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
+	/* Enable non-secure access to some peripherals */
+	tzpc_init();
+#endif
+
+	clock_init();
+	timer_init();
+	gpio_init();
+	eth_init_board();
+
 	spl_init();
 	preloader_console_init();
 
 #if CONFIG_IS_ENABLED(I2C) && CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	/* Needed early by sunxi_board_init if PMU is enabled */
+	i2c_init_board();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 	sunxi_board_init();

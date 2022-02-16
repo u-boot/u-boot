@@ -38,4 +38,8 @@ void init_clk_ddr(void);
 int set_ddr_clk(u32 phy_freq_mhz);
 void clock_init(void);
 void cgc1_enet_stamp_sel(u32 clk_src);
+void mxs_set_lcdclk(u32 base_addr, u32 freq_in_khz);
+void reset_lcdclk(void);
+void enable_mipi_dsi_clk(unsigned char enable);
+void enable_adc1_clk(bool enable);
 #endif

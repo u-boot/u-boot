@@ -34,6 +34,8 @@ dtb-$(CONFIG_SOC_JR2) += jr2_pcb110.dtb jr2_pcb111.dtb serval2_pcb112.dtb
 dtb-$(CONFIG_SOC_SERVALT) += servalt_pcb116.dtb
 dtb-$(CONFIG_SOC_SERVAL) += serval_pcb105.dtb serval_pcb106.dtb
 
+include $(srctree)/scripts/Makefile.dts
+
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here

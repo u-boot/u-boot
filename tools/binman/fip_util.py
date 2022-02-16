@@ -248,7 +248,7 @@ class FipEntry:
         self.flags = flags
         self.fip_type = None
         self.data = None
-        self.valid = uuid != tools.GetBytes(0, UUID_LEN)
+        self.valid = uuid != tools.get_bytes(0, UUID_LEN)
         if self.valid:
             # Look up the friendly name
             matches = {val for (key, val) in FIP_TYPES.items()
@@ -309,7 +309,7 @@ class FipWriter:
     Usage is something like:
 
         fip = FipWriter(size)
-        fip.add_entry('scp-fwu-cfg', tools.ReadFile('something.bin'))
+        fip.add_entry('scp-fwu-cfg', tools.read_file('something.bin'))
         ...
         data = cbw.get_data()
 
@@ -354,7 +354,7 @@ class FipWriter:
         offset += ENTRY_SIZE   # terminating entry
 
         for fent in self._fip_entries:
-            offset = tools.Align(offset, self._align)
+            offset = tools.align(offset, self._align)
             fent.offset = offset
             offset += fent.size
 
@@ -443,7 +443,7 @@ def parse_macros(srcdir):
     re_uuid = re.compile('0x[0-9a-fA-F]{2}')
     re_comment = re.compile(r'^/\* (.*) \*/$')
     fname = os.path.join(srcdir, 'include/tools_share/firmware_image_package.h')
-    data = tools.ReadFile(fname, binary=False)
+    data = tools.read_file(fname, binary=False)
     macros = collections.OrderedDict()
     comment = None
     for linenum, line in enumerate(data.splitlines()):
@@ -489,7 +489,7 @@ def parse_names(srcdir):
     re_data = re.compile(r'\.name = "([^"]*)",\s*\.uuid = (UUID_\w*),\s*\.cmdline_name = "([^"]+)"',
                          re.S)
     fname = os.path.join(srcdir, 'tools/fiptool/tbbr_config.c')
-    data = tools.ReadFile(fname, binary=False)
+    data = tools.read_file(fname, binary=False)
 
     # Example entry:
     #   {
@@ -574,21 +574,21 @@ def parse_atf_source(srcdir, dstfile, oldfile):
         raise ValueError(
             f"Expected file '{readme_fname}' - try using -s to specify the "
             'arm-trusted-firmware directory')
-    readme = tools.ReadFile(readme_fname, binary=False)
+    readme = tools.read_file(readme_fname, binary=False)
     first_line = 'Trusted Firmware-A'
     if readme.splitlines()[0] != first_line:
         raise ValueError(f"'{readme_fname}' does not start with '{first_line}'")
     macros = parse_macros(srcdir)
     names = parse_names(srcdir)
     output = create_code_output(macros, names)
-    orig = tools.ReadFile(oldfile, binary=False)
+    orig = tools.read_file(oldfile, binary=False)
     re_fip_list = re.compile(r'(.*FIP_TYPE_LIST = \[).*?(    ] # end.*)', re.S)
     mat = re_fip_list.match(orig)
     new_code = mat.group(1) + '\n' + output + mat.group(2) if mat else output
     if new_code == orig:
         print(f"Existing code in '{oldfile}' is up-to-date")
     else:
-        tools.WriteFile(dstfile, new_code, binary=False)
+        tools.write_file(dstfile, new_code, binary=False)
         print(f'Needs update, try:\n\tmeld {dstfile} {oldfile}')
 
 

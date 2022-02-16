@@ -527,7 +527,7 @@ static void fdt_fixup_pcie_ls(void *blob)
 	}
 
 	if (!IS_ENABLED(CONFIG_PCI_IOMMU_EXTRA_MAPPINGS))
-		goto skip;
+		return;
 
 	list_for_each_entry(pcie_rc, &ls_pcie_list, list) {
 		nodeoffset = fdt_pcie_get_nodeoffset(blob, pcie_rc);
@@ -568,9 +568,6 @@ static void fdt_fixup_pcie_ls(void *blob)
 		}
 		free(entries);
 	}
-
-skip:
-	pcie_board_fix_fdt(blob);
 }
 #endif
 
@@ -618,6 +615,10 @@ static void ft_pcie_ls_setup(void *blob, struct ls_pcie_rc *pcie_rc)
 void ft_pci_setup_ls(void *blob, struct bd_info *bd)
 {
 	struct ls_pcie_rc *pcie_rc;
+
+#if defined(CONFIG_FSL_LSCH3) || defined(CONFIG_FSL_LSCH2)
+	pcie_board_fix_fdt(blob);
+#endif
 
 	list_for_each_entry(pcie_rc, &ls_pcie_list, list)
 		ft_pcie_ls_setup(blob, pcie_rc);

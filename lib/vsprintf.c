@@ -279,21 +279,31 @@ static char *string(char *buf, char *end, const char *s, int field_width,
 static __maybe_unused char *string16(char *buf, char *end, u16 *s,
 				     int field_width, int precision, int flags)
 {
-	const u16 *str = s ? s : L"<NULL>";
+	const u16 *str = s ? s : u"<NULL>";
 	ssize_t i, len = utf16_strnlen(str, precision);
 
 	if (!(flags & LEFT))
 		for (; len < field_width; --field_width)
 			ADDCH(buf, ' ');
-	for (i = 0; i < len && buf + utf16_utf8_strnlen(str, 1) <= end; ++i) {
+	if (buf < end)
+		*buf = 0;
+	for (i = 0; i < len; ++i) {
+		int slen = utf16_utf8_strnlen(str, 1);
 		s32 s = utf16_get(&str);
 
 		if (s < 0)
 			s = '?';
-		utf8_put(s, &buf);
+		if (buf + slen < end) {
+			utf8_put(s, &buf);
+			if (buf < end)
+				*buf = 0;
+		} else {
+			buf += slen;
+		}
 	}
 	for (; len < field_width; --field_width)
 		ADDCH(buf, ' ');
+
 	return buf;
 }
 

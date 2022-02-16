@@ -221,6 +221,9 @@ int cfi_mtd_init(void)
 			continue;
 
 		sprintf(cfi_mtd_names[i], "nor%d", i);
+#ifdef CONFIG_CFI_FLASH
+		mtd->dev		= fi->dev;
+#endif
 		mtd->name		= cfi_mtd_names[i];
 		mtd->type		= MTD_NORFLASH;
 		mtd->flags		= MTD_CAP_NORFLASH;

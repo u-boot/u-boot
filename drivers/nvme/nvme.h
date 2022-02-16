@@ -596,6 +596,7 @@ enum {
 
 /* Represents an NVM Express device. Each nvme_dev is a PCI function. */
 struct nvme_dev {
+	struct udevice *udev;
 	struct list_head node;
 	struct nvme_queue **queues;
 	u32 __iomem *dbs;
@@ -608,6 +609,7 @@ struct nvme_dev {
 	u32 ctrl_config;
 	struct nvme_bar __iomem *bar;
 	struct list_head namespaces;
+	char vendor[8];
 	char serial[20];
 	char model[40];
 	char firmware_rev[8];
@@ -619,6 +621,33 @@ struct nvme_dev {
 	u64 *prp_pool;
 	u32 prp_entry_num;
 	u32 nn;
+};
+
+/* Admin queue and a single I/O queue. */
+enum nvme_queue_id {
+	NVME_ADMIN_Q,
+	NVME_IO_Q,
+	NVME_Q_NUM,
+};
+
+/*
+ * An NVM Express queue. Each device has at least two (one for admin
+ * commands and one for I/O commands).
+ */
+struct nvme_queue {
+	struct nvme_dev *dev;
+	struct nvme_command *sq_cmds;
+	struct nvme_completion *cqes;
+	u32 __iomem *q_db;
+	u16 q_depth;
+	s16 cq_vector;
+	u16 sq_head;
+	u16 sq_tail;
+	u16 cq_head;
+	u16 qid;
+	u8 cq_phase;
+	u8 cqe_seen;
+	unsigned long cmdid_data[];
 };
 
 /*
@@ -634,5 +663,46 @@ struct nvme_ns {
 	int lba_shift;
 	u8 flbas;
 };
+
+struct nvme_ops {
+	/**
+	 * setup_queue - Controller-specific NVM Express queue setup.
+	 *
+	 * @nvmeq: NVM Express queue
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*setup_queue)(struct nvme_queue *nvmeq);
+	/**
+	 * submit_cmd - Controller-specific NVM Express command submission.
+	 *
+	 * If this function pointer is set to NULL, normal command
+	 * submission is performed according to the NVM Express spec.
+	 *
+	 * @nvmeq: NVM Express queue
+	 * @cmd:   NVM Express command
+	 */
+	void (*submit_cmd)(struct nvme_queue *nvmeq, struct nvme_command *cmd);
+	/**
+	 * complete_cmd - Controller-specific NVM Express command completion
+	 *
+	 * @nvmeq: NVM Express queue
+	 * @cmd:   NVM Express command
+	 */
+	void (*complete_cmd)(struct nvme_queue *nvmeq, struct nvme_command *cmd);
+};
+
+/**
+ * nvme_init() - Initialize NVM Express device
+ * @udev:	The NVM Express device
+ * Return: 0 if OK, -ve on error
+ */
+int nvme_init(struct udevice *udev);
+
+/**
+ * nvme_shutdown() - Shutdown NVM Express device
+ * @udev:	The NVM Express device
+ * Return: 0 if OK, -ve on error
+ */
+int nvme_shutdown(struct udevice *udev);
 
 #endif /* __DRIVER_NVME_H__ */

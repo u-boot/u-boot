@@ -150,7 +150,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 	struct efi_input_key key = {0};
 	efi_uintn_t index;
 	efi_uintn_t pos = 0;
-	u16 outbuf[2] = L" ";
+	u16 outbuf[2] = u" ";
 	efi_status_t ret;
 
 	/* Drain the console input */
@@ -165,7 +165,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 			continue;
 		switch (key.scan_code) {
 		case 0x17: /* Escape */
-			print(L"\r\nAborted\r\n");
+			print(u"\r\nAborted\r\n");
 			return EFI_ABORTED;
 		default:
 			break;
@@ -174,12 +174,12 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 		case 0x08: /* Backspace */
 			if (pos) {
 				buffer[pos--] = 0;
-				print(L"\b \b");
+				print(u"\b \b");
 			}
 			break;
 		case 0x0a: /* Linefeed */
 		case 0x0d: /* Carriage return */
-			print(L"\r\n");
+			print(u"\r\n");
 			return EFI_SUCCESS;
 		default:
 			break;
@@ -231,9 +231,9 @@ static bool starts_with(u16 *string, u16 *keyword)
  */
 static void do_help(void)
 {
-	error(L"load          - show length and CRC32 of initial RAM disk\r\n");
-	error(L"save <initrd> - save initial RAM disk to file\r\n");
-	error(L"exit          - exit the shell\r\n");
+	error(u"load          - show length and CRC32 of initial RAM disk\r\n");
+	error(u"save <initrd> - save initial RAM disk to file\r\n");
+	error(u"exit          - exit the shell\r\n");
 }
 
 /**
@@ -255,7 +255,7 @@ static efi_status_t get_initrd(void **initrd, efi_uintn_t *initrd_size)
 	*initrd_size = 0;
 	ret = bs->locate_device_path(&load_file2_guid, &dp, &handle);
 	if (ret != EFI_SUCCESS) {
-		error(L"Load File2 protocol not found\r\n");
+		error(u"Load File2 protocol not found\r\n");
 		return ret;
 	}
 	ret = bs->handle_protocol(handle, &load_file2_guid,
@@ -263,20 +263,20 @@ static efi_status_t get_initrd(void **initrd, efi_uintn_t *initrd_size)
 	ret = load_file2_prot->load_file(load_file2_prot, dp, false,
 					 initrd_size, NULL);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
-		error(L"Load File2 protocol does not provide file length\r\n");
+		error(u"Load File2 protocol does not provide file length\r\n");
 		return EFI_LOAD_ERROR;
 	}
 	ret = bs->allocate_pages(EFI_ALLOCATE_ANY_PAGES, EFI_LOADER_DATA,
 				 efi_size_in_pages(*initrd_size), &buffer);
 	if (ret != EFI_SUCCESS) {
-		error(L"Out of memory\r\n");
+		error(u"Out of memory\r\n");
 		return ret;
 	}
 	*initrd = (void *)(uintptr_t)buffer;
 	ret = load_file2_prot->load_file(load_file2_prot, dp, false,
 					 initrd_size, *initrd);
 	if (ret != EFI_SUCCESS) {
-		error(L"Load File2 protocol failed to provide file\r\n");
+		error(u"Load File2 protocol failed to provide file\r\n");
 		bs->free_pages(buffer, efi_size_in_pages(*initrd_size));
 		return EFI_LOAD_ERROR;
 	}
@@ -299,18 +299,18 @@ static efi_status_t do_load(void)
 	ret =  get_initrd(&initrd, &initrd_size);
 	if (ret != EFI_SUCCESS)
 		return ret;
-	print(L"length: 0x");
+	print(u"length: 0x");
 	printx(initrd_size, 1);
-	print(L"\r\n");
+	print(u"\r\n");
 
 	ret = bs->calculate_crc32(initrd, initrd_size, &crc32);
 	if (ret != EFI_SUCCESS) {
-		error(L"Calculating CRC32 failed\r\n");
+		error(u"Calculating CRC32 failed\r\n");
 		return EFI_LOAD_ERROR;
 	}
-	print(L"crc32: 0x");
+	print(u"crc32: 0x");
 	printx(crc32, 8);
-	print(L"\r\n");
+	print(u"\r\n");
 
 	return EFI_SUCCESS;
 }
@@ -340,7 +340,7 @@ static efi_status_t do_save(u16 *filename)
 				(void **)&loaded_image, NULL, NULL,
 				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
-		error(L"Loaded image protocol not found\r\n");
+		error(u"Loaded image protocol not found\r\n");
 		goto out;
 	}
 
@@ -350,26 +350,26 @@ static efi_status_t do_save(u16 *filename)
 				(void **)&file_system, NULL, NULL,
 				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open simple file system protocol\r\n");
+		error(u"Failed to open simple file system protocol\r\n");
 		goto out;
 	}
 
 	/* Open volume */
 	ret = file_system->open_volume(file_system, &root);
 	if (ret != EFI_SUCCESS) {
-		error(L"Failed to open volume\r\n");
+		error(u"Failed to open volume\r\n");
 		goto out;
 	}
 	/* Check if file already exists */
 	ret = root->open(root, &file, filename, EFI_FILE_MODE_READ, 0);
 	if (ret == EFI_SUCCESS) {
 		file->close(file);
-		print(L"Overwrite existing file (y/n)? ");
+		print(u"Overwrite existing file (y/n)? ");
 		ret = efi_input_yn();
-		print(L"\r\n");
+		print(u"\r\n");
 		if (ret != EFI_SUCCESS) {
 			root->close(root);
-			error(L"Aborted by user\r\n");
+			error(u"Aborted by user\r\n");
 			goto out;
 		}
 	}
@@ -382,14 +382,14 @@ static efi_status_t do_save(u16 *filename)
 		/* Write file */
 		ret = file->write(file, &initrd_size, initrd);
 		if (ret != EFI_SUCCESS) {
-			error(L"Failed to write file\r\n");
+			error(u"Failed to write file\r\n");
 		} else {
 			print(filename);
-			print(L" written\r\n");
+			print(u" written\r\n");
 		}
 		file->close(file);
 	} else {
-		error(L"Failed to open file\r\n");
+		error(u"Failed to open file\r\n");
 	}
 	root->close(root);
 
@@ -420,7 +420,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
 	cout->clear_screen(cout);
 	cout->set_attribute(cout, EFI_WHITE | EFI_BACKGROUND_BLACK);
-	print(L"INITRD Dump\r\n========\r\n\r\n");
+	print(u"INITRD Dump\r\n========\r\n\r\n");
 	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
 
 	for (;;) {
@@ -428,16 +428,16 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 		u16 *pos;
 		efi_uintn_t ret;
 
-		print(L"=> ");
+		print(u"=> ");
 		ret = efi_input(command, sizeof(command));
 		if (ret == EFI_ABORTED)
 			break;
 		pos = skip_whitespace(command);
-		if (starts_with(pos, L"exit"))
+		if (starts_with(pos, u"exit"))
 			break;
-		else if (starts_with(pos, L"load"))
+		else if (starts_with(pos, u"load"))
 			do_load();
-		else if (starts_with(pos, L"save "))
+		else if (starts_with(pos, u"save "))
 			do_save(pos + 5);
 		else
 			do_help();

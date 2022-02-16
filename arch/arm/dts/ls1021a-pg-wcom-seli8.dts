@@ -38,6 +38,7 @@
 &enet2 {
 	phy-handle = <&debug_phy>;
 	phy-connection-type = "rgmii-id";
+	max-speed = <100>;
 	status = "okay";
 };
 
@@ -82,8 +83,20 @@
 			reg = <0x100000 0x100000>;
 		};
 		partition@200000 {
+			label = "redenvred";
+			reg = <0x200000 0x20000>;
+		};
+		partition@220000 {
+			label = "redenv";
+			reg = <0x220000 0x20000>;
+		};
+		partition@240000 {
+			label = "redu-boot";
+			reg = <0x240000 0x100000>;
+		};
+		partition@340000 {
 			label = "ubi0";
-			reg = <0x200000 0x3E00000>;
+			reg = <0x340000 0x03C00000>;
 		};
 	};
 };

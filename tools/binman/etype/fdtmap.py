@@ -140,7 +140,7 @@ class Entry_fdtmap(Entry):
             fdt.pack()
             outfdt = Fdt.FromData(fdt.as_bytearray())
             data = outfdt.GetContents()
-        data = FDTMAP_MAGIC + tools.GetBytes(0, 8) + data
+        data = FDTMAP_MAGIC + tools.get_bytes(0, 8) + data
         return data
 
     def ObtainContents(self):

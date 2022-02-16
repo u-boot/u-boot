@@ -226,7 +226,12 @@ struct sunxi_ccm_reg {
 #define CCM_PLL5_CTRL_SIGMA_DELTA_EN	(0x1 << 24)
 #define CCM_PLL5_CTRL_EN		(0x1 << 31)
 
+#ifdef CONFIG_MACH_SUNIV
+/* suniv pll6 doesn't have postdiv 2, so k is set to 0 */
+#define PLL6_CFG_DEFAULT		0x90041801
+#else
 #define PLL6_CFG_DEFAULT		0x90041811 /* 600 MHz */
+#endif
 
 #define CCM_PLL6_CTRL_N_SHIFT		8
 #define CCM_PLL6_CTRL_N_MASK		(0x1f << CCM_PLL6_CTRL_N_SHIFT)
@@ -487,6 +492,14 @@ struct sunxi_ccm_reg {
 /* ahb_reset2 offsets */
 #define AHB_RESET_OFFSET_EPHY		2
 #define AHB_RESET_OFFSET_LVDS		0
+
+/* apb1 reset */
+#ifdef CONFIG_MACH_SUNIV
+#define APB1_GATE_UART_SHIFT	(20)
+#define APB1_GATE_TWI_SHIFT	(16)
+#define APB1_RESET_UART_SHIFT	(20)
+#define APB1_RESET_TWI_SHIFT	(16)
+#endif
 
 /* apb2 reset */
 #define APB2_RESET_UART_SHIFT		(16)

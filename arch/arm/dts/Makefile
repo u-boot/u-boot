@@ -485,6 +485,8 @@ dtb-$(CONFIG_TARGET_SL28) += fsl-ls1028a-kontron-sl28.dtb \
 	fsl-ls1028a-kontron-sl28-var3.dtb \
 	fsl-ls1028a-kontron-sl28-var4.dtb \
 
+dtb-$(CONFIG_TARGET_TEN64) += fsl-ls1088a-ten64.dtb
+
 dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
 dtb-$(CONFIG_TARGET_STARQLTECHN) += starqltechn.dtb
@@ -503,6 +505,8 @@ dtb-$(CONFIG_STM32H7) += stm32h743i-disco.dtb \
 	stm32h743i-nucleo.dtb \
 	stm32h750i-art-pi.dtb
 
+dtb-$(CONFIG_MACH_SUNIV) += \
+	suniv-f1c100s-licheepi-nano.dtb
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-a1000.dtb \
 	sun4i-a10-ba10-tvbox.dtb \
@@ -911,13 +915,16 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mn-ddr4-evk.dtb \
 	imx8mq-cm.dtb \
 	imx8mn-evk.dtb \
+	imx8mn-var-som-symphony.dtb \
 	imx8mq-evk.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \
 	imx8mq-phanbell.dtb \
 	imx8mp-evk.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
-	imx8mq-pico-pi.dtb
+	imx8mp-verdin.dtb \
+	imx8mq-pico-pi.dtb \
+	imx8mq-kontron-pitx-imx8m.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb
@@ -1134,6 +1141,8 @@ dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
 			      k3-j721e-r5-common-proc-board.dtb \
 			      k3-j7200-common-proc-board.dtb \
 			      k3-j7200-r5-common-proc-board.dtb
+dtb-$(CONFIG_SOC_K3_J721S2) += k3-j721s2-common-proc-board.dtb\
+			       k3-j721s2-r5-common-proc-board.dtb
 dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-evm.dtb \
 			      k3-am642-r5-evm.dtb \
 			      k3-am642-sk.dtb \
@@ -1175,13 +1184,29 @@ dtb-$(CONFIG_TARGET_DURIAN) += phytium-durian.dtb
 
 dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 
-dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE) += imx8mm-cl-iot-gate.dtb
+dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE) += imx8mm-cl-iot-gate.dtb \
+					imx8mm-cl-iot-gate-ied.dtbo \
+					imx8mm-cl-iot-gate-ied-adc0.dtbo \
+					imx8mm-cl-iot-gate-ied-adc1.dtbo \
+					imx8mm-cl-iot-gate-ied-can0.dtbo \
+					imx8mm-cl-iot-gate-ied-can1.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm0.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm1.dtbo
 
-dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE_OPTEE) += imx8mm-cl-iot-gate-optee.dtb
+dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE_OPTEE) += imx8mm-cl-iot-gate-optee.dtb \
+					imx8mm-cl-iot-gate-ied.dtbo \
+					imx8mm-cl-iot-gate-ied-adc0.dtbo \
+					imx8mm-cl-iot-gate-ied-adc1.dtbo \
+					imx8mm-cl-iot-gate-ied-can0.dtbo \
+					imx8mm-cl-iot-gate-ied-can1.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm0.dtbo \
+					imx8mm-cl-iot-gate-ied-tpm1.dtbo
 
 dtb-$(CONFIG_TARGET_EA_LPC3250DEVKITV2) += lpc3250-ea3250.dtb
 
 dtb-$(CONFIG_ARCH_QEMU) += qemu-arm.dtb qemu-arm64.dtb
+
+include $(srctree)/scripts/Makefile.dts
 
 targets += $(dtb-y)
 

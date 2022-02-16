@@ -9,7 +9,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
-#define CONFIG_REMAKE_ELF
 
 #define CONFIG_SPL_MAX_SIZE		(124 * 1024)
 #define CONFIG_SPL_BSS_START_ADDR	0x00128000
@@ -20,6 +19,8 @@
 #define USDHC1_BASE_ADDR		0x5B010000
 #define USDHC2_BASE_ADDR		0x5B020000
 #define USDHC3_BASE_ADDR		0x5B030000
+
+#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /* FUSE command */
 
@@ -59,7 +60,7 @@
 	"image=Image\0" \
 	"panel=NULL\0" \
 	"console=ttyLP0\0" \
-	"fdt_addr=0x83000000\0"			\
+	"fdt_addr=0x84000000\0"			\
 	"boot_fdt=try\0" \
 	"fdt_file=imx8qm-rom7720-a1.dtb\0" \
 	"initrd_addr=0x83800000\0"		\

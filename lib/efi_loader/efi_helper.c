@@ -36,7 +36,7 @@ static efi_status_t efi_create_current_boot_var(u16 var_name[],
 	u16 *pos;
 
 	boot_current_size = sizeof(boot_current);
-	ret = efi_get_variable_int(L"BootCurrent",
+	ret = efi_get_variable_int(u"BootCurrent",
 				   &efi_global_variable_guid, NULL,
 				   &boot_current_size, &boot_current, NULL);
 	if (ret != EFI_SUCCESS)

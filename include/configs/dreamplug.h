@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * (C) Copyright 2011
- * Jason Cooper <u-boot@lakedaemon.net>
+ * (C) Copyright 2022 Tony Dinh <mibodhi@gmail.com>
+ * (C) Copyright 2011 Jason Cooper <u-boot@lakedaemon.net>
  *
  * Based on work by:
  * Marvell Semiconductor <www.marvell.com>
@@ -12,15 +12,6 @@
 #define _CONFIG_DREAMPLUG_H
 
 #include "mv-common.h"
-
-/*
- *  Environment variables configurations
- */
-
-/*
- * max 4k env size is enough, but in case of nand
- * it has to be rounded to sector size
- */
 
 /*
  * Default environment variables
@@ -36,17 +27,15 @@
 /*
  * Ethernet Driver configuration
  */
-#ifdef CONFIG_CMD_NET
 #define CONFIG_MVGBE_PORTS	{1, 1}	/* enable both ports */
 #define CONFIG_PHY_BASE_ADR	0
-#endif /* CONFIG_CMD_NET */
+#ifdef CONFIG_RESET_PHY_R
+#undef CONFIG_RESET_PHY_R	/* remove legacy reset_phy() */
+#endif
 
 /*
  * SATA Driver configuration
  */
-#ifdef CONFIG_SATA
-#define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_LBA48
-#endif /* CONFIG_SATA */
 
 #endif /* _CONFIG_DREAMPLUG_H */

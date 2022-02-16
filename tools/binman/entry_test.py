@@ -17,10 +17,10 @@ from patman import tools
 
 class TestEntry(unittest.TestCase):
     def setUp(self):
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
     def tearDown(self):
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     def GetNode(self):
         binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))

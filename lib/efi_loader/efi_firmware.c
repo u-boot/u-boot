@@ -302,7 +302,7 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 	efi_status_t (*progress)(efi_uintn_t completion),
 	u16 **abort_reason)
 {
-	EFI_ENTRY("%p %d %p %zd %p %p %p\n", this, image_index, image,
+	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
 
 	if (!image || image_index != 1)
@@ -417,7 +417,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	efi_status_t status;
 	efi_uintn_t capsule_payload_size;
 
-	EFI_ENTRY("%p %d %p %zd %p %p %p\n", this, image_index, image,
+	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
 
 	if (!image)

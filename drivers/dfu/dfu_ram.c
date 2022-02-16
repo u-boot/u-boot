@@ -54,17 +54,13 @@ static int dfu_read_medium_ram(struct dfu_entity *dfu, u64 offset,
 	return dfu_transfer_medium_ram(DFU_OP_READ, dfu, offset, buf, len);
 }
 
-int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
+int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char **argv, int argc)
 {
-	const char *argv[3];
-	const char **parg = argv;
+	char *s;
 
-	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
-		*parg = strsep(&s, " ");
-		if (*parg == NULL) {
-			pr_err("Invalid number of arguments.\n");
-			return -ENODEV;
-		}
+	if (argc != 3) {
+		pr_err("Invalid number of arguments.\n");
+		return -EINVAL;
 	}
 
 	dfu->dev_type = DFU_DEV_RAM;
@@ -74,8 +70,12 @@ int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
 	}
 
 	dfu->layout = DFU_RAM_ADDR;
-	dfu->data.ram.start = hextoul(argv[1], NULL);
-	dfu->data.ram.size = hextoul(argv[2], NULL);
+	dfu->data.ram.start = hextoul(argv[1], &s);
+	if (*s)
+		return -EINVAL;
+	dfu->data.ram.size = hextoul(argv[2], &s);
+	if (*s)
+		return -EINVAL;
 
 	dfu->write_medium = dfu_write_medium_ram;
 	dfu->get_medium_size = dfu_get_medium_size_ram;

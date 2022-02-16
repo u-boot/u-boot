@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-18.04
   macos_vm: macOS-10.15
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220105-10Jan2022
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220113-03Feb2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -23,9 +23,10 @@ stages:
       - script: |
           sfx.exe -y -o%CD:~0,2%\
           %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Syyuu"
+          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm -Su"
         displayName: 'Update MSYS2'
       - script: |
-          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel"
+          %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel libgnutls-devel libutil-linux-devel"
         displayName: 'Install Toolchain'
       - script: |
           echo make tools-only_defconfig tools-only NO_SDL=1 > build-tools.sh
@@ -42,7 +43,7 @@ stages:
     pool:
       vmImage: $(macos_vm)
     steps:
-      - script: brew install make
+      - script: brew install make ossp-uuid
         displayName: Brew install dependencies
       - script: |
           gmake tools-only_config tools-only NO_SDL=1 \

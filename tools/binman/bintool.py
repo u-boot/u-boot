@@ -174,7 +174,7 @@ class Bintool:
                 res = self.fetch(meth)
             except urllib.error.URLError as uerr:
                 message = uerr.reason
-                print(col.Color(col.RED, f'- {message}'))
+                print(col.build(col.RED, f'- {message}'))
 
             except ValueError as exc:
                 print(f'Exception: {exc}')
@@ -182,7 +182,7 @@ class Bintool:
 
         if skip_present and self.is_present():
             return PRESENT
-        print(col.Color(col.YELLOW, 'Fetch: %s' % self.name))
+        print(col.build(col.YELLOW, 'Fetch: %s' % self.name))
         if method == FETCH_ANY:
             for try_method in range(1, FETCH_COUNT):
                 print(f'- trying method: {FETCH_NAMES[try_method]}')
@@ -216,7 +216,7 @@ class Bintool:
             True on success, False on failure
         """
         def show_status(color, prompt, names):
-            print(col.Color(
+            print(col.build(
                 color, f'{prompt}:%s{len(names):2}: %s' %
                 (' ' * (16 - len(prompt)), ' '.join(names))))
 
@@ -227,7 +227,7 @@ class Bintool:
             name_list = Bintool.get_tool_list()
             if names_to_fetch[0] == 'missing':
                 skip_present = True
-            print(col.Color(col.YELLOW,
+            print(col.build(col.YELLOW,
                             'Fetching tools:      %s' % ' '.join(name_list)))
         status = collections.defaultdict(list)
         for name in name_list:
@@ -267,8 +267,8 @@ class Bintool:
         name = os.path.expanduser(self.name)  # Expand paths containing ~
         all_args = (name,) + args
         env = tools.get_env_with_path()
-        tout.Detail(f"bintool: {' '.join(all_args)}")
-        result = command.RunPipe(
+        tout.detail(f"bintool: {' '.join(all_args)}")
+        result = command.run_pipe(
             [all_args], capture=True, capture_stderr=True, env=env,
             raise_on_error=False, binary=binary)
 
@@ -278,17 +278,17 @@ class Bintool:
             # try to run it (as above) since RunPipe() allows faking the tool's
             # output
             if not any([result.stdout, result.stderr, tools.tool_find(name)]):
-                tout.Info(f"bintool '{name}' not found")
+                tout.info(f"bintool '{name}' not found")
                 return None
             if raise_on_error:
-                tout.Info(f"bintool '{name}' failed")
+                tout.info(f"bintool '{name}' failed")
                 raise ValueError("Error %d running '%s': %s" %
                                 (result.return_code, ' '.join(all_args),
                                 result.stderr or result.stdout))
         if result.stdout:
-            tout.Debug(result.stdout)
+            tout.debug(result.stdout)
         if result.stderr:
-            tout.Debug(result.stderr)
+            tout.debug(result.stderr)
         return result
 
     def run_cmd(self, *args, binary=False):
@@ -327,9 +327,9 @@ class Bintool:
         """
         tmpdir = tempfile.mkdtemp(prefix='binmanf.')
         print(f"- clone git repo '{git_repo}' to '{tmpdir}'")
-        tools.Run('git', 'clone', '--depth', '1', git_repo, tmpdir)
+        tools.run('git', 'clone', '--depth', '1', git_repo, tmpdir)
         print(f"- build target '{make_target}'")
-        tools.Run('make', '-C', tmpdir, '-j', f'{multiprocessing.cpu_count()}',
+        tools.run('make', '-C', tmpdir, '-j', f'{multiprocessing.cpu_count()}',
                   make_target)
         fname = os.path.join(tmpdir, bintool_path)
         if not os.path.exists(fname):
@@ -349,8 +349,8 @@ class Bintool:
                 str: Filename of fetched file to copy to a suitable directory
                 str: Name of temp directory to remove, or None
         """
-        fname, tmpdir = tools.Download(url)
-        tools.Run('chmod', 'a+x', fname)
+        fname, tmpdir = tools.download(url)
+        tools.run('chmod', 'a+x', fname)
         return fname, tmpdir
 
     @classmethod
@@ -384,7 +384,7 @@ class Bintool:
         """
         args = ['sudo', 'apt', 'install', '-y', package]
         print('- %s' % ' '.join(args))
-        tools.Run(*args)
+        tools.run(*args)
         return True
 
     @staticmethod

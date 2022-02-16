@@ -123,9 +123,10 @@ int dfu_config_interfaces(char *env)
 	s = env;
 	while (s) {
 		ret = -EINVAL;
-		i = strsep(&s, " ");
+		i = strsep(&s, " \t");
 		if (!i)
 			break;
+		s = skip_spaces(s);
 		d = strsep(&s, "=");
 		if (!d)
 			break;
@@ -499,11 +500,29 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 			   char *interface, char *devstr)
 {
+	char *argv[DFU_MAX_ENTITY_ARGS];
+	int argc;
 	char *st;
 
 	debug("%s: %s interface: %s dev: %s\n", __func__, s, interface, devstr);
-	st = strsep(&s, " ");
-	strcpy(dfu->name, st);
+	st = strsep(&s, " \t");
+	strlcpy(dfu->name, st, DFU_NAME_SIZE);
+
+	/* Parse arguments */
+	for (argc = 0; s && argc < DFU_MAX_ENTITY_ARGS; argc++) {
+		s = skip_spaces(s);
+		if (!*s)
+			break;
+		argv[argc] = strsep(&s, " \t");
+	}
+
+	if (argc == DFU_MAX_ENTITY_ARGS && s) {
+		s = skip_spaces(s);
+		if (*s) {
+			log_err("Too many arguments for %s\n", dfu->name);
+			return -EINVAL;
+		}
+	}
 
 	dfu->alt = alt;
 	dfu->max_buf_size = 0;
@@ -511,22 +530,22 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 
 	/* Specific for mmc device */
 	if (strcmp(interface, "mmc") == 0) {
-		if (dfu_fill_entity_mmc(dfu, devstr, s))
+		if (dfu_fill_entity_mmc(dfu, devstr, argv, argc))
 			return -1;
 	} else if (strcmp(interface, "mtd") == 0) {
-		if (dfu_fill_entity_mtd(dfu, devstr, s))
+		if (dfu_fill_entity_mtd(dfu, devstr, argv, argc))
 			return -1;
 	} else if (strcmp(interface, "nand") == 0) {
-		if (dfu_fill_entity_nand(dfu, devstr, s))
+		if (dfu_fill_entity_nand(dfu, devstr, argv, argc))
 			return -1;
 	} else if (strcmp(interface, "ram") == 0) {
-		if (dfu_fill_entity_ram(dfu, devstr, s))
+		if (dfu_fill_entity_ram(dfu, devstr, argv, argc))
 			return -1;
 	} else if (strcmp(interface, "sf") == 0) {
-		if (dfu_fill_entity_sf(dfu, devstr, s))
+		if (dfu_fill_entity_sf(dfu, devstr, argv, argc))
 			return -1;
 	} else if (strcmp(interface, "virt") == 0) {
-		if (dfu_fill_entity_virt(dfu, devstr, s))
+		if (dfu_fill_entity_virt(dfu, devstr, argv, argc))
 			return -1;
 	} else {
 		printf("%s: Device %s not (yet) supported!\n",

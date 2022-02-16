@@ -44,7 +44,6 @@ Build U-Boot
 .. code-block:: bash
 
     $ export CROSS_COMPILE=aarch64-linux-gnu-
-    $ export ATF_LOAD_ADDR=0x920000
     $ make verdin-imx8mm_defconfig
     $ make
 

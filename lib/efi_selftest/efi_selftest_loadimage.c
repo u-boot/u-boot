@@ -20,8 +20,8 @@
 /* Binary logarithm of the block size */
 #define LB_BLOCK_SIZE 9
 
-#define FILE_NAME L"app.efi"
-#define VOLUME_NAME L"EfiDisk"
+#define FILE_NAME u"app.efi"
+#define VOLUME_NAME u"EfiDisk"
 
 static struct efi_boot_services *boottime;
 static efi_handle_t handle_image;

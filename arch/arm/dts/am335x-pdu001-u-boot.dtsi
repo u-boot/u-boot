@@ -5,17 +5,25 @@
 
 #include "am33xx-u-boot.dtsi"
 
-/ {
-	ocp {
-		u-boot,dm-pre-reloc;
+&l4_wkup {
+	u-boot,dm-pre-reloc;
+	segment@200000 {
+
+		target-module@10000 {
+			u-boot,dm-pre-reloc;
+		};
 	};
 };
 
-&l4_wkup {
-	u-boot,dm-pre-reloc;
-};
-
 &l4_per {
+	u-boot,dm-pre-reloc;
+	segment@100000 {
+		u-boot,dm-pre-reloc;
+
+		target-module@a6000 {
+			u-boot,dm-pre-reloc;
+		};
+	};
 
 	segment@300000 {
 

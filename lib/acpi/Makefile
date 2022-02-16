@@ -11,6 +11,7 @@ obj-y += acpi_writer.o
 ifndef CONFIG_QEMU
 obj-y += base.o
 obj-y += csrt.o
+obj-y += mcfg.o
 
 # Sandbox does not build a .asl file
 ifndef CONFIG_SANDBOX

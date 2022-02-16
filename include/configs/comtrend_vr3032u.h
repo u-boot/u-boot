@@ -6,8 +6,6 @@
 #include <configs/bmips_common.h>
 #include <configs/bmips_bcm63268.h>
 
-#define CONFIG_REMAKE_ELF
-
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #endif /* CONFIG_MTD_RAW_NAND */

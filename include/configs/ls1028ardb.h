@@ -57,14 +57,9 @@
 #endif
 
 /* SATA */
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID		1
-#define CONFIG_SYS_SCSI_MAX_LUN			1
-#define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-						CONFIG_SYS_SCSI_MAX_LUN)
 #define SCSI_VEND_ID 0x1b4b
 #define SCSI_DEV_ID  0x9170
 #define CONFIG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
-#define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SATA1                        AHCI_BASE_ADDR1
 
 /* Initial environment variables */

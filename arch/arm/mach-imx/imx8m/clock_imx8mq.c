@@ -359,10 +359,18 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		clock_get_target_val(IPG_CLK_ROOT, &val);
 		val = val & 0x3;
 		return get_root_clk(AHB_CLK_ROOT) / (val + 1);
+	case MXC_CSPI_CLK:
+		return get_root_clk(ECSPI1_CLK_ROOT);
 	case MXC_ESDHC_CLK:
 		return get_root_clk(USDHC1_CLK_ROOT);
 	case MXC_ESDHC2_CLK:
 		return get_root_clk(USDHC2_CLK_ROOT);
+	case MXC_I2C_CLK:
+		return get_root_clk(I2C1_CLK_ROOT);
+	case MXC_UART_CLK:
+		return get_root_clk(UART1_CLK_ROOT);
+	case MXC_QSPI_CLK:
+		return get_root_clk(QSPI_CLK_ROOT);
 	default:
 		return get_root_clk(clk);
 	}

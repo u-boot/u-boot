@@ -63,7 +63,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	/* Set variable 0 */
-	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
+	ret = runtime->set_variable(u"efi_st_var0", &guid_vendor0,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS,
 				    3, v + 4);
 	if (ret != EFI_SUCCESS) {
@@ -72,7 +72,7 @@ static int execute(void)
 	}
 	data[3] = 0xff;
 	len = 3;
-	ret = runtime->get_variable(L"efi_st_var0", &guid_vendor0,
+	ret = runtime->get_variable(u"efi_st_var0", &guid_vendor0,
 				    &attr, &len, data);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetVariable failed\n");
@@ -87,7 +87,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	/* Set variable 1 */
-	ret = runtime->set_variable(L"efi_st_var1", &guid_vendor1,
+	ret = runtime->set_variable(u"efi_st_var1", &guid_vendor1,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS,
 				    8, v);
 	if (ret != EFI_SUCCESS) {
@@ -95,7 +95,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	len = EFI_ST_MAX_DATA_SIZE;
-	ret = runtime->get_variable(L"efi_st_var1", &guid_vendor1,
+	ret = runtime->get_variable(u"efi_st_var1", &guid_vendor1,
 				    &attr, &len, data);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetVariable failed\n");
@@ -111,7 +111,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	/* Append variable 1 */
-	ret = runtime->set_variable(L"efi_st_var1", &guid_vendor1,
+	ret = runtime->set_variable(u"efi_st_var1", &guid_vendor1,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				    EFI_VARIABLE_APPEND_WRITE,
 				    7, v + 8);
@@ -120,7 +120,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	len = EFI_ST_MAX_DATA_SIZE;
-	ret = runtime->get_variable(L"efi_st_var1", &guid_vendor1,
+	ret = runtime->get_variable(u"efi_st_var1", &guid_vendor1,
 				    &attr, &len, data);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetVariable failed\n");
@@ -132,7 +132,7 @@ static int execute(void)
 	if (memcmp(data, v, len))
 		efi_st_todo("GetVariable returned wrong value\n");
 	/* Append variable 2 */
-	ret = runtime->set_variable(L"efi_none", &guid_vendor1,
+	ret = runtime->set_variable(u"efi_none", &guid_vendor1,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				    EFI_VARIABLE_APPEND_WRITE,
 				    15, v);
@@ -173,28 +173,28 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	/* Delete variable 1 */
-	ret = runtime->set_variable(L"efi_st_var1", &guid_vendor1,
+	ret = runtime->set_variable(u"efi_st_var1", &guid_vendor1,
 				    0, 0, NULL);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("SetVariable failed\n");
 		return EFI_ST_FAILURE;
 	}
 	len = EFI_ST_MAX_DATA_SIZE;
-	ret = runtime->get_variable(L"efi_st_var1", &guid_vendor1,
+	ret = runtime->get_variable(u"efi_st_var1", &guid_vendor1,
 				    &attr, &len, data);
 	if (ret != EFI_NOT_FOUND) {
 		efi_st_error("Variable was not deleted\n");
 		return EFI_ST_FAILURE;
 	}
 	/* Delete variable 0 */
-	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
+	ret = runtime->set_variable(u"efi_st_var0", &guid_vendor0,
 				    0, 0, NULL);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("SetVariable failed\n");
 		return EFI_ST_FAILURE;
 	}
 	len = EFI_ST_MAX_DATA_SIZE;
-	ret = runtime->get_variable(L"efi_st_var0", &guid_vendor0,
+	ret = runtime->get_variable(u"efi_st_var0", &guid_vendor0,
 				    &attr, &len, data);
 	if (ret != EFI_NOT_FOUND) {
 		efi_st_error("Variable was not deleted\n");

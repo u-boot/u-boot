@@ -18,15 +18,6 @@
  * U-Boot into it.
  */
 
-/*
- * SATA/SCSI/AHCI configuration
- */
-#define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-					 CONFIG_SYS_SCSI_MAX_LUN)
-
 /* Environment in SPI NOR flash */
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */

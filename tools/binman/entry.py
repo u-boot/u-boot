@@ -14,7 +14,7 @@ from binman import bintool
 from binman import comp_util
 from dtoc import fdt_util
 from patman import tools
-from patman.tools import ToHex, ToHexSize
+from patman.tools import to_hex, to_hex_size
 from patman import tout
 
 modules = {}
@@ -244,7 +244,7 @@ class Entry(object):
         self.uncomp_size = fdt_util.GetInt(self._node, 'uncomp-size')
 
         self.align = fdt_util.GetInt(self._node, 'align')
-        if tools.NotPowerOfTwo(self.align):
+        if tools.not_power_of_two(self.align):
             raise ValueError("Node '%s': Alignment %s must be a power of two" %
                              (self._node.path, self.align))
         if self.section and self.align is None:
@@ -252,7 +252,7 @@ class Entry(object):
         self.pad_before = fdt_util.GetInt(self._node, 'pad-before', 0)
         self.pad_after = fdt_util.GetInt(self._node, 'pad-after', 0)
         self.align_size = fdt_util.GetInt(self._node, 'align-size')
-        if tools.NotPowerOfTwo(self.align_size):
+        if tools.not_power_of_two(self.align_size):
             self.Raise("Alignment size %s must be a power of two" %
                        self.align_size)
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
@@ -397,12 +397,12 @@ class Entry(object):
 
             # Don't let the data shrink. Pad it if necessary
             if size_ok and new_size < self.contents_size:
-                data += tools.GetBytes(0, self.contents_size - new_size)
+                data += tools.get_bytes(0, self.contents_size - new_size)
 
         if not size_ok:
-            tout.Debug("Entry '%s' size change from %s to %s" % (
-                self._node.path, ToHex(self.contents_size),
-                ToHex(new_size)))
+            tout.debug("Entry '%s' size change from %s to %s" % (
+                self._node.path, to_hex(self.contents_size),
+                to_hex(new_size)))
         self.SetContents(data)
         return size_ok
 
@@ -419,8 +419,8 @@ class Entry(object):
     def ResetForPack(self):
         """Reset offset/size fields so that packing can be done again"""
         self.Detail('ResetForPack: offset %s->%s, size %s->%s' %
-                    (ToHex(self.offset), ToHex(self.orig_offset),
-                     ToHex(self.size), ToHex(self.orig_size)))
+                    (to_hex(self.offset), to_hex(self.orig_offset),
+                     to_hex(self.size), to_hex(self.orig_size)))
         self.pre_reset_size = self.size
         self.offset = self.orig_offset
         self.size = self.orig_size
@@ -444,20 +444,20 @@ class Entry(object):
             New section offset pointer (after this entry)
         """
         self.Detail('Packing: offset=%s, size=%s, content_size=%x' %
-                    (ToHex(self.offset), ToHex(self.size),
+                    (to_hex(self.offset), to_hex(self.size),
                      self.contents_size))
         if self.offset is None:
             if self.offset_unset:
                 self.Raise('No offset set with offset-unset: should another '
                            'entry provide this correct offset?')
-            self.offset = tools.Align(offset, self.align)
+            self.offset = tools.align(offset, self.align)
         needed = self.pad_before + self.contents_size + self.pad_after
-        needed = tools.Align(needed, self.align_size)
+        needed = tools.align(needed, self.align_size)
         size = self.size
         if not size:
             size = needed
         new_offset = self.offset + size
-        aligned_offset = tools.Align(new_offset, self.align_end)
+        aligned_offset = tools.align(new_offset, self.align_end)
         if aligned_offset != new_offset:
             size = aligned_offset - self.offset
             new_offset = aligned_offset
@@ -471,10 +471,10 @@ class Entry(object):
         # Check that the alignment is correct. It could be wrong if the
         # and offset or size values were provided (i.e. not calculated), but
         # conflict with the provided alignment values
-        if self.size != tools.Align(self.size, self.align_size):
+        if self.size != tools.align(self.size, self.align_size):
             self.Raise("Size %#x (%d) does not match align-size %#x (%d)" %
                   (self.size, self.size, self.align_size, self.align_size))
-        if self.offset != tools.Align(self.offset, self.align):
+        if self.offset != tools.align(self.offset, self.align):
             self.Raise("Offset %#x (%d) does not match align %#x (%d)" %
                   (self.offset, self.offset, self.align, self.align))
         self.Detail('   - packed: offset=%#x, size=%#x, content_size=%#x, next_offset=%x' %
@@ -489,12 +489,12 @@ class Entry(object):
     def Info(self, msg):
         """Convenience function to log info referencing a node"""
         tag = "Info '%s'" % self._node.path
-        tout.Detail('%30s: %s' % (tag, msg))
+        tout.detail('%30s: %s' % (tag, msg))
 
     def Detail(self, msg):
         """Convenience function to log detail referencing a node"""
         tag = "Node '%s'" % self._node.path
-        tout.Detail('%30s: %s' % (tag, msg))
+        tout.detail('%30s: %s' % (tag, msg))
 
     def GetEntryArgsOrProps(self, props, required=False):
         """Return the values of a set of properties
@@ -541,7 +541,7 @@ class Entry(object):
             bytes content of the entry, excluding any padding. If the entry is
                 compressed, the compressed data is returned
         """
-        self.Detail('GetData: size %s' % ToHexSize(self.data))
+        self.Detail('GetData: size %s' % to_hex_size(self.data))
         return self.data
 
     def GetPaddedData(self, data=None):
@@ -841,7 +841,7 @@ features to produce new behaviours.
         """
         # Use True here so that we get an uncompressed section to work from,
         # although compressed sections are currently not supported
-        tout.Debug("ReadChildData section '%s', entry '%s'" %
+        tout.debug("ReadChildData section '%s', entry '%s'" %
                    (self.section.GetPath(), self.GetPath()))
         data = self.section.ReadChildData(self, decomp, alt_format)
         return data
@@ -991,7 +991,7 @@ features to produce new behaviours.
             fname (str): Filename of faked file
         """
         if self.allow_fake and not pathlib.Path(fname).is_file():
-            outfname = tools.GetOutputFilename(os.path.basename(fname))
+            outfname = tools.get_output_filename(os.path.basename(fname))
             with open(outfname, "wb") as out:
                 out.truncate(1024)
             self.faked = True
@@ -1076,7 +1076,7 @@ features to produce new behaviours.
         Returns:
             True to use this entry type, False to use the original one
         """
-        tout.Info("Node '%s': etype '%s': %s selected" %
+        tout.info("Node '%s': etype '%s': %s selected" %
                   (node.path, etype, new_etype))
         return True
 

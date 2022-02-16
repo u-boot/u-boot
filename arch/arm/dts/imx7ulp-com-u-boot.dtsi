@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * Copyright 2019 Foundries.io
+ */
+
+&iomuxc1 {
+	u-boot,dm-spl;
+};
+
+&ahbbridge0 {
+	u-boot,dm-spl;
+};
+
+&ahbbridge1 {
+	u-boot,dm-spl;
+};
+
+&lpuart4 {
+	u-boot,dm-spl;
+};
+
+&usbotg1 {
+	extcon = <&usbphy1>;
+	u-boot,dm-spl;
+};
+
+&usbphy1 {
+	u-boot,dm-spl;
+};
+
+&usdhc0 {
+	u-boot,dm-spl;
+};
+
+&gpio0 {
+	u-boot,dm-spl;
+};

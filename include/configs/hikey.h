@@ -15,8 +15,6 @@
 
 #define CONFIG_POWER_HI6553
 
-#define CONFIG_REMAKE_ELF
-
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /* Physical Memory Map */

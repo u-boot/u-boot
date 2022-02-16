@@ -130,6 +130,38 @@ config SYS_IVM_EEPROM_PAGE_LEN
 	help
 	  Page size of inventory in EEPROM.
 
+config PG_WCOM_UBOOT_UPDATE_SUPPORTED
+	bool "Enable U-boot Field Fail-Safe Update Functionality"
+	default n
+	help
+	  Indicates that field fail-safe u-boot update is supported.
+	  This functionality works only for designs that are booting
+	  from parallel NOR flash.
+
+config PG_WCOM_UBOOT_BOOTPACKAGE
+	bool "U-boot Is Part Of Factory Boot-Package Image"
+	default n
+	help
+	  Indicates that u-boot will be a part of the factory programmed
+	  boot-package image.
+	  Has to be set for original u-boot programmed at factory.
+
+config PG_WCOM_UBOOT_UPDATE_TEXT_BASE
+	hex "Text Base For U-boot Programmed Outside Factory"
+	default 0xFFFFFFFF
+	help
+	  Text base of an updated u-boot that is not factory programmed but
+	  later when the unit is rolled out on the field.
+	  Has to be set for original u-boot programmed at factory.
+
+config PG_WCOM_UBOOT_UPDATE
+	bool "U-boot Is Part Of Factory Boot-Package Image"
+	default n
+	help
+	  Indicates that u-boot will be a part of the embedded software and
+	  programmed at field.
+	  Has to be set for updated u-boot version programmed at field.
+
 source "board/keymile/km83xx/Kconfig"
 source "board/keymile/kmcent2/Kconfig"
 source "board/keymile/km_arm/Kconfig"

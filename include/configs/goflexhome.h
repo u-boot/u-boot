@@ -48,7 +48,6 @@
 #endif
 
 /* SATA driver configuration */
-#define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_LBA48
 
 #endif /* _CONFIG_GOFLEXHOME_H */

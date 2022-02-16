@@ -92,4 +92,14 @@ config REMOTEPROC_TI_PRU
 	help
 	  Say 'y' here to add support for TI' K3 remoteproc driver.
 
+config REMOTEPROC_TI_IPU
+	bool "Support for TI's K3 based IPU remoteproc driver"
+	select REMOTEPROC
+	depends on DM
+	depends on SPL_DRIVERS_MISC
+	depends on SPL_FS_LOADER
+	depends on OF_CONTROL
+	help
+	  Say 'y' here to add support for TI' K3 remoteproc driver.
+
 endmenu

@@ -19,7 +19,7 @@ from binman import state
 from dtoc import fdt_util
 from patman import tools
 from patman import tout
-from patman.tools import ToHexSize
+from patman.tools import to_hex_size
 
 
 class Entry_section(Entry):
@@ -269,19 +269,19 @@ class Entry_section(Entry):
         data = bytearray()
         # Handle padding before the entry
         if entry.pad_before:
-            data += tools.GetBytes(self._pad_byte, entry.pad_before)
+            data += tools.get_bytes(self._pad_byte, entry.pad_before)
 
         # Add in the actual entry data
         data += entry_data
 
         # Handle padding after the entry
         if entry.pad_after:
-            data += tools.GetBytes(self._pad_byte, entry.pad_after)
+            data += tools.get_bytes(self._pad_byte, entry.pad_after)
 
         if entry.size:
-            data += tools.GetBytes(pad_byte, entry.size - len(data))
+            data += tools.get_bytes(pad_byte, entry.size - len(data))
 
-        self.Detail('GetPaddedDataForEntry: size %s' % ToHexSize(self.data))
+        self.Detail('GetPaddedDataForEntry: size %s' % to_hex_size(self.data))
 
         return data
 
@@ -316,7 +316,7 @@ class Entry_section(Entry):
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
-                section_data += tools.GetBytes(self._pad_byte, pad)
+                section_data += tools.get_bytes(self._pad_byte, pad)
 
             # Add in the actual entry data
             section_data += data
@@ -709,14 +709,14 @@ class Entry_section(Entry):
         if not size:
             data = self.GetPaddedData(self.data)
             size = len(data)
-            size = tools.Align(size, self.align_size)
+            size = tools.align(size, self.align_size)
 
         if self.size and contents_size > self.size:
             self._Raise("contents size %#x (%d) exceeds section size %#x (%d)" %
                         (contents_size, contents_size, self.size, self.size))
         if not self.size:
             self.size = size
-        if self.size != tools.Align(self.size, self.align_size):
+        if self.size != tools.align(self.size, self.align_size):
             self._Raise("Size %#x (%d) does not match align-size %#x (%d)" %
                         (self.size, self.size, self.align_size,
                          self.align_size))
@@ -757,28 +757,28 @@ class Entry_section(Entry):
         return self._sort
 
     def ReadData(self, decomp=True, alt_format=None):
-        tout.Info("ReadData path='%s'" % self.GetPath())
+        tout.info("ReadData path='%s'" % self.GetPath())
         parent_data = self.section.ReadData(True, alt_format)
         offset = self.offset - self.section._skip_at_start
         data = parent_data[offset:offset + self.size]
-        tout.Info(
+        tout.info(
             '%s: Reading data from offset %#x-%#x (real %#x), size %#x, got %#x' %
                   (self.GetPath(), self.offset, self.offset + self.size, offset,
                    self.size, len(data)))
         return data
 
     def ReadChildData(self, child, decomp=True, alt_format=None):
-        tout.Debug(f"ReadChildData for child '{child.GetPath()}'")
+        tout.debug(f"ReadChildData for child '{child.GetPath()}'")
         parent_data = self.ReadData(True, alt_format)
         offset = child.offset - self._skip_at_start
-        tout.Debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
+        tout.debug("Extract for child '%s': offset %#x, skip_at_start %#x, result %#x" %
                    (child.GetPath(), child.offset, self._skip_at_start, offset))
         data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
             data = comp_util.decompress(indata, child.compress)
             if child.uncomp_size:
-                tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
+                tout.info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
                             (child.GetPath(), len(indata), child.compress,
                             len(data)))
         if alt_format:
@@ -840,6 +840,7 @@ class Entry_section(Entry):
         Args:
             missing_list: List of Bintool objects to be added to
         """
+        super().check_missing_bintools(missing_list)
         for entry in self._entries.values():
             entry.check_missing_bintools(missing_list)
 

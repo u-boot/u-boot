@@ -17,6 +17,7 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <common.h>
+#include <linux/linkage.h>
 
 /*
  *************************************************************************
@@ -32,8 +33,13 @@
  */
 
 	.globl	reset
+	.globl	save_boot_params_ret
+	.type   save_boot_params_ret,%function
 
 reset:
+	/* Allow the board to save important registers */
+	b	save_boot_params
+save_boot_params_ret:
 	/*
 	 * set the cpu to SVC32 mode
 	 */
@@ -110,3 +116,16 @@ flush_dcache:
 #endif
 	mov	pc, lr		/* back to my caller */
 #endif /* CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) */
+
+/*************************************************************************
+ *
+ * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+ *	__attribute__((weak));
+ *
+ * Stack pointer is not yet initialized at this moment
+ * Don't save anything to stack even if compiled with -O0
+ *
+ *************************************************************************/
+WEAK(save_boot_params)
+	b	save_boot_params_ret	/* back to my caller */
+ENDPROC(save_boot_params)
