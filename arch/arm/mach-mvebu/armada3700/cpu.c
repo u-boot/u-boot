@@ -63,7 +63,7 @@ static struct mm_region mvebu_mem_map[MAX_MEM_MAP_REGIONS] = {
 	{
 		/*
 		 * SRAM, MMIO regions
-		 * Don't remove this, a3700_build_mem_map needs it.
+		 * Don't remove this, build_mem_map needs it.
 		 */
 		.phys = SOC_REGS_PHY_BASE,
 		.virt = SOC_REGS_PHY_BASE,
