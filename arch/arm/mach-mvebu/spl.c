@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <hang.h>
@@ -330,7 +331,11 @@ void board_init_f(ulong dummy)
 	ret = ddr3_init();
 	if (ret) {
 		printf("ddr3_init() failed: %d\n", ret);
-		hang();
+		if (IS_ENABLED(CONFIG_DDR_RESET_ON_TRAINING_FAILURE) &&
+		    get_boot_device() != BOOT_DEVICE_UART)
+			reset_cpu();
+		else
+			hang();
 	}
 #endif
 
