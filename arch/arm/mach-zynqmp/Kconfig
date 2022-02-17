@@ -140,6 +140,7 @@ config DEFINE_TCM_OCM_MMAP
 
 config ZYNQMP_PSU_INIT_ENABLED
 	bool "Include psu_init"
+	select BOARD_EARLY_INIT_F
 	help
 	  Include psu_init to full u-boot. SPL include psu_init by default.
 
