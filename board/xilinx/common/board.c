@@ -319,7 +319,7 @@ __maybe_unused int xilinx_read_eeprom(void)
 	return 0;
 }
 
-#if defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
+#if defined(CONFIG_OF_BOARD)
 void *board_fdt_blob_setup(int *err)
 {
 	void *fdt_blob;
@@ -355,6 +355,7 @@ void *board_fdt_blob_setup(int *err)
 
 	debug("DTB is also not passed via %p\n", fdt_blob);
 
+	*err = -EINVAL;
 	return NULL;
 }
 #endif
