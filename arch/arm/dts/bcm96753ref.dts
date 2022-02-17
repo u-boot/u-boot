@@ -78,3 +78,21 @@
 		brcm,nand-oob-sector-size = <16>;
 	};
 };
+
+&leds {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	brcm,serial-led-en-pol;
+	brcm,serial-led-data-ppol;
+
+	led@0 {
+		reg = <0>;
+		label = "led_red";
+	};
+
+	led@1 {
+		reg = <1>;
+		label = "led_green";
+	};
+};
