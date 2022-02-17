@@ -1157,6 +1157,7 @@ config ARCH_ZYNQ
 	select CLK
 	select CLK_ZYNQ
 	select CPU_V7A
+	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART
 	select DM
 	select DM_ETH if NET
 	select DM_MMC if MMC
