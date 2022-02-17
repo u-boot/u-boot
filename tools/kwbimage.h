@@ -240,8 +240,20 @@ static inline size_t kwbheader_size(const void *header)
 	if (kwbimage_version(header) == 0) {
 		const struct main_hdr_v0 *hdr = header;
 
+		/*
+		 * First extension header starts immediately after the main
+		 * header without any padding. Between extension headers is
+		 * 0x20 byte padding. There is no padding after the last
+		 * extension header. First binary code header starts immediately
+		 * after the last extension header (or immediately after the
+		 * main header if there is no extension header) without any
+		 * padding. There is no padding between binary code headers and
+		 * neither after the last binary code header.
+		 */
 		return sizeof(*hdr) +
-		       hdr->ext ? sizeof(struct ext_hdr_v0) : 0;
+		       hdr->ext * sizeof(struct ext_hdr_v0) +
+		       ((hdr->ext > 1) ? ((hdr->ext - 1) * 0x20) : 0) +
+		       hdr->bin * sizeof(struct bin_hdr_v0);
 	} else {
 		const struct main_hdr_v1 *hdr = header;
 
