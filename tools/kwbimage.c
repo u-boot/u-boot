@@ -1115,7 +1115,7 @@ static size_t image_headersz_v1(int *hasext)
 			fprintf(stderr,
 				"Didn't find the file '%s' in '%s' which is mandatory to generate the image\n"
 				"This file generally contains the DDR3 training code, and should be extracted from an existing bootable\n"
-				"image for your board. Use 'dumpimage -T kwbimage -p 0' to extract it from an existing image.\n",
+				"image for your board. Use 'dumpimage -T kwbimage -p 1' to extract it from an existing image.\n",
 				e->binary.file, dir);
 			return 0;
 		}
