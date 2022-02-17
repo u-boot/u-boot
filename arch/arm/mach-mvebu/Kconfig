@@ -213,6 +213,19 @@ config DDR_LOG_LEVEL
 	  At level 3, rovides the windows margin of each DQ as a results of
 	  DQS centeralization.
 
+config DDR_RESET_ON_TRAINING_FAILURE
+	bool "Reset the board on DDR training failure instead of hanging"
+	depends on ARMADA_38X || ARMADA_XP
+	help
+	  If DDR training fails in SPL, reset the board instead of hanging.
+	  Some boards are known to fail DDR training occasionally and an
+	  immediate reset may be preferable to waiting until the board is
+	  reset by watchdog (if there even is one).
+
+	  Note that if booting via UART and the DDR training fails, the
+	  device will still hang - it doesn't make sense to reset the board
+	  in such a case.
+
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
 	default "helios4" if TARGET_HELIOS4
