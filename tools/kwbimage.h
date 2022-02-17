@@ -270,6 +270,57 @@ static inline size_t kwbheader_size_for_csum(const void *header)
 		return kwbheader_size(header);
 }
 
+static inline struct ext_hdr_v0 *ext_hdr_v0_first(void *img)
+{
+	struct main_hdr_v0 *mhdr;
+
+	if (kwbimage_version(img) != 0)
+		return NULL;
+
+	mhdr = img;
+	if (mhdr->ext)
+		return (struct ext_hdr_v0 *)(mhdr + 1);
+	else
+		return NULL;
+}
+
+static inline void *_ext_hdr_v0_end(struct main_hdr_v0 *mhdr)
+{
+	return (uint8_t *)mhdr + kwbheader_size(mhdr) - mhdr->bin * sizeof(struct bin_hdr_v0);
+}
+
+static inline struct ext_hdr_v0 *ext_hdr_v0_next(void *img, struct ext_hdr_v0 *cur)
+{
+	if ((void *)(cur + 1) < _ext_hdr_v0_end(img))
+		return (struct ext_hdr_v0 *)((uint8_t *)(cur + 1) + 0x20);
+	else
+		return NULL;
+}
+
+#define for_each_ext_hdr_v0(ehdr, img)			\
+	for ((ehdr) = ext_hdr_v0_first((img));		\
+	     (ehdr) != NULL;				\
+	     (ehdr) = ext_hdr_v0_next((img), (ehdr)))
+
+static inline struct bin_hdr_v0 *bin_hdr_v0_first(void *img)
+{
+	struct main_hdr_v0 *mhdr;
+
+	if (kwbimage_version(img) != 0)
+		return NULL;
+
+	mhdr = img;
+	if (mhdr->bin)
+		return _ext_hdr_v0_end(mhdr);
+	else
+		return NULL;
+}
+
+#define for_each_bin_hdr_v0(bhdr, img)							\
+	for ((bhdr) = bin_hdr_v0_first((img));						\
+	     (bhdr) && (void *)(bhdr) < (void *)((uint8_t *)img + kwbheader_size(img));	\
+	     (bhdr) = (struct bin_hdr_v0 *)((bhdr))+1)
+
 static inline uint32_t opt_hdr_v1_size(const struct opt_hdr_v1 *ohdr)
 {
 	return (ohdr->headersz_msb << 16) | le16_to_cpu(ohdr->headersz_lsb);
