@@ -6,6 +6,8 @@
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
+ *
+ * (C) Copyright 2022 Pali Rohár <pali@kernel.org>
  */
 
 #define OPENSSL_API_COMPAT 0x10101000L
