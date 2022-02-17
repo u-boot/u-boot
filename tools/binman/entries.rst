@@ -1030,6 +1030,16 @@ devices.
 
 
 
+Entry: ti-dm: Texas Instruments Device Manager (DM) blob
+-----------------------------------------------------------------
+
+Properties / Entry arguments:
+    - ti-dm-path: Filename of file to read into the entry, typically dm.bin
+
+This entry holds the device manager responsible for resource and power management in K3 devices.
+
+
+
 Entry: section: Entry that contains other entries
 -------------------------------------------------
 
