@@ -19,9 +19,19 @@
 #include <asm/arch/psu_init_gpl.h>
 #include <asm/arch/sys_proto.h>
 
+#if defined(CONFIG_DEBUG_UART_BOARD_INIT)
+void board_debug_uart_init(void)
+{
+	psu_uboot_init();
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
-	board_early_init_f();
+#if !defined(CONFIG_DEBUG_UART_BOARD_INIT)
+	psu_uboot_init();
+#endif
+
 	board_early_init_r();
 #ifdef CONFIG_SPL_ZYNQMP_DRAM_ECC_INIT
 	zynqmp_ecc_init();
