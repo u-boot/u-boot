@@ -48,9 +48,13 @@ struct main_hdr_v0 {
 	uint32_t destaddr;		/* 0x10-0x13 */
 	uint32_t execaddr;		/* 0x14-0x17 */
 	uint8_t  satapiomode;		/* 0x18      */
-	uint8_t  rsvd3;			/* 0x19      */
+	uint8_t  nandblocksize;		/* 0x19      */
+	union {
+	uint8_t  nandbadblklocation;    /* 0x1A      */
 	uint16_t ddrinitdelay;		/* 0x1A-0x1B */
-	uint16_t rsvd2;			/* 0x1C-0x1D */
+	};
+	uint8_t  rsvd2;			/* 0x1C      */
+	uint8_t  bin;			/* 0x1D      */
 	uint8_t  ext;			/* 0x1E      */
 	uint8_t  checksum;		/* 0x1F      */
 } __packed;
@@ -60,14 +64,43 @@ struct ext_hdr_v0_reg {
 	uint32_t rdata;
 } __packed;
 
-#define EXT_HDR_V0_REG_COUNT ((0x1dc - 0x20) / sizeof(struct ext_hdr_v0_reg))
-
+/* Structure of the extension header, version 0 (Kirkwood, Dove) */
 struct ext_hdr_v0 {
-	uint32_t              offset;
-	uint8_t               reserved[0x20 - sizeof(uint32_t)];
-	struct ext_hdr_v0_reg rcfg[EXT_HDR_V0_REG_COUNT];
-	uint8_t               reserved2[7];
-	uint8_t               checksum;
+	/*
+	 * Beware that extension header offsets specified in 88AP510 Functional
+	 * Specifications are relative to the start of the main header, not to
+	 * the start of the extension header itself.
+	 */
+	uint32_t offset;		/* 0x0-0x3     */
+	uint8_t  rsvd1[8];		/* 0x4-0xB     */
+	uint32_t enddelay;		/* 0xC-0xF     */
+	uint32_t match_addr;		/* 0x10-0x13   */
+	uint32_t match_mask;		/* 0x14-0x17   */
+	uint32_t match_value;		/* 0x18-0x1B   */
+	uint8_t  ddrwritetype;		/* 0x1C        */
+	uint8_t  ddrresetmpp;		/* 0x1D        */
+	uint8_t  ddrclkenmpp;		/* 0x1E        */
+	uint8_t  ddrinitdelay;		/* 0x1F        */
+	struct ext_hdr_v0_reg rcfg[55]; /* 0x20-0x1D7  */
+	uint8_t  rsvd2[7];		/* 0x1D8-0x1DE */
+	uint8_t  checksum;		/* 0x1DF       */
+} __packed;
+
+/* Structure of the binary code header, version 0 (Dove) */
+struct bin_hdr_v0 {
+	uint32_t match_addr;		/* 0x00-0x03  */
+	uint32_t match_mask;		/* 0x04-0x07  */
+	uint32_t match_value;		/* 0x08-0x0B  */
+	uint32_t offset;		/* 0x0C-0x0F  */
+	uint32_t destaddr;		/* 0x10-0x13  */
+	uint32_t size;			/* 0x14-0x17  */
+	uint32_t execaddr;		/* 0x18-0x1B  */
+	uint32_t params[4];		/* 0x1C-0x2B  */
+	uint8_t  params_flags;		/* 0x2C       */
+	uint8_t  rsvd1;			/* 0x2D       */
+	uint8_t  rsvd2;			/* 0x2E       */
+	uint8_t  checksum;		/* 0x2F       */
+	uint8_t  code[2000];		/* 0x30-0x7FF */
 } __packed;
 
 /* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
