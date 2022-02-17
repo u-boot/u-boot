@@ -25,6 +25,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DEBUG_UART_BOARD_INIT)
+void board_debug_uart_init(void)
+{
+	/* Add initialization sequence if UART is not configured */
+}
+#endif
+
 int board_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD))

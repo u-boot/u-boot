@@ -16,17 +16,20 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/ps7_init_gpl.h>
 
-void board_init_f(ulong dummy)
+#if defined(CONFIG_DEBUG_UART_BOARD_INIT)
+void board_debug_uart_init(void)
 {
 	ps7_init();
+}
+#endif
+
+void board_init_f(ulong dummy)
+{
+#if !defined(CONFIG_DEBUG_UART_BOARD_INIT)
+	ps7_init();
+#endif
 
 	arch_cpu_init();
-
-#ifdef CONFIG_DEBUG_UART
-	/* Uart debug for sure */
-	debug_uart_init();
-	puts("Debug uart enabled\n"); /* or printch() */
-#endif
 }
 
 #ifdef CONFIG_SPL_BOARD_INIT
