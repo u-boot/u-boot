@@ -1,0 +1,92 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+
+#include <config.h>
+
+#ifdef CONFIG_ARM64
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	tispl {
+		filename = "tispl.bin";
+		fit {
+			description = "FIT IMAGE";
+			#address-cells = <1>;
+			fit,fdt-list = "of-list";
+			images {
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf-bl31 {
+						filename = "bl31.bin";
+					};
+				};
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee-os {
+						filename = "tee-pager.bin";
+						missing-msg = "tee-os";
+					};
+				};
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					ti-dm {
+						filename = "dm.bin";
+					};
+				};
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <0x80080000>;
+					entry = <0x80080000>;
+					blob-ext {
+						filename = "spl/u-boot-spl-nodtb.bin";
+					};
+				};
+				k3-j721e-common-proc-board.dtb {
+					description = "k3-j721e-common-proc-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+					filename = "spl/dts/k3-j721e-common-proc-board.dtb";
+					};
+				};
+			};
+			configurations {
+				default = "conf";
+				conf {
+					description = "k3-j721e-common-proc-board";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "k3-j721e-common-proc-board.dtb";
+				};
+			};
+		};
+	};
+};
+#endif

@@ -574,7 +574,3 @@ $(obj)/$(SPL_BIN).multidtb.fit.gz: $(obj)/$(SPL_BIN).multidtb.fit
 $(obj)/$(SPL_BIN).multidtb.fit.lzo: $(obj)/$(SPL_BIN).multidtb.fit
 	@lzop -f9 $< > $@
 
-ifdef CONFIG_ARCH_K3
-tispl.bin: $(obj)/u-boot-spl-nodtb.bin $(SHRUNK_ARCH_DTB) $(SPL_ITS) FORCE
-	$(call if_changed,mkfitimage)
-endif
