@@ -313,6 +313,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 }
 #endif
 
+#if defined(CONFIG_BOARD_EARLY_INIT_F)
 int board_early_init_f(void)
 {
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
@@ -345,6 +346,7 @@ int board_early_init_f(void)
 
 	return 0;
 }
+#endif
 
 static int multi_boot(void)
 {
