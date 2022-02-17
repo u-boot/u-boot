@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+
+#include <config.h>
+
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	tiboot3 {
+		filename = "tiboot3.bin";
+		ti-x509-cert {
+			content = <&image1>;
+			core = <16>;
+			load = <CONFIG_SPL_TEXT_BASE>;
+		};
+		image1: u-boot-spl {
+			no-expanded;
+		};
+	};
+	binary {
+		filename = "sysfw.bin";
+		ti-x509-cert {
+			content = <&image2>;
+			core = <0>;
+			load = <0x0040000>;
+		};
+		image2: ti-sysfw {
+		};
+	};
+	itb {
+		filename = "sysfw.itb";
+		fit {
+			description = "SYSFW and Config Fragments";
+			#address-cells = <1>;
+			images {
+				sysfw.bin {
+					description = "sysfw";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = "sysfw.bin";
+					};
+				};
+				board-cfg.bin {
+					description = "board-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "board-cfg.bin";
+					};
+				};
+				pm-cfg.bin {
+					description = "pm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "pm-cfg.bin";
+					};
+				};
+				rm-cfg.bin {
+					description = "rm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "rm-cfg.bin";
+					};
+				};
+				sec-cfg.bin {
+					description = "sec-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "sec-cfg.bin";
+					};
+				};
+			};
+		};
+	};
+};
