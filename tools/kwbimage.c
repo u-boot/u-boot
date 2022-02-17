@@ -998,9 +998,15 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	e = image_find_option(IMAGE_CFG_NAND_ECC_MODE);
 	if (e)
 		main_hdr->nandeccmode = e->nandeccmode;
+	e = image_find_option(IMAGE_CFG_NAND_BLKSZ);
+	if (e)
+		main_hdr->nandblocksize = e->nandblksz / (64 * 1024);
 	e = image_find_option(IMAGE_CFG_NAND_PAGESZ);
 	if (e)
 		main_hdr->nandpagesize = cpu_to_le16(e->nandpagesz);
+	e = image_find_option(IMAGE_CFG_NAND_BADBLK_LOCATION);
+	if (e)
+		main_hdr->nandbadblklocation = e->nandbadblklocation;
 	main_hdr->checksum = image_checksum8(image,
 					     sizeof(struct main_hdr_v0));
 
