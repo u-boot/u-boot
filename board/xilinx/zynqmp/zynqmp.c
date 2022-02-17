@@ -313,10 +313,8 @@ static char *zynqmp_get_silicon_idcode_name(void)
 }
 #endif
 
-#if defined(CONFIG_BOARD_EARLY_INIT_F)
-int board_early_init_f(void)
+int __maybe_unused psu_uboot_init(void)
 {
-#if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
 	int ret;
 
 	ret = psu_init();
@@ -336,16 +334,30 @@ int board_early_init_f(void)
 
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
-#endif
-
-#ifdef CONFIG_DEBUG_UART
-	/* Uart debug for sure */
-	debug_uart_init();
-	puts("Debug uart enabled\n"); /* or printch() */
-#endif
-
+	
 	return 0;
 }
+
+#if !defined(CONFIG_SPL_BUILD)
+# if defined(CONFIG_DEBUG_UART_BOARD_INIT)
+void board_debug_uart_init(void)
+{
+#  if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
+	psu_uboot_init();
+#  endif
+}
+# endif
+
+# if defined(CONFIG_BOARD_EARLY_INIT_F)
+int board_early_init_f(void)
+{
+	int ret = 0;
+#  if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED) && !defined(CONFIG_DEBUG_UART_BOARD_INIT)
+	ret = psu_uboot_init();
+#  endif
+	return ret;
+}
+# endif
 #endif
 
 static int multi_boot(void)
