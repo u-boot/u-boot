@@ -197,5 +197,12 @@
 
 			status = "disabled";
 		};
+
+		leds: led-controller@ff803000 {
+			compatible = "brcm,bcm6753-leds";
+			reg = <0xff803000 0x3480>;
+
+			status = "disabled";
+		};
 	};
 };
