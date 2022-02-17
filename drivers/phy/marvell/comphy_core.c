@@ -96,7 +96,7 @@ static int comphy_probe(struct udevice *dev)
 	if (IS_ERR(chip_cfg->hpipe3_base_addr))
 		return PTR_ERR(chip_cfg->hpipe3_base_addr);
 
-	if (device_is_compatible(dev, "marvell,comphy-armada-3700")) {
+	if (device_is_compatible(dev, "marvell,comphy-a3700")) {
 		chip_cfg->comphy_init_map = comphy_a3700_init_serdes_map;
 		chip_cfg->ptr_comphy_chip_init = comphy_a3700_init;
 		chip_cfg->rx_training = NULL;
@@ -145,6 +145,7 @@ static int comphy_probe(struct udevice *dev)
 
 static const struct udevice_id comphy_ids[] = {
 	{ .compatible = "marvell,mvebu-comphy" },
+	{ .compatible = "marvell,comphy-a3700" },
 	{ }
 };
 

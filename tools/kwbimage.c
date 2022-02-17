@@ -6,6 +6,8 @@
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
+ *
+ * (C) Copyright 2022 Pali Rohár <pali@kernel.org>
  */
 
 #define OPENSSL_API_COMPAT 0x10101000L
@@ -42,6 +44,21 @@ void EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
 	EVP_MD_CTX_reset(ctx);
 }
 #endif
+
+/* fls - find last (most-significant) bit set in 4-bit integer */
+static inline int fls4(int num)
+{
+	if (num & 0x8)
+		return 4;
+	else if (num & 0x4)
+		return 3;
+	else if (num & 0x2)
+		return 2;
+	else if (num & 0x1)
+		return 1;
+	else
+		return 0;
+}
 
 static struct image_cfg_element *image_cfg;
 static int cfgn;
@@ -983,9 +1000,15 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	e = image_find_option(IMAGE_CFG_NAND_ECC_MODE);
 	if (e)
 		main_hdr->nandeccmode = e->nandeccmode;
+	e = image_find_option(IMAGE_CFG_NAND_BLKSZ);
+	if (e)
+		main_hdr->nandblocksize = e->nandblksz / (64 * 1024);
 	e = image_find_option(IMAGE_CFG_NAND_PAGESZ);
 	if (e)
 		main_hdr->nandpagesize = cpu_to_le16(e->nandpagesz);
+	e = image_find_option(IMAGE_CFG_NAND_BADBLK_LOCATION);
+	if (e)
+		main_hdr->nandbadblklocation = e->nandbadblklocation;
 	main_hdr->checksum = image_checksum8(image,
 					     sizeof(struct main_hdr_v0));
 
@@ -1094,7 +1117,7 @@ static size_t image_headersz_v1(int *hasext)
 			fprintf(stderr,
 				"Didn't find the file '%s' in '%s' which is mandatory to generate the image\n"
 				"This file generally contains the DDR3 training code, and should be extracted from an existing bootable\n"
-				"image for your board. Use 'dumpimage -T kwbimage -p 0' to extract it from an existing image.\n",
+				"image for your board. Use 'dumpimage -T kwbimage -p 1' to extract it from an existing image.\n",
 				e->binary.file, dir);
 			return 0;
 		}
@@ -1898,6 +1921,7 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 static void kwbimage_print_header(const void *ptr)
 {
 	struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
+	struct bin_hdr_v0 *bhdr;
 	struct opt_hdr_v1 *ohdr;
 
 	printf("Image Type:   MVEBU Boot from %s Image\n",
@@ -1913,6 +1937,13 @@ static void kwbimage_print_header(const void *ptr)
 				(unsigned)((uint8_t *)ohdr - (uint8_t *)mhdr) +
 				8 + 4 * ohdr->data[0]);
 		}
+	}
+
+	for_each_bin_hdr_v0(bhdr, mhdr) {
+		printf("BIN Img Size: ");
+		genimg_print_size(le32_to_cpu(bhdr->size));
+		printf("BIN Img Addr: %08x\n", le32_to_cpu(bhdr->destaddr));
+		printf("BIN Img Entr: %08x\n", le32_to_cpu(bhdr->execaddr));
 	}
 
 	printf("Data Size:    ");
@@ -1947,12 +1978,28 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 	/* Only version 0 extended header has checksum */
 	if (kwbimage_version(ptr) == 0) {
 		struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
+		struct ext_hdr_v0 *ext_hdr;
+		struct bin_hdr_v0 *bhdr;
 
-		if (mhdr->ext) {
-			struct ext_hdr_v0 *ext_hdr = (void *)(mhdr + 1);
-
+		for_each_ext_hdr_v0(ext_hdr, ptr) {
 			csum = image_checksum8(ext_hdr, sizeof(*ext_hdr) - 1);
 			if (csum != ext_hdr->checksum)
+				return -FDT_ERR_BADSTRUCTURE;
+		}
+
+		for_each_bin_hdr_v0(bhdr, ptr) {
+			csum = image_checksum8(bhdr, (uint8_t *)&bhdr->checksum - (uint8_t *)bhdr - 1);
+			if (csum != bhdr->checksum)
+				return -FDT_ERR_BADSTRUCTURE;
+
+			if (bhdr->offset > sizeof(*bhdr) || bhdr->offset % 4 != 0)
+				return -FDT_ERR_BADSTRUCTURE;
+
+			if (bhdr->offset + bhdr->size + 4 > sizeof(*bhdr) || bhdr->size % 4 != 0)
+				return -FDT_ERR_BADSTRUCTURE;
+
+			if (image_checksum32((uint8_t *)bhdr + bhdr->offset, bhdr->size) !=
+			    *(uint32_t *)((uint8_t *)bhdr + bhdr->offset + bhdr->size))
 				return -FDT_ERR_BADSTRUCTURE;
 		}
 
@@ -2130,8 +2177,11 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 	struct register_set_hdr_v1 *regset_hdr;
 	struct ext_hdr_v0_reg *regdata;
 	struct ext_hdr_v0 *ehdr0;
+	struct bin_hdr_v0 *bhdr0;
 	struct opt_hdr_v1 *ohdr;
+	int params_count;
 	unsigned offset;
+	int is_v0_ext;
 	int cur_idx;
 	int version;
 	FILE *f;
@@ -2145,6 +2195,14 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 
 	version = kwbimage_version(ptr);
 
+	is_v0_ext = 0;
+	if (version == 0) {
+		if (mhdr0->ext > 1 || mhdr0->bin ||
+		    ((ehdr0 = ext_hdr_v0_first(ptr)) &&
+		     (ehdr0->match_addr || ehdr0->match_mask || ehdr0->match_value)))
+			is_v0_ext = 1;
+	}
+
 	if (version != 0)
 		fprintf(f, "VERSION %d\n", version);
 
@@ -2156,10 +2214,11 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 	if (mhdr->blockid == IBR_HDR_NAND_ID)
 		fprintf(f, "NAND_PAGE_SIZE 0x%x\n", (unsigned)mhdr->nandpagesize);
 
-	if (version != 0 && mhdr->blockid == IBR_HDR_NAND_ID) {
+	if (version != 0 && mhdr->blockid == IBR_HDR_NAND_ID)
 		fprintf(f, "NAND_BLKSZ 0x%x\n", (unsigned)mhdr->nandblocksize);
+
+	if (mhdr->blockid == IBR_HDR_NAND_ID && (mhdr->nandbadblklocation != 0 || is_v0_ext))
 		fprintf(f, "NAND_BADBLK_LOCATION 0x%x\n", (unsigned)mhdr->nandbadblklocation);
-	}
 
 	if (version == 0 && mhdr->blockid == IBR_HDR_SATA_ID)
 		fprintf(f, "SATA_PIO_MODE %u\n", (unsigned)mhdr0->satapiomode);
@@ -2222,29 +2281,87 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 		}
 	}
 
-	if (version == 0 && mhdr0->ext) {
-		ehdr0 = (struct ext_hdr_v0 *)(mhdr0 + 1);
+	if (version == 0 && !is_v0_ext && le16_to_cpu(mhdr0->ddrinitdelay))
+		fprintf(f, "DDR_INIT_DELAY %u\n", (unsigned)le16_to_cpu(mhdr0->ddrinitdelay));
+
+	for_each_ext_hdr_v0(ehdr0, ptr) {
+		if (is_v0_ext) {
+			fprintf(f, "\nMATCH ADDRESS 0x%08x MASK 0x%08x VALUE 0x%08x\n",
+				le32_to_cpu(ehdr0->match_addr),
+				le32_to_cpu(ehdr0->match_mask),
+				le32_to_cpu(ehdr0->match_value));
+			if (ehdr0->rsvd1[0] || ehdr0->rsvd1[1] || ehdr0->rsvd1[2] ||
+			    ehdr0->rsvd1[3] || ehdr0->rsvd1[4] || ehdr0->rsvd1[5] ||
+			    ehdr0->rsvd1[6] || ehdr0->rsvd1[7])
+				fprintf(f, "#DDR_RSVD1 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n",
+					ehdr0->rsvd1[0], ehdr0->rsvd1[1], ehdr0->rsvd1[2],
+					ehdr0->rsvd1[3], ehdr0->rsvd1[4], ehdr0->rsvd1[5],
+					ehdr0->rsvd1[6], ehdr0->rsvd1[7]);
+			if (ehdr0->rsvd2[0] || ehdr0->rsvd2[1] || ehdr0->rsvd2[2] ||
+			    ehdr0->rsvd2[3] || ehdr0->rsvd2[4] || ehdr0->rsvd2[5] ||
+			    ehdr0->rsvd2[6])
+				fprintf(f, "#DDR_RSVD2 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n",
+					ehdr0->rsvd2[0], ehdr0->rsvd2[1], ehdr0->rsvd2[2],
+					ehdr0->rsvd2[3], ehdr0->rsvd2[4], ehdr0->rsvd2[5],
+					ehdr0->rsvd2[6]);
+			if (ehdr0->ddrwritetype)
+				fprintf(f, "DDR_WRITE_TYPE %u\n", (unsigned)ehdr0->ddrwritetype);
+			if (ehdr0->ddrresetmpp)
+				fprintf(f, "DDR_RESET_MPP 0x%x\n", (unsigned)ehdr0->ddrresetmpp);
+			if (ehdr0->ddrclkenmpp)
+				fprintf(f, "DDR_CLKEN_MPP 0x%x\n", (unsigned)ehdr0->ddrclkenmpp);
+			if (ehdr0->ddrinitdelay)
+				fprintf(f, "DDR_INIT_DELAY %u\n", (unsigned)ehdr0->ddrinitdelay);
+		}
+
 		if (ehdr0->offset) {
 			for (regdata = (struct ext_hdr_v0_reg *)((uint8_t *)ptr + ehdr0->offset);
-			     (uint8_t *)regdata < (uint8_t *)ptr + header_size && regdata->raddr &&
-			     regdata->rdata;
+			     (uint8_t *)regdata < (uint8_t *)ptr + header_size &&
+			     (regdata->raddr || regdata->rdata);
 			     regdata++)
 				fprintf(f, "DATA 0x%08x 0x%08x\n", le32_to_cpu(regdata->raddr),
 					le32_to_cpu(regdata->rdata));
+			if ((uint8_t *)regdata != (uint8_t *)ptr + ehdr0->offset)
+				fprintf(f, "DATA 0x0 0x0\n");
 		}
+
+		if (le32_to_cpu(ehdr0->enddelay))
+			fprintf(f, "DATA_DELAY %u\n", le32_to_cpu(ehdr0->enddelay));
+		else if (is_v0_ext)
+			fprintf(f, "DATA_DELAY SDRAM_SETUP\n");
 	}
 
-	if (version == 0 && le16_to_cpu(mhdr0->ddrinitdelay))
-		fprintf(f, "DDR_INIT_DELAY %u\n", (unsigned)le16_to_cpu(mhdr0->ddrinitdelay));
+	cur_idx = 1;
+	for_each_bin_hdr_v0(bhdr0, ptr) {
+		fprintf(f, "\nMATCH ADDRESS 0x%08x MASK 0x%08x VALUE 0x%08x\n",
+			le32_to_cpu(bhdr0->match_addr),
+			le32_to_cpu(bhdr0->match_mask),
+			le32_to_cpu(bhdr0->match_value));
+
+		fprintf(f, "BINARY binary%d.bin", cur_idx);
+		params_count = fls4(bhdr0->params_flags & 0xF);
+		for (i = 0; i < params_count; i++)
+			fprintf(f, " 0x%x", (bhdr0->params[i] & (1 << i)) ? bhdr0->params[i] : 0);
+		fprintf(f, " LOAD_ADDRESS 0x%08x", le32_to_cpu(bhdr0->destaddr));
+		fprintf(f, " EXEC_ADDRESS 0x%08x", le32_to_cpu(bhdr0->execaddr));
+		fprintf(f, "\n");
+
+		fprintf(f, "#BINARY_OFFSET 0x%x\n", le32_to_cpu(bhdr0->offset));
+		fprintf(f, "#BINARY_SIZE 0x%x\n", le32_to_cpu(bhdr0->size));
+
+		if (bhdr0->rsvd1)
+			fprintf(f, "#BINARY_RSVD1 0x%x\n", (unsigned)bhdr0->rsvd1);
+		if (bhdr0->rsvd2)
+			fprintf(f, "#BINARY_RSVD2 0x%x\n", (unsigned)bhdr0->rsvd2);
+
+		cur_idx++;
+	}
 
 	/* Undocumented reserved fields */
 
 	if (version == 0 && (mhdr0->rsvd1[0] || mhdr0->rsvd1[1] || mhdr0->rsvd1[2]))
 		fprintf(f, "#RSVD1 0x%x 0x%x 0x%x\n", (unsigned)mhdr0->rsvd1[0],
 			(unsigned)mhdr0->rsvd1[1], (unsigned)mhdr0->rsvd1[2]);
-
-	if (version == 0 && mhdr0->rsvd3)
-		fprintf(f, "#RSVD3 0x%x\n", (unsigned)mhdr0->rsvd3);
 
 	if (version == 0 && le16_to_cpu(mhdr0->rsvd2))
 		fprintf(f, "#RSVD2 0x%x\n", (unsigned)le16_to_cpu(mhdr0->rsvd2));
@@ -2264,6 +2381,7 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 {
 	struct main_hdr_v1 *mhdr = (struct main_hdr_v1 *)ptr;
 	size_t header_size = kwbheader_size(ptr);
+	struct bin_hdr_v0 *bhdr;
 	struct opt_hdr_v1 *ohdr;
 	int idx = params->pflag;
 	int cur_idx;
@@ -2310,6 +2428,14 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 
 			++cur_idx;
 		}
+		for_each_bin_hdr_v0(bhdr, ptr) {
+			if (idx == cur_idx) {
+				image = (ulong)bhdr + bhdr->offset;
+				size = bhdr->size;
+				break;
+			}
+			++cur_idx;
+		}
 
 		if (!image) {
 			fprintf(stderr, "Argument -p %d is invalid\n", idx);
@@ -2331,7 +2457,7 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
  */
 static int kwbimage_check_params(struct image_tool_params *params)
 {
-	if (!params->lflag && !params->iflag &&
+	if (!params->lflag && !params->iflag && !params->pflag &&
 	    (!params->imagename || !strlen(params->imagename))) {
 		char *msg = "Configuration file for kwbimage creation omitted";
 

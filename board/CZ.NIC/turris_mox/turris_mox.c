@@ -375,8 +375,22 @@ static void mox_phy_leds_start_blinking(void)
 {
 	struct phy_device *phydev;
 	struct mii_dev *bus;
+	const char *node_name;
+	int node;
 
-	bus = miiphy_get_dev_by_name("neta@30000");
+	node = fdt_path_offset(gd->fdt_blob, "ethernet0");
+	if (node < 0) {
+		printf("Cannot get eth0!\n");
+		return;
+	}
+
+	node_name = fdt_get_name(gd->fdt_blob, node, NULL);
+	if (!node_name) {
+		printf("Cannot get eth0 node name!\n");
+		return;
+	}
+
+	bus = miiphy_get_dev_by_name(node_name);
 	if (!bus) {
 		printf("Cannot get MDIO bus device!\n");
 		return;
@@ -623,8 +637,12 @@ int last_stage_init(void)
 	 */
 	if (peridot || topaz) {
 		struct mii_dev *bus;
+		const char *node_name;
+		int node;
 
-		bus = miiphy_get_dev_by_name("neta@30000");
+		node = fdt_path_offset(gd->fdt_blob, "ethernet0");
+		node_name = (node >= 0) ? fdt_get_name(gd->fdt_blob, node, NULL) : NULL;
+		bus = node_name ? miiphy_get_dev_by_name(node_name) : NULL;
 		if (!bus) {
 			printf("Cannot get MDIO bus device!\n");
 		} else {

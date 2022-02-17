@@ -3,30 +3,23 @@
  * Device tree for the uDPU board.
  * Based on Marvell Armada 3720 development board (DB-88F3720-DDR3)
  * Copyright (C) 2016 Marvell
- * Copyright (C) 2018 Methode
- * Copyright (C) 2018 Telus
+ * Copyright (C) 2019 Methode Electronics
+ * Copyright (C) 2019 Telus
  *
  * Vladimir Vid <vladimir.vid@sartura.hr>
  */
 
 /dts-v1/;
 
-#include "armada-37xx.dtsi"
-#include "armada-3720-uDPU-u-boot.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include "armada-372x.dtsi"
 
 / {
 	model = "Methode uDPU Board";
-	compatible = "methode,udpu";
+	compatible = "methode,udpu", "marvell,armada3720";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
-		bootargs = "console=ttyMV0,115200 earlycon=ar3700_uart,0xd0012000";
-	};
-
-	aliases {
-		i2c0 = &i2c0;
-		i2c1 = &i2c1;
-		spi0 = &spi0;
 	};
 
 	memory@0 {
@@ -34,56 +27,39 @@
 		reg = <0x00000000 0x00000000 0x00000000 0x20000000>;
 	};
 
-	mdio: mdio@32004 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		ethphy0: ethernet-phy@0 {
-			 reg = <0>;
-		};
-		ethphy1: ethernet-phy@1 {
-			reg = <1>;
-		};
-	};
-
-	scsi: scsi {
-		compatible = "marvell,mvebu-scsi";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		max-id = <1>;
-		max-lun = <1>;
-		status = "okay";
-	};
-
-	i2c1: i2c@11080 {
-		compatible = "marvell,armada-3700-i2c", "simple-bus";
-		reg = <0x0 0x11080 0x0 0x80>;
+	leds {
 		pinctrl-names = "default";
-		pinctrl-0 = <&i2c2_pins>;
-		#address-cells = <2>;
-		#size-cells = <2>;
-		status = "okay";
-	};
+		compatible = "gpio-leds";
 
-	uart1: serial@12200 {
-		compatible = "marvell,armada-3700-uart-ext";
-		reg = <0x0 0x12200 0x0 0x30>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&uart2_pins>;
-		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-		status = "okay";
-		#address-cells = <2>;
-		#size-cells = <2>;
-	};
+		power1 {
+			label = "udpu:green:power";
+			gpios = <&gpionb 11 GPIO_ACTIVE_LOW>;
+		};
 
-	vcc_sd_reg0: regulator@0 {
-		compatible = "regulator-gpio";
-		regulator-name = "vcc_sd0";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-type = "voltage";
-		states = <1800000 0x1
-			3300000 0x0>;
-		gpios = <&gpiosb 23 GPIO_ACTIVE_HIGH>;
+		power2 {
+			label = "udpu:red:power";
+			gpios = <&gpionb 12 GPIO_ACTIVE_LOW>;
+		};
+
+		network1 {
+			label = "udpu:green:network";
+			gpios = <&gpionb 13 GPIO_ACTIVE_LOW>;
+		};
+
+		network2 {
+			label = "udpu:red:network";
+			gpios = <&gpionb 14 GPIO_ACTIVE_LOW>;
+		};
+
+		alarm1 {
+			label = "udpu:green:alarm";
+			gpios = <&gpionb 15 GPIO_ACTIVE_LOW>;
+		};
+
+		alarm2 {
+			label = "udpu:red:alarm";
+			gpios = <&gpionb 16 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	sfp_eth0: sfp-eth0 {
@@ -93,40 +69,29 @@
 		mod-def0-gpio = <&gpiosb 3 GPIO_ACTIVE_LOW>;
 		tx-disable-gpio = <&gpiosb 4 GPIO_ACTIVE_HIGH>;
 		tx-fault-gpio = <&gpiosb 5 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <3000>;
 	};
 
 	sfp_eth1: sfp-eth1 {
 		compatible = "sff,sfp";
 		i2c-bus = <&i2c1>;
-		sfp,ethernet = <&eth1>;
 		los-gpio = <&gpiosb 7 GPIO_ACTIVE_HIGH>;
 		mod-def0-gpio = <&gpiosb 8 GPIO_ACTIVE_LOW>;
 		tx-disable-gpio = <&gpiosb 9 GPIO_ACTIVE_HIGH>;
 		tx-fault-gpio = <&gpiosb 10 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <3000>;
 	};
 };
 
-&eth0 {
-	pinctrl-0 = <&pcie_pins>;
+&sdhci0 {
 	status = "okay";
-	phy-mode = "sgmii";
-	managed = "in-band-status";
-	phy = <&ethphy0>;
-	phys = <&comphy1 0>;
-};
-
-&eth1 {
-	status = "okay";
-	phy-mode = "sgmii";
-	managed = "in-band-status";
-	phy = <&ethphy1>;
-	phys = <&comphy0 1>;
-};
-
-&i2c0 {
-        pinctrl-names = "default";
-        pinctrl-0 = <&i2c1_pins>;
-        status = "okay";
+	bus-width = <8>;
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
+	marvell,pad-type = "fixed-1-8v";
+	non-removable;
+	no-sd;
+	no-sdio;
 };
 
 &spi0 {
@@ -134,47 +99,90 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi_quad_pins>;
 
-	spi-flash@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "n25q1024a","n25q512a";
+	m25p80@0 {
+		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <50000000>;
-		spi-rx-bus-width = <4>;
-		spi-tx-bus-width = <4>;
-		m25p,fast-read;
+		spi-max-frequency = <54000000>;
 
-		partition@0 {
-			label = "uboot";
-			reg = <0 0x400000>;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			/* only bootloader is located on the SPI */
+			partition@0 {
+				label = "uboot";
+				reg = <0 0x400000>;
+			};
 		};
 	};
 };
 
-&sdhci1 {
-	non-removable;
-	mmc-ddr-1_8v;
-	mmc-hs200-1_8v;
-	bus-width = <4>;
-	vqmmc-supply = <&vcc_sd_reg0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&sdio_pins>;
-	status = "okay";
+&pinctrl_nb {
+	i2c1_recovery_pins: i2c1-recovery-pins {
+		groups = "i2c1";
+		function = "gpio";
+	};
 
-	#address-cells = <1>;
-	#size-cells = <0>;
-	mmccard: mmccard@0 {
-		compatible = "mmc-card";
-		reg = <0>;
+	i2c2_recovery_pins: i2c2-recovery-pins {
+		groups = "i2c2";
+		function = "gpio";
 	};
 };
 
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart1_pins>;
+&i2c0 {
 	status = "okay";
+	pinctrl-names = "default", "recovery";
+	pinctrl-0 = <&i2c1_pins>;
+	pinctrl-1 = <&i2c1_recovery_pins>;
+	/delete-property/mrvl,i2c-fast-mode;
+	scl-gpios = <&gpionb 0 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpionb 1 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+};
+
+&i2c1 {
+	status = "okay";
+	pinctrl-names = "default", "recovery";
+	pinctrl-0 = <&i2c2_pins>;
+	pinctrl-1 = <&i2c2_recovery_pins>;
+	/delete-property/mrvl,i2c-fast-mode;
+	scl-gpios = <&gpionb 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpionb 3 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+
+	lm75@48 {
+		status = "okay";
+		compatible = "lm75";
+		reg = <0x48>;
+	};
+
+	lm75@49 {
+		status = "okay";
+		compatible = "lm75";
+		reg = <0x49>;
+	};
+};
+
+&eth0 {
+	phy-mode = "sgmii";
+	status = "okay";
+	managed = "in-band-status";
+	phys = <&comphy1 0>;
+	sfp = <&sfp_eth0>;
+};
+
+&eth1 {
+	phy-mode = "sgmii";
+	status = "okay";
+	managed = "in-band-status";
+	phys = <&comphy0 1>;
+	sfp = <&sfp_eth1>;
 };
 
 &usb3 {
+	status = "okay";
+	phys = <&usb2_utmi_otg_phy>;
+	phy-names = "usb2-utmi-otg-phy";
+};
+
+&uart0 {
 	status = "okay";
 };

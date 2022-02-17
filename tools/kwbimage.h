@@ -48,9 +48,13 @@ struct main_hdr_v0 {
 	uint32_t destaddr;		/* 0x10-0x13 */
 	uint32_t execaddr;		/* 0x14-0x17 */
 	uint8_t  satapiomode;		/* 0x18      */
-	uint8_t  rsvd3;			/* 0x19      */
+	uint8_t  nandblocksize;		/* 0x19      */
+	union {
+	uint8_t  nandbadblklocation;    /* 0x1A      */
 	uint16_t ddrinitdelay;		/* 0x1A-0x1B */
-	uint16_t rsvd2;			/* 0x1C-0x1D */
+	};
+	uint8_t  rsvd2;			/* 0x1C      */
+	uint8_t  bin;			/* 0x1D      */
 	uint8_t  ext;			/* 0x1E      */
 	uint8_t  checksum;		/* 0x1F      */
 } __packed;
@@ -60,14 +64,43 @@ struct ext_hdr_v0_reg {
 	uint32_t rdata;
 } __packed;
 
-#define EXT_HDR_V0_REG_COUNT ((0x1dc - 0x20) / sizeof(struct ext_hdr_v0_reg))
-
+/* Structure of the extension header, version 0 (Kirkwood, Dove) */
 struct ext_hdr_v0 {
-	uint32_t              offset;
-	uint8_t               reserved[0x20 - sizeof(uint32_t)];
-	struct ext_hdr_v0_reg rcfg[EXT_HDR_V0_REG_COUNT];
-	uint8_t               reserved2[7];
-	uint8_t               checksum;
+	/*
+	 * Beware that extension header offsets specified in 88AP510 Functional
+	 * Specifications are relative to the start of the main header, not to
+	 * the start of the extension header itself.
+	 */
+	uint32_t offset;		/* 0x0-0x3     */
+	uint8_t  rsvd1[8];		/* 0x4-0xB     */
+	uint32_t enddelay;		/* 0xC-0xF     */
+	uint32_t match_addr;		/* 0x10-0x13   */
+	uint32_t match_mask;		/* 0x14-0x17   */
+	uint32_t match_value;		/* 0x18-0x1B   */
+	uint8_t  ddrwritetype;		/* 0x1C        */
+	uint8_t  ddrresetmpp;		/* 0x1D        */
+	uint8_t  ddrclkenmpp;		/* 0x1E        */
+	uint8_t  ddrinitdelay;		/* 0x1F        */
+	struct ext_hdr_v0_reg rcfg[55]; /* 0x20-0x1D7  */
+	uint8_t  rsvd2[7];		/* 0x1D8-0x1DE */
+	uint8_t  checksum;		/* 0x1DF       */
+} __packed;
+
+/* Structure of the binary code header, version 0 (Dove) */
+struct bin_hdr_v0 {
+	uint32_t match_addr;		/* 0x00-0x03  */
+	uint32_t match_mask;		/* 0x04-0x07  */
+	uint32_t match_value;		/* 0x08-0x0B  */
+	uint32_t offset;		/* 0x0C-0x0F  */
+	uint32_t destaddr;		/* 0x10-0x13  */
+	uint32_t size;			/* 0x14-0x17  */
+	uint32_t execaddr;		/* 0x18-0x1B  */
+	uint32_t params[4];		/* 0x1C-0x2B  */
+	uint8_t  params_flags;		/* 0x2C       */
+	uint8_t  rsvd1;			/* 0x2D       */
+	uint8_t  rsvd2;			/* 0x2E       */
+	uint8_t  checksum;		/* 0x2F       */
+	uint8_t  code[2000];		/* 0x30-0x7FF */
 } __packed;
 
 /* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
@@ -207,8 +240,20 @@ static inline size_t kwbheader_size(const void *header)
 	if (kwbimage_version(header) == 0) {
 		const struct main_hdr_v0 *hdr = header;
 
+		/*
+		 * First extension header starts immediately after the main
+		 * header without any padding. Between extension headers is
+		 * 0x20 byte padding. There is no padding after the last
+		 * extension header. First binary code header starts immediately
+		 * after the last extension header (or immediately after the
+		 * main header if there is no extension header) without any
+		 * padding. There is no padding between binary code headers and
+		 * neither after the last binary code header.
+		 */
 		return sizeof(*hdr) +
-		       hdr->ext ? sizeof(struct ext_hdr_v0) : 0;
+		       hdr->ext * sizeof(struct ext_hdr_v0) +
+		       ((hdr->ext > 1) ? ((hdr->ext - 1) * 0x20) : 0) +
+		       hdr->bin * sizeof(struct bin_hdr_v0);
 	} else {
 		const struct main_hdr_v1 *hdr = header;
 
@@ -224,6 +269,57 @@ static inline size_t kwbheader_size_for_csum(const void *header)
 	else
 		return kwbheader_size(header);
 }
+
+static inline struct ext_hdr_v0 *ext_hdr_v0_first(void *img)
+{
+	struct main_hdr_v0 *mhdr;
+
+	if (kwbimage_version(img) != 0)
+		return NULL;
+
+	mhdr = img;
+	if (mhdr->ext)
+		return (struct ext_hdr_v0 *)(mhdr + 1);
+	else
+		return NULL;
+}
+
+static inline void *_ext_hdr_v0_end(struct main_hdr_v0 *mhdr)
+{
+	return (uint8_t *)mhdr + kwbheader_size(mhdr) - mhdr->bin * sizeof(struct bin_hdr_v0);
+}
+
+static inline struct ext_hdr_v0 *ext_hdr_v0_next(void *img, struct ext_hdr_v0 *cur)
+{
+	if ((void *)(cur + 1) < _ext_hdr_v0_end(img))
+		return (struct ext_hdr_v0 *)((uint8_t *)(cur + 1) + 0x20);
+	else
+		return NULL;
+}
+
+#define for_each_ext_hdr_v0(ehdr, img)			\
+	for ((ehdr) = ext_hdr_v0_first((img));		\
+	     (ehdr) != NULL;				\
+	     (ehdr) = ext_hdr_v0_next((img), (ehdr)))
+
+static inline struct bin_hdr_v0 *bin_hdr_v0_first(void *img)
+{
+	struct main_hdr_v0 *mhdr;
+
+	if (kwbimage_version(img) != 0)
+		return NULL;
+
+	mhdr = img;
+	if (mhdr->bin)
+		return _ext_hdr_v0_end(mhdr);
+	else
+		return NULL;
+}
+
+#define for_each_bin_hdr_v0(bhdr, img)							\
+	for ((bhdr) = bin_hdr_v0_first((img));						\
+	     (bhdr) && (void *)(bhdr) < (void *)((uint8_t *)img + kwbheader_size(img));	\
+	     (bhdr) = (struct bin_hdr_v0 *)((bhdr))+1)
 
 static inline uint32_t opt_hdr_v1_size(const struct opt_hdr_v1 *ohdr)
 {

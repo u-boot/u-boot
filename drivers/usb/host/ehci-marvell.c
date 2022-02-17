@@ -123,7 +123,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	 * Also, the address decoder doesn't need to get setup with this
 	 * SoC, so don't call usb_brg_adrdec_setup().
 	 */
-	if (device_is_compatible(dev, "marvell,armada3700-ehci"))
+	if (device_is_compatible(dev, "marvell,armada-3700-ehci"))
 		marvell_ehci_ops.powerup_fixup = marvell_ehci_powerup_fixup;
 	else
 		usb_brg_adrdec_setup((void *)priv->hcd_base);
@@ -142,7 +142,7 @@ static int ehci_mvebu_probe(struct udevice *dev)
 
 static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "marvell,orion-ehci", },
-	{ .compatible = "marvell,armada3700-ehci", },
+	{ .compatible = "marvell,armada-3700-ehci", },
 	{ }
 };
 

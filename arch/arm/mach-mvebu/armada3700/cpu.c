@@ -13,6 +13,7 @@
 #include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/libfdt.h>
+#include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/arch/cpu.h>
@@ -46,8 +47,10 @@
 #define MVEBU_CPU_DEC_WIN_REMAP(w)	(MVEBU_CPU_DEC_WIN_CTRL(w) + 0xc)
 #define MVEBU_CPU_DEC_WIN_GRANULARITY	16
 #define MVEBU_CPU_DEC_WINS		5
+#define MVEBU_CPU_DEC_CCI_BASE		(MVEBU_CPU_DEC_WIN_REG_BASE + 0xe0)
+#define MVEBU_CPU_DEC_ROM_BASE		(MVEBU_CPU_DEC_WIN_REG_BASE + 0xf4)
 
-#define MAX_MEM_MAP_REGIONS		(MVEBU_CPU_DEC_WINS + 2)
+#define MAX_MEM_MAP_REGIONS		(MVEBU_CPU_DEC_WINS + 4)
 
 #define A3700_PTE_BLOCK_NORMAL \
 	(PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_INNER_SHARE)
@@ -60,7 +63,7 @@ static struct mm_region mvebu_mem_map[MAX_MEM_MAP_REGIONS] = {
 	{
 		/*
 		 * SRAM, MMIO regions
-		 * Don't remove this, a3700_build_mem_map needs it.
+		 * Don't remove this, build_mem_map needs it.
 		 */
 		.phys = SOC_REGS_PHY_BASE,
 		.virt = SOC_REGS_PHY_BASE,
@@ -110,8 +113,26 @@ static int get_cpu_dec_win(int win, u32 *tgt, u32 *base, u32 *size)
 static void build_mem_map(void)
 {
 	int win, region;
+	u32 reg;
 
 	region = 1;
+
+	/* CCI-400 */
+	reg = readl(MVEBU_CPU_DEC_CCI_BASE);
+	mvebu_mem_map[region].phys = reg << 20;
+	mvebu_mem_map[region].virt = reg << 20;
+	mvebu_mem_map[region].size = SZ_64K;
+	mvebu_mem_map[region].attrs = A3700_PTE_BLOCK_DEVICE;
+	++region;
+
+	/* AP BootROM */
+	reg = readl(MVEBU_CPU_DEC_ROM_BASE);
+	mvebu_mem_map[region].phys = reg << 20;
+	mvebu_mem_map[region].virt = reg << 20;
+	mvebu_mem_map[region].size = SZ_1M;
+	mvebu_mem_map[region].attrs = A3700_PTE_BLOCK_NORMAL;
+	++region;
+
 	for (win = 0; win < MVEBU_CPU_DEC_WINS; ++win) {
 		u32 base, tgt, size;
 		u64 attrs;
@@ -142,8 +163,6 @@ static void build_mem_map(void)
 
 void enable_caches(void)
 {
-	build_mem_map();
-
 	icache_enable();
 	dcache_enable();
 }
@@ -151,6 +170,8 @@ void enable_caches(void)
 int a3700_dram_init(void)
 {
 	int win;
+
+	build_mem_map();
 
 	gd->ram_size = 0;
 	for (win = 0; win < MVEBU_CPU_DEC_WINS; ++win) {
