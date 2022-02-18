@@ -150,7 +150,7 @@ static void xr3pci_init(void)
 	/* allow ECRC */
 	writel(0x6006, XR3_CONFIG_BASE + XR3PCI_PEX_SPC2);
 	/* setup the correct class code for the host bridge */
-	writel(PCI_CLASS_BRIDGE_PCI << 16, XR3_CONFIG_BASE + XR3PCI_BRIDGE_PCI_IDS);
+	writel(PCI_CLASS_BRIDGE_PCI_NORMAL << 8, XR3_CONFIG_BASE + XR3PCI_BRIDGE_PCI_IDS);
 
 	/* reset phy and root complex */
 	writel(JUNO_RESET_CTRL_PHY | JUNO_RESET_CTRL_RC,

@@ -800,7 +800,7 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 	 */
 	reg = advk_readl(pcie, ADVK_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 	reg &= ~0xffffff00;
-	reg |= (PCI_CLASS_BRIDGE_PCI << 8) << 8;
+	reg |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
 	advk_writel(pcie, reg, ADVK_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 
 	/* Enable generation and checking of ECRC on PCIe Root Port */

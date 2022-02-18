@@ -440,7 +440,7 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	 */
 	reg = readl(pcie->base + MVPCIE_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 	reg &= ~0xffffff00;
-	reg |= (PCI_CLASS_BRIDGE_PCI << 8) << 8;
+	reg |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
 	writel(reg, pcie->base + MVPCIE_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 
 	/*

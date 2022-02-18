@@ -289,7 +289,7 @@ static int rcar_gen3_pcie_hw_init(struct udevice *dev)
 	 * class to match. Hardware takes care of propagating the IDSETR
 	 * settings, so there is no need to bother with a quirk.
 	 */
-	writel(PCI_CLASS_BRIDGE_PCI << 16, priv->regs + IDSETR1);
+	writel(PCI_CLASS_BRIDGE_PCI_NORMAL << 8, priv->regs + IDSETR1);
 
 	/*
 	 * Setup Secondary Bus Number & Subordinate Bus Number, even though

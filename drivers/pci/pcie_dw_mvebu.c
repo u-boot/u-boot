@@ -539,9 +539,9 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
 				  PCIE_ATU_TYPE_MEM, pcie->mem.phys_start,
 				  pcie->mem.bus_start, pcie->mem.size);
 
-	/* Set the CLASS_REV of RC CFG header to PCI_CLASS_BRIDGE_PCI */
+	/* Set the CLASS_REV of RC CFG header to PCI_CLASS_BRIDGE_PCI_NORMAL */
 	clrsetbits_le32(pcie->ctrl_base + PCI_CLASS_REVISION,
-			0xffff << 16, PCI_CLASS_BRIDGE_PCI << 16);
+			0xffffff << 8, PCI_CLASS_BRIDGE_PCI_NORMAL << 8);
 
 	pcie_dw_set_host_bars(pcie->ctrl_base);
 
