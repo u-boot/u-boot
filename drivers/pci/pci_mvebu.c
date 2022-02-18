@@ -30,35 +30,25 @@
 #include <linux/sizes.h>
 
 /* PCIe unit register offsets */
-#define PCIE_DEV_ID_OFF			0x0000
-#define PCIE_CMD_OFF			0x0004
-#define PCIE_DEV_REV_OFF		0x0008
-#define  PCIE_BAR_LO_OFF(n)		(0x0010 + ((n) << 3))
-#define  PCIE_BAR_HI_OFF(n)		(0x0014 + ((n) << 3))
-#define PCIE_EXP_ROM_BAR_OFF		0x0030
-#define PCIE_CAPAB_OFF			0x0060
-#define PCIE_CTRL_STAT_OFF		0x0068
-#define PCIE_HEADER_LOG_4_OFF		0x0128
-#define  PCIE_BAR_CTRL_OFF(n)		(0x1804 + (((n) - 1) * 4))
-#define  PCIE_WIN04_CTRL_OFF(n)		(0x1820 + ((n) << 4))
-#define  PCIE_WIN04_BASE_OFF(n)		(0x1824 + ((n) << 4))
-#define  PCIE_WIN04_REMAP_OFF(n)	(0x182c + ((n) << 4))
-#define PCIE_WIN5_CTRL_OFF		0x1880
-#define PCIE_WIN5_BASE_OFF		0x1884
-#define PCIE_WIN5_REMAP_OFF		0x188c
-#define PCIE_CONF_ADDR_OFF		0x18f8
-#define PCIE_CONF_DATA_OFF		0x18fc
-#define PCIE_MASK_OFF			0x1910
-#define  PCIE_MASK_ENABLE_INTS          (0xf << 24)
-#define PCIE_CTRL_OFF			0x1a00
-#define  PCIE_CTRL_X1_MODE		BIT(0)
-#define  PCIE_CTRL_RC_MODE		BIT(1)
-#define PCIE_STAT_OFF			0x1a04
-#define  PCIE_STAT_BUS                  (0xff << 8)
-#define  PCIE_STAT_DEV                  (0x1f << 16)
-#define  PCIE_STAT_LINK_DOWN		BIT(0)
-#define PCIE_DEBUG_CTRL			0x1a60
-#define  PCIE_DEBUG_SOFT_RESET		BIT(20)
+#define MVPCIE_ROOT_PORT_PCI_CFG_OFF	0x0000
+#define MVPCIE_ROOT_PORT_PCI_EXP_OFF	0x0060
+#define MVPCIE_BAR_LO_OFF(n)		(0x0010 + ((n) << 3))
+#define MVPCIE_BAR_HI_OFF(n)		(0x0014 + ((n) << 3))
+#define MVPCIE_BAR_CTRL_OFF(n)		(0x1804 + (((n) - 1) * 4))
+#define MVPCIE_WIN04_CTRL_OFF(n)	(0x1820 + ((n) << 4))
+#define MVPCIE_WIN04_BASE_OFF(n)	(0x1824 + ((n) << 4))
+#define MVPCIE_WIN04_REMAP_OFF(n)	(0x182c + ((n) << 4))
+#define MVPCIE_WIN5_CTRL_OFF		0x1880
+#define MVPCIE_WIN5_BASE_OFF		0x1884
+#define MVPCIE_WIN5_REMAP_OFF		0x188c
+#define MVPCIE_CONF_ADDR_OFF		0x18f8
+#define MVPCIE_CONF_DATA_OFF		0x18fc
+#define MVPCIE_CTRL_OFF			0x1a00
+#define  MVPCIE_CTRL_RC_MODE		BIT(1)
+#define MVPCIE_STAT_OFF			0x1a04
+#define  MVPCIE_STAT_BUS		(0xff << 8)
+#define  MVPCIE_STAT_DEV		(0x1f << 16)
+#define  MVPCIE_STAT_LINK_DOWN		BIT(0)
 
 #define LINK_WAIT_RETRIES	100
 #define LINK_WAIT_TIMEOUT	1000
@@ -87,8 +77,8 @@ struct mvebu_pcie {
 static inline bool mvebu_pcie_link_up(struct mvebu_pcie *pcie)
 {
 	u32 val;
-	val = readl(pcie->base + PCIE_STAT_OFF);
-	return !(val & PCIE_STAT_LINK_DOWN);
+	val = readl(pcie->base + MVPCIE_STAT_OFF);
+	return !(val & MVPCIE_STAT_LINK_DOWN);
 }
 
 static void mvebu_pcie_wait_for_link(struct mvebu_pcie *pcie)
@@ -112,20 +102,20 @@ static void mvebu_pcie_set_local_bus_nr(struct mvebu_pcie *pcie, int busno)
 {
 	u32 stat;
 
-	stat = readl(pcie->base + PCIE_STAT_OFF);
-	stat &= ~PCIE_STAT_BUS;
+	stat = readl(pcie->base + MVPCIE_STAT_OFF);
+	stat &= ~MVPCIE_STAT_BUS;
 	stat |= busno << 8;
-	writel(stat, pcie->base + PCIE_STAT_OFF);
+	writel(stat, pcie->base + MVPCIE_STAT_OFF);
 }
 
 static void mvebu_pcie_set_local_dev_nr(struct mvebu_pcie *pcie, int devno)
 {
 	u32 stat;
 
-	stat = readl(pcie->base + PCIE_STAT_OFF);
-	stat &= ~PCIE_STAT_DEV;
+	stat = readl(pcie->base + MVPCIE_STAT_OFF);
+	stat &= ~MVPCIE_STAT_DEV;
 	stat |= devno << 16;
-	writel(stat, pcie->base + PCIE_STAT_OFF);
+	writel(stat, pcie->base + MVPCIE_STAT_OFF);
 }
 
 static inline struct mvebu_pcie *hose_to_pcie(struct pci_controller *hose)
@@ -195,18 +185,18 @@ static int mvebu_pcie_read_config(const struct udevice *bus, pci_dev_t bdf,
 		addr = PCI_CONF1_EXT_ADDRESS(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 
 	/* write address */
-	writel(addr, pcie->base + PCIE_CONF_ADDR_OFF);
+	writel(addr, pcie->base + MVPCIE_CONF_ADDR_OFF);
 
 	/* read data */
 	switch (size) {
 	case PCI_SIZE_8:
-		data = readb(pcie->base + PCIE_CONF_DATA_OFF + (offset & 3));
+		data = readb(pcie->base + MVPCIE_CONF_DATA_OFF + (offset & 3));
 		break;
 	case PCI_SIZE_16:
-		data = readw(pcie->base + PCIE_CONF_DATA_OFF + (offset & 2));
+		data = readw(pcie->base + MVPCIE_CONF_DATA_OFF + (offset & 2));
 		break;
 	case PCI_SIZE_32:
-		data = readl(pcie->base + PCIE_CONF_DATA_OFF);
+		data = readl(pcie->base + MVPCIE_CONF_DATA_OFF);
 		break;
 	default:
 		return -EINVAL;
@@ -286,18 +276,18 @@ static int mvebu_pcie_write_config(struct udevice *bus, pci_dev_t bdf,
 		addr = PCI_CONF1_EXT_ADDRESS(busno, PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 
 	/* write address */
-	writel(addr, pcie->base + PCIE_CONF_ADDR_OFF);
+	writel(addr, pcie->base + MVPCIE_CONF_ADDR_OFF);
 
 	/* write data */
 	switch (size) {
 	case PCI_SIZE_8:
-		writeb(value, pcie->base + PCIE_CONF_DATA_OFF + (offset & 3));
+		writeb(value, pcie->base + MVPCIE_CONF_DATA_OFF + (offset & 3));
 		break;
 	case PCI_SIZE_16:
-		writew(value, pcie->base + PCIE_CONF_DATA_OFF + (offset & 2));
+		writew(value, pcie->base + MVPCIE_CONF_DATA_OFF + (offset & 2));
 		break;
 	case PCI_SIZE_32:
-		writel(value, pcie->base + PCIE_CONF_DATA_OFF);
+		writel(value, pcie->base + MVPCIE_CONF_DATA_OFF);
 		break;
 	default:
 		return -EINVAL;
@@ -321,20 +311,20 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 
 	/* First, disable and clear BARs and windows. */
 	for (i = 1; i < 3; i++) {
-		writel(0, pcie->base + PCIE_BAR_CTRL_OFF(i));
-		writel(0, pcie->base + PCIE_BAR_LO_OFF(i));
-		writel(0, pcie->base + PCIE_BAR_HI_OFF(i));
+		writel(0, pcie->base + MVPCIE_BAR_CTRL_OFF(i));
+		writel(0, pcie->base + MVPCIE_BAR_LO_OFF(i));
+		writel(0, pcie->base + MVPCIE_BAR_HI_OFF(i));
 	}
 
 	for (i = 0; i < 5; i++) {
-		writel(0, pcie->base + PCIE_WIN04_CTRL_OFF(i));
-		writel(0, pcie->base + PCIE_WIN04_BASE_OFF(i));
-		writel(0, pcie->base + PCIE_WIN04_REMAP_OFF(i));
+		writel(0, pcie->base + MVPCIE_WIN04_CTRL_OFF(i));
+		writel(0, pcie->base + MVPCIE_WIN04_BASE_OFF(i));
+		writel(0, pcie->base + MVPCIE_WIN04_REMAP_OFF(i));
 	}
 
-	writel(0, pcie->base + PCIE_WIN5_CTRL_OFF);
-	writel(0, pcie->base + PCIE_WIN5_BASE_OFF);
-	writel(0, pcie->base + PCIE_WIN5_REMAP_OFF);
+	writel(0, pcie->base + MVPCIE_WIN5_CTRL_OFF);
+	writel(0, pcie->base + MVPCIE_WIN5_BASE_OFF);
+	writel(0, pcie->base + MVPCIE_WIN5_REMAP_OFF);
 
 	/* Setup windows for DDR banks. Count total DDR size on the fly. */
 	size = 0;
@@ -342,12 +332,12 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 		const struct mbus_dram_window *cs = dram->cs + i;
 
 		writel(cs->base & 0xffff0000,
-		       pcie->base + PCIE_WIN04_BASE_OFF(i));
-		writel(0, pcie->base + PCIE_WIN04_REMAP_OFF(i));
+		       pcie->base + MVPCIE_WIN04_BASE_OFF(i));
+		writel(0, pcie->base + MVPCIE_WIN04_REMAP_OFF(i));
 		writel(((cs->size - 1) & 0xffff0000) |
 		       (cs->mbus_attr << 8) |
 		       (dram->mbus_dram_target_id << 4) | 1,
-		       pcie->base + PCIE_WIN04_CTRL_OFF(i));
+		       pcie->base + MVPCIE_WIN04_CTRL_OFF(i));
 
 		size += cs->size;
 	}
@@ -357,14 +347,14 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 		size = 1 << fls(size);
 
 	/* Setup BAR[1] to all DRAM banks. */
-	writel(dram->cs[0].base | 0xc, pcie->base + PCIE_BAR_LO_OFF(1));
-	writel(0, pcie->base + PCIE_BAR_HI_OFF(1));
+	writel(dram->cs[0].base | 0xc, pcie->base + MVPCIE_BAR_LO_OFF(1));
+	writel(0, pcie->base + MVPCIE_BAR_HI_OFF(1));
 	writel(((size - 1) & 0xffff0000) | 0x1,
-	       pcie->base + PCIE_BAR_CTRL_OFF(1));
+	       pcie->base + MVPCIE_BAR_CTRL_OFF(1));
 
 	/* Setup BAR[0] to internal registers. */
-	writel(pcie->intregs, pcie->base + PCIE_BAR_LO_OFF(0));
-	writel(0, pcie->base + PCIE_BAR_HI_OFF(0));
+	writel(pcie->intregs, pcie->base + MVPCIE_BAR_LO_OFF(0));
+	writel(0, pcie->base + MVPCIE_BAR_HI_OFF(0));
 }
 
 /* Only enable PCIe link, do not setup it */
@@ -403,9 +393,9 @@ static void mvebu_pcie_setup_link(struct mvebu_pcie *pcie)
 	u32 reg;
 
 	/* Setup PCIe controller to Root Complex mode */
-	reg = readl(pcie->base + PCIE_CTRL_OFF);
-	reg |= PCIE_CTRL_RC_MODE;
-	writel(reg, pcie->base + PCIE_CTRL_OFF);
+	reg = readl(pcie->base + MVPCIE_CTRL_OFF);
+	reg |= MVPCIE_CTRL_RC_MODE;
+	writel(reg, pcie->base + MVPCIE_CTRL_OFF);
 
 	/*
 	 * Set Maximum Link Width to X1 or X4 in Root Port's PCIe Link
@@ -414,10 +404,10 @@ static void mvebu_pcie_setup_link(struct mvebu_pcie *pcie)
 	 * be set to number of SerDes PCIe lanes (1 or 4). If this register is
 	 * not set correctly then link with endpoint card is not established.
 	 */
-	reg = readl(pcie->base + PCIE_CAPAB_OFF + PCI_EXP_LNKCAP);
+	reg = readl(pcie->base + MVPCIE_ROOT_PORT_PCI_EXP_OFF + PCI_EXP_LNKCAP);
 	reg &= ~PCI_EXP_LNKCAP_MLW;
 	reg |= (pcie->is_x4 ? 4 : 1) << 4;
-	writel(reg, pcie->base + PCIE_CAPAB_OFF + PCI_EXP_LNKCAP);
+	writel(reg, pcie->base + MVPCIE_ROOT_PORT_PCI_EXP_OFF + PCI_EXP_LNKCAP);
 }
 
 static int mvebu_pcie_probe(struct udevice *dev)
@@ -440,7 +430,7 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	 * have the same format in Marvell's specification as in PCIe
 	 * specification, but their meaning is totally different and they do
 	 * different things: they are aliased into internal mvebu registers
-	 * (e.g. PCIE_BAR_LO_OFF) and these should not be changed or
+	 * (e.g. MVPCIE_BAR_LO_OFF) and these should not be changed or
 	 * reconfigured by pci device drivers.
 	 *
 	 * So our driver converts Type 0 config space to Type 1 and reports
@@ -448,10 +438,10 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	 * Type 1 registers is redirected to the virtual cfgcache[] buffer,
 	 * which avoids changing unrelated registers.
 	 */
-	reg = readl(pcie->base + PCIE_DEV_REV_OFF);
+	reg = readl(pcie->base + MVPCIE_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 	reg &= ~0xffffff00;
 	reg |= (PCI_CLASS_BRIDGE_PCI << 8) << 8;
-	writel(reg, pcie->base + PCIE_DEV_REV_OFF);
+	writel(reg, pcie->base + MVPCIE_ROOT_PORT_PCI_CFG_OFF + PCI_CLASS_REVISION);
 
 	/*
 	 * mvebu uses local bus number and local device number to determinate
