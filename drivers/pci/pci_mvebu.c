@@ -30,8 +30,6 @@
 #include <linux/sizes.h>
 
 /* PCIe unit register offsets */
-#define SELECT(x, n)			((x >> n) & 1UL)
-
 #define PCIE_DEV_ID_OFF			0x0000
 #define PCIE_CMD_OFF			0x0004
 #define PCIE_DEV_REV_OFF		0x0008
@@ -77,7 +75,6 @@ struct mvebu_pcie {
 	u32 lane;
 	bool is_x4;
 	int devfn;
-	u32 lane_mask;
 	int sec_busno;
 	char name[16];
 	unsigned int mem_target;
