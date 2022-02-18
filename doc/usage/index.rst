@@ -34,6 +34,7 @@ Shell commands
    exit
    false
    fatinfo
+   fatload
    for
    load
    loady
