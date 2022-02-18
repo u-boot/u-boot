@@ -1197,7 +1197,7 @@ kwboot_term_pipe(int in, int out, const char *quit, int *s)
 			if (buf[i] == quit[*s]) {
 				(*s)++;
 				if (!quit[*s]) {
-					nin = i - *s;
+					nin = (i > *s) ? (i - *s) : 0;
 					break;
 				}
 			} else {
@@ -1208,7 +1208,7 @@ kwboot_term_pipe(int in, int out, const char *quit, int *s)
 		}
 
 		if (i == nin)
-			nin -= *s;
+			nin -= (nin > *s) ? *s : nin;
 	}
 
 	if (kwboot_write(out, buf, nin) < 0)
