@@ -1103,6 +1103,19 @@ available. This is set by the `SetAllowMissing()` method, if
 
 
 
+Entry: tee-os: Entry containing an OP-TEE Trusted OS (TEE) blob
+---------------------------------------------------------------
+
+Properties / Entry arguments:
+    - tee-os-path: Filename of file to read into entry. This is typically
+        called tee-pager.bin
+
+This entry holds the run-time firmware, typically started by U-Boot SPL.
+See the U-Boot README for your architecture or board for how to use it. See
+https://github.com/OP-TEE/optee_os for more information about OP-TEE.
+
+
+
 Entry: text: An entry which contains text
 -----------------------------------------
 
