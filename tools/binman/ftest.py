@@ -84,6 +84,7 @@ FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
+TEE_OS_DATA           = b'this is some tee OS data'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
 SCP_DATA              = b'scp'
@@ -188,6 +189,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
+        TestFunctional._MakeInputFile('tee-pager.bin', TEE_OS_DATA)
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
@@ -5295,6 +5297,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         fnode = mkimage_dtb.GetNode('/images/fdt-1/hash')
         self.assertIn('value', fnode.props)
+
+    def testPackTeeOs(self):
+        """Test that an image with an TEE binary can be created"""
+        data = self._DoReadFile('222_tee_os.dts')
+        self.assertEqual(TEE_OS_DATA, data[:len(TEE_OS_DATA)])
+
 
 if __name__ == "__main__":
     unittest.main()
