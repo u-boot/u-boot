@@ -312,7 +312,7 @@ static int omap_usbhs_probe(struct udevice *dev)
 			omap_usbhs_set_mode(i, mode);
 	}
 
-	return omap_ehci_hcd_init(0, &usbhs_bdata);
+	return 0;
 }
 
 static const struct udevice_id omap_usbhs_dt_ids[] = {
@@ -355,6 +355,7 @@ static int omap_ehci_probe(struct udevice *dev)
 	struct ehci_omap_priv_data *priv = dev_get_priv(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
+	int ret;
 
 	priv->ehci = dev_read_addr_ptr(dev);
 	priv->portnr = dev_seq(dev);
@@ -362,6 +363,10 @@ static int omap_ehci_probe(struct udevice *dev)
 
 	hccr = (struct ehci_hccr *)&priv->ehci->hccapbase;
 	hcor = (struct ehci_hcor *)&priv->ehci->usbcmd;
+
+	ret = omap_ehci_hcd_init(0, &usbhs_bdata);
+	if (ret)
+		return ret;
 
 	return ehci_register(dev, hccr, hcor, NULL, 0, USB_INIT_HOST);
 }
