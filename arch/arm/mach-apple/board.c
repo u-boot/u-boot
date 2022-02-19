@@ -265,3 +265,36 @@ u64 get_page_table_size(void)
 {
 	return SZ_256K;
 }
+
+int board_late_init(void)
+{
+	unsigned long base;
+	unsigned long top;
+	u32 status = 0;
+
+	/* Reserve 4M each for scriptaddr and pxefile_addr_r at the top of RAM
+	 * at least 1M below the stack.
+	 */
+	top = gd->start_addr_sp - CONFIG_STACK_SIZE - SZ_8M - SZ_1M;
+	top = ALIGN_DOWN(top, SZ_8M);
+
+	status |= env_set_hex("scriptaddr", top + SZ_4M);
+	status |= env_set_hex("pxefile_addr_r", top);
+
+	/* somewhat based on the Linux Kernel boot requirements:
+	 * align by 2M and maximal FDT size 2M
+	 */
+	base = ALIGN(gd->ram_base, SZ_2M);
+
+	status |= env_set_hex("fdt_addr_r", base);
+	status |= env_set_hex("kernel_addr_r", base + SZ_2M);
+	status |= env_set_hex("ramdisk_addr_r", base + SZ_128M);
+	status |= env_set_hex("loadaddr", base + SZ_2G);
+	status |= env_set_hex("kernel_comp_addr_r", base + SZ_2G - SZ_128M);
+	status |= env_set_hex("kernel_comp_size", SZ_128M);
+
+	if (status)
+		log_warning("late_init: Failed to set run time variables\n");
+
+	return 0;
+}
