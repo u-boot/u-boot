@@ -163,27 +163,12 @@ static inline void omap_ehci_phy_reset(int on, int delay)
 #define omap_ehci_phy_reset(on, delay)	do {} while (0)
 #endif
 
-/* Reset is needed otherwise the kernel-driver will throw an error. */
-int omap_ehci_hcd_stop(void)
-{
-	debug("Resetting OMAP EHCI\n");
-	omap_ehci_phy_reset(1, 0);
-
-	if (omap_uhh_reset() < 0)
-		return -1;
-
-	if (omap_ehci_tll_reset() < 0)
-		return -1;
-
-	return 0;
-}
-
 /*
  * Initialize the OMAP EHCI controller and PHY.
  * Based on "drivers/usb/host/ehci-omap.c" from Linux 3.1
  * See there for additional Copyrights.
  */
-int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata)
+static int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata)
 {
 	int ret;
 	unsigned int i, reg = 0, rev = 0;
