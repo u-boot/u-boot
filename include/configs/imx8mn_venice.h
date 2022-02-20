@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2021 Gateworks Corporation
+ * Copyright 2022 Gateworks Corporation
  */
 
 #ifndef __IMX8MM_VENICE_H
@@ -15,17 +15,14 @@
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_STACK		0x920000
-#define CONFIG_SPL_BSS_START_ADDR	0x910000
-#define CONFIG_SPL_BSS_MAX_SIZE		SZ_8K
+#define CONFIG_SPL_STACK		0x980000
+#define CONFIG_SPL_BSS_START_ADDR	0x950000
+#define CONFIG_SPL_BSS_MAX_SIZE		SZ_8K	/* 8 KB */
 #define CONFIG_SYS_SPL_MALLOC_START	0x42200000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_1M
+#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_512K	/* 512 KB */
 
-/* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x930000
 /* For RAW image gives a error info not panic */
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
-
 #endif
 
 #define MEM_LAYOUT_ENV_SETTINGS \
@@ -60,7 +57,7 @@
 		"setexpr blkcnt $filesize + 0x1ff && " \
 		"setexpr blkcnt $blkcnt / 0x200 && " \
 		"mmc dev $dev && " \
-		"mmc write $loadaddr 0x42 $blkcnt\0" \
+		"mmc write $loadaddr 0x40 $blkcnt\0" \
 	"boot_net=" \
 		"tftpboot $kernel_addr_r $image && " \
 		"booti $kernel_addr_r - $fdtcontroladdr\0" \
@@ -83,7 +80,7 @@
 
 /* SDRAM configuration */
 #define PHYS_SDRAM                      0x40000000
-#define PHYS_SDRAM_SIZE			SZ_1G /* 1GB DDR */
+#define PHYS_SDRAM_SIZE			SZ_1G
 #define CONFIG_SYS_BOOTM_LEN		SZ_256M
 
 /* UART */
@@ -95,7 +92,6 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-
 /* USDHC */
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

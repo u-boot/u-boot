@@ -16,6 +16,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8mm_pins.h>
+#include <asm/arch/imx8mn_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/arch/ddr.h>
@@ -41,6 +42,7 @@ static void spl_dram_init(int size)
 	struct dram_timing_info *dram_timing;
 
 	switch (size) {
+#ifdef CONFIG_IMX8MM
 	case 1:
 		dram_timing = &dram_timing_1gb;
 		break;
@@ -54,16 +56,34 @@ static void spl_dram_init(int size)
 		printf("Unknown DDR configuration: %d GiB\n", size);
 		dram_timing = &dram_timing_1gb;
 		size = 1;
+#endif
+#ifdef CONFIG_IMX8MN
+	case 1:
+		dram_timing = &dram_timing_1gb_single_die;
+		break;
+	case 2:
+		if (!strcmp(gsc_get_model(), "GW7902-SP466-A") ||
+		    !strcmp(gsc_get_model(), "GW7902-SP466-B")) {
+			dram_timing = &dram_timing_2gb_dual_die;
+		} else {
+			dram_timing = &dram_timing_2gb_single_die;
+		}
+		break;
+	default:
+		printf("Unknown DDR configuration: %d GiB\n", size);
+		dram_timing = &dram_timing_2gb_dual_die;
+		size = 2;
+#endif
 	}
 
 	printf("DRAM    : LPDDR4 %d GiB\n", size);
 	ddr_init(dram_timing);
-	writel(size, M4_BOOTROM_BASE_ADDR);
 }
 
 #define UART_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_FSEL1)
 #define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
 
+#ifdef CONFIG_IMX8MM
 static iomux_v3_cfg_t const uart_pads[] = {
 	IMX8MM_PAD_UART2_RXD_UART2_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 	IMX8MM_PAD_UART2_TXD_UART2_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -72,6 +92,17 @@ static iomux_v3_cfg_t const uart_pads[] = {
 static iomux_v3_cfg_t const wdog_pads[] = {
 	IMX8MM_PAD_GPIO1_IO02_WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
 };
+#endif
+#ifdef CONFIG_IMX8MN
+static const iomux_v3_cfg_t uart_pads[] = {
+	IMX8MN_PAD_UART2_RXD__UART2_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
+	IMX8MN_PAD_UART2_TXD__UART2_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
+
+static const iomux_v3_cfg_t wdog_pads[] = {
+	IMX8MN_PAD_GPIO1_IO02__WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
+};
+#endif
 
 int board_early_init_f(void)
 {

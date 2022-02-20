@@ -595,22 +595,20 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	int sdhc_clk = priv->sdhc_clk;
 	uint clk;
 
-	if (IS_ENABLED(ARCH_MXC)) {
 #if IS_ENABLED(CONFIG_MX53)
-		/* For i.MX53 eSDHCv3, SYSCTL.SDCLKFS may not be set to 0. */
-		pre_div = (regs == (struct fsl_esdhc *)MMC_SDHC3_BASE_ADDR) ? 2 : 1;
+	/* For i.MX53 eSDHCv3, SYSCTL.SDCLKFS may not be set to 0. */
+	pre_div = (regs == (struct fsl_esdhc *)MMC_SDHC3_BASE_ADDR) ? 2 : 1;
 #else
-		pre_div = 1;
+	pre_div = 1;
 #endif
-	} else {
-		pre_div = 2;
-	}
 
 	while (sdhc_clk / (16 * pre_div * ddr_pre_div) > clock && pre_div < 256)
 		pre_div *= 2;
 
 	while (sdhc_clk / (div * pre_div * ddr_pre_div) > clock && div < 16)
 		div++;
+
+	mmc->clock = sdhc_clk / pre_div / div / ddr_pre_div;
 
 	pre_div >>= 1;
 	div -= 1;
@@ -633,7 +631,6 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	else
 		esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 
-	mmc->clock = sdhc_clk / pre_div / div;
 	priv->clock = clock;
 }
 
@@ -1007,11 +1004,6 @@ static int esdhc_init_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 		esdhc_write32(&regs->dllctrl, 0x0);
 	}
 
-#ifndef ARCH_MXC
-	/* Enable cache snooping */
-	esdhc_write32(&regs->scr, 0x00000040);
-#endif
-
 	if (IS_ENABLED(CONFIG_FSL_USDHC))
 		esdhc_setbits32(&regs->vendorspec,
 				VENDORSPEC_HCKEN | VENDORSPEC_IPGEN);
@@ -1224,8 +1216,29 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 			val |= ESDHC_TUNING_CMD_CRC_CHECK_DISABLE;
 			esdhc_write32(&regs->tuning_ctrl, val);
 		}
-	}
 
+		/*
+		 * UHS doesn't have explicit ESDHC flags, so if it's
+		 * not supported, disable it in config.
+		 */
+		if (CONFIG_IS_ENABLED(MMC_UHS_SUPPORT))
+			cfg->host_caps |= UHS_CAPS;
+
+		if (CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)) {
+			if (priv->flags & ESDHC_FLAG_HS200)
+				cfg->host_caps |= MMC_CAP(MMC_HS_200);
+		}
+
+		if (CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)) {
+			if (priv->flags & ESDHC_FLAG_HS400)
+				cfg->host_caps |= MMC_CAP(MMC_HS_400);
+		}
+
+		if (CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)) {
+			if (priv->flags & ESDHC_FLAG_HS400_ES)
+				cfg->host_caps |= MMC_CAP(MMC_HS_400_ES);
+		}
+	}
 	return 0;
 }
 

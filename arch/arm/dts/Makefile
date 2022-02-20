@@ -915,9 +915,12 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mq-cm.dtb \
 	imx8mn-evk.dtb \
 	imx8mn-var-som-symphony.dtb \
+	imx8mn-venice.dtb \
+	imx8mn-venice-gw7902.dtb \
 	imx8mq-evk.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \
+	imx8mq-mnt-reform2.dtb \
 	imx8mq-phanbell.dtb \
 	imx8mp-evk.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
@@ -1202,6 +1205,10 @@ dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE_OPTEE) += imx8mm-cl-iot-gate-optee.dtb \
 					imx8mm-cl-iot-gate-ied-can1.dtbo \
 					imx8mm-cl-iot-gate-ied-tpm0.dtbo \
 					imx8mm-cl-iot-gate-ied-tpm1.dtbo
+
+ifneq ($(CONFIG_TARGET_IMX8MP_RSB3720A1_4G)$(CONFIG_TARGET_IMX8MP_RSB3720A1_6G),)
+dtb-y += imx8mp-rsb3720-a1.dtb
+endif
 
 dtb-$(CONFIG_TARGET_EA_LPC3250DEVKITV2) += lpc3250-ea3250.dtb
 

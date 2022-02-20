@@ -140,8 +140,9 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-
-/* Environment in eMMC, before config block at the end of 1st "boot sector" */
+#if defined(CONFIG_ENV_IS_IN_NAND)
+#define CONFIG_ENV_RANGE	(4 * CONFIG_ENV_SIZE)
+#endif
 
 #ifdef CONFIG_TARGET_COLIBRI_IMX6ULL_NAND
 /* NAND stuff */

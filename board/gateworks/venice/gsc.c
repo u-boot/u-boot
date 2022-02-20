@@ -378,7 +378,11 @@ char get_pcb_rev(const char *str)
 	snprintf((dest) + strlen(dest), (sz) - strlen(dest), fmt, ##__VA_ARGS__)
 const char *gsc_get_dtb_name(int level, char *buf, int sz)
 {
+#ifdef CONFIG_IMX8MM
 	const char *pre = "imx8mm-venice-gw";
+#else
+	const char *pre = "imx8mn-venice-gw";
+#endif
 	int model, rev_pcb, rev_bom;
 
 	model = ((som_info.model[2] - '0') * 1000)
@@ -544,6 +548,15 @@ int gsc_init(int quiet)
 	 * board may be ready to probe the GSC before its firmware is
 	 * running.  We will wait here indefinately for the GSC/EEPROM.
 	 */
+#ifdef CONFIG_IMX8MN
+	// TODO:
+	//   IMX8MN boots quicker than IMX8MM and exposes issue
+	//   where because GSC I2C state machine isn't running and its
+	//   SCL/SDA are driven low spams i2c errors
+	//
+	//   Put a loop here that somehow waits for I2C CLK/DAT to be high
+	mdelay(40);
+#endif
 	while (1) {
 		/* probe device */
 		dev = gsc_get_dev(GSC_BUSNO, GSC_SC_ADDR);
