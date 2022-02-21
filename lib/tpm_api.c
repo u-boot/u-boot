@@ -274,7 +274,7 @@ u32 tpm_get_permissions(struct udevice *dev, u32 index, u32 *perm)
 		return -ENOSYS;
 }
 
-u32 tpm_get_random(struct udevice *dev, void *data, u32 count)
+int tpm_get_random(struct udevice *dev, void *data, u32 count)
 {
 	if (is_tpm1(dev))
 		return tpm1_get_random(dev, data, count);
