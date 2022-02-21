@@ -675,7 +675,7 @@ config VIDEO_NX
 
 config VIDEO_SEPS525
 	bool "Enable video support for Seps525"
-	depends on DM_VIDEO
+	depends on DM_VIDEO && DM_GPIO
 	help
 	  Enable support for the Syncoam PM-OLED display driver (RGB 160x128).
 	  Currently driver is supporting only SPI interface.

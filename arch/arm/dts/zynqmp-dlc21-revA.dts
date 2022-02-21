@@ -12,7 +12,6 @@
 #include "zynqmp-clk-ccf.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/phy/phy.h>
-#include <include/dt-bindings/gpio/gpio.h>
 
 / {
 	model = "Smartlynq+ DLC21 RevA";

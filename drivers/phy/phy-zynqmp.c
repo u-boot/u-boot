@@ -373,6 +373,29 @@ static void xpsgtr_bypass_scrambler_8b10b(struct xpsgtr_phy *gtr_phy)
 	xpsgtr_write_phy(gtr_phy, L0_TX_DIG_61, L0_TM_DISABLE_SCRAMBLE_ENCODER);
 }
 
+/* DP-specific initialization. */
+static void xpsgtr_phy_init_dp(struct xpsgtr_phy *gtr_phy)
+{
+	xpsgtr_write_phy(gtr_phy, L0_TXPMD_TM_45,
+			 L0_TXPMD_TM_45_OVER_DP_MAIN |
+			 L0_TXPMD_TM_45_ENABLE_DP_MAIN |
+			 L0_TXPMD_TM_45_OVER_DP_POST1 |
+			 L0_TXPMD_TM_45_OVER_DP_POST2 |
+			 L0_TXPMD_TM_45_ENABLE_DP_POST2);
+	xpsgtr_write_phy(gtr_phy, L0_TX_ANA_TM_118,
+			 L0_TX_ANA_TM_118_FORCE_17_0);
+}
+
+/* SATA-specific initialization. */
+static void xpsgtr_phy_init_sata(struct xpsgtr_phy *gtr_phy)
+{
+	struct xpsgtr_dev *gtr_dev = gtr_phy->dev;
+
+	xpsgtr_bypass_scrambler_8b10b(gtr_phy);
+
+	writel(gtr_phy->lane, gtr_dev->siou + SATA_CONTROL_OFFSET);
+}
+
 /* SGMII-specific initialization. */
 static void xpsgtr_phy_init_sgmii(struct xpsgtr_phy *gtr_phy)
 {
@@ -427,9 +450,12 @@ static int xpsgtr_init(struct phy *x)
 	case ICM_PROTOCOL_SGMII:
 		xpsgtr_phy_init_sgmii(gtr_phy);
 		break;
-	case ICM_PROTOCOL_DP:
 	case ICM_PROTOCOL_SATA:
-		return -EINVAL;
+		xpsgtr_phy_init_sata(gtr_phy);
+		break;
+	case ICM_PROTOCOL_DP:
+		xpsgtr_phy_init_dp(gtr_phy);
+		break;
 	}
 
 	dev_dbg(gtr_dev->dev, "lane %u (type %u, protocol %u): init done\n",

@@ -342,20 +342,20 @@ enum pm_ioctl_id {
 	IOCTL_AIE_ISR_CLEAR = 24,
 };
 
-#define PM_SIP_SVC      0xc2000000
+#define PM_SIP_SVC	0xc2000000
 
-#define ZYNQMP_PM_VERSION_MAJOR         1
-#define ZYNQMP_PM_VERSION_MINOR         0
-#define ZYNQMP_PM_VERSION_MAJOR_SHIFT   16
-#define ZYNQMP_PM_VERSION_MINOR_MASK    0xFFFF
+#define ZYNQMP_PM_VERSION_MAJOR		1
+#define ZYNQMP_PM_VERSION_MINOR		0
+#define ZYNQMP_PM_VERSION_MAJOR_SHIFT	16
+#define ZYNQMP_PM_VERSION_MINOR_MASK	0xFFFF
 
 #define ZYNQMP_PM_VERSION       \
 	((ZYNQMP_PM_VERSION_MAJOR << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | \
 	 ZYNQMP_PM_VERSION_MINOR)
 
-#define ZYNQMP_PM_VERSION_INVALID       ~0
+#define ZYNQMP_PM_VERSION_INVALID	~0
 
-#define PMUFW_V1_0      ((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
+#define PMUFW_V1_0	((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
 
 /*
  * Return payload size
@@ -367,8 +367,41 @@ enum pm_ioctl_id {
 #define PAYLOAD_ARG_CNT	5U
 
 unsigned int zynqmp_firmware_version(void);
+int zynqmp_pmufw_node(u32 id);
+int zynqmp_pmufw_config_close(void);
 void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload);
+
+/* Type of Config Object */
+#define PM_CONFIG_OBJECT_TYPE_BASE	0x1U
+#define PM_CONFIG_OBJECT_TYPE_OVERLAY	0x2U
+
+/* Section Id */
+#define PM_CONFIG_SLAVE_SECTION_ID	0x102U
+#define PM_CONFIG_SET_CONFIG_SECTION_ID	0x107U
+
+/* Flag Option */
+#define PM_SLAVE_FLAG_IS_SHAREABLE	0x1U
+#define PM_MASTER_USING_SLAVE_MASK	0x2U
+
+/* IPI Mask for Master */
+#define PM_CONFIG_IPI_PSU_CORTEXA53_0_MASK	0x00000001
+#define PM_CONFIG_IPI_PSU_CORTEXR5_0_MASK	0x00000100
+#define PM_CONFIG_IPI_PSU_CORTEXR5_1_MASK	0x00000200
+
+enum zynqmp_pm_request_ack {
+	ZYNQMP_PM_REQUEST_ACK_NO = 1,
+	ZYNQMP_PM_REQUEST_ACK_BLOCKING = 2,
+	ZYNQMP_PM_REQUEST_ACK_NON_BLOCKING = 3,
+};
+
+/* Node capabilities */
+#define ZYNQMP_PM_CAPABILITY_ACCESS	0x1U
+#define ZYNQMP_PM_CAPABILITY_CONTEXT	0x2U
+#define ZYNQMP_PM_CAPABILITY_WAKEUP	0x4U
+#define ZYNQMP_PM_CAPABILITY_UNUSABLE	0x8U
+
+#define ZYNQMP_PM_MAX_QOS		100U
 
 #endif /* _ZYNQMP_FIRMWARE_H_ */

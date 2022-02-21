@@ -20,10 +20,25 @@ void _hw_exception_handler (void)
 	MFS(state, resr);
 	printf("Hardware exception at 0x%x address\n", address);
 	R17(address);
-	printf("Return address from exception 0x%x\n", address);
+
+	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_DELAY_SLOT_EXCEP) &&
+	    (state & 0x1000)) {
+		/*
+		 * For exceptions in delay slots, the return address is stored
+		 * in the Branch Target Register (BTR), rather than R17.
+		 */
+		MFS(address, rbtr);
+
+		puts("Exception in delay slot\n");
+	}
+
 	switch (state & 0x1f) {	/* mask on exception cause */
 	case 0x1:
 		puts("Unaligned data access exception\n");
+
+		printf("Unaligned %sword access\n", ((state & 0x800) ? "" : "half"));
+		printf("Unaligned %s access\n", ((state & 0x400) ? "store" : "load"));
+		printf("Register R%x\n", (state & 0x3E0) >> 5);
 		break;
 	case 0x2:
 		puts("Illegal op-code exception\n");
@@ -37,21 +52,15 @@ void _hw_exception_handler (void)
 	case 0x5:
 		puts("Divide by zero exception\n");
 		break;
-#ifdef MICROBLAZE_V5
 	case 0x7:
 		puts("Priviledged or stack protection violation exception\n");
 		break;
-	case 0x1000:
-		puts("Exception in delay slot\n");
-		break;
-#endif
 	default:
 		puts("Undefined cause\n");
 		break;
 	}
-	printf("Unaligned %sword access\n", ((state & 0x800) ? "" : "half"));
-	printf("Unaligned %s access\n", ((state & 0x400) ? "store" : "load"));
-	printf("Register R%x\n", (state & 0x3E) >> 5);
+
+	printf("Return address from exception 0x%x\n", address);
 	hang();
 }
 

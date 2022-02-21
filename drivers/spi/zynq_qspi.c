@@ -16,6 +16,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <spi-mem.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,6 +49,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_QSPI_CR_BAUD_MAX		8	/* Baud rate divisor max val */
 #define ZYNQ_QSPI_CR_BAUD_SHIFT		3	/* Baud rate divisor shift */
 #define ZYNQ_QSPI_CR_SS_SHIFT		10	/* Slave select shift */
+
+#define ZYNQ_QSPI_MAX_BAUD_RATE		0x7
+#define ZYNQ_QSPI_DEFAULT_BAUD_RATE	0x2
 
 #define ZYNQ_QSPI_FIFO_DEPTH		63
 #define ZYNQ_QSPI_WAIT			(CONFIG_SYS_HZ / 100)	/* 10 ms */
@@ -230,12 +234,16 @@ static void zynq_qspi_read_data(struct zynq_qspi_priv *priv, u32 data, u8 size)
 			priv->rx_buf += 1;
 			break;
 		case 2:
-			*((u16 *)priv->rx_buf) = data;
-			priv->rx_buf += 2;
+			*((u8 *)priv->rx_buf) = data;
+			priv->rx_buf += 1;
+			*((u8 *)priv->rx_buf) = (u8)(data >> 8);
+			priv->rx_buf += 1;
 			break;
 		case 3:
-			*((u16 *)priv->rx_buf) = data;
-			priv->rx_buf += 2;
+			*((u8 *)priv->rx_buf) = data;
+			priv->rx_buf += 1;
+			*((u8 *)priv->rx_buf) = (u8)(data >> 8);
+			priv->rx_buf += 1;
 			byte3 = (u8)(data >> 16);
 			*((u8 *)priv->rx_buf) = byte3;
 			priv->rx_buf += 1;
@@ -272,13 +280,17 @@ static void zynq_qspi_write_data(struct  zynq_qspi_priv *priv,
 			*data |= 0xFFFFFF00;
 			break;
 		case 2:
-			*data = *((u16 *)priv->tx_buf);
-			priv->tx_buf += 2;
+			*data = *((u8 *)priv->tx_buf);
+			priv->tx_buf += 1;
+			*data |= (*((u8 *)priv->tx_buf) << 8);
+			priv->tx_buf += 1;
 			*data |= 0xFFFF0000;
 			break;
 		case 3:
-			*data = *((u16 *)priv->tx_buf);
-			priv->tx_buf += 2;
+			*data = *((u8 *)priv->tx_buf);
+			priv->tx_buf += 1;
+			*data |= (*((u8 *)priv->tx_buf) << 8);
+			priv->tx_buf += 1;
 			*data |= (*((u8 *)priv->tx_buf) << 16);
 			priv->tx_buf += 1;
 			*data |= 0xFF000000;
@@ -613,6 +625,9 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 		       (2 << baud_rate_val)) > speed))
 			baud_rate_val++;
 
+		if (baud_rate_val > ZYNQ_QSPI_MAX_BAUD_RATE)
+			baud_rate_val = ZYNQ_QSPI_DEFAULT_BAUD_RATE;
+
 		plat->speed_hz = speed / (2 << baud_rate_val);
 	}
 	confr &= ~ZYNQ_QSPI_CR_BAUD_MASK;
@@ -649,12 +664,72 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
+static int zynq_qspi_exec_op(struct spi_slave *slave,
+			     const struct spi_mem_op *op)
+{
+	int op_len, pos = 0, ret, i;
+	unsigned int flag = 0;
+	const u8 *tx_buf = NULL;
+	u8 *rx_buf = NULL;
+
+	if (op->data.nbytes) {
+		if (op->data.dir == SPI_MEM_DATA_IN)
+			rx_buf = op->data.buf.in;
+		else
+			tx_buf = op->data.buf.out;
+	}
+
+	op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
+
+	u8 op_buf[op_len];
+
+	op_buf[pos++] = op->cmd.opcode;
+
+	if (op->addr.nbytes) {
+		for (i = 0; i < op->addr.nbytes; i++)
+			op_buf[pos + i] = op->addr.val >>
+			(8 * (op->addr.nbytes - i - 1));
+
+		pos += op->addr.nbytes;
+	}
+
+	if (op->dummy.nbytes)
+		memset(op_buf + pos, 0xff, op->dummy.nbytes);
+
+	/* 1st transfer: opcode + address + dummy cycles */
+	/* Make sure to set END bit if no tx or rx data messages follow */
+	if (!tx_buf && !rx_buf)
+		flag |= SPI_XFER_END;
+
+	ret = zynq_qspi_xfer(slave->dev, op_len * 8, op_buf, NULL,
+			     flag | SPI_XFER_BEGIN);
+	if (ret)
+		return ret;
+
+	/* 2nd transfer: rx or tx data path */
+	if (tx_buf || rx_buf) {
+		ret = zynq_qspi_xfer(slave->dev, op->data.nbytes * 8, tx_buf,
+				     rx_buf, flag | SPI_XFER_END);
+		if (ret)
+			return ret;
+	}
+
+	spi_release_bus(slave);
+
+	return 0;
+}
+
+static const struct spi_controller_mem_ops zynq_qspi_mem_ops = {
+	.exec_op = zynq_qspi_exec_op,
+};
+
 static const struct dm_spi_ops zynq_qspi_ops = {
 	.claim_bus      = zynq_qspi_claim_bus,
 	.release_bus    = zynq_qspi_release_bus,
 	.xfer           = zynq_qspi_xfer,
 	.set_speed      = zynq_qspi_set_speed,
 	.set_mode       = zynq_qspi_set_mode,
+	.mem_ops        = &zynq_qspi_mem_ops,
 };
 
 static const struct udevice_id zynq_qspi_ids[] = {

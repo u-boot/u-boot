@@ -11,9 +11,6 @@
 /* Microblaze is microblaze_0 */
 #define XILINX_FSL_NUMBER	3
 
-/* MicroBlaze CPU */
-#define	MICROBLAZE_V5		1
-
 #define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024)
 
 /* uart */
