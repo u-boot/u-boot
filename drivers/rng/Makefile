@@ -10,3 +10,4 @@ obj-$(CONFIG_RNG_MSM) += msm_rng.o
 obj-$(CONFIG_RNG_STM32MP1) += stm32mp1_rng.o
 obj-$(CONFIG_RNG_ROCKCHIP) += rockchip_rng.o
 obj-$(CONFIG_RNG_IPROC200) += iproc_rng200.o
+obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm_rng.o
