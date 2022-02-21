@@ -7,7 +7,6 @@ menu "TPM support"
 config TPM_V1
 	bool "TPMv1.x support"
 	depends on TPM
-	default y
 	help
 	  Major TPM versions are not compatible at all, choose either
 	  one or the other. This option enables TPMv1.x drivers/commands.
