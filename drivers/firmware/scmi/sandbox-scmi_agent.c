@@ -114,6 +114,55 @@ static struct sandbox_scmi_voltd *get_scmi_voltd_state(uint domain_id)
  * Sandbox SCMI agent ops
  */
 
+static int sandbox_scmi_clock_protocol_attribs(struct udevice *dev,
+					       struct scmi_msg *msg)
+{
+	struct scmi_clk_protocol_attr_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_clk_protocol_attr_out *)msg->out_msg;
+	out->attributes = ARRAY_SIZE(scmi_clk);
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+static int sandbox_scmi_clock_attribs(struct udevice *dev, struct scmi_msg *msg)
+{
+	struct scmi_clk_attribute_in *in = NULL;
+	struct scmi_clk_attribute_out *out = NULL;
+	struct sandbox_scmi_clk *clk_state = NULL;
+	int ret;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_clk_attribute_in *)msg->in_msg;
+	out = (struct scmi_clk_attribute_out *)msg->out_msg;
+
+	clk_state = get_scmi_clk_state(in->clock_id);
+	if (!clk_state) {
+		dev_err(dev, "Unexpected clock ID %u\n", in->clock_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else {
+		memset(out, 0, sizeof(*out));
+
+		if (clk_state->enabled)
+			out->attributes = 1;
+
+		ret = snprintf(out->clock_name, sizeof(out->clock_name),
+			       "clk%u", in->clock_id);
+		assert(ret > 0 && ret < sizeof(out->clock_name));
+
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
 static int sandbox_scmi_clock_rate_set(struct udevice *dev,
 				       struct scmi_msg *msg)
 {
@@ -427,6 +476,10 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 	switch (msg->protocol_id) {
 	case SCMI_PROTOCOL_ID_CLOCK:
 		switch (msg->message_id) {
+		case SCMI_PROTOCOL_ATTRIBUTES:
+			return sandbox_scmi_clock_protocol_attribs(dev, msg);
+		case SCMI_CLOCK_ATTRIBUTES:
+			return sandbox_scmi_clock_attribs(dev, msg);
 		case SCMI_CLOCK_RATE_SET:
 			return sandbox_scmi_clock_rate_set(dev, msg);
 		case SCMI_CLOCK_RATE_GET:
