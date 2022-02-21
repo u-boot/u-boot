@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <rng.h>
 #include <tpm_api.h>
 #include <tpm-v1.h>
 #include <tpm-v2.h>
@@ -274,12 +275,22 @@ u32 tpm_get_permissions(struct udevice *dev, u32 index, u32 *perm)
 		return -ENOSYS;
 }
 
+#if CONFIG_IS_ENABLED(DM_RNG)
 int tpm_get_random(struct udevice *dev, void *data, u32 count)
 {
-	if (is_tpm1(dev))
-		return tpm1_get_random(dev, data, count);
-	else if (is_tpm2(dev))
-		return -ENOSYS; /* not implemented yet */
-	else
+	int ret;
+	struct udevice *rng_dev;
+
+	if (!is_tpm1(dev) && !is_tpm2(dev))
 		return -ENOSYS;
+
+	ret = uclass_get_device_by_driver(UCLASS_RNG, DM_DRIVER_GET(tpm_rng),
+					  &rng_dev);
+	if (ret) {
+		log_err("Getting tpm rng device failed\n");
+		return ret;
+	}
+
+	return dm_rng_read(rng_dev, data, (size_t)count);
 }
+#endif /* DM_RNG */
