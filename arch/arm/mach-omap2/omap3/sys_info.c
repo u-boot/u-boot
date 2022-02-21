@@ -55,7 +55,7 @@ void omap_die_id(unsigned int *die_id)
 /******************************************
  * get_cpu_type(void) - extract cpu info
  ******************************************/
-u32 get_cpu_type(void)
+static u32 get_cpu_type(void)
 {
 	return readl(&ctrl_base->ctrl_omap_stat);
 }
@@ -64,7 +64,7 @@ u32 get_cpu_type(void)
  * get_cpu_id(void) - extract cpu id
  * returns 0 for ES1.0, cpuid otherwise
  ******************************************/
-u32 get_cpu_id(void)
+static u32 get_cpu_id(void)
 {
 	struct ctrl_id *id_base;
 	u32 cpuid = 0;
@@ -89,7 +89,7 @@ u32 get_cpu_id(void)
 /******************************************
  * get_cpu_family(void) - extract cpu info
  ******************************************/
-u32 get_cpu_family(void)
+__used u32 get_cpu_family(void)
 {
 	u16 hawkeye;
 	u32 cpu_family;
@@ -119,7 +119,7 @@ u32 get_cpu_family(void)
 /******************************************
  * get_cpu_rev(void) - extract version info
  ******************************************/
-u32 get_cpu_rev(void)
+__used u32 get_cpu_rev(void)
 {
 	u32 cpuid = get_cpu_id();
 
@@ -132,39 +132,10 @@ u32 get_cpu_rev(void)
 /*****************************************************************
  * get_sku_id(void) - read sku_id to get info on max clock rate
  *****************************************************************/
-u32 get_sku_id(void)
+static u32 get_sku_id(void)
 {
 	struct ctrl_id *id_base = (struct ctrl_id *)OMAP34XX_ID_L4_IO_BASE;
 	return readl(&id_base->sku_id) & SKUID_CLK_MASK;
-}
-
-/***************************************************************************
- *  get_gpmc0_base() - Return current address hardware will be
- *     fetching from. The below effectively gives what is correct, its a bit
- *   mis-leading compared to the TRM.  For the most general case the mask
- *   needs to be also taken into account this does work in practice.
- *   - for u-boot we currently map:
- *       -- 0 to nothing,
- *       -- 4 to flash
- *       -- 8 to enent
- *       -- c to wifi
- ****************************************************************************/
-u32 get_gpmc0_base(void)
-{
-	u32 b;
-
-	b = readl(&gpmc_cfg->cs[0].config7);
-	b &= 0x1F;		/* keep base [5:0] */
-	b = b << 24;		/* ret 0x0b000000 */
-	return b;
-}
-
-/*******************************************************************
- * get_gpmc0_width() - See if bus is in x8 or x16 (mainly for nand)
- *******************************************************************/
-u32 get_gpmc0_width(void)
-{
-	return WIDTH_16BIT;
 }
 
 /*************************************************************************
