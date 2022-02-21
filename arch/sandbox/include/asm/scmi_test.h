@@ -17,7 +17,6 @@ struct sandbox_scmi_service;
  * @rate:	Clock rate in Hertz
  */
 struct sandbox_scmi_clk {
-	uint id;
 	bool enabled;
 	ulong rate;
 };

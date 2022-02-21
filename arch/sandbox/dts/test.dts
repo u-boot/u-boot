@@ -1392,7 +1392,7 @@
 
 	sandbox_scmi {
 		compatible = "sandbox,scmi-devices";
-		clocks = <&clk_scmi 7>, <&clk_scmi 3>;
+		clocks = <&clk_scmi 2>, <&clk_scmi 0>;
 		resets = <&reset_scmi 3>;
 		regul0-supply = <&regul0_scmi>;
 		regul1-supply = <&regul1_scmi>;

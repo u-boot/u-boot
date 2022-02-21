@@ -52,7 +52,7 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 	ut_assertnonnull(scmi_ctx);
 	agent = scmi_ctx->agent;
 	ut_assertnonnull(agent);
-	ut_asserteq(2, agent->clk_count);
+	ut_asserteq(3, agent->clk_count);
 	ut_assertnonnull(agent->clk);
 	ut_asserteq(1, agent->reset_count);
 	ut_assertnonnull(agent->reset);
@@ -125,14 +125,19 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	ut_assertnonnull(agent);
 
 	/* Test SCMI clocks rate manipulation */
+	ut_asserteq(333, agent->clk[0].rate);
+	ut_asserteq(200, agent->clk[1].rate);
+	ut_asserteq(1000, agent->clk[2].rate);
+
 	ut_asserteq(1000, clk_get_rate(&scmi_devices->clk[0]));
 	ut_asserteq(333, clk_get_rate(&scmi_devices->clk[1]));
 
 	ret_dev = clk_set_rate(&scmi_devices->clk[1], 1088);
 	ut_assert(!ret_dev || ret_dev == 1088);
 
-	ut_asserteq(1000, agent->clk[0].rate);
-	ut_asserteq(1088, agent->clk[1].rate);
+	ut_asserteq(1088, agent->clk[0].rate);
+	ut_asserteq(200, agent->clk[1].rate);
+	ut_asserteq(1000, agent->clk[2].rate);
 
 	ut_asserteq(1000, clk_get_rate(&scmi_devices->clk[0]));
 	ut_asserteq(1088, clk_get_rate(&scmi_devices->clk[1]));
@@ -148,8 +153,8 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 
 	ut_asserteq(0, clk_enable(&scmi_devices->clk[1]));
 
-	ut_assert(!agent->clk[0].enabled);
-	ut_assert(agent->clk[1].enabled);
+	ut_assert(agent->clk[0].enabled);
+	ut_assert(!agent->clk[1].enabled);
 	ut_assert(!agent->clk[2].enabled);
 
 	ut_assertok(clk_disable(&scmi_devices->clk[1]));

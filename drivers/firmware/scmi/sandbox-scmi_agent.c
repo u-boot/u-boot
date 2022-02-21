@@ -34,8 +34,9 @@
  */
 
 static struct sandbox_scmi_clk scmi_clk[] = {
-	{ .id = 7, .rate = 1000 },
-	{ .id = 3, .rate = 333 },
+	{ .rate = 333 },
+	{ .rate = 200 },
+	{ .rate = 1000 },
 };
 
 static struct sandbox_scmi_reset scmi_reset[] = {
@@ -81,11 +82,8 @@ static void debug_print_agent_state(struct udevice *dev, char *str)
 
 static struct sandbox_scmi_clk *get_scmi_clk_state(uint clock_id)
 {
-	size_t n;
-
-	for (n = 0; n < ARRAY_SIZE(scmi_clk); n++)
-		if (scmi_clk[n].id == clock_id)
-			return scmi_clk + n;
+	if (clock_id < ARRAY_SIZE(scmi_clk))
+		return scmi_clk + clock_id;
 
 	return NULL;
 }
