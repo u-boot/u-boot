@@ -1,0 +1,113 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com/
+ */
+
+/ {
+	chosen {
+		firmware-loader = &fs_loader0;
+	};
+
+	fs_loader0: fs_loader@0 {
+		u-boot,dm-pre-reloc;
+		compatible = "u-boot,fs-loader";
+		phandlepart = <&mmc1 1>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		u-boot,dm-spl;
+
+		ipu2_memory_region: ipu2-memory@95800000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x95800000 0x0 0x3800000>;
+			reusable;
+			status = "okay";
+			u-boot,dm-spl;
+		};
+
+		ipu1_memory_region: ipu1-memory@9d000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x9d000000 0x0 0x2000000>;
+			reusable;
+			status = "okay";
+			u-boot,dm-spl;
+		};
+
+		ipu1_pgtbl: ipu1-pgtbl@95700000 {
+			reg = <0x0 0x95700000 0x0 0x40000>;
+			no-map;
+			u-boot,dm-spl;
+		};
+
+		ipu2_pgtbl: ipu2-pgtbl@95740000 {
+			reg = <0x0 0x95740000 0x0 0x40000>;
+			no-map;
+			u-boot,dm-spl;
+		};
+	};
+};
+
+&timer3 {
+	u-boot,dm-spl;
+};
+
+&timer4 {
+	u-boot,dm-spl;
+};
+
+&timer7 {
+	u-boot,dm-spl;
+};
+
+&timer8 {
+	u-boot,dm-spl;
+};
+
+&timer9 {
+	u-boot,dm-spl;
+};
+
+&timer11 {
+	u-boot,dm-spl;
+};
+
+&mmu_ipu1 {
+	u-boot,dm-spl;
+};
+
+&mmu_ipu2 {
+	u-boot,dm-spl;
+};
+
+&ipu1 {
+	status = "okay";
+	memory-region = <&ipu1_memory_region>;
+	pg-tbl = <&ipu1_pgtbl>;
+	u-boot,dm-spl;
+};
+
+&ipu2 {
+	status = "okay";
+	memory-region = <&ipu2_memory_region>;
+	pg-tbl = <&ipu2_pgtbl>;
+	u-boot,dm-spl;
+};
+
+&l4_wkup {
+	u-boot,dm-spl;
+};
+
+&prm {
+	u-boot,dm-spl;
+};
+
+&ipu1_rst {
+	u-boot,dm-spl;
+};
+
+&ipu2_rst {
+	u-boot,dm-spl;
+};

@@ -40,7 +40,7 @@ static efi_status_t EFIAPI check_loaded_image_protocol
 				  NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
 		cout->output_string(cout,
-				    L"Could not open loaded image protocol");
+				    u"Could not open loaded image protocol");
 		return ret;
 	}
 	if ((void *)check_loaded_image_protocol <
@@ -49,7 +49,7 @@ static efi_status_t EFIAPI check_loaded_image_protocol
 	    loaded_image_protocol->image_base +
 	    loaded_image_protocol->image_size) {
 		cout->output_string(cout,
-				    L"Incorrect image_base or image_size\n");
+				    u"Incorrect image_base or image_size\n");
 		return EFI_NOT_FOUND;
 	}
 	return EFI_SUCCESS;
@@ -69,11 +69,11 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 	efi_status_t ret;
 	u16 text[] = EFI_ST_SUCCESS_STR;
 
-	con_out->output_string(con_out, L"EFI application calling Exit\n");
+	con_out->output_string(con_out, u"EFI application calling Exit\n");
 
 	if (check_loaded_image_protocol(handle, systable) != EFI_SUCCESS) {
 		con_out->output_string(con_out,
-				       L"Loaded image protocol missing\n");
+				       u"Loaded image protocol missing\n");
 		ret = EFI_NOT_FOUND;
 		goto out;
 	}

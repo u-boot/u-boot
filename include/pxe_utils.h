@@ -33,6 +33,7 @@
  * initrd - path to the initrd to use for this label.
  * attempted - 0 if we haven't tried to boot this label, 1 if we have.
  * localboot - 1 if this label specified 'localboot', 0 otherwise.
+ * kaslrseed - 1 if generate kaslrseed from hw_rng
  * list - lets these form a list, which a pxe_menu struct will hold.
  */
 struct pxe_label {
@@ -50,6 +51,7 @@ struct pxe_label {
 	int attempted;
 	int localboot;
 	int localboot_val;
+	int kaslrseed;
 	struct list_head list;
 };
 

@@ -1,0 +1,198 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+/dts-v1/;
+
+#include "k3-j721s2-som-p0.dtsi"
+#include "k3-j721s2-ddr-evm-lp4-4266.dtsi"
+#include "k3-j721s2-ddr.dtsi"
+
+/ {
+	chosen {
+		firmware-loader = &fs_loader0;
+		stdout-path = &main_uart8;
+		tick-timer = &timer1;
+	};
+
+	aliases {
+		remoteproc0 = &sysctrler;
+		remoteproc1 = &a72_0;
+	};
+
+	fs_loader0: fs_loader@0 {
+		compatible = "u-boot,fs-loader";
+		u-boot,dm-pre-reloc;
+	};
+
+	a72_0: a72@0 {
+		compatible = "ti,am654-rproc";
+		reg = <0x0 0x00a90000 0x0 0x10>;
+		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
+				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>;
+		resets = <&k3_reset 202 0>;
+		clocks = <&k3_clks 61 1>;
+		assigned-clocks = <&k3_clks 61 1>, <&k3_clks 202 0>;
+		assigned-clock-parents = <&k3_clks 61 2>;
+		assigned-clock-rates = <200000000>, <2000000000>;
+		ti,sci = <&sms>;
+		ti,sci-proc-id = <32>;
+		ti,sci-host-id = <10>;
+		u-boot,dm-spl;
+	};
+
+	clk_200mhz: dummy_clock_200mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+		u-boot,dm-spl;
+	};
+
+	clk_19_2mhz: dummy_clock_19_2mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <19200000>;
+		u-boot,dm-spl;
+	};
+};
+
+&cbass_mcu_wakeup {
+	sa3_secproxy: secproxy@44880000 {
+		u-boot,dm-spl;
+		compatible = "ti,am654-secure-proxy";
+		reg = <0x0 0x44880000 0x0 0x20000>,
+		      <0x0 0x44860000 0x0 0x20000>,
+		      <0x0 0x43600000 0x0 0x10000>;
+		reg-names = "rt", "scfg", "target_data";
+		#mbox-cells = <1>;
+	};
+
+	mcu_secproxy: secproxy@2a380000 {
+		compatible = "ti,am654-secure-proxy";
+		reg = <0x0 0x2a380000 0x0 0x80000>,
+		      <0x0 0x2a400000 0x0 0x80000>,
+		      <0x0 0x2a480000 0x0 0x80000>;
+		reg-names = "rt", "scfg", "target_data";
+		#mbox-cells = <1>;
+		u-boot,dm-spl;
+	};
+
+	sysctrler: sysctrler {
+		compatible = "ti,am654-system-controller";
+		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>, <&sa3_secproxy 5>;
+		mbox-names = "tx", "rx", "boot_notify";
+		u-boot,dm-spl;
+	};
+
+	dm_tifs: dm-tifs {
+		compatible = "ti,j721e-dm-sci";
+		ti,host-id = <3>;
+		ti,secure-host;
+		mbox-names = "rx", "tx";
+		mboxes= <&mcu_secproxy 21>,
+			<&mcu_secproxy 23>;
+		u-boot,dm-spl;
+	};
+};
+
+&main_pmx0 {
+	main_uart8_pins_default: main-uart8-pins-default {
+		pinctrl-single,pins = <
+			J721S2_IOPAD(0x040, PIN_INPUT, 14) /* (AC28) MCASP0_AXR0.UART8_CTSn */
+			J721S2_IOPAD(0x044, PIN_OUTPUT, 14) /* (Y26) MCASP0_AXR1.UART8_RTSn */
+			J721S2_IOPAD(0x0d0, PIN_INPUT, 11) /* (AF26) SPI0_CS1.UART8_RXD */
+			J721S2_IOPAD(0x0d4, PIN_OUTPUT, 11) /* (AH27) SPI0_CLK.UART8_TXD */
+		>;
+	};
+
+	main_mmc1_pins_default: main-mmc1-pins-default {
+		pinctrl-single,pins = <
+			J721S2_IOPAD(0x104, PIN_INPUT, 0) /* (P23) MMC1_CLK */
+			J721S2_IOPAD(0x108, PIN_INPUT, 0) /* (N24) MMC1_CMD */
+			J721S2_IOPAD(0x100, PIN_INPUT, 0) /* (###) MMC1_CLKLB */
+			J721S2_IOPAD(0x0fc, PIN_INPUT, 0) /* (M23) MMC1_DAT0 */
+			J721S2_IOPAD(0x0f8, PIN_INPUT, 0) /* (P24) MMC1_DAT1 */
+			J721S2_IOPAD(0x0f4, PIN_INPUT, 0) /* (R24) MMC1_DAT2 */
+			J721S2_IOPAD(0x0f0, PIN_INPUT, 0) /* (R22) MMC1_DAT3 */
+			J721S2_IOPAD(0x0e8, PIN_INPUT, 8) /* (AE25) TIMER_IO0.MMC1_SDCD */
+		>;
+	};
+};
+
+&wkup_pmx0 {
+	mcu_uart0_pins_default: mcu-uart0-pins-default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			J721S2_WKUP_IOPAD(0x0f8, PIN_INPUT, 0) /* (B24) WKUP_GPIO0_14.MCU_UART0_CTSn */
+			J721S2_WKUP_IOPAD(0x0fc, PIN_OUTPUT, 0) /* (D25) WKUP_GPIO0_15.MCU_UART0_RTSn */
+			J721S2_WKUP_IOPAD(0x0f4, PIN_INPUT, 0) /* (C24) WKUP_GPIO0_13.MCU_UART0_RXD */
+			J721S2_WKUP_IOPAD(0x0f0, PIN_OUTPUT, 0) /* (C25) WKUP_GPIO0_12.MCU_UART0_TXD */
+		>;
+	};
+
+	wkup_uart0_pins_default: wkup-uart0-pins-default {
+		u-boot,dm-spl;
+		pinctrl-single,pins = <
+			J721S2_WKUP_IOPAD(0x0d8, PIN_INPUT, 0) /* (E25) WKUP_GPIO0_6.WKUP_UART0_CTSn */
+			J721S2_WKUP_IOPAD(0x0dc, PIN_OUTPUT, 0) /* (F28) WKUP_GPIO0_7.WKUP_UART0_RTSn */
+			J721S2_WKUP_IOPAD(0x0b0, PIN_INPUT, 0) /* (D28) WKUP_UART0_RXD */
+			J721S2_WKUP_IOPAD(0x0b4, PIN_OUTPUT, 0) /* (D27) WKUP_UART0_TXD */
+		>;
+	};
+};
+
+&sms {
+	mboxes= <&mcu_secproxy 8>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
+	mbox-names = "tx", "rx", "notify";
+	ti,host-id = <4>;
+	ti,secure-host;
+	u-boot,dm-spl;
+};
+
+&wkup_uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_uart0_pins_default>;
+};
+
+&mcu_uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_uart0_pins_default>;
+};
+
+&main_uart8 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_uart8_pins_default>;
+};
+
+&main_sdhci0 {
+	/delete-property/ power-domains;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	clock-names = "clk_xin";
+	clocks = <&clk_200mhz>;
+	ti,driver-strength-ohm = <50>;
+	non-removable;
+	bus-width = <8>;
+};
+
+&main_sdhci1 {
+	/delete-property/ power-domains;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	pinctrl-0 = <&main_mmc1_pins_default>;
+	pinctrl-names = "default";
+	clock-names = "clk_xin";
+	clocks = <&clk_200mhz>;
+	ti,driver-strength-ohm = <50>;
+};
+
+&mcu_ringacc {
+	ti,sci = <&dm_tifs>;
+};
+
+&mcu_udmap {
+	ti,sci = <&dm_tifs>;
+};
+
+#include "k3-j721s2-common-proc-board-u-boot.dtsi"

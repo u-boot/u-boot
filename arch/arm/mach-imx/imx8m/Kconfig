@@ -112,10 +112,30 @@ config TARGET_PICO_IMX8MQ
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
+config TARGET_IMX8MN_VAR_SOM
+	bool "imx8mn_var_som"
+	select BINMAN
+	select IMX8MN
+	select SUPPORT_SPL
+	select IMX8M_DDR4
+
+config TARGET_KONTRON_PITX_IMX8M
+	bool "Support Kontron pITX-imx8m"
+	select BINMAN
+	select IMX8MQ
+	select IMX8M_LPDDR4
+
 config TARGET_VERDIN_IMX8MM
 	bool "Support Toradex Verdin iMX8M Mini module"
 	select BINMAN
 	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
+config TARGET_VERDIN_IMX8MP
+	bool "Support Toradex Verdin iMX8M Plus module"
+	select BINMAN
+	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
@@ -153,6 +173,7 @@ config TARGET_IMX8MM_CL_IOT_GATE
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select SUPPORT_EXTENSION_SCAN
 
 config TARGET_IMX8MM_CL_IOT_GATE_OPTEE
 	bool "CompuLab iot-gate-imx8 with optee support"
@@ -160,6 +181,7 @@ config TARGET_IMX8MM_CL_IOT_GATE_OPTEE
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select SUPPORT_EXTENSION_SCAN
 endchoice
 
 source "board/beacon/imx8mm/Kconfig"
@@ -172,11 +194,14 @@ source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
 source "board/gateworks/venice/Kconfig"
 source "board/google/imx8mq_phanbell/Kconfig"
+source "board/kontron/pitx_imx8m/Kconfig"
 source "board/kontron/sl-mx8mm/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
+source "board/variscite/imx8mn_var_som/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
+source "board/toradex/verdin-imx8mp/Kconfig"
 
 endif

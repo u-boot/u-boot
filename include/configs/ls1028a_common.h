@@ -6,8 +6,6 @@
 #ifndef __L1028A_COMMON_H
 #define __L1028A_COMMON_H
 
-#define CONFIG_REMAKE_ELF
-
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>

@@ -2,6 +2,8 @@
 
 dtb-$(CONFIG_XTFPGA) += ml605.dtb ml605_nommu.dtb kc705.dtb kc705_nommu.dtb
 
+include $(srctree)/scripts/Makefile.dts
+
 targets += $(dtb-y)
 
 DTC_FLAGS +=

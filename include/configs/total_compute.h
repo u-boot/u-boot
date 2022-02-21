@@ -9,8 +9,6 @@
 #ifndef __TOTAL_COMPUTE_H
 #define __TOTAL_COMPUTE_H
 
-#define CONFIG_REMAKE_ELF
-
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 

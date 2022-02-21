@@ -22,11 +22,6 @@ static int nulldev_serial_pending(struct udevice *dev, bool input)
 	return 0;
 }
 
-static int nulldev_serial_input(struct udevice *dev)
-{
-	return 0;
-}
-
 static int nulldev_serial_putc(struct udevice *dev, const char ch)
 {
 	return 0;

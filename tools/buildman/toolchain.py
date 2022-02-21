@@ -99,7 +99,7 @@ class Toolchain:
         else:
             self.priority = priority
         if test:
-            result = command.RunPipe([cmd], capture=True, env=env,
+            result = command.run_pipe([cmd], capture=True, env=env,
                                      raise_on_error=False)
             self.ok = result.return_code == 0
             if verbose:
@@ -201,11 +201,11 @@ class Toolchain:
             # We'll use MakeArgs() to provide this
             pass
         elif full_path:
-            env[b'CROSS_COMPILE'] = tools.ToBytes(
+            env[b'CROSS_COMPILE'] = tools.to_bytes(
                 wrapper + os.path.join(self.path, self.cross))
         else:
-            env[b'CROSS_COMPILE'] = tools.ToBytes(wrapper + self.cross)
-            env[b'PATH'] = tools.ToBytes(self.path) + b':' + env[b'PATH']
+            env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
+            env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
 
         env[b'LC_ALL'] = b'C'
 
@@ -381,7 +381,7 @@ class Toolchains:
     def List(self):
         """List out the selected toolchains for each architecture"""
         col = terminal.Color()
-        print(col.Color(col.BLUE, 'List of available toolchains (%d):' %
+        print(col.build(col.BLUE, 'List of available toolchains (%d):' %
                         len(self.toolchains)))
         if len(self.toolchains):
             for key, value in sorted(self.toolchains.items()):
@@ -494,7 +494,7 @@ class Toolchains:
             else
                 URL containing this toolchain, if avaialble, else None
         """
-        arch = command.OutputOneLine('uname', '-m')
+        arch = command.output_one_line('uname', '-m')
         if arch == 'aarch64':
             arch = 'arm64'
         base = 'https://www.kernel.org/pub/tools/crosstool/files/bin'
@@ -504,7 +504,7 @@ class Toolchains:
             url = '%s/%s/%s/' % (base, arch, version)
             print('Checking: %s' % url)
             response = urllib.request.urlopen(url)
-            html = tools.ToString(response.read())
+            html = tools.to_string(response.read())
             parser = MyHTMLParser(fetch_arch)
             parser.feed(html)
             if fetch_arch == 'list':
@@ -525,7 +525,7 @@ class Toolchains:
             Directory name of the first entry in the archive, without the
             trailing /
         """
-        stdout = command.Output('tar', 'xvfJ', fname, '-C', dest)
+        stdout = command.output('tar', 'xvfJ', fname, '-C', dest)
         dirs = stdout.splitlines()[1].split('/')[:2]
         return '/'.join(dirs)
 
@@ -559,7 +559,7 @@ class Toolchains:
         """
         # Fist get the URL for this architecture
         col = terminal.Color()
-        print(col.Color(col.BLUE, "Downloading toolchain for arch '%s'" % arch))
+        print(col.build(col.BLUE, "Downloading toolchain for arch '%s'" % arch))
         url = self.LocateArchUrl(arch)
         if not url:
             print(("Cannot find toolchain for arch '%s' - use 'list' to list" %
@@ -571,10 +571,10 @@ class Toolchains:
             os.mkdir(dest)
 
         # Download the tar file for this toolchain and unpack it
-        tarfile, tmpdir = tools.Download(url, '.buildman')
+        tarfile, tmpdir = tools.download(url, '.buildman')
         if not tarfile:
             return 1
-        print(col.Color(col.GREEN, 'Unpacking to: %s' % dest), end=' ')
+        print(col.build(col.GREEN, 'Unpacking to: %s' % dest), end=' ')
         sys.stdout.flush()
         path = self.Unpack(tarfile, dest)
         os.remove(tarfile)
@@ -582,14 +582,14 @@ class Toolchains:
         print()
 
         # Check that the toolchain works
-        print(col.Color(col.GREEN, 'Testing'))
+        print(col.build(col.GREEN, 'Testing'))
         dirpath = os.path.join(dest, path)
         compiler_fname_list = self.ScanPath(dirpath, True)
         if not compiler_fname_list:
             print('Could not locate C compiler - fetch failed.')
             return 1
         if len(compiler_fname_list) != 1:
-            print(col.Color(col.RED, 'Warning, ambiguous toolchains: %s' %
+            print(col.build(col.RED, 'Warning, ambiguous toolchains: %s' %
                             ', '.join(compiler_fname_list)))
         toolchain = Toolchain(compiler_fname_list[0], True, True)
 

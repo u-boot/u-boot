@@ -30,8 +30,6 @@
 
 #endif
 
-#define CONFIG_REMAKE_ELF
-
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 VERSION = 2022
-PATCHLEVEL = 01
+PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc2
 NAME =
 
 # *DOCUMENTATION*
@@ -1134,6 +1134,7 @@ endif
 	@# is enable to tell 'deprecated' that one of these symbols exists
 	$(call deprecated,CONFIG_TIMER,Timer drivers,v2023.01,$(if $(strip $(CONFIG_SYS_TIMER_RATE)$(CONFIG_SYS_TIMER_COUNTER)),x))
 	$(call deprecated,CONFIG_DM_SERIAL,Serial drivers,v2023.04,$(CONFIG_SERIAL))
+	$(call deprecated,CONFIG_DM_SCSI,SCSI drivers,v2023.04,$(CONFIG_SCSI))
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
@@ -1535,7 +1536,6 @@ else
 ifeq ($(CONFIG_BINMAN),y)
 flash.bin: spl/u-boot-spl.bin $(INPUTS-y) FORCE
 	$(call if_changed,binman)
-	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 else
 flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
@@ -1843,7 +1843,7 @@ quiet_cmd_gen_envp = ENVP    $@
 			-I$(srctree)/arch/$(ARCH)/include \
 			$< -o $@; \
 	else \
-		echo -n >$@ ; \
+		touch $@ ; \
 	fi
 include/generated/env.in: include/generated/env.txt FORCE
 	$(call cmd,gen_envp)
@@ -1860,7 +1860,7 @@ quiet_cmd_envc = ENVC    $@
 	elif [ -n "$(ENV_SOURCE_FILE)" ]; then \
 		echo "Missing file $(ENV_FILE_CFG)"; \
 	else \
-		echo -n >$@ ; \
+		touch $@ ; \
 	fi
 
 include/generated/env.txt: $(wildcard $(ENV_FILE)) FORCE

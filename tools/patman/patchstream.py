@@ -180,7 +180,7 @@ class PatchStream:
             who (str): Person who gave that rtag, e.g.
                  'Fred Bloggs <fred@bloggs.org>'
         """
-        self.commit.AddRtag(rtag_type, who)
+        self.commit.add_rtag(rtag_type, who)
 
     def _close_commit(self):
         """Save the current commit into our commit list, and reset our state"""
@@ -230,7 +230,7 @@ class PatchStream:
         elif self.in_change == 'Cover':
             self.series.AddChange(self.change_version, None, change)
         elif self.in_change == 'Commit':
-            self.commit.AddChange(self.change_version, change)
+            self.commit.add_change(self.change_version, change)
         self.change_lines = []
 
     def _finalise_snippet(self):
@@ -494,14 +494,14 @@ class PatchStream:
                     who.find(os.getenv('USER') + '@') != -1):
                 self._add_warn("Ignoring '%s'" % line)
             elif rtag_type == 'Patch-cc':
-                self.commit.AddCc(who.split(','))
+                self.commit.add_cc(who.split(','))
             else:
                 out = [line]
 
         # Suppress duplicate signoffs
         elif signoff_match:
             if (self.is_log or not self.commit or
-                    self.commit.CheckDuplicateSignoff(signoff_match.group(1))):
+                    self.commit.check_duplicate_signoff(signoff_match.group(1))):
                 out = [line]
 
         # Well that means this is an ordinary line
@@ -698,9 +698,9 @@ def get_list(commit_range, git_dir=None, count=None):
     Returns
         str: String containing the contents of the git log
     """
-    params = gitutil.LogCmd(commit_range, reverse=True, count=count,
+    params = gitutil.log_cmd(commit_range, reverse=True, count=count,
                             git_dir=git_dir)
-    return command.RunPipe([params], capture=True).stdout
+    return command.run_pipe([params], capture=True).stdout
 
 def get_metadata_for_list(commit_range, git_dir=None, count=None,
                           series=None, allow_overwrite=False):

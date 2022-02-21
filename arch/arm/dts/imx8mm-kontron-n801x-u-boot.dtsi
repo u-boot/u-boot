@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Kontron Electronics GmbH
+ */
+
+#include "imx8mm-u-boot.dtsi"
+
+/ {
+	aliases {
+		usb0 = &usbotg1;
+		usb1 = &usbotg2;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+};
+
+&fec1 {
+	phy-mode = "rgmii-rxid";
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&i2c2 {
+	status = "okay";
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_ecspi1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_pmic {
+	u-boot,dm-spl;
+	fsl,pins = <
+		MX8MM_IOMUXC_GPIO1_IO00_GPIO1_IO0		0x141
+		/* Disable Pullup for SD_VSEL */
+		MX8MM_IOMUXC_GPIO1_IO04_GPIO1_IO4		0x41
+	>;
+};
+
+&pinctrl_uart3 {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_usdhc1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc1_100mhz {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc1_200mhz {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};
+
+&pca9450 {
+	u-boot,dm-spl;
+};
+
+&{/soc@0/bus@30800000/i2c@30a20000/pmic@25/regulators} {
+	u-boot,dm-spl;
+};
+
+&ecspi1 {
+	u-boot,dm-spl;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+};
+
+&uart3 {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+};
+
+&usdhc1 {
+	u-boot,dm-spl;
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};

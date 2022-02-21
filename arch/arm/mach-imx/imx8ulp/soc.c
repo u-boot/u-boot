@@ -23,6 +23,8 @@
 #include <dm/uclass.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>
+#include <fuse.h>
+#include <thermal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -210,10 +212,26 @@ int print_cpuinfo(void)
 
 	cpurev = get_cpu_rev();
 
-	printf("CPU:   Freescale i.MX%s rev%d.%d at %d MHz\n",
+	printf("CPU:   i.MX%s rev%d.%d at %d MHz\n",
 	       get_imx_type((cpurev & 0xFF000) >> 12),
 	       (cpurev & 0x000F0) >> 4, (cpurev & 0x0000F) >> 0,
 	       mxc_get_clock(MXC_ARM_CLK) / 1000000);
+
+#if defined(CONFIG_IMX_PMC_TEMPERATURE)
+	struct udevice *udev;
+	int ret, temp;
+
+	ret = uclass_get_device(UCLASS_THERMAL, 0, &udev);
+	if (!ret) {
+		ret = thermal_get_temp(udev, &temp);
+		if (!ret)
+			printf("CPU current temperature: %d\n", temp);
+		else
+			debug(" - failed to get CPU current temperature\n");
+	} else {
+		debug(" - failed to get CPU current temperature\n");
+	}
+#endif
 
 	printf("Reset cause: %s\n", get_reset_cause(cause));
 
@@ -462,28 +480,84 @@ static int trdc_set_access(void)
 	/* Iomuxc0: : PBridge1 slot 33 */
 	trdc_mbc_set_access(2, 7, 1, 33, false);
 
+	/* flexspi0 */
+	trdc_mrc_region_set_access(0, 7, 0x04000000, 0x0c000000, false);
+
+	/* tpm0: PBridge1 slot 21 */
+	trdc_mbc_set_access(2, 7, 1, 21, false);
+	/* lpi2c0: PBridge1 slot 24 */
+	trdc_mbc_set_access(2, 7, 1, 24, false);
 	return 0;
+}
+
+void lpav_configure(void)
+{
+	/* LPAV to APD */
+	setbits_le32(SIM_SEC_BASE_ADDR + 0x44, BIT(7));
+
+	/* PXP/GPU 2D/3D/DCNANO/MIPI_DSI/EPDC/HIFI4 to APD */
+	setbits_le32(SIM_SEC_BASE_ADDR + 0x4c, 0x7F);
+
+	/* LPAV slave/dma2 ch allocation and request allocation to APD */
+	writel(0x1f, SIM_SEC_BASE_ADDR + 0x50);
+	writel(0xffffffff, SIM_SEC_BASE_ADDR + 0x54);
+	writel(0x003fffff, SIM_SEC_BASE_ADDR + 0x58);
+}
+
+void load_lposc_fuse(void)
+{
+	int ret;
+	u32 val = 0, val2 = 0, reg;
+
+	ret = fuse_read(25, 0, &val);
+	if (ret)
+		return; /* failed */
+
+	ret = fuse_read(25, 1, &val2);
+	if (ret)
+		return; /* failed */
+
+	/* LPOSCCTRL */
+	reg = readl(0x2802f304);
+	reg &= ~0xff;
+	reg |= (val & 0xff);
+	writel(reg, 0x2802f304);
+}
+
+void set_lpav_qos(void)
+{
+	/* Set read QoS of dcnano on LPAV NIC */
+	writel(0xf, 0x2e447100);
 }
 
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		u32 val = 0;
+		int ret;
+		bool rdc_en = true; /* Default assume DBD_EN is set */
+
 		/* Disable wdog */
 		init_wdog();
 
+		/* Read DBD_EN fuse */
+		ret = fuse_read(8, 1, &val);
+		if (!ret)
+			rdc_en = !!(val & 0x4000);
+
 		if (get_boot_mode() == SINGLE_BOOT) {
-			release_rdc(RDC_TRDC);
+			if (rdc_en)
+				release_rdc(RDC_TRDC);
+
 			trdc_set_access();
-			/* LPAV to APD */
-			setbits_le32(0x2802B044, BIT(7));
-			/* GPU 2D/3D to APD */
-			setbits_le32(0x2802B04C, BIT(1) | BIT(2));
-			/* DCNANO and MIPI_DSI to APD */
-			setbits_le32(0x2802B04C, BIT(1) | BIT(2) | BIT(3) | BIT(4));
+
+			lpav_configure();
 		}
 
-		/* release xrdc, then allow A35 to write SRAM2 */
-		release_rdc(RDC_XRDC);
+		/* Release xrdc, then allow A35 to write SRAM2 */
+		if (rdc_en)
+			release_rdc(RDC_XRDC);
+
 		xrdc_mrc_region_set_access(2, CONFIG_SPL_TEXT_BASE, 0xE00);
 
 		clock_init();
@@ -531,7 +605,30 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
+	u32 val[2] = {};
+	int ret;
+
+	ret = fuse_read(5, 3, &val[0]);
+	if (ret)
+		goto err;
+
+	ret = fuse_read(5, 4, &val[1]);
+	if (ret)
+		goto err;
+
+	mac[0] = val[0];
+	mac[1] = val[0] >> 8;
+	mac[2] = val[0] >> 16;
+	mac[3] = val[0] >> 24;
+	mac[4] = val[1];
+	mac[5] = val[1] >> 8;
+
+	debug("%s: MAC%d: %02x.%02x.%02x.%02x.%02x.%02x\n",
+	      __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	return;
+err:
 	memset(mac, 0, 6);
+	printf("%s: fuse read err: %d\n", __func__, ret);
 }
 
 int (*card_emmc_is_boot_part_en)(void) = (void *)0x67cc;

@@ -47,7 +47,7 @@ class Entry_files(Entry_section):
                                                 'require-matches')
 
     def ExpandEntries(self):
-        files = tools.GetInputFilenameGlob(self._pattern)
+        files = tools.get_input_filename_glob(self._pattern)
         if self._require_matches and not files:
             self.Raise("Pattern '%s' matched no files" % self._pattern)
         for fname in files:

@@ -1183,10 +1183,10 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 static int
 kwboot_term_pipe(int in, int out, const char *quit, int *s)
 {
+	char buf[128];
 	ssize_t nin;
-	char _buf[128], *buf = _buf;
 
-	nin = read(in, buf, sizeof(_buf));
+	nin = read(in, buf, sizeof(buf));
 	if (nin <= 0)
 		return -1;
 
@@ -1194,18 +1194,21 @@ kwboot_term_pipe(int in, int out, const char *quit, int *s)
 		int i;
 
 		for (i = 0; i < nin; i++) {
-			if (*buf == quit[*s]) {
+			if (buf[i] == quit[*s]) {
 				(*s)++;
-				if (!quit[*s])
-					return 0;
-				buf++;
-				nin--;
+				if (!quit[*s]) {
+					nin = i - *s;
+					break;
+				}
 			} else {
-				if (kwboot_write(out, quit, *s) < 0)
+				if (*s > i && kwboot_write(out, quit, *s - i) < 0)
 					return -1;
 				*s = 0;
 			}
 		}
+
+		if (i == nin)
+			nin -= *s;
 	}
 
 	if (kwboot_write(out, buf, nin) < 0)
@@ -1767,7 +1770,7 @@ main(int argc, char **argv)
 			bootmsg = kwboot_msg_boot;
 			if (prev_optind == optind)
 				goto usage;
-			if (argv[optind] && argv[optind][0] != '-')
+			if (optind < argc - 1 && argv[optind] && argv[optind][0] != '-')
 				imgpath = argv[optind++];
 			break;
 

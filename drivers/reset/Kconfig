@@ -206,4 +206,10 @@ config RESET_ZYNQMP
 	  passing request via Xilinx firmware interface to TF-A and PMU
 	  firmware.
 
+config RESET_DRA7
+	bool "Support for TI's DRA7 Reset driver"
+	depends on DM_RESET
+	help
+	  Support for TI DRA7-RESET subsystem. Basic Assert/Deassert
+	  is supported.
 endmenu

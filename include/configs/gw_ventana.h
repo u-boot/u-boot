@@ -41,7 +41,6 @@
  * SATA Configs
  */
 #ifdef CONFIG_CMD_SATA
-  #define CONFIG_SYS_SATA_MAX_DEVICE	1
   #define CONFIG_DWC_AHSATA_PORT_ID	0
   #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
   #define CONFIG_LBA48
@@ -104,7 +103,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_LOADADDR) "\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"bootdevs=usb mmc sata flash\0" \

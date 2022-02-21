@@ -38,7 +38,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
 
     def ProcessFdt(self, fdt):
         # Figure out where to put the microcode pointer
-        fname = tools.GetInputFilename(self.elf_fname)
+        fname = tools.get_input_filename(self.elf_fname)
         sym = elf.GetSymbolAddress(fname, '_dt_ucode_base_size')
         if sym:
            self.target_offset = sym

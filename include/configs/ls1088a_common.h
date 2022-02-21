@@ -20,8 +20,6 @@
 #undef CONFIG_DISPLAY_CPUINFO
 #endif
 
-#define CONFIG_REMAKE_ELF
-
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>
@@ -130,13 +128,7 @@ unsigned long long get_qixis_addr(void);
 
 /* SATA */
 #ifdef CONFIG_SCSI
-#define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SATA1		AHCI_BASE_ADDR1
-
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-					CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
 /* Physical Memory Map */

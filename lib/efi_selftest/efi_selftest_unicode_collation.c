@@ -44,9 +44,9 @@ static int setup(const efi_handle_t handle,
 static int test_stri_coll(void)
 {
 	efi_intn_t ret;
-	u16 c1[] = L"first";
-	u16 c2[] = L"FIRST";
-	u16 c3[] = L"second";
+	u16 c1[] = u"first";
+	u16 c2[] = u"FIRST";
+	u16 c3[] = u"second";
 
 	ret = unicode_collation_protocol->stri_coll(unicode_collation_protocol,
 						    c1, c2);
@@ -78,66 +78,66 @@ static int test_stri_coll(void)
 static int test_metai_match(void)
 {
 	bool ret;
-	const u16 c[] = L"Das U-Boot";
+	const u16 c[] = u"Das U-Boot";
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"*");
+		unicode_collation_protocol, c, u"*");
 	if (!ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"Da[rstu] U-Boot");
+		unicode_collation_protocol, c, u"Da[rstu] U-Boot");
 	if (!ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"Da[q-v] U-Boot");
+		unicode_collation_protocol, c, u"Da[q-v] U-Boot");
 	if (!ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"Da? U-Boot");
+		unicode_collation_protocol, c, u"Da? U-Boot");
 	if (!ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"D*Bo*t");
+		unicode_collation_protocol, c, u"D*Bo*t");
 	if (!ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"Da[xyz] U-Boot");
+		unicode_collation_protocol, c, u"Da[xyz] U-Boot");
 	if (ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"Da[a-d] U-Boot");
+		unicode_collation_protocol, c, u"Da[a-d] U-Boot");
 	if (ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"Da?? U-Boot");
+		unicode_collation_protocol, c, u"Da?? U-Boot");
 	if (ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
 	}
 
 	ret = unicode_collation_protocol->metai_match(
-		unicode_collation_protocol, c, L"D*Bo*tt");
+		unicode_collation_protocol, c, u"D*Bo*tt");
 	if (ret) {
 		efi_st_error("metai_match returned %u\n", ret);
 		return EFI_ST_FAILURE;
@@ -148,7 +148,7 @@ static int test_metai_match(void)
 
 static int test_str_lwr(void)
 {
-	u16 c[] = L"U-Boot";
+	u16 c[] = u"U-Boot";
 
 	unicode_collation_protocol->str_lwr(unicode_collation_protocol, c);
 	if (efi_st_strcmp_16_8(c, "u-boot")) {
@@ -161,7 +161,7 @@ static int test_str_lwr(void)
 
 static int test_str_upr(void)
 {
-	u16 c[] = L"U-Boot";
+	u16 c[] = u"U-Boot";
 
 	unicode_collation_protocol->str_upr(unicode_collation_protocol, c);
 	if (efi_st_strcmp_16_8(c, "U-BOOT")) {
@@ -194,16 +194,16 @@ static int test_str_to_fat(void)
 
 	boottime->set_mem(fat, sizeof(fat), 0);
 	ret = unicode_collation_protocol->str_to_fat(unicode_collation_protocol,
-						     L"U -Boo.t", 6, fat);
-	if (ret || efi_st_strcmp_16_8(L"U-BOOT", fat)) {
+						     u"U -Boo.t", 6, fat);
+	if (ret || efi_st_strcmp_16_8(u"U-BOOT", fat)) {
 		efi_st_error("str_to_fat returned %u, \"%s\"\n", ret, fat);
 		return EFI_ST_FAILURE;
 	}
 
 	boottime->set_mem(fat, 16, 0);
 	ret = unicode_collation_protocol->str_to_fat(unicode_collation_protocol,
-						     L"U\\Boot", 6, fat);
-	if (!ret || efi_st_strcmp_16_8(L"U_BOOT", fat)) {
+						     u"U\\Boot", 6, fat);
+	if (!ret || efi_st_strcmp_16_8(u"U_BOOT", fat)) {
 		efi_st_error("str_to_fat returned %u, \"%s\"\n", ret, fat);
 		return EFI_ST_FAILURE;
 	}

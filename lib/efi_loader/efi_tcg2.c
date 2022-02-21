@@ -1916,8 +1916,8 @@ static efi_status_t tcg2_measure_boot_variable(struct udevice *dev)
 {
 	u16 *boot_order;
 	u16 *boot_index;
-	u16 var_name[] = L"BootOrder";
-	u16 boot_name[] = L"Boot####";
+	u16 var_name[] = u"BootOrder";
+	u16 boot_name[] = u"Boot####";
 	u8 *bootvar;
 	efi_uintn_t var_data_size;
 	u32 count, i;

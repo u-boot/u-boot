@@ -147,16 +147,6 @@ struct bloblist_rec {
 	u32 spare;
 };
 
-/* access CONFIG_BLOBLIST_ADDR, dealing with it possibly not being defined */
-static inline ulong bloblist_addr(void)
-{
-#ifdef CONFIG_BLOBLIST_FIXED
-	return CONFIG_BLOBLIST_ADDR;
-#else
-	return 0;
-#endif
-}
-
 /**
  * bloblist_check_magic() - return a bloblist if the magic matches
  *

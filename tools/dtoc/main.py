@@ -55,17 +55,17 @@ def run_tests(processes, args):
 
     test_dtoc.setup()
 
-    test_util.RunTestSuites(
+    test_util.run_test_suites(
         result, debug=True, verbosity=1, test_preserve_dirs=False,
         processes=processes, test_name=test_name, toolpath=[],
-        test_class_list=[test_dtoc.TestDtoc,test_src_scan.TestSrcScan])
+        class_and_module_list=[test_dtoc.TestDtoc,test_src_scan.TestSrcScan])
 
-    return test_util.ReportResult('binman', test_name, result)
+    return test_util.report_result('binman', test_name, result)
 
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
     sys.argv = [sys.argv[0]]
-    test_util.RunTestCoverage('tools/dtoc/dtoc', '/main.py',
+    test_util.run_test_coverage('tools/dtoc/dtoc', '/main.py',
             ['tools/patman/*.py', '*/fdt*', '*test*'], args.build_dir)
 
 

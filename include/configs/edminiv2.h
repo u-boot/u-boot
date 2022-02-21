@@ -110,20 +110,12 @@
 #ifdef CONFIG_IDE
 #define __io
 /* Data, registers and alternate blocks are at the same offset */
-#define CONFIG_SYS_ATA_DATA_OFFSET	(0x0100)
-#define CONFIG_SYS_ATA_REG_OFFSET	(0x0100)
-#define CONFIG_SYS_ATA_ALT_OFFSET	(0x0100)
 /* Each 8-bit ATA register is aligned to a 4-bytes address */
-#define CONFIG_SYS_ATA_STRIDE		4
 /* Controller supports 48-bits LBA addressing */
 #define CONFIG_LBA48
 /* A single bus, a single device */
-#define CONFIG_SYS_IDE_MAXBUS		1
-#define CONFIG_SYS_IDE_MAXDEVICE	1
 /* ATA registers base is at SATA controller base */
-#define CONFIG_SYS_ATA_BASE_ADDR	ORION5X_SATA_BASE
 /* ATA bus 0 is orion5x port 1 on ED Mini V2 */
-#define CONFIG_SYS_ATA_IDE0_OFFSET	ORION5X_SATA_PORT1_OFFSET
 /* end of IDE defines */
 #endif /* CMD_IDE */
 

@@ -13,6 +13,8 @@ def ParseArgs():
             args: command lin arguments
     """
     parser = OptionParser()
+    parser.add_option('-a', '--adjust-cfg', type=str, action='append',
+          help='Adjust the Kconfig settings in .config before building')
     parser.add_option('-A', '--print-prefix', action='store_true',
           help='Print the tool-chain prefix for a board (CROSS_COMPILE=)')
     parser.add_option('-b', '--branch', type='string',
@@ -32,6 +34,8 @@ def ParseArgs():
           help='Show detailed size delta for each board in the -S summary')
     parser.add_option('-D', '--config-only', action='store_true', default=False,
           help="Don't build, just configure each commit")
+    parser.add_option('--debug', action='store_true',
+        help='Enabling debugging (provides a full traceback on error)')
     parser.add_option('-e', '--show_errors', action='store_true',
           default=False, help='Show errors and warnings')
     parser.add_option('-E', '--warnings-as-errors', action='store_true',

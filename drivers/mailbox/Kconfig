@@ -10,6 +10,17 @@ config DM_MAILBOX
 	  the basis of a variety of inter-process/inter-CPU communication
 	  protocols.
 
+config APPLE_MBOX
+	bool "Enable Apple IOP controller support"
+	depends on DM_MAILBOX && ARCH_APPLE
+	default y
+	help
+	  Enable support for the mailboxes that provide a comminucation
+	  channel with Apple IOP controllers integrated on Apple SoCs.
+	  These IOP controllers are used to implement various functions
+	  such as the System Management Controller (SMC) and NVMe and this
+	  driver is required to get that functionality up and running.
+
 config SANDBOX_MBOX
 	bool "Enable the sandbox mailbox test driver"
 	depends on DM_MAILBOX && SANDBOX

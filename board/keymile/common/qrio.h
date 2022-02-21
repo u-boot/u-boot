@@ -12,6 +12,8 @@
 #define QRIO_GPIO_B		0x60
 
 void show_qrio(void);
+bool qrio_get_selftest_pin(void);
+bool qrio_get_pgy_pres_pin(void);
 int qrio_get_gpio(u8 port_off, u8 gpio_nr);
 void qrio_set_opendrain_gpio(u8 port_off, u8 gpio_nr, u8 val);
 void qrio_set_gpio(u8 port_off, u8 gpio_nr, bool value);

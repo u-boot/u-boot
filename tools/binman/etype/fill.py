@@ -31,5 +31,5 @@ class Entry_fill(Entry):
         self.fill_value = fdt_util.GetByte(self._node, 'fill-byte', 0)
 
     def ObtainContents(self):
-        self.SetContents(tools.GetBytes(self.fill_value, self.size))
+        self.SetContents(tools.get_bytes(self.fill_value, self.size))
         return True

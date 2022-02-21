@@ -769,6 +769,7 @@ const struct efi_device_path *efi_dp_last_node(
 efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 				    struct efi_device_path **device_path,
 				    struct efi_device_path **file_path);
+struct efi_device_path *efi_dp_from_uart(void);
 efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      const char *path,
 			      struct efi_device_path **device,
@@ -974,7 +975,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule,
 				      efi_uintn_t capsule_size,
 				      void **image, efi_uintn_t *image_size);
 
-#define EFI_CAPSULE_DIR L"\\EFI\\UpdateCapsule\\"
+#define EFI_CAPSULE_DIR u"\\EFI\\UpdateCapsule\\"
 
 /**
  * Install the ESRT system table.

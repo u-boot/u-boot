@@ -10,7 +10,6 @@
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>
 
-#define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_MEMAC
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
@@ -110,13 +109,8 @@
 /* SATA */
 
 #ifdef CONFIG_SCSI
-#define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SATA1		AHCI_BASE_ADDR1
 #define CONFIG_SYS_SATA2		AHCI_BASE_ADDR2
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-					CONFIG_SYS_SCSI_MAX_LUN)
 #endif
 
 /* USB */

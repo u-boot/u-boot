@@ -278,11 +278,20 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
 F:	arch/arm/mach-mvebu/
 F:	drivers/ata/ahci_mvebu.c
+F:	drivers/clk/mvebu/
 F:	drivers/ddr/marvell/
 F:	drivers/gpio/mvebu_gpio.c
+F:	drivers/i2c/mvtwsi.c
+F:	drivers/mmc/xenon_sdhci.c
+F:	drivers/phy/marvell/
+F:	drivers/pinctrl/mvebu/
+F:	drivers/rtc/armada38x.c
 F:	drivers/spi/kirkwood_spi.c
+F:	drivers/spi/mvebu_a3700_spi.c
 F:	drivers/pci/pcie_dw_mvebu.c
+F:	drivers/watchdog/armada-37xx-wdt.c
 F:	drivers/watchdog/orion_wdt.c
+F:	include/configs/mv-common.h
 
 ARM MARVELL PCIE CONTROLLER DRIVERS
 M:	Pali Rohár <pali@kernel.org>
@@ -520,6 +529,8 @@ ARM TI
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-ti.git
+F:	arch/arm/dts/am57xx*
+F:	arch/arm/dts/dra7*
 F:	arch/arm/mach-davinci/
 F:	arch/arm/mach-k3/
 F:	arch/arm/mach-keystone/
@@ -539,9 +550,11 @@ F:	drivers/phy/omap-usb2-phy.c
 F:	drivers/phy/phy-ti-am654.c
 F:	drivers/phy/ti-pipe3-phy.c
 F:	drivers/ram/k3*
+F:	drivers/remoteproc/ipu_rproc.c
 F:	drivers/remoteproc/k3_system_controller.c
 F:	drivers/remoteproc/pruc_rpoc.c
 F:	drivers/remoteproc/ti*
+F:	drivers/reset/reset-dra7.c
 F:	drivers/reset/reset-ti-sci.c
 F:	drivers/rtc/davinci.c
 F:	drivers/serial/serial_omap.c
@@ -749,6 +762,7 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
 F:	doc/api/efi.rst
 F:	doc/develop/uefi/*
+F:	doc/mkeficapsule.1
 F:	doc/usage/bootefi.rst
 F:	drivers/rtc/emul_rtc.c
 F:	include/capitalization.h

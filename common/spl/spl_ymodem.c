@@ -42,6 +42,7 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 	int res, err, buf_offset;
 	struct ymodem_fit_info *info = load->priv;
 	char *buf = info->buf;
+	ulong copy_size = size;
 
 	while (info->image_read < offset) {
 		res = xyzModem_stream_read(buf, BUF_SIZE, &err);
@@ -57,8 +58,14 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 			buf_offset = (info->image_read % BUF_SIZE);
 		else
 			buf_offset = BUF_SIZE;
+
+		if (res > copy_size) {
+			memcpy(addr, &buf[buf_offset - res], copy_size);
+			goto done;
+		}
 		memcpy(addr, &buf[buf_offset - res], res);
 		addr = addr + res;
+		copy_size -= res;
 	}
 
 	while (info->image_read < offset + size) {
@@ -66,11 +73,17 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 		if (res <= 0)
 			break;
 
-		memcpy(addr, buf, res);
 		info->image_read += res;
+		if (res > copy_size) {
+			memcpy(addr, buf, copy_size);
+			goto done;
+		}
+		memcpy(addr, buf, res);
 		addr += res;
+		copy_size -= res;
 	}
 
+done:
 	return size;
 }
 

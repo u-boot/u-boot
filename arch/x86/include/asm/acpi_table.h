@@ -34,7 +34,6 @@ int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 u32 acpi_fill_madt(u32 current);
 int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
 			      u16 seg_nr, u8 start, u8 end);
-u32 acpi_fill_mcfg(u32 current);
 
 /**
  * acpi_write_hpet() - Write out a HPET table
@@ -64,8 +63,6 @@ int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
  * Return: 0 if OK, -ve on error
  */
 int acpi_create_gnvs(struct acpi_global_nvs *gnvs);
-
-ulong write_acpi_tables(ulong start);
 
 /**
  * acpi_get_rsdp_addr() - get ACPI RSDP table address

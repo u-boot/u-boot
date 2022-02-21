@@ -9,11 +9,12 @@ from collections import defaultdict, OrderedDict
 import libfdt
 
 from binman.entry import Entry, EntryArg
+from binman.etype.section import Entry_section
 from dtoc import fdt_util
 from dtoc.fdt import Fdt
 from patman import tools
 
-class Entry_fit(Entry):
+class Entry_fit(Entry_section):
     """Flat Image Tree (FIT)
 
     This calls mkimage to create a FIT (U-Boot Flat Image Tree) based on the
@@ -112,15 +113,15 @@ class Entry_fit(Entry):
         """
         Members:
             _fit: FIT file being built
-            _fit_sections: dict:
+            _entries: dict from Entry_section:
                 key: relative path to entry Node (from the base of the FIT)
                 value: Entry_section object comprising the contents of this
                     node
         """
         super().__init__(section, etype, node)
         self._fit = None
-        self._fit_sections = {}
         self._fit_props = {}
+
         for pname, prop in self._node.props.items():
             if pname.startswith('fit,'):
                 self._fit_props[pname] = prop
@@ -185,7 +186,7 @@ class Entry_fit(Entry):
                 # 'data' property later.
                 entry = Entry.Create(self.section, node, etype='section')
                 entry.ReadNode()
-                self._fit_sections[rel_path] = entry
+                self._entries[rel_path] = entry
 
             for subnode in node.subnodes:
                 if has_images and not (subnode.name.startswith('hash') or
@@ -200,19 +201,19 @@ class Entry_fit(Entry):
                         for seq, fdt_fname in enumerate(self._fdts):
                             node_name = subnode.name[1:].replace('SEQ',
                                                                  str(seq + 1))
-                            fname = tools.GetInputFilename(fdt_fname + '.dtb')
+                            fname = tools.get_input_filename(fdt_fname + '.dtb')
                             with fsw.add_node(node_name):
                                 for pname, prop in subnode.props.items():
                                     val = prop.bytes.replace(
-                                        b'NAME', tools.ToBytes(fdt_fname))
+                                        b'NAME', tools.to_bytes(fdt_fname))
                                     val = val.replace(
-                                        b'SEQ', tools.ToBytes(str(seq + 1)))
+                                        b'SEQ', tools.to_bytes(str(seq + 1)))
                                     fsw.property(pname, val)
 
                                 # Add data for 'fdt' nodes (but not 'config')
                                 if depth == 1 and in_images:
                                     fsw.property('data',
-                                                 tools.ReadFile(fname))
+                                                 tools.read_file(fname))
                     else:
                         if self._fdts is None:
                             if self._fit_list_prop:
@@ -237,19 +238,25 @@ class Entry_fit(Entry):
         self._fdt = Fdt.FromData(fdt.as_bytearray())
         self._fdt.Scan()
 
-    def ObtainContents(self):
-        """Obtain the contents of the FIT
+    def BuildSectionData(self, required):
+        """Build FIT entry contents
 
         This adds the 'data' properties to the input ITB (Image-tree Binary)
         then runs mkimage to process it.
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
+
+        Returns:
+            Contents of the section (bytes)
         """
-        # self._BuildInput() either returns bytes or raises an exception.
         data = self._BuildInput(self._fdt)
         uniq = self.GetUniqueName()
-        input_fname = tools.GetOutputFilename('%s.itb' % uniq)
-        output_fname = tools.GetOutputFilename('%s.fit' % uniq)
-        tools.WriteFile(input_fname, data)
-        tools.WriteFile(output_fname, data)
+        input_fname = tools.get_output_filename('%s.itb' % uniq)
+        output_fname = tools.get_output_filename('%s.fit' % uniq)
+        tools.write_file(input_fname, data)
+        tools.write_file(output_fname, data)
 
         args = {}
         ext_offset = self._fit_props.get('fit,external-offset')
@@ -259,14 +266,12 @@ class Entry_fit(Entry):
                 'pad': fdt_util.fdt32_to_cpu(ext_offset.value)
                 }
         if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
-                            **args) is not None:
-            self.SetContents(tools.ReadFile(output_fname))
-        else:
+                            **args) is None:
             # Bintool is missing; just use empty data as the output
             self.record_missing_bintool(self.mkimage)
-            self.SetContents(tools.GetBytes(0, 1024))
+            return tools.get_bytes(0, 1024)
 
-        return True
+        return tools.read_file(output_fname)
 
     def _BuildInput(self, fdt):
         """Finish the FIT by adding the 'data' properties to it
@@ -277,12 +282,8 @@ class Entry_fit(Entry):
         Returns:
             New fdt contents (bytes)
         """
-        for path, section in self._fit_sections.items():
+        for path, section in self._entries.items():
             node = fdt.GetNode(path)
-            # Entry_section.ObtainContents() either returns True or
-            # raises an exception.
-            section.ObtainContents()
-            section.Pack(0)
             data = section.GetData()
             node.AddData('data', data)
 
@@ -290,20 +291,16 @@ class Entry_fit(Entry):
         data = fdt.GetContents()
         return data
 
-    def CheckMissing(self, missing_list):
-        """Check if any entries in this FIT have missing external blobs
-
-        If there are missing blobs, the entries are added to the list
-
-        Args:
-            missing_list: List of Entry objects to be added to
-        """
-        for path, section in self._fit_sections.items():
-            section.CheckMissing(missing_list)
-
-    def SetAllowMissing(self, allow_missing):
-        for section in self._fit_sections.values():
-            section.SetAllowMissing(allow_missing)
-
     def AddBintools(self, tools):
+        super().AddBintools(tools)
         self.mkimage = self.AddBintool(tools, 'mkimage')
+
+    def AddMissingProperties(self, have_image_pos):
+        # We don't want to interfere with any hash properties in the FIT, so
+        # disable this for now.
+        pass
+
+    def SetCalculatedProperties(self):
+        # We don't want to interfere with any hash properties in the FIT, so
+        # disable this for now.
+        pass

@@ -306,13 +306,45 @@ static int bd71837_set_enable(struct udevice *dev, bool enable)
 	 * reseted to snvs state. Hence we can't set the state here.
 	 */
 	if (plat->enablemask == HW_STATE_CONTROL)
-		return -EINVAL;
+		return enable ? 0 : -EINVAL;
 
 	if (enable)
 		val = plat->enablemask;
 
 	return pmic_clrsetbits(dev->parent, plat->enable_reg, plat->enablemask,
 			       val);
+}
+
+static int bd71837_get_value(struct udevice *dev)
+{
+	unsigned int reg, range;
+	unsigned int tmp;
+	struct bd71837_plat *plat = dev_get_plat(dev);
+	int i;
+
+	reg = pmic_reg_read(dev->parent, plat->volt_reg);
+	if (((int)reg) < 0)
+		return reg;
+
+	range = reg & plat->rangemask;
+
+	reg &= plat->volt_mask;
+	reg >>= ffs(plat->volt_mask) - 1;
+
+	for (i = 0; i < plat->numranges; i++) {
+		struct bd71837_vrange *r = &plat->ranges[i];
+
+		if (plat->rangemask && ((plat->rangemask & range) !=
+		    r->rangeval))
+			continue;
+
+		if (!vrange_find_value(r, reg, &tmp))
+			return tmp;
+	}
+
+	pr_err("Unknown voltage value read from pmic\n");
+
+	return -EINVAL;
 }
 
 static int bd71837_set_value(struct udevice *dev, int uvolt)
@@ -330,6 +362,9 @@ static int bd71837_set_value(struct udevice *dev, int uvolt)
 	 */
 	if (!plat->dvs)
 		if (bd71837_get_enable(dev)) {
+			/* If the value is already set, skip the warning. */
+			if (bd71837_get_value(dev) == uvolt)
+				return 0;
 			pr_err("Only DVS bucks can be changed when enabled\n");
 			return -EINVAL;
 		}
@@ -363,38 +398,6 @@ static int bd71837_set_value(struct udevice *dev, int uvolt)
 
 	return pmic_clrsetbits(dev->parent, plat->volt_reg, plat->volt_mask |
 			       plat->rangemask, sel);
-}
-
-static int bd71837_get_value(struct udevice *dev)
-{
-	unsigned int reg, range;
-	unsigned int tmp;
-	struct bd71837_plat *plat = dev_get_plat(dev);
-	int i;
-
-	reg = pmic_reg_read(dev->parent, plat->volt_reg);
-	if (((int)reg) < 0)
-		return reg;
-
-	range = reg & plat->rangemask;
-
-	reg &= plat->volt_mask;
-	reg >>= ffs(plat->volt_mask) - 1;
-
-	for (i = 0; i < plat->numranges; i++) {
-		struct bd71837_vrange *r = &plat->ranges[i];
-
-		if (plat->rangemask && ((plat->rangemask & range) !=
-		    r->rangeval))
-			continue;
-
-		if (!vrange_find_value(r, reg, &tmp))
-			return tmp;
-	}
-
-	pr_err("Unknown voltage value read from pmic\n");
-
-	return -EINVAL;
 }
 
 static int bd71837_regulator_probe(struct udevice *dev)

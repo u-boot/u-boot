@@ -244,9 +244,29 @@ int intpll_configure(enum pll_clocks pll, ulong freq)
 			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(1);
 		break;
 	case MHZ(1200):
-		/* 24 * 0xc8 / 2 / 2 ^ 1 */
+		/* 24 * 0x12c / 3 / 2 ^ 1 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0x12c) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(1);
+		break;
+	case MHZ(1400):
+		/* 24 * 0x15e / 3 / 2 ^ 1 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0x15e) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(1);
+		break;
+	case MHZ(1500):
+		/* 24 * 0x177 / 3 / 2 ^ 1 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0x177) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(1);
+		break;
+	case MHZ(1600):
+		/* 24 * 0xc8 / 3 / 2 ^ 0 */
 		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0xc8) |
-			INTPLL_PRE_DIV_VAL(2) | INTPLL_POST_DIV_VAL(1);
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(0);
+		break;
+	case MHZ(1800):
+		/* 24 * 0xe1 / 3 / 2 ^ 0 */
+		pll_div_ctl_val = INTPLL_MAIN_DIV_VAL(0xe1) |
+			INTPLL_PRE_DIV_VAL(3) | INTPLL_POST_DIV_VAL(0);
 		break;
 	case MHZ(2000):
 		/* 24 * 0xfa / 3 / 2 ^ 0 */

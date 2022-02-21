@@ -31,14 +31,17 @@
 #include <linux/err.h>
 #include <power/acpi_pmc.h>
 
-u32 acpi_fill_mcfg(u32 current)
+int acpi_fill_mcfg(struct acpi_ctx *ctx)
 {
+	size_t size;
+
 	/* PCI Segment Group 0, Start Bus Number 0, End Bus Number is 255 */
-	current += acpi_create_mcfg_mmconfig((void *)current,
-					     CONFIG_MMCONF_BASE_ADDRESS, 0, 0,
-					     (CONFIG_SA_PCIEX_LENGTH >> 20)
-					     - 1);
-	return current;
+	size = acpi_create_mcfg_mmconfig((void *)ctx->current,
+					 CONFIG_MMCONF_BASE_ADDRESS, 0, 0,
+					 (CONFIG_SA_PCIEX_LENGTH >> 20) - 1);
+	acpi_inc(ctx, size);
+
+	return 0;
 }
 
 static int acpi_sci_irq(void)

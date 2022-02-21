@@ -58,11 +58,11 @@ class Entry_intel_ifwi(Entry_blob_ext):
         # Create the IFWI file if needed
         if self._convert_fit:
             inname = self._pathname
-            outname = tools.GetOutputFilename('ifwi.bin')
+            outname = tools.get_output_filename('ifwi.bin')
             if self.ifwitool.create_ifwi(inname, outname) is None:
                 # Bintool is missing; just create a zeroed ifwi.bin
                 self.record_missing_bintool(self.ifwitool)
-                self.SetContents(tools.GetBytes(0, 1024))
+                self.SetContents(tools.get_bytes(0, 1024))
 
             self._filename = 'ifwi.bin'
             self._pathname = outname
@@ -74,15 +74,15 @@ class Entry_intel_ifwi(Entry_blob_ext):
         if self.ifwitool.delete_subpart(outname, 'OBBP') is None:
             # Bintool is missing; just use zero data
             self.record_missing_bintool(self.ifwitool)
-            self.SetContents(tools.GetBytes(0, 1024))
+            self.SetContents(tools.get_bytes(0, 1024))
             return True
 
         for entry in self._ifwi_entries.values():
             # First get the input data and put it in a file
             data = entry.GetPaddedData()
             uniq = self.GetUniqueName()
-            input_fname = tools.GetOutputFilename('input.%s' % uniq)
-            tools.WriteFile(input_fname, data)
+            input_fname = tools.get_output_filename('input.%s' % uniq)
+            tools.write_file(input_fname, data)
 
             # At this point we know that ifwitool is present, so we don't need
             # to check for None here
@@ -107,7 +107,7 @@ class Entry_intel_ifwi(Entry_blob_ext):
         After that we delete the OBBP sub-partition and add each of the files
         that we want in the IFWI file, one for each sub-entry of the IWFI node.
         """
-        self._pathname = tools.GetInputFilename(self._filename,
+        self._pathname = tools.get_input_filename(self._filename,
                                                 self.section.GetAllowMissing())
         # Allow the file to be missing
         if not self._pathname:

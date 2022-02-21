@@ -68,7 +68,7 @@ quiet_cmd_u_boot_cfg = CFG     $@
       cmd_u_boot_cfg = \
 	$(CPP) $(c_flags) $2 -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && { \
 		grep 'define CONFIG_' $@.tmp | \
-			sed '/define CONFIG_IS_ENABLED(/d;/define CONFIG_VAL(/d;' > $@; \
+			sed '/define CONFIG_IS_ENABLED(/d;/define CONFIG_IF_ENABLED_INT(/d;/define CONFIG_VAL(/d;' > $@; \
 		rm $@.tmp;						\
 	} || {								\
 		rm $@.tmp; false;					\

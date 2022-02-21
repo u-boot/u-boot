@@ -77,6 +77,12 @@ void spl_board_init(void)
 
 	/* After AP set iomuxc0, the i2c can't work, Need M33 to set it now */
 
+	/* Load the lposc fuse for single boot to work around ROM issue,
+	 *  The fuse depends on S400 to read.
+	 */
+	if (is_soc_rev(CHIP_REV_1_0) && get_boot_mode() == SINGLE_BOOT)
+		load_lposc_fuse();
+
 	upower_init();
 
 	power_init_board();
@@ -90,6 +96,9 @@ void spl_board_init(void)
 
 	/* Init XRDC MRC for VIDEO, DSP domains */
 	xrdc_init_mrc();
+
+	/* Call it after PS16 power up */
+	set_lpav_qos();
 }
 
 void board_init_f(ulong dummy)

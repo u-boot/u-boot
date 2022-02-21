@@ -111,7 +111,7 @@ class Image(section.Entry_section):
         Raises:
             ValueError if something goes wrong
         """
-        data = tools.ReadFile(fname)
+        data = tools.read_file(fname)
         size = len(data)
 
         # First look for an image header
@@ -128,8 +128,8 @@ class Image(section.Entry_section):
         dtb_size = probe_dtb.GetFdtObj().totalsize()
         fdtmap_data = data[pos:pos + dtb_size + fdtmap.FDTMAP_HDR_LEN]
         fdt_data = fdtmap_data[fdtmap.FDTMAP_HDR_LEN:]
-        out_fname = tools.GetOutputFilename('fdtmap.in.dtb')
-        tools.WriteFile(out_fname, fdt_data)
+        out_fname = tools.get_output_filename('fdtmap.in.dtb')
+        tools.write_file(out_fname, fdt_data)
         dtb = fdt.Fdt(out_fname)
         dtb.Scan()
 
@@ -174,12 +174,12 @@ class Image(section.Entry_section):
 
     def BuildImage(self):
         """Write the image to a file"""
-        fname = tools.GetOutputFilename(self._filename)
-        tout.Info("Writing image to '%s'" % fname)
+        fname = tools.get_output_filename(self._filename)
+        tout.info("Writing image to '%s'" % fname)
         with open(fname, 'wb') as fd:
             data = self.GetPaddedData()
             fd.write(data)
-        tout.Info("Wrote %#x bytes" % len(data))
+        tout.info("Wrote %#x bytes" % len(data))
 
     def WriteMap(self):
         """Write a map of the image to a .map file
@@ -188,7 +188,7 @@ class Image(section.Entry_section):
             Filename of map file written
         """
         filename = '%s.map' % self.image_name
-        fname = tools.GetOutputFilename(filename)
+        fname = tools.get_output_filename(filename)
         with open(fname, 'w') as fd:
             print('%8s  %8s  %8s  %s' % ('ImagePos', 'Offset', 'Size', 'Name'),
                   file=fd)
@@ -230,7 +230,7 @@ class Image(section.Entry_section):
         return entry
 
     def ReadData(self, decomp=True, alt_format=None):
-        tout.Debug("Image '%s' ReadData(), size=%#x" %
+        tout.debug("Image '%s' ReadData(), size=%#x" %
                    (self.GetPath(), len(self._data)))
         return self._data
 

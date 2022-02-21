@@ -43,11 +43,11 @@ class TestSrcScan(unittest.TestCase):
     """Tests for src_scan"""
     @classmethod
     def setUpClass(cls):
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
     @classmethod
     def tearDownClass(cls):
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     def test_simple(self):
         """Simple test of scanning drivers"""
@@ -113,7 +113,7 @@ class TestSrcScan(unittest.TestCase):
             pathname = os.path.join(indir, fname)
             dirname = os.path.dirname(pathname)
             os.makedirs(dirname, exist_ok=True)
-            tools.WriteFile(pathname, '', binary=False)
+            tools.write_file(pathname, '', binary=False)
             fname_list.append(pathname)
 
         try:
@@ -142,7 +142,7 @@ class TestSrcScan(unittest.TestCase):
     def test_scan(self):
         """Test scanning of a driver"""
         fname = os.path.join(OUR_PATH, '..', '..', 'drivers/i2c/tegra_i2c.c')
-        buff = tools.ReadFile(fname, False)
+        buff = tools.read_file(fname, False)
         scan = src_scan.Scanner(None, None)
         scan._parse_driver(fname, buff)
         self.assertIn('i2c_tegra', scan._drivers)
@@ -374,8 +374,8 @@ struct another_struct {
 
     def test_struct_scan_errors(self):
         """Test scanning a header file with an invalid unicode file"""
-        output = tools.GetOutputFilename('output.h')
-        tools.WriteFile(output, b'struct this is a test \x81 of bad unicode')
+        output = tools.get_output_filename('output.h')
+        tools.write_file(output, b'struct this is a test \x81 of bad unicode')
 
         scan = src_scan.Scanner(None, None)
         with test_util.capture_sys_output() as (stdout, _):

@@ -50,6 +50,13 @@ config ALTERA_SPI
 	  IP core. Please find details on the "Embedded Peripherals IP
 	  User Guide" of Altera.
 
+config APPLE_SPI
+	bool "Apple SPI driver"
+	default y if ARCH_APPLE
+	help
+	  Enable the Apple SPI driver. This driver can be used to
+	  access the SPI flash and keyboard on machines based on Apple SoCs.
+
 config ATCSPI200_SPI
 	bool "Andestech ATCSPI200 SPI driver"
 	help

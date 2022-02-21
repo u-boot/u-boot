@@ -39,7 +39,7 @@ class Entry_u_boot_spl_expanded(Entry_blob_phase):
     @classmethod
     def UseExpanded(cls, node, etype, new_etype):
         val = state.GetEntryArgBool('spl-dtb')
-        tout.DoOutput(tout.INFO if val else tout.DETAIL,
+        tout.do_output(tout.INFO if val else tout.DETAIL,
                       "Node '%s': etype '%s': %s %sselected" %
                       (node.path, etype, new_etype, '' if val else 'not '))
         return val

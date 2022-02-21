@@ -9,8 +9,6 @@
 
 #include <linux/stringify.h>
 
-#define CONFIG_REMAKE_ELF
-
 /* Link Definitions */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)

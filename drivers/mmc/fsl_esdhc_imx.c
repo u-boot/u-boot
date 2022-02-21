@@ -336,9 +336,8 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_SYS_FSL_ESDHC_USE_PIO))
-		esdhc_setup_watermark_level(priv, data);
-	else
+	esdhc_setup_watermark_level(priv, data);
+	if (!IS_ENABLED(CONFIG_SYS_FSL_ESDHC_USE_PIO))
 		esdhc_setup_dma(priv, data);
 
 	/* Calculate the timeout period for data transactions */
@@ -453,7 +452,7 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 	/* Send the command */
 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
-	if IS_ENABLED(CONFIG_FSL_USDHC) {
+	if (IS_ENABLED(CONFIG_FSL_USDHC)) {
 		u32 mixctrl = esdhc_read32(&regs->mixctrl);
 
 		esdhc_write32(&regs->mixctrl,

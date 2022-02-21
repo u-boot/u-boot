@@ -80,7 +80,7 @@ class TestBintool(unittest.TestCase):
 
         Args:
             fake_download (function): Function to call instead of
-                tools.Download()
+                tools.download()
             method (bintool.FETCH_...: Fetch method to use
 
         Returns:
@@ -88,7 +88,7 @@ class TestBintool(unittest.TestCase):
         """
         btest = Bintool.create('_testing')
         col = terminal.Color()
-        with unittest.mock.patch.object(tools, 'Download',
+        with unittest.mock.patch.object(tools, 'download',
                                         side_effect=fake_download):
             with test_util.capture_sys_output() as (stdout, _):
                 btest.fetch_tool(method, col, False)
@@ -97,7 +97,7 @@ class TestBintool(unittest.TestCase):
     def test_fetch_url_err(self):
         """Test an error while fetching a tool from a URL"""
         def fail_download(url):
-            """Take the tools.Download() function by raising an exception"""
+            """Take the tools.download() function by raising an exception"""
             raise urllib.error.URLError('my error')
 
         stdout = self.check_fetch_url(fail_download, bintool.FETCH_ANY)
@@ -114,7 +114,7 @@ class TestBintool(unittest.TestCase):
     def test_fetch_method(self):
         """Test fetching using a particular method"""
         def fail_download(url):
-            """Take the tools.Download() function by raising an exception"""
+            """Take the tools.download() function by raising an exception"""
             raise urllib.error.URLError('my error')
 
         stdout = self.check_fetch_url(fail_download, bintool.FETCH_BIN)
@@ -123,11 +123,11 @@ class TestBintool(unittest.TestCase):
     def test_fetch_pass_fail(self):
         """Test fetching multiple tools with some passing and some failing"""
         def handle_download(_):
-            """Take the tools.Download() function by writing a file"""
+            """Take the tools.download() function by writing a file"""
             if self.seq:
                 raise urllib.error.URLError('not found')
             self.seq += 1
-            tools.WriteFile(fname, expected)
+            tools.write_file(fname, expected)
             return fname, dirname
 
         expected = b'this is a test'
@@ -140,12 +140,12 @@ class TestBintool(unittest.TestCase):
         self.seq = 0
 
         with unittest.mock.patch.object(bintool, 'DOWNLOAD_DESTDIR', destdir):
-            with unittest.mock.patch.object(tools, 'Download',
+            with unittest.mock.patch.object(tools, 'download',
                                             side_effect=handle_download):
                 with test_util.capture_sys_output() as (stdout, _):
                     Bintool.fetch_tools(bintool.FETCH_ANY, ['_testing'] * 2)
         self.assertTrue(os.path.exists(dest_fname))
-        data = tools.ReadFile(dest_fname)
+        data = tools.read_file(dest_fname)
         self.assertEqual(expected, data)
 
         lines = stdout.getvalue().splitlines()
@@ -245,14 +245,14 @@ class TestBintool(unittest.TestCase):
                 tmpdir = cmd[2]
                 self.fname = os.path.join(tmpdir, 'pathname')
                 if write_file:
-                    tools.WriteFile(self.fname, b'hello')
+                    tools.write_file(self.fname, b'hello')
 
         btest = Bintool.create('_testing')
         col = terminal.Color()
         self.fname = None
         with unittest.mock.patch.object(bintool, 'DOWNLOAD_DESTDIR',
                                         self._indir):
-            with unittest.mock.patch.object(tools, 'Run', side_effect=fake_run):
+            with unittest.mock.patch.object(tools, 'run', side_effect=fake_run):
                 with test_util.capture_sys_output() as (stdout, _):
                     btest.fetch_tool(bintool.FETCH_BUILD, col, False)
         fname = os.path.join(self._indir, '_testing')
@@ -275,7 +275,7 @@ class TestBintool(unittest.TestCase):
         btest = Bintool.create('_testing')
         btest.install = True
         col = terminal.Color()
-        with unittest.mock.patch.object(tools, 'Run', return_value=None):
+        with unittest.mock.patch.object(tools, 'run', return_value=None):
             with test_util.capture_sys_output() as _:
                 result = btest.fetch_tool(bintool.FETCH_BIN, col, False)
         self.assertEqual(bintool.FETCHED, result)
@@ -292,8 +292,8 @@ class TestBintool(unittest.TestCase):
     def test_all_bintools(self):
         """Test that all bintools can handle all available fetch types"""
         def handle_download(_):
-            """Take the tools.Download() function by writing a file"""
-            tools.WriteFile(fname, expected)
+            """Take the tools.download() function by writing a file"""
+            tools.write_file(fname, expected)
             return fname, dirname
 
         def fake_run(*cmd):
@@ -301,15 +301,15 @@ class TestBintool(unittest.TestCase):
                 # See Bintool.build_from_git()
                 tmpdir = cmd[2]
                 self.fname = os.path.join(tmpdir, 'pathname')
-                tools.WriteFile(self.fname, b'hello')
+                tools.write_file(self.fname, b'hello')
 
         expected = b'this is a test'
         dirname = os.path.join(self._indir, 'download_dir')
         os.mkdir(dirname)
         fname = os.path.join(dirname, 'downloaded')
 
-        with unittest.mock.patch.object(tools, 'Run', side_effect=fake_run):
-            with unittest.mock.patch.object(tools, 'Download',
+        with unittest.mock.patch.object(tools, 'run', side_effect=fake_run):
+            with unittest.mock.patch.object(tools, 'download',
                                             side_effect=handle_download):
                 with test_util.capture_sys_output() as _:
                     for name in Bintool.get_tool_list():
@@ -320,7 +320,7 @@ class TestBintool(unittest.TestCase):
                             if result is not True and result is not None:
                                 result_fname, _ = result
                                 self.assertTrue(os.path.exists(result_fname))
-                                data = tools.ReadFile(result_fname)
+                                data = tools.read_file(result_fname)
                                 self.assertEqual(expected, data)
                                 os.remove(result_fname)
 

@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <asm/mach-imx/sys_proto.h>
 
-static void enable_ca7_smp(void)
+void enable_ca7_smp(void)
 {
 	u32 val;
 

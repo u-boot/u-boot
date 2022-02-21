@@ -35,14 +35,14 @@ class TestFip(unittest.TestCase):
     def setUp(self):
         # Create a temporary directory for test files
         self._indir = tempfile.mkdtemp(prefix='fip_util.')
-        tools.SetInputDirs([self._indir])
+        tools.set_input_dirs([self._indir])
 
         # Set up a temporary output directory, used by the tools library when
         # compressing files
-        tools.PrepareOutputDir(None)
+        tools.prepare_output_dir(None)
 
         self.src_file = os.path.join(self._indir, 'orig.py')
-        self.outname = tools.GetOutputFilename('out.py')
+        self.outname = tools.get_output_filename('out.py')
         self.args = ['-D', '-s', self._indir, '-o', self.outname]
         self.readme = os.path.join(self._indir, 'readme.rst')
         self.macro_dir = os.path.join(self._indir, 'include/tools_share')
@@ -78,25 +78,25 @@ toc_entry_t toc_entries[] = {
 
     def setup_readme(self):
         """Set up the readme.txt file"""
-        tools.WriteFile(self.readme, 'Trusted Firmware-A\n==================',
+        tools.write_file(self.readme, 'Trusted Firmware-A\n==================',
                         binary=False)
 
     def setup_macro(self, data=macro_contents):
         """Set up the tbbr_config.c file"""
         os.makedirs(self.macro_dir)
-        tools.WriteFile(self.macro_fname, data, binary=False)
+        tools.write_file(self.macro_fname, data, binary=False)
 
     def setup_name(self, data=name_contents):
         """Set up the firmware_image_package.h file"""
         os.makedirs(self.name_dir)
-        tools.WriteFile(self.name_fname, data, binary=False)
+        tools.write_file(self.name_fname, data, binary=False)
 
     def tearDown(self):
         """Remove the temporary input directory and its contents"""
         if self._indir:
             shutil.rmtree(self._indir)
         self._indir = None
-        tools.FinaliseOutputDir()
+        tools.finalise_output_dir()
 
     def test_no_readme(self):
         """Test handling of a missing readme.rst"""
@@ -106,7 +106,7 @@ toc_entry_t toc_entries[] = {
 
     def test_invalid_readme(self):
         """Test that an invalid readme.rst is detected"""
-        tools.WriteFile(self.readme, 'blah', binary=False)
+        tools.write_file(self.readme, 'blah', binary=False)
         with self.assertRaises(Exception) as err:
             fip_util.main(self.args, self.src_file)
         self.assertIn('does not start with', str(err.exception))
@@ -228,7 +228,7 @@ toc_entry_t toc_entries[] = {
         self.setup_name()
 
         # Check generating the file when changes are needed
-        tools.WriteFile(self.src_file, '''
+        tools.write_file(self.src_file, '''
 
 # This is taken from tbbr_config.c in ARM Trusted Firmware
 FIP_TYPE_LIST = [
@@ -244,7 +244,7 @@ blah de blah
         self.assertIn('Needs update', stdout.getvalue())
 
         # Check generating the file when no changes are needed
-        tools.WriteFile(self.src_file, '''
+        tools.write_file(self.src_file, '''
 # This is taken from tbbr_config.c in ARM Trusted Firmware
 FIP_TYPE_LIST = [
     # ToC Entry UUIDs
@@ -268,7 +268,7 @@ blah blah''', binary=False)
 
         args = self.args.copy()
         args.remove('-D')
-        tools.WriteFile(self.src_file, '', binary=False)
+        tools.write_file(self.src_file, '', binary=False)
         with test_util.capture_sys_output():
             fip_util.main(args, self.src_file)
 
@@ -282,8 +282,8 @@ blah blah''', binary=False)
         fip.add_entry('tb-fw', tb_fw, 0)
         fip.add_entry(bytes(range(16)), tb_fw, 0)
         data = fip.get_data()
-        fname = tools.GetOutputFilename('data.fip')
-        tools.WriteFile(fname, data)
+        fname = tools.get_output_filename('data.fip')
+        tools.write_file(fname, data)
         result = FIPTOOL.info(fname)
         self.assertEqual(
             '''Firmware Updater NS_BL2U: offset=0xB0, size=0x7, cmdline="--fwu"
@@ -303,19 +303,19 @@ Trusted Boot Firmware BL2: offset=0xC0, size=0xE, cmdline="--tb-fw"
             FipReader: reader for the image
         """
         fwu = os.path.join(self._indir, 'fwu')
-        tools.WriteFile(fwu, self.fwu_data)
+        tools.write_file(fwu, self.fwu_data)
 
         tb_fw = os.path.join(self._indir, 'tb_fw')
-        tools.WriteFile(tb_fw, self.tb_fw_data)
+        tools.write_file(tb_fw, self.tb_fw_data)
 
         other_fw = os.path.join(self._indir, 'other_fw')
-        tools.WriteFile(other_fw, self.other_fw_data)
+        tools.write_file(other_fw, self.other_fw_data)
 
-        fname = tools.GetOutputFilename('data.fip')
+        fname = tools.get_output_filename('data.fip')
         uuid = 'e3b78d9e-4a64-11ec-b45c-fba2b9b49788'
         FIPTOOL.create_new(fname, 8, 0x123, fwu, tb_fw, uuid, other_fw)
 
-        return fip_util.FipReader(tools.ReadFile(fname))
+        return fip_util.FipReader(tools.read_file(fname))
 
     @unittest.skipIf(not HAVE_FIPTOOL, 'No fiptool available')
     def test_fiptool_create(self):

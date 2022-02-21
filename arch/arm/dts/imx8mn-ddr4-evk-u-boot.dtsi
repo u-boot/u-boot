@@ -157,7 +157,9 @@
 	};
 
 
-	flash {
+	spl {
+		filename = "spl.bin";
+
 		mkimage {
 			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x912000";
 
@@ -222,6 +224,21 @@
 					fdt = "fdt";
 				};
 			};
+		};
+	};
+
+	imx-boot {
+		filename = "flash.bin";
+		pad-byte = <0x00>;
+
+		spl: blob-ext@1 {
+			offset = <0x0>;
+			filename = "spl.bin";
+		};
+
+		uboot: blob-ext@2 {
+			offset = <0x58000>;
+			filename = "u-boot.itb";
 		};
 	};
 };

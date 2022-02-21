@@ -198,7 +198,7 @@ int board_init(void)
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
-#ifndef CONFIG_ARM64
+#if !defined(CONFIG_ARM64) && !defined(CONFIG_MACH_SUNIV)
 	asm volatile("mrc p15, 0, %0, c0, c1, 1" : "=r"(id_pfr1));
 	debug("id_pfr1: 0x%08x\n", id_pfr1);
 	/* Generic Timer Extension available? */
@@ -225,7 +225,7 @@ int board_init(void)
 #endif
 		}
 	}
-#endif /* !CONFIG_ARM64 */
+#endif /* !CONFIG_ARM64 && !CONFIG_MACH_SUNIV */
 
 	ret = axp_gpio_init();
 	if (ret)

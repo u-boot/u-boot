@@ -41,6 +41,8 @@
 		d_can0 = &dcan1;
 		d_can1 = &dcan2;
 		spi0 = &qspi;
+		remoteproc0 = &ipu1;
+		remoteproc1 = &ipu2;
 	};
 
 	timer {
@@ -263,9 +265,12 @@
 			};
 
 			prm: prm@6000 {
-				compatible = "ti,dra7-prm";
+				compatible = "ti,dra7-prm", "simple-bus";
 				reg = <0x6000 0x3000>;
 				interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0 0x6000 0x3000>;
 
 				prm_clocks: clocks {
 					#address-cells = <1>;
@@ -273,6 +278,20 @@
 				};
 
 				prm_clockdomains: clockdomains {
+				};
+
+				ipu1_rst: ipu1_rst@510 {
+					compatible = "ti,dra7-reset";
+					reg = <0x510 0x8>;
+					ti,nresets = <3>;
+					#reset-cells = <1>;
+				};
+
+				ipu2_rst: ipu2_rst@910 {
+					compatible = "ti,dra7-reset";
+					reg = <0x910 0x8>;
+					ti,nresets = <3>;
+					#reset-cells = <1>;
 				};
 			};
 
@@ -2031,6 +2050,30 @@
 			interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&l3_iclk_div>;
 			clock-names = "fck";
+		};
+
+		ipu1: ipu@58820000 {
+			compatible = "ti,dra7-ipu";
+			reg = <0x58820000 0x10000>;
+			reg-names = "l2ram";
+			ti,hwmods = "ipu1";
+			resets = <&ipu1_rst 0>, <&ipu1_rst 1>, <&ipu1_rst 2>;
+			iommus = <&mmu_ipu1>;
+			ti,rproc-standby-info = <0x4a005520>;
+			timers = <&timer11>;
+			watchdog-timers = <&timer7>, <&timer8>;
+		};
+
+		ipu2: ipu@55020000 {
+			compatible = "ti,dra7-ipu";
+			reg = <0x55020000 0x10000>;
+			reg-names = "l2ram";
+			ti,hwmods = "ipu2";
+			resets = <&ipu2_rst 0>, <&ipu2_rst 1>, <&ipu2_rst 2>;
+			iommus = <&mmu_ipu2>;
+			ti,rproc-standby-info = <0x4a008920>;
+			timers = <&timer3>;
+			watchdog-timers = <&timer4>, <&timer9>;
 		};
 	};
 

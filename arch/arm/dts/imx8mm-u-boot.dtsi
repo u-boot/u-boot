@@ -45,19 +45,19 @@
 			type = "blob-ext";
 		};
 
-		1d_dmem {
+		1d-dmem {
 			filename = "lpddr4_pmu_train_1d_dmem.bin";
 			size = <0x4000>;
 			type = "blob-ext";
 		};
 
-		2d_imem {
+		2d-imem {
 			filename = "lpddr4_pmu_train_2d_imem.bin";
 			size = <0x8000>;
 			type = "blob-ext";
 		};
 
-		2d_dmem {
+		2d-dmem {
 			filename = "lpddr4_pmu_train_2d_dmem.bin";
 			size = <0x4000>;
 			type = "blob-ext";
@@ -93,7 +93,7 @@
 					load = <CONFIG_SYS_TEXT_BASE>;
 					type = "standalone";
 
-					uboot_blob {
+					uboot-blob {
 						filename = "u-boot-nodtb.bin";
 						type = "blob-ext";
 					};
@@ -107,7 +107,7 @@
 					load = <0x920000>;
 					type = "firmware";
 
-					atf_blob {
+					atf-blob {
 						filename = "bl31.bin";
 						type = "blob-ext";
 					};
@@ -126,7 +126,7 @@
 					description = "NAME";
 					type = "flat_dt";
 
-					uboot_fdt_blob {
+					uboot-fdt-blob {
 						filename = "u-boot.dtb";
 						type = "blob-ext";
 					};

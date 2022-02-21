@@ -4,6 +4,7 @@
  */
 
 #include "omap5-u-boot.dtsi"
+#include "dra7-ipu-common-early-boot.dtsi"
 
 &pcf_gpio_21{
 	u-boot,i2c-offset-len = <0>;

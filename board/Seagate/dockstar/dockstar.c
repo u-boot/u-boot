@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2022 Tony Dinh <mibodhi@gmail.com>
  * Copyright (C) 2010  Eric C. Cooper <ecc@cmu.edu>
  *
  * Based on sheevaplug.c originally written by
@@ -11,17 +12,21 @@
 #include <common.h>
 #include <bootstage.h>
 #include <init.h>
-#include <miiphy.h>
-#include <net.h>
+#include <netdev.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/cpu.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
-#include "dockstar.h"
+#include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define DOCKSTAR_OE_LOW		(~(0))
+#define DOCKSTAR_OE_HIGH	(~(0))
+#define DOCKSTAR_OE_VAL_LOW	BIT(29)	/* USB_PWEN low */
+#define DOCKSTAR_OE_VAL_HIGH	BIT(17)	/* LED pin high */
 
 int board_early_init_f(void)
 {
@@ -92,6 +97,11 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int board_eth_init(struct bd_info *bis)
+{
+	return cpu_eth_init(bis);
+}
+
 int board_init(void)
 {
 	/*
@@ -105,53 +115,21 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_RESET_PHY_R
-/* Configure and enable MV88E1116 PHY */
-void reset_phy(void)
-{
-	u16 reg;
-	u16 devadr;
-	char *name = "egiga0";
-
-	if (miiphy_set_current_dev(name))
-		return;
-
-	/* command to read PHY dev address */
-	if (miiphy_read(name, 0xEE, 0xEE, (u16 *) &devadr)) {
-		printf("Err..%s could not read PHY dev address\n",
-			__FUNCTION__);
-		return;
-	}
-
-	/*
-	 * Enable RGMII delay on Tx and Rx for CPU port
-	 * Ref: sec 4.7.2 of chip datasheet
-	 */
-	miiphy_write(name, devadr, MV88E1116_PGADR_REG, 2);
-	miiphy_read(name, devadr, MV88E1116_MAC_CTRL_REG, &reg);
-	reg |= (MV88E1116_RGMII_RXTM_CTRL | MV88E1116_RGMII_TXTM_CTRL);
-	miiphy_write(name, devadr, MV88E1116_MAC_CTRL_REG, reg);
-	miiphy_write(name, devadr, MV88E1116_PGADR_REG, 0);
-
-	/* reset the phy */
-	miiphy_reset(name, devadr);
-
-	printf("88E1116 Initialized on %s\n", name);
-}
-#endif /* CONFIG_RESET_PHY_R */
-
 #if CONFIG_IS_ENABLED(BOOTSTAGE)
-#define GREEN_LED	(1 << 14)
-#define ORANGE_LED	(1 << 15)
+#define GREEN_LED	BIT(14)
+#define ORANGE_LED	BIT(15)
 #define BOTH_LEDS	(GREEN_LED | ORANGE_LED)
 #define NEITHER_LED	0
 
 static void set_leds(u32 leds, u32 blinking)
 {
 	struct kwgpio_registers *r = (struct kwgpio_registers *)MVEBU_GPIO1_BASE;
-	u32 oe = readl(&r->oe) | BOTH_LEDS;
+	u32 oe;
+	u32 bl;
+
+	oe = readl(&r->oe) | BOTH_LEDS;
 	writel(oe & ~leds, &r->oe);	/* active low */
-	u32 bl = readl(&r->blink_en) & ~BOTH_LEDS;
+	bl = readl(&r->blink_en) & ~BOTH_LEDS;
 	writel(bl | blinking, &r->blink_en);
 }
 

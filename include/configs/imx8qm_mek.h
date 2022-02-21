@@ -29,8 +29,6 @@
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
-#define CONFIG_REMAKE_ELF
-
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define USDHC1_BASE_ADDR                0x5B010000
 #define USDHC2_BASE_ADDR                0x5B020000

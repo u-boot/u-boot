@@ -44,17 +44,17 @@ def rm_kconfig_include(path):
         path: Path to search for and remove
     """
     cmd = ['git', 'grep', path]
-    stdout = command.RunPipe([cmd], capture=True, raise_on_error=False).stdout
+    stdout = command.run_pipe([cmd], capture=True, raise_on_error=False).stdout
     if not stdout:
         return
     fname = stdout.split(':')[0]
 
     print("Fixing up '%s' to remove reference to '%s'" % (fname, path))
     cmd = ['sed', '-i', '\|%s|d' % path, fname]
-    stdout = command.RunPipe([cmd], capture=True).stdout
+    stdout = command.run_pipe([cmd], capture=True).stdout
 
     cmd = ['git', 'add', fname]
-    stdout = command.RunPipe([cmd], capture=True).stdout
+    stdout = command.run_pipe([cmd], capture=True).stdout
 
 def rm_board(board):
     """Create a commit which removes a single board
@@ -69,7 +69,7 @@ def rm_board(board):
 
     # Find all MAINTAINERS and Kconfig files which mention the board
     cmd = ['git', 'grep', '-l', board]
-    stdout = command.RunPipe([cmd], capture=True).stdout
+    stdout = command.run_pipe([cmd], capture=True).stdout
     maintain = []
     kconfig = []
     for line in stdout.splitlines():
@@ -110,7 +110,7 @@ def rm_board(board):
     # which reference Kconfig files we want to remove
     for path in real:
         cmd = ['find', path]
-        stdout = (command.RunPipe([cmd], capture=True, raise_on_error=False).
+        stdout = (command.run_pipe([cmd], capture=True, raise_on_error=False).
                   stdout)
         for fname in stdout.splitlines():
             if fname.endswith('Kconfig'):
@@ -118,7 +118,7 @@ def rm_board(board):
 
     # Remove unwanted files
     cmd = ['git', 'rm', '-r'] + real
-    stdout = command.RunPipe([cmd], capture=True).stdout
+    stdout = command.run_pipe([cmd], capture=True).stdout
 
     ## Change the messages as needed
     msg = '''arm: Remove %s board
@@ -132,12 +132,12 @@ Remove it.
 
     # Create the commit
     cmd = ['git', 'commit', '-s', '-m', msg]
-    stdout = command.RunPipe([cmd], capture=True).stdout
+    stdout = command.run_pipe([cmd], capture=True).stdout
 
     # Check if the board is mentioned anywhere else. The user will need to deal
     # with this
     cmd = ['git', 'grep', '-il', board]
-    print(command.RunPipe([cmd], capture=True, raise_on_error=False).stdout)
+    print(command.run_pipe([cmd], capture=True, raise_on_error=False).stdout)
     print(' '.join(cmd))
 
 for board in sys.argv[1:]:

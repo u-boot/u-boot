@@ -913,6 +913,16 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature);
  */
 int acpi_fill_csrt(struct acpi_ctx *ctx);
 
+/**
+ * write_acpi_tables() - Write out the ACPI tables
+ *
+ * This writes all ACPI tables to the given address
+ *
+ * @start: Start address for the tables
+ * @return address of end of tables, where the next tables can be written
+ */
+ulong write_acpi_tables(ulong start);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>

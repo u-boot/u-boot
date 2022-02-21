@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/ofnode.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <image.h>
@@ -15,6 +16,17 @@
 #include <virtio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if IS_ENABLED(CONFIG_MTD_NOR_FLASH)
+int is_flash_available(void)
+{
+	if (!ofnode_equal(ofnode_by_compatible(ofnode_null(), "cfi-flash"),
+			  ofnode_null()))
+		return 1;
+
+	return 0;
+}
+#endif
 
 int board_init(void)
 {

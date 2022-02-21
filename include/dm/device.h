@@ -212,7 +212,7 @@ struct udevice_rt {
 #define DM_MAX_SEQ_STR	3
 
 /* Returns the operations for a device */
-#define device_get_ops(dev)	(dev->driver->ops)
+#define device_get_ops(dev)	((dev)->driver->ops)
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA_RT)
 u32 dev_get_flags(const struct udevice *dev);

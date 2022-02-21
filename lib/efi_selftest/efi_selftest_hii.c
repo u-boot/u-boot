@@ -699,7 +699,7 @@ static int test_hii_string_new_string(void)
 
 	ret = hii_string_protocol->new_string(hii_string_protocol, handle,
 					      &id, (u8 *)"en-US",
-					      L"Japanese", L"Japanese", NULL);
+					      u"Japanese", u"Japanese", NULL);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("new_string returned %u\n",
 			     (unsigned int)ret);
@@ -752,7 +752,7 @@ static int test_hii_string_get_string(void)
 
 	ret = hii_string_protocol->new_string(hii_string_protocol, handle,
 					      &id, (u8 *)"en-US",
-					      L"Japanese", L"Japanese", NULL);
+					      u"Japanese", u"Japanese", NULL);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("new_string returned %u\n",
 			     (unsigned int)ret);
@@ -831,7 +831,7 @@ static int test_hii_string_set_string(void)
 
 	ret = hii_string_protocol->new_string(hii_string_protocol, handle,
 					      &id, (u8 *)"en-US",
-					      L"Japanese", L"Japanese", NULL);
+					      u"Japanese", u"Japanese", NULL);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("new_string returned %u\n",
 			     (unsigned int)ret);
@@ -840,7 +840,7 @@ static int test_hii_string_set_string(void)
 
 	ret = hii_string_protocol->set_string(hii_string_protocol, handle,
 					      id, (u8 *)"en-US",
-					      L"Nihongo", NULL);
+					      u"Nihongo", NULL);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("set_string returned %u\n",
 			     (unsigned int)ret);

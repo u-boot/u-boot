@@ -8,7 +8,7 @@
 from binman.entry import Entry
 from binman import fmap_util
 from patman import tools
-from patman.tools import ToHexSize
+from patman.tools import to_hex_size
 from patman import tout
 
 
@@ -46,8 +46,8 @@ class Entry_fmap(Entry):
         """
         def _AddEntries(areas, entry):
             entries = entry.GetEntries()
-            tout.Debug("fmap: Add entry '%s' type '%s' (%s subentries)" %
-                       (entry.GetPath(), entry.etype, ToHexSize(entries)))
+            tout.debug("fmap: Add entry '%s' type '%s' (%s subentries)" %
+                       (entry.GetPath(), entry.etype, to_hex_size(entries)))
             if entries and entry.etype != 'cbfs':
                 # Create an area for the section, which encompasses all entries
                 # within it
