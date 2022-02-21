@@ -116,10 +116,13 @@ void enable_caches(void)
 efi_status_t platform_get_rng_device(struct udevice **dev)
 {
 	int ret;
+	enum uclass_id id;
 	efi_status_t status = EFI_DEVICE_ERROR;
 	struct udevice *bus, *devp;
 
-	for (uclass_first_device(UCLASS_VIRTIO, &bus); bus;
+	id = IS_ENABLED(CONFIG_TPM) ? UCLASS_TPM : UCLASS_VIRTIO;
+
+	for (uclass_first_device(id, &bus); bus;
 	     uclass_next_device(&bus)) {
 		for (device_find_first_child(bus, &devp); devp;
 		     device_find_next_child(&devp)) {
