@@ -13,7 +13,7 @@
 #include <u-boot/sha1.h>
 #include <tpm-common.h>
 #include <tpm-v1.h>
-#include "tpm-utils.h"
+#include <tpm-utils.h>
 
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 
