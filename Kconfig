@@ -90,6 +90,12 @@ config CC_OPTIMIZE_FOR_SPEED
 	  Enabling this option will pass "-O2" to gcc, resulting in a faster
 	  U-Boot image.
 
+config CC_OPTIMIZE_FOR_DEBUG
+	bool "Optimize for debugging"
+	help
+	  Enabling this option will pass "-Og" to gcc, enabling optimizations
+	  which don't interfere with debugging.
+
 endchoice
 
 config OPTIMIZE_INLINING
