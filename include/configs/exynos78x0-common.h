@@ -35,6 +35,7 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_BOOTM_LEN	SZ_32M
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
@@ -79,7 +80,10 @@
 #define EXYNOS_FDTFILE_SETTING
 #endif
 
+/* Cannot use bootdelay > 0, because timer is not working */
 #define EXTRA_ENV_SETTINGS \
+	"bootdelay=0\0" \
+	"bootcmd=source $prevbl_initrd_start_addr:bootscript\0"	\
 	EXYNOS_DEVICE_SETTINGS \
 	EXYNOS_FDTFILE_SETTING \
 	MEM_LAYOUT_ENV_SETTINGS
