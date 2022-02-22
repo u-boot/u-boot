@@ -456,8 +456,8 @@ CFLAGS_REMOVE_efi_freestanding.o := $(LTO_CFLAGS)
 # which is pure ASL code. The Intel ASL (ACPI (Advanced Configuration and Power
 # Interface) Source Language compiler (iasl) then converts this ASL code into a
 # C file containing the hex data to build into U-Boot. This file is called
-# dsdt.hex (despite us setting the prefix to .../dsdt.asl.tmp) so must be
-# renamed to dsdt.c for consumption by the build system.
+# dsdt_generated.hex (despite us setting the prefix to .../dsdt_generated.asl.tmp)
+# so must be renamed to dsdt_generated.c for consumption by the build system.
 ASL_TMP = $(patsubst %.c,%.asl.tmp,$@)
 
 quiet_cmd_acpi_c_asl= ASL     $<
@@ -468,9 +468,9 @@ cmd_acpi_c_asl=         \
 		$(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
 	mv $(patsubst %.c,%.hex,$@) $@
 
-$(obj)/dsdt.c:    $(src)/dsdt.asl
+$(obj)/dsdt_generated.c:    $(src)/dsdt.asl
 	$(call cmd,acpi_c_asl)
-	$(Q)sed -i -e "s,dsdt_aml_code,AmlCode," $@
+	$(Q)sed -i -e "s,dsdt_generated_aml_code,AmlCode," $@
 
 # Bzip2
 # ---------------------------------------------------------------------------

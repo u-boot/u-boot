@@ -5,4 +5,4 @@
 #
 
 obj-y	+= edison.o
-obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt.o
+obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt_generated.o
