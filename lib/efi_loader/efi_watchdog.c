@@ -75,17 +75,6 @@ efi_status_t efi_watchdog_register(void)
 		printf("ERROR: Failed to register watchdog event\n");
 		return r;
 	}
-	/*
-	 * The UEFI standard requires that the watchdog timer is set to five
-	 * minutes when invoking an EFI boot option.
-	 *
-	 * Unified Extensible Firmware Interface (UEFI), version 2.7 Errata A
-	 * 7.5. Miscellaneous Boot Services - EFI_BOOT_SERVICES.SetWatchdogTimer
-	 */
-	r = efi_set_watchdog(300);
-	if (r != EFI_SUCCESS) {
-		printf("ERROR: Failed to set watchdog timer\n");
-		return r;
-	}
+
 	return EFI_SUCCESS;
 }
