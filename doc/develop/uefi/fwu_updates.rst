@@ -15,10 +15,11 @@ boot. The UEFI capsule-on-disk update feature is used for performing
 the actual updates of the updatable firmware images.
 
 The bookkeeping of the updatable images is done through a structure
-called metadata. Currently, the FWU metadata supports identification
+called FWU metadata. Currently, the FWU metadata supports identification
 of images based on image GUIDs stored on a GPT partitioned storage
-media. There are plans to extend the metadata structure for non GPT
-partitioned devices as well.
+media. If the firmware images are stored on the flash device which
+has no GPT, the platform driver can provide the image identification
+feature.
 
 Accessing the FWU metadata is done through generic API's which are
 defined in a driver which complies with the u-boot's driver model. A
@@ -43,20 +44,30 @@ The feature can be enabled by specifying the following configs::
     CONFIG_FWU_MULTI_BANK_UPDATE=y
     CONFIG_CMD_FWU_METADATA=y
     CONFIG_DM_FWU_MDATA=y
-    CONFIG_FWU_MDATA_GPT_BLK=y
     CONFIG_FWU_NUM_BANKS=<val>
     CONFIG_FWU_NUM_IMAGES_PER_BANK=<val>
+    CONFIG_TOOLS_MKFWUMDATA=y
 
-in the .config file
+    CONFIG_FWU_MDATA_GPT_BLK=y
+    CONFIG_FWU_MDATA_SF=y
+
+in the .config file.
 
 The first group of configs enable the UEFI capsule-on-disk update
 functionality. The second group of configs enable the FWU Multi Bank
-Update functionality. Please refer to the section
-:ref:`uefi_capsule_update_ref` for more details on generation of the
-UEFI capsule.
+Update functionality. And the third group of configs are FWU Metadata
+drivers. You can enable either one of ``CONFIG_FWU_MDATA_GPT_BLK`` and
+``CONFIG_FWU_MDATA_SF`` or both of them, according to the platform
+support. Anyway, a correct driver will be probed by devicetree node.
+
+Please refer to the section :ref:`uefi_capsule_update_ref` for
+more details on generation of the UEFI capsule.
 
 Setting up the device for GPT partitioned storage
 -------------------------------------------------
+
+If your platform stores the firmware on GPT partitioned storage
+device (e.g. eMMC/SD), please follow this section.
 
 Before enabling the functionality in U-Boot, certain changes are
 required to be done on the storage device. Assuming a GPT partitioned
@@ -74,7 +85,14 @@ media can have additional partitions of non-updatable images, like the
 EFI System Partition(ESP), a partition for the root file system etc.
 
 When generating the partitions, a few aspects need to be taken care
-of. Each GPT partition entry in the GPT header has two GUIDs::
+of. The GPT itself has one GUID::
+
+    *DiskGUID*
+
+This DiskGUID value should correspond to the *location_uuid* field
+of the FWU metadata.
+
+And each GPT partition entry in the GPT header has two GUIDs::
 
     *PartitionTypeGUID*
     *UniquePartitionGUID*
@@ -93,9 +111,49 @@ Similarly, the FWU specifications defines the GUID value to be used
 for the metadata partitions. This would be the PartitionTypeGUID for
 the metadata partitions.
 
-When generating the metadata, the *image_type_uuid* and the
-*image_uuid* values should match the *PartitionTypeGUID* and the
-*UniquePartitionGUID* values respectively.
+Setting up the device for non-GPT partitioned MTD device
+--------------------------------------------------------
+
+If your platform stores the firmware on non-GPT partitioned MTD
+device, please follow this section.
+
+Before enabling the functionality in U-Boot, please confirm that
+your platform correctly define (or generate) `dfu_alt_info`, which
+has to have all *banks* as the dfu entries. Also, the devicetree's
+`fwu_mdata` node must be "u-boot,fwu-mdata-mtd" compatible node
+and has FWU metadata offsets on `mdata-offsets` property.
+Please refer to U-Boot
+`doc <doc/device-tree-bindings/firmware/uboot,fwu-mdata-mtd.yaml>`__ for
+the device tree bindings.
+
+Similar to the GPT, you can also define the DiskGUID, and the
+UniquePartitionGUID in the devicetree as additional properties of
+the "fixed-partitions" compatible partition nodes, and the platform
+code can generate the `dfu_alt_info` from that. In this case,
+*image_type_uuid* field of the FWU mdata is used instead of the
+PartitionTypeGUID.
+
+Generate the FWU metadata image
+-------------------------------
+
+To generate the FWU metadata raw image, you can use `tools/mkfwumdata`
+command.
+
+ tools/mkfwumdata -i <#images> -b <#banks> \
+   <location_uuid0,image_type_uuid0,image_uuid0_0,image_uuid0_1,...> \
+   [location_uuid1,image_type_uuid1,image_uuid1_0,image_uuid1_1,...] \
+   <output-file>
+
+Or, if you know GUID instead of UUID, you can use --guid option.
+
+ tools/mkfwumdata -i <#images> -b <#banks> --guid \
+   <DiskGUID0,PartitionTypeGUID0,UniquePartitionGUID0_0,UniquePartitionGUID0_1,...> \
+   [DiskGUID1,PartitionTypeGUID1,UniquePartitionGUID1_0,UniquePartitionGUID1_1,...] \
+   <output-file>
+
+When generating the metadata, the *location_uuid*, the *image_type_uuid*
+and the *image_uuid* values should match the *DiskGUID*, the
+*PartitionTypeGUID* and the *UniquePartitionGUID* values respectively.
 
 Performing the Update
 ---------------------
