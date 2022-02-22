@@ -445,6 +445,11 @@ static int initr_env(void)
 		env_set_hex("fdtcontroladdr",
 			    (unsigned long)map_to_sysmem(gd->fdt_blob));
 
+	#if (CONFIG_IS_ENABLED(SAVE_PREV_BL_INITRAMFS_START_ADDR) || \
+						CONFIG_IS_ENABLED(SAVE_PREV_BL_FDT_ADDR))
+		save_prev_bl_data();
+	#endif
+
 	/* Initialize from environment */
 	image_load_addr = env_get_ulong("loadaddr", 16, image_load_addr);
 

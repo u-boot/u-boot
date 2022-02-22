@@ -1192,4 +1192,28 @@ config DEFAULT_FDT_FILE
 	help
 	  This option is used to set the default fdt file to boot OS.
 
+config SAVE_PREV_BL_FDT_ADDR
+	depends on ARM
+	bool "Saves fdt address, passed by the previous bootloader, to env var"
+	help
+	  When u-boot is used as a chain-loaded bootloader (replacing OS kernel),
+	  enable this option to save fdt address, passed by the
+	  previous bootloader for future use.
+	  Address is saved to `prevbl_fdt_addr` environment variable.
+
+	  If no fdt was provided by previous bootloader, no env variables
+	  will be created.
+
+config SAVE_PREV_BL_INITRAMFS_START_ADDR
+	depends on ARM
+	bool "Saves initramfs address, passed by the previous bootloader, to env var"
+	help
+	  When u-boot is used as a chain-loaded bootloader(replacing OS kernel),
+	  enable this option to save initramfs address, passed by the
+	  previous bootloader for future use.
+	  Address is saved to `prevbl_initrd_start_addr` environment variable.
+
+	  If no initramfs was provided by previous bootloader, no env variables
+	  will be created.
+
 endmenu		# Booting
