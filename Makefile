@@ -683,7 +683,9 @@ endif
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
-else
+endif
+
+ifdef CONFIG_CC_OPTIMIZE_FOR_SPEED
 KBUILD_CFLAGS	+= -O2
 endif
 
