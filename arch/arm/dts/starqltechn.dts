@@ -34,9 +34,18 @@
 		method = "smc";
 	};
 
+	framebuffer: framebuffer@9D400000 {
+		compatible = "simple-framebuffer";
+		reg = <0 0x9D400000 0 (2960 * 1440 * 4)>;//2400000
+		width = <1440>;
+		height = <2960>;
+		stride = <(1440 * 4)>;
+		format = "a8r8g8b8";
+	};
+
 	soc: soc {
-		serial@0xa84000 {
-			status = "ok";
+		serial@a84000 {
+			status = "okay";
 		};
 
 		pinctrl@3900000 {

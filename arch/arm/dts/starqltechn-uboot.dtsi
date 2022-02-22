@@ -8,13 +8,16 @@
 
 /
 {
+	framebuffer@9D400000 {
+		u-boot,dm-pre-reloc;
+	};
 	soc {
 		u-boot,dm-pre-reloc;
+		serial@a84000 {
+			u-boot,dm-pre-reloc;
+		};
 		gcc {
 			clock-controller@100000 {
-				u-boot,dm-pre-reloc;
-			};
-			serial@0xa84000 {
 				u-boot,dm-pre-reloc;
 			};
 			gpio_north@3900000 {
