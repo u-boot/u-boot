@@ -151,7 +151,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
-#define CONFIG_BTB			/* toggle branch predition */
 
 
 #define CONFIG_ENABLE_36BIT_PHYS

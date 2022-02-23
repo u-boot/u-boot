@@ -65,7 +65,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_SYS_CACHE_STASHING
-#define CONFIG_BTB			/* toggle branch predition */
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif

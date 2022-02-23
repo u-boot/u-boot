@@ -121,7 +121,6 @@
 #define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_BACKSIDE_L2_CACHE
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
-#define CONFIG_BTB			/* toggle branch predition */
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif

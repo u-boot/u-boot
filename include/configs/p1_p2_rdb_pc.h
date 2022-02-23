@@ -145,7 +145,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE
-#define CONFIG_BTB
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
