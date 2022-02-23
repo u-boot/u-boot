@@ -28,7 +28,7 @@ static int nop_phy_reset(struct phy *phy)
 	if (!dm_gpio_is_valid(&priv->reset_gpio))
 		return 0;
 
-	return dm_gpio_set_value(&priv->reset_gpio, false);
+	return dm_gpio_set_value(&priv->reset_gpio, true);
 }
 #endif
 
@@ -44,7 +44,8 @@ static int nop_phy_init(struct phy *phy)
 	}
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
-	ret = nop_phy_reset(phy);
+	/* Take phy out of reset */
+	ret = dm_gpio_set_value(&priv->reset_gpio, false);
 	if (ret) {
 		if (CONFIG_IS_ENABLED(CLK))
 			clk_disable_bulk(&priv->bulk);
