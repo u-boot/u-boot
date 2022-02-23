@@ -18,7 +18,7 @@
  * @param mode		TPM startup mode
  * Return: return code of the operation
  */
-u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode);
+int tpm_startup(struct udevice *dev, enum tpm_startup_type mode);
 
 /**
  * Issue a TPM_SelfTestFull command.
