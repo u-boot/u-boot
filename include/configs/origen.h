@@ -58,9 +58,4 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x02040000
 
-/* U-Boot copy size from boot Media to DRAM.*/
-#define COPY_BL2_SIZE		0x80000
-#define BL2_START_OFFSET	((CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)/512)
-#define BL2_SIZE_BLOC_COUNT	(COPY_BL2_SIZE/512)
-
 #endif	/* __CONFIG_H */

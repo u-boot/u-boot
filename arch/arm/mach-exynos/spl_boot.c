@@ -22,6 +22,36 @@
 #include "common_setup.h"
 #include "clock_init.h"
 
+#ifdef CONFIG_ARCH_EXYNOS5
+#define SECURE_BL1_ONLY
+
+/* Secure FW size configuration */
+#ifdef SECURE_BL1_ONLY
+#define SEC_FW_SIZE (8 << 10) /* 8KB */
+#else
+#define SEC_FW_SIZE 0
+#endif
+
+/* Configuration of BL1, BL2, ENV Blocks on mmc */
+#define RES_BLOCK_SIZE	(512)
+#define BL1_SIZE	(16 << 10) /*16 K reserved for BL1*/
+#define BL2_SIZE	(512UL << 10UL) /* 512 KB */
+
+#define BL1_OFFSET	(RES_BLOCK_SIZE + SEC_FW_SIZE)
+#define BL2_OFFSET	(BL1_OFFSET + BL1_SIZE)
+
+/* U-Boot copy size from boot Media to DRAM.*/
+#define BL2_START_OFFSET	(BL2_OFFSET/512)
+#define BL2_SIZE_BLOC_COUNT	(BL2_SIZE/512)
+
+#define EXYNOS_COPY_SPI_FNPTR_ADDR	0x02020058
+#define SPI_FLASH_UBOOT_POS	(SEC_FW_SIZE + BL1_SIZE)
+#elif defined(CONFIG_ARCH_EXYNOS4)
+#define COPY_BL2_SIZE		0x80000
+#define BL2_START_OFFSET	((CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)/512)
+#define BL2_SIZE_BLOC_COUNT	(COPY_BL2_SIZE/512)
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Index into irom ptr table */
