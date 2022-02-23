@@ -307,6 +307,14 @@ config PHY_XILINX_GMII2RGMII
 	  as bridge between MAC connected over GMII and external phy that
 	  is connected over RGMII interface.
 
+config PHY_ETHERNET_ID
+	bool "Read ethernet PHY id"
+	depends on DM_GPIO
+	default y if ZYNQ_GEM
+	help
+	  Enable this config to read ethernet phy id from the phy node of DT
+	  and create a phy device using id.
+
 config PHY_FIXED
 	bool "Fixed-Link PHY"
 	depends on DM_ETH

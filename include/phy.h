@@ -468,6 +468,19 @@ struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 				     u32 phy_id, bool is_c45,
 				     phy_interface_t interface);
 
+/**
+ * phy_connect_phy_id() - Connect to phy device by reading PHY id
+ *			  from phy node.
+ *
+ * @bus:		MII/MDIO bus that hosts the PHY
+ * @dev:		Ethernet device to associate to the PHY
+ * @interface:		Interface between the MAC and PHY
+ * @return:		pointer to phy_device if a PHY is found,
+ *			or NULL otherwise
+ */
+struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
+				      phy_interface_t interface);
+
 static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 {
 	if (ofnode_valid(phydev->node))
