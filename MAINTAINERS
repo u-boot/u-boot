@@ -620,6 +620,7 @@ F:	drivers/mtd/nand/raw/zynq_nand.c
 F:	drivers/net/phy/ethernet_id.c
 F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
+F:	drivers/pinctrl/pinctrl-zynqmp.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
