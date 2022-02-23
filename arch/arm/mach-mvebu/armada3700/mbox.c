@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2018 Marek Behun <marek.behun@nic.cz>
+ * Copyright (C) 2021 Pali Rohár <pali@kernel.org>
  */
 
 #include <common.h>
@@ -15,6 +16,7 @@
 #define RWTM_CMD		(RWTM_BASE + 0x40)
 #define RWTM_CMD_RETSTATUS	(RWTM_BASE + 0x80)
 #define RWTM_CMD_STATUS(i)	(size_t)(RWTM_BASE + 0x84 + (i) * 4)
+#define MAX_ARGS		16
 
 #define RWTM_HOST_INT_RESET	(RWTM_BASE + 0xc8)
 #define RWTM_HOST_INT_MASK	(RWTM_BASE + 0xcc)
@@ -27,15 +29,27 @@
 #define MBOX_STS_ERROR(s)		((s) & (3 << 30))
 #define MBOX_STS_VALUE(s)		(((s) >> 10) & 0xfffff)
 #define MBOX_STS_CMD(s)			((s) & 0x3ff)
+#define MBOX_STS_MARVELL_ERROR(s)	((s) == 0 ? 0         : \
+					 (s) == 2 ? ETIMEDOUT : \
+					 (s) == 3 ? EINVAL    : \
+					 (s) == 4 ? ENOSYS    : \
+					            EIO)
 
-int mbox_do_cmd(enum mbox_cmd cmd, u32 *out, int nout)
+int mbox_do_cmd(enum mbox_cmd cmd, u32 *in, int nin, u32 *out, int nout)
 {
 	const int tries = 50;
 	int i;
 	u32 status;
 
+	if (nin > MAX_ARGS || nout > MAX_ARGS)
+		return -EINVAL;
+
 	clrbits_le32(RWTM_HOST_INT_MASK, SP_CMD_COMPLETE);
 
+	for (i = 0; i < nin; i++)
+		writel(in[i], RWTM_CMD_PARAM(i));
+	for (; i < MAX_ARGS; i++)
+		writel(0x0, RWTM_CMD_PARAM(i));
 	writel(cmd, RWTM_CMD);
 
 	for (i = 0; i < tries; ++i) {
@@ -57,9 +71,11 @@ int mbox_do_cmd(enum mbox_cmd cmd, u32 *out, int nout)
 	setbits_le32(RWTM_HOST_INT_RESET, SP_CMD_COMPLETE);
 
 	if (MBOX_STS_CMD(status) != cmd)
-		return -EIO;
+		return -MBOX_STS_MARVELL_ERROR(status);
 	else if (MBOX_STS_ERROR(status) == MBOX_STS_FAIL)
 		return -(int)MBOX_STS_VALUE(status);
+	else if (MBOX_STS_ERROR(status) == MBOX_STS_BADCMD)
+		return -ENOSYS;
 	else if (MBOX_STS_ERROR(status) != MBOX_STS_SUCCESS)
 		return -EIO;
 	else

@@ -19,7 +19,7 @@ const char *mox_sp_get_ecdsa_public_key(void)
 	if (public_key[0])
 		return public_key;
 
-	res = mbox_do_cmd(MBOX_CMD_ECDSA_PUB_KEY, out, 16);
+	res = mbox_do_cmd(MBOX_CMD_ECDSA_PUB_KEY, NULL, 0, out, 16);
 	if (res < 0)
 		return NULL;
 
@@ -47,7 +47,7 @@ int mbox_sp_get_board_info(u64 *sn, u8 *mac1, u8 *mac2, int *bv, int *ram)
 	u32 out[8];
 	int res;
 
-	res = mbox_do_cmd(MBOX_CMD_BOARD_INFO, out, 8);
+	res = mbox_do_cmd(MBOX_CMD_BOARD_INFO, NULL, 0, out, 8);
 	if (res < 0)
 		return res;
 
