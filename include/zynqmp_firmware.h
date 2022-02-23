@@ -340,6 +340,29 @@ enum pm_ioctl_id {
 	IOCTL_GET_LAST_RESET_REASON = 23,
 	/* AIE ISR Clear */
 	IOCTL_AIE_ISR_CLEAR = 24,
+	/* Register SGI to ATF */
+	IOCTL_REGISTER_SGI = 25,
+	/* Runtime feature configuration */
+	IOCTL_SET_FEATURE_CONFIG = 26,
+	IOCTL_GET_FEATURE_CONFIG = 27,
+	/* IOCTL for Secure Read/Write Interface */
+	IOCTL_READ_REG = 28,
+	IOCTL_MASK_WRITE_REG = 29,
+	/* Dynamic SD/GEM/USB configuration */
+	IOCTL_SET_SD_CONFIG = 30,
+	IOCTL_SET_GEM_CONFIG = 31,
+	IOCTL_SET_USB_CONFIG = 32,
+	/* AIE/AIEML Operations */
+	IOCTL_AIE_OPS = 33,
+	/* IOCTL to get default/current QoS */
+	IOCTL_GET_QOS = 34,
+};
+
+enum pm_sd_config_type {
+	SD_CONFIG_EMMC_SEL = 1,	/* To set SD_EMMC_SEL in CTRL_REG_SD */
+	SD_CONFIG_BASECLK = 2,	/* To set SD_BASECLK in SD_CONFIG_REG1 */
+	SD_CONFIG_8BIT = 3,	/* To set SD_8BIT in SD_CONFIG_REG2 */
+	SD_CONFIG_FIXED = 4,	/* To set fixed config registers */
 };
 
 #define PM_SIP_SVC	0xc2000000
