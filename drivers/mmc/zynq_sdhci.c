@@ -773,8 +773,9 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		u32 timeout = 1000;
 
 		while (((sdhci_readl(host, SDHCI_PRESENT_STATE) &
-			 SDHCI_CARD_STATE_STABLE) == 0) && timeout--) {
+			 SDHCI_CARD_STATE_STABLE) == 0) && timeout) {
 			mdelay(1);
+			timeout--;
 		}
 		if (!timeout) {
 			dev_err(dev, "Sdhci card detect state not stable\n");
