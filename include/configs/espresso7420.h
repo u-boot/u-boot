@@ -10,8 +10,6 @@
 
 #include <configs/exynos7420-common.h>
 
-#define CONFIG_BOARD_COMMON
-
 #define CONFIG_ESPRESSO7420
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000

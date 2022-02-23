@@ -10,7 +10,6 @@
 
 #include "exynos4-common.h"
 
-#undef CONFIG_BOARD_COMMON
 #undef CONFIG_USB_GADGET_DWC2_OTG_PHY
 
 /* High Level Configuration Options */

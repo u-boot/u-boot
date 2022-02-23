@@ -21,8 +21,6 @@
 #define FLASH_SIZE		(4 << 20)
 #define CONFIG_SPI_BOOTING
 
-#define CONFIG_BOARD_COMMON
-
 /* Display */
 #ifdef CONFIG_LCD
 #define CONFIG_EXYNOS_FB
