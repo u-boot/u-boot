@@ -272,6 +272,17 @@ class TestNode(unittest.TestCase):
 
         self.dtb.Sync(auto_resize=True)
 
+    def testAddOneNode(self):
+        """Testing deleting and adding a subnode before syncing"""
+        subnode = self.node.AddSubnode('subnode')
+        self.node.AddSubnode('subnode2')
+        self.dtb.Sync(auto_resize=True)
+
+        # Delete a node and add a new one
+        subnode.Delete()
+        self.node.AddSubnode('subnode3')
+        self.dtb.Sync()
+
     def testRefreshNameMismatch(self):
         """Test name mismatch when syncing nodes and properties"""
         prop = self.node.AddInt('integer-a', 12)
@@ -531,6 +542,23 @@ class TestProp(unittest.TestCase):
         self.node.AddData('data', tools.get_bytes(65, 20000))
         self.dtb.Sync(auto_resize=True)
 
+    def test_string_list(self):
+        """Test adding string-list property to a node"""
+        val = ['123', '456']
+        self.node.AddStringList('stringlist', val)
+        self.dtb.Sync(auto_resize=True)
+        data = self.fdt.getprop(self.node.Offset(), 'stringlist')
+        self.assertEqual(b'123\x00456\0', data)
+
+    def test_delete_node(self):
+        """Test deleting a node"""
+        old_offset = self.fdt.path_offset('/spl-test')
+        self.assertGreater(old_offset, 0)
+        self.node.Delete()
+        self.dtb.Sync()
+        new_offset = self.fdt.path_offset('/spl-test', libfdt.QUIET_NOTFOUND)
+        self.assertEqual(-libfdt.NOTFOUND, new_offset)
+
     def testFromData(self):
         dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())
         self.assertEqual(dtb2.GetContents(), self.dtb.GetContents())
@@ -623,6 +651,21 @@ class TestFdtUtil(unittest.TestCase):
             fdt_util.GetStringList(self.node, 'stringarray'))
         self.assertEqual(['test'],
                          fdt_util.GetStringList(self.node, 'missing', ['test']))
+
+    def testGetArgs(self):
+        node = self.dtb.GetNode('/orig-node')
+        self.assertEqual(['message'], fdt_util.GetArgs(self.node, 'stringval'))
+        self.assertEqual(
+            ['multi-word', 'message'],
+            fdt_util.GetArgs(self.node, 'stringarray'))
+        self.assertEqual([], fdt_util.GetArgs(self.node, 'boolval'))
+        self.assertEqual(['-n', 'first', 'second', '-p', '123,456', '-x'],
+                         fdt_util.GetArgs(node, 'args'))
+        with self.assertRaises(ValueError) as exc:
+            fdt_util.GetArgs(self.node, 'missing')
+        self.assertIn(
+            "Node '/spl-test': Expected property 'missing'",
+            str(exc.exception))
 
     def testGetBool(self):
         self.assertEqual(True, fdt_util.GetBool(self.node, 'boolval'))

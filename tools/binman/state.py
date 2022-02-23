@@ -397,7 +397,7 @@ def CheckAddHashProp(node):
         if algo.value == 'sha256':
             size = 32
         else:
-            return "Unknown hash algorithm '%s'" % algo
+            return "Unknown hash algorithm '%s'" % algo.value
         for n in GetUpdateNodes(hash_node):
             n.AddEmptyProp('value', size)
 

@@ -84,6 +84,7 @@ FSP_M_DATA            = b'fsp_m'
 FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
+TEE_OS_DATA           = b'this is some tee OS data'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
 SCP_DATA              = b'scp'
@@ -188,6 +189,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
+        TestFunctional._MakeInputFile('tee-pager.bin', TEE_OS_DATA)
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
@@ -2076,7 +2078,7 @@ class TestFunctional(unittest.TestCase):
     def testHashBadAlgo(self):
         with self.assertRaises(ValueError) as e:
             self._DoReadFileDtb('092_hash_bad_algo.dts', update_dtb=True)
-        self.assertIn("Node '/binman/u-boot': Unknown hash algorithm",
+        self.assertIn("Node '/binman/u-boot': Unknown hash algorithm 'invalid'",
                       str(e.exception))
 
     def testHashSection(self):
@@ -3770,6 +3772,62 @@ class TestFunctional(unittest.TestCase):
 
         self._CheckSimpleFitData(fit_data, U_BOOT_EXP_DATA, U_BOOT_SPL_DTB_DATA)
 
+    def testSimpleFitImagePos(self):
+        """Test that we have correct image-pos for FIT subentries"""
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('161_fit.dts',
+                                                        update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS)
+
+        self.assertEqual({
+            'image-pos': 0,
+            'offset': 0,
+            'size': 1890,
+
+            'u-boot:image-pos': 0,
+            'u-boot:offset': 0,
+            'u-boot:size': 4,
+
+            'fit:image-pos': 4,
+            'fit:offset': 4,
+            'fit:size': 1840,
+
+            'fit/images/kernel:image-pos': 160,
+            'fit/images/kernel:offset': 156,
+            'fit/images/kernel:size': 4,
+
+            'fit/images/kernel/u-boot:image-pos': 160,
+            'fit/images/kernel/u-boot:offset': 0,
+            'fit/images/kernel/u-boot:size': 4,
+
+            'fit/images/fdt-1:image-pos': 456,
+            'fit/images/fdt-1:offset': 452,
+            'fit/images/fdt-1:size': 6,
+
+            'fit/images/fdt-1/u-boot-spl-dtb:image-pos': 456,
+            'fit/images/fdt-1/u-boot-spl-dtb:offset': 0,
+            'fit/images/fdt-1/u-boot-spl-dtb:size': 6,
+
+            'u-boot-nodtb:image-pos': 1844,
+            'u-boot-nodtb:offset': 1844,
+            'u-boot-nodtb:size': 46,
+        }, props)
+
+        # Actually check the data is where we think it is
+        for node, expected in [
+            ("u-boot", U_BOOT_DATA),
+            ("fit/images/kernel", U_BOOT_DATA),
+            ("fit/images/kernel/u-boot", U_BOOT_DATA),
+            ("fit/images/fdt-1", U_BOOT_SPL_DTB_DATA),
+            ("fit/images/fdt-1/u-boot-spl-dtb", U_BOOT_SPL_DTB_DATA),
+            ("u-boot-nodtb", U_BOOT_NODTB_DATA),
+        ]:
+            image_pos = props[f"{node}:image-pos"]
+            size = props[f"{node}:size"]
+            self.assertEqual(len(expected), size)
+            self.assertEqual(expected, data[image_pos:image_pos+size])
+
     def testFitExternal(self):
         """Test an image with an FIT with external images"""
         data = self._DoReadFile('162_fit_external.dts')
@@ -3797,6 +3855,62 @@ class TestFunctional(unittest.TestCase):
         actual_pos = len(U_BOOT_DATA) + fit_pos
         self.assertEqual(U_BOOT_DATA + b'aa',
                          data[actual_pos:actual_pos + external_data_size])
+
+    def testFitExternalImagePos(self):
+        """Test that we have correct image-pos for external FIT subentries"""
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('162_fit_external.dts',
+                                                        update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS)
+
+        self.assertEqual({
+            'image-pos': 0,
+            'offset': 0,
+            'size': 1082,
+
+            'u-boot:image-pos': 0,
+            'u-boot:offset': 0,
+            'u-boot:size': 4,
+
+            'fit:size': 1032,
+            'fit:offset': 4,
+            'fit:image-pos': 4,
+
+            'fit/images/kernel:size': 4,
+            'fit/images/kernel:offset': 1024,
+            'fit/images/kernel:image-pos': 1028,
+
+            'fit/images/kernel/u-boot:size': 4,
+            'fit/images/kernel/u-boot:offset': 0,
+            'fit/images/kernel/u-boot:image-pos': 1028,
+
+            'fit/images/fdt-1:size': 2,
+            'fit/images/fdt-1:offset': 1028,
+            'fit/images/fdt-1:image-pos': 1032,
+
+            'fit/images/fdt-1/_testing:size': 2,
+            'fit/images/fdt-1/_testing:offset': 0,
+            'fit/images/fdt-1/_testing:image-pos': 1032,
+
+            'u-boot-nodtb:image-pos': 1036,
+            'u-boot-nodtb:offset': 1036,
+            'u-boot-nodtb:size': 46,
+         }, props)
+
+        # Actually check the data is where we think it is
+        for node, expected in [
+            ("u-boot", U_BOOT_DATA),
+            ("fit/images/kernel", U_BOOT_DATA),
+            ("fit/images/kernel/u-boot", U_BOOT_DATA),
+            ("fit/images/fdt-1", b'aa'),
+            ("fit/images/fdt-1/_testing", b'aa'),
+            ("u-boot-nodtb", U_BOOT_NODTB_DATA),
+        ]:
+            image_pos = props[f"{node}:image-pos"]
+            size = props[f"{node}:size"]
+            self.assertEqual(len(expected), size)
+            self.assertEqual(expected, data[image_pos:image_pos+size])
 
     def testFitMissing(self):
         """Test that binman still produces a FIT image if mkimage is missing"""
@@ -5159,6 +5273,54 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         err = stderr.getvalue()
         self.assertRegex(err,
                          "Image 'main-section'.*missing bintools.*: futility")
+
+    def testFitSubentryHashSubnode(self):
+        """Test an image with a FIT inside"""
+        data, _, _, out_dtb_name = self._DoReadFileDtb(
+            '221_fit_subentry_hash.dts', use_real_dtb=True, update_dtb=True)
+
+        mkimage_dtb = fdt.Fdt.FromData(data)
+        mkimage_dtb.Scan()
+        binman_dtb = fdt.Fdt(out_dtb_name)
+        binman_dtb.Scan()
+
+        # Check that binman didn't add hash values
+        fnode = binman_dtb.GetNode('/binman/fit/images/kernel/hash')
+        self.assertNotIn('value', fnode.props)
+
+        fnode = binman_dtb.GetNode('/binman/fit/images/fdt-1/hash')
+        self.assertNotIn('value', fnode.props)
+
+        # Check that mkimage added hash values
+        fnode = mkimage_dtb.GetNode('/images/kernel/hash')
+        self.assertIn('value', fnode.props)
+
+        fnode = mkimage_dtb.GetNode('/images/fdt-1/hash')
+        self.assertIn('value', fnode.props)
+
+    def testPackTeeOs(self):
+        """Test that an image with an TEE binary can be created"""
+        data = self._DoReadFile('222_tee_os.dts')
+        self.assertEqual(TEE_OS_DATA, data[:len(TEE_OS_DATA)])
+
+    def testFitFdtOper(self):
+        """Check handling of a specified FIT operation"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+        }
+        self._DoReadFileDtb(
+            '223_fit_fdt_oper.dts',
+            entry_args=entry_args,
+            extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+
+    def testFitFdtBadOper(self):
+        """Check handling of an FDT map when the section cannot be found"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb('224_fit_bad_oper.dts')
+        self.assertIn("Node '/binman/fit': Unknown operation 'unknown'",
+                      str(exc.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

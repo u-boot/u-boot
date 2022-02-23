@@ -31,25 +31,30 @@ class Entry_mkimage(Entry):
     This calls mkimage to create an imximage with u-boot-spl.bin as the input
     file. The output from mkimage then becomes part of the image produced by
     binman.
+
+    To use CONFIG options in the arguments, use a string list instead, as in
+    this example which also produces four arguments::
+
+        mkimage {
+            args = "-n", CONFIG_SYS_SOC, "-T imximage";
+
+            u-boot-spl {
+            };
+        };
+
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
-        self._args = fdt_util.GetString(self._node, 'args').split(' ')
+        self._args = fdt_util.GetArgs(self._node, 'args')
         self._mkimage_entries = OrderedDict()
         self.align_default = None
         self.ReadEntries()
 
     def ObtainContents(self):
-        data = b''
-        for entry in self._mkimage_entries.values():
-            # First get the input data and put it in a file. If not available,
-            # try later.
-            if not entry.ObtainContents():
-                return False
-            data += entry.GetData()
-        uniq = self.GetUniqueName()
-        input_fname = tools.get_output_filename('mkimage.%s' % uniq)
-        tools.write_file(input_fname, data)
+        data, input_fname, uniq = self.collect_contents_to_file(
+            self._mkimage_entries.values(), 'mkimage')
+        if data is False:
+            return False
         output_fname = tools.get_output_filename('mkimage-out.%s' % uniq)
         if self.mkimage.run_cmd('-d', input_fname, *self._args,
                                 output_fname) is not None:

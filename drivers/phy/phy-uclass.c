@@ -354,23 +354,31 @@ int generic_phy_configure(struct phy *phy, void *params)
 int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)
 {
 	int i, ret, count;
+	struct udevice *phydev = dev;
 
 	bulk->count = 0;
 
 	/* Return if no phy declared */
-	if (!dev_read_prop(dev, "phys", NULL))
-		return 0;
+	if (!dev_read_prop(dev, "phys", NULL)) {
+		phydev = dev->parent;
+		if (!dev_read_prop(phydev, "phys", NULL)) {
+			pr_err("%s : no phys property\n", __func__);
+			return 0;
+		}
+	}
 
-	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells", 0);
-	if (count < 1)
+	count = dev_count_phandle_with_args(phydev, "phys", "#phy-cells", 0);
+	if (count < 1) {
+		pr_err("%s : no phys found %d\n", __func__, count);
 		return count;
+	}
 
-	bulk->phys = devm_kcalloc(dev, count, sizeof(struct phy), GFP_KERNEL);
+	bulk->phys = devm_kcalloc(phydev, count, sizeof(struct phy), GFP_KERNEL);
 	if (!bulk->phys)
 		return -ENOMEM;
 
 	for (i = 0; i < count; i++) {
-		ret = generic_phy_get_by_index(dev, i, &bulk->phys[i]);
+		ret = generic_phy_get_by_index(phydev, i, &bulk->phys[i]);
 		if (ret) {
 			pr_err("Failed to get PHY%d for %s\n", i, dev->name);
 			return ret;

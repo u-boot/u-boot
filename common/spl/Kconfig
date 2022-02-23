@@ -101,6 +101,18 @@ config SPL_SHOW_ERRORS
 
 	  This adds a small amount to SPL code size, perhaps 100 bytes.
 
+config SPL_BINMAN_SYMBOLS
+	bool "Declare binman symbols in SPL"
+	depends on SPL_FRAMEWORK && BINMAN
+	default y
+	help
+	  This enables use of symbols in SPL which refer to U-Boot, enabling SPL
+	  to obtain the location of U-Boot simply by calling spl_get_image_pos()
+	  and spl_get_image_size().
+
+	  For this to work, you must have a U-Boot image in the binman image, so
+	  binman can update SPL with the location of it.
+
 menu "PowerPC and LayerScape SPL Boot options"
 
 config SPL_NAND_BOOT
@@ -1320,6 +1332,18 @@ config TPL_SIZE_LIMIT
 	help
 	  Specifies the maximum length of the U-Boot TPL image.
 	  If this value is zero, it is ignored.
+
+config TPL_BINMAN_SYMBOLS
+	bool "Declare binman symbols in SPL"
+	depends on SPL_FRAMEWORK && BINMAN
+	default y
+	help
+	  This enables use of symbols in TPL which refer to U-Boot, enabling SPL
+	  to obtain the location of U-Boot simply by calling spl_get_image_pos()
+	  and spl_get_image_size().
+
+	  For this to work, you must have a U-Boot image in the binman image, so
+	  binman can update SPL with the location of it.
 
 config TPL_FRAMEWORK
 	bool "Support TPL based upon the common SPL framework"

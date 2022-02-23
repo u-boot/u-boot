@@ -553,11 +553,73 @@ For example, this creates an image containing a FIT with U-Boot SPL::
         };
     };
 
+More complex setups can be created, with generated nodes, as described
+below.
+
+Properties (in the 'fit' node itself)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Special properties have a `fit,` prefix, indicating that they should be
+processed but not included in the final FIT.
+
+The top-level 'fit' node supports the following special properties:
+
+    fit,external-offset
+        Indicates that the contents of the FIT are external and provides the
+        external offset. This is passed to mkimage via the -E and -p flags.
+
+    fit,fdt-list
+        Indicates the entry argument which provides the list of device tree
+        files for the gen-fdt-nodes operation (as below). This is often
+        `of-list` meaning that `-a of-list="dtb1 dtb2..."` should be passed
+        to binman.
+
+Substitutions
+~~~~~~~~~~~~~
+
+Node names and property values support a basic string-substitution feature.
+Available substitutions for '@' nodes (and property values) are:
+
+SEQ:
+    Sequence number of the generated fdt (1, 2, ...)
+NAME
+    Name of the dtb as provided (i.e. without adding '.dtb')
+
+The `default` property, if present, will be automatically set to the name
+if of configuration whose devicetree matches the `default-dt` entry
+argument, e.g. with `-a default-dt=sun50i-a64-pine64-lts`.
+
+Available substitutions for property values in these nodes are:
+
+DEFAULT-SEQ:
+    Sequence number of the default fdt, as provided by the 'default-dt'
+    entry argument
+
+Available operations
+~~~~~~~~~~~~~~~~~~~~
+
+You can add an operation to an '@' node to indicate which operation is
+required::
+
+    @fdt-SEQ {
+        fit,operation = "gen-fdt-nodes";
+        ...
+    };
+
+Available operations are:
+
+gen-fdt-nodes
+    Generate FDT nodes as above. This is the default if there is no
+    `fit,operation` property.
+
+Generating nodes from an FDT list (gen-fdt-nodes)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 U-Boot supports creating fdt and config nodes automatically. To do this,
-pass an of-list property (e.g. -a of-list=file1 file2). This tells binman
-that you want to generates nodes for two files: file1.dtb and file2.dtb
-The fit,fdt-list property (see above) indicates that of-list should be used.
-If the property is missing you will get an error.
+pass an `of-list` property (e.g. `-a of-list=file1 file2`). This tells
+binman that you want to generates nodes for two files: `file1.dtb` and
+`file2.dtb`. The `fit,fdt-list` property (see above) indicates that
+`of-list` should be used. If the property is missing you will get an error.
 
 Then add a 'generator node', a node with a name starting with '@'::
 
@@ -569,10 +631,11 @@ Then add a 'generator node', a node with a name starting with '@'::
         };
     };
 
-This tells binman to create nodes fdt-1 and fdt-2 for each of your two
+This tells binman to create nodes `fdt-1` and `fdt-2` for each of your two
 files. All the properties you specify will be included in the node. This
 node acts like a template to generate the nodes. The generator node itself
 does not appear in the output - it is replaced with what binman generates.
+A 'data' property is created with the contents of the FDT file.
 
 You can create config nodes in a similar way::
 
@@ -586,34 +649,11 @@ You can create config nodes in a similar way::
         };
     };
 
-This tells binman to create nodes config-1 and config-2, i.e. a config for
-each of your two files.
-
-Available substitutions for '@' nodes are:
-
-SEQ:
-    Sequence number of the generated fdt (1, 2, ...)
-NAME
-    Name of the dtb as provided (i.e. without adding '.dtb')
+This tells binman to create nodes `config-1` and `config-2`, i.e. a config
+for each of your two files.
 
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
-
-The 'default' property, if present, will be automatically set to the name
-if of configuration whose devicetree matches the 'default-dt' entry
-argument, e.g. with '-a default-dt=sun50i-a64-pine64-lts'.
-
-Available substitutions for '@' property values are
-
-DEFAULT-SEQ:
-    Sequence number of the default fdt,as provided by the 'default-dt' entry
-    argument
-
-Properties (in the 'fit' node itself):
-    fit,external-offset: Indicates that the contents of the FIT are external
-        and provides the external offset. This is passsed to mkimage via
-        the -E and -p flags.
-
 
 
 
@@ -931,6 +971,17 @@ This calls mkimage to create an imximage with u-boot-spl.bin as the input
 file. The output from mkimage then becomes part of the image produced by
 binman.
 
+To use CONFIG options in the arguments, use a string list instead, as in
+this example which also produces four arguments::
+
+    mkimage {
+        args = "-n", CONFIG_SYS_SOC, "-T imximage";
+
+        u-boot-spl {
+        };
+    };
+
+
 
 
 Entry: opensbi: RISC-V OpenSBI fw_dynamic blob
@@ -1100,6 +1151,19 @@ image but of course it will not work. It is useful to make sure that
 Continuous Integration systems can build without the binaries being
 available. This is set by the `SetAllowMissing()` method, if
 `--allow-missing` is passed to binman.
+
+
+
+Entry: tee-os: Entry containing an OP-TEE Trusted OS (TEE) blob
+---------------------------------------------------------------
+
+Properties / Entry arguments:
+    - tee-os-path: Filename of file to read into entry. This is typically
+        called tee-pager.bin
+
+This entry holds the run-time firmware, typically started by U-Boot SPL.
+See the U-Boot README for your architecture or board for how to use it. See
+https://github.com/OP-TEE/optee_os for more information about OP-TEE.
 
 
 

@@ -20,6 +20,7 @@ from patman import tout
 ELF_TOOLS = True
 try:
     from elftools.elf.elffile import ELFFile
+    from elftools.elf.elffile import ELFError
     from elftools.elf.sections import SymbolTableSection
 except:  # pragma: no cover
     ELF_TOOLS = False
@@ -369,3 +370,39 @@ def UpdateFile(infile, outfile, start_sym, end_sym, insert):
     newdata += data[syms[end_sym].offset:]
     tools.write_file(outfile, newdata)
     tout.info('Written to offset %#x' % syms[start_sym].offset)
+
+def read_segments(data):
+    """Read segments from an ELF file
+
+    Args:
+        data (bytes): Contents of file
+
+    Returns:
+        tuple:
+            list of segments, each:
+                int: Segment number (0 = first)
+                int: Start address of segment in memory
+                bytes: Contents of segment
+            int: entry address for image
+
+    Raises:
+        ValueError: elftools is not available
+    """
+    if not ELF_TOOLS:
+        raise ValueError('Python elftools package is not available')
+    with io.BytesIO(data) as inf:
+        try:
+            elf = ELFFile(inf)
+        except ELFError as err:
+            raise ValueError(err)
+        entry = elf.header['e_entry']
+        segments = []
+        for i in range(elf.num_segments()):
+            segment = elf.get_segment(i)
+            if segment['p_type'] != 'PT_LOAD' or not segment['p_memsz']:
+                skipped = 1  # To make code-coverage see this line
+                continue
+            start = segment['p_offset']
+            rend = start + segment['p_filesz']
+            segments.append((i, segment['p_paddr'], data[start:rend]))
+    return segments, entry
