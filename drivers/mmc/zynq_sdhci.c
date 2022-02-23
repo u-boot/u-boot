@@ -770,11 +770,11 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	 * 1000msec till the card detect state gets stable.
 	 */
 	if (IS_ENABLED(CONFIG_ARCH_VERSAL)) {
-		u32 timeout = 1000;
+		u32 timeout = 1000000;
 
 		while (((sdhci_readl(host, SDHCI_PRESENT_STATE) &
 			 SDHCI_CARD_STATE_STABLE) == 0) && timeout) {
-			mdelay(1);
+			udelay(1);
 			timeout--;
 		}
 		if (!timeout) {
