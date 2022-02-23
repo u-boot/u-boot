@@ -222,7 +222,7 @@ int fru_capture(unsigned long addr)
 	}
 
 	hdr = (struct fru_common_hdr *)addr;
-
+	memset((void *)&fru_data, 0, sizeof(fru_data));
 	memcpy((void *)&fru_data, (void *)hdr,
 	       sizeof(struct fru_common_hdr));
 
