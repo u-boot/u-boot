@@ -68,6 +68,13 @@ config APBH_DMA
 	help
 	  Enable APBH DMA driver.
 
+config XILINX_DPDMA
+	bool "Enable ZynqMP Display Port DMA driver"
+	depends on DMA && ZYNQMP_POWER_DOMAIN
+	help
+	  Enable support for Xilinx ZynqMP Display DMA driver. Currently
+	  this file is used as placeholder for driver. The main reason is
+	  to record compatible string and calling power domain driver.
 
 if APBH_DMA
 config APBH_DMA_BURST
