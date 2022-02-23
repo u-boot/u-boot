@@ -769,7 +769,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	 * causing sd card timeout error. Workaround this by adding a wait for
 	 * 1000msec till the card detect state gets stable.
 	 */
-	if (IS_ENABLED(CONFIG_ARCH_VERSAL)) {
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) || IS_ENABLED(CONFIG_ARCH_VERSAL)) {
 		u32 timeout = 1000000;
 
 		while (((sdhci_readl(host, SDHCI_PRESENT_STATE) &
