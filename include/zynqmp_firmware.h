@@ -395,6 +395,8 @@ int zynqmp_pmufw_config_close(void);
 void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload);
+int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value);
+int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id);
 
 /* Type of Config Object */
 #define PM_CONFIG_OBJECT_TYPE_BASE	0x1U
@@ -426,5 +428,9 @@ enum zynqmp_pm_request_ack {
 #define ZYNQMP_PM_CAPABILITY_UNUSABLE	0x8U
 
 #define ZYNQMP_PM_MAX_QOS		100U
+/* Firmware feature check version mask */
+#define FIRMWARE_VERSION_MASK		GENMASK(15, 0)
+/* PM API versions */
+#define PM_API_VERSION_2		2
 
 #endif /* _ZYNQMP_FIRMWARE_H_ */
