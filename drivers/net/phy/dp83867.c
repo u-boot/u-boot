@@ -158,7 +158,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 
 	node = phy_get_ofnode(phydev);
 	if (!ofnode_valid(node))
-		return -EINVAL;
+		return 0;
 
 	/* Optional configuration */
 	ret = ofnode_read_u32(node, "ti,clk-output-sel",
