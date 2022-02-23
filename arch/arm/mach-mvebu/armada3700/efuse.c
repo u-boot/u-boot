@@ -8,6 +8,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <mach/mbox.h>
 #include <mach/soc.h>
 
 #define OTP_NB_REG_BASE		((void __iomem *)MVEBU_REGISTER(0x12600))
@@ -77,6 +78,41 @@ static void otp_read_parallel(void __iomem *base, u32 *data, u32 count)
 	}
 }
 
+static int rwtm_otp_read(u8 row, u32 word, u32 *data)
+{
+	u32 out[3];
+	u32 in[2];
+	int res = -EINVAL;
+
+	if (word < 2) {
+		/*
+		 * MBOX_CMD_OTP_READ_32B command is supported by Marvell
+		 * fuse.bin firmware and also by new CZ.NIC wtmi firmware.
+		 * This command returns raw bits without ECC corrections.
+		 * It does not provide access to the lock bit.
+		 */
+		in[0] = row;
+		in[1] = word * 32;
+		res = mbox_do_cmd(MBOX_CMD_OTP_READ_32B, in, 2, out, 1);
+		if (!res)
+			*data = out[0];
+	} else if (word == 2) {
+		/*
+		 * MBOX_CMD_OTP_READ command is supported only by new CZ.NIC
+		 * wtmi firmware and provides access to all bits, including
+		 * lock bit without doing ECC corrections. For compatibility
+		 * with Marvell fuse.bin firmware, use this command only for
+		 * accessing lock bit.
+		 */
+		in[0] = row;
+		res = mbox_do_cmd(MBOX_CMD_OTP_READ, in, 1, out, 3);
+		if (!res)
+			*data = out[2];
+	}
+
+	return res;
+}
+
 /*
  * Banks 0-43 are used for accessing Security OTP (44 rows with 67 bits via 44 banks and words 0-2)
  * Bank 44 is used for accessing North Bridge OTP (69 bits via words 0-2)
@@ -96,8 +132,7 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 	if (bank <= RWTM_MAX_BANK) {
 		if (word >= RWTM_ROW_WORDS)
 			return -EINVAL;
-		/* TODO: not implemented yet */
-		return -ENOSYS;
+		return rwtm_otp_read(bank, word, val);
 	} else if (bank == OTP_NB_BANK) {
 		u32 data[OTP_NB_WORDS];
 		if (word >= OTP_NB_WORDS)
