@@ -416,7 +416,7 @@ int board_late_init_xilinx(void)
 
 			for (i = 0; i < EEPROM_HDR_NO_OF_MAC_ADDR; i++) {
 				if (!desc->mac_addr[i])
-					continue;
+					break;
 
 				if (is_valid_ethaddr((const u8 *)desc->mac_addr[i]))
 					ret |= eth_env_set_enetaddr_by_index("eth",
