@@ -581,15 +581,6 @@ int get_clocks(void)
 #ifdef CONFIG_ARCH_MPC8544
 	volatile ccsr_gur_t *gur = (void *) CONFIG_SYS_MPC85xx_GUTS_ADDR;
 #endif
-#if defined(CONFIG_CPM2)
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
-	uint sccr, dfbrg;
-
-	/* set VCO = 4 * BRG */
-	cpm->im_cpm_intctl.sccr &= 0xfffffffc;
-	sccr = cpm->im_cpm_intctl.sccr;
-	dfbrg = (sccr & SCCR_DFBRG_MSK) >> SCCR_DFBRG_SHIFT;
-#endif
 	get_sys_info (&sys_info);
 	gd->cpu_clk = sys_info.freq_processor[0];
 	gd->bus_clk = sys_info.freq_systembus;
@@ -634,13 +625,6 @@ int get_clocks(void)
 	gd->arch.sdhc_clk = gd->bus_clk / 2;
 #endif
 #endif /* defined(CONFIG_FSL_ESDHC) */
-
-#if defined(CONFIG_CPM2)
-	gd->arch.vco_out = 2*sys_info.freq_systembus;
-	gd->arch.cpm_clk = gd->arch.vco_out / 2;
-	gd->arch.scc_clk = gd->arch.vco_out / 4;
-	gd->arch.brg_clk = gd->arch.vco_out / (1 << (2 * (dfbrg + 1)));
-#endif
 
 	if(gd->cpu_clk != 0) return (0);
 	else return (1);

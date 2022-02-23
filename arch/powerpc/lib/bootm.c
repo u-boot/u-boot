@@ -266,12 +266,6 @@ static void set_clocks_in_mhz (struct bd_info *kbd)
 		/* convert all clock information to MHz */
 		kbd->bi_intfreq /= 1000000L;
 		kbd->bi_busfreq /= 1000000L;
-#if defined(CONFIG_CPM2)
-		kbd->bi_cpmfreq /= 1000000L;
-		kbd->bi_brgfreq /= 1000000L;
-		kbd->bi_sccfreq /= 1000000L;
-		kbd->bi_vco	/= 1000000L;
-#endif
 	}
 }
 

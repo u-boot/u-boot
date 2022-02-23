@@ -241,10 +241,6 @@ int checkcpu (void)
 	printf("IFC:%-4s MHz\n", strmhz(buf1, sysinfo.freq_localbus));
 #endif
 
-#ifdef CONFIG_CPM2
-	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freq_systembus));
-#endif
-
 #ifdef CONFIG_QE
 	printf("       QE:%-4s MHz\n", strmhz(buf1, sysinfo.freq_qe));
 #endif
