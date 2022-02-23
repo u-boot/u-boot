@@ -44,6 +44,7 @@ config ARMADA_XP
 config ARMADA_3700
 	bool
 	select ARM64
+	select HAVE_MVEBU_EFUSE
 
 # Armada 7K and 8K are very similar - use only one Kconfig symbol for both
 config ARMADA_8K
