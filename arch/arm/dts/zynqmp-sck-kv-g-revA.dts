@@ -154,6 +154,8 @@
 	no-1-8-v;
 	disable-wp;
 	xlnx,mio-bank = <1>;
+	assigned-clock-rates = <187498123>;
+	bus-width = <8>;
 };
 
 &gem3 { /* required by spec */

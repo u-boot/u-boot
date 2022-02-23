@@ -109,6 +109,7 @@
 	pinctrl-0 = <&pinctrl_usb0_default>;
 	phy-names = "usb3-phy";
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 1>;
+	assigned-clock-rates = <250000000>, <20000000>;
 
 	usb5744: usb-hub { /* u43 */
 		status = "okay";
@@ -140,6 +141,8 @@
 	clk-phase-sd-hs = <126>, <60>;
 	clk-phase-uhs-sdr25 = <120>, <60>;
 	clk-phase-uhs-ddr50 = <126>, <48>;
+	assigned-clock-rates = <187498123>;
+	bus-width = <8>;
 };
 
 &gem3 { /* required by spec */
