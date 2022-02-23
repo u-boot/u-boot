@@ -1086,10 +1086,13 @@ static int zynq_nand_probe(struct udevice *dev)
 	int is_16bit_bw;
 
 	smc->reg = (struct zynq_nand_smc_regs *)dev_read_addr(dev);
-	of_nand = dev_read_subnode(dev, "flash@e1000000");
+	of_nand = dev_read_subnode(dev, "nand-controller@0,0");
 	if (!ofnode_valid(of_nand)) {
-		printf("Failed to find nand node in dt\n");
-		return -ENODEV;
+		of_nand = dev_read_subnode(dev, "flash@e1000000");
+		if (!ofnode_valid(of_nand)) {
+			printf("Failed to find nand node in dt\n");
+			return -ENODEV;
+		}
 	}
 
 	if (!ofnode_is_available(of_nand)) {
