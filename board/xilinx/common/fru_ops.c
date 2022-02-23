@@ -39,11 +39,19 @@ static int fru_check_language(u8 code)
 u8 fru_checksum(u8 *addr, u8 len)
 {
 	u8 checksum = 0;
+	u8 cnt = len;
 
 	while (len--) {
+		if (*addr == 0)
+			cnt--;
+
 		checksum += *addr;
 		addr++;
 	}
+
+	/* If all data bytes are 0's return error */
+	if (!cnt)
+		return EINVAL;
 
 	return checksum;
 }
