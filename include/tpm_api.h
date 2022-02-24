@@ -12,6 +12,26 @@
 #include <tpm-v2.h>
 
 /**
+ * tpm_is_v1() - Check if it is a tpmv1 device
+ * @param dev		TPM device
+ *
+ * Check if the TPM device is a TPMv1 device
+ *
+ * Return: 1 if TPMv1, 0 otherwise
+ */
+bool tpm_is_v1(struct udevice *dev);
+
+/**
+ * tpm_is_v2() - Check if it is a tpmv2 device
+ * @param dev		TPM device
+ *
+ * Check if the TPM device is a TPMv2 device
+ *
+ * Return: 1 if TPMv2, 0 otherwise
+ */
+bool tpm_is_v2(struct udevice *dev);
+
+/**
  * Issue a TPM_Startup command.
  *
  * @param dev		TPM device

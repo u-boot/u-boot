@@ -11,9 +11,20 @@
 #include <log.h>
 #include <linux/delay.h>
 #include <linux/unaligned/be_byteshift.h>
+#include <tpm_api.h>
 #include <tpm-v1.h>
 #include <tpm-v2.h>
 #include "tpm_internal.h"
+
+bool tpm_is_v1(struct udevice *dev)
+{
+	return IS_ENABLED(CONFIG_TPM_V1) && tpm_get_version(dev) == TPM_V1;
+}
+
+bool tpm_is_v2(struct udevice *dev)
+{
+	return IS_ENABLED(CONFIG_TPM_V2) && tpm_get_version(dev) == TPM_V2;
+}
 
 int tpm_open(struct udevice *dev)
 {
