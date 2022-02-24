@@ -11,9 +11,15 @@
 #include <log.h>
 #include <linux/delay.h>
 #include <linux/unaligned/be_byteshift.h>
+#include <tpm_api.h>
 #include <tpm-v1.h>
 #include <tpm-v2.h>
 #include "tpm_internal.h"
+
+#include <dm/lists.h>
+
+#define TPM_RNG1_DRV_NAME	"tpm1-rng"
+#define TPM_RNG2_DRV_NAME	"tpm2-rng"
 
 int tpm_open(struct udevice *dev)
 {
@@ -136,12 +142,58 @@ int tpm_xfer(struct udevice *dev, const uint8_t *sendbuf, size_t send_size,
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_TPM)
+static int tpm_uclass_post_probe(struct udevice *dev)
+{
+	int ret;
+	const char *drv = tpm_is_v1(dev) ?
+		TPM_RNG1_DRV_NAME : TPM_RNG2_DRV_NAME;
+	struct udevice *child;
+
+	ret = device_bind_driver(dev, drv, "tpm-rng0", &child);
+	if (ret == -ENOENT) {
+		log_err("No driver configured for tpm-rng device\n");
+		return 0;
+	}
+
+	if (ret) {
+		log_err("Unable to bind rng driver with the tpm-rng device\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+static int tpm_uclass_child_pre_probe(struct udevice *dev)
+{
+	int ret;
+
+	ret = tpm_open(dev->parent);
+	if (ret == -EBUSY) {
+		log_info("TPM device already opened\n");
+	} else if (ret) {
+		log_err("Unable to open TPM device\n");
+		return ret;
+	}
+
+	ret = tpm_startup(dev->parent, TPM_ST_CLEAR);
+	if (ret)
+		log_err("Unable to start TPM device\n");
+
+	return ret;
+}
+#endif /* CONFIG_TPM */
+
 UCLASS_DRIVER(tpm) = {
-	.id		= UCLASS_TPM,
-	.name		= "tpm",
-	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+	.id			= UCLASS_TPM,
+	.name			= "tpm",
+	.flags			= DM_UC_FLAG_SEQ_ALIAS,
 #if CONFIG_IS_ENABLED(OF_REAL)
-	.post_bind	= dm_scan_fdt_dev,
+	.post_bind		= dm_scan_fdt_dev,
+#endif
+#if IS_ENABLED(CONFIG_TPM)
+	.post_probe		= tpm_uclass_post_probe,
+	.child_pre_probe	= tpm_uclass_child_pre_probe,
 #endif
 	.per_device_auto	= sizeof(struct tpm_chip_priv),
 };
