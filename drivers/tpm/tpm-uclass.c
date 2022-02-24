@@ -11,9 +11,14 @@
 #include <log.h>
 #include <linux/delay.h>
 #include <linux/unaligned/be_byteshift.h>
+#include <tpm_api.h>
 #include <tpm-v1.h>
 #include <tpm-v2.h>
 #include "tpm_internal.h"
+
+#include <dm/lists.h>
+
+#define TPM_RNG_DRV_NAME	"tpm-rng"
 
 int tpm_open(struct udevice *dev)
 {
@@ -136,12 +141,36 @@ int tpm_xfer(struct udevice *dev, const uint8_t *sendbuf, size_t send_size,
 	return 0;
 }
 
+static int tpm_uclass_post_probe(struct udevice *dev)
+{
+	int ret;
+	const char *drv = TPM_RNG_DRV_NAME;
+	struct udevice *child;
+
+	if (CONFIG_IS_ENABLED(TPM_RNG)) {
+		ret = device_find_first_child_by_uclass(dev, UCLASS_RNG,
+							&child);
+
+		if (ret != -ENODEV) {
+			log_debug("RNG child already added to the TPM device\n");
+			return ret;
+		}
+
+		ret = device_bind_driver(dev, drv, "tpm-rng0", &child);
+		if (ret)
+			return log_msg_ret("bind", ret);
+	}
+
+	return 0;
+}
+
 UCLASS_DRIVER(tpm) = {
-	.id		= UCLASS_TPM,
-	.name		= "tpm",
-	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+	.id			= UCLASS_TPM,
+	.name			= "tpm",
+	.flags			= DM_UC_FLAG_SEQ_ALIAS,
 #if CONFIG_IS_ENABLED(OF_REAL)
-	.post_bind	= dm_scan_fdt_dev,
+	.post_bind		= dm_scan_fdt_dev,
 #endif
+	.post_probe		= tpm_uclass_post_probe,
 	.per_device_auto	= sizeof(struct tpm_chip_priv),
 };
