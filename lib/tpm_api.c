@@ -11,7 +11,8 @@
 #include <tpm-v2.h>
 #include <tpm_api.h>
 
-u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
+
+int tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
 {
 	if (tpm_is_v1(dev)) {
 		return tpm1_startup(dev, mode);
