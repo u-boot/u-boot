@@ -21,7 +21,7 @@ static bool is_tpm2(struct udevice *dev)
 	return IS_ENABLED(CONFIG_TPM_V2) && tpm_get_version(dev) == TPM_V2;
 }
 
-u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
+int tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
 {
 	if (is_tpm1(dev)) {
 		return tpm1_startup(dev, mode);
