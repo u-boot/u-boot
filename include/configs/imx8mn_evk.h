@@ -39,19 +39,27 @@
 #endif
 
 /* Initial environment variables */
+/* see include/configs/ti_armv7_common.h */
+#define ENV_MEM_LAYOUT_SETTINGS \
+	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_addr_r=0x42000000\0" \
+	"fdt_addr_r=0x48000000\0" \
+	"fdtoverlay_addr_r=0x49000000\0" \
+	"ramdisk_addr_r=0x48080000\0" \
+	"initrd_addr=0x48080000\0" \
+	"scriptaddr=0x40000000\0" \
+	"pxefile_addr_r=0x40100000\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"image=Image\0" \
 	BOOTENV \
-	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
-	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"console=ttymxc1,115200\0" \
-	"fdt_addr_r=0x43000000\0"			\
 	"boot_fit=no\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"initrd_addr=0x43800000\0"		\
 	"bootm_size=0x10000000\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
+	ENV_MEM_LAYOUT_SETTINGS
 
 /* Link Definitions */
 
