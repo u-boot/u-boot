@@ -372,7 +372,6 @@
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
 /*
  * With CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS, flash I/O is really slow, so
  * disable empty flash sector detection, which is I/O-intensive.
