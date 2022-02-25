@@ -306,6 +306,9 @@ endchoice
 config ATMEL_SFR
 	bool
 
+config AT91RESET_EXTRST
+	bool
+
 config SYS_SOC
 	default "at91"
 
