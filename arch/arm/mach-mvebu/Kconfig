@@ -152,6 +152,7 @@ config TARGET_OCTEONTX2_CN913x
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
+	select BOARD_ECC_SUPPORT
 	select MV78460
 
 config TARGET_DS414
@@ -160,6 +161,7 @@ config TARGET_DS414
 
 config TARGET_MAXBCM
 	bool "Support maxbcm"
+	select BOARD_ECC_SUPPORT
 	select MV78460
 
 config TARGET_THEADORABLE
@@ -225,6 +227,9 @@ config DDR_RESET_ON_TRAINING_FAILURE
 	  Note that if booting via UART and the DDR training fails, the
 	  device will still hang - it doesn't make sense to reset the board
 	  in such a case.
+
+config BOARD_ECC_SUPPORT
+	bool
 
 config SYS_BOARD
 	default "clearfog" if TARGET_CLEARFOG
