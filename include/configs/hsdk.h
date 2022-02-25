@@ -100,11 +100,6 @@ setenv core_iccm_1 0x6; setenv core_dccm_1 0x6; \
 setenv core_iccm_2 0x10; setenv core_dccm_2 0x10; \
 setenv core_iccm_3 0x6; setenv core_dccm_3 0x6;\0"
 
-/*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
-
 /* Cli configuration */
 #define CONFIG_SYS_CBSIZE		SZ_2K
 

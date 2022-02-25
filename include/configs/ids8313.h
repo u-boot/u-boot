@@ -214,7 +214,6 @@
 #define CONFIG_NETDEV			eth1
 #define CONFIG_HOSTNAME		"ids8313"
 #define CONFIG_ROOTPATH		"/opt/eldk-4.2/ppc_6xx"
-#define CONFIG_BOOTFILE		"ids8313/uImage"
 #define CONFIG_UBOOTPATH		"ids8313/u-boot.bin"
 #define CONFIG_FDTFILE			"ids8313/ids8313.dtb"
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mo,eth1addr:mo"

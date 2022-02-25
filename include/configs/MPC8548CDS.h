@@ -405,7 +405,6 @@
 
 #define CONFIG_HOSTNAME	 "unknown"
 #define CONFIG_ROOTPATH	 "/nfsroot"
-#define CONFIG_BOOTFILE "8548cds/uImage.uboot"
 #define CONFIG_UBOOTPATH	8548cds/u-boot.bin	/* TFTP server */
 
 #define CONFIG_SERVERIP	 192.168.1.1

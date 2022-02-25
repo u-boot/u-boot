@@ -22,9 +22,6 @@
 
 /* Ethernet */
 
-/* Booting Linux */
-#define CONFIG_BOOTFILE		"uImage"
-
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"update_sd_firmware_filename=u-boot.sd\0" \

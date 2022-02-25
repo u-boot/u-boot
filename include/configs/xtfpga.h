@@ -97,7 +97,6 @@
 /* U-Boot general configuration */
 /*==============================*/
 
-#define CONFIG_BOOTFILE			"uImage"
 	/* Console I/O Buffer Size  */
 #define CONFIG_SYS_CBSIZE		1024
 	/* Boot Argument Buffer Size */

@@ -31,11 +31,6 @@
 #define PHYS_SDRAM_1_SIZE		0x10000000	/* Max 256 MB RAM */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
-/* Environment */
-
-/* Booting Linux */
-#define CONFIG_BOOTFILE		"uImage"
-
 /* Extra Environment */
 #define CONFIG_HOSTNAME		"xea"
 

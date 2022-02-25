@@ -23,11 +23,6 @@
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
-
-/*
  * Console configuration
  */
 

@@ -11,7 +11,6 @@
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on VINING_FPGA */
 
 /* Booting Linux */
-#define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_SYS_BOOTM_LEN	0x2000000	/* 32 MiB */
 
 /* Extra Environment */

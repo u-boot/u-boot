@@ -29,7 +29,6 @@
 
 #define CONFIG_SERVERIP 192.168.1.100
 #define CONFIG_IPADDR 192.168.1.104
-#define CONFIG_BOOTFILE "uImage"
 
 /*
  * Miscellaneous configurable options

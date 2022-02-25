@@ -68,12 +68,6 @@
  */
 
 /*
- * Boot Linux
- */
-
-#define CONFIG_BOOTFILE			"uImage"
-
-/*
  * SPL
  */
 

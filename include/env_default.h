@@ -77,7 +77,7 @@ const char default_environment[] = {
 #ifdef	CONFIG_HOSTNAME
 	"hostname="	CONFIG_HOSTNAME	"\0"
 #endif
-#ifdef	CONFIG_BOOTFILE
+#ifdef CONFIG_USE_BOOTFILE
 	"bootfile="	CONFIG_BOOTFILE			"\0"
 #endif
 #ifdef	CONFIG_SYS_LOAD_ADDR

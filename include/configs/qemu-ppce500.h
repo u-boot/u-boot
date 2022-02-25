@@ -93,7 +93,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
 #endif	/* __QEMU_PPCE500_H */

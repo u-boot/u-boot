@@ -10,9 +10,6 @@
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB */
 
-/* Booting Linux */
-#define CONFIG_BOOTFILE		"fitImage"
-
 /* Environment is in MMC */
 
 /* Extra Environment */
