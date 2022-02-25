@@ -27,6 +27,8 @@
 #define RCC_DDRITFCR_DPHYAPBRST		(BIT(17))
 #define RCC_DDRITFCR_DPHYRST		(BIT(18))
 #define RCC_DDRITFCR_DPHYCTLRST		(BIT(19))
+#define RCC_DDRITFCR_DDRCKMOD_MASK	GENMASK(22, 20)
+#define RCC_DDRITFCR_DDRCKMOD_ASR	BIT(20)
 
 struct reg_desc {
 	const char *name;
@@ -651,6 +653,26 @@ static void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
 	wait_sw_done_ack(ctl);
 }
 
+static void stm32mp1_asr_enable(struct ddr_info *priv)
+{
+	struct stm32mp1_ddrctl *ctl = priv->ctl;
+
+	clrsetbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCKMOD_MASK,
+			RCC_DDRITFCR_DDRCKMOD_ASR);
+
+	start_sw_done(ctl);
+
+	setbits_le32(&ctl->hwlpctl, DDRCTRL_HWLPCTL_HW_LP_EN);
+	writel(DDRCTRL_PWRTMG_POWERDOWN_TO_X32(0x10) |
+	       DDRCTRL_PWRTMG_SELFREF_TO_X32(0x01),
+	       &ctl->pwrtmg);
+	setbits_le32(&ctl->pwrctl, DDRCTRL_PWRCTL_EN_DFI_DRAM_CLK_DISABLE);
+	setbits_le32(&ctl->pwrctl, DDRCTRL_PWRCTL_SELFREF_EN);
+
+	setbits_le32(&ctl->dfimisc, DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN);
+	wait_sw_done_ack(ctl);
+}
+
 /* board-specific DDR power initializations. */
 __weak int board_ddr_power_init(enum ddr_type ddr_type)
 {
@@ -821,6 +843,9 @@ start:
 /* 12. set back registers in step 8 to the orginal values if desidered */
 	stm32mp1_refresh_restore(priv->ctl, config->c_reg.rfshctl3,
 				 config->c_reg.pwrctl);
+
+/* Enable auto-self-refresh, which saves a bit of power at runtime. */
+	stm32mp1_asr_enable(priv);
 
 	/* enable uMCTL2 AXI port 0 and 1 */
 	setbits_le32(&priv->ctl->pctrl_0, DDRCTRL_PCTRL_N_PORT_EN);
