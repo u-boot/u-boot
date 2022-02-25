@@ -641,10 +641,10 @@ extern unsigned long get_sdram_size(void);
 	"ext2load usb 0:4 $fdtaddr $fdtfile;"	\
 	"ext2load usb 0:4 $ramdiskaddr $ramdiskfile;"	\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr\0"	\
-	CONFIG_BOOTMODE
+	BOOTMODE
 
 #if defined(CONFIG_TARGET_P1010RDB_PA)
-#define CONFIG_BOOTMODE \
+#define BOOTMODE \
 	"boot_bank0=i2c dev 0; i2c mw 18 1 f1; i2c mw 18 3 f0;" \
 	"mw.b ffb00011 0; mw.b ffb00009 0; reset\0" \
 	"boot_bank1=i2c dev 0; i2c mw 18 1 f1; i2c mw 18 3 f0;" \
@@ -653,7 +653,7 @@ extern unsigned long get_sdram_size(void);
 	"mw.b ffb00011 0; mw.b ffb00017 1; reset\0"
 
 #elif defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_BOOTMODE \
+#define BOOTMODE \
 	"boot_bank0=i2c dev 0; i2c mw 18 1 fe; i2c mw 18 3 0;" \
 	"i2c mw 19 1 2; i2c mw 19 3 e1; reset\0" \
 	"boot_bank1=i2c dev 0; i2c mw 18 1 fe; i2c mw 18 3 0;" \
