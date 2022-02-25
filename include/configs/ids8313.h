@@ -199,7 +199,6 @@
 /*
  * U-Boot environment setup
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
  * The reserved memory

@@ -99,9 +99,6 @@
 #define CONFIG_PL011_CLOCK		24000000
 #endif
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Miscellaneous configurable options */
 
 /* Physical Memory Map */

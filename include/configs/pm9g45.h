@@ -22,11 +22,6 @@
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           0x70000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000

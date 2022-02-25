@@ -50,9 +50,6 @@
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_BOOT_RETRY_MIN		30
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* AHCI support Definitions */
 #ifdef CONFIG_DM_SCSI
 /** Enable 48-bit SATA addressing */

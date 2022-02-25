@@ -169,11 +169,6 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 /*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
  * Miscellaneous configurable options
  */
 

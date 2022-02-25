@@ -90,7 +90,6 @@
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* BOOTP and DHCP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 #if !defined(CONFIG_SPL_BUILD)
 /* USB configuration */

@@ -57,8 +57,6 @@
 
 /* Boot options */
 
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Environment settings */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\

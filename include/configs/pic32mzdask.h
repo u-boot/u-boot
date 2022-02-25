@@ -51,11 +51,6 @@
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_ARP_TIMEOUT		500 /* millisec */
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /*--------------------------------------------------
  * USB Configuration
  */

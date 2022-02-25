@@ -33,11 +33,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Available command configuration */
 
 #ifdef CONFIG_MCFFEC

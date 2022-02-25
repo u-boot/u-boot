@@ -29,11 +29,6 @@
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 
 /*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
  * MEMORY ORGANIZATION
  * -Monitor at top of sdram.
  * -The heap is placed below the monitor

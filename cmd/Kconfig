@@ -1485,6 +1485,15 @@ config CMD_DHCP
 	help
 	  Boot image via network using DHCP/TFTP protocol
 
+config BOOTP_MAY_FAIL
+	bool "Allow for the BOOTP/DHCP server to not be found"
+	depends on CMD_BOOTP
+	help
+	  If the DHCP server is not found after the configured retry count, the
+	  call will fail instead of starting over.  This can be used to fail
+	  over to Link-local IP address configuration if the DHCP server is not
+	  available.
+
 config BOOTP_BOOTPATH
 	bool "Request & store 'rootpath' from BOOTP/DHCP server"
 	default y
@@ -1492,6 +1501,14 @@ config BOOTP_BOOTPATH
 	help
 	  Even though the config is called BOOTP_BOOTPATH, it stores the
 	  path in the variable 'rootpath'.
+
+config BOOTP_VENDOREX
+	bool "Support vendor extensions from BOOTP/DHCP server"
+	depends on CMD_BOOTP
+
+config BOOTP_BOOTFILESIZE
+	bool "Request & store 'bootfilesize' from BOOTP/DHCP server"
+	depends on CMD_BOOTP
 
 config BOOTP_DNS
 	bool "Request & store 'dnsip' from BOOTP/DHCP server"
@@ -1540,9 +1557,17 @@ config BOOTP_SUBNETMASK
 	default y
 	depends on CMD_BOOTP
 
+config BOOTP_NISDOMAIN
+	bool "Request & store 'nisdomain' from BOOTP/DHCP server"
+	depends on CMD_BOOTP
+
 config BOOTP_NTPSERVER
 	bool "Request & store 'ntpserverip' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
+
+config BOOTP_TIMEOFFSET
+	bool "Request & store 'timeoffset' from BOOTP/DHCP server"
+	depends on CMD_BOOTP && CMD_SNTP
 
 config CMD_PCAP
 	bool "pcap capture"

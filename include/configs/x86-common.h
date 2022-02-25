@@ -62,8 +62,6 @@
  * USB configuration
  */
 
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Default environment */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_HOSTNAME		"x86"
