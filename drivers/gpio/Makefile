@@ -28,6 +28,7 @@ obj-$(CONFIG_MARVELL_GPIO)	+= mvgpio.o
 obj-$(CONFIG_MCP230XX_GPIO)	+= mcp230xx_gpio.o
 obj-$(CONFIG_MXC_GPIO)	+= mxc_gpio.o
 obj-$(CONFIG_MXS_GPIO)	+= mxs_gpio.o
+obj-$(CONFIG_NPCM_GPIO)      	+= npcm_gpio.o
 obj-$(CONFIG_PCA953X)		+= pca953x.o
 obj-$(CONFIG_PCA9698)		+= pca9698.o
 obj-$(CONFIG_ROCKCHIP_GPIO)	+= rk_gpio.o

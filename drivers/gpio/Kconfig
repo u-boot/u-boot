@@ -279,6 +279,13 @@ config MXS_GPIO
 	help
 	  Support GPIO controllers on i.MX23 and i.MX28 platforms
 
+config NPCM_GPIO
+	bool "Nuvoton NPCM GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support GPIO controllers on Nuvovon NPCM SoCs.
+	  NPCM7xx/NPCM8xx contain 8 GPIO banks, each bank contains 32 pins.
+
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
 	depends on ARCH_OMAP2PLUS
