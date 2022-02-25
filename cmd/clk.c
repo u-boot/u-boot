@@ -99,20 +99,6 @@ static int do_clk_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 #if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(CLK)
-struct udevice *clk_lookup(const char *name)
-{
-	int i = 0;
-	struct udevice *dev;
-
-	do {
-		uclass_get_device(UCLASS_CLK, i++, &dev);
-		if (!strcmp(name, dev->name))
-			return dev;
-	} while (dev);
-
-	return NULL;
-}
-
 static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
@@ -120,16 +106,17 @@ static int do_clk_setfreq(struct cmd_tbl *cmdtp, int flag, int argc,
 	s32 freq;
 	struct udevice *dev;
 
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
 	freq = dectoul(argv[2], NULL);
 
-	dev = clk_lookup(argv[1]);
-
-	if (dev)
+	if (!uclass_get_device_by_name(UCLASS_CLK, argv[1], &dev))
 		clk = dev_get_clk_ptr(dev);
 
 	if (!clk) {
 		printf("clock '%s' not found.\n", argv[1]);
-		return -EINVAL;
+		return CMD_RET_FAILURE;
 	}
 
 	freq = clk_set_rate(clk, freq);
@@ -173,7 +160,7 @@ static int do_clk(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_SYS_LONGHELP
 static char clk_help_text[] =
 	"dump - Print clock frequencies\n"
-	"setfreq [clk] [freq] - Set clock frequency";
+	"clk setfreq [clk] [freq] - Set clock frequency";
 #endif
 
 U_BOOT_CMD(clk, 4, 1, do_clk, "CLK sub-system", clk_help_text);
