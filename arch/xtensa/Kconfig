@@ -13,6 +13,7 @@ choice
 
 config TARGET_XTFPGA
 	bool "Support XTFPGA"
+	select BOARD_POSTCLK_INIT
 
 endchoice
 

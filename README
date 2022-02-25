@@ -1972,7 +1972,6 @@ typically in board_init_f() and board_init_r().
 - CONFIG_BOARD_EARLY_INIT_F: Call board_early_init_f()
 - CONFIG_BOARD_EARLY_INIT_R: Call board_early_init_r()
 - CONFIG_BOARD_LATE_INIT: Call board_late_init()
-- CONFIG_BOARD_POSTCLK_INIT: Call board_postclk_init()
 
 Configuration Settings:
 -----------------------
