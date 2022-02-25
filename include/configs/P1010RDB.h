@@ -170,7 +170,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	1
 
 /* DDR3 Controller Settings */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000003f
