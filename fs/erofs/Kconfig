@@ -10,3 +10,12 @@ config FS_EROFS
 	  improves storage density, keeps relatively higher compression
 	  ratios, which is more useful to achieve high performance for
 	  embedded devices with limited memory.
+
+config FS_EROFS_ZIP
+	bool "EROFS Data Compression Support"
+	depends on FS_EROFS
+	select LZ4
+	default y
+	help
+	  Enable fixed-sized output compression for EROFS.
+	  If you don't want to enable compression feature, say N.
