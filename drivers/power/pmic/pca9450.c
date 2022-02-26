@@ -83,6 +83,7 @@ static struct dm_pmic_ops pca9450_ops = {
 static const struct udevice_id pca9450_ids[] = {
 	{ .compatible = "nxp,pca9450a", .data = 0x25, },
 	{ .compatible = "nxp,pca9450b", .data = 0x25, },
+	{ .compatible = "nxp,pca9450c", .data = 0x25, },
 	{ }
 };
 
