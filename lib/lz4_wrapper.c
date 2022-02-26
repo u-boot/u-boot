@@ -11,27 +11,6 @@
 #include <asm/unaligned.h>
 #include <u-boot/lz4.h>
 
-static u16 LZ4_readLE16(const void *src)
-{
-	return get_unaligned_le16(src);
-}
-static void LZ4_copy4(void *dst, const void *src)
-{
-	put_unaligned(get_unaligned((const u32 *)src), (u32 *)dst);
-}
-static void LZ4_copy8(void *dst, const void *src)
-{
-	put_unaligned(get_unaligned((const u64 *)src), (u64 *)dst);
-}
-
-typedef  uint8_t BYTE;
-typedef uint16_t U16;
-typedef uint32_t U32;
-typedef  int32_t S32;
-typedef uint64_t U64;
-
-#define FORCE_INLINE static inline __attribute__((always_inline))
-
 /* lz4.c is unaltered (except removing unrelated code) from github.com/Cyan4973/lz4. */
 #include "lz4.c"	/* #include for inlining, do not link! */
 
@@ -112,7 +91,7 @@ int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn)
 			/* constant folding essential, do not touch params! */
 			ret = LZ4_decompress_generic(in, out, block_size,
 					end - out, endOnInputSize,
-					full, 0, noDict, out, NULL, 0);
+					decode_full_block, noDict, out, NULL, 0);
 			if (ret < 0) {
 				ret = -EPROTO;	/* decompression error */
 				break;
