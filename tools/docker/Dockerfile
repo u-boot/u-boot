@@ -48,6 +48,7 @@ RUN apt-get update && apt-get install -y \
 	dosfstools \
 	e2fsprogs \
 	efitools \
+	erofs-utils \
 	expect \
 	fakeroot \
 	flex \
