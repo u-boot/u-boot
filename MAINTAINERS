@@ -809,6 +809,13 @@ S:	Maintained
 F:	doc/usage/environment.rst
 F:	scripts/env2string.awk
 
+EROFS
+M:	Huang Jianan <jnhuang95@gmail.com>
+L:	linux-erofs@lists.ozlabs.org
+S:	Maintained
+F:	fs/erofs/
+F:	include/erofs.h
+
 EVENTS
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained

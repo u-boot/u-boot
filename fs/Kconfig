@@ -24,4 +24,6 @@ source "fs/yaffs2/Kconfig"
 
 source "fs/squashfs/Kconfig"
 
+source "fs/erofs/Kconfig"
+
 endmenu
