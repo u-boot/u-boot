@@ -725,7 +725,8 @@ extern void *efi_bounce_buffer;
 #define EFI_LOADER_BOUNCE_BUFFER_SIZE (64 * 1024 * 1024)
 #endif
 
-
+/* shorten device path */
+struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp);
 struct efi_device_path *efi_dp_next(const struct efi_device_path *dp);
 int efi_dp_match(const struct efi_device_path *a,
 		 const struct efi_device_path *b);

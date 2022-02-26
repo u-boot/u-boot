@@ -122,20 +122,25 @@ int efi_dp_match(const struct efi_device_path *a,
 	}
 }
 
-/*
+/**
+ * efi_dp_shorten() - shorten device-path
+ *
  * We can have device paths that start with a USB WWID or a USB Class node,
  * and a few other cases which don't encode the full device path with bus
  * hierarchy:
  *
- *   - MESSAGING:USB_WWID
- *   - MESSAGING:USB_CLASS
- *   - MEDIA:FILE_PATH
- *   - MEDIA:HARD_DRIVE
- *   - MESSAGING:URI
+ * * MESSAGING:USB_WWID
+ * * MESSAGING:USB_CLASS
+ * * MEDIA:FILE_PATH
+ * * MEDIA:HARD_DRIVE
+ * * MESSAGING:URI
  *
  * See UEFI spec (section 3.1.2, about short-form device-paths)
+ *
+ * @dp:		original devie-path
+ * @Return:	shortened device-path or NULL
  */
-static struct efi_device_path *shorten_path(struct efi_device_path *dp)
+struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
 {
 	while (dp) {
 		/*
@@ -189,7 +194,7 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 				}
 			}
 
-			obj_dp = shorten_path(efi_dp_next(obj_dp));
+			obj_dp = efi_dp_shorten(efi_dp_next(obj_dp));
 		} while (short_path && obj_dp);
 	}
 
