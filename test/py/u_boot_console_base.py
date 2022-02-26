@@ -139,8 +139,55 @@ class ConsoleBase(object):
             self.p.close()
         self.logstream.close()
 
+    def wait_for_boot_prompt(self, loop_num = 1):
+        """Wait for the boot up until command prompt. This is for internal use only.
+        """
+        try:
+            bcfg = self.config.buildconfig
+            config_spl = bcfg.get('config_spl', 'n') == 'y'
+            config_spl_serial = bcfg.get('config_spl_serial', 'n') == 'y'
+            env_spl_skipped = self.config.env.get('env__spl_skipped', False)
+            env_spl2_skipped = self.config.env.get('env__spl2_skipped', True)
+
+            while loop_num > 0:
+                loop_num -= 1
+                if config_spl and config_spl_serial and not env_spl_skipped:
+                    m = self.p.expect([pattern_u_boot_spl_signon] +
+                                      self.bad_patterns)
+                    if m != 0:
+                        raise Exception('Bad pattern found on SPL console: ' +
+                                        self.bad_pattern_ids[m - 1])
+                if not env_spl2_skipped:
+                    m = self.p.expect([pattern_u_boot_spl2_signon] +
+                                      self.bad_patterns)
+                    if m != 0:
+                        raise Exception('Bad pattern found on SPL2 console: ' +
+                                        self.bad_pattern_ids[m - 1])
+                m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
+                if m != 0:
+                    raise Exception('Bad pattern found on console: ' +
+                                    self.bad_pattern_ids[m - 1])
+            self.u_boot_version_string = self.p.after
+            while True:
+                m = self.p.expect([self.prompt_compiled,
+                    pattern_stop_autoboot_prompt] + self.bad_patterns)
+                if m == 0:
+                    break
+                if m == 1:
+                    self.p.send(' ')
+                    continue
+                raise Exception('Bad pattern found on console: ' +
+                                self.bad_pattern_ids[m - 2])
+
+        except Exception as ex:
+            self.log.error(str(ex))
+            self.cleanup_spawn()
+            raise
+        finally:
+            self.log.timestamp()
+
     def run_command(self, cmd, wait_for_echo=True, send_nl=True,
-            wait_for_prompt=True):
+            wait_for_prompt=True, wait_for_reboot=False):
         """Execute a command via the U-Boot console.
 
         The command is always sent to U-Boot.
@@ -168,6 +215,9 @@ class ConsoleBase(object):
             wait_for_prompt: Boolean indicating whether to wait for the
                 command prompt to be sent by U-Boot. This typically occurs
                 immediately after the command has been executed.
+            wait_for_reboot: Boolean indication whether to wait for the
+                reboot U-Boot. If this sets True, wait_for_prompt must also
+                be True.
 
         Returns:
             If wait_for_prompt == False:
@@ -202,11 +252,14 @@ class ConsoleBase(object):
                                     self.bad_pattern_ids[m - 1])
             if not wait_for_prompt:
                 return
-            m = self.p.expect([self.prompt_compiled] + self.bad_patterns)
-            if m != 0:
-                self.at_prompt = False
-                raise Exception('Bad pattern found on console: ' +
-                                self.bad_pattern_ids[m - 1])
+            if wait_for_reboot:
+                self.wait_for_boot_prompt()
+            else:
+                m = self.p.expect([self.prompt_compiled] + self.bad_patterns)
+                if m != 0:
+                    self.at_prompt = False
+                    raise Exception('Bad pattern found on console: ' +
+                                    self.bad_pattern_ids[m - 1])
             self.at_prompt = True
             self.at_prompt_logevt = self.logstream.logfile.cur_evt
             # Only strip \r\n; space/TAB might be significant if testing
@@ -321,7 +374,7 @@ class ConsoleBase(object):
         finally:
             self.p.timeout = orig_timeout
 
-    def ensure_spawned(self):
+    def ensure_spawned(self, expect_reset=False):
         """Ensure a connection to a correctly running U-Boot instance.
 
         This may require spawning a new Sandbox process or resetting target
@@ -330,7 +383,9 @@ class ConsoleBase(object):
         This is an internal function and should not be called directly.
 
         Args:
-            None.
+            expect_reset: Boolean indication whether this boot is expected
+                to be reset while the 1st boot process after main boot before
+                prompt. False by default.
 
         Returns:
             Nothing.
@@ -349,41 +404,11 @@ class ConsoleBase(object):
             if not self.config.gdbserver:
                 self.p.timeout = 30000
             self.p.logfile_read = self.logstream
-            bcfg = self.config.buildconfig
-            config_spl = bcfg.get('config_spl', 'n') == 'y'
-            config_spl_serial = bcfg.get('config_spl_serial',
-                                                 'n') == 'y'
-            env_spl_skipped = self.config.env.get('env__spl_skipped',
-                                                  False)
-            env_spl2_skipped = self.config.env.get('env__spl2_skipped',
-                                                  True)
-            if config_spl and config_spl_serial and not env_spl_skipped:
-                m = self.p.expect([pattern_u_boot_spl_signon] +
-                                  self.bad_patterns)
-                if m != 0:
-                    raise Exception('Bad pattern found on SPL console: ' +
-                                    self.bad_pattern_ids[m - 1])
-            if not env_spl2_skipped:
-                m = self.p.expect([pattern_u_boot_spl2_signon] +
-                                  self.bad_patterns)
-                if m != 0:
-                    raise Exception('Bad pattern found on SPL2 console: ' +
-                                    self.bad_pattern_ids[m - 1])
-            m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
-            if m != 0:
-                raise Exception('Bad pattern found on console: ' +
-                                self.bad_pattern_ids[m - 1])
-            self.u_boot_version_string = self.p.after
-            while True:
-                m = self.p.expect([self.prompt_compiled,
-                    pattern_stop_autoboot_prompt] + self.bad_patterns)
-                if m == 0:
-                    break
-                if m == 1:
-                    self.p.send(' ')
-                    continue
-                raise Exception('Bad pattern found on console: ' +
-                                self.bad_pattern_ids[m - 2])
+            if expect_reset:
+                loop_num = 2
+            else:
+                loop_num = 1
+            self.wait_for_boot_prompt(loop_num = loop_num)
             self.at_prompt = True
             self.at_prompt_logevt = self.logstream.logfile.cur_evt
         except Exception as ex:
@@ -416,10 +441,10 @@ class ConsoleBase(object):
             pass
         self.p = None
 
-    def restart_uboot(self):
+    def restart_uboot(self, expect_reset=False):
         """Shut down and restart U-Boot."""
         self.cleanup_spawn()
-        self.ensure_spawned()
+        self.ensure_spawned(expect_reset)
 
     def get_spawn_output(self):
         """Return the start-up output from U-Boot

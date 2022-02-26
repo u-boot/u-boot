@@ -143,13 +143,14 @@ class TestEfiCapsuleFirmwareFit(object):
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
             assert 'Test01' in ''.join(output)
 
-        # reboot
-        u_boot_console.restart_uboot()
-
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
         capsule_auth = u_boot_config.buildconfig.get(
             'config_efi_capsule_authenticate')
+
+        # reboot
+        u_boot_console.restart_uboot(expect_reset = capsule_early)
+
         with u_boot_console.log.section('Test Case 2-b, after reboot'):
             if not capsule_early:
                 # make sure that dfu_alt_info exists even persistent variables
@@ -162,7 +163,7 @@ class TestEfiCapsuleFirmwareFit(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
@@ -218,13 +219,14 @@ class TestEfiCapsuleFirmwareFit(object):
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
             assert 'Test02' in ''.join(output)
 
-        # reboot
-        u_boot_console.restart_uboot()
-
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
         capsule_auth = u_boot_config.buildconfig.get(
             'config_efi_capsule_authenticate')
+
+        # reboot
+        u_boot_console.restart_uboot(expect_reset = capsule_early)
+
         with u_boot_console.log.section('Test Case 3-b, after reboot'):
             if not capsule_early:
                 # make sure that dfu_alt_info exists even persistent variables
@@ -237,9 +239,12 @@ class TestEfiCapsuleFirmwareFit(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
-            output = u_boot_console.run_command_list(['efidebug capsule esrt'])
+            # make sure the dfu_alt_info exists because it is required for making ESRT.
+            output = u_boot_console.run_command_list([
+                'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;u-boot-env raw 0x150000 0x200000"',
+                'efidebug capsule esrt'])
 
             # ensure that EFI_FIRMWARE_IMAGE_TYPE_UBOOT_FIT_GUID is in the ESRT.
             assert 'AE13FF2D-9AD4-4E25-9AC8-6D80B3B22147' in ''.join(output)
@@ -293,13 +298,14 @@ class TestEfiCapsuleFirmwareFit(object):
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
             assert 'Test03' in ''.join(output)
 
-        # reboot
-        u_boot_console.restart_uboot()
-
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
         capsule_auth = u_boot_config.buildconfig.get(
             'config_efi_capsule_authenticate')
+
+        # reboot
+        u_boot_console.restart_uboot(expect_reset = capsule_early)
+
         with u_boot_console.log.section('Test Case 4-b, after reboot'):
             if not capsule_early:
                 # make sure that dfu_alt_info exists even persistent variables
@@ -312,9 +318,12 @@ class TestEfiCapsuleFirmwareFit(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
-            output = u_boot_console.run_command_list(['efidebug capsule esrt'])
+            # make sure the dfu_alt_info exists because it is required for making ESRT.
+            output = u_boot_console.run_command_list([
+                'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;u-boot-env raw 0x150000 0x200000"',
+                'efidebug capsule esrt'])
 
             # ensure that  EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID is in the ESRT.
             assert 'E2BB9C06-70E9-4B14-97A3-5A7913176E3F' in ''.join(output)

@@ -212,8 +212,6 @@ static int create_auth_data(struct auth_context *ctx)
 	ret = read_bin_file(ctx->key_file, &key.data, &file_size);
 	if (ret < 0)
 		return -1;
-	if (ret < 0)
-		return -1;
 	if (file_size > UINT_MAX)
 		return -1;
 	key.size = file_size;

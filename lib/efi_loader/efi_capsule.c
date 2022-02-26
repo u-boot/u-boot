@@ -14,6 +14,7 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <fs.h>
+#include <hang.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <sort.h>
@@ -1118,10 +1119,13 @@ efi_status_t efi_launch_capsules(void)
 			index = 0;
 		ret = efi_capsule_read_file(files[i], &capsule);
 		if (ret == EFI_SUCCESS) {
-			ret = EFI_CALL(efi_update_capsule(&capsule, 1, 0));
+			ret = efi_capsule_update_firmware(capsule);
 			if (ret != EFI_SUCCESS)
-				log_err("Applying capsule %ls failed\n",
+				log_err("Applying capsule %ls failed.\n",
 					files[i]);
+			else
+				log_info("Applying capsule %ls succeeded.\n",
+					 files[i]);
 
 			/* create CapsuleXXXX */
 			set_capsule_result(index, capsule, ret);
@@ -1142,6 +1146,16 @@ efi_status_t efi_launch_capsules(void)
 		free(files[i]);
 	free(files);
 
-	return ret;
+	/*
+	 * UEFI spec requires to reset system after complete processing capsule
+	 * update on the storage.
+	 */
+	log_info("Reboot after firmware update");
+	/* Cold reset is required for loading the new firmware. */
+	do_reset(NULL, 0, 0, NULL);
+	hang();
+	/* not reach here */
+
+	return 0;
 }
 #endif /* CONFIG_EFI_CAPSULE_ON_DISK */
