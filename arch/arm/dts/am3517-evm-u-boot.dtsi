@@ -37,7 +37,18 @@
 	/delete-property/ u-boot,dm-spl;
 };
 
-/delete-node/ &uart1;
-/delete-node/ &uart2;
-/delete-node/ &mmc2;
-/delete-node/ &mmc3;
+&mmc2 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&mmc3 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&uart1 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&uart2 {
+	/delete-property/ u-boot,dm-spl;
+};
