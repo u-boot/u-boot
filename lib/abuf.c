@@ -51,9 +51,11 @@ bool abuf_realloc(struct abuf *abuf, size_t new_size)
 		/* not currently allocated and new size is larger. Alloc and
 		 * copy in data. The new space is not inited.
 		 */
-		ptr = memdup(abuf->data, new_size);
+		ptr = malloc(new_size);
 		if (!ptr)
 			return false;
+		if (abuf->size)
+			memcpy(ptr, abuf->data, abuf->size);
 		abuf->data = ptr;
 		abuf->size = new_size;
 		abuf->alloced = true;
