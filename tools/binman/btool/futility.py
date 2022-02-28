@@ -106,7 +106,7 @@ class Bintoolfutility(bintool.Bintool):
         Returns:
             str: Tool output
         """
-        args = ['gbb_utility'
+        args = ['gbb_utility',
             '-s',
             f'--hwid={hwid}',
             f'--rootkey={rootkey}',
@@ -139,7 +139,7 @@ class Bintoolfutility(bintool.Bintool):
             '--keyblock', keyblock,
             '--signprivate', signprivate,
             '--version', version,
-            '--fw', firmware,
+            '--fv', firmware,
             '--kernelkey', kernelkey,
             '--flags', flags
             ]
