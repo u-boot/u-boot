@@ -36,6 +36,9 @@
 					description = "fdt-NAME.dtb";
 					type = "flat_dt";
 					compression = "none";
+					hash {
+						algo = "sha256";
+					};
 				};
 			};
 

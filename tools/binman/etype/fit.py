@@ -269,6 +269,10 @@ class Entry_fit(Entry_section):
                         # Add data for 'images' nodes (but not 'config')
                         if depth == 1 and in_images:
                             fsw.property('data', tools.read_file(fname))
+
+                        for subnode in node.subnodes:
+                            with fsw.add_node(subnode.name):
+                                _add_node(node, depth + 1, subnode)
             else:
                 if self._fdts is None:
                     if self._fit_list_prop:

@@ -4029,6 +4029,7 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(expected_data, fnode.props['data'].bytes)
             self.assertEqual('fdt-test-fdt%d.dtb' % seq,
                              fnode.props['description'].value)
+            self.assertEqual(fnode.subnodes[0].name, 'hash')
 
         def _CheckConfig(seq, expected_data):
             """Check the configuration nodes
