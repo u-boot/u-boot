@@ -929,7 +929,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 	while (len) {
 		WATCHDOG_RESET();
-		if (ctrlc()) {
+		if (!IS_ENABLED(CONFIG_SPL_BUILD) && ctrlc()) {
 			addr_known = false;
 			ret = -EINTR;
 			goto erase_err;
