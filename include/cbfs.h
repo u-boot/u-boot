@@ -24,6 +24,8 @@ enum cbfs_filetype {
 	CBFS_TYPE_CBFSHEADER = 0x02,
 	CBFS_TYPE_STAGE = 0x10,
 	CBFS_TYPE_PAYLOAD = 0x20,
+	CBFS_TYPE_SELF = CBFS_TYPE_PAYLOAD,
+
 	CBFS_TYPE_FIT = 0x21,
 	CBFS_TYPE_OPTIONROM = 0x30,
 	CBFS_TYPE_BOOTSPLASH = 0x40,
@@ -119,6 +121,47 @@ struct cbfs_file_attr_hash {
 	/* hash_data is len - sizeof(struct) bytes */
 	u8  hash_data[];
 } __packed;
+
+/*** Component sub-headers ***/
+
+/* Following are component sub-headers for the "standard" component types */
+
+/**
+ * struct cbfs_stage - sub-header for stage components
+ *
+ * Stages are loaded by coreboot during the normal boot process
+ */
+struct cbfs_stage {
+	u32 compression;  /** Compression type */
+	u64 entry;  /** entry point */
+	u64 load;   /** Where to load in memory */
+	u32 len;          /** length of data to load */
+	u32 memlen;	   /** total length of object in memory */
+} __packed;
+
+/**
+ * struct cbfs_payload_segment - sub-header for payload components
+ *
+ * Payloads are loaded by coreboot at the end of the boot process
+ */
+struct cbfs_payload_segment {
+	u32 type;
+	u32 compression;
+	u32 offset;
+	u64 load_addr;
+	u32 len;
+	u32 mem_len;
+} __packed;
+
+struct cbfs_payload {
+	struct cbfs_payload_segment segments;
+};
+
+#define PAYLOAD_SEGMENT_CODE   0x45444F43
+#define PAYLOAD_SEGMENT_DATA   0x41544144
+#define PAYLOAD_SEGMENT_BSS    0x20535342
+#define PAYLOAD_SEGMENT_PARAMS 0x41524150
+#define PAYLOAD_SEGMENT_ENTRY  0x52544E45
 
 struct cbfs_cachenode {
 	struct cbfs_cachenode *next;
