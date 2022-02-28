@@ -22,6 +22,7 @@ OUR_PATH = os.path.dirname(os.path.realpath(__file__))
 DTB_TYPE_FNAME = {
     'u-boot-spl-dtb': 'spl/u-boot-spl.dtb',
     'u-boot-tpl-dtb': 'tpl/u-boot-tpl.dtb',
+    'u-boot-vpl-dtb': 'vpl/u-boot-vpl.dtb',
     }
 
 # Records the device-tree files known to binman, keyed by entry type (e.g.
@@ -292,7 +293,7 @@ def GetAllFdts():
     """Yield all device tree files being used by binman
 
     Yields:
-        Device trees being used (U-Boot proper, SPL, TPL)
+        Device trees being used (U-Boot proper, SPL, TPL, VPL)
     """
     if main_dtb:
         yield main_dtb
