@@ -79,6 +79,9 @@ static void relocate_secure_section(void)
 
 void armv8_setup_psci(void)
 {
+	if (current_el() != 3)
+		return;
+
 	relocate_secure_section();
 	secure_ram_addr(psci_setup_vectors)();
 	secure_ram_addr(psci_arch_init)();
