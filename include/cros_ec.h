@@ -648,6 +648,7 @@ int cros_ec_vstore_write(struct udevice *dev, int slot, const uint8_t *data,
  *
  * @dev: CROS-EC device
  * @chargep: Return battery-charge state as a percentage
+ * Return: 0 if OK, -ve on error
  */
 int cros_ec_read_batt_charge(struct udevice *dev, uint *chargep);
 
