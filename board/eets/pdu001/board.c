@@ -216,6 +216,36 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	return &dpll_ddr;
 }
 
+void set_uart_mux_conf(void)
+{
+	switch (CONFIG_CONS_INDEX) {
+		case 1: {
+			enable_uart0_pin_mux();
+			break;
+		}
+		case 2: {
+			enable_uart1_pin_mux();
+			break;
+		}
+		case 3: {
+			enable_uart2_pin_mux();
+			break;
+		}
+		case 4: {
+			enable_uart3_pin_mux();
+			break;
+		}
+		case 5: {
+			enable_uart4_pin_mux();
+			break;
+		}
+		case 6: {
+			enable_uart5_pin_mux();
+			break;
+		}
+	}
+}
+
 void set_mux_conf_regs(void)
 {
 	/* done first by the ROM and afterwards by the pin controller driver */
@@ -240,6 +270,8 @@ void sdram_init(void)
 #ifdef CONFIG_DEBUG_UART
 void board_debug_uart_init(void)
 {
+	setup_early_clocks();
+
 	/* done by pin controller driver if not debugging */
 	enable_uart_pin_mux(CONFIG_DEBUG_UART_BASE);
 }
