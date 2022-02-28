@@ -334,7 +334,11 @@ static int zynqmp_firmware_bind(struct udevice *dev)
 	int ret;
 	struct udevice *child;
 
-	if (IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN)) {
+	if ((IS_ENABLED(CONFIG_SPL_BUILD) &&
+	     IS_ENABLED(CONFIG_SPL_POWER_DOMAIN) &&
+	     IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN)) ||
+	     (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	      IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN))) {
 		ret = device_bind_driver_to_node(dev, "zynqmp_power_domain",
 						 "zynqmp_power_domain",
 						 dev_ofnode(dev), &child);
