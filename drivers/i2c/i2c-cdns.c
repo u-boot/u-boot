@@ -375,7 +375,6 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 				curr_recv_count = recv_count;
 			}
 		} else if (recv_count && !hold_quirk && !curr_recv_count) {
-			writel(addr, &regs->address);
 			if (recv_count > CDNS_I2C_TRANSFER_SIZE) {
 				writel(CDNS_I2C_TRANSFER_SIZE,
 				       &regs->transfer_size);
@@ -384,6 +383,7 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 				writel(recv_count, &regs->transfer_size);
 				curr_recv_count = recv_count;
 			}
+			writel(addr, &regs->address);
 		}
 	}
 
