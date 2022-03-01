@@ -1080,7 +1080,7 @@ define deprecated
 		echo >&2 "for $(2)). Please update the board to use"; \
 		echo >&2 "$(firstword $(1)) before the $(3) release. Failure to"; \
 		echo >&2 "update by the deadline may result in board removal."; \
-		echo >&2 "See doc/driver-model/migration.rst for more info."; \
+		echo >&2 "See doc/develop/driver-model/migration.rst for more info."; \
 		echo >&2 "===================================================="; \
 	fi; fi
 
@@ -1121,7 +1121,7 @@ ifneq ($(CONFIG_DM),y)
 	@echo >&2 "This board does not use CONFIG_DM. CONFIG_DM will be"
 	@echo >&2 "compulsory starting with the v2020.01 release."
 	@echo >&2 "Failure to update may result in board removal."
-	@echo >&2 "See doc/driver-model/migration.rst for more info."
+	@echo >&2 "See doc/develop/driver-model/migration.rst for more info."
 	@echo >&2 "===================================================="
 endif
 	$(call deprecated,CONFIG_WDT,DM watchdog,v2019.10,\
