@@ -73,6 +73,7 @@ static struct mv_ddr_topology_map board_topology_map = {
 	{0},				/* timing parameters */
 	{ {0} },			/* electrical configuration */
 	{0},				/* electrical parameters */
+	0,				/* ODT configuration */
 	0,				/* Clock enable mask */
 	160				/* Clock delay */
 };
