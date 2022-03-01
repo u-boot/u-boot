@@ -209,7 +209,9 @@
 				compatible = "canaan,k210-gpio",
 					     "snps,dw-apb-gpio";
 				reg = <0x50200000 0x80>;
-				clocks = <&sysclk K210_CLK_GPIO>;
+				clocks = <&sysclk K210_CLK_APB0>,
+					 <&sysclk K210_CLK_GPIO>;
+				clock-names = "bus", "db";
 				resets = <&sysrst K210_RST_GPIO>;
 				status = "disabled";
 
@@ -230,7 +232,9 @@
 					     "snps,dw-apb-uart";
 				reg = <0x50210000 0x100>;
 				interrupts = <11>;
-				clocks = <&sysclk K210_CLK_UART1>;
+				clocks = <&sysclk K210_CLK_UART1>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "baudclk", "apb_pclk";
 				resets = <&sysrst K210_RST_UART1>;
 				reg-io-width = <4>;
 				reg-shift = <2>;
@@ -246,7 +250,9 @@
 					     "snps,dw-apb-uart";
 				reg = <0x50220000 0x100>;
 				interrupts = <12>;
-				clocks = <&sysclk K210_CLK_UART2>;
+				clocks = <&sysclk K210_CLK_UART2>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "baudclk", "apb_pclk";
 				resets = <&sysrst K210_RST_UART2>;
 				reg-io-width = <4>;
 				reg-shift = <2>;
@@ -262,7 +268,9 @@
 					     "snps,dw-apb-uart";
 				reg = <0x50230000 0x100>;
 				interrupts = <13>;
-				clocks = <&sysclk K210_CLK_UART3>;
+				clocks = <&sysclk K210_CLK_UART3>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "baudclk", "apb_pclk";
 				resets = <&sysrst K210_RST_UART3>;
 				reg-io-width = <4>;
 				reg-shift = <2>;
@@ -280,7 +288,9 @@
 				spi-slave;
 				reg = <0x50240000 0x100>;
 				interrupts = <2>;
-				clocks = <&sysclk K210_CLK_SPI2>;
+				clocks = <&sysclk K210_CLK_SPI2>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "ssi_clk", "pclk";
 				resets = <&sysrst K210_RST_SPI2>;
 				spi-max-frequency = <25000000>;
 				status = "disabled";
@@ -330,7 +340,9 @@
 					     "snps,designware-i2c";
 				reg = <0x50280000 0x100>;
 				interrupts = <8>;
-				clocks = <&sysclk K210_CLK_I2C0>;
+				clocks = <&sysclk K210_CLK_I2C0>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "ref", "pclk";
 				resets = <&sysrst K210_RST_I2C0>;
 				status = "disabled";
 			};
@@ -340,7 +352,9 @@
 					     "snps,designware-i2c";
 				reg = <0x50290000 0x100>;
 				interrupts = <9>;
-				clocks = <&sysclk K210_CLK_I2C1>;
+				clocks = <&sysclk K210_CLK_I2C1>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "ref", "pclk";
 				resets = <&sysrst K210_RST_I2C1>;
 				status = "disabled";
 			};
@@ -350,7 +364,9 @@
 					     "snps,designware-i2c";
 				reg = <0x502A0000 0x100>;
 				interrupts = <10>;
-				clocks = <&sysclk K210_CLK_I2C2>;
+				clocks = <&sysclk K210_CLK_I2C2>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "ref", "pclk";
 				resets = <&sysrst K210_RST_I2C2>;
 				status = "disabled";
 			};
@@ -358,7 +374,9 @@
 			fpioa: pinmux@502B0000 {
 				compatible = "canaan,k210-fpioa";
 				reg = <0x502B0000 0x100>;
-				clocks = <&sysclk K210_CLK_FPIOA>;
+				clocks = <&sysclk K210_CLK_FPIOA>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "ref", "pclk";
 				resets = <&sysrst K210_RST_FPIOA>;
 				canaan,k210-sysctl = <&sysctl>;
 				canaan,k210-power-offset = <K210_SYSCTL_POWER_SEL>;
@@ -387,8 +405,9 @@
 					     "snps,dw-apb-timer";
 				reg = <0x502D0000 0x100>;
 				interrupts = <14 15>;
-				clocks = <&sysclk K210_CLK_TIMER0>;
-				clock-names = "timer";
+				clocks = <&sysclk K210_CLK_TIMER0>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "timer", "pclk";
 				resets = <&sysrst K210_RST_TIMER0>;
 				status = "disabled";
 			};
@@ -398,8 +417,9 @@
 					     "snps,dw-apb-timer";
 				reg = <0x502E0000 0x100>;
 				interrupts = <16 17>;
-				clocks = <&sysclk K210_CLK_TIMER1>;
-				clock-names = "timer";
+				clocks = <&sysclk K210_CLK_TIMER1>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "timer", "pclk";
 				resets = <&sysrst K210_RST_TIMER1>;
 				status = "disabled";
 			};
@@ -409,8 +429,9 @@
 					     "snps,dw-apb-timer";
 				reg = <0x502F0000 0x100>;
 				interrupts = <18 19>;
-				clocks = <&sysclk K210_CLK_TIMER2>;
-				clock-names = "timer";
+				clocks = <&sysclk K210_CLK_TIMER2>,
+					 <&sysclk K210_CLK_APB0>;
+				clock-names = "timer", "pclk";
 				resets = <&sysrst K210_RST_TIMER2>;
 				status = "disabled";
 			};
@@ -427,7 +448,9 @@
 				compatible = "canaan,k210-wdt", "snps,dw-wdt";
 				reg = <0x50400000 0x100>;
 				interrupts = <21>;
-				clocks = <&sysclk K210_CLK_WDT0>;
+				clocks = <&sysclk K210_CLK_WDT0>,
+					 <&sysclk K210_CLK_APB1>;
+				clock-names = "tclk", "pclk";
 				resets = <&sysrst K210_RST_WDT0>;
 			};
 
@@ -435,7 +458,9 @@
 				compatible = "canaan,k210-wdt", "snps,dw-wdt";
 				reg = <0x50410000 0x100>;
 				interrupts = <22>;
-				clocks = <&sysclk K210_CLK_WDT1>;
+				clocks = <&sysclk K210_CLK_WDT1>,
+					 <&sysclk K210_CLK_APB1>;
+				clock-names = "tclk", "pclk";
 				resets = <&sysrst K210_RST_WDT1>;
 				status = "disabled";
 			};
@@ -494,6 +519,8 @@
 				compatible = "canaan,k210-sysctl",
 					     "syscon", "simple-mfd";
 				reg = <0x50440000 0x100>;
+				clocks = <&sysclk K210_CLK_APB1>;
+				clock-names = "pclk";
 				reg-io-width = <4>;
 				u-boot,dm-pre-reloc;
 
@@ -558,8 +585,9 @@
 					     "snps,dw-apb-ssi";
 				reg = <0x52000000 0x100>;
 				interrupts = <1>;
-				clocks = <&sysclk K210_CLK_SPI0>;
-				clock-names = "ssi_clk";
+				clocks = <&sysclk K210_CLK_SPI0>,
+					 <&sysclk K210_CLK_APB2>;
+				clock-names = "ssi_clk", "pclk";
 				resets = <&sysrst K210_RST_SPI0>;
 				spi-max-frequency = <25000000>;
 				num-cs = <4>;
@@ -575,8 +603,9 @@
 					     "snps,dw-apb-ssi";
 				reg = <0x53000000 0x100>;
 				interrupts = <2>;
-				clocks = <&sysclk K210_CLK_SPI1>;
-				clock-names = "ssi_clk";
+				clocks = <&sysclk K210_CLK_SPI1>,
+					 <&sysclk K210_CLK_APB2>;
+				clock-names = "ssi_clk", "pclk";
 				resets = <&sysrst K210_RST_SPI1>;
 				spi-max-frequency = <25000000>;
 				num-cs = <4>;
@@ -591,8 +620,9 @@
 					     "snps,dwc-ssi-1.01a";
 				reg = <0x54000000 0x200>;
 				interrupts = <4>;
-				clocks = <&sysclk K210_CLK_SPI3>;
-				clock-names = "ssi_clk";
+				clocks = <&sysclk K210_CLK_SPI3>,
+					 <&sysclk K210_CLK_APB2>;
+				clock-names = "ssi_clk", "pclk";
 				resets = <&sysrst K210_RST_SPI3>;
 				/* Could possibly go up to 200 MHz */
 				spi-max-frequency = <100000000>;
