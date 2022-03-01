@@ -257,16 +257,18 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO);
 	clrbits_le32(&regs->control, CDNS_I2C_CONTROL_RW);
 
-	/* Check message size against FIFO depth, and set hold bus bit
-	 * if it is greater than FIFO depth
+	/*
+	 * For sequential data load hold the bus.
 	 */
-	if (len > CDNS_I2C_FIFO_DEPTH)
+	if (len > 1)
 		setbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
 
 	/* Clear the interrupts in status register */
 	writel(CDNS_I2C_INTERRUPTS_MASK, &regs->interrupt_status);
 
-	writel(addr, &regs->address);
+	/* In case of Probe (i.e no data), start the transfer */
+	if (!len)
+		writel(addr, &regs->address);
 
 	while (len-- && !is_arbitration_lost(regs)) {
 		writel(*(cur_data++), &regs->data);
