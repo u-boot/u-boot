@@ -266,7 +266,7 @@ static int dw_spi_of_to_plat(struct udevice *bus)
 static void spi_hw_init(struct udevice *bus, struct dw_spi_priv *priv)
 {
 	dw_write(priv, DW_SPI_SSIENR, 0);
-	dw_write(priv, DW_SPI_IMR, 0xff);
+	dw_write(priv, DW_SPI_IMR, 0);
 	dw_write(priv, DW_SPI_SSIENR, 1);
 
 	/*
