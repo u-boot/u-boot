@@ -37,7 +37,7 @@ migration = '''===================== WARNING ======================
 This board does not use CONFIG_DM. CONFIG_DM will be
 compulsory starting with the v2020.01 release.
 Failure to update may result in board removal.
-See doc/driver-model/migration.rst for more info.
+See doc/develop/driver-model/migration.rst for more info.
 ====================================================
 '''
 
