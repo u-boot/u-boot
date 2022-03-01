@@ -378,8 +378,7 @@
 					 <&sysclk K210_CLK_APB0>;
 				clock-names = "ref", "pclk";
 				resets = <&sysrst K210_RST_FPIOA>;
-				canaan,k210-sysctl = <&sysctl>;
-				canaan,k210-power-offset = <K210_SYSCTL_POWER_SEL>;
+				canaan,k210-sysctl-power = <&sysctl K210_SYSCTL_POWER_SEL>;
 				pinctrl-0 = <&fpioa_jtag>;
 				pinctrl-names = "default";
 				status = "disabled";

@@ -679,6 +679,7 @@ static int k210_pc_probe(struct udevice *dev)
 {
 	int ret, i, j;
 	struct k210_pc_priv *priv = dev_get_priv(dev);
+	struct ofnode_phandle_args args;
 
 	priv->fpioa = dev_read_addr_ptr(dev);
 	if (!priv->fpioa)
@@ -692,15 +693,23 @@ static int k210_pc_probe(struct udevice *dev)
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
 		goto err;
 
-	priv->sysctl = syscon_regmap_lookup_by_phandle(dev, "canaan,k210-sysctl");
+	ret = dev_read_phandle_with_args(dev, "canaan,k210-sysctl-power",
+					NULL, 1, 0, &args);
+        if (ret)
+		goto err;
+
+	if (args.args_count != 1) {
+		ret = -EINVAL;
+		goto err;
+        }
+
+	priv->sysctl = syscon_node_to_regmap(args.node);
 	if (IS_ERR(priv->sysctl)) {
-		ret = -ENODEV;
+		ret = PTR_ERR(priv->sysctl);
 		goto err;
 	}
 
-	ret = dev_read_u32(dev, "canaan,k210-power-offset", &priv->power_offset);
-	if (ret)
-		goto err;
+	priv->power_offset = args.args[0];
 
 	debug("%s: fpioa = %p sysctl = %p power offset = %x\n", __func__,
 	      priv->fpioa, (void *)priv->sysctl->ranges[0].start,
