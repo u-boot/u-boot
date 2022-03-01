@@ -251,6 +251,7 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	u8 *cur_data = data;
 	struct cdns_i2c_regs *regs = i2c_bus->regs;
 	u32 ret;
+	bool start = 1;
 
 	/* Set the controller in Master transmit mode and clear FIFO */
 	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO);
@@ -269,6 +270,11 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 
 	while (len-- && !is_arbitration_lost(regs)) {
 		writel(*(cur_data++), &regs->data);
+		/* Trigger write only after loading data */
+		if (start) {
+			writel(addr, &regs->address);
+			start = 0;
+		}
 		if (len && readl(&regs->transfer_size) == CDNS_I2C_FIFO_DEPTH) {
 			ret = cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP |
 					    CDNS_I2C_INTERRUPT_ARBLOST);
