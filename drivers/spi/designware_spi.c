@@ -194,6 +194,20 @@ static int dw_spi_apb_init(struct udevice *bus, struct dw_spi_priv *priv)
 	return 0;
 }
 
+static int dw_spi_apb_k210_init(struct udevice *bus, struct dw_spi_priv *priv)
+{
+	/*
+	 * The Canaan Kendryte K210 SoC DW apb_ssi v4 spi controller is
+	 * documented to have a 32 word deep TX and RX FIFO, which
+	 * spi_hw_init() detects. However, when the RX FIFO is filled up to
+	 * 32 entries (RXFLR = 32), an RX FIFO overrun error occurs. Avoid
+	 * this problem by force setting fifo_len to 31.
+	 */
+	priv->fifo_len = 31;
+
+	return dw_spi_apb_init(bus, priv);
+}
+
 static int dw_spi_dwc_init(struct udevice *bus, struct dw_spi_priv *priv)
 {
 	priv->max_xfer = 32;
@@ -758,7 +772,7 @@ static const struct udevice_id dw_spi_ids[] = {
 	 */
 	{ .compatible = "altr,socfpga-spi", .data = (ulong)dw_spi_apb_init },
 	{ .compatible = "altr,socfpga-arria10-spi", .data = (ulong)dw_spi_apb_init },
-	{ .compatible = "canaan,k210-spi", .data = (ulong)dw_spi_apb_init },
+	{ .compatible = "canaan,k210-spi", .data = (ulong)dw_spi_apb_k210_init},
 	{ .compatible = "canaan,k210-ssi", .data = (ulong)dw_spi_dwc_init },
 	{ .compatible = "intel,stratix10-spi", .data = (ulong)dw_spi_apb_init },
 	{ .compatible = "intel,agilex-spi", .data = (ulong)dw_spi_apb_init },
