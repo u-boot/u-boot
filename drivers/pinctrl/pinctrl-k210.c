@@ -511,7 +511,7 @@ static int k210_pc_get_drive(unsigned max_strength_ua)
 {
 	int i;
 
-	for (i = K210_PC_DRIVE_MAX; i; i--)
+	for (i = K210_PC_DRIVE_MAX; i >= 0; i--)
 		if (k210_pc_drive_strength[i] < max_strength_ua)
 			return i;
 
