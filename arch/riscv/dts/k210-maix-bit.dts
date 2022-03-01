@@ -12,7 +12,8 @@
 
 / {
 	model = "Sipeed Maix Bit 2.0";
-	compatible = "sipeed,maix-bitm", "sipeed,maix-bit", "kendryte,k210";
+	compatible = "sipeed,maix-bitm", "sipeed,maix-bit",
+		     "canaan,kendryte-k210";
 
 	chosen {
 		stdout-path = "serial0:115200";

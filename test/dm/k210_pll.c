@@ -7,7 +7,7 @@
 /* For DIV_ROUND_DOWN_ULL, defined in linux/kernel.h */
 #include <div64.h>
 #include <dm/test.h>
-#include <kendryte/pll.h>
+#include <k210/pll.h>
 #include <test/ut.h>
 
 static int dm_test_k210_pll_calc_config(u32 rate, u32 rate_in,

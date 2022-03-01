@@ -1115,14 +1115,14 @@ F:	drivers/timer/andes_plmt_timer.c
 F:	drivers/timer/sifive_clint_timer.c
 F:	tools/prelink-riscv.c
 
-RISC-V KENDRYTE
+RISC-V CANAAN KENDRYTE K210
 M:	Sean Anderson <seanga2@gmail.com>
 S:	Maintained
-F:	doc/device-tree-bindings/mfd/kendryte,k210-sysctl.txt
-F:	doc/device-tree-bindings/pinctrl/kendryte,k210-fpioa.txt
-F:	drivers/clk/clk_kendryte.c
-F:	drivers/pinctrl/pinctrl-kendryte.c
-F:	include/kendryte/
+F:	doc/device-tree-bindings/mfd/canaan,k210-sysctl.txt
+F:	doc/device-tree-bindings/pinctrl/canaan,k210-fpioa.txt
+F:	drivers/clk/clk_k210.c
+F:	drivers/pinctrl/pinctrl-k210.c
+F:	include/k210/
 
 RNG
 M:	Sughosh Ganu <sughosh.ganu@linaro.org>

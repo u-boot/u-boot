@@ -692,13 +692,13 @@ static int k210_pc_probe(struct udevice *dev)
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
 		goto err;
 
-	priv->sysctl = syscon_regmap_lookup_by_phandle(dev, "kendryte,sysctl");
+	priv->sysctl = syscon_regmap_lookup_by_phandle(dev, "canaan,k210-sysctl");
 	if (IS_ERR(priv->sysctl)) {
 		ret = -ENODEV;
 		goto err;
 	}
 
-	ret = dev_read_u32(dev, "kendryte,power-offset", &priv->power_offset);
+	ret = dev_read_u32(dev, "canaan,k210-power-offset", &priv->power_offset);
 	if (ret)
 		goto err;
 
@@ -726,7 +726,7 @@ err:
 }
 
 static const struct udevice_id k210_pc_ids[] = {
-	{ .compatible = "kendryte,k210-fpioa" },
+	{ .compatible = "canaan,k210-fpioa" },
 	{ }
 };
 

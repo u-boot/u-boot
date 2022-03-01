@@ -14,7 +14,7 @@
 #include <serial.h>
 #include <dt-bindings/clock/k210-sysctl.h>
 #include <dt-bindings/mfd/k210-sysctl.h>
-#include <kendryte/pll.h>
+#include <k210/pll.h>
 #include <linux/bitfield.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1271,7 +1271,7 @@ static int k210_clk_probe(struct udevice *dev)
 }
 
 static const struct udevice_id k210_clk_ids[] = {
-	{ .compatible = "kendryte,k210-clk" },
+	{ .compatible = "canaan,k210-clk" },
 	{ },
 };
 

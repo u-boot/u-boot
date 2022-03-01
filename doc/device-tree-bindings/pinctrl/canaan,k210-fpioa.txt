@@ -5,10 +5,10 @@ in Kendryte K210 SoCs. Any of the 256 functions can be mapped to any of the 48
 pins.
 
 Required properties:
-- compatible: should be "kendryte,k210-fpioa"
+- compatible: should be "canaan,k210-fpioa"
 - reg: address and length of the FPIOA registers
-- kendryte,sysctl: phandle to the "sysctl" register map node
-- kendryte,power-offset: offset in the register map of the power bank control
+- canaan,sysctl: phandle to the "sysctl" register map node
+- canaan,k210-power-offset: offset in the register map of the power bank control
   register (in bytes)
 
 Configuration nodes
@@ -54,10 +54,10 @@ Notes on specific properties include:
 
 Example:
 fpioa: pinmux@502B0000 {
-	compatible = "kendryte,k210-fpioa";
+	compatible = "canaan,k210-fpioa";
 	reg = <0x502B0000 0x100>;
-	kendryte,sysctl = <&sysctl>;
-	kendryte,power-offset = <K210_SYSCTL_POWER_SEL>;
+	canaan,k210-sysctl = <&sysctl>;
+	canaan,k210-power-offset = <K210_SYSCTL_POWER_SEL>;
 
 	/* JTAG running at 3.3V and driven at 11 mA */
 	fpioa_jtag: jtag {

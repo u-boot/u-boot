@@ -5,8 +5,8 @@ Required properties:
 - compatible : One of
   "altr,socfpga-spi",
   "altr,socfpga-arria10-spi",
-  "canaan,kendryte-k210-spi",
-  "canaan,kendryte-k210-ssi",
+  "canaan,k210-spi",
+  "canaan,k210-ssi",
   "intel,stratix10-spi",
   "intel,agilex-spi",
   "mscc,ocelot-spi",
