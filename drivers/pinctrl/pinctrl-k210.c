@@ -536,7 +536,7 @@ static int k210_pc_pinconf_set(struct udevice *dev, unsigned pin_selector,
 		break;
 	case PIN_CONFIG_BIAS_PULL_UP:
 		if (argument)
-			val |= K210_PC_PD;
+			val |= K210_PC_PU;
 		else
 			return -EINVAL;
 		break;
