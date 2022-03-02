@@ -718,17 +718,14 @@ out:
 }
 
 static int
-kwboot_bootmsg(int tty, void *msg)
+kwboot_bootmsg(int tty)
 {
 	struct kwboot_block block;
 	int rc;
 	char c;
 	int count;
 
-	if (msg == NULL)
-		kwboot_printv("Please reboot the target into UART boot mode...");
-	else
-		kwboot_printv("Sending boot message. Please reboot the target...");
+	kwboot_printv("Sending boot message. Please reboot the target...");
 
 	do {
 		rc = tcflush(tty, TCIOFLUSH);
@@ -736,7 +733,7 @@ kwboot_bootmsg(int tty, void *msg)
 			break;
 
 		for (count = 0; count < 128; count++) {
-			rc = kwboot_tty_send(tty, msg, 8, 0);
+			rc = kwboot_tty_send(tty, kwboot_msg_boot, sizeof(kwboot_msg_boot), 0);
 			if (rc)
 				break;
 		}
@@ -798,7 +795,7 @@ kwboot_bootmsg(int tty, void *msg)
 }
 
 static int
-kwboot_debugmsg(int tty, void *msg)
+kwboot_debugmsg(int tty)
 {
 	int rc;
 
@@ -811,7 +808,7 @@ kwboot_debugmsg(int tty, void *msg)
 		if (rc)
 			break;
 
-		rc = kwboot_tty_send(tty, msg, 8, 0);
+		rc = kwboot_tty_send(tty, kwboot_msg_debug, sizeof(kwboot_msg_debug), 0);
 		if (rc)
 			break;
 
@@ -1737,8 +1734,8 @@ main(int argc, char **argv)
 {
 	const char *ttypath, *imgpath;
 	int rv, rc, tty, term;
-	void *bootmsg;
-	void *debugmsg;
+	int bootmsg;
+	int debugmsg;
 	void *img;
 	size_t size;
 	size_t after_img_rsv;
@@ -1748,8 +1745,8 @@ main(int argc, char **argv)
 
 	rv = 1;
 	tty = -1;
-	bootmsg = NULL;
-	debugmsg = NULL;
+	bootmsg = 0;
+	debugmsg = 0;
 	imgpath = NULL;
 	img = NULL;
 	term = 0;
@@ -1771,7 +1768,7 @@ main(int argc, char **argv)
 		case 'b':
 			if (imgpath || bootmsg || debugmsg)
 				goto usage;
-			bootmsg = kwboot_msg_boot;
+			bootmsg = 1;
 			if (prev_optind == optind)
 				goto usage;
 			if (optind < argc - 1 && argv[optind] && argv[optind][0] != '-')
@@ -1781,14 +1778,14 @@ main(int argc, char **argv)
 		case 'D':
 			if (imgpath || bootmsg || debugmsg)
 				goto usage;
-			bootmsg = NULL;
+			bootmsg = 0;
 			imgpath = optarg;
 			break;
 
 		case 'd':
 			if (imgpath || bootmsg || debugmsg)
 				goto usage;
-			debugmsg = kwboot_msg_debug;
+			debugmsg = 1;
 			break;
 
 		case 'p':
@@ -1869,13 +1866,13 @@ main(int argc, char **argv)
 	}
 
 	if (debugmsg) {
-		rc = kwboot_debugmsg(tty, debugmsg);
+		rc = kwboot_debugmsg(tty);
 		if (rc) {
 			perror("debugmsg");
 			goto out;
 		}
 	} else if (bootmsg) {
-		rc = kwboot_bootmsg(tty, bootmsg);
+		rc = kwboot_bootmsg(tty);
 		if (rc) {
 			perror("bootmsg");
 			goto out;
