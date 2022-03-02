@@ -197,7 +197,7 @@ hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
 HOSTCFLAGS_mkexynosspl.o := -pedantic
 
 HOSTCFLAGS_kwboot.o += -pthread
-HOSTLDLIBS_kwboot += -pthread
+HOSTLDLIBS_kwboot += -pthread -ltinfo
 
 ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
 hostprogs-$(CONFIG_X86) += ifdtool

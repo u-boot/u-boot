@@ -37,6 +37,13 @@
 #endif
 
 /*
+ * These functions are in <term.h> header file, but this header file conflicts
+ * with "termios_linux.h" header file. So declare these functions manually.
+ */
+extern int setupterm(const char *, int, int *);
+extern char *tigetstr(const char *);
+
+/*
  * Marvell BootROM UART Sensing
  */
 
@@ -1376,37 +1383,84 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 }
 
 static int
-kwboot_term_pipe(int in, int out, const char *quit, int *s)
+kwboot_term_pipe(int in, int out, const char *quit, int *s, const char *kbs, int *k)
 {
 	char buf[128];
-	ssize_t nin;
+	ssize_t nin, noff;
 
 	nin = read(in, buf, sizeof(buf));
 	if (nin <= 0)
 		return -1;
 
-	if (quit) {
+	noff = 0;
+
+	if (quit || kbs) {
 		int i;
 
 		for (i = 0; i < nin; i++) {
-			if (buf[i] == quit[*s]) {
+			if ((quit || kbs) &&
+			    (!quit || buf[i] != quit[*s]) &&
+			    (!kbs || buf[i] != kbs[*k])) {
+				const char *prefix;
+				int plen;
+
+				if (quit && kbs) {
+					prefix = (*s >= *k) ? quit : kbs;
+					plen = (*s >= *k) ? *s : *k;
+				} else if (quit) {
+					prefix = quit;
+					plen = *s;
+				} else {
+					prefix = kbs;
+					plen = *k;
+				}
+
+				if (plen > i && kwboot_write(out, prefix, plen - i) < 0)
+					return -1;
+			}
+
+			if (quit && buf[i] == quit[*s]) {
 				(*s)++;
 				if (!quit[*s]) {
 					nin = (i > *s) ? (i - *s) : 0;
 					break;
 				}
-			} else {
-				if (*s > i && kwboot_write(out, quit, *s - i) < 0)
-					return -1;
+			} else if (quit) {
 				*s = 0;
+			}
+
+			if (kbs && buf[i] == kbs[*k]) {
+				(*k)++;
+				if (!kbs[*k]) {
+					if (i > *k + noff &&
+					    kwboot_write(out, buf + noff, i - *k - noff) < 0)
+						return -1;
+					/*
+					 * Replace backspace key by '\b' (0x08)
+					 * byte which is the only recognized
+					 * backspace byte by Marvell BootROM.
+					 */
+					if (write(out, "\x08", 1) < 0)
+						return -1;
+					noff = i + 1;
+					*k = 0;
+				}
+			} else if (kbs) {
+				*k = 0;
 			}
 		}
 
-		if (i == nin)
-			nin -= (nin > *s) ? *s : nin;
+		if (i == nin) {
+			i = 0;
+			if (quit && i < *s)
+				i = *s;
+			if (kbs && i < *k)
+				i = *k;
+			nin -= (nin > i) ? i : nin;
+		}
 	}
 
-	if (kwboot_write(out, buf, nin) < 0)
+	if (nin > noff && kwboot_write(out, buf + noff, nin - noff) < 0)
 		return -1;
 
 	return 0;
@@ -1415,7 +1469,8 @@ kwboot_term_pipe(int in, int out, const char *quit, int *s)
 static int
 kwboot_terminal(int tty)
 {
-	int rc, in, s;
+	int rc, in, s, k;
+	const char *kbs = NULL;
 	const char *quit = "\34c";
 	struct termios otio, tio;
 
@@ -1434,6 +1489,33 @@ kwboot_terminal(int tty)
 			goto out;
 		}
 
+		/*
+		 * Get sequence for backspace key used by the current
+		 * terminal. Every occurrence of this sequence will be
+		 * replaced by '\b' byte which is the only recognized
+		 * backspace byte by Marvell BootROM.
+		 *
+		 * Note that we cannot read this sequence from termios
+		 * c_cc[VERASE] as VERASE is valid only when ICANON is
+		 * set in termios c_lflag, which is not case for us.
+		 *
+		 * Also most terminals do not set termios c_cc[VERASE]
+		 * as c_cc[VERASE] can specify only one-byte sequence
+		 * and instead let applications to read (possible
+		 * multi-byte) sequence for backspace key from "kbs"
+		 * terminfo database based on $TERM env variable.
+		 *
+		 * So read "kbs" from terminfo database via tigetstr()
+		 * call after successful setupterm(). Most terminals
+		 * use byte 0x7F for backspace key, so replacement with
+		 * '\b' is required.
+		 */
+		if (setupterm(NULL, STDOUT_FILENO, &rc) == 0) {
+			kbs = tigetstr("kbs");
+			if (kbs == (char *)-1)
+				kbs = NULL;
+		}
+
 		kwboot_printv("[Type Ctrl-%c + %c to quit]\r\n",
 			      quit[0] | 0100, quit[1]);
 	} else
@@ -1441,6 +1523,7 @@ kwboot_terminal(int tty)
 
 	rc = 0;
 	s = 0;
+	k = 0;
 
 	do {
 		fd_set rfds;
@@ -1460,13 +1543,13 @@ kwboot_terminal(int tty)
 			break;
 
 		if (FD_ISSET(tty, &rfds)) {
-			rc = kwboot_term_pipe(tty, STDOUT_FILENO, NULL, NULL);
+			rc = kwboot_term_pipe(tty, STDOUT_FILENO, NULL, NULL, NULL, NULL);
 			if (rc)
 				break;
 		}
 
 		if (in >= 0 && FD_ISSET(in, &rfds)) {
-			rc = kwboot_term_pipe(in, tty, quit, &s);
+			rc = kwboot_term_pipe(in, tty, quit, &s, kbs, &k);
 			if (rc)
 				break;
 		}
