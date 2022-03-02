@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <pthread.h>
 
 #ifdef __linux__
 #include "termios_linux.h"
@@ -717,37 +718,120 @@ out:
 	return rc;
 }
 
+static void *
+kwboot_msg_write_handler(void *arg)
+{
+	int tty = *(int *)((void **)arg)[0];
+	const void *msg = ((void **)arg)[1];
+	int rsp_timeo = msg_rsp_timeo;
+	int i, dummy_oldtype;
+
+	/* allow to cancel this thread at any time */
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &dummy_oldtype);
+
+	while (1) {
+		/* write 128 samples of message pattern into the output queue without waiting */
+		for (i = 0; i < 128; i++) {
+			if (kwboot_tty_send(tty, msg, 8, 1) < 0) {
+				perror("\nFailed to send message pattern");
+				exit(1);
+			}
+		}
+		/* wait until output queue is transmitted and then make pause */
+		if (tcdrain(tty) < 0) {
+			perror("\nFailed to send message pattern");
+			exit(1);
+		}
+		/* BootROM requires pause on UART after it detects message pattern */
+		usleep(rsp_timeo * 1000);
+	}
+}
+
+static int
+kwboot_msg_start_thread(pthread_t *thread, int *tty, void *msg)
+{
+	void *arg[2];
+	int rc;
+
+	arg[0] = tty;
+	arg[1] = msg;
+	rc = pthread_create(thread, NULL, kwboot_msg_write_handler, arg);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+
+	return 0;
+}
+
+static int
+kwboot_msg_stop_thread(pthread_t thread)
+{
+	int rc;
+
+	rc = pthread_cancel(thread);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+
+	rc = pthread_join(thread, NULL);
+	if (rc) {
+		errno = rc;
+		return -1;
+	}
+
+	return 0;
+}
+
 static int
 kwboot_bootmsg(int tty)
 {
 	struct kwboot_block block;
-	int rc;
+	pthread_t write_thread;
+	int rc, err;
 	char c;
-	int count;
+
+	/* flush input and output queue */
+	tcflush(tty, TCIOFLUSH);
+
+	rc = kwboot_msg_start_thread(&write_thread, &tty, kwboot_msg_boot);
+	if (rc) {
+		perror("Failed to start write thread");
+		return rc;
+	}
 
 	kwboot_printv("Sending boot message. Please reboot the target...");
 
-	do {
-		rc = tcflush(tty, TCIOFLUSH);
-		if (rc)
-			break;
-
-		for (count = 0; count < 128; count++) {
-			rc = kwboot_tty_send(tty, kwboot_msg_boot, sizeof(kwboot_msg_boot), 0);
-			if (rc)
-				break;
-		}
-
-		rc = kwboot_tty_recv(tty, &c, 1, msg_rsp_timeo);
-
+	err = 0;
+	while (1) {
 		kwboot_spinner();
 
-	} while (rc || c != NAK);
+		rc = kwboot_tty_recv(tty, &c, 1, msg_rsp_timeo);
+		if (rc && errno == ETIMEDOUT) {
+			continue;
+		} else if (rc) {
+			err = errno;
+			break;
+		}
+
+		if (c == NAK)
+			break;
+	}
 
 	kwboot_printv("\n");
 
-	if (rc)
+	rc = kwboot_msg_stop_thread(write_thread);
+	if (rc) {
+		perror("Failed to stop write thread");
 		return rc;
+	}
+
+	if (err) {
+		errno = err;
+		perror("Failed to read response for boot message pattern");
+		return -1;
+	}
 
 	/*
 	 * At this stage we have sent more boot message patterns and BootROM
@@ -1873,10 +1957,8 @@ main(int argc, char **argv)
 		}
 	} else if (bootmsg) {
 		rc = kwboot_bootmsg(tty);
-		if (rc) {
-			perror("bootmsg");
+		if (rc)
 			goto out;
-		}
 	}
 
 	if (img) {
