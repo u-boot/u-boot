@@ -740,10 +740,8 @@ kwboot_bootmsg(int tty, void *msg)
 
 		for (count = 0; count < 128; count++) {
 			rc = kwboot_tty_send(tty, msg, 8, 0);
-			if (rc) {
-				usleep(msg_req_delay * 1000);
-				continue;
-			}
+			if (rc)
+				break;
 		}
 
 		rc = kwboot_tty_recv(tty, &c, 1, msg_rsp_timeo);
@@ -772,11 +770,19 @@ kwboot_bootmsg(int tty, void *msg)
 	 */
 
 	/* flush output queue with remaining boot message patterns */
-	tcflush(tty, TCOFLUSH);
+	rc = tcflush(tty, TCOFLUSH);
+	if (rc) {
+		perror("Failed to flush output queue");
+		return rc;
+	}
 
 	/* send one xmodem packet with 0xff bytes to force BootROM to re-sync */
 	memset(&block, 0xff, sizeof(block));
-	kwboot_tty_send(tty, &block, sizeof(block), 0);
+	rc = kwboot_tty_send(tty, &block, sizeof(block), 0);
+	if (rc) {
+		perror("Failed to send sync sequence");
+		return rc;
+	}
 
 	/*
 	 * Sending 132 bytes via 115200B/8-N-1 takes 11.45 ms, reading 132 bytes
@@ -785,7 +791,11 @@ kwboot_bootmsg(int tty, void *msg)
 	usleep(30 * 1000);
 
 	/* flush remaining NAK replies from input queue */
-	tcflush(tty, TCIFLUSH);
+	rc = tcflush(tty, TCIFLUSH);
+	if (rc) {
+		perror("Failed to flush input queue");
+		return rc;
+	}
 
 	return 0;
 }
@@ -805,10 +815,8 @@ kwboot_debugmsg(int tty, void *msg)
 			break;
 
 		rc = kwboot_tty_send(tty, msg, 8, 0);
-		if (rc) {
-			usleep(msg_req_delay * 1000);
-			continue;
-		}
+		if (rc)
+			break;
 
 		rc = kwboot_tty_recv(tty, buf, 16, msg_rsp_timeo);
 
