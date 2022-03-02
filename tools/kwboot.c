@@ -7,9 +7,34 @@
  * (c) 2021 Pali Rohár <pali@kernel.org>
  * (c) 2021 Marek Behún <marek.behun@nic.cz>
  *
- * References: marvell.com, "88F6180, 88F6190, 88F6192, and 88F6281
- *   Integrated Controller: Functional Specifications" December 2,
- *   2008. Chapter 24.2 "BootROM Firmware".
+ * References:
+ * - "88F6180, 88F6190, 88F6192, and 88F6281: Integrated Controller: Functional
+ *   Specifications" December 2, 2008. Chapter 24.2 "BootROM Firmware".
+ *   https://web.archive.org/web/20130730091033/https://www.marvell.com/embedded-processors/kirkwood/assets/FS_88F6180_9x_6281_OpenSource.pdf
+ * - "88AP510: High-Performance SoC with Integrated CPU, 2D/3D Graphics
+ *   Processor, and High-Definition Video Decoder: Functional Specifications"
+ *   August 3, 2011. Chapter 5 "BootROM Firmware"
+ *   https://web.archive.org/web/20120130172443/https://www.marvell.com/application-processors/armada-500/assets/Armada-510-Functional-Spec.pdf
+ * - "88F6710, 88F6707, and 88F6W11: ARMADA(R) 370 SoC: Functional Specifications"
+ *   May 26, 2014. Chapter 6 "BootROM Firmware".
+ *   https://web.archive.org/web/20140617183701/https://www.marvell.com/embedded-processors/armada-300/assets/ARMADA370-FunctionalSpec-datasheet.pdf
+ * - "MV78230, MV78260, and MV78460: ARMADA(R) XP Family of Highly Integrated
+ *   Multi-Core ARMv7 Based SoC Processors: Functional Specifications"
+ *   May 29, 2014. Chapter 6 "BootROM Firmware".
+ *   https://web.archive.org/web/20180829171131/https://www.marvell.com/embedded-processors/armada-xp/assets/ARMADA-XP-Functional-SpecDatasheet.pdf
+ * - "ARMADA(R) 375 Value-Performance Dual Core CPU System on Chip: Functional
+ *   Specifications" Doc. No. MV-S109377-00, Rev. A. September 18, 2013.
+ *   Chapter 7 "Boot Sequence"
+ *   CONFIDENTIAL, no public documentation available
+ * - "88F6810, 88F6811, 88F6821, 88F6W21, 88F6820, and 88F6828: ARMADA(R) 38x
+ *   Family High-Performance Single/Dual CPU System on Chip: Functional
+ *   Specifications" Doc. No. MV-S109094-00, Rev. C. August 2, 2015.
+ *   Chapter 7 "Boot Flow"
+ *   CONFIDENTIAL, no public documentation available
+ * - "88F6920, 88F6925 and 88F6928: ARMADA(R) 39x High-Performance Dual Core CPU
+ *   System on Chip Functional Specifications" Doc. No. MV-S109896-00, Rev. B.
+ *   December 22, 2015. Chapter 7 "Boot Flow"
+ *   CONFIDENTIAL, no public documentation available
  */
 
 #include "kwbimage.h"
