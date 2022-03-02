@@ -45,6 +45,7 @@ Shell commands
    pstore
    qfw
    reset
+   rng
    sbi
    sf
    scp03
