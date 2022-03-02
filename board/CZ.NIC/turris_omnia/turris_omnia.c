@@ -511,10 +511,53 @@ void spl_board_init(void)
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP) || IS_ENABLED(CONFIG_OF_BOARD_SETUP)
 
-static void fixup_serdes_0_nodes(void *blob)
+static void disable_sata_node(void *blob)
+{
+	int node;
+
+	fdt_for_each_node_by_compatible(node, blob, -1, "marvell,armada-380-ahci") {
+		if (!fdtdec_get_is_enabled(blob, node))
+			continue;
+
+		if (fdt_status_disabled(blob, node) < 0)
+			printf("Cannot disable SATA DT node!\n");
+		else
+			debug("Disabled SATA DT node\n");
+
+		break;
+	}
+}
+
+static void disable_pcie_node(void *blob, int port)
+{
+	int node;
+
+	fdt_for_each_node_by_compatible(node, blob, -1, "marvell,armada-370-pcie") {
+		int port_node;
+
+		if (!fdtdec_get_is_enabled(blob, node))
+			continue;
+
+		fdt_for_each_subnode (port_node, blob, node) {
+			if (!fdtdec_get_is_enabled(blob, port_node))
+				continue;
+
+			if (fdtdec_get_int(blob, port_node, "marvell,pcie-port", -1) != port)
+				continue;
+
+			if (fdt_status_disabled(blob, port_node) < 0)
+				printf("Cannot disable PCIe port %d DT node!\n", port);
+			else
+				debug("Disabled PCIe port %d DT node\n", port);
+
+			return;
+		}
+	}
+}
+
+static void fixup_msata_port_nodes(void *blob)
 {
 	bool mode_sata;
-	int node;
 
 	/*
 	 * Determine if SerDes 0 is configured to SATA mode.
@@ -534,47 +577,12 @@ static void fixup_serdes_0_nodes(void *blob)
 		return;
 	}
 
-	/* If mSATA card is not present, disable SATA DT node */
 	if (!mode_sata) {
-		fdt_for_each_node_by_compatible(node, blob, -1,
-						"marvell,armada-380-ahci") {
-			if (!fdtdec_get_is_enabled(blob, node))
-				continue;
-
-			if (fdt_status_disabled(blob, node) < 0)
-				printf("Cannot disable SATA DT node!\n");
-			else
-				debug("Disabled SATA DT node\n");
-
-			break;
-		}
-
-		return;
-	}
-
-	/* Otherwise disable PCIe port 0 DT node (MiniPCIe / mSATA port) */
-	fdt_for_each_node_by_compatible(node, blob, -1,
-					"marvell,armada-370-pcie") {
-		int port;
-
-		if (!fdtdec_get_is_enabled(blob, node))
-			continue;
-
-		fdt_for_each_subnode (port, blob, node) {
-			if (!fdtdec_get_is_enabled(blob, port))
-				continue;
-
-			if (fdtdec_get_int(blob, port, "marvell,pcie-port",
-					   -1) != 0)
-				continue;
-
-			if (fdt_status_disabled(blob, port) < 0)
-				printf("Cannot disable PCIe port 0 DT node!\n");
-			else
-				debug("Disabled PCIe port 0 DT node\n");
-
-			return;
-		}
+		/* If mSATA card is not present, disable SATA DT node */
+		disable_sata_node(blob);
+	} else {
+		/* Otherwise disable PCIe port 0 DT node (MiniPCIe / mSATA port) */
+		disable_pcie_node(blob, 0);
 	}
 }
 
@@ -583,7 +591,7 @@ static void fixup_serdes_0_nodes(void *blob)
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
-	fixup_serdes_0_nodes(blob);
+	fixup_msata_port_nodes(blob);
 
 	return 0;
 }
@@ -728,7 +736,7 @@ fail:
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	fixup_spi_nor_partitions(blob);
-	fixup_serdes_0_nodes(blob);
+	fixup_msata_port_nodes(blob);
 
 	return 0;
 }
