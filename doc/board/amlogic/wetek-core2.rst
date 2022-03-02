@@ -29,6 +29,8 @@ U-Boot compilation
 Image creation
 --------------
 
+For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `wetek-core2`
+
 Amlogic does not provide sources for the firmware or the tools needed
 to create the bootloader image, and WeTek has not publicly shared the
 precompiled FIP binaries. However the public Khadas VIM2 sources also

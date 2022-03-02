@@ -54,6 +54,8 @@ These binaries and the tools required below have been collected and prebuilt
 for convenience at <https://github.com/BayLibre/u-boot/releases/>. These
 apply to both v1 and v2.
 
+For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `lepotato`
+
 Download and extract the libretech-cc release from there, and set FIPDIR to
 point to the `fip` subdirectory.
 
