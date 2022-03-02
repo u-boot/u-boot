@@ -48,11 +48,9 @@ static unsigned char kwboot_msg_debug[] = {
 };
 
 /* Defines known to work on Kirkwood */
-#define KWBOOT_MSG_REQ_DELAY	10 /* ms */
 #define KWBOOT_MSG_RSP_TIMEO	50 /* ms */
 
 /* Defines known to work on Armada XP */
-#define KWBOOT_MSG_REQ_DELAY_AXP	1000 /* ms */
 #define KWBOOT_MSG_RSP_TIMEO_AXP	1000 /* ms */
 
 /*
@@ -285,7 +283,6 @@ static const char kwb_baud_magic[16] = "$baudratechange";
 
 static int kwboot_verbose;
 
-static int msg_req_delay = KWBOOT_MSG_REQ_DELAY;
 static int msg_rsp_timeo = KWBOOT_MSG_RSP_TIMEO;
 static int blk_rsp_timeo = KWBOOT_BLK_RSP_TIMEO;
 
@@ -1725,7 +1722,6 @@ kwboot_usage(FILE *stream, char *progname)
 		"  -D <image>: boot <image> without preamble (Dove)\n");
 	fprintf(stream, "  -d: enter debug mode\n");
 	fprintf(stream, "  -a: use timings for Armada XP\n");
-	fprintf(stream, "  -q <req-delay>:  use specific request-delay\n");
 	fprintf(stream, "  -s <resp-timeo>: use specific response-timeout\n");
 	fprintf(stream,
 		"  -o <block-timeo>: use specific xmodem block timeout\n");
@@ -1804,12 +1800,11 @@ main(int argc, char **argv)
 			break;
 
 		case 'a':
-			msg_req_delay = KWBOOT_MSG_REQ_DELAY_AXP;
 			msg_rsp_timeo = KWBOOT_MSG_RSP_TIMEO_AXP;
 			break;
 
 		case 'q':
-			msg_req_delay = atoi(optarg);
+			/* nop, for backward compatibility */
 			break;
 
 		case 's':
