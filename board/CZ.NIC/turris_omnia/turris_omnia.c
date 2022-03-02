@@ -200,12 +200,24 @@ static bool disable_mcu_watchdog(void)
 	return true;
 }
 
-static bool omnia_detect_sata(void)
+static bool omnia_detect_sata(const char *msata_slot)
 {
 	int ret;
 	u16 stsword;
 
 	puts("MiniPCIe/mSATA card detection... ");
+
+	if (msata_slot) {
+		if (strcmp(msata_slot, "pcie") == 0) {
+			puts("forced to MiniPCIe via env\n");
+			return false;
+		} else if (strcmp(msata_slot, "sata") == 0) {
+			puts("forced to mSATA via env\n");
+			return true;
+		} else if (strcmp(msata_slot, "auto") != 0) {
+			printf("unsupported env value '%s', fallback to... ", msata_slot);
+		}
+	}
 
 	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
 	if (ret) {
@@ -239,7 +251,18 @@ void *env_sf_get_env_addr(void)
 
 int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
-	if (omnia_detect_sata()) {
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	/* Do not use env_load() as malloc() pool is too small at this stage */
+	bool has_env = (env_init() == 0);
+#endif
+	const char *env_value = NULL;
+
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	/* beware that env_get() returns static allocated memory */
+	env_value = has_env ? env_get("omnia_msata_slot") : NULL;
+#endif
+
+	if (omnia_detect_sata(env_value)) {
 		/* Change SerDes for first mPCIe port (mSATA) from PCIe to SATA */
 		board_serdes_map[0].serdes_type = SATA0;
 		board_serdes_map[0].serdes_speed = SERDES_SPEED_6_GBPS;
