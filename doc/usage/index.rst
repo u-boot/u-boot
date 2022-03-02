@@ -55,6 +55,7 @@ Shell commands
    cmd/pstore
    cmd/qfw
    cmd/reset
+   cmd/rng
    cmd/sbi
    cmd/sf
    cmd/scp03
