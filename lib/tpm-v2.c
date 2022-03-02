@@ -585,19 +585,19 @@ u32 tpm2_get_random(struct udevice *dev, void *data, u32 count)
 		if (pack_byte_string(buf, sizeof(buf), "sw",
 				     0, command_v2, sizeof(command_v2),
 				     sizeof(command_v2), this_bytes))
-			return TPM_LIB_ERROR;
+			return -EIO;
 		err = tpm_sendrecv_command(dev, buf, response,
 					   &response_length);
 		if (err)
 			return err;
 		if (unpack_byte_string(response, response_length, "w",
 				       data_size_offset, &data_size))
-			return TPM_LIB_ERROR;
+			return -EIO;
 		if (data_size > this_bytes)
 			return TPM_LIB_ERROR;
 		if (unpack_byte_string(response, response_length, "s",
 				       data_offset, out, data_size))
-			return TPM_LIB_ERROR;
+			return -EIO;
 
 		count -= data_size;
 		out += data_size;

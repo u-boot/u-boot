@@ -9,11 +9,12 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
-#include <asm/unaligned.h>
-#include <u-boot/sha1.h>
 #include <tpm-common.h>
 #include <tpm-v1.h>
 #include "tpm-utils.h"
+
+#include <asm/unaligned.h>
+#include <u-boot/sha1.h>
 
 #ifdef CONFIG_TPM_AUTH_SESSIONS
 
@@ -892,19 +893,19 @@ u32 tpm1_get_random(struct udevice *dev, void *data, u32 count)
 		if (pack_byte_string(buf, sizeof(buf), "sd",
 				     0, command, sizeof(command),
 				     length_offset, this_bytes))
-			return TPM_LIB_ERROR;
+			return -EIO;
 		err = tpm_sendrecv_command(dev, buf, response,
 					   &response_length);
 		if (err)
 			return err;
 		if (unpack_byte_string(response, response_length, "d",
 				       data_size_offset, &data_size))
-			return TPM_LIB_ERROR;
+			return -EIO;
 		if (data_size > count)
-			return TPM_LIB_ERROR;
+			return -EIO;
 		if (unpack_byte_string(response, response_length, "s",
 				       data_offset, out, data_size))
-			return TPM_LIB_ERROR;
+			return -EIO;
 
 		count -= data_size;
 		out += data_size;
