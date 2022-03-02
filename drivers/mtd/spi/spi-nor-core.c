@@ -1315,13 +1315,13 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 }
 
 /*
- * Check if a region of the flash is (completely) locked. See stm_lock() for
+ * Check if a region of the flash is (completely) unlocked. See stm_lock() for
  * more info.
  *
- * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
+ * Returns 1 if entire region is unlocked, 0 if any portion is locked, and
  * negative on errors.
  */
-static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+static int stm_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	int status;
 
@@ -1329,7 +1329,7 @@ static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (status < 0)
 		return status;
 
-	return stm_is_locked_sr(nor, ofs, len, status);
+	return stm_is_unlocked_sr(nor, ofs, len, status);
 }
 #endif /* CONFIG_SPI_FLASH_STMICRO */
 
@@ -1562,16 +1562,16 @@ static int sst26_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 }
 
 /*
- * Returns EACCES (positive value) if region is locked, 0 if region is unlocked,
- * and negative on errors.
+ * Returns EACCES (positive value) if region is (partially) locked, 0 if region
+ * is completely unlocked, and negative on errors.
  */
-static int sst26_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+static int sst26_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	/*
-	 * is_locked function is used for check before reading or erasing flash
-	 * region, so offset and length might be not 64k allighned, so adjust
-	 * them to be 64k allighned as sst26_lock_ctl works only with 64k
-	 * allighned regions.
+	 * is_unlocked function is used for check before reading or erasing
+	 * flash region, so offset and length might be not 64k aligned, so
+	 * adjust them to be 64k aligned as sst26_lock_ctl works only with 64k
+	 * aligned regions.
 	 */
 	ofs -= ofs & (SZ_64K - 1);
 	len = len & (SZ_64K - 1) ? (len & ~(SZ_64K - 1)) + SZ_64K : len;
@@ -3924,7 +3924,7 @@ int spi_nor_scan(struct spi_nor *nor)
 			info->flags & SPI_NOR_HAS_LOCK) {
 		nor->flash_lock = stm_lock;
 		nor->flash_unlock = stm_unlock;
-		nor->flash_is_locked = stm_is_locked;
+		nor->flash_is_unlocked = stm_is_unlocked;
 	}
 #endif
 
@@ -3936,7 +3936,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	if (info->flags & SPI_NOR_HAS_SST26LOCK) {
 		nor->flash_lock = sst26_lock;
 		nor->flash_unlock = sst26_unlock;
-		nor->flash_is_locked = sst26_is_locked;
+		nor->flash_is_unlocked = sst26_is_unlocked;
 	}
 #endif
 
