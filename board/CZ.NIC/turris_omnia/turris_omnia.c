@@ -86,17 +86,8 @@ enum status_word_bits {
 #define OMNIA_GPP_POL_LOW	0x0
 #define OMNIA_GPP_POL_MID	0x0
 
-static struct serdes_map board_serdes_map_pex[] = {
+static struct serdes_map board_serdes_map[] = {
 	{PEX0, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
-	{USB3_HOST0, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
-	{PEX1, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
-	{USB3_HOST1, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
-	{PEX2, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
-	{SGMII2, SERDES_SPEED_1_25_GBPS, SERDES_DEFAULT_MODE, 0, 0}
-};
-
-static struct serdes_map board_serdes_map_sata[] = {
-	{SATA0, SERDES_SPEED_6_GBPS, SERDES_DEFAULT_MODE, 0, 0},
 	{USB3_HOST0, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
 	{PEX1, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
 	{USB3_HOST1, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
@@ -249,12 +240,14 @@ void *env_sf_get_env_addr(void)
 int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
 	if (omnia_detect_sata()) {
-		*serdes_map_array = board_serdes_map_sata;
-		*count = ARRAY_SIZE(board_serdes_map_sata);
-	} else {
-		*serdes_map_array = board_serdes_map_pex;
-		*count = ARRAY_SIZE(board_serdes_map_pex);
+		/* Change SerDes for first mPCIe port (mSATA) from PCIe to SATA */
+		board_serdes_map[0].serdes_type = SATA0;
+		board_serdes_map[0].serdes_speed = SERDES_SPEED_6_GBPS;
+		board_serdes_map[0].serdes_mode = SERDES_DEFAULT_MODE;
 	}
+
+	*serdes_map_array = board_serdes_map;
+	*count = ARRAY_SIZE(board_serdes_map);
 
 	return 0;
 }
