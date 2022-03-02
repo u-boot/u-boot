@@ -1,7 +1,7 @@
 /*
  * Boot a Marvell SoC, with Xmodem over UART0.
- *  supports Kirkwood, Dove, Armada 370, Armada XP, Armada 375, Armada 38x and
- *           Armada 39x
+ *  supports Kirkwood, Dove, Avanta, Armada 370, Armada XP, Armada 375,
+ *           Armada 38x and Armada 39x.
  *
  * (c) 2012 Daniel Stodden <daniel.stodden@gmail.com>
  * (c) 2021 Pali Rohár <pali@kernel.org>
@@ -1990,7 +1990,7 @@ kwboot_usage(FILE *stream, char *progname)
 		progname);
 	fprintf(stream, "\n");
 	fprintf(stream,
-		"  -b <image>: boot <image> with preamble (Kirkwood, Armada 370/XP/375/38x/39x)\n");
+		"  -b <image>: boot <image> with preamble (Kirkwood, Avanta, Armada 370/XP/375/38x/39x)\n");
 	fprintf(stream,
 		"  -D <image>: boot <image> without preamble (Dove)\n");
 	fprintf(stream, "  -b: enter xmodem boot mode\n");
