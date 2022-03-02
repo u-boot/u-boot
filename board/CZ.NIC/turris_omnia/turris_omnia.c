@@ -239,6 +239,22 @@ static bool omnia_detect_sata(const char *msata_slot)
 	return stsword & MSATA_IND_STSBIT ? true : false;
 }
 
+static bool omnia_detect_wwan_usb3(const char *wwan_slot)
+{
+	puts("WWAN slot configuration... ");
+
+	if (wwan_slot && strcmp(wwan_slot, "usb3") == 0) {
+		puts("USB3.0\n");
+		return true;
+	}
+
+	if (wwan_slot && strcmp(wwan_slot, "pcie") != 0)
+		printf("unsupported env value '%s', fallback to... ", wwan_slot);
+
+	puts("PCIe+USB2.0\n");
+	return false;
+}
+
 void *env_sf_get_env_addr(void)
 {
 	/* SPI Flash is mapped to address 0xD4000000 only in SPL */
@@ -267,6 +283,20 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 		board_serdes_map[0].serdes_type = SATA0;
 		board_serdes_map[0].serdes_speed = SERDES_SPEED_6_GBPS;
 		board_serdes_map[0].serdes_mode = SERDES_DEFAULT_MODE;
+	}
+
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	/* beware that env_get() returns static allocated memory */
+	env_value = has_env ? env_get("omnia_wwan_slot") : NULL;
+#endif
+
+	if (omnia_detect_wwan_usb3(env_value)) {
+		/* Disable SerDes for USB 3.0 pins on the front USB-A port */
+		board_serdes_map[1].serdes_type = DEFAULT_SERDES;
+		/* Change SerDes for third mPCIe port (WWAN) from PCIe to USB 3.0 */
+		board_serdes_map[4].serdes_type = USB3_HOST0;
+		board_serdes_map[4].serdes_speed = SERDES_SPEED_5_GBPS;
+		board_serdes_map[4].serdes_mode = SERDES_DEFAULT_MODE;
 	}
 
 	*serdes_map_array = board_serdes_map;
@@ -590,12 +620,38 @@ static void fixup_msata_port_nodes(void *blob)
 	}
 }
 
+static void fixup_wwan_port_nodes(void *blob)
+{
+	bool mode_usb3;
+
+	/* Determine if SerDes 4 is configured to USB3 mode */
+	mode_usb3 = ((readl(MVEBU_REGISTER(0x183fc)) & GENMASK(19, 16)) >> 16) == 4;
+
+	/* If SerDes 4 is not configured to USB3 mode then nothing is needed to fixup */
+	if (!mode_usb3)
+		return;
+
+	/*
+	 * We're either adding status = "disabled" property, or changing
+	 * status = "okay" to status = "disabled". In both cases we'll need more
+	 * space. Increase the size a little.
+	 */
+	if (fdt_increase_size(blob, 32) < 0) {
+		printf("Cannot increase FDT size!\n");
+		return;
+	}
+
+	/* Disable PCIe port 2 DT node (WWAN) */
+	disable_pcie_node(blob, 2);
+}
+
 #endif
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
 	fixup_msata_port_nodes(blob);
+	fixup_wwan_port_nodes(blob);
 
 	return 0;
 }
@@ -741,6 +797,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	fixup_spi_nor_partitions(blob);
 	fixup_msata_port_nodes(blob);
+	fixup_wwan_port_nodes(blob);
 
 	return 0;
 }
