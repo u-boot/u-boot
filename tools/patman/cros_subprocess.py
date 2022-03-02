@@ -113,7 +113,7 @@ class Popen(subprocess.Popen):
             return b''
         return data
 
-    def communicate_filter(self, output):
+    def communicate_filter(self, output, input_buf=''):
         """Interact with process: Read data from stdout and stderr.
 
         This method runs until end-of-file is reached, then waits for the
@@ -166,7 +166,7 @@ class Popen(subprocess.Popen):
             # Flush stdio buffer.    This might block, if the user has
             # been writing to .stdin in an uncontrolled fashion.
             self.stdin.flush()
-            if input:
+            if input_buf:
                 write_set.append(self.stdin)
             else:
                 self.stdin.close()
@@ -195,10 +195,10 @@ class Popen(subprocess.Popen):
                 # When select has indicated that the file is writable,
                 # we can write up to PIPE_BUF bytes without risk
                 # blocking.    POSIX defines PIPE_BUF >= 512
-                chunk = input[input_offset : input_offset + 512]
+                chunk = input_buf[input_offset : input_offset + 512]
                 bytes_written = os.write(self.stdin.fileno(), chunk)
                 input_offset += bytes_written
-                if input_offset >= len(input):
+                if input_offset >= len(input_buf):
                     self.stdin.close()
                     write_set.remove(self.stdin)
 
@@ -239,16 +239,6 @@ class Popen(subprocess.Popen):
         stdout = self.convert_data(stdout)
         stderr = self.convert_data(stderr)
         combined = self.convert_data(combined)
-
-        # Translate newlines, if requested.    We cannot let the file
-        # object do the translation: It is based on stdio, which is
-        # impossible to combine with select (unless forcing no
-        # buffering).
-        if self.universal_newlines and hasattr(file, 'newlines'):
-            if stdout:
-                stdout = self._translate_newlines(stdout)
-            if stderr:
-                stderr = self._translate_newlines(stderr)
 
         self.wait()
         return (stdout, stderr, combined)

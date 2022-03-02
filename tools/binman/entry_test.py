@@ -5,6 +5,7 @@
 # Test for the Entry class
 
 import collections
+import importlib
 import os
 import sys
 import unittest
@@ -32,11 +33,7 @@ class TestEntry(unittest.TestCase):
     def _ReloadEntry(self):
         global entry
         if entry:
-            if sys.version_info[0] >= 3:
-                import importlib
-                importlib.reload(entry)
-            else:
-                reload(entry)
+            importlib.reload(entry)
         else:
             from binman import entry
 

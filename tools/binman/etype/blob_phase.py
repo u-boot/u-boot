@@ -7,6 +7,9 @@
 
 from binman.etype.section import Entry_section
 
+# This is imported if needed
+state = None
+
 class Entry_blob_phase(Entry_section):
     """Section that holds a phase binary
 

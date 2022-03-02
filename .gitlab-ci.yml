@@ -215,6 +215,22 @@ Run tests for Nokia RX-51 (aka N900):
     - export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH;
       test/nokia_rx51_test.sh
 
+# Check for any pylint regressions
+Run pylint:
+  stage: testsuites
+  script:
+    - pip install -r test/py/requirements.txt
+    - pip install asteval pylint pyopenssl
+    - export PATH=${PATH}:~/.local/bin
+    - echo "[MASTER]" >> .pylintrc
+    - echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
+    - ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w
+        --board sandbox_spl
+    - pylint --version
+    - export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
+    - make pylint_err
+
 # Test sandbox with test.py
 sandbox test.py:
   variables:

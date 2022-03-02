@@ -31,7 +31,7 @@ class Commit:
     """
     def __init__(self, hash):
         self.hash = hash
-        self.subject = None
+        self.subject = ''
         self.tags = []
         self.changes = {}
         self.cc_list = []

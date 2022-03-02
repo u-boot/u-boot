@@ -19,6 +19,8 @@ from patman import tout
 
 modules = {}
 
+# This is imported if needed
+state = None
 
 # An argument which can be passed to entries on the command line, in lieu of
 # device-tree properties.

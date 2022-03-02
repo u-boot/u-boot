@@ -556,6 +556,7 @@ from os.path import dirname, exists, expandvars, islink, join, realpath
 
 VERSION = (14, 1, 0)
 
+# pylint: disable=E1101
 
 # File layout:
 #

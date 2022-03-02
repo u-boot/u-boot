@@ -163,6 +163,7 @@ class Entry_section(Entry):
         self._sort = False
         self._skip_at_start = None
         self._end_4gb = False
+        self._ignore_missing = False
 
     def ReadNode(self):
         """Read properties from the section node"""

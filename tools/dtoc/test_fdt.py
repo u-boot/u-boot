@@ -25,7 +25,7 @@ sys.path.insert(2, os.path.join(our_path,
 from dtoc import fdt
 from dtoc import fdt_util
 from dtoc.fdt_util import fdt32_to_cpu, fdt64_to_cpu
-from fdt import Type, BytesToValue
+from dtoc.fdt import Type, BytesToValue
 import libfdt
 from patman import command
 from patman import test_util
@@ -119,9 +119,9 @@ class TestFdt(unittest.TestCase):
         """Test that packing a device tree works"""
         self.dtb.Pack()
 
-    def testGetFdt(self):
+    def testGetFdtRaw(self):
         """Tetst that we can access the raw device-tree data"""
-        self.assertTrue(isinstance(self.dtb.GetContents(), bytearray))
+        self.assertTrue(isinstance(self.dtb.GetContents(), bytes))
 
     def testGetProps(self):
         """Tests obtaining a list of properties"""

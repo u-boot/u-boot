@@ -339,7 +339,7 @@ def read_file(fname, as_lines=True, skip_unicode=False):
                 return inf.read()
         except UnicodeDecodeError as e:
             if not skip_unicode:
-                raises
+                raise
             print("Failed on file %s': %s" % (fname, e))
             return None
 
@@ -790,9 +790,6 @@ class KconfigParser:
                 actlog = "'%s' is the same as the define in Kconfig.  Do nothing." \
                          % value
                 log_color = COLOR_LIGHT_PURPLE
-            elif action == ACTION_SPL_NOT_EXIST:
-                actlog = 'SPL is not enabled for this defconfig.  Skip.'
-                log_color = COLOR_PURPLE
             else:
                 sys.exit('Internal Error. This should not happen.')
 

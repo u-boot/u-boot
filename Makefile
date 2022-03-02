@@ -521,7 +521,8 @@ env_h := include/generated/environment.h
 
 no-dot-config-targets := clean clobber mrproper distclean \
 			 help %docs check% coccicheck \
-			 ubootversion backup tests check qcheck tcheck pylint
+			 ubootversion backup tests check qcheck tcheck pylint \
+			 pylint_err
 
 config-targets := 0
 mixed-targets  := 0
@@ -2261,7 +2262,7 @@ distclean: mrproper
 	@rm -f boards.cfg CHANGELOG
 
 # See doc/develop/python_cq.rst
-PHONY += pylint
+PHONY += pylint pylint_err
 PYLINT_BASE := scripts/pylint.base
 PYLINT_CUR := pylint.cur
 PYLINT_DIFF := pylint.diff
@@ -2302,6 +2303,11 @@ pylint:
 		else \
 			echo "No pylint regressions"; \
 		fi
+
+# Check for errors only
+pylint_err:
+	$(Q)pylint -E  -j 0 --ignore-imports=yes \
+		$(shell find tools test -name "*.py")
 
 backup:
 	F=`basename $(srctree)` ; cd .. ; \

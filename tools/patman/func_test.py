@@ -341,6 +341,8 @@ Changes in v2:
         tools.write_file(path, text, binary=False)
         index = self.repo.index
         index.add(fname)
+        # pylint doesn't seem to find this
+        # pylint: disable=E1101
         author = pygit2.Signature('Test user', 'test@email.com')
         committer = author
         tree = index.write_tree()
@@ -363,6 +365,8 @@ Changes in v2:
         self.repo = repo
         new_tree = repo.TreeBuilder().write()
 
+        # pylint doesn't seem to find this
+        # pylint: disable=E1101
         author = pygit2.Signature('Test user', 'test@email.com')
         committer = author
         _ = repo.create_commit('HEAD', author, committer, 'Created master',
@@ -414,6 +418,8 @@ better than before''')
         first_target = repo.revparse_single('HEAD')
 
         target = repo.revparse_single('HEAD~2')
+        # pylint doesn't seem to find this
+        # pylint: disable=E1101
         repo.reset(target.oid, pygit2.GIT_CHECKOUT_FORCE)
         self.make_commit_with_file('video: Some video improvements', '''
 Fix up the video so that
@@ -459,6 +465,8 @@ complicated as possible''')
         """Test creating patches from a branch"""
         repo = self.make_git_tree()
         target = repo.lookup_reference('refs/heads/first')
+        # pylint doesn't seem to find this
+        # pylint: disable=E1101
         self.repo.checkout(target, strategy=pygit2.GIT_CHECKOUT_FORCE)
         control.setup()
         try:
@@ -615,6 +623,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         """Test CountCommitsToBranch when there is no upstream"""
         repo = self.make_git_tree()
         target = repo.lookup_reference('refs/heads/base')
+        # pylint doesn't seem to find this
+        # pylint: disable=E1101
         self.repo.checkout(target, strategy=pygit2.GIT_CHECKOUT_FORCE)
 
         # Check that it can detect the current branch

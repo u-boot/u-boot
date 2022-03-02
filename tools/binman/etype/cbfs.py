@@ -12,6 +12,9 @@ from binman.cbfs_util import CbfsWriter
 from binman.entry import Entry
 from dtoc import fdt_util
 
+# This is imported if needed
+state = None
+
 class Entry_cbfs(Entry):
     """Coreboot Filesystem (CBFS)
 
