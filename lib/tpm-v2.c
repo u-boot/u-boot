@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <rng.h>
 #include <tpm-common.h>
 #include <tpm-v2.h>
 #include <linux/bitops.h>
@@ -562,7 +563,7 @@ u32 tpm2_pcr_setauthvalue(struct udevice *dev, const char *pw,
 	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 }
 
-u32 tpm2_get_random(struct udevice *dev, void *data, u32 count)
+int tpm2_get_random(struct udevice *dev, void *data, size_t count)
 {
 	const u8 command_v2[10] = {
 		tpm_u16(TPM2_ST_NO_SESSIONS),
@@ -585,19 +586,19 @@ u32 tpm2_get_random(struct udevice *dev, void *data, u32 count)
 		if (pack_byte_string(buf, sizeof(buf), "sw",
 				     0, command_v2, sizeof(command_v2),
 				     sizeof(command_v2), this_bytes))
-			return TPM_LIB_ERROR;
-		err = tpm_sendrecv_command(dev, buf, response,
+			return -EIO;
+		err = tpm_sendrecv_command(dev->parent, buf, response,
 					   &response_length);
 		if (err)
 			return err;
 		if (unpack_byte_string(response, response_length, "w",
 				       data_size_offset, &data_size))
-			return TPM_LIB_ERROR;
+			return -EIO;
 		if (data_size > this_bytes)
 			return TPM_LIB_ERROR;
 		if (unpack_byte_string(response, response_length, "s",
 				       data_offset, out, data_size))
-			return TPM_LIB_ERROR;
+			return -EIO;
 
 		count -= data_size;
 		out += data_size;
@@ -669,3 +670,13 @@ u32 tpm2_submit_command(struct udevice *dev, const u8 *sendbuf,
 {
 	return tpm_sendrecv_command(dev, sendbuf, recvbuf, recv_size);
 }
+
+static const struct dm_rng_ops tpm2_rng_ops = {
+	.read = tpm2_get_random,
+};
+
+U_BOOT_DRIVER(tpm2_rng) = {
+	.name	= "tpm2-rng",
+	.id	= UCLASS_RNG,
+	.ops	= &tpm2_rng_ops,
+};
