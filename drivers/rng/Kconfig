@@ -58,4 +58,15 @@ config RNG_IPROC200
 	depends on DM_RNG
 	help
 	  Enable random number generator for RPI4.
+
+config TPM_RNG
+	bool "Enable random number generator on TPM device"
+	depends on TPM
+	default y
+	help
+	  The TPM device has an inbuilt random number generator
+	  functionality. Enable random number generator on TPM
+	  devices.
+
+
 endif
