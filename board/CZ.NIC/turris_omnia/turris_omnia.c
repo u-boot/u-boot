@@ -524,8 +524,10 @@ static void disable_sata_node(void *blob)
 		else
 			debug("Disabled SATA DT node\n");
 
-		break;
+		return;
 	}
+
+	printf("Cannot find SATA DT node!\n");
 }
 
 static void disable_pcie_node(void *blob, int port)
@@ -553,6 +555,8 @@ static void disable_pcie_node(void *blob, int port)
 			return;
 		}
 	}
+
+	printf("Cannot find PCIe port %d DT node!\n", port);
 }
 
 static void fixup_msata_port_nodes(void *blob)
