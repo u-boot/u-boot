@@ -236,6 +236,16 @@ static bool omnia_detect_sata(void)
 	return stsword & MSATA_IND_STSBIT ? true : false;
 }
 
+void *env_sf_get_env_addr(void)
+{
+	/* SPI Flash is mapped to address 0xD4000000 only in SPL */
+#ifdef CONFIG_SPL_BUILD
+	return (void *)0xD4000000 + CONFIG_ENV_OFFSET;
+#else
+	return NULL;
+#endif
+}
+
 int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
 	if (omnia_detect_sata()) {
