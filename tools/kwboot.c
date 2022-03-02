@@ -881,30 +881,139 @@ kwboot_bootmsg(int tty)
 static int
 kwboot_debugmsg(int tty)
 {
-	int rc;
+	unsigned char buf[8192];
+	pthread_t write_thread;
+	int rc, err, i, pos;
+	size_t off;
+
+	/* flush input and output queue */
+	tcflush(tty, TCIOFLUSH);
+
+	rc = kwboot_msg_start_thread(&write_thread, &tty, kwboot_msg_debug);
+	if (rc) {
+		perror("Failed to start write thread");
+		return rc;
+	}
 
 	kwboot_printv("Sending debug message. Please reboot the target...");
+	kwboot_spinner();
 
-	do {
-		char buf[16];
-
-		rc = tcflush(tty, TCIOFLUSH);
-		if (rc)
+	err = 0;
+	off = 0;
+	while (1) {
+		/* Read immediately all bytes in queue without waiting */
+		rc = read(tty, buf + off, sizeof(buf) - off);
+		if ((rc < 0 && errno == EINTR) || rc == 0) {
+			continue;
+		} else if (rc < 0) {
+			err = errno;
 			break;
-
-		rc = kwboot_tty_send(tty, kwboot_msg_debug, sizeof(kwboot_msg_debug), 0);
-		if (rc)
-			break;
-
-		rc = kwboot_tty_recv(tty, buf, 16, msg_rsp_timeo);
+		}
+		off += rc - 1;
 
 		kwboot_spinner();
 
-	} while (rc);
+		/*
+		 * Check if we received at least 4 debug message patterns
+		 * (console echo from BootROM) in cyclic buffer
+		 */
+
+		for (pos = 0; pos < sizeof(kwboot_msg_debug); pos++)
+			if (buf[off] == kwboot_msg_debug[(pos + off) % sizeof(kwboot_msg_debug)])
+				break;
+
+		for (i = off; i >= 0; i--)
+			if (buf[i] != kwboot_msg_debug[(pos + i) % sizeof(kwboot_msg_debug)])
+				break;
+
+		off -= i;
+
+		if (off >= 4 * sizeof(kwboot_msg_debug))
+			break;
+
+		/* If not move valid suffix from end of the buffer to the beginning of buffer */
+		memmove(buf, buf + i + 1, off);
+	}
 
 	kwboot_printv("\n");
 
-	return rc;
+	rc = kwboot_msg_stop_thread(write_thread);
+	if (rc) {
+		perror("Failed to stop write thread");
+		return rc;
+	}
+
+	if (err) {
+		errno = err;
+		perror("Failed to read response for debug message pattern");
+		return -1;
+	}
+
+	/* flush output queue with remaining debug message patterns */
+	rc = tcflush(tty, TCOFLUSH);
+	if (rc) {
+		perror("Failed to flush output queue");
+		return rc;
+	}
+
+	kwboot_printv("Clearing input buffer...\n");
+
+	/*
+	 * Wait until BootROM transmit all remaining echo characters.
+	 * Experimentally it was measured that for Armada 385 BootROM
+	 * it is required to wait at least 0.415s. So wait 0.5s.
+	 */
+	usleep(500 * 1000);
+
+	/*
+	 * In off variable is stored number of characters received after the
+	 * successful detection of echo reply. So these characters are console
+	 * echo for other following debug message patterns. BootROM may have in
+	 * its output queue other echo characters which were being transmitting
+	 * before above sleep call. So read remaining number of echo characters
+	 * sent by the BootROM now.
+	 */
+	while ((rc = kwboot_tty_recv(tty, &buf[0], 1, 0)) == 0)
+		off++;
+	if (errno != ETIMEDOUT) {
+		perror("Failed to read response");
+		return rc;
+	}
+
+	/*
+	 * Clear every echo character set by the BootROM by backspace byte.
+	 * This is required prior writing any command to the BootROM debug
+	 * because BootROM command line buffer has limited size. If length
+	 * of the command is larger than buffer size then it looks like
+	 * that Armada 385 BootROM crashes after sending ENTER. So erase it.
+	 * Experimentally it was measured that for Armada 385 BootROM it is
+	 * required to send at least 3 backspace bytes for one echo character.
+	 * This is unknown why. But lets do it.
+	 */
+	off *= 3;
+	memset(buf, '\x08', sizeof(buf));
+	while (off > sizeof(buf)) {
+		rc = kwboot_tty_send(tty, buf, sizeof(buf), 1);
+		if (rc) {
+			perror("Failed to send clear sequence");
+			return rc;
+		}
+		off -= sizeof(buf);
+	}
+	rc = kwboot_tty_send(tty, buf, off, 0);
+	if (rc) {
+		perror("Failed to send clear sequence");
+		return rc;
+	}
+
+	usleep(msg_rsp_timeo * 1000);
+	rc = tcflush(tty, TCIFLUSH);
+	if (rc) {
+		perror("Failed to flush input queue");
+		return rc;
+	}
+
+	return 0;
 }
 
 static size_t
@@ -1951,10 +2060,8 @@ main(int argc, char **argv)
 
 	if (debugmsg) {
 		rc = kwboot_debugmsg(tty);
-		if (rc) {
-			perror("debugmsg");
+		if (rc)
 			goto out;
-		}
 	} else if (bootmsg) {
 		rc = kwboot_bootmsg(tty);
 		if (rc)
