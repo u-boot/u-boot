@@ -276,7 +276,7 @@ u32 tpm_find_key_sha1(struct udevice *dev, const u8 auth[20],
  * @param count		size of output buffer
  * Return: 0 if OK, -ve on error
  */
-int tpm_get_random(struct udevice *dev, void *data, u32 count);
+int tpm_get_random(struct udevice *dev, void *data, size_t count);
 
 /**
  * tpm_finalise_physical_presence() - Finalise physical presence

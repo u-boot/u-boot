@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <rng.h>
 #include <tpm_api.h>
 #include <tpm-v1.h>
 #include <tpm-v2.h>
@@ -265,12 +266,17 @@ u32 tpm_get_permissions(struct udevice *dev, u32 index, u32 *perm)
 		return -ENOSYS;
 }
 
-int tpm_get_random(struct udevice *dev, void *data, u32 count)
+int tpm_get_random(struct udevice *dev, void *data, size_t count)
 {
+	int ret = -ENOSYS;
+
 	if (tpm_is_v1(dev))
-		return tpm1_get_random(dev, data, count);
+		ret = tpm1_get_random(dev, data, count);
 	else if (tpm_is_v2(dev))
-		return -ENOSYS; /* not implemented yet */
-	else
-		return -ENOSYS;
+		ret = tpm2_get_random(dev, data, count);
+
+	if (ret)
+		log_err("Failed to read random bytes\n");
+
+	return ret;
 }
