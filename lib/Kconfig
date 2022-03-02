@@ -358,6 +358,7 @@ source lib/crypt/Kconfig
 config TPM
 	bool "Trusted Platform Module (TPM) Support"
 	depends on DM
+	imply DM_RNG
 	help
 	  This enables support for TPMs which can be used to provide security
 	  features for your board. The TPM can be connected via LPC or I2C
