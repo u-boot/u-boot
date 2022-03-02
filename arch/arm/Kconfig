@@ -1986,6 +1986,25 @@ config TARGET_DURIAN
 	  Support for durian platform.
 	  It has 2GB Sdram, uart and pcie.
 
+config TARGET_POMELO
+	bool "Support Phytium Pomelo Platform"
+	select ARM64
+	select DM
+	select AHCI
+	select SCSI_AHCI
+	select AHCI_PCI
+	select BLK
+	select PCI
+	select DM_PCI
+	select SCSI
+	select DM_SCSI
+	select DM_SERIAL
+	select DM_ETH if NET
+	imply CMD_PCI
+	help
+	   Support for pomelo platform.
+	   It has 8GB Sdram, uart and pcie.
+
 config TARGET_PRESIDIO_ASIC
 	bool "Support Cortina Presidio ASIC Platform"
 	select ARM64
@@ -2257,6 +2276,7 @@ source "board/traverse/ten64/Kconfig"
 source "board/variscite/dart_6ul/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/phytium/durian/Kconfig"
+source "board/phytium/pomelo/Kconfig"
 source "board/xen/xenguest_arm64/Kconfig"
 source "board/keymile/Kconfig"
 
