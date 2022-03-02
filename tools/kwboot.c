@@ -1986,14 +1986,15 @@ static void
 kwboot_usage(FILE *stream, char *progname)
 {
 	fprintf(stream,
-		"Usage: %s [OPTIONS] [-b <image> | -D <image> ] [-B <baud> ] <TTY>\n",
+		"Usage: %s [OPTIONS] [-b <image> | -D <image> | -b | -d ] [-B <baud> ] [-t] <TTY>\n",
 		progname);
 	fprintf(stream, "\n");
 	fprintf(stream,
-		"  -b <image>: boot <image> with preamble (Kirkwood, Armada 370/XP)\n");
+		"  -b <image>: boot <image> with preamble (Kirkwood, Armada 370/XP/375/38x/39x)\n");
 	fprintf(stream,
 		"  -D <image>: boot <image> without preamble (Dove)\n");
-	fprintf(stream, "  -d: enter debug mode\n");
+	fprintf(stream, "  -b: enter xmodem boot mode\n");
+	fprintf(stream, "  -d: enter console debug mode\n");
 	fprintf(stream, "  -a: use timings for Armada XP\n");
 	fprintf(stream, "  -s <resp-timeo>: use specific response-timeout\n");
 	fprintf(stream,
