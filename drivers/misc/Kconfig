@@ -512,4 +512,12 @@ config ESM_PMIC
 config FSL_IFC
 	bool
 
+config SL28CPLD
+	bool "Enable Kontron sl28cpld multi-function driver"
+	depends on DM_I2C
+	help
+	  Support for the Kontron sl28cpld management controller. This is
+	  the base driver which provides common access methods for the
+	  sub-drivers.
+
 endmenu

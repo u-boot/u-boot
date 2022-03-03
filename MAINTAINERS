@@ -1161,6 +1161,13 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-sh.git
 F:	arch/sh/
 
+SL28CLPD
+M:	Michael Walle <michael@walle.cc>
+S:	Maintained
+F:	drivers/gpio/sl28cpld-gpio.c
+F:	drivers/misc/sl28cpld.c
+F:	drivers/watchdog/sl28cpld-wdt.c
+
 SPI
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained

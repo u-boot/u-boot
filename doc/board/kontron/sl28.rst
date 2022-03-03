@@ -23,34 +23,17 @@ Copy u-boot.rom to a TFTP server.
 Install the bootloader on the board
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Please note, this bootloader doesn't support the builtin watchdog (yet),
-therefore you have to disable it, see below. Otherwise you'll end up in
-the failsafe bootloader on every reset::
+To install the bootloader binary use the following command::
 
  > tftp path/to/u-boot.rom
  > sf probe 0
  > sf update $fileaddr 0x210000 $filesize
 
-The board is fully failsafe, you can't break anything. But because you've
-disabled the builtin watchdog you might have to manually enter failsafe
-mode by asserting the ``FORCE_RECOV#`` line during board reset.
-
-Disable the builtin watchdog
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- boot into the failsafe bootloader, either by asserting the
-  ``FORCE_RECOV#`` line or if you still have the original bootloader
-  installed you can use the command::
-
-  > wdt dev cpld_watchdog@4a; wdt expire 1
-
-- in the failsafe bootloader use the "sl28 nvm" command to disable
-  the automatic start of the builtin watchdog::
-
-  > sl28 nvm 0008
-
-- power-cycle the board
-
+The board is fully failsafe, you can't break anything. If builtin watchdog
+is enabled, you'll automatically end up in the failsafe bootloader if
+something goes wrong. If the watchdog is disabled, you have to manually
+enter failsafe mode by asserting the ``FORCE_RECOV#`` line during board
+reset.
 
 Update image
 ------------
@@ -67,20 +50,41 @@ Afterward you can copy this file to your ESP into the /EFI/UpdateCapsule/
 folder. On the next EFI boot this will automatically update your
 bootloader.
 
-Useful I2C tricks
------------------
+Builtin watchdog
+----------------
 
-The board has a board management controller which is not supported in
-u-boot (yet). But you can use the i2c command to access it.
+The builtin watchdog will supervise the bootloader startup. If anything
+goes wrong it will reset the board and boot into the failsafe bootloader.
 
-- reset into failsafe bootloader::
+Once the bootloader is started successfully, it will disable the watchdog
+timer.
 
-  > i2c mw 4a 5.1 0; i2c mw 4a 6.1 6b; i2c mw 4a 4.1 42
+wdt command flags
+^^^^^^^^^^^^^^^^^
 
-- read board management controller version::
+The `wdt start` as well as the `wdt expire` command take a flags argument.
+The supported bitmask is as follows.
 
-  > i2c md 4a 3.1 1
+| Bit | Description                   |
+| --- | ----------------------------- |
+|   0 | Enable failsafe mode          |
+|   1 | Lock the control register     |
+|   2 | Disable board reset           |
+|   3 | Enable WDT_TIME_OUT# line     |
 
+For example, you can use `wdt expire 1` to issue a reset and boot into the
+failsafe bootloader.
+
+Disable the builtin watchdog
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If for some reason, this isn't a desired behavior, the watchdog can also
+be configured to not be enabled on board reset. It's configuration is saved
+in the non-volatile board configuration bits. To change these you can use
+the `sl28 nvm` command.
+
+For more information on the non-volatile board configuration bits, see the
+following section.
 
 Non-volatile Board Configuration Bits
 -------------------------------------
