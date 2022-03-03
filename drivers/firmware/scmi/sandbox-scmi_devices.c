@@ -23,7 +23,7 @@
  * and reset controllers.
  */
 
-#define SCMI_TEST_DEVICES_CLK_COUNT		3
+#define SCMI_TEST_DEVICES_CLK_COUNT		2
 #define SCMI_TEST_DEVICES_RD_COUNT		1
 #define SCMI_TEST_DEVICES_VOLTD_COUNT		2
 
@@ -135,7 +135,7 @@ U_BOOT_DRIVER(sandbox_scmi_devices) = {
 	.name = "sandbox-scmi_devices",
 	.id = UCLASS_MISC,
 	.of_match = sandbox_scmi_devices_ids,
-	.priv_auto	= sizeof(struct sandbox_scmi_device_priv),
+	.priv_auto = sizeof(struct sandbox_scmi_device_priv),
 	.remove = sandbox_scmi_devices_remove,
 	.probe = sandbox_scmi_devices_probe,
 };
