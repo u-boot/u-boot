@@ -21,9 +21,6 @@
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_BOOT_RETRY_MIN		30
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 					"loadaddr=20080000\0"	\

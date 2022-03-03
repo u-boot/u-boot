@@ -47,10 +47,6 @@
 /* TWL4030 */
 
 /* BOOTP/DHCP options */
-#define CONFIG_BOOTP_NISDOMAIN
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_TIMEOFFSET
-#undef CONFIG_BOOTP_VENDOREX
 
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \

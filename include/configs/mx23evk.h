@@ -30,9 +30,6 @@
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 #endif
 
-/* Boot Linux */
-#define CONFIG_BOOTFILE		"uImage"
-
 /* Extra Environments */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"update_sd_firmware_filename=u-boot.sd\0" \

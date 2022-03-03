@@ -59,7 +59,6 @@
 #define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_BACKSIDE_L2_CACHE
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
-#define CONFIG_BTB			/* toggle branch predition */
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
@@ -97,7 +96,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_SYS_SPD_BUS_NUM	1
 #define SPD_EEPROM_ADDRESS1	0x51
@@ -411,7 +409,6 @@
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 
 #ifdef CONFIG_TARGET_P4080DS

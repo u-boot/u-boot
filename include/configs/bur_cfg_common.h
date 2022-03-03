@@ -27,7 +27,6 @@
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Network console */
-#define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 
 /* As stated above, the following choices are optional. */
 

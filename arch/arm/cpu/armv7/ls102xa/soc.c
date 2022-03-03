@@ -12,7 +12,9 @@
 #include <asm/arch/ls102xa_soc.h>
 #include <asm/arch/ls102xa_stream_id.h>
 #include <fsl_csu.h>
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008850
 #include <fsl_ddr_sdram.h>
+#endif
 
 struct liodn_id_table sec_liodn_tbl[] = {
 	SET_SEC_JR_LIODN_ENTRY(0, 0x10, 0x10),

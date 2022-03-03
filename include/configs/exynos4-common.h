@@ -12,8 +12,6 @@
 
 #include "exynos-common.h"
 
-#define CONFIG_BOARD_COMMON
-
 /* SD/MMC configuration */
 #define CONFIG_MMC_DEFAULT_DEV	0
 

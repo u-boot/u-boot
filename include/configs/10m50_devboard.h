@@ -31,7 +31,6 @@
 /*
  * BOOTP options
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
  * MEMORY ORGANIZATION

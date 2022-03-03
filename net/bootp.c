@@ -1038,9 +1038,6 @@ static void dhcp_send_request_packet(struct bootp_hdr *bp_offer)
 	bcast_ip.s_addr = 0xFFFFFFFFL;
 	net_set_udp_header(iphdr, bcast_ip, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
-#ifdef CONFIG_BOOTP_DHCP_REQUEST_DELAY
-	udelay(CONFIG_BOOTP_DHCP_REQUEST_DELAY);
-#endif	/* CONFIG_BOOTP_DHCP_REQUEST_DELAY */
 	debug("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
 	net_send_packet(net_tx_packet, pktlen);
 }

@@ -42,7 +42,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache		*/
-#define CONFIG_BTB			/* toggle branch predition	*/
 
 #define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
@@ -61,7 +60,6 @@
 #define CONFIG_VERY_BIG_RAM
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */
@@ -168,11 +166,6 @@
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /*
  * Miscellaneous configurable options

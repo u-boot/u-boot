@@ -121,7 +121,6 @@
 #define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_BACKSIDE_L2_CACHE
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
-#define CONFIG_BTB			/* toggle branch predition */
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
@@ -153,7 +152,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 #if defined(CONFIG_TARGET_T1024RDB)
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
@@ -373,7 +371,6 @@
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
 #define CONFIG_VIDEO_BMP_LOGO
-#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
 /*
  * With CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS, flash I/O is really slow, so
  * disable empty flash sector detection, which is I/O-intensive.
@@ -535,7 +532,6 @@
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 #define __USB_PHY_TYPE		utmi
 

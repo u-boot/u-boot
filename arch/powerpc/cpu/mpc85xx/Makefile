@@ -27,7 +27,6 @@ obj-$(CONFIG_MP)	+= release.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ERRATA) += cmd_errata.o
 endif
-obj-$(CONFIG_CPM2)	+= commproc.o
 
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_FSL_CORENET) += liodn.o
@@ -49,7 +48,6 @@ obj-$(CONFIG_ARCH_T2080) += t2080_ids.o
 
 
 obj-$(CONFIG_QE)	+= qe_io.o
-obj-$(CONFIG_CPM2)	+= serial_scc.o
 obj-$(CONFIG_SYS_FSL_QORIQ_CHASSIS1) += fsl_corenet_serdes.o
 obj-$(CONFIG_SYS_FSL_QORIQ_CHASSIS2) += fsl_corenet2_serdes.o
 

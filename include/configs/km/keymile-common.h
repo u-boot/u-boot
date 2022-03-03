@@ -27,11 +27,6 @@
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 #ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
 #define CONFIG_KM_DEF_ENV_BOOTPARAMS \
 	"actual_bank=0\0"

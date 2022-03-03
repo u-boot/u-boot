@@ -38,11 +38,6 @@
  */
 
 /*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.
  */

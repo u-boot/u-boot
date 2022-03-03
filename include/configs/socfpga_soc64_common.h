@@ -72,13 +72,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * Environment variable
  */
-
-#ifdef CONFIG_FIT
-#define CONFIG_BOOTFILE "kernel.itb"
-#else
-#define CONFIG_BOOTFILE "Image"
-#endif
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"bootfile=" CONFIG_BOOTFILE "\0" \

@@ -105,7 +105,6 @@
 
 /* DHCP/BOOTP options */
 #ifdef CONFIG_CMD_DHCP
-#define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_SYS_AUTOLOAD	"n"
 #endif
 

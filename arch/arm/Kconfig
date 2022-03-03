@@ -869,6 +869,7 @@ config ARCH_MX31
 
 config ARCH_MX7ULP
 	bool "NXP MX7ULP"
+	select BOARD_POSTCLK_INIT
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
@@ -894,6 +895,7 @@ config ARCH_MX7
 
 config ARCH_MX6
 	bool "Freescale MX6"
+	select BOARD_POSTCLK_INIT
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX

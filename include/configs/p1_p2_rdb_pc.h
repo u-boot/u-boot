@@ -145,7 +145,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE
-#define CONFIG_BTB
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
@@ -165,10 +164,8 @@
 
 #if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
-#define CONFIG_CHIP_SELECTS_PER_CTRL	2
 #else
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_1G
-#define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #endif
 #define CONFIG_SYS_SDRAM_SIZE		(1u << (CONFIG_SYS_SDRAM_SIZE_LAW - 19))
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
@@ -549,7 +546,6 @@
  */
 #define CONFIG_HOSTNAME		"unknown"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
 #ifdef __SW_BOOT_NOR

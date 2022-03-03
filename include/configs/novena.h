@@ -25,7 +25,6 @@
  */
 
 /* Booting Linux */
-#define CONFIG_BOOTFILE			"fitImage"
 #define CONFIG_HOSTNAME			"novena"
 
 /* Physical Memory Map */

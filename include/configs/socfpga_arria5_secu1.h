@@ -24,9 +24,6 @@
  */
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
 
-/* Booting Linux */
-#define CONFIG_BOOTFILE		"zImage"
-
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* Environment settings */

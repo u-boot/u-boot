@@ -32,11 +32,6 @@
 /* board specific(not enough SRAM) */
 #define CONFIG_AT91SAM9G45_LCD_BASE		0x73E00000
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           0x70000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000

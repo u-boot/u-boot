@@ -10,8 +10,6 @@
 #include <configs/exynos5420-common.h>
 #include <configs/exynos5-common.h>
 
-#define CONFIG_BOARD_COMMON
-
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
 #define TZPC_BASE_OFFSET		0x10000

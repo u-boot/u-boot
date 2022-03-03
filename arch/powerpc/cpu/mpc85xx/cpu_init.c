@@ -152,70 +152,6 @@ static void config_qe_ioports(void)
 }
 #endif
 
-#ifdef CONFIG_CPM2
-void config_8560_ioports (volatile ccsr_cpm_t * cpm)
-{
-	int portnum;
-
-	for (portnum = 0; portnum < 4; portnum++) {
-		uint pmsk = 0,
-		     ppar = 0,
-		     psor = 0,
-		     pdir = 0,
-		     podr = 0,
-		     pdat = 0;
-		iop_conf_t *iopc = (iop_conf_t *) & iop_conf_tab[portnum][0];
-		iop_conf_t *eiopc = iopc + 32;
-		uint msk = 1;
-
-		/*
-		 * NOTE:
-		 * index 0 refers to pin 31,
-		 * index 31 refers to pin 0
-		 */
-		while (iopc < eiopc) {
-			if (iopc->conf) {
-				pmsk |= msk;
-				if (iopc->ppar)
-					ppar |= msk;
-				if (iopc->psor)
-					psor |= msk;
-				if (iopc->pdir)
-					pdir |= msk;
-				if (iopc->podr)
-					podr |= msk;
-				if (iopc->pdat)
-					pdat |= msk;
-			}
-
-			msk <<= 1;
-			iopc++;
-		}
-
-		if (pmsk != 0) {
-			volatile ioport_t *iop = ioport_addr (cpm, portnum);
-			uint tpmsk = ~pmsk;
-
-			/*
-			 * the (somewhat confused) paragraph at the
-			 * bottom of page 35-5 warns that there might
-			 * be "unknown behaviour" when programming
-			 * PSORx and PDIRx, if PPARx = 1, so I
-			 * decided this meant I had to disable the
-			 * dedicated function first, and enable it
-			 * last.
-			 */
-			iop->ppar &= tpmsk;
-			iop->psor = (iop->psor & tpmsk) | psor;
-			iop->podr = (iop->podr & tpmsk) | podr;
-			iop->pdat = (iop->pdat & tpmsk) | pdat;
-			iop->pdir = (iop->pdir & tpmsk) | pdir;
-			iop->ppar |= ppar;
-		}
-	}
-}
-#endif
-
 #ifdef CONFIG_SYS_FSL_CPC
 #if defined(CONFIG_RAMBOOT_PBL) || defined(CONFIG_SYS_CPC_REINIT_F)
 void disable_cpc_sram(void)
@@ -474,15 +410,7 @@ ulong cpu_init_f(void)
 #endif
 #endif
 
-#ifdef CONFIG_CPM2
-	config_8560_ioports((ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR);
-#endif
-
        init_early_memctl_regs();
-
-#if defined(CONFIG_CPM2)
-	m8560_cpm_reset();
-#endif
 
 #if defined(CONFIG_QE) && !defined(CONFIG_U_QE)
 	/* Config QE ioports */

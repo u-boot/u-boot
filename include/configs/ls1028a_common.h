@@ -40,7 +40,6 @@
 /* Miscellaneous configurable options */
 
 /* Physical Memory Map */
-#define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

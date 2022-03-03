@@ -33,9 +33,4 @@
  * NS16550 Configuration
  */
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 #endif	/* __AST_COMMON_CONFIG_H */

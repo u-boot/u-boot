@@ -44,9 +44,6 @@
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 #endif
 
-/* Boot Linux */
-#define CONFIG_BOOTFILE		"uImage"
-
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"ubifs_file=filesystem.ubifs\0" \

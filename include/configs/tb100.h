@@ -46,11 +46,6 @@
 #define ETH1_BASE_ADDRESS		0xFE110000
 
 /*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
-
-/*
  * Console configuration
  */
 

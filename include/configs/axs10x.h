@@ -58,11 +58,6 @@
 		"; fi\0"
 
 /*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
-
-/*
  * Console configuration
  */
 

@@ -23,10 +23,6 @@
 /*
  * Hardware drivers
  */
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1

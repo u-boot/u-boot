@@ -68,10 +68,4 @@
 					CONFIG_SYS_SDRAM_BASE) - \
 					CONFIG_SYS_MALLOC_LEN - \
 					CONFIG_ENV_SIZE
-
-/*
- * Environment
- */
-#define CONFIG_BOOTFILE			"app.bin"
-
 #endif /* _CONFIG_IOT_DEVKIT_H_ */

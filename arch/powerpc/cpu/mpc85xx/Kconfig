@@ -317,6 +317,7 @@ config ARCH_MPC8540
 
 config ARCH_MPC8544
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A005125
@@ -330,6 +331,7 @@ config ARCH_MPC8544
 
 config ARCH_MPC8548
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_NMG_DDR120
@@ -352,6 +354,7 @@ config ARCH_MPC8560
 
 config ARCH_P1010
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_HAS_SERDES
@@ -400,6 +403,7 @@ config ARCH_P1011
 
 config ARCH_P1020
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A004508
@@ -496,6 +500,7 @@ config ARCH_P1025
 
 config ARCH_P2020
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A004477
@@ -772,6 +777,9 @@ config MPC85XX_HAVE_RESET_VECTOR
 	bool "Indicate reset vector at CONFIG_RESET_VECTOR_ADDRESS - 0xffc"
 	depends on MPC85xx
 
+config BTB
+	bool "toggle branch predition"
+
 config BOOKE
 	bool
 	default y
@@ -784,12 +792,14 @@ config E500
 
 config E500MC
 	bool
+	select BTB
 	imply CMD_PCI
 	help
 		Enble PowerPC E500MC core
 
 config E6500
 	bool
+	select BTB
 	help
 		Enable PowerPC E6500 core
 

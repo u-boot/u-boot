@@ -119,11 +119,6 @@
 /* Watchdog */
 
 /*
- * Boot Linux
- */
-#define CONFIG_BOOTFILE		"boot/fitImage"
-
-/*
  * NAND SPL
  */
 #define CONFIG_SPL_TARGET		"u-boot-with-nand-spl.imx"

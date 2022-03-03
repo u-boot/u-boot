@@ -27,13 +27,6 @@ int arch_setup_bdinfo(void)
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
 
-#if defined(CONFIG_CPM2)
-	bd->bi_cpmfreq = gd->arch.cpm_clk;
-	bd->bi_brgfreq = gd->arch.brg_clk;
-	bd->bi_sccfreq = gd->arch.scc_clk;
-	bd->bi_vco = gd->arch.vco_out;
-#endif /* CONFIG_CPM2 */
-
 	return 0;
 }
 
@@ -59,10 +52,4 @@ void arch_print_bdinfo(void)
 		puts("addressing  = 32-bit\n");
 #endif
 	board_detail();
-#if defined(CONFIG_CPM2)
-	bdinfo_print_mhz("cpmfreq", bd->bi_cpmfreq);
-	bdinfo_print_mhz("vco", bd->bi_vco);
-	bdinfo_print_mhz("sccfreq", bd->bi_sccfreq);
-	bdinfo_print_mhz("brgfreq", bd->bi_brgfreq);
-#endif
 }

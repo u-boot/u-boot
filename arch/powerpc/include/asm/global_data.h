@@ -20,13 +20,6 @@ struct arch_global_data {
 #if defined(CONFIG_MPC8xx)
 	unsigned long brg_clk;
 #endif
-#if defined(CONFIG_CPM2)
-	/* There are many clocks on the MPC8260 - see page 9-5 */
-	unsigned long vco_out;
-	unsigned long cpm_clk;
-	unsigned long scc_clk;
-	unsigned long brg_clk;
-#endif
 	/* TODO: sjg@chromium.org: Should these be unslgned long? */
 #if defined(CONFIG_MPC83xx)
 #ifdef CONFIG_CLK_MPC83XX
@@ -87,10 +80,6 @@ struct arch_global_data {
 #if defined(CONFIG_MPC83xx)
 	unsigned long arbiter_event_attributes;
 	unsigned long arbiter_event_address;
-#endif
-#if defined(CONFIG_CPM2)
-	unsigned int dp_alloc_base;
-	unsigned int dp_alloc_top;
 #endif
 #ifdef CONFIG_SYS_FPGA_COUNT
 	unsigned fpga_state[CONFIG_SYS_FPGA_COUNT];

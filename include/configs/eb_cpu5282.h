@@ -32,11 +32,6 @@
  * Environment is in the second sector of the first 256k of flash	*
  *----------------------------------------------------------------------*/
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 #define CONFIG_MCFTMR
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/

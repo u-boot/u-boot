@@ -26,9 +26,6 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		19000000
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
 #endif

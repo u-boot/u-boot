@@ -126,9 +126,6 @@
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	127
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Miscellaneous configurable options */
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 

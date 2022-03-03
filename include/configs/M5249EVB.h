@@ -24,11 +24,6 @@
 #undef CONFIG_MONITOR_IS_IN_RAM		/* no pre-loader required!!! ;-) */
 
 /*
- * BOOTP options
- */
-#undef CONFIG_BOOTP_BOOTFILESIZE
-
-/*
  * Clock configuration: enable only one of the following options
  */
 

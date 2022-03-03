@@ -151,7 +151,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
-#define CONFIG_BTB			/* toggle branch predition */
 
 
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -171,7 +170,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	1
 
 /* DDR3 Controller Settings */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000003f
@@ -613,7 +611,6 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin/* U-Boot image on TFTP server */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -643,10 +640,10 @@ extern unsigned long get_sdram_size(void);
 	"ext2load usb 0:4 $fdtaddr $fdtfile;"	\
 	"ext2load usb 0:4 $ramdiskaddr $ramdiskfile;"	\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr\0"	\
-	CONFIG_BOOTMODE
+	BOOTMODE
 
 #if defined(CONFIG_TARGET_P1010RDB_PA)
-#define CONFIG_BOOTMODE \
+#define BOOTMODE \
 	"boot_bank0=i2c dev 0; i2c mw 18 1 f1; i2c mw 18 3 f0;" \
 	"mw.b ffb00011 0; mw.b ffb00009 0; reset\0" \
 	"boot_bank1=i2c dev 0; i2c mw 18 1 f1; i2c mw 18 3 f0;" \
@@ -655,7 +652,7 @@ extern unsigned long get_sdram_size(void);
 	"mw.b ffb00011 0; mw.b ffb00017 1; reset\0"
 
 #elif defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_BOOTMODE \
+#define BOOTMODE \
 	"boot_bank0=i2c dev 0; i2c mw 18 1 fe; i2c mw 18 3 0;" \
 	"i2c mw 19 1 2; i2c mw 19 3 e1; reset\0" \
 	"boot_bank1=i2c dev 0; i2c mw 18 1 fe; i2c mw 18 3 0;" \

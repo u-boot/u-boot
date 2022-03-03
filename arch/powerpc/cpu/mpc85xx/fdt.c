@@ -652,14 +652,6 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 		"clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 
-#ifdef CONFIG_CPM2
-	do_fixup_by_compat_u32(blob, "fsl,cpm2-scc-uart",
-		"current-speed", gd->baudrate, 1);
-
-	do_fixup_by_compat_u32(blob, "fsl,cpm2-brg",
-		"clock-frequency", bd->bi_brgfreq, 1);
-#endif
-
 #ifdef CONFIG_FSL_CORENET
 	do_fixup_by_compat_u32(blob, "fsl,qoriq-clockgen-1.0",
 		"clock-frequency", get_board_sys_clk(), 1);

@@ -18,7 +18,6 @@
 /*
  * Environment
  */
-#define CONFIG_BOOTFILE			"app.bin"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"upgrade_image=u-boot.bin\0" \

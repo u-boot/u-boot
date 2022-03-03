@@ -91,8 +91,6 @@
 
 /* Boot options */
 
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Environment settings */
 
 /* Console settings */

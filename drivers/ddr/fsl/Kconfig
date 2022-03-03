@@ -49,6 +49,10 @@ config SYS_NUM_DDR_CTLRS
 			ARCH_LX2162A
 	default 1
 
+config CHIP_SELECTS_PER_CTRL
+	int "Number of chip selects per controller"
+	default 4
+
 config SYS_FSL_DDR_VER
 	int
 	default 50 if SYS_FSL_DDR_VER_50

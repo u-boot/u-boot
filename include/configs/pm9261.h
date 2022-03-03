@@ -137,11 +137,6 @@
 #define CONFIG_ATMEL_LCD		1
 #define CONFIG_ATMEL_LCD_BGR555		1
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE	1
-
 /* SDRAM */
 #define PHYS_SDRAM				0x20000000
 #define PHYS_SDRAM_SIZE				0x04000000	/* 64 megs */

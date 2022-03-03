@@ -30,7 +30,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
-#define CONFIG_BTB			/* toggle branch predition */
 
 /*
  * Only possible on E500 Version 2 or newer cores.
@@ -49,7 +48,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
@@ -376,11 +374,6 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
-/*
  * Miscellaneous configurable options
  */
 
@@ -406,7 +399,6 @@
 
 #define CONFIG_HOSTNAME	 "unknown"
 #define CONFIG_ROOTPATH	 "/nfsroot"
-#define CONFIG_BOOTFILE "8548cds/uImage.uboot"
 #define CONFIG_UBOOTPATH	8548cds/u-boot.bin	/* TFTP server */
 
 #define CONFIG_SERVERIP	 192.168.1.1

@@ -94,8 +94,6 @@
  * U-Boot Commands
  */
 
-#define CONFIG_BOOTFILE			"uImage"
-
 /*
  * SPL specific defines
  */

@@ -65,7 +65,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_SYS_CACHE_STASHING
-#define CONFIG_BTB			/* toggle branch predition */
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
@@ -94,7 +93,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
 /*
  * IFC Definitions
@@ -216,7 +214,6 @@
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
 #define HVBOOT					\
