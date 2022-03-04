@@ -46,17 +46,6 @@ void board_init_f(ulong dummy);
 int arch_cpu_init(void);
 
 /**
- * arch_cpu_init_dm() - init CPU after driver model is available
- *
- * This is called immediately after driver model is available before
- * relocation. This is similar to arch_cpu_init() but is able to reference
- * devices
- *
- * Return: 0 if OK, -ve on error
- */
-int arch_cpu_init_dm(void);
-
-/**
  * mach_cpu_init() - SoC/machine dependent CPU setup
  *
  * This is called after arch_cpu_init(). It should handle any

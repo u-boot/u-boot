@@ -26,6 +26,7 @@ const char *const type_name[] = {
 	"test",
 
 	/* Events related to driver model */
+	"dm_post_init",
 	"dm_pre_probe",
 	"dm_post_probe",
 	"dm_pre_remove",

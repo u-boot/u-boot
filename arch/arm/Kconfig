@@ -774,6 +774,7 @@ config ARCH_OMAP2PLUS
 	select SUPPORT_SPL
 	imply TI_SYSC if DM && OF_CONTROL
 	imply FIT
+	imply DM_EVENT
 
 config ARCH_MESON
 	bool "Amlogic Meson"
@@ -818,6 +819,7 @@ config ARCH_IMX8
 	select MACH_IMX
 	select OF_CONTROL
 	select ENABLE_ARM_SOC_BOOT0_HOOK
+	imply DM_EVENT
 
 config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
@@ -831,6 +833,7 @@ config ARCH_IMX8M
 	select DM
 	select SUPPORT_SPL
 	imply CMD_DM
+	imply DM_EVENT
 
 config ARCH_IMX8ULP
 	bool "NXP i.MX8ULP platform"
@@ -841,6 +844,7 @@ config ARCH_IMX8ULP
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
 	imply CMD_DM
+	imply DM_EVENT
 
 config ARCH_IMXRT
 	bool "NXP i.MXRT platform"

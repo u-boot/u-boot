@@ -11,6 +11,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/global_data.h>
 #include <efi_loader.h>
+#include <event.h>
 #include <spl.h>
 #include <asm/arch/rdc.h>
 #include <asm/arch/s400_api.h>
@@ -569,7 +570,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-int arch_cpu_init_dm(void)
+static int imx8ulp_check_mu(void *ctx, struct event *event)
 {
 	struct udevice *devp;
 	int node, ret;
@@ -584,6 +585,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, imx8ulp_check_mu);
 
 #if defined(CONFIG_SPL_BUILD)
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)

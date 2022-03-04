@@ -9,6 +9,7 @@
 #include <bootstage.h>
 #include <cbfs.h>
 #include <dm.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <spi.h>
@@ -18,7 +19,7 @@
 #include <dm/uclass-internal.h>
 #include <asm/fsp2/fsp_internal.h>
 
-int arch_cpu_init_dm(void)
+int fsp_setup_pinctrl(void *ctx, struct event *event)
 {
 	struct udevice *dev;
 	ofnode node;
@@ -41,6 +42,7 @@ int arch_cpu_init_dm(void)
 
 	return ret;
 }
+EVENT_SPY(EVT_DM_POST_INIT, fsp_setup_pinctrl);
 
 #if !defined(CONFIG_TPL_BUILD)
 binman_sym_declare(ulong, intel_fsp_m, image_pos);

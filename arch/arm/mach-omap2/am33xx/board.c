@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <debug_uart.h>
 #include <errno.h>
+#include <event.h>
 #include <init.h>
 #include <net.h>
 #include <ns16550.h>
@@ -596,7 +597,7 @@ void board_init_f(ulong dummy)
 
 #endif
 
-int arch_cpu_init_dm(void)
+static int am33xx_dm_post_init(void *ctx, struct event *event)
 {
 	hw_data_init();
 #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
@@ -604,3 +605,4 @@ int arch_cpu_init_dm(void)
 #endif
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, am33xx_dm_post_init);

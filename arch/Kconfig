@@ -94,6 +94,7 @@ config NIOS2
 	bool "Nios II architecture"
 	select CPU
 	select DM
+	imply DM_EVENT
 	select OF_CONTROL
 	select SUPPORT_OF_CONTROL
 	imply CMD_DM
@@ -113,6 +114,7 @@ config RISCV
 	select DM
 	imply DM_SERIAL
 	imply DM_ETH
+	imply DM_EVENT
 	imply DM_MMC
 	imply DM_SPI
 	imply DM_SPI_FLASH
@@ -238,6 +240,7 @@ config X86
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
 	imply DM_ETH
+	imply DM_EVENT
 	imply DM_GPIO
 	imply DM_KEYBOARD
 	imply DM_MMC
