@@ -19,6 +19,7 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
+#include <event.h>
 #include <fdtdec.h>
 #include <fs.h>
 #include <hang.h>
@@ -828,6 +829,7 @@ static const init_fnc_t init_sequence_f[] = {
 	initf_malloc,
 	log_init,
 	initf_bootstage,	/* uses its own timer, so does not need DM */
+	event_init,
 #ifdef CONFIG_BLOBLIST
 	bloblist_init,
 #endif
