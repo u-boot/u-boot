@@ -1,4 +1,4 @@
-if TARGET_VEXPRESS64_BASE_FVP || TARGET_VEXPRESS64_JUNO
+if ARCH_VEXPRESS64
 
 config SYS_BOARD
 	default "vexpress64"
@@ -8,6 +8,24 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "vexpress_aemv8"
+
+choice
+	prompt "VExpress64 board variant"
+
+config TARGET_VEXPRESS64_BASE_FVP
+	bool "Support Versatile Express ARMv8a FVP BASE model"
+	select SEMIHOSTING
+
+config TARGET_VEXPRESS64_JUNO
+	bool "Support Versatile Express Juno Development Platform"
+	select DM_ETH
+	select USB
+	select OF_CONTROL
+	select CLK
+	select BLK
+	imply OF_HAS_PRIOR_STAGE
+
+endchoice
 
 config JUNO_DTB_PART
 	string "NOR flash partition holding DTB"

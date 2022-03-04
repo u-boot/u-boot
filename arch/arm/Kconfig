@@ -1250,34 +1250,12 @@ config ARCH_TEGRA
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
 
-config TARGET_VEXPRESS64_AEMV8A
-	bool "Support vexpress_aemv8a"
+config ARCH_VEXPRESS64
+	bool "Support ARMv8 Arm Ltd. VExpress based boards and models"
 	select ARM64
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
-
-config TARGET_VEXPRESS64_BASE_FVP
-	bool "Support Versatile Express ARMv8a FVP BASE model"
-	select ARM64
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
-	select SEMIHOSTING
-
-config TARGET_VEXPRESS64_JUNO
-	bool "Support Versatile Express Juno Development Platform"
-	select ARM64
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
 	select DM
-	select OF_CONTROL
-	select CLK
 	select DM_SERIAL
-	select ARM_PSCI_FW
-	select PSCI_RESET
-	select DM_ETH
-	select BLK
-	select USB
-	imply OF_HAS_PRIOR_STAGE
+	select PL01X_SERIAL
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"
