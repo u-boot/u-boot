@@ -19,6 +19,12 @@ enum event_t {
 	EVT_NONE,
 	EVT_TEST,
 
+	/* Events related to driver model */
+	EVT_DM_PRE_PROBE,
+	EVT_DM_POST_PROBE,
+	EVT_DM_PRE_REMOVE,
+	EVT_DM_POST_REMOVE,
+
 	EVT_COUNT
 };
 
@@ -31,6 +37,15 @@ union event_data {
 	struct event_data_test {
 		int signal;
 	} test;
+
+	/**
+	 * struct event_dm - driver model event
+	 *
+	 * @dev: Device this event relates to
+	 */
+	struct event_dm {
+		struct udevice *dev;
+	} dm;
 };
 
 /**

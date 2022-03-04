@@ -45,3 +45,41 @@ static int test_event_base(struct unit_test_state *uts)
 	return 0;
 }
 COMMON_TEST(test_event_base, 0);
+
+static int h_probe(void *ctx, struct event *event)
+{
+	struct test_state *test_state = ctx;
+
+	test_state->dev = event->data.dm.dev;
+	switch (event->type) {
+	case EVT_DM_PRE_PROBE:
+		test_state->val |= 1;
+		break;
+	case EVT_DM_POST_PROBE:
+		test_state->val |= 2;
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+static int test_event_probe(struct unit_test_state *uts)
+{
+	struct test_state state;
+	struct udevice *dev;
+
+	state.val = 0;
+	ut_assertok(event_register("pre", EVT_DM_PRE_PROBE, h_probe, &state));
+	ut_assertok(event_register("post", EVT_DM_POST_PROBE, h_probe, &state));
+
+	/* Probe a device */
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+
+	/* Check that the handler is called */
+	ut_asserteq(3, state.val);
+
+	return 0;
+}
+COMMON_TEST(test_event_probe, UT_TESTF_DM | UT_TESTF_SCAN_FDT);

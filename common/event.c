@@ -24,6 +24,12 @@ DECLARE_GLOBAL_DATA_PTR;
 const char *const type_name[] = {
 	"none",
 	"test",
+
+	/* Events related to driver model */
+	"dm_pre_probe",
+	"dm_post_probe",
+	"dm_pre_remove",
+	"dm_post_remove",
 };
 
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");
