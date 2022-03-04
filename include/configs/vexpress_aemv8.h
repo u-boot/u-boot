@@ -20,7 +20,7 @@
 #define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
 
 /* CS register bases for the original memory map. */
-#define V2M_BASE			0x80000000
+#define V2M_DRAM_BASE			0x80000000
 #define V2M_PA_BASE			0x00000000
 
 #define V2M_PA_CS0			(V2M_PA_BASE + 0x00000000)
@@ -100,7 +100,7 @@
 #endif
 
 /* Physical Memory Map */
-#define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1			(V2M_DRAM_BASE)	/* SDRAM Bank #1 */
 /* Top 16MB reserved for secure world use */
 #define DRAM_SEC_SIZE		0x01000000
 #define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE

@@ -15,6 +15,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
+#include <linux/sizes.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include "pcie.h"
 #include <asm/armv8/mmu.h>
@@ -38,16 +39,27 @@ U_BOOT_DRVINFO(vexpress_serials) = {
 
 static struct mm_region vexpress64_mem_map[] = {
 	{
-		.virt = 0x0UL,
-		.phys = 0x0UL,
-		.size = 0x80000000UL,
+		.virt = V2M_PA_BASE,
+		.phys = V2M_PA_BASE,
+		.size = SZ_2G,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		.virt = 0x80000000UL,
-		.phys = 0x80000000UL,
-		.size = 0xff80000000UL,
+		.virt = V2M_DRAM_BASE,
+		.phys = V2M_DRAM_BASE,
+		.size = SZ_2G,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/*
+		 * DRAM beyond 2 GiB is located high. Let's map just some
+		 * of it, although U-Boot won't realistically use it, and
+		 * the actual available amount might be smaller on the model.
+		 */
+		.virt = 0x880000000UL,		/* 32 + 2 GiB */
+		.phys = 0x880000000UL,
+		.size = 6UL * SZ_1G,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
