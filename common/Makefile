@@ -89,6 +89,8 @@ obj-y += malloc_simple.o
 endif
 endif
 
+obj-$(CONFIG_$(SPL_TPL_)EVENT) += event.o
+
 obj-$(CONFIG_$(SPL_TPL_)HASH) += hash.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o

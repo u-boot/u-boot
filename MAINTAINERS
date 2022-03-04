@@ -809,6 +809,12 @@ S:	Maintained
 F:	doc/usage/environment.rst
 F:	scripts/env2string.awk
 
+EVENTS
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	common/event.c
+F:	include/event.h
+
 FASTBOOT
 S:	Orphaned
 F:	cmd/fastboot.c

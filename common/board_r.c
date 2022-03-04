@@ -594,6 +594,7 @@ static int run_main_loop(void)
 static init_fnc_t init_sequence_r[] = {
 	initr_trace,
 	initr_reloc,
+	event_init,
 	/* TODO: could x86/PPC have this also perhaps? */
 #if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	initr_caches,
