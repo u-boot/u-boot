@@ -1262,6 +1262,7 @@ config ARCH_VEXPRESS64
 	select MTD_NOR_FLASH if MTD
 	select FLASH_CFI_DRIVER if MTD
 	select ENV_IS_IN_FLASH if MTD
+	imply DISTRO_DEFAULTS
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"

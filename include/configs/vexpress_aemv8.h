@@ -137,6 +137,50 @@
 		"booti ${kernel_addr_r} ${ramdisk_param} ${fdt_addr_r}\0"
 #define BOOTENV_DEV_NAME_AFS(devtypeu, devtypel, instance) "afs "
 
+/* Boot by executing a U-Boot script pre-loaded into DRAM. */
+#define BOOTENV_DEV_MEM(devtypeu, devtypel, instance) \
+	"bootcmd_mem= " \
+		"source ${scriptaddr}; " \
+		"if test $? -eq 1; then " \
+		"  env import -t ${scriptaddr}; " \
+		"  if test -n $uenvcmd; then " \
+		"    echo Running uenvcmd ...; " \
+		"    run uenvcmd; " \
+		"  fi; " \
+		"fi\0"
+#define BOOTENV_DEV_NAME_MEM(devtypeu, devtypel, instance) "mem "
+
+#ifdef CONFIG_CMD_VIRTIO
+#define FUNC_VIRTIO(func)	func(VIRTIO, virtio, 0)
+#else
+#define FUNC_VIRTIO(func)
+#endif
+
+/*
+ * Boot by loading an Android image, or kernel, initrd and FDT through
+ * semihosting into DRAM.
+ */
+#define BOOTENV_DEV_SMH(devtypeu, devtypel, instance) \
+	"bootcmd_smh= " 						\
+		"if smhload ${boot_name} ${boot_addr_r}; then"		\
+		"  setenv bootargs;"					\
+		"  abootimg addr ${boot_addr_r};"			\
+		"  abootimg get dtb --index=0 fdt_addr_r;"		\
+		"  bootm ${boot_addr_r} ${boot_addr_r} ${fdt_addr_r};"	\
+		"else"							\
+		"  if smhload ${kernel_name} ${kernel_addr_r}; then"	\
+		"    setenv fdt_high 0xffffffffffffffff;"		\
+		"    setenv initrd_high 0xffffffffffffffff;"		\
+		"    smhload ${fdtfile} ${fdt_addr_r};"			\
+		"    smhload ${ramdisk_name} ${ramdisk_addr_r} ramdisk_end;" \
+		"    fdt addr ${fdt_addr_r};"				\
+		"    fdt resize;"					\
+		"    fdt chosen ${ramdisk_addr_r} ${ramdisk_end};"	\
+		"    booti $kernel_addr_r - $fdt_addr_r;"		\
+		"  fi;"							\
+		"fi\0"
+#define BOOTENV_DEV_NAME_SMH(devtypeu, devtypel, instance) "smh "
+
 /* Boot sources for distro boot and load addresses, per board */
 
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO			/* Arm Juno board */
@@ -148,8 +192,6 @@
 	func(PXE, pxe, na)		\
 	func(DHCP, dhcp, na)		\
 	func(AFS, afs, na)
-
-#include <config_distro_bootcmd.h>
 
 #define VEXPRESS_KERNEL_ADDR		0x80080000
 #define VEXPRESS_PXEFILE_ADDR		0x8fb00000
@@ -166,6 +208,13 @@
 
 #elif CONFIG_TARGET_VEXPRESS64_BASE_FVP			/* ARMv8-A base model */
 
+#define BOOT_TARGET_DEVICES(func)	\
+	func(SMH, smh, na)		\
+	func(MEM, mem, na)		\
+	FUNC_VIRTIO(func)		\
+	func(PXE, pxe, na)		\
+	func(DHCP, dhcp, na)
+
 #define VEXPRESS_KERNEL_ADDR		0x80080000
 #define VEXPRESS_PXEFILE_ADDR		0x8fa00000
 #define VEXPRESS_SCRIPT_ADDR		0x8fb00000
@@ -180,9 +229,9 @@
 		"boot_name=boot.img\0"					\
 		"boot_addr_r=" __stringify(VEXPRESS_BOOT_ADDR) "\0"
 
-#define BOOTENV
-
 #endif
+
+#include <config_distro_bootcmd.h>
 
 /* Default load addresses and names for the different payloads. */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
