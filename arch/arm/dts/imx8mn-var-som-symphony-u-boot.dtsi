@@ -200,7 +200,7 @@
 
 					atf_blob {
 						filename = "bl31.bin";
-						type = "blob-ext";
+						type = "atf-bl31";
 					};
 				};
 
