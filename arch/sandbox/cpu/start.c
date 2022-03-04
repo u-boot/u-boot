@@ -4,14 +4,13 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
-#include <dm/root.h>
 #include <efi_loader.h>
 #include <errno.h>
 #include <init.h>
 #include <log.h>
 #include <os.h>
-#include <cli.h>
 #include <sort.h>
 #include <asm/getopt.h>
 #include <asm/global_data.h>
@@ -19,6 +18,7 @@
 #include <asm/malloc.h>
 #include <asm/sections.h>
 #include <asm/state.h>
+#include <dm/root.h>
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
