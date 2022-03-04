@@ -814,6 +814,7 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	common/event.c
 F:	include/event.h
+F:	test/common/event.c
 
 FASTBOOT
 S:	Orphaned
