@@ -20,8 +20,13 @@
 #define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
 
 /* CS register bases for the original memory map. */
+#ifdef CONFIG_TARGET_VEXPRESS64_BASER_FVP
+#define V2M_DRAM_BASE			0x00000000
+#define V2M_PA_BASE			0x80000000
+#else
 #define V2M_DRAM_BASE			0x80000000
 #define V2M_PA_BASE			0x00000000
+#endif
 
 #define V2M_PA_CS0			(V2M_PA_BASE + 0x00000000)
 #define V2M_PA_CS1			(V2M_PA_BASE + 0x14000000)
@@ -229,6 +234,24 @@
 		"boot_name=boot.img\0"					\
 		"boot_addr_r=" __stringify(VEXPRESS_BOOT_ADDR) "\0"
 
+#elif CONFIG_TARGET_VEXPRESS64_BASER_FVP		/* ARMv8-R base model */
+
+#define BOOT_TARGET_DEVICES(func)	\
+	func(MEM, mem, na)		\
+	FUNC_VIRTIO(func)		\
+	func(PXE, pxe, na)		\
+	func(DHCP, dhcp, na)
+
+#define VEXPRESS_KERNEL_ADDR		0x00200000
+#define VEXPRESS_PXEFILE_ADDR		0x0fb00000
+#define VEXPRESS_FDT_ADDR		0x0fc00000
+#define VEXPRESS_SCRIPT_ADDR		0x0fd00000
+#define VEXPRESS_RAMDISK_ADDR		0x0fe00000
+
+#define EXTRA_ENV_NAMES							\
+					"kernel_name=Image\0"		\
+					"ramdisk_name=ramdisk.img\0"	\
+					"fdtfile=board.dtb\0"
 #endif
 
 #include <config_distro_bootcmd.h>

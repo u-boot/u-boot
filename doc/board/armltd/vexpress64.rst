@@ -6,6 +6,7 @@ Arm Versatile Express
 The vexpress_* board configuration supports the following platforms:
 
  * FVP_Base_RevC-2xAEMvA
+ * FVP_BaseR_AEMv8R
  * Juno development board
 
 Fixed Virtual Platforms
