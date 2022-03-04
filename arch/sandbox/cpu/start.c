@@ -8,6 +8,7 @@
 #include <command.h>
 #include <efi_loader.h>
 #include <errno.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <os.h>
@@ -119,10 +120,11 @@ int sandbox_early_getopt_check(void)
 	os_exit(0);
 }
 
-int misc_init_f(void)
+static int sandbox_misc_init_f(void *ctx, struct event *event)
 {
 	return sandbox_early_getopt_check();
 }
+EVENT_SPY(EVT_MISC_INIT_F, sandbox_misc_init_f);
 
 static int sandbox_cmdline_cb_help(struct sandbox_state *state, const char *arg)
 {

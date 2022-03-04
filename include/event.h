@@ -25,6 +25,9 @@ enum event_t {
 	EVT_DM_PRE_REMOVE,
 	EVT_DM_POST_REMOVE,
 
+	/* Init hooks */
+	EVT_MISC_INIT_F,
+
 	EVT_COUNT
 };
 

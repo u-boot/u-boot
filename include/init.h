@@ -217,7 +217,6 @@ int init_cache_f_r(void);
 int print_cpuinfo(void);
 #endif
 int timer_init(void);
-int misc_init_f(void);
 
 #if defined(CONFIG_DTB_RESELECT)
 int embedded_dtb_select(void);

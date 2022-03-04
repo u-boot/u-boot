@@ -30,6 +30,9 @@ const char *const type_name[] = {
 	"dm_post_probe",
 	"dm_pre_remove",
 	"dm_post_remove",
+
+	/* init hooks */
+	"misc_init_f",
 };
 
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");

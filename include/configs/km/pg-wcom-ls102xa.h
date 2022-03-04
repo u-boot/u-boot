@@ -272,6 +272,4 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Increase map for Linux */
 
-#define CONFIG_MISC_INIT_F
-
 #endif
