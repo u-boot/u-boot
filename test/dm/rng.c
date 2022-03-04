@@ -25,3 +25,32 @@ static int dm_test_rng_read(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_rng_read, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test the rng command */
+static int dm_test_rng_cmd(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_get_device(UCLASS_RNG, 0, &dev));
+	ut_assertnonnull(dev);
+
+	ut_assertok(console_record_reset_enable());
+
+	run_command("rng", 0);
+	ut_assert_nextlinen("00000000:");
+	ut_assert_nextlinen("00000010:");
+	ut_assert_nextlinen("00000020:");
+	ut_assert_nextlinen("00000030:");
+	ut_assert_console_end();
+
+	run_command("rng 0 10", 0);
+	ut_assert_nextlinen("00000000:");
+	ut_assert_console_end();
+
+	run_command("rng 20", 0);
+	ut_assert_nextlinen("No RNG device");
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_rng_cmd, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
