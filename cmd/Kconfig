@@ -1916,6 +1916,7 @@ config CMD_GETTIME
 config CMD_RNG
 	bool "rng command"
 	depends on DM_RNG
+	default y if SANDBOX
 	select HEXDUMP
 	help
 	  Print bytes from the hardware random number generator.
