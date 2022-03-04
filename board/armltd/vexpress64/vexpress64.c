@@ -168,9 +168,15 @@ void *board_fdt_blob_setup(int *err)
 	}
 #endif
 
-	if (fdt_magic(prior_stage_fdt_address) == FDT_MAGIC) {
+	if (fdt_magic(prior_stage_fdt_address) == FDT_MAGIC &&
+	    fdt_totalsize(prior_stage_fdt_address) > 0x100) {
 		*err = 0;
 		return (void *)prior_stage_fdt_address;
+	}
+
+	if (fdt_magic(gd->fdt_blob) == FDT_MAGIC) {
+		*err = 0;
+		return (void *)gd->fdt_blob;
 	}
 
 	*err = -ENXIO;

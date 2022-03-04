@@ -1256,6 +1256,8 @@ config ARCH_VEXPRESS64
 	select DM
 	select DM_SERIAL
 	select PL01X_SERIAL
+	select OF_CONTROL
+	select CLK
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"

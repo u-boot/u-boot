@@ -15,13 +15,14 @@ choice
 config TARGET_VEXPRESS64_BASE_FVP
 	bool "Support Versatile Express ARMv8a FVP BASE model"
 	select SEMIHOSTING
+	select LINUX_KERNEL_IMAGE_HEADER
+	select POSITION_INDEPENDENT
+	select OF_BOARD
 
 config TARGET_VEXPRESS64_JUNO
 	bool "Support Versatile Express Juno Development Platform"
 	select DM_ETH
 	select USB
-	select OF_CONTROL
-	select CLK
 	select BLK
 	imply OF_HAS_PRIOR_STAGE
 
@@ -33,5 +34,8 @@ config JUNO_DTB_PART
 	help
 	  The ARM partition name in the NOR flash memory holding the
 	  device tree blob to configure U-Boot.
+
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default SYS_TEXT_BASE
 
 endif
