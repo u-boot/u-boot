@@ -815,7 +815,9 @@ S:	Maintained
 F:	cmd/event.c
 F:	common/event.c
 F:	include/event.h
+F:	scripts/event_dump.py
 F:	test/common/event.c
+F:	test/py/tests/test_event_dump.py
 
 FASTBOOT
 S:	Orphaned
