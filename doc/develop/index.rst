@@ -17,6 +17,7 @@ Implementation
    distro
    driver-model/index
    environment
+   event
    global_data
    logging
    makefiles
