@@ -812,6 +812,7 @@ F:	scripts/env2string.awk
 EVENTS
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
+F:	cmd/event.c
 F:	common/event.c
 F:	include/event.h
 F:	test/common/event.c

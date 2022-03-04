@@ -141,6 +141,9 @@ static inline const char *event_spy_id(struct evspy_info *spy)
 int event_register(const char *id, enum event_t type, event_handler_t func,
 		   void *ctx);
 
+/** event_show_spy_list( - Show a list of event spies */
+void event_show_spy_list(void);
+
 #if CONFIG_IS_ENABLED(EVENT)
 /**
  * event_notify() - notify spies about an event
