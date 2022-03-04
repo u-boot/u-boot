@@ -3,6 +3,7 @@
  * suniv DRAM initialization
  *
  * Copyright (C) 2018 Icenowy Zheng <icenowy@aosc.io>
+ * Copyright (C) 2022 John Sanpe <sanpeqf@gmail.com>
  *
  * Based on xboot's arch/arm32/mach-f1c100s/sys-dram.c, which is:
  *
@@ -310,7 +311,7 @@ static u32 dram_get_dram_size(struct dram_para *para)
 		para->size = 64;
 	else
 		para->size = 32;
-	dram_set_autofresh_cycle(para->clk);
+	dram_set_autofresh_cycle(para->clk * 1000000);
 	para->access_mode = 0;
 	dram_para_setup(para);
 
@@ -406,7 +407,7 @@ static void do_dram_init(struct dram_para *para)
 	clrsetbits_le32(SUNXI_PIO_BASE + 0x2c4, (1 << 16),
 			((para->sdr_ddr == DRAM_TYPE_DDR) << 16));
 
-	dram_set_autofresh_cycle(para->clk);
+	dram_set_autofresh_cycle(para->clk * 1000000);
 	dram_scan_readpipe(para);
 	dram_get_dram_size(para);
 	simple_dram_check();
