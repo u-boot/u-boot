@@ -383,12 +383,11 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 		goto err_alloc;
 	}
 
-	context = EVP_MD_CTX_create();
+	context = EVP_MD_CTX_new();
 	if (!context) {
 		ret = rsa_err("EVP context creation failed");
 		goto err_create;
 	}
-	EVP_MD_CTX_init(context);
 
 	ckey = EVP_PKEY_CTX_new(pkey, NULL);
 	if (!ckey) {
@@ -425,8 +424,7 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 		goto err_sign;
 	}
 
-	EVP_MD_CTX_reset(context);
-	EVP_MD_CTX_destroy(context);
+	EVP_MD_CTX_free(context);
 
 	debug("Got signature: %zu bytes, expected %d\n", size, EVP_PKEY_size(pkey));
 	*sigp = sig;
@@ -435,7 +433,7 @@ static int rsa_sign_with_key(EVP_PKEY *pkey, struct padding_algo *padding_algo,
 	return 0;
 
 err_sign:
-	EVP_MD_CTX_destroy(context);
+	EVP_MD_CTX_free(context);
 err_create:
 	free(sig);
 err_alloc:

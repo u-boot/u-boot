@@ -381,6 +381,11 @@ int main(int argc, char **argv)
 	}
 
 	if (params.fflag){
+		if (!tparams) {
+			fprintf(stderr, "%s: Missing FIT support\n",
+				params.cmdname);
+			exit (EXIT_FAILURE);
+		}
 		if (tparams->fflag_handle)
 			/*
 			 * in some cases, some additional processing needs
@@ -391,7 +396,7 @@ int main(int argc, char **argv)
 			retval = tparams->fflag_handle(&params);
 
 		if (retval != EXIT_SUCCESS)
-			exit (retval);
+			usage("Bad parameters for FIT image type");
 	}
 
 	if (params.lflag || params.fflag) {
