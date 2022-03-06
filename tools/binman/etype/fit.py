@@ -163,12 +163,17 @@ class Entry_fit(Entry_section):
                 key: relative path to entry Node (from the base of the FIT)
                 value: Entry_section object comprising the contents of this
                     node
+            _priv_entries: Internal copy of _entries which includes 'generator'
+                entries which are used to create the FIT, but should not be
+                processed as real entries. This is set up once we have the
+                entries
         """
         super().__init__(section, etype, node)
         self._fit = None
         self._fit_props = {}
         self._fdts = None
         self.mkimage = None
+        self._priv_entries = {}
 
     def ReadNode(self):
         super().ReadNode()
@@ -235,6 +240,10 @@ class Entry_fit(Entry_section):
                 _add_entries(base_node, depth + 1, subnode)
 
         _add_entries(self._node, 0, self._node)
+
+        # Keep a copy of all entries, including generator entries, since these
+        # removed from self._entries later.
+        self._priv_entries = dict(self._entries)
 
     def BuildSectionData(self, required):
         """Build FIT entry contents
@@ -415,11 +424,12 @@ class Entry_fit(Entry_section):
 
             has_images = depth == 2 and in_images
             if has_images:
-                entry = self._entries[rel_path]
+                entry = self._priv_entries[rel_path]
                 data = entry.GetData()
                 fsw.property('data', bytes(data))
 
             for subnode in node.subnodes:
+                subnode_path = f'{rel_path}/{subnode.name}'
                 if has_images and not (subnode.name.startswith('hash') or
                                        subnode.name.startswith('signature')):
                     # This subnode is a content node not meant to appear in
@@ -427,11 +437,11 @@ class Entry_fit(Entry_section):
                     # fsw.add_node() or _add_node() for it.
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
-                    subnode_path = f'{rel_path}/{subnode.name}'
-                    entry = self._entries.get(subnode_path)
                     _gen_node(base_node, subnode, depth, in_images)
-                    if entry:
-                        del self._entries[subnode_path]
+                    # This is a generator (template) entry, so remove it from
+                    # the list of entries used by PackEntries(), etc. Otherwise
+                    # it will appear in the binman output
+                    to_remove.append(subnode_path)
                 else:
                     with fsw.add_node(subnode.name):
                         _add_node(base_node, depth + 1, subnode)
@@ -440,9 +450,15 @@ class Entry_fit(Entry_section):
         # entry node
         fsw = libfdt.FdtSw()
         fsw.finish_reservemap()
+        to_remove = []
         with fsw.add_node(''):
             _add_node(self._node, 0, self._node)
         fdt = fsw.as_fdt()
+
+        # Remove generator entries from the main list
+        for path in to_remove:
+            if path in self._entries:
+                del self._entries[path]
 
         # Pack this new FDT and scan it so we can add the data later
         fdt.pack()
@@ -503,3 +519,10 @@ class Entry_fit(Entry_section):
     def AddBintools(self, btools):
         super().AddBintools(btools)
         self.mkimage = self.AddBintool(btools, 'mkimage')
+
+    def CheckMissing(self, missing_list):
+        # We must use our private entry list for this since generator notes
+        # which are removed from self._entries will otherwise not show up as
+        # missing
+        for entry in self._priv_entries.values():
+            entry.CheckMissing(missing_list)
