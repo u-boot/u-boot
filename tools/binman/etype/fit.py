@@ -184,11 +184,11 @@ class Entry_fit(Entry_section):
         self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
                                                                   str)])[0]
 
-    def _get_operation(self, subnode):
+    def _get_operation(self, base_node, node):
         """Get the operation referenced by a subnode
 
         Args:
-            subnode (Node): Subnode (of the FIT) to check
+            node (Node): Subnode (of the FIT) to check
 
         Returns:
             int: Operation to perform
@@ -196,12 +196,12 @@ class Entry_fit(Entry_section):
         Raises:
             ValueError: Invalid operation name
         """
-        oper_name = subnode.props.get('fit,operation')
+        oper_name = node.props.get('fit,operation')
         if not oper_name:
             return OP_GEN_FDT_NODES
         oper = OPERATIONS.get(oper_name.value)
-        if not oper:
-            self.Raise(f"Unknown operation '{oper_name.value}'")
+        if oper is None:
+            self._raise_subnode(node, f"Unknown operation '{oper_name.value}'")
         return oper
 
     def ReadEntries(self):
@@ -270,6 +270,19 @@ class Entry_fit(Entry_section):
             return tools.get_bytes(0, 1024)
 
         return tools.read_file(output_fname)
+
+    def _raise_subnode(self, node, msg):
+        """Raise an error with a paticular FIT subnode
+
+        Args:
+            node (Node): FIT subnode containing the error
+            msg (str): Message to report
+
+        Raises:
+            ValueError, as requested
+        """
+        rel_path = node.path[len(self._node.path) + 1:]
+        self.Raise(f"subnode '{rel_path}': {msg}")
 
     def _build_input(self):
         """Finish the FIT by adding the 'data' properties to it
@@ -358,7 +371,7 @@ class Entry_fit(Entry_section):
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
-        def _gen_node(subnode, depth, in_images):
+        def _gen_node(base_node, subnode, depth, in_images):
             """Generate nodes from a template
 
             This creates one node for each member of self._fdts using the
@@ -368,12 +381,14 @@ class Entry_fit(Entry_section):
             first.
 
             Args:
+                base_node (Node): Base Node of the FIT (with 'description'
+                    property)
                 subnode (Node): Generator node to process
                 depth (int): Current node depth (0 is the base 'fit' node)
                 in_images (bool): True if this is inside the 'images' node, so
                     that 'data' properties should be generated
             """
-            oper = self._get_operation(subnode)
+            oper = self._get_operation(base_node, subnode)
             if oper == OP_GEN_FDT_NODES:
                 _gen_fdt_nodes(subnode, depth, in_images)
 
@@ -414,7 +429,7 @@ class Entry_fit(Entry_section):
                 elif self.GetImage().generate and subnode.name.startswith('@'):
                     subnode_path = f'{rel_path}/{subnode.name}'
                     entry = self._entries.get(subnode_path)
-                    _gen_node(subnode, depth, in_images)
+                    _gen_node(base_node, subnode, depth, in_images)
                     if entry:
                         del self._entries[subnode_path]
                 else:

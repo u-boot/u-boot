@@ -5303,7 +5303,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Check handling of an FDT map when the section cannot be found"""
         with self.assertRaises(ValueError) as exc:
             self._DoReadFileDtb('224_fit_bad_oper.dts')
-        self.assertIn("Node '/binman/fit': Unknown operation 'unknown'",
+        self.assertIn("Node '/binman/fit': subnode 'images/@fdt-SEQ': Unknown operation 'unknown'",
                       str(exc.exception))
 
     def test_uses_expand_size(self):
