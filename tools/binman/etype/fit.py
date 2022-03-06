@@ -185,7 +185,6 @@ class Entry_fit(Entry_section):
         self.mkimage = None
 
     def ReadNode(self):
-        self.ReadEntries()
         super().ReadNode()
 
     def _get_operation(self, subnode):
