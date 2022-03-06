@@ -93,5 +93,5 @@ class Entry_mkimage(Entry):
         for entry in self._mkimage_entries.values():
             entry.CheckFakedBlobs(faked_blobs_list)
 
-    def AddBintools(self, tools):
-        self.mkimage = self.AddBintool(tools, 'mkimage')
+    def AddBintools(self, btools):
+        self.mkimage = self.AddBintool(btools, 'mkimage')

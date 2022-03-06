@@ -488,6 +488,6 @@ class Entry_fit(Entry_section):
             section.SetOffsetSize(offset, size)
             section.SetImagePos(self.image_pos)
 
-    def AddBintools(self, tools):
-        super().AddBintools(tools)
-        self.mkimage = self.AddBintool(tools, 'mkimage')
+    def AddBintools(self, btools):
+        super().AddBintools(btools)
+        self.mkimage = self.AddBintool(btools, 'mkimage')

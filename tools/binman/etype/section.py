@@ -895,6 +895,6 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.CheckAltFormats(alt_formats)
 
-    def AddBintools(self, tools):
+    def AddBintools(self, btools):
         for entry in self._entries.values():
-            entry.AddBintools(tools)
+            entry.AddBintools(btools)

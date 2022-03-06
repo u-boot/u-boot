@@ -1101,11 +1101,11 @@ features to produce new behaviours.
         """
         pass
 
-    def AddBintools(self, tools):
+    def AddBintools(self, btools):
         """Add the bintools used by this entry type
 
         Args:
-            tools (dict of Bintool):
+            btools (dict of Bintool):
         """
         pass
 
