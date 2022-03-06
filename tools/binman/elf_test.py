@@ -243,7 +243,7 @@ class TestElf(unittest.TestCase):
             fname = self.ElfTestFile('embed_data')
             with self.assertRaises(ValueError) as e:
                 elf.GetSymbolFileOffset(fname, ['embed_start', 'embed_end'])
-            self.assertIn('Python elftools package is not available',
+            self.assertIn("Python: No module named 'elftools'",
                       str(e.exception))
         finally:
             elf.ELF_TOOLS = old_val
@@ -257,31 +257,31 @@ class TestElf(unittest.TestCase):
         offset = elf.GetSymbolFileOffset(fname, ['missing_sym'])
         self.assertEqual({}, offset)
 
-    def test_read_segments(self):
-        """Test for read_segments()"""
+    def test_read_loadable_segments(self):
+        """Test for read_loadable_segments()"""
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
         fname = self.ElfTestFile('embed_data')
-        segments, entry = elf.read_segments(tools.read_file(fname))
+        segments, entry = elf.read_loadable_segments(tools.read_file(fname))
 
     def test_read_segments_fail(self):
-        """Test for read_segments() without elftools"""
+        """Test for read_loadable_segments() without elftools"""
         try:
             old_val = elf.ELF_TOOLS
             elf.ELF_TOOLS = False
             fname = self.ElfTestFile('embed_data')
             with self.assertRaises(ValueError) as e:
-                elf.read_segments(tools.read_file(fname))
-            self.assertIn('Python elftools package is not available',
+                elf.read_loadable_segments(tools.read_file(fname))
+            self.assertIn("Python: No module named 'elftools'",
                           str(e.exception))
         finally:
             elf.ELF_TOOLS = old_val
 
     def test_read_segments_bad_data(self):
-        """Test for read_segments() with an invalid ELF file"""
+        """Test for read_loadable_segments() with an invalid ELF file"""
         fname = self.ElfTestFile('embed_data')
         with self.assertRaises(ValueError) as e:
-            elf.read_segments(tools.get_bytes(100, 100))
+            elf.read_loadable_segments(tools.get_bytes(100, 100))
         self.assertIn('Magic number does not match', str(e.exception))
 
     def test_get_file_offset(self):
