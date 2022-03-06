@@ -417,8 +417,12 @@ class Entry(object):
         self.SetContents(data)
         return size_ok
 
-    def ObtainContents(self):
+    def ObtainContents(self, skip_entry=None, fake_size=0):
         """Figure out the contents of an entry.
+
+        Args:
+            skip_entry (Entry): Entry to skip when obtaining section contents
+            fake_size (int): Size of fake file to create if needed
 
         Returns:
             True if the contents were found, False if another call is needed
@@ -1132,12 +1136,13 @@ features to produce new behaviours.
         """
         self.update_hash = update_hash
 
-    def collect_contents_to_file(self, entries, prefix):
+    def collect_contents_to_file(self, entries, prefix, fake_size=0):
         """Put the contents of a list of entries into a file
 
         Args:
             entries (list of Entry): Entries to collect
             prefix (str): Filename prefix of file to write to
+            fake_size (int): Size of fake file to create if needed
 
         If any entry does not have contents yet, this function returns False
         for the data.
@@ -1152,7 +1157,7 @@ features to produce new behaviours.
         for entry in entries:
             # First get the input data and put it in a file. If not available,
             # try later.
-            if not entry.ObtainContents():
+            if not entry.ObtainContents(fake_size=fake_size):
                 return None, None, None
             data += entry.GetData()
         uniq = self.GetUniqueName()

@@ -247,7 +247,7 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.AddMissingProperties(have_image_pos)
 
-    def ObtainContents(self, skip_entry=None):
+    def ObtainContents(self, fake_size=0, skip_entry=None):
         return self.GetEntryContents(skip_entry=skip_entry)
 
     def GetPaddedDataForEntry(self, entry, entry_data):

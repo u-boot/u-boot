@@ -5314,6 +5314,16 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Node '/binman/u-boot': Please use 'extend-size' instead of 'expand-size'",
             str(e.exception))
 
+    def testMkimageMissingBlob(self):
+        """Test using mkimage to build an image"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('229_mkimage_missing.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: .*")
+
 
 if __name__ == "__main__":
     unittest.main()
