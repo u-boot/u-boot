@@ -2,10 +2,9 @@
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
 #
-# Entry-type module for producing a FIT
-#
 
-from collections import defaultdict, OrderedDict
+"""Entry-type module for producing a FIT"""
+
 import libfdt
 
 from binman.entry import Entry, EntryArg
@@ -244,16 +243,16 @@ class Entry_fit(Entry_section):
         then runs mkimage to process it.
 
         Args:
-            required: True if the data must be present, False if it is OK to
-                return None
+            required (bool): True if the data must be present, False if it is OK
+                to return None
 
         Returns:
-            Contents of the section (bytes)
+            bytes: Contents of the section
         """
-        data = self._BuildInput()
+        data = self._build_input()
         uniq = self.GetUniqueName()
-        input_fname = tools.get_output_filename('%s.itb' % uniq)
-        output_fname = tools.get_output_filename('%s.fit' % uniq)
+        input_fname = tools.get_output_filename(f'{uniq}.itb')
+        output_fname = tools.get_output_filename(f'{uniq}.fit')
         tools.write_file(input_fname, data)
         tools.write_file(output_fname, data)
 
@@ -272,14 +271,14 @@ class Entry_fit(Entry_section):
 
         return tools.read_file(output_fname)
 
-    def _BuildInput(self):
+    def _build_input(self):
         """Finish the FIT by adding the 'data' properties to it
 
         Arguments:
             fdt: FIT to update
 
         Returns:
-            New fdt contents (bytes)
+            bytes: New fdt contents
         """
         def _process_prop(pname, prop):
             """Process special properties
@@ -301,9 +300,9 @@ class Entry_fit(Entry_section):
                     if not self._fit_default_dt:
                         self.Raise("Generated 'default' node requires default-dt entry argument")
                     if self._fit_default_dt not in self._fdts:
-                        self.Raise("default-dt entry argument '%s' not found in fdt list: %s" %
-                                   (self._fit_default_dt,
-                                    ', '.join(self._fdts)))
+                        self.Raise(
+                            f"default-dt entry argument '{self._fit_default_dt}' "
+                            f"not found in fdt list: {', '.join(self._fdts)}")
                     seq = self._fdts.index(self._fit_default_dt)
                     val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
                     fsw.property_string(pname, val)
@@ -354,8 +353,8 @@ class Entry_fit(Entry_section):
             else:
                 if self._fdts is None:
                     if self._fit_list_prop:
-                        self.Raise("Generator node requires '%s' entry argument" %
-                                   self._fit_list_prop.value)
+                        self.Raise('Generator node requires '
+                            f"'{self._fit_list_prop.value}' entry argument")
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
@@ -369,10 +368,10 @@ class Entry_fit(Entry_section):
             first.
 
             Args:
-                subnode (None): Generator node to process
-                depth: Current node depth (0 is the base 'fit' node)
-                in_images: True if this is inside the 'images' node, so that
-                    'data' properties should be generated
+                subnode (Node): Generator node to process
+                depth (int): Current node depth (0 is the base 'fit' node)
+                in_images (bool): True if this is inside the 'images' node, so
+                    that 'data' properties should be generated
             """
             oper = self._get_operation(subnode)
             if oper == OP_GEN_FDT_NODES:
@@ -382,9 +381,10 @@ class Entry_fit(Entry_section):
             """Add nodes to the output FIT
 
             Args:
-                base_node: Base Node of the FIT (with 'description' property)
-                depth: Current node depth (0 is the base 'fit' node)
-                node: Current node to process
+                base_node (Node): Base Node of the FIT (with 'description'
+                    property)
+                depth (int): Current node depth (0 is the base 'fit' node)
+                node (Node): Current node to process
 
             There are two cases to deal with:
                 - hash and signature nodes which become part of the FIT
@@ -441,7 +441,7 @@ class Entry_fit(Entry_section):
         according to where they ended up in the packed FIT file.
 
         Args:
-            image_pos: Position of this entry in the image
+            image_pos (int): Position of this entry in the image
         """
         super().SetImagePos(image_pos)
 
@@ -480,7 +480,7 @@ class Entry_fit(Entry_section):
 
             # This should never happen
             else: # pragma: no cover
-                self.Raise("%s: missing data properties" % (path))
+                self.Raise(f'{path}: missing data properties')
 
             section.SetOffsetSize(offset, size)
             section.SetImagePos(self.image_pos)
