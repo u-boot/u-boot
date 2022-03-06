@@ -1334,16 +1334,16 @@ config TPL_SIZE_LIMIT
 	  If this value is zero, it is ignored.
 
 config TPL_BINMAN_SYMBOLS
-	bool "Declare binman symbols in SPL"
+	bool "Declare binman symbols in TPL"
 	depends on SPL_FRAMEWORK && BINMAN
 	default y
 	help
-	  This enables use of symbols in TPL which refer to U-Boot, enabling SPL
+	  This enables use of symbols in TPL which refer to U-Boot, enabling TPL
 	  to obtain the location of U-Boot simply by calling spl_get_image_pos()
 	  and spl_get_image_size().
 
 	  For this to work, you must have a U-Boot image in the binman image, so
-	  binman can update SPL with the location of it.
+	  binman can update TPL with the location of it.
 
 config TPL_FRAMEWORK
 	bool "Support TPL based upon the common SPL framework"
