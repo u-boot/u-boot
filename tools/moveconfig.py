@@ -1607,8 +1607,7 @@ def defconfig_matches(configs, re_match):
         bool: True if any CONFIG matches the regex
     """
     for cfg in configs:
-        m_cfg = re_match.match(cfg)
-        if m_cfg and m_cfg.span()[1] == len(cfg):
+        if re_match.fullmatch(cfg):
             return True
     return False
 
