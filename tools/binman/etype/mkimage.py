@@ -53,7 +53,7 @@ class Entry_mkimage(Entry):
     def ObtainContents(self):
         data, input_fname, uniq = self.collect_contents_to_file(
             self._mkimage_entries.values(), 'mkimage')
-        if data is False:
+        if data is None:
             return False
         output_fname = tools.get_output_filename('mkimage-out.%s' % uniq)
         if self.mkimage.run_cmd('-d', input_fname, *self._args,

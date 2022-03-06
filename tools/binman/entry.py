@@ -1138,16 +1138,16 @@ features to produce new behaviours.
 
         Returns:
             Tuple:
-                bytes: Concatenated data from all the entries (or False)
-                str: Filename of file written (or False if no data)
-                str: Unique portion of filename (or False if no data)
+                bytes: Concatenated data from all the entries (or None)
+                str: Filename of file written (or None if no data)
+                str: Unique portion of filename (or None if no data)
         """
         data = b''
         for entry in entries:
             # First get the input data and put it in a file. If not available,
             # try later.
             if not entry.ObtainContents():
-                return False, False, False
+                return None, None, None
             data += entry.GetData()
         uniq = self.GetUniqueName()
         fname = tools.get_output_filename(f'{prefix}.{uniq}')
