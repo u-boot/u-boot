@@ -25,9 +25,9 @@ ENTRY(return_to_fel)
 	mov	sp, r0
 	mov	lr, r1
 	ldr	r0, =fel_stash
-	ldr	r1, [r0, #16]
-	mcr	p15, 0, r1, c1, c0, 0	@ Write CP15 Control Register
 	ldr	r1, [r0, #12]
+	mcr	p15, 0, r1, c1, c0, 0	@ Write CP15 SCTLR register
+	ldr	r1, [r0, #8]
 	msr	cpsr, r1		@ Write CPSR
 	bx	lr
 ENDPROC(return_to_fel)
