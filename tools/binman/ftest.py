@@ -202,6 +202,13 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('env.txt', ENV_DATA)
 
+        # ELF file with two sections in different parts of memory, used for both
+        # ATF and OP_TEE
+        TestFunctional._MakeInputFile('bl31.elf',
+            tools.read_file(cls.ElfTestFile('elf_sections')))
+        TestFunctional._MakeInputFile('tee.elf',
+            tools.read_file(cls.ElfTestFile('elf_sections')))
+
         cls.have_lz4 = comp_util.HAVE_LZ4
 
     @classmethod
@@ -5323,6 +5330,146 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertRegex(
             err,
             "Image '.*' has faked external blobs and is non-functional: .*")
+
+    def testFitSplitElf(self):
+        """Test an image with an FIT with an split-elf operation"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'tee.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        data = self._DoReadFileDtb(
+            '226_fit_split_elf.dts',
+            entry_args=entry_args,
+            extra_indirs=[test_subdir])[0]
+
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+
+        base_keys = {'description', 'type', 'arch', 'os', 'compression',
+                     'data', 'load'}
+        dtb = fdt.Fdt.FromData(fit_data)
+        dtb.Scan()
+
+        elf_data = tools.read_file(os.path.join(self._indir, 'bl31.elf'))
+        segments, entry = elf.read_loadable_segments(elf_data)
+
+        # We assume there are two segments
+        self.assertEquals(2, len(segments))
+
+        atf1 = dtb.GetNode('/images/atf-1')
+        _, start, data = segments[0]
+        self.assertEqual(base_keys | {'entry'}, atf1.props.keys())
+        self.assertEqual(entry,
+                         fdt_util.fdt32_to_cpu(atf1.props['entry'].value))
+        self.assertEqual(start,
+                         fdt_util.fdt32_to_cpu(atf1.props['load'].value))
+        self.assertEqual(data, atf1.props['data'].bytes)
+
+        atf2 = dtb.GetNode('/images/atf-2')
+        self.assertEqual(base_keys, atf2.props.keys())
+        _, start, data = segments[1]
+        self.assertEqual(start,
+                         fdt_util.fdt32_to_cpu(atf2.props['load'].value))
+        self.assertEqual(data, atf2.props['data'].bytes)
+
+        conf = dtb.GetNode('/configurations')
+        self.assertEqual({'default'}, conf.props.keys())
+
+        for subnode in conf.subnodes:
+            self.assertEqual({'description', 'fdt', 'loadables'},
+                             subnode.props.keys())
+            self.assertEqual(
+                ['atf-1', 'atf-2', 'tee-1', 'tee-2'],
+                fdt_util.GetStringList(subnode, 'loadables'))
+
+    def _check_bad_fit(self, dts):
+        """Check a bad FIT
+
+        This runs with the given dts and returns the assertion raised
+
+        Args:
+            dts (str): dts filename to use
+
+        Returns:
+            str: Assertion string raised
+        """
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'tee.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb(dts, entry_args=entry_args,
+                                extra_indirs=[test_subdir])[0]
+        return str(exc.exception)
+
+    def testFitSplitElfBadElf(self):
+        """Test a FIT split-elf operation with an invalid ELF file"""
+        TestFunctional._MakeInputFile('bad.elf', tools.get_bytes(100, 100))
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bad.elf',
+            'tee-os-path': 'tee.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb(
+                '226_fit_split_elf.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
+        self.assertIn(
+            "Node '/binman/fit': subnode 'images/@atf-SEQ': Failed to read ELF file: Magic number does not match",
+            str(exc.exception))
+
+    def testFitSplitElfBadDirective(self):
+        """Test a FIT split-elf invalid fit,xxx directive in an image node"""
+        err = self._check_bad_fit('227_fit_bad_dir.dts')
+        self.assertIn(
+            "Node '/binman/fit': subnode 'images/@atf-SEQ': Unknown directive 'fit,something'",
+            err)
+
+    def testFitSplitElfBadDirectiveConfig(self):
+        """Test a FIT split-elf with invalid fit,xxx directive in config"""
+        err = self._check_bad_fit('228_fit_bad_dir_config.dts')
+        self.assertEqual(
+            "Node '/binman/fit': subnode 'configurations/@config-SEQ': Unknown directive 'fit,config'",
+            err)
+
+    def checkFitSplitElf(self, **kwargs):
+        """Test an split-elf FIT with a missing ELF file"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'missing.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile(
+                '226_fit_split_elf.dts', entry_args=entry_args,
+                extra_indirs=[test_subdir], **kwargs)
+        err = stderr.getvalue()
+        return err
+
+    def testFitSplitElfMissing(self):
+        """Test an split-elf FIT with a missing ELF file"""
+        err = self.checkFitSplitElf(allow_missing=True)
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs and is non-functional: .*")
+
+    def testFitSplitElfFaked(self):
+        """Test an split-elf FIT with faked ELF file"""
+        err = self.checkFitSplitElf(allow_missing=True, allow_fake_blobs=True)
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs and is non-functional: .*")
 
 
 if __name__ == "__main__":

@@ -9,14 +9,16 @@ import libfdt
 
 from binman.entry import Entry, EntryArg
 from binman.etype.section import Entry_section
+from binman import elf
 from dtoc import fdt_util
 from dtoc.fdt import Fdt
 from patman import tools
 
 # Supported operations, with the fit,operation property
-OP_GEN_FDT_NODES = range(1)
+OP_GEN_FDT_NODES, OP_SPLIT_ELF = range(2)
 OPERATIONS = {
     'gen-fdt-nodes': OP_GEN_FDT_NODES,
+    'split-elf': OP_SPLIT_ELF,
     }
 
 class Entry_fit(Entry_section):
@@ -112,6 +114,9 @@ class Entry_fit(Entry_section):
         Generate FDT nodes as above. This is the default if there is no
         `fit,operation` property.
 
+    split-elf
+        Split an ELF file into a separate node for each segment.
+
     Generating nodes from an FDT list (gen-fdt-nodes)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -154,6 +159,149 @@ class Entry_fit(Entry_section):
 
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
+
+    Generating nodes from an ELF file (split-elf)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This uses the node as a template to generate multiple nodes. The following
+    special properties are available:
+
+    split-elf
+        Split an ELF file into a separate node for each segment. This uses the
+        node as a template to generate multiple nodes. The following special
+        properties are available:
+
+        fit,load
+            Generates a `load = <...>` property with the load address of the
+            segment
+
+        fit,entry
+            Generates a `entry = <...>` property with the entry address of the
+            ELF. This is only produced for the first entry
+
+        fit,data
+            Generates a `data = <...>` property with the contents of the segment
+
+        fit,loadables
+            Generates a `loadable = <...>` property with a list of the generated
+            nodes (including all nodes if this operation is used multiple times)
+
+
+    Here is an example showing ATF, TEE and a device tree all combined::
+
+        fit {
+            description = "test-desc";
+            #address-cells = <1>;
+            fit,fdt-list = "of-list";
+
+            images {
+                u-boot {
+                    description = "U-Boot (64-bit)";
+                    type = "standalone";
+                    os = "U-Boot";
+                    arch = "arm64";
+                    compression = "none";
+                    load = <CONFIG_SYS_TEXT_BASE>;
+                    u-boot-nodtb {
+                    };
+                };
+                @fdt-SEQ {
+                    description = "fdt-NAME.dtb";
+                    type = "flat_dt";
+                    compression = "none";
+                };
+                @atf-SEQ {
+                    fit,operation = "split-elf";
+                    description = "ARM Trusted Firmware";
+                    type = "firmware";
+                    arch = "arm64";
+                    os = "arm-trusted-firmware";
+                    compression = "none";
+                    fit,load;
+                    fit,entry;
+                    fit,data;
+
+                    atf-bl31 {
+                    };
+                };
+
+                @tee-SEQ {
+                    fit,operation = "split-elf";
+                    description = "TEE";
+                    type = "tee";
+                    arch = "arm64";
+                    os = "tee";
+                    compression = "none";
+                    fit,load;
+                    fit,entry;
+                    fit,data;
+
+                    tee-os {
+                    };
+                };
+            };
+
+            configurations {
+                default = "@config-DEFAULT-SEQ";
+                @config-SEQ {
+                    description = "conf-NAME.dtb";
+                    fdt = "fdt-SEQ";
+                    firmware = "u-boot";
+                    fit,loadables;
+                };
+            };
+        };
+
+    If ATF-BL31 is available, this generates a node for each segment in the
+    ELF file, for example::
+
+        images {
+            atf-1 {
+                data = <...contents of first segment...>;
+                data-offset = <0x00000000>;
+                entry = <0x00040000>;
+                load = <0x00040000>;
+                compression = "none";
+                os = "arm-trusted-firmware";
+                arch = "arm64";
+                type = "firmware";
+                description = "ARM Trusted Firmware";
+            };
+            atf-2 {
+                data = <...contents of second segment...>;
+                load = <0xff3b0000>;
+                compression = "none";
+                os = "arm-trusted-firmware";
+                arch = "arm64";
+                type = "firmware";
+                description = "ARM Trusted Firmware";
+            };
+        };
+
+    The same applies for OP-TEE if that is available.
+
+    If each binary is not available, the relevant template node (@atf-SEQ or
+    @tee-SEQ) is removed from the output.
+
+    This also generates a `config-xxx` node for each device tree in `of-list`.
+    Note that the U-Boot build system uses `-a of-list=$(CONFIG_OF_LIST)`
+    so you can use `CONFIG_OF_LIST` to define that list. In this example it is
+    set up for `firefly-rk3399` with a single device tree and the default set
+    with `-a default-dt=$(CONFIG_DEFAULT_DEVICE_TREE)`, so the resulting output
+    is::
+
+        configurations {
+            default = "config-1";
+            config-1 {
+                loadables = "atf-1", "atf-2", "atf-3", "tee-1", "tee-2";
+                description = "rk3399-firefly.dtb";
+                fdt = "fdt-1";
+                firmware = "u-boot";
+            };
+        };
+
+    U-Boot SPL can then load the firmware (U-Boot proper) and all the loadables
+    (ATF and TEE), then proceed with the boot.
     """
     def __init__(self, section, etype, node):
         """
@@ -167,6 +315,7 @@ class Entry_fit(Entry_section):
                 entries which are used to create the FIT, but should not be
                 processed as real entries. This is set up once we have the
                 entries
+            _loadables: List of generated split-elf nodes, each a node name
         """
         super().__init__(section, etype, node)
         self._fit = None
@@ -174,6 +323,7 @@ class Entry_fit(Entry_section):
         self._fdts = None
         self.mkimage = None
         self._priv_entries = {}
+        self._loadables = []
 
     def ReadNode(self):
         super().ReadNode()
@@ -337,7 +487,7 @@ class Entry_fit(Entry_section):
                 return
             fsw.property(pname, prop.bytes)
 
-        def _gen_fdt_nodes(node, depth, in_images):
+        def _gen_fdt_nodes(base_node, node, depth, in_images):
             """Generate FDT nodes
 
             This creates one node for each member of self._fdts using the
@@ -359,11 +509,20 @@ class Entry_fit(Entry_section):
                     fname = tools.get_input_filename(fdt_fname + '.dtb')
                     with fsw.add_node(node_name):
                         for pname, prop in node.props.items():
-                            val = prop.bytes.replace(
-                                b'NAME', tools.to_bytes(fdt_fname))
-                            val = val.replace(
-                                b'SEQ', tools.to_bytes(str(seq + 1)))
-                            fsw.property(pname, val)
+                            if pname == 'fit,loadables':
+                                val = '\0'.join(self._loadables) + '\0'
+                                fsw.property('loadables', val.encode('utf-8'))
+                            elif pname == 'fit,operation':
+                                pass
+                            elif pname.startswith('fit,'):
+                                self._raise_subnode(
+                                    node, f"Unknown directive '{pname}'")
+                            else:
+                                val = prop.bytes.replace(
+                                    b'NAME', tools.to_bytes(fdt_fname))
+                                val = val.replace(
+                                    b'SEQ', tools.to_bytes(str(seq + 1)))
+                                fsw.property(pname, val)
 
                         # Add data for 'images' nodes (but not 'config')
                         if depth == 1 and in_images:
@@ -380,7 +539,43 @@ class Entry_fit(Entry_section):
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
-        def _gen_node(base_node, node, depth, in_images):
+        def _gen_split_elf(base_node, node, elf_data, missing):
+            """Add nodes for the ELF file, one per group of contiguous segments
+
+            Args:
+                base_node (Node): Template node from the binman definition
+                node (Node): Node to replace (in the FIT being built)
+                data (bytes): ELF-format data to process (may be empty)
+                missing (bool): True if any of the data is missing
+
+            """
+            # If any pieces are missing, skip this. The missing entries will
+            # show an error
+            if not missing:
+                try:
+                    segments, entry = elf.read_loadable_segments(elf_data)
+                except ValueError as exc:
+                    self._raise_subnode(node,
+                                        f'Failed to read ELF file: {str(exc)}')
+                for (seq, start, data) in segments:
+                    node_name = node.name[1:].replace('SEQ', str(seq + 1))
+                    with fsw.add_node(node_name):
+                        loadables.append(node_name)
+                        for pname, prop in node.props.items():
+                            if not pname.startswith('fit,'):
+                                fsw.property(pname, prop.bytes)
+                            elif pname == 'fit,load':
+                                fsw.property_u32('load', start)
+                            elif pname == 'fit,entry':
+                                if seq == 0:
+                                    fsw.property_u32('entry', entry)
+                            elif pname == 'fit,data':
+                                fsw.property('data', bytes(data))
+                            elif pname != 'fit,operation':
+                                self._raise_subnode(
+                                    node, f"Unknown directive '{pname}'")
+
+        def _gen_node(base_node, node, depth, in_images, entry):
             """Generate nodes from a template
 
             This creates one node for each member of self._fdts using the
@@ -399,7 +594,18 @@ class Entry_fit(Entry_section):
             """
             oper = self._get_operation(base_node, node)
             if oper == OP_GEN_FDT_NODES:
-                _gen_fdt_nodes(node, depth, in_images)
+                _gen_fdt_nodes(base_node, node, depth, in_images)
+            elif oper == OP_SPLIT_ELF:
+                # Entry_section.ObtainContents() either returns True or
+                # raises an exception.
+                data = None
+                missing_list = []
+                entry.ObtainContents()
+                entry.Pack(0)
+                data = entry.GetData()
+                entry.CheckMissing(missing_list)
+
+                _gen_split_elf(base_node, node, data, bool(missing_list))
 
         def _add_node(base_node, depth, node):
             """Add nodes to the output FIT
@@ -437,7 +643,8 @@ class Entry_fit(Entry_section):
                     # fsw.add_node() or _add_node() for it.
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
-                    _gen_node(base_node, subnode, depth, in_images)
+                    entry = self._priv_entries.get(subnode_path)
+                    _gen_node(base_node, subnode, depth, in_images, entry)
                     # This is a generator (template) entry, so remove it from
                     # the list of entries used by PackEntries(), etc. Otherwise
                     # it will appear in the binman output
@@ -451,8 +658,10 @@ class Entry_fit(Entry_section):
         fsw = libfdt.FdtSw()
         fsw.finish_reservemap()
         to_remove = []
+        loadables = []
         with fsw.add_node(''):
             _add_node(self._node, 0, self._node)
+        self._loadables = loadables
         fdt = fsw.as_fdt()
 
         # Remove generator entries from the main list
