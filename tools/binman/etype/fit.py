@@ -168,12 +168,14 @@ class Entry_fit(Entry_section):
         super().__init__(section, etype, node)
         self._fit = None
         self._fit_props = {}
+        self._fdts = None
+        self.mkimage = None
 
+    def ReadNode(self):
+        super().ReadNode()
         for pname, prop in self._node.props.items():
             if pname.startswith('fit,'):
                 self._fit_props[pname] = prop
-
-        self._fdts = None
         self._fit_list_prop = self._fit_props.get('fit,fdt-list')
         if self._fit_list_prop:
             fdts, = self.GetEntryArgsOrProps(
@@ -182,10 +184,6 @@ class Entry_fit(Entry_section):
                 self._fdts = fdts.split()
         self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
                                                                   str)])[0]
-        self.mkimage = None
-
-    def ReadNode(self):
-        super().ReadNode()
 
     def _get_operation(self, subnode):
         """Get the operation referenced by a subnode
