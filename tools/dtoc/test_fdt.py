@@ -659,8 +659,12 @@ class TestFdtUtil(unittest.TestCase):
             ['multi-word', 'message'],
             fdt_util.GetArgs(self.node, 'stringarray'))
         self.assertEqual([], fdt_util.GetArgs(self.node, 'boolval'))
-        self.assertEqual(['-n', 'first', 'second', '-p', '123,456', '-x'],
+        self.assertEqual(['-n first', 'second', '-p', '123,456', '-x'],
                          fdt_util.GetArgs(node, 'args'))
+        self.assertEqual(['a space', 'there'],
+                         fdt_util.GetArgs(node, 'args2'))
+        self.assertEqual(['-n', 'first', 'second', '-p', '123,456', '-x'],
+                         fdt_util.GetArgs(node, 'args3'))
         with self.assertRaises(ValueError) as exc:
             fdt_util.GetArgs(self.node, 'missing')
         self.assertIn(

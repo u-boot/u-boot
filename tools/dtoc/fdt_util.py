@@ -192,8 +192,12 @@ def GetArgs(node, propname):
         value = GetStringList(node, propname)
     else:
         value = []
-    lists = [v.split() for v in value]
-    args = [x for l in lists for x in l]
+    if not value:
+        args = []
+    elif len(value) == 1:
+        args = value[0].split()
+    else:
+        args = value
     return args
 
 def GetBool(node, propname, default=False):
