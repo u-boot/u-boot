@@ -286,8 +286,8 @@ class Entry(object):
         """
         return {}
 
-    def ExpandEntries(self):
-        """Expand out entries which produce other entries
+    def gen_entries(self):
+        """Allow entries to generate other entries
 
         Some entries generate subnodes automatically, from which sub-entries
         are then created. This method allows those to be added to the binman

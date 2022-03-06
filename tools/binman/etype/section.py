@@ -234,10 +234,10 @@ class Entry_section(Entry):
                        todo)
         return True
 
-    def ExpandEntries(self):
-        super().ExpandEntries()
+    def gen_entries(self):
+        super().gen_entries()
         for entry in self._entries.values():
-            entry.ExpandEntries()
+            entry.gen_entries()
 
     def AddMissingProperties(self, have_image_pos):
         """Add new properties to the device tree as needed for this entry"""
