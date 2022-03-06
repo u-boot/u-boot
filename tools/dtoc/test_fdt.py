@@ -550,6 +550,12 @@ class TestProp(unittest.TestCase):
         data = self.fdt.getprop(self.node.Offset(), 'stringlist')
         self.assertEqual(b'123\x00456\0', data)
 
+        val = []
+        self.node.AddStringList('stringlist', val)
+        self.dtb.Sync(auto_resize=True)
+        data = self.fdt.getprop(self.node.Offset(), 'stringlist')
+        self.assertEqual(b'', data)
+
     def test_delete_node(self):
         """Test deleting a node"""
         old_offset = self.fdt.path_offset('/spl-test')
@@ -637,6 +643,7 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual('message', fdt_util.GetString(self.node, 'stringval'))
         self.assertEqual('test', fdt_util.GetString(self.node, 'missing',
                                                     'test'))
+        self.assertEqual('', fdt_util.GetString(self.node, 'boolval'))
 
         with self.assertRaises(ValueError) as e:
             self.assertEqual(3, fdt_util.GetString(self.node, 'stringarray'))
@@ -651,6 +658,7 @@ class TestFdtUtil(unittest.TestCase):
             fdt_util.GetStringList(self.node, 'stringarray'))
         self.assertEqual(['test'],
                          fdt_util.GetStringList(self.node, 'missing', ['test']))
+        self.assertEqual([], fdt_util.GetStringList(self.node, 'boolval'))
 
     def testGetArgs(self):
         node = self.dtb.GetNode('/orig-node')

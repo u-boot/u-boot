@@ -516,9 +516,7 @@ class Node:
         Returns:
             Prop added
         """
-        out = b''
-        for string in val:
-            out += bytes(string, 'utf-8') + b'\0'
+        out = b'\0'.join(bytes(s, 'utf-8') for s in val) + b'\0' if val else b''
         return self.AddData(prop_name, out)
 
     def AddInt(self, prop_name, val):

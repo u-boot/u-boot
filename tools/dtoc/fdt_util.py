@@ -158,6 +158,8 @@ def GetString(node, propname, default=None):
     if not prop:
         return default
     value = prop.value
+    if not prop.bytes:
+        return ''
     if isinstance(value, list):
         raise ValueError("Node '%s' property '%s' has list value: expecting "
                          "a single string" % (node.name, propname))
@@ -179,6 +181,8 @@ def GetStringList(node, propname, default=None):
     if not prop:
         return default
     value = prop.value
+    if not prop.bytes:
+        return []
     if not isinstance(value, list):
         strval = GetString(node, propname)
         return [strval]
