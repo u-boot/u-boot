@@ -999,15 +999,18 @@ features to produce new behaviours.
             fname (str): Filename to check
 
         Returns:
-            fname (str): Filename of faked file
+            tuple:
+                fname (str): Filename of faked file
+                bool: True if the blob was faked, False if not
         """
         if self.allow_fake and not pathlib.Path(fname).is_file():
             outfname = tools.get_output_filename(os.path.basename(fname))
             with open(outfname, "wb") as out:
                 out.truncate(1024)
             self.faked = True
-            return outfname
-        return fname
+            tout.info(f"Entry '{self._node.path}': Faked file '{outfname}'")
+            return outfname, True
+        return fname, False
 
     def CheckFakedBlobs(self, faked_blobs_list):
         """Check if any entries in this section have faked external blobs
