@@ -328,7 +328,7 @@ class Entry_fit(Entry_section):
                 return
             fsw.property(pname, prop.bytes)
 
-        def _gen_fdt_nodes(subnode, depth, in_images):
+        def _gen_fdt_nodes(node, depth, in_images):
             """Generate FDT nodes
 
             This creates one node for each member of self._fdts using the
@@ -338,7 +338,7 @@ class Entry_fit(Entry_section):
             first.
 
             Args:
-                subnode (None): Generator node to process
+                node (None): Generator node to process
                 depth: Current node depth (0 is the base 'fit' node)
                 in_images: True if this is inside the 'images' node, so that
                     'data' properties should be generated
@@ -346,10 +346,10 @@ class Entry_fit(Entry_section):
             if self._fdts:
                 # Generate nodes for each FDT
                 for seq, fdt_fname in enumerate(self._fdts):
-                    node_name = subnode.name[1:].replace('SEQ', str(seq + 1))
+                    node_name = node.name[1:].replace('SEQ', str(seq + 1))
                     fname = tools.get_input_filename(fdt_fname + '.dtb')
                     with fsw.add_node(node_name):
-                        for pname, prop in subnode.props.items():
+                        for pname, prop in node.props.items():
                             val = prop.bytes.replace(
                                 b'NAME', tools.to_bytes(fdt_fname))
                             val = val.replace(
@@ -371,7 +371,7 @@ class Entry_fit(Entry_section):
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
-        def _gen_node(base_node, subnode, depth, in_images):
+        def _gen_node(base_node, node, depth, in_images):
             """Generate nodes from a template
 
             This creates one node for each member of self._fdts using the
@@ -383,14 +383,14 @@ class Entry_fit(Entry_section):
             Args:
                 base_node (Node): Base Node of the FIT (with 'description'
                     property)
-                subnode (Node): Generator node to process
+                node (Node): Generator node to process
                 depth (int): Current node depth (0 is the base 'fit' node)
                 in_images (bool): True if this is inside the 'images' node, so
                     that 'data' properties should be generated
             """
-            oper = self._get_operation(base_node, subnode)
+            oper = self._get_operation(base_node, node)
             if oper == OP_GEN_FDT_NODES:
-                _gen_fdt_nodes(subnode, depth, in_images)
+                _gen_fdt_nodes(node, depth, in_images)
 
         def _add_node(base_node, depth, node):
             """Add nodes to the output FIT
