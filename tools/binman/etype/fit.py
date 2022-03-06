@@ -209,6 +209,81 @@ class Entry_fit(Entry_section):
         return oper
 
     def ReadEntries(self):
+        def _add_entries(base_node, depth, node):
+            """Add entries for any nodes that need them
+
+            Args:
+                base_node: Base Node of the FIT (with 'description' property)
+                depth: Current node depth (0 is the base 'fit' node)
+                node: Current node to process
+
+            Here we only need to provide binman entries which are used to define
+            the 'data' for each image. We create an entry_Section for each.
+            """
+            rel_path = node.path[len(base_node.path):]
+            in_images = rel_path.startswith('/images')
+            has_images = depth == 2 and in_images
+            if has_images:
+                # This node is a FIT subimage node (e.g. "/images/kernel")
+                # containing content nodes. We collect the subimage nodes and
+                # section entries for them here to merge the content subnodes
+                # together and put the merged contents in the subimage node's
+                # 'data' property later.
+                entry = Entry.Create(self.section, node, etype='section')
+                entry.ReadNode()
+                # The hash subnodes here are for mkimage, not binman.
+                entry.SetUpdateHash(False)
+                self._entries[rel_path] = entry
+
+            for subnode in node.subnodes:
+                _add_entries(base_node, depth + 1, subnode)
+
+        _add_entries(self._node, 0, self._node)
+
+    def BuildSectionData(self, required):
+        """Build FIT entry contents
+
+        This adds the 'data' properties to the input ITB (Image-tree Binary)
+        then runs mkimage to process it.
+
+        Args:
+            required: True if the data must be present, False if it is OK to
+                return None
+
+        Returns:
+            Contents of the section (bytes)
+        """
+        data = self._BuildInput()
+        uniq = self.GetUniqueName()
+        input_fname = tools.get_output_filename('%s.itb' % uniq)
+        output_fname = tools.get_output_filename('%s.fit' % uniq)
+        tools.write_file(input_fname, data)
+        tools.write_file(output_fname, data)
+
+        args = {}
+        ext_offset = self._fit_props.get('fit,external-offset')
+        if ext_offset is not None:
+            args = {
+                'external': True,
+                'pad': fdt_util.fdt32_to_cpu(ext_offset.value)
+                }
+        if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
+                            **args) is None:
+            # Bintool is missing; just use empty data as the output
+            self.record_missing_bintool(self.mkimage)
+            return tools.get_bytes(0, 1024)
+
+        return tools.read_file(output_fname)
+
+    def _BuildInput(self):
+        """Finish the FIT by adding the 'data' properties to it
+
+        Arguments:
+            fdt: FIT to update
+
+        Returns:
+            New fdt contents (bytes)
+        """
         def _process_prop(pname, prop):
             """Process special properties
 
@@ -236,9 +311,15 @@ class Entry_fit(Entry_section):
                     val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
                     fsw.property_string(pname, val)
                     return
+            elif pname.startswith('fit,'):
+                # Ignore these, which are commands for binman to process
+                return
+            elif pname in ['offset', 'size', 'image-pos']:
+                # Don't add binman's calculated properties
+                return
             fsw.property(pname, prop.bytes)
 
-        def _scan_gen_fdt_nodes(subnode, depth, in_images):
+        def _gen_fdt_nodes(subnode, depth, in_images):
             """Generate FDT nodes
 
             This creates one node for each member of self._fdts using the
@@ -281,7 +362,7 @@ class Entry_fit(Entry_section):
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
-        def _scan_node(subnode, depth, in_images):
+        def _gen_node(subnode, depth, in_images):
             """Generate nodes from a template
 
             This creates one node for each member of self._fdts using the
@@ -298,10 +379,10 @@ class Entry_fit(Entry_section):
             """
             oper = self._get_operation(subnode)
             if oper == OP_GEN_FDT_NODES:
-                _scan_gen_fdt_nodes(subnode, depth, in_images)
+                _gen_fdt_nodes(subnode, depth, in_images)
 
-        def _AddNode(base_node, depth, node):
-            """Add a node to the FIT
+        def _add_node(base_node, depth, node):
+            """Add nodes to the output FIT
 
             Args:
                 base_node: Base Node of the FIT (with 'description' property)
@@ -311,104 +392,49 @@ class Entry_fit(Entry_section):
             There are two cases to deal with:
                 - hash and signature nodes which become part of the FIT
                 - binman entries which are used to define the 'data' for each
-                  image
+                  image, so don't appear in the FIT
             """
+            # Copy over all the relevant properties
             for pname, prop in node.props.items():
-                if not pname.startswith('fit,'):
-                    _process_prop(pname, prop)
+                _process_prop(pname, prop)
 
             rel_path = node.path[len(base_node.path):]
             in_images = rel_path.startswith('/images')
+
             has_images = depth == 2 and in_images
             if has_images:
-                # This node is a FIT subimage node (e.g. "/images/kernel")
-                # containing content nodes. We collect the subimage nodes and
-                # section entries for them here to merge the content subnodes
-                # together and put the merged contents in the subimage node's
-                # 'data' property later.
-                entry = Entry.Create(self.section, node, etype='section')
-                entry.ReadNode()
-                # The hash subnodes here are for mkimage, not binman.
-                entry.SetUpdateHash(False)
-                self._entries[rel_path] = entry
+                entry = self._entries[rel_path]
+                data = entry.GetData()
+                fsw.property('data', bytes(data))
 
             for subnode in node.subnodes:
                 if has_images and not (subnode.name.startswith('hash') or
                                        subnode.name.startswith('signature')):
                     # This subnode is a content node not meant to appear in
                     # the FIT (e.g. "/images/kernel/u-boot"), so don't call
-                    # fsw.add_node() or _AddNode() for it.
+                    # fsw.add_node() or _add_node() for it.
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
-                    _scan_node(subnode, depth, in_images)
+                    subnode_path = f'{rel_path}/{subnode.name}'
+                    entry = self._entries.get(subnode_path)
+                    _gen_node(subnode, depth, in_images)
+                    if entry:
+                        del self._entries[subnode_path]
                 else:
                     with fsw.add_node(subnode.name):
-                        _AddNode(base_node, depth + 1, subnode)
+                        _add_node(base_node, depth + 1, subnode)
 
         # Build a new tree with all nodes and properties starting from the
         # entry node
         fsw = libfdt.FdtSw()
         fsw.finish_reservemap()
         with fsw.add_node(''):
-            _AddNode(self._node, 0, self._node)
+            _add_node(self._node, 0, self._node)
         fdt = fsw.as_fdt()
 
         # Pack this new FDT and scan it so we can add the data later
         fdt.pack()
-        self._fdt = Fdt.FromData(fdt.as_bytearray())
-        self._fdt.Scan()
-
-    def BuildSectionData(self, required):
-        """Build FIT entry contents
-
-        This adds the 'data' properties to the input ITB (Image-tree Binary)
-        then runs mkimage to process it.
-
-        Args:
-            required: True if the data must be present, False if it is OK to
-                return None
-
-        Returns:
-            Contents of the section (bytes)
-        """
-        data = self._BuildInput(self._fdt)
-        uniq = self.GetUniqueName()
-        input_fname = tools.get_output_filename('%s.itb' % uniq)
-        output_fname = tools.get_output_filename('%s.fit' % uniq)
-        tools.write_file(input_fname, data)
-        tools.write_file(output_fname, data)
-
-        args = {}
-        ext_offset = self._fit_props.get('fit,external-offset')
-        if ext_offset is not None:
-            args = {
-                'external': True,
-                'pad': fdt_util.fdt32_to_cpu(ext_offset.value)
-                }
-        if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
-                            **args) is None:
-            # Bintool is missing; just use empty data as the output
-            self.record_missing_bintool(self.mkimage)
-            return tools.get_bytes(0, 1024)
-
-        return tools.read_file(output_fname)
-
-    def _BuildInput(self, fdt):
-        """Finish the FIT by adding the 'data' properties to it
-
-        Arguments:
-            fdt: FIT to update
-
-        Returns:
-            New fdt contents (bytes)
-        """
-        for path, section in self._entries.items():
-            node = fdt.GetNode(path)
-            data = section.GetData()
-            node.AddData('data', data)
-
-        fdt.Sync(auto_resize=True)
-        data = fdt.GetContents()
+        data = fdt.as_bytearray()
         return data
 
     def SetImagePos(self, image_pos):

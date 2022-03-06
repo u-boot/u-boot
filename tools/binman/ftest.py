@@ -3780,6 +3780,7 @@ class TestFunctional(unittest.TestCase):
         dtb.Scan()
         props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS)
 
+        self.maxDiff = None
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
@@ -3793,19 +3794,19 @@ class TestFunctional(unittest.TestCase):
             'fit:offset': 4,
             'fit:size': 1840,
 
-            'fit/images/kernel:image-pos': 160,
-            'fit/images/kernel:offset': 156,
+            'fit/images/kernel:image-pos': 304,
+            'fit/images/kernel:offset': 300,
             'fit/images/kernel:size': 4,
 
-            'fit/images/kernel/u-boot:image-pos': 160,
+            'fit/images/kernel/u-boot:image-pos': 304,
             'fit/images/kernel/u-boot:offset': 0,
             'fit/images/kernel/u-boot:size': 4,
 
-            'fit/images/fdt-1:image-pos': 456,
-            'fit/images/fdt-1:offset': 452,
+            'fit/images/fdt-1:image-pos': 552,
+            'fit/images/fdt-1:offset': 548,
             'fit/images/fdt-1:size': 6,
 
-            'fit/images/fdt-1/u-boot-spl-dtb:image-pos': 456,
+            'fit/images/fdt-1/u-boot-spl-dtb:image-pos': 552,
             'fit/images/fdt-1/u-boot-spl-dtb:offset': 0,
             'fit/images/fdt-1/u-boot-spl-dtb:size': 6,
 
