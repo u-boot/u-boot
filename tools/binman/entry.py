@@ -990,13 +990,14 @@ features to produce new behaviours.
         if self.missing:
             missing_list.append(self)
 
-    def check_fake_fname(self, fname):
+    def check_fake_fname(self, fname, size=0):
         """If the file is missing and the entry allows fake blobs, fake it
 
         Sets self.faked to True if faked
 
         Args:
             fname (str): Filename to check
+            size (int): Size of fake file to create
 
         Returns:
             tuple:
@@ -1006,7 +1007,7 @@ features to produce new behaviours.
         if self.allow_fake and not pathlib.Path(fname).is_file():
             outfname = tools.get_output_filename(os.path.basename(fname))
             with open(outfname, "wb") as out:
-                out.truncate(1024)
+                out.truncate(size)
             self.faked = True
             tout.info(f"Entry '{self._node.path}': Faked file '{outfname}'")
             return outfname, True
