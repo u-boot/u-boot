@@ -386,7 +386,7 @@ class Entry_section(Entry):
         self._PackEntries()
         if self._sort:
             self._SortEntries()
-        self._ExpandEntries()
+        self._extend_entries()
 
         data = self.BuildSectionData(True)
         self.SetContents(data)
@@ -404,17 +404,17 @@ class Entry_section(Entry):
             offset = entry.Pack(offset)
         return offset
 
-    def _ExpandEntries(self):
-        """Expand any entries that are permitted to"""
+    def _extend_entries(self):
+        """Extend any entries that are permitted to"""
         exp_entry = None
         for entry in self._entries.values():
             if exp_entry:
-                exp_entry.ExpandToLimit(entry.offset)
+                exp_entry.extend_to_limit(entry.offset)
                 exp_entry = None
-            if entry.expand_size:
+            if entry.extend_size:
                 exp_entry = entry
         if exp_entry:
-            exp_entry.ExpandToLimit(self.size)
+            exp_entry.extend_to_limit(self.size)
 
     def _SortEntries(self):
         """Sort entries by offset"""

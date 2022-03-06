@@ -2028,9 +2028,9 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Node '/binman/files': Missing 'pattern' property",
                       str(e.exception))
 
-    def testExpandSize(self):
-        """Test an expanding entry"""
-        data, _, map_data, _ = self._DoReadFileDtb('088_expand_size.dts',
+    def testExtendSize(self):
+        """Test an extending entry"""
+        data, _, map_data, _ = self._DoReadFileDtb('088_extend_size.dts',
                                                    map=True)
         expect = (tools.get_bytes(ord('a'), 8) + U_BOOT_DATA +
                   MRC_DATA + tools.get_bytes(ord('b'), 1) + U_BOOT_DATA +
@@ -2050,11 +2050,11 @@ class TestFunctional(unittest.TestCase):
 00000020   00000020  00000008  fill2
 ''', map_data)
 
-    def testExpandSizeBad(self):
-        """Test an expanding entry which fails to provide contents"""
+    def testExtendSizeBad(self):
+        """Test an extending entry which fails to provide contents"""
         with test_util.capture_sys_output() as (stdout, stderr):
             with self.assertRaises(ValueError) as e:
-                self._DoReadFileDtb('089_expand_size_bad.dts', map=True)
+                self._DoReadFileDtb('089_extend_size_bad.dts', map=True)
         self.assertIn("Node '/binman/_testing': Cannot obtain contents when "
                       'expanding entry', str(e.exception))
 
@@ -2487,22 +2487,22 @@ class TestFunctional(unittest.TestCase):
                       str(e.exception))
 
     def testEntryExpand(self):
-        """Test expanding an entry after it is packed"""
-        data = self._DoReadFile('121_entry_expand.dts')
+        """Test extending an entry after it is packed"""
+        data = self._DoReadFile('121_entry_extend.dts')
         self.assertEqual(b'aaa', data[:3])
         self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
         self.assertEqual(b'aaa', data[-3:])
 
-    def testEntryExpandBad(self):
-        """Test expanding an entry after it is packed, twice"""
+    def testEntryExtendBad(self):
+        """Test extending an entry after it is packed, twice"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('122_entry_expand_twice.dts')
+            self._DoReadFile('122_entry_extend_twice.dts')
         self.assertIn("Image '/binman': Entries changed size after packing",
                       str(e.exception))
 
-    def testEntryExpandSection(self):
-        """Test expanding an entry within a section after it is packed"""
-        data = self._DoReadFile('123_entry_expand_section.dts')
+    def testEntryExtendSection(self):
+        """Test extending an entry within a section after it is packed"""
+        data = self._DoReadFile('123_entry_extend_section.dts')
         self.assertEqual(b'aaa', data[:3])
         self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
         self.assertEqual(b'aaa', data[-3:])
@@ -5304,6 +5304,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoReadFileDtb('224_fit_bad_oper.dts')
         self.assertIn("Node '/binman/fit': Unknown operation 'unknown'",
                       str(exc.exception))
+
+    def test_uses_expand_size(self):
+        """Test that the 'expand-size' property cannot be used anymore"""
+        with self.assertRaises(ValueError) as e:
+           data = self._DoReadFile('225_expand_size_bad.dts')
+        self.assertIn(
+            "Node '/binman/u-boot': Please use 'extend-size' instead of 'expand-size'",
+            str(e.exception))
 
 
 if __name__ == "__main__":
