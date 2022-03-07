@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * sama7g5ek-u-boot.dts - Device Tree file for SAMA7G5 SoC u-boot properties.
+ * at91-sama7g5ek-u-boot.dtsi - Device Tree file for SAMA7G5 SoC u-boot
+ * properties.
  *
  * Copyright (C) 2020 Microchip Technology Inc. and its subsidiaries
  *
