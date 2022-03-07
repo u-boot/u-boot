@@ -617,6 +617,13 @@ config ARCH_BCM63158
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_BCM6753
+	bool "Broadcom BCM6753 family"
+	select CPU_V7A
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 config ARCH_BCM68360
 	bool "Broadcom BCM68360 family"
 	select DM
@@ -2206,6 +2213,7 @@ source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
+source "board/broadcom/bcm96753ref/Kconfig"
 source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"

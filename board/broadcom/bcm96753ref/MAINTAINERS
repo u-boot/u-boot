@@ -1,0 +1,6 @@
+BROADCOM BCM96753REF
+M:	Philippe Reynes <philippe.reynes@softathome.com>
+S:	Maintained
+F:	board/broadcom/bcm96753ref
+F:	include/configs/broadcom_bcm96753ref.h
+F:	configs/bcm96753ref_ram_defconfig
