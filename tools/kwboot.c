@@ -2139,10 +2139,22 @@ main(int argc, char **argv)
 		goto usage;
 	}
 
-	tty = kwboot_open_tty(ttypath, imgpath ? 115200 : baudrate);
+	tty = kwboot_open_tty(ttypath, baudrate);
 	if (tty < 0) {
 		perror(ttypath);
 		goto out;
+	}
+
+	/*
+	 * initial baudrate for image transfer is always 115200,
+	 * the change to different baudrate is done only after the header is sent
+	 */
+	if (imgpath && baudrate != 115200) {
+		rc = kwboot_tty_change_baudrate(tty, 115200);
+		if (rc) {
+			perror(ttypath);
+			goto out;
+		}
 	}
 
 	if (baudrate == 115200)
