@@ -2133,6 +2133,12 @@ main(int argc, char **argv)
 	if (optind != argc)
 		goto usage;
 
+	/* boot and debug message use baudrate 115200 */
+	if (((bootmsg && !imgpath) || debugmsg) && baudrate != 115200) {
+		fprintf(stderr, "Baudrate other than 115200 cannot be used for this operation.\n");
+		goto usage;
+	}
+
 	tty = kwboot_open_tty(ttypath, imgpath ? 115200 : baudrate);
 	if (tty < 0) {
 		perror(ttypath);
