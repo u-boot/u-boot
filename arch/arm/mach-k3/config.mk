@@ -13,6 +13,7 @@ endif
 
 IMAGE_SIZE= $(shell cat $(obj)/u-boot-spl.bin | wc -c)
 MAX_SIZE= $(shell printf "%d" $(CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE))
+K3_CERT_GEN= $(srctree)/tools/k3_gen_x509_cert.sh
 
 ifeq ($(CONFIG_SYS_K3_KEY), "")
 KEY=""
@@ -28,6 +29,24 @@ else
 KEY=$(patsubst "%",$(srctree)/%,$(CONFIG_SYS_K3_KEY))
 endif
 
+# Board config binary artifacts necessary for packaging of tiboot3.bin
+# and sysfw.itb by binman, currently for general purpose devices and
+# devices that require sysfw.itb in ROM boot image. Currently set up
+# for J721E
+ifneq ($(CONFIG_SOC_K3_J721E), )
+ifneq ($(CONFIG_TI_SECURE_DEVICE), y)
+
+CONFIG_YAML = $(srctree)/board/ti/$(BOARD)/config.yaml
+SCHEMA_YAML = $(srctree)/board/ti/common/schema.yaml
+board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin:
+	$(PYTHON3) $(srctree)/tools/tibcfg_gen.py $(CONFIG_YAML) $(SCHEMA_YAML)
+INPUTS-y	+= board-cfg.bin
+INPUTS-y	+= pm-cfg.bin
+INPUTS-y	+= rm-cfg.bin
+INPUTS-y	+= sec-cfg.bin
+endif
+endif
+
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
 ifdef CONFIG_CPU_V7R
@@ -41,7 +60,7 @@ image_check: $(obj)/u-boot-spl.bin FORCE
 	fi
 
 tiboot3.bin: image_check FORCE
-	$(srctree)/tools/k3_gen_x509_cert.sh -c 16 -b $(obj)/u-boot-spl.bin \
+	$(K3_CERT_GEN) -c 16 -b $(obj)/u-boot-spl.bin \
 				-o $@ -l $(CONFIG_SPL_TEXT_BASE) -k $(KEY)
 
 INPUTS-y	+= tiboot3.bin
