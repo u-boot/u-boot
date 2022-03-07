@@ -2073,7 +2073,8 @@ main(int argc, char **argv)
 			bootmsg = 1;
 			if (prev_optind == optind)
 				goto usage;
-			if (optind < argc - 1 && argv[optind] && argv[optind][0] != '-')
+			/* Option -b could have optional argument which specify image path */
+			if (optind < argc && argv[optind] && argv[optind][0] != '-')
 				imgpath = argv[optind++];
 			break;
 
@@ -2128,10 +2129,19 @@ main(int argc, char **argv)
 	if (!bootmsg && !term && !debugmsg && !imgpath)
 		goto usage;
 
-	ttypath = argv[optind++];
-
-	if (optind != argc)
+	/*
+	 * If there is no remaining argument but optional imgpath was parsed
+	 * then it means that optional imgpath was eaten by getopt parser.
+	 * Reassing imgpath to required ttypath argument.
+	 */
+	if (optind == argc && imgpath) {
+		ttypath = imgpath;
+		imgpath = NULL;
+	} else if (optind + 1 == argc) {
+		ttypath = argv[optind];
+	} else {
 		goto usage;
+	}
 
 	/* boot and debug message use baudrate 115200 */
 	if (((bootmsg && !imgpath) || debugmsg) && baudrate != 115200) {
