@@ -81,8 +81,6 @@ extern struct ventana gpio_cfg[GW_UNKNOWN];
 
 /* configure gpio iomux/defaults */
 void setup_iomux_gpio(int board, struct ventana_board_info *);
-/* late setup of GPIO (configuration per baseboard and env) */
-void setup_board_gpio(int board, struct ventana_board_info *);
 /* early model/revision ft fixups */
 void ft_early_fixup(void *fdt, int board_type);
 
