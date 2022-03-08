@@ -467,6 +467,18 @@ static int mmc_blk_probe(struct udevice *dev)
 		return ret;
 	}
 
+	ret = device_probe(dev);
+	if (ret) {
+		debug("Probing %s failed (err=%d)\n", dev->name, ret);
+
+		if (CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) ||
+		    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) ||
+		    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT))
+			mmc_deinit(mmc);
+
+		return ret;
+	}
+
 	return 0;
 }
 
