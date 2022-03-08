@@ -671,6 +671,17 @@ static void ccgr_init(void)
 	writel(0x000003FF, &ccm->CCGR6);
 }
 
+/* UART2: Serial Console */
+static const iomux_v3_cfg_t uart2_pads[] = {
+	IOMUX_PADS(PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+};
+
+void setup_iomux_uart(void)
+{
+	SETUP_IOMUX_PADS(uart2_pads);
+}
+
 /*
  * I2C pad configs:
  * I2C1: GSC
