@@ -1626,6 +1626,86 @@
 		groups = "PWM7";
 	};
 
+	pinctrl_pwm8g0_default: pwm8g0_default {
+		function = "PWM8G0";
+		groups = "PWM8G0";
+	};
+
+	pinctrl_pwm8g1_default: pwm8g1_default {
+		function = "PWM8G1";
+		groups = "PWM8G1";
+	};
+
+	pinctrl_pwm9g0_default: pwm9g0_default {
+		function = "PWM9G0";
+		groups = "PWM9G0";
+	};
+
+	pinctrl_pwm9g1_default: pwm9g1_default {
+		function = "PWM9G1";
+		groups = "PWM9G1";
+	};
+
+	pinctrl_pwm10g0_default: pwm10g0_default {
+		function = "PWM10G0";
+		groups = "PWM10G0";
+	};
+
+	pinctrl_pwm10g1_default: pwm10g1_default {
+		function = "PWM10G1";
+		groups = "PWM10G1";
+	};
+
+	pinctrl_pwm11g0_default: pwm11g0_default {
+		function = "PWM11G0";
+		groups = "PWM11G0";
+	};
+
+	pinctrl_pwm11g1_default: pwm11g1_default {
+		function = "PWM11G1";
+		groups = "PWM11G1";
+	};
+
+	pinctrl_pwm12g0_default: pwm12g0_default {
+		function = "PWM12G0";
+		groups = "PWM12G0";
+	};
+
+	pinctrl_pwm12g1_default: pwm12g1_default {
+		function = "PWM12G1";
+		groups = "PWM12G1";
+	};
+
+	pinctrl_pwm13g0_default: pwm13g0_default {
+		function = "PWM13G0";
+		groups = "PWM13G0";
+	};
+
+	pinctrl_pwm13g1_default: pwm13g1_default {
+		function = "PWM13G1";
+		groups = "PWM13G1";
+	};
+
+	pinctrl_pwm14g0_default: pwm14g0_default {
+		function = "PWM14G0";
+		groups = "PWM14G0";
+	};
+
+	pinctrl_pwm14g1_default: pwm14g1_default {
+		function = "PWM14G1";
+		groups = "PWM14G1";
+	};
+
+	pinctrl_pwm15g0_default: pwm15g0_default {
+		function = "PWM15G0";
+		groups = "PWM15G0";
+	};
+
+	pinctrl_pwm15g1_default: pwm15g1_default {
+		function = "PWM15G1";
+		groups = "PWM15G1";
+	};
+
 	pinctrl_rgmii1_default: rgmii1_default {
 		function = "RGMII1";
 		groups = "RGMII1";
