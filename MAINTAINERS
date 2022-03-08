@@ -1326,6 +1326,14 @@ F:	include/virtio*.h
 F:	test/dm/virtio.c
 F:	doc/develop/driver-model/virtio.rst
 
+WATCHDOG
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-watchdog.git
+F:	cmd/wdt.c
+F:	drivers/watchdog/
+F:	include/watchdog*.h
+
 X86
 M:	Simon Glass <sjg@chromium.org>
 M:	Bin Meng <bmeng.cn@gmail.com>
