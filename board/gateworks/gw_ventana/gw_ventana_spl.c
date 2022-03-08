@@ -1062,8 +1062,3 @@ int spl_start_uboot(void)
 	return ret;
 }
 #endif
-
-void spl_perform_fixups(struct spl_image_info *spl_image)
-{
-	ft_early_fixup(spl_image->fdt_addr, board_type);
-}
