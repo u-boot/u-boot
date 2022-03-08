@@ -294,3 +294,17 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 		return BOOT_DEVICE_NONE;
 	}
 }
+
+const char *spl_board_loader_name(u32 boot_device)
+{
+	switch (boot_device) {
+	/* SDHC2 */
+	case BOOT_DEVICE_MMC1:
+		return "eMMC";
+	/* SDHC3 */
+	case BOOT_DEVICE_MMC2:
+		return "SD card";
+	default:
+		return NULL;
+	}
+}
