@@ -474,6 +474,10 @@ struct global_data {
 	 */
 	struct event_state event_state;
 #endif
+	/**
+	 * @dmtag_list: List of DM tags
+	 */
+	struct list_head dmtag_list;
 };
 #ifndef DO_DEPS_ONLY
 static_assert(sizeof(struct global_data) == GD_SIZE);
