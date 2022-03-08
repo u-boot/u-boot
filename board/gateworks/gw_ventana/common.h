@@ -79,12 +79,8 @@ struct ventana {
 
 extern struct ventana gpio_cfg[GW_UNKNOWN];
 
-/* configure i2c iomux */
-void setup_ventana_i2c(int);
 /* configure uart iomux */
 void setup_iomux_uart(void);
-/* conifgure PMIC */
-void setup_pmic(void);
 /* configure gpio iomux/defaults */
 void setup_iomux_gpio(int board, struct ventana_board_info *);
 /* late setup of GPIO (configuration per baseboard and env) */

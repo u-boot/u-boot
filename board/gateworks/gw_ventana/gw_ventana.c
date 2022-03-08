@@ -138,8 +138,7 @@ static int detect_lvds(struct display_info_t const *dev)
 		return 0;
 	}
 
-	return i2c_set_bus_num(dev->bus) == 0 &&
-		i2c_probe(dev->addr) == 0;
+	return (i2c_get_dev(dev->bus, dev->addr) ? 1 : 0);
 }
 
 static void enable_lvds(struct display_info_t const *dev)
@@ -355,13 +354,6 @@ static void setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-/* setup board specific PMIC */
-int power_init_board(void)
-{
-	setup_pmic();
-	return 0;
-}
-
 /*
  * Most Ventana boards have a PLX PEX860x PCIe switch onboard and use its
  * GPIO's as PERST# signals for its downstream ports - configure the GPIO's
@@ -490,11 +482,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	/* read Gateworks EEPROM into global struct (used later) */
-	setup_ventana_i2c(0);
 	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
-
-	setup_ventana_i2c(1);
-	setup_ventana_i2c(2);
 
 	setup_iomux_gpio(board_type, &ventana_info);
 
@@ -925,8 +913,7 @@ void ft_board_pci_fixup(void *blob, struct bd_info *bd)
 		 */
 		if ((dev->vendor == PCI_VENDOR_ID_TI) &&
 		    (dev->device == 0x8240) &&
-		    (i2c_set_bus_num(1) == 0) &&
-		    (i2c_probe(0x50) == 0))
+		    i2c_get_dev(1, 0x50))
 		{
 			np = fdt_add_pci_path(blob, dev);
 			if (np > 0)
