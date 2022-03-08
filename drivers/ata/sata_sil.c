@@ -753,6 +753,18 @@ static int sil_pci_probe(struct udevice *dev)
 			failed_number++;
 			continue;
 		}
+
+		ret = device_probe(dev);
+		if (ret < 0) {
+			debug("Probing %s failed (%d)\n", dev->name, ret);
+			ret = sil_unbind_device(blk);
+			device_unbind(dev);
+			if (ret)
+				return ret;
+
+			failed_number++;
+			continue;
+		}
 	}
 
 	if (failed_number == sata_info.maxport)
