@@ -204,9 +204,7 @@ out:
 /*
  * padding_pss_verify() - verify the pss padding of a signature
  *
- * Only works with a rsa_pss_saltlen:-2 (default value) right now
- * saltlen:-1 "set the salt length to the digest length" is currently
- * not supported.
+ * Works with any salt length
  *
  * msg is a concatenation of : masked_db + h + 0xbc
  * Once unmasked, db is a concatenation of : [0x00]* + 0x01 + salt
@@ -229,8 +227,8 @@ int padding_pss_verify(struct image_sign_info *info,
 	const uint8_t *h = NULL;
 	uint8_t *hprime = NULL;
 	int h_len = hash_len;
-	uint8_t	*salt = NULL;
-	int salt_len = msg_len - hash_len - 2;
+	uint8_t *db_nopad = NULL, *salt = NULL;
+	int db_padlen, salt_len;
 	uint8_t pad_zero[8] = { 0 };
 	int ret, i, leftmost_bits = 1;
 	uint8_t leftmost_mask;
@@ -277,15 +275,20 @@ int padding_pss_verify(struct image_sign_info *info,
 	db[0] &= 0xff >> leftmost_bits;
 
 	/* step 10 */
-	if (db[0] != 0x01) {
+	db_padlen = 0;
+	while (db[db_padlen] == 0x00 && db_padlen < (db_len - 1))
+		db_padlen++;
+	db_nopad = &db[db_padlen];
+	if (db_nopad[0] != 0x01) {
 		printf("%s: invalid pss padding ", __func__);
-		printf("(leftmost byte of db isn't 0x01)\n");
+		printf("(leftmost byte of db after 0-padding isn't 0x01)\n");
 		ret = EINVAL;
 		goto out;
 	}
 
 	/* step 11 */
-	salt = &db[1];
+	salt_len = db_len - db_padlen - 1;
+	salt = &db_nopad[1];
 
 	/* step 12 & 13 */
 	compute_hash_prime(checksum, pad_zero, 8,
