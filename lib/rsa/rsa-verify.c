@@ -208,6 +208,10 @@ out:
  * saltlen:-1 "set the salt length to the digest length" is currently
  * not supported.
  *
+ * msg is a concatenation of : masked_db + h + 0xbc
+ * Once unmasked, db is a concatenation of : [0x00]* + 0x01 + salt
+ * Length of 0-padding at begin of db depends on salt length.
+ *
  * @info:	Specifies key and FIT information
  * @msg:	byte array of message, len equal to msg_len
  * @msg_len:	Message length
@@ -218,27 +222,25 @@ int padding_pss_verify(struct image_sign_info *info,
 		       const uint8_t *msg, int msg_len,
 		       const uint8_t *hash, int hash_len)
 {
-	uint8_t *masked_db = NULL;
-	int masked_db_len = msg_len - hash_len - 1;
-	uint8_t *h = NULL, *hprime = NULL;
-	int h_len = hash_len;
+	const uint8_t *masked_db = NULL;
 	uint8_t *db_mask = NULL;
-	int db_mask_len = masked_db_len;
-	uint8_t *db = NULL, *salt = NULL;
-	int db_len = masked_db_len, salt_len = msg_len - hash_len - 2;
+	uint8_t *db = NULL;
+	int db_len = msg_len - hash_len - 1;
+	const uint8_t *h = NULL;
+	uint8_t *hprime = NULL;
+	int h_len = hash_len;
+	uint8_t	*salt = NULL;
+	int salt_len = msg_len - hash_len - 2;
 	uint8_t pad_zero[8] = { 0 };
 	int ret, i, leftmost_bits = 1;
 	uint8_t leftmost_mask;
 	struct checksum_algo *checksum = info->checksum;
 
 	/* first, allocate everything */
-	masked_db = malloc(masked_db_len);
-	h = malloc(h_len);
-	db_mask = malloc(db_mask_len);
+	db_mask = malloc(db_len);
 	db = malloc(db_len);
-	salt = malloc(salt_len);
 	hprime = malloc(hash_len);
-	if (!masked_db || !h || !db_mask || !db || !salt || !hprime) {
+	if (!db_mask || !db || !hprime) {
 		printf("%s: can't allocate some buffer\n", __func__);
 		ret = -ENOMEM;
 		goto out;
@@ -252,8 +254,8 @@ int padding_pss_verify(struct image_sign_info *info,
 	}
 
 	/* step 5 */
-	memcpy(masked_db, msg, masked_db_len);
-	memcpy(h, msg + masked_db_len, h_len);
+	masked_db = &msg[0];
+	h = &msg[db_len];
 
 	/* step 6 */
 	leftmost_mask = (0xff >> (8 - leftmost_bits)) << (8 - leftmost_bits);
@@ -265,7 +267,7 @@ int padding_pss_verify(struct image_sign_info *info,
 	}
 
 	/* step 7 */
-	mask_generation_function1(checksum, h, h_len, db_mask, db_mask_len);
+	mask_generation_function1(checksum, h, h_len, db_mask, db_len);
 
 	/* step 8 */
 	for (i = 0; i < db_len; i++)
@@ -283,7 +285,7 @@ int padding_pss_verify(struct image_sign_info *info,
 	}
 
 	/* step 11 */
-	memcpy(salt, &db[1], salt_len);
+	salt = &db[1];
 
 	/* step 12 & 13 */
 	compute_hash_prime(checksum, pad_zero, 8,
@@ -295,11 +297,8 @@ int padding_pss_verify(struct image_sign_info *info,
 
 out:
 	free(hprime);
-	free(salt);
 	free(db);
 	free(db_mask);
-	free(h);
-	free(masked_db);
 
 	return ret;
 }
