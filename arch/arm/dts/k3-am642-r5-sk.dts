@@ -75,6 +75,25 @@
 	};
 };
 
+&cbass_main {
+	main_esm: esm@420000 {
+		compatible = "ti,j721e-esm";
+		reg = <0x0 0x420000 0x0 0x1000>;
+		ti,esm-pins = <160>, <161>;
+		u-boot,dm-spl;
+	};
+};
+
+&cbass_mcu {
+	u-boot,dm-spl;
+	mcu_esm: esm@4100000 {
+		compatible = "ti,j721e-esm";
+		reg = <0x0 0x4100000 0x0 0x1000>;
+		ti,esm-pins = <0>, <1>;
+		u-boot,dm-spl;
+	};
+};
+
 &main_pmx0 {
 	u-boot,dm-spl;
 	main_uart0_pins_default: main-uart0-pins-default {
