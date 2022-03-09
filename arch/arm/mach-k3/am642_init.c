@@ -24,11 +24,21 @@
 #include <dm/root.h>
 
 #if defined(CONFIG_SPL_BUILD)
+#define MCU_CTRL_MMR0_BASE			0x04500000
+#define CTRLMMR_MCU_RST_CTRL			0x04518170
 
 static void ctrl_mmr_unlock(void)
 {
 	/* Unlock all PADCFG_MMR1 module registers */
 	mmr_unlock(PADCFG_MMR1_BASE, 1);
+
+	/* Unlock all MCU_CTRL_MMR0 module registers */
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 0);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 1);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 2);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 3);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 4);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 6);
 
 	/* Unlock all CTRL_MMR0 module registers */
 	mmr_unlock(CTRL_MMR0_BASE, 0);
@@ -37,9 +47,6 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 3);
 	mmr_unlock(CTRL_MMR0_BASE, 5);
 	mmr_unlock(CTRL_MMR0_BASE, 6);
-
-	/* Unlock all MCU_PADCFG_MMR1 module registers */
-	mmr_unlock(MCU_PADCFG_MMR1_BASE, 1);
 }
 
 /*
@@ -142,9 +149,20 @@ int fdtdec_board_setup(const void *fdt_blob)
 }
 #endif
 
+#if defined(CONFIG_ESM_K3)
+static void enable_mcu_esm_reset(void)
+{
+	/* Set CTRLMMR_MCU_RST_CTRL:MCU_ESM_ERROR_RST_EN_Z  to '0' (low active) */
+	u32 stat = readl(CTRLMMR_MCU_RST_CTRL);
+
+	stat &= 0xFFFDFFFF;
+	writel(stat, CTRLMMR_MCU_RST_CTRL);
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
-#if defined(CONFIG_K3_LOAD_SYSFW) || defined(CONFIG_K3_AM64_DDRSS)
+#if defined(CONFIG_K3_LOAD_SYSFW) || defined(CONFIG_K3_AM64_DDRSS) || defined(CONFIG_ESM_K3)
 	struct udevice *dev;
 	int ret;
 #endif
@@ -193,6 +211,20 @@ void board_init_f(ulong dummy)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+#if defined(CONFIG_ESM_K3)
+	/* Probe/configure ESM0 */
+	ret = uclass_get_device_by_name(UCLASS_MISC, "esm@420000", &dev);
+	if (ret)
+		printf("esm main init failed: %d\n", ret);
+
+	/* Probe/configure MCUESM */
+	ret = uclass_get_device_by_name(UCLASS_MISC, "esm@4100000", &dev);
+	if (ret)
+		printf("esm mcu init failed: %d\n", ret);
+
+	enable_mcu_esm_reset();
+#endif
 
 #if defined(CONFIG_K3_AM64_DDRSS)
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
