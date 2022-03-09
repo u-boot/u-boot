@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2014-2015 Freescale Semiconductor
- * Copyright 2019 NXP
+ * Copyright 2019-2022 NXP
  *
  * Extracted from armv8/start.S
  */
@@ -344,7 +344,7 @@ ENTRY(fsl_ocram_clear_ecc_err)
 	ldr	x0, =DCSR_DCFG_MBEESR2
 	str	w1, [x0]
 	ret
-ENDPROC(fsl_ocram_init)
+ENDPROC(fsl_ocram_clear_ecc_err)
 #endif
 
 #ifdef CONFIG_FSL_LSCH3
