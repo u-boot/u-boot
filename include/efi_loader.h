@@ -342,7 +342,7 @@ struct efi_open_protocol_info_item {
  */
 struct efi_handler {
 	struct list_head link;
-	const efi_guid_t *guid;
+	const efi_guid_t guid;
 	void *protocol_interface;
 	struct list_head open_infos;
 };
