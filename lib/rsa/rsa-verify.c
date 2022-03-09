@@ -73,7 +73,7 @@ static int rsa_verify_padding(const uint8_t *msg, const int pad_len,
 }
 
 int padding_pkcs_15_verify(struct image_sign_info *info,
-			   uint8_t *msg, int msg_len,
+			   const uint8_t *msg, int msg_len,
 			   const uint8_t *hash, int hash_len)
 {
 	struct checksum_algo *checksum = info->checksum;
@@ -125,7 +125,7 @@ static void u32_i2osp(uint32_t val, uint8_t *buf)
  * Return: 0 if the octet string was correctly generated, others on error
  */
 static int mask_generation_function1(struct checksum_algo *checksum,
-				     uint8_t *seed, int seed_len,
+				     const uint8_t *seed, int seed_len,
 				     uint8_t *output, int output_len)
 {
 	struct image_region region[2];
@@ -176,9 +176,9 @@ out:
 }
 
 static int compute_hash_prime(struct checksum_algo *checksum,
-			      uint8_t *pad, int pad_len,
-			      uint8_t *hash, int hash_len,
-			      uint8_t *salt, int salt_len,
+			      const uint8_t *pad, int pad_len,
+			      const uint8_t *hash, int hash_len,
+			      const uint8_t *salt, int salt_len,
 			      uint8_t *hprime)
 {
 	struct image_region region[3];
@@ -215,7 +215,7 @@ out:
  * @hash_len:	Length of the hash
  */
 int padding_pss_verify(struct image_sign_info *info,
-		       uint8_t *msg, int msg_len,
+		       const uint8_t *msg, int msg_len,
 		       const uint8_t *hash, int hash_len)
 {
 	uint8_t *masked_db = NULL;
@@ -287,7 +287,7 @@ int padding_pss_verify(struct image_sign_info *info,
 
 	/* step 12 & 13 */
 	compute_hash_prime(checksum, pad_zero, 8,
-			   (uint8_t *)hash, hash_len,
+			   hash, hash_len,
 			   salt, salt_len, hprime);
 
 	/* step 14 */

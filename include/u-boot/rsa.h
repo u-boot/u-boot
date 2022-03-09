@@ -101,11 +101,11 @@ int rsa_verify_with_pkey(struct image_sign_info *info,
 			 const void *hash, uint8_t *sig, uint sig_len);
 
 int padding_pkcs_15_verify(struct image_sign_info *info,
-			   uint8_t *msg, int msg_len,
+			   const uint8_t *msg, int msg_len,
 			   const uint8_t *hash, int hash_len);
 
 int padding_pss_verify(struct image_sign_info *info,
-		       uint8_t *msg, int msg_len,
+		       const uint8_t *msg, int msg_len,
 		       const uint8_t *hash, int hash_len);
 
 #define RSA_DEFAULT_PADDING_NAME		"pkcs-1.5"

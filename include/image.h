@@ -1309,7 +1309,7 @@ ll_entry_declare(struct crypto_algo, __name, cryptos)
 struct padding_algo {
 	const char *name;
 	int (*verify)(struct image_sign_info *info,
-		      uint8_t *pad, int pad_len,
+		      const uint8_t *pad, int pad_len,
 		      const uint8_t *hash, int hash_len);
 };
 
