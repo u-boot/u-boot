@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <asm/arch/imx-regs.h>
@@ -494,7 +495,7 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog3->wmcr);
 }
 
-int arch_cpu_init_dm(void)
+static int imx8m_check_clock(void *ctx, struct event *event)
 {
 	struct udevice *dev;
 	int ret;
@@ -511,6 +512,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, imx8m_check_clock);
 
 int arch_cpu_init(void)
 {

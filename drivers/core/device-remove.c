@@ -207,6 +207,10 @@ int device_remove(struct udevice *dev, uint flags)
 	if (!(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
 		return 0;
 
+	ret = device_notify(dev, EVT_DM_PRE_REMOVE);
+	if (ret)
+		return ret;
+
 	/*
 	 * If the child returns EKEYREJECTED, continue. It just means that it
 	 * didn't match the flags.
@@ -255,6 +259,10 @@ int device_remove(struct udevice *dev, uint flags)
 	device_free(dev);
 
 	dev_bic_flags(dev, DM_FLAG_ACTIVATED);
+
+	ret = device_notify(dev, EVT_DM_POST_REMOVE);
+	if (ret)
+		goto err_remove;
 
 	return 0;
 

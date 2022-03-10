@@ -10,6 +10,7 @@
 #ifndef _DM_DEVICE_INTERNAL_H
 #define _DM_DEVICE_INTERNAL_H
 
+#include <event.h>
 #include <linker_lists.h>
 #include <dm/ofnode.h>
 
@@ -426,4 +427,13 @@ static inline void devres_release_all(struct udevice *dev)
 }
 
 #endif /* ! CONFIG_DEVRES */
+
+static inline int device_notify(const struct udevice *dev, enum event_t type)
+{
+#if CONFIG_IS_ENABLED(DM_EVENT)
+	return event_notify(type, &dev, sizeof(dev));
+#else
+	return 0;
+#endif
+}
 #endif

@@ -10,6 +10,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <event.h>
 #include <init.h>
 #include <irq_func.h>
 #include <asm/cache.h>
@@ -63,7 +64,7 @@ static void copy_exception_trampoline(void)
 }
 #endif
 
-int arch_cpu_init_dm(void)
+static int nios_cpu_setup(void *ctx, struct event *event)
 {
 	struct udevice *dev;
 	int ret;
@@ -79,6 +80,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, nios_cpu_setup);
 
 static int altera_nios2_get_desc(const struct udevice *dev, char *buf,
 				 int size)

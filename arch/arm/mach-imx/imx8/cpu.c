@@ -8,6 +8,7 @@
 #include <cpu.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <asm/cache.h>
@@ -66,7 +67,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-int arch_cpu_init_dm(void)
+static int imx8_init_mu(void *ctx, struct event *event)
 {
 	struct udevice *devp;
 	int node, ret;
@@ -88,6 +89,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, imx8_init_mu);
 
 int print_bootinfo(void)
 {

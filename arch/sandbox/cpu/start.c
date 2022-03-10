@@ -4,14 +4,14 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
-#include <dm/root.h>
 #include <efi_loader.h>
 #include <errno.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <os.h>
-#include <cli.h>
 #include <sort.h>
 #include <asm/getopt.h>
 #include <asm/global_data.h>
@@ -19,6 +19,7 @@
 #include <asm/malloc.h>
 #include <asm/sections.h>
 #include <asm/state.h>
+#include <dm/root.h>
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -119,10 +120,11 @@ int sandbox_early_getopt_check(void)
 	os_exit(0);
 }
 
-int misc_init_f(void)
+static int sandbox_misc_init_f(void *ctx, struct event *event)
 {
 	return sandbox_early_getopt_check();
 }
+EVENT_SPY(EVT_MISC_INIT_F, sandbox_misc_init_f);
 
 static int sandbox_cmdline_cb_help(struct sandbox_state *state, const char *arg)
 {

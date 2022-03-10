@@ -11,6 +11,7 @@
 #include <spl.h>
 #include <asm/global_data.h>
 #include <asm/smp.h>
+#include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,7 +28,7 @@ __weak void board_init_f(ulong dummy)
 	if (ret)
 		panic("spl_early_init() failed: %d\n", ret);
 
-	arch_cpu_init_dm();
+	riscv_cpu_setup(NULL, NULL);
 
 	preloader_console_init();
 

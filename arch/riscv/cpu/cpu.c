@@ -7,9 +7,11 @@
 #include <cpu.h>
 #include <dm.h>
 #include <dm/lists.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <asm/encoding.h>
+#include <asm/system.h>
 #include <dm/uclass-internal.h>
 #include <linux/bitops.h>
 
@@ -81,7 +83,7 @@ static void dummy_pending_ipi_clear(ulong hart, ulong arg0, ulong arg1)
 }
 #endif
 
-int arch_cpu_init_dm(void)
+int riscv_cpu_setup(void *ctx, struct event *event)
 {
 	int ret;
 
@@ -133,6 +135,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, riscv_cpu_setup);
 
 int arch_early_init_r(void)
 {

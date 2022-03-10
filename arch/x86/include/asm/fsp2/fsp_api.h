@@ -60,4 +60,12 @@ int fsp_silicon_init(bool s3wake, bool use_spi_flash);
 
 typedef asmlinkage int (*fsp_silicon_init_func)(struct fsps_upd *params);
 
+/**
+ *  fsp_setup_pinctrl() - Set up the pinctrl for FSP
+ *
+ * @ctx: Event context (not used)
+ * @event: Event information (not used)
+ */
+int fsp_setup_pinctrl(void *ctx, struct event *event);
+
 #endif
