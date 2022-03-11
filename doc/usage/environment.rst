@@ -170,7 +170,7 @@ autoload
     if set to "no" (any string beginning with 'n'),
     "bootp" and "dhcp" will just load perform a lookup of the
     configuration from the BOOTP server, but not try to
-    load any image using TFTP or DHCP.
+    load any image.
 
 autostart
     if set to "yes", an image loaded using the "bootp", "dhcp",
