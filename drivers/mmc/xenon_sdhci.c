@@ -439,6 +439,8 @@ static const struct sdhci_ops xenon_sdhci_ops = {
 	.set_ios_post = xenon_sdhci_set_ios_post
 };
 
+static struct dm_mmc_ops xenon_mmc_ops;
+
 static int xenon_sdhci_probe(struct udevice *dev)
 {
 	struct xenon_sdhci_plat *plat = dev_get_plat(dev);
@@ -451,6 +453,9 @@ static int xenon_sdhci_probe(struct udevice *dev)
 	host->mmc->priv = host;
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
+
+	xenon_mmc_ops = sdhci_ops;
+	xenon_mmc_ops.wait_dat0 = NULL;
 
 	/* Set quirks */
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_32BIT_DMA_ADDR;
@@ -568,7 +573,7 @@ U_BOOT_DRIVER(xenon_sdhci_drv) = {
 	.id		= UCLASS_MMC,
 	.of_match	= xenon_sdhci_ids,
 	.of_to_plat = xenon_sdhci_of_to_plat,
-	.ops		= &sdhci_ops,
+	.ops		= &xenon_mmc_ops,
 	.bind		= xenon_sdhci_bind,
 	.probe		= xenon_sdhci_probe,
 	.remove		= xenon_sdhci_remove,
