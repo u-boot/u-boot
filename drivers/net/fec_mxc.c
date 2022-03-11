@@ -54,10 +54,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #error "CONFIG_MII has to be defined!"
 #endif
 
-#ifndef CONFIG_FEC_XCV_TYPE
-#define CONFIG_FEC_XCV_TYPE MII100
-#endif
-
 /*
  * The i.MX28 operates with packets in big endian. We need to swap them before
  * sending and after receiving.
@@ -1269,9 +1265,9 @@ static int fecmxc_probe(struct udevice *dev)
 		priv->xcv_type = RGMII;
 		break;
 	default:
-		priv->xcv_type = CONFIG_FEC_XCV_TYPE;
-		printf("Unsupported interface type %d defaulting to %d\n",
-		       priv->interface, priv->xcv_type);
+		priv->xcv_type = MII100;
+		printf("Unsupported interface type %d defaulting to MII100\n",
+		       priv->interface);
 		break;
 	}
 

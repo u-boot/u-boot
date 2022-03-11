@@ -32,7 +32,6 @@
 
 /* FEC ethernet */
 #define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_FEC_MXC_PHYADDR		7
 
 /* MMC Configs */

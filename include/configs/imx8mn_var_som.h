@@ -32,11 +32,6 @@
 
 #include <config_distro_bootcmd.h>
 
-/* ENET */
-#if defined(CONFIG_FEC_MXC)
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#endif /* CONFIG_FEC_MXC */
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \

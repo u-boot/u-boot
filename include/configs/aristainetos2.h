@@ -21,8 +21,6 @@
 #define CONSOLE_DEV	"ttymxc0"
 #endif
 
-#define CONFIG_FEC_XCV_TYPE		RGMII
-
 /* Framebuffer */
 #define CONFIG_SYS_LDB_CLOCK	28341000
 

@@ -17,10 +17,6 @@
 #	define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif /* CONFIG_CMD_USB */
 
-#if IS_ENABLED(CONFIG_FEC_MXC)
-#	define CONFIG_FEC_XCV_TYPE	RMII
-#endif /* CONFIG_FEC_MXC */
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"mmcdev=0\0" \
 	"mmcpart=2\0" \

@@ -101,7 +101,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 /* FEC */
-#define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_FEC_MXC_PHYADDR          0
 #define FEC_QUIRK_ENET_MAC
 

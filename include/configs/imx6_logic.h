@@ -23,7 +23,6 @@
 
 
 /* Ethernet Configs */
-#define CONFIG_FEC_XCV_TYPE            RMII
 #define CONFIG_FEC_MXC_PHYADDR         0
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
