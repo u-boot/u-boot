@@ -174,7 +174,6 @@
 #define TSEC2_FLAGS			TSEC_GIGABIT
 #define TSEC2_PHYIDX			0
 #endif
-#define CONFIG_ETHPRIME		"TSEC1"
 
 /*
  * Serial Port

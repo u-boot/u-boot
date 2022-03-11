@@ -433,10 +433,6 @@
 #define AQR113C_PHY_ADDR2	0x08
 #endif
 
-#ifdef CONFIG_FMAN_ENET
-#define CONFIG_ETHPRIME		"FM1@DTSEC3"
-#endif
-
 /*
  * SATA
  */

@@ -485,8 +485,6 @@
 #define TSEC1_PHYIDX	0
 #define TSEC2_PHYIDX	0
 #define TSEC3_PHYIDX	0
-
-#define CONFIG_ETHPRIME	"eTSEC1"
 #endif /* CONFIG_TSEC_ENET */
 
 /*

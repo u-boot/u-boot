@@ -44,8 +44,6 @@
 
 /* Framebuffer and LCD */
 
-#define CONFIG_ETHPRIME		"FEC0"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \

@@ -155,7 +155,6 @@
 #define TSEC3_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0,1] */
-#define CONFIG_ETHPRIME		"TSEC0"
 
 /*
  * Environment

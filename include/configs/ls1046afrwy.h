@@ -100,8 +100,6 @@
 
 #define FDT_SEQ_MACADDR_FROM_ENV
 
-#define CONFIG_ETHPRIME			"FM1@DTSEC3"
-
 #endif
 
 #define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\

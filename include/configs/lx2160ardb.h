@@ -11,11 +11,6 @@
 /* RTC */
 #define CONFIG_SYS_RTC_BUS_NUM		4
 
-/* MAC/PHY configuration */
-#if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#endif
-
 /* EMC2305 */
 #define I2C_MUX_CH_EMC2305		0x09
 #define I2C_EMC2305_ADDR		0x4D

@@ -504,7 +504,6 @@
 #define AQ_PHY_ADDR3		0x02
 #define AQ_PHY_ADDR4		0x03
 #define AQR405_IRQ_MASK		0x36
-#define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 
 #include <asm/fsl_secure_boot.h>
 

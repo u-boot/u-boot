@@ -188,10 +188,6 @@
 #define CONFIG_LBA48
 #endif
 
-#ifdef CONFIG_FMAN_ENET
-#define CONFIG_ETHPRIME		"FM1@DTSEC1"
-#endif
-
 /*
  * Environment
  */
@@ -470,10 +466,6 @@
 #define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
 
 #define CONFIG_LBA48
-#endif
-
-#ifdef CONFIG_FMAN_ENET
-#define CONFIG_ETHPRIME		"FM1@DTSEC1"
 #endif
 
 /*

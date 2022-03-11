@@ -138,12 +138,10 @@
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x2
 #define CONFIG_FEC_XCV_TYPE             RMII
-#define CONFIG_ETHPRIME			"eth0"
 #elif (CONFIG_FEC_ENET_DEV == 1)
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #define CONFIG_FEC_XCV_TYPE		RMII
-#define CONFIG_ETHPRIME			"eth1"
 #endif
 #endif
 

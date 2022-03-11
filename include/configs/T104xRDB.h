@@ -515,8 +515,6 @@
 #define CONFIG_SYS_FM1_QSGMII21_PHY_ADDR	0x0c
 #endif
 #endif
-
-#define CONFIG_ETHPRIME		"FM1@DTSEC4"
 #endif
 
 /*

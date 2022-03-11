@@ -34,7 +34,6 @@
 
 /* ENET */
 #if defined(CONFIG_FEC_MXC)
-#define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #endif /* CONFIG_FEC_MXC */
 

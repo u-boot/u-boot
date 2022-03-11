@@ -478,10 +478,6 @@
 #define SGMII_CARD_PORT4_PHY_ADDR 0x1F
 #endif
 
-#ifdef CONFIG_FMAN_ENET
-#define CONFIG_ETHPRIME		"FM1@DTSEC3"
-#endif
-
 /*
  * SATA
  */

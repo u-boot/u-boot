@@ -264,10 +264,6 @@
 #define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC2_PHYIDX			0
 #endif
-
-/* Options are: TSEC[0-1] */
-#define CONFIG_ETHPRIME			"TSEC0"
-
 #endif
 
 /*

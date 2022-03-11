@@ -225,8 +225,6 @@
 #define QSGMII_PORT4_PHY_ADDR		0x7
 
 #define FM1_10GEC1_PHY_ADDR		0x1
-
-#define CONFIG_ETHPRIME			"FM1@DTSEC3"
 #endif
 #endif
 

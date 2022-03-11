@@ -336,8 +336,6 @@
 #define TSEC2_PHYIDX			0
 #define TSEC3_PHYIDX			0
 
-#define CONFIG_ETHPRIME			"eTSEC1"
-
 #define CONFIG_FSL_SGMII_RISER		1
 #define SGMII_RISER_PHY_OFFSET		0x1b
 

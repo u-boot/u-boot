@@ -22,9 +22,6 @@ u8 qixis_esdhc_detect_quirk(void);
 #endif
 
 /* MAC/PHY configuration */
-#if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_ETHPRIME		"DPMAC17@rgmii-id"
-#endif
 
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_NXID

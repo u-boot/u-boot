@@ -29,7 +29,6 @@
 
 /* ENET Config */
 #if defined(CONFIG_FEC_MXC)
-#define CONFIG_ETHPRIME                 "FEC"
 #define PHY_ANEG_TIMEOUT		20000
 
 #define CONFIG_FEC_XCV_TYPE		RMII

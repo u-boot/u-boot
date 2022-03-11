@@ -103,7 +103,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 /* ENET */
-#define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_FEC_MXC_PHYADDR          7
 #define FEC_QUIRK_ENET_MAC

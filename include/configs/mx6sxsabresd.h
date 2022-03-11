@@ -130,7 +130,6 @@
 #define CONFIG_FEC_MXC_PHYADDR          0x1
 
 #define CONFIG_FEC_XCV_TYPE             RGMII
-#define CONFIG_ETHPRIME                 "FEC"
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

@@ -502,10 +502,6 @@
 #endif
 #endif
 
-#ifdef CONFIG_FMAN_ENET
-#define CONFIG_ETHPRIME		"FM1@DTSEC4"
-#endif
-
 /*
  * Dynamic MTD Partition support with mtdparts
  */

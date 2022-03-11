@@ -200,14 +200,6 @@
 #define CONFIG_SYS_I2C_DVI_ADDR		0x39
 #endif
 
-/*
- * eTSEC
- */
-
-#ifdef CONFIG_TSEC_ENET
-#define CONFIG_ETHPRIME			"ethernet@2d10000"
-#endif
-
 /* PCIe */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 #define CONFIG_PCIE2		/* PCIE controller 2 */

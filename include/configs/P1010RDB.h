@@ -520,8 +520,6 @@ extern unsigned long get_sdram_size(void);
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 
-#define CONFIG_ETHPRIME		"eTSEC1"
-
 /* TBI PHY configuration for SGMII mode */
 #define CONFIG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \

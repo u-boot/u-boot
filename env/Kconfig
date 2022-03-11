@@ -835,6 +835,18 @@ config BOOTFILE
 	help
 	  The value to set the "bootfile" variable to.
 
+config USE_ETHPRIME
+	bool "Add an 'ethprime' environment variable"
+	help
+	  The "ethprime" variable is used in some cases to control which
+	  network interface is used first.
+
+config ETHPRIME
+	string "'ethprime' environment variable value"
+	depends on USE_ETHPRIME
+	help
+	  The value to set the "ethprime" variable to.
+
 config VERSION_VARIABLE
 	bool "Add a 'ver' environment variable with the U-Boot version"
 	help

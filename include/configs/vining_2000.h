@@ -48,7 +48,6 @@
 #define CONFIG_FEC_MXC_PHYADDR          0x0
 
 #define CONFIG_FEC_XCV_TYPE             RMII
-#define CONFIG_ETHPRIME                 "FEC"
 
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
