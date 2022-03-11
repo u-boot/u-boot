@@ -1548,13 +1548,6 @@ The following options need to be configured:
 			FLAGADM
 
 - Error Recovery:
-		CONFIG_NFS_TIMEOUT
-
-		Timeout in milliseconds used in NFS protocol.
-		If you encounter "ERROR: Cannot umount" in nfs command,
-		try longer timeout such as
-		#define CONFIG_NFS_TIMEOUT 10000UL
-
 	Note:
 
 		In the current implementation, the local variables
