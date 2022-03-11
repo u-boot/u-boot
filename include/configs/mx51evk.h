@@ -105,8 +105,6 @@
 			"bootz; " \
 		"fi;\0"
 
-#define CONFIG_ARP_TIMEOUT	200UL
-
 /*
  * Miscellaneous configurable options
  */

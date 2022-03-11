@@ -34,9 +34,6 @@
 
 /* Enable PREBOOT variable */
 
-/* Set ARP_TIMEOUT to 500ms */
-#define CONFIG_ARP_TIMEOUT 500UL
-
 /* Set ARP_TIMEOUT_COUNT to 3 repetitions */
 #define CONFIG_NET_RETRY_COUNT	5
 

@@ -8,6 +8,10 @@ menuconfig NET
 
 if NET
 
+config ARP_TIMEOUT
+	int "Milliseconds before trying ARP again"
+	default 5000
+
 config PROT_UDP
 	bool "Enable generic udp framework"
 	help

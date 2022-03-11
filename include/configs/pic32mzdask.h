@@ -49,7 +49,6 @@
  */
 #define CONFIG_SYS_RX_ETH_BUFFER	8
 #define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_ARP_TIMEOUT		500 /* millisec */
 
 /*--------------------------------------------------
  * USB Configuration

@@ -60,8 +60,6 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_ARP_TIMEOUT	200UL
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 
