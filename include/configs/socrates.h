@@ -157,9 +157,6 @@
 /* Options are: TSEC[0,1] */
 #define CONFIG_ETHPRIME		"TSEC0"
 
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-
 /*
  * Environment
  */

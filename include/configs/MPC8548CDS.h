@@ -388,12 +388,6 @@
 /*
  * Environment Configuration
  */
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
-#define CONFIG_HAS_ETH3
-#endif
 
 #define CONFIG_IPADDR	 192.168.1.253
 

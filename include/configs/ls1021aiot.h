@@ -106,10 +106,6 @@
 #define TSEC2_PHYIDX			0
 
 #define CONFIG_ETHPRIME			"eTSEC2"
-
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
 #endif
 
 /* PCIe */

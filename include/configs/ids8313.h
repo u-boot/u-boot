@@ -160,7 +160,6 @@
  * Ethernet setup
  */
 #ifdef CONFIG_TSEC1
-#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME		"TSEC0"
 #define CONFIG_SYS_TSEC1_OFFSET	0x24000
 #define TSEC1_PHY_ADDR			0x1
@@ -169,7 +168,6 @@
 #endif
 
 #ifdef CONFIG_TSEC2
-#define CONFIG_HAS_ETH1
 #define CONFIG_TSEC2_NAME		"TSEC1"
 #define CONFIG_SYS_TSEC2_OFFSET	0x25000
 #define TSEC2_PHY_ADDR			0x3

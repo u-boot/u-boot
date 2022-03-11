@@ -115,7 +115,6 @@
 /* EEprom support */
 
 /* ethernet port connected to piggy (UEC2) */
-#define CONFIG_HAS_ETH1
 #define CONFIG_UEC_ETH2
 #define CONFIG_SYS_UEC2_UCC_NUM		2       /* UCC3 */
 #define CONFIG_SYS_UEC2_RX_CLK		QE_CLK_NONE /* not used in RMII Mode */

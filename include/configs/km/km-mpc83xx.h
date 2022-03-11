@@ -108,10 +108,6 @@
 	"unlock=yes\0"							 \
 	""
 
-#if defined(CONFIG_UEC_ETH)
-#define CONFIG_HAS_ETH0
-#endif
-
 /*
  * QE UEC ethernet configuration
  */

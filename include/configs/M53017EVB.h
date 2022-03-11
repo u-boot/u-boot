@@ -31,7 +31,6 @@
 #	define CONFIG_SYS_TX_ETH_BUFFER	8
 #	define CONFIG_SYS_FEC_BUF_USE_SRAM
 #	define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#	define CONFIG_HAS_ETH1
 
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CONFIG_SYS_DISCOVER_PHY
