@@ -356,10 +356,6 @@ int board_eth_init(struct bd_info *bis)
 		goto free_phydev;
 #endif
 
-#ifdef CONFIG_CI_UDC
-	/* For otg ethernet*/
-	usb_eth_initialize(bis);
-#endif
 	return 0;
 
 free_phydev:
