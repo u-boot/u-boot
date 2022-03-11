@@ -411,12 +411,6 @@ extern unsigned long get_sdram_size(void);
 #undef CONFIG_SYS_RAMBOOT
 #endif
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
-#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_A003399_NOR_WORKAROUND
-#endif
-#endif
-
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000 /* End of used area in RAM */

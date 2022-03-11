@@ -354,6 +354,7 @@ config ARCH_MPC8560
 
 config ARCH_P1010
 	bool
+	select A003399_NOR_WORKAROUND if SYS_FSL_ERRATUM_IFC_A003399 && !SPL
 	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
@@ -877,6 +878,12 @@ config SYS_CCSRBAR_DEFAULT
 		is fixed on each SoC. Some SoCs can have different value
 		if changed by pre-boot regime. The value here must match
 		the current value in SoC. If not sure, do not change.
+
+config A003399_NOR_WORKAROUND
+	bool
+	help
+	  Enables a workaround for IFC erratum A003399. It is only required
+	  during NOR boot.
 
 config SYS_FSL_ERRATUM_A004468
 	bool
