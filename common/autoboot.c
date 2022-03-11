@@ -446,6 +446,11 @@ const char *bootdelay_process(void)
 	s = env_get("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
+	/*
+	 * Does it really make sense that the devicetree overrides the user
+	 * setting? It is possibly helpful for security since the device tree
+	 * may be signed whereas the environment is often loaded from storage.
+	 */
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		bootdelay = ofnode_conf_read_int("bootdelay", bootdelay);
 

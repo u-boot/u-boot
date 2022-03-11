@@ -120,7 +120,6 @@ bootdelay
     The default value is defined by CONFIG_BOOTDELAY.
     The value of 'bootdelay' is overridden by the /config/bootdelay value in
     the device-tree if CONFIG_OF_CONTROL=y.
-    Does it really make sense that the devicetree overrides the user setting?
 
 bootcmd
     The command that is run if the user does not enter the shell during the
