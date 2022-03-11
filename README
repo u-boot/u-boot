@@ -1548,13 +1548,6 @@ The following options need to be configured:
 			FLAGADM
 
 - Error Recovery:
-		CONFIG_NET_RETRY_COUNT
-
-		This variable defines the number of retries for
-		network operations like ARP, RARP, TFTP, or BOOTP
-		before giving up the operation. If not defined, a
-		default value of 5 is used.
-
 		CONFIG_NFS_TIMEOUT
 
 		Timeout in milliseconds used in NFS protocol.

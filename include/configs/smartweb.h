@@ -86,7 +86,6 @@
  *
  */
 #define CONFIG_RMII			/* use reduced MII inteface */
-#define CONFIG_NET_RETRY_COUNT	20      /* # of DHCP/BOOTP retries */
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* BOOTP and DHCP options */

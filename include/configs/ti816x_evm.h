@@ -68,8 +68,6 @@
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 
-#define CONFIG_NET_RETRY_COUNT	10
-
 /* Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */

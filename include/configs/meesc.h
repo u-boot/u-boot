@@ -68,7 +68,6 @@
 
 /* Ethernet */
 #define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT			20
 #undef CONFIG_RESET_PHY_R
 
 /* hw-controller addresses */

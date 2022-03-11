@@ -39,7 +39,6 @@
 
 /* Ethernet */
 #define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_RESET_PHY_R
 #define CONFIG_AT91_WANTS_COMMON_PHY
 #define CONFIG_TFTP_PORT

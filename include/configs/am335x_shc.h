@@ -168,6 +168,4 @@
 #undef CONFIG_DM_MMC
 #undef CONFIG_TIMER
 #endif
-
-#define CONFIG_NET_RETRY_COUNT         10
 #endif	/* ! __CONFIG_AM335X_SHC_H */

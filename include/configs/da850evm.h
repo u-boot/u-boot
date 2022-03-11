@@ -137,13 +137,6 @@
 #define CONFIG_SYS_NAND_ECCBYTES	10
 #endif
 
-/*
- * Network & Ethernet Configuration
- */
-#ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_NET_RETRY_COUNT	10
-#endif
-
 #ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_FLASH_SECT_SZ	(128 << 10) /* 128KB */
 #define CONFIG_SYS_FLASH_BASE		DAVINCI_ASYNC_EMIF_DATA_CE2_BASE

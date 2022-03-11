@@ -34,9 +34,6 @@
 
 /* Enable PREBOOT variable */
 
-/* Set ARP_TIMEOUT_COUNT to 3 repetitions */
-#define CONFIG_NET_RETRY_COUNT	5
-
 /* BK4r1 net init sets GPIO122/PTE17 to enable Ethernet */
 #define BK4_NET_INIT "run set_gpio122;"
 
