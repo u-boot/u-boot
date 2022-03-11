@@ -310,12 +310,6 @@
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008044
-#if defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_A008044_WORKAROUND
-#endif
-#endif
-
 #define CONFIG_HWCONFIG
 
 /* define to use L1 as initial stack */

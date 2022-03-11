@@ -374,10 +374,6 @@ The following options need to be configured:
 		See Freescale App Note 4493 for more information about
 		this erratum.
 
-		CONFIG_A008044_WORKAROUND
-		Enables a workaround for T1040/T1042 erratum A008044. It is only
-		required during NAND boot and valid for Rev 1.0 SoC revision
-
 		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
 		This is the value to write into CCSR offset 0x18600

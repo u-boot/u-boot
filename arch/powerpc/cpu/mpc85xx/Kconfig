@@ -885,6 +885,12 @@ config A003399_NOR_WORKAROUND
 	  Enables a workaround for IFC erratum A003399. It is only required
 	  during NOR boot.
 
+config A008044_WORKAROUND
+	bool
+	help
+	  Enables a workaround for T1040/T1042 erratum A008044. It is only
+	  required during NAND boot and valid for Rev 1.0 SoC revision
+
 config SYS_FSL_ERRATUM_A004468
 	bool
 
@@ -967,6 +973,7 @@ config SYS_FSL_ERRATUM_A007907
 
 config SYS_FSL_ERRATUM_A008044
 	bool
+	select A008044_WORKAROUND if MTD_RAW_NAND
 
 config SYS_FSL_ERRATUM_CPC_A002
 	bool
