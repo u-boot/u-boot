@@ -412,8 +412,4 @@
 #endif
 #endif
 
-/* Reboot after 60 sec if bootcmd fails */
-#define CONFIG_RESET_TO_RETRY
-#define CONFIG_BOOT_RETRY_TIME 60
-
 #endif	/* ! __CONFIG_SIEMENS_AM33X_COMMON_H */

@@ -16,9 +16,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_BOOT_RETRY_TIME		900
-#define CONFIG_BOOT_RETRY_MIN		30
-#define CONFIG_RESET_TO_RETRY
 
 #define CONFIG_SYS_SICRH	0x00000000
 #define CONFIG_SYS_SICRL	(SICRL_LBC | SICRL_SPI_D)

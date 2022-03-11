@@ -12,10 +12,6 @@
 #include <time.h>
 #include <watchdog.h>
 
-#ifndef CONFIG_BOOT_RETRY_MIN
-#define CONFIG_BOOT_RETRY_MIN CONFIG_BOOT_RETRY_TIME
-#endif
-
 static uint64_t endtime;  /* must be set, default is instant timeout */
 static int      retry_time = -1; /* -1 so can call readline before main_loop */
 

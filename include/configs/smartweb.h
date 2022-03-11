@@ -46,7 +46,6 @@
 
 /* setting board specific options */
 #define CONFIG_SYS_AUTOLOAD "yes"
-#define CONFIG_RESET_TO_RETRY
 
 /* The LED PINs */
 #define CONFIG_RED_LED			AT91_PIN_PA9

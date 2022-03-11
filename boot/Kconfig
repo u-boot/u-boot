@@ -991,6 +991,36 @@ config AUTOBOOT_MENU_SHOW
 	  environmnent variable (if enabled) and before handling the boot delay.
 	  See README.bootmenu for more details.
 
+config BOOT_RETRY
+	bool "Boot retry feature"
+	help
+	  Allow for having the U-Boot command prompt time out and attempt
+	  to boot again.  If the environment variable "bootretry" is found then
+	  its value is used, otherwise the retry timeout is
+	  CONFIG_BOOT_RETRY_TIME.  CONFIG_BOOT_RETRY_MIN is optional and
+	  defaults to CONFIG_BOOT_RETRY_TIME. All times are in seconds.
+
+config BOOT_RETRY_TIME
+	int "Timeout in seconds before attempting to boot again"
+	depends on BOOT_RETRY
+	help
+	  Time in seconds before the U-Boot prompt will timeout and boot will
+	  be attempted again.
+
+config BOOT_RETRY_MIN
+	int "Minimum timeout in seconds for 'bootretry'"
+	depends on BOOT_RETRY
+	default BOOT_RETRY_TIME
+	help
+	  The minimum time in seconds that "bootretry" can be set to.
+
+config RESET_TO_RETRY
+	bool "Reset the board to retry autoboot"
+	depends on BOOT_RETRY
+	help
+	  After the countdown timed out, the board will be reset to restart
+	  again.
+
 endmenu
 
 config USE_BOOTARGS

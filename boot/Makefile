@@ -5,11 +5,7 @@
 
 ifndef CONFIG_SPL_BUILD
 
-# This option is not just y/n - it can have a numeric value
-ifdef CONFIG_BOOT_RETRY_TIME
-obj-y += bootretry.o
-endif
-
+obj-$(CONFIG_BOOT_RETRY) += bootretry.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
