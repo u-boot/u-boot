@@ -565,13 +565,6 @@ The following options need to be configured:
 		boards with QUICC Engines require OF_QE to set UCC MAC
 		addresses
 
-		CONFIG_OF_SYSTEM_SETUP
-
-		Other code has addition modification that it wants to make
-		to the flat device tree before handing it off to the kernel.
-		This causes ft_system_setup() to be called before booting
-		the kernel.
-
 		CONFIG_OF_IDE_FIXUP
 
 		U-Boot can detect if an IDE device is present or not.
@@ -1846,10 +1839,6 @@ The following options need to be configured:
 
 		CONFIG_SPL_SKIP_RELOCATE
 		Avoid SPL relocation
-
-		CONFIG_SPL_NAND_IDENT
-		SPL uses the chip ID list to identify the NAND flash.
-		Requires CONFIG_SPL_NAND_BASE.
 
 		CONFIG_SPL_UBI
 		Support for a lightweight UBI (fastmap) scanner and

@@ -16,7 +16,6 @@
 
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_STACK		0x960000
 #define CONFIG_SPL_BSS_START_ADDR	0x0098fc00
 #define CONFIG_SPL_BSS_MAX_SIZE		SZ_1K
@@ -31,10 +30,7 @@
 #define CONFIG_POWER_PCA9450
 
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
 #endif /* CONFIG_SPL_BUILD */
-
-#define CONFIG_REMAKE_ELF
 
 /* ENET Config */
 /* ENET1 */
