@@ -14,12 +14,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432 MHz crystal */
 
-#ifdef CONFIG_AT91SAM9G10
-#define CONFIG_AT91SAM9G10EK		/* It's an Atmel AT91SAM9G10 EK*/
-#else
-#define CONFIG_AT91SAM9261EK		/* It's an Atmel AT91SAM9261 EK*/
-#endif
-
 #include <asm/hardware.h>
 
 #define CONFIG_ATMEL_LEGACY
