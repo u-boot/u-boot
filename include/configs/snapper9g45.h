@@ -50,7 +50,6 @@
 
 /* GPIOs and IO expander */
 #define CONFIG_ATMEL_LEGACY
-#define CONFIG_AT91_GPIO_PULLUP		1
 
 /* UARTs/Serial console */
 

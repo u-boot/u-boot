@@ -311,6 +311,10 @@ config AT91_EFLASH
 	  Enable the driver for the embedded flash used in the Atmel
 	  AT91SAM9XE devices.
 
+config AT91_GPIO_PULLUP
+	bool "Keep pullups on peripheral pins"
+	depends on CPU_ARM926EJS
+
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"
 source "board/atmel/at91sam9263ek/Kconfig"
