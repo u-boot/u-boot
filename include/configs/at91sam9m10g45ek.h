@@ -10,14 +10,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK      32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
 
 /* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8

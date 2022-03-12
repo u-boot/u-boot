@@ -27,9 +27,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
 
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.

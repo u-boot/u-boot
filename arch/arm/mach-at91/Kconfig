@@ -315,6 +315,9 @@ config AT91_GPIO_PULLUP
 	bool "Keep pullups on peripheral pins"
 	depends on CPU_ARM926EJS
 
+config ATMEL_LEGACY
+	bool "Legacy GPIO support"
+
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"
 source "board/atmel/at91sam9263ek/Kconfig"

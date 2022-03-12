@@ -72,9 +72,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /* serial console */
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS

@@ -16,8 +16,6 @@
 
 #include <asm/hardware.h>
 
-#define CONFIG_ATMEL_LEGACY
-
 /*
  * Hardware drivers
  */

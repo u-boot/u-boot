@@ -48,9 +48,6 @@
 #define CONFIG_ATMEL_LCD
 #define CONFIG_GURNARD_SPLASH
 
-/* GPIOs and IO expander */
-#define CONFIG_ATMEL_LEGACY
-
 /* UARTs/Serial console */
 
 /* Boot options */
