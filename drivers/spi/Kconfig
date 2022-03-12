@@ -185,6 +185,12 @@ config ICH_SPI
 	  access the SPI NOR flash on platforms embedding this Intel
 	  ICH IP core.
 
+config IPROC_QSPI
+	bool "Broadcom iProc QSPI Flash Controller driver"
+	help
+	  Enable Broadcom iProc QSPI Flash Controller driver.
+	  This driver can be used to access the SPI NOR flash.
+
 config KIRKWOOD_SPI
 	bool "Marvell Kirkwood SPI Driver"
 	help

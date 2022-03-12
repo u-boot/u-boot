@@ -572,7 +572,7 @@ static int dw_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	int pos, i, ret = 0;
 	struct udevice *bus = slave->dev->parent;
 	struct dw_spi_priv *priv = dev_get_priv(bus);
-	u8 op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
+	u8 op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 	u8 op_buf[op_len];
 	u32 cr0;
 

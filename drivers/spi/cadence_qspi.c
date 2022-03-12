@@ -201,11 +201,9 @@ static int cadence_spi_probe(struct udevice *bus)
 		}
 	}
 
-	ret = reset_get_bulk(bus, &priv->resets);
-	if (ret)
-		dev_warn(bus, "Can't get reset: %d\n", ret);
-	else
-		reset_deassert_bulk(&priv->resets);
+	priv->resets = devm_reset_bulk_get_optional(bus);
+	if (priv->resets)
+		reset_deassert_bulk(priv->resets);
 
 	if (!priv->qspi_is_init) {
 		cadence_qspi_apb_controller_init(plat);
@@ -220,8 +218,12 @@ static int cadence_spi_probe(struct udevice *bus)
 static int cadence_spi_remove(struct udevice *dev)
 {
 	struct cadence_spi_priv *priv = dev_get_priv(dev);
+	int ret = 0;
 
-	return reset_release_bulk(&priv->resets);
+	if (priv->resets)
+		ret = reset_release_bulk(priv->resets);
+
+	return ret;
 }
 
 static int cadence_spi_set_mode(struct udevice *bus, uint mode)

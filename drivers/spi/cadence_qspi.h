@@ -56,7 +56,7 @@ struct cadence_spi_priv {
 	unsigned int	qspi_calibrated_cs;
 	unsigned int	previous_hz;
 
-	struct reset_ctl_bulk resets;
+	struct reset_ctl_bulk *resets;
 };
 
 /* Functions call declaration */
