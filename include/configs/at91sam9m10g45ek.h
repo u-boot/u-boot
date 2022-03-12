@@ -27,8 +27,6 @@
 #define CONFIG_LCD_INFO_BELOW_LOGO
 #define CONFIG_ATMEL_LCD
 #define CONFIG_ATMEL_LCD_RGB565
-/* board specific(not enough SRAM) */
-#define CONFIG_AT91SAM9G45_LCD_BASE		0x73E00000
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           0x70000000

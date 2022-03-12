@@ -214,7 +214,8 @@ static void at91sam9m10g45ek_lcd_hw_init(void)
 
 	at91_periph_clk_enable(ATMEL_ID_LCDC);
 
-	gd->fb_base = CONFIG_AT91SAM9G45_LCD_BASE;
+	/* board specific(not enough SRAM) */
+	gd->fb_base = 0x73E00000;
 }
 
 #ifdef CONFIG_LCD_INFO
