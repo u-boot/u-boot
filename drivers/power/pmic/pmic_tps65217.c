@@ -6,8 +6,13 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <dm.h>
+#include <errno.h>
+#include <fdtdec.h>
+#include <power/pmic.h>
 #include <power/tps65217.h>
 
+#if !CONFIG_IS_ENABLED(DM_PMIC)
 struct udevice *tps65217_dev __section(".data") = NULL;
 
 /**
@@ -148,3 +153,80 @@ int power_tps65217_init(unsigned char bus)
 #endif
 	return 0;
 }
+#else /* CONFIG_IS_ENABLED(DM_PMIC) */
+static const struct pmic_child_info pmic_children_info[] = {
+	{ .prefix = "ldo", .driver = "tps65217_ldo" },
+	{ },
+};
+
+static int tps65217_reg_count(struct udevice *dev)
+{
+	return TPS65217_PMIC_NUM_OF_REGS;
+}
+
+static int tps65217_write(struct udevice *dev, uint reg, const uint8_t *buff,
+			  int len)
+{
+	if (dm_i2c_write(dev, reg, buff, len)) {
+		pr_err("write error to device: %p register: %#x!\n", dev, reg);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static int tps65217_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
+{
+	int ret;
+
+	ret = dm_i2c_read(dev, reg, buff, len);
+	if (ret) {
+		pr_err("read error %d from device: %p register: %#x!\n", ret,
+		       dev, reg);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static int tps65217_bind(struct udevice *dev)
+{
+	ofnode regulators_node;
+	int children;
+
+	regulators_node = dev_read_subnode(dev, "regulators");
+	if (!ofnode_valid(regulators_node)) {
+		debug("%s: %s regulators subnode not found!\n", __func__,
+		      dev->name);
+		return -ENXIO;
+	}
+
+	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
+
+	children = pmic_bind_children(dev, regulators_node, pmic_children_info);
+	if (!children)
+		debug("%s: %s - no child found\n", __func__, dev->name);
+
+	/* Always return success for this device */
+	return 0;
+}
+
+static struct dm_pmic_ops tps65217_ops = {
+	.reg_count = tps65217_reg_count,
+	.read = tps65217_read,
+	.write = tps65217_write,
+};
+
+static const struct udevice_id tps65217_ids[] = {
+	{ .compatible = "ti,tps65217" },
+	{ }
+};
+
+U_BOOT_DRIVER(pmic_tps65217) = {
+	.name = "tps65217 pmic",
+	.id = UCLASS_PMIC,
+	.of_match = tps65217_ids,
+	.bind = tps65217_bind,
+	.ops = &tps65217_ops,
+};
+#endif
