@@ -104,13 +104,6 @@
  */
 
 #ifndef CONFIG_SPL_BUILD
-/*
- * USB configuration
- */
-#define CONFIG_AM335X_USB0
-#define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
-#define CONFIG_AM335X_USB1
-#define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
 /* USB DRACO ID as default */
 #define CONFIG_USBD_HS
