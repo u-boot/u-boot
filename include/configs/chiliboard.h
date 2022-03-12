@@ -106,9 +106,6 @@
 #define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
-/* PMIC support */
-#define CONFIG_POWER_TPS65217
-
 /* SPL */
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_BE

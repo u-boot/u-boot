@@ -50,7 +50,6 @@
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
 /* PMIC support */
-#define CONFIG_POWER_TPS65217
 #define CONFIG_POWER_TPS65910
 
 /* SPL */

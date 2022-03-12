@@ -369,6 +369,14 @@ config PMIC_TPS65941
 
 endif
 
+config PMIC_TPS65217
+	bool "Enable driver for Texas Instruments TPS65217 PMIC"
+	---help---
+	The TPS65217 is a PMIC containing several LDOs, DC to DC convertors,
+	FETs and a battery charger. This driver provides register access
+	only, and you can enable the regulator/charger drivers separately if
+	required.
+
 config POWER_MC34VR500
 	bool "Enable driver for Freescale MC34VR500 PMIC"
 	depends on !DM_PMIC

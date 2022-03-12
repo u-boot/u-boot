@@ -22,8 +22,6 @@
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_POWER_TPS65217
-
 /*
  * When we have NAND flash we expect to be making use of mtdparts,
  * both for ease of use in U-Boot and for passing information on to

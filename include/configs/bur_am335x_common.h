@@ -26,7 +26,6 @@
 /* Timer information */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
-#define CONFIG_POWER_TPS65217
 
 #include <asm/arch/omap.h>
 
