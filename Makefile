@@ -1833,7 +1833,9 @@ ENV_FILE := $(if $(ENV_SOURCE_FILE),$(ENV_FILE_CFG),$(wildcard $(ENV_FILE_BOARD)
 
 # Run the environment text file through the preprocessor, but only if it is
 # non-empty, to save time and possible build errors if something is wonky with
-# the board
+# the board.
+# If there is no ENV_FILE, produce an empty output file, to prevent a previous
+# build's file being used in the case of in-tree builds.
 quiet_cmd_gen_envp = ENVP    $@
       cmd_gen_envp = \
 	if [ -s "$(ENV_FILE)" ]; then \
@@ -1844,6 +1846,7 @@ quiet_cmd_gen_envp = ENVP    $@
 			-I$(srctree)/arch/$(ARCH)/include \
 			$< -o $@; \
 	else \
+		rm $@; \
 		touch $@ ; \
 	fi
 include/generated/env.in: include/generated/env.txt FORCE
