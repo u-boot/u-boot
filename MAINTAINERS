@@ -899,6 +899,12 @@ F:	doc/README.kwbimage
 F:	doc/kwboot.1
 F:	tools/kwb*
 
+LED
+M:	Ivan Vozvakhov <i.vozvakhov@vk.team>
+S:	Supported
+F:	doc/device-tree-bindings/leds/leds-pwm.txt
+F:	drivers/led/led_pwm.c
+
 LOGGING
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
