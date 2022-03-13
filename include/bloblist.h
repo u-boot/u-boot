@@ -3,8 +3,66 @@
  * This provides a standard way of passing information between boot phases
  * (TPL -> SPL -> U-Boot proper.)
  *
- * A list of blobs of data, tagged with their owner. The list resides in memory
- * and can be updated by SPL, U-Boot, etc.
+ * It consists of a list of blobs of data, tagged with their owner / contents.
+ * The list resides in memory and can be updated by SPL, U-Boot, etc.
+ *
+ * Design goals for bloblist:
+ *
+ * 1. Small and efficient structure. This avoids UUIDs or 16-byte name fields,
+ * since a 32-bit tag provides enough space for all the tags we will even need.
+ * If UUIDs are desired, they can be added inside a particular blob.
+ *
+ * 2. Avoids use of pointers, so the structure can be relocated in memory. The
+ * data in each blob is inline, rather than using pointers.
+ *
+ * 3. Bloblist is designed to start small in TPL or SPL, when only a few things
+ * are needed, like the memory size or whether console output should be enabled.
+ * Then it can grow in U-Boot proper, e.g. to include space for ACPI tables.
+ *
+ * 4. The bloblist structure is simple enough that it can be implemented in a
+ * small amount of C code. The API does not require use of strings or UUIDs,
+ * which would add to code size. For Thumb-2 the code size needed in SPL is
+ * approximately 940 bytes (e.g. for chromebook_bob).
+ *
+ * 5. Bloblist uses 16-byte alignment internally and is designed to start on a
+ * 16-byte boundary. Its headers are multiples of 16 bytes. This makes it easier
+ * to deal with data structures which need this level of alignment, such as ACPI
+ * tables. For use in SPL and TPL the alignment can be relaxed, since it can be
+ * relocated to an aligned address in U-Boot proper.
+ *
+ * 6. Bloblist is designed to be passed to Linux as reserved memory. While linux
+ * doesn't understand the bloblist header, it can be passed the indivdual blobs.
+ * For example, ACPI tables can reside in a blob and the address of those is
+ * passed to Linux, without Linux ever being away of the existence of a
+ * bloblist. Having all the blobs contiguous in memory simplifies the
+ * reserved-memory space.
+ *
+ * 7. Bloblist tags are defined in the enum below. There is an area for
+ * project-specific stuff (e.g. U-Boot, TF-A) and vendor-specific stuff, e.g.
+ * something used only on a particular SoC. There is also a private area for
+ * temporary, local use.
+ *
+ * 8. Bloblist includes a simple checksum, so that each boot phase can update
+ * this and allow the next phase to check that all is well. While the bloblist
+ * is small, this is quite cheap to calculate. When it grows (e.g. in U-Boot\
+ * proper), the CPU is likely running faster, so it is not prohibitive. Having
+ * said that, U-Boot is often the last phase that uses bloblist, so calculating
+ * the checksum there may not be necessary.
+ *
+ * 9. It would be possible to extend bloblist to support a non-contiguous
+ * structure, e.g. by creating a blob type that points to the next bloblist.
+ * This does not seem necessary for now. It adds complexity and code. We can
+ * always just copy it.
+ *
+ * 10. Bloblist is designed for simple structures, those that can be defined by
+ * a single C struct. More complex structures should be passed in a device tree.
+ * There are some exceptions, chiefly the various binary structures that Intel
+ * is fond of creating. But device tree provides a dictionary-type format which
+ * is fairly efficient (for use in U-Boot proper and Linux at least), along with
+ * a schema and a good set of tools. New formats should be designed around
+ * device tree rather than creating new binary formats, unless they are needed
+ * early in boot (where libfdt's 3KB of overhead is too large) and are trival
+ * enough to be described by a C struct.
  *
  * Copyright 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
