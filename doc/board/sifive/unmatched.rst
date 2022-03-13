@@ -560,7 +560,7 @@ Write U-boot SPL and U-boot to their partitions.
 
 .. code-block:: none
 
-	dd if=u-boot-spl.bin of=/dev/mtdblock0 bs=4096 seek=5 conv=sync
+	dd if=spl/u-boot-spl.bin of=/dev/mtdblock0 bs=4096 seek=5 conv=sync
 	dd if=u-boot.itb  of=/dev/mtdblock0 bs=4096 seek=261 conv=sync
 
 Power off the board.

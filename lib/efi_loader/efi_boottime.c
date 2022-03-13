@@ -552,7 +552,7 @@ efi_status_t efi_search_protocol(const efi_handle_t handle,
 		struct efi_handler *protocol;
 
 		protocol = list_entry(lhandle, struct efi_handler, link);
-		if (!guidcmp(protocol->guid, protocol_guid)) {
+		if (!guidcmp(&protocol->guid, protocol_guid)) {
 			if (handler)
 				*handler = protocol;
 			return EFI_SUCCESS;
@@ -604,7 +604,7 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
 	list_for_each_entry_safe(protocol, pos, &efiobj->protocols, link) {
 		efi_status_t ret;
 
-		ret = efi_remove_protocol(handle, protocol->guid,
+		ret = efi_remove_protocol(handle, &protocol->guid,
 					  protocol->protocol_interface);
 		if (ret != EFI_SUCCESS)
 			return ret;
@@ -1131,7 +1131,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
 	handler = calloc(1, sizeof(struct efi_handler));
 	if (!handler)
 		return EFI_OUT_OF_RESOURCES;
-	handler->guid = protocol;
+	memcpy((void *)&handler->guid, protocol, sizeof(efi_guid_t));
 	handler->protocol_interface = protocol_interface;
 	INIT_LIST_HEAD(&handler->open_infos);
 	list_add_tail(&handler->link, &efiobj->protocols);
@@ -1227,7 +1227,7 @@ static efi_status_t efi_get_drivers(efi_handle_t handle,
 
 	/* Count all driver associations */
 	list_for_each_entry(handler, &handle->protocols, link) {
-		if (protocol && guidcmp(handler->guid, protocol))
+		if (protocol && guidcmp(&handler->guid, protocol))
 			continue;
 		list_for_each_entry(item, &handler->open_infos, link) {
 			if (item->info.attributes &
@@ -1249,7 +1249,7 @@ static efi_status_t efi_get_drivers(efi_handle_t handle,
 		return EFI_OUT_OF_RESOURCES;
 	/* Collect unique driver handles */
 	list_for_each_entry(handler, &handle->protocols, link) {
-		if (protocol && guidcmp(handler->guid, protocol))
+		if (protocol && guidcmp(&handler->guid, protocol))
 			continue;
 		list_for_each_entry(item, &handler->open_infos, link) {
 			if (item->info.attributes &
@@ -2446,7 +2446,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(
 
 			protocol = list_entry(protocol_handle,
 					      struct efi_handler, link);
-			(*protocol_buffer)[j] = (void *)protocol->guid;
+			(*protocol_buffer)[j] = (void *)&protocol->guid;
 			++j;
 		}
 	}
@@ -3094,7 +3094,7 @@ close_next:
 				    (efi_handle_t)image_obj)
 					continue;
 				r = EFI_CALL(efi_close_protocol
-						(efiobj, protocol->guid,
+						(efiobj, &protocol->guid,
 						 info->info.agent_handle,
 						 info->info.controller_handle
 						));
