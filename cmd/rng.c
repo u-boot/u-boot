@@ -14,9 +14,9 @@
 static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	size_t n;
-	struct udevice *dev;
-	void *buf;
+	u8 buf[64];
 	int devnum;
+	struct udevice *dev;
 	int ret = CMD_RET_SUCCESS;
 
 	switch (argc) {
@@ -41,11 +41,10 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	buf = malloc(n);
-	if (!buf) {
-		printf("Out of memory\n");
-		return CMD_RET_FAILURE;
-	}
+	if (!n)
+		return 0;
+
+	n = min(n, sizeof(buf));
 
 	if (dm_rng_read(dev, buf, n)) {
 		printf("Reading RNG failed\n");
@@ -54,15 +53,13 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, buf, n);
 	}
 
-	free(buf);
-
 	return ret;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
 static char rng_help_text[] =
 	"[dev [n]]\n"
-	"  - print n random bytes read from dev\n";
+	"  - print n random bytes(max 64) read from dev\n";
 #endif
 
 U_BOOT_CMD(
