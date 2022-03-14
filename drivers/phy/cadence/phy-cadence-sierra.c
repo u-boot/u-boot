@@ -358,26 +358,10 @@ static inline int cdns_reset_deassert(struct reset_control *rst)
 		return 0;
 }
 
-static inline struct cdns_sierra_inst *phy_get_drvdata(struct phy *phy)
+static int cdns_sierra_link_init(struct phy *gphy)
 {
-	struct cdns_sierra_phy *sp = dev_get_priv(phy->dev);
-	int index;
-
-	if (phy->id >= SIERRA_MAX_LANES)
-		return NULL;
-
-	for (index = 0; index < sp->nsubnodes; index++) {
-		if (phy->id == sp->phys[index]->mlane)
-			return sp->phys[index];
-	}
-
-	return NULL;
-}
-
-static int cdns_sierra_phy_init(struct phy *gphy)
-{
-	struct cdns_sierra_inst *ins = phy_get_drvdata(gphy);
-	struct cdns_sierra_phy *phy = dev_get_priv(gphy->dev);
+	struct cdns_sierra_inst *ins = dev_get_priv(gphy->dev);
+	struct cdns_sierra_phy *phy = dev_get_priv(gphy->dev->parent);
 	struct cdns_sierra_data *init_data = phy->init_data;
 	struct cdns_sierra_vals *pma_cmn_vals, *pma_ln_vals;
 	enum cdns_sierra_phy_type phy_type = ins->phy_type;
@@ -443,10 +427,11 @@ static int cdns_sierra_phy_init(struct phy *gphy)
 	return 0;
 }
 
-static int cdns_sierra_phy_on(struct phy *gphy)
+static int cdns_sierra_link_on(struct phy *gphy)
 {
-	struct cdns_sierra_inst *ins = phy_get_drvdata(gphy);
-	struct cdns_sierra_phy *sp = dev_get_priv(gphy->dev);
+	struct cdns_sierra_inst *ins = dev_get_priv(gphy->dev);
+	struct cdns_sierra_phy *sp = dev_get_priv(gphy->dev->parent);
+
 	struct udevice *dev = gphy->dev;
 	u32 val;
 	int ret;
@@ -503,16 +488,16 @@ static int cdns_sierra_phy_on(struct phy *gphy)
 	return ret;
 }
 
-static int cdns_sierra_phy_off(struct phy *gphy)
+static int cdns_sierra_link_off(struct phy *gphy)
 {
-	struct cdns_sierra_inst *ins = phy_get_drvdata(gphy);
+	struct cdns_sierra_inst *ins = dev_get_priv(gphy->dev);
 
 	return reset_assert_bulk(ins->lnk_rst);
 }
 
-static int cdns_sierra_phy_reset(struct phy *gphy)
+static int cdns_sierra_link_reset(struct phy *gphy)
 {
-	struct cdns_sierra_phy *sp = dev_get_priv(gphy->dev);
+	struct cdns_sierra_phy *sp = dev_get_priv(gphy->dev->parent);
 
 	reset_control_assert(sp->phy_rst);
 	reset_control_deassert(sp->phy_rst);
@@ -520,10 +505,10 @@ static int cdns_sierra_phy_reset(struct phy *gphy)
 };
 
 static const struct phy_ops ops = {
-	.init		= cdns_sierra_phy_init,
-	.power_on	= cdns_sierra_phy_on,
-	.power_off	= cdns_sierra_phy_off,
-	.reset		= cdns_sierra_phy_reset,
+	.init		= cdns_sierra_link_init,
+	.power_on	= cdns_sierra_link_on,
+	.power_off	= cdns_sierra_link_off,
+	.reset		= cdns_sierra_link_reset,
 };
 
 struct cdns_sierra_pll_mux_sel {
@@ -580,7 +565,7 @@ static const struct clk_ops cdns_sierra_pll_mux_ops = {
 	.set_parent = cdns_sierra_pll_mux_set_parent,
 };
 
-int cdns_sierra_pll_mux_probe(struct udevice *dev)
+static int cdns_sierra_pll_mux_probe(struct udevice *dev)
 {
 	struct cdns_sierra_pll_mux *priv = dev_get_priv(dev);
 	struct cdns_sierra_phy *sp = dev_get_priv(dev->parent);
@@ -1012,9 +997,8 @@ static int cdns_sierra_phy_get_resets(struct cdns_sierra_phy *sp,
 	return 0;
 }
 
-static int cdns_sierra_bind_link_nodes(struct  cdns_sierra_phy *sp)
+static int cdns_sierra_phy_bind(struct udevice *dev)
 {
-	struct udevice *dev = sp->dev;
 	struct driver *link_drv;
 	ofnode child;
 	int rc;
@@ -1079,6 +1063,7 @@ U_BOOT_DRIVER(sierra_phy_link) = {
 	.name		= "sierra_phy_link",
 	.id		= UCLASS_PHY,
 	.probe		= cdns_sierra_link_probe,
+	.ops		= &ops,
 	.priv_auto	= sizeof(struct cdns_sierra_inst),
 };
 
@@ -1141,10 +1126,6 @@ static int cdns_sierra_phy_probe(struct udevice *dev)
 	}
 
 	sp->autoconf = dev_read_bool(dev, "cdns,autoconf");
-	/* Binding link nodes as children to serdes */
-	ret = cdns_sierra_bind_link_nodes(sp);
-	if (ret)
-		goto clk_disable;
 
 	dev_info(dev, "sierra probed\n");
 	return 0;
@@ -1971,10 +1952,10 @@ static const struct udevice_id cdns_sierra_id_table[] = {
 
 U_BOOT_DRIVER(sierra_phy_provider) = {
 	.name		= "cdns,sierra",
-	.id		= UCLASS_PHY,
+	.id		= UCLASS_MISC,
 	.of_match	= cdns_sierra_id_table,
 	.probe		= cdns_sierra_phy_probe,
 	.remove		= cdns_sierra_phy_remove,
-	.ops		= &ops,
+	.bind		= cdns_sierra_phy_bind,
 	.priv_auto	= sizeof(struct cdns_sierra_phy),
 };
