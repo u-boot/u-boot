@@ -320,6 +320,7 @@ config ENV_IS_IN_SPI_FLASH
 	default y if NORTHBRIDGE_INTEL_IVYBRIDGE
 	default y if INTEL_QUARK
 	default y if INTEL_QUEENSBAY
+	default y if ARCH_SUNXI
 	help
 	  Define this if you have a SPI Flash memory device which you
 	  want to use for the environment.
@@ -536,7 +537,7 @@ config ENV_OFFSET
 		    ENV_IS_IN_SPI_FLASH
 	default 0x3f8000 if ARCH_ROCKCHIP && ENV_IS_IN_MMC
 	default 0x140000 if ARCH_ROCKCHIP && ENV_IS_IN_SPI_FLASH
-	default 0x88000 if ARCH_SUNXI
+	default 0xF0000 if ARCH_SUNXI
 	default 0xE0000 if ARCH_ZYNQ
 	default 0x1E00000 if ARCH_ZYNQMP
 	default 0x7F40000 if ARCH_VERSAL
@@ -559,7 +560,8 @@ config ENV_OFFSET_REDUND
 config ENV_SIZE
 	hex "Environment Size"
 	default 0x40000 if ENV_IS_IN_SPI_FLASH && ARCH_ZYNQMP
-	default 0x20000 if ARCH_SUNXI || ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
+	default 0x20000 if ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
+	default 0x10000 if ARCH_SUNXI
 	default 0x8000 if ARCH_ROCKCHIP && ENV_IS_IN_MMC
 	default 0x2000 if ARCH_ROCKCHIP && ENV_IS_IN_SPI_FLASH
 	default 0x8000 if ARCH_ZYNQMP || ARCH_VERSAL
@@ -575,6 +577,7 @@ config ENV_SECT_SIZE
 	default 0x40000 if ARCH_ZYNQMP || ARCH_VERSAL
 	default 0x20000 if ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
 	default 0x20000 if MICROBLAZE && ENV_IS_IN_SPI_FLASH
+	default 0x10000 if ARCH_SUNXI && ENV_IS_IN_SPI_FLASH
 	help
 	  Size of the sector containing the environment.
 

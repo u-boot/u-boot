@@ -121,7 +121,7 @@ static int armada38x_rtc_reset(struct udevice *dev)
 		armada38x_rtc_write(0, rtc, RTC_CONF_TEST);
 		mdelay(500);
 		armada38x_rtc_write(0, rtc, RTC_TIME);
-		armada38x_rtc_write(BIT(0) | BIT(1), 0, RTC_STATUS);
+		armada38x_rtc_write(BIT(0) | BIT(1), rtc, RTC_STATUS);
 	}
 
 	return 0;

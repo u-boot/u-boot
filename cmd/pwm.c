@@ -111,5 +111,5 @@ U_BOOT_CMD(pwm, 6, 0, do_pwm,
 	   "invert <pwm_dev_num> <channel> <polarity> - invert polarity\n"
 	   "pwm config <pwm_dev_num> <channel> <period_ns> <duty_ns> - config PWM\n"
 	   "pwm enable <pwm_dev_num> <channel> - enable PWM output\n"
-	   "pwm disable <pwm_dev_num> <channel> - eisable PWM output\n"
+	   "pwm disable <pwm_dev_num> <channel> - disable PWM output\n"
 	   "Note: All input values are in decimal");

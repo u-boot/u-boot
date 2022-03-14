@@ -22,11 +22,13 @@ Andreas Bießmann <andreas@biessmann.org>
 Aneesh V <aneesh@ti.com>
 Anup Patel <anup@brainfault.org> <anup.patel@wdc.com>
 Atish Patra <atishp@atishpatra.org> <atish.patra@wdc.com>
+Bin Meng <bmeng.cn@gmail.com> <bin.meng@windriver.com>
 Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@bootlin.com>
 Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@free-electrons.com>
 Dirk Behme <dirk.behme@googlemail.com>
 Fabio Estevam <fabio.estevam@nxp.com>
 Heinrich Schuchardt <xypron.glpk@gmx.de> <heinrich.schuchardt@canonical.com>
+Heinrich Schuchardt <xypron.glpk@gmx.de> xypron.glpk@gmx.de <xypron.glpk@gmx.de>
 Jagan Teki <402jagan@gmail.com>
 Jagan Teki <jaganna@gmail.com>
 Jagan Teki <jaganna@xilinx.com>
@@ -35,7 +37,15 @@ Jagan Teki <jagannadha.sutradharudu-teki@xilinx.com>
 Jernej Skrabec <jernej.skrabec@gmail.com> <jernej.skrabec@siol.net>
 Igor Opaniuk <igor.opaniuk@gmail.com> <igor.opaniuk@linaro.org>
 Igor Opaniuk <igor.opaniuk@gmail.com> <igor.opaniuk@toradex.com>
+Marek Vasut <marex@denx.de> <marek.vasut+renesas@gmail.com>
+Marek Vasut <marex@denx.de> <marek.vasut@gmail.com>
+Marek Vasut <marex@denx.de> <marex at denx.de>
 Markus Klotzbuecher <mk@denx.de>
+Masahiro Yamada <yamada.masahiro@socionext.com> <yamada.m@jp.panasonic.com>
+Masahiro Yamada <yamada.masahiro@socionext.com> <masahiroy@kernel.org>
+Michal Simek <michal.simek@xilinx.com> <monstr@monstr.eu>
+Michal Simek <michal.simek@xilinx.com> <Monstr@seznam.cz>
+Michal Simek <michal.simek@xilinx.com> <root@monstr.eu>
 Nicolas Saenz Julienne <nsaenz@kernel.org> <nsaenzjulienne@suse.de>
 Patrice Chotard <patrice.chotard@foss.st.com> <patrice.chotard@st.com>
 Patrick Delaunay <patrick.delaunay@foss.st.com> <patrick.delaunay@st.com>
@@ -47,10 +57,19 @@ Ricardo Ribalda <ricardo@ribalda.com> <ricardo.ribalda@gmail.com>
 Ruchika Gupta <ruchika.gupta@nxp.com> <ruchika.gupta@freescale.com>
 Sandeep Paulraj <s-paulraj@ti.com>
 Shaohui Xie <Shaohui.Xie@freescale.com>
-Stefan Roese <stroese>
+Stefan Roese <sr@denx.de> <stroese>
 Stefano Babic <sbabic@denx.de>
+Tom Rini <trini@konsulko.com> <trini@ti.com>
 TsiChung Liew <Tsi-Chung.Liew@freescale.com>
-Wolfgang Denk <wdenk>
+Wolfgang Denk <wd@denx.de> <wdenk>
+Wolfgang Denk <wd@denx.de> <wd@pollux.denx.de>
+Wolfgang Denk <wd@denx.de> <wd@pollux.(none)>
+Wolfgang Denk <wd@denx.de> <wd@fifi.denx.de>
+Wolfgang Denk <wd@denx.de> <wd@nyx.denx.de>
+Wolfgang Denk <wd@denx.de> <wd@atlas.denx.de>
+Wolfgang Denk <wd@denx.de> <wd@castor.denx.de>
+Wolfgang Denk <wd@denx.de> <wd@xpert.denx.de>
+Wolfgang Denk <wd@denx.de> <wd@nyx.(none)>
 York Sun <yorksun@freescale.com>
 York Sun <york.sun@nxp.com>
 Łukasz Majewski <l.majewski@samsung.com>

@@ -91,7 +91,7 @@ void efi_print_image_infos(void *pc)
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		list_for_each_entry(handler, &efiobj->protocols, link) {
-			if (!guidcmp(handler->guid, &efi_guid_loaded_image)) {
+			if (!guidcmp(&handler->guid, &efi_guid_loaded_image)) {
 				efi_print_image_info(
 					(struct efi_loaded_image_obj *)efiobj,
 					handler->protocol_interface, pc);

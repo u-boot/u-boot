@@ -397,36 +397,34 @@ void configure_serdes_torrent(void)
 
 void configure_serdes_sierra(void)
 {
-	struct udevice *dev, *lnk_dev;
-	struct phy serdes;
+	struct udevice *dev, *link_dev;
+	struct phy link;
 	int ret, count, i;
+	int link_count = 0;
 
 	if (!IS_ENABLED(CONFIG_PHY_CADENCE_SIERRA))
 		return;
 
-	ret = uclass_get_device_by_driver(UCLASS_PHY,
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(sierra_phy_provider),
 					  &dev);
 	if (ret)
 		printf("Sierra init failed:%d\n", ret);
 
-	serdes.dev = dev;
-	serdes.id = 0;
-
 	count = device_get_child_count(dev);
 	for (i = 0; i < count; i++) {
-		ret = device_get_child(dev, i, &lnk_dev);
+		ret = device_get_child(dev, i, &link_dev);
 		if (ret)
 			printf("probe of sierra child node %d failed\n", i);
+		if (link_dev->driver->id == UCLASS_PHY) {
+			link.dev = link_dev;
+			link.id = link_count++;
+
+			ret = generic_phy_power_on(&link);
+			if (ret)
+				printf("phy_power_on failed !!\n");
+		}
 	}
-
-	ret = generic_phy_init(&serdes);
-	if (ret)
-		printf("phy_init failed!!\n");
-
-	ret = generic_phy_power_on(&serdes);
-	if (ret)
-		printf("phy_power_on failed !!\n");
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT

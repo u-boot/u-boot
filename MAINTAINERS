@@ -1171,6 +1171,13 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-sh.git
 F:	arch/sh/
 
+SL28CLPD
+M:	Michael Walle <michael@walle.cc>
+S:	Maintained
+F:	drivers/gpio/sl28cpld-gpio.c
+F:	drivers/misc/sl28cpld.c
+F:	drivers/watchdog/sl28cpld-wdt.c
+
 SPI
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
@@ -1328,6 +1335,14 @@ F:	include/config/cmd/virtio.h
 F:	include/virtio*.h
 F:	test/dm/virtio.c
 F:	doc/develop/driver-model/virtio.rst
+
+WATCHDOG
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-watchdog.git
+F:	cmd/wdt.c
+F:	drivers/watchdog/
+F:	include/watchdog*.h
 
 X86
 M:	Simon Glass <sjg@chromium.org>

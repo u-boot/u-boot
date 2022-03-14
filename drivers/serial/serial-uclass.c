@@ -66,7 +66,8 @@ static int serial_check_stdout(const void *blob, struct udevice **devp)
 	 */
 	if (node > 0 && !lists_bind_fdt(gd->dm_root, offset_to_ofnode(node),
 					devp, NULL, false)) {
-		if (!device_probe(*devp))
+		if (device_get_uclass_id(*devp) == UCLASS_SERIAL &&
+		    !device_probe(*devp))
 			return 0;
 	}
 

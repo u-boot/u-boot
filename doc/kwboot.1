@@ -1,4 +1,4 @@
-.TH KWBOOT 1 "2021-08-25"
+.TH KWBOOT 1 "2022-03-02"
 
 .SH NAME
 kwboot \- Boot Marvell Kirkwood (and others 32-bit) SoCs over a serial link.
@@ -11,7 +11,7 @@ kwboot \- Boot Marvell Kirkwood (and others 32-bit) SoCs over a serial link.
 .SH "DESCRIPTION"
 
 The \fBkwboot\fP program boots boards based on Marvell's 32-bit
-platforms including Kirkwood, Dove, A370, AXP, A375, A38x
+platforms including Kirkwood, Dove, Avanta, A370, AXP, A375, A38x
 and A39x over their integrated UART. Boot image files will typically
 contain a second stage boot loader, such as U-Boot. The image file
 must conform to Marvell's BootROM firmware image format
@@ -48,6 +48,48 @@ example U-Boot SPL does this). In such a case, this output is also
 written to stdout after the header is sent.
 
 .TP
+.B "\-b"
+Do only handshake on \fITTY\fP without uploading any file. File upload
+could be done later via option \fB\-D\fP or via any other Xmodem
+application, like \fBsx\fP(1).
+
+.TP
+.B "\-d"
+Do special handshake on \fITTY\fP for console debug mode.
+
+This will instruct BootROM to enter builtin simple console debug mode.
+Should be combined with option \fB\-t\fP.
+
+To get a BootROM help, type this command followed by ENTER key:
+
+.RS 1.2i
+.TP
+.B ?
+.RE
+.IP
+
+Armada 38x BootROM has a bug which cause that BootROM's standard output
+is turned off on UART when SPI-NOR contains valid boot image. Nevertheless
+BootROM's standard input and BootROM's terminal echo are active and working
+fine. To workaround this BootROM bug with standard output, it is possible
+to manually overwrite BootROM variables stored in SRAM which BootROM use
+for checking if standard output is enabled or not. To enable BootROM
+standard output on UART, type this command folled by ENTER key:
+
+.RS 1.2i
+.TP
+.B w 0x40034100 1
+.RE
+
+.TP
+.BI "\-D" " image"
+Upload file \fIimage\fP over \fITTY\fP without initial handshake.
+
+This method is used primary on Dove platforms, where BootROM does
+not support initial handshake for entering UART upload mode and
+strapping pins (exported via e.g. buttons) are used instead.
+
+.TP
 .BI "\-p"
 Obsolete. Does nothing.
 
@@ -56,12 +98,32 @@ in the image prior upload, to "UART boot" type. This is now done by
 default.
 
 .TP
+.B "\-q"
+Obsolete. Does nothing.
+
+It is unknown whether it did something in the past.
+
+.TP
+.BI "\-s" " response-timeout"
+Specify custom response timeout when doing handshake. Default value is 50 ms.
+It is the timeout between sending two consecutive handshake patterns, meaning
+how long to wait for response from BootROM. Affects only option \fB\-b\fP with
+image file and option \fB\-d\fP.
+
+Option \fB-a\fP specify response timeout suitable for Armada XP BootROM and
+currently it is 1000 ms.
+
+Some testing showed that specifying 24 ms as response timeout make handshake
+with Armada 385 BootROM more stable.
+
+.TP
 .BI "\-t"
 Run a terminal program, connecting standard input and output to
 .RB \fITTY\fP.
 
-If used in combination with \fB-b\fP, terminal mode is entered
-immediately following a successful image upload.
+If used in combination with \fB\-b\fP, \fB\-D\fP or \fB\-d\fP option,
+terminal mode is entered immediately following a successful image upload
+or successful handshake (if not doing image upload).
 
 If standard I/O streams connect to a console, this mode will terminate
 after receiving \fBctrl-\e\fP followed by \fBc\fP from console input.
@@ -85,9 +147,42 @@ Tested values for \fIbaudrate\fP for Armada 38x include: 115200,
 230400, 460800, 500000, 576000, 921600, 1000000, 1152000, 1500000,
 2000000, 2500000, 3125000, 4000000 and 5200000.
 
+.SH "EXAMPLES"
+
+Instruct BootROM to enter boot Xmodem boot mode, send \fIu-boot-spl.kwb\fP
+kwbimage file via Xmodem on \fI/dev/ttyUSB0\fP at 115200 Bd and run terminal
+program:
+.IP
+.B kwboot -b u-boot-spl.kwb -t /dev/ttyUSB0
+
+.PP
+Instruct BootROM to enter boot Xmodem boot mode, send header of
+\fIu-boot-spl.kwb\fP kwbimage file via Xmodem at 115200 Bd, then instruct
+BootROM to change baudrate to 5200000 Bd, send data part of the kwbimage
+file via Xmodem at high speed and finally run terminal program:
+.IP
+.B kwboot -b u-boot-spl.kwb -B 5200000 -t /dev/ttyUSB0
+
+.PP
+Only send \fIu-boot-spl.kwb\fP kwbimage file via Xmodem on \fI/dev/ttyUSB0\fP
+at 115200 Bd:
+.IP
+.B kwboot -D u-boot-spl.kwb /dev/ttyUSB0
+
+.PP
+Instruct BootROM to enter console debug mode and run terminal program on
+\fI/dev/ttyUSB0\fP at 115200 Bd:
+.IP
+.B kwboot -d -t /dev/ttyUSB0
+
+.PP
+Only run terminal program on \fI/dev/ttyUSB0\fP at 115200 Bd:
+.IP
+.B kwboot -t /dev/ttyUSB0
+
 .SH "SEE ALSO"
 .PP
-\fBmkimage\fP(1)
+\fBmkimage\fP(1), \fBsx\fP(1)
 
 .SH "AUTHORS"
 
