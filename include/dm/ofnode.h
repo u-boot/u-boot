@@ -1217,4 +1217,18 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
  */
 const char *ofnode_conf_read_str(const char *prop_name);
 
+/**
+ * ofnode_get_phy_node() - Get PHY node for a MAC (if not fixed-link)
+ *
+ * This function parses PHY handle from the Ethernet controller's ofnode
+ * (trying all possible PHY handle property names), and returns the PHY ofnode.
+ *
+ * Before this is used, ofnode_phy_is_fixed_link() should be checked first, and
+ * if the result to that is true, this function should not be called.
+ *
+ * @eth_node:	ofnode belonging to the Ethernet controller
+ * Return: ofnode of the PHY, if it exists, otherwise an invalid ofnode
+ */
+ofnode ofnode_get_phy_node(ofnode eth_node);
+
 #endif

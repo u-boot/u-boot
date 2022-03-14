@@ -447,3 +447,21 @@ static int dm_test_ofnode_string_err(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_string_err, UT_TESTF_LIVE_TREE);
+
+static int dm_test_ofnode_get_phy(struct unit_test_state *uts)
+{
+	ofnode eth_node, phy_node;
+	u32 reg;
+
+	eth_node = ofnode_path("/phy-test-eth");
+	ut_assert(ofnode_valid(eth_node));
+
+	phy_node = ofnode_get_phy_node(eth_node);
+	ut_assert(ofnode_valid(phy_node));
+
+	reg = ofnode_read_u32_default(phy_node, "reg", -1U);
+	ut_asserteq_64(0x1, reg);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_phy, 0);
