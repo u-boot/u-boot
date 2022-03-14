@@ -447,6 +447,8 @@ int misc_init_r(void)
 		env_set(expansion_config.env_var, expansion_config.env_setting);
 
 	twl4030_power_init();
+	twl4030_power_mmc_init(0);
+
 	switch (get_board_revision()) {
 	case REVISION_XM_AB:
 		twl4030_led_init(TWL4030_LED_LEDEN_LEDBON);
@@ -499,17 +501,3 @@ void set_muxconf_regs(void)
 {
 	MUX_BEAGLE();
 }
-
-#if defined(CONFIG_MMC)
-int board_mmc_init(struct bd_info *bis)
-{
-	return omap_mmc_init(0, 0, 0, -1, -1);
-}
-#endif
-
-#if defined(CONFIG_MMC)
-void board_mmc_power_init(void)
-{
-	twl4030_power_mmc_init(0);
-}
-#endif
