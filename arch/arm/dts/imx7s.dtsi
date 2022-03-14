@@ -184,7 +184,7 @@
 			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
 	};
 
-	soc {
+	soc: soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "simple-bus";

@@ -27,9 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUS_PU100KOHM | \
-			PAD_CTL_HYS)
-
 int dram_init(void)
 {
 	gd->ram_size = PHYS_SDRAM_SIZE;
@@ -45,23 +42,6 @@ int dram_init(void)
 static iomux_v3_cfg_t const wdog_pads[] = {
 	MX7D_PAD_GPIO1_IO00__WDOG1_WDOG_B | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
-
-static iomux_v3_cfg_t const uart1_pads[] = {
-	MX7D_PAD_UART1_TX_DATA__UART1_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX7D_PAD_UART1_RX_DATA__UART1_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-};
-
-int board_early_init_f(void)
-{
-	setup_iomux_uart();
-
-	return 0;
-}
 
 #ifdef CONFIG_DM_PMIC
 int power_init_board(void)
