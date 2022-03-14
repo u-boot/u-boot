@@ -2073,7 +2073,8 @@ main(int argc, char **argv)
 			bootmsg = 1;
 			if (prev_optind == optind)
 				goto usage;
-			if (optind < argc - 1 && argv[optind] && argv[optind][0] != '-')
+			/* Option -b could have optional argument which specify image path */
+			if (optind < argc && argv[optind] && argv[optind][0] != '-')
 				imgpath = argv[optind++];
 			break;
 
@@ -2128,15 +2129,42 @@ main(int argc, char **argv)
 	if (!bootmsg && !term && !debugmsg && !imgpath)
 		goto usage;
 
-	ttypath = argv[optind++];
-
-	if (optind != argc)
+	/*
+	 * If there is no remaining argument but optional imgpath was parsed
+	 * then it means that optional imgpath was eaten by getopt parser.
+	 * Reassing imgpath to required ttypath argument.
+	 */
+	if (optind == argc && imgpath) {
+		ttypath = imgpath;
+		imgpath = NULL;
+	} else if (optind + 1 == argc) {
+		ttypath = argv[optind];
+	} else {
 		goto usage;
+	}
 
-	tty = kwboot_open_tty(ttypath, imgpath ? 115200 : baudrate);
+	/* boot and debug message use baudrate 115200 */
+	if (((bootmsg && !imgpath) || debugmsg) && baudrate != 115200) {
+		fprintf(stderr, "Baudrate other than 115200 cannot be used for this operation.\n");
+		goto usage;
+	}
+
+	tty = kwboot_open_tty(ttypath, baudrate);
 	if (tty < 0) {
 		perror(ttypath);
 		goto out;
+	}
+
+	/*
+	 * initial baudrate for image transfer is always 115200,
+	 * the change to different baudrate is done only after the header is sent
+	 */
+	if (imgpath && baudrate != 115200) {
+		rc = kwboot_tty_change_baudrate(tty, 115200);
+		if (rc) {
+			perror(ttypath);
+			goto out;
+		}
 	}
 
 	if (baudrate == 115200)
