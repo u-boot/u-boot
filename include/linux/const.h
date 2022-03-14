@@ -2,8 +2,13 @@
 #ifndef _LINUX_CONST_H
 #define _LINUX_CONST_H
 
-/* const.h: Macros for dealing with constants.  */
+#ifndef __UBOOT__
+#include <vdso/const.h>
+#else
 
+#ifndef __UBOOT__
+#include <uapi/linux/const.h>
+#else
 /* Some constant macros are used in both assembler and
  * C code.  Therefore we cannot annotate them always with
  * 'UL' and other type specifiers unilaterally.  We
@@ -28,7 +33,22 @@
 #define _BITUL(x)	(_UL(1) << (x))
 #define _BITULL(x)	(_ULL(1) << (x))
 
+#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
+#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+
+#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
+#endif
+
 #define UL(x)		(_UL(x))
 #define ULL(x)		(_ULL(x))
+#endif
+
+/*
+ * This returns a constant expression while determining if an argument is
+ * a constant expression, most importantly without evaluating the argument.
+ * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
+ */
+#define __is_constexpr(x) \
+	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
 
 #endif /* _LINUX_CONST_H */
