@@ -47,7 +47,13 @@ enum {
 	BINF_RW_B = 2
 };
 
-enum {
+/**
+ * enum cros_fw_type_t - Used to indicate Chromium OS firmware type
+ *
+ * Chromium OS uses a region of the GNVS starting at offset 0x100 to store
+ * various bits of information, including the type of firmware being booted
+ */
+enum cros_fw_type_t {
 	FIRMWARE_TYPE_AUTO_DETECT = -1,
 	FIRMWARE_TYPE_RECOVERY = 0,
 	FIRMWARE_TYPE_NORMAL = 1,
