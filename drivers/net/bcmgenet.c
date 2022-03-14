@@ -690,20 +690,14 @@ static int bcmgenet_eth_of_to_plat(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phy_node;
-	const char *phy_mode;
 	int ret;
 
 	pdata->iobase = dev_read_addr(dev);
 
 	/* Get phy mode from DT */
-	pdata->phy_interface = -1;
-	phy_mode = dev_read_string(dev, "phy-mode");
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
 		return -EINVAL;
-	}
 
 	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					 &phy_node);

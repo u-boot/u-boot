@@ -1360,17 +1360,11 @@ static int macb_eth_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
-	const char *phy_mode;
 	int ret;
 
-	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
-
-	if (phy_mode)
-		macb->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (macb->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+	macb->phy_interface = dev_read_phy_mode(dev);
+	if (macb->phy_interface == PHY_INTERFACE_MODE_NONE)
 		return -EINVAL;
-	}
 
 	/* Read phyaddr from DT */
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,

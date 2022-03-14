@@ -882,7 +882,6 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	struct sun8i_eth_pdata *sun8i_pdata = dev_get_plat(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
-	const char *phy_mode;
 	const fdt32_t *reg;
 	int node = dev_of_offset(dev);
 	int offset = 0;
@@ -946,16 +945,10 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	}
 	priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
-	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
-
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	pdata->phy_interface = dev_read_phy_mode(dev);
 	printf("phy interface%d\n", pdata->phy_interface);
-
-	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
 		return -EINVAL;
-	}
 
 	if (priv->variant == H3_EMAC) {
 		ret = sun8i_handle_internal_phy(dev, priv);

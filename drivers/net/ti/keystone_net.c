@@ -687,7 +687,6 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 	int phy;
 	int dma_count;
 	u32 dma_channel[8];
-	const char *phy_mode;
 
 	priv->slave_port = fdtdec_get_int(fdt, slave, "slave-port", -1);
 	priv->net_rx_buffs.rx_flow = priv->slave_port * 8;
@@ -728,20 +727,19 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 		priv->sgmii_link_type = SGMII_LINK_MAC_PHY;
 		priv->has_mdio = true;
 	} else if (priv->link_type == LINK_TYPE_RGMII_LINK_MAC_PHY) {
-		phy_mode = fdt_getprop(fdt, slave, "phy-mode", NULL);
-		if (phy_mode) {
-			priv->phy_if = phy_get_interface_by_name(phy_mode);
-			if (priv->phy_if != PHY_INTERFACE_MODE_RGMII &&
-			    priv->phy_if != PHY_INTERFACE_MODE_RGMII_ID &&
-			    priv->phy_if != PHY_INTERFACE_MODE_RGMII_RXID &&
-			    priv->phy_if != PHY_INTERFACE_MODE_RGMII_TXID) {
-				pr_err("invalid phy-mode\n");
-				return -EINVAL;
-			}
-		} else {
+		priv->phy_if = ofnode_read_phy_mode(offset_to_ofnode(slave));
+		if (priv->phy_if == PHY_INTERFACE_MODE_NONE)
 			priv->phy_if = PHY_INTERFACE_MODE_RGMII;
-		}
 		pdata->phy_interface = priv->phy_if;
+
+		if (priv->phy_if != PHY_INTERFACE_MODE_RGMII &&
+		    priv->phy_if != PHY_INTERFACE_MODE_RGMII_ID &&
+		    priv->phy_if != PHY_INTERFACE_MODE_RGMII_RXID &&
+		    priv->phy_if != PHY_INTERFACE_MODE_RGMII_TXID) {
+			pr_err("invalid phy-mode\n");
+			return -EINVAL;
+		}
+
 		priv->has_mdio = true;
 	}
 

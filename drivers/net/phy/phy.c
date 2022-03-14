@@ -982,25 +982,16 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
  */
 struct phy_device *fixed_phy_create(ofnode node)
 {
-	phy_interface_t interface = PHY_INTERFACE_MODE_NONE;
 	struct phy_device *phydev;
-	const char *if_str;
 	ofnode subnode;
-
-	if_str = ofnode_read_string(node, "phy-mode");
-	if (!if_str) {
-		if_str = ofnode_read_string(node, "phy-connection-type");
-	}
-	if (if_str) {
-		interface = phy_get_interface_by_name(if_str);
-	}
 
 	subnode = ofnode_find_subnode(node, "fixed-link");
 	if (!ofnode_valid(subnode)) {
 		return NULL;
 	}
 
-	phydev = phy_device_create(NULL, 0, PHY_FIXED_ID, false, interface);
+	phydev = phy_device_create(NULL, 0, PHY_FIXED_ID, false,
+				   ofnode_read_phy_mode(node));
 	if (phydev)
 		phydev->node = subnode;
 
@@ -1097,16 +1088,4 @@ int phy_shutdown(struct phy_device *phydev)
 		phydev->drv->shutdown(phydev);
 
 	return 0;
-}
-
-int phy_get_interface_by_name(const char *str)
-{
-	int i;
-
-	for (i = 0; i < PHY_INTERFACE_MODE_COUNT; i++) {
-		if (!strcmp(str, phy_interface_strings[i]))
-			return i;
-	}
-
-	return -1;
 }

@@ -757,6 +757,18 @@ int dev_decode_display_timing(const struct udevice *dev, int index,
  */
 ofnode dev_get_phy_node(const struct udevice *dev);
 
+/**
+ * dev_read_phy_mode() - Read PHY connection type from a MAC
+ *
+ * This function parses the "phy-mode" / "phy-connection-type" property and
+ * returns the corresponding PHY interface type.
+ *
+ * @dev: device representing the MAC
+ * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NONE on
+ *	   error
+ */
+phy_interface_t dev_read_phy_mode(const struct udevice *dev);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 #include <asm/global_data.h>
 
@@ -1109,6 +1121,11 @@ static inline int dev_decode_display_timing(const struct udevice *dev,
 static inline ofnode dev_get_phy_node(const struct udevice *dev)
 {
 	return ofnode_get_phy_node(dev_ofnode(dev));
+}
+
+static inline phy_interface_t dev_read_phy_mode(const struct udevice *dev)
+{
+	return ofnode_read_phy_mode(dev_ofnode(dev));
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */

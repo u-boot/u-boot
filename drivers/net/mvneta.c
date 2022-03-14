@@ -1799,20 +1799,13 @@ static const struct eth_ops mvneta_ops = {
 static int mvneta_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
-	const char *phy_mode;
 
 	pdata->iobase = dev_read_addr(dev);
 
 	/* Get phy-mode / phy_interface from DT */
-	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
-			       NULL);
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
 		return -EINVAL;
-	}
 
 	return 0;
 }

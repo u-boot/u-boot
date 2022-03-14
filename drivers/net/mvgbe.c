@@ -993,7 +993,6 @@ static int mvgbe_of_to_plat(struct udevice *dev)
 	struct mvgbe_device *dmvgbe = dev_get_priv(dev);
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
-	const char *phy_mode;
 	int fl_node;
 	int pnode;
 	unsigned long addr;
@@ -1005,10 +1004,8 @@ static int mvgbe_of_to_plat(struct udevice *dev)
 					      "marvell,kirkwood-eth-port");
 
 	/* Get phy-mode / phy_interface from DT */
-	phy_mode = fdt_getprop(gd->fdt_blob, pnode, "phy-mode", NULL);
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	else
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
 		pdata->phy_interface = PHY_INTERFACE_MODE_GMII;
 
 	dmvgbe->phy_interface = pdata->phy_interface;
