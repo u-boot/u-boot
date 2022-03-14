@@ -95,27 +95,18 @@ int dm_mdio_reset(struct udevice *mdio_dev)
  */
 static int mdio_read(struct mii_dev *mii_bus, int addr, int devad, int reg)
 {
-	struct udevice *dev = mii_bus->priv;
-
-	return mdio_get_ops(dev)->read(dev, addr, devad, reg);
+	return dm_mdio_read(mii_bus->priv, addr, devad, reg);
 }
 
 static int mdio_write(struct mii_dev *mii_bus, int addr, int devad, int reg,
 		      u16 val)
 {
-	struct udevice *dev = mii_bus->priv;
-
-	return mdio_get_ops(dev)->write(dev, addr, devad, reg, val);
+	return dm_mdio_write(mii_bus->priv, addr, devad, reg, val);
 }
 
 static int mdio_reset(struct mii_dev *mii_bus)
 {
-	struct udevice *dev = mii_bus->priv;
-
-	if (mdio_get_ops(dev)->reset)
-		return mdio_get_ops(dev)->reset(dev);
-	else
-		return 0;
+	return dm_mdio_reset(mii_bus->priv);
 }
 
 static int dm_mdio_post_probe(struct udevice *dev)
@@ -135,10 +126,8 @@ static int dm_mdio_post_probe(struct udevice *dev)
 static int dm_mdio_pre_remove(struct udevice *dev)
 {
 	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(dev);
-	struct mdio_ops *ops = mdio_get_ops(dev);
 
-	if (ops->reset)
-		ops->reset(dev);
+	dm_mdio_reset(dev);
 	mdio_unregister(pdata->mii_bus);
 	mdio_free(pdata->mii_bus);
 
