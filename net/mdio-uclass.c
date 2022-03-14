@@ -57,6 +57,37 @@ static int dm_mdio_post_bind(struct udevice *dev)
 	return 0;
 }
 
+int dm_mdio_read(struct udevice *mdio_dev, int addr, int devad, int reg)
+{
+	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+
+	if (!ops->read)
+		return -ENOSYS;
+
+	return ops->read(mdio_dev, addr, devad, reg);
+}
+
+int dm_mdio_write(struct udevice *mdio_dev, int addr, int devad, int reg,
+		  u16 val)
+{
+	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+
+	if (!ops->write)
+		return -ENOSYS;
+
+	return ops->write(mdio_dev, addr, devad, reg, val);
+}
+
+int dm_mdio_reset(struct udevice *mdio_dev)
+{
+	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+
+	if (!ops->reset)
+		return 0;
+
+	return ops->reset(mdio_dev);
+}
+
 /*
  * Following read/write/reset functions are registered with legacy MII code.
  * These are called for PHY operations by upper layers and we further call the
