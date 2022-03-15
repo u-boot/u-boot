@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /* Copyright (C) 2020 Steffen Jaeckel <jaeckel-floss@eyet-services.de> */
 
+#include <linux/build_bug.h>
 #include <linux/types.h>
 #include <vsprintf.h>
 
@@ -9,8 +10,6 @@
 #define ALG_SPECIFIC_SIZE 8192
 
 #define ARG_UNUSED(x) (x)
-
-#define static_assert(a, b) _Static_assert(a, b)
 
 #define strtoul(cp, endp, base) simple_strtoul(cp, endp, base)
 
