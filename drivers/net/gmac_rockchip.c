@@ -350,7 +350,7 @@ static void px30_gmac_set_to_rmii(struct gmac_rockchip_plat *pdata)
 	struct px30_grf *grf;
 	enum {
 		PX30_GMAC_PHY_INTF_SEL_SHIFT = 4,
-		PX30_GMAC_PHY_INTF_SEL_MASK  = GENMASK(4, 6),
+		PX30_GMAC_PHY_INTF_SEL_MASK  = GENMASK(6, 4),
 		PX30_GMAC_PHY_INTF_SEL_RMII  = BIT(6),
 	};
 
