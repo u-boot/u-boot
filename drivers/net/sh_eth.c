@@ -762,11 +762,11 @@ static int sh_eth_phy_config(struct udevice *dev)
 	struct phy_device *phydev;
 	int mask = 0xffffffff;
 
-	phydev = phy_find_by_mask(priv->bus, mask, pdata->phy_interface);
+	phydev = phy_find_by_mask(priv->bus, mask);
 	if (!phydev)
 		return -ENODEV;
 
-	phy_connect_dev(phydev, dev);
+	phy_connect_dev(phydev, dev, pdata->phy_interface);
 
 	port_info->phydev = phydev;
 	phy_config(phydev);

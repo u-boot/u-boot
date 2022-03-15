@@ -388,11 +388,9 @@ int phy_reset(struct phy_device *phydev);
  *
  * @bus:	MII/MDIO bus to scan
  * @phy_mask:	bitmap of PYH addresses to scan
- * @interface:	type of MAC-PHY interface
  * @return: pointer to phy_device if a PHY is found, or NULL otherwise
  */
-struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
-		phy_interface_t interface);
+struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask);
 
 #ifdef CONFIG_PHY_FIXED
 
@@ -421,8 +419,10 @@ static inline struct phy_device *fixed_phy_create(ofnode node)
  * phy_connect_dev() - Associates the given pair of PHY and Ethernet devices
  * @phydev:	PHY device
  * @dev:	Ethernet device
+ * @interface:	type of MAC-PHY interface
  */
-void phy_connect_dev(struct phy_device *phydev, struct udevice *dev);
+void phy_connect_dev(struct phy_device *phydev, struct udevice *dev,
+		     phy_interface_t interface);
 
 /**
  * phy_connect() - Creates a PHY device for the Ethernet interface
@@ -449,12 +449,10 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
  * @addr:		PHY address on MDIO bus
  * @phy_id:		where to store the ID retrieved
  * @is_c45:		Device Identifiers if is_c45
- * @interface:		interface between the MAC and PHY
  * @return: pointer to phy_device if a PHY is found, or NULL otherwise
  */
 struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
-				     u32 phy_id, bool is_c45,
-				     phy_interface_t interface);
+				     u32 phy_id, bool is_c45);
 
 /**
  * phy_connect_phy_id() - Connect to phy device by reading PHY id
@@ -462,12 +460,10 @@ struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
  *
  * @bus:		MII/MDIO bus that hosts the PHY
  * @dev:		Ethernet device to associate to the PHY
- * @interface:		Interface between the MAC and PHY
  * @return:		pointer to phy_device if a PHY is found,
  *			or NULL otherwise
  */
-struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
-				      phy_interface_t interface);
+struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev);
 
 static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 {
@@ -482,8 +478,10 @@ static inline ofnode phy_get_ofnode(struct phy_device *phydev)
  * phy_connect_dev() - Associates the given pair of PHY and Ethernet devices
  * @phydev:	PHY device
  * @dev:	Ethernet device
+ * @interface:	type of MAC-PHY interface
  */
-void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev);
+void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev,
+		     phy_interface_t interface);
 
 /**
  * phy_connect() - Creates a PHY device for the Ethernet interface
