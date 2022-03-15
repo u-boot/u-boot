@@ -333,7 +333,6 @@ void board_init_f(ulong dummy)
 	clock_init();
 	timer_init();
 	gpio_init();
-	eth_init_board();
 
 	spl_init();
 	preloader_console_init();
