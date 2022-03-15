@@ -272,6 +272,18 @@ struct sdhci_ops {
 	int (*platform_execute_tuning)(struct mmc *host, u8 opcode);
 	int (*set_delay)(struct sdhci_host *host);
 	int	(*deferred_probe)(struct sdhci_host *host);
+
+	/**
+	 * set_enhanced_strobe() - Set HS400 Enhanced Strobe config
+	 *
+	 * This is called after setting the card speed and mode to
+	 * HS400 ES, and should set any host-specific configuration
+	 * necessary for it.
+	 *
+	 * @host: SDHCI host structure
+	 * Return: 0 if successful, -ve on error
+	 */
+	int	(*set_enhanced_strobe)(struct sdhci_host *host);
 };
 
 #define ADMA_MAX_LEN	65532
