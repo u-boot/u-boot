@@ -179,6 +179,14 @@
 	u-boot,dm-spl;
 };
 
+&usb33 {
+	u-boot,dm-spl;
+};
+
+&usbotg_hs_pins_a {
+	u-boot,dm-spl;
+};
+
 &usbotg_hs {
 	u-boot,dm-spl;
 };
@@ -192,10 +200,6 @@
 };
 
 &usbphyc_port1 {
-	u-boot,dm-spl;
-};
-
-&vdd_io {
 	u-boot,dm-spl;
 };
 
