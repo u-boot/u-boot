@@ -42,6 +42,9 @@
 	((((x) >> PHYCTRL_DLLRDY_SHIFT) & PHYCTRL_DLLRDY_MASK) ==\
 	PHYCTRL_DLLRDY_DONE)
 
+#define ARASAN_VENDOR_REGISTER		0x78
+#define ARASAN_VENDOR_ENHANCED_STROBE	BIT(0)
+
 /* Rockchip specific Registers */
 #define DWCMSHC_EMMC_DLL_CTRL		0x800
 #define DWCMSHC_EMMC_DLL_CTRL_RESET	BIT(1)
@@ -117,6 +120,19 @@ struct sdhci_data {
 	 * Return: 0 if successful, -ve on error
 	 */
 	int (*set_ios_post)(struct sdhci_host *host);
+
+	/**
+	 * set_enhanced_strobe() - Set HS400 Enhanced Strobe config
+	 *
+	 * This is the set_enhanced_strobe() SDHCI operation that should
+	 * be used for the hardware this driver data is associated with.
+	 * Normally, this is used to set any host-specific configuration
+	 * necessary for HS400 ES.
+	 *
+	 * @host: SDHCI host structure
+	 * Return: 0 if successful, -ve on error
+	 */
+	int (*set_enhanced_strobe)(struct sdhci_host *host);
 };
 
 static int rk3399_emmc_phy_init(struct udevice *dev)
@@ -206,6 +222,21 @@ static int rk3399_emmc_get_phy(struct udevice *dev)
 	return 0;
 }
 
+static int rk3399_sdhci_set_enhanced_strobe(struct sdhci_host *host)
+{
+	struct mmc *mmc = host->mmc;
+	u32 vendor;
+
+	vendor = sdhci_readl(host, ARASAN_VENDOR_REGISTER);
+	if (mmc->selected_mode == MMC_HS_400_ES)
+		vendor |= ARASAN_VENDOR_ENHANCED_STROBE;
+	else
+		vendor &= ~ARASAN_VENDOR_ENHANCED_STROBE;
+	sdhci_writel(host, vendor, ARASAN_VENDOR_REGISTER);
+
+	return 0;
+}
+
 static void rk3399_sdhci_set_control_reg(struct sdhci_host *host)
 {
 	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
@@ -217,6 +248,15 @@ static void rk3399_sdhci_set_control_reg(struct sdhci_host *host)
 		rk3399_emmc_phy_power_off(priv->phy);
 
 	sdhci_set_control_reg(host);
+
+	/*
+	 * Reinitializing the device tries to set it to lower-speed modes
+	 * first, which fails if the Enhanced Strobe bit is set, making
+	 * the device impossible to use. Set the correct value here to
+	 * let reinitialization attempts succeed.
+	 */
+	if (CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT))
+		rk3399_sdhci_set_enhanced_strobe(host);
 };
 
 static int rk3399_sdhci_set_ios_post(struct sdhci_host *host)
@@ -409,10 +449,22 @@ static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	return ret;
 }
 
+static int rockchip_sdhci_set_enhanced_strobe(struct sdhci_host *host)
+{
+	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
+	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(priv->dev);
+
+	if (data->set_enhanced_strobe)
+		return data->set_enhanced_strobe(host);
+
+	return -ENOTSUPP;
+}
+
 static struct sdhci_ops rockchip_sdhci_ops = {
 	.set_ios_post	= rockchip_sdhci_set_ios_post,
 	.platform_execute_tuning = &rockchip_sdhci_execute_tuning,
 	.set_control_reg = rockchip_sdhci_set_control_reg,
+	.set_enhanced_strobe = rockchip_sdhci_set_enhanced_strobe,
 };
 
 static int rockchip_sdhci_probe(struct udevice *dev)
@@ -495,6 +547,7 @@ static const struct sdhci_data rk3399_data = {
 	.emmc_phy_init = rk3399_emmc_phy_init,
 	.set_control_reg = rk3399_sdhci_set_control_reg,
 	.set_ios_post = rk3399_sdhci_set_ios_post,
+	.set_enhanced_strobe = rk3399_sdhci_set_enhanced_strobe,
 };
 
 static const struct sdhci_data rk3568_data = {
