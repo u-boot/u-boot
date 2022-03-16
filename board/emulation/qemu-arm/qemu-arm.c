@@ -6,14 +6,34 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <efi.h>
+#include <efi_loader.h>
+#include <efi_loader.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <log.h>
 #include <virtio_types.h>
 #include <virtio.h>
 
+#include <linux/kernel.h>
+
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_images fw_images[] = {
+	{
+#if defined(CONFIG_TARGET_QEMU_ARM_32BIT)
+		.image_type_id = QEMU_ARM_UBOOT_IMAGE_GUID,
+#elif defined(CONFIG_TARGET_QEMU_ARM_64BIT)
+		.image_type_id = QEMU_ARM64_UBOOT_IMAGE_GUID,
+#endif
+		.fw_name = u"Qemu-Arm-UBOOT",
+	},
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 static struct mm_region qemu_arm64_mem_map[] = {
 	{

@@ -7,6 +7,8 @@
 #include <cpu_func.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <env_internal.h>
 #include <init.h>
 #include <led.h>
@@ -24,6 +26,21 @@
  * Here we initialize it.
  */
 gd_t *gd;
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_images fw_images[] = {
+	{
+		.image_type_id = SANDBOX_UBOOT_IMAGE_GUID,
+		.fw_name = u"SANDBOX-UBOOT",
+	},
+	{
+		.image_type_id = SANDBOX_UBOOT_ENV_IMAGE_GUID,
+		.fw_name = u"SANDBOX-FIT",
+	},
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 /*
