@@ -44,6 +44,7 @@ static struct sbi_ext extensions[] = {
 	{ SBI_EXT_RFENCE,		      "RFENCE Extension" },
 	{ SBI_EXT_HSM,			      "Hart State Management Extension" },
 	{ SBI_EXT_SRST,			      "System Reset Extension" },
+	{ SBI_EXT_PMU,			      "Performance Monitoring Unit Extension" },
 };
 
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
