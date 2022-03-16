@@ -4,16 +4,16 @@
 MAIX
 ====
 
-Several of the Sipeed Maix series of boards cotain the Kendryte K210 processor,
-a 64-bit RISC-V CPU. This processor contains several peripherals to accelerate
-neural network processing and other "ai" tasks. This includes a "KPU" neural
-network processor, an audio processor supporting beamforming reception, and a
-digital video port supporting capture and output at VGA resolution. Other
-peripherals include 8M of SRAM (accessible with and without caching); remappable
-pins, including 40 GPIOs; AES, FFT, and SHA256 accelerators; a DMA controller;
-and I2C, I2S, and SPI controllers. Maix peripherals vary, but include spi flash;
-on-board usb-serial bridges; ports for cameras, displays, and sd cards; and
-ESP32 chips.
+Several of the Sipeed Maix series of boards contain the Kendryte K210 processor,
+a 64-bit RISC-V CPU produced by Canaan Inc. This processor contains several
+peripherals to accelerate neural network processing and other "ai" tasks. This
+includes a "KPU" neural network processor, an audio processor supporting
+beamforming reception, and a digital video port supporting capture and output at
+VGA resolution. Other peripherals include 8M of SRAM (accessible with and
+without caching); remappable pins, including 40 GPIOs; AES, FFT, and SHA256
+accelerators; a DMA controller; and I2C, I2S, and SPI controllers. Maix
+peripherals vary, but include spi flash; on-board usb-serial bridges; ports for
+cameras, displays, and sd cards; and ESP32 chips.
 
 Currently, only the Sipeed MAIX BiT V2.0 (bitm) and Sipeed MAIXDUINO are
 supported, but the boards are fairly similar.
