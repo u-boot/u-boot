@@ -8,6 +8,8 @@
 #include <init.h>
 #include <log.h>
 #include <dm/uclass.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <env_internal.h>
 #include <fdtdec.h>
@@ -21,9 +23,25 @@
 #include <asm/global_data.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/kernel.h>
 #include "../common/board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_images fw_images[] = {
+	{
+		.image_type_id = ZYNQ_BOOT_IMAGE_GUID,
+		.fw_name = u"ZYNQ-BOOT-IMAGE",
+	},
+	{
+		.image_type_id = ZYNQ_UBOOT_IMAGE_GUID,
+		.fw_name = u"ZYNQ-UBOOT",
+	},
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DEBUG_UART_BOARD_INIT)
 void board_debug_uart_init(void)
