@@ -368,7 +368,7 @@ efi_status_t efi_get_variable_int(const u16 *variable_name,
 	efi_uintn_t name_size;
 	efi_uintn_t tmp_dsize;
 	u8 *comm_buf = NULL;
-	efi_status_t ret;
+	efi_status_t ret, tmp;
 
 	if (!variable_name || !vendor || !data_size) {
 		ret = EFI_INVALID_PARAMETER;
@@ -407,22 +407,31 @@ efi_status_t efi_get_variable_int(const u16 *variable_name,
 
 	/* Communicate */
 	ret = mm_communicate(comm_buf, payload_size);
-	if (ret == EFI_SUCCESS || ret == EFI_BUFFER_TOO_SMALL) {
-		/* Update with reported data size for trimmed case */
-		*data_size = var_acc->data_size;
-	}
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS && ret != EFI_BUFFER_TOO_SMALL)
 		goto out;
 
-	ret = get_property_int(variable_name, name_size, vendor, &var_property);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
+	/* Update with reported data size for trimmed case */
+	*data_size = var_acc->data_size;
+	/*
+	 * UEFI > 2.7 needs the attributes set even if the buffer is
+	 * smaller
+	 */
 	if (attributes) {
+		tmp = get_property_int(variable_name, name_size, vendor,
+				       &var_property);
+		if (tmp != EFI_SUCCESS) {
+			ret = tmp;
+			goto out;
+		}
 		*attributes = var_acc->attr;
-		if (var_property.property & VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY)
+		if (var_property.property &
+		    VAR_CHECK_VARIABLE_PROPERTY_READ_ONLY)
 			*attributes |= EFI_VARIABLE_READ_ONLY;
 	}
+
+	/* return if ret is EFI_BUFFER_TOO_SMALL */
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	if (data)
 		memcpy(data, (u8 *)var_acc->name + var_acc->name_size,
