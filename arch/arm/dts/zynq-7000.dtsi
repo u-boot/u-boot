@@ -246,33 +246,6 @@
 			#size-cells = <0>;
 		};
 
-		smcc: memory-controller@e000e000 {
-			#address-cells = <1>;
-			#size-cells = <1>;
-			status = "disabled";
-			clock-names = "memclk", "apb_pclk";
-			clocks = <&clkc 11>, <&clkc 44>;
-			compatible = "arm,pl353-smc-r2p1", "arm,primecell";
-			interrupt-parent = <&intc>;
-			interrupts = <0 18 4>;
-			ranges ;
-			reg = <0xe000e000 0x1000>;
-			nand0: flash@e1000000 {
-				status = "disabled";
-				compatible = "arm,pl353-nand-r2p1";
-				reg = <0xe1000000 0x1000000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
-			};
-			nor0: flash@e2000000 {
-				status = "disabled";
-				compatible = "cfi-flash";
-				reg = <0xe2000000 0x2000000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
-			};
-		};
-
 		gem0: ethernet@e000b000 {
 			compatible = "cdns,zynq-gem", "cdns,gem";
 			reg = <0xe000b000 0x1000>;
@@ -293,6 +266,36 @@
 			clock-names = "pclk", "hclk", "tx_clk";
 			#address-cells = <1>;
 			#size-cells = <0>;
+		};
+
+		smcc: memory-controller@e000e000 {
+			compatible = "arm,pl353-smc-r2p1", "arm,primecell";
+			reg = <0xe000e000 0x0001000>;
+			status = "disabled";
+			clock-names = "memclk", "apb_pclk";
+			clocks = <&clkc 11>, <&clkc 44>;
+			ranges = <0x0 0x0 0xe1000000 0x1000000 /* Nand CS region */
+				  0x1 0x0 0xe2000000 0x2000000 /* SRAM/NOR CS0 region */
+				  0x2 0x0 0xe4000000 0x2000000>; /* SRAM/NOR CS1 region */
+			#address-cells = <2>;
+			#size-cells = <1>;
+			interrupt-parent = <&intc>;
+			interrupts = <0 18 4>;
+
+			nfc0: nand-controller@0,0 {
+				compatible = "arm,pl353-nand-r2p1";
+				reg = <0 0 0x1000000>;
+				status = "disabled";
+				#address-cells = <1>;
+				#size-cells = <1>;
+			};
+			nor0: flash@1,0 {
+				status = "disabled";
+				compatible = "cfi-flash";
+				reg = <1 0 0x2000000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+			};
 		};
 
 		sdhci0: mmc@e0100000 {

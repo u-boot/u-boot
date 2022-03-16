@@ -12,9 +12,12 @@
 #include <linux/delay.h>
 #include "mmc_private.h"
 #include <log.h>
+#include <reset.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/libfdt.h>
+#include <asm/types.h>
+#include <linux/math64.h>
 #include <asm/cache.h>
 #include <malloc.h>
 #include <sdhci.h>
@@ -61,6 +64,7 @@ struct arasan_sdhci_priv {
 	u8 deviceid;
 	u8 bank;
 	u8 no_1p8;
+	struct reset_ctl_bulk resets;
 };
 
 /* For Versal platforms zynqmp_mmio_write() won't be available */
@@ -243,7 +247,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
 	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 
-	debug("%s\n", __func__);
+	dev_dbg(mmc->dev, "%s\n", __func__);
 
 	host = priv->host;
 
@@ -703,17 +707,49 @@ static const struct sdhci_ops arasan_ops = {
 };
 #endif
 
-static int arasan_sdhci_probe(struct udevice *dev)
+#if defined(CONFIG_ARCH_ZYNQMP)
+static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
+					   struct udevice *dev)
 {
-	struct arasan_sdhci_plat *plat = dev_get_plat(dev);
-	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
-	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
-	struct sdhci_host *host;
-	struct clk clk;
-	unsigned long clock;
 	int ret;
+	u32 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
+	struct clk clk;
+	unsigned long clock, mhz;
 
-	host = priv->host;
+	ret = xilinx_pm_request(PM_REQUEST_NODE, node_id, ZYNQMP_PM_CAPABILITY_ACCESS,
+				ZYNQMP_PM_MAX_QOS, ZYNQMP_PM_REQUEST_ACK_NO, NULL);
+	if (ret) {
+		dev_err(dev, "Request node failed for %d\n", node_id);
+		return ret;
+	}
+
+	ret = reset_get_bulk(dev, &priv->resets);
+	if (ret == -ENOTSUPP || ret == -ENOENT) {
+		dev_err(dev, "Reset not found\n");
+		return 0;
+	} else if (ret) {
+		dev_err(dev, "Reset failed\n");
+		return ret;
+	}
+
+	ret = reset_assert_bulk(&priv->resets);
+	if (ret) {
+		dev_err(dev, "Reset assert failed\n");
+		return ret;
+	}
+
+	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_FIXED, 0);
+	if (ret) {
+		dev_err(dev, "SD_CONFIG_FIXED failed\n");
+		return ret;
+	}
+
+	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_EMMC_SEL,
+				      dev_read_bool(dev, "non-removable"));
+	if (ret) {
+		dev_err(dev, "SD_CONFIG_EMMC_SEL failed\n");
+		return ret;
+	}
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0) {
@@ -727,7 +763,68 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		return clock;
 	}
 
-	debug("%s: CLK %ld\n", __func__, clock);
+	mhz = DIV64_U64_ROUND_UP(clock, 1000000);
+
+	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_BASECLK, mhz);
+	if (ret) {
+		dev_err(dev, "SD_CONFIG_BASECLK failed\n");
+		return ret;
+	}
+
+	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_8BIT,
+				      (dev_read_u32_default(dev, "bus-width", 1) == 8));
+	if (ret) {
+		dev_err(dev, "SD_CONFIG_8BIT failed\n");
+		return ret;
+	}
+
+	ret = reset_deassert_bulk(&priv->resets);
+	if (ret) {
+		dev_err(dev, "Reset release failed\n");
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
+static int arasan_sdhci_probe(struct udevice *dev)
+{
+	struct arasan_sdhci_plat *plat = dev_get_plat(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
+	struct sdhci_host *host;
+	struct clk clk;
+	unsigned long clock;
+	int ret;
+
+	host = priv->host;
+
+#if defined(CONFIG_ARCH_ZYNQMP)
+	if (device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
+		ret = zynqmp_pm_is_function_supported(PM_IOCTL,
+						      IOCTL_SET_SD_CONFIG);
+		if (!ret) {
+			ret = sdhci_zynqmp_set_dynamic_config(priv, dev);
+			if (ret)
+				return ret;
+		}
+	}
+#endif
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get clock\n");
+		return ret;
+	}
+
+	clock = clk_get_rate(&clk);
+	if (IS_ERR_VALUE(clock)) {
+		dev_err(dev, "failed to get rate\n");
+		return clock;
+	}
+
+	dev_dbg(dev, "%s: CLK %ld\n", __func__, clock);
 
 	ret = clk_enable(&clk);
 	if (ret) {
@@ -769,12 +866,13 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	 * causing sd card timeout error. Workaround this by adding a wait for
 	 * 1000msec till the card detect state gets stable.
 	 */
-	if (IS_ENABLED(CONFIG_ARCH_VERSAL)) {
-		u32 timeout = 1000;
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) || IS_ENABLED(CONFIG_ARCH_VERSAL)) {
+		u32 timeout = 1000000;
 
 		while (((sdhci_readl(host, SDHCI_PRESENT_STATE) &
-			 SDHCI_CARD_STATE_STABLE) == 0) && timeout--) {
-			mdelay(1);
+			 SDHCI_CARD_STATE_STABLE) == 0) && timeout) {
+			udelay(1);
+			timeout--;
 		}
 		if (!timeout) {
 			dev_err(dev, "Sdhci card detect state not stable\n");

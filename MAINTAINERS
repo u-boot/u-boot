@@ -617,8 +617,10 @@ F:	drivers/i2c/muxes/pca954x.c
 F:	drivers/i2c/zynq_i2c.c
 F:	drivers/mmc/zynq_sdhci.c
 F:	drivers/mtd/nand/raw/zynq_nand.c
+F:	drivers/net/phy/ethernet_id.c
 F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
+F:	drivers/pinctrl/pinctrl-zynqmp.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
@@ -636,6 +638,7 @@ F:	arch/arm/mach-zynqmp/
 F:	drivers/clk/clk_zynqmp.c
 F:	driver/firmware/firmware-zynqmp.c
 F:	drivers/fpga/zynqpl.c
+F:	drivers/gpio/gpio_slg7xl45106.c
 F:	drivers/gpio/zynq_gpio.c
 F:	drivers/gpio/zynqmp_gpio_modepin.c
 F:	drivers/i2c/i2c-cdns.c
@@ -655,7 +658,6 @@ F:	drivers/soc/soc_xilinx_zynqmp.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/timer/cadence-ttc.c
-F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/video/seps525.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h

@@ -6,6 +6,7 @@
 
 #ifndef __FRU_H
 #define __FRU_H
+#include <net.h>
 
 struct fru_common_hdr {
 	u8 version;
@@ -19,6 +20,7 @@ struct fru_common_hdr {
 };
 
 #define FRU_BOARD_MAX_LEN	32
+#define FRU_MAX_NO_OF_MAC_ADDR	4
 
 struct __packed fru_board_info_header {
 	u8 ver;
@@ -56,9 +58,24 @@ struct fru_board_data {
 	u8 uuid[FRU_BOARD_MAX_LEN];
 };
 
+struct fru_multirec_hdr {
+	u8 rec_type;
+	u8 type;
+	u8 len;
+	u8 csum;
+	u8 hdr_csum;
+};
+
+struct fru_multirec_mac {
+	u8 xlnx_iana_id[3];
+	u8 ver;
+	u8 macid[FRU_MAX_NO_OF_MAC_ADDR][ETH_ALEN];
+};
+
 struct fru_table {
 	struct fru_common_hdr hdr;
 	struct fru_board_data brd;
+	struct fru_multirec_mac mac;
 	bool captured;
 };
 
@@ -69,6 +86,10 @@ struct fru_table {
 #define FRU_LANG_CODE_ENGLISH		0
 #define FRU_LANG_CODE_ENGLISH_1		25
 #define FRU_TYPELEN_EOF			0xC1
+#define FRU_MULTIREC_TYPE_OEM		0xD2
+#define FRU_MULTIREC_MAC_OFFSET		4
+#define FRU_LAST_REC			BIT(7)
+#define FRU_DUT_MACID			0x31
 
 /* This should be minimum of fields */
 #define FRU_BOARD_AREA_TOTAL_FIELDS	5
