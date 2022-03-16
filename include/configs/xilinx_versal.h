@@ -31,6 +31,12 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_MAY_FAIL
 
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#define XILINX_BOOT_IMAGE_GUID \
+	EFI_GUID(0x20c5fba5, 0x0171, 0x457f, 0xb9, 0xcd, \
+		 0xf5, 0x12, 0x9c, 0xd0, 0x72, 0x28)
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
+
 /* Miscellaneous configurable options */
 
 /* Monitor Command Prompt */

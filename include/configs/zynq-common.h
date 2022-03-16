@@ -20,6 +20,16 @@
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 #define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMERBASE + 0x4)
 
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#define XILINX_BOOT_IMAGE_GUID \
+	EFI_GUID(0x1ba29a15, 0x9969, 0x40aa, 0xb4, 0x24, \
+		 0xe8, 0x61, 0x21, 0x61, 0x86, 0x64)
+
+#define XILINX_UBOOT_IMAGE_GUID \
+	EFI_GUID(0x1a5178f0, 0x87d3, 0x4f36, 0xac, 0x63, \
+		 0x3b, 0x31, 0xa2, 0x3b, 0xe3, 0x05)
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
+
 /* Serial drivers */
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE  \
