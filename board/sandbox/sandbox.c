@@ -7,6 +7,8 @@
 #include <cpu_func.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <env_internal.h>
 #include <init.h>
 #include <led.h>
@@ -14,6 +16,7 @@
 #include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
+#include <linux/kernel.h>
 #include <malloc.h>
 
 #include <extension_board.h>
@@ -24,6 +27,28 @@
  * Here we initialize it.
  */
 gd_t *gd;
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_images fw_images[] = {
+#if defined(CONFIG_EFI_CAPSULE_FIRMWARE_RAW)
+	{
+		.image_type_id = SANDBOX_UBOOT_IMAGE_GUID,
+		.fw_name = u"SANDBOX-UBOOT",
+	},
+	{
+		.image_type_id = SANDBOX_UBOOT_ENV_IMAGE_GUID,
+		.fw_name = u"SANDBOX-UBOOT-ENV",
+	},
+#elif defined(CONFIG_EFI_CAPSULE_FIRMWARE_FIT)
+	{
+		.image_type_id = SANDBOX_FIT_IMAGE_GUID,
+		.fw_name = u"SANDBOX-FIT",
+	},
+#endif
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 /*
