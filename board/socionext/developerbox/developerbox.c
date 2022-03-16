@@ -10,9 +10,42 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <env_internal.h>
 #include <fdt_support.h>
 #include <log.h>
+
+#include <linux/kernel.h>
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_image fw_images[] = {
+	{
+		.image_type_id = DEVELOPERBOX_UBOOT_IMAGE_GUID,
+		.fw_name = u"DEVELOPERBOX-UBOOT",
+		.image_index = 1,
+	},
+	{
+		.image_type_id = DEVELOPERBOX_FIP_IMAGE_GUID,
+		.fw_name = u"DEVELOPERBOX-FIP",
+		.image_index = 2,
+	},
+	{
+		.image_type_id = DEVELOPERBOX_OPTEE_IMAGE_GUID,
+		.fw_name = u"DEVELOPERBOX-OPTEE",
+		.image_index = 3,
+	},
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "mtd nor1=u-boot.bin raw 200000 100000;"
+			"fip.bin raw 180000 78000;"
+			"optee.bin raw 500000 100000",
+	.images = fw_images,
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 static struct mm_region sc2a11_mem_map[] = {
 	{

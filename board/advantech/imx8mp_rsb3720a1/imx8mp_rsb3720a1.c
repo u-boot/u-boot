@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <dwc3-uboot.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <errno.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -21,6 +23,7 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/dma.h>
 #include <linux/delay.h>
+#include <linux/kernel.h>
 #include <power/pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -43,6 +46,32 @@ static void setup_gpmi_nand(void)
 	init_nand_clk();
 }
 #endif
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_image fw_images[] = {
+#if defined(CONFIG_TARGET_IMX8MP_RSB3720A1_4G)
+	{
+		.image_type_id = IMX8MP_RSB3720A1_4G_FIT_IMAGE_GUID,
+		.fw_name = u"IMX8MP-RSB3720-FIT",
+		.image_index = 1,
+	},
+#elif defined(CONFIG_TARGET_IMX8MP_RSB3720A1_6G)
+	{
+		.image_type_id = IMX8MP_RSB3720A1_6G_FIT_IMAGE_GUID,
+		.fw_name = u"IMX8MP-RSB3720-FIT",
+		.image_index = 1,
+	},
+#endif
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "mmc 2=flash-bin raw 0 0x1B00 mmcpart 1",
+	.images = fw_images,
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
+
 
 int board_early_init_f(void)
 {
