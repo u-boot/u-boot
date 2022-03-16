@@ -25,6 +25,15 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
+/* GUIDs for capsule updatable firmware images */
+#define XILINX_BOOT_IMAGE_GUID \
+	EFI_GUID(0xde6066e8, 0x0256, 0x4fad, 0x82, 0x38, \
+		 0xe4, 0x06, 0xe2, 0x74, 0xc4, 0xcf)
+
+#define XILINX_UBOOT_IMAGE_GUID \
+	EFI_GUID(0xcf9ecfd4, 0x938b, 0x41c5, 0x85, 0x51, \
+		 0x1f, 0x88, 0x3a, 0xb7, 0xdc, 0x18)
+
 #ifdef CONFIG_NAND_ARASAN
 # define CONFIG_SYS_MAX_NAND_DEVICE	1
 #endif

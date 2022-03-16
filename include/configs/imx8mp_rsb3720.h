@@ -18,6 +18,15 @@
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
+/* GUIDs for capsule updatable firmware images */
+#define IMX8MP_RSB3720A1_4G_FIT_IMAGE_GUID \
+	EFI_GUID(0xb1251e89, 0x384a, 0x4635, 0xa8, 0x06, \
+		 0x3a, 0xa0, 0xb0, 0xe9, 0xf9, 0x65)
+
+#define IMX8MP_RSB3720A1_6G_FIT_IMAGE_GUID \
+	EFI_GUID(0xb5fb6f08, 0xe142, 0x4db1, 0x97, 0xea, \
+		 0x5f, 0xd3, 0x6b, 0x9b, 0xe5, 0xb9)
+
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_STACK		0x960000
 #define CONFIG_SPL_BSS_START_ADDR	0x0098FC00
