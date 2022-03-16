@@ -359,18 +359,6 @@ static inline int phy_clear_bits_mmd(struct phy_device *phydev, int devad,
 
 #ifdef CONFIG_PHYLIB_10G
 extern struct phy_driver gen10g_driver;
-
-/*
- * List all 10G interfaces here, the assumption being that PHYs on these
- * interfaces are C45
- */
-static inline int is_10g_interface(phy_interface_t interface)
-{
-	return interface == PHY_INTERFACE_MODE_XGMII ||
-	       interface == PHY_INTERFACE_MODE_USXGMII ||
-	       interface == PHY_INTERFACE_MODE_10GBASER;
-}
-
 #endif
 
 /**
