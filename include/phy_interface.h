@@ -41,7 +41,7 @@ typedef enum {
 	PHY_INTERFACE_MODE_USXGMII,
 	PHY_INTERFACE_MODE_NONE,	/* Must be last */
 
-	PHY_INTERFACE_MODE_COUNT,
+	PHY_INTERFACE_MODE_MAX,
 } phy_interface_t;
 
 static const char * const phy_interface_strings[] = {
