@@ -1127,7 +1127,7 @@ static int ldpaa_eth_bind(struct udevice *dev)
 	int phy_mode = -1;
 
 	phy_mode = dev_read_phy_mode(dev);
-	if (phy_mode == PHY_INTERFACE_MODE_NONE) {
+	if (phy_mode == PHY_INTERFACE_MODE_NA) {
 		dev_err(dev, "incorrect phy mode\n");
 		return -EINVAL;
 	}

@@ -54,13 +54,13 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	u32 rcwsr13 = in_be32(&gur->rcwsr[13]);
 
 	if (is_device_disabled(port))
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	if ((port == FM1_10GEC1) && (is_serdes_configured(XFI_FM1_MAC9)))
 		return PHY_INTERFACE_MODE_XGMII;
 
 	if ((port == FM1_DTSEC9) && (is_serdes_configured(XFI_FM1_MAC9)))
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	if (port == FM1_DTSEC3)
 		if ((rcwsr13 & FSL_CHASSIS2_RCWSR13_EC1) ==
@@ -107,5 +107,5 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 		break;
 	}
 
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }

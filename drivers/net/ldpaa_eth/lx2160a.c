@@ -58,7 +58,7 @@ phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtcl)
 	enum srds_prtcl;
 
 	if (is_device_disabled(dpmac_id))
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	if (lane_prtcl >= SGMII1 && lane_prtcl <= SGMII18)
 		return PHY_INTERFACE_MODE_SGMII;
@@ -78,7 +78,7 @@ phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtcl)
 	if (lane_prtcl >= _100GE1 && lane_prtcl <= _100GE2)
 		return PHY_INTERFACE_MODE_CAUI4;
 
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }
 
 #ifdef CONFIG_SYS_FSL_HAS_RGMII

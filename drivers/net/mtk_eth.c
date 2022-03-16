@@ -1449,7 +1449,7 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	/* Interface mode is required */
 	pdata->phy_interface = dev_read_phy_mode(dev);
 	priv->phy_interface = pdata->phy_interface;
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE) {
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA) {
 		printf("error: phy-mode is not set\n");
 		return -EINVAL;
 	}

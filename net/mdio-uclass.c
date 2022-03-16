@@ -199,8 +199,8 @@ struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
 	}
 
 	interface = dev_read_phy_mode(ethdev);
-	if (interface == PHY_INTERFACE_MODE_NONE)
-		dev_dbg(ethdev, "can't find interface mode, default to NONE\n");
+	if (interface == PHY_INTERFACE_MODE_NA)
+		dev_dbg(ethdev, "can't find interface mode, default to NA\n");
 
 	phy = dm_eth_connect_phy_handle(ethdev, interface);
 

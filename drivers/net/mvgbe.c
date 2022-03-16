@@ -1005,7 +1005,7 @@ static int mvgbe_of_to_plat(struct udevice *dev)
 
 	/* Get phy-mode / phy_interface from DT */
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		pdata->phy_interface = PHY_INTERFACE_MODE_GMII;
 
 	dmvgbe->phy_interface = pdata->phy_interface;

@@ -583,7 +583,7 @@ int board_eth_init(struct bd_info *bis)
 			fm_info_set_mdio(i,
 				miiphy_get_dev_by_name("SUPER_HYDRA_RGMII_MDIO"));
 			break;
-		case PHY_INTERFACE_MODE_NONE:
+		case PHY_INTERFACE_MODE_NA:
 			fm_info_set_phy_address(i, 0);
 			break;
 		default:
@@ -733,7 +733,7 @@ int board_eth_init(struct bd_info *bis)
 			fm_info_set_mdio(i,
 			miiphy_get_dev_by_name("SUPER_HYDRA_RGMII_MDIO"));
 			break;
-		case PHY_INTERFACE_MODE_NONE:
+		case PHY_INTERFACE_MODE_NA:
 			fm_info_set_phy_address(i, 0);
 			break;
 		default:

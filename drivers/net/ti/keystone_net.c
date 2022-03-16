@@ -728,7 +728,7 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 		priv->has_mdio = true;
 	} else if (priv->link_type == LINK_TYPE_RGMII_LINK_MAC_PHY) {
 		priv->phy_if = ofnode_read_phy_mode(offset_to_ofnode(slave));
-		if (priv->phy_if == PHY_INTERFACE_MODE_NONE)
+		if (priv->phy_if == PHY_INTERFACE_MODE_NA)
 			priv->phy_if = PHY_INTERFACE_MODE_RGMII;
 		pdata->phy_interface = priv->phy_if;
 

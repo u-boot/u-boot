@@ -1034,7 +1034,7 @@ static int netsec_of_to_plat(struct udevice *dev)
 	priv->eeprom_base = dev_read_addr_index(dev, 1) - EERPROM_MAP_OFFSET;
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,

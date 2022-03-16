@@ -277,7 +277,7 @@ static void enetc_start_pcs(struct udevice *dev)
 	}
 
 	priv->if_type = dev_read_phy_mode(dev);
-	if (priv->if_type == PHY_INTERFACE_MODE_NONE) {
+	if (priv->if_type == PHY_INTERFACE_MODE_NA) {
 		enetc_dbg(dev,
 			  "phy-mode property not found, defaulting to SGMII\n");
 		priv->if_type = PHY_INTERFACE_MODE_SGMII;

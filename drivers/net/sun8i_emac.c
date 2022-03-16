@@ -947,7 +947,7 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
 	printf("phy interface%d\n", pdata->phy_interface);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	if (priv->variant == H3_EMAC) {

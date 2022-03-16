@@ -679,7 +679,7 @@ int ravb_of_to_plat(struct udevice *dev)
 	pdata->iobase = dev_read_addr(dev);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	pdata->max_speed = 1000;
