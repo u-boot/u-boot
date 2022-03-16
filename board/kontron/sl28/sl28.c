@@ -3,11 +3,14 @@
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <errno.h>
 #include <fsl_ddr.h>
 #include <fdt_support.h>
 #include <asm/global_data.h>
 #include <linux/libfdt.h>
+#include <linux/kernel.h>
 #include <env_internal.h>
 #include <asm/arch-fsl-layerscape/soc.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
@@ -22,6 +25,18 @@
 #include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_images fw_images[] = {
+	{
+		.image_type_id = KONTRON_SL28_FIT_IMAGE_GUID,
+		.fw_name = u"KONTRON-SL28-FIT",
+		.image_index = 1
+	},
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 int board_early_init_f(void)
 {
