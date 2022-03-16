@@ -9,6 +9,8 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <dfu.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <env_internal.h>
 #include <init.h>
@@ -40,6 +42,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>
+#include <linux/kernel.h>
 #include "../common/board.h"
 
 #include "pm_cfg_obj.h"
@@ -53,6 +56,21 @@
 #define IDCODE2_PL_INIT_SHIFT	9
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_images fw_images[] = {
+	{
+		.image_type_id = ZYNQMP_BOOT_IMAGE_GUID,
+		.fw_name = u"ZYNQMP-BOOT-IMAGE",
+	},
+	{
+		.image_type_id = ZYNQMP_UBOOT_IMAGE_GUID,
+		.fw_name = u"ZYNQMP-UBOOT",
+	},
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 #if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
