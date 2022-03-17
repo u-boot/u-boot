@@ -526,8 +526,6 @@ static int bcmgenet_phy_init(struct bcmgenet_eth_priv *priv, void *dev)
 	}
 	phydev->advertising = phydev->supported;
 
-	phy_connect_dev(phydev, dev);
-
 	priv->phydev = phydev;
 	phy_config(priv->phydev);
 
