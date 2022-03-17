@@ -106,6 +106,7 @@ struct k3_ddrss_desc {
 	struct udevice *dev;
 	void __iomem *ddrss_ss_cfg;
 	void __iomem *ddrss_ctrl_mmr;
+	void __iomem *ddrss_ctl_cfg;
 	struct power_domain ddrcfg_pwrdmn;
 	struct power_domain ddrdata_pwrdmn;
 	struct clk ddr_clk;
@@ -319,7 +320,7 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 		dev_err(dev, "No reg property for DDRSS wrapper logic\n");
 		return -EINVAL;
 	}
-	ddrss->ddrss_ss_cfg = (void *)reg;
+	ddrss->ddrss_ctl_cfg = (void *)reg;
 
 	reg = dev_read_addr_name(dev, "ctrl_mmr_lp4");
 	if (reg == FDT_ADDR_T_NONE) {
@@ -403,7 +404,7 @@ void k3_lpddr4_init(struct k3_ddrss_desc *ddrss)
 		hang();
 	}
 
-	config->ctlbase = (struct lpddr4_ctlregs_s *)ddrss->ddrss_ss_cfg;
+	config->ctlbase = (struct lpddr4_ctlregs_s *)ddrss->ddrss_ctl_cfg;
 	config->infohandler = (lpddr4_infocallback) k3_lpddr4_info_handler;
 
 	status = driverdt->init(pd, config);
