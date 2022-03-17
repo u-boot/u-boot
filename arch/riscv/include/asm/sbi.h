@@ -155,6 +155,9 @@ long sbi_get_spec_version(void);
 int sbi_get_impl_id(void);
 int sbi_get_impl_version(long *version);
 int sbi_probe_extension(int ext);
+int sbi_get_mvendorid(long *mvendorid);
+int sbi_get_marchid(long *marchid);
+int sbi_get_mimpid(long *mimpid);
 void sbi_srst_reset(unsigned long type, unsigned long reason);
 
 #endif
