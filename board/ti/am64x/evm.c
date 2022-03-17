@@ -29,19 +29,24 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = 0x80000000;
+	s32 ret;
 
-	return 0;
+	ret = fdtdec_setup_mem_size_base();
+	if (ret)
+		printf("Error setting up mem size and base. %d\n", ret);
+
+	return ret;
 }
 
 int dram_init_banksize(void)
 {
-	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = 0x80000000;
-	gd->ram_size = 0x80000000;
+	s32 ret;
 
-	return 0;
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		printf("Error setting up memory banksize. %d\n", ret);
+
+	return ret;
 }
 
 #if defined(CONFIG_SPL_LOAD_FIT)
