@@ -18,6 +18,7 @@
 
 #define LEDS_MAX		32
 #define LEDS_WAIT		100
+#define LEDS_MAX_BRIGHTNESS	7
 
 /* LED Mode register */
 #define LED_MODE_REG		0x0
@@ -38,6 +39,8 @@
 #define LED_HW_LED_EN_REG		0x08
 /* LED Flash control register0 */
 #define LED_FLASH_RATE_CONTROL_REG0	0x10
+/* LED Brightness control register0 */
+#define LED_BRIGHTNESS_CONTROL_REG0	0x20
 /* Soft LED input register */
 #define LED_SW_LED_IP_REG		0xb8
 /* Parallel LED Output Polarity Register */
@@ -96,6 +99,27 @@ static int bcm6858_led_set_period(struct udevice *dev, int period_ms)
 }
 #endif
 
+static int led_set_brightness(struct udevice *dev, unsigned int brightness)
+{
+	struct bcm6858_led_priv *priv = dev_get_priv(dev);
+	u32 offset, shift, mask, value;
+
+	offset = (priv->pin / 8) * 4;
+	shift  = (priv->pin % 8) * 4;
+	mask   = 0xf << shift;
+
+	/* 8 levels of brightness achieved through PWM */
+	value = (brightness > LEDS_MAX_BRIGHTNESS ?
+			LEDS_MAX_BRIGHTNESS : brightness) << shift;
+
+	debug("%s: %s brightness set to %u\n", __func__, dev->name, value >> shift);
+
+	clrbits_32(priv->regs + LED_BRIGHTNESS_CONTROL_REG0 + offset, mask);
+	setbits_32(priv->regs + LED_BRIGHTNESS_CONTROL_REG0 + offset, value);
+
+	return 0;
+}
+
 static enum led_state_t bcm6858_led_get_state(struct udevice *dev)
 {
 	struct bcm6858_led_priv *priv = dev_get_priv(dev);
@@ -112,6 +136,8 @@ static enum led_state_t bcm6858_led_get_state(struct udevice *dev)
 static int bcm6858_led_set_state(struct udevice *dev, enum led_state_t state)
 {
 	struct bcm6858_led_priv *priv = dev_get_priv(dev);
+
+	debug("%s: Set led %s to %d\n", __func__, dev->name, state);
 
 	switch (state) {
 	case LEDST_OFF:
@@ -180,7 +206,7 @@ static int bcm6858_led_probe(struct udevice *dev)
 	} else {
 		struct bcm6858_led_priv *priv = dev_get_priv(dev);
 		void __iomem *regs;
-		unsigned int pin;
+		unsigned int pin, brightness;
 
 		regs = dev_remap_addr(dev_get_parent(dev));
 		if (!regs)
@@ -201,6 +227,10 @@ static int bcm6858_led_probe(struct udevice *dev)
 			clrbits_32(regs + LED_PLED_OP_PPOL_REG, 1 << pin);
 		else
 			setbits_32(regs + LED_PLED_OP_PPOL_REG, 1 << pin);
+
+		brightness = dev_read_u32_default(dev, "default-brightness",
+						  LEDS_MAX_BRIGHTNESS);
+		led_set_brightness(dev, brightness);
 	}
 
 	return 0;
