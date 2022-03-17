@@ -22,6 +22,10 @@
 	u-boot,dm-spl;
 };
 
+&anatop {
+	u-boot,dm-spl;
+};
+
 &clks {
 	u-boot,dm-spl;
 };

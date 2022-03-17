@@ -67,6 +67,11 @@
 			fsl,mux_mask = <0x7>;
 		};
 
+		anatop: anatop@400d8000 {
+			compatible = "fsl,imxrt-anatop";
+			reg = <0x400d8000 0x4000>;
+		};
+
 		clks: ccm@400fc000 {
 			compatible = "fsl,imxrt1020-ccm";
 			reg = <0x400fc000 0x4000>;

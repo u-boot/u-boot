@@ -15,8 +15,6 @@
 #define GPIO4_BASE_ADDR		0x401C4000
 #define GPIO5_BASE_ADDR		0x400C0000
 
-#define ANATOP_BASE_ADDR	0x400d8000
-
 #define MXS_LCDIF_BASE		0x402b8000
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
