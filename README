@@ -1612,26 +1612,6 @@ The following options need to be configured:
 		this is instead controlled by the value of
 		/config/load-environment.
 
-- TFTP Fixed UDP Port:
-		CONFIG_TFTP_PORT
-
-		If this is defined, the environment variable tftpsrcp
-		is used to supply the TFTP UDP source port value.
-		If tftpsrcp isn't defined, the normal pseudo-random port
-		number generator is used.
-
-		Also, the environment variable tftpdstp is used to supply
-		the TFTP UDP destination port value.  If tftpdstp isn't
-		defined, the normal port 69 is used.
-
-		The purpose for tftpsrcp is to allow a TFTP server to
-		blindly start the TFTP transfer using the pre-configured
-		target IP address and UDP port. This has the effect of
-		"punching through" the (Windows XP) firewall, allowing
-		the remainder of the TFTP transfer to proceed normally.
-		A better solution is to properly configure the firewall,
-		but sometimes that is not allowed.
-
 		CONFIG_STANDALONE_LOAD_ADDR
 
 		This option defines a board specific value for the
