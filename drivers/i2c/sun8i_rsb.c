@@ -9,10 +9,12 @@
  */
 
 #include <axp_pmic.h>
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <reset.h>
 #include <time.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
@@ -235,8 +237,18 @@ static int sun8i_rsb_probe_chip(struct udevice *bus, uint chip_addr,
 static int sun8i_rsb_probe(struct udevice *bus)
 {
 	struct sun8i_rsb_priv *priv = dev_get_priv(bus);
+	struct reset_ctl *reset;
+	struct clk *clk;
 
 	priv->base = dev_read_addr_ptr(bus);
+
+	reset = devm_reset_control_get(bus, NULL);
+	if (!IS_ERR(reset))
+		reset_deassert(reset);
+
+	clk = devm_clk_get(bus, NULL);
+	if (!IS_ERR(clk))
+		clk_enable(clk);
 
 	return sun8i_rsb_init(priv->base);
 }
