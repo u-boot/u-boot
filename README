@@ -1075,13 +1075,6 @@ The following options need to be configured:
 
 		The clock frequency of the MII bus
 
-		CONFIG_PHY_RESET_DELAY
-
-		Some PHY like Intel LXT971A need extra delay after
-		reset before any MII register access is possible.
-		For such PHY, set this option to the usec delay
-		required. (minimum 300usec for LXT971A)
-
 		CONFIG_PHY_CMD_DELAY (ppc4xx)
 
 		Some PHY like Intel LXT971A need extra delay after

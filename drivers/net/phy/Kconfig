@@ -330,3 +330,11 @@ config PHY_NCSI
 	depends on DM_ETH
 
 endif #PHYLIB
+
+config PHY_RESET_DELAY
+	int "Extra delay after reset before MII register access"
+	default 0
+	help
+	  Some PHYs need extra delay after reset before any MII register access
+	  is possible.  For such PHY, set this option to the usec delay
+	  required.

@@ -8,9 +8,6 @@
 
 #include <linux/sizes.h>
 
-/* ETH */
-#define CONFIG_PHY_RESET_DELAY		20
-
 /* UART */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, \
 					  230400, 500000, 1500000 }
