@@ -46,9 +46,6 @@
 
 #endif
 
-/* Ethernet */
-#define CONFIG_RESET_PHY_R
-
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */
 #elif CONFIG_SD_BOOT

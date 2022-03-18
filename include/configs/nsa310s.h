@@ -27,7 +27,6 @@
 #ifdef CONFIG_CMD_NET
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	1
-#define CONFIG_RESET_PHY_R
 #endif /* CONFIG_CMD_NET */
 
 /* SATA driver configuration */

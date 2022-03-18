@@ -19,6 +19,7 @@ CONFIG_BOOTCOMMAND="if test -n ${bootenv} && usb start; then if run loadbootenv;
 CONFIG_USE_PREBOOT=y
 CONFIG_CONSOLE_MUX=y
 # CONFIG_DISPLAY_BOARDINFO is not set
+CONFIG_RESET_PHY_R=y
 CONFIG_HUSH_PARSER=y
 # CONFIG_CMD_FLASH is not set
 CONFIG_CMD_IDE=y

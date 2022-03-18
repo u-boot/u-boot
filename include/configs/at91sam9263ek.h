@@ -184,9 +184,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PA22
 #endif
 
-/* Ethernet */
-#define CONFIG_RESET_PHY_R		1
-
 /* USB */
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB

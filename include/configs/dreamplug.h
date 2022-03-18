@@ -29,9 +29,6 @@
  */
 #define CONFIG_MVGBE_PORTS	{1, 1}	/* enable both ports */
 #define CONFIG_PHY_BASE_ADR	0
-#ifdef CONFIG_RESET_PHY_R
-#undef CONFIG_RESET_PHY_R	/* remove legacy reset_phy() */
-#endif
 
 /*
  * SATA Driver configuration

@@ -35,8 +35,5 @@
  */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
-#ifdef CONFIG_RESET_PHY_R
-#undef CONFIG_RESET_PHY_R	/* remove legacy reset_phy() */
-#endif
 
 #endif /* _CONFIG_DOCKSTAR_H */

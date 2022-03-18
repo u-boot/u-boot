@@ -40,7 +40,6 @@
 
 /* Ethernet */
 #define CONFIG_RMII
-#define CONFIG_RESET_PHY_R
 #define CONFIG_TFTP_PORT
 
 /* LCD */
