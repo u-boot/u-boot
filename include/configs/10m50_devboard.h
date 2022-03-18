@@ -23,11 +23,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 
 /*
- * NET options
- */
-#define CONFIG_SYS_RX_ETH_BUFFER	0
-
-/*
  * BOOTP options
  */
 

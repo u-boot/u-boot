@@ -43,9 +43,6 @@
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
-/* ethernet */
-#define CONFIG_SYS_RX_ETH_BUFFER	8
-
 /* SPL */
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000

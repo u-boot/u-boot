@@ -147,8 +147,6 @@
 
 #define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
 
-#define CONFIG_SYS_RX_ETH_BUFFER	64
-
 /* NAND support */
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */

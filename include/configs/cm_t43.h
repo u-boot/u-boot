@@ -32,9 +32,6 @@
 					 42, 43, 44, 45, 46, 47, 48, 49, \
 					 50, 51, 52, 53, 54, 55, 56, 57, }
 
-/* CPSW Ethernet support */
-#define CONFIG_SYS_RX_ETH_BUFFER	64
-
 /* Power */
 #define CONFIG_POWER_TPS65218
 

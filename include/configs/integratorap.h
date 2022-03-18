@@ -27,8 +27,6 @@
  * PCI definitions
  */
 
-#define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
-
 /*-----------------------------------------------------------------------
  * There are various dependencies on the core module (CM) fitted
  * Users should refer to their CM user guide

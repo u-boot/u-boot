@@ -23,11 +23,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /*
- * NET options
- */
-#define CONFIG_SYS_RX_ETH_BUFFER	0
-
-/*
  * MEMORY ORGANIZATION
  * -Monitor at top of sdram.
  * -The heap is placed below the monitor

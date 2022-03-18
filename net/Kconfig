@@ -160,3 +160,12 @@ config BOOTP_SERVERIP
 	  bootp and tftp.
 
 endif   # if NET
+
+config SYS_RX_ETH_BUFFER
+	int "Number of receive packet buffers"
+	default 4
+	help
+	  Defines the number of Ethernet receive buffers. On some Ethernet
+	  controllers it is recommended to set this value to 8 or even higher,
+	  since all buffers can be full shortly after enabling the interface on
+	  high Ethernet traffic.

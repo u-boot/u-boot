@@ -2109,14 +2109,6 @@ Configuration Settings:
 		while unprotecting/erasing/programming. Please only enable
 		this option if you really know what you are doing.
 
-- CONFIG_SYS_RX_ETH_BUFFER:
-		Defines the number of Ethernet receive buffers. On some
-		Ethernet controllers it is recommended to set this value
-		to 8 or even higher (EEPRO100 or 405 EMAC), since all
-		buffers can be full shortly after enabling the interface
-		on high Ethernet traffic.
-		Defaults to 4 if not defined.
-
 - CONFIG_ENV_MAX_ENTRIES
 
 	Maximum number of entries in the hash table that is used
