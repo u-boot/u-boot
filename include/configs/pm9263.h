@@ -141,7 +141,6 @@
  */
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
-#undef LCD_TEST_PATTERN
 
 /* SDRAM */
 #define PHYS_SDRAM		0x20000000
