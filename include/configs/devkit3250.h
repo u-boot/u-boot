@@ -30,11 +30,6 @@
  */
 
 /*
- * Ethernet
- */
-#define CONFIG_LPC32XX_ETH
-
-/*
  * NOR Flash
  */
 #define CONFIG_SYS_MAX_FLASH_SECT	71
