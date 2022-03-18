@@ -522,6 +522,7 @@ F:	drivers/clk/sunxi/
 F:	drivers/phy/allwinner/
 F:	drivers/pinctrl/sunxi/
 F:	drivers/video/sunxi/
+F:	tools/sunxi*
 
 ARM TEGRA
 M:	Tom Warren <twarren@nvidia.com>

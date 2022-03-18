@@ -9,8 +9,12 @@
  *
  * Shared between mkimage and the SPL.
  */
+
 #ifndef	SUNXI_IMAGE_H
 #define	SUNXI_IMAGE_H
+
+#include <linux/compiler_attributes.h>
+#include <linux/types.h>
 
 #define BOOT0_MAGIC		"eGON.BT0"
 #define BROM_STAMP_VALUE	0x5f0a6c39
@@ -78,5 +82,38 @@ struct boot_file_head {
 
 /* Compile time check to assure proper alignment of structure */
 typedef char boot_file_head_not_multiple_of_32[1 - 2*(sizeof(struct boot_file_head) % 32)];
+
+struct __packed toc0_main_info {
+	uint8_t	name[8];
+	__le32	magic;
+	__le32	checksum;
+	__le32	serial;
+	__le32	status;
+	__le32	num_items;
+	__le32	length;
+	uint8_t	platform[4];
+	uint8_t	reserved[8];
+	uint8_t	end[4];
+};
+
+#define TOC0_MAIN_INFO_NAME		"TOC0.GLH"
+#define TOC0_MAIN_INFO_MAGIC		0x89119800
+#define TOC0_MAIN_INFO_END		"MIE;"
+
+struct __packed toc0_item_info {
+	__le32	name;
+	__le32	offset;
+	__le32	length;
+	__le32	status;
+	__le32	type;
+	__le32	load_addr;
+	uint8_t	reserved[4];
+	uint8_t	end[4];
+};
+
+#define TOC0_ITEM_INFO_NAME_CERT	0x00010101
+#define TOC0_ITEM_INFO_NAME_FIRMWARE	0x00010202
+#define TOC0_ITEM_INFO_NAME_KEY		0x00010303
+#define TOC0_ITEM_INFO_END		"IIE;"
 
 #endif
