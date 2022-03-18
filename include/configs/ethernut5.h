@@ -54,7 +54,6 @@
 /* JFFS2 */
 
 /* Ethernet */
-#define CONFIG_RMII
 #define CONFIG_PHY_ID			0
 #define CONFIG_MACB_SEARCH_PHY
 

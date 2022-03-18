@@ -32,7 +32,6 @@
 /*
  * Ethernet
  */
-#define CONFIG_RMII
 #define CONFIG_LPC32XX_ETH
 
 /*

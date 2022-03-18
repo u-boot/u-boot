@@ -55,9 +55,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC8
 #endif
 
-/* Ethernet */
-#define CONFIG_RMII
-
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 

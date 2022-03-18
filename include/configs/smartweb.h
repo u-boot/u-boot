@@ -76,14 +76,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
-/*
- * Ethernet configuration
- *
- */
-#define CONFIG_RMII			/* use reduced MII inteface */
-
-/* BOOTP and DHCP options */
-
 #if !defined(CONFIG_SPL_BUILD)
 /* USB configuration */
 #define CONFIG_USB_ATMEL

@@ -66,9 +66,6 @@
 # define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
 
-/* Ethernet */
-#define CONFIG_RMII
-
 /* hw-controller addresses */
 #define CONFIG_ET1100_BASE		0x70000000
 

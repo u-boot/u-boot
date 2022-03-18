@@ -43,9 +43,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
 
-/* Ethernet */
-#define CONFIG_RMII
-
 /* USB */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_ATMEL

@@ -535,6 +535,11 @@ config MII
 	help
 	  Enable support of the Media-Independent Interface (MII)
 
+config RMII
+	bool "Enable RMII"
+	help
+	  Enable support of the Reduced Media-Independent Interface (MII)
+
 config PCNET
 	bool "AMD PCnet series Ethernet controller driver"
 	help

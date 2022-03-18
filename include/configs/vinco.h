@@ -49,7 +49,6 @@
 /* USB device */
 
 /* Ethernet Hardware */
-#define CONFIG_RMII
 #define CONFIG_MACB_SEARCH_PHY
 
 #ifdef CONFIG_SPI_BOOT

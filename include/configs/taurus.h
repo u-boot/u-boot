@@ -63,9 +63,6 @@
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 #endif
 
-/* Ethernet */
-#define CONFIG_RMII
-
 /* USB */
 #if defined(CONFIG_BOARD_TAURUS)
 #define CONFIG_USB_ATMEL
