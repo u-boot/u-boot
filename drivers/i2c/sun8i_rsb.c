@@ -244,11 +244,12 @@ static int sun8i_rsb_probe(struct udevice *bus)
 static int sun8i_rsb_child_pre_probe(struct udevice *child)
 {
 	struct dm_i2c_chip *chip = dev_get_parent_plat(child);
+	struct udevice *bus = child->parent;
 
 	/* Ensure each transfer is for a single register. */
 	chip->flags |= DM_I2C_CHIP_RD_ADDRESS | DM_I2C_CHIP_WR_ADDRESS;
 
-	return 0;
+	return sun8i_rsb_probe_chip(bus, chip->chip_addr, 0);
 }
 
 static const struct dm_i2c_ops sun8i_rsb_ops = {
