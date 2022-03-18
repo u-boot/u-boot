@@ -33,7 +33,6 @@
 	env/embedded.o(.text);
 
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CONFIG_SYS_DISCOVER_PHY

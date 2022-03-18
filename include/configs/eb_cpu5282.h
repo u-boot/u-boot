@@ -52,7 +52,6 @@
  *----------------------------------------------------------------------*/
 
 #ifdef CONFIG_MCFFEC
-#define CONFIG_MII_INIT			1
 #define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif

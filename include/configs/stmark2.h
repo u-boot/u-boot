@@ -132,7 +132,6 @@
 					CONFIG_SYS_INIT_RAM_SIZE - 12)
 
 #ifdef CONFIG_MCFFEC
-#define CONFIG_MII_INIT			1
 #define CONFIG_SYS_DISCOVER_PHY
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #ifndef CONFIG_SYS_DISCOVER_PHY
