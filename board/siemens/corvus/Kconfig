@@ -1,5 +1,8 @@
 if TARGET_CORVUS
 
+config AT91_LED
+	def_bool y
+
 config SYS_BOARD
 	default "corvus"
 
