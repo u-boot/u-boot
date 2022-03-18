@@ -30,12 +30,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
 
-/* SerialFlash */
-
-#ifdef CONFIG_CMD_SF
-#define CONFIG_ATMEL_SPI0
-#endif
-
 /* MMC */
 
 #ifdef CONFIG_CMD_MMC
