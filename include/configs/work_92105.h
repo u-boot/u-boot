@@ -27,7 +27,6 @@
  */
 
 #define CONFIG_LPC32XX_ETH
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 /* FIXME: remove "Waiting for PHY auto negotiation to complete..." message */
 
 #define CONFIG_RTC_DS1374

@@ -119,10 +119,6 @@
 	BOOTENV
 #endif
 
-#if defined(CONFIG_XILINX_AXIEMAC)
-# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	1
-#endif
-
 /* SPL part */
 
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE

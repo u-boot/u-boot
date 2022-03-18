@@ -2234,12 +2234,6 @@ Note: once the monitor has been relocated, then it will complain if
 the default environment is used; a new CRC is computed as soon as you
 use the "saveenv" command to store a valid environment.
 
-- CONFIG_SYS_FAULT_ECHO_LINK_DOWN:
-		Echo the inverted Ethernet link state to the fault LED.
-
-		Note: If this option is active, then CONFIG_SYS_FAULT_MII_ADDR
-		      also needs to be defined.
-
 - CONFIG_SYS_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.
 

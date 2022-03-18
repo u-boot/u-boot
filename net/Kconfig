@@ -66,6 +66,13 @@ config NET_MAXDEFRAG
 	  used for reassembly, and thus an upper bound for the size of
 	  IP datagrams that can be received.
 
+config SYS_FAULT_ECHO_LINK_DOWN
+	bool "Echo the inverted Ethernet link state to the fault LED"
+	help
+	  Echo the inverted Ethernet link state to the fault LED.  Note, if
+	  this option is active, then CONFIG_SYS_FAULT_MII_ADDR also needs to
+	  be configured.
+
 config TFTP_BLOCKSIZE
 	int "TFTP block size"
 	default 1468

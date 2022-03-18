@@ -30,16 +30,11 @@
 #	define CONFIG_SYS_RX_ETH_BUFFER	8
 #	define CONFIG_SYS_TX_ETH_BUFFER	8
 #	define CONFIG_SYS_FEC_BUF_USE_SRAM
-#	define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CONFIG_SYS_DISCOVER_PHY
 #		define FECDUPLEX	FULL
 #		define FECSPEED		_100BASET
-#	else
-#		ifndef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#			define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#		endif
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 

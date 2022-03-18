@@ -100,7 +100,6 @@
 #define CONFIG_MVGBE_PORTS	{1}		/* enable port 0 only */
 #define CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION	/* don't randomize MAC */
 #define CONFIG_PHY_BASE_ADR	0x8
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #endif
 
 /*
