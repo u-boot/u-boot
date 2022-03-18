@@ -22,10 +22,7 @@
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
-#define CONFIG_LCD_LOGO			1
 #undef LCD_TEST_PATTERN
-#define CONFIG_LCD_INFO			1
-#define CONFIG_LCD_INFO_BELOW_LOGO	1
 /* Let board_init_f handle the framebuffer allocation */
 #undef CONFIG_FB_ADDR
 

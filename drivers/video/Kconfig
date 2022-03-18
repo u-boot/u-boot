@@ -828,6 +828,18 @@ config LCD
 	  CONFIG option. See the README for details. Drives which have been
 	  converted to driver model will instead used CONFIG_DM_VIDEO.
 
+config LCD_INFO
+	bool "Show LCD info on-screen"
+	depends on LCD
+
+config LCD_LOGO
+	bool "Show a logo on screen"
+	depends on LCD
+
+config LCD_INFO_BELOW_LOGO
+	bool "Show LCD info below the on-screen logo"
+	depends on LCD_INFO && LCD_LOGO
+
 config VIDEO_DW_HDMI
 	bool
 	help

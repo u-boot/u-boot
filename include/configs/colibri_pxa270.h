@@ -38,7 +38,6 @@
 #ifdef CONFIG_LCD
 #define CONFIG_PXA_LCD
 #define CONFIG_PXA_VGA
-#define CONFIG_LCD_LOGO
 #endif
 
 /*
