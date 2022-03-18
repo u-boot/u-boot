@@ -523,6 +523,7 @@ config ARCH_P2020
 
 config ARCH_P2041
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -548,6 +549,7 @@ config ARCH_P2041
 
 config ARCH_P3041
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -578,6 +580,7 @@ config ARCH_P3041
 
 config ARCH_P4080
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -617,6 +620,7 @@ config ARCH_P4080
 
 config ARCH_P5040
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -647,6 +651,7 @@ config ARCH_QEMU_E500
 
 config ARCH_T1024
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -670,6 +675,7 @@ config ARCH_T1024
 
 config ARCH_T1040
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -693,6 +699,7 @@ config ARCH_T1040
 
 config ARCH_T1042
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -1107,6 +1114,9 @@ config SYS_NUM_TLBCAMS
 	help
 		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
 		16 for other E500 SoCs.
+
+config BACKSIDE_L2_CACHE
+	bool
 
 config SYS_PPC64
 	bool
