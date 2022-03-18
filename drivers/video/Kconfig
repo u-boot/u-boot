@@ -421,6 +421,15 @@ config VIDEO_LCD_ANX9804
 	from a parallel LCD interface and translate it on the fy into a DP
 	interface for driving eDP TFT displays. It uses I2C for configuration.
 
+config ATMEL_LCD
+	bool "Atmel LCD panel support"
+	depends on LCD && ARCH_AT91
+
+config ATMEL_LCD_BGR555
+	bool "Display in BGR555 mode"
+	help
+	  Use the BGR555 output mode.  Otherwise RGB565 is used.
+
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
 	depends on DM_VIDEO

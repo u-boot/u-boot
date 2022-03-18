@@ -38,10 +38,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC8
 
-/* LCD */
-#define CONFIG_ATMEL_LCD
-#define CONFIG_GURNARD_SPLASH
-
 /* UARTs/Serial console */
 
 /* Boot options */
