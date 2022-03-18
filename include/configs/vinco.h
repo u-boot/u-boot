@@ -50,7 +50,6 @@
 
 /* Ethernet Hardware */
 #define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
 
 #ifdef CONFIG_SPI_BOOT

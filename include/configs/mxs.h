@@ -94,16 +94,6 @@
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 /* Default baudrate can be overridden by board! */
 
-/* FEC Ethernet on SoC */
-#ifdef CONFIG_FEC_MXC
-#ifndef CONFIG_ETHPRIME
-#define CONFIG_ETHPRIME			"FEC0"
-#endif
-#ifndef CONFIG_FEC_XCV_TYPE
-#define CONFIG_FEC_XCV_TYPE		RMII
-#endif
-#endif
-
 /* NAND */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

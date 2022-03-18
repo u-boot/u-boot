@@ -40,11 +40,6 @@
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_RETRY_COUNT 30
-#ifndef CONFIG_NFS_TIMEOUT
-# define NFS_TIMEOUT 2000UL
-#else
-# define NFS_TIMEOUT CONFIG_NFS_TIMEOUT
-#endif
 
 #define NFS_RPC_ERR	1
 #define NFS_RPC_DROP	124
@@ -53,7 +48,7 @@ static int fs_mounted;
 static unsigned long rpc_id;
 static int nfs_offset = -1;
 static int nfs_len;
-static ulong nfs_timeout = NFS_TIMEOUT;
+static const ulong nfs_timeout = CONFIG_NFS_TIMEOUT;
 
 static char dirfh[NFS_FHSIZE];	/* NFSv2 / NFSv3 file handle of directory */
 static char filefh[NFS3_FHSIZE]; /* NFSv2 / NFSv3 file handle */
@@ -733,7 +728,7 @@ static void nfs_timeout_handler(void)
 	} else {
 		puts("T ");
 		net_set_timeout_handler(nfs_timeout +
-					NFS_TIMEOUT * nfs_timeout_count,
+					nfs_timeout * nfs_timeout_count,
 					nfs_timeout_handler);
 		nfs_send();
 	}

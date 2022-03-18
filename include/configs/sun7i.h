@@ -9,13 +9,6 @@
 #define __CONFIG_H
 
 /*
- * A20 specific configuration
- */
-
-#define CONFIG_ARMV7_SECURE_BASE	SUNXI_SRAM_B_BASE
-#define CONFIG_ARMV7_SECURE_MAX_SIZE	(64 * 1024) /* 64 KB */
-
-/*
  * Include common sunxi configuration where most the settings are
  */
 #include <configs/sunxi-common.h>

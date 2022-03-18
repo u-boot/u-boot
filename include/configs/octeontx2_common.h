@@ -16,11 +16,6 @@
 /** Stack starting address */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
-/* Autoboot options */
-#define CONFIG_RESET_TO_RETRY
-#define CONFIG_BOOT_RETRY_TIME		-1
-#define CONFIG_BOOT_RETRY_MIN		30
-
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 					"loadaddr=20080000\0"	\

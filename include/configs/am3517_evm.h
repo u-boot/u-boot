@@ -14,9 +14,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/* Ethernet */
-#define CONFIG_NET_RETRY_COUNT		10
-
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_ECCPOS		{ 2,  3,  4,  5,  6,  7,  8,  9, 10, \

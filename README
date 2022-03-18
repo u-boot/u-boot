@@ -374,14 +374,6 @@ The following options need to be configured:
 		See Freescale App Note 4493 for more information about
 		this erratum.
 
-		CONFIG_A003399_NOR_WORKAROUND
-		Enables a workaround for IFC erratum A003399. It is only
-		required during NOR boot.
-
-		CONFIG_A008044_WORKAROUND
-		Enables a workaround for T1040/T1042 erratum A008044. It is only
-		required during NAND boot and valid for Rev 1.0 SoC revision
-
 		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
 		This is the value to write into CCSR offset 0x18600
@@ -564,13 +556,6 @@ The following options need to be configured:
 
 		boards with QUICC Engines require OF_QE to set UCC MAC
 		addresses
-
-		CONFIG_OF_SYSTEM_SETUP
-
-		Other code has addition modification that it wants to make
-		to the flat device tree before handing it off to the kernel.
-		This causes ft_system_setup() to be called before booting
-		the kernel.
 
 		CONFIG_OF_IDE_FIXUP
 
@@ -1563,24 +1548,6 @@ The following options need to be configured:
 			FLAGADM
 
 - Error Recovery:
-		CONFIG_NET_RETRY_COUNT
-
-		This variable defines the number of retries for
-		network operations like ARP, RARP, TFTP, or BOOTP
-		before giving up the operation. If not defined, a
-		default value of 5 is used.
-
-		CONFIG_ARP_TIMEOUT
-
-		Timeout waiting for an ARP reply in milliseconds.
-
-		CONFIG_NFS_TIMEOUT
-
-		Timeout in milliseconds used in NFS protocol.
-		If you encounter "ERROR: Cannot umount" in nfs command,
-		try longer timeout such as
-		#define CONFIG_NFS_TIMEOUT 10000UL
-
 	Note:
 
 		In the current implementation, the local variables
@@ -1846,10 +1813,6 @@ The following options need to be configured:
 
 		CONFIG_SPL_SKIP_RELOCATE
 		Avoid SPL relocation
-
-		CONFIG_SPL_NAND_IDENT
-		SPL uses the chip ID list to identify the NAND flash.
-		Requires CONFIG_SPL_NAND_BASE.
 
 		CONFIG_SPL_UBI
 		Support for a lightweight UBI (fastmap) scanner and

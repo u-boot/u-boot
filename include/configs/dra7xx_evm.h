@@ -55,9 +55,6 @@
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT
 
-/* CPSW Ethernet */
-#define CONFIG_NET_RETRY_COUNT		10
-
 /*
  * Default to using SPI for environment, etc.
  * 0x000000 - 0x040000 : QSPI.SPL (256KiB)

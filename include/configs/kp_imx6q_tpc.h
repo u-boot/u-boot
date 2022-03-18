@@ -18,7 +18,6 @@
 /* Miscellaneous configurable options */
 
 /* FEC ethernet */
-#define CONFIG_ARP_TIMEOUT		200UL
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB

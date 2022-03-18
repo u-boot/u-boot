@@ -7,11 +7,6 @@ CONFIG_FEC_MXC
 CONFIG_MII
 	Must be defined if CONFIG_FEC_MXC is defined.
 
-CONFIG_FEC_XCV_TYPE
-	Defaults to MII100 for 100 Base-tx.
-	RGMII selects 1000 Base-tx reduced pin count interface.
-	RMII selects 100 Base-tx reduced pin count interface.
-
 CONFIG_FEC_MXC_SWAP_PACKET
 	Forced on iff MX28.
 	Swaps the bytes order of all words(4 byte units) in the packet.

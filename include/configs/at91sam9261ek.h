@@ -14,15 +14,7 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432 MHz crystal */
 
-#ifdef CONFIG_AT91SAM9G10
-#define CONFIG_AT91SAM9G10EK		/* It's an Atmel AT91SAM9G10 EK*/
-#else
-#define CONFIG_AT91SAM9261EK		/* It's an Atmel AT91SAM9261 EK*/
-#endif
-
 #include <asm/hardware.h>
-
-#define CONFIG_ATMEL_LEGACY
 
 /*
  * Hardware drivers
@@ -66,7 +58,6 @@
 #define DM9000_DATA			(CONFIG_DM9000_BASE + 4)
 #define CONFIG_DM9000_USE_16BIT
 #define CONFIG_DM9000_NO_SROM
-#define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_RESET_PHY_R
 
 /* USB */

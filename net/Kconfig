@@ -8,6 +8,17 @@ menuconfig NET
 
 if NET
 
+config ARP_TIMEOUT
+	int "Milliseconds before trying ARP again"
+	default 5000
+
+config NET_RETRY_COUNT
+	int "Number of timeouts before giving up"
+	default 5
+	help
+	  This variable defines the number of retries for network operations
+	  like ARP, RARP, TFTP, or BOOTP before giving up the operation.
+
 config PROT_UDP
 	bool "Enable generic udp framework"
 	help

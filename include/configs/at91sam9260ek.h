@@ -27,18 +27,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
 
-/* Define actual evaluation board type from used processor type */
-#ifdef CONFIG_AT91SAM9G20
-# define CONFIG_AT91SAM9G20EK	/* It's an Atmel AT91SAM9G20 EK */
-#else
-# define CONFIG_AT91SAM9260EK	/* It's an Atmel AT91SAM9260 EK */
-#endif
-
-/* Misc CPU related */
-
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.

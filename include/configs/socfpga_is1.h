@@ -12,9 +12,6 @@
 #define PHYS_SDRAM_1_SIZE		0x10000000
 
 /* Ethernet on SoC (EMAC) */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_ARP_TIMEOUT		500UL
-#endif
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

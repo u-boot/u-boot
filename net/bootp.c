@@ -31,7 +31,7 @@
 
 /*
  * The timeout for the initial BOOTP/DHCP request used to be described by a
- * counter of fixed-length timeout periods. TIMEOUT_COUNT represents
+ * counter of fixed-length timeout periods. CONFIG_NET_RETRY_COUNT represents
  * that counter
  *
  * Now that the timeout periods are variable (exponential backoff and retry)
@@ -39,12 +39,7 @@
  * execute that many retries, and keep sending retry packets until that time
  * is reached.
  */
-#ifndef CONFIG_NET_RETRY_COUNT
-# define TIMEOUT_COUNT	5		/* # of timeouts before giving up */
-#else
-# define TIMEOUT_COUNT	(CONFIG_NET_RETRY_COUNT)
-#endif
-#define TIMEOUT_MS	((3 + (TIMEOUT_COUNT * 5)) * 1000)
+#define TIMEOUT_MS	((3 + (CONFIG_NET_RETRY_COUNT * 5)) * 1000)
 
 #define PORT_BOOTPS	67		/* BOOTP server UDP port */
 #define PORT_BOOTPC	68		/* BOOTP client UDP port */

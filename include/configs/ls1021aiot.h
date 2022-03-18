@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ARMV7_SECURE_BASE OCRAM_BASE_S_ADDR
-
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
@@ -106,12 +104,6 @@
 
 #define TSEC1_PHYIDX			0
 #define TSEC2_PHYIDX			0
-
-#define CONFIG_ETHPRIME			"eTSEC2"
-
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
 #endif
 
 /* PCIe */

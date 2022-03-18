@@ -54,8 +54,6 @@
 	"fdtfile=imx53-cx9020.dtb\0" \
 	BOOTENV
 
-#define CONFIG_ARP_TIMEOUT	200UL
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 

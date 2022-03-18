@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ARMV7_SECURE_BASE	OCRAM_BASE_S_ADDR
-
 #define CONFIG_DEEP_SLEEP
 
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
@@ -200,14 +198,6 @@
 #define CONFIG_FSL_DCU_SII9022A
 #define CONFIG_SYS_I2C_DVI_BUS_NUM	1
 #define CONFIG_SYS_I2C_DVI_ADDR		0x39
-#endif
-
-/*
- * eTSEC
- */
-
-#ifdef CONFIG_TSEC_ENET
-#define CONFIG_ETHPRIME			"ethernet@2d10000"
 #endif
 
 /* PCIe */

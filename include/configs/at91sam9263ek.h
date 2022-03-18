@@ -30,7 +30,6 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_ATMEL_LEGACY
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8

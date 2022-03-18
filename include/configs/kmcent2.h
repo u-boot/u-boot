@@ -408,7 +408,6 @@ int get_scl(void);
 /* Qman / Bman */
 /* RGMII (FM1@DTESC5) is local managemant interface */
 #define CONFIG_SYS_RGMII2_PHY_ADDR             0x11
-#define CONFIG_ETHPRIME		"fm1-mac5"
 
 /*
  * Hardware Watchdog

@@ -63,7 +63,6 @@
 #define CONFIG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
 
 /* Network Configuration */
-#define CONFIG_NET_RETRY_COUNT		32
 #define CONFIG_SYS_SGMII_REFCLK_MHZ	312
 #define CONFIG_SYS_SGMII_LINERATE_MHZ	1250
 #define CONFIG_SYS_SGMII_RATESCALE	2

@@ -176,6 +176,7 @@ config TARGET_SAMA5D2_XPLAINED
 
 config TARGET_SAMA5D27_SOM1_EK
 	bool "SAMA5D27 SOM1 EK board"
+	select SAMA5D2
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select CPU_V7A
@@ -309,6 +310,13 @@ config AT91_EFLASH
 	help
 	  Enable the driver for the embedded flash used in the Atmel
 	  AT91SAM9XE devices.
+
+config AT91_GPIO_PULLUP
+	bool "Keep pullups on peripheral pins"
+	depends on CPU_ARM926EJS
+
+config ATMEL_LEGACY
+	bool "Legacy GPIO support"
 
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"

@@ -71,6 +71,4 @@
 #define CONFIG_SH_SCIF_CLK_FREQ get_board_sys_clk()
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 
-#define CONFIG_NFS_TIMEOUT 10000UL
-
 #endif /* __KZM9G_H */

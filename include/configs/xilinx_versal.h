@@ -10,8 +10,6 @@
 #ifndef __XILINX_VERSAL_H
 #define __XILINX_VERSAL_H
 
-/* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
-
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE	0xF9000000
 #define GICR_BASE	0xF9080000

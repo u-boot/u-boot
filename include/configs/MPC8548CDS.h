@@ -361,9 +361,6 @@
 #define TSEC2_FLAGS		TSEC_GIGABIT
 #define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
-
-/* Options are: eTSEC[0-3] */
-#define CONFIG_ETHPRIME		"eTSEC0"
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
@@ -388,12 +385,6 @@
 /*
  * Environment Configuration
  */
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
-#define CONFIG_HAS_ETH3
-#endif
 
 #define CONFIG_IPADDR	 192.168.1.253
 

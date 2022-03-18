@@ -137,13 +137,6 @@
 #endif
 
 /*
- * Network & Ethernet Configuration
- */
-#ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_NET_RETRY_COUNT	10
-#endif
-
-/*
  * U-Boot general configuration
  */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/

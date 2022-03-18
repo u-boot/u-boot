@@ -10,8 +10,6 @@
 #ifndef __XILINX_ZYNQMP_H
 #define __XILINX_ZYNQMP_H
 
-/* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
-
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE	0xF9010000
 #define GICC_BASE	0xF9020000

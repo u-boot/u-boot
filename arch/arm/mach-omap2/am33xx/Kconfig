@@ -280,3 +280,35 @@ config PUB_ROM_DATA_SIZE
 	  image, this area is no longer used, and can be reclaimed
 	  for run time use by the boot image.
 endif
+
+config AM335X_USB0
+	bool "Static mode configuration for USB0 in SPL"
+	depends on AM33XX && SPL_MUSB_NEW && !SPL_OF_CONTROL
+
+choice
+	prompt "USB0 port configuration"
+	depends on AM335X_USB0
+
+config AM335X_USB0_HOST
+	bool "Port is used in host mode"
+
+config AM335X_USB0_PERIPHERAL
+	bool "Port is used in peripheral mode"
+
+endchoice
+
+config AM335X_USB1
+	bool "Static mode configuration for USB1 in SPL"
+	depends on AM33XX && SPL_MUSB_NEW && !SPL_OF_CONTROL
+
+choice
+	prompt "USB1 port configuration"
+	depends on AM335X_USB1
+
+config AM335X_USB1_HOST
+	bool "Port is used in host mode"
+
+config AM335X_USB1_PERIPHERAL
+	bool "Port is used in peripheral mode"
+
+endchoice

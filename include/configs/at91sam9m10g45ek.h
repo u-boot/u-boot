@@ -10,16 +10,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK      32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
 
-#define CONFIG_AT91SAM9M10G45EK
-
 /* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
@@ -29,8 +24,6 @@
 #define CONFIG_LCD_INFO_BELOW_LOGO
 #define CONFIG_ATMEL_LCD
 #define CONFIG_ATMEL_LCD_RGB565
-/* board specific(not enough SRAM) */
-#define CONFIG_AT91SAM9G45_LCD_BASE		0x73E00000
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           0x70000000

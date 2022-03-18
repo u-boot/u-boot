@@ -127,10 +127,6 @@
 #define CONFIG_SYS_NAND_ECCBYTES	14
 /* NAND: SPL related configs */
 
-/* USB configuration */
-#define CONFIG_AM335X_USB1
-#define CONFIG_AM335X_USB1_MODE MUSB_HOST
-
 /*
  * Disable MMC DM for SPL build and can be re-enabled after adding
  * DM support in SPL

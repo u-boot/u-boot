@@ -77,9 +77,6 @@
  * Environment Configuration
  */
 
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-
 /* TODO: Turn into string option and migrate to Kconfig */
 #define CONFIG_HOSTNAME		"gazerbeam"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"

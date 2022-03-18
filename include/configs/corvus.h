@@ -23,15 +23,9 @@
  * hex number here!
  */
 
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK      32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
-
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
 
 /* serial console */
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
@@ -64,7 +58,6 @@
 
 /* Ethernet */
 #define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* DFU class support */

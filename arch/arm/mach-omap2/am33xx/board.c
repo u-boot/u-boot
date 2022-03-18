@@ -241,14 +241,14 @@ static struct ti_musb_plat usb1 = {
 };
 
 U_BOOT_DRVINFOS(am33xx_usbs) = {
-#if CONFIG_AM335X_USB0_MODE == MUSB_PERIPHERAL
+#ifdef CONFIG_AM335X_USB0_PERIPHERAL
 	{ "ti-musb-peripheral", &usb0 },
-#elif CONFIG_AM335X_USB0_MODE == MUSB_HOST
+#elif defined(CONFIG_AM335X_USB0_HOST)
 	{ "ti-musb-host", &usb0 },
 #endif
-#if CONFIG_AM335X_USB1_MODE == MUSB_PERIPHERAL
+#ifdef CONFIG_AM335X_USB1_PERIPHERAL
 	{ "ti-musb-peripheral", &usb1 },
-#elif CONFIG_AM335X_USB1_MODE == MUSB_HOST
+#elif defined(CONFIG_AM335X_USB1_HOST)
 	{ "ti-musb-host", &usb1 },
 #endif
 };

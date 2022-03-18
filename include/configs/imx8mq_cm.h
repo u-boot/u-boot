@@ -32,9 +32,6 @@
 
 /* ENET Config */
 /* ENET1 */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_ETHPRIME                 "FEC"
-#endif
 
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \

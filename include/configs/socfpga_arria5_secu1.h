@@ -29,15 +29,6 @@
 /* Environment settings */
 
 /*
- * Autoboot
- *
- * After 45s of inactivity in the prompt, the board will reset.
- * Set 'bootretry' in the environment to -1 to disable this behavior
- */
-#define CONFIG_BOOT_RETRY_TIME 45
-#define CONFIG_RESET_TO_RETRY
-
-/*
  * FPGA Remote Update related environment
  *
  * Note that since those commands access the FPGA, the HPS-to-FPGA

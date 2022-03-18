@@ -1638,6 +1638,15 @@ config CMD_NFS
 	help
 	  Boot image via network using NFS protocol.
 
+config NFS_TIMEOUT
+	int "Timeout in milliseconds for NFS mounts"
+	depends on CMD_NFS
+	default 2000
+	help
+	  Timeout in milliseconds used in NFS protocol.  If you encounter
+	  "ERROR: Cannot umount" in nfs command, try longer timeout such as
+	  10000.
+
 config CMD_MII
 	bool "mii"
 	imply CMD_MDIO

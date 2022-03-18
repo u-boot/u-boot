@@ -24,7 +24,6 @@
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
 #define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_FEC_MXC_PHYADDR          0
 
 /* I2C Configs */

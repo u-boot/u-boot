@@ -124,11 +124,6 @@
 
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_ENET_DEV		1
-#if (CONFIG_FEC_ENET_DEV == 0)
-#define CONFIG_ETHPRIME			"eth0"
-#elif (CONFIG_FEC_ENET_DEV == 1)
-#define CONFIG_ETHPRIME			"eth1"
-#endif
 #endif
 
 #endif

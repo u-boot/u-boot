@@ -104,13 +104,6 @@
  */
 
 #ifndef CONFIG_SPL_BUILD
-/*
- * USB configuration
- */
-#define CONFIG_AM335X_USB0
-#define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
-#define CONFIG_AM335X_USB1
-#define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
 /* USB DRACO ID as default */
 #define CONFIG_USBD_HS
@@ -132,8 +125,6 @@
  * 0xE0000 - 0x442000 : Linux Kernel
  * 0x442000 - 0x800000 : Userland
  */
-
-#define CONFIG_NET_RETRY_COUNT         10
 
 /* NAND support */
 #ifdef CONFIG_MTD_RAW_NAND
@@ -413,9 +404,5 @@
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #endif
 #endif
-
-/* Reboot after 60 sec if bootcmd fails */
-#define CONFIG_RESET_TO_RETRY
-#define CONFIG_BOOT_RETRY_TIME 60
 
 #endif	/* ! __CONFIG_SIEMENS_AM33X_COMMON_H */

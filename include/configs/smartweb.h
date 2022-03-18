@@ -46,7 +46,6 @@
 
 /* setting board specific options */
 #define CONFIG_SYS_AUTOLOAD "yes"
-#define CONFIG_RESET_TO_RETRY
 
 /* The LED PINs */
 #define CONFIG_RED_LED			AT91_PIN_PA9
@@ -73,10 +72,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
-
 /* serial console */
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
@@ -86,7 +81,6 @@
  *
  */
 #define CONFIG_RMII			/* use reduced MII inteface */
-#define CONFIG_NET_RETRY_COUNT	20      /* # of DHCP/BOOTP retries */
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* BOOTP and DHCP options */

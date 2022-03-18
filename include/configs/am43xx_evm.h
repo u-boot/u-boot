@@ -145,11 +145,6 @@
 
 #endif
 
-#ifndef CONFIG_SPL_BUILD
-/* CPSW Ethernet */
-#define CONFIG_NET_RETRY_COUNT		10
-#endif
-
 #define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
 
 #define CONFIG_SYS_RX_ETH_BUFFER	64

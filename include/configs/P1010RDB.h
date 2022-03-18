@@ -411,12 +411,6 @@ extern unsigned long get_sdram_size(void);
 #undef CONFIG_SYS_RAMBOOT
 #endif
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
-#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_A003399_NOR_WORKAROUND
-#endif
-#endif
-
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000 /* End of used area in RAM */
@@ -526,8 +520,6 @@ extern unsigned long get_sdram_size(void);
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 
-#define CONFIG_ETHPRIME		"eTSEC1"
-
 /* TBI PHY configuration for SGMII mode */
 #define CONFIG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \
@@ -603,12 +595,6 @@ extern unsigned long get_sdram_size(void);
 /*
  * Environment Configuration
  */
-
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
-#endif
 
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_UBOOTPATH	u-boot.bin/* U-Boot image on TFTP server */

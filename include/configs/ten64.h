@@ -9,7 +9,6 @@
 
 #include "ls1088a_common.h"
 
-#define CONFIG_SYS_CLK_FREQ		100000000
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
