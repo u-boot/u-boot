@@ -81,7 +81,6 @@
  *
  */
 #define CONFIG_RMII			/* use reduced MII inteface */
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* BOOTP and DHCP options */
 

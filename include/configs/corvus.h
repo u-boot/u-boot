@@ -57,7 +57,6 @@
 
 /* Ethernet */
 #define CONFIG_RMII
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000

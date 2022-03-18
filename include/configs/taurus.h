@@ -65,7 +65,6 @@
 
 /* Ethernet */
 #define CONFIG_RMII
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* USB */
 #if defined(CONFIG_BOARD_TAURUS)

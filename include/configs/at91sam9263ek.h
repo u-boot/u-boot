@@ -186,7 +186,6 @@
 
 /* Ethernet */
 #define CONFIG_RESET_PHY_R		1
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* USB */
 #define CONFIG_USB_ATMEL
