@@ -112,7 +112,7 @@ def GetFileOffset(fname, addr):
         int: Offset of that address in the ELF file, or None if not valid
     """
     if not ELF_TOOLS:
-        raise ValueError('Python elftools package is not available')
+        raise ValueError("Python: No module named 'elftools'")
     with open(fname, 'rb') as fd:
         elf = ELFFile(fd)
         return _GetFileOffset(elf, addr)
@@ -128,7 +128,7 @@ def GetSymbolFromAddress(fname, addr):
         str: Symbol name, or None if no symbol at that address
     """
     if not ELF_TOOLS:
-        raise ValueError('Python elftools package is not available')
+        raise ValueError("Python: No module named 'elftools'")
     with open(fname, 'rb') as fd:
         elf = ELFFile(fd)
         syms = GetSymbols(fname, None)
