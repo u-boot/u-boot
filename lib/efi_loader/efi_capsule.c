@@ -680,7 +680,7 @@ static bool device_is_present_and_system_part(struct efi_device_path *dp)
 {
 	efi_handle_t handle;
 
-	handle = efi_dp_find_obj(dp, NULL);
+	handle = efi_dp_find_obj(dp, NULL, NULL);
 	if (!handle)
 		return false;
 

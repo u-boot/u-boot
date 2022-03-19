@@ -1750,7 +1750,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	info->system_table = &systab;
 
 	if (device_path) {
-		info->device_handle = efi_dp_find_obj(device_path, NULL);
+		info->device_handle = efi_dp_find_obj(device_path, NULL, NULL);
 
 		dp = efi_dp_append(device_path, file_path);
 		if (!dp) {
