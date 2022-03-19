@@ -497,7 +497,7 @@ static int virtio_pci_probe(struct udevice *udev)
 	 */
 	device = virtio_pci_find_capability(udev, VIRTIO_PCI_CAP_DEVICE_CFG);
 	if (device) {
-		offset = notify + offsetof(struct virtio_pci_cap, length);
+		offset = device + offsetof(struct virtio_pci_cap, length);
 		dm_pci_read_config32(udev, offset, &priv->device_len);
 	}
 
