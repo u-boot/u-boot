@@ -480,6 +480,7 @@ static int virtio_pci_probe(struct udevice *udev)
 	u16 subvendor;
 	u8 revision;
 	int common, notify, device;
+	u32 common_length;
 	int offset;
 
 	/* We only own devices >= 0x1040 and <= 0x107f: leave the rest. */
@@ -499,6 +500,13 @@ static int virtio_pci_probe(struct udevice *udev)
 	if (!common) {
 		printf("(%s): leaving for legacy driver\n", udev->name);
 		return -ENODEV;
+	}
+
+	offset = common + offsetof(struct virtio_pci_cap, length);
+	dm_pci_read_config32(udev, offset, &common_length);
+	if (common_length < sizeof(struct virtio_pci_common_cfg)) {
+		printf("(%s): virtio common config too small\n", udev->name);
+		return -EINVAL;
 	}
 
 	/* If common is there, notify should be too */
