@@ -398,18 +398,22 @@ static int virtio_pci_notify(struct udevice *udev, struct virtqueue *vq)
  * @udev:	the transport device
  * @cfg_type:	the VIRTIO_PCI_CAP_* value we seek
  * @cap_size:	expected size of the capability
+ * @cap:	capability read from the config space
  *
  * Return: offset of the configuration structure
  */
 static int virtio_pci_find_capability(struct udevice *udev, u8 cfg_type,
-				      size_t cap_size)
+				      size_t cap_size,
+				      struct virtio_pci_cap *cap)
 {
 	int pos;
 	int offset;
-	u8 type, bar;
 
 	assert(cap_size >= sizeof(struct virtio_pci_cap));
 	assert(cap_size <= PCI_CFG_SPACE_SIZE);
+
+	if (!cap)
+		return 0;
 
 	for (pos = dm_pci_find_capability(udev, PCI_CAP_ID_VNDR);
 	     pos > 0;
@@ -418,16 +422,26 @@ static int virtio_pci_find_capability(struct udevice *udev, u8 cfg_type,
 		if (PCI_CFG_SPACE_SIZE - cap_size < pos)
 			return 0;
 
+		offset = pos + offsetof(struct virtio_pci_cap, cap_vndr);
+		dm_pci_read_config8(udev, offset, &cap->cap_vndr);
+		offset = pos + offsetof(struct virtio_pci_cap, cap_next);
+		dm_pci_read_config8(udev, offset, &cap->cap_next);
+		offset = pos + offsetof(struct virtio_pci_cap, cap_len);
+		dm_pci_read_config8(udev, offset, &cap->cap_len);
 		offset = pos + offsetof(struct virtio_pci_cap, cfg_type);
-		dm_pci_read_config8(udev, offset, &type);
+		dm_pci_read_config8(udev, offset, &cap->cfg_type);
 		offset = pos + offsetof(struct virtio_pci_cap, bar);
-		dm_pci_read_config8(udev, offset, &bar);
+		dm_pci_read_config8(udev, offset, &cap->bar);
+		offset = pos + offsetof(struct virtio_pci_cap, offset);
+		dm_pci_read_config32(udev, offset, &cap->offset);
+		offset = pos + offsetof(struct virtio_pci_cap, length);
+		dm_pci_read_config32(udev, offset, &cap->length);
 
 		/* Ignore structures with reserved BAR values */
-		if (bar > 0x5)
+		if (cap->bar > 0x5)
 			continue;
 
-		if (type == cfg_type)
+		if (cap->cfg_type == cfg_type)
 			return pos;
 	}
 
@@ -438,24 +452,15 @@ static int virtio_pci_find_capability(struct udevice *udev, u8 cfg_type,
  * virtio_pci_map_capability - map base address of the capability
  *
  * @udev:	the transport device
- * @off:	offset of the configuration structure
+ * @cap:	capability to map
  *
  * Return: base address of the capability
  */
-static void __iomem *virtio_pci_map_capability(struct udevice *udev, int off)
+static void __iomem *virtio_pci_map_capability(struct udevice *udev,
+					       const struct virtio_pci_cap *cap)
 {
-	u8 bar;
-	u32 offset;
 	ulong base;
 	void __iomem *p;
-
-	if (!off)
-		return NULL;
-
-	offset = off + offsetof(struct virtio_pci_cap, bar);
-	dm_pci_read_config8(udev, offset, &bar);
-	offset = off + offsetof(struct virtio_pci_cap, offset);
-	dm_pci_read_config32(udev, offset, &offset);
 
 	/*
 	 * TODO: adding 64-bit BAR support
@@ -463,8 +468,8 @@ static void __iomem *virtio_pci_map_capability(struct udevice *udev, int off)
 	 * Per spec, the BAR is permitted to be either 32-bit or 64-bit.
 	 * For simplicity, only read the BAR address as 32-bit.
 	 */
-	base = dm_pci_read_bar32(udev, bar);
-	p = (void __iomem *)base + offset;
+	base = dm_pci_read_bar32(udev, cap->bar);
+	p = (void __iomem *)base + cap->offset;
 
 	return p;
 }
@@ -489,7 +494,7 @@ static int virtio_pci_probe(struct udevice *udev)
 	u16 subvendor;
 	u8 revision;
 	int common, notify, device;
-	u32 common_length;
+	struct virtio_pci_cap common_cap, notify_cap, device_cap;
 	int offset;
 
 	/* We only own devices >= 0x1040 and <= 0x107f: leave the rest. */
@@ -506,46 +511,45 @@ static int virtio_pci_probe(struct udevice *udev)
 
 	/* Check for a common config: if not, use legacy mode (bar 0) */
 	common = virtio_pci_find_capability(udev, VIRTIO_PCI_CAP_COMMON_CFG,
-					    sizeof(struct virtio_pci_cap));
+					    sizeof(struct virtio_pci_cap),
+					    &common_cap);
 	if (!common) {
 		printf("(%s): leaving for legacy driver\n", udev->name);
 		return -ENODEV;
 	}
 
-	offset = common + offsetof(struct virtio_pci_cap, length);
-	dm_pci_read_config32(udev, offset, &common_length);
-	if (common_length < sizeof(struct virtio_pci_common_cfg)) {
+	if (common_cap.length < sizeof(struct virtio_pci_common_cfg)) {
 		printf("(%s): virtio common config too small\n", udev->name);
 		return -EINVAL;
 	}
 
 	/* If common is there, notify should be too */
 	notify = virtio_pci_find_capability(udev, VIRTIO_PCI_CAP_NOTIFY_CFG,
-					    sizeof(struct virtio_pci_notify_cap));
+					    sizeof(struct virtio_pci_notify_cap),
+					    &notify_cap);
 	if (!notify) {
 		printf("(%s): missing capabilities %i/%i\n", udev->name,
 		       common, notify);
 		return -EINVAL;
 	}
 
-	offset = notify + offsetof(struct virtio_pci_cap, length);
-	dm_pci_read_config32(udev, offset, &priv->notify_len);
+	priv->notify_len = notify_cap.length;
 
 	/*
 	 * Device capability is only mandatory for devices that have
 	 * device-specific configuration.
 	 */
 	device = virtio_pci_find_capability(udev, VIRTIO_PCI_CAP_DEVICE_CFG,
-					    sizeof(struct virtio_pci_cap));
+					    sizeof(struct virtio_pci_cap),
+					    &device_cap);
 	if (device) {
-		offset = device + offsetof(struct virtio_pci_cap, length);
-		dm_pci_read_config32(udev, offset, &priv->device_len);
+		priv->device_len = device_cap.length;
+		priv->device = virtio_pci_map_capability(udev, &device_cap);
 	}
 
 	/* Map configuration structures */
-	priv->common = virtio_pci_map_capability(udev, common);
-	priv->notify_base = virtio_pci_map_capability(udev, notify);
-	priv->device = virtio_pci_map_capability(udev, device);
+	priv->common = virtio_pci_map_capability(udev, &common_cap);
+	priv->notify_base = virtio_pci_map_capability(udev, &notify_cap);
 	debug("(%p): common @ %p, notify base @ %p, device @ %p\n",
 	      udev, priv->common, priv->notify_base, priv->device);
 
