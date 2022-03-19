@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <hang.h>
+#include <handoff.h>
 #include <init.h>
 #include <log.h>
 #include <os.h>

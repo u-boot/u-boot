@@ -243,7 +243,7 @@ class TestElf(unittest.TestCase):
             fname = self.ElfTestFile('embed_data')
             with self.assertRaises(ValueError) as e:
                 elf.GetSymbolFileOffset(fname, ['embed_start', 'embed_end'])
-            self.assertIn('Python elftools package is not available',
+            self.assertIn("Python: No module named 'elftools'",
                       str(e.exception))
         finally:
             elf.ELF_TOOLS = old_val
@@ -257,32 +257,80 @@ class TestElf(unittest.TestCase):
         offset = elf.GetSymbolFileOffset(fname, ['missing_sym'])
         self.assertEqual({}, offset)
 
-    def test_read_segments(self):
-        """Test for read_segments()"""
+    def test_read_loadable_segments(self):
+        """Test for read_loadable_segments()"""
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
         fname = self.ElfTestFile('embed_data')
-        segments, entry = elf.read_segments(tools.read_file(fname))
+        segments, entry = elf.read_loadable_segments(tools.read_file(fname))
 
     def test_read_segments_fail(self):
-        """Test for read_segments() without elftools"""
+        """Test for read_loadable_segments() without elftools"""
         try:
             old_val = elf.ELF_TOOLS
             elf.ELF_TOOLS = False
             fname = self.ElfTestFile('embed_data')
             with self.assertRaises(ValueError) as e:
-                elf.read_segments(tools.read_file(fname))
-            self.assertIn('Python elftools package is not available',
+                elf.read_loadable_segments(tools.read_file(fname))
+            self.assertIn("Python: No module named 'elftools'",
                           str(e.exception))
         finally:
             elf.ELF_TOOLS = old_val
 
     def test_read_segments_bad_data(self):
-        """Test for read_segments() with an invalid ELF file"""
+        """Test for read_loadable_segments() with an invalid ELF file"""
         fname = self.ElfTestFile('embed_data')
         with self.assertRaises(ValueError) as e:
-            elf.read_segments(tools.get_bytes(100, 100))
+            elf.read_loadable_segments(tools.get_bytes(100, 100))
         self.assertIn('Magic number does not match', str(e.exception))
+
+    def test_get_file_offset(self):
+        """Test GetFileOffset() gives the correct file offset for a symbol"""
+        fname = self.ElfTestFile('embed_data')
+        syms = elf.GetSymbols(fname, ['embed'])
+        addr = syms['embed'].address
+        offset = elf.GetFileOffset(fname, addr)
+        data = tools.read_file(fname)
+
+        # Just use the first 4 bytes and assume it is little endian
+        embed_data = data[offset:offset + 4]
+        embed_value = struct.unpack('<I', embed_data)[0]
+        self.assertEqual(0x1234, embed_value)
+
+    def test_get_file_offset_fail(self):
+        """Test calling GetFileOffset() without elftools"""
+        try:
+            old_val = elf.ELF_TOOLS
+            elf.ELF_TOOLS = False
+            fname = self.ElfTestFile('embed_data')
+            with self.assertRaises(ValueError) as e:
+                elf.GetFileOffset(fname, 0)
+            self.assertIn("Python: No module named 'elftools'",
+                      str(e.exception))
+        finally:
+            elf.ELF_TOOLS = old_val
+
+    def test_get_symbol_from_address(self):
+        """Test GetSymbolFromAddress()"""
+        fname = self.ElfTestFile('elf_sections')
+        sym_name = 'calculate'
+        syms = elf.GetSymbols(fname, [sym_name])
+        addr = syms[sym_name].address
+        sym = elf.GetSymbolFromAddress(fname, addr)
+        self.assertEqual(sym_name, sym)
+
+    def test_get_symbol_from_address_fail(self):
+        """Test calling GetSymbolFromAddress() without elftools"""
+        try:
+            old_val = elf.ELF_TOOLS
+            elf.ELF_TOOLS = False
+            fname = self.ElfTestFile('embed_data')
+            with self.assertRaises(ValueError) as e:
+                elf.GetSymbolFromAddress(fname, 0x1000)
+            self.assertIn("Python: No module named 'elftools'",
+                          str(e.exception))
+        finally:
+            elf.ELF_TOOLS = old_val
 
 
 if __name__ == '__main__':

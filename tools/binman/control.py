@@ -507,7 +507,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     # entry offsets remain the same.
     for image in images.values():
         image.CollectBintools()
-        image.ExpandEntries()
+        image.gen_entries()
         if update_fdt:
             image.AddMissingProperties(True)
         image.ProcessFdt(dtb)

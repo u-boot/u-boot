@@ -5,7 +5,7 @@
 	binman {
 		size = <40>;
 		fill {
-			expand-size;
+			extend-size;
 			fill-byte = [61];
 			size = <0>;
 		};
@@ -13,7 +13,7 @@
 			offset = <8>;
 		};
 		section {
-			expand-size;
+			extend-size;
 			pad-byte = <0x62>;
 			intel-mrc {
 			};
@@ -25,7 +25,7 @@
 		section2 {
 			type = "section";
 			fill {
-				expand-size;
+				extend-size;
 				fill-byte = [63];
 				size = <0>;
 			};
@@ -35,7 +35,7 @@
 		};
 		fill2 {
 			type = "fill";
-			expand-size;
+			extend-size;
 			fill-byte = [64];
 			size = <0>;
 		};

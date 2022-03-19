@@ -125,9 +125,14 @@ int host_dev_bind(int devnum, char *filename, bool removable)
 
 	fd = os_open(filename, OS_O_RDWR);
 	if (fd == -1) {
-		printf("Failed to access host backing file '%s'\n", filename);
-		ret = -ENOENT;
-		goto err;
+		printf("Failed to access host backing file '%s', trying read-only\n",
+		       filename);
+		fd = os_open(filename, OS_O_RDONLY);
+		if (fd == -1) {
+			printf("- still failed\n");
+			ret = -ENOENT;
+			goto err;
+		}
 	}
 	ret = blk_create_device(gd->dm_root, "sandbox_host_blk", str,
 				IF_TYPE_HOST, devnum, 512,

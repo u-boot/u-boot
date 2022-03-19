@@ -51,9 +51,10 @@ class Entry_mkimage(Entry):
         self.ReadEntries()
 
     def ObtainContents(self):
+        # Use a non-zero size for any fake files to keep mkimage happy
         data, input_fname, uniq = self.collect_contents_to_file(
-            self._mkimage_entries.values(), 'mkimage')
-        if data is False:
+            self._mkimage_entries.values(), 'mkimage', 1024)
+        if data is None:
             return False
         output_fname = tools.get_output_filename('mkimage-out.%s' % uniq)
         if self.mkimage.run_cmd('-d', input_fname, *self._args,
@@ -72,6 +73,16 @@ class Entry_mkimage(Entry):
             entry = Entry.Create(self, node)
             entry.ReadNode()
             self._mkimage_entries[entry.name] = entry
+
+    def SetAllowMissing(self, allow_missing):
+        """Set whether a section allows missing external blobs
+
+        Args:
+            allow_missing: True if allowed, False if not allowed
+        """
+        self.allow_missing = allow_missing
+        for entry in self._mkimage_entries.values():
+            entry.SetAllowMissing(allow_missing)
 
     def SetAllowFakeBlob(self, allow_fake):
         """Set whether the sub nodes allows to create a fake blob
@@ -93,5 +104,5 @@ class Entry_mkimage(Entry):
         for entry in self._mkimage_entries.values():
             entry.CheckFakedBlobs(faked_blobs_list)
 
-    def AddBintools(self, tools):
-        self.mkimage = self.AddBintool(tools, 'mkimage')
+    def AddBintools(self, btools):
+        self.mkimage = self.AddBintool(btools, 'mkimage')

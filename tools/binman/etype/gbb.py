@@ -99,5 +99,5 @@ class Entry_gbb(Entry):
 
         return True
 
-    def AddBintools(self, tools):
-        self.futility = self.AddBintool(tools, 'futility')
+    def AddBintools(self, btools):
+        self.futility = self.AddBintool(btools, 'futility')

@@ -82,7 +82,7 @@ class Entry__testing(Entry):
         self.return_contents = True
         self.contents = b'aa'
 
-    def ObtainContents(self):
+    def ObtainContents(self, fake_size=0):
         if self.return_unknown_contents or not self.return_contents:
             return False
         if self.return_contents_later:
