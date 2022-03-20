@@ -312,8 +312,8 @@ Run the following command
 .. code-block:: console
 
     $ mkeficapsule \
-      --index 1 --instance 0 \
-      [--fit <FIT image> | --raw <raw image>] \
+      --index <index> --instance 0 \
+      --guid <image GUID> \
       <capsule_file_name>
 
 Performing the update
@@ -332,6 +332,53 @@ Since U-boot doesn't currently support SetVariable at runtime, its value
 won't be taken over across the reboot. If this is the case, you can skip
 this feature check with the Kconfig option (CONFIG_EFI_IGNORE_OSINDICATIONS)
 set.
+
+A few values need to be defined in the board file for performing the
+capsule update. These values are defined in the board file by
+initialisation of a structure which provides information needed for
+capsule updates. The following structures have been defined for
+containing the image related information
+
+.. code-block:: c
+
+	struct efi_fw_images {
+		efi_guid_t image_type_id;
+		u16 *fw_name;
+		u8 image_index;
+	};
+
+	struct efi_capsule_update_info {
+		const char *dfu_string;
+		struct efi_fw_images *images;
+	};
+
+
+A string is defined which is to be used for populating the
+dfu_alt_info variable. This string is used by the function
+set_dfu_alt_info. Instead of taking the variable from the environment,
+the capsule update feature requires that the variable be set through
+the function, since that is more robust. Allowing the user to change
+the location of the firmware updates is not a very secure
+practice. Getting this information from the firmware itself is more
+secure, assuming the firmware has been verified by a previous stage
+boot loader.
+
+The firmware images structure defines the GUID values, image index
+values and the name of the images that are to be updated through
+the capsule update feature. These values are to be defined as part of
+an array. These GUID values would be used by the Firmware Management
+Protocol(FMP) to populate the image descriptor array and also
+displayed as part of the ESRT table. The image index values defined in
+the array should be one greater than the dfu alt number that
+corresponds to the firmware image. So, if the dfu alt number for an
+image is 2, the value of image index in the fw_images array for that
+image should be 3. The dfu alt number can be obtained by running the
+following command::
+
+    dfu list
+
+When using the FMP for FIT images, the image index value needs to be
+set to 1.
 
 Finally, the capsule update can be initiated by rebooting the board.
 
