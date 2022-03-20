@@ -312,8 +312,8 @@ Run the following command
 .. code-block:: console
 
     $ mkeficapsule \
-      --index 1 --instance 0 \
-      [--fit <FIT image> | --raw <raw image>] \
+      --index <index> --instance 0 \
+      --guid <image GUID> \
       <capsule_file_name>
 
 Performing the update
@@ -332,6 +332,24 @@ Since U-boot doesn't currently support SetVariable at runtime, its value
 won't be taken over across the reboot. If this is the case, you can skip
 this feature check with the Kconfig option (CONFIG_EFI_IGNORE_OSINDICATIONS)
 set.
+
+A few things need to be defined in the board file for performing the
+capsule upadte. The first is defining the function set_dfu_alt_info in
+the board file. This function sets the environment variable
+dfu_alt_info. Instead of taking the variable from the environment, the
+capsule update feature requires that the variable be set through the
+board function, since that is more robust. Secondly, define GUID
+values and image index of the images that are to be updated through
+the capsule update feature in the board file. Both the values are to
+be defined as part of the fw_images array. These GUID values would be
+used by the Firmware Management Protocol(FMP) to populate the image
+descriptor array and also displayed as part of the ESRT table. The
+image index values defined in the array should match the dfu alt
+number that corresponds to the firmware image. The dfu alt number can
+be obtained by running the following command::
+
+    dfu list
+
 
 Finally, the capsule update can be initiated by rebooting the board.
 
