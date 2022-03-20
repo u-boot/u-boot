@@ -122,20 +122,25 @@ int efi_dp_match(const struct efi_device_path *a,
 	}
 }
 
-/*
+/**
+ * efi_dp_shorten() - shorten device-path
+ *
  * We can have device paths that start with a USB WWID or a USB Class node,
  * and a few other cases which don't encode the full device path with bus
  * hierarchy:
  *
- *   - MESSAGING:USB_WWID
- *   - MESSAGING:USB_CLASS
- *   - MEDIA:FILE_PATH
- *   - MEDIA:HARD_DRIVE
- *   - MESSAGING:URI
+ * * MESSAGING:USB_WWID
+ * * MESSAGING:USB_CLASS
+ * * MEDIA:FILE_PATH
+ * * MEDIA:HARD_DRIVE
+ * * MESSAGING:URI
  *
  * See UEFI spec (section 3.1.2, about short-form device-paths)
+ *
+ * @dp:		original devie-path
+ * @Return:	shortened device-path or NULL
  */
-static struct efi_device_path *shorten_path(struct efi_device_path *dp)
+struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
 {
 	while (dp) {
 		/*
@@ -154,69 +159,90 @@ static struct efi_device_path *shorten_path(struct efi_device_path *dp)
 	return dp;
 }
 
-static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
-				   struct efi_device_path **rem)
+/**
+ * find_handle() - find handle by device path and installed protocol
+ *
+ * If @rem is provided, the handle with the longest partial match is returned.
+ *
+ * @dp:		device path to search
+ * @guid:	GUID of protocol that must be installed on path or NULL
+ * @short_path:	use short form device path for matching
+ * @rem:	pointer to receive remaining device path
+ * Return:	matching handle
+ */
+static efi_handle_t find_handle(struct efi_device_path *dp,
+				const efi_guid_t *guid, bool short_path,
+				struct efi_device_path **rem)
 {
-	struct efi_object *efiobj;
-	efi_uintn_t dp_size = efi_dp_instance_size(dp);
+	efi_handle_t handle, best_handle = NULL;
+	efi_uintn_t len, best_len = 0;
 
-	list_for_each_entry(efiobj, &efi_obj_list, link) {
+	len = efi_dp_instance_size(dp);
+
+	list_for_each_entry(handle, &efi_obj_list, link) {
 		struct efi_handler *handler;
-		struct efi_device_path *obj_dp;
+		struct efi_device_path *dp_current;
+		efi_uintn_t len_current;
 		efi_status_t ret;
 
-		ret = efi_search_protocol(efiobj,
-					  &efi_guid_device_path, &handler);
+		if (guid) {
+			ret = efi_search_protocol(handle, guid, &handler);
+			if (ret != EFI_SUCCESS)
+				continue;
+		}
+		ret = efi_search_protocol(handle, &efi_guid_device_path,
+					  &handler);
 		if (ret != EFI_SUCCESS)
 			continue;
-		obj_dp = handler->protocol_interface;
-
-		do {
-			if (efi_dp_match(dp, obj_dp) == 0) {
-				if (rem) {
-					/*
-					 * Allow partial matches, but inform
-					 * the caller.
-					 */
-					*rem = ((void *)dp) +
-						efi_dp_instance_size(obj_dp);
-					return efiobj;
-				} else {
-					/* Only return on exact matches */
-					if (efi_dp_instance_size(obj_dp) ==
-					    dp_size)
-						return efiobj;
-				}
-			}
-
-			obj_dp = shorten_path(efi_dp_next(obj_dp));
-		} while (short_path && obj_dp);
+		dp_current = handler->protocol_interface;
+		if (short_path) {
+			dp_current = efi_dp_shorten(dp_current);
+			if (!dp_current)
+				continue;
+		}
+		len_current = efi_dp_instance_size(dp_current);
+		if (rem) {
+			if (len_current > len)
+				continue;
+		} else {
+			if (len_current != len)
+				continue;
+		}
+		if (memcmp(dp_current, dp, len_current))
+			continue;
+		if (!rem)
+			return handle;
+		if (len_current > best_len) {
+			best_len = len_current;
+			best_handle = handle;
+			*rem = (void*)((u8 *)dp + len_current);
+		}
 	}
-
-	return NULL;
+	return best_handle;
 }
 
-/*
- * Find an efiobj from device-path, if 'rem' is not NULL, returns the
- * remaining part of the device path after the matched object.
+/**
+ * efi_dp_find_obj() - find handle by device path
+ *
+ * If @rem is provided, the handle with the longest partial match is returned.
+ *
+ * @dp:		device path to search
+ * @guid:	GUID of protocol that must be installed on path or NULL
+ * @rem:	pointer to receive remaining device path
+ * Return:	matching handle
  */
-struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
-				   struct efi_device_path **rem)
+efi_handle_t efi_dp_find_obj(struct efi_device_path *dp,
+			     const efi_guid_t *guid,
+			     struct efi_device_path **rem)
 {
-	struct efi_object *efiobj;
+	efi_handle_t handle;
 
-	/* Search for an exact match first */
-	efiobj = find_obj(dp, false, NULL);
+	handle = find_handle(dp, guid, false, rem);
+	if (!handle)
+		/* Match short form device path */
+		handle = find_handle(dp, guid, true, rem);
 
-	/* Then for a fuzzy match */
-	if (!efiobj)
-		efiobj = find_obj(dp, false, rem);
-
-	/* And now for a fuzzy short match */
-	if (!efiobj)
-		efiobj = find_obj(dp, true, rem);
-
-	return efiobj;
+	return handle;
 }
 
 /*

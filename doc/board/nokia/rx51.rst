@@ -160,3 +160,60 @@ UBIFS support add following lines into file ``configs/nokia_rx51_defconfig``::
     CONFIG_CMD_UBIFS=y
     CONFIG_MTD_UBI_FASTMAP=y
     CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT=1
+
+Run in QEMU
+-----------
+
+Download and compile Linaro version of qemu which contains ``n900`` qemu
+machine. Source code is available in qemu-linaro git repository and the
+last working version is at commit 8f8d8e0796efe1a6f34cdd83fb798f3c41217ec1.
+
+Use following commands to compile ``qemu-system-arm`` binary with ``n900``
+qemu machine support:
+
+.. code-block:: bash
+
+    git clone https://git.linaro.org/qemu/qemu-linaro.git
+    cd qemu-linaro
+    git checkout 8f8d8e0796efe1a6f34cdd83fb798f3c41217ec1
+    ./configure --enable-system --target-list=arm-softmmu --disable-werror
+    make -j4
+    cd ..
+    ln -s qemu-linaro/arm-softmmu/qemu-system-arm .
+
+Using ``n900`` qemu machine requires proprietary Nokia qemu ``qflasher`` tool
+(in reality it is just generator of qemu MTD images) with first stage images
+(``xloader-qemu.bin`` and ``secondary-qemu.bin``), similar what is required
+on the real HW. License of flasher and images allows non-commercial
+redistribution and it is available at maemo.org website:
+
+.. code-block:: bash
+
+    wget -c http://repository.maemo.org/qemu-n900/qemu-n900.tar.gz
+    tar -xf qemu-n900.tar.gz
+
+To generate qemu bootable MTD image ``mtd.img`` from U-Boot binary
+``u-boot.bin`` and unpacked first stage images, run following command:
+
+.. code-block:: bash
+
+    ./qflasher -v -x xloader-qemu.bin -s secondary-qemu.bin -k u-boot.bin -m rx51 -o mtd.img
+
+Instead of ``u-boot.bin`` binary it is possible to also used combined
+U-Boot + kernel binary ``combined.bin``.
+
+Finally, to boot ``mtd.img`` with graphics display and keyboard with optional
+serial console on current terminal, run:
+
+.. code-block:: bash
+
+    ./qemu-system-arm -M n900 -mtdblock mtd.img -serial /dev/tty
+
+Additionally it is possible to emulate also eMMC and uSD card by appending
+qemu ``-sd`` arguments:
+
+.. code-block:: bash
+
+    ./qemu-system-arm -M n900 -mtdblock mtd.img -sd emmc.img -sd sd.img -serial /dev/tty
+
+For more examples, look into the ``test/nokia_rx51_test.sh`` CI testing script.

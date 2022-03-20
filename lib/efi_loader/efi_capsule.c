@@ -669,22 +669,29 @@ static efi_status_t get_dp_device(u16 *boot_var,
 
 /**
  * device_is_present_and_system_part - check if a device exists
- * @dp		Device path
  *
  * Check if a device pointed to by the device path, @dp, exists and is
  * located in UEFI system partition.
  *
+ * @dp		device path
  * Return:	true - yes, false - no
  */
 static bool device_is_present_and_system_part(struct efi_device_path *dp)
 {
 	efi_handle_t handle;
+	struct efi_device_path *rem;
 
-	handle = efi_dp_find_obj(dp, NULL);
+	/* Check device exists */
+	handle = efi_dp_find_obj(dp, NULL, NULL);
 	if (!handle)
 		return false;
 
-	return efi_disk_is_system_part(handle);
+	/* Check device is on system partition */
+	handle = efi_dp_find_obj(dp, &efi_system_partition_guid, &rem);
+	if (!handle)
+		return false;
+
+	return true;
 }
 
 /**

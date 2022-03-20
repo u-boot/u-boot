@@ -734,20 +734,20 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
 }
 
 /**
- * create_initrd_dp() - Create a special device for our Boot### option
+ * create_initrd_dp() - create a special device for our Boot### option
  *
- * @dev:	Device
- * @part:	Disk partition
- * @file:	Filename
- * Return:	Pointer to the device path or ERR_PTR
- *
+ * @dev:	device
+ * @part:	disk partition
+ * @file:	filename
+ * @shortform:	create short form device path
+ * Return:	pointer to the device path or ERR_PTR
  */
 static
 struct efi_device_path *create_initrd_dp(const char *dev, const char *part,
-					 const char *file)
+					 const char *file, int shortform)
 
 {
-	struct efi_device_path *tmp_dp = NULL, *tmp_fp = NULL;
+	struct efi_device_path *tmp_dp = NULL, *tmp_fp = NULL, *short_fp = NULL;
 	struct efi_device_path *initrd_dp = NULL;
 	efi_status_t ret;
 	const struct efi_initrd_dp id_dp = {
@@ -771,9 +771,13 @@ struct efi_device_path *create_initrd_dp(const char *dev, const char *part,
 		printf("Cannot create device path for \"%s %s\"\n", part, file);
 		goto out;
 	}
+	if (shortform)
+		short_fp = efi_dp_shorten(tmp_fp);
+	if (!short_fp)
+		short_fp = tmp_fp;
 
 	initrd_dp = efi_dp_append((const struct efi_device_path *)&id_dp,
-				  tmp_fp);
+				  short_fp);
 
 out:
 	efi_free_pool(tmp_dp);
@@ -807,6 +811,7 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 	size_t label_len, label_len16;
 	u16 *label;
 	struct efi_device_path *device_path = NULL, *file_path = NULL;
+	struct efi_device_path *fp_free = NULL;
 	struct efi_device_path *final_fp = NULL;
 	struct efi_device_path *initrd_dp = NULL;
 	struct efi_load_option lo;
@@ -826,7 +831,18 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 	argc--;
 	argv++; /* 'add' */
 	for (; argc > 0; argc--, argv++) {
-		if (!strcmp(argv[0], "-b")) {
+		int shortform;
+
+		if (*argv[0] != '-' || strlen(argv[0]) != 2) {
+				r = CMD_RET_USAGE;
+				goto out;
+		}
+		shortform = 0;
+		switch (argv[0][1]) {
+		case 'b':
+			shortform = 1;
+			/* fallthrough */
+		case 'B':
 			if (argc <  5 || lo.label) {
 				r = CMD_RET_USAGE;
 				goto out;
@@ -849,24 +865,33 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 
 			/* file path */
 			ret = efi_dp_from_name(argv[3], argv[4], argv[5],
-					       &device_path, &file_path);
+					       &device_path, &fp_free);
 			if (ret != EFI_SUCCESS) {
 				printf("Cannot create device path for \"%s %s\"\n",
 				       argv[3], argv[4]);
 				r = CMD_RET_FAILURE;
 				goto out;
 			}
+			if (shortform)
+				file_path = efi_dp_shorten(fp_free);
+			if (!file_path)
+				file_path = fp_free;
 			fp_size += efi_dp_size(file_path) +
 				sizeof(struct efi_device_path);
 			argc -= 5;
 			argv += 5;
-		} else if (!strcmp(argv[0], "-i")) {
+			break;
+		case 'i':
+			shortform = 1;
+			/* fallthrough */
+		case 'I':
 			if (argc < 3 || initrd_dp) {
 				r = CMD_RET_USAGE;
 				goto out;
 			}
 
-			initrd_dp = create_initrd_dp(argv[1], argv[2], argv[3]);
+			initrd_dp = create_initrd_dp(argv[1], argv[2], argv[3],
+						     shortform);
 			if (!initrd_dp) {
 				printf("Cannot add an initrd\n");
 				r = CMD_RET_FAILURE;
@@ -876,7 +901,8 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 			argv += 3;
 			fp_size += efi_dp_size(initrd_dp) +
 				sizeof(struct efi_device_path);
-		} else if (!strcmp(argv[0], "-s")) {
+			break;
+		case 's':
 			if (argc < 1 || lo.optional_data) {
 				r = CMD_RET_USAGE;
 				goto out;
@@ -884,7 +910,8 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 			lo.optional_data = (const u8 *)argv[1];
 			argc -= 1;
 			argv += 1;
-		} else {
+			break;
+		default:
 			r = CMD_RET_USAGE;
 			goto out;
 		}
@@ -927,7 +954,7 @@ out:
 	efi_free_pool(final_fp);
 	efi_free_pool(initrd_dp);
 	efi_free_pool(device_path);
-	efi_free_pool(file_path);
+	efi_free_pool(fp_free);
 	free(lo.label);
 
 	return r;
@@ -1571,12 +1598,11 @@ static int do_efidebug(struct cmd_tbl *cmdtp, int flag,
 static char efidebug_help_text[] =
 	"  - UEFI Shell-like interface to configure UEFI environment\n"
 	"\n"
-	"efidebug boot add "
-	"-b <bootid> <label> <interface> <devnum>[:<part>] <file path> "
-	"-i <interface> <devnum>[:<part>] <initrd file path> "
-	"-s '<optional data>'\n"
-	"  - set UEFI BootXXXX variable\n"
-	"    <load options> will be passed to UEFI application\n"
+	"efidebug boot add - set UEFI BootXXXX variable\n"
+	"  -b|-B <bootid> <label> <interface> <devnum>[:<part>] <file path>\n"
+	"  -i|-I <interface> <devnum>[:<part>] <initrd file path>\n"
+	"  (-b, -i for short form device path)\n"
+	"  -s '<optional data>'\n"
 	"efidebug boot rm <bootid#1> [<bootid#2> [<bootid#3> [...]]]\n"
 	"  - delete UEFI BootXXXX variables\n"
 	"efidebug boot dump\n"

@@ -302,7 +302,7 @@ efi_fs_from_path(struct efi_device_path *full_path)
 	efi_free_pool(file_path);
 
 	/* Get the EFI object for the partition */
-	efiobj = efi_dp_find_obj(device_path, NULL);
+	efiobj = efi_dp_find_obj(device_path, NULL, NULL);
 	efi_free_pool(device_path);
 	if (!efiobj)
 		return NULL;
@@ -586,33 +586,4 @@ efi_status_t efi_disk_register(void)
 	log_info("Found %d disks\n", disks);
 
 	return EFI_SUCCESS;
-}
-
-/**
- * efi_disk_is_system_part() - check if handle refers to an EFI system partition
- *
- * @handle:	handle of partition
- *
- * Return:	true if handle refers to an EFI system partition
- */
-bool efi_disk_is_system_part(efi_handle_t handle)
-{
-	struct efi_handler *handler;
-	struct efi_disk_obj *diskobj;
-	struct disk_partition info;
-	efi_status_t ret;
-	int r;
-
-	/* check if this is a block device */
-	ret = efi_search_protocol(handle, &efi_block_io_guid, &handler);
-	if (ret != EFI_SUCCESS)
-		return false;
-
-	diskobj = container_of(handle, struct efi_disk_obj, header);
-
-	r = part_get_info(diskobj->desc, diskobj->part, &info);
-	if (r)
-		return false;
-
-	return !!(info.bootable & PART_EFI_SYSTEM_PARTITION);
 }

@@ -420,7 +420,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
 	cout->clear_screen(cout);
 	cout->set_attribute(cout, EFI_WHITE | EFI_BACKGROUND_BLACK);
-	print(u"INITRD Dump\r\n========\r\n\r\n");
+	print(u"INITRD Dump\r\n===========\r\n\r\n");
 	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
 
 	for (;;) {

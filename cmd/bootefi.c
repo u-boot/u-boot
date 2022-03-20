@@ -265,8 +265,8 @@ efi_status_t efi_install_fdt(void *fdt)
 	 */
 #if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 	if (fdt) {
-		log_err("ERROR: can't have ACPI table and device tree.\n");
-		return EFI_LOAD_ERROR;
+		log_warning("WARNING: Can't have ACPI table and device tree - ignoring DT.\n");
+		return EFI_SUCCESS;
 	}
 #else
 	bootm_headers_t img = { 0 };

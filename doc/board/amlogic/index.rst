@@ -74,6 +74,14 @@ This matrix concerns the actual source code version.
 | PCIe (+NVMe)                  | *N/A*     | *N/A*           | *N/A*        | **Yes**     | **Yes**    | **Yes**     | **Yes**      |
 +-------------------------------+-----------+-----------------+--------------+-------------+------------+-------------+--------------+
 
+Boot Documentation
+------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   pre-generated-fip
+
 Board Documentation
 -------------------
 

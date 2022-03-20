@@ -8,16 +8,12 @@
 asflags-y += -DHOST_ARCH="$(HOST_ARCH)"
 ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
 
-CFLAGS_dtbdump.o := $(CFLAGS_EFI) -Os -ffreestanding
-CFLAGS_REMOVE_dtbdump.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_miniapp_exception.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_efi_selftest_miniapp_exception.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI)
-CFLAGS_initrddump_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
-CFLAGS_REMOVE_initrddump.o := $(CFLAGS_NON_EFI)
 
 obj-y += \
 efi_selftest.o \
@@ -82,14 +78,6 @@ efi_miniapp_file_image_return.h \
 efi_selftest_miniapp_exception.efi \
 efi_selftest_miniapp_exit.efi \
 efi_selftest_miniapp_return.efi
-
-ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
-always += dtbdump.efi
-endif
-
-ifdef CONFIG_EFI_LOAD_FILE2_INITRD
-always += initrddump.efi
-endif
 
 $(obj)/efi_miniapp_file_image_exception.h: $(obj)/efi_selftest_miniapp_exception.efi
 	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_exception.efi > \
