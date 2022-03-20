@@ -459,19 +459,17 @@ static int virtio_pci_find_capability(struct udevice *udev, u8 cfg_type,
 static void __iomem *virtio_pci_map_capability(struct udevice *udev,
 					       const struct virtio_pci_cap *cap)
 {
-	ulong base;
-	void __iomem *p;
-
 	/*
-	 * TODO: adding 64-bit BAR support
-	 *
-	 * Per spec, the BAR is permitted to be either 32-bit or 64-bit.
-	 * For simplicity, only read the BAR address as 32-bit.
+	 * Find the corresponding memory region that isn't system memory but is
+	 * writable.
 	 */
-	base = dm_pci_read_bar32(udev, cap->bar);
-	p = (void __iomem *)base + cap->offset;
+	unsigned long mask =
+			PCI_REGION_TYPE | PCI_REGION_SYS_MEMORY | PCI_REGION_RO;
+	unsigned long flags = PCI_REGION_MEM;
+	u8 *p = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0 + cap->bar, cap->offset,
+			       cap->length, mask, flags);
 
-	return p;
+	return (void __iomem *)p;
 }
 
 static int virtio_pci_bind(struct udevice *udev)
