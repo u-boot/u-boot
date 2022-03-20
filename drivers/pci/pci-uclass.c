@@ -1017,7 +1017,22 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 
 		if (!IS_ENABLED(CONFIG_SYS_PCI_64BIT) &&
 		    type == PCI_REGION_MEM && upper_32_bits(pci_addr)) {
-			debug(" - beyond the 32-bit boundary, ignoring\n");
+			debug(" - pci_addr beyond the 32-bit boundary, ignoring\n");
+			continue;
+		}
+
+		if (!IS_ENABLED(CONFIG_PHYS_64BIT) && upper_32_bits(addr)) {
+			debug(" - addr beyond the 32-bit boundary, ignoring\n");
+			continue;
+		}
+
+		if (~((pci_addr_t)0) - pci_addr < size) {
+			debug(" - PCI range exceeds max address, ignoring\n");
+			continue;
+		}
+
+		if (~((phys_addr_t)0) - addr < size) {
+			debug(" - phys range exceeds max address, ignoring\n");
 			continue;
 		}
 
