@@ -186,94 +186,6 @@ static const char *imx8mp_enet_phy_ref_sels[] = {"clock-osc-24m", "sys_pll2_50m"
 
 static const char *imx8mp_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
 
-
-static ulong imx8mp_clk_get_rate(struct clk *clk)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu)\n", __func__, clk->id);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	return clk_get_rate(c);
-}
-
-static ulong imx8mp_clk_set_rate(struct clk *clk, unsigned long rate)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu), rate: %lu\n", __func__, clk->id, rate);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	return clk_set_rate(c, rate);
-}
-
-static int __imx8mp_clk_enable(struct clk *clk, bool enable)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu) en: %d\n", __func__, clk->id, enable);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	if (enable)
-		ret = clk_enable(c);
-	else
-		ret = clk_disable(c);
-
-	return ret;
-}
-
-static int imx8mp_clk_disable(struct clk *clk)
-{
-	return __imx8mp_clk_enable(clk, 0);
-}
-
-static int imx8mp_clk_enable(struct clk *clk)
-{
-	return __imx8mp_clk_enable(clk, 1);
-}
-
-static int imx8mp_clk_set_parent(struct clk *clk, struct clk *parent)
-{
-	struct clk *c, *cp;
-	int ret;
-
-	debug("%s(#%lu), parent: %lu\n", __func__, clk->id, parent->id);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	ret = clk_get_by_id(parent->id, &cp);
-	if (ret)
-		return ret;
-
-	ret = clk_set_parent(c, cp);
-
-	c->dev->parent = cp->dev;
-
-	return ret;
-}
-
-static struct clk_ops imx8mp_clk_ops = {
-	.set_rate = imx8mp_clk_set_rate,
-	.get_rate = imx8mp_clk_get_rate,
-	.enable = imx8mp_clk_enable,
-	.disable = imx8mp_clk_disable,
-	.set_parent = imx8mp_clk_set_parent,
-};
-
 static int imx8mp_clk_probe(struct udevice *dev)
 {
 	void __iomem *base;
@@ -409,7 +321,7 @@ U_BOOT_DRIVER(imx8mp_clk) = {
 	.name = "clk_imx8mp",
 	.id = UCLASS_CLK,
 	.of_match = imx8mp_clk_ids,
-	.ops = &imx8mp_clk_ops,
+	.ops = &ccf_clk_ops,
 	.probe = imx8mp_clk_probe,
 	.flags = DM_FLAG_PRE_RELOC,
 };

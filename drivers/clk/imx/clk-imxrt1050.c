@@ -15,89 +15,6 @@
 
 #include "clk.h"
 
-static ulong imxrt1050_clk_get_rate(struct clk *clk)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu)\n", __func__, clk->id);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	return clk_get_rate(c);
-}
-
-static ulong imxrt1050_clk_set_rate(struct clk *clk, ulong rate)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu), rate: %lu\n", __func__, clk->id, rate);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	return clk_set_rate(c, rate);
-}
-
-static int __imxrt1050_clk_enable(struct clk *clk, bool enable)
-{
-	struct clk *c;
-	int ret;
-
-	debug("%s(#%lu) en: %d\n", __func__, clk->id, enable);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	if (enable)
-		ret = clk_enable(c);
-	else
-		ret = clk_disable(c);
-
-	return ret;
-}
-
-static int imxrt1050_clk_disable(struct clk *clk)
-{
-	return __imxrt1050_clk_enable(clk, 0);
-}
-
-static int imxrt1050_clk_enable(struct clk *clk)
-{
-	return __imxrt1050_clk_enable(clk, 1);
-}
-
-static int imxrt1050_clk_set_parent(struct clk *clk, struct clk *parent)
-{
-	struct clk *c, *cp;
-	int ret;
-
-	debug("%s(#%lu), parent: %lu\n", __func__, clk->id, parent->id);
-
-	ret = clk_get_by_id(clk->id, &c);
-	if (ret)
-		return ret;
-
-	ret = clk_get_by_id(parent->id, &cp);
-	if (ret)
-		return ret;
-
-	return clk_set_parent(c, cp);
-}
-
-static struct clk_ops imxrt1050_clk_ops = {
-	.set_rate = imxrt1050_clk_set_rate,
-	.get_rate = imxrt1050_clk_get_rate,
-	.enable = imxrt1050_clk_enable,
-	.disable = imxrt1050_clk_disable,
-	.set_parent = imxrt1050_clk_set_parent,
-};
-
 static const char * const pll_ref_sels[] = {"osc", "dummy", };
 static const char * const pll1_bypass_sels[] = {"pll1_arm", "pll1_arm_ref_sel", };
 static const char * const pll2_bypass_sels[] = {"pll2_sys", "pll2_sys_ref_sel", };
@@ -317,7 +234,7 @@ U_BOOT_DRIVER(imxrt1050_clk) = {
 	.name = "clk_imxrt1050",
 	.id = UCLASS_CLK,
 	.of_match = imxrt1050_clk_ids,
-	.ops = &imxrt1050_clk_ops,
+	.ops = &ccf_clk_ops,
 	.probe = imxrt1050_clk_probe,
 	.flags = DM_FLAG_PRE_RELOC,
 };
