@@ -5471,6 +5471,36 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             err,
             "Image '.*' is missing external blobs and is non-functional: .*")
 
+    def _CheckSafeUniqueNames(self, *images):
+        """Check all entries of given images for unsafe unique names"""
+        for image in images:
+            entries = {}
+            image._CollectEntries(entries, {}, image)
+            for entry in entries.values():
+                uniq = entry.GetUniqueName()
+
+                # Used as part of a filename, so must not be absolute paths.
+                self.assertFalse(os.path.isabs(uniq))
+
+    def testSafeUniqueNames(self):
+        """Test entry unique names are safe in single image configuration"""
+        data = self._DoReadFileRealDtb('230_unique_names.dts')
+
+        orig_image = control.images['image']
+        image_fname = tools.get_output_filename('image.bin')
+        image = Image.FromFile(image_fname)
+
+        self._CheckSafeUniqueNames(orig_image, image)
+
+    def testSafeUniqueNamesMulti(self):
+        """Test entry unique names are safe with multiple images"""
+        data = self._DoReadFileRealDtb('231_unique_names_multi.dts')
+
+        orig_image = control.images['image']
+        image_fname = tools.get_output_filename('image.bin')
+        image = Image.FromFile(image_fname)
+
+        self._CheckSafeUniqueNames(orig_image, image)
 
 if __name__ == "__main__":
     unittest.main()
