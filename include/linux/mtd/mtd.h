@@ -305,6 +305,7 @@ struct mtd_info {
 	struct device dev;
 #else
 	struct udevice *dev;
+	ofnode flash_node;
 #endif
 	int usecount;
 
