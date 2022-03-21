@@ -137,7 +137,7 @@ int efi_dp_match(const struct efi_device_path *a,
  *
  * See UEFI spec (section 3.1.2, about short-form device-paths)
  *
- * @dp:		original devie-path
+ * @dp:		original device-path
  * @Return:	shortened device-path or NULL
  */
 struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
