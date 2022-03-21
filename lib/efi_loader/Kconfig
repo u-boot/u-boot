@@ -136,6 +136,7 @@ config EFI_RUNTIME_UPDATE_CAPSULE
 
 config EFI_CAPSULE_ON_DISK
 	bool "Enable capsule-on-disk support"
+	depends on SYSRESET
 	select EFI_HAVE_CAPSULE_SUPPORT
 	help
 	  Select this option if you want to use capsule-on-disk feature,

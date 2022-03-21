@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <sort.h>
+#include <sysreset.h>
 #include <asm/global_data.h>
 
 #include <crypto/pkcs7.h>
@@ -1157,9 +1158,9 @@ efi_status_t efi_launch_capsules(void)
 	 * UEFI spec requires to reset system after complete processing capsule
 	 * update on the storage.
 	 */
-	log_info("Reboot after firmware update");
+	log_info("Reboot after firmware update.\n");
 	/* Cold reset is required for loading the new firmware. */
-	do_reset(NULL, 0, 0, NULL);
+	sysreset_walk_halt(SYSRESET_COLD);
 	hang();
 	/* not reach here */
 
