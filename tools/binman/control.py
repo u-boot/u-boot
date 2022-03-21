@@ -299,6 +299,7 @@ def BeforeReplace(image, allow_resize):
     """
     state.PrepareFromLoadedData(image)
     image.LoadData()
+    image.CollectBintools()
 
     # If repacking, drop the old offset/size values except for the original
     # ones, so we are only left with the constraints.

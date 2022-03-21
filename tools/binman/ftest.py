@@ -5502,5 +5502,43 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         self._CheckSafeUniqueNames(orig_image, image)
 
+    def testReplaceCmdWithBintool(self):
+        """Test replacing an entry that needs a bintool to pack"""
+        data = self._DoReadFileRealDtb('232_replace_with_bintool.dts')
+        expected = U_BOOT_DATA + b"aa"
+        self.assertEqual(expected, data[:len(expected)])
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            fname = os.path.join(tmpdir, 'update-testing.bin')
+            tools.write_file(fname, b'zz')
+            self._DoBinman('replace', '-i', updated_fname,
+                           '_testing', '-f', fname)
+
+            data = tools.read_file(updated_fname)
+            expected = U_BOOT_DATA + b'zz'
+            self.assertEqual(expected, data[:len(expected)])
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testReplaceCmdOtherWithBintool(self):
+        """Test replacing an entry when another needs a bintool to pack"""
+        data = self._DoReadFileRealDtb('232_replace_with_bintool.dts')
+        expected = U_BOOT_DATA + b"aa"
+        self.assertEqual(expected, data[:len(expected)])
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            fname = os.path.join(tmpdir, 'update-u-boot.bin')
+            tools.write_file(fname, b'x' * len(U_BOOT_DATA))
+            self._DoBinman('replace', '-i', updated_fname,
+                           'u-boot', '-f', fname)
+
+            data = tools.read_file(updated_fname)
+            expected = b"x" * len(U_BOOT_DATA) + b"aa"
+            self.assertEqual(expected, data[:len(expected)])
+        finally:
+            shutil.rmtree(tmpdir)
+
 if __name__ == "__main__":
     unittest.main()
