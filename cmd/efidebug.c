@@ -84,6 +84,7 @@ static int do_efi_capsule_update(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+#ifdef CONFIG_EFI_CAPSULE_ON_DISK
 static int do_efi_capsule_on_disk_update(struct cmd_tbl *cmdtp, int flag,
 					 int argc, char * const argv[])
 {
@@ -93,6 +94,7 @@ static int do_efi_capsule_on_disk_update(struct cmd_tbl *cmdtp, int flag,
 
 	return ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
+#endif
 
 /**
  * do_efi_capsule_show() - show capsule information
@@ -303,8 +305,10 @@ static struct cmd_tbl cmd_efidebug_capsule_sub[] = {
 	U_BOOT_CMD_MKENT(esrt, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_esrt,
 			 "", ""),
 #endif
+#ifdef CONFIG_EFI_CAPSULE_ON_DISK
 	U_BOOT_CMD_MKENT(disk-update, 0, 0, do_efi_capsule_on_disk_update,
 			 "", ""),
+#endif
 	U_BOOT_CMD_MKENT(result, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_res,
 			 "", ""),
 };
