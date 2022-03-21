@@ -619,6 +619,36 @@ out:
 	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_load_capsule_drivers - initialize capsule drivers
+ *
+ * Generic FMP drivers backed by DFU
+ *
+ * Return:	status code
+ */
+efi_status_t __weak efi_load_capsule_drivers(void)
+{
+	__maybe_unused efi_handle_t handle;
+	efi_status_t ret = EFI_SUCCESS;
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_FIT)) {
+		handle = NULL;
+		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
+				&handle, &efi_guid_firmware_management_protocol,
+				&efi_fmp_fit, NULL));
+	}
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_RAW)) {
+		handle = NULL;
+		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
+				&handle,
+				&efi_guid_firmware_management_protocol,
+				&efi_fmp_raw, NULL));
+	}
+
+	return ret;
+}
+
 #ifdef CONFIG_EFI_CAPSULE_ON_DISK
 /**
  * get_dp_device - retrieve a device  path from boot variable
@@ -1012,36 +1042,6 @@ static void efi_capsule_scan_done(void)
 {
 	EFI_CALL((*bootdev_root->close)(bootdev_root));
 	bootdev_root = NULL;
-}
-
-/**
- * efi_load_capsule_drivers - initialize capsule drivers
- *
- * Generic FMP drivers backed by DFU
- *
- * Return:	status code
- */
-efi_status_t __weak efi_load_capsule_drivers(void)
-{
-	__maybe_unused efi_handle_t handle;
-	efi_status_t ret = EFI_SUCCESS;
-
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_FIT)) {
-		handle = NULL;
-		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-				&handle, &efi_guid_firmware_management_protocol,
-				&efi_fmp_fit, NULL));
-	}
-
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_RAW)) {
-		handle = NULL;
-		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-				&handle,
-				&efi_guid_firmware_management_protocol,
-				&efi_fmp_raw, NULL));
-	}
-
-	return ret;
 }
 
 /**
