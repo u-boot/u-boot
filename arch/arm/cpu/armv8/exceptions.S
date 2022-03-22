@@ -77,15 +77,18 @@ _save_el_regs:
 	switch_el x11, 3f, 2f, 1f
 3:	mrs	x1, esr_el3
 	mrs	x2, elr_el3
+	mrs	x3, spsr_el3
 	b	0f
 2:	mrs	x1, esr_el2
 	mrs	x2, elr_el2
+	mrs	x3, spsr_el2
 	b	0f
 1:	mrs	x1, esr_el1
 	mrs	x2, elr_el1
+	mrs	x3, spsr_el1
 0:
 	stp	x1, x0, [sp, #-16]!
-	stp	xzr, x2, [sp, #-16]!
+	stp	x3, x2, [sp, #-16]!
 	mov	x0, sp
 	ret
 

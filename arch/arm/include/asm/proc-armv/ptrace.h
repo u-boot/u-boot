@@ -21,7 +21,7 @@
  * on the stack during an exception.
  */
 struct pt_regs {
-	unsigned long unused;
+	unsigned long spsr;
 	unsigned long elr;
 	unsigned long esr;
 	unsigned long regs[31];
