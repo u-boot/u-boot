@@ -80,13 +80,13 @@ def efi_capsule_data(request, u_boot_config):
         check_call('cd %s; %s/tools/mkimage -f uboot_bin_env.its uboot_bin_env.itb' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 1 --fit uboot_bin_env.itb Test01' %
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 5A7021F5-FEF2-48B4-AABA-832E777418C0 uboot_bin_env.itb Test01' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 1 --raw u-boot.bin.new Test02' %
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 09D7DF52-0720-4710-91D1-08469B7FE9C8 u-boot.bin.new Test02' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid E2BB9C06-70E9-4B14-97A3-5A7913176E3F u-boot.bin.new Test03' %
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 058B7D83-50D5-4C47-A195-60D86AD341C4 uboot_bin_env.itb Test03' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
         if capsule_auth_enabled:
@@ -94,7 +94,8 @@ def efi_capsule_data(request, u_boot_config):
             check_call('cd %s; '
                        '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
                             '--private-key SIGNER.key --certificate SIGNER.crt '
-                            '--raw u-boot.bin.new Test11'
+                            '--guid 09D7DF52-0720-4710-91D1-08469B7FE9C8 '
+                            'u-boot.bin.new Test11'
                        % (data_dir, u_boot_config.build_dir),
                        shell=True)
             # firmware signed with *mal* key
@@ -102,7 +103,8 @@ def efi_capsule_data(request, u_boot_config):
                        '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
                             '--private-key SIGNER2.key '
                             '--certificate SIGNER2.crt '
-                            '--raw u-boot.bin.new Test12'
+                            '--guid 09D7DF52-0720-4710-91D1-08469B7FE9C8 '
+                            'u-boot.bin.new Test12'
                        % (data_dir, u_boot_config.build_dir),
                        shell=True)
 
