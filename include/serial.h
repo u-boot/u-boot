@@ -196,6 +196,24 @@ struct dm_serial_ops {
 	 */
 	int (*putc)(struct udevice *dev, const char ch);
 	/**
+	 * puts() - Write a string
+	 *
+	 * This writes a string. This function should be implemented only if
+	 * writing multiple characters at once is more performant than just
+	 * calling putc() in a loop.
+	 *
+	 * If the whole string cannot be written at once, then this function
+	 * should return the number of characters written. Returning a negative
+	 * error code implies that no characters were written. If this function
+	 * returns 0, then it will be called again with the same arguments.
+	 *
+	 * @dev: Device pointer
+	 * @s: The string to write
+	 * @len: The length of the string to write.
+	 * @return The number of characters written on success, or -ve on error
+	 */
+	ssize_t (*puts)(struct udevice *dev, const char *s, size_t len);
+	/**
 	 * pending() - Check if input/output characters are waiting
 	 *
 	 * This can be used to return an indication of the number of waiting

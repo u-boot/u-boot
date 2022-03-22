@@ -133,6 +133,19 @@ config SERIAL_RX_BUFFER_SIZE
 	help
 	  The size of the RX buffer (needs to be power of 2)
 
+config SERIAL_PUTS
+	bool "Enable printing strings all at once"
+	depends on DM_SERIAL
+	help
+	  Some serial drivers are much more efficient when printing multiple
+	  characters at once rather than printing characters individually. This
+	  can be because they can load a fifo, or because individual print
+	  calls have a constant overhead. With this option set, the serial
+	  subsystem will try to provide serial drivers with as many characters
+	  at once as possible, instead of printing characters one by one. Most
+	  serial drivers do not need this config to print efficiently. If
+	  unsure, say N.
+
 config SERIAL_SEARCH_ALL
 	bool "Search for serial devices after default one failed"
 	depends on DM_SERIAL
