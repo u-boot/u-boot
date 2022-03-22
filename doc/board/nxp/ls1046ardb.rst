@@ -109,3 +109,12 @@ SD boot and eMMC boot
 
 ``{ SW5[0:8], SW4[0] }`` should be ``0010_0000_0``. eMMC is selected only if
 there is no SD card in the slot.
+
+Debug UART
+----------
+
+To enable the debug UART, enable the following config options::
+
+    CONFIG_DEBUG_UART_NS16550=y
+    CONFIG_DEBUG_UART_BASE=0x21c0500
+    CONFIG_DEBUG_UART_CLOCK=300000000
