@@ -110,6 +110,79 @@ SD boot and eMMC boot
 ``{ SW5[0:8], SW4[0] }`` should be ``0010_0000_0``. eMMC is selected only if
 there is no SD card in the slot.
 
+.. _ls1046ardb_jtag:
+
+JTAG boot
+^^^^^^^^^
+
+To recover a bricked board, or to perform initial programming, the ls1046
+supports using two hard-coded Reset Configuration Words (RCWs). Unfortunately,
+this configuration disables most functionality, including the uarts and ethernet.
+However, the SD/MMC and flash controllers are still functional. To get around
+the lack of a serial console, we will use ARM semihosting instead. When
+enabled, OpenOCD will interpret certain instructions as calls to the host
+operating system. This allows U-Boot to use the console, read/write files, or
+run arbitrary commands (!).
+
+When configuring U-Boot, ensure that ``CONFIG_SEMIHOSTING``,
+``CONFIG_SPL_SEMIHOSTING``, and ``CONFIG_SEMIHOSTING_SERIAL`` are enabled.
+``{ SW5[0:8], SW4[0] }`` should be ``0100_1111_0``. Additionally, ``SW4[7]``
+should be set to ``0``. Connect to the "console" USB connector on the front of
+the enclosure.
+
+Create a new file called ``u-boot.tcl`` (or whatever you choose) with the
+following contents::
+
+    # Load the configuration for the LS1046ARDB
+    source [find board/nxp_rdb-ls1046a.cfg]
+    # Initialize the scan chain
+    init
+    # Stop the processor
+    halt
+    # Enable semihosting
+    arm semihosting enable
+    # Load U-Boot SPL
+    load_image spl/u-boot-spl 0 elf
+    # Start executing SPL at the beginning of OCRAM
+    resume 0x10000000
+
+Then, launch openocd like::
+
+    openocd -f u-boot.tcl
+
+You should see the U-boot SPL banner followed by the banner for U-Boot proper
+in the output of openocd. The CMSIS-DAP adapter is slow, so this can take a
+long time. If you don't see it, something has gone wrong. After a while, you
+should see the prompt. You can load an image using semihosting by running::
+
+    => load hostfs - $loadaddr <name of file>
+
+Note that openocd's terminal is "cooked," so commands will only be sent to
+U-Boot when you press enter, and all commands will be echoed twice.
+Additionally, openocd will block when waiting for input, ignoring gdb, JTAG
+events, and Ctrl-Cs. To make openocd process these events, just hit enter.
+
+Using an external JTAG adapter
+""""""""""""""""""""""""""""""
+
+The CMSIS-DAP adapter can be rather slow. To speed up booting, use an external
+JTAG adapter. The following examples assume you are using a J-Link, though any
+adapter supported by OpenOCD will do. Ensure that ``SW4[7]`` is ``1``. Attach
+your jtag adapter to J22. Modify ``u-boot.tcl`` and replace the first two lines
+with the following::
+
+    # Load the J-Link configuration (or whatever your adapter is)
+    source [find interface/jlink.cfg]
+    # Use JTAG, since the J-Link also supports SWD
+    transport select jtag
+    # The reset pin resets the whole CPU
+    reset_config srst_only
+    # Load the LS1046A config
+    source [find target/ls1046a.cfg]
+
+You can proceed as normal through the rest of the steps above. I got a speedup
+of around 100x by using a J-Link.
+
 Debug UART
 ----------
 

@@ -62,7 +62,8 @@ so you will need to enable it::
           'arm semihosting enable' -c resume
 
 Note that enabling semihosting can only be done after attaching to the
-board with ``init``, and must be done while the CPU is halted.
+board with ``init``, and must be done while the CPU is halted. For a more
+extended example, refer to the :ref:`LS1046ARDB docs <ls1046ardb_jtag>`.
 
 Loading files
 -------------

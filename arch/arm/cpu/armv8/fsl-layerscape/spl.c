@@ -27,6 +27,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 spl_boot_device(void)
 {
+	if (IS_ENABLED(CONFIG_SPL_SEMIHOSTING))
+		return BOOT_DEVICE_SMH;
 #ifdef CONFIG_SPL_MMC
 	return BOOT_DEVICE_MMC1;
 #endif
