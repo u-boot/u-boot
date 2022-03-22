@@ -167,20 +167,20 @@
  */
 #define BOOTENV_DEV_SMH(devtypeu, devtypel, instance) \
 	"bootcmd_smh= " 						\
-		"if smhload ${boot_name} ${boot_addr_r}; then"		\
+		"if load hostfs - ${boot_addr_r} ${boot_name}; then"		\
 		"  setenv bootargs;"					\
 		"  abootimg addr ${boot_addr_r};"			\
 		"  abootimg get dtb --index=0 fdt_addr_r;"		\
 		"  bootm ${boot_addr_r} ${boot_addr_r} ${fdt_addr_r};"	\
 		"else"							\
-		"  if smhload ${kernel_name} ${kernel_addr_r}; then"	\
+		"  if load hostfs - ${kernel_addr_r} ${kernel_name}; then"	\
 		"    setenv fdt_high 0xffffffffffffffff;"		\
 		"    setenv initrd_high 0xffffffffffffffff;"		\
-		"    smhload ${fdtfile} ${fdt_addr_r};"			\
-		"    smhload ${ramdisk_name} ${ramdisk_addr_r} ramdisk_end;" \
+		"    load hostfs - ${fdt_addr_r} ${fdtfile};"			\
+		"    load hostfs - ${ramdisk_addr_r} ${ramdisk_name};" \
 		"    fdt addr ${fdt_addr_r};"				\
 		"    fdt resize;"					\
-		"    fdt chosen ${ramdisk_addr_r} ${ramdisk_end};"	\
+		"    fdt chosen ${ramdisk_addr_r} ${filesize};"	\
 		"    booti $kernel_addr_r - $fdt_addr_r;"		\
 		"  fi;"							\
 		"fi\0"

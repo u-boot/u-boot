@@ -10,8 +10,6 @@
  * available in silicon now, fastmodel usage makes less sense for them.
  */
 #include <common.h>
-#include <command.h>
-#include <env.h>
 #include <log.h>
 #include <semihosting.h>
 
@@ -169,77 +167,3 @@ long smh_seek(long fd, long pos)
 		return smh_errno();
 	return 0;
 }
-
-static int smh_load_file(const char * const name, ulong load_addr,
-			 ulong *size)
-{
-	long fd;
-	long len;
-	long ret;
-
-	fd = smh_open(name, MODE_READ | MODE_BINARY);
-	if (fd < 0)
-		return fd;
-
-	len = smh_flen(fd);
-	if (len < 0) {
-		smh_close(fd);
-		return len;
-	}
-
-	ret = smh_read(fd, (void *)load_addr, len);
-	smh_close(fd);
-
-	if (ret == len) {
-		*size = len;
-		printf("loaded file %s from %08lX to %08lX, %08lX bytes\n",
-		       name,
-		       load_addr,
-		       load_addr + len - 1,
-		       len);
-	} else if (ret >= 0) {
-		ret = -EAGAIN;
-	}
-
-	if (ret < 0) {
-		printf("read failed: %ld\n", ret);
-		return ret;
-	}
-
-	return 0;
-}
-
-static int do_smhload(struct cmd_tbl *cmdtp, int flag, int argc,
-		      char *const argv[])
-{
-	if (argc == 3 || argc == 4) {
-		ulong load_addr;
-		ulong size = 0;
-		int ret;
-		char size_str[64];
-
-		load_addr = hextoul(argv[2], NULL);
-		if (!load_addr)
-			return -1;
-
-		ret = smh_load_file(argv[1], load_addr, &size);
-		if (ret < 0)
-			return CMD_RET_FAILURE;
-
-		/* Optionally save returned end to the environment */
-		if (argc == 4) {
-			sprintf(size_str, "0x%08lx", size);
-			env_set(argv[3], size_str);
-		}
-	} else {
-		return CMD_RET_USAGE;
-	}
-	return 0;
-}
-
-U_BOOT_CMD(smhload, 4, 0, do_smhload, "load a file using semihosting",
-	   "<file> 0x<address> [end var]\n"
-	   "    - load a semihosted file to the address specified\n"
-	   "      if the optional [end var] is specified, the end\n"
-	   "      address of the file will be stored in this environment\n"
-	   "      variable.\n");
