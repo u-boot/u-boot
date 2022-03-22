@@ -51,6 +51,17 @@ long smh_open(const char *fname, enum smh_open_mode mode);
 long smh_read(long fd, void *memp, size_t len);
 
 /**
+ * smh_write() - Write data to a file
+ * @fd: A file descriptor returned from smh_open()
+ * @memp: Pointer to a buffer of memory of at least @len bytes
+ * @len: The number of bytes to read
+ * @written: Pointer which will be updated with the actual bytes written
+ *
+ * Return: 0 on success or negative error on failure
+ */
+long smh_write(long fd, const void *memp, size_t len, ulong *written);
+
+/**
  * smh_close() - Close an open file
  * @fd: A file descriptor returned from smh_open()
  *
@@ -65,5 +76,14 @@ long smh_close(long fd);
  * Return: The length of the file, in bytes, or a negative error on failure
  */
 long smh_flen(long fd);
+
+/**
+ * smh_seek() - Seek to a position in a file
+ * @fd: A file descriptor returned from smh_open()
+ * @pos: The offset (in bytes) to seek to
+ *
+ * Return: 0 on success or negative error on failure
+ */
+long smh_seek(long fd, long pos);
 
 #endif /* _SEMIHOSTING_H */

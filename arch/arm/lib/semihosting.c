@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2022 Sean Anderson <sean.anderson@seco.com>
  * Copyright 2014 Broadcom Corporation
  */
 
 /*
- * Minimal semihosting implementation for reading files into memory. If more
- * features like writing files or console output are required they can be
- * added later. This code has been tested on arm64/aarch64 fastmodel only.
- * An untested placeholder exists for armv7 architectures, but since they
- * are commonly available in silicon now, fastmodel usage makes less sense
- * for them.
+ * This code has been tested on arm64/aarch64 fastmodel only.  An untested
+ * placeholder exists for armv7 architectures, but since they are commonly
+ * available in silicon now, fastmodel usage makes less sense for them.
  */
 #include <common.h>
 #include <command.h>
@@ -19,7 +17,9 @@
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
+#define SYSWRITE	0x05
 #define SYSREAD		0x06
+#define SYSSEEK		0x0A
 #define SYSFLEN		0x0C
 #define SYSERRNO	0x13
 
@@ -80,14 +80,22 @@ long smh_open(const char *fname, enum smh_open_mode mode)
 	return fd;
 }
 
+/**
+ * struct smg_rdwr_s - Arguments for read and write
+ * @fd: A file descriptor returned from smh_open()
+ * @memp: Pointer to a buffer of memory of at least @len bytes
+ * @len: The number of bytes to read or write
+ */
+struct smh_rdwr_s {
+	long fd;
+	void *memp;
+	size_t len;
+};
+
 long smh_read(long fd, void *memp, size_t len)
 {
 	long ret;
-	struct smh_read_s {
-		long fd;
-		void *memp;
-		size_t len;
-	} read;
+	struct smh_rdwr_s read;
 
 	debug("%s: fd %ld, memp %p, len %zu\n", __func__, fd, memp, len);
 
@@ -99,6 +107,24 @@ long smh_read(long fd, void *memp, size_t len)
 	if (ret < 0)
 		return smh_errno();
 	return len - ret;
+}
+
+long smh_write(long fd, const void *memp, size_t len, ulong *written)
+{
+	long ret;
+	struct smh_rdwr_s write;
+
+	debug("%s: fd %ld, memp %p, len %zu\n", __func__, fd, memp, len);
+
+	write.fd = fd;
+	write.memp = (void *)memp;
+	write.len = len;
+
+	ret = smh_trap(SYSWRITE, &write);
+	*written = len - ret;
+	if (ret)
+		return smh_errno();
+	return 0;
 }
 
 long smh_close(long fd)
@@ -123,6 +149,25 @@ long smh_flen(long fd)
 	if (ret == -1)
 		return smh_errno();
 	return ret;
+}
+
+long smh_seek(long fd, long pos)
+{
+	long ret;
+	struct smh_seek_s {
+		long fd;
+		long pos;
+	} seek;
+
+	debug("%s: fd %ld pos %ld\n", __func__, fd, pos);
+
+	seek.fd = fd;
+	seek.pos = pos;
+
+	ret = smh_trap(SYSSEEK, &seek);
+	if (ret)
+		return smh_errno();
+	return 0;
 }
 
 static int smh_load_file(const char * const name, ulong load_addr,
