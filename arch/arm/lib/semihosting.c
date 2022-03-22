@@ -15,6 +15,7 @@
 #include <command.h>
 #include <env.h>
 #include <log.h>
+#include <semihosting.h>
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
@@ -45,7 +46,7 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
  * Open a file on the host. Mode is "r" or "rb" currently. Returns a file
  * descriptor or -1 on error.
  */
-static long smh_open(const char *fname, char *modestr)
+long smh_open(const char *fname, char *modestr)
 {
 	long fd;
 	unsigned long mode;
@@ -84,7 +85,7 @@ static long smh_open(const char *fname, char *modestr)
 /*
  * Read 'len' bytes of file into 'memp'. Returns 0 on success, else failure
  */
-static long smh_read(long fd, void *memp, size_t len)
+long smh_read(long fd, void *memp, size_t len)
 {
 	long ret;
 	struct smh_read_s {
@@ -118,7 +119,7 @@ static long smh_read(long fd, void *memp, size_t len)
 /*
  * Close the file using the file descriptor
  */
-static long smh_close(long fd)
+long smh_close(long fd)
 {
 	long ret;
 
@@ -134,7 +135,7 @@ static long smh_close(long fd)
 /*
  * Get the file length from the file descriptor
  */
-static long smh_len_fd(long fd)
+long smh_flen(long fd)
 {
 	long ret;
 
@@ -158,7 +159,7 @@ static int smh_load_file(const char * const name, ulong load_addr,
 	if (fd == -1)
 		return -1;
 
-	len = smh_len_fd(fd);
+	len = smh_flen(fd);
 	if (len < 0) {
 		smh_close(fd);
 		return -1;
