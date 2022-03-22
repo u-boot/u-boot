@@ -22,9 +22,6 @@
 #define SYSREAD		0x06
 #define SYSFLEN		0x0C
 
-#define MODE_READ	0x0
-#define MODE_READBIN	0x1
-
 /*
  * Call the handler
  */
@@ -46,28 +43,16 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
  * Open a file on the host. Mode is "r" or "rb" currently. Returns a file
  * descriptor or -1 on error.
  */
-long smh_open(const char *fname, char *modestr)
+long smh_open(const char *fname, enum smh_open_mode mode)
 {
 	long fd;
-	unsigned long mode;
 	struct smh_open_s {
 		const char *fname;
 		unsigned long mode;
 		size_t len;
 	} open;
 
-	debug("%s: file \'%s\', mode \'%s\'\n", __func__, fname, modestr);
-
-	/* Check the file mode */
-	if (!(strcmp(modestr, "r"))) {
-		mode = MODE_READ;
-	} else if (!(strcmp(modestr, "rb"))) {
-		mode = MODE_READBIN;
-	} else {
-		printf("%s: ERROR mode \'%s\' not supported\n", __func__,
-		       modestr);
-		return -1;
-	}
+	debug("%s: file \'%s\', mode \'%u\'\n", __func__, fname, mode);
 
 	open.fname = fname;
 	open.len = strlen(fname);
@@ -155,7 +140,7 @@ static int smh_load_file(const char * const name, ulong load_addr,
 	long len;
 	long ret;
 
-	fd = smh_open(name, "rb");
+	fd = smh_open(name, MODE_READ | MODE_BINARY);
 	if (fd == -1)
 		return -1;
 
