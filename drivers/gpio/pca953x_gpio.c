@@ -35,6 +35,12 @@
 #define PCA953X_INVERT          2
 #define PCA953X_DIRECTION       3
 
+#define PCA957X_INPUT           0
+#define PCA957X_OUTPUT          5
+#define PCA957X_INVERT          1
+#define PCA957X_DIRECTION       4
+
+
 #define PCA_GPIO_MASK           0x00FF
 #define PCA_INT                 0x0100
 #define PCA953X_TYPE            0x1000
@@ -50,8 +56,29 @@ enum {
 #define MAX_BANK 5
 #define BANK_SZ 8
 
+struct pca95xx_reg {
+	int input;
+	int output;
+	int invert;
+	int direction;
+};
+
+static const struct pca95xx_reg pca953x_regs = {
+	.direction = PCA953X_DIRECTION,
+	.output = PCA953X_OUTPUT,
+	.input = PCA953X_INPUT,
+	.invert = PCA953X_INVERT,
+};
+
+static const struct pca95xx_reg pca957x_regs = {
+	.direction = PCA957X_DIRECTION,
+	.output = PCA957X_OUTPUT,
+	.input = PCA957X_INPUT,
+	.invert = PCA957X_INVERT,
+};
+
 /*
- * struct pca953x_info - Data for pca953x
+ * struct pca953x_info - Data for pca953x/pca957x
  *
  * @dev: udevice structure for the device
  * @addr: i2c slave address
@@ -61,6 +88,7 @@ enum {
  * @bank_count: the number of banks that the device supports
  * @reg_output: array to hold the value of output registers
  * @reg_direction: array to hold the value of direction registers
+ * @regs: struct to hold the registers addresses
  */
 struct pca953x_info {
 	struct udevice *dev;
@@ -71,6 +99,7 @@ struct pca953x_info {
 	int bank_count;
 	u8 reg_output[MAX_BANK];
 	u8 reg_direction[MAX_BANK];
+	const struct pca95xx_reg *regs;
 };
 
 static int pca953x_write_single(struct udevice *dev, int reg, u8 val,
@@ -171,12 +200,13 @@ static int pca953x_is_output(struct udevice *dev, int offset)
 
 static int pca953x_get_value(struct udevice *dev, uint offset)
 {
+	struct pca953x_info *info = dev_get_plat(dev);
 	int ret;
 	u8 val = 0;
 
 	int off = offset % BANK_SZ;
 
-	ret = pca953x_read_single(dev, PCA953X_INPUT, &val, offset);
+	ret = pca953x_read_single(dev, info->regs->input, &val, offset);
 	if (ret)
 		return ret;
 
@@ -196,7 +226,7 @@ static int pca953x_set_value(struct udevice *dev, uint offset, int value)
 	else
 		val = info->reg_output[bank] & ~(1 << off);
 
-	ret = pca953x_write_single(dev, PCA953X_OUTPUT, val, offset);
+	ret = pca953x_write_single(dev, info->regs->output, val, offset);
 	if (ret)
 		return ret;
 
@@ -218,7 +248,7 @@ static int pca953x_set_direction(struct udevice *dev, uint offset, int dir)
 	else
 		val = info->reg_direction[bank] & ~(1 << off);
 
-	ret = pca953x_write_single(dev, PCA953X_DIRECTION, val, offset);
+	ret = pca953x_write_single(dev, info->regs->direction, val, offset);
 	if (ret)
 		return ret;
 
@@ -296,14 +326,14 @@ static int pca953x_probe(struct udevice *dev)
 	}
 
 	info->chip_type = PCA_CHIP_TYPE(driver_data);
-	if (info->chip_type != PCA953X_TYPE) {
-		dev_err(dev, "Only support PCA953X chip type now.\n");
-		return -EINVAL;
-	}
+	if (info->chip_type == PCA953X_TYPE)
+		info->regs = &pca953x_regs;
+	else
+		info->regs = &pca957x_regs;
 
 	info->bank_count = DIV_ROUND_UP(info->gpio_count, BANK_SZ);
 
-	ret = pca953x_read_regs(dev, PCA953X_OUTPUT, info->reg_output);
+	ret = pca953x_read_regs(dev, info->regs->output, info->reg_output);
 	if (ret) {
 		dev_err(dev, "Error reading output register\n");
 		return ret;
@@ -327,7 +357,7 @@ static int pca953x_probe(struct udevice *dev)
 
 	/* Clear the polarity registers to no invert */
 	memset(val, 0, MAX_BANK);
-	ret = pca953x_write_regs(dev, PCA953X_INVERT, val);
+	ret = pca953x_write_regs(dev, info->regs->invert, val);
 	if (ret < 0) {
 		dev_err(dev, "Error writing invert register\n");
 		return ret;
