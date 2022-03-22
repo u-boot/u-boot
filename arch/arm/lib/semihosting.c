@@ -21,6 +21,7 @@
 #define SYSCLOSE	0x02
 #define SYSREAD		0x06
 #define SYSFLEN		0x0C
+#define SYSERRNO	0x13
 
 /*
  * Call the handler
@@ -39,10 +40,24 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
 	return result;
 }
 
-/*
- * Open a file on the host. Mode is "r" or "rb" currently. Returns a file
- * descriptor or -1 on error.
+/**
+ * smh_errno() - Read the host's errno
+ *
+ * This gets the value of the host's errno and negates it. The host's errno may
+ * or may not be set, so only call this function if a previous semihosting call
+ * has failed.
+ *
+ * Return: a negative error value
  */
+static int smh_errno(void)
+{
+	long ret = smh_trap(SYSERRNO, NULL);
+
+	if (ret > 0 && ret < INT_MAX)
+		return -ret;
+	return -EIO;
+}
+
 long smh_open(const char *fname, enum smh_open_mode mode)
 {
 	long fd;
@@ -61,9 +76,7 @@ long smh_open(const char *fname, enum smh_open_mode mode)
 	/* Open the file on the host */
 	fd = smh_trap(SYSOPEN, &open);
 	if (fd == -1)
-		printf("%s: ERROR fd %ld for file \'%s\'\n", __func__, fd,
-		       fname);
-
+		return smh_errno();
 	return fd;
 }
 
@@ -86,19 +99,9 @@ long smh_read(long fd, void *memp, size_t len)
 	read.len = len;
 
 	ret = smh_trap(SYSREAD, &read);
-	if (ret < 0) {
-		/*
-		 * The ARM handler allows for returning partial lengths,
-		 * but in practice this never happens so rather than create
-		 * hard to maintain partial read loops and such, just fail
-		 * with an error message.
-		 */
-		printf("%s: ERROR ret %ld, fd %ld, len %zu memp %p\n",
-		       __func__, ret, fd, len, memp);
-		return -1;
-	}
-
-	return 0;
+	if (ret < 0)
+		return smh_errno();
+	return len - ret;
 }
 
 /*
@@ -112,9 +115,8 @@ long smh_close(long fd)
 
 	ret = smh_trap(SYSCLOSE, &fd);
 	if (ret == -1)
-		printf("%s: ERROR fd %ld\n", __func__, fd);
-
-	return ret;
+		return smh_errno();
+	return 0;
 }
 
 /*
@@ -128,8 +130,7 @@ long smh_flen(long fd)
 
 	ret = smh_trap(SYSFLEN, &fd);
 	if (ret == -1)
-		printf("%s: ERROR ret %ld, fd %ld\n", __func__, ret, fd);
-
+		return smh_errno();
 	return ret;
 }
 
@@ -141,28 +142,32 @@ static int smh_load_file(const char * const name, ulong load_addr,
 	long ret;
 
 	fd = smh_open(name, MODE_READ | MODE_BINARY);
-	if (fd == -1)
-		return -1;
+	if (fd < 0)
+		return fd;
 
 	len = smh_flen(fd);
 	if (len < 0) {
 		smh_close(fd);
-		return -1;
+		return len;
 	}
 
 	ret = smh_read(fd, (void *)load_addr, len);
 	smh_close(fd);
 
-	if (ret == 0) {
+	if (ret == len) {
 		*end_addr = load_addr + len - 1;
 		printf("loaded file %s from %08lX to %08lX, %08lX bytes\n",
 		       name,
 		       load_addr,
 		       *end_addr,
 		       len);
-	} else {
-		printf("read failed\n");
-		return 0;
+	} else if (ret >= 0) {
+		ret = -EAGAIN;
+	}
+
+	if (ret < 0) {
+		printf("read failed: %ld\n", ret);
+		return ret;
 	}
 
 	return 0;
