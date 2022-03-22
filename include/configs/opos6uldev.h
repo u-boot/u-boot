@@ -12,10 +12,6 @@
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
-
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_REGULATOR
-#endif
 #endif
 
 /* Miscellaneous configurable options */

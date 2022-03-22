@@ -56,28 +56,6 @@
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_USB_GADGET)
-#undef CONFIG_USB_DWC3_PHY_OMAP
-#undef CONFIG_USB_DWC3_OMAP
-#undef CONFIG_USB_DWC3
-#undef CONFIG_USB_DWC3_GADGET
-
-#undef CONFIG_USB_GADGET_DOWNLOAD
-#undef CONFIG_USB_GADGET_VBUS_DRAW
-#undef CONFIG_USB_GADGET_MANUFACTURER
-#undef CONFIG_USB_GADGET_VENDOR_NUM
-#undef CONFIG_USB_GADGET_PRODUCT_NUM
-#undef CONFIG_USB_GADGET_DUALSPEED
-#endif
-
-/*
- * Disable MMC DM for SPL build and can be re-enabled after adding
- * DM support in SPL
- */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_TIMER
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
 #define DFUARGS \

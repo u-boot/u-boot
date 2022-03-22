@@ -28,16 +28,6 @@
 #define CONFIG_SYS_MONITOR_BASE		0x00000000
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 
-/* ENV setting */
-
-/* Common ENV setting */
-
-/* SF MTD */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_SPI
-#undef CONFIG_DM_SPI_FLASH
-#endif
-
 /* Timer */
 #define CONFIG_TMU_TIMER
 #define CONFIG_SYS_TIMER_COUNTS_DOWN

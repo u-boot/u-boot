@@ -33,12 +33,6 @@
  * 0x1F00000 - 0x2000000 : SPI.factory  (1MiB)
  */
 
-/* SPI Flash Configs */
-#if defined(CONFIG_SPL_BUILD)
-#undef CONFIG_DM_SPI
-#undef CONFIG_DM_SPI_FLASH
-#endif
-
 /* Below values are "dummy" - only to avoid build break */
 #define CONFIG_SYS_SPI_KERNEL_OFFS      0x150000
 #define CONFIG_SYS_SPI_ARGS_OFFS        0x140000

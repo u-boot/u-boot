@@ -42,7 +42,6 @@
 	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#undef CONFIG_ISO_PARTITION
 #else
 #define BOOTENV
 #endif

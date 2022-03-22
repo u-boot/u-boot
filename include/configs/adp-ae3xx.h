@@ -17,12 +17,6 @@
 
 #define CONFIG_SKIP_TRUNOFF_WATCHDOG
 
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#ifdef CONFIG_OF_CONTROL
-#undef CONFIG_OF_SEPARATE
-#endif
-#endif
-
 /*
  * Timer
  */

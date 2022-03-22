@@ -196,26 +196,6 @@
 #endif
 #endif /* !CONFIG_MTD_RAW_NAND */
 
-/*
- * For NOR boot, we must set this to the start of where NOR is mapped
- * in memory.
- */
-
-/*
- * Disable MMC DM for SPL build and can be re-enabled after adding
- * DM support in SPL
- */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_MMC
-#undef CONFIG_TIMER
-#endif
-
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USB_ETHER)
-/* Remove other SPL modes. */
-/* disable host part of MUSB in SPL */
-/* disable EFI partitions and partition UUID support */
-#endif
-
 /* USB Device Firmware Update support */
 #ifndef CONFIG_SPL_BUILD
 #define DFUARGS \

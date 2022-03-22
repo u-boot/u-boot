@@ -89,12 +89,6 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /*-----------------------------------------------------------------------
- * Etc Command definition
- */
-#undef CONFIG_BOOTM_NETBSD
-#undef CONFIG_BOOTM_RTEMS
-
-/*-----------------------------------------------------------------------
  * serial console configuration
  */
 #define CONFIG_PL011_CLOCK		50000000

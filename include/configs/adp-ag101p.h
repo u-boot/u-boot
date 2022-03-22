@@ -19,12 +19,6 @@
 #define CONFIG_MEM_REMAP
 #endif
 
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#ifdef CONFIG_OF_CONTROL
-#undef CONFIG_OF_SEPARATE
-#endif
-#endif
-
 /*
  * Timer
  */
