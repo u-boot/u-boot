@@ -11,6 +11,7 @@ Use U-Boot
    netconsole
    partitions
    cmdline
+   semihosting
 
 Shell commands
 --------------
