@@ -403,11 +403,29 @@ config ARM_SMCCC
 	  firmware (for example, PSCI) according to SMCCC.
 
 config SEMIHOSTING
-	bool "support boot from semihosting"
+	bool "Support ARM semihosting"
 	help
-	  In emulated environments, semihosting is a way for
-	  the hosted environment to call out to the emulator to
-	  retrieve files from the host machine.
+	  Semihosting is a method for a target to communicate with a host
+	  debugger. It uses special instructions which the debugger will trap
+	  on and interpret. This allows U-Boot to read/write files, print to
+	  the console, and execute arbitrary commands on the host system.
+
+	  Enabling this option will add support for reading and writing files
+	  on the host system. If you don't have a debugger attached then trying
+	  to do this will likely cause U-Boot to hang. Say 'n' if you are unsure.
+
+config SPL_SEMIHOSTING
+	bool "Support ARM semihosting in SPL"
+	depends on SPL
+	help
+	  Semihosting is a method for a target to communicate with a host
+	  debugger. It uses special instructions which the debugger will trap
+	  on and interpret. This allows U-Boot to read/write files, print to
+	  the console, and execute arbitrary commands on the host system.
+
+	  Enabling this option will add support for reading and writing files
+	  on the host system. If you don't have a debugger attached then trying
+	  to do this will likely cause U-Boot to hang. Say 'n' if you are unsure.
 
 config SYS_THUMB_BUILD
 	bool "Build U-Boot using the Thumb instruction set"
