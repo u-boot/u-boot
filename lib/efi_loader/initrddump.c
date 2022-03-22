@@ -121,6 +121,14 @@ static void printx(u64 val, u32 prec)
 }
 
 /**
+ * efi_drain_input() - drain console input
+ */
+static void efi_drain_input(void)
+{
+	cin->reset(cin, true);
+}
+
+/**
  * efi_input_yn() - get answer to yes/no question
  *
  * Return:
@@ -137,8 +145,6 @@ static efi_status_t efi_input_yn(void)
 	efi_uintn_t index;
 	efi_status_t ret;
 
-	/* Drain the console input */
-	ret = cin->reset(cin, true);
 	for (;;) {
 		ret = bs->wait_for_event(1, &cin->wait_for_key, &index);
 		if (ret != EFI_SUCCESS)
@@ -179,8 +185,6 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
 	u16 outbuf[2] = u" ";
 	efi_status_t ret;
 
-	/* Drain the console input */
-	ret = cin->reset(cin, true);
 	*buffer = 0;
 	for (;;) {
 		ret = bs->wait_for_event(1, &cin->wait_for_key, &index);
@@ -393,6 +397,7 @@ static efi_status_t do_save(u16 *filename)
 	ret = root->open(root, &file, filename, EFI_FILE_MODE_READ, 0);
 	if (ret == EFI_SUCCESS) {
 		file->close(file);
+		efi_drain_input();
 		print(u"Overwrite existing file (y/n)? ");
 		ret = efi_input_yn();
 		print(u"\r\n");
@@ -486,6 +491,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 		u16 *pos;
 		efi_uintn_t ret;
 
+		efi_drain_input();
 		print(u"=> ");
 		ret = efi_input(command, sizeof(command));
 		if (ret == EFI_ABORTED)
