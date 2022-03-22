@@ -399,6 +399,15 @@ config DEBUG_UART_SANDBOX
 	  start up driver model. The driver will be available until the real
 	  driver model serial is running.
 
+config DEBUG_UART_SEMIHOSTING
+	bool "semihosting"
+	depends on SEMIHOSTING_SERIAL
+	help
+	  Select this to enable the debug UART using the semihosting driver.
+	  This provides basic serial output from the console without needing to
+	  start up driver model. The driver will be available until the real
+	  driver model serial is running.
+
 config DEBUG_UART_SIFIVE
 	bool "SiFive UART"
 	depends on SIFIVE_SERIAL
@@ -781,6 +790,19 @@ config SCIF_CONSOLE
 	  Select this to enable Renesas SCIF UART. To operate serial ports
 	  on systems with RCar or SH SoCs, say Y to this option. If unsure,
 	  say N.
+
+config SEMIHOSTING_SERIAL
+	bool "Semihosting UART support"
+	depends on SEMIHOSTING && !SERIAL_RX_BUFFER
+	help
+	  Select this to enable a serial UART using semihosting. Special halt
+	  instructions will be issued which an external debugger (such as a
+	  JTAG emulator) may interpret. The debugger will display U-Boot's
+	  console output on the host system.
+
+	  Enable this option only if you are using a debugger which supports
+	  semihosting. If you are not using a debugger, this driver will halt
+	  the boot.
 
 config UNIPHIER_SERIAL
 	bool "Support for UniPhier on-chip UART"
