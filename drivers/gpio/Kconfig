@@ -84,6 +84,10 @@ config ALTERA_PIO
 	  Select this to enable PIO for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config BCM2835_GPIO
+	bool "BCM2835 GPIO driver"
+	depends on DM_GPIO
+
 config BCM6345_GPIO
 	bool "BCM6345 GPIO driver"
 	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM68360 || \
