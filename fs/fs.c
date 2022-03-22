@@ -18,6 +18,7 @@
 #include <fat.h>
 #include <fs.h>
 #include <sandboxfs.h>
+#include <semihostingfs.h>
 #include <ubifs_uboot.h>
 #include <btrfs.h>
 #include <asm/global_data.h>
@@ -240,6 +241,25 @@ static struct fstype_info fstypes[] = {
 		.size = sandbox_fs_size,
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
+		.uuid = fs_uuid_unsupported,
+		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
+		.ln = fs_ln_unsupported,
+	},
+#endif
+#ifdef CONFIG_SEMIHOSTING
+	{
+		.fstype = FS_TYPE_SEMIHOSTING,
+		.name = "semihosting",
+		.null_dev_desc_ok = true,
+		.probe = smh_fs_set_blk_dev,
+		.close = fs_close_unsupported,
+		.ls = fs_ls_unsupported,
+		.exists = fs_exists_unsupported,
+		.size = smh_fs_size,
+		.read = smh_fs_read,
+		.write = smh_fs_write,
 		.uuid = fs_uuid_unsupported,
 		.opendir = fs_opendir_unsupported,
 		.unlink = fs_unlink_unsupported,
