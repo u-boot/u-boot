@@ -29,9 +29,41 @@ enum smh_open_mode {
 	MODE_APPEND	= 0x8,
 };
 
+/**
+ * smh_open() - Open a file on the host
+ * @fname: The name of the file to open
+ * @mode: The mode to use when opening the file
+ *
+ * Return: Either a file descriptor or a negative error on failure
+ */
 long smh_open(const char *fname, enum smh_open_mode mode);
+
+/**
+ * smh_read() - Read data from a file
+ * @fd: A file descriptor returned from smh_open()
+ * @memp: Pointer to a buffer of memory of at least @len bytes
+ * @len: The number of bytes to read
+ *
+ * Return:
+ * * The number of bytes read on success, with 0 indicating %EOF
+ * * A negative error on failure
+ */
 long smh_read(long fd, void *memp, size_t len);
+
+/**
+ * smh_close() - Close an open file
+ * @fd: A file descriptor returned from smh_open()
+ *
+ * Return: 0 on success or negative error on failure
+ */
 long smh_close(long fd);
+
+/**
+ * smh_flen() - Get the length of a file
+ * @fd: A file descriptor returned from smh_open()
+ *
+ * Return: The length of the file, in bytes, or a negative error on failure
+ */
 long smh_flen(long fd);
 
 #endif /* _SEMIHOSTING_H */

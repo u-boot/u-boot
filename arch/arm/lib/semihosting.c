@@ -80,9 +80,6 @@ long smh_open(const char *fname, enum smh_open_mode mode)
 	return fd;
 }
 
-/*
- * Read 'len' bytes of file into 'memp'. Returns 0 on success, else failure
- */
 long smh_read(long fd, void *memp, size_t len)
 {
 	long ret;
@@ -104,9 +101,6 @@ long smh_read(long fd, void *memp, size_t len)
 	return len - ret;
 }
 
-/*
- * Close the file using the file descriptor
- */
 long smh_close(long fd)
 {
 	long ret;
@@ -119,9 +113,6 @@ long smh_close(long fd)
 	return 0;
 }
 
-/*
- * Get the file length from the file descriptor
- */
 long smh_flen(long fd)
 {
 	long ret;
