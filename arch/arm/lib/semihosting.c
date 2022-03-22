@@ -15,8 +15,11 @@
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
+#define SYSWRITEC	0x03
+#define SYSWRITE0	0x04
 #define SYSWRITE	0x05
 #define SYSREAD		0x06
+#define SYSREADC	0x07
 #define SYSSEEK		0x0A
 #define SYSFLEN		0x0C
 #define SYSERRNO	0x13
@@ -166,4 +169,19 @@ long smh_seek(long fd, long pos)
 	if (ret)
 		return smh_errno();
 	return 0;
+}
+
+int smh_getc(void)
+{
+	return smh_trap(SYSREADC, NULL);
+}
+
+void smh_putc(char ch)
+{
+	smh_trap(SYSWRITEC, &ch);
+}
+
+void smh_puts(const char *s)
+{
+	smh_trap(SYSWRITE0, (char *)s);
 }

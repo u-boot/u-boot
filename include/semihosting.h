@@ -86,4 +86,23 @@ long smh_flen(long fd);
  */
 long smh_seek(long fd, long pos);
 
+/**
+ * smh_getc() - Read a character from stdin
+ *
+ * Return: The character read, or a negative error on failure
+ */
+int smh_getc(void);
+
+/**
+ * smh_putc() - Print a character on stdout
+ * @ch: The character to print
+ */
+void smh_putc(char ch);
+
+/**
+ * smh_write0() - Print a nul-terminated string on stdout
+ * @s: The string to print
+ */
+void smh_puts(const char *s);
+
 #endif /* _SEMIHOSTING_H */
