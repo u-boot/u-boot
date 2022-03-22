@@ -3761,6 +3761,13 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(len(kernel_data), int(data_sizes[0].split()[0]))
         self.assertEqual(len(fdt1_data), int(data_sizes[1].split()[0]))
 
+        # Check if entry listing correctly omits /images/
+        image = control.images['image']
+        fit_entry = image.GetEntries()['fit']
+        subentries = list(fit_entry.GetEntries().keys())
+        expected = ['kernel', 'fdt-1']
+        self.assertEqual(expected, subentries)
+
     def testSimpleFit(self):
         """Test an image with a FIT inside"""
         data = self._DoReadFile('161_fit.dts')

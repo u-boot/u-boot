@@ -384,7 +384,8 @@ class Entry_fit(Entry_section):
                 entry.ReadNode()
                 # The hash subnodes here are for mkimage, not binman.
                 entry.SetUpdateHash(False)
-                self._entries[rel_path] = entry
+                image_name = rel_path[len('/images/'):]
+                self._entries[image_name] = entry
 
             for subnode in node.subnodes:
                 _add_entries(base_node, depth + 1, subnode)
@@ -630,7 +631,8 @@ class Entry_fit(Entry_section):
 
             has_images = depth == 2 and in_images
             if has_images:
-                entry = self._priv_entries[rel_path]
+                image_name = rel_path[len('/images/'):]
+                entry = self._priv_entries[image_name]
                 data = entry.GetData()
                 fsw.property('data', bytes(data))
 
@@ -643,12 +645,12 @@ class Entry_fit(Entry_section):
                     # fsw.add_node() or _add_node() for it.
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
-                    entry = self._priv_entries.get(subnode_path)
+                    entry = self._priv_entries.get(subnode.name)
                     _gen_node(base_node, subnode, depth, in_images, entry)
                     # This is a generator (template) entry, so remove it from
                     # the list of entries used by PackEntries(), etc. Otherwise
                     # it will appear in the binman output
-                    to_remove.append(subnode_path)
+                    to_remove.append(subnode.name)
                 else:
                     with fsw.add_node(subnode.name):
                         _add_node(base_node, depth + 1, subnode)
@@ -693,7 +695,8 @@ class Entry_fit(Entry_section):
         fdt = Fdt.FromData(self.GetData())
         fdt.Scan()
 
-        for path, section in self._entries.items():
+        for image_name, section in self._entries.items():
+            path = f"/images/{image_name}"
             node = fdt.GetNode(path)
 
             data_prop = node.props.get("data")
