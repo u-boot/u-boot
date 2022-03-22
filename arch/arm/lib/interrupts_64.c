@@ -5,11 +5,13 @@
  */
 
 #include <common.h>
+#include <asm/esr.h>
 #include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <irq_func.h>
 #include <linux/compiler.h>
 #include <efi_loader.h>
+#include <semihosting.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -61,6 +63,48 @@ void show_regs(struct pt_regs *regs)
 		       i, regs->regs[i], i+1, regs->regs[i+1]);
 	printf("\n");
 	dump_instr(regs);
+}
+
+/*
+ * Try to "emulate" a semihosting call in the event that we don't have a
+ * debugger attached.
+ */
+static bool smh_emulate_trap(struct pt_regs *regs)
+{
+	int size;
+
+	if (ESR_ELx_EC(regs->esr) != ESR_ELx_EC_UNKNOWN)
+		return false;
+
+	if (regs->spsr & PSR_MODE32_BIT) {
+		if (regs->spsr & PSR_AA32_T_BIT) {
+			u16 *insn = (u16 *)ALIGN_DOWN(regs->elr, 2);
+
+			if (*insn != SMH_T32_SVC && *insn != SMH_T32_HLT)
+				return false;
+			size = 2;
+		} else {
+			u32 *insn = (u32 *)ALIGN_DOWN(regs->elr, 4);
+
+			if (*insn != SMH_A32_SVC && *insn != SMH_A32_HLT)
+				return false;
+			size = 4;
+		}
+	} else {
+		u32 *insn = (u32 *)ALIGN_DOWN(regs->elr, 4);
+
+		if (*insn != SMH_A64_HLT)
+			return false;
+		size = 4;
+	}
+
+	/* Avoid future semihosting calls */
+	disable_semihosting();
+
+	/* Just pretend the call failed */
+	regs->regs[0] = -1;
+	regs->elr += size;
+	return true;
 }
 
 /*
@@ -117,6 +161,9 @@ void do_bad_error(struct pt_regs *pt_regs)
  */
 void do_sync(struct pt_regs *pt_regs)
 {
+	if (CONFIG_IS_ENABLED(SEMIHOSTING_FALLBACK) &&
+	    smh_emulate_trap(pt_regs))
+		return;
 	efi_restore_gd();
 	printf("\"Synchronous Abort\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);

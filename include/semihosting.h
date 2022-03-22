@@ -6,6 +6,17 @@
 #ifndef _SEMIHOSTING_H
 #define _SEMIHOSTING_H
 
+/*
+ * These are the encoded instructions used to indicate a semihosting trap. They
+ * are named like SMH_ISA_INSN, where ISA is the instruction set (e.g.
+ * AArch64), and INSN is the mneumonic for the instruction.
+ */
+#define SMH_A64_HLT 0xD45E0000
+#define SMH_A32_SVC 0xEF123456
+#define SMH_A32_HLT 0xE10F0070
+#define SMH_T32_SVC 0xDFAB
+#define SMH_T32_HLT 0xBABC
+
 #if CONFIG_IS_ENABLED(SEMIHOSTING_FALLBACK)
 /**
  * semihosting_enabled() - Determine whether semihosting is supported
