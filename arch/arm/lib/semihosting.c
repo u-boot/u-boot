@@ -171,7 +171,7 @@ long smh_seek(long fd, long pos)
 }
 
 static int smh_load_file(const char * const name, ulong load_addr,
-			 ulong *end_addr)
+			 ulong *size)
 {
 	long fd;
 	long len;
@@ -191,11 +191,11 @@ static int smh_load_file(const char * const name, ulong load_addr,
 	smh_close(fd);
 
 	if (ret == len) {
-		*end_addr = load_addr + len - 1;
+		*size = len;
 		printf("loaded file %s from %08lX to %08lX, %08lX bytes\n",
 		       name,
 		       load_addr,
-		       *end_addr,
+		       load_addr + len - 1,
 		       len);
 	} else if (ret >= 0) {
 		ret = -EAGAIN;
@@ -214,22 +214,22 @@ static int do_smhload(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	if (argc == 3 || argc == 4) {
 		ulong load_addr;
-		ulong end_addr = 0;
+		ulong size = 0;
 		int ret;
-		char end_str[64];
+		char size_str[64];
 
 		load_addr = hextoul(argv[2], NULL);
 		if (!load_addr)
 			return -1;
 
-		ret = smh_load_file(argv[1], load_addr, &end_addr);
+		ret = smh_load_file(argv[1], load_addr, &size);
 		if (ret < 0)
 			return CMD_RET_FAILURE;
 
 		/* Optionally save returned end to the environment */
 		if (argc == 4) {
-			sprintf(end_str, "0x%08lx", end_addr);
-			env_set(argv[3], end_str);
+			sprintf(size_str, "0x%08lx", size);
+			env_set(argv[3], size_str);
 		}
 	} else {
 		return CMD_RET_USAGE;
