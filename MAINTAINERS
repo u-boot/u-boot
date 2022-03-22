@@ -1173,6 +1173,11 @@ F:	arch/sandbox/
 F:	doc/arch/sandbox.rst
 F:	include/dt-bindings/*/sandbox*.h
 
+SEMIHOSTING
+R:	Sean Anderson <sean.anderson@seco.com>
+S:	Orphaned
+N:	semihosting
+
 SETEXPR
 M:	Roland Gaudig <roland.gaudig@weidmueller.com>
 S:	Maintained
