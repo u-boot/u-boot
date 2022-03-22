@@ -6,6 +6,36 @@
 #ifndef _SEMIHOSTING_H
 #define _SEMIHOSTING_H
 
+#if CONFIG_IS_ENABLED(SEMIHOSTING_FALLBACK)
+/**
+ * semihosting_enabled() - Determine whether semihosting is supported
+ *
+ * Semihosting-based drivers should call this function before making other
+ * semihosting calls.
+ *
+ * Return: %true if a debugger is attached which supports semihosting, %false
+ *         otherwise
+ */
+bool semihosting_enabled(void);
+
+/**
+ * disable_semihosting() - Cause semihosting_enabled() to return false
+ *
+ * If U-Boot ever receives an unhandled exception caused by a semihosting trap,
+ * the trap handler should call this function.
+ */
+void disable_semihosting(void);
+#else
+static inline bool semihosting_enabled(void)
+{
+	return CONFIG_IS_ENABLED(SEMIHOSTING);
+}
+
+static inline void disable_semihosting(void)
+{
+}
+#endif
+
 /**
  * enum smh_open_mode - Numeric file modes for use with smh_open()
  * MODE_READ: 'r'
