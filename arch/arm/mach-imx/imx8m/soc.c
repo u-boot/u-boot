@@ -1295,7 +1295,7 @@ void imx_tmu_arch_init(void *reg_base)
 #if defined(CONFIG_IMX8MQ) || defined(CONFIG_IMX8MM) || defined(CONFIG_IMX8MN)
 bool serror_need_skip = true;
 
-void do_error(struct pt_regs *pt_regs, unsigned int esr)
+void do_error(struct pt_regs *pt_regs)
 {
 	/*
 	 * If stack is still in ROM reserved OCRAM not switch to SPL,
@@ -1320,7 +1320,7 @@ void do_error(struct pt_regs *pt_regs, unsigned int esr)
 	}
 
 	efi_restore_gd();
-	printf("\"Error\" handler, esr 0x%08x\n", esr);
+	printf("\"Error\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
 }

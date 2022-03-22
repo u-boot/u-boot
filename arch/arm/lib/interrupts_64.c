@@ -66,10 +66,11 @@ void show_regs(struct pt_regs *regs)
 /*
  * do_bad_sync handles the impossible case in the Synchronous Abort vector.
  */
-void do_bad_sync(struct pt_regs *pt_regs, unsigned int esr)
+void do_bad_sync(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("Bad mode in \"Synchronous Abort\" handler, esr 0x%08x\n", esr);
+	printf("Bad mode in \"Synchronous Abort\" handler, esr 0x%08lx\n",
+	       pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -78,10 +79,10 @@ void do_bad_sync(struct pt_regs *pt_regs, unsigned int esr)
 /*
  * do_bad_irq handles the impossible case in the Irq vector.
  */
-void do_bad_irq(struct pt_regs *pt_regs, unsigned int esr)
+void do_bad_irq(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("Bad mode in \"Irq\" handler, esr 0x%08x\n", esr);
+	printf("Bad mode in \"Irq\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -90,10 +91,10 @@ void do_bad_irq(struct pt_regs *pt_regs, unsigned int esr)
 /*
  * do_bad_fiq handles the impossible case in the Fiq vector.
  */
-void do_bad_fiq(struct pt_regs *pt_regs, unsigned int esr)
+void do_bad_fiq(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("Bad mode in \"Fiq\" handler, esr 0x%08x\n", esr);
+	printf("Bad mode in \"Fiq\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -102,10 +103,10 @@ void do_bad_fiq(struct pt_regs *pt_regs, unsigned int esr)
 /*
  * do_bad_error handles the impossible case in the Error vector.
  */
-void do_bad_error(struct pt_regs *pt_regs, unsigned int esr)
+void do_bad_error(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("Bad mode in \"Error\" handler, esr 0x%08x\n", esr);
+	printf("Bad mode in \"Error\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -114,10 +115,10 @@ void do_bad_error(struct pt_regs *pt_regs, unsigned int esr)
 /*
  * do_sync handles the Synchronous Abort exception.
  */
-void do_sync(struct pt_regs *pt_regs, unsigned int esr)
+void do_sync(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("\"Synchronous Abort\" handler, esr 0x%08x\n", esr);
+	printf("\"Synchronous Abort\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -126,10 +127,10 @@ void do_sync(struct pt_regs *pt_regs, unsigned int esr)
 /*
  * do_irq handles the Irq exception.
  */
-void do_irq(struct pt_regs *pt_regs, unsigned int esr)
+void do_irq(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("\"Irq\" handler, esr 0x%08x\n", esr);
+	printf("\"Irq\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -138,10 +139,10 @@ void do_irq(struct pt_regs *pt_regs, unsigned int esr)
 /*
  * do_fiq handles the Fiq exception.
  */
-void do_fiq(struct pt_regs *pt_regs, unsigned int esr)
+void do_fiq(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("\"Fiq\" handler, esr 0x%08x\n", esr);
+	printf("\"Fiq\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
@@ -153,10 +154,10 @@ void do_fiq(struct pt_regs *pt_regs, unsigned int esr)
  * it is defined with weak attribute and can be redefined
  * in processor specific code.
  */
-void __weak do_error(struct pt_regs *pt_regs, unsigned int esr)
+void __weak do_error(struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
-	printf("\"Error\" handler, esr 0x%08x\n", esr);
+	printf("\"Error\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	show_efi_loaded_images(pt_regs);
 	panic("Resetting CPU ...\n");
