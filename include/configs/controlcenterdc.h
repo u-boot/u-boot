@@ -27,11 +27,6 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-/*
- * Software (bit-bang) MII driver configuration
- */
-#define CONFIG_BITBANGMII_MULTI
-
 /* SPL */
 /*
  * Select the boot device here
