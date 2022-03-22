@@ -41,6 +41,13 @@ static const struct dm_serial_ops smh_serial_ops = {
 	.getc = smh_serial_getc,
 };
 
+static int smh_serial_bind(struct udevice *dev)
+{
+	if (semihosting_enabled())
+		return 0;
+	return -ENOENT;
+}
+
 static int smh_serial_probe(struct udevice *dev)
 {
 	struct smh_serial_priv *priv = dev_get_priv(dev);
@@ -52,6 +59,7 @@ static int smh_serial_probe(struct udevice *dev)
 U_BOOT_DRIVER(smh_serial) = {
 	.name	= "serial_semihosting",
 	.id	= UCLASS_SERIAL,
+	.bind	= smh_serial_bind,
 	.probe	= smh_serial_probe,
 	.priv_auto = sizeof(struct smh_serial_priv),
 	.ops	= &smh_serial_ops,
@@ -122,7 +130,8 @@ struct serial_device serial_smh_device = {
 
 void smh_serial_initialize(void)
 {
-	serial_register(&serial_smh_device);
+	if (semihosting_enabled())
+		serial_register(&serial_smh_device);
 }
 
 __weak struct serial_device *default_serial_console(void)
