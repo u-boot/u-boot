@@ -95,6 +95,17 @@ Start Address      End Address        Description        Size
 
 Booting Options
 ---------------
-- QSPI boot
-- SD boot
-- eMMC boot
+
+NB: The reference manual documents the RCW source with the *least-significant
+bit first*.
+
+QSPI boot
+^^^^^^^^^
+
+This is the default. ``{ SW5[0:8], SW4[0] }`` should be ``0010_0010_0``.
+
+SD boot and eMMC boot
+^^^^^^^^^^^^^^^^^^^^^
+
+``{ SW5[0:8], SW4[0] }`` should be ``0010_0000_0``. eMMC is selected only if
+there is no SD card in the slot.
