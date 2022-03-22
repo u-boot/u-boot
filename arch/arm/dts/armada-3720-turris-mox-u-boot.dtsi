@@ -21,3 +21,7 @@
 };
 
 /delete-node/ &mdio;
+
+&usb3 {
+	vbus-supply = <&exp_usb3_vbus>;
+};
