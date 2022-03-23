@@ -27,17 +27,11 @@
 static const char *tool_name = "mkeficapsule";
 
 efi_guid_t efi_guid_fm_capsule = EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
-efi_guid_t efi_guid_image_type_uboot_fit =
-		EFI_FIRMWARE_IMAGE_TYPE_UBOOT_FIT_GUID;
-efi_guid_t efi_guid_image_type_uboot_raw =
-		EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID;
 efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-static const char *opts_short = "frg:i:I:v:p:c:m:dh";
+static const char *opts_short = "g:i:I:v:p:c:m:dh";
 
 static struct option options[] = {
-	{"fit", no_argument, NULL, 'f'},
-	{"raw", no_argument, NULL, 'r'},
 	{"guid", required_argument, NULL, 'g'},
 	{"index", required_argument, NULL, 'i'},
 	{"instance", required_argument, NULL, 'I'},
@@ -54,8 +48,6 @@ static void print_usage(void)
 	fprintf(stderr, "Usage: %s [options] <image blob> <output file>\n"
 		"Options:\n"
 
-		"\t-f, --fit                   FIT image type\n"
-		"\t-r, --raw                   raw image type\n"
 		"\t-g, --guid <guid string>    guid for image blob type\n"
 		"\t-i, --index <index>         update image index\n"
 		"\t-I, --instance <instance>   update hardware instance\n"
@@ -606,22 +598,6 @@ int main(int argc, char **argv)
 			break;
 
 		switch (c) {
-		case 'f':
-			if (guid) {
-				fprintf(stderr,
-					"Image type already specified\n");
-				exit(EXIT_FAILURE);
-			}
-			guid = &efi_guid_image_type_uboot_fit;
-			break;
-		case 'r':
-			if (guid) {
-				fprintf(stderr,
-					"Image type already specified\n");
-				exit(EXIT_FAILURE);
-			}
-			guid = &efi_guid_image_type_uboot_raw;
-			break;
 		case 'g':
 			if (guid) {
 				fprintf(stderr,
