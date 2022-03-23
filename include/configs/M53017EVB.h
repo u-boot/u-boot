@@ -36,8 +36,6 @@
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
-#define CONFIG_MCFRTC
-#undef RTC_DEBUG
 #define CONFIG_SYS_RTC_CNT		(0x8000)
 #define CONFIG_SYS_RTC_SETUP		(RTC_OCEN_OSCBYP | RTC_OCEN_CLKEN)
 

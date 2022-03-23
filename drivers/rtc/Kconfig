@@ -168,6 +168,14 @@ config RTC_MC146818
 	  clock with a wide array of features and 50 bytes of general-purpose,
 	  battery-backed RAM. The driver supports access to the clock and RAM.
 
+config MCFRTC
+	bool "Use common CF RTC driver"
+	depends on M68K
+
+config SYS_MCFRTC_BASE
+	hex "Base address for RTC in immap.h"
+	depends on MCFRTC
+
 config RTC_M41T62
 	bool "Enable M41T62 driver"
 	help

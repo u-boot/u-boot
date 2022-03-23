@@ -51,9 +51,6 @@
 #define ENABLE_JFFS	1
 #endif
 
-#define CONFIG_MCFRTC
-#undef RTC_DEBUG
-
 /* I2C */
 
 /*

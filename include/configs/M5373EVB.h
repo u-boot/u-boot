@@ -35,9 +35,6 @@
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
-#define CONFIG_MCFRTC
-#undef RTC_DEBUG
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC

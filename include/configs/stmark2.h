@@ -35,7 +35,6 @@
 	""
 
 /* Realtime clock */
-#undef CONFIG_MCFRTC
 #define CONFIG_RTC_MCFRRTC
 #define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
 
