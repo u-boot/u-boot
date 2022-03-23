@@ -16,7 +16,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCFTMR
 
 #define CONFIG_SYS_UART_PORT		(0)
 

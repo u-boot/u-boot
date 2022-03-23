@@ -39,9 +39,6 @@
 #define CONFIG_RTC_MCFRRTC
 #define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
 
-/* Timer */
-#define CONFIG_MCFTMR
-
 /* DSPI and Serial Flash */
 #define CONFIG_SERIAL_FLASH
 

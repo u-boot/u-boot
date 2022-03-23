@@ -38,9 +38,6 @@
 #define CONFIG_MCFRTC
 #undef RTC_DEBUG
 
-/* Timer */
-#define CONFIG_MCFTMR
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC

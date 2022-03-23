@@ -31,9 +31,6 @@
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
-/* Timer */
-#define CONFIG_MCFTMR
-
 /* I2C */
 #define CONFIG_SYS_I2C_PINMUX_REG	(gpio->par_qspi)
 #define CONFIG_SYS_I2C_PINMUX_CLR	~(GPIO_PAR_FECI2C_SCL_MASK | GPIO_PAR_FECI2C_SDA_MASK)

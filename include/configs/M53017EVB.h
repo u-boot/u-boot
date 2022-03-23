@@ -41,9 +41,6 @@
 #define CONFIG_SYS_RTC_CNT		(0x8000)
 #define CONFIG_SYS_RTC_SETUP		(RTC_OCEN_OSCBYP | RTC_OCEN_CLKEN)
 
-/* Timer */
-#define CONFIG_MCFTMR
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC

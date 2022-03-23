@@ -32,9 +32,6 @@
 #define CONFIG_SYS_CLK			66000000
 #define CONFIG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
 
-/* Enable Dma Timer */
-#define CONFIG_MCFTMR
-
 /* ---
  * Define baudrate for UART1 (console output, tftp, ...)
  * default value of CONFIG_BAUDRATE for Sentec board: 19200 baud

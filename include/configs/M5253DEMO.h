@@ -8,8 +8,6 @@
 
 #include <linux/stringify.h>
 
-#define CONFIG_MCFTMR
-
 #define CONFIG_SYS_UART_PORT		(0)
 
 

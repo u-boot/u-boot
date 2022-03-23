@@ -201,4 +201,7 @@ source "board/freescale/m5373evb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
 
+config MCFTMR
+	bool "Use DMA timer"
+
 endmenu

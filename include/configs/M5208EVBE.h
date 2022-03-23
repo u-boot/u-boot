@@ -26,9 +26,6 @@
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
-/* Timer */
-#define CONFIG_MCFTMR
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC
