@@ -477,14 +477,20 @@ Using valgrind / memcheck
 
 It is possible to run U-Boot under valgrind to check memory allocations::
 
-   valgrind u-boot
+    valgrind ./u-boot
+
+For more detailed results, enable `CONFIG_VALGRIND`. There are many false
+positives due to `malloc` itself. Suppress these with::
+
+    valgrind --suppressions=scripts/u-boot.supp ./u-boot
 
 If you are running sandbox SPL or TPL, then valgrind will not by default
 notice when U-Boot jumps from TPL to SPL, or from SPL to U-Boot proper. To
-fix this, use::
+fix this, use `--trace-children=yes`. To show who alloc'd some troublesome
+memory, use `--track-origins=yes`. To uncover possible errors, try running all
+unit tests with::
 
-   valgrind --trace-children=yes u-boot
-
+    valgrind --track-origins=yes --suppressions=scripts/u-boot.supp ./u-boot -Tc 'ut all'
 
 Testing
 -------
