@@ -149,7 +149,7 @@ static int eeprom_rw(unsigned dev_addr, unsigned offset, uchar *buffer,
 	int rcode = 0;
 	uchar addr[3];
 
-#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
+#if !CONFIG_IS_ENABLED(DM_I2C) && defined(CONFIG_SYS_I2C_EEPROM_BUS)
 	eeprom_init(CONFIG_SYS_I2C_EEPROM_BUS);
 #endif
 
