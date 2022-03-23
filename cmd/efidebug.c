@@ -810,7 +810,7 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 	efi_guid_t guid;
 	size_t label_len, label_len16;
 	u16 *label;
-	struct efi_device_path *device_path = NULL, *file_path = NULL;
+	struct efi_device_path *file_path = NULL;
 	struct efi_device_path *fp_free = NULL;
 	struct efi_device_path *final_fp = NULL;
 	struct efi_device_path *initrd_dp = NULL;
@@ -865,7 +865,7 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 
 			/* file path */
 			ret = efi_dp_from_name(argv[3], argv[4], argv[5],
-					       &device_path, &fp_free);
+					       NULL, &fp_free);
 			if (ret != EFI_SUCCESS) {
 				printf("Cannot create device path for \"%s %s\"\n",
 				       argv[3], argv[4]);
@@ -953,7 +953,6 @@ out:
 	free(data);
 	efi_free_pool(final_fp);
 	efi_free_pool(initrd_dp);
-	efi_free_pool(device_path);
 	efi_free_pool(fp_free);
 	free(lo.label);
 
