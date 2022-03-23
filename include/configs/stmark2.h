@@ -43,7 +43,6 @@
 #define CONFIG_MCFTMR
 
 /* DSPI and Serial Flash */
-#define CONFIG_CF_DSPI
 #define CONFIG_SERIAL_FLASH
 
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
