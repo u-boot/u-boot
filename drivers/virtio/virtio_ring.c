@@ -20,17 +20,16 @@ int virtqueue_add(struct virtqueue *vq, struct virtio_sg *sgs[],
 		  unsigned int out_sgs, unsigned int in_sgs)
 {
 	struct vring_desc *desc;
-	unsigned int total_sg = out_sgs + in_sgs;
-	unsigned int i, n, avail, descs_used, uninitialized_var(prev);
+	unsigned int descs_used = out_sgs + in_sgs;
+	unsigned int i, n, avail, uninitialized_var(prev);
 	int head;
 
-	WARN_ON(total_sg == 0);
+	WARN_ON(descs_used == 0);
 
 	head = vq->free_head;
 
 	desc = vq->vring.desc;
 	i = head;
-	descs_used = total_sg;
 
 	if (vq->num_free < descs_used) {
 		debug("Can't add buf len %i - avail = %i\n",
