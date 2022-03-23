@@ -887,7 +887,11 @@ void malloc_simple_info(void);
 #define malloc malloc_simple
 #define realloc realloc_simple
 #define memalign memalign_simple
+#if IS_ENABLED(CONFIG_VALGRIND)
+#define free free_simple
+#else
 static inline void free(void *ptr) {}
+#endif
 void *calloc(size_t nmemb, size_t size);
 void *realloc_simple(void *ptr, size_t size);
 #else
