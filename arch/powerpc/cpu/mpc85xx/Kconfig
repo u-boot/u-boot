@@ -1193,7 +1193,6 @@ source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
-source "board/keymile/Kconfig"
 source "board/socrates/Kconfig"
 
 endmenu

@@ -2280,7 +2280,6 @@ source "board/vscom/baltos/Kconfig"
 source "board/phytium/durian/Kconfig"
 source "board/phytium/pomelo/Kconfig"
 source "board/xen/xenguest_arm64/Kconfig"
-source "board/keymile/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

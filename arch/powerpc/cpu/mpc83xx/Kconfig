@@ -200,7 +200,6 @@ config FSL_ELBC
 
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
-source "board/keymile/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 
 endmenu

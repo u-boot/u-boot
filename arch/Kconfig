@@ -448,3 +448,5 @@ source "arch/sh/Kconfig"
 source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"
 source "arch/riscv/Kconfig"
+
+source "board/keymile/Kconfig"
