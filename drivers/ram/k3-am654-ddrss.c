@@ -884,9 +884,8 @@ static int am654_ddrss_power_on(struct am654_ddrss_desc *ddrss)
 	device_get_supply_regulator(ddrss->dev, "vtt-supply",
 				    &ddrss->vtt_supply);
 	ret = regulator_set_value(ddrss->vtt_supply, 3300000);
-	if (ret)
-		return ret;
-	debug("VTT regulator enabled\n");
+	if (ret == 0)
+		debug("VTT regulator enabled\n");
 #endif
 
 	return 0;
