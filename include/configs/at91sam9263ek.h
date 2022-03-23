@@ -187,13 +187,4 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
-#ifdef CONFIG_SYS_USE_DATAFLASH
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-
-#elif CONFIG_SYS_USE_NANDFLASH
-
-/* bootstrap + u-boot + env + linux in nandflash */
-#endif
-
 #endif

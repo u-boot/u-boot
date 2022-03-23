@@ -64,17 +64,4 @@
 #endif
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
-#ifdef CONFIG_SYS_USE_DATAFLASH_CS0
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-
-#elif CONFIG_SYS_USE_DATAFLASH_CS3
-
-/* bootstrap + u-boot + env + linux in dataflash on CS3 */
-
-#else /* CONFIG_SYS_USE_NANDFLASH */
-
-/* bootstrap + u-boot + env + linux in nandflash */
-#endif
-
 #endif

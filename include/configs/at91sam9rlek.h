@@ -46,18 +46,4 @@
 
 #endif
 
-/* Ethernet - not present */
-
-#ifdef CONFIG_SYS_USE_DATAFLASH
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-
-#elif CONFIG_SYS_USE_NANDFLASH
-
-/* bootstrap + u-boot + env + linux in nandflash */
-
-#else /* CONFIG_SYS_USE_MMC */
-
-/* bootstrap + u-boot + env + linux in mmc */
-#endif
 #endif

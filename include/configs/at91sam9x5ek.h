@@ -54,14 +54,6 @@
 #endif
 #endif
 
-#ifdef CONFIG_NAND_BOOT
-/* bootstrap + u-boot + env + linux in nandflash */
-#elif defined(CONFIG_SPI_BOOT)
-/* bootstrap + u-boot + env + linux in spi flash */
-#elif defined(CONFIG_SYS_USE_DATAFLASH)
-/* bootstrap + u-boot + env + linux in data flash */
-#endif
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x6000
 #define CONFIG_SPL_STACK		0x308000
