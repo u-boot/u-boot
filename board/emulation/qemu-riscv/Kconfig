@@ -37,6 +37,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply SPL_RAM_DEVICE
 	imply CMD_PCI
 	imply CMD_POWEROFF
+	imply CMD_SBI
 	imply CMD_SCSI
 	imply CMD_PING
 	imply CMD_EXT2
