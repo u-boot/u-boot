@@ -39,9 +39,6 @@
 #define CONFIG_RTC_MCFRRTC
 #define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
 
-/* DSPI and Serial Flash */
-#define CONFIG_SERIAL_FLASH
-
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 
 /* Input, PCI, Flexbus, and VCO */
