@@ -66,7 +66,6 @@
 
 /* LPUART */
 #ifdef CONFIG_LPUART
-#define CONFIG_LPUART_32B_REG
 #define CFG_LPUART_MUX_MASK	0xf0
 #define CFG_LPUART_EN		0xf0
 #endif

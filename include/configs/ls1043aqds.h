@@ -39,11 +39,6 @@
 #define QSGMII_CARD_PORT4_PHY_ADDR_S2 0xB
 #endif
 
-/* LPUART */
-#ifdef CONFIG_LPUART
-#define CONFIG_LPUART_32B_REG
-#endif
-
 /* SATA */
 
 /* EEPROM */

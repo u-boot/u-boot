@@ -647,6 +647,10 @@ config FSL_LPUART
 	  Select this to enable a Low Power UART for Freescale VF610 and
 	  QorIQ Layerscape devices.
 
+config LPUART
+	bool "Use the LPUART as console"
+	depends on FSL_LPUART
+
 config MVEBU_A3700_UART
 	bool "UART support for Armada 3700"
 	help
