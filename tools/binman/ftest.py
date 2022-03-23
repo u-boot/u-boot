@@ -5568,5 +5568,40 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIsNotNone(path)
         self.assertEqual(expected_fdtmap, fdtmap)
 
+    def testExtractFit(self):
+        """Test extracting a FIT section"""
+        self._DoReadFileRealDtb('233_fit_extract_replace.dts')
+        image_fname = tools.get_output_filename('image.bin')
+
+        fit_data = control.ReadEntry(image_fname, 'fit')
+        fit = fdt.Fdt.FromData(fit_data)
+        fit.Scan()
+
+        # Check subentry data inside the extracted fit
+        for node_path, expected in [
+            ('/images/kernel', U_BOOT_DATA),
+            ('/images/fdt-1', U_BOOT_NODTB_DATA),
+            ('/images/scr-1', COMPRESS_DATA),
+        ]:
+            node = fit.GetNode(node_path)
+            data = fit.GetProps(node)["data"].bytes
+            self.assertEqual(expected, data)
+
+    def testExtractFitSubentries(self):
+        """Test extracting FIT section subentries"""
+        self._DoReadFileRealDtb('233_fit_extract_replace.dts')
+        image_fname = tools.get_output_filename('image.bin')
+
+        for entry_path, expected in [
+            ('fit/kernel', U_BOOT_DATA),
+            ('fit/kernel/u-boot', U_BOOT_DATA),
+            ('fit/fdt-1', U_BOOT_NODTB_DATA),
+            ('fit/fdt-1/u-boot-nodtb', U_BOOT_NODTB_DATA),
+            ('fit/scr-1', COMPRESS_DATA),
+            ('fit/scr-1/blob', COMPRESS_DATA),
+        ]:
+            data = control.ReadEntry(image_fname, entry_path)
+            self.assertEqual(expected, data)
+
 if __name__ == "__main__":
     unittest.main()
