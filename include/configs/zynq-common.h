@@ -190,7 +190,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_CLOCKS
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 #define CONFIG_SYS_CBSIZE		2048 /* Console I/O Buffer Size */
 

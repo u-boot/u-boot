@@ -571,6 +571,10 @@ config BOARD_LATE_INIT
 	  So this config enable the late init code with the help of board_late_init
 	  function which should defined on respective boards.
 
+config CLOCKS
+	bool "Call set_cpu_clk_info"
+	depends on ARM
+
 config SYS_FSL_CLK
 	bool
 	depends on ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3 || \
