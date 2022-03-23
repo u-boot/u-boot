@@ -11,19 +11,6 @@
 #include <config.h>
 #include <asm/arch/cpu.h>
 
-#ifdef CONFIG_CLK_800_330_165
-#define DRAM_CLK_330
-#endif
-#ifdef CONFIG_CLK_1000_200_200
-#define DRAM_CLK_200
-#endif
-#ifdef CONFIG_CLK_1000_330_165
-#define DRAM_CLK_330
-#endif
-#ifdef CONFIG_CLK_1000_400_200
-#define DRAM_CLK_400
-#endif
-
 /* Bus Configuration Register Address */
 #define ASYNC_CONFIG		0x10010350
 
@@ -562,15 +549,8 @@ struct mem_timings {
 #define	TIMINGPOWER_VAL		0x52000A3C
 #else
 #define TIMINGREF_VAL		0x000000BC
-#ifdef DRAM_CLK_330
-#define TIMINGROW_VAL		0x3545548d
-#define	TIMINGDATA_VAL		0x45430506
-#define	TIMINGPOWER_VAL		0x4439033c
-#endif
-#ifdef DRAM_CLK_400
 #define TIMINGROW_VAL		0x45430506
 #define	TIMINGDATA_VAL		0x56500506
 #define	TIMINGPOWER_VAL		0x5444033d
-#endif
 #endif
 #endif

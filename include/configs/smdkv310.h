@@ -38,8 +38,6 @@
 
 /* FLASH and environment organization */
 
-#define CONFIG_CLK_1000_400_200
-
 /* MIU (Memory Interleaving Unit) */
 #define CONFIG_MIU_2BIT_INTERLEAVED
 
