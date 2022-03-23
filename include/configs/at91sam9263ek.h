@@ -22,11 +22,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16367660 /* 16.367 MHz crystal */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
-#ifndef CONFIG_SYS_USE_BOOT_NORFLASH
-#else
-#define CONFIG_SYS_USE_NORFLASH
-#endif
-
 /*
  * Hardware drivers
  */
