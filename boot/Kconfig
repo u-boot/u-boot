@@ -423,6 +423,20 @@ config RAMBOOT_PBL
 	  Some SoCs use PBL to load RCW and/or pre-initialization instructions.
 	  For more details refer to doc/README.pblimage
 
+choice
+	prompt "Freescale PBL load location"
+	depends on RAMBOOT_PBL || ((TARGET_P1010RDB_PA || TARGET_P1010RDB_PB \
+		|| TARGET_P1020RDB_PC || TARGET_P1020RDB_PD || TARGET_P2020RDB) \
+		&& !CMD_NAND)
+
+config SDCARD
+	bool "Freescale PBL is found on SD card"
+
+config SPIFLASH
+	bool "Freescale PBL is found on SPI flash"
+
+endchoice
+
 config SYS_FSL_PBL_PBI
 	string "PBI(pre-boot instructions) commands for the PBL image"
 	depends on RAMBOOT_PBL
