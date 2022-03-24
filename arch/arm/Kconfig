@@ -923,7 +923,7 @@ config ARCH_MX7ULP
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
-	select SYS_FSL_HAS_SEC if IMX_HAB
+	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	select ROM_UNIFIED_SECTIONS
