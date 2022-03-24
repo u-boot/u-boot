@@ -45,7 +45,6 @@
 /* amcore design has flash data bytes wired swapped */
 #define CONFIG_SYS_WRITE_SWAPPED_DATA
 /* reserve 128-4KB */
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_FLASH_BASE + 0x400)
 #define CONFIG_SYS_MONITOR_LEN          ((128 - 4) * 1024)
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 

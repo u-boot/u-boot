@@ -43,7 +43,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT		256
 
 #define CONFIG_SYS_MONITOR_SEC	1:0-3
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN	(256 << 10)
 
 /* Address and size of Primary Environment Sector */

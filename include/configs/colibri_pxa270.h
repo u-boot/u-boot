@@ -86,7 +86,6 @@
 #define	CONFIG_SYS_FLASH_UNLOCK_TOUT	(25 * CONFIG_SYS_HZ)
 #endif
 
-#define	CONFIG_SYS_MONITOR_BASE		0x0
 #define	CONFIG_SYS_MONITOR_LEN		0x40000
 
 /* Skip factory configuration block */

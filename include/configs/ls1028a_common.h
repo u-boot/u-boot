@@ -74,8 +74,6 @@
 #define OCRAM_NONSECURE_SIZE		0x00010000
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
 
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE
-
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR_PRI            0x77 /* Primary Mux*/
 #define I2C_MUX_CH_DEFAULT              0x8

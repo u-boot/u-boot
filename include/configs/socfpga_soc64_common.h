@@ -14,7 +14,6 @@
 /*
  * U-Boot general configurations
  */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 /* sysmgr.boot_scratch_cold4 & 5 (64bit) will be used for PSCI_CPU_ON call */
 #define CPU_RELEASE_ADDR		0xFFD12210
 

@@ -1917,12 +1917,6 @@ Configuration Settings:
 - CONFIG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
 
-- CONFIG_SYS_MONITOR_BASE:
-		Physical start address of boot monitor code (set by
-		make config files to be same as the text base address
-		(CONFIG_SYS_TEXT_BASE) used when linking) - same as
-		CONFIG_SYS_FLASH_BASE when booting from flash.
-
 - CONFIG_SYS_MONITOR_LEN:
 		Size of memory reserved for monitor code, used to
 		determine _at_compile_time_ (!) if the environment is

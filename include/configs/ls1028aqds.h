@@ -58,12 +58,6 @@
 
 /* Store environment at top of flash */
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE
-#endif
-
 /* LPUART */
 #ifdef CONFIG_LPUART
 #define CFG_LPUART_MUX_MASK	0xf0

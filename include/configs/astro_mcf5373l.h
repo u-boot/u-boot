@@ -201,12 +201,6 @@
 
 #define CONFIG_SYS_FLASH_BASE		0x00000000
 
-#ifdef	CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#else
-/* This is mainly used during relocation in start.S */
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_FLASH_BASE + 0x400)
-#endif
 /* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 

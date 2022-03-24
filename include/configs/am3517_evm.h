@@ -111,9 +111,6 @@
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
-/* Monitor at start of flash */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
-
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 
 /* Defines for SPL */

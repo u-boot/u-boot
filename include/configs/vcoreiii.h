@@ -32,8 +32,6 @@
 #error Unknown DDR size - please add!
 #endif
 
-#define CONFIG_SYS_MONITOR_BASE         CONFIG_SYS_TEXT_BASE
-
 #if defined(CONFIG_MTDIDS_DEFAULT) && defined(CONFIG_MTDPARTS_DEFAULT)
 #define VCOREIII_DEFAULT_MTD_ENV		    \
 	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"	    \

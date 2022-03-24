@@ -21,8 +21,6 @@
 
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
-
 /* Power Down Modes */
 #define S5P_CHECK_SLEEP			0x00000BAD
 #define S5P_CHECK_DIDLE			0xBAD00000

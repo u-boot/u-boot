@@ -8,8 +8,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-
 #define CONFIG_SYS_SDRAM_BASE		0x10000000
 #define CONFIG_SYS_SDRAM_SIZE		SZ_16M
 

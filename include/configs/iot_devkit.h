@@ -44,8 +44,6 @@
  *        - Reading data from weird addresses
  */
 
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-
 #define SRAM_BASE			0x30000000
 #define SRAM_SIZE			SZ_128K
 

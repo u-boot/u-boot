@@ -157,9 +157,6 @@
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_SIZE		0x4000000
 
-/* Monitor at start of flash */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
-
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 
 /* Defines for SPL */

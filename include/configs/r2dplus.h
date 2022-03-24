@@ -13,7 +13,6 @@
 #define CONFIG_SYS_PBSIZE		256
 
 /* Address of u-boot image in Flash */
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 

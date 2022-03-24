@@ -97,8 +97,6 @@
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	(128 << 20)	/* 0x8000000, 128 MB Bank #1 */
 
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
-
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
