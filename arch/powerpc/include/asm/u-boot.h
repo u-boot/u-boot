@@ -21,5 +21,6 @@
 /* Use the generic board which requires a unified bd_info */
 #include <asm-generic/u-boot.h>
 #include <asm/ppc.h>
+#include <asm/u-boot-ppc.h>
 
 #endif	/* __U_BOOT_H__ */
