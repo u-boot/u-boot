@@ -11,6 +11,7 @@
 #include <linux/kernel.h>
 #include <log.h>
 #include <malloc.h>
+#include <power-domain.h>
 #include "jr.h"
 #include "jobdesc.h"
 #include "desc_constr.h"
@@ -113,7 +114,9 @@ static void jr_initregs(uint8_t sec_idx, struct caam_regs *caam)
 static int jr_init(uint8_t sec_idx, struct caam_regs *caam)
 {
 	struct jobring *jr = &caam->jr[sec_idx];
-
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	ofnode scu_node = ofnode_by_compatible(ofnode_null(), "fsl,imx8-mu");
+#endif
 	memset(jr, 0, sizeof(struct jobring));
 
 	jr->jq_id = caam->jrid;
@@ -138,7 +141,11 @@ static int jr_init(uint8_t sec_idx, struct caam_regs *caam)
 	memset(jr->input_ring, 0, JR_SIZE * sizeof(caam_dma_addr_t));
 	memset(jr->output_ring, 0, jr->op_size);
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	if (!ofnode_valid(scu_node))
+#endif
 	start_jr(caam);
+
 	jr_initregs(sec_idx, caam);
 
 	return 0;
@@ -673,6 +680,13 @@ int sec_init_idx(uint8_t sec_idx)
 	caam_st.jrid = 0;
 	caam = &caam_st;
 #endif
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	ofnode scu_node = ofnode_by_compatible(ofnode_null(), "fsl,imx8-mu");
+
+	if (ofnode_valid(scu_node))
+		goto init;
+#endif
+
 	ccsr_sec_t *sec = caam->sec;
 	uint32_t mcr = sec_in32(&sec->mcfgr);
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_IMX8M)
@@ -735,11 +749,18 @@ int sec_init_idx(uint8_t sec_idx)
 	liodn_s = (liodnr & JRSLIODN_MASK) >> JRSLIODN_SHIFT;
 #endif
 #endif
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+init:
+#endif
 	ret = jr_init(sec_idx, caam);
 	if (ret < 0) {
 		printf("SEC%u:  initialization failed\n", sec_idx);
 		return -1;
 	}
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	if (ofnode_valid(scu_node))
+		return ret;
+#endif
 
 #ifdef CONFIG_FSL_CORENET
 	ret = sec_config_pamu_table(liodn_ns, liodn_s);
@@ -773,6 +794,23 @@ int sec_init(void)
 }
 
 #if CONFIG_IS_ENABLED(DM)
+static int jr_power_on(ofnode node)
+{
+#if CONFIG_IS_ENABLED(POWER_DOMAIN)
+	struct udevice __maybe_unused jr_dev;
+	struct power_domain pd;
+
+	dev_set_ofnode(&jr_dev, node);
+
+	/* Power on Job Ring before access it */
+	if (!power_domain_get(&jr_dev, &pd)) {
+		if (power_domain_on(&pd))
+			return -EINVAL;
+	}
+#endif
+	return 0;
+}
+
 static int caam_jr_ioctl(struct udevice *dev, unsigned long request, void *buf)
 {
 	if (request != CAAM_JR_RUN_DESC)
@@ -785,7 +823,7 @@ static int caam_jr_probe(struct udevice *dev)
 {
 	struct caam_regs *caam = dev_get_priv(dev);
 	fdt_addr_t addr;
-	ofnode node;
+	ofnode node, scu_node;
 	unsigned int jr_node = 0;
 
 	caam_dev = dev;
@@ -810,6 +848,11 @@ static int caam_jr_probe(struct udevice *dev)
 				jr_node = jr_node >> 4;
 
 			caam->jrid = jr_node - 1;
+			scu_node = ofnode_by_compatible(ofnode_null(), "fsl,imx8-mu");
+			if (ofnode_valid(scu_node)) {
+				if (jr_power_on(node))
+					return -EINVAL;
+			}
 			break;
 		}
 	}
