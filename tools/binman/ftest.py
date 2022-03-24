@@ -5603,5 +5603,43 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             data = control.ReadEntry(image_fname, entry_path)
             self.assertEqual(expected, data)
 
+    def testReplaceFitSubentryLeafSameSize(self):
+        """Test replacing a FIT leaf subentry with same-size data"""
+        new_data = b'x' * len(U_BOOT_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd(
+            'fit/kernel/u-boot', new_data,
+            dts='233_fit_extract_replace.dts')
+        self.assertEqual(new_data, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
+    def testReplaceFitSubentryLeafBiggerSize(self):
+        """Test replacing a FIT leaf subentry with bigger-size data"""
+        new_data = b'ub' * len(U_BOOT_NODTB_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd(
+            'fit/fdt-1/u-boot-nodtb', new_data,
+            dts='233_fit_extract_replace.dts')
+        self.assertEqual(new_data, data)
+
+        # Will be repacked, so fdtmap must change
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertNotEqual(expected_fdtmap, fdtmap)
+
+    def testReplaceFitSubentryLeafSmallerSize(self):
+        """Test replacing a FIT leaf subentry with smaller-size data"""
+        new_data = b'x'
+        expected = new_data.ljust(len(U_BOOT_NODTB_DATA), b'\0')
+        data, expected_fdtmap, _ = self._RunReplaceCmd(
+            'fit/fdt-1/u-boot-nodtb', new_data,
+            dts='233_fit_extract_replace.dts')
+        self.assertEqual(expected, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
 if __name__ == "__main__":
     unittest.main()
