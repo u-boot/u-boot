@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2021 NXP
  */
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
@@ -259,6 +259,30 @@
 				reg = <SC_R_UART_3>;
 				#power-domain-cells = <0>;
 				power-domains = <&pd_dma>;
+			};
+		};
+
+		pd_caam: PD_CAAM {
+			compatible = "nxp,imx8-pd";
+			reg = <SC_R_NONE>;
+			#power-domain-cells = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			pd_caam_jr1: PD_CAAM_JR1 {
+				reg = <SC_R_CAAM_JR1>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_caam>;
+			};
+			pd_caam_jr2: PD_CAAM_JR2 {
+				reg = <SC_R_CAAM_JR2>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_caam>;
+			};
+			pd_caam_jr3: PD_CAAM_JR3 {
+				reg = <SC_R_CAAM_JR3>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_caam>;
 			};
 		};
 	};
@@ -607,6 +631,41 @@
 					type = "critical";
 				};
 			};
+		};
+	};
+
+	crypto: caam@0x31400000 {
+		compatible = "fsl,sec-v4.0";
+		reg = <0 0x31400000 0 0x400000>;
+		interrupts = <GIC_SPI 148 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0 0x31400000 0x400000>;
+		fsl,first-jr-index = <2>;
+		fsl,sec-era = <9>;
+
+		sec_jr1: jr1@0x20000 {
+			compatible = "fsl,sec-v4.0-job-ring";
+			reg = <0x20000 0x1000>;
+			interrupts = <GIC_SPI 452 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&pd_caam_jr1>;
+			status = "disabled";
+		};
+
+		sec_jr2: jr2@30000 {
+			compatible = "fsl,sec-v4.0-job-ring";
+			reg = <0x30000 0x1000>;
+			interrupts = <GIC_SPI 453 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&pd_caam_jr2>;
+			status = "okay";
+		};
+
+		sec_jr3: jr3@40000 {
+			compatible = "fsl,sec-v4.0-job-ring";
+			reg = <0x40000 0x1000>;
+			interrupts = <GIC_SPI 454 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&pd_caam_jr3>;
+			status = "okay";
 		};
 	};
 };

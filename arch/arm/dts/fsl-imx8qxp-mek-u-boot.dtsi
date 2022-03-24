@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2021 NXP
  */
 
 &{/imx8qx-pm} {
@@ -80,6 +80,22 @@
 	u-boot,dm-spl;
 };
 
+&pd_caam {
+	u-boot,dm-spl;
+};
+
+&pd_caam_jr1 {
+	u-boot,dm-spl;
+};
+
+&pd_caam_jr2 {
+	u-boot,dm-spl;
+};
+
+&pd_caam_jr3 {
+	u-boot,dm-spl;
+};
+
 &gpio0 {
 	u-boot,dm-spl;
 };
@@ -125,4 +141,20 @@
 	u-boot,dm-spl;
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
+};
+
+&crypto {
+	u-boot,dm-spl;
+};
+
+&sec_jr1 {
+	u-boot,dm-spl;
+};
+
+&sec_jr2 {
+	u-boot,dm-spl;
+};
+
+&sec_jr3 {
+	u-boot,dm-spl;
 };
