@@ -14,7 +14,6 @@
 #include <errno.h>
 #include <netdev.h>
 #include <fsl_ddr.h>
-#include <fsl_sec.h>
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <linux/bitops.h>
@@ -591,10 +590,6 @@ int board_init(void)
 #if defined(CONFIG_FSL_MC_ENET) && defined(CONFIG_TARGET_LX2160ARDB)
 	/* invert AQR107 IRQ pins polarity */
 	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR107_IRQ_MASK);
-#endif
-
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
 #endif
 
 #if !defined(CONFIG_SYS_EARLY_PCI_INIT) && defined(CONFIG_DM_ETH)

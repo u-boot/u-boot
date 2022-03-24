@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -25,7 +26,6 @@
 #include <fsl_esdhc.h>
 #include <power/mc34vr500_pmic.h>
 #include "cpld.h"
-#include <fsl_sec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -94,10 +94,6 @@ int board_init(void)
 	out_le32(SMMU_SCR0, val);
 	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
 	out_le32(SMMU_NSCR0, val);
-#endif
-
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
 #endif
 
 #ifdef CONFIG_FSL_LS_PPA

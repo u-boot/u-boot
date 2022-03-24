@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor
+ * Copyright 2021 NXP
  */
 #include <common.h>
 #include <clock_legacy.h>
@@ -21,7 +22,6 @@
 #include <rtc.h>
 #include <asm/arch/soc.h>
 #include <hwconfig.h>
-#include <fsl_sec.h>
 #include <asm/arch/ppa.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include "../common/i2c_mux.h"
@@ -220,10 +220,6 @@ int board_init(void)
 #else
 	rtc_enable_32khz_output();
 #endif
-#endif
-
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
 #endif
 
 #ifdef CONFIG_FSL_LS_PPA

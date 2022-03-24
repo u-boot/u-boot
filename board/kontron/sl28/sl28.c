@@ -31,9 +31,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	if (CONFIG_IS_ENABLED(FSL_CAAM))
-		sec_init();
-
 	return 0;
 }
 
