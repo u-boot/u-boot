@@ -41,6 +41,9 @@ static inline ulong map_to_sysmem(void *ptr)
 	return (ulong)(uintptr_t)ptr;
 }
 
+#define ARCH_DMA_MINALIGN 1
+#define DEFINE_ALIGN_BUFFER(type, name, size, alugn) type name[size]
+
 #define MKIMAGE_TMPFILE_SUFFIX		".tmp"
 #define MKIMAGE_MAX_TMPFILE_LEN		256
 #define MKIMAGE_DEFAULT_DTC_OPTIONS	"-I dts -O dtb -p 500"
