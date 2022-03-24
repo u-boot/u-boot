@@ -653,6 +653,7 @@ config ARCH_T1024
 	bool
 	select BACKSIDE_L2_CACHE
 	select E500MC
+	select E5500
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -677,6 +678,7 @@ config ARCH_T1040
 	bool
 	select BACKSIDE_L2_CACHE
 	select E500MC
+	select E5500
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -701,6 +703,7 @@ config ARCH_T1042
 	bool
 	select BACKSIDE_L2_CACHE
 	select E500MC
+	select E5500
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -804,6 +807,9 @@ config E500MC
 	imply CMD_PCI
 	help
 		Enble PowerPC E500MC core
+
+config E5500
+	bool
 
 config E6500
 	bool

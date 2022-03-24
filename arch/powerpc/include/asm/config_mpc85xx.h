@@ -270,7 +270,6 @@
 #endif
 
 #elif defined(CONFIG_ARCH_T1040) || defined(CONFIG_ARCH_T1042)
-#define CONFIG_E5500
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
@@ -299,7 +298,6 @@
 #define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #elif defined(CONFIG_ARCH_T1024)
-#define CONFIG_E5500
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
 #define CONFIG_SYS_FSL_QMAN_V3	 /* QMAN version 3 */
