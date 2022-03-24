@@ -20,11 +20,6 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
-/* support deep sleep */
-#ifdef CONFIG_ARCH_T1024
-#define CONFIG_DEEP_SLEEP
-#endif
-
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_PAD_TO		0x40000

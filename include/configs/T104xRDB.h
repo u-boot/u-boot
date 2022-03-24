@@ -70,9 +70,6 @@
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 
-/* support deep sleep */
-#define CONFIG_DEEP_SLEEP
-
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
