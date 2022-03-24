@@ -154,6 +154,13 @@ config CC_COVERAGE
 	  Enabling this option will pass "--coverage" to gcc to compile
 	  and link code instrumented for coverage analysis.
 
+config ASAN
+	bool "Enable AddressSanitizer"
+	depends on SANDBOX
+	help
+	  Enables AddressSanitizer to discover out-of-bounds accesses,
+	  use-after-free, double-free and memory leaks.
+
 config CC_HAS_ASM_INLINE
 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
 
