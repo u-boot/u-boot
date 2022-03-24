@@ -4,6 +4,7 @@
  * Sascha Hauer, Pengutronix
  *
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -23,7 +24,6 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
-#include <fsl_sec.h>
 #include <imx_thermal.h>
 #include <mmc.h>
 
@@ -738,9 +738,14 @@ static void setup_serial_number(void)
 
 int arch_misc_init(void)
 {
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
-#endif
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
 	setup_serial_number();
 	return 0;
 }
