@@ -295,8 +295,7 @@ Available options
 
  -y, --yes
    Instead of prompting, automatically go ahead with all operations. This
-   includes cleaning up headers, CONFIG_SYS_EXTRA_OPTIONS, the config whitelist
-   and the README.
+   includes cleaning up headers, the config whitelist and the README.
 
 To see the complete list of supported options, run::
 
