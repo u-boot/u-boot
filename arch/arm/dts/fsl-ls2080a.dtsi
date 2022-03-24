@@ -239,6 +239,45 @@
 			status = "disabled";
 	};
 
+	crypto: crypto@8000000 {
+		compatible = "fsl,sec-v5.0", "fsl,sec-v4.0";
+		fsl,sec-era = <8>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0x0 0x00 0x8000000 0x100000>;
+		reg = <0x00 0x8000000 0x0 0x100000>;
+		interrupts = <0 139 0x4>;  /* Level high type */
+		dma-coherent;
+
+		sec_jr0: jr@10000 {
+			compatible = "fsl,sec-v5.0-job-ring",
+				     "fsl,sec-v4.0-job-ring";
+			reg	   = <0x10000 0x10000>;
+			interrupts = <0 140 0x4>;  /* Level high type */
+		};
+
+		sec_jr1: jr@20000 {
+			compatible = "fsl,sec-v5.0-job-ring",
+				     "fsl,sec-v4.0-job-ring";
+			reg	   = <0x20000 0x10000>;
+			interrupts = <0 141 0x4>;  /* Level high type */
+		};
+
+		sec_jr2: jr@30000 {
+			compatible = "fsl,sec-v5.0-job-ring",
+				     "fsl,sec-v4.0-job-ring";
+			reg	   = <0x30000 0x10000>;
+			interrupts = <0 142 0x4>;  /* Level high type */
+		};
+
+		sec_jr3: jr@40000 {
+			compatible = "fsl,sec-v5.0-job-ring",
+				     "fsl,sec-v4.0-job-ring";
+			reg	   = <0x40000 0x10000>;
+			interrupts = <0 143 0x4>;  /* Level high type */
+		};
+	};
+
 	fsl_mc: fsl-mc@80c000000 {
 		compatible = "fsl,qoriq-mc", "simple-mfd";
 		reg = <0x00000008 0x0c000000 0 0x40>,    /* MC portal base */
