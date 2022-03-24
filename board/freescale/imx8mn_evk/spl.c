@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2019, 2021 NXP
  *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -49,6 +49,11 @@ void spl_board_init(void)
 	struct udevice *dev;
 	int ret;
 
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
 	puts("Normal Boot\n");
 
 	ret = uclass_get_device_by_name(UCLASS_CLK,

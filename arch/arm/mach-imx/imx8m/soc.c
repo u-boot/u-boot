@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017-2019 NXP
+ * Copyright 2017-2019, 2021 NXP
  *
  * Peng Fan <peng.fan@nxp.com>
  */
@@ -21,6 +21,7 @@
 #include <asm/ptrace.h>
 #include <asm/armv8/mmu.h>
 #include <dm/uclass.h>
+#include <dm/device.h>
 #include <efi_loader.h>
 #include <env.h>
 #include <env_internal.h>
@@ -1212,6 +1213,14 @@ static void acquire_buildinfo(void)
 
 int arch_misc_init(void)
 {
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
 	acquire_buildinfo();
 
 	return 0;
