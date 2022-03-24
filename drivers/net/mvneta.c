@@ -286,6 +286,7 @@ struct mvneta_port {
 	struct phy_device *phydev;
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc phy_reset_gpio;
+	struct gpio_desc sfp_tx_disable_gpio;
 #endif
 	struct mii_dev *bus;
 };
@@ -1693,6 +1694,9 @@ static int mvneta_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	struct ofnode_phandle_args sfp_args;
+#endif
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	struct mii_dev *bus;
@@ -1767,6 +1771,11 @@ static int mvneta_probe(struct udevice *dev)
 		return ret;
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
+	ret = dev_read_phandle_with_args(dev, "sfp", NULL, 0, 0, &sfp_args);
+	if (!ret && ofnode_is_enabled(sfp_args.node))
+		gpio_request_by_name_nodev(sfp_args.node, "tx-disable-gpio", 0,
+					   &pp->sfp_tx_disable_gpio, GPIOD_IS_OUT);
+
 	gpio_request_by_name(dev, "phy-reset-gpios", 0,
 			     &pp->phy_reset_gpio, GPIOD_IS_OUT);
 
@@ -1775,6 +1784,9 @@ static int mvneta_probe(struct udevice *dev)
 		mdelay(10);
 		dm_gpio_set_value(&pp->phy_reset_gpio, 0);
 	}
+
+	if (dm_gpio_is_valid(&pp->sfp_tx_disable_gpio))
+		dm_gpio_set_value(&pp->sfp_tx_disable_gpio, 0);
 #endif
 
 	return board_network_enable(bus);
