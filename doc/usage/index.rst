@@ -43,6 +43,7 @@ Shell commands
    cmd/cat
    cmd/cbsysinfo
    cmd/cedit
+   cmd/cli
    cmd/cls
    cmd/cmp
    cmd/coninfo
