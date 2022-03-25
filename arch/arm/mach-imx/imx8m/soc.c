@@ -600,6 +600,9 @@ enum boot_device get_boot_device(void)
 	case BT_DEV_TYPE_FLEXSPINOR:
 		boot_dev = QSPI_BOOT;
 		break;
+	case BT_DEV_TYPE_SPI_NOR:
+		boot_dev = SPI_NOR_BOOT;
+		break;
 	case BT_DEV_TYPE_USB:
 		boot_dev = USB_BOOT;
 		break;
@@ -1346,6 +1349,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 	switch (dev) {
 	case QSPI_BOOT:
+	case SPI_NOR_BOOT:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
 			return ENVL_SPI_FLASH;
 		return ENVL_NOWHERE;
