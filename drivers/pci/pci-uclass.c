@@ -1533,8 +1533,8 @@ static phys_addr_t dm_pci_map_ea_virt(struct udevice *dev, int ea_off,
 	return addr;
 }
 
-static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
-			       int ea_off, struct pci_child_plat *pdata)
+static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int ea_off,
+			       struct pci_child_plat *pdata)
 {
 	int ea_cnt, i, entry_size;
 	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
@@ -1577,13 +1577,13 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 			addr += dm_pci_map_ea_virt(dev, ea_off, pdata);
 
 		/* size ignored for now */
-		return map_physmem(addr, 0, flags);
+		return map_physmem(addr, 0, MAP_NOCACHE);
 	}
 
 	return 0;
 }
 
-void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
+void *dm_pci_map_bar(struct udevice *dev, int bar, unsigned long flags)
 {
 	struct pci_child_plat *pdata = dev_get_parent_plat(dev);
 	struct udevice *udev = dev;
@@ -1608,7 +1608,7 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	 */
 	ea_off = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
 	if (ea_off)
-		return dm_pci_map_ea_bar(udev, bar, flags, ea_off, pdata);
+		return dm_pci_map_ea_bar(udev, bar, ea_off, pdata);
 
 	/* read BAR address */
 	dm_pci_read_config32(udev, bar, &bar_response);
