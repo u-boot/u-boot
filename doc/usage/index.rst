@@ -52,3 +52,4 @@ Shell commands
    size
    true
    ums
+   wdt
