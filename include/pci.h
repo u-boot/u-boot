@@ -1318,11 +1318,12 @@ u32 dm_pci_read_bar32(const struct udevice *dev, int barnum);
  * @dev:	Device containing the PCI address
  * @addr:	PCI address to convert
  * @len:	Length of the address range
+ * @mask:	Mask to match flags for the region type
  * @flags:	Flags for the region type (PCI_REGION_...)
  * Return: physical address corresponding to that PCI bus address
  */
 phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t addr, size_t len,
-			       unsigned long flags);
+			       unsigned long mask, unsigned long flags);
 
 /**
  * dm_pci_phys_to_bus() - convert a physical address to a PCI bus address
@@ -1330,11 +1331,12 @@ phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t addr, size_t len,
  * @dev:	Device containing the bus address
  * @addr:	Physical address to convert
  * @len:	Length of the address range
+ * @mask:	Mask to match flags for the region type
  * @flags:	Flags for the region type (PCI_REGION_...)
  * Return: PCI bus address corresponding to that physical address
  */
 pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr, size_t len,
-			      unsigned long flags);
+			      unsigned long mask, unsigned long flags);
 
 /**
  * dm_pci_map_bar() - get a virtual address associated with a BAR region
@@ -1458,19 +1460,19 @@ int dm_pci_find_ext_capability(struct udevice *dev, int cap);
 int dm_pci_flr(struct udevice *dev);
 
 #define dm_pci_virt_to_bus(dev, addr, flags) \
-	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), 0, (flags))
+	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), 0, PCI_REGION_TYPE, (flags))
 #define dm_pci_bus_to_virt(dev, addr, flags, len, map_flags) \
-	map_physmem(dm_pci_bus_to_phys(dev, (addr), (len), (flags)), \
+	map_physmem(dm_pci_bus_to_phys(dev, (addr), (len), PCI_REGION_TYPE, (flags)), \
 		    (len), (map_flags))
 
 #define dm_pci_phys_to_mem(dev, addr) \
-	dm_pci_phys_to_bus((dev), (addr), 0, PCI_REGION_MEM)
+	dm_pci_phys_to_bus((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_MEM)
 #define dm_pci_mem_to_phys(dev, addr) \
-	dm_pci_bus_to_phys((dev), (addr), 0, PCI_REGION_MEM)
+	dm_pci_bus_to_phys((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_MEM)
 #define dm_pci_phys_to_io(dev, addr) \
-	dm_pci_phys_to_bus((dev), (addr), 0, PCI_REGION_IO)
+	dm_pci_phys_to_bus((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_IO)
 #define dm_pci_io_to_phys(dev, addr) \
-	dm_pci_bus_to_phys((dev), (addr), 0, PCI_REGION_IO)
+	dm_pci_bus_to_phys((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_IO)
 
 #define dm_pci_virt_to_mem(dev, addr) \
 	dm_pci_virt_to_bus((dev), (addr), PCI_REGION_MEM)
