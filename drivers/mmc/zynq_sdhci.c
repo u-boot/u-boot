@@ -765,6 +765,15 @@ static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 
 	mhz = DIV64_U64_ROUND_UP(clock, 1000000);
 
+	if (mhz > 100 && mhz <= 200)
+		mhz = 200;
+	else if (mhz > 50 && mhz <= 100)
+		mhz = 100;
+	else if (mhz > 25 && mhz <= 50)
+		mhz = 50;
+	else
+		mhz = 25;
+
 	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_BASECLK, mhz);
 	if (ret) {
 		dev_err(dev, "SD_CONFIG_BASECLK failed\n");
