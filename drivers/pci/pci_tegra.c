@@ -325,8 +325,8 @@ static int pci_tegra_read_config(const struct udevice *bus, pci_dev_t bdf,
 	/* fixup root port class */
 	if (PCI_BUS(bdf) == 0) {
 		if ((offset & ~3) == PCI_CLASS_REVISION) {
-			value &= ~0x00ff0000;
-			value |= PCI_CLASS_BRIDGE_PCI << 16;
+			value &= ~0x00ffff00;
+			value |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
 		}
 	}
 #endif

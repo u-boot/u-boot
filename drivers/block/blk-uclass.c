@@ -712,7 +712,7 @@ int blk_unbind_all(int if_type)
 
 static int blk_post_probe(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_PARTITIONS) &&
+	if (CONFIG_IS_ENABLED(PARTITIONS) &&
 	    IS_ENABLED(CONFIG_HAVE_BLOCK_DEVICE)) {
 		struct blk_desc *desc = dev_get_uclass_plat(dev);
 

@@ -335,6 +335,102 @@ static struct aspeed_sig_desc pcie1rc_link[] = {
 	{ 0x500, BIT(24), 0 }, /* dedicate rc reset */
 };
 
+static struct aspeed_sig_desc pwm0[] = {
+	{0x41c, BIT(16), 0},
+};
+
+static struct aspeed_sig_desc pwm1[] = {
+	{0x41c, BIT(17), 0},
+};
+
+static struct aspeed_sig_desc pwm2[] = {
+	{0x41c, BIT(18), 0},
+};
+
+static struct aspeed_sig_desc pwm3[] = {
+	{0x41c, BIT(19), 0},
+};
+
+static struct aspeed_sig_desc pwm4[] = {
+	{0x41c, BIT(20), 0},
+};
+
+static struct aspeed_sig_desc pwm5[] = {
+	{0x41c, BIT(21), 0},
+};
+
+static struct aspeed_sig_desc pwm6[] = {
+	{0x41c, BIT(22), 0},
+};
+
+static struct aspeed_sig_desc pwm7[] = {
+	{0x41c, BIT(23), 0},
+};
+
+static struct aspeed_sig_desc pwm8g0[] = {
+	{0x4B4, BIT(8), 0},
+};
+
+static struct aspeed_sig_desc pwm8g1[] = {
+	{0x41c, BIT(24), 0},
+};
+
+static struct aspeed_sig_desc pwm9g0[] = {
+	{0x4B4, BIT(9), 0},
+};
+
+static struct aspeed_sig_desc pwm9g1[] = {
+	{0x41c, BIT(25), 0},
+};
+
+static struct aspeed_sig_desc pwm10g0[] = {
+	{0x4B4, BIT(10), 0},
+};
+
+static struct aspeed_sig_desc pwm10g1[] = {
+	{0x41c, BIT(26), 0},
+};
+
+static struct aspeed_sig_desc pwm11g0[] = {
+	{0x4B4, BIT(11), 0},
+};
+
+static struct aspeed_sig_desc pwm11g1[] = {
+	{0x41c, BIT(27), 0},
+};
+
+static struct aspeed_sig_desc pwm12g0[] = {
+	{0x4B4, BIT(12), 0},
+};
+
+static struct aspeed_sig_desc pwm12g1[] = {
+	{0x41c, BIT(28), 0},
+};
+
+static struct aspeed_sig_desc pwm13g0[] = {
+	{0x4B4, BIT(13), 0},
+};
+
+static struct aspeed_sig_desc pwm13g1[] = {
+	{0x41c, BIT(29), 0},
+};
+
+static struct aspeed_sig_desc pwm14g0[] = {
+	{0x4B4, BIT(14), 0},
+};
+
+static struct aspeed_sig_desc pwm14g1[] = {
+	{0x41c, BIT(30), 0},
+};
+
+static struct aspeed_sig_desc pwm15g0[] = {
+	{0x4B4, BIT(15), 0},
+};
+
+static struct aspeed_sig_desc pwm15g1[] = {
+	{0x41c, BIT(31), 0},
+};
+
 static const struct aspeed_group_config ast2600_groups[] = {
 	{ "MAC1LINK", ARRAY_SIZE(mac1_link), mac1_link },
 	{ "MAC2LINK", ARRAY_SIZE(mac2_link), mac2_link },
@@ -394,6 +490,30 @@ static const struct aspeed_group_config ast2600_groups[] = {
 	{ "USB2BH", ARRAY_SIZE(usb2bh_link), usb2bh_link },
 	{ "PCIE0RC", ARRAY_SIZE(pcie0rc_link), pcie0rc_link },
 	{ "PCIE1RC", ARRAY_SIZE(pcie1rc_link), pcie1rc_link },
+	{ "PWM0", ARRAY_SIZE(pwm0), pwm0 },
+	{ "PWM1", ARRAY_SIZE(pwm1), pwm1 },
+	{ "PWM2", ARRAY_SIZE(pwm2), pwm2 },
+	{ "PWM3", ARRAY_SIZE(pwm3), pwm3 },
+	{ "PWM4", ARRAY_SIZE(pwm4), pwm4 },
+	{ "PWM5", ARRAY_SIZE(pwm5), pwm5 },
+	{ "PWM6", ARRAY_SIZE(pwm6), pwm6 },
+	{ "PWM7", ARRAY_SIZE(pwm7), pwm7 },
+	{ "PWM8G0", ARRAY_SIZE(pwm8g0), pwm8g0 },
+	{ "PWM8G1", ARRAY_SIZE(pwm8g1), pwm8g1 },
+	{ "PWM9G0", ARRAY_SIZE(pwm9g0), pwm9g0 },
+	{ "PWM9G1", ARRAY_SIZE(pwm9g1), pwm9g1 },
+	{ "PWM10G0", ARRAY_SIZE(pwm10g0), pwm10g0 },
+	{ "PWM10G1", ARRAY_SIZE(pwm10g1), pwm10g1 },
+	{ "PWM11G0", ARRAY_SIZE(pwm11g0), pwm11g0 },
+	{ "PWM11G1", ARRAY_SIZE(pwm11g1), pwm11g1 },
+	{ "PWM12G0", ARRAY_SIZE(pwm12g0), pwm12g0 },
+	{ "PWM12G1", ARRAY_SIZE(pwm12g1), pwm12g1 },
+	{ "PWM13G0", ARRAY_SIZE(pwm13g0), pwm13g0 },
+	{ "PWM13G1", ARRAY_SIZE(pwm13g1), pwm13g1 },
+	{ "PWM14G0", ARRAY_SIZE(pwm14g0), pwm14g0 },
+	{ "PWM14G1", ARRAY_SIZE(pwm14g1), pwm14g1 },
+	{ "PWM15G0", ARRAY_SIZE(pwm15g0), pwm15g0 },
+	{ "PWM15G1", ARRAY_SIZE(pwm15g1), pwm15g1 },
 };
 
 static int ast2600_pinctrl_get_groups_count(struct udevice *dev)

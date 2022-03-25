@@ -1123,7 +1123,7 @@ static int iproc_pcie_check_link(struct iproc_pcie *pcie)
 				    PCI_BRIDGE_CTRL_REG_OFFSET,
 				    4, &class);
 	class &= ~PCI_BRIDGE_CTRL_REG_CLASS_MASK;
-	class |= (PCI_CLASS_BRIDGE_PCI << 8);
+	class |= PCI_CLASS_BRIDGE_PCI_NORMAL;
 	iproc_pci_raw_config_write32(pcie, 0,
 				     PCI_BRIDGE_CTRL_REG_OFFSET,
 				     4, class);

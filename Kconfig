@@ -72,14 +72,31 @@ config CLANG_VERSION
 	int
 	default $(shell,$(srctree)/scripts/clang-version.sh $(CC))
 
+choice
+	prompt "Optimization level"
+	default CC_OPTIMIZE_FOR_SIZE
+
 config CC_OPTIMIZE_FOR_SIZE
 	bool "Optimize for size"
-	default y
 	help
-	  Enabling this option will pass "-Os" instead of "-O2" to gcc
-	  resulting in a smaller U-Boot image.
+	  Enabling this option will pass "-Os" to gcc, resulting in a smaller
+	  U-Boot image.
 
 	  This option is enabled by default for U-Boot.
+
+config CC_OPTIMIZE_FOR_SPEED
+	bool "Optimize for speed"
+	help
+	  Enabling this option will pass "-O2" to gcc, resulting in a faster
+	  U-Boot image.
+
+config CC_OPTIMIZE_FOR_DEBUG
+	bool "Optimize for debugging"
+	help
+	  Enabling this option will pass "-Og" to gcc, enabling optimizations
+	  which don't interfere with debugging.
+
+endchoice
 
 config OPTIMIZE_INLINING
 	bool "Allow compiler to uninline functions marked 'inline' in full U-Boot"

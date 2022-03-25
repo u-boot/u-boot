@@ -351,7 +351,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 
 	/* Initialize Root Complex registers. */
 	writel(PCIE_LM_VENDOR_ROCKCHIP, priv->apb_base + PCIE_LM_VENDOR_ID);
-	writel(PCI_CLASS_BRIDGE_PCI << 16,
+	writel(PCI_CLASS_BRIDGE_PCI_NORMAL << 8,
 	       priv->apb_base + PCIE_RC_BASE + PCI_CLASS_REVISION);
 	writel(PCIE_LM_RCBARPIE | PCIE_LM_RCBARPIS,
 	       priv->apb_base + PCIE_LM_RCBAR);
