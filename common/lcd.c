@@ -90,54 +90,6 @@ static void lcd_stub_puts(struct stdio_dev *dev, const char *s)
 	lcd_puts(s);
 }
 
-/* Small utility to check that you got the colours right */
-#ifdef LCD_TEST_PATTERN
-
-#if LCD_BPP == LCD_COLOR8
-#define	N_BLK_VERT	2
-#define	N_BLK_HOR	3
-
-static int test_colors[N_BLK_HOR * N_BLK_VERT] = {
-	CONSOLE_COLOR_RED,	CONSOLE_COLOR_GREEN,	CONSOLE_COLOR_YELLOW,
-	CONSOLE_COLOR_BLUE,	CONSOLE_COLOR_MAGENTA,	CONSOLE_COLOR_CYAN,
-}; /*LCD_BPP == LCD_COLOR8 */
-
-#elif LCD_BPP == LCD_COLOR16
-#define	N_BLK_VERT	2
-#define	N_BLK_HOR	4
-
-static int test_colors[N_BLK_HOR * N_BLK_VERT] = {
-	CONSOLE_COLOR_RED,	CONSOLE_COLOR_GREEN,	CONSOLE_COLOR_YELLOW,	CONSOLE_COLOR_BLUE,
-	CONSOLE_COLOR_MAGENTA,	CONSOLE_COLOR_CYAN,	CONSOLE_COLOR_GREY,	CONSOLE_COLOR_WHITE,
-};
-#endif /*LCD_BPP == LCD_COLOR16 */
-
-static void test_pattern(void)
-{
-	ushort v_max  = panel_info.vl_row;
-	ushort h_max  = panel_info.vl_col;
-	ushort v_step = (v_max + N_BLK_VERT - 1) / N_BLK_VERT;
-	ushort h_step = (h_max + N_BLK_HOR  - 1) / N_BLK_HOR;
-	ushort v, h;
-#if LCD_BPP == LCD_COLOR8
-	uchar *pix = (uchar *)lcd_base;
-#elif LCD_BPP == LCD_COLOR16
-	ushort *pix = (ushort *)lcd_base;
-#endif
-
-	printf("[LCD] Test Pattern: %d x %d [%d x %d]\n",
-		h_max, v_max, h_step, v_step);
-
-	for (v = 0; v < v_max; ++v) {
-		uchar iy = v / v_step;
-		for (h = 0; h < h_max; ++h) {
-			uchar ix = N_BLK_HOR * iy + h / h_step;
-			*pix++ = test_colors[ix];
-		}
-	}
-}
-#endif /* LCD_TEST_PATTERN */
-
 /*
  * With most lcd drivers the line length is set up
  * by calculating it from panel_info parameters. Some
@@ -201,9 +153,6 @@ void lcd_clear(void)
 	bg_color = CONSOLE_COLOR_BLACK;
 #endif	/* CONFIG_SYS_WHITE_ON_BLACK */
 
-#ifdef	LCD_TEST_PATTERN
-	test_pattern();
-#else
 	/* set framebuffer to background color */
 #if (LCD_BPP != LCD_COLOR32)
 	memset((char *)lcd_base, bg_color, lcd_line_length * panel_info.vl_row);
@@ -215,7 +164,6 @@ void lcd_clear(void)
 	   i++) {
 		*ppix++ = bg_color;
 	}
-#endif
 #endif
 	/* setup text-console */
 	debug("[LCD] setting up console...\n");

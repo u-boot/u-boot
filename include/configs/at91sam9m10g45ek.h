@@ -18,12 +18,6 @@
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
-#define CONFIG_LCD_LOGO
-#undef LCD_TEST_PATTERN
-#define CONFIG_LCD_INFO
-#define CONFIG_LCD_INFO_BELOW_LOGO
-#define CONFIG_ATMEL_LCD
-#define CONFIG_ATMEL_LCD_RGB565
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           0x70000000
@@ -45,10 +39,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC8
 
 #endif
-
-/* Ethernet */
-#define CONFIG_RESET_PHY_R
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */

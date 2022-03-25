@@ -994,10 +994,6 @@ The following options need to be configured:
 		display); also select one of the supported displays
 		by defining one of these:
 
-		CONFIG_ATMEL_LCD:
-
-			HITACHI TX09D70VM1CCA, 3.5", 240x320.
-
 		CONFIG_NEC_NL6448AC33:
 
 			NEC NL6448AC33-18. Active, color, single scan.
@@ -1074,13 +1070,6 @@ The following options need to be configured:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
 		The clock frequency of the MII bus
-
-		CONFIG_PHY_RESET_DELAY
-
-		Some PHY like Intel LXT971A need extra delay after
-		reset before any MII register access is possible.
-		For such PHY, set this option to the usec delay
-		required. (minimum 300usec for LXT971A)
 
 		CONFIG_PHY_CMD_DELAY (ppc4xx)
 
@@ -1612,26 +1601,6 @@ The following options need to be configured:
 		this is instead controlled by the value of
 		/config/load-environment.
 
-- TFTP Fixed UDP Port:
-		CONFIG_TFTP_PORT
-
-		If this is defined, the environment variable tftpsrcp
-		is used to supply the TFTP UDP source port value.
-		If tftpsrcp isn't defined, the normal pseudo-random port
-		number generator is used.
-
-		Also, the environment variable tftpdstp is used to supply
-		the TFTP UDP destination port value.  If tftpdstp isn't
-		defined, the normal port 69 is used.
-
-		The purpose for tftpsrcp is to allow a TFTP server to
-		blindly start the TFTP transfer using the pre-configured
-		target IP address and UDP port. This has the effect of
-		"punching through" the (Windows XP) firewall, allowing
-		the remainder of the TFTP transfer to proceed normally.
-		A better solution is to properly configure the firewall,
-		but sometimes that is not allowed.
-
 		CONFIG_STANDALONE_LOAD_ADDR
 
 		This option defines a board specific value for the
@@ -2129,14 +2098,6 @@ Configuration Settings:
 		while unprotecting/erasing/programming. Please only enable
 		this option if you really know what you are doing.
 
-- CONFIG_SYS_RX_ETH_BUFFER:
-		Defines the number of Ethernet receive buffers. On some
-		Ethernet controllers it is recommended to set this value
-		to 8 or even higher (EEPRO100 or 405 EMAC), since all
-		buffers can be full shortly after enabling the interface
-		on high Ethernet traffic.
-		Defaults to 4 if not defined.
-
 - CONFIG_ENV_MAX_ENTRIES
 
 	Maximum number of entries in the hash table that is used
@@ -2233,12 +2194,6 @@ have any device yet where we could complain.]
 Note: once the monitor has been relocated, then it will complain if
 the default environment is used; a new CRC is computed as soon as you
 use the "saveenv" command to store a valid environment.
-
-- CONFIG_SYS_FAULT_ECHO_LINK_DOWN:
-		Echo the inverted Ethernet link state to the fault LED.
-
-		Note: If this option is active, then CONFIG_SYS_FAULT_MII_ADDR
-		      also needs to be defined.
 
 - CONFIG_SYS_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.

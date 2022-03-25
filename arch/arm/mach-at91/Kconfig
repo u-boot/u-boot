@@ -81,6 +81,7 @@ config TARGET_ETHERNUT5
 config TARGET_SNAPPER9260
 	bool "Support snapper9260"
 	select AT91SAM9260
+	select AT91_WANTS_COMMON_PHY
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
@@ -89,6 +90,7 @@ config TARGET_SNAPPER9260
 config TARGET_GURNARD
 	bool "Support gurnard"
 	select AT91SAM9G45
+	select AT91_WANTS_COMMON_PHY
 	select BOARD_LATE_INIT
 	select DM
 	select DM_ETH
@@ -115,6 +117,7 @@ config TARGET_AT91SAM9263EK
 config TARGET_USB_A9263
 	bool "Caloa USB A9260 board"
 	select AT91SAM9263
+	select AT91_WANTS_COMMON_PHY
 
 config TARGET_PM9263
 	bool "Ronetix pm9263 board"
@@ -250,6 +253,7 @@ config TARGET_MEESC
 config TARGET_CORVUS
 	bool "Support corvus"
 	select AT91SAM9M10G45
+	select AT91_WANTS_COMMON_PHY
 	select DM
 	select DM_ETH
 	select DM_GPIO
@@ -267,6 +271,7 @@ config TARGET_SAMA7G5EK
 config TARGET_TAURUS
 	bool "Support taurus"
 	select AT91SAM9G20
+	select AT91_WANTS_COMMON_PHY
 	select DM
 	select DM_ETH
 	select DM_GPIO
@@ -279,6 +284,7 @@ config TARGET_TAURUS
 config TARGET_SMARTWEB
 	bool "Support smartweb"
 	select AT91SAM9260
+	select AT91_WANTS_COMMON_PHY
 	select DM
 	select DM_ETH
 	select DM_GPIO
@@ -317,6 +323,9 @@ config AT91_GPIO_PULLUP
 
 config ATMEL_LEGACY
 	bool "Legacy GPIO support"
+
+config AT91_WANTS_COMMON_PHY
+	bool
 
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"

@@ -39,10 +39,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PD3
 #endif
 
-/* Ethernet */
-#define CONFIG_RESET_PHY_R
-#define CONFIG_AT91_WANTS_COMMON_PHY
-
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */
 #elif CONFIG_SD_BOOT

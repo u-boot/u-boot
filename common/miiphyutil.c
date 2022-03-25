@@ -366,7 +366,7 @@ int miiphy_reset(const char *devname, unsigned char addr)
 		debug("PHY reset failed\n");
 		return -1;
 	}
-#ifdef CONFIG_PHY_RESET_DELAY
+#if CONFIG_PHY_RESET_DELAY > 0
 	udelay(CONFIG_PHY_RESET_DELAY);	/* Intel LXT971A needs this */
 #endif
 	/*

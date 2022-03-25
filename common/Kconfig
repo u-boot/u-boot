@@ -611,6 +611,12 @@ config PCI_INIT_R
 	  case of DM PCI-based Ethernet devices, which will not be detected
 	  without having the enumeration performed earlier.
 
+config RESET_PHY_R
+	bool "Reset ethernet PHY during init"
+	help
+	  Implement reset_phy() in board code if required to reset the ethernet
+	  PHY.
+
 endmenu
 
 endmenu		# Init options

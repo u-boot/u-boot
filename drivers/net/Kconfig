@@ -423,6 +423,11 @@ config KSZ9477
 	  This driver implements a DSA switch driver for the KSZ9477 family
 	  of GbE switches using the I2C interface.
 
+config LPC32XX_ETH
+	bool "LPC32xx Ethernet MAC interface driver"
+	depends on ARCH_LPC32XX
+	default y
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on ARCH_KIRKWOOD || ARCH_ORION5X
@@ -534,6 +539,11 @@ config MII
 	bool "Enable MII"
 	help
 	  Enable support of the Media-Independent Interface (MII)
+
+config RMII
+	bool "Enable RMII"
+	help
+	  Enable support of the Reduced Media-Independent Interface (MII)
 
 config PCNET
 	bool "AMD PCnet series Ethernet controller driver"

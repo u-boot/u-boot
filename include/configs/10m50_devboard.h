@@ -23,12 +23,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 
 /*
- * NET options
- */
-#define CONFIG_SYS_RX_ETH_BUFFER	0
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-
-/*
  * BOOTP options
  */
 

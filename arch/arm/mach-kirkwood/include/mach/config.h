@@ -46,14 +46,6 @@
 #endif
 
 /*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
-#define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
-#endif /* CONFIG_CMD_NET */
-
-/*
  * IDE Support on SATA ports
  */
 #ifdef CONFIG_IDE

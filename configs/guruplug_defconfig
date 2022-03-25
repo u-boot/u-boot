@@ -18,6 +18,7 @@ CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs ${console} ${mtdparts} ${bootargs_root}; ubi part root; ubifsmount ubi:rootfs; ubifsload 0x800000 ${kernel}; ubifsload 0x700000 ${fdt}; ubifsumount; fdt addr 0x700000; fdt resize; fdt chosen; bootz 0x800000 - 0x700000"
 CONFIG_USE_PREBOOT=y
 # CONFIG_DISPLAY_BOARDINFO is not set
+CONFIG_RESET_PHY_R=y
 CONFIG_HUSH_PARSER=y
 CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_FLASH is not set
@@ -42,6 +43,7 @@ CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_NAND=y
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 CONFIG_NETCONSOLE=y
+CONFIG_SYS_FAULT_ECHO_LINK_DOWN=y
 CONFIG_DM=y
 CONFIG_SYS_ATA_STRIDE=4
 CONFIG_SYS_ATA_DATA_OFFSET=0x100

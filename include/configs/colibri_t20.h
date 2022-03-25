@@ -15,9 +15,6 @@
 #define CONFIG_TEGRA_UARTA_SDIO1
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-/* LCD support */
-#define CONFIG_LCD_LOGO
-
 /* NAND support */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 

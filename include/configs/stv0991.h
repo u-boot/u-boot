@@ -29,9 +29,6 @@
 
 #define CONFIG_DW_ALTDESCRIPTOR
 
-/* Command support defines */
-#define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-
 /* Misc configuration */
 
 /*

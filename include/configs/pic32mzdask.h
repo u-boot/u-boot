@@ -44,11 +44,6 @@
  */
 #define CONFIG_SYS_CBSIZE		1024 /* Console I/O Buffer Size   */
 
-/*-----------------------------------------------------------------------
- * Networking Configuration
- */
-#define CONFIG_SYS_RX_ETH_BUFFER	8
-
 /*--------------------------------------------------
  * USB Configuration
  */

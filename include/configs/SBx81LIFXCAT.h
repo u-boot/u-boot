@@ -51,7 +51,6 @@
 
 #include <asm/arch/config.h>
 /* There is no PHY directly connected so don't ask it for link status */
-#undef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 
 /*
  * Ethernet Driver configuration

@@ -32,7 +32,6 @@
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* LED */
-#define CONFIG_AT91_LED
 #define CONFIG_RED_LED		AT91_PIN_PD31	/* this is the user1 led */
 #define CONFIG_GREEN_LED	AT91_PIN_PD0	/* this is the user2 led */
 
@@ -55,10 +54,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC8
 #endif
-
-/* Ethernet */
-#define CONFIG_RMII
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000

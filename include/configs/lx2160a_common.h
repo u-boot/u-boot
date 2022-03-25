@@ -68,11 +68,6 @@
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET	0x00F20000
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS	5000
 
-/* Define phy_reset function to boot the MC based on mcinitcmd.
- * This happens late enough to properly fixup u-boot env MAC addresses.
- */
-#define CONFIG_RESET_PHY_R
-
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux
  *
