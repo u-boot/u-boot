@@ -645,7 +645,11 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 		return log_msg_ret("probe", -EINVAL);
 	}
 
-	ea_pos = dm_pci_find_capability(bus, PCI_CAP_ID_EA);
+	if (IS_ENABLED(CONFIG_PCI_ENHANCED_ALLOCATION))
+		ea_pos = dm_pci_find_capability(bus, PCI_CAP_ID_EA);
+	else
+		ea_pos = 0;
+
 	if (ea_pos) {
 		dm_pci_read_config8(bus, ea_pos + sizeof(u32) + sizeof(u8),
 				    &reg);
@@ -1606,7 +1610,11 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, unsigned long flags)
 	 * Incase of virtual functions, pdata will help read VF BEI
 	 * and EA entry size.
 	 */
-	ea_off = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
+	if (IS_ENABLED(CONFIG_PCI_ENHANCED_ALLOCATION))
+		ea_off = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
+	else
+		ea_off = 0;
+
 	if (ea_off)
 		return dm_pci_map_ea_bar(udev, bar, ea_off, pdata);
 

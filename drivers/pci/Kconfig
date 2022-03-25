@@ -67,6 +67,13 @@ config PCI_SRIOV
 	  if available on a PCI Physical Function device and probe for
 	  applicable drivers.
 
+config PCI_ENHANCED_ALLOCATION
+	bool "Enable support for Enhanced Allocation of resources"
+	default y
+	help
+	  Enable support for Enhanced Allocation which can be used by supported
+	  devices in place of traditional BARS for allocation of resources.
+
 config PCI_ARID
         bool "Enable Alternate Routing-ID support for PCI"
         help
