@@ -214,7 +214,7 @@ stages:
           cd ${WORK_DIR}
           export USER=azure
           pip install -r test/py/requirements.txt
-          pip install asteval pylint pyopenssl
+          pip install asteval pylint==2.12.2 pyopenssl
           export PATH=${PATH}:~/.local/bin
           echo "[MASTER]" >> .pylintrc
           echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
