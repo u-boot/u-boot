@@ -88,6 +88,36 @@ struct imx_pwm_priv {
 	struct clk ipg_clk;
 };
 
+int pwm_dm_imx_get_parms(struct imx_pwm_priv *priv, int period_ns,
+		      int duty_ns, unsigned long *period_c, unsigned long *duty_c,
+		      unsigned long *prescale)
+{
+	unsigned long long c;
+
+	c = clk_get_rate(&priv->per_clk);
+	c = c * period_ns;
+	do_div(c, 1000000000);
+	*period_c = c;
+
+	*prescale = *period_c / 0x10000 + 1;
+
+	*period_c /= *prescale;
+	c = *period_c * (unsigned long long)duty_ns;
+	do_div(c, period_ns);
+	*duty_c = c;
+
+	/*
+	 * according to imx pwm RM, the real period value should be
+	 * PERIOD value in PWMPR plus 2.
+	 */
+	if (*period_c > 2)
+		*period_c -= 2;
+	else
+		*period_c = 0;
+
+	return 0;
+}
+
 static int imx_pwm_set_invert(struct udevice *dev, uint channel,
 			      bool polarity)
 {
@@ -108,7 +138,7 @@ static int imx_pwm_set_config(struct udevice *dev, uint channel,
 
 	debug("%s: Config '%s' channel: %d\n", __func__, dev->name, channel);
 
-	pwm_imx_get_parms(period_ns, duty_ns, &period_cycles, &duty_cycles,
+	pwm_dm_imx_get_parms(priv, period_ns, duty_ns, &period_cycles, &duty_cycles,
 			  &prescale);
 
 	return pwm_config_internal(regs, period_cycles, duty_cycles, prescale);
