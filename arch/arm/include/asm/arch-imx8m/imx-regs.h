@@ -336,6 +336,15 @@ struct src {
 #define PWMCR_CLKSRC_IPG	(1 << 16)
 #define PWMCR_EN		(1 << 0)
 
+struct pwm_regs {
+	u32	cr;
+	u32	sr;
+	u32	ir;
+	u32	sar;
+	u32	pr;
+	u32	cnr;
+};
+
 #define WDOG_WDT_MASK	BIT(3)
 #define WDOG_WDZST_MASK	BIT(0)
 struct wdog_regs {
