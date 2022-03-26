@@ -25,6 +25,7 @@ int pwm_init(int pwm_id, int div, int invert)
 	writel(0, &pwm->ir);
 	return 0;
 }
+#include <clk.h>
 
 int pwm_config_internal(struct pwm_regs *pwm, unsigned long period_cycles,
 			unsigned long duty_cycles, unsigned long prescale)
@@ -83,6 +84,8 @@ void pwm_disable(int pwm_id)
 struct imx_pwm_priv {
 	struct pwm_regs *regs;
 	bool invert;
+	struct clk per_clk;
+	struct clk ipg_clk;
 };
 
 static int imx_pwm_set_invert(struct udevice *dev, uint channel,
@@ -128,15 +131,43 @@ static int imx_pwm_set_enable(struct udevice *dev, uint channel, bool enable)
 
 static int imx_pwm_of_to_plat(struct udevice *dev)
 {
+	int ret;
 	struct imx_pwm_priv *priv = dev_get_priv(dev);
 
 	priv->regs = dev_read_addr_ptr(dev);
+
+	ret = clk_get_by_name(dev, "per", &priv->per_clk);
+	if (ret) {
+		printf("Failed to get per_clk\n");
+		return ret;
+	}
+
+	ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
+	if (ret) {
+		printf("Failed to get ipg_clk\n");
+		return ret;
+	}
 
 	return 0;
 }
 
 static int imx_pwm_probe(struct udevice *dev)
 {
+	int ret;
+	struct imx_pwm_priv *priv = dev_get_priv(dev);
+
+	ret = clk_enable(&priv->per_clk);
+	if (ret) {
+		printf("Failed to enable per_clk\n");
+		return ret;
+	}
+
+	ret = clk_enable(&priv->ipg_clk);
+	if (ret) {
+		printf("Failed to enable ipg_clk\n");
+		return ret;
+	}
+
 	return 0;
 }
 
