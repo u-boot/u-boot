@@ -13,17 +13,6 @@
 #include <pwm.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
-
-int pwm_init(int pwm_id, int div, int invert)
-{
-	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
-
-	if (!pwm)
-		return -1;
-
-	writel(0, &pwm->ir);
-	return 0;
-}
 #include <clk.h>
 
 int pwm_config_internal(struct pwm_regs *pwm, unsigned long period_cycles,
@@ -44,6 +33,7 @@ int pwm_config_internal(struct pwm_regs *pwm, unsigned long period_cycles,
 	return 0;
 }
 
+#ifndef CONFIG_DM_PWM
 /* pwm_id from 0..7 */
 struct pwm_regs *pwm_id_to_reg(int pwm_id)
 {
@@ -110,6 +100,17 @@ int pwm_imx_get_parms(int period_ns, int duty_ns, unsigned long *period_c,
 	return 0;
 }
 
+int pwm_init(int pwm_id, int div, int invert)
+{
+	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
+
+	if (!pwm)
+		return -1;
+
+	writel(0, &pwm->ir);
+	return 0;
+}
+
 int pwm_config(int pwm_id, int duty_ns, int period_ns)
 {
 	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
@@ -145,7 +146,7 @@ void pwm_disable(int pwm_id)
 	clrbits_le32(&pwm->cr, PWMCR_EN);
 }
 
-#if defined(CONFIG_DM_PWM)
+#else
 struct imx_pwm_priv {
 	struct pwm_regs *regs;
 	bool invert;
