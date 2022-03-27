@@ -5592,6 +5592,27 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         finally:
             shutil.rmtree(tmpdir)
 
+    def testReplaceResizeNoRepackSameSize(self):
+        """Test replacing entries with same-size data without repacking"""
+        expected = b'x' * len(U_BOOT_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd('u-boot', expected)
+        self.assertEqual(expected, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
+    def testReplaceResizeNoRepackSmallerSize(self):
+        """Test replacing entries with smaller-size data without repacking"""
+        new_data = b'x'
+        data, expected_fdtmap, _ = self._RunReplaceCmd('u-boot', new_data)
+        expected = new_data.ljust(len(U_BOOT_DATA), b'\0')
+        self.assertEqual(expected, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
 
 if __name__ == "__main__":
     unittest.main()
