@@ -30,7 +30,7 @@ struct devres_stats {
 	int total_size;
 };
 
-#ifdef CONFIG_DEVRES
+#if CONFIG_IS_ENABLED(DEVRES)
 
 #ifdef CONFIG_DEBUG_DEVRES
 void *__devres_alloc(dr_release_t release, size_t size, gfp_t gfp,
@@ -207,7 +207,7 @@ void devm_kfree(struct udevice *dev, void *ptr);
 /* Get basic stats on allocations */
 void devres_get_stats(const struct udevice *dev, struct devres_stats *stats);
 
-#else /* ! CONFIG_DEVRES */
+#else /* ! DEVRES */
 
 static inline void *devres_alloc(dr_release_t release, size_t size, gfp_t gfp)
 {

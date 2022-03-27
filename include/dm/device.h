@@ -184,7 +184,7 @@ struct udevice {
 #if CONFIG_IS_ENABLED(OF_REAL)
 	ofnode node_;
 #endif
-#ifdef CONFIG_DEVRES
+#if CONFIG_IS_ENABLED(DEVRES)
 	struct list_head devres_head;
 #endif
 #if CONFIG_IS_ENABLED(DM_DMA)

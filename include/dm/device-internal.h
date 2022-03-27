@@ -397,7 +397,7 @@ fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr);
 #define DM_UCLASS_ROOT_S_NON_CONST	(((gd_t *)gd)->uclass_root_s)
 
 /* device resource management */
-#ifdef CONFIG_DEVRES
+#if CONFIG_IS_ENABLED(DEVRES)
 
 /**
  * devres_release_probe - Release managed resources allocated after probing
@@ -417,7 +417,7 @@ void devres_release_probe(struct udevice *dev);
  */
 void devres_release_all(struct udevice *dev);
 
-#else /* ! CONFIG_DEVRES */
+#else /* ! DEVRES */
 
 static inline void devres_release_probe(struct udevice *dev)
 {
@@ -427,7 +427,7 @@ static inline void devres_release_all(struct udevice *dev)
 {
 }
 
-#endif /* ! CONFIG_DEVRES */
+#endif /* DEVRES */
 
 static inline int device_notify(const struct udevice *dev, enum event_t type)
 {

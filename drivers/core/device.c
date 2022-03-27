@@ -68,7 +68,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 	INIT_LIST_HEAD(&dev->sibling_node);
 	INIT_LIST_HEAD(&dev->child_head);
 	INIT_LIST_HEAD(&dev->uclass_node);
-#ifdef CONFIG_DEVRES
+#if CONFIG_IS_ENABLED(DEVRES)
 	INIT_LIST_HEAD(&dev->devres_head);
 #endif
 	dev_set_plat(dev, plat);
