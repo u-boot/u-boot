@@ -203,7 +203,7 @@ def test_efi_fit_launch(u_boot_console):
         """Compute the path of a given (temporary) file.
 
         Args:
-            file_name: The name of a file within U-Boot build dir.
+            file_name -- The name of a file within U-Boot build dir.
         Return:
             The computed file path.
         """
@@ -217,8 +217,8 @@ def test_efi_fit_launch(u_boot_console):
         build dir and, optionally, compresses the file using gzip.
 
         Args:
-            fname: The target file name within U-Boot build dir.
-            comp: Flag to enable gzip compression.
+            fname -- The target file name within U-Boot build dir.
+            comp -- Flag to enable gzip compression.
         Return:
             The path of the created file.
         """
@@ -238,8 +238,8 @@ def test_efi_fit_launch(u_boot_console):
         Creates a DTS file and compiles it to a DTB.
 
         Args:
-            fdt_type: The type of the FDT, i.e. internal, user.
-            comp: Flag to enable gzip compression.
+            fdt_type -- The type of the FDT, i.e. internal, user.
+            comp -- Flag to enable gzip compression.
         Return:
             The path of the created file.
         """
@@ -252,7 +252,7 @@ def test_efi_fit_launch(u_boot_console):
 
         # Generate a test FDT file.
         dts = make_fpath('test-efi-fit-%s.dts' % fdt_type)
-        with open(dts, 'w') as file:
+        with open(dts, 'w', encoding='ascii') as file:
             file.write(FDT_DATA % fdt_params)
 
         # Build the test FDT.
@@ -268,7 +268,7 @@ def test_efi_fit_launch(u_boot_console):
 
         Runs 'mkimage' to create a FIT image within U-Boot build dir.
         Args:
-            comp: Enable gzip compression for the EFI binary and FDT blob.
+            comp -- Enable gzip compression for the EFI binary and FDT blob.
         Return:
             The path of the created file.
         """
@@ -285,7 +285,7 @@ def test_efi_fit_launch(u_boot_console):
 
         # Generate a test ITS file.
         its_path = make_fpath('test-efi-fit-helloworld.its')
-        with open(its_path, 'w') as file:
+        with open(its_path, 'w', encoding='ascii') as file:
             file.write(ITS_DATA % its_params)
 
         # Build the test ITS.
@@ -298,8 +298,9 @@ def test_efi_fit_launch(u_boot_console):
         """Load the FIT image using the 'host load' command and return its address.
 
         Args:
-            fit: Dictionary describing the FIT image to load, see env__efi_fit_test_file
-                 in the comment at the beginning of this file.
+            fit -- Dictionary describing the FIT image to load, see
+                   env__efi_fit_test_file in the comment at the beginning of
+                   this file.
         Return:
             The address where the file has been loaded.
         """
@@ -325,8 +326,8 @@ def test_efi_fit_launch(u_boot_console):
         CRC32 are validated.
 
         Args:
-            fit: Dictionary describing the FIT image to load, see env__efi_fit_tftp_file
-                 in the comment at the beginning of this file.
+            fit -- Dictionary describing the FIT image to load, see env__efi_fit_tftp_file
+                   in the comment at the beginning of this file.
         Return:
             The address where the file has been loaded.
         """
@@ -377,9 +378,9 @@ def test_efi_fit_launch(u_boot_console):
         Eventually the 'Hello, world' message is expected in the U-Boot console.
 
         Args:
-            enable_fdt: Flag to enable using the FDT blob inside FIT image.
-            enable_comp: Flag to enable GZIP compression on EFI and FDT
-                generated content.
+            enable_fdt -- Flag to enable using the FDT blob inside FIT image.
+            enable_comp -- Flag to enable GZIP compression on EFI and FDT
+                           generated content.
         """
 
         with cons.log.section('FDT=%s;COMP=%s' % (enable_fdt, enable_comp)):
