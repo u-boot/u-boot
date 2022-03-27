@@ -192,6 +192,14 @@ struct udevice {
 #endif
 };
 
+static inline int dm_udevice_size(void)
+{
+	if (CONFIG_IS_ENABLED(OF_PLATDATA_RT))
+		return ALIGN(sizeof(struct udevice), CONFIG_LINKER_LIST_ALIGN);
+
+	return sizeof(struct udevice);
+}
+
 /**
  * struct udevice_rt - runtime information set up by U-Boot
  *

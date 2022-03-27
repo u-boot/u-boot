@@ -1186,7 +1186,8 @@ int dev_enable_by_path(const char *path)
 static struct udevice_rt *dev_get_rt(const struct udevice *dev)
 {
 	struct udevice *base = ll_entry_start(struct udevice, udevice);
-	int idx = dev - base;
+	uint each_size = dm_udevice_size();
+	int idx = ((void *)dev - (void *)base) / each_size;
 
 	struct udevice_rt *urt = gd_dm_udevice_rt() + idx;
 
