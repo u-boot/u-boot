@@ -775,7 +775,7 @@ features to produce new behaviours.
         node = self._node
         while node.parent:
             node = node.parent
-            if node.name == 'binman':
+            if node.name in ('binman', '/'):
                 break
             name = '%s.%s' % (node.name, name)
         return name
