@@ -380,7 +380,7 @@ class Entry_fit(Entry_section):
                 # section entries for them here to merge the content subnodes
                 # together and put the merged contents in the subimage node's
                 # 'data' property later.
-                entry = Entry.Create(self.section, node, etype='section')
+                entry = Entry.Create(self, node, etype='section')
                 entry.ReadNode()
                 # The hash subnodes here are for mkimage, not binman.
                 entry.SetUpdateHash(False)
