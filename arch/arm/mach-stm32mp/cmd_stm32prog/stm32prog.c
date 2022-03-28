@@ -1154,7 +1154,9 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct dfu_entity *dfu;
 	int alt_nb;
 
-	alt_nb = 2; /* number of virtual = CMD, OTP*/
+	alt_nb = 1; /* number of virtual = CMD*/
+	if (IS_ENABLED(CONFIG_CMD_STM32PROG_OTP))
+		alt_nb++; /* OTP*/
 	if (CONFIG_IS_ENABLED(DM_PMIC))
 		alt_nb++; /* PMIC NVMEM*/
 
@@ -1205,7 +1207,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	if (!ret)
 		ret = stm32prog_alt_add_virt(dfu, "virtual", PHASE_CMD, CMD_SIZE);
 
-	if (!ret)
+	if (!ret && IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
 		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP, OTP_SIZE);
 
 	if (!ret && CONFIG_IS_ENABLED(DM_PMIC))
@@ -1226,6 +1228,11 @@ int stm32prog_otp_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
 {
 	log_debug("%s: %x %lx\n", __func__, offset, *size);
 
+	if (!IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
+		stm32prog_err("OTP update not supported");
+
+		return -EOPNOTSUPP;
+	}
 	if (!data->otp_part) {
 		data->otp_part = memalign(CONFIG_SYS_CACHELINE_SIZE, OTP_SIZE);
 		if (!data->otp_part)
@@ -1248,10 +1255,10 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 {
 	int result = 0;
 
-	if (!IS_ENABLED(CONFIG_ARM_SMCCC)) {
+	if (!IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
 		stm32prog_err("OTP update not supported");
 
-		return -1;
+		return -EOPNOTSUPP;
 	}
 
 	log_debug("%s: %x %lx\n", __func__, offset, *size);
@@ -1270,8 +1277,10 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 		memset(data->otp_part, 0, OTP_SIZE);
 
 		/* call the service */
-		result = stm32_smc_exec(STM32_SMC_BSEC, STM32_SMC_READ_ALL,
-					(u32)data->otp_part, 0);
+		result = -EOPNOTSUPP;
+		if (IS_ENABLED(CONFIG_ARM_SMCCC))
+			result = stm32_smc_exec(STM32_SMC_BSEC, STM32_SMC_READ_ALL,
+						(u32)data->otp_part, 0);
 		if (result)
 			goto end_otp_read;
 	}
@@ -1296,10 +1305,10 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 	int result = 0;
 	struct arm_smccc_res res;
 
-	if (!IS_ENABLED(CONFIG_ARM_SMCCC)) {
+	if (!IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
 		stm32prog_err("OTP update not supported");
 
-		return -1;
+		return -EOPNOTSUPP;
 	}
 
 	if (!data->otp_part) {
@@ -1307,28 +1316,31 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 		return -1;
 	}
 
-	arm_smccc_smc(STM32_SMC_BSEC, STM32_SMC_WRITE_ALL,
-		      (u32)data->otp_part, 0, 0, 0, 0, 0, &res);
+	result = -EOPNOTSUPP;
+	if (IS_ENABLED(CONFIG_ARM_SMCCC)) {
+		arm_smccc_smc(STM32_SMC_BSEC, STM32_SMC_WRITE_ALL,
+			      (u32)data->otp_part, 0, 0, 0, 0, 0, &res);
 
-	if (!res.a0) {
-		switch (res.a1) {
-		case 0:
-			result = 0;
-			break;
-		case 1:
-			stm32prog_err("Provisioning");
-			result = 0;
-			break;
-		default:
-			log_err("%s: OTP incorrect value (err = %ld)\n",
-				__func__, res.a1);
+		if (!res.a0) {
+			switch (res.a1) {
+			case 0:
+				result = 0;
+				break;
+			case 1:
+				stm32prog_err("Provisioning");
+				result = 0;
+				break;
+			default:
+				log_err("%s: OTP incorrect value (err = %ld)\n",
+					__func__, res.a1);
+				result = -EINVAL;
+				break;
+			}
+		} else {
+			log_err("%s: Failed to exec svc=%x op=%x in secure mode (err = %ld)\n",
+				__func__, STM32_SMC_BSEC, STM32_SMC_WRITE_ALL, res.a0);
 			result = -EINVAL;
-			break;
 		}
-	} else {
-		log_err("%s: Failed to exec svc=%x op=%x in secure mode (err = %ld)\n",
-			__func__, STM32_SMC_BSEC, STM32_SMC_WRITE_ALL, res.a0);
-		result = -EINVAL;
 	}
 
 	free(data->otp_part);
