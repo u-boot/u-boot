@@ -20,7 +20,8 @@
 #define DEFAULT_ADDRESS		0xFFFFFFFF
 
 #define CMD_SIZE		512
-#define OTP_SIZE		1024
+#define OTP_SIZE_SMC		1024
+#define OTP_SIZE_TA		776
 #define PMIC_SIZE		8
 
 enum stm32prog_target {
@@ -147,6 +148,10 @@ struct stm32prog_data {
 	u32	dtb;
 	u32	initrd;
 	u32	initrd_size;
+
+	/* OPTEE PTA NVMEM */
+	struct udevice *tee;
+	u32 tee_session;
 };
 
 extern struct stm32prog_data *stm32prog_data;

@@ -181,7 +181,7 @@ int stm32prog_get_medium_size_virt(struct dfu_entity *dfu, u64 *size)
 		*size = CMD_SIZE;
 		break;
 	case PHASE_OTP:
-		*size = OTP_SIZE;
+		*size = stm32prog_data->tee ? OTP_SIZE_TA : OTP_SIZE_SMC;
 		break;
 	case PHASE_PMIC:
 		*size = PMIC_SIZE;
