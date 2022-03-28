@@ -128,6 +128,7 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
 /**
  * efi_fmp_find - search for Firmware Management Protocol drivers
  * @image_type:		Image type guid
+ * @image_index:	Image Index
  * @instance:		Instance number
  * @handles:		Handles of FMP drivers
  * @no_handles:		Number of handles
@@ -141,8 +142,8 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
  * * NULL		- on failure
  */
 static struct efi_firmware_management_protocol *
-efi_fmp_find(efi_guid_t *image_type, u64 instance, efi_handle_t *handles,
-	     efi_uintn_t no_handles)
+efi_fmp_find(efi_guid_t *image_type, u8 image_index, u64 instance,
+	     efi_handle_t *handles, efi_uintn_t no_handles)
 {
 	efi_handle_t *handle;
 	struct efi_firmware_management_protocol *fmp;
@@ -203,6 +204,7 @@ efi_fmp_find(efi_guid_t *image_type, u64 instance, efi_handle_t *handles,
 			log_debug("+++ desc[%d] index: %d, name: %ls\n",
 				  j, desc->image_index, desc->image_id_name);
 			if (!guidcmp(&desc->image_type_id, image_type) &&
+			    (desc->image_index == image_index) &&
 			    (!instance ||
 			     !desc->hardware_instance ||
 			      desc->hardware_instance == instance))
@@ -449,8 +451,8 @@ static efi_status_t efi_capsule_update_firmware(
 		}
 
 		/* find a device for update firmware */
-		/* TODO: should we pass index as well, or nothing but type? */
 		fmp = efi_fmp_find(&image->update_image_type_id,
+				   image->update_image_index,
 				   image->update_hardware_instance,
 				   handles, no_handles);
 		if (!fmp) {
