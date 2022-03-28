@@ -48,6 +48,7 @@ struct fdt_region;
 extern ulong image_load_addr;		/* Default Load Address */
 extern ulong image_save_addr;		/* Default Save Address */
 extern ulong image_save_size;		/* Default Save Size */
+extern ulong image_load_offset;	/* Default Load Address Offset */
 
 /* An invalid size, meaning that the image size is not known */
 #define IMAGE_SIZE_INVAL	(-1UL)
@@ -1322,6 +1323,19 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name);
  * Return: pointer to algorithm information, or NULL if not found
  */
 struct padding_algo *image_get_padding_algo(const char *name);
+
+/**
+ * image_pre_load() - Manage pre load header
+ *
+ * Manage the pre-load header before launching the image.
+ * It checks the signature of the image. It also set the
+ * variable image_load_offset to skip this header before
+ * launching the image.
+ *
+ * @param addr		Address of the image
+ * @return: 0 on success, -ve on error
+ */
+int image_pre_load(ulong addr);
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'

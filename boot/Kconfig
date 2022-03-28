@@ -1023,6 +1023,61 @@ config RESET_TO_RETRY
 
 endmenu
 
+menu "Image support"
+
+config IMAGE_PRE_LOAD
+	bool "Image pre-load support"
+	help
+	  Enable an image pre-load stage in the SPL.
+	  This pre-load stage allows to do some manipulation
+	  or check (for example signature check) on an image
+	  before launching it.
+
+config SPL_IMAGE_PRE_LOAD
+	bool "Image pre-load support within SPL"
+	depends on SPL && IMAGE_PRE_LOAD
+	help
+	  Enable an image pre-load stage in the SPL.
+	  This pre-load stage allows to do some manipulation
+	  or check (for example signature check) on an image
+	  before launching it.
+
+config IMAGE_PRE_LOAD_SIG
+	bool "Image pre-load signature support"
+	depends on IMAGE_PRE_LOAD
+	select FIT_SIGNATURE
+	select RSA
+	select RSA_VERIFY_WITH_PKEY
+	help
+	  Enable signature check support in the pre-load stage.
+	  For this feature a very simple header is added before
+	  the image with few fields:
+	  - a magic
+	  - the image size
+	  - the signature
+	  All other information (header size, type of signature,
+	  ...) are provided in the node /image/pre-load/sig of
+	  u-boot.
+
+config SPL_IMAGE_PRE_LOAD_SIG
+	bool "Image pre-load signature support witin SPL"
+	depends on SPL_IMAGE_PRE_LOAD && IMAGE_PRE_LOAD_SIG
+	select SPL_FIT_SIGNATURE
+	select SPL_RSA
+	select SPL_RSA_VERIFY_WITH_PKEY
+	help
+	  Enable signature check support in the pre-load stage in the SPL.
+	  For this feature a very simple header is added before
+	  the image with few fields:
+	  - a magic
+	  - the image size
+	  - the signature
+	  All other information (header size, type of signature,
+	  ...) are provided in the node /image/pre-load/sig of
+	  u-boot.
+
+endmenu
+
 config USE_BOOTARGS
 	bool "Enable boot arguments"
 	help
