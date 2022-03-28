@@ -170,6 +170,8 @@ struct stm32prog_data {
 	u32	initrd;
 	u32	initrd_size;
 
+	u32	script;
+
 	/* OPTEE PTA NVMEM */
 	struct udevice *tee;
 	u32 tee_session;

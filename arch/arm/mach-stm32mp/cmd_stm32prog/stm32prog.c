@@ -6,6 +6,7 @@
 #include <command.h>
 #include <console.h>
 #include <dfu.h>
+#include <image.h>
 #include <malloc.h>
 #include <misc.h>
 #include <mmc.h>
@@ -1697,6 +1698,14 @@ error:
 static void stm32prog_end_phase(struct stm32prog_data *data, u64 offset)
 {
 	if (data->phase == PHASE_FLASHLAYOUT) {
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
+		if (genimg_get_format((void *)STM32_DDR_BASE) == IMAGE_FORMAT_LEGACY) {
+			data->script = STM32_DDR_BASE;
+			data->phase = PHASE_END;
+			log_notice("U-Boot script received\n");
+			return;
+		}
+#endif
 		if (parse_flash_layout(data, STM32_DDR_BASE, 0))
 			stm32prog_err("Layout: invalid FlashLayout");
 		return;
