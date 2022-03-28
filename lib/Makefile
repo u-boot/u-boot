@@ -17,7 +17,6 @@ obj-$(CONFIG_OF_LIVE) += of_live.o
 obj-$(CONFIG_CMD_DHRYSTONE) += dhry/
 obj-$(CONFIG_ARCH_AT91) += at91/
 obj-$(CONFIG_OPTEE_LIB) += optee/
-obj-y += crypto/
 
 obj-$(CONFIG_AES) += aes.o
 obj-$(CONFIG_AES) += aes/
@@ -62,6 +61,8 @@ obj-$(CONFIG_TPM) += tpm_api.o
 obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
 endif
+
+obj-y += crypto/
 
 obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi/
 obj-$(CONFIG_$(SPL_)MD5) += md5.o
