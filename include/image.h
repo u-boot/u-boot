@@ -1019,6 +1019,21 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 
+/**
+ * fit_pre_load_data() - add public key to fdt blob
+ *
+ * Adds public key to the node pre load.
+ *
+ * @keydir:	Directory containing keys
+ * @keydest:	FDT blob to write public key
+ * @fit:	Pointer to the FIT format image header
+ *
+ * returns:
+ *	0, on success
+ *	< 0, on failure
+ */
+int fit_pre_load_data(const char *keydir, void *keydest, void *fit);
+
 int fit_cipher_data(const char *keydir, void *keydest, void *fit,
 		    const char *comment, int require_keys,
 		    const char *engine_id, const char *cmdname);
