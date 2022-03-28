@@ -30,6 +30,7 @@
 #include <asm/arch/prcm.h>
 #include <asm/arch/pmic_bus.h>
 #include <asm/arch/spl.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
 #include <u-boot/crc.h>
@@ -307,6 +308,8 @@ int board_init(void)
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
 #endif
 #endif	/* CONFIG_DM_MMC */
+
+	eth_init_board();
 
 	return 0;
 }

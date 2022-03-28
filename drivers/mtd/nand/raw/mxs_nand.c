@@ -195,6 +195,7 @@ static inline int mxs_nand_legacy_calc_ecc_layout(struct bch_geometry *geo,
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(chip);
 	unsigned int block_mark_bit_offset;
+	int corr, ds_corr;
 
 	/* The default for the length of Galois Field. */
 	geo->gf_len = 13;
@@ -224,6 +225,17 @@ static inline int mxs_nand_legacy_calc_ecc_layout(struct bch_geometry *geo,
 
 	geo->ecc_strength = min(round_down(geo->ecc_strength, 2),
 				nand_info->max_ecc_strength_supported);
+
+	/* check ecc strength, same as nand_ecc_is_strong_enough() did*/
+	if (chip->ecc_step_ds) {
+		corr = mtd->writesize * geo->ecc_strength /
+		       geo->ecc_chunkn_size;
+		ds_corr = mtd->writesize * chip->ecc_strength_ds /
+		       chip->ecc_step_ds;
+		if (corr < ds_corr ||
+		    geo->ecc_strength < chip->ecc_strength_ds)
+			return -EINVAL;
+	}
 
 	block_mark_bit_offset = mtd->writesize * 8 -
 		(geo->ecc_strength * geo->gf_len * (geo->ecc_chunk_count - 1)
@@ -1111,6 +1123,7 @@ static int mxs_nand_set_geometry(struct mtd_info *mtd, struct bch_geometry *geo)
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct nand_chip *nand = mtd_to_nand(mtd);
 	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+	int err;
 
 	if (chip->ecc_strength_ds > nand_info->max_ecc_strength_supported) {
 		printf("unsupported NAND chip, minimum ecc required %d\n"
@@ -1118,19 +1131,57 @@ static int mxs_nand_set_geometry(struct mtd_info *mtd, struct bch_geometry *geo)
 		return -EINVAL;
 	}
 
-	if ((!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0) &&
-	     mtd->oobsize < 1024) || nand_info->legacy_bch_geometry) {
-		dev_warn(mtd->dev, "use legacy bch geometry\n");
-		return mxs_nand_legacy_calc_ecc_layout(geo, mtd);
+	/* use the legacy bch setting by default */
+	if ((!nand_info->use_minimum_ecc && mtd->oobsize < 1024) ||
+	    !(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0)) {
+		dev_dbg(mtd->dev, "use legacy bch geometry\n");
+		err = mxs_nand_legacy_calc_ecc_layout(geo, mtd);
+		if (!err)
+			return 0;
 	}
 
-	if (mtd->oobsize > 1024 || chip->ecc_step_ds < mtd->oobsize)
-		return mxs_nand_calc_ecc_for_large_oob(geo, mtd);
+	/* for large oob nand */
+	if (mtd->oobsize > 1024) {
+		dev_dbg(mtd->dev, "use large oob bch geometry\n");
+		err = mxs_nand_calc_ecc_for_large_oob(geo, mtd);
+		if (!err)
+			return 0;
+	}
 
-	return mxs_nand_calc_ecc_layout_by_info(geo, mtd,
-				chip->ecc_strength_ds, chip->ecc_step_ds);
+	/* otherwise use the minimum ecc nand chips required */
+	dev_dbg(mtd->dev, "use minimum ecc bch geometry\n");
+	err = mxs_nand_calc_ecc_layout_by_info(geo, mtd, chip->ecc_strength_ds,
+					       chip->ecc_step_ds);
 
-	return 0;
+	if (err)
+		dev_err(mtd->dev, "none of the bch geometry setting works\n");
+
+	return err;
+}
+
+void mxs_nand_dump_geo(struct mtd_info *mtd)
+{
+	struct nand_chip *nand = mtd_to_nand(mtd);
+	struct mxs_nand_info *nand_info = nand_get_controller_data(nand);
+	struct bch_geometry *geo = &nand_info->bch_geometry;
+
+	dev_dbg(mtd->dev, "BCH Geometry :\n"
+		"GF Length\t\t: %u\n"
+		"ECC Strength\t\t: %u\n"
+		"ECC for Meta\t\t: %u\n"
+		"ECC Chunk0 Size\t\t: %u\n"
+		"ECC Chunkn Size\t\t: %u\n"
+		"ECC Chunk Count\t\t: %u\n"
+		"Block Mark Byte Offset\t: %u\n"
+		"Block Mark Bit Offset\t: %u\n",
+		geo->gf_len,
+		geo->ecc_strength,
+		geo->ecc_for_meta,
+		geo->ecc_chunk0_size,
+		geo->ecc_chunkn_size,
+		geo->ecc_chunk_count,
+		geo->block_mark_byte_offset,
+		geo->block_mark_bit_offset);
 }
 
 /*
@@ -1158,6 +1209,8 @@ int mxs_nand_setup_ecc(struct mtd_info *mtd)
 	ret = mxs_nand_set_geometry(mtd, geo);
 	if (ret)
 		return ret;
+
+	mxs_nand_dump_geo(mtd);
 
 	/* Configure BCH and set NFC geometry */
 	mxs_reset_block(&bch_regs->hw_bch_ctrl_reg);

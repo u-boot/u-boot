@@ -14,7 +14,7 @@ Where to get boot_format:
 ========================
 
 you can browse it online at:
-http://git.freescale.com/git/cgit.cgi/ppc/sdk/boot-format.git/
+https://source.codeaurora.org/external/qoriq/qoriq-yocto-sdk/boot-format
 
 Building
 ========

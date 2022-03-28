@@ -131,7 +131,7 @@ int rockchip_saradc_of_to_plat(struct udevice *dev)
 	}
 
 	priv->data = data;
-	uc_pdata->data_mask = (1 << priv->data->num_bits) - 1;;
+	uc_pdata->data_mask = (1 << priv->data->num_bits) - 1;
 	uc_pdata->data_format = ADC_DATA_FORMAT_BIN;
 	uc_pdata->data_timeout_us = SARADC_TIMEOUT / 5;
 	uc_pdata->channel_mask = (1 << priv->data->num_channels) - 1;

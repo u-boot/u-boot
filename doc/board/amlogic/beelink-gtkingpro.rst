@@ -45,6 +45,8 @@ https://github.com/LibreELEC/amlogic-boot-fip/tree/master/beelink-s922x
 NB: Beelink use a common board config for GT-King, GT-King Pro and the
 GS-King-X model, hence the "beelink-s922x" name.
 
+For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `beelink-s922x`
+
 .. code-block:: bash
 
     $ wget https://github.com/LibreELEC/amlogic-boot-fip/archive/master.zip

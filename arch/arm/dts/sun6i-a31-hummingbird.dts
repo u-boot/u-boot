@@ -162,7 +162,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&gmac_pins_rgmii_a>, <&gmac_phy_reset_pin_hummingbird>;
 	phy = <&phy1>;
-	phy-mode = "rgmii";
+	phy-mode = "rgmii-id";
 	snps,reset-gpio = <&pio 0 21 GPIO_ACTIVE_HIGH>;
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 10000 30000>;

@@ -260,6 +260,8 @@ extern const efi_guid_t efi_block_io_guid;
 extern const efi_guid_t efi_global_variable_guid;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
+/* GUID of the EFI system partition */
+extern const efi_guid_t efi_system_partition_guid;
 /* GUID of the EFI_DRIVER_BINDING_PROTOCOL */
 extern const efi_guid_t efi_guid_driver_binding_protocol;
 /* event group ExitBootServices() invoked */
@@ -539,8 +541,6 @@ efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *if_typename, int diskid,
 			       const char *pdevname);
-/* Check if it is EFI system partition */
-bool efi_disk_is_system_part(efi_handle_t handle);
 /* Called by bootefi to make GOP (graphical) interface available */
 efi_status_t efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
@@ -725,12 +725,14 @@ extern void *efi_bounce_buffer;
 #define EFI_LOADER_BOUNCE_BUFFER_SIZE (64 * 1024 * 1024)
 #endif
 
-
+/* shorten device path */
+struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp);
 struct efi_device_path *efi_dp_next(const struct efi_device_path *dp);
 int efi_dp_match(const struct efi_device_path *a,
 		 const struct efi_device_path *b);
-struct efi_object *efi_dp_find_obj(struct efi_device_path *dp,
-				   struct efi_device_path **rem);
+efi_handle_t efi_dp_find_obj(struct efi_device_path *dp,
+			     const efi_guid_t *guid,
+			     struct efi_device_path **rem);
 /* get size of the first device path instance excluding end node */
 efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp);
 /* size of multi-instance device path excluding end node */

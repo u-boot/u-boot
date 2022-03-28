@@ -170,7 +170,7 @@ wait_epmap:
 
 	pwrstate = APPLE_RTKIT_PWR_STATE_SLEEP;
 	while (pwrstate != APPLE_RTKIT_PWR_STATE_ON) {
-		ret = mbox_recv(chan, &msg, 100000);
+		ret = mbox_recv(chan, &msg, 1000000);
 		if (ret < 0)
 			return ret;
 

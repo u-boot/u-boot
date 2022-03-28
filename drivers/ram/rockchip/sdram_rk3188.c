@@ -762,7 +762,7 @@ static int sdram_init(struct dram_info *dram,
 		 * CS1, n=2
 		 * CS0 & CS1, n = 3
 		 */
-		sdram_params->ch[channel].rank = 2,
+		sdram_params->ch[channel].rank = 2;
 		clrsetbits_le32(&publ->pgcr, 0xF << 18,
 				(sdram_params->ch[channel].rank | 1) << 18);
 

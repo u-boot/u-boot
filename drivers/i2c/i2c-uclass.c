@@ -280,7 +280,7 @@ static int i2c_probe_chip(struct udevice *bus, uint chip_addr,
 
 	if (ops->probe_chip) {
 		ret = ops->probe_chip(bus, chip_addr, chip_flags);
-		if (!ret || ret != -ENOSYS)
+		if (ret != -ENOSYS)
 			return ret;
 	}
 

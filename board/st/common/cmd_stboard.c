@@ -91,14 +91,14 @@ static int do_stboard(struct cmd_tbl *cmdtp, int flag, int argc,
 	ret = misc_read(dev, STM32_BSEC_OTP(BSEC_OTP_BOARD),
 			&otp, sizeof(otp));
 
-	if (ret < 0) {
+	if (ret != sizeof(otp)) {
 		puts("OTP read error");
 		return CMD_RET_FAILURE;
 	}
 
 	ret = misc_read(dev, STM32_BSEC_LOCK(BSEC_OTP_BOARD),
 			&lock, sizeof(lock));
-	if (ret < 0) {
+	if (ret != sizeof(lock)) {
 		puts("LOCK read error");
 		return CMD_RET_FAILURE;
 	}
@@ -172,7 +172,7 @@ static int do_stboard(struct cmd_tbl *cmdtp, int flag, int argc,
 	ret = misc_write(dev, STM32_BSEC_OTP(BSEC_OTP_BOARD),
 			 &otp, sizeof(otp));
 
-	if (ret < 0) {
+	if (ret != sizeof(otp)) {
 		puts("BOARD programming error\n");
 		return CMD_RET_FAILURE;
 	}
@@ -181,7 +181,7 @@ static int do_stboard(struct cmd_tbl *cmdtp, int flag, int argc,
 	otp = 1;
 	ret = misc_write(dev, STM32_BSEC_LOCK(BSEC_OTP_BOARD),
 			 &otp, sizeof(otp));
-	if (ret < 0) {
+	if (ret != sizeof(otp)) {
 		puts("BOARD lock error\n");
 		return CMD_RET_FAILURE;
 	}

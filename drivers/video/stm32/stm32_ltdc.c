@@ -338,6 +338,7 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	struct display_timing timings;
 	struct clk pclk;
 	struct reset_ctl rst;
+	ulong rate;
 	int ret;
 
 	priv->regs = (void *)dev_read_addr(dev);
@@ -375,13 +376,13 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		}
 	}
 
-	ret = clk_set_rate(&pclk, timings.pixelclock.typ);
-	if (ret)
-		dev_warn(dev, "fail to set pixel clock %d hz\n",
-			 timings.pixelclock.typ);
+	rate = clk_set_rate(&pclk, timings.pixelclock.typ);
+	if (IS_ERR_VALUE(rate))
+		dev_warn(dev, "fail to set pixel clock %d hz, ret=%ld\n",
+			 timings.pixelclock.typ, rate);
 
 	dev_dbg(dev, "Set pixel clock req %d hz get %ld hz\n",
-		timings.pixelclock.typ, clk_get_rate(&pclk));
+		timings.pixelclock.typ, rate);
 
 	ret = reset_get_by_index(dev, 0, &rst);
 	if (ret) {

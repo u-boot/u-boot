@@ -1750,7 +1750,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	info->system_table = &systab;
 
 	if (device_path) {
-		info->device_handle = efi_dp_find_obj(device_path, NULL);
+		info->device_handle = efi_dp_find_obj(device_path, NULL, NULL);
 
 		dp = efi_dp_append(device_path, file_path);
 		if (!dp) {
@@ -1940,7 +1940,7 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 {
 	efi_handle_t device;
 	efi_status_t ret;
-	struct efi_device_path *dp;
+	struct efi_device_path *dp, *rem;
 	struct efi_load_file_protocol *load_file_protocol = NULL;
 	efi_uintn_t buffer_size;
 	uint64_t addr, pages;
@@ -1951,18 +1951,18 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	*size = 0;
 
 	dp = file_path;
-	ret = EFI_CALL(efi_locate_device_path(
-		       &efi_simple_file_system_protocol_guid, &dp, &device));
+	device = efi_dp_find_obj(dp, NULL, &rem);
+	ret = efi_search_protocol(device, &efi_simple_file_system_protocol_guid,
+				  NULL);
 	if (ret == EFI_SUCCESS)
 		return efi_load_image_from_file(file_path, buffer, size);
 
-	ret = EFI_CALL(efi_locate_device_path(
-		       &efi_guid_load_file_protocol, &dp, &device));
+	ret = efi_search_protocol(device, &efi_guid_load_file_protocol, NULL);
 	if (ret == EFI_SUCCESS) {
 		guid = &efi_guid_load_file_protocol;
 	} else if (!boot_policy) {
 		guid = &efi_guid_load_file2_protocol;
-		ret = EFI_CALL(efi_locate_device_path(guid, &dp, &device));
+		ret = efi_search_protocol(device, guid, NULL);
 	}
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
@@ -1971,9 +1971,9 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
 	buffer_size = 0;
-	ret = load_file_protocol->load_file(load_file_protocol, dp,
-					    boot_policy, &buffer_size,
-					    NULL);
+	ret = EFI_CALL(load_file_protocol->load_file(
+					load_file_protocol, rem, boot_policy,
+					&buffer_size, NULL));
 	if (ret != EFI_BUFFER_TOO_SMALL)
 		goto out;
 	pages = efi_size_in_pages(buffer_size);
@@ -1984,7 +1984,7 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 		goto out;
 	}
 	ret = EFI_CALL(load_file_protocol->load_file(
-					load_file_protocol, dp, boot_policy,
+					load_file_protocol, rem, boot_policy,
 					&buffer_size, (void *)(uintptr_t)addr));
 	if (ret != EFI_SUCCESS)
 		efi_free_pages(addr, pages);

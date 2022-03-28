@@ -11,19 +11,152 @@
 #include <asm/io.h>
 #include <asm/psci.h>
 #include <asm/secure.h>
+#include <hang.h>
 #include <linux/bitops.h>
 
-#define BOOT_API_A7_CORE0_MAGIC_NUMBER	0xCA7FACE0
-#define BOOT_API_A7_CORE1_MAGIC_NUMBER	0xCA7FACE1
+/* PWR */
+#define PWR_CR3					0x0c
+#define PWR_MPUCR				0x10
 
-#define MPIDR_AFF0			GENMASK(7, 0)
+#define PWR_CR3_DDRSREN				BIT(10)
+#define PWR_CR3_DDRRETEN			BIT(12)
 
-#define RCC_MP_GRSTCSETR		(STM32_RCC_BASE + 0x0404)
-#define RCC_MP_GRSTCSETR_MPUP1RST	BIT(5)
-#define RCC_MP_GRSTCSETR_MPUP0RST	BIT(4)
-#define RCC_MP_GRSTCSETR_MPSYSRST	BIT(0)
+#define PWR_MPUCR_PDDS				BIT(0)
+#define PWR_MPUCR_CSTDBYDIS			BIT(3)
+#define PWR_MPUCR_CSSF				BIT(9)
 
-#define STM32MP1_PSCI_NR_CPUS		2
+/* RCC */
+#define RCC_DDRITFCR				0xd8
+
+#define RCC_DDRITFCR_DDRC1EN			BIT(0)
+#define RCC_DDRITFCR_DDRC1LPEN			BIT(1)
+#define RCC_DDRITFCR_DDRC2EN			BIT(2)
+#define RCC_DDRITFCR_DDRC2LPEN			BIT(3)
+#define RCC_DDRITFCR_DDRPHYCEN			BIT(4)
+#define RCC_DDRITFCR_DDRPHYCLPEN		BIT(5)
+#define RCC_DDRITFCR_DDRCAPBEN			BIT(6)
+#define RCC_DDRITFCR_DDRCAPBLPEN		BIT(7)
+#define RCC_DDRITFCR_AXIDCGEN			BIT(8)
+#define RCC_DDRITFCR_DDRPHYCAPBEN		BIT(9)
+#define RCC_DDRITFCR_DDRPHYCAPBLPEN		BIT(10)
+#define RCC_DDRITFCR_DDRCKMOD_MASK		GENMASK(22, 20)
+#define RCC_DDRITFCR_GSKPCTRL			BIT(24)
+
+#define RCC_MP_SREQSETR				0x104
+#define RCC_MP_SREQCLRR				0x108
+
+#define RCC_MP_CIER				0x414
+#define RCC_MP_CIFR				0x418
+#define RCC_MP_CIFR_WKUPF			BIT(20)
+
+/* SYSCFG */
+#define SYSCFG_CMPCR				0x20
+#define SYSCFG_CMPCR_SW_CTRL			BIT(2)
+#define SYSCFG_CMPENSETR			0x24
+#define SYSCFG_CMPENCLRR			0x28
+#define SYSCFG_CMPENR_MPUEN			BIT(0)
+
+/* DDR Controller registers offsets */
+#define DDRCTRL_STAT				0x004
+#define DDRCTRL_PWRCTL				0x030
+#define DDRCTRL_PWRTMG				0x034
+#define DDRCTRL_HWLPCTL				0x038
+#define DDRCTRL_DFIMISC				0x1b0
+#define DDRCTRL_SWCTL				0x320
+#define DDRCTRL_SWSTAT				0x324
+#define DDRCTRL_PSTAT				0x3fc
+#define DDRCTRL_PCTRL_0				0x490
+#define DDRCTRL_PCTRL_1				0x540
+
+/* DDR Controller Register fields */
+#define DDRCTRL_STAT_OPERATING_MODE_MASK	GENMASK(2, 0)
+#define DDRCTRL_STAT_OPERATING_MODE_NORMAL	0x1
+#define DDRCTRL_STAT_OPERATING_MODE_SR		0x3
+#define DDRCTRL_STAT_SELFREF_TYPE_MASK		GENMASK(5, 4)
+#define DDRCTRL_STAT_SELFREF_TYPE_ASR		(0x3 << 4)
+#define DDRCTRL_STAT_SELFREF_TYPE_SR		(0x2 << 4)
+
+#define DDRCTRL_PWRCTL_SELFREF_EN		BIT(0)
+#define DDRCTRL_PWRCTL_EN_DFI_DRAM_CLK_DISABLE	BIT(3)
+#define DDRCTRL_PWRCTL_SELFREF_SW		BIT(5)
+
+#define DDRCTRL_PWRTMG_SELFREF_TO_X32_MASK	GENMASK(23, 16)
+#define DDRCTRL_PWRTMG_SELFREF_TO_X32_0		BIT(16)
+
+#define DDRCTRL_HWLPCTL_HW_LP_EN		BIT(0)
+
+#define DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN	BIT(0)
+
+#define DDRCTRL_SWCTL_SW_DONE			BIT(0)
+
+#define DDRCTRL_SWSTAT_SW_DONE_ACK		BIT(0)
+
+#define DDRCTRL_PSTAT_RD_PORT_BUSY_0		BIT(0)
+#define DDRCTRL_PSTAT_RD_PORT_BUSY_1		BIT(1)
+#define DDRCTRL_PSTAT_WR_PORT_BUSY_0		BIT(16)
+#define DDRCTRL_PSTAT_WR_PORT_BUSY_1		BIT(17)
+
+#define DDRCTRL_PCTRL_N_PORT_EN			BIT(0)
+
+/* DDR PHY registers offsets */
+#define DDRPHYC_PIR				0x004
+#define DDRPHYC_PGSR				0x00c
+#define DDRPHYC_ACDLLCR				0x014
+#define DDRPHYC_ACIOCR				0x024
+#define DDRPHYC_DXCCR				0x028
+#define DDRPHYC_DSGCR				0x02c
+#define DDRPHYC_ZQ0CR0				0x180
+#define DDRPHYC_DX0DLLCR			0x1cc
+#define DDRPHYC_DX1DLLCR			0x20c
+#define DDRPHYC_DX2DLLCR			0x24c
+#define DDRPHYC_DX3DLLCR			0x28c
+
+/* DDR PHY Register fields */
+#define DDRPHYC_PIR_INIT			BIT(0)
+#define DDRPHYC_PIR_DLLSRST			BIT(1)
+#define DDRPHYC_PIR_DLLLOCK			BIT(2)
+#define DDRPHYC_PIR_ITMSRST			BIT(4)
+
+#define DDRPHYC_PGSR_IDONE			BIT(0)
+
+#define DDRPHYC_ACDLLCR_DLLSRST			BIT(30)
+#define DDRPHYC_ACDLLCR_DLLDIS			BIT(31)
+
+#define DDRPHYC_ACIOCR_ACOE			BIT(1)
+#define DDRPHYC_ACIOCR_ACPDD			BIT(3)
+#define DDRPHYC_ACIOCR_ACPDR			BIT(4)
+#define DDRPHYC_ACIOCR_CKPDD_MASK		GENMASK(10, 8)
+#define DDRPHYC_ACIOCR_CKPDD_0			BIT(8)
+#define DDRPHYC_ACIOCR_CKPDR_MASK		GENMASK(13, 11)
+#define DDRPHYC_ACIOCR_CKPDR_0			BIT(11)
+#define DDRPHYC_ACIOCR_CSPDD_MASK		GENMASK(20, 18)
+#define DDRPHYC_ACIOCR_CSPDD_0			BIT(18)
+
+#define DDRPHYC_DXCCR_DXPDD			BIT(2)
+#define DDRPHYC_DXCCR_DXPDR			BIT(3)
+
+#define DDRPHYC_DSGCR_CKEPDD_MASK		GENMASK(19, 16)
+#define DDRPHYC_DSGCR_CKEPDD_0			BIT(16)
+#define DDRPHYC_DSGCR_ODTPDD_MASK		GENMASK(23, 20)
+#define DDRPHYC_DSGCR_ODTPDD_0			BIT(20)
+#define DDRPHYC_DSGCR_NL2PD			BIT(24)
+#define DDRPHYC_DSGCR_CKOE			BIT(28)
+
+#define DDRPHYC_ZQ0CRN_ZQPD			BIT(31)
+
+#define DDRPHYC_DXNDLLCR_DLLDIS			BIT(31)
+
+#define BOOT_API_A7_CORE0_MAGIC_NUMBER		0xca7face0
+#define BOOT_API_A7_CORE1_MAGIC_NUMBER		0xca7face1
+
+#define MPIDR_AFF0				GENMASK(7, 0)
+
+#define RCC_MP_GRSTCSETR			(STM32_RCC_BASE + 0x0404)
+#define RCC_MP_GRSTCSETR_MPSYSRST		BIT(0)
+#define RCC_MP_GRSTCSETR_MPUP0RST		BIT(4)
+#define RCC_MP_GRSTCSETR_MPUP1RST		BIT(5)
+
+#define STM32MP1_PSCI_NR_CPUS			2
 #if STM32MP1_PSCI_NR_CPUS > CONFIG_ARMV7_PSCI_NR_CPUS
 #error "invalid value for CONFIG_ARMV7_PSCI_NR_CPUS"
 #endif
@@ -98,6 +231,7 @@ s32 __secure psci_features(u32 function_id, u32 psci_fid)
 	case ARM_PSCI_0_2_FN_MIGRATE_INFO_TYPE:
 	case ARM_PSCI_0_2_FN_SYSTEM_OFF:
 	case ARM_PSCI_0_2_FN_SYSTEM_RESET:
+	case ARM_PSCI_1_0_FN_SYSTEM_SUSPEND:
 		return 0x0;
 	}
 	return ARM_PSCI_RET_NI;
@@ -221,4 +355,375 @@ void __secure psci_system_off(void)
 	 */
 	while (1)
 		wfi();
+}
+
+static void __secure secure_udelay(unsigned int delay)
+{
+	u32 freq = cp15_read_cntfrq() / 1000000;
+	u64 start, end;
+
+	delay *= freq;
+
+	asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (start));
+	for (;;) {
+		asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (end));
+		if ((end - start) > delay)
+			break;
+	}
+}
+
+static int __secure secure_waitbits(u32 reg, u32 mask, u32 val)
+{
+	u32 freq = cp15_read_cntfrq() / 1000000;
+	u32 delay = 500 * freq;	/* 500 us */
+	u64 start, end;
+	u32 tmp;
+
+	asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (start));
+	for (;;) {
+		tmp = readl(reg);
+		tmp &= mask;
+		if ((tmp & val) == val)
+			return 0;
+		asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (end));
+		if ((end - start) > delay)
+			return -ETIMEDOUT;
+	}
+}
+
+static void __secure ddr_sr_mode_ssr(u32 *saved_pwrctl)
+{
+	setbits_le32(STM32_RCC_BASE + RCC_DDRITFCR,
+		     RCC_DDRITFCR_DDRC1LPEN | RCC_DDRITFCR_DDRC1EN |
+		     RCC_DDRITFCR_DDRC2LPEN | RCC_DDRITFCR_DDRC2EN |
+		     RCC_DDRITFCR_DDRCAPBLPEN | RCC_DDRITFCR_DDRPHYCAPBLPEN |
+		     RCC_DDRITFCR_DDRCAPBEN | RCC_DDRITFCR_DDRPHYCAPBEN |
+		     RCC_DDRITFCR_DDRPHYCEN);
+
+	clrbits_le32(STM32_RCC_BASE + RCC_DDRITFCR,
+		     RCC_DDRITFCR_AXIDCGEN | RCC_DDRITFCR_DDRCKMOD_MASK);
+
+	/* Disable HW LP interface of uMCTL2 */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_HWLPCTL,
+		     DDRCTRL_HWLPCTL_HW_LP_EN);
+
+	/* Configure Automatic LP modes of uMCTL2 */
+	clrsetbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PWRTMG,
+			DDRCTRL_PWRTMG_SELFREF_TO_X32_MASK,
+			DDRCTRL_PWRTMG_SELFREF_TO_X32_0);
+
+	/* Save PWRCTL register to restart ASR after suspend (if applicable) */
+	*saved_pwrctl = readl(STM32_DDRCTRL_BASE + DDRCTRL_PWRCTL);
+
+	/*
+	 * Disable Clock disable with LP modes
+	 * (used in RUN mode for LPDDR2 with specific timing).
+	 */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PWRCTL,
+		     DDRCTRL_PWRCTL_EN_DFI_DRAM_CLK_DISABLE);
+
+	/* Disable automatic Self-Refresh mode */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PWRCTL,
+		     DDRCTRL_PWRCTL_SELFREF_EN);
+}
+
+static void __secure ddr_sr_mode_restore(u32 saved_pwrctl)
+{
+	saved_pwrctl &= DDRCTRL_PWRCTL_EN_DFI_DRAM_CLK_DISABLE |
+			DDRCTRL_PWRCTL_SELFREF_EN;
+
+	/* Restore ASR mode in case it was enabled before suspend. */
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PWRCTL, saved_pwrctl);
+}
+
+static int __secure ddr_sw_self_refresh_in(void)
+{
+	int ret;
+
+	clrbits_le32(STM32_RCC_BASE + RCC_DDRITFCR, RCC_DDRITFCR_AXIDCGEN);
+
+	/* Blocks AXI ports from taking anymore transactions */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PCTRL_0,
+		     DDRCTRL_PCTRL_N_PORT_EN);
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PCTRL_1,
+		     DDRCTRL_PCTRL_N_PORT_EN);
+
+	/*
+	 * Waits unit all AXI ports are idle
+	 * Poll PSTAT.rd_port_busy_n = 0
+	 * Poll PSTAT.wr_port_busy_n = 0
+	 */
+	ret = secure_waitbits(STM32_DDRCTRL_BASE + DDRCTRL_PSTAT,
+			      DDRCTRL_PSTAT_RD_PORT_BUSY_0 |
+			      DDRCTRL_PSTAT_RD_PORT_BUSY_1 |
+			      DDRCTRL_PSTAT_WR_PORT_BUSY_0 |
+			      DDRCTRL_PSTAT_WR_PORT_BUSY_1, 0);
+	if (ret)
+		goto pstat_failed;
+
+	/* SW Self-Refresh entry */
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PWRCTL, DDRCTRL_PWRCTL_SELFREF_SW);
+
+	/*
+	 * Wait operating mode change in self-refresh mode
+	 * with STAT.operating_mode[1:0]==11.
+	 * Ensure transition to self-refresh was due to software
+	 * by checking also that STAT.selfref_type[1:0]=2.
+	 */
+	ret = secure_waitbits(STM32_DDRCTRL_BASE + DDRCTRL_STAT,
+			      DDRCTRL_STAT_OPERATING_MODE_MASK |
+			      DDRCTRL_STAT_SELFREF_TYPE_MASK,
+			      DDRCTRL_STAT_OPERATING_MODE_SR |
+			      DDRCTRL_STAT_SELFREF_TYPE_SR);
+	if (ret)
+		goto selfref_sw_failed;
+
+	/* IOs powering down (PUBL registers) */
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR, DDRPHYC_ACIOCR_ACPDD);
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR, DDRPHYC_ACIOCR_ACPDR);
+
+	clrsetbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR,
+			DDRPHYC_ACIOCR_CKPDD_MASK,
+			DDRPHYC_ACIOCR_CKPDD_0);
+
+	clrsetbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR,
+			DDRPHYC_ACIOCR_CKPDR_MASK,
+			DDRPHYC_ACIOCR_CKPDR_0);
+
+	clrsetbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR,
+			DDRPHYC_ACIOCR_CSPDD_MASK,
+			DDRPHYC_ACIOCR_CSPDD_0);
+
+	/* Disable command/address output driver */
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR, DDRPHYC_ACIOCR_ACOE);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DXCCR, DDRPHYC_DXCCR_DXPDD);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DXCCR, DDRPHYC_DXCCR_DXPDR);
+
+	clrsetbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR,
+			DDRPHYC_DSGCR_ODTPDD_MASK,
+			DDRPHYC_DSGCR_ODTPDD_0);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR, DDRPHYC_DSGCR_NL2PD);
+
+	clrsetbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR,
+			DDRPHYC_DSGCR_CKEPDD_MASK,
+			DDRPHYC_DSGCR_CKEPDD_0);
+
+	/* Disable PZQ cell (PUBL register) */
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ZQ0CR0, DDRPHYC_ZQ0CRN_ZQPD);
+
+	/* Set latch */
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR, DDRPHYC_DSGCR_CKOE);
+
+	/* Additional delay to avoid early latch */
+	secure_udelay(10);
+
+	/* Activate sw retention in PWRCTRL */
+	setbits_le32(STM32_PWR_BASE + PWR_CR3, PWR_CR3_DDRRETEN);
+
+	/* Switch controller clocks (uMCTL2/PUBL) to DLL ref clock */
+	setbits_le32(STM32_RCC_BASE + RCC_DDRITFCR, RCC_DDRITFCR_GSKPCTRL);
+
+	/* Disable all DLLs: GLITCH window */
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACDLLCR, DDRPHYC_ACDLLCR_DLLDIS);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX0DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX1DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX2DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX3DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	/* Switch controller clocks (uMCTL2/PUBL) to DLL output clock */
+	clrbits_le32(STM32_RCC_BASE + RCC_DDRITFCR, RCC_DDRITFCR_GSKPCTRL);
+
+	/* Deactivate all DDR clocks */
+	clrbits_le32(STM32_RCC_BASE + RCC_DDRITFCR,
+		     RCC_DDRITFCR_DDRC1EN | RCC_DDRITFCR_DDRC2EN |
+		     RCC_DDRITFCR_DDRCAPBEN | RCC_DDRITFCR_DDRPHYCAPBEN);
+
+	return 0;
+
+selfref_sw_failed:
+	/* This bit should be cleared to restore DDR in its previous state */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PWRCTL,
+		     DDRCTRL_PWRCTL_SELFREF_SW);
+
+pstat_failed:
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PCTRL_0,
+		     DDRCTRL_PCTRL_N_PORT_EN);
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PCTRL_1,
+		     DDRCTRL_PCTRL_N_PORT_EN);
+
+	return -EINVAL;
+};
+
+static void __secure ddr_sw_self_refresh_exit(void)
+{
+	int ret;
+
+	/* Enable all clocks */
+	setbits_le32(STM32_RCC_BASE + RCC_DDRITFCR,
+		     RCC_DDRITFCR_DDRC1EN | RCC_DDRITFCR_DDRC2EN |
+		     RCC_DDRITFCR_DDRPHYCEN | RCC_DDRITFCR_DDRPHYCAPBEN |
+		     RCC_DDRITFCR_DDRCAPBEN);
+
+	/* Handshake */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_SWCTL, DDRCTRL_SWCTL_SW_DONE);
+
+	/* Mask dfi_init_complete_en */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_DFIMISC,
+		     DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN);
+
+	/* Ack */
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_SWCTL, DDRCTRL_SWCTL_SW_DONE);
+	ret = secure_waitbits(STM32_DDRCTRL_BASE + DDRCTRL_SWSTAT,
+			      DDRCTRL_SWSTAT_SW_DONE_ACK,
+			      DDRCTRL_SWSTAT_SW_DONE_ACK);
+	if (ret)
+		hang();
+
+	/* Switch controller clocks (uMCTL2/PUBL) to DLL ref clock */
+	setbits_le32(STM32_RCC_BASE + RCC_DDRITFCR, RCC_DDRITFCR_GSKPCTRL);
+
+	/* Enable all DLLs: GLITCH window */
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACDLLCR,
+		     DDRPHYC_ACDLLCR_DLLDIS);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX0DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX1DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX2DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DX3DLLCR, DDRPHYC_DXNDLLCR_DLLDIS);
+
+	/* Additional delay to avoid early DLL clock switch */
+	secure_udelay(50);
+
+	/* Switch controller clocks (uMCTL2/PUBL) to DLL ref clock */
+	clrbits_le32(STM32_RCC_BASE + RCC_DDRITFCR, RCC_DDRITFCR_GSKPCTRL);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACDLLCR, DDRPHYC_ACDLLCR_DLLSRST);
+
+	secure_udelay(10);
+
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACDLLCR, DDRPHYC_ACDLLCR_DLLSRST);
+
+	/* PHY partial init: (DLL lock and ITM reset) */
+	writel(DDRPHYC_PIR_DLLSRST | DDRPHYC_PIR_DLLLOCK |
+	       DDRPHYC_PIR_ITMSRST | DDRPHYC_PIR_INIT,
+	       STM32_DDRPHYC_BASE + DDRPHYC_PIR);
+
+	/* Need to wait at least 10 clock cycles before accessing PGSR */
+	secure_udelay(1);
+
+	/* Pool end of init */
+	ret = secure_waitbits(STM32_DDRPHYC_BASE + DDRPHYC_PGSR,
+			      DDRPHYC_PGSR_IDONE, DDRPHYC_PGSR_IDONE);
+	if (ret)
+		hang();
+
+	/* Handshake */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_SWCTL, DDRCTRL_SWCTL_SW_DONE);
+
+	/* Unmask dfi_init_complete_en to uMCTL2 */
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_DFIMISC, DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN);
+
+	/* Ack */
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_SWCTL, DDRCTRL_SWCTL_SW_DONE);
+	ret = secure_waitbits(STM32_DDRCTRL_BASE + DDRCTRL_SWSTAT,
+			      DDRCTRL_SWSTAT_SW_DONE_ACK,
+			      DDRCTRL_SWSTAT_SW_DONE_ACK);
+	if (ret)
+		hang();
+
+	/* Deactivate sw retention in PWR */
+	clrbits_le32(STM32_PWR_BASE + PWR_CR3, PWR_CR3_DDRRETEN);
+
+	/* Enable PZQ cell (PUBL register) */
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ZQ0CR0, DDRPHYC_ZQ0CRN_ZQPD);
+
+	/* Enable pad drivers */
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR, DDRPHYC_ACIOCR_ACPDD);
+
+	/* Enable command/address output driver */
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR, DDRPHYC_ACIOCR_ACOE);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR, DDRPHYC_ACIOCR_CKPDD_MASK);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_ACIOCR, DDRPHYC_ACIOCR_CSPDD_MASK);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DXCCR, DDRPHYC_DXCCR_DXPDD);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DXCCR, DDRPHYC_DXCCR_DXPDR);
+
+	/* Release latch */
+	setbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR, DDRPHYC_DSGCR_CKOE);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR, DDRPHYC_DSGCR_ODTPDD_MASK);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR, DDRPHYC_DSGCR_NL2PD);
+
+	clrbits_le32(STM32_DDRPHYC_BASE + DDRPHYC_DSGCR, DDRPHYC_DSGCR_CKEPDD_MASK);
+
+	/* Remove selfrefresh */
+	clrbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PWRCTL, DDRCTRL_PWRCTL_SELFREF_SW);
+
+	/* Wait operating_mode == normal */
+	ret = secure_waitbits(STM32_DDRCTRL_BASE + DDRCTRL_STAT,
+			      DDRCTRL_STAT_OPERATING_MODE_MASK,
+			      DDRCTRL_STAT_OPERATING_MODE_NORMAL);
+	if (ret)
+		hang();
+
+	/* AXI ports are no longer blocked from taking transactions */
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PCTRL_0, DDRCTRL_PCTRL_N_PORT_EN);
+	setbits_le32(STM32_DDRCTRL_BASE + DDRCTRL_PCTRL_1, DDRCTRL_PCTRL_N_PORT_EN);
+
+	setbits_le32(STM32_RCC_BASE + RCC_DDRITFCR, RCC_DDRITFCR_AXIDCGEN);
+}
+
+void __secure psci_system_suspend(u32 __always_unused function_id,
+				  u32 ep, u32 context_id)
+{
+	u32 saved_pwrctl, reg;
+
+	/* Disable IO compensation */
+
+	/* Place current APSRC/ANSRC into RAPSRC/RANSRC */
+	reg = readl(STM32_SYSCFG_BASE + SYSCFG_CMPCR);
+	reg >>= 8;
+	reg &= 0xff << 16;
+	reg |= SYSCFG_CMPCR_SW_CTRL;
+	writel(reg, STM32_SYSCFG_BASE + SYSCFG_CMPCR);
+	writel(SYSCFG_CMPENR_MPUEN, STM32_SYSCFG_BASE + SYSCFG_CMPENCLRR);
+
+	writel(RCC_MP_CIFR_WKUPF, STM32_RCC_BASE + RCC_MP_CIFR);
+	setbits_le32(STM32_RCC_BASE + RCC_MP_CIER, RCC_MP_CIFR_WKUPF);
+
+	setbits_le32(STM32_PWR_BASE + PWR_MPUCR,
+		     PWR_MPUCR_CSSF | PWR_MPUCR_CSTDBYDIS | PWR_MPUCR_PDDS);
+
+	psci_v7_flush_dcache_all();
+	ddr_sr_mode_ssr(&saved_pwrctl);
+	ddr_sw_self_refresh_in();
+	setbits_le32(STM32_PWR_BASE + PWR_CR3, PWR_CR3_DDRSREN);
+	writel(0x3, STM32_RCC_BASE + RCC_MP_SREQSETR);
+
+	/* Zzz, enter stop mode */
+	asm volatile(
+		"isb\n"
+		"dsb\n"
+		"wfi\n");
+
+	writel(0x3, STM32_RCC_BASE + RCC_MP_SREQCLRR);
+	ddr_sw_self_refresh_exit();
+	ddr_sr_mode_restore(saved_pwrctl);
+
+	writel(SYSCFG_CMPENR_MPUEN, STM32_SYSCFG_BASE + SYSCFG_CMPENSETR);
+	clrbits_le32(STM32_SYSCFG_BASE + SYSCFG_CMPCR, SYSCFG_CMPCR_SW_CTRL);
 }

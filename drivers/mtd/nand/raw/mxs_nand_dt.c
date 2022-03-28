@@ -92,8 +92,6 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 
 	info->use_minimum_ecc = dev_read_bool(dev, "fsl,use-minimum-ecc");
 
-	info->legacy_bch_geometry = dev_read_bool(dev, "fsl,legacy-bch-geometry");
-
 	if (IS_ENABLED(CONFIG_CLK) && IS_ENABLED(CONFIG_IMX8)) {
 		/* Assigned clock already set clock */
 		struct clk gpmi_clk;
