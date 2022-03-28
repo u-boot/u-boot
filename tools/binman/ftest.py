@@ -91,6 +91,9 @@ SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
 ENV_DATA              = b'var1=1\nvar2="2"'
+PRE_LOAD_MAGIC        = b'UBSH'
+PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
+PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
 
 # Subdirectory of the input dir to use to put test FDTs
 TEST_FDT_SUBDIR       = 'fdts'
@@ -5471,6 +5474,54 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             err,
             "Image '.*' is missing external blobs and is non-functional: .*")
 
+    def testPreLoad(self):
+        """Test an image with a pre-load header"""
+        entry_args = {
+            'pre-load-key-path': '.',
+        }
+        data, _, _, _ = self._DoReadFileDtb('225_pre_load.dts',
+                                            entry_args=entry_args)
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+        data = self._DoReadFile('225_pre_load.dts')
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+
+    def testPreLoadPkcs(self):
+        """Test an image with a pre-load header with padding pkcs"""
+        data = self._DoReadFile('226_pre_load_pkcs.dts')
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+
+    def testPreLoadPss(self):
+        """Test an image with a pre-load header with padding pss"""
+        data = self._DoReadFile('227_pre_load_pss.dts')
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+
+    def testPreLoadInvalidPadding(self):
+        """Test an image with a pre-load header with an invalid padding"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('228_pre_load_invalid_padding.dts')
+
+    def testPreLoadInvalidSha(self):
+        """Test an image with a pre-load header with an invalid hash"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('229_pre_load_invalid_sha.dts')
+
+    def testPreLoadInvalidAlgo(self):
+        """Test an image with a pre-load header with an invalid algo"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('230_pre_load_invalid_algo.dts')
+
+    def testPreLoadInvalidKey(self):
+        """Test an image with a pre-load header with an invalid key"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('231_pre_load_invalid_key.dts')
 
 if __name__ == "__main__":
     unittest.main()
