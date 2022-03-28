@@ -997,6 +997,9 @@ struct efi_fw_images {
 	u8 image_index;
 };
 
+extern struct efi_fw_images fw_images[];
+extern u8 num_image_type_guids;
+
 /**
  * Install the ESRT system table.
  *
