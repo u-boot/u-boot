@@ -89,6 +89,9 @@ base_fdt = '''
 	model = "Sandbox Verified Boot Test";
 	compatible = "sandbox";
 
+	binman {
+	};
+
 	reset@0 {
 		compatible = "sandbox,reset";
 		reg = <0>;

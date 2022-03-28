@@ -7,6 +7,9 @@
 #define USB_CLASS_HUB			9
 
 / {
+	binman {
+	};
+
 	chosen {
 		stdout-path = "/serial";
 	};

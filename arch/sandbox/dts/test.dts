@@ -61,6 +61,9 @@
 		osd0 = "/osd";
 	};
 
+	binman {
+	};
+
 	config {
 		testing-bool;
 		testing-int = <123>;
