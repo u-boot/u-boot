@@ -62,6 +62,28 @@ static const efi_guid_t uuid_mmc[3] = {
 	ROOTFS_MMC2_UUID
 };
 
+/* FIP type partition UUID used by TF-A*/
+#define FIP_TYPE_UUID "19D5DF83-11B0-457B-BE2C-7559C13142A5"
+
+/* unique partition guid (uuid) for FIP partitions A/B */
+#define FIP_A_UUID \
+	EFI_GUID(0x4FD84C93, 0x54EF, 0x463F, \
+		 0xA7, 0xEF, 0xAE, 0x25, 0xFF, 0x88, 0x70, 0x87)
+
+#define FIP_B_UUID \
+	EFI_GUID(0x09C54952, 0xD5BF, 0x45AF, \
+		 0xAC, 0xEE, 0x33, 0x53, 0x03, 0x76, 0x6F, 0xB3)
+
+static const char * const fip_part_name[] = {
+	"fip-a",
+	"fip-b"
+};
+
+static const efi_guid_t fip_part_uuid[] = {
+	FIP_A_UUID,
+	FIP_B_UUID
+};
+
 /* order of column in flash layout file */
 enum stm32prog_col_t {
 	COL_OPTION,
@@ -405,6 +427,8 @@ static int parse_type(struct stm32prog_data *data,
 				part->bin_nb =
 					dectoul(&p[7], NULL);
 		}
+	} else if (!strcmp(p, "FIP")) {
+		part->part_type = PART_FIP;
 	} else if (!strcmp(p, "System")) {
 		part->part_type = PART_SYSTEM;
 	} else if (!strcmp(p, "FileSystem")) {
@@ -1056,9 +1080,10 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 	char uuid[UUID_STR_LEN + 1];
 	unsigned char *uuid_bin;
 	unsigned int mmc_id;
-	int i;
+	int i, j;
 	bool rootfs_found;
 	struct stm32prog_part_t *part;
+	const char *type_str;
 
 	buf = malloc(buflen);
 	if (!buf)
@@ -1100,33 +1125,46 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 					   part->addr,
 					   part->size);
 
-			if (part->part_type == PART_BINARY)
-				offset += snprintf(buf + offset,
-						   buflen - offset,
-						   ",type="
-						   LINUX_RESERVED_UUID);
-			else
-				offset += snprintf(buf + offset,
-						   buflen - offset,
-						   ",type=linux");
+			switch (part->part_type) {
+			case PART_BINARY:
+				type_str = LINUX_RESERVED_UUID;
+				break;
+			case PART_FIP:
+				type_str = FIP_TYPE_UUID;
+				break;
+			default:
+				type_str = "linux";
+				break;
+			}
+			offset += snprintf(buf + offset,
+					   buflen - offset,
+					   ",type=%s", type_str);
 
 			if (part->part_type == PART_SYSTEM)
 				offset += snprintf(buf + offset,
 						   buflen - offset,
 						   ",bootable");
 
+			/* partition UUID */
+			uuid_bin = NULL;
 			if (!rootfs_found && !strcmp(part->name, "rootfs")) {
 				mmc_id = part->dev_id;
 				rootfs_found = true;
-				if (mmc_id < ARRAY_SIZE(uuid_mmc)) {
-					uuid_bin =
-					  (unsigned char *)uuid_mmc[mmc_id].b;
-					uuid_bin_to_str(uuid_bin, uuid,
-							UUID_STR_FORMAT_GUID);
-					offset += snprintf(buf + offset,
-							   buflen - offset,
-							   ",uuid=%s", uuid);
-				}
+				if (mmc_id < ARRAY_SIZE(uuid_mmc))
+					uuid_bin = (unsigned char *)uuid_mmc[mmc_id].b;
+			}
+			if (part->part_type == PART_FIP) {
+				for (j = 0; j < ARRAY_SIZE(fip_part_name); j++)
+					if (!strcmp(part->name, fip_part_name[j])) {
+						uuid_bin = (unsigned char *)fip_part_uuid[j].b;
+						break;
+					}
+			}
+			if (uuid_bin) {
+				uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
+				offset += snprintf(buf + offset,
+						   buflen - offset,
+						   ",uuid=%s", uuid);
 			}
 
 			offset += snprintf(buf + offset, buflen - offset, ";");

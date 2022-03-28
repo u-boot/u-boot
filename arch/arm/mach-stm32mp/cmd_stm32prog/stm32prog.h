@@ -94,9 +94,10 @@ struct stm32_header_v2 {
 /* partition type in flashlayout file */
 enum stm32prog_part_type {
 	PART_BINARY,
+	PART_FIP,
 	PART_SYSTEM,
 	PART_FILESYSTEM,
-	RAW_IMAGE
+	RAW_IMAGE,
 };
 
 /* device information */
