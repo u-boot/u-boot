@@ -13,13 +13,13 @@ Status
 U-Boot supports loading VxWorks kernels via 'bootvx' and 'bootm' commands.
 For booting old kernels (6.9.x) on PowerPC and ARM, and all kernel versions
 on other architectures, 'bootvx' shall be used. For booting VxWorks 7 kernels
-on PowerPC and ARM, 'bootm' shall be used.
+on PowerPC/ARM/RISC-V, 'bootm' shall be used.
 
 With CONFIG_EFI_LOADER option, it's possible to chain load a VxWorks x86 kernel
 via the UEFI boot loader application for VxWorks loaded by 'bootefi' command.
 
-VxWorks 7 on PowerPC and ARM
-----------------------------
+VxWorks 7 on PowerPC/ARM/RISC-V
+-------------------------------
 From VxWorks 7, VxWorks starts adopting device tree as its hardware description
 mechanism (for PowerPC and ARM), thus requiring boot interface changes.
 This section will describe the new interface.
@@ -48,6 +48,11 @@ For ARM, the calling convention is shown below:
 
 When using the Linux compatible standard DTB, the calling convention of VxWorks
 entry point is exactly the same as the Linux kernel.
+
+For RISC-V, there is no legacy bootm flow as VxWorks always uses the same boot
+interface as the Linux kernel, with the calling convention below::
+
+    void (*kernel_entry)(unsigned long hartid, void *fdt_addr)
 
 When booting a VxWorks 7 kernel (uImage format), the parameters passed to bootm
 is like below::
