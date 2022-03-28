@@ -809,6 +809,16 @@ config ASN1_DECODER
 	  and especially in cryptography (https://en.wikipedia.org/wiki/ASN.1).
 	  This option enables the support of the asn1 decoder.
 
+config SPL_ASN1_DECODER
+	bool
+	help
+	  ASN.1 (Abstract Syntax Notation One) is a standard interface
+	  description language for defining data structures that can be
+	  serialized and deserialized in a cross-platform way. It is
+	  broadly used in telecommunications and computer networking,
+	  and especially in cryptography (https://en.wikipedia.org/wiki/ASN.1).
+	  This option enables the support of the asn1 decoder in the SPL.
+
 config OID_REGISTRY
 	bool
 	help
@@ -817,6 +827,15 @@ config OID_REGISTRY
 	  ISO/IEC for naming any object, concept, or "thing" with a globally
 	  unambiguous persistent name (https://en.wikipedia.org/wiki/Object_identifier).
 	  Enable fast lookup object identifier registry.
+
+config SPL_OID_REGISTRY
+	bool
+	help
+	  In computing, object identifiers or OIDs are an identifier mechanism
+	  standardized by the International Telecommunication Union (ITU) and
+	  ISO/IEC for naming any object, concept, or "thing" with a globally
+	  unambiguous persistent name (https://en.wikipedia.org/wiki/Object_identifier).
+	  Enable fast lookup object identifier registry in the SPL.
 
 config SMBIOS_PARSER
 	bool "SMBIOS parser"
