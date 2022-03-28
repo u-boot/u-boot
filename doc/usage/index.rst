@@ -60,4 +60,5 @@ Booting OS
 .. toctree::
    :maxdepth: 1
 
+   os/plan9
    os/vxworks
