@@ -53,3 +53,11 @@ Shell commands
    cmd/true
    cmd/ums
    cmd/wdt
+
+Booting OS
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   os/vxworks
