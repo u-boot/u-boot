@@ -1706,7 +1706,8 @@ static void stm32prog_end_phase(struct stm32prog_data *data, u64 offset)
 			return;
 		}
 #endif
-		if (parse_flash_layout(data, STM32_DDR_BASE, 0))
+		log_notice("\nFlashLayout received, size = %lld\n", offset);
+		if (parse_flash_layout(data, STM32_DDR_BASE, offset))
 			stm32prog_err("Layout: invalid FlashLayout");
 		return;
 	}
