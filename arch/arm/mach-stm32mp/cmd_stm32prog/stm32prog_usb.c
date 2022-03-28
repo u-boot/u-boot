@@ -206,9 +206,12 @@ bool stm32prog_usb_loop(struct stm32prog_data *data, int dev)
 	g_dnl_set_product(product);
 
 	if (stm32prog_data->phase == PHASE_FLASHLAYOUT) {
+		/* forget any previous Control C */
+		clear_ctrlc();
 		ret = run_usb_dnl_gadget(dev, "usb_dnl_dfu");
-		if (ret || stm32prog_data->phase != PHASE_FLASHLAYOUT)
-			return ret;
+		/* DFU reset received, no error or CtrlC */
+		if (ret || stm32prog_data->phase != PHASE_FLASHLAYOUT || had_ctrlc())
+			return ret; /* true = reset on DFU error */
 		/* prepare the second enumeration with the FlashLayout */
 		stm32prog_dfu_init(data);
 	}
