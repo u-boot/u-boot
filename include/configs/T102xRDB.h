@@ -365,18 +365,6 @@
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
-/* Video */
-#undef CONFIG_FSL_DIU_FB	/* RDB doesn't support DIU */
-#ifdef CONFIG_FSL_DIU_FB
-#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
-#define CONFIG_VIDEO_BMP_LOGO
-/*
- * With CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS, flash I/O is really slow, so
- * disable empty flash sector detection, which is I/O-intensive.
- */
-#undef CONFIG_SYS_FLASH_EMPTY_INFO
-#endif
-
 /* I2C */
 
 #define I2C_PCA6408_BUS_NUM		1

@@ -1725,7 +1725,7 @@ int fdt_set_status_by_pathf(void *fdt, enum fdt_status status, const char *fmt,
 	return fdt_set_node_status(fdt, offset, status);
 }
 
-#if defined(CONFIG_VIDEO) || defined(CONFIG_LCD)
+#if defined(CONFIG_LCD)
 int fdt_add_edid(void *blob, const char *compat, unsigned char *edid_buf)
 {
 	int noff;

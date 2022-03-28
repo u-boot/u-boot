@@ -970,24 +970,6 @@ The following options need to be configured:
 - Keyboard Support:
 		See Kconfig help for available keyboard drivers.
 
-- Video support:
-		CONFIG_FSL_DIU_FB
-		Enable the Freescale DIU video driver.	Reference boards for
-		SOCs that have a DIU should define this macro to enable DIU
-		support, and should also define these other macros:
-
-			CONFIG_SYS_DIU_ADDR
-			CONFIG_VIDEO
-			CONFIG_CFB_CONSOLE
-			CONFIG_VIDEO_SW_CURSOR
-			CONFIG_VGA_AS_SINGLE_DEVICE
-			CONFIG_VIDEO_BMP_LOGO
-
-		The DIU driver will look for the 'video-mode' environment
-		variable, and if defined, enable the DIU as a console during
-		boot.  See the documentation file doc/README.video for a
-		description of this variable.
-
 - LCD Support:	CONFIG_LCD
 
 		Define this to enable LCD support (for output to LCD
@@ -1061,10 +1043,6 @@ The following options need to be configured:
 
 		If CONFIG_LCD_ROTATION is not defined, the console will be
 		initialized with 0degree rotation.
-
-		CONFIG_LCD_BMP_RLE8
-
-		Support drawing of RLE8-compressed bitmaps on the LCD.
 
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)

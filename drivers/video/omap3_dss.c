@@ -28,7 +28,6 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/dss.h>
-#include <video_fb.h>
 
 /* Configure VENC for a given Mode (NTSC / PAL) */
 void omap3_dss_venc_config(const struct venc_regs *venc_cfg,
@@ -137,31 +136,3 @@ void omap3_dss_enable(void)
 	l |= LCD_ENABLE | GO_LCD | DIG_ENABLE | GO_DIG | GP_OUT0 | GP_OUT1;
 	writel(l, &dispc->control);
 }
-
-#ifdef CONFIG_CFB_CONSOLE
-int __board_video_init(void)
-{
-	return -1;
-}
-
-int board_video_init(void)
-			__attribute__((weak, alias("__board_video_init")));
-
-void *video_hw_init(void)
-{
-	static GraphicDevice dssfb;
-	GraphicDevice *pGD = &dssfb;
-	struct dispc_regs *dispc = (struct dispc_regs *) OMAP3_DISPC_BASE;
-
-	if (board_video_init() || !readl(&dispc->gfx_ba0))
-		return NULL;
-
-	pGD->winSizeX = (readl(&dispc->size_lcd) & 0x7FF) + 1;
-	pGD->winSizeY = ((readl(&dispc->size_lcd) >> 16) & 0x7FF) + 1;
-	pGD->gdfBytesPP = 4;
-	pGD->gdfIndex = GDF_32BIT_X888RGB;
-	pGD->frameAdrs = readl(&dispc->gfx_ba0);
-
-	return pGD;
-}
-#endif

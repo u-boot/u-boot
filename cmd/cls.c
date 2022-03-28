@@ -28,8 +28,6 @@ static int do_video_clear(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (video_clear(dev))
 		return CMD_RET_FAILURE;
 #endif
-#elif defined(CONFIG_CFB_CONSOLE)
-	video_clear();
 #elif defined(CONFIG_LCD)
 	lcd_clear();
 #else

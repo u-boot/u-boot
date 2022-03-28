@@ -30,7 +30,6 @@
 #include <i2c.h>
 #include <malloc.h>
 #include <video.h>
-#include <video_fb.h>
 #include <dm/uclass-internal.h>
 #include "../videomodes.h"
 #include "../anx9804.h"

@@ -8,16 +8,12 @@
 #ifndef _NX__DISPLAY_DEV_H_
 #define _NX__DISPLAY_DEV_H_
 
-#if defined CONFIG_VIDEO || defined CONFIG_DM_VIDEO
-#include <video_fb.h>
-#elif defined CONFIG_LCD
+#if !defined(CONFIG_DM_VIDEO) && defined(CONFIG_LCD)
 #include <lcd.h>
 #endif
 
 struct nx_display_dev {
-#if defined CONFIG_VIDEO || defined CONFIG_DM_VIDEO
-	GraphicDevice graphic_device;
-#elif defined CONFIG_LCD
+#if !defined(CONFIG_DM_VIDEO) && defined(CONFIG_LCD)
 	vidinfo_t *panel_info;
 #endif
 	unsigned long base;

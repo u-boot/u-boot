@@ -1786,7 +1786,7 @@ config CMD_CONITRACE
 
 config CMD_CLS
 	bool "Enable clear screen command 'cls'"
-	depends on CFB_CONSOLE || DM_VIDEO || LCD || VIDEO
+	depends on DM_VIDEO || LCD || VIDEO
 	default y if LCD
 	help
 	  Enable the 'cls' command which clears the screen contents

@@ -17,9 +17,6 @@ struct factorysetcontainer {
 	int usb_vendor_id;
 	int usb_product_id;
 	int pxm50;
-#if defined(CONFIG_VIDEO)
-	unsigned char disp_name[MAX_STRING_LENGTH];
-#endif
 	unsigned char serial[MAX_STRING_LENGTH];
 	int version;
 	uchar asn[MAX_STRING_LENGTH];

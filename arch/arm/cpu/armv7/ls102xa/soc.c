@@ -174,10 +174,6 @@ int arch_soc_init(void)
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 
-#ifdef CONFIG_VIDEO_FSL_DCU_FB
-	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
-#endif
-
 	/* Configure Little endian for SAI, ASRC and SPDIF */
 	out_be32(&scfg->endiancr, SCFG_ENDIANCR_LE);
 
