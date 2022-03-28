@@ -791,11 +791,23 @@ endmenu
 
 config ASN1_COMPILER
 	bool
+	help
+	  ASN.1 (Abstract Syntax Notation One) is a standard interface
+	  description language for defining data structures that can be
+	  serialized and deserialized in a cross-platform way. It is
+	  broadly used in telecommunications and computer networking,
+	  and especially in cryptography (https://en.wikipedia.org/wiki/ASN.1).
+	  This option enables the support of the asn1 compiler.
 
 config ASN1_DECODER
 	bool
 	help
-	  Enable asn1 decoder library.
+	  ASN.1 (Abstract Syntax Notation One) is a standard interface
+	  description language for defining data structures that can be
+	  serialized and deserialized in a cross-platform way. It is
+	  broadly used in telecommunications and computer networking,
+	  and especially in cryptography (https://en.wikipedia.org/wiki/ASN.1).
+	  This option enables the support of the asn1 decoder.
 
 config OID_REGISTRY
 	bool
