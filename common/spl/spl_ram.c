@@ -24,9 +24,17 @@
 static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
 			       ulong count, void *buf)
 {
+	ulong addr;
+
 	debug("%s: sector %lx, count %lx, buf %lx\n",
 	      __func__, sector, count, (ulong)buf);
-	memcpy(buf, (void *)(CONFIG_SPL_LOAD_FIT_ADDRESS + sector), count);
+
+	addr = (ulong)CONFIG_SPL_LOAD_FIT_ADDRESS + sector;
+	if (CONFIG_IS_ENABLED(IMAGE_PRE_LOAD))
+		addr += image_load_offset;
+
+	memcpy(buf, (void *)addr, count);
+
 	return count;
 }
 
@@ -36,6 +44,17 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 	struct image_header *header;
 
 	header = (struct image_header *)CONFIG_SPL_LOAD_FIT_ADDRESS;
+
+	if (CONFIG_IS_ENABLED(IMAGE_PRE_LOAD)) {
+		unsigned long addr = (unsigned long)header;
+		int ret = image_pre_load(addr);
+
+		if (ret)
+			return ret;
+
+		addr += image_load_offset;
+		header = (struct image_header *)addr;
+	}
 
 #if CONFIG_IS_ENABLED(DFU)
 	if (bootdev->boot_device == BOOT_DEVICE_DFU)
