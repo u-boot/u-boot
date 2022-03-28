@@ -812,6 +812,10 @@ config ASN1_DECODER
 config OID_REGISTRY
 	bool
 	help
+	  In computing, object identifiers or OIDs are an identifier mechanism
+	  standardized by the International Telecommunication Union (ITU) and
+	  ISO/IEC for naming any object, concept, or "thing" with a globally
+	  unambiguous persistent name (https://en.wikipedia.org/wiki/Object_identifier).
 	  Enable fast lookup object identifier registry.
 
 config SMBIOS_PARSER
