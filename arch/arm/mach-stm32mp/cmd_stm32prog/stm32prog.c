@@ -205,52 +205,98 @@ static bool stm32prog_is_fip_header(struct fip_toc_header *header)
 	return (header->name == FIP_TOC_HEADER_NAME) && header->serial_number;
 }
 
-void stm32prog_header_check(struct raw_header_s *raw_header,
-			    struct image_header_s *header)
+static bool stm32prog_is_stm32_header_v1(struct stm32_header_v1 *header)
 {
 	unsigned int i;
+
+	if (header->magic_number !=
+		(('S' << 0) | ('T' << 8) | ('M' << 16) | (0x32 << 24))) {
+		log_debug("%s:invalid magic number : 0x%x\n",
+			  __func__, header->magic_number);
+		return false;
+	}
+	if (header->header_version != 0x00010000) {
+		log_debug("%s:invalid header version : 0x%x\n",
+			  __func__, header->header_version);
+		return false;
+	}
+
+	if (header->reserved1 || header->reserved2) {
+		log_debug("%s:invalid reserved field\n", __func__);
+		return false;
+	}
+	for (i = 0; i < sizeof(header->padding); i++) {
+		if (header->padding[i] != 0) {
+			log_debug("%s:invalid padding field\n", __func__);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+static bool stm32prog_is_stm32_header_v2(struct stm32_header_v2 *header)
+{
+	unsigned int i;
+
+	if (header->magic_number !=
+		(('S' << 0) | ('T' << 8) | ('M' << 16) | (0x32 << 24))) {
+		log_debug("%s:invalid magic number : 0x%x\n",
+			  __func__, header->magic_number);
+		return false;
+	}
+	if (header->header_version != 0x00020000) {
+		log_debug("%s:invalid header version : 0x%x\n",
+			  __func__, header->header_version);
+		return false;
+	}
+	if (header->reserved1 || header->reserved2)
+		return false;
+
+	for (i = 0; i < sizeof(header->padding); i++) {
+		if (header->padding[i] != 0) {
+			log_debug("%s:invalid padding field\n", __func__);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void stm32prog_header_check(uintptr_t raw_header, struct image_header_s *header)
+{
+	struct stm32_header_v1 *v1_header = (struct stm32_header_v1 *)raw_header;
+	struct stm32_header_v2 *v2_header = (struct stm32_header_v2 *)raw_header;
 
 	if (!raw_header || !header) {
 		log_debug("%s:no header data\n", __func__);
 		return;
 	}
 
+	if (stm32prog_is_fip_header((struct fip_toc_header *)raw_header)) {
+		header->type = HEADER_FIP;
+		header->length = 0;
+		return;
+	}
+	if (stm32prog_is_stm32_header_v1(v1_header)) {
+		header->type = HEADER_STM32IMAGE;
+		header->image_checksum = le32_to_cpu(v1_header->image_checksum);
+		header->image_length = le32_to_cpu(v1_header->image_length);
+		header->length = sizeof(struct stm32_header_v1);
+		return;
+	}
+	if (stm32prog_is_stm32_header_v2(v2_header)) {
+		header->type = HEADER_STM32IMAGE_V2;
+		header->image_checksum = le32_to_cpu(v2_header->image_checksum);
+		header->image_length = le32_to_cpu(v2_header->image_length);
+		header->length = sizeof(struct stm32_header_v1) +
+				 v2_header->extension_headers_length;
+		return;
+	}
+
 	header->type = HEADER_NONE;
 	header->image_checksum = 0x0;
 	header->image_length = 0x0;
-
-	if (stm32prog_is_fip_header((struct fip_toc_header *)raw_header)) {
-		header->type = HEADER_FIP;
-		return;
-	}
-
-	if (raw_header->magic_number !=
-		(('S' << 0) | ('T' << 8) | ('M' << 16) | (0x32 << 24))) {
-		log_debug("%s:invalid magic number : 0x%x\n",
-			  __func__, raw_header->magic_number);
-		return;
-	}
-	/* only header v1.0 supported */
-	if (raw_header->header_version != 0x00010000) {
-		log_debug("%s:invalid header version : 0x%x\n",
-			  __func__, raw_header->header_version);
-		return;
-	}
-	if (raw_header->reserved1 != 0x0 || raw_header->reserved2) {
-		log_debug("%s:invalid reserved field\n", __func__);
-		return;
-	}
-	for (i = 0; i < (sizeof(raw_header->padding) / 4); i++) {
-		if (raw_header->padding[i] != 0) {
-			log_debug("%s:invalid padding field\n", __func__);
-			return;
-		}
-	}
-	header->type = HEADER_STM32IMAGE;
-	header->image_checksum = le32_to_cpu(raw_header->image_checksum);
-	header->image_length = le32_to_cpu(raw_header->image_length);
-
-	return;
 }
 
 static u32 stm32prog_header_checksum(u32 addr, struct image_header_s *header)
@@ -480,11 +526,11 @@ static int parse_flash_layout(struct stm32prog_data *data,
 	data->part_nb = 0;
 
 	/* check if STM32image is detected */
-	stm32prog_header_check((struct raw_header_s *)addr, &header);
+	stm32prog_header_check(addr, &header);
 	if (header.type == HEADER_STM32IMAGE) {
 		u32 checksum;
 
-		addr = addr + BL_HEADER_SIZE;
+		addr = addr + header.length;
 		size = header.image_length;
 
 		checksum = stm32prog_header_checksum(addr, &header);
@@ -1560,7 +1606,7 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 	int ret, i;
 	void *fsbl;
 	struct image_header_s header;
-	struct raw_header_s raw_header;
+	struct stm32_header_v2 raw_header; /* V2 size > v1 size */
 	struct dfu_entity *dfu;
 	long size, offset;
 
@@ -1572,17 +1618,18 @@ static int stm32prog_copy_fsbl(struct stm32prog_part_t *part)
 
 	/* read header */
 	dfu_transaction_cleanup(dfu);
-	size = BL_HEADER_SIZE;
+	size = sizeof(raw_header);
 	ret = dfu->read_medium(dfu, 0, (void *)&raw_header, &size);
 	if (ret)
 		return ret;
 
-	stm32prog_header_check(&raw_header, &header);
-	if (header.type != HEADER_STM32IMAGE)
+	stm32prog_header_check((ulong)&raw_header, &header);
+	if (header.type != HEADER_STM32IMAGE &&
+	    header.type != HEADER_STM32IMAGE_V2)
 		return -ENOENT;
 
 	/* read header + payload */
-	size = header.image_length + BL_HEADER_SIZE;
+	size = header.image_length + header.length;
 	size = round_up(size, part->dev->mtd->erasesize);
 	fsbl = calloc(1, size);
 	if (!fsbl)
