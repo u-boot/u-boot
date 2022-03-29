@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <log.h>
 #include <malloc.h>
 #include <tee.h>
@@ -641,6 +642,8 @@ static int optee_probe(struct udevice *dev)
 {
 	struct optee_pdata *pdata = dev_get_plat(dev);
 	u32 sec_caps;
+	struct udevice *child;
+	int ret;
 
 	if (!is_optee_api(pdata->invoke_fn)) {
 		dev_err(dev, "OP-TEE api uid mismatch\n");
@@ -663,6 +666,16 @@ static int optee_probe(struct udevice *dev)
 	    !(sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)) {
 		dev_err(dev, "OP-TEE capabilities mismatch\n");
 		return -ENOENT;
+	}
+
+	/*
+	 * in U-Boot, the discovery of TA on the TEE bus is not supported:
+	 * only bind the drivers associated to the supported OP-TEE TA
+	 */
+	if (IS_ENABLED(CONFIG_RNG_OPTEE)) {
+		ret = device_bind_driver(dev, "optee-rng", "optee-rng", &child);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
