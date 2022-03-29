@@ -44,10 +44,11 @@ void set_dfu_alt_info(char *interface, char *devstr)
 
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
 
-	if (env_get("dfu_alt_info"))
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
 		return;
 
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, DFU_ALT_BUF_LEN);
 
 	/*
 	 * Currently dfu_alt_info is needed on Qemu ARM64 for
@@ -64,5 +65,4 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	}
 
 	env_set("dfu_alt_info", buf);
-	printf("dfu_alt_info set\n");
 }

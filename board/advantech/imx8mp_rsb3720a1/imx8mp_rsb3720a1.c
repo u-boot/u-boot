@@ -5,10 +5,12 @@
  */
 
 #include <common.h>
+#include <dfu.h>
 #include <dwc3-uboot.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <errno.h>
+#include <memalign.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <spl.h>
@@ -24,6 +26,7 @@
 #include <asm/mach-imx/dma.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 #include <power/pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -231,3 +234,24 @@ unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
 	}
 }
 #endif /* CONFIG_SPL_MMC_SUPPORT */
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, DFU_ALT_BUF_LEN);
+
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		 "mmc 2=flash-bin raw 0 0x1B00 mmcpart 1");
+
+	env_set("dfu_alt_info", buf);
+}
+#endif /* CONFIG_SET_DFU_ALT_INFO */
