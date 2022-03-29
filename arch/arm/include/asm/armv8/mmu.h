@@ -107,8 +107,10 @@
 
 #include <linux/types.h>
 
-static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
+static inline void set_ttbr_tcr(int el, u64 table, u64 tcr)
 {
+	const u64 attr = MEMORY_ATTRIBUTES;
+
 	asm volatile("dsb sy");
 	if (el == 1) {
 		asm volatile("msr ttbr0_el1, %0" : : "r" (table) : "memory");

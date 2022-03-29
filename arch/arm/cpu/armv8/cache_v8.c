@@ -415,8 +415,7 @@ __weak void mmu_setup(void)
 		setup_all_pgtables();
 
 	el = current_el();
-	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
-			  MEMORY_ATTRIBUTES);
+	set_ttbr_tcr(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL));
 
 	/* enable the mmu */
 	set_sctlr(get_sctlr() | CR_M);

@@ -451,10 +451,8 @@ static inline void early_mmu_setup(void)
 	setup_pgtables();
 
 	/* point TTBR to the new table */
-	set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
-			  get_tcr(el, NULL, NULL) &
-			  ~(TCR_ORGN_MASK | TCR_IRGN_MASK),
-			  MEMORY_ATTRIBUTES);
+	set_ttbr_tcr(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL)
+		     & ~(TCR_ORGN_MASK | TCR_IRGN_MASK));
 
 	set_sctlr(get_sctlr() | CR_M);
 }
@@ -607,8 +605,7 @@ static inline void final_mmu_setup(void)
 	invalidate_icache_all();
 
 	/* point TTBR to the new table */
-	set_ttbr_tcr_mair(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL),
-			  MEMORY_ATTRIBUTES);
+	set_ttbr_tcr(el, gd->arch.tlb_addr, get_tcr(el, NULL, NULL));
 
 	set_sctlr(get_sctlr() | CR_M);
 }
