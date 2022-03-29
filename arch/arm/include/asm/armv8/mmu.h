@@ -104,21 +104,21 @@
 #define TCR_EL3_RSVD		(1 << 31 | 1 << 23)
 
 #ifndef __ASSEMBLY__
-static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
+
+#include <linux/types.h>
+
+static inline void set_ttbr_tcr(int el, u64 table, u64 tcr)
 {
 	asm volatile("dsb sy");
 	if (el == 1) {
 		asm volatile("msr ttbr0_el1, %0" : : "r" (table) : "memory");
 		asm volatile("msr tcr_el1, %0" : : "r" (tcr) : "memory");
-		asm volatile("msr mair_el1, %0" : : "r" (attr) : "memory");
 	} else if (el == 2) {
 		asm volatile("msr ttbr0_el2, %0" : : "r" (table) : "memory");
 		asm volatile("msr tcr_el2, %0" : : "r" (tcr) : "memory");
-		asm volatile("msr mair_el2, %0" : : "r" (attr) : "memory");
 	} else if (el == 3) {
 		asm volatile("msr ttbr0_el3, %0" : : "r" (table) : "memory");
 		asm volatile("msr tcr_el3, %0" : : "r" (tcr) : "memory");
-		asm volatile("msr mair_el3, %0" : : "r" (attr) : "memory");
 	} else {
 		hang();
 	}

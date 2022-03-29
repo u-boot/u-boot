@@ -135,6 +135,18 @@ pie_fixup_done:
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
 
+#ifdef CONFIG_ARMV8_SET_MAIR
+	ldr	x2, =(MEMORY_ATTRIBUTES)
+	switch_el x1, 3f, 2f, 1f
+	b	0f
+3:	msr	mair_el3, x2
+	b	0f
+2:	msr	mair_el2, x2
+	b	0f
+1:	msr	mair_el1, x2
+0:
+#endif
+
 #ifdef COUNTER_FREQUENCY
 	branch_if_not_highest_el x0, 4f
 	ldr	x0, =COUNTER_FREQUENCY
