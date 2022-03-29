@@ -10,13 +10,16 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
+#include <dfu.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env_internal.h>
 #include <fdt_support.h>
 #include <log.h>
+#include <memalign.h>
 
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_images fw_images[] = {
@@ -185,3 +188,26 @@ int print_cpuinfo(void)
 	printf("CPU:   SC2A11:Cortex-A53 MPCore 24cores\n");
 	return 0;
 }
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, DFU_ALT_BUF_LEN);
+
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		"mtd nor1=u-boot.bin raw 200000 100000;"
+		"fip.bin raw 180000 78000;"
+		"optee.bin raw 500000 100000");
+
+	env_set("dfu_alt_info", buf);
+}
+#endif /* CONFIG_SET_DFU_ALT_INFO */
