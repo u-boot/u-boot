@@ -58,7 +58,7 @@
 # define PHY_ANEG_TIMEOUT       20000
 #endif
 
-#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
+#define CONFIG_SYS_BOOTM_LEN	(100 * 1024 * 1024)
 
 #define CONFIG_CLOCKS
 
