@@ -479,7 +479,7 @@ struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
  *			or NULL otherwise
  */
 struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
-				      phy_interface_t interface);
+				      int phyaddr, phy_interface_t interface);
 
 static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 {
