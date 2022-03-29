@@ -16,53 +16,6 @@
 
 #include "clk.h"
 
-#define PLL_1416X_RATE(_rate, _m, _p, _s)		\
-	{						\
-		.rate	=	(_rate),		\
-		.mdiv	=	(_m),			\
-		.pdiv	=	(_p),			\
-		.sdiv	=	(_s),			\
-	}
-
-#define PLL_1443X_RATE(_rate, _m, _p, _s, _k)		\
-	{						\
-		.rate	=	(_rate),		\
-		.mdiv	=	(_m),			\
-		.pdiv	=	(_p),			\
-		.sdiv	=	(_s),			\
-		.kdiv	=	(_k),			\
-	}
-
-static const struct imx_pll14xx_rate_table imx8mq_pll1416x_tbl[] = {
-	PLL_1416X_RATE(1800000000U, 225, 3, 0),
-	PLL_1416X_RATE(1600000000U, 200, 3, 0),
-	PLL_1416X_RATE(1200000000U, 300, 3, 1),
-	PLL_1416X_RATE(1000000000U, 250, 3, 1),
-	PLL_1416X_RATE(800000000U,  200, 3, 1),
-	PLL_1416X_RATE(750000000U,  250, 2, 2),
-	PLL_1416X_RATE(700000000U,  350, 3, 2),
-	PLL_1416X_RATE(600000000U,  300, 3, 2),
-};
-
-const struct imx_pll14xx_rate_table imx8mq_pll1443x_tbl[] = {
-	PLL_1443X_RATE(650000000U, 325, 3, 2, 0),
-	PLL_1443X_RATE(594000000U, 198, 2, 2, 0),
-	PLL_1443X_RATE(393216000U, 262, 2, 3, 9437),
-	PLL_1443X_RATE(361267200U, 361, 3, 3, 17511),
-};
-
-static struct imx_pll14xx_clk imx8mq_1416x_pll __initdata = {
-		.type = PLL_1416X,
-		.rate_table = imx8mq_pll1416x_tbl,
-		.rate_count = ARRAY_SIZE(imx8mq_pll1416x_tbl),
-};
-
-static struct imx_pll14xx_clk imx8mq_1443x_pll __initdata = {
-		.type = PLL_1443X,
-		.rate_table = imx8mq_pll1443x_tbl,
-		.rate_count = ARRAY_SIZE(imx8mq_pll1443x_tbl),
-};
-
 static const char *const pll_ref_sels[] = { "clock-osc-25m", "clock-osc-27m", "clock-phy-27m", "dummy", };
 static const char *const arm_pll_bypass_sels[] = {"arm_pll", "arm_pll_ref_sel", };
 static const char *const gpu_pll_bypass_sels[] = {"gpu_pll", "gpu_pll_ref_sel", };
@@ -229,13 +182,13 @@ static int imx8mq_clk_probe(struct udevice *dev)
 
 	clk_dm(IMX8MQ_ARM_PLL,
 	       imx_clk_pll14xx("arm_pll", "arm_pll_ref_sel",
-			       base + 0x28, &imx8mq_1416x_pll));
+			       base + 0x28, &imx_1416x_pll));
 	clk_dm(IMX8MQ_GPU_PLL,
 	       imx_clk_pll14xx("gpu_pll", "gpu_pll_ref_sel",
-			       base + 0x18, &imx8mq_1416x_pll));
+			       base + 0x18, &imx_1416x_pll));
 	clk_dm(IMX8MQ_VPU_PLL,
 	       imx_clk_pll14xx("vpu_pll", "vpu_pll_ref_sel",
-			       base + 0x20, &imx8mq_1416x_pll));
+			       base + 0x20, &imx_1416x_pll));
 
 	clk_dm(IMX8MQ_SYS1_PLL1,
 	       clk_register_fixed_rate(NULL, "sys1_pll", 800000000));
@@ -245,13 +198,13 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       clk_register_fixed_rate(NULL, "sys3_pll", 1000000000));
 	clk_dm(IMX8MQ_AUDIO_PLL1,
 	       imx_clk_pll14xx("audio_pll1", "audio_pll1_ref_sel",
-			       base + 0x0, &imx8mq_1443x_pll));
+			       base + 0x0, &imx_1443x_pll));
 	clk_dm(IMX8MQ_AUDIO_PLL2,
 	       imx_clk_pll14xx("audio_pll2", "audio_pll2_ref_sel",
-			       base + 0x8, &imx8mq_1443x_pll));
+			       base + 0x8, &imx_1443x_pll));
 	clk_dm(IMX8MQ_VIDEO_PLL1,
 	       imx_clk_pll14xx("video_pll1", "video_pll1_ref_sel",
-			       base + 0x10, &imx8mq_1443x_pll));
+			       base + 0x10, &imx_1443x_pll));
 
 	/* PLL bypass out */
 	clk_dm(IMX8MQ_ARM_PLL_BYPASS,
