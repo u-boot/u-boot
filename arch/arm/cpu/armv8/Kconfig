@@ -31,6 +31,12 @@ config ARMV8_SET_SMPEN
 	  it can be safely enabled when EL2/EL3 initialized SMPEN bit
 	  or when CPU implementation doesn't include that register.
 
+config ARMV8_SET_MAIR
+	bool "Initialize the MAIR to its constant value out of boot"
+	default y if !SYS_DISABLE_DCACHE_OPS
+	help
+	  Say Y here to set MAIR_ELx (MEMORY_ATTRIBUTES), needed by the MMU.
+
 config ARMV8_SPIN_TABLE
 	bool "Support spin-table enable method"
 	depends on ARMV8_MULTIENTRY && OF_LIBFDT
