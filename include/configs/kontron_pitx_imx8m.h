@@ -77,7 +77,6 @@
 	"console=ttymxc2,115200\0" \
 	"boot_fdt=try\0" \
 	"fdtfile=freescale/imx8mq-kontron-pitx-imx8m.dtb\0" \
-	"dfu_alt_info=mmc 0=flash-bin raw 0x42 0x1000 mmcpart 1\0"\
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 

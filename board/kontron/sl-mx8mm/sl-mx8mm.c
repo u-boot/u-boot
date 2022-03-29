@@ -6,11 +6,14 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <dfu.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <fdt_support.h>
+#include <memalign.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 #include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -112,3 +115,24 @@ int board_init(void)
 {
 	return 0;
 }
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, sizeof(buf));
+
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		 "sf 0:0=flash-bin raw 0x400 0x1f0000");
+
+	env_set("dfu_alt_info", buf);
+}
+#endif /* CONFIG_SET_DFU_ALT_INFO */

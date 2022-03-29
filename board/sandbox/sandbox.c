@@ -6,17 +6,20 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <cros_ec.h>
+#include <dfu.h>
 #include <dm.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env_internal.h>
 #include <init.h>
 #include <led.h>
+#include <memalign.h>
 #include <os.h>
 #include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 #include <malloc.h>
 
 #include <extension_board.h>
@@ -150,5 +153,28 @@ int board_late_init(void)
 		return -1;
 	}
 	return 0;
+}
+#endif
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, sizeof(buf));
+
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		 "sf 0:0=u-boot-bin raw 0x100000 0x50000;"
+		 "u-boot-env raw 0x150000 0x200000"
+		);
+
+	env_set("dfu_alt_info", buf);
 }
 #endif

@@ -2,7 +2,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dfu.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <errno.h>
@@ -11,6 +13,7 @@
 #include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 #include <env_internal.h>
 #include <asm/arch-fsl-layerscape/soc.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
@@ -150,3 +153,25 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, sizeof(buf));
+
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		 "sf 0:0=u-boot-bin raw 0x210000 0x1d0000;"
+		 "u-boot-env raw 0x3e0000 0x20000");
+
+	env_set("dfu_alt_info", buf);
+}
+#endif /* CONFIG_SET_DFU_ALT_INFO */

@@ -46,11 +46,6 @@
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 
-#define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\
-			"mtd nor1=u-boot.bin raw 200000 100000;"	\
-			"fip.bin raw 180000 78000;"			\
-			"optee.bin raw 500000 100000\0"
-
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
 #define DEVELOPERBOX_UBOOT_IMAGE_GUID \
 	EFI_GUID(0x53a92e83, 0x4ef4, 0x473a, 0x8b, 0x0d, \
@@ -108,7 +103,6 @@
 	"ramdisk_addr_r=0xa0000000\0"		\
 	"scriptaddr=0x88000000\0"		\
 	"pxefile_addr_r=0x88100000\0"		\
-	DEFAULT_DFU_ALT_INFO			\
 	BOOTENV
 
 #endif /* __CONFIG_H */

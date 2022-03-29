@@ -2,9 +2,11 @@
 
 #include "pitx_misc.h"
 #include <common.h>
+#include <dfu.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <init.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <miiphy.h>
 #include <asm/arch/clock.h>
@@ -15,6 +17,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -181,3 +184,24 @@ int board_late_init(void)
 {
 	return 0;
 }
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, sizeof(buf));
+
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		 "mmc 0=flash-bin raw 0x42 0x1000 mmcpart 1");
+
+	env_set("dfu_alt_info", buf);
+}
+#endif /* CONFIG_SET_DFU_ALT_INFO */
