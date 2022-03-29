@@ -813,6 +813,15 @@ S:	Maintained
 F:	doc/usage/environment.rst
 F:	scripts/env2string.awk
 
+EROFS
+M:	Huang Jianan <jnhuang95@gmail.com>
+L:	linux-erofs@lists.ozlabs.org
+S:	Maintained
+F:	cmd/erofs.c
+F:	fs/erofs/
+F:	include/erofs.h
+F:	test/py/tests/test_fs/test_erofs.py
+
 FASTBOOT
 S:	Orphaned
 F:	cmd/fastboot.c
