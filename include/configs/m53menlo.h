@@ -71,7 +71,6 @@
 #ifdef CONFIG_CMD_NET
 #define IMX_FEC_BASE			FEC_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x0
-#define CONFIG_DISCOVER_PHY
 #endif
 
 #define CONFIG_SYS_RTC_BUS_NUM		1 /* I2C2 */
