@@ -70,6 +70,11 @@ static const struct {
 	u8 variants;
 } zynqmp_devices[] = {
 	{
+		.id = 0x04688093,
+		.device = 1,
+		.variants = ZYNQMP_VARIANT_EG,
+	},
+	{
 		.id = 0x04711093,
 		.device = 2,
 		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
