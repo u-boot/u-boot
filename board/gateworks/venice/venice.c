@@ -21,19 +21,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_phys_sdram_size(phys_size_t *size)
 {
-	const fdt64_t *val;
-	int offset;
-	int len;
-
-	/* get size from dt which SPL updated per EEPROM config */
-	offset = fdt_path_offset(gd->fdt_blob, "/memory");
-	if (offset < 0)
+	if (!size)
 		return -EINVAL;
 
-	val = fdt_getprop(gd->fdt_blob, offset, "reg", &len);
-	if (len < sizeof(*val) * 2)
-		return -EINVAL;
-	*size = get_unaligned_be64(&val[1]);
+	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
 	return 0;
 }
