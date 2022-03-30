@@ -91,7 +91,7 @@ u32 get_boot_device(void)
 	 * be done, via the bootrom error register. Here the
 	 * MSB marks if the UART mode is active.
 	 */
-	val = readl(CONFIG_BOOTROM_ERR_REG);
+	val = readl(BOOTROM_ERR_REG);
 	boot_device = (val & BOOTROM_ERR_MODE_MASK) >> BOOTROM_ERR_MODE_OFFS;
 	debug("BOOTROM_REG=0x%08x boot_device=0x%x\n", val, boot_device);
 	if (boot_device == BOOTROM_ERR_MODE_UART)
