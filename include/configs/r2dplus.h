@@ -4,7 +4,6 @@
 #define __LITTLE_ENDIAN__	1
 
 /* SCIF */
-#define CONFIG_CONS_SCIF1	1
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x8C000000
