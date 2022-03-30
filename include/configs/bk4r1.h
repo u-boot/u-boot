@@ -62,9 +62,6 @@
 #define CONFIG_SYS_FSL_QSPI_LE
 #endif
 
-/* We boot from the gfxRAM area of the OCRAM. */
-#define CONFIG_BOARD_SIZE_LIMIT		520192
-
 /* boot command, including the target-defined one if any */
 
 /* Extra env settings (including the target-defined ones if any) */

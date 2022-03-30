@@ -395,6 +395,23 @@ config BUILD_TARGET
 	  special image will be automatically built upon calling
 	  make / buildman.
 
+config HAS_BOARD_SIZE_LIMIT
+	bool "Define a maximum size for the U-Boot image"
+	default y if RCAR_GEN3
+	help
+	  In some cases, we need to enforce a hard limit on how big the U-Boot
+	  image itself can be.
+
+config BOARD_SIZE_LIMIT
+	int "Maximum size of the U-Boot image in bytes"
+	default 1048576 if RCAR_GEN3
+	depends on HAS_BOARD_SIZE_LIMIT
+	help
+	  Maximum size of the U-Boot image. When defined, the build system
+	  checks that the actual size does not exceed it.  This does not
+	  include SPL nor TPL, on platforms that use that functionality, they
+	  have a separate option to restict size.
+
 config SYS_CUSTOM_LDSCRIPT
 	bool "Use a custom location for the U-Boot linker script"
 	help

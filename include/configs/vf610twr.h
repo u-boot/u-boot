@@ -29,9 +29,6 @@
 /* I2C Configs */
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
-/* We boot from the gfxRAM area of the OCRAM. */
-#define CONFIG_BOARD_SIZE_LIMIT		520192
-
 /*
  * We do have 128MB of memory on the Vybrid Tower board. Leave the last
  * 16MB alone to avoid conflicts with Cortex-M4 firmwares running from

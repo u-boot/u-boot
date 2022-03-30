@@ -12,8 +12,6 @@
 /*
  * High Level Board Configuration Options
  */
-/* Avoid overwriting factory configuration block */
-#define CONFIG_BOARD_SIZE_LIMIT		0x40000
 
 /*
  * Environment settings

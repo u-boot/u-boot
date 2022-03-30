@@ -55,8 +55,6 @@
 #endif /* CONFIG_CMD_USB_MASS_STORAGE */
 #endif /* CONFIG_CMD_USB      */
 
-#define CONFIG_BOARD_SIZE_LIMIT		392192 /* (CONFIG_ENV_OFFSET - 1024) */
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"bootargs_mmc1=console=ttymxc0,115200 di0_primary console=tty1\0" \

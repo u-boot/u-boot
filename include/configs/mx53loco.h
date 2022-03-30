@@ -106,18 +106,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* Environment starts at 768k = 768 * 1024 = 786432 */
-/*
- * Detect overlap between U-Boot image and environment area in build-time
- *
- * CONFIG_BOARD_SIZE_LIMIT = CONFIG_ENV_OFFSET - u-boot.imx offset
- * CONFIG_BOARD_SIZE_LIMIT = 768k - 1k = 767k = 785408
- *
- * Currently CONFIG_BOARD_SIZE_LIMIT does not handle expressions, so
- * write the direct value here
- */
-#define CONFIG_BOARD_SIZE_LIMIT		785408
-
 #ifdef CONFIG_CMD_SATA
 	#define CONFIG_DWC_AHSATA_PORT_ID       0
 	#define CONFIG_DWC_AHSATA_BASE_ADDR     SATA_BASE_ADDR

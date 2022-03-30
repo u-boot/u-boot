@@ -22,11 +22,6 @@
  * max 4k env size is enough, but in case of nand
  * it has to be rounded to sector size
  */
-/*
- * Environment is right behind U-Boot in flash. Make sure U-Boot
- * doesn't grow into the environment area.
- */
-#define CONFIG_BOARD_SIZE_LIMIT		CONFIG_ENV_OFFSET
 
 /*
  * Default environment variables
