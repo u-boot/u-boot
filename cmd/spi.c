@@ -46,8 +46,8 @@ static int do_spi_xfer(int bus, int cs)
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
-	ret = spi_get_bus_and_cs(bus, cs, freq, mode, "spi_generic_drv",
-				 str, &dev, &slave);
+	ret = _spi_get_bus_and_cs(bus, cs, freq, mode, "spi_generic_drv",
+				  str, &dev, &slave);
 	if (ret)
 		return ret;
 #else
