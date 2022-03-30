@@ -34,6 +34,7 @@
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <eth_phy.h>
+#include <zynqmp_firmware.h>
 
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
@@ -714,6 +715,40 @@ static int zynq_gem_reset_init(struct udevice *dev)
 	return 0;
 }
 
+static int gem_zynqmp_set_dynamic_config(struct udevice *dev)
+{
+	u32 pm_info[2];
+	int ret;
+
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP)) {
+		if (!zynqmp_pm_is_function_supported(PM_IOCTL,
+						     IOCTL_SET_GEM_CONFIG)) {
+			ret = ofnode_read_u32_array(dev_ofnode(dev),
+						    "power-domains",
+						    pm_info,
+						    ARRAY_SIZE(pm_info));
+			if (ret) {
+				dev_err(dev,
+					"Failed to read power-domains info\n");
+				return ret;
+			}
+
+			ret = zynqmp_pm_set_gem_config(pm_info[1],
+						       GEM_CONFIG_FIXED, 0);
+			if (ret)
+				return ret;
+
+			ret = zynqmp_pm_set_gem_config(pm_info[1],
+						       GEM_CONFIG_SGMII_MODE,
+						       1);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
 static int zynq_gem_probe(struct udevice *dev)
 {
 	void *bd_space;
@@ -797,6 +832,17 @@ static int zynq_gem_probe(struct udevice *dev)
 		goto err3;
 
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII && phy.dev) {
+		if (IS_ENABLED(CONFIG_DM_ETH_PHY)) {
+			if (device_is_compatible(dev, "cdns,zynqmp-gem")) {
+				ret = gem_zynqmp_set_dynamic_config(dev);
+				if (ret) {
+					dev_err
+					(dev,
+					 "Failed to set gem dynamic config\n");
+					return ret;
+				}
+			}
+		}
 		ret = generic_phy_power_on(&phy);
 		if (ret)
 			return ret;
