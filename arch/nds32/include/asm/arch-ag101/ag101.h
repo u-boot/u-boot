@@ -43,9 +43,6 @@
 /* External AHB slave2 (FUSBH200) */
 #define CONFIG_EXT_AHBSLAVE02_BASE	0x92000000
 
-/* DEBUG LED */
-#define CONFIG_DEBUG_LED		0x902FFFFC
-
 /* APB Device definitions */
 
 /* Power Management Unit */
