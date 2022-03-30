@@ -1532,14 +1532,6 @@ The following options need to be configured:
 		of the backslashes before semicolons and special
 		symbols.
 
-- Command Line Editing and History:
-		CONFIG_CMDLINE_PS_SUPPORT
-
-		Enable support for changing the command prompt string
-		at run-time. Only static string is supported so far.
-		The string is obtained from environment variables PS1
-		and PS2.
-
 - Default Environment:
 		CONFIG_EXTRA_ENV_SETTINGS
 

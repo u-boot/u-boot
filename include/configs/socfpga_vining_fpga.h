@@ -186,9 +186,6 @@
 		"fi\0"							\
 		"socfpga_legacy_reset_compat=1\0"
 
-/* Support changing the prompt string */
-#define CONFIG_CMDLINE_PS_SUPPORT
-
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
