@@ -450,6 +450,10 @@ int rkcommon_verify_header(unsigned char *buf, int size,
 	struct spl_info *img_spl_info, *spl_info;
 	int ret;
 
+	/* spl_hdr is abandon on header_v2 */
+	if ((*(uint32_t *)buf) == RK_MAGIC_V2)
+		return 0;
+
 	ret = rkcommon_parse_header(buf, &header0, &img_spl_info);
 
 	/* If this is the (unimplemented) RC4 case, then rewrite the result */
