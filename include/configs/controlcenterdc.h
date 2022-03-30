@@ -8,11 +8,6 @@
 #define _CONFIG_CONTROLCENTERDC_H
 
 /*
- * High Level Configuration Options (easy to change)
- */
-#define CONFIG_CUSTOMER_BOARD_SUPPORT
-
-/*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.

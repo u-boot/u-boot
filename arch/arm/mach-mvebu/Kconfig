@@ -90,6 +90,9 @@ config 88F6820
 	bool
 	select ARMADA_38X
 
+config CUSTOMER_BOARD_SUPPORT
+	bool
+
 choice
 	prompt "Armada XP/375/38x/3700/7K/8K board select"
 	optional
@@ -173,6 +176,7 @@ config TARGET_THEADORABLE
 config TARGET_CONTROLCENTERDC
 	bool "Support CONTROLCENTERDC"
 	select 88F6820
+	select CUSTOMER_BOARD_SUPPORT
 
 config TARGET_X530
 	bool "Support Allied Telesis x530"
