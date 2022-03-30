@@ -11,8 +11,6 @@
 
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
-
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
 
 #define QSPI_NOR_BOOTCOMMAND	"run distro_bootcmd"

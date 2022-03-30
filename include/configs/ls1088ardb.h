@@ -26,7 +26,6 @@
 #endif
 #define SPD_EEPROM_ADDRESS	0x51
 #define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
 
 
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)

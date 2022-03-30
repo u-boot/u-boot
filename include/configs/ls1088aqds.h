@@ -18,8 +18,6 @@
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk()/4)
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
-
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #define SPD_EEPROM_ADDRESS		0x51
 #define CONFIG_SYS_SPD_BUS_NUM		0

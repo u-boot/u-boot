@@ -14,8 +14,6 @@
 
 /* Store environment at top of flash */
 
-#define CONFIG_DIMM_SLOTS_PER_CTLR          1
-
 #define CONFIG_QIXIS_I2C_ACCESS
 
 /*

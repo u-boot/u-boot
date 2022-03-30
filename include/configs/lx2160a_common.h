@@ -33,7 +33,6 @@
 #define SPD_EEPROM_ADDRESS6		0x56
 #define SPD_EEPROM_ADDRESS		SPD_EEPROM_ADDRESS1
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD on I2C bus 0 */
-#define CONFIG_DIMM_SLOTS_PER_CTLR	2
 #define CONFIG_SYS_MONITOR_LEN		(936 * 1024)
 
 /* Miscellaneous configurable options */

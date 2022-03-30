@@ -10,9 +10,6 @@
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
-/* DDR */
-#define CONFIG_DIMM_SLOTS_PER_CTLR		2
-
 #define CONFIG_QIXIS_I2C_ACCESS
 
 /*
