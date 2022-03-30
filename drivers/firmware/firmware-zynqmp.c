@@ -140,6 +140,19 @@ unsigned int zynqmp_firmware_version(void)
 	return pm_api_version;
 };
 
+int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config, u32 value)
+{
+	int ret;
+
+	ret = xilinx_pm_request(PM_IOCTL, node, IOCTL_SET_GEM_CONFIG,
+				config, value, NULL);
+	if (ret)
+		printf("%s: node %d: set_gem_config %d failed\n",
+		       __func__, node, config);
+
+	return ret;
+}
+
 int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value)
 {
 	int ret;
