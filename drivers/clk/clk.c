@@ -74,3 +74,68 @@ bool clk_dev_binded(struct clk *clk)
 
 	return false;
 }
+
+/* Helper functions for clock ops */
+
+ulong ccf_clk_get_rate(struct clk *clk)
+{
+	struct clk *c;
+	int err = clk_get_by_id(clk->id, &c);
+
+	if (err)
+		return err;
+	return clk_get_rate(c);
+}
+
+ulong ccf_clk_set_rate(struct clk *clk, unsigned long rate)
+{
+	struct clk *c;
+	int err = clk_get_by_id(clk->id, &c);
+
+	if (err)
+		return err;
+	return clk_set_rate(c, rate);
+}
+
+int ccf_clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct clk *c, *p;
+	int err = clk_get_by_id(clk->id, &c);
+
+	if (err)
+		return err;
+
+	err = clk_get_by_id(parent->id, &p);
+	if (err)
+		return err;
+
+	return clk_set_parent(c, p);
+}
+
+static int ccf_clk_endisable(struct clk *clk, bool enable)
+{
+	struct clk *c;
+	int err = clk_get_by_id(clk->id, &c);
+
+	if (err)
+		return err;
+	return enable ? clk_enable(c) : clk_disable(c);
+}
+
+int ccf_clk_enable(struct clk *clk)
+{
+	return ccf_clk_endisable(clk, true);
+}
+
+int ccf_clk_disable(struct clk *clk)
+{
+	return ccf_clk_endisable(clk, false);
+}
+
+const struct clk_ops ccf_clk_ops = {
+	.set_rate = ccf_clk_set_rate,
+	.get_rate = ccf_clk_get_rate,
+	.set_parent = ccf_clk_set_parent,
+	.enable = ccf_clk_enable,
+	.disable = ccf_clk_disable,
+};

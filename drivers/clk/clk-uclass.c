@@ -138,14 +138,7 @@ static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 {
-	struct ofnode_phandle_args args;
-	int ret;
-
-	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
-					 index, &args);
-
-	return clk_get_by_index_tail(ret, dev_ofnode(dev), &args, "clocks",
-				     index, clk);
+	return clk_get_by_index_nodev(dev_ofnode(dev), index, clk);
 }
 
 int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk)
@@ -400,18 +393,7 @@ int clk_set_defaults(struct udevice *dev, enum clk_defaults_stage stage)
 
 int clk_get_by_name(struct udevice *dev, const char *name, struct clk *clk)
 {
-	int index;
-
-	debug("%s(dev=%p, name=%s, clk=%p)\n", __func__, dev, name, clk);
-	clk->dev = NULL;
-
-	index = dev_read_stringlist_search(dev, "clock-names", name);
-	if (index < 0) {
-		debug("fdt_stringlist_search() failed: %d\n", index);
-		return index;
-	}
-
-	return clk_get_by_index(dev, index, clk);
+	return clk_get_by_name_nodev(dev_ofnode(dev), name, clk);
 }
 #endif /* OF_REAL */
 
@@ -447,9 +429,7 @@ int clk_release_all(struct clk *clk, int count)
 		if (ret && ret != -ENOSYS)
 			return ret;
 
-		ret = clk_free(&clk[i]);
-		if (ret && ret != -ENOSYS)
-			return ret;
+		clk_free(&clk[i]);
 	}
 
 	return 0;
@@ -472,19 +452,18 @@ int clk_request(struct udevice *dev, struct clk *clk)
 	return ops->request(clk);
 }
 
-int clk_free(struct clk *clk)
+void clk_free(struct clk *clk)
 {
 	const struct clk_ops *ops;
 
 	debug("%s(clk=%p)\n", __func__, clk);
 	if (!clk_valid(clk))
-		return 0;
+		return;
 	ops = clk_dev_ops(clk->dev);
 
-	if (!ops->rfree)
-		return 0;
-
-	return ops->rfree(clk);
+	if (ops->rfree)
+		ops->rfree(clk);
+	return;
 }
 
 ulong clk_get_rate(struct clk *clk)

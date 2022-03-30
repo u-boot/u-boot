@@ -254,4 +254,12 @@ const char *clk_hw_get_name(const struct clk *hw);
 ulong clk_generic_get_rate(struct clk *clk);
 
 struct clk *dev_get_clk_ptr(struct udevice *dev);
+
+ulong ccf_clk_get_rate(struct clk *clk);
+ulong ccf_clk_set_rate(struct clk *clk, unsigned long rate);
+int ccf_clk_set_parent(struct clk *clk, struct clk *parent);
+int ccf_clk_enable(struct clk *clk);
+int ccf_clk_disable(struct clk *clk);
+extern const struct clk_ops ccf_clk_ops;
+
 #endif /* __LINUX_CLK_PROVIDER_H */

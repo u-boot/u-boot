@@ -32,7 +32,7 @@ struct clk_ops {
 	int (*of_xlate)(struct clk *clock,
 			struct ofnode_phandle_args *args);
 	int (*request)(struct clk *clock);
-	int (*rfree)(struct clk *clock);
+	void (*rfree)(struct clk *clock);
 	ulong (*round_rate)(struct clk *clk, ulong rate);
 	ulong (*get_rate)(struct clk *clk);
 	ulong (*set_rate)(struct clk *clk, ulong rate);
@@ -81,11 +81,9 @@ int request(struct clk *clock);
  * rfree() - Free a previously requested clock.
  * @clock:	The clock to free.
  *
- * This is the implementation of the client clk_free() API.
- *
- * Return: 0 if OK, or a negative error code.
+ * Free any resources allocated in request().
  */
-int rfree(struct clk *clock);
+void rfree(struct clk *clock);
 
 /**
  * round_rate() - Adjust a rate to the exact rate a clock can provide.
