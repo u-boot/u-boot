@@ -27,13 +27,4 @@
  * PCI definitions
  */
 
-/*-----------------------------------------------------------------------
- * There are various dependencies on the core module (CM) fitted
- * Users should refer to their CM user guide
- * - when porting adjust u-boot/Makefile accordingly
- *   to define the necessary CONFIG_ s for the CM involved
- * see e.g. integratorcp_CM926EJ-S_config
- */
-#include "armcoremodule.h"
-
 #endif	/* __CONFIG_H */
