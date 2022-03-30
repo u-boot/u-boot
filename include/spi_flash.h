@@ -102,7 +102,6 @@ int spl_flash_get_sw_write_prot(struct udevice *dev);
 int spi_flash_std_probe(struct udevice *dev);
 
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
-			   unsigned int max_hz, unsigned int spi_mode,
 			   struct udevice **devp);
 
 /* Compatibility function - this is the old U-Boot API */
