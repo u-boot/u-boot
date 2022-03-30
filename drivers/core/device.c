@@ -284,8 +284,7 @@ int device_reparent(struct udevice *dev, struct udevice *new_parent)
 	assert(dev);
 	assert(new_parent);
 
-	list_for_each_entry_safe(pos, n, &dev->parent->child_head,
-				 sibling_node) {
+	device_foreach_child_safe(pos, n, dev->parent) {
 		if (pos->driver != dev->driver)
 			continue;
 
@@ -724,7 +723,7 @@ int device_get_child(const struct udevice *parent, int index,
 {
 	struct udevice *dev;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (!index--)
 			return device_get_device_tail(dev, 0, devp);
 	}
@@ -737,7 +736,7 @@ int device_get_child_count(const struct udevice *parent)
 	struct udevice *dev;
 	int count = 0;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node)
+	device_foreach_child(dev, parent)
 		count++;
 
 	return count;
@@ -748,7 +747,7 @@ int device_get_decendent_count(const struct udevice *parent)
 	const struct udevice *dev;
 	int count = 1;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node)
+	device_foreach_child(dev, parent)
 		count += device_get_decendent_count(dev);
 
 	return count;
@@ -761,7 +760,7 @@ int device_find_child_by_seq(const struct udevice *parent, int seq,
 
 	*devp = NULL;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (dev->seq_ == seq) {
 			*devp = dev;
 			return 0;
@@ -790,7 +789,7 @@ int device_find_child_by_of_offset(const struct udevice *parent, int of_offset,
 
 	*devp = NULL;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (dev_of_offset(dev) == of_offset) {
 			*devp = dev;
 			return 0;
@@ -819,7 +818,7 @@ static struct udevice *_device_find_global_by_ofnode(struct udevice *parent,
 	if (ofnode_equal(dev_ofnode(parent), ofnode))
 		return parent;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		found = _device_find_global_by_ofnode(dev, ofnode);
 		if (found)
 			return found;
@@ -897,7 +896,7 @@ int device_find_first_inactive_child(const struct udevice *parent,
 	struct udevice *dev;
 
 	*devp = NULL;
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (!device_active(dev) &&
 		    device_get_uclass_id(dev) == uclass_id) {
 			*devp = dev;
@@ -915,7 +914,7 @@ int device_find_first_child_by_uclass(const struct udevice *parent,
 	struct udevice *dev;
 
 	*devp = NULL;
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (device_get_uclass_id(dev) == uclass_id) {
 			*devp = dev;
 			return 0;
@@ -932,7 +931,7 @@ int device_find_child_by_namelen(const struct udevice *parent, const char *name,
 
 	*devp = NULL;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (!strncmp(dev->name, name, len) &&
 		    strlen(dev->name) == len) {
 			*devp = dev;

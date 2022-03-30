@@ -39,7 +39,7 @@ static void show_devices(struct udevice *dev, int depth, int last_flag)
 
 	printf("%s\n", dev->name);
 
-	list_for_each_entry(child, &dev->child_head, sibling_node) {
+	device_foreach_child(child, dev) {
 		is_last = list_is_last(&child->sibling_node, &dev->child_head);
 		show_devices(child, depth + 1, (last_flag << 1) | is_last);
 	}
