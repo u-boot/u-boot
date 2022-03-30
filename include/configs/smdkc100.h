@@ -35,19 +35,14 @@
 /* PWM */
 #define CONFIG_PWM			1
 
-#define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext2" \
-				" console=ttySAC0,115200n8" \
-				" mem=128M"
-
-#define CONFIG_COMMON_BOOT	"console=ttySAC0,115200n8" \
+#define COMMON_BOOT	"console=ttySAC0,115200n8" \
 				" mem=128M " \
 				" " CONFIG_MTDPARTS_DEFAULT
 
-#define CONFIG_UPDATEB	"updateb=onenand erase 0x0 0x40000;" \
-			" onenand write 0x32008000 0x0 0x40000\0"
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_UPDATEB \
+	"updateb=" \
+		"onenand erase 0x0 0x40000;" \
+		"onenand write 0x32008000 0x0 0x40000\0" \
 	"updatek=" \
 		"onenand erase 0x60000 0x300000;" \
 		"onenand write 0x31008000 0x60000 0x300000\0" \
@@ -60,25 +55,26 @@
 	"flashboot=" \
 		"set bootargs root=/dev/mtdblock${bootblock} " \
 		"rootfstype=${rootfstype} " \
-		"ubi.mtd=${ubiblock} ${opts} " CONFIG_COMMON_BOOT ";" \
+		"ubi.mtd=${ubiblock} ${opts} " COMMON_BOOT ";" \
 		"run bootk\0" \
 	"ubifsboot=" \
 		"set bootargs root=ubi0!rootfs rootfstype=ubifs " \
-		" ubi.mtd=${ubiblock} ${opts} " CONFIG_COMMON_BOOT "; " \
+		" ubi.mtd=${ubiblock} ${opts} " COMMON_BOOT "; " \
 		"run bootk\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"android=" \
 		"set bootargs root=ubi0!ramdisk ubi.mtd=${ubiblock} " \
-		"rootfstype=ubifs init=/init.sh " CONFIG_COMMON_BOOT "; " \
+		"rootfstype=ubifs init=/init.sh " COMMON_BOOT "; " \
 		"run bootk\0" \
 	"nfsboot=" \
 		"set bootargs root=/dev/nfs ubi.mtd=${ubiblock} " \
 		"nfsroot=${nfsroot},nolock " \
 		"ip=${ipaddr}:${serverip}:${gatewayip}:" \
-		"${netmask}:nowplus:usb0:off " CONFIG_COMMON_BOOT "; " \
+		"${netmask}:nowplus:usb0:off " COMMON_BOOT "; " \
 		"run bootk\0" \
 	"ramboot=" \
-		"set bootargs " CONFIG_RAMDISK_BOOT \
+		"set bootargs root=/dev/ram0 rw rootfstype=ext2" \
+		" console=ttySAC0,115200n8 mem=128M" \
 		" initrd=0x33000000,8M ramdisk=8192\0" \
 	"rootfstype=cramfs\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
