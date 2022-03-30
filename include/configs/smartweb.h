@@ -47,10 +47,6 @@
 /* setting board specific options */
 #define CONFIG_SYS_AUTOLOAD "yes"
 
-/* The LED PINs */
-#define CONFIG_RED_LED			AT91_PIN_PA9
-#define CONFIG_GREEN_LED		AT91_PIN_PA6
-
 /*
  * SDRAM: 1 bank, 64 MB, base address 0x20000000
  * Already initialized before u-boot gets started.
