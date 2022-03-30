@@ -33,6 +33,7 @@
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/errno.h>
+#include <eth_phy.h>
 
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
@@ -320,6 +321,9 @@ static int zynq_phy_init(struct udevice *dev)
 
 	/* Enable only MDIO bus */
 	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs_mdio->nwctrl);
+
+	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
+		priv->phyaddr = eth_phy_get_addr(dev);
 
 	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
 				   priv->interface);
@@ -771,14 +775,22 @@ static int zynq_gem_probe(struct udevice *dev)
 		}
 	}
 
-	priv->bus = mdio_alloc();
-	priv->bus->read = zynq_gem_miiphy_read;
-	priv->bus->write = zynq_gem_miiphy_write;
-	priv->bus->priv = priv;
+	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
+		priv->bus = eth_phy_get_mdio_bus(dev);
 
-	ret = mdio_register_seq(priv->bus, dev_seq(dev));
-	if (ret)
-		goto err2;
+	if (!priv->bus) {
+		priv->bus = mdio_alloc();
+		priv->bus->read = zynq_gem_miiphy_read;
+		priv->bus->write = zynq_gem_miiphy_write;
+		priv->bus->priv = priv;
+
+		ret = mdio_register_seq(priv->bus, dev_seq(dev));
+		if (ret)
+			goto err2;
+	}
+
+	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
+		eth_phy_set_mdio_bus(dev, priv->bus);
 
 	ret = zynq_phy_init(dev);
 	if (ret)
@@ -841,8 +853,10 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 		ofnode parent;
 
 		debug("phy-handle does exist %s\n", dev->name);
-		priv->phyaddr = ofnode_read_u32_default(phandle_args.node,
-							"reg", -1);
+		if (!(IS_ENABLED(CONFIG_DM_ETH_PHY)))
+			priv->phyaddr = ofnode_read_u32_default
+					(phandle_args.node, "reg", -1);
+
 		priv->phy_of_node = phandle_args.node;
 		priv->max_speed = ofnode_read_u32_default(phandle_args.node,
 							  "max-speed",
