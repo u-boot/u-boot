@@ -59,8 +59,5 @@
 #endif
 #define CONFIG_SPL_STACK		0xe6304000
 #define CONFIG_SPL_MAX_SIZE		0x7000
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SH_SCIF_CLK_FREQ		65000000
-#endif
 
 #endif	/* __RCAR_GEN3_COMMON_H */

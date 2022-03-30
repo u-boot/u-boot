@@ -67,7 +67,4 @@
 #define CONFIG_SH_ETHER_SH7734_MII	(0x01)
 #define CONFIG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_MII
 
-/* Board Clock */
-#define CONFIG_SH_SCIF_CLK_FREQ get_board_sys_clk()
-
 #endif	/* __ARMADILLO_800EVA_H */

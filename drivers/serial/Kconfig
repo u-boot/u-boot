@@ -825,6 +825,11 @@ config CONS_SCIFA0
 
 endchoice
 
+config SH_SCIF_CLK_FREQ
+	int "SCIF console clock frequency"
+	depends on SCIF_CONSOLE && (!DM_SERIAL || (SPL && !SPL_DM_SERIAL))
+	default 65000000
+
 config SEMIHOSTING_SERIAL
 	bool "Semihosting UART support"
 	depends on SEMIHOSTING && !SERIAL_RX_BUFFER
