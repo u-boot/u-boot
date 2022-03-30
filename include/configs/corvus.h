@@ -31,10 +31,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
-/* LED */
-#define CONFIG_RED_LED		AT91_PIN_PD31	/* this is the user1 led */
-#define CONFIG_GREEN_LED	AT91_PIN_PD0	/* this is the user2 led */
-
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_CS6
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
