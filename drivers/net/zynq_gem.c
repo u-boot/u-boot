@@ -802,6 +802,10 @@ static int zynq_gem_probe(struct udevice *dev)
 			return ret;
 	}
 
+	printf("\nZYNQ GEM: %lx, mdio bus %lx, phyaddr %d, interface %s\n",
+	       (ulong)priv->iobase, (ulong)priv->mdiobase, priv->phydev->addr,
+	       phy_string_for_interface(priv->interface));
+
 	return ret;
 
 err3:
@@ -883,10 +887,6 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 	priv->interface = pdata->phy_interface;
 
 	priv->int_pcs = dev_read_bool(dev, "is-internal-pcspma");
-
-	printf("\nZYNQ GEM: %lx, mdio bus %lx, phyaddr %d, interface %s\n",
-	       (ulong)priv->iobase, (ulong)priv->mdiobase, priv->phyaddr,
-	       phy_string_for_interface(priv->interface));
 
 	priv->clk_en_info = dev_get_driver_data(dev);
 
