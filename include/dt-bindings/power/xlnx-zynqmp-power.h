@@ -6,6 +6,16 @@
 #ifndef _DT_BINDINGS_ZYNQMP_POWER_H
 #define _DT_BINDINGS_ZYNQMP_POWER_H
 
+#define		PD_RPU_0	6
+#define		PD_RPU_1	7
+#define		PD_OCM_BANK_0	11
+#define		PD_OCM_BANK_1	12
+#define		PD_OCM_BANK_2	13
+#define		PD_OCM_BANK_3	14
+#define		PD_TCM_BANK_0	15
+#define		PD_TCM_BANK_1	16
+#define		PD_TCM_BANK_2	17
+#define		PD_TCM_BANK_3	18
 #define		PD_USB_0	22
 #define		PD_USB_1	23
 #define		PD_TTC_0	24
@@ -35,5 +45,6 @@
 #define		PD_CAN_1	48
 #define		PD_GPU		58
 #define		PD_PCIE		59
+#define		PD_PL		69
 
 #endif
