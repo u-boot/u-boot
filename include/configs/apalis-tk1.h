@@ -111,7 +111,6 @@
 #undef CONFIG_SYS_MAXARGS
 #define CONFIG_SYS_MAXARGS		32
 
-#include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

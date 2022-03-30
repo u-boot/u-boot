@@ -164,6 +164,10 @@ config TEGRA_DISCONNECT_UDC_ON_BOOT
 	  USB controller when U-Boot boots to avoid leaving a stale USB device
 	  present.
 
+config CI_UDC_HAS_HOSTPC
+	def_bool y
+	depends on CI_UDC && !TEGRA20
+
 config SYS_MALLOC_F_LEN
 	default 0x1800
 

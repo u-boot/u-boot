@@ -22,7 +22,6 @@
 /* SPI */
 #define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
-#include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
 #endif /* _P2571_H */

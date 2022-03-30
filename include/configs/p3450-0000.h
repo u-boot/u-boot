@@ -33,7 +33,6 @@
 	"fi\0"
 
 /* General networking support */
-#include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
 /* Crystal is 38.4MHz. clk_m runs at half that rate */
