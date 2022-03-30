@@ -10,7 +10,6 @@
 #include "ls2080a_common.h"
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_QIXIS_I2C_ACCESS
 #define CONFIG_SYS_I2C_IFDR_DIV		0x7e
 #endif
 
@@ -122,7 +121,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
-#define CONFIG_FSL_QIXIS	/* use common QIXIS code */
 #define QIXIS_LBMAP_SWITCH		0x06
 #define QIXIS_LBMAP_MASK		0x0f
 #define QIXIS_LBMAP_SHIFT		0
