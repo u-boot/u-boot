@@ -59,10 +59,6 @@
 #define CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_CQSPI_REF_CLK 384000000
-#endif
-
 #define SPI_MTD_PARTS	KEYSTONE_SPI1_MTD_PARTS
 
 #include <configs/ti_armv7_keystone2.h>

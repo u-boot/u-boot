@@ -128,6 +128,14 @@ config CADENCE_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Cadence IP core.
 
+config HAS_CQSPI_REF_CLK
+	bool "Cadence QSPI static reference clock"
+	depends on CADENCE_QSPI
+
+config CQSPI_REF_CLK
+	int "Cadence QSPI reference clock value in Hz"
+	depends on HAS_CQSPI_REF_CLK
+
 config CF_SPI
         bool "ColdFire SPI driver"
         help

@@ -61,11 +61,6 @@
 #define MTDIDS_DEFAULT			"nor0=ff705000.spi.0"
 #endif /* CONFIG_SPL_BUILD */
 
-#ifndef __ASSEMBLY__
-unsigned int cm_get_qspi_controller_clk_hz(void);
-#define CONFIG_CQSPI_REF_CLK		cm_get_qspi_controller_clk_hz()
-#endif
-
 #endif /* CONFIG_CADENCE_QSPI */
 
 /*

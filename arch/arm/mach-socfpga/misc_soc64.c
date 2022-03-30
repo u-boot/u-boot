@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <init.h>
 #include <log.h>
+#include <mach/clock_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
