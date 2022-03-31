@@ -4,6 +4,7 @@
  */
 
 #include "k3-j721e-common-proc-board-u-boot.dtsi"
+#include "j721e-r5-binman.dtsi"
 
 / {
 	chosen {

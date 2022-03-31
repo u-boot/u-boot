@@ -469,6 +469,48 @@ static void setup_serial(void)
 	env_set("serial#", serial_string);
 }
 
+#ifdef CONFIG_BOARD_LATE_INIT
+static void setup_board_eeprom_env(void)
+{
+	char *name = "j721e";
+
+	if (do_board_detect())
+		goto invalid_eeprom;
+
+	if (board_is_j721e_som())
+		name = "j721e";
+	else if (board_is_j721e_sk())
+		name = "j721e-sk";
+	else if (board_is_j7200_som())
+		name = "j7200";
+	else
+		printf("Unidentified board claims %s in eeprom header\n",
+		       board_ti_get_name());
+
+invalid_eeprom:
+	set_board_info_env_am6(name);
+}
+
+static void setup_serial(void)
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+	unsigned long board_serial;
+	char *endp;
+	char serial_string[17] = { 0 };
+
+	if (env_get("serial#"))
+		return;
+
+	board_serial = hextoul(ep->serial, &endp);
+	if (*endp != '\0') {
+		pr_err("Error: Can't set serial# to %s\n", ep->serial);
+		return;
+	}
+
+	snprintf(serial_string, sizeof(serial_string), "%016lx", board_serial);
+	env_set("serial#", serial_string);
+}
+
 int board_late_init(void)
 {
 	if (IS_ENABLED(CONFIG_TI_I2C_BOARD_DETECT)) {
