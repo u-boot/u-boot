@@ -363,6 +363,7 @@
 						#clock-cells = <0>;
 						reg = <35>;
 						atmel,clk-output-range = <0 83000000>;
+						u-boot,dm-pre-reloc;
 					};
 
 					tcb1_clk: tcb1_clk@36 {
@@ -648,10 +649,12 @@
 				clock-names = "t0_clk", "gclk", "slow_clk";
 				#address-cells = <1>;
 				#size-cells = <0>;
+				u-boot,dm-pre-reloc;
 
 				timer0: timer@0 {
 					compatible = "atmel,tcb-timer";
 					reg = <0>, <1>;
+					u-boot,dm-pre-reloc;
 				};
 			};
 
