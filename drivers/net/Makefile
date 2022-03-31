@@ -6,7 +6,6 @@
 
 obj-$(CONFIG_AG7XXX) += ag7xxx.o
 obj-$(CONFIG_ALTERA_TSE) += altera_tse.o
-obj-$(CONFIG_ARMADA100_FEC) += armada100_fec.o
 obj-$(CONFIG_ASPEED_MDIO) += aspeed_mdio.o
 obj-$(CONFIG_BCM6348_ETH) += bcm6348-eth.o
 obj-$(CONFIG_BCM6368_ETH) += bcm6368-eth.o
