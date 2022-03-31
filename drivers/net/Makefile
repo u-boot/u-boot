@@ -67,7 +67,6 @@ obj-$(CONFIG_MVPP2) += mvpp2.o
 obj-$(CONFIG_NETCONSOLE) += netconsole.o
 obj-$(CONFIG_NET_OCTEONTX) += octeontx/
 obj-$(CONFIG_NET_OCTEONTX2) += octeontx2/
-obj-$(CONFIG_NS8382X) += ns8382x.o
 obj-$(CONFIG_OCTEONTX2_CGX_INTF) += octeontx2/cgx_intf.o
 obj-$(CONFIG_OCTEONTX_SMI) += octeontx/smi.o
 obj-$(CONFIG_PCH_GBE) += pch_gbe.o
