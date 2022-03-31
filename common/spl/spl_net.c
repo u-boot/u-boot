@@ -28,7 +28,10 @@ static ulong spl_net_load_read(struct spl_load_info *load, ulong sector,
 static int spl_net_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
-	struct legacy_img_hdr *header = (struct legacy_img_hdr *)image_load_addr;
+	struct spl_load_info load = {
+		.bl_len = 1,
+		.read = spl_net_load_read,
+	};
 	int rv;
 
 	env_init();
@@ -47,25 +50,7 @@ static int spl_net_load_image(struct spl_image_info *spl_image,
 		return rv;
 	}
 
-	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
-	    image_get_magic(header) == FDT_MAGIC) {
-		struct spl_load_info load;
-
-		debug("Found FIT\n");
-		load.bl_len = 1;
-		load.read = spl_net_load_read;
-		rv = spl_load_simple_fit(spl_image, &load, 0, header);
-	} else {
-		debug("Legacy image\n");
-
-		rv = spl_parse_image_header(spl_image, bootdev, header);
-		if (rv)
-			return rv;
-
-		memcpy((void *)spl_image->load_addr, header, spl_image->size);
-	}
-
-	return rv;
+	return spl_load(spl_image, bootdev, &load, 0, 0);
 }
 #endif
 
