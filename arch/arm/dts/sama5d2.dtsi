@@ -3,6 +3,7 @@
 / {
 	model = "Atmel SAMA5D2 family SoC";
 	compatible = "atmel,sama5d2";
+	interrupt-parent = <&aic>;
 
 	aliases {
 		spi0 = &spi0;
@@ -760,6 +761,14 @@
 				clocks = <&uart4_clk>;
 				clock-names = "usart";
 				status = "disabled";
+			};
+
+			aic: interrupt-controller@fc020000 {
+				#interrupt-cells = <3>;
+				compatible = "atmel,sama5d2-aic";
+				interrupt-controller;
+				reg = <0xfc020000 0x200>;
+				atmel,external-irqs = <49>;
 			};
 
 			i2c1: i2c@fc028000 {
