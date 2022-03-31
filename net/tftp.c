@@ -906,6 +906,8 @@ void tftp_start_server(void)
 	tftp_block_size = TFTP_BLOCK_SIZE;
 	tftp_cur_block = 0;
 	tftp_our_port = WELL_KNOWN_PORT;
+	tftp_windowsize = 1;
+	tftp_next_ack = tftp_windowsize;
 
 #ifdef CONFIG_TFTP_TSIZE
 	tftp_tsize = 0;
