@@ -518,12 +518,11 @@ bool efi_signature_verify(struct efi_image_regions *regs,
 			goto out;
 
 		EFI_PRINT("Verifying last certificate in chain\n");
-		if (signer->self_signed) {
-			if (efi_lookup_certificate(signer, db))
-				if (efi_signature_check_revocation(sinfo,
-								   signer, dbx))
-					break;
-		} else if (efi_verify_certificate(signer, db, &root)) {
+		if (efi_lookup_certificate(signer, db))
+			if (efi_signature_check_revocation(sinfo, signer, dbx))
+				break;
+		if (!signer->self_signed &&
+		    efi_verify_certificate(signer, db, &root)) {
 			bool check;
 
 			check = efi_signature_check_revocation(sinfo, root,

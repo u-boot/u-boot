@@ -41,7 +41,7 @@
 
 struct rti_wdt_priv {
 	phys_addr_t regs;
-	unsigned int clk_khz;
+	unsigned int clk_hz;
 };
 
 #ifdef CONFIG_WDT_K3_RTI_LOAD_FW
@@ -139,7 +139,7 @@ static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	if (ret < 0)
 		return ret;
 
-	timer_margin = timeout_ms * priv->clk_khz / 1000;
+	timer_margin = timeout_ms * priv->clk_hz / 1000;
 	timer_margin >>= WDT_PRELOAD_SHIFT;
 	if (timer_margin > WDT_PRELOAD_MAX)
 		timer_margin = WDT_PRELOAD_MAX;
@@ -185,7 +185,15 @@ static int rti_wdt_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	priv->clk_khz = clk_get_rate(&clk);
+	priv->clk_hz = clk_get_rate(&clk);
+
+	/*
+	 * If watchdog is running at 32k clock, it is not accurate.
+	 * Adjust frequency down in this case so that it does not expire
+	 * earlier than expected.
+	 */
+	if (priv->clk_hz < 32768)
+		priv->clk_hz = priv->clk_hz * 9 / 10;
 
 	return 0;
 }

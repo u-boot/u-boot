@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) Siemens AG, 2018-2021
+ * Copyright (c) Siemens AG, 2018-2022
  *
  * Authors:
  *   Le Jin <le.jin@siemens.com>
@@ -27,6 +27,29 @@
 
 &cbass_mcu {
 	u-boot,dm-spl;
+
+	mcu_navss: bus@28380000 {
+		ringacc@2b800000 {
+			reg =	<0x0 0x2b800000 0x0 0x400000>,
+				<0x0 0x2b000000 0x0 0x400000>,
+				<0x0 0x28590000 0x0 0x100>,
+				<0x0 0x2a500000 0x0 0x40000>,
+				<0x0 0x28440000 0x0 0x40000>;
+			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
+			ti,dma-ring-reset-quirk;
+		};
+
+		dma-controller@285c0000 {
+			reg =	<0x0 0x285c0000 0x0 0x100>,
+				<0x0 0x284c0000 0x0 0x4000>,
+				<0x0 0x2a800000 0x0 0x40000>,
+				<0x0 0x284a0000 0x0 0x4000>,
+				<0x0 0x2aa00000 0x0 0x40000>,
+				<0x0 0x28400000 0x0 0x2000>;
+			reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+					    "tchanrt", "rflow";
+		};
+	};
 };
 
 &cbass_wakeup {

@@ -12,9 +12,7 @@
 static void usage(void);
 
 /* parameters initialized by core will be used by the image type code */
-static struct image_tool_params params = {
-	.type = IH_TYPE_KERNEL,
-};
+static struct image_tool_params params;
 
 /*
  * dumpimage_extract_subimage -
@@ -110,7 +108,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (argc < 2)
+	if (argc < 2 || (params.iflag && params.lflag))
 		usage();
 
 	if (optind >= argc) {
@@ -122,7 +120,7 @@ int main(int argc, char **argv)
 
 	/* set tparams as per input type_id */
 	tparams = imagetool_get_type(params.type);
-	if (tparams == NULL) {
+	if (!params.lflag && tparams == NULL) {
 		fprintf(stderr, "%s: unsupported type: %s\n",
 			params.cmdname, genimg_get_type_name(params.type));
 		exit(EXIT_FAILURE);
@@ -132,7 +130,7 @@ int main(int argc, char **argv)
 	 * check the passed arguments parameters meets the requirements
 	 * as per image type to be generated/listed
 	 */
-	if (tparams->check_params) {
+	if (tparams && tparams->check_params) {
 		if (tparams->check_params(&params)) {
 			fprintf(stderr, "%s: Parameter check failed\n",
 				params.cmdname);
@@ -159,7 +157,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if ((uint32_t)sbuf.st_size < tparams->header_size) {
+	if (tparams && (uint32_t)sbuf.st_size < tparams->header_size) {
 		fprintf(stderr, "%s: Bad size: \"%s\" is not valid image\n",
 			params.cmdname, params.imagefile);
 		exit(EXIT_FAILURE);
@@ -203,8 +201,9 @@ int main(int argc, char **argv)
 
 static void usage(void)
 {
-	fprintf(stderr, "Usage: %s -l image\n"
-		"          -l ==> list image header information\n",
+	fprintf(stderr, "Usage: %s [-T type] -l image\n"
+		"          -l ==> list image header information\n"
+		"          -T ==> parse image file as 'type'\n",
 		params.cmdname);
 	fprintf(stderr,
 		"       %s [-T type] [-p position] [-o outfile] image\n"

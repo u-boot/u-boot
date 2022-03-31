@@ -9,10 +9,6 @@
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0"
 
-#define ENV_MEM_LAYOUT_SETTINGS \
-	"fdt_addr_r=0x960100000\0" \
-	"kernel_addr_r=0x960200000\0"
-
 #if CONFIG_IS_ENABLED(CMD_NVME)
 	#define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
 #else
@@ -33,7 +29,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_DEVICE_SETTINGS \
-	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 
 #endif

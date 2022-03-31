@@ -6,7 +6,7 @@
  * Based on Dirk Behme's
  * https://github.com/dirkbehme/u-boot-imx6/blob/28b17e9/drivers/misc/imx_otp.c,
  * which is based on Freescale's
- * http://git.freescale.com/git/cgit.cgi/imx/uboot-imx.git/tree/drivers/misc/imx_otp.c?h=imx_v2009.08_1.1.0&id=9aa74e6,
+ * https://source.codeaurora.org/external/imx/uboot-imx/tree/drivers/misc/imx_otp.c?id=9aa74e6,
  * which is:
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
  */

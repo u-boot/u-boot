@@ -432,17 +432,6 @@ int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	return clk_get_by_index_nodev(node, index, clk);
 }
 
-int clk_get_optional_nodev(ofnode node, const char *name, struct clk *clk)
-{
-	int ret;
-
-	ret = clk_get_by_name_nodev(node, name, clk);
-	if (ret == -ENODATA)
-		return 0;
-
-	return ret;
-}
-
 int clk_release_all(struct clk *clk, int count)
 {
 	int i, ret;
@@ -652,7 +641,7 @@ int clk_enable(struct clk *clk)
 				return 0;
 			}
 			if (clkp->dev->parent &&
-			    device_get_uclass_id(clkp->dev) == UCLASS_CLK) {
+			    device_get_uclass_id(clkp->dev->parent) == UCLASS_CLK) {
 				ret = clk_enable(dev_get_clk_ptr(clkp->dev->parent));
 				if (ret) {
 					printf("Enable %s failed\n",
@@ -726,7 +715,7 @@ int clk_disable(struct clk *clk)
 		}
 
 		if (clkp && clkp->dev->parent &&
-		    device_get_uclass_id(clkp->dev) == UCLASS_CLK) {
+		    device_get_uclass_id(clkp->dev->parent) == UCLASS_CLK) {
 			ret = clk_disable(dev_get_clk_ptr(clkp->dev->parent));
 			if (ret) {
 				printf("Disable %s failed\n",
@@ -820,16 +809,6 @@ struct clk *devm_clk_get(struct udevice *dev, const char *id)
 		return ERR_PTR(rc);
 
 	devres_add(dev, clk);
-	return clk;
-}
-
-struct clk *devm_clk_get_optional(struct udevice *dev, const char *id)
-{
-	struct clk *clk = devm_clk_get(dev, id);
-
-	if (PTR_ERR(clk) == -ENODATA)
-		return NULL;
-
 	return clk;
 }
 

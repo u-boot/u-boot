@@ -82,8 +82,9 @@ static int show_valid_options(enum ih_category category)
 static void usage(const char *msg)
 {
 	fprintf(stderr, "Error: %s\n", msg);
-	fprintf(stderr, "Usage: %s -l image\n"
-			 "          -l ==> list image header information\n",
+	fprintf(stderr, "Usage: %s [-T type] -l image\n"
+			 "          -l ==> list image header information\n"
+			 "          -T ==> parse image file as 'type'\n",
 		params.cmdname);
 	fprintf(stderr,
 		"       %s [-x] -A arch -O os -T type -C comp -a addr -e ep -n name -d data_file[:data_file...] image\n"
@@ -329,7 +330,7 @@ static void process_args(int argc, char **argv)
 			params.datafile = datafile;
 		else if (!params.datafile)
 			usage("Missing data file for auto-FIT (use -d)");
-	} else if (type != IH_TYPE_INVALID) {
+	} else if (params.lflag || type != IH_TYPE_INVALID) {
 		if (type == IH_TYPE_SCRIPT && !params.datafile)
 			usage("Missing data file for script (use -d)");
 		params.type = type;
@@ -358,7 +359,7 @@ int main(int argc, char **argv)
 
 	/* set tparams as per input type_id */
 	tparams = imagetool_get_type(params.type);
-	if (tparams == NULL) {
+	if (tparams == NULL && !params.lflag) {
 		fprintf (stderr, "%s: unsupported type %s\n",
 			params.cmdname, genimg_get_type_name(params.type));
 		exit (EXIT_FAILURE);
@@ -368,18 +369,23 @@ int main(int argc, char **argv)
 	 * check the passed arguments parameters meets the requirements
 	 * as per image type to be generated/listed
 	 */
-	if (tparams->check_params)
+	if (tparams && tparams->check_params)
 		if (tparams->check_params (&params))
 			usage("Bad parameters for image type");
 
 	if (!params.eflag) {
 		params.ep = params.addr;
 		/* If XIP, entry point must be after the U-Boot header */
-		if (params.xflag)
+		if (params.xflag && tparams)
 			params.ep += tparams->header_size;
 	}
 
 	if (params.fflag){
+		if (!tparams) {
+			fprintf(stderr, "%s: Missing FIT support\n",
+				params.cmdname);
+			exit (EXIT_FAILURE);
+		}
 		if (tparams->fflag_handle)
 			/*
 			 * in some cases, some additional processing needs
@@ -390,7 +396,7 @@ int main(int argc, char **argv)
 			retval = tparams->fflag_handle(&params);
 
 		if (retval != EXIT_SUCCESS)
-			exit (retval);
+			usage("Bad parameters for FIT image type");
 	}
 
 	if (params.lflag || params.fflag) {
@@ -436,7 +442,7 @@ int main(int argc, char **argv)
 				params.cmdname, params.imagefile);
 			exit (EXIT_FAILURE);
 #endif
-		} else if (sbuf.st_size < (off_t)tparams->header_size) {
+		} else if (tparams && sbuf.st_size < (off_t)tparams->header_size) {
 			fprintf (stderr,
 				"%s: Bad size: \"%s\" is not valid image: size %llu < %u\n",
 				params.cmdname, params.imagefile,
@@ -455,21 +461,12 @@ int main(int argc, char **argv)
 			exit (EXIT_FAILURE);
 		}
 
-		if (params.fflag) {
-			/*
-			 * Verifies the header format based on the expected header for image
-			 * type in tparams
-			 */
-			retval = imagetool_verify_print_header_by_type(ptr, &sbuf,
-					tparams, &params);
-		} else {
-			/**
-			 * When listing the image, we are not given the image type. Simply check all
-			 * image types to find one that matches our header
-			 */
-			retval = imagetool_verify_print_header(ptr, &sbuf,
-					tparams, &params);
-		}
+		/*
+		 * Verifies the header format based on the expected header for image
+		 * type in tparams. If tparams is NULL simply check all image types
+		 * to find one that matches our header.
+		 */
+		retval = imagetool_verify_print_header(ptr, &sbuf, tparams, &params);
 
 		(void) munmap((void *)ptr, sbuf.st_size);
 		(void) close (ifd);

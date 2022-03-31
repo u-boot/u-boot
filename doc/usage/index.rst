@@ -34,6 +34,7 @@ Shell commands
    exit
    false
    fatinfo
+   fatload
    for
    load
    loady
@@ -51,3 +52,4 @@ Shell commands
    size
    true
    ums
+   wdt

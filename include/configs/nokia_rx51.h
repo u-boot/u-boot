@@ -70,19 +70,12 @@
 
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
-/*
- * Framebuffer
- */
-/* Video console */
-#define VIDEO_FB_16BPP_PIXEL_SWAP
-#define VIDEO_FB_16BPP_WORD_SWAP
-
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
 	"stdin=usbtty,serial,keyboard\0" \
-	"stdout=usbtty,serial,vga\0" \
-	"stderr=usbtty,serial,vga\0" \
+	"stdout=usbtty,serial,vidconsole\0" \
+	"stderr=usbtty,serial,vidconsole\0" \
 	"slide=gpio input " __stringify(GPIO_SLIDE) "\0" \
 	"switchmmc=mmc dev ${mmcnum}\0" \
 	"kernaddr=0x82008000\0" \

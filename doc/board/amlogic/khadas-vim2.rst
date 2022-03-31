@@ -31,6 +31,8 @@ U-Boot compilation
 Image creation
 --------------
 
+For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `khadas-vim2`
+
 Amlogic doesn't provide sources for the firmware and for tools needed
 to create the bootloader image, so it is necessary to obtain them from
 the git tree published by the board vendor:

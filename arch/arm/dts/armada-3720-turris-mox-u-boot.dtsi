@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * 2022 by Marek Behún <kabel@kernel.org>
+ */
+
+/ {
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		old_binding_phy1: ethernet-phy@1 {
+			reg = <1>;
+		};
+	};
+};
+
+&eth0 {
+	pinctrl-0 = <&rgmii_pins>, <&smi_pins>;
+	/delete-property/ phy-handle;
+	phy = <&old_binding_phy1>;
+};
+
+/delete-node/ &mdio;
+
+&usb3 {
+	vbus-supply = <&exp_usb3_vbus>;
+};

@@ -3,7 +3,7 @@
 VERSION = 2022
 PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc2
+EXTRAVERSION = -rc5
 NAME =
 
 # *DOCUMENTATION*
@@ -1080,7 +1080,7 @@ define deprecated
 		echo >&2 "for $(2)). Please update the board to use"; \
 		echo >&2 "$(firstword $(1)) before the $(3) release. Failure to"; \
 		echo >&2 "update by the deadline may result in board removal."; \
-		echo >&2 "See doc/driver-model/migration.rst for more info."; \
+		echo >&2 "See doc/develop/driver-model/migration.rst for more info."; \
 		echo >&2 "===================================================="; \
 	fi; fi
 
@@ -1121,7 +1121,7 @@ ifneq ($(CONFIG_DM),y)
 	@echo >&2 "This board does not use CONFIG_DM. CONFIG_DM will be"
 	@echo >&2 "compulsory starting with the v2020.01 release."
 	@echo >&2 "Failure to update may result in board removal."
-	@echo >&2 "See doc/driver-model/migration.rst for more info."
+	@echo >&2 "See doc/develop/driver-model/migration.rst for more info."
 	@echo >&2 "===================================================="
 endif
 	$(call deprecated,CONFIG_WDT,DM watchdog,v2019.10,\
@@ -1412,7 +1412,7 @@ MKIMAGEFLAGS_u-boot-spl.kwb = -n $(KWD_CONFIG_FILE) \
 	$(if $(KEYDIR),-k $(KEYDIR))
 
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
-		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
+		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -A $(ARCH) -T pblimage
 
 ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
 UBOOT_BIN := u-boot-with-dtb.bin
@@ -2187,7 +2187,8 @@ CLEAN_DIRS  += $(MODVERDIR) \
 	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
-CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h tools/version.h \
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+	       drivers/video/u_boot_logo.S tools/version.h \
 	       u-boot* MLO* SPL System.map fit-dtb.blob* \
 	       u-boot-ivt.img.log u-boot-dtb.imx.log SPL.log u-boot.imx.log \
 	       lpc32xx-* bl31.c bl31.elf bl31_*.bin image.map tispl.bin* \
@@ -2228,7 +2229,8 @@ clean: $(clean-dirs)
 		-o -name '*.asn1.[ch]' \
 		-o -name '*.symtypes' -o -name 'modules.order' \
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
-		-o -name 'dsdt.aml' -o -name 'dsdt.asl.tmp' -o -name 'dsdt.c' \
+		-o -name 'dsdt_generated.aml' -o -name 'dsdt_generated.asl.tmp' \
+		-o -name 'dsdt_generated.c' \
 		-o -name '*.efi' -o -name '*.gcno' -o -name '*.so' \) \
 		-type f -print | xargs rm -f
 

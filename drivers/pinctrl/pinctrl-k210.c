@@ -511,7 +511,7 @@ static int k210_pc_get_drive(unsigned max_strength_ua)
 {
 	int i;
 
-	for (i = K210_PC_DRIVE_MAX; i; i--)
+	for (i = K210_PC_DRIVE_MAX; i >= 0; i--)
 		if (k210_pc_drive_strength[i] < max_strength_ua)
 			return i;
 
@@ -536,7 +536,7 @@ static int k210_pc_pinconf_set(struct udevice *dev, unsigned pin_selector,
 		break;
 	case PIN_CONFIG_BIAS_PULL_UP:
 		if (argument)
-			val |= K210_PC_PD;
+			val |= K210_PC_PU;
 		else
 			return -EINVAL;
 		break;
@@ -679,6 +679,7 @@ static int k210_pc_probe(struct udevice *dev)
 {
 	int ret, i, j;
 	struct k210_pc_priv *priv = dev_get_priv(dev);
+	struct ofnode_phandle_args args;
 
 	priv->fpioa = dev_read_addr_ptr(dev);
 	if (!priv->fpioa)
@@ -692,15 +693,23 @@ static int k210_pc_probe(struct udevice *dev)
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
 		goto err;
 
-	priv->sysctl = syscon_regmap_lookup_by_phandle(dev, "kendryte,sysctl");
+	ret = dev_read_phandle_with_args(dev, "canaan,k210-sysctl-power",
+					NULL, 1, 0, &args);
+        if (ret)
+		goto err;
+
+	if (args.args_count != 1) {
+		ret = -EINVAL;
+		goto err;
+        }
+
+	priv->sysctl = syscon_node_to_regmap(args.node);
 	if (IS_ERR(priv->sysctl)) {
-		ret = -ENODEV;
+		ret = PTR_ERR(priv->sysctl);
 		goto err;
 	}
 
-	ret = dev_read_u32(dev, "kendryte,power-offset", &priv->power_offset);
-	if (ret)
-		goto err;
+	priv->power_offset = args.args[0];
 
 	debug("%s: fpioa = %p sysctl = %p power offset = %x\n", __func__,
 	      priv->fpioa, (void *)priv->sysctl->ranges[0].start,
@@ -726,7 +735,7 @@ err:
 }
 
 static const struct udevice_id k210_pc_ids[] = {
-	{ .compatible = "kendryte,k210-fpioa" },
+	{ .compatible = "canaan,k210-fpioa" },
 	{ }
 };
 

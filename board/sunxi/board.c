@@ -30,6 +30,7 @@
 #include <asm/arch/prcm.h>
 #include <asm/arch/pmic_bus.h>
 #include <asm/arch/spl.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
 #include <u-boot/crc.h>
@@ -171,21 +172,56 @@ void i2c_init_board(void)
 #endif
 }
 
-#if defined(CONFIG_ENV_IS_IN_MMC) && defined(CONFIG_ENV_IS_IN_FAT)
+/*
+ * Try to use the environment from the boot source first.
+ * For MMC, this means a FAT partition on the boot device (SD or eMMC).
+ * If the raw MMC environment is also enabled, this is tried next.
+ * SPI flash falls back to FAT (on SD card).
+ */
 enum env_location env_get_location(enum env_operation op, int prio)
 {
-	switch (prio) {
-	case 0:
-		return ENVL_FAT;
+	enum env_location boot_loc = ENVL_FAT;
 
-	case 1:
-		return ENVL_MMC;
+	gd->env_load_prio = prio;
 
+	switch (sunxi_get_boot_device()) {
+	case BOOT_DEVICE_MMC1:
+	case BOOT_DEVICE_MMC2:
+		boot_loc = ENVL_FAT;
+		break;
+	case BOOT_DEVICE_NAND:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+			boot_loc = ENVL_NAND;
+		break;
+	case BOOT_DEVICE_SPI:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			boot_loc = ENVL_SPI_FLASH;
+		break;
+	case BOOT_DEVICE_BOARD:
+		break;
 	default:
-		return ENVL_UNKNOWN;
+		break;
 	}
+
+	/* Always try to access the environment on the boot device first. */
+	if (prio == 0)
+		return boot_loc;
+
+	if (prio == 1) {
+		switch (boot_loc) {
+		case ENVL_SPI_FLASH:
+			return ENVL_FAT;
+		case ENVL_FAT:
+			if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
+				return ENVL_MMC;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return ENVL_UNKNOWN;
 }
-#endif
 
 #ifdef CONFIG_DM_MMC
 static void mmc_pinmux_setup(int sdc);
@@ -272,6 +308,8 @@ int board_init(void)
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
 #endif
 #endif	/* CONFIG_DM_MMC */
+
+	eth_init_board();
 
 	return 0;
 }

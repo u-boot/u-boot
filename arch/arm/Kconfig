@@ -1062,6 +1062,8 @@ config ARCH_SUNXI
 	select DM_ETH
 	select DM_GPIO
 	select DM_I2C if I2C
+	select DM_SPI if SPI
+	select DM_SPI_FLASH if SPI
 	select DM_KEYBOARD
 	select DM_MMC if MMC
 	select DM_SCSI if SCSI

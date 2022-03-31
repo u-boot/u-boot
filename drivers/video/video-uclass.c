@@ -33,7 +33,8 @@
  * information represents the requires size and alignment of the frame buffer
  * for the device. The values can be an over-estimate but cannot be too
  * small. The actual values will be suppled (in the same manner) by the bind()
- * method after relocation.
+ * method after relocation. Additionally driver can allocate frame buffer
+ * itself by setting plat->base.
  *
  * This information is then picked up by video_reserve() which works out how
  * much memory is needed for all devices. This is allocated between
@@ -76,6 +77,10 @@ static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 	ulong base, align, size;
 
 	if (!plat->size)
+		return 0;
+
+	/* Allow drivers to allocate the frame buffer themselves */
+	if (plat->base)
 		return 0;
 
 	align = plat->align ? plat->align : 1 << 20;

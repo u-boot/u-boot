@@ -34,6 +34,8 @@ U-Boot compilation
 Image creation
 --------------
 
+For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `radxa-zero`
+
 Amlogic does not provide sources for the firmware and for tools needed
 to create the bootloader image, so it is necessary to obtain them from
 git trees published by the board vendor:

@@ -5335,6 +5335,5 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('226_sysfw.dts')
         self.assertEqual(SYSFW_DATA, data[:len(SYSFW_DATA)])
 
-
 if __name__ == "__main__":
     unittest.main()

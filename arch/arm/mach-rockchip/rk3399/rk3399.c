@@ -140,7 +140,8 @@ void board_debug_uart_init(void)
 	struct rockchip_gpio_regs * const gpio = (void *)GPIO0_BASE;
 
 	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
-	    IS_ENABLED(CONFIG_TARGET_CHROMEBOOK_BOB)) {
+	    (IS_ENABLED(CONFIG_TARGET_CHROMEBOOK_BOB) ||
+	     IS_ENABLED(CONFIG_TARGET_CHROMEBOOK_KEVIN))) {
 		rk_setreg(&grf->io_vsel, 1 << 0);
 
 		/*

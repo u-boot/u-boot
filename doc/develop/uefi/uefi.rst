@@ -105,7 +105,7 @@ The UEFI specification[1] defines a secure way of executing UEFI images
 by verifying a signature (or message digest) of image with certificates.
 This feature on U-Boot is enabled with::
 
-    CONFIG_UEFI_SECURE_BOOT=y
+    CONFIG_EFI_SECURE_BOOT=y
 
 To make the boot sequence safe, you need to establish a chain of trust;
 In UEFI secure boot the chain trust is defined by the following UEFI variables

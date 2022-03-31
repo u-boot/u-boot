@@ -3,4 +3,4 @@
 # Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
 
 obj-y	+= bayleybay.o
-obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt.o
+obj-$(CONFIG_GENERATE_ACPI_TABLE) += dsdt_generated.o

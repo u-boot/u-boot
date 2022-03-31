@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <errno.h>
 #include <fsl_ddr.h>
@@ -14,7 +15,9 @@
 #include <asm/arch/soc.h>
 #include <fsl_immap.h>
 #include <netdev.h>
+#include <wdt.h>
 
+#include <sl28cpld.h>
 #include <fdtdec.h>
 #include <miiphy.h>
 
@@ -39,16 +42,68 @@ int board_eth_init(struct bd_info *bis)
 	return pci_eth_init(bis);
 }
 
+static int __sl28cpld_read(uint reg)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_NOP,
+					  DM_DRIVER_GET(sl28cpld), &dev);
+	if (ret)
+		return ret;
+
+	return sl28cpld_read(dev, reg);
+}
+
+static void print_cpld_version(void)
+{
+	int version = __sl28cpld_read(SL28CPLD_VERSION);
+
+	if (version < 0)
+		printf("CPLD:  error reading version (%d)\n", version);
+	else
+		printf("CPLD:  v%d\n", version);
+}
+
 int checkboard(void)
 {
 	printf("EL:    %d\n", current_el());
+	if (CONFIG_IS_ENABLED(SL28CPLD))
+		print_cpld_version();
+
+	return 0;
+}
+
+static void stop_recovery_watchdog(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_WDT,
+					  DM_DRIVER_GET(sl28cpld_wdt), &dev);
+	if (!ret)
+		wdt_stop(dev);
+}
+
+int fsl_board_late_init(void)
+{
+	/*
+	 * Usually, the after a board reset, the watchdog is enabled by
+	 * default. This is to supervise the bootloader boot-up. Therefore,
+	 * to prevent a watchdog reset if we don't actively kick it, we have
+	 * to disable it.
+	 *
+	 * If the watchdog isn't enabled at reset (which is a configuration
+	 * option) disabling it doesn't hurt either.
+	 */
+	if (!CONFIG_IS_ENABLED(WATCHDOG_AUTOSTART))
+		stop_recovery_watchdog();
+
 	return 0;
 }
 
 void detail_board_ddr_info(void)
 {
-	puts("\nDDR    ");
-	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
 	print_ddr_info(0);
 }
 

@@ -58,6 +58,7 @@
 
 &i2c4 {
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
 
 	eeprom0: eeprom@50 {
 	};
@@ -98,6 +99,11 @@
 
 &pmic {
 	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+
+	regulators {
+		u-boot,dm-spl;
+	};
 };
 
 &flash0 {
@@ -287,4 +293,40 @@
 		/* pull-up on rx to avoid floating level */
 		bias-pull-up;
 	};
+};
+
+&reg11 {
+	u-boot,dm-spl;
+};
+
+&reg18 {
+	u-boot,dm-spl;
+};
+
+&usb33 {
+	u-boot,dm-spl;
+};
+
+&usbotg_hs_pins_a {
+	u-boot,dm-spl;
+};
+
+&usbotg_hs {
+	u-boot,dm-spl;
+};
+
+&usbphyc {
+	u-boot,dm-spl;
+};
+
+&usbphyc_port0 {
+	u-boot,dm-spl;
+};
+
+&usbphyc_port1 {
+	u-boot,dm-spl;
+};
+
+&vdd_usb {
+	u-boot,dm-spl;
 };

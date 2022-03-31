@@ -827,12 +827,15 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 	struct mmc *mmc = &plat->mmc;
 	u32 irqstaten = esdhc_read32(&regs->irqstaten);
 	u32 irqsigen = esdhc_read32(&regs->irqsigen);
-	int i, ret = -ETIMEDOUT;
-	u32 val, mixctrl;
+	int i, err, ret = -ETIMEDOUT;
+	u32 val, mixctrl, tmp;
 
 	/* clock tuning is not needed for upto 52MHz */
 	if (mmc->clock <= 52000000)
 		return 0;
+
+	/* make sure the card clock keep on */
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
 
 	/* This is readw/writew SDHCI_HOST_CONTROL2 when tuning */
 	if (priv->flags & ESDHC_FLAG_STD_TUNING) {
@@ -892,6 +895,12 @@ static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 	esdhc_write32(&regs->irqsigen, irqsigen);
 
 	esdhc_stop_tuning(mmc);
+
+	/* change to default setting, let host control the card clock */
+	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+	err = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp, tmp & PRSSTAT_SDOFF, 100);
+	if (err)
+		dev_warn(dev, "card clock not gate off as expect.\n");
 
 	return ret;
 }
@@ -1567,14 +1576,24 @@ static int __maybe_unused fsl_esdhc_set_enhanced_strobe(struct udevice *dev)
 static int fsl_esdhc_wait_dat0(struct udevice *dev, int state,
 				int timeout_us)
 {
-	int ret;
+	int ret, err;
 	u32 tmp;
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 
+	/* make sure the card clock keep on */
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+
 	ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp,
 				!!(tmp & PRSSTAT_DAT0) == !!state,
 				timeout_us);
+
+	/* change to default setting, let host control the card clock */
+	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+	err = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp, tmp & PRSSTAT_SDOFF, 100);
+	if (err)
+		dev_warn(dev, "card clock not gate off as expect.\n");
+
 	return ret;
 }
 

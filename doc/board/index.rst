@@ -14,6 +14,7 @@ Board-specific doc
    apple/index
    armltd/index
    atmel/index
+   broadcom/index
    congatec/index
    coreboot/index
    emulation/index

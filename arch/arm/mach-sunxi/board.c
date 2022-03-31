@@ -191,12 +191,48 @@ SPL_LOAD_IMAGE_METHOD("FEL", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 
 #define SUNXI_INVALID_BOOT_SOURCE	-1
 
+static int suniv_get_boot_source(void)
+{
+	/* Get the last function call from BootROM's stack. */
+	u32 brom_call = *(u32 *)(uintptr_t)(fel_stash.sp - 4);
+
+	/* translate SUNIV BootROM stack to standard SUNXI boot sources */
+	switch (brom_call) {
+	case SUNIV_BOOTED_FROM_MMC0:
+		return SUNXI_BOOTED_FROM_MMC0;
+	case SUNIV_BOOTED_FROM_SPI:
+		return SUNXI_BOOTED_FROM_SPI;
+	case SUNIV_BOOTED_FROM_MMC1:
+		return SUNXI_BOOTED_FROM_MMC2;
+	/* SPI NAND is not supported yet. */
+	case SUNIV_BOOTED_FROM_NAND:
+		return SUNXI_INVALID_BOOT_SOURCE;
+	}
+	/* If we get here something went wrong try to boot from FEL.*/
+	printf("Unknown boot source from BROM: 0x%x\n", brom_call);
+	return SUNXI_INVALID_BOOT_SOURCE;
+}
+
 static int sunxi_get_boot_source(void)
 {
+	/*
+	 * On the ARMv5 SoCs, the SPL header in SRAM is overwritten by the
+	 * exception vectors in U-Boot proper, so we won't find any
+	 * information there. Also the FEL stash is only valid in the SPL,
+	 * so we can't use that either. So if this is called from U-Boot
+	 * proper, just return MMC0 as a placeholder, for now.
+	 */
+	if (IS_ENABLED(CONFIG_MACH_SUNIV) &&
+	    !IS_ENABLED(CONFIG_SPL_BUILD))
+		return SUNXI_BOOTED_FROM_MMC0;
+
 	if (!is_boot0_magic(SPL_ADDR + 4)) /* eGON.BT0 */
 		return SUNXI_INVALID_BOOT_SOURCE;
 
-	return readb(SPL_ADDR + 0x28);
+	if (IS_ENABLED(CONFIG_MACH_SUNIV))
+		return suniv_get_boot_source();
+	else
+		return readb(SPL_ADDR + 0x28);
 }
 
 /* The sunxi internal brom will try to loader external bootloader
@@ -276,36 +312,10 @@ unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 	return sector;
 }
 
-#ifdef CONFIG_MACH_SUNIV
-/*
- * The suniv BROM does not pass the boot media type to SPL, so we try with the
- * boot sequence in BROM: mmc0->spinor->fail.
- * TODO: This has the slight chance of being wrong (invalid SPL signature,
- * but valid U-Boot legacy image on the SD card), but this should be rare.
- * It looks like we can deduce from some BROM state upon entering the SPL
- * (registers, SP, or stack itself) where the BROM was coming from and use
- * that here.
- */
-void board_boot_order(u32 *spl_boot_list)
-{
-	/*
-	 * See the comments above in sunxi_get_boot_device() for information
-	 * about FEL boot.
-	 */
-	if (!is_boot0_magic(SPL_ADDR + 4)) {
-		spl_boot_list[0] = BOOT_DEVICE_BOARD;
-		return;
-	}
-
-	spl_boot_list[0] = BOOT_DEVICE_MMC1;
-	spl_boot_list[1] = BOOT_DEVICE_SPI;
-}
-#else
 u32 spl_boot_device(void)
 {
 	return sunxi_get_boot_device();
 }
-#endif
 
 __weak void sunxi_sram_init(void)
 {
@@ -323,7 +333,6 @@ void board_init_f(ulong dummy)
 	clock_init();
 	timer_init();
 	gpio_init();
-	eth_init_board();
 
 	spl_init();
 	preloader_console_init();

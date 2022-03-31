@@ -14,6 +14,17 @@ config TARGET_CHROMEBOOK_BOB
 	  display. It includes a Chrome OS EC (Cortex-M3) to provide access to
 	  the keyboard and battery functions.
 
+config TARGET_CHROMEBOOK_KEVIN
+	bool "Samsung Chromebook Plus (RK3399)"
+	select HAS_ROM
+	select ROCKCHIP_SPI_IMAGE
+	help
+	  Kevin is a RK3399-based convertible chromebook. It has two USB 3.0
+	  Type-C ports, 4GB of SDRAM, WiFi and a 12.3" 2400x1600 display. It
+	  uses its USB ports for both power and external display. It includes
+	  a Chromium OS EC (Cortex-M3) to provide access to the keyboard and
+	  battery functions.
+
 config TARGET_EVB_RK3399
 	bool "RK3399 evaluation board"
 	help

@@ -14,6 +14,7 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <fs.h>
+#include <hang.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <sort.h>
@@ -668,22 +669,29 @@ static efi_status_t get_dp_device(u16 *boot_var,
 
 /**
  * device_is_present_and_system_part - check if a device exists
- * @dp		Device path
  *
  * Check if a device pointed to by the device path, @dp, exists and is
  * located in UEFI system partition.
  *
+ * @dp		device path
  * Return:	true - yes, false - no
  */
 static bool device_is_present_and_system_part(struct efi_device_path *dp)
 {
 	efi_handle_t handle;
+	struct efi_device_path *rem;
 
-	handle = efi_dp_find_obj(dp, NULL);
+	/* Check device exists */
+	handle = efi_dp_find_obj(dp, NULL, NULL);
 	if (!handle)
 		return false;
 
-	return efi_disk_is_system_part(handle);
+	/* Check device is on system partition */
+	handle = efi_dp_find_obj(dp, &efi_system_partition_guid, &rem);
+	if (!handle)
+		return false;
+
+	return true;
 }
 
 /**
@@ -1118,10 +1126,13 @@ efi_status_t efi_launch_capsules(void)
 			index = 0;
 		ret = efi_capsule_read_file(files[i], &capsule);
 		if (ret == EFI_SUCCESS) {
-			ret = EFI_CALL(efi_update_capsule(&capsule, 1, 0));
+			ret = efi_capsule_update_firmware(capsule);
 			if (ret != EFI_SUCCESS)
-				log_err("Applying capsule %ls failed\n",
+				log_err("Applying capsule %ls failed.\n",
 					files[i]);
+			else
+				log_info("Applying capsule %ls succeeded.\n",
+					 files[i]);
 
 			/* create CapsuleXXXX */
 			set_capsule_result(index, capsule, ret);
@@ -1142,6 +1153,16 @@ efi_status_t efi_launch_capsules(void)
 		free(files[i]);
 	free(files);
 
-	return ret;
+	/*
+	 * UEFI spec requires to reset system after complete processing capsule
+	 * update on the storage.
+	 */
+	log_info("Reboot after firmware update");
+	/* Cold reset is required for loading the new firmware. */
+	do_reset(NULL, 0, 0, NULL);
+	hang();
+	/* not reach here */
+
+	return 0;
 }
 #endif /* CONFIG_EFI_CAPSULE_ON_DISK */

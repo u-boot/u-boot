@@ -265,8 +265,8 @@ efi_status_t efi_install_fdt(void *fdt)
 	 */
 #if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 	if (fdt) {
-		log_err("ERROR: can't have ACPI table and device tree.\n");
-		return EFI_LOAD_ERROR;
+		log_warning("WARNING: Can't have ACPI table and device tree - ignoring DT.\n");
+		return EFI_SUCCESS;
 	}
 #else
 	bootm_headers_t img = { 0 };
@@ -353,6 +353,19 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
 	switch_to_non_secure_mode();
 
+	/*
+	 * The UEFI standard requires that the watchdog timer is set to five
+	 * minutes when invoking an EFI boot option.
+	 *
+	 * Unified Extensible Firmware Interface (UEFI), version 2.7 Errata A
+	 * 7.5. Miscellaneous Boot Services - EFI_BOOT_SERVICES.SetWatchdogTimer
+	 */
+	ret = efi_set_watchdog(300);
+	if (ret != EFI_SUCCESS) {
+		log_err("ERROR: Failed to set watchdog timer\n");
+		goto out;
+	}
+
 	/* Call our payload! */
 	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
 	if (ret != EFI_SUCCESS) {
@@ -366,10 +379,14 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 
 	efi_restore_gd();
 
+out:
 	free(load_options);
 
 	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD))
 		efi_initrd_deregister();
+
+	/* Control is returned to U-Boot, disable EFI watchdog */
+	efi_set_watchdog(0);
 
 	return ret;
 }

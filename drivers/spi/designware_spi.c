@@ -194,6 +194,20 @@ static int dw_spi_apb_init(struct udevice *bus, struct dw_spi_priv *priv)
 	return 0;
 }
 
+static int dw_spi_apb_k210_init(struct udevice *bus, struct dw_spi_priv *priv)
+{
+	/*
+	 * The Canaan Kendryte K210 SoC DW apb_ssi v4 spi controller is
+	 * documented to have a 32 word deep TX and RX FIFO, which
+	 * spi_hw_init() detects. However, when the RX FIFO is filled up to
+	 * 32 entries (RXFLR = 32), an RX FIFO overrun error occurs. Avoid
+	 * this problem by force setting fifo_len to 31.
+	 */
+	priv->fifo_len = 31;
+
+	return dw_spi_apb_init(bus, priv);
+}
+
 static int dw_spi_dwc_init(struct udevice *bus, struct dw_spi_priv *priv)
 {
 	priv->max_xfer = 32;
@@ -252,7 +266,7 @@ static int dw_spi_of_to_plat(struct udevice *bus)
 static void spi_hw_init(struct udevice *bus, struct dw_spi_priv *priv)
 {
 	dw_write(priv, DW_SPI_SSIENR, 0);
-	dw_write(priv, DW_SPI_IMR, 0xff);
+	dw_write(priv, DW_SPI_IMR, 0);
 	dw_write(priv, DW_SPI_SSIENR, 1);
 
 	/*
@@ -572,7 +586,7 @@ static int dw_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	int pos, i, ret = 0;
 	struct udevice *bus = slave->dev->parent;
 	struct dw_spi_priv *priv = dev_get_priv(bus);
-	u8 op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
+	u8 op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 	u8 op_buf[op_len];
 	u32 cr0;
 
@@ -758,8 +772,8 @@ static const struct udevice_id dw_spi_ids[] = {
 	 */
 	{ .compatible = "altr,socfpga-spi", .data = (ulong)dw_spi_apb_init },
 	{ .compatible = "altr,socfpga-arria10-spi", .data = (ulong)dw_spi_apb_init },
-	{ .compatible = "canaan,kendryte-k210-spi", .data = (ulong)dw_spi_apb_init },
-	{ .compatible = "canaan,kendryte-k210-ssi", .data = (ulong)dw_spi_dwc_init },
+	{ .compatible = "canaan,k210-spi", .data = (ulong)dw_spi_apb_k210_init},
+	{ .compatible = "canaan,k210-ssi", .data = (ulong)dw_spi_dwc_init },
 	{ .compatible = "intel,stratix10-spi", .data = (ulong)dw_spi_apb_init },
 	{ .compatible = "intel,agilex-spi", .data = (ulong)dw_spi_apb_init },
 	{ .compatible = "mscc,ocelot-spi", .data = (ulong)dw_spi_apb_init },
