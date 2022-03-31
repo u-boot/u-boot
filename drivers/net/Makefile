@@ -85,7 +85,6 @@ obj-$(CONFIG_SUN4I_EMAC) += sunxi_emac.o
 obj-$(CONFIG_SUN8I_EMAC) += sun8i_emac.o
 obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
 obj-$(CONFIG_TULIP) += dc2114x.o
-obj-$(CONFIG_ULI526X) += uli526x.o
 obj-$(CONFIG_VSC7385_ENET) += vsc7385.o
 obj-$(CONFIG_VSC9953) += vsc9953.o
 obj-$(CONFIG_XILINX_AXIEMAC) += xilinx_axi_emac.o
