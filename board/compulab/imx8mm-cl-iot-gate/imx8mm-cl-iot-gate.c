@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dfu.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env.h>
@@ -12,6 +13,7 @@
 #include <hang.h>
 #include <i2c.h>
 #include <init.h>
+#include <memalign.h>
 #include <miiphy.h>
 #include <netdev.h>
 
@@ -24,6 +26,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/sections.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 
 #include "ddr/ddr.h"
 
@@ -446,3 +449,24 @@ int board_late_init(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, DFU_ALT_BUF_LEN);
+
+	snprintf(buf, DFU_ALT_BUF_LEN,
+		 "mmc 2=flash-bin raw 0x42 0x1D00 mmcpart 1");
+
+	env_set("dfu_alt_info", buf);
+}
+#endif /* CONFIG_SET_DFU_ALT_INFO */
