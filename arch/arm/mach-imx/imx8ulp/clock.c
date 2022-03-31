@@ -440,10 +440,9 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq_in_khz)
 	debug("PLL4 rate %ukhz\n", pll4_rate);
 
 	for (pfd = 12; pfd <= 35; pfd++) {
-		parent_rate = pll4_rate;
-		parent_rate = parent_rate * 18 / pfd;
-
 		for (div = 1; div <= 64; div++) {
+			parent_rate = pll4_rate;
+			parent_rate = parent_rate * 18 / pfd;
 			parent_rate = parent_rate / div;
 
 			for (pcd = 0; pcd < 8; pcd++) {
