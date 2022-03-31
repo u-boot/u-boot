@@ -363,7 +363,7 @@ config SYS_DISABLE_DCACHE_OPS
 	 this functionality.
 
 config SYS_IMMR
-	hex
+	hex "Address for the Internal Memory-Mapped Registers (IMMR) window"
 	depends on PPC || FSL_LSCH2 || FSL_LSCH3 || ARCH_LS1021A
 	default 0xFF000000 if MPC8xx
 	default 0xF0000000 if ARCH_MPC8313

@@ -41,7 +41,7 @@ int gsc_i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 			break;
 		debug("%s: 0x%02x 0x%02x retry%d: %d\n", __func__, chip, addr,
 		      n, ret);
-		if (ret != -ENODEV)
+		if (ret != -EREMOTEIO)
 			break;
 		mdelay(10);
 	}
@@ -60,7 +60,7 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 			break;
 		debug("%s: 0x%02x 0x%02x retry%d: %d\n", __func__, chip, addr,
 		      n, ret);
-		if (ret != -ENODEV)
+		if (ret != -EREMOTEIO)
 			break;
 		mdelay(10);
 	}
