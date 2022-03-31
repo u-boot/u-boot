@@ -80,8 +80,8 @@ static int dm_test_virtio_all_ops(struct unit_test_state *uts)
 	ut_asserteq_64(BIT_ULL(VIRTIO_F_VERSION_1), features);
 	ut_assertok(virtio_set_features(dev));
 	ut_assertok(virtio_find_vqs(dev, nvqs, vqs));
-	ut_assertok(virtio_del_vqs(dev));
 	ut_assertok(virtio_notify(dev, vqs[0]));
+	ut_assertok(virtio_del_vqs(dev));
 
 	return 0;
 }
