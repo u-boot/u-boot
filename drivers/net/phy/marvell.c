@@ -614,6 +614,16 @@ static int m88e1149_config(struct phy_device *phydev)
 	return 0;
 }
 
+/* Marvell 88E1240 */
+static int m88e1240_config(struct phy_device *phydev)
+{
+	marvell_of_reg_init(phydev);
+
+	genphy_config_aneg(phydev);
+
+	return 0;
+}
+
 /* Marvell 88E1310 */
 static int m88e1310_config(struct phy_device *phydev)
 {
@@ -760,6 +770,16 @@ static struct phy_driver M88E1149S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver M88E1240_driver = {
+	.name = "Marvell 88E1240",
+	.uid = 0x1410e30,
+	.mask = 0xffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &m88e1240_config,
+	.startup = &m88e1011s_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 static struct phy_driver M88E151x_driver = {
 	.name = "Marvell 88E151x",
 	.uid = 0x1410dd0,
@@ -802,6 +822,7 @@ int phy_marvell_init(void)
 	phy_register(&M88E1118R_driver);
 	phy_register(&M88E1111S_driver);
 	phy_register(&M88E1011S_driver);
+	phy_register(&M88E1240_driver);
 	phy_register(&M88E151x_driver);
 	phy_register(&M88E1680_driver);
 
