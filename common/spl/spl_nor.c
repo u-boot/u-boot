@@ -26,8 +26,10 @@ unsigned long __weak spl_nor_get_uboot_base(void)
 static int spl_nor_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
-	__maybe_unused const struct legacy_img_hdr *header;
-	__maybe_unused struct spl_load_info load;
+	struct spl_load_info load = {
+		.bl_len = 1,
+		.read = spl_nor_load_read,
+	};
 
 	/*
 	 * Loading of the payload to SDRAM is done with skipping of
@@ -41,7 +43,8 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 		 * Load Linux from its location in NOR flash to its defined
 		 * location in SDRAM
 		 */
-		header = (const struct legacy_img_hdr *)CONFIG_SYS_OS_BASE;
+		const struct legacy_img_hdr *header =
+			(const struct legacy_img_hdr *)CONFIG_SYS_OS_BASE;
 #ifdef CONFIG_SPL_LOAD_FIT
 		if (image_get_magic(header) == FDT_MAGIC) {
 			int ret;
@@ -91,36 +94,6 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
-#ifdef CONFIG_SPL_LOAD_FIT
-	header = (const struct legacy_img_hdr *)spl_nor_get_uboot_base();
-	if (image_get_magic(header) == FDT_MAGIC) {
-		debug("Found FIT format U-Boot\n");
-		load.bl_len = 1;
-		load.read = spl_nor_load_read;
-		return spl_load_simple_fit(spl_image, &load,
-					   spl_nor_get_uboot_base(),
-					   (void *)header);
-	}
-#endif
-	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
-		load.bl_len = 1;
-		load.read = spl_nor_load_read;
-		return spl_load_imx_container(spl_image, &load,
-					      spl_nor_get_uboot_base());
-	}
-
-	/* Legacy image handling */
-	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT)) {
-		struct legacy_img_hdr hdr;
-
-		load.bl_len = 1;
-		load.read = spl_nor_load_read;
-		spl_nor_load_read(&load, spl_nor_get_uboot_base(), sizeof(hdr), &hdr);
-		return spl_load_legacy_img(spl_image, bootdev, &load,
-					   spl_nor_get_uboot_base(),
-					   &hdr);
-	}
-
-	return -EINVAL;
+	return spl_load(spl_image, bootdev, &load, 0, 0);
 }
 SPL_LOAD_IMAGE_METHOD("NOR", 0, BOOT_DEVICE_NOR, spl_nor_load_image);
