@@ -1380,6 +1380,9 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	else
 		nand_info->max_ecc_strength_supported = 40;
 
+	if (IS_ENABLED(CONFIG_NAND_MXS_USE_MINIMUM_ECC))
+		nand_info->use_minimum_ecc = true;
+
 	err = mxs_nand_alloc_buffers(nand_info);
 	if (err)
 		return err;
