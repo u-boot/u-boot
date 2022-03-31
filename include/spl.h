@@ -267,7 +267,7 @@ struct spl_image_info {
  *
  * @dev: Pointer to the device, e.g. struct mmc *
  * @priv: Private data for the device
- * @bl_len: Block length for reading in bytes
+ * @bl_len: Block length for reading in bytes; must be a power of 2
  * @filename: Name of the fit image file.
  * @read: Function to call to read from the device
  */
@@ -675,6 +675,31 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 int spl_blk_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev,
 		       enum uclass_id uclass_id, int devnum, int partnum);
+
+/**
+ * spl_load() - Parse a header and load the image
+ * @spl_image: Image data which will be filled in by this function
+ * @bootdev: The device to load from
+ * @info: Describes how to load additional information from @bootdev. At the
+ *        minimum, read() and bl_len must be populated.
+ * @size: The size of the image, in bytes, if it is known in advance. Some boot
+ *        devices (such as filesystems) know how big an image is before parsing
+ *        the header. If 0, then the size will be determined from the header.
+ * @sectors: The offset from the start of @bootdev, in units of @info->bl_len.
+ *           This should have the offset @header was loaded from. It will be
+ *           added to any offsets passed to @info->read().
+ *
+ * This function determines the image type (FIT, legacy, i.MX, raw, etc), calls
+ * the appropriate parsing function, determines the load address, and the loads
+ * the image from storage. It is designed to replace ad-hoc image loading which
+ * may not support all image types (especially when config options are
+ * involved).
+ *
+ * Return: 0 on success, or a negative error on failure
+ */
+int spl_load(struct spl_image_info *spl_image,
+	     const struct spl_boot_device *bootdev, struct spl_load_info *info,
+	     size_t size, size_t sector);
 
 /**
  * spl_early_init() - Set up device tree and driver model in SPL if enabled
