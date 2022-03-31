@@ -205,6 +205,7 @@ config SANDBOX
 	imply KEYBOARD
 	imply PHYSMEM
 	imply GENERATE_ACPI_TABLE
+	imply BINMAN
 
 config SH
 	bool "SuperH architecture"

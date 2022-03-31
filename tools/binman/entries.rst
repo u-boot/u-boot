@@ -1155,6 +1155,44 @@ placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
 
 
 
+Entry: pre-load: Pre load image header
+--------------------------------------
+
+Properties / Entry arguments:
+    - key-path: Path of the directory that store key (provided by the environment variable KEY_PATH)
+    - content: List of phandles to entries to sign
+    - algo-name: Hash and signature algo to use for the signature
+    - padding-name: Name of the padding (pkcs-1.5 or pss)
+    - key-name: Filename of the private key to sign
+    - header-size: Total size of the header
+    - version: Version of the header
+
+This entry creates a pre-load header that contains a global
+image signature.
+
+For example, this creates an image with a pre-load header and a binary::
+
+    binman {
+        image2 {
+            filename = "sandbox.bin";
+
+            pre-load {
+                content = <&image>;
+                algo-name = "sha256,rsa2048";
+                padding-name = "pss";
+                key-name = "private.pem";
+                header-size = <4096>;
+                version = <1>;
+            };
+
+            image: blob-ext {
+                filename = "sandbox.itb";
+            };
+        };
+    };
+
+
+
 Entry: scp: System Control Processor (SCP) firmware blob
 --------------------------------------------------------
 

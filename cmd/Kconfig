@@ -194,6 +194,16 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_BOOTM_PRE_LOAD
+       bool "enable pre-load on bootm"
+       depends on CMD_BOOTM
+       depends on IMAGE_PRE_LOAD
+       default n
+       help
+         Enable support of stage pre-load for the bootm command.
+	 This stage allow to check or modify the image provided
+	 to the bootm command.
+
 config BOOTM_EFI
 	bool "Support booting UEFI FIT images"
 	depends on CMD_BOOTEFI && CMD_BOOTM && FIT
