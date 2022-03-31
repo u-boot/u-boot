@@ -89,12 +89,14 @@ u32 __weak spl_spi_boot_cs(void)
 static int spl_spi_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
-	int err = 0;
 	unsigned int payload_offs;
 	struct spi_flash *flash;
-	struct legacy_img_hdr *header;
 	unsigned int sf_bus = spl_spi_boot_bus();
 	unsigned int sf_cs = spl_spi_boot_cs();
+	struct spl_load_info load = {
+		.bl_len = 1,
+		.read = spl_spi_fit_read,
+	};
 
 	/*
 	 * Load U-Boot image from SPI flash into RAM
@@ -109,9 +111,8 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 		return -ENODEV;
 	}
 
+	load.dev = flash;
 	payload_offs = spl_spi_get_uboot_offs(flash);
-
-	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 	if (CONFIG_IS_ENABLED(OF_REAL)) {
 		payload_offs = ofnode_conf_read_int("u-boot,spl-payload-offset",
@@ -119,67 +120,10 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	}
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
-	if (spl_start_uboot() || spi_load_image_os(spl_image, bootdev, flash, header))
+	if (!spl_start_uboot() && !spi_load_image_os(spl_image, bootdev, flash, header))
+		return 0;
 #endif
-	{
-		/* Load u-boot, mkimage header is 64 bytes. */
-		err = spi_flash_read(flash, payload_offs, sizeof(*header),
-				     (void *)header);
-		if (err) {
-			debug("%s: Failed to read from SPI flash (err=%d)\n",
-			      __func__, err);
-			return err;
-		}
-
-		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
-		    image_get_magic(header) == FDT_MAGIC) {
-			err = spi_flash_read(flash, payload_offs,
-					     roundup(fdt_totalsize(header), 4),
-					     (void *)CONFIG_SYS_LOAD_ADDR);
-			if (err)
-				return err;
-			err = spl_parse_image_header(spl_image, bootdev,
-					(struct legacy_img_hdr *)CONFIG_SYS_LOAD_ADDR);
-		} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
-			   image_get_magic(header) == FDT_MAGIC) {
-			struct spl_load_info load;
-
-			debug("Found FIT\n");
-			load.dev = flash;
-			load.priv = NULL;
-			load.filename = NULL;
-			load.bl_len = 1;
-			load.read = spl_spi_fit_read;
-			err = spl_load_simple_fit(spl_image, &load,
-						  payload_offs,
-						  header);
-		} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
-			struct spl_load_info load;
-
-			load.dev = flash;
-			load.priv = NULL;
-			load.filename = NULL;
-			load.bl_len = 1;
-			load.read = spl_spi_fit_read;
-
-			err = spl_load_imx_container(spl_image, &load,
-						     payload_offs);
-		} else {
-			err = spl_parse_image_header(spl_image, bootdev, header);
-			if (err)
-				return err;
-			err = spi_flash_read(flash, payload_offs + spl_image->offset,
-					     spl_image->size,
-					     (void *)spl_image->load_addr);
-		}
-		if (IS_ENABLED(CONFIG_SPI_FLASH_SOFT_RESET)) {
-			err = spi_nor_remove(flash);
-			if (err)
-				return err;
-		}
-	}
-
-	return err;
+	return spl_load(spl_image, bootdev, &load, 0, payload_offs);
 }
 /* Use priorty 1 so that boards can override this */
 SPL_LOAD_IMAGE_METHOD("SPI", 1, BOOT_DEVICE_SPI, spl_spi_load_image);
