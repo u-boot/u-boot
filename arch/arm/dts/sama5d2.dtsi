@@ -1,4 +1,5 @@
 #include "skeleton.dtsi"
+#include <dt-bindings/interrupt-controller/irq.h>
 
 / {
 	model = "Atmel SAMA5D2 family SoC";
@@ -637,6 +638,21 @@
 				clocks = <&macb0_clk>, <&macb0_clk>;
 				clock-names = "hclk", "pclk";
 				status = "disabled";
+			};
+
+			tcb0: timer@f800c000 {
+				compatible = "atmel,sama5d2-tcb", "simple-mfd", "syscon";
+				reg = <0xf800c000 0x100>;
+				interrupts = <35 IRQ_TYPE_LEVEL_HIGH 0>;
+				clocks = <&tcb0_clk>, <&tcb0_gclk>, <&clk32k>;
+				clock-names = "t0_clk", "gclk", "slow_clk";
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				timer0: timer@0 {
+					compatible = "atmel,tcb-timer";
+					reg = <0>, <1>;
+				};
 			};
 
 			uart0: serial@f801c000 {
