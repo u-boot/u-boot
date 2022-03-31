@@ -18,7 +18,6 @@ obj-$(CONFIG_CORTINA_NI_ENET) += cortina_ni.o
 obj-$(CONFIG_CS8900) += cs8900.o
 obj-$(CONFIG_DM_ETH_PHY) += eth-phy-uclass.o
 obj-$(CONFIG_DNET) += dnet.o
-obj-$(CONFIG_DRIVER_AX88180) += ax88180.o
 obj-$(CONFIG_DRIVER_DM9000) += dm9000x.o
 obj-$(CONFIG_DSA_SANDBOX) += dsa_sandbox.o
 obj-$(CONFIG_DWC_ETH_QOS) += dwc_eth_qos.o
