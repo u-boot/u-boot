@@ -1,8 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. Copyright 2021, Kory Maincent <kory.maincent@bootlin.com>
 
-U-Boot extension board usage (CONFIG_EXTENSION)
-===============================================
+extension command
+=================
 
 Synopsis
 --------

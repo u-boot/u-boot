@@ -102,5 +102,3 @@ Return value
 ------------
 
 The return value $? is always 0 (true).
-
-

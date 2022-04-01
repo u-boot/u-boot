@@ -4,9 +4,9 @@
 """
 
 import os
-import pytest
 import shutil
-from subprocess import call, check_call
+from subprocess import check_call
+import pytest
 
 @pytest.fixture(scope='session')
 def efi_bootmgr_data(u_boot_config):
@@ -14,7 +14,7 @@ def efi_bootmgr_data(u_boot_config):
        tests
 
     Args:
-        u_boot_config: U-boot configuration.
+        u_boot_config -- U-boot configuration.
 
     Return:
         A path to disk image to be used for testing
@@ -34,9 +34,7 @@ def efi_bootmgr_data(u_boot_config):
     shutil.copyfile(u_boot_config.build_dir + '/lib/efi_loader/initrddump.efi',
                     mnt_point + '/initrddump.efi')
 
-    check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'
-               .format(mnt_point, image_path), shell=True)
+    check_call(f'virt-make-fs --partition=gpt --size=+1M --type=vfat {mnt_point} {image_path}',
+               shell=True)
 
-    print(image_path)
-
-    yield image_path
+    return image_path
