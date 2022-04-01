@@ -85,8 +85,10 @@ FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
 TEE_OS_DATA           = b'this is some tee OS data'
+TI_DM_DATA            = b'tidmtidm'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
+SYSFW_DATA            = b'sysfw'
 SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
@@ -190,8 +192,10 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
         TestFunctional._MakeInputFile('tee-pager.bin', TEE_OS_DATA)
+        TestFunctional._MakeInputFile('dm.bin', TI_DM_DATA)
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
+        TestFunctional._MakeInputFile('sysfw.bin', SYSFW_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
 
         # Add a few .dtb files for testing
@@ -5303,6 +5307,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('222_tee_os.dts')
         self.assertEqual(TEE_OS_DATA, data[:len(TEE_OS_DATA)])
 
+    def testPackTiDm(self):
+        """Test that an image with a TI DM binary can be created"""
+        data = self._DoReadFile('225_ti_dm.dts')
+        self.assertEqual(TI_DM_DATA, data[:len(TI_DM_DATA)])
+
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""
         entry_args = {
@@ -5320,6 +5329,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoReadFileDtb('224_fit_bad_oper.dts')
         self.assertIn("Node '/binman/fit': Unknown operation 'unknown'",
                       str(exc.exception))
+
+    def testPackSysfw(self):
+        """Test that an image with a SYSFW binary can be created"""
+        data = self._DoReadFile('226_sysfw.dts')
+        self.assertEqual(SYSFW_DATA, data[:len(SYSFW_DATA)])
 
 
 if __name__ == "__main__":
