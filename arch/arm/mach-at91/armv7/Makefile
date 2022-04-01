@@ -11,9 +11,6 @@ obj-$(CONFIG_SAMA5D3)	+= sama5d3_devices.o clock.o
 obj-$(CONFIG_SAMA5D4)	+= sama5d4_devices.o clock.o
 obj-$(CONFIG_SAMA7G5)	+= sama7g5_devices.o
 obj-y += cpu.o
-ifndef CONFIG_$(SPL_TPL_)SYSRESET
-obj-y	+= reset.o
-endif
 ifneq ($(CONFIG_ATMEL_TCB_TIMER),y)
 ifneq ($(CONFIG_ATMEL_PIT_TIMER),y)
 ifneq ($(CONFIG_MCHP_PIT64B_TIMER),y)
