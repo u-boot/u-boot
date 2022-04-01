@@ -232,6 +232,13 @@
 			clocks = <&clk32k 0>;
 		};
 
+		reset_controller: rstc@e001d000 {
+			compatible = "microchip,sama7g5-rstc", "microchip,sam9x60-rstc";
+			reg = <0xe001d000 0xc>, <0xe001d0e4 0x4>;
+			#reset-cells = <1>;
+			clocks = <&clk32k 0>;
+		};
+
 		clk32k: clock-controller@e001d050 {
 			compatible = "microchip,sama7g5-sckc", "microchip,sam9x60-sckc";
 			reg = <0xe001d050 0x4>;
