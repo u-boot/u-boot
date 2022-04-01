@@ -275,11 +275,11 @@ config PHY_MTK_TPHY
 	  so you can easily distinguish them by banks layout.
 
 config PHY_IMX8MQ_USB
-	bool "NXP i.MX8MQ USB PHY Driver"
+	bool "NXP i.MX8MQ/i.MX8MP USB PHY Driver"
 	depends on PHY
-	depends on IMX8MQ
+	depends on IMX8MQ || IMX8MP
 	help
-	  Support the USB3.0 PHY in NXP i.MX8MQ SoC
+	  Support the USB3.0 PHY in NXP i.MX8MQ or i.MX8MP SoC
 
 config PHY_XILINX_ZYNQMP
 	tristate "Xilinx ZynqMP PHY driver"

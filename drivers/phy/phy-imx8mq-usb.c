@@ -9,7 +9,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <generic-phy.h>
+#include <linux/bitfield.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/err.h>
 #include <clk.h>
 
@@ -68,17 +70,22 @@
 #define PHY_STS0_FSVPLUS		BIT(3)
 #define PHY_STS0_FSVMINUS		BIT(2)
 
+enum imx8mpq_phy_type {
+	IMX8MQ_PHY,
+	IMX8MP_PHY,
+};
+
 struct imx8mq_usb_phy {
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk phy_clk;
 #endif
 	void __iomem *base;
+	enum imx8mpq_phy_type type;
 };
 
 static const struct udevice_id imx8mq_usb_phy_of_match[] = {
-	{
-		.compatible = "fsl,imx8mq-usb-phy",
-	},
+	{ .compatible = "fsl,imx8mq-usb-phy", .data = IMX8MQ_PHY },
+	{ .compatible = "fsl,imx8mp-usb-phy", .data = IMX8MP_PHY },
 	{},
 };
 
@@ -109,6 +116,56 @@ static int imx8mq_usb_phy_init(struct phy *usb_phy)
 	writel(value, imx_phy->base + PHY_CTRL1);
 
 	return 0;
+}
+
+static int imx8mp_usb_phy_init(struct phy *usb_phy)
+{
+	struct udevice *dev = usb_phy->dev;
+	struct imx8mq_usb_phy *imx_phy = dev_get_priv(dev);
+	u32 value;
+
+	/* USB3.0 PHY signal fsel for 24M ref */
+	value = readl(imx_phy->base + PHY_CTRL0);
+	value &= ~PHY_CTRL0_FSEL_MASK;
+	value |= FIELD_PREP(PHY_CTRL0_FSEL_MASK, PHY_CTRL0_FSEL_24M);
+	writel(value, imx_phy->base + PHY_CTRL0);
+
+	/* Disable alt_clk_en and use internal MPLL clocks */
+	value = readl(imx_phy->base + PHY_CTRL6);
+	value &= ~(PHY_CTRL6_ALT_CLK_SEL | PHY_CTRL6_ALT_CLK_EN);
+	writel(value, imx_phy->base + PHY_CTRL6);
+
+	value = readl(imx_phy->base + PHY_CTRL1);
+	value &= ~(PHY_CTRL1_VDATSRCENB0 | PHY_CTRL1_VDATDETENB0);
+	value |= PHY_CTRL1_RESET | PHY_CTRL1_ATERESET;
+	writel(value, imx_phy->base + PHY_CTRL1);
+
+	value = readl(imx_phy->base + PHY_CTRL0);
+	value |= PHY_CTRL0_REF_SSP_EN;
+	writel(value, imx_phy->base + PHY_CTRL0);
+
+	value = readl(imx_phy->base + PHY_CTRL2);
+	value |= PHY_CTRL2_TXENABLEN0 | PHY_CTRL2_OTG_DISABLE;
+	writel(value, imx_phy->base + PHY_CTRL2);
+
+	udelay(10);
+
+	value = readl(imx_phy->base + PHY_CTRL1);
+	value &= ~(PHY_CTRL1_RESET | PHY_CTRL1_ATERESET);
+	writel(value, imx_phy->base + PHY_CTRL1);
+
+	return 0;
+}
+
+static int imx8mpq_usb_phy_init(struct phy *usb_phy)
+{
+	struct udevice *dev = usb_phy->dev;
+	struct imx8mq_usb_phy *imx_phy = dev_get_priv(dev);
+
+	if (imx_phy->type == IMX8MP_PHY)
+		return imx8mp_usb_phy_init(usb_phy);
+	else
+		return imx8mq_usb_phy_init(usb_phy);
 }
 
 static int imx8mq_usb_phy_power_on(struct phy *usb_phy)
@@ -158,7 +215,7 @@ static int imx8mq_usb_phy_exit(struct phy *usb_phy)
 }
 
 struct phy_ops imx8mq_usb_phy_ops = {
-	.init = imx8mq_usb_phy_init,
+	.init = imx8mpq_usb_phy_init,
 	.power_on = imx8mq_usb_phy_power_on,
 	.power_off = imx8mq_usb_phy_power_off,
 	.exit = imx8mq_usb_phy_exit,
@@ -168,6 +225,7 @@ int imx8mq_usb_phy_probe(struct udevice *dev)
 {
 	struct imx8mq_usb_phy *priv = dev_get_priv(dev);
 
+	priv->type = dev_get_driver_data(dev);
 	priv->base = dev_read_addr_ptr(dev);
 
 	if (!priv->base)
