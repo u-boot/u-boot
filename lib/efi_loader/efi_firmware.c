@@ -35,6 +35,11 @@ struct fmp_payload_header {
 	u32 lowest_supported_version;
 };
 
+__weak void set_dfu_alt_info(char *interface, char *devstr)
+{
+	env_set("dfu_alt_info", update_info.dfu_string);
+}
+
 /* Place holder; not supported */
 static
 efi_status_t EFIAPI efi_firmware_get_image_unsupported(
