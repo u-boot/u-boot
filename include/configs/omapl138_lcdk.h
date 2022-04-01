@@ -171,10 +171,6 @@
 	"boot_fit=0\0" \
 	"console=ttyS2,115200n8\0"
 
-#ifdef CONFIG_CMD_BDI
-#define CONFIG_CLOCKS
-#endif
-
 /* SD/MMC */
 
 /* defines for SPL */

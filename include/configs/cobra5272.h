@@ -32,9 +32,6 @@
 #define CONFIG_SYS_CLK			66000000
 #define CONFIG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
 
-/* Enable Dma Timer */
-#define CONFIG_MCFTMR
-
 /* ---
  * Define baudrate for UART1 (console output, tftp, ...)
  * default value of CONFIG_BAUDRATE for Sentec board: 19200 baud
@@ -191,12 +188,6 @@ enter a valid image address in flash */
  */
 
 #define CONFIG_SYS_FLASH_BASE		0xffe00000
-
-#ifdef	CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_SYS_MONITOR_BASE	0x20000
-#else
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
-#endif
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024

@@ -21,8 +21,6 @@
 
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
-
 /* Power Down Modes */
 #define S5P_CHECK_SLEEP			0x00000BAD
 #define S5P_CHECK_DIDLE			0xBAD00000
@@ -45,8 +43,6 @@
         "loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
         "bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
                 "source ${loadaddr}\0"
-
-#define CONFIG_CLK_1000_400_200
 
 /* MIU (Memory Interleaving Unit) */
 #define CONFIG_MIU_2BIT_21_7_INTERLEAVED

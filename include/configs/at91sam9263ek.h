@@ -22,11 +22,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16367660 /* 16.367 MHz crystal */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
-#ifndef CONFIG_SYS_USE_BOOT_NORFLASH
-#else
-#define CONFIG_SYS_USE_NORFLASH
-#endif
-
 /*
  * Hardware drivers
  */
@@ -48,7 +43,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT		256
 
 #define CONFIG_SYS_MONITOR_SEC	1:0-3
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN	(256 << 10)
 
 /* Address and size of Primary Environment Sector */
@@ -186,14 +180,5 @@
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00a00000	/* AT91SAM9263_UHP_BASE */
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-
-#ifdef CONFIG_SYS_USE_DATAFLASH
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-
-#elif CONFIG_SYS_USE_NANDFLASH
-
-/* bootstrap + u-boot + env + linux in nandflash */
-#endif
 
 #endif

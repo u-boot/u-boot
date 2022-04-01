@@ -38,9 +38,6 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
 #define CONFIG_SYS_CBSIZE		512
 
-/* U-Boot */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-
 /* Environment settings */
 
 #endif //__VOCORE2_CONFIG_H__

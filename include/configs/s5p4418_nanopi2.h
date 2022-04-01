@@ -19,7 +19,6 @@
  *  System memory Configuration
  */
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MEM_SIZE		0x40000000
 #define CONFIG_SYS_SDRAM_BASE		0x71000000
 
@@ -87,12 +86,6 @@
 #define CONFIG_SYS_MAXARGS		16
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
-/*-----------------------------------------------------------------------
- * Etc Command definition
- */
-#undef CONFIG_BOOTM_NETBSD
-#undef CONFIG_BOOTM_RTEMS
 
 /*-----------------------------------------------------------------------
  * serial console configuration

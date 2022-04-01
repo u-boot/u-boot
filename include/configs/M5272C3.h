@@ -16,7 +16,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCFTMR
 
 #define CONFIG_SYS_UART_PORT		(0)
 
@@ -88,12 +87,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_SDRAM_SIZE		4	/* SDRAM size in MB */
 #define CONFIG_SYS_FLASH_BASE		0xffe00000
-
-#ifdef	CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_SYS_MONITOR_BASE	0x20000
-#else
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
-#endif
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024

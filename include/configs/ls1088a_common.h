@@ -17,7 +17,6 @@
 #define SPL_NO_SATA
 #define SPL_NO_QSPI
 #define SPL_NO_IFC
-#undef CONFIG_DISPLAY_CPUINFO
 #endif
 
 #include <asm/arch/stream_id_lsch3.h>
@@ -130,8 +129,6 @@ unsigned long long get_qixis_addr(void);
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
-
-/* #define CONFIG_DISPLAY_CPUINFO */
 
 #ifndef SPL_NO_ENV
 /* Initial environment variables */

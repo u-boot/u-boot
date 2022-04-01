@@ -70,9 +70,6 @@
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 
-/* support deep sleep */
-#define CONFIG_DEEP_SLEEP
-
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
@@ -297,12 +294,6 @@
 #define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NAND_FTIM1
 #define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NAND_FTIM3
-#endif
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
 #if defined(CONFIG_RAMBOOT_PBL)

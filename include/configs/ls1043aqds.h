@@ -39,11 +39,6 @@
 #define QSGMII_CARD_PORT4_PHY_ADDR_S2 0xB
 #endif
 
-/* LPUART */
-#ifdef CONFIG_LPUART
-#define CONFIG_LPUART_32B_REG
-#endif
-
 /* SATA */
 
 /* EEPROM */
@@ -325,12 +320,6 @@
 
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
-#endif
 
 /*
  * Environment

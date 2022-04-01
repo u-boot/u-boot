@@ -254,12 +254,6 @@
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE  CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE  CONFIG_SYS_TEXT_BASE /* start of monitor */
-#endif
-
 #define CONFIG_HWCONFIG
 
 /* define to use L1 as initial stack */

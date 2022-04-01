@@ -1,7 +1,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_E300		1	/* E300 family */
 
 #define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
 

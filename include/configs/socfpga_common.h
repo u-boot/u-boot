@@ -8,11 +8,6 @@
 #include <linux/stringify.h>
 
 /*
- * High level configuration
- */
-#define CONFIG_CLOCKS
-
-/*
  * Memory configurations
  */
 #define PHYS_SDRAM_1			0x0

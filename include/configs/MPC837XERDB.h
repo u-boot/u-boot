@@ -13,7 +13,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_E300		1 /* E300 family */
 
 #define CONFIG_HWCONFIG
 
@@ -127,7 +126,6 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT

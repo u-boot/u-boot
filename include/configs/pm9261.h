@@ -160,35 +160,13 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9261"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
-#undef CONFIG_SYS_USE_DATAFLASH_CS0
-#undef CONFIG_SYS_USE_NANDFLASH
-#define CONFIG_SYS_USE_FLASH	1
-
-#ifdef CONFIG_SYS_USE_DATAFLASH_CS0
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-
-#elif defined(CONFIG_SYS_USE_NANDFLASH) /* CONFIG_SYS_USE_NANDFLASH */
-
-/* bootstrap + u-boot + env + linux in nandflash */
-
-#elif defined (CONFIG_SYS_USE_FLASH)
-/* JFFS Partition offset set */
-#define CONFIG_SYS_JFFS2_FIRST_BANK	0
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1
-
-/* 512k reserved for u-boot */
-#define CONFIG_SYS_JFFS2_FIRST_SECTOR	11
-
-#define CONFIG_CON_ROT "fbcon=rotate:3 "
-
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"partition=nand0,0\0"					\
 	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "		\
-		CONFIG_CON_ROT					\
+		"fbcon=rotate:3 "				\
 		"nfsroot=$(serverip):$(rootpath) $(mtdparts)\0"	\
 	"addip=setenv bootargs $(bootargs) "			\
 		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"\
@@ -199,9 +177,6 @@
 		"run nfsargs;run addip;bootm 22000000\0"	\
 	"flashboot=run ramargs;run addip;bootm 0x10050000\0"	\
 	""
-#else
-#error "Undefined memory device"
-#endif
 
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - \

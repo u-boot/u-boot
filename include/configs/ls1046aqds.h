@@ -54,7 +54,6 @@
 
 /* LPUART */
 #ifdef CONFIG_LPUART
-#define CONFIG_LPUART_32B_REG
 #define CFG_UART_MUX_MASK	0x6
 #define CFG_UART_MUX_SHIFT	1
 #define CFG_LPUART_EN		0x2
@@ -339,8 +338,6 @@
 
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
 
 /*
  * Environment

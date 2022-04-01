@@ -42,11 +42,6 @@
 /* SPL */
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
 
-/* Ethernet Configuration */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_ETH
-#endif
-
 /* I2C */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_SPD_BUS_NUM		0

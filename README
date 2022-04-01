@@ -403,10 +403,6 @@ The following options need to be configured:
 		This CONFIG is defined when the CPC is configured as SRAM at the
 		time of U-Boot entry and is required to be re-initialized.
 
-		CONFIG_DEEP_SLEEP
-		Indicates this SoC supports deep sleep feature. If deep sleep is
-		supported, core will start to execute uboot when wakes up.
-
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
@@ -1920,12 +1916,6 @@ Configuration Settings:
 
 - CONFIG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
-
-- CONFIG_SYS_MONITOR_BASE:
-		Physical start address of boot monitor code (set by
-		make config files to be same as the text base address
-		(CONFIG_SYS_TEXT_BASE) used when linking) - same as
-		CONFIG_SYS_FLASH_BASE when booting from flash.
 
 - CONFIG_SYS_MONITOR_LEN:
 		Size of memory reserved for monitor code, used to

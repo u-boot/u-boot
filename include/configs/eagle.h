@@ -11,9 +11,6 @@
 
 #include "rcar-gen3-common.h"
 
-/* Ethernet RAVB */
-#define CONFIG_BITBANGMII_MULTI
-
 /* Environment compatibility */
 
 /* Board Clock */

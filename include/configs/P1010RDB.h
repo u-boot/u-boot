@@ -97,14 +97,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#ifdef CONFIG_TPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE	0xD0001000
-#elif defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
-#endif
-
 /* High Level Configuration Options */
 
 #if defined(CONFIG_PCI)

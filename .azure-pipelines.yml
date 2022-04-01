@@ -68,8 +68,10 @@ stages:
              -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
              | sort -u > $KSYMLST
           for CFG in `find include/configs -name "*.h"`; do
-             grep '#define[[:blank:]]CONFIG_' $CFG | \
-                sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' | \
+             (grep '#define[[:blank:]]CONFIG_' $CFG | \
+                sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' ; \
+                grep '#undef[[:blank:]]CONFIG_' $CFG | \
+                sed -n 's/#undef.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p') | \
                 sort -u > ${KUSEDLST} || true
              NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} | \
                 cut -d , -f 3`

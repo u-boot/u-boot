@@ -18,9 +18,6 @@
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(30 * 1024)
 
-#define CONFIG_DEVICE_TREE_LIST "exynos5800-peach-pi"	\
-				"exynos5420-peach-pit exynos5420-smdk5420"
-
 #define CONFIG_PHY_IRAM_BASE		0x02020000
 
 /* Address for relocating helper code (Last 4 KB of IRAM) */

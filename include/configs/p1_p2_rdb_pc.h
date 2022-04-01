@@ -13,7 +13,6 @@
 #include <linux/stringify.h>
 
 #if defined(CONFIG_TARGET_P1020RDB_PC)
-#define CONFIG_BOARDNAME "P1020RDB-PC"
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
@@ -39,7 +38,6 @@
  * 011101 800 800 400 667 PCIe-2 Core0 boot; Core1 hold-off
  */
 #if defined(CONFIG_TARGET_P1020RDB_PD)
-#define CONFIG_BOARDNAME "P1020RDB-PD"
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
@@ -55,7 +53,6 @@
 #endif
 
 #if defined(CONFIG_TARGET_P2020RDB)
-#define CONFIG_BOARDNAME "P2020RDB-PC"
 #define CONFIG_VSC7385_ENET
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0xc8
@@ -123,16 +120,6 @@
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
-#endif
-
-#ifndef CONFIG_SYS_MONITOR_BASE
-#ifdef CONFIG_TPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE	0xf8f81000
-#elif defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
-#endif
 #endif
 
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
@@ -324,9 +311,6 @@
 #define CONFIG_SYS_CPLD_BASE_PHYS	CONFIG_SYS_CPLD_BASE
 #endif
 /* CPLD config size: 1Mb */
-#define CONFIG_CPLD_BR_PRELIM	(BR_PHYS_ADDR(CONFIG_SYS_CPLD_BASE_PHYS) | \
-					BR_PS_8 | BR_V)
-#define CONFIG_CPLD_OR_PRELIM	(0xfff009f7)
 
 #define CONFIG_SYS_PMC_BASE	0xff980000
 #define CONFIG_SYS_PMC_BASE_PHYS	CONFIG_SYS_PMC_BASE

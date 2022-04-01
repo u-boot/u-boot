@@ -45,8 +45,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
-#define CONFIG_CLOCKS
-
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_addr_r=0x40000000\0" \
 	"fdt_size_r=0x400000\0" \

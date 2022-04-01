@@ -80,7 +80,6 @@
  */
 #define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)
 #define	CONFIG_SYS_MONITOR_LEN		(320 << 10)
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 /* Environment Configuration */
 

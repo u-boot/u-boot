@@ -67,16 +67,4 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9260"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
-#ifdef CONFIG_SYS_USE_DATAFLASH_CS0
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#elif defined(CONFIG_SYS_USE_NANDFLASH)
-
-/* bootstrap + u-boot + env + linux in nandflash */
-
-#else	/* CONFIG_SYS_USE_MMC */
-/* bootstrap + u-boot + env + linux in mmc */
-/* For FAT system, most cases it should be in the reserved sector */
-#endif
-
 #endif

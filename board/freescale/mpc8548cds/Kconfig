@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "MPC8548CDS"
 
+config TARGET_MPC8548CDS_LEGACY
+	bool "Legacy platform support"
+
 endif

@@ -15,7 +15,6 @@
 #endif
 
 #define CONFIG_SYS_SDRAM_BASE		0xffffffff80000000
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)	/* 64M */
 

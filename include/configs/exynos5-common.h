@@ -56,8 +56,6 @@
 #define PHYS_SDRAM_8		(CONFIG_SYS_SDRAM_BASE + (7 * SDRAM_BANK_SIZE))
 #define PHYS_SDRAM_8_SIZE	SDRAM_BANK_SIZE
 
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
-
 /* SPI */
 
 /* Ethernet Controllor Driver */

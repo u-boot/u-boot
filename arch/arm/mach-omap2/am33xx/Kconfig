@@ -207,6 +207,19 @@ config TARGET_PDU001
 
 endchoice
 
+config CLOCK_SYNTHESIZER
+	bool "CDCE913 and CDCEL913 clock synthesizer support"
+	help
+	  The CDCE913 and CDCEL913 devices are modular PLL-based, low cost,
+	  high performance , programmable clock synthesizers. They generate
+	  up to 3 output clocks from a single input frequency. Each output can
+	  be programmed for any clock-frequency.
+
+config CLK_SYNTHESIZER_I2C_ADDR
+	hex "Clock synthesizer i2c bus address"
+	depends on CLOCK_SYNTHESIZER
+	default 0x65
+
 endif
 
 if AM43XX

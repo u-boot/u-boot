@@ -10,30 +10,13 @@
 #
 export LC_ALL=C LC_COLLATE=C
 
-# There are two independent greps. The first pulls out the component parts
-# of CONFIG_SYS_EXTRA_OPTIONS. An example is:
+# Looks for the rest of the CONFIG options, but exclude those in Kconfig and
+# defconfig files.
 #
-#	SUN7I_GMAC,AHCI,SATAPWR=SUNXI_GPB(8)
-#
-# We want this to produce:
-#	CONFIG_SUN7I_GMAC
-#	CONFIG_AHCI
-#	CONFIG_SATAPWR
-#
-# The second looks for the rest of the CONFIG options, but excludes those in
-# Kconfig and defconfig files.
-#
-(
-git grep CONFIG_SYS_EXTRA_OPTIONS |sed -n \
-	's/.*CONFIG_SYS_EXTRA_OPTIONS="\(.*\)"/\1/ p' \
-	| tr , '\n' \
-	| sed 's/ *\([A-Za-z0-9_]*\).*/CONFIG_\1/'
-
 git grep CONFIG_ | \
 	egrep -vi "(Kconfig:|defconfig:|README|\.py|\.pl:)" \
 	| tr ' \t' '\n\n' \
-	| sed -n 's/^\(CONFIG_[A-Za-z0-9_]*\).*/\1/p'
-) \
+	| sed -n 's/^\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' \
 	|sort |uniq >scripts/config_whitelist.txt.tmp1;
 
 # Finally, we need a list of the valid Kconfig options to exclude these from

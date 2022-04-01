@@ -83,7 +83,6 @@
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 #define CONFIG_SYS_MAX_FLASH_SECT	(PHYS_FLASH_SIZE / \
 		CONFIG_SYS_FLASH_SECT_SZ)
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		0x40000		/* Reserve 256KiB */
 /* Address and size of Redundant Environment Sector	*/
 

@@ -69,16 +69,6 @@
 /* hw-controller addresses */
 #define CONFIG_ET1100_BASE		0x70000000
 
-#ifdef CONFIG_SYS_USE_DATAFLASH
-
-/* bootstrap + u-boot + env in dataflash on CS0 */
-
-#elif CONFIG_SYS_USE_NANDFLASH
-
-/* bootstrap + u-boot + env + linux in nandflash */
-
-#endif
-
 #define CONFIG_SYS_CBSIZE		512
 
 #endif

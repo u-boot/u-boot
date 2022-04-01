@@ -14,7 +14,6 @@
 /*
  * U-Boot general configurations
  */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 /* sysmgr.boot_scratch_cold4 & 5 (64bit) will be used for PSCI_CPU_ON call */
 #define CPU_RELEASE_ADDR		0xFFD12210
 
@@ -137,9 +136,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 /*
  * L4 Watchdog
  */
-#ifndef CONFIG_SPL_BUILD
-#undef CONFIG_DESIGNWARE_WATCHDOG
-#endif
 #define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
 #ifndef __ASSEMBLY__

@@ -176,10 +176,6 @@
 	"console=ttyS2,115200n8\0" \
 	"hwconfig=dsp:wake=yes"
 
-#ifdef CONFIG_CMD_BDI
-#define CONFIG_CLOCKS
-#endif
-
 /* USB Configs */
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15

@@ -26,8 +26,6 @@
 
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
-#undef CONFIG_DM_MMC
-
 #define CONFIG_POWER_PCA9450
 
 #endif

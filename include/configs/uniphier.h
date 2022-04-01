@@ -39,7 +39,6 @@
 #define BOOTENV
 #endif
 
-#define CONFIG_SYS_MONITOR_BASE		0
 #define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */

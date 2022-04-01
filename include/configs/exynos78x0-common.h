@@ -28,9 +28,6 @@
 /* Timer input clock frequency */
 #define COUNTER_FREQUENCY		26000000
 
-/* Device Tree */
-#define CONFIG_DEVICE_TREE_LIST "EXYNOS78x0-a5y17lte"
-
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
 #define CONFIG_SYS_BAUDRATE_TABLE \

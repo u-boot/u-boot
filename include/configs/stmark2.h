@@ -35,16 +35,8 @@
 	""
 
 /* Realtime clock */
-#undef CONFIG_MCFRTC
 #define CONFIG_RTC_MCFRRTC
 #define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
-
-/* Timer */
-#define CONFIG_MCFTMR
-
-/* DSPI and Serial Flash */
-#define CONFIG_CF_DSPI
-#define CONFIG_SERIAL_FLASH
 
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 
@@ -87,12 +79,6 @@
 
 #if defined(CONFIG_CF_SBF)
 #define CONFIG_SERIAL_BOOT
-#endif
-
-#if defined(CONFIG_SERIAL_BOOT)
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_TEXT_BASE + 0x400)
-#else
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_FLASH_BASE + 0x400)
 #endif
 
 #define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)

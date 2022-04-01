@@ -17,7 +17,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCFTMR
 
 #define CONFIG_SYS_UART_PORT		(0)
 
@@ -64,8 +63,6 @@
 #if 0 /* test-only */
 #define CONFIG_PRAM		512 /* test-only for SDRAM problem!!!!!!!!!!!!!!!!!!!! */
 #endif
-
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024

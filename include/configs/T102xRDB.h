@@ -20,11 +20,6 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
-/* support deep sleep */
-#ifdef CONFIG_ARCH_T1024
-#define CONFIG_DEEP_SLEEP
-#endif
-
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_PAD_TO		0x40000
@@ -316,12 +311,6 @@
 #define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NAND_FTIM3
 #endif
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#endif
-
 #if defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_SYS_RAMBOOT
 #endif
@@ -519,20 +508,21 @@
 #define __USB_PHY_TYPE		utmi
 
 #ifdef CONFIG_ARCH_T1024
-#define CONFIG_BOARDNAME t1024rdb
-#define BANK_INTLV cs0_cs1
+#define ARCH_EXTRA_ENV_SETTINGS \
+	"bank_intlv=cs0_cs1\0"			\
+	"ramdiskfile=t1024rdb/ramdisk.uboot\0"	\
+	"fdtfile=t1024rdb/t1024rdb.dtb\0"
 #else
-#define CONFIG_BOARDNAME t1023rdb
-#define BANK_INTLV  null
+#define ARCH_EXTRA_ENV_SETTINGS \
+	"bank_intlv=null\0"			\
+	"ramdiskfile=t1023rdb/ramdisk.uboot\0"	\
+	"fdtfile=t1023rdb/t1023rdb.dtb\0"
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
+	ARCH_EXTRA_ENV_SETTINGS					\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
-	"bank_intlv=" __stringify(BANK_INTLV) "\0"		\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"  \
-	"ramdiskfile=" __stringify(CONFIG_BOARDNAME) "/ramdisk.uboot\0" \
-	"fdtfile=" __stringify(CONFIG_BOARDNAME) "/"		\
-	__stringify(CONFIG_BOARDNAME) ".dtb\0"			\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
 	"bootargs=root=/dev/ram rw console=ttyS0,115200\0" \

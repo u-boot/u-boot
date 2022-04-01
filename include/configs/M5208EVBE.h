@@ -26,9 +26,6 @@
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
-/* Timer */
-#define CONFIG_MCFTMR
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC
@@ -84,7 +81,6 @@
 #define CONFIG_SYS_SDRAM_EMOD		0x80010000
 #define CONFIG_SYS_SDRAM_MODE		0x00CD0000
 
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_FLASH_BASE + 0x400)
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024

@@ -443,70 +443,6 @@ def cleanup_headers(configs, args):
                     cleanup_one_header(header_path, patterns, args)
                     cleanup_empty_blocks(header_path, args)
 
-def cleanup_one_extra_option(defconfig_path, configs, args):
-    """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in one defconfig file.
-
-    Args:
-      defconfig_path: path to the cleaned defconfig file.
-      configs: A list of CONFIGs to remove.
-      args (Namespace): program arguments
-    """
-
-    start = 'CONFIG_SYS_EXTRA_OPTIONS="'
-    end = '"'
-
-    lines = read_file(defconfig_path)
-
-    for i, line in enumerate(lines):
-        if line.startswith(start) and line.endswith(end):
-            break
-    else:
-        # CONFIG_SYS_EXTRA_OPTIONS was not found in this defconfig
-        return
-
-    old_tokens = line[len(start):-len(end)].split(',')
-    new_tokens = []
-
-    for token in old_tokens:
-        pos = token.find('=')
-        if not (token[:pos] if pos >= 0 else token) in configs:
-            new_tokens.append(token)
-
-    if new_tokens == old_tokens:
-        return
-
-    tolines = copy.copy(lines)
-
-    if new_tokens:
-        tolines[i] = start + ','.join(new_tokens) + end
-    else:
-        tolines.pop(i)
-
-    show_diff(lines, tolines, defconfig_path, args.color)
-
-    if args.dry_run:
-        return
-
-    write_file(defconfig_path, tolines)
-
-def cleanup_extra_options(configs, args):
-    """Delete config defines in CONFIG_SYS_EXTRA_OPTIONS in defconfig files.
-
-    Args:
-      configs: A list of CONFIGs to remove.
-      args (Namespace): program arguments
-    """
-    if not confirm(args, 'Clean up CONFIG_SYS_EXTRA_OPTIONS?'):
-        return
-
-    configs = [ config[len('CONFIG_'):] for config in configs ]
-
-    defconfigs = get_all_defconfigs()
-
-    for defconfig in defconfigs:
-        cleanup_one_extra_option(os.path.join('configs', defconfig), configs,
-                                 args)
-
 def cleanup_whitelist(configs, args):
     """Delete config whitelist entries
 
@@ -1803,7 +1739,6 @@ doc/develop/moveconfig.rst for documentation.'''
 
     if configs:
         cleanup_headers(configs, args)
-        cleanup_extra_options(configs, args)
         cleanup_whitelist(configs, args)
         cleanup_readme(configs, args)
 

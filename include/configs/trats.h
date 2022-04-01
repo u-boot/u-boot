@@ -30,8 +30,6 @@
 
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
-
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
 #define PARTS_BOOT		"boot"

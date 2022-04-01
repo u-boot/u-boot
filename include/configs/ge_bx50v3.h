@@ -14,8 +14,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#define CONFIG_BOARD_NAME	"General Electric Bx50v3"
-
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
