@@ -11,9 +11,11 @@
 #include <dfu.h>
 #include <efi_loader.h>
 #include <image.h>
+#include <memalign.h>
 #include <signatures.h>
 
 #include <linux/list.h>
+#include <linux/sizes.h>
 
 #define FMP_PAYLOAD_HDR_SIGNATURE	SIGNATURE_32('M', 'S', 'S', '1')
 
@@ -34,6 +36,27 @@ struct fmp_payload_header {
 	u32 fw_version;
 	u32 lowest_supported_version;
 };
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+__weak void set_dfu_alt_info(char *interface, char *devstr)
+{
+	int n;
+	const char *dfu_alt_info;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
+	    env_get("dfu_alt_info"))
+		return;
+
+	dfu_alt_info = update_info.dfu_string;
+	n = strlen(dfu_alt_info);
+	memset(buf, 0, n + 1);
+
+	strncpy(buf, dfu_alt_info, n);
+
+	env_set("dfu_alt_info", buf);
+}
 
 /* Place holder; not supported */
 static
