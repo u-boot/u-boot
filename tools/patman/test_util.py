@@ -102,6 +102,51 @@ def capture_sys_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
+class FullTextTestResult(unittest.TextTestResult):
+    """A test result class that can print extended text results to a stream
+
+    This is meant to be used by a TestRunner as a result class. Like
+    TextTestResult, this prints out the names of tests as they are run,
+    errors as they occur, and a summary of the results at the end of the
+    test run. Beyond those, this prints information about skipped tests,
+    expected failures and unexpected successes.
+
+    Args:
+        stream: A file-like object to write results to
+        descriptions (bool): True to print descriptions with test names
+        verbosity (int): Detail of printed output per test as they run
+            Test stdout and stderr always get printed when buffering
+            them is disabled by the test runner. In addition to that,
+            0: Print nothing
+            1: Print a dot per test
+            2: Print test names
+    """
+    def __init__(self, stream, descriptions, verbosity):
+        self.verbosity = verbosity
+        super().__init__(stream, descriptions, verbosity)
+
+    def printErrors(self):
+        "Called by TestRunner after test run to summarize the tests"
+        # The parent class doesn't keep unexpected successes in the same
+        # format as the rest. Adapt it to what printErrorList expects.
+        unexpected_successes = [
+            (test, 'Test was expected to fail, but succeeded.\n')
+            for test in self.unexpectedSuccesses
+        ]
+
+        super().printErrors()  # FAIL and ERROR
+        self.printErrorList('SKIP', self.skipped)
+        self.printErrorList('XFAIL', self.expectedFailures)
+        self.printErrorList('XPASS', unexpected_successes)
+
+    def addSkip(self, test, reason):
+        """Called when a test is skipped."""
+        # Add empty line to keep spacing consistent with other results
+        if not reason.endswith('\n'):
+            reason += '\n'
+        super().addSkip(test, reason)
+
+
 def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
                     test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
@@ -135,6 +180,7 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
     runner = unittest.TextTestRunner(
         stream=sys.stdout,
         verbosity=(1 if verbosity is None else verbosity),
+        resultclass=FullTextTestResult,
     )
 
     if use_concurrent and processes != 1:
