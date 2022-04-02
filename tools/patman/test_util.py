@@ -127,7 +127,7 @@ def report_result(toolname:str, test_name: str, result: unittest.TestResult):
     for test, err in result.errors:
         print(test.id(), err)
     for test, err in result.failures:
-        print(err, result.failures)
+        print(test.id(), err)
     if result.skipped:
         print('%d %s test%s SKIPPED:' % (len(result.skipped), toolname,
             's' if len(result.skipped) > 1 else ''))
