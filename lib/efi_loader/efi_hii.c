@@ -900,7 +900,7 @@ get_string(const struct efi_hii_string_protocol *this,
 
 			str = stbl->strings[string_id - 1].string;
 			if (str) {
-				len = (u16_strlen(str) + 1) * sizeof(u16);
+				len = u16_strsize(str);
 				if (*string_size < len) {
 					*string_size = len;
 
