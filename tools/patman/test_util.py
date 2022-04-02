@@ -15,6 +15,7 @@ from patman import command
 
 from io import StringIO
 
+buffer_outputs = True
 use_concurrent = True
 try:
     from concurrencytest.concurrencytest import ConcurrentTestSuite
@@ -120,6 +121,7 @@ class FullTextTestResult(unittest.TextTestResult):
             0: Print nothing
             1: Print a dot per test
             2: Print test names
+            3: Print test names, and buffered outputs for failing tests
     """
     def __init__(self, stream, descriptions, verbosity):
         self.verbosity = verbosity
@@ -139,12 +141,39 @@ class FullTextTestResult(unittest.TextTestResult):
         self.printErrorList('XFAIL', self.expectedFailures)
         self.printErrorList('XPASS', unexpected_successes)
 
+    def addError(self, test, err):
+        """Called when an error has occurred."""
+        super().addError(test, err)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addFailure(self, test, err):
+        """Called when a test has failed."""
+        super().addFailure(test, err)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addSubTest(self, test, subtest, err):
+        """Called at the end of a subtest."""
+        super().addSubTest(test, subtest, err)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addSuccess(self, test):
+        """Called when a test has completed successfully"""
+        super().addSuccess(test)
+        # Don't print stdout/stderr for successful tests
+        self._mirrorOutput = False
+
     def addSkip(self, test, reason):
         """Called when a test is skipped."""
         # Add empty line to keep spacing consistent with other results
         if not reason.endswith('\n'):
             reason += '\n'
         super().addSkip(test, reason)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addExpectedFailure(self, test, err):
+        """Called when an expected failure/error occurred."""
+        super().addExpectedFailure(test, err)
+        self._mirrorOutput &= self.verbosity >= 3
 
 
 def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
@@ -180,12 +209,14 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
     runner = unittest.TextTestRunner(
         stream=sys.stdout,
         verbosity=(1 if verbosity is None else verbosity),
+        buffer=buffer_outputs,
         resultclass=FullTextTestResult,
     )
 
     if use_concurrent and processes != 1:
         suite = ConcurrentTestSuite(suite,
-                fork_for_tests(processes or multiprocessing.cpu_count()))
+                fork_for_tests(processes or multiprocessing.cpu_count(),
+                               buffer=buffer_outputs))
 
     for module in class_and_module_list:
         if isinstance(module, str) and (not test_name or test_name == module):
