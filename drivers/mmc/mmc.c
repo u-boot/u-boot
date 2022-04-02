@@ -132,7 +132,7 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(MMC_VERBOSE) || defined(DEBUG)
+#if CONFIG_IS_ENABLED(MMC_VERBOSE) || defined(DEBUG) || CONFIG_VAL(LOGLEVEL) >= LOGL_DEBUG
 const char *mmc_mode_name(enum bus_mode mode)
 {
 	static const char *const names[] = {
