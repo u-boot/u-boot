@@ -122,6 +122,7 @@ dtb-$(CONFIG_ARCH_TEGRA) += \
 	tegra30-cardhu.dtb \
 	tegra30-colibri.dtb \
 	tegra30-htc-endeavoru.dtb \
+	tegra30-lenovo-ideapad-yoga-11.dtb \
 	tegra30-lg-p880.dtb \
 	tegra30-lg-p895.dtb \
 	tegra30-microsoft-surface-rt.dtb \

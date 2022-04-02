@@ -31,6 +31,7 @@ Board-specific doc
    htc/index
    intel/index
    kontron/index
+   lenovo/index
    lg/index
    mediatek/index
    microchip/index

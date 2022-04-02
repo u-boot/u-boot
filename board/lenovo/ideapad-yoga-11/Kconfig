@@ -1,0 +1,12 @@
+if TARGET_IDEAPAD_YOGA_11
+
+config SYS_BOARD
+	default "ideapad-yoga-11"
+
+config SYS_VENDOR
+	default "lenovo"
+
+config SYS_CONFIG_NAME
+	default "ideapad-yoga-11"
+
+endif
