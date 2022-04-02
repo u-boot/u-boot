@@ -102,36 +102,12 @@ def capture_sys_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
-def report_result(toolname:str, test_name: str, result: unittest.TestResult):
-    """Report the results from a suite of tests
-
-    Args:
-        toolname: Name of the tool that ran the tests
-        test_name: Name of test that was run, or None for all
-        result: A unittest.TestResult object containing the results
-    """
-    print(result)
-    for test, err in result.errors:
-        print(test.id(), err)
-    for test, err in result.failures:
-        print(test.id(), err)
-    if result.skipped:
-        print('%d %s test%s SKIPPED:' % (len(result.skipped), toolname,
-            's' if len(result.skipped) > 1 else ''))
-        for skip_info in result.skipped:
-            print('%s: %s' % (skip_info[0], skip_info[1]))
-    if result.errors or result.failures:
-        print('%s tests FAILED' % toolname)
-        return 1
-    return 0
-
-
-def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
+def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
                     test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
 
     Args:
-        result: A unittest.TestResult object to add the results to
+        toolname: Name of the tool that ran the tests
         debug: True to enable debugging, which shows a full stack trace on error
         verbosity: Verbosity level to use (0-4)
         test_preserve_dirs: True to preserve the input directory used by tests
@@ -145,11 +121,6 @@ def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
         class_and_module_list: List of test classes (type class) and module
            names (type str) to run
     """
-    for module in class_and_module_list:
-        if isinstance(module, str) and (not test_name or test_name == module):
-            suite = doctest.DocTestSuite(module)
-            suite.run(result)
-
     sys.argv = [sys.argv[0]]
     if debug:
         sys.argv.append('-D')
@@ -161,6 +132,19 @@ def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
+    runner = unittest.TextTestRunner(
+        stream=sys.stdout,
+        verbosity=(1 if verbosity is None else verbosity),
+    )
+
+    if use_concurrent and processes != 1:
+        suite = ConcurrentTestSuite(suite,
+                fork_for_tests(processes or multiprocessing.cpu_count()))
+
+    for module in class_and_module_list:
+        if isinstance(module, str) and (not test_name or test_name == module):
+            suite.addTests(doctest.DocTestSuite(module))
+
     for module in class_and_module_list:
         if isinstance(module, str):
             continue
@@ -179,9 +163,9 @@ def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
                 suite.addTests(loader.loadTestsFromName(test_name, module))
         else:
             suite.addTests(loader.loadTestsFromTestCase(module))
-    if use_concurrent and processes != 1:
-        concurrent_suite = ConcurrentTestSuite(suite,
-                fork_for_tests(processes or multiprocessing.cpu_count()))
-        concurrent_suite.run(result)
-    else:
-        suite.run(result)
+
+    print(f" Running {toolname} tests ".center(70, "="))
+    result = runner.run(suite)
+    print()
+
+    return result

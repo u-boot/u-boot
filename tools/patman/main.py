@@ -12,7 +12,6 @@ import re
 import shutil
 import sys
 import traceback
-import unittest
 
 if __name__ == "__main__":
     # Allow 'from patman import xxx to work'
@@ -134,13 +133,12 @@ if args.cmd == 'test':
     import doctest
     from patman import func_test
 
-    result = unittest.TestResult()
-    test_util.run_test_suites(
-        result, False, False, False, None, None, None,
+    result = test_util.run_test_suites(
+        'patman', False, False, False, None, None, None,
         [test_checkpatch.TestPatch, func_test.TestFunctional,
          'gitutil', 'settings', 'terminal'])
 
-    sys.exit(test_util.report_result('patman', args.testname, result))
+    sys.exit(0 if result.wasSuccessful() else 1)
 
 # Process commits, produce patches files, check them, email them
 elif args.cmd == 'send':

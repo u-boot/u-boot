@@ -784,13 +784,13 @@ def RunTests(args):
     Returns:
         Return code, 0 on success
     """
-    result = unittest.TestResult()
     test_name = args and args[0] or None
-    test_util.run_test_suites(
-        result, False, False, False, None, test_name, None,
+    result = test_util.run_test_suites(
+        'test_fdt', False, False, False, None, test_name, None,
         [TestFdt, TestNode, TestProp, TestFdtUtil])
 
-    return test_util.report_result('fdt', test_name, result)
+    return (0 if result.wasSuccessful() else 1)
+
 
 if __name__ != '__main__':
     sys.exit(1)
