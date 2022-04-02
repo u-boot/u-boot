@@ -77,6 +77,11 @@ void __noreturn mmc_boot(void)
 		hang();
 	}
 
+	if (mmc_init(mmc)) {
+		puts("spl: mmc device init failed!\n");
+		hang();
+	}
+
 #ifdef CONFIG_FSL_CORENET
 	offset = CONFIG_SYS_MMC_U_BOOT_OFFS;
 #else
