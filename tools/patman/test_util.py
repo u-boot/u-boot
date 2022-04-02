@@ -110,19 +110,6 @@ def report_result(toolname:str, test_name: str, result: unittest.TestResult):
         test_name: Name of test that was run, or None for all
         result: A unittest.TestResult object containing the results
     """
-    # Remove errors which just indicate a missing test. Since Python v3.5 If an
-    # ImportError or AttributeError occurs while traversing name then a
-    # synthetic test that raises that error when run will be returned. These
-    # errors are included in the errors accumulated by result.errors.
-    if test_name:
-        errors = []
-
-        for test, err in result.errors:
-            if ("has no attribute '%s'" % test_name) not in err:
-                errors.append((test, err))
-            result.testsRun -= 1
-        result.errors = errors
-
     print(result)
     for test, err in result.errors:
         print(test.id(), err)
@@ -184,10 +171,12 @@ def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
                 preserve_outdirs=test_preserve_dirs and test_name is not None,
                 toolpath=toolpath, verbosity=verbosity)
         if test_name:
-            try:
+            # Since Python v3.5 If an ImportError or AttributeError occurs
+            # while traversing a name then a synthetic test that raises that
+            # error when run will be returned. Check that the requested test
+            # exists, otherwise these errors are included in the results.
+            if test_name in loader.getTestCaseNames(module):
                 suite.addTests(loader.loadTestsFromName(test_name, module))
-            except AttributeError:
-                continue
         else:
             suite.addTests(loader.loadTestsFromTestCase(module))
     if use_concurrent and processes != 1:
