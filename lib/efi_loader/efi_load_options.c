@@ -113,7 +113,7 @@ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
 	unsigned long size;
 	u8 *p;
 
-	label_len = (u16_strlen(lo->label) + 1) * sizeof(u16);
+	label_len = u16_strsize(lo->label);
 
 	/* total size */
 	size = sizeof(lo->attributes);
