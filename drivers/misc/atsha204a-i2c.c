@@ -146,7 +146,7 @@ static u16 atsha204a_crc16(const u8 *buffer, size_t len)
 	while (len--)
 		crc = crc16_byte(crc, *buffer++);
 
-	return cpu_to_le16(crc);
+	return crc;
 }
 
 static int atsha204a_send(struct udevice *dev, const u8 *buf, u8 len)
