@@ -111,6 +111,7 @@ class KconfigScanner:
         'vendor' : 'SYS_VENDOR',
         'board' : 'SYS_BOARD',
         'config' : 'SYS_CONFIG_NAME',
+        'options' : 'SYS_EXTRA_OPTIONS'
     }
 
     def __init__(self):
@@ -148,6 +149,7 @@ class KconfigScanner:
               'board': <board_name>,
               'target': <target_name>,
               'config': <config_header_name>,
+              'options': <extra_options>
           }
         """
         # strip special prefixes and save it in a temporary file
@@ -182,6 +184,14 @@ class KconfigScanner:
         # fix-up for aarch64
         if params['arch'] == 'arm' and params['cpu'] == 'armv8':
             params['arch'] = 'aarch64'
+
+        # fix-up options field. It should have the form:
+        # <config name>[:comma separated config options]
+        if params['options'] != '-':
+            params['options'] = params['config'] + ':' + \
+                                params['options'].replace(r'\"', '"')
+        elif params['config'] != params['target']:
+            params['options'] = params['config']
 
         return params
 
@@ -368,7 +378,7 @@ def format_and_output(params_list, output):
       output: The path to the output file
     """
     FIELDS = ('status', 'arch', 'cpu', 'soc', 'vendor', 'board', 'target',
-              'maintainers')
+              'options', 'maintainers')
 
     # First, decide the width of each column
     max_length = dict([ (f, 0) for f in FIELDS])
