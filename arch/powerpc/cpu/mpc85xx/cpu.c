@@ -143,8 +143,10 @@ int checkcpu (void)
 	printf("Core:  ");
 	switch(ver) {
 	case PVR_VER_E500_V1:
+		puts("e500v1");
+		break;
 	case PVR_VER_E500_V2:
-		puts("e500");
+		puts("e500v2");
 		break;
 	case PVR_VER_E500MC:
 		puts("e500mc");
