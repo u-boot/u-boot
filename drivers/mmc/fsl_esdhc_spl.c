@@ -79,7 +79,6 @@ void __noreturn mmc_boot(void)
 
 #ifdef CONFIG_FSL_CORENET
 	offset = CONFIG_SYS_MMC_U_BOOT_OFFS;
-	code_len = CONFIG_SYS_MMC_U_BOOT_SIZE;
 #else
 	blklen = mmc->read_bl_len;
 	tmp_buf = malloc(blklen);
@@ -135,18 +134,11 @@ void __noreturn mmc_boot(void)
 		offset = (offset << 8) + val;
 	}
 	offset += CONFIG_SYS_MMC_U_BOOT_OFFS;
-	/* Get the code size from offset 0x48 */
-	byte_num = 4;
-	code_len = 0;
-	for (i = 0; i < byte_num; i++) {
-		val = *(tmp_buf + ESDHC_BOOT_IMAGE_SIZE + i);
-		code_len = (code_len << 8) + val;
-	}
-	code_len -= CONFIG_SYS_MMC_U_BOOT_OFFS;
+#endif
 	/*
 	* Load U-Boot image from mmc into RAM
 	*/
-#endif
+	code_len = CONFIG_SYS_MMC_U_BOOT_SIZE;
 	blk_start = ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt = ALIGN(code_len, mmc->read_bl_len) / mmc->read_bl_len;
 	err = mmc->block_dev.block_read(&mmc->block_dev, blk_start, blk_cnt,
