@@ -407,7 +407,7 @@ u16 *u16_strdup(const void *src)
 
 	if (!src)
 		return NULL;
-	len = (u16_strlen(src) + 1) * sizeof(u16);
+	len = u16_strsize(src);
 	new = malloc(len);
 	if (!new)
 		return NULL;
