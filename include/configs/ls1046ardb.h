@@ -140,6 +140,8 @@
 #endif
 #endif
 
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME "u-boot.img"
+
 #include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1046ARDB_H__ */

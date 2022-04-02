@@ -77,14 +77,18 @@ _save_el_regs:
 	switch_el x11, 3f, 2f, 1f
 3:	mrs	x1, esr_el3
 	mrs	x2, elr_el3
+	mrs	x3, spsr_el3
 	b	0f
 2:	mrs	x1, esr_el2
 	mrs	x2, elr_el2
+	mrs	x3, spsr_el2
 	b	0f
 1:	mrs	x1, esr_el1
 	mrs	x2, elr_el1
+	mrs	x3, spsr_el1
 0:
-	stp	x2, x0, [sp, #-16]!
+	stp	x1, x0, [sp, #-16]!
+	stp	x3, x2, [sp, #-16]!
 	mov	x0, sp
 	ret
 
@@ -98,7 +102,7 @@ _save_el_regs:
  * This is the first part of the shared routine called into from all entries.
  */
 exception_exit:
-	ldp	x2, x0, [sp],#16
+	ldp	xzr, x2, [sp],#16
 	switch_el x11, 3f, 2f, 1f
 3:	msr	elr_el3, x2
 	b	_restore_regs
@@ -118,6 +122,7 @@ exception_exit:
  * This is the second part of the shared routine called into from all entries.
  */
 _restore_regs:
+	ldp	xzr, x0, [sp],#16
 	ldp	x1, x2, [sp],#16
 	ldp	x3, x4, [sp],#16
 	ldp	x5, x6, [sp],#16

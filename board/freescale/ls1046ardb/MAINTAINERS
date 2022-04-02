@@ -14,3 +14,4 @@ F:	configs/ls1046ardb_tfa_SECURE_BOOT_defconfig
 F:	configs/ls1046ardb_SECURE_BOOT_defconfig
 F:	configs/ls1046ardb_sdcard_SECURE_BOOT_defconfig
 F:	configs/ls1046ardb_qspi_SECURE_BOOT_defconfig
+F:	doc/board/nxp/ls1046ardb.rst

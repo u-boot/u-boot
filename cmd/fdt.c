@@ -638,7 +638,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		if (argc == 4) {
 			initrd_start = hextoul(argv[2], NULL);
-			initrd_end = hextoul(argv[3], NULL);
+			initrd_end = initrd_start + hextoul(argv[3], NULL) - 1;
 		}
 
 		fdt_chosen(working_fdt);
@@ -1083,8 +1083,8 @@ static char fdt_help_text[] =
 	"fdt rsvmem print                    - Show current mem reserves\n"
 	"fdt rsvmem add <addr> <size>        - Add a mem reserve\n"
 	"fdt rsvmem delete <index>           - Delete a mem reserves\n"
-	"fdt chosen [<start> <end>]          - Add/update the /chosen branch in the tree\n"
-	"                                        <start>/<end> - initrd start/end addr\n"
+	"fdt chosen [<start> <size>]         - Add/update the /chosen branch in the tree\n"
+	"                                        <start>/<size> - initrd start addr/size\n"
 #if defined(CONFIG_FIT_SIGNATURE)
 	"fdt checksign [<addr>]              - check FIT signature\n"
 	"                                        <start> - addr of key blob\n"
