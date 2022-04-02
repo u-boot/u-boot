@@ -70,9 +70,9 @@
  */
 
 	.section .bootpg,"ax"
-	.globl _start_e500
+	.globl _start
 
-_start_e500:
+_start:
 /* Enable debug exception */
 	li	r1,MSR_DE
 	mtmsr	r1
