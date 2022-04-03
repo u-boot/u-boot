@@ -37,6 +37,7 @@ static struct pci_bar {
 	{ 0, 0 },
 	{ 0, 0 },
 	{ PCI_BASE_ADDRESS_SPACE_IO, 256 },
+	{ 0, 0 },
 };
 
 struct pmc_emul_priv {
