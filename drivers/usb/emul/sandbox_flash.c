@@ -345,6 +345,8 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			} else {
 				if (priv->alloc_len && len > priv->alloc_len)
 					len = priv->alloc_len;
+				if (len > sizeof(priv->buff))
+					len = sizeof(priv->buff);
 				memcpy(buff, priv->buff, len);
 				priv->phase = PHASE_STATUS;
 			}
