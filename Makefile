@@ -1846,7 +1846,7 @@ quiet_cmd_gen_envp = ENVP    $@
 			-I$(srctree)/arch/$(ARCH)/include \
 			$< -o $@; \
 	else \
-		rm $@; \
+		rm -f $@; \
 		touch $@ ; \
 	fi
 include/generated/env.in: include/generated/env.txt FORCE
