@@ -95,8 +95,20 @@ int led_default_state(void)
 	return ret;
 }
 
+static int led_post_bind(struct udevice *dev)
+{
+	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+
+	uc_plat->label = dev_read_string(dev, "label");
+	if (!uc_plat->label)
+		uc_plat->label = ofnode_get_name(dev_ofnode(dev));
+
+	return 0;
+}
+
 UCLASS_DRIVER(led) = {
 	.id		= UCLASS_LED,
 	.name		= "led",
 	.per_device_plat_auto	= sizeof(struct led_uc_plat),
+	.post_bind	= led_post_bind,
 };
