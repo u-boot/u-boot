@@ -15,13 +15,12 @@
 static int copy_to_unicode(char *buff, int length, const char *str)
 {
 	int ptr;
-	int i;
 
 	if (length < 2)
 		return 0;
 	buff[1] = USB_DT_STRING;
-	for (ptr = 2, i = 0; ptr + 1 < length && *str; i++, ptr += 2) {
-		buff[ptr] = str[i];
+	for (ptr = 2; ptr + 1 < length && *str; str++, ptr += 2) {
+		buff[ptr] = *str;
 		buff[ptr + 1] = 0;
 	}
 	buff[0] = ptr;
