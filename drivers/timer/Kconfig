@@ -90,6 +90,15 @@ config ATMEL_PIT_TIMER
 	  it is designed to offer maximum accuracy and efficient management,
 	  even for systems with long response time.
 
+config SPL_ATMEL_PIT_TIMER
+	bool "Atmel periodic interval timer support in SPL"
+	depends on SPL_TIMER
+	help
+	  Select this to enable a periodic interval timer for Atmel devices,
+	  it is designed to offer maximum accuracy and efficient management,
+	  even for systems with long response time.
+	  Select this to be available in SPL.
+
 config ATMEL_TCB_TIMER
 	bool "Atmel timer counter support"
 	depends on TIMER
