@@ -23,6 +23,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static size_t _sandbox_serial_written = 1;
+static bool sandbox_serial_enabled = true;
+
+size_t sandbox_serial_written(void)
+{
+	return _sandbox_serial_written;
+}
+
+void sandbox_serial_endisable(bool enabled)
+{
+	sandbox_serial_enabled = enabled;
+}
+
 /**
  * output_ansi_colour() - Output an ANSI colour code
  *
@@ -84,11 +97,14 @@ static int sandbox_serial_putc(struct udevice *dev, const char ch)
 {
 	struct sandbox_serial_priv *priv = dev_get_priv(dev);
 
-	sandbox_print_color(dev);
-	os_write(1, &ch, 1);
 	if (ch == '\n')
 		priv->start_of_line = true;
 
+	if (sandbox_serial_enabled) {
+		sandbox_print_color(dev);
+		os_write(1, &ch, 1);
+	}
+	_sandbox_serial_written += 1;
 	return 0;
 }
 
@@ -96,12 +112,21 @@ static ssize_t sandbox_serial_puts(struct udevice *dev, const char *s,
 				   size_t len)
 {
 	struct sandbox_serial_priv *priv = dev_get_priv(dev);
+	ssize_t ret;
 
-	sandbox_print_color(dev);
 	if (s[len - 1] == '\n')
 		priv->start_of_line = true;
 
-	return os_write(1, s, len);
+	if (sandbox_serial_enabled) {
+		sandbox_print_color(dev);
+		ret = os_write(1, s, len);
+		if (ret < 0)
+			return ret;
+	} else {
+		ret = len;
+	}
+	_sandbox_serial_written += ret;
+	return ret;
 }
 
 static int sandbox_serial_pending(struct udevice *dev, bool input)
