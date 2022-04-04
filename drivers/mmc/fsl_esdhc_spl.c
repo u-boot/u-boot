@@ -20,7 +20,6 @@
 #define ESDHC_BOOT_IMAGE_ADDR	0x50
 #define MBRDBR_BOOT_SIG_55	0x1fe
 #define MBRDBR_BOOT_SIG_AA	0x1ff
-#define CONFIG_CFG_DATA_SECTOR	0
 
 
 void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
@@ -62,11 +61,13 @@ void __noreturn mmc_boot(void)
 #ifndef CONFIG_FSL_CORENET
 	uchar *tmp_buf;
 	u32 blklen;
+	u32 blk_off;
 	uchar val;
 #ifndef CONFIG_SPL_FSL_PBL
 	u32 val32;
 #endif
 	uint i, byte_num;
+	u32 sector;
 #endif
 	u32 offset, code_len;
 	struct mmc *mmc;
@@ -86,30 +87,37 @@ void __noreturn mmc_boot(void)
 	offset = CONFIG_SYS_MMC_U_BOOT_OFFS;
 #else
 	blklen = mmc->read_bl_len;
+	if (blklen < 512)
+		blklen = 512;
 	tmp_buf = malloc(blklen);
 	if (!tmp_buf) {
 		puts("spl: malloc memory failed!!\n");
 		hang();
 	}
+
+	sector = 0;
+again:
 	memset(tmp_buf, 0, blklen);
 
 	/*
 	* Read source addr from sd card
 	*/
-	err = mmc->block_dev.block_read(&mmc->block_dev,
-					CONFIG_CFG_DATA_SECTOR, 1, tmp_buf);
+	blk_start = (sector * 512) / mmc->read_bl_len;
+	blk_off = (sector * 512) % mmc->read_bl_len;
+	blk_cnt = DIV_ROUND_UP(512,  mmc->read_bl_len);
+	err = mmc->block_dev.block_read(&mmc->block_dev, blk_start, blk_cnt, tmp_buf);
 	if (err != 1) {
 		puts("spl: mmc read failed!!\n");
 		hang();
 	}
 
 #ifdef CONFIG_SPL_FSL_PBL
-	val = *(tmp_buf + MBRDBR_BOOT_SIG_55);
+	val = *(tmp_buf + blk_off + MBRDBR_BOOT_SIG_55);
 	if (0x55 != val) {
 		puts("spl: mmc MBR/DBR signature is not valid!!\n");
 		hang();
 	}
-	val = *(tmp_buf + MBRDBR_BOOT_SIG_AA);
+	val = *(tmp_buf + blk_off + MBRDBR_BOOT_SIG_AA);
 	if (0xAA != val) {
 		puts("spl: mmc MBR/DBR signature is not valid!!\n");
 		hang();
@@ -123,10 +131,13 @@ void __noreturn mmc_boot(void)
 	byte_num = 4;
 	val32 = 0;
 	for (i = 0; i < byte_num; i++) {
-		val = *(tmp_buf + ESDHC_BOOT_SIGNATURE_OFF + i);
+		val = *(tmp_buf + blk_off + ESDHC_BOOT_SIGNATURE_OFF + i);
 		val32 = (val32 << 8) + val;
 	}
 	if (val32 != ESDHC_BOOT_SIGNATURE) {
+		/* BOOT signature may be on the first 24 sectors (each being 512 bytes) */
+		if (++sector < 24)
+			goto again;
 		puts("spl: mmc BOOT signature is not valid!!\n");
 		hang();
 	}
@@ -135,7 +146,7 @@ void __noreturn mmc_boot(void)
 	byte_num = 4;
 	offset = 0;
 	for (i = 0; i < byte_num; i++) {
-		val = *(tmp_buf + ESDHC_BOOT_IMAGE_ADDR + i);
+		val = *(tmp_buf + blk_off + ESDHC_BOOT_IMAGE_ADDR + i);
 		offset = (offset << 8) + val;
 	}
 	offset += CONFIG_SYS_MMC_U_BOOT_OFFS;
