@@ -14,9 +14,11 @@ obj-y += cpu.o
 ifndef CONFIG_$(SPL_TPL_)SYSRESET
 obj-y	+= reset.o
 endif
+ifneq ($(CONFIG_ATMEL_TCB_TIMER),y)
 ifneq ($(CONFIG_ATMEL_PIT_TIMER),y)
 ifneq ($(CONFIG_MCHP_PIT64B_TIMER),y)
 # old non-DM timer driver
 obj-y += timer.o
+endif
 endif
 endif
