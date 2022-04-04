@@ -20,6 +20,10 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 
+#ifdef CONFIG_NAND_FSL_ELBC_DT
+#include <dm/read.h>
+#endif
+
 #ifdef VERBOSE_DEBUG
 #define DEBUG_ELBC
 #define vdbg(format, arg...) printf("DEBUG: " format, ##arg)
@@ -664,7 +668,7 @@ static void fsl_elbc_ctrl_init(void)
 	elbc_ctrl->addr = NULL;
 }
 
-static int fsl_elbc_chip_init(int devnum, u8 *addr)
+static int fsl_elbc_chip_init(int devnum, u8 *addr, ofnode flash_node)
 {
 	struct mtd_info *mtd;
 	struct nand_chip *nand;
@@ -712,6 +716,8 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	elbc_ctrl->chips[priv->bank] = priv;
 
 	/* fill in nand_chip structure */
+	nand->flash_node = flash_node;
+
 	/* set up function call table */
 	nand->read_byte = fsl_elbc_read_byte;
 	nand->write_buf = fsl_elbc_write_buf;
@@ -804,6 +810,8 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	return 0;
 }
 
+#ifndef CONFIG_NAND_FSL_ELBC_DT
+
 #ifndef CONFIG_SYS_NAND_BASE_LIST
 #define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
 #endif
@@ -816,5 +824,35 @@ void board_nand_init(void)
 	int i;
 
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		fsl_elbc_chip_init(i, (u8 *)base_address[i]);
+		fsl_elbc_chip_init(i, (u8 *)base_address[i], ofnode_null());
 }
+
+#else
+
+static int fsl_elbc_nand_probe(struct udevice *dev)
+{
+	return fsl_elbc_chip_init(0, (void *)dev_read_addr(dev), dev_ofnode(dev));
+}
+
+static const struct udevice_id fsl_elbc_nand_dt_ids[] = {
+	{ .compatible = "fsl,elbc-fcm-nand", },
+	{}
+};
+
+U_BOOT_DRIVER(fsl_elbc_nand) = {
+	.name = "fsl_elbc_nand",
+	.id = UCLASS_MTD,
+	.of_match = fsl_elbc_nand_dt_ids,
+	.probe = fsl_elbc_nand_probe,
+};
+
+void board_nand_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MTD, DM_DRIVER_GET(fsl_elbc_nand), &dev);
+	if (ret && ret != -ENODEV)
+		printf("Failed to initialize fsl_elbc_nand NAND controller. (error %d)\n", ret);
+}
+#endif
