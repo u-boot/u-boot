@@ -312,6 +312,14 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 		fsl_elbc_run_command(mtd);
 		return;
 
+	/* RNDOUT moves the pointer inside the page */
+	case NAND_CMD_RNDOUT:
+		vdbg("fsl_elbc_cmdfunc: NAND_CMD_RNDOUT, column: 0x%x.\n",
+		     column);
+
+		ctrl->index = column;
+		return;
+
 	/* READOOB reads only the OOB because no ECC is performed. */
 	case NAND_CMD_READOOB:
 		vdbg("fsl_elbc_cmdfunc: NAND_CMD_READOOB, page_addr:"
