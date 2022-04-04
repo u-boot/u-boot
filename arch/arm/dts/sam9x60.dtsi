@@ -235,6 +235,13 @@
 				clocks = <&pmc PMC_TYPE_CORE 11>; /* ID_MCK. */
 			};
 
+			pit64b0: timer@f0028000 {
+				compatible = "microchip,sam9x60-pit64b";
+				reg = <0xf0028000 0xec>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 37>, <&pmc PMC_TYPE_GCK 37>;
+				clock-names = "pclk", "gclk";
+			};
+
 			clk32: sckc@fffffe50 {
 				compatible = "microchip,sam9x60-sckc";
 				reg = <0xfffffe50 0x4>;
