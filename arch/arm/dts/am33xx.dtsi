@@ -40,6 +40,9 @@
 		ethernet1 = &cpsw_emac1;
 		spi0 = &spi0;
 		spi1 = &spi1;
+		mmc0 = &mmc1;
+		mmc1 = &mmc2;
+		mmc2 = &mmc3;
 	};
 
 	cpus {
@@ -301,6 +304,35 @@
 			};
 		};
 
+		target-module@47810000 {
+			compatible = "ti,sysc-omap2", "ti,sysc";
+			reg = <0x478102fc 0x4>,
+			      <0x47810110 0x4>,
+			      <0x47810114 0x4>;
+			reg-names = "rev", "sysc", "syss";
+			ti,sysc-mask = <(SYSC_OMAP2_CLOCKACTIVITY |
+					 SYSC_OMAP2_ENAWAKEUP |
+					 SYSC_OMAP2_SOFTRESET |
+					 SYSC_OMAP2_AUTOIDLE)>;
+			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
+					<SYSC_IDLE_NO>,
+					<SYSC_IDLE_SMART>;
+			ti,syss-mask = <1>;
+			clocks = <&l3s_clkctrl AM3_L3S_MMC3_CLKCTRL 0>;
+			clock-names = "fck";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0x0 0x47810000 0x1000>;
+
+			mmc3: mmc@0 {
+			      compatible = "ti,am335-sdhci";
+			      ti,needs-special-reset;
+			      interrupts = <29>;
+			      reg = <0x0 0x1000>;
+			      status = "disabled";
+			};
+		};
+
 		i2c0: i2c@44e0b000 {
 			compatible = "ti,omap4-i2c";
 			#address-cells = <1>;
@@ -354,15 +386,6 @@
 			dma-names = "tx", "rx";
 			interrupts = <28>;
 			reg = <0x481d8000 0x1000>;
-			status = "disabled";
-		};
-
-		mmc3: mmc@47810000 {
-			compatible = "ti,omap4-hsmmc";
-			ti,hwmods = "mmc3";
-			ti,needs-special-reset;
-			interrupts = <29>;
-			reg = <0x47810000 0x1000>;
 			status = "disabled";
 		};
 

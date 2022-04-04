@@ -28,6 +28,7 @@ static const char *const log_cat_name[] = {
 	"devres",
 	"acpi",
 	"boot",
+	"event",
 };
 
 _Static_assert(ARRAY_SIZE(log_cat_name) == LOGC_COUNT - LOGC_NONE,

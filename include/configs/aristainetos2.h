@@ -21,8 +21,6 @@
 #define CONSOLE_DEV	"ttymxc0"
 #endif
 
-#define CONFIG_FEC_XCV_TYPE		RGMII
-
 /* Framebuffer */
 #define CONFIG_SYS_LDB_CLOCK	28341000
 
@@ -34,7 +32,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      USDHC1_BASE_ADDR
 
 #define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		0
 
 #define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
@@ -415,8 +412,6 @@
 	HAB_EXTRA_SETTINGS \
 	EXTRA_ENV_BOARD_SETTINGS
 
-#define CONFIG_ARP_TIMEOUT		200UL
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
@@ -443,7 +438,6 @@
 /* Framebuffer */
 /* check this console not needed, after test remove it */
 #define CONFIG_IMX_VIDEO_SKIP
-#define CONFIG_VIDEO_BMP_LOGO
 
 #define CONFIG_IMX6_PWM_PER_CLK	66000000
 

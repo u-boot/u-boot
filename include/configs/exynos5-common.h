@@ -56,32 +56,6 @@
 #define PHYS_SDRAM_8		(CONFIG_SYS_SDRAM_BASE + (7 * SDRAM_BANK_SIZE))
 #define PHYS_SDRAM_8_SIZE	SDRAM_BANK_SIZE
 
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
-
-#define CONFIG_SECURE_BL1_ONLY
-
-/* Secure FW size configuration */
-#ifdef CONFIG_SECURE_BL1_ONLY
-#define CONFIG_SEC_FW_SIZE (8 << 10) /* 8KB */
-#else
-#define CONFIG_SEC_FW_SIZE 0
-#endif
-
-/* Configuration of BL1, BL2, ENV Blocks on mmc */
-#define CONFIG_RES_BLOCK_SIZE	(512)
-#define CONFIG_BL1_SIZE	(16 << 10) /*16 K reserved for BL1*/
-#define CONFIG_BL2_SIZE	(512UL << 10UL) /* 512 KB */
-
-#define CONFIG_BL1_OFFSET	(CONFIG_RES_BLOCK_SIZE + CONFIG_SEC_FW_SIZE)
-#define CONFIG_BL2_OFFSET	(CONFIG_BL1_OFFSET + CONFIG_BL1_SIZE)
-
-/* U-Boot copy size from boot Media to DRAM.*/
-#define BL2_START_OFFSET	(CONFIG_BL2_OFFSET/512)
-#define BL2_SIZE_BLOC_COUNT	(CONFIG_BL2_SIZE/512)
-
-#define EXYNOS_COPY_SPI_FNPTR_ADDR	0x02020058
-#define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
-
 /* SPI */
 
 /* Ethernet Controllor Driver */

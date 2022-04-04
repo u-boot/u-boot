@@ -127,6 +127,13 @@ config DM_BOOTCOUNT_I2C_EEPROM
 	  pointing to the underlying i2c eeprom device) and an optional 'offset'
 	  property are supported.
 
+config DM_BOOTCOUNT_PMIC_PFUZE100
+	bool "Enable Bootcount driver for PMIC PFUZE100"
+	depends on DM_PMIC_PFUZE100
+	help
+	  Enable support for the bootcounter using PMIC PFUZE100 registers.
+	  This works only, if the PMIC is not connected.
+
 config DM_BOOTCOUNT_SPI_FLASH
 	bool "Support SPI flash devices as a backing store for bootcount"
 	depends on DM_SPI_FLASH

@@ -9,4 +9,15 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "lsxl"
 
+choice
+	prompt "Board model"
+
+config LSCHLV2
+	bool "LSCHLV2 support"
+
+config LSXHL
+	bool "LSXHL support"
+
+endchoice
+
 endif

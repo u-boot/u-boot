@@ -130,6 +130,7 @@ config MACH_PIC32
 config TARGET_BOSTON
 	bool "Support Boston"
 	select DM
+	imply DM_EVENT
 	select DM_SERIAL
 	select MIPS_CM
 	select SYS_CACHE_SHIFT_6

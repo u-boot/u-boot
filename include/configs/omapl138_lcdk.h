@@ -137,16 +137,8 @@
 #endif
 
 /*
- * Network & Ethernet Configuration
- */
-#ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_NET_RETRY_COUNT	10
-#endif
-
-/*
  * U-Boot general configuration
  */
-#define CONFIG_BOOTFILE		"zImage" /* Boot file name */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 
@@ -178,10 +170,6 @@
 	"boot_fdt=yes\0" \
 	"boot_fit=0\0" \
 	"console=ttyS2,115200n8\0"
-
-#ifdef CONFIG_CMD_BDI
-#define CONFIG_CLOCKS
-#endif
 
 /* SD/MMC */
 

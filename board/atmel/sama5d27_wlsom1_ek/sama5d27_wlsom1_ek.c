@@ -22,6 +22,13 @@ extern void at91_pda_detect(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static void rgb_leds_init(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 6, 0);	/* LED RED */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 7, 0);	/* LED GREEN */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 8, 1);	/* LED BLUE */
+}
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
@@ -63,6 +70,8 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
+	rgb_leds_init();
 
 	return 0;
 }

@@ -41,9 +41,6 @@
 
 #define CONFIG_HIKEY_GPIO
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Initial environment variables */
 
 /*

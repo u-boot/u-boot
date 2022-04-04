@@ -511,10 +511,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <6>;
-			si570_hsdp: clock-generator@5d { /* u5 */
+			si570_hsdp: clock-generator@60 { /* u5 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>;	/* 570JAC000900DG */
+				reg = <0x60>;	/* 570JAC000900DG */
 				temperature-stability = <50>;
 				factory-fout = <156250000>;
 				clock-frequency = <156250000>;
@@ -528,10 +528,10 @@
 			/* u36 0xd8 or 0xde - pcie clk buf - 9ZML1241EKILF PCIe GEN 4 CLOCK BUFFER FIXME - no driver */
 			/* u37 0xd0 DNP - pcie clocking 1 - 9FGV1006BQ505LTGI - PCIe GEN 4 CLOCK GENERATOR FIXME - no linux driver */
 			/* u38 0xca - pcie clocking 2 - 9ZML1241EKILF PCIe GEN 4 CLOCK BUFFER FIXME - no driver */
-			clock_8t49n287: clock-generator@d8 { /* u39 8T49N240 - pcie clocking 3 */
+			clock_8t49n287: clock-generator@60 { /* u39 8T49N240 - pcie clocking 3 */
 				#clock-cells = <1>; /* author David Cater <david.cater@idt.com>*/
 				compatible = "idt,8t49n240", "idt,8t49n241"; /* FIXME no driver for 240 */
-				reg = <0xd8>;
+				reg = <0x60>;
 				/* Documentation/devicetree/bindings/clock/idt,idt8t49n24x.txt */
 				/* FIXME there input via J241 Samtec CLK1 and CLK0 from U38 - selection PIN */
 

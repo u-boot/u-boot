@@ -26,6 +26,7 @@ CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS1,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0600 ramdisk_size=0x2000000 default_hugepagesz=2m hugepagesz=2m hugepages=256"
 CONFIG_BOOTCOMMAND="env exists mcinitcmd && env exists secureboot && esbc_validate 0x5806C0000; env exists mcinitcmd && fsl_mc lazyapply dpl 0x580d00000;run distro_bootcmd;run nor_bootcmd; env exists secureboot && esbc_halt;"
 CONFIG_MISC_INIT_R=y
+CONFIG_RESET_PHY_R=y
 CONFIG_CMD_IMLS=y
 CONFIG_CMD_GREPENV=y
 CONFIG_CMD_EEPROM=y
@@ -42,6 +43,8 @@ CONFIG_CMD_CACHE=y
 CONFIG_CMD_DATE=y
 CONFIG_OF_CONTROL=y
 CONFIG_ENV_OVERWRITE=y
+CONFIG_USE_ETHPRIME=y
+CONFIG_ETHPRIME="DPMAC1@xgmii"
 CONFIG_NET_RANDOM_ETHADDR=y
 CONFIG_DM=y
 CONFIG_SATA=y

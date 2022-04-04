@@ -492,6 +492,37 @@ config DISPLAY_BOARDINFO_LATE
 
 menu "Start-up hooks"
 
+config EVENT
+	bool "General-purpose event-handling mechanism"
+	default y if SANDBOX
+	help
+	  This enables sending and processing of events, to allow interested
+	  parties to be alerted when something happens. This is an attempt to
+	  step the flow of weak functions, hooks, functions in board_f.c
+	  and board_r.c and the Kconfig options below.
+
+	  See doc/develop/event.rst for more information.
+
+if EVENT
+
+config EVENT_DYNAMIC
+	bool "Support event registration at runtime"
+	default y if SANDBOX
+	help
+	  Enable this to support adding an event spy at runtime, without adding
+	  it to the EVENT_SPy() linker list. This increases code size slightly
+	  but provides more flexibility for boards and subsystems that need it.
+
+config EVENT_DEBUG
+	bool "Enable event debugging assistance"
+	default y if SANDBOX
+	help
+	  Enable this get usefui features for seeing what is happening with
+	  events, such as event-type names. This adds to the code size of
+	  U-Boot so can be turned off for production builds.
+
+endif # EVENT
+
 config ARCH_EARLY_INIT_R
 	bool "Call arch-specific init soon after relocation"
 	help
@@ -524,6 +555,12 @@ config BOARD_EARLY_INIT_R
 	  relocation. With this option, U-Boot calls board_early_init_r()
 	  in the post-relocation init sequence.
 
+config BOARD_POSTCLK_INIT
+	bool "Call board_postclk_init"
+	help
+	  Some boards need this to initialize select items, after clocks /
+	  timebase and before env / serial.
+
 config BOARD_LATE_INIT
 	bool "Execute Board late init"
 	help
@@ -533,6 +570,10 @@ config BOARD_LATE_INIT
 
 	  So this config enable the late init code with the help of board_late_init
 	  function which should defined on respective boards.
+
+config CLOCKS
+	bool "Call set_cpu_clk_info"
+	depends on ARM
 
 config SYS_FSL_CLK
 	bool
@@ -551,12 +592,6 @@ config LAST_STAGE_INIT
 	  that depend on later phases in the init sequence). With this option,
 	  U-Boot calls last_stage_init() before the command-line interpreter is
 	  started.
-
-config MISC_INIT_F
-	bool "Execute pre-relocation misc init"
-	help
-	  Enabling this option calls the 'misc_init_f' function in the init
-	  sequence just before DRAM is inited.
 
 config MISC_INIT_R
 	bool "Execute Misc Init"
@@ -579,6 +614,12 @@ config PCI_INIT_R
 	  which will enumerate PCI buses. This is needed, for instance, in the
 	  case of DM PCI-based Ethernet devices, which will not be detected
 	  without having the enumeration performed earlier.
+
+config RESET_PHY_R
+	bool "Reset ethernet PHY during init"
+	help
+	  Implement reset_phy() in board code if required to reset the ethernet
+	  PHY.
 
 endmenu
 

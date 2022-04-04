@@ -214,18 +214,6 @@
 #endif
 #endif
 
-/*
- * USB configuration.  We enable MUSB support, both for host and for
- * gadget.  We set USB0 as peripheral and USB1 as host, based on the
- * board schematic and physical port wired to each.  Then for host we
- * add mass storage support and for gadget we add both RNDIS ethernet
- * and DFU.
- */
-#define CONFIG_AM335X_USB0
-#define CONFIG_AM335X_USB0_MODE	MUSB_HOST
-#define CONFIG_AM335X_USB1
-#define CONFIG_AM335X_USB1_MODE MUSB_OTG
-
 /* NAND support */
 #ifdef CONFIG_MTD_RAW_NAND
 #define GPMC_NAND_ECC_LP_x8_LAYOUT	1

@@ -147,11 +147,7 @@
 
 /* Ethernet */
 #define CONFIG_FEC_MXC_PHYADDR		0
-#define CONFIG_FEC_XCV_TYPE		RGMII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_ETHPRIME			"FEC0"
-#define CONFIG_ARP_TIMEOUT		200UL
-#define CONFIG_NET_RETRY_COUNT		5
 
 /* USB */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
@@ -174,8 +170,6 @@
 
 /* Display */
 #define CONFIG_IMX_HDMI
-
-#define CONFIG_VIDEO_BMP_LOGO
 
 /* EEPROM */
 

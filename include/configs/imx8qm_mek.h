@@ -133,7 +133,4 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		8000000	/* 8MHz */
 
-/* Networking */
-#define CONFIG_FEC_XCV_TYPE		RGMII
-
 #endif /* __IMX8QM_MEK_H */

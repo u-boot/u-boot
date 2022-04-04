@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:focal-20220113
+FROM ubuntu:focal-20220302
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -48,6 +48,7 @@ RUN apt-get update && apt-get install -y \
 	dosfstools \
 	e2fsprogs \
 	efitools \
+	erofs-utils \
 	expect \
 	fakeroot \
 	flex \

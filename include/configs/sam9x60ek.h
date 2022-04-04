@@ -17,14 +17,6 @@
 #define CONFIG_USART_BASE   ATMEL_BASE_DBGU
 #define CONFIG_USART_ID     0 /* ignored in arm */
 
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY            /* required until (g)pio is fixed */
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /*
  * define CONFIG_USB_EHCI_HCD to enable USB Hi-Speed (aka 2.0)
  * NB: in this case, USB 1.1 devices won't be recognized.

@@ -95,14 +95,4 @@
 #define CONFIG_TEGRA_SPI
 #endif
 
-/* overrides for SPL build here */
-#ifdef CONFIG_SPL_BUILD
-
-/* remove USB */
-#ifdef CONFIG_USB_EHCI_TEGRA
-#undef CONFIG_USB_EHCI_TEGRA
-#endif
-
-#endif /* CONFIG_SPL_BUILD */
-
 #endif /* __TEGRA_COMMON_POST_H */

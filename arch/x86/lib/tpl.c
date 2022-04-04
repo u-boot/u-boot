@@ -19,11 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-__weak int arch_cpu_init_dm(void)
-{
-	return 0;
-}
-
 static int x86_tpl_init(void)
 {
 	int ret;
@@ -42,11 +37,6 @@ static int x86_tpl_init(void)
 	ret = arch_cpu_init();
 	if (ret) {
 		debug("%s: arch_cpu_init() failed\n", __func__);
-		return ret;
-	}
-	ret = arch_cpu_init_dm();
-	if (ret) {
-		debug("%s: arch_cpu_init_dm() failed\n", __func__);
 		return ret;
 	}
 	preloader_console_init();

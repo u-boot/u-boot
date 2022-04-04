@@ -140,6 +140,57 @@ unsigned int zynqmp_firmware_version(void)
 	return pm_api_version;
 };
 
+int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value)
+{
+	int ret;
+
+	ret = xilinx_pm_request(PM_IOCTL, node, IOCTL_SET_SD_CONFIG,
+				config, value, NULL);
+	if (ret)
+		printf("%s: node %d: set_sd_config %d failed\n",
+		       __func__, node, config);
+
+	return ret;
+}
+
+int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
+{
+	int ret;
+	u32 *bit_mask;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	/* Input arguments validation */
+	if (id >= 64 || (api_id != PM_IOCTL && api_id != PM_QUERY_DATA))
+		return -EINVAL;
+
+	/* Check feature check API version */
+	ret = xilinx_pm_request(PM_FEATURE_CHECK, PM_FEATURE_CHECK, 0, 0, 0,
+				ret_payload);
+	if (ret)
+		return ret;
+
+	/* Check if feature check version 2 is supported or not */
+	if ((ret_payload[1] & FIRMWARE_VERSION_MASK) == PM_API_VERSION_2) {
+		/*
+		 * Call feature check for IOCTL/QUERY API to get IOCTL ID or
+		 * QUERY ID feature status.
+		 */
+
+		ret = xilinx_pm_request(PM_FEATURE_CHECK, api_id, 0, 0, 0,
+					ret_payload);
+		if (ret)
+			return ret;
+
+		bit_mask = &ret_payload[2];
+		if ((bit_mask[(id / 32)] & BIT((id % 32))) == 0)
+			return -EOPNOTSUPP;
+	} else {
+		return -ENODATA;
+	}
+
+	return 0;
+}
+
 /**
  * Send a configuration object to the PMU firmware.
  *

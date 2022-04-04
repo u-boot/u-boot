@@ -31,12 +31,12 @@ static int clk_synthesizer_reg_read(struct udevice *dev, int addr, u8 *buf)
 
 #if !CONFIG_IS_ENABLED(DM_I2C)
 	/* Send the command byte */
-	rc = i2c_write(CLK_SYNTHESIZER_I2C_ADDR, addr, 1, buf, 1);
+	rc = i2c_write(CONFIG_CLK_SYNTHESIZER_I2C_ADDR, addr, 1, buf, 1);
 	if (rc)
 		printf("Failed to send command to clock synthesizer\n");
 
 	/* Read the Data */
-	return i2c_read(CLK_SYNTHESIZER_I2C_ADDR, addr, 1, buf, 1);
+	return i2c_read(CONFIG_CLK_SYNTHESIZER_I2C_ADDR, addr, 1, buf, 1);
 #else
 	/* Send the command byte */
 	rc = dm_i2c_reg_write(dev, addr, *buf);
@@ -73,7 +73,7 @@ static int clk_synthesizer_reg_write(struct udevice *dev, int addr, u8 val)
 	cmd[1] = val;
 
 #if !CONFIG_IS_ENABLED(DM_I2C)
-	rc = i2c_write(CLK_SYNTHESIZER_I2C_ADDR, addr, 1, cmd, 2);
+	rc = i2c_write(CONFIG_CLK_SYNTHESIZER_I2C_ADDR, addr, 1, cmd, 2);
 #else
 	rc = dm_i2c_write(dev, addr, cmd, 2);
 #endif
@@ -97,17 +97,17 @@ int setup_clock_synthesizer(struct clk_synth *data)
 	u8 val = 0;
 	struct udevice *dev = NULL;
 #if !CONFIG_IS_ENABLED(DM_I2C)
-	rc =  i2c_probe(CLK_SYNTHESIZER_I2C_ADDR);
+	rc =  i2c_probe(CONFIG_CLK_SYNTHESIZER_I2C_ADDR);
 	if (rc) {
 		printf("i2c probe failed at address 0x%x\n",
-		       CLK_SYNTHESIZER_I2C_ADDR);
+		       CONFIG_CLK_SYNTHESIZER_I2C_ADDR);
 		return rc;
 	}
 #else
-	rc = i2c_get_chip_for_busnum(0, CLK_SYNTHESIZER_I2C_ADDR, 1, &dev);
+	rc = i2c_get_chip_for_busnum(0, CONFIG_CLK_SYNTHESIZER_I2C_ADDR, 1, &dev);
 	if (rc) {
 		printf("failed to get device for synthesizer at address 0x%x\n",
-		       CLK_SYNTHESIZER_I2C_ADDR);
+		       CONFIG_CLK_SYNTHESIZER_I2C_ADDR);
 		return rc;
 	}
 #endif

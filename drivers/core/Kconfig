@@ -77,6 +77,16 @@ config DM_DEVICE_REMOVE
 	  it causes unplugged devices to linger around in the dm-tree, and it
 	  causes USB host controllers to not be stopped when booting the OS.
 
+config DM_EVENT
+	bool "Support events with driver model"
+	depends on DM
+	imply EVENT
+	default y if SANDBOX
+	help
+	  This enables support for generating events related to driver model
+	  operations, such as prbing or removing a device. Subsystems can
+	  register a 'spy' function that is called when the event occurs.
+
 config SPL_DM_DEVICE_REMOVE
 	bool "Support device removal in SPL"
 	depends on SPL_DM

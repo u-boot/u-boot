@@ -524,12 +524,6 @@ class TestFunctional(unittest.TestCase):
         # Each commit has a config and make
         self.assertEqual(self._make_calls, len(boards) * self._commits * 2)
 
-    def testForceReconfigure(self):
-        """The -f flag should force a rebuild"""
-        self._RunControl('-b', TEST_BRANCH, '-C', '-o', self._output_dir)
-        # Each commit has a config and make
-        self.assertEqual(self._make_calls, len(boards) * self._commits * 2)
-
     def testMrproper(self):
         """The -f flag should force a rebuild"""
         self._RunControl('-b', TEST_BRANCH, '-m', '-o', self._output_dir)

@@ -1,5 +1,8 @@
 if TARGET_MX53LOCO
 
+config DIALOG_POWER
+	def_bool y
+
 config SYS_BOARD
 	default "mx53loco"
 

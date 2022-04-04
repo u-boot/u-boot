@@ -25,7 +25,7 @@ sys.path.insert(2, os.path.join(our_path,
 from dtoc import fdt
 from dtoc import fdt_util
 from dtoc.fdt_util import fdt32_to_cpu, fdt64_to_cpu
-from fdt import Type, BytesToValue
+from dtoc.fdt import Type, BytesToValue
 import libfdt
 from patman import command
 from patman import test_util
@@ -119,9 +119,9 @@ class TestFdt(unittest.TestCase):
         """Test that packing a device tree works"""
         self.dtb.Pack()
 
-    def testGetFdt(self):
+    def testGetFdtRaw(self):
         """Tetst that we can access the raw device-tree data"""
-        self.assertTrue(isinstance(self.dtb.GetContents(), bytearray))
+        self.assertTrue(isinstance(self.dtb.GetContents(), bytes))
 
     def testGetProps(self):
         """Tests obtaining a list of properties"""
@@ -550,6 +550,12 @@ class TestProp(unittest.TestCase):
         data = self.fdt.getprop(self.node.Offset(), 'stringlist')
         self.assertEqual(b'123\x00456\0', data)
 
+        val = []
+        self.node.AddStringList('stringlist', val)
+        self.dtb.Sync(auto_resize=True)
+        data = self.fdt.getprop(self.node.Offset(), 'stringlist')
+        self.assertEqual(b'', data)
+
     def test_delete_node(self):
         """Test deleting a node"""
         old_offset = self.fdt.path_offset('/spl-test')
@@ -637,6 +643,7 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual('message', fdt_util.GetString(self.node, 'stringval'))
         self.assertEqual('test', fdt_util.GetString(self.node, 'missing',
                                                     'test'))
+        self.assertEqual('', fdt_util.GetString(self.node, 'boolval'))
 
         with self.assertRaises(ValueError) as e:
             self.assertEqual(3, fdt_util.GetString(self.node, 'stringarray'))
@@ -651,6 +658,7 @@ class TestFdtUtil(unittest.TestCase):
             fdt_util.GetStringList(self.node, 'stringarray'))
         self.assertEqual(['test'],
                          fdt_util.GetStringList(self.node, 'missing', ['test']))
+        self.assertEqual([], fdt_util.GetStringList(self.node, 'boolval'))
 
     def testGetArgs(self):
         node = self.dtb.GetNode('/orig-node')
@@ -659,8 +667,12 @@ class TestFdtUtil(unittest.TestCase):
             ['multi-word', 'message'],
             fdt_util.GetArgs(self.node, 'stringarray'))
         self.assertEqual([], fdt_util.GetArgs(self.node, 'boolval'))
-        self.assertEqual(['-n', 'first', 'second', '-p', '123,456', '-x'],
+        self.assertEqual(['-n first', 'second', '-p', '123,456', '-x'],
                          fdt_util.GetArgs(node, 'args'))
+        self.assertEqual(['a space', 'there'],
+                         fdt_util.GetArgs(node, 'args2'))
+        self.assertEqual(['-n', 'first', 'second', '-p', '123,456', '-x'],
+                         fdt_util.GetArgs(node, 'args3'))
         with self.assertRaises(ValueError) as exc:
             fdt_util.GetArgs(self.node, 'missing')
         self.assertIn(

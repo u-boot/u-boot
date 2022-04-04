@@ -120,11 +120,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
 #define CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
 
-/* Define phy_reset function to boot the MC based on mcinitcmd.
- * This happens late enough to properly fixup u-boot env MAC addresses.
- */
-#define CONFIG_RESET_PHY_R
-
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux
  *
@@ -139,7 +134,6 @@ unsigned long long get_qixis_addr(void);
 
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */
-#define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

@@ -35,13 +35,7 @@ struct udevice;
  *	alignment in memory.
  *
  */
-
-#ifdef CONFIG_SYS_RX_ETH_BUFFER
-# define PKTBUFSRX	CONFIG_SYS_RX_ETH_BUFFER
-#else
-# define PKTBUFSRX	4
-#endif
-
+#define PKTBUFSRX	CONFIG_SYS_RX_ETH_BUFFER
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
 /* Number of packets processed together */

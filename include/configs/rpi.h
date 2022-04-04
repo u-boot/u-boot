@@ -41,10 +41,7 @@
 #endif
 
 /* Devices */
-/* GPIO */
-#define CONFIG_BCM2835_GPIO
 /* LCD */
-#define CONFIG_VIDEO_BCM2835
 
 /* DFU over USB/UDC */
 #ifdef CONFIG_CMD_DFU

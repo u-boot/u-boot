@@ -21,8 +21,6 @@
 
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
-
 /* Power Down Modes */
 #define S5P_CHECK_SLEEP			0x00000BAD
 #define S5P_CHECK_DIDLE			0xBAD00000
@@ -46,8 +44,6 @@
         "bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
                 "source ${loadaddr}\0"
 
-#define CONFIG_CLK_1000_400_200
-
 /* MIU (Memory Interleaving Unit) */
 #define CONFIG_MIU_2BIT_21_7_INTERLEAVED
 
@@ -57,10 +53,5 @@
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x02040000
-
-/* U-Boot copy size from boot Media to DRAM.*/
-#define COPY_BL2_SIZE		0x80000
-#define BL2_START_OFFSET	((CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)/512)
-#define BL2_SIZE_BLOC_COUNT	(COPY_BL2_SIZE/512)
 
 #endif	/* __CONFIG_H */

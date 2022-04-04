@@ -80,7 +80,6 @@
  */
 #define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)
 #define	CONFIG_SYS_MONITOR_LEN		(320 << 10)
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 /* Environment Configuration */
 
@@ -88,7 +87,6 @@
 
 /* Ethernet configuration part */
 #define CONFIG_SYS_DISCOVER_PHY		1
-#define CONFIG_MII_INIT			1
 
 /* NAND configuration part */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

@@ -350,6 +350,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zcu104-revA.dtb			\
 	zynqmp-zcu104-revC.dtb			\
 	zynqmp-zcu106-revA.dtb			\
+	zynqmp-zcu106-rev1.0.dtb		\
 	zynqmp-zcu111-revA.dtb			\
 	zynqmp-zcu1275-revA.dtb			\
 	zynqmp-zcu1275-revB.dtb			\
@@ -1045,7 +1046,7 @@ dtb-$(CONFIG_TARGET_OMAP5_UEVM) += \
 	omap5-uevm.dtb
 
 dtb-$(CONFIG_TARGET_SAMA7G5EK) += \
-	sama7g5ek.dtb
+	at91-sama7g5ek.dtb
 
 dtb-$(CONFIG_TARGET_SAMA5D2_PTC_EK) += \
 	at91-sama5d2_ptc_ek.dtb
@@ -1104,6 +1105,9 @@ dtb-$(CONFIG_ARCH_BCM63158) += \
 
 dtb-$(CONFIG_ARCH_BCM68360) += \
 	bcm968360bg.dtb
+
+dtb-$(CONFIG_ARCH_BCM6753) += \
+	bcm96753ref.dtb
 
 dtb-$(CONFIG_ARCH_BCM6858) += \
 	bcm968580xref.dtb
@@ -1181,11 +1185,14 @@ dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 # TODO(Linus Walleij <linus.walleij@linaro.org>): Should us a single vexpress
 # Kconfig option to build all of these. See examples above.
 dtb-$(CONFIG_TARGET_VEXPRESS_CA9X4) += vexpress-v2p-ca9.dtb
+dtb-$(CONFIG_TARGET_VEXPRESS64_BASE_FVP) += fvp-base-revc.dtb
+dtb-$(CONFIG_TARGET_VEXPRESS64_BASER_FVP) += arm_fvp.dtb
 dtb-$(CONFIG_TARGET_VEXPRESS64_JUNO) += juno-r2.dtb
 
 dtb-$(CONFIG_TARGET_TOTAL_COMPUTE) += total_compute.dtb
 
 dtb-$(CONFIG_TARGET_DURIAN) += phytium-durian.dtb
+dtb-$(CONFIG_TARGET_POMELO) += phytium-pomelo.dtb
 
 dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 

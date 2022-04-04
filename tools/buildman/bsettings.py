@@ -74,6 +74,7 @@ def CreateBuildmanConfigFile(config_fname):
     print('''[toolchain]
 # name = path
 # e.g. x86 = /opt/gcc-4.6.3-nolibc/x86_64-linux
+other = /
 
 [toolchain-prefix]
 # name = path to prefix

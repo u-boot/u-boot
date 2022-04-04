@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <pci.h>
@@ -44,7 +45,7 @@ static void hsuart_clock_set(void *base)
  * Configure the internal clock of both SIO HS-UARTs, if they are enabled
  * via FSP
  */
-int arch_cpu_init_dm(void)
+static int baytrail_uart_init(void *ctx, struct event *event)
 {
 	struct udevice *dev;
 	void *base;
@@ -63,6 +64,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, baytrail_uart_init);
 
 static void set_max_freq(void)
 {

@@ -35,7 +35,6 @@
 
 /* Hardware drivers */
 /* DM9000 */
-#define CONFIG_NET_RETRY_COUNT		20
 #define	CONFIG_DRIVER_DM9000		1
 #define	CONFIG_DM9000_BASE		0x2c000000
 #define	DM9000_IO			CONFIG_DM9000_BASE
@@ -47,10 +46,6 @@
 /* TWL4030 */
 
 /* BOOTP/DHCP options */
-#define CONFIG_BOOTP_NISDOMAIN
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_TIMEOFFSET
-#undef CONFIG_BOOTP_VENDOREX
 
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \

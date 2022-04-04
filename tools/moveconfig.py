@@ -94,17 +94,6 @@ SIZES = {
 RE_REMOVE_DEFCONFIG = re.compile(r'(.*)_defconfig')
 
 ### helper functions ###
-def remove_defconfig(defc):
-    """Drop the _defconfig suffix on a string
-
-    Args:
-        defc (str): String to convert
-
-    Returns:
-        str: string with the '_defconfig' suffix removed
-    """
-    return RE_REMOVE_DEFCONFIG.match(defc)[1]
-
 def check_top_directory():
     """Exit if we are not at the top of source directory."""
     for fname in 'README', 'Licenses':
@@ -339,7 +328,7 @@ def read_file(fname, as_lines=True, skip_unicode=False):
                 return inf.read()
         except UnicodeDecodeError as e:
             if not skip_unicode:
-                raises
+                raise
             print("Failed on file %s': %s" % (fname, e))
             return None
 
@@ -790,9 +779,6 @@ class KconfigParser:
                 actlog = "'%s' is the same as the define in Kconfig.  Do nothing." \
                          % value
                 log_color = COLOR_LIGHT_PURPLE
-            elif action == ACTION_SPL_NOT_EXIST:
-                actlog = 'SPL is not enabled for this defconfig.  Skip.'
-                log_color = COLOR_PURPLE
             else:
                 sys.exit('Internal Error. This should not happen.')
 
@@ -1621,8 +1607,7 @@ def defconfig_matches(configs, re_match):
         bool: True if any CONFIG matches the regex
     """
     for cfg in configs:
-        m_cfg = re_match.match(cfg)
-        if m_cfg and m_cfg.span()[1] == len(cfg):
+        if re_match.fullmatch(cfg):
             return True
     return False
 
@@ -1671,7 +1656,7 @@ def do_find_config(config_list):
         print(f"Error: Not in Kconfig: %s" % ' '.join(adhoc))
     else:
         print(f'{len(out)} matches')
-        print(' '.join([remove_defconfig(item) for item in out]))
+        print(' '.join(item.split('_defconfig')[0] for item in out))
 
 
 def prefix_config(cfg):

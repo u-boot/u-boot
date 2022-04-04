@@ -114,7 +114,6 @@
  */
 
 /* Ethernet */
-#define CONFIG_NET_RETRY_COUNT         10
 #define CONFIG_PHY_ET1011C_TX_CLK_FIX
 
 #endif	/* ! __CONFIG_TI814X_EVM_H */

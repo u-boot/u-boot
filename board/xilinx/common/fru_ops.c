@@ -9,6 +9,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
@@ -39,11 +40,19 @@ static int fru_check_language(u8 code)
 u8 fru_checksum(u8 *addr, u8 len)
 {
 	u8 checksum = 0;
+	u8 cnt = len;
 
 	while (len--) {
+		if (*addr == 0)
+			cnt--;
+
 		checksum += *addr;
 		addr++;
 	}
+
+	/* If all data bytes are 0's return error */
+	if (!cnt)
+		return EINVAL;
 
 	return checksum;
 }
@@ -210,10 +219,43 @@ static int fru_parse_board(unsigned long addr)
 	return 0;
 }
 
+static int fru_parse_multirec(unsigned long addr)
+{
+	struct fru_multirec_hdr mrc;
+	u8 checksum = 0;
+	u8 hdr_len = sizeof(struct fru_multirec_hdr);
+	int mac_len = 0;
+
+	debug("%s: multirec addr %lx\n", __func__, addr);
+
+	do {
+		memcpy(&mrc.rec_type, (void *)addr, hdr_len);
+
+		checksum = fru_checksum((u8 *)addr, hdr_len);
+		if (checksum) {
+			debug("%s header CRC error\n", __func__);
+			return -EINVAL;
+		}
+
+		if (mrc.rec_type == FRU_MULTIREC_TYPE_OEM) {
+			struct fru_multirec_mac *mac = (void *)addr + hdr_len;
+
+			if (mac->ver == FRU_DUT_MACID) {
+				mac_len = mrc.len - FRU_MULTIREC_MAC_OFFSET;
+				memcpy(&fru_data.mac.macid, mac->macid, mac_len);
+			}
+		}
+		addr += mrc.len + hdr_len;
+	} while (!(mrc.type & FRU_LAST_REC));
+
+	return 0;
+}
+
 int fru_capture(unsigned long addr)
 {
 	struct fru_common_hdr *hdr;
 	u8 checksum = 0;
+	unsigned long multirec_addr = addr;
 
 	checksum = fru_checksum((u8 *)addr, sizeof(struct fru_common_hdr));
 	if (checksum) {
@@ -222,7 +264,7 @@ int fru_capture(unsigned long addr)
 	}
 
 	hdr = (struct fru_common_hdr *)addr;
-
+	memset((void *)&fru_data, 0, sizeof(fru_data));
 	memcpy((void *)&fru_data, (void *)hdr,
 	       sizeof(struct fru_common_hdr));
 
@@ -234,6 +276,11 @@ int fru_capture(unsigned long addr)
 	}
 
 	env_set_hex("fru_addr", addr);
+
+	if (hdr->off_multirec) {
+		multirec_addr += fru_cal_area_len(hdr->off_multirec);
+		fru_parse_multirec(multirec_addr);
+	}
 
 	return 0;
 }

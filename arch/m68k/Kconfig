@@ -113,6 +113,10 @@ config M54418
 	bool
 	select MCF5441x
 
+# peripherals
+config CF_DSPI
+	bool
+
 choice
 	prompt "Target select"
 	optional
@@ -176,6 +180,7 @@ config TARGET_AMCORE
 
 config TARGET_STMARK2
         bool "Support stmark2"
+        select CF_DSPI
         select M54418
 
 endchoice
@@ -195,5 +200,8 @@ source "board/freescale/m5329evb/Kconfig"
 source "board/freescale/m5373evb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
+
+config MCFTMR
+	bool "Use DMA timer"
 
 endmenu

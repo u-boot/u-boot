@@ -26,16 +26,11 @@
 
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
-#undef CONFIG_DM_MMC
-
 #define CONFIG_POWER_PCA9450
 
 #endif
 
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_ETHPRIME                 "eth1" /* Set eqos to primary since we use its MDIO */
-
-#define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_FEC_MXC_PHYADDR          1
 #define FEC_QUIRK_ENET_MAC
 

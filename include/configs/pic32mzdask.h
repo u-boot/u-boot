@@ -30,7 +30,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x88000000
 #define CONFIG_SYS_BOOTPARAMS_LEN	(4 << 10)
 
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
 /* Memory Test */
@@ -43,18 +42,6 @@
  * Console Configuration
  */
 #define CONFIG_SYS_CBSIZE		1024 /* Console I/O Buffer Size   */
-
-/*-----------------------------------------------------------------------
- * Networking Configuration
- */
-#define CONFIG_SYS_RX_ETH_BUFFER	8
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_ARP_TIMEOUT		500 /* millisec */
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /*--------------------------------------------------
  * USB Configuration

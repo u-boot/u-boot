@@ -84,10 +84,15 @@ config ALTERA_PIO
 	  Select this to enable PIO for Altera devices. Please find
 	  details on the "Embedded Peripherals IP User Guide" of Altera.
 
+config BCM2835_GPIO
+	bool "BCM2835 GPIO driver"
+	depends on DM_GPIO
+
 config BCM6345_GPIO
 	bool "BCM6345 GPIO driver"
 	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM68360 || \
-			       ARCH_BCM6858 || ARCH_BCM63158)
+			       ARCH_BCM6858 || ARCH_BCM63158 || \
+			       ARCH_BCM6753)
 	help
 	  This driver supports the GPIO banks on BCM6345 SoCs.
 
@@ -125,6 +130,13 @@ config ATMEL_PIO4
 	  up to 128 fully programmable input/output lines. Each I/O line
 	  may be dedicated as a general purpose I/O or be assigned to
 	  a function of an embedded peripheral.
+
+config ASPEED_GPIO
+	bool "Aspeed GPIO Driver"
+	help
+	  Say yes here to support the Aspeed GPIO driver. The controller
+	  is found in the AST2400, AST2500 and AST2600 BMC SoCs and
+	  provides access to over 200 GPIOs on each chip.
 
 config DA8XX_GPIO
 	bool "DA8xx GPIO Driver"
@@ -549,5 +561,13 @@ config SL28CPLD_GPIO
 	depends on DM_GPIO && SL28CPLD
 	help
 	  Support GPIO access on Kontron sl28cpld board management controllers.
+
+config SLG7XL45106_I2C_GPO
+	bool "slg7xl45106 i2c gpo expander"
+	depends on DM_GPIO
+	help
+	   Support for slg7xl45106 i2c gpo expander. It is an i2c based
+	   8-bit gpo expander, all gpo lines are controlled by writing
+	   value into data register.
 
 endif

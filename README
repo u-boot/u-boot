@@ -374,14 +374,6 @@ The following options need to be configured:
 		See Freescale App Note 4493 for more information about
 		this erratum.
 
-		CONFIG_A003399_NOR_WORKAROUND
-		Enables a workaround for IFC erratum A003399. It is only
-		required during NOR boot.
-
-		CONFIG_A008044_WORKAROUND
-		Enables a workaround for T1040/T1042 erratum A008044. It is only
-		required during NAND boot and valid for Rev 1.0 SoC revision
-
 		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
 		This is the value to write into CCSR offset 0x18600
@@ -410,10 +402,6 @@ The following options need to be configured:
 		CONFIG_SYS_CPC_REINIT_F
 		This CONFIG is defined when the CPC is configured as SRAM at the
 		time of U-Boot entry and is required to be re-initialized.
-
-		CONFIG_DEEP_SLEEP
-		Indicates this SoC supports deep sleep feature. If deep sleep is
-		supported, core will start to execute uboot when wakes up.
 
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
@@ -564,13 +552,6 @@ The following options need to be configured:
 
 		boards with QUICC Engines require OF_QE to set UCC MAC
 		addresses
-
-		CONFIG_OF_SYSTEM_SETUP
-
-		Other code has addition modification that it wants to make
-		to the flat device tree before handing it off to the kernel.
-		This causes ft_system_setup() to be called before booting
-		the kernel.
 
 		CONFIG_OF_IDE_FIXUP
 
@@ -985,33 +966,11 @@ The following options need to be configured:
 - Keyboard Support:
 		See Kconfig help for available keyboard drivers.
 
-- Video support:
-		CONFIG_FSL_DIU_FB
-		Enable the Freescale DIU video driver.	Reference boards for
-		SOCs that have a DIU should define this macro to enable DIU
-		support, and should also define these other macros:
-
-			CONFIG_SYS_DIU_ADDR
-			CONFIG_VIDEO
-			CONFIG_CFB_CONSOLE
-			CONFIG_VIDEO_SW_CURSOR
-			CONFIG_VGA_AS_SINGLE_DEVICE
-			CONFIG_VIDEO_BMP_LOGO
-
-		The DIU driver will look for the 'video-mode' environment
-		variable, and if defined, enable the DIU as a console during
-		boot.  See the documentation file doc/README.video for a
-		description of this variable.
-
 - LCD Support:	CONFIG_LCD
 
 		Define this to enable LCD support (for output to LCD
 		display); also select one of the supported displays
 		by defining one of these:
-
-		CONFIG_ATMEL_LCD:
-
-			HITACHI TX09D70VM1CCA, 3.5", 240x320.
 
 		CONFIG_NEC_NL6448AC33:
 
@@ -1081,21 +1040,10 @@ The following options need to be configured:
 		If CONFIG_LCD_ROTATION is not defined, the console will be
 		initialized with 0degree rotation.
 
-		CONFIG_LCD_BMP_RLE8
-
-		Support drawing of RLE8-compressed bitmaps on the LCD.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
 		The clock frequency of the MII bus
-
-		CONFIG_PHY_RESET_DELAY
-
-		Some PHY like Intel LXT971A need extra delay after
-		reset before any MII register access is possible.
-		For such PHY, set this option to the usec delay
-		required. (minimum 300usec for LXT971A)
 
 		CONFIG_PHY_CMD_DELAY (ppc4xx)
 
@@ -1172,35 +1120,6 @@ The following options need to be configured:
 		from a BOOTP client in networks with unusually high latency.
 
 - DHCP Advanced Options:
-		You can fine tune the DHCP functionality by defining
-		CONFIG_BOOTP_* symbols:
-
-		CONFIG_BOOTP_NISDOMAIN
-		CONFIG_BOOTP_BOOTFILESIZE
-		CONFIG_BOOTP_NTPSERVER
-		CONFIG_BOOTP_TIMEOFFSET
-		CONFIG_BOOTP_VENDOREX
-		CONFIG_BOOTP_MAY_FAIL
-
-		CONFIG_BOOTP_MAY_FAIL - If the DHCP server is not found
-		after the configured retry count, the call will fail
-		instead of starting over.  This can be used to fail over
-		to Link-local IP address configuration if the DHCP server
-		is not available.
-
-		CONFIG_BOOTP_DHCP_REQUEST_DELAY
-
-		A 32bit value in microseconds for a delay between
-		receiving a "DHCP Offer" and sending the "DHCP Request".
-		This fixes a problem with certain DHCP servers that don't
-		respond 100% of the time to a "DHCP request". E.g. On an
-		AT91RM9200 processor running at 180MHz, this delay needed
-		to be *at least* 15,000 usec before a Windows Server 2003
-		DHCP server would reply 100% of the time. I recommend at
-		least 50,000 usec to be safe. The alternative is to hope
-		that one of the retries will be successful but note that
-		the DHCP timeout and retry process takes a longer than
-		this delay.
 
  - Link-local IP address negotiation:
 		Negotiate with other link-local clients on the local network
@@ -1592,24 +1511,6 @@ The following options need to be configured:
 			FLAGADM
 
 - Error Recovery:
-		CONFIG_NET_RETRY_COUNT
-
-		This variable defines the number of retries for
-		network operations like ARP, RARP, TFTP, or BOOTP
-		before giving up the operation. If not defined, a
-		default value of 5 is used.
-
-		CONFIG_ARP_TIMEOUT
-
-		Timeout waiting for an ARP reply in milliseconds.
-
-		CONFIG_NFS_TIMEOUT
-
-		Timeout in milliseconds used in NFS protocol.
-		If you encounter "ERROR: Cannot umount" in nfs command,
-		try longer timeout such as
-		#define CONFIG_NFS_TIMEOUT 10000UL
-
 	Note:
 
 		In the current implementation, the local variables
@@ -1673,26 +1574,6 @@ The following options need to be configured:
 		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
 		this is instead controlled by the value of
 		/config/load-environment.
-
-- TFTP Fixed UDP Port:
-		CONFIG_TFTP_PORT
-
-		If this is defined, the environment variable tftpsrcp
-		is used to supply the TFTP UDP source port value.
-		If tftpsrcp isn't defined, the normal pseudo-random port
-		number generator is used.
-
-		Also, the environment variable tftpdstp is used to supply
-		the TFTP UDP destination port value.  If tftpdstp isn't
-		defined, the normal port 69 is used.
-
-		The purpose for tftpsrcp is to allow a TFTP server to
-		blindly start the TFTP transfer using the pre-configured
-		target IP address and UDP port. This has the effect of
-		"punching through" the (Windows XP) firewall, allowing
-		the remainder of the TFTP transfer to proceed normally.
-		A better solution is to properly configure the firewall,
-		but sometimes that is not allowed.
 
 		CONFIG_STANDALONE_LOAD_ADDR
 
@@ -1876,10 +1757,6 @@ The following options need to be configured:
 		CONFIG_SPL_SKIP_RELOCATE
 		Avoid SPL relocation
 
-		CONFIG_SPL_NAND_IDENT
-		SPL uses the chip ID list to identify the NAND flash.
-		Requires CONFIG_SPL_NAND_BASE.
-
 		CONFIG_SPL_UBI
 		Support for a lightweight UBI (fastmap) scanner and
 		loader
@@ -1972,7 +1849,6 @@ typically in board_init_f() and board_init_r().
 - CONFIG_BOARD_EARLY_INIT_F: Call board_early_init_f()
 - CONFIG_BOARD_EARLY_INIT_R: Call board_early_init_r()
 - CONFIG_BOARD_LATE_INIT: Call board_late_init()
-- CONFIG_BOARD_POSTCLK_INIT: Call board_postclk_init()
 
 Configuration Settings:
 -----------------------
@@ -2040,12 +1916,6 @@ Configuration Settings:
 
 - CONFIG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
-
-- CONFIG_SYS_MONITOR_BASE:
-		Physical start address of boot monitor code (set by
-		make config files to be same as the text base address
-		(CONFIG_SYS_TEXT_BASE) used when linking) - same as
-		CONFIG_SYS_FLASH_BASE when booting from flash.
 
 - CONFIG_SYS_MONITOR_LEN:
 		Size of memory reserved for monitor code, used to
@@ -2196,14 +2066,6 @@ Configuration Settings:
 		while unprotecting/erasing/programming. Please only enable
 		this option if you really know what you are doing.
 
-- CONFIG_SYS_RX_ETH_BUFFER:
-		Defines the number of Ethernet receive buffers. On some
-		Ethernet controllers it is recommended to set this value
-		to 8 or even higher (EEPRO100 or 405 EMAC), since all
-		buffers can be full shortly after enabling the interface
-		on high Ethernet traffic.
-		Defaults to 4 if not defined.
-
 - CONFIG_ENV_MAX_ENTRIES
 
 	Maximum number of entries in the hash table that is used
@@ -2300,12 +2162,6 @@ have any device yet where we could complain.]
 Note: once the monitor has been relocated, then it will complain if
 the default environment is used; a new CRC is computed as soon as you
 use the "saveenv" command to store a valid environment.
-
-- CONFIG_SYS_FAULT_ECHO_LINK_DOWN:
-		Echo the inverted Ethernet link state to the fault LED.
-
-		Note: If this option is active, then CONFIG_SYS_FAULT_MII_ADDR
-		      also needs to be defined.
 
 - CONFIG_SYS_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.

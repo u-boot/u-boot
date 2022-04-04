@@ -23,11 +23,7 @@
 "setcurs 1 10;lcdputs serverip; setcurs 10 10; lcdputs ${serverip};" \
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
-/* Network defines */
-#define CONFIG_NET_RETRY_COUNT		10
-
 /* Network console */
-#define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 
 /* As stated above, the following choices are optional. */
 

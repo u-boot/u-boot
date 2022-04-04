@@ -52,6 +52,13 @@ config CFI_FLASH
 	  option. Visit <http://www.amd.com/products/nvd/overview/cfi.html>
 	  for more information on CFI.
 
+config CFI_FLASH_USE_WEAK_ACCESSORS
+	bool "Allow read/write functions to be overridden"
+	depends on FLASH_CFI_DRIVER
+	help
+	  Enable this option to allow for the flash_{read,write}{8,16,32,64}
+	  functions to be overridden by the platform.
+
 config SYS_FLASH_USE_BUFFER_WRITE
 	bool "Enable buffered writes to flash"
 	depends on FLASH_CFI_DRIVER

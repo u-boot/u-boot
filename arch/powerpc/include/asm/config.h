@@ -31,9 +31,7 @@
  * Freescale's default e500 reset page.
  */
 #if (defined(CONFIG_E500) && defined(CONFIG_MP))
-#ifndef CONFIG_BPTR_VIRT_ADDR
-#define CONFIG_BPTR_VIRT_ADDR	0xfffff000
-#endif
+#define BPTR_VIRT_ADDR	0xfffff000
 #endif
 
 /* Since so many PPC SOCs have a semi-common LBC, define this here */

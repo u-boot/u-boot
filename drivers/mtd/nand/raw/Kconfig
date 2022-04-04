@@ -91,6 +91,12 @@ config NAND_BRCMNAND_6368
 	help
 	  Enable support for broadcom nand driver on bcm6368.
 
+config NAND_BRCMNAND_6753
+	bool "Support Broadcom NAND controller on bcm6753"
+	depends on NAND_BRCMNAND && ARCH_BCM6753
+	help
+	  Enable support for broadcom nand driver on bcm6753.
+
 config NAND_BRCMNAND_68360
        bool "Support Broadcom NAND controller on bcm68360"
        depends on NAND_BRCMNAND && ARCH_BCM68360

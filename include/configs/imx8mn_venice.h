@@ -38,7 +38,6 @@
 	func(MMC, mmc, 2) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#undef CONFIG_ISO_PARTITION
 #else
 #define BOOTENV
 #endif
@@ -97,8 +96,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 /* FEC */
-#define CONFIG_ETHPRIME                 "eth0"
-#define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_FEC_MXC_PHYADDR          0
 #define FEC_QUIRK_ENET_MAC
 

@@ -1,0 +1,16 @@
+if TARGET_BCM96753REF
+
+config SYS_VENDOR
+	default "broadcom"
+
+config SYS_BOARD
+	default "bcm96753ref"
+
+config SYS_CONFIG_NAME
+	default "broadcom_bcm96753ref"
+
+endif
+
+config TARGET_BCM96753REF
+	bool "Support Broadcom bcm96753ref"
+	depends on ARCH_BCM6753

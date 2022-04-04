@@ -54,8 +54,6 @@
 /* JFFS2 */
 
 /* Ethernet */
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_RMII
 #define CONFIG_PHY_ID			0
 #define CONFIG_MACB_SEARCH_PHY
 
@@ -105,7 +103,6 @@
 
 /* DHCP/BOOTP options */
 #ifdef CONFIG_CMD_DHCP
-#define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_SYS_AUTOLOAD	"n"
 #endif
 

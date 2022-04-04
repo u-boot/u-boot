@@ -194,6 +194,16 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_BOOTM_PRE_LOAD
+       bool "enable pre-load on bootm"
+       depends on CMD_BOOTM
+       depends on IMAGE_PRE_LOAD
+       default n
+       help
+         Enable support of stage pre-load for the bootm command.
+	 This stage allow to check or modify the image provided
+	 to the bootm command.
+
 config BOOTM_EFI
 	bool "Support booting UEFI FIT images"
 	depends on CMD_BOOTEFI && CMD_BOOTM && FIT
@@ -1485,6 +1495,15 @@ config CMD_DHCP
 	help
 	  Boot image via network using DHCP/TFTP protocol
 
+config BOOTP_MAY_FAIL
+	bool "Allow for the BOOTP/DHCP server to not be found"
+	depends on CMD_BOOTP
+	help
+	  If the DHCP server is not found after the configured retry count, the
+	  call will fail instead of starting over.  This can be used to fail
+	  over to Link-local IP address configuration if the DHCP server is not
+	  available.
+
 config BOOTP_BOOTPATH
 	bool "Request & store 'rootpath' from BOOTP/DHCP server"
 	default y
@@ -1492,6 +1511,14 @@ config BOOTP_BOOTPATH
 	help
 	  Even though the config is called BOOTP_BOOTPATH, it stores the
 	  path in the variable 'rootpath'.
+
+config BOOTP_VENDOREX
+	bool "Support vendor extensions from BOOTP/DHCP server"
+	depends on CMD_BOOTP
+
+config BOOTP_BOOTFILESIZE
+	bool "Request & store 'bootfilesize' from BOOTP/DHCP server"
+	depends on CMD_BOOTP
 
 config BOOTP_DNS
 	bool "Request & store 'dnsip' from BOOTP/DHCP server"
@@ -1540,9 +1567,17 @@ config BOOTP_SUBNETMASK
 	default y
 	depends on CMD_BOOTP
 
+config BOOTP_NISDOMAIN
+	bool "Request & store 'nisdomain' from BOOTP/DHCP server"
+	depends on CMD_BOOTP
+
 config BOOTP_NTPSERVER
 	bool "Request & store 'ntpserverip' from BOOTP/DHCP server"
 	depends on CMD_BOOTP
+
+config BOOTP_TIMEOFFSET
+	bool "Request & store 'timeoffset' from BOOTP/DHCP server"
+	depends on CMD_BOOTP && CMD_SNTP
 
 config CMD_PCAP
 	bool "pcap capture"
@@ -1613,6 +1648,15 @@ config CMD_NFS
 	help
 	  Boot image via network using NFS protocol.
 
+config NFS_TIMEOUT
+	int "Timeout in milliseconds for NFS mounts"
+	depends on CMD_NFS
+	default 2000
+	help
+	  Timeout in milliseconds used in NFS protocol.  If you encounter
+	  "ERROR: Cannot umount" in nfs command, try longer timeout such as
+	  10000.
+
 config CMD_MII
 	bool "mii"
 	imply CMD_MDIO
@@ -1623,6 +1667,10 @@ config CMD_MII
 	  Station Management entity and a managed PHY for providing access
 	  to management parameters and services.
 	  The interface is referred to as the MII management interface.
+
+config MII_INIT
+	bool "Call mii_init() in the mii command"
+	depends on CMD_MII && (MPC8XX_FEC || FSLDMAFE || MCFFEC)
 
 config CMD_MDIO
 	bool "mdio"
@@ -1748,7 +1796,7 @@ config CMD_CONITRACE
 
 config CMD_CLS
 	bool "Enable clear screen command 'cls'"
-	depends on CFB_CONSOLE || DM_VIDEO || LCD || VIDEO
+	depends on DM_VIDEO || LCD || VIDEO
 	default y if LCD
 	help
 	  Enable the 'cls' command which clears the screen contents
@@ -2176,6 +2224,12 @@ config CMD_CRAMFS
 	     cramfsls   - lists files in a cramfs image
 	     cramfsload - loads a file from a cramfs image
 
+config CMD_EROFS
+	bool "EROFS command support"
+	select FS_EROFS
+	help
+	  Support for the EROFS fs
+
 config CMD_EXT2
 	bool "ext2 command support"
 	select FS_EXT4
@@ -2341,6 +2395,14 @@ config CMD_DIAG
 	  called Power-on Self Tests (POST). The command allows listing of
 	  available tests and running either all the tests, or specific tests
 	  identified by name.
+
+config CMD_EVENT
+	bool "event - Show information about events"
+	default y if EVENT_DEBUG
+	help
+	  This enables the 'event' command which provides information about
+	  events and event-handler routines. This can help to device event
+	  hadling.
 
 config CMD_IRQ
 	bool "irq - Show information about interrupts"

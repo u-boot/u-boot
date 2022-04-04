@@ -22,22 +22,12 @@
  * Options								*
  *----------------------------------------------------------------------*/
 
-#define CONFIG_BOOT_RETRY_TIME	-1
-#define CONFIG_RESET_TO_RETRY
-
 #define STATUS_LED_ACTIVE		0
 
 /*----------------------------------------------------------------------*
  * Configuration for environment					*
  * Environment is in the second sector of the first 256k of flash	*
  *----------------------------------------------------------------------*/
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
-#define CONFIG_MCFTMR
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
@@ -60,10 +50,7 @@
  *----------------------------------------------------------------------*/
 
 #ifdef CONFIG_MCFFEC
-#define CONFIG_MII_INIT			1
 #define CONFIG_SYS_DISCOVER_PHY
-#define CONFIG_SYS_RX_ETH_BUFFER	8
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif
 

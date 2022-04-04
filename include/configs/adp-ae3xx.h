@@ -17,12 +17,6 @@
 
 #define CONFIG_SKIP_TRUNOFF_WATCHDOG
 
-#ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#ifdef CONFIG_OF_CONTROL
-#undef CONFIG_OF_SEPARATE
-#endif
-#endif
-
 /*
  * Timer
  */
@@ -158,7 +152,6 @@
 #define PHYS_FLASH_1			0x88000000	/* BANK 0 */
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1, }
-#define CONFIG_SYS_MONITOR_BASE		PHYS_FLASH_1
 
 #define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* TO for Flash Erase (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* TO for Flash Write (ms) */

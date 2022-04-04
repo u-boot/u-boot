@@ -34,10 +34,6 @@
 
 /* Misc CPU related */
 
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
-
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
@@ -66,10 +62,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 #endif
-
-/* Ethernet */
-#define CONFIG_RMII
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* USB */
 #if defined(CONFIG_BOARD_TAURUS)
@@ -160,7 +152,6 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		(3 * SZ_512)
 
 #define CONFIG_SYS_NAND_ENABLE_PIN_SPL	(2*32 + 14)
-#define CONFIG_SYS_USE_NANDFLASH	1
 #define CONFIG_SPL_NAND_RAW_ONLY
 #define CONFIG_SPL_NAND_SOFTECC
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	SZ_512K
@@ -174,7 +165,6 @@
 					  48, 49, 50, 51, 52, 53, 54, 55, \
 					  56, 57, 58, 59, 60, 61, 62, 63, }
 
-#define CONFIG_SPL_ATMEL_SIZE
 #define CONFIG_SYS_MASTER_CLOCK		132096000
 #define AT91_PLL_LOCK_TIMEOUT		1000000
 #define CONFIG_SYS_AT91_PLLA		0x202A3F01

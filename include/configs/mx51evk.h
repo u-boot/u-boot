@@ -44,8 +44,6 @@
 
 /* Framebuffer and LCD */
 
-#define CONFIG_ETHPRIME		"FEC0"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -104,8 +102,6 @@
 		"else " \
 			"bootz; " \
 		"fi;\0"
-
-#define CONFIG_ARP_TIMEOUT	200UL
 
 /*
  * Miscellaneous configurable options

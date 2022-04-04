@@ -50,7 +50,6 @@
 /*
  * U-Boot general configuration
  */
-#define CONFIG_BOOTFILE		"uImage" /* Boot file name */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 
@@ -93,10 +92,6 @@
 	"fdtboot=bootm ${loadaddr} - ${fdtaddr}\0" \
 	"loadbootscr=fatload mmc 0 ${bootscraddr} boot.scr\0" \
 	"bootscript=source ${bootscraddr}\0"
-
-#ifdef CONFIG_CMD_BDI
-#define CONFIG_CLOCKS
-#endif
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000

@@ -26,7 +26,6 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <i2c.h>
-#include <video_fb.h>
 #include "upm_table.h"
 
 DECLARE_GLOBAL_DATA_PTR;

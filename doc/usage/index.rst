@@ -11,6 +11,7 @@ Use U-Boot
    netconsole
    partitions
    cmdline
+   semihosting
 
 Shell commands
 --------------
@@ -29,6 +30,7 @@ Shell commands
    cmd/cbsysinfo
    cmd/conitrace
    cmd/echo
+   cmd/event
    cmd/exception
    cmd/extension
    cmd/exit

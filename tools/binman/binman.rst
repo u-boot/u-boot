@@ -480,8 +480,8 @@ image-pos:
     for each entry. This makes it easy to find out exactly where the entry
     ended up in the image, regardless of parent sections, etc.
 
-expand-size:
-    Expand the size of this entry to fit available space. This space is only
+extend-size:
+    Extend the size of this entry to fit available space. This space is only
     limited by the size of the image/section and the position of the next
     entry.
 
@@ -1375,18 +1375,20 @@ Some entry types deal with data obtained from others. For example,
     };
 
 This shows mkimage being passed a file consisting of SPL and U-Boot proper. It
-is create by calling `Entry.collect_contents_to_file()`. Note that in this case,
-the data is passed to mkimage for processing but does not appear separately in
-the image. It may not appear at all, depending on what mkimage does. The
-contents of the `mkimage` entry are entirely dependent on the processing done
-by the entry, with the provided subnodes (`u-boot-spl` and `u-boot`) simply
-providing the input data for that processing.
+is created by calling `Entry.collect_contents_to_file()`. Note that in this
+case, the data is passed to mkimage for processing but does not appear
+separately in the image. It may not appear at all, depending on what mkimage
+does. The contents of the `mkimage` entry are entirely dependent on the
+processing done by the entry, with the provided subnodes (`u-boot-spl` and
+`u-boot`) simply providing the input data for that processing.
 
 Note that `Entry.collect_contents_to_file()` simply concatenates the data from
 the different entries together, with no control over alignment, etc. Another
 approach is to subclass `Entry_section` so that those features become available,
 such as `size` and `pad-byte`. Then the contents of the entry can be obtained by
-calling `BuildSectionData()`.
+calling `super().BuildSectionData()` in the entry's BuildSectionData()
+implementation to get the input data, then write it to a file and process it
+however is desired.
 
 There are other ways to obtain data also, depending on the situation. If the
 entry type is simply signing data which exists elsewhere in the image, then
@@ -1396,6 +1398,7 @@ is used by `Entry_vblock`, for example::
 
     u_boot: u-boot {
     };
+
     vblock {
         content = <&u_boot &dtb>;
         keyblock = "firmware.keyblock";
@@ -1440,9 +1443,11 @@ The `soc-fw` node is a `blob-ext` (i.e. it reads in a named binary file) whereas
 a known blob type.
 
 When adding new entry types you are encouraged to use subnodes to provide the
-data for processing, unless the `content` approach is more suitable. Ad-hoc
-properties and other methods of obtaining data are discouraged, since it adds to
-confusion for users.
+data for processing, unless the `content` approach is more suitable. Consider
+whether the input entries are contained within (or consumed by) the entry, vs
+just being 'referenced' by the entry. In the latter case, the `content` approach
+makes more sense. Ad-hoc properties and other methods of obtaining data are
+discouraged, since it adds to confusion for users.
 
 History / Credits
 -----------------
@@ -1495,7 +1500,8 @@ Some ideas:
 - Figure out how to make Fdt support changing the node order, so that
   Node.AddSubnode() can support adding a node before another, existing node.
   Perhaps it should completely regenerate the flat tree?
-
+- Put faked files into a separate subdir and remove them on start-up, to avoid
+  seeing them as 'real' files on a subsequent run
 
 --
 Simon Glass <sjg@chromium.org>

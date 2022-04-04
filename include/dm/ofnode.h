@@ -895,6 +895,19 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 int ofnode_read_pci_vendev(ofnode node, u16 *vendor, u16 *device);
 
 /**
+ * ofnode_read_eth_phy_id() - look up eth phy vendor and device id
+ *
+ * Look at the compatible property of a device node that represents a eth phy
+ * device and extract phy vendor id and device id from it.
+ *
+ * @param node		node to examine
+ * @param vendor	vendor id of the eth phy device
+ * @param device	device id of the eth phy device
+ * @return 0 if ok, negative on error
+ */
+int ofnode_read_eth_phy_id(ofnode node, u16 *vendor, u16 *device);
+
+/**
  * ofnode_read_addr_cells() - Get the number of address cells for a node
  *
  * This walks back up the tree to find the closest #address-cells property

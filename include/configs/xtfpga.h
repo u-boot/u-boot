@@ -97,9 +97,6 @@
 /* U-Boot general configuration */
 /*==============================*/
 
-#define CONFIG_BOARD_POSTCLK_INIT
-
-#define CONFIG_BOOTFILE			"uImage"
 	/* Console I/O Buffer Size  */
 #define CONFIG_SYS_CBSIZE		1024
 	/* Boot Argument Buffer Size */
@@ -186,19 +183,16 @@
 # define CONFIG_SYS_FLASH_SECT_SZ	0x10000		/* block size 64KB */
 # define CONFIG_SYS_FLASH_PARMSECT_SZ	0x2000		/* param size  8KB */
 # define CONFIG_SYS_FLASH_BASE		IOADDR(0x08000000)
-# define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #elif defined(CONFIG_XTFPGA_KC705)
 # define CONFIG_SYS_FLASH_SIZE		0x8000000	/* 128MB */
 # define CONFIG_SYS_FLASH_SECT_SZ	0x20000		/* block size 128KB */
 # define CONFIG_SYS_FLASH_PARMSECT_SZ	0x8000		/* param size 32KB */
 # define CONFIG_SYS_FLASH_BASE		IOADDR(0x00000000)
-# define CONFIG_SYS_MONITOR_BASE	IOADDR(0x06000000)
 #else
 # define CONFIG_SYS_FLASH_SIZE		0x1000000	/* 16MB */
 # define CONFIG_SYS_FLASH_SECT_SZ	0x20000		/* block size 128KB */
 # define CONFIG_SYS_FLASH_PARMSECT_SZ	0x8000		/* param size 32KB */
 # define CONFIG_SYS_FLASH_BASE		IOADDR(0x08000000)
-# define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #endif
 #define CONFIG_SYS_MAX_FLASH_SECT	\
 	(CONFIG_SYS_FLASH_SECT_SZ/CONFIG_SYS_FLASH_PARMSECT_SZ + \

@@ -17,16 +17,10 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCFTMR
 
 #define CONFIG_SYS_UART_PORT		(0)
 
 #undef CONFIG_MONITOR_IS_IN_RAM		/* no pre-loader required!!! ;-) */
-
-/*
- * BOOTP options
- */
-#undef CONFIG_BOOTP_BOOTFILESIZE
 
 /*
  * Clock configuration: enable only one of the following options
@@ -69,8 +63,6 @@
 #if 0 /* test-only */
 #define CONFIG_PRAM		512 /* test-only for SDRAM problem!!!!!!!!!!!!!!!!!!!! */
 #endif
-
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024

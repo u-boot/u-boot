@@ -14,15 +14,7 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432 MHz crystal */
 
-#ifdef CONFIG_AT91SAM9G10
-#define CONFIG_AT91SAM9G10EK		/* It's an Atmel AT91SAM9G10 EK*/
-#else
-#define CONFIG_AT91SAM9261EK		/* It's an Atmel AT91SAM9261 EK*/
-#endif
-
 #include <asm/hardware.h>
-
-#define CONFIG_ATMEL_LEGACY
 
 /*
  * Hardware drivers
@@ -30,19 +22,6 @@
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
-#define CONFIG_LCD_LOGO
-#undef LCD_TEST_PATTERN
-#define CONFIG_LCD_INFO
-#define CONFIG_LCD_INFO_BELOW_LOGO
-#define CONFIG_ATMEL_LCD
-#ifdef CONFIG_AT91SAM9261EK
-#define CONFIG_ATMEL_LCD_BGR555
-#endif
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
@@ -71,8 +50,6 @@
 #define DM9000_DATA			(CONFIG_DM9000_BASE + 4)
 #define CONFIG_DM9000_USE_16BIT
 #define CONFIG_DM9000_NO_SROM
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_RESET_PHY_R
 
 /* USB */
 #define CONFIG_USB_ATMEL
@@ -86,18 +63,5 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9261"
 #endif
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-
-#ifdef CONFIG_SYS_USE_DATAFLASH_CS0
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-
-#elif CONFIG_SYS_USE_DATAFLASH_CS3
-
-/* bootstrap + u-boot + env + linux in dataflash on CS3 */
-
-#else /* CONFIG_SYS_USE_NANDFLASH */
-
-/* bootstrap + u-boot + env + linux in nandflash */
-#endif
 
 #endif

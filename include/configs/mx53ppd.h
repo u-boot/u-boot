@@ -85,8 +85,6 @@
 	"video-mode=" \
 		"lcd:800x480-24@60,monitor=lcd\0" \
 
-#define CONFIG_ARP_TIMEOUT	200UL
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 

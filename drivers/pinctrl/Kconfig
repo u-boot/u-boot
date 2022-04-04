@@ -318,6 +318,16 @@ config PINCTRL_K210
 	  Support pin multiplexing on the K210. The "FPIOA" can remap any
 	  supported function to any multifunctional IO pin. It can also perform
 	  basic GPIO functions, such as reading the current value of a pin.
+
+config PINCTRL_ZYNQMP
+	bool "Xilinx ZynqMP pin control driver"
+	depends on DM && PINCTRL_GENERIC && ARCH_ZYNQMP
+	default y
+	help
+	  Support pin multiplexing control on Xilinx ZynqMP. The driver uses
+	  Generic Pinctrl framework and is compatible with the Linux driver,
+	  i.e. it uses the same device tree configuration.
+
 endif
 
 source "drivers/pinctrl/broadcom/Kconfig"

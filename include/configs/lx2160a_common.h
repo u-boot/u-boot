@@ -34,7 +34,6 @@
 #define SPD_EEPROM_ADDRESS		SPD_EEPROM_ADDRESS1
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD on I2C bus 0 */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	2
-#define CONFIG_CHIP_SELECTS_PER_CTRL	4
 #define CONFIG_SYS_MONITOR_LEN		(936 * 1024)
 
 /* Miscellaneous configurable options */
@@ -68,11 +67,6 @@
 #define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH		0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET	0x00F20000
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS	5000
-
-/* Define phy_reset function to boot the MC based on mcinitcmd.
- * This happens late enough to properly fixup u-boot env MAC addresses.
- */
-#define CONFIG_RESET_PHY_R
 
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux

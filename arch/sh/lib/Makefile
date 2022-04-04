@@ -12,7 +12,7 @@ obj-$(CONFIG_CMD_SH_ZIMAGEBOOT) += zimageboot.o
 
 udivsi3-y			:= udivsi3_i4i-Os.o
 
-ifneq ($(CONFIG_CC_OPTIMIZE_FOR_SIZE),y)
+ifeq ($(CONFIG_CC_OPTIMIZE_FOR_SPEED),y)
 udivsi3-$(CONFIG_CPU_SH4)	:= udivsi3_i4i.o
 endif
 udivsi3-y			+= udivsi3.o

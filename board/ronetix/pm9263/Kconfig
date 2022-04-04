@@ -1,5 +1,8 @@
 if TARGET_PM9263
 
+config LCD_IN_PSRAM
+	def_bool y
+
 config SYS_BOARD
 	default "pm9263"
 

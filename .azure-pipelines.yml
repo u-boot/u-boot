@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-18.04
   macos_vm: macOS-10.15
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220113-03Feb2022
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220302-15Mar2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -68,10 +68,12 @@ stages:
              -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
              | sort -u > $KSYMLST
           for CFG in `find include/configs -name "*.h"`; do
-             grep '#define[[:blank:]]CONFIG_' $CFG | \
-                sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' | \
+             (grep '#define[[:blank:]]CONFIG_' $CFG | \
+                sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' ; \
+                grep '#undef[[:blank:]]CONFIG_' $CFG | \
+                sed -n 's/#undef.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p') | \
                 sort -u > ${KUSEDLST} || true
-             NUM=`comm -12 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} | \
+             NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} | \
                 cut -d , -f 3`
              if [[ $NUM -ne 0 ]]; then
                 echo "Unmigrated symbols found in $CFG"
@@ -201,6 +203,28 @@ stages:
       - script: |
           export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
+
+  - job: pylint
+    displayName: Check for any pylint regressions
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          cd ${WORK_DIR}
+          export USER=azure
+          pip install -r test/py/requirements.txt
+          pip install asteval pylint==2.12.2 pyopenssl
+          export PATH=${PATH}:~/.local/bin
+          echo "[MASTER]" >> .pylintrc
+          echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
+          ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w --board sandbox_spl
+          pylint --version
+          export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
+          make pylint_err
 
 - stage: test_py
   jobs:

@@ -822,6 +822,31 @@ config TPL_ENV_IS_IN_FLASH
 
 endif
 
+config USE_BOOTFILE
+	bool "Add a 'bootfile' environment variable"
+	help
+	  The "bootfile" variable is used in some cases to allow for
+	  controlling what file U-Boot will attempt to load and boot.  To set
+	  this, enable this option and set the value in the next question.
+
+config BOOTFILE
+	string "'bootfile' environment variable value"
+	depends on USE_BOOTFILE
+	help
+	  The value to set the "bootfile" variable to.
+
+config USE_ETHPRIME
+	bool "Add an 'ethprime' environment variable"
+	help
+	  The "ethprime" variable is used in some cases to control which
+	  network interface is used first.
+
+config ETHPRIME
+	string "'ethprime' environment variable value"
+	depends on USE_ETHPRIME
+	help
+	  The value to set the "ethprime" variable to.
+
 config VERSION_VARIABLE
 	bool "Add a 'ver' environment variable with the U-Boot version"
 	help

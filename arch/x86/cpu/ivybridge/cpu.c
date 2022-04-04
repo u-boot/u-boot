@@ -14,6 +14,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <event.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <log.h>
@@ -53,7 +54,7 @@ int arch_cpu_init(void)
 	return x86_cpu_init_f();
 }
 
-int arch_cpu_init_dm(void)
+static int ivybridge_cpu_init(void *ctx, struct event *ev)
 {
 	struct pci_controller *hose;
 	struct udevice *bus, *dev;
@@ -85,6 +86,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, ivybridge_cpu_init);
 
 #define PCH_EHCI0_TEMP_BAR0 0xe8000000
 #define PCH_EHCI1_TEMP_BAR0 0xe8000400

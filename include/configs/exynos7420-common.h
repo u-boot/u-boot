@@ -27,9 +27,6 @@
 /* Timer input clock frequency */
 #define COUNTER_FREQUENCY		24000000
 
-/* Device Tree */
-#define CONFIG_DEVICE_TREE_LIST "exynos7420-espresso7420"
-
 /* IRAM Layout */
 #define CONFIG_IRAM_BASE		0x02100000
 #define CONFIG_IRAM_SIZE		0x58000

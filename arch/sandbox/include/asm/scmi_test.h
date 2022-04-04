@@ -17,7 +17,6 @@ struct sandbox_scmi_service;
  * @rate:	Clock rate in Hertz
  */
 struct sandbox_scmi_clk {
-	uint id;
 	bool enabled;
 	ulong rate;
 };
@@ -46,7 +45,6 @@ struct sandbox_scmi_voltd {
 
 /**
  * struct sandbox_scmi_agent - Simulated SCMI service seen by SCMI agent
- * @idx:	Identifier for the SCMI agent, its index
  * @clk:	Simulated clocks
  * @clk_count:	Simulated clocks array size
  * @reset:	Simulated reset domains
@@ -55,7 +53,6 @@ struct sandbox_scmi_voltd {
  * @voltd_count: Simulated voltage domains array size
  */
 struct sandbox_scmi_agent {
-	uint idx;
 	struct sandbox_scmi_clk *clk;
 	size_t clk_count;
 	struct sandbox_scmi_reset *reset;
@@ -66,12 +63,10 @@ struct sandbox_scmi_agent {
 
 /**
  * struct sandbox_scmi_service - Reference to simutaed SCMI agents/services
- * @agent:		Pointer to SCMI sandbox agent pointers array
- * @agent_count:	Number of emulated agents exposed in array @agent.
+ * @agent:		Pointer to SCMI sandbox agent or NULL if not probed
  */
 struct sandbox_scmi_service {
-	struct sandbox_scmi_agent **agent;
-	size_t agent_count;
+	struct sandbox_scmi_agent *agent;
 };
 
 /**
@@ -94,13 +89,13 @@ struct sandbox_scmi_devices {
 
 #ifdef CONFIG_SCMI_FIRMWARE
 /**
- * sandbox_scmi_service_context - Get the simulated SCMI services context
+ * sandbox_scmi_service_ctx - Get the simulated SCMI services context
  * @return:	Reference to backend simulated resources state
  */
 struct sandbox_scmi_service *sandbox_scmi_service_ctx(void);
 
 /**
- * sandbox_scmi_devices_get_ref - Get references to devices accessed through SCMI
+ * sandbox_scmi_devices_ctx - Get references to devices accessed through SCMI
  * @dev:	Reference to the test device used get test resources
  * @return:	Reference to the devices probed by the SCMI test
  */

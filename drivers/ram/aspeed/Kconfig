@@ -1,56 +1,41 @@
-if RAM || SPL_RAM
+menuconfig ASPEED_RAM
+	bool "ASPEED SDRAM configuration"
+	depends on RAM && ARCH_ASPEED
+	default ARCH_ASPEED
+	help
+	 Configuration options for DDR SDRAM on ASPEED systems.
+
+	 RAM initialisation is always built in for the platform. This menu
+	 allows customisation of the configuration used.
+
+if ASPEED_RAM
 
 config ASPEED_DDR4_DUALX8
 	bool "Enable Dual X8 DDR4 die"
-	depends on DM && OF_CONTROL && ARCH_ASPEED
+	depends on ASPEED_RAM
 	help
-		Say Y if dual X8 DDR4 die is used on the board.  The aspeed ddr sdram
-		controller needs to know if the memory chip mounted on the board is dual
-		 x8 die or not.  Or it may get the wrong size of the memory space.
-
-if ASPEED_AST2600
-
-choice
-	prompt "DDR4 target date rate"
-	default ASPEED_DDR4_1600
-
-config ASPEED_DDR4_400
-	bool "DDR4 targets at 400Mbps"
-	depends on DM && OF_CONTROL && ARCH_ASPEED
-	help
-	  select DDR4 target data rate at 400M
-
-config ASPEED_DDR4_800
-	bool "DDR4 targets at 800Mbps"
-	depends on DM && OF_CONTROL && ARCH_ASPEED
-	help
-	  select DDR4 target data rate at 800M
-
-config ASPEED_DDR4_1333
-	bool "DDR4 targets at 1333Mbps"
-	depends on DM && OF_CONTROL && ARCH_ASPEED
-	help
-	  select DDR4 target data rate at 1333M
-
-config ASPEED_DDR4_1600
-	bool "DDR4 targets at 1600Mbps"
-	depends on DM && OF_CONTROL && ARCH_ASPEED
-	help
-	  select DDR4 target data rate at 1600M
-endchoice
+	 Say Y if dual X8 DDR4 die is used on the board. The ASPEED DDRM
+	 SRAM controller needs to know if the memory chip mounted on the
+	 board is dual x8 die or not, otherwise it may get the wrong
+	 size of the memory space.
 
 config ASPEED_BYPASS_SELFTEST
-	bool "bypass self test during DRAM initialization"
+	depends on ASPEED_RAM
+	depends on ASPEED_AST2600
+	bool "Bypass self test during initialization"
 	help
-	  Say Y here to bypass DRAM self test to speed up the boot time
+	  Say Y here to bypass DRAM self test to speed up the boot time.
 
 config ASPEED_ECC
-	bool "aspeed SDRAM error correcting code"
-	depends on DM && OF_CONTROL && ARCH_ASPEED
+	bool "ASPEED SDRAM ECC"
+	depends on ASPEED_RAM
+	depends on ASPEED_AST2600
 	help
-	  enable SDRAM ECC function
+	  Enable SDRAM ECC function. This configures the SDRAM controller to
+	  perform error detection and correction, sacrificing 1/9th of the
+	  installed RAM to do so.
 
-if ASPEED_ECC
+
 config ASPEED_ECC_SIZE
 	int "ECC size: 0=driver auto-caluated"
 	depends on ASPEED_ECC
@@ -61,6 +46,32 @@ config ASPEED_ECC_SIZE
 	  can be used by the system.  The remaining 1/9 will be used by
 	  the ECC engine.  If the size is set to 0, the sdram driver will
 	  calculate the SDRAM size and set the whole range be ECC enabled.
-endif # end of ASPEED_ECC
-endif # end of ASPEED_AST2600
-endif # end of RAM || SPL_RAM
+
+choice
+	prompt "AST2600 DDR4 target date rate"
+	default ASPEED_DDR4_1600
+	depends on ASPEED_RAM
+	depends on ASPEED_AST2600
+
+config ASPEED_DDR4_400
+	bool "400Mbps"
+	help
+	  select DDR4 target data rate at 400M
+
+config ASPEED_DDR4_800
+	bool "800Mbps"
+	help
+	  select DDR4 target data rate at 800M
+
+config ASPEED_DDR4_1333
+	bool "1333Mbps"
+	help
+	  select DDR4 target data rate at 1333M
+
+config ASPEED_DDR4_1600
+	bool "1600Mbps"
+	help
+	  select DDR4 target data rate at 1600M
+endchoice
+
+endif # End of ASPEED_RAM

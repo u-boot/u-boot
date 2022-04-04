@@ -10,8 +10,6 @@
 
 #include <linux/stringify.h>
 
-#define CONFIG_BOARD_NAME		EL6Q
-
 #include "mx6_common.h"
 
 #ifdef CONFIG_SPL
@@ -30,10 +28,8 @@
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 
-#define CONFIG_BOARD_NAME	EL6Q
-
 #define CONFIG_EXTRA_ENV_SETTINGS                                               \
-	"board="__stringify(CONFIG_BOARD_NAME)"\0"                              \
+	"board=EL6Q\0"								\
 	"cma_size="__stringify(EL6Q_CMA_SIZE)"\0"                               \
 	"chp_size="__stringify(EL6Q_COHERENT_POOL_SIZE)"\0"                     \
 	"console=" CONSOLE_DEV "\0"					\
@@ -54,8 +50,6 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#define CONFIG_ARP_TIMEOUT     200UL
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

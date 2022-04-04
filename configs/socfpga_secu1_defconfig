@@ -17,6 +17,9 @@ CONFIG_BUILD_TARGET="u-boot-with-nand-spl.sfp"
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_SYS_LOAD_ADDR=0x02000000
 CONFIG_FIT=y
+CONFIG_BOOT_RETRY=y
+CONFIG_BOOT_RETRY_TIME=45
+CONFIG_RESET_TO_RETRY=y
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 ubi.fm_autoconvert=1 uio_pdrv_genirq.of_id=\"idq,regbank\""
 CONFIG_BOOTCOMMAND="setenv bootcmd 'bridge enable; if test ${bootnum} = 'b'; then run _fpga_loadsafe; else if test ${bootcount} -eq 4; then echo 'Switching copy...'; setexpr x $bootnum % 2 && setexpr bootnum $x + 1; saveenv; fi; run _fpga_loaduser; fi;echo 'Booting bank $bootnum' && run userload && run userboot;' && setenv altbootcmd 'setenv bootnum b && saveenv && boot;' && saveenv && saveenv && boot;"
@@ -26,6 +29,7 @@ CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE=y
 CONFIG_SYS_CONSOLE_ENV_OVERWRITE=y
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_DISPLAY_BOARDINFO_LATE=y
+CONFIG_CLOCKS=y
 CONFIG_MISC_INIT_R=y
 CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK=y
 # CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR is not set
@@ -54,6 +58,8 @@ CONFIG_CMD_UBI=y
 CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_NAND=y
 CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
+CONFIG_USE_BOOTFILE=y
+CONFIG_BOOTFILE="zImage"
 CONFIG_VERSION_VARIABLE=y
 CONFIG_SPL_DM_SEQ_ALIAS=y
 # CONFIG_SPL_BLK is not set

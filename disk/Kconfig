@@ -4,10 +4,6 @@ menu "Partition Types"
 config PARTITIONS
 	bool "Enable Partition Labels (disklabels) support"
 	default y
-	select SPL_SPRINTF if SPL
-	select TPL_SPRINTF if TPL
-	select SPL_STRTO if SPL
-	select TPL_STRTO if TPL
 	help
 	  Partition Labels (disklabels) Supported:
 	  Zero or more of the following:
@@ -22,6 +18,26 @@ config PARTITIONS
 	  If IDE or SCSI support is enabled (CONFIG_CMD_IDE or CONFIG_SCSI)
 	  you must configure support for at least one non-MTD partition type
 	  as well.
+
+config SPL_PARTITIONS
+	bool "Enable Partition Labels (disklabels) support in SPL"
+	default y if PARTITIONS
+	select SPL_SPRINTF
+	select SPL_STRTO
+	help
+	  Enable this for base partition support in SPL. The required
+	  partition table types shold be enabled separately. This add a
+	  small amount of size to SPL, typically 500 bytes.
+
+config TPL_PARTITIONS
+	bool "Enable Partition Labels (disklabels) support in TPL"
+	default y if PARTITIONS
+	select TPL_SPRINTF
+	select TPL_STRTO
+	help
+	  Enable this for base partition support in SPL. The required
+	  partition table types shold be enabled separately. This add a
+	  small amount of size to SPL, typically 500 bytes.
 
 config MAC_PARTITION
 	bool "Enable Apple's MacOS partition table"

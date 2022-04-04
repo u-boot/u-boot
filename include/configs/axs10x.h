@@ -18,7 +18,6 @@
 /*
  * Memory configuration
  */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
@@ -56,11 +55,6 @@
 		"\"Fail to upgrade.\n" \
 		"Do you have u-boot-update.img and u-boot.head on first (FAT) SD card partition?\"" \
 		"; fi\0"
-
-/*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
 
 /*
  * Console configuration

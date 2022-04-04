@@ -10,8 +10,6 @@
 #ifndef __XILINX_VERSAL_H
 #define __XILINX_VERSAL_H
 
-/* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
-
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE	0xF9000000
 #define GICR_BASE	0xF9080000
@@ -26,10 +24,6 @@
 /* Serial setup */
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
-
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_MAY_FAIL
 
 /* Miscellaneous configurable options */
 
@@ -46,13 +40,10 @@
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
-# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 # define PHY_ANEG_TIMEOUT       20000
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
-
-#define CONFIG_CLOCKS
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_addr_r=0x40000000\0" \

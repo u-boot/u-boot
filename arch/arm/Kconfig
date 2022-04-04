@@ -403,11 +403,50 @@ config ARM_SMCCC
 	  firmware (for example, PSCI) according to SMCCC.
 
 config SEMIHOSTING
-	bool "support boot from semihosting"
+	bool "Support ARM semihosting"
 	help
-	  In emulated environments, semihosting is a way for
-	  the hosted environment to call out to the emulator to
-	  retrieve files from the host machine.
+	  Semihosting is a method for a target to communicate with a host
+	  debugger. It uses special instructions which the debugger will trap
+	  on and interpret. This allows U-Boot to read/write files, print to
+	  the console, and execute arbitrary commands on the host system.
+
+	  Enabling this option will add support for reading and writing files
+	  on the host system. If you don't have a debugger attached then trying
+	  to do this will likely cause U-Boot to hang. Say 'n' if you are unsure.
+
+config SEMIHOSTING_FALLBACK
+	bool "Recover gracefully when semihosting fails"
+	depends on SEMIHOSTING && ARM64
+	default y
+	help
+	  Normally, if U-Boot makes a semihosting call and no debugger is
+	  attached, then it will panic due to a synchronous abort
+	  exception. This config adds an exception handler which will allow
+	  U-Boot to recover. Say 'y' if unsure.
+
+config SPL_SEMIHOSTING
+	bool "Support ARM semihosting in SPL"
+	depends on SPL
+	help
+	  Semihosting is a method for a target to communicate with a host
+	  debugger. It uses special instructions which the debugger will trap
+	  on and interpret. This allows U-Boot to read/write files, print to
+	  the console, and execute arbitrary commands on the host system.
+
+	  Enabling this option will add support for reading and writing files
+	  on the host system. If you don't have a debugger attached then trying
+	  to do this will likely cause U-Boot to hang. Say 'n' if you are unsure.
+
+config SPL_SEMIHOSTING_FALLBACK
+	bool "Recover gracefully when semihosting fails in SPL"
+	depends on SPL_SEMIHOSTING && ARM64
+	select ARMV8_SPL_EXCEPTION_VECTORS
+	default y
+	help
+	  Normally, if U-Boot makes a semihosting call and no debugger is
+	  attached, then it will panic due to a synchronous abort
+	  exception. This config adds an exception handler which will allow
+	  U-Boot to recover. Say 'y' if unsure.
 
 config SYS_THUMB_BUILD
 	bool "Build U-Boot using the Thumb instruction set"
@@ -617,6 +656,13 @@ config ARCH_BCM63158
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_BCM6753
+	bool "Broadcom BCM6753 family"
+	select CPU_V7A
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 config ARCH_BCM68360
 	bool "Broadcom BCM68360 family"
 	select DM
@@ -767,6 +813,7 @@ config ARCH_OMAP2PLUS
 	select SUPPORT_SPL
 	imply TI_SYSC if DM && OF_CONTROL
 	imply FIT
+	imply DM_EVENT
 
 config ARCH_MESON
 	bool "Amlogic Meson"
@@ -811,6 +858,7 @@ config ARCH_IMX8
 	select MACH_IMX
 	select OF_CONTROL
 	select ENABLE_ARM_SOC_BOOT0_HOOK
+	imply DM_EVENT
 
 config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
@@ -824,6 +872,7 @@ config ARCH_IMX8M
 	select DM
 	select SUPPORT_SPL
 	imply CMD_DM
+	imply DM_EVENT
 
 config ARCH_IMX8ULP
 	bool "NXP i.MX8ULP platform"
@@ -834,6 +883,7 @@ config ARCH_IMX8ULP
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
 	imply CMD_DM
+	imply DM_EVENT
 
 config ARCH_IMXRT
 	bool "NXP i.MXRT platform"
@@ -869,6 +919,7 @@ config ARCH_MX31
 
 config ARCH_MX7ULP
 	bool "NXP MX7ULP"
+	select BOARD_POSTCLK_INIT
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
@@ -894,6 +945,7 @@ config ARCH_MX7
 
 config ARCH_MX6
 	bool "Freescale MX6"
+	select BOARD_POSTCLK_INIT
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
@@ -1237,34 +1289,19 @@ config ARCH_TEGRA
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
 
-config TARGET_VEXPRESS64_AEMV8A
-	bool "Support vexpress_aemv8a"
+config ARCH_VEXPRESS64
+	bool "Support ARMv8 Arm Ltd. VExpress based boards and models"
 	select ARM64
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
-
-config TARGET_VEXPRESS64_BASE_FVP
-	bool "Support Versatile Express ARMv8a FVP BASE model"
-	select ARM64
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
-	select SEMIHOSTING
-
-config TARGET_VEXPRESS64_JUNO
-	bool "Support Versatile Express Juno Development Platform"
-	select ARM64
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
 	select DM
+	select DM_SERIAL
+	select PL01X_SERIAL
 	select OF_CONTROL
 	select CLK
-	select DM_SERIAL
-	select ARM_PSCI_FW
-	select PSCI_RESET
-	select DM_ETH
 	select BLK
-	select USB
-	imply OF_HAS_PRIOR_STAGE
+	select MTD_NOR_FLASH if MTD
+	select FLASH_CFI_DRIVER if MTD
+	select ENV_IS_IN_FLASH if MTD
+	imply DISTRO_DEFAULTS
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"
@@ -1975,6 +2012,25 @@ config TARGET_DURIAN
 	  Support for durian platform.
 	  It has 2GB Sdram, uart and pcie.
 
+config TARGET_POMELO
+	bool "Support Phytium Pomelo Platform"
+	select ARM64
+	select DM
+	select AHCI
+	select SCSI_AHCI
+	select AHCI_PCI
+	select BLK
+	select PCI
+	select DM_PCI
+	select SCSI
+	select DM_SCSI
+	select DM_SERIAL
+	select DM_ETH if NET
+	imply CMD_PCI
+	help
+	   Support for pomelo platform.
+	   It has 8GB Sdram, uart and pcie.
+
 config TARGET_PRESIDIO_ASIC
 	bool "Support Cortina Presidio ASIC Platform"
 	select ARM64
@@ -2206,6 +2262,7 @@ source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"
+source "board/broadcom/bcm96753ref/Kconfig"
 source "board/broadcom/bcm968360bg/Kconfig"
 source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"
@@ -2245,8 +2302,8 @@ source "board/traverse/ten64/Kconfig"
 source "board/variscite/dart_6ul/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/phytium/durian/Kconfig"
+source "board/phytium/pomelo/Kconfig"
 source "board/xen/xenguest_arm64/Kconfig"
-source "board/keymile/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

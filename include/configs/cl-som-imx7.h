@@ -13,8 +13,6 @@
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 /* Network */
-#define CONFIG_FEC_XCV_TYPE             RGMII
-#define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0
 
 /* ENET1 */

@@ -38,26 +38,9 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC8
 
-/* Ethernet */
-#define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_RESET_PHY_R
-#define CONFIG_AT91_WANTS_COMMON_PHY
-#define CONFIG_TFTP_PORT
-
-/* LCD */
-#define CONFIG_ATMEL_LCD
-#define CONFIG_GURNARD_SPLASH
-
-/* GPIOs and IO expander */
-#define CONFIG_ATMEL_LEGACY
-#define CONFIG_AT91_GPIO_PULLUP		1
-
 /* UARTs/Serial console */
 
 /* Boot options */
-
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Environment settings */
 

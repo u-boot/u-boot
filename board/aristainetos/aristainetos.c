@@ -39,7 +39,6 @@
 #include <power/regulator.h>
 #include <power/da9063_pmic.h>
 #include <splash.h>
-#include <video_fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

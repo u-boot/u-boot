@@ -70,9 +70,6 @@
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 
-/* support deep sleep */
-#define CONFIG_DEEP_SLEEP
-
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
@@ -96,9 +93,7 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_SYS_CACHE_STASHING
-#define CONFIG_BACKSIDE_L2_CACHE
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
-#define CONFIG_BTB			/* toggle branch predition */
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
@@ -133,7 +128,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
@@ -302,20 +296,8 @@
 #define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NAND_FTIM3
 #endif
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
-#endif
-
 #if defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_SYS_RAMBOOT
-#endif
-
-#ifdef CONFIG_SYS_FSL_ERRATUM_A008044
-#if defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_A008044_WORKAROUND
-#endif
 #endif
 
 #define CONFIG_HWCONFIG
@@ -353,19 +335,6 @@
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x11C600)
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
-
-#if defined(CONFIG_TARGET_T1042RDB_PI) || defined(CONFIG_TARGET_T1042D4RDB)
-/* Video */
-#define CONFIG_FSL_DIU_FB
-
-#ifdef CONFIG_FSL_DIU_FB
-#define CONFIG_FSL_DIU_CH7301
-#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
-#define CONFIG_VIDEO_BMP_LOGO
-#endif
-#endif
-
-/* I2C */
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
@@ -523,8 +492,6 @@
 #define CONFIG_SYS_FM1_QSGMII21_PHY_ADDR	0x0c
 #endif
 #endif
-
-#define CONFIG_ETHPRIME		"FM1@DTSEC4"
 #endif
 
 /*
@@ -553,7 +520,6 @@
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
 #define __USB_PHY_TYPE	utmi
@@ -571,18 +537,11 @@
 #define FDTFILE		"t1042rdb/t1042d4rdb.dtb"
 #endif
 
-#ifdef CONFIG_FSL_DIU_FB
-#define DIU_ENVIRONMENT "video-mode=fslfb:1024x768-32@60,monitor=dvi"
-#else
-#define DIU_ENVIRONMENT
-#endif
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:bank_intlv=cs0_cs1;"			\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
 	"usb2:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
-	"video-mode=" __stringify(DIU_ENVIRONMENT) "\0"		\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\

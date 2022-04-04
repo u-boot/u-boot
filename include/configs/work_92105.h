@@ -22,14 +22,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_512K \
 					 - GENERATED_GBL_DATA_SIZE)
 
-/*
- * Ethernet Driver
- */
-
-#define CONFIG_LPC32XX_ETH
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-/* FIXME: remove "Waiting for PHY auto negotiation to complete..." message */
-
 #define CONFIG_RTC_DS1374
 
 /*
@@ -66,12 +58,6 @@
 /*
  * Environment
  */
-
-/*
- * Boot Linux
- */
-
-#define CONFIG_BOOTFILE			"uImage"
 
 /*
  * SPL

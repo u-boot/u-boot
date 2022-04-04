@@ -2,6 +2,10 @@
 config BITBANGMII
 	bool "Bit-banged ethernet MII management channel support"
 
+config BITBANGMII_MULTI
+	bool "Enable the multi bus support"
+	depends on BITBANGMII
+
 config MV88E6352_SWITCH
 	bool "Marvell 88E6352 switch support"
 
@@ -307,6 +311,14 @@ config PHY_XILINX_GMII2RGMII
 	  as bridge between MAC connected over GMII and external phy that
 	  is connected over RGMII interface.
 
+config PHY_ETHERNET_ID
+	bool "Read ethernet PHY id"
+	depends on DM_GPIO
+	default y if ZYNQ_GEM
+	help
+	  Enable this config to read ethernet phy id from the phy node of DT
+	  and create a phy device using id.
+
 config PHY_FIXED
 	bool "Fixed-Link PHY"
 	depends on DM_ETH
@@ -322,3 +334,11 @@ config PHY_NCSI
 	depends on DM_ETH
 
 endif #PHYLIB
+
+config PHY_RESET_DELAY
+	int "Extra delay after reset before MII register access"
+	default 0
+	help
+	  Some PHYs need extra delay after reset before any MII register access
+	  is possible.  For such PHY, set this option to the usec delay
+	  required.

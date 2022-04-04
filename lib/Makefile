@@ -17,8 +17,6 @@ obj-$(CONFIG_OF_LIVE) += of_live.o
 obj-$(CONFIG_CMD_DHRYSTONE) += dhry/
 obj-$(CONFIG_ARCH_AT91) += at91/
 obj-$(CONFIG_OPTEE_LIB) += optee/
-obj-$(CONFIG_ASN1_DECODER) += asn1_decoder.o
-obj-y += crypto/
 
 obj-$(CONFIG_AES) += aes.o
 obj-$(CONFIG_AES) += aes/
@@ -64,6 +62,8 @@ obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
 endif
 
+obj-y += crypto/
+
 obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi/
 obj-$(CONFIG_$(SPL_)MD5) += md5.o
 obj-$(CONFIG_ECDSA) += ecdsa/
@@ -74,6 +74,7 @@ obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SHA256) += sha256.o
 obj-$(CONFIG_SHA512) += sha512.o
 obj-$(CONFIG_CRYPT_PW) += crypt/
+obj-$(CONFIG_$(SPL_)ASN1_DECODER) += asn1_decoder.o
 
 obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(SPL_)ZSTD) += zstd/
@@ -135,9 +136,9 @@ obj-$(CONFIG_$(SPL_TPL_)STRTO) += strto.o
 else
 # Main U-Boot always uses the full printf support
 obj-y += vsprintf.o strto.o
-obj-$(CONFIG_OID_REGISTRY) += oid_registry.o
 obj-$(CONFIG_SSCANF) += sscanf.o
 endif
+obj-$(CONFIG_$(SPL_)OID_REGISTRY) += oid_registry.o
 
 obj-y += abuf.o
 obj-y += date.o

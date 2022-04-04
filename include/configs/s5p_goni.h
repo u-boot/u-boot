@@ -134,7 +134,6 @@
 #define PHYS_SDRAM_3		0x50000000		/* mDDR DMC2 Bank #2 */
 #define PHYS_SDRAM_3_SIZE	(128 << 20)		/* 128 MB in Bank #2 */
 
-#define CONFIG_SYS_MONITOR_BASE		0x00000000
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
 
 /* FLASH and environment organization */

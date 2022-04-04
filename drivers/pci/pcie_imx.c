@@ -300,9 +300,9 @@ static int imx_pcie_regions_setup(struct imx_pcie_priv *priv)
 	setbits_le32(priv->dbi_base + PCI_COMMAND,
 		     PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
-	/* Set the CLASS_REV of RC CFG header to PCI_CLASS_BRIDGE_PCI */
+	/* Set the CLASS_REV of RC CFG header to PCI_CLASS_BRIDGE_PCI_NORMAL */
 	setbits_le32(priv->dbi_base + PCI_CLASS_REVISION,
-		     PCI_CLASS_BRIDGE_PCI << 16);
+		     PCI_CLASS_BRIDGE_PCI_NORMAL << 8);
 
 	/* Region #0 is used for Outbound CFG space access. */
 	writel(0, priv->dbi_base + PCIE_ATU_VIEWPORT);

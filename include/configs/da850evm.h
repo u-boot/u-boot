@@ -137,13 +137,6 @@
 #define CONFIG_SYS_NAND_ECCBYTES	10
 #endif
 
-/*
- * Network & Ethernet Configuration
- */
-#ifdef CONFIG_DRIVER_TI_EMAC
-#define CONFIG_NET_RETRY_COUNT	10
-#endif
-
 #ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_FLASH_SECT_SZ	(128 << 10) /* 128KB */
 #define CONFIG_SYS_FLASH_BASE		DAVINCI_ASYNC_EMIF_DATA_CE2_BASE
@@ -155,7 +148,6 @@
 /*
  * U-Boot general configuration
  */
-#define CONFIG_BOOTFILE		"uImage" /* Boot file name */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 
@@ -183,10 +175,6 @@
 	"boot_fit=0\0" \
 	"console=ttyS2,115200n8\0" \
 	"hwconfig=dsp:wake=yes"
-
-#ifdef CONFIG_CMD_BDI
-#define CONFIG_CLOCKS
-#endif
 
 /* USB Configs */
 #define CONFIG_USB_OHCI_NEW

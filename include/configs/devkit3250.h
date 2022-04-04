@@ -30,13 +30,6 @@
  */
 
 /*
- * Ethernet
- */
-#define CONFIG_RMII
-#define CONFIG_LPC32XX_ETH
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-
-/*
  * NOR Flash
  */
 #define CONFIG_SYS_MAX_FLASH_SECT	71
@@ -93,8 +86,6 @@
 /*
  * U-Boot Commands
  */
-
-#define CONFIG_BOOTFILE			"uImage"
 
 /*
  * SPL specific defines

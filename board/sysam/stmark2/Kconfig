@@ -1,5 +1,12 @@
 if TARGET_STMARK2
 
+config CF_SBF
+	def_bool y
+
+config SYS_INPUT_CLKSRC
+	hex
+	default 30000000
+
 config SYS_CPU
 	default "mcf5445x"
 

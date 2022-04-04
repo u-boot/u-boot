@@ -19,7 +19,6 @@
 /*
  * Memory configuration
  */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
@@ -99,11 +98,6 @@ setenv core_dccm_0 0x10; setenv non_volatile_limit 0xE; \
 setenv core_iccm_1 0x6; setenv core_dccm_1 0x6; \
 setenv core_iccm_2 0x10; setenv core_dccm_2 0x10; \
 setenv core_iccm_3 0x6; setenv core_dccm_3 0x6;\0"
-
-/*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
 
 /* Cli configuration */
 #define CONFIG_SYS_CBSIZE		SZ_2K

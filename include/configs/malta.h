@@ -27,7 +27,6 @@
 /*
  * Memory map
  */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #ifdef CONFIG_64BIT
 # define CONFIG_SYS_SDRAM_BASE		0xffffffff80000000

@@ -47,7 +47,7 @@
 	};
 };
 
-&nand0 {
+&nfc0 {
 	status = "okay";
 };
 

@@ -196,38 +196,6 @@
 #endif
 #endif /* !CONFIG_MTD_RAW_NAND */
 
-/*
- * For NOR boot, we must set this to the start of where NOR is mapped
- * in memory.
- */
-
-/*
- * USB configuration.  We enable MUSB support, both for host and for
- * gadget.  We set USB0 as peripheral and USB1 as host, based on the
- * board schematic and physical port wired to each.  Then for host we
- * add mass storage support and for gadget we add both RNDIS ethernet
- * and DFU.
- */
-#define CONFIG_AM335X_USB0
-#define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
-#define CONFIG_AM335X_USB1
-#define CONFIG_AM335X_USB1_MODE MUSB_HOST
-
-/*
- * Disable MMC DM for SPL build and can be re-enabled after adding
- * DM support in SPL
- */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_MMC
-#undef CONFIG_TIMER
-#endif
-
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USB_ETHER)
-/* Remove other SPL modes. */
-/* disable host part of MUSB in SPL */
-/* disable EFI partitions and partition UUID support */
-#endif
-
 /* USB Device Firmware Update support */
 #ifndef CONFIG_SPL_BUILD
 #define DFUARGS \
@@ -272,12 +240,6 @@
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_SIZE		0x01000000
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #endif  /* NOR support */
-
-#ifdef CONFIG_DRIVER_TI_CPSW
-#define CONFIG_CLOCK_SYNTHESIZER
-#define CLK_SYNTHESIZER_I2C_ADDR 0x65
-#endif
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */

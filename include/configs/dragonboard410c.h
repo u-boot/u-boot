@@ -30,9 +30,6 @@
  * it has to be done after each HCD reset */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 1) \

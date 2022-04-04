@@ -13,7 +13,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_E300		1 /* E300 family */
 
 #define CONFIG_HWCONFIG
 
@@ -127,7 +126,6 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT
@@ -250,7 +248,6 @@
 #define CONFIG_TSEC1
 
 #ifdef CONFIG_TSEC1
-#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME		"TSEC0"
 #define CONFIG_SYS_TSEC1_OFFSET		0x24000
 #define TSEC1_PHY_ADDR			2
@@ -259,17 +256,12 @@
 #endif
 
 #ifdef CONFIG_TSEC2
-#define CONFIG_HAS_ETH1
 #define CONFIG_TSEC2_NAME		"TSEC1"
 #define CONFIG_SYS_TSEC2_OFFSET		0x25000
 #define TSEC2_PHY_ADDR			0x1c
 #define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC2_PHYIDX			0
 #endif
-
-/* Options are: TSEC[0-1] */
-#define CONFIG_ETHPRIME			"TSEC0"
-
 #endif
 
 /*
@@ -294,11 +286,6 @@
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC_PIN_MUX
@@ -329,7 +316,6 @@
 #define CONFIG_HOSTNAME		"mpc837x_rdb"
 #define CONFIG_ROOTPATH		"/nfsroot"
 #define CONFIG_RAMDISKFILE	"rootfs.ext2.gz.uboot"
-#define CONFIG_BOOTFILE		"uImage"
 				/* U-Boot image on TFTP server */
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 #define CONFIG_FDTFILE		"mpc8379_rdb.dtb"

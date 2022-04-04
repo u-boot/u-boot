@@ -23,30 +23,17 @@
  * hex number here!
  */
 
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK      32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
-
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-#define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
 
 /* serial console */
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* LED */
-#define CONFIG_AT91_LED
 #define CONFIG_RED_LED		AT91_PIN_PD31	/* this is the user1 led */
 #define CONFIG_GREEN_LED	AT91_PIN_PD0	/* this is the user2 led */
-
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_CS6
@@ -67,11 +54,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC8
 #endif
-
-/* Ethernet */
-#define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
@@ -97,7 +79,6 @@
 					  48, 49, 50, 51, 52, 53, 54, 55, \
 					  56, 57, 58, 59, 60, 61, 62, 63, }
 
-#define CONFIG_SPL_ATMEL_SIZE
 #define CONFIG_SYS_MASTER_CLOCK		132096000
 #define AT91_PLL_LOCK_TIMEOUT		1000000
 #define CONFIG_SYS_AT91_PLLA		0x20c73f03

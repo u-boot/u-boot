@@ -126,9 +126,6 @@
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	127
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Miscellaneous configurable options */
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 
@@ -178,7 +175,6 @@
 #define CONFIG_SYS_FLASH_SIZE		0x04000000
 #define CONFIG_SYS_FLASH_BASE0		V2M_NOR0
 #define CONFIG_SYS_FLASH_BASE1		V2M_NOR1
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE0
 
 /* Timeout values in ticks */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */

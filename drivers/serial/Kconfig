@@ -133,6 +133,19 @@ config SERIAL_RX_BUFFER_SIZE
 	help
 	  The size of the RX buffer (needs to be power of 2)
 
+config SERIAL_PUTS
+	bool "Enable printing strings all at once"
+	depends on DM_SERIAL
+	help
+	  Some serial drivers are much more efficient when printing multiple
+	  characters at once rather than printing characters individually. This
+	  can be because they can load a fifo, or because individual print
+	  calls have a constant overhead. With this option set, the serial
+	  subsystem will try to provide serial drivers with as many characters
+	  at once as possible, instead of printing characters one by one. Most
+	  serial drivers do not need this config to print efficiently. If
+	  unsure, say N.
+
 config SERIAL_SEARCH_ALL
 	bool "Search for serial devices after default one failed"
 	depends on DM_SERIAL
@@ -399,6 +412,15 @@ config DEBUG_UART_SANDBOX
 	  start up driver model. The driver will be available until the real
 	  driver model serial is running.
 
+config DEBUG_UART_SEMIHOSTING
+	bool "semihosting"
+	depends on SEMIHOSTING_SERIAL
+	help
+	  Select this to enable the debug UART using the semihosting driver.
+	  This provides basic serial output from the console without needing to
+	  start up driver model. The driver will be available until the real
+	  driver model serial is running.
+
 config DEBUG_UART_SIFIVE
 	bool "SiFive UART"
 	depends on SIFIVE_SERIAL
@@ -647,6 +669,10 @@ config FSL_LPUART
 	  Select this to enable a Low Power UART for Freescale VF610 and
 	  QorIQ Layerscape devices.
 
+config LPUART
+	bool "Use the LPUART as console"
+	depends on FSL_LPUART
+
 config MVEBU_A3700_UART
 	bool "UART support for Armada 3700"
 	help
@@ -777,6 +803,19 @@ config SCIF_CONSOLE
 	  Select this to enable Renesas SCIF UART. To operate serial ports
 	  on systems with RCar or SH SoCs, say Y to this option. If unsure,
 	  say N.
+
+config SEMIHOSTING_SERIAL
+	bool "Semihosting UART support"
+	depends on SEMIHOSTING && !SERIAL_RX_BUFFER
+	help
+	  Select this to enable a serial UART using semihosting. Special halt
+	  instructions will be issued which an external debugger (such as a
+	  JTAG emulator) may interpret. The debugger will display U-Boot's
+	  console output on the host system.
+
+	  Enable this option only if you are using a debugger which supports
+	  semihosting. If you are not using a debugger, this driver will halt
+	  the boot.
 
 config UNIPHIER_SERIAL
 	bool "Support for UniPhier on-chip UART"

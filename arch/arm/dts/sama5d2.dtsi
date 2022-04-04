@@ -1,8 +1,10 @@
 #include "skeleton.dtsi"
+#include <dt-bindings/interrupt-controller/irq.h>
 
 / {
 	model = "Atmel SAMA5D2 family SoC";
 	compatible = "atmel,sama5d2";
+	interrupt-parent = <&aic>;
 
 	aliases {
 		spi0 = &spi0;
@@ -361,6 +363,7 @@
 						#clock-cells = <0>;
 						reg = <35>;
 						atmel,clk-output-range = <0 83000000>;
+						u-boot,dm-pre-reloc;
 					};
 
 					tcb1_clk: tcb1_clk@36 {
@@ -638,6 +641,23 @@
 				status = "disabled";
 			};
 
+			tcb0: timer@f800c000 {
+				compatible = "atmel,sama5d2-tcb", "simple-mfd", "syscon";
+				reg = <0xf800c000 0x100>;
+				interrupts = <35 IRQ_TYPE_LEVEL_HIGH 0>;
+				clocks = <&tcb0_clk>, <&tcb0_gclk>, <&clk32k>;
+				clock-names = "t0_clk", "gclk", "slow_clk";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				u-boot,dm-pre-reloc;
+
+				timer0: timer@0 {
+					compatible = "atmel,tcb-timer";
+					reg = <0>, <1>;
+					u-boot,dm-pre-reloc;
+				};
+			};
+
 			uart0: serial@f801c000 {
 				compatible = "atmel,at91sam9260-usart";
 				reg = <0xf801c000 0x100>;
@@ -760,6 +780,14 @@
 				clocks = <&uart4_clk>;
 				clock-names = "usart";
 				status = "disabled";
+			};
+
+			aic: interrupt-controller@fc020000 {
+				#interrupt-cells = <3>;
+				compatible = "atmel,sama5d2-aic";
+				interrupt-controller;
+				reg = <0xfc020000 0x200>;
+				atmel,external-irqs = <49>;
 			};
 
 			i2c1: i2c@fc028000 {

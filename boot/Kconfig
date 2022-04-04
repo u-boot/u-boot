@@ -370,6 +370,31 @@ config SYS_TEXT_BASE
 	help
 	  The address in memory that U-Boot will be running from, initially.
 
+config HAVE_SYS_MONITOR_BASE
+	bool
+	depends on ARC || MIPS || M68K || NIOS2 || PPC || XTENSA || X86 \
+		|| FLASH_PIC32 || ENV_IS_IN_FLASH || MTD_NOR_FLASH
+	depends on !EFI_APP
+	default y
+
+config SYS_MONITOR_BASE
+	depends on HAVE_SYS_MONITOR_BASE
+	hex "Physical start address of boot monitor code"
+	default SYS_TEXT_BASE
+	help
+	  The physical start address of boot monitor code (which is the same as
+	  CONFIG_SYS_TEXT_BASE when linking) and the same as CONFIG_SYS_FLASH_BASE
+	  when booting from flash.
+
+config SPL_SYS_MONITOR_BASE
+	depends on MPC85xx && SPL && HAVE_SYS_MONITOR_BASE
+	hex "Physical start address of SPL monitor code"
+	default SPL_TEXT_BASE
+
+config TPL_SYS_MONITOR_BASE
+	depends on MPC85xx && TPL && HAVE_SYS_MONITOR_BASE
+	hex "Physical start address of TPL monitor code"
+
 config DYNAMIC_SYS_CLK_FREQ
 	bool "Determine CPU clock frequency at run-time"
 	help
@@ -422,6 +447,20 @@ config RAMBOOT_PBL
 	help
 	  Some SoCs use PBL to load RCW and/or pre-initialization instructions.
 	  For more details refer to doc/README.pblimage
+
+choice
+	prompt "Freescale PBL load location"
+	depends on RAMBOOT_PBL || ((TARGET_P1010RDB_PA || TARGET_P1010RDB_PB \
+		|| TARGET_P1020RDB_PC || TARGET_P1020RDB_PD || TARGET_P2020RDB) \
+		&& !CMD_NAND)
+
+config SDCARD
+	bool "Freescale PBL is found on SD card"
+
+config SPIFLASH
+	bool "Freescale PBL is found on SPI flash"
+
+endchoice
 
 config SYS_FSL_PBL_PBI
 	string "PBI(pre-boot instructions) commands for the PBL image"
@@ -990,6 +1029,91 @@ config AUTOBOOT_MENU_SHOW
 	  defined by the board. The menu starts after running the 'preboot'
 	  environmnent variable (if enabled) and before handling the boot delay.
 	  See README.bootmenu for more details.
+
+config BOOT_RETRY
+	bool "Boot retry feature"
+	help
+	  Allow for having the U-Boot command prompt time out and attempt
+	  to boot again.  If the environment variable "bootretry" is found then
+	  its value is used, otherwise the retry timeout is
+	  CONFIG_BOOT_RETRY_TIME.  CONFIG_BOOT_RETRY_MIN is optional and
+	  defaults to CONFIG_BOOT_RETRY_TIME. All times are in seconds.
+
+config BOOT_RETRY_TIME
+	int "Timeout in seconds before attempting to boot again"
+	depends on BOOT_RETRY
+	help
+	  Time in seconds before the U-Boot prompt will timeout and boot will
+	  be attempted again.
+
+config BOOT_RETRY_MIN
+	int "Minimum timeout in seconds for 'bootretry'"
+	depends on BOOT_RETRY
+	default BOOT_RETRY_TIME
+	help
+	  The minimum time in seconds that "bootretry" can be set to.
+
+config RESET_TO_RETRY
+	bool "Reset the board to retry autoboot"
+	depends on BOOT_RETRY
+	help
+	  After the countdown timed out, the board will be reset to restart
+	  again.
+
+endmenu
+
+menu "Image support"
+
+config IMAGE_PRE_LOAD
+	bool "Image pre-load support"
+	help
+	  Enable an image pre-load stage in the SPL.
+	  This pre-load stage allows to do some manipulation
+	  or check (for example signature check) on an image
+	  before launching it.
+
+config SPL_IMAGE_PRE_LOAD
+	bool "Image pre-load support within SPL"
+	depends on SPL && IMAGE_PRE_LOAD
+	help
+	  Enable an image pre-load stage in the SPL.
+	  This pre-load stage allows to do some manipulation
+	  or check (for example signature check) on an image
+	  before launching it.
+
+config IMAGE_PRE_LOAD_SIG
+	bool "Image pre-load signature support"
+	depends on IMAGE_PRE_LOAD
+	select FIT_SIGNATURE
+	select RSA
+	select RSA_VERIFY_WITH_PKEY
+	help
+	  Enable signature check support in the pre-load stage.
+	  For this feature a very simple header is added before
+	  the image with few fields:
+	  - a magic
+	  - the image size
+	  - the signature
+	  All other information (header size, type of signature,
+	  ...) are provided in the node /image/pre-load/sig of
+	  u-boot.
+
+config SPL_IMAGE_PRE_LOAD_SIG
+	bool "Image pre-load signature support witin SPL"
+	depends on SPL_IMAGE_PRE_LOAD && IMAGE_PRE_LOAD_SIG
+	select SPL_FIT_SIGNATURE
+	select SPL_RSA
+	select SPL_RSA_VERIFY_WITH_PKEY
+	help
+	  Enable signature check support in the pre-load stage in the SPL.
+	  For this feature a very simple header is added before
+	  the image with few fields:
+	  - a magic
+	  - the image size
+	  - the signature
+	  All other information (header size, type of signature,
+	  ...) are provided in the node /image/pre-load/sig of
+	  u-boot.
 
 endmenu
 

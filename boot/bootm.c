@@ -87,6 +87,33 @@ static int bootm_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static ulong bootm_data_addr(int argc, char *const argv[])
+{
+	ulong addr;
+
+	if (argc > 0)
+		addr = simple_strtoul(argv[0], NULL, 16);
+	else
+		addr = image_load_addr;
+
+	return addr;
+}
+
+static int bootm_pre_load(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	ulong data_addr = bootm_data_addr(argc, argv);
+	int ret = 0;
+
+	if (CONFIG_IS_ENABLED(CMD_BOOTM_PRE_LOAD))
+		ret = image_pre_load(data_addr);
+
+	if (ret)
+		ret = CMD_RET_FAILURE;
+
+	return ret;
+}
+
 static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
@@ -677,6 +704,9 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (states & BOOTM_STATE_START)
 		ret = bootm_start(cmdtp, flag, argc, argv);
 
+	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
+		ret = bootm_pre_load(cmdtp, flag, argc, argv);
+
 	if (!ret && (states & BOOTM_STATE_FINDOS))
 		ret = bootm_find_os(cmdtp, flag, argc, argv);
 
@@ -865,6 +895,9 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 	img_addr = genimg_get_kernel_addr_fit(argc < 1 ? NULL : argv[0],
 					      &fit_uname_config,
 					      &fit_uname_kernel);
+
+	if (CONFIG_IS_ENABLED(CMD_BOOTM_PRE_LOAD))
+		img_addr += image_load_offset;
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
 

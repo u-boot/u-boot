@@ -7,6 +7,8 @@
 #include <i2c.h>
 #include <fdt_support.h>
 #include <init.h>
+#include <semihosting.h>
+#include <serial.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -26,6 +28,15 @@
 #include <fsl_sec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct serial_device *default_serial_console(void)
+{
+#if IS_ENABLED(CONFIG_SEMIHOSTING_SERIAL)
+	if (semihosting_enabled())
+		return &serial_smh_device;
+#endif
+	return &eserial1_device;
+}
 
 int board_early_init_f(void)
 {

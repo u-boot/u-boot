@@ -20,6 +20,10 @@ from binman import elf
 from patman import command
 from patman import tout
 
+# These are imported if needed since they import libfdt
+state = None
+Image = None
+
 # List of images we plan to create
 # Make this global so that it can be referenced from tests
 images = OrderedDict()
@@ -41,6 +45,8 @@ def _ReadImageDesc(binman_node, use_expanded):
     Returns:
         OrderedDict of Image objects, each of which describes an image
     """
+    # For Image()
+    # pylint: disable=E1102
     images = OrderedDict()
     if 'multiple-images' in binman_node.props:
         for node in binman_node.subnodes:
@@ -501,7 +507,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     # entry offsets remain the same.
     for image in images.values():
         image.CollectBintools()
-        image.ExpandEntries()
+        image.gen_entries()
         if update_fdt:
             image.AddMissingProperties(True)
         image.ProcessFdt(dtb)

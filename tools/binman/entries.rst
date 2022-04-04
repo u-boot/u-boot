@@ -612,6 +612,9 @@ gen-fdt-nodes
     Generate FDT nodes as above. This is the default if there is no
     `fit,operation` property.
 
+split-elf
+    Split an ELF file into a separate node for each segment.
+
 Generating nodes from an FDT list (gen-fdt-nodes)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -654,6 +657,149 @@ for each of your two files.
 
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
+
+Generating nodes from an ELF file (split-elf)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This uses the node as a template to generate multiple nodes. The following
+special properties are available:
+
+split-elf
+    Split an ELF file into a separate node for each segment. This uses the
+    node as a template to generate multiple nodes. The following special
+    properties are available:
+
+    fit,load
+        Generates a `load = <...>` property with the load address of the
+        segment
+
+    fit,entry
+        Generates a `entry = <...>` property with the entry address of the
+        ELF. This is only produced for the first entry
+
+    fit,data
+        Generates a `data = <...>` property with the contents of the segment
+
+    fit,loadables
+        Generates a `loadable = <...>` property with a list of the generated
+        nodes (including all nodes if this operation is used multiple times)
+
+
+Here is an example showing ATF, TEE and a device tree all combined::
+
+    fit {
+        description = "test-desc";
+        #address-cells = <1>;
+        fit,fdt-list = "of-list";
+
+        images {
+            u-boot {
+                description = "U-Boot (64-bit)";
+                type = "standalone";
+                os = "U-Boot";
+                arch = "arm64";
+                compression = "none";
+                load = <CONFIG_SYS_TEXT_BASE>;
+                u-boot-nodtb {
+                };
+            };
+            @fdt-SEQ {
+                description = "fdt-NAME.dtb";
+                type = "flat_dt";
+                compression = "none";
+            };
+            @atf-SEQ {
+                fit,operation = "split-elf";
+                description = "ARM Trusted Firmware";
+                type = "firmware";
+                arch = "arm64";
+                os = "arm-trusted-firmware";
+                compression = "none";
+                fit,load;
+                fit,entry;
+                fit,data;
+
+                atf-bl31 {
+                };
+            };
+
+            @tee-SEQ {
+                fit,operation = "split-elf";
+                description = "TEE";
+                type = "tee";
+                arch = "arm64";
+                os = "tee";
+                compression = "none";
+                fit,load;
+                fit,entry;
+                fit,data;
+
+                tee-os {
+                };
+            };
+        };
+
+        configurations {
+            default = "@config-DEFAULT-SEQ";
+            @config-SEQ {
+                description = "conf-NAME.dtb";
+                fdt = "fdt-SEQ";
+                firmware = "u-boot";
+                fit,loadables;
+            };
+        };
+    };
+
+If ATF-BL31 is available, this generates a node for each segment in the
+ELF file, for example::
+
+    images {
+        atf-1 {
+            data = <...contents of first segment...>;
+            data-offset = <0x00000000>;
+            entry = <0x00040000>;
+            load = <0x00040000>;
+            compression = "none";
+            os = "arm-trusted-firmware";
+            arch = "arm64";
+            type = "firmware";
+            description = "ARM Trusted Firmware";
+        };
+        atf-2 {
+            data = <...contents of second segment...>;
+            load = <0xff3b0000>;
+            compression = "none";
+            os = "arm-trusted-firmware";
+            arch = "arm64";
+            type = "firmware";
+            description = "ARM Trusted Firmware";
+        };
+    };
+
+The same applies for OP-TEE if that is available.
+
+If each binary is not available, the relevant template node (@atf-SEQ or
+@tee-SEQ) is removed from the output.
+
+This also generates a `config-xxx` node for each device tree in `of-list`.
+Note that the U-Boot build system uses `-a of-list=$(CONFIG_OF_LIST)`
+so you can use `CONFIG_OF_LIST` to define that list. In this example it is
+set up for `firefly-rk3399` with a single device tree and the default set
+with `-a default-dt=$(CONFIG_DEFAULT_DEVICE_TREE)`, so the resulting output
+is::
+
+    configurations {
+        default = "config-1";
+        config-1 {
+            loadables = "atf-1", "atf-2", "atf-3", "tee-1", "tee-2";
+            description = "rk3399-firefly.dtb";
+            fdt = "fdt-1";
+            firmware = "u-boot";
+        };
+    };
+
+U-Boot SPL can then load the firmware (U-Boot proper) and all the loadables
+(ATF and TEE), then proceed with the boot.
 
 
 
@@ -1006,6 +1152,44 @@ Properties / Entry arguments:
 This entry is valid for PowerPC mpc85xx cpus. This entry holds
 'bootpg + resetvec' code for PowerPC mpc85xx CPUs which needs to be
 placed at offset 'RESET_VECTOR_ADDRESS - 0xffc'.
+
+
+
+Entry: pre-load: Pre load image header
+--------------------------------------
+
+Properties / Entry arguments:
+    - key-path: Path of the directory that store key (provided by the environment variable KEY_PATH)
+    - content: List of phandles to entries to sign
+    - algo-name: Hash and signature algo to use for the signature
+    - padding-name: Name of the padding (pkcs-1.5 or pss)
+    - key-name: Filename of the private key to sign
+    - header-size: Total size of the header
+    - version: Version of the header
+
+This entry creates a pre-load header that contains a global
+image signature.
+
+For example, this creates an image with a pre-load header and a binary::
+
+    binman {
+        image2 {
+            filename = "sandbox.bin";
+
+            pre-load {
+                content = <&image>;
+                algo-name = "sha256,rsa2048";
+                padding-name = "pss";
+                key-name = "private.pem";
+                header-size = <4096>;
+                version = <1>;
+            };
+
+            image: blob-ext {
+                filename = "sandbox.itb";
+            };
+        };
+    };
 
 
 

@@ -352,6 +352,7 @@ F:	arch/arm/mach-at91/
 F:	board/atmel/
 F:	drivers/cpu/at91_cpu.c
 F:	drivers/misc/microchip_flexcom.c
+F:	drivers/timer/atmel_tcb_timer.c
 F:	include/dt-bindings/mfd/atmel-flexcom.h
 F:	drivers/timer/mchp-pit64b-timer.c
 
@@ -621,8 +622,10 @@ F:	drivers/i2c/muxes/pca954x.c
 F:	drivers/i2c/zynq_i2c.c
 F:	drivers/mmc/zynq_sdhci.c
 F:	drivers/mtd/nand/raw/zynq_nand.c
+F:	drivers/net/phy/ethernet_id.c
 F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
+F:	drivers/pinctrl/pinctrl-zynqmp.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
@@ -640,6 +643,7 @@ F:	arch/arm/mach-zynqmp/
 F:	drivers/clk/clk_zynqmp.c
 F:	driver/firmware/firmware-zynqmp.c
 F:	drivers/fpga/zynqpl.c
+F:	drivers/gpio/gpio_slg7xl45106.c
 F:	drivers/gpio/zynq_gpio.c
 F:	drivers/gpio/zynqmp_gpio_modepin.c
 F:	drivers/i2c/i2c-cdns.c
@@ -659,7 +663,6 @@ F:	drivers/soc/soc_xilinx_zynqmp.c
 F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/timer/cadence-ttc.c
-F:	drivers/usb/host/ehci-zynq.c
 F:	drivers/video/seps525.c
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h
@@ -812,6 +815,25 @@ R:	Wolfgang Denk <wd@denx.de>
 S:	Maintained
 F:	doc/usage/environment.rst
 F:	scripts/env2string.awk
+
+EROFS
+M:	Huang Jianan <jnhuang95@gmail.com>
+L:	linux-erofs@lists.ozlabs.org
+S:	Maintained
+F:	cmd/erofs.c
+F:	fs/erofs/
+F:	include/erofs.h
+F:	test/py/tests/test_fs/test_erofs.py
+
+EVENTS
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	cmd/event.c
+F:	common/event.c
+F:	include/event.h
+F:	scripts/event_dump.py
+F:	test/common/event.c
+F:	test/py/tests/test_event_dump.py
 
 FASTBOOT
 S:	Orphaned
@@ -1151,6 +1173,11 @@ S:	Maintained
 F:	arch/sandbox/
 F:	doc/arch/sandbox.rst
 F:	include/dt-bindings/*/sandbox*.h
+
+SEMIHOSTING
+R:	Sean Anderson <sean.anderson@seco.com>
+S:	Orphaned
+N:	semihosting
 
 SETEXPR
 M:	Roland Gaudig <roland.gaudig@weidmueller.com>

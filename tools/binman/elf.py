@@ -85,6 +85,57 @@ def GetSymbols(fname, patterns):
     # Sort dict by address
     return OrderedDict(sorted(syms.items(), key=lambda x: x[1].address))
 
+def _GetFileOffset(elf, addr):
+    """Get the file offset for an address
+
+    Args:
+        elf (ELFFile): ELF file to check
+        addr (int): Address to search for
+
+    Returns
+        int: Offset of that address in the ELF file, or None if not valid
+    """
+    for seg in elf.iter_segments():
+        seg_end = seg['p_vaddr'] + seg['p_filesz']
+        if seg.header['p_type'] == 'PT_LOAD':
+            if addr >= seg['p_vaddr'] and addr < seg_end:
+                return addr - seg['p_vaddr'] + seg['p_offset']
+
+def GetFileOffset(fname, addr):
+    """Get the file offset for an address
+
+    Args:
+        fname (str): Filename of ELF file to check
+        addr (int): Address to search for
+
+    Returns
+        int: Offset of that address in the ELF file, or None if not valid
+    """
+    if not ELF_TOOLS:
+        raise ValueError("Python: No module named 'elftools'")
+    with open(fname, 'rb') as fd:
+        elf = ELFFile(fd)
+        return _GetFileOffset(elf, addr)
+
+def GetSymbolFromAddress(fname, addr):
+    """Get the symbol at a particular address
+
+    Args:
+        fname (str): Filename of ELF file to check
+        addr (int): Address to search for
+
+    Returns:
+        str: Symbol name, or None if no symbol at that address
+    """
+    if not ELF_TOOLS:
+        raise ValueError("Python: No module named 'elftools'")
+    with open(fname, 'rb') as fd:
+        elf = ELFFile(fd)
+        syms = GetSymbols(fname, None)
+    for name, sym in syms.items():
+        if sym.address == addr:
+            return name
+
 def GetSymbolFileOffset(fname, patterns):
     """Get the symbols from an ELF file
 
@@ -97,15 +148,8 @@ def GetSymbolFileOffset(fname, patterns):
           key: Name of symbol
           value: Hex value of symbol
     """
-    def _GetFileOffset(elf, addr):
-        for seg in elf.iter_segments():
-            seg_end = seg['p_vaddr'] + seg['p_filesz']
-            if seg.header['p_type'] == 'PT_LOAD':
-                if addr >= seg['p_vaddr'] and addr < seg_end:
-                    return addr - seg['p_vaddr'] + seg['p_offset']
-
     if not ELF_TOOLS:
-        raise ValueError('Python elftools package is not available')
+        raise ValueError("Python: No module named 'elftools'")
 
     syms = {}
     with open(fname, 'rb') as fd:
@@ -371,7 +415,7 @@ def UpdateFile(infile, outfile, start_sym, end_sym, insert):
     tools.write_file(outfile, newdata)
     tout.info('Written to offset %#x' % syms[start_sym].offset)
 
-def read_segments(data):
+def read_loadable_segments(data):
     """Read segments from an ELF file
 
     Args:
@@ -389,7 +433,7 @@ def read_segments(data):
         ValueError: elftools is not available
     """
     if not ELF_TOOLS:
-        raise ValueError('Python elftools package is not available')
+        raise ValueError("Python: No module named 'elftools'")
     with io.BytesIO(data) as inf:
         try:
             elf = ELFFile(inf)

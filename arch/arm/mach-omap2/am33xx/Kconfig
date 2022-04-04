@@ -207,6 +207,19 @@ config TARGET_PDU001
 
 endchoice
 
+config CLOCK_SYNTHESIZER
+	bool "CDCE913 and CDCEL913 clock synthesizer support"
+	help
+	  The CDCE913 and CDCEL913 devices are modular PLL-based, low cost,
+	  high performance , programmable clock synthesizers. They generate
+	  up to 3 output clocks from a single input frequency. Each output can
+	  be programmed for any clock-frequency.
+
+config CLK_SYNTHESIZER_I2C_ADDR
+	hex "Clock synthesizer i2c bus address"
+	depends on CLOCK_SYNTHESIZER
+	default 0x65
+
 endif
 
 if AM43XX
@@ -280,3 +293,35 @@ config PUB_ROM_DATA_SIZE
 	  image, this area is no longer used, and can be reclaimed
 	  for run time use by the boot image.
 endif
+
+config AM335X_USB0
+	bool "Static mode configuration for USB0 in SPL"
+	depends on AM33XX && SPL_MUSB_NEW && !SPL_OF_CONTROL
+
+choice
+	prompt "USB0 port configuration"
+	depends on AM335X_USB0
+
+config AM335X_USB0_HOST
+	bool "Port is used in host mode"
+
+config AM335X_USB0_PERIPHERAL
+	bool "Port is used in peripheral mode"
+
+endchoice
+
+config AM335X_USB1
+	bool "Static mode configuration for USB1 in SPL"
+	depends on AM33XX && SPL_MUSB_NEW && !SPL_OF_CONTROL
+
+choice
+	prompt "USB1 port configuration"
+	depends on AM335X_USB1
+
+config AM335X_USB1_HOST
+	bool "Port is used in host mode"
+
+config AM335X_USB1_PERIPHERAL
+	bool "Port is used in peripheral mode"
+
+endchoice

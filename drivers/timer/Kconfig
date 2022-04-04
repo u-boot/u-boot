@@ -96,6 +96,14 @@ config ATMEL_PIT_TIMER
 	  it is designed to offer maximum accuracy and efficient management,
 	  even for systems with long response time.
 
+config ATMEL_TCB_TIMER
+	bool "Atmel timer counter support"
+	depends on TIMER
+	depends on ARCH_AT91
+	help
+	  Select this to enable the use of the timer counter as a monotonic
+	  counter.
+
 config CADENCE_TTC_TIMER
 	bool "Cadence TTC (Triple Timer Counter)"
 	depends on TIMER

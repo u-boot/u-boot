@@ -14,9 +14,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-/* Ethernet */
-#define CONFIG_NET_RETRY_COUNT		10
-
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_ECCPOS		{ 2,  3,  4,  5,  6,  7,  8,  9, 10, \
@@ -44,9 +41,6 @@
 #endif /* CONFIG_MTD_RAW_NAND */
 
 /* Environment information */
-
-#define CONFIG_BOOTFILE		"uImage"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
@@ -116,9 +110,6 @@
 #if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
-
-/* Monitor at start of flash */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 

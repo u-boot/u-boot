@@ -43,11 +43,7 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_CHIP_SELECTS_PER_CTRL	0
-
 #define CONFIG_SYS_BOOT_BLOCK		0x00000000	/* boot TLB */
-
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_HWCONFIG
 
@@ -93,7 +89,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
  * Environment Configuration
  */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
 #endif	/* __QEMU_PPCE500_H */

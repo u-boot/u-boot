@@ -129,6 +129,7 @@
 /*
  * Address Memory Space
  */
+#define ATMEL_BASE_ROM			0x00000000
 #define ATMEL_BASE_CS0			0x10000000
 #define ATMEL_BASE_DDRCS		0x20000000
 #define ATMEL_BASE_CS1			0x60000000
@@ -140,6 +141,12 @@
 #define ATMEL_BASE_SDMMC1		0xb0000000
 #define ATMEL_BASE_QSPI0_MEM		0xd0000000
 #define ATMEL_BASE_QSPI1_MEM		0xd8000000
+
+/*
+ * PMECC tables in ROM
+ */
+#define ATMEL_PMECC_INDEX_OFFSET_512	0x40000
+#define ATMEL_PMECC_INDEX_OFFSET_1024	0x48000
 
 /*
  * Internal Memories
@@ -232,9 +239,6 @@
 
 /* PIT Timer(PIT_PIIR) */
 #define CONFIG_SYS_TIMER_COUNTER	0xf804803c
-
-/* No PMECC Galois table in ROM */
-#define NO_GALOIS_TABLE_IN_ROM
 
 #ifndef __ASSEMBLY__
 unsigned int get_chip_id(void);

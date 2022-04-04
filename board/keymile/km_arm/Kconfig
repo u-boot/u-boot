@@ -60,4 +60,27 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply FS_CRAMFS
 	imply CMD_USB
 
+choice
+	prompt "Board model"
+
+config KM_COGE5UN
+	bool "Hitachi Power Grids COGE5UN"
+
+config KM_KIRKWOOD_128M16
+	bool "Hitachi Power Grids Kirkwood 128M16"
+
+config KM_KIRKWOOD
+	bool "Hitachi Power Grids Kirkwood"
+
+config KM_KIRKWOOD_PCI
+	bool "Hitachi Power Grids Kirkwood PCI"
+
+config KM_NUSA
+	bool "Hitachi Power Grids Kirkwood (NUSA)"
+
+config KM_SUSE2
+	bool "Hitachi Power Grids Kirkwood (SUSE2)"
+
+endchoice
+
 endif

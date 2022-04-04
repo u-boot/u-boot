@@ -16,13 +16,13 @@ import os
 import struct
 import unittest
 
-from dtb_platdata import Ftype
-from dtb_platdata import get_value
-from dtb_platdata import tab_to
 from dtoc import dtb_platdata
 from dtoc import fdt
 from dtoc import fdt_util
 from dtoc import src_scan
+from dtoc.dtb_platdata import Ftype
+from dtoc.dtb_platdata import get_value
+from dtoc.dtb_platdata import tab_to
 from dtoc.src_scan import conv_name_to_c
 from dtoc.src_scan import get_compat_name
 from patman import test_util

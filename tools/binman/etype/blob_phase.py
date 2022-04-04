@@ -7,6 +7,9 @@
 
 from binman.etype.section import Entry_section
 
+# This is imported if needed
+state = None
+
 class Entry_blob_phase(Entry_section):
     """Section that holds a phase binary
 
@@ -39,7 +42,7 @@ class Entry_blob_phase(Entry_section):
         self.dtb_file = dtb_file
         self.bss_pad = bss_pad
 
-    def ExpandEntries(self):
+    def gen_entries(self):
         """Create the subnodes"""
         names = [self.root_fname + '-nodtb', self.root_fname + '-dtb']
         if self.bss_pad:

@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "T208xQDS"
 
+config SRIO_PCIE_BOOT_SLAVE
+	bool "Boot as a SRIO PCIe slave device"
+
 source "board/freescale/common/Kconfig"
 
 endif

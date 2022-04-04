@@ -215,10 +215,12 @@
 
 &sdhci0 {
 	clocks = <&zynqmp_clk SDIO0_REF>, <&zynqmp_clk LPD_LSBUS>;
+	assigned-clocks = <&zynqmp_clk SDIO0_REF>;
 };
 
 &sdhci1 {
 	clocks = <&zynqmp_clk SDIO1_REF>, <&zynqmp_clk LPD_LSBUS>;
+	assigned-clocks = <&zynqmp_clk SDIO1_REF>;
 };
 
 &spi0 {
@@ -255,10 +257,12 @@
 
 &usb0 {
 	clocks = <&zynqmp_clk USB0_BUS_REF>, <&zynqmp_clk USB3_DUAL_REF>;
+	assigned-clocks = <&zynqmp_clk USB0_BUS_REF>, <&zynqmp_clk USB3_DUAL_REF>;
 };
 
 &usb1 {
 	clocks = <&zynqmp_clk USB1_BUS_REF>, <&zynqmp_clk USB3_DUAL_REF>;
+	assigned-clocks = <&zynqmp_clk USB1_BUS_REF>, <&zynqmp_clk USB3_DUAL_REF>;
 };
 
 &watchdog0 {
@@ -279,10 +283,14 @@
 
 &zynqmp_dpdma {
 	clocks = <&zynqmp_clk DPDMA_REF>;
+	assigned-clocks = <&zynqmp_clk DPDMA_REF>; /* apll */
 };
 
 &zynqmp_dpsub {
 	clocks = <&zynqmp_clk TOPSW_LSBUS>,
 		 <&zynqmp_clk DP_AUDIO_REF>,
 		 <&zynqmp_clk DP_VIDEO_REF>;
+	assigned-clocks = <&zynqmp_clk DP_STC_REF>,
+			  <&zynqmp_clk DP_AUDIO_REF>,
+			  <&zynqmp_clk DP_VIDEO_REF>;  /* rpll, rpll, vpll */
 };

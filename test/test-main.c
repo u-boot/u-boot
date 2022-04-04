@@ -7,6 +7,7 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
+#include <event.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
@@ -218,6 +219,8 @@ static int dm_test_restore(struct device_node *of_root)
  */
 static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 {
+	ut_assertok(event_init());
+
 	if (test->flags & UT_TESTF_DM)
 		ut_assertok(dm_test_pre_run(uts));
 
@@ -260,6 +263,7 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 	ut_unsilence_console(uts);
 	if (test->flags & UT_TESTF_DM)
 		ut_assertok(dm_test_post_run(uts));
+	ut_assertok(event_uninit());
 
 	return 0;
 }

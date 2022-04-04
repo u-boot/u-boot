@@ -90,54 +90,6 @@ static void lcd_stub_puts(struct stdio_dev *dev, const char *s)
 	lcd_puts(s);
 }
 
-/* Small utility to check that you got the colours right */
-#ifdef LCD_TEST_PATTERN
-
-#if LCD_BPP == LCD_COLOR8
-#define	N_BLK_VERT	2
-#define	N_BLK_HOR	3
-
-static int test_colors[N_BLK_HOR * N_BLK_VERT] = {
-	CONSOLE_COLOR_RED,	CONSOLE_COLOR_GREEN,	CONSOLE_COLOR_YELLOW,
-	CONSOLE_COLOR_BLUE,	CONSOLE_COLOR_MAGENTA,	CONSOLE_COLOR_CYAN,
-}; /*LCD_BPP == LCD_COLOR8 */
-
-#elif LCD_BPP == LCD_COLOR16
-#define	N_BLK_VERT	2
-#define	N_BLK_HOR	4
-
-static int test_colors[N_BLK_HOR * N_BLK_VERT] = {
-	CONSOLE_COLOR_RED,	CONSOLE_COLOR_GREEN,	CONSOLE_COLOR_YELLOW,	CONSOLE_COLOR_BLUE,
-	CONSOLE_COLOR_MAGENTA,	CONSOLE_COLOR_CYAN,	CONSOLE_COLOR_GREY,	CONSOLE_COLOR_WHITE,
-};
-#endif /*LCD_BPP == LCD_COLOR16 */
-
-static void test_pattern(void)
-{
-	ushort v_max  = panel_info.vl_row;
-	ushort h_max  = panel_info.vl_col;
-	ushort v_step = (v_max + N_BLK_VERT - 1) / N_BLK_VERT;
-	ushort h_step = (h_max + N_BLK_HOR  - 1) / N_BLK_HOR;
-	ushort v, h;
-#if LCD_BPP == LCD_COLOR8
-	uchar *pix = (uchar *)lcd_base;
-#elif LCD_BPP == LCD_COLOR16
-	ushort *pix = (ushort *)lcd_base;
-#endif
-
-	printf("[LCD] Test Pattern: %d x %d [%d x %d]\n",
-		h_max, v_max, h_step, v_step);
-
-	for (v = 0; v < v_max; ++v) {
-		uchar iy = v / v_step;
-		for (h = 0; h < h_max; ++h) {
-			uchar ix = N_BLK_HOR * iy + h / h_step;
-			*pix++ = test_colors[ix];
-		}
-	}
-}
-#endif /* LCD_TEST_PATTERN */
-
 /*
  * With most lcd drivers the line length is set up
  * by calculating it from panel_info parameters. Some
@@ -201,9 +153,6 @@ void lcd_clear(void)
 	bg_color = CONSOLE_COLOR_BLACK;
 #endif	/* CONFIG_SYS_WHITE_ON_BLACK */
 
-#ifdef	LCD_TEST_PATTERN
-	test_pattern();
-#else
 	/* set framebuffer to background color */
 #if (LCD_BPP != LCD_COLOR32)
 	memset((char *)lcd_base, bg_color, lcd_line_length * panel_info.vl_row);
@@ -215,7 +164,6 @@ void lcd_clear(void)
 	   i++) {
 		*ppix++ = bg_color;
 	}
-#endif
 #endif
 	/* setup text-console */
 	debug("[LCD] setting up console...\n");
@@ -399,135 +347,6 @@ static void splash_align_axis(int *axis, unsigned long panel_size,
 }
 #endif
 
-#ifdef CONFIG_LCD_BMP_RLE8
-#define BMP_RLE8_ESCAPE		0
-#define BMP_RLE8_EOL		0
-#define BMP_RLE8_EOBMP		1
-#define BMP_RLE8_DELTA		2
-
-static void draw_unencoded_bitmap(ushort **fbp, uchar *bmap, ushort *cmap,
-				  int cnt)
-{
-	while (cnt > 0) {
-		*(*fbp)++ = cmap[*bmap++];
-		cnt--;
-	}
-}
-
-static void draw_encoded_bitmap(ushort **fbp, ushort c, int cnt)
-{
-	ushort *fb = *fbp;
-	int cnt_8copy = cnt >> 3;
-
-	cnt -= cnt_8copy << 3;
-	while (cnt_8copy > 0) {
-		*fb++ = c;
-		*fb++ = c;
-		*fb++ = c;
-		*fb++ = c;
-		*fb++ = c;
-		*fb++ = c;
-		*fb++ = c;
-		*fb++ = c;
-		cnt_8copy--;
-	}
-	while (cnt > 0) {
-		*fb++ = c;
-		cnt--;
-	}
-	*fbp = fb;
-}
-
-/*
- * Do not call this function directly, must be called from lcd_display_bitmap.
- */
-static void lcd_display_rle8_bitmap(struct bmp_image *bmp, ushort *cmap,
-				    uchar *fb, int x_off, int y_off)
-{
-	uchar *bmap;
-	ulong width, height;
-	ulong cnt, runlen;
-	int x, y;
-	int decode = 1;
-
-	width = get_unaligned_le32(&bmp->header.width);
-	height = get_unaligned_le32(&bmp->header.height);
-	bmap = (uchar *)bmp + get_unaligned_le32(&bmp->header.data_offset);
-
-	x = 0;
-	y = height - 1;
-
-	while (decode) {
-		if (bmap[0] == BMP_RLE8_ESCAPE) {
-			switch (bmap[1]) {
-			case BMP_RLE8_EOL:
-				/* end of line */
-				bmap += 2;
-				x = 0;
-				y--;
-				/* 16bpix, 2-byte per pixel, width should *2 */
-				fb -= (width * 2 + lcd_line_length);
-				break;
-			case BMP_RLE8_EOBMP:
-				/* end of bitmap */
-				decode = 0;
-				break;
-			case BMP_RLE8_DELTA:
-				/* delta run */
-				x += bmap[2];
-				y -= bmap[3];
-				/* 16bpix, 2-byte per pixel, x should *2 */
-				fb = (uchar *) (lcd_base + (y + y_off - 1)
-					* lcd_line_length + (x + x_off) * 2);
-				bmap += 4;
-				break;
-			default:
-				/* unencoded run */
-				runlen = bmap[1];
-				bmap += 2;
-				if (y < height) {
-					if (x < width) {
-						if (x + runlen > width)
-							cnt = width - x;
-						else
-							cnt = runlen;
-						draw_unencoded_bitmap(
-							(ushort **)&fb,
-							bmap, cmap, cnt);
-					}
-					x += runlen;
-				}
-				bmap += runlen;
-				if (runlen & 1)
-					bmap++;
-			}
-		} else {
-			/* encoded run */
-			if (y < height) {
-				runlen = bmap[0];
-				if (x < width) {
-					/* aggregate the same code */
-					while (bmap[0] == 0xff &&
-					       bmap[2] != BMP_RLE8_ESCAPE &&
-					       bmap[1] == bmap[3]) {
-						runlen += bmap[2];
-						bmap += 2;
-					}
-					if (x + runlen > width)
-						cnt = width - x;
-					else
-						cnt = runlen;
-					draw_encoded_bitmap((ushort **)&fb,
-						cmap[bmap[1]], cnt);
-				}
-				x += runlen;
-			}
-			bmap += 2;
-		}
-	}
-}
-#endif
-
 __weak void fb_put_byte(uchar **fb, uchar **from)
 {
 	*(*fb)++ = *(*from)++;
@@ -633,19 +452,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	case 1:
 	case 8: {
 		cmap_base = configuration_get_cmap();
-#ifdef CONFIG_LCD_BMP_RLE8
-		u32 compression = get_unaligned_le32(&bmp->header.compression);
-		debug("compressed %d %d\n", compression, BMP_BI_RLE8);
-		if (compression == BMP_BI_RLE8) {
-			if (bpix != 16) {
-				/* TODO implement render code for bpix != 16 */
-				printf("Error: only support 16 bpix");
-				return 1;
-			}
-			lcd_display_rle8_bitmap(bmp, cmap_base, fb, x, y);
-			break;
-		}
-#endif
 
 		if (bpix != 16)
 			byte_width = width;

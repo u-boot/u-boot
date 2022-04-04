@@ -21,9 +21,6 @@
 #define GICD_BASE	0xF1000000
 #define GICR_BASE	0xF1060000
 
-/* Ethernet RAVB */
-#define CONFIG_BITBANGMII_MULTI
-
 /* Board Clock */
 /* XTAL_CLK : 16.66MHz */
 

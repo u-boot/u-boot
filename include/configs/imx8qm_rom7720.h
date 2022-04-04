@@ -127,8 +127,5 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		8000000	/* 8MHz */
 
-/* Networking */
-#define CONFIG_FEC_XCV_TYPE		RGMII
-
 #include <linux/stringify.h>
 #endif /* __IMX8QM_ROM7720_H */

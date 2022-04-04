@@ -209,7 +209,7 @@ int video_sync(struct udevice *vid, bool force)
 	struct video_priv *priv = dev_get_uclass_priv(vid);
 	static ulong last_sync;
 
-	if (force || get_timer(last_sync) > 10) {
+	if (force || get_timer(last_sync) > 100) {
 		sandbox_sdl_sync(priv->fb);
 		last_sync = get_timer(0);
 	}

@@ -23,7 +23,7 @@
  * get_sys_clk_speed() - determine reference oscillator speed
  *                       based on known 32kHz clock and gptimer.
  *****************************************************************************/
-u32 get_osc_clk_speed(void)
+static u32 get_osc_clk_speed(void)
 {
 	u32 start, cstart, cend, cdiff, cdiv, val;
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
@@ -90,7 +90,7 @@ u32 get_osc_clk_speed(void)
  * get_sys_clkin_sel() - returns the sys_clkin_sel field value based on
  *                       input oscillator clock frequency.
  *****************************************************************************/
-void get_sys_clkin_sel(u32 osc_clk, u32 *sys_clkin_sel)
+static void get_sys_clkin_sel(u32 osc_clk, u32 *sys_clkin_sel)
 {
 	switch(osc_clk) {
 	case S38_4M:

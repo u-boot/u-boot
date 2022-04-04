@@ -9,6 +9,9 @@ from binman.entry import Entry
 from binman.etype.blob_dtb import Entry_blob_dtb
 from patman import tools
 
+# This is imported if needed
+state = None
+
 class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     """A U-Boot device tree file, with the microcode removed
 

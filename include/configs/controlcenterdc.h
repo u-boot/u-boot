@@ -27,11 +27,6 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-/*
- * Software (bit-bang) MII driver configuration
- */
-#define CONFIG_BITBANGMII_MULTI
-
 /* SPL */
 /*
  * Select the boot device here
@@ -76,7 +71,6 @@
 
 #define CONFIG_HOSTNAME		"ccdc"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"ccdc.img"
 
 #define CONFIG_EXTRA_ENV_SETTINGS						\
 	"netdev=eth1\0"						\

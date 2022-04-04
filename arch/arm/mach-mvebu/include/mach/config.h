@@ -36,14 +36,6 @@
 #define CONFIG_DM_SEQ_ALIAS		1
 
 /*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_ARP_TIMEOUT	200
-#define CONFIG_NET_RETRY_COUNT	50
-#endif /* CONFIG_CMD_NET */
-
-/*
  * I2C related stuff
  */
 #ifdef CONFIG_CMD_I2C

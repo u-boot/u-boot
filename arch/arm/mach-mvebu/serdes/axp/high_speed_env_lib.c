@@ -62,7 +62,7 @@ static u32 board_id_get(void)
 	return DB_78X60_AMC_ID;
 #elif defined(CONFIG_DB_78X60_PCAC_REV2)
 	return DB_78X60_PCAC_REV2_ID;
-#elif defined(CONFIG_DB_784MP_GP)
+#elif defined(CONFIG_TARGET_DB_MV784MP_GP)
 	return DB_784MP_GP_ID;
 #elif defined(CONFIG_RD_78460_CUSTOMER)
 	return RD_78460_CUSTOMER_ID;

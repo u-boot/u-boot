@@ -24,21 +24,9 @@
  */
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
 
-/* Booting Linux */
-#define CONFIG_BOOTFILE		"zImage"
-
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* Environment settings */
-
-/*
- * Autoboot
- *
- * After 45s of inactivity in the prompt, the board will reset.
- * Set 'bootretry' in the environment to -1 to disable this behavior
- */
-#define CONFIG_BOOT_RETRY_TIME 45
-#define CONFIG_RESET_TO_RETRY
 
 /*
  * FPGA Remote Update related environment

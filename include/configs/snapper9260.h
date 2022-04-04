@@ -37,13 +37,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 
-/* Ethernet */
-#define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT		20
-#define CONFIG_RESET_PHY_R
-#define CONFIG_AT91_WANTS_COMMON_PHY
-#define CONFIG_TFTP_PORT
-
 /* USB */
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB
@@ -54,8 +47,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
 /* GPIOs and IO expander */
-#define CONFIG_ATMEL_LEGACY
-#define CONFIG_AT91_GPIO_PULLUP		1
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x28
 #define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x28, 16} }
@@ -90,8 +81,6 @@
 #define I2C_DELAY	udelay(2)
 
 /* Boot options */
-
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Environment settings */
 

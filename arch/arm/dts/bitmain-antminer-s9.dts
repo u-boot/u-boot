@@ -50,7 +50,7 @@
 	ps-clk-frequency = <33333333>;
 };
 
-&nand0 {
+&nfc0 {
 	status = "okay";
 };
 

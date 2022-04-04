@@ -11,7 +11,6 @@
 /*
  * Memory configuration
  */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
@@ -21,11 +20,6 @@
 	(CONFIG_SYS_SDRAM_BASE + 0x1000 - GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
-
-/*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
 
 /*
  * Console configuration

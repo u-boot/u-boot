@@ -11,7 +11,6 @@
 /*
  * Memory configuration
  */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
@@ -44,11 +43,6 @@
  */
 #define ETH0_BASE_ADDRESS		0xFE100000
 #define ETH1_BASE_ADDRESS		0xFE110000
-
-/*
- * Environment configuration
- */
-#define CONFIG_BOOTFILE			"uImage"
 
 /*
  * Console configuration

@@ -50,26 +50,15 @@
 #ifdef CONFIG_MACH_SUN9I
 #define SDRAM_OFFSET(x) 0x2##x
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
-/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
- * since it needs to fit in with the other values. By also #defining it
- * we get warnings if the Kconfig value mismatches. */
 #define CONFIG_SPL_BSS_START_ADDR	0x2ff80000
 #elif defined(CONFIG_MACH_SUNIV)
 #define SDRAM_OFFSET(x) 0x8##x
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
-/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
- * since it needs to fit in with the other values. By also #defining it
- * we get warnings if the Kconfig value mismatches.
- */
-#define CONFIG_SPL_STACK_R_ADDR		0x81e00000
 #define CONFIG_SPL_BSS_START_ADDR	0x81f80000
 #else
 #define SDRAM_OFFSET(x) 0x4##x
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 /* V3s do not have enough memory to place code at 0x4a000000 */
-/* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here
- * since it needs to fit in with the other values. By also #defining it
- * we get warnings if the Kconfig value mismatches. */
 #define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
 #endif
 

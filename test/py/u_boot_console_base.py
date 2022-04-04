@@ -115,6 +115,14 @@ class ConsoleBase(object):
         self.at_prompt = False
         self.at_prompt_logevt = None
 
+    def get_spawn(self):
+        # This is not called, ssubclass must define this.
+        # Return a value to avoid:
+        #   u_boot_console_base.py:348:12: E1128: Assigning result of a function
+        #   call, where the function returns None (assignment-from-none)
+        return u_boot_spawn.Spawn([])
+
+
     def eval_bad_patterns(self):
         self.bad_patterns = [pat[PAT_RE] for pat in bad_pattern_defs \
             if self.disable_check_count[pat[PAT_ID]] == 0]

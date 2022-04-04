@@ -898,6 +898,42 @@ int ofnode_read_pci_vendev(ofnode node, u16 *vendor, u16 *device)
 	return -ENOENT;
 }
 
+int ofnode_read_eth_phy_id(ofnode node, u16 *vendor, u16 *device)
+{
+	const char *list, *end;
+	int len;
+
+	list = ofnode_get_property(node, "compatible", &len);
+
+	if (!list)
+		return -ENOENT;
+
+	end = list + len;
+	while (list < end) {
+		len = strlen(list);
+
+		if (len >= strlen("ethernet-phy-idVVVV,DDDD")) {
+			char *s = strstr(list, "ethernet-phy-id");
+
+			/*
+			 * check if the string is something like
+			 * ethernet-phy-idVVVV,DDDD
+			 */
+			if (s && s[19] == '.') {
+				s += strlen("ethernet-phy-id");
+				*vendor = simple_strtol(s, NULL, 16);
+				s += 5;
+				*device = simple_strtol(s, NULL, 16);
+
+				return 0;
+			}
+		}
+		list += (len + 1);
+	}
+
+	return -ENOENT;
+}
+
 int ofnode_read_addr_cells(ofnode node)
 {
 	if (ofnode_is_np(node)) {

@@ -8,7 +8,6 @@
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <env.h>
-#include <fsl_ddr_sdram.h>
 #include <init.h>
 #include <hang.h>
 #include <log.h>
@@ -36,6 +35,7 @@
 #endif
 #include <asm/armv8/sec_firmware.h>
 #ifdef CONFIG_SYS_FSL_DDR
+#include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
 #endif
 #include <asm/arch/clock.h>
@@ -1632,11 +1632,13 @@ void update_early_mmu_table(void)
 
 __weak int dram_init(void)
 {
+#ifdef CONFIG_SYS_FSL_DDR
 	fsl_initdram();
 #if (!defined(CONFIG_SPL) && !defined(CONFIG_TFABOOT)) || \
 	defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();
+#endif
 #endif
 
 	return 0;

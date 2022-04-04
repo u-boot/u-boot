@@ -24,7 +24,4 @@
 	 GENERATED_GBL_DATA_SIZE)
 #endif
 
-#define CONFIG_ARP_TIMEOUT		200
-#define CONFIG_NET_RETRY_COUNT		50
-
 #endif

@@ -532,7 +532,7 @@ static int fsl_pcie_fixup_classcode(struct fsl_pcie *pcie)
 
 	fsl_pcie_hose_read_config_dword(pcie, classcode_reg, &val);
 	val &= 0xff;
-	val |= PCI_CLASS_BRIDGE_PCI << 16;
+	val |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
 	fsl_pcie_hose_write_config_dword(pcie, classcode_reg, val);
 
 	if (pcie->block_rev >= PEX_IP_BLK_REV_3_0)

@@ -1,13 +1,7 @@
 /*
- * Video uclass and legacy implementation
+ * Video uclass to support displays (see also vidconsole for text)
  *
  * Copyright (c) 2015 Google, Inc
- *
- * MPC823 Video Controller
- * =======================
- * (C) 2000 by Paolo Scaffardi (arsenio@tin.it)
- * AIRVENT SAM s.p.a - RIMINI(ITALY)
- *
  */
 
 #ifndef _VIDEO_H_
@@ -155,7 +149,6 @@ struct video_ops {
  */
 int video_reserve(ulong *addrp);
 
-#ifdef CONFIG_DM_VIDEO
 /**
  * video_clear() - Clear a device's frame buffer to background color.
  *
@@ -163,7 +156,6 @@ int video_reserve(ulong *addrp);
  * Return: 0
  */
 int video_clear(struct udevice *dev);
-#endif /* CONFIG_DM_VIDEO */
 
 /**
  * video_sync() - Sync a device's frame buffer with its hardware
@@ -282,79 +274,5 @@ static inline int video_sync_copy_all(struct udevice *dev)
  * Return: true if at least one video device is active, else false.
  */
 bool video_is_active(void);
-
-#ifndef CONFIG_DM_VIDEO
-
-/* Video functions */
-
-/**
- * Display a BMP format bitmap on the screen
- *
- * @param bmp_image	Address of BMP image
- * @param x		X position to draw image
- * @param y		Y position to draw image
- */
-int video_display_bitmap(ulong bmp_image, int x, int y);
-
-/**
- * Get the width of the screen in pixels
- *
- * Return: width of screen in pixels
- */
-int video_get_pixel_width(void);
-
-/**
- * Get the height of the screen in pixels
- *
- * Return: height of screen in pixels
- */
-int video_get_pixel_height(void);
-
-/**
- * Get the number of text lines/rows on the screen
- *
- * Return: number of rows
- */
-int video_get_screen_rows(void);
-
-/**
- * Get the number of text columns on the screen
- *
- * Return: number of columns
- */
-int video_get_screen_columns(void);
-
-/**
- * Set the position of the text cursor
- *
- * @param col	Column to place cursor (0 = left side)
- * @param row	Row to place cursor (0 = top line)
- */
-void video_position_cursor(unsigned col, unsigned row);
-
-/* Clear the display */
-void video_clear(void);
-
-#if defined(CONFIG_FORMIKE)
-int kwh043st20_f01_spi_startup(unsigned int bus, unsigned int cs,
-	unsigned int max_hz, unsigned int spi_mode);
-#endif
-#if defined(CONFIG_LG4573)
-int lg4573_spi_startup(unsigned int bus, unsigned int cs,
-	unsigned int max_hz, unsigned int spi_mode);
-#endif
-
-/*
- * video_get_info_str() - obtain a board string: type, speed, etc.
- *
- * This is called if CONFIG_CONSOLE_EXTRA_INFO is enabled.
- *
- * line_number:	location to place info string beside logo
- * info:	buffer for info string (empty if nothing to display on this
- * line)
- */
-void video_get_info_str(int line_number, char *info);
-
-#endif /* !CONFIG_DM_VIDEO */
 
 #endif

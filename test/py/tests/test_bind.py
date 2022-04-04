@@ -131,7 +131,7 @@ def test_bind_unbind_with_uclass(u_boot_console):
 	child2_index = int(child2_line[0].split()[1])
 
 	#bind simple_bus as a child of bind-test-child2
-	response = u_boot_console.run_command('bind  {} {} simple_bus'.format(child2_uclass, child2_index, 'simple_bus'))
+	response = u_boot_console.run_command('bind  {} {} simple_bus'.format(child2_uclass, child2_index))
 
 	#check that the child is there and its uclass/index pair is right
 	tree = u_boot_console.run_command('dm tree')
@@ -152,7 +152,7 @@ def test_bind_unbind_with_uclass(u_boot_console):
 	assert child_of_child2_line == ''
 
 	#bind simple_bus as a child of bind-test-child2
-	response = u_boot_console.run_command('bind  {} {} simple_bus'.format(child2_uclass, child2_index, 'simple_bus'))
+	response = u_boot_console.run_command('bind  {} {} simple_bus'.format(child2_uclass, child2_index))
 
 	#check that the child is there and its uclass/index pair is right
 	tree = u_boot_console.run_command('dm tree')
@@ -165,7 +165,7 @@ def test_bind_unbind_with_uclass(u_boot_console):
 	assert child_of_child2_index == child2_index + 1
 
 	#unbind the child and check it has been removed
-	response = u_boot_console.run_command('unbind  {} {} simple_bus'.format(child2_uclass, child2_index, 'simple_bus'))
+	response = u_boot_console.run_command('unbind  {} {} simple_bus'.format(child2_uclass, child2_index))
 	assert response == ''
 
 	tree = u_boot_console.run_command('dm tree')
@@ -176,7 +176,7 @@ def test_bind_unbind_with_uclass(u_boot_console):
 
 	#unbind the child again and check it doesn't change the tree
 	tree_old = u_boot_console.run_command('dm tree')
-	response = u_boot_console.run_command('unbind  {} {} simple_bus'.format(child2_uclass, child2_index, 'simple_bus'))
+	response = u_boot_console.run_command('unbind  {} {} simple_bus'.format(child2_uclass, child2_index))
 	tree_new = u_boot_console.run_command('dm tree')
 
 	assert response == ''

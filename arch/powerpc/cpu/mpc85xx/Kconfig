@@ -317,6 +317,7 @@ config ARCH_MPC8540
 
 config ARCH_MPC8544
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A005125
@@ -330,6 +331,7 @@ config ARCH_MPC8544
 
 config ARCH_MPC8548
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_FSL_ERRATUM_A005125
 	select SYS_FSL_ERRATUM_NMG_DDR120
@@ -352,6 +354,8 @@ config ARCH_MPC8560
 
 config ARCH_P1010
 	bool
+	select A003399_NOR_WORKAROUND if SYS_FSL_ERRATUM_IFC_A003399 && !SPL
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_HAS_SERDES
@@ -400,6 +404,7 @@ config ARCH_P1011
 
 config ARCH_P1020
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A004508
@@ -496,6 +501,7 @@ config ARCH_P1025
 
 config ARCH_P2020
 	bool
+	select BTB
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_5
 	select SYS_FSL_ERRATUM_A004477
@@ -517,6 +523,7 @@ config ARCH_P2020
 
 config ARCH_P2041
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -542,6 +549,7 @@ config ARCH_P2041
 
 config ARCH_P3041
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -572,6 +580,7 @@ config ARCH_P3041
 
 config ARCH_P4080
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -611,6 +620,7 @@ config ARCH_P4080
 
 config ARCH_P5040
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
@@ -641,7 +651,9 @@ config ARCH_QEMU_E500
 
 config ARCH_T1024
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
+	select E5500
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -664,7 +676,9 @@ config ARCH_T1024
 
 config ARCH_T1040
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
+	select E5500
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -687,7 +701,9 @@ config ARCH_T1040
 
 config ARCH_T1042
 	bool
+	select BACKSIDE_L2_CACHE
 	select E500MC
+	select E5500
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -772,6 +788,9 @@ config MPC85XX_HAVE_RESET_VECTOR
 	bool "Indicate reset vector at CONFIG_RESET_VECTOR_ADDRESS - 0xffc"
 	depends on MPC85xx
 
+config BTB
+	bool "toggle branch predition"
+
 config BOOKE
 	bool
 	default y
@@ -784,12 +803,17 @@ config E500
 
 config E500MC
 	bool
+	select BTB
 	imply CMD_PCI
 	help
 		Enble PowerPC E500MC core
 
+config E5500
+	bool
+
 config E6500
 	bool
+	select BTB
 	help
 		Enable PowerPC E6500 core
 
@@ -867,6 +891,18 @@ config SYS_CCSRBAR_DEFAULT
 		is fixed on each SoC. Some SoCs can have different value
 		if changed by pre-boot regime. The value here must match
 		the current value in SoC. If not sure, do not change.
+
+config A003399_NOR_WORKAROUND
+	bool
+	help
+	  Enables a workaround for IFC erratum A003399. It is only required
+	  during NOR boot.
+
+config A008044_WORKAROUND
+	bool
+	help
+	  Enables a workaround for T1040/T1042 erratum A008044. It is only
+	  required during NAND boot and valid for Rev 1.0 SoC revision
 
 config SYS_FSL_ERRATUM_A004468
 	bool
@@ -950,6 +986,7 @@ config SYS_FSL_ERRATUM_A007907
 
 config SYS_FSL_ERRATUM_A008044
 	bool
+	select A008044_WORKAROUND if MTD_RAW_NAND
 
 config SYS_FSL_ERRATUM_CPC_A002
 	bool
@@ -1084,6 +1121,9 @@ config SYS_NUM_TLBCAMS
 		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
 		16 for other E500 SoCs.
 
+config BACKSIDE_L2_CACHE
+	bool
+
 config SYS_PPC64
 	bool
 
@@ -1159,7 +1199,6 @@ source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"
 source "board/freescale/t208xrdb/Kconfig"
 source "board/freescale/t4rdb/Kconfig"
-source "board/keymile/Kconfig"
 source "board/socrates/Kconfig"
 
 endmenu

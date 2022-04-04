@@ -51,7 +51,7 @@ struct scmi_msg {
  * Caller sets scmi_msg::out_msg_sz to the output message buffer size.
  * On return, scmi_msg::out_msg_sz stores the response payload size.
  *
- * @dev:	SCMI agent device
+ * @dev:	SCMI device
  * @msg:	Message structure reference
  * Return: 0 on success and a negative errno on failure
  */

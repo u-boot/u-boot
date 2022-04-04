@@ -27,12 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define WELL_KNOWN_PORT	69
 /* Millisecs to timeout for lost pkt */
 #define TIMEOUT		5000UL
-#ifndef	CONFIG_NET_RETRY_COUNT
-/* # of timeouts before giving up */
-# define TIMEOUT_COUNT	10
-#else
-# define TIMEOUT_COUNT  (CONFIG_NET_RETRY_COUNT * 2)
-#endif
 /* Number of "loading" hashes per line (for checking the image size) */
 #define HASHES_PER_LINE	65
 
@@ -47,7 +41,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TFTP_OACK	6
 
 static ulong timeout_ms = TIMEOUT;
-static int timeout_count_max = TIMEOUT_COUNT;
+static int timeout_count_max = (CONFIG_NET_RETRY_COUNT * 2);
 static ulong time_start;   /* Record time we started tftp */
 
 /*
@@ -60,7 +54,7 @@ static ulong time_start;   /* Record time we started tftp */
  * non-standard timeout behavior when initiating a TFTP transfer.
  */
 ulong tftp_timeout_ms = TIMEOUT;
-int tftp_timeout_count_max = TIMEOUT_COUNT;
+int tftp_timeout_count_max = (CONFIG_NET_RETRY_COUNT * 2);
 
 enum {
 	TFTP_ERR_UNDEFINED           = 0,

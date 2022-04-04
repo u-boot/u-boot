@@ -23,8 +23,6 @@
 
 
 /* Ethernet Configs */
-#define CONFIG_FEC_XCV_TYPE            RMII
-#define CONFIG_ETHPRIME                "FEC"
 #define CONFIG_FEC_MXC_PHYADDR         0
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -108,8 +106,6 @@
 		"fi; " \
 	"fi; " \
 	"else run netboot; fi"
-
-#define CONFIG_ARP_TIMEOUT     200UL
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

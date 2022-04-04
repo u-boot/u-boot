@@ -97,14 +97,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#ifdef CONFIG_TPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE	0xD0001000
-#elif defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
-#endif
-
 /* High Level Configuration Options */
 
 #if defined(CONFIG_PCI)
@@ -151,7 +143,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
-#define CONFIG_BTB			/* toggle branch predition */
 
 
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -171,7 +162,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	1
 
 /* DDR3 Controller Settings */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000003f
@@ -413,12 +403,6 @@ extern unsigned long get_sdram_size(void);
 #undef CONFIG_SYS_RAMBOOT
 #endif
 
-#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
-#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)
-#define CONFIG_A003399_NOR_WORKAROUND
-#endif
-#endif
-
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000 /* End of used area in RAM */
@@ -528,8 +512,6 @@ extern unsigned long get_sdram_size(void);
 #define TSEC2_PHYIDX		0
 #define TSEC3_PHYIDX		0
 
-#define CONFIG_ETHPRIME		"eTSEC1"
-
 /* TBI PHY configuration for SGMII mode */
 #define CONFIG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \
@@ -606,14 +588,7 @@ extern unsigned long get_sdram_size(void);
  * Environment Configuration
  */
 
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
-#endif
-
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin/* U-Boot image on TFTP server */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -643,10 +618,10 @@ extern unsigned long get_sdram_size(void);
 	"ext2load usb 0:4 $fdtaddr $fdtfile;"	\
 	"ext2load usb 0:4 $ramdiskaddr $ramdiskfile;"	\
 	"bootm $loadaddr $ramdiskaddr $fdtaddr\0"	\
-	CONFIG_BOOTMODE
+	BOOTMODE
 
 #if defined(CONFIG_TARGET_P1010RDB_PA)
-#define CONFIG_BOOTMODE \
+#define BOOTMODE \
 	"boot_bank0=i2c dev 0; i2c mw 18 1 f1; i2c mw 18 3 f0;" \
 	"mw.b ffb00011 0; mw.b ffb00009 0; reset\0" \
 	"boot_bank1=i2c dev 0; i2c mw 18 1 f1; i2c mw 18 3 f0;" \
@@ -655,7 +630,7 @@ extern unsigned long get_sdram_size(void);
 	"mw.b ffb00011 0; mw.b ffb00017 1; reset\0"
 
 #elif defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_BOOTMODE \
+#define BOOTMODE \
 	"boot_bank0=i2c dev 0; i2c mw 18 1 fe; i2c mw 18 3 0;" \
 	"i2c mw 19 1 2; i2c mw 19 3 e1; reset\0" \
 	"boot_bank1=i2c dev 0; i2c mw 18 1 fe; i2c mw 18 3 0;" \

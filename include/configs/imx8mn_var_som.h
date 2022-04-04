@@ -14,8 +14,6 @@
 
 #define CONFIG_SPL_MAX_SIZE		(148 * SZ_1K)
 #define CONFIG_SYS_MONITOR_LEN		SZ_512K
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR		0x300
 #define CONFIG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
@@ -33,12 +31,6 @@
 	func(DHCP, dhcp, na) \
 
 #include <config_distro_bootcmd.h>
-
-/* ENET */
-#if defined(CONFIG_FEC_MXC)
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#endif /* CONFIG_FEC_MXC */
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
@@ -83,8 +75,5 @@
 
 /* USDHC */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
-
-/* I2C */
-#define CONFIG_SYS_I2C_SPEED		400000
 
 #endif /* __IMX8MN_VAR_SOM_H */

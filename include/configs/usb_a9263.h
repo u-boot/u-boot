@@ -23,10 +23,6 @@
 /*
  * Hardware drivers
  */
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
@@ -46,11 +42,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PD(15)
 #define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
-
-/* Ethernet */
-#define CONFIG_RMII
-#define CONFIG_NET_RETRY_COUNT			20
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* USB */
 #ifdef CONFIG_CMD_USB

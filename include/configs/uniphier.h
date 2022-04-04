@@ -39,7 +39,6 @@
 #define BOOTENV
 #endif
 
-#define CONFIG_SYS_MONITOR_BASE		0
 #define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
 
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
@@ -79,7 +78,6 @@
 #define CONFIG_ROOTPATH			"/nfs/root/path"
 
 #ifdef CONFIG_FIT
-#define CONFIG_BOOTFILE			"fitImage"
 #define KERNEL_ADDR_R_OFFSET		"0x05100000"
 #define LINUXBOOT_ENV_SETTINGS \
 	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
@@ -87,11 +85,9 @@
 	"__nfsboot=run tftpboot\0"
 #else
 #ifdef CONFIG_ARM64
-#define CONFIG_BOOTFILE			"Image"
 #define LINUXBOOT_CMD			"booti"
 #define KERNEL_ADDR_R_OFFSET		"0x02080000"
 #else
-#define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_CMD			"bootz"
 #define KERNEL_ADDR_R_OFFSET		"0x00208000"
 #endif

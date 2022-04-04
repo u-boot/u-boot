@@ -18,7 +18,8 @@ Notes
    classical firmware (like initial hardware setup, CPU errata workarounds
    or SMP bringup). U-Boot can be entered in EL2 when its main purpose is
    that of a boot loader. It can drop to lower exception levels before
-   entering the OS.
+   entering the OS. For ARMv8-R it is recommened to enter at S-EL1, as for this
+   architecture there is no S-EL3.
 
 2. U-Boot for arm64 is compiled with AArch64-gcc. AArch64-gcc
    use rela relocation format, a tool(tools/relocate-rela) by Scott Wood

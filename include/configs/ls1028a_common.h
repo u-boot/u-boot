@@ -40,7 +40,6 @@
 /* Miscellaneous configurable options */
 
 /* Physical Memory Map */
-#define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
@@ -75,8 +74,6 @@
 #define OCRAM_NONSECURE_SIZE		0x00010000
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
 
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE
-
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR_PRI            0x77 /* Primary Mux*/
 #define I2C_MUX_CH_DEFAULT              0x8
@@ -91,9 +88,5 @@
 #ifdef CONFIG_NXP_ESBC
 #include <asm/fsl_secure_boot.h>
 #endif
-
-/* Ethernet */
-/* smallest ENETC BD ring has 8 entries */
-#define CONFIG_SYS_RX_ETH_BUFFER		8
 
 #endif /* __L1028A_COMMON_H */

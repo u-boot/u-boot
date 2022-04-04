@@ -9,4 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "at91sam9263ek"
 
+config SYS_USE_NORFLASH
+	bool "Use the NOR flash on the platform"
+
 endif

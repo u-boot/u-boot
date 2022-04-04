@@ -77,4 +77,15 @@ If the pylint version is updated in CI, this may result in needing to regenerate
 `scripts/pylint.base`.
 
 
+Checking for errors
+-------------------
+
+If you only want to check for pylint errors, use::
+
+   PYTHONPATH=/path/to/scripts/dtc/pylibfdt/ make pylint_err
+
+This will show only pylint errors. Note that you must set PYTHONPATH to point
+to the pylibfdt directory build by U-Boot (typically the sandbox_spl board). If
+you have used `make qcheck` then it sill be in `board-sandbox_spl`.
+
 .. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/

@@ -732,7 +732,7 @@ static int dw_spi_remove(struct udevice *bus)
 	if (ret)
 		return ret;
 
-	ret = clk_free(&priv->clk);
+	clk_free(&priv->clk);
 	if (ret)
 		return ret;
 #endif

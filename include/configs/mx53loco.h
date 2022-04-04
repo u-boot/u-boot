@@ -23,16 +23,12 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* PMIC Controller */
-#define CONFIG_DIALOG_POWER
 #define CONFIG_POWER_FSL
 #define CONFIG_POWER_FSL_MC13892
 #define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
 
 /* Command definition */
-
-
-#define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
@@ -90,8 +86,6 @@
 		"else " \
 			"bootz; " \
 		"fi;\0"
-
-#define CONFIG_ARP_TIMEOUT	200UL
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */

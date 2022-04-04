@@ -91,6 +91,9 @@ SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
 ENV_DATA              = b'var1=1\nvar2="2"'
+PRE_LOAD_MAGIC        = b'UBSH'
+PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
+PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
 
 # Subdirectory of the input dir to use to put test FDTs
 TEST_FDT_SUBDIR       = 'fdts'
@@ -201,6 +204,13 @@ class TestFunctional(unittest.TestCase):
                                       TEST_FDT2_DATA)
 
         TestFunctional._MakeInputFile('env.txt', ENV_DATA)
+
+        # ELF file with two sections in different parts of memory, used for both
+        # ATF and OP_TEE
+        TestFunctional._MakeInputFile('bl31.elf',
+            tools.read_file(cls.ElfTestFile('elf_sections')))
+        TestFunctional._MakeInputFile('tee.elf',
+            tools.read_file(cls.ElfTestFile('elf_sections')))
 
         cls.have_lz4 = comp_util.HAVE_LZ4
 
@@ -991,7 +1001,7 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Section '/binman': Size 0x7 (7) does not match "
                       "align-size 0x8 (8)", str(e.exception))
 
-    def testPackAlignPowerOf2(self):
+    def testPackAlignPowerOf2Inv(self):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('020_pack_inv_image_align_power2.dts')
@@ -2028,9 +2038,9 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Node '/binman/files': Missing 'pattern' property",
                       str(e.exception))
 
-    def testExpandSize(self):
-        """Test an expanding entry"""
-        data, _, map_data, _ = self._DoReadFileDtb('088_expand_size.dts',
+    def testExtendSize(self):
+        """Test an extending entry"""
+        data, _, map_data, _ = self._DoReadFileDtb('088_extend_size.dts',
                                                    map=True)
         expect = (tools.get_bytes(ord('a'), 8) + U_BOOT_DATA +
                   MRC_DATA + tools.get_bytes(ord('b'), 1) + U_BOOT_DATA +
@@ -2050,11 +2060,11 @@ class TestFunctional(unittest.TestCase):
 00000020   00000020  00000008  fill2
 ''', map_data)
 
-    def testExpandSizeBad(self):
-        """Test an expanding entry which fails to provide contents"""
+    def testExtendSizeBad(self):
+        """Test an extending entry which fails to provide contents"""
         with test_util.capture_sys_output() as (stdout, stderr):
             with self.assertRaises(ValueError) as e:
-                self._DoReadFileDtb('089_expand_size_bad.dts', map=True)
+                self._DoReadFileDtb('089_extend_size_bad.dts', map=True)
         self.assertIn("Node '/binman/_testing': Cannot obtain contents when "
                       'expanding entry', str(e.exception))
 
@@ -2487,22 +2497,22 @@ class TestFunctional(unittest.TestCase):
                       str(e.exception))
 
     def testEntryExpand(self):
-        """Test expanding an entry after it is packed"""
-        data = self._DoReadFile('121_entry_expand.dts')
+        """Test extending an entry after it is packed"""
+        data = self._DoReadFile('121_entry_extend.dts')
         self.assertEqual(b'aaa', data[:3])
         self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
         self.assertEqual(b'aaa', data[-3:])
 
-    def testEntryExpandBad(self):
-        """Test expanding an entry after it is packed, twice"""
+    def testEntryExtendBad(self):
+        """Test extending an entry after it is packed, twice"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('122_entry_expand_twice.dts')
+            self._DoReadFile('122_entry_extend_twice.dts')
         self.assertIn("Image '/binman': Entries changed size after packing",
                       str(e.exception))
 
-    def testEntryExpandSection(self):
-        """Test expanding an entry within a section after it is packed"""
-        data = self._DoReadFile('123_entry_expand_section.dts')
+    def testEntryExtendSection(self):
+        """Test extending an entry within a section after it is packed"""
+        data = self._DoReadFile('123_entry_extend_section.dts')
         self.assertEqual(b'aaa', data[:3])
         self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
         self.assertEqual(b'aaa', data[-3:])
@@ -3714,7 +3724,7 @@ class TestFunctional(unittest.TestCase):
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'main-section'.*missing.*: intel-ifwi")
 
-    def testPackOverlap(self):
+    def testPackOverlapZero(self):
         """Test that zero-size overlapping regions are ignored"""
         self._DoTestFile('160_pack_overlap_zero.dts')
 
@@ -3780,6 +3790,7 @@ class TestFunctional(unittest.TestCase):
         dtb.Scan()
         props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS)
 
+        self.maxDiff = None
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
@@ -3793,19 +3804,19 @@ class TestFunctional(unittest.TestCase):
             'fit:offset': 4,
             'fit:size': 1840,
 
-            'fit/images/kernel:image-pos': 160,
-            'fit/images/kernel:offset': 156,
+            'fit/images/kernel:image-pos': 304,
+            'fit/images/kernel:offset': 300,
             'fit/images/kernel:size': 4,
 
-            'fit/images/kernel/u-boot:image-pos': 160,
+            'fit/images/kernel/u-boot:image-pos': 304,
             'fit/images/kernel/u-boot:offset': 0,
             'fit/images/kernel/u-boot:size': 4,
 
-            'fit/images/fdt-1:image-pos': 456,
-            'fit/images/fdt-1:offset': 452,
+            'fit/images/fdt-1:image-pos': 552,
+            'fit/images/fdt-1:offset': 548,
             'fit/images/fdt-1:size': 6,
 
-            'fit/images/fdt-1/u-boot-spl-dtb:image-pos': 456,
+            'fit/images/fdt-1/u-boot-spl-dtb:image-pos': 552,
             'fit/images/fdt-1/u-boot-spl-dtb:offset': 0,
             'fit/images/fdt-1/u-boot-spl-dtb:size': 6,
 
@@ -4029,6 +4040,7 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(expected_data, fnode.props['data'].bytes)
             self.assertEqual('fdt-test-fdt%d.dtb' % seq,
                              fnode.props['description'].value)
+            self.assertEqual(fnode.subnodes[0].name, 'hash')
 
         def _CheckConfig(seq, expected_data):
             """Check the configuration nodes
@@ -4094,13 +4106,6 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('171_fit_fdt_missing_prop.dts')
         self.assertIn("Generator node requires 'fit,fdt-list' property",
                       str(e.exception))
-
-    def testFitFdtEmptyList(self):
-        """Test handling of an empty 'of-list' entry arg"""
-        entry_args = {
-            'of-list': '',
-        }
-        data = self._DoReadFileDtb('170_fit_fdt.dts', entry_args=entry_args)[0]
 
     def testFitFdtMissing(self):
         """Test handling of a missing 'default-dt' entry arg"""
@@ -4986,16 +4991,6 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual('rot-cert', fent.fip_type)
         self.assertEqual(b'aa', fent.data)
 
-    def testFipOther(self):
-        """Basic FIP with something that isn't a external blob"""
-        data = self._DoReadFile('204_fip_other.dts')
-        hdr, fents = fip_util.decode_fip(data)
-
-        self.assertEqual(2, len(fents))
-        fent = fents[1]
-        self.assertEqual('rot-cert', fent.fip_type)
-        self.assertEqual(b'aa', fent.data)
-
     def testFipNoType(self):
         """FIP with an entry of an unknown type"""
         with self.assertRaises(ValueError) as e:
@@ -5318,9 +5313,215 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Check handling of an FDT map when the section cannot be found"""
         with self.assertRaises(ValueError) as exc:
             self._DoReadFileDtb('224_fit_bad_oper.dts')
-        self.assertIn("Node '/binman/fit': Unknown operation 'unknown'",
+        self.assertIn("Node '/binman/fit': subnode 'images/@fdt-SEQ': Unknown operation 'unknown'",
                       str(exc.exception))
 
+    def test_uses_expand_size(self):
+        """Test that the 'expand-size' property cannot be used anymore"""
+        with self.assertRaises(ValueError) as e:
+           data = self._DoReadFile('225_expand_size_bad.dts')
+        self.assertIn(
+            "Node '/binman/u-boot': Please use 'extend-size' instead of 'expand-size'",
+            str(e.exception))
+
+    def testMkimageMissingBlob(self):
+        """Test using mkimage to build an image"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('229_mkimage_missing.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: .*")
+
+    def testFitSplitElf(self):
+        """Test an image with an FIT with an split-elf operation"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'tee.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        data = self._DoReadFileDtb(
+            '226_fit_split_elf.dts',
+            entry_args=entry_args,
+            extra_indirs=[test_subdir])[0]
+
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+
+        base_keys = {'description', 'type', 'arch', 'os', 'compression',
+                     'data', 'load'}
+        dtb = fdt.Fdt.FromData(fit_data)
+        dtb.Scan()
+
+        elf_data = tools.read_file(os.path.join(self._indir, 'bl31.elf'))
+        segments, entry = elf.read_loadable_segments(elf_data)
+
+        # We assume there are two segments
+        self.assertEquals(2, len(segments))
+
+        atf1 = dtb.GetNode('/images/atf-1')
+        _, start, data = segments[0]
+        self.assertEqual(base_keys | {'entry'}, atf1.props.keys())
+        self.assertEqual(entry,
+                         fdt_util.fdt32_to_cpu(atf1.props['entry'].value))
+        self.assertEqual(start,
+                         fdt_util.fdt32_to_cpu(atf1.props['load'].value))
+        self.assertEqual(data, atf1.props['data'].bytes)
+
+        atf2 = dtb.GetNode('/images/atf-2')
+        self.assertEqual(base_keys, atf2.props.keys())
+        _, start, data = segments[1]
+        self.assertEqual(start,
+                         fdt_util.fdt32_to_cpu(atf2.props['load'].value))
+        self.assertEqual(data, atf2.props['data'].bytes)
+
+        conf = dtb.GetNode('/configurations')
+        self.assertEqual({'default'}, conf.props.keys())
+
+        for subnode in conf.subnodes:
+            self.assertEqual({'description', 'fdt', 'loadables'},
+                             subnode.props.keys())
+            self.assertEqual(
+                ['atf-1', 'atf-2', 'tee-1', 'tee-2'],
+                fdt_util.GetStringList(subnode, 'loadables'))
+
+    def _check_bad_fit(self, dts):
+        """Check a bad FIT
+
+        This runs with the given dts and returns the assertion raised
+
+        Args:
+            dts (str): dts filename to use
+
+        Returns:
+            str: Assertion string raised
+        """
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'tee.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb(dts, entry_args=entry_args,
+                                extra_indirs=[test_subdir])[0]
+        return str(exc.exception)
+
+    def testFitSplitElfBadElf(self):
+        """Test a FIT split-elf operation with an invalid ELF file"""
+        TestFunctional._MakeInputFile('bad.elf', tools.get_bytes(100, 100))
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bad.elf',
+            'tee-os-path': 'tee.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFileDtb(
+                '226_fit_split_elf.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
+        self.assertIn(
+            "Node '/binman/fit': subnode 'images/@atf-SEQ': Failed to read ELF file: Magic number does not match",
+            str(exc.exception))
+
+    def testFitSplitElfBadDirective(self):
+        """Test a FIT split-elf invalid fit,xxx directive in an image node"""
+        err = self._check_bad_fit('227_fit_bad_dir.dts')
+        self.assertIn(
+            "Node '/binman/fit': subnode 'images/@atf-SEQ': Unknown directive 'fit,something'",
+            err)
+
+    def testFitSplitElfBadDirectiveConfig(self):
+        """Test a FIT split-elf with invalid fit,xxx directive in config"""
+        err = self._check_bad_fit('228_fit_bad_dir_config.dts')
+        self.assertEqual(
+            "Node '/binman/fit': subnode 'configurations/@config-SEQ': Unknown directive 'fit,config'",
+            err)
+
+    def checkFitSplitElf(self, **kwargs):
+        """Test an split-elf FIT with a missing ELF file"""
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'missing.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile(
+                '226_fit_split_elf.dts', entry_args=entry_args,
+                extra_indirs=[test_subdir], **kwargs)
+        err = stderr.getvalue()
+        return err
+
+    def testFitSplitElfMissing(self):
+        """Test an split-elf FIT with a missing ELF file"""
+        err = self.checkFitSplitElf(allow_missing=True)
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs and is non-functional: .*")
+
+    def testFitSplitElfFaked(self):
+        """Test an split-elf FIT with faked ELF file"""
+        err = self.checkFitSplitElf(allow_missing=True, allow_fake_blobs=True)
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs and is non-functional: .*")
+
+    def testPreLoad(self):
+        """Test an image with a pre-load header"""
+        entry_args = {
+            'pre-load-key-path': '.',
+        }
+        data, _, _, _ = self._DoReadFileDtb('225_pre_load.dts',
+                                            entry_args=entry_args)
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+        data = self._DoReadFile('225_pre_load.dts')
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+
+    def testPreLoadPkcs(self):
+        """Test an image with a pre-load header with padding pkcs"""
+        data = self._DoReadFile('226_pre_load_pkcs.dts')
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+
+    def testPreLoadPss(self):
+        """Test an image with a pre-load header with padding pss"""
+        data = self._DoReadFile('227_pre_load_pss.dts')
+        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
+        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
+        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+
+    def testPreLoadInvalidPadding(self):
+        """Test an image with a pre-load header with an invalid padding"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('228_pre_load_invalid_padding.dts')
+
+    def testPreLoadInvalidSha(self):
+        """Test an image with a pre-load header with an invalid hash"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('229_pre_load_invalid_sha.dts')
+
+    def testPreLoadInvalidAlgo(self):
+        """Test an image with a pre-load header with an invalid algo"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('230_pre_load_invalid_algo.dts')
+
+    def testPreLoadInvalidKey(self):
+        """Test an image with a pre-load header with an invalid key"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('231_pre_load_invalid_key.dts')
 
 if __name__ == "__main__":
     unittest.main()

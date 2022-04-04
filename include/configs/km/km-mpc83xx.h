@@ -23,7 +23,6 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
 #define CONFIG_SYS_FLASH_BASE		0xF0000000
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
@@ -108,12 +107,7 @@
 	"unlock=yes\0"							 \
 	""
 
-#if defined(CONFIG_UEC_ETH)
-#define CONFIG_HAS_ETH0
-#endif
-
 /*
  * QE UEC ethernet configuration
  */
 #define CONFIG_UEC_ETH
-#define CONFIG_ETHPRIME		"UEC0"

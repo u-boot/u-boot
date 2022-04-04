@@ -60,9 +60,6 @@
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 #define CONFIG_CQSPI_REF_CLK		133333333
 
-/* HyperFlash related configuration */
-#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
-
 /* U-Boot general configuration */
 #define EXTRA_ENV_J721S2_BOARD_SETTINGS					\
 	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"	\

@@ -12,10 +12,6 @@
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
-
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_REGULATOR
-#endif
 #endif
 
 /* Miscellaneous configurable options */
@@ -41,7 +37,6 @@
 /* LCD */
 #ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_BMP_LOGO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #endif
 #endif
@@ -49,18 +44,17 @@
 /* Environment is stored in the eMMC boot partition */
 
 #define CONFIG_ENV_VERSION	100
-#define CONFIG_BOARD_NAME	opos6ul
 #define ACFG_CONSOLE_DEV        ttymxc0
 #define CONFIG_SYS_AUTOLOAD     "no"
-#define CONFIG_ROOTPATH         "/tftpboot/" __stringify(CONFIG_BOARD_NAME) "-root"
+#define CONFIG_ROOTPATH         "/tftpboot/opos6ul-root"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"env_version="          __stringify(CONFIG_ENV_VERSION)         "\0"                    \
 	"consoledev="           __stringify(ACFG_CONSOLE_DEV)           "\0"                    \
-	"board_name="           __stringify(CONFIG_BOARD_NAME)          "\0"                    \
+	"board_name=opos6ul\0"                                                                  \
 	"fdt_addr=0x88000000\0"                                                                 \
 	"fdt_high=0xffffffff\0"                                                                 \
-	"fdt_name="           __stringify(CONFIG_BOARD_NAME)          "dev\0"                   \
+	"fdt_name=opos6uldev\0"                                                                 \
 	"initrd_high=0xffffffff\0"                                                              \
 	"ip_dyn=yes\0"                                                                          \
 	"stdin=serial\0"                                                                        \
@@ -70,7 +64,7 @@
 	"mmcpart=2\0"                                                                           \
 	"mmcroot=/dev/mmcblk0p2 ro\0"                                                           \
 	"mmcrootfstype=ext4 rootwait\0"                                                         \
-	"kernelimg="           __stringify(CONFIG_BOARD_NAME)          "-linux.bin\0"           \
+	"kernelimg=opos6ul-linux.bin\0"                                                         \
 	"splashpos=0,0\0"									\
 	"splashimage="		__stringify(CONFIG_SYS_LOAD_ADDR)	"\0"			\
 	"videomode=video=ctfb:x:800,y:480,depth:18,pclk:33033,le:96,ri:96,up:20,lo:21,hs:64,vs:4,sync:0,vmode:0\0" \

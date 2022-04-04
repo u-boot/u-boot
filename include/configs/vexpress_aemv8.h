@@ -20,8 +20,13 @@
 #define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
 
 /* CS register bases for the original memory map. */
-#define V2M_BASE			0x80000000
+#ifdef CONFIG_TARGET_VEXPRESS64_BASER_FVP
+#define V2M_DRAM_BASE			0x00000000
+#define V2M_PA_BASE			0x80000000
+#else
+#define V2M_DRAM_BASE			0x80000000
 #define V2M_PA_BASE			0x00000000
+#endif
 
 #define V2M_PA_CS0			(V2M_PA_BASE + 0x00000000)
 #define V2M_PA_CS1			(V2M_PA_BASE + 0x14000000)
@@ -99,13 +104,8 @@
 #define CONFIG_PL011_CLOCK		24000000
 #endif
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
-/* Miscellaneous configurable options */
-
 /* Physical Memory Map */
-#define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1			(V2M_DRAM_BASE)	/* SDRAM Bank #1 */
 /* Top 16MB reserved for secure world use */
 #define DRAM_SEC_SIZE		0x01000000
 #define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE
@@ -119,11 +119,7 @@
 #define PHYS_SDRAM_2_SIZE		0x80000000
 #endif
 
-/* Enable memtest */
-
-/* Initial environment variables */
-#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-/* Copy the kernel and FDT to DRAM memory and boot */
+/* Copy the kernel, initrd and FDT from NOR flash to DRAM memory and boot. */
 #define BOOTENV_DEV_AFS(devtypeu, devtypel, instance) \
 	"bootcmd_afs="							\
 		"afs load ${kernel_name} ${kernel_addr_r} ;"\
@@ -146,6 +142,54 @@
 		"booti ${kernel_addr_r} ${ramdisk_param} ${fdt_addr_r}\0"
 #define BOOTENV_DEV_NAME_AFS(devtypeu, devtypel, instance) "afs "
 
+/* Boot by executing a U-Boot script pre-loaded into DRAM. */
+#define BOOTENV_DEV_MEM(devtypeu, devtypel, instance) \
+	"bootcmd_mem= " \
+		"source ${scriptaddr}; " \
+		"if test $? -eq 1; then " \
+		"  env import -t ${scriptaddr}; " \
+		"  if test -n $uenvcmd; then " \
+		"    echo Running uenvcmd ...; " \
+		"    run uenvcmd; " \
+		"  fi; " \
+		"fi\0"
+#define BOOTENV_DEV_NAME_MEM(devtypeu, devtypel, instance) "mem "
+
+#ifdef CONFIG_CMD_VIRTIO
+#define FUNC_VIRTIO(func)	func(VIRTIO, virtio, 0)
+#else
+#define FUNC_VIRTIO(func)
+#endif
+
+/*
+ * Boot by loading an Android image, or kernel, initrd and FDT through
+ * semihosting into DRAM.
+ */
+#define BOOTENV_DEV_SMH(devtypeu, devtypel, instance) \
+	"bootcmd_smh= " 						\
+		"if load hostfs - ${boot_addr_r} ${boot_name}; then"		\
+		"  setenv bootargs;"					\
+		"  abootimg addr ${boot_addr_r};"			\
+		"  abootimg get dtb --index=0 fdt_addr_r;"		\
+		"  bootm ${boot_addr_r} ${boot_addr_r} ${fdt_addr_r};"	\
+		"else"							\
+		"  if load hostfs - ${kernel_addr_r} ${kernel_name}; then"	\
+		"    setenv fdt_high 0xffffffffffffffff;"		\
+		"    setenv initrd_high 0xffffffffffffffff;"		\
+		"    load hostfs - ${fdt_addr_r} ${fdtfile};"			\
+		"    load hostfs - ${ramdisk_addr_r} ${ramdisk_name};" \
+		"    fdt addr ${fdt_addr_r};"				\
+		"    fdt resize;"					\
+		"    fdt chosen ${ramdisk_addr_r} ${filesize};"	\
+		"    booti $kernel_addr_r - $fdt_addr_r;"		\
+		"  fi;"							\
+		"fi\0"
+#define BOOTENV_DEV_NAME_SMH(devtypeu, devtypel, instance) "smh "
+
+/* Boot sources for distro boot and load addresses, per board */
+
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO			/* Arm Juno board */
+
 #define BOOT_TARGET_DEVICES(func)	\
 	func(USB, usb, 0)		\
 	func(SATA, sata, 0)		\
@@ -154,41 +198,73 @@
 	func(DHCP, dhcp, na)		\
 	func(AFS, afs, na)
 
+#define VEXPRESS_KERNEL_ADDR		0x80080000
+#define VEXPRESS_PXEFILE_ADDR		0x8fb00000
+#define VEXPRESS_FDT_ADDR		0x8fc00000
+#define VEXPRESS_SCRIPT_ADDR		0x8fd00000
+#define VEXPRESS_RAMDISK_ADDR		0x8fe00000
+
+#define EXTRA_ENV_NAMES							\
+		"kernel_name=norkern\0"					\
+		"kernel_alt_name=Image\0"				\
+		"ramdisk_name=ramdisk.img\0"				\
+		"fdtfile=board.dtb\0"					\
+		"fdt_alt_name=juno\0"
+
+#elif CONFIG_TARGET_VEXPRESS64_BASE_FVP			/* ARMv8-A base model */
+
+#define BOOT_TARGET_DEVICES(func)	\
+	func(SMH, smh, na)		\
+	func(MEM, mem, na)		\
+	FUNC_VIRTIO(func)		\
+	func(PXE, pxe, na)		\
+	func(DHCP, dhcp, na)
+
+#define VEXPRESS_KERNEL_ADDR		0x80080000
+#define VEXPRESS_PXEFILE_ADDR		0x8fa00000
+#define VEXPRESS_SCRIPT_ADDR		0x8fb00000
+#define VEXPRESS_FDT_ADDR		0x8fc00000
+#define VEXPRESS_BOOT_ADDR		0x8fd00000
+#define VEXPRESS_RAMDISK_ADDR		0x8fe00000
+
+#define EXTRA_ENV_NAMES							\
+		"kernel_name=Image\0"					\
+		"ramdisk_name=ramdisk.img\0"				\
+		"fdtfile=devtree.dtb\0"					\
+		"boot_name=boot.img\0"					\
+		"boot_addr_r=" __stringify(VEXPRESS_BOOT_ADDR) "\0"
+
+#elif CONFIG_TARGET_VEXPRESS64_BASER_FVP		/* ARMv8-R base model */
+
+#define BOOT_TARGET_DEVICES(func)	\
+	func(MEM, mem, na)		\
+	FUNC_VIRTIO(func)		\
+	func(PXE, pxe, na)		\
+	func(DHCP, dhcp, na)
+
+#define VEXPRESS_KERNEL_ADDR		0x00200000
+#define VEXPRESS_PXEFILE_ADDR		0x0fb00000
+#define VEXPRESS_FDT_ADDR		0x0fc00000
+#define VEXPRESS_SCRIPT_ADDR		0x0fd00000
+#define VEXPRESS_RAMDISK_ADDR		0x0fe00000
+
+#define EXTRA_ENV_NAMES							\
+					"kernel_name=Image\0"		\
+					"ramdisk_name=ramdisk.img\0"	\
+					"fdtfile=board.dtb\0"
+#endif
+
 #include <config_distro_bootcmd.h>
 
-/*
- * Defines where the kernel and FDT exist in NOR flash and where it will
- * be copied into DRAM
- */
+/* Default load addresses and names for the different payloads. */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-				"kernel_name=norkern\0"	\
-				"kernel_alt_name=Image\0"	\
-				"kernel_addr_r=0x80080000\0" \
-				"ramdisk_name=ramdisk.img\0"	\
-				"ramdisk_addr_r=0x88000000\0"	\
-				"fdtfile=board.dtb\0" \
-				"fdt_alt_name=juno\0" \
-				"fdt_addr_r=0x80000000\0" \
-				BOOTENV
-
-#elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
-
-#define VEXPRESS_KERNEL_ADDR	0x80080000
-#define VEXPRESS_FDT_ADDR	0x8fc00000
-#define VEXPRESS_BOOT_ADDR	0x8fd00000
-#define VEXPRESS_RAMDISK_ADDR	0x8fe00000
-
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-				"kernel_name=Image\0"		\
-				"kernel_addr_r=" __stringify(VEXPRESS_KERNEL_ADDR) "\0"	\
-				"ramdisk_name=ramdisk.img\0"	\
-				"ramdisk_addr_r=" __stringify(VEXPRESS_RAMDISK_ADDR) "\0" \
-				"fdtfile=devtree.dtb\0"	\
-				"fdt_addr_r=" __stringify(VEXPRESS_FDT_ADDR) "\0"	\
-				"boot_name=boot.img\0" \
-				"boot_addr_r=" __stringify(VEXPRESS_BOOT_ADDR) "\0"
-
-#endif
+		"kernel_addr_r=" __stringify(VEXPRESS_KERNEL_ADDR) "\0"	       \
+		"ramdisk_addr_r=" __stringify(VEXPRESS_RAMDISK_ADDR) "\0"      \
+		"pxefile_addr_r=" __stringify(VEXPRESS_PXEFILE_ADDR) "\0"      \
+		"fdt_addr_r=" __stringify(VEXPRESS_FDT_ADDR) "\0"	       \
+		"scriptaddr=" __stringify(VEXPRESS_SCRIPT_ADDR) "\0"	       \
+		EXTRA_ENV_NAMES						       \
+		BOOTENV
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */

@@ -10,32 +10,14 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK      32768
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
 
-#define CONFIG_AT91SAM9M10G45EK
-
 /* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
-#define CONFIG_LCD_LOGO
-#undef LCD_TEST_PATTERN
-#define CONFIG_LCD_INFO
-#define CONFIG_LCD_INFO_BELOW_LOGO
-#define CONFIG_ATMEL_LCD
-#define CONFIG_ATMEL_LCD_RGB565
-/* board specific(not enough SRAM) */
-#define CONFIG_AT91SAM9G45_LCD_BASE		0x73E00000
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE           0x70000000
@@ -57,10 +39,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC8
 
 #endif
-
-/* Ethernet */
-#define CONFIG_RESET_PHY_R
-#define CONFIG_AT91_WANTS_COMMON_PHY
 
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */
@@ -94,7 +72,6 @@
 					  56, 57, 58, 59, 60, 61, 62, 63, }
 #endif
 
-#define CONFIG_SPL_ATMEL_SIZE
 #define CONFIG_SYS_MASTER_CLOCK		132096000
 #define CONFIG_SYS_AT91_PLLA		0x20c73f03
 #define CONFIG_SYS_MCKR			0x1301

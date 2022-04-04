@@ -13,7 +13,6 @@
 #include <linux/stringify.h>
 
 #if defined(CONFIG_TARGET_P1020RDB_PC)
-#define CONFIG_BOARDNAME "P1020RDB-PC"
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
@@ -39,7 +38,6 @@
  * 011101 800 800 400 667 PCIe-2 Core0 boot; Core1 hold-off
  */
 #if defined(CONFIG_TARGET_P1020RDB_PD)
-#define CONFIG_BOARDNAME "P1020RDB-PD"
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
@@ -55,7 +53,6 @@
 #endif
 
 #if defined(CONFIG_TARGET_P2020RDB)
-#define CONFIG_BOARDNAME "P2020RDB-PC"
 #define CONFIG_VSC7385_ENET
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0xc8
@@ -125,16 +122,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#ifndef CONFIG_SYS_MONITOR_BASE
-#ifdef CONFIG_TPL_BUILD
-#define CONFIG_SYS_MONITOR_BASE	0xf8f81000
-#elif defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
-#else
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
-#endif
-#endif
-
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
 
@@ -145,7 +132,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE
-#define CONFIG_BTB
 
 #define CONFIG_ENABLE_36BIT_PHYS
 
@@ -165,10 +151,8 @@
 
 #if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
-#define CONFIG_CHIP_SELECTS_PER_CTRL	2
 #else
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_1G
-#define CONFIG_CHIP_SELECTS_PER_CTRL	1
 #endif
 #define CONFIG_SYS_SDRAM_SIZE		(1u << (CONFIG_SYS_SDRAM_SIZE_LAW - 19))
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
@@ -327,9 +311,6 @@
 #define CONFIG_SYS_CPLD_BASE_PHYS	CONFIG_SYS_CPLD_BASE
 #endif
 /* CPLD config size: 1Mb */
-#define CONFIG_CPLD_BR_PRELIM	(BR_PHYS_ADDR(CONFIG_SYS_CPLD_BASE_PHYS) | \
-					BR_PS_8 | BR_V)
-#define CONFIG_CPLD_OR_PRELIM	(0xfff009f7)
 
 #define CONFIG_SYS_PMC_BASE	0xff980000
 #define CONFIG_SYS_PMC_BASE_PHYS	CONFIG_SYS_PMC_BASE
@@ -488,12 +469,6 @@
 #define TSEC1_PHYIDX	0
 #define TSEC2_PHYIDX	0
 #define TSEC3_PHYIDX	0
-
-#define CONFIG_ETHPRIME	"eTSEC1"
-
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
 #endif /* CONFIG_TSEC_ENET */
 
 /*
@@ -549,7 +524,6 @@
  */
 #define CONFIG_HOSTNAME		"unknown"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
 #ifdef __SW_BOOT_NOR

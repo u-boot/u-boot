@@ -19,6 +19,8 @@ from patman import tout
 
 modules = {}
 
+# This is imported if needed
+state = None
 
 # An argument which can be passed to entries on the command line, in lieu of
 # device-tree properties.
@@ -104,7 +106,7 @@ class Entry(object):
         self.pad_after = 0
         self.offset_unset = False
         self.image_pos = None
-        self.expand_size = False
+        self.extend_size = False
         self.compress = 'none'
         self.missing = False
         self.faked = False
@@ -233,6 +235,8 @@ class Entry(object):
         """
         if 'pos' in self._node.props:
             self.Raise("Please use 'offset' instead of 'pos'")
+        if 'expand-size' in self._node.props:
+            self.Raise("Please use 'extend-size' instead of 'expand-size'")
         self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
         self.orig_offset = fdt_util.GetInt(self._node, 'orig-offset')
@@ -260,7 +264,7 @@ class Entry(object):
                        self.align_size)
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
-        self.expand_size = fdt_util.GetBool(self._node, 'expand-size')
+        self.extend_size = fdt_util.GetBool(self._node, 'extend-size')
         self.missing_msg = fdt_util.GetString(self._node, 'missing-msg')
 
         # This is only supported by blobs and sections at present
@@ -282,8 +286,8 @@ class Entry(object):
         """
         return {}
 
-    def ExpandEntries(self):
-        """Expand out entries which produce other entries
+    def gen_entries(self):
+        """Allow entries to generate other entries
 
         Some entries generate subnodes automatically, from which sub-entries
         are then created. This method allows those to be added to the binman
@@ -413,8 +417,12 @@ class Entry(object):
         self.SetContents(data)
         return size_ok
 
-    def ObtainContents(self):
+    def ObtainContents(self, skip_entry=None, fake_size=0):
         """Figure out the contents of an entry.
+
+        Args:
+            skip_entry (Entry): Entry to skip when obtaining section contents
+            fake_size (int): Size of fake file to create if needed
 
         Returns:
             True if the contents were found, False if another call is needed
@@ -772,8 +780,8 @@ features to produce new behaviours.
             name = '%s.%s' % (node.name, name)
         return name
 
-    def ExpandToLimit(self, limit):
-        """Expand an entry so that it ends at the given offset limit"""
+    def extend_to_limit(self, limit):
+        """Extend an entry so that it ends at the given offset limit"""
         if self.offset + self.size < limit:
             self.size = limit - self.offset
             # Request the contents again, since changing the size requires that
@@ -986,24 +994,28 @@ features to produce new behaviours.
         if self.missing:
             missing_list.append(self)
 
-    def check_fake_fname(self, fname):
+    def check_fake_fname(self, fname, size=0):
         """If the file is missing and the entry allows fake blobs, fake it
 
         Sets self.faked to True if faked
 
         Args:
             fname (str): Filename to check
+            size (int): Size of fake file to create
 
         Returns:
-            fname (str): Filename of faked file
+            tuple:
+                fname (str): Filename of faked file
+                bool: True if the blob was faked, False if not
         """
         if self.allow_fake and not pathlib.Path(fname).is_file():
             outfname = tools.get_output_filename(os.path.basename(fname))
             with open(outfname, "wb") as out:
-                out.truncate(1024)
+                out.truncate(size)
             self.faked = True
-            return outfname
-        return fname
+            tout.info(f"Entry '{self._node.path}': Faked file '{outfname}'")
+            return outfname, True
+        return fname, False
 
     def CheckFakedBlobs(self, faked_blobs_list):
         """Check if any entries in this section have faked external blobs
@@ -1097,11 +1109,11 @@ features to produce new behaviours.
         """
         pass
 
-    def AddBintools(self, tools):
+    def AddBintools(self, btools):
         """Add the bintools used by this entry type
 
         Args:
-            tools (dict of Bintool):
+            btools (dict of Bintool):
         """
         pass
 
@@ -1124,28 +1136,29 @@ features to produce new behaviours.
         """
         self.update_hash = update_hash
 
-    def collect_contents_to_file(self, entries, prefix):
+    def collect_contents_to_file(self, entries, prefix, fake_size=0):
         """Put the contents of a list of entries into a file
 
         Args:
             entries (list of Entry): Entries to collect
             prefix (str): Filename prefix of file to write to
+            fake_size (int): Size of fake file to create if needed
 
         If any entry does not have contents yet, this function returns False
         for the data.
 
         Returns:
             Tuple:
-                bytes: Concatenated data from all the entries (or False)
-                str: Filename of file written (or False if no data)
-                str: Unique portion of filename (or False if no data)
+                bytes: Concatenated data from all the entries (or None)
+                str: Filename of file written (or None if no data)
+                str: Unique portion of filename (or None if no data)
         """
         data = b''
         for entry in entries:
             # First get the input data and put it in a file. If not available,
             # try later.
-            if not entry.ObtainContents():
-                return False, False, False
+            if not entry.ObtainContents(fake_size=fake_size):
+                return None, None, None
             data += entry.GetData()
         uniq = self.GetUniqueName()
         fname = tools.get_output_filename(f'{prefix}.{uniq}')

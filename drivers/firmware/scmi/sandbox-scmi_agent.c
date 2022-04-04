@@ -19,51 +19,36 @@
  * The sandbox SCMI agent driver simulates to some extend a SCMI message
  * processing. It simulates few of the SCMI services for some of the
  * SCMI protocols embedded in U-Boot. Currently:
- * - SCMI clock protocol: emulate 2 agents each exposing few clocks
- * - SCMI reset protocol: emulate 1 agent exposing a reset controller
- * - SCMI voltage domain protocol: emulate 1 agent exposing 2 regulators
+ * - SCMI clock protocol emulates an agent exposing 2 clocks
+ * - SCMI reset protocol emulates an agent exposing a reset controller
+ * - SCMI voltage domain protocol emulates an agent exposing 2 regulators
  *
- * Agent #0 simulates 2 clocks, 1 reset domain and 1 voltage domain.
- * See IDs in scmi0_clk[]/scmi0_reset[] and "sandbox-scmi-agent@0" in test.dts.
- *
- * Agent #1 simulates 1 clock.
- * See IDs in scmi1_clk[] and "sandbox-scmi-agent@1" in test.dts.
+ * As per DT bindings, the device node name shall be scmi.
  *
  * All clocks and regulators are default disabled and reset controller down.
  *
- * This Driver exports sandbox_scmi_service_ctx() for the test sequence to
+ * This driver exports sandbox_scmi_service_ctx() for the test sequence to
  * get the state of the simulated services (clock state, rate, ...) and
  * check back-end device state reflects the request send through the
  * various uclass devices, as clocks and reset controllers.
  */
 
-#define SANDBOX_SCMI_AGENT_COUNT	2
-
-static struct sandbox_scmi_clk scmi0_clk[] = {
-	{ .id = 7, .rate = 1000 },
-	{ .id = 3, .rate = 333 },
+static struct sandbox_scmi_clk scmi_clk[] = {
+	{ .rate = 333 },
+	{ .rate = 200 },
+	{ .rate = 1000 },
 };
 
-static struct sandbox_scmi_reset scmi0_reset[] = {
+static struct sandbox_scmi_reset scmi_reset[] = {
 	{ .id = 3 },
 };
 
-static struct sandbox_scmi_voltd scmi0_voltd[] = {
+static struct sandbox_scmi_voltd scmi_voltd[] = {
 	{ .id = 0, .voltage_uv = 3300000 },
 	{ .id = 1, .voltage_uv = 1800000 },
 };
 
-static struct sandbox_scmi_clk scmi1_clk[] = {
-	{ .id = 1, .rate = 44 },
-};
-
-/* The list saves to simulted end devices references for test purpose */
-struct sandbox_scmi_agent *sandbox_scmi_agent_list[SANDBOX_SCMI_AGENT_COUNT];
-
-static struct sandbox_scmi_service sandbox_scmi_service_state = {
-	.agent = sandbox_scmi_agent_list,
-	.agent_count = SANDBOX_SCMI_AGENT_COUNT,
-};
+static struct sandbox_scmi_service sandbox_scmi_service_state;
 
 struct sandbox_scmi_service *sandbox_scmi_service_ctx(void)
 {
@@ -74,9 +59,8 @@ static void debug_print_agent_state(struct udevice *dev, char *str)
 {
 	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 
-	dev_dbg(dev, "Dump sandbox_scmi_agent %u: %s\n", agent->idx, str);
-	dev_dbg(dev, " scmi%u_clk   (%zu): %d/%ld, %d/%ld, %d/%ld, ...\n",
-		agent->idx,
+	dev_dbg(dev, "Dump sandbox_scmi_agent: %s\n", str);
+	dev_dbg(dev, " scmi_clk   (%zu): %d/%ld, %d/%ld, %d/%ld, ...\n",
 		agent->clk_count,
 		agent->clk_count ? agent->clk[0].enabled : -1,
 		agent->clk_count ? agent->clk[0].rate : -1,
@@ -84,13 +68,11 @@ static void debug_print_agent_state(struct udevice *dev, char *str)
 		agent->clk_count > 1 ? agent->clk[1].rate : -1,
 		agent->clk_count > 2 ? agent->clk[2].enabled : -1,
 		agent->clk_count > 2 ? agent->clk[2].rate : -1);
-	dev_dbg(dev, " scmi%u_reset (%zu): %d, %d, ...\n",
-		agent->idx,
+	dev_dbg(dev, " scmi_reset (%zu): %d, %d, ...\n",
 		agent->reset_count,
 		agent->reset_count ? agent->reset[0].asserted : -1,
 		agent->reset_count > 1 ? agent->reset[1].asserted : -1);
-	dev_dbg(dev, " scmi%u_voltd (%zu): %u/%d, %u/%d, ...\n",
-		agent->idx,
+	dev_dbg(dev, " scmi_voltd (%zu): %u/%d, %u/%d, ...\n",
 		agent->voltd_count,
 		agent->voltd_count ? agent->voltd[0].enabled : -1,
 		agent->voltd_count ? agent->voltd[0].voltage_uv : -1,
@@ -98,56 +80,32 @@ static void debug_print_agent_state(struct udevice *dev, char *str)
 		agent->voltd_count ? agent->voltd[1].voltage_uv : -1);
 };
 
-static struct sandbox_scmi_clk *get_scmi_clk_state(uint agent_id, uint clock_id)
+static struct sandbox_scmi_clk *get_scmi_clk_state(uint clock_id)
 {
-	struct sandbox_scmi_clk *target = NULL;
-	size_t target_count = 0;
-	size_t n;
-
-	switch (agent_id) {
-	case 0:
-		target = scmi0_clk;
-		target_count = ARRAY_SIZE(scmi0_clk);
-		break;
-	case 1:
-		target = scmi1_clk;
-		target_count = ARRAY_SIZE(scmi1_clk);
-		break;
-	default:
-		return NULL;
-	}
-
-	for (n = 0; n < target_count; n++)
-		if (target[n].id == clock_id)
-			return target + n;
+	if (clock_id < ARRAY_SIZE(scmi_clk))
+		return scmi_clk + clock_id;
 
 	return NULL;
 }
 
-static struct sandbox_scmi_reset *get_scmi_reset_state(uint agent_id,
-						       uint reset_id)
+static struct sandbox_scmi_reset *get_scmi_reset_state(uint reset_id)
 {
 	size_t n;
 
-	if (agent_id == 0) {
-		for (n = 0; n < ARRAY_SIZE(scmi0_reset); n++)
-			if (scmi0_reset[n].id == reset_id)
-				return scmi0_reset + n;
-	}
+	for (n = 0; n < ARRAY_SIZE(scmi_reset); n++)
+		if (scmi_reset[n].id == reset_id)
+			return scmi_reset + n;
 
 	return NULL;
 }
 
-static struct sandbox_scmi_voltd *get_scmi_voltd_state(uint agent_id,
-						       uint domain_id)
+static struct sandbox_scmi_voltd *get_scmi_voltd_state(uint domain_id)
 {
 	size_t n;
 
-	if (agent_id == 0) {
-		for (n = 0; n < ARRAY_SIZE(scmi0_voltd); n++)
-			if (scmi0_voltd[n].id == domain_id)
-				return scmi0_voltd + n;
-	}
+	for (n = 0; n < ARRAY_SIZE(scmi_voltd); n++)
+		if (scmi_voltd[n].id == domain_id)
+			return scmi_voltd + n;
 
 	return NULL;
 }
@@ -156,10 +114,58 @@ static struct sandbox_scmi_voltd *get_scmi_voltd_state(uint agent_id,
  * Sandbox SCMI agent ops
  */
 
+static int sandbox_scmi_clock_protocol_attribs(struct udevice *dev,
+					       struct scmi_msg *msg)
+{
+	struct scmi_clk_protocol_attr_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_clk_protocol_attr_out *)msg->out_msg;
+	out->attributes = ARRAY_SIZE(scmi_clk);
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+static int sandbox_scmi_clock_attribs(struct udevice *dev, struct scmi_msg *msg)
+{
+	struct scmi_clk_attribute_in *in = NULL;
+	struct scmi_clk_attribute_out *out = NULL;
+	struct sandbox_scmi_clk *clk_state = NULL;
+	int ret;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	in = (struct scmi_clk_attribute_in *)msg->in_msg;
+	out = (struct scmi_clk_attribute_out *)msg->out_msg;
+
+	clk_state = get_scmi_clk_state(in->clock_id);
+	if (!clk_state) {
+		dev_err(dev, "Unexpected clock ID %u\n", in->clock_id);
+
+		out->status = SCMI_NOT_FOUND;
+	} else {
+		memset(out, 0, sizeof(*out));
+
+		if (clk_state->enabled)
+			out->attributes = 1;
+
+		ret = snprintf(out->clock_name, sizeof(out->clock_name),
+			       "clk%u", in->clock_id);
+		assert(ret > 0 && ret < sizeof(out->clock_name));
+
+		out->status = SCMI_SUCCESS;
+	}
+
+	return 0;
+}
 static int sandbox_scmi_clock_rate_set(struct udevice *dev,
 				       struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_clk_rate_set_in *in = NULL;
 	struct scmi_clk_rate_set_out *out = NULL;
 	struct sandbox_scmi_clk *clk_state = NULL;
@@ -171,7 +177,7 @@ static int sandbox_scmi_clock_rate_set(struct udevice *dev,
 	in = (struct scmi_clk_rate_set_in *)msg->in_msg;
 	out = (struct scmi_clk_rate_set_out *)msg->out_msg;
 
-	clk_state = get_scmi_clk_state(agent->idx, in->clock_id);
+	clk_state = get_scmi_clk_state(in->clock_id);
 	if (!clk_state) {
 		dev_err(dev, "Unexpected clock ID %u\n", in->clock_id);
 
@@ -190,7 +196,6 @@ static int sandbox_scmi_clock_rate_set(struct udevice *dev,
 static int sandbox_scmi_clock_rate_get(struct udevice *dev,
 				       struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_clk_rate_get_in *in = NULL;
 	struct scmi_clk_rate_get_out *out = NULL;
 	struct sandbox_scmi_clk *clk_state = NULL;
@@ -202,7 +207,7 @@ static int sandbox_scmi_clock_rate_get(struct udevice *dev,
 	in = (struct scmi_clk_rate_get_in *)msg->in_msg;
 	out = (struct scmi_clk_rate_get_out *)msg->out_msg;
 
-	clk_state = get_scmi_clk_state(agent->idx, in->clock_id);
+	clk_state = get_scmi_clk_state(in->clock_id);
 	if (!clk_state) {
 		dev_err(dev, "Unexpected clock ID %u\n", in->clock_id);
 
@@ -219,7 +224,6 @@ static int sandbox_scmi_clock_rate_get(struct udevice *dev,
 
 static int sandbox_scmi_clock_gate(struct udevice *dev, struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_clk_state_in *in = NULL;
 	struct scmi_clk_state_out *out = NULL;
 	struct sandbox_scmi_clk *clk_state = NULL;
@@ -231,7 +235,7 @@ static int sandbox_scmi_clock_gate(struct udevice *dev, struct scmi_msg *msg)
 	in = (struct scmi_clk_state_in *)msg->in_msg;
 	out = (struct scmi_clk_state_out *)msg->out_msg;
 
-	clk_state = get_scmi_clk_state(agent->idx, in->clock_id);
+	clk_state = get_scmi_clk_state(in->clock_id);
 	if (!clk_state) {
 		dev_err(dev, "Unexpected clock ID %u\n", in->clock_id);
 
@@ -249,7 +253,6 @@ static int sandbox_scmi_clock_gate(struct udevice *dev, struct scmi_msg *msg)
 
 static int sandbox_scmi_rd_attribs(struct udevice *dev, struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_rd_attr_in *in = NULL;
 	struct scmi_rd_attr_out *out = NULL;
 	struct sandbox_scmi_reset *reset_state = NULL;
@@ -261,7 +264,7 @@ static int sandbox_scmi_rd_attribs(struct udevice *dev, struct scmi_msg *msg)
 	in = (struct scmi_rd_attr_in *)msg->in_msg;
 	out = (struct scmi_rd_attr_out *)msg->out_msg;
 
-	reset_state = get_scmi_reset_state(agent->idx, in->domain_id);
+	reset_state = get_scmi_reset_state(in->domain_id);
 	if (!reset_state) {
 		dev_err(dev, "Unexpected reset domain ID %u\n", in->domain_id);
 
@@ -278,7 +281,6 @@ static int sandbox_scmi_rd_attribs(struct udevice *dev, struct scmi_msg *msg)
 
 static int sandbox_scmi_rd_reset(struct udevice *dev, struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_rd_reset_in *in = NULL;
 	struct scmi_rd_reset_out *out = NULL;
 	struct sandbox_scmi_reset *reset_state = NULL;
@@ -290,7 +292,7 @@ static int sandbox_scmi_rd_reset(struct udevice *dev, struct scmi_msg *msg)
 	in = (struct scmi_rd_reset_in *)msg->in_msg;
 	out = (struct scmi_rd_reset_out *)msg->out_msg;
 
-	reset_state = get_scmi_reset_state(agent->idx, in->domain_id);
+	reset_state = get_scmi_reset_state(in->domain_id);
 	if (!reset_state) {
 		dev_err(dev, "Unexpected reset domain ID %u\n", in->domain_id);
 
@@ -321,7 +323,6 @@ static int sandbox_scmi_rd_reset(struct udevice *dev, struct scmi_msg *msg)
 
 static int sandbox_scmi_voltd_attribs(struct udevice *dev, struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_voltd_attr_in *in = NULL;
 	struct scmi_voltd_attr_out *out = NULL;
 	struct sandbox_scmi_voltd *voltd_state = NULL;
@@ -333,7 +334,7 @@ static int sandbox_scmi_voltd_attribs(struct udevice *dev, struct scmi_msg *msg)
 	in = (struct scmi_voltd_attr_in *)msg->in_msg;
 	out = (struct scmi_voltd_attr_out *)msg->out_msg;
 
-	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	voltd_state = get_scmi_voltd_state(in->domain_id);
 	if (!voltd_state) {
 		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
 
@@ -351,7 +352,6 @@ static int sandbox_scmi_voltd_attribs(struct udevice *dev, struct scmi_msg *msg)
 static int sandbox_scmi_voltd_config_set(struct udevice *dev,
 					 struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_voltd_config_set_in *in = NULL;
 	struct scmi_voltd_config_set_out *out = NULL;
 	struct sandbox_scmi_voltd *voltd_state = NULL;
@@ -363,7 +363,7 @@ static int sandbox_scmi_voltd_config_set(struct udevice *dev,
 	in = (struct scmi_voltd_config_set_in *)msg->in_msg;
 	out = (struct scmi_voltd_config_set_out *)msg->out_msg;
 
-	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	voltd_state = get_scmi_voltd_state(in->domain_id);
 	if (!voltd_state) {
 		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
 
@@ -388,7 +388,6 @@ static int sandbox_scmi_voltd_config_set(struct udevice *dev,
 static int sandbox_scmi_voltd_config_get(struct udevice *dev,
 					 struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_voltd_config_get_in *in = NULL;
 	struct scmi_voltd_config_get_out *out = NULL;
 	struct sandbox_scmi_voltd *voltd_state = NULL;
@@ -400,7 +399,7 @@ static int sandbox_scmi_voltd_config_get(struct udevice *dev,
 	in = (struct scmi_voltd_config_get_in *)msg->in_msg;
 	out = (struct scmi_voltd_config_get_out *)msg->out_msg;
 
-	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	voltd_state = get_scmi_voltd_state(in->domain_id);
 	if (!voltd_state) {
 		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
 
@@ -420,7 +419,6 @@ static int sandbox_scmi_voltd_config_get(struct udevice *dev,
 static int sandbox_scmi_voltd_level_set(struct udevice *dev,
 					 struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_voltd_level_set_in *in = NULL;
 	struct scmi_voltd_level_set_out *out = NULL;
 	struct sandbox_scmi_voltd *voltd_state = NULL;
@@ -432,7 +430,7 @@ static int sandbox_scmi_voltd_level_set(struct udevice *dev,
 	in = (struct scmi_voltd_level_set_in *)msg->in_msg;
 	out = (struct scmi_voltd_level_set_out *)msg->out_msg;
 
-	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	voltd_state = get_scmi_voltd_state(in->domain_id);
 	if (!voltd_state) {
 		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
 
@@ -448,7 +446,6 @@ static int sandbox_scmi_voltd_level_set(struct udevice *dev,
 static int sandbox_scmi_voltd_level_get(struct udevice *dev,
 					struct scmi_msg *msg)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 	struct scmi_voltd_level_get_in *in = NULL;
 	struct scmi_voltd_level_get_out *out = NULL;
 	struct sandbox_scmi_voltd *voltd_state = NULL;
@@ -460,7 +457,7 @@ static int sandbox_scmi_voltd_level_get(struct udevice *dev,
 	in = (struct scmi_voltd_level_get_in *)msg->in_msg;
 	out = (struct scmi_voltd_level_get_out *)msg->out_msg;
 
-	voltd_state = get_scmi_voltd_state(agent->idx, in->domain_id);
+	voltd_state = get_scmi_voltd_state(in->domain_id);
 	if (!voltd_state) {
 		dev_err(dev, "Unexpected domain ID %u\n", in->domain_id);
 
@@ -479,6 +476,10 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 	switch (msg->protocol_id) {
 	case SCMI_PROTOCOL_ID_CLOCK:
 		switch (msg->message_id) {
+		case SCMI_PROTOCOL_ATTRIBUTES:
+			return sandbox_scmi_clock_protocol_attribs(dev, msg);
+		case SCMI_CLOCK_ATTRIBUTES:
+			return sandbox_scmi_clock_attribs(dev, msg);
 		case SCMI_CLOCK_RATE_SET:
 			return sandbox_scmi_clock_rate_set(dev, msg);
 		case SCMI_CLOCK_RATE_GET:
@@ -541,52 +542,37 @@ static int sandbox_scmi_test_remove(struct udevice *dev)
 {
 	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 
+	if (agent != sandbox_scmi_service_ctx()->agent)
+		return -EINVAL;
+
 	debug_print_agent_state(dev, "removed");
 
 	/* We only need to dereference the agent in the context */
-	sandbox_scmi_service_ctx()->agent[agent->idx] = NULL;
+	sandbox_scmi_service_ctx()->agent = NULL;
 
 	return 0;
 }
 
 static int sandbox_scmi_test_probe(struct udevice *dev)
 {
-	static const char basename[] = "sandbox-scmi-agent@";
 	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
-	const size_t basename_size = sizeof(basename) - 1;
 
-	if (strncmp(basename, dev->name, basename_size))
-		return -ENOENT;
+	if (sandbox_scmi_service_ctx()->agent)
+		return -EINVAL;
 
-	switch (dev->name[basename_size]) {
-	case '0':
-		*agent = (struct sandbox_scmi_agent){
-			.idx = 0,
-			.clk = scmi0_clk,
-			.clk_count = ARRAY_SIZE(scmi0_clk),
-			.reset = scmi0_reset,
-			.reset_count = ARRAY_SIZE(scmi0_reset),
-			.voltd = scmi0_voltd,
-			.voltd_count = ARRAY_SIZE(scmi0_voltd),
-		};
-		break;
-	case '1':
-		*agent = (struct sandbox_scmi_agent){
-			.idx = 1,
-			.clk = scmi1_clk,
-			.clk_count = ARRAY_SIZE(scmi1_clk),
-		};
-		break;
-	default:
-		dev_err(dev, "%s(): Unexpected agent ID %s\n",
-			__func__, dev->name + basename_size);
-		return -ENOENT;
-	}
+	*agent = (struct sandbox_scmi_agent){
+		.clk = scmi_clk,
+		.clk_count = ARRAY_SIZE(scmi_clk),
+		.reset = scmi_reset,
+		.reset_count = ARRAY_SIZE(scmi_reset),
+		.voltd = scmi_voltd,
+		.voltd_count = ARRAY_SIZE(scmi_voltd),
+	};
 
 	debug_print_agent_state(dev, "probed");
 
 	/* Save reference for tests purpose */
-	sandbox_scmi_service_ctx()->agent[agent->idx] = agent;
+	sandbox_scmi_service_ctx()->agent = agent;
 
 	return 0;
 };

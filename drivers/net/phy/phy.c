@@ -659,9 +659,9 @@ static struct phy_driver *get_phy_driver(struct phy_device *phydev,
 	return generic_for_interface(interface);
 }
 
-static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
-					    u32 phy_id, bool is_c45,
-					    phy_interface_t interface)
+struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
+				     u32 phy_id, bool is_c45,
+				     phy_interface_t interface)
 {
 	struct phy_device *dev;
 
@@ -872,7 +872,7 @@ int phy_reset(struct phy_device *phydev)
 		return -1;
 	}
 
-#ifdef CONFIG_PHY_RESET_DELAY
+#if CONFIG_PHY_RESET_DELAY > 0
 	udelay(CONFIG_PHY_RESET_DELAY);	/* Intel LXT971A needs this */
 #endif
 	/*
@@ -1045,6 +1045,11 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #ifdef CONFIG_PHY_NCSI
 	if (!phydev)
 		phydev = phy_device_create(bus, 0, PHY_NCSI_ID, false, interface);
+#endif
+
+#ifdef CONFIG_PHY_ETHERNET_ID
+	if (!phydev)
+		phydev = phy_connect_phy_id(bus, dev, interface);
 #endif
 
 #ifdef CONFIG_PHY_XILINX_GMII2RGMII

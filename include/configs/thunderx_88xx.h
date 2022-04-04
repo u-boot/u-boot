@@ -33,9 +33,6 @@
 #define CONFIG_SYS_SERIAL0		0x87e024000000
 #define CONFIG_SYS_SERIAL1		0x87e025000000
 
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Miscellaneous configurable options */
 
 /* Physical Memory Map */

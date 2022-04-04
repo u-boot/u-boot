@@ -17,20 +17,6 @@
 
 #include "arp.h"
 
-#ifndef	CONFIG_ARP_TIMEOUT
-/* Milliseconds before trying ARP again */
-# define ARP_TIMEOUT		5000UL
-#else
-# define ARP_TIMEOUT		CONFIG_ARP_TIMEOUT
-#endif
-
-
-#ifndef	CONFIG_NET_RETRY_COUNT
-# define ARP_TIMEOUT_COUNT	5	/* # of timeouts before giving up  */
-#else
-# define ARP_TIMEOUT_COUNT	CONFIG_NET_RETRY_COUNT
-#endif
-
 struct in_addr net_arp_wait_packet_ip;
 static struct in_addr net_arp_wait_reply_ip;
 /* MAC address of waiting packet's destination */
@@ -109,10 +95,10 @@ int arp_timeout_check(void)
 	t = get_timer(0);
 
 	/* check for arp timeout */
-	if ((t - arp_wait_timer_start) > ARP_TIMEOUT) {
+	if ((t - arp_wait_timer_start) > CONFIG_ARP_TIMEOUT) {
 		arp_wait_try++;
 
-		if (arp_wait_try >= ARP_TIMEOUT_COUNT) {
+		if (arp_wait_try >= CONFIG_NET_RETRY_COUNT) {
 			puts("\nARP Retry count exceeded; starting again\n");
 			arp_wait_try = 0;
 			net_set_state(NETLOOP_FAIL);

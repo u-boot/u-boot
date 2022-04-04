@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <event.h>
 #include <init.h>
 #include <mmc.h>
 #include <asm/cache.h>
@@ -247,7 +248,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-int arch_cpu_init_dm(void)
+static int quark_init_pcie(void *ctx, struct event *event)
 {
 	/*
 	 * Initialize PCIe controller
@@ -262,6 +263,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, quark_init_pcie);
 
 int checkcpu(void)
 {

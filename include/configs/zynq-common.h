@@ -26,10 +26,6 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /* Ethernet driver */
-#if defined(CONFIG_ZYNQ_GEM)
-# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-# define CONFIG_BOOTP_MAY_FAIL
-#endif
 
 /* NOR */
 #ifdef CONFIG_MTD_NOR_FLASH
@@ -194,7 +190,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_CLOCKS
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 #define CONFIG_SYS_CBSIZE		2048 /* Console I/O Buffer Size */
 

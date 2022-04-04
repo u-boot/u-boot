@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <event.h>
 #include <init.h>
 #include <malloc.h>
 #include <asm/global_data.h>
@@ -95,12 +96,13 @@ static void prefetch_init(void)
 }
 
 /* arch specific CPU init after DM */
-int arch_cpu_init_dm(void)
+static int pic32_flash_prefetch(void *ctx, struct event *event)
 {
 	/* flash prefetch */
 	prefetch_init();
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, pic32_flash_prefetch);
 
 /* Un-gate DDR2 modules (gated by default) */
 static void ddr2_pmd_ungate(void)

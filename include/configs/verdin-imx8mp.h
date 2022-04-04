@@ -16,7 +16,6 @@
 
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
 #define CONFIG_SPL_STACK		0x960000
 #define CONFIG_SPL_BSS_START_ADDR	0x0098fc00
 #define CONFIG_SPL_BSS_MAX_SIZE		SZ_1K
@@ -31,17 +30,11 @@
 #define CONFIG_POWER_PCA9450
 
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
 #endif /* CONFIG_SPL_BUILD */
-
-#define CONFIG_REMAKE_ELF
 
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_ETHPRIME			"eth0" /* eqos is aliased on-module Ethernet interface */
-
-#define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_FEC_MXC_PHYADDR		7
 #define FEC_QUIRK_ENET_MAC
 
@@ -61,7 +54,6 @@
 	func(MMC, mmc, 2) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#undef CONFIG_ISO_PARTITION
 #else
 #define BOOTENV
 #endif

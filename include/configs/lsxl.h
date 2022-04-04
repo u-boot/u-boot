@@ -92,7 +92,6 @@
 #ifdef CONFIG_CMD_NET
 #define CONFIG_MVGBE_PORTS		{0, 1} /* enable port 1 only */
 #define CONFIG_PHY_BASE_ADR		7
-#undef CONFIG_RESET_PHY_R
 #endif /* CONFIG_CMD_NET */
 
 #ifdef CONFIG_SATA

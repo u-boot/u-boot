@@ -27,23 +27,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
 
-/* Define actual evaluation board type from used processor type */
-#ifdef CONFIG_AT91SAM9G20
-# define CONFIG_AT91SAM9G20EK	/* It's an Atmel AT91SAM9G20 EK */
-#else
-# define CONFIG_AT91SAM9260EK	/* It's an Atmel AT91SAM9260 EK */
-#endif
-
-/* Misc CPU related */
-
-/* general purpose I/O */
-#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE	1
-
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.
@@ -83,17 +66,5 @@
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9260"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-
-#ifdef CONFIG_SYS_USE_DATAFLASH_CS0
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#elif defined(CONFIG_SYS_USE_NANDFLASH)
-
-/* bootstrap + u-boot + env + linux in nandflash */
-
-#else	/* CONFIG_SYS_USE_MMC */
-/* bootstrap + u-boot + env + linux in mmc */
-/* For FAT system, most cases it should be in the reserved sector */
-#endif
 
 #endif

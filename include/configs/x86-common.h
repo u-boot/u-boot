@@ -47,7 +47,6 @@
  */
 
 #define CONFIG_SYS_STACK_SIZE			(32 * 1024)
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 /*-----------------------------------------------------------------------
  * Environment configuration
@@ -62,12 +61,9 @@
  * USB configuration
  */
 
-#define CONFIG_BOOTP_BOOTFILESIZE
-
 /* Default environment */
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_HOSTNAME		"x86"
-#define CONFIG_BOOTFILE		"bzImage"
 #define CONFIG_RAMDISK_ADDR	0x4000000
 #if defined(CONFIG_GENERATE_ACPI_TABLE) || defined(CONFIG_EFI_STUB)
 #define CONFIG_OTHBOOTARGS	"othbootargs=\0"

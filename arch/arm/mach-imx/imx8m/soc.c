@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <asm/arch/imx-regs.h>
@@ -494,7 +495,7 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog3->wmcr);
 }
 
-int arch_cpu_init_dm(void)
+static int imx8m_check_clock(void *ctx, struct event *event)
 {
 	struct udevice *dev;
 	int ret;
@@ -511,6 +512,7 @@ int arch_cpu_init_dm(void)
 
 	return 0;
 }
+EVENT_SPY(EVT_DM_POST_INIT, imx8m_check_clock);
 
 int arch_cpu_init(void)
 {
@@ -1293,7 +1295,7 @@ void imx_tmu_arch_init(void *reg_base)
 #if defined(CONFIG_IMX8MQ) || defined(CONFIG_IMX8MM) || defined(CONFIG_IMX8MN)
 bool serror_need_skip = true;
 
-void do_error(struct pt_regs *pt_regs, unsigned int esr)
+void do_error(struct pt_regs *pt_regs)
 {
 	/*
 	 * If stack is still in ROM reserved OCRAM not switch to SPL,
@@ -1318,7 +1320,7 @@ void do_error(struct pt_regs *pt_regs, unsigned int esr)
 	}
 
 	efi_restore_gd();
-	printf("\"Error\" handler, esr 0x%08x\n", esr);
+	printf("\"Error\" handler, esr 0x%08lx\n", pt_regs->esr);
 	show_regs(pt_regs);
 	panic("Resetting CPU ...\n");
 }

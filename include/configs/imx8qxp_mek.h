@@ -136,9 +136,6 @@
 #define CONFIG_PCA953X
 #endif
 
-/* Networking */
-#define CONFIG_FEC_XCV_TYPE		RGMII
-
 /* Misc configuration */
 #define CONFIG_SYS_CBSIZE	2048
 #define CONFIG_SYS_MAXARGS	64

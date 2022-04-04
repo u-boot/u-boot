@@ -11,7 +11,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_BOARD_POSTCLK_INIT
 #define CONFIG_SYS_BOOTM_LEN		0x1000000
 
 #define CONFIG_MMCROOT                  "/dev/mmcblk0p2"  /* USDHC1 */

@@ -160,6 +160,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#if defined(CONFIG_TARGET_P1020RDB_PC)
+#define BOARD_NAME "P1020RDB-PC"
+#elif defined(CONFIG_TARGET_P1020RDB_PD)
+#define BOARD_NAME "P1020RDB-PD"
+#elif defined(CONFIG_TARGET_P2020RDB)
+#define BOARD_NAME "P2020RDB-PC"
+#endif
+
 int checkboard(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
@@ -167,7 +175,8 @@ int checkboard(void)
 	u8 in, out, io_config, val;
 	int bus_num = CONFIG_SYS_SPD_BUS_NUM;
 
-	printf("Board: %s CPLD: V%d.%d PCBA: V%d.0\n", CONFIG_BOARDNAME,
+	/* FIXME: This should just use the model from the device tree or similar */
+	printf("Board: %s CPLD: V%d.%d PCBA: V%d.0\n", BOARD_NAME,
 		in_8(&cpld_data->cpld_rev_major) & 0x0F,
 		in_8(&cpld_data->cpld_rev_minor) & 0x0F,
 		in_8(&cpld_data->pcba_rev) & 0x0F);

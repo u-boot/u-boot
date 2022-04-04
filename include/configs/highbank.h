@@ -16,9 +16,6 @@
 
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
 
-#define CONFIG_BOOT_RETRY_TIME		-1
-#define CONFIG_RESET_TO_RETRY
-
 /*
  * Miscellaneous configurable options
  */

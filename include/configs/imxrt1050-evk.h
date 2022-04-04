@@ -21,8 +21,6 @@
 					 DMAMEM_SZ_ALL)
 
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_VIDEO_BMP_LOGO
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 		"stdin=serial\0" \
 		"stdout=serial,vidconsole\0" \

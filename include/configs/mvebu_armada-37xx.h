@@ -40,12 +40,6 @@
  */
 #define DEFAULT_ENV_IS_RW		/* required for configuring default fdtfile= */
 
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_ARP_TIMEOUT	200
-#define CONFIG_NET_RETRY_COUNT	50
-
 #define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
 
 /*

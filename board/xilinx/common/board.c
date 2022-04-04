@@ -171,6 +171,7 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 {
 	int i, ret, eeprom_size;
 	u8 *fru_content;
+	u8 id = 0;
 
 	/* FIXME this is shortcut - if eeprom type is wrong it will fail */
 	eeprom_size = i2c_eeprom_size(dev);
@@ -218,6 +219,14 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 		sizeof(desc->revision));
 	strncpy(desc->serial, (char *)fru_data.brd.serial_number,
 		sizeof(desc->serial));
+
+	while (id < EEPROM_HDR_NO_OF_MAC_ADDR) {
+		if (is_valid_ethaddr((const u8 *)fru_data.mac.macid[id]))
+			memcpy(&desc->mac_addr[id],
+			       (char *)fru_data.mac.macid[id], ETH_ALEN);
+		id++;
+	}
+
 	desc->header = EEPROM_HEADER_MAGIC;
 
 end:
@@ -416,7 +425,7 @@ int board_late_init_xilinx(void)
 
 			for (i = 0; i < EEPROM_HDR_NO_OF_MAC_ADDR; i++) {
 				if (!desc->mac_addr[i])
-					continue;
+					break;
 
 				if (is_valid_ethaddr((const u8 *)desc->mac_addr[i]))
 					ret |= eth_env_set_enetaddr_by_index("eth",

@@ -68,18 +68,4 @@
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 
-#define CONFIG_NET_RETRY_COUNT	10
-
-/* Since SPL did pll and ddr initialization for us,
- * we don't need to do it twice.
- */
-
-/*
- * Disable MMC DM for SPL build and can be re-enabled after adding
- * DM support in SPL
- */
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_MMC
-#undef CONFIG_TIMER
-#endif
 #endif
