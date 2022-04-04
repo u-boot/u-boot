@@ -724,7 +724,7 @@ static void esdhc_enable_cache_snooping(struct fsl_esdhc *regs)
 
 	setbits_be32(&sysconf->sdhccr, 0x02000000);
 #else
-	esdhc_write32(&regs->esdhcctl, 0x00000040);
+	esdhc_write32(&regs->esdhcctl, ESDHCCTL_SNOOP);
 #endif
 }
 
