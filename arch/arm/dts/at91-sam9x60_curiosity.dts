@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * at91-sam9x60_curiosity.dts - Device Tree file for SAM9X60 CURIOSITY board
+ *
+ * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Durai Manickam KR <durai.manickamkr@microchip.com>
+ */
+/dts-v1/;
+#include <dt-bindings/mfd/atmel-flexcom.h>
+#include "sam9x60.dtsi"
+
+/ {
+	model = "Microchip SAM9X60 CURIOSITY";
+	compatible = "microchip,sam9x60-curiosity", "microchip,sam9x60", "atmel,at91sam9";
+
+	ahb {
+		apb {
+			flx0: flexcom@f801c600 {
+				atmel,flexcom-mode = <ATMEL_FLEXCOM_MODE_TWI>;
+				status = "okay";
+
+				i2c@600 {
+					compatible = "atmel,sama5d2-i2c";
+					reg = <0x600 0x200>;
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_flx0>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 5>;
+					status = "okay";
+
+					eeprom@53 {
+						compatible = "atmel,24c32";
+						reg = <0x53>;
+						pagesize = <16>;
+					};
+				};
+			};
+
+			pinctrl {
+					pinctrl_flx0: flx0_default {
+						atmel,pins =
+							<AT91_PIOA 0 AT91_PERIPH_A AT91_PINCTRL_NONE
+							 AT91_PIOA 1 AT91_PERIPH_A AT91_PINCTRL_NONE>;
+					};
+			};
+		};
+	};
+
+	chosen {
+		stdout-path = &dbgu;
+		i2c0 = &flx0;
+	};
+
+	clocks {
+		slow_xtal: slow_xtal {
+			clock-frequency = <32768>;
+		};
+
+		main_xtal: main_xtal {
+			clock-frequency = <24000000>;
+		};
+	};
+
+	memory {
+		reg = <0x20000000 0x8000000>;
+	};
+};
+
+&macb0 {
+	phy-mode = "rmii";
+	status = "okay";
+};
