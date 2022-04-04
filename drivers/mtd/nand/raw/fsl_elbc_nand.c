@@ -737,36 +737,39 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr, ofnode flash_node)
 	nand->controller = &elbc_ctrl->controller;
 	nand_set_controller_data(nand, priv);
 
-	nand->ecc.read_page = fsl_elbc_read_page;
-	nand->ecc.write_page = fsl_elbc_write_page;
-	nand->ecc.write_subpage = fsl_elbc_write_subpage;
-
 	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
-
-	/* If CS Base Register selects full hardware ECC then use it */
-	if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
-		nand->ecc.mode = NAND_ECC_HW;
-
-		nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
-				   &fsl_elbc_oob_sp_eccm1 :
-				   &fsl_elbc_oob_sp_eccm0;
-
-		nand->ecc.size = 512;
-		nand->ecc.bytes = 3;
-		nand->ecc.steps = 1;
-		nand->ecc.strength = 1;
-	} else {
-		/* otherwise fall back to software ECC */
-#if defined(CONFIG_NAND_ECC_BCH)
-		nand->ecc.mode = NAND_ECC_SOFT_BCH;
-#else
-		nand->ecc.mode = NAND_ECC_SOFT;
-#endif
-	}
 
 	ret = nand_scan_ident(mtd, 1, NULL);
 	if (ret)
 		return ret;
+
+	/* If nand_scan_ident() has not selected ecc.mode, do it now */
+	if (nand->ecc.mode == NAND_ECC_NONE) {
+		/* If CS Base Register selects full hardware ECC then use it */
+		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
+			nand->ecc.mode = NAND_ECC_HW;
+			nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
+					   &fsl_elbc_oob_sp_eccm1 :
+					   &fsl_elbc_oob_sp_eccm0;
+			nand->ecc.size = 512;
+			nand->ecc.bytes = 3;
+			nand->ecc.steps = 1;
+			nand->ecc.strength = 1;
+		} else {
+			/* otherwise fall back to software ECC */
+#if defined(CONFIG_NAND_ECC_BCH)
+			nand->ecc.mode = NAND_ECC_SOFT_BCH;
+#else
+			nand->ecc.mode = NAND_ECC_SOFT;
+#endif
+		}
+	}
+
+	if (nand->ecc.mode == NAND_ECC_HW) {
+		nand->ecc.read_page = fsl_elbc_read_page;
+		nand->ecc.write_page = fsl_elbc_write_page;
+		nand->ecc.write_subpage = fsl_elbc_write_subpage;
+	}
 
 	/* Large-page-specific setup */
 	if (mtd->writesize == 2048) {
@@ -785,7 +788,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr, ofnode flash_node)
 		priv->fmr |= FMR_ECCM;
 
 		/* adjust ecc setup if needed */
-		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
+		if (nand->ecc.mode == NAND_ECC_HW) {
 			nand->ecc.steps = 4;
 			nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
 					   &fsl_elbc_oob_lp_eccm1 :
