@@ -67,7 +67,7 @@ static int sandbox_serial_remove(struct udevice *dev)
 	return 0;
 }
 
-static int sandbox_serial_putc(struct udevice *dev, const char ch)
+static void sandbox_print_color(struct udevice *dev)
 {
 	struct sandbox_serial_priv *priv = dev_get_priv(dev);
 	struct sandbox_serial_plat *plat = dev_get_plat(dev);
@@ -78,12 +78,30 @@ static int sandbox_serial_putc(struct udevice *dev, const char ch)
 		priv->start_of_line = false;
 		output_ansi_colour(plat->colour);
 	}
+}
 
+static int sandbox_serial_putc(struct udevice *dev, const char ch)
+{
+	struct sandbox_serial_priv *priv = dev_get_priv(dev);
+
+	sandbox_print_color(dev);
 	os_write(1, &ch, 1);
 	if (ch == '\n')
 		priv->start_of_line = true;
 
 	return 0;
+}
+
+static ssize_t sandbox_serial_puts(struct udevice *dev, const char *s,
+				   size_t len)
+{
+	struct sandbox_serial_priv *priv = dev_get_priv(dev);
+
+	sandbox_print_color(dev);
+	if (s[len - 1] == '\n')
+		priv->start_of_line = true;
+
+	return os_write(1, s, len);
 }
 
 static int sandbox_serial_pending(struct udevice *dev, bool input)
@@ -212,6 +230,7 @@ static int sandbox_serial_of_to_plat(struct udevice *dev)
 
 static const struct dm_serial_ops sandbox_serial_ops = {
 	.putc = sandbox_serial_putc,
+	.puts = sandbox_serial_puts,
 	.pending = sandbox_serial_pending,
 	.getc = sandbox_serial_getc,
 	.getconfig = sandbox_serial_getconfig,
