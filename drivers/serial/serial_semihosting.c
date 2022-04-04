@@ -5,12 +5,14 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <serial.h>
 #include <semihosting.h>
 
 /**
  * struct smh_serial_priv - Semihosting serial private data
  * @infd: stdin file descriptor (or error)
+ * @outfd: stdout file descriptor (or error)
  */
 struct smh_serial_priv {
 	int infd;
@@ -36,8 +38,36 @@ static int smh_serial_putc(struct udevice *dev, const char ch)
 	return 0;
 }
 
+static ssize_t smh_serial_puts(struct udevice *dev, const char *s, size_t len)
+{
+	int ret;
+	struct smh_serial_priv *priv = dev_get_priv(dev);
+	unsigned long written;
+
+	if (priv->outfd < 0) {
+		char *buf;
+
+		/* Try and avoid a copy if we can */
+		if (!s[len + 1]) {
+			smh_puts(s);
+			return len;
+		}
+
+		buf = strndup(s, len);
+		smh_puts(buf);
+		free(buf);
+		return len;
+	}
+
+	ret = smh_write(priv->outfd, s, len, &written);
+	if (written)
+		return written;
+	return ret;
+}
+
 static const struct dm_serial_ops smh_serial_ops = {
 	.putc = smh_serial_putc,
+	.puts = smh_serial_puts,
 	.getc = smh_serial_getc,
 };
 
@@ -53,6 +83,7 @@ static int smh_serial_probe(struct udevice *dev)
 	struct smh_serial_priv *priv = dev_get_priv(dev);
 
 	priv->infd = smh_open(":tt", MODE_READ);
+	priv->outfd = smh_open(":tt", MODE_WRITE);
 	return 0;
 }
 
