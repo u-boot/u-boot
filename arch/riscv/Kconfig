@@ -195,9 +195,6 @@ config ANDES_PLIC
 	  The Andes PLIC block holds memory-mapped claim and pending registers
 	  associated with software interrupt.
 
-config SYS_MALLOC_F_LEN
-	default 0x1000
-
 config SMP
 	bool "Symmetric Multi-Processing"
 	depends on SBI_V01 || !RISCV_SMODE
