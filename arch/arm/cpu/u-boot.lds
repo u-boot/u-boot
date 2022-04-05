@@ -15,7 +15,7 @@ ENTRY(_start)
 SECTIONS
 {
 #ifndef CONFIG_CMDLINE
-	/DISCARD/ : { *(.u_boot_list_2_cmd_*) }
+	/DISCARD/ : { *(__u_boot_list_2_cmd_*) }
 #endif
 #if defined(CONFIG_ARMV7_SECURE_BASE) && defined(CONFIG_ARMV7_NONSEC)
 	/*
@@ -149,8 +149,8 @@ SECTIONS
 	. = .;
 
 	. = ALIGN(4);
-	.u_boot_list : {
-		KEEP(*(SORT(.u_boot_list*)));
+	__u_boot_list : {
+		KEEP(*(SORT(__u_boot_list*)));
 	}
 
 	. = ALIGN(4);

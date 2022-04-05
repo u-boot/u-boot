@@ -49,7 +49,7 @@ SECTIONS
     RELOCATE1(text);
     RELOCATE1(rodata);
     RELOCATE1(data);
-    RELOCATE1(u_boot_list);
+    RELOCATE_USER1(__u_boot_list);
     __reloc_table_end = ABSOLUTE(.);
   }
 
@@ -78,7 +78,7 @@ SECTIONS
   SECTION_text(XTENSA_SYS_TEXT_ADDR, FOLLOWING(.DoubleExceptionVector.text))
   SECTION_rodata(ALIGN(16), FOLLOWING(.text))
   SECTION_u_boot_list(ALIGN(16), FOLLOWING(.rodata))
-  SECTION_data(ALIGN(16), FOLLOWING(.u_boot_list))
+  SECTION_data(ALIGN(16), FOLLOWING(__u_boot_list))
 
   __reloc_end = .;
   __init_end = .;
