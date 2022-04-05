@@ -177,7 +177,7 @@ struct fstype_info {
 };
 
 static struct fstype_info fstypes[] = {
-#ifdef CONFIG_FS_FAT
+#if CONFIG_IS_ENABLED(FS_FAT)
 	{
 		.fstype = FS_TYPE_FAT,
 		.name = "fat",
