@@ -85,3 +85,10 @@
 	device_type = "pci";
 	bus-range = <0x0 0xff>;
 };
+
+&lbc {
+	#address-cells = <2>;
+	#size-cells = <1>;
+	compatible = "fsl,p2020-elbc", "fsl,elbc", "simple-bus";
+	interrupts = <19 2 0 0>;
+};
