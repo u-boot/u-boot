@@ -283,6 +283,7 @@ static int atsha204a_of_to_plat(struct udevice *dev)
 }
 
 static const struct udevice_id atsha204a_ids[] = {
+	{ .compatible = "atmel,atsha204" },
 	{ .compatible = "atmel,atsha204a" },
 	{ }
 };
