@@ -23,6 +23,13 @@ PHDRS
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+  .bootpg CONFIG_SYS_TEXT_BASE - 0x1000 :
+  {
+    KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
+  } :text = 0xffff
+  . = CONFIG_SYS_TEXT_BASE;
+#endif
   .text      :
   {
     *(.text*)
@@ -77,13 +84,7 @@ SECTIONS
   __init_end = .;
   _end = .;
 
-#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
-  .bootpg ADDR(.text) - 0x1000 :
-  {
-    KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
-  } :text = 0xffff
-  . = _end;
-#else
+#ifndef CONFIG_SYS_MPC85XX_NO_RESETVEC
   .bootpg RESET_VECTOR_ADDRESS - 0xffc :
   {
     arch/powerpc/cpu/mpc85xx/start.o	(.bootpg)
