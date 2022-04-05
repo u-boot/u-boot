@@ -27,8 +27,6 @@ PHDRS
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  . = + SIZEOF_HEADERS;
-  .interp : { *(.interp) }
   .text      :
   {
     *(.text*)
