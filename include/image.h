@@ -228,6 +228,7 @@ enum {
 	IH_TYPE_IMX8IMAGE,		/* Freescale IMX8Boot Image	*/
 	IH_TYPE_COPRO,			/* Coprocessor Image for remoteproc*/
 	IH_TYPE_SUNXI_EGON,		/* Allwinner eGON Boot Image */
+	IH_TYPE_SUNXI_TOC0,		/* Allwinner TOC0 Boot Image */
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };

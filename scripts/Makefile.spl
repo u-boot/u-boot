@@ -411,7 +411,10 @@ endif
 $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
 
-MKIMAGEFLAGS_sunxi-spl.bin = -T sunxi_egon \
+MKIMAGEFLAGS_sunxi-spl.bin = \
+	-A $(ARCH) \
+	-T $(CONFIG_SPL_IMAGE_TYPE) \
+	-a $(CONFIG_SPL_TEXT_BASE) \
 	-n $(CONFIG_DEFAULT_DEVICE_TREE)
 
 OBJCOPYFLAGS_u-boot-spl-dtb.hex := -I binary -O ihex --change-address=$(CONFIG_SPL_TEXT_BASE)

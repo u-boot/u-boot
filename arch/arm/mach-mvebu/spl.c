@@ -96,7 +96,7 @@ struct kwbimage_main_hdr_v1 {
 } __packed;
 
 #ifdef CONFIG_SPL_MMC
-u32 spl_mmc_boot_mode(const u32 boot_device)
+u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 	return MMCSD_MODE_RAW;
 }

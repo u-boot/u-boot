@@ -107,54 +107,6 @@ void i2c_init_board(void)
 #endif
 #endif
 
-#ifdef CONFIG_I2C2_ENABLE
-#if defined(CONFIG_MACH_SUN4I) || \
-    defined(CONFIG_MACH_SUN7I) || \
-    defined(CONFIG_MACH_SUN8I_R40)
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(20), SUN4I_GPB_TWI2);
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(21), SUN4I_GPB_TWI2);
-	clock_twi_onoff(2, 1);
-#elif defined(CONFIG_MACH_SUN5I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(17), SUN5I_GPB_TWI2);
-	sunxi_gpio_set_cfgpin(SUNXI_GPB(18), SUN5I_GPB_TWI2);
-	clock_twi_onoff(2, 1);
-#elif defined(CONFIG_MACH_SUN6I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPH(18), SUN6I_GPH_TWI2);
-	sunxi_gpio_set_cfgpin(SUNXI_GPH(19), SUN6I_GPH_TWI2);
-	clock_twi_onoff(2, 1);
-#elif defined(CONFIG_MACH_SUN8I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPE(12), SUN8I_GPE_TWI2);
-	sunxi_gpio_set_cfgpin(SUNXI_GPE(13), SUN8I_GPE_TWI2);
-	clock_twi_onoff(2, 1);
-#elif defined(CONFIG_MACH_SUN50I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPE(14), SUN50I_GPE_TWI2);
-	sunxi_gpio_set_cfgpin(SUNXI_GPE(15), SUN50I_GPE_TWI2);
-	clock_twi_onoff(2, 1);
-#endif
-#endif
-
-#ifdef CONFIG_I2C3_ENABLE
-#if defined(CONFIG_MACH_SUN6I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPG(10), SUN6I_GPG_TWI3);
-	sunxi_gpio_set_cfgpin(SUNXI_GPG(11), SUN6I_GPG_TWI3);
-	clock_twi_onoff(3, 1);
-#elif defined(CONFIG_MACH_SUN7I) || \
-      defined(CONFIG_MACH_SUN8I_R40)
-	sunxi_gpio_set_cfgpin(SUNXI_GPI(0), SUN7I_GPI_TWI3);
-	sunxi_gpio_set_cfgpin(SUNXI_GPI(1), SUN7I_GPI_TWI3);
-	clock_twi_onoff(3, 1);
-#endif
-#endif
-
-#ifdef CONFIG_I2C4_ENABLE
-#if defined(CONFIG_MACH_SUN7I) || \
-    defined(CONFIG_MACH_SUN8I_R40)
-	sunxi_gpio_set_cfgpin(SUNXI_GPI(2), SUN7I_GPI_TWI4);
-	sunxi_gpio_set_cfgpin(SUNXI_GPI(3), SUN7I_GPI_TWI4);
-	clock_twi_onoff(4, 1);
-#endif
-#endif
-
 #ifdef CONFIG_R_I2C_ENABLE
 #ifdef CONFIG_MACH_SUN50I
 	clock_twi_onoff(5, 1);
@@ -297,17 +249,6 @@ int board_init(void)
 	 */
 	i2c_init_board();
 #endif
-
-#ifdef CONFIG_DM_MMC
-	/*
-	 * Temporary workaround for enabling MMC clocks until a sunxi DM
-	 * pinctrl driver lands.
-	 */
-	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
-#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
-	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
-#endif
-#endif	/* CONFIG_DM_MMC */
 
 	eth_init_board();
 

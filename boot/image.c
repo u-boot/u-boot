@@ -178,6 +178,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_MTKIMAGE,   "mtk_image",   "MediaTek BootROM loadable Image" },
 	{	IH_TYPE_COPRO, "copro", "Coprocessor Image"},
 	{	IH_TYPE_SUNXI_EGON, "sunxi_egon",  "Allwinner eGON Boot Image" },
+	{	IH_TYPE_SUNXI_TOC0, "sunxi_toc0",  "Allwinner TOC0 Boot Image" },
 	{	-1,		    "",		  "",			},
 };
 

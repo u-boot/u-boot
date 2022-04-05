@@ -755,20 +755,6 @@ config I2C1_ENABLE
 	---help---
 	See I2C0_ENABLE help text.
 
-config I2C2_ENABLE
-	bool "Enable I2C/TWI controller 2"
-	select CMD_I2C
-	---help---
-	See I2C0_ENABLE help text.
-
-if MACH_SUN6I || MACH_SUN7I
-config I2C3_ENABLE
-	bool "Enable I2C/TWI controller 3"
-	select CMD_I2C
-	---help---
-	See I2C0_ENABLE help text.
-endif
-
 if SUNXI_GEN_SUN6I || SUN50I_GEN_H6
 config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
@@ -777,14 +763,6 @@ config R_I2C_ENABLE
 	select CMD_I2C
 	---help---
 	Set this to y to enable the I2C controller which is part of the PRCM.
-endif
-
-if MACH_SUN7I
-config I2C4_ENABLE
-	bool "Enable I2C/TWI controller 4"
-	select CMD_I2C
-	---help---
-	See I2C0_ENABLE help text.
 endif
 
 config AXP_GPIO
@@ -1068,6 +1046,8 @@ config BLUETOOTH_DT_DEVICE_FIXUP
 	  default address.
 	  The used address is "bdaddr" if set, and "ethaddr" with the LSB
 	  flipped elsewise.
+
+source "board/sunxi/Kconfig"
 
 endif
 

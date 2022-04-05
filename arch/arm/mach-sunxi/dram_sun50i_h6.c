@@ -12,6 +12,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/prcm.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/kconfig.h>
@@ -665,6 +666,8 @@ unsigned long sunxi_dram_init(void)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
+	struct sunxi_prcm_reg *const prcm =
+		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
 	struct dram_para para = {
 		.clk = CONFIG_DRAM_CLK,
 #ifdef CONFIG_SUNXI_DRAM_H6_LPDDR3
@@ -680,9 +683,8 @@ unsigned long sunxi_dram_init(void)
 
 	unsigned long size;
 
-	/* RES_CAL_CTRL_REG in BSP U-boot*/
-	setbits_le32(0x7010310, BIT(8));
-	clrbits_le32(0x7010318, 0x3f);
+	setbits_le32(&prcm->res_cal_ctrl, BIT(8));
+	clrbits_le32(&prcm->ohms240, 0x3f);
 
 	mctl_auto_detect_rank_width(&para);
 	mctl_auto_detect_dram_size(&para);

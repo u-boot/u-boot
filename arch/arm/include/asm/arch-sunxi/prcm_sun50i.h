@@ -37,8 +37,18 @@ struct sunxi_prcm_reg {
 	u32 w1_gate_reset;	/* 0x1ec */
 	u8 res10[0x1c];		/* 0x1f0 */
 	u32 rtc_gate_reset;	/* 0x20c */
+	u8 res11[0x34];		/* 0x210 */
+	u32 pll_ldo_cfg;	/* 0x244 */
+	u8 res12[0x8];		/* 0x248 */
+	u32 sys_pwroff_gating;	/* 0x250 */
+	u8 res13[0xbc];		/* 0x254 */
+	u32 res_cal_ctrl;	/* 0x310 */
+	u32 ohms200;		/* 0x314 */
+	u32 ohms240;		/* 0x318 */
+	u32 res_cal_status;	/* 0x31c */
 };
 check_member(sunxi_prcm_reg, rtc_gate_reset, 0x20c);
+check_member(sunxi_prcm_reg, res_cal_status, 0x31c);
 
 #define PRCM_TWI_GATE		(1 << 0)
 #define PRCM_TWI_RESET		(1 << 16)

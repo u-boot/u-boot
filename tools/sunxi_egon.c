@@ -15,9 +15,29 @@
 #define PAD_SIZE			8192
 #define PAD_SIZE_MIN			512
 
+static int egon_get_arch(struct image_tool_params *params)
+{
+	if (params->Aflag)
+		return params->arch;
+
+	/* For compatibility, assume ARM when no architecture specified */
+	return IH_ARCH_ARM;
+}
+
 static int egon_check_params(struct image_tool_params *params)
 {
-	/* We just need a binary image file. */
+	/*
+	 * Check whether the architecture is supported.
+	 */
+	switch (egon_get_arch(params)) {
+	case IH_ARCH_ARM:
+	case IH_ARCH_RISCV:
+		break;
+	default:
+		return EXIT_FAILURE;
+	}
+
+	/* We need a binary image file. */
 	return !params->dflag;
 }
 
@@ -27,9 +47,22 @@ static int egon_verify_header(unsigned char *ptr, int image_size,
 	const struct boot_file_head *header = (void *)ptr;
 	uint32_t length;
 
-	/* First 4 bytes must be an ARM branch instruction. */
-	if ((le32_to_cpu(header->b_instruction) & 0xff000000) != 0xea000000)
-		return EXIT_FAILURE;
+	/*
+	 * First 4 bytes must be a branch instruction of the corresponding
+	 * architecture.
+	 */
+	switch (egon_get_arch(params)) {
+	case IH_ARCH_ARM:
+		if ((le32_to_cpu(header->b_instruction) & 0xff000000) != 0xea000000)
+			return EXIT_FAILURE;
+		break;
+	case IH_ARCH_RISCV:
+		if ((le32_to_cpu(header->b_instruction) & 0x00000fff) != 0x0000006f)
+			return EXIT_FAILURE;
+		break;
+	default:
+		return EXIT_FAILURE; /* Unknown architecture */
+	}
 
 	if (memcmp(header->magic, BOOT0_MAGIC, sizeof(header->magic)))
 		return EXIT_FAILURE;
@@ -78,9 +111,35 @@ static void egon_set_header(void *buf, struct stat *sbuf, int infd,
 	uint32_t checksum = 0, value;
 	int i;
 
-	/* Generate an ARM branch instruction to jump over the header. */
-	value = 0xea000000 | (sizeof(struct boot_file_head) / 4 - 2);
-	header->b_instruction = cpu_to_le32(value);
+	/*
+	 * Different architectures need different first instruction to
+	 * branch to the body.
+	 */
+	switch (egon_get_arch(params)) {
+	case IH_ARCH_ARM:
+		/* Generate an ARM branch instruction to jump over the header. */
+		value = 0xea000000 | (sizeof(struct boot_file_head) / 4 - 2);
+		header->b_instruction = cpu_to_le32(value);
+		break;
+	case IH_ARCH_RISCV:
+		/*
+		 * Generate a RISC-V JAL instruction with rd=x0
+		 * (pseudo instruction J, jump without side effects).
+		 *
+		 * The following weird bit operation maps imm[20]
+		 * to inst[31], imm[10:1] to inst[30:21],
+		 * imm[11] to inst[20], imm[19:12] to inst[19:12],
+		 * and imm[0] is dropped (because 1-byte RISC-V instruction
+		 * is not allowed).
+		 */
+		value = 0x0000006f |
+			((sizeof(struct boot_file_head) & 0x00100000) << 11) |
+			((sizeof(struct boot_file_head) & 0x000007fe) << 20) |
+			((sizeof(struct boot_file_head) & 0x00000800) << 9) |
+			((sizeof(struct boot_file_head) & 0x000ff000) << 0);
+		header->b_instruction = cpu_to_le32(value);
+		break;
+	}
 
 	memcpy(header->magic, BOOT0_MAGIC, sizeof(header->magic));
 	header->check_sum = cpu_to_le32(BROM_STAMP_VALUE);

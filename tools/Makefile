@@ -94,9 +94,10 @@ ECDSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/ecdsa/, ecdsa-libcrypto.
 AES_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/aes/, \
 					aes-encrypt.o aes-decrypt.o)
 
-# Cryptographic helpers that depend on openssl/libcrypto
-LIBCRYPTO_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/, \
-					fdt-libcrypto.o)
+# Cryptographic helpers and image types that depend on openssl/libcrypto
+LIBCRYPTO_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := \
+			lib/fdt-libcrypto.o \
+			sunxi_toc0.o
 
 ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 

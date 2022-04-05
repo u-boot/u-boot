@@ -173,7 +173,7 @@ void board_init_f(ulong dummy)
 	spl_enable_dcache();
 }
 
-u32 spl_mmc_boot_mode(const u32 boot_device)
+u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:

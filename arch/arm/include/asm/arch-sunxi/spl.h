@@ -28,8 +28,7 @@
 #define SUNIV_BOOTED_FROM_SPI	0xffff4130
 #define SUNIV_BOOTED_FROM_MMC1	0xffff4150
 
-#define is_boot0_magic(addr)	(memcmp((void *)(addr), BOOT0_MAGIC, 8) == 0)
-
 uint32_t sunxi_get_boot_device(void);
+uint32_t sunxi_get_spl_size(void);
 
 #endif
