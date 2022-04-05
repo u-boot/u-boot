@@ -132,3 +132,13 @@ An attached disk can be emulated in RISC-V virt machine by adding::
     -device ide-hd,drive=mydisk,bus=ahci.0
 
 You will have to run 'scsi scan' to use it.
+
+Debug UART
+----------
+
+The following settings provide a debug UART for the virt machine::
+
+    CONFIG_DEBUG_UART=y
+    CONFIG_DEBUG_UART_NS16550=y
+    CONFIG_DEBUG_UART_BASE=0x10000000
+    CONFIG_DEBUG_UART_CLOCK=3686400
