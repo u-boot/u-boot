@@ -11,10 +11,6 @@
 #define RESET_VECTOR_ADDRESS	0xfffffffc
 #endif
 
-#ifndef CONFIG_SYS_MONITOR_LEN
-#define CONFIG_SYS_MONITOR_LEN	0x80000
-#endif
-
 OUTPUT_ARCH(powerpc)
 ENTRY(_start)
 
@@ -86,7 +82,7 @@ SECTIONS
   {
     KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
   } :text = 0xffff
-  . = ADDR(.text) + CONFIG_SYS_MONITOR_LEN;
+  . = _end;
 #else
   .bootpg RESET_VECTOR_ADDRESS - 0xffc :
   {
