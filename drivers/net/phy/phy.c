@@ -1049,7 +1049,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 
 #ifdef CONFIG_PHY_ETHERNET_ID
 	if (!phydev)
-		phydev = phy_connect_phy_id(bus, dev, interface);
+		phydev = phy_connect_phy_id(bus, dev, addr, interface);
 #endif
 
 #ifdef CONFIG_PHY_XILINX_GMII2RGMII

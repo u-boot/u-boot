@@ -408,6 +408,11 @@ enum pm_sd_config_type {
 	SD_CONFIG_FIXED = 4,	/* To set fixed config registers */
 };
 
+enum pm_gem_config_type {
+	GEM_CONFIG_SGMII_MODE = 1, /* To set GEM_SGMII_MODE in GEM_CLK_CTRL */
+	GEM_CONFIG_FIXED = 2,   /* To set fixed config registers */
+};
+
 #define PM_SIP_SVC	0xc2000000
 
 #define ZYNQMP_PM_VERSION_MAJOR		1
@@ -439,6 +444,8 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload);
 int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value);
+int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config,
+			     u32 value);
 int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id);
 
 /* Type of Config Object */

@@ -6,6 +6,16 @@
 #ifndef _DT_BINDINGS_VERSAL_POWER_H
 #define _DT_BINDINGS_VERSAL_POWER_H
 
+#define PM_DEV_RPU0_0				(0x18110005U)
+#define PM_DEV_RPU0_1				(0x18110006U)
+#define PM_DEV_OCM_0				(0x18314007U)
+#define PM_DEV_OCM_1				(0x18314008U)
+#define PM_DEV_OCM_2				(0x18314009U)
+#define PM_DEV_OCM_3				(0x1831400aU)
+#define PM_DEV_TCM_0_A				(0x1831800bU)
+#define PM_DEV_TCM_0_B				(0x1831800cU)
+#define PM_DEV_TCM_1_A				(0x1831800dU)
+#define PM_DEV_TCM_1_B				(0x1831800eU)
 #define PM_DEV_USB_0				(0x18224018U)
 #define PM_DEV_GEM_0				(0x18224019U)
 #define PM_DEV_GEM_1				(0x1822401aU)
@@ -38,6 +48,7 @@
 #define PM_DEV_ADMA_5				(0x1822403aU)
 #define PM_DEV_ADMA_6				(0x1822403bU)
 #define PM_DEV_ADMA_7				(0x1822403cU)
+#define PM_DEV_AMS_ROOT				(0x18224055U)
 #define PM_DEV_AI				(0x18224072U)
 
 #endif

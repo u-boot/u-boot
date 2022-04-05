@@ -11,6 +11,7 @@
 #include <asm/gpio.h>
 #include <dm.h>
 #include <i2c.h>
+#include <dt-bindings/gpio/gpio.h>
 #include <asm/arch/hardware.h>
 
 #define SLG7XL45106_REG		0xdb
@@ -26,6 +27,7 @@ static int slg7xl45106_i2c_gpo_xlate(struct udevice *dev,
 				     struct ofnode_phandle_args *args)
 {
 	desc->offset = (unsigned int)args->args[0];
+	desc->flags = (args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0);
 
 	return 0;
 }

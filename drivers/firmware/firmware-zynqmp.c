@@ -140,6 +140,19 @@ unsigned int zynqmp_firmware_version(void)
 	return pm_api_version;
 };
 
+int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config, u32 value)
+{
+	int ret;
+
+	ret = xilinx_pm_request(PM_IOCTL, node, IOCTL_SET_GEM_CONFIG,
+				config, value, NULL);
+	if (ret)
+		printf("%s: node %d: set_gem_config %d failed\n",
+		       __func__, node, config);
+
+	return ret;
+}
+
 int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value)
 {
 	int ret;
@@ -334,7 +347,11 @@ static int zynqmp_firmware_bind(struct udevice *dev)
 	int ret;
 	struct udevice *child;
 
-	if (IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN)) {
+	if ((IS_ENABLED(CONFIG_SPL_BUILD) &&
+	     IS_ENABLED(CONFIG_SPL_POWER_DOMAIN) &&
+	     IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN)) ||
+	     (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	      IS_ENABLED(CONFIG_ZYNQMP_POWER_DOMAIN))) {
 		ret = device_bind_driver_to_node(dev, "zynqmp_power_domain",
 						 "zynqmp_power_domain",
 						 dev_ofnode(dev), &child);

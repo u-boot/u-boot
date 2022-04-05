@@ -238,6 +238,12 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 		return CRF_APB_DBG_TRACE_CTRL;
 	case dbg_tstmp:
 		return CRF_APB_DBG_TSTMP_CTRL;
+	case dp_video_ref:
+		return CRF_APB_DP_VIDEO_REF_CTRL;
+	case dp_audio_ref:
+		return CRF_APB_DP_AUDIO_REF_CTRL;
+	case dp_stc_ref:
+		return CRF_APB_DP_STC_REF_CTRL;
 	case gpu_ref ...  gpu_pp1_ref:
 		return CRF_APB_GPU_REF_CTRL;
 	case ddr_ref:
@@ -673,6 +679,7 @@ static ulong zynqmp_clk_get_rate(struct clk *clk)
 	case dll_ref:
 		return zynqmp_clk_get_dll_rate(priv);
 	case gem_tsu_ref:
+	case dp_video_ref ... dp_stc_ref:
 	case pl0 ... pl3:
 	case gem0_ref ... gem3_ref:
 	case gem0_tx ... gem3_tx:

@@ -658,6 +658,7 @@ F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
 F:	drivers/phy/phy-zynqmp.c
 F:	drivers/power/domain/zynqmp-power-domain.c
+F:	drivers/pwm/pwm-cadence-ttc.c
 F:	drivers/serial/serial_zynq.c
 F:	drivers/reset/reset-zynqmp.c
 F:	drivers/rtc/zynqmp_rtc.c
