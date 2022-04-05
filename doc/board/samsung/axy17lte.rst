@@ -66,26 +66,17 @@ and is therefore SBOOT's payload.
 It may be pure u-boot (with loading u-boot's payload from flash in mind),
 or u-boot + u-boot's payload.
 
-It should be kept in mind, that SBOOT binary patches it's payload after loading
-in address range 0x401f8550-0x401f9280. Given SBOOT loads payload to 0x40001000,
-a range of 0x1f7550-0x1f8280 (2061648-2065024) in a payload file
-will be corrupted after loading to RAM.
-
 Creating payload file
 """""""""""""""""""""
 - Assemble FIT image for your kernel
-- Create a file for u-boot payload ``touch sboot-payload``
-- Write zeroes till 0x200000 address to be sure SBOOT won't corrupt your info
-  ``dd if=/dev/zero of=sboot-payload bs=$((0x200000)) count=1``
-- Write u-boot to the start of the payload ``dd if=<u-boot.bin path> of=sboot-payload``
-- Write FIT image to payload from 0x200000 address
-  ``dd if=<FIT image path> of=sboot-payload seek=1 bs=2M``
 
 Creating android boot image
 """""""""""""""""""""""""""
 Once payload created, it's time for android image::
 
-  mkbootimg --base 0x40000000 --kernel_offset 0x00000000 --ramdisk_offset 0x01000000 --tags_offset 0x00000100 --pagesize 2048 --second_offset 0x00f00000 --kernel <sboot-payload path> -o uboot.img
+  uboot=<path to u-boot.bin file>
+  ramdisk=<path to FIT payload file>
+  mkbootimg --base 0x40000000 --kernel_offset 0x00000000 --ramdisk_offset 0x01000000 --tags_offset 0x00000100 --pagesize 2048 --second_offset 0x00f00000 --kernel "$uboot" --ramdisk "$ramdisk" -o uboot.img
 
 Note, that stock Samsung bootloader ignores offsets, set in mkbootimg.
 

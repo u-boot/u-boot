@@ -16,6 +16,14 @@
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY	19000000
 
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootm_size=0x4000000\0"	\
+	"bootm_low=0x80000000\0"	\
+	"stdout=vidconsole\0"	\
+	"stderr=vidconsole\0"	\
+	"preboot=source $prevbl_initrd_start_addr:prebootscript\0" \
+	"bootcmd=source $prevbl_initrd_start_addr:bootscript\0"
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_BOOTM_LEN	SZ_64M
 

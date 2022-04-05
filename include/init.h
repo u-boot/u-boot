@@ -155,6 +155,19 @@ int arch_setup_bdinfo(void);
  */
 int setup_bdinfo(void);
 
+#if defined(CONFIG_SAVE_PREV_BL_INITRAMFS_START_ADDR) || \
+defined(CONFIG_SAVE_PREV_BL_FDT_ADDR)
+/**
+ * save_prev_bl_data - Save prev bl data in env vars.
+ *
+ * When u-boot is chain-loaded, save previous bootloader data,
+ * like initramfs address to environment variables.
+ *
+ * Return: 0 if ok; -ENODATA on error
+ */
+int save_prev_bl_data(void);
+#endif
+
 /**
  * cpu_secondary_init_r() - CPU-specific secondary initialization
  *

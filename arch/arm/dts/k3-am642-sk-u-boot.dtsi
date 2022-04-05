@@ -20,7 +20,7 @@
 		compatible = "ti,omap5430-timer";
 		reg = <0x0 0x2400000 0x0 0x80>;
 		ti,timer-alwon;
-		clock-frequency = <250000000>;
+		clock-frequency = <200000000>;
 		u-boot,dm-spl;
 	};
 };

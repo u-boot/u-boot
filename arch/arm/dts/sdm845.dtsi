@@ -48,10 +48,8 @@
 
 			/* DEBUG UART */
 			qup_uart9: qup-uart9-default {
-				pinmux {
-					pins = "GPIO_4", "GPIO_5";
-					function = "qup9";
-				};
+				pins = "GPIO_4", "GPIO_5";
+				function = "gpio";
 			};
 		};
 

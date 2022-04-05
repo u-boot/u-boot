@@ -17,13 +17,58 @@ It is loaded as an Android boot image through ABL
 
 Installation
 ------------
-First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for your board::
+Build
+^^^^^
+Setup ``CROSS_COMPILE`` for aarch64 and build U-Boot for your board::
 
 	$ export CROSS_COMPILE=<aarch64 toolchain prefix>
 	$ make <your board name here, see Boards section>_defconfig
 	$ make
 
 This will build ``u-boot.bin`` in the configured output directory.
+
+Generate FIT image
+^^^^^^^^^^^^^^^^^^
+See doc/uImage.FIT for more details
+
+Pack android boot image
+^^^^^^^^^^^^^^^^^^^^^^^
+We'll assemble android boot image with ``u-boot.bin`` instead of linux kernel,
+and FIT image instead of ``initramfs``. Android bootloader expect gzipped kernel
+with appended dtb, so let's mimic linux to satisfy stock bootloader:
+
+- create dump dtb::
+
+	workdir=/tmp/prepare_payload
+	mkdir -p "$workdir"
+	cd "$workdir"
+	mock_dtb="$workdir"/payload_mock.dtb
+
+	dtc -I dts -O dtb -o "$mock_dtb" << EOF
+	/dts-v1/;
+	/ {
+		memory {
+			/* We expect the bootloader to fill in the size */
+			reg = <0 0 0 0>;
+		};
+
+		chosen { };
+	};
+	EOF
+
+- gzip u-boot ``gzip u-boot.bin``
+- append dtb to gzipped u-boot: ``cat u-boot.bin.gz "$mock_dtb" > u-boot.bin.gz-dtb``
+
+Now we've got everything to build android boot image:::
+
+	mkbootimg --base 0x0 --kernel_offset 0x00008000 \
+	--ramdisk_offset 0x02000000 --tags_offset 0x01e00000 \
+	--pagesize 4096 --second_offset 0x00f00000 \
+	--ramdisk "$fit_image" \
+	--kernel u-boot.bin.gz-dtb \
+	-o boot.img
+
+Flash image with your phone's flashing method.
 
 Boards
 ------------

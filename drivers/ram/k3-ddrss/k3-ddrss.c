@@ -6,9 +6,12 @@
  */
 
 #include <common.h>
+#include <config.h>
 #include <clk.h>
+#include <div64.h>
 #include <dm.h>
 #include <dm/device_compat.h>
+#include <fdt_support.h>
 #include <ram.h>
 #include <hang.h>
 #include <log.h>
@@ -29,6 +32,19 @@
 
 #define DDRSS_V2A_R1_MAT_REG			0x0020
 #define DDRSS_ECC_CTRL_REG			0x0120
+
+#define DDRSS_ECC_CTRL_REG_ECC_EN		BIT(0)
+#define DDRSS_ECC_CTRL_REG_RMW_EN		BIT(1)
+#define DDRSS_ECC_CTRL_REG_ECC_CK		BIT(2)
+#define DDRSS_ECC_CTRL_REG_WR_ALLOC		BIT(4)
+
+#define DDRSS_ECC_R0_STR_ADDR_REG		0x0130
+#define DDRSS_ECC_R0_END_ADDR_REG		0x0134
+#define DDRSS_ECC_R1_STR_ADDR_REG		0x0138
+#define DDRSS_ECC_R1_END_ADDR_REG		0x013c
+#define DDRSS_ECC_R2_STR_ADDR_REG		0x0140
+#define DDRSS_ECC_R2_END_ADDR_REG		0x0144
+#define DDRSS_ECC_1B_ERR_CNT_REG		0x0150
 
 #define SINGLE_DDR_SUBSYSTEM	0x1
 #define MULTI_DDR_SUBSYSTEM	0x2
@@ -102,10 +118,18 @@ struct k3_msmc {
 	enum emif_active active;
 };
 
+#define K3_DDRSS_MAX_ECC_REGIONS		3
+
+struct k3_ddrss_ecc_region {
+	u32 start;
+	u32 range;
+};
+
 struct k3_ddrss_desc {
 	struct udevice *dev;
 	void __iomem *ddrss_ss_cfg;
 	void __iomem *ddrss_ctrl_mmr;
+	void __iomem *ddrss_ctl_cfg;
 	struct power_domain ddrcfg_pwrdmn;
 	struct power_domain ddrdata_pwrdmn;
 	struct clk ddr_clk;
@@ -118,6 +142,9 @@ struct k3_ddrss_desc {
 	lpddr4_obj *driverdt;
 	lpddr4_config config;
 	lpddr4_privatedata pd;
+	struct k3_ddrss_ecc_region ecc_regions[K3_DDRSS_MAX_ECC_REGIONS];
+	u64 ecc_reserved_space;
+	bool ti_ecc_enabled;
 };
 
 struct reginitdata {
@@ -319,7 +346,7 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 		dev_err(dev, "No reg property for DDRSS wrapper logic\n");
 		return -EINVAL;
 	}
-	ddrss->ddrss_ss_cfg = (void *)reg;
+	ddrss->ddrss_ctl_cfg = (void *)reg;
 
 	reg = dev_read_addr_name(dev, "ctrl_mmr_lp4");
 	if (reg == FDT_ADDR_T_NONE) {
@@ -327,6 +354,14 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 		return -EINVAL;
 	}
 	ddrss->ddrss_ctrl_mmr = (void *)reg;
+
+	reg = dev_read_addr_name(dev, "ss_cfg");
+	if (reg == FDT_ADDR_T_NONE) {
+		dev_dbg(dev, "No reg property for SS Config region, but this is optional so continuing.\n");
+		ddrss->ddrss_ss_cfg = NULL;
+	} else {
+		ddrss->ddrss_ss_cfg = (void *)reg;
+	}
 
 	ret = power_domain_get_by_index(dev, &ddrss->ddrcfg_pwrdmn, 0);
 	if (ret) {
@@ -371,6 +406,8 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 	if (ret)
 		dev_err(dev, "ddr fhs cnt not populated %d\n", ret);
 
+	ddrss->ti_ecc_enabled = dev_read_bool(dev, "ti,ecc-enable");
+
 	return ret;
 }
 
@@ -403,7 +440,7 @@ void k3_lpddr4_init(struct k3_ddrss_desc *ddrss)
 		hang();
 	}
 
-	config->ctlbase = (struct lpddr4_ctlregs_s *)ddrss->ddrss_ss_cfg;
+	config->ctlbase = (struct lpddr4_ctlregs_s *)ddrss->ddrss_ctl_cfg;
 	config->infohandler = (lpddr4_infocallback) k3_lpddr4_info_handler;
 
 	status = driverdt->init(pd, config);
@@ -512,6 +549,60 @@ void k3_lpddr4_start(struct k3_ddrss_desc *ddrss)
 	}
 }
 
+static void k3_ddrss_set_ecc_range_r0(u32 base, u32 start_address, u32 size)
+{
+	writel((start_address) >> 16, base + DDRSS_ECC_R0_STR_ADDR_REG);
+	writel((start_address + size - 1) >> 16, base + DDRSS_ECC_R0_END_ADDR_REG);
+}
+
+static void k3_ddrss_preload_ecc_mem_region(u32 *addr, u32 size, u32 word)
+{
+	int i;
+
+	printf("ECC is enabled, priming DDR which will take several seconds.\n");
+
+	for (i = 0; i < (size / 4); i++)
+		addr[i] = word;
+}
+
+static void k3_ddrss_lpddr4_ecc_calc_reserved_mem(struct k3_ddrss_desc *ddrss)
+{
+	fdtdec_setup_mem_size_base_lowest();
+
+	ddrss->ecc_reserved_space = gd->ram_size;
+	do_div(ddrss->ecc_reserved_space, 9);
+
+	/* Round to clean number */
+	ddrss->ecc_reserved_space = 1ull << (fls(ddrss->ecc_reserved_space));
+}
+
+static void k3_ddrss_lpddr4_ecc_init(struct k3_ddrss_desc *ddrss)
+{
+	u32 ecc_region_start = ddrss->ecc_regions[0].start;
+	u32 ecc_range = ddrss->ecc_regions[0].range;
+	u32 base = (u32)ddrss->ddrss_ss_cfg;
+	u32 val;
+
+	/* Only Program region 0 which covers full ddr space */
+	k3_ddrss_set_ecc_range_r0(base, ecc_region_start - gd->ram_base, ecc_range);
+
+	/* Enable ECC, RMW, WR_ALLOC */
+	writel(DDRSS_ECC_CTRL_REG_ECC_EN | DDRSS_ECC_CTRL_REG_RMW_EN |
+	       DDRSS_ECC_CTRL_REG_WR_ALLOC, base + DDRSS_ECC_CTRL_REG);
+
+	/* Preload ECC Mem region with 0's */
+	k3_ddrss_preload_ecc_mem_region((u32 *)ecc_region_start, ecc_range,
+					0x00000000);
+
+	/* Clear Error Count Register */
+	writel(0x1, base + DDRSS_ECC_1B_ERR_CNT_REG);
+
+	/* Enable ECC Check */
+	val = readl(base + DDRSS_ECC_CTRL_REG);
+	val |= DDRSS_ECC_CTRL_REG_ECC_CK;
+	writel(val, base + DDRSS_ECC_CTRL_REG);
+}
+
 static int k3_ddrss_probe(struct udevice *dev)
 {
 	int ret;
@@ -546,7 +637,50 @@ static int k3_ddrss_probe(struct udevice *dev)
 
 	k3_lpddr4_start(ddrss);
 
+	if (ddrss->ti_ecc_enabled) {
+		if (!ddrss->ddrss_ss_cfg) {
+			printf("%s: ss_cfg is required if ecc is enabled but not provided.",
+			       __func__);
+			return -EINVAL;
+		}
+
+		k3_ddrss_lpddr4_ecc_calc_reserved_mem(ddrss);
+
+		/* Always configure one region that covers full DDR space */
+		ddrss->ecc_regions[0].start = gd->ram_base;
+		ddrss->ecc_regions[0].range = gd->ram_size - ddrss->ecc_reserved_space;
+		k3_ddrss_lpddr4_ecc_init(ddrss);
+	}
+
 	return ret;
+}
+
+int k3_ddrss_ddr_fdt_fixup(struct udevice *dev, void *blob, struct bd_info *bd)
+{
+	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
+	u64 start[CONFIG_NR_DRAM_BANKS];
+	u64 size[CONFIG_NR_DRAM_BANKS];
+	int bank;
+
+	if (ddrss->ecc_reserved_space == 0)
+		return 0;
+
+	for (bank = CONFIG_NR_DRAM_BANKS - 1; bank >= 0; bank--) {
+		if (ddrss->ecc_reserved_space > bd->bi_dram[bank].size) {
+			ddrss->ecc_reserved_space -= bd->bi_dram[bank].size;
+			bd->bi_dram[bank].size = 0;
+		} else {
+			bd->bi_dram[bank].size -= ddrss->ecc_reserved_space;
+			break;
+		}
+	}
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		start[bank] =  bd->bi_dram[bank].start;
+		size[bank] = bd->bi_dram[bank].size;
+	}
+
+	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
 }
 
 static int k3_ddrss_get_info(struct udevice *dev, struct ram_info *info)

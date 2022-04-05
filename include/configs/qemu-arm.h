@@ -39,6 +39,12 @@
 # define BOOT_TARGET_VIRTIO(func)
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_NVME)
+# define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
+#else
+# define BOOT_TARGET_NVME(func)
+#endif
+
 #if CONFIG_IS_ENABLED(CMD_DHCP)
 # define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
 #else
@@ -49,6 +55,7 @@
 	BOOT_TARGET_USB(func) \
 	BOOT_TARGET_SCSI(func) \
 	BOOT_TARGET_VIRTIO(func) \
+	BOOT_TARGET_NVME(func) \
 	BOOT_TARGET_DHCP(func)
 
 #include <config_distro_bootcmd.h>
