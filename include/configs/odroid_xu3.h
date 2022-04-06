@@ -15,9 +15,6 @@
 #define TZPC_BASE_OFFSET		0x10000
 
 #define SDRAM_BANK_SIZE			(256UL << 20UL)	/* 256 MB */
-/* Reserve the last 22 MiB for the secure firmware */
-#define CONFIG_SYS_MEM_TOP_HIDE		(22UL << 20UL)
-#define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 

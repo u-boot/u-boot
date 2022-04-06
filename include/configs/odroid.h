@@ -21,9 +21,6 @@
 #define CONFIG_SYS_SDRAM_BASE	0x40000000
 #define SDRAM_BANK_SIZE		(256 << 20)	/* 256 MB */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
-/* Reserve the last 1 MiB for the secure firmware */
-#define CONFIG_SYS_MEM_TOP_HIDE		(1UL << 20UL)
-#define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
 
 #include <linux/sizes.h>
 

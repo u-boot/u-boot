@@ -1876,27 +1876,6 @@ Configuration Settings:
 		the RAM base is not zero, or RAM is divided into banks,
 		this variable needs to be recalcuated to get the address.
 
-- CONFIG_SYS_MEM_TOP_HIDE:
-		If CONFIG_SYS_MEM_TOP_HIDE is defined in the board config header,
-		this specified memory area will get subtracted from the top
-		(end) of RAM and won't get "touched" at all by U-Boot. By
-		fixing up gd->ram_size the Linux kernel should gets passed
-		the now "corrected" memory size and won't touch it either.
-		This should work for arch/ppc and arch/powerpc. Only Linux
-		board ports in arch/powerpc with bootwrapper support that
-		recalculate the memory size from the SDRAM controller setup
-		will have to get fixed in Linux additionally.
-
-		This option can be used as a workaround for the 440EPx/GRx
-		CHIP 11 errata where the last 256 bytes in SDRAM shouldn't
-		be touched.
-
-		WARNING: Please make sure that this value is a multiple of
-		the Linux page size (normally 4k). If this is not the case,
-		then the end address of the Linux memory will be located at a
-		non page size aligned address and this could cause major
-		problems.
-
 - CONFIG_SYS_LOADS_BAUD_CHANGE:
 		Enable temporary baudrate change while serial download
 
