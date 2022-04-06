@@ -127,5 +127,8 @@ int board_early_init_f(void)
 
 int board_late_init(void)
 {
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)
+	board_late_mmc_env_init();
+#endif
 	return 0;
 }
