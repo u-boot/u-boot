@@ -632,10 +632,10 @@ static int phy_probe(struct phy_device *phydev)
 	return err;
 }
 
-static struct phy_driver *generic_for_interface(phy_interface_t interface)
+static struct phy_driver *generic_for_phy(struct phy_device *phydev)
 {
 #ifdef CONFIG_PHYLIB_10G
-	if (is_10g_interface(interface))
+	if (phydev->is_c45)
 		return &gen10g_driver;
 #endif
 
@@ -656,7 +656,7 @@ static struct phy_driver *get_phy_driver(struct phy_device *phydev,
 	}
 
 	/* If we made it here, there's no driver for this PHY */
-	return generic_for_interface(interface);
+	return generic_for_phy(phydev);
 }
 
 struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
@@ -859,7 +859,7 @@ int phy_reset(struct phy_device *phydev)
 
 #ifdef CONFIG_PHYLIB_10G
 	/* If it's 10G, we need to issue reset through one of the MMDs */
-	if (is_10g_interface(phydev->interface)) {
+	if (phydev->is_c45) {
 		if (!phydev->mmds)
 			gen10g_discover_mmds(phydev);
 
