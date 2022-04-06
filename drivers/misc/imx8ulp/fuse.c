@@ -34,9 +34,9 @@ struct s400_map_entry {
 struct fsb_map_entry fsb_mapping_table[] = {
 	{ 3, 8 },
 	{ 4, 8 },
+	{ -1, 48 }, /* Reserve 48 words */
 	{ 5, 8 },
 	{ 6, 8 },
-	{ -1, 48 }, /* Reserve 48 words */
 	{ 8,  4, true },
 	{ 24, 4, true },
 	{ 26, 4, true },
@@ -63,6 +63,7 @@ struct s400_map_entry s400_api_mapping_table[] = {
 	{ 7, 4, 0, 1 },	/* OTP_UNIQ_ID */
 	{ 15, 8 }, /* OEM SRK HASH */
 	{ 23, 1, 4, 2 }, /* OTFAD */
+	{ 25, 8 }, /* Test config2 */
 };
 
 static s32 map_fsb_fuse_index(u32 bank, u32 word, bool *redundancy)
