@@ -101,7 +101,7 @@ void init_clk_ddr(void)
 	writel(0xc0000000, PCC5_LPDDR4_ADDR);
 
 	/* enable pll4 and ddrclk*/
-	cgc2_pll4_init();
+	cgc2_pll4_init(true);
 	cgc2_ddrclk_config(4, 1);
 
 	/* enable ddr pcc */

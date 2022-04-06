@@ -24,8 +24,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void spl_dram_init(void)
 {
-	init_clk_ddr();
-	ddr_init(&dram_timing);
+	/* Reboot in dual boot setting no need to init ddr again */
+	bool ddr_enable = pcc_clock_is_enable(5, LPDDR4_PCC5_SLOT);
+
+	if (!ddr_enable) {
+		init_clk_ddr();
+		ddr_init(&dram_timing);
+	} else {
+		/* reinit pfd/pfddiv and lpavnic except pll4*/
+		cgc2_pll4_init(false);
+	}
 }
 
 u32 spl_boot_device(void)
