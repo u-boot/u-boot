@@ -54,11 +54,6 @@ static struct udevice *mmux_get_parent_mdio(struct udevice *mux)
 	return pdata->mdio_parent;
 }
 
-static struct mdio_ops *mmux_get_mdio_parent_ops(struct udevice *mux)
-{
-	return mdio_get_ops(mmux_get_parent_mdio(mux));
-}
-
 /* call driver select function before performing MDIO r/w */
 static int mmux_change_sel(struct udevice *ch, bool sel)
 {
@@ -90,14 +85,13 @@ static int mmux_read(struct udevice *ch, int addr, int devad,
 {
 	struct udevice *mux = ch->parent;
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
-	struct mdio_ops *parent_ops = mmux_get_mdio_parent_ops(mux);
 	int err;
 
 	err = mmux_change_sel(ch, true);
 	if (err)
 		return err;
 
-	err = parent_ops->read(parent_mdio, addr, devad, reg);
+	err = dm_mdio_read(parent_mdio, addr, devad, reg);
 	mmux_change_sel(ch, false);
 
 	return err;
@@ -109,14 +103,13 @@ static int mmux_write(struct udevice *ch, int addr, int devad,
 {
 	struct udevice *mux = ch->parent;
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
-	struct mdio_ops *parent_ops = mmux_get_mdio_parent_ops(mux);
 	int err;
 
 	err = mmux_change_sel(ch, true);
 	if (err)
 		return err;
 
-	err = parent_ops->write(parent_mdio, addr, devad, reg, val);
+	err = dm_mdio_write(parent_mdio, addr, devad, reg, val);
 	mmux_change_sel(ch, false);
 
 	return err;
@@ -127,18 +120,17 @@ static int mmux_reset(struct udevice *ch)
 {
 	struct udevice *mux = ch->parent;
 	struct udevice *parent_mdio = mmux_get_parent_mdio(mux);
-	struct mdio_ops *parent_ops = mmux_get_mdio_parent_ops(mux);
 	int err;
 
 	/* reset is optional, if it's not implemented just exit */
-	if (!parent_ops->reset)
+	if (!mdio_get_ops(parent_mdio)->reset)
 		return 0;
 
 	err = mmux_change_sel(ch, true);
 	if (err)
 		return err;
 
-	err = parent_ops->reset(parent_mdio);
+	err = dm_mdio_reset(parent_mdio);
 	mmux_change_sel(ch, false);
 
 	return err;
