@@ -481,7 +481,7 @@ static void handle_reset_button(void)
 		/* Ensure bootcmd_rescue is used by distroboot */
 		env_set("boot_targets", "rescue");
 
-		printf("RESET button was pressed, overwriting bootcmd!\n");
+		printf("RESET button was pressed, overwriting boot_targets!\n");
 	} else {
 		/*
 		 * In case the user somehow managed to save environment with
