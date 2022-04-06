@@ -27,6 +27,7 @@ enum sbi_ext_id {
 	SBI_EXT_RFENCE = 0x52464E43,
 	SBI_EXT_HSM = 0x48534D,
 	SBI_EXT_SRST = 0x53525354,
+	SBI_EXT_PMU = 0x504D55,
 };
 
 enum sbi_ext_base_fid {
@@ -154,6 +155,9 @@ long sbi_get_spec_version(void);
 int sbi_get_impl_id(void);
 int sbi_get_impl_version(long *version);
 int sbi_probe_extension(int ext);
+int sbi_get_mvendorid(long *mvendorid);
+int sbi_get_marchid(long *marchid);
+int sbi_get_mimpid(long *mimpid);
 void sbi_srst_reset(unsigned long type, unsigned long reason);
 
 #endif
