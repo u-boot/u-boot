@@ -27,6 +27,7 @@
 
 enum {
 	MVEBU_EFUSE_CTRL_PROGRAM_ENABLE = (1 << 31),
+	MVEBU_EFUSE_LD1_SELECT          = (1 <<  6),
 };
 
 struct mvebu_hd_efuse {
@@ -39,8 +40,10 @@ struct mvebu_hd_efuse {
 #ifndef DRY_RUN
 static struct mvebu_hd_efuse *efuses =
 	(struct mvebu_hd_efuse *)(MBUS_EFUSE_BASE + 0xF9000);
+static u32 *ld_efuses = (void *)MBUS_EFUSE_BASE + 0xF8F00;
 #else
 static struct mvebu_hd_efuse efuses[EFUSE_LINE_MAX + 1];
+static u32 ld_efuses[EFUSE_LD_WORDS];
 #endif
 
 static int efuse_initialised;
@@ -169,6 +172,21 @@ int mvebu_read_efuse(int nr, struct efuse_val *val)
 	return 0;
 }
 
+void mvebu_read_ld_efuse(int ld1, u32 *line)
+{
+	int i;
+
+#ifndef DRY_RUN
+	if (ld1)
+		setbits_le32(MVEBU_EFUSE_CONTROL, MVEBU_EFUSE_LD1_SELECT);
+	else
+		clrbits_le32(MVEBU_EFUSE_CONTROL, MVEBU_EFUSE_LD1_SELECT);
+#endif
+
+	for (i = 0; i < EFUSE_LD_WORDS; i++)
+		line[i] = readl(ld_efuses + i);
+}
+
 int mvebu_write_efuse(int nr, struct efuse_val *val)
 {
 	return prog_efuse(nr, val, ~0, ~0);
@@ -199,7 +217,17 @@ static int valid_prog_words;
 int fuse_read(u32 bank, u32 word, u32 *val)
 {
 	struct efuse_val fuse_line;
+	u32 ld_line[EFUSE_LD_WORDS];
 	int res;
+
+	if ((bank == EFUSE_LD0_LINE || bank == EFUSE_LD1_LINE) && word < EFUSE_LD_WORDS) {
+		res = mvebu_efuse_init_hw();
+		if (res)
+			return res;
+		mvebu_read_ld_efuse(bank == EFUSE_LD1_LINE, ld_line);
+		*val = ld_line[word];
+		return 0;
+	}
 
 	if (bank < EFUSE_LINE_MIN || bank > EFUSE_LINE_MAX || word > 2)
 		return -EINVAL;
