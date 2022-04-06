@@ -1363,7 +1363,7 @@ static int macb_eth_probe(struct udevice *dev)
 	int ret;
 
 	macb->phy_interface = dev_read_phy_mode(dev);
-	if (macb->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (macb->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	/* Read phyaddr from DT */

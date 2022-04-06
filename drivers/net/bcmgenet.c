@@ -696,7 +696,7 @@ static int bcmgenet_eth_of_to_plat(struct udevice *dev)
 
 	/* Get phy mode from DT */
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,

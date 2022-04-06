@@ -764,7 +764,7 @@ ofnode dev_get_phy_node(const struct udevice *dev);
  * returns the corresponding PHY interface type.
  *
  * @dev: device representing the MAC
- * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NONE on
+ * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NA on
  *	   error
  */
 phy_interface_t dev_read_phy_mode(const struct udevice *dev);

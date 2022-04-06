@@ -607,7 +607,7 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 	dev_read_u32(dev, "reg", &priv->port_id);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE) {
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA) {
 		dev_err(dev, "Invalid PHY mode, port %u\n", priv->port_id);
 		return -EINVAL;
 	}

@@ -1345,7 +1345,7 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 	}
 
 	pdata->phy_interface = data->slave_data[data->active_slave].phy_if;
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	return 0;

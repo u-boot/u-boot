@@ -1239,7 +1239,7 @@ ofnode ofnode_get_phy_node(ofnode eth_node);
  * returns the corresponding PHY interface type.
  *
  * @mac_node:	ofnode containing the property
- * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NONE on
+ * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NA on
  *	   error
  */
 phy_interface_t ofnode_read_phy_mode(ofnode mac_node);

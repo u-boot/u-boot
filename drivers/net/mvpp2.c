@@ -4820,7 +4820,7 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	}
 
 	port->phy_interface = dev_read_phy_mode(dev);
-	if (port->phy_interface == PHY_INTERFACE_MODE_NONE) {
+	if (port->phy_interface == PHY_INTERFACE_MODE_NA) {
 		dev_err(dev, "incorrect phy mode\n");
 		return -EINVAL;
 	}

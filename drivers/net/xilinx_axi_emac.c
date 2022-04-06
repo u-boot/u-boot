@@ -850,7 +850,7 @@ static int axi_emac_of_to_plat(struct udevice *dev)
 		}
 
 		pdata->phy_interface = dev_read_phy_mode(dev);
-		if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+		if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 			return -EINVAL;
 
 		plat->eth_hasnobuf = fdtdec_get_bool(gd->fdt_blob, node,

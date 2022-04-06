@@ -130,7 +130,7 @@ static int fm_port_to_index(enum fm_port port)
 
 /*
  * Determine if an interface is actually active based on HW config
- * we expect fman_port_enet_if() to report PHY_INTERFACE_MODE_NONE if
+ * we expect fman_port_enet_if() to report PHY_INTERFACE_MODE_NA if
  * the interface is not active based on HW cfg of the SoC
  */
 void fman_enet_init(void)
@@ -141,7 +141,7 @@ void fman_enet_init(void)
 		phy_interface_t enet_if;
 
 		enet_if = fman_port_enet_if(fm_info[i].port);
-		if (enet_if != PHY_INTERFACE_MODE_NONE) {
+		if (enet_if != PHY_INTERFACE_MODE_NA) {
 			fm_info[i].enabled = 1;
 			fm_info[i].enet_if = enet_if;
 		} else {
@@ -221,12 +221,12 @@ phy_interface_t fm_info_get_enet_if(enum fm_port port)
 	int i = fm_port_to_index(port);
 
 	if (i == -1)
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	if (fm_info[i].enabled)
 		return fm_info[i].enet_if;
 
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }
 
 static void

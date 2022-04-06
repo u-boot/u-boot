@@ -1137,7 +1137,7 @@ static int qe_uec_of_to_plat(struct udevice *dev)
 	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	return 0;

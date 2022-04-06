@@ -55,7 +55,7 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 #endif
 
 	if (is_device_disabled(port))
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	/*B4860 has two 10Gig Mac*/
 	if ((port == FM1_10GEC1 || port == FM1_10GEC2)	&&
@@ -112,7 +112,7 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 					 (port == FM1_DTSEC2) ||
 					 (port == FM1_DTSEC3) ||
 					 (port == FM1_DTSEC4))
-					return PHY_INTERFACE_MODE_NONE;
+					return PHY_INTERFACE_MODE_NA;
 			}
 		}
 	}
@@ -131,8 +131,8 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 			return PHY_INTERFACE_MODE_SGMII;
 		break;
 	default:
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 	}
 
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }

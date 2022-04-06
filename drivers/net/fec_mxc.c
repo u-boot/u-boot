@@ -1315,7 +1315,7 @@ static int fecmxc_of_to_plat(struct udevice *dev)
 	priv->eth = (struct ethernet_regs *)pdata->iobase;
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 #ifdef CONFIG_DM_REGULATOR

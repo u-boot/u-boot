@@ -859,7 +859,7 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 	}
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 	priv->interface = pdata->phy_interface;
 

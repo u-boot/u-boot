@@ -550,7 +550,7 @@ static int pic32_eth_probe(struct udevice *dev)
 
 	/* get phy mode */
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	/* get phy addr */

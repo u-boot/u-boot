@@ -1804,7 +1804,7 @@ static int mvneta_of_to_plat(struct udevice *dev)
 
 	/* Get phy-mode / phy_interface from DT */
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
 	return 0;

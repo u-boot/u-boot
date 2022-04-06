@@ -16,7 +16,7 @@ struct wriop_dpmac_info dpmac_info[NUM_WRIOP_PORTS];
 
 __weak phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtc)
 {
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }
 
 void wriop_init_dpmac(int sd, int dpmac_id, int lane_prtcl)
@@ -26,10 +26,10 @@ void wriop_init_dpmac(int sd, int dpmac_id, int lane_prtcl)
 
 	dpmac_info[dpmac_id].enabled = 0;
 	dpmac_info[dpmac_id].id = 0;
-	dpmac_info[dpmac_id].enet_if = PHY_INTERFACE_MODE_NONE;
+	dpmac_info[dpmac_id].enet_if = PHY_INTERFACE_MODE_NA;
 
 	enet_if = wriop_dpmac_enet_if(dpmac_id, lane_prtcl);
-	if (enet_if != PHY_INTERFACE_MODE_NONE) {
+	if (enet_if != PHY_INTERFACE_MODE_NA) {
 		dpmac_info[dpmac_id].enabled = 1;
 		dpmac_info[dpmac_id].id = dpmac_id;
 		dpmac_info[dpmac_id].enet_if = enet_if;
@@ -183,10 +183,10 @@ phy_interface_t wriop_get_enet_if(int dpmac_id)
 	int i = wriop_dpmac_to_index(dpmac_id);
 
 	if (i == -1)
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	if (dpmac_info[i].enabled)
 		return dpmac_info[i].enet_if;
 
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }

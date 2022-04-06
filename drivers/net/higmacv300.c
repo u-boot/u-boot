@@ -567,7 +567,7 @@ static int higmac_of_to_plat(struct udevice *dev)
 	priv->macif_ctrl = dev_remap_addr_index(dev, 1);
 
 	priv->phyintf = dev_read_phy_mode(dev);
-	if (priv->phyintf == PHY_INTERFACE_MODE_NONE)
+	if (priv->phyintf == PHY_INTERFACE_MODE_NA)
 		return -ENODEV;
 
 	phy_node = dev_read_subnode(dev, "phy");
