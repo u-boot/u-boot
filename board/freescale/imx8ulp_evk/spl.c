@@ -76,10 +76,8 @@ void spl_board_init(void)
 
 	/* After AP set iomuxc0, the i2c can't work, Need M33 to set it now */
 
-	/* Load the lposc fuse for single boot to work around ROM issue,
-	 *  The fuse depends on S400 to read.
-	 */
-	if (is_soc_rev(CHIP_REV_1_0) && get_boot_mode() == SINGLE_BOOT)
+	/* Load the lposc fuse to work around ROM issue. The fuse depends on S400 to read. */
+	if (is_soc_rev(CHIP_REV_1_0))
 		load_lposc_fuse();
 
 	upower_init();
