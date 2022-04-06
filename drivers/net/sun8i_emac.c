@@ -391,8 +391,6 @@ static int sun8i_phy_init(struct emac_eth_dev *priv, void *dev)
 	if (!phydev)
 		return -ENODEV;
 
-	phy_connect_dev(phydev, dev);
-
 	priv->phydev = phydev;
 	phy_config(priv->phydev);
 
