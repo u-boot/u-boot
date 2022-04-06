@@ -5,3 +5,4 @@
 #
 
 obj-$(CONFIG_$(SPL_)CMDLINE) += cmd_fuzz.o
+obj-$(CONFIG_VIRTIO_SANDBOX) += virtio.o
