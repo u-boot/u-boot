@@ -900,10 +900,10 @@ int ofnode_read_pci_vendev(ofnode node, u16 *vendor, u16 *device);
  * Look at the compatible property of a device node that represents a eth phy
  * device and extract phy vendor id and device id from it.
  *
- * @param node		node to examine
- * @param vendor	vendor id of the eth phy device
- * @param device	device id of the eth phy device
- * @return 0 if ok, negative on error
+ * @node:	node to examine
+ * @vendor:	vendor id of the eth phy device
+ * @device:	device id of the eth phy device
+ * Return:	 0 if ok, negative on error
  */
 int ofnode_read_eth_phy_id(ofnode node, u16 *vendor, u16 *device);
 
