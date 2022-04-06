@@ -119,7 +119,6 @@
 	LOAD_ADDRESS_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"console=ttyS0,115200\0" \
-	"ethact=ethernet@34000\0" \
 	"bootcmd_rescue=" TURRIS_OMNIA_BOOTCMD_RESCUE "\0" \
 	BOOTENV
 
