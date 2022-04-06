@@ -57,6 +57,10 @@ config SYS_INIT_SP_BSS_OFFSET
 	  that the early malloc region, global data (gd), and early stack usage
 	  do not overlap any appended DTB.
 
+config SPL_SYS_NO_VECTOR_TABLE
+	depends on SPL
+	bool
+
 config LINUX_KERNEL_IMAGE_HEADER
 	depends on ARM64
 	bool
