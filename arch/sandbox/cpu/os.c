@@ -27,6 +27,7 @@
 #include <linux/types.h>
 
 #include <asm/getopt.h>
+#include <asm/main.h>
 #include <asm/sections.h>
 #include <asm/state.h>
 #include <os.h>
@@ -1000,4 +1001,9 @@ void os_relaunch(char *argv[])
 {
 	execv(argv[0], argv);
 	os_exit(1);
+}
+
+int main(int argc, char *argv[])
+{
+	return sandbox_main(argc, argv);
 }
