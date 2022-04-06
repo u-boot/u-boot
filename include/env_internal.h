@@ -235,9 +235,25 @@ const char *env_ext4_get_intf(void);
 const char *env_ext4_get_dev_part(void);
 
 /**
+ * arch_env_get_location()- Provide the best location for the U-Boot environment
+ *
+ * It is a weak function allowing board to overidde the environment location
+ * on architecture level. This has lower priority than env_get_location(),
+ * which can be defined on board level.
+ *
+ * @op: operations performed on the environment
+ * @prio: priority between the multiple environments, 0 being the
+ *        highest priority
+ * Return:  an enum env_location value on success, or -ve error code.
+ */
+enum env_location arch_env_get_location(enum env_operation op, int prio);
+
+/**
  * env_get_location()- Provide the best location for the U-Boot environment
  *
  * It is a weak function allowing board to overidde the environment location
+ * on board level. This has higher priority than arch_env_get_location(),
+ * which can be defined on architecture level.
  *
  * @op: operations performed on the environment
  * @prio: priority between the multiple environments, 0 being the
