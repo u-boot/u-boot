@@ -569,14 +569,6 @@ int board_phy_config(struct phy_device *phydev);
 int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);
 
 /**
- * phy_get_interface_by_name() - Look up a PHY interface name
- *
- * @str:	PHY interface name, e.g. "mii"
- * @return: PHY_INTERFACE_MODE_... value, or -1 if not found
- */
-int phy_get_interface_by_name(const char *str);
-
-/**
  * phy_interface_is_rgmii - Convenience function for testing if a PHY interface
  * is RGMII (all variants)
  * @phydev: the phy_device struct

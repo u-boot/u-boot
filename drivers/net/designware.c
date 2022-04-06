@@ -914,21 +914,15 @@ int designware_eth_of_to_plat(struct udevice *dev)
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 #endif
 	struct eth_pdata *pdata = &dw_pdata->eth_pdata;
-	const char *phy_mode;
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	int reset_flags = GPIOD_IS_OUT;
 #endif
 	int ret = 0;
 
 	pdata->iobase = dev_read_addr(dev);
-	pdata->phy_interface = -1;
-	phy_mode = dev_read_string(dev, "phy-mode");
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
 		return -EINVAL;
-	}
 
 	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
 

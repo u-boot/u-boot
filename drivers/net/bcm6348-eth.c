@@ -415,7 +415,6 @@ static int bcm6348_eth_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct bcm6348_eth_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phy;
-	const char *phy_mode;
 	int ret, i;
 
 	/* get base address */
@@ -425,10 +424,7 @@ static int bcm6348_eth_probe(struct udevice *dev)
 	pdata->iobase = (phys_addr_t) priv->base;
 
 	/* get phy mode */
-	pdata->phy_interface = PHY_INTERFACE_MODE_NONE;
-	phy_mode = dev_read_string(dev, "phy-mode");
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
+	pdata->phy_interface = dev_read_phy_mode(dev);
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE)
 		return -ENODEV;
 

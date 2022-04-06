@@ -602,21 +602,14 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args out_args;
-	const char *phy_mode;
 	int ret = 0;
 
 	dev_read_u32(dev, "reg", &priv->port_id);
 
-	phy_mode = dev_read_string(dev, "phy-mode");
-	if (phy_mode) {
-		pdata->phy_interface =
-				phy_get_interface_by_name(phy_mode);
-		if (pdata->phy_interface == -1) {
-			dev_err(dev, "Invalid PHY mode '%s', port %u\n",
-				phy_mode, priv->port_id);
-			ret = -EINVAL;
-			goto out;
-		}
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NONE) {
+		dev_err(dev, "Invalid PHY mode, port %u\n", priv->port_id);
+		return -EINVAL;
 	}
 
 	dev_read_u32(dev, "max-speed", (u32 *)&pdata->max_speed);

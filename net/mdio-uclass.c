@@ -15,11 +15,6 @@
 #include <dm/uclass-internal.h>
 #include <linux/compat.h>
 
-/* DT node properties for MAC-PHY interface */
-static const char * const phy_mode_str[] = {
-	"phy-mode", "phy-connection-type"
-};
-
 void dm_mdio_probe_devices(void)
 {
 	struct udevice *it;
@@ -195,26 +190,15 @@ out:
 /* Connect to a PHY linked in eth DT node */
 struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
 {
-	const char *if_str;
 	phy_interface_t interface;
 	struct phy_device *phy;
-	int i;
 
 	if (!dev_has_ofnode(ethdev)) {
 		debug("%s: supplied eth dev has no DT node!\n", ethdev->name);
 		return NULL;
 	}
 
-	interface = PHY_INTERFACE_MODE_NONE;
-	for (i = 0; i < ARRAY_SIZE(phy_mode_str); i++) {
-		if_str = dev_read_string(ethdev, phy_mode_str[i]);
-		if (if_str) {
-			interface = phy_get_interface_by_name(if_str);
-			break;
-		}
-	}
-	if (interface < 0)
-		interface = PHY_INTERFACE_MODE_NONE;
+	interface = dev_read_phy_mode(ethdev);
 	if (interface == PHY_INTERFACE_MODE_NONE)
 		dev_dbg(ethdev, "can't find interface mode, default to NONE\n");
 

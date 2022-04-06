@@ -535,6 +535,7 @@
 		reg = <0x10007000 0x1000>;
 		fake-host-hwaddr = [00 00 66 44 22 77];
 		phy-handle = <&ethphy1>;
+		phy-mode = "2500base-x";
 	};
 
 	dsa_eth0: dsa-test-eth {

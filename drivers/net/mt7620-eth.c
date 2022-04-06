@@ -1048,33 +1048,20 @@ static int mt7620_eth_parse_gsw_port(struct mt7620_eth_priv *priv, u32 idx,
 				     ofnode node)
 {
 	ofnode subnode;
-	const char *str;
-	int mode, speed, ret;
+	int speed, ret;
 	u32 phy_addr;
 
-	str = ofnode_read_string(node, "phy-mode");
-	if (str) {
-		mode = phy_get_interface_by_name(str);
-		if (mode < 0) {
-			dev_err(priv->dev, "mt7620_eth: invalid phy-mode\n");
-			return -EINVAL;
-		}
+	priv->port_cfg[idx].mode = ofnode_read_phy_mode(node);
 
-		switch (mode) {
-		case PHY_INTERFACE_MODE_MII:
-		case PHY_INTERFACE_MODE_RMII:
-		case PHY_INTERFACE_MODE_RGMII:
-		case PHY_INTERFACE_MODE_NONE:
-			break;
-		default:
-			dev_err(priv->dev,
-				"mt7620_eth: unsupported phy-mode\n");
-			return -ENOTSUPP;
-		}
-
-		priv->port_cfg[idx].mode = mode;
-	} else {
-		priv->port_cfg[idx].mode = PHY_INTERFACE_MODE_NONE;
+	switch (priv->port_cfg[idx].mode) {
+	case PHY_INTERFACE_MODE_MII:
+	case PHY_INTERFACE_MODE_RMII:
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_NONE:
+		break;
+	default:
+		dev_err(priv->dev, "mt7620_eth: unsupported phy-mode\n");
+		return -ENOTSUPP;
 	}
 
 	subnode = ofnode_find_subnode(node, "fixed-link");
