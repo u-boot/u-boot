@@ -393,11 +393,11 @@ static int ave_phy_init(struct ave_private *priv, void *dev)
 	struct phy_device *phydev;
 	int mask = GENMASK(31, 0), ret;
 
-	phydev = phy_find_by_mask(priv->bus, mask, priv->phy_mode);
+	phydev = phy_find_by_mask(priv->bus, mask);
 	if (!phydev)
 		return -ENODEV;
 
-	phy_connect_dev(phydev, dev);
+	phy_connect_dev(phydev, dev, priv->phy_mode);
 
 	phydev->supported &= PHY_GBIT_FEATURES;
 	if (priv->max_speed) {

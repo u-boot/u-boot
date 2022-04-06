@@ -435,11 +435,11 @@ static int tse_phy_init(struct altera_tse_priv *priv, void *dev)
 	if (priv->phyaddr)
 		mask = 1 << priv->phyaddr;
 
-	phydev = phy_find_by_mask(priv->bus, mask, priv->interface);
+	phydev = phy_find_by_mask(priv->bus, mask);
 	if (!phydev)
 		return -ENODEV;
 
-	phy_connect_dev(phydev, dev);
+	phy_connect_dev(phydev, dev, priv->interface);
 
 	phydev->supported &= PHY_GBIT_FEATURES;
 	phydev->advertising = phydev->supported;

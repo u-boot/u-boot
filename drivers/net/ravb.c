@@ -319,11 +319,11 @@ static int ravb_phy_config(struct udevice *dev)
 		mdelay(1);
 	}
 
-	phydev = phy_find_by_mask(eth->bus, mask, pdata->phy_interface);
+	phydev = phy_find_by_mask(eth->bus, mask);
 	if (!phydev)
 		return -ENODEV;
 
-	phy_connect_dev(phydev, dev);
+	phy_connect_dev(phydev, dev, pdata->phy_interface);
 
 	eth->phydev = phydev;
 

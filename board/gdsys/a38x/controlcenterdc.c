@@ -194,11 +194,12 @@ void init_host_phys(struct mii_dev *bus)
 	for (k = 0; k < 2; ++k) {
 		struct phy_device *phydev;
 
-		phydev = phy_find_by_mask(bus, 1 << k,
-					  PHY_INTERFACE_MODE_SGMII);
+		phydev = phy_find_by_mask(bus, 1 << k);
 
-		if (phydev)
+		if (phydev) {
+			phydev->interface = PHY_INTERFACE_MODE_SGMII;
 			phy_config(phydev);
+		}
 	}
 }
 
