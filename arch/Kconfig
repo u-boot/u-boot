@@ -135,6 +135,7 @@ config SANDBOX
 	select BZIP2
 	select CMD_POWEROFF
 	select DM
+	select DM_FUZZING_ENGINE
 	select DM_GPIO
 	select DM_I2C
 	select DM_KEYBOARD
@@ -170,6 +171,7 @@ config SANDBOX
 	imply CRC32_VERIFY
 	imply FAT_WRITE
 	imply FIRMWARE
+	imply FUZZING_ENGINE_SANDBOX
 	imply HASH_VERIFY
 	imply LZMA
 	imply TEE

@@ -5,3 +5,4 @@
 #
 
 obj-$(CONFIG_DM_FUZZING_ENGINE) += fuzzing_engine-uclass.o
+obj-$(CONFIG_FUZZING_ENGINE_SANDBOX) += sandbox_fuzzing_engine.o
