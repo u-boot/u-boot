@@ -27,6 +27,8 @@
 #include <fuse.h>
 #include <thermal.h>
 #include <linux/iopoll.h>
+#include <env.h>
+#include <env_internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -786,4 +788,38 @@ u32 spl_arch_boot_image_offset(u32 image_offset, u32 rom_bt_dev)
 		image_offset = 0;
 
 	return image_offset;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	enum boot_device dev = get_boot_device();
+	enum env_location env_loc = ENVL_UNKNOWN;
+
+	if (prio)
+		return env_loc;
+
+	switch (dev) {
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+	case QSPI_BOOT:
+		env_loc = ENVL_SPI_FLASH;
+		break;
+#endif
+#ifdef CONFIG_ENV_IS_IN_MMC
+	case SD1_BOOT:
+	case SD2_BOOT:
+	case SD3_BOOT:
+	case MMC1_BOOT:
+	case MMC2_BOOT:
+	case MMC3_BOOT:
+		env_loc =  ENVL_MMC;
+		break;
+#endif
+	default:
+#if defined(CONFIG_ENV_IS_NOWHERE)
+		env_loc = ENVL_NOWHERE;
+#endif
+		break;
+	}
+
+	return env_loc;
 }
