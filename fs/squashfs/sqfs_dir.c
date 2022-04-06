@@ -7,8 +7,7 @@
 
 #include <errno.h>
 #include <linux/types.h>
-#include <linux/byteorder/little_endian.h>
-#include <linux/byteorder/generic.h>
+#include <asm/byteorder.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
