@@ -16,13 +16,12 @@
 #include <linux/compat.h>
 
 /* DT node properties for MAC-PHY interface */
-#define PHY_MODE_STR_CNT	2
-static const char * const phy_mode_str[PHY_MODE_STR_CNT] = {
+static const char * const phy_mode_str[] = {
 	"phy-mode", "phy-connection-type"
 };
+
 /* DT node properties that reference a PHY node */
-#define PHY_HANDLE_STR_CNT	3
-static const char * const phy_handle_str[PHY_HANDLE_STR_CNT] = {
+static const char * const phy_handle_str[] = {
 	"phy-handle", "phy", "phy-device"
 };
 
@@ -149,7 +148,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 		goto out;
 	}
 
-	for (i = 0; i < PHY_HANDLE_STR_CNT; i++)
+	for (i = 0; i < ARRAY_SIZE(phy_handle_str); i++)
 		if (!dev_read_phandle_with_args(ethdev, phy_handle_str[i], NULL,
 						0, 0, &phandle))
 			break;
@@ -199,7 +198,7 @@ struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
 	}
 
 	interface = PHY_INTERFACE_MODE_NONE;
-	for (i = 0; i < PHY_MODE_STR_CNT; i++) {
+	for (i = 0; i < ARRAY_SIZE(phy_mode_str); i++) {
 		if_str = dev_read_string(ethdev, phy_mode_str[i]);
 		if (if_str) {
 			interface = phy_get_interface_by_name(if_str);
