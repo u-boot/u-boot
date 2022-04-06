@@ -24,10 +24,10 @@ extern struct stdio_dev **console_devices[MAX_FILES];
  */
 extern int cd_count[MAX_FILES];
 
-#define for_each_console_dev(i, file, dev)		\
-	for (i = 0, dev = console_devices[file][i];	\
-	     i < cd_count[file];			\
-	     i++, dev = console_devices[file][i])
+#define for_each_console_dev(i, file, dev)				\
+	for (i = 0;							\
+	     i < cd_count[file] && (dev = console_devices[file][i]);	\
+	     i++)
 
 int iomux_match_device(struct stdio_dev **, const int, struct stdio_dev *);
 int iomux_doenv(const int, const char *);
