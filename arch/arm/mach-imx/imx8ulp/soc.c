@@ -413,6 +413,17 @@ static struct mm_region imx8ulp_arm64_mem_map[] = {
 
 struct mm_region *mem_map = imx8ulp_arm64_mem_map;
 
+static unsigned int imx8ulp_find_dram_entry_in_mem_map(void)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(imx8ulp_arm64_mem_map); i++)
+		if (imx8ulp_arm64_mem_map[i].phys == CONFIG_SYS_SDRAM_BASE)
+			return i;
+
+	hang();	/* Entry not found, this must never happen. */
+}
+
 /* simplify the page table size to enhance boot speed */
 #define MAX_PTE_ENTRIES		512
 #define MAX_MEM_MAP_REGIONS	16
@@ -444,17 +455,104 @@ u64 get_page_table_size(void)
 
 void enable_caches(void)
 {
-	/* TODO: add TEE memmap region */
+	/* If OPTEE runs, remove OPTEE memory from MMU table to avoid speculative prefetch */
+	if (rom_pointer[1]) {
+		/*
+		 * TEE are loaded, So the ddr bank structures
+		 * have been modified update mmu table accordingly
+		 */
+		int i = 0;
+		int entry = imx8ulp_find_dram_entry_in_mem_map();
+		u64 attrs = imx8ulp_arm64_mem_map[entry].attrs;
+
+		while (i < CONFIG_NR_DRAM_BANKS &&
+		       entry < ARRAY_SIZE(imx8ulp_arm64_mem_map)) {
+			if (gd->bd->bi_dram[i].start == 0)
+				break;
+			imx8ulp_arm64_mem_map[entry].phys = gd->bd->bi_dram[i].start;
+			imx8ulp_arm64_mem_map[entry].virt = gd->bd->bi_dram[i].start;
+			imx8ulp_arm64_mem_map[entry].size = gd->bd->bi_dram[i].size;
+			imx8ulp_arm64_mem_map[entry].attrs = attrs;
+			debug("Added memory mapping (%d): %llx %llx\n", entry,
+			      imx8ulp_arm64_mem_map[entry].phys, imx8ulp_arm64_mem_map[entry].size);
+			i++; entry++;
+		}
+	}
 
 	icache_enable();
 	dcache_enable();
 }
 
+__weak int board_phys_sdram_size(phys_size_t *size)
+{
+	if (!size)
+		return -EINVAL;
+
+	*size = PHYS_SDRAM_SIZE;
+	return 0;
+}
+
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_SIZE;
+	unsigned int entry = imx8ulp_find_dram_entry_in_mem_map();
+	phys_size_t sdram_size;
+	int ret;
+
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return ret;
+
+	/* rom_pointer[1] contains the size of TEE occupies */
+	if (rom_pointer[1])
+		gd->ram_size = sdram_size - rom_pointer[1];
+	else
+		gd->ram_size = sdram_size;
+
+	/* also update the SDRAM size in the mem_map used externally */
+	imx8ulp_arm64_mem_map[entry].size = sdram_size;
+	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	int bank = 0;
+	int ret;
+	phys_size_t sdram_size;
+
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return ret;
+
+	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	if (rom_pointer[1]) {
+		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
+		phys_size_t optee_size = (size_t)rom_pointer[1];
+
+		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
+		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_size)) {
+			if (++bank >= CONFIG_NR_DRAM_BANKS) {
+				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
+				return -1;
+			}
+
+			gd->bd->bi_dram[bank].start = optee_start + optee_size;
+			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
+				sdram_size - gd->bd->bi_dram[bank].start;
+		}
+	} else {
+		gd->bd->bi_dram[bank].size = sdram_size;
+	}
 
 	return 0;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	/* return the first bank as effective memory */
+	if (rom_pointer[1])
+		return ((phys_addr_t)rom_pointer[0] - PHYS_SDRAM);
+
+	return gd->ram_size;
 }
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
