@@ -102,7 +102,7 @@ void init_clk_ddr(void)
 
 	/* enable pll4 and ddrclk*/
 	cgc2_pll4_init();
-	cgc2_ddrclk_config(1, 1);
+	cgc2_ddrclk_config(4, 1);
 
 	/* enable ddr pcc */
 	writel(0xd0000000, PCC5_LPDDR4_ADDR);
@@ -153,30 +153,66 @@ int set_ddr_clk(u32 phy_freq_mhz)
 	return 0;
 }
 
-void clock_init(void)
+void clock_init_early(void)
 {
 	cgc1_soscdiv_init();
-	cgc1_init_core_clk();
 
 	init_clk_lpuart();
 
-	pcc_clock_enable(4, SDHC0_PCC4_SLOT, false);
-	pcc_clock_sel(4, SDHC0_PCC4_SLOT, PLL3_PFD1_DIV2);
-	pcc_clock_enable(4, SDHC0_PCC4_SLOT, true);
-	pcc_reset_peripheral(4, SDHC0_PCC4_SLOT, false);
-
-	pcc_clock_enable(4, SDHC1_PCC4_SLOT, false);
-	pcc_clock_sel(4, SDHC1_PCC4_SLOT, PLL3_PFD2_DIV1);
-	pcc_clock_enable(4, SDHC1_PCC4_SLOT, true);
-	pcc_reset_peripheral(4, SDHC1_PCC4_SLOT, false);
-
-	pcc_clock_enable(4, SDHC2_PCC4_SLOT, false);
-	pcc_clock_sel(4, SDHC2_PCC4_SLOT, PLL3_PFD2_DIV1);
-	pcc_clock_enable(4, SDHC2_PCC4_SLOT, true);
-	pcc_reset_peripheral(4, SDHC2_PCC4_SLOT, false);
-
 	/* Enable upower mu1 clk */
 	pcc_clock_enable(3, UPOWER_PCC3_SLOT, true);
+}
+
+/* This will be invoked after pmic voltage setting */
+void clock_init_late(void)
+{
+
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE))
+		cgc1_init_core_clk(MHZ(500));
+	else if (IS_ENABLED(CONFIG_IMX8ULP_ND_MODE))
+		cgc1_init_core_clk(MHZ(750));
+	else
+		cgc1_init_core_clk(MHZ(960));
+
+	/*
+	 * Audio use this frequency in kernel dts,
+	 * however nic use pll3 pfd0, we have to
+	 * make the freqency same as kernel to make nic
+	 * not being disabled
+	 */
+	cgc1_pll3_init(540672000);
+
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE) || IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
+		pcc_clock_enable(4, SDHC0_PCC4_SLOT, false);
+		pcc_clock_sel(4, SDHC0_PCC4_SLOT, PLL3_PFD2_DIV2);
+		pcc_clock_enable(4, SDHC0_PCC4_SLOT, true);
+		pcc_reset_peripheral(4, SDHC0_PCC4_SLOT, false);
+
+		pcc_clock_enable(4, SDHC1_PCC4_SLOT, false);
+		pcc_clock_sel(4, SDHC1_PCC4_SLOT, PLL3_PFD2_DIV2);
+		pcc_clock_enable(4, SDHC1_PCC4_SLOT, true);
+		pcc_reset_peripheral(4, SDHC1_PCC4_SLOT, false);
+
+		pcc_clock_enable(4, SDHC2_PCC4_SLOT, false);
+		pcc_clock_sel(4, SDHC2_PCC4_SLOT, PLL3_PFD2_DIV2);
+		pcc_clock_enable(4, SDHC2_PCC4_SLOT, true);
+		pcc_reset_peripheral(4, SDHC2_PCC4_SLOT, false);
+	} else {
+		pcc_clock_enable(4, SDHC0_PCC4_SLOT, false);
+		pcc_clock_sel(4, SDHC0_PCC4_SLOT, PLL3_PFD1_DIV2);
+		pcc_clock_enable(4, SDHC0_PCC4_SLOT, true);
+		pcc_reset_peripheral(4, SDHC0_PCC4_SLOT, false);
+
+		pcc_clock_enable(4, SDHC1_PCC4_SLOT, false);
+		pcc_clock_sel(4, SDHC1_PCC4_SLOT, PLL3_PFD2_DIV1);
+		pcc_clock_enable(4, SDHC1_PCC4_SLOT, true);
+		pcc_reset_peripheral(4, SDHC1_PCC4_SLOT, false);
+
+		pcc_clock_enable(4, SDHC2_PCC4_SLOT, false);
+		pcc_clock_sel(4, SDHC2_PCC4_SLOT, PLL3_PFD2_DIV1);
+		pcc_clock_enable(4, SDHC2_PCC4_SLOT, true);
+		pcc_reset_peripheral(4, SDHC2_PCC4_SLOT, false);
+	}
 
 	/*
 	 * Enable clock division

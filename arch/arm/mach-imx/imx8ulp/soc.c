@@ -597,7 +597,7 @@ int arch_cpu_init(void)
 
 		xrdc_mrc_region_set_access(2, CONFIG_SPL_TEXT_BASE, 0xE00);
 
-		clock_init();
+		clock_init_early();
 	} else {
 		/* reconfigure core0 reset vector to ROM */
 		set_core0_reset_vector(0x1000);
