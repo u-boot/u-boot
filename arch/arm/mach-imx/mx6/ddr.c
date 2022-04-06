@@ -1526,6 +1526,11 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 			((sysinfo->ncs == 2) ? 1 : 0) << 30; /* SDE_1 for CS1 */
 
 	/* Step 8: Write Mode Registers to Init DDR3 devices */
+	mdelay(1); /* Wait before issuing the first MRS command.
+		    * Minimum wait time is (tXPR + 500us),
+		    * with max tXPR value 360ns, and 500us wait required after
+		    * RESET_n is de-asserted.
+		    */
 	for (cs = 0; cs < sysinfo->ncs; cs++) {
 		/* MR2 */
 		val = (sysinfo->rtt_wr & 3) << 9 | (ddr3_cfg->SRT & 1) << 7 |
