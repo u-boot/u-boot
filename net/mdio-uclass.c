@@ -17,13 +17,14 @@
 
 /* DT node properties for MAC-PHY interface */
 #define PHY_MODE_STR_CNT	2
-static const char *phy_mode_str[PHY_MODE_STR_CNT] = { "phy-mode",
-						      "phy-connection-type" };
+static const char * const phy_mode_str[PHY_MODE_STR_CNT] = {
+	"phy-mode", "phy-connection-type"
+};
 /* DT node properties that reference a PHY node */
 #define PHY_HANDLE_STR_CNT	3
-const char *phy_handle_str[PHY_HANDLE_STR_CNT] = { "phy-handle",
-						   "phy",
-						   "phy-device" };
+static const char * const phy_handle_str[PHY_HANDLE_STR_CNT] = {
+	"phy-handle", "phy", "phy-device"
+};
 
 void dm_mdio_probe_devices(void)
 {
