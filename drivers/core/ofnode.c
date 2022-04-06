@@ -1234,7 +1234,7 @@ phy_interface_t ofnode_read_phy_mode(ofnode node)
 	if (!mode)
 		return PHY_INTERFACE_MODE_NONE;
 
-	for (i = 0; i < PHY_INTERFACE_MODE_COUNT; i++)
+	for (i = 0; i < PHY_INTERFACE_MODE_MAX; i++)
 		if (!strcmp(mode, phy_interface_strings[i]))
 			return i;
 
