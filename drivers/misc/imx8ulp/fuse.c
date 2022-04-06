@@ -61,6 +61,7 @@ struct s400_map_entry s400_api_mapping_table[] = {
 	{ 1, 8 },	/* LOCK */
 	{ 2, 8 },	/* ECID */
 	{ 7, 4, 0, 1 },	/* OTP_UNIQ_ID */
+	{ 15, 8 }, /* OEM SRK HASH */
 	{ 23, 1, 4, 2 }, /* OTFAD */
 };
 
