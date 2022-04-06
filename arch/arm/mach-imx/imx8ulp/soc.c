@@ -156,9 +156,6 @@ int m33_image_handshake(ulong timeout_ms)
 	int ret;
 	ulong timeout_us = timeout_ms * 1000;
 
-	/* enable MU0_MUB clock before access the register of MU0_MUB */
-	pcc_clock_enable(3, MU0_B_PCC3_SLOT, true);
-
 	/* Notify m33 that it's ready to do init srtm(enable mu receive interrupt and so on) */
 	setbits_le32(MU0_B_BASE_ADDR + 0x100, BIT(0)); /* set FCR F0 flag of MU0_MUB */
 

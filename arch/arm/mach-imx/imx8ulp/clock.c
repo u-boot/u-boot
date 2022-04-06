@@ -214,6 +214,9 @@ void clock_init_late(void)
 		pcc_reset_peripheral(4, SDHC2_PCC4_SLOT, false);
 	}
 
+	/* enable MU0_MUB clock before access the register of MU0_MUB */
+	pcc_clock_enable(3, MU0_B_PCC3_SLOT, true);
+
 	/*
 	 * Enable clock division
 	 * TODO: may not needed after ROM ready.
