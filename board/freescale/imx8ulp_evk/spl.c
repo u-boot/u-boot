@@ -35,24 +35,6 @@ u32 spl_boot_device(void)
 
 int power_init_board(void)
 {
-	u32 pmic_reg;
-
-	/* PMIC set bucks1-4 to PWM mode */
-	upower_pmic_i2c_read(0x10, &pmic_reg);
-	upower_pmic_i2c_read(0x14, &pmic_reg);
-	upower_pmic_i2c_read(0x21, &pmic_reg);
-	upower_pmic_i2c_read(0x2e, &pmic_reg);
-
-	upower_pmic_i2c_write(0x10, 0x3d);
-	upower_pmic_i2c_write(0x14, 0x7d);
-	upower_pmic_i2c_write(0x21, 0x7d);
-	upower_pmic_i2c_write(0x2e, 0x3d);
-
-	upower_pmic_i2c_read(0x10, &pmic_reg);
-	upower_pmic_i2c_read(0x14, &pmic_reg);
-	upower_pmic_i2c_read(0x21, &pmic_reg);
-	upower_pmic_i2c_read(0x2e, &pmic_reg);
-
 	/* Set buck3 to 1.1v OD */
 	upower_pmic_i2c_write(0x22, 0x28);
 	return 0;
