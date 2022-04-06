@@ -954,17 +954,6 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 	return 0;
 }
 #else /* CONFIG_DM_ETH */
-#ifdef CONFIG_PHYLIB
-phy_interface_t fman_read_sys_if(struct udevice *dev)
-{
-	const char *if_str;
-
-	if_str = ofnode_read_string(dev_ofnode(dev), "phy-connection-type");
-	debug("MAC system interface mode %s\n", if_str);
-
-	return phy_get_interface_by_name(if_str);
-}
-#endif
 
 static int fm_eth_bind(struct udevice *dev)
 {
@@ -1038,7 +1027,7 @@ static int fm_eth_probe(struct udevice *dev)
 	reg = (void *)(uintptr_t)dev_read_addr(dev);
 	fm_eth->mac_type = dev_get_driver_data(dev);
 #ifdef CONFIG_PHYLIB
-	fm_eth->enet_if = fman_read_sys_if(dev);
+	fm_eth->enet_if = dev_read_phy_mode(dev);
 #else
 	fm_eth->enet_if = PHY_INTERFACE_MODE_SGMII;
 	printf("%s: warning - unable to determine interface type\n", __func__);

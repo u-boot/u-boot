@@ -561,19 +561,14 @@ static int higmac_remove(struct udevice *dev)
 static int higmac_of_to_plat(struct udevice *dev)
 {
 	struct higmac_priv *priv = dev_get_priv(dev);
-	int phyintf = PHY_INTERFACE_MODE_NONE;
-	const char *phy_mode;
 	ofnode phy_node;
 
 	priv->base = dev_remap_addr_index(dev, 0);
 	priv->macif_ctrl = dev_remap_addr_index(dev, 1);
 
-	phy_mode = dev_read_string(dev, "phy-mode");
-	if (phy_mode)
-		phyintf = phy_get_interface_by_name(phy_mode);
-	if (phyintf == PHY_INTERFACE_MODE_NONE)
+	priv->phyintf = dev_read_phy_mode(dev);
+	if (priv->phyintf == PHY_INTERFACE_MODE_NA)
 		return -ENODEV;
-	priv->phyintf = phyintf;
 
 	phy_node = dev_read_subnode(dev, "phy");
 	if (!ofnode_valid(phy_node)) {

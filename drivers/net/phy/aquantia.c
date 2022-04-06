@@ -305,7 +305,7 @@ struct {
 	u16 syscfg;
 	int cnt;
 	u16 start_rate;
-} aquantia_syscfg[PHY_INTERFACE_MODE_COUNT] = {
+} aquantia_syscfg[PHY_INTERFACE_MODE_MAX] = {
 	[PHY_INTERFACE_MODE_SGMII] =      {0x04b, AQUANTIA_VND1_GSYSCFG_1G,
 					   AQUANTIA_VND1_GSTART_RATE_1G},
 	[PHY_INTERFACE_MODE_2500BASEX]  = {0x144, AQUANTIA_VND1_GSYSCFG_2_5G,

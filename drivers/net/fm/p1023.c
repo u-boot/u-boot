@@ -46,7 +46,7 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	u32 pordevsr = in_be32(&gur->pordevsr);
 
 	if (is_device_disabled(port))
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	/* DTSEC1 can be SGMII, RGMII or RMII */
 	if (port == FM1_DTSEC1) {
@@ -68,5 +68,5 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 			return PHY_INTERFACE_MODE_RGMII;
 	}
 
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }

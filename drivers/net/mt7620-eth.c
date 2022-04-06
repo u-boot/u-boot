@@ -596,7 +596,7 @@ static int mt7620_setup_gmac_mode(struct mt7620_eth_priv *priv, u32 gmac,
 	case PHY_INTERFACE_MODE_RGMII:
 		ge_mode = MT7620_SYSC_GE_RGMII;
 		break;
-	case PHY_INTERFACE_MODE_NONE:
+	case PHY_INTERFACE_MODE_NA:
 		if (gmac == 2)
 			ge_mode = MT7620_SYSC_GE_ESW_PHY;
 		else
@@ -620,7 +620,7 @@ static void mt7620_gsw_setup_port(struct mt7620_eth_priv *priv, u32 port,
 {
 	u32 pmcr;
 
-	if (port_cfg->mode == PHY_INTERFACE_MODE_NONE) {
+	if (port_cfg->mode == PHY_INTERFACE_MODE_NA) {
 		if (port == 5) {
 			gsw_write(priv, GSW_PMCR(port), FORCE_MODE);
 			return;
@@ -666,7 +666,7 @@ static void mt7620_gsw_setup_phy_polling(struct mt7620_eth_priv *priv)
 {
 	int phy_addr_st, phy_addr_end;
 
-	if (priv->port_cfg[0].mode == PHY_INTERFACE_MODE_NONE)
+	if (priv->port_cfg[0].mode == PHY_INTERFACE_MODE_NA)
 		priv->ephy_num = NUM_FE_PHYS;
 	else
 		priv->ephy_num = NUM_FE_PHYS - 1;
@@ -1048,33 +1048,20 @@ static int mt7620_eth_parse_gsw_port(struct mt7620_eth_priv *priv, u32 idx,
 				     ofnode node)
 {
 	ofnode subnode;
-	const char *str;
-	int mode, speed, ret;
+	int speed, ret;
 	u32 phy_addr;
 
-	str = ofnode_read_string(node, "phy-mode");
-	if (str) {
-		mode = phy_get_interface_by_name(str);
-		if (mode < 0) {
-			dev_err(priv->dev, "mt7620_eth: invalid phy-mode\n");
-			return -EINVAL;
-		}
+	priv->port_cfg[idx].mode = ofnode_read_phy_mode(node);
 
-		switch (mode) {
-		case PHY_INTERFACE_MODE_MII:
-		case PHY_INTERFACE_MODE_RMII:
-		case PHY_INTERFACE_MODE_RGMII:
-		case PHY_INTERFACE_MODE_NONE:
-			break;
-		default:
-			dev_err(priv->dev,
-				"mt7620_eth: unsupported phy-mode\n");
-			return -ENOTSUPP;
-		}
-
-		priv->port_cfg[idx].mode = mode;
-	} else {
-		priv->port_cfg[idx].mode = PHY_INTERFACE_MODE_NONE;
+	switch (priv->port_cfg[idx].mode) {
+	case PHY_INTERFACE_MODE_MII:
+	case PHY_INTERFACE_MODE_RMII:
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_NA:
+		break;
+	default:
+		dev_err(priv->dev, "mt7620_eth: unsupported phy-mode\n");
+		return -ENOTSUPP;
 	}
 
 	subnode = ofnode_find_subnode(node, "fixed-link");
@@ -1141,14 +1128,14 @@ static int mt7620_eth_parse_gsw_cfg(struct udevice *dev)
 		if (ret)
 			return ret;
 	} else {
-		priv->port_cfg[0].mode = PHY_INTERFACE_MODE_NONE;
+		priv->port_cfg[0].mode = PHY_INTERFACE_MODE_NA;
 	}
 
 	subnode = ofnode_find_subnode(dev_ofnode(dev), "port5");
 	if (ofnode_valid(subnode))
 		return mt7620_eth_parse_gsw_port(priv, 1, subnode);
 
-	priv->port_cfg[1].mode = PHY_INTERFACE_MODE_NONE;
+	priv->port_cfg[1].mode = PHY_INTERFACE_MODE_NA;
 	return 0;
 }
 

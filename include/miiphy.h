@@ -158,6 +158,37 @@ struct mdio_ops {
 void dm_mdio_probe_devices(void);
 
 /**
+ * dm_mdio_read - Wrapper over .read() operation for DM MDIO
+ *
+ * @mdiodev: mdio device
+ * @addr: PHY address on MDIO bus
+ * @devad: device address on PHY if C45; should be MDIO_DEVAD_NONE if C22
+ * @reg: register address
+ * Return: register value if non-negative, -error code otherwise
+ */
+int dm_mdio_read(struct udevice *mdio_dev, int addr, int devad, int reg);
+
+/**
+ * dm_mdio_write - Wrapper over .write() operation for DM MDIO
+ *
+ * @mdiodev: mdio device
+ * @addr: PHY address on MDIO bus
+ * @devad: device address on PHY if C45; should be MDIO_DEVAD_NONE if C22
+ * @reg: register address
+ * @val: value to write
+ * Return: 0 on success, -error code otherwise
+ */
+int dm_mdio_write(struct udevice *mdio_dev, int addr, int devad, int reg, u16 val);
+
+/**
+ * dm_mdio_reset - Wrapper over .reset() operation for DM MDIO
+ *
+ * @mdiodev: mdio device
+ * Return: 0 on success, -error code otherwise
+ */
+int dm_mdio_reset(struct udevice *mdio_dev);
+
+/**
  * dm_mdio_phy_connect - Wrapper over phy_connect for DM MDIO
  *
  * @mdiodev: mdio device the PHY is accesible on

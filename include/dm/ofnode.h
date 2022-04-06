@@ -12,6 +12,7 @@
 #include <dm/of.h>
 #include <dm/of_access.h>
 #include <log.h>
+#include <phy_interface.h>
 
 /* Enable checks to protect against invalid calls */
 #undef OF_CHECKS
@@ -1216,5 +1217,31 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
  * Return: string value, if found, or NULL if not
  */
 const char *ofnode_conf_read_str(const char *prop_name);
+
+/**
+ * ofnode_get_phy_node() - Get PHY node for a MAC (if not fixed-link)
+ *
+ * This function parses PHY handle from the Ethernet controller's ofnode
+ * (trying all possible PHY handle property names), and returns the PHY ofnode.
+ *
+ * Before this is used, ofnode_phy_is_fixed_link() should be checked first, and
+ * if the result to that is true, this function should not be called.
+ *
+ * @eth_node:	ofnode belonging to the Ethernet controller
+ * Return: ofnode of the PHY, if it exists, otherwise an invalid ofnode
+ */
+ofnode ofnode_get_phy_node(ofnode eth_node);
+
+/**
+ * ofnode_read_phy_mode() - Read PHY connection type from a MAC node
+ *
+ * This function parses the "phy-mode" / "phy-connection-type" property and
+ * returns the corresponding PHY interface type.
+ *
+ * @mac_node:	ofnode containing the property
+ * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NA on
+ *	   error
+ */
+phy_interface_t ofnode_read_phy_mode(ofnode mac_node);
 
 #endif

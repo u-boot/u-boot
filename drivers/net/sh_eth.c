@@ -762,11 +762,11 @@ static int sh_eth_phy_config(struct udevice *dev)
 	struct phy_device *phydev;
 	int mask = 0xffffffff;
 
-	phydev = phy_find_by_mask(priv->bus, mask, pdata->phy_interface);
+	phydev = phy_find_by_mask(priv->bus, mask);
 	if (!phydev)
 		return -ENODEV;
 
-	phy_connect_dev(phydev, dev);
+	phy_connect_dev(phydev, dev, pdata->phy_interface);
 
 	port_info->phydev = phydev;
 	phy_config(phydev);
@@ -915,20 +915,13 @@ static const struct eth_ops sh_ether_ops = {
 int sh_ether_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
-	const char *phy_mode;
 	const fdt32_t *cell;
-	int ret = 0;
 
 	pdata->iobase = dev_read_addr(dev);
-	pdata->phy_interface = -1;
-	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
-			       NULL);
-	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
-	}
 
 	pdata->max_speed = 1000;
 	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
@@ -937,7 +930,7 @@ int sh_ether_of_to_plat(struct udevice *dev)
 
 	sprintf(bb_miiphy_buses[0].name, dev->name);
 
-	return ret;
+	return 0;
 }
 
 static const struct udevice_id sh_ether_ids[] = {

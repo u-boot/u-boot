@@ -20,7 +20,6 @@ struct mdio_mux_sandbox_priv {
 static int mdio_mux_sandbox_mark_selection(struct udevice *dev, int sel)
 {
 	struct udevice *mdio;
-	struct mdio_ops *ops;
 	int err;
 
 	/*
@@ -30,9 +29,8 @@ static int mdio_mux_sandbox_mark_selection(struct udevice *dev, int sel)
 	err = uclass_get_device_by_name(UCLASS_MDIO, "mdio-test", &mdio);
 	if (err)
 		return err;
-	ops = mdio_get_ops(mdio);
-	return ops->write(mdio, SANDBOX_PHY_ADDR, MDIO_DEVAD_NONE,
-			  SANDBOX_PHY_REG_CNT - 1, (u16)sel);
+	return dm_mdio_write(mdio, SANDBOX_PHY_ADDR, MDIO_DEVAD_NONE,
+			     SANDBOX_PHY_REG_CNT - 1, (u16)sel);
 }
 
 static int mdio_mux_sandbox_select(struct udevice *dev, int cur, int sel)

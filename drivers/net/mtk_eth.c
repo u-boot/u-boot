@@ -1447,11 +1447,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	priv->gmac_id = dev_read_u32_default(dev, "mediatek,gmac-id", 0);
 
 	/* Interface mode is required */
-	str = dev_read_string(dev, "phy-mode");
-	if (str) {
-		pdata->phy_interface = phy_get_interface_by_name(str);
-		priv->phy_interface = pdata->phy_interface;
-	} else {
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	priv->phy_interface = pdata->phy_interface;
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA) {
 		printf("error: phy-mode is not set\n");
 		return -EINVAL;
 	}
