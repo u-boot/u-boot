@@ -6,6 +6,9 @@
 #ifndef _ASM_ARCH_IMX8ULP_CLOCK_H
 #define _ASM_ARCH_IMX8ULP_CLOCK_H
 
+#include <asm/arch/pcc.h>
+#include <asm/arch/cgc.h>
+
 /* Mainly for compatible to imx common code. */
 enum mxc_clock {
 	MXC_ARM_CLK = 0,
