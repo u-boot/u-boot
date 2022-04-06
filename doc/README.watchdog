@@ -17,12 +17,6 @@ CONFIG_WATCHDOG_TIMEOUT_MSECS
 CONFIG_WDT_AT91
 	Available for AT91SAM9 to service the watchdog.
 
-CONFIG_FTWDT010_WATCHDOG
-	Available for FTWDT010 to service the watchdog.
-
-CONFIG_FTWDT010_HW_TIMEOUT
-	Can be used to change the timeout for FTWDT010.
-
 CONFIG_IMX_WATCHDOG
 	Available for i.mx31/35/5x/6x to service the watchdog. This is not
 	automatically set because some boards (vision2) still need to define

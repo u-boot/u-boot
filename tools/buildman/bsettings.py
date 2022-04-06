@@ -85,7 +85,6 @@ other = /
 # Indicates which toolchain should be used to build for that arch
 x86 = i386
 blackfin = bfin
-nds32 = nds32le
 openrisc = or1k
 
 [make-flags]

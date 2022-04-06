@@ -23,8 +23,6 @@ On most architectures the global data pointer is stored in a register.
 +------------+----------+
 | MicroBlaze | r31      |
 +------------+----------+
-| NDS32      | r10      |
-+------------+----------+
 | Nios II    | gp       |
 +------------+----------+
 | PowerPC    | r2       |

@@ -1,5 +1,5 @@
 config ARCH_MAP_SYSMEM
-	depends on SANDBOX || NDS32
+	depends on SANDBOX
 	def_bool y
 
 config CREATE_ARCH_SYMLINK
@@ -86,10 +86,6 @@ config MIPS
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
 	select SPL_SEPARATE_BSS if SPL
-
-config NDS32
-	bool "NDS32 architecture"
-	select SUPPORT_OF_CONTROL
 
 config NIOS2
 	bool "Nios II architecture"
@@ -382,7 +378,7 @@ config SYS_IMMR
 
 config SKIP_LOWLEVEL_INIT
 	bool "Skip the calls to certain low level initialization functions"
-	depends on ARM || NDS32 || MIPS || RISCV
+	depends on ARM || MIPS || RISCV
 	help
 	  If enabled, then certain low level initializations (like setting up
 	  the memory controller) are omitted and/or U-Boot does not relocate
@@ -393,7 +389,7 @@ config SKIP_LOWLEVEL_INIT
 
 config SPL_SKIP_LOWLEVEL_INIT
 	bool "Skip the calls to certain low level initialization functions"
-	depends on SPL && (ARM || NDS32 || MIPS || RISCV)
+	depends on SPL && (ARM || MIPS || RISCV)
 	help
 	  If enabled, then certain low level initializations (like setting up
 	  the memory controller) are omitted and/or U-Boot does not relocate
@@ -442,7 +438,6 @@ source "arch/arm/Kconfig"
 source "arch/m68k/Kconfig"
 source "arch/microblaze/Kconfig"
 source "arch/mips/Kconfig"
-source "arch/nds32/Kconfig"
 source "arch/nios2/Kconfig"
 source "arch/powerpc/Kconfig"
 source "arch/sandbox/Kconfig"

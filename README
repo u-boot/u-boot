@@ -134,7 +134,6 @@ Directory Hierarchy:
   /m68k			Files generic to m68k architecture
   /microblaze		Files generic to microblaze architecture
   /mips			Files generic to MIPS architecture
-  /nds32		Files generic to NDS32 architecture
   /nios2		Files generic to Altera NIOS2 architecture
   /powerpc		Files generic to PowerPC architecture
   /riscv		Files generic to RISC-V architecture
@@ -2689,8 +2688,8 @@ details; basically, the header defines the following image properties:
   LynxOS, pSOS, QNX, RTEMS, INTEGRITY;
   Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, INTEGRITY).
 * Target CPU Architecture (Provisions for Alpha, ARM, Intel x86,
-  IA64, MIPS, NDS32, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-  Currently supported: ARM, Intel x86, MIPS, NDS32, Nios II, PowerPC).
+  IA64, MIPS, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
+  Currently supported: ARM, Intel x86, MIPS, Nios II, PowerPC).
 * Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point
@@ -3401,23 +3400,6 @@ On Nios II, the ABI is documented here:
 
     Note: on Nios II, we give "-G0" option to gcc and don't use gp
     to access small data sections, so gp is free.
-
-On NDS32, the following registers are used:
-
-	R0-R1:	argument/return
-	R2-R5:	argument
-	R15:	temporary register for assembler
-	R16:	trampoline register
-	R28:	frame pointer (FP)
-	R29:	global pointer (GP)
-	R30:	link register (LP)
-	R31:	stack pointer (SP)
-	PC:	program counter (PC)
-
-    ==> U-Boot will use R10 to hold a pointer to the global data
-
-NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
-or current versions of GCC may "optimize" the code too much.
 
 On RISC-V, the following registers are used:
 

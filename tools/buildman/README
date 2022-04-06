@@ -192,7 +192,6 @@ aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 [toolchain-alias]
 x86: i386
 blackfin: bfin
-nds32: nds32le
 openrisc: or1k
 
 
@@ -468,8 +467,6 @@ arc: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/
     download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz
 blackfin: http://sourceforge.net/projects/adi-toolchain/files/
     blackfin-toolchain-elf-gcc-4.5-2014R1_45-RC2.x86_64.tar.bz2
-nds32: http://osdk.andestech.com/packages/
-    nds32le-linux-glibc-v1.tgz
 nios2: http://sourcery.mentor.com/public/gnu_toolchain/nios2-linux-gnu/
     sourceryg++-2015.11-27-nios2-linux-gnu-i686-pc-linux-gnu.tar.bz2
 sh: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu/
@@ -483,10 +480,10 @@ Buildman should now be set up to use your new toolchain.
 
 At the time of writing, U-Boot has these architectures:
 
-   arc, arm, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
+   arc, arm, blackfin, m68k, microblaze, mips, nios2, openrisc
    powerpc, sandbox, sh, sparc, x86
 
-Of these, only arc and nds32 are not available at kernel.org..
+Of these, only arc is not available at kernel.org..
 
 
 How to run it

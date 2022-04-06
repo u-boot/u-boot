@@ -1057,12 +1057,6 @@ S:	Orphaned (Since 2018-07)
 T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
 F:	drivers/mtd/nand/raw/
 
-NDS32
-M:	Rick Chen <rick@andestech.com>
-S:	Maintained
-T:	git https://source.denx.de/u-boot/custodians/u-boot-nds32.git
-F:	arch/nds32/
-
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
 M:	Ramon Fried <rfried.dev@gmail.com>

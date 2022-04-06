@@ -431,10 +431,10 @@ stages:
       vmImage: $(ubuntu_vm)
     strategy:
       # Use almost the same target division in .travis.yml, only merged
-      # 4 small build jobs (arc/microblaze/nds32/xtensa) into one.
+      # 3 small build jobs (arc/microblaze/xtensa) into one.
       matrix:
-        arc_microblaze_nds32_xtensa:
-          BUILDMAN: "arc microblaze nds32 xtensa"
+        arc_microblaze_xtensa:
+          BUILDMAN: "arc microblaze xtensa"
         arm11_arm7_arm920t_arm946es:
           BUILDMAN: "arm11 arm7 arm920t arm946es"
         arm926ejs:

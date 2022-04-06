@@ -251,14 +251,7 @@ int fdtdec_get_pci_bar32(const struct udevice *dev, struct fdt_pci_addr *addr,
 
 	barnum = (barnum - PCI_BASE_ADDRESS_0) / 4;
 
-	/*
-	 * There is a strange toolchain bug with nds32 which complains about
-	 * an undefined reference here, even if fdtdec_get_pci_bar32() is never
-	 * called. An #ifdef seems to be the only fix!
-	 */
-#if !IS_ENABLED(CONFIG_NDS32)
 	*bar = dm_pci_read_bar32(dev, barnum);
-#endif
 
 	return 0;
 }

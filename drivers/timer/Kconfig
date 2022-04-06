@@ -40,12 +40,6 @@ config TIMER_EARLY
 	  use an early timer. These functions must be supported by your timer
 	  driver: timer_early_get_count() and timer_early_get_rate().
 
-config AG101P_TIMER
-	bool "AG101P timer support"
-	depends on TIMER && NDS32
-	help
-	  Select this to enable a timer for AG01P devices.
-
 config ALTERA_TIMER
 	bool "Altera timer support"
 	depends on TIMER
