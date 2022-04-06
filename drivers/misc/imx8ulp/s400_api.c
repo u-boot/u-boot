@@ -242,3 +242,32 @@ int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
 
 	return ret;
 }
+
+int ahab_release_caam(u32 core_did, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct imx8ulp_s400_msg);
+	struct imx8ulp_s400_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 2;
+	msg.command = AHAB_CAAM_RELEASE_CID;
+	msg.data[0] = core_did;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x\n",
+		       __func__, ret, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	return ret;
+}
