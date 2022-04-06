@@ -571,6 +571,19 @@ int arch_cpu_init(void)
 		int ret;
 		bool rdc_en = true; /* Default assume DBD_EN is set */
 
+		/* Enable System Reset Interrupt using WDOG_AD */
+		setbits_le32(CMC1_BASE_ADDR + 0x8C, BIT(13));
+		/* Clear AD_PERIPH Power switch domain out of reset interrupt flag */
+		setbits_le32(CMC1_BASE_ADDR + 0x70, BIT(4));
+
+		if (readl(CMC1_BASE_ADDR + 0x90) & BIT(13)) {
+			/* Clear System Reset Interrupt Flag Register of WDOG_AD */
+			setbits_le32(CMC1_BASE_ADDR + 0x90, BIT(13));
+			/* Reset WDOG to clear reset request */
+			pcc_reset_peripheral(3, WDOG3_PCC3_SLOT, true);
+			pcc_reset_peripheral(3, WDOG3_PCC3_SLOT, false);
+		}
+
 		/* Disable wdog */
 		init_wdog();
 
