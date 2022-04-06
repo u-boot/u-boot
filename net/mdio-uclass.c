@@ -20,11 +20,6 @@ static const char * const phy_mode_str[] = {
 	"phy-mode", "phy-connection-type"
 };
 
-/* DT node properties that reference a PHY node */
-static const char * const phy_handle_str[] = {
-	"phy-handle", "phy", "phy-device"
-};
-
 void dm_mdio_probe_devices(void)
 {
 	struct udevice *it;
@@ -137,23 +132,16 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	u32 phy_addr;
 	struct udevice *mdiodev;
 	struct phy_device *phy;
-	struct ofnode_phandle_args phandle = {.node = ofnode_null()};
 	ofnode phynode;
-	int i;
 
 	if (CONFIG_IS_ENABLED(PHY_FIXED) &&
 	    ofnode_phy_is_fixed_link(dev_ofnode(ethdev), &phynode)) {
 		phy = phy_connect(NULL, 0, ethdev, interface);
-		phandle.node = phynode;
 		goto out;
 	}
 
-	for (i = 0; i < ARRAY_SIZE(phy_handle_str); i++)
-		if (!dev_read_phandle_with_args(ethdev, phy_handle_str[i], NULL,
-						0, 0, &phandle))
-			break;
-
-	if (!ofnode_valid(phandle.node)) {
+	phynode = dev_get_phy_node(ethdev);
+	if (!ofnode_valid(phynode)) {
 		dev_dbg(ethdev, "can't find PHY node\n");
 		return NULL;
 	}
@@ -162,16 +150,16 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	 * reading 'reg' directly should be fine.  This is a PHY node, the
 	 * address is always size 1 and requires no translation
 	 */
-	if (ofnode_read_u32(phandle.node, "reg", &phy_addr)) {
+	if (ofnode_read_u32(phynode, "reg", &phy_addr)) {
 		dev_dbg(ethdev, "missing reg property in phy node\n");
 		return NULL;
 	}
 
 	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
-					ofnode_get_parent(phandle.node),
+					ofnode_get_parent(phynode),
 					&mdiodev)) {
 		dev_dbg(ethdev, "can't find MDIO bus for node %s\n",
-			ofnode_get_name(ofnode_get_parent(phandle.node)));
+			ofnode_get_name(ofnode_get_parent(phynode)));
 		return NULL;
 	}
 
@@ -179,7 +167,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 
 out:
 	if (phy)
-		phy->node = phandle.node;
+		phy->node = phynode;
 
 	return phy;
 }
