@@ -13,6 +13,7 @@
 #include <string.h>
 
 typedef enum {
+	PHY_INTERFACE_MODE_NA, /* don't touch */
 	PHY_INTERFACE_MODE_MII,
 	PHY_INTERFACE_MODE_GMII,
 	PHY_INTERFACE_MODE_SGMII,
@@ -39,12 +40,11 @@ typedef enum {
 	PHY_INTERFACE_MODE_NCSI,
 	PHY_INTERFACE_MODE_10GBASER,
 	PHY_INTERFACE_MODE_USXGMII,
-	PHY_INTERFACE_MODE_NA,	/* Must be last */
-
 	PHY_INTERFACE_MODE_MAX,
 } phy_interface_t;
 
 static const char * const phy_interface_strings[] = {
+	[PHY_INTERFACE_MODE_NA]		= "",
 	[PHY_INTERFACE_MODE_MII]		= "mii",
 	[PHY_INTERFACE_MODE_GMII]		= "gmii",
 	[PHY_INTERFACE_MODE_SGMII]		= "sgmii",
@@ -71,7 +71,6 @@ static const char * const phy_interface_strings[] = {
 	[PHY_INTERFACE_MODE_NCSI]		= "NC-SI",
 	[PHY_INTERFACE_MODE_10GBASER]		= "10gbase-r",
 	[PHY_INTERFACE_MODE_USXGMII]		= "usxgmii",
-	[PHY_INTERFACE_MODE_NA]		= "",
 };
 
 /* Backplane modes:
