@@ -229,6 +229,8 @@ int mxs_reset_block(struct mxs_register_32 *reg);
 int mxs_wait_mask_set(struct mxs_register_32 *reg, u32 mask, u32 timeout);
 int mxs_wait_mask_clr(struct mxs_register_32 *reg, u32 mask, u32 timeout);
 
+void board_late_mmc_env_init(void);
+
 unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
 			   unsigned long reg1, unsigned long reg2,
 			   unsigned long reg3);
