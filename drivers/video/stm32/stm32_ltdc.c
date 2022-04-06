@@ -255,7 +255,7 @@ static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv,
 		val |= GCR_HSPOL;
 	if (timings->flags & DISPLAY_FLAGS_VSYNC_HIGH)
 		val |= GCR_VSPOL;
-	if (timings->flags & DISPLAY_FLAGS_DE_HIGH)
+	if (timings->flags & DISPLAY_FLAGS_DE_LOW)
 		val |= GCR_DEPOL;
 	if (timings->flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
 		val |= GCR_PCPOL;
