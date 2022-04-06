@@ -26,6 +26,7 @@
 #include <dm/uclass-internal.h>
 #include <fuse.h>
 #include <thermal.h>
+#include <linux/iopoll.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -135,6 +136,41 @@ enum bt_mode get_boot_mode(void)
 	}
 
 	return LOW_POWER_BOOT;
+}
+
+bool m33_image_booted(void)
+{
+	u32 gp6;
+
+	/* DGO_GP6 */
+	gp6 = readl(SIM_SEC_BASE_ADDR + 0x28);
+	if (gp6 & BIT(5))
+		return true;
+
+	return false;
+}
+
+int m33_image_handshake(ulong timeout_ms)
+{
+	u32 fsr;
+	int ret;
+	ulong timeout_us = timeout_ms * 1000;
+
+	/* enable MU0_MUB clock before access the register of MU0_MUB */
+	pcc_clock_enable(3, MU0_B_PCC3_SLOT, true);
+
+	/* Notify m33 that it's ready to do init srtm(enable mu receive interrupt and so on) */
+	setbits_le32(MU0_B_BASE_ADDR + 0x100, BIT(0)); /* set FCR F0 flag of MU0_MUB */
+
+	/*
+	 * Wait m33 to set FCR F0 flag of MU0_MUA
+	 * Clear FCR F0 flag of MU0_MUB after m33 has set FCR F0 flag of MU0_MUA
+	 */
+	ret = readl_poll_sleep_timeout(MU0_B_BASE_ADDR + 0x104, fsr, fsr & BIT(0), 10, timeout_us);
+	if (!ret)
+		clrbits_le32(MU0_B_BASE_ADDR + 0x100, BIT(0));
+
+	return ret;
 }
 
 #define CMC_SRS_TAMPER                    BIT(31)
