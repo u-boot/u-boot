@@ -237,6 +237,26 @@ u32 imx_get_i2cclk(u32 i2c_num)
 }
 #endif
 
+#if IS_ENABLED(CONFIG_SYS_I2C_IMX_I3C)
+int enable_i3c_clk(unsigned char enable, u32 i3c_num)
+{
+	if (enable) {
+		pcc_clock_enable(3, I3C2_PCC3_SLOT, false);
+		pcc_clock_sel(3, I3C2_PCC3_SLOT, SOSC_DIV2);
+		pcc_clock_enable(3, I3C2_PCC3_SLOT, true);
+		pcc_reset_peripheral(3, I3C2_PCC3_SLOT, false);
+	} else {
+		pcc_clock_enable(3, I3C2_PCC3_SLOT, false);
+	}
+	return 0;
+}
+
+u32 imx_get_i3cclk(u32 i3c_num)
+{
+	return pcc_clock_get_rate(3, I3C2_PCC3_SLOT);
+}
+#endif
+
 void enable_usboh3_clk(unsigned char enable)
 {
 	if (enable) {
