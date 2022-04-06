@@ -524,10 +524,10 @@ static int trdc_set_access(void)
 	return 0;
 }
 
-void lpav_configure(void)
+void lpav_configure(bool lpav_to_m33)
 {
-	/* LPAV to APD */
-	setbits_le32(SIM_SEC_BASE_ADDR + 0x44, BIT(7));
+	if (!lpav_to_m33)
+		setbits_le32(SIM_SEC_BASE_ADDR + 0x44, BIT(7)); /* LPAV to APD */
 
 	/* PXP/GPU 2D/3D/DCNANO/MIPI_DSI/EPDC/HIFI4 to APD */
 	setbits_le32(SIM_SEC_BASE_ADDR + 0x4c, 0x7F);
@@ -584,8 +584,9 @@ int arch_cpu_init(void)
 				release_rdc(RDC_TRDC);
 
 			trdc_set_access();
-
-			lpav_configure();
+			lpav_configure(false);
+		} else {
+			lpav_configure(true);
 		}
 
 		/* Release xrdc, then allow A35 to write SRAM2 */
