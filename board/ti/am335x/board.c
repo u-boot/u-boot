@@ -707,7 +707,7 @@ void rtc32k_enable(void)
 	writel(RTC_KICK0R_WE, &rtc->kick0r);
 	writel(RTC_KICK1R_WE, &rtc->kick1r);
 
-	if (board_is_pb()) {
+	if (board_is_pb() || board_is_blue()) {
 		/* 6: EN_32KCLK */
 		/* 3: SEL_32KCLK_SRC 0: internal, 1: external */
 		writel((0 << 3) | (1 << 6), &rtc->osc);
