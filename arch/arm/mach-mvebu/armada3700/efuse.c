@@ -113,6 +113,41 @@ static int rwtm_otp_read(u8 row, u32 word, u32 *data)
 	return res;
 }
 
+static int rwtm_otp_write(u8 row, u32 word, u32 data)
+{
+	u32 in[4];
+	int res = -EINVAL;
+
+	if (word < 2) {
+		/*
+		 * MBOX_CMD_OTP_WRITE_32B command is supported by Marvell
+		 * fuse.bin firmware and also by new CZ.NIC wtmi firmware.
+		 * This command writes only selected bits to OTP and does
+		 * not calculate ECC bits. It does not allow to write the
+		 * lock bit.
+		 */
+		in[0] = row;
+		in[1] = word * 32;
+		in[2] = data;
+		res = mbox_do_cmd(MBOX_CMD_OTP_WRITE_32B, in, 3, NULL, 0);
+	} else if (word == 2 && !(data & ~0x1)) {
+		/*
+		 * MBOX_CMD_OTP_WRITE command is supported only by new CZ.NIC
+		 * wtmi firmware and allows to write any bit to OTP, including
+		 * the lock bit. It does not calculate or write ECC bits too.
+		 * For compatibility with Marvell fuse.bin firmware, use this
+		 * command only for writing the lock bit.
+		 */
+		in[0] = row;
+		in[1] = 0;
+		in[2] = 0;
+		in[3] = data;
+		res = mbox_do_cmd(MBOX_CMD_OTP_WRITE, in, 4, NULL, 0);
+	}
+
+	return res;
+}
+
 /*
  * Banks 0-43 are used for accessing Security OTP (44 rows with 67 bits via 44 banks and words 0-2)
  * Bank 44 is used for accessing North Bridge OTP (69 bits via words 0-2)
@@ -154,8 +189,19 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 
 int fuse_prog(u32 bank, u32 word, u32 val)
 {
-	/* TODO: not implemented yet */
-	return -ENOSYS;
+	if (bank <= RWTM_MAX_BANK) {
+		if (word >= RWTM_ROW_WORDS)
+			return -EINVAL;
+		return rwtm_otp_write(bank, word, val);
+	} else if (bank == OTP_NB_BANK) {
+		/* TODO: not implemented yet */
+		return -ENOSYS;
+	} else if (bank == OTP_SB_BANK) {
+		/* TODO: not implemented yet */
+		return -ENOSYS;
+	} else {
+		return -EINVAL;
+	}
 }
 
 int fuse_sense(u32 bank, u32 word, u32 *val)
