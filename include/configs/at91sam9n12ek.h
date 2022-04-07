@@ -59,15 +59,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 #endif
 
-#ifdef CONFIG_SPI_BOOT
-
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
-
-#elif defined(CONFIG_NAND_BOOT)
-
-/* bootstrap + u-boot + env + linux in nandflash */
-#endif
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x6000
 #define CONFIG_SPL_STACK		0x308000

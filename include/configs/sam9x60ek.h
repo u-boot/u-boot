@@ -40,14 +40,4 @@
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PD5
 #endif
 
-#ifdef CONFIG_SD_BOOT
-/* bootstrap + u-boot + env + linux in sd card */
-
-#elif defined(CONFIG_NAND_BOOT)
-/* bootstrap + u-boot + env + linux in nandflash */
-
-#elif defined(CONFIG_QSPI_BOOT)
-/* bootstrap + u-boot + env + linux in SPI NOR flash */
-#endif
-
 #endif

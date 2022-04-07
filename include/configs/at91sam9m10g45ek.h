@@ -40,12 +40,6 @@
 
 #endif
 
-#ifdef CONFIG_NAND_BOOT
-/* bootstrap + u-boot + env in nandflash */
-#elif CONFIG_SD_BOOT
-/* bootstrap + u-boot + env + linux in mmc */
-#endif
-
 /* Defines for SPL */
 #define CONFIG_SPL_MAX_SIZE		0x010000
 #define CONFIG_SPL_STACK		0x310000
