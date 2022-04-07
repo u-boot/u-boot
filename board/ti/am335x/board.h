@@ -43,6 +43,11 @@ static inline int board_is_pb(void)
 	return board_ti_is("A335PBGL");
 }
 
+static inline int board_is_bbbw(void)
+{
+	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "BW", 2);
+}
+
 static inline int board_is_blue(void)
 {
 	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "BLA", 3);
@@ -53,16 +58,32 @@ static inline int board_is_bbg1(void)
 	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "BBG1", 4);
 }
 
+static inline int board_is_bbgg1(void)
+{
+	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "GG1", 3);
+}
+
 static inline int board_is_bben(void)
 {
 	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "SE", 2);
 }
 
+static inline int board_is_bbbi(void)
+{
+	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "EIA0", 4);
+}
+
+static inline int board_is_os00(void)
+{
+	return board_is_bone_lt() && !strncmp(board_ti_get_rev(), "OS00", 4);
+}
+
 static inline int board_is_beaglebonex(void)
 {
 	return board_is_pb() || board_is_bone() || board_is_bone_lt() ||
-	       board_is_bbg1() || board_is_bben() ||
-	       board_is_beaglelogic();
+	       board_is_bbg1() || board_is_bbgg1() || board_is_bben() ||
+	       board_is_bbbi() || board_is_beaglelogic() ||
+	       board_is_os00();
 }
 
 static inline int board_is_evm_sk(void)
