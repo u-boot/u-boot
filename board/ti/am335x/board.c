@@ -707,7 +707,6 @@ void rtc32k_enable(void)
 	writel(RTC_KICK0R_WE, &rtc->kick0r);
 	writel(RTC_KICK1R_WE, &rtc->kick1r);
 
-
 	if (board_is_pb()) {
 		/* 6: EN_32KCLK */
 		/* 3: SEL_32KCLK_SRC 0: internal, 1: external */
@@ -860,6 +859,8 @@ int board_late_init(void)
 	char *name = NULL;
 
 	if (board_is_bone_lt()) {
+		puts("Board: BeagleBone Black\n");
+		name = "A335BNLT";
 		/* BeagleBoard.org BeagleBone Black Wireless: */
 		if (!strncmp(board_ti_get_rev(), "BWA", 3)) {
 			name = "BBBW";
@@ -868,16 +869,48 @@ int board_late_init(void)
 		if (!strncmp(board_ti_get_rev(), "GW1", 3)) {
 			name = "BBGW";
 		}
+		/* SeeedStudio BeagleBone Green Gateway */
+		if (!strncmp(board_ti_get_rev(), "GG1", 3)) {
+			name = "BBGG";
+		}
 		/* BeagleBoard.org BeagleBone Blue */
 		if (!strncmp(board_ti_get_rev(), "BLA", 3)) {
 			name = "BBBL";
 		}
+		/* Octavo Systems OSD3358-SM-RED */
+		if (!strncmp(board_ti_get_rev(), "OS00", 4)) {
+			puts("Model: Octavo Systems OSD3358-SM-RED\n");
+			name = "OS00";
+		}
+		/* Octavo Systems OSD3358-SM-RED 01*/
+		if (!strncmp(board_ti_get_rev(), "OS01", 4)) {
+			puts("Model: Octavo Systems OSD3358-SM-RED 01\n");
+			name = "OS01";
+		}
 	}
 
-	if (board_is_bbg1())
+	if (board_is_bbg1()) {
 		name = "BBG1";
-	if (board_is_bben())
-		name = "BBEN";
+	}
+
+	if (board_is_bben()) {
+		char subtype_id = board_ti_get_config()[1];
+		switch (subtype_id) {
+			case 'L':
+				name = "BBELITE";
+				break;
+			case 'I':
+				name = "BBE_EX_WIFI";
+				break;
+			default:
+				name = "BBEN";
+		}
+	}
+
+	if (board_is_pb()) {
+		puts("Model: BeagleBoard.org PocketBeagle\n");
+	}
+
 	set_board_info_env(name);
 
 	/*
