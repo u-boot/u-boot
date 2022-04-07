@@ -191,7 +191,7 @@ int checkboard(void)
 	if (ret) {
 		printf("%s: Cannot find udev for a bus %d\n", __func__,
 		       bus_num);
-		return -ENXIO;
+		return 0; /* Don't want to hang() on this error */
 	}
 
 	if (dm_i2c_read(dev, 0, &in, 1) < 0 ||
