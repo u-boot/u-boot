@@ -360,7 +360,11 @@ static unsigned short detect_daughter_board_profile(void)
 void enable_board_pin_mux(void)
 {
 	/* Do board-specific muxes. */
-	if (board_is_bone()) {
+	if (board_is_beaglelogic()) {
+		/* BeagleLogic pinmux */
+		configure_module_pin_mux(mii1_pin_mux);
+		configure_module_pin_mux(mmc0_pin_mux);
+	} else if (board_is_bone()) {
 		/* Beaglebone pinmux */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
