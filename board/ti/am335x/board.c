@@ -93,6 +93,8 @@ struct serial_device *default_serial_console(void)
 {
 	if (board_is_icev2())
 		return &eserial4_device;
+	else if (board_is_beaglelogic())
+		return &eserial5_device;
 	else
 		return &eserial1_device;
 }
@@ -275,7 +277,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 
 	if (board_is_evm_sk())
 		return &dpll_ddr3_303MHz[ind];
-	else if (board_is_pb() || board_is_bone_lt() || board_is_icev2())
+	else if (board_is_pb() || board_is_bone_lt() || board_is_icev2() || board_is_beaglelogic())
 		return &dpll_ddr3_400MHz[ind];
 	else if (board_is_evm_15_or_later())
 		return &dpll_ddr3_303MHz[ind];
@@ -306,7 +308,7 @@ const struct dpll_params *get_dpll_mpu_params(void)
 	if (bone_not_connected_to_ac_power())
 		freq = MPUPLL_M_600;
 
-	if (board_is_pb() || board_is_bone_lt())
+	if (board_is_pb() || board_is_bone_lt() || board_is_beaglelogic())
 		freq = MPUPLL_M_1000;
 
 	switch (freq) {
@@ -353,7 +355,7 @@ static void scale_vcores_bone(int freq)
 	 * Override what we have detected since we know if we have
 	 * a Beaglebone Black it supports 1GHz.
 	 */
-	if (board_is_pb() || board_is_bone_lt())
+	if (board_is_pb() || board_is_bone_lt() || board_is_beaglelogic())
 		freq = MPUPLL_M_1000;
 
 	switch (freq) {
@@ -481,7 +483,11 @@ void scale_vcores(void)
 void set_uart_mux_conf(void)
 {
 #if CONFIG_CONS_INDEX == 1
-	enable_uart0_pin_mux();
+	if (board_is_beaglelogic())
+		enable_uart4_pin_mux();
+	else
+		enable_uart0_pin_mux();
+
 #elif CONFIG_CONS_INDEX == 2
 	enable_uart1_pin_mux();
 #elif CONFIG_CONS_INDEX == 3
@@ -551,7 +557,7 @@ void sdram_init(void)
 	if (board_is_evm_sk())
 		config_ddr(303, &ioregs_evmsk, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
-	else if (board_is_pb() || board_is_bone_lt())
+	else if (board_is_pb() || board_is_bone_lt() || board_is_beaglelogic())
 		config_ddr(400, &ioregs_bonelt,
 			   &ddr3_beagleblack_data,
 			   &ddr3_beagleblack_cmd_ctrl_data,
@@ -909,6 +915,10 @@ int board_late_init(void)
 
 	if (board_is_pb()) {
 		puts("Model: BeagleBoard.org PocketBeagle\n");
+	}
+
+	if (board_is_beaglelogic()) {
+		puts("Model: BeagleLogic\n");
 	}
 
 	set_board_info_env(name);
