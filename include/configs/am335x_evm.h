@@ -72,7 +72,6 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
-	func(NAND, nand, 0) \
 	BOOT_TARGET_USB(func) \
 	BOOT_TARGET_PXE(func) \
 	BOOT_TARGET_DHCP(func)
