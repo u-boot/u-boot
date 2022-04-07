@@ -101,6 +101,7 @@ config ARCH_JZ47XX
 
 config ARCH_OCTEON
 	bool "Support Marvell Octeon CN7xxx platforms"
+	select ARCH_EARLY_INIT_R
 	select CPU_CAVIUM_OCTEON
 	select DISPLAY_CPUINFO
 	select DMA_ADDR_T_64BIT

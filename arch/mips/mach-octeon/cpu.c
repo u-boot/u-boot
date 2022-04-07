@@ -393,13 +393,24 @@ static int init_bootcmd_console(void)
 	return ret;
 }
 
-int arch_misc_init(void)
+int arch_early_init_r(void)
 {
 	int ret;
 
+	/*
+	 * Needs to be called pretty early, so that e.g. networking etc
+	 * can access the bootmem infrastructure
+	 */
 	ret = octeon_bootmem_init();
 	if (ret)
 		return ret;
+
+	return 0;
+}
+
+int arch_misc_init(void)
+{
+	int ret;
 
 	ret = octeon_configure_load_memory();
 	if (ret)
