@@ -21,6 +21,9 @@
 #define __SW_BOOT_SD		0x9c
 #define __SW_BOOT_NAND		0xec
 #define __SW_BOOT_PCIE		0x6c
+#define __SW_NOR_BANK_MASK	0xfd
+#define __SW_NOR_BANK_UP	0x00
+#define __SW_NOR_BANK_LO	0x02
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
@@ -46,6 +49,9 @@
 #define __SW_BOOT_SD		0x24
 #define __SW_BOOT_NAND		0x44
 #define __SW_BOOT_PCIE		0x74
+#define __SW_NOR_BANK_MASK	0xfd
+#define __SW_NOR_BANK_UP	0x00
+#define __SW_NOR_BANK_LO	0x02
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 /*
  * Dynamic MTD Partition support with mtdparts
@@ -61,6 +67,9 @@
 #define __SW_BOOT_SD2		0x18
 #define __SW_BOOT_NAND		0xe8
 #define __SW_BOOT_PCIE		0xa8
+#define __SW_NOR_BANK_MASK	0xfd
+#define __SW_NOR_BANK_UP	0x00
+#define __SW_NOR_BANK_LO	0x02
 #define CONFIG_SYS_L2_SIZE	(512 << 10)
 /*
  * Dynamic MTD Partition support with mtdparts
@@ -584,8 +593,8 @@ i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
 "nandfdtaddr=80000\0"		\
 "ramdisk_size=120000\0"	\
 __VSCFW_ADDR	\
-"map_lowernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 02 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 fd 1\0" \
-"map_uppernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 00 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 fd 1\0" \
+"map_lowernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 "__stringify(__SW_NOR_BANK_LO)" 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 "__stringify(__SW_NOR_BANK_MASK)" 1\0" \
+"map_uppernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 "__stringify(__SW_NOR_BANK_UP)" 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 "__stringify(__SW_NOR_BANK_MASK)" 1\0" \
 __stringify(__NOR_RST_CMD)"\0" \
 __stringify(__SPI_RST_CMD)"\0" \
 __stringify(__SD_RST_CMD)"\0" \
