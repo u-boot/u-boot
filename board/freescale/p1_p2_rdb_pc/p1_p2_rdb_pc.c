@@ -147,8 +147,10 @@ int board_early_init_f(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
-	setbits_be32(&gur->pmuxcr,
-			(MPC85xx_PMUXCR_SDHC_CD | MPC85xx_PMUXCR_SDHC_WP));
+	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SDHC_CD);
+#ifndef SDHC_WP_IS_GPIO
+	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SDHC_WP);
+#endif
 	clrbits_be32(&gur->sdhcdcr, SDHCDCR_CD_INV);
 
 	clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SD_DATA);
