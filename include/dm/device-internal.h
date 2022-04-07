@@ -15,6 +15,7 @@
 #include <dm/ofnode.h>
 
 struct device_node;
+struct driver_info;
 struct udevice;
 
 /*

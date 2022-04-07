@@ -1225,9 +1225,12 @@ static void *fdt_find_separate(void)
 {
 	void *fdt_blob = NULL;
 
+	if (IS_ENABLED(CONFIG_SANDBOX))
+		return NULL;
+
 #ifdef CONFIG_SPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */
-	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
+	if (CONFIG_IS_ENABLED(SEPARATE_BSS))
 		fdt_blob = (ulong *)&_image_binary_end;
 	else
 		fdt_blob = (ulong *)&__bss_end;

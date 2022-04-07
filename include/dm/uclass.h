@@ -435,7 +435,7 @@ int uclass_probe_all(enum uclass_id id);
 int uclass_id_count(enum uclass_id id);
 
 /**
- * uclass_id_foreach_dev() - Helper function to iteration through devices
+ * uclass_id_foreach_dev() - iterate through devices of a given uclass ID
  *
  * This creates a for() loop which works through the available devices in
  * a uclass ID in order from start to end.
@@ -452,20 +452,20 @@ int uclass_id_count(enum uclass_id id);
 		list_for_each_entry(pos, &uc->dev_head, uclass_node)
 
 /**
- * uclass_foreach_dev() - Helper function to iteration through devices
+ * uclass_foreach_dev() - iterate through devices of a given uclass
  *
  * This creates a for() loop which works through the available devices in
  * a uclass in order from start to end.
  *
  * @pos: struct udevice * to hold the current device. Set to NULL when there
  * are no more devices.
- * @uc: uclass to scan
+ * @uc: uclass to scan (`struct uclass *`)
  */
 #define uclass_foreach_dev(pos, uc)	\
 	list_for_each_entry(pos, &uc->dev_head, uclass_node)
 
 /**
- * uclass_foreach_dev_safe() - Helper function to safely iteration through devs
+ * uclass_foreach_dev_safe() - safely iterate through devices of a given uclass
  *
  * This creates a for() loop which works through the available devices in
  * a uclass in order from start to end. Inside the loop, it is safe to remove
@@ -474,14 +474,13 @@ int uclass_id_count(enum uclass_id id);
  * @pos: struct udevice * to hold the current device. Set to NULL when there
  * are no more devices.
  * @next: struct udevice * to hold the next next
- * @uc: uclass to scan
+ * @uc: uclass to scan (`struct uclass *`)
  */
 #define uclass_foreach_dev_safe(pos, next, uc)	\
 	list_for_each_entry_safe(pos, next, &uc->dev_head, uclass_node)
 
 /**
- * uclass_foreach_dev_probe() - Helper function to iteration through devices
- * of given uclass
+ * uclass_foreach_dev_probe() - iterate through devices of a given uclass ID
  *
  * This creates a for() loop which works through the available devices in
  * a uclass in order from start to end. Devices are probed if necessary,
