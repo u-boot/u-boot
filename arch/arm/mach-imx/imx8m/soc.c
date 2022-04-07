@@ -1152,6 +1152,37 @@ static int disable_cpu_nodes(void *blob, u32 disabled_cores)
 	return 0;
 }
 
+#if defined(CONFIG_IMX8MM)
+static int cleanup_nodes_for_efi(void *blob)
+{
+	static const char * const usbotg_path[] = {
+		"/soc@0/bus@32c00000/usb@32e40000",
+		"/soc@0/bus@32c00000/usb@32e50000"
+		};
+	int nodeoff, i, rc;
+
+	for (i = 0; i < ARRAY_SIZE(usbotg_path); i++) {
+		nodeoff = fdt_path_offset(blob, usbotg_path[i]);
+		if (nodeoff < 0)
+			continue; /* Not found, skip it */
+		debug("Found %s node\n", usbotg_path[i]);
+
+		rc = fdt_delprop(blob, nodeoff, "extcon");
+		if (rc == -FDT_ERR_NOTFOUND)
+			continue;
+		if (rc) {
+			printf("Unable to update property %s:%s, err=%s\n",
+			       usbotg_path[i], "extcon", fdt_strerror(rc));
+			return rc;
+		}
+
+		printf("Remove %s:%s\n", usbotg_path[i], "extcon");
+	}
+
+	return 0;
+}
+#endif
+
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_IMX8MQ
@@ -1245,6 +1276,8 @@ usb_modify_speed:
 		disable_cpu_nodes(blob, 2);
 	else if (is_imx8mms() || is_imx8mmsl())
 		disable_cpu_nodes(blob, 3);
+
+	cleanup_nodes_for_efi(blob);
 
 #elif defined(CONFIG_IMX8MN)
 	if (is_imx8mnl() || is_imx8mndl() ||  is_imx8mnsl())
