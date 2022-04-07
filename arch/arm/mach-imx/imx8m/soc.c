@@ -409,13 +409,27 @@ static u32 get_cpu_variant_type(u32 type)
 
 		/* npu disabled*/
 		if ((value & 0x8) == 0x8)
-			flag |= (1 << 1);
+			flag |= BIT(1);
 
 		/* isp disabled */
 		if ((value & 0x3) == 0x3)
-			flag |= (1 << 2);
+			flag |= BIT(2);
+
+		/* gpu disabled */
+		if ((value & 0xc0) == 0xc0)
+			flag |= BIT(3);
+
+		/* lvds disabled */
+		if ((value & 0x180000) == 0x180000)
+			flag |= BIT(4);
+
+		/* mipi dsi disabled */
+		if ((value & 0x60000) == 0x60000)
+			flag |= BIT(5);
 
 		switch (flag) {
+		case 0x3f:
+			return MXC_CPU_IMX8MPUL;
 		case 7:
 			return MXC_CPU_IMX8MPL;
 		case 2:
