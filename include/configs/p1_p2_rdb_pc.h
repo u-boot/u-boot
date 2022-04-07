@@ -57,7 +57,8 @@
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0xc8
 #define __SW_BOOT_SPI		0x28
-#define __SW_BOOT_SD		0x68 /* or 0x18 */
+#define __SW_BOOT_SD		0x68
+#define __SW_BOOT_SD2		0x18
 #define __SW_BOOT_NAND		0xe8
 #define __SW_BOOT_PCIE		0xa8
 #define CONFIG_SYS_L2_SIZE	(512 << 10)

@@ -216,6 +216,10 @@ int checkboard(void)
 	puts("rom_loc: ");
 	if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD) {
 		puts("sd");
+#ifdef __SW_BOOT_SD2
+	} else if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD2) {
+		puts("sd");
+#endif
 #ifdef __SW_BOOT_SPI
 	} else if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SPI) {
 		puts("spi");
