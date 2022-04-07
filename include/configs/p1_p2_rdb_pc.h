@@ -535,28 +535,28 @@
 
 #ifdef __SW_BOOT_NOR
 #define __NOR_RST_CMD	\
-norboot=i2c dev 1; i2c mw 18 1 __SW_BOOT_NOR 1; \
-i2c mw 18 3 __SW_BOOT_MASK 1; reset
+norboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_NOR 1; \
+i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
 #endif
 #ifdef __SW_BOOT_SPI
 #define __SPI_RST_CMD	\
-spiboot=i2c dev 1; i2c mw 18 1 __SW_BOOT_SPI 1; \
-i2c mw 18 3 __SW_BOOT_MASK 1; reset
+spiboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_SPI 1; \
+i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
 #endif
 #ifdef __SW_BOOT_SD
 #define __SD_RST_CMD	\
-sdboot=i2c dev 1; i2c mw 18 1 __SW_BOOT_SD 1; \
-i2c mw 18 3 __SW_BOOT_MASK 1; reset
+sdboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_SD 1; \
+i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
 #endif
 #ifdef __SW_BOOT_NAND
 #define __NAND_RST_CMD	\
-nandboot=i2c dev 1; i2c mw 18 1 __SW_BOOT_NAND 1; \
-i2c mw 18 3 __SW_BOOT_MASK 1; reset
+nandboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_NAND 1; \
+i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
 #endif
 #ifdef __SW_BOOT_PCIE
 #define __PCIE_RST_CMD	\
-pciboot=i2c dev 1; i2c mw 18 1 __SW_BOOT_PCIE 1; \
-i2c mw 18 3 __SW_BOOT_MASK 1; reset
+pciboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_PCIE 1; \
+i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
@@ -583,9 +583,9 @@ i2c mw 18 3 __SW_BOOT_MASK 1; reset
 "nandbootaddr=100000\0"	\
 "nandfdtaddr=80000\0"		\
 "ramdisk_size=120000\0"	\
-"map_lowernorbank=i2c dev 1; i2c mw 18 1 02 1; i2c mw 18 3 fd 1\0" \
-"map_uppernorbank=i2c dev 1; i2c mw 18 1 00 1; i2c mw 18 3 fd 1\0" \
 __VSCFW_ADDR	\
+"map_lowernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 02 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 fd 1\0" \
+"map_uppernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 00 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 fd 1\0" \
 __stringify(__NOR_RST_CMD)"\0" \
 __stringify(__SPI_RST_CMD)"\0" \
 __stringify(__SD_RST_CMD)"\0" \
