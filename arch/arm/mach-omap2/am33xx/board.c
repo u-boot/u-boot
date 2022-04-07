@@ -417,17 +417,17 @@ __weak void am33xx_spl_board_init(void)
 {
 }
 
-#if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
-static void rtc32k_enable(void)
-{
-	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
-
-	rtc32k_unlock(rtc);
-
-	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
-	writel((1 << 3) | (1 << 6), &rtc->osc);
-}
-#endif
+//#if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
+//static void rtc32k_enable(void)
+//{
+//	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
+//
+//	rtc32k_unlock(rtc);
+//
+//	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
+//	writel((1 << 3) | (1 << 6), &rtc->osc);
+//}
+//#endif
 
 static void uart_soft_reset(void)
 {

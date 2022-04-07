@@ -35,6 +35,7 @@
 #include <asm/omap_common.h>
 #include <asm/omap_sec_common.h>
 #include <asm/omap_mmc.h>
+#include <asm/davinci_rtc.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
@@ -693,6 +694,31 @@ done:
 }
 #endif
 
+#if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
+void rtc32k_enable(void)
+{
+	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
+
+	/*
+	 * Unlock the RTC's registers.  For more details please see the
+	 * RTC_SS section of the TRM.  In order to unlock we need to
+	 * write these specific values (keys) in this order.
+	 */
+	writel(RTC_KICK0R_WE, &rtc->kick0r);
+	writel(RTC_KICK1R_WE, &rtc->kick1r);
+
+
+	if (board_is_pb()) {
+		/* 6: EN_32KCLK */
+		/* 3: SEL_32KCLK_SRC 0: internal, 1: external */
+		writel((0 << 3) | (1 << 6), &rtc->osc);
+	} else {
+		/* Enable the RTC 32K OSC by setting bits 3 and 6. */
+		writel((1 << 3) | (1 << 6), &rtc->osc);
+	}
+}
+#endif
+
 static bool __maybe_unused prueth_is_mii = true;
 
 /*
@@ -700,6 +726,31 @@ static bool __maybe_unused prueth_is_mii = true;
  */
 int board_init(void)
 {
+	u32 sys_reboot, sys_rtc_osc;
+
+	sys_reboot = readl(PRM_RSTST);
+	if (sys_reboot & (1 << 9))
+		puts("Reset Source: IcePick reset has occurred.\n");
+
+	if (sys_reboot & (1 << 5))
+		puts("Reset Source: Global external warm reset has occurred.\n");
+
+	if (sys_reboot & (1 << 4))
+		puts("Reset Source: watchdog reset has occurred.\n");
+
+	if (sys_reboot & (1 << 1))
+		puts("Reset Source: Global warm SW reset has occurred.\n");
+
+	if (sys_reboot & (1 << 0))
+		puts("Reset Source: Power-on reset has occurred.\n");
+
+	sys_rtc_osc = readl(RTC_OSC);
+	if (sys_rtc_osc & (1 << 3)) {
+		puts("RTC 32KCLK Source: External.\n");
+	} else {
+		puts("RTC 32KCLK Source: Internal.\n");
+	}
+
 #if defined(CONFIG_HW_WATCHDOG)
 	hw_watchdog_init();
 #endif

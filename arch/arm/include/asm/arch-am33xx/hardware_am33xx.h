@@ -60,6 +60,7 @@
 
 /* RTC base address */
 #define RTC_BASE			0x44E3E000
+#define RTC_OSC				(RTC_BASE + 0x0054)
 
 /* OTG */
 #define USB0_OTG_BASE			0x47401000

@@ -135,6 +135,16 @@ void __weak do_board_detect(void)
 }
 
 /**
+ * rtc32k_enable() - Detect board description
+ *
+ * Function to detect board description. This is expected to be
+ * overridden in the SoC family board file where desired.
+ */
+void __weak rtc32k_enable(void)
+{
+}
+
+/**
  * vcores_init() - Assign omap_vcores based on board
  *
  * Function to pick the vcores based on board. This is expected to be
