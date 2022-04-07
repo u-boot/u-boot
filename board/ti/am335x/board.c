@@ -49,6 +49,7 @@
 #include "../common/board_detect.h"
 #include "../common/cape_detect.h"
 #include "board.h"
+#include "hash-string.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -87,6 +88,478 @@ void do_board_detect(void)
 		printf("ti_i2c_eeprom_init failed\n");
 }
 #endif
+
+#define CAPE_EEPROM_BUS_NUM 2
+#define CAPE_EEPROM_ADDR0	0x54
+#define CAPE_EEPROM_ADDR1	0x55
+#define CAPE_EEPROM_ADDR2	0x56
+#define CAPE_EEPROM_ADDR3	0x57
+
+#define CAPE_EEPROM_ADDR_LEN 0x10
+
+#define NOT_POP		0x0
+#define PINS_TAKEN	0x0
+
+#define UNK_BASE_DTB	0x0
+#define BB_BASE_DTB	0x1
+#define BBB_BASE_DTB	0x2
+#define BBGW_BASE_DTB	0x3
+#define BBBL_BASE_DTB	0x4
+#define BBE_BASE_DTB	0x5
+#define BBEL_BASE_DTB	0x6
+#define BBE_EX_WIFI_BASE_DTB	0x7
+
+#define BBB_EMMC	0x1
+
+#define BBB_TDA998X_AUDIO	0x1
+#define BBB_TDA998X_NAUDIO	0x2
+#define BBB_ADV7511_AUDIO	0x3
+#define BBB_ADV7511_NAUDIO	0x4
+
+#define BBBW_WL1835	0x1
+#define BBGW_WL1835	0x2
+#define BBGG_WL1835	0x3
+
+#define M_BBG1	0x01
+#define M_OS00	0x02
+#define M_OS01	0x03
+#define M_BBGG	0x04
+
+static int probe_cape_eeprom(struct am335x_cape_eeprom_id *cape_header)
+{
+	int ret;
+	struct udevice *dev;
+	unsigned char addr;
+	/* /lib/firmware/BB-CAPE-DISP-CT4-00A0.dtbo */
+	/* 14 + 16 + 1 + 4 + 5 = 40 */
+	char hash_cape_overlay[40];
+	char cape_overlay[26];
+	char process_cape_part_number[16];
+	char process_cape_version[4];
+	char end_part_number;
+	char cape_overlay_pass_to_kernel[18];
+
+	//Don't forget about the BeagleBone Classic (White)
+	char base_dtb=UNK_BASE_DTB;
+	char virtual_emmc=NOT_POP;
+	char virtual_video=NOT_POP;
+	char virtual_audio=NOT_POP;
+	char virtual_wireless=NOT_POP;
+	char model=NOT_POP;
+
+	char *name = NULL;
+
+	if (board_is_bone_lt()) {
+		puts("BeagleBone Black:\n");
+		base_dtb=BBB_BASE_DTB;
+		virtual_emmc=BBB_EMMC;
+		virtual_video=BBB_TDA998X_AUDIO;
+		virtual_audio=BBB_TDA998X_AUDIO;
+		virtual_wireless=NOT_POP;
+		name = "A335BNLT";
+
+		if (!strncmp(board_ti_get_rev(), "BLA", 3)) {
+			puts("Model: BeagleBoard.org BeagleBone Blue:\n");
+			/* Special case */
+			base_dtb=BBBL_BASE_DTB;
+			virtual_emmc=NOT_POP;
+			virtual_video=NOT_POP;
+			virtual_audio=NOT_POP;
+			virtual_wireless=NOT_POP;
+			name = "BBBL";
+		}
+		if (!strncmp(board_ti_get_rev(), "BW", 2)) {
+			puts("Model: BeagleBoard.org BeagleBone Black Wireless:\n");
+			virtual_wireless=BBBW_WL1835;
+			name = "BBBW";
+		}
+		if (!strncmp(board_ti_get_rev(), "BBG", 3)) {
+			/* catches again in board_is_bbg1() */
+			//puts("Model: SeeedStudio BeagleBone Green:\n");
+			virtual_video=NOT_POP;
+			virtual_audio=NOT_POP;
+			name = "BBG1";
+			model=M_BBG1;
+		}
+		if (!strncmp(board_ti_get_rev(), "GW1", 3)) {
+			puts("Model: SeeedStudio BeagleBone Green Wireless:\n");
+			base_dtb=BBGW_BASE_DTB;
+			virtual_video=NOT_POP;
+			virtual_audio=NOT_POP;
+			virtual_wireless=BBGW_WL1835;
+		}
+		if (!strncmp(board_ti_get_rev(), "GG1", 3)) {
+			puts("Model: SeeedStudio BeagleBone Green Gateway:\n");
+			virtual_video=NOT_POP;
+			virtual_audio=NOT_POP;
+			virtual_wireless=BBGG_WL1835;
+			model=M_BBGG;
+		}
+		if (!strncmp(board_ti_get_rev(), "AIA", 3)) {
+			puts("Model: Arrow BeagleBone Black Industrial:\n");
+			virtual_video=BBB_ADV7511_AUDIO;
+			virtual_audio=BBB_ADV7511_AUDIO;
+		}
+		if (!strncmp(board_ti_get_rev(), "EIA", 3)) {
+			puts("Model: BeagleBone Black Industrial:\n");
+		}
+		if (!strncmp(board_ti_get_rev(), "SE", 2)) {
+			char subtype_id = board_ti_get_config()[1];
+			switch (subtype_id) {
+				case 'L':
+					name = "BBELITE";
+					base_dtb=BBEL_BASE_DTB;
+					virtual_video=NOT_POP;
+					virtual_audio=NOT_POP;
+					break;
+				case 'I':
+					name = "BBE_EX_WIFI";
+					base_dtb=BBE_EX_WIFI_BASE_DTB;
+					virtual_video=NOT_POP;
+					virtual_audio=NOT_POP;
+					break;
+				default:
+					name = "BBEN";
+					base_dtb=BBE_BASE_DTB;
+			}
+		}
+		if (!strncmp(board_ti_get_rev(), "ME0", 3)) {
+			puts("Model: MENTOREL BeagleBone uSomIQ:\n");
+			virtual_video=NOT_POP;
+			virtual_audio=NOT_POP;
+		}
+		if (!strncmp(board_ti_get_rev(), "NAD", 3)) {
+			puts("Model: Neuromeka BeagleBone Air:\n");
+		}
+		if (!strncmp(board_ti_get_rev(), "OS0", 3)) {
+			unsigned char rev = board_ti_get_rev()[3];
+			puts("Model: Octavo Systems OSD3358-SM-RED:\n");
+			switch (rev) {
+			case 0x31: /* 1 */
+				name = "OS01";
+				model=M_OS01;
+				break;
+			default: /* 0 */
+				name = "OS00";
+				model=M_OS00;
+				break;
+			}
+		}
+	}
+
+	if (board_is_bone()) {
+		puts("Model: BeagleBone:\n");
+		base_dtb=BB_BASE_DTB;
+		virtual_emmc=NOT_POP;
+		virtual_video=NOT_POP;
+		virtual_audio=NOT_POP;
+		virtual_wireless=NOT_POP;
+		name = "A335BONE";
+	}
+
+	if (board_is_bbg1()) {
+		puts("Model: SeeedStudio BeagleBone Green:\n");
+		base_dtb=BBB_BASE_DTB;
+		virtual_emmc=BBB_EMMC;
+		virtual_video=NOT_POP;
+		virtual_audio=NOT_POP;
+		virtual_wireless=NOT_POP;
+		name = "BBG1";
+		model=M_BBG1;
+	}
+
+	set_board_info_env(name);
+
+	strlcpy(cape_overlay_pass_to_kernel, "", 1);
+
+	for ( addr = CAPE_EEPROM_ADDR0; addr <= CAPE_EEPROM_ADDR3; addr++ ) {
+		ret = i2c_get_chip_for_busnum(CAPE_EEPROM_BUS_NUM, addr, 1, &dev);
+		if (ret) {
+			printf("BeagleBone Cape EEPROM: no EEPROM at address: 0x%x\n", addr);
+		} else {
+			printf("BeagleBone Cape EEPROM: found EEPROM at address: 0x%x\n", addr);
+
+			ret = i2c_set_chip_offset_len(dev, 2);
+			if (ret) {
+				printf("BeagleBone Cape EEPROM: i2c_set_chip_offset_len failure\n");
+			}
+
+			ret = dm_i2c_read(dev, 0, (uchar *)cape_header, sizeof(struct am335x_cape_eeprom_id));
+			if (ret) {
+				printf("BeagleBone Cape EEPROM: Cannot read eeprom params\n");
+			}
+
+			if (cape_header->header == 0xEE3355AA) {
+				strlcpy(hash_cape_overlay, "/lib/firmware/", 14 + 1);
+				strlcpy(cape_overlay, "", 2);
+				strlcpy(cape_overlay_pass_to_kernel, "", 2);
+				strlcpy(process_cape_part_number, "...............", 16 + 1);
+				strlcpy(process_cape_version, "...", 4 + 1);
+
+				strlcpy(process_cape_part_number, cape_header->part_number, 16 + 1);
+				printf("BeagleBone Cape EEPROM: debug part_number field:[%s]\n", process_cape_part_number);
+
+				//FIXME: some capes end with '.'
+				if ( process_cape_part_number[15] == 0x2E ) {
+					puts("debug: fixup, extra . in eeprom field\n");
+					process_cape_part_number[15] = 0x00;
+					if ( process_cape_part_number[14] == 0x2E ) {
+						process_cape_part_number[14] = 0x00;
+					}
+				}
+
+				//Find ending 0x00 or 0xFF
+				puts("BeagleBone Cape EEPROM: debug part_number field HEX:[");
+				end_part_number=16;
+				for ( int i=0; i <= 16; i++ ) {
+					if (( process_cape_part_number[i] == 0x00 ) || ( process_cape_part_number[i] == 0xFF )) {
+						end_part_number=i;
+						i=17;
+					} else {
+						printf("%x", process_cape_part_number[i]);
+					}
+				}
+				puts("]\n");
+
+				strncat(cape_overlay_pass_to_kernel, process_cape_part_number, end_part_number);
+				strncat(cape_overlay_pass_to_kernel, ",", 1);
+				//printf("debug: %s\n", cape_overlay_pass_to_kernel);
+
+				strncat(hash_cape_overlay, process_cape_part_number, end_part_number);
+				strncat(cape_overlay, process_cape_part_number, end_part_number);
+				//printf("debug: %s %s\n", hash_cape_overlay, cape_overlay);
+
+				strncat(hash_cape_overlay, "-", 1);
+				strncat(cape_overlay, "-", 1);
+				//printf("debug: %s %s\n", hash_cape_overlay, cape_overlay);
+
+				strlcpy(process_cape_version, cape_header->version, 4 + 1);
+				//printf("debug: version field:[%s]\n", process_cape_version);
+
+				//Find invalid 0xFF -> 0x30 BBAI FAN Cape...
+				puts("BeagleBone Cape EEPROM: debug version field HEX:[");
+				for ( int i=0; i <= 3; i++ ) {
+					printf("%x", process_cape_version[i]);
+					if ( process_cape_version[i] == 0xFF ) {
+						process_cape_version[i] = 0x30;
+					}
+				}
+				puts("]\n");
+
+				strncat(hash_cape_overlay, process_cape_version, 4);
+				strncat(cape_overlay, process_cape_version, 4);
+				//printf("debug: %s %s\n", hash_cape_overlay, cape_overlay);
+
+				strncat(hash_cape_overlay, ".dtbo", 5);
+				strncat(cape_overlay, ".dtbo", 5);
+				//printf("debug: %s %s\n", hash_cape_overlay, cape_overlay);
+
+				unsigned long cape_overlay_hash = hash_string(hash_cape_overlay);
+
+				printf("BeagleBone Cape EEPROM: 0x%x: %s [0x%lx]\n", addr, cape_overlay, cape_overlay_hash);
+
+				switch(cape_overlay_hash) {
+					case 0x3c766f: /* /lib/firmware/BB-CAPE-DISP-CT4-00A0.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0x24f51cf: /* /lib/firmware/BB-BONE-CAM-VVDN-00A0.dtbo */
+						virtual_emmc=PINS_TAKEN;
+						break;
+					case 0x4b0c13f: /* /lib/firmware/NL-AB-BBCL-00B0.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0x74e7bbf: /* /lib/firmware/bb-justboom-dac-00A0.dtbo */
+						virtual_audio=PINS_TAKEN;
+						break;
+					case 0x93b574f: /* /lib/firmware/BB-GREEN-HDMI-00A0.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0x9dcd73f: /* /lib/firmware/BB-BONE-NH10C-01-00A0.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xb1b7bbf: /* /lib/firmware/bb-justboom-amp-00A0.dtbo */
+						virtual_audio=PINS_TAKEN;
+						break;
+					//d15bb
+					case 0xd15b80f: /* /lib/firmware/DLPDLCR2000-00A0.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xd4c9eff: /* /lib/firmware/bb-justboom-digi-00A0.dtbo */
+						virtual_audio=PINS_TAKEN;
+						break;
+					case 0xe05061f: /* /lib/firmware/BBORG_DISPLAY70-00A2.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xe3f55df: /* /lib/firmware/BB-BONE-NH7C-01-A0.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xfc93c8f: /* /lib/firmware/BB-BONE-LCD7-01-00A3.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					//fe131
+					case 0xfe1313f: /* /lib/firmware/BB-BONE-4D5R-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					//fe132
+					case 0xfe1323f: /* /lib/firmware/BB-BONE-4D4R-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xfe1327f: /* /lib/firmware/BB-BONE-4D4N-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xfe132cf: /* /lib/firmware/BB-BONE-4D4C-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					//fe133
+					case 0xfe1337f: /* /lib/firmware/BB-BONE-4D7N-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xfe133cf: /* /lib/firmware/BB-BONE-4D7C-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					//fe135
+					case 0xfe1357f: /* /lib/firmware/BB-BONE-4D5N-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xfe135cf: /* /lib/firmware/BB-BONE-4D5C-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					//fe137
+					case 0xfe1373f: /* /lib/firmware/BB-BONE-4D7R-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xfe93c1f: /* /lib/firmware/BB-BONE-LCD4-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+					case 0xfe93c2f: /* /lib/firmware/BB-BONE-LCD5-01-00A1.dtbo */
+						virtual_video=PINS_TAKEN;
+						break;
+				}
+
+				switch(addr) {
+					case CAPE_EEPROM_ADDR0:
+						env_set("uboot_overlay_addr0", cape_overlay);
+						env_set("uboot_detected_capes_addr0", cape_overlay_pass_to_kernel);
+						break;
+					case CAPE_EEPROM_ADDR1:
+						env_set("uboot_overlay_addr1", cape_overlay);
+						env_set("uboot_detected_capes_addr1", cape_overlay_pass_to_kernel);
+						break;
+					case CAPE_EEPROM_ADDR2:
+						env_set("uboot_overlay_addr2", cape_overlay);
+						env_set("uboot_detected_capes_addr2", cape_overlay_pass_to_kernel);
+						break;
+					case CAPE_EEPROM_ADDR3:
+						env_set("uboot_overlay_addr3", cape_overlay);
+						env_set("uboot_detected_capes_addr3", cape_overlay_pass_to_kernel);
+						break;
+				}
+				env_set("uboot_detected_capes", "1");
+			} else {
+				printf("BeagleBone Cape EEPROM: EEPROM contents not valid (or blank) on address: 0x%x\n", addr);
+			}
+		}
+	}//for
+
+	switch(base_dtb) {
+		case BB_BASE_DTB:
+			env_set("uboot_base_dtb_univ", "am335x-bone-uboot-univ.dtb");
+			env_set("uboot_base_dtb", "am335x-bone.dtb");
+			break;
+		case BBB_BASE_DTB:
+			env_set("uboot_base_dtb_univ", "am335x-boneblack-uboot-univ.dtb");
+			env_set("uboot_base_dtb", "am335x-boneblack-uboot.dtb");
+			break;
+		case BBGW_BASE_DTB:
+			//gpio-hogs and cape-universal dont mesh very well on bootup...
+			env_set("uboot_base_dtb_univ", "am335x-bonegreen-wireless-uboot-univ.dtb");
+			env_set("uboot_base_dtb", "am335x-boneblack-uboot.dtb");
+			break;
+		case BBE_BASE_DTB:
+			env_set("uboot_base_dtb_univ", "am335x-sancloud-bbe-uboot-univ.dtb");
+			env_set("uboot_base_dtb", "am335x-sancloud-bbe-uboot.dtb");
+			break;
+		case BBEL_BASE_DTB:
+			env_set("uboot_base_dtb_univ", "am335x-sancloud-bbe-lite-uboot-univ.dtb");
+			env_set("uboot_base_dtb", "am335x-sancloud-bbe-lite-uboot.dtb");
+			break;
+		case BBE_EX_WIFI_BASE_DTB:
+			env_set("uboot_base_dtb_univ", "am335x-sancloud-bbe-extended-wifi-uboot-univ.dtb");
+			env_set("uboot_base_dtb", "am335x-sancloud-bbe-extended-wifi-uboot.dtb");
+			break;
+		case BBBL_BASE_DTB:
+			env_set("uboot_base_dtb_univ", "am335x-boneblue.dtb");
+			break;
+	}
+
+	if (virtual_emmc == BBB_EMMC) {
+		env_set("uboot_emmc", "BB-BONE-eMMC1-01-00A0.dtbo");
+	}
+
+	switch(virtual_video) {
+		case BBB_TDA998X_AUDIO:
+			if (virtual_audio == PINS_TAKEN) {
+				env_set("uboot_video", "BB-NHDMI-TDA998x-00A0.dtbo");
+				env_set("uboot_video_naudio", "BB-NHDMI-TDA998x-00A0.dtbo");
+			} else {
+				env_set("uboot_video", "BB-HDMI-TDA998x-00A0.dtbo");
+				env_set("uboot_video_naudio", "BB-NHDMI-TDA998x-00A0.dtbo");
+			}
+			break;
+		case BBB_TDA998X_NAUDIO:
+			env_set("uboot_video", "BB-NHDMI-TDA998x-00A0.dtbo");
+			env_set("uboot_video_naudio", "BB-NHDMI-TDA998x-00A0.dtbo");
+			break;
+		case BBB_ADV7511_AUDIO:
+			if (virtual_audio == PINS_TAKEN) {
+				env_set("uboot_video", "BB-NHDMI-ADV7511-00A0.dtbo");
+				env_set("uboot_video_naudio", "BB-NHDMI-ADV7511-00A0.dtbo");
+			} else {
+				env_set("uboot_video", "BB-HDMI-ADV7511-00A0.dtbo");
+				env_set("uboot_video_naudio", "BB-NHDMI-ADV7511-00A0.dtbo");
+			}
+			break;
+		case BBB_ADV7511_NAUDIO:
+			env_set("uboot_video", "BB-NHDMI-ADV7511-00A0.dtbo");
+			env_set("uboot_video_naudio", "BB-NHDMI-ADV7511-00A0.dtbo");
+			break;
+	}
+
+	switch(virtual_wireless) {
+		case BBBW_WL1835:
+			env_set("uboot_wireless", "BB-BBBW-WL1835-00A0.dtbo");
+			break;
+		case BBGW_WL1835:
+			env_set("uboot_wireless", "BB-BBGW-WL1835-00A0.dtbo");
+			break;
+		case BBGG_WL1835:
+			env_set("uboot_wireless", "BB-BBGG-WL1835-00A0.dtbo");
+			break;
+	}
+
+	switch(model) {
+		case M_BBG1:
+			env_set("uboot_model", "M-BB-BBG-00A0.dtbo");
+			break;
+		case M_OS00:
+			env_set("uboot_model", "M-BB-OSD3358-SM-RED-00A0.dtbo");
+			break;
+		case M_OS01:
+			env_set("uboot_model", "M-BB-OSD3358-SM-RED-00A1.dtbo");
+			break;
+		case M_BBGG:
+			env_set("uboot_model", "M-BB-BBGG-00A0.dtbo");
+			break;
+	}
+	return 0;
+}
+
+void do_cape_detect(void)
+{
+	struct am335x_cape_eeprom_id cape_header;
+
+	probe_cape_eeprom(&cape_header);
+}
 
 #ifndef CONFIG_DM_SERIAL
 struct serial_device *default_serial_console(void)
@@ -978,6 +1451,14 @@ int board_late_init(void)
 
 	/* Just probe the potentially supported cdce913 device */
 	uclass_get_device_by_name(UCLASS_CLK, "cdce913@65", &dev);
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#ifdef CONFIG_TI_I2C_BOARD_DETECT
+	if (!board_is_pb() && !board_is_beaglelogic()) {
+		do_cape_detect();
+	}
+#endif
+#endif
 
 	return 0;
 }
