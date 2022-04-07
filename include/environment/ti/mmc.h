@@ -11,20 +11,73 @@
 #define DEFAULT_MMC_TI_ARGS \
 	"mmcdev=0\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
-	"finduuid=part uuid ${boot} ${bootpart} uuid\0" \
+	"finduuid=part uuid ${devtype} ${bootpart} uuid\0" \
 	"args_mmc=run finduuid;setenv bootargs console=${console} " \
+		"${cape_uboot} " \
+		"root=PARTUUID=${uuid} ro " \
+		"rootfstype=${mmcrootfstype} " \
+		"${uboot_detected_capes} " \
+		"${cmdline}\0" \
+	"args_mmc_old=setenv bootargs console=${console} " \
 		"${optargs} " \
-		"root=PARTUUID=${uuid} rw " \
-		"rootfstype=${mmcrootfstype}\0" \
-	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
+		"${cape_uboot} " \
+		"root=${oldroot} ro " \
+		"rootfstype=${mmcrootfstype} " \
+		"${uboot_detected_capes} " \
+		"${cmdline}\0" \
+	"args_mmc_uuid=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"${cape_uboot} " \
+		"root=UUID=${uuid} ro " \
+		"rootfstype=${mmcrootfstype} " \
+		"${uboot_detected_capes} " \
+		"${cmdline}\0" \
+	"args_uenv_root=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"${cape_uboot} " \
+		"root=${uenv_root} ro " \
+		"rootfstype=${mmcrootfstype} " \
+		"${uboot_detected_capes} " \
+		"${cmdline}\0" \
+	"args_netinstall=setenv bootargs ${netinstall_bootargs} " \
+		"${optargs} " \
+		"${cape_uboot} " \
+		"root=/dev/ram rw " \
+		"${uboot_detected_capes} " \
+		"${cmdline}\0" \
+	"script=boot.scr\0" \
+	"scriptfile=${script}\0" \
+	"loadbootscript=load ${devtype} ${bootpart} ${loadaddr} ${scriptfile};\0" \
+	"bootscript=echo Running bootscript from mmc${bootpart} ...; " \
 		"source ${loadaddr}\0" \
 	"bootenvfile=uEnv.txt\0" \
-	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
+	"bootenv=uEnv.txt\0" \
+	"importbootenv=echo Importing environment from ${devtype} ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenvfile}\0" \
+	"loadbootenv=load ${devtype} ${bootpart} ${loadaddr} ${bootenvfile}\0" \
 	"loadimage=load ${devtype} ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadrd=load ${devtype} ${bootpart} ${rdaddr} ${bootdir}/${rdfile}; setenv rdsize ${filesize}\0" \
+	"loadfdt=echo loading ${fdtdir}/${fdtfile} ...; load ${devtype} ${bootpart} ${fdtaddr} ${fdtdir}/${fdtfile}\0" \
+	"loadoverlay=echo uboot_overlays: loading ${actual_uboot_overlay} ...; " \
+		"load ${devtype} ${bootpart} ${rdaddr} ${actual_uboot_overlay}; " \
+		"fdt addr ${fdtaddr}; fdt resize ${fdt_buffer}; " \
+		"fdt apply ${rdaddr}; fdt resize ${fdt_buffer};\0" \
+	"virtualloadoverlay=if test -e ${devtype} ${bootpart} ${fdtdir}/overlays/${uboot_overlay}; then " \
+				"setenv actual_uboot_overlay ${fdtdir}/overlays/${uboot_overlay}; " \
+				"run loadoverlay;" \
+			"else " \
+				"if test -e ${devtype} ${bootpart} /lib/firmware/${uboot_overlay}; then " \
+					"setenv actual_uboot_overlay /lib/firmware/${uboot_overlay}; " \
+					"run loadoverlay;" \
+				"else " \
+					"if test -e ${devtype} ${bootpart} ${uboot_overlay}; then " \
+						"setenv actual_uboot_overlay ${uboot_overlay}; " \
+						"run loadoverlay;" \
+					"else " \
+						"echo uboot_overlays: unable to find [${devtype} ${bootpart} ${uboot_overlay}]...;" \
+					"fi;" \
+				"fi;" \
+			"fi;\0" \
 	"envboot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
@@ -44,7 +97,11 @@
 	"mmcloados=" \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdtaddr}; " \
+				"if test -n ${uname_r}; then " \
+					"bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; " \
+				"else " \
+					"bootz ${loadaddr} - ${fdtaddr}; " \
+				"fi; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
 					"bootz; " \
