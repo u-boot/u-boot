@@ -9,6 +9,8 @@
 #ifndef __CVMX_HELPER_BOARD_H__
 #define __CVMX_HELPER_BOARD_H__
 
+#include <asm-generic/gpio.h>
+
 #define CVMX_VSC7224_NAME_LEN 16
 
 typedef enum {
@@ -185,8 +187,8 @@ struct cvmx_vsc7224 {
 	struct cvmx_fdt_i2c_bus_info *i2c_bus;
 	/** Address of VSC7224 on i2c bus */
 	int i2c_addr;
-	struct cvmx_fdt_gpio_info *los_gpio;   /** LoS GPIO pin */
-	struct cvmx_fdt_gpio_info *reset_gpio; /** Reset GPIO pin */
+	struct gpio_desc los_gpio;		/** LoS GPIO pin */
+	struct gpio_desc reset_gpio;		/** Reset GPIO pin */
 	int of_offset;			       /** Offset in device tree */
 };
 

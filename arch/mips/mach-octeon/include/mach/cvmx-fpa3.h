@@ -526,41 +526,4 @@ const char *cvmx_fpa3_get_pool_name(cvmx_fpa3_pool_t pool);
 int cvmx_fpa3_get_pool_buf_size(cvmx_fpa3_pool_t pool);
 const char *cvmx_fpa3_get_aura_name(cvmx_fpa3_gaura_t aura);
 
-/* FIXME: Need a different macro for stage2 of u-boot */
-
-static inline void cvmx_fpa3_stage2_init(int aura, int pool, u64 stack_paddr, int stacklen,
-					 int buffer_sz, int buf_cnt)
-{
-	cvmx_fpa_poolx_cfg_t pool_cfg;
-
-	/* Configure pool stack */
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_STACK_BASE(pool), stack_paddr);
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_STACK_ADDR(pool), stack_paddr);
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_STACK_END(pool), stack_paddr + stacklen);
-
-	/* Configure pool with buffer size */
-	pool_cfg.u64 = 0;
-	pool_cfg.cn78xx.nat_align = 1;
-	pool_cfg.cn78xx.buf_size = buffer_sz >> 7;
-	pool_cfg.cn78xx.l_type = 0x2;
-	pool_cfg.cn78xx.ena = 0;
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_CFG(pool), pool_cfg.u64);
-	/* Reset pool before starting */
-	pool_cfg.cn78xx.ena = 1;
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_CFG(pool), pool_cfg.u64);
-
-	cvmx_write_csr_node(0, CVMX_FPA_AURAX_CFG(aura), 0);
-	cvmx_write_csr_node(0, CVMX_FPA_AURAX_CNT_ADD(aura), buf_cnt);
-	cvmx_write_csr_node(0, CVMX_FPA_AURAX_POOL(aura), (u64)pool);
-}
-
-static inline void cvmx_fpa3_stage2_disable(int aura, int pool)
-{
-	cvmx_write_csr_node(0, CVMX_FPA_AURAX_POOL(aura), 0);
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_CFG(pool), 0);
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_STACK_BASE(pool), 0);
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_STACK_ADDR(pool), 0);
-	cvmx_write_csr_node(0, CVMX_FPA_POOLX_STACK_END(pool), 0);
-}
-
 #endif /* __CVMX_FPA3_H__ */
