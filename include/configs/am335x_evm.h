@@ -171,6 +171,9 @@
 		"else " \
 			"setenv console ttyO0,115200n8;" \
 		"fi;\0" \
+	EEWIKI_BOOT \
+	EEWIKI_UNAME_BOOT \
+	EEPROM_PROGRAMMING \
 	NANDARGS \
 	NETARGS \
 	DFUARGS \
