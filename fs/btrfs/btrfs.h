@@ -9,7 +9,7 @@
 #define __BTRFS_BTRFS_H__
 
 #include <linux/rbtree.h>
-#include "conv-funcs.h"
+#include "ctree.h"
 
 extern struct btrfs_info btrfs_info;
 extern struct btrfs_fs_info *current_fs_info;

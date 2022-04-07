@@ -13,7 +13,7 @@
 #include <compiler.h>
 #include <linux/rbtree.h>
 #include <linux/bug.h>
-#include <linux/unaligned/le_byteshift.h>
+#include <asm/unaligned.h>
 #include <u-boot/crc.h>
 #include "kernel-shared/btrfs_tree.h"
 #include "crypto/hash.h"
