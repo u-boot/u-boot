@@ -347,6 +347,9 @@ enum apb {
 	APB2,
 };
 
+
+
+
 int configure_clocks(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
@@ -801,7 +804,7 @@ static int stm32_clk_enable(struct clk *clk)
 static int stm32_clk_probe(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
-	struct udevice *syscon;
+	struct udevice *pwrcfg;
 	fdt_addr_t addr;
 	int err;
 
@@ -811,16 +814,16 @@ static int stm32_clk_probe(struct udevice *dev)
 
 	priv->rcc_base = (struct stm32_rcc_regs *)addr;
 
-	/* get corresponding syscon phandle */
+	/* get corresponding power controller phandle */
 	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-					   "st,syscfg", &syscon);
+					   "st,pwrcfg", &pwrcfg);
 
 	if (err) {
-		dev_err(dev, "unable to find syscon device\n");
+		dev_err(dev, "unable to find pwrcfg device\n");
 		return err;
 	}
 
-	priv->pwr_regmap = syscon_get_regmap(syscon);
+	priv->pwr_regmap = syscon_get_regmap(pwrcfg);
 	if (!priv->pwr_regmap) {
 		dev_err(dev, "unable to find regmap\n");
 		return -ENODEV;
