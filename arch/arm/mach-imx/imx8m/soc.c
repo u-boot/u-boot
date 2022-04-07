@@ -911,6 +911,90 @@ static int low_drive_gpu_freq(void *blob)
 }
 #endif
 
+static bool check_remote_endpoint(void *blob, const char *ep1, const char *ep2)
+{
+	int lookup_node;
+	int nodeoff;
+
+	nodeoff = fdt_path_offset(blob, ep1);
+	if (nodeoff) {
+		lookup_node = fdtdec_lookup_phandle(blob, nodeoff, "remote-endpoint");
+		nodeoff = fdt_path_offset(blob, ep2);
+
+		if (nodeoff > 0 && nodeoff == lookup_node)
+			return true;
+	}
+
+	return false;
+}
+
+int disable_dsi_lcdif_nodes(void *blob)
+{
+	int ret;
+
+	static const char * const dsi_path_8mp[] = {
+		"/soc@0/bus@32c00000/mipi_dsi@32e60000"
+	};
+
+	static const char * const lcdif_path_8mp[] = {
+		"/soc@0/bus@32c00000/lcd-controller@32e80000"
+	};
+
+	static const char * const lcdif_ep_path_8mp[] = {
+		"/soc@0/bus@32c00000/lcd-controller@32e80000/port@0/endpoint"
+	};
+	static const char * const dsi_ep_path_8mp[] = {
+		"/soc@0/bus@32c00000/mipi_dsi@32e60000/port@0/endpoint"
+	};
+
+	ret = disable_fdt_nodes(blob, dsi_path_8mp, ARRAY_SIZE(dsi_path_8mp));
+	if (ret)
+		return ret;
+
+	if (check_remote_endpoint(blob, dsi_ep_path_8mp[0], lcdif_ep_path_8mp[0])) {
+		/* Disable lcdif node */
+		return disable_fdt_nodes(blob, lcdif_path_8mp, ARRAY_SIZE(lcdif_path_8mp));
+	}
+
+	return 0;
+}
+
+int disable_lvds_lcdif_nodes(void *blob)
+{
+	int ret, i;
+
+	static const char * const ldb_path_8mp[] = {
+		"/soc@0/bus@32c00000/ldb@32ec005c",
+		"/soc@0/bus@32c00000/phy@32ec0128"
+	};
+
+	static const char * const lcdif_path_8mp[] = {
+		"/soc@0/bus@32c00000/lcd-controller@32e90000"
+	};
+
+	static const char * const lcdif_ep_path_8mp[] = {
+		"/soc@0/bus@32c00000/lcd-controller@32e90000/port@0/endpoint@0",
+		"/soc@0/bus@32c00000/lcd-controller@32e90000/port@0/endpoint@1"
+	};
+	static const char * const ldb_ep_path_8mp[] = {
+		"/soc@0/bus@32c00000/ldb@32ec005c/lvds-channel@0/port@0/endpoint",
+		"/soc@0/bus@32c00000/ldb@32ec005c/lvds-channel@1/port@0/endpoint"
+	};
+
+	ret = disable_fdt_nodes(blob, ldb_path_8mp, ARRAY_SIZE(ldb_path_8mp));
+	if (ret)
+		return ret;
+
+	for (i = 0; i < ARRAY_SIZE(ldb_ep_path_8mp); i++) {
+		if (check_remote_endpoint(blob, ldb_ep_path_8mp[i], lcdif_ep_path_8mp[i])) {
+			/* Disable lcdif node */
+			return disable_fdt_nodes(blob, lcdif_path_8mp, ARRAY_SIZE(lcdif_path_8mp));
+		}
+	}
+
+	return 0;
+}
+
 int disable_gpu_nodes(void *blob)
 {
 	static const char * const nodes_path_8mn[] = {
@@ -918,7 +1002,15 @@ int disable_gpu_nodes(void *blob)
 		"/soc@/gpu@38000000"
 	};
 
-	return disable_fdt_nodes(blob, nodes_path_8mn, ARRAY_SIZE(nodes_path_8mn));
+	static const char * const nodes_path_8mp[] = {
+		"/gpu3d@38000000",
+		"/gpu2d@38008000"
+	};
+
+	if (is_imx8mp())
+		return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
+	else
+		return disable_fdt_nodes(blob, nodes_path_8mn, ARRAY_SIZE(nodes_path_8mn));
 }
 
 int disable_npu_nodes(void *blob)
@@ -1174,16 +1266,27 @@ usb_modify_speed:
 		disable_cpu_nodes(blob, 3);
 
 #elif defined(CONFIG_IMX8MP)
-	if (is_imx8mpl())
+	if (is_imx8mpul()) {
+		/* Disable GPU */
+		disable_gpu_nodes(blob);
+
+		/* Disable DSI */
+		disable_dsi_lcdif_nodes(blob);
+
+		/* Disable LVDS */
+		disable_lvds_lcdif_nodes(blob);
+	}
+
+	if (is_imx8mpul() || is_imx8mpl())
 		disable_vpu_nodes(blob);
 
-	if (is_imx8mpl() || is_imx8mp6())
+	if (is_imx8mpul() || is_imx8mpl() || is_imx8mp6())
 		disable_npu_nodes(blob);
 
-	if (is_imx8mpl())
+	if (is_imx8mpul() || is_imx8mpl())
 		disable_isp_nodes(blob);
 
-	if (is_imx8mpl() || is_imx8mp6())
+	if (is_imx8mpul() || is_imx8mpl() || is_imx8mp6())
 		disable_dsp_nodes(blob);
 
 	if (is_imx8mpd())
@@ -1192,6 +1295,40 @@ usb_modify_speed:
 
 	return 0;
 }
+#endif
+
+#ifdef CONFIG_OF_BOARD_FIXUP
+#ifndef CONFIG_SPL_BUILD
+int board_fix_fdt(void *fdt)
+{
+	if (is_imx8mpul()) {
+		int i = 0;
+		int nodeoff, ret;
+		const char *status = "disabled";
+		static const char * const dsi_nodes[] = {
+			"/soc@0/bus@32c00000/mipi_dsi@32e60000",
+			"/soc@0/bus@32c00000/lcd-controller@32e80000",
+			"/dsi-host"
+		};
+
+		for (i = 0; i < ARRAY_SIZE(dsi_nodes); i++) {
+			nodeoff = fdt_path_offset(fdt, dsi_nodes[i]);
+			if (nodeoff > 0) {
+set_status:
+				ret = fdt_setprop(fdt, nodeoff, "status", status,
+						  strlen(status) + 1);
+				if (ret == -FDT_ERR_NOSPACE) {
+					ret = fdt_increase_size(fdt, 512);
+					if (!ret)
+						goto set_status;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+#endif
 #endif
 
 #if !CONFIG_IS_ENABLED(SYSRESET)
