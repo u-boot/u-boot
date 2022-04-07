@@ -247,14 +247,20 @@ config SYS_MALLOC_F
 config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
-	default 0x1000 if AM33XX
-	default 0x4000 if SANDBOX || RISCV
-	default 0x2000 if (ARCH_MX7 || ARCH_MX7ULP || ARCH_MX6 || ARCH_MX5 || \
-			   ARCH_QEMU || ARCH_SUNXI || ARCH_OWL || IMX8MQ)
-	default 0x10000 if (ARCH_IMX8 || (ARCH_IMX8M && !IMX8MQ) || \
-			    ARCH_LS1012A || ARCH_LS1021A || ARCH_LS1043A || \
-			    ARCH_LS1046A)
-	default 0x400
+	default 0x400 if M68K || PPC || ROCKCHIP_PX30 || ROCKCHIP_RK3036 || \
+			 ROCKCHIP_RK3308 || ROCKCHIP_RV1108
+	default 0x600 if ARCH_ZYNQMP_R5 || ARCH_ZYNQMP
+	default 0x800 if ARCH_ZYNQ || ROCKCHIP_RK3128 || ROCKCHIP_RK3188 || \
+			 ROCKCHIP_RK322X || X86
+	default 0x1000 if AM33XX || ARCH_MESON || ARCH_BMIPS || ARCH_MTMIPS
+	default 0x1800 if ARCH_TEGRA
+	default 0x4000 if SANDBOX || RISCV || ARCH_APPLE || ROCKCHIP_RK3368 || \
+			  ROCKCHIP_RK3399
+	default 0x8000 if RCAR_GEN3
+	default 0x10000 if ARCH_IMX8 || (ARCH_IMX8M && !IMX8MQ) || \
+			   ARCH_LS1012A || ARCH_LS1021A || ARCH_LS1043A || \
+			   ARCH_LS1046A
+	default 0x2000
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
 	  we can provide a small malloc() pool if needed. Driver model in
