@@ -606,7 +606,7 @@ int show_board_info(void)
 
 int misc_init_r(void)
 {
-	turris_atsha_otp_init_mac_addresses();
+	turris_atsha_otp_init_mac_addresses(1);
 	return 0;
 }
 

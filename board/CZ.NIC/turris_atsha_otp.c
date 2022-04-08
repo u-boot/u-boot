@@ -49,7 +49,7 @@ static void set_mac_if_invalid(int i, u8 *mac)
 		eth_env_set_enetaddr_by_index("eth", i, mac);
 }
 
-int turris_atsha_otp_init_mac_addresses(void)
+int turris_atsha_otp_init_mac_addresses(int first_idx)
 {
 	struct udevice *dev = get_atsha204a_dev();
 	u8 mac0[4], mac1[4], mac[6];
@@ -81,11 +81,11 @@ int turris_atsha_otp_init_mac_addresses(void)
 	mac[4] = mac1[2];
 	mac[5] = mac1[3];
 
-	set_mac_if_invalid(1, mac);
+	set_mac_if_invalid((first_idx + 0) % 3, mac);
 	increment_mac(mac);
-	set_mac_if_invalid(2, mac);
+	set_mac_if_invalid((first_idx + 1) % 3, mac);
 	increment_mac(mac);
-	set_mac_if_invalid(0, mac);
+	set_mac_if_invalid((first_idx + 2) % 3, mac);
 
 	return 0;
 }
