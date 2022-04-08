@@ -319,7 +319,6 @@ static const struct clk_cfg clk_map[] = {
 struct stm32_clk {
 	struct stm32_rcc_regs *rcc_base;
 	struct regmap *pwr_regmap;
-
 };
 
 struct pll_psc {
@@ -331,6 +330,7 @@ struct pll_psc {
 };
 
 /*
+ * TODO -- this is broken: various H743 boards use different crystals. The crystal frequency should be in the device tree, and that should control the PLL setup.
  * OSC_HSE = 8 MHz
  * VCO = 960Hz
  * pll1_p = 480MHz / pll1_q = 480MHz pll1_r = 480Mhz
@@ -366,7 +366,8 @@ int configure_clocks(struct udevice *dev)
 	uint32_t pll1divr = 0;
 	uint32_t pllcfgr = 0;
 
-    /* get the address of the syscfg register bank, which contains the overdrive enable bit */
+    /* Get the address of the syscfg register bank, which contains the overdrive enable bit. */
+    /* This is hacky, but I could NOT get the syscfg to bind before the rcc. Device tree and driver model documentation is really horrible. */
     struct stm32_syscfg_regs *syscfg = (struct stm32_syscfg_regs *)0x58000400;
 
 	/* Switch on HSI */
