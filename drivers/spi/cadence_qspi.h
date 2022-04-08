@@ -95,5 +95,6 @@ void cadence_qspi_apb_delay(void *reg_base,
 void cadence_qspi_apb_enter_xip(void *reg_base, char xip_dummy);
 void cadence_qspi_apb_readdata_capture(void *reg_base,
 	unsigned int bypass, unsigned int delay);
+unsigned int cm_get_qspi_controller_clk_hz(void);
 
 #endif /* __CADENCE_QSPI_H__ */

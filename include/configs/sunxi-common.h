@@ -98,15 +98,6 @@
 /* mmc config */
 #define CONFIG_MMC_SUNXI_SLOT		0
 
-#if defined(CONFIG_ENV_IS_IN_MMC)
-/*
- * This is actually (CONFIG_ENV_OFFSET -
- * (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)), but the value will be used
- * directly in a makefile, without the preprocessor expansion.
- */
-#define CONFIG_BOARD_SIZE_LIMIT		0x7e000
-#endif
-
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
 
 /*

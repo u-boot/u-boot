@@ -99,3 +99,11 @@ config VOL_MONITOR_ISL68233_SET
 	 functionality. It is used by the common VID driver.
 
 endif
+
+config FSL_QIXIS
+	bool "Enable QIXIS support"
+
+config QIXIS_I2C_ACCESS
+	bool "Access to QIXIS is over i2c"
+	depends on FSL_QIXIS
+	default y

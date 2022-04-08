@@ -9,16 +9,11 @@
 #include "ls1088a_common.h"
 
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_QIXIS_I2C_ACCESS
 #define SYS_NO_FLASH
-#else
-#define CONFIG_QIXIS_I2C_ACCESS
 #endif
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk()/4)
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
-
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
 
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #define SPD_EEPROM_ADDRESS		0x51
@@ -118,7 +113,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
-#define CONFIG_FSL_QIXIS
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define QIXIS_LBMAP_SWITCH		6
 #define QIXIS_QMAP_MASK			0xe0

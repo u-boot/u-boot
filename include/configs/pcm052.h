@@ -16,9 +16,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-/* We boot from the gfxRAM area of the OCRAM. */
-#define CONFIG_BOARD_SIZE_LIMIT		520192
-
 /* if no target-specific extra environment settings were defined by the
    target, define an empty one */
 #ifndef PCM052_EXTRA_ENV_SETTINGS

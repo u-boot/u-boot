@@ -315,7 +315,6 @@
 
 #define CONFIG_HOSTNAME		"mpc837x_rdb"
 #define CONFIG_ROOTPATH		"/nfsroot"
-#define CONFIG_RAMDISKFILE	"rootfs.ext2.gz.uboot"
 				/* U-Boot image on TFTP server */
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 #define CONFIG_FDTFILE		"mpc8379_rdb.dtb"
@@ -337,7 +336,7 @@
 	"fdtaddr=780000\0"						\
 	"fdtfile=" CONFIG_FDTFILE "\0"					\
 	"ramdiskaddr=1000000\0"						\
-	"ramdiskfile=" CONFIG_RAMDISKFILE "\0"				\
+	"ramdiskfile=rootfs.ext2.gz.uboot\0"				\
 	"console=ttyS0\0"						\
 	"setbootargs=setenv bootargs "					\
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0" \

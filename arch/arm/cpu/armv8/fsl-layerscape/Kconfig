@@ -502,6 +502,31 @@ config SYS_FSL_HAS_CCN508
 
 config SYS_FSL_HAS_DP_DDR
 	bool
+	help
+	  Defines the SoC has DP-DDR used for DPAA.
+
+config DP_DDR_CTRL
+	int
+	depends on SYS_FSL_HAS_DP_DDR
+	default 2 if ARCH_LS2080A
+
+config DP_DDR_NUM_CTRLS
+	int
+	depends on SYS_FSL_HAS_DP_DDR
+	default 1 if ARCH_LS2080A
+
+config SYS_DP_DDR_BASE
+	hex
+	depends on SYS_FSL_HAS_DP_DDR
+	default 0x6000000000 if ARCH_LS2080A
+
+config SYS_DP_DDR_BASE_PHY
+	int
+	depends on SYS_FSL_HAS_DP_DDR
+	default 0 if ARCH_LS2080A
+	help
+	  DDR controller uses this value as the base address for binding.
+	  It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
 
 config SYS_FSL_SRDS_1
 	bool

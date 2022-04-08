@@ -46,10 +46,4 @@
 
 /* Environment settings */
 
-/*
- * Environment is right behind U-Boot in flash. Make sure U-Boot
- * doesn't grow into the environment area.
- */
-#define CONFIG_BOARD_SIZE_LIMIT		CONFIG_ENV_OFFSET
-
 #endif /* __CONFIG_GARDENA_SMART_GATEWAY_H */

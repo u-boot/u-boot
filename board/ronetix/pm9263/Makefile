@@ -9,4 +9,3 @@
 # Ilko Iliev <www.ronetix.at>
 
 obj-y += pm9263.o
-obj-$(CONFIG_AT91_LED) += led.o

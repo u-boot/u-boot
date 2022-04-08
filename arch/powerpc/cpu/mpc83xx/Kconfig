@@ -1,6 +1,10 @@
 menu "mpc83xx CPU"
 	depends on MPC83xx
 
+config DEFAULT_IMMR
+	hex
+	default 0xFF400000
+
 config E300
 	def_bool y
 

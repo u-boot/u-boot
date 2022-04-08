@@ -33,7 +33,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 
 /* SCIF */
-#define CONFIG_CONS_SCIF1
 #define SCIF0_BASE		0xe6c40000
 #define SCIF1_BASE		0xe6c50000
 #define SCIF2_BASE		0xe6c60000
@@ -67,8 +66,5 @@
 #define CONFIG_SH_ETHER_BASE_ADDR	0xe9a00000
 #define CONFIG_SH_ETHER_SH7734_MII	(0x01)
 #define CONFIG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_MII
-
-/* Board Clock */
-#define CONFIG_SH_SCIF_CLK_FREQ get_board_sys_clk()
 
 #endif	/* __ARMADILLO_800EVA_H */

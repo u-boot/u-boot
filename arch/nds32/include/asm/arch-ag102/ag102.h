@@ -72,8 +72,6 @@
 /* PWM - Pulse Width Modulator Controller */
 #define CONFIG_FTPWM010_BASE		0x94F00000
 
-/* Debug LED */
-#define CONFIG_DEBUG_LED		0x902FFFFC
 /* Power Management Unit */
 #define CONFIG_FTPMU010_BASE		0x98100000
 

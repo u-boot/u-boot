@@ -10,16 +10,13 @@
 #include "ls1012a_common.h"
 
 /* DDR */
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_SYS_SDRAM_SIZE		0x40000000
 
 /*
  * QIXIS Definitions
  */
-#define CONFIG_FSL_QIXIS
 
 #ifdef CONFIG_FSL_QIXIS
-#define CONFIG_QIXIS_I2C_ACCESS
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define QIXIS_LBMAP_BRDCFG_REG		0x04
 #define QIXIS_LBMAP_SWITCH		6

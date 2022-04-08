@@ -1,5 +1,9 @@
 if TARGET_ADP_AG101P
 
+config DEBUG_LED
+	hex
+	default 0x902FFFFC
+
 config SYS_CPU
 	default "n1213"
 

@@ -47,7 +47,6 @@
 #define BOARD_EXTRA_ENV_SETTINGS \
 	UBOOT_UPDATE
 
-#include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

@@ -107,7 +107,7 @@ static void cpld_show(void)
 	       in_8(&cpld_data->pcba_ver) & VERSION_MASK,
 	       in_8(&cpld_data->vbank) & BANK_MASK);
 
-#ifdef CONFIG_DEBUG
+#ifdef DEBUG
 	printf("soft_mux_on =%x\n",
 	       in_8(&cpld_data->soft_mux_on));
 	printf("cfg_rcw_src1 =%x\n",

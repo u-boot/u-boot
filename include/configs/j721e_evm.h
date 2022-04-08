@@ -57,7 +57,6 @@
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
-#define CONFIG_CQSPI_REF_CLK		133333333
 
 /* HyperFlash related configuration */
 

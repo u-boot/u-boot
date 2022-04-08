@@ -487,9 +487,6 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 		Number of controllers used for other than main memory.
 
-		CONFIG_SYS_FSL_HAS_DP_DDR
-		Defines the SoC has DP-DDR used for DPAA.
-
 		CONFIG_SYS_FSL_SEC_BE
 		Defines the SEC controller register space as Big Endian
 
@@ -1532,14 +1529,6 @@ The following options need to be configured:
 		of the backslashes before semicolons and special
 		symbols.
 
-- Command Line Editing and History:
-		CONFIG_CMDLINE_PS_SUPPORT
-
-		Enable support for changing the command prompt string
-		at run-time. Only static string is supported so far.
-		The string is obtained from environment variables PS1
-		and PS2.
-
 - Default Environment:
 		CONFIG_EXTRA_ENV_SETTINGS
 
@@ -2182,11 +2171,6 @@ use the "saveenv" command to store a valid environment.
 		Similar to the previous option, but display this information
 		later, once stdio is running and output goes to the LCD, if
 		present.
-
-- CONFIG_BOARD_SIZE_LIMIT:
-		Maximum size of the U-Boot image. When defined, the
-		build system checks that the actual size does not
-		exceed it.
 
 Low Level (hardware related) configuration options:
 ---------------------------------------------------

@@ -67,18 +67,14 @@
 	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
-#define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext4" \
-		" ${console} ${meminfo}"
-
-#define CONFIG_COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
-
-#define CONFIG_UPDATEB	"updateb=onenand erase 0x0 0x100000;" \
-			" onenand write 0x32008000 0x0 0x100000\0"
+#define COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
 
 #define CONFIG_MISC_COMMON
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_UPDATEB \
+	"updateb=" \
+		"onenand erase 0x0 0x100000;" \
+		"onenand write 0x32008000 0x0 0x100000\0" \
 	"updatek=" \
 		"onenand erase 0xc00000 0x600000;" \
 		"onenand write 0x31008000 0xc00000 0x600000\0" \
@@ -91,22 +87,23 @@
 	"flashboot=" \
 		"set bootargs root=/dev/mtdblock${bootblock} " \
 		"rootfstype=${rootfstype} ${opts} " \
-		"${lcdinfo} " CONFIG_COMMON_BOOT "; run bootk\0" \
+		"${lcdinfo} " COMMON_BOOT "; run bootk\0" \
 	"ubifsboot=" \
 		"set bootargs root=ubi0!rootfs rootfstype=ubifs " \
 		"${opts} ${lcdinfo} " \
-		CONFIG_COMMON_BOOT "; run bootk\0" \
+		COMMON_BOOT "; run bootk\0" \
 	"tftpboot=" \
 		"set bootargs root=ubi0!rootfs rootfstype=ubifs " \
-		"${opts} ${lcdinfo} " CONFIG_COMMON_BOOT \
+		"${opts} ${lcdinfo} " COMMON_BOOT \
 		"; tftp 0x30007FC0 uImage; bootm 0x30007FC0\0" \
 	"ramboot=" \
-		"set bootargs " CONFIG_RAMDISK_BOOT \
+		"set bootargs root=/dev/ram0 rw rootfstype=ext4" \
+		" ${console} ${meminfo} " \
 		"initrd=0x33000000,8M ramdisk=8192\0" \
 	"mmcboot=" \
 		"set bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"rootfstype=${rootfstype} ${opts} ${lcdinfo} " \
-		CONFIG_COMMON_BOOT "; run bootk\0" \
+		COMMON_BOOT "; run bootk\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"bootchart=set opts init=/sbin/bootchartd; run bootcmd\0" \
 	"verify=n\0" \

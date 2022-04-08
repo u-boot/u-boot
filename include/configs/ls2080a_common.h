@@ -40,16 +40,6 @@
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
 #define CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
-#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-#define CONFIG_SYS_DP_DDR_BASE		0x6000000000ULL
-/*
- * DDR controller use 0 as the base address for binding.
- * It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
- */
-#define CONFIG_SYS_DP_DDR_BASE_PHY	0
-#define CONFIG_DP_DDR_CTRL		2
-#define CONFIG_DP_DDR_NUM_CTRLS		1
-#endif
 
 /* Generic Timer Definitions */
 /*

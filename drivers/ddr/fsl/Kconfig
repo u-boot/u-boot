@@ -53,6 +53,10 @@ config CHIP_SELECTS_PER_CTRL
 	int "Number of chip selects per controller"
 	default 4
 
+config DIMM_SLOTS_PER_CTLR
+	int "Number of DIMM slots per controller"
+	default 1
+
 config SYS_FSL_DDR_VER
 	int
 	default 50 if SYS_FSL_DDR_VER_50

@@ -15,9 +15,6 @@
 
 #include <asm/arch/omap.h>
 
-#define CONFIG_DMA_COHERENT
-#define CONFIG_DMA_COHERENT_SIZE	(1 << 20)
-
 /* commands to include */
 
 #ifndef CONFIG_SPL_BUILD

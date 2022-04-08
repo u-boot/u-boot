@@ -10,7 +10,6 @@
 #include "ls2080a_common.h"
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_QIXIS_I2C_ACCESS
 #define CONFIG_SYS_I2C_IFDR_DIV		0x7e
 #endif
 
@@ -26,7 +25,6 @@
 #define SPD_EEPROM_ADDRESS6	0x56	/* dummy address */
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1
 #define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
-#define CONFIG_DIMM_SLOTS_PER_CTLR		2
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 #define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
 #endif
@@ -123,7 +121,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
-#define CONFIG_FSL_QIXIS	/* use common QIXIS code */
 #define QIXIS_LBMAP_SWITCH		0x06
 #define QIXIS_LBMAP_MASK		0x0f
 #define QIXIS_LBMAP_SHIFT		0

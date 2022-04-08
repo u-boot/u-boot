@@ -122,16 +122,6 @@
 /* FLASH and environment organization */
 
 /* Environment starts at 768k = 768 * 1024 = 786432 */
-/*
- * Detect overlap between U-Boot image and environment area in build-time
- *
- * CONFIG_BOARD_SIZE_LIMIT = CONFIG_ENV_OFFSET - u-boot.img offset
- * CONFIG_BOARD_SIZE_LIMIT = 768k - 69k = 699k = 715776
- *
- * Currently CONFIG_BOARD_SIZE_LIMIT does not handle expressions, so
- * write the direct value here
- */
-#define CONFIG_BOARD_SIZE_LIMIT		715776
 
 #define CONFIG_SYS_FSL_USDHC_NUM		2
 

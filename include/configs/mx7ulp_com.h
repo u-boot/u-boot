@@ -17,16 +17,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		0x1000000
 
-/*
- * Detect overlap between U-Boot image and environment area in build-time
- *
- * CONFIG_BOARD_SIZE_LIMIT = CONFIG_ENV_OFFSET - u-boot-dtb.imx offset
- * CONFIG_BOARD_SIZE_LIMIT = 768k - 1k = 767k = 785408
- *
- * Currently CONFIG_BOARD_SIZE_LIMIT does not handle expressions, so
- * write the direct value here
- */
-#define CONFIG_BOARD_SIZE_LIMIT		785408
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
 
 /* Using ULP WDOG for reset */

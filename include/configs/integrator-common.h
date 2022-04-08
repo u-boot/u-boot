@@ -9,33 +9,6 @@
 #define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1 */
 
 /*
- * There are various dependencies on the core module (CM) fitted
- * Users should refer to their CM user guide
- */
-#include "armcoremodule.h"
-
-/*
- * Initialize and remap the core module, use SPD to detect memory size
- * If CONFIG_SKIP_LOWLEVEL_INIT is not defined &
- * the core module has a CM_INIT register
- * then the U-Boot initialisation code will
- * e.g. ARM Boot Monitor or pre-loader is repeated once
- * (to re-initialise any existing CM_INIT settings to safe values).
- *
- * This is usually not the desired behaviour since the platform
- * will either reboot into the ARM monitor (or pre-loader)
- * or continuously cycle thru it without U-Boot running,
- * depending upon the setting of Integrator/CP switch S2-4.
- *
- * However it may be needed if Integrator/CP switch S2-1
- * is set OFF to boot direct into U-Boot.
- * In that case comment out the line below.
- */
-#define CONFIG_CM_INIT
-#define CONFIG_CM_REMAP
-#define CONFIG_CM_SPD_DETECT
-
-/*
  * The ARM boot monitor initializes the board.
  * However, the default U-Boot code also performs the initialization.
  * If desired, this can be prevented by defining SKIP_LOWLEVEL_INIT

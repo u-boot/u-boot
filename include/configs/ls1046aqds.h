@@ -10,7 +10,6 @@
 
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
 /* Physical Memory Map */
 
 #define SPD_EEPROM_ADDRESS		0x51
@@ -152,13 +151,11 @@
 
 #if defined(CONFIG_TFABOOT) || \
 	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_QIXIS_I2C_ACCESS
 #endif
 
 /*
  * QIXIS Definitions
  */
-#define CONFIG_FSL_QIXIS
 
 #ifdef CONFIG_FSL_QIXIS
 #define QIXIS_BASE			0x7fb00000

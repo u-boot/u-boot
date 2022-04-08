@@ -14,14 +14,9 @@
 
 /* Store environment at top of flash */
 
-#define CONFIG_DIMM_SLOTS_PER_CTLR          1
-
-#define CONFIG_QIXIS_I2C_ACCESS
-
 /*
  * QIXIS Definitions
  */
-#define CONFIG_FSL_QIXIS
 
 #ifdef CONFIG_FSL_QIXIS
 #define QIXIS_BASE			0x7fb00000

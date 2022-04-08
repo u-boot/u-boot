@@ -10,9 +10,6 @@
 
 #if defined(CONFIG_TFABOOT) || \
 	defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_QIXIS_I2C_ACCESS
-#endif
 #define SYS_NO_FLASH
 #endif
 
@@ -26,7 +23,6 @@
 #endif
 #define SPD_EEPROM_ADDRESS	0x51
 #define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
 
 
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
@@ -104,10 +100,6 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
-
-#ifndef SPL_NO_QIXIS
-#define CONFIG_FSL_QIXIS
-#endif
 
 #define CONFIG_SYS_I2C_FPGA_ADDR	0x66
 #define QIXIS_BRDCFG4_OFFSET            0x54

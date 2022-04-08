@@ -804,6 +804,32 @@ config SCIF_CONSOLE
 	  on systems with RCar or SH SoCs, say Y to this option. If unsure,
 	  say N.
 
+choice
+	prompt "SCIF console port"
+	depends on SCIF_CONSOLE && (!DM_SERIAL || (SPL && !SPL_DM_SERIAL))
+
+config CONS_SCIF0
+	bool "SCIF0"
+
+config CONS_SCIF1
+	bool "SCIF1"
+
+config CONS_SCIF2
+	bool "SCIF2"
+
+config CONS_SCIF4
+	bool "SCIF4"
+
+config CONS_SCIFA0
+	bool "SCIFA0"
+
+endchoice
+
+config SH_SCIF_CLK_FREQ
+	int "SCIF console clock frequency"
+	depends on SCIF_CONSOLE && (!DM_SERIAL || (SPL && !SPL_DM_SERIAL))
+	default 65000000
+
 config SEMIHOSTING_SERIAL
 	bool "Semihosting UART support"
 	depends on SEMIHOSTING && !SERIAL_RX_BUFFER
