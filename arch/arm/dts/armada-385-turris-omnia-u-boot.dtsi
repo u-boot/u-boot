@@ -29,7 +29,7 @@
 			u-boot,dm-pre-reloc;
 
 			/* ATSHA204A at address 0x64 */
-			atsha204a@64 {
+			crypto@64 {
 				u-boot,dm-pre-reloc;
 				compatible = "atmel,atsha204a";
 				reg = <0x64>;
