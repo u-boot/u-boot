@@ -518,6 +518,9 @@ config CMD_NVEDIT_EFI
 	  If enabled, we are allowed to set/print UEFI variables using
 	  "env" command with "-e" option without knowing details.
 
+config CMD_NVEDIT_INDIRECT
+	bool "env indirect - Sets environment value from another"
+
 config CMD_NVEDIT_INFO
 	bool "env info - print or evaluate environment information"
 	help

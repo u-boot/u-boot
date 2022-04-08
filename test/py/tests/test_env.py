@@ -554,42 +554,42 @@ def test_env_text(u_boot_console):
 
     # two vars
     check_script('''fred=123
-ernie=456''', 'fred=123\\0ernie=456\\0')
+mary=456''', 'fred=123\\0mary=456\\0')
 
     # blank lines
     check_script('''fred=123
 
 
-ernie=456
+mary=456
 
-''', 'fred=123\\0ernie=456\\0')
+''', 'fred=123\\0mary=456\\0')
 
     # append
     check_script('''fred=123
-ernie=456
-fred+= 456''', 'fred=123 456\\0ernie=456\\0')
+mary=456
+fred+= 456''', 'fred=123 456\\0mary=456\\0')
 
     # append from empty
     check_script('''fred=
-ernie=456
-fred+= 456''', 'fred= 456\\0ernie=456\\0')
+mary=456
+fred+= 456''', 'fred= 456\\0mary=456\\0')
 
     # variable with + in it
-    check_script('fred+ernie=123', 'fred+ernie=123\\0')
+    check_script('fred+mary=123', 'fred+mary=123\\0')
 
     # ignores variables that are empty
     check_script('''fred=
 fred+=
-ernie=456''', 'ernie=456\\0')
+mary=456''', 'mary=456\\0')
 
     # single-character env name
-    check_script('''f=123
+    check_script('''m=123
 e=456
-f+= 456''', 'e=456\\0f=123 456\\0')
+m+= 456''', 'e=456\\0m=123 456\\0')
 
     # contains quotes
     check_script('''fred="my var"
-ernie=another"''', 'fred=\\"my var\\"\\0ernie=another\\"\\0')
+mary=another"''', 'fred=\\"my var\\"\\0mary=another\\"\\0')
 
     # variable name ending in +
     check_script('''fred\\+=my var
@@ -598,7 +598,7 @@ fred++= again''', 'fred+=my var again\\0')
     # variable name containing +
     check_script('''fred+jane=both
 fred+jane+=again
-ernie=456''', 'fred+jane=bothagain\\0ernie=456\\0')
+mary=456''', 'fred+jane=bothagain\\0mary=456\\0')
 
     # multi-line vars - new vars always start at column 1
     check_script('''fred=first
@@ -607,7 +607,7 @@ ernie=456''', 'fred+jane=bothagain\\0ernie=456\\0')
 
    after blank
  confusing=oops
-ernie=another"''', 'fred=first second third with tab after blank confusing=oops\\0ernie=another\\"\\0')
+mary=another"''', 'fred=first second third with tab after blank confusing=oops\\0mary=another\\"\\0')
 
     # real-world example
     check_script('''ubifs_boot=

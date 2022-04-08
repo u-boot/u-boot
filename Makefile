@@ -2459,7 +2459,8 @@ endif
 
 quiet_cmd_genenv = GENENV  $@
 cmd_genenv = $(OBJCOPY) --dump-section .rodata.default_environment=$@ env/common.o; \
-	sed --in-place -e 's/\x00/\x0A/g' $@
+	sed --in-place -e 's/\x00/\x0A/g' $@; sed --in-place -e '/^\s*$$/d' $@; \
+	sort --field-separator== -k1,1 --stable $@ -o $@
 
 u-boot-initial-env: u-boot.bin
 	$(call if_changed,genenv)
