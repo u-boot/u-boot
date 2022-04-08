@@ -323,7 +323,7 @@
 			dma-names = "tx", "rx";
 			clocks = <&pmc PMC_TYPE_PERIPHERAL 79>, <&pmc PMC_TYPE_GCK 79>;
 			clock-names = "pclk", "gclk";
-			assigned-clocks = <&pmc PMC_TYPE_GCK 78>;
+			assigned-clocks = <&pmc PMC_TYPE_GCK 79>;
 			assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
 			#address-cells = <1>;
 			#size-cells = <0>;
