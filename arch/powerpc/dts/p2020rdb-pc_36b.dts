@@ -49,7 +49,6 @@
 /include/ "p2020-post.dtsi"
 
 &espi0 {
-	status = "okay";
 	flash@0 {
 		compatible = "jedec,spi-nor";
 		#address-cells = <1>;

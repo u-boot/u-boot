@@ -45,7 +45,6 @@
 		#size-cells = <0>;
 		reg = <0x7000 0x1000>;
 		fsl,espi-num-chipselects = <4>;
-		status = "disabled";
 	};
 
 /include/ "pq3-i2c-0.dtsi"
