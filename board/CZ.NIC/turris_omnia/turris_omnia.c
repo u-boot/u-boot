@@ -14,8 +14,6 @@
 #include <log.h>
 #include <miiphy.h>
 #include <mtd.h>
-#include <net.h>
-#include <netdev.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
@@ -25,10 +23,10 @@
 #include <time.h>
 #include <linux/bitops.h>
 #include <u-boot/crc.h>
-# include <atsha204a-i2c.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include <../serdes/a38x/high_speed_env_spec.h>
+#include "../turris_atsha_otp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -70,11 +68,6 @@ enum status_word_bits {
 	CARD_DET_STSBIT		= 0x0010,
 	MSATA_IND_STSBIT	= 0x0020,
 };
-
-#define OMNIA_ATSHA204_OTP_VERSION	0
-#define OMNIA_ATSHA204_OTP_SERIAL	1
-#define OMNIA_ATSHA204_OTP_MAC0		3
-#define OMNIA_ATSHA204_OTP_MAC1		4
 
 /*
  * Those values and defines are taken from the Marvell U-Boot version
@@ -594,49 +587,12 @@ int board_late_init(void)
 	return 0;
 }
 
-static struct udevice *get_atsha204a_dev(void)
-{
-	static struct udevice *dev;
-
-	if (dev)
-		return dev;
-
-	if (uclass_get_device_by_name(UCLASS_MISC, "atsha204a@64", &dev)) {
-		puts("Cannot find ATSHA204A on I2C bus!\n");
-		dev = NULL;
-	}
-
-	return dev;
-}
-
 int show_board_info(void)
 {
 	u32 version_num, serial_num;
-	int err = 1;
+	int err;
 
-	struct udevice *dev = get_atsha204a_dev();
-
-	if (dev) {
-		err = atsha204a_wakeup(dev);
-		if (err)
-			goto out;
-
-		err = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
-				     OMNIA_ATSHA204_OTP_VERSION,
-				     (u8 *)&version_num);
-		if (err)
-			goto out;
-
-		err = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
-				     OMNIA_ATSHA204_OTP_SERIAL,
-				     (u8 *)&serial_num);
-		if (err)
-			goto out;
-
-		atsha204a_sleep(dev);
-	}
-
-out:
+	err = turris_atsha_otp_get_serial_number(&version_num, &serial_num);
 	printf("Model: Turris Omnia\n");
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
@@ -648,65 +604,9 @@ out:
 	return 0;
 }
 
-static void increment_mac(u8 *mac)
-{
-	int i;
-
-	for (i = 5; i >= 3; i--) {
-		mac[i] += 1;
-		if (mac[i])
-			break;
-	}
-}
-
-static void set_mac_if_invalid(int i, u8 *mac)
-{
-	u8 oldmac[6];
-
-	if (is_valid_ethaddr(mac) &&
-	    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
-		eth_env_set_enetaddr_by_index("eth", i, mac);
-}
-
 int misc_init_r(void)
 {
-	int err;
-	struct udevice *dev = get_atsha204a_dev();
-	u8 mac0[4], mac1[4], mac[6];
-
-	if (!dev)
-		goto out;
-
-	err = atsha204a_wakeup(dev);
-	if (err)
-		goto out;
-
-	err = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
-			     OMNIA_ATSHA204_OTP_MAC0, mac0);
-	if (err)
-		goto out;
-
-	err = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
-			     OMNIA_ATSHA204_OTP_MAC1, mac1);
-	if (err)
-		goto out;
-
-	atsha204a_sleep(dev);
-
-	mac[0] = mac0[1];
-	mac[1] = mac0[2];
-	mac[2] = mac0[3];
-	mac[3] = mac1[1];
-	mac[4] = mac1[2];
-	mac[5] = mac1[3];
-
-	set_mac_if_invalid(1, mac);
-	increment_mac(mac);
-	set_mac_if_invalid(2, mac);
-	increment_mac(mac);
-	set_mac_if_invalid(0, mac);
-
-out:
+	turris_atsha_otp_init_mac_addresses();
 	return 0;
 }
 
