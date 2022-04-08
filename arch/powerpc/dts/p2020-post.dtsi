@@ -53,6 +53,12 @@
 /include/ "pq3-gpio-0.dtsi"
 
 /include/ "pq3-etsec1-0.dtsi"
+/include/ "pq3-etsec1-timer-0.dtsi"
+
+	ptp_clock@24e00 {
+		interrupts = <68 2 0 0 69 2 0 0 70 2 0 0>;
+	};
+
 /include/ "pq3-etsec1-1.dtsi"
 /include/ "pq3-etsec1-2.dtsi"
 };
