@@ -172,10 +172,14 @@ int board_late_init(void)
 	} else {
 		if (is_emmc)
 			env_set("variant", "-emmc");
+		else
+			env_set("variant", "");
 	}
 #else
 	if (is_emmc)
 		env_set("variant", "-emmc");
+	else
+		env_set("variant", "");
 #endif
 
 	/*
