@@ -134,6 +134,7 @@ struct k3_ddrss_desc {
 	struct power_domain ddrdata_pwrdmn;
 	struct clk ddr_clk;
 	struct clk osc_clk;
+	u32 ddr_freq0;
 	u32 ddr_freq1;
 	u32 ddr_freq2;
 	u32 ddr_fhs_cnt;
@@ -223,9 +224,7 @@ static void k3_lpddr4_freq_update(struct k3_ddrss_desc *ddrss)
 		else if (req_type == 2)
 			clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq2);
 		else if (req_type == 0)
-			/* Put DDR pll in bypass mode */
-			clk_set_rate(&ddrss->ddr_clk,
-				     clk_get_rate(&ddrss->osc_clk));
+			clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq0);
 		else
 			printf("%s: Invalid freq request type\n", __func__);
 
@@ -276,8 +275,7 @@ static int k3_ddrss_init_freq(struct k3_ddrss_desc *ddrss)
 		ret = clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq1);
 		break;
 	case DENALI_CTL_0_DRAM_CLASS_LPDDR4:
-		/* Set to bypass frequency for LPDDR4*/
-		ret = clk_set_rate(&ddrss->ddr_clk, clk_get_rate(&ddrss->osc_clk));
+		ret = clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq0);
 		break;
 	default:
 		ret = -EINVAL;
@@ -392,6 +390,13 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 		}
 	} else {
 		ddrss->instance = 0;
+	}
+
+	ret = dev_read_u32(dev, "ti,ddr-freq0", &ddrss->ddr_freq0);
+	if (ret) {
+		ddrss->ddr_freq0 = clk_get_rate(&ddrss->osc_clk);
+		dev_dbg(dev,
+			"ddr freq0 not populated, using bypass frequency.\n");
 	}
 
 	ret = dev_read_u32(dev, "ti,ddr-freq1", &ddrss->ddr_freq1);
