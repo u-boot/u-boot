@@ -11,8 +11,8 @@ CONFIG_ENV_SIZE=0x20000
 CONFIG_ENV_OFFSET=0xE0000
 CONFIG_DEFAULT_DEVICE_TREE="kirkwood-dns325"
 CONFIG_IDENT_STRING="\nD-Link DNS-325"
-# CONFIG_SYS_MALLOC_F is not set
 CONFIG_SYS_LOAD_ADDR=0x800000
+# CONFIG_SYS_MALLOC_F is not set
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="if test -n ${bootenv} && usb start; then if run loadbootenv; then echo Loaded environment ${bootenv} from usb;run importbootenv;fi;if test -n ${bootenvcmd}; then echo Running bootenvcmd ...;run bootenvcmd;fi;fi;run setnandbootenv subbootcmd;"
