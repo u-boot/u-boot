@@ -68,6 +68,11 @@ endif # MV88E61XX_SWITCH
 config PHYLIB_10G
 	bool "Generic 10G PHY support"
 
+config PHY_ADIN
+	bool "Analog Devices Industrial Ethernet PHYs"
+	help
+		Add support for configuring RGMII on Analog Devices ADIN PHYs.
+
 menuconfig PHY_AQUANTIA
 	bool "Aquantia Ethernet PHYs support"
 	select PHY_GIGE
