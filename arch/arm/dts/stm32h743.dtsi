@@ -511,8 +511,7 @@
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			clocks = <&clk_hse>, <&clk_lse>, <&clk_i2s>;
-			st,syscfg = <&syscfg>;
-			st,pwrcfg = <&pwrcfg>;
+			st,syscfg = <&pwrcfg>;
 		};
 
 		pwrcfg: power-config@58024800 {
