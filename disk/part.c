@@ -527,6 +527,8 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	/* Look up the device */
 	dev = blk_get_device_by_str(ifname, dev_str, dev_desc);
 	if (dev < 0) {
+		printf("** Bad device specification %s %s **\n",
+		       ifname, dev_str);
 		ret = dev;
 		goto cleanup;
 	}
