@@ -14,8 +14,11 @@
 	bus-frequency = <0x0>;
 
 	usb@22000 {
-		compatible = "fsl-usb2-dr";
+		compatible = "fsl-usb2-dr-v1.6", "fsl-usb2-dr";
 		reg = <0x22000 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		interrupts = <28 0x2 0 0>;
 		phy_type = "ulpi";
 	};
 
