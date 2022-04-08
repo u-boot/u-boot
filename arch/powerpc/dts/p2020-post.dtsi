@@ -44,6 +44,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x7000 0x1000>;
+		interrupts = < 0x3b 0x02 0x00 0x00 >;
 		fsl,espi-num-chipselects = <4>;
 	};
 
