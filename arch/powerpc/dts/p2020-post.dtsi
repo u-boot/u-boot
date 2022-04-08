@@ -56,6 +56,14 @@
 /include/ "pq3-duart-0.dtsi"
 /include/ "pq3-gpio-0.dtsi"
 
+	L2: l2-cache-controller@20000 {
+		compatible = "fsl,p2020-l2-cache-controller";
+		reg = <0x20000 0x1000>;
+		cache-line-size = <32>; /* 32 bytes */
+		cache-size = <0x80000>; /* L2,512K */
+		interrupts = <16 2 0 0>;
+	};
+
 /include/ "pq3-etsec1-0.dtsi"
 /include/ "pq3-etsec1-timer-0.dtsi"
 
