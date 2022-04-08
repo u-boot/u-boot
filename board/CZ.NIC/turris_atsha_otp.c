@@ -18,10 +18,8 @@
 
 static struct udevice *get_atsha204a_dev(void)
 {
-	static struct udevice *dev;
-
-	if (dev)
-		return dev;
+	/* Cannot be static because BSS does not have to be ready at this early stage */
+	struct udevice *dev;
 
 	if (uclass_get_device_by_name(UCLASS_MISC, "atsha204a@64", &dev)) {
 		puts("Cannot find ATSHA204A on I2C bus!\n");
