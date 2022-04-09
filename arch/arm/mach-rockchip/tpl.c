@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <linux/bitops.h>
+#include <linux/kconfig.h>
 
 #if CONFIG_IS_ENABLED(BANNER_PRINT)
 #include <timestamp.h>
@@ -77,8 +78,10 @@ void board_init_f(ulong dummy)
 
 	/* Init secure timer */
 	rockchip_stimer_init();
-	/* Init ARM arch timer in arch/arm/cpu/ */
-	timer_init();
+
+	/* Init ARM arch timer */
+	if (IS_ENABLED(CONFIG_SYS_ARCH_TIMER))
+		timer_init();
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
