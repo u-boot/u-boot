@@ -52,3 +52,5 @@ U_BOOT_DRIVER(rockchip_rk3288_uart) = {
 };
 DM_DRIVER_ALIAS(rockchip_rk3288_uart, rockchip_rk3066_uart)
 DM_DRIVER_ALIAS(rockchip_rk3288_uart, rockchip_rk3188_uart)
+DM_DRIVER_ALIAS(rockchip_rk3288_uart, rockchip_rk3328_uart)
+DM_DRIVER_ALIAS(rockchip_rk3288_uart, rockchip_rk3368_uart)
