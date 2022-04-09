@@ -9,6 +9,9 @@ config TARGET_EVB_RK3568
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfdc20200
 
+config ROCKCHIP_STIMER_BASE
+	default 0xfdd1c020
+
 config SYS_SOC
 	default "rk3568"
 

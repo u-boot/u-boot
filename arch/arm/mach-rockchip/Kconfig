@@ -339,6 +339,16 @@ config ROCKCHIP_BOOT_MODE_REG
 	  The Soc will enter to different boot mode(defined in asm/arch-rockchip/boot_mode.h)
 	  according to the value from this register.
 
+config ROCKCHIP_STIMER
+	bool "Rockchip STIMER support"
+	default y
+	help
+	  Enable Rockchip STIMER support.
+
+config ROCKCHIP_STIMER_BASE
+	hex
+	depends on ROCKCHIP_STIMER
+
 config ROCKCHIP_SPL_RESERVE_IRAM
 	hex "Size of IRAM reserved in SPL"
 	default 0
