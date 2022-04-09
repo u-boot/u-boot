@@ -29,6 +29,7 @@
 
 __weak void rockchip_stimer_init(void)
 {
+#if defined(CONFIG_ROCKCHIP_STIMER_BASE)
 	/* If Timer already enabled, don't re-init it */
 	u32 reg = readl(CONFIG_ROCKCHIP_STIMER_BASE + TIMER_CONTROL_REG);
 
@@ -45,6 +46,7 @@ __weak void rockchip_stimer_init(void)
 	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 4);
 	writel(TIMER_EN | TIMER_FMODE, CONFIG_ROCKCHIP_STIMER_BASE +
 	       TIMER_CONTROL_REG);
+#endif
 }
 
 void board_init_f(ulong dummy)
