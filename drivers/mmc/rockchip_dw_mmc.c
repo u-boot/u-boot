@@ -123,11 +123,11 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	priv->minmax[0] = 400000;  /*  400 kHz */
 	priv->minmax[1] = dtplat->max_frequency;
 
-	ret = clk_get_by_phandle(dev, dtplat->clocks, &priv->clk);
+	ret = clk_get_by_phandle(dev, &dtplat->clocks[1], &priv->clk);
 	if (ret < 0)
 		return ret;
 #else
-	ret = clk_get_by_index(dev, 0, &priv->clk);
+	ret = clk_get_by_index(dev, 1, &priv->clk);
 	if (ret < 0)
 		return ret;
 #endif
