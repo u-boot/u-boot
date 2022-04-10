@@ -322,18 +322,17 @@ int env_init(void)
 
 		debug("%s: Environment %s init done (ret=%d)\n", __func__,
 		      drv->name, ret);
+
+		if (gd->env_valid == ENV_INVALID)
+			ret = -ENOENT;
 	}
 
-	if (!prio) {
-		gd->env_addr = (ulong)&default_environment[0];
-		gd->env_valid = ENV_INVALID;
-
-		return 0;
-	}
+	if (!prio)
+		return -ENODEV;
 
 	if (ret == -ENOENT) {
 		gd->env_addr = (ulong)&default_environment[0];
-		gd->env_valid = ENV_INVALID;
+		gd->env_valid = ENV_VALID;
 
 		return 0;
 	}
