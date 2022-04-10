@@ -20,6 +20,7 @@ endif
 ifdef CONFIG_$(SPL_)DM_I2C
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
+obj-$(CONFIG_USB_HUB_USB251XB) += usb251xb.o
 endif
 endif
 ifdef CONFIG_SPL_OF_PLATDATA
