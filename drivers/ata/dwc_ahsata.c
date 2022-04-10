@@ -1026,6 +1026,11 @@ int dwc_ahsata_scan(struct udevice *dev)
 		return ret;
 	}
 
+	ret = blk_probe_or_unbind(dev);
+	if (ret < 0)
+		/* TODO: undo create */
+		return ret;
+
 	return 0;
 }
 

@@ -62,11 +62,18 @@ config EFI_MM_COMM_TEE
 	  variable related operations to that. The application will verify,
 	  authenticate and store the variables on an RPMB.
 
+config EFI_VARIABLE_NO_STORE
+	bool "Don't persist non-volatile UEFI variables"
+	help
+	  If you choose this option, non-volatile variables cannot be persisted.
+	  You could still provide non-volatile variables via
+	  EFI_VARIABLES_PRESEED.
+
 endchoice
 
 config EFI_VARIABLES_PRESEED
 	bool "Initial values for UEFI variables"
-	depends on EFI_VARIABLE_FILE_STORE
+	depends on !EFI_MM_COMM_TEE
 	help
 	  Include a file with the initial values for non-volatile UEFI variables
 	  into the U-Boot binary. If this configuration option is set, changes
@@ -129,6 +136,7 @@ config EFI_RUNTIME_UPDATE_CAPSULE
 
 config EFI_CAPSULE_ON_DISK
 	bool "Enable capsule-on-disk support"
+	depends on SYSRESET
 	select EFI_HAVE_CAPSULE_SUPPORT
 	help
 	  Select this option if you want to use capsule-on-disk feature,

@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <sort.h>
+#include <sysreset.h>
 #include <asm/global_data.h>
 
 #include <crypto/pkcs7.h>
@@ -619,6 +620,36 @@ out:
 	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_load_capsule_drivers - initialize capsule drivers
+ *
+ * Generic FMP drivers backed by DFU
+ *
+ * Return:	status code
+ */
+efi_status_t __weak efi_load_capsule_drivers(void)
+{
+	__maybe_unused efi_handle_t handle;
+	efi_status_t ret = EFI_SUCCESS;
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_FIT)) {
+		handle = NULL;
+		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
+				&handle, &efi_guid_firmware_management_protocol,
+				&efi_fmp_fit, NULL));
+	}
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_RAW)) {
+		handle = NULL;
+		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
+				&handle,
+				&efi_guid_firmware_management_protocol,
+				&efi_fmp_raw, NULL));
+	}
+
+	return ret;
+}
+
 #ifdef CONFIG_EFI_CAPSULE_ON_DISK
 /**
  * get_dp_device - retrieve a device  path from boot variable
@@ -1015,36 +1046,6 @@ static void efi_capsule_scan_done(void)
 }
 
 /**
- * efi_load_capsule_drivers - initialize capsule drivers
- *
- * Generic FMP drivers backed by DFU
- *
- * Return:	status code
- */
-efi_status_t __weak efi_load_capsule_drivers(void)
-{
-	__maybe_unused efi_handle_t handle;
-	efi_status_t ret = EFI_SUCCESS;
-
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_FIT)) {
-		handle = NULL;
-		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-				&handle, &efi_guid_firmware_management_protocol,
-				&efi_fmp_fit, NULL));
-	}
-
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_FIRMWARE_RAW)) {
-		handle = NULL;
-		ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-				&handle,
-				&efi_guid_firmware_management_protocol,
-				&efi_fmp_raw, NULL));
-	}
-
-	return ret;
-}
-
-/**
  * check_run_capsules() - check whether capsule update should run
  *
  * The spec says OsIndications must be set in order to run the capsule update
@@ -1157,9 +1158,9 @@ efi_status_t efi_launch_capsules(void)
 	 * UEFI spec requires to reset system after complete processing capsule
 	 * update on the storage.
 	 */
-	log_info("Reboot after firmware update");
+	log_info("Reboot after firmware update.\n");
 	/* Cold reset is required for loading the new firmware. */
-	do_reset(NULL, 0, 0, NULL);
+	sysreset_walk_halt(SYSRESET_COLD);
 	hang();
 	/* not reach here */
 

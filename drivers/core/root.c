@@ -199,6 +199,8 @@ int dm_init(bool of_live)
 			return ret;
 	}
 
+	INIT_LIST_HEAD((struct list_head *)&gd->dmtag_list);
+
 	return 0;
 }
 

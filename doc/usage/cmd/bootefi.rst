@@ -24,7 +24,7 @@ The *bootefi* command is used to launch a UEFI binary which can be either of
 * UEFI run-time services driver
 
 An operating system requires a hardware description which can either be
-presented as ACPI table (CONFIG\_GENERATE\_ACPI\_TABLE=y) or as device-tree
+presented as ACPI table (CONFIG\_GENERATE\_ACPI\_TABLE=y) or as device-tree.
 The load address of the device-tree may be provided as parameter *fdt\_addr*. If
 this address is not specified, the bootefi command will try to fall back in
 sequence to:
@@ -123,6 +123,7 @@ Configuration
 -------------
 
 To use the *bootefi* command you must specify CONFIG\_CMD\_BOOTEFI=y.
+The *bootefi bootmgr* sub-command requries CMD\_BOOTEFI\_BOOTMGR=y.
 The *bootefi hello* sub-command requries CMD\_BOOTEFI\_HELLO=y.
 The *bootefi selftest* sub-command depends on CMD\_BOOTEFI\_SELFTEST=y.
 
@@ -130,6 +131,6 @@ See also
 --------
 
 * *bootm* for launching UEFI binaries packed in FIT images
-* *booti*, *bootm*, *bootz* for launching a Linux kernel without using the
-  UEFI sub-system
-* *efidebug* for setting UEFI boot variables
+* :doc:`booti<booti>`, *bootm*, *bootz* for launching a Linux kernel without
+  using the UEFI sub-system
+* *efidebug* for setting UEFI boot variables and boot options

@@ -982,6 +982,17 @@ static int fsl_ata_probe(struct udevice *dev)
 			failed_number++;
 			continue;
 		}
+
+		ret = device_probe(dev);
+		if (ret < 0) {
+			debug("Probing %s failed (%d)\n", dev->name, ret);
+			ret = fsl_unbind_device(blk);
+			if (ret)
+				return ret;
+
+			failed_number++;
+			continue;
+		}
 	}
 
 	if (failed_number == nr_ports)
