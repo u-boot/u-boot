@@ -73,7 +73,7 @@ void enable_tzc380(void)
 	 * According to TRM, TZASC_ID_SWAP_BYPASS should be set in
 	 * order to avoid AXI Bus errors when GPU is in use
 	 */
-	if (is_imx8mm() || is_imx8mn() || is_imx8mp())
+	if (is_imx8mq() || is_imx8mm() || is_imx8mn() || is_imx8mp())
 		setbits_le32(&gpr->gpr[10], GPR_TZASC_ID_SWAP_BYPASS);
 
 	/*
