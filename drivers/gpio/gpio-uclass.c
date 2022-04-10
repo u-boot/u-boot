@@ -1187,6 +1187,32 @@ int gpio_request_by_name(struct udevice *dev, const char *list_name, int index,
 				 index, desc, flags, index > 0, NULL);
 }
 
+int gpio_request_by_line_name(struct udevice *dev, const char *line_name,
+			      struct gpio_desc *desc, int flags)
+{
+	int ret;
+
+	ret = dev_read_stringlist_search(dev, "gpio-line-names", line_name);
+	if (ret < 0)
+		return ret;
+
+	desc->dev = dev;
+	desc->offset = ret;
+	desc->flags = 0;
+
+	ret = dm_gpio_request(desc, line_name);
+	if (ret) {
+		debug("%s: dm_gpio_requestf failed\n", __func__);
+		return ret;
+	}
+
+	ret = dm_gpio_set_dir_flags(desc, flags | desc->flags);
+	if (ret)
+		debug("%s: dm_gpio_set_dir failed\n", __func__);
+
+	return ret;
+}
+
 int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
 				    struct gpio_desc *desc, int max_count,
 				    int flags)
@@ -1432,9 +1458,6 @@ void devm_gpiod_put(struct udevice *dev, struct gpio_desc *desc)
 
 static int gpio_post_bind(struct udevice *dev)
 {
-	struct udevice *child;
-	ofnode node;
-
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct dm_gpio_ops *ops = (struct dm_gpio_ops *)device_get_ops(dev);
 	static int reloc_done;
@@ -1465,7 +1488,10 @@ static int gpio_post_bind(struct udevice *dev)
 	}
 #endif
 
-	if (CONFIG_IS_ENABLED(OF_REAL) && IS_ENABLED(CONFIG_GPIO_HOG)) {
+	if (CONFIG_IS_ENABLED(GPIO_HOG)) {
+		struct udevice *child;
+		ofnode node;
+
 		dev_for_each_subnode(node, dev) {
 			if (ofnode_read_bool(node, "gpio-hog")) {
 				const char *name = ofnode_get_name(node);

@@ -579,6 +579,25 @@ int gpio_claim_vector(const int *gpio_num_array, const char *fmt);
 int gpio_request_by_name(struct udevice *dev, const char *list_name,
 			 int index, struct gpio_desc *desc, int flags);
 
+/* gpio_request_by_line_name - Locate and request a GPIO by line name
+ *
+ * Request a GPIO using the offset of the provided line name in the
+ * gpio-line-names property found in the OF node of the GPIO udevice.
+ *
+ * This allows boards to implement common behaviours using GPIOs while not
+ * requiring specific GPIO offsets be used.
+ *
+ * @dev:	An instance of a GPIO controller udevice
+ * @line_name:	The name of the GPIO (e.g. "bmc-secure-boot")
+ * @desc:	A GPIO descriptor that is populated with the requested GPIO
+ *              upon return
+ * @flags:	The GPIO settings apply to the request
+ * @return 0 if the named line was found and requested successfully, or a
+ * negative error code if the GPIO cannot be found or the request failed.
+ */
+int gpio_request_by_line_name(struct udevice *dev, const char *line_name,
+			      struct gpio_desc *desc, int flags);
+
 /**
  * gpio_request_list_by_name() - Request a list of GPIOs
  *
