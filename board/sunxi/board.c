@@ -516,19 +516,17 @@ static void mmc_pinmux_setup(int sdc)
 
 int board_mmc_init(struct bd_info *bis)
 {
-	__maybe_unused struct mmc *mmc0, *mmc1;
+	if (!IS_ENABLED(CONFIG_UART0_PORT_F)) {
+		mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
+		if (!sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT))
+			return -1;
+	}
 
-	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
-	mmc0 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
-	if (!mmc0)
-		return -1;
-
-#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
-	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
-	mmc1 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT_EXTRA);
-	if (!mmc1)
-		return -1;
-#endif
+	if (CONFIG_MMC_SUNXI_SLOT_EXTRA != -1) {
+		mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
+		if (!sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT_EXTRA))
+			return -1;
+	}
 
 	return 0;
 }
