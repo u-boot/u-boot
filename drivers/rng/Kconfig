@@ -31,6 +31,15 @@ config RNG_MSM
 	  This driver provides support for the Random Number
 	  Generator hardware found on Qualcomm SoCs.
 
+config RNG_OPTEE
+	bool "OP-TEE based Random Number Generator support"
+	depends on DM_RNG && OPTEE
+	help
+	  This driver provides support for the OP-TEE based Random Number
+	  Generator on ARM SoCs where hardware entropy sources are not
+	  accessible to normal world but reserved and used by the OP-TEE
+	  to avoid the weakness of a software PRNG.
+
 config RNG_STM32MP1
 	bool "Enable random number generator for STM32MP1"
 	depends on ARCH_STM32MP
