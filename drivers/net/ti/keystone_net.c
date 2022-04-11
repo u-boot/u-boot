@@ -92,7 +92,7 @@ struct ks2_eth_priv {
 	phy_interface_t			phy_if;
 	ofnode				phy_ofnode;
 	int				sgmii_link_type;
-	void *				mdio_base;
+	phys_addr_t			mdio_base;
 	struct rx_buff_desc		net_rx_buffs;
 	struct pktdma_cfg		*netcp_pktdma;
 	void				*hd;
@@ -569,7 +569,7 @@ static int ks2_eth_probe(struct udevice *dev)
 		 * to re-use the same
 		 */
 		mdio_bus = cpsw_mdio_init("ethernet-mdio",
-					  (u32)priv->mdio_base,
+					  priv->mdio_base,
 					  EMAC_MDIO_CLOCK_FREQ,
 					  EMAC_MDIO_BUS_FREQ);
 		if (!mdio_bus) {
@@ -701,7 +701,7 @@ static int ks2_eth_parse_slave_interface(ofnode netcp, ofnode slave,
 			pr_err("mdio dt not found\n");
 			return -ENODEV;
 		}
-		priv->mdio_base = (void *)ofnode_get_addr(mdio);
+		priv->mdio_base = ofnode_get_addr(mdio);
 	}
 
 	if (priv->link_type == LINK_TYPE_SGMII_MAC_TO_PHY_MODE) {
