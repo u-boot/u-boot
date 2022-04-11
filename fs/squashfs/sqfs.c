@@ -1310,7 +1310,7 @@ static int sqfs_get_lregfile_info(struct squashfs_lreg_inode *lreg,
 int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	      loff_t *actread)
 {
-	char *dir = NULL, *fragment_block, *datablock = NULL, *data_buffer = NULL;
+	char *dir = NULL, *fragment_block, *datablock = NULL;
 	char *fragment = NULL, *file = NULL, *resolved, *data;
 	u64 start, n_blks, table_size, data_offset, table_offset, sparse_size;
 	int ret, j, i_number, datablk_count = 0;
@@ -1440,6 +1440,8 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	}
 
 	for (j = 0; j < datablk_count; j++) {
+		char *data_buffer;
+
 		start = data_offset / ctxt.cur_dev->blksz;
 		table_size = SQFS_BLOCK_SIZE(finfo.blk_sizes[j]);
 		table_offset = data_offset - (start * ctxt.cur_dev->blksz);
@@ -1501,9 +1503,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		}
 
 		data_offset += table_size;
-		if (data_buffer)
-			free(data_buffer);
-		data_buffer = NULL;
+		free(data_buffer);
 		if (*actread >= len)
 			break;
 	}
@@ -1563,10 +1563,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 
 out:
 	free(fragment);
-	if (datablk_count) {
-		free(data_buffer);
-		free(datablock);
-	}
+	free(datablock);
 	free(file);
 	free(dir);
 	free(finfo.blk_sizes);
