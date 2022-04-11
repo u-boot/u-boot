@@ -621,58 +621,51 @@ static const struct eth_ops ks2_eth_ops = {
 	.write_hwaddr		= ks2_eth_write_hwaddr,
 };
 
-static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
+static int ks2_bind_one_slave(struct udevice *dev, int slave, int *gbe_0)
 {
 	const void *fdt = gd->fdt_blob;
-	struct udevice *sl_dev;
-	int interfaces;
-	int sec_slave;
-	int slave;
-	int ret;
 	char *slave_name;
+	int slave_no;
+	int ret;
+
+	slave_no = fdtdec_get_int(fdt, slave, "slave-port", -ENOENT);
+	if (slave_no == -ENOENT)
+		return 0;
+
+	if (gbe_0 && slave_no == 0) {
+		/* This is the current eth device */
+		*gbe_0 = slave;
+		return 0;
+	}
+
+	/* Slave devices to be registered */
+	slave_name = malloc(20);
+	snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
+	ret = device_bind_driver_to_node(dev, "eth_ks2_sl", slave_name,
+					 offset_to_ofnode(slave), NULL);
+	if (ret)
+		pr_err("ks2_net - not able to bind slave interfaces\n");
+
+	return ret;
+}
+
+static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
+{
+	int interfaces, sec_slave, slave, ret;
+	const void *fdt = gd->fdt_blob;
 
 	interfaces = fdt_subnode_offset(fdt, gbe, "interfaces");
 	fdt_for_each_subnode(slave, fdt, interfaces) {
-		int slave_no;
-
-		slave_no = fdtdec_get_int(fdt, slave, "slave-port", -ENOENT);
-		if (slave_no == -ENOENT)
-			continue;
-
-		if (slave_no == 0) {
-			/* This is the current eth device */
-			*gbe_0 = slave;
-		} else {
-			/* Slave devices to be registered */
-			slave_name = malloc(20);
-			snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
-			ret = device_bind_driver_to_node(dev, "eth_ks2_sl",
-					slave_name, offset_to_ofnode(slave),
-					&sl_dev);
-			if (ret) {
-				pr_err("ks2_net - not able to bind slave interfaces\n");
-				return ret;
-			}
-		}
+		ret = ks2_bind_one_slave(dev, slave, gbe_0);
+		if (ret)
+			return ret;
 	}
 
 	sec_slave = fdt_subnode_offset(fdt, gbe, "secondary-slave-ports");
 	fdt_for_each_subnode(slave, fdt, sec_slave) {
-		int slave_no;
-
-		slave_no = fdtdec_get_int(fdt, slave, "slave-port", -ENOENT);
-		if (slave_no == -ENOENT)
-			continue;
-
-		/* Slave devices to be registered */
-		slave_name = malloc(20);
-		snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
-		ret = device_bind_driver_to_node(dev, "eth_ks2_sl", slave_name,
-					offset_to_ofnode(slave), &sl_dev);
-		if (ret) {
-			pr_err("ks2_net - not able to bind slave interfaces\n");
+		ret = ks2_bind_one_slave(dev, slave, NULL);
+		if (ret)
 			return ret;
-		}
 	}
 
 	return 0;
