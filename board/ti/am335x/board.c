@@ -825,8 +825,14 @@ int board_late_init(void)
 
 	if (board_is_bbg1())
 		name = "BBG1";
-	if (board_is_bben())
-		name = "BBEN";
+	if (board_is_bben()) {
+		char subtype_id = board_ti_get_config()[1];
+
+		if (subtype_id == 'L')
+			name = "BBELITE";
+		else
+			name = "BBEN";
+	}
 	set_board_info_env(name);
 
 	/*
