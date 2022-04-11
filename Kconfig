@@ -297,6 +297,20 @@ config TPL_SYS_MALLOC_F_LEN
 	  particular needs this to operate, so that it can allocate the
 	  initial serial device and any others that are needed.
 
+config VALGRIND
+	bool "Inform valgrind about memory allocations"
+	help
+	  Valgrind is an instrumentation framework for building dynamic analysis
+	  tools. In particular, it may be used to detect memory management bugs
+	  in U-Boot. It relies on knowing when heap blocks are allocated in
+	  order to give accurate results. This happens automatically for
+	  standard allocator functions provided by the host OS. However, this
+	  doesn't automatically happen for U-Boot's malloc implementation.
+
+	  Enable this option to annotate U-Boot's malloc implementation so that
+	  it can be handled accurately by Valgrind. If you aren't planning on
+	  using valgrind to debug U-Boot, say 'n'.
+
 menuconfig EXPERT
 	bool "Configure standard U-Boot features (expert users)"
 	default y

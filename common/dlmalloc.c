@@ -18,6 +18,7 @@
 
 #include <malloc.h>
 #include <asm/io.h>
+#include <valgrind/memcheck.h>
 
 #ifdef DEBUG
 #if __STD_C
@@ -1339,6 +1340,7 @@ Void_t* mALLOc(bytes) size_t bytes;
       unlink(victim, bck, fwd);
       set_inuse_bit_at_offset(victim, victim_size);
       check_malloced_chunk(victim, nb);
+      VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
       return chunk2mem(victim);
     }
 
@@ -1366,6 +1368,7 @@ Void_t* mALLOc(bytes) size_t bytes;
 	unlink(victim, bck, fwd);
 	set_inuse_bit_at_offset(victim, victim_size);
 	check_malloced_chunk(victim, nb);
+        VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
 	return chunk2mem(victim);
       }
     }
@@ -1389,6 +1392,7 @@ Void_t* mALLOc(bytes) size_t bytes;
       set_head(remainder, remainder_size | PREV_INUSE);
       set_foot(remainder, remainder_size);
       check_malloced_chunk(victim, nb);
+      VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
       return chunk2mem(victim);
     }
 
@@ -1398,6 +1402,7 @@ Void_t* mALLOc(bytes) size_t bytes;
     {
       set_inuse_bit_at_offset(victim, victim_size);
       check_malloced_chunk(victim, nb);
+      VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
       return chunk2mem(victim);
     }
 
@@ -1453,6 +1458,7 @@ Void_t* mALLOc(bytes) size_t bytes;
 	    set_head(remainder, remainder_size | PREV_INUSE);
 	    set_foot(remainder, remainder_size);
 	    check_malloced_chunk(victim, nb);
+	    VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
 	    return chunk2mem(victim);
 	  }
 
@@ -1461,6 +1467,7 @@ Void_t* mALLOc(bytes) size_t bytes;
 	    set_inuse_bit_at_offset(victim, victim_size);
 	    unlink(victim, bck, fwd);
 	    check_malloced_chunk(victim, nb);
+	    VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
 	    return chunk2mem(victim);
 	  }
 
@@ -1509,6 +1516,7 @@ Void_t* mALLOc(bytes) size_t bytes;
     /* If big and would otherwise need to extend, try to use mmap instead */
     if ((unsigned long)nb >= (unsigned long)mmap_threshold &&
 	(victim = mmap_chunk(nb)))
+      VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
       return chunk2mem(victim);
 #endif
 
@@ -1523,6 +1531,7 @@ Void_t* mALLOc(bytes) size_t bytes;
   top = chunk_at_offset(victim, nb);
   set_head(top, remainder_size | PREV_INUSE);
   check_malloced_chunk(victim, nb);
+  VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(victim), bytes, SIZE_SZ, false);
   return chunk2mem(victim);
 
 }
@@ -1571,8 +1580,10 @@ void fREe(mem) Void_t* mem;
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	/* free() is a no-op - all the memory will be freed on relocation */
-	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
+		VALGRIND_FREELIKE_BLOCK(mem, SIZE_SZ);
 		return;
+	}
 #endif
 
   if (mem == NULL)                              /* free(0) has no effect */
@@ -1594,6 +1605,7 @@ void fREe(mem) Void_t* mem;
   sz = hd & ~PREV_INUSE;
   next = chunk_at_offset(p, sz);
   nextsz = chunksize(next);
+  VALGRIND_FREELIKE_BLOCK(mem, SIZE_SZ);
 
   if (next == top)                            /* merge with top */
   {
@@ -1782,6 +1794,8 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	  top = chunk_at_offset(oldp, nb);
 	  set_head(top, (newsize - nb) | PREV_INUSE);
 	  set_head_size(oldp, nb);
+	  VALGRIND_RESIZEINPLACE_BLOCK(chunk2mem(oldp), 0, bytes, SIZE_SZ);
+	  VALGRIND_MAKE_MEM_DEFINED(chunk2mem(oldp), bytes);
 	  return chunk2mem(oldp);
 	}
       }
@@ -1791,6 +1805,8 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
       {
 	unlink(next, bck, fwd);
 	newsize  += nextsize;
+	VALGRIND_RESIZEINPLACE_BLOCK(chunk2mem(oldp), 0, bytes, SIZE_SZ);
+	VALGRIND_MAKE_MEM_DEFINED(chunk2mem(oldp), bytes);
 	goto split;
       }
     }
@@ -1820,10 +1836,12 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	    newp = prev;
 	    newsize += prevsize + nextsize;
 	    newmem = chunk2mem(newp);
+	    VALGRIND_MALLOCLIKE_BLOCK(newmem, bytes, SIZE_SZ, false);
 	    MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
 	    top = chunk_at_offset(newp, nb);
 	    set_head(top, (newsize - nb) | PREV_INUSE);
 	    set_head_size(newp, nb);
+	    VALGRIND_FREELIKE_BLOCK(oldmem, SIZE_SZ);
 	    return newmem;
 	  }
 	}
@@ -1836,6 +1854,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	  newp = prev;
 	  newsize += nextsize + prevsize;
 	  newmem = chunk2mem(newp);
+	  VALGRIND_MALLOCLIKE_BLOCK(newmem, bytes, SIZE_SZ, false);
 	  MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
 	  goto split;
 	}
@@ -1848,6 +1867,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 	newp = prev;
 	newsize += prevsize;
 	newmem = chunk2mem(newp);
+	VALGRIND_MALLOCLIKE_BLOCK(newmem, bytes, SIZE_SZ, false);
 	MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
 	goto split;
       }
@@ -1874,6 +1894,9 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
     MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
     fREe(oldmem);
     return newmem;
+  } else {
+    VALGRIND_RESIZEINPLACE_BLOCK(oldmem, 0, bytes, SIZE_SZ);
+    VALGRIND_MAKE_MEM_DEFINED(oldmem, bytes);
   }
 
 
@@ -1886,6 +1909,8 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
     set_head_size(newp, nb);
     set_head(remainder, remainder_size | PREV_INUSE);
     set_inuse_bit_at_offset(remainder, remainder_size);
+    VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(remainder), remainder_size, SIZE_SZ,
+			      false);
     fREe(chunk2mem(remainder)); /* let free() deal with it */
   }
   else
@@ -2043,6 +2068,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     set_head_size(p, leadsize);
     fREe(chunk2mem(p));
     p = newp;
+    VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(p), bytes, SIZE_SZ, false);
 
     assert (newsize >= nb && (((unsigned long)(chunk2mem(p))) % alignment) == 0);
   }
@@ -2056,6 +2082,8 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     remainder = chunk_at_offset(p, nb);
     set_head(remainder, remainder_size | PREV_INUSE);
     set_head_size(p, nb);
+    VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(remainder), remainder_size, SIZE_SZ,
+			      false);
     fREe(chunk2mem(remainder));
   }
 
@@ -2159,6 +2187,7 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 #endif
 
     MALLOC_ZERO(mem, csz - SIZE_SZ);
+    VALGRIND_MAKE_MEM_DEFINED(mem, sz);
     return mem;
   }
 }
