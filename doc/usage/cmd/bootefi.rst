@@ -9,7 +9,7 @@ Synopsis
 
 ::
 
-    bootefi [image_addr] [fdt_addr]
+    bootefi [image_addr] [fdt_addr [image_size]]
     bootefi bootmgr [fdt_addr]
     bootefi hello [fdt_addr]
     bootefi selftest [fdt_addr]
@@ -41,12 +41,27 @@ command sequence to run a UEFI application might look like
     load mmc 0:1 $kernel_addr_r /EFI/grub/grubaa64.efi
     bootefi $kernel_addr_r $fdt_addr_r
 
-The last file loaded defines the image file path in the loaded image protocol.
-Hence the executable should always be loaded last.
+The last UEFI binary loaded defines the image file path in the loaded image
+protocol.
 
 The value of the environment variable *bootargs* is converted from UTF-8 to
 UTF-16 and passed as load options in the loaded image protocol to the UEFI
 binary.
+
+image_addr
+    Address of the UEFI binary.
+
+fdt_addr
+    Address of the device-tree or '-'. If no address is specifiy, the
+    environment variable $fdt_addr is used as first fallback, the address of
+    U-Boot's internal device-tree $fdtcontroladdr as second fallback.
+    When using ACPI no device-tree shall be specified.
+
+image_size
+    Size of the UEFI binary file. This argument is only needed if *image_addr*
+    does not match the address of the last loaded UEFI binary. In this case
+    a memory device path will be used as image file path in the loaded image
+    protocol.
 
 Note
     UEFI binaries that are contained in FIT images are launched via the
