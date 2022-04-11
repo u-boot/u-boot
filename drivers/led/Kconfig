@@ -49,6 +49,12 @@ config LED_CORTINA
 	  This option enables support for LEDs connected to the Cortina
 	  Access CAxxxx SOCs.
 
+config LED_PWM
+	bool "LED PWM"
+	depends on LED && DM_PWM
+	help
+	  Enable support for LEDs connected to PWM.
+	  Linux compatible ofdata.
 
 config LED_BLINK
 	bool "Support LED blinking"

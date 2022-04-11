@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <env.h>
 #include <image.h>
 #include <log.h>
@@ -14,6 +15,7 @@
 #include <lcd.h>
 #include <net.h>
 #include <fdt_support.h>
+#include <video.h>
 #include <linux/libfdt.h>
 #include <linux/string.h>
 #include <linux/ctype.h>
@@ -21,7 +23,6 @@
 #include <linux/list.h>
 
 #ifdef CONFIG_DM_RNG
-#include <dm.h>
 #include <rng.h>
 #endif
 
@@ -1516,8 +1517,13 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 		/* display BMP if available */
 		if (cfg->bmp) {
 			if (get_relfile(ctx, cfg->bmp, image_load_addr, NULL)) {
-				if (CONFIG_IS_ENABLED(CMD_CLS))
-					run_command("cls", 0);
+#if defined(CONFIG_DM_VIDEO)
+				struct udevice *dev;
+
+				err = uclass_first_device_err(UCLASS_VIDEO, &dev);
+				if (!err)
+					video_clear(dev);
+#endif
 				bmp_display(image_load_addr,
 					    BMP_ALIGN_CENTER, BMP_ALIGN_CENTER);
 			} else {

@@ -5257,6 +5257,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 		break;
 	}
 
+	mtd->flash_node = chip->flash_node;
 	/* Fill in remaining MTD driver data */
 	mtd->type = nand_is_slc(chip) ? MTD_NANDFLASH : MTD_MLCNANDFLASH;
 	mtd->flags = (chip->options & NAND_ROM) ? MTD_CAP_ROM :

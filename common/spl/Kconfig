@@ -668,7 +668,8 @@ config SYS_MMCSD_FS_BOOT_PARTITION
 	default 1
 	help
 	  Partition on the MMC to load U-Boot from when the MMC is being
-	  used in fs mode
+	  used in fs mode.
+	  Use -1 as a special value to use the first bootable partition.
 
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
