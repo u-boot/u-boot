@@ -25,6 +25,7 @@
 #if IS_ENABLED(CONFIG_DM)
 #include <dm/device.h>
 #endif
+#include <dm/ofnode.h>
 
 #define MAX_MTD_DEVICES 32
 #endif
