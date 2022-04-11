@@ -124,6 +124,7 @@ check for migrated symbols in board header:
   script:
     - KSYMLST=`mktemp`;
       KUSEDLST=`mktemp`;
+      RET=0;
       cat `find . -name "Kconfig*"` |
          sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
          -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
@@ -137,10 +138,12 @@ check for migrated symbols in board header:
          NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} |
             cut -d , -f 3`;
          if [[ $NUM -ne 0 ]]; then
-            echo "Unmigrated symbols found in $CFG";
-            exit 1;
+            echo "Unmigrated symbols found in $CFG:";
+            comm -12 ${KSYMLST} ${KUSEDLST};
+            RET=1;
          fi;
-      done
+      done;
+      exit $RET
 
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)

@@ -63,6 +63,7 @@ stages:
       - script: |
           KSYMLST=`mktemp`
           KUSEDLST=`mktemp`
+          RET=0
           cat `find . -name "Kconfig*"` | \
              sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
              -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
@@ -76,10 +77,12 @@ stages:
              NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} | \
                 cut -d , -f 3`
              if [[ $NUM -ne 0 ]]; then
-                echo "Unmigrated symbols found in $CFG"
-                exit 1
+                echo "Unmigrated symbols found in $CFG:"
+                comm -12 ${KSYMLST} ${KUSEDLST}
+                RET=1
              fi
           done
+          exit $RET
 
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'
