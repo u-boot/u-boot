@@ -556,6 +556,7 @@ int phy_micrel_ksz90x1_init(void);
 int phy_meson_gxl_init(void);
 int phy_natsemi_init(void);
 int phy_nxp_c45_tja11xx_init(void);
+int phy_nxp_tja11xx_init(void);
 int phy_realtek_init(void);
 int phy_smsc_init(void);
 int phy_teranetics_init(void);
