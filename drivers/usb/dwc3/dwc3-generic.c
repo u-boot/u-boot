@@ -219,11 +219,11 @@ U_BOOT_DRIVER(dwc3_generic_host) = {
 #endif
 
 struct dwc3_glue_ops {
-	void (*select_dr_mode)(struct udevice *dev, int index,
+	void (*glue_configure)(struct udevice *dev, int index,
 			       enum usb_dr_mode mode);
 };
 
-void dwc3_ti_select_dr_mode(struct udevice *dev, int index,
+void dwc3_ti_glue_configure(struct udevice *dev, int index,
 			    enum usb_dr_mode mode)
 {
 #define USBOTGSS_UTMI_OTG_STATUS		0x0084
@@ -304,7 +304,7 @@ enum dwc3_omap_utmi_mode {
 }
 
 struct dwc3_glue_ops ti_ops = {
-	.select_dr_mode = dwc3_ti_select_dr_mode,
+	.glue_configure = dwc3_ti_glue_configure,
 };
 
 static int dwc3_glue_bind(struct udevice *parent)
@@ -435,8 +435,8 @@ static int dwc3_glue_probe(struct udevice *dev)
 
 		dr_mode = usb_get_dr_mode(dev_ofnode(child));
 		device_find_next_child(&child);
-		if (ops && ops->select_dr_mode)
-			ops->select_dr_mode(dev, index, dr_mode);
+		if (ops && ops->glue_configure)
+			ops->glue_configure(dev, index, dr_mode);
 		index++;
 	}
 
