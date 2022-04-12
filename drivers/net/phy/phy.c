@@ -1110,3 +1110,23 @@ int phy_get_interface_by_name(const char *str)
 
 	return -1;
 }
+
+/**
+ * phy_modify - Convenience function for modifying a given PHY register
+ * @phydev: the phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: register number to write
+ * @mask: bit mask of bits to clear
+ * @set: new value of bits set in mask to write to @regnum
+ */
+int phy_modify(struct phy_device *phydev, int devad, int regnum, u16 mask,
+	       u16 set)
+{
+	int ret;
+
+	ret = phy_read(phydev, devad, regnum);
+	if (ret < 0)
+		return ret;
+
+	return phy_write(phydev, devad, regnum, (ret & ~mask) | set);
+}

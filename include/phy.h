@@ -526,6 +526,8 @@ int phy_config(struct phy_device *phydev);
 int phy_shutdown(struct phy_device *phydev);
 int phy_register(struct phy_driver *drv);
 int phy_set_supported(struct phy_device *phydev, u32 max_speed);
+int phy_modify(struct phy_device *phydev, int devad, int regnum, u16 mask,
+	       u16 set);
 int genphy_config_aneg(struct phy_device *phydev);
 int genphy_restart_aneg(struct phy_device *phydev);
 int genphy_update_link(struct phy_device *phydev);
