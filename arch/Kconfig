@@ -85,6 +85,7 @@ config MIPS
 	select HAVE_ARCH_IOREMAP
 	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
+	select SPL_SEPARATE_BSS if SPL
 
 config NDS32
 	bool "NDS32 architecture"
@@ -112,6 +113,7 @@ config RISCV
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM
+	select SPL_SEPARATE_BSS if SPL
 	imply DM_SERIAL
 	imply DM_ETH
 	imply DM_EVENT
