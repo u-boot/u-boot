@@ -108,6 +108,27 @@ int power_domain_get_by_index(struct udevice *dev,
 #endif
 
 /**
+ * power_domain_get_by_name - Get the named power domain for a device.
+ *
+ * @dev:		The client device.
+ * @power_domain:	A pointer to a power domain struct to initialize.
+ * @name:		Power domain name to be powered on.
+ *
+ * Return: 0 if OK, or a negative error code.
+ */
+#if CONFIG_IS_ENABLED(POWER_DOMAIN)
+int power_domain_get_by_name(struct udevice *dev,
+			     struct power_domain *power_domain, const char *name);
+#else
+static inline
+int power_domain_get_by_name(struct udevice *dev,
+			     struct power_domain *power_domain, const char *name)
+{
+	return -ENOSYS;
+}
+#endif
+
+/**
  * power_domain_free - Free a previously requested power domain.
  *
  * @power_domain:	A power domain struct that was previously successfully

@@ -80,6 +80,20 @@ int power_domain_get_by_index(struct udevice *dev,
 	return 0;
 }
 
+int power_domain_get_by_name(struct udevice *dev,
+			     struct power_domain *power_domain, const char *name)
+{
+	int index;
+
+	index = dev_read_stringlist_search(dev, "power-domain-names", name);
+	if (index < 0) {
+		debug("fdt_stringlist_search() failed: %d\n", index);
+		return index;
+	}
+
+	return power_domain_get_by_index(dev, power_domain, index);
+}
+
 int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
 {
 	return power_domain_get_by_index(dev, power_domain, 0);
