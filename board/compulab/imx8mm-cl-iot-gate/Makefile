@@ -8,6 +8,6 @@
 obj-y += imx8mm-cl-iot-gate.o
 
 ifdef CONFIG_SPL_BUILD
-obj-y += spl.o
+obj-y += spl.o eeprom_spl.o
 obj-y += ddr/
 endif
