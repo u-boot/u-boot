@@ -18,16 +18,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int imx8m_power_domain_request(struct power_domain *power_domain)
-{
-	return 0;
-}
-
-static int imx8m_power_domain_free(struct power_domain *power_domain)
-{
-	return 0;
-}
-
 static int imx8m_power_domain_on(struct power_domain *power_domain)
 {
 	struct udevice *dev = power_domain->dev;
@@ -100,11 +90,6 @@ static int imx8m_power_domain_bind(struct udevice *dev)
 	return 0;
 }
 
-static int imx8m_power_domain_probe(struct udevice *dev)
-{
-	return 0;
-}
-
 static int imx8m_power_domain_of_to_plat(struct udevice *dev)
 {
 	struct imx8m_power_domain_plat *pdata = dev_get_plat(dev);
@@ -126,8 +111,6 @@ static const struct udevice_id imx8m_power_domain_ids[] = {
 };
 
 struct power_domain_ops imx8m_power_domain_ops = {
-	.request = imx8m_power_domain_request,
-	.rfree = imx8m_power_domain_free,
 	.on = imx8m_power_domain_on,
 	.off = imx8m_power_domain_off,
 	.of_xlate = imx8m_power_domain_of_xlate,
@@ -138,7 +121,6 @@ U_BOOT_DRIVER(imx8m_power_domain) = {
 	.id = UCLASS_POWER_DOMAIN,
 	.of_match = imx8m_power_domain_ids,
 	.bind = imx8m_power_domain_bind,
-	.probe = imx8m_power_domain_probe,
 	.of_to_plat = imx8m_power_domain_of_to_plat,
 	.plat_auto	= sizeof(struct imx8m_power_domain_plat),
 	.ops = &imx8m_power_domain_ops,
