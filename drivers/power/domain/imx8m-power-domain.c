@@ -9,7 +9,6 @@
 #include <power-domain-uclass.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include <asm/arch/power-domain.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
@@ -17,6 +16,12 @@
 #include <linux/arm-smccc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct imx8m_power_domain_plat {
+	int resource_id;
+	int has_pd;
+	struct power_domain pd;
+};
 
 static int imx8m_power_domain_on(struct power_domain *power_domain)
 {
