@@ -20,11 +20,13 @@
 
 #include <dt-bindings/power/imx8mm-power.h>
 #include <dt-bindings/power/imx8mn-power.h>
+#include <dt-bindings/power/imx8mp-power.h>
 #include <dt-bindings/power/imx8mq-power.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define GPC_PGC_CPU_MAPPING			0x0ec
+#define IMX8MP_GPC_PGC_CPU_MAPPING		0x1cc
 
 #define IMX8M_PCIE2_A53_DOMAIN			BIT(15)
 #define IMX8M_OTG2_A53_DOMAIN			BIT(5)
@@ -37,6 +39,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define IMX8MN_OTG1_A53_DOMAIN			BIT(4)
 #define IMX8MN_MIPI_A53_DOMAIN			BIT(2)
+
+#define IMX8MP_HSIOMIX_A53_DOMAIN		BIT(19)
+#define IMX8MP_USB2_PHY_A53_DOMAIN		BIT(5)
+#define IMX8MP_USB1_PHY_A53_DOMAIN		BIT(4)
+#define IMX8MP_PCIE_PHY_A53_DOMAIN		BIT(3)
+
+#define IMX8MP_GPC_PU_PGC_SW_PUP_REQ		0x0d8
+#define IMX8MP_GPC_PU_PGC_SW_PDN_REQ		0x0e4
 
 #define GPC_PU_PGC_SW_PUP_REQ			0x0f8
 #define GPC_PU_PGC_SW_PDN_REQ			0x104
@@ -53,8 +63,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IMX8MN_OTG1_SW_Pxx_REQ			BIT(2)
 #define IMX8MN_MIPI_SW_Pxx_REQ			BIT(0)
 
+#define IMX8MP_HSIOMIX_Pxx_REQ			BIT(17)
+#define IMX8MP_USB2_PHY_Pxx_REQ			BIT(3)
+#define IMX8MP_USB1_PHY_Pxx_REQ			BIT(2)
+#define IMX8MP_PCIE_PHY_SW_Pxx_REQ		BIT(1)
+
 #define GPC_M4_PU_PDN_FLG			0x1bc
 
+#define IMX8MP_GPC_PU_PWRHSK			0x190
 #define GPC_PU_PWRHSK				0x1fc
 
 #define IMX8MM_HSIO_HSK_PWRDNACKN		(BIT(23) | BIT(24))
@@ -62,6 +78,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define IMX8MN_HSIO_HSK_PWRDNACKN		BIT(23)
 #define IMX8MN_HSIO_HSK_PWRDNREQN		BIT(5)
+
+#define IMX8MP_HSIOMIX_PWRDNACKN		BIT(28)
+#define IMX8MP_HSIOMIX_PWRDNREQN		BIT(12)
 
 /*
  * The PGC offset values in Reference Manual
@@ -79,6 +98,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IMX8MM_PGC_OTG2			19
 
 #define IMX8MN_PGC_OTG1			18
+
+#define IMX8MP_PGC_PCIE			13
+#define IMX8MP_PGC_USB1			14
+#define IMX8MP_PGC_USB2			15
+#define IMX8MP_PGC_HSIOMIX		29
 
 #define GPC_PGC_CTRL(n)			(0x800 + (n) * 0x40)
 #define GPC_PGC_SR(n)			(GPC_PGC_CTRL(n) + 0xc)
@@ -241,6 +265,58 @@ static const struct imx_pgc_domain_data imx8mn_pgc_domain_data = {
 	.domains = imx8mn_pgc_domains,
 	.domains_num = ARRAY_SIZE(imx8mn_pgc_domains),
 	.pgc_regs = &imx7_pgc_regs,
+};
+#endif
+
+#ifdef CONFIG_IMX8MP
+static const struct imx_pgc_domain imx8mp_pgc_domains[] = {
+	[IMX8MP_POWER_DOMAIN_PCIE_PHY] = {
+		.bits = {
+			.pxx = IMX8MP_PCIE_PHY_SW_Pxx_REQ,
+			.map = IMX8MP_PCIE_PHY_A53_DOMAIN,
+		},
+		.pgc = BIT(IMX8MP_PGC_PCIE),
+	},
+
+	[IMX8MP_POWER_DOMAIN_USB1_PHY] = {
+		.bits = {
+			.pxx = IMX8MP_USB1_PHY_Pxx_REQ,
+			.map = IMX8MP_USB1_PHY_A53_DOMAIN,
+		},
+		.pgc = BIT(IMX8MP_PGC_USB1),
+	},
+
+	[IMX8MP_POWER_DOMAIN_USB2_PHY] = {
+		.bits = {
+			.pxx = IMX8MP_USB2_PHY_Pxx_REQ,
+			.map = IMX8MP_USB2_PHY_A53_DOMAIN,
+		},
+		.pgc = BIT(IMX8MP_PGC_USB2),
+	},
+
+	[IMX8MP_POWER_DOMAIN_HSIOMIX] = {
+		.bits = {
+			.pxx = IMX8MP_HSIOMIX_Pxx_REQ,
+			.map = IMX8MP_HSIOMIX_A53_DOMAIN,
+			.hskreq = IMX8MP_HSIOMIX_PWRDNREQN,
+			.hskack = IMX8MP_HSIOMIX_PWRDNACKN,
+		},
+		.pgc = BIT(IMX8MP_PGC_HSIOMIX),
+		.keep_clocks = true,
+	},
+};
+
+static const struct imx_pgc_regs imx8mp_pgc_regs = {
+	.map = IMX8MP_GPC_PGC_CPU_MAPPING,
+	.pup = IMX8MP_GPC_PU_PGC_SW_PUP_REQ,
+	.pdn = IMX8MP_GPC_PU_PGC_SW_PDN_REQ,
+	.hsk = IMX8MP_GPC_PU_PWRHSK,
+};
+
+static const struct imx_pgc_domain_data imx8mp_pgc_domain_data = {
+	.domains = imx8mp_pgc_domains,
+	.domains_num = ARRAY_SIZE(imx8mp_pgc_domains),
+	.pgc_regs = &imx8mp_pgc_regs,
 };
 #endif
 
@@ -457,6 +533,9 @@ static const struct udevice_id imx8m_power_domain_ids[] = {
 #endif
 #ifdef CONFIG_IMX8MN
 	{ .compatible = "fsl,imx8mn-gpc", .data = (long)&imx8mn_pgc_domain_data },
+#endif
+#ifdef CONFIG_IMX8MP
+	{ .compatible = "fsl,imx8mp-gpc", .data = (long)&imx8mp_pgc_domain_data },
 #endif
 	{ }
 };
