@@ -12,6 +12,8 @@
 #include <init.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <i2c_eeprom.h>
+#include <i2c.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8mm_pins.h>
@@ -418,12 +420,61 @@ int extension_board_scan(struct list_head *extension_list)
         return ret;
 }
 
+static int setup_mac_address(void)
+{
+	unsigned char enetaddr[6];
+	struct udevice *dev;
+	int ret, off;
+
+	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
+	if (ret)
+		return 0;
+
+	off = fdt_path_offset(gd->fdt_blob, "eeprom1");
+	if (off < 0) {
+		printf("No eeprom0 path offset found in DT\n");
+		return off;
+	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_I2C_EEPROM, off, &dev);
+	if (ret) {
+		printf("%s: Could not find EEPROM\n", __func__);
+		return ret;
+	}
+
+	ret = i2c_set_chip_offset_len(dev, 1);
+	if (ret)
+		return ret;
+
+	ret = i2c_eeprom_read(dev, 4, enetaddr, sizeof(enetaddr));
+	if (ret) {
+		printf("%s: Could not read EEPROM\n", __func__);
+		return ret;
+	}
+
+	ret = is_valid_ethaddr(enetaddr);
+	if (!ret)
+		return -EINVAL;
+
+	ret = eth_env_set_enetaddr("ethaddr", enetaddr);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 int board_late_init(void)
 {
+	int ret;
+
 	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
 		env_set("board_name", "IOT-GATE-IMX8");
 		env_set("board_rev", "SBC-IOTMX8");
 	}
+
+	ret = setup_mac_address();
+	if (ret < 0)
+		printf("Cannot set MAC address from EEPROM\n");
 
 	return 0;
 }
