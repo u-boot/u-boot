@@ -162,7 +162,9 @@ static const char *imx8mp_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", }
 
 static int imx8mp_clk_probe(struct udevice *dev)
 {
+	struct clk osc_24m_clk, osc_32k_clk;
 	void __iomem *base;
+	int ret;
 
 	base = (void *)ANATOP_BASE_ADDR;
 
@@ -215,7 +217,15 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_SYS_PLL2_500M, imx_clk_fixed_factor("sys_pll2_500m", "sys_pll2_out", 1, 2));
 	clk_dm(IMX8MP_SYS_PLL2_1000M, imx_clk_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1));
 
-	clk_dm(IMX8MP_CLK_24M, imx_clk_fixed_factor("clock-osc-24m", "osc_24m", 1, 1));
+	ret = clk_get_by_name(dev, "osc_24m", &osc_24m_clk);
+	if (ret)
+		return ret;
+	clk_dm(IMX8MP_CLK_24M, dev_get_clk_ptr(osc_24m_clk.dev));
+
+	ret = clk_get_by_name(dev, "osc_32k", &osc_32k_clk);
+	if (ret)
+		return ret;
+	clk_dm(IMX8MP_CLK_32K, dev_get_clk_ptr(osc_32k_clk.dev));
 
 	base = dev_read_addr_ptr(dev);
 	if (!base)
