@@ -35,6 +35,7 @@ config IMX8_POWER_DOMAIN
 config IMX8M_POWER_DOMAIN
 	bool "Enable i.MX8M power domain driver"
 	depends on POWER_DOMAIN && ARCH_IMX8M
+	select CLK
 	help
 	  Enable support for manipulating NXP i.MX8M on-SoC power domains via
 	  requests to the ATF.
