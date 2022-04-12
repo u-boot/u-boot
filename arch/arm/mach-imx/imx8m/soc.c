@@ -29,7 +29,6 @@
 #include <fdt_support.h>
 #include <fsl_wdog.h>
 #include <imx_sip.h>
-#include <linux/arm-smccc.h>
 #include <linux/bitops.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1404,23 +1403,6 @@ void reset_cpu(void)
 #endif
 
 #if defined(CONFIG_ARCH_MISC_INIT)
-static void acquire_buildinfo(void)
-{
-	u64 atf_commit = 0;
-	struct arm_smccc_res res;
-
-	/* Get ARM Trusted Firmware commit id */
-	arm_smccc_smc(IMX_SIP_BUILDINFO, IMX_SIP_BUILDINFO_GET_COMMITHASH,
-		      0, 0, 0, 0, 0, 0, &res);
-	atf_commit = res.a0;
-	if (atf_commit == 0xffffffff) {
-		debug("ATF does not support build info\n");
-		atf_commit = 0x30; /* Display 0, 0 ascii is 0x30 */
-	}
-
-	printf("\n BuildInfo:\n  - ATF %s\n\n", (char *)&atf_commit);
-}
-
 int arch_misc_init(void)
 {
 	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
@@ -1431,7 +1413,6 @@ int arch_misc_init(void)
 		if (ret)
 			printf("Failed to initialize %s: %d\n", dev->name, ret);
 	}
-	acquire_buildinfo();
 
 	return 0;
 }
