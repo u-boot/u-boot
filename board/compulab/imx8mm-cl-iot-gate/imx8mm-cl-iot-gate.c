@@ -463,6 +463,52 @@ static int setup_mac_address(void)
 	return 0;
 }
 
+static int read_serial_number(void)
+{
+	unsigned char serialnumber[6];
+	unsigned char reversed[6];
+	char serial_string[12];
+	struct udevice *dev;
+	int ret, off, i;
+
+	off = fdt_path_offset(gd->fdt_blob, "eeprom0");
+	if (off < 0) {
+		printf("No eeprom0 path offset found in DT\n");
+		return off;
+	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_I2C_EEPROM, off, &dev);
+	if (ret) {
+		printf("%s: Could not find EEPROM\n", __func__);
+		return ret;
+	}
+
+	ret = i2c_set_chip_offset_len(dev, 1);
+	if (ret)
+		return ret;
+
+	ret = i2c_eeprom_read(dev, 0x14, serialnumber, sizeof(serialnumber));
+	if (ret) {
+		printf("%s: Could not read EEPROM\n", __func__);
+		return ret;
+	}
+
+	for (i = sizeof(serialnumber) - 1; i >= 0; i--)
+		reversed[i] = serialnumber[sizeof(serialnumber) - 1 - i];
+
+	for (i = 0; i < sizeof(reversed); i++) {
+		serial_string[i * 2] = (reversed[i] >> 4) & 0xf;
+		serial_string[i * 2 + 1] = reversed[i] & 0xf;
+	}
+
+	for (i = 0; i < sizeof(serial_string); i++)
+		serial_string[i] += '0';
+
+	env_set("serial#", serial_string);
+
+	return 0;
+}
+
 int board_late_init(void)
 {
 	int ret;
@@ -475,6 +521,10 @@ int board_late_init(void)
 	ret = setup_mac_address();
 	if (ret < 0)
 		printf("Cannot set MAC address from EEPROM\n");
+
+	ret = read_serial_number();
+	if (ret < 0)
+		printf("Cannot read serial number from EEPROM\n");
 
 	return 0;
 }
