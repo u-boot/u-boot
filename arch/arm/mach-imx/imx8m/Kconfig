@@ -49,6 +49,13 @@ config TARGET_IMX8MQ_PHANBELL
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
+config TARGET_IMX8MM_DATA_MODUL_EDM_SBC
+	bool "Data Modul eDM SBC i.MX8M Mini"
+	select BINMAN
+	select IMX8MM
+	select IMX8M_LPDDR4
+	select SUPPORT_SPL
+
 config TARGET_IMX8MM_EVK
 	bool "imx8mm LPDDR4 EVK board"
 	select BINMAN
@@ -237,6 +244,7 @@ source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
 source "board/bsh/imx8mn_smm_s2/Kconfig"
 source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
+source "board/data_modul/imx8mm_edm_sbc/Kconfig"
 source "board/engicam/imx8mm/Kconfig"
 source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
