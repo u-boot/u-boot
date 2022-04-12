@@ -530,7 +530,7 @@ int phy_init(void)
 	phy_natsemi_init();
 #endif
 #ifdef CONFIG_NXP_C45_TJA11XX_PHY
-	phy_nxp_tja11xx_init();
+	phy_nxp_c45_tja11xx_init();
 #endif
 #ifdef CONFIG_PHY_REALTEK
 	phy_realtek_init();
