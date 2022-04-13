@@ -89,12 +89,8 @@
 	"ramdisk_addr_r=0x12200000\0" \
 	"scriptaddr=0x17000000\0"
 
-#ifndef CONFIG_TDX_APALIS_IMX6_V1_0
 #define FDT_FILE "imx6q-apalis-eval.dtb"
-#define FDT_FILE_V1_0 "imx6q-apalis_v1_0-eval.dtb"
-#else
-#define FDT_FILE "imx6q-apalis_v1_0-eval.dtb"
-#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"boot_file=zImage\0" \
