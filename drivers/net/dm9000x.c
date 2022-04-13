@@ -54,7 +54,6 @@
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
-#include <dm9000.h>
 #include <linux/delay.h>
 
 #include "dm9000x.h"
@@ -557,7 +556,7 @@ static int dm9000_rx(struct eth_device *dev)
  * Read a word data from SROM
  */
 #if !defined(CONFIG_DM9000_NO_SROM)
-void dm9000_read_srom_word(int offset, u8 *to)
+static void dm9000_read_srom_word(int offset, u8 *to)
 {
 	dm9000_iow(DM9000_EPAR, offset);
 	dm9000_iow(DM9000_EPCR, 0x4);
@@ -565,16 +564,6 @@ void dm9000_read_srom_word(int offset, u8 *to)
 	dm9000_iow(DM9000_EPCR, 0x0);
 	to[0] = dm9000_ior(DM9000_EPDRL);
 	to[1] = dm9000_ior(DM9000_EPDRH);
-}
-
-void dm9000_write_srom_word(int offset, u16 val)
-{
-	dm9000_iow(DM9000_EPAR, offset);
-	dm9000_iow(DM9000_EPDRH, ((val >> 8) & 0xff));
-	dm9000_iow(DM9000_EPDRL, (val & 0xff));
-	dm9000_iow(DM9000_EPCR, 0x12);
-	mdelay(8);
-	dm9000_iow(DM9000_EPCR, 0);
 }
 
 static void dm9000_get_enetaddr(struct eth_device *dev)
