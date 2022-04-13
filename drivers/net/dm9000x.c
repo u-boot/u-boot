@@ -79,13 +79,6 @@ struct board_info {
 
 static struct board_info dm9000_info;
 
-/* function declaration ------------------------------------- */
-static int dm9000_probe(void);
-static u16 dm9000_phy_read(int);
-static void dm9000_phy_write(int, u16);
-static u8 dm9000_ior(int);
-static void dm9000_iow(int reg, u8 value);
-
 /* DM9000 network board routine ---------------------------- */
 #ifndef CONFIG_DM9000_BYTE_SWAPPED
 #define dm9000_outb(d, r) writeb((d), (r))
@@ -206,10 +199,63 @@ static void dm9000_rx_status_8bit(u16 *rxstatus, u16 *rxlen)
 }
 
 /*
+ *  Read a byte from I/O port
+ */
+static u8 dm9000_ior(int reg)
+{
+	dm9000_outb(reg, DM9000_IO);
+	return dm9000_inb(DM9000_DATA);
+}
+
+/*
+ *  Write a byte to I/O port
+ */
+static void dm9000_iow(int reg, u8 value)
+{
+	dm9000_outb(reg, DM9000_IO);
+	dm9000_outb(value, DM9000_DATA);
+}
+
+/*
+ *  Read a word from phyxcer
+ */
+static u16 dm9000_phy_read(int reg)
+{
+	u16 val;
+
+	/* Fill the phyxcer register into REG_0C */
+	dm9000_iow(DM9000_EPAR, DM9000_PHY | reg);
+	dm9000_iow(DM9000_EPCR, 0xc);	/* Issue phyxcer read command */
+	udelay(100);			/* Wait read complete */
+	dm9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer read command */
+	val = (dm9000_ior(DM9000_EPDRH) << 8) | dm9000_ior(DM9000_EPDRL);
+
+	/* The read data keeps on REG_0D & REG_0E */
+	debug("%s(0x%x): 0x%x\n", __func__, reg, val);
+	return val;
+}
+
+/*
+ *  Write a word to phyxcer
+ */
+static void dm9000_phy_write(int reg, u16 value)
+{
+	/* Fill the phyxcer register into REG_0C */
+	dm9000_iow(DM9000_EPAR, DM9000_PHY | reg);
+
+	/* Fill the written data into REG_0D & REG_0E */
+	dm9000_iow(DM9000_EPDRL, (value & 0xff));
+	dm9000_iow(DM9000_EPDRH, ((value >> 8) & 0xff));
+	dm9000_iow(DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
+	udelay(500);			/* Wait write complete */
+	dm9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
+	debug("%s(reg:0x%x, value:0x%x)\n", __func__, reg, value);
+}
+
+/*
  * Search DM9000 board, allocate space and register it
  */
-int
-dm9000_probe(void)
+static int dm9000_probe(void)
 {
 	u32 id_val;
 
@@ -542,64 +588,6 @@ static void dm9000_get_enetaddr(struct eth_device *dev)
 #else
 static void dm9000_get_enetaddr(struct eth_device *dev) {}
 #endif
-
-/*
- *  Read a byte from I/O port
- */
-static u8
-dm9000_ior(int reg)
-{
-	dm9000_outb(reg, DM9000_IO);
-	return dm9000_inb(DM9000_DATA);
-}
-
-/*
- *  Write a byte to I/O port
- */
-static void
-dm9000_iow(int reg, u8 value)
-{
-	dm9000_outb(reg, DM9000_IO);
-	dm9000_outb(value, DM9000_DATA);
-}
-
-/*
- *  Read a word from phyxcer
- */
-static u16
-dm9000_phy_read(int reg)
-{
-	u16 val;
-
-	/* Fill the phyxcer register into REG_0C */
-	dm9000_iow(DM9000_EPAR, DM9000_PHY | reg);
-	dm9000_iow(DM9000_EPCR, 0xc);	/* Issue phyxcer read command */
-	udelay(100);			/* Wait read complete */
-	dm9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer read command */
-	val = (dm9000_ior(DM9000_EPDRH) << 8) | dm9000_ior(DM9000_EPDRL);
-
-	/* The read data keeps on REG_0D & REG_0E */
-	debug("%s(0x%x): 0x%x\n", __func__, reg, val);
-	return val;
-}
-
-/*
- *  Write a word to phyxcer
- */
-static void
-dm9000_phy_write(int reg, u16 value)
-{
-	/* Fill the phyxcer register into REG_0C */
-	dm9000_iow(DM9000_EPAR, DM9000_PHY | reg);
-
-	/* Fill the written data into REG_0D & REG_0E */
-	dm9000_iow(DM9000_EPDRL, (value & 0xff));
-	dm9000_iow(DM9000_EPDRH, ((value >> 8) & 0xff));
-	dm9000_iow(DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
-	udelay(500);			/* Wait write complete */
-	dm9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
-	debug("%s(reg:0x%x, value:0x%x)\n", __func__, reg, value);
-}
 
 int dm9000_initialize(struct bd_info *bis)
 {
