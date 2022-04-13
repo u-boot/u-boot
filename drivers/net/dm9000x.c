@@ -311,9 +311,8 @@ static void dm9000_reset(struct dm9000_priv *db)
 }
 
 /* Initialize dm9000 board */
-static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
+static int dm9000_init_common(struct dm9000_priv *db, u8 enetaddr[6])
 {
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	int i, oft, lnk;
 	u8 io_mode;
 
@@ -371,13 +370,13 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 	/* Clear interrupt status */
 	dm9000_iow(db, DM9000_ISR, ISR_ROOS | ISR_ROS | ISR_PTS | ISR_PRS);
 
-	printf("MAC: %pM\n", dev->enetaddr);
-	if (!is_valid_ethaddr(dev->enetaddr))
+	printf("MAC: %pM\n", enetaddr);
+	if (!is_valid_ethaddr(enetaddr))
 		printf("WARNING: Bad MAC address (uninitialized EEPROM?)\n");
 
 	/* fill device MAC address registers */
 	for (i = 0, oft = DM9000_PAR; i < 6; i++, oft++)
-		dm9000_iow(db, oft, dev->enetaddr[i]);
+		dm9000_iow(db, oft, enetaddr[i]);
 	for (i = 0, oft = 0x16; i < 8; i++, oft++)
 		dm9000_iow(db, oft, 0xff);
 
@@ -430,9 +429,8 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
  * Hardware start transmission.
  * Send a packet to media from the upper layer.
  */
-static int dm9000_send(struct eth_device *dev, void *packet, int length)
+static int dm9000_send_common(struct dm9000_priv *db, void *packet, int length)
 {
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	int tmo;
 
 	dm9000_dump_packet(__func__, packet, length);
@@ -471,10 +469,8 @@ static int dm9000_send(struct eth_device *dev, void *packet, int length)
  * Stop the interface.
  * The interface is stopped when it is brought.
  */
-static void dm9000_halt(struct eth_device *netdev)
+static void dm9000_halt_common(struct dm9000_priv *db)
 {
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
-
 	/* RESET device */
 	dm9000_phy_write(db, 0, 0x8000);	/* PHY RESET */
 	dm9000_iow(db, DM9000_GPR, 0x01);	/* Power-Down PHY */
@@ -485,9 +481,8 @@ static void dm9000_halt(struct eth_device *netdev)
 /*
  * Received a packet and pass to upper layer
  */
-static int dm9000_rx(struct eth_device *dev)
+static int dm9000_recv_common(struct dm9000_priv *db)
 {
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	u8 rxbyte;
 	u8 *rdptr = (u8 *)net_rx_packets[0];
 	u16 rxstatus, rxlen = 0;
@@ -570,17 +565,44 @@ static void dm9000_read_srom_word(struct dm9000_priv *db, int offset, u8 *to)
 	to[1] = dm9000_ior(db, DM9000_EPDRH);
 }
 
-static void dm9000_get_enetaddr(struct eth_device *dev)
+static void dm9000_get_enetaddr(struct dm9000_priv *db, u8 *enetaddr)
 {
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	int i;
 
 	for (i = 0; i < 3; i++)
-		dm9000_read_srom_word(db, i, dev->enetaddr + (2 * i));
+		dm9000_read_srom_word(db, i, enetaddr + (2 * i));
 }
 #else
-static void dm9000_get_enetaddr(struct eth_device *dev) {}
+static void dm9000_get_enetaddr(struct dm9000_priv *db, u8 *enetaddr) {}
 #endif
+
+static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
+{
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
+
+	return dm9000_init_common(db, dev->enetaddr);
+}
+
+static void dm9000_halt(struct eth_device *dev)
+{
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
+
+	dm9000_halt_common(db);
+}
+
+static int dm9000_send(struct eth_device *dev, void *packet, int length)
+{
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
+
+	return dm9000_send_common(db, packet, length);
+}
+
+static int dm9000_recv(struct eth_device *dev)
+{
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
+
+	return dm9000_recv_common(db);
+}
 
 int dm9000_initialize(struct bd_info *bis)
 {
@@ -597,12 +619,12 @@ int dm9000_initialize(struct bd_info *bis)
 	priv->base_data = (void __iomem *)DM9000_DATA;
 
 	/* Load MAC address from EEPROM */
-	dm9000_get_enetaddr(&priv->dev);
+	dm9000_get_enetaddr(priv, dev->enetaddr);
 
 	dev->init = dm9000_init;
 	dev->halt = dm9000_halt;
 	dev->send = dm9000_send;
-	dev->recv = dm9000_rx;
+	dev->recv = dm9000_recv;
 	strcpy(dev->name, "dm9000");
 
 	eth_register(&priv->dev);
