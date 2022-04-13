@@ -71,7 +71,7 @@ typedef struct board_info {
 	u8 phy_addr;
 	u8 device_wait_reset;	/* device state */
 	unsigned char srom[128];
-	void (*outblk)(volatile void *data_ptr, int count);
+	void (*outblk)(void *data_ptr, int count);
 	void (*inblk)(void *data_ptr, int count);
 	void (*rx_status)(u16 *rxstatus, u16 *rxlen);
 	struct eth_device netdev;
@@ -88,12 +88,12 @@ static void dm9000_iow(int reg, u8 value);
 
 /* DM9000 network board routine ---------------------------- */
 #ifndef CONFIG_DM9000_BYTE_SWAPPED
-#define dm9000_outb(d,r) writeb(d, (volatile u8 *)(r))
-#define dm9000_outw(d,r) writew(d, (volatile u16 *)(r))
-#define dm9000_outl(d,r) writel(d, (volatile u32 *)(r))
-#define dm9000_inb(r) readb((volatile u8 *)(r))
-#define dm9000_inw(r) readw((volatile u16 *)(r))
-#define dm9000_inl(r) readl((volatile u32 *)(r))
+#define dm9000_outb(d,r) writeb((d), (r))
+#define dm9000_outw(d,r) writew((d), (r))
+#define dm9000_outl(d,r) writel((d), (r))
+#define dm9000_inb(r) readb(r)
+#define dm9000_inw(r) readw(r)
+#define dm9000_inl(r) readl(r)
 #else
 #define dm9000_outb(d, r) __raw_writeb(d, r)
 #define dm9000_outw(d, r) __raw_writew(d, r)
@@ -122,14 +122,14 @@ static void dm9000_dump_packet(const char *func, u8 *packet, int length)
 static void dm9000_dump_packet(const char *func, u8 *packet, int length) {}
 #endif
 
-static void dm9000_outblk_8bit(volatile void *data_ptr, int count)
+static void dm9000_outblk_8bit(void *data_ptr, int count)
 {
 	int i;
 	for (i = 0; i < count; i++)
 		dm9000_outb((((u8 *) data_ptr)[i] & 0xff), DM9000_DATA);
 }
 
-static void dm9000_outblk_16bit(volatile void *data_ptr, int count)
+static void dm9000_outblk_16bit(void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 1) / 2;
@@ -137,7 +137,7 @@ static void dm9000_outblk_16bit(volatile void *data_ptr, int count)
 	for (i = 0; i < tmplen; i++)
 		dm9000_outw(((u16 *) data_ptr)[i], DM9000_DATA);
 }
-static void dm9000_outblk_32bit(volatile void *data_ptr, int count)
+static void dm9000_outblk_32bit(void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 3) / 4;
