@@ -22,11 +22,6 @@
 #else
 #define is_cpu_type(cpu) (0)
 #endif
-#if defined(CONFIG_CPU_PXA27X)
-#include <asm/arch-pxa/pxa.h>
-#else
-#define cpu_is_pxa27x(cpu) (0)
-#endif
 #include <cli.h>
 #include <console.h>
 #include <env.h>
@@ -369,10 +364,7 @@ static int get_cfgblock_interactive(void)
 	/* Unknown module by default */
 	tdx_hw_tag.prodid = 0;
 
-	if (cpu_is_pxa27x())
-		sprintf(message, "Is the module the 312 MHz version? [y/N] ");
-	else
-		sprintf(message, "Is the module an IT version? [y/N] ");
+	sprintf(message, "Is the module an IT version? [y/N] ");
 
 	len = cli_readline(message);
 	it = console_buffer[0];
@@ -500,11 +492,6 @@ static int get_cfgblock_interactive(void)
 				tdx_hw_tag.prodid = COLIBRI_T20_256MB;
 			else
 				tdx_hw_tag.prodid = COLIBRI_T20_512MB;
-	} else if (cpu_is_pxa27x()) {
-		if (it == 'y' || it == 'Y')
-			tdx_hw_tag.prodid = COLIBRI_PXA270_312MHZ;
-		else
-			tdx_hw_tag.prodid = COLIBRI_PXA270_520MHZ;
 	}
 #if defined(CONFIG_TARGET_APALIS_T30) || defined(CONFIG_TARGET_COLIBRI_T30)
 	else if (!strcmp("tegra30", soc)) {
@@ -551,10 +538,6 @@ static int get_cfgblock_interactive(void)
 	tdx_hw_tag.ver_major = console_buffer[0] - '0';
 	tdx_hw_tag.ver_minor = console_buffer[2] - '0';
 	tdx_hw_tag.ver_assembly = console_buffer[3] - 'A';
-
-	if (cpu_is_pxa27x() && tdx_hw_tag.ver_major == 1)
-		tdx_hw_tag.prodid -= (COLIBRI_PXA270_312MHZ -
-				       COLIBRI_PXA270_V1_312MHZ);
 
 	while (len < 8) {
 		sprintf(message, "Enter module serial number: ");
