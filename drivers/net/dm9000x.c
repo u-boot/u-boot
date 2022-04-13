@@ -58,25 +58,6 @@ TODO: external MII is not functional, only internal at the moment.
 
 #include "dm9000x.h"
 
-/* Board/System/Debug information/definition ---------------- */
-
-/* #define CONFIG_DM9000_DEBUG */
-
-#ifdef CONFIG_DM9000_DEBUG
-#define DM9000_DMP_PACKET(func,packet,length)  \
-	do { \
-		int i;							\
-		printf("%s: length: %d\n", func, length);		\
-		for (i = 0; i < length; i++) {				\
-			if (i % 8 == 0)					\
-				printf("\n%s: %02x: ", func, i);	\
-			printf("%02x ", ((unsigned char *) packet)[i]);	\
-		} printf("\n");						\
-	} while(0)
-#else
-#define DM9000_DMP_PACKET(func,packet,length)
-#endif
-
 /* Structure/enum declaration ------------------------------- */
 typedef struct board_info {
 	u32 runt_length_counter;	/* counter: RX length < 64byte */
@@ -120,6 +101,25 @@ static void dm9000_iow(int reg, u8 value);
 #define dm9000_inb(r) __raw_readb(r)
 #define dm9000_inw(r) __raw_readw(r)
 #define dm9000_inl(r) __raw_readl(r)
+#endif
+
+#ifdef DEBUG
+static void dm9000_dump_packet(const char *func, u8 *packet, int length)
+{
+	int i;
+
+	printf("%s: length: %d\n", func, length);
+
+	for (i = 0; i < length; i++) {
+		if (i % 8 == 0)
+			printf("\n%s: %02x: ", func, i);
+		printf("%02x ", packet[i]);
+	}
+
+	printf("\n");
+}
+#else
+static void dm9000_dump_packet(const char *func, u8 *packet, int length) {}
 #endif
 
 static void dm9000_outblk_8bit(volatile void *data_ptr, int count)
@@ -387,7 +387,7 @@ static int dm9000_send(struct eth_device *netdev, void *packet, int length)
 	int tmo;
 	struct board_info *db = &dm9000_info;
 
-	DM9000_DMP_PACKET(__func__ , packet, length);
+	dm9000_dump_packet(__func__ , packet, length);
 
 	dm9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
 
@@ -498,7 +498,7 @@ static int dm9000_rx(struct eth_device *netdev)
 				dm9000_reset();
 			}
 		} else {
-			DM9000_DMP_PACKET(__func__ , rdptr, rxlen);
+			dm9000_dump_packet(__func__ , rdptr, rxlen);
 
 			debug("passing packet to upper layer\n");
 			net_process_received_packet(net_rx_packets[0], rxlen);
