@@ -59,7 +59,7 @@
 #include "dm9000x.h"
 
 /* Structure/enum declaration ------------------------------- */
-struct board_info {
+struct dm9000_priv {
 	u32 runt_length_counter;	/* counter: RX length < 64byte */
 	u32 long_length_counter;	/* counter: RX length > 1514byte */
 	u32 reset_counter;	/* counter: RESET */
@@ -77,7 +77,7 @@ struct board_info {
 	struct eth_device netdev;
 };
 
-static struct board_info dm9000_info;
+static struct dm9000_priv dm9000_info;
 
 /* DM9000 network board routine ---------------------------- */
 #ifndef CONFIG_DM9000_BYTE_SWAPPED
@@ -315,7 +315,7 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 {
 	int i, oft, lnk;
 	u8 io_mode;
-	struct board_info *db = &dm9000_info;
+	struct dm9000_priv *db = &dm9000_info;
 
 	/* RESET device */
 	dm9000_reset();
@@ -433,7 +433,7 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 static int dm9000_send(struct eth_device *netdev, void *packet, int length)
 {
 	int tmo;
-	struct board_info *db = &dm9000_info;
+	struct dm9000_priv *db = &dm9000_info;
 
 	dm9000_dump_packet(__func__, packet, length);
 
@@ -488,7 +488,7 @@ static int dm9000_rx(struct eth_device *netdev)
 	u8 rxbyte;
 	u8 *rdptr = (u8 *)net_rx_packets[0];
 	u16 rxstatus, rxlen = 0;
-	struct board_info *db = &dm9000_info;
+	struct dm9000_priv *db = &dm9000_info;
 
 	/*
 	 * Check packet ready or not, we must check
