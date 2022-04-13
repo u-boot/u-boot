@@ -80,12 +80,6 @@
 		"root=PARTUUID=${uuid} rootwait " \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
-	"netargs=setenv bootargs ${consoleargs} " \
-		"root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp " \
-		"${vidargs}\0" \
-	"nfsboot=run netargs; dhcp ${loadaddr} ${image}; tftp ${fdt_addr} " \
-		"colibri-imx8x/${fdt_file}; booti ${loadaddr} - " \
-		"${fdt_addr}\0" \
 	"panel=NULL\0" \
 	"script=boot.scr\0" \
 	"update_uboot=askenv confirm Did you load u-boot-dtb.imx (y/N)?; " \
