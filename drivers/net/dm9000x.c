@@ -71,10 +71,12 @@ struct dm9000_priv {
 	u8 phy_addr;
 	u8 device_wait_reset;	/* device state */
 	unsigned char srom[128];
-	void (*outblk)(void *data_ptr, int count);
-	void (*inblk)(void *data_ptr, int count);
-	void (*rx_status)(u16 *rxstatus, u16 *rxlen);
+	void (*outblk)(struct dm9000_priv *db, void *data_ptr, int count);
+	void (*inblk)(struct dm9000_priv *db, void *data_ptr, int count);
+	void (*rx_status)(struct dm9000_priv *db, u16 *rxstatus, u16 *rxlen);
 	struct eth_device dev;
+	void __iomem *base_io;
+	void __iomem *base_data;
 };
 
 /* DM9000 network board routine ---------------------------- */
@@ -113,120 +115,121 @@ static void dm9000_dump_packet(const char *func, u8 *packet, int length)
 static void dm9000_dump_packet(const char *func, u8 *packet, int length) {}
 #endif
 
-static void dm9000_outblk_8bit(void *data_ptr, int count)
+static void dm9000_outblk_8bit(struct dm9000_priv *db, void *data_ptr, int count)
 {
 	int i;
 
 	for (i = 0; i < count; i++)
-		dm9000_outb((((u8 *)data_ptr)[i] & 0xff), DM9000_DATA);
+		dm9000_outb((((u8 *)data_ptr)[i] & 0xff), db->base_data);
 }
 
-static void dm9000_outblk_16bit(void *data_ptr, int count)
+static void dm9000_outblk_16bit(struct dm9000_priv *db, void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 1) / 2;
 
 	for (i = 0; i < tmplen; i++)
-		dm9000_outw(((u16 *)data_ptr)[i], DM9000_DATA);
+		dm9000_outw(((u16 *)data_ptr)[i], db->base_data);
 }
 
-static void dm9000_outblk_32bit(void *data_ptr, int count)
+static void dm9000_outblk_32bit(struct dm9000_priv *db, void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 3) / 4;
 
 	for (i = 0; i < tmplen; i++)
-		dm9000_outl(((u32 *)data_ptr)[i], DM9000_DATA);
+		dm9000_outl(((u32 *)data_ptr)[i], db->base_data);
 }
 
-static void dm9000_inblk_8bit(void *data_ptr, int count)
+static void dm9000_inblk_8bit(struct dm9000_priv *db, void *data_ptr, int count)
 {
 	int i;
 
 	for (i = 0; i < count; i++)
-		((u8 *)data_ptr)[i] = dm9000_inb(DM9000_DATA);
+		((u8 *)data_ptr)[i] = dm9000_inb(db->base_data);
 }
 
-static void dm9000_inblk_16bit(void *data_ptr, int count)
+static void dm9000_inblk_16bit(struct dm9000_priv *db, void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 1) / 2;
 
 	for (i = 0; i < tmplen; i++)
-		((u16 *)data_ptr)[i] = dm9000_inw(DM9000_DATA);
+		((u16 *)data_ptr)[i] = dm9000_inw(db->base_data);
 }
 
-static void dm9000_inblk_32bit(void *data_ptr, int count)
+static void dm9000_inblk_32bit(struct dm9000_priv *db, void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 3) / 4;
 
 	for (i = 0; i < tmplen; i++)
-		((u32 *)data_ptr)[i] = dm9000_inl(DM9000_DATA);
+		((u32 *)data_ptr)[i] = dm9000_inl(db->base_data);
 }
 
-static void dm9000_rx_status_32bit(u16 *rxstatus, u16 *rxlen)
+static void dm9000_rx_status_32bit(struct dm9000_priv *db, u16 *rxstatus, u16 *rxlen)
 {
 	u32 tmpdata;
 
-	dm9000_outb(DM9000_MRCMD, DM9000_IO);
+	dm9000_outb(DM9000_MRCMD, db->base_io);
 
-	tmpdata = dm9000_inl(DM9000_DATA);
+	tmpdata = dm9000_inl(db->base_data);
 	*rxstatus = __le16_to_cpu(tmpdata);
 	*rxlen = __le16_to_cpu(tmpdata >> 16);
 }
 
-static void dm9000_rx_status_16bit(u16 *rxstatus, u16 *rxlen)
+static void dm9000_rx_status_16bit(struct dm9000_priv *db, u16 *rxstatus, u16 *rxlen)
 {
-	dm9000_outb(DM9000_MRCMD, DM9000_IO);
+	dm9000_outb(DM9000_MRCMD, db->base_io);
 
-	*rxstatus = __le16_to_cpu(dm9000_inw(DM9000_DATA));
-	*rxlen = __le16_to_cpu(dm9000_inw(DM9000_DATA));
+	*rxstatus = __le16_to_cpu(dm9000_inw(db->base_data));
+	*rxlen = __le16_to_cpu(dm9000_inw(db->base_data));
 }
 
-static void dm9000_rx_status_8bit(u16 *rxstatus, u16 *rxlen)
+static void dm9000_rx_status_8bit(struct dm9000_priv *db, u16 *rxstatus, u16 *rxlen)
 {
-	dm9000_outb(DM9000_MRCMD, DM9000_IO);
+	dm9000_outb(DM9000_MRCMD, db->base_io);
 
 	*rxstatus =
-	    __le16_to_cpu(dm9000_inb(DM9000_DATA) +
-			  (dm9000_inb(DM9000_DATA) << 8));
+	    __le16_to_cpu(dm9000_inb(db->base_data) +
+			  (dm9000_inb(db->base_data) << 8));
 	*rxlen =
-	    __le16_to_cpu(dm9000_inb(DM9000_DATA) +
-			  (dm9000_inb(DM9000_DATA) << 8));
+	    __le16_to_cpu(dm9000_inb(db->base_data) +
+			  (dm9000_inb(db->base_data) << 8));
 }
 
 /*
  *  Read a byte from I/O port
  */
-static u8 dm9000_ior(int reg)
+static u8 dm9000_ior(struct dm9000_priv *db, int reg)
 {
-	dm9000_outb(reg, DM9000_IO);
-	return dm9000_inb(DM9000_DATA);
+	dm9000_outb(reg, db->base_io);
+	return dm9000_inb(db->base_data);
 }
 
 /*
  *  Write a byte to I/O port
  */
-static void dm9000_iow(int reg, u8 value)
+static void dm9000_iow(struct dm9000_priv *db, int reg, u8 value)
 {
-	dm9000_outb(reg, DM9000_IO);
-	dm9000_outb(value, DM9000_DATA);
+	dm9000_outb(reg, db->base_io);
+	dm9000_outb(value, db->base_data);
 }
 
 /*
  *  Read a word from phyxcer
  */
-static u16 dm9000_phy_read(int reg)
+static u16 dm9000_phy_read(struct dm9000_priv *db, int reg)
 {
 	u16 val;
 
 	/* Fill the phyxcer register into REG_0C */
-	dm9000_iow(DM9000_EPAR, DM9000_PHY | reg);
-	dm9000_iow(DM9000_EPCR, 0xc);	/* Issue phyxcer read command */
+	dm9000_iow(db, DM9000_EPAR, DM9000_PHY | reg);
+	dm9000_iow(db, DM9000_EPCR, 0xc);	/* Issue phyxcer read command */
 	udelay(100);			/* Wait read complete */
-	dm9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer read command */
-	val = (dm9000_ior(DM9000_EPDRH) << 8) | dm9000_ior(DM9000_EPDRL);
+	dm9000_iow(db, DM9000_EPCR, 0x0);	/* Clear phyxcer read command */
+	val = (dm9000_ior(db, DM9000_EPDRH) << 8) |
+	      dm9000_ior(db, DM9000_EPDRL);
 
 	/* The read data keeps on REG_0D & REG_0E */
 	debug("%s(0x%x): 0x%x\n", __func__, reg, val);
@@ -236,44 +239,43 @@ static u16 dm9000_phy_read(int reg)
 /*
  *  Write a word to phyxcer
  */
-static void dm9000_phy_write(int reg, u16 value)
+static void dm9000_phy_write(struct dm9000_priv *db, int reg, u16 value)
 {
 	/* Fill the phyxcer register into REG_0C */
-	dm9000_iow(DM9000_EPAR, DM9000_PHY | reg);
+	dm9000_iow(db, DM9000_EPAR, DM9000_PHY | reg);
 
 	/* Fill the written data into REG_0D & REG_0E */
-	dm9000_iow(DM9000_EPDRL, (value & 0xff));
-	dm9000_iow(DM9000_EPDRH, ((value >> 8) & 0xff));
-	dm9000_iow(DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
+	dm9000_iow(db, DM9000_EPDRL, (value & 0xff));
+	dm9000_iow(db, DM9000_EPDRH, ((value >> 8) & 0xff));
+	dm9000_iow(db, DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
 	udelay(500);			/* Wait write complete */
-	dm9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
+	dm9000_iow(db, DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
 	debug("%s(reg:0x%x, value:0x%x)\n", __func__, reg, value);
 }
 
 /*
  * Search DM9000 board, allocate space and register it
  */
-static int dm9000_probe(void)
+static int dm9000_probe(struct dm9000_priv *db)
 {
 	u32 id_val;
 
-	id_val = dm9000_ior(DM9000_VIDL);
-	id_val |= dm9000_ior(DM9000_VIDH) << 8;
-	id_val |= dm9000_ior(DM9000_PIDL) << 16;
-	id_val |= dm9000_ior(DM9000_PIDH) << 24;
+	id_val = dm9000_ior(db, DM9000_VIDL);
+	id_val |= dm9000_ior(db, DM9000_VIDH) << 8;
+	id_val |= dm9000_ior(db, DM9000_PIDL) << 16;
+	id_val |= dm9000_ior(db, DM9000_PIDH) << 24;
 	if (id_val != DM9000_ID) {
-		printf("dm9000 not found at 0x%08x id: 0x%08x\n",
-		       CONFIG_DM9000_BASE, id_val);
+		printf("dm9000 not found at 0x%p id: 0x%08x\n",
+		       db->base_io, id_val);
 		return -1;
 	}
 
-	printf("dm9000 i/o: 0x%x, id: 0x%x\n", CONFIG_DM9000_BASE, id_val);
+	printf("dm9000 i/o: 0x%p, id: 0x%x\n", db->base_io, id_val);
 	return 0;
 }
 
 /* General Purpose dm9000 reset routine */
-static void
-dm9000_reset(void)
+static void dm9000_reset(struct dm9000_priv *db)
 {
 	debug("resetting DM9000\n");
 
@@ -283,28 +285,28 @@ dm9000_reset(void)
 	 */
 
 	/* DEBUG: Make all GPIO0 outputs, all others inputs */
-	dm9000_iow(DM9000_GPCR, GPCR_GPIO0_OUT);
+	dm9000_iow(db, DM9000_GPCR, GPCR_GPIO0_OUT);
 	/* Step 1: Power internal PHY by writing 0 to GPIO0 pin */
-	dm9000_iow(DM9000_GPR, 0);
+	dm9000_iow(db, DM9000_GPR, 0);
 	/* Step 2: Software reset */
-	dm9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST));
+	dm9000_iow(db, DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST));
 
 	do {
 		debug("resetting the DM9000, 1st reset\n");
 		udelay(25); /* Wait at least 20 us */
-	} while (dm9000_ior(DM9000_NCR) & 1);
+	} while (dm9000_ior(db, DM9000_NCR) & 1);
 
-	dm9000_iow(DM9000_NCR, 0);
-	dm9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST)); /* Issue a second reset */
+	dm9000_iow(db, DM9000_NCR, 0);
+	dm9000_iow(db, DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST)); /* Issue a second reset */
 
 	do {
 		debug("resetting the DM9000, 2nd reset\n");
 		udelay(25); /* Wait at least 20 us */
-	} while (dm9000_ior(DM9000_NCR) & 1);
+	} while (dm9000_ior(db, DM9000_NCR) & 1);
 
 	/* Check whether the ethernet controller is present */
-	if ((dm9000_ior(DM9000_PIDL) != 0x0) ||
-	    (dm9000_ior(DM9000_PIDH) != 0x90))
+	if ((dm9000_ior(db, DM9000_PIDL) != 0x0) ||
+	    (dm9000_ior(db, DM9000_PIDH) != 0x90))
 		printf("ERROR: resetting DM9000 -> not responding\n");
 }
 
@@ -316,13 +318,13 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 	u8 io_mode;
 
 	/* RESET device */
-	dm9000_reset();
+	dm9000_reset(db);
 
-	if (dm9000_probe() < 0)
+	if (dm9000_probe(db) < 0)
 		return -1;
 
 	/* Auto-detect 8/16/32 bit mode, ISR Bit 6+7 indicate bus width */
-	io_mode = dm9000_ior(DM9000_ISR) >> 6;
+	io_mode = dm9000_ior(db, DM9000_ISR) >> 6;
 
 	switch (io_mode) {
 	case 0x0:  /* 16-bit mode */
@@ -353,21 +355,21 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 	}
 
 	/* Program operating register, only internal phy supported */
-	dm9000_iow(DM9000_NCR, 0x0);
+	dm9000_iow(db, DM9000_NCR, 0x0);
 	/* TX Polling clear */
-	dm9000_iow(DM9000_TCR, 0);
+	dm9000_iow(db, DM9000_TCR, 0);
 	/* Less 3Kb, 200us */
-	dm9000_iow(DM9000_BPTR, BPTR_BPHW(3) | BPTR_JPT_600US);
+	dm9000_iow(db, DM9000_BPTR, BPTR_BPHW(3) | BPTR_JPT_600US);
 	/* Flow Control : High/Low Water */
-	dm9000_iow(DM9000_FCTR, FCTR_HWOT(3) | FCTR_LWOT(8));
+	dm9000_iow(db, DM9000_FCTR, FCTR_HWOT(3) | FCTR_LWOT(8));
 	/* SH FIXME: This looks strange! Flow Control */
-	dm9000_iow(DM9000_FCR, 0x0);
+	dm9000_iow(db, DM9000_FCR, 0x0);
 	/* Special Mode */
-	dm9000_iow(DM9000_SMCR, 0);
+	dm9000_iow(db, DM9000_SMCR, 0);
 	/* clear TX status */
-	dm9000_iow(DM9000_NSR, NSR_WAKEST | NSR_TX2END | NSR_TX1END);
+	dm9000_iow(db, DM9000_NSR, NSR_WAKEST | NSR_TX2END | NSR_TX1END);
 	/* Clear interrupt status */
-	dm9000_iow(DM9000_ISR, ISR_ROOS | ISR_ROS | ISR_PTS | ISR_PRS);
+	dm9000_iow(db, DM9000_ISR, ISR_ROOS | ISR_ROS | ISR_PTS | ISR_PRS);
 
 	printf("MAC: %pM\n", dev->enetaddr);
 	if (!is_valid_ethaddr(dev->enetaddr))
@@ -375,23 +377,23 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 
 	/* fill device MAC address registers */
 	for (i = 0, oft = DM9000_PAR; i < 6; i++, oft++)
-		dm9000_iow(oft, dev->enetaddr[i]);
+		dm9000_iow(db, oft, dev->enetaddr[i]);
 	for (i = 0, oft = 0x16; i < 8; i++, oft++)
-		dm9000_iow(oft, 0xff);
+		dm9000_iow(db, oft, 0xff);
 
 	/* read back mac, just to be sure */
 	for (i = 0, oft = 0x10; i < 6; i++, oft++)
-		debug("%02x:", dm9000_ior(oft));
+		debug("%02x:", dm9000_ior(db, oft));
 	debug("\n");
 
 	/* Activate DM9000 */
 	/* RX enable */
-	dm9000_iow(DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);
+	dm9000_iow(db, DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);
 	/* Enable TX/RX interrupt mask */
-	dm9000_iow(DM9000_IMR, IMR_PAR);
+	dm9000_iow(db, DM9000_IMR, IMR_PAR);
 
 	i = 0;
-	while (!(dm9000_phy_read(1) & 0x20)) {	/* autonegation complete bit */
+	while (!(dm9000_phy_read(db, 1) & 0x20)) {	/* autonegation complete bit */
 		udelay(1000);
 		i++;
 		if (i == 10000) {
@@ -401,7 +403,7 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 	}
 
 	/* see what we've got */
-	lnk = dm9000_phy_read(17) >> 12;
+	lnk = dm9000_phy_read(db, 17) >> 12;
 	printf("operating at ");
 	switch (lnk) {
 	case 1:
@@ -435,31 +437,31 @@ static int dm9000_send(struct eth_device *dev, void *packet, int length)
 
 	dm9000_dump_packet(__func__, packet, length);
 
-	dm9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
+	dm9000_iow(db, DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
 
 	/* Move data to DM9000 TX RAM */
-	dm9000_outb(DM9000_MWCMD, DM9000_IO); /* Prepare for TX-data */
+	dm9000_outb(DM9000_MWCMD, db->base_io); /* Prepare for TX-data */
 
 	/* push the data to the TX-fifo */
-	db->outblk(packet, length);
+	db->outblk(db, packet, length);
 
 	/* Set TX length to DM9000 */
-	dm9000_iow(DM9000_TXPLL, length & 0xff);
-	dm9000_iow(DM9000_TXPLH, (length >> 8) & 0xff);
+	dm9000_iow(db, DM9000_TXPLL, length & 0xff);
+	dm9000_iow(db, DM9000_TXPLH, (length >> 8) & 0xff);
 
 	/* Issue TX polling command */
-	dm9000_iow(DM9000_TCR, TCR_TXREQ); /* Cleared after TX complete */
+	dm9000_iow(db, DM9000_TCR, TCR_TXREQ); /* Cleared after TX complete */
 
 	/* wait for end of transmission */
 	tmo = get_timer(0) + 5 * CONFIG_SYS_HZ;
-	while (!(dm9000_ior(DM9000_NSR) & (NSR_TX1END | NSR_TX2END)) ||
-	       !(dm9000_ior(DM9000_ISR) & IMR_PTM)) {
+	while (!(dm9000_ior(db, DM9000_NSR) & (NSR_TX1END | NSR_TX2END)) ||
+	       !(dm9000_ior(db, DM9000_ISR) & IMR_PTM)) {
 		if (get_timer(0) >= tmo) {
 			printf("transmission timeout\n");
 			break;
 		}
 	}
-	dm9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
+	dm9000_iow(db, DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
 
 	debug("transmit done\n\n");
 	return 0;
@@ -471,11 +473,13 @@ static int dm9000_send(struct eth_device *dev, void *packet, int length)
  */
 static void dm9000_halt(struct eth_device *netdev)
 {
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
+
 	/* RESET device */
-	dm9000_phy_write(0, 0x8000);	/* PHY RESET */
-	dm9000_iow(DM9000_GPR, 0x01);	/* Power-Down PHY */
-	dm9000_iow(DM9000_IMR, 0x80);	/* Disable all interrupt */
-	dm9000_iow(DM9000_RCR, 0x00);	/* Disable RX */
+	dm9000_phy_write(db, 0, 0x8000);	/* PHY RESET */
+	dm9000_iow(db, DM9000_GPR, 0x01);	/* Power-Down PHY */
+	dm9000_iow(db, DM9000_IMR, 0x80);	/* Disable all interrupt */
+	dm9000_iow(db, DM9000_RCR, 0x00);	/* Disable RX */
 }
 
 /*
@@ -492,25 +496,25 @@ static int dm9000_rx(struct eth_device *dev)
 	 * Check packet ready or not, we must check
 	 * the ISR status first for DM9000A
 	 */
-	if (!(dm9000_ior(DM9000_ISR) & 0x01)) /* Rx-ISR bit must be set. */
+	if (!(dm9000_ior(db, DM9000_ISR) & 0x01)) /* Rx-ISR bit must be set. */
 		return 0;
 
-	dm9000_iow(DM9000_ISR, 0x01); /* clear PR status latched in bit 0 */
+	dm9000_iow(db, DM9000_ISR, 0x01); /* clear PR status latched in bit 0 */
 
 	/* There is _at least_ 1 package in the fifo, read them all */
 	for (;;) {
-		dm9000_ior(DM9000_MRCMDX);	/* Dummy read */
+		dm9000_ior(db, DM9000_MRCMDX);	/* Dummy read */
 
 		/*
 		 * Get most updated data,
 		 * only look at bits 0:1, See application notes DM9000
 		 */
-		rxbyte = dm9000_inb(DM9000_DATA) & 0x03;
+		rxbyte = dm9000_inb(db->base_data) & 0x03;
 
 		/* Status check: this byte must be 0 or 1 */
 		if (rxbyte > DM9000_PKT_RDY) {
-			dm9000_iow(DM9000_RCR, 0x00);	/* Stop Device */
-			dm9000_iow(DM9000_ISR, 0x80);	/* Stop INT request */
+			dm9000_iow(db, DM9000_RCR, 0x00);	/* Stop Device */
+			dm9000_iow(db, DM9000_ISR, 0x80);	/* Stop INT request */
 			printf("DM9000 error: status check fail: 0x%x\n",
 			       rxbyte);
 			return 0;
@@ -522,13 +526,13 @@ static int dm9000_rx(struct eth_device *dev)
 		debug("receiving packet\n");
 
 		/* A packet ready now  & Get status/length */
-		db->rx_status(&rxstatus, &rxlen);
+		db->rx_status(db, &rxstatus, &rxlen);
 
 		debug("rx status: 0x%04x rx len: %d\n", rxstatus, rxlen);
 
 		/* Move data from DM9000 */
 		/* Read received packet from RX SRAM */
-		db->inblk(rdptr, rxlen);
+		db->inblk(db, rdptr, rxlen);
 
 		if (rxstatus & 0xbf00 || rxlen < 0x40 ||
 		    rxlen > DM9000_PKT_MAX) {
@@ -540,7 +544,7 @@ static int dm9000_rx(struct eth_device *dev)
 				printf("rx length error\n");
 			if (rxlen > DM9000_PKT_MAX) {
 				printf("rx length too big\n");
-				dm9000_reset();
+				dm9000_reset(db);
 			}
 		} else {
 			dm9000_dump_packet(__func__, rdptr, rxlen);
@@ -556,22 +560,23 @@ static int dm9000_rx(struct eth_device *dev)
  * Read a word data from SROM
  */
 #if !defined(CONFIG_DM9000_NO_SROM)
-static void dm9000_read_srom_word(int offset, u8 *to)
+static void dm9000_read_srom_word(struct dm9000_priv *db, int offset, u8 *to)
 {
-	dm9000_iow(DM9000_EPAR, offset);
-	dm9000_iow(DM9000_EPCR, 0x4);
+	dm9000_iow(db, DM9000_EPAR, offset);
+	dm9000_iow(db, DM9000_EPCR, 0x4);
 	mdelay(8);
-	dm9000_iow(DM9000_EPCR, 0x0);
-	to[0] = dm9000_ior(DM9000_EPDRL);
-	to[1] = dm9000_ior(DM9000_EPDRH);
+	dm9000_iow(db, DM9000_EPCR, 0x0);
+	to[0] = dm9000_ior(db, DM9000_EPDRL);
+	to[1] = dm9000_ior(db, DM9000_EPDRH);
 }
 
 static void dm9000_get_enetaddr(struct eth_device *dev)
 {
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	int i;
 
 	for (i = 0; i < 3; i++)
-		dm9000_read_srom_word(i, dev->enetaddr + (2 * i));
+		dm9000_read_srom_word(db, i, dev->enetaddr + (2 * i));
 }
 #else
 static void dm9000_get_enetaddr(struct eth_device *dev) {}
@@ -587,6 +592,9 @@ int dm9000_initialize(struct bd_info *bis)
 		return -ENOMEM;
 
 	dev = &priv->dev;
+
+	priv->base_io = (void __iomem *)DM9000_IO;
+	priv->base_data = (void __iomem *)DM9000_DATA;
 
 	/* Load MAC address from EEPROM */
 	dm9000_get_enetaddr(&priv->dev);
