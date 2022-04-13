@@ -6,15 +6,15 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <fsl_esdhc_imx.h>
+#include <hwconfig.h>
 #include <log.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
-#include <env.h>
-#include <fsl_esdhc_imx.h>
-#include <hwconfig.h>
 #include <linux/delay.h>
 
 #include "common.h"
@@ -1045,7 +1045,7 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 #define SETUP_GPIO_INPUT(gpio, name) \
 	gpio_request(gpio, name); \
 	gpio_direction_input(gpio);
-void setup_iomux_gpio(int board, struct ventana_board_info *info)
+void setup_iomux_gpio(int board)
 {
 	if (board >= GW_UNKNOWN)
 		return;
@@ -1214,8 +1214,6 @@ static struct fsl_esdhc_cfg usdhc_cfg[2];
 
 int board_mmc_init(struct bd_info *bis)
 {
-	struct ventana_board_info ventana_info;
-	int board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 	int ret;
 
 	switch (board_type) {
@@ -1279,13 +1277,11 @@ int board_mmc_init(struct bd_info *bis)
 
 int board_mmc_getcd(struct mmc *mmc)
 {
-	struct ventana_board_info ventana_info;
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int board = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
-	int gpio = gpio_cfg[board].mmc_cd;
+	int gpio = gpio_cfg[board_type].mmc_cd;
 
 	/* Card Detect */
-	switch (board) {
+	switch (board_type) {
 	case GW560x:
 		/* emmc is always present */
 		if (cfg->esdhc_base == USDHC2_BASE_ADDR)

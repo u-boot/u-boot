@@ -227,6 +227,8 @@ config TARGET_GW_VENTANA
 	bool "gw_ventana"
 	depends on MX6QDL
 	select SUPPORT_SPL
+	select GATEWORKS_SC
+	select MISC
 	imply CMD_SATA
 	imply CMD_SPL
 
