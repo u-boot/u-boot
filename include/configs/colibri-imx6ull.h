@@ -101,6 +101,7 @@
 	NFS_BOOTCMD \
 	UBI_BOOTCMD \
 	UBOOT_UPDATE \
+	"boot_script_dhcp=boot.scr\0" \
 	"bootubipart=ubi\0" \
 	"console=ttymxc0\0" \
 	"defargs=user_debug=30\0" \

@@ -52,6 +52,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	"bootcmd_mfg=fastboot 0\0" \
 	"boot_file=Image\0" \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttymxc0\0" \
 	"fdt_addr=0x43000000\0" \
 	"fdt_board=dev\0" \

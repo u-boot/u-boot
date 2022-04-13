@@ -38,6 +38,7 @@
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"boot_file=Image\0" \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyLP1 earlycon\0" \
 	"fdt_addr=0x83000000\0"	\
 	"fdt_file=fsl-imx8qm-apalis-eval.dtb\0" \

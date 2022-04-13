@@ -24,6 +24,7 @@
 
 /* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
 #define BOARD_EXTRA_ENV_SETTINGS \
+	"boot_script_dhcp=boot.scr\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	UBOOT_UPDATE
 

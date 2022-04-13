@@ -71,6 +71,7 @@
 	NFS_BOOTCMD \
 	UBI_BOOTCMD \
 	UBOOT_UPDATE \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyLP0\0" \
 	"defargs=user_debug=30\0" \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \

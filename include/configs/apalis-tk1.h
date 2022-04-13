@@ -71,6 +71,7 @@
 
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"boot_file=zImage\0" \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyS0\0" \
 	"defargs=lp0_vec=2064@0xf46ff000 core_edp_mv=1150 core_edp_ma=4000 " \
 		"usb_port_owner_info=2 lane_owner_info=6 emc_max_dvfs=0 " \

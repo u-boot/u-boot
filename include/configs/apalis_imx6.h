@@ -108,6 +108,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"boot_file=zImage\0" \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off vmalloc=400M\0" \
 	"fdt_file=" FDT_FILE "\0" \

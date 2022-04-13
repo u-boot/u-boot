@@ -47,7 +47,8 @@
 		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0" \
 
 #define BOARD_EXTRA_ENV_SETTINGS \
-	UBOOT_UPDATE
+	UBOOT_UPDATE \
+	"boot_script_dhcp=boot.scr\0"
 
 #include "tegra-common-post.h"
 
