@@ -51,6 +51,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
@@ -74,7 +75,9 @@ struct dm9000_priv {
 	void (*outblk)(struct dm9000_priv *db, void *data_ptr, int count);
 	void (*inblk)(struct dm9000_priv *db, void *data_ptr, int count);
 	void (*rx_status)(struct dm9000_priv *db, u16 *rxstatus, u16 *rxlen);
+#ifndef CONFIG_DM_ETH
 	struct eth_device dev;
+#endif
 	void __iomem *base_io;
 	void __iomem *base_data;
 };
@@ -569,6 +572,7 @@ static void dm9000_get_enetaddr(struct dm9000_priv *db, u8 *enetaddr)
 static void dm9000_get_enetaddr(struct dm9000_priv *db, u8 *enetaddr) {}
 #endif
 
+#ifndef CONFIG_DM_ETH
 static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 {
 	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
@@ -629,3 +633,117 @@ int dm9000_initialize(struct bd_info *bis)
 
 	return 0;
 }
+#else	/* ifdef CONFIG_DM_ETH */
+static int dm9000_start(struct udevice *dev)
+{
+	struct dm9000_priv *db = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+
+	return dm9000_init_common(db, pdata->enetaddr);
+}
+
+static void dm9000_stop(struct udevice *dev)
+{
+	struct dm9000_priv *db = dev_get_priv(dev);
+
+	dm9000_halt_common(db);
+}
+
+static int dm9000_send(struct udevice *dev, void *packet, int length)
+{
+	struct dm9000_priv *db = dev_get_priv(dev);
+	int ret;
+
+	ret = dm9000_send_common(db, packet, length);
+
+	return ret ? 0 : -ETIMEDOUT;
+}
+
+static int dm9000_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct dm9000_priv *db = dev_get_priv(dev);
+	uchar *data = net_rx_packets[0];
+	int ret;
+
+	ret = dm9000_recv_common(db, data);
+	if (ret)
+		*packetp = (void *)data;
+
+	return ret ? ret : -EAGAIN;
+}
+
+static int dm9000_write_hwaddr(struct udevice *dev)
+{
+	struct dm9000_priv *db = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	int i, oft;
+
+	/* fill device MAC address registers */
+	for (i = 0, oft = DM9000_PAR; i < 6; i++, oft++)
+		dm9000_iow(db, oft, pdata->enetaddr[i]);
+
+	for (i = 0, oft = 0x16; i < 8; i++, oft++)
+		dm9000_iow(db, oft, 0xff);
+
+	/* read back mac, just to be sure */
+	for (i = 0, oft = 0x10; i < 6; i++, oft++)
+		debug("%02x:", dm9000_ior(db, oft));
+
+	debug("\n");
+
+	return 0;
+}
+
+static int dm9000_read_rom_hwaddr(struct udevice *dev)
+{
+	struct dm9000_priv *db = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+
+	dm9000_get_enetaddr(db, pdata->enetaddr);
+
+	return !is_valid_ethaddr(pdata->enetaddr);
+}
+
+static int dm9000_bind(struct udevice *dev)
+{
+	return device_set_name(dev, dev->name);
+}
+
+static int dm9000_of_to_plat(struct udevice *dev)
+{
+	struct dm9000_priv *db = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+
+	pdata->iobase = dev_read_addr_index(dev, 0);
+	db->base_io = (void __iomem *)pdata->iobase;
+	db->base_data = (void __iomem *)dev_read_addr_index(dev, 1);
+
+	return 0;
+}
+
+static const struct eth_ops dm9000_ops = {
+	.start		= dm9000_start,
+	.stop		= dm9000_stop,
+	.send		= dm9000_send,
+	.recv		= dm9000_recv,
+	.write_hwaddr	= dm9000_write_hwaddr,
+	.read_rom_hwaddr = dm9000_read_rom_hwaddr,
+};
+
+static const struct udevice_id dm9000_ids[] = {
+	{ .compatible = "davicom,dm9000" },
+	{ }
+};
+
+U_BOOT_DRIVER(dm9000) = {
+	.name		= "eth_dm9000",
+	.id		= UCLASS_ETH,
+	.of_match	= dm9000_ids,
+	.bind		= dm9000_bind,
+	.of_to_plat = dm9000_of_to_plat,
+	.ops		= &dm9000_ops,
+	.priv_auto	= sizeof(struct dm9000_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
+	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif
