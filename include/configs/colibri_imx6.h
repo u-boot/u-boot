@@ -78,15 +78,13 @@
 	"ramdisk_addr_r=0x12200000\0" \
 	"scriptaddr=0x17000000\0"
 
-#define FDT_FILE "imx6dl-colibri-eval-v3.dtb"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"boot_file=zImage\0" \
 	"boot_script_dhcp=boot.scr\0" \
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off galcore.contiguousSize=50331648\0" \
-	"fdt_file=" FDT_FILE "\0" \
-	"fdtfile=" FDT_FILE "\0" \
+	"fdt_board=eval-v3\0" \
 	"fdt_fixup=;\0" \
 	MEM_LAYOUT_ENV_SETTINGS \
 	UBOOT_UPDATE \
