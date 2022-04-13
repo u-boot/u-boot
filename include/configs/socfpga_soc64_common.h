@@ -109,11 +109,6 @@
 #define CONFIG_SYS_NS16550_MEM32
 
 /*
- * Timer & watchdog configurations
- */
-#define COUNTER_FREQUENCY		400000000
-
-/*
  * SDMMC configurations
  */
 #ifdef CONFIG_CMD_MMC

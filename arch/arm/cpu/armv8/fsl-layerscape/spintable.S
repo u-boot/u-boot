@@ -113,6 +113,6 @@ _dead_loop:
 	.align 3
 	.global __real_cntfrq
 __real_cntfrq:
-	.quad COUNTER_FREQUENCY
+	.quad CONFIG_COUNTER_FREQUENCY
 	/* Secondary Boot Code ends here */
 __secondary_boot_code_end:

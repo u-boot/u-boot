@@ -124,8 +124,5 @@
 /* LPDDR4 board total DDR is 6GB, DDR4 board total DDR is 4 GB */
 #define PHYS_SDRAM_2_SIZE		0x80000000	/* 2 GB */
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		8000000	/* 8MHz */
-
 #include <linux/stringify.h>
 #endif /* __IMX8QM_ROM7720_H */

@@ -23,9 +23,6 @@
 
 /* UART */
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		19000000
-
 /* Fixup - in init code we switch from device to host mode,
  * it has to be done after each HCD reset */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

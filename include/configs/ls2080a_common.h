@@ -41,12 +41,10 @@
 
 #define CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 
-/* Generic Timer Definitions */
 /*
  * This is not an accurate number. It is used in start.S. The frequency
  * will be udpated later when get_bus_freq(0) is available.
  */
-#define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 /* GPIO */
 

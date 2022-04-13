@@ -24,7 +24,4 @@
 
 #include "tegra-common-post.h"
 
-/* Crystal is 38.4MHz. clk_m runs at half that rate */
-#define COUNTER_FREQUENCY	19200000
-
 #endif /* _P2371_2180_H */

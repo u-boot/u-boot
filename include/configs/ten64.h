@@ -9,7 +9,6 @@
 
 #include "ls1088a_common.h"
 
-#define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
 

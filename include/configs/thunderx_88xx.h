@@ -20,9 +20,6 @@
 /* SMP Spin Table Definitions */
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
-
 /* PL011 Serial Configuration */
 
 #define CONFIG_PL011_CLOCK		24000000

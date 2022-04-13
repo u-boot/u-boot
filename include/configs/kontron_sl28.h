@@ -32,7 +32,6 @@
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
 /* generic timer */
-#define COUNTER_FREQUENCY		25000000
 
 /* early heap for SPL DM */
 #define CONFIG_MALLOC_F_ADDR		CONFIG_SYS_FSL_OCRAM_BASE

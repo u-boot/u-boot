@@ -13,9 +13,6 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 230400, 460800, 921600 }
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY	19000000
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x4000000\0"	\
 	"bootm_low=0x80000000\0"	\

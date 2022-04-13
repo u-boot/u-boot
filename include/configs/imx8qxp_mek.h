@@ -129,9 +129,6 @@
 /* LPDDR4 board total DDR is 3GB */
 #define PHYS_SDRAM_2_SIZE		0x40000000	/* 1 GB */
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		8000000	/* 8MHz */
-
 #ifndef CONFIG_DM_PCA953X
 #define CONFIG_PCA953X
 #endif

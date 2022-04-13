@@ -13,9 +13,6 @@
 /* SDRAM Definitions */
 #define CONFIG_SYS_SDRAM_BASE		0x0
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		(24000000)	/* 24MHz */
-
 /* Some commands use this as the default load address */
 
 /*
