@@ -51,6 +51,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
 #include <dm9000.h>
@@ -74,10 +75,8 @@ struct dm9000_priv {
 	void (*outblk)(void *data_ptr, int count);
 	void (*inblk)(void *data_ptr, int count);
 	void (*rx_status)(u16 *rxstatus, u16 *rxlen);
-	struct eth_device netdev;
+	struct eth_device dev;
 };
-
-static struct dm9000_priv dm9000_info;
 
 /* DM9000 network board routine ---------------------------- */
 #ifndef CONFIG_DM9000_BYTE_SWAPPED
@@ -313,9 +312,9 @@ dm9000_reset(void)
 /* Initialize dm9000 board */
 static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 {
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	int i, oft, lnk;
 	u8 io_mode;
-	struct dm9000_priv *db = &dm9000_info;
 
 	/* RESET device */
 	dm9000_reset();
@@ -430,10 +429,10 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
  * Hardware start transmission.
  * Send a packet to media from the upper layer.
  */
-static int dm9000_send(struct eth_device *netdev, void *packet, int length)
+static int dm9000_send(struct eth_device *dev, void *packet, int length)
 {
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	int tmo;
-	struct dm9000_priv *db = &dm9000_info;
 
 	dm9000_dump_packet(__func__, packet, length);
 
@@ -483,12 +482,12 @@ static void dm9000_halt(struct eth_device *netdev)
 /*
  * Received a packet and pass to upper layer
  */
-static int dm9000_rx(struct eth_device *netdev)
+static int dm9000_rx(struct eth_device *dev)
 {
+	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
 	u8 rxbyte;
 	u8 *rdptr = (u8 *)net_rx_packets[0];
 	u16 rxstatus, rxlen = 0;
-	struct dm9000_priv *db = &dm9000_info;
 
 	/*
 	 * Check packet ready or not, we must check
@@ -591,10 +590,17 @@ static void dm9000_get_enetaddr(struct eth_device *dev) {}
 
 int dm9000_initialize(struct bd_info *bis)
 {
-	struct eth_device *dev = &dm9000_info.netdev;
+	struct dm9000_priv *priv;
+	struct eth_device *dev;
+
+	priv = calloc(1, sizeof(*priv));
+	if (!priv)
+		return -ENOMEM;
+
+	dev = &priv->dev;
 
 	/* Load MAC address from EEPROM */
-	dm9000_get_enetaddr(dev);
+	dm9000_get_enetaddr(&priv->dev);
 
 	dev->init = dm9000_init;
 	dev->halt = dm9000_halt;
@@ -602,7 +608,7 @@ int dm9000_initialize(struct bd_info *bis)
 	dev->recv = dm9000_rx;
 	strcpy(dev->name, "dm9000");
 
-	eth_register(dev);
+	eth_register(&priv->dev);
 
 	return 0;
 }
