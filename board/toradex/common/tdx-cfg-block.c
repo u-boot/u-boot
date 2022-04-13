@@ -13,7 +13,6 @@
 
 #if defined(CONFIG_TARGET_APALIS_IMX6) || \
 	defined(CONFIG_TARGET_APALIS_IMX8) || \
-	defined(CONFIG_TARGET_APALIS_IMX8X) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX8X) || \
 	defined(CONFIG_TARGET_VERDIN_IMX8MM) || \
@@ -379,7 +378,6 @@ static int get_cfgblock_interactive(void)
 	it = console_buffer[0];
 
 #if defined(CONFIG_TARGET_APALIS_IMX8) || \
-		defined(CONFIG_TARGET_APALIS_IMX8X) || \
 		defined(CONFIG_TARGET_COLIBRI_IMX6ULL) || \
 		defined(CONFIG_TARGET_COLIBRI_IMX8X) || \
 		defined(CONFIG_TARGET_VERDIN_IMX8MM) || \
@@ -451,16 +449,7 @@ static int get_cfgblock_interactive(void)
 				tdx_hw_tag.prodid = APALIS_IMX8QP;
 		}
 	} else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
-#ifdef CONFIG_TARGET_APALIS_IMX8X
-		if (it == 'y' || it == 'Y' || wb == 'y' || wb == 'Y') {
-				tdx_hw_tag.prodid = APALIS_IMX8QXP_WIFI_BT_IT;
-		} else {
-			if (gd->ram_size == 0x40000000)
-				tdx_hw_tag.prodid = APALIS_IMX8DXP;
-			else
-				tdx_hw_tag.prodid = APALIS_IMX8QXP;
-		}
-#elif CONFIG_TARGET_COLIBRI_IMX8X
+#ifdef CONFIG_TARGET_COLIBRI_IMX8X
 		if (it == 'y' || it == 'Y') {
 			if (wb == 'y' || wb == 'Y')
 				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
