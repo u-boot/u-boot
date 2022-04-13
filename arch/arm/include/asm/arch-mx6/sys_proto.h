@@ -18,7 +18,7 @@
 #define is_usbotg_phy_active(void) (!(readl(USB_PHY0_BASE_ADDR + USBPHY_PWD) & \
 				   USBPHY_PWD_RXPWDRX))
 
-int imx6_pcie_toggle_power(void);
+int imx6_pcie_toggle_power(struct udevice *vpcie);
 int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high);
 
 enum ldo_reg {

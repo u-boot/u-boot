@@ -14,6 +14,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <pci.h>
+#include <power/regulator.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/crm_regs.h>
@@ -102,6 +103,7 @@ struct imx_pcie_priv {
 	void __iomem		*cfg_base;
 	struct gpio_desc	reset_gpio;
 	bool			reset_active_high;
+	struct udevice		*vpcie;
 };
 
 /*
@@ -530,7 +532,7 @@ static int imx6_pcie_init_phy(void)
 	return 0;
 }
 
-__weak int imx6_pcie_toggle_power(void)
+__weak int imx6_pcie_toggle_power(struct udevice *vpcie)
 {
 #ifdef CONFIG_PCIE_IMX_POWER_GPIO
 	gpio_request(CONFIG_PCIE_IMX_POWER_GPIO, "pcie_power");
@@ -539,6 +541,15 @@ __weak int imx6_pcie_toggle_power(void)
 	gpio_set_value(CONFIG_PCIE_IMX_POWER_GPIO, 1);
 	mdelay(20);
 	gpio_free(CONFIG_PCIE_IMX_POWER_GPIO);
+#endif
+
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	if (vpcie) {
+		regulator_set_enable(vpcie, false);
+		mdelay(20);
+		regulator_set_enable(vpcie, true);
+		mdelay(20);
+	}
 #endif
 	return 0;
 }
@@ -598,7 +609,7 @@ static int imx6_pcie_deassert_core_reset(struct imx_pcie_priv *priv)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
-	imx6_pcie_toggle_power();
+	imx6_pcie_toggle_power(priv->vpcie);
 
 	enable_pcie_clock();
 
@@ -716,6 +727,10 @@ static int imx_pcie_dm_write_config(struct udevice *dev, pci_dev_t bdf,
 static int imx_pcie_dm_probe(struct udevice *dev)
 {
 	struct imx_pcie_priv *priv = dev_get_priv(dev);
+
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	device_get_supply_regulator(dev, "vpcie-supply", &priv->vpcie);
+#endif
 
 	/* if PERST# valid from dt then assert it */
 	gpio_request_by_name(dev, "reset-gpio", 0, &priv->reset_gpio,
