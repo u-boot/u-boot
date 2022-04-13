@@ -259,8 +259,16 @@ const char *eeprom_get_dtb_name(int level, char *buf, int sz)
 			break;
 		case 2: /* don't care about PCB or BOM revision */
 			break;
+		case 3: /* don't care about last digit of model */
+			buf[strlen(buf) - 1] = 'x';
+			break;
+		case 4: /* don't care about last two digits of model */
+			buf[strlen(buf) - 1] = 'x';
+			buf[strlen(buf) - 2] = 'x';
+			break;
 		default:
 			return NULL;
+			break;
 		}
 	}
 
