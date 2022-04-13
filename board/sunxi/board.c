@@ -202,14 +202,14 @@ int board_init(void)
 		 * we avoid the risk of writing to it.
 		 */
 		asm volatile("mrc p15, 0, %0, c14, c0, 0" : "=r"(freq));
-		if (freq != COUNTER_FREQUENCY) {
+		if (freq != CONFIG_COUNTER_FREQUENCY) {
 			debug("arch timer frequency is %d Hz, should be %d, fixing ...\n",
-			      freq, COUNTER_FREQUENCY);
+			      freq, CONFIG_COUNTER_FREQUENCY);
 #ifdef CONFIG_NON_SECURE
 			printf("arch timer frequency is wrong, but cannot adjust it\n");
 #else
 			asm volatile("mcr p15, 0, %0, c14, c0, 0"
-				     : : "r"(COUNTER_FREQUENCY));
+				     : : "r"(CONFIG_COUNTER_FREQUENCY));
 #endif
 		}
 	}

@@ -39,7 +39,7 @@ __weak void rockchip_stimer_init(void)
 
 #ifndef CONFIG_ARM64
 	asm volatile("mcr p15, 0, %0, c14, c0, 0"
-		     : : "r"(COUNTER_FREQUENCY));
+		     : : "r"(CONFIG_COUNTER_FREQUENCY));
 #endif
 
 	writel(0, CONFIG_ROCKCHIP_STIMER_BASE + TIMER_CONTROL_REG);
