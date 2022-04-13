@@ -532,7 +532,7 @@ static int imx6_pcie_init_phy(void)
 	return 0;
 }
 
-__weak int imx6_pcie_toggle_power(struct udevice *vpcie)
+int imx6_pcie_toggle_power(struct udevice *vpcie)
 {
 #ifdef CONFIG_PCIE_IMX_POWER_GPIO
 	gpio_request(CONFIG_PCIE_IMX_POWER_GPIO, "pcie_power");
@@ -554,7 +554,7 @@ __weak int imx6_pcie_toggle_power(struct udevice *vpcie)
 	return 0;
 }
 
-__weak int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high)
+int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high)
 {
 	/*
 	 * See 'PCI EXPRESS BASE SPECIFICATION, REV 3.0, SECTION 6.6.1'
@@ -569,12 +569,6 @@ __weak int imx6_pcie_toggle_reset(struct gpio_desc *gpio, bool active_high)
 	 * CPU, you can define CONFIG_PCIE_IMX_PERST_GPIO in your board's
 	 * configuration file and the condition below will handle the rest
 	 * of the reset toggling.
-	 *
-	 * In case your #PERST toggling logic is more complex, for example
-	 * connected via CPLD or somesuch, you can override this function
-	 * in your board file and implement reset logic as needed. You must
-	 * not forget to wait at least 20 ms after de-asserting #PERST in
-	 * this case either though.
 	 *
 	 * In case your #PERST line of the PCIe EP device is not connected
 	 * at all, your design is broken and you should fix your design,
