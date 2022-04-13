@@ -92,7 +92,7 @@ typedef struct board_info {
 	unsigned char srom[128];
 	void (*outblk)(volatile void *data_ptr, int count);
 	void (*inblk)(void *data_ptr, int count);
-	void (*rx_status)(u16 *RxStatus, u16 *RxLen);
+	void (*rx_status)(u16 *rxstatus, u16 *rxlen);
 	struct eth_device netdev;
 } board_info_t;
 static board_info_t dm9000_info;
@@ -187,33 +187,33 @@ static void dm9000_inblk_32bit(void *data_ptr, int count)
 		((u32 *) data_ptr)[i] = dm9000_inl(DM9000_DATA);
 }
 
-static void dm9000_rx_status_32bit(u16 *RxStatus, u16 *RxLen)
+static void dm9000_rx_status_32bit(u16 *rxstatus, u16 *rxlen)
 {
 	u32 tmpdata;
 
 	dm9000_outb(DM9000_MRCMD, DM9000_IO);
 
 	tmpdata = dm9000_inl(DM9000_DATA);
-	*RxStatus = __le16_to_cpu(tmpdata);
-	*RxLen = __le16_to_cpu(tmpdata >> 16);
+	*rxstatus = __le16_to_cpu(tmpdata);
+	*rxlen = __le16_to_cpu(tmpdata >> 16);
 }
 
-static void dm9000_rx_status_16bit(u16 *RxStatus, u16 *RxLen)
+static void dm9000_rx_status_16bit(u16 *rxstatus, u16 *rxlen)
 {
 	dm9000_outb(DM9000_MRCMD, DM9000_IO);
 
-	*RxStatus = __le16_to_cpu(dm9000_inw(DM9000_DATA));
-	*RxLen = __le16_to_cpu(dm9000_inw(DM9000_DATA));
+	*rxstatus = __le16_to_cpu(dm9000_inw(DM9000_DATA));
+	*rxlen = __le16_to_cpu(dm9000_inw(DM9000_DATA));
 }
 
-static void dm9000_rx_status_8bit(u16 *RxStatus, u16 *RxLen)
+static void dm9000_rx_status_8bit(u16 *rxstatus, u16 *rxlen)
 {
 	dm9000_outb(DM9000_MRCMD, DM9000_IO);
 
-	*RxStatus =
+	*rxstatus =
 	    __le16_to_cpu(dm9000_inb(DM9000_DATA) +
 			  (dm9000_inb(DM9000_DATA) << 8));
-	*RxLen =
+	*rxlen =
 	    __le16_to_cpu(dm9000_inb(DM9000_DATA) +
 			  (dm9000_inb(DM9000_DATA) << 8));
 }
@@ -458,7 +458,7 @@ static int dm9000_rx(struct eth_device *netdev)
 {
 	u8 rxbyte;
 	u8 *rdptr = (u8 *)net_rx_packets[0];
-	u16 RxStatus, RxLen = 0;
+	u16 rxstatus, rxlen = 0;
 	struct board_info *db = &dm9000_info;
 
 	/* Check packet ready or not, we must check
@@ -491,34 +491,34 @@ static int dm9000_rx(struct eth_device *netdev)
 		debug("receiving packet\n");
 
 		/* A packet ready now  & Get status/length */
-		(db->rx_status)(&RxStatus, &RxLen);
+		(db->rx_status)(&rxstatus, &rxlen);
 
-		debug("rx status: 0x%04x rx len: %d\n", RxStatus, RxLen);
+		debug("rx status: 0x%04x rx len: %d\n", rxstatus, rxlen);
 
 		/* Move data from DM9000 */
 		/* Read received packet from RX SRAM */
-		(db->inblk)(rdptr, RxLen);
+		(db->inblk)(rdptr, rxlen);
 
-		if ((RxStatus & 0xbf00) || (RxLen < 0x40)
-			|| (RxLen > DM9000_PKT_MAX)) {
-			if (RxStatus & 0x100) {
+		if ((rxstatus & 0xbf00) || (rxlen < 0x40)
+			|| (rxlen > DM9000_PKT_MAX)) {
+			if (rxstatus & 0x100) {
 				printf("rx fifo error\n");
 			}
-			if (RxStatus & 0x200) {
+			if (rxstatus & 0x200) {
 				printf("rx crc error\n");
 			}
-			if (RxStatus & 0x8000) {
+			if (rxstatus & 0x8000) {
 				printf("rx length error\n");
 			}
-			if (RxLen > DM9000_PKT_MAX) {
+			if (rxlen > DM9000_PKT_MAX) {
 				printf("rx length too big\n");
 				dm9000_reset();
 			}
 		} else {
-			DM9000_DMP_PACKET(__func__ , rdptr, RxLen);
+			DM9000_DMP_PACKET(__func__ , rdptr, rxlen);
 
 			debug("passing packet to upper layer\n");
-			net_process_received_packet(net_rx_packets[0], RxLen);
+			net_process_received_packet(net_rx_packets[0], rxlen);
 		}
 	}
 	return 0;
