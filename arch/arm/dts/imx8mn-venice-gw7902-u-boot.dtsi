@@ -116,7 +116,7 @@
 &fec1 {
 	phy-reset-gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <1>;
-	phy-reset-post-delay = <1>;
+	phy-reset-post-delay = <300>;
 };
 
 &pinctrl_fec1 {
