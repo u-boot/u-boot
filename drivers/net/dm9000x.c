@@ -63,7 +63,6 @@ TODO: external MII is not functional, only internal at the moment.
 /* #define CONFIG_DM9000_DEBUG */
 
 #ifdef CONFIG_DM9000_DEBUG
-#define DM9000_DBG(fmt,args...) printf(fmt, ##args)
 #define DM9000_DMP_PACKET(func,packet,length)  \
 	do { \
 		int i;							\
@@ -75,7 +74,6 @@ TODO: external MII is not functional, only internal at the moment.
 		} printf("\n");						\
 	} while(0)
 #else
-#define DM9000_DBG(fmt,args...)
 #define DM9000_DMP_PACKET(func,packet,length)
 #endif
 
@@ -128,16 +126,16 @@ static void dm9000_iow(int reg, u8 value);
 static void
 dump_regs(void)
 {
-	DM9000_DBG("\n");
-	DM9000_DBG("NCR   (0x00): %02x\n", dm9000_ior(0));
-	DM9000_DBG("NSR   (0x01): %02x\n", dm9000_ior(1));
-	DM9000_DBG("TCR   (0x02): %02x\n", dm9000_ior(2));
-	DM9000_DBG("TSRI  (0x03): %02x\n", dm9000_ior(3));
-	DM9000_DBG("TSRII (0x04): %02x\n", dm9000_ior(4));
-	DM9000_DBG("RCR   (0x05): %02x\n", dm9000_ior(5));
-	DM9000_DBG("RSR   (0x06): %02x\n", dm9000_ior(6));
-	DM9000_DBG("ISR   (0xFE): %02x\n", dm9000_ior(DM9000_ISR));
-	DM9000_DBG("\n");
+	debug("\n");
+	debug("NCR   (0x00): %02x\n", dm9000_ior(0));
+	debug("NSR   (0x01): %02x\n", dm9000_ior(1));
+	debug("TCR   (0x02): %02x\n", dm9000_ior(2));
+	debug("TSRI  (0x03): %02x\n", dm9000_ior(3));
+	debug("TSRII (0x04): %02x\n", dm9000_ior(4));
+	debug("RCR   (0x05): %02x\n", dm9000_ior(5));
+	debug("RSR   (0x06): %02x\n", dm9000_ior(6));
+	debug("ISR   (0xFE): %02x\n", dm9000_ior(DM9000_ISR));
+	debug("\n");
 }
 #endif
 
@@ -246,7 +244,7 @@ dm9000_probe(void)
 static void
 dm9000_reset(void)
 {
-	DM9000_DBG("resetting DM9000\n");
+	debug("resetting DM9000\n");
 
 	/* Reset DM9000,
 	   see DM9000 Application Notes V1.22 Jun 11, 2004 page 29 */
@@ -259,7 +257,7 @@ dm9000_reset(void)
 	dm9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST));
 
 	do {
-		DM9000_DBG("resetting the DM9000, 1st reset\n");
+		debug("resetting the DM9000, 1st reset\n");
 		udelay(25); /* Wait at least 20 us */
 	} while (dm9000_ior(DM9000_NCR) & 1);
 
@@ -267,7 +265,7 @@ dm9000_reset(void)
 	dm9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST)); /* Issue a second reset */
 
 	do {
-		DM9000_DBG("resetting the DM9000, 2nd reset\n");
+		debug("resetting the DM9000, 2nd reset\n");
 		udelay(25); /* Wait at least 20 us */
 	} while (dm9000_ior(DM9000_NCR) & 1);
 
@@ -285,7 +283,7 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 	u8 io_mode;
 	struct board_info *db = &dm9000_info;
 
-	DM9000_DBG("%s\n", __func__);
+	debug("%s\n", __func__);
 
 	/* RESET device */
 	dm9000_reset();
@@ -354,8 +352,8 @@ static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
 
 	/* read back mac, just to be sure */
 	for (i = 0, oft = 0x10; i < 6; i++, oft++)
-		DM9000_DBG("%02x:", dm9000_ior(oft));
-	DM9000_DBG("\n");
+		debug("%02x:", dm9000_ior(oft));
+	debug("\n");
 
 	/* Activate DM9000 */
 	/* RX enable */
@@ -434,7 +432,7 @@ static int dm9000_send(struct eth_device *netdev, void *packet, int length)
 	}
 	dm9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
 
-	DM9000_DBG("transmit done\n\n");
+	debug("transmit done\n\n");
 	return 0;
 }
 
@@ -444,7 +442,7 @@ static int dm9000_send(struct eth_device *netdev, void *packet, int length)
 */
 static void dm9000_halt(struct eth_device *netdev)
 {
-	DM9000_DBG("%s\n", __func__);
+	debug("%s\n", __func__);
 
 	/* RESET devie */
 	dm9000_phy_write(0, 0x8000);	/* PHY RESET */
@@ -490,12 +488,12 @@ static int dm9000_rx(struct eth_device *netdev)
 		if (rxbyte != DM9000_PKT_RDY)
 			return 0; /* No packet received, ignore */
 
-		DM9000_DBG("receiving packet\n");
+		debug("receiving packet\n");
 
 		/* A packet ready now  & Get status/length */
 		(db->rx_status)(&RxStatus, &RxLen);
 
-		DM9000_DBG("rx status: 0x%04x rx len: %d\n", RxStatus, RxLen);
+		debug("rx status: 0x%04x rx len: %d\n", RxStatus, RxLen);
 
 		/* Move data from DM9000 */
 		/* Read received packet from RX SRAM */
@@ -519,7 +517,7 @@ static int dm9000_rx(struct eth_device *netdev)
 		} else {
 			DM9000_DMP_PACKET(__func__ , rdptr, RxLen);
 
-			DM9000_DBG("passing packet to upper layer\n");
+			debug("passing packet to upper layer\n");
 			net_process_received_packet(net_rx_packets[0], RxLen);
 		}
 	}
@@ -596,7 +594,7 @@ dm9000_phy_read(int reg)
 	val = (dm9000_ior(DM9000_EPDRH) << 8) | dm9000_ior(DM9000_EPDRL);
 
 	/* The read data keeps on REG_0D & REG_0E */
-	DM9000_DBG("dm9000_phy_read(0x%x): 0x%x\n", reg, val);
+	debug("dm9000_phy_read(0x%x): 0x%x\n", reg, val);
 	return val;
 }
 
@@ -616,7 +614,7 @@ dm9000_phy_write(int reg, u16 value)
 	dm9000_iow(DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
 	udelay(500);			/* Wait write complete */
 	dm9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
-	DM9000_DBG("dm9000_phy_write(reg:0x%x, value:0x%x)\n", reg, value);
+	debug("dm9000_phy_write(reg:0x%x, value:0x%x)\n", reg, value);
 }
 
 int dm9000_initialize(struct bd_info *bis)
