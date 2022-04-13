@@ -3,19 +3,8 @@
  * Copyright 2021 Gateworks Corporation
  */
 
-#ifndef _GSC_H_
-#define _GSC_H_
-
-/* I2C bus numbers */
-#define GSC_BUSNO			0
-#define BASEBOARD_EEPROM_BUSNO		1
-
-/* I2C slave addresses */
-#define GSC_SC_ADDR             0x20
-#define GSC_RTC_ADDR            0x68
-#define GSC_HWMON_ADDR          0x29
-#define GSC_EEPROM_ADDR         0x51
-#define BASEBOARD_EEPROM_ADDR	0x52
+#ifndef _VENICE_EEPROM_H_
+#define _VENICE_EEPROM_H_
 
 struct venice_board_info {
 	u8 mac[6];		/* 0x00: MAC base */
@@ -35,11 +24,10 @@ struct venice_board_info {
 	u8 chksum[2];	/* 0x4E */
 };
 
-int gsc_init(int quiet);
-int gsc_hwmon(void);
-const char *gsc_get_model(void);
-const char *gsc_get_dtb_name(int level, char *buf, int len);
-int gsc_getmac(int index, uint8_t *enetaddr);
-uint32_t gsc_get_serial(void);
+int eeprom_init(int quiet);
+const char *eeprom_get_model(void);
+const char *eeprom_get_dtb_name(int level, char *buf, int len);
+int eeprom_getmac(int index, uint8_t *enetaddr);
+uint32_t eeprom_get_serial(void);
 
 #endif

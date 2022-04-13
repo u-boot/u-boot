@@ -7,13 +7,9 @@
 #include <cpu_func.h>
 #include <hang.h>
 #include <i2c.h>
-#include <image.h>
 #include <init.h>
-#include <log.h>
 #include <spl.h>
-#include <asm/io.h>
 #include <asm/mach-imx/gpio.h>
-#include <asm/mach-imx/iomux-v3.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8mm_pins.h>
 #include <asm/arch/imx8mn_pins.h>
@@ -21,21 +17,16 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/arch/ddr.h>
 #include <asm-generic/gpio.h>
-
 #include <dm/uclass.h>
 #include <dm/device.h>
-#include <dm/uclass-internal.h>
-#include <dm/device-internal.h>
-
+#include <linux/delay.h>
 #include <power/bd71837.h>
 #include <power/mp5416.h>
 
-#include "gsc.h"
+#include "eeprom.h"
 #include "lpddr4_timing.h"
 
 #define PCIE_RSTN IMX_GPIO_NR(4, 6)
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static void spl_dram_init(int size)
 {
@@ -65,8 +56,8 @@ static void spl_dram_init(int size)
 		dram_timing = &dram_timing_1gb_single_die;
 		break;
 	case 2048:
-		if (!strcmp(gsc_get_model(), "GW7902-SP466-A") ||
-		    !strcmp(gsc_get_model(), "GW7902-SP466-B")) {
+		if (!strcmp(eeprom_get_model(), "GW7902-SP466-A") ||
+		    !strcmp(eeprom_get_model(), "GW7902-SP466-B")) {
 			dram_timing = &dram_timing_2gb_dual_die;
 		} else {
 			dram_timing = &dram_timing_2gb_single_die;
@@ -149,7 +140,7 @@ static int dm_i2c_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)
 
 static int power_init_board(void)
 {
-	const char *model = gsc_get_model();
+	const char *model = eeprom_get_model();
 	struct udevice *bus;
 	struct udevice *dev;
 	int ret;
@@ -243,22 +234,36 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	ret = uclass_get_device_by_name(UCLASS_CLK,
-					"clock-controller@30380000",
-					&dev);
-	if (ret < 0) {
-		printf("Failed to find clock node. Check device tree\n");
-		hang();
-	}
-
 	enable_tzc380();
 
 	/* need to hold PCIe switch in reset otherwise it can lock i2c bus EEPROM is on */
 	gpio_request(PCIE_RSTN, "perst#");
 	gpio_direction_output(PCIE_RSTN, 0);
 
-	/* GSC */
-	dram_sz = gsc_init(0);
+	/*
+	 * probe GSC device
+	 *
+	 * On a board with a missing/depleted backup battery for GSC, the
+	 * board may be ready to probe the GSC before its firmware is
+	 * running. We will wait here indefinately for the GSC EEPROM.
+	 */
+#ifdef CONFIG_IMX8MN
+	/*
+	 * IMX8MN boots quicker than IMX8MM and exposes issue
+	 * where because GSC I2C state machine isn't running and its
+	 * SCL/SDA are driven low the I2C driver spams 'Arbitration lost'
+	 * I2C errors.
+	 *
+	 * TODO: Put a loop here that somehow waits for I2C CLK/DAT to be high
+	 */
+	mdelay(50);
+#endif
+	while (1) {
+		if (!uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(gsc), &dev))
+			break;
+		mdelay(1);
+	}
+	dram_sz = eeprom_init(0);
 
 	/* PMIC */
 	power_init_board();
