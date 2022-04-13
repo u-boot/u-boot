@@ -24,12 +24,6 @@ config SYS_CONFIG_NAME
 config SYS_MALLOC_LEN
 	default 0x2000000
 
-config COUNTER_FREQUENCY
-	int "Timer clock frequency"
-	default 0
-	help
-	  Setup time clock frequency for certain platform
-
 config ZYNQ_SDHCI_MAX_FREQ
 	default 200000000
 
