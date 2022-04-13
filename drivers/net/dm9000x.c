@@ -122,23 +122,6 @@ static void dm9000_iow(int reg, u8 value);
 #define dm9000_inl(r) __raw_readl(r)
 #endif
 
-#ifdef CONFIG_DM9000_DEBUG
-static void
-dump_regs(void)
-{
-	debug("\n");
-	debug("NCR   (0x00): %02x\n", dm9000_ior(0));
-	debug("NSR   (0x01): %02x\n", dm9000_ior(1));
-	debug("TCR   (0x02): %02x\n", dm9000_ior(2));
-	debug("TSRI  (0x03): %02x\n", dm9000_ior(3));
-	debug("TSRII (0x04): %02x\n", dm9000_ior(4));
-	debug("RCR   (0x05): %02x\n", dm9000_ior(5));
-	debug("RSR   (0x06): %02x\n", dm9000_ior(6));
-	debug("ISR   (0xFE): %02x\n", dm9000_ior(DM9000_ISR));
-	debug("\n");
-}
-#endif
-
 static void dm9000_outblk_8bit(volatile void *data_ptr, int count)
 {
 	int i;
