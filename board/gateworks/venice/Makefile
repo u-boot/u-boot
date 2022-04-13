@@ -14,4 +14,7 @@ endif
 ifdef CONFIG_IMX8MN
 obj-$(CONFIG_IMX8M_LPDDR4) += lpddr4_timing_imx8mn.o
 endif
+ifdef CONFIG_IMX8MP
+obj-$(CONFIG_IMX8M_LPDDR4) += lpddr4_timing_imx8mp.o
+endif
 endif

@@ -193,8 +193,10 @@ const char *eeprom_get_dtb_name(int level, char *buf, int sz)
 {
 #ifdef CONFIG_IMX8MM
 	const char *pre = "imx8mm-venice-gw";
-#else
+#elif CONFIG_IMX8MN
 	const char *pre = "imx8mn-venice-gw";
+#elif CONFIG_IMX8MP
+	const char *pre = "imx8mp-venice-gw";
 #endif
 	int model, rev_pcb, rev_bom;
 

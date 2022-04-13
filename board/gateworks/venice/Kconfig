@@ -27,3 +27,18 @@ config SYS_CONFIG_NAME
 config IMX_CONFIG
 	default "board/gateworks/venice/imximage-8mn-lpddr4.cfg"
 endif
+
+if TARGET_IMX8MP_VENICE
+
+config SYS_BOARD
+	default "venice"
+
+config SYS_VENDOR
+	default "gateworks"
+
+config SYS_CONFIG_NAME
+	default "imx8mp_venice"
+
+config IMX_CONFIG
+	default "board/gateworks/venice/imximage-8mp-lpddr4.cfg"
+endif

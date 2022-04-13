@@ -6,6 +6,7 @@
 #include <init.h>
 #include <led.h>
 #include <miiphy.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 
 #include "eeprom.h"
@@ -39,16 +40,34 @@ int board_fit_config_name_match(const char *name)
 	return -1;
 }
 
-#if (IS_ENABLED(CONFIG_FEC_MXC))
+#if (IS_ENABLED(CONFIG_NET))
 static int setup_fec(void)
 {
 	struct iomuxc_gpr_base_regs *gpr =
 		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
 
+#ifndef CONFIG_IMX8MP
 	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
 	clrsetbits_le32(&gpr->gpr[1], 0x2000, 0);
+#else
+	/* Enable RGMII TX clk output */
+	setbits_le32(&gpr->gpr[1], BIT(22));
+#endif
 
 	return 0;
+}
+
+static int setup_eqos(void)
+{
+	struct iomuxc_gpr_base_regs *gpr =
+		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
+
+	/* set INTF as RGMII, enable RGMII TXC clock */
+	clrsetbits_le32(&gpr->gpr[1],
+			IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK, BIT(16));
+	setbits_le32(&gpr->gpr[1], BIT(19) | BIT(21));
+
+	return set_clk_eqos(ENET_125MHZ);
 }
 
 int board_phy_config(struct phy_device *phydev)
@@ -87,7 +106,7 @@ int board_phy_config(struct phy_device *phydev)
 
 	return 0;
 }
-#endif // IS_ENABLED(CONFIG_FEC_MXC)
+#endif // IS_ENABLED(CONFIG_NET)
 
 int board_init(void)
 {
@@ -95,6 +114,8 @@ int board_init(void)
 
 	if (IS_ENABLED(CONFIG_FEC_MXC))
 		setup_fec();
+	if (IS_ENABLED(CONFIG_DWC_ETH_QOS))
+		setup_eqos();
 
 	return 0;
 }
