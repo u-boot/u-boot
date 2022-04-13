@@ -86,6 +86,4 @@
 #define CONFIG_FEC_MXC_PHYADDR          0
 #define FEC_QUIRK_ENET_MAC
 
-#define IMX_FEC_BASE			0x30BE0000
-
 #endif

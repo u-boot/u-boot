@@ -58,6 +58,13 @@
 #define SRC_DDRC_RCR_ADDR	0x30391000
 #define SRC_DDRC2_RCR_ADDR	0x30391004
 
+#define APBH_DMA_ARB_BASE_ADDR	0x33000000
+#define APBH_DMA_ARB_END_ADDR	0x33007FFF
+#define MXS_APBH_BASE		APBH_DMA_ARB_BASE_ADDR
+
+#define MXS_GPMI_BASE		(APBH_DMA_ARB_BASE_ADDR + 0x02000)
+#define MXS_BCH_BASE		(APBH_DMA_ARB_BASE_ADDR + 0x04000)
+
 #define DDRC_DDR_SS_GPR0	0x3d000000
 #define DDRC_IPS_BASE_ADDR(X)	(0x3d400000 + ((X) * 0x2000000))
 #define DDR_CSD1_BASE_ADDR	0x40000000
@@ -326,6 +333,23 @@ struct src {
 	u32 reserved5[985];
 	u32 ddr1_rcr;
 	u32 ddr2_rcr;
+};
+
+#define PWMCR_PRESCALER(x)	(((x - 1) & 0xFFF) << 4)
+#define PWMCR_DOZEEN		(1 << 24)
+#define PWMCR_WAITEN		(1 << 23)
+#define PWMCR_DBGEN		(1 << 22)
+#define PWMCR_CLKSRC_IPG_HIGH	(2 << 16)
+#define PWMCR_CLKSRC_IPG	(1 << 16)
+#define PWMCR_EN		(1 << 0)
+
+struct pwm_regs {
+	u32	cr;
+	u32	sr;
+	u32	ir;
+	u32	sar;
+	u32	pr;
+	u32	cnr;
 };
 
 #define WDOG_WDT_MASK	BIT(3)

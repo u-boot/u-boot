@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2021-2022 Marek Vasut <marex@denx.de>
+ */
+#include "imx8mm-verdin-u-boot.dtsi"
+
+/ {
+	chosen {
+		stdout-path = &uart2;
+	};
+
+	aliases {
+		/delete-property/ eeprom1;
+		/delete-property/ eeprom2;
+		usbphy0 = &usbphynop1;
+		usbphy1 = &usbphynop2;
+	};
+};
+
+&i2c4 {
+	/delete-node/ codec@1a;
+};
+
+&pinctrl_uart1 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&pinctrl_uart2 {
+	u-boot,dm-spl;
+};
+
+&uart1 {
+	/delete-property/ u-boot,dm-spl;
+};
+
+&uart2 {
+	u-boot,dm-spl;
+};

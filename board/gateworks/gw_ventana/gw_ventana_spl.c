@@ -20,6 +20,10 @@
 #include <env.h>
 #include <i2c.h>
 #include <spl.h>
+#include <power/pmic.h>
+#include <power/ltc3676_pmic.h>
+#include <power/pfuze100_pmic.h>
+#include <power/mp5416.h>
 
 #include "gsc.h"
 #include "common.h"
@@ -667,6 +671,279 @@ static void ccgr_init(void)
 	writel(0x000003FF, &ccm->CCGR6);
 }
 
+/* UART2: Serial Console */
+static const iomux_v3_cfg_t uart2_pads[] = {
+	IOMUX_PADS(PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
+};
+
+void setup_iomux_uart(void)
+{
+	SETUP_IOMUX_PADS(uart2_pads);
+}
+
+/*
+ * I2C pad configs:
+ * I2C1: GSC
+ * I2C2: PMIC,PCIe Switch,Clock,Mezz
+ * I2C3: Multimedia/Expansion
+ */
+static struct i2c_pads_info mx6q_i2c_pad_info[] = {
+	{
+		.scl = {
+			.i2c_mode = MX6Q_PAD_EIM_D21__I2C1_SCL | PC,
+			.gpio_mode = MX6Q_PAD_EIM_D21__GPIO3_IO21 | PC,
+			.gp = IMX_GPIO_NR(3, 21)
+		},
+		.sda = {
+			.i2c_mode = MX6Q_PAD_EIM_D28__I2C1_SDA | PC,
+			.gpio_mode = MX6Q_PAD_EIM_D28__GPIO3_IO28 | PC,
+			.gp = IMX_GPIO_NR(3, 28)
+		}
+	}, {
+		.scl = {
+			.i2c_mode = MX6Q_PAD_KEY_COL3__I2C2_SCL | PC,
+			.gpio_mode = MX6Q_PAD_KEY_COL3__GPIO4_IO12 | PC,
+			.gp = IMX_GPIO_NR(4, 12)
+		},
+		.sda = {
+			.i2c_mode = MX6Q_PAD_KEY_ROW3__I2C2_SDA | PC,
+			.gpio_mode = MX6Q_PAD_KEY_ROW3__GPIO4_IO13 | PC,
+			.gp = IMX_GPIO_NR(4, 13)
+		}
+	}, {
+		.scl = {
+			.i2c_mode = MX6Q_PAD_GPIO_3__I2C3_SCL | PC,
+			.gpio_mode = MX6Q_PAD_GPIO_3__GPIO1_IO03 | PC,
+			.gp = IMX_GPIO_NR(1, 3)
+		},
+		.sda = {
+			.i2c_mode = MX6Q_PAD_GPIO_6__I2C3_SDA | PC,
+			.gpio_mode = MX6Q_PAD_GPIO_6__GPIO1_IO06 | PC,
+			.gp = IMX_GPIO_NR(1, 6)
+		}
+	}
+};
+
+static struct i2c_pads_info mx6dl_i2c_pad_info[] = {
+	{
+		.scl = {
+			.i2c_mode = MX6DL_PAD_EIM_D21__I2C1_SCL | PC,
+			.gpio_mode = MX6DL_PAD_EIM_D21__GPIO3_IO21 | PC,
+			.gp = IMX_GPIO_NR(3, 21)
+		},
+		.sda = {
+			.i2c_mode = MX6DL_PAD_EIM_D28__I2C1_SDA | PC,
+			.gpio_mode = MX6DL_PAD_EIM_D28__GPIO3_IO28 | PC,
+			.gp = IMX_GPIO_NR(3, 28)
+		}
+	}, {
+		.scl = {
+			.i2c_mode = MX6DL_PAD_KEY_COL3__I2C2_SCL | PC,
+			.gpio_mode = MX6DL_PAD_KEY_COL3__GPIO4_IO12 | PC,
+			.gp = IMX_GPIO_NR(4, 12)
+		},
+		.sda = {
+			.i2c_mode = MX6DL_PAD_KEY_ROW3__I2C2_SDA | PC,
+			.gpio_mode = MX6DL_PAD_KEY_ROW3__GPIO4_IO13 | PC,
+			.gp = IMX_GPIO_NR(4, 13)
+		}
+	}, {
+		.scl = {
+			.i2c_mode = MX6DL_PAD_GPIO_3__I2C3_SCL | PC,
+			.gpio_mode = MX6DL_PAD_GPIO_3__GPIO1_IO03 | PC,
+			.gp = IMX_GPIO_NR(1, 3)
+		},
+		.sda = {
+			.i2c_mode = MX6DL_PAD_GPIO_6__I2C3_SDA | PC,
+			.gpio_mode = MX6DL_PAD_GPIO_6__GPIO1_IO06 | PC,
+			.gp = IMX_GPIO_NR(1, 6)
+		}
+	}
+};
+
+static void setup_ventana_i2c(int i2c)
+{
+	struct i2c_pads_info *p;
+
+	if (is_cpu_type(MXC_CPU_MX6Q))
+		p = &mx6q_i2c_pad_info[i2c];
+	else
+		p = &mx6dl_i2c_pad_info[i2c];
+
+	setup_i2c(i2c, CONFIG_SYS_I2C_SPEED, 0x7f, p);
+}
+
+/* setup board specific PMIC */
+void setup_pmic(void)
+{
+	struct pmic *p;
+	struct ventana_board_info ventana_info;
+	int board = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+	const int i2c_pmic = 1;
+	u32 reg;
+	char rev;
+	int i;
+
+	/* determine board revision */
+	rev = 'A';
+	for (i = sizeof(ventana_info.model) - 1; i > 0; i--) {
+		if (ventana_info.model[i] >= 'A') {
+			rev = ventana_info.model[i];
+			break;
+		}
+	}
+
+	i2c_set_bus_num(i2c_pmic);
+
+	/* configure PFUZE100 PMIC */
+	if (!i2c_probe(CONFIG_POWER_PFUZE100_I2C_ADDR)) {
+		debug("probed PFUZE100@0x%x\n", CONFIG_POWER_PFUZE100_I2C_ADDR);
+		power_pfuze100_init(i2c_pmic);
+		p = pmic_get("PFUZE100");
+		if (p && !pmic_probe(p)) {
+			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
+			printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+
+			/* Set VGEN1 to 1.5V and enable */
+			pmic_reg_read(p, PFUZE100_VGEN1VOL, &reg);
+			reg &= ~(LDO_VOL_MASK);
+			reg |= (LDOA_1_50V | LDO_EN);
+			pmic_reg_write(p, PFUZE100_VGEN1VOL, reg);
+
+			/* Set SWBST to 5.0V and enable */
+			pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
+			reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
+			reg |= (SWBST_5_00V | (SWBST_MODE_AUTO << SWBST_MODE_SHIFT));
+			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
+
+			if (board == GW54xx && (rev == 'G')) {
+				/* Disable VGEN5 */
+				pmic_reg_write(p, PFUZE100_VGEN5VOL, 0);
+
+				/* Set VGEN6 to 2.5V and enable */
+				pmic_reg_read(p, PFUZE100_VGEN6VOL, &reg);
+				reg &= ~(LDO_VOL_MASK);
+				reg |= (LDOB_2_50V | LDO_EN);
+				pmic_reg_write(p, PFUZE100_VGEN6VOL, reg);
+			}
+		}
+
+		/* put all switchers in continuous mode */
+		pmic_reg_read(p, PFUZE100_SW1ABMODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW1ABMODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW2MODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW2MODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW3AMODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW3AMODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW3BMODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW3BMODE, reg);
+
+		pmic_reg_read(p, PFUZE100_SW4MODE, &reg);
+		reg &= ~(SW_MODE_MASK);
+		reg |= PWM_PWM;
+		pmic_reg_write(p, PFUZE100_SW4MODE, reg);
+	}
+
+	/* configure LTC3676 PMIC */
+	else if (!i2c_probe(CONFIG_POWER_LTC3676_I2C_ADDR)) {
+		debug("probed LTC3676@0x%x\n", CONFIG_POWER_LTC3676_I2C_ADDR);
+		power_ltc3676_init(i2c_pmic);
+		p = pmic_get("LTC3676_PMIC");
+		if (!p || pmic_probe(p))
+			return;
+		puts("PMIC:  LTC3676\n");
+		/*
+		 * set board-specific scalar for max CPU frequency
+		 * per CPU based on the LDO enabled Operating Ranges
+		 * defined in the respective IMX6DQ and IMX6SDL
+		 * datasheets. The voltage resulting from the R1/R2
+		 * feedback inputs on Ventana is 1308mV. Note that this
+		 * is a bit shy of the Vmin of 1350mV in the datasheet
+		 * for LDO enabled mode but is as high as we can go.
+		 */
+		switch (board) {
+		case GW560x:
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
+			break;
+		case GW5903:
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
+
+			/* mask PGOOD during SW4 transition */
+			pmic_reg_write(p, LTC3676_DVB4B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW4 (VDD_SOC) */
+			pmic_reg_write(p, LTC3676_DVB4A, 0x1f);
+			break;
+		case GW5905:
+			/* mask PGOOD during SW1 transition */
+			pmic_reg_write(p, LTC3676_DVB1B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW1 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB1A, 0x1f);
+
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_SOC) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
+			break;
+		default:
+			/* mask PGOOD during SW1 transition */
+			pmic_reg_write(p, LTC3676_DVB1B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW1 (VDD_SOC) */
+			pmic_reg_write(p, LTC3676_DVB1A, 0x1f);
+
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
+		}
+
+		/* put all switchers in continuous mode */
+		pmic_reg_write(p, LTC3676_BUCK1, 0xc0);
+		pmic_reg_write(p, LTC3676_BUCK2, 0xc0);
+		pmic_reg_write(p, LTC3676_BUCK3, 0xc0);
+		pmic_reg_write(p, LTC3676_BUCK4, 0xc0);
+	}
+
+	/* configure MP5416 PMIC */
+	else if (!i2c_probe(0x69)) {
+		puts("PMIC:  MP5416\n");
+		switch (board) {
+		case GW5910:
+			/* SW1: VDD_ARM 1.2V -> (1.275 to 1.475) */
+			reg = MP5416_VSET_EN | MP5416_VSET_SW1_SVAL(1475000);
+			i2c_write(0x69, MP5416_VSET_SW1, 1, (uint8_t *)&reg, 1);
+			/* SW4: VDD_SOC 1.2V -> (1.350 to 1.475) */
+			reg = MP5416_VSET_EN | MP5416_VSET_SW4_SVAL(1475000);
+			i2c_write(0x69, MP5416_VSET_SW4, 1, (uint8_t *)&reg, 1);
+			break;
+		}
+	}
+}
+
 /*
  * called from C runtime startup code (arch/arm/lib/crt0.S:_main)
  * - we have a stack and a place to store GD, both in SRAM
@@ -785,8 +1062,3 @@ int spl_start_uboot(void)
 	return ret;
 }
 #endif
-
-void spl_perform_fixups(struct spl_image_info *spl_image)
-{
-	ft_early_fixup(spl_image->fdt_addr, board_type);
-}

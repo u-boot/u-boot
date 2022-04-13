@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <asm/bitops.h>
 #include <linux/delay.h>
+#include <dm/uclass.h>
 
 #include "gsc.h"
 #include "ventana_eeprom.h"
@@ -34,12 +35,20 @@ read_eeprom(int bus, struct ventana_board_info *info)
 	 * board may be ready to probe the GSC before its firmware is
 	 * running.  We will wait here indefinately for the GSC/EEPROM.
 	 */
+#if CONFIG_IS_ENABLED(DM_I2C)
+	while (1) {
+		if (i2c_get_dev(bus, GSC_EEPROM_ADDR))
+			break;
+		mdelay(1);
+	}
+#else
 	while (1) {
 		if (0 == i2c_set_bus_num(bus) &&
 		    0 == i2c_probe(GSC_EEPROM_ADDR))
 			break;
 		mdelay(1);
 	}
+#endif
 
 	/* read eeprom config section */
 	mdelay(10);

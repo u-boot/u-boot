@@ -853,6 +853,9 @@ config ARCH_LPC32XX
 config ARCH_IMX8
 	bool "NXP i.MX8 platform"
 	select ARM64
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_COMPAT_4
+	select SYS_FSL_SEC_LE
 	select DM
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
@@ -865,7 +868,7 @@ config ARCH_IMX8M
 	select ARM64
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
-	select SYS_FSL_HAS_SEC if IMX_HAB
+	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	select SYS_I2C_MXC
@@ -923,7 +926,7 @@ config ARCH_MX7ULP
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
-	select SYS_FSL_HAS_SEC if IMX_HAB
+	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	select ROM_UNIFIED_SECTIONS
@@ -936,7 +939,7 @@ config ARCH_MX7
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
-	select SYS_FSL_HAS_SEC if IMX_HAB
+	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	imply BOARD_EARLY_INIT_F

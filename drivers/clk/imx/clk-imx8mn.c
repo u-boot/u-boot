@@ -15,56 +15,6 @@
 
 #include "clk.h"
 
-#define PLL_1416X_RATE(_rate, _m, _p, _s)		\
-	{						\
-		.rate	=	(_rate),		\
-		.mdiv	=	(_m),			\
-		.pdiv	=	(_p),			\
-		.sdiv	=	(_s),			\
-	}
-
-#define PLL_1443X_RATE(_rate, _m, _p, _s, _k)		\
-	{						\
-		.rate	=	(_rate),		\
-		.mdiv	=	(_m),			\
-		.pdiv	=	(_p),			\
-		.sdiv	=	(_s),			\
-		.kdiv	=	(_k),			\
-	}
-
-static const struct imx_pll14xx_rate_table imx8mn_pll1416x_tbl[] = {
-	PLL_1416X_RATE(1800000000U, 225, 3, 0),
-	PLL_1416X_RATE(1600000000U, 200, 3, 0),
-	PLL_1416X_RATE(1200000000U, 300, 3, 1),
-	PLL_1416X_RATE(1000000000U, 250, 3, 1),
-	PLL_1416X_RATE(800000000U,  200, 3, 1),
-	PLL_1416X_RATE(750000000U,  250, 2, 2),
-	PLL_1416X_RATE(700000000U,  350, 3, 2),
-	PLL_1416X_RATE(600000000U,  300, 3, 2),
-};
-
-static const struct imx_pll14xx_rate_table imx8mn_drampll_tbl[] = {
-	PLL_1443X_RATE(650000000U, 325, 3, 2, 0),
-};
-
-static struct imx_pll14xx_clk imx8mn_dram_pll __initdata = {
-		.type = PLL_1443X,
-		.rate_table = imx8mn_drampll_tbl,
-		.rate_count = ARRAY_SIZE(imx8mn_drampll_tbl),
-};
-
-static struct imx_pll14xx_clk imx8mn_arm_pll __initdata = {
-		.type = PLL_1416X,
-		.rate_table = imx8mn_pll1416x_tbl,
-		.rate_count = ARRAY_SIZE(imx8mn_pll1416x_tbl),
-};
-
-static struct imx_pll14xx_clk imx8mn_sys_pll __initdata = {
-		.type = PLL_1416X,
-		.rate_table = imx8mn_pll1416x_tbl,
-		.rate_count = ARRAY_SIZE(imx8mn_pll1416x_tbl),
-};
-
 static const char *pll_ref_sels[] = { "clock-osc-24m", "dummy", "dummy", "dummy", };
 static const char *dram_pll_bypass_sels[] = {"dram_pll", "dram_pll_ref_sel", };
 static const char *arm_pll_bypass_sels[] = {"arm_pll", "arm_pll_ref_sel", };
@@ -172,19 +122,19 @@ static int imx8mn_clk_probe(struct udevice *dev)
 
 	clk_dm(IMX8MN_DRAM_PLL,
 	       imx_clk_pll14xx("dram_pll", "dram_pll_ref_sel",
-			       base + 0x50, &imx8mn_dram_pll));
+			       base + 0x50, &imx_1443x_dram_pll));
 	clk_dm(IMX8MN_ARM_PLL,
 	       imx_clk_pll14xx("arm_pll", "arm_pll_ref_sel",
-			       base + 0x84, &imx8mn_arm_pll));
+			       base + 0x84, &imx_1416x_pll));
 	clk_dm(IMX8MN_SYS_PLL1,
 	       imx_clk_pll14xx("sys_pll1", "sys_pll1_ref_sel",
-			       base + 0x94, &imx8mn_sys_pll));
+			       base + 0x94, &imx_1416x_pll));
 	clk_dm(IMX8MN_SYS_PLL2,
 	       imx_clk_pll14xx("sys_pll2", "sys_pll2_ref_sel",
-			       base + 0x104, &imx8mn_sys_pll));
+			       base + 0x104, &imx_1416x_pll));
 	clk_dm(IMX8MN_SYS_PLL3,
 	       imx_clk_pll14xx("sys_pll3", "sys_pll3_ref_sel",
-			       base + 0x114, &imx8mn_sys_pll));
+			       base + 0x114, &imx_1416x_pll));
 
 	/* PLL bypass out */
 	clk_dm(IMX8MN_DRAM_PLL_BYPASS,

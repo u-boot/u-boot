@@ -15,56 +15,6 @@
 
 #include "clk.h"
 
-#define PLL_1416X_RATE(_rate, _m, _p, _s)		\
-	{						\
-		.rate	=	(_rate),		\
-		.mdiv	=	(_m),			\
-		.pdiv	=	(_p),			\
-		.sdiv	=	(_s),			\
-	}
-
-#define PLL_1443X_RATE(_rate, _m, _p, _s, _k)		\
-	{						\
-		.rate	=	(_rate),		\
-		.mdiv	=	(_m),			\
-		.pdiv	=	(_p),			\
-		.sdiv	=	(_s),			\
-		.kdiv	=	(_k),			\
-	}
-
-static const struct imx_pll14xx_rate_table imx8mm_pll1416x_tbl[] = {
-	PLL_1416X_RATE(1800000000U, 225, 3, 0),
-	PLL_1416X_RATE(1600000000U, 200, 3, 0),
-	PLL_1416X_RATE(1200000000U, 300, 3, 1),
-	PLL_1416X_RATE(1000000000U, 250, 3, 1),
-	PLL_1416X_RATE(800000000U,  200, 3, 1),
-	PLL_1416X_RATE(750000000U,  250, 2, 2),
-	PLL_1416X_RATE(700000000U,  350, 3, 2),
-	PLL_1416X_RATE(600000000U,  300, 3, 2),
-};
-
-static const struct imx_pll14xx_rate_table imx8mm_drampll_tbl[] = {
-	PLL_1443X_RATE(650000000U, 325, 3, 2, 0),
-};
-
-static struct imx_pll14xx_clk imx8mm_dram_pll __initdata = {
-		.type = PLL_1443X,
-		.rate_table = imx8mm_drampll_tbl,
-		.rate_count = ARRAY_SIZE(imx8mm_drampll_tbl),
-};
-
-static struct imx_pll14xx_clk imx8mm_arm_pll __initdata = {
-		.type = PLL_1416X,
-		.rate_table = imx8mm_pll1416x_tbl,
-		.rate_count = ARRAY_SIZE(imx8mm_pll1416x_tbl),
-};
-
-static struct imx_pll14xx_clk imx8mm_sys_pll __initdata = {
-		.type = PLL_1416X,
-		.rate_table = imx8mm_pll1416x_tbl,
-		.rate_count = ARRAY_SIZE(imx8mm_pll1416x_tbl),
-};
-
 static const char *pll_ref_sels[] = { "clock-osc-24m", "dummy", "dummy", "dummy", };
 static const char *dram_pll_bypass_sels[] = {"dram_pll", "dram_pll_ref_sel", };
 static const char *arm_pll_bypass_sels[] = {"arm_pll", "arm_pll_ref_sel", };
@@ -116,6 +66,18 @@ static const char *imx8mm_i2c3_sels[] = {"clock-osc-24m", "sys_pll1_160m", "sys_
 static const char *imx8mm_i2c4_sels[] = {"clock-osc-24m", "sys_pll1_160m", "sys_pll2_50m", "sys_pll3_out", "audio_pll1_out",
 					 "video_pll1_out", "audio_pll2_out", "sys_pll1_133m", };
 
+static const char *imx8mm_pwm1_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m", "sys_pll1_40m",
+					 "sys_pll3_out", "clk_ext1", "sys_pll1_80m", "video_pll1_out", };
+
+static const char *imx8mm_pwm2_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m", "sys_pll1_40m",
+					 "sys_pll3_out", "clk_ext1", "sys_pll1_80m", "video_pll1_out", };
+
+static const char *imx8mm_pwm3_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m", "sys_pll1_40m",
+					 "sys_pll3_out", "clk_ext2", "sys_pll1_80m", "video_pll1_out", };
+
+static const char *imx8mm_pwm4_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m", "sys_pll1_40m",
+					 "sys_pll3_out", "clk_ext2", "sys_pll1_80m", "video_pll1_out", };
+
 static const char *imx8mm_wdog_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_pll1_160m", "vpu_pll_out",
 					 "sys_pll2_125m", "sys_pll3_out", "sys_pll1_80m", "sys_pll2_166m", };
 
@@ -164,19 +126,19 @@ static int imx8mm_clk_probe(struct udevice *dev)
 
 	clk_dm(IMX8MM_DRAM_PLL,
 	       imx_clk_pll14xx("dram_pll", "dram_pll_ref_sel",
-			       base + 0x50, &imx8mm_dram_pll));
+			       base + 0x50, &imx_1443x_dram_pll));
 	clk_dm(IMX8MM_ARM_PLL,
 	       imx_clk_pll14xx("arm_pll", "arm_pll_ref_sel",
-			       base + 0x84, &imx8mm_arm_pll));
+			       base + 0x84, &imx_1416x_pll));
 	clk_dm(IMX8MM_SYS_PLL1,
 	       imx_clk_pll14xx("sys_pll1", "sys_pll1_ref_sel",
-			       base + 0x94, &imx8mm_sys_pll));
+			       base + 0x94, &imx_1416x_pll));
 	clk_dm(IMX8MM_SYS_PLL2,
 	       imx_clk_pll14xx("sys_pll2", "sys_pll2_ref_sel",
-			       base + 0x104, &imx8mm_sys_pll));
+			       base + 0x104, &imx_1416x_pll));
 	clk_dm(IMX8MM_SYS_PLL3,
 	       imx_clk_pll14xx("sys_pll3", "sys_pll3_ref_sel",
-			       base + 0x114, &imx8mm_sys_pll));
+			       base + 0x114, &imx_1416x_pll));
 
 	/* PLL bypass out */
 	clk_dm(IMX8MM_DRAM_PLL_BYPASS,
@@ -305,6 +267,14 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite("i2c3", imx8mm_i2c3_sels, base + 0xae00));
 	clk_dm(IMX8MM_CLK_I2C4,
 	       imx8m_clk_composite("i2c4", imx8mm_i2c4_sels, base + 0xae80));
+	clk_dm(IMX8MM_CLK_PWM1,
+	       imx8m_clk_composite("pwm1", imx8mm_pwm1_sels, base + 0xb380));
+	clk_dm(IMX8MM_CLK_PWM2,
+	       imx8m_clk_composite("pwm2", imx8mm_pwm2_sels, base + 0xb400));
+	clk_dm(IMX8MM_CLK_PWM3,
+	       imx8m_clk_composite("pwm3", imx8mm_pwm3_sels, base + 0xb480));
+	clk_dm(IMX8MM_CLK_PWM4,
+	       imx8m_clk_composite("pwm4", imx8mm_pwm4_sels, base + 0xb500));
 	clk_dm(IMX8MM_CLK_WDOG,
 	       imx8m_clk_composite("wdog", imx8mm_wdog_sels, base + 0xb900));
 	clk_dm(IMX8MM_CLK_USDHC3,
@@ -339,6 +309,14 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("i2c4_root_clk", "i2c4", base + 0x41a0, 0));
 	clk_dm(IMX8MM_CLK_OCOTP_ROOT,
 	       imx_clk_gate4("ocotp_root_clk", "ipg_root", base + 0x4220, 0));
+	clk_dm(IMX8MM_CLK_PWM1_ROOT,
+	       imx_clk_gate4("pwm1_root_clk", "pwm1", base + 0x4280, 0));
+	clk_dm(IMX8MM_CLK_PWM2_ROOT,
+	       imx_clk_gate4("pwm2_root_clk", "pwm2", base + 0x4290, 0));
+	clk_dm(IMX8MM_CLK_PWM3_ROOT,
+	       imx_clk_gate4("pwm3_root_clk", "pwm3", base + 0x42a0, 0));
+	clk_dm(IMX8MM_CLK_PWM4_ROOT,
+	       imx_clk_gate4("pwm4_root_clk", "pwm4", base + 0x42b0, 0));
 	clk_dm(IMX8MM_CLK_USDHC1_ROOT,
 	       imx_clk_gate4("usdhc1_root_clk", "usdhc1", base + 0x4510, 0));
 	clk_dm(IMX8MM_CLK_USDHC2_ROOT,

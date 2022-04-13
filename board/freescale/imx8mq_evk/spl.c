@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2021 NXP
  *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -22,6 +21,7 @@
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <fsl_esdhc_imx.h>
+#include <fsl_sec.h>
 #include <mmc.h>
 #include <linux/delay.h>
 #include <power/pmic.h>
@@ -199,6 +199,10 @@ int power_init_board(void)
 
 void spl_board_init(void)
 {
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		if (sec_init())
+			printf("\nsec_init failed!\n");
+	}
 	puts("Normal Boot\n");
 }
 

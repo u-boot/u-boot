@@ -22,6 +22,8 @@
 #include <asm/mach-imx/gpio.h>
 #include "ddr.h"
 
+#include <linux/delay.h>
+
 static unsigned int lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr)
 {
 	unsigned int tmp;
@@ -137,10 +139,11 @@ void spl_dram_init_compulab(void)
 		(struct lpddr4_tcm_desc *)SPL_TCM_DATA;
 
 	if (lpddr4_tcm_desc->sign != DEFAULT) {
-		/* if not in tcm scan mode */
+		/* get ddr type from the eeprom if not in tcm scan mode */
+		ddr_info = cl_eeprom_get_ddrinfo();
 		for (i = 0; i < ARRAY_SIZE(lpddr4_array); i++) {
 			if (lpddr4_array[i].id == ddr_info &&
-			    lpddr4_array[i].subind == 0xff) {
+			lpddr4_array[i].subind == cl_eeprom_get_subind()) {
 				ddr_found = 1;
 				break;
 			}
@@ -198,10 +201,25 @@ void spl_dram_init_compulab(void)
 
 	SPL_TCM_FINI;
 
+	if (ddr_found == 0) {
+		/* Update eeprom */
+		cl_eeprom_set_ddrinfo(ddr_info_mrr);
+		mdelay(10);
+		ddr_info = cl_eeprom_get_ddrinfo();
+		mdelay(10);
+		cl_eeprom_set_subind(lpddr4_array[i].subind);
+		/* make sure that the ddr_info has reached the eeprom */
+		printf("DDRINFO(E): mr5-8 [ 0x%x ], read back\n", ddr_info);
+		if (ddr_info_mrr != ddr_info || cl_eeprom_get_subind() != lpddr4_array[i].subind) {
+			printf("DDRINFO(EEPROM): make sure that the eeprom is accessible\n");
+			printf("DDRINFO(EEPROM): i2c dev 1; i2c md 0x51 0x40 0x50\n");
+		}
+	}
+
 	/* Pass the dram size to th U-Boot through the tcm memory */
 	{ /* To figure out what to store into the TCM buffer */
 	  /* For debug purpouse only. To override the real memsize */
-		unsigned int ddr_tcm_size = 0;
+		unsigned int ddr_tcm_size = cl_eeprom_get_osize();
 
 		if (ddr_tcm_size == 0 || ddr_tcm_size == -1)
 			ddr_tcm_size = lpddr4_array[i].size;

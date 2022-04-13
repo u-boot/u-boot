@@ -73,10 +73,11 @@ struct bd_info;
 #define is_imx8mnud() (is_cpu_type(MXC_CPU_IMX8MNUD))
 #define is_imx8mnus() (is_cpu_type(MXC_CPU_IMX8MNUS))
 #define is_imx8mp() (is_cpu_type(MXC_CPU_IMX8MP)  || is_cpu_type(MXC_CPU_IMX8MPD) || \
-	is_cpu_type(MXC_CPU_IMX8MPL) || is_cpu_type(MXC_CPU_IMX8MP6))
+	is_cpu_type(MXC_CPU_IMX8MPL) || is_cpu_type(MXC_CPU_IMX8MP6) || is_cpu_type(MXC_CPU_IMX8MPUL))
 #define is_imx8mpd() (is_cpu_type(MXC_CPU_IMX8MPD))
 #define is_imx8mpl() (is_cpu_type(MXC_CPU_IMX8MPL))
 #define is_imx8mp6() (is_cpu_type(MXC_CPU_IMX8MP6))
+#define is_imx8mpul() (is_cpu_type(MXC_CPU_IMX8MPUL))
 
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
@@ -159,6 +160,7 @@ enum boot_dev_type_e {
 	BT_DEV_TYPE_MMC = 2,
 	BT_DEV_TYPE_NAND = 3,
 	BT_DEV_TYPE_FLEXSPINOR = 4,
+	BT_DEV_TYPE_SPI_NOR = 6,
 
 	BT_DEV_TYPE_USB = 0xE,
 	BT_DEV_TYPE_MEM_DEV = 0xF,
@@ -227,6 +229,8 @@ void lcdif_power_down(void);
 int mxs_reset_block(struct mxs_register_32 *reg);
 int mxs_wait_mask_set(struct mxs_register_32 *reg, u32 mask, u32 timeout);
 int mxs_wait_mask_clr(struct mxs_register_32 *reg, u32 mask, u32 timeout);
+
+void board_late_mmc_env_init(void);
 
 unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
 			   unsigned long reg1, unsigned long reg2,

@@ -7,6 +7,7 @@
 #define __LPDDR4_TIMING_H__
 
 #ifdef CONFIG_IMX8MM
+extern struct dram_timing_info dram_timing_512mb;
 extern struct dram_timing_info dram_timing_1gb;
 extern struct dram_timing_info dram_timing_2gb;
 extern struct dram_timing_info dram_timing_4gb;

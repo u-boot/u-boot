@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -20,6 +21,7 @@
 #include <config.h>
 #include <fsl_wdog.h>
 #include <linux/delay.h>
+#include <dm.h>
 
 #include "fsl_epu.h"
 
@@ -397,3 +399,19 @@ void arch_preboot_os(void)
 	ctrl &= ~ARCH_TIMER_CTRL_ENABLE;
 	asm("mcr p15, 0, %0, c14, c2, 1" : : "r" (ctrl));
 }
+
+#ifdef CONFIG_ARCH_MISC_INIT
+int arch_misc_init(void)
+{
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
+
+	return 0;
+}
+#endif

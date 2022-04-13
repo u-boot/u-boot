@@ -123,8 +123,9 @@
 					load = <0x970000>;
 					entry = <0x970000>;
 
-					atf_blob: blob-ext {
+					atf_blob: atf-blob {
 						filename = "bl31.bin";
+						type = "atf-bl31";
 					};
 				};
 

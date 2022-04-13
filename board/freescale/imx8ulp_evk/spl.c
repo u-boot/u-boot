@@ -19,13 +19,22 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/rdc.h>
 #include <asm/arch/upower.h>
+#include <asm/arch/s400_api.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 void spl_dram_init(void)
 {
-	init_clk_ddr();
-	ddr_init(&dram_timing);
+	/* Reboot in dual boot setting no need to init ddr again */
+	bool ddr_enable = pcc_clock_is_enable(5, LPDDR4_PCC5_SLOT);
+
+	if (!ddr_enable) {
+		init_clk_ddr();
+		ddr_init(&dram_timing);
+	} else {
+		/* reinit pfd/pfddiv and lpavnic except pll4*/
+		cgc2_pll4_init(false);
+	}
 }
 
 u32 spl_boot_device(void)
@@ -35,32 +44,25 @@ u32 spl_boot_device(void)
 
 int power_init_board(void)
 {
-	u32 pmic_reg;
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE)) {
+		/* Set buck3 to 0.9v LD */
+		upower_pmic_i2c_write(0x22, 0x18);
+	} else if (IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
+		/* Set buck3 to 1.0v ND */
+		upower_pmic_i2c_write(0x22, 0x20);
+	} else {
+		/* Set buck3 to 1.1v OD */
+		upower_pmic_i2c_write(0x22, 0x28);
+	}
 
-	/* PMIC set bucks1-4 to PWM mode */
-	upower_pmic_i2c_read(0x10, &pmic_reg);
-	upower_pmic_i2c_read(0x14, &pmic_reg);
-	upower_pmic_i2c_read(0x21, &pmic_reg);
-	upower_pmic_i2c_read(0x2e, &pmic_reg);
-
-	upower_pmic_i2c_write(0x10, 0x3d);
-	upower_pmic_i2c_write(0x14, 0x7d);
-	upower_pmic_i2c_write(0x21, 0x7d);
-	upower_pmic_i2c_write(0x2e, 0x3d);
-
-	upower_pmic_i2c_read(0x10, &pmic_reg);
-	upower_pmic_i2c_read(0x14, &pmic_reg);
-	upower_pmic_i2c_read(0x21, &pmic_reg);
-	upower_pmic_i2c_read(0x2e, &pmic_reg);
-
-	/* Set buck3 to 1.1v OD */
-	upower_pmic_i2c_write(0x22, 0x28);
 	return 0;
 }
 
 void spl_board_init(void)
 {
 	struct udevice *dev;
+	u32 res;
+	int ret;
 
 	uclass_find_first_device(UCLASS_MISC, &dev);
 
@@ -77,15 +79,15 @@ void spl_board_init(void)
 
 	/* After AP set iomuxc0, the i2c can't work, Need M33 to set it now */
 
-	/* Load the lposc fuse for single boot to work around ROM issue,
-	 *  The fuse depends on S400 to read.
-	 */
-	if (is_soc_rev(CHIP_REV_1_0) && get_boot_mode() == SINGLE_BOOT)
+	/* Load the lposc fuse to work around ROM issue. The fuse depends on S400 to read. */
+	if (is_soc_rev(CHIP_REV_1_0))
 		load_lposc_fuse();
 
 	upower_init();
 
 	power_init_board();
+
+	clock_init_late();
 
 	/* DDR initialization */
 	spl_dram_init();
@@ -99,6 +101,11 @@ void spl_board_init(void)
 
 	/* Call it after PS16 power up */
 	set_lpav_qos();
+
+	/* Enable A35 access to the CAAM */
+	ret = ahab_release_caam(0x7, &res);
+	if (ret)
+		printf("ahab release caam failed %d, 0x%x\n", ret, res);
 }
 
 void board_init_f(ulong dummy)

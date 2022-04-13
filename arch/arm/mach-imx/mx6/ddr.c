@@ -108,7 +108,7 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 {
 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
 	struct mmdc_p_regs *mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
-	u32 esdmisc_val, zq_val;
+	u32 esdmisc_val, zq_val, mdmisc_val;
 	u32 errors = 0;
 	u32 ldectrl[4] = {0};
 	u32 ddr_mr1 = 0x4;
@@ -130,6 +130,9 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 
 	/* disable Adopt power down timer */
 	setbits_le32(&mmdc0->mapsr, 0x1);
+
+	/* Save old RALAT and WALAT values */
+	mdmisc_val = readl(&mmdc0->mdmisc);
 
 	debug("Starting write leveling calibration.\n");
 
@@ -216,6 +219,9 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	/* re-enable auto refresh and zq cal */
 	writel(esdmisc_val, &mmdc0->mdref);
 	writel(zq_val, &mmdc0->mpzqhwctrl);
+
+	/* restore WALAT/RALAT */
+	writel(mdmisc_val, &mmdc0->mdmisc);
 
 	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08x\n",
 	      readl(&mmdc0->mpwldectrl0));
@@ -1520,6 +1526,11 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 			((sysinfo->ncs == 2) ? 1 : 0) << 30; /* SDE_1 for CS1 */
 
 	/* Step 8: Write Mode Registers to Init DDR3 devices */
+	mdelay(1); /* Wait before issuing the first MRS command.
+		    * Minimum wait time is (tXPR + 500us),
+		    * with max tXPR value 360ns, and 500us wait required after
+		    * RESET_n is de-asserted.
+		    */
 	for (cs = 0; cs < sysinfo->ncs; cs++) {
 		/* MR2 */
 		val = (sysinfo->rtt_wr & 3) << 9 | (ddr3_cfg->SRT & 1) << 7 |

@@ -526,6 +526,8 @@ int phy_config(struct phy_device *phydev);
 int phy_shutdown(struct phy_device *phydev);
 int phy_register(struct phy_driver *drv);
 int phy_set_supported(struct phy_device *phydev, u32 max_speed);
+int phy_modify(struct phy_device *phydev, int devad, int regnum, u16 mask,
+	       u16 set);
 int genphy_config_aneg(struct phy_device *phydev);
 int genphy_restart_aneg(struct phy_device *phydev);
 int genphy_update_link(struct phy_device *phydev);
@@ -553,6 +555,7 @@ int phy_micrel_ksz8xxx_init(void);
 int phy_micrel_ksz90x1_init(void);
 int phy_meson_gxl_init(void);
 int phy_natsemi_init(void);
+int phy_nxp_c45_tja11xx_init(void);
 int phy_nxp_tja11xx_init(void);
 int phy_realtek_init(void);
 int phy_smsc_init(void);

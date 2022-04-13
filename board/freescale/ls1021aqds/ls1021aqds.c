@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2019 NXP
+ * Copyright 2019, 2021 NXP
  */
 
 #include <common.h>
@@ -20,7 +20,6 @@
 #include <mmc.h>
 #include <fsl_csu.h>
 #include <fsl_ifc.h>
-#include <fsl_sec.h>
 #include <spl.h>
 #include <fsl_devdis.h>
 #include <fsl_validate.h>
@@ -388,9 +387,6 @@ int misc_init_r(void)
 
 #ifdef CONFIG_FSL_DEVICE_DISABLE
 	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
-#endif
-#ifdef CONFIG_FSL_CAAM
-	return sec_init();
 #endif
 	return 0;
 }

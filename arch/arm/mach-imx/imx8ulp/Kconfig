@@ -2,10 +2,15 @@ if ARCH_IMX8ULP
 
 config IMX8ULP
 	bool
-	select ARMV8_SPL_EXCEPTION_VECTORS
 
 config SYS_SOC
 	default "imx8ulp"
+
+config IMX8ULP_LD_MODE
+	bool
+
+config IMX8ULP_ND_MODE
+	bool "i.MX8ULP Low Driver Mode"
 
 choice
 	prompt "i.MX8ULP board select"

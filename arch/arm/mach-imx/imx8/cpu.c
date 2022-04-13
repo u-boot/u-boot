@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2021 NXP
  */
 
 #include <common.h>
@@ -90,6 +90,22 @@ static int imx8_init_mu(void *ctx, struct event *event)
 	return 0;
 }
 EVENT_SPY(EVT_DM_POST_INIT, imx8_init_mu);
+
+#if defined(CONFIG_ARCH_MISC_INIT)
+int arch_misc_init(void)
+{
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
+
+	return 0;
+}
+#endif
 
 int print_bootinfo(void)
 {

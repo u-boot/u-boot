@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -16,6 +17,7 @@
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/setup.h>
 #include <linux/bitops.h>
+#include <dm.h>
 
 #define PMC0_BASE_ADDR		0x410a1000
 #define PMC0_CTRL		0x28
@@ -81,6 +83,22 @@ int arch_cpu_init(void)
 	enable_ca7_smp();
 	return 0;
 }
+
+#if defined(CONFIG_ARCH_MISC_INIT)
+int arch_misc_init(void)
+{
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_BOARD_POSTCLK_INIT
 int board_postclk_init(void)

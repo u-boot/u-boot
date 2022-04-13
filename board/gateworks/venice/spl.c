@@ -43,25 +43,28 @@ static void spl_dram_init(int size)
 
 	switch (size) {
 #ifdef CONFIG_IMX8MM
-	case 1:
+	case 512:
+		dram_timing = &dram_timing_512mb;
+		break;
+	case 1024:
 		dram_timing = &dram_timing_1gb;
 		break;
-	case 2:
+	case 2048:
 		dram_timing = &dram_timing_2gb;
 		break;
-	case 4:
+	case 4096:
 		dram_timing = &dram_timing_4gb;
 		break;
 	default:
-		printf("Unknown DDR configuration: %d GiB\n", size);
+		printf("Unknown DDR configuration: %d MiB\n", size);
 		dram_timing = &dram_timing_1gb;
-		size = 1;
+		size = 1024;
 #endif
 #ifdef CONFIG_IMX8MN
-	case 1:
+	case 1024:
 		dram_timing = &dram_timing_1gb_single_die;
 		break;
-	case 2:
+	case 2048:
 		if (!strcmp(gsc_get_model(), "GW7902-SP466-A") ||
 		    !strcmp(gsc_get_model(), "GW7902-SP466-B")) {
 			dram_timing = &dram_timing_2gb_dual_die;
@@ -70,13 +73,17 @@ static void spl_dram_init(int size)
 		}
 		break;
 	default:
-		printf("Unknown DDR configuration: %d GiB\n", size);
+		printf("Unknown DDR configuration: %d MiB\n", size);
 		dram_timing = &dram_timing_2gb_dual_die;
-		size = 2;
+		size = 2048;
 #endif
 	}
 
-	printf("DRAM    : LPDDR4 %d GiB\n", size);
+	printf("DRAM    : LPDDR4 ");
+	if (size > 512)
+		printf("%d GiB\n", size / 1024);
+	else
+		printf("%d MiB\n", size);
 	ddr_init(dram_timing);
 }
 
@@ -292,5 +299,19 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 		return BOOT_DEVICE_MMC2;
 	default:
 		return BOOT_DEVICE_NONE;
+	}
+}
+
+const char *spl_board_loader_name(u32 boot_device)
+{
+	switch (boot_device) {
+	/* SDHC2 */
+	case BOOT_DEVICE_MMC1:
+		return "eMMC";
+	/* SDHC3 */
+	case BOOT_DEVICE_MMC2:
+		return "SD card";
+	default:
+		return NULL;
 	}
 }

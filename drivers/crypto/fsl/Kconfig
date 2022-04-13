@@ -2,6 +2,7 @@ config FSL_CAAM
 	bool "Freescale Crypto Driver Support"
 	select SHA_HW_ACCEL
 	# hw_sha1() under drivers/crypto, and needed with SHA_HW_ACCEL
+	select MISC if DM
 	imply SPL_CRYPTO if (ARM && SPL)
 	imply CMD_HASH
 	help
@@ -11,7 +12,7 @@ config FSL_CAAM
 
 config CAAM_64BIT
 	bool
-	default y if PHYS_64BIT && !ARCH_IMX8M
+	default y if PHYS_64BIT && !ARCH_IMX8M && !ARCH_IMX8
 	help
 	  Select Crypto driver for 64 bits CAAM version
 

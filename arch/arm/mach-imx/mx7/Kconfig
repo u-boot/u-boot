@@ -68,6 +68,7 @@ config TARGET_MX7DSABRESD
 	select DM_THERMAL
 	select MX7D
 	imply CMD_DM
+	select FSL_CAAM
 
 config TARGET_PICO_IMX7D
 	bool "pico-imx7d"

@@ -1,0 +1,116 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2022 Marek Vasut <marex@denx.de>
+ */
+
+#include "imx8mm-u-boot.dtsi"
+
+/ {
+	aliases {
+		eeprom0 = &eeprom;
+		mmc0 = &usdhc3;	/* eMMC */
+		mmc1 = &usdhc2;	/* MicroSD */
+	};
+
+	config {
+		dmo,ram-coding-gpios = <&gpio2 8 0>, <&gpio2 1 0>, <&gpio2 0 0>;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+};
+
+&buck4_reg {
+	u-boot,dm-spl;
+};
+
+&buck5_reg {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_hog_sbc {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c1_gpio {
+	u-boot,dm-spl;
+};
+
+&pinctrl_pmic {
+	u-boot,dm-spl;
+};
+
+&pinctrl_uart3 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc3 {
+	u-boot,dm-spl;
+};
+
+&pmic {
+	u-boot,dm-spl;
+
+	regulators {
+		u-boot,dm-spl;
+	};
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+};
+
+&uart3 {
+	u-boot,dm-spl;
+};
+
+&usbotg1 {
+	dr_mode = "peripheral";
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+};
+
+&usdhc3 {
+	u-boot,dm-spl;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};

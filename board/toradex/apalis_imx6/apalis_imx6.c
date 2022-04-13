@@ -727,9 +727,6 @@ int board_late_init(void)
 		if ((fdt_env != NULL) && (strcmp(FDT_FILE, fdt_env) == 0)) {
 			env_set("fdt_file", FDT_FILE_V1_0);
 			printf("patching fdt_file to " FDT_FILE_V1_0 "\n");
-#ifndef CONFIG_ENV_IS_NOWHERE
-			env_save();
-#endif
 		}
 	}
 #endif /* CONFIG_TDX_APALIS_IMX6_V1_0 */

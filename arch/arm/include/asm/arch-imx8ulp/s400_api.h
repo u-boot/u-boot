@@ -19,8 +19,9 @@
 #define AHAB_READ_FUSE_REQ_CID	0x97
 #define AHAB_RELEASE_RDC_REQ_CID   0xC4
 #define AHAB_WRITE_FUSE_REQ_CID	0xD6
+#define AHAB_CAAM_RELEASE_CID 0xD7
 
-#define S400_MAX_MSG          8U
+#define S400_MAX_MSG          255U
 
 struct imx8ulp_s400_msg {
 	u8 version;
@@ -37,5 +38,7 @@ int ahab_verify_image(u32 img_id, u32 *response);
 int ahab_forward_lifecycle(u16 life_cycle, u32 *response);
 int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response);
 int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *response);
+int ahab_release_caam(u32 core_did, u32 *response);
+int ahab_dump_buffer(u32 *buffer, u32 buffer_length);
 
 #endif

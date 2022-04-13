@@ -215,6 +215,11 @@ config PHY_NXP_C45_TJA11XX
 	  Enable support for NXP C45 TJA11XX PHYs.
 	  Currently supports only the TJA1103 PHY.
 
+config PHY_NXP_TJA11XX
+	bool "NXP TJA11XX Ethernet PHYs support"
+	help
+	  Currently supports the NXP TJA1100 and TJA1101 PHY.
+
 config PHY_REALTEK
 	bool "Realtek Ethernet PHYs support"
 

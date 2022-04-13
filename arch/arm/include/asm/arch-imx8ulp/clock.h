@@ -6,6 +6,11 @@
 #ifndef _ASM_ARCH_IMX8ULP_CLOCK_H
 #define _ASM_ARCH_IMX8ULP_CLOCK_H
 
+#include <asm/arch/pcc.h>
+#include <asm/arch/cgc.h>
+
+#define MHZ(X)	((X) * 1000000UL)
+
 /* Mainly for compatible to imx common code. */
 enum mxc_clock {
 	MXC_ARM_CLK = 0,
@@ -36,7 +41,8 @@ void init_clk_usdhc(u32 index);
 void init_clk_fspi(int index);
 void init_clk_ddr(void);
 int set_ddr_clk(u32 phy_freq_mhz);
-void clock_init(void);
+void clock_init_early(void);
+void clock_init_late(void);
 void cgc1_enet_stamp_sel(u32 clk_src);
 void mxs_set_lcdclk(u32 base_addr, u32 freq_in_khz);
 void reset_lcdclk(void);

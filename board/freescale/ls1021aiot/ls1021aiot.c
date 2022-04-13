@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  */
 
 #include <common.h>
@@ -209,10 +210,7 @@ int misc_init_r(void)
 	device_disable(devdis_tbl, ARRAY_SIZE(devdis_tbl));
 
 #endif
-
-#ifdef CONFIG_FSL_CAAM
-	return sec_init();
-#endif
+	return 0;
 }
 #endif
 

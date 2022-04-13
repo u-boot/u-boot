@@ -883,6 +883,12 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-fsl-qoriq.git
 F:	drivers/watchdog/sp805_wdt.c
 F:	drivers/watchdog/sbsa_gwdt.c
 
+GATEWORKS_SC
+M:	Tim Harvey <tharvey@gateworks.com>
+S:	Maintained
+F:	drivers/misc/gsc.c
+F:	include/gsc.h
+
 I2C
 M:	Heiko Schocher <hs@denx.de>
 S:	Maintained
@@ -1413,3 +1419,9 @@ T:	git https://source.denx.de/u-boot/u-boot.git
 F:	configs/tools-only_defconfig
 F:	*
 F:	*/
+
+CAAM
+M:	Gaurav Jain <gaurav.jain@nxp.com>
+S:	Maintained
+F:	drivers/crypto/fsl/
+F:	include/fsl_sec.h

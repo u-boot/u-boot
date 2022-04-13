@@ -8,6 +8,7 @@ config AHAB_BOOT
 
 config IMX8
 	bool
+	select HAS_CAAM
 
 config MU_BASE_SPL
 	hex "MU base address used in SPL"
@@ -72,6 +73,9 @@ config TARGET_IMX8QM_MEK
 	bool "Support i.MX8QM MEK board"
 	select BOARD_LATE_INIT
 	select IMX8QM
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_CONGA_QMX8
 	bool "Support congatec conga-QMX8 board"
@@ -89,6 +93,9 @@ config TARGET_IMX8QXP_MEK
 	bool "Support i.MX8QXP MEK board"
 	select BOARD_LATE_INIT
 	select IMX8QXP
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 endchoice
 

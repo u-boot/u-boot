@@ -36,7 +36,7 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 	void *base;
 
 	/* Anatop clocks */
-	base = (void *)ANATOP_BASE_ADDR;
+	base = (void *)ofnode_get_addr(ofnode_by_compatible(ofnode_null(), "fsl,imxrt-anatop"));
 
 	clk_dm(IMXRT1020_CLK_PLL2_SYS,
 	       imx_clk_pllv3(IMX_PLLV3_GENERIC, "pll2_sys", "osc",

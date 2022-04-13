@@ -71,9 +71,6 @@ int arch_misc_init(void)
 			env_set("fdt_module", FDT_MODULE_V1_0);
 			printf("patching fdt_module to " FDT_MODULE_V1_0
 			       " for older V1.0 and V1.1 HW\n");
-#ifndef CONFIG_ENV_IS_NOWHERE
-			env_save();
-#endif
 		}
 
 		/* activate USB power enable GPIOs */

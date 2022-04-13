@@ -1,5 +1,6 @@
 /*
  * Copyright 2015-2016 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -195,6 +196,29 @@
 				interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
 				clock-names = "snvs-rtc";
 				clocks = <&clks IMX7ULP_CLK_SNVS>;
+			};
+		};
+
+		crypto: crypto@40240000 {
+			compatible = "fsl,sec-v4.0";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x40240000 0x10000>;
+			ranges = <0 0x40240000 0x10000>;
+			clocks = <&clks IMX7ULP_CLK_CAAM>,
+				 <&clks IMX7ULP_CLK_NIC1_BUS_DIV>;
+			clock-names = "aclk", "ipg";
+
+			sec_jr0: jr@1000 {
+				compatible = "fsl,sec-v4.0-job-ring";
+				reg = <0x1000 0x1000>;
+				interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
+			};
+
+			sec_jr1: jr@2000 {
+				compatible = "fsl,sec-v4.0-job-ring";
+				reg = <0x2000 0x1000>;
+				interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
 			};
 		};
 

@@ -56,6 +56,7 @@
 #ifdef CONFIG_U_QE
 #include <fsl_qe.h>
 #endif
+#include <dm.h>
 
 #ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 /*
@@ -902,8 +903,6 @@ int cpu_init_r(void)
 #endif
 
 #ifdef CONFIG_FSL_CAAM
-	sec_init();
-
 #if defined(CONFIG_ARCH_C29X)
 	if ((SVR_SOC_VER(svr) == SVR_C292) ||
 	    (SVR_SOC_VER(svr) == SVR_C293))
@@ -941,6 +940,22 @@ int cpu_init_r(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_ARCH_MISC_INIT
+int arch_misc_init(void)
+{
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
+
+	return 0;
+}
+#endif
 
 void arch_preboot_os(void)
 {

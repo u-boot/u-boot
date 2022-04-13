@@ -7,7 +7,7 @@
 /dts-v1/;
 #include "imxrt1050.dtsi"
 #include "imxrt1050-evk-u-boot.dtsi"
-#include <dt-bindings/pinctrl/pins-imxrt1050.h>
+#include "imxrt1050-pinfunc.h"
 
 / {
 	model = "NXP IMXRT1050-evk board";

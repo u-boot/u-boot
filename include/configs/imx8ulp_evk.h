@@ -27,13 +27,13 @@
 
 #endif
 
+#define COUNTER_FREQUENCY		1000000 /* 1MHz */
+
 /* ENET Config */
 #if defined(CONFIG_FEC_MXC)
 #define PHY_ANEG_TIMEOUT		20000
 
 #define CONFIG_FEC_MXC_PHYADDR		1
-
-#define IMX_FEC_BASE			0x29950000
 #endif
 
 #ifdef CONFIG_DISTRO_DEFAULTS

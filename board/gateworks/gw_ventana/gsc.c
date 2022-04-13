@@ -16,11 +16,30 @@
 
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
+#include <dm/device.h>
+#include <dm/uclass.h>
 
 #include "ventana_eeprom.h"
 #include "gsc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if CONFIG_IS_ENABLED(DM_I2C)
+struct udevice *i2c_get_dev(int busno, int slave)
+{
+	struct udevice *dev, *bus;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, busno, &bus);
+	if (ret)
+		return NULL;
+	ret = dm_i2c_probe(bus, slave, 0, &dev);
+	if (ret)
+		return NULL;
+
+	return dev;
+}
+#endif
 
 /*
  * The Gateworks System Controller will fail to ACK a master transaction if
@@ -34,9 +53,27 @@ int gsc_i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	int retry = 3;
 	int n = 0;
 	int ret;
+#if CONFIG_IS_ENABLED(DM_I2C)
+	struct udevice *dev;
+
+	dev = i2c_get_dev(CONFIG_I2C_GSC, chip);
+	if (!dev)
+		return -ENODEV;
+	ret = i2c_set_chip_offset_len(dev, alen);
+	if (ret) {
+		puts("EEPROM: Failed to set alen\n");
+		return ret;
+	}
+#else
+	i2c_set_bus_num(CONFIG_I2C_GSC);
+#endif
 
 	while (n++ < retry) {
+#if CONFIG_IS_ENABLED(DM_I2C)
+		ret = dm_i2c_read(dev, addr, buf, len);
+#else
 		ret = i2c_read(chip, addr, alen, buf, len);
+#endif
 		if (!ret)
 			break;
 		debug("%s: 0x%02x 0x%02x retry%d: %d\n", __func__, chip, addr,
@@ -53,9 +90,25 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	int retry = 3;
 	int n = 0;
 	int ret;
+#if CONFIG_IS_ENABLED(DM_I2C)
+	struct udevice *dev;
+
+	dev = i2c_get_dev(CONFIG_I2C_GSC, chip);
+	if (!dev)
+		return -ENODEV;
+	ret = i2c_set_chip_offset_len(dev, alen);
+	if (ret) {
+		puts("EEPROM: Failed to set alen\n");
+		return ret;
+	}
+#endif
 
 	while (n++ < retry) {
+#if CONFIG_IS_ENABLED(DM_I2C)
+		ret = dm_i2c_write(dev, addr, buf, len);
+#else
 		ret = i2c_write(chip, addr, alen, buf, len);
+#endif
 		if (!ret)
 			break;
 		debug("%s: 0x%02x 0x%02x retry%d: %d\n", __func__, chip, addr,
@@ -79,7 +132,6 @@ int gsc_get_board_temp(void)
 	node = fdt_node_offset_by_compatible(fdt, -1, "gw,gsc-adc");
 	if (node <= 0)
 		return node;
-	i2c_set_bus_num(0);
 
 	/* iterate over hwmon nodes */
 	node = fdt_first_subnode(fdt, node);
@@ -122,7 +174,6 @@ int gsc_hwmon(void)
 	node = fdt_node_offset_by_compatible(fdt, -1, "gw,gsc-adc");
 	if (node <= 0)
 		return node;
-	i2c_set_bus_num(0);
 
 	/* iterate over hwmon nodes */
 	node = fdt_first_subnode(fdt, node);
@@ -184,7 +235,6 @@ int gsc_info(int verbose)
 {
 	unsigned char buf[16];
 
-	i2c_set_bus_num(0);
 	if (gsc_i2c_read(GSC_SC_ADDR, 0, 1, buf, 16))
 		return CMD_RET_FAILURE;
 
@@ -225,7 +275,6 @@ int gsc_boot_wd_disable(void)
 {
 	u8 reg;
 
-	i2c_set_bus_num(CONFIG_I2C_GSC);
 	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1)) {
 		reg |= (1 << GSC_SC_CTRL1_WDDIS);
 		if (!gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
@@ -334,7 +383,6 @@ static int do_gsc_sleep(struct cmd_tbl *cmdtp, int flag, int argc,
 	secs = dectoul(argv[1], NULL);
 	printf("GSC Sleeping for %ld seconds\n", secs);
 
-	i2c_set_bus_num(0);
 	reg = (secs >> 24) & 0xff;
 	if (gsc_i2c_write(GSC_SC_ADDR, 9, 1, &reg, 1))
 		goto error;
@@ -377,7 +425,6 @@ static int do_gsc_wd(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		if (argc > 2)
 			timeout = dectoul(argv[2], NULL);
-		i2c_set_bus_num(0);
 		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
 			return CMD_RET_FAILURE;
 		reg &= ~((1 << GSC_SC_CTRL1_WDEN) | (1 << GSC_SC_CTRL1_WDTIME));
@@ -391,7 +438,6 @@ static int do_gsc_wd(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("GSC Watchdog enabled with timeout=%d seconds\n",
 		       timeout);
 	} else if (strcasecmp(argv[1], "disable") == 0) {
-		i2c_set_bus_num(0);
 		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
 			return CMD_RET_FAILURE;
 		reg &= ~((1 << GSC_SC_CTRL1_WDEN) | (1 << GSC_SC_CTRL1_WDTIME));

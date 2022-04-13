@@ -46,6 +46,14 @@ config ATSHA204A
 	   CryptoAuthentication module found for example on the Turris Omnia
 	   board.
 
+config GATEWORKS_SC
+	bool "Gateworks System Controller Support"
+	depends on MISC
+	help
+	  Enable access for the Gateworks System Controller used on Gateworks
+	  boards to provide a boot watchdog, power control, temperature monitor,
+	  voltage ADCs, and EEPROM.
+
 config ROCKCHIP_EFUSE
         bool "Rockchip e-fuse support"
 	depends on MISC

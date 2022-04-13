@@ -17,6 +17,11 @@
 		stdout-path = &uart3;
 	};
 
+	aliases {
+		eeprom0 = &i2c_eeprom0;
+		eeprom1 = &i2c_eeprom1;
+	};
+
 	reg_vusb_5v: regulator-usdhc2 {
 		compatible = "regulator-fixed";
 		regulator-name = "VUSB_5V";
@@ -79,7 +84,7 @@
 	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
 
-	eeprom@54 {
+	i2c_eeprom0: eeprom@54 {
 		  compatible = "atmel,24c08";
 		  reg = <0x54>;
 		  pagesize = <16>;
@@ -92,6 +97,11 @@
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
+	i2c_eeprom1: eeprom@50 {
+		  compatible = "atmel,24c08";
+		  reg = <0x50>;
+		  pagesize = <16>;
+	};
 	rtc@69 {
 		compatible = "abracon,ab1805";
 		reg = <0x69>;

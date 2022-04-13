@@ -57,9 +57,22 @@
 		"setexpr blkcnt $blkcnt / 0x200 && " \
 		"mmc dev $dev && " \
 		"mmc write $loadaddr 0x40 $blkcnt\0" \
+	"loadfdt=" \
+		"if $fsload $fdt_addr_r $dir/$fdt_file1; " \
+			"then echo loaded $fdt_file1; " \
+		"elif $fsload $fdt_addr_r $dir/$fdt_file2; " \
+			"then echo loaded $fdt_file2; " \
+		"elif $fsload $fdt_addr_r $dir/$fdt_file3; " \
+			"then echo loaded $fdt_file3; " \
+		"elif $fsload $fdt_addr_r $dir/$fdt_file4; " \
+			"then echo loaded $fdt_file4; " \
+		"elif $fsload $fdt_addr_r $dir/$fdt_file5; " \
+			"then echo loaded $fdt_file5; " \
+		"fi\0" \
 	"boot_net=" \
-		"tftpboot $kernel_addr_r $image && " \
-		"booti $kernel_addr_r - $fdtcontroladdr\0" \
+		"setenv fsload tftpboot; " \
+		"run loadfdt && tftpboot $kernel_addr_r $dir/Image && " \
+		"booti $kernel_addr_r - $fdt_addr_r\0" \
 	"update_rootfs=" \
 		"tftpboot $loadaddr $image && " \
 		"gzwrite mmc $dev $loadaddr $filesize 100000 1000000\0" \

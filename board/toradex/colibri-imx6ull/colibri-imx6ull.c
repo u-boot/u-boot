@@ -100,26 +100,19 @@ static int setup_fec(void)
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	int ret;
 
-	/* provide the PHY clock from the i.MX 6 */
+	/*
+	 * Use 50MHz anatop loopback REF_CLK2 for ENET2,
+	 * clear gpr1[14], set gpr1[18].
+	 */
+	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_MASK,
+			IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
+
 	ret = enable_fec_anatop_clock(1, ENET_50MHZ);
 	if (ret)
 		return ret;
 
-	/* Use 50M anatop REF_CLK and output it on ENET2_TX_CLK */
-	clrsetbits_le32(&iomuxc_regs->gpr[1],
-			IOMUX_GPR1_FEC2_CLOCK_MUX2_SEL_MASK,
-			IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
+	enable_enet_clk(1);
 
-	/* give new Ethernet PHY power save mode circuitry time to settle */
-	mdelay(300);
-
-	return 0;
-}
-
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
 	return 0;
 }
 #endif /* CONFIG_FEC_MXC */
@@ -172,10 +165,14 @@ int board_late_init(void)
 	} else {
 		if (is_emmc)
 			env_set("variant", "-emmc");
+		else
+			env_set("variant", "");
 	}
 #else
 	if (is_emmc)
 		env_set("variant", "-emmc");
+	else
+		env_set("variant", "");
 #endif
 
 	/*

@@ -63,6 +63,7 @@ static int setup_fec(void)
 int board_phy_config(struct phy_device *phydev)
 {
 	unsigned short val;
+	ofnode node;
 
 	switch (phydev->phy_id) {
 	case 0x2000a231: /* TI DP83867 GbE PHY */
@@ -72,6 +73,21 @@ int board_phy_config(struct phy_device *phydev)
 		val |= 0x5 << 4; /* LED1(Amber;Speed)   : 1000BT link */
 		val |= 0xb << 8; /* LED2(Green;Link/Act): blink for TX/RX act */
 		phy_write(phydev, MDIO_DEVAD_NONE, 24, val);
+		break;
+	case 0xd565a401: /* MaxLinear GPY111 */
+		puts("GPY111 ");
+		node = phy_get_ofnode(phydev);
+		if (ofnode_valid(node)) {
+			u32 rx_delay, tx_delay;
+
+			rx_delay = ofnode_read_u32_default(node, "rx-internal-delay-ps", 2000);
+			tx_delay = ofnode_read_u32_default(node, "tx-internal-delay-ps", 2000);
+			val = phy_read(phydev, MDIO_DEVAD_NONE, 0x17);
+			val &= ~((0x7 << 12) | (0x7 << 8));
+			val |= (rx_delay / 500) << 12;
+			val |= (tx_delay / 500) << 8;
+			phy_write(phydev, MDIO_DEVAD_NONE, 0x17, val);
+		}
 		break;
 	}
 

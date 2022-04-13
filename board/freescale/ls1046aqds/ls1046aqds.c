@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  */
 
 #include <common.h>
@@ -28,7 +28,6 @@
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
-#include <fsl_sec.h>
 #include <spl.h>
 #include "../common/i2c_mux.h"
 
@@ -419,10 +418,6 @@ int board_init(void)
 	out_le32(SMMU_SCR0, val);
 	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
 	out_le32(SMMU_NSCR0, val);
-#endif
-
-#ifdef CONFIG_FSL_CAAM
-	sec_init();
 #endif
 
 	return 0;

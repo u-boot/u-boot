@@ -14,6 +14,7 @@
 /include/ "qoriq-gpio-1.dtsi"
 /include/ "qoriq-gpio-2.dtsi"
 /include/ "qoriq-gpio-3.dtsi"
+/include/ "qoriq-sec5.0-0.dtsi"
 
 /* include used FMan blocks */
 /include/ "qoriq-fman3l-0.dtsi"

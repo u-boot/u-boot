@@ -138,8 +138,7 @@ static int detect_lvds(struct display_info_t const *dev)
 		return 0;
 	}
 
-	return i2c_set_bus_num(dev->bus) == 0 &&
-		i2c_probe(dev->addr) == 0;
+	return (i2c_get_dev(dev->bus, dev->addr) ? 1 : 0);
 }
 
 static void enable_lvds(struct display_info_t const *dev)
@@ -355,13 +354,6 @@ static void setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
-/* setup board specific PMIC */
-int power_init_board(void)
-{
-	setup_pmic();
-	return 0;
-}
-
 /*
  * Most Ventana boards have a PLX PEX860x PCIe switch onboard and use its
  * GPIO's as PERST# signals for its downstream ports - configure the GPIO's
@@ -490,11 +482,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	/* read Gateworks EEPROM into global struct (used later) */
-	setup_ventana_i2c(0);
 	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
-
-	setup_ventana_i2c(1);
-	setup_ventana_i2c(2);
 
 	setup_iomux_gpio(board_type, &ventana_info);
 
@@ -588,6 +576,91 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+/* setup GPIO pinmux and default configuration per baseboard and env */
+void setup_board_gpio(int board, struct ventana_board_info *info)
+{
+	const char *s;
+	char arg[10];
+	size_t len;
+	int i;
+	int quiet = simple_strtol(env_get("quiet"), NULL, 10);
+
+	if (board >= GW_UNKNOWN)
+		return;
+
+	/* RS232_EN# */
+	if (gpio_cfg[board].rs232_en) {
+		gpio_direction_output(gpio_cfg[board].rs232_en,
+				      (hwconfig("rs232")) ? 0 : 1);
+	}
+
+	/* MSATA Enable */
+	if (gpio_cfg[board].msata_en && is_cpu_type(MXC_CPU_MX6Q)) {
+		gpio_direction_output(GP_MSATA_SEL,
+				      (hwconfig("msata")) ? 1 : 0);
+	}
+
+	/* USBOTG Select (PCISKT or FrontPanel) */
+	if (gpio_cfg[board].usb_sel) {
+		gpio_direction_output(gpio_cfg[board].usb_sel,
+				      (hwconfig("usb_pcisel")) ? 1 : 0);
+	}
+
+	/*
+	 * Configure DIO pinmux/padctl registers
+	 * see IMX6DQRM/IMX6SDLRM IOMUXC_SW_PAD_CTL_PAD_* register definitions
+	 */
+	for (i = 0; i < gpio_cfg[board].dio_num; i++) {
+		struct dio_cfg *cfg = &gpio_cfg[board].dio_cfg[i];
+		iomux_v3_cfg_t ctrl = DIO_PAD_CFG;
+		unsigned int cputype = is_cpu_type(MXC_CPU_MX6Q) ? 0 : 1;
+
+		if (!cfg->gpio_padmux[0] && !cfg->gpio_padmux[1])
+			continue;
+		sprintf(arg, "dio%d", i);
+		if (!hwconfig(arg))
+			continue;
+		s = hwconfig_subarg(arg, "padctrl", &len);
+		if (s) {
+			ctrl = MUX_PAD_CTRL(hextoul(s, NULL)
+					    & 0x1ffff) | MUX_MODE_SION;
+		}
+		if (hwconfig_subarg_cmp(arg, "mode", "gpio")) {
+			if (!quiet) {
+				printf("DIO%d:  GPIO%d_IO%02d (gpio-%d)\n", i,
+				       (cfg->gpio_param / 32) + 1,
+				       cfg->gpio_param % 32,
+				       cfg->gpio_param);
+			}
+			imx_iomux_v3_setup_pad(cfg->gpio_padmux[cputype] |
+					       ctrl);
+			gpio_requestf(cfg->gpio_param, "dio%d", i);
+			gpio_direction_input(cfg->gpio_param);
+		} else if (hwconfig_subarg_cmp(arg, "mode", "pwm") &&
+			   cfg->pwm_padmux) {
+			if (!cfg->pwm_param) {
+				printf("DIO%d:  Error: pwm config invalid\n",
+				       i);
+				continue;
+			}
+			if (!quiet)
+				printf("DIO%d:  pwm%d\n", i, cfg->pwm_param);
+			imx_iomux_v3_setup_pad(cfg->pwm_padmux[cputype] |
+					       MUX_PAD_CTRL(ctrl));
+		}
+	}
+
+	if (!quiet) {
+		if (gpio_cfg[board].msata_en && is_cpu_type(MXC_CPU_MX6Q)) {
+			printf("MSATA: %s\n", (hwconfig("msata") ?
+			       "enabled" : "disabled"));
+		}
+		if (gpio_cfg[board].rs232_en) {
+			printf("RS232: %s\n", (hwconfig("rs232")) ?
+			       "enabled" : "disabled");
+		}
+	}
+}
 /* late init */
 int misc_init_r(void)
 {
@@ -925,8 +998,7 @@ void ft_board_pci_fixup(void *blob, struct bd_info *bd)
 		 */
 		if ((dev->vendor == PCI_VENDOR_ID_TI) &&
 		    (dev->device == 0x8240) &&
-		    (i2c_set_bus_num(1) == 0) &&
-		    (i2c_probe(0x50) == 0))
+		    i2c_get_dev(1, 0x50))
 		{
 			np = fdt_add_pci_path(blob, dev);
 			if (np > 0)
@@ -944,6 +1016,152 @@ void ft_board_pci_fixup(void *blob, struct bd_info *bd)
 	}
 }
 #endif /* if defined(CONFIG_CMD_PCI) */
+
+#define WDOG1_ADDR      0x20bc000
+#define WDOG2_ADDR      0x20c0000
+#define GPIO3_ADDR      0x20a4000
+#define USDHC3_ADDR     0x2198000
+static void ft_board_wdog_fixup(void *blob, phys_addr_t addr)
+{
+	int off = fdt_node_offset_by_compat_reg(blob, "fsl,imx6q-wdt", addr);
+
+	if (off) {
+		fdt_delprop(blob, off, "ext-reset-output");
+		fdt_delprop(blob, off, "fsl,ext-reset-output");
+	}
+}
+
+void ft_early_fixup(void *blob, int board_type)
+{
+	struct ventana_board_info *info = &ventana_info;
+	char rev = 0;
+	int i;
+
+	/* determine board revision */
+	for (i = sizeof(ventana_info.model) - 1; i > 0; i--) {
+		if (ventana_info.model[i] >= 'A') {
+			rev = ventana_info.model[i];
+			break;
+		}
+	}
+
+	/*
+	 * Board model specific fixups
+	 */
+	switch (board_type) {
+	case GW51xx:
+		/*
+		 * disable wdog node for GW51xx-A/B to work around
+		 * errata causing wdog timer to be unreliable.
+		 */
+		if (rev >= 'A' && rev < 'C') {
+			i = fdt_node_offset_by_compat_reg(blob, "fsl,imx6q-wdt",
+							  WDOG1_ADDR);
+			if (i)
+				fdt_status_disabled(blob, i);
+		}
+
+		/* GW51xx-E adds WDOG1_B external reset */
+		if (rev < 'E')
+			ft_board_wdog_fixup(blob, WDOG1_ADDR);
+		break;
+
+	case GW52xx:
+		/* GW522x Uses GPIO3_IO23 instead of GPIO1_IO29 */
+		if (info->model[4] == '2') {
+			u32 handle = 0;
+			u32 *range = NULL;
+
+			i = fdt_node_offset_by_compatible(blob, -1,
+							  "fsl,imx6q-pcie");
+			if (i)
+				range = (u32 *)fdt_getprop(blob, i,
+							   "reset-gpio", NULL);
+
+			if (range) {
+				i = fdt_node_offset_by_compat_reg(blob,
+								  "fsl,imx6q-gpio", GPIO3_ADDR);
+				if (i)
+					handle = fdt_get_phandle(blob, i);
+				if (handle) {
+					range[0] = cpu_to_fdt32(handle);
+					range[1] = cpu_to_fdt32(23);
+				}
+			}
+
+			/* these have broken usd_vsel */
+			if (strstr((const char *)info->model, "SP318-B") ||
+			    strstr((const char *)info->model, "SP331-B"))
+				gpio_cfg[board_type].usd_vsel = 0;
+
+			/* GW522x-B adds WDOG1_B external reset */
+			if (rev < 'B')
+				ft_board_wdog_fixup(blob, WDOG1_ADDR);
+		}
+
+		/* GW520x-E adds WDOG1_B external reset */
+		else if (info->model[4] == '0' && rev < 'E')
+			ft_board_wdog_fixup(blob, WDOG1_ADDR);
+		break;
+
+	case GW53xx:
+		/* GW53xx-E adds WDOG1_B external reset */
+		if (rev < 'E')
+			ft_board_wdog_fixup(blob, WDOG1_ADDR);
+
+		/* GW53xx-G has an adv7280 instead of an adv7180 */
+		else if (rev > 'F') {
+			i = fdt_node_offset_by_compatible(blob, -1, "adi,adv7180");
+			if (i) {
+				fdt_setprop_string(blob, i, "compatible", "adi,adv7280");
+				fdt_setprop_empty(blob, i, "adv,force-bt656-4");
+			}
+		}
+		break;
+
+	case GW54xx:
+		/*
+		 * disable serial2 node for GW54xx for compatibility with older
+		 * 3.10.x kernel that improperly had this node enabled in the DT
+		 */
+		fdt_set_status_by_alias(blob, "serial2", FDT_STATUS_DISABLED);
+
+		/* GW54xx-E adds WDOG2_B external reset */
+		if (rev < 'E')
+			ft_board_wdog_fixup(blob, WDOG2_ADDR);
+
+		/* GW54xx-G has an adv7280 instead of an adv7180 */
+		else if (rev > 'F') {
+			i = fdt_node_offset_by_compatible(blob, -1, "adi,adv7180");
+			if (i) {
+				fdt_setprop_string(blob, i, "compatible", "adi,adv7280");
+				fdt_setprop_empty(blob, i, "adv,force-bt656-4");
+			}
+		}
+		break;
+
+	case GW551x:
+		/* GW551x-C adds WDOG1_B external reset */
+		if (rev < 'C')
+			ft_board_wdog_fixup(blob, WDOG1_ADDR);
+		break;
+	case GW5901:
+	case GW5902:
+		/* GW5901/GW5901 revB adds WDOG1_B as an external reset */
+		if (rev < 'B')
+			ft_board_wdog_fixup(blob, WDOG1_ADDR);
+		break;
+	}
+
+	/* remove no-1-8-v if UHS-I support is present */
+	if (gpio_cfg[board_type].usd_vsel) {
+		debug("Enabling UHS-I support\n");
+		i = fdt_node_offset_by_compat_reg(blob, "fsl,imx6q-usdhc",
+						  USDHC3_ADDR);
+		if (i)
+			fdt_delprop(blob, i, "no-1-8-v");
+	}
+}
 
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command

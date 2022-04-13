@@ -9,9 +9,11 @@
 #include <errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/cgc.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
+#include <hang.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,7 +31,7 @@ void cgc1_soscdiv_init(void)
 	clrbits_le32(&cgc1_regs->frodiv, BIT(7));
 }
 
-void cgc1_pll2_init(void)
+void cgc1_pll2_init(ulong freq)
 {
 	u32 reg;
 
@@ -44,8 +46,8 @@ void cgc1_pll2_init(void)
 	while ((readl(&cgc1_regs->pll2csr) & BIT(24)))
 		;
 
-	/* Select SOSC as source, freq = 31 * 24 =744mhz */
-	reg = 31 << 16;
+	/* Select SOSC as source */
+	reg = (freq / MHZ(24)) << 16;
 	writel(reg, &cgc1_regs->pll2cfg);
 
 	/* Enable PLL2 */
@@ -74,7 +76,7 @@ static void cgc1_set_a35_clk(u32 clk_src, u32 div_core)
 		;
 }
 
-void cgc1_init_core_clk(void)
+void cgc1_init_core_clk(ulong freq)
 {
 	u32 reg = readl(&cgc1_regs->ca35clk);
 
@@ -82,8 +84,7 @@ void cgc1_init_core_clk(void)
 	if (((reg >> 28) & 0x3) == 0x1)
 		cgc1_set_a35_clk(0, 1);
 
-	/* Set pll2 to 750Mhz for 1V  */
-	cgc1_pll2_init();
+	cgc1_pll2_init(freq);
 
 	/* Set A35 clock to pll2 */
 	cgc1_set_a35_clk(1, 1);
@@ -94,7 +95,7 @@ void cgc1_enet_stamp_sel(u32 clk_src)
 	writel((clk_src & 0x7) << 24, &cgc1_regs->enetstamp);
 }
 
-void cgc1_pll3_init(void)
+void cgc1_pll3_init(ulong freq)
 {
 	/* Gate off VCO */
 	setbits_le32(&cgc1_regs->pll3div_vco, BIT(7));
@@ -115,11 +116,15 @@ void cgc1_pll3_init(void)
 	/* Select SOSC as source */
 	clrbits_le32(&cgc1_regs->pll3cfg, BIT(0));
 
-	//setbits_le32(&cgc1_regs->pll3cfg, 22 << 16);
-	writel(22 << 16, &cgc1_regs->pll3cfg);
-
-	writel(578, &cgc1_regs->pll3num);
-	writel(1000, &cgc1_regs->pll3denom);
+	switch (freq) {
+	case 540672000:
+		writel(0x16 << 16, &cgc1_regs->pll3cfg);
+		writel(0x16e3600, &cgc1_regs->pll3denom);
+		writel(0xc15c00, &cgc1_regs->pll3num);
+		break;
+	default:
+		hang();
+	}
 
 	/* Enable PLL3 */
 	setbits_le32(&cgc1_regs->pll3csr, BIT(0));
@@ -130,23 +135,30 @@ void cgc1_pll3_init(void)
 	/* Gate on VCO */
 	clrbits_le32(&cgc1_regs->pll3div_vco, BIT(7));
 
-	/*
-	 * PFD0: 380MHz/396/396/328
-	 */
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, 0x3F);
-	setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 0);
+
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE)) {
+		setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 0);
+		clrsetbits_le32(&cgc1_regs->nicclk, GENMASK(26, 21), 3 << 21); /* 195M */
+	} else if (IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
+		setbits_le32(&cgc1_regs->pll3pfdcfg, 21 << 0);
+		clrsetbits_le32(&cgc1_regs->nicclk, GENMASK(26, 21), 1 << 21); /* 231M */
+	} else {
+		setbits_le32(&cgc1_regs->pll3pfdcfg, 30 << 0); /* 324M */
+	}
+
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, BIT(7));
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(6)))
 		;
 
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, 0x3F << 8);
-	setbits_le32(&cgc1_regs->pll3pfdcfg, 24 << 8);
+	setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 8);
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, BIT(15));
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(14)))
 		;
 
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, 0x3F << 16);
-	setbits_le32(&cgc1_regs->pll3pfdcfg, 24 << 16);
+	setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 16);
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, BIT(23));
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(22)))
 		;
@@ -166,10 +178,25 @@ void cgc1_pll3_init(void)
 	clrbits_le32(&cgc1_regs->pll3div_pfd1, BIT(15));
 	clrbits_le32(&cgc1_regs->pll3div_pfd1, BIT(23));
 	clrbits_le32(&cgc1_regs->pll3div_pfd1, BIT(31));
+
+	if (!IS_ENABLED(CONFIG_IMX8ULP_LD_MODE) && !IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
+		/* nicclk select pll3 pfd0 */
+		clrsetbits_le32(&cgc1_regs->nicclk, GENMASK(29, 28), BIT(28));
+		while (!(readl(&cgc1_regs->nicclk) & BIT(27)))
+			;
+	}
 }
 
-void cgc2_pll4_init(void)
+void cgc2_pll4_init(bool pll4_reset)
 {
+	/* Check the NICLPAV first to ensure not from PLL4 PFD1 clock */
+	if ((readl(&cgc2_regs->niclpavclk) & GENMASK(29, 28)) == BIT(28)) {
+		/* switch to FRO 192 first */
+		clrbits_le32(&cgc2_regs->niclpavclk, GENMASK(29, 28));
+		while (!(readl(&cgc2_regs->niclpavclk) & BIT(27)))
+			;
+	}
+
 	/* Disable PFD DIV and clear DIV */
 	writel(0x80808080, &cgc2_regs->pll4div_pfd0);
 	writel(0x80808080, &cgc2_regs->pll4div_pfd1);
@@ -177,22 +204,35 @@ void cgc2_pll4_init(void)
 	/* Gate off and clear PFD  */
 	writel(0x80808080, &cgc2_regs->pll4pfdcfg);
 
-	/* Disable PLL4 */
-	writel(0x0, &cgc2_regs->pll4csr);
+	if (pll4_reset) {
+		/* Disable PLL4 */
+		writel(0x0, &cgc2_regs->pll4csr);
 
-	/* Configure PLL4 to 528Mhz and clock source from SOSC */
-	writel(22 << 16, &cgc2_regs->pll4cfg);
-	writel(0x1, &cgc2_regs->pll4csr);
+		/* Configure PLL4 to 528Mhz and clock source from SOSC */
+		writel(22 << 16, &cgc2_regs->pll4cfg);
+		writel(0x1, &cgc2_regs->pll4csr);
 
-	/* wait for PLL4 output valid */
-	while (!(readl(&cgc2_regs->pll4csr) & BIT(24)))
-		;
+		/* wait for PLL4 output valid */
+		while (!(readl(&cgc2_regs->pll4csr) & BIT(24)))
+			;
+	}
 
 	/* Enable all 4 PFDs */
-	setbits_le32(&cgc2_regs->pll4pfdcfg, 18 << 0);
-	setbits_le32(&cgc2_regs->pll4pfdcfg, 30 << 8); /* 316.8Mhz for NIC_LPAV */
-	setbits_le32(&cgc2_regs->pll4pfdcfg, 12 << 16);
-	setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 24);
+	setbits_le32(&cgc2_regs->pll4pfdcfg, 18 << 0); /* 528 */
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE)) {
+		setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 8);
+		/* 99Mhz for NIC_LPAV */
+		clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21), 3 << 21);
+	} else if (IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
+		setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 8);
+		/* 198Mhz for NIC_LPAV */
+		clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21), 1 << 21);
+	} else {
+		setbits_le32(&cgc2_regs->pll4pfdcfg, 30 << 8); /* 316.8Mhz for NIC_LPAV */
+		clrbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21));
+	}
+	setbits_le32(&cgc2_regs->pll4pfdcfg, 12 << 16); /* 792 */
+	setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 24); /* 396 */
 
 	clrbits_le32(&cgc2_regs->pll4pfdcfg, BIT(7) | BIT(15) | BIT(23) | BIT(31));
 
@@ -203,6 +243,10 @@ void cgc2_pll4_init(void)
 	/* Enable PFD DIV */
 	clrbits_le32(&cgc2_regs->pll4div_pfd0, BIT(7) | BIT(15) | BIT(23) | BIT(31));
 	clrbits_le32(&cgc2_regs->pll4div_pfd1, BIT(7) | BIT(15) | BIT(23) | BIT(31));
+
+	clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(29, 28), BIT(28));
+	while (!(readl(&cgc2_regs->niclpavclk) & BIT(27)))
+		;
 }
 
 void cgc2_pll4_pfd_config(enum cgc_clk pllpfd, u32 pfd)
