@@ -35,7 +35,6 @@
 
 /* Hardware drivers */
 /* DM9000 */
-#define	CONFIG_DRIVER_DM9000		1
 #define	CONFIG_DM9000_BASE		0x2c000000
 #define	DM9000_IO			CONFIG_DM9000_BASE
 #define	DM9000_DATA			(CONFIG_DM9000_BASE + 0x400)
