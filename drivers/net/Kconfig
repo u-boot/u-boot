@@ -191,6 +191,11 @@ config CALXEDA_XGMAC
 	  This driver supports the XGMAC in Calxeda Highbank and Midway
 	  machines.
 
+config DRIVER_DM9000
+	bool "Davicom DM9000 controller driver"
+	help
+	  The Davicom DM9000 parallel bus external ethernet interface chip.
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	depends on DM_ETH
