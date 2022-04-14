@@ -331,7 +331,7 @@ phys_size_t get_effective_memsize(void)
 
 ulong board_get_usable_ram_top(ulong total_size)
 {
-	ulong top_addr = PHYS_SDRAM + gd->ram_size;
+	ulong top_addr;
 
 	/*
 	 * Some IPs have their accessible address space restricted by
@@ -339,8 +339,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 	 * space below the 4G address boundary (which is 3GiB big),
 	 * even when the effective available memory is bigger.
 	 */
-	if (top_addr > 0x80000000)
-		top_addr = 0x80000000;
+	top_addr = clamp_val((u64)PHYS_SDRAM + gd->ram_size, 0, 0xffffffff);
 
 	/*
 	 * rom_pointer[0] stores the TEE memory start address.
