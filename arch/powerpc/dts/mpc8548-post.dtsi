@@ -27,7 +27,7 @@
 };
 
 &pcie {
-	compatible = "fsl,pcie-mpc8548", "fsl,pcie-fsl-qoriq";
+	compatible = "fsl,mpc8548-pcie", "fsl,pcie-fsl-qoriq";
 	law_trgt_if = <2>;
 	#address-cells = <3>;
 	#size-cells = <2>;
