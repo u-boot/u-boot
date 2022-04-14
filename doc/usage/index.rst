@@ -30,6 +30,7 @@ Shell commands
    cmd/cbsysinfo
    cmd/conitrace
    cmd/echo
+   cmd/env
    cmd/event
    cmd/exception
    cmd/extension
