@@ -187,8 +187,6 @@ static efi_status_t efi_fill_image_desc_array(
  *   - versioning of firmware image
  *   - package information
  */
-const efi_guid_t efi_firmware_image_type_uboot_fit =
-	EFI_FIRMWARE_IMAGE_TYPE_UBOOT_FIT_GUID;
 
 /**
  * efi_firmware_fit_get_image_info - return information about the current
@@ -295,8 +293,6 @@ const struct efi_firmware_management_protocol efi_fmp_fit = {
  * This FIRMWARE_MANAGEMENT_PROTOCOL driver provides a firmware update
  * method with raw data.
  */
-const efi_guid_t efi_firmware_image_type_uboot_raw =
-	EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID;
 
 /**
  * efi_firmware_raw_get_image_info - return information about the current
