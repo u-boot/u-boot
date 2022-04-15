@@ -10,6 +10,7 @@ the following SoCs work:
  - Apple M1 SoC (t8103)
  - Apple M1 Pro SoC (t6000)
  - Apple M1 Max SoC (t6001)
+ - Apple M1 Ultra SoC (t6002)
 
 On these SoCs the following hardware is supported:
 
@@ -78,5 +79,5 @@ supported SoCs.
      - Base Address
    * - M1 (t8103)
      - 0x235200000
-   * - M1 Pro/Max (t6000/t6001)
+   * - M1 Pro/Max/Ultra (t6000/t6001/t6002)
      - 0x39b200000
