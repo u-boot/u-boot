@@ -260,6 +260,9 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	char name[SOC_NAME_SIZE];
 
 	soc = fdt_path_offset(blob, "/soc");
+	/* when absent, nothing to do */
+	if (soc == -FDT_ERR_NOTFOUND)
+		return 0;
 	if (soc < 0)
 		return soc;
 
