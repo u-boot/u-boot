@@ -29,10 +29,6 @@
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
-#define CONFIG_SYS_FSL_ESDHC_ADDR       0
-#define USDHC1_BASE_ADDR                0x5B010000
-#define USDHC2_BASE_ADDR                0x5B020000
-
 #ifdef CONFIG_AHAB_BOOT
 #define AHAB_ENV "sec_boot=yes\0"
 #else
@@ -122,7 +118,6 @@
 
 /* On LPDDR4 board, USDHC1 is for eMMC, USDHC2 is for SD on CPU board */
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
