@@ -8,6 +8,9 @@
 #ifndef __CONFIG_STM32MP15_ST_COMMON_H__
 #define __CONFIG_STM32MP15_ST_COMMON_H__
 
+#define STM32MP_BOARD_EXTRA_ENV \
+	"console=ttySTM0\0"
+
 #include <configs/stm32mp15_common.h>
 
 #ifdef CONFIG_EXTRA_ENV_SETTINGS
