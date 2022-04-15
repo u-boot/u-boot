@@ -25,11 +25,12 @@ u32 get_cpu_type(void);
 /* return CPU_DEV constants */
 u32 get_cpu_dev(void);
 
-#define CPU_REVA	0x1000
-#define CPU_REVB	0x2000
-#define CPU_REVZ	0x2001
+#define CPU_REV1	0x1000
+#define CPU_REV1_1	0x1001
+#define CPU_REV2	0x2000
+#define CPU_REV2_1	0x2001
 
-/* return CPU_REV constants */
+/* return Silicon revision = REV_ID[15:0] of Device Version */
 u32 get_cpu_rev(void);
 
 /* Get Package options from OTP */
