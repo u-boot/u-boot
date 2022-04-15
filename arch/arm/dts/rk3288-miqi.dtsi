@@ -34,11 +34,9 @@
 
 
 	leds {
-		u-boot,dm-pre-reloc;
 		compatible = "gpio-leds";
 
 		work {
-			u-boot,dm-pre-reloc;
 			gpios = <&gpio7 4 GPIO_ACTIVE_LOW>;
 			label = "miqi:green:user";
 			linux,default-trigger = "default-on";

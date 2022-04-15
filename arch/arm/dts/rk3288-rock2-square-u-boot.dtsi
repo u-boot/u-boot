@@ -1,18 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
-/*
- * Copyright (C) 2019 Rockchip Electronics Co., Ltd
- */
 
 #include "rk3288-u-boot.dtsi"
-/ {
-	leds {
-		u-boot,dm-pre-reloc;
-
-		work {
-			u-boot,dm-pre-reloc;
-		};
-	};
-};
 
 &dmc {
 	rockchip,pctl-timing = <0x29a 0xc8 0x1f8 0x42 0x4e 0x4 0xea 0xa
@@ -25,11 +13,11 @@
 	rockchip,sdram-params = <0x30B25564 0x627 3 666000000 3 9 1>;
 };
 
-&pinctrl {
+&gpio7 {
 	u-boot,dm-pre-reloc;
 };
 
-&uart2 {
+&pinctrl {
 	u-boot,dm-pre-reloc;
 };
 
@@ -37,22 +25,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&emmc {
+&uart2 {
 	u-boot,dm-pre-reloc;
-};
-
-&sdmmc_bus4 {
-	u-boot,dm-spl;
-};
-
-&sdmmc_clk {
-	u-boot,dm-spl;
-};
-
-&sdmmc_cmd {
-	u-boot,dm-spl;
-};
-
-&sdmmc_pwr {
-	u-boot,dm-spl;
 };

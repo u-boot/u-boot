@@ -1,20 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
-/*
- * Copyright (C) 2019 Rockchip Electronics Co., Ltd
- */
 
 #include "rk3288-u-boot.dtsi"
-/ {
-	leds {
-		u-boot,dm-pre-reloc;
-
-		work {
-			u-boot,dm-pre-reloc;
-		};
-	};
-};
 
 &dmc {
+	rockchip,num-channels = <2>;
 	rockchip,pctl-timing = <0x29a 0xc8 0x1f8 0x42 0x4e 0x4 0xea 0xa
 		0x5 0x0 0xa 0x7 0x19 0x24 0xa 0x7
 		0x5 0xa 0x5 0x200 0x5 0x10 0x40 0x0
@@ -22,14 +11,27 @@
 		0x5 0x0>;
 	rockchip,phy-timing = <0x48f9aab4 0xea0910 0x1002c200
 		0xa60 0x40 0x10 0x0>;
-	rockchip,sdram-params = <0x30B25564 0x627 3 666000000 3 9 1>;
+	rockchip,sdram-channel = /bits/ 8 <0x1 0xa 0x3 0x2 0x1 0x0 0xe 0xe>;
+	rockchip,sdram-params = <0x30B25564 0x627 3 666000000 3 5 1>;
 };
 
-&pinctrl {
+&emmc {
 	u-boot,dm-pre-reloc;
 };
 
-&uart2 {
+&i2c0 {
+	u-boot,dm-pre-reloc;
+
+	rk818: pmic@1c {
+		u-boot,dm-pre-reloc;
+
+		regulators {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&pinctrl {
 	u-boot,dm-pre-reloc;
 };
 
@@ -37,22 +39,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&emmc {
+&uart2 {
 	u-boot,dm-pre-reloc;
-};
-
-&sdmmc_bus4 {
-	u-boot,dm-spl;
-};
-
-&sdmmc_clk {
-	u-boot,dm-spl;
-};
-
-&sdmmc_cmd {
-	u-boot,dm-spl;
-};
-
-&sdmmc_pwr {
-	u-boot,dm-spl;
 };

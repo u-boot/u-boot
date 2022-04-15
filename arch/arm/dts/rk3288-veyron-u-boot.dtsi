@@ -5,7 +5,68 @@
 
 #include "rk3288-u-boot.dtsi"
 
+/ {
+	chosen {
+		u-boot,spl-boot-order = &spi_flash;
+	};
+};
+
+&dmc {
+	logic-supply = <&vdd_logic>;
+	rockchip,odt-disable-freq = <333000000>;
+	rockchip,dll-disable-freq = <333000000>;
+	rockchip,sr-enable-freq = <333000000>;
+	rockchip,pd-enable-freq = <666000000>;
+	rockchip,auto-self-refresh-cnt = <0>;
+	rockchip,auto-power-down-cnt = <64>;
+	rockchip,ddr-speed-bin = <21>;
+	rockchip,trcd = <10>;
+	rockchip,trp = <10>;
+	operating-points = <
+		/* KHz    uV */
+		200000 1050000
+		333000 1100000
+		533000 1150000
+		666000 1200000
+	>;
+};
+
+&gpio3 {
+	u-boot,dm-pre-reloc;
+};
+
 &gpio7 {
 	u-boot,dm-pre-reloc;
 };
 
+&gpio8 {
+	u-boot,dm-pre-reloc;
+};
+
+&i2c0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&rk808 {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc {
+	u-boot,dm-pre-reloc;
+};
+
+&spi2 {
+	u-boot,dm-pre-reloc;
+};
+
+&spi_flash {
+	u-boot,dm-pre-reloc;
+};
+
+&uart2 {
+	u-boot,dm-pre-reloc;
+};

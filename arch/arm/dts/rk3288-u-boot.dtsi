@@ -7,9 +7,52 @@
 #include "rockchip-optee.dtsi"
 
 / {
+	aliases {
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &gpio5;
+		gpio6 = &gpio6;
+		gpio7 = &gpio7;
+		gpio8 = &gpio8;
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+		mmc2 = &sdio0;
+		mmc3 = &sdio1;
+	};
+
 	chosen {
 		u-boot,spl-boot-order = \
 			"same-as-spl", &emmc, &sdmmc;
+	};
+
+	dmc: dmc@ff610000 {
+		compatible = "rockchip,rk3288-dmc", "syscon";
+		reg = <0xff610000 0x3fc
+		       0xff620000 0x294
+		       0xff630000 0x3fc
+		       0xff640000 0x294>;
+		clocks = <&cru PCLK_DDRUPCTL0>, <&cru PCLK_PUBL0>,
+			 <&cru PCLK_DDRUPCTL1>, <&cru PCLK_PUBL1>,
+			 <&cru ARMCLK>;
+		clock-names = "pclk_ddrupctl0", "pclk_publ0",
+			      "pclk_ddrupctl1", "pclk_publ1",
+			      "arm_clk";
+		rockchip,cru = <&cru>;
+		rockchip,grf = <&grf>;
+		rockchip,noc = <&noc>;
+		rockchip,pmu = <&pmu>;
+		rockchip,sgrf = <&sgrf>;
+		rockchip,sram = <&ddr_sram>;
+		u-boot,dm-pre-reloc;
+	};
+
+	noc: syscon@ffac0000 {
+		compatible = "rockchip,rk3288-noc", "syscon";
+		reg = <0xffac0000 0x2000>;
+		u-boot,dm-pre-reloc;
 	};
 };
 
@@ -37,7 +80,22 @@
 };
 #endif
 
-&dmc {
+&bus_intmem {
+	ddr_sram: ddr-sram@1000 {
+		compatible = "rockchip,rk3288-ddr-sram";
+		reg = <0x1000 0x4000>;
+	};
+};
+
+&cru {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio7 {
+	u-boot,dm-pre-reloc;
+};
+
+&grf {
 	u-boot,dm-pre-reloc;
 };
 
@@ -49,12 +107,20 @@
 	u-boot,dm-pre-reloc;
 };
 
-&cru {
-	u-boot,dm-pre-reloc;
+&uart0 {
+	clock-frequency = <24000000>;
 };
 
-&grf {
-	u-boot,dm-pre-reloc;
+&uart1 {
+	clock-frequency = <24000000>;
+};
+
+&uart2 {
+	clock-frequency = <24000000>;
+};
+
+&uart3 {
+	clock-frequency = <24000000>;
 };
 
 &vopb {
@@ -62,13 +128,5 @@
 };
 
 &vopl {
-	u-boot,dm-pre-reloc;
-};
-
-&noc {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio7 {
 	u-boot,dm-pre-reloc;
 };
