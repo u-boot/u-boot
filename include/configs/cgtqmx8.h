@@ -78,7 +78,7 @@
 	"fdt_file=imx8qm-cgt-qmx8.dtb\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} root=${mmcroot} earlycon\0 " \
 	"loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
@@ -122,7 +122,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
-#define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000

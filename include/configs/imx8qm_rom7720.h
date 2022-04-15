@@ -66,7 +66,7 @@
 	"initrd_addr=0x83800000\0"		\
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=1\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"mmcroot=/dev/mmcblk2p2 rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} root=${mmcroot} earlycon\0 " \
 	"loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
@@ -114,7 +114,6 @@
  * USDHC3 is for SD on base board On DDR4 board, USDHC1 is mux for NAND,
  * USDHC2 is for SD, USDHC3 is for SD on base board
  */
-#define CONFIG_MMCROOT			"/dev/mmcblk2p2"  /* USDHC3 */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000

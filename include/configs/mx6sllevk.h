@@ -25,7 +25,7 @@
 	"ip_dyn=yes\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=1\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
@@ -92,7 +92,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-#define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
