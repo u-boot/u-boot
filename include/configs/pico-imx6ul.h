@@ -27,7 +27,6 @@
 
 /* Network support */
 
-#define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 
 #define CONFIG_MXC_UART_BASE		UART6_BASE_ADDR

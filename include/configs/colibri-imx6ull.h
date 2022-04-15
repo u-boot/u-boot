@@ -16,7 +16,6 @@
 #define PHYS_SDRAM_SIZE			SZ_1G
 
 /* ENET1 */
-#define IMX_FEC_BASE			ENET2_BASE_ADDR
 
 /* MMC Config */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

@@ -147,7 +147,6 @@
 
 /* Ethernet */
 #define CONFIG_FEC_MXC_PHYADDR		0
-#define IMX_FEC_BASE			ENET_BASE_ADDR
 
 /* USB */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
