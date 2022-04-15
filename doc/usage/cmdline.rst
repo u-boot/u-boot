@@ -14,7 +14,7 @@ Simple command-line parser
 
 This takes very little code space and offers only basic features:
 
-- supports environment variables (through setenv / saveenv commands)
+- supports environment variables (through :doc:`cmd/env`)
 - several commands on one line, separated by ';'
 - variable substitution using "... ${name} ..." syntax
 - special characters ('$', ';') can be escaped by prefixing with '\',

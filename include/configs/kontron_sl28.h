@@ -52,6 +52,11 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x80200000
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
+/* GUID for capsule updatable firmware image */
+#define KONTRON_SL28_FIT_IMAGE_GUID \
+	EFI_GUID(0x86ebd44f, 0xfeb8, 0x466f, 0x8b, 0xb8, \
+		 0x89, 0x06, 0x18, 0x45, 0x6d, 0x8b)
+
 /* environment */
 /* see include/configs/ti_armv7_common.h */
 #define ENV_MEM_LAYOUT_SETTINGS \

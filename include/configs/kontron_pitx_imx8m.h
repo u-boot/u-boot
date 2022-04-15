@@ -12,6 +12,11 @@
 #define CONFIG_SPL_MAX_SIZE		(124 * SZ_1K)
 #define CONFIG_SYS_MONITOR_LEN		(512 * SZ_1K)
 
+/* GUID for capsule updatable firmware image */
+#define KONTRON_PITX_IMX8M_FIT_IMAGE_GUID \
+	EFI_GUID(0xc898e959, 0x5b1f, 0x4e6d, 0x88, 0xe0, \
+		 0x40, 0xd4, 0x5c, 0xca, 0x13, 0x99)
+
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_STACK		0x187FF0
 #define CONFIG_SPL_BSS_START_ADDR       0x00180000

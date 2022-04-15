@@ -15,6 +15,8 @@ environment. As long as you don't save the environment, you are
 working with an in-memory copy. In case the Flash area containing the
 environment is erased by accident, a default environment is provided.
 
+See :doc:`cmd/env` for details.
+
 Some configuration is controlled by Environment Variables, so that setting the
 variable can adjust the behaviour of U-Boot (e.g. autoboot delay, autoloading
 from tftp).

@@ -375,18 +375,6 @@ int u16_strncmp(const u16 *s1, const u16 *s2, size_t n)
 	return ret;
 }
 
-size_t u16_strlen(const void *in)
-{
-	const char *pos = in;
-	size_t ret;
-
-	for (; pos[0] || pos[1]; pos += 2)
-		;
-	ret = pos - (char *)in;
-	ret >>= 1;
-	return ret;
-}
-
 size_t __efi_runtime u16_strnlen(const u16 *in, size_t count)
 {
 	size_t i;
@@ -419,7 +407,7 @@ u16 *u16_strdup(const void *src)
 
 	if (!src)
 		return NULL;
-	len = (u16_strlen(src) + 1) * sizeof(u16);
+	len = u16_strsize(src);
 	new = malloc(len);
 	if (!new)
 		return NULL;
