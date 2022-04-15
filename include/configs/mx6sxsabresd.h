@@ -149,6 +149,4 @@
 #endif
 #endif
 
-#define CONFIG_SYS_FSL_USDHC_NUM	3
-
 #endif				/* __CONFIG_H */
