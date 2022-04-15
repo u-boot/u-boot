@@ -31,6 +31,15 @@
 
 #endif
 
+/* GUIDs for capsule updatable firmware images */
+#define IMX8MM_CL_IOT_GATE_FIT_IMAGE_GUID \
+	EFI_GUID(0x7a32a939, 0xab92, 0x467b, 0x91, 0x52, \
+		 0x74, 0x77, 0x1b, 0x95, 0xe6, 0x46)
+
+#define IMX8MM_CL_IOT_GATE_OPTEE_FIT_IMAGE_GUID \
+	EFI_GUID(0x0bf1165c, 0x1831, 0x4864, 0x94, 0x5e, \
+		 0xac, 0x3d, 0x38, 0x48, 0xf4, 0x99)
+
 #if CONFIG_IS_ENABLED(CMD_MMC)
 # define BOOT_TARGET_MMC(func) \
 	func(MMC, mmc, 2)      \

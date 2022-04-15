@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <efi.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <log.h>
 #include <asm/global_data.h>
@@ -20,8 +22,34 @@
 #include <generated/dt.h>
 #include <soc.h>
 #include <linux/ctype.h>
+#include <linux/kernel.h>
 
 #include "fru.h"
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_image fw_images[] = {
+#if defined(XILINX_BOOT_IMAGE_GUID)
+	{
+		.image_type_id = XILINX_BOOT_IMAGE_GUID,
+		.fw_name = u"XILINX-BOOT",
+		.image_index = 1,
+	},
+#endif
+#if defined(XILINX_UBOOT_IMAGE_GUID)
+	{
+		.image_type_id = XILINX_UBOOT_IMAGE_GUID,
+		.fw_name = u"XILINX-UBOOT",
+		.image_index = 2,
+	},
+#endif
+};
+
+struct efi_capsule_update_info update_info = {
+	.images = fw_images,
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 #if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)

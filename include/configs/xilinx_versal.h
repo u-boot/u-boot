@@ -25,6 +25,11 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
+/* GUID for capsule updatable firmware image */
+#define XILINX_BOOT_IMAGE_GUID \
+	EFI_GUID(0x20c5fba5, 0x0171, 0x457f, 0xb9, 0xcd, \
+		 0xf5, 0x12, 0x9c, 0xd0, 0x72, 0x28)
+
 /* Miscellaneous configurable options */
 
 /* Monitor Command Prompt */
