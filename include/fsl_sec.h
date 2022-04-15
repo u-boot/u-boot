@@ -48,7 +48,11 @@ struct rng4tst {
 	u32 rtmctl;		/* misc. control register */
 	u32 rtscmisc;		/* statistical check misc. register */
 	u32 rtpkrrng;		/* poker range register */
-#define RTSDCTL_ENT_DLY_MIN	3200
+#ifdef CONFIG_MX6SX
+#define RTSDCTL_ENT_DLY		12000
+#else
+#define RTSDCTL_ENT_DLY		3200
+#endif
 #define RTSDCTL_ENT_DLY_MAX	12800
 	union {
 		u32 rtpkrmax;	/* PRGM=1: poker max. limit register */
