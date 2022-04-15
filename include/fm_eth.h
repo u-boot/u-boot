@@ -72,7 +72,7 @@ enum fm_eth_type {
 #define FM_ETH_INFO_INITIALIZER(idx, pregs) \
 	.fm		= idx,						\
 	.phy_regs	= (void *)pregs,				\
-	.enet_if	= PHY_INTERFACE_MODE_NONE,			\
+	.enet_if	= PHY_INTERFACE_MODE_NA,			\
 
 #ifdef CONFIG_SYS_FMAN_V3
 #define FM_DTSEC_INFO_INITIALIZER(idx, n) \

@@ -158,7 +158,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 
 	node = phy_get_ofnode(phydev);
 	if (!ofnode_valid(node))
-		return -EINVAL;
+		return 0;
 
 	/* Optional configuration */
 	ret = ofnode_read_u32(node, "ti,clk-output-sel",
@@ -266,7 +266,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 static int dp83867_config(struct phy_device *phydev)
 {
 	struct dp83867_private *dp83867;
-	unsigned int val, delay, cfg2;
+	int val, delay, cfg2;
 	int ret, bs;
 
 	dp83867 = (struct dp83867_private *)phydev->priv;
@@ -291,8 +291,11 @@ static int dp83867_config(struct phy_device *phydev)
 
 	if (phy_interface_is_rgmii(phydev)) {
 		val = phy_read(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL);
-		if (val < 0)
+		if (val < 0) {
+			ret = val;
 			goto err_out;
+		}
+
 		val &= ~DP83867_PHYCR_FIFO_DEPTH_MASK;
 		val |= (dp83867->fifo_depth << DP83867_PHYCR_FIFO_DEPTH_SHIFT);
 

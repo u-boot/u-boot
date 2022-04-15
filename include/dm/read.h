@@ -743,6 +743,32 @@ int dev_read_pci_bus_range(const struct udevice *dev, struct resource *res);
 int dev_decode_display_timing(const struct udevice *dev, int index,
 			      struct display_timing *config);
 
+/**
+ * dev_get_phy_node() - Get PHY node for a MAC (if not fixed-link)
+ *
+ * This function parses PHY handle from the Ethernet controller's ofnode
+ * (trying all possible PHY handle property names), and returns the PHY ofnode.
+ *
+ * Before this is used, ofnode_phy_is_fixed_link() should be checked first, and
+ * if the result to that is true, this function should not be called.
+ *
+ * @dev: device representing the MAC
+ * Return: ofnode of the PHY, if it exists, otherwise an invalid ofnode
+ */
+ofnode dev_get_phy_node(const struct udevice *dev);
+
+/**
+ * dev_read_phy_mode() - Read PHY connection type from a MAC
+ *
+ * This function parses the "phy-mode" / "phy-connection-type" property and
+ * returns the corresponding PHY interface type.
+ *
+ * @dev: device representing the MAC
+ * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NA on
+ *	   error
+ */
+phy_interface_t dev_read_phy_mode(const struct udevice *dev);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 #include <asm/global_data.h>
 
@@ -1090,6 +1116,16 @@ static inline int dev_decode_display_timing(const struct udevice *dev,
 					    struct display_timing *config)
 {
 	return ofnode_decode_display_timing(dev_ofnode(dev), index, config);
+}
+
+static inline ofnode dev_get_phy_node(const struct udevice *dev)
+{
+	return ofnode_get_phy_node(dev_ofnode(dev));
+}
+
+static inline phy_interface_t dev_read_phy_mode(const struct udevice *dev)
+{
+	return ofnode_read_phy_mode(dev_ofnode(dev));
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */

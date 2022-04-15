@@ -26,6 +26,11 @@ static int xilinxgmiitorgmii_config(struct phy_device *phydev)
 
 	debug("%s\n", __func__);
 
+	if (phydev->interface != PHY_INTERFACE_MODE_GMII) {
+		printf("Incorrect interface type\n");
+		return -EINVAL;
+	}
+
 	if (!ofnode_valid(node))
 		return -EINVAL;
 
@@ -37,13 +42,13 @@ static int xilinxgmiitorgmii_config(struct phy_device *phydev)
 
 	ext_phyaddr = ofnode_read_u32_default(phandle.node, "reg", -1);
 	ext_phydev = phy_find_by_mask(phydev->bus,
-				      1 << ext_phyaddr,
-				      PHY_INTERFACE_MODE_RGMII);
+				      1 << ext_phyaddr);
 	if (!ext_phydev) {
 		printf("%s, No external phy device found\n", __func__);
 		return -EINVAL;
 	}
 
+	ext_phydev->interface = PHY_INTERFACE_MODE_RGMII;
 	ext_phydev->node = phandle.node;
 	phydev->priv = ext_phydev;
 
@@ -113,11 +118,6 @@ static int xilinxgmiitorgmii_startup(struct phy_device *phydev)
 static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 {
 	debug("%s\n", __func__);
-
-	if (phydev->interface != PHY_INTERFACE_MODE_GMII) {
-		printf("Incorrect interface type\n");
-		return -EINVAL;
-	}
 
 	phydev->flags |= PHY_FLAG_BROKEN_RESET;
 

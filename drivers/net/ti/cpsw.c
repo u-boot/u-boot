@@ -1194,15 +1194,12 @@ static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
 {
 	struct ofnode_phandle_args out_args;
 	struct cpsw_slave_data *slave_data;
-	const char *phy_mode;
 	u32 phy_id[2];
 	int ret;
 
 	slave_data = &data->slave_data[slave_index];
 
-	phy_mode = ofnode_read_string(subnode, "phy-mode");
-	if (phy_mode)
-		slave_data->phy_if = phy_get_interface_by_name(phy_mode);
+	slave_data->phy_if = ofnode_read_phy_mode(subnode);
 
 	ret = ofnode_parse_phandle_with_args(subnode, "phy-handle",
 					     NULL, 0, 0, &out_args);
@@ -1348,11 +1345,8 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 	}
 
 	pdata->phy_interface = data->slave_data[data->active_slave].phy_if;
-	if (pdata->phy_interface == -1) {
-		debug("%s: Invalid PHY interface '%s'\n", __func__,
-		      phy_string_for_interface(pdata->phy_interface));
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
-	}
 
 	return 0;
 }

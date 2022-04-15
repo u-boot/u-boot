@@ -12,7 +12,7 @@
 #include <asm/gpio.h>
 
 struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
-				      int phyaddr, phy_interface_t interface)
+				      int phyaddr)
 {
 	struct phy_device *phydev;
 	struct ofnode_phandle_args phandle_args;
@@ -68,7 +68,7 @@ struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
 	}
 
 	id =  vendor << 16 | device;
-	phydev = phy_device_create(bus, phyaddr, id, false, interface);
+	phydev = phy_device_create(bus, phyaddr, id, false);
 	if (phydev)
 		phydev->node = node;
 

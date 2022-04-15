@@ -271,12 +271,11 @@ static int sunxi_emac_init_phy(struct emac_eth_dev *priv, void *dev)
 	if (ret)
 		return ret;
 
-	priv->phydev = phy_find_by_mask(priv->bus, mask,
-					PHY_INTERFACE_MODE_MII);
+	priv->phydev = phy_find_by_mask(priv->bus, mask);
 	if (!priv->phydev)
 		return -ENODEV;
 
-	phy_connect_dev(priv->phydev, dev);
+	phy_connect_dev(priv->phydev, dev, PHY_INTERFACE_MODE_MII);
 	phy_config(priv->phydev);
 
 	return 0;

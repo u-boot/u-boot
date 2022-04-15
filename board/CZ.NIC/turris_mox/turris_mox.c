@@ -396,7 +396,7 @@ static void mox_phy_leds_start_blinking(void)
 		return;
 	}
 
-	phydev = phy_find_by_mask(bus, BIT(1), PHY_INTERFACE_MODE_RGMII);
+	phydev = phy_find_by_mask(bus, BIT(1));
 	if (!phydev) {
 		printf("Cannot get ethernet PHY!\n");
 		return;

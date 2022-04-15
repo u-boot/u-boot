@@ -10,6 +10,7 @@ obj-$(CONFIG_MV88E6352_SWITCH) += mv88e6352.o
 
 obj-$(CONFIG_PHYLIB) += phy.o
 obj-$(CONFIG_PHYLIB_10G) += generic_10g.o
+obj-$(CONFIG_PHY_ADIN) += adin.o
 obj-$(CONFIG_PHY_AQUANTIA) += aquantia.o
 obj-$(CONFIG_PHY_ATHEROS) += atheros.o
 obj-$(CONFIG_PHY_BROADCOM) += broadcom.o

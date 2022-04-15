@@ -270,7 +270,7 @@ struct eqos_config {
 	int config_mac;
 	int config_mac_mdio;
 	unsigned int axi_bus_width;
-	phy_interface_t (*interface)(struct udevice *dev);
+	phy_interface_t (*interface)(const struct udevice *dev);
 	struct eqos_ops *ops;
 };
 
@@ -1682,7 +1682,7 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 
 	interface = eqos->config->interface(dev);
 
-	if (interface == PHY_INTERFACE_MODE_NONE) {
+	if (interface == PHY_INTERFACE_MODE_NA) {
 		pr_err("Invalid PHY interface\n");
 		return -EINVAL;
 	}
@@ -1729,21 +1729,7 @@ err_probe:
 	return ret;
 }
 
-static phy_interface_t eqos_get_interface_stm32(struct udevice *dev)
-{
-	const char *phy_mode;
-	phy_interface_t interface = PHY_INTERFACE_MODE_NONE;
-
-	debug("%s(dev=%p):\n", __func__, dev);
-
-	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
-	if (phy_mode)
-		interface = phy_get_interface_by_name(phy_mode);
-
-	return interface;
-}
-
-static phy_interface_t eqos_get_interface_tegra186(struct udevice *dev)
+static phy_interface_t eqos_get_interface_tegra186(const struct udevice *dev)
 {
 	return PHY_INTERFACE_MODE_MII;
 }
@@ -1757,27 +1743,13 @@ static int eqos_probe_resources_imx(struct udevice *dev)
 
 	interface = eqos->config->interface(dev);
 
-	if (interface == PHY_INTERFACE_MODE_NONE) {
+	if (interface == PHY_INTERFACE_MODE_NA) {
 		pr_err("Invalid PHY interface\n");
 		return -EINVAL;
 	}
 
 	debug("%s: OK\n", __func__);
 	return 0;
-}
-
-static phy_interface_t eqos_get_interface_imx(struct udevice *dev)
-{
-	const char *phy_mode;
-	phy_interface_t interface = PHY_INTERFACE_MODE_NONE;
-
-	debug("%s(dev=%p):\n", __func__, dev);
-
-	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
-	if (phy_mode)
-		interface = phy_get_interface_by_name(phy_mode);
-
-	return interface;
 }
 
 static int eqos_remove_resources_tegra186(struct udevice *dev)
@@ -1985,7 +1957,7 @@ static const struct eqos_config __maybe_unused eqos_stm32_config = {
 	.config_mac = EQOS_MAC_RXQ_CTRL0_RXQ0EN_ENABLED_AV,
 	.config_mac_mdio = EQOS_MAC_MDIO_ADDRESS_CR_250_300,
 	.axi_bus_width = EQOS_AXI_WIDTH_64,
-	.interface = eqos_get_interface_stm32,
+	.interface = dev_read_phy_mode,
 	.ops = &eqos_stm32_ops
 };
 
@@ -2013,7 +1985,7 @@ struct eqos_config __maybe_unused eqos_imx_config = {
 	.config_mac = EQOS_MAC_RXQ_CTRL0_RXQ0EN_ENABLED_DCB,
 	.config_mac_mdio = EQOS_MAC_MDIO_ADDRESS_CR_250_300,
 	.axi_bus_width = EQOS_AXI_WIDTH_64,
-	.interface = eqos_get_interface_imx,
+	.interface = dev_read_phy_mode,
 	.ops = &eqos_imx_ops
 };
 

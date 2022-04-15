@@ -62,7 +62,7 @@ phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtcl)
 	enum srds_prtcl;
 
 	if (is_device_disabled(dpmac_id + 1))
-		return PHY_INTERFACE_MODE_NONE;
+		return PHY_INTERFACE_MODE_NA;
 
 	if (lane_prtcl >= SGMII1 && lane_prtcl <= SGMII16)
 		return PHY_INTERFACE_MODE_SGMII;
@@ -76,7 +76,7 @@ phy_interface_t wriop_dpmac_enet_if(int dpmac_id, int lane_prtcl)
 	if (lane_prtcl >= QSGMII_A && lane_prtcl <= QSGMII_D)
 		return PHY_INTERFACE_MODE_QSGMII;
 
-	return PHY_INTERFACE_MODE_NONE;
+	return PHY_INTERFACE_MODE_NA;
 }
 
 void wriop_init_dpmac_qsgmii(int sd, int lane_prtcl)

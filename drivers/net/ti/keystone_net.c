@@ -23,7 +23,6 @@
 #include <asm/ti-common/keystone_net.h>
 #include <asm/ti-common/keystone_serdes.h>
 #include <asm/arch/psc_defs.h>
-#include <linux/libfdt.h>
 
 #include "cpsw_mdio.h"
 
@@ -91,9 +90,9 @@ struct ks2_eth_priv {
 	struct mii_dev			*mdio_bus;
 	int				phy_addr;
 	phy_interface_t			phy_if;
-	int				phy_of_handle;
+	ofnode				phy_ofnode;
 	int				sgmii_link_type;
-	void				*mdio_base;
+	phys_addr_t			mdio_base;
 	struct rx_buff_desc		net_rx_buffs;
 	struct pktdma_cfg		*netcp_pktdma;
 	void				*hd;
@@ -570,7 +569,7 @@ static int ks2_eth_probe(struct udevice *dev)
 		 * to re-use the same
 		 */
 		mdio_bus = cpsw_mdio_init("ethernet-mdio",
-					  (u32)priv->mdio_base,
+					  priv->mdio_base,
 					  EMAC_MDIO_CLOCK_FREQ,
 					  EMAC_MDIO_BUS_FREQ);
 		if (!mdio_bus) {
@@ -593,8 +592,8 @@ static int ks2_eth_probe(struct udevice *dev)
 		priv->phydev = phy_connect(priv->mdio_bus, priv->phy_addr,
 					   dev, priv->phy_if);
 #ifdef CONFIG_DM_ETH
-	if (priv->phy_of_handle)
-		priv->phydev->node = offset_to_ofnode(priv->phy_of_handle);
+	if (ofnode_valid(priv->phy_ofnode))
+		priv->phydev->node = priv->phy_ofnode;
 #endif
 		phy_config(priv->phydev);
 	}
@@ -621,105 +620,88 @@ static const struct eth_ops ks2_eth_ops = {
 	.write_hwaddr		= ks2_eth_write_hwaddr,
 };
 
-static int ks2_eth_bind_slaves(struct udevice *dev, int gbe, int *gbe_0)
+static int ks2_bind_one_slave(struct udevice *dev, ofnode slave, ofnode *gbe_0)
 {
-	const void *fdt = gd->fdt_blob;
-	struct udevice *sl_dev;
-	int interfaces;
-	int sec_slave;
-	int slave;
-	int ret;
 	char *slave_name;
+	u32 slave_no;
+	int ret;
 
-	interfaces = fdt_subnode_offset(fdt, gbe, "interfaces");
-	fdt_for_each_subnode(slave, fdt, interfaces) {
-		int slave_no;
+	if (ofnode_read_u32(slave, "slave-port", &slave_no))
+		return 0;
 
-		slave_no = fdtdec_get_int(fdt, slave, "slave-port", -ENOENT);
-		if (slave_no == -ENOENT)
-			continue;
-
-		if (slave_no == 0) {
-			/* This is the current eth device */
-			*gbe_0 = slave;
-		} else {
-			/* Slave devices to be registered */
-			slave_name = malloc(20);
-			snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
-			ret = device_bind_driver_to_node(dev, "eth_ks2_sl",
-					slave_name, offset_to_ofnode(slave),
-					&sl_dev);
-			if (ret) {
-				pr_err("ks2_net - not able to bind slave interfaces\n");
-				return ret;
-			}
-		}
+	if (gbe_0 && slave_no == 0) {
+		/* This is the current eth device */
+		*gbe_0 = slave;
+		return 0;
 	}
 
-	sec_slave = fdt_subnode_offset(fdt, gbe, "secondary-slave-ports");
-	fdt_for_each_subnode(slave, fdt, sec_slave) {
-		int slave_no;
+	/* Slave devices to be registered */
+	slave_name = malloc(20);
+	snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
+	ret = device_bind_driver_to_node(dev, "eth_ks2_sl", slave_name, slave,
+					 NULL);
+	if (ret)
+		pr_err("ks2_net - not able to bind slave interfaces\n");
 
-		slave_no = fdtdec_get_int(fdt, slave, "slave-port", -ENOENT);
-		if (slave_no == -ENOENT)
-			continue;
+	return ret;
+}
 
-		/* Slave devices to be registered */
-		slave_name = malloc(20);
-		snprintf(slave_name, 20, "netcp@slave-%d", slave_no);
-		ret = device_bind_driver_to_node(dev, "eth_ks2_sl", slave_name,
-					offset_to_ofnode(slave), &sl_dev);
-		if (ret) {
-			pr_err("ks2_net - not able to bind slave interfaces\n");
+static int ks2_eth_bind_slaves(struct udevice *dev, ofnode gbe, ofnode *gbe_0)
+{
+	ofnode interfaces, sec_slave, slave;
+	int ret;
+
+	interfaces = ofnode_find_subnode(gbe, "interfaces");
+	ofnode_for_each_subnode(slave, interfaces) {
+		ret = ks2_bind_one_slave(dev, slave, gbe_0);
+		if (ret)
 			return ret;
-		}
+	}
+
+	sec_slave = ofnode_find_subnode(gbe, "secondary-slave-ports");
+	ofnode_for_each_subnode(slave, sec_slave) {
+		ret = ks2_bind_one_slave(dev, slave, NULL);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
 }
 
-static int ks2_eth_parse_slave_interface(int netcp, int slave,
+static int ks2_eth_parse_slave_interface(ofnode netcp, ofnode slave,
 					 struct ks2_eth_priv *priv,
 					 struct eth_pdata *pdata)
 {
-	const void *fdt = gd->fdt_blob;
-	int mdio;
-	int phy;
+	struct ofnode_phandle_args dma_args;
+	ofnode phy, mdio;
 	int dma_count;
-	u32 dma_channel[8];
-	const char *phy_mode;
 
-	priv->slave_port = fdtdec_get_int(fdt, slave, "slave-port", -1);
+	priv->slave_port = ofnode_read_s32_default(slave, "slave-port", -1);
 	priv->net_rx_buffs.rx_flow = priv->slave_port * 8;
 
 	/* U-Boot slave port number starts with 1 instead of 0 */
 	priv->slave_port += 1;
 
-	dma_count = fdtdec_get_int_array_count(fdt, netcp,
-					       "ti,navigator-dmas",
-					       dma_channel, 8);
+	dma_count = ofnode_count_phandle_with_args(netcp, "ti,navigator-dmas",
+						   NULL, 1);
+	if (priv->slave_port < dma_count &&
+	    !ofnode_parse_phandle_with_args(netcp, "ti,navigator-dmas", NULL, 1,
+					    priv->slave_port - 1, &dma_args))
+		priv->net_rx_buffs.rx_flow = dma_args.args[0];
 
-	if (dma_count > (2 * priv->slave_port)) {
-		int dma_idx;
+	priv->link_type = ofnode_read_s32_default(slave, "link-interface", -1);
 
-		dma_idx = priv->slave_port * 2 - 1;
-		priv->net_rx_buffs.rx_flow = dma_channel[dma_idx];
-	}
+	phy = ofnode_get_phy_node(slave);
+	priv->phy_ofnode = phy;
+	if (ofnode_valid(phy)) {
+		priv->phy_addr = ofnode_read_s32_default(phy, "reg", -1);
 
-	priv->link_type = fdtdec_get_int(fdt, slave, "link-interface", -1);
-
-	phy = fdtdec_lookup_phandle(fdt, slave, "phy-handle");
-
-	if (phy >= 0) {
-		priv->phy_of_handle = phy;
-		priv->phy_addr = fdtdec_get_int(fdt, phy, "reg", -1);
-
-		mdio = fdt_parent_offset(fdt, phy);
-		if (mdio < 0) {
+		mdio = ofnode_get_parent(phy);
+		if (!ofnode_valid(mdio)) {
 			pr_err("mdio dt not found\n");
 			return -ENODEV;
 		}
-		priv->mdio_base = (void *)fdtdec_get_addr(fdt, mdio, "reg");
+		priv->mdio_base = ofnode_get_addr(mdio);
 	}
 
 	if (priv->link_type == LINK_TYPE_SGMII_MAC_TO_PHY_MODE) {
@@ -728,20 +710,19 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 		priv->sgmii_link_type = SGMII_LINK_MAC_PHY;
 		priv->has_mdio = true;
 	} else if (priv->link_type == LINK_TYPE_RGMII_LINK_MAC_PHY) {
-		phy_mode = fdt_getprop(fdt, slave, "phy-mode", NULL);
-		if (phy_mode) {
-			priv->phy_if = phy_get_interface_by_name(phy_mode);
-			if (priv->phy_if != PHY_INTERFACE_MODE_RGMII &&
-			    priv->phy_if != PHY_INTERFACE_MODE_RGMII_ID &&
-			    priv->phy_if != PHY_INTERFACE_MODE_RGMII_RXID &&
-			    priv->phy_if != PHY_INTERFACE_MODE_RGMII_TXID) {
-				pr_err("invalid phy-mode\n");
-				return -EINVAL;
-			}
-		} else {
+		priv->phy_if = ofnode_read_phy_mode(slave);
+		if (priv->phy_if == PHY_INTERFACE_MODE_NA)
 			priv->phy_if = PHY_INTERFACE_MODE_RGMII;
-		}
 		pdata->phy_interface = priv->phy_if;
+
+		if (priv->phy_if != PHY_INTERFACE_MODE_RGMII &&
+		    priv->phy_if != PHY_INTERFACE_MODE_RGMII_ID &&
+		    priv->phy_if != PHY_INTERFACE_MODE_RGMII_RXID &&
+		    priv->phy_if != PHY_INTERFACE_MODE_RGMII_TXID) {
+			pr_err("invalid phy-mode\n");
+			return -EINVAL;
+		}
+
 		priv->has_mdio = true;
 	}
 
@@ -750,23 +731,19 @@ static int ks2_eth_parse_slave_interface(int netcp, int slave,
 
 static int ks2_sl_eth_of_to_plat(struct udevice *dev)
 {
+	ofnode slave, interfaces, gbe, netcp_devices, netcp;
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
-	const void *fdt = gd->fdt_blob;
-	int slave = dev_of_offset(dev);
-	int interfaces;
-	int gbe;
-	int netcp_devices;
-	int netcp;
 
-	interfaces = fdt_parent_offset(fdt, slave);
-	gbe = fdt_parent_offset(fdt, interfaces);
-	netcp_devices = fdt_parent_offset(fdt, gbe);
-	netcp = fdt_parent_offset(fdt, netcp_devices);
+	slave = dev_ofnode(dev);
+	interfaces = ofnode_get_parent(slave);
+	gbe = ofnode_get_parent(interfaces);
+	netcp_devices = ofnode_get_parent(gbe);
+	netcp = ofnode_get_parent(netcp_devices);
 
 	ks2_eth_parse_slave_interface(netcp, slave, priv, pdata);
 
-	pdata->iobase = fdtdec_get_addr(fdt, netcp, "reg");
+	pdata->iobase = ofnode_get_addr(netcp);
 
 	return 0;
 }
@@ -775,18 +752,15 @@ static int ks2_eth_of_to_plat(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
-	const void *fdt = gd->fdt_blob;
-	int gbe_0 = -ENODEV;
-	int netcp_devices;
-	int gbe;
+	ofnode netcp_devices, gbe, gbe_0;
 
-	netcp_devices = fdt_subnode_offset(fdt, dev_of_offset(dev),
-					   "netcp-devices");
-	gbe = fdt_subnode_offset(fdt, netcp_devices, "gbe");
+	netcp_devices = dev_read_subnode(dev, "netcp-devices");
+	gbe = ofnode_find_subnode(netcp_devices, "gbe");
 
+	gbe_0 = ofnode_null();
 	ks2_eth_bind_slaves(dev, gbe, &gbe_0);
 
-	ks2_eth_parse_slave_interface(dev_of_offset(dev), gbe_0, priv, pdata);
+	ks2_eth_parse_slave_interface(dev_ofnode(dev), gbe_0, priv, pdata);
 
 	pdata->iobase = dev_read_addr(dev);
 

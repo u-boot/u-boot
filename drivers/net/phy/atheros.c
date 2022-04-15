@@ -199,7 +199,7 @@ static int ar803x_of_init(struct phy_device *phydev)
 
 	node = phy_get_ofnode(phydev);
 	if (!ofnode_valid(node))
-		return -EINVAL;
+		return 0;
 
 	priv = malloc(sizeof(*priv));
 	if (!priv)

@@ -15,16 +15,6 @@
 #include <dm/uclass-internal.h>
 #include <linux/compat.h>
 
-/* DT node properties for MAC-PHY interface */
-#define PHY_MODE_STR_CNT	2
-static const char *phy_mode_str[PHY_MODE_STR_CNT] = { "phy-mode",
-						      "phy-connection-type" };
-/* DT node properties that reference a PHY node */
-#define PHY_HANDLE_STR_CNT	3
-const char *phy_handle_str[PHY_HANDLE_STR_CNT] = { "phy-handle",
-						   "phy",
-						   "phy-device" };
-
 void dm_mdio_probe_devices(void)
 {
 	struct udevice *it;
@@ -62,6 +52,37 @@ static int dm_mdio_post_bind(struct udevice *dev)
 	return 0;
 }
 
+int dm_mdio_read(struct udevice *mdio_dev, int addr, int devad, int reg)
+{
+	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+
+	if (!ops->read)
+		return -ENOSYS;
+
+	return ops->read(mdio_dev, addr, devad, reg);
+}
+
+int dm_mdio_write(struct udevice *mdio_dev, int addr, int devad, int reg,
+		  u16 val)
+{
+	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+
+	if (!ops->write)
+		return -ENOSYS;
+
+	return ops->write(mdio_dev, addr, devad, reg, val);
+}
+
+int dm_mdio_reset(struct udevice *mdio_dev)
+{
+	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+
+	if (!ops->reset)
+		return 0;
+
+	return ops->reset(mdio_dev);
+}
+
 /*
  * Following read/write/reset functions are registered with legacy MII code.
  * These are called for PHY operations by upper layers and we further call the
@@ -69,27 +90,18 @@ static int dm_mdio_post_bind(struct udevice *dev)
  */
 static int mdio_read(struct mii_dev *mii_bus, int addr, int devad, int reg)
 {
-	struct udevice *dev = mii_bus->priv;
-
-	return mdio_get_ops(dev)->read(dev, addr, devad, reg);
+	return dm_mdio_read(mii_bus->priv, addr, devad, reg);
 }
 
 static int mdio_write(struct mii_dev *mii_bus, int addr, int devad, int reg,
 		      u16 val)
 {
-	struct udevice *dev = mii_bus->priv;
-
-	return mdio_get_ops(dev)->write(dev, addr, devad, reg, val);
+	return dm_mdio_write(mii_bus->priv, addr, devad, reg, val);
 }
 
 static int mdio_reset(struct mii_dev *mii_bus)
 {
-	struct udevice *dev = mii_bus->priv;
-
-	if (mdio_get_ops(dev)->reset)
-		return mdio_get_ops(dev)->reset(dev);
-	else
-		return 0;
+	return dm_mdio_reset(mii_bus->priv);
 }
 
 static int dm_mdio_post_probe(struct udevice *dev)
@@ -109,10 +121,8 @@ static int dm_mdio_post_probe(struct udevice *dev)
 static int dm_mdio_pre_remove(struct udevice *dev)
 {
 	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(dev);
-	struct mdio_ops *ops = mdio_get_ops(dev);
 
-	if (ops->reset)
-		ops->reset(dev);
+	dm_mdio_reset(dev);
 	mdio_unregister(pdata->mii_bus);
 	mdio_free(pdata->mii_bus);
 
@@ -137,23 +147,16 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	u32 phy_addr;
 	struct udevice *mdiodev;
 	struct phy_device *phy;
-	struct ofnode_phandle_args phandle = {.node = ofnode_null()};
 	ofnode phynode;
-	int i;
 
 	if (CONFIG_IS_ENABLED(PHY_FIXED) &&
 	    ofnode_phy_is_fixed_link(dev_ofnode(ethdev), &phynode)) {
 		phy = phy_connect(NULL, 0, ethdev, interface);
-		phandle.node = phynode;
 		goto out;
 	}
 
-	for (i = 0; i < PHY_HANDLE_STR_CNT; i++)
-		if (!dev_read_phandle_with_args(ethdev, phy_handle_str[i], NULL,
-						0, 0, &phandle))
-			break;
-
-	if (!ofnode_valid(phandle.node)) {
+	phynode = dev_get_phy_node(ethdev);
+	if (!ofnode_valid(phynode)) {
 		dev_dbg(ethdev, "can't find PHY node\n");
 		return NULL;
 	}
@@ -162,16 +165,16 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	 * reading 'reg' directly should be fine.  This is a PHY node, the
 	 * address is always size 1 and requires no translation
 	 */
-	if (ofnode_read_u32(phandle.node, "reg", &phy_addr)) {
+	if (ofnode_read_u32(phynode, "reg", &phy_addr)) {
 		dev_dbg(ethdev, "missing reg property in phy node\n");
 		return NULL;
 	}
 
 	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
-					ofnode_get_parent(phandle.node),
+					ofnode_get_parent(phynode),
 					&mdiodev)) {
 		dev_dbg(ethdev, "can't find MDIO bus for node %s\n",
-			ofnode_get_name(ofnode_get_parent(phandle.node)));
+			ofnode_get_name(ofnode_get_parent(phynode)));
 		return NULL;
 	}
 
@@ -179,7 +182,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 
 out:
 	if (phy)
-		phy->node = phandle.node;
+		phy->node = phynode;
 
 	return phy;
 }
@@ -187,28 +190,17 @@ out:
 /* Connect to a PHY linked in eth DT node */
 struct phy_device *dm_eth_phy_connect(struct udevice *ethdev)
 {
-	const char *if_str;
 	phy_interface_t interface;
 	struct phy_device *phy;
-	int i;
 
 	if (!dev_has_ofnode(ethdev)) {
 		debug("%s: supplied eth dev has no DT node!\n", ethdev->name);
 		return NULL;
 	}
 
-	interface = PHY_INTERFACE_MODE_NONE;
-	for (i = 0; i < PHY_MODE_STR_CNT; i++) {
-		if_str = dev_read_string(ethdev, phy_mode_str[i]);
-		if (if_str) {
-			interface = phy_get_interface_by_name(if_str);
-			break;
-		}
-	}
-	if (interface < 0)
-		interface = PHY_INTERFACE_MODE_NONE;
-	if (interface == PHY_INTERFACE_MODE_NONE)
-		dev_dbg(ethdev, "can't find interface mode, default to NONE\n");
+	interface = dev_read_phy_mode(ethdev);
+	if (interface == PHY_INTERFACE_MODE_NA)
+		dev_dbg(ethdev, "can't find interface mode, default to NA\n");
 
 	phy = dm_eth_connect_phy_handle(ethdev, interface);
 

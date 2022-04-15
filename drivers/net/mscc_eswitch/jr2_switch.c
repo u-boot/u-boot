@@ -954,7 +954,7 @@ static int jr2_probe(struct udevice *dev)
 
 		phy = phy_connect(priv->ports[i].bus,
 				  priv->ports[i].phy_addr, dev,
-				  PHY_INTERFACE_MODE_NONE);
+				  PHY_INTERFACE_MODE_NA);
 		if (phy)
 			board_phy_config(phy);
 	}

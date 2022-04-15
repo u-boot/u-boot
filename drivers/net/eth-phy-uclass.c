@@ -137,7 +137,7 @@ static int eth_phy_of_to_plat(struct udevice *dev)
 	/* search "reset-gpios" in phy node */
 	ret = gpio_request_by_name(dev, "reset-gpios", 0,
 				   &uc_priv->reset_gpio,
-				   GPIOD_IS_OUT);
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	if (ret && ret != -ENOENT)
 		return ret;
 
