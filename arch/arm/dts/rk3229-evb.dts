@@ -69,6 +69,6 @@
 	status = "okay";
 };
 
-&usb20_otg {
+&usb_otg {
        status = "okay";
 };
