@@ -71,6 +71,10 @@ int blob_decap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 	ret = run_descriptor_jr(desc);
 
 	if (ret) {
+		/* clear the blob data output buffer */
+		memset(dst, 0x00, len);
+		size = ALIGN(len, ARCH_DMA_MINALIGN);
+		flush_dcache_range((unsigned long)dst, (unsigned long)dst + size);
 		printf("Error in blob decapsulation: %d\n", ret);
 	} else {
 		size = ALIGN(len, ARCH_DMA_MINALIGN);
