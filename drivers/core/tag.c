@@ -29,7 +29,7 @@ int dev_tag_set_ptr(struct udevice *dev, enum dm_tag_t tag, void *ptr)
 
 	node = calloc(sizeof(*node), 1);
 	if (!node)
-		return -ENOSPC;
+		return -ENOMEM;
 
 	node->dev = dev;
 	node->tag = tag;
@@ -53,7 +53,7 @@ int dev_tag_set_val(struct udevice *dev, enum dm_tag_t tag, ulong val)
 
 	node = calloc(sizeof(*node), 1);
 	if (!node)
-		return -ENOSPC;
+		return -ENOMEM;
 
 	node->dev = dev;
 	node->tag = tag;
