@@ -95,19 +95,11 @@ static int led_gpio_bind(struct udevice *parent)
 	int ret;
 
 	dev_for_each_subnode(node, parent) {
-		struct led_uc_plat *uc_plat;
-		const char *label;
-
-		label = ofnode_read_string(node, "label");
-		if (!label)
-			label = ofnode_get_name(node);
 		ret = device_bind_driver_to_node(parent, "gpio_led",
 						 ofnode_get_name(node),
 						 node, &dev);
 		if (ret)
 			return ret;
-		uc_plat = dev_get_uclass_plat(dev);
-		uc_plat->label = label;
 	}
 
 	return 0;

@@ -204,26 +204,14 @@ static int bcm6328_led_bind(struct udevice *parent)
 	ofnode node;
 
 	dev_for_each_subnode(node, parent) {
-		struct led_uc_plat *uc_plat;
 		struct udevice *dev;
-		const char *label;
 		int ret;
-
-		label = ofnode_read_string(node, "label");
-		if (!label) {
-			debug("%s: node %s has no label\n", __func__,
-			      ofnode_get_name(node));
-			return -EINVAL;
-		}
 
 		ret = device_bind_driver_to_node(parent, "bcm6328-led",
 						 ofnode_get_name(node),
 						 node, &dev);
 		if (ret)
 			return ret;
-
-		uc_plat = dev_get_uclass_plat(dev);
-		uc_plat->label = label;
 	}
 
 	return 0;

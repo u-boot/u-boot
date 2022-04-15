@@ -17,19 +17,6 @@
 #define CB_TABLE_ADDR	0x800
 
 /**
- * table_compute_checksum() - Compute a table checksum
- *
- * This computes an 8-bit checksum for the configuration table.
- * All bytes in the configuration table, including checksum itself and
- * reserved bytes must add up to zero.
- *
- * @v:		configuration table base address
- * @len:	configuration table size
- * @return:	the 8-bit checksum
- */
-u8 table_compute_checksum(void *v, int len);
-
-/**
  * table_fill_string() - Fill a string with pad in the configuration table
  *
  * This fills a string in the configuration table. It copies number of bytes

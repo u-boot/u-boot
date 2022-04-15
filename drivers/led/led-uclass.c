@@ -66,37 +66,56 @@ int led_set_period(struct udevice *dev, int period_ms)
 }
 #endif
 
+/* This is superseded by led_post_bind()/led_post_probe() below. */
 int led_default_state(void)
 {
-	struct udevice *dev;
-	struct uclass *uc;
+	return 0;
+}
+
+static int led_post_bind(struct udevice *dev)
+{
+	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	const char *default_state;
-	int ret;
 
-	ret = uclass_get(UCLASS_LED, &uc);
-	if (ret)
-		return ret;
-	for (uclass_find_first_device(UCLASS_LED, &dev);
-	     dev;
-	     uclass_find_next_device(&dev)) {
-		default_state = dev_read_string(dev, "default-state");
-		if (!default_state)
-			continue;
-		ret = device_probe(dev);
-		if (ret)
-			return ret;
-		if (!strncmp(default_state, "on", 2))
-			led_set_state(dev, LEDST_ON);
-		else if (!strncmp(default_state, "off", 3))
-			led_set_state(dev, LEDST_OFF);
-		/* default-state = "keep" : device is only probed */
-	}
+	uc_plat->label = dev_read_string(dev, "label");
+	if (!uc_plat->label)
+		uc_plat->label = ofnode_get_name(dev_ofnode(dev));
 
-	return ret;
+	uc_plat->default_state = LEDST_COUNT;
+
+	default_state = dev_read_string(dev, "default-state");
+	if (!default_state)
+		return 0;
+
+	if (!strncmp(default_state, "on", 2))
+		uc_plat->default_state = LEDST_ON;
+	else if (!strncmp(default_state, "off", 3))
+		uc_plat->default_state = LEDST_OFF;
+	else
+		return 0;
+
+	/*
+	 * In case the LED has default-state DT property, trigger
+	 * probe() to configure its default state during startup.
+	 */
+	return device_probe(dev);
+}
+
+static int led_post_probe(struct udevice *dev)
+{
+	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+
+	if (uc_plat->default_state == LEDST_ON ||
+	    uc_plat->default_state == LEDST_OFF)
+		led_set_state(dev, uc_plat->default_state);
+
+	return 0;
 }
 
 UCLASS_DRIVER(led) = {
 	.id		= UCLASS_LED,
 	.name		= "led",
 	.per_device_plat_auto	= sizeof(struct led_uc_plat),
+	.post_bind	= led_post_bind,
+	.post_probe	= led_post_probe,
 };

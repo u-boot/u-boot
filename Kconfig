@@ -263,6 +263,7 @@ config SYS_MALLOC_F_LEN
 
 config SYS_MALLOC_LEN
 	hex "Define memory for Dynamic allocation"
+	default 0x4000000 if SANDBOX
 	default 0x2000000 if ARCH_ROCKCHIP || ARCH_OMAP2PLUS || ARCH_MESON
 	default 0x200000 if ARCH_BMIPS || X86
 	default 0x120000 if MACH_SUNIV

@@ -7,14 +7,22 @@
 #include <log.h>
 #include <serial.h>
 #include <dm.h>
+#include <asm/serial.h>
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
 
+static const char test_message[] =
+	"This is a test message\n"
+	"consisting of multiple lines\n";
+
 static int dm_test_serial(struct unit_test_state *uts)
 {
+	int i;
 	struct serial_device_info info_serial = {0};
 	struct udevice *dev_serial;
+	size_t start, putc_written;
+
 	uint value_serial;
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_SERIAL, "serial",
@@ -65,6 +73,17 @@ static int dm_test_serial(struct unit_test_state *uts)
 				     SERIAL_CONFIG(SERIAL_PAR_NONE,
 						   SERIAL_8_BITS,
 						   SERIAL_TWO_STOP)));
+
+	/* Verify that putc and puts print the same number of characters */
+	sandbox_serial_endisable(false);
+	start = sandbox_serial_written();
+	for (i = 0; i < sizeof(test_message) - 1; i++)
+		serial_putc(test_message[i]);
+	putc_written = sandbox_serial_written();
+	serial_puts(test_message);
+	sandbox_serial_endisable(true);
+	ut_asserteq(putc_written - start,
+		    sandbox_serial_written() - putc_written);
 
 	return 0;
 }

@@ -17,6 +17,28 @@ struct sandbox_serial_plat {
 };
 
 /**
+ * sandbox_serial_written() - Get the total number of characters written
+ *
+ * This returns the number of characters written by the sandbox serial
+ * device. It is intended for performing tests of the serial subsystem
+ * where a console buffer cannot be used. The absolute number should not be
+ * relied upon; call this function twice and compare the difference.
+ *
+ * Return: The number of characters written
+ */
+size_t sandbox_serial_written(void);
+
+/**
+ * sandbox_serial_endisable() - Enable or disable serial output
+ * @enabled: Whether serial output should be enabled or not
+ *
+ * This allows tests to enable or disable the sandbox serial output. All
+ * processes relating to writing output (except the actual writing) will be
+ * performed.
+ */
+void sandbox_serial_endisable(bool enabled);
+
+/**
  * struct sandbox_serial_priv - Private data for this driver
  *
  * @buf: holds input characters available to be read by this driver

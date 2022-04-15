@@ -779,6 +779,7 @@ config S5P_SERIAL
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"
 	depends on SANDBOX
+	imply SERIAL_PUTS
 	help
 	  Select this to enable a seral UART for sandbox. This is required to
 	  operate correctly, otherwise you will see no serial output from
@@ -833,6 +834,7 @@ config SH_SCIF_CLK_FREQ
 config SEMIHOSTING_SERIAL
 	bool "Semihosting UART support"
 	depends on SEMIHOSTING && !SERIAL_RX_BUFFER
+	imply SERIAL_PUTS
 	help
 	  Select this to enable a serial UART using semihosting. Special halt
 	  instructions will be issued which an external debugger (such as a
