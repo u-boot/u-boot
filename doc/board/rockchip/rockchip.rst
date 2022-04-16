@@ -30,6 +30,8 @@ List of mainline supported Rockchip boards:
 * rk3036
      - Rockchip Evb-RK3036 (evb-rk3036)
      - Kylin (kylin_rk3036)
+* rk3066
+     - Rikomagic MK808 (mk808)
 * rk3128
      - Rockchip Evb-RK3128 (evb-rk3128)
 * rk3188
@@ -122,6 +124,13 @@ To build px30 boards:
         export BL31=../arm-trusted-firmware/build/px30/release/bl31/bl31.elf
         make evb-px30_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
+
+To build rk3066 boards:
+
+.. code-block:: bash
+
+        make mk808_defconfig
+        make CROSS_COMPILE=arm-linux-gnueabihf-
 
 To build rk3288 boards:
 
@@ -280,6 +289,105 @@ Note:
 
 1. rkbin binaries are regularly updated, so it would be recommended to use the latest version.
 2. 0x200000 is a load address and is an option for some platforms.
+
+3. Package the RK3066 image with U-Boot TPL/SPL on NAND
+-------------------------------------------------------
+
+Unlike later SoC models the rk3066 BootROM doesn't have SDMMC support.
+If all other boot options fail then it enters into a BootROM mode on the USB OTG port.
+This method loads TPL/SPL on NAND with U-boot and kernel on SD card.
+
+SD Card
+^^^^^^^
+
+U-boot expects a GPT partition map and a boot directory structure with files on the SD card.
+
+.. code-block:: none
+
+        Partition Map for MMC device 0  --   Partition Type: EFI
+        Part     Start LBA         End LBA           Name
+        1        0x00000040        0x00001f7f        "loader1"
+        2        0x00004000        0x00005fff        "loader2"
+        3        0x00006000        0x00007fff        "trust"
+        4        0x00008000        0x0003ffff        "boot"
+        5        0x00040000        0x00ed7fde        "rootfs"
+
+Make sure boot and esp flag are set for the boot partition.
+Loader1 partition is not used by RK3066.
+
+Boot partition:
+
+.. code-block:: none
+
+        extlinux
+          extlinux.conf
+
+        zImage
+        rk3066a-mk808.dtb
+
+To write a U-boot image to the SD card (assumed to be /dev/sda):
+
+.. code-block:: bash
+
+        sudo dd if=u-boot-dtb.img of=/dev/sda seek=16384
+        sync
+
+NAND
+^^^^
+
+Bring device in BootROM mode:
+
+If bricked and no BootROM mode shows up then connect pin 8 and 9 of the NAND flash
+with a needle while reconnecting to the USB OTG port to a PC.
+
+Show connected devices with:
+
+.. code-block:: bash
+
+        lsusb
+        # Bus 001 Device 004: ID 2207:300a Fuzhou Rockchip Electronics Company RK3066 in Mask ROM mode
+
+
+Create NAND image:
+
+Size of SPL and TPL must be aligned to 2kb.
+
+Program with commands in a bash script ./flash.sh:
+
+.. code-block:: bash
+
+        #!/bin/sh
+
+        printf "RK30" > tplspl.bin
+        dd if=u-boot-tpl.bin >> tplspl.bin
+        truncate -s %2048 tplspl.bin
+        truncate -s %2048 u-boot-spl.bin
+        ../tools/boot_merger --verbose config-flash.ini
+        ../tools/upgrade_tool ul ./RK30xxLoader_uboot.bin
+
+config-flash.ini:
+
+.. code-block:: none
+
+        [CHIP_NAME]
+        NAME=RK30
+        [VERSION]
+        MAJOR=2
+        MINOR=21
+        [CODE471_OPTION]
+        NUM=1
+        Path1=30_LPDDR2_300MHz_DD.bin
+        [CODE472_OPTION]
+        NUM=1
+        Path1=rk30usbplug.bin
+        [LOADER_OPTION]
+        NUM=2
+        LOADER1=FlashData
+        LOADER2=FlashBoot
+        FlashData=tplspl.bin
+        FlashBoot=u-boot-spl.bin
+        [OUTPUT]
+        PATH=RK30xxLoader_uboot.bin
 
 TODO
 ----
