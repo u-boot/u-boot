@@ -13,7 +13,7 @@ and it's usage steps.
 Rockchip boards
 ---------------
 
-Rockchip is SoC solutions provider for tablets & PCs, streaming media
+Rockchip is a SoC solutions provider for tablets & PCs, streaming media
 TV boxes, AI audio & vision, IoT hardware.
 
 A wide range of Rockchip SoCs with associated boards are supported in
@@ -85,42 +85,58 @@ Building
 TF-A
 ^^^^
 
-TF-A would require to build for ARM64 Rockchip SoCs platforms.
+TF-A is required when building ARM64 Rockchip SoCs images.
 
-To build TF-A::
+To build TF-A:
 
-        git clone https://github.com/ARM-software/arm-trusted-firmware.git
+.. code-block:: bash
+
+        git clone --depth 1 https://github.com/ARM-software/arm-trusted-firmware.git
         cd arm-trusted-firmware
         make realclean
         make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
+        cd ..
 
 Specify the PLAT= with desired Rockchip platform to build TF-A for.
 
 U-Boot
 ^^^^^^
 
-To build rk3328 boards::
+.. code-block:: bash
 
-        export BL31=/path/to/arm-trusted-firmware/to/bl31.elf
-        make evb-rk3328_defconfig
-        make
+        git clone --depth 1 https://source.denx.de/u-boot/u-boot.git
+        cd u-boot
 
-To build rk3288 boards::
+To build rk3288 boards:
+
+.. code-block:: bash
 
         make evb-rk3288_defconfig
-        make
+        make CROSS_COMPILE=arm-linux-gnueabihf-
 
-To build rk3368 boards::
+To build rk3328 boards:
 
-        export BL31=/path/to/arm-trusted-firmware/to/bl31.elf
+.. code-block:: bash
+
+        export BL31=../arm-trusted-firmware/build/rk3328/release/bl31/bl31.elf
+        make evb-rk3328_defconfig
+        make CROSS_COMPILE=aarch64-linux-gnu-
+
+To build rk3368 boards:
+
+.. code-block:: bash
+
+        export BL31=../arm-trusted-firmware/build/rk3368/release/bl31/bl31.elf
         make evb-px5_defconfig
-        make
+        make CROSS_COMPILE=aarch64-linux-gnu-
 
-To build rk3399 boards::
+To build rk3399 boards:
 
-        export BL31=/path/to/arm-trusted-firmware/to/bl31.elf
+.. code-block:: bash
+
+        export BL31=../arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
         make evb-rk3399_defconfig
-        make
+        make CROSS_COMPILE=aarch64-linux-gnu-
 
 Flashing
 --------
@@ -131,10 +147,12 @@ Flashing
 SD Card
 ^^^^^^^
 
-All Rockchip platforms, except rk3128 (which doesn't use SPL) are now
-supporting single boot image using binman and pad_cat.
+All Rockchip platforms (except rk3128 which doesn't use SPL) are now
+supporting a single boot image using binman and pad_cat.
 
-To write an image that boots from an SD card (assumed to be /dev/sda)::
+To write an image that boots from a SD card (assumed to be /dev/sda):
+
+.. code-block:: bash
 
         sudo dd if=u-boot-rockchip.bin of=/dev/sda seek=64
         sync
@@ -144,45 +162,60 @@ eMMC
 
 eMMC flash would probe on mmc0 in most of the Rockchip platforms.
 
-Create GPT partition layout as defined in configurations::
+Create GPT partition layout as defined in $partitions:
+
+.. code-block:: bash
 
         mmc dev 0
         gpt write mmc 0 $partitions
 
-Connect the USB-OTG cable between host and target device.
+Connect the USB-OTG cable between the host and a target device.
 
-Launch fastboot at target::
+Launch fastboot on the target with:
+
+.. code-block:: bash
 
         fastboot 0
 
-Upon successful gadget connection,host show the USB device like::
+Upon a successful gadget connection the host shows the USB device with:
+
+.. code-block:: bash
 
         lsusb
-        Bus 001 Device 020: ID 2207:330c Fuzhou Rockchip Electronics Company RK3399 in Mask ROM mode
+        # Bus 001 Device 020: ID 2207:330c Fuzhou Rockchip Electronics Company RK3399 in Mask ROM mode
 
-Program the flash::
+Program the flash with:
+
+.. code-block:: bash
 
         sudo fastboot -i 0x2207 flash loader1 idbloader.img
         sudo fastboot -i 0x2207 flash loader2 u-boot.itb
 
-Note: for Rockchip 32-bit platforms the U-Boot proper image
+Note:
+
+For Rockchip 32-bit platforms the U-Boot proper image
 is u-boot-dtb.img
 
 SPI
 ^^^
 
-Generating idbloader for SPI boot would require to input a multi image
-image format to mkimage tool instead of concerting (like for MMC boot).
+The SPI boot method requires the generation of idbloader.img with help of the mkimage tool.
 
-SPL-alone SPI boot image::
+SPL-alone SPI boot image:
+
+.. code-block:: bash
 
         ./tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader.img
 
-TPL+SPL SPI boot image::
+TPL+SPL SPI boot image:
+
+.. code-block:: bash
 
         ./tools/mkimage -n rk3399 -T rkspi -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin idbloader.img
 
-Copy SPI boot images into SD card and boot from SD::
+Copy SPI boot images into SD card and boot from SD:
+
+.. code-block:: bash
 
         sf probe
         load mmc 1:1 $kernel_addr_r idbloader.img
@@ -195,35 +228,42 @@ Copy SPI boot images into SD card and boot from SD::
 2. Package the image with Rockchip miniloader
 ---------------------------------------------
 
-Image package with Rockchip miniloader requires robin [1].
+Image package with Rockchip miniloader requires rkbin [1].
 
-Create idbloader.img
+.. code-block:: bash
 
-.. code-block:: none
+        cd ..
+        git clone --depth 1 https://github.com/rockchip-linux/rkbin
 
-  cd u-boot
-  ./tools/mkimage -n px30 -T rksd -d rkbin/bin/rk33/px30_ddr_333MHz_v1.15.bin idbloader.img
-  cat rkbin/bin/rk33/px30_miniloader_v1.22.bin >> idbloader.img
-  sudo dd if=idbloader.img of=/dev/sda seek=64
+Create idbloader.img:
 
-Create trust.img
+.. code-block:: bash
 
-.. code-block:: none
+        cd u-boot
+        ./tools/mkimage -n px30 -T rksd -d ../rkbin/bin/rk33/px30_ddr_333MHz_v1.16.bin idbloader.img
+        cat ../rkbin/bin/rk33/px30_miniloader_v1.31.bin >> idbloader.img
+        sudo dd if=idbloader.img of=/dev/sda seek=64
 
-  cd rkbin
-  ./tools/trust_merger RKTRUST/PX30TRUST.ini
-  sudo dd if=trust.img of=/dev/sda seek=24576
+Create trust.img:
 
-Create uboot.img
+.. code-block:: bash
 
-.. code-block:: none
+        cd ../rkbin
+        ./tools/trust_merger RKTRUST/PX30TRUST.ini
+        sudo dd if=trust.img of=/dev/sda seek=24576
 
-  rbink/tools/loaderimage --pack --uboot u-boot-dtb.bin uboot.img 0x200000
-  sudo dd if=uboot.img of=/dev/sda seek=16384
+Create uboot.img [2]:
+
+.. code-block:: bash
+
+        cd ../u-boot
+        ../rkbin/tools/loaderimage --pack --uboot u-boot-dtb.bin uboot.img 0x200000
+        sudo dd if=uboot.img of=/dev/sda seek=16384
 
 Note:
-1. 0x200000 is load address and it's an optional in some platforms.
-2. rkbin binaries are kept on updating, so would recommend to use the latest versions.
+
+1. rkbin binaries are regularly updated, so it would be recommended to use the latest version.
+2. 0x200000 is a load address and is an option for some platforms.
 
 TODO
 ----
@@ -232,8 +272,6 @@ TODO
 - Add Rockchip TPL image building
 - Document SPI flash boot
 - Add missing SoC's with it boards list
-
-[1] https://github.com/rockchip-linux/rkbin
 
 .. Jagan Teki <jagan@amarulasolutions.com>
 .. Wednesday 28 October 2020 06:47:26 PM IST
