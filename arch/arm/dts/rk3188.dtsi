@@ -9,7 +9,6 @@
 #include <dt-bindings/clock/rk3188-cru.h>
 #include <dt-bindings/power/rk3188-power.h>
 #include "rk3xxx.dtsi"
-#include "rk3xxx-u-boot.dtsi"
 
 / {
 	compatible = "rockchip,rk3188";
