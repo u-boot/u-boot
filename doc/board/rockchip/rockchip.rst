@@ -21,6 +21,12 @@ mainline U-Boot.
 
 List of mainline supported Rockchip boards:
 
+* px30
+     - Rockchip Evb-PX30 (evb-px30)
+     - Engicam PX30.Core C.TOUCH 2.0 (px30-core-ctouch2-px30)
+     - Engicam PX30.Core C.TOUCH 2.0 10.1 (px30-core-ctouch2-of10-px30)
+     - Engicam PX30.Core EDIMM2.2 Starter Kit (px30-core-edimm2.2-px30)
+     - Firefly Core-PX30-JD4 (firefly-px30)
 * rk3036
      - Rockchip Evb-RK3036 (evb-rk3036)
      - Kylin (kylin_rk3036)
@@ -46,6 +52,8 @@ List of mainline supported Rockchip boards:
 * rk3308
      - Rockchip Evb-RK3308 (evb-rk3308)
      - Roc-cc-RK3308 (roc-cc-rk3308)
+* rk3326
+     - ODROID-GO Advance (odroid-go2)
 * rk3328
      - Rockchip Evb-RK3328 (evb-rk3328)
      - Pine64 Rock64 (rock64-rk3328)
@@ -106,6 +114,14 @@ U-Boot
 
         git clone --depth 1 https://source.denx.de/u-boot/u-boot.git
         cd u-boot
+
+To build px30 boards:
+
+.. code-block:: bash
+
+        export BL31=../arm-trusted-firmware/build/px30/release/bl31/bl31.elf
+        make evb-px30_defconfig
+        make CROSS_COMPILE=aarch64-linux-gnu-
 
 To build rk3288 boards:
 
