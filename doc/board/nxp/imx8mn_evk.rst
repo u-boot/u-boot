@@ -42,7 +42,6 @@ Build U-Boot
 
    $ export CROSS_COMPILE=aarch64-poky-linux-
    $ make imx8mn_ddr4_evk_defconfig
-   $ export ATF_LOAD_ADDR=0x960000
    $ make
 
 Burn the flash.bin to MicroSD card offset 32KB:
