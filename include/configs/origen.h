@@ -19,7 +19,7 @@
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
-#define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
+//#define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
 /* Power Down Modes */
 #define S5P_CHECK_SLEEP			0x00000BAD
