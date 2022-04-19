@@ -635,6 +635,87 @@ static int efi_disk_probe(void *ctx, struct event *event)
 	return 0;
 }
 
+/*
+ * Delete an efi_disk object for a whole raw disk
+ *
+ * @dev		uclass device (UCLASS_BLK)
+ *
+ * Delete an efi_disk object which is associated with @dev.
+ * The type of @dev must be UCLASS_BLK.
+ *
+ * @return	0 on success, -1 otherwise
+ */
+static int efi_disk_delete_raw(struct udevice *dev)
+{
+	efi_handle_t handle;
+	struct efi_disk_obj *diskobj;
+
+	if (dev_tag_get_ptr(dev, DM_TAG_EFI, (void **)&handle))
+		return -1;
+
+	diskobj = container_of(handle, struct efi_disk_obj, header);
+	efi_free_pool(diskobj->dp);
+
+	efi_delete_handle(handle);
+	dev_tag_del(dev, DM_TAG_EFI);
+
+	return 0;
+}
+
+/*
+ * Delete an efi_disk object for a disk partition
+ *
+ * @dev		uclass device (UCLASS_PARTITION)
+ *
+ * Delete an efi_disk object which is associated with @dev.
+ * The type of @dev must be UCLASS_PARTITION.
+ *
+ * @return	0 on success, -1 otherwise
+ */
+static int efi_disk_delete_part(struct udevice *dev)
+{
+	efi_handle_t handle;
+	struct efi_disk_obj *diskobj;
+
+	if (dev_tag_get_ptr(dev, DM_TAG_EFI, (void **)&handle))
+		return -1;
+
+	diskobj = container_of(handle, struct efi_disk_obj, header);
+
+	efi_free_pool(diskobj->dp);
+	efi_delete_handle(handle);
+	dev_tag_del(dev, DM_TAG_EFI);
+
+	return 0;
+}
+
+/*
+ * Delete an efi_disk object for a block device
+ *
+ * @dev		uclass device (UCLASS_BLK or UCLASS_PARTITION)
+ *
+ * Delete an efi_disk object which is associated with @dev.
+ * The type of @dev must be either UCLASS_BLK or UCLASS_PARTITION.
+ * This function is expected to be called at EV_PM_PRE_REMOVE.
+ *
+ * @return	0 on success, -1 otherwise
+ */
+static int efi_disk_remove(void *ctx, struct event *event)
+{
+	enum uclass_id id;
+	struct udevice *dev;
+
+	dev = event->data.dm.dev;
+	id = device_get_uclass_id(dev);
+
+	if (id == UCLASS_BLK)
+		return efi_disk_delete_raw(dev);
+	else if (id == UCLASS_PARTITION)
+		return efi_disk_delete_part(dev);
+	else
+		return 0;
+}
+
 efi_status_t efi_disk_init(void)
 {
 	int ret;
@@ -643,6 +724,13 @@ efi_status_t efi_disk_init(void)
 			     efi_disk_probe, NULL);
 	if (ret) {
 		log_err("Event registration for efi_disk add failed\n");
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	ret = event_register("efi_disk del", EVT_DM_PRE_REMOVE,
+			     efi_disk_remove, NULL);
+	if (ret) {
+		log_err("Event registration for efi_disk del failed\n");
 		return EFI_OUT_OF_RESOURCES;
 	}
 
