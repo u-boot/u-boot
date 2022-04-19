@@ -198,9 +198,7 @@ static efi_status_t __efi_init_early(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-#ifdef CONFIG_PARTITIONS
-	ret = efi_disk_register();
-#endif
+	ret = efi_disk_init();
 out:
 	return ret;
 }
