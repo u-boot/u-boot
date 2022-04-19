@@ -18,41 +18,6 @@
 #include <asm/global_data.h>
 #include <dm/ofnode.h>
 
-#if CONFIG_IS_ENABLED(OS_BOOT)
-/*
- * Load the kernel, check for a valid header we can parse, and if found load
- * the kernel and then device tree.
- */
-static int spi_load_image_os(struct spl_image_info *spl_image,
-			     struct spl_boot_device *bootdev,
-			     struct spi_flash *flash,
-			     struct legacy_img_hdr *header)
-{
-	int err;
-
-	/* Read for a header, parse or error out. */
-	spi_flash_read(flash, CFG_SYS_SPI_KERNEL_OFFS, sizeof(*header),
-		       (void *)header);
-
-	if (image_get_magic(header) != IH_MAGIC)
-		return -1;
-
-	err = spl_parse_image_header(spl_image, bootdev, header);
-	if (err)
-		return err;
-
-	spi_flash_read(flash, CFG_SYS_SPI_KERNEL_OFFS,
-		       spl_image->size, (void *)spl_image->load_addr);
-
-	/* Read device tree. */
-	spi_flash_read(flash, CFG_SYS_SPI_ARGS_OFFS,
-		       CFG_SYS_SPI_ARGS_SIZE,
-		       (void *)CONFIG_SYS_SPL_ARGS_ADDR);
-
-	return 0;
-}
-#endif
-
 static ulong spl_spi_fit_read(struct spl_load_info *load, ulong sector,
 			      ulong count, void *buf)
 {
@@ -120,9 +85,17 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	}
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
-	if (!spl_start_uboot() && !spi_load_image_os(spl_image, bootdev, flash, header))
-		return 0;
+	if (spl_start_uboot()) {
+		int err = spl_load(spl_image, bootdev, &load, 0, CFG_SYS_SPI_KERNEL_OFFS);
+
+		if (!err)
+			/* Read device tree. */
+			return spi_flash_read(flash, CFG_SYS_SPI_ARGS_OFFS,
+					      CFG_SYS_SPI_ARGS_SIZE,
+					      (void *)CONFIG_SYS_SPL_ARGS_ADDR);
+	}
 #endif
+
 	return spl_load(spl_image, bootdev, &load, 0, payload_offs);
 }
 /* Use priorty 1 so that boards can override this */
