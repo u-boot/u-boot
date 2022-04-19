@@ -89,8 +89,6 @@ void dm_dump_uclass(void)
 			continue;
 
 		printf("uclass %d: %s\n", id, uc->uc_drv->name);
-		if (list_empty(&uc->dev_head))
-			continue;
 		uclass_foreach_dev(dev, uc) {
 			dm_display_line(dev, i);
 			i++;
