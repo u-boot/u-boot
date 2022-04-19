@@ -276,6 +276,22 @@ static inline int blk_get_device_part_str(const char *ifname,
 					  struct disk_partition *info,
 					  int allow_whole_dev)
 { *dev_desc = NULL; return -1; }
+
+static inline int part_get_info_by_name_type(struct blk_desc *dev_desc,
+					     const char *name,
+					     struct disk_partition *info,
+					     int part_type)
+{
+	return -ENOENT;
+}
+
+static inline int part_get_info_by_name(struct blk_desc *dev_desc,
+					const char *name,
+					struct disk_partition *info)
+{
+	return -ENOENT;
+}
+
 static inline int
 part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 				     const char *dev_part_str,
