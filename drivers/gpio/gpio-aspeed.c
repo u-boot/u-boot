@@ -211,7 +211,7 @@ static int aspeed_gpio_direction_output(struct udevice *dev, unsigned int offset
 	struct aspeed_gpio_priv *priv = dev_get_priv(dev);
 	const struct aspeed_gpio_bank *bank = to_bank(offset);
 	u32 dir = readl(bank_reg(priv, bank, reg_dir));
-	u32 output = readl(bank_reg(priv, bank, reg_val));
+	u32 output = readl(bank_reg(priv, bank, reg_rdata));
 
 	dir |= GPIO_BIT(offset);
 	writel(dir, bank_reg(priv, bank, reg_dir));
@@ -239,7 +239,7 @@ aspeed_gpio_set_value(struct udevice *dev, unsigned int offset, int value)
 {
 	struct aspeed_gpio_priv *priv = dev_get_priv(dev);
 	const struct aspeed_gpio_bank *bank = to_bank(offset);
-	u32 data = readl(bank_reg(priv, bank, reg_val));
+	u32 data = readl(bank_reg(priv, bank, reg_rdata));
 
 	if (value)
 		data |= GPIO_BIT(offset);

@@ -594,7 +594,7 @@ F:	configs/uniphier_*_defconfig
 N:	uniphier
 
 ARM VERSAL
-M:	Michal Simek <michal.simek@xilinx.com>
+M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
@@ -639,7 +639,7 @@ F:	tools/zynqimage.c
 N:	zynq
 
 ARM ZYNQMP
-M:	Michal Simek <michal.simek@xilinx.com>
+M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynqmp/
@@ -676,7 +676,7 @@ N:	ultra96
 N:	zynqmp
 
 ARM ZYNQMP R5
-M:	Michal Simek <michal.simek@xilinx.com>
+M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-zynqmp-r5/
@@ -852,7 +852,7 @@ F:	net/fastboot.c
 F:	test/dm/fastboot.c
 
 FPGA
-M:	Michal Simek <michal.simek@xilinx.com>
+M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	drivers/fpga/

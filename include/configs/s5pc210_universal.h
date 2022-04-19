@@ -24,8 +24,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
-
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
 
 #define NORMAL_MTDPARTS_DEFAULT CONFIG_MTDPARTS_DEFAULT

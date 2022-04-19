@@ -489,6 +489,17 @@ config STACK_SIZE
 	  by the UEFI sub-system. On some boards initrd_high is calculated as
 	  base stack pointer minus this stack size.
 
+config SYS_MEM_TOP_HIDE
+	hex "Exclude some memory from U-Boot / OS information"
+	default 0x0
+	help
+	  If set, this specified memory area will get subtracted from the top
+	  (end) of RAM and won't get "touched" at all by U-Boot. By fixing up
+	  gd->ram_size the OS / next stage should gets passed the now
+	  "corrected" memory size and won't touch it either.
+	  WARNING: Please make sure that this value is a multiple of the OS
+	  page size.
+
 config SYS_HAS_SRAM
 	bool
 	default y if TARGET_PIC32MZDASK

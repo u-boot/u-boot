@@ -1887,8 +1887,7 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 		      conf_uname, fdt_strerror(noffset));
 	}
 
-	if (conf_uname_copy)
-		free(conf_uname_copy);
+	free(conf_uname_copy);
 
 	return noffset;
 }
@@ -2422,9 +2421,6 @@ int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
 		}
 		fdt_pack(base);
 		len = fdt_totalsize(base);
-
-		free(ovcopy);
-		ovcopy = NULL;
 	}
 #else
 	printf("config with overlays but CONFIG_OF_LIBFDT_OVERLAY not set\n");
@@ -2442,11 +2438,9 @@ out:
 		*fit_uname_configp = fit_uname_config;
 
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
-	if (ovcopy)
-		free(ovcopy);
+	free(ovcopy);
 #endif
-	if (fit_uname_config_copy)
-		free(fit_uname_config_copy);
+	free(fit_uname_config_copy);
 	return fdt_noffset;
 }
 #endif

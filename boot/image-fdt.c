@@ -601,6 +601,12 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		goto err;
 	}
 
+	/* Store name of configuration node as u-boot,bootconf in /chosen node */
+	if (images->fit_uname_cfg)
+		fdt_find_and_setprop(blob, "/chosen", "u-boot,bootconf",
+					images->fit_uname_cfg,
+					strlen(images->fit_uname_cfg) + 1, 1);
+
 	/* Update ethernet nodes */
 	fdt_fixup_ethernet(blob);
 #if CONFIG_IS_ENABLED(CMD_PSTORE)

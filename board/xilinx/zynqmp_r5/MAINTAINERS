@@ -1,5 +1,5 @@
 XILINX_ZYNQMP_R5 BOARDS
-M:	Michal Simek <michal.simek@xilinx.com>
+M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
 F:	arch/arm/dts/zynqmp-r5*
 F:	board/xilinx/zynqmp_r5/

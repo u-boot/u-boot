@@ -28,8 +28,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
-
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
 #define PARTS_BOOT		"boot"
