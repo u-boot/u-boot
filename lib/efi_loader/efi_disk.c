@@ -648,13 +648,17 @@ static int efi_disk_probe(void *ctx, struct event *event)
 static int efi_disk_delete_raw(struct udevice *dev)
 {
 	efi_handle_t handle;
+	struct blk_desc *desc;
 	struct efi_disk_obj *diskobj;
 
 	if (dev_tag_get_ptr(dev, DM_TAG_EFI, (void **)&handle))
 		return -1;
 
-	diskobj = container_of(handle, struct efi_disk_obj, header);
-	efi_free_pool(diskobj->dp);
+	desc = dev_get_uclass_plat(dev);
+	if (desc->if_type != IF_TYPE_EFI_LOADER) {
+		diskobj = container_of(handle, struct efi_disk_obj, header);
+		efi_free_pool(diskobj->dp);
+	}
 
 	efi_delete_handle(handle);
 	dev_tag_del(dev, DM_TAG_EFI);
