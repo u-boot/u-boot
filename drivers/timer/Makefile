@@ -14,6 +14,7 @@ obj-$(CONFIG_CADENCE_TTC_TIMER)	+= cadence-ttc.o
 obj-$(CONFIG_DESIGNWARE_APB_TIMER)	+= dw-apb-timer.o
 obj-$(CONFIG_MPC83XX_TIMER) += mpc83xx_timer.o
 obj-$(CONFIG_NOMADIK_MTU_TIMER)	+= nomadik-mtu-timer.o
+obj-$(CONFIG_NPCM_TIMER)        += npcm-timer.o
 obj-$(CONFIG_OMAP_TIMER)	+= omap-timer.o
 obj-$(CONFIG_RENESAS_OSTM_TIMER) += ostm_timer.o
 obj-$(CONFIG_RISCV_TIMER) += riscv_timer.o
