@@ -19,8 +19,7 @@
 
 /* SPL Loader Configuration */
 #ifdef CONFIG_TARGET_AM654_A53_EVM
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
-					 CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
 #else
 /*
  * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
