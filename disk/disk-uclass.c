@@ -146,6 +146,100 @@ U_BOOT_DRIVER(blk_partition) = {
 	.ops		= &blk_part_ops,
 };
 
+/*
+ * BLOCK IO APIs
+ */
+static struct blk_desc *dev_get_blk(struct udevice *dev)
+{
+	struct blk_desc *block_dev;
+
+	switch (device_get_uclass_id(dev)) {
+	/*
+	 * We won't support UCLASS_BLK with dev_* interfaces.
+	 */
+	case UCLASS_PARTITION:
+		block_dev = dev_get_uclass_plat(dev_get_parent(dev));
+		break;
+	default:
+		block_dev = NULL;
+		break;
+	}
+
+	return block_dev;
+}
+
+unsigned long dev_read(struct udevice *dev, lbaint_t start,
+		       lbaint_t blkcnt, void *buffer)
+{
+	struct blk_desc *block_dev;
+	const struct blk_ops *ops;
+	struct disk_part *part;
+	lbaint_t start_in_disk;
+	ulong blks_read;
+
+	block_dev = dev_get_blk(dev);
+	if (!block_dev)
+		return -ENOSYS;
+
+	ops = blk_get_ops(dev);
+	if (!ops->read)
+		return -ENOSYS;
+
+	start_in_disk = start;
+	if (device_get_uclass_id(dev) == UCLASS_PARTITION) {
+		part = dev_get_uclass_plat(dev);
+		start_in_disk += part->gpt_part_info.start;
+	}
+
+	if (blkcache_read(block_dev->if_type, block_dev->devnum,
+			  start_in_disk, blkcnt, block_dev->blksz, buffer))
+		return blkcnt;
+	blks_read = ops->read(dev, start, blkcnt, buffer);
+	if (blks_read == blkcnt)
+		blkcache_fill(block_dev->if_type, block_dev->devnum,
+			      start_in_disk, blkcnt, block_dev->blksz, buffer);
+
+	return blks_read;
+}
+
+unsigned long dev_write(struct udevice *dev, lbaint_t start,
+			lbaint_t blkcnt, const void *buffer)
+{
+	struct blk_desc *block_dev;
+	const struct blk_ops *ops;
+
+	block_dev = dev_get_blk(dev);
+	if (!block_dev)
+		return -ENOSYS;
+
+	ops = blk_get_ops(dev);
+	if (!ops->write)
+		return -ENOSYS;
+
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
+
+	return ops->write(dev, start, blkcnt, buffer);
+}
+
+unsigned long dev_erase(struct udevice *dev, lbaint_t start,
+			lbaint_t blkcnt)
+{
+	struct blk_desc *block_dev;
+	const struct blk_ops *ops;
+
+	block_dev = dev_get_blk(dev);
+	if (!block_dev)
+		return -ENOSYS;
+
+	ops = blk_get_ops(dev);
+	if (!ops->erase)
+		return -ENOSYS;
+
+	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
+
+	return ops->erase(dev, start, blkcnt);
+}
+
 UCLASS_DRIVER(partition) = {
 	.id		= UCLASS_PARTITION,
 	.per_device_plat_auto	= sizeof(struct disk_part),
