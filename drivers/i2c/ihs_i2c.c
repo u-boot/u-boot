@@ -195,7 +195,7 @@ static int ihs_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 	memset(&dummy, 0, sizeof(struct i2c_msg));
 
 	/* We expect either two messages (one with an offset and one with the
-	 * actucal data) or one message (just data)
+	 * actual data) or one message (just data)
 	 */
 	if (nmsgs > 2 || nmsgs == 0) {
 		debug("%s: Only one or two messages are supported\n", __func__);

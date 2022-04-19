@@ -213,7 +213,7 @@ static int intel_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 
 	/*
 	 * We expect either two messages (one with an offset and one with the
-	 * actucal data) or one message (just data)
+	 * actual data) or one message (just data)
 	 */
 	if (nmsgs > 2 || nmsgs == 0) {
 		debug("%s: Only one or two messages are supported", __func__);
