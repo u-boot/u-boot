@@ -4,7 +4,7 @@
 
 obj-y	+= device.o fdtaddr.o lists.o root.o uclass.o util.o tag.o
 obj-$(CONFIG_$(SPL_TPL_)ACPIGEN) += acpi.o
-obj-$(CONFIG_DEVRES) += devres.o
+obj-$(CONFIG_$(SPL_TPL_)DEVRES) += devres.o
 obj-$(CONFIG_$(SPL_)DM_DEVICE_REMOVE)	+= device-remove.o
 obj-$(CONFIG_$(SPL_)SIMPLE_BUS)	+= simple-bus.o
 obj-$(CONFIG_SIMPLE_PM_BUS)	+= simple-pm-bus.o

@@ -136,12 +136,18 @@ static int dm_setup_inst(void)
 
 	if (CONFIG_IS_ENABLED(OF_PLATDATA_RT)) {
 		struct udevice_rt *urt;
+		void *start, *end;
+		int each_size;
 		void *base;
 		int n_ents;
 		uint size;
 
 		/* Allocate the udevice_rt table */
-		n_ents = ll_entry_count(struct udevice, udevice);
+		each_size = dm_udevice_size();
+		start = ll_entry_start(struct udevice, udevice);
+		end = ll_entry_end(struct udevice, udevice);
+		size = end - start;
+		n_ents = size / each_size;
 		urt = calloc(n_ents, sizeof(struct udevice_rt));
 		if (!urt)
 			return log_msg_ret("urt", -ENOMEM);

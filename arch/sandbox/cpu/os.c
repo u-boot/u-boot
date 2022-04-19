@@ -644,7 +644,7 @@ int os_get_filesize(const char *fname, long long *size)
 
 void os_putc(int ch)
 {
-	fputc(ch, stdout);
+	os_write(1, &ch, 1);
 }
 
 void os_puts(const char *str)
