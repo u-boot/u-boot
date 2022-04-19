@@ -604,6 +604,7 @@ static int efi_disk_probe(void *ctx, struct event *event)
 {
 	struct udevice *dev;
 	enum uclass_id id;
+	struct blk_desc *desc;
 	struct udevice *child;
 	int ret;
 
@@ -614,9 +615,16 @@ static int efi_disk_probe(void *ctx, struct event *event)
 	if (id != UCLASS_BLK)
 		return 0;
 
-	ret = efi_disk_create_raw(dev);
-	if (ret)
-		return -1;
+	/*
+	 * avoid creating duplicated objects now that efi_driver
+	 * has already created an efi_disk at this moment.
+	 */
+	desc = dev_get_uclass_plat(dev);
+	if (desc->if_type != IF_TYPE_EFI_LOADER) {
+		ret = efi_disk_create_raw(dev);
+		if (ret)
+			return -1;
+	}
 
 	device_foreach_child(child, dev) {
 		ret = efi_disk_create_part(child);
