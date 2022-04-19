@@ -11,6 +11,7 @@
 #include <clk.h>
 #include <config.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <env_internal.h>
 #include <fdt_simplefb.h>
@@ -86,6 +87,16 @@
 #define USB_WARNING_LOW_THRESHOLD_UV	660000
 #define USB_START_LOW_THRESHOLD_UV	1230000
 #define USB_START_HIGH_THRESHOLD_UV	2150000
+
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_image fw_images[1];
+
+struct efi_capsule_update_info update_info = {
+	.images = fw_images,
+};
+
+u8 num_image_type_guids = ARRAY_SIZE(fw_images);
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 int board_early_init_f(void)
 {
@@ -670,6 +681,14 @@ int board_init(void)
 
 	setup_led(LEDST_ON);
 
+#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+	if (board_is_stm32mp15x_dk2()) {
+		efi_guid_t image_type_guid = STM32MP15_DK2_FIP_IMAGE_GUID;
+		guidcpy(&fw_images[0].image_type_id, &image_type_guid);
+		fw_images[0].fw_name = u"STM32MP15-DK2-FIP";
+		fw_images[0].image_index = 5;
+	}
+#endif
 	return 0;
 }
 
