@@ -66,6 +66,7 @@ obj-$(CONFIG_MSM_GENI_SERIAL) += serial_msm_geni.o
 obj-$(CONFIG_MVEBU_A3700_UART) += serial_mvebu_a3700.o
 obj-$(CONFIG_MPC8XX_CONS) += serial_mpc8xx.o
 obj-$(CONFIG_NULLDEV_SERIAL) += serial_nulldev.o
+obj-$(CONFIG_NPCM_SERIAL) += serial_npcm.o
 obj-$(CONFIG_OCTEON_SERIAL_BOOTCMD) += serial_octeon_bootcmd.o
 obj-$(CONFIG_OCTEON_SERIAL_PCIE_CONSOLE) += serial_octeon_pcie_console.o
 obj-$(CONFIG_OWL_SERIAL) += serial_owl.o
