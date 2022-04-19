@@ -10,6 +10,7 @@
 #include <ide.h>
 #include <uuid.h>
 #include <linker_lists.h>
+#include <linux/errno.h>
 #include <linux/list.h>
 
 struct block_drvr {
