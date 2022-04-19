@@ -12,12 +12,10 @@
 #include <linux/compiler.h>
 #include <command.h>
 #include <common.h>
-#include <environment.h>
+#include <env.h>
 #include <fsl_sec.h>
 #include <mapmem.h>
 #include <memalign.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * do_mfgprot() - Handle the "mfgprot" command-line command
