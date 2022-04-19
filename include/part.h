@@ -87,7 +87,7 @@ struct disk_part {
 };
 
 /* Misc _get_dev functions */
-#ifdef CONFIG_PARTITIONS
+#if CONFIG_IS_ENABLED(PARTITIONS)
 /**
  * blk_get_dev() - get a pointer to a block device given its type and number
  *
@@ -497,7 +497,7 @@ int layout_mbr_partitions(struct disk_partition *p, int count,
 
 #endif
 
-#ifdef CONFIG_PARTITIONS
+#if CONFIG_IS_ENABLED(PARTITIONS)
 /**
  * part_driver_get_count() - get partition driver count
  *
