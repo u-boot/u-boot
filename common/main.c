@@ -54,8 +54,11 @@ void main_loop(void)
 	if (IS_ENABLED(CONFIG_UPDATE_TFTP))
 		update_tftp(0UL, NULL, NULL);
 
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY))
-		efi_launch_capsules();
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY)) {
+		/* efi_init_early() already called */
+		if (efi_init_obj_list() == EFI_SUCCESS)
+			efi_launch_capsules();
+	}
 
 	s = bootdelay_process();
 	if (cli_process_fdt(&s))
