@@ -104,7 +104,6 @@ struct disk_part {
 struct blk_desc *blk_get_dev(const char *ifname, int dev);
 
 struct blk_desc *mg_disk_get_dev(int dev);
-int host_get_dev_err(int dev, struct blk_desc **blk_devp);
 
 /* disk/part.c */
 int part_get_info(struct blk_desc *dev_desc, int part,
