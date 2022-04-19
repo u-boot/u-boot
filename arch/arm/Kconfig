@@ -1004,6 +1004,12 @@ config ARCH_NEXELL
 	select DM
 	select GPIO_EXTRA_HEADER
 
+config ARCH_NPCM
+	bool "Support Nuvoton SoCs"
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 config ARCH_APPLE
 	bool "Apple SoCs"
 	select ARM64
@@ -2278,6 +2284,8 @@ source "arch/arm/cpu/armv8/Kconfig"
 source "arch/arm/mach-imx/Kconfig"
 
 source "arch/arm/mach-nexell/Kconfig"
+
+source "arch/arm/mach-npcm/Kconfig"
 
 source "board/armltd/total_compute/Kconfig"
 
