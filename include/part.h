@@ -303,6 +303,16 @@ part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 }
 #endif
 
+struct udevice;
+/**
+ * part_create_block_devices - Create block devices for disk partitions
+ *
+ * Create UCLASS_PARTITION udevices for each of disk partitions in @parent
+ *
+ * @blk_dev:	Whole disk device
+ */
+int part_create_block_devices(struct udevice *blk_dev);
+
 /*
  * We don't support printing partition information in SPL and only support
  * getting partition information in a few cases.

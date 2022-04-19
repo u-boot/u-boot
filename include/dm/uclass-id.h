@@ -83,6 +83,7 @@ enum uclass_id {
 	UCLASS_P2SB,		/* (x86) Primary-to-Sideband Bus */
 	UCLASS_PANEL,		/* Display panel, such as an LCD */
 	UCLASS_PANEL_BACKLIGHT,	/* Backlight controller for panel */
+	UCLASS_PARTITION,	/* Logical disk partition device */
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */
 	UCLASS_PCI_EP,		/* PCI endpoint device */

@@ -6,6 +6,9 @@
 #ccflags-y += -DET_DEBUG -DDEBUG
 
 obj-$(CONFIG_$(SPL_TPL_)PARTITIONS)  += part.o
+ifdef CONFIG_$(SPL_TPL_)BLK
+obj-$(CONFIG_$(SPL_TPL_)PARTITIONS)  += disk-uclass.o
+endif
 obj-$(CONFIG_$(SPL_TPL_)MAC_PARTITION)   += part_mac.o
 obj-$(CONFIG_$(SPL_TPL_)DOS_PARTITION)   += part_dos.o
 obj-$(CONFIG_$(SPL_TPL_)ISO_PARTITION)   += part_iso.o
