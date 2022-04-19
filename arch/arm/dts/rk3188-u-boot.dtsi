@@ -4,6 +4,7 @@
  */
 
 #include "rockchip-u-boot.dtsi"
+#include "rk3xxx-u-boot.dtsi"
 
 &global_timer {
 	status = "okay";

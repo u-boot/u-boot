@@ -762,10 +762,11 @@ config PL01X_SERIAL
 
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"
-	depends on DM_SERIAL && SPL_OF_PLATDATA
+	depends on DM_SERIAL
+	select SYS_NS16550
 	help
 	  Select this to enable a debug UART for Rockchip devices when using
-	  CONFIG_SPL_OF_PLATDATA (i.e. a compiled-in device tree replacemenmt).
+	  OF_PLATDATA (i.e. a compiled-in device tree replacemenmt).
 	  This uses the ns16550 driver, converting the platdata from of-platdata
 	  to the ns16550 format.
 

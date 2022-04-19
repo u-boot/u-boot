@@ -12,7 +12,6 @@
 
 #define CONFIG_SYS_NS16550_MEM32
 
-#define CONFIG_ROCKCHIP_STIMER_BASE	0xff220020
 #define COUNTER_FREQUENCY		24000000
 
 /* FIXME: ff020000 is pmu_mem (10k), while ff0e0000 is regular int_mem */

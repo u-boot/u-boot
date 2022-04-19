@@ -125,6 +125,9 @@ endchoice
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xff320300
 
+config ROCKCHIP_STIMER_BASE
+	default 0xff8680a0
+
 config SYS_SOC
 	default "rk3399"
 

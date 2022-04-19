@@ -1,8 +1,11 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
  */
+
+#ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3288_H
+#define _DT_BINDINGS_CLK_ROCKCHIP_RK3288_H
 
 /* core clocks */
 #define PLL_APLL		1
@@ -74,6 +77,9 @@
 #define SCLK_USBPHY480M_SRC	122
 #define SCLK_PVTM_CORE		123
 #define SCLK_PVTM_GPU		124
+#define SCLK_CRYPTO		125
+#define SCLK_MIPIDSI_24M	126
+#define SCLK_VIP_OUT		127
 
 #define SCLK_MAC_PLL		150
 #define SCLK_MAC		151
@@ -153,6 +159,9 @@
 #define PCLK_DDRUPCTL1		366
 #define PCLK_PUBL1		367
 #define PCLK_WDT		368
+#define PCLK_EFUSE256		369
+#define PCLK_EFUSE1024		370
+#define PCLK_ISP_IN		371
 
 /* hclk gates */
 #define HCLK_GPS		448
@@ -368,3 +377,5 @@
 #define SRST_TSP_CLKIN0		189
 #define SRST_TSP_CLKIN1		190
 #define SRST_TSP_27M		191
+
+#endif

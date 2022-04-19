@@ -174,6 +174,7 @@ static const struct dm_display_ops rk_mipi_dsi_ops = {
 };
 
 static const struct udevice_id rk_mipi_dsi_ids[] = {
+	{ .compatible = "rockchip,rk3288-mipi-dsi" },
 	{ .compatible = "rockchip,rk3288_mipi_dsi" },
 	{ }
 };

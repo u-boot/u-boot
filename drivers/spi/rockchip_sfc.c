@@ -12,6 +12,7 @@
 #include <bouncebuf.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>

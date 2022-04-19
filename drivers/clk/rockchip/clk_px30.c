@@ -1403,10 +1403,13 @@ static int px30_clk_enable(struct clk *clk)
 {
 	switch (clk->id) {
 	case HCLK_HOST:
+	case HCLK_OTG:
+	case HCLK_SFC:
 	case SCLK_GMAC:
 	case SCLK_GMAC_RX_TX:
 	case SCLK_MAC_REF:
 	case SCLK_MAC_REFOUT:
+	case SCLK_SFC:
 	case ACLK_GMAC:
 	case PCLK_GMAC:
 	case SCLK_GMAC_RMII:

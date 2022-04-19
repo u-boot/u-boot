@@ -1070,8 +1070,11 @@ static int rk_edp_probe(struct udevice *dev)
 
 	ret = reset_get_by_name(dev, "dp", &dp_rst);
 	if (ret) {
-		dev_err(dev, "failed to get dp reset (ret=%d)\n", ret);
-		return ret;
+		ret = reset_get_by_name(dev, "edp", &dp_rst);
+		if (ret) {
+			dev_err(dev, "failed to get dp reset (ret=%d)\n", ret);
+			return ret;
+		}
 	}
 
 	ret = reset_assert(&dp_rst);
@@ -1156,6 +1159,7 @@ static const struct rockchip_dp_data rk3288_dp = {
 };
 
 static const struct udevice_id rockchip_dp_ids[] = {
+	{ .compatible = "rockchip,rk3288-dp", .data = (ulong)&rk3288_dp },
 	{ .compatible = "rockchip,rk3288-edp", .data = (ulong)&rk3288_dp },
 	{ .compatible = "rockchip,rk3399-edp", .data = (ulong)&rk3399_edp },
 	{ }

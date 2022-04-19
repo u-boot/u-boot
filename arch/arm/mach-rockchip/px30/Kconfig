@@ -38,6 +38,9 @@ config TARGET_PX30_CORE
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xff010200
 
+config ROCKCHIP_STIMER_BASE
+	default 0xff220020
+
 config SYS_SOC
 	default "px30"
 

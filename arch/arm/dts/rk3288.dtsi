@@ -5,7 +5,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/clock/rk3288-cru.h>
-#include <dt-bindings/power-domain/rk3288.h>
+#include <dt-bindings/power/rk3288-power.h>
 #include <dt-bindings/thermal/thermal.h>
 #include <dt-bindings/video/rk3288.h>
 #include "skeleton.dtsi"
@@ -15,25 +15,12 @@
 
 	interrupt-parent = <&gic>;
 	aliases {
-		gpio0 = &gpio0;
-		gpio1 = &gpio1;
-		gpio2 = &gpio2;
-		gpio3 = &gpio3;
-		gpio4 = &gpio4;
-		gpio5 = &gpio5;
-		gpio6 = &gpio6;
-		gpio7 = &gpio7;
-		gpio8 = &gpio8;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
 		i2c3 = &i2c3;
 		i2c4 = &i2c4;
 		i2c5 = &i2c5;
-		mmc0 = &emmc;
-		mmc1 = &sdmmc;
-		mmc2 = &sdio0;
-		mmc3 = &sdio1;
 		mshc0 = &emmc;
 		mshc1 = &sdmmc;
 		mshc2 = &sdio0;
@@ -323,7 +310,6 @@
 		interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
 		reg-shift = <2>;
 		reg-io-width = <4>;
-		clock-frequency = <24000000>;
 		clocks = <&cru SCLK_UART0>, <&cru PCLK_UART0>;
 		clock-names = "baudclk", "apb_pclk";
 		pinctrl-names = "default";
@@ -337,7 +323,6 @@
 		interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
 		reg-shift = <2>;
 		reg-io-width = <4>;
-		clock-frequency = <24000000>;
 		clocks = <&cru SCLK_UART1>, <&cru PCLK_UART1>;
 		clock-names = "baudclk", "apb_pclk";
 		pinctrl-names = "default";
@@ -351,7 +336,6 @@
 		interrupts = <GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>;
 		reg-shift = <2>;
 		reg-io-width = <4>;
-		clock-frequency = <24000000>;
 		clocks = <&cru SCLK_UART2>, <&cru PCLK_UART2>;
 		clock-names = "baudclk", "apb_pclk";
 		pinctrl-names = "default";
@@ -364,7 +348,6 @@
 		interrupts = <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>;
 		reg-shift = <2>;
 		reg-io-width = <4>;
-		clock-frequency = <24000000>;
 		clocks = <&cru SCLK_UART3>, <&cru PCLK_UART3>;
 		clock-names = "baudclk", "apb_pclk";
 		pinctrl-names = "default";
@@ -378,7 +361,6 @@
 		interrupts = <GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>;
 		reg-shift = <2>;
 		reg-io-width = <4>;
-		clock-frequency = <24000000>;
 		clocks = <&cru SCLK_UART4>, <&cru PCLK_UART4>;
 		clock-names = "baudclk", "apb_pclk";
 		pinctrl-names = "default";
@@ -476,26 +458,6 @@
 		status = "disabled";
 	};
 
-	dmc: dmc@ff610000 {
-		compatible = "rockchip,rk3288-dmc", "syscon";
-		rockchip,cru = <&cru>;
-		rockchip,grf = <&grf>;
-		rockchip,pmu = <&pmu>;
-		rockchip,sgrf = <&sgrf>;
-		rockchip,noc = <&noc>;
-		reg = <0xff610000 0x3fc
-		       0xff620000 0x294
-		       0xff630000 0x3fc
-		       0xff640000 0x294>;
-		rockchip,sram = <&ddr_sram>;
-		clocks = <&cru PCLK_DDRUPCTL0>, <&cru PCLK_PUBL0>,
-			 <&cru PCLK_DDRUPCTL1>, <&cru PCLK_PUBL1>,
-			 <&cru ARMCLK>;
-		clock-names = "pclk_ddrupctl0", "pclk_publ0",
-			      "pclk_ddrupctl1", "pclk_publ1",
-			      "arm_clk";
-	};
-
 	i2c0: i2c@ff650000 {
 		compatible = "rockchip,rk3288-i2c";
 		reg = <0xff650000 0x1000>;
@@ -570,7 +532,7 @@
 		status = "disabled";
 	};
 
-	bus_intmem@ff700000 {
+	bus_intmem: bus_intmem@ff700000 {
 		compatible = "mmio-sram";
 		reg = <0xff700000 0x18000>;
 		#address-cells = <1>;
@@ -579,10 +541,6 @@
 		smp-sram@0 {
 			compatible = "rockchip,rk3066-smp-sram";
 			reg = <0x00 0x10>;
-		};
-		ddr_sram: ddr-sram@1000 {
-			compatible = "rockchip,rk3288-ddr-sram";
-			reg = <0x1000 0x4000>;
 		};
 	};
 
@@ -910,11 +868,6 @@
 		>;
 		power-domains = <&power RK3288_PD_GPU>;
 		status = "disabled";
-	};
-
-	noc: syscon@ffac0000 {
-		compatible = "rockchip,rk3288-noc", "syscon";
-		reg = <0xffac0000 0x2000>;
 	};
 
 	efuse: efuse@ffb40000 {

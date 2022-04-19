@@ -149,8 +149,6 @@
 
 &emmc {
 	status = "okay";
-	u-boot,dm-pre-reloc;
-
 	bus-width = <8>;
 	cap-mmc-highspeed;
 	disable-wp;
@@ -201,8 +199,6 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
-
 	clock-frequency = <400000>;
 
 	rk818: pmic@1c {
@@ -216,7 +212,6 @@
 		rockchip,system-power-controller;
 		wakeup-source;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
 
 		vcc1-supply = <&vdd_sys>;
 		vcc2-supply = <&vdd_sys>;
@@ -230,7 +225,6 @@
 		vddio-supply = <&vdd_3v3_io>;
 
 		regulators {
-			u-boot,dm-pre-reloc;
 			vdd_log: DCDC_REG1 {
 				regulator-name = "vdd_log";
 				regulator-always-on;

@@ -16,6 +16,9 @@ endchoice
 config ROCKCHIP_BOOT_MODE_REG
 	default 0x100a0038
 
+config ROCKCHIP_STIMER_BASE
+	default 0x200440a0
+
 config SYS_SOC
 	default "rk3128"
 
