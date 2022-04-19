@@ -5,8 +5,4 @@ F:	board/freescale/ls1046afrwy/
 F:	board/freescale/ls1046afrwy/ls1046afrwy.c
 F:	include/configs/ls1046afrwy.h
 F:	configs/ls1046afrwy_tfa_defconfig
-
-LS1046AFRWY_SECURE_BOOT BOARD
-M:	Manish Tomar <manish.tomar@nxp.com>
-S:	Maintained
 F:	configs/ls1046afrwy_tfa_SECURE_BOOT_defconfig
