@@ -30,7 +30,7 @@
 #define CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS	0x80
 #define CTRLMMR_DDR4_FSP_CLKCHNG_ACK_OFFS	0xc0
 
-#define DDRSS_V2A_R1_MAT_REG			0x0020
+#define DDRSS_V2A_CTL_REG			0x0020
 #define DDRSS_ECC_CTRL_REG			0x0120
 
 #define DDRSS_ECC_CTRL_REG_ECC_EN		BIT(0)
@@ -134,6 +134,7 @@ struct k3_ddrss_desc {
 	struct power_domain ddrdata_pwrdmn;
 	struct clk ddr_clk;
 	struct clk osc_clk;
+	u32 ddr_freq0;
 	u32 ddr_freq1;
 	u32 ddr_freq2;
 	u32 ddr_fhs_cnt;
@@ -223,9 +224,7 @@ static void k3_lpddr4_freq_update(struct k3_ddrss_desc *ddrss)
 		else if (req_type == 2)
 			clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq2);
 		else if (req_type == 0)
-			/* Put DDR pll in bypass mode */
-			clk_set_rate(&ddrss->ddr_clk,
-				     clk_get_rate(&ddrss->osc_clk));
+			clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq0);
 		else
 			printf("%s: Invalid freq request type\n", __func__);
 
@@ -276,8 +275,7 @@ static int k3_ddrss_init_freq(struct k3_ddrss_desc *ddrss)
 		ret = clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq1);
 		break;
 	case DENALI_CTL_0_DRAM_CLASS_LPDDR4:
-		/* Set to bypass frequency for LPDDR4*/
-		ret = clk_set_rate(&ddrss->ddr_clk, clk_get_rate(&ddrss->osc_clk));
+		ret = clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq0);
 		break;
 	default:
 		ret = -EINVAL;
@@ -392,6 +390,13 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 		}
 	} else {
 		ddrss->instance = 0;
+	}
+
+	ret = dev_read_u32(dev, "ti,ddr-freq0", &ddrss->ddr_freq0);
+	if (ret) {
+		ddrss->ddr_freq0 = clk_get_rate(&ddrss->osc_clk);
+		dev_dbg(dev,
+			"ddr freq0 not populated, using bypass frequency.\n");
 	}
 
 	ret = dev_read_u32(dev, "ti,ddr-freq1", &ddrss->ddr_freq1);
@@ -620,8 +625,8 @@ static int k3_ddrss_probe(struct udevice *dev)
 		return ret;
 
 #ifdef CONFIG_K3_AM64_DDRSS
-
-	writel(0x000001EF, ddrss->ddrss_ss_cfg + DDRSS_V2A_R1_MAT_REG);
+	/* AM64x supports only up to 2 GB SDRAM */
+	writel(0x000001EF, ddrss->ddrss_ss_cfg + DDRSS_V2A_CTL_REG);
 	writel(0x0, ddrss->ddrss_ss_cfg + DDRSS_ECC_CTRL_REG);
 #endif
 

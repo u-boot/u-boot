@@ -996,6 +996,13 @@ config CMD_GPIO
 	help
 	  GPIO support.
 
+config CMD_GPIO_READ
+	bool "gpio read - save GPIO value to variable"
+	depends on CMD_GPIO
+	help
+	  Enables the 'gpio read' command that saves the value
+	  of a GPIO pin to a variable.
+
 config CMD_PWM
 	bool "pwm"
 	depends on DM_PWM

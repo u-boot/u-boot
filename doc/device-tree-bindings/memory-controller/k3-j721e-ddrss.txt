@@ -39,6 +39,8 @@ Optional properties:
 - reg:			Must add "ss" to list if the above ss region is included.
 - ti,ecc-enable:	Boolean flag to enable ECC. This will reduce available DDR
 			by 1/9.
+- ti,ddr-freq0:		Initial frequency set point, if not provided PLL bypass
+			frequency will be used.
 
 Example (J721E):
 ================
