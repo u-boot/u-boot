@@ -49,7 +49,7 @@ static const struct soc_ops soc_xilinx_zynqmp_ops = {
 static int soc_xilinx_zynqmp_probe(struct udevice *dev)
 {
 	struct soc_xilinx_zynqmp_priv *priv = dev_get_priv(dev);
-	u32 ret_payload[4];
+	u32 ret_payload[PAYLOAD_ARG_CNT];
 	int ret;
 
 	priv->family = zynqmp_family;
