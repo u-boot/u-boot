@@ -368,8 +368,8 @@ void *PCI_mapBIOSImage(struct udevice *pcidev)
 		return NULL;
 	}
 
-	BIOSImage = dm_pci_bus_to_virt(pcidev, BIOSImageBus,
-				       PCI_REGION_MEM, 0, MAP_NOCACHE);
+	BIOSImage = dm_pci_bus_to_virt(pcidev, BIOSImageBus, 0, PCI_REGION_TYPE,
+				       PCI_REGION_MEM, MAP_NOCACHE);
 
 	/*Change the PCI BAR registers to map it onto the bus.*/
 	dm_pci_write_config32(pcidev, BIOSImageBAR, 0);

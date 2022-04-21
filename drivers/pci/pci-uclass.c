@@ -1596,8 +1596,8 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, size_t offset, size_t len,
 	 * a PCI range, but a better check would be to probe for the size of
 	 * the bar and prevent overflow more locally.
 	 */
-	return dm_pci_bus_to_virt(udev, pci_bus_addr + offset, flags, len,
-				  MAP_NOCACHE);
+	return dm_pci_bus_to_virt(udev, pci_bus_addr + offset, len,
+				  PCI_REGION_TYPE, flags, MAP_NOCACHE);
 }
 
 static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)
