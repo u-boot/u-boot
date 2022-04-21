@@ -94,6 +94,7 @@
  *
  * @common: pci transport device common register block base
  * @notify_base: pci transport device notify register block base
+ * @notify_len: pci transport device notify register block length
  * @device: pci transport device device-specific register block base
  * @device_len: pci transport device device-specific register block length
  * @notify_offset_multiplier: multiply queue_notify_off by this value
@@ -101,6 +102,7 @@
 struct virtio_pci_priv {
 	struct virtio_pci_common_cfg __iomem *common;
 	void __iomem *notify_base;
+	u32 notify_len;
 	void __iomem *device;
 	u32 device_len;
 	u32 notify_offset_multiplier;
@@ -373,11 +375,19 @@ static int virtio_pci_notify(struct udevice *udev, struct virtqueue *vq)
 	off = ioread16(&priv->common->queue_notify_off);
 
 	/*
+	 * Check the effective offset is in bounds and leaves space for the
+	 * notification, which is just a single 16-bit value since
+	 * VIRTIO_F_NOTIFICATION_DATA isn't negotiated by the drivers.
+	 */
+	off *= priv->notify_offset_multiplier;
+	if (off > priv->notify_len - sizeof(u16))
+		return -EIO;
+
+	/*
 	 * We write the queue's selector into the notification register
 	 * to signal the other end
 	 */
-	iowrite16(vq->index,
-		  priv->notify_base + off * priv->notify_offset_multiplier);
+	iowrite16(vq->index, priv->notify_base + off);
 
 	return 0;
 }
@@ -498,6 +508,9 @@ static int virtio_pci_probe(struct udevice *udev)
 		       common, notify);
 		return -EINVAL;
 	}
+
+	offset = notify + offsetof(struct virtio_pci_cap, length);
+	dm_pci_read_config32(udev, offset, &priv->notify_len);
 
 	/*
 	 * Device capability is only mandatory for devices that have
