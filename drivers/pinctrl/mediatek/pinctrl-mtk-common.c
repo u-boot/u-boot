@@ -219,6 +219,25 @@ static int mtk_hw_get_value(struct udevice *dev, int pin, int field,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(PINCONF)
+static int mtk_get_pin_io_type(struct udevice *dev, int pin,
+			       struct mtk_io_type_desc *io_type)
+{
+	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
+	u8 io_n = priv->soc->pins[pin].io_n;
+
+	if (io_n >= priv->soc->ntype)
+		return -EINVAL;
+
+	io_type->name = priv->soc->io_type[io_n].name;
+	io_type->bias_set = priv->soc->io_type[io_n].bias_set;
+	io_type->drive_set = priv->soc->io_type[io_n].drive_set;
+	io_type->input_enable = priv->soc->io_type[io_n].input_enable;
+
+	return 0;
+}
+#endif
+
 static int mtk_get_groups_count(struct udevice *dev)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
@@ -416,16 +435,25 @@ int mtk_pinconf_bias_set(struct udevice *dev, u32 pin, u32 arg, u32 val)
 {
 	int err;
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
+	struct mtk_io_type_desc io_type;
 	int rev = priv->soc->rev;
 	bool disable, pullup;
 
 	disable = (arg == PIN_CONFIG_BIAS_DISABLE);
 	pullup = (arg == PIN_CONFIG_BIAS_PULL_UP);
 
-	if (rev == MTK_PINCTRL_V0)
+	if (!mtk_get_pin_io_type(dev, pin, &io_type)) {
+		if (io_type.bias_set)
+			err = io_type.bias_set(dev, pin, disable, pullup,
+					       val);
+		else
+			err = -EINVAL;
+
+	} else if (rev == MTK_PINCTRL_V0) {
 		err = mtk_pinconf_bias_set_v0(dev, pin, disable, pullup, val);
-	else
+	} else {
 		err = mtk_pinconf_bias_set_v1(dev, pin, disable, pullup, val);
+	}
 
 	return err;
 }
@@ -447,8 +475,13 @@ int mtk_pinconf_input_enable_v1(struct udevice *dev, u32 pin, u32 arg)
 int mtk_pinconf_input_enable(struct udevice *dev, u32 pin, u32 arg)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
+	struct mtk_io_type_desc io_type;
+
 	int rev = priv->soc->rev;
 
+	if (!mtk_get_pin_io_type(dev, pin, &io_type))
+		if (io_type.input_enable)
+			return io_type.input_enable(dev, pin, arg);
 	if (rev == MTK_PINCTRL_V1)
 		return mtk_pinconf_input_enable_v1(dev, pin, arg);
 
@@ -505,12 +538,19 @@ int mtk_pinconf_drive_set(struct udevice *dev, u32 pin, u32 arg)
 {
 	int err;
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
+	struct mtk_io_type_desc io_type;
 	int rev = priv->soc->rev;
 
-	if (rev == MTK_PINCTRL_V0)
+	if (!mtk_get_pin_io_type(dev, pin, &io_type)) {
+		if (io_type.drive_set)
+			err = io_type.drive_set(dev, pin, arg);
+		else
+			err = -EINVAL;
+	} else if (rev == MTK_PINCTRL_V0) {
 		err = mtk_pinconf_drive_set_v0(dev, pin, arg);
-	else
+	} else {
 		err = mtk_pinconf_drive_set_v1(dev, pin, arg);
+	}
 
 	return err;
 }
