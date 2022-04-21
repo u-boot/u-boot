@@ -8,6 +8,7 @@ config ARM64
 	bool
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
+	imply SPL_SEPARATE_BSS
 
 config ARM64_CRC32
 	bool "Enable support for CRC32 instruction"
@@ -267,6 +268,7 @@ config CPU_ARM926EJS
 	bool
 	select SYS_CACHE_SHIFT_5
 	imply SYS_ARM_MMU
+	imply SPL_SEPARATE_BSS
 
 config CPU_ARM946ES
 	bool
@@ -277,6 +279,7 @@ config CPU_ARM1136
 	bool
 	select SYS_CACHE_SHIFT_5
 	imply SYS_ARM_MMU
+	imply SPL_SEPARATE_BSS
 
 config CPU_ARM1176
 	bool
@@ -624,6 +627,7 @@ config ARCH_ORION5X
 	bool "Marvell Orion"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
+	select SPL_SEPARATE_BSS if SPL
 
 config TARGET_STV0991
 	bool "Support stv0991"
@@ -814,6 +818,7 @@ config ARCH_OMAP2PLUS
 	imply TI_SYSC if DM && OF_CONTROL
 	imply FIT
 	imply DM_EVENT
+	imply SPL_SEPARATE_BSS
 
 config ARCH_MESON
 	bool "Amlogic Meson"
@@ -957,6 +962,7 @@ config ARCH_MX6
 	select SYS_FSL_SEC_LE
 	imply MXC_GPIO
 	imply SYS_THUMB_BUILD
+	imply SPL_SEPARATE_BSS
 
 if ARCH_MX6
 config SPL_LDSCRIPT

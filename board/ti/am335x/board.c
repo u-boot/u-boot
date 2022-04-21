@@ -825,8 +825,20 @@ int board_late_init(void)
 
 	if (board_is_bbg1())
 		name = "BBG1";
-	if (board_is_bben())
-		name = "BBEN";
+	if (board_is_bben()) {
+		char subtype_id = board_ti_get_config()[1];
+
+		switch (subtype_id) {
+		case 'L':
+			name = "BBELITE";
+			break;
+		case 'I':
+			name = "BBE_EX_WIFI";
+			break;
+		default:
+			name = "BBEN";
+		}
+	}
 	set_board_info_env(name);
 
 	/*

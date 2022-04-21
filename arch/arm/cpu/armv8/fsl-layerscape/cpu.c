@@ -819,7 +819,7 @@ int mmc_get_env_dev(void)
 }
 #endif
 
-enum env_location env_get_location(enum env_operation op, int prio)
+enum env_location arch_env_get_location(enum env_operation op, int prio)
 {
 	enum boot_src src = get_boot_src();
 	enum env_location env_loc = ENVL_NOWHERE;

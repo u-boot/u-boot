@@ -110,6 +110,33 @@ static void env_set_inited(enum env_location location)
 }
 
 /**
+ * arch_env_get_location() - Returns the best env location for an arch
+ * @op: operations performed on the environment
+ * @prio: priority between the multiple environments, 0 being the
+ *        highest priority
+ *
+ * This will return the preferred environment for the given priority.
+ * This is overridable by architectures if they need to and has lower
+ * priority than board side env_get_location() override.
+ *
+ * All implementations are free to use the operation, the priority and
+ * any other data relevant to their choice, but must take into account
+ * the fact that the lowest prority (0) is the most important location
+ * in the system. The following locations should be returned by order
+ * of descending priorities, from the highest to the lowest priority.
+ *
+ * Returns:
+ * an enum env_location value on success, a negative error code otherwise
+ */
+__weak enum env_location arch_env_get_location(enum env_operation op, int prio)
+{
+	if (prio >= ARRAY_SIZE(env_locations))
+		return ENVL_UNKNOWN;
+
+	return env_locations[prio];
+}
+
+/**
  * env_get_location() - Returns the best env location for a board
  * @op: operations performed on the environment
  * @prio: priority between the multiple environments, 0 being the
@@ -129,12 +156,8 @@ static void env_set_inited(enum env_location location)
  */
 __weak enum env_location env_get_location(enum env_operation op, int prio)
 {
-	if (prio >= ARRAY_SIZE(env_locations))
-		return ENVL_UNKNOWN;
-
-	return env_locations[prio];
+	return arch_env_get_location(op, prio);
 }
-
 
 /**
  * env_driver_lookup() - Finds the most suited environment location
