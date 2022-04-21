@@ -192,4 +192,22 @@ void mtk_rmw(struct udevice *dev, u32 reg, u32 mask, u32 set);
 int mtk_pinctrl_common_probe(struct udevice *dev,
 			     struct mtk_pinctrl_soc *soc);
 
+#if CONFIG_IS_ENABLED(PINCONF)
+
+int mtk_pinconf_bias_set_pu_pd(struct udevice *dev, u32 pin, bool disable,
+			       bool pullup, u32 val);
+int mtk_pinconf_bias_set_pullen_pullsel(struct udevice *dev, u32 pin,
+					bool disable, bool pullup, u32 val);
+int mtk_pinconf_bias_set_pupd_r1_r0(struct udevice *dev, u32 pin, bool disable,
+				    bool pullup, u32 val);
+int mtk_pinconf_bias_set_v0(struct udevice *dev, u32 pin, bool disable,
+			    bool pullup, u32 val);
+int mtk_pinconf_bias_set_v1(struct udevice *dev, u32 pin, bool disable,
+			    bool pullup, u32 val);
+int mtk_pinconf_input_enable_v1(struct udevice *dev, u32 pin, u32 arg);
+int mtk_pinconf_drive_set_v0(struct udevice *dev, u32 pin, u32 arg);
+int mtk_pinconf_drive_set_v1(struct udevice *dev, u32 pin, u32 arg);
+
+#endif
+
 #endif /* __PINCTRL_MEDIATEK_H__ */
