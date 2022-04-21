@@ -45,18 +45,18 @@ static const struct mtk_drive_desc mtk_drive[] = {
 
 static const char *mtk_pinctrl_dummy_name = "_dummy";
 
-static void mtk_w32(struct udevice *dev, u32 reg, u32 val)
+static void mtk_w32(struct udevice *dev, u8 i, u32 reg, u32 val)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 
-	__raw_writel(val, priv->base + reg);
+	__raw_writel(val, priv->base[i] + reg);
 }
 
-static u32 mtk_r32(struct udevice *dev, u32 reg)
+static u32 mtk_r32(struct udevice *dev, u8 i, u32 reg)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 
-	return __raw_readl(priv->base + reg);
+	return __raw_readl(priv->base[i] + reg);
 }
 
 static inline int get_count_order(unsigned int count)
@@ -71,20 +71,27 @@ static inline int get_count_order(unsigned int count)
 
 void mtk_rmw(struct udevice *dev, u32 reg, u32 mask, u32 set)
 {
+	return mtk_i_rmw(dev, 0, reg, mask, set);
+}
+
+void mtk_i_rmw(struct udevice *dev, u8 i, u32 reg, u32 mask, u32 set)
+{
 	u32 val;
 
-	val = mtk_r32(dev, reg);
+	val = mtk_r32(dev, i, reg);
 	val &= ~mask;
 	val |= set;
-	mtk_w32(dev, reg, val);
+	mtk_w32(dev, i, reg, val);
 }
 
 static int mtk_hw_pin_field_lookup(struct udevice *dev, int pin,
 				   const struct mtk_pin_reg_calc *rc,
 				   struct mtk_pin_field *pfd)
 {
+	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 	const struct mtk_pin_field_calc *c, *e;
 	u32 bits;
+	u32 base_calc = priv->soc->base_calc;
 
 	c = rc->range;
 	e = c + rc->nranges;
@@ -110,6 +117,11 @@ static int mtk_hw_pin_field_lookup(struct udevice *dev, int pin,
 	pfd->offset = c->s_addr + c->x_addrs * (bits / c->sz_reg);
 	pfd->bitpos = bits % c->sz_reg;
 	pfd->mask = (1 << c->x_bits) - 1;
+
+	if (base_calc)
+		pfd->index = c->i_base;
+	else
+		pfd->index = 0;
 
 	/* pfd->next is used for indicating that bit wrapping-around happens
 	 * which requires the manipulation for bit 0 starting in the next
@@ -150,10 +162,10 @@ static void mtk_hw_write_cross_field(struct udevice *dev,
 
 	mtk_hw_bits_part(pf, &nbits_h, &nbits_l);
 
-	mtk_rmw(dev, pf->offset, pf->mask << pf->bitpos,
+	mtk_i_rmw(dev, pf->index, pf->offset, pf->mask << pf->bitpos,
 		(value & pf->mask) << pf->bitpos);
 
-	mtk_rmw(dev, pf->offset + pf->next, BIT(nbits_h) - 1,
+	mtk_i_rmw(dev, pf->index, pf->offset + pf->next, BIT(nbits_h) - 1,
 		(value & pf->mask) >> nbits_l);
 }
 
@@ -164,8 +176,8 @@ static void mtk_hw_read_cross_field(struct udevice *dev,
 
 	mtk_hw_bits_part(pf, &nbits_h, &nbits_l);
 
-	l  = (mtk_r32(dev, pf->offset) >> pf->bitpos) & (BIT(nbits_l) - 1);
-	h  = (mtk_r32(dev, pf->offset + pf->next)) & (BIT(nbits_h) - 1);
+	l  = (mtk_r32(dev, pf->index, pf->offset) >> pf->bitpos) & (BIT(nbits_l) - 1);
+	h  = (mtk_r32(dev, pf->index, pf->offset + pf->next)) & (BIT(nbits_h) - 1);
 
 	*value = (h << nbits_l) | l;
 }
@@ -181,7 +193,7 @@ static int mtk_hw_set_value(struct udevice *dev, int pin, int field,
 		return err;
 
 	if (!pf.next)
-		mtk_rmw(dev, pf.offset, pf.mask << pf.bitpos,
+		mtk_i_rmw(dev, pf.index, pf.offset, pf.mask << pf.bitpos,
 			(value & pf.mask) << pf.bitpos);
 	else
 		mtk_hw_write_cross_field(dev, &pf, value);
@@ -200,7 +212,7 @@ static int mtk_hw_get_value(struct udevice *dev, int pin, int field,
 		return err;
 
 	if (!pf.next)
-		*value = (mtk_r32(dev, pf.offset) >> pf.bitpos) & pf.mask;
+		*value = (mtk_r32(dev, pf.index, pf.offset) >> pf.bitpos) & pf.mask;
 	else
 		mtk_hw_read_cross_field(dev, &pf, value);
 
@@ -236,7 +248,6 @@ static int mtk_get_pin_muxing(struct udevice *dev, unsigned int selector,
 			      char *buf, int size)
 {
 	int val, err;
-
 	err = mtk_hw_get_value(dev, selector, PINCTRL_PIN_REG_MODE, &val);
 	if (err)
 		return err;
@@ -722,12 +733,22 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 	int ret = 0;
-
-	priv->base = dev_read_addr_ptr(dev);
-	if (!priv->base)
-		return -EINVAL;
+	u32 i = 0;
+	fdt_addr_t addr;
+	u32 base_calc = soc->base_calc;
+	u32 nbase_names = soc->nbase_names;
 
 	priv->soc = soc;
+
+	if (!base_calc)
+		nbase_names = 1;
+
+	for (i = 0; i < nbase_names; i++) {
+		addr = devfdt_get_addr_index(dev, i);
+		if (addr == FDT_ADDR_T_NONE)
+			return -EINVAL;
+		priv->base[i] = (void __iomem *)addr;
+	}
 
 #if CONFIG_IS_ENABLED(DM_GPIO) || \
     (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO))
