@@ -1390,12 +1390,13 @@ void dm_pci_write_bar32(struct udevice *dev, int barnum, u32 addr)
 	dm_pci_write_config32(dev, bar, addr);
 }
 
-static int _dm_pci_bus_to_phys(struct udevice *ctlr,
-			       pci_addr_t bus_addr, unsigned long flags,
+static int _dm_pci_bus_to_phys(struct udevice *ctlr, pci_addr_t bus_addr,
+			       size_t len, unsigned long flags,
 			       unsigned long skip_mask, phys_addr_t *pa)
 {
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	struct pci_region *res;
+	pci_addr_t offset;
 	int i;
 
 	if (hose->region_count == 0) {
@@ -1412,18 +1413,25 @@ static int _dm_pci_bus_to_phys(struct udevice *ctlr,
 		if (res->flags & skip_mask)
 			continue;
 
-		if (bus_addr >= res->bus_start &&
-		    (bus_addr - res->bus_start) < res->size) {
-			*pa = (bus_addr - res->bus_start + res->phys_start);
-			return 0;
-		}
+		if (bus_addr < res->bus_start)
+			continue;
+
+		offset = bus_addr - res->bus_start;
+		if (offset >= res->size)
+			continue;
+
+		if (len > res->size - offset)
+			continue;
+
+		*pa = res->phys_start + offset;
+		return 0;
 	}
 
 	return 1;
 }
 
 phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t bus_addr,
-			       unsigned long flags)
+			       size_t len, unsigned long flags)
 {
 	phys_addr_t phys_addr = 0;
 	struct udevice *ctlr;
@@ -1437,14 +1445,14 @@ phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t bus_addr,
 	 * on matches that don't have PCI_REGION_SYS_MEMORY set
 	 */
 	if ((flags & PCI_REGION_TYPE) == PCI_REGION_MEM) {
-		ret = _dm_pci_bus_to_phys(ctlr, bus_addr,
+		ret = _dm_pci_bus_to_phys(ctlr, bus_addr, len,
 					  flags, PCI_REGION_SYS_MEMORY,
 					  &phys_addr);
 		if (!ret)
 			return phys_addr;
 	}
 
-	ret = _dm_pci_bus_to_phys(ctlr, bus_addr, flags, 0, &phys_addr);
+	ret = _dm_pci_bus_to_phys(ctlr, bus_addr, len, flags, 0, &phys_addr);
 
 	if (ret)
 		puts("pci_hose_bus_to_phys: invalid physical address\n");
@@ -1453,12 +1461,12 @@ phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t bus_addr,
 }
 
 static int _dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
-			       unsigned long flags, unsigned long skip_mask,
-			       pci_addr_t *ba)
+			       size_t len, unsigned long flags,
+			       unsigned long skip_mask, pci_addr_t *ba)
 {
 	struct pci_region *res;
 	struct udevice *ctlr;
-	pci_addr_t bus_addr;
+	phys_addr_t offset;
 	int i;
 	struct pci_controller *hose;
 
@@ -1480,20 +1488,25 @@ static int _dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 		if (res->flags & skip_mask)
 			continue;
 
-		bus_addr = phys_addr - res->phys_start + res->bus_start;
+		if (phys_addr < res->phys_start)
+			continue;
 
-		if (bus_addr >= res->bus_start &&
-		    (bus_addr - res->bus_start) < res->size) {
-			*ba = bus_addr;
-			return 0;
-		}
+		offset = phys_addr - res->phys_start;
+		if (offset >= res->size)
+			continue;
+
+		if (len > res->size - offset)
+			continue;
+
+		*ba = res->bus_start + offset;
+		return 0;
 	}
 
 	return 1;
 }
 
 pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
-			      unsigned long flags)
+			      size_t len, unsigned long flags)
 {
 	pci_addr_t bus_addr = 0;
 	int ret;
@@ -1503,13 +1516,13 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 	 * on matches that don't have PCI_REGION_SYS_MEMORY set
 	 */
 	if ((flags & PCI_REGION_TYPE) == PCI_REGION_MEM) {
-		ret = _dm_pci_phys_to_bus(dev, phys_addr, flags,
+		ret = _dm_pci_phys_to_bus(dev, phys_addr, len, flags,
 					  PCI_REGION_SYS_MEMORY, &bus_addr);
 		if (!ret)
 			return bus_addr;
 	}
 
-	ret = _dm_pci_phys_to_bus(dev, phys_addr, flags, 0, &bus_addr);
+	ret = _dm_pci_phys_to_bus(dev, phys_addr, len, flags, 0, &bus_addr);
 
 	if (ret)
 		puts("pci_hose_phys_to_bus: invalid physical address\n");
