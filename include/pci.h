@@ -1349,7 +1349,7 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * @flags:	Flags for the region type (PCI_REGION_...)
  * @return: pointer to the virtual address to use or 0 on error
  */
-void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
+void *dm_pci_map_bar(struct udevice *dev, int bar, unsigned long flags);
 
 /**
  * dm_pci_find_next_capability() - find a capability starting from an offset
