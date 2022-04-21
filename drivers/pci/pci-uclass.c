@@ -1561,7 +1561,8 @@ static phys_addr_t dm_pci_map_ea_virt(struct udevice *dev, int ea_off,
 	return addr;
 }
 
-static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int ea_off,
+static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, size_t offset,
+			       size_t len, int ea_off,
 			       struct pci_child_plat *pdata)
 {
 	int ea_cnt, i, entry_size;
@@ -1604,14 +1605,18 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int ea_off,
 		if (IS_ENABLED(CONFIG_PCI_SRIOV))
 			addr += dm_pci_map_ea_virt(dev, ea_off, pdata);
 
+		if (~((phys_addr_t)0) - addr < offset)
+			return NULL;
+
 		/* size ignored for now */
-		return map_physmem(addr, 0, MAP_NOCACHE);
+		return map_physmem(addr + offset, len, MAP_NOCACHE);
 	}
 
 	return 0;
 }
 
-void *dm_pci_map_bar(struct udevice *dev, int bar, unsigned long flags)
+void *dm_pci_map_bar(struct udevice *dev, int bar, size_t offset, size_t len,
+		     unsigned long flags)
 {
 	struct pci_child_plat *pdata = dev_get_parent_plat(dev);
 	struct udevice *udev = dev;
@@ -1636,19 +1641,23 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, unsigned long flags)
 	 */
 	ea_off = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
 	if (ea_off)
-		return dm_pci_map_ea_bar(udev, bar, ea_off, pdata);
+		return dm_pci_map_ea_bar(udev, bar, offset, len, ea_off, pdata);
 
 	/* read BAR address */
 	dm_pci_read_config32(udev, bar, &bar_response);
 	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
 
+	if (~((pci_addr_t)0) - pci_bus_addr < offset)
+		return NULL;
+
 	/*
-	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
-	 * isn't actually used on any platform because U-Boot assumes a static
-	 * linear mapping.  In the future, this could read the BAR size
-	 * and pass that as the size if needed.
+	 * Forward the length argument to dm_pci_bus_to_virt. The length will
+	 * be used to check that the entire address range has been declared as
+	 * a PCI range, but a better check would be to probe for the size of
+	 * the bar and prevent overflow more locally.
 	 */
-	return dm_pci_bus_to_virt(udev, pci_bus_addr, flags, 0, MAP_NOCACHE);
+	return dm_pci_bus_to_virt(udev, pci_bus_addr + offset, flags, len,
+				  MAP_NOCACHE);
 }
 
 static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)

@@ -416,8 +416,8 @@ static int ahci_init_one(struct ahci_uc_priv *uc_priv, struct udevice *dev)
 	uc_priv->udma_mask = 0x7f;	/*Fixme,assume to support UDMA6 */
 
 #if !defined(CONFIG_DM_SCSI)
-	uc_priv->mmio_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_5,
-					      PCI_REGION_MEM);
+	uc_priv->mmio_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_5, 0, 0,
+					    PCI_REGION_MEM);
 
 	/* Take from kernel:
 	 * JMicron-specific fixup:
@@ -1148,7 +1148,7 @@ int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 	ulong base;
 	u16 vendor, device;
 
-	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
+	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5, 0, 0,
 				     PCI_REGION_MEM);
 
 	/*
@@ -1163,7 +1163,7 @@ int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 
 	if (vendor == PCI_VENDOR_ID_CAVIUM &&
 	    device == PCI_DEVICE_ID_CAVIUM_SATA)
-		base = (uintptr_t)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_0,
+		base = (uintptr_t)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_0, 0, 0,
 						 PCI_REGION_MEM);
 	return ahci_probe_scsi(ahci_dev, base);
 }
