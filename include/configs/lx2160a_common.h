@@ -46,7 +46,6 @@
  * will be udpated later when get_bus_freq(0) is available.
  */
 
-#define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 /* Serial Port */
 #define CONFIG_PL011_CLOCK		(get_bus_freq(0) / 4)

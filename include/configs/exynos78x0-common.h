@@ -25,9 +25,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-/* Timer input clock frequency */
-#define COUNTER_FREQUENCY		26000000
-
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
 #define CONFIG_SYS_BAUDRATE_TABLE \

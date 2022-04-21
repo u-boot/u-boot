@@ -11,9 +11,6 @@
 
 #include "rcar-gen3-common.h"
 
-/* Generic Timer Definitions (use in assembler source) */
-#define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 
 #define CONFIG_FLASH_SHOW_PROGRESS	45

@@ -40,6 +40,7 @@ config ALTERA_SYSID
 
 config ATSHA204A
 	bool "Support for Atmel ATSHA204A module"
+	select BITREVERSE
 	depends on MISC
 	help
 	   Enable support for I2C connected Atmel's ATSHA204A

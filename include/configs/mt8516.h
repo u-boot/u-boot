@@ -11,7 +11,6 @@
 
 #include <linux/sizes.h>
 
-#define COUNTER_FREQUENCY		13000000
 
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4

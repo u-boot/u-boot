@@ -74,7 +74,7 @@ int board_early_init_r(void)
 	 * Program freq register in System counter and
 	 * enable system counter.
 	 */
-	writel(COUNTER_FREQUENCY,
+	writel(CONFIG_COUNTER_FREQUENCY,
 	       &iou_scntr_secure->base_frequency_id_register);
 
 	debug("counter val 0x%x\n",

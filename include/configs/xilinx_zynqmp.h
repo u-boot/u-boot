@@ -16,11 +16,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
-/* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
-#if !defined(COUNTER_FREQUENCY)
-# define COUNTER_FREQUENCY		100000000
-#endif
-
 /* Serial setup */
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }

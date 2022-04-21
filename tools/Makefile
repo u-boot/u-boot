@@ -132,7 +132,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			$(ROCKCHIP_OBS) \
 			socfpgaimage.o \
 			sunxi_egon.o \
-			lib/crc16.o \
+			lib/crc16-ccitt.o \
 			lib/hash-checksum.o \
 			lib/sha1.o \
 			lib/sha256.o \

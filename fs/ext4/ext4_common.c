@@ -427,14 +427,14 @@ uint16_t ext4fs_checksum_update(uint32_t i)
 	if (le32_to_cpu(fs->sb->feature_ro_compat) & EXT4_FEATURE_RO_COMPAT_GDT_CSUM) {
 		int offset = offsetof(struct ext2_block_group, bg_checksum);
 
-		crc = ext2fs_crc16(~0, fs->sb->unique_id,
+		crc = crc16(~0, (__u8 *)fs->sb->unique_id,
 				   sizeof(fs->sb->unique_id));
-		crc = ext2fs_crc16(crc, &le32_i, sizeof(le32_i));
-		crc = ext2fs_crc16(crc, desc, offset);
+		crc = crc16(crc, (__u8 *)&le32_i, sizeof(le32_i));
+		crc = crc16(crc, (__u8 *)desc, offset);
 		offset += sizeof(desc->bg_checksum);	/* skip checksum */
 		assert(offset == sizeof(*desc));
 		if (offset < fs->gdsize) {
-			crc = ext2fs_crc16(crc, (__u8 *)desc + offset,
+			crc = crc16(crc, (__u8 *)desc + offset,
 					   fs->gdsize - offset);
 		}
 	}

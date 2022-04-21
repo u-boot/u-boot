@@ -19,7 +19,6 @@
 /* Keep L2 Cache Disabled */
 
 /* input clock of PLL: 24MHz input clock */
-#define COUNTER_FREQUENCY		24000000
 
 /* select serial console configuration */
 

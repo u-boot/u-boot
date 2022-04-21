@@ -115,9 +115,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		8000000	/* 8MHz */
-
 /* Networking */
 #define CONFIG_FEC_ENET_DEV 0
 #define IMX_FEC_BASE			0x5b040000

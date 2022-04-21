@@ -44,9 +44,6 @@
 
 #define CPU_RELEASE_ADDR               secondary_boot_addr
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		25000000	/* 25MHz */
-
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1

@@ -27,8 +27,6 @@
 
 #endif
 
-#define COUNTER_FREQUENCY		1000000 /* 1MHz */
-
 /* ENET Config */
 #if defined(CONFIG_FEC_MXC)
 #define PHY_ANEG_TIMEOUT		20000

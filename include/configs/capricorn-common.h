@@ -123,9 +123,6 @@
 #define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		8000000	/* 8MHz */
-
 #define BOOTAUX_RESERVED_MEM_BASE	0x88000000
 #define BOOTAUX_RESERVED_MEM_SIZE	SZ_128M /* Reserve from second 128MB */
 

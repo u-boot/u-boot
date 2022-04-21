@@ -23,9 +23,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		19000000
-
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
 #endif

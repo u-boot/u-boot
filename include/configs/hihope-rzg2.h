@@ -11,7 +11,4 @@
 
 #include "rcar-gen3-common.h"
 
-/* Generic Timer Definitions (use in assembler source) */
-#define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
-
 #endif /* __HIHOPE_RZG2_H */

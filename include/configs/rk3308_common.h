@@ -20,7 +20,6 @@
 #define CONFIG_SPL_STACK		0x00400000
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)	/* 64M */
 
-#define COUNTER_FREQUENCY		24000000
 
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 

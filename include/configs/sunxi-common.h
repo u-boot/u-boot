@@ -38,7 +38,6 @@
 #endif
 
 /* CPU */
-#define COUNTER_FREQUENCY		24000000
 
 /*
  * The DRAM Base differs between some models. We cannot use macros for the

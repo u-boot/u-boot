@@ -138,9 +138,9 @@ pie_fixup_done:
 0:
 	msr	daifclr, #0x4			/* Unmask SError interrupts */
 
-#ifdef COUNTER_FREQUENCY
+#if CONFIG_COUNTER_FREQUENCY
 	branch_if_not_highest_el x0, 4f
-	ldr	x0, =COUNTER_FREQUENCY
+	ldr	x0, =CONFIG_COUNTER_FREQUENCY
 	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
 #endif
 

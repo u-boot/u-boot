@@ -131,9 +131,6 @@
 #define PHYS_SDRAM_1_SIZE		0x80000000	/* 2 GB */
 #define PHYS_SDRAM_2_SIZE		0x100000000	/* 4 GB */
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		8000000	/* 8MHz */
-
 /* Networking */
 #define CONFIG_FEC_MXC_PHYADDR		-1
 #define FEC_QUIRK_ENET_MAC

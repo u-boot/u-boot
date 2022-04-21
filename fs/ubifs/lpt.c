@@ -42,7 +42,7 @@
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <ubi_uboot.h>
-#include "crc16.h"
+#include <linux/crc16.h>
 #endif
 
 /**

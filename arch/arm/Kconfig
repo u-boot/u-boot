@@ -20,6 +20,23 @@ config ARM64_CRC32
 	  not be present on all ARMv8.0, but is always present on ARMv8.1 and
 	  newer.
 
+config COUNTER_FREQUENCY
+	int "Timer clock frequency"
+	depends on ARM64 || CPU_V7A
+	default 8000000 if IMX8 || MX7 || MX6UL || MX6ULL
+	default 24000000 if ARCH_SUNXI || ARCH_EXYNOS || ROCKCHIP_RK3128 || \
+			ROCKCHIP_RK3288 || ROCKCHIP_RK322X || ROCKCHIP_RK3036
+	default 25000000 if ARCH_LX2160A || ARCH_LX2162A || ARCH_LS1088A
+	default 100000000 if ARCH_ZYNQMP
+	default 0
+	help
+	  For platforms with ARMv8-A and ARMv7-A which features a system
+	  counter, those platforms needs software to program the counter
+	  frequency. Setup time clock frequency for certain platform.
+	  0 means no need to configure the system counter frequency.
+	  For platforms needs the frequency set in U-Boot with a
+	  pre-defined value, should have the macro defined as a non-zero value.
+
 config POSITION_INDEPENDENT
 	bool "Generate position-independent pre-relocation code"
 	depends on ARM64 || CPU_V7A

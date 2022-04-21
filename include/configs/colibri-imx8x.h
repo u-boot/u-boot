@@ -119,7 +119,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		8000000	/* 8MHz */
 
 #define BOOTAUX_RESERVED_MEM_BASE 0x88000000
 #define BOOTAUX_RESERVED_MEM_SIZE SZ_128M /* Reserve from second 128MB */
