@@ -1535,6 +1535,16 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 		return ENVL_UNKNOWN;
 
 	switch (dev) {
+	case USB_BOOT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+			return ENVL_NAND;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
+			return ENVL_MMC;
+		if (IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+			return ENVL_NOWHERE;
+		return ENVL_UNKNOWN;
 	case QSPI_BOOT:
 	case SPI_NOR_BOOT:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
