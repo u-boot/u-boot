@@ -2,4 +2,4 @@
 #
 # Copyright (C) 2017 Marek Behun <marek.behun@nic.cz>
 
-obj-y	:= turris_omnia.o
+obj-y	:= turris_omnia.o ../turris_atsha_otp.o

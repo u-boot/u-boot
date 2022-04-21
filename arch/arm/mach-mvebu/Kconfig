@@ -15,6 +15,7 @@ config ARMADA_32BIT
 	select SPL_SIMPLE_BUS if SPL
 	select SUPPORT_SPL
 	select TRANSLATION_OFFSET
+	select SPL_SYS_NO_VECTOR_TABLE if SPL
 
 config ARMADA_64BIT
 	bool
@@ -44,6 +45,7 @@ config ARMADA_XP
 config ARMADA_3700
 	bool
 	select ARM64
+	select HAVE_MVEBU_EFUSE
 
 # Armada 7K and 8K are very similar - use only one Kconfig symbol for both
 config ARMADA_8K

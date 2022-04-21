@@ -1591,8 +1591,8 @@ static void *
 kwboot_read_image(const char *path, size_t *size, size_t reserve)
 {
 	int rc, fd;
-	struct stat st;
 	void *img;
+	off_t len;
 	off_t tot;
 
 	rc = -1;
@@ -1602,31 +1602,34 @@ kwboot_read_image(const char *path, size_t *size, size_t reserve)
 	if (fd < 0)
 		goto out;
 
-	rc = fstat(fd, &st);
-	if (rc)
+	len = lseek(fd, 0, SEEK_END);
+	if (len == (off_t)-1)
 		goto out;
 
-	img = malloc(st.st_size + reserve);
+	if (lseek(fd, 0, SEEK_SET) == (off_t)-1)
+		goto out;
+
+	img = malloc(len + reserve);
 	if (!img)
 		goto out;
 
 	tot = 0;
-	while (tot < st.st_size) {
-		ssize_t rd = read(fd, img + tot, st.st_size - tot);
+	while (tot < len) {
+		ssize_t rd = read(fd, img + tot, len - tot);
 
 		if (rd < 0)
 			goto out;
 
 		tot += rd;
 
-		if (!rd && tot < st.st_size) {
+		if (!rd && tot < len) {
 			errno = EIO;
 			goto out;
 		}
 	}
 
 	rc = 0;
-	*size = st.st_size;
+	*size = len;
 out:
 	if (rc && img) {
 		free(img);
