@@ -533,7 +533,19 @@ static int virtio_pci_probe(struct udevice *udev)
 		return -EINVAL;
 	}
 
+	/* Map configuration structures */
+	priv->common = virtio_pci_map_capability(udev, &common_cap);
+	if (!priv->common) {
+		printf("(%s): could not map common config\n", udev->name);
+		return -EINVAL;
+	}
+
 	priv->notify_len = notify_cap.length;
+	priv->notify_base = virtio_pci_map_capability(udev, &notify_cap);
+	if (!priv->notify_base) {
+		printf("(%s): could not map notify config\n", udev->name);
+		return -EINVAL;
+	}
 
 	/*
 	 * Device capability is only mandatory for devices that have
@@ -545,11 +557,13 @@ static int virtio_pci_probe(struct udevice *udev)
 	if (device) {
 		priv->device_len = device_cap.length;
 		priv->device = virtio_pci_map_capability(udev, &device_cap);
+		if (!priv->device) {
+			printf("(%s): could not map device config\n",
+			       udev->name);
+			return -EINVAL;
+		}
 	}
 
-	/* Map configuration structures */
-	priv->common = virtio_pci_map_capability(udev, &common_cap);
-	priv->notify_base = virtio_pci_map_capability(udev, &notify_cap);
 	debug("(%p): common @ %p, notify base @ %p, device @ %p\n",
 	      udev, priv->common, priv->notify_base, priv->device);
 
