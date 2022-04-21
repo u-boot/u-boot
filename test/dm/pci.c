@@ -268,27 +268,27 @@ static int dm_test_pci_ea(struct unit_test_state *uts)
 	ut_asserteq(PCI_CAP_ID_EA_OFFSET, cap);
 
 	/* test swap case in BAR 1 */
-	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_0, 0, 0, 0);
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE, 0);
 	ut_assertnonnull(bar);
 	*(int *)bar = 2; /* swap upper/lower */
 
-	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_1, 0, 0, 0);
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_1, 0, 0, PCI_REGION_TYPE, 0);
 	ut_assertnonnull(bar);
 	strcpy(bar, "ea TEST");
 	unmap_sysmem(bar);
-	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_1, 0, 0, 0);
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_1, 0, 0, PCI_REGION_TYPE, 0);
 	ut_assertnonnull(bar);
 	ut_asserteq_str("EA test", bar);
 
 	/* test magic values in BARs2, 4;  BAR 3 is n/a */
-	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_2, 0, 0, 0);
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_2, 0, 0, PCI_REGION_TYPE, 0);
 	ut_assertnonnull(bar);
 	ut_asserteq(PCI_EA_BAR2_MAGIC, *(u32 *)bar);
 
-	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_3, 0, 0, 0);
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_3, 0, 0, PCI_REGION_TYPE, 0);
 	ut_assertnull(bar);
 
-	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_4, 0, 0, 0);
+	bar = dm_pci_map_bar(swap, PCI_BASE_ADDRESS_4, 0, 0, PCI_REGION_TYPE, 0);
 	ut_assertnonnull(bar);
 	ut_asserteq(PCI_EA_BAR4_MAGIC, *(u32 *)bar);
 
