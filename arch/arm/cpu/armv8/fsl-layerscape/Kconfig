@@ -333,6 +333,7 @@ menu "Layerscape architecture"
 
 config FSL_LAYERSCAPE
 	bool
+	select ARM_SMCCC
 
 config HAS_FEATURE_GIC64K_ALIGN
 	bool
