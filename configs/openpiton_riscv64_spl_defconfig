@@ -22,7 +22,6 @@ CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="fdt addr ${fdtcontroladdr}; fdt move ${fdtcontroladdr} ${fdt_addr_r}; load mmc ${mmcdev}:${mmcpart} ${kernel_addr_r} ${image}; booti ${kernel_addr_r} - ${fdt_addr_r}; "
 # CONFIG_SPL_LEGACY_IMAGE_SUPPORT is not set
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y
-CONFIG_SPL_SEPARATE_BSS=y
 # CONFIG_SPL_BANNER_PRINT is not set
 CONFIG_SPL_CPU=y
 CONFIG_SPL_FS_EXT4=y
