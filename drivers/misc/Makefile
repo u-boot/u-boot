@@ -52,6 +52,7 @@ obj-$(CONFIG_IMX8ULP) += imx8ulp/
 obj-$(CONFIG_LED_STATUS) += status_led.o
 obj-$(CONFIG_LED_STATUS_GPIO) += gpio_led.o
 obj-$(CONFIG_MPC83XX_SERDES) += mpc83xx_serdes.o
+obj-$(CONFIG_$(SPL_TPL_)LS2_SFP) += ls2_sfp.o
 obj-$(CONFIG_$(SPL_)MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NUVOTON_NCT6102D) += nuvoton_nct6102d.o
