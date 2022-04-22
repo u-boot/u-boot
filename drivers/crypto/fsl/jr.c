@@ -767,8 +767,14 @@ init:
 		return -1;
 	}
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	if (ofnode_valid(scu_node))
+	if (ofnode_valid(scu_node)) {
+		if (IS_ENABLED(CONFIG_DM_RNG)) {
+			ret = device_bind_driver(NULL, "caam-rng", "caam-rng", NULL);
+			if (ret)
+				printf("Couldn't bind rng driver (%d)\n", ret);
+		}
 		return ret;
+	}
 #endif
 
 #ifdef CONFIG_FSL_CORENET
