@@ -80,6 +80,9 @@ struct driver_info;
  */
 #define DM_FLAG_VITAL			(1 << 14)
 
+/* Device must be probed after it was bound */
+#define DM_FLAG_PROBE_AFTER_BIND	(1 << 15)
+
 /*
  * One or multiple of these flags are passed to device_remove() so that
  * a selective device removal as specified by the remove-stage and the
