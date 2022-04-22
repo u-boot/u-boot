@@ -101,6 +101,16 @@ def test_gpt_verify(state_disk_image, u_boot_console):
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
 @pytest.mark.requiredtool('sgdisk')
+def test_gpt_repair(state_disk_image, u_boot_console):
+    """Test the gpt repair command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('gpt repair host 0')
+    assert 'Repairing GPT: success!' in output
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.requiredtool('sgdisk')
 def test_gpt_guid(state_disk_image, u_boot_console):
     """Test the gpt guid command."""
 
