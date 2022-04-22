@@ -98,7 +98,9 @@ static int led_post_bind(struct udevice *dev)
 	 * In case the LED has default-state DT property, trigger
 	 * probe() to configure its default state during startup.
 	 */
-	return device_probe(dev);
+	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+
+	return 0;
 }
 
 static int led_post_probe(struct udevice *dev)
