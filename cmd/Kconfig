@@ -1246,6 +1246,7 @@ config CMD_OSD
 
 config CMD_PART
 	bool "part"
+	depends on PARTITIONS
 	select HAVE_BLOCK_DEVICE
 	select PARTITION_UUIDS
 	help
