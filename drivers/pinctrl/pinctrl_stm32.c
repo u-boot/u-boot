@@ -157,10 +157,7 @@ static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
 			 * we found the bank, convert pin selector to
 			 * gpio bank index
 			 */
-			*idx = stm32_offset_to_index(gpio_bank->gpio_dev,
-						     selector - pin_count);
-			if (IS_ERR_VALUE(*idx))
-				return NULL;
+			*idx = selector - pin_count;
 
 			return gpio_bank->gpio_dev;
 		}
