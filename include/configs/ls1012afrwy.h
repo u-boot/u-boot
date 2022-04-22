@@ -35,7 +35,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"fdt_addr=0x00f00000\0"			\
 	"kernel_addr=0x01000000\0"		\
 	"kernel_size_sd=0x16000\0"		\
 	"kernelhdr_size_sd=0x10\0"		\

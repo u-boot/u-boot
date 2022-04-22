@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2019 NXP
+ * Copyright 2019, 2021 NXP
  */
 
 #ifndef __CONFIG_H
@@ -209,7 +209,6 @@
 	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200 "	\
 		"cma=64M@0x0-0xb0000000\0" \
 	"initrd_high=0xffffffff\0"      \
-	"fdt_addr=0x64f00000\0"		\
 	"kernel_addr=0x65000000\0"	\
 	"scriptaddr=0x80000000\0"	\
 	"scripthdraddr=0x80080000\0"	\
@@ -266,7 +265,6 @@
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200 "	\
 		"cma=64M@0x0-0xb0000000\0" \
 	"initrd_high=0xffffffff\0"      \
-	"fdt_addr=0x64f00000\0"		\
 	"kernel_addr=0x61000000\0"	\
 	"kernelheader_addr=0x60800000\0"	\
 	"scriptaddr=0x80000000\0"	\
