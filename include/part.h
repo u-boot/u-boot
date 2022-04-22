@@ -467,6 +467,16 @@ int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 		       gpt_entry **gpt_pte);
 
 /**
+ * gpt_repair_headers() - Function to repair the GPT's header
+ *                        and partition table entries (PTE)
+ *
+ * @param dev_desc - block device descriptor
+ *
+ * Return: - '0' on success, otherwise error
+ */
+int gpt_repair_headers(struct blk_desc *dev_desc);
+
+/**
  * gpt_verify_partitions() - Function to check if partitions' name, start and
  *                           size correspond to '$partitions' env variable
  *
