@@ -9,7 +9,7 @@ config CPU
 
 config CPU_MPC83XX
 	bool "Enable MPC83xx CPU driver"
-	depends on CPU
+	depends on CPU && MPC83xx
 	select CLK_MPC83XX
 	help
 	  Support CPU cores for SoCs of the MPC83xx series.
