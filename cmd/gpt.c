@@ -586,6 +586,15 @@ err:
 	return errno;
 }
 
+static int gpt_repair(struct blk_desc *blk_dev_desc)
+{
+	int ret = 0;
+
+	ret = gpt_repair_headers(blk_dev_desc);
+
+	return ret;
+}
+
 static int gpt_default(struct blk_desc *blk_dev_desc, const char *str_part)
 {
 	int ret;
@@ -997,7 +1006,10 @@ static int do_gpt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	if ((strcmp(argv[1], "write") == 0) && (argc == 5)) {
+	if (strcmp(argv[1], "repair") == 0) {
+		printf("Repairing GPT: ");
+		ret = gpt_repair(blk_dev_desc);
+	} else if ((strcmp(argv[1], "write") == 0) && (argc == 5)) {
 		printf("Writing GPT: ");
 		ret = gpt_default(blk_dev_desc, argv[4]);
 	} else if ((strcmp(argv[1], "verify") == 0)) {
@@ -1036,6 +1048,8 @@ U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	" Restore or verify GPT information on a device connected\n"
 	" to interface\n"
 	" Example usage:\n"
+	" gpt repair mmc 0\n"
+	"    - repair the GPT on the device\n"
 	" gpt write mmc 0 $partitions\n"
 	"    - write the GPT to device\n"
 	" gpt verify mmc 0 $partitions\n"
