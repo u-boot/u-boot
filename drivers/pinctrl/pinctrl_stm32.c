@@ -220,8 +220,6 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 
 	switch (mode) {
 	case GPIOF_UNKNOWN:
-		/* should never happen */
-		return -EINVAL;
 	case GPIOF_UNUSED:
 		snprintf(buf, size, "%s", pinmux_mode[mode]);
 		break;
