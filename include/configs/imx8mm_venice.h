@@ -29,16 +29,19 @@
 #endif
 
 #define MEM_LAYOUT_ENV_SETTINGS \
-	"fdt_addr_r=0x44000000\0" \
-	"kernel_addr_r=0x42000000\0" \
-	"ramdisk_addr_r=0x46400000\0" \
-	"scriptaddr=0x46000000\0"
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"fdt_addr_r=0x50200000\0" \
+	"scriptaddr=0x50280000\0" \
+	"ramdisk_addr_r=0x50300000\0" \
+	"kernel_comp_addr_r=0x40200000\0"
 
 /* Enable Distro Boot */
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
+	func(USB, usb, 0) \
+	func(USB, usb, 1) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 #else
@@ -107,10 +110,6 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-
-/* USDHC */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 /* FEC */
 #define CONFIG_FEC_MXC_PHYADDR          0

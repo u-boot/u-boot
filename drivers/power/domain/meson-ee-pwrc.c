@@ -273,16 +273,6 @@ static bool pwrc_ee_get_power(struct power_domain *power_domain)
 	return (reg & pwrc_domain->top_pd->sleep_mask);
 }
 
-static int meson_ee_pwrc_request(struct power_domain *power_domain)
-{
-	return 0;
-}
-
-static int meson_ee_pwrc_free(struct power_domain *power_domain)
-{
-	return 0;
-}
-
 static int meson_ee_pwrc_off(struct power_domain *power_domain)
 {
 	struct meson_ee_pwrc_priv *priv = dev_get_priv(power_domain->dev);
@@ -387,10 +377,8 @@ static int meson_ee_pwrc_of_xlate(struct power_domain *power_domain,
 }
 
 struct power_domain_ops meson_ee_pwrc_ops = {
-	.rfree = meson_ee_pwrc_free,
 	.off = meson_ee_pwrc_off,
 	.on = meson_ee_pwrc_on,
-	.request = meson_ee_pwrc_request,
 	.of_xlate = meson_ee_pwrc_of_xlate,
 };
 

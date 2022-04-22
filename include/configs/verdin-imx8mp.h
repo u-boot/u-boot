@@ -76,12 +76,6 @@
 	"fdt_board=dev\0" \
 	"initrd_addr=0x43800000\0" \
 	"initrd_high=0xffffffffffffffff\0" \
-	"netargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp" \
-		"\0" \
-	"nfsboot=run netargs; dhcp ${loadaddr} ${boot_file}; " \
-		"tftp ${fdt_addr} verdin/${fdtfile}; " \
-		"booti ${loadaddr} - ${fdt_addr}\0" \
 	"setup=setenv setupargs console=${console},${baudrate} console=tty1 " \
 		"consoleblank=0 earlycon\0" \
 	"update_uboot=askenv confirm Did you load flash.bin (y/N)?; " \
@@ -115,9 +109,5 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-
-/* USDHC */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 #endif /* __VERDIN_IMX8MP_H */

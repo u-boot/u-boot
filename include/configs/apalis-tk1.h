@@ -59,18 +59,9 @@
 	"update_uboot=run set_blkcnt && mmc dev 0 ${uboot_hwpart} && " \
 		"mmc write ${loadaddr} ${uboot_blk} ${blkcnt}\0" \
 
-#define NFS_BOOTCMD \
-	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw\0" \
-	"nfsboot=pci enum; run setup; setenv bootargs ${defargs} ${nfsargs} " \
-		"${setupargs} ${vidargs}; echo Booting via DHCP/TFTP/NFS...; " \
-		"run nfsdtbload; dhcp ${kernel_addr_r} " \
-		"&& run fdt_fixup && bootz ${kernel_addr_r} - ${dtbparam}\0" \
-	"nfsdtbload=setenv dtbparam; tftp ${fdt_addr_r} " \
-		"${soc}-${fdt_module}-${fdt_board}.dtb " \
-		"&& setenv dtbparam ${fdt_addr_r}\0"
-
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"boot_file=zImage\0" \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyS0\0" \
 	"defargs=lp0_vec=2064@0xf46ff000 core_edp_mv=1150 core_edp_ma=4000 " \
 		"usb_port_owner_info=2 lane_owner_info=6 emc_max_dvfs=0 " \
@@ -79,7 +70,6 @@
 	"fdt_board=eval\0" \
 	"fdt_fixup=;\0" \
 	"fdt_module=" FDT_MODULE "\0" \
-	NFS_BOOTCMD \
 	UBOOT_UPDATE \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; pci enum && tftpboot ${loadaddr} " \

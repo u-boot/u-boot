@@ -1860,11 +1860,6 @@ config TARGET_TEN64
 	  Support for Traverse Technologies Ten64 board, based
 	  on NXP LS1088A.
 
-config TARGET_COLIBRI_PXA270
-	bool "Support colibri_pxa270"
-	select CPU_PXA27X
-	select GPIO_EXTRA_HEADER
-
 config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
 	select BOARD_LATE_INIT
@@ -2328,7 +2323,6 @@ source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
-source "board/toradex/colibri_pxa270/Kconfig"
 source "board/traverse/ten64/Kconfig"
 source "board/variscite/dart_6ul/Kconfig"
 source "board/vscom/baltos/Kconfig"

@@ -109,7 +109,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
 /* On CCP board, USDHC1 is for eMMC */
-#define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* eMMC */
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000

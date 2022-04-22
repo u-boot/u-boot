@@ -15,22 +15,6 @@
 #define UPDATE	BIT(0)
 #define ON	BIT(1)
 
-static int tegra186_power_domain_request(struct power_domain *power_domain)
-{
-	debug("%s(power_domain=%p) (dev=%p, id=%lu)\n", __func__,
-	      power_domain, power_domain->dev, power_domain->id);
-
-	return 0;
-}
-
-static int tegra186_power_domain_free(struct power_domain *power_domain)
-{
-	debug("%s(power_domain=%p) (dev=%p, id=%lu)\n", __func__,
-	      power_domain, power_domain->dev, power_domain->id);
-
-	return 0;
-}
-
 static int tegra186_power_domain_common(struct power_domain *power_domain,
 					bool on)
 {
@@ -73,22 +57,12 @@ static int tegra186_power_domain_off(struct power_domain *power_domain)
 }
 
 struct power_domain_ops tegra186_power_domain_ops = {
-	.request = tegra186_power_domain_request,
-	.rfree = tegra186_power_domain_free,
 	.on = tegra186_power_domain_on,
 	.off = tegra186_power_domain_off,
 };
 
-static int tegra186_power_domain_probe(struct udevice *dev)
-{
-	debug("%s(dev=%p)\n", __func__, dev);
-
-	return 0;
-}
-
 U_BOOT_DRIVER(tegra186_power_domain) = {
 	.name = "tegra186_power_domain",
 	.id = UCLASS_POWER_DOMAIN,
-	.probe = tegra186_power_domain_probe,
 	.ops = &tegra186_power_domain_ops,
 };

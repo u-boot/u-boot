@@ -1,0 +1,185 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2022 Gateworks Corporation
+ */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		u-boot,dm-spl;
+		wdt = <&wdog1>;
+	};
+};
+
+&eqos {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+};
+
+&ethphy0 {
+	reset-gpios = <&gpio4 30 GPIO_ACTIVE_LOW>;
+	reset-delay-us = <1000>;
+	reset-post-delay-us = <300000>;
+};
+
+&fec {
+	phy-reset-gpios = <&gpio4 29 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <15>;
+	phy-reset-post-delay = <100>;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+
+	dio0_hog {
+		gpio-hog;
+		input;
+		gpios = <9 GPIO_ACTIVE_LOW>;
+		line-name = "dio0";
+	};
+
+	dio1_hog {
+		gpio-hog;
+		input;
+		gpios = <11 GPIO_ACTIVE_LOW>;
+		line-name = "dio1";
+	};
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+
+	pcie1_wdis_hog {
+		gpio-hog;
+		gpios = <17 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "pcie1_wdis#";
+	};
+
+	pcie2_wdis_hog {
+		gpio-hog;
+		gpios = <18 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "pcie2_wdis#";
+	};
+
+	pcie3_wdis_hog {
+		gpio-hog;
+		gpios = <14 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "pcie3_wdis#";
+	};
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+
+	m2_dis2_hog {
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "m2_gdis#";
+	};
+
+	m2rst_hog {
+		gpio-hog;
+		gpios = <6 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "m2_rst#";
+	};
+
+	m2_off_hog {
+		gpio-hog;
+		gpios = <14 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "m2_off#";
+	};
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+
+	m2_dis1_hog {
+		gpio-hog;
+		gpios = <18 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "m2_wdis#";
+	};
+
+	uart_rs485_hog {
+		gpio-hog;
+		gpios = <31 GPIO_ACTIVE_LOW>;
+		output-low;
+		line-name = "uart_rs485";
+	};
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+
+	uart_half_hog {
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "uart_half";
+	};
+
+	uart_term_hog {
+		gpio-hog;
+		gpios = <1 GPIO_ACTIVE_LOW>;
+		output-low;
+		line-name = "uart_term";
+	};
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&i2c2 {
+	u-boot,dm-spl;
+};
+
+&i2c3 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_wdog {
+	u-boot,dm-spl;
+};
+
+&usdhc2 {
+	assigned-clock-parents = <&clk IMX8MP_SYS_PLL1_400M>;
+	assigned-clock-rates = <400000000>;
+	assigned-clocks = <&clk IMX8MP_CLK_USDHC2>;
+	sd-uhs-ddr50;
+	sd-uhs-sdr104;
+	u-boot,dm-spl;
+};
+
+&usdhc3 {
+	assigned-clock-parents = <&clk IMX8MP_SYS_PLL1_400M>;
+	assigned-clock-rates = <400000000>;
+	assigned-clocks = <&clk IMX8MP_CLK_USDHC3>;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+	u-boot,dm-spl;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};

@@ -71,13 +71,27 @@ int power_domain_get_by_index(struct udevice *dev,
 		return ret;
 	}
 
-	ret = ops->request(power_domain);
+	ret = ops->request ? ops->request(power_domain) : 0;
 	if (ret) {
 		debug("ops->request() failed: %d\n", ret);
 		return ret;
 	}
 
 	return 0;
+}
+
+int power_domain_get_by_name(struct udevice *dev,
+			     struct power_domain *power_domain, const char *name)
+{
+	int index;
+
+	index = dev_read_stringlist_search(dev, "power-domain-names", name);
+	if (index < 0) {
+		debug("fdt_stringlist_search() failed: %d\n", index);
+		return index;
+	}
+
+	return power_domain_get_by_index(dev, power_domain, index);
 }
 
 int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
@@ -91,7 +105,7 @@ int power_domain_free(struct power_domain *power_domain)
 
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
 
-	return ops->rfree(power_domain);
+	return ops->rfree ? ops->rfree(power_domain) : 0;
 }
 
 int power_domain_on(struct power_domain *power_domain)
@@ -100,7 +114,7 @@ int power_domain_on(struct power_domain *power_domain)
 
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
 
-	return ops->on(power_domain);
+	return ops->on ? ops->on(power_domain) : 0;
 }
 
 int power_domain_off(struct power_domain *power_domain)
@@ -109,7 +123,7 @@ int power_domain_off(struct power_domain *power_domain)
 
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
 
-	return ops->off(power_domain);
+	return ops->off ? ops->off(power_domain) : 0;
 }
 
 #if CONFIG_IS_ENABLED(OF_REAL)

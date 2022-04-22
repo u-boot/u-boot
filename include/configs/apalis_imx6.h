@@ -89,32 +89,15 @@
 	"ramdisk_addr_r=0x12200000\0" \
 	"scriptaddr=0x17000000\0"
 
-#define NFS_BOOTCMD \
-	"nfsargs=ip=:::::eth0:on root=/dev/nfs ro\0" \
-	"nfsboot=run setup; " \
-		"setenv bootargs ${defargs} ${nfsargs} ${setupargs} " \
-		"${vidargs}; echo Booting via DHCP/TFTP/NFS...; " \
-		"run nfsdtbload; dhcp ${kernel_addr_r} " \
-		"&& run fdt_fixup && bootz ${kernel_addr_r} ${dtbparam}\0" \
-	"nfsdtbload=setenv dtbparam; tftp ${fdt_addr_r} ${fdt_file} " \
-		"&& setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
-
-#ifndef CONFIG_TDX_APALIS_IMX6_V1_0
-#define FDT_FILE "imx6q-apalis-eval.dtb"
-#define FDT_FILE_V1_0 "imx6q-apalis_v1_0-eval.dtb"
-#else
-#define FDT_FILE "imx6q-apalis_v1_0-eval.dtb"
-#endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"boot_file=zImage\0" \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off vmalloc=400M\0" \
-	"fdt_file=" FDT_FILE "\0" \
-	"fdtfile=" FDT_FILE "\0" \
+	"fdt_board=eval\0" \
 	"fdt_fixup=;\0" \
 	MEM_LAYOUT_ENV_SETTINGS \
-	NFS_BOOTCMD \
 	UBOOT_UPDATE \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \

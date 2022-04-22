@@ -31,7 +31,6 @@
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* FEC ethernet */
-#define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		7
 
 /* MMC Configs */

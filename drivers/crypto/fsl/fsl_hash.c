@@ -168,16 +168,16 @@ int caam_hash(const unsigned char *pbuf, unsigned int buf_len,
 	uint32_t *desc;
 	unsigned int size;
 
-	desc = malloc_cache_aligned(sizeof(int) * MAX_CAAM_DESCSIZE);
-	if (!desc) {
-		debug("Not enough memory for descriptor allocation\n");
-		return -ENOMEM;
-	}
-
 	if (!IS_ALIGNED((uintptr_t)pbuf, ARCH_DMA_MINALIGN) ||
 	    !IS_ALIGNED((uintptr_t)pout, ARCH_DMA_MINALIGN)) {
 		puts("Error: Address arguments are not aligned\n");
 		return -EINVAL;
+	}
+
+	desc = malloc_cache_aligned(sizeof(int) * MAX_CAAM_DESCSIZE);
+	if (!desc) {
+		debug("Not enough memory for descriptor allocation\n");
+		return -ENOMEM;
 	}
 
 	size = ALIGN(buf_len, ARCH_DMA_MINALIGN);
@@ -190,6 +190,8 @@ int caam_hash(const unsigned char *pbuf, unsigned int buf_len,
 
 	size = ALIGN(sizeof(int) * MAX_CAAM_DESCSIZE, ARCH_DMA_MINALIGN);
 	flush_dcache_range((unsigned long)desc, (unsigned long)desc + size);
+	size = ALIGN(driver_hash[algo].digestsize, ARCH_DMA_MINALIGN);
+	invalidate_dcache_range((unsigned long)pout, (unsigned long)pout + size);
 
 	ret = run_descriptor_jr(desc);
 

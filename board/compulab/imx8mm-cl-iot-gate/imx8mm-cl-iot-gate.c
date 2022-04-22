@@ -335,11 +335,6 @@ static int iot_gate_imx8_update_ext_ied(void)
 	return 0;
 }
 
-int board_fix_fdt(void *rw_fdt_blob)
-{
-	return 0;
-}
-
 int extension_board_scan(struct list_head *extension_list)
 {
 	struct extension *extension = NULL;

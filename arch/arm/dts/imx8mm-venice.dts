@@ -27,6 +27,13 @@
 	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
 
+	gsc: gsc@20 {
+		compatible = "gw,gsc";
+		reg = <0x20>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+
 	eeprom@51 {
 		compatible = "atmel,24c02";
 		reg = <0x51>;

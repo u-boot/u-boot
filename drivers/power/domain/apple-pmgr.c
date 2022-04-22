@@ -42,16 +42,6 @@ static int apple_reset_of_xlate(struct reset_ctl *reset_ctl,
 	return 0;
 }
 
-static int apple_reset_request(struct reset_ctl *reset_ctl)
-{
-	return 0;
-}
-
-static int apple_reset_free(struct reset_ctl *reset_ctl)
-{
-	return 0;
-}
-
 static int apple_reset_assert(struct reset_ctl *reset_ctl)
 {
 	struct apple_pmgr_priv *priv = dev_get_priv(reset_ctl->dev->parent);
@@ -80,8 +70,6 @@ static int apple_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops apple_reset_ops = {
 	.of_xlate = apple_reset_of_xlate,
-	.request = apple_reset_request,
-	.rfree = apple_reset_free,
 	.rst_assert = apple_reset_assert,
 	.rst_deassert = apple_reset_deassert,
 };
@@ -91,16 +79,6 @@ static struct driver apple_reset_driver = {
 	.id = UCLASS_RESET,
 	.ops = &apple_reset_ops,
 };
-
-static int apple_pmgr_request(struct power_domain *power_domain)
-{
-	return 0;
-}
-
-static int apple_pmgr_rfree(struct power_domain *power_domain)
-{
-	return 0;
-}
 
 static int apple_pmgr_ps_set(struct power_domain *power_domain, u32 pstate)
 {
@@ -119,11 +97,6 @@ static int apple_pmgr_ps_set(struct power_domain *power_domain, u32 pstate)
 static int apple_pmgr_on(struct power_domain *power_domain)
 {
 	return apple_pmgr_ps_set(power_domain, APPLE_PMGR_PS_ACTIVE);
-}
-
-static int apple_pmgr_off(struct power_domain *power_domain)
-{
-	return 0;
 }
 
 static int apple_pmgr_of_xlate(struct power_domain *power_domain,
@@ -167,10 +140,7 @@ static int apple_pmgr_probe(struct udevice *dev)
 }
 
 struct power_domain_ops apple_pmgr_ops = {
-	.request = apple_pmgr_request,
-	.rfree = apple_pmgr_rfree,
 	.on = apple_pmgr_on,
-	.off = apple_pmgr_off,
 	.of_xlate = apple_pmgr_of_xlate,
 };
 

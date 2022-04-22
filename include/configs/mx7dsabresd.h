@@ -14,9 +14,6 @@
 
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
-/* MMC Config*/
-#define CONFIG_SYS_FSL_ESDHC_ADDR       0
-
 #ifdef CONFIG_IMX_BOOTAUX
 /* Set to QSPI1 A flash at default */
 #define CONFIG_SYS_AUXCORE_BOOTDATA 0x60000000
@@ -109,12 +106,6 @@
 #define CONFIG_SYS_NAND_BASE		0x40000000
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
-#endif
-
-#ifdef CONFIG_NAND_MXS
-#define CONFIG_SYS_FSL_USDHC_NUM	1
-#else
-#define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
 
 /* USB Configs */

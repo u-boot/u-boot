@@ -5,39 +5,28 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
+#include <command.h>
 #include <common.h>
+#include <fdt_support.h>
+#include <gsc.h>
+#include <hwconfig.h>
+#include <i2c.h>
+#include <miiphy.h>
+#include <mtd_node.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
-#include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
-#include <asm/setup.h>
-#include <env.h>
-#include <hwconfig.h>
-#include <linux/ctype.h>
-#include <miiphy.h>
-#include <mtd_node.h>
-#include <linux/delay.h>
-#include <power/pmic.h>
-#include <fdt_support.h>
 #include <jffs2/load_kernel.h>
+#include <linux/ctype.h>
+#include <linux/delay.h>
 
-#include "gsc.h"
 #include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-
-/*
- * EEPROM board info struct populated by read_eeprom so that we only have to
- * read it once.
- */
-struct ventana_board_info ventana_info;
-static int board_type;
 
 /* configure eth0 PHY board-specific LED behavior */
 int board_phy_config(struct phy_device *phydev)
@@ -482,9 +471,12 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	/* read Gateworks EEPROM into global struct (used later) */
-	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+	board_type = read_eeprom(&ventana_info);
 
-	setup_iomux_gpio(board_type, &ventana_info);
+	setup_iomux_gpio(board_type);
+
+	/* show GSC details */
+	run_command("gsc", 0);
 
 	return 0;
 }
@@ -517,7 +509,6 @@ int board_fit_config_name_match(const char *name)
 int checkboard(void)
 {
 	struct ventana_board_info *info = &ventana_info;
-	unsigned char buf[4];
 	const char *p;
 	int quiet; /* Quiet or minimal output mode */
 
@@ -540,15 +531,6 @@ int checkboard(void)
 	}
 	if (quiet)
 		return 0;
-
-	/* Display GSC firmware revision/CRC/status */
-	gsc_info(0);
-
-	/* Display RTC */
-	if (!gsc_i2c_read(GSC_RTC_ADDR, 0x00, 1, buf, 4)) {
-		printf("RTC:   %d\n",
-		       buf[0] | buf[1]<<8 | buf[2]<<16 | buf[3]<<24);
-	}
 
 	return 0;
 }

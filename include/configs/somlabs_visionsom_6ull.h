@@ -78,7 +78,6 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #endif
 

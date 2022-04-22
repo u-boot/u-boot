@@ -31,9 +31,6 @@
 #undef CONFIG_SYS_BOOTM_LEN
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
-/* I2C Configs */
-#define CONFIG_I2C_GSC			0
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 

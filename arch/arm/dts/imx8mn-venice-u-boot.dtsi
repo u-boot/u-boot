@@ -94,6 +94,10 @@
 	u-boot,dm-spl;
 };
 
+&gsc {
+	u-boot,dm-spl;
+};
+
 &i2c2 {
 	u-boot,dm-spl;
 };

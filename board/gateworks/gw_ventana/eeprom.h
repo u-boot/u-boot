@@ -6,6 +6,9 @@
 #ifndef _VENTANA_EEPROM_
 #define _VENTANA_EEPROM_
 
+#define BOARD_EEPROM_BUSNO		0
+#define BOARD_EEPROM_ADDR		0x51
+
 struct ventana_board_info {
 	u8 mac0[6];          /* 0x00: MAC1 */
 	u8 mac1[6];          /* 0x06: MAC2 */
@@ -137,7 +140,18 @@ struct ventana_eeprom_config {
 
 extern struct ventana_eeprom_config econfig[];
 extern struct ventana_board_info ventana_info;
+extern int board_type;
 
-int read_eeprom(int bus, struct ventana_board_info *);
+int read_eeprom(struct ventana_board_info *info);
+
+/*
+ * I2C transactions to the GSC are done via these functions which
+ * perform retries in the case of a busy GSC NAK'ing the transaction
+ */
+int gsc_i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len);
+int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len);
+const char *gsc_get_dtb_name(int level, char *buf, int sz);
+struct udevice *i2c_get_dev(int busno, int slave);
+const char *eeprom_get_model(void);
 
 #endif

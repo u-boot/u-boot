@@ -35,15 +35,6 @@
 	"update_uboot=nand erase.part u-boot && " \
 		"nand write ${loadaddr} u-boot ${filesize}\0" \
 
-#define NFS_BOOTCMD \
-	"nfsargs=ip=:::::eth0: root=/dev/nfs\0"	\
-	"nfsboot=run setup; " \
-	"setenv bootargs ${defargs} ${nfsargs} ${mtdparts} " \
-	"${setupargs} ${vidargs}; echo Booting from NFS...;" \
-	"dhcp ${kernel_addr_r} && "	\
-	"tftp ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
-
 #define UBI_BOOTCMD \
 	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rootfstype=ubifs " \
 	"ubi.fm_autoconvert=1\0" \
@@ -68,9 +59,9 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
-	NFS_BOOTCMD \
 	UBI_BOOTCMD \
 	UBOOT_UPDATE \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyLP0\0" \
 	"defargs=user_debug=30\0" \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \

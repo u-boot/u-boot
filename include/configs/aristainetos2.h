@@ -26,12 +26,10 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MMCROOT		"/dev/mmcblk0p1"
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      USDHC1_BASE_ADDR
 
-#define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		0
 
 #define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
@@ -183,7 +181,7 @@
 		"${pubkey}\0" \
 	"mainRargs=setenv bootargs console=${console},${baudrate} " \
 		"rescue_sysnum=${rescue_sysnum} root=${emmcroot} rootfstype=ext4\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"mmcroot=/dev/mmcblk0p1 rootwait rw\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"mmcRargs=setenv bootargs console=${console},${baudrate} " \

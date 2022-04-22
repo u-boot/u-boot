@@ -4,23 +4,211 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
-#include <common.h>
 #include <command.h>
-#include <errno.h>
+#include <common.h>
+#include <gsc.h>
 #include <hexdump.h>
 #include <i2c.h>
-#include <log.h>
-#include <malloc.h>
-#include <asm/bitops.h>
-#include <linux/delay.h>
+#include <asm/arch/sys_proto.h>
+#include <dm/device.h>
 #include <dm/uclass.h>
+#include <linux/ctype.h>
+#include <linux/delay.h>
 
-#include "gsc.h"
-#include "ventana_eeprom.h"
+#include "eeprom.h"
 
+/*
+ * EEPROM board info struct populated by read_eeprom so that we only have to
+ * read it once.
+ */
+struct ventana_board_info ventana_info;
+int board_type;
+
+#if CONFIG_IS_ENABLED(DM_I2C)
+struct udevice *i2c_get_dev(int busno, int slave)
+{
+	struct udevice *dev, *bus;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, busno, &bus);
+	if (ret)
+		return NULL;
+	ret = dm_i2c_probe(bus, slave, 0, &dev);
+	if (ret)
+		return NULL;
+
+	return dev;
+}
+#endif
+
+/*
+ * The Gateworks System Controller will fail to ACK a master transaction if
+ * it is busy, which can occur during its 1HZ timer tick while reading ADC's.
+ * When this does occur, it will never be busy long enough to fail more than
+ * 2 back-to-back transfers.  Thus we wrap i2c_read and i2c_write with
+ * 3 retries.
+ */
+int gsc_i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
+{
+	int retry = 3;
+	int n = 0;
+	int ret;
+#if CONFIG_IS_ENABLED(DM_I2C)
+	struct udevice *dev;
+
+	dev = i2c_get_dev(BOARD_EEPROM_BUSNO, chip);
+	if (!dev)
+		return -ENODEV;
+	ret = i2c_set_chip_offset_len(dev, alen);
+	if (ret) {
+		puts("EEPROM: Failed to set alen\n");
+		return ret;
+	}
+#else
+	i2c_set_bus_num(BOARD_EEPROM_BUSNO);
+#endif
+
+	while (n++ < retry) {
+#if CONFIG_IS_ENABLED(DM_I2C)
+		ret = dm_i2c_read(dev, addr, buf, len);
+#else
+		ret = i2c_read(chip, addr, alen, buf, len);
+#endif
+		if (!ret)
+			break;
+		debug("%s: 0x%02x 0x%02x retry%d: %d\n", __func__, chip, addr,
+		      n, ret);
+		if (ret != -ENODEV)
+			break;
+		mdelay(10);
+	}
+	return ret;
+}
+
+int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
+{
+	int retry = 3;
+	int n = 0;
+	int ret;
+#if CONFIG_IS_ENABLED(DM_I2C)
+	struct udevice *dev;
+
+	dev = i2c_get_dev(BOARD_EEPROM_BUSNO, chip);
+	if (!dev)
+		return -ENODEV;
+	ret = i2c_set_chip_offset_len(dev, alen);
+	if (ret) {
+		puts("EEPROM: Failed to set alen\n");
+		return ret;
+	}
+#endif
+
+	while (n++ < retry) {
+#if CONFIG_IS_ENABLED(DM_I2C)
+		ret = dm_i2c_write(dev, addr, buf, len);
+#else
+		ret = i2c_write(chip, addr, alen, buf, len);
+#endif
+		if (!ret)
+			break;
+		debug("%s: 0x%02x 0x%02x retry%d: %d\n", __func__, chip, addr,
+		      n, ret);
+		if (ret != -ENODEV)
+			break;
+		mdelay(10);
+	}
+	mdelay(100);
+	return ret;
+}
+
+/* determine BOM revision from model */
+int get_bom_rev(const char *str)
+{
+	int  rev_bom = 0;
+	int i;
+
+	for (i = strlen(str) - 1; i > 0; i--) {
+		if (str[i] == '-')
+			break;
+		if (str[i] >= '1' && str[i] <= '9') {
+			rev_bom = str[i] - '0';
+			break;
+		}
+	}
+	return rev_bom;
+}
+
+/* determine PCB revision from model */
+char get_pcb_rev(const char *str)
+{
+	char rev_pcb = 'A';
+	int i;
+
+	for (i = strlen(str) - 1; i > 0; i--) {
+		if (str[i] == '-')
+			break;
+		if (str[i] >= 'A') {
+			rev_pcb = str[i];
+			break;
+		}
+	}
+	return rev_pcb;
+}
+
+/*
+ * get dt name based on model and detail level:
+ */
+const char *gsc_get_dtb_name(int level, char *buf, int sz)
+{
+	const char *model = (const char *)ventana_info.model;
+	const char *pre = is_mx6dq() ? "imx6q-" : "imx6dl-";
+	int modelno, rev_pcb, rev_bom;
+
+	/* a few board models are dt equivalents to other models */
+	if (strncasecmp(model, "gw5906", 6) == 0)
+		model = "gw552x-d";
+	else if (strncasecmp(model, "gw5908", 6) == 0)
+		model = "gw53xx-f";
+	else if (strncasecmp(model, "gw5905", 6) == 0)
+		model = "gw5904-a";
+
+	modelno = ((model[2] - '0') * 1000)
+		  + ((model[3] - '0') * 100)
+		  + ((model[4] - '0') * 10)
+		  + (model[5] - '0');
+	rev_pcb = tolower(get_pcb_rev(model));
+	rev_bom = get_bom_rev(model);
+
+	/* compare model/rev/bom in order of most specific to least */
+	snprintf(buf, sz, "%s%04d", pre, modelno);
+	switch (level) {
+	case 0: /* full model first (ie gw5400-a1) */
+		if (rev_bom) {
+			snprintf(buf, sz, "%sgw%04d-%c%d", pre, modelno, rev_pcb, rev_bom);
+			break;
+		}
+		fallthrough;
+	case 1: /* don't care about bom rev (ie gw5400-a) */
+		snprintf(buf, sz, "%sgw%04d-%c", pre, modelno, rev_pcb);
+		break;
+	case 2: /* don't care about the pcb rev (ie gw5400) */
+		snprintf(buf, sz, "%sgw%04d", pre, modelno);
+		break;
+	case 3: /* look for generic model (ie gw540x) */
+		snprintf(buf, sz, "%sgw%03dx", pre, modelno / 10);
+		break;
+	case 4: /* look for more generic model (ie gw54xx) */
+		snprintf(buf, sz, "%sgw%02dxx", pre, modelno / 100);
+		break;
+	default: /* give up */
+		return NULL;
+	}
+
+	return buf;
+}
 /* read ventana EEPROM, check for validity, and return baseboard type */
 int
-read_eeprom(int bus, struct ventana_board_info *info)
+read_eeprom(struct ventana_board_info *info)
 {
 	int i;
 	int chksum;
@@ -30,29 +218,8 @@ read_eeprom(int bus, struct ventana_board_info *info)
 
 	memset(info, 0, sizeof(*info));
 
-	/*
-	 * On a board with a missing/depleted backup battery for GSC, the
-	 * board may be ready to probe the GSC before its firmware is
-	 * running.  We will wait here indefinately for the GSC/EEPROM.
-	 */
-#if CONFIG_IS_ENABLED(DM_I2C)
-	while (1) {
-		if (i2c_get_dev(bus, GSC_EEPROM_ADDR))
-			break;
-		mdelay(1);
-	}
-#else
-	while (1) {
-		if (0 == i2c_set_bus_num(bus) &&
-		    0 == i2c_probe(GSC_EEPROM_ADDR))
-			break;
-		mdelay(1);
-	}
-#endif
-
 	/* read eeprom config section */
-	mdelay(10);
-	if (gsc_i2c_read(GSC_EEPROM_ADDR, 0x00, 1, buf, sizeof(*info))) {
+	if (gsc_i2c_read(BOARD_EEPROM_ADDR, 0x00, 1, buf, sizeof(*info))) {
 		puts("EEPROM: Failed to read EEPROM\n");
 		return GW_UNKNOWN;
 	}
@@ -219,14 +386,14 @@ static int do_econfig(struct cmd_tbl *cmdtp, int flag, int argc,
 		info->chksum[1] = chksum & 0xff;
 
 		/* write new config data */
-		if (gsc_i2c_write(GSC_EEPROM_ADDR, info->config - (u8 *)info,
+		if (gsc_i2c_write(BOARD_EEPROM_ADDR, info->config - (u8 *)info,
 				  1, econfig_bytes, sizeof(econfig_bytes))) {
 			printf("EEPROM: Failed updating config\n");
 			return CMD_RET_FAILURE;
 		}
 
 		/* write new config data */
-		if (gsc_i2c_write(GSC_EEPROM_ADDR, info->chksum - (u8 *)info,
+		if (gsc_i2c_write(BOARD_EEPROM_ADDR, info->chksum - (u8 *)info,
 				  1, info->chksum, 2)) {
 			printf("EEPROM: Failed updating checksum\n");
 			return CMD_RET_FAILURE;

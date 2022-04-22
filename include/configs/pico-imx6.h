@@ -117,7 +117,6 @@
 /* Environment organization */
 
 /* Ethernet Configuration */
-#define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		1
 
 /* Framebuffer */

@@ -126,7 +126,6 @@
 
 /* Network */
 
-#define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x1
 
 #ifdef CONFIG_CMD_USB
@@ -148,7 +147,5 @@
 #define MXS_LCDIF_BASE MX6SX_LCDIF1_BASE_ADDR
 #endif
 #endif
-
-#define CONFIG_SYS_FSL_USDHC_NUM	3
 
 #endif				/* __CONFIG_H */

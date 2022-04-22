@@ -6,26 +6,22 @@
 
 #include <common.h>
 #include <env.h>
+#include <gsc.h>
 #include <hang.h>
+#include <i2c.h>
 #include <init.h>
-#include <log.h>
-#include <asm/io.h>
+#include <spl.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
-#include <env.h>
-#include <i2c.h>
-#include <spl.h>
-#include <power/pmic.h>
-#include <power/ltc3676_pmic.h>
-#include <power/pfuze100_pmic.h>
+#include <linux/delay.h>
 #include <power/mp5416.h>
+#include <power/pmic.h>
+#include <power/pfuze100_pmic.h>
+#include <power/ltc3676_pmic.h>
 
-#include "gsc.h"
 #include "common.h"
 
 #define RTT_NOM_120OHM /* use 120ohm Rtt_nom vs 60ohm (lower power) */
@@ -778,8 +774,6 @@ static void setup_ventana_i2c(int i2c)
 void setup_pmic(void)
 {
 	struct pmic *p;
-	struct ventana_board_info ventana_info;
-	int board = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 	const int i2c_pmic = 1;
 	u32 reg;
 	char rev;
@@ -817,7 +811,7 @@ void setup_pmic(void)
 			reg |= (SWBST_5_00V | (SWBST_MODE_AUTO << SWBST_MODE_SHIFT));
 			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
 
-			if (board == GW54xx && (rev == 'G')) {
+			if (board_type == GW54xx && (rev == 'G')) {
 				/* Disable VGEN5 */
 				pmic_reg_write(p, PFUZE100_VGEN5VOL, 0);
 
@@ -873,7 +867,7 @@ void setup_pmic(void)
 		 * is a bit shy of the Vmin of 1350mV in the datasheet
 		 * for LDO enabled mode but is as high as we can go.
 		 */
-		switch (board) {
+		switch (board_type) {
 		case GW560x:
 			/* mask PGOOD during SW3 transition */
 			pmic_reg_write(p, LTC3676_DVB3B,
@@ -931,7 +925,7 @@ void setup_pmic(void)
 	/* configure MP5416 PMIC */
 	else if (!i2c_probe(0x69)) {
 		puts("PMIC:  MP5416\n");
-		switch (board) {
+		switch (board_type) {
 		case GW5910:
 			/* SW1: VDD_ARM 1.2V -> (1.275 to 1.475) */
 			reg = MP5416_VSET_EN | MP5416_VSET_SW1_SVAL(1475000);
@@ -974,11 +968,23 @@ void board_init_f(ulong dummy)
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
 
+	/*
+	 * On a board with a missing/depleted backup battery for GSC, the
+	 * board may be ready to probe the GSC before its firmware is
+	 * running. We will wait here indefinately for the GSC/EEPROM.
+	 */
+	while (1) {
+		if (!i2c_set_bus_num(BOARD_EEPROM_BUSNO) &&
+		    !i2c_probe(BOARD_EEPROM_ADDR))
+			break;
+		mdelay(1);
+	}
+
 	/* read/validate EEPROM info to determine board model and SDRAM cfg */
-	board_model = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+	board_model = read_eeprom(&ventana_info);
 
 	/* configure model-specific gpio */
-	setup_iomux_gpio(board_model, &ventana_info);
+	setup_iomux_gpio(board_model);
 
 	/* provide some some default: 32bit 128MB */
 	if (GW_UNKNOWN == board_model)
@@ -1006,7 +1012,6 @@ void board_boot_order(u32 *spl_boot_list)
 
 /* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */
 /* its our chance to print info about boot device */
-static int board_type;
 void spl_board_init(void)
 {
 	u32 boot_device;
@@ -1015,7 +1020,7 @@ void spl_board_init(void)
 	boot_device = spl_boot_device();
 
 	/* read eeprom again now that we have gd */
-	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+	board_type = read_eeprom(&ventana_info);
 	if (board_type == GW_UNKNOWN)
 		hang();
 

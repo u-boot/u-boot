@@ -137,7 +137,7 @@ config CMD_NANDBCB
 
 config FSL_MFGPROT
 	bool "Support the 'mfgprot' command"
-	depends on IMX_HAB && ARCH_MX7
+	depends on IMX_HAB && (ARCH_MX7 || ARCH_IMX8M)
 	help
 	  This option enables the manufacturing protection command
 	  which can be used has a protection feature for Manufacturing
