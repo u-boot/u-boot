@@ -16,6 +16,7 @@ config MISC
 config SPL_MISC
 	bool "Enable Driver Model for Misc drivers in SPL"
 	depends on SPL_DM
+	default MISC
 	help
 	  Enable driver model for miscellaneous devices. This class is
 	  used only for those do not fit other more general classes. A
@@ -25,6 +26,17 @@ config SPL_MISC
 config TPL_MISC
 	bool "Enable Driver Model for Misc drivers in TPL"
 	depends on TPL_DM
+	default MISC
+	help
+	  Enable driver model for miscellaneous devices. This class is
+	  used only for those do not fit other more general classes. A
+	  set of generic read, write and ioctl methods may be used to
+	  access the device.
+
+config VPL_MISC
+	bool "Enable Driver Model for Misc drivers in VPL"
+	depends on VPL_DM
+	default MISC
 	help
 	  Enable driver model for miscellaneous devices. This class is
 	  used only for those do not fit other more general classes. A
