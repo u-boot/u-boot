@@ -58,17 +58,8 @@ static enum led_state_t gpio_led_get_state(struct udevice *dev)
 static int led_gpio_probe(struct udevice *dev)
 {
 	struct led_gpio_priv *priv = dev_get_priv(dev);
-	int ret;
 
-	/* Ignore the top-level LED node */
-	if (device_is_compatible(dev, "gpio-leds"))
-		return 0;
-
-	ret = gpio_request_by_name(dev, "gpios", 0, &priv->gpio, GPIOD_IS_OUT);
-	if (ret)
-		return ret;
-
-	return 0;
+	return gpio_request_by_name(dev, "gpios", 0, &priv->gpio, GPIOD_IS_OUT);
 }
 
 static int led_gpio_remove(struct udevice *dev)
@@ -109,18 +100,23 @@ static const struct led_ops gpio_led_ops = {
 	.get_state	= gpio_led_get_state,
 };
 
+U_BOOT_DRIVER(led_gpio) = {
+	.name	= "gpio_led",
+	.id	= UCLASS_LED,
+	.ops	= &gpio_led_ops,
+	.priv_auto	= sizeof(struct led_gpio_priv),
+	.probe	= led_gpio_probe,
+	.remove	= led_gpio_remove,
+};
+
 static const struct udevice_id led_gpio_ids[] = {
 	{ .compatible = "gpio-leds" },
 	{ }
 };
 
-U_BOOT_DRIVER(led_gpio) = {
-	.name	= "gpio_led",
-	.id	= UCLASS_LED,
+U_BOOT_DRIVER(led_gpio_wrap) = {
+	.name	= "gpio_led_wrap",
+	.id	= UCLASS_NOP,
 	.of_match = led_gpio_ids,
-	.ops	= &gpio_led_ops,
-	.priv_auto	= sizeof(struct led_gpio_priv),
 	.bind	= led_gpio_bind,
-	.probe	= led_gpio_probe,
-	.remove	= led_gpio_remove,
 };
