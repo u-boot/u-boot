@@ -418,7 +418,6 @@ int board_late_init(void)
 	int x, y;
 	int ret;
 
-	led_default_state();
 	splash_get_pos(&x, &y);
 	bmp_display((ulong)&bmp_logo_bitmap[0], x, y);
 

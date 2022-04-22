@@ -128,8 +128,6 @@ int board_late_init(void)
 	u8 enetaddr[6];
 	char fdt[64];
 
-	led_default_state();
-
 	/* Set board serial/model */
 	if (!env_get("serial#"))
 		env_set_ulong("serial#", eeprom_get_serial());

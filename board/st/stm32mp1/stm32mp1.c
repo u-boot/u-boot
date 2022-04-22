@@ -666,9 +666,6 @@ int board_init(void)
 	if (IS_ENABLED(CONFIG_ARMV7_NONSEC))
 		sysconf_init();
 
-	if (CONFIG_IS_ENABLED(LED))
-		led_default_state();
-
 	setup_led(LEDST_ON);
 
 	return 0;

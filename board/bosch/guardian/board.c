@@ -327,9 +327,6 @@ int board_late_init(void)
 	int ret;
 	struct udevice *cdev;
 
-#ifdef CONFIG_LED_GPIO
-	led_default_state();
-#endif
 	set_bootmode_env();
 
 	ret = uclass_get_device(UCLASS_PANEL, 0, &cdev);

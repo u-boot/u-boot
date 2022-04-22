@@ -107,9 +107,6 @@ int dram_init(void)
 
 int board_init(void)
 {
-	if (IS_ENABLED(CONFIG_LED))
-		led_default_state();
-
 	return 0;
 }
 

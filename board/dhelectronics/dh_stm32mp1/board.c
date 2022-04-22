@@ -607,9 +607,6 @@ int board_init(void)
 
 	board_init_fmc2();
 
-	if (CONFIG_IS_ENABLED(LED))
-		led_default_state();
-
 	return 0;
 }
 

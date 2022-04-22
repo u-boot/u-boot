@@ -24,10 +24,6 @@ int board_early_init_r(void)
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE;
 
-	/* LED setup */
-	if (IS_ENABLED(CONFIG_LED))
-		led_default_state();
-
 	return 0;
 }
 
