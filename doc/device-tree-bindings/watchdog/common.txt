@@ -1,0 +1,12 @@
+Common watchdog properties.
+
+Optional properties:
+- timeout-sec : Timeout of the watchdog in seconds
+                If this timeout is not defined, the value of WATCHDOG_TIMEOUT_MSECS will
+                be used instead.
+- hw_margin_ms : Period used to reset the watchdog in ms
+                 If this period is not defined, the default value is 1000.
+- u-boot,noautostart : Specify that this watchdog should not autostart
+                       When the config option WATCHDOG_AUTOSTART is set, all enabled
+                       watchdogs are started. This property allows specifying that this
+                       watchdog should NOT be started.
