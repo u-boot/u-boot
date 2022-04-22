@@ -57,12 +57,11 @@ static enum led_state_t gpio_led_get_state(struct udevice *dev)
 
 static int led_gpio_probe(struct udevice *dev)
 {
-	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct led_gpio_priv *priv = dev_get_priv(dev);
 	int ret;
 
 	/* Ignore the top-level LED node */
-	if (!uc_plat->label)
+	if (device_is_compatible(dev, "gpio-leds"))
 		return 0;
 
 	ret = gpio_request_by_name(dev, "gpios", 0, &priv->gpio, GPIOD_IS_OUT);
