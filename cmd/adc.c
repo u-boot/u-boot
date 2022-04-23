@@ -71,12 +71,16 @@ static int do_adc_info(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_adc_single(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
+	char *varname = NULL;
 	struct udevice *dev;
 	unsigned int data;
-	int ret, uV;
+	int ret, uV, val;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
+
+	if (argc >= 3)
+		varname = argv[2];
 
 	ret = adc_channel_single_shot(argv[1], simple_strtol(argv[2], NULL, 0),
 				      &data);
@@ -87,10 +91,16 @@ static int do_adc_single(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	ret = uclass_get_device_by_name(UCLASS_ADC, argv[1], &dev);
-	if (!ret && !adc_raw_to_uV(dev, data, &uV))
+	if (!ret && !adc_raw_to_uV(dev, data, &uV)) {
+		val = uV;
 		printf("%u, %d uV\n", data, uV);
-	else
+	} else {
+		val = data;
 		printf("%u\n", data);
+	}
+
+	if (varname)
+		env_set_ulong(varname, val);
 
 	return CMD_RET_SUCCESS;
 }
@@ -149,7 +159,7 @@ static int do_adc_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 static char adc_help_text[] =
 	"list - list ADC devices\n"
 	"adc info <name> - Get ADC device info\n"
-	"adc single <name> <channel> - Get Single data of ADC device channel\n"
+	"adc single <name> <channel> [varname] - Get Single data of ADC device channel\n"
 	"adc scan <name> [channel mask] - Scan all [or masked] ADC channels";
 
 U_BOOT_CMD_WITH_SUBCMDS(adc, "ADC sub-system", adc_help_text,

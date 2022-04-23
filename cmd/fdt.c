@@ -119,13 +119,27 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (strncmp(argv[1], "ad", 2) == 0) {
 		unsigned long addr;
 		int control = 0;
+		int quiet = 0;
 		struct fdt_header *blob;
 
 		/* Set the address [and length] of the fdt */
 		argc -= 2;
 		argv += 2;
-		if (argc && !strcmp(*argv, "-c")) {
-			control = 1;
+		while (argc > 0 && **argv == '-') {
+			char *arg = *argv;
+
+			while (*++arg) {
+				switch (*arg) {
+				case 'c':
+					control = 1;
+					break;
+				case 'q':
+					quiet = 1;
+					break;
+				default:
+					return CMD_RET_USAGE;
+				}
+			}
 			argc--;
 			argv++;
 		}
@@ -145,7 +159,8 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		addr = hextoul(argv[0], NULL);
 		blob = map_sysmem(addr, 0);
-		if (!fdt_valid(&blob))
+		if ((quiet && fdt_check_header(blob)) ||
+		    (!quiet && !fdt_valid(&blob)))
 			return 1;
 		if (control)
 			gd->fdt_blob = blob;
@@ -159,12 +174,13 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			/* Optional new length */
 			len = hextoul(argv[1], NULL);
 			if (len < fdt_totalsize(blob)) {
-				printf("New length %d < existing length %d, ignoring\n",
-				       len, fdt_totalsize(blob));
+				if (!quiet)
+					printf("New length %d < existing length %d, ignoring\n",
+					       len, fdt_totalsize(blob));
 			} else {
 				/* Open in place with a new length */
 				err = fdt_open_into(blob, blob, len);
-				if (err != 0) {
+				if (!quiet && err != 0) {
 					printf("libfdt fdt_open_into(): %s\n",
 					       fdt_strerror(err));
 				}
@@ -1055,7 +1071,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 /********************************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char fdt_help_text[] =
-	"addr [-c]  <addr> [<length>]   - Set the [control] fdt location to <addr>\n"
+	"addr [-cq]  <addr> [<length>]   - Set the [control] fdt location to <addr>\n"
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 	"fdt apply <addr>                    - Apply overlay to the DT\n"
 #endif

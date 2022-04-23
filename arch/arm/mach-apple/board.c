@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/uclass-internal.h>
 #include <efi_loader.h>
 #include <lmb.h>
 
@@ -458,6 +459,45 @@ int board_late_init(void)
 
 	if (status)
 		log_warning("late_init: Failed to set run time variables\n");
+
+	return 0;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	struct udevice *dev;
+	const char *stdoutname;
+	int node, ret;
+
+	/*
+	 * Modify the "stdout-path" property under "/chosen" to point
+	 * at "/chosen/framebuffer if a keyboard is available and
+	 * we're not running under the m1n1 hypervisor.
+	 * Developers can override this behaviour by dropping
+	 * "vidconsole" from the "stdout" environment variable.
+	 */
+
+	/* EL1 means we're running under the m1n1 hypervisor. */
+	if (current_el() == 1)
+		return 0;
+
+	ret = uclass_find_device(UCLASS_KEYBOARD, 0, &dev);
+	if (ret < 0)
+		return 0;
+
+	stdoutname = env_get("stdout");
+	if (!stdoutname || !strstr(stdoutname, "vidconsole"))
+		return 0;
+
+	/* Make sure we actually have a framebuffer. */
+	node = fdt_path_offset(blob, "/chosen/framebuffer");
+	if (node < 0 || !fdtdec_get_is_enabled(blob, node))
+		return 0;
+
+	node = fdt_path_offset(blob, "/chosen");
+	if (node < 0)
+		return 0;
+	fdt_setprop_string(blob, node, "stdout-path", "/chosen/framebuffer");
 
 	return 0;
 }

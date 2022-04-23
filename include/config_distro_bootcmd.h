@@ -126,7 +126,7 @@
 #ifdef CONFIG_CMD_BOOTEFI_BOOTMGR
 #define BOOTENV_EFI_BOOTMGR                                               \
 	"boot_efi_bootmgr="                                               \
-		"if fdt addr ${fdt_addr_r}; then "                        \
+		"if fdt addr -q ${fdt_addr_r}; then "                     \
 			"bootefi bootmgr ${fdt_addr_r};"                  \
 		"else "                                                   \
 			"bootefi bootmgr;"                                \
@@ -141,7 +141,7 @@
 	"boot_efi_binary="                                                \
 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 			"${kernel_addr_r} efi/boot/"BOOTEFI_NAME"; "      \
-		"if fdt addr ${fdt_addr_r}; then "                        \
+		"if fdt addr -q ${fdt_addr_r}; then "                     \
 			"bootefi ${kernel_addr_r} ${fdt_addr_r};"         \
 		"else "                                                   \
 			"bootefi ${kernel_addr_r} ${fdtcontroladdr};"     \
@@ -360,7 +360,7 @@
 	"setenv bootp_arch " BOOTENV_EFI_PXE_ARCH ";"                     \
 	"if dhcp ${kernel_addr_r}; then "                                 \
 		"tftpboot ${fdt_addr_r} dtb/${efi_fdtfile};"              \
-		"if fdt addr ${fdt_addr_r}; then "                        \
+		"if fdt addr -q ${fdt_addr_r}; then "                     \
 			"bootefi ${kernel_addr_r} ${fdt_addr_r}; "        \
 		"else "                                                   \
 			"bootefi ${kernel_addr_r} ${fdtcontroladdr};"     \
