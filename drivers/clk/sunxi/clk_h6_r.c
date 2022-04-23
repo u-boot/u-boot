@@ -50,8 +50,8 @@ static const struct udevice_id h6_r_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_sun6i_h6_r) = {
-	.name		= "sun6i_h6_r_ccu",
+U_BOOT_DRIVER(clk_sun50i_h6_r) = {
+	.name		= "sun50i_h6_r_ccu",
 	.id		= UCLASS_CLK,
 	.of_match	= h6_r_clk_ids,
 	.priv_auto	= sizeof(struct ccu_priv),
