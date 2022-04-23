@@ -493,6 +493,8 @@ struct efi_register_notify_event {
 /* List of all events registered by RegisterProtocolNotify() */
 extern struct list_head efi_register_notify_events;
 
+/* called at pre-initialization */
+int efi_init_early(void);
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
 /* Install device tree */
@@ -523,8 +525,8 @@ void efi_carve_out_dt_rsv(void *fdt);
 void efi_try_purge_kaslr_seed(void *fdt);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
-/* Called by bootefi to make all disk storage accessible as EFI objects */
-efi_status_t efi_disk_register(void);
+/* Called by efi_init_obj_list() to initialize efi_disks */
+efi_status_t efi_disk_init(void);
 /* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
 efi_status_t efi_rng_register(void);
 /* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */

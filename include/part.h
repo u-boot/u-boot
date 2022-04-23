@@ -10,6 +10,7 @@
 #include <ide.h>
 #include <uuid.h>
 #include <linker_lists.h>
+#include <linux/errno.h>
 #include <linux/list.h>
 
 struct block_drvr {
@@ -86,7 +87,7 @@ struct disk_part {
 };
 
 /* Misc _get_dev functions */
-#ifdef CONFIG_PARTITIONS
+#if CONFIG_IS_ENABLED(PARTITIONS)
 /**
  * blk_get_dev() - get a pointer to a block device given its type and number
  *
@@ -103,7 +104,6 @@ struct disk_part {
 struct blk_desc *blk_get_dev(const char *ifname, int dev);
 
 struct blk_desc *mg_disk_get_dev(int dev);
-int host_get_dev_err(int dev, struct blk_desc **blk_devp);
 
 /* disk/part.c */
 int part_get_info(struct blk_desc *dev_desc, int part,
@@ -275,6 +275,22 @@ static inline int blk_get_device_part_str(const char *ifname,
 					  struct disk_partition *info,
 					  int allow_whole_dev)
 { *dev_desc = NULL; return -1; }
+
+static inline int part_get_info_by_name_type(struct blk_desc *dev_desc,
+					     const char *name,
+					     struct disk_partition *info,
+					     int part_type)
+{
+	return -ENOENT;
+}
+
+static inline int part_get_info_by_name(struct blk_desc *dev_desc,
+					const char *name,
+					struct disk_partition *info)
+{
+	return -ENOENT;
+}
+
 static inline int
 part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 				     const char *dev_part_str,
@@ -286,6 +302,23 @@ part_get_info_by_dev_and_name_or_num(const char *dev_iface,
 	return -ENOSYS;
 }
 #endif
+
+struct udevice;
+/**
+ * part_create_block_devices - Create block devices for disk partitions
+ *
+ * Create UCLASS_PARTITION udevices for each of disk partitions in @parent
+ *
+ * @blk_dev:	Whole disk device
+ */
+int part_create_block_devices(struct udevice *blk_dev);
+
+unsigned long dev_read(struct udevice *dev, lbaint_t start,
+		       lbaint_t blkcnt, void *buffer);
+unsigned long dev_write(struct udevice *dev, lbaint_t start,
+			lbaint_t blkcnt, const void *buffer);
+unsigned long dev_erase(struct udevice *dev, lbaint_t start,
+			lbaint_t blkcnt);
 
 /*
  * We don't support printing partition information in SPL and only support
@@ -496,7 +529,7 @@ int layout_mbr_partitions(struct disk_partition *p, int count,
 
 #endif
 
-#ifdef CONFIG_PARTITIONS
+#if CONFIG_IS_ENABLED(PARTITIONS)
 /**
  * part_driver_get_count() - get partition driver count
  *

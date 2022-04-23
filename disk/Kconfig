@@ -2,8 +2,7 @@
 menu "Partition Types"
 
 config PARTITIONS
-	bool "Enable Partition Labels (disklabels) support"
-	default y
+	bool
 	help
 	  Partition Labels (disklabels) Supported:
 	  Zero or more of the following:
@@ -20,8 +19,7 @@ config PARTITIONS
 	  as well.
 
 config SPL_PARTITIONS
-	bool "Enable Partition Labels (disklabels) support in SPL"
-	default y if PARTITIONS
+	bool
 	select SPL_SPRINTF
 	select SPL_STRTO
 	help
@@ -30,8 +28,7 @@ config SPL_PARTITIONS
 	  small amount of size to SPL, typically 500 bytes.
 
 config TPL_PARTITIONS
-	bool "Enable Partition Labels (disklabels) support in TPL"
-	default y if PARTITIONS
+	bool
 	select TPL_SPRINTF
 	select TPL_STRTO
 	help
@@ -41,57 +38,61 @@ config TPL_PARTITIONS
 
 config MAC_PARTITION
 	bool "Enable Apple's MacOS partition table"
-	depends on PARTITIONS
+	select PARTITIONS
 	help
 	  Say Y here if you would like to use device under U-Boot which
 	  were partitioned on a Macintosh.
 
 config SPL_MAC_PARTITION
 	bool "Enable Apple's MacOS partition table for SPL"
-	depends on SPL && PARTITIONS
+	depends on SPL
 	default y if MAC_PARTITION
+	select SPL_PARTITIONS
 
 config DOS_PARTITION
 	bool "Enable MS Dos partition table"
-	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
 	default y if x86 || CMD_FAT || USB_STORAGE
+	select PARTITIONS
 	help
 	  traditional on the Intel architecture, USB sticks, etc.
 
 config SPL_DOS_PARTITION
 	bool "Enable MS Dos partition table for SPL"
-	depends on SPL && PARTITIONS
+	depends on SPL
 	default n if ARCH_SUNXI
 	default y if DOS_PARTITION
+	select SPL_PARTITIONS
 
 config ISO_PARTITION
 	bool "Enable ISO partition table"
-	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
 	default y if MIPS || ARCH_TEGRA
+	select PARTITIONS
 
 config SPL_ISO_PARTITION
 	bool "Enable ISO partition table for SPL"
-	depends on SPL && PARTITIONS
+	depends on SPL
+	select SPL_PARTITIONS
 
 config AMIGA_PARTITION
 	bool "Enable AMIGA partition table"
-	depends on PARTITIONS
+	select PARTITIONS
 	help
 	  Say Y here if you would like to use device under U-Boot which
 	  were partitioned under AmigaOS.
 
 config SPL_AMIGA_PARTITION
 	bool "Enable AMIGA partition table for SPL"
-	depends on SPL && PARTITIONS
+	depends on SPL
 	default y if AMIGA_PARTITION
+	select SPL_PARTITIONS
 
 config EFI_PARTITION
 	bool "Enable EFI GPT partition table"
-	depends on PARTITIONS
 	default y if DISTRO_DEFAULTS
 	default y if ARCH_TEGRA
+	select PARTITIONS
 	select LIB_UUID
 	help
 	  Say Y here if you would like to use device under U-Boot which
@@ -128,9 +129,10 @@ config EFI_PARTITION_ENTRIES_OFF
 
 config SPL_EFI_PARTITION
 	bool "Enable EFI GPT partition table for SPL"
-	depends on  SPL && PARTITIONS
+	depends on  SPL
 	default n if ARCH_SUNXI
 	default y if EFI_PARTITION
+	select SPL_PARTITIONS
 
 config PARTITION_UUIDS
 	bool "Enable support of UUID for partition"
@@ -143,12 +145,11 @@ config PARTITION_UUIDS
 
 config SPL_PARTITION_UUIDS
 	bool "Enable support of UUID for partition in SPL"
-	depends on SPL && PARTITIONS
+	depends on SPL_PARTITIONS
 	default y if SPL_EFI_PARTITION
 
 config PARTITION_TYPE_GUID
 	bool "Enable support of GUID for partition type"
-	depends on PARTITIONS
 	depends on EFI_PARTITION
 	help
 	  Activate the configuration of GUID type

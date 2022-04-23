@@ -463,7 +463,7 @@ static void bootmenu_show(int delay)
 	}
 
 	for (iter = bootmenu->first; iter; iter = iter->next) {
-		if (!menu_item_add(menu, iter->key, iter))
+		if (menu_item_add(menu, iter->key, iter) != 1)
 			goto cleanup;
 	}
 
@@ -476,7 +476,7 @@ static void bootmenu_show(int delay)
 
 	init = 1;
 
-	if (menu_get_choice(menu, &choice)) {
+	if (menu_get_choice(menu, &choice) == 1) {
 		iter = choice;
 		title = strdup(iter->title);
 		command = strdup(iter->command);

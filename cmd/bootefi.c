@@ -422,10 +422,11 @@ static int do_efibootmgr(void)
  * Set up memory image for the binary to be loaded, prepare device path, and
  * then call do_bootefi_exec() to execute it.
  *
- * @image_opt:	string of image start address
+ * @image_opt:	string with image start address
+ * @size_opt:	string with image size or NULL
  * Return:	status code
  */
-static int do_bootefi_image(const char *image_opt)
+static int do_bootefi_image(const char *image_opt, const char *size_opt)
 {
 	void *image_buf;
 	unsigned long addr, size;
@@ -443,14 +444,21 @@ static int do_bootefi_image(const char *image_opt)
 		/* Check that a numeric value was passed */
 		if (!addr)
 			return CMD_RET_USAGE;
-
 		image_buf = map_sysmem(addr, 0);
 
-		if (image_buf != image_addr) {
-			log_err("No UEFI binary known at %s\n", image_opt);
-			return CMD_RET_FAILURE;
+		if (size_opt) {
+			size = strtoul(size_opt, NULL, 16);
+			if (!size)
+				return CMD_RET_USAGE;
+			efi_clear_bootdev();
+		} else {
+			if (image_buf != image_addr) {
+				log_err("No UEFI binary known at %s\n",
+					image_opt);
+				return CMD_RET_FAILURE;
+			}
+			size = image_size;
 		}
-		size = image_size;
 	}
 	ret = efi_run_image(image_buf, size);
 
@@ -654,7 +662,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	if (argc > 2) {
+	if (argc > 2 && strcmp(argv[2], "-")) {
 		uintptr_t fdt_addr;
 
 		fdt_addr = hextoul(argv[2], NULL);
@@ -677,15 +685,15 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 		return do_efi_selftest();
 #endif
 
-	return do_bootefi_image(argv[1]);
+	return do_bootefi_image(argv[1], argc > 3 ? argv[3] : NULL);
 }
 
 #ifdef CONFIG_SYS_LONGHELP
 static char bootefi_help_text[] =
-	"<image address> [fdt address]\n"
-	"  - boot EFI payload stored at address <image address>.\n"
-	"    If specified, the device tree located at <fdt address> gets\n"
-	"    exposed as EFI configuration table.\n"
+	"<image address> [fdt address [image size]]\n"
+	"  - boot EFI payload stored at <image address>\n"
+	"    fdt address, address of device-tree or '-'\n"
+	"    image size, required if image not preloaded\n"
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	"bootefi hello\n"
 	"  - boot a sample Hello World application stored within U-Boot\n"
@@ -707,7 +715,7 @@ static char bootefi_help_text[] =
 #endif
 
 U_BOOT_CMD(
-	bootefi, 3, 0, do_bootefi,
+	bootefi, 4, 0, do_bootefi,
 	"Boots an EFI payload from memory",
 	bootefi_help_text
 );

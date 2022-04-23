@@ -35,6 +35,7 @@
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/root.h>
+#include <dm/tag.h>
 
 /*
  * EFI attributes of the udevice handled by this driver.
@@ -107,25 +108,6 @@ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 }
 
 /**
- * Create partions for the block device.
- *
- * @handle:	EFI handle of the block device
- * @dev:	udevice of the block device
- * Return:	number of partitions created
- */
-static int efi_bl_bind_partitions(efi_handle_t handle, struct udevice *dev)
-{
-	struct blk_desc *desc;
-	const char *if_typename;
-
-	desc = dev_get_uclass_plat(dev);
-	if_typename = blk_get_if_type_name(desc->if_type);
-
-	return efi_disk_create_partitions(handle, desc, if_typename,
-					  desc->devnum, dev->name);
-}
-
-/**
  * Create a block device for a handle
  *
  * @handle:	handle
@@ -139,7 +121,6 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	char *name;
 	struct efi_object *obj = efi_search_obj(handle);
 	struct efi_block_io *io = interface;
-	int disks;
 	struct efi_blk_plat *plat;
 
 	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, io);
@@ -173,14 +154,19 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	plat->handle = handle;
 	plat->io = interface;
 
+	/*
+	 * FIXME: necessary because we won't do almost nothing in
+	 * efi_disk_create() when called from device_probe().
+	 */
+	ret = dev_tag_set_ptr(bdev, DM_TAG_EFI, handle);
+	if (ret)
+		/* FIXME: cleanup for bdev */
+		return ret;
+
 	ret = device_probe(bdev);
 	if (ret)
 		return ret;
 	EFI_PRINT("%s: block device '%s' created\n", __func__, bdev->name);
-
-	/* Create handles for the partions of the block device */
-	disks = efi_bl_bind_partitions(handle, bdev);
-	EFI_PRINT("Found %d partitions\n", disks);
 
 	return 0;
 }

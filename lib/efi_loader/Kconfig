@@ -14,8 +14,10 @@ config EFI_LOADER
 	depends on DM_ETH || !NET
 	depends on !EFI_APP
 	default y if !ARM || SYS_CPU = armv7 || SYS_CPU = armv8
+	select DM_EVENT
+	select EVENT_DYNAMIC
 	select LIB_UUID
-	select PARTITION_UUIDS
+	imply PARTITION_UUIDS
 	select HAVE_BLOCK_DEVICE
 	select REGEX
 	imply FAT
@@ -40,6 +42,7 @@ config CMD_BOOTEFI_BOOTMGR
 
 config EFI_SETUP_EARLY
 	bool
+	default y
 
 choice
 	prompt "Store for non-volatile UEFI variables"

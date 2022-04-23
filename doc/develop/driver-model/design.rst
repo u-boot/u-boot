@@ -1042,6 +1042,27 @@ data structure might be worthwhile in some rare cases, once we understand
 what the bottlenecks are.
 
 
+Tag Support
+-----------
+
+It is sometimes useful for a subsystem to associate its own private
+data (or object) to a DM device, i.e. struct udevice, to support
+additional features.
+
+Tag support in driver model will give us the ability to do so dynamically
+instead of modifying "udevice" data structure. In the initial release, we
+will support two type of attributes:
+
+- a pointer with dm_tag_set_ptr(), and
+- an unsigned long with dm_tag_set_val()
+
+For example, UEFI subsystem utilizes the feature to maintain efi_disk
+objects depending on linked udevice's lifecycle.
+
+While the current implementation is quite simple, it will get evolved
+as the feature is more extensively used in U-Boot subsystems.
+
+
 Changes since v1
 ----------------
 

@@ -741,6 +741,10 @@ static int blk_post_probe(struct udevice *dev)
 		struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 		part_init(desc);
+
+		if (desc->part_type != PART_TYPE_UNKNOWN &&
+		    part_create_block_devices(dev))
+			debug("*** creating partitions failed\n");
 	}
 
 	return 0;
