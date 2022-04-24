@@ -73,7 +73,7 @@ static const struct udevice_id meson_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(meson_clk_axg) = {
+U_BOOT_DRIVER(meson_clk_g12a_ao) = {
 	.name		= "meson_clk_g12a_ao",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
