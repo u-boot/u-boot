@@ -737,6 +737,8 @@ static const struct udevice_id meson_saradc_ids[] = {
 	  .data = (ulong)&gxl_saradc_data },
 	{ .compatible = "amlogic,meson-g12a-saradc",
 	  .data = (ulong)&gxl_saradc_data },
+	{ .compatible = "amlogic,meson-axg-saradc",
+	  .data = (ulong)&gxl_saradc_data },
 	{ }
 };
 
