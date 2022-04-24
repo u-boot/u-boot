@@ -68,7 +68,7 @@
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
 
-#define CONFIG_MXC_UART_BASE		UART2_BASE_ADDR
+#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(2)
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		2048

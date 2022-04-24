@@ -28,7 +28,7 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Board and environment settings */
-#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
+#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
 #define CONFIG_HOSTNAME			"kontron-mx8mm"
 
 #ifdef CONFIG_USB_EHCI_HCD
