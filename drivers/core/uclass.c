@@ -180,14 +180,15 @@ void uclass_set_priv(struct uclass *uc, void *priv)
 	uc->priv_ = priv;
 }
 
-enum uclass_id uclass_get_by_name_len(const char *name, int len)
+enum uclass_id uclass_get_by_namelen(const char *name, int len)
 {
 	int i;
 
 	for (i = 0; i < UCLASS_COUNT; i++) {
 		struct uclass_driver *uc_drv = lists_uclass_lookup(i);
 
-		if (uc_drv && !strncmp(uc_drv->name, name, len))
+		if (uc_drv && !strncmp(uc_drv->name, name, len) &&
+		    strlen(uc_drv->name) == len)
 			return i;
 	}
 
@@ -196,7 +197,7 @@ enum uclass_id uclass_get_by_name_len(const char *name, int len)
 
 enum uclass_id uclass_get_by_name(const char *name)
 {
-	return uclass_get_by_name_len(name, strlen(name));
+	return uclass_get_by_namelen(name, strlen(name));
 }
 
 int dev_get_uclass_index(struct udevice *dev, struct uclass **ucp)

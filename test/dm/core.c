@@ -1161,6 +1161,8 @@ static int dm_test_uclass_names(struct unit_test_state *uts)
 	ut_asserteq_str("test", uclass_get_name(UCLASS_TEST));
 	ut_asserteq(UCLASS_TEST, uclass_get_by_name("test"));
 
+	ut_asserteq(UCLASS_SPI, uclass_get_by_name("spi"));
+
 	return 0;
 }
 DM_TEST(dm_test_uclass_names, UT_TESTF_SCAN_PDATA);
