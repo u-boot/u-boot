@@ -702,6 +702,7 @@ F:	boot/bootmeth*.c
 F:	boot/bootstd.c
 F:	cmd/bootdev.c
 F:	cmd/bootflow.c
+F:	drivers/mmc/mmc_bootdev.c
 F:	include/bootdev.h
 F:	include/bootflow.h
 F:	include/bootmeth.h
