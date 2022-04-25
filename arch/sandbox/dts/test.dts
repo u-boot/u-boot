@@ -74,6 +74,21 @@
 		};
 	};
 
+	bootstd {
+		compatible = "u-boot,boot-std";
+
+		filename-prefixes = "/", "/boot/";
+		bootdev-order = "mmc2", "mmc1";
+
+		syslinux {
+			compatible = "u-boot,distro-syslinux";
+		};
+
+		efi {
+			compatible = "u-boot,distro-efi";
+		};
+	};
+
 	reboot-mode0 {
 		compatible = "reboot-mode-gpio";
 		gpios = <&gpio_c 0 GPIO_ACTIVE_HIGH>, <&gpio_c 1 GPIO_ACTIVE_HIGH>;
@@ -891,10 +906,13 @@
 		non-removable;
 	};
 
+	/* This is used for the bootdev tests */
 	mmc1 {
 		compatible = "sandbox,mmc";
+		filename = "mmc1.img";
 	};
 
+	/* This is used for the fastboot tests */
 	mmc0 {
 		compatible = "sandbox,mmc";
 	};

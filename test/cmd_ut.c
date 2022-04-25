@@ -28,6 +28,10 @@ int cmd_ut_category(const char *name, const char *prefix,
 
 static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
+#ifdef CONFIG_BOOTSTD
+	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
+			 "", ""),
+#endif
 	U_BOOT_CMD_MKENT(common, CONFIG_SYS_MAXARGS, 1, do_ut_common, "", ""),
 #if defined(CONFIG_UT_DM)
 	U_BOOT_CMD_MKENT(dm, CONFIG_SYS_MAXARGS, 1, do_ut_dm, "", ""),
@@ -114,6 +118,9 @@ static char ut_help_text[] =
 #ifdef CONFIG_SANDBOX
 	"ut bloblist - Test bloblist implementation\n"
 	"ut compression - Test compressors and bootm decompression\n"
+#endif
+#ifdef CONFIG_BOOTSTD
+	"ut bootstd - Test standard boot implementation\n"
 #endif
 #ifdef CONFIG_UT_DM
 	"ut dm [test-name]\n"
