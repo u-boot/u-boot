@@ -328,6 +328,19 @@ config BOOTSTD_FULL
 
 if BOOTSTD
 
+config BOOTSTD_BOOTCOMMAND
+	bool "Use bootstd to boot"
+	default y if !DISTRO_DEFAULTS
+	help
+	  Enable this to select a default boot-command suitable for booting
+	  with standard boot. This can be overridden by the board if needed,
+	  but the default command should be enough for most boards which use
+	  standard boot.
+
+	  For now this is only selected if distro boot is NOT used, since
+	  standard boot does not support all of the features of distro boot
+	  yet.
+
 config BOOTMETH_DISTRO
 	bool "Bootdev support for distro boot"
 	depends on CMD_PXE
@@ -1260,7 +1273,9 @@ config USE_BOOTCOMMAND
 config BOOTCOMMAND
 	string "bootcmd value"
 	depends on USE_BOOTCOMMAND && !USE_DEFAULT_ENV_FILE
-	default "run distro_bootcmd" if DISTRO_DEFAULTS
+	default "bootflow scan -lb" if BOOTSTD_BOOTCOMMAND && CMD_BOOTFLOW_FULL
+	default "bootflow scan" if BOOTSTD_BOOTCOMMAND && !CMD_BOOTFLOW_FULL
+	default "run distro_bootcmd" if !BOOTSTD_BOOTCOMMAND && DISTRO_DEFAULTS
 	help
 	  This is the string of commands that will be used as bootcmd and if
 	  AUTOBOOT is set, automatically run.
