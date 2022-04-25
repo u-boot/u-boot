@@ -189,11 +189,12 @@ long trailing_strtoln(const char *str, const char *end)
 
 	if (!end)
 		end = str + strlen(str);
-	if (isdigit(end[-1])) {
-		for (p = end - 1; p > str; p--) {
-			if (!isdigit(*p))
-				return dectoul(p + 1, NULL);
-		}
+	p = end - 1;
+	if (p > str && isdigit(*p)) {
+		do {
+			if (!isdigit(p[-1]))
+				return dectoul(p, NULL);
+		} while (--p > str);
 	}
 
 	return -1;

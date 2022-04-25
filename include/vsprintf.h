@@ -98,6 +98,9 @@ long long simple_strtoll(const char *cp, char **endp, unsigned int base);
  * Given a string this finds a trailing number on the string and returns it.
  * For example, "abc123" would return 123.
  *
+ * Note that this does not handle a string without a prefix. See dectoul() for
+ * that case.
+ *
  * @str:	String to examine
  * Return: trailing number if found, else -1
  */

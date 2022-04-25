@@ -257,6 +257,8 @@ static int str_trailing(struct unit_test_state *uts)
 	ut_asserteq(123, trailing_strtoln(str1, str1 + 6));
 	ut_asserteq(-1, trailing_strtoln(str1, str1 + 9));
 
+	ut_asserteq(3, trailing_strtol("a3"));
+
 	return 0;
 }
 STR_TEST(str_trailing, 0);
