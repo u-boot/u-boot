@@ -155,6 +155,22 @@ int uclass_find_first_device(enum uclass_id id, struct udevice **devp);
 int uclass_find_next_device(struct udevice **devp);
 
 /**
+ * uclass_find_device_by_namelen() - Find uclass device based on ID and name
+ *
+ * This searches for a device with the exactly given name.
+ *
+ * The device is NOT probed, it is merely returned.
+ *
+ * @id: ID to look up
+ * @name: name of a device to find
+ * @len: Length of @name (the uclass driver name must have the same length)
+ * @devp: Returns pointer to device (the first one with the name)
+ * Return: 0 if OK, -ve on error
+ */
+int uclass_find_device_by_namelen(enum uclass_id id, const char *name, int len,
+				  struct udevice **devp);
+
+/**
  * uclass_find_device_by_name() - Find uclass device based on ID and name
  *
  * This searches for a device with the exactly given name.

@@ -799,7 +799,7 @@ int device_find_first_child_by_uclass(const struct udevice *parent,
 				      struct udevice **devp);
 
 /**
- * device_find_child_by_name() - Find a child by device name
+ * device_find_child_by_namelen() - Find a child by device name
  *
  * @parent:	Parent device to search
  * @name:	Name to look for

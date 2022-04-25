@@ -1260,3 +1260,18 @@ static int dm_test_get_stats(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_get_stats, UT_TESTF_SCAN_FDT);
+
+/* Test uclass_find_device_by_name() */
+static int dm_test_uclass_find_device(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_device_by_name(UCLASS_I2C, "i2c@0", &dev));
+	ut_asserteq(-ENODEV,
+		    uclass_find_device_by_name(UCLASS_I2C, "i2c@0x", &dev));
+	ut_assertok(uclass_find_device_by_namelen(UCLASS_I2C, "i2c@0x", 5,
+						  &dev));
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_find_device, UT_TESTF_SCAN_FDT);

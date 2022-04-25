@@ -274,8 +274,8 @@ int uclass_find_next_device(struct udevice **devp)
 	return 0;
 }
 
-int uclass_find_device_by_name(enum uclass_id id, const char *name,
-			       struct udevice **devp)
+int uclass_find_device_by_namelen(enum uclass_id id, const char *name, int len,
+				  struct udevice **devp)
 {
 	struct uclass *uc;
 	struct udevice *dev;
@@ -289,13 +289,20 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		if (!strcmp(dev->name, name)) {
+		if (!strncmp(dev->name, name, len) &&
+		    strlen(dev->name) == len) {
 			*devp = dev;
 			return 0;
 		}
 	}
 
 	return -ENODEV;
+}
+
+int uclass_find_device_by_name(enum uclass_id id, const char *name,
+			       struct udevice **devp)
+{
+	return uclass_find_device_by_namelen(id, name, strlen(name), devp);
 }
 
 int uclass_find_next_free_seq(struct uclass *uc)
