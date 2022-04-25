@@ -771,7 +771,7 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
 		/* ram_top is before this region, reserve all */
 		efi_add_memory_map_pg(ram_start, pages,
 				      EFI_BOOT_SERVICES_DATA, true);
-	} else if ((ram_top >= ram_start) && (ram_top < ram_end)) {
+	} else if (ram_top < ram_end) {
 		/* ram_top is inside this region, reserve parts */
 		pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
 
