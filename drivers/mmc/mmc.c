@@ -863,6 +863,33 @@ int mmc_boot_wp(struct mmc *mmc)
 	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_WP, 1);
 }
 
+int mmc_boot_wp_single_partition(struct mmc *mmc, int partition)
+{
+	u8 value;
+	int ret;
+
+	value = EXT_CSD_BOOT_WP_B_PWR_WP_EN;
+
+	if (partition == 0) {
+		value |= EXT_CSD_BOOT_WP_B_SEC_WP_SEL;
+		ret = mmc_switch(mmc,
+				 EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_BOOT_WP,
+				 value);
+	} else if (partition == 1) {
+		value |= EXT_CSD_BOOT_WP_B_SEC_WP_SEL;
+		value |= EXT_CSD_BOOT_WP_B_PWR_WP_SEC_SEL;
+		ret = mmc_switch(mmc,
+				 EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_BOOT_WP,
+				 value);
+	} else {
+		ret = mmc_boot_wp(mmc);
+	}
+
+	return ret;
+}
+
 #if !CONFIG_IS_ENABLED(MMC_TINY)
 static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode,
 			      bool hsdowngrade)
