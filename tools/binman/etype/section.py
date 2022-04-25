@@ -788,6 +788,9 @@ class Entry_section(Entry):
                 data = new_data
         return data
 
+    def WriteData(self, data, decomp=True):
+        self.Raise("Replacing sections is not implemented yet")
+
     def WriteChildData(self, child):
         return True
 

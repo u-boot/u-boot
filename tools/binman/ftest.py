@@ -3764,6 +3764,13 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(len(kernel_data), int(data_sizes[0].split()[0]))
         self.assertEqual(len(fdt1_data), int(data_sizes[1].split()[0]))
 
+        # Check if entry listing correctly omits /images/
+        image = control.images['image']
+        fit_entry = image.GetEntries()['fit']
+        subentries = list(fit_entry.GetEntries().keys())
+        expected = ['kernel', 'fdt-1']
+        self.assertEqual(expected, subentries)
+
     def testSimpleFit(self):
         """Test an image with a FIT inside"""
         data = self._DoReadFile('161_fit.dts')
@@ -5522,6 +5529,179 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test an image with a pre-load header with an invalid key"""
         with self.assertRaises(ValueError) as e:
             data = self._DoReadFile('231_pre_load_invalid_key.dts')
+
+    def _CheckSafeUniqueNames(self, *images):
+        """Check all entries of given images for unsafe unique names"""
+        for image in images:
+            entries = {}
+            image._CollectEntries(entries, {}, image)
+            for entry in entries.values():
+                uniq = entry.GetUniqueName()
+
+                # Used as part of a filename, so must not be absolute paths.
+                self.assertFalse(os.path.isabs(uniq))
+
+    def testSafeUniqueNames(self):
+        """Test entry unique names are safe in single image configuration"""
+        data = self._DoReadFileRealDtb('230_unique_names.dts')
+
+        orig_image = control.images['image']
+        image_fname = tools.get_output_filename('image.bin')
+        image = Image.FromFile(image_fname)
+
+        self._CheckSafeUniqueNames(orig_image, image)
+
+    def testSafeUniqueNamesMulti(self):
+        """Test entry unique names are safe with multiple images"""
+        data = self._DoReadFileRealDtb('231_unique_names_multi.dts')
+
+        orig_image = control.images['image']
+        image_fname = tools.get_output_filename('image.bin')
+        image = Image.FromFile(image_fname)
+
+        self._CheckSafeUniqueNames(orig_image, image)
+
+    def testReplaceCmdWithBintool(self):
+        """Test replacing an entry that needs a bintool to pack"""
+        data = self._DoReadFileRealDtb('232_replace_with_bintool.dts')
+        expected = U_BOOT_DATA + b'aa'
+        self.assertEqual(expected, data[:len(expected)])
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            fname = os.path.join(tmpdir, 'update-testing.bin')
+            tools.write_file(fname, b'zz')
+            self._DoBinman('replace', '-i', updated_fname,
+                           '_testing', '-f', fname)
+
+            data = tools.read_file(updated_fname)
+            expected = U_BOOT_DATA + b'zz'
+            self.assertEqual(expected, data[:len(expected)])
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testReplaceCmdOtherWithBintool(self):
+        """Test replacing an entry when another needs a bintool to pack"""
+        data = self._DoReadFileRealDtb('232_replace_with_bintool.dts')
+        expected = U_BOOT_DATA + b'aa'
+        self.assertEqual(expected, data[:len(expected)])
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            fname = os.path.join(tmpdir, 'update-u-boot.bin')
+            tools.write_file(fname, b'x' * len(U_BOOT_DATA))
+            self._DoBinman('replace', '-i', updated_fname,
+                           'u-boot', '-f', fname)
+
+            data = tools.read_file(updated_fname)
+            expected = b'x' * len(U_BOOT_DATA) + b'aa'
+            self.assertEqual(expected, data[:len(expected)])
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testReplaceResizeNoRepackSameSize(self):
+        """Test replacing entries with same-size data without repacking"""
+        expected = b'x' * len(U_BOOT_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd('u-boot', expected)
+        self.assertEqual(expected, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
+    def testReplaceResizeNoRepackSmallerSize(self):
+        """Test replacing entries with smaller-size data without repacking"""
+        new_data = b'x'
+        data, expected_fdtmap, _ = self._RunReplaceCmd('u-boot', new_data)
+        expected = new_data.ljust(len(U_BOOT_DATA), b'\0')
+        self.assertEqual(expected, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
+    def testExtractFit(self):
+        """Test extracting a FIT section"""
+        self._DoReadFileRealDtb('233_fit_extract_replace.dts')
+        image_fname = tools.get_output_filename('image.bin')
+
+        fit_data = control.ReadEntry(image_fname, 'fit')
+        fit = fdt.Fdt.FromData(fit_data)
+        fit.Scan()
+
+        # Check subentry data inside the extracted fit
+        for node_path, expected in [
+            ('/images/kernel', U_BOOT_DATA),
+            ('/images/fdt-1', U_BOOT_NODTB_DATA),
+            ('/images/scr-1', COMPRESS_DATA),
+        ]:
+            node = fit.GetNode(node_path)
+            data = fit.GetProps(node)['data'].bytes
+            self.assertEqual(expected, data)
+
+    def testExtractFitSubentries(self):
+        """Test extracting FIT section subentries"""
+        self._DoReadFileRealDtb('233_fit_extract_replace.dts')
+        image_fname = tools.get_output_filename('image.bin')
+
+        for entry_path, expected in [
+            ('fit/kernel', U_BOOT_DATA),
+            ('fit/kernel/u-boot', U_BOOT_DATA),
+            ('fit/fdt-1', U_BOOT_NODTB_DATA),
+            ('fit/fdt-1/u-boot-nodtb', U_BOOT_NODTB_DATA),
+            ('fit/scr-1', COMPRESS_DATA),
+            ('fit/scr-1/blob', COMPRESS_DATA),
+        ]:
+            data = control.ReadEntry(image_fname, entry_path)
+            self.assertEqual(expected, data)
+
+    def testReplaceFitSubentryLeafSameSize(self):
+        """Test replacing a FIT leaf subentry with same-size data"""
+        new_data = b'x' * len(U_BOOT_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd(
+            'fit/kernel/u-boot', new_data,
+            dts='233_fit_extract_replace.dts')
+        self.assertEqual(new_data, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
+    def testReplaceFitSubentryLeafBiggerSize(self):
+        """Test replacing a FIT leaf subentry with bigger-size data"""
+        new_data = b'ub' * len(U_BOOT_NODTB_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd(
+            'fit/fdt-1/u-boot-nodtb', new_data,
+            dts='233_fit_extract_replace.dts')
+        self.assertEqual(new_data, data)
+
+        # Will be repacked, so fdtmap must change
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertNotEqual(expected_fdtmap, fdtmap)
+
+    def testReplaceFitSubentryLeafSmallerSize(self):
+        """Test replacing a FIT leaf subentry with smaller-size data"""
+        new_data = b'x'
+        expected = new_data.ljust(len(U_BOOT_NODTB_DATA), b'\0')
+        data, expected_fdtmap, _ = self._RunReplaceCmd(
+            'fit/fdt-1/u-boot-nodtb', new_data,
+            dts='233_fit_extract_replace.dts')
+        self.assertEqual(expected, data)
+
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
+    @unittest.expectedFailure
+    def testReplaceSectionSimple(self):
+        """Test replacing a simple section with arbitrary data"""
+        new_data = b'w' * len(COMPRESS_DATA + U_BOOT_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd(
+            'section', new_data,
+            dts='234_replace_section_simple.dts')
+        self.assertEqual(new_data, data)
+
 
 if __name__ == "__main__":
     unittest.main()

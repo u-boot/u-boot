@@ -9,7 +9,6 @@
 
 """See README for more information"""
 
-from distutils.sysconfig import get_python_lib
 import os
 import site
 import sys
@@ -43,12 +42,6 @@ sys.path.insert(2, 'scripts/dtc/pylibfdt')
 sys.path.insert(2, os.path.join(srctree, 'scripts/dtc/pylibfdt'))
 sys.path.insert(2, os.path.join(srctree, 'build-sandbox/scripts/dtc/pylibfdt'))
 sys.path.insert(2, os.path.join(srctree, 'build-sandbox_spl/scripts/dtc/pylibfdt'))
-
-# When running under python-coverage on Ubuntu 16.04, the dist-packages
-# directories are dropped from the python path. Add them in so that we can find
-# the elffile module. We could use site.getsitepackages() here but unfortunately
-# that is not available in a virtualenv.
-sys.path.append(get_python_lib())
 
 from binman import cmdline
 from binman import control

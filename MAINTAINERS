@@ -690,6 +690,7 @@ F:	arch/arm/dts/phytium-durian.dts
 
 BINMAN
 M:	Simon Glass <sjg@chromium.org>
+M:	Alper Nebi Yasak <alpernebiyasak@gmail.com>
 S:	Maintained
 F:	tools/binman/
 
