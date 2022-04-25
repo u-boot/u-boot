@@ -377,6 +377,17 @@ config BOOTMETH_SANDBOX
 	  This is a sandbox bootmeth driver used for testing. It always returns
 	  -ENOTSUPP when attempting to boot.
 
+config BOOTMETH_SCRIPT
+	bool "Bootdev support for U-Boot scripts"
+	default y if BOOTSTD_FULL
+	help
+	  Enables support for booting a distro via a U-Boot script. This makes
+	  the bootdevs look for a 'boot/boot.scr' file which can be used to
+	  boot the distro.
+
+	  This provides a way to try out standard boot on an existing boot flow.
+	  It is not enabled by default to save space.
+
 endif
 
 config LEGACY_IMAGE_FORMAT
