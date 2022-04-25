@@ -349,6 +349,27 @@ config BOOTMETH_DISTRO_PXE
 
 	  This provides a way to try out standard boot on an existing boot flow.
 
+config BOOTMETH_EFILOADER
+	bool "Bootdev support for EFI boot"
+	depends on CMD_BOOTEFI
+	default y
+	help
+	  Enables support for EFI boot using bootdevs. This makes the
+	  bootdevs look for a 'boot<arch>.efi' on each filesystem
+	  they scan. The resulting file is booted after enabling U-Boot's
+	  EFI loader support.
+
+	  The <arch> depends on the architecture of the board:
+
+	     aa64      - aarch64 (ARM 64-bit)
+	     arm       - ARM 32-bit
+	     ia32      - x86 32-bit
+	     x64       - x86 64-bit
+	     riscv32   - RISC-V 32-bit
+	     riscv64   - RISC-V 64-bit
+
+	  This provides a way to try out standard boot on an existing boot flow.
+
 endif
 
 config LEGACY_IMAGE_FORMAT
