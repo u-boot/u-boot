@@ -150,6 +150,12 @@ int dm_scan_other(bool pre_reloc_only)
 		}
 	}
 
+	/* Create the system bootdev too */
+	ret = device_bind_driver(bootstd, "system_bootdev", "system-bootdev",
+				 &dev);
+	if (ret)
+		return log_msg_ret("sys", ret);
+
 	return 0;
 }
 
