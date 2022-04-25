@@ -700,6 +700,7 @@ F:	boot/bootdev*.c
 F:	boot/bootflow.c
 F:	boot/bootmeth*.c
 F:	boot/bootstd.c
+F:	cmd/bootdev.c
 F:	include/bootdev*.h
 F:	include/bootflow.h
 F:	include/bootmeth.h
