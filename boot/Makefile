@@ -19,6 +19,7 @@ obj-y += image.o image-board.o
 obj-$(CONFIG_ANDROID_AB) += android_ab.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o image-android-dt.o
 
+obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootdev-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootstd-uclass.o
 
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += image-fdt.o

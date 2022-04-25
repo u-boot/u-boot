@@ -696,9 +696,11 @@ F:	tools/binman/
 BOOTDEVICE
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
+F:	boot/bootdev*.c
 F:	boot/bootstd.c
-F:	include/bootstd.h
+F:	include/bootdev*.h
 F:	include/bootflow.h
+F:	include/bootstd.h
 
 BTRFS
 M:	Marek Behun <marek.behun@nic.cz>
