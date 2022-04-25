@@ -242,6 +242,25 @@ static int str_xtoa(struct unit_test_state *uts)
 }
 STR_TEST(str_xtoa, 0);
 
+static int str_trailing(struct unit_test_state *uts)
+{
+	char str1[] = "abc123def";
+
+	ut_asserteq(-1, trailing_strtol(""));
+	ut_asserteq(-1, trailing_strtol("123"));
+	ut_asserteq(123, trailing_strtol("abc123"));
+	ut_asserteq(4, trailing_strtol("12c4"));
+	ut_asserteq(-1, trailing_strtol("abd"));
+	ut_asserteq(-1, trailing_strtol("abc123def"));
+
+	ut_asserteq(-1, trailing_strtoln(str1, NULL));
+	ut_asserteq(123, trailing_strtoln(str1, str1 + 6));
+	ut_asserteq(-1, trailing_strtoln(str1, str1 + 9));
+
+	return 0;
+}
+STR_TEST(str_trailing, 0);
+
 int do_ut_str(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(str_test);
