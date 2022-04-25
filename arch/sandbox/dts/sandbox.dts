@@ -66,6 +66,10 @@
 		fake-host-hwaddr = [00 00 66 44 22 00];
 	};
 
+	host-fs {
+		compatible = "sandbox,bootdev-host";
+	};
+
 	i2c_0: i2c@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
