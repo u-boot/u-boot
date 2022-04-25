@@ -292,6 +292,117 @@ endif # SPL
 
 endif # FIT
 
+config BOOTSTD
+	bool "Standard boot support"
+	default y
+	depends on DM && OF_CONTROL && BLK
+	help
+	  U-Boot supports a standard way of locating something to boot,
+	  typically an Operating System such as Linux, provided by a distro such
+	  as Arch Linux or Debian. Enable this to support iterating through
+	  available bootdevs and using bootmeths to find bootflows suitable for
+	  booting.
+
+	  Standard boot is not a standard way of booting, just a framework
+	  within U-Boot for supporting all the different ways that exist.
+
+	  Terminology:
+
+	    - bootdev - a device which can hold a distro (e.g. MMC)
+	    - bootmeth - a method to scan a bootdev to find bootflows (owned by
+	        U-Boot)
+	    - bootflow - a description of how to boot (owned by the distro)
+
+config BOOTSTD_FULL
+	bool "Enhanced features for standard boot"
+	default y if SANDBOX
+	help
+	  This enables various useful features for standard boot, which are not
+	  essential for operation:
+
+	  - bootdev, bootmeth commands
+	  - extra features in the bootflow command
+	  - support for selecting the ordering of bootmeths ("bootmeth order")
+	  - support for selecting the ordering of bootdevs using the devicetree
+	    as well as the "boot_targets" environment variable
+
+if BOOTSTD
+
+config BOOTSTD_BOOTCOMMAND
+	bool "Use bootstd to boot"
+	default y if !DISTRO_DEFAULTS
+	help
+	  Enable this to select a default boot-command suitable for booting
+	  with standard boot. This can be overridden by the board if needed,
+	  but the default command should be enough for most boards which use
+	  standard boot.
+
+	  For now this is only selected if distro boot is NOT used, since
+	  standard boot does not support all of the features of distro boot
+	  yet.
+
+config BOOTMETH_DISTRO
+	bool "Bootdev support for distro boot"
+	depends on CMD_PXE
+	default y
+	help
+	  Enables support for distro boot using bootdevs. This makes the
+	  bootdevs look for a 'extlinux/extlinux.conf' on each filesystem
+	  they scan.
+
+	  This provides a way to try out standard boot on an existing boot flow.
+
+config BOOTMETH_DISTRO_PXE
+	bool "Bootdev support for distro boot over network"
+	depends on CMD_PXE && CMD_NET && DM_ETH
+	default y
+	help
+	  Enables support for distro boot using bootdevs. This makes the
+	  bootdevs look for a 'extlinux/extlinux.conf' on the tftp server.
+
+	  This provides a way to try out standard boot on an existing boot flow.
+
+config BOOTMETH_EFILOADER
+	bool "Bootdev support for EFI boot"
+	depends on CMD_BOOTEFI
+	default y
+	help
+	  Enables support for EFI boot using bootdevs. This makes the
+	  bootdevs look for a 'boot<arch>.efi' on each filesystem
+	  they scan. The resulting file is booted after enabling U-Boot's
+	  EFI loader support.
+
+	  The <arch> depends on the architecture of the board:
+
+	     aa64      - aarch64 (ARM 64-bit)
+	     arm       - ARM 32-bit
+	     ia32      - x86 32-bit
+	     x64       - x86 64-bit
+	     riscv32   - RISC-V 32-bit
+	     riscv64   - RISC-V 64-bit
+
+	  This provides a way to try out standard boot on an existing boot flow.
+
+config BOOTMETH_SANDBOX
+	def_bool y
+	depends on SANDBOX
+	help
+	  This is a sandbox bootmeth driver used for testing. It always returns
+	  -ENOTSUPP when attempting to boot.
+
+config BOOTMETH_SCRIPT
+	bool "Bootdev support for U-Boot scripts"
+	default y if BOOTSTD_FULL
+	help
+	  Enables support for booting a distro via a U-Boot script. This makes
+	  the bootdevs look for a 'boot/boot.scr' file which can be used to
+	  boot the distro.
+
+	  This provides a way to try out standard boot on an existing boot flow.
+	  It is not enabled by default to save space.
+
+endif
+
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
 	default y if !FIT_SIGNATURE
@@ -1162,7 +1273,9 @@ config USE_BOOTCOMMAND
 config BOOTCOMMAND
 	string "bootcmd value"
 	depends on USE_BOOTCOMMAND && !USE_DEFAULT_ENV_FILE
-	default "run distro_bootcmd" if DISTRO_DEFAULTS
+	default "bootflow scan -lb" if BOOTSTD_BOOTCOMMAND && CMD_BOOTFLOW_FULL
+	default "bootflow scan" if BOOTSTD_BOOTCOMMAND && !CMD_BOOTFLOW_FULL
+	default "run distro_bootcmd" if !BOOTSTD_BOOTCOMMAND && DISTRO_DEFAULTS
 	help
 	  This is the string of commands that will be used as bootcmd and if
 	  AUTOBOOT is set, automatically run.

@@ -434,6 +434,14 @@ int blk_select_hwpart(struct udevice *dev, int hwpart);
 int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
 
 /**
+ * blk_get_devtype() - Get the device type of a block device
+ *
+ * @dev:	Block device to check
+ * Return: device tree, i.e. the uclass name of its parent, e.g. "mmc"
+ */
+const char *blk_get_devtype(struct udevice *dev);
+
+/**
  * blk_get_by_device() - Get the block device descriptor for the given device
  * @dev:	Instance of a storage device
  *

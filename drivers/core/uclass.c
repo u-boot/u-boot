@@ -180,14 +180,15 @@ void uclass_set_priv(struct uclass *uc, void *priv)
 	uc->priv_ = priv;
 }
 
-enum uclass_id uclass_get_by_name_len(const char *name, int len)
+enum uclass_id uclass_get_by_namelen(const char *name, int len)
 {
 	int i;
 
 	for (i = 0; i < UCLASS_COUNT; i++) {
 		struct uclass_driver *uc_drv = lists_uclass_lookup(i);
 
-		if (uc_drv && !strncmp(uc_drv->name, name, len))
+		if (uc_drv && !strncmp(uc_drv->name, name, len) &&
+		    strlen(uc_drv->name) == len)
 			return i;
 	}
 
@@ -196,7 +197,7 @@ enum uclass_id uclass_get_by_name_len(const char *name, int len)
 
 enum uclass_id uclass_get_by_name(const char *name)
 {
-	return uclass_get_by_name_len(name, strlen(name));
+	return uclass_get_by_namelen(name, strlen(name));
 }
 
 int dev_get_uclass_index(struct udevice *dev, struct uclass **ucp)
@@ -273,8 +274,8 @@ int uclass_find_next_device(struct udevice **devp)
 	return 0;
 }
 
-int uclass_find_device_by_name(enum uclass_id id, const char *name,
-			       struct udevice **devp)
+int uclass_find_device_by_namelen(enum uclass_id id, const char *name, int len,
+				  struct udevice **devp)
 {
 	struct uclass *uc;
 	struct udevice *dev;
@@ -288,13 +289,20 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 		return ret;
 
 	uclass_foreach_dev(dev, uc) {
-		if (!strcmp(dev->name, name)) {
+		if (!strncmp(dev->name, name, len) &&
+		    strlen(dev->name) == len) {
 			*devp = dev;
 			return 0;
 		}
 	}
 
 	return -ENODEV;
+}
+
+int uclass_find_device_by_name(enum uclass_id id, const char *name,
+			       struct udevice **devp)
+{
+	return uclass_find_device_by_namelen(id, name, strlen(name), devp);
 }
 
 int uclass_find_next_free_seq(struct uclass *uc)

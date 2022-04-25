@@ -15,6 +15,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Allow resetting the USB-started flag */
+extern char usb_started;
+
 /* Test that block devices can be created */
 static int dm_test_blk_base(struct unit_test_state *uts)
 {
@@ -66,8 +69,11 @@ static int dm_test_blk_usb(struct unit_test_state *uts)
 	struct udevice *usb_dev, *dev;
 	struct blk_desc *dev_desc;
 
+	usb_started = false;
+
 	/* Get a flash device */
 	state_set_skip_delays(true);
+	ut_assertok(usb_stop());
 	ut_assertok(usb_init());
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &usb_dev));
 	ut_assertok(blk_get_device_by_str("usb", "0", &dev_desc));

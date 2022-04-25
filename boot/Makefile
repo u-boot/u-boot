@@ -18,6 +18,21 @@ endif
 obj-y += image.o image-board.o
 obj-$(CONFIG_ANDROID_AB) += android_ab.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o image-android-dt.o
+
+obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootdev-uclass.o system_bootdev.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootflow.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootmeth-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootstd-uclass.o
+
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_DISTRO) += bootmeth_distro.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_DISTRO_PXE) += bootmeth_pxe.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_EFILOADER) += bootmeth_efi.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_SANDBOX) += bootmeth_sandbox.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_SCRIPT) += bootmeth_script.o
+ifdef CONFIG_$(SPL_TPL_)BOOTSTD_FULL
+obj-$(CONFIG_$(SPL_TPL_)CMD_BOOTEFI_BOOTMGR) += bootmeth_efi_mgr.o
+endif
+
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_$(SPL_TPL_)FIT_SIGNATURE) += fdt_region.o
 obj-$(CONFIG_$(SPL_TPL_)FIT) += image-fit.o

@@ -23,9 +23,12 @@ Shell commands
    cmd/addrmap
    cmd/askenv
    cmd/base
+   cmd/bootdev
    cmd/bootefi
+   cmd/bootflow
    cmd/booti
    cmd/bootmenu
+   cmd/bootmeth
    cmd/button
    cmd/cbsysinfo
    cmd/conitrace

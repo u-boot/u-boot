@@ -19,6 +19,11 @@
 		#sound-dai-cells = <1>;
 	};
 
+	bootstd {
+		compatible = "u-boot,boot-std";
+		filename-prefixes = "./";
+	};
+
 	buttons {
 		compatible = "gpio-keys";
 

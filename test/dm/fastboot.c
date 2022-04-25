@@ -81,9 +81,9 @@ static int dm_test_fastboot_mmc_part(struct unit_test_state *uts)
 						  &part_info, response));
 	ut_asserteq(0, fastboot_mmc_get_part_info("0.0:0", &fb_dev_desc,
 						  &part_info, response));
-	ut_asserteq(0, fastboot_mmc_get_part_info("1", &fb_dev_desc,
+	ut_asserteq(0, fastboot_mmc_get_part_info("2", &fb_dev_desc,
 						  &part_info, response));
-	ut_asserteq(0, fastboot_mmc_get_part_info("1.0", &fb_dev_desc,
+	ut_asserteq(0, fastboot_mmc_get_part_info("2.0", &fb_dev_desc,
 						  &part_info, response));
 	ut_asserteq(1, fastboot_mmc_get_part_info(":1", &fb_dev_desc,
 						  &part_info, response));

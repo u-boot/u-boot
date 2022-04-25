@@ -173,13 +173,13 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
 const char *uclass_get_name(enum uclass_id id);
 
 /**
- * uclass_get_by_name_len() - Look up a uclass by its partial driver name
+ * uclass_get_by_namelen() - Look up a uclass by its driver name
  *
  * @name: Name to look up
- * @len: Length of the partial name
+ * @len: Length of @name (the uclass driver name must have the same length)
  * Return: the associated uclass ID, or UCLASS_INVALID if not found
  */
-enum uclass_id uclass_get_by_name_len(const char *name, int len);
+enum uclass_id uclass_get_by_namelen(const char *name, int len);
 
 /**
  * uclass_get_by_name() - Look up a uclass by its driver name

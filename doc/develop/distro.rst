@@ -157,6 +157,9 @@ a line with "CONFIG_DISTRO_DEFAULTS=y". If you want to enable this
 from Kconfig itself, for e.g. all boards using a specific SoC then
 add a "imply DISTRO_DEFAULTS" to your SoC CONFIG option.
 
+
+TO BE UPDATED:
+
 In your board configuration file, include the following::
 
     #ifndef CONFIG_SPL_BUILD

@@ -36,6 +36,11 @@ static int fs_dev_part;
 static struct disk_partition fs_partition;
 static int fs_type = FS_TYPE_ANY;
 
+void fs_set_type(int type)
+{
+	fs_type = type;
+}
+
 static inline int fs_probe_unsupported(struct blk_desc *fs_dev_desc,
 				      struct disk_partition *fs_partition)
 {

@@ -202,6 +202,78 @@ static int str_dectoul(struct unit_test_state *uts)
 }
 STR_TEST(str_dectoul, 0);
 
+static int str_itoa(struct unit_test_state *uts)
+{
+	ut_asserteq_str("123", simple_itoa(123));
+	ut_asserteq_str("0", simple_itoa(0));
+	ut_asserteq_str("2147483647", simple_itoa(0x7fffffff));
+	ut_asserteq_str("4294967295", simple_itoa(0xffffffff));
+
+	/* Use #ifdef here to avoid a compiler warning on 32-bit machines */
+#ifdef CONFIG_PHYS_64BIT
+	if (sizeof(ulong) == 8) {
+		ut_asserteq_str("9223372036854775807",
+				simple_itoa((1UL << 63) - 1));
+		ut_asserteq_str("18446744073709551615", simple_itoa(-1));
+	}
+#endif /* CONFIG_PHYS_64BIT */
+
+	return 0;
+}
+STR_TEST(str_itoa, 0);
+
+static int str_xtoa(struct unit_test_state *uts)
+{
+	ut_asserteq_str("7f", simple_xtoa(127));
+	ut_asserteq_str("00", simple_xtoa(0));
+	ut_asserteq_str("7fffffff", simple_xtoa(0x7fffffff));
+	ut_asserteq_str("ffffffff", simple_xtoa(0xffffffff));
+
+	/* Use #ifdef here to avoid a compiler warning on 32-bit machines */
+#ifdef CONFIG_PHYS_64BIT
+	if (sizeof(ulong) == 8) {
+		ut_asserteq_str("7fffffffffffffff",
+				simple_xtoa((1UL << 63) - 1));
+		ut_asserteq_str("ffffffffffffffff", simple_xtoa(-1));
+	}
+#endif /* CONFIG_PHYS_64BIT */
+
+	return 0;
+}
+STR_TEST(str_xtoa, 0);
+
+static int str_trailing(struct unit_test_state *uts)
+{
+	const char str1[] = "abc123def";
+	const char str2[] = "abc123def456";
+	const char *end;
+
+	ut_asserteq(-1, trailing_strtol(""));
+	ut_asserteq(-1, trailing_strtol("123"));
+	ut_asserteq(123, trailing_strtol("abc123"));
+	ut_asserteq(4, trailing_strtol("12c4"));
+	ut_asserteq(-1, trailing_strtol("abd"));
+	ut_asserteq(-1, trailing_strtol("abc123def"));
+
+	ut_asserteq(-1, trailing_strtoln(str1, NULL));
+	ut_asserteq(123, trailing_strtoln(str1, str1 + 6));
+	ut_asserteq(-1, trailing_strtoln(str1, str1 + 9));
+
+	ut_asserteq(3, trailing_strtol("a3"));
+
+	ut_asserteq(123, trailing_strtoln_end(str1, str1 + 6, &end));
+	ut_asserteq(3, end - str1);
+
+	ut_asserteq(-1, trailing_strtoln_end(str1, str1 + 7, &end));
+	ut_asserteq(7, end - str1);
+
+	ut_asserteq(456, trailing_strtoln_end(str2, NULL, &end));
+	ut_asserteq(9, end - str2);
+
+	return 0;
+}
+STR_TEST(str_trailing, 0);
+
 int do_ut_str(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(str_test);

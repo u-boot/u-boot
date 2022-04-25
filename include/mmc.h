@@ -956,9 +956,19 @@ int mmc_get_env_dev(void);
  * mmc_get_blk_desc() - Get the block descriptor for an MMC device
  *
  * @mmc:	MMC device
- * Return: block device if found, else NULL
+ * Return: block descriptor if found, else NULL
  */
 struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
+
+/**
+ * mmc_get_blk() - Get the block device for an MMC device
+ *
+ * @dev:	MMC device
+ * @blkp:	Returns pointer to probed block device on sucesss
+ *
+ * Return: 0 on success, -ve on error
+ */
+int mmc_get_blk(struct udevice *dev, struct udevice **blkp);
 
 /**
  * mmc_send_ext_csd() - read the extended CSD register

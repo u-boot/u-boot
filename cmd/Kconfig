@@ -211,6 +211,45 @@ config CMD_BOOTM_PRE_LOAD
 	 This stage allow to check or modify the image provided
 	 to the bootm command.
 
+config CMD_BOOTDEV
+	bool "bootdev"
+	depends on BOOTSTD
+	default y if BOOTSTD_FULL
+	help
+	  Support listing available bootdevs (boot devices) which can provide an
+	  OS to boot, as well as showing information about a particular one.
+
+	  This command is not necessary for bootstd to work.
+
+config CMD_BOOTFLOW
+	bool "bootflow"
+	depends on BOOTSTD
+	default y
+	help
+	  Support scanning for bootflows available with the bootdevs. The
+	  bootflows can optionally be booted.
+
+config CMD_BOOTFLOW_FULL
+	bool "bootflow - extract subcommands"
+	depends on BOOTSTD_FULL
+	default y if BOOTSTD_FULL
+	help
+	  Add the ability to list the available bootflows, select one and obtain
+	  information about it.
+
+	  This command is not necessary for bootstd to work.
+
+config CMD_BOOTMETH
+	bool "bootmeth"
+	depends on BOOTSTD
+	default y if BOOTSTD_FULL
+	help
+	  Support listing available bootmethds (methods used to boot an
+	  Operating System), as well as selecting the order that the bootmeths
+	  are used.
+
+	  This command is not necessary for bootstd to work.
+
 config BOOTM_EFI
 	bool "Support booting UEFI FIT images"
 	depends on CMD_BOOTEFI && CMD_BOOTM && FIT
