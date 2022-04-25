@@ -25,4 +25,12 @@ Example:
 
 		filename-prefixes = "/", "/boot/";
 		bootdev-order = "mmc2", "mmc1";
+
+		syslinux {
+			compatible = "u-boot,distro-syslinux";
+		};
+
+		efi {
+			compatible = "u-boot,distro-efi";
+		};
 	};
