@@ -7,12 +7,17 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <dm/test.h>
 #include <test/test.h>
 #include <test/ut.h>
 
 static int dm_test_cmd_pinmux_status_pinname(struct unit_test_state *uts)
 {
+	struct udevice *dev;
+
+	ut_assertok(uclass_get_device(UCLASS_LED, 2, &dev));
+
 	/* Test that 'pinmux status <pinname>' displays the selected pin. */
 	console_record_reset();
 	run_command("pinmux status a5", 0);
