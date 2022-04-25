@@ -24,33 +24,6 @@
 
 #include <linux/delay.h>
 
-static unsigned int lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr)
-{
-	unsigned int tmp;
-
-	reg32_write(DRC_PERF_MON_MRR0_DAT(0), 0x1);
-	do {
-		tmp = reg32_read(DDRC_MRSTAT(0));
-	} while (tmp & 0x1);
-
-	reg32_write(DDRC_MRCTRL0(0), (mr_rank << 4) | 0x1);
-	reg32_write(DDRC_MRCTRL1(0), (mr_addr << 8));
-	reg32setbit(DDRC_MRCTRL0(0), 31);
-	do {
-		tmp = reg32_read(DRC_PERF_MON_MRR0_DAT(0));
-	} while ((tmp & 0x8) == 0);
-	tmp = reg32_read(DRC_PERF_MON_MRR1_DAT(0));
-	reg32_write(DRC_PERF_MON_MRR0_DAT(0), 0x4);
-	while (tmp) { //try to find a significant byte in the word
-		if (tmp & 0xff) {
-			tmp &= 0xff;
-			break;
-		}
-		tmp >>= 8;
-	}
-	return tmp;
-}
-
 struct lpddr4_desc {
 	char name[16];
 	unsigned int id;
