@@ -693,6 +693,11 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/binman/
 
+BOOTDEVICE
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	include/bootflow.h
+
 BTRFS
 M:	Marek Behun <marek.behun@nic.cz>
 R:	Qu Wenruo <wqu@suse.com>
