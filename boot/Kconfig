@@ -326,6 +326,21 @@ config BOOTSTD_FULL
 	  - support for selecting the ordering of bootdevs using the devicetree
 	    as well as the "boot_targets" environment variable
 
+if BOOTSTD
+
+config BOOTMETH_DISTRO
+	bool "Bootdev support for distro boot"
+	depends on CMD_PXE
+	default y
+	help
+	  Enables support for distro boot using bootdevs. This makes the
+	  bootdevs look for a 'extlinux/extlinux.conf' on each filesystem
+	  they scan.
+
+	  This provides a way to try out standard boot on an existing boot flow.
+
+endif
+
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
 	default y if !FIT_SIGNATURE
