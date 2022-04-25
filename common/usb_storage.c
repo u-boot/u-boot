@@ -34,6 +34,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <bootdev.h>
 #include <command.h>
 #include <dm.h>
 #include <errno.h>
@@ -243,6 +244,16 @@ static int usb_stor_probe_device(struct usb_device *udev)
 		ret = blk_probe_or_unbind(dev);
 		if (ret)
 			return ret;
+
+		ret = bootdev_setup_sibling_blk(dev, "usb_bootdev");
+		if (ret) {
+			int ret2;
+
+			ret2 = device_unbind(dev);
+			if (ret2)
+				return log_msg_ret("bootdev", ret2);
+			return log_msg_ret("bootdev", ret);
+		}
 	}
 #else
 	/* We don't have space to even probe if we hit the maximum */
