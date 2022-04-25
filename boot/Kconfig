@@ -339,6 +339,16 @@ config BOOTMETH_DISTRO
 
 	  This provides a way to try out standard boot on an existing boot flow.
 
+config BOOTMETH_DISTRO_PXE
+	bool "Bootdev support for distro boot over network"
+	depends on CMD_PXE && CMD_NET && DM_ETH
+	default y
+	help
+	  Enables support for distro boot using bootdevs. This makes the
+	  bootdevs look for a 'extlinux/extlinux.conf' on the tftp server.
+
+	  This provides a way to try out standard boot on an existing boot flow.
+
 endif
 
 config LEGACY_IMAGE_FORMAT
