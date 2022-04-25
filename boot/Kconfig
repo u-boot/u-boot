@@ -292,6 +292,40 @@ endif # SPL
 
 endif # FIT
 
+config BOOTSTD
+	bool "Standard boot support"
+	default y
+	depends on DM && OF_CONTROL && BLK
+	help
+	  U-Boot supports a standard way of locating something to boot,
+	  typically an Operating System such as Linux, provided by a distro such
+	  as Arch Linux or Debian. Enable this to support iterating through
+	  available bootdevs and using bootmeths to find bootflows suitable for
+	  booting.
+
+	  Standard boot is not a standard way of booting, just a framework
+	  within U-Boot for supporting all the different ways that exist.
+
+	  Terminology:
+
+	    - bootdev - a device which can hold a distro (e.g. MMC)
+	    - bootmeth - a method to scan a bootdev to find bootflows (owned by
+	        U-Boot)
+	    - bootflow - a description of how to boot (owned by the distro)
+
+config BOOTSTD_FULL
+	bool "Enhanced features for standard boot"
+	default y if SANDBOX
+	help
+	  This enables various useful features for standard boot, which are not
+	  essential for operation:
+
+	  - bootdev, bootmeth commands
+	  - extra features in the bootflow command
+	  - support for selecting the ordering of bootmeths ("bootmeth order")
+	  - support for selecting the ordering of bootdevs using the devicetree
+	    as well as the "boot_targets" environment variable
+
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
 	default y if !FIT_SIGNATURE
