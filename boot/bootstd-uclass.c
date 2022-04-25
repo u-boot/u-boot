@@ -109,8 +109,10 @@ static int bootstd_probe(struct udevice *dev)
 /* For now, bind the boormethod device if none are found in the devicetree */
 int dm_scan_other(bool pre_reloc_only)
 {
-	struct udevice *bootstd;
-	int ret;
+	struct driver *drv = ll_entry_start(struct driver, driver);
+	const int n_ents = ll_entry_count(struct driver, driver);
+	struct udevice *dev, *bootstd;
+	int i, ret;
 
 	/* These are not needed before relocation */
 	if (!(gd->flags & GD_FLG_RELOC))
@@ -123,6 +125,29 @@ int dm_scan_other(bool pre_reloc_only)
 					 &bootstd);
 		if (ret)
 			return log_msg_ret("bootstd", ret);
+	}
+
+	/* If there are no bootmeth devices, create them */
+	uclass_find_first_device(UCLASS_BOOTMETH, &dev);
+	if (dev)
+		return 0;
+
+	for (i = 0; i < n_ents; i++, drv++) {
+		/*
+		 * Disable EFI Manager for now as no one uses it so it is
+		 * confusing
+		 */
+		if (drv->id == UCLASS_BOOTMETH &&
+		    strcmp("efi_mgr_bootmeth", drv->name)) {
+			const char *name = drv->name;
+
+			if (!strncmp("bootmeth_", name, 9))
+				name += 9;
+			ret = device_bind(bootstd, drv, name, 0, ofnode_null(),
+					  &dev);
+			if (ret)
+				return log_msg_ret("meth", ret);
+		}
 	}
 
 	return 0;
