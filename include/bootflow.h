@@ -152,6 +152,18 @@ void bootflow_iter_init(struct bootflow_iter *iter, int flags);
 void bootflow_iter_uninit(struct bootflow_iter *iter);
 
 /**
+ * bootflow_iter_drop_bootmeth() - Remove a bootmeth from an iterator
+ *
+ * Update the iterator so that the bootmeth will not be used again while this
+ * iterator is in use
+ *
+ * @iter: Iterator to update
+ * @bmeth: Boot method to remove
+ */
+int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
+				const struct udevice *bmeth);
+
+/**
  * bootflow_scan_bootdev() - find the first bootflow in a bootdev
  *
  * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
@@ -256,5 +268,43 @@ int bootflow_run_boot(struct bootflow_iter *iter, struct bootflow *bflow);
  * Return: name, or "?" if invalid
  */
 const char *bootflow_state_get_name(enum bootflow_state_t state);
+
+/**
+ * bootflow_remove() - Remove a bootflow and free its memory
+ *
+ * This updates the linked lists containing the bootflow then frees it.
+ *
+ * @bflow: Bootflow to remove
+ */
+void bootflow_remove(struct bootflow *bflow);
+
+/**
+ * bootflow_iter_uses_blk_dev() - Check that a bootflow uses a block device
+ *
+ * This checks the bootdev in the bootflow to make sure it uses a block device
+ *
+ * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. ethernet)
+ */
+int bootflow_iter_uses_blk_dev(const struct bootflow_iter *iter);
+
+/**
+ * bootflow_iter_uses_network() - Check that a bootflow uses a network device
+ *
+ * This checks the bootdev in the bootflow to make sure it uses a network
+ * device
+ *
+ * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. MMC)
+ */
+int bootflow_iter_uses_network(const struct bootflow_iter *iter);
+
+/**
+ * bootflow_iter_uses_system() - Check that a bootflow uses the bootstd device
+ *
+ * This checks the bootdev in the bootflow to make sure it uses the bootstd
+ * device
+ *
+ * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. MMC)
+ */
+int bootflow_iter_uses_system(const struct bootflow_iter *iter);
 
 #endif

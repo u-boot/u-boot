@@ -45,7 +45,7 @@ static void bootstd_clear_glob_(struct bootstd_priv *priv)
 
 		bflow = list_first_entry(&priv->glob_head, struct bootflow,
 					 glob_node);
-		/* add later bootflow_remove(bflow); */
+		bootflow_remove(bflow);
 	}
 }
 
