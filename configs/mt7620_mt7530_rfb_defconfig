@@ -35,7 +35,6 @@ CONFIG_CMD_SPI=y
 # CONFIG_CMD_NFS is not set
 CONFIG_CMD_MII=y
 # CONFIG_CMD_MDIO is not set
-# CONFIG_PARTITIONS is not set
 CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clocks clock-names interrupt-parent interrupts resets reset-names"
 CONFIG_ENV_IS_IN_SPI_FLASH=y
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
