@@ -468,9 +468,11 @@ static int dwc3_glue_probe(struct udevice *dev)
 		ret = generic_phy_init(&phy);
 		if (ret)
 			return ret;
-	} else if (ret != -ENOENT) {
+	} else if (ret != -ENOENT && ret != -ENODATA) {
 		debug("could not get phy (err %d)\n", ret);
 		return ret;
+	} else {
+		phy.dev = NULL;
 	}
 
 	glue->regs = dev_read_addr(dev);
