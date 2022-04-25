@@ -8,6 +8,7 @@
 #define LOG_CATEGORY UCLASS_ETH
 
 #include <common.h>
+#include <bootdev.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>
@@ -473,6 +474,8 @@ int eth_initialize(void)
 
 static int eth_post_bind(struct udevice *dev)
 {
+	int ret;
+
 	if (strchr(dev->name, ' ')) {
 		printf("\nError: eth device name \"%s\" has a space!\n",
 		       dev->name);
@@ -482,6 +485,11 @@ static int eth_post_bind(struct udevice *dev)
 #ifdef CONFIG_DM_ETH_PHY
 	eth_phy_binds_nodes(dev);
 #endif
+	if (CONFIG_IS_ENABLED(BOOTDEV_ETH)) {
+		ret = bootdev_setup_for_dev(dev, "eth_bootdev");
+		if (ret)
+			return log_msg_ret("bootdev", ret);
+	}
 
 	return 0;
 }
