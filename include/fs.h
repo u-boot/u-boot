@@ -57,6 +57,17 @@ int do_ext2load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  */
 int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
 
+/**
+ * fs_set_type() - Tell fs layer which filesystem type is used
+ *
+ * This is needed when reading from a non-block device such as sandbox. It does
+ * a similar job to fs_set_blk_dev() but just sets the filesystem type instead
+ * of detecting it and loading it on the block device
+ *
+ * @type: Filesystem type to use (FS_TYPE...)
+ */
+void fs_set_type(int type);
+
 /*
  * fs_set_blk_dev_with_part - Set current block device + partition
  *
