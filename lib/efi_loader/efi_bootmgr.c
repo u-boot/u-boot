@@ -46,16 +46,12 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 				   void **load_options)
 {
 	struct efi_load_option lo;
-	u16 varname[] = u"Boot0000";
-	u16 hexmap[] = u"0123456789ABCDEF";
+	u16 varname[9];
 	void *load_option;
 	efi_uintn_t size;
 	efi_status_t ret;
 
-	varname[4] = hexmap[(n & 0xf000) >> 12];
-	varname[5] = hexmap[(n & 0x0f00) >> 8];
-	varname[6] = hexmap[(n & 0x00f0) >> 4];
-	varname[7] = hexmap[(n & 0x000f) >> 0];
+	efi_create_indexed_name(varname, sizeof(varname), "Boot", n);
 
 	load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
 	if (!load_option)
