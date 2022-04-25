@@ -1071,7 +1071,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 /********************************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char fdt_help_text[] =
-	"addr [-cq]  <addr> [<length>]   - Set the [control] fdt location to <addr>\n"
+	"addr [-c] [-q] <addr> [<size>]  - Set the [control] fdt location to <addr>\n"
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 	"fdt apply <addr>                    - Apply overlay to the DT\n"
 #endif
