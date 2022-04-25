@@ -244,7 +244,9 @@ STR_TEST(str_xtoa, 0);
 
 static int str_trailing(struct unit_test_state *uts)
 {
-	char str1[] = "abc123def";
+	const char str1[] = "abc123def";
+	const char str2[] = "abc123def456";
+	const char *end;
 
 	ut_asserteq(-1, trailing_strtol(""));
 	ut_asserteq(-1, trailing_strtol("123"));
@@ -258,6 +260,15 @@ static int str_trailing(struct unit_test_state *uts)
 	ut_asserteq(-1, trailing_strtoln(str1, str1 + 9));
 
 	ut_asserteq(3, trailing_strtol("a3"));
+
+	ut_asserteq(123, trailing_strtoln_end(str1, str1 + 6, &end));
+	ut_asserteq(3, end - str1);
+
+	ut_asserteq(-1, trailing_strtoln_end(str1, str1 + 7, &end));
+	ut_asserteq(7, end - str1);
+
+	ut_asserteq(456, trailing_strtoln_end(str2, NULL, &end));
+	ut_asserteq(9, end - str2);
 
 	return 0;
 }
