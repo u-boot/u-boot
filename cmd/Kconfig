@@ -239,6 +239,17 @@ config CMD_BOOTFLOW_FULL
 
 	  This command is not necessary for bootstd to work.
 
+config CMD_BOOTMETH
+	bool "bootmeth"
+	depends on BOOTSTD
+	default y if BOOTSTD_FULL
+	help
+	  Support listing available bootmethds (methods used to boot an
+	  Operating System), as well as selecting the order that the bootmeths
+	  are used.
+
+	  This command is not necessary for bootstd to work.
+
 config BOOTM_EFI
 	bool "Support booting UEFI FIT images"
 	depends on CMD_BOOTEFI && CMD_BOOTM && FIT
