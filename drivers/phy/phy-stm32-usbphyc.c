@@ -144,6 +144,7 @@ struct stm32_usbphyc {
 		bool init;
 		bool powered;
 	} phys[MAX_PHYS];
+	int n_pll_cons;
 };
 
 static void stm32_usbphyc_get_pll_params(u32 clk_rate,
@@ -203,18 +204,6 @@ static int stm32_usbphyc_pll_init(struct stm32_usbphyc *usbphyc)
 	return 0;
 }
 
-static bool stm32_usbphyc_is_init(struct stm32_usbphyc *usbphyc)
-{
-	int i;
-
-	for (i = 0; i < MAX_PHYS; i++) {
-		if (usbphyc->phys[i].init)
-			return true;
-	}
-
-	return false;
-}
-
 static bool stm32_usbphyc_is_powered(struct stm32_usbphyc *usbphyc)
 {
 	int i;
@@ -227,18 +216,17 @@ static bool stm32_usbphyc_is_powered(struct stm32_usbphyc *usbphyc)
 	return false;
 }
 
-static int stm32_usbphyc_phy_init(struct phy *phy)
+static int stm32_usbphyc_pll_enable(struct stm32_usbphyc *usbphyc)
 {
-	struct stm32_usbphyc *usbphyc = dev_get_priv(phy->dev);
-	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	bool pllen = readl(usbphyc->base + STM32_USBPHYC_PLL) & PLLEN ?
 		     true : false;
 	int ret;
 
-	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
-	/* Check if one phy port has already configured the pll */
-	if (pllen && stm32_usbphyc_is_init(usbphyc))
-		goto initialized;
+	/* Check if one consumer has already configured the pll */
+	if (pllen && usbphyc->n_pll_cons) {
+		usbphyc->n_pll_cons++;
+		return 0;
+	}
 
 	if (usbphyc->vdda1v1) {
 		ret = regulator_set_enable(usbphyc->vdda1v1, true);
@@ -269,23 +257,19 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
 	if (!(readl(usbphyc->base + STM32_USBPHYC_PLL) & PLLEN))
 		return -EIO;
 
-initialized:
-	usbphyc_phy->init = true;
+	usbphyc->n_pll_cons++;
 
 	return 0;
 }
 
-static int stm32_usbphyc_phy_exit(struct phy *phy)
+static int stm32_usbphyc_pll_disable(struct stm32_usbphyc *usbphyc)
 {
-	struct stm32_usbphyc *usbphyc = dev_get_priv(phy->dev);
-	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
 	int ret;
 
-	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
-	usbphyc_phy->init = false;
+	usbphyc->n_pll_cons--;
 
-	/* Check if other phy port requires pllen */
-	if (stm32_usbphyc_is_init(usbphyc))
+	/* Check if other consumer requires pllen */
+	if (usbphyc->n_pll_cons)
 		return 0;
 
 	clrbits_le32(usbphyc->base + STM32_USBPHYC_PLL, PLLEN);
@@ -312,6 +296,42 @@ static int stm32_usbphyc_phy_exit(struct phy *phy)
 	}
 
 	return 0;
+}
+
+static int stm32_usbphyc_phy_init(struct phy *phy)
+{
+	struct stm32_usbphyc *usbphyc = dev_get_priv(phy->dev);
+	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
+	int ret;
+
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
+	if (usbphyc_phy->init)
+		return 0;
+
+	ret = stm32_usbphyc_pll_enable(usbphyc);
+	if (ret)
+		return log_ret(ret);
+
+	usbphyc_phy->init = true;
+
+	return 0;
+}
+
+static int stm32_usbphyc_phy_exit(struct phy *phy)
+{
+	struct stm32_usbphyc *usbphyc = dev_get_priv(phy->dev);
+	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
+	int ret;
+
+	dev_dbg(phy->dev, "phy ID = %lu\n", phy->id);
+	if (!usbphyc_phy->init)
+		return 0;
+
+	ret = stm32_usbphyc_pll_disable(usbphyc);
+
+	usbphyc_phy->init = false;
+
+	return log_ret(ret);
 }
 
 static int stm32_usbphyc_phy_power_on(struct phy *phy)
