@@ -46,7 +46,7 @@ get_last_dtc_version() {
 last_dtc_ver=$(get_last_dtc_version)
 
 # Files only U-Boot needs to track
-LIBFDT_SOURCE+=" Makefile.libfdt"
+LIBFDT_SOURCE+=" fdt_check.c Makefile.libfdt"
 
 # Build DTC
 cd $DTC_UPSTREAM_PATH
