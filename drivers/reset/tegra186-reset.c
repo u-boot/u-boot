@@ -11,22 +11,6 @@
 #include <reset-uclass.h>
 #include <asm/arch-tegra/bpmp_abi.h>
 
-static int tegra186_reset_request(struct reset_ctl *reset_ctl)
-{
-	debug("%s(reset_ctl=%p) (dev=%p, id=%lu)\n", __func__, reset_ctl,
-	      reset_ctl->dev, reset_ctl->id);
-
-	return 0;
-}
-
-static int tegra186_reset_free(struct reset_ctl *reset_ctl)
-{
-	debug("%s(reset_ctl=%p) (dev=%p, id=%lu)\n", __func__, reset_ctl,
-	      reset_ctl->dev, reset_ctl->id);
-
-	return 0;
-}
-
 static int tegra186_reset_common(struct reset_ctl *reset_ctl,
 				 enum mrq_reset_commands cmd)
 {
@@ -61,22 +45,12 @@ static int tegra186_reset_deassert(struct reset_ctl *reset_ctl)
 }
 
 struct reset_ops tegra186_reset_ops = {
-	.request = tegra186_reset_request,
-	.rfree = tegra186_reset_free,
 	.rst_assert = tegra186_reset_assert,
 	.rst_deassert = tegra186_reset_deassert,
 };
 
-static int tegra186_reset_probe(struct udevice *dev)
-{
-	debug("%s(dev=%p)\n", __func__, dev);
-
-	return 0;
-}
-
 U_BOOT_DRIVER(tegra186_reset) = {
 	.name		= "tegra186_reset",
 	.id		= UCLASS_RESET,
-	.probe		= tegra186_reset_probe,
 	.ops = &tegra186_reset_ops,
 };

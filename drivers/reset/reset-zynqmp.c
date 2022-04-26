@@ -59,16 +59,6 @@ static int zynqmp_reset_request(struct reset_ctl *rst)
 	return 0;
 }
 
-static int zynqmp_reset_free(struct reset_ctl *rst)
-{
-	struct zynqmp_reset_priv *priv = dev_get_priv(rst->dev);
-
-	dev_dbg(rst->dev, "%s(rst=%p) (id=%lu) (nr_reset=%d)\n", __func__,
-		rst, rst->id, priv->nr_reset);
-
-	return 0;
-}
-
 static int zynqmp_reset_probe(struct udevice *dev)
 {
 	struct zynqmp_reset_priv *priv = dev_get_priv(dev);
@@ -80,7 +70,6 @@ static int zynqmp_reset_probe(struct udevice *dev)
 
 const struct reset_ops zynqmp_reset_ops = {
 	.request = zynqmp_reset_request,
-	.rfree = zynqmp_reset_free,
 	.rst_assert = zynqmp_reset_assert,
 	.rst_deassert = zynqmp_reset_deassert,
 };

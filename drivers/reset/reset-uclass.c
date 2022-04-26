@@ -68,7 +68,7 @@ static int reset_get_by_index_tail(int ret, ofnode node,
 		return ret;
 	}
 
-	ret = ops->request(reset_ctl);
+	ret = ops->request ? ops->request(reset_ctl) : 0;
 	if (ret) {
 		debug("ops->request() failed: %d\n", ret);
 		return ret;
@@ -168,7 +168,7 @@ int reset_request(struct reset_ctl *reset_ctl)
 
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
-	return ops->request(reset_ctl);
+	return ops->request ? ops->request(reset_ctl) : 0;
 }
 
 int reset_free(struct reset_ctl *reset_ctl)
@@ -177,7 +177,7 @@ int reset_free(struct reset_ctl *reset_ctl)
 
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
-	return ops->rfree(reset_ctl);
+	return ops->rfree ? ops->rfree(reset_ctl) : 0;
 }
 
 int reset_assert(struct reset_ctl *reset_ctl)
@@ -186,7 +186,7 @@ int reset_assert(struct reset_ctl *reset_ctl)
 
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
-	return ops->rst_assert(reset_ctl);
+	return ops->rst_assert ? ops->rst_assert(reset_ctl) : 0;
 }
 
 int reset_assert_bulk(struct reset_ctl_bulk *bulk)
@@ -208,7 +208,7 @@ int reset_deassert(struct reset_ctl *reset_ctl)
 
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
-	return ops->rst_deassert(reset_ctl);
+	return ops->rst_deassert ? ops->rst_deassert(reset_ctl) : 0;
 }
 
 int reset_deassert_bulk(struct reset_ctl_bulk *bulk)
@@ -230,7 +230,7 @@ int reset_status(struct reset_ctl *reset_ctl)
 
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
-	return ops->rst_status(reset_ctl);
+	return ops->rst_status ? ops->rst_status(reset_ctl) : 0;
 }
 
 int reset_release_all(struct reset_ctl *reset_ctl, int count)

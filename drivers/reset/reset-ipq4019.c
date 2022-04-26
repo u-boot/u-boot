@@ -130,19 +130,7 @@ static int ipq4019_reset_deassert(struct reset_ctl *rst)
 	return 0;
 }
 
-static int ipq4019_reset_free(struct reset_ctl *rst)
-{
-	return 0;
-}
-
-static int ipq4019_reset_request(struct reset_ctl *rst)
-{
-	return 0;
-}
-
 static const struct reset_ops ipq4019_reset_ops = {
-	.request = ipq4019_reset_request,
-	.rfree = ipq4019_reset_free,
 	.rst_assert = ipq4019_reset_assert,
 	.rst_deassert = ipq4019_reset_deassert,
 };
