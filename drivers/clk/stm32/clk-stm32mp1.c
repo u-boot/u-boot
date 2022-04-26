@@ -962,6 +962,24 @@ static ulong stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
 	return dfout;
 }
 
+static ulong stm32mp1_clk_get_by_name(const char *name)
+{
+	struct clk clk;
+	struct udevice *dev = NULL;
+	ulong clock = 0;
+
+	if (!uclass_get_device_by_name(UCLASS_CLK, name, &dev)) {
+		if (clk_request(dev, &clk)) {
+			log_err("%s request", name);
+		} else {
+			clk.id = 0;
+			clock = clk_get_rate(&clk);
+		}
+	}
+
+	return clock;
+}
+
 static ulong stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 {
 	u32 reg;
@@ -1127,24 +1145,11 @@ static ulong stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 		break;
 	/* other */
 	case _USB_PHY_48:
-		clock = 48000000;
+		clock = stm32mp1_clk_get_by_name("ck_usbo_48m");
 		break;
 	case _DSI_PHY:
-	{
-		struct clk clk;
-		struct udevice *dev = NULL;
-
-		if (!uclass_get_device_by_name(UCLASS_CLK, "ck_dsi_phy",
-					       &dev)) {
-			if (clk_request(dev, &clk)) {
-				log_err("ck_dsi_phy request");
-			} else {
-				clk.id = 0;
-				clock = clk_get_rate(&clk);
-			}
-		}
+		clock = stm32mp1_clk_get_by_name("ck_dsi_phy");
 		break;
-	}
 	default:
 		break;
 	}
