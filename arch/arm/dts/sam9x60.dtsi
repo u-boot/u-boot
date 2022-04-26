@@ -223,10 +223,23 @@
 				status = "okay";
 			};
 
+			reset_controller: rstc@fffffe00 {
+				compatible = "microchip,sam9x60-rstc";
+				reg = <0xfffffe00 0x10>;
+				clocks = <&clk32 0>;
+			};
+
 			pit: timer@fffffe40 {
 				compatible = "atmel,at91sam9260-pit";
 				reg = <0xfffffe40 0x10>;
 				clocks = <&pmc PMC_TYPE_CORE 11>; /* ID_MCK. */
+			};
+
+			pit64b0: timer@f0028000 {
+				compatible = "microchip,sam9x60-pit64b";
+				reg = <0xf0028000 0xec>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 37>, <&pmc PMC_TYPE_GCK 37>;
+				clock-names = "pclk", "gclk";
 			};
 
 			clk32: sckc@fffffe50 {

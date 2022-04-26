@@ -232,6 +232,13 @@
 			clocks = <&clk32k 0>;
 		};
 
+		reset_controller: rstc@e001d000 {
+			compatible = "microchip,sama7g5-rstc", "microchip,sam9x60-rstc";
+			reg = <0xe001d000 0xc>, <0xe001d0e4 0x4>;
+			#reset-cells = <1>;
+			clocks = <&clk32k 0>;
+		};
+
 		clk32k: clock-controller@e001d050 {
 			compatible = "microchip,sama7g5-sckc", "microchip,sam9x60-sckc";
 			reg = <0xe001d050 0x4>;
@@ -316,7 +323,7 @@
 			dma-names = "tx", "rx";
 			clocks = <&pmc PMC_TYPE_PERIPHERAL 79>, <&pmc PMC_TYPE_GCK 79>;
 			clock-names = "pclk", "gclk";
-			assigned-clocks = <&pmc PMC_TYPE_GCK 78>;
+			assigned-clocks = <&pmc PMC_TYPE_GCK 79>;
 			assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* sys pll div. */
 			#address-cells = <1>;
 			#size-cells = <0>;

@@ -1,0 +1,7 @@
+SAM9X60 CURIOSITY BOARD
+M:	Durai Manickam KR <durai.manickamkr@microchip.com>
+M:	Eugen Hristev <eugen.hristev@microchip.com>
+S:	Maintained
+F:	board/atmel/sam9x60_curiosity/
+F:	include/configs/sam9x60_curiosity.h
+F:	configs/sam9x60_curiosity_mmc_defconfig

@@ -1,0 +1,79 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * at91-sam9x60_curiosity-u-boot.dtsi - Device Tree Include file for SAM9X60
+ * CURIOSITY.
+ *
+ * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Durai Manickam KR <durai.manickamkr@microchip.com>
+ */
+
+/ {
+	ahb {
+		u-boot,dm-pre-reloc;
+
+		apb {
+			u-boot,dm-pre-reloc;
+
+			pinctrl {
+				u-boot,dm-pre-reloc;
+			};
+		};
+	};
+
+	chosen {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&clk32 {
+	u-boot,dm-pre-reloc;
+};
+
+&dbgu {
+	u-boot,dm-pre-reloc;
+};
+
+&main_rc {
+	u-boot,dm-pre-reloc;
+};
+
+&main_xtal {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_dbgu {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_sdhci0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pioA {
+	u-boot,dm-pre-reloc;
+};
+
+&pioB {
+	u-boot,dm-pre-reloc;
+};
+
+&pit64b0 {
+	u-boot,dm-pre-reloc;
+};
+
+&pmc {
+	u-boot,dm-pre-reloc;
+};
+
+&sdhci0 {
+	u-boot,dm-pre-reloc;
+};
+
+&slow_rc_osc {
+	u-boot,dm-pre-reloc;
+};
+
+&slow_xtal {
+	u-boot,dm-pre-reloc;
+};

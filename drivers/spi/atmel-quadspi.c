@@ -438,6 +438,9 @@ static bool atmel_qspi_supports_op(struct spi_slave *slave,
 {
 	struct atmel_qspi *aq = dev_get_priv(slave->dev->parent);
 
+	if (!spi_mem_default_supports_op(slave, op))
+		return false;
+
 	if (aq->caps->octal) {
 		if (atmel_qspi_sama7g5_find_mode(op) < 0)
 			return false;

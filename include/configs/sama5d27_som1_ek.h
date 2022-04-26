@@ -21,10 +21,6 @@
 	(0x22000000 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 #endif
 
-#ifdef CONFIG_SD_BOOT
-/* bootstrap + u-boot + env in sd card */
-#endif
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000

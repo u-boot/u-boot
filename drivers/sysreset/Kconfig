@@ -77,6 +77,21 @@ config SYSRESET_OCTEON
 	  This enables the system reset driver support for Marvell Octeon
 	  SoCs.
 
+config SYSRESET_AT91
+	bool "Enable support for Microchip/Atmel reset driver"
+	depends on ARCH_AT91
+	select SYSRESET_SPL_AT91 if SPL && SPL_SYSRESET
+	help
+	  This enables the system reset driver support for Microchip/Atmel
+	  SoCs.
+
+config SYSRESET_SPL_AT91
+	bool "Enable support for Microchip/Atmel reset driver in SPL"
+	depends on ARCH_AT91
+	help
+	  This enables the system reset driver support for Microchip/Atmel
+	  SoCs in SPL.
+
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW

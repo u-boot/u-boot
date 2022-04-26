@@ -18,7 +18,9 @@ obj-$(CONFIG_SAM9X60)		+= sam9x60_devices.o
 obj-$(CONFIG_AT91_EFLASH)	+= eflash.o
 obj-y += clock.o
 obj-y += cpu.o
+ifndef CONFIG_$(SPL_TPL_)SYSRESET
 obj-y	+= reset.o
+endif
 ifneq ($(CONFIG_ATMEL_PIT_TIMER),y)
 ifneq ($(CONFIG_MCHP_PIT64B_TIMER),y)
 # old non-DM timer driver
