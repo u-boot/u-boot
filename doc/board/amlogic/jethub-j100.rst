@@ -3,27 +3,33 @@
 U-Boot for JetHub J100
 =======================
 
-JetHome Jethub D1 (http://jethome.ru/jethub-d1) is a home automation
-controller manufactured by JetHome with the following specifications:
+JetHome Jethub D1 (http://jethome.ru/jethub-d1) is a series of home
+automation controller manufactured by JetHome with the following
+specifications:
 
  - Amlogic A113X (ARM Cortex-A53) quad-core up to 1.5GHz
  - no video out
- - 512Mb/1GB DDR3
- - 8/16GB eMMC flash
+ - 512MB/1GB DDR3 or 2GB DDR4 SDRAM
+ - 8/16/32GB eMMC flash
  - 1 x USB 2.0
  - 1 x 10/100Mbps ethernet
- - WiFi / Bluetooth AMPAK AP6255 (Broadcom BCM43455) IEEE
-   802.11a/b/g/n/ac, Bluetooth 4.2.
- - TI CC2538 + CC2592 Zigbee Wireless Module with up to 20dBm output
-   power and Zigbee 3.0 support.
+ - WiFi / Bluetooth one from:
+   - AMPAK AP6255 (Broadcom BCM43455) IEEE 802.11a/b/g/n/ac, Bluetooth 4.2
+   - RTL8822CS IEEE 802.11a/b/g/n/ac, Bluetooth 5.0
+   - Amlogic W155S1 WiFi5 IEEE 802.11a/b/g/n/ac, Bluetooth 5.2
  - 2 x gpio LEDS
  - GPIO user Button
+ - DC source with a voltage of 9 to 56 V / Passive POE
+ - DIN Rail Mounting case
+
+Basic version also has:
+
+ - TI CC2538 + CC2592 Zigbee Wireless Module with up to 20dBm output
+   power and Zigbee 3.0 support.
  - 1 x 1-Wire
  - 2 x RS-485
  - 4 x dry contact digital GPIO inputs
  - 3 x relay GPIO outputs
- - DC source with a voltage of 9 to 56 V / Passive POE
- - DIN Rail Mounting case
 
 U-Boot compilation
 ------------------
