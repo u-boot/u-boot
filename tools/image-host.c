@@ -1205,7 +1205,7 @@ int fit_pre_load_data(const char *keydir, void *keydest, void *fit)
 		if (!key_name)
 			printf("The property key-name is missing in the node %s\n",
 			       IMAGE_PRE_LOAD_PATH);
-		ret = -ENODATA;
+		ret = -EINVAL;
 		goto out;
 	}
 
