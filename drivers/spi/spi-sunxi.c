@@ -72,9 +72,15 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SUN4I_XMIT_CNT(cnt)		((cnt) & SUN4I_MAX_XFER_SIZE)
 #define SUN4I_FIFO_STA_RF_CNT_BITS	0
 
+#ifdef CONFIG_MACH_SUNIV
+/* the AHB clock, which we programmed to be 1/3 of PLL_PERIPH@600MHz */
+#define SUNXI_INPUT_CLOCK		200000000	/* 200 MHz */
+#define SUN4I_SPI_MAX_RATE		(SUNXI_INPUT_CLOCK / 2)
+#else
 /* the SPI mod clock, defaulting to be 1/1 of the HOSC@24MHz */
 #define SUNXI_INPUT_CLOCK		24000000	/* 24 MHz */
 #define SUN4I_SPI_MAX_RATE		SUNXI_INPUT_CLOCK
+#endif
 #define SUN4I_SPI_MIN_RATE		3000
 #define SUN4I_SPI_DEFAULT_RATE		1000000
 #define SUN4I_SPI_TIMEOUT_MS		1000
@@ -256,6 +262,9 @@ static void sun4i_spi_set_speed_mode(struct udevice *dev)
 		reg |= SUN4I_CLK_CTL_CDR2(div) | SUN4I_CLK_CTL_DRS;
 	} else {
 		div = fls(div - 1);
+		/* The F1C100s encodes the divider as 2^(n+1) */
+		if (IS_ENABLED(CONFIG_MACH_SUNIV))
+			div--;
 		reg &= ~((SUN4I_CLK_CTL_CDR1_MASK << 8) | SUN4I_CLK_CTL_DRS);
 		reg |= SUN4I_CLK_CTL_CDR1(div);
 	}
