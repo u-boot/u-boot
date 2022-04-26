@@ -96,6 +96,7 @@ ENV_DATA              = b'var1=1\nvar2="2"'
 PRE_LOAD_MAGIC        = b'UBSH'
 PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
 PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
+X509_DATA             = b'filetobesigned'
 
 # Subdirectory of the input dir to use to put test FDTs
 TEST_FDT_SUBDIR       = 'fdts'
@@ -200,6 +201,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('sysfw.bin', TI_SYSFW_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
+        TestFunctional._MakeInputFile('tosign.bin', X509_DATA)
 
         # Add a few .dtb files for testing
         TestFunctional._MakeInputFile('%s/test-fdt1.dtb' % TEST_FDT_SUBDIR,
@@ -5716,6 +5718,10 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             dts='234_replace_section_simple.dts')
         self.assertEqual(new_data, data)
 
+    def testX509Cert(self):
+        """Test an image with the default x509 certificate header"""
+        data = self._DoReadFile('232_x509_cert.dts')
+        self.assertGreater(len(data), len(X509_DATA))
 
 if __name__ == "__main__":
     unittest.main()

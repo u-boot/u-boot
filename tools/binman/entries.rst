@@ -1890,6 +1890,21 @@ and kernel are genuine.
 
 
 
+Entry: x509cert: x509 certificate for K3 devices
+------------------------------------------------
+
+Properties / Entry arguments:
+        - content: Phandle of binary to sign
+        - output: Name of the final output file
+        - key_file: File with key inside it. If not provided, script generates RSA degenerate key
+        - core: Target core ID on which image would be running
+        - load: Target load address of the binary in hex
+
+    Output files:
+        - certificate.bin: Signed certificate binary
+
+
+
 Entry: x86-reset16: x86 16-bit reset code for U-Boot
 ----------------------------------------------------
 
