@@ -288,7 +288,6 @@ struct mvneta_port {
 	struct gpio_desc phy_reset_gpio;
 	struct gpio_desc sfp_tx_disable_gpio;
 #endif
-	struct mii_dev *bus;
 };
 
 /* The mvneta_tx_desc and mvneta_rx_desc structures describe the
@@ -413,15 +412,6 @@ static struct buffer_location buffer_loc;
  * (not < 1MB). driver uses less bd's so use 1MB bdspace.
  */
 #define BD_SPACE	(1 << 20)
-
-/*
- * Dummy implementation that can be overwritten by a board
- * specific function
- */
-__weak int board_network_enable(struct mii_dev *bus)
-{
-	return 0;
-}
 
 /* Utility/helper methods */
 
@@ -1421,118 +1411,6 @@ static int mvneta_init(struct udevice *dev)
 
 /* U-Boot only functions follow here */
 
-/* SMI / MDIO functions */
-
-static int smi_wait_ready(struct mvneta_port *pp)
-{
-	u32 timeout = MVNETA_SMI_TIMEOUT;
-	u32 smi_reg;
-
-	/* wait till the SMI is not busy */
-	do {
-		/* read smi register */
-		smi_reg = mvreg_read(pp, MVNETA_SMI);
-		if (timeout-- == 0) {
-			printf("Error: SMI busy timeout\n");
-			return -EFAULT;
-		}
-	} while (smi_reg & MVNETA_SMI_BUSY);
-
-	return 0;
-}
-
-/*
- * mvneta_mdio_read - miiphy_read callback function.
- *
- * Returns 16bit phy register value, or 0xffff on error
- */
-static int mvneta_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
-{
-	struct mvneta_port *pp = bus->priv;
-	u32 smi_reg;
-	u32 timeout;
-
-	/* check parameters */
-	if (addr > MVNETA_PHY_ADDR_MASK) {
-		printf("Error: Invalid PHY address %d\n", addr);
-		return -EFAULT;
-	}
-
-	if (reg > MVNETA_PHY_REG_MASK) {
-		printf("Err: Invalid register offset %d\n", reg);
-		return -EFAULT;
-	}
-
-	/* wait till the SMI is not busy */
-	if (smi_wait_ready(pp) < 0)
-		return -EFAULT;
-
-	/* fill the phy address and regiser offset and read opcode */
-	smi_reg = (addr << MVNETA_SMI_DEV_ADDR_OFFS)
-		| (reg << MVNETA_SMI_REG_ADDR_OFFS)
-		| MVNETA_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	mvreg_write(pp, MVNETA_SMI, smi_reg);
-
-	/* wait till read value is ready */
-	timeout = MVNETA_SMI_TIMEOUT;
-
-	do {
-		/* read smi register */
-		smi_reg = mvreg_read(pp, MVNETA_SMI);
-		if (timeout-- == 0) {
-			printf("Err: SMI read ready timeout\n");
-			return -EFAULT;
-		}
-	} while (!(smi_reg & MVNETA_SMI_READ_VALID));
-
-	/* Wait for the data to update in the SMI register */
-	for (timeout = 0; timeout < MVNETA_SMI_TIMEOUT; timeout++)
-		;
-
-	return mvreg_read(pp, MVNETA_SMI) & MVNETA_SMI_DATA_MASK;
-}
-
-/*
- * mvneta_mdio_write - miiphy_write callback function.
- *
- * Returns 0 if write succeed, -EINVAL on bad parameters
- * -ETIME on timeout
- */
-static int mvneta_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
-			     u16 value)
-{
-	struct mvneta_port *pp = bus->priv;
-	u32 smi_reg;
-
-	/* check parameters */
-	if (addr > MVNETA_PHY_ADDR_MASK) {
-		printf("Error: Invalid PHY address %d\n", addr);
-		return -EFAULT;
-	}
-
-	if (reg > MVNETA_PHY_REG_MASK) {
-		printf("Err: Invalid register offset %d\n", reg);
-		return -EFAULT;
-	}
-
-	/* wait till the SMI is not busy */
-	if (smi_wait_ready(pp) < 0)
-		return -EFAULT;
-
-	/* fill the phy addr and reg offset and write opcode and data */
-	smi_reg = value << MVNETA_SMI_DATA_OFFS;
-	smi_reg |= (addr << MVNETA_SMI_DEV_ADDR_OFFS)
-		| (reg << MVNETA_SMI_REG_ADDR_OFFS);
-	smi_reg &= ~MVNETA_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	mvreg_write(pp, MVNETA_SMI, smi_reg);
-
-	return 0;
-}
-
 static int mvneta_start(struct udevice *dev)
 {
 	struct mvneta_port *pp = dev_get_priv(dev);
@@ -1690,10 +1568,9 @@ static int mvneta_probe(struct udevice *dev)
 #endif
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
-	struct mii_dev *bus;
 	void *bd_space;
-	int ret;
 	int fl_node;
+	int ret;
 
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
@@ -1739,22 +1616,6 @@ static int mvneta_probe(struct udevice *dev)
 		pp->fixed_link = true;
 	}
 
-	bus = mdio_alloc();
-	if (!bus) {
-		printf("Failed to allocate MDIO bus\n");
-		return -ENOMEM;
-	}
-
-	bus->read = mvneta_mdio_read;
-	bus->write = mvneta_mdio_write;
-	snprintf(bus->name, sizeof(bus->name), dev->name);
-	bus->priv = (void *)pp;
-	pp->bus = bus;
-
-	ret = mdio_register(bus);
-	if (ret)
-		return ret;
-
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	ret = dev_read_phandle_with_args(dev, "sfp", NULL, 0, 0, &sfp_args);
 	if (!ret && ofnode_is_enabled(sfp_args.node))
@@ -1774,7 +1635,7 @@ static int mvneta_probe(struct udevice *dev)
 		dm_gpio_set_value(&pp->sfp_tx_disable_gpio, 0);
 #endif
 
-	return board_network_enable(bus);
+	return 0;
 }
 
 static void mvneta_stop(struct udevice *dev)
