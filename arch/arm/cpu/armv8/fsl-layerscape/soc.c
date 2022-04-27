@@ -206,6 +206,9 @@ static void erratum_a008997(void)
 
 static void erratum_a009007(void)
 {
+	if (!IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A009007))
+		return;
+
 #if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) || \
 	defined(CONFIG_ARCH_LS1012A)
 	void __iomem *usb_phy = (void __iomem *)SCFG_USB_PHY1;

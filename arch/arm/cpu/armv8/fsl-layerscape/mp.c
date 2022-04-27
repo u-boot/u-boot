@@ -302,6 +302,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 	u64 boot_addr;
 	u64 *table = get_spin_tbl_addr();
 	int pos;
+	int ret;
 
 	boot_addr = simple_strtoull(argv[0], NULL, 16);
 
@@ -326,16 +327,10 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 		asm volatile("sev");
 	} else {
 		/* Use PSCI to kick the core */
-		struct pt_regs regs;
-
 		printf("begin to kick cpu core #%d to address %llx\n",
 		       nr, boot_addr);
-		regs.regs[0] = PSCI_0_2_FN64_CPU_ON;
-		regs.regs[1] = nr;
-		regs.regs[2] = boot_addr;
-		regs.regs[3] = 0;
-		smc_call(&regs);
-		if (regs.regs[0])
+		ret = invoke_psci_fn(PSCI_0_2_FN64_CPU_ON, nr, boot_addr, 0);
+		if (ret)
 			return -1;
 	}
 

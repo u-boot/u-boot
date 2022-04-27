@@ -83,7 +83,9 @@ static const char *__hwconfig(const char *opt, size_t *arglen,
 					"and before environment is ready\n");
 			return NULL;
 		}
+#if CONFIG_IS_ENABLED(ENV_SUPPORT)
 		env_hwconfig = env_get("hwconfig");
+#endif
 	}
 
 	if (env_hwconfig) {

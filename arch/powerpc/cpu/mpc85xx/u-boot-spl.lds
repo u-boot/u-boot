@@ -18,6 +18,13 @@ PHDRS
 #endif
 SECTIONS
 {
+/* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+	.bootpg IMAGE_TEXT_BASE - 0x1000 :
+	{
+		KEEP(*(.bootpg))
+	} :text = 0xffff
+#endif
 	. = IMAGE_TEXT_BASE;
 	.text : {
 		*(.text*)
@@ -67,18 +74,13 @@ SECTIONS
 	__bss_end = .;
 #endif
 
-/* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
-#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
-	.bootpg ADDR(.text) - 0x1000 :
-	{
-		KEEP(*(.bootpg))
-	} :text = 0xffff
-#else
+/* For nor and nand is needed the SPL with section .resetvec */
+#ifndef CONFIG_SYS_MPC85XX_NO_RESETVEC
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
 #ifndef BOOT_PAGE_OFFSET
 #define BOOT_PAGE_OFFSET 0x1000
 #endif
-	.bootpg ADDR(.text) + BOOT_PAGE_OFFSET :
+	.bootpg IMAGE_TEXT_BASE + BOOT_PAGE_OFFSET :
 	{
 		arch/powerpc/cpu/mpc85xx/start.o (.bootpg)
 	}
@@ -90,7 +92,7 @@ SECTIONS
 #else
 #error unknown NAND controller
 #endif
-	.resetvec ADDR(.text) + RESET_VECTOR_OFFSET : {
+	.resetvec IMAGE_TEXT_BASE + RESET_VECTOR_OFFSET : {
 		KEEP(*(.resetvec))
 	} = 0xffff
 #endif

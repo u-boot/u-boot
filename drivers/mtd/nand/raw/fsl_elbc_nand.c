@@ -20,6 +20,10 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 
+#ifdef CONFIG_NAND_FSL_ELBC_DT
+#include <dm/read.h>
+#endif
+
 #ifdef VERBOSE_DEBUG
 #define DEBUG_ELBC
 #define vdbg(format, arg...) printf("DEBUG: " format, ##arg)
@@ -310,6 +314,14 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 
 		fsl_elbc_do_read(chip, 0);
 		fsl_elbc_run_command(mtd);
+		return;
+
+	/* RNDOUT moves the pointer inside the page */
+	case NAND_CMD_RNDOUT:
+		vdbg("fsl_elbc_cmdfunc: NAND_CMD_RNDOUT, column: 0x%x.\n",
+		     column);
+
+		ctrl->index = column;
 		return;
 
 	/* READOOB reads only the OOB because no ECC is performed. */
@@ -656,7 +668,7 @@ static void fsl_elbc_ctrl_init(void)
 	elbc_ctrl->addr = NULL;
 }
 
-static int fsl_elbc_chip_init(int devnum, u8 *addr)
+static int fsl_elbc_chip_init(int devnum, u8 *addr, ofnode flash_node)
 {
 	struct mtd_info *mtd;
 	struct nand_chip *nand;
@@ -704,6 +716,8 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	elbc_ctrl->chips[priv->bank] = priv;
 
 	/* fill in nand_chip structure */
+	nand->flash_node = flash_node;
+
 	/* set up function call table */
 	nand->read_byte = fsl_elbc_read_byte;
 	nand->write_buf = fsl_elbc_write_buf;
@@ -723,36 +737,39 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	nand->controller = &elbc_ctrl->controller;
 	nand_set_controller_data(nand, priv);
 
-	nand->ecc.read_page = fsl_elbc_read_page;
-	nand->ecc.write_page = fsl_elbc_write_page;
-	nand->ecc.write_subpage = fsl_elbc_write_subpage;
-
 	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
-
-	/* If CS Base Register selects full hardware ECC then use it */
-	if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
-		nand->ecc.mode = NAND_ECC_HW;
-
-		nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
-				   &fsl_elbc_oob_sp_eccm1 :
-				   &fsl_elbc_oob_sp_eccm0;
-
-		nand->ecc.size = 512;
-		nand->ecc.bytes = 3;
-		nand->ecc.steps = 1;
-		nand->ecc.strength = 1;
-	} else {
-		/* otherwise fall back to software ECC */
-#if defined(CONFIG_NAND_ECC_BCH)
-		nand->ecc.mode = NAND_ECC_SOFT_BCH;
-#else
-		nand->ecc.mode = NAND_ECC_SOFT;
-#endif
-	}
 
 	ret = nand_scan_ident(mtd, 1, NULL);
 	if (ret)
 		return ret;
+
+	/* If nand_scan_ident() has not selected ecc.mode, do it now */
+	if (nand->ecc.mode == NAND_ECC_NONE) {
+		/* If CS Base Register selects full hardware ECC then use it */
+		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
+			nand->ecc.mode = NAND_ECC_HW;
+			nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
+					   &fsl_elbc_oob_sp_eccm1 :
+					   &fsl_elbc_oob_sp_eccm0;
+			nand->ecc.size = 512;
+			nand->ecc.bytes = 3;
+			nand->ecc.steps = 1;
+			nand->ecc.strength = 1;
+		} else {
+			/* otherwise fall back to software ECC */
+#if defined(CONFIG_NAND_ECC_BCH)
+			nand->ecc.mode = NAND_ECC_SOFT_BCH;
+#else
+			nand->ecc.mode = NAND_ECC_SOFT;
+#endif
+		}
+	}
+
+	if (nand->ecc.mode == NAND_ECC_HW) {
+		nand->ecc.read_page = fsl_elbc_read_page;
+		nand->ecc.write_page = fsl_elbc_write_page;
+		nand->ecc.write_subpage = fsl_elbc_write_subpage;
+	}
 
 	/* Large-page-specific setup */
 	if (mtd->writesize == 2048) {
@@ -771,7 +788,7 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 		priv->fmr |= FMR_ECCM;
 
 		/* adjust ecc setup if needed */
-		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
+		if (nand->ecc.mode == NAND_ECC_HW) {
 			nand->ecc.steps = 4;
 			nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
 					   &fsl_elbc_oob_lp_eccm1 :
@@ -796,6 +813,8 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	return 0;
 }
 
+#ifndef CONFIG_NAND_FSL_ELBC_DT
+
 #ifndef CONFIG_SYS_NAND_BASE_LIST
 #define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
 #endif
@@ -808,5 +827,35 @@ void board_nand_init(void)
 	int i;
 
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		fsl_elbc_chip_init(i, (u8 *)base_address[i]);
+		fsl_elbc_chip_init(i, (u8 *)base_address[i], ofnode_null());
 }
+
+#else
+
+static int fsl_elbc_nand_probe(struct udevice *dev)
+{
+	return fsl_elbc_chip_init(0, (void *)dev_read_addr(dev), dev_ofnode(dev));
+}
+
+static const struct udevice_id fsl_elbc_nand_dt_ids[] = {
+	{ .compatible = "fsl,elbc-fcm-nand", },
+	{}
+};
+
+U_BOOT_DRIVER(fsl_elbc_nand) = {
+	.name = "fsl_elbc_nand",
+	.id = UCLASS_MTD,
+	.of_match = fsl_elbc_nand_dt_ids,
+	.probe = fsl_elbc_nand_probe,
+};
+
+void board_nand_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MTD, DM_DRIVER_GET(fsl_elbc_nand), &dev);
+	if (ret && ret != -ENODEV)
+		printf("Failed to initialize fsl_elbc_nand NAND controller. (error %d)\n", ret);
+}
+#endif

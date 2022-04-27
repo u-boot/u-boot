@@ -46,7 +46,6 @@
 	GOT_ENTRY(_FIXUP_TABLE_)
 
 #ifndef MINIMAL_SPL
-	GOT_ENTRY(_start)
 	GOT_ENTRY(_start_of_vectors)
 	GOT_ENTRY(_end_of_vectors)
 	GOT_ENTRY(transfer_to_handler)
@@ -71,9 +70,9 @@
  */
 
 	.section .bootpg,"ax"
-	.globl _start_e500
+	.globl _start
 
-_start_e500:
+_start:
 /* Enable debug exception */
 	li	r1,MSR_DE
 	mtmsr	r1
@@ -1128,16 +1127,12 @@ switch_as:
 	/*--------------------------------------------------------------*/
 	lis	r3,CONFIG_VAL(SYS_MONITOR_BASE)@h
 	ori	r3,r3,CONFIG_VAL(SYS_MONITOR_BASE)@l
-	addi	r3,r3,_start_cont - _start
+	addi	r3,r3,_start_cont - _start_cont
 	mtlr	r3
 	blr
 #endif
 
 	.text
-	.globl	_start
-_start:
-	.long	0x27051956		/* U-BOOT Magic Number */
-
 	.globl	_start_cont
 _start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
@@ -1604,7 +1599,7 @@ relocate_code:
  * initialization, now running from RAM.
  */
 
-	addi	r0,r10,in_ram - _start
+	addi	r0,r10,in_ram - _start_cont
 
 	/*
 	 * As IVPR is going to point RAM address,

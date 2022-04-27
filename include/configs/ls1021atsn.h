@@ -114,7 +114,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0"		\
 	"initrd_high=0xffffffff\0"					\
-	"fdt_addr=0x64f00000\0"						\
 	"kernel_addr=0x61000000\0"					\
 	"kernelheader_addr=0x60800000\0"				\
 	"scriptaddr=0x80000000\0"					\

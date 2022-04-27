@@ -165,7 +165,6 @@
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
 	"bootm_size=0x10000000\0"		\
-	"fdt_addr=0x64f00000\0"                 \
 	"kernel_addr=0x61000000\0"              \
 	"scriptaddr=0x80000000\0"               \
 	"scripthdraddr=0x80080000\0"		\

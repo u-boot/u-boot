@@ -45,7 +45,7 @@ Note: Sequence number is in order of execution
 A) defined(CONFIG_SYS_RAMBOOT) i.e. SD, SPI, NAND RAMBOOT & NAND_SPL boot
 
    1) TLB entry to overcome e500 v1/v2 debug restriction
-       Location	  : Label "_start_e500"
+       Location	  : Label "_start"
        TLB Entry  : CONFIG_SYS_PPC_E500_DEBUG_TLB
        EPN -->RPN : CONFIG_SYS_MONITOR_BASE --> CONFIG_SYS_MONITOR_BASE
        Properties : 256K, AS0, I, IPROT
@@ -91,7 +91,7 @@ A) defined(CONFIG_SYS_RAMBOOT) i.e. SD, SPI, NAND RAMBOOT & NAND_SPL boot
 B) !defined(CONFIG_SYS_RAMBOOT) i.e. NOR boot
 
    1) TLB entry to overcome e500 v1/v2 debug restriction
-       Location	  : Label "_start_e500"
+       Location	  : Label "_start"
        TLB Entry  : CONFIG_SYS_PPC_E500_DEBUG_TLB
 #if defined(CONFIG_NXP_ESBC)
        EPN -->RPN : CONFIG_SYS_MONITOR_BASE --> CONFIG_SYS_PBI_FLASH_WINDOW

@@ -6,6 +6,8 @@ endif
 
 obj-y += common.o ddr.o
 
+obj-$(CONFIG_ARMV8_PSCI) += psci.o
+
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 obj-$(CONFIG_SPL_ATF) += spl_atf.o

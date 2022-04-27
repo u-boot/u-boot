@@ -11,12 +11,8 @@
 #define RESET_VECTOR_ADDRESS	0xfffffffc
 #endif
 
-#ifndef CONFIG_SYS_MONITOR_LEN
-#define CONFIG_SYS_MONITOR_LEN	0x80000
-#endif
-
 OUTPUT_ARCH(powerpc)
-ENTRY(_start_e500)
+ENTRY(_start)
 
 PHDRS
 {
@@ -27,8 +23,13 @@ PHDRS
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  . = + SIZEOF_HEADERS;
-  .interp : { *(.interp) }
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+  .bootpg CONFIG_SYS_TEXT_BASE - 0x1000 :
+  {
+    KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
+  } :text = 0xffff
+  . = CONFIG_SYS_TEXT_BASE;
+#endif
   .text      :
   {
     *(.text*)
@@ -75,21 +76,15 @@ SECTIONS
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
 
-  . = ALIGN(256);
+  . = ALIGN(4);
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
-  . = ALIGN(256);
+  . = ALIGN(4);
   __init_end = .;
   _end = .;
 
-#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
-  .bootpg ADDR(.text) - 0x1000 :
-  {
-    KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
-  } :text = 0xffff
-  . = ADDR(.text) + CONFIG_SYS_MONITOR_LEN;
-#else
+#ifndef CONFIG_SYS_MPC85XX_NO_RESETVEC
   .bootpg RESET_VECTOR_ADDRESS - 0xffc :
   {
     arch/powerpc/cpu/mpc85xx/start.o	(.bootpg)

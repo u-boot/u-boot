@@ -323,7 +323,6 @@
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"fdt_addr=0x64f00000\0"			\
 	"kernel_addr=0x581000000\0"		\
 	"kernel_start=0x1000000\0"		\
 	"kernelheader_start=0x800000\0"		\
@@ -386,7 +385,6 @@
 	"ramdisk_size=0x2000000\0"		\
 	"fdt_high=0xa0000000\0"			\
 	"initrd_high=0xffffffffffffffff\0"	\
-	"fdt_addr=0x64f00000\0"			\
 	"kernel_addr=0x581000000\0"		\
 	"kernel_start=0x1000000\0"		\
 	"kernelheader_start=0x600000\0"		\

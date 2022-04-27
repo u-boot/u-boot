@@ -17,6 +17,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
+#include <linux/arm-smccc.h>
 #include <linux/errno.h>
 #include <asm/system.h>
 #include <fm_eth.h>
@@ -768,7 +769,7 @@ enum boot_src __get_boot_src(u32 porsr1)
 
 enum boot_src get_boot_src(void)
 {
-	struct pt_regs regs;
+	struct arm_smccc_res res;
 	u32 porsr1 = 0;
 
 #if defined(CONFIG_FSL_LSCH3)
@@ -778,11 +779,9 @@ enum boot_src get_boot_src(void)
 #endif
 
 	if (current_el() == 2) {
-		regs.regs[0] = SIP_SVC_RCW;
-
-		smc_call(&regs);
-		if (!regs.regs[0])
-			porsr1 = regs.regs[1];
+		arm_smccc_smc(SIP_SVC_RCW, 0, 0, 0, 0, 0, 0, 0, &res);
+		if (!res.a0)
+			porsr1 = res.a1;
 	}
 
 	if (current_el() == 3 || !porsr1) {
@@ -1081,9 +1080,9 @@ static void config_core_prefetch(void)
 	char *buf = NULL;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	const char *prefetch_arg = NULL;
+	struct arm_smccc_res res;
 	size_t arglen;
 	unsigned int mask;
-	struct pt_regs regs;
 
 	if (env_get_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
@@ -1101,11 +1100,10 @@ static void config_core_prefetch(void)
 		}
 
 #define SIP_PREFETCH_DISABLE_64 0xC200FF13
-		regs.regs[0] = SIP_PREFETCH_DISABLE_64;
-		regs.regs[1] = mask;
-		smc_call(&regs);
+		arm_smccc_smc(SIP_PREFETCH_DISABLE_64, mask, 0, 0, 0, 0, 0, 0,
+			      &res);
 
-		if (regs.regs[0])
+		if (res.a0)
 			printf("Prefetch disable config failed for mask ");
 		else
 			printf("Prefetch disable config passed for mask ");
@@ -1345,25 +1343,20 @@ phys_size_t get_effective_memsize(void)
 #ifdef CONFIG_TFABOOT
 phys_size_t tfa_get_dram_size(void)
 {
-	struct pt_regs regs;
-	phys_size_t dram_size = 0;
+	struct arm_smccc_res res;
 
-	regs.regs[0] = SMC_DRAM_BANK_INFO;
-	regs.regs[1] = -1;
-
-	smc_call(&regs);
-	if (regs.regs[0])
+	arm_smccc_smc(SMC_DRAM_BANK_INFO, -1, 0, 0, 0, 0, 0, 0, &res);
+	if (res.a0)
 		return 0;
 
-	dram_size = regs.regs[1];
-	return dram_size;
+	return res.a1;
 }
 
 static int tfa_dram_init_banksize(void)
 {
 	int i = 0, ret = 0;
-	struct pt_regs regs;
 	phys_size_t dram_size = tfa_get_dram_size();
+	struct arm_smccc_res res;
 
 	debug("dram_size %llx\n", dram_size);
 
@@ -1371,19 +1364,15 @@ static int tfa_dram_init_banksize(void)
 		return -EINVAL;
 
 	do {
-		regs.regs[0] = SMC_DRAM_BANK_INFO;
-		regs.regs[1] = i;
-
-		smc_call(&regs);
-		if (regs.regs[0]) {
+		arm_smccc_smc(SMC_DRAM_BANK_INFO, i, 0, 0, 0, 0, 0, 0, &res);
+		if (res.a0) {
 			ret = -EINVAL;
 			break;
 		}
 
-		debug("bank[%d]: start %lx, size %lx\n", i, regs.regs[1],
-		      regs.regs[2]);
-		gd->bd->bi_dram[i].start = regs.regs[1];
-		gd->bd->bi_dram[i].size = regs.regs[2];
+		debug("bank[%d]: start %lx, size %lx\n", i, res.a1, res.a2);
+		gd->bd->bi_dram[i].start = res.a1;
+		gd->bd->bi_dram[i].size = res.a2;
 
 		dram_size -= gd->bd->bi_dram[i].size;
 

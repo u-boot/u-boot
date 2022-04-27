@@ -147,10 +147,14 @@ void serdes_init(u32 sd, u32 sd_addr, u32 rcwsr, u32 sd_prctl_mask,
 	cfg >>= sd_prctl_shift;
 
 	cfg = serdes_get_number(sd, cfg);
-	printf("Using SERDES%d Protocol: %d (0x%x)\n", sd + 1, cfg, cfg);
+	if (cfg == 0) {
+		printf("SERDES%d is disabled\n", sd + 1);
+	} else {
+		printf("Using SERDES%d Protocol: %d (0x%x)\n", sd + 1, cfg, cfg);
 
-	if (!is_serdes_prtcl_valid(sd, cfg))
-		printf("SERDES%d[PRTCL] = 0x%x is not valid\n", sd + 1, cfg);
+		if (!is_serdes_prtcl_valid(sd, cfg))
+			printf("SERDES%d[PRTCL] = 0x%x is not valid\n", sd + 1, cfg);
+	}
 
 	for (lane = 0; lane < SRDS_MAX_LANES; lane++) {
 		enum srds_prtcl lane_prtcl = serdes_get_prtcl(sd, cfg, lane);
