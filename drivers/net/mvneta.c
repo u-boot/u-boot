@@ -1152,11 +1152,6 @@ static void mvneta_adjust_link(struct udevice *dev)
 	struct phy_device *phydev = pp->phydev;
 	bool status_change = false;
 
-	if (pp->fixed_link) {
-		debug("Using fixed link, skip link adjust\n");
-		return;
-	}
-
 	if (phydev->link &&
 	    (pp->speed != phydev->speed || pp->duplex != phydev->duplex)) {
 		u32 val;
@@ -1167,6 +1162,21 @@ static void mvneta_adjust_link(struct udevice *dev)
 			 MVNETA_GMAC_CONFIG_FULL_DUPLEX |
 			 MVNETA_GMAC_AN_SPEED_EN |
 			 MVNETA_GMAC_AN_DUPLEX_EN);
+
+		/* FIXME: For fixed-link case, these were the initial settings
+		 * used before the code was converted to use PHY_FIXED. Some of
+		 * these may look nonsensical (for example BYPASS_AN makes sense
+		 * for 1000base-x and 2500base-x modes, AFAIK), and in fact this
+		 * may be changed in the future (when support for inband AN will
+		 * be added). Also, why is ADVERT_FC enabled if we don't enable
+		 * inband AN at all?
+		 */
+		if (pp->fixed_link)
+			val = MVNETA_GMAC_FORCE_LINK_UP |
+			      MVNETA_GMAC_IB_BYPASS_AN_EN |
+			      MVNETA_GMAC_SET_FC_EN |
+			      MVNETA_GMAC_ADVERT_FC_EN |
+			      MVNETA_GMAC_SAMPLE_TX_CFG_EN;
 
 		if (phydev->duplex)
 			val |= MVNETA_GMAC_CONFIG_FULL_DUPLEX;
@@ -1413,56 +1423,34 @@ static int mvneta_start(struct udevice *dev)
 	mvneta_port_power_up(pp, pp->phy_interface);
 
 	if (!pp->init || pp->link == 0) {
-		if (pp->fixed_link) {
-			u32 val;
+		phydev = dm_eth_phy_connect(dev);
+		if (!phydev) {
+			printf("dm_eth_phy_connect failed\n");
+			return -ENODEV;
+		}
 
-			pp->init = 1;
-			pp->link = 1;
-			mvneta_init(dev);
+		pp->fixed_link = phydev->phy_id == PHY_FIXED_ID;
 
-			val = MVNETA_GMAC_FORCE_LINK_UP |
-			      MVNETA_GMAC_IB_BYPASS_AN_EN |
-			      MVNETA_GMAC_SET_FC_EN |
-			      MVNETA_GMAC_ADVERT_FC_EN |
-			      MVNETA_GMAC_SAMPLE_TX_CFG_EN;
-
-			if (pp->duplex)
-				val |= MVNETA_GMAC_CONFIG_FULL_DUPLEX;
-
-			if (pp->speed == SPEED_1000)
-				val |= MVNETA_GMAC_CONFIG_GMII_SPEED;
-			else if (pp->speed == SPEED_100)
-				val |= MVNETA_GMAC_CONFIG_MII_SPEED;
-
-			mvreg_write(pp, MVNETA_GMAC_AUTONEG_CONFIG, val);
-		} else {
-			phydev = dm_eth_phy_connect(dev);
-			if (!phydev) {
-				printf("dm_eth_phy_connect failed\n");
-				return -ENODEV;
-			}
-
-			/* Set PHY address in case we will enable HW polling */
+		/* Set PHY address in case we will enable HW polling */
+		if (!pp->fixed_link)
 			mvreg_write(pp, MVNETA_PHY_ADDR, phydev->addr);
 
-			pp->phydev = phydev;
-			phy_config(phydev);
-			phy_startup(phydev);
-			if (!phydev->link) {
-				printf("%s: No link.\n", phydev->dev->name);
-				return -1;
-			}
-
-			/* Full init on first call */
-			mvneta_init(dev);
-			pp->init = 1;
-			return 0;
+		pp->phydev = phydev;
+		phy_config(phydev);
+		phy_startup(phydev);
+		if (!phydev->link) {
+			printf("%s: No link.\n", phydev->dev->name);
+			return -1;
 		}
-	}
 
-	/* Upon all following calls, this is enough */
-	mvneta_port_up(pp);
-	mvneta_port_enable(pp);
+		/* Full init on first call */
+		mvneta_init(dev);
+		pp->init = 1;
+	} else {
+		/* Upon all following calls, this is enough */
+		mvneta_port_up(pp);
+		mvneta_port_enable(pp);
+	}
 
 	return 0;
 }
@@ -1560,10 +1548,7 @@ static int mvneta_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct ofnode_phandle_args sfp_args;
 #endif
-	void *blob = (void *)gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	void *bd_space;
-	int fl_node;
 
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
@@ -1599,15 +1584,6 @@ static int mvneta_probe(struct udevice *dev)
 		mvneta_bypass_mbus_windows(pp);
 	else
 		mvneta_conf_mbus_windows(pp);
-
-	/* fetch 'fixed-link' property from 'neta' node */
-	fl_node = fdt_subnode_offset(blob, node, "fixed-link");
-	if (fl_node != -FDT_ERR_NOTFOUND) {
-		/* set phy_addr to invalid value for fixed link */
-		pp->duplex = fdtdec_get_bool(blob, fl_node, "full-duplex");
-		pp->speed = fdtdec_get_int(blob, fl_node, "speed", 0);
-		pp->fixed_link = true;
-	}
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	if (!dev_read_phandle_with_args(dev, "sfp", NULL, 0, 0, &sfp_args) &&
