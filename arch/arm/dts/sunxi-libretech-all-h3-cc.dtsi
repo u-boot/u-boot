@@ -49,6 +49,7 @@
 			label = "power";
 			linux,code = <KEY_POWER>;
 			gpios = <&r_pio 0 2 GPIO_ACTIVE_LOW>; /* PL2 */
+			wakeup-source;
 		};
 	};
 
@@ -125,6 +126,18 @@
 };
 
 &cpu0 {
+	cpu-supply = <&reg_vdd_cpux>;
+};
+
+&cpu1 {
+	cpu-supply = <&reg_vdd_cpux>;
+};
+
+&cpu2 {
+	cpu-supply = <&reg_vdd_cpux>;
+};
+
+&cpu3 {
 	cpu-supply = <&reg_vdd_cpux>;
 };
 
