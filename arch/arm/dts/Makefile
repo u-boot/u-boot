@@ -694,7 +694,9 @@ dtb-$(CONFIG_MACH_SUN50I_H6) += \
 	sun50i-h6-orangepi-lite2.dtb \
 	sun50i-h6-orangepi-one-plus.dtb \
 	sun50i-h6-pine-h64.dtb \
-	sun50i-h6-tanix-tx6.dtb
+	sun50i-h6-pine-h64-model-b.dtb \
+	sun50i-h6-tanix-tx6.dtb \
+	sun50i-h6-tanix-tx6-mini.dtb
 dtb-$(CONFIG_MACH_SUN50I_H616) += \
 	sun50i-h616-orangepi-zero2.dtb
 dtb-$(CONFIG_MACH_SUN50I) += \
