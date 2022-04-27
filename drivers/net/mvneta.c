@@ -273,7 +273,6 @@ struct mvneta_port {
 	u16 rx_ring_size;
 
 	phy_interface_t phy_interface;
-	bool fixed_link;
 	unsigned int link;
 	unsigned int duplex;
 	unsigned int speed;
@@ -813,7 +812,7 @@ static void mvneta_defaults_set(struct mvneta_port *pp)
 	mvreg_write(pp, MVNETA_SDMA_CONFIG, val);
 
 	/* Enable PHY polling in hardware if not in fixed-link mode */
-	if (!pp->fixed_link) {
+	if (pp->phydev->phy_id != PHY_FIXED_ID) {
 		mvreg_write(pp, MVNETA_PHY_ADDR, pp->phydev->addr);
 
 		val = mvreg_read(pp, MVNETA_UNIT_CONTROL);
@@ -1173,7 +1172,7 @@ static void mvneta_adjust_link(struct udevice *dev)
 		 * be added). Also, why is ADVERT_FC enabled if we don't enable
 		 * inband AN at all?
 		 */
-		if (pp->fixed_link)
+		if (pp->phydev->phy_id == PHY_FIXED_ID)
 			val = MVNETA_GMAC_FORCE_LINK_UP |
 			      MVNETA_GMAC_IB_BYPASS_AN_EN |
 			      MVNETA_GMAC_SET_FC_EN |
@@ -1430,8 +1429,6 @@ static int mvneta_start(struct udevice *dev)
 			printf("dm_eth_phy_connect failed\n");
 			return -ENODEV;
 		}
-
-		pp->fixed_link = phydev->phy_id == PHY_FIXED_ID;
 
 		pp->phydev = phydev;
 		phy_config(phydev);
