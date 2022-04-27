@@ -1571,15 +1571,14 @@ static int mvneta_start(struct udevice *dev)
 
 			mvreg_write(pp, MVNETA_GMAC_AUTONEG_CONFIG, val);
 		} else {
-			/* Set phy address of the port */
-			mvreg_write(pp, MVNETA_PHY_ADDR, pp->phyaddr);
-
-			phydev = phy_connect(pp->bus, pp->phyaddr, dev,
-					     pp->phy_interface);
+			phydev = dm_eth_phy_connect(dev);
 			if (!phydev) {
-				printf("phy_connect failed\n");
+				printf("dm_eth_phy_connect failed\n");
 				return -ENODEV;
 			}
+
+			/* Set PHY address in case we will enable HW polling */
+			mvreg_write(pp, MVNETA_PHY_ADDR, phydev->addr);
 
 			pp->phydev = phydev;
 			phy_config(phydev);
