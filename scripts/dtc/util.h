@@ -75,7 +75,7 @@ extern char *join_path(const char *path, const char *name);
  *
  * @param data	The string to check
  * @param len	The string length including terminator
- * @return 1 if a valid printable string, 0 if not
+ * Return: 1 if a valid printable string, 0 if not
  */
 bool util_is_printable_string(const void *data, int len);
 
@@ -93,7 +93,7 @@ char get_escape_char(const char *s, int *i);
  *
  * @param filename	The filename to read, or - for stdin
  * @param len		If non-NULL, the amount of data we managed to read
- * @return Pointer to allocated buffer containing fdt, or NULL on error
+ * Return: Pointer to allocated buffer containing fdt, or NULL on error
  */
 char *utilfdt_read(const char *filename, size_t *len);
 
@@ -105,7 +105,7 @@ char *utilfdt_read(const char *filename, size_t *len);
  * @param filename	The filename to read, or - for stdin
  * @param buffp		Returns pointer to buffer containing fdt
  * @param len		If non-NULL, the amount of data we managed to read
- * @return 0 if ok, else an errno value representing the error
+ * Return: 0 if ok, else an errno value representing the error
  */
 int utilfdt_read_err(const char *filename, char **buffp, size_t *len);
 
@@ -115,7 +115,7 @@ int utilfdt_read_err(const char *filename, char **buffp, size_t *len);
  *
  * @param filename	The filename to write, or - for stdout
  * @param blob		Pointer to buffer containing fdt
- * @return 0 if ok, -1 on error
+ * Return: 0 if ok, -1 on error
  */
 int utilfdt_write(const char *filename, const void *blob);
 
@@ -126,7 +126,7 @@ int utilfdt_write(const char *filename, const void *blob);
  *
  * @param filename	The filename to write, or - for stdout
  * @param blob		Pointer to buffer containing fdt
- * @return 0 if ok, else an errno value representing the error
+ * Return: 0 if ok, else an errno value representing the error
  */
 int utilfdt_write_err(const char *filename, const void *blob);
 
@@ -152,7 +152,7 @@ int utilfdt_write_err(const char *filename, const void *blob);
  * @param fmt		Format string to process
  * @param type		Returns type found(s/d/u/x), or 0 if none
  * @param size		Returns size found(1,2,4,8) or 4 if none
- * @return 0 if ok, -1 on error (no type given, or other invalid format)
+ * Return: 0 if ok, -1 on error (no type given, or other invalid format)
  */
 int utilfdt_decode_type(const char *fmt, int *type, int *size);
 

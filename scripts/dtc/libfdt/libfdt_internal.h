@@ -179,7 +179,7 @@ enum {
  * can_assume_() - check if a particular assumption is enabled
  *
  * @mask: Mask to check (ASSUME_...)
- * @return true if that assumption is enabled, else false
+ * Return: true if that assumption is enabled, else false
  */
 static inline bool can_assume_(int mask)
 {
