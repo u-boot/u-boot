@@ -1183,7 +1183,7 @@ static void mvneta_adjust_link(struct udevice *dev)
 		mvreg_write(pp, MVNETA_GMAC_AUTONEG_CONFIG, val);
 
 		pp->duplex = phydev->duplex;
-		pp->speed  = phydev->speed;
+		pp->speed = phydev->speed;
 	}
 
 	if (phydev->link != pp->link) {
