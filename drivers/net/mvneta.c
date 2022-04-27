@@ -40,10 +40,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_PHYLIB)
-# error Marvell mvneta requires PHYLIB
-#endif
-
 #define CONFIG_NR_CPUS		1
 #define ETH_HLEN		14	/* Total octets in header */
 
