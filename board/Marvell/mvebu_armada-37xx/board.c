@@ -11,6 +11,7 @@
 #include <i2c.h>
 #include <init.h>
 #include <mmc.h>
+#include <miiphy.h>
 #include <phy.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -254,14 +255,15 @@ int board_xhci_enable(fdt_addr_t base)
 	return 0;
 }
 
+#ifdef CONFIG_LAST_STAGE_INIT
 /* Helper function for accessing switch devices in multi-chip connection mode */
-static int mii_multi_chip_mode_write(struct mii_dev *bus, int dev_smi_addr,
+static int mii_multi_chip_mode_write(struct udevice *bus, int dev_smi_addr,
 				     int smi_addr, int reg, u16 value)
 {
 	u16 smi_cmd = 0;
 
-	if (bus->write(bus, dev_smi_addr, 0,
-		       MVEBU_SW_SMI_DATA_REG, value) != 0) {
+	if (dm_mdio_write(bus, dev_smi_addr, MDIO_DEVAD_NONE,
+			  MVEBU_SW_SMI_DATA_REG, value) != 0) {
 		printf("Error writing to the PHY addr=%02x reg=%02x\n",
 		       smi_addr, reg);
 		return -EFAULT;
@@ -272,8 +274,8 @@ static int mii_multi_chip_mode_write(struct mii_dev *bus, int dev_smi_addr,
 		  (1 << SW_SMI_CMD_SMI_OP_OFF) |
 		  (smi_addr << SW_SMI_CMD_DEV_ADDR_OFF) |
 		  (reg << SW_SMI_CMD_REG_ADDR_OFF);
-	if (bus->write(bus, dev_smi_addr, 0,
-		       MVEBU_SW_SMI_CMD_REG, smi_cmd) != 0) {
+	if (dm_mdio_write(bus, dev_smi_addr, MDIO_DEVAD_NONE,
+			  MVEBU_SW_SMI_CMD_REG, smi_cmd) != 0) {
 		printf("Error writing to the PHY addr=%02x reg=%02x\n",
 		       smi_addr, reg);
 		return -EFAULT;
@@ -283,10 +285,21 @@ static int mii_multi_chip_mode_write(struct mii_dev *bus, int dev_smi_addr,
 }
 
 /* Bring-up board-specific network stuff */
-int board_network_enable(struct mii_dev *bus)
+int last_stage_init(void)
 {
+	struct udevice *bus;
+	ofnode node;
+
 	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
+
+	node = ofnode_by_compatible(ofnode_null(), "marvell,orion-mdio");
+	if (!ofnode_valid(node) ||
+	    uclass_get_device_by_ofnode(UCLASS_MDIO, node, &bus) ||
+	    device_probe(bus)) {
+		printf("Cannot find MDIO bus\n");
+		return 0;
+	}
 
 	/*
 	 * FIXME: remove this code once Topaz driver gets available
@@ -327,6 +340,7 @@ int board_network_enable(struct mii_dev *bus)
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
