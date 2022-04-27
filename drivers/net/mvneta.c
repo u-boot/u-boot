@@ -1570,7 +1570,6 @@ static int mvneta_probe(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	void *bd_space;
 	int fl_node;
-	int ret;
 
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
@@ -1617,8 +1616,8 @@ static int mvneta_probe(struct udevice *dev)
 	}
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
-	ret = dev_read_phandle_with_args(dev, "sfp", NULL, 0, 0, &sfp_args);
-	if (!ret && ofnode_is_enabled(sfp_args.node))
+	if (!dev_read_phandle_with_args(dev, "sfp", NULL, 0, 0, &sfp_args) &&
+	    ofnode_is_enabled(sfp_args.node))
 		gpio_request_by_name_nodev(sfp_args.node, "tx-disable-gpio", 0,
 					   &pp->sfp_tx_disable_gpio, GPIOD_IS_OUT);
 
