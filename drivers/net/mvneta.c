@@ -1161,31 +1161,29 @@ static void mvneta_adjust_link(struct udevice *dev)
 		return;
 	}
 
-	if (phydev->link) {
-		if ((pp->speed != phydev->speed) ||
-		    (pp->duplex != phydev->duplex)) {
-			u32 val;
+	if (phydev->link &&
+	    (pp->speed != phydev->speed || pp->duplex != phydev->duplex)) {
+		u32 val;
 
-			val = mvreg_read(pp, MVNETA_GMAC_AUTONEG_CONFIG);
-			val &= ~(MVNETA_GMAC_CONFIG_MII_SPEED |
-				 MVNETA_GMAC_CONFIG_GMII_SPEED |
-				 MVNETA_GMAC_CONFIG_FULL_DUPLEX |
-				 MVNETA_GMAC_AN_SPEED_EN |
-				 MVNETA_GMAC_AN_DUPLEX_EN);
+		val = mvreg_read(pp, MVNETA_GMAC_AUTONEG_CONFIG);
+		val &= ~(MVNETA_GMAC_CONFIG_MII_SPEED |
+			 MVNETA_GMAC_CONFIG_GMII_SPEED |
+			 MVNETA_GMAC_CONFIG_FULL_DUPLEX |
+			 MVNETA_GMAC_AN_SPEED_EN |
+			 MVNETA_GMAC_AN_DUPLEX_EN);
 
-			if (phydev->duplex)
-				val |= MVNETA_GMAC_CONFIG_FULL_DUPLEX;
+		if (phydev->duplex)
+			val |= MVNETA_GMAC_CONFIG_FULL_DUPLEX;
 
-			if (phydev->speed == SPEED_1000)
-				val |= MVNETA_GMAC_CONFIG_GMII_SPEED;
-			else if (pp->speed == SPEED_100)
-				val |= MVNETA_GMAC_CONFIG_MII_SPEED;
+		if (phydev->speed == SPEED_1000)
+			val |= MVNETA_GMAC_CONFIG_GMII_SPEED;
+		else if (pp->speed == SPEED_100)
+			val |= MVNETA_GMAC_CONFIG_MII_SPEED;
 
-			mvreg_write(pp, MVNETA_GMAC_AUTONEG_CONFIG, val);
+		mvreg_write(pp, MVNETA_GMAC_AUTONEG_CONFIG, val);
 
-			pp->duplex = phydev->duplex;
-			pp->speed  = phydev->speed;
-		}
+		pp->duplex = phydev->duplex;
+		pp->speed  = phydev->speed;
 	}
 
 	if (phydev->link != pp->link) {
