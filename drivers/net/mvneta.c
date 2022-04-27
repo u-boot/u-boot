@@ -277,12 +277,12 @@ struct mvneta_port {
 	u16 rx_ring_size;
 
 	phy_interface_t phy_interface;
+	bool fixed_link;
 	unsigned int link;
 	unsigned int duplex;
 	unsigned int speed;
 
 	int init;
-	int phyaddr;
 	struct phy_device *phydev;
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc phy_reset_gpio;
@@ -576,13 +576,6 @@ static void mvneta_rxq_buf_size_set(struct mvneta_port *pp,
 	mvreg_write(pp, MVNETA_RXQ_SIZE_REG(rxq->id), val);
 }
 
-static int mvneta_port_is_fixed_link(struct mvneta_port *pp)
-{
-	/* phy_addr is set to invalid value for fixed link */
-	return pp->phyaddr > PHY_MAX_ADDR;
-}
-
-
 /* Start the Ethernet port RX and TX activity */
 static void mvneta_port_up(struct mvneta_port *pp)
 {
@@ -834,7 +827,7 @@ static void mvneta_defaults_set(struct mvneta_port *pp)
 	mvreg_write(pp, MVNETA_SDMA_CONFIG, val);
 
 	/* Enable PHY polling in hardware if not in fixed-link mode */
-	if (!mvneta_port_is_fixed_link(pp)) {
+	if (!pp->fixed_link) {
 		val = mvreg_read(pp, MVNETA_UNIT_CONTROL);
 		val |= MVNETA_PHY_POLLING_ENABLE;
 		mvreg_write(pp, MVNETA_UNIT_CONTROL, val);
@@ -1173,7 +1166,7 @@ static void mvneta_adjust_link(struct udevice *dev)
 	struct phy_device *phydev = pp->phydev;
 	int status_change = 0;
 
-	if (mvneta_port_is_fixed_link(pp)) {
+	if (pp->fixed_link) {
 		debug("Using fixed link, skip link adjust\n");
 		return;
 	}
@@ -1548,7 +1541,7 @@ static int mvneta_start(struct udevice *dev)
 	mvneta_port_power_up(pp, pp->phy_interface);
 
 	if (!pp->init || pp->link == 0) {
-		if (mvneta_port_is_fixed_link(pp)) {
+		if (pp->fixed_link) {
 			u32 val;
 
 			pp->init = 1;
@@ -1698,7 +1691,6 @@ static int mvneta_probe(struct udevice *dev)
 	void *blob = (void *)gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	struct mii_dev *bus;
-	unsigned long addr;
 	void *bd_space;
 	int ret;
 	int fl_node;
@@ -1742,14 +1734,9 @@ static int mvneta_probe(struct udevice *dev)
 	fl_node = fdt_subnode_offset(blob, node, "fixed-link");
 	if (fl_node != -FDT_ERR_NOTFOUND) {
 		/* set phy_addr to invalid value for fixed link */
-		pp->phyaddr = PHY_MAX_ADDR + 1;
 		pp->duplex = fdtdec_get_bool(blob, fl_node, "full-duplex");
 		pp->speed = fdtdec_get_int(blob, fl_node, "speed", 0);
-	} else {
-		/* Now read phyaddr from DT */
-		addr = fdtdec_get_int(blob, node, "phy", 0);
-		addr = fdt_node_offset_by_phandle(blob, addr);
-		pp->phyaddr = fdtdec_get_int(blob, addr, "reg", 0);
+		pp->fixed_link = true;
 	}
 
 	bus = mdio_alloc();
