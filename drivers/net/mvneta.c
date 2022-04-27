@@ -814,6 +814,8 @@ static void mvneta_defaults_set(struct mvneta_port *pp)
 
 	/* Enable PHY polling in hardware if not in fixed-link mode */
 	if (!pp->fixed_link) {
+		mvreg_write(pp, MVNETA_PHY_ADDR, pp->phydev->addr);
+
 		val = mvreg_read(pp, MVNETA_UNIT_CONTROL);
 		val |= MVNETA_PHY_POLLING_ENABLE;
 		mvreg_write(pp, MVNETA_UNIT_CONTROL, val);
@@ -1430,10 +1432,6 @@ static int mvneta_start(struct udevice *dev)
 		}
 
 		pp->fixed_link = phydev->phy_id == PHY_FIXED_ID;
-
-		/* Set PHY address in case we will enable HW polling */
-		if (!pp->fixed_link)
-			mvreg_write(pp, MVNETA_PHY_ADDR, phydev->addr);
 
 		pp->phydev = phydev;
 		phy_config(phydev);
