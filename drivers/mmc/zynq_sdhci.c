@@ -79,6 +79,11 @@ __weak int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 	return 0;
 }
 
+__weak int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
+{
+	return 1;
+}
+
 #if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
 /* Default settings for ZynqMP Clock Phases */
 static const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0,
