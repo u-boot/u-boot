@@ -188,7 +188,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MVNETA_GMAC_AUTONEG_CONFIG               0x2c0c
 #define      MVNETA_GMAC_FORCE_LINK_DOWN         BIT(0)
 #define      MVNETA_GMAC_FORCE_LINK_PASS         BIT(1)
-#define      MVNETA_GMAC_FORCE_LINK_UP           (BIT(0) | BIT(1))
 #define      MVNETA_GMAC_IB_BYPASS_AN_EN         BIT(3)
 #define      MVNETA_GMAC_CONFIG_MII_SPEED        BIT(5)
 #define      MVNETA_GMAC_CONFIG_GMII_SPEED       BIT(6)
@@ -1175,8 +1174,7 @@ static void mvneta_adjust_link(struct udevice *dev)
 		 */
 		if (CONFIG_IS_ENABLED(PHY_FIXED) &&
 		    pp->phydev->phy_id == PHY_FIXED_ID)
-			val = MVNETA_GMAC_FORCE_LINK_UP |
-			      MVNETA_GMAC_IB_BYPASS_AN_EN |
+			val = MVNETA_GMAC_IB_BYPASS_AN_EN |
 			      MVNETA_GMAC_SET_FC_EN |
 			      MVNETA_GMAC_ADVERT_FC_EN |
 			      MVNETA_GMAC_SAMPLE_TX_CFG_EN;
