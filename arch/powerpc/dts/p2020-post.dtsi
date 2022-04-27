@@ -64,6 +64,9 @@
 		interrupts = <16 2 0 0>;
 	};
 
+/include/ "pq3-dma-0.dtsi"
+/include/ "pq3-dma-1.dtsi"
+
 /include/ "pq3-etsec1-0.dtsi"
 /include/ "pq3-etsec1-timer-0.dtsi"
 
