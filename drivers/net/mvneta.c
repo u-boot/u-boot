@@ -40,7 +40,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CONFIG_NR_CPUS		1
+#define MVNETA_NR_CPUS		1
 #define ETH_HLEN		14	/* Total octets in header */
 
 /* 2(HW hdr) 14(MAC hdr) 4(CRC) 32(extra for cache prefetch) */
@@ -770,7 +770,7 @@ static void mvneta_defaults_set(struct mvneta_port *pp)
 	/* Set CPU queue access map - all CPUs have access to all RX
 	 * queues and to all TX queues
 	 */
-	for (cpu = 0; cpu < CONFIG_NR_CPUS; cpu++)
+	for (cpu = 0; cpu < MVNETA_NR_CPUS; cpu++)
 		mvreg_write(pp, MVNETA_CPU_MAP(cpu),
 			    (MVNETA_CPU_RXQ_ACCESS_ALL_MASK |
 			     MVNETA_CPU_TXQ_ACCESS_ALL_MASK));
