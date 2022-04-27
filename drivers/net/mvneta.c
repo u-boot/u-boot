@@ -1692,7 +1692,6 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 
 static int mvneta_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct mvneta_port *pp = dev_get_priv(dev);
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct ofnode_phandle_args sfp_args;
@@ -1729,16 +1728,16 @@ static int mvneta_probe(struct udevice *dev)
 		buffer_loc.rx_buffers = (phys_addr_t)(bd_space + size);
 	}
 
-	pp->base = (void __iomem *)pdata->iobase;
+	pp->base = dev_read_addr_ptr(dev);
+	pp->phy_interface = dev_read_phy_mode(dev);
+	if (pp->phy_interface == PHY_INTERFACE_MODE_NA)
+		return -EINVAL;
 
 	/* Configure MBUS address windows */
 	if (device_is_compatible(dev, "marvell,armada-3700-neta"))
 		mvneta_bypass_mbus_windows(pp);
 	else
 		mvneta_conf_mbus_windows(pp);
-
-	/* PHY interface is already decoded in mvneta_of_to_plat() */
-	pp->phy_interface = pdata->phy_interface;
 
 	/* fetch 'fixed-link' property from 'neta' node */
 	fl_node = fdt_subnode_offset(blob, node, "fixed-link");
@@ -1808,20 +1807,6 @@ static const struct eth_ops mvneta_ops = {
 	.write_hwaddr	= mvneta_write_hwaddr,
 };
 
-static int mvneta_of_to_plat(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_plat(dev);
-
-	pdata->iobase = dev_read_addr(dev);
-
-	/* Get phy-mode / phy_interface from DT */
-	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
-		return -EINVAL;
-
-	return 0;
-}
-
 static const struct udevice_id mvneta_ids[] = {
 	{ .compatible = "marvell,armada-370-neta" },
 	{ .compatible = "marvell,armada-xp-neta" },
@@ -1833,7 +1818,6 @@ U_BOOT_DRIVER(mvneta) = {
 	.name	= "mvneta",
 	.id	= UCLASS_ETH,
 	.of_match = mvneta_ids,
-	.of_to_plat = mvneta_of_to_plat,
 	.probe	= mvneta_probe,
 	.ops	= &mvneta_ops,
 	.priv_auto	= sizeof(struct mvneta_port),
