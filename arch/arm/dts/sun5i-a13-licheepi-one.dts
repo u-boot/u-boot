@@ -1,5 +1,9 @@
 /*
- * Copyright 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright 2016 Icenowy Zheng <icenowy@aosc.xyz>
+ *
+ * Based on sun5i-a13-olinuxino.dts, which is
+ *   Copyright 2012 Maxime Ripard <maxime.ripard@free-electrons.com>
+ *   Copyright 2013 Hans de Goede <hdegoede@redhat.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -41,16 +45,18 @@
  */
 
 /dts-v1/;
-#include "sun5i-a10s.dtsi"
+#include "sun5i-a13.dtsi"
 #include "sunxi-common-regulators.dtsi"
+
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
 
 / {
-	model = "Auxtek t003 A10s hdmi tv-stick";
-	compatible = "allwinner,auxtek-t003", "allwinner,sun5i-a10s";
+	model = "Lichee Pi One";
+	compatible = "licheepi,licheepi-one", "allwinner,sun5i-a13";
 
 	aliases {
-		serial0 = &uart0;
+		serial0 = &uart1;
 	};
 
 	chosen {
@@ -59,15 +65,28 @@
 
 	leds {
 		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_t003>;
 
-		led {
-			label = "t003-tv-dongle:red:usr";
-			gpios = <&pio 1 2 GPIO_ACTIVE_HIGH>; /* PB2 */
+		led-0 {
+			label ="licheepi:red:usr";
+			gpios = <&pio 2 5 GPIO_ACTIVE_LOW>;
+		};
+
+		led-1 {
+			label ="licheepi:green:usr";
+			gpios = <&pio 2 19 GPIO_ACTIVE_LOW>;
 			default-state = "on";
 		};
+
+		led-2 {
+			label ="licheepi:blue:usr";
+			gpios = <&pio 2 4 GPIO_ACTIVE_LOW>;
+		};
+
 	};
+};
+
+&cpu0 {
+	cpu-supply = <&reg_dcdc2>;
 };
 
 &ehci0 {
@@ -77,19 +96,49 @@
 &i2c0 {
 	status = "okay";
 
-	axp152: pmic@30 {
-		compatible = "x-powers,axp152";
-		reg = <0x30>;
+	axp209: pmic@34 {
+		compatible = "x-powers,axp209";
+		reg = <0x34>;
 		interrupts = <0>;
+
 		interrupt-controller;
 		#interrupt-cells = <1>;
+	};
+};
+
+&i2c1 {
+	status = "disabled";
+};
+
+&i2c2 {
+	status = "disabled";
+};
+
+&lradc {
+	vref-supply = <&reg_ldo2>;
+	status = "okay";
+
+	button-984 {
+		label = "Home";
+		linux,code = <KEY_HOMEPAGE>;
+		channel = <0>;
+		voltage = <984126>;
 	};
 };
 
 &mmc0 {
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
-	cd-gpios = <&pio 6 1 GPIO_ACTIVE_LOW>; /* PG1 */
+	broken-cd;
+	status = "okay";
+};
+
+&mmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc2_4bit_pc_pins>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	broken-cd;
 	status = "okay";
 };
 
@@ -101,37 +150,65 @@
 	status = "okay";
 };
 
-&pio {
-	led_pins_t003: led-pin {
-		pins = "PB2";
-		function = "gpio_out";
-		drive-strength = <20>;
-	};
+#include "axp209.dtsi"
+
+&reg_dcdc2 {
+	regulator-always-on;
+	regulator-min-microvolt = <1000000>;
+	regulator-max-microvolt = <1500000>;
+	regulator-name = "vdd-cpu";
+};
+
+&reg_dcdc3 {
+	regulator-always-on;
+	regulator-min-microvolt = <1000000>;
+	regulator-max-microvolt = <1400000>;
+	regulator-name = "vdd-int-dll";
+};
+
+&reg_ldo1 {
+	regulator-name = "vdd-rtc";
+};
+
+&reg_ldo2 {
+	regulator-always-on;
+	regulator-min-microvolt = <3000000>;
+	regulator-max-microvolt = <3000000>;
+	regulator-name = "avcc";
+};
+
+&reg_ldo3 {
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	regulator-name = "csi-1.8v";
+};
+
+&reg_ldo4 {
+	regulator-min-microvolt = <2800000>;
+	regulator-max-microvolt = <2800000>;
+	regulator-name = "csi-2.8v";
 };
 
 &reg_usb0_vbus {
-	gpio = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
+	gpio = <&pio 2 12 GPIO_ACTIVE_HIGH>; /* PC12 */
 	status = "okay";
 };
 
-&reg_usb1_vbus {
-	gpio = <&pio 1 10 GPIO_ACTIVE_HIGH>; /* PB10 */
-	status = "okay";
-};
-
-&uart0 {
+&uart1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pb_pins>;
+	pinctrl-0 = <&uart1_pg_pins>;
 	status = "okay";
 };
 
 &usb_otg {
-	dr_mode = "host";
+	dr_mode = "otg";
 	status = "okay";
 };
 
 &usbphy {
+	usb0_id_det-gpios = <&pio 6 2 GPIO_ACTIVE_HIGH>; /* PG2 */
+	usb0_vbus_det-gpios = <&pio 6 1 GPIO_ACTIVE_HIGH>; /* PG1 */
 	usb0_vbus-supply = <&reg_usb0_vbus>;
-	usb1_vbus-supply = <&reg_usb1_vbus>;
+	usb1_vbus-supply = <&reg_vcc5v0>;
 	status = "okay";
 };

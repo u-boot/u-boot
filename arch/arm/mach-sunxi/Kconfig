@@ -911,7 +911,7 @@ config VIDEO_LCD_PANEL_I2C
 config VIDEO_LCD_PANEL_I2C_NAME
 	string "LCD panel i2c interface node name"
 	depends on VIDEO_LCD_PANEL_I2C
-	default "i2c@0"
+	default "i2c"
 	---help---
 	Set the device tree node name for the LCD i2c interface.
 
