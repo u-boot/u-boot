@@ -73,6 +73,9 @@
 
 /include/ "pq3-etsec1-1.dtsi"
 /include/ "pq3-etsec1-2.dtsi"
+
+/include/ "pq3-mpic.dtsi"
+/include/ "pq3-mpic-timer-B.dtsi"
 };
 
 /* PCIe controller base address 0x8000 */
