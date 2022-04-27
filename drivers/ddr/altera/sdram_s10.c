@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2016-2018 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2022 Intel Corporation <www.intel.com>
  *
  */
 
@@ -277,7 +277,7 @@ int sdram_mmr_init_full(struct udevice *dev)
 			DDR_SCH_DEVTODEV);
 
 	/* assigning the SDRAM size */
-	unsigned long long size = sdram_calculate_size(plat);
+	phys_size_t size = sdram_calculate_size(plat);
 	/* If the size is invalid, use default Config size */
 	if (size <= 0)
 		hw_size = PHYS_SDRAM_1_SIZE;
