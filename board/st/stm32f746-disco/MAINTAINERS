@@ -5,5 +5,6 @@ F:	board/st/stm32f746-disco
 F:	include/configs/stm32f746-disco.h
 F:	configs/stm32f746-disco_defconfig
 F:	configs/stm32f746-disco_spl_defconfig
+F:	configs/stm32746g-eval_defconfig
 F:	configs/stm32f769-disco_defconfig
 F:	configs/stm32f769-disco_spl_defconfig
