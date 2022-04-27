@@ -56,6 +56,24 @@
 /include/ "pq3-duart-0.dtsi"
 /include/ "pq3-gpio-0.dtsi"
 
+	ecm-law@0 {
+		compatible = "fsl,ecm-law";
+		reg = <0x0 0x1000>;
+		fsl,num-laws = <12>;
+	};
+
+	ecm@1000 {
+		compatible = "fsl,p2020-ecm", "fsl,ecm";
+		reg = <0x1000 0x1000>;
+		interrupts = <17 2 0 0>;
+	};
+
+	memory-controller@2000 {
+		compatible = "fsl,p2020-memory-controller";
+		reg = <0x2000 0x1000>;
+		interrupts = <18 2 0 0>;
+	};
+
 	L2: l2-cache-controller@20000 {
 		compatible = "fsl,p2020-l2-cache-controller";
 		reg = <0x20000 0x1000>;
@@ -80,6 +98,12 @@
 /include/ "pq3-sec3.1-0.dtsi"
 /include/ "pq3-mpic.dtsi"
 /include/ "pq3-mpic-timer-B.dtsi"
+
+	global-utilities@e0000 {
+		compatible = "fsl,p2020-guts";
+		reg = <0xe0000 0x1000>;
+		fsl,has-rstcr;
+	};
 };
 
 /* PCIe controller base address 0x8000 */
