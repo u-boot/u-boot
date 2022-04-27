@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>
-#include <dt-bindings/clock/g12a-aoclkc.h>
+#include <dt-bindings/clock/axg-aoclkc.h>
 
 #include "clk_meson.h"
 
@@ -15,12 +15,12 @@ struct meson_clk {
 	struct regmap *map;
 };
 
-#define AO_CLK_GATE0		0x4c
+#define AO_CLK_GATE0		0x40
 #define AO_SAR_CLK		0x90
 
 static struct meson_gate gates[] = {
-	MESON_GATE(CLKID_AO_SAR_ADC, AO_CLK_GATE0, 8),
-	MESON_GATE(CLKID_AO_SAR_ADC_CLK, AO_SAR_CLK, 8),
+	MESON_GATE(CLKID_AO_SAR_ADC, AO_CLK_GATE0, 7),
+	MESON_GATE(CLKID_AO_SAR_ADC_CLK, AO_SAR_CLK, 7),
 };
 
 static int meson_set_gate(struct clk *clk, bool on)
@@ -72,12 +72,12 @@ static struct clk_ops meson_clk_ops = {
 };
 
 static const struct udevice_id meson_clk_ids[] = {
-	{ .compatible = "amlogic,meson-g12a-aoclkc" },
+	{ .compatible = "amlogic,meson-axg-aoclkc" },
 	{ }
 };
 
-U_BOOT_DRIVER(meson_clk_g12a_ao) = {
-	.name		= "meson_clk_g12a_ao",
+U_BOOT_DRIVER(meson_clk_axg_ao) = {
+	.name		= "meson_clk_axg_ao",
 	.id		= UCLASS_CLK,
 	.of_match	= meson_clk_ids,
 	.priv_auto	= sizeof(struct meson_clk),
