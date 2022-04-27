@@ -1154,7 +1154,7 @@ static void mvneta_adjust_link(struct udevice *dev)
 {
 	struct mvneta_port *pp = dev_get_priv(dev);
 	struct phy_device *phydev = pp->phydev;
-	int status_change = 0;
+	bool status_change = false;
 
 	if (pp->fixed_link) {
 		debug("Using fixed link, skip link adjust\n");
@@ -1193,7 +1193,7 @@ static void mvneta_adjust_link(struct udevice *dev)
 		}
 
 		pp->link = phydev->link;
-		status_change = 1;
+		status_change = true;
 	}
 
 	if (status_change) {
