@@ -189,6 +189,15 @@ int dm_mdio_write(struct udevice *mdio_dev, int addr, int devad, int reg, u16 va
 int dm_mdio_reset(struct udevice *mdio_dev);
 
 /**
+ * dm_phy_find_by_ofnode - Find PHY device by ofnode
+ *
+ * @phynode: PHY's ofnode
+ *
+ * Return: pointer to phy_device, or NULL on error
+ */
+struct phy_device *dm_phy_find_by_ofnode(ofnode phynode);
+
+/**
  * dm_mdio_phy_connect - Wrapper over phy_connect for DM MDIO
  *
  * @mdiodev: mdio device the PHY is accesible on
