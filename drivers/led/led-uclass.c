@@ -66,12 +66,6 @@ int led_set_period(struct udevice *dev, int period_ms)
 }
 #endif
 
-/* This is superseded by led_post_bind()/led_post_probe() below. */
-int led_default_state(void)
-{
-	return 0;
-}
-
 static int led_post_bind(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
@@ -98,7 +92,9 @@ static int led_post_bind(struct udevice *dev)
 	 * In case the LED has default-state DT property, trigger
 	 * probe() to configure its default state during startup.
 	 */
-	return device_probe(dev);
+	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+
+	return 0;
 }
 
 static int led_post_probe(struct udevice *dev)

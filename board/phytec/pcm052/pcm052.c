@@ -360,9 +360,6 @@ int board_late_init(void)
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	u32 reg;
 
-	if (IS_ENABLED(CONFIG_LED))
-		led_default_state();
-
 	/*
 	 * BK4r1 handle emergency/service SD card boot
 	 * Checking the SBMR1 register BOOTCFG1 byte:

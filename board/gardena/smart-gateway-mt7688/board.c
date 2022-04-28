@@ -183,9 +183,6 @@ err_free:
 
 int board_late_init(void)
 {
-	if (IS_ENABLED(CONFIG_LED))
-		led_default_state();
-
 	factory_data_env_config();
 
 	return 0;

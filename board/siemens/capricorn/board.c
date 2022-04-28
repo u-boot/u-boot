@@ -244,10 +244,6 @@ static int board_led_init(void)
 	u8 pca_led[2] = { 0x00, 0x00 };
 	int ret;
 
-	/* init all GPIO LED's */
-	if (IS_ENABLED(CONFIG_LED))
-		led_default_state();
-
 	/* enable all leds on PCA9552 */
 	ret = uclass_get_device_by_seq(UCLASS_I2C, PCA9552_1_I2C_BUS, &bus);
 	if (ret) {
