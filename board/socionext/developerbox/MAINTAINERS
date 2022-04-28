@@ -1,5 +1,4 @@
 DEVELOPER BOX
-M:	Masami Hiramatsu <masami.hiramatsu@linaro.org>
 M:	Jassi Brar <jaswinder.singh@linaro.org>
 S:	Maintained
 F:	arch/arm/dts/synquacer-*
