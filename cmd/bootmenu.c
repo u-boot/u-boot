@@ -27,6 +27,13 @@
  */
 #define MAX_ENV_SIZE	(9 + 2 + 1)
 
+enum bootmenu_ret {
+	BOOTMENU_RET_SUCCESS = 0,
+	BOOTMENU_RET_FAIL,
+	BOOTMENU_RET_QUIT,
+	BOOTMENU_RET_UPDATED,
+};
+
 enum boot_type {
 	BOOTMENU_TYPE_NONE = 0,
 	BOOTMENU_TYPE_BOOTMENU,
@@ -489,7 +496,12 @@ static struct bootmenu_data *bootmenu_create(int delay)
 		if (!entry)
 			goto cleanup;
 
-		entry->title = u16_strdup(u"U-Boot console");
+		/* Add Quit entry if entering U-Boot console is disabled */
+		if (IS_ENABLED(CONFIG_CMD_BOOTMENU_ENTER_UBOOT_CONSOLE))
+			entry->title = u16_strdup(u"U-Boot console");
+		else
+			entry->title = u16_strdup(u"Quit");
+
 		if (!entry->title) {
 			free(entry);
 			goto cleanup;
@@ -585,15 +597,17 @@ static void handle_uefi_bootnext(void)
 		run_command("bootefi bootmgr", 0);
 }
 
-static void bootmenu_show(int delay)
+static enum bootmenu_ret bootmenu_show(int delay)
 {
+	int cmd_ret;
 	int init = 0;
 	void *choice = NULL;
 	u16 *title = NULL;
 	char *command = NULL;
 	struct menu *menu;
-	struct bootmenu_data *bootmenu;
 	struct bootmenu_entry *iter;
+	int ret = BOOTMENU_RET_SUCCESS;
+	struct bootmenu_data *bootmenu;
 	efi_status_t efi_ret = EFI_SUCCESS;
 	char *option, *sep;
 
@@ -605,27 +619,27 @@ static void bootmenu_show(int delay)
 		option = bootmenu_getoption(0);
 		if (!option) {
 			puts("bootmenu option 0 was not found\n");
-			return;
+			return BOOTMENU_RET_FAIL;
 		}
 		sep = strchr(option, '=');
 		if (!sep) {
 			puts("bootmenu option 0 is invalid\n");
-			return;
+			return BOOTMENU_RET_FAIL;
 		}
-		run_command(sep+1, 0);
-		return;
+		cmd_ret = run_command(sep + 1, 0);
+		return (cmd_ret == CMD_RET_SUCCESS ? BOOTMENU_RET_SUCCESS : BOOTMENU_RET_FAIL);
 	}
 
 	bootmenu = bootmenu_create(delay);
 	if (!bootmenu)
-		return;
+		return BOOTMENU_RET_FAIL;
 
 	menu = menu_create(NULL, bootmenu->delay, 1, menu_display_statusline,
 			   bootmenu_print_entry, bootmenu_choice_entry,
 			   bootmenu);
 	if (!menu) {
 		bootmenu_destroy(bootmenu);
-		return;
+		return BOOTMENU_RET_FAIL;
 	}
 
 	for (iter = bootmenu->first; iter; iter = iter->next) {
@@ -646,6 +660,14 @@ static void bootmenu_show(int delay)
 		iter = choice;
 		title = u16_strdup(iter->title);
 		command = strdup(iter->command);
+
+		/* last entry is U-Boot console or Quit */
+		if (iter->num == iter->menu->count - 1) {
+			ret = BOOTMENU_RET_QUIT;
+			goto cleanup;
+		}
+	} else {
+		goto cleanup;
 	}
 
 	/*
@@ -683,19 +705,44 @@ cleanup:
 		debug("Starting entry '%ls'\n", title);
 		free(title);
 		if (efi_ret == EFI_SUCCESS)
-			run_command(command, 0);
+			cmd_ret = run_command(command, 0);
 		free(command);
 	}
 
 #ifdef CONFIG_POSTBOOTMENU
 	run_command(CONFIG_POSTBOOTMENU, 0);
 #endif
+
+	if (efi_ret != EFI_SUCCESS || cmd_ret != CMD_RET_SUCCESS)
+		ret = BOOTMENU_RET_FAIL;
+
+	return ret;
 }
 
 #ifdef CONFIG_AUTOBOOT_MENU_SHOW
 int menu_show(int bootdelay)
 {
-	bootmenu_show(bootdelay);
+	int ret;
+
+	while (1) {
+		ret = bootmenu_show(bootdelay);
+		bootdelay = -1;
+		if (ret == BOOTMENU_RET_UPDATED)
+			continue;
+
+		if (!IS_ENABLED(CONFIG_CMD_BOOTMENU_ENTER_UBOOT_CONSOLE)) {
+			if (ret == BOOTMENU_RET_QUIT) {
+				/* default boot process */
+				if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
+					run_command("bootefi bootmgr", 0);
+
+				run_command("run bootcmd", 0);
+			}
+		} else {
+			break;
+		}
+	}
+
 	return -1; /* -1 - abort boot and run monitor code */
 }
 #endif
