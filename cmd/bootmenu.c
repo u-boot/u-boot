@@ -3,6 +3,7 @@
  * (C) Copyright 2011-2013 Pali Rohár <pali@kernel.org>
  */
 
+#include <charset.h>
 #include <common.h>
 #include <command.h>
 #include <ansi.h>
@@ -24,11 +25,18 @@
  */
 #define MAX_ENV_SIZE	(9 + 2 + 1)
 
+enum boot_type {
+	BOOTMENU_TYPE_NONE = 0,
+	BOOTMENU_TYPE_BOOTMENU,
+};
+
 struct bootmenu_entry {
 	unsigned short int num;		/* unique number 0 .. MAX_COUNT */
 	char key[3];			/* key identifier of number */
-	char *title;			/* title of entry */
+	u16 *title;			/* title of entry */
 	char *command;			/* hush command of entry */
+	enum boot_type type;		/* boot type of entry */
+	u16 bootorder;			/* order for each boot type */
 	struct bootmenu_data *menu;	/* this bootmenu */
 	struct bootmenu_entry *next;	/* next menu entry (num+1) */
 };
@@ -73,7 +81,7 @@ static void bootmenu_print_entry(void *data)
 	if (reverse)
 		puts(ANSI_COLOR_REVERSE);
 
-	puts(entry->title);
+	printf("%ls", entry->title);
 
 	if (reverse)
 		puts(ANSI_COLOR_RESET);
@@ -269,31 +277,32 @@ static void bootmenu_destroy(struct bootmenu_data *menu)
 	free(menu);
 }
 
-static struct bootmenu_data *bootmenu_create(int delay)
+/**
+ * prepare_bootmenu_entry() - generate the bootmenu_xx entries
+ *
+ * This function read the "bootmenu_x" U-Boot environment variable
+ * and generate the bootmenu entries.
+ *
+ * @menu:	pointer to the bootmenu structure
+ * @current:	pointer to the last bootmenu entry list
+ * @index:	pointer to the index of the last bootmenu entry,
+ *		the number of bootmenu entry is added by this function
+ * Return:	1 on success, negative value on error
+ */
+static int prepare_bootmenu_entry(struct bootmenu_data *menu,
+				  struct bootmenu_entry **current,
+				  unsigned short int *index)
 {
-	unsigned short int i = 0;
-	const char *option;
-	struct bootmenu_data *menu;
-	struct bootmenu_entry *iter = NULL;
-
 	int len;
 	char *sep;
-	char *default_str;
-	struct bootmenu_entry *entry;
-
-	menu = malloc(sizeof(struct bootmenu_data));
-	if (!menu)
-		return NULL;
-
-	menu->delay = delay;
-	menu->active = 0;
-	menu->first = NULL;
-
-	default_str = env_get("bootmenu_default");
-	if (default_str)
-		menu->active = (int)simple_strtol(default_str, NULL, 10);
+	const char *option;
+	unsigned short int i = *index;
+	struct bootmenu_entry *entry = NULL;
+	struct bootmenu_entry *iter = *current;
 
 	while ((option = bootmenu_getoption(i))) {
+		u16 *buf;
+
 		sep = strchr(option, '=');
 		if (!sep) {
 			printf("Invalid bootmenu entry: %s\n", option);
@@ -302,23 +311,23 @@ static struct bootmenu_data *bootmenu_create(int delay)
 
 		entry = malloc(sizeof(struct bootmenu_entry));
 		if (!entry)
-			goto cleanup;
+			return -ENOMEM;
 
 		len = sep-option;
-		entry->title = malloc(len + 1);
+		buf = calloc(1, (len + 1) * sizeof(u16));
+		entry->title = buf;
 		if (!entry->title) {
 			free(entry);
-			goto cleanup;
+			return -ENOMEM;
 		}
-		memcpy(entry->title, option, len);
-		entry->title[len] = 0;
+		utf8_utf16_strncpy(&buf, option, len);
 
 		len = strlen(sep + 1);
 		entry->command = malloc(len + 1);
 		if (!entry->command) {
 			free(entry->title);
 			free(entry);
-			goto cleanup;
+			return -ENOMEM;
 		}
 		memcpy(entry->command, sep + 1, len);
 		entry->command[len] = 0;
@@ -327,6 +336,8 @@ static struct bootmenu_data *bootmenu_create(int delay)
 
 		entry->num = i;
 		entry->menu = menu;
+		entry->type = BOOTMENU_TYPE_BOOTMENU;
+		entry->bootorder = i;
 		entry->next = NULL;
 
 		if (!iter)
@@ -341,13 +352,44 @@ static struct bootmenu_data *bootmenu_create(int delay)
 			break;
 	}
 
+	*index = i;
+	*current = iter;
+
+	return 1;
+}
+
+static struct bootmenu_data *bootmenu_create(int delay)
+{
+	int ret;
+	unsigned short int i = 0;
+	struct bootmenu_data *menu;
+	struct bootmenu_entry *iter = NULL;
+	struct bootmenu_entry *entry;
+	char *default_str;
+
+	menu = malloc(sizeof(struct bootmenu_data));
+	if (!menu)
+		return NULL;
+
+	menu->delay = delay;
+	menu->active = 0;
+	menu->first = NULL;
+
+	default_str = env_get("bootmenu_default");
+	if (default_str)
+		menu->active = (int)simple_strtol(default_str, NULL, 10);
+
+	ret = prepare_bootmenu_entry(menu, &iter, &i);
+	if (ret < 0)
+		goto cleanup;
+
 	/* Add U-Boot console entry at the end */
 	if (i <= MAX_COUNT - 1) {
 		entry = malloc(sizeof(struct bootmenu_entry));
 		if (!entry)
 			goto cleanup;
 
-		entry->title = strdup("U-Boot console");
+		entry->title = u16_strdup(u"U-Boot console");
 		if (!entry->title) {
 			free(entry);
 			goto cleanup;
@@ -364,6 +406,7 @@ static struct bootmenu_data *bootmenu_create(int delay)
 
 		entry->num = i;
 		entry->menu = menu;
+		entry->type = BOOTMENU_TYPE_NONE;
 		entry->next = NULL;
 
 		if (!iter)
@@ -421,7 +464,7 @@ static void bootmenu_show(int delay)
 {
 	int init = 0;
 	void *choice = NULL;
-	char *title = NULL;
+	u16 *title = NULL;
 	char *command = NULL;
 	struct menu *menu;
 	struct bootmenu_data *bootmenu;
@@ -472,7 +515,7 @@ static void bootmenu_show(int delay)
 
 	if (menu_get_choice(menu, &choice) == 1) {
 		iter = choice;
-		title = strdup(iter->title);
+		title = u16_strdup(iter->title);
 		command = strdup(iter->command);
 	}
 
@@ -487,7 +530,7 @@ cleanup:
 	}
 
 	if (title && command) {
-		debug("Starting entry '%s'\n", title);
+		debug("Starting entry '%ls'\n", title);
 		free(title);
 		run_command(command, 0);
 		free(command);

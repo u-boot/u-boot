@@ -353,6 +353,7 @@ source lib/efi_selftest/Kconfig
 config CMD_BOOTMENU
 	bool "bootmenu"
 	select MENU
+	select CHARSET
 	help
 	  Add an ANSI terminal boot menu command.
 
