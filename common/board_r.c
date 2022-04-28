@@ -693,6 +693,9 @@ static init_fnc_t init_sequence_r[] = {
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
 #endif
+#ifdef CONFIG_EFI_SETUP_EARLY
+	efi_init_early,
+#endif
 #ifdef CONFIG_CMD_NAND
 	initr_nand,
 #endif
@@ -792,9 +795,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #if defined(CONFIG_PRAM)
 	initr_mem,
-#endif
-#ifdef CONFIG_EFI_SETUP_EARLY
-	efi_init_early,
 #endif
 	run_main_loop,
 };
