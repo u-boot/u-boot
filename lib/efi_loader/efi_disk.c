@@ -99,21 +99,22 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	if (buffer_size & (blksz - 1))
 		return EFI_BAD_BUFFER_SIZE;
 
-#if CONFIG_IS_ENABLED(PARTITIONS)
-	if (direction == EFI_DISK_READ)
-		n = dev_read(diskobj->dev, lba, blocks, buffer);
-	else
-		n = dev_write(diskobj->dev, lba, blocks, buffer);
-#else
-	/* dev is always a block device (UCLASS_BLK) */
-	struct blk_desc *desc;
+	if (CONFIG_IS_ENABLED(PARTITIONS) &&
+	    device_get_uclass_id(diskobj->dev) == UCLASS_PARTITION) {
+		if (direction == EFI_DISK_READ)
+			n = dev_read(diskobj->dev, lba, blocks, buffer);
+		else
+			n = dev_write(diskobj->dev, lba, blocks, buffer);
+	} else {
+		/* dev is a block device (UCLASS_BLK) */
+		struct blk_desc *desc;
 
-	desc = dev_get_uclass_plat(diskobj->dev);
-	if (direction == EFI_DISK_READ)
-		n = blk_dread(desc, lba, blocks, buffer);
-	else
-		n = blk_dwrite(desc, lba, blocks, buffer);
-#endif
+		desc = dev_get_uclass_plat(diskobj->dev);
+		if (direction == EFI_DISK_READ)
+			n = blk_dread(desc, lba, blocks, buffer);
+		else
+			n = blk_dwrite(desc, lba, blocks, buffer);
+	}
 
 	/* We don't do interrupts, so check for timers cooperatively */
 	efi_timer_check();
