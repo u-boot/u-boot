@@ -271,7 +271,7 @@ int menu_get_choice(struct menu *m, void **choice)
 	if (!m || !choice)
 		return -EINVAL;
 
-	if (!m->prompt || m->item_cnt == 1)
+	if (!m->prompt)
 		return menu_default_choice(m, choice);
 
 	return menu_interactive_choice(m, choice);

@@ -42,7 +42,5 @@ def test_bootmenu(u_boot_console):
     assert 'rc:0' in response
     u_boot_console.run_command('setenv bootmenu_default')
     u_boot_console.run_command('setenv bootmenu_0')
-    # Without bootmenu_0 no menu should be shown.
-    u_boot_console.run_command('bootmenu 2')
     u_boot_console.run_command('setenv bootmenu_1')
     u_boot_console.run_command('setenv bootmenu_2')
