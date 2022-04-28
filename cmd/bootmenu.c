@@ -7,6 +7,8 @@
 #include <common.h>
 #include <command.h>
 #include <ansi.h>
+#include <efi_loader.h>
+#include <efi_variable.h>
 #include <env.h>
 #include <log.h>
 #include <menu.h>
@@ -28,6 +30,7 @@
 enum boot_type {
 	BOOTMENU_TYPE_NONE = 0,
 	BOOTMENU_TYPE_BOOTMENU,
+	BOOTMENU_TYPE_UEFI_BOOT_OPTION,
 };
 
 struct bootmenu_entry {
@@ -358,6 +361,95 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 	return 1;
 }
 
+/**
+ * prepare_uefi_bootorder_entry() - generate the uefi bootmenu entries
+ *
+ * This function read the "BootOrder" UEFI variable
+ * and generate the bootmenu entries in the order of "BootOrder".
+ *
+ * @menu:	pointer to the bootmenu structure
+ * @current:	pointer to the last bootmenu entry list
+ * @index:	pointer to the index of the last bootmenu entry,
+ *		the number of uefi entry is added by this function
+ * Return:	1 on success, negative value on error
+ */
+static int prepare_uefi_bootorder_entry(struct bootmenu_data *menu,
+					struct bootmenu_entry **current,
+					unsigned short int *index)
+{
+	u16 *bootorder;
+	efi_status_t ret;
+	unsigned short j;
+	efi_uintn_t num, size;
+	void *load_option;
+	struct efi_load_option lo;
+	u16 varname[] = u"Boot####";
+	unsigned short int i = *index;
+	struct bootmenu_entry *entry = NULL;
+	struct bootmenu_entry *iter = *current;
+
+	bootorder = efi_get_var(u"BootOrder", &efi_global_variable_guid, &size);
+	if (!bootorder)
+		return -ENOENT;
+
+	num = size / sizeof(u16);
+	for (j = 0; j < num; j++) {
+		entry = malloc(sizeof(struct bootmenu_entry));
+		if (!entry)
+			return -ENOMEM;
+
+		efi_create_indexed_name(varname, sizeof(varname),
+					"Boot", bootorder[j]);
+		load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
+		if (!load_option)
+			continue;
+
+		ret = efi_deserialize_load_option(&lo, load_option, &size);
+		if (ret != EFI_SUCCESS) {
+			log_warning("Invalid load option for %ls\n", varname);
+			free(load_option);
+			free(entry);
+			continue;
+		}
+
+		if (lo.attributes & LOAD_OPTION_ACTIVE) {
+			entry->title = u16_strdup(lo.label);
+			if (!entry->title) {
+				free(load_option);
+				free(entry);
+				free(bootorder);
+				return -ENOMEM;
+			}
+			entry->command = strdup("bootefi bootmgr");
+			sprintf(entry->key, "%d", i);
+			entry->num = i;
+			entry->menu = menu;
+			entry->type = BOOTMENU_TYPE_UEFI_BOOT_OPTION;
+			entry->bootorder = bootorder[j];
+			entry->next = NULL;
+
+			if (!iter)
+				menu->first = entry;
+			else
+				iter->next = entry;
+
+			iter = entry;
+			i++;
+		}
+
+		free(load_option);
+
+		if (i == MAX_COUNT - 1)
+			break;
+	}
+
+	free(bootorder);
+	*index = i;
+	*current = iter;
+
+	return 1;
+}
+
 static struct bootmenu_data *bootmenu_create(int delay)
 {
 	int ret;
@@ -382,6 +474,14 @@ static struct bootmenu_data *bootmenu_create(int delay)
 	ret = prepare_bootmenu_entry(menu, &iter, &i);
 	if (ret < 0)
 		goto cleanup;
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
+		if (i < MAX_COUNT - 1) {
+			ret = prepare_uefi_bootorder_entry(menu, &iter, &i);
+			if (ret < 0 && ret != -ENOENT)
+				goto cleanup;
+		}
+	}
 
 	/* Add U-Boot console entry at the end */
 	if (i <= MAX_COUNT - 1) {
@@ -460,6 +560,31 @@ static void menu_display_statusline(struct menu *m)
 	puts(ANSI_CLEAR_LINE);
 }
 
+static void handle_uefi_bootnext(void)
+{
+	u16 bootnext;
+	efi_status_t ret;
+	efi_uintn_t size;
+
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+			ret & ~EFI_ERROR_MASK);
+
+		return;
+	}
+
+	/* If UEFI BootNext variable is set, boot the BootNext load option */
+	size = sizeof(u16);
+	ret = efi_get_variable_int(u"BootNext",
+				   &efi_global_variable_guid,
+				   NULL, &size, &bootnext, NULL);
+	if (ret == EFI_SUCCESS)
+		/* BootNext does exist here, try to boot */
+		run_command("bootefi bootmgr", 0);
+}
+
 static void bootmenu_show(int delay)
 {
 	int init = 0;
@@ -469,7 +594,11 @@ static void bootmenu_show(int delay)
 	struct menu *menu;
 	struct bootmenu_data *bootmenu;
 	struct bootmenu_entry *iter;
+	efi_status_t efi_ret = EFI_SUCCESS;
 	char *option, *sep;
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
+		handle_uefi_bootnext();
 
 	/* If delay is 0 do not create menu, just run first entry */
 	if (delay == 0) {
@@ -519,6 +648,27 @@ static void bootmenu_show(int delay)
 		command = strdup(iter->command);
 	}
 
+	/*
+	 * If the selected entry is UEFI BOOT####, set the BootNext variable.
+	 * Then uefi bootmgr is invoked by the preset command in iter->command.
+	 */
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
+		if (iter->type == BOOTMENU_TYPE_UEFI_BOOT_OPTION) {
+			/*
+			 * UEFI specification requires BootNext variable needs non-volatile
+			 * attribute, but this BootNext is only used inside of U-Boot and
+			 * removed by efi bootmgr once BootNext is processed.
+			 * So this BootNext can be volatile.
+			 */
+			efi_ret = efi_set_variable_int(u"BootNext", &efi_global_variable_guid,
+						       EFI_VARIABLE_BOOTSERVICE_ACCESS |
+						       EFI_VARIABLE_RUNTIME_ACCESS,
+						       sizeof(u16), &iter->bootorder, false);
+			if (efi_ret != EFI_SUCCESS)
+				goto cleanup;
+		}
+	}
+
 cleanup:
 	menu_destroy(menu);
 	bootmenu_destroy(bootmenu);
@@ -532,7 +682,8 @@ cleanup:
 	if (title && command) {
 		debug("Starting entry '%ls'\n", title);
 		free(title);
-		run_command(command, 0);
+		if (efi_ret == EFI_SUCCESS)
+			run_command(command, 0);
 		free(command);
 	}
 
