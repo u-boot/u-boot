@@ -257,9 +257,7 @@ config SYS_MALLOC_F_LEN
 	default 0x4000 if SANDBOX || RISCV || ARCH_APPLE || ROCKCHIP_RK3368 || \
 			  ROCKCHIP_RK3399
 	default 0x8000 if RCAR_GEN3
-	default 0x10000 if ARCH_IMX8 || (ARCH_IMX8M && !IMX8MQ) || \
-			   ARCH_LS1012A || ARCH_LS1021A || ARCH_LS1043A || \
-			   ARCH_LS1046A
+	default 0x10000 if ARCH_IMX8 || (ARCH_IMX8M && !IMX8MQ)
 	default 0x2000
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
