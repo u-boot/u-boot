@@ -344,6 +344,7 @@ __weak unsigned long get_tbclk(void)
 }
 
 
+#ifndef CONFIG_WDT
 #if defined(CONFIG_WATCHDOG)
 #define WATCHDOG_MASK (TCR_WP(63) | TCR_WRC(3) | TCR_WIE)
 void
@@ -372,6 +373,7 @@ watchdog_reset(void)
 		enable_interrupts();
 }
 #endif	/* CONFIG_WATCHDOG */
+#endif
 
 /*
  * Initializes on-chip MMC controllers.
