@@ -595,6 +595,10 @@ efi_status_t efi_create_handle(efi_handle_t *handle);
 void efi_delete_handle(efi_handle_t obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const efi_handle_t handle);
+/* Locate device_path handle */
+efi_status_t EFIAPI efi_locate_device_path(const efi_guid_t *protocol,
+					   struct efi_device_path **device_path,
+					   efi_handle_t *device);
 /* Load image */
 efi_status_t EFIAPI efi_load_image(bool boot_policy,
 				   efi_handle_t parent_image,
