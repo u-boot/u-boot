@@ -35,4 +35,24 @@ int menu_default_choice(struct menu *m, void **choice);
  */
 int menu_show(int bootdelay);
 
+struct bootmenu_data {
+	int delay;			/* delay for autoboot */
+	int active;			/* active menu entry */
+	int count;			/* total count of menu entries */
+	struct bootmenu_entry *first;	/* first menu entry */
+};
+
+enum bootmenu_key {
+	KEY_NONE = 0,
+	KEY_UP,
+	KEY_DOWN,
+	KEY_SELECT,
+	KEY_QUIT,
+};
+
+void bootmenu_autoboot_loop(struct bootmenu_data *menu,
+			    enum bootmenu_key *key, int *esc);
+void bootmenu_loop(struct bootmenu_data *menu,
+		   enum bootmenu_key *key, int *esc);
+
 #endif /* __MENU_H__ */
