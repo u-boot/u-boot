@@ -20,6 +20,10 @@
 #include <malloc.h>
 #include <spl.h>
 
+#ifdef CONFIG_CMD_UBIFS
+#include <ubi_uboot.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /**
