@@ -148,7 +148,7 @@
 	phy-mode = "rgmii-id";
 	phy-reset-gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <10>;
-	phy-reset-post-delay = <100>;
+	phy-reset-post-delay = <300>;
 	status = "okay";
 };
 

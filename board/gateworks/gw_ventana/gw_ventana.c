@@ -32,9 +32,10 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_phy_config(struct phy_device *phydev)
 {
 	unsigned short val;
+	ofnode node;
 
-	/* Marvel 88E1510 */
-	if (phydev->phy_id == 0x1410dd1) {
+	switch (phydev->phy_id) {
+	case 0x1410dd1:
 		puts("MV88E1510");
 		/*
 		 * Page 3, Register 16: LED[2:0] Function Control Register
@@ -47,10 +48,8 @@ int board_phy_config(struct phy_device *phydev)
 		val |= 0x0017;
 		phy_write(phydev, MDIO_DEVAD_NONE, 16, val);
 		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
-	}
-
-	/* TI DP83867 */
-	else if (phydev->phy_id == 0x2000a231) {
+		break;
+	case 0x2000a231:
 		puts("TIDP83867 ");
 		/* LED configuration */
 		val = 0;
@@ -66,6 +65,22 @@ int board_phy_config(struct phy_device *phydev)
 		val &= ~0x1f00;
 		val |= 0x0b00; /* chD tx clock*/
 		phy_write(phydev, MDIO_DEVAD_NONE, 14, val);
+		break;
+	case 0xd565a401:
+		puts("GPY111 ");
+		node = phy_get_ofnode(phydev);
+		if (ofnode_valid(node)) {
+			u32 rx_delay, tx_delay;
+
+			rx_delay = ofnode_read_u32_default(node, "rx-internal-delay-ps", 2000);
+			tx_delay = ofnode_read_u32_default(node, "tx-internal-delay-ps", 2000);
+			val = phy_read(phydev, MDIO_DEVAD_NONE, 0x17);
+			val &= ~((0x7 << 12) | (0x7 << 8));
+			val |= (rx_delay / 500) << 12;
+			val |= (tx_delay / 500) << 8;
+			phy_write(phydev, MDIO_DEVAD_NONE, 0x17, val);
+		}
+		break;
 	}
 
 	if (phydev->drv->config)
