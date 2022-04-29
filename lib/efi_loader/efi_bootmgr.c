@@ -70,8 +70,8 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
 		u32 attributes;
 
-		log_debug("%s: trying to load \"%ls\" from %pD\n",
-			  __func__, lo.label, lo.file_path);
+		log_debug("trying to load \"%ls\" from %pD\n", lo.label,
+			  lo.file_path);
 
 		ret = EFI_CALL(efi_load_image(true, efi_root, lo.file_path,
 					      NULL, 0, handle));
@@ -187,8 +187,7 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle, void **load_options)
 
 	num = size / sizeof(uint16_t);
 	for (i = 0; i < num; i++) {
-		log_debug("%s trying to load Boot%04X\n", __func__,
-			  bootorder[i]);
+		log_debug("trying to load Boot%04X\n", bootorder[i]);
 		ret = try_load_entry(bootorder[i], handle, load_options);
 		if (ret == EFI_SUCCESS)
 			break;
