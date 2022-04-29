@@ -108,7 +108,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* FEC */
-#define CONFIG_FEC_MXC_PHYADDR          0
 #define FEC_QUIRK_ENET_MAC
 
 #endif
