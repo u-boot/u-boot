@@ -190,7 +190,7 @@ static void free_memory(struct efi_priv *priv)
 static bool devpath_is_partition(const struct efi_device_path *path)
 {
 	const struct efi_device_path *p;
-	bool was_part;
+	bool was_part = false;
 
 	for (p = path; p->type != DEVICE_PATH_TYPE_END;
 	     p = (void *)p + p->length) {
