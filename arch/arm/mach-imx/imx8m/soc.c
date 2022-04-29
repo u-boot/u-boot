@@ -1573,3 +1573,29 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 }
 
 #endif
+
+#ifdef CONFIG_IMX_BOOTAUX
+const struct rproc_att hostmap[] = {
+	/* aux core , host core,  size */
+	{ 0x00000000, 0x007e0000, 0x00020000 },
+	/* OCRAM_S */
+	{ 0x00180000, 0x00180000, 0x00008000 },
+	/* OCRAM */
+	{ 0x00900000, 0x00900000, 0x00020000 },
+	/* OCRAM */
+	{ 0x00920000, 0x00920000, 0x00020000 },
+	/* QSPI Code - alias */
+	{ 0x08000000, 0x08000000, 0x08000000 },
+	/* DDR (Code) - alias */
+	{ 0x10000000, 0x80000000, 0x0FFE0000 },
+	/* TCML */
+	{ 0x1FFE0000, 0x007E0000, 0x00040000 },
+	/* OCRAM_S */
+	{ 0x20180000, 0x00180000, 0x00008000 },
+	/* OCRAM */
+	{ 0x20200000, 0x00900000, 0x00040000 },
+	/* DDR (Data) */
+	{ 0x40000000, 0x40000000, 0x80000000 },
+	{ /* sentinel */ }
+};
+#endif
