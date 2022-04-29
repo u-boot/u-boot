@@ -103,7 +103,7 @@ running with -D will produce different results.
 
 You can easily use gdb on these tests, without needing --gdbserver::
 
-   $ gdb u-boot --args -T -c "ut dm gpio"
+   $ gdb --args u-boot -T -c "ut dm gpio"
    ...
    (gdb) break dm_test_gpio
    Breakpoint 1 at 0x1415bd: file test/dm/gpio.c, line 37.
