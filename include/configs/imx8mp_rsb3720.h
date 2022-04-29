@@ -51,7 +51,6 @@
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          4
-#define FEC_QUIRK_ENET_MAC
 
 #define DWC_NET_PHYADDR			4
 #ifdef CONFIG_DWC_ETH_QOS

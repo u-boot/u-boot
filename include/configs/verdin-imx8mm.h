@@ -95,7 +95,6 @@
 
 /* ENET */
 #define CONFIG_FEC_MXC_PHYADDR          7
-#define FEC_QUIRK_ENET_MAC
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

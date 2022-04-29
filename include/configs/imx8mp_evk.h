@@ -32,7 +32,6 @@
 
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          1
-#define FEC_QUIRK_ENET_MAC
 
 #define DWC_NET_PHYADDR			1
 

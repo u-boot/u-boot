@@ -37,7 +37,6 @@
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          0
-#define FEC_QUIRK_ENET_MAC
 #endif
 
 #ifndef CONFIG_SPL_BUILD

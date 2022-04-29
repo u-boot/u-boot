@@ -70,8 +70,6 @@
 #define CONFIG_MALLOC_F_ADDR		0x930000
 #endif
 
-#define FEC_QUIRK_ENET_MAC
-
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=0x42000000\0" \

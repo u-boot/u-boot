@@ -132,6 +132,5 @@
 
 /* Networking */
 #define CONFIG_FEC_MXC_PHYADDR		-1
-#define FEC_QUIRK_ENET_MAC
 
 #endif /* __CGTQMX8_H */

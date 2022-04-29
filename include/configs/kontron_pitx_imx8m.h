@@ -38,7 +38,6 @@
 /* ENET1 Config */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          0
-#define FEC_QUIRK_ENET_MAC
 
 #define PHY_ANEG_TIMEOUT		20000
 
