@@ -60,7 +60,7 @@ static unsigned long load_elf_image_m_core_phdr(unsigned long addr)
 			continue;
 
 		if (!mmap) {
-			printf("Invalid aux core address: %08x",
+			printf("Invalid aux core address: %08x\n",
 			       phdr->p_paddr);
 			return 0;
 		}
