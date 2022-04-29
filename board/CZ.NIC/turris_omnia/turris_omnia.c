@@ -41,8 +41,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OMNIA_I2C_EEPROM_CHIP_LEN	2
 #define OMNIA_I2C_EEPROM_MAGIC		0x0341a034
 
-#define SYS_RSTOUT_MASK			MVEBU_REGISTER(0x18260)
-#define   SYS_RSTOUT_MASK_WD		BIT(10)
+#define A385_SYS_RSTOUT_MASK		MVEBU_REGISTER(0x18260)
+#define   A385_SYS_RSTOUT_MASK_WD	BIT(10)
 
 #define A385_WDT_GLOBAL_CTRL		MVEBU_REGISTER(0x20300)
 #define   A385_WDT_GLOBAL_RATIO_MASK	GENMASK(18, 16)
@@ -180,7 +180,7 @@ static void enable_a385_watchdog(unsigned int timeout_minutes)
 	setbits_32(A385_WD_RSTOUT_UNMASK, A385_WD_RSTOUT_UNMASK_GLOBAL);
 
 	/* Unmask reset for watchdog */
-	clrbits_32(SYS_RSTOUT_MASK, SYS_RSTOUT_MASK_WD);
+	clrbits_32(A385_SYS_RSTOUT_MASK, A385_SYS_RSTOUT_MASK_WD);
 }
 
 static bool disable_mcu_watchdog(void)
