@@ -42,10 +42,11 @@ static const struct rproc_att *get_host_mapping(unsigned long auxcore)
  * is valid, returns the entry point address.
  * Translates load addresses in the elf file to the U-Boot address space.
  */
-static unsigned long load_elf_image_m_core_phdr(unsigned long addr)
+static unsigned long load_elf_image_m_core_phdr(unsigned long addr, ulong *stack)
 {
 	Elf32_Ehdr *ehdr; /* ELF header structure pointer */
 	Elf32_Phdr *phdr; /* Program header structure pointer */
+	int num = 0;
 	int i;
 
 	ehdr = (Elf32_Ehdr *)addr;
@@ -71,8 +72,13 @@ static unsigned long load_elf_image_m_core_phdr(unsigned long addr)
 		debug("Loading phdr %i to 0x%p (%i bytes)\n",
 		      i, dst, phdr->p_filesz);
 
-		if (phdr->p_filesz)
+		if (phdr->p_filesz) {
 			memcpy(dst, src, phdr->p_filesz);
+			/* Stack in __isr_vector is the first section/word */
+			if (!num)
+				*stack = *(uint32_t *)src;
+			num++;
+		}
 		if (phdr->p_filesz != phdr->p_memsz)
 			memset(dst + phdr->p_filesz, 0x00,
 			       phdr->p_memsz - phdr->p_filesz);
@@ -96,11 +102,12 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 	 * isn't supported yet.
 	 */
 	if (valid_elf_image(addr)) {
-		stack = 0x0;
-		pc = load_elf_image_m_core_phdr(addr);
+		pc = load_elf_image_m_core_phdr(addr, &stack);
 		if (!pc)
 			return CMD_RET_FAILURE;
 
+		if (!CONFIG_IS_ENABLED(ARM64))
+			stack = 0x0;
 	} else {
 		/*
 		 * Assume binary file with vector table at the beginning.
