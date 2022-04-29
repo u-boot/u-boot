@@ -504,6 +504,7 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	u32 time_out;
 	u32 value;
 	uint clk;
+	u32 hostver;
 
 	if (clock < mmc->cfg->f_min)
 		clock = mmc->cfg->f_min;
@@ -544,6 +545,14 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_CLOCK_MASK, clk);
 
+	/* Only newer eSDHC controllers set PRSSTAT_SDSTB flag */
+	hostver = esdhc_read32(&priv->esdhc_regs->hostver);
+	if (HOSTVER_VENDOR(hostver) <= VENDOR_V_22) {
+		udelay(10000);
+		esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
+		return;
+	}
+
 	time_out = 20;
 	value = PRSSTAT_SDSTB;
 	while (!(esdhc_read32(&regs->prsstat) & value)) {
@@ -563,6 +572,7 @@ static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 	u32 value;
 	u32 time_out;
+	u32 hostver;
 
 	value = esdhc_read32(&regs->sysctl);
 
@@ -572,6 +582,13 @@ static void esdhc_clock_control(struct fsl_esdhc_priv *priv, bool enable)
 		value &= ~SYSCTL_CKEN;
 
 	esdhc_write32(&regs->sysctl, value);
+
+	/* Only newer eSDHC controllers set PRSSTAT_SDSTB flag */
+	hostver = esdhc_read32(&priv->esdhc_regs->hostver);
+	if (HOSTVER_VENDOR(hostver) <= VENDOR_V_22) {
+		udelay(10000);
+		return;
+	}
 
 	time_out = 20;
 	value = PRSSTAT_SDSTB;
