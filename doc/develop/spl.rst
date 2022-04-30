@@ -20,19 +20,19 @@ u-boot-spl.map.
 A config option named CONFIG_SPL_BUILD is enabled by Kconfig for SPL.
 Source files can therefore be compiled for SPL with different settings.
 
-For example:
+For example::
 
-ifeq ($(CONFIG_SPL_BUILD),y)
-obj-y += board_spl.o
-else
-obj-y += board.o
-endif
+   ifeq ($(CONFIG_SPL_BUILD),y)
+   obj-y += board_spl.o
+   else
+   obj-y += board.o
+   endif
 
-obj-$(CONFIG_SPL_BUILD) += foo.o
+   obj-$(CONFIG_SPL_BUILD) += foo.o
 
-#ifdef CONFIG_SPL_BUILD
-	foo();
-#endif
+   #ifdef CONFIG_SPL_BUILD
+           foo();
+   #endif
 
 
 The building of SPL images can be enabled by CONFIG_SPL option in Kconfig.
@@ -71,11 +71,13 @@ Device tree
 The U-Boot device tree is filtered by the fdtgrep tools during the build
 process to generate a much smaller device tree used in SPL (spl/u-boot-spl.dtb)
 with:
+
 - the mandatory nodes (/alias, /chosen, /config)
 - the nodes with one pre-relocation property:
   'u-boot,dm-pre-reloc' or 'u-boot,dm-spl'
 
 fdtgrep is also used to remove:
+
 - the properties defined in CONFIG_OF_SPL_REMOVE_PROPS
 - all the pre-relocation properties
   ('u-boot,dm-pre-reloc', 'u-boot,dm-spl' and 'u-boot,dm-tpl')
@@ -98,14 +100,14 @@ stack usage at various points in run sequence of SPL.  The -fstack-usage option
 to gcc will produce '.su' files (such as arch/arm/cpu/armv7/syslib.su) that
 will give stack usage information and cflow can construct program flow.
 
-Must have gcc 4.6 or later, which supports -fstack-usage
+Must have gcc 4.6 or later, which supports -fstack-usage:
 
-1) Build normally
-2) Perform the following shell command to generate a list of C files used in
-SPL:
-$ find spl -name '*.su' | sed -e 's:^spl/::' -e 's:[.]su$:.c:' > used-spl.list
-3) Execute cflow:
-$ cflow --main=board_init_r `cat used-spl.list` 2>&1 | $PAGER
+#. Build normally
+#. Perform the following shell command to generate a list of C files used in
+   SPL:
+#. `find spl -name '*.su' | sed -e 's:^spl/::' -e 's:[.]su$:.c:' > used-spl.list`
+#. Execute cflow:
+   `$ cflow --main=board_init_r $(cat used-spl.list) 2>&1 | $PAGER`
 
 cflow will spit out a number of warnings as it does not parse
 the config files and picks functions based on #ifdef.  Parsing the '.i'
