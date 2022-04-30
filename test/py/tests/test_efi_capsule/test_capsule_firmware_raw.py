@@ -1,17 +1,13 @@
 # SPDX-License-Identifier:      GPL-2.0+
 # Copyright (c) 2020, Linaro Limited
 # Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
-#
-# U-Boot UEFI: Firmware Update Test
 
-"""
+""" U-Boot UEFI: Firmware Update Test
 This test verifies capsule-on-disk firmware update for raw images
 """
 
-from subprocess import check_call, check_output, CalledProcessError
 import pytest
-from capsule_defs import *
-
+from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('efi_capsule_firmware_raw')
@@ -24,15 +20,18 @@ from capsule_defs import *
 @pytest.mark.buildconfigspec('cmd_nvedit_efi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.slow
-class TestEfiCapsuleFirmwareRaw(object):
+class TestEfiCapsuleFirmwareRaw:
+    """ Tests verifying capsule-on-disk firmware update for raw images
+    """
+
     def test_efi_capsule_fw1(
             self, u_boot_config, u_boot_console, efi_capsule_data):
-        """
-        Test Case 1 - Update U-Boot and U-Boot environment on SPI Flash
-                      but with an incorrect GUID value in the capsule
-                      No update should happen
-                      0x100000-0x150000: U-Boot binary (but dummy)
-                      0x150000-0x200000: U-Boot environment (but dummy)
+        """ Test Case 1
+        Update U-Boot and U-Boot environment on SPI Flash
+        but with an incorrect GUID value in the capsule
+        No update should happen
+        0x100000-0x150000: U-Boot binary (but dummy)
+        0x150000-0x200000: U-Boot environment (but dummy)
         """
 
         # other tests might have run and the
@@ -106,12 +105,11 @@ class TestEfiCapsuleFirmwareRaw(object):
 
     def test_efi_capsule_fw2(
             self, u_boot_config, u_boot_console, efi_capsule_data):
-        """
-        Test Case 2 - Update U-Boot and U-Boot environment on SPI Flash
-                      but with OsIndications unset
-                      No update should happen
-                      0x100000-0x150000: U-Boot binary (but dummy)
-                      0x150000-0x200000: U-Boot environment (but dummy)
+        """ Test Case 2
+        Update U-Boot and U-Boot environment on SPI Flash but with OsIndications unset
+        No update should happen
+        0x100000-0x150000: U-Boot binary (but dummy)
+        0x150000-0x200000: U-Boot environment (but dummy)
         """
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
@@ -191,9 +189,9 @@ class TestEfiCapsuleFirmwareRaw(object):
 
     def test_efi_capsule_fw3(
             self, u_boot_config, u_boot_console, efi_capsule_data):
-        """
-        Test Case 3 - Update U-Boot on SPI Flash, raw image format
-                      0x100000-0x150000: U-Boot binary (but dummy)
+        """ Test Case 3
+        Update U-Boot on SPI Flash, raw image format
+        0x100000-0x150000: U-Boot binary (but dummy)
         """
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 3-a, before reboot'):
