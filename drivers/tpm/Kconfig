@@ -137,6 +137,36 @@ config TPM2_CR50_I2C
 	  trust for a device, It operates like a TPM and can be used with
 	  verified boot. Cr50 is used on recent Chromebooks (since 2017).
 
+config SPL_TPM2_CR50_I2C
+	bool "Enable support for Google cr50 TPM"
+	depends on DM_I2C && SPL_TPM
+	help
+	  Cr50 is an implementation of a TPM on Google's H1 security chip.
+	  This uses the same open-source firmware as the Chromium OS EC.
+	  While Cr50 has other features, its primary role is as the root of
+	  trust for a device, It operates like a TPM and can be used with
+	  verified boot. Cr50 is used on recent Chromebooks (since 2017).
+
+config TPL_TPM2_CR50_I2C
+	bool "Enable support for Google cr50 TPM"
+	depends on DM_I2C && TPL_TPM
+	help
+	  Cr50 is an implementation of a TPM on Google's H1 security chip.
+	  This uses the same open-source firmware as the Chromium OS EC.
+	  While Cr50 has other features, its primary role is as the root of
+	  trust for a device, It operates like a TPM and can be used with
+	  verified boot. Cr50 is used on recent Chromebooks (since 2017).
+
+config VPL_TPM2_CR50_I2C
+	bool "Enable support for Google cr50 TPM"
+	depends on DM_I2C && VPL_TPM
+	help
+	  Cr50 is an implementation of a TPM on Google's H1 security chip.
+	  This uses the same open-source firmware as the Chromium OS EC.
+	  While Cr50 has other features, its primary role is as the root of
+	  trust for a device, It operates like a TPM and can be used with
+	  verified boot. Cr50 is used on recent Chromebooks (since 2017).
+
 config TPM2_TIS_SANDBOX
 	bool "Enable sandbox TPMv2.x driver"
 	depends on TPM_V2 && SANDBOX

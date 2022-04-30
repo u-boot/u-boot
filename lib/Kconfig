@@ -90,6 +90,11 @@ config TPL_PRINTF
 	select TPL_SPRINTF
 	select TPL_STRTO if !TPL_USE_TINY_PRINTF
 
+config VPL_PRINTF
+	bool
+	select VPL_SPRINTF
+	select VPL_STRTO if !VPL_USE_TINY_PRINTF
+
 config SPRINTF
 	bool
 	default y
@@ -98,6 +103,9 @@ config SPL_SPRINTF
 	bool
 
 config TPL_SPRINTF
+	bool
+
+config VPL_SPRINTF
 	bool
 
 config SSCANF
@@ -111,6 +119,9 @@ config SPL_STRTO
 	bool
 
 config TPL_STRTO
+	bool
+
+config VPL_STRTO
 	bool
 
 config IMAGE_SPARSE
@@ -157,6 +168,17 @@ config TPL_USE_TINY_PRINTF
 	bool "Enable tiny printf() version in TPL"
 	depends on TPL
 	default y if SPL_USE_TINY_PRINTF
+	help
+	  This option enables a tiny, stripped down printf version.
+	  This should only be used in space limited environments,
+	  like SPL versions with hard memory limits. This version
+	  reduces the code size by about 2.5KiB on armv7.
+
+	  The supported format specifiers are %c, %s, %u/%d and %x.
+
+config VPL_USE_TINY_PRINTF
+	bool "Enable tiny printf() version for VPL"
+	depends on VPL
 	help
 	  This option enables a tiny, stripped down printf version.
 	  This should only be used in space limited environments,
@@ -363,6 +385,17 @@ config SPL_TPM
 config TPL_TPM
 	bool "Trusted Platform Module (TPM) Support in TPL"
 	depends on TPL_DM
+	help
+	  This enables support for TPMs which can be used to provide security
+	  features for your board. The TPM can be connected via LPC or I2C
+	  and a sandbox TPM is provided for testing purposes. Use the 'tpm'
+	  command to interactive the TPM. Driver model support is provided
+	  for the low-level TPM interface, but only one TPM is supported at
+	  a time by the TPM library.
+
+config VPL_TPM
+	bool "Trusted Platform Module (TPM) Support in VPL"
+	depends on VPL_DM
 	help
 	  This enables support for TPMs which can be used to provide security
 	  features for your board. The TPM can be connected via LPC or I2C
@@ -625,6 +658,12 @@ config SPL_LZMA
 	help
 	  This enables support for LZMA compression algorithm for SPL boot.
 
+config VPL_LZMA
+	bool "Enable LZMA decompression support for VPL build"
+	default y if LZMA
+	help
+	  This enables support for LZMA compression algorithm for VPL boot.
+
 config SPL_LZO
 	bool "Enable LZO decompression support in SPL"
 	help
@@ -704,6 +743,7 @@ config OF_LIBFDT_OVERLAY
 
 config SPL_OF_LIBFDT
 	bool "Enable the FDT library for SPL"
+	depends on SPL_LIBGENERIC_SUPPORT
 	default y if SPL_OF_CONTROL
 	help
 	  This enables the FDT library (libfdt). It provides functions for
@@ -725,6 +765,7 @@ config SPL_OF_LIBFDT_ASSUME_MASK
 
 config TPL_OF_LIBFDT
 	bool "Enable the FDT library for TPL"
+	depends on TPL_LIBGENERIC_SUPPORT
 	default y if TPL_OF_CONTROL
 	help
 	  This enables the FDT library (libfdt). It provides functions for
@@ -739,6 +780,27 @@ config TPL_OF_LIBFDT_ASSUME_MASK
 	default 0xff
 	help
 	  Use this to change the assumptions made by libfdt in TPL about the
+	  device tree it is working with. A value of 0 means that no assumptions
+	  are made, and libfdt is able to deal with malicious data. A value of
+	  0xff means all assumptions are made and any invalid data may cause
+	  unsafe execution. See FDT_ASSUME_PERFECT, etc. in libfdt_internal.h
+
+config VPL_OF_LIBFDT
+	bool "Enable the FDT library for VPL"
+	default y if VPL_OF_CONTROL && !VPL_OF_PLATDATA
+	help
+	  This enables the FDT library (libfdt). It provides functions for
+	  accessing binary device tree images in memory, such as adding and
+	  removing nodes and properties, scanning through the tree and finding
+	  particular compatible nodes. The library operates on a flattened
+	  version of the device tree.
+
+config VPL_OF_LIBFDT_ASSUME_MASK
+	hex "Mask of conditions to assume for libfdt"
+	depends on VPL_OF_LIBFDT || FIT
+	default 0xff
+	help
+	  Use this to change the assumptions made by libfdt in SPL about the
 	  device tree it is working with. A value of 0 means that no assumptions
 	  are made, and libfdt is able to deal with malicious data. A value of
 	  0xff means all assumptions are made and any invalid data may cause

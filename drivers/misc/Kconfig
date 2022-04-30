@@ -131,6 +131,16 @@ config TPL_CROS_EC
 	  control access to the battery and main PMIC depending on the
 	  device. You can use the 'crosec' command to access it.
 
+config VPL_CROS_EC
+	bool "Enable Chrome OS EC in VPL"
+	depends on VPL
+	help
+	  Enable access to the Chrome OS EC in VPL. This is a separate
+	  microcontroller typically available on a SPI bus on Chromebooks. It
+	  provides access to the keyboard, some internal storage and may
+	  control access to the battery and main PMIC depending on the
+	  device. You can use the 'crosec' command to access it.
+
 config CROS_EC_I2C
 	bool "Enable Chrome OS EC I2C driver"
 	depends on CROS_EC
@@ -167,6 +177,15 @@ config TPL_CROS_EC_LPC
 	  through a legacy port interface, so on x86 machines the main
 	  function of the EC is power and thermal management.
 
+config VPL_CROS_EC_LPC
+	bool "Enable Chrome OS EC LPC driver in VPL"
+	depends on CROS_EC
+	help
+	  Enable I2C access to the Chrome OS EC. This is used on x86
+	  Chromebooks such as link and falco. The keyboard is provided
+	  through a legacy port interface, so on x86 machines the main
+	  function of the EC is power and thermal management.
+
 config CROS_EC_SANDBOX
 	bool "Enable Chrome OS EC sandbox driver"
 	depends on CROS_EC && SANDBOX
@@ -190,6 +209,15 @@ config TPL_CROS_EC_SANDBOX
 	depends on TPL_CROS_EC && SANDBOX
 	help
 	  Enable a sandbox emulation of the Chrome OS EC in TPL. This supports
+	  keyboard (use the -l flag to enable the LCD), verified boot context,
+	  EC flash read/write/erase support and a few other things. It is
+	  enough to perform a Chrome OS verified boot on sandbox.
+
+config VPL_CROS_EC_SANDBOX
+	bool "Enable Chrome OS EC sandbox driver in VPL"
+	depends on VPL_CROS_EC && SANDBOX
+	help
+	  Enable a sandbox emulation of the Chrome OS EC in VPL. This supports
 	  keyboard (use the -l flag to enable the LCD), verified boot context,
 	  EC flash read/write/erase support and a few other things. It is
 	  enough to perform a Chrome OS verified boot on sandbox.

@@ -47,6 +47,17 @@ config SPL_DM_I2C
 	  device (bus child) info is kept as parent platdata. The interface
 	  is defined in include/i2c.h.
 
+config VPL_DM_I2C
+	bool "Enable Driver Model for I2C drivers in VPL"
+	depends on VPL_DM && DM_I2C
+	default y
+	help
+	  Enable driver model for I2C. The I2C uclass interface: probe, read,
+	  write and speed, is implemented with the bus drivers operations,
+	  which provide methods for bus setting and data transfer. Each chip
+	  device (bus child) info is kept as parent platdata. The interface
+	  is defined in include/i2c.h.
+
 config SYS_I2C_LEGACY
 	bool "Enable legacy I2C subsystem and drivers"
 	depends on !DM_I2C
