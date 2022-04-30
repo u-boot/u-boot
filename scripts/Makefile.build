@@ -4,6 +4,9 @@
 # ==========================================================================
 
 # Modified for U-Boot
+prefix := vpl
+src := $(patsubst $(prefix)/%,%,$(obj))
+ifeq ($(obj),$(src))
 prefix := tpl
 src := $(patsubst $(prefix)/%,%,$(obj))
 ifeq ($(obj),$(src))
@@ -11,6 +14,7 @@ prefix := spl
 src := $(patsubst $(prefix)/%,%,$(obj))
 ifeq ($(obj),$(src))
 prefix := .
+endif
 endif
 endif
 

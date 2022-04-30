@@ -911,6 +911,12 @@ else
 TPL_SIZE_CHECK =
 endif
 
+ifneq ($(CONFIG_VPL_SIZE_LIMIT),0x0)
+VPL_SIZE_CHECK = @$(call size_check,$@,$(CONFIG_VPL_SIZE_LIMIT))
+else
+VPL_SIZE_CHECK =
+endif
+
 # Statically apply RELA-style relocations (currently arm64 only)
 # This is useful for arm64 where static relocation needs to be performed on
 # the raw binary, but certain simulators only accept an ELF file (but don't
@@ -951,6 +957,7 @@ INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 endif
 endif
 INPUTS-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
+INPUTS-$(CONFIG_VPL) += vpl/u-boot-vpl.bin
 
 # Allow omitting the .dtb output if it is not normally used
 INPUTS-$(CONFIG_OF_SEPARATE) += $(if $(CONFIG_OF_OMIT_DTB),dts/dt.dtb,u-boot.dtb)
@@ -2116,6 +2123,13 @@ tpl/u-boot-tpl.bin: tpl/u-boot-tpl
 
 tpl/u-boot-tpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
 	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
+
+vpl/u-boot-vpl.bin: vpl/u-boot-vpl
+	@:
+	$(VPL_SIZE_CHECK)
+
+vpl/u-boot-vpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
+	$(Q)$(MAKE) obj=vpl -f $(srctree)/scripts/Makefile.spl all
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 

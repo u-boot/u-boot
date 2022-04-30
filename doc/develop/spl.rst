@@ -83,7 +83,12 @@ U-Boot Phases
 U-Boot boots through the following phases:
 
 TPL
-   Very early init, as tiny as possible. This loads SPL.
+   Very early init, as tiny as possible. This loads SPL (or VPL if enabled).
+
+VPL
+   Optional verification step, which can select one of several SPL binaries,
+   if A/B verified boot is enabled. Implementation of the VPL logic is
+   work-in-progress. For now it just boots into SPL.
 
 SPL
    Secondary program loader. Sets up SDRAM and loads U-Boot proper. It may also

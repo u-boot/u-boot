@@ -27,8 +27,16 @@ UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
 KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
 ifeq ($(CONFIG_TPL_BUILD),y)
 KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
+else
+ifeq ($(CONFIG_VPL_BUILD),y)
+KBUILD_CPPFLAGS += -DCONFIG_VPL_BUILD
+endif
 endif
 
+ifeq ($(CONFIG_VPL_BUILD),y)
+SPL_BIN := u-boot-vpl
+SPL_NAME := vpl
+else
 ifeq ($(CONFIG_TPL_BUILD),y)
 SPL_BIN := u-boot-tpl
 SPL_NAME := tpl
@@ -36,15 +44,20 @@ else
 SPL_BIN := u-boot-spl
 SPL_NAME := spl
 endif
+endif
 
 export SPL_NAME
 
 ifdef CONFIG_SPL_BUILD
 SPL_ := SPL_
+ifeq ($(CONFIG_VPL_BUILD),y)
+SPL_TPL_ := VPL_
+else
 ifeq ($(CONFIG_TPL_BUILD),y)
 SPL_TPL_ := TPL_
 else
 SPL_TPL_ := SPL_
+endif
 endif
 else
 SPL_ :=
@@ -56,6 +69,9 @@ $(error You cannot build SPL without enabling CONFIG_SUPPORT_SPL)
 endif
 ifeq ($(obj)$(CONFIG_SUPPORT_TPL),tpl)
 $(error You cannot build TPL without enabling CONFIG_SUPPORT_TPL)
+endif
+ifeq ($(obj)$(CONFIG_SUPPORT_VPL),vpl)
+$(error You cannot build VPL without enabling CONFIG_SUPPORT_VPL)
 endif
 
 include $(srctree)/config.mk
@@ -90,16 +106,11 @@ libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
 endif
 libs-y += common/init/
 
-# Special handling for a few options which support SPL/TPL
-ifeq ($(CONFIG_TPL_BUILD),y)
-libs-$(CONFIG_TPL_LIBCOMMON_SUPPORT) += boot/ common/ cmd/ env/
-libs-$(CONFIG_TPL_LIBGENERIC_SUPPORT) += lib/
-else
-libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += boot/ common/ cmd/ env/
-libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
+# Special handling for a few options which support SPL/TPL/VPL
+libs-$(CONFIG_$(SPL_TPL_)LIBCOMMON_SUPPORT) += boot/ common/ cmd/ env/
+libs-$(CONFIG_$(SPL_TPL_)LIBGENERIC_SUPPORT) += lib/
 ifdef CONFIG_SPL_FRAMEWORK
 libs-$(CONFIG_PARTITIONS) += disk/
-endif
 endif
 
 libs-y += drivers/
@@ -182,7 +193,7 @@ LDPPFLAGS += \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
 # Turn various CONFIG symbols into IMAGE symbols for easy reuse of
-# the scripts between SPL and TPL.
+# the scripts between SPL, TPL and VPL.
 ifneq ($(CONFIG_$(SPL_TPL_)MAX_SIZE),)
 LDPPFLAGS += -DIMAGE_MAX_SIZE=$(CONFIG_$(SPL_TPL_)MAX_SIZE)
 endif
@@ -264,12 +275,14 @@ ifeq ($(CONFIG_SYS_SOC),"at91")
 INPUTS-y	+= $(obj)/boot.bin
 endif
 
+ifndef CONFIG_VPL_BUILD
 ifdef CONFIG_TPL_BUILD
 INPUTS-$(CONFIG_TPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-tpl.bin \
 	$(obj)/u-boot-x86-reset16-tpl.bin
 else
 INPUTS-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-start16-spl.bin \
 	$(obj)/u-boot-x86-reset16-spl.bin
+endif
 endif
 
 INPUTS-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
@@ -307,7 +320,7 @@ endif
 
 ifneq ($(build_dtb),)
 $(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin \
-		$(if $(CONFIG_SPL_SEPARATE_BSS),,$(obj)/$(SPL_BIN)-pad.bin) \
+		$(if $(CONFIG_$(SPL_TPL_)SEPARATE_BSS),,$(obj)/$(SPL_BIN)-pad.bin) \
 		$(FINAL_DTB_CONTAINER)  FORCE
 	$(call if_changed,cat)
 
@@ -398,7 +411,7 @@ LDFLAGS_$(SPL_BIN) += $(call ld-option, --no-dynamic-linker)
 
 LDFLAGS_$(SPL_BIN) += --build-id=none
 
-# Pick the best-match (i.e. SPL_TEXT_BASE for SPL, TPL_TEXT_BASE for TPL)
+# Pick the best match (e.g. SPL_TEXT_BASE for SPL, TPL_TEXT_BASE for TPL)
 ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_$(SPL_TPL_)TEXT_BASE)
 endif

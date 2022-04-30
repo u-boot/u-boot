@@ -61,6 +61,11 @@ binman_sym_declare(ulong, u_boot_spl, image_pos);
 binman_sym_declare(ulong, u_boot_spl, size);
 #endif
 
+#ifdef CONFIG_VPL
+binman_sym_declare(ulong, u_boot_vpl, image_pos);
+binman_sym_declare(ulong, u_boot_vpl, size);
+#endif
+
 /* Define board data structure */
 static struct bd_info bdata __attribute__ ((section(".data")));
 
@@ -146,14 +151,22 @@ void spl_fixup_fdt(void *fdt_blob)
 #if CONFIG_IS_ENABLED(BINMAN_SYMBOLS)
 ulong spl_get_image_pos(void)
 {
-	return spl_phase() == PHASE_TPL ?
+#ifdef CONFIG_VPL
+	if (spl_next_phase() == PHASE_VPL)
+		return binman_sym(ulong, u_boot_vpl, image_pos);
+#endif
+	return spl_next_phase() == PHASE_SPL ?
 		binman_sym(ulong, u_boot_spl, image_pos) :
 		binman_sym(ulong, u_boot_any, image_pos);
 }
 
 ulong spl_get_image_size(void)
 {
-	return spl_phase() == PHASE_TPL ?
+#ifdef CONFIG_VPL
+	if (spl_next_phase() == PHASE_VPL)
+		return binman_sym(ulong, u_boot_vpl, size);
+#endif
+	return spl_next_phase() == PHASE_SPL ?
 		binman_sym(ulong, u_boot_spl, size) :
 		binman_sym(ulong, u_boot_any, size);
 }
@@ -161,7 +174,11 @@ ulong spl_get_image_size(void)
 
 ulong spl_get_image_text_base(void)
 {
-	return spl_phase() == PHASE_TPL ? CONFIG_SPL_TEXT_BASE :
+#ifdef CONFIG_VPL
+	if (spl_next_phase() == PHASE_VPL)
+		return CONFIG_VPL_TEXT_BASE;
+#endif
+	return spl_next_phase() == PHASE_SPL ? CONFIG_SPL_TEXT_BASE :
 		CONFIG_SYS_TEXT_BASE;
 }
 
@@ -466,6 +483,8 @@ static enum bootstage_id get_bootstage_id(bool start)
 
 	if (IS_ENABLED(CONFIG_TPL_BUILD) && phase == PHASE_TPL)
 		return start ? BOOTSTAGE_ID_START_TPL : BOOTSTAGE_ID_END_TPL;
+	else if (IS_ENABLED(CONFIG_VPL_BUILD) && phase == PHASE_VPL)
+		return start ? BOOTSTAGE_ID_START_VPL : BOOTSTAGE_ID_END_VPL;
 	else
 		return start ? BOOTSTAGE_ID_START_SPL : BOOTSTAGE_ID_END_SPL;
 }

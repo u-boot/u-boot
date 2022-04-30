@@ -1,9 +1,12 @@
-menu "SPL / TPL"
+menu "SPL / TPL / VPL"
 
 config SUPPORT_SPL
 	bool
 
 config SUPPORT_TPL
+	bool
+
+config SUPPORT_VPL
 	bool
 
 config SPL_DFU_NO_RESET
@@ -301,6 +304,16 @@ config SPL_READ_ONLY
 	  section of memory. This means that of-platdata must make a copy (in
 	  writeable memory) of anything it wants to modify, such as
 	  device-private data.
+
+config TPL_SEPARATE_BSS
+	bool "BSS section is in a different memory region from text"
+	default y if SPL_SEPARATE_BSS
+	help
+	  Some platforms need a large BSS region in TPL and can provide this
+	  because RAM is already set up. In this case BSS can be moved to RAM.
+	  This option should then be enabled so that the correct device tree
+	  location is used. Normally we put the device tree at the end of BSS
+	  but with this option enabled, it goes at _image_binary_end.
 
 config SPL_BANNER_PRINT
 	bool "Enable output of the SPL banner 'U-Boot SPL ...'"

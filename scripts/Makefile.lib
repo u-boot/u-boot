@@ -581,16 +581,21 @@ cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 # 'u-boot,dm-pre-reloc' property and thus are not needed by SPL. The second
 # pass removes various unused properties from the remaining nodes.
 # The output is typically a much smaller device tree file.
+ifeq ($(CONFIG_VPL_BUILD),y)
+fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-vpl
+else
 ifeq ($(CONFIG_TPL_BUILD),y)
 fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-tpl
 else
 fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-spl
+endif
 endif
 quiet_cmd_fdtgrep = FDTGREP $@
       cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -RT $< \
 		-n /chosen -n /config -O dtb | \
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
 		-P u-boot,dm-pre-reloc -P u-boot,dm-spl -P u-boot,dm-tpl \
+		 -P u-boot,dm-vpl \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
 
 # fdt_rm_props
