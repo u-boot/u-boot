@@ -112,7 +112,7 @@ obj-y += s_record.o
 obj-$(CONFIG_CMD_LOADB) += xyzModem.o
 obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
 
-obj-$(CONFIG_AVB_VERIFY) += avb_verify.o
+obj-$(CONFIG_$(SPL_TPL_)AVB_VERIFY) += avb_verify.o
 obj-$(CONFIG_$(SPL_TPL_)STACKPROTECTOR) += stackprot.o
 obj-$(CONFIG_SCP03) += scp03.o
 
