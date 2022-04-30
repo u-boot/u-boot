@@ -762,7 +762,7 @@ config BLOBLIST
 
 config SPL_BLOBLIST
 	bool "Support for a bloblist in SPL"
-	depends on BLOBLIST
+	depends on BLOBLIST && SPL_LIBGENERIC_SUPPORT && SPL_LIBCOMMON_SUPPORT
 	default y if SPL
 	help
 	  This enables a bloblist in SPL. If this is the first part of U-Boot
@@ -771,7 +771,7 @@ config SPL_BLOBLIST
 
 config TPL_BLOBLIST
 	bool "Support for a bloblist in TPL"
-	depends on BLOBLIST
+	depends on BLOBLIST && TPL_LIBGENERIC_SUPPORT && TPL_LIBCOMMON_SUPPORT
 	default y if TPL
 	help
 	  This enables a bloblist in TPL. The bloblist is set up in TPL and
