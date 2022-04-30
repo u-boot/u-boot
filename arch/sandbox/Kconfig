@@ -29,6 +29,14 @@ config SANDBOX_SPL
 	bool "Enable SPL for sandbox"
 	select SUPPORT_SPL
 
+config SANDBOX_TPL
+	bool "Enable TPL for sandbox"
+	select SUPPORT_TPL
+
+config SANDBOX_VPL
+	bool "Enable VPL for sandbox"
+	select SUPPORT_VPL
+
 config SYS_CONFIG_NAME
 	default "sandbox_spl" if SANDBOX_SPL
 	default "sandbox" if !SANDBOX_SPL
