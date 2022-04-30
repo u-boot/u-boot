@@ -260,6 +260,12 @@ sandbox_noinst_test.py:
     TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
   <<: *buildman_and_testpy_dfn
 
+sandbox_vpl test.py:
+  variables:
+    TEST_PY_BD: "sandbox_vpl"
+    TEST_PY_TEST_SPEC: "test_vpl_help or test_spl"
+  <<: *buildman_and_testpy_dfn
+
 evb-ast2500 test.py:
   variables:
     TEST_PY_BD: "evb-ast2500"
