@@ -66,6 +66,40 @@ CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
 CONFIG_SPL_RAM_DEVICE (common/spl/spl.c)
 CONFIG_SPL_WATCHDOG (drivers/watchdog/libwatchdog.o)
 
+Adding SPL-specific code
+------------------------
+
+To check whether a feature is enabled, use CONFIG_IS_ENABLED()::
+
+  if (CONFIG_IS_ENABLED(CLK))
+      ...
+
+This checks CONFIG_CLK for the main build, CONFIG_SPL_CLK for the SPL build,
+CONFIG_TPL_CLK for the TPL build, etc.
+
+U-Boot Phases
+-------------
+
+U-Boot boots through the following phases:
+
+TPL
+   Very early init, as tiny as possible. This loads SPL.
+
+SPL
+   Secondary program loader. Sets up SDRAM and loads U-Boot proper. It may also
+   load other firmware components.
+
+U-Boot
+   U-Boot proper, containing the command line and boot logic.
+
+
+Checking the boot phase
+-----------------------
+
+Use `spl_phase()` to find the current U-Boot phase, e.g. `PHASE_SPL`. You can
+also find the previous and next phase and get the phase name.
+
+
 Device tree
 -----------
 The U-Boot device tree is filtered by the fdtgrep tools during the build
