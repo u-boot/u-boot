@@ -158,7 +158,7 @@ config UDP_CHECKSUM
 	default y if SANDBOX
 	help
 	  Enable this to verify the checksum on UDP packets. If the checksum
-	  is wrong then the packet is discussed and an error is shown, like
+	  is wrong then the packet is discarded and an error is shown, like
 	  "UDP wrong checksum 29374a23 30ff3826"
 
 config BOOTP_SERVERIP
