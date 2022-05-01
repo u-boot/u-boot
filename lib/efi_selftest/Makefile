@@ -55,7 +55,9 @@ obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_selftest_devicepath.o
 obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += \
 efi_selftest_unicode_collation.o
 
-obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
+ifeq ($(CONFIG_CPU_V7A)$(CONFIG_CPU_V7M)$(CONFIG_CPU_V7R),y)
+obj-y += efi_selftest_unaligned.o
+endif
 obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o
 obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_selftest_rng.o
 obj-$(CONFIG_EFI_GET_TIME) += efi_selftest_rtc.o
