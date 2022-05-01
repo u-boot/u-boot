@@ -78,6 +78,7 @@ enum law_trgt_if {
 enum law_trgt_if {
 	LAW_TRGT_IF_PCI = 0x00,
 	LAW_TRGT_IF_PCI_2 = 0x01,
+	LAW_TRGT_IF_PCIE_1 = 0x02,
 #if defined(CONFIG_ARCH_BSC9131) || defined(CONFIG_ARCH_BSC9132)
 	LAW_TRGT_IF_OCN_DSP = 0x03,
 #else
