@@ -68,9 +68,7 @@ static void bootmenu_print_entry(void *data)
 	 * Move cursor to line where the entry will be drown (entry->num)
 	 * First 3 lines contain bootmenu header + 1 empty line
 	 */
-	printf(ANSI_CURSOR_POSITION, entry->num + 4, 1);
-
-	puts("     ");
+	printf(ANSI_CURSOR_POSITION, entry->num + 4, 7);
 
 	if (reverse)
 		puts(ANSI_COLOR_REVERSE);
@@ -86,12 +84,9 @@ static void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 {
 	int i, c;
 
-	if (menu->delay > 0) {
-		printf(ANSI_CURSOR_POSITION, menu->count + 5, 1);
-		printf("  Hit any key to stop autoboot: %2d ", menu->delay);
-	}
-
 	while (menu->delay > 0) {
+		printf(ANSI_CURSOR_POSITION, menu->count + 5, 3);
+		printf("Hit any key to stop autoboot: %d ", menu->delay);
 		for (i = 0; i < 100; ++i) {
 			if (!tstc()) {
 				WATCHDOG_RESET();
@@ -125,7 +120,6 @@ static void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 			break;
 
 		--menu->delay;
-		printf("\b\b\b%2d ", menu->delay);
 	}
 
 	printf(ANSI_CURSOR_POSITION, menu->count + 5, 1);
@@ -407,8 +401,8 @@ static void menu_display_statusline(struct menu *m)
 
 	printf(ANSI_CURSOR_POSITION, 1, 1);
 	puts(ANSI_CLEAR_LINE);
-	printf(ANSI_CURSOR_POSITION, 2, 1);
-	puts("  *** U-Boot Boot Menu ***");
+	printf(ANSI_CURSOR_POSITION, 2, 3);
+	puts("*** U-Boot Boot Menu ***");
 	puts(ANSI_CLEAR_LINE_TO_END);
 	printf(ANSI_CURSOR_POSITION, 3, 1);
 	puts(ANSI_CLEAR_LINE);
@@ -416,8 +410,8 @@ static void menu_display_statusline(struct menu *m)
 	/* First 3 lines are bootmenu header + 2 empty lines between entries */
 	printf(ANSI_CURSOR_POSITION, menu->count + 5, 1);
 	puts(ANSI_CLEAR_LINE);
-	printf(ANSI_CURSOR_POSITION, menu->count + 6, 1);
-	puts("  Press UP/DOWN to move, ENTER to select, ESC/CTRL+C to quit");
+	printf(ANSI_CURSOR_POSITION, menu->count + 6, 3);
+	puts("Press UP/DOWN to move, ENTER to select, ESC/CTRL+C to quit");
 	puts(ANSI_CLEAR_LINE_TO_END);
 	printf(ANSI_CURSOR_POSITION, menu->count + 7, 1);
 	puts(ANSI_CLEAR_LINE);
