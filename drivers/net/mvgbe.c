@@ -43,6 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define MV_PHY_ADR_REQUEST 0xee
 #define MVGBE_SMI_REG (((struct mvgbe_registers *)MVGBE0_BASE)->smi)
+#define MVGBE_PGADR_REG	22
 
 #if defined(CONFIG_PHYLIB) || defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 static int smi_wait_ready(struct mvgbe_device *dmvgbe)
@@ -744,6 +745,9 @@ static struct phy_device *__mvgbe_phy_init(struct eth_device *dev,
 	/* Set phy address of the port */
 	miiphy_write(dev->name, MV_PHY_ADR_REQUEST, MV_PHY_ADR_REQUEST,
 		     phyid);
+
+	/* Make sure the selected PHY page is 0 before connecting */
+	miiphy_write(dev->name, phyid, MVGBE_PGADR_REG, 0);
 
 	phydev = phy_connect(bus, phyid, dev, phy_interface);
 	if (!phydev) {

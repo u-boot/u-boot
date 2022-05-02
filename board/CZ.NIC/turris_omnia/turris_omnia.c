@@ -41,8 +41,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OMNIA_I2C_EEPROM_CHIP_LEN	2
 #define OMNIA_I2C_EEPROM_MAGIC		0x0341a034
 
-#define SYS_RSTOUT_MASK			MVEBU_REGISTER(0x18260)
-#define   SYS_RSTOUT_MASK_WD		BIT(10)
+#define A385_SYS_RSTOUT_MASK		MVEBU_REGISTER(0x18260)
+#define   A385_SYS_RSTOUT_MASK_WD	BIT(10)
 
 #define A385_WDT_GLOBAL_CTRL		MVEBU_REGISTER(0x20300)
 #define   A385_WDT_GLOBAL_RATIO_MASK	GENMASK(18, 16)
@@ -86,17 +86,8 @@ enum status_word_bits {
 #define OMNIA_GPP_POL_LOW	0x0
 #define OMNIA_GPP_POL_MID	0x0
 
-static struct serdes_map board_serdes_map_pex[] = {
+static struct serdes_map board_serdes_map[] = {
 	{PEX0, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
-	{USB3_HOST0, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
-	{PEX1, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
-	{USB3_HOST1, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
-	{PEX2, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
-	{SGMII2, SERDES_SPEED_1_25_GBPS, SERDES_DEFAULT_MODE, 0, 0}
-};
-
-static struct serdes_map board_serdes_map_sata[] = {
-	{SATA0, SERDES_SPEED_6_GBPS, SERDES_DEFAULT_MODE, 0, 0},
 	{USB3_HOST0, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
 	{PEX1, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
 	{USB3_HOST1, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
@@ -189,7 +180,7 @@ static void enable_a385_watchdog(unsigned int timeout_minutes)
 	setbits_32(A385_WD_RSTOUT_UNMASK, A385_WD_RSTOUT_UNMASK_GLOBAL);
 
 	/* Unmask reset for watchdog */
-	clrbits_32(SYS_RSTOUT_MASK, SYS_RSTOUT_MASK_WD);
+	clrbits_32(A385_SYS_RSTOUT_MASK, A385_SYS_RSTOUT_MASK_WD);
 }
 
 static bool disable_mcu_watchdog(void)
@@ -209,12 +200,24 @@ static bool disable_mcu_watchdog(void)
 	return true;
 }
 
-static bool omnia_detect_sata(void)
+static bool omnia_detect_sata(const char *msata_slot)
 {
 	int ret;
 	u16 stsword;
 
 	puts("MiniPCIe/mSATA card detection... ");
+
+	if (msata_slot) {
+		if (strcmp(msata_slot, "pcie") == 0) {
+			puts("forced to MiniPCIe via env\n");
+			return false;
+		} else if (strcmp(msata_slot, "sata") == 0) {
+			puts("forced to mSATA via env\n");
+			return true;
+		} else if (strcmp(msata_slot, "auto") != 0) {
+			printf("unsupported env value '%s', fallback to... ", msata_slot);
+		}
+	}
 
 	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
 	if (ret) {
@@ -236,15 +239,68 @@ static bool omnia_detect_sata(void)
 	return stsword & MSATA_IND_STSBIT ? true : false;
 }
 
+static bool omnia_detect_wwan_usb3(const char *wwan_slot)
+{
+	puts("WWAN slot configuration... ");
+
+	if (wwan_slot && strcmp(wwan_slot, "usb3") == 0) {
+		puts("USB3.0\n");
+		return true;
+	}
+
+	if (wwan_slot && strcmp(wwan_slot, "pcie") != 0)
+		printf("unsupported env value '%s', fallback to... ", wwan_slot);
+
+	puts("PCIe+USB2.0\n");
+	return false;
+}
+
+void *env_sf_get_env_addr(void)
+{
+	/* SPI Flash is mapped to address 0xD4000000 only in SPL */
+#ifdef CONFIG_SPL_BUILD
+	return (void *)0xD4000000 + CONFIG_ENV_OFFSET;
+#else
+	return NULL;
+#endif
+}
+
 int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 {
-	if (omnia_detect_sata()) {
-		*serdes_map_array = board_serdes_map_sata;
-		*count = ARRAY_SIZE(board_serdes_map_sata);
-	} else {
-		*serdes_map_array = board_serdes_map_pex;
-		*count = ARRAY_SIZE(board_serdes_map_pex);
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	/* Do not use env_load() as malloc() pool is too small at this stage */
+	bool has_env = (env_init() == 0);
+#endif
+	const char *env_value = NULL;
+
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	/* beware that env_get() returns static allocated memory */
+	env_value = has_env ? env_get("omnia_msata_slot") : NULL;
+#endif
+
+	if (omnia_detect_sata(env_value)) {
+		/* Change SerDes for first mPCIe port (mSATA) from PCIe to SATA */
+		board_serdes_map[0].serdes_type = SATA0;
+		board_serdes_map[0].serdes_speed = SERDES_SPEED_6_GBPS;
+		board_serdes_map[0].serdes_mode = SERDES_DEFAULT_MODE;
 	}
+
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	/* beware that env_get() returns static allocated memory */
+	env_value = has_env ? env_get("omnia_wwan_slot") : NULL;
+#endif
+
+	if (omnia_detect_wwan_usb3(env_value)) {
+		/* Disable SerDes for USB 3.0 pins on the front USB-A port */
+		board_serdes_map[1].serdes_type = DEFAULT_SERDES;
+		/* Change SerDes for third mPCIe port (WWAN) from PCIe to USB 3.0 */
+		board_serdes_map[4].serdes_type = USB3_HOST0;
+		board_serdes_map[4].serdes_speed = SERDES_SPEED_5_GBPS;
+		board_serdes_map[4].serdes_mode = SERDES_DEFAULT_MODE;
+	}
+
+	*serdes_map_array = board_serdes_map;
+	*count = ARRAY_SIZE(board_serdes_map);
 
 	return 0;
 }
@@ -425,7 +481,7 @@ static void handle_reset_button(void)
 		/* Ensure bootcmd_rescue is used by distroboot */
 		env_set("boot_targets", "rescue");
 
-		printf("RESET button was pressed, overwriting bootcmd!\n");
+		printf("RESET button was pressed, overwriting boot_targets!\n");
 	} else {
 		/*
 		 * In case the user somehow managed to save environment with
@@ -485,10 +541,57 @@ void spl_board_init(void)
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP) || IS_ENABLED(CONFIG_OF_BOARD_SETUP)
 
-static void fixup_serdes_0_nodes(void *blob)
+static void disable_sata_node(void *blob)
+{
+	int node;
+
+	fdt_for_each_node_by_compatible(node, blob, -1, "marvell,armada-380-ahci") {
+		if (!fdtdec_get_is_enabled(blob, node))
+			continue;
+
+		if (fdt_status_disabled(blob, node) < 0)
+			printf("Cannot disable SATA DT node!\n");
+		else
+			debug("Disabled SATA DT node\n");
+
+		return;
+	}
+
+	printf("Cannot find SATA DT node!\n");
+}
+
+static void disable_pcie_node(void *blob, int port)
+{
+	int node;
+
+	fdt_for_each_node_by_compatible(node, blob, -1, "marvell,armada-370-pcie") {
+		int port_node;
+
+		if (!fdtdec_get_is_enabled(blob, node))
+			continue;
+
+		fdt_for_each_subnode (port_node, blob, node) {
+			if (!fdtdec_get_is_enabled(blob, port_node))
+				continue;
+
+			if (fdtdec_get_int(blob, port_node, "marvell,pcie-port", -1) != port)
+				continue;
+
+			if (fdt_status_disabled(blob, port_node) < 0)
+				printf("Cannot disable PCIe port %d DT node!\n", port);
+			else
+				debug("Disabled PCIe port %d DT node\n", port);
+
+			return;
+		}
+	}
+
+	printf("Cannot find PCIe port %d DT node!\n", port);
+}
+
+static void fixup_msata_port_nodes(void *blob)
 {
 	bool mode_sata;
-	int node;
 
 	/*
 	 * Determine if SerDes 0 is configured to SATA mode.
@@ -508,48 +611,38 @@ static void fixup_serdes_0_nodes(void *blob)
 		return;
 	}
 
-	/* If mSATA card is not present, disable SATA DT node */
 	if (!mode_sata) {
-		fdt_for_each_node_by_compatible(node, blob, -1,
-						"marvell,armada-380-ahci") {
-			if (!fdtdec_get_is_enabled(blob, node))
-				continue;
+		/* If mSATA card is not present, disable SATA DT node */
+		disable_sata_node(blob);
+	} else {
+		/* Otherwise disable PCIe port 0 DT node (MiniPCIe / mSATA port) */
+		disable_pcie_node(blob, 0);
+	}
+}
 
-			if (fdt_status_disabled(blob, node) < 0)
-				printf("Cannot disable SATA DT node!\n");
-			else
-				debug("Disabled SATA DT node\n");
+static void fixup_wwan_port_nodes(void *blob)
+{
+	bool mode_usb3;
 
-			break;
-		}
+	/* Determine if SerDes 4 is configured to USB3 mode */
+	mode_usb3 = ((readl(MVEBU_REGISTER(0x183fc)) & GENMASK(19, 16)) >> 16) == 4;
 
+	/* If SerDes 4 is not configured to USB3 mode then nothing is needed to fixup */
+	if (!mode_usb3)
+		return;
+
+	/*
+	 * We're either adding status = "disabled" property, or changing
+	 * status = "okay" to status = "disabled". In both cases we'll need more
+	 * space. Increase the size a little.
+	 */
+	if (fdt_increase_size(blob, 32) < 0) {
+		printf("Cannot increase FDT size!\n");
 		return;
 	}
 
-	/* Otherwise disable PCIe port 0 DT node (MiniPCIe / mSATA port) */
-	fdt_for_each_node_by_compatible(node, blob, -1,
-					"marvell,armada-370-pcie") {
-		int port;
-
-		if (!fdtdec_get_is_enabled(blob, node))
-			continue;
-
-		fdt_for_each_subnode (port, blob, node) {
-			if (!fdtdec_get_is_enabled(blob, port))
-				continue;
-
-			if (fdtdec_get_int(blob, port, "marvell,pcie-port",
-					   -1) != 0)
-				continue;
-
-			if (fdt_status_disabled(blob, port) < 0)
-				printf("Cannot disable PCIe port 0 DT node!\n");
-			else
-				debug("Disabled PCIe port 0 DT node\n");
-
-			return;
-		}
-	}
+	/* Disable PCIe port 2 DT node (WWAN) */
+	disable_pcie_node(blob, 2);
 }
 
 #endif
@@ -557,7 +650,8 @@ static void fixup_serdes_0_nodes(void *blob)
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
-	fixup_serdes_0_nodes(blob);
+	fixup_msata_port_nodes(blob);
+	fixup_wwan_port_nodes(blob);
 
 	return 0;
 }
@@ -702,7 +796,8 @@ fail:
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	fixup_spi_nor_partitions(blob);
-	fixup_serdes_0_nodes(blob);
+	fixup_msata_port_nodes(blob);
+	fixup_wwan_port_nodes(blob);
 
 	return 0;
 }
