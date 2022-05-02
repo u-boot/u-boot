@@ -20,7 +20,7 @@
 
 		u-boot-dtb-with-ucode {
 #ifdef CONFIG_MPC85xx
-			align = <256>;
+			align = <4>;
 #endif
 		};
 #ifdef CONFIG_MPC85XX_HAVE_RESET_VECTOR
