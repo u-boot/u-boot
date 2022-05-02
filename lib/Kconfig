@@ -52,11 +52,6 @@ config CC_OPTIMIZE_LIBS_FOR_SPEED
 
 config CHARSET
 	bool
-	default y if UT_UNICODE || EFI_LOADER || UFS || EFI_APP
-	help
-	  Enables support for various conversions between different
-	  character sets, such as between unicode representations and
-	  different 'code pages'.
 
 config DYNAMIC_CRC_TABLE
 	bool "Enable Dynamic tables for CRC"

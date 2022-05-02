@@ -14,6 +14,7 @@ choice
 
 config EFI_APP
 	bool "Support running as an EFI application"
+	select CHARSET
 	help
 	  Build U-Boot as an application which can be started from EFI. This
 	  is useful for examining a platform in the early stages of porting

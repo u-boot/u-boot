@@ -91,6 +91,7 @@ config UT_UNICODE
 	bool "Unit tests for Unicode functions"
 	depends on UNIT_TEST
 	default y
+	select CHARSET
 	help
 	  Enables the 'ut unicode' command which tests that the functions for
 	  manipulating Unicode strings work correctly.
