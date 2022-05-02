@@ -420,6 +420,19 @@ state_setprop() which does this automatically and avoids running out of
 space. See existing code for examples.
 
 
+VPL (Verifying Program Loader)
+------------------------------
+
+Sandbox provides an example build of vpl called `sandbox_vpl`. This can be run
+using::
+
+   /path/to/sandbox_vpl/tpl/u-boot-tpl -D
+
+It starts up TPL (first-stage init), then VPL, then runs SPL and finally U-Boot
+proper, following the normal flow for a verified boot. At present, no
+verification is actually implemented.
+
+
 Debugging the init sequence
 ---------------------------
 

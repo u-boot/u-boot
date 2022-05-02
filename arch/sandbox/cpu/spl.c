@@ -32,13 +32,21 @@ int sandbox_find_next_phase(char *fname, int maxlen, bool use_img)
 	return 0;
 }
 
-/* SPL / TPL init function */
+/* SPL / TPL / VPL init function */
 void board_init_f(ulong flag)
 {
 	struct sandbox_state *state = state_get_current();
+	int ret;
 
 	gd->arch.ram_buf = state->ram_buf;
 	gd->ram_size = state->ram_size;
+
+	ret = spl_early_init();
+	if (ret) {
+		debug("spl_early_init() failed: %d\n", ret);
+		hang();
+	}
+	preloader_console_init();
 }
 
 u32 spl_boot_device(void)
@@ -74,8 +82,6 @@ SPL_LOAD_IMAGE_METHOD("sandbox", 9, BOOT_DEVICE_BOARD, spl_board_load_image);
 void spl_board_init(void)
 {
 	struct sandbox_state *state = state_get_current();
-
-	preloader_console_init();
 
 	if (state->run_unittests) {
 		struct unit_test *tests = UNIT_TEST_ALL_START();

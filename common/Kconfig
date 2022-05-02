@@ -89,6 +89,15 @@ config TPL_LOGLEVEL
 	int
 	default LOGLEVEL
 
+config VPL_LOGLEVEL
+	int "loglevel for VPL"
+	default LOGLEVEL
+	help
+	  All Messages with a loglevel smaller than the console loglevel will
+	  be compiled in to VPL. See LOGLEVEL for a list of available log
+	  levels. Setting this to a value above 4 may increase the code size
+	  significantly.
+
 config SILENT_CONSOLE
 	bool "Support a silent console"
 	help
@@ -262,6 +271,15 @@ config LOG
 
 if LOG
 
+config VPL_LOG
+	bool "Enable logging support in VPL"
+	depends on LOG
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
 config LOG_MAX_LEVEL
 	int "Maximum log level to record"
 	default 6
@@ -422,6 +440,47 @@ config TPL_LOG_MAX_LEVEL
 
 config TPL_LOG_CONSOLE
 	bool "Allow log output to the console in TPL"
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+endif
+
+config VPL_LOG
+	bool "Enable logging support in VPL"
+	depends on LOG
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+if VPL_LOG
+
+config VPL_LOG_MAX_LEVEL
+	int "Maximum log level to record in VPL"
+	default 3
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
+	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
+
+config VPL_LOG_CONSOLE
+	bool "Allow log output to the console in VPL"
 	default y
 	help
 	  Enables a log driver which writes log records to the console.
@@ -762,7 +821,7 @@ config BLOBLIST
 
 config SPL_BLOBLIST
 	bool "Support for a bloblist in SPL"
-	depends on BLOBLIST
+	depends on BLOBLIST && SPL_LIBGENERIC_SUPPORT && SPL_LIBCOMMON_SUPPORT
 	default y if SPL
 	help
 	  This enables a bloblist in SPL. If this is the first part of U-Boot
@@ -771,10 +830,18 @@ config SPL_BLOBLIST
 
 config TPL_BLOBLIST
 	bool "Support for a bloblist in TPL"
-	depends on BLOBLIST
+	depends on BLOBLIST && TPL_LIBGENERIC_SUPPORT && TPL_LIBCOMMON_SUPPORT
 	default y if TPL
 	help
 	  This enables a bloblist in TPL. The bloblist is set up in TPL and
+	  passed to SPL and U-Boot proper.
+
+config VPL_BLOBLIST
+	bool "Support for a bloblist in VPL"
+	depends on BLOBLIST && VPL_LIBGENERIC_SUPPORT && VPL_LIBCOMMON_SUPPORT
+	default y if VPL
+	help
+	  This enables a bloblist in VPL. The bloblist is set up in VPL and
 	  passed to SPL and U-Boot proper.
 
 if BLOBLIST

@@ -846,7 +846,7 @@ libs-y += drivers/usb/ulpi/
 ifdef CONFIG_POST
 libs-y += post/
 endif
-libs-$(CONFIG_UNIT_TEST) += test/
+libs-$(CONFIG_$(SPL_TPL_)UNIT_TEST) += test/
 libs-$(CONFIG_UT_ENV) += test/env/
 libs-$(CONFIG_UT_OPTEE) += test/optee/
 libs-$(CONFIG_UT_OVERLAY) += test/overlay/
@@ -911,6 +911,12 @@ else
 TPL_SIZE_CHECK =
 endif
 
+ifneq ($(CONFIG_VPL_SIZE_LIMIT),0x0)
+VPL_SIZE_CHECK = @$(call size_check,$@,$(CONFIG_VPL_SIZE_LIMIT))
+else
+VPL_SIZE_CHECK =
+endif
+
 # Statically apply RELA-style relocations (currently arm64 only)
 # This is useful for arm64 where static relocation needs to be performed on
 # the raw binary, but certain simulators only accept an ELF file (but don't
@@ -951,6 +957,7 @@ INPUTS-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 endif
 endif
 INPUTS-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
+INPUTS-$(CONFIG_VPL) += vpl/u-boot-vpl.bin
 
 # Allow omitting the .dtb output if it is not normally used
 INPUTS-$(CONFIG_OF_SEPARATE) += $(if $(CONFIG_OF_OMIT_DTB),dts/dt.dtb,u-boot.dtb)
@@ -2095,9 +2102,7 @@ spl/u-boot-spl-dtb.bin: spl/u-boot-spl
 spl/u-boot-spl-dtb.hex: spl/u-boot-spl
 	@:
 
-spl/u-boot-spl: tools prepare \
-		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SPL_OF_PLATDATA),dts/dt.dtb) \
-		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_TPL_OF_PLATDATA),dts/dt.dtb)
+spl/u-boot-spl: tools prepare $(if $(CONFIG_SPL_OF_CONTROL),dts/dt.dtb)
 	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
@@ -2112,10 +2117,19 @@ spl/u-boot-spl.sfp: spl/u-boot-spl
 spl/boot.bin: spl/u-boot-spl
 	@:
 
-tpl/u-boot-tpl.bin: tools prepare \
-		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SPL_OF_PLATDATA),dts/dt.dtb)
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
+tpl/u-boot-tpl.bin: tpl/u-boot-tpl
+	@:
 	$(TPL_SIZE_CHECK)
+
+tpl/u-boot-tpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
+
+vpl/u-boot-vpl.bin: vpl/u-boot-vpl
+	@:
+	$(VPL_SIZE_CHECK)
+
+vpl/u-boot-vpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
+	$(Q)$(MAKE) obj=vpl -f $(srctree)/scripts/Makefile.spl all
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 

@@ -27,6 +27,16 @@ config TPL_TIMER
 	  function. This enables the drivers in drivers/timer as part of an
 	  TPL build.
 
+config VPL_TIMER
+	bool "Enable driver model for timer drivers in VPL"
+	depends on TIMER && VPL
+	default y if TPL_TIMER
+	help
+	  Enable support for timer drivers in VPL. These can be used to get
+	  a timer value when in VPL, or perhaps for implementing a delay
+	  function. This enables the drivers in drivers/timer as part of an
+	  TPL build.
+
 config TIMER_EARLY
 	bool "Allow timer to be used early in U-Boot"
 	depends on TIMER

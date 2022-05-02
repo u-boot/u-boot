@@ -254,7 +254,7 @@
 	};
 
 	spl-test {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 		compatible = "sandbox,spl-test";
 		boolval;
 		intval = <1>;
@@ -268,7 +268,7 @@
 	};
 
 	spl-test2 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 		compatible = "sandbox,spl-test";
 		intval = <3>;
 		intarray = <5>;
@@ -280,14 +280,14 @@
 	};
 
 	spl-test3 {
-		u-boot,dm-pre-reloc;
+		u-boot,dm-spl;
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
 		maybe-empty-int = <1>;
 	};
 
 	spl-test5 {
-		u-boot,dm-tpl;
+		u-boot,dm-vpl;
 		compatible = "sandbox,spl-test";
 		stringarray = "tpl";
 	};
@@ -334,6 +334,8 @@
 	/* Needs to be available prior to relocation */
 	uart0: serial {
 		u-boot,dm-spl;
+		u-boot,dm-tpl;
+		u-boot,dm-vpl;
 		compatible = "sandbox,serial";
 		sandbox,text-colour = "cyan";
 		pinctrl-names = "default";

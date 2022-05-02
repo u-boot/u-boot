@@ -322,8 +322,11 @@ def pytest_generate_tests(metafunc):
         if fn == 'ut_subtest':
             generate_ut_subtest(metafunc, fn, '/u-boot.sym')
             continue
-        if fn == 'ut_spl_subtest':
-            generate_ut_subtest(metafunc, fn, '/spl/u-boot-spl.sym')
+        m_subtest = re.match('ut_(.)pl_subtest', fn)
+        if m_subtest:
+            spl_name = m_subtest.group(1)
+            generate_ut_subtest(
+                metafunc, fn, f'/{spl_name}pl/u-boot-{spl_name}pl.sym')
             continue
         generate_config(metafunc, fn)
 

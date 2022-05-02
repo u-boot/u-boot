@@ -322,10 +322,14 @@ endif
 
 ifdef CONFIG_SPL_BUILD
 SPL_ := SPL_
+ifeq ($(CONFIG_VPL_BUILD),y)
+SPL_TPL_ := VPL_
+else
 ifeq ($(CONFIG_TPL_BUILD),y)
 SPL_TPL_ := TPL_
 else
 SPL_TPL_ := SPL_
+endif
 endif
 else
 SPL_ :=
