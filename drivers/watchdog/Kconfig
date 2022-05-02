@@ -168,6 +168,13 @@ config WDT_GPIO
 	  doc/device-tree-bindings/watchdog/gpio-wdt.txt for
 	  information on how to describe the watchdog in device tree.
 
+config WDT_MAX6370
+	bool "MAX6370 watchdog timer support"
+	depends on WDT
+	select DM_GPIO
+	help
+	  Select this to enable max6370 watchdog timer.
+
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
