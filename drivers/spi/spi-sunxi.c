@@ -221,6 +221,56 @@ err_ahb:
 	return ret;
 }
 
+static void sun4i_spi_set_speed_mode(struct udevice *dev)
+{
+	struct sun4i_spi_priv *priv = dev_get_priv(dev);
+	unsigned int div;
+	u32 reg;
+
+	/*
+	 * Setup clock divider.
+	 *
+	 * We have two choices there. Either we can use the clock
+	 * divide rate 1, which is calculated thanks to this formula:
+	 * SPI_CLK = MOD_CLK / (2 ^ (cdr + 1))
+	 * Or we can use CDR2, which is calculated with the formula:
+	 * SPI_CLK = MOD_CLK / (2 * (cdr + 1))
+	 * Whether we use the former or the latter is set through the
+	 * DRS bit.
+	 *
+	 * First try CDR2, and if we can't reach the expected
+	 * frequency, fall back to CDR1.
+	 */
+
+	div = SUN4I_SPI_MAX_RATE / (2 * priv->freq);
+	reg = readl(SPI_REG(priv, SPI_CCR));
+
+	if (div <= (SUN4I_CLK_CTL_CDR2_MASK + 1)) {
+		if (div > 0)
+			div--;
+
+		reg &= ~(SUN4I_CLK_CTL_CDR2_MASK | SUN4I_CLK_CTL_DRS);
+		reg |= SUN4I_CLK_CTL_CDR2(div) | SUN4I_CLK_CTL_DRS;
+	} else {
+		div = __ilog2(SUN4I_SPI_MAX_RATE) - __ilog2(priv->freq);
+		reg &= ~((SUN4I_CLK_CTL_CDR1_MASK << 8) | SUN4I_CLK_CTL_DRS);
+		reg |= SUN4I_CLK_CTL_CDR1(div);
+	}
+
+	writel(reg, SPI_REG(priv, SPI_CCR));
+
+	reg = readl(SPI_REG(priv, SPI_TCR));
+	reg &= ~(SPI_BIT(priv, SPI_TCR_CPOL) | SPI_BIT(priv, SPI_TCR_CPHA));
+
+	if (priv->mode & SPI_CPOL)
+		reg |= SPI_BIT(priv, SPI_TCR_CPOL);
+
+	if (priv->mode & SPI_CPHA)
+		reg |= SPI_BIT(priv, SPI_TCR_CPHA);
+
+	writel(reg, SPI_REG(priv, SPI_TCR));
+}
+
 static int sun4i_spi_claim_bus(struct udevice *dev)
 {
 	struct sun4i_spi_priv *priv = dev_get_priv(dev->parent);
@@ -239,6 +289,8 @@ static int sun4i_spi_claim_bus(struct udevice *dev)
 
 	setbits_le32(SPI_REG(priv, SPI_TCR), SPI_BIT(priv, SPI_TCR_CS_MANUAL) |
 		     SPI_BIT(priv, SPI_TCR_CS_ACTIVE_LOW));
+
+	sun4i_spi_set_speed_mode(dev->parent);
 
 	return 0;
 }
@@ -325,46 +377,14 @@ static int sun4i_spi_set_speed(struct udevice *dev, uint speed)
 {
 	struct sun4i_spi_plat *plat = dev_get_plat(dev);
 	struct sun4i_spi_priv *priv = dev_get_priv(dev);
-	unsigned int div;
-	u32 reg;
 
 	if (speed > plat->max_hz)
 		speed = plat->max_hz;
 
 	if (speed < SUN4I_SPI_MIN_RATE)
 		speed = SUN4I_SPI_MIN_RATE;
-	/*
-	 * Setup clock divider.
-	 *
-	 * We have two choices there. Either we can use the clock
-	 * divide rate 1, which is calculated thanks to this formula:
-	 * SPI_CLK = MOD_CLK / (2 ^ (cdr + 1))
-	 * Or we can use CDR2, which is calculated with the formula:
-	 * SPI_CLK = MOD_CLK / (2 * (cdr + 1))
-	 * Whether we use the former or the latter is set through the
-	 * DRS bit.
-	 *
-	 * First try CDR2, and if we can't reach the expected
-	 * frequency, fall back to CDR1.
-	 */
-
-	div = SUN4I_SPI_MAX_RATE / (2 * speed);
-	reg = readl(SPI_REG(priv, SPI_CCR));
-
-	if (div <= (SUN4I_CLK_CTL_CDR2_MASK + 1)) {
-		if (div > 0)
-			div--;
-
-		reg &= ~(SUN4I_CLK_CTL_CDR2_MASK | SUN4I_CLK_CTL_DRS);
-		reg |= SUN4I_CLK_CTL_CDR2(div) | SUN4I_CLK_CTL_DRS;
-	} else {
-		div = __ilog2(SUN4I_SPI_MAX_RATE) - __ilog2(speed);
-		reg &= ~((SUN4I_CLK_CTL_CDR1_MASK << 8) | SUN4I_CLK_CTL_DRS);
-		reg |= SUN4I_CLK_CTL_CDR1(div);
-	}
 
 	priv->freq = speed;
-	writel(reg, SPI_REG(priv, SPI_CCR));
 
 	return 0;
 }
@@ -372,19 +392,8 @@ static int sun4i_spi_set_speed(struct udevice *dev, uint speed)
 static int sun4i_spi_set_mode(struct udevice *dev, uint mode)
 {
 	struct sun4i_spi_priv *priv = dev_get_priv(dev);
-	u32 reg;
-
-	reg = readl(SPI_REG(priv, SPI_TCR));
-	reg &= ~(SPI_BIT(priv, SPI_TCR_CPOL) | SPI_BIT(priv, SPI_TCR_CPHA));
-
-	if (mode & SPI_CPOL)
-		reg |= SPI_BIT(priv, SPI_TCR_CPOL);
-
-	if (mode & SPI_CPHA)
-		reg |= SPI_BIT(priv, SPI_TCR_CPHA);
 
 	priv->mode = mode;
-	writel(reg, SPI_REG(priv, SPI_TCR));
 
 	return 0;
 }
