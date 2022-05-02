@@ -61,6 +61,7 @@
 #include <wdt.h>
 #include <asm-generic/gpio.h>
 #include <efi_loader.h>
+#include <relocate.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -810,19 +811,15 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	if (CONFIG_IS_ENABLED(X86_64) && !IS_ENABLED(CONFIG_EFI_APP))
 		arch_setup_gd(new_gd);
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	int i;
-#endif
-
 #if !defined(CONFIG_X86) && !defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
 	gd = new_gd;
 #endif
 	gd->flags &= ~GD_FLG_LOG_READY;
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	for (i = 0; i < ARRAY_SIZE(init_sequence_r); i++)
-		init_sequence_r[i] += gd->reloc_off;
-#endif
+	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
+		for (int i = 0; i < ARRAY_SIZE(init_sequence_r); i++)
+			MANUAL_RELOC(init_sequence_r[i]);
+	}
 
 	if (initcall_run_list(init_sequence_r))
 		hang();
