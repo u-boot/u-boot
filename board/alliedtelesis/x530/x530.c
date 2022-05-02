@@ -93,7 +93,7 @@ int board_early_init_f(void)
 	writel(0x55550550, MVEBU_MPP_BASE + 0x0c);
 	writel(0x55555555, MVEBU_MPP_BASE + 0x10);
 	writel(0x00100565, MVEBU_MPP_BASE + 0x14);
-	writel(0x40000000, MVEBU_MPP_BASE + 0x18);
+	writel(0x00000000, MVEBU_MPP_BASE + 0x18);
 	writel(0x00004444, MVEBU_MPP_BASE + 0x1c);
 
 	return 0;
