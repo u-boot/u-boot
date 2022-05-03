@@ -64,7 +64,6 @@
 /** EMMC specific defines */
 
 #if defined(CONFIG_NAND_OCTEONTX)
-/*#define CONFIG_MTD_CONCAT */
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
 #endif
 
