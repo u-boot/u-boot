@@ -72,7 +72,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SUN4I_XMIT_CNT(cnt)		((cnt) & SUN4I_MAX_XFER_SIZE)
 #define SUN4I_FIFO_STA_RF_CNT_BITS	0
 
-#define SUN4I_SPI_MAX_RATE		24000000
+/* the SPI mod clock, defaulting to be 1/1 of the HOSC@24MHz */
+#define SUNXI_INPUT_CLOCK		24000000	/* 24 MHz */
+#define SUN4I_SPI_MAX_RATE		SUNXI_INPUT_CLOCK
 #define SUN4I_SPI_MIN_RATE		3000
 #define SUN4I_SPI_DEFAULT_RATE		1000000
 #define SUN4I_SPI_TIMEOUT_MS		1000
@@ -242,17 +244,18 @@ static void sun4i_spi_set_speed_mode(struct udevice *dev)
 	 * frequency, fall back to CDR1.
 	 */
 
-	div = SUN4I_SPI_MAX_RATE / (2 * priv->freq);
+	div = DIV_ROUND_UP(SUNXI_INPUT_CLOCK, priv->freq);
 	reg = readl(SPI_REG(priv, SPI_CCR));
 
-	if (div <= (SUN4I_CLK_CTL_CDR2_MASK + 1)) {
+	if ((div / 2) <= (SUN4I_CLK_CTL_CDR2_MASK + 1)) {
+		div /= 2;
 		if (div > 0)
 			div--;
 
 		reg &= ~(SUN4I_CLK_CTL_CDR2_MASK | SUN4I_CLK_CTL_DRS);
 		reg |= SUN4I_CLK_CTL_CDR2(div) | SUN4I_CLK_CTL_DRS;
 	} else {
-		div = __ilog2(SUN4I_SPI_MAX_RATE) - __ilog2(priv->freq);
+		div = fls(div - 1);
 		reg &= ~((SUN4I_CLK_CTL_CDR1_MASK << 8) | SUN4I_CLK_CTL_DRS);
 		reg |= SUN4I_CLK_CTL_CDR1(div);
 	}
