@@ -125,7 +125,7 @@ static int enetc_mdio_probe(struct udevice *dev)
 {
 	struct enetc_mdio_priv *priv = dev_get_priv(dev);
 
-	priv->regs_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0);
+	priv->regs_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE, 0);
 	if (!priv->regs_base) {
 		enetc_dbg(dev, "failed to map BAR0\n");
 		return -EINVAL;

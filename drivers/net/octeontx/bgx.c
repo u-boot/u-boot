@@ -1458,7 +1458,7 @@ int octeontx_bgx_probe(struct udevice *dev)
 	int bgx_idx, node;
 	int inc = 1;
 
-	bgx->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+	bgx->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 				       PCI_REGION_MEM);
 	if (!bgx->reg_base) {
 		debug("No PCI region found\n");

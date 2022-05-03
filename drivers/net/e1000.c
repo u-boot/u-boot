@@ -5549,8 +5549,8 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 	hw->eeprom_semaphore_present = true;
 #endif
 #ifdef CONFIG_DM_ETH
-	hw->hw_addr = dm_pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
-						PCI_REGION_MEM);
+	hw->hw_addr = dm_pci_map_bar(devno,	PCI_BASE_ADDRESS_0, 0, 0,
+						PCI_REGION_TYPE, PCI_REGION_MEM);
 #else
 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
 						PCI_REGION_MEM);

@@ -59,7 +59,8 @@ static int designware_i2c_pci_of_to_plat(struct udevice *dev)
 		priv->regs = (struct i2c_regs *)dm_pci_read_bar32(dev, 0);
 	} else {
 		priv->regs = (struct i2c_regs *)
-			dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+			dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				       PCI_REGION_TYPE, PCI_REGION_MEM);
 	}
 	if (!priv->regs)
 		return -EINVAL;

@@ -28,9 +28,12 @@ static void bnxt_bring_pci(struct bnxt *bp)
 	dm_pci_read_config16(bp->pdev, PCI_SUBSYSTEM_ID, &bp->subsystem_device);
 	dm_pci_read_config16(bp->pdev, PCI_COMMAND, &bp->cmd_reg);
 	dm_pci_read_config8(bp->pdev, PCI_INTERRUPT_LINE, &bp->irq);
-	bp->bar0 = dm_pci_map_bar(bp->pdev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
-	bp->bar1 = dm_pci_map_bar(bp->pdev, PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
-	bp->bar2 = dm_pci_map_bar(bp->pdev, PCI_BASE_ADDRESS_4, PCI_REGION_MEM);
+	bp->bar0 = dm_pci_map_bar(bp->pdev, PCI_BASE_ADDRESS_0, 0, 0,
+				  PCI_REGION_TYPE, PCI_REGION_MEM);
+	bp->bar1 = dm_pci_map_bar(bp->pdev, PCI_BASE_ADDRESS_2, 0, 0,
+				  PCI_REGION_TYPE, PCI_REGION_MEM);
+	bp->bar2 = dm_pci_map_bar(bp->pdev, PCI_BASE_ADDRESS_4, 0, 0,
+				  PCI_REGION_TYPE, PCI_REGION_MEM);
 	cmd_reg = bp->cmd_reg | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
 	cmd_reg |= PCI_COMMAND_INTX_DISABLE; /* disable intr */
 	dm_pci_write_config16(bp->pdev, PCI_COMMAND, cmd_reg);

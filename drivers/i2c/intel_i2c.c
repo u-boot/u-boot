@@ -251,7 +251,7 @@ static int intel_i2c_probe(struct udevice *dev)
 	ulong base;
 
 	/* Save base address from PCI BAR */
-	priv->base = (ulong)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_4,
+	priv->base = (ulong)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_4, 0, 0, PCI_REGION_TYPE,
 					   PCI_REGION_IO);
 	base = priv->base;
 

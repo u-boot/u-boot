@@ -322,7 +322,7 @@ int octeontx_smi_probe(struct udevice *dev)
 	u64 baseaddr;
 
 	debug("SMI PCI device: %x\n", bdf);
-	if (!dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM)) {
+	if (!dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE, PCI_REGION_MEM)) {
 		printf("Failed to map PCI region for bdf %x\n", bdf);
 		return -1;
 	}

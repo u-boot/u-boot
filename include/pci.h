@@ -1313,26 +1313,30 @@ void dm_pci_write_bar32(struct udevice *dev, int barnum, u32 addr);
 u32 dm_pci_read_bar32(const struct udevice *dev, int barnum);
 
 /**
- * dm_pci_bus_to_phys() - convert a PCI bus address to a physical address
+ * dm_pci_bus_to_phys() - convert a PCI bus address range to a physical address
  *
  * @dev:	Device containing the PCI address
  * @addr:	PCI address to convert
+ * @len:	Length of the address range
+ * @mask:	Mask to match flags for the region type
  * @flags:	Flags for the region type (PCI_REGION_...)
  * Return: physical address corresponding to that PCI bus address
  */
-phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t addr,
-			       unsigned long flags);
+phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t addr, size_t len,
+			       unsigned long mask, unsigned long flags);
 
 /**
  * dm_pci_phys_to_bus() - convert a physical address to a PCI bus address
  *
  * @dev:	Device containing the bus address
  * @addr:	Physical address to convert
+ * @len:	Length of the address range
+ * @mask:	Mask to match flags for the region type
  * @flags:	Flags for the region type (PCI_REGION_...)
  * Return: PCI bus address corresponding to that physical address
  */
-pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
-			      unsigned long flags);
+pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr, size_t len,
+			      unsigned long mask, unsigned long flags);
 
 /**
  * dm_pci_map_bar() - get a virtual address associated with a BAR region
@@ -1346,10 +1350,14 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  *
  * @dev:	Device to check
  * @bar:	Bar register offset (PCI_BASE_ADDRESS_...)
+ * @offset:     Offset from the base to map
+ * @len:        Length to map
+ * @mask:       Mask to match flags for the region type
  * @flags:	Flags for the region type (PCI_REGION_...)
  * @return: pointer to the virtual address to use or 0 on error
  */
-void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
+void *dm_pci_map_bar(struct udevice *dev, int bar, size_t offset, size_t len,
+		     unsigned long mask, unsigned long flags);
 
 /**
  * dm_pci_find_next_capability() - find a capability starting from an offset
@@ -1453,28 +1461,34 @@ int dm_pci_find_ext_capability(struct udevice *dev, int cap);
 int dm_pci_flr(struct udevice *dev);
 
 #define dm_pci_virt_to_bus(dev, addr, flags) \
-	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), (flags))
-#define dm_pci_bus_to_virt(dev, addr, flags, len, map_flags) \
-	map_physmem(dm_pci_bus_to_phys(dev, (addr), (flags)), \
-		    (len), (map_flags))
+	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), 0, PCI_REGION_TYPE, (flags))
+#define dm_pci_bus_to_virt(dev, addr, len, mask, flags, map_flags)	\
+({									\
+	size_t _len = (len);						\
+	phys_addr_t phys_addr = dm_pci_bus_to_phys((dev), (addr), _len,	\
+						   (mask), (flags));	\
+	map_physmem(phys_addr, _len, (map_flags));			\
+})
 
 #define dm_pci_phys_to_mem(dev, addr) \
-	dm_pci_phys_to_bus((dev), (addr), PCI_REGION_MEM)
+	dm_pci_phys_to_bus((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_MEM)
 #define dm_pci_mem_to_phys(dev, addr) \
-	dm_pci_bus_to_phys((dev), (addr), PCI_REGION_MEM)
+	dm_pci_bus_to_phys((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_MEM)
 #define dm_pci_phys_to_io(dev, addr) \
-	dm_pci_phys_to_bus((dev), (addr), PCI_REGION_IO)
+	dm_pci_phys_to_bus((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_IO)
 #define dm_pci_io_to_phys(dev, addr) \
-	dm_pci_bus_to_phys((dev), (addr), PCI_REGION_IO)
+	dm_pci_bus_to_phys((dev), (addr), 0, PCI_REGION_TYPE, PCI_REGION_IO)
 
 #define dm_pci_virt_to_mem(dev, addr) \
 	dm_pci_virt_to_bus((dev), (addr), PCI_REGION_MEM)
 #define dm_pci_mem_to_virt(dev, addr, len, map_flags) \
-	dm_pci_bus_to_virt((dev), (addr), PCI_REGION_MEM, (len), (map_flags))
+	dm_pci_bus_to_virt((dev), (addr), (len), PCI_REGION_TYPE, \
+			   PCI_REGION_MEM, (map_flags))
 #define dm_pci_virt_to_io(dev, addr) \
 	dm_pci_virt_to_bus((dev), (addr), PCI_REGION_IO)
 #define dm_pci_io_to_virt(dev, addr, len, map_flags) \
-	dm_pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
+	dm_pci_bus_to_virt((dev), (addr), (len), PCI_REGION_TYPE, \
+			   PCI_REGION_IO, (map_flags))
 
 /**
  * dm_pci_find_device() - find a device by vendor/device ID

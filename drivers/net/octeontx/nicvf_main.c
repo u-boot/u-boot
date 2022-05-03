@@ -509,7 +509,7 @@ int nicvf_initialize(struct udevice *dev)
 	/* Enable TSO support */
 	nicvf->hw_tso = true;
 
-	nicvf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+	nicvf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 					 PCI_REGION_MEM);
 
 	debug("nicvf->reg_base: %p\n", nicvf->reg_base);

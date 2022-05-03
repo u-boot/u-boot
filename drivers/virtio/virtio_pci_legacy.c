@@ -319,7 +319,8 @@ static int virtio_pci_probe(struct udevice *udev)
 	uc_priv->device = subdevice;
 	uc_priv->vendor = subvendor;
 
-	priv->ioaddr = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, PCI_REGION_IO);
+	priv->ioaddr = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, 0, 0,
+				      PCI_REGION_TYPE, PCI_REGION_IO);
 	if (!priv->ioaddr)
 		return -ENXIO;
 	debug("(%s): virtio legacy device reg base %04lx\n",

@@ -713,7 +713,7 @@ int nic_initialize(struct udevice *dev)
 		return -ENOMEM;
 
 	/* MAP PF's configuration registers */
-	nic->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+	nic->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 				       PCI_REGION_MEM);
 	if (!nic->reg_base) {
 		printf("Cannot map config register space, aborting\n");

@@ -58,7 +58,8 @@ int rvu_pf_probe(struct udevice *dev)
 
 	debug("%s: name: %s\n", __func__, dev->name);
 
-	rvu->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
+	rvu->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, 0, 0,
+				      PCI_REGION_TYPE, PCI_REGION_MEM);
 	rvu->pfid = dev_seq(dev) + 1; // RVU PF's start from 1;
 	rvu->dev = dev;
 	if (!rvu_af_dev) {

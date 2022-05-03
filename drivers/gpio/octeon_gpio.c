@@ -183,7 +183,7 @@ static int octeon_gpio_probe(struct udevice *dev)
 	priv->data = (const struct octeon_gpio_data *)dev_get_driver_data(dev);
 
 	if (priv->data->probe == PROBE_PCI) {
-		priv->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+		priv->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 					    PCI_REGION_MEM);
 		uc_priv->gpio_count = readq(priv->base +
 					    priv->data->reg_offs + GPIO_CONST) &

@@ -699,9 +699,11 @@ static int sil_pci_probe(struct udevice *dev)
 
 	/* Read out all BARs */
 	sata_info.iobase[0] = (ulong)dm_pci_map_bar(dev,
-			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+			PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
+			PCI_REGION_MEM);
 	sata_info.iobase[1] = (ulong)dm_pci_map_bar(dev,
-			PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
+			PCI_BASE_ADDRESS_2, 0, 0, PCI_REGION_TYPE,
+			PCI_REGION_MEM);
 
 	/* mask out the unused bits */
 	sata_info.iobase[0] &= 0xffffff80;

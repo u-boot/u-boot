@@ -792,7 +792,7 @@ static int octeon_i2c_probe(struct udevice *dev)
 
 		debug("TWSI PCI device: %x\n", bdf);
 
-		twsi->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+		twsi->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 					    PCI_REGION_MEM);
 	} else {
 		twsi->base = dev_remap_addr(dev);

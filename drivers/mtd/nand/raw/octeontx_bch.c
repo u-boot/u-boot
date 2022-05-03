@@ -176,7 +176,8 @@ static int octeontx_pci_bchpf_probe(struct udevice *dev)
 	if (!bch)
 		return -ENOMEM;
 
-	bch->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	bch->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				       PCI_REGION_TYPE, PCI_REGION_MEM);
 	bch->dev = dev;
 
 	debug("%s: base address: %p\n", __func__, bch->reg_base);
@@ -361,7 +362,8 @@ static int octeontx_pci_bchvf_probe(struct udevice *dev)
 	vf->dev = dev;
 
 	/* Map PF's configuration registers */
-	vf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+	vf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				      PCI_REGION_TYPE, PCI_REGION_MEM);
 	debug("%s: reg base: %p\n", __func__, vf->reg_base);
 
 	err = octeontx_cmd_queue_initialize(dev, QID_BCH, QDEPTH - 1, 0,

@@ -3822,7 +3822,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 
 	/* Octeon TX & TX2 use PCI based probing */
 	if (device_is_compatible(dev, "cavium,thunder-8890-mmc")) {
-		host->base_addr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+		host->base_addr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 						 PCI_REGION_MEM);
 		if (!host->base_addr) {
 			pr_err("%s: Error: MMC base address not found\n",

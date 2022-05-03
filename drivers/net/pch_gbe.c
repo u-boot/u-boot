@@ -449,7 +449,7 @@ static int pch_gbe_probe(struct udevice *dev)
 
 	priv->dev = dev;
 
-	iobase = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_1, PCI_REGION_MEM);
+	iobase = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_1, 0, 0, PCI_REGION_TYPE, PCI_REGION_MEM);
 
 	plat->iobase = (ulong)iobase;
 	priv->mac_regs = (struct pch_gbe_regs *)iobase;

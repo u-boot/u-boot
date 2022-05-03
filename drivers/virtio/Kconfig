@@ -37,6 +37,15 @@ config VIRTIO_PCI
 	  This driver provides support for virtio based paravirtual device
 	  drivers over PCI.
 
+config VIRTIO_PCI_LEGACY
+	bool "PCI driver for legacy virtio devices"
+	depends on PCI
+	select VIRTIO
+	default VIRTIO_PCI
+	help
+	  This driver provides support for legacy virtio based paravirtual
+	  device drivers over PCI.
+
 config VIRTIO_SANDBOX
 	bool "Sandbox driver for virtio devices"
 	depends on SANDBOX

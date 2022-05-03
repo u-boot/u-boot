@@ -36,7 +36,8 @@ static int ehci_pci_init(struct udevice *dev, struct ehci_hccr **ret_hccr,
 		return ret;
 
 	hccr = (struct ehci_hccr *)dm_pci_map_bar(dev,
-			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+			PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
+			PCI_REGION_MEM);
 	hcor = (struct ehci_hcor *)((uintptr_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 

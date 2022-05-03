@@ -568,7 +568,7 @@ static int octeon_spi_probe(struct udevice *dev)
 		pci_dev_t bdf = dm_pci_get_bdf(dev);
 
 		debug("SPI PCI device: %x\n", bdf);
-		priv->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+		priv->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
 					    PCI_REGION_MEM);
 		/* Add base offset */
 		priv->base += 0x1000;
