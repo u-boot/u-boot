@@ -115,10 +115,14 @@ struct global_data {
 	/**
 	 * @precon_buf_idx: pre-console buffer index
 	 *
-	 * @precon_buf_idx indicates the current position of the buffer used to
-	 * collect output before the console becomes available
+	 * @precon_buf_idx indicates the current position of the
+	 * buffer used to collect output before the console becomes
+	 * available. When negative, the pre-console buffer is
+	 * temporarily disabled (used when the pre-console buffer is
+	 * being written out, to prevent adding its contents to
+	 * itself).
 	 */
-	unsigned long precon_buf_idx;
+	long precon_buf_idx;
 #endif
 	/**
 	 * @env_addr: address of environment structure
