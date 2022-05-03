@@ -514,6 +514,7 @@ static const struct dm_i2c_ops tegra_i2c_ops = {
 
 static const struct udevice_id tegra_i2c_ids[] = {
 	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
+	{ .compatible = "nvidia,tegra124-i2c", .data = TYPE_114 },
 	{ .compatible = "nvidia,tegra20-i2c", .data = TYPE_STD },
 	{ .compatible = "nvidia,tegra20-i2c-dvc", .data = TYPE_DVC },
 	{ }
