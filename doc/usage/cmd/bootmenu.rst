@@ -12,7 +12,7 @@ selected using the "Enter" key. The selection of the highlighted
 menu entry invokes an U-Boot command (or a list of commands)
 associated with this menu entry.
 
-The "bootmenu" command interprets ANSI escape sequencies, so
+The "bootmenu" command interprets ANSI escape sequences, so
 an ANSI terminal is required for proper menu rendering and item
 selection.
 
@@ -79,7 +79,7 @@ The above example will be rendered as below::
 The selected menu entry will be highlighted - it will have inverted
 background and text colors.
 
-The "bootmenu" cammand is enabled by::
+The "bootmenu" command is enabled by::
 
     CONFIG_CMD_BOOTMENU=y
 

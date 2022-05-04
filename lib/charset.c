@@ -416,6 +416,22 @@ u16 *u16_strdup(const void *src)
 	return new;
 }
 
+size_t u16_strlcat(u16 *dest, const u16 *src, size_t count)
+{
+	size_t destlen = u16_strlen(dest);
+	size_t srclen = u16_strlen(src);
+	size_t ret = destlen + srclen + 1;
+
+	if (destlen >= count)
+		return ret;
+	if (ret > count)
+		srclen -= ret - count;
+	memcpy(&dest[destlen], src, 2 * srclen);
+	dest[destlen + srclen] = 0x0000;
+
+	return ret;
+}
+
 /* Convert UTF-16 to UTF-8.  */
 uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size)
 {

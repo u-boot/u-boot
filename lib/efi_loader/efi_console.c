@@ -522,11 +522,11 @@ static efi_status_t EFIAPI efi_cout_reset(
 {
 	EFI_ENTRY("%p, %d", this, extended_verification);
 
-	/* Clear screen */
-	EFI_CALL(efi_cout_clear_screen(this));
 	/* Set default colors */
 	efi_con_mode.attribute = 0x07;
 	printf(ESC "[0;37;40m");
+	/* Clear screen */
+	EFI_CALL(efi_cout_clear_screen(this));
 
 	return EFI_EXIT(EFI_SUCCESS);
 }

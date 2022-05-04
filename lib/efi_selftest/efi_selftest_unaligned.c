@@ -14,14 +14,14 @@ struct aligned_buffer {
 };
 
 /*
- * Return an u32 at a give address.
+ * Return an u32 at a given address.
  * If the address is not four byte aligned, an unaligned memory access
  * occurs.
  *
  * @addr:	address to read
  * Return:	value at the address
  */
-static inline u32 deref(u32 *addr)
+static inline u32 deref(void *addr)
 {
 	int ret;
 
@@ -43,12 +43,11 @@ static int execute(void)
 {
 	struct aligned_buffer buf = {
 		{0, 1, 2, 3, 4, 5, 6, 7},
-		};
-	void *v = &buf;
+	};
 	u32 r = 0;
 
 	/* Read an unaligned address */
-	r = deref(v + 1);
+	r = deref(&buf.a[1]);
 
 	/* UEFI only supports low endian systems */
 	if (r != 0x04030201) {

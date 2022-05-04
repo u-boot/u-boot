@@ -1799,10 +1799,9 @@ failure:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_locate_device_path(
-			const efi_guid_t *protocol,
-			struct efi_device_path **device_path,
-			efi_handle_t *device)
+efi_status_t EFIAPI efi_locate_device_path(const efi_guid_t *protocol,
+					   struct efi_device_path **device_path,
+					   efi_handle_t *device)
 {
 	struct efi_device_path *dp;
 	size_t i;

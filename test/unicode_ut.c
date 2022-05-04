@@ -758,6 +758,56 @@ static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
 UNICODE_TEST(unicode_test_efi_create_indexed_name);
 #endif
 
+static int unicode_test_u16_strlcat(struct unit_test_state *uts)
+{
+	u16 buf[40];
+	u16 dest[] = {0x3053, 0x3093, 0x306b, 0x3061, 0x306f, 0};
+	u16 src[] = {0x03B1, 0x2172, 0x6F5C, 0x8247, 0};
+	u16 concat_str[] = {0x3053, 0x3093, 0x306b, 0x3061, 0x306f,
+			    0x03B1, 0x2172, 0x6F5C, 0x8247, 0};
+	u16 null_src = u'\0';
+	size_t ret, expected;
+	int i;
+
+	/* dest and src are empty string */
+	memset(buf, 0, sizeof(buf));
+	ret = u16_strlcat(buf, &null_src, sizeof(buf));
+	ut_asserteq(1, ret);
+
+	/* dest is empty string */
+	memset(buf, 0, sizeof(buf));
+	ret = u16_strlcat(buf, src, sizeof(buf));
+	ut_asserteq(5, ret);
+	ut_assert(!unicode_test_u16_strcmp(buf, src, 40));
+
+	/* src is empty string */
+	memset(buf, 0xCD, (sizeof(buf) - sizeof(u16)));
+	buf[39] = 0;
+	memcpy(buf, dest, sizeof(dest));
+	ret = u16_strlcat(buf, &null_src, sizeof(buf));
+	ut_asserteq(6, ret);
+	ut_assert(!unicode_test_u16_strcmp(buf, dest, 40));
+
+	for (i = 0; i <= 40; i++) {
+		memset(buf, 0xCD, (sizeof(buf) - sizeof(u16)));
+		buf[39] = 0;
+		memcpy(buf, dest, sizeof(dest));
+		expected = 10;
+		ret = u16_strlcat(buf, src, i);
+		ut_asserteq(expected, ret);
+		if (i <= 6) {
+			ut_assert(!unicode_test_u16_strcmp(buf, dest, 40));
+		} else if (i < 10) {
+			ut_assert(!unicode_test_u16_strcmp(buf, concat_str, i - 1));
+		} else {
+			ut_assert(!unicode_test_u16_strcmp(buf, concat_str, 40));
+		}
+	}
+
+	return 0;
+}
+UNICODE_TEST(unicode_test_u16_strlcat);
+
 int do_ut_unicode(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(unicode_test);

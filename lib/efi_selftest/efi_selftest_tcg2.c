@@ -631,8 +631,10 @@ static int efi_st_tcg2_setup(const efi_handle_t img_handle,
 				      sizeof(struct efi_tcg2_event) +
 				      sizeof(struct uefi_image_load_event),
 				      (void **)&efi_tcg2_event);
-	if (!efi_tcg2_event)
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Out of memory\n");
 		return EFI_ST_FAILURE;
+	}
 
 	efi_tcg2_event->size = sizeof(struct efi_tcg2_event) +
 			       sizeof(struct uefi_image_load_event);
@@ -659,8 +661,10 @@ static int efi_st_tcg2_setup(const efi_handle_t img_handle,
 				      (EFI_TCG2_MAX_PCR_INDEX + 1) *
 				      TPM2_SHA256_DIGEST_SIZE,
 				      (void **)&pcrs);
-	if (!pcrs)
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Out of memory\n");
 		return EFI_ST_FAILURE;
+	}
 
 	boottime->set_mem(pcrs, (EFI_TCG2_MAX_PCR_INDEX + 1) * TPM2_SHA256_DIGEST_SIZE, 0);
 

@@ -11,6 +11,7 @@
 #include <charset.h>
 #include <log.h>
 #include <malloc.h>
+#include <efi_default_filename.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <asm/unaligned.h>
@@ -29,6 +30,51 @@ static const struct efi_runtime_services *rs;
  * has started, we'd also want to check OsIndications to see if we
  * should do normal or recovery boot.
  */
+
+/**
+ * expand_media_path() - expand a device path for default file name
+ * @device_path:	device path to check against
+ *
+ * If @device_path is a media or disk partition which houses a file
+ * system, this function returns a full device path which contains
+ * an architecture-specific default file name for removable media.
+ *
+ * Return:	a newly allocated device path
+ */
+static
+struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
+{
+	struct efi_device_path *dp, *full_path;
+	efi_handle_t handle;
+	efi_status_t ret;
+
+	if (!device_path)
+		return NULL;
+
+	/*
+	 * If device_path is a (removable) media or partition which provides
+	 * simple file system protocol, append a default file name to support
+	 * booting from removable media.
+	 */
+	dp = device_path;
+	ret = EFI_CALL(efi_locate_device_path(
+				&efi_simple_file_system_protocol_guid,
+				&dp, &handle));
+	if (ret == EFI_SUCCESS) {
+		if (dp->type == DEVICE_PATH_TYPE_END) {
+			dp = efi_dp_from_file(NULL, 0,
+					      "/EFI/BOOT/" BOOTEFI_NAME);
+			full_path = efi_dp_append(device_path, dp);
+			efi_free_pool(dp);
+		} else {
+			full_path = efi_dp_dup(device_path);
+		}
+	} else {
+		full_path = efi_dp_dup(device_path);
+	}
+
+	return full_path;
+}
 
 /**
  * try_load_entry() - try to load image for boot option
@@ -64,13 +110,16 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	}
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
+		struct efi_device_path *file_path;
 		u32 attributes;
 
 		log_debug("trying to load \"%ls\" from %pD\n", lo.label,
 			  lo.file_path);
 
-		ret = EFI_CALL(efi_load_image(true, efi_root, lo.file_path,
+		file_path = expand_media_path(lo.file_path);
+		ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
 					      NULL, 0, handle));
+		efi_free_pool(file_path);
 		if (ret != EFI_SUCCESS) {
 			log_warning("Loading %ls '%ls' failed\n",
 				    varname, lo.label);

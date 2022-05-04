@@ -6,6 +6,7 @@ test_tests_test_android_test_ab.py 6.50
 test_tests_test_android_test_abootimg.py 6.09
 test_tests_test_android_test_avb.py 5.52
 test_tests_test_bind.py -2.99
+test_tests_test_bootmenu.py 10.00
 test_tests_test_button.py 3.33
 test_tests_test_dfu.py 5.45
 test_tests_test_dm.py 9.52

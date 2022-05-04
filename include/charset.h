@@ -262,6 +262,20 @@ u16 *u16_strcpy(u16 *dest, const u16 *src);
 u16 *u16_strdup(const void *src);
 
 /**
+ * u16_strlcat() - Append a length-limited, %NUL-terminated string to another
+ *
+ * Append the source string @src to the destination string @dest, overwriting
+ * null word at the end of @dest adding  a terminating null word.
+ *
+ * @dest:		zero terminated u16 destination string
+ * @src:		zero terminated u16 source string
+ * @count:		size of buffer in u16 words including taling 0x0000
+ * Return:		required size including trailing 0x0000 in u16 words
+ *			If return value >= count, truncation occurred.
+ */
+size_t u16_strlcat(u16 *dest, const u16 *src, size_t size);
+
+/**
  * utf16_to_utf8() - Convert an utf16 string to utf8
  *
  * Converts 'size' characters of the utf16 string 'src' to utf8
