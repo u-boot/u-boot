@@ -25,6 +25,8 @@ static const struct ccu_clk_gate a80_gates[] = {
 	[CLK_BUS_SPI2]		= GATE(0x580, BIT(22)),
 	[CLK_BUS_SPI3]		= GATE(0x580, BIT(23)),
 
+	[CLK_BUS_PIO]           = GATE(0x590, BIT(5)),
+
 	[CLK_BUS_I2C0]		= GATE(0x594, BIT(0)),
 	[CLK_BUS_I2C1]		= GATE(0x594, BIT(1)),
 	[CLK_BUS_I2C2]		= GATE(0x594, BIT(2)),

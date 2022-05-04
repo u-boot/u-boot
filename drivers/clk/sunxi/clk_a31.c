@@ -30,6 +30,8 @@ static struct ccu_clk_gate a31_gates[] = {
 	[CLK_AHB1_OHCI1]	= GATE(0x060, BIT(30)),
 	[CLK_AHB1_OHCI2]	= GATE(0x060, BIT(31)),
 
+	[CLK_APB1_PIO]		= GATE(0x068, BIT(5)),
+
 	[CLK_APB2_I2C0]		= GATE(0x06c, BIT(0)),
 	[CLK_APB2_I2C1]		= GATE(0x06c, BIT(1)),
 	[CLK_APB2_I2C2]		= GATE(0x06c, BIT(2)),

@@ -25,6 +25,8 @@ static struct ccu_clk_gate a83t_gates[] = {
 	[CLK_BUS_EHCI1]		= GATE(0x060, BIT(27)),
 	[CLK_BUS_OHCI0]		= GATE(0x060, BIT(29)),
 
+	[CLK_BUS_PIO]		= GATE(0x068, BIT(5)),
+
 	[CLK_BUS_I2C0]		= GATE(0x06c, BIT(0)),
 	[CLK_BUS_I2C1]		= GATE(0x06c, BIT(1)),
 	[CLK_BUS_I2C2]		= GATE(0x06c, BIT(2)),
