@@ -63,4 +63,10 @@ void fwu_plat_get_bootidx(void *boot_idx);
 int fwu_plat_get_alt_num(struct udevice *dev, efi_guid_t *image_guid,
 			 int *alt_num);
 int fwu_plat_get_update_index(u32 *update_idx);
+
+int fwu_get_mtd_alt_num(efi_guid_t *image_id, int *alt_num,
+			const char *mtd_dev, bool guid);
+int gen_image_alt_info(char *buf, size_t len, int sidx,
+		       struct fwu_image_entry *img, struct mtd_info *mtd);
+int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd);
 #endif /* _FWU_H_ */
