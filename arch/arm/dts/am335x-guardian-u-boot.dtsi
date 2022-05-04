@@ -82,7 +82,7 @@
 
 	lcd0_pins: pinmux_lcd0_pins {
 		pinctrl-single,pins = <
-			AM33XX_IOPAD(0x908, PIN_OUTPUT_PULLUP   | MUX_MODE7)
+			AM33XX_PADCONF(AM335X_PIN_MII1_COL, PIN_OUTPUT_PULLUP, MUX_MODE7)
 		>;
 	};
 };
