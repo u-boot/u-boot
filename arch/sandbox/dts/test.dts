@@ -1145,11 +1145,48 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinmux_spi0_pins>;
 
-		spi.bin@0 {
+		spi0: spi.bin@0 {
 			reg = <0>;
 			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				uuid = "af9e8c96-bec5-48be-9dab-3491c04b1366";
+
+				partition@0 {
+					label = "Metadata";
+					reg = <0x0 0x20000>;
+				};
+
+				/* FWU Multi bank update partitions */
+				partition@100000 {
+					label = "U-Boot-Bank0";
+					reg = <0x100000 0x10000>;
+					uuid = "a8f61787-5d68-4c9d-9e4a-37bb0df99da7";
+				};
+
+				partition@120000 {
+					label = "U-Boot-ENV-Bank0";
+					reg = <0x120000 0x10000>;
+					uuid = "ea9d59af-e0e8-4ef5-9b16-4c80ff67524c";
+				};
+
+				partition@140000 {
+					label = "U-Boot-Bank1";
+					reg = <0x140000 0x10000>;
+					uuid = "52377abf-c4e4-4d0b-aafd-ba081a500847";
+				};
+
+				partition@160000 {
+					label = "U-Boot-ENV-Bank1";
+					reg = <0x160000 0x10000>;
+					uuid = "4e01d1fa-eebb-437e-9cfe-e7dfbcd04bb3";
+				};
+			};
 		};
 		spi.bin@1 {
 			reg = <1>;
@@ -1632,6 +1669,12 @@
 			reg = <0 0x10>;
 			compatible = "sandbox,regmap_test";
 		};
+	};
+
+	fwu-mdata {
+		compatible = "u-boot,fwu-mdata-mtd";
+		fwu-mdata-store = <&spi0>;
+		mdata-offsets = <0x0 0x10000>;
 	};
 };
 
