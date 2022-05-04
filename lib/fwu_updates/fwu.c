@@ -185,12 +185,22 @@ int fwu_boottime_checks(void)
 		return 0;
 	}
 
-	if (efi_init_obj_list() != EFI_SUCCESS)
-		return 0;
+	/*
+	 * On the sandbox platform, the EFI variable
+	 * access is available only after binding the
+	 * disk image with the host interface. Skip
+	 * the Trial State check on sandbox.
+	 */
+	if (!IS_ENABLED(CONFIG_SANDBOX)) {
+		if (efi_init_obj_list() != EFI_SUCCESS)
+			return 0;
 
-	ret = fwu_trial_state_check();
-	if (!ret)
+		ret = fwu_trial_state_check();
+		if (!ret)
+			boottime_check = 1;
+	} else {
 		boottime_check = 1;
+	}
 
 	return 0;
 }

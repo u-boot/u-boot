@@ -2,7 +2,7 @@ config FWU_MULTI_BANK_UPDATE
 	bool "Enable FWU Multi Bank Update Feature"
 	depends on EFI_HAVE_CAPSULE_SUPPORT
 	select PARTITION_TYPE_GUID
-	select EFI_SETUP_EARLY
+	select EFI_SETUP_EARLY if !SANDBOX
 	help
 	  Feature for updating firmware images on platforms having
 	  multiple banks(copies) of the firmware images. One of the
