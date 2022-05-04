@@ -405,7 +405,7 @@ endif
 
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
-	default y if !FIT_SIGNATURE
+	default y if !FIT_SIGNATURE && !TI_SECURE_DEVICE
 	help
 	  This option enables the legacy image format. It is enabled by
 	  default for backward compatibility, unless FIT_SIGNATURE is
