@@ -102,13 +102,21 @@ static void set_r5_reset(u32 nr, u8 mode)
 	u32 tmp;
 
 	tmp = readl(&crlapb_base->rst_lpd_top);
-	if (mode == LOCK || nr == ZYNQMP_CORE_RPU0)
+	if (mode == LOCK) {
 		tmp |= (ZYNQMP_CRLAPB_RST_LPD_AMBA_RST_MASK |
-			ZYNQMP_CRLAPB_RST_LPD_R50_RST_MASK);
-
-	if (mode == LOCK || nr == ZYNQMP_CORE_RPU1)
-		tmp |= (ZYNQMP_CRLAPB_RST_LPD_AMBA_RST_MASK |
+			ZYNQMP_CRLAPB_RST_LPD_R50_RST_MASK |
 			ZYNQMP_CRLAPB_RST_LPD_R51_RST_MASK);
+	} else {
+		if (nr == ZYNQMP_CORE_RPU0) {
+			tmp |= ZYNQMP_CRLAPB_RST_LPD_R50_RST_MASK;
+			if (tmp & ZYNQMP_CRLAPB_RST_LPD_R51_RST_MASK)
+				tmp |= ZYNQMP_CRLAPB_RST_LPD_AMBA_RST_MASK;
+		} else {
+			tmp |= ZYNQMP_CRLAPB_RST_LPD_R51_RST_MASK;
+			if (tmp & ZYNQMP_CRLAPB_RST_LPD_R50_RST_MASK)
+				tmp |= ZYNQMP_CRLAPB_RST_LPD_AMBA_RST_MASK;
+		}
+	}
 
 	writel(tmp, &crlapb_base->rst_lpd_top);
 }
@@ -142,6 +150,17 @@ static void enable_clock_r5(void)
 	udelay(0x500);
 }
 
+static int check_r5_mode(void)
+{
+	u32 tmp;
+
+	tmp = readl(&rpu_base->rpu_glbl_ctrl);
+	if (tmp & ZYNQMP_RPU_GLBL_CTRL_SPLIT_LOCK_MASK)
+		return SPLIT;
+
+	return LOCK;
+}
+
 int cpu_disable(u32 nr)
 {
 	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
@@ -149,7 +168,7 @@ int cpu_disable(u32 nr)
 		val |= 1 << nr;
 		writel(val, &crfapb_base->rst_fpd_apu);
 	} else {
-		set_r5_reset(nr, SPLIT);
+		set_r5_reset(nr, check_r5_mode());
 	}
 
 	return 0;
