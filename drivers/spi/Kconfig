@@ -283,6 +283,12 @@ config SPI_MXIC
 	  can be used to access the SPI flash on platforms embedding
 	  this Macronix IP core.
 
+config NPCM_FIU_SPI
+	bool "FIU driver for Nuvoton NPCM SoC"
+	help
+	  This enables support for the Flash Interface Unit SPI controller
+	  in master mode.
+
 config NXP_FSPI
 	bool "NXP FlexSPI driver"
 	depends on SPI_MEM

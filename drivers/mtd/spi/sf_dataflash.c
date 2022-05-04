@@ -70,6 +70,9 @@
 #define OP_WRITE_SECURITY_REVC	0x9A
 #define OP_WRITE_SECURITY	0x9B	/* revision D */
 
+#define DATAFLASH_SHIFT_EXTID	24
+#define DATAFLASH_SHIFT_ID	40
+
 struct dataflash {
 	uint8_t			command[16];
 	unsigned short		page_offset;	/* offset in flash address */
@@ -455,7 +458,7 @@ struct data_flash_info {
 	 * JEDEC id has a high byte of zero plus three data bytes:
 	 * the manufacturer id, then a two byte device id.
 	 */
-	uint32_t	jedec_id;
+	uint64_t	jedec_id;
 
 	/* The size listed here is what works with OP_ERASE_PAGE. */
 	unsigned	nr_pages;
@@ -463,6 +466,7 @@ struct data_flash_info {
 	uint16_t	pageoffset;
 
 	uint16_t	flags;
+#define SUP_EXTID	0x0004		/* supports extended ID data */
 #define SUP_POW2PS	0x0002		/* supports 2^N byte pages */
 #define IS_POW2PS	0x0001		/* uses 2^N byte pages */
 };
@@ -506,50 +510,31 @@ static struct data_flash_info dataflash_data[] = {
 
 	{ "AT45DB642x",  0x1f2800, 8192, 1056, 11, SUP_POW2PS},
 	{ "at45db642d",  0x1f2800, 8192, 1024, 10, SUP_POW2PS | IS_POW2PS},
+
+	{ "AT45DB641E",  0x1f28000100ULL, 32768, 264, 9, SUP_EXTID | SUP_POW2PS},
+	{ "at45db641e",  0x1f28000100ULL, 32768, 256, 8, SUP_EXTID | SUP_POW2PS | IS_POW2PS},
 };
 
-static struct data_flash_info *jedec_probe(struct spi_slave *spi)
+static struct data_flash_info *jedec_lookup(struct spi_slave *spi,
+					    u64 jedec, bool use_extid)
+
 {
-	int			tmp;
-	uint8_t			id[5];
-	uint32_t		jedec;
-	struct data_flash_info	*info;
-	u8 opcode		= CMD_READ_ID;
+	struct data_flash_info *info;
 	int status;
 
-	/*
-	 * JEDEC also defines an optional "extended device information"
-	 * string for after vendor-specific data, after the three bytes
-	 * we use here.  Supporting some chips might require using it.
-	 *
-	 * If the vendor ID isn't Atmel's (0x1f), assume this call failed.
-	 * That's not an error; only rev C and newer chips handle it, and
-	 * only Atmel sells these chips.
-	 */
-	tmp = spi_write_then_read(spi, &opcode, 1, NULL, id, sizeof(id));
-	if (tmp < 0) {
-		printf("dataflash: error %d reading JEDEC ID\n", tmp);
-		return ERR_PTR(tmp);
-	}
-	if (id[0] != 0x1f)
-		return NULL;
+	for (info = dataflash_data;
+	     info < dataflash_data + ARRAY_SIZE(dataflash_data);
+	     info++) {
+		if (use_extid && !(info->flags & SUP_EXTID))
+			continue;
 
-	jedec = id[0];
-	jedec = jedec << 8;
-	jedec |= id[1];
-	jedec = jedec << 8;
-	jedec |= id[2];
-
-	for (tmp = 0, info = dataflash_data;
-			tmp < ARRAY_SIZE(dataflash_data);
-			tmp++, info++) {
 		if (info->jedec_id == jedec) {
 			if (info->flags & SUP_POW2PS) {
 				status = dataflash_status(spi);
 				if (status < 0) {
 					debug("dataflash: status error %d\n",
 					      status);
-					return NULL;
+					return ERR_PTR(status);
 				}
 				if (status & 0x1) {
 					if (info->flags & IS_POW2PS)
@@ -564,12 +549,58 @@ static struct data_flash_info *jedec_probe(struct spi_slave *spi)
 		}
 	}
 
+	return ERR_PTR(-ENODEV);
+}
+
+static struct data_flash_info *jedec_probe(struct spi_slave *spi)
+{
+	int			tmp;
+	uint64_t		jedec;
+	uint8_t			id[sizeof(jedec)] = {0};
+	const unsigned int	id_size = 5;
+	struct data_flash_info	*info;
+	u8 opcode		= CMD_READ_ID;
+
+	/*
+	 * JEDEC also defines an optional "extended device information"
+	 * string for after vendor-specific data, after the three bytes
+	 * we use here.  Supporting some chips might require using it.
+	 *
+	 * If the vendor ID isn't Atmel's (0x1f), assume this call failed.
+	 * That's not an error; only rev C and newer chips handle it, and
+	 * only Atmel sells these chips.
+	 */
+	tmp = spi_write_then_read(spi, &opcode, 1, NULL, id, id_size);
+	if (tmp < 0) {
+		printf("dataflash: error %d reading JEDEC ID\n", tmp);
+		return ERR_PTR(tmp);
+	}
+
+	if (id[0] != 0x1f)
+		return NULL;
+
+	jedec = be64_to_cpup((__be64 *)id);
+
+	/*
+	 * First, try to match device using extended device
+	 * information
+	 */
+	info = jedec_lookup(spi, jedec >> DATAFLASH_SHIFT_EXTID, true);
+	if (!IS_ERR(info))
+		return info;
+	/*
+	 * If that fails, make another pass using regular ID
+	 * information
+	 */
+	info = jedec_lookup(spi, jedec >> DATAFLASH_SHIFT_ID, false);
+	if (!IS_ERR(info))
+		return info;
 	/*
 	 * Treat other chips as errors ... we won't know the right page
 	 * size (it might be binary) even when we can tell which density
 	 * class is involved (legacy chip id scheme).
 	 */
-	printf("dataflash: JEDEC id %06x not handled\n", jedec);
+	printf("dataflash: JEDEC id 0x%016llx not handled\n", jedec);
 	return ERR_PTR(-ENODEV);
 }
 
@@ -618,6 +649,8 @@ static int spi_dataflash_probe(struct udevice *dev)
 				(info->flags & SUP_POW2PS) ? 'd' : 'c');
 		if (status < 0)
 			goto err_status;
+		else
+			return status;
 	}
 
        /*
