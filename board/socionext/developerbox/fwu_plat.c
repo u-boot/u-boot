@@ -10,8 +10,10 @@
 #include <fwu_mdata.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <mtd.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <uuid.h>
 
 #include <linux/errno.h>
 #include <linux/types.h>
@@ -99,6 +101,36 @@ static int sf_save_data(u32 offs, u32 size, void *data)
 	return ret;
 }
 
+#define DFU_ALT_BUF_LEN 256
+#define DFU_ALT_NUM_MAX (CONFIG_FWU_NUM_IMAGES_PER_BANK * CONFIG_FWU_NUM_BANKS)
+
+/* Generate dfu_alt_info from partitions */
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	int ret;
+	struct mtd_info *mtd;
+	static char *buf = NULL;
+
+	if (!buf) {
+		buf = malloc_cache_aligned(DFU_ALT_BUF_LEN);
+		memset(buf, 0, DFU_ALT_BUF_LEN);
+
+		mtd_probe_devices();
+
+		mtd = get_mtd_device_nm("nor1");
+		if (IS_ERR_OR_NULL(mtd))
+			return;
+
+		ret = fwu_gen_alt_info_from_mtd(buf, DFU_ALT_BUF_LEN, mtd);
+		if (ret < 0) {
+			log_err("Error: Failed to generate dfu_alt_info. (%d)\n", ret);
+			return;
+		}
+		log_debug("Make dfu_alt_info: '%s'\n", buf);
+	}
+	env_set("dfu_alt_info", buf);
+}
+
 #define PLAT_METADATA_OFFSET	0x510000
 #define PLAT_METADATA_SIZE	(sizeof(struct devbox_metadata))
 
@@ -110,49 +142,7 @@ struct __packed devbox_metadata {
 int fwu_plat_get_alt_num(struct udevice __always_unused *dev,
 			 efi_guid_t *image_id, int *alt_num)
 {
-	struct fwu_image_bank_info *bank;
-	struct fwu_mdata *mdata;
-	int i, ret;
-
-	ret = fwu_get_mdata(&mdata);
-	if (ret < 0)
-		return ret;
-
-	/*
-	 * DeveloperBox FWU expects Bank:Image = 1:1, and the dfu_alt_info
-	 * only has the entries for banks. Thus the alt_no should be equal
-	 * to the bank index number.
-	 */
-	ret = -ENOENT;
-	for (i = 0; i < CONFIG_FWU_NUM_BANKS; i++) {
-		bank = &mdata->img_entry[0].img_bank_info[i];
-		if (guidcmp(image_id, &bank->image_uuid) == 0) {
-			*alt_num = i;
-			ret = 0;
-			break;
-		}
-	}
-
-	free(mdata);
-
-	return ret;
-}
-
-/* This assumes that user doesn't change system default dfu_alt_info */
-efi_status_t fill_image_type_guid_array(const efi_guid_t __always_unused
-					*default_guid,
-					efi_guid_t **part_guid_arr)
-{
-	int i;
-
-	*part_guid_arr = malloc(sizeof(efi_guid_t) * DEFAULT_DFU_ALT_NUM);
-	if (!*part_guid_arr)
-		return EFI_OUT_OF_RESOURCES;
-
-	for (i = 0; i < DEFAULT_DFU_ALT_NUM; i++)
-		guidcpy((*part_guid_arr + i), &devbox_fip_image_type_guid);
-
-	return EFI_SUCCESS;
+	return fwu_get_mtd_alt_num(image_id, alt_num, "nor1", 0);
 }
 
 int fwu_plat_get_update_index(u32 *update_idx)
@@ -192,6 +182,9 @@ void fwu_plat_get_bootidx(void *boot_idx)
 int board_late_init(void)
 {
 	int ret;
+
+	/* Make mmc available for EFI */
+	run_command("mmc dev 0", 0);
 
 	ret = devbox_load_plat_metadata();
 	if (ret < 0)

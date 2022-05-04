@@ -36,6 +36,7 @@
 				compatible = "fixed-partitions";
 				#address-cells = <1>;
 				#size-cells = <1>;
+				uuid = "17e86d77-41f9-4fd7-87ec-a55df9842de5";
 
 				partition@0 {
 					label = "BootStrap-BL1";
@@ -88,10 +89,12 @@
 				partition@600000 {
 					label = "FIP-Bank0";
 					reg = <0x600000 0x400000>;
+					uuid = "5a66a702-99fd-4fef-a392-c26e261a2828";
 				};
 				partition@a00000 {
 					label = "FIP-Bank1";
 					reg = <0xa00000 0x400000>;
+					uuid = "a8f868a1-6e5c-4757-878d-ce63375ef2c0";
 				};
 			};
 		};
