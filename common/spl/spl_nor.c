@@ -110,7 +110,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 	}
 
 	/* Legacy image handling */
-	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_SUPPORT)) {
+	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT)) {
 		load.bl_len = 1;
 		load.read = spl_nor_load_read;
 		return spl_load_legacy_img(spl_image, bootdev, &load,
