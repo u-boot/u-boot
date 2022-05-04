@@ -26,7 +26,8 @@
 
 /* Real physical addresses of memory regions */
 #define OCTEON_DDR0_BASE    (0x0ULL)
-#define OCTEON_DDR0_SIZE    (0x010000000ULL)
+/* Use 16MiB here, as 256 leads to overwriting U-Boot reloc space */
+#define OCTEON_DDR0_SIZE    (0x001000000ULL)
 #define OCTEON_DDR1_BASE    ((OCTEON_IS_OCTEON2() || OCTEON_IS_OCTEON3()) \
 			     ? 0x20000000ULL : 0x410000000ULL)
 #define OCTEON_DDR1_SIZE    (0x010000000ULL)

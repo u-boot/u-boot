@@ -1,17 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2020 Marvell International Ltd.
+ * Copyright (C) 2020-2022 Marvell International Ltd.
  */
 
 #ifndef __OCTEON_ETH_H__
 #define __OCTEON_ETH_H__
 
-#include <phy.h>
-#include <miiphy.h>
-
 #include <mach/cvmx-helper.h>
 #include <mach/cvmx-helper-board.h>
-#include <mach/octeon_fdt.h>
 
 struct eth_device;
 
@@ -27,33 +23,25 @@ struct octeon_eth_info {
 	struct phy_device *phydev; /** PHY device */
 	struct eth_device *ethdev; /** Eth device this priv is part of */
 	int mii_addr;
-	int phy_fdt_offset;		    /** Offset of PHY info in device tree */
-	int fdt_offset;			    /** Offset of Eth interface in DT */
-	int phy_offset;			    /** Offset of PHY dev in device tree */
+	int phy_fdt_offset; /** Offset of PHY info in device tree */
+	int fdt_offset;	    /** Offset of Eth interface in DT */
+	int phy_offset;	    /** Offset of PHY device in device tree */
 	enum cvmx_phy_type phy_device_type; /** Type of PHY */
 	/* current link status, use to reconfigure on status changes */
 	u64 packets_sent;
 	u64 packets_received;
-	u32 link_speed : 2;
-	u32 link_duplex : 1;
-	u32 link_status : 1;
-	u32 loopback : 1;
-	u32 enabled : 1;
-	u32 is_c45 : 1;		    /** Set if we need to use clause 45 */
-	u32 vitesse_sfp_config : 1; /** Need Vitesse SFP config */
-	u32 ti_gpio_config : 1;	    /** Need TI GPIO config */
-	u32 bgx_mac_set : 1;	    /** Has the BGX MAC been set already */
-	u64 last_bgx_mac;	    /** Last BGX MAC address set */
-	u64 gmx_base;		    /** Base address to access GMX CSRs */
-	bool mod_abs;		    /** True if module is absent */
-
-	/**
-	 * User defined function to check if a SFP+ module is absent or not.
-	 *
-	 * @param	dev	Ethernet device
-	 * @param	data	User supplied data
-	 */
-	int (*check_mod_abs)(struct eth_device *dev, void *data);
+	uint32_t link_speed : 2;
+	uint32_t link_duplex : 1;
+	uint32_t link_status : 1;
+	uint32_t loopback : 1;
+	uint32_t enabled : 1;
+	uint32_t is_c45 : 1;		 /** Set if we need to use clause 45 */
+	uint32_t vitesse_sfp_config : 1; /** Need Vitesse SFP config */
+	uint32_t ti_gpio_config : 1;	 /** Need TI GPIO configuration */
+	uint32_t bgx_mac_set : 1;	 /** Has the BGX MAC been set already */
+	u64 last_bgx_mac;		 /** Last BGX MAC address set */
+	u64 gmx_base;			 /** Base address to access GMX CSRs */
+	bool mod_abs;			 /** True if module is absent */
 
 	/** User supplied data for check_mod_abs */
 	void *mod_abs_data;
@@ -71,12 +59,20 @@ struct octeon_eth_info {
 	 * @return	0 for success, otherwise error
 	 */
 	int (*mod_abs_changed)(struct eth_device *dev, bool mod_abs);
+
 	/** SDK phy information data structure */
 	cvmx_phy_info_t phy_info;
+
+	struct udevice *mdio_dev;
+	struct mii_dev *bus;
+	struct phy_device *phy_dev;
+
 #ifdef CONFIG_OCTEON_SFP
 	/** Information about connected SFP/SFP+/SFP28/QSFP+/QSFP28 module */
 	struct octeon_sfp_info sfp;
 #endif
+
+	cvmx_wqe_t *work;
 };
 
 /**
@@ -136,6 +132,6 @@ void octeon_eth_register_mod_abs_changed(struct eth_device *dev,
  *
  * NOTE: If the module state is changed then the module callback is called.
  */
-void octeon_phy_port_check(struct eth_device *dev);
+void octeon_phy_port_check(struct udevice *dev);
 
 #endif /* __OCTEON_ETH_H__ */

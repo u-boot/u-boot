@@ -445,6 +445,7 @@ config MVNETA
 	bool "Marvell Armada XP/385/3700 network interface support"
 	depends on ARMADA_XP || ARMADA_38X || ARMADA_3700
 	select PHYLIB
+	select DM_MDIO
 	help
 	  This driver supports the network interface units in the
 	  Marvell ARMADA XP, ARMADA 38X and ARMADA 3700 SoCs
@@ -494,6 +495,13 @@ config MT7628_ETH
 	help
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.
+
+config NET_OCTEON
+	bool "MIPS Octeon ethernet support"
+	depends on ARCH_OCTEON
+	help
+	  You must select Y to enable network device support for
+	  MIPS Octeon SoCs. If unsure, say n
 
 config NET_OCTEONTX
 	bool "OcteonTX Ethernet support"

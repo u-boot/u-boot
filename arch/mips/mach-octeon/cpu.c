@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2020 Marvell International Ltd.
+ * Copyright (C) 2020-2022 Marvell International Ltd.
  */
 
 #include <dm.h>
@@ -17,6 +17,8 @@
 #include <mach/cvmx-bootmem.h>
 #include <mach/cvmx-regs.h>
 #include <mach/cvmx-sata-defs.h>
+#include <mach/octeon-model.h>
+#include <mach/octeon-feature.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -393,13 +395,54 @@ static int init_bootcmd_console(void)
 	return ret;
 }
 
-int arch_misc_init(void)
+static void configure_lmtdma_window(void)
+{
+	u64 tmp;
+	u64 addr;
+	u64 end_addr;
+
+	CVMX_MF_CVM_MEM_CTL(tmp);
+	tmp &= ~0x1ffull;
+	tmp |= 0x104ull;
+
+	/* enable LMTDMA */
+	tmp |= (1ull << 51);
+	/* configure scratch line 2 for LMT */
+	/* TODO: reserve this scratch line, so that others will not use it */
+	/* TODO: store LMTLINE in global var */
+	tmp |= (CVMX_PKO_LMTLINE << 45);
+	/* clear LMTLINE in scratch */
+	addr = CVMX_PKO_LMTLINE * CVMX_CACHE_LINE_SIZE;
+	end_addr = addr + CVMX_CACHE_LINE_SIZE;
+
+	while (addr < end_addr) {
+		*CASTPTR(volatile u64, addr + CVMX_SCRATCH_BASE) = (u64)0;
+		addr += 8;
+	}
+	CVMX_MT_CVM_MEM_CTL(tmp);
+}
+
+int arch_early_init_r(void)
 {
 	int ret;
 
+	/*
+	 * Needs to be called pretty early, so that e.g. networking etc
+	 * can access the bootmem infrastructure
+	 */
 	ret = octeon_bootmem_init();
 	if (ret)
 		return ret;
+
+	if (octeon_has_feature(OCTEON_FEATURE_PKO3))
+		configure_lmtdma_window();
+
+	return 0;
+}
+
+int arch_misc_init(void)
+{
+	int ret;
 
 	ret = octeon_configure_load_memory();
 	if (ret)

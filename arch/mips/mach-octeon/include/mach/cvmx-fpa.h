@@ -104,8 +104,9 @@ static inline void *cvmx_fpa_alloc(u64 pool)
 	/* FPA3 is handled differently */
 	if ((octeon_has_feature(OCTEON_FEATURE_FPA3))) {
 		return cvmx_fpa3_alloc(cvmx_fpa1_pool_to_fpa3_aura(pool));
-	} else
+	} else {
 		return cvmx_fpa1_alloc(pool);
+	}
 }
 
 /**

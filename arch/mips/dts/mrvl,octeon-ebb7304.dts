@@ -201,3 +201,48 @@
 		cd-gpios = <&gpio 25 1>; /* active low */
 	};
 };
+
+/* SMI_1 -- Available on rev 2 and later boards */
+&smi1 {
+	/**
+	 * The phy names are broken down as follows:
+	 * (m)phyxxyzzs
+	 * where:
+	 *	xx = 01 for SGMII, 10 for DXAUI, 20 for RXAUI
+	 *	     and 40 for XFI/LXAUI
+	 *	y = QLM/DLM number
+	 *	zz = PHY address (decimal)
+	 *	s = sub-phy number in the case of the Cortina
+	 *	    PHY
+	 * a mphy is a nexus phy that contains one or more
+	 * sub-phys, for example the Cortina CS4223.
+	 */
+
+	/* QLM 2 */
+	phy01208: ethernet-phy@01208 {
+		reg = <8>;
+		compatible = "marvell,88e1240", "ethernet-phy-ieee802.3-c22";
+
+		marvell,reg-init = <3 0x10 0 0x8665>,
+				   <3 0x11 0 0x00aa>,
+				   <3 0x12 0 0x4105>,
+				   <3 0x13 0 0x8a08>;
+
+		interrupt-parent = <&gpio>;
+		interrupts = <12 8>; /* Pin 12, active low */
+	};
+};
+
+/* BGX 0 */
+&bgx0 {
+	status = "okay";
+	phy-handle = <&phy01208>; /* put phy-handle in BGX node and MAC node */
+
+	/* SerDes 0, may differ from PCS Lane/LMAC */
+	eth0: ethernet-mac@D {
+		compatible = "cavium,octeon-7890-bgx-port";
+		reg = <0>;
+		local-mac-address = [ 00 00 00 00 00 00 ];
+		phy-handle = <&phy01208>;
+	};
+};

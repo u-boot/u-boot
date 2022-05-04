@@ -16,4 +16,6 @@
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 
+#define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
+
 #endif /* __CONFIG_H__ */

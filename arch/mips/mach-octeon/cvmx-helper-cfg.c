@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2020 Marvell International Ltd.
+ * Copyright (C) 2020-2022 Marvell International Ltd.
  *
  * Helper Functions for the Configuration Framework
  */
@@ -100,7 +100,6 @@ static u64 cvmx_cfg_opts[CVMX_HELPER_CFG_OPT_MAX] = {
 static int cvmx_cfg_max_pko_engines; /* # of PKO DMA engines allocated */
 static int cvmx_pko_queue_alloc(u64 port, int count);
 static void cvmx_init_port_cfg(void);
-static const int dbg;
 
 int __cvmx_helper_cfg_pknd(int xiface, int index)
 {
@@ -182,16 +181,6 @@ int __cvmx_helper_cfg_pko_max_queue(void)
 int __cvmx_helper_cfg_pko_max_engine(void)
 {
 	return cvmx_cfg_max_pko_engines;
-}
-
-int cvmx_helper_cfg_opt_set(cvmx_helper_cfg_option_t opt, uint64_t val)
-{
-	if (opt >= CVMX_HELPER_CFG_OPT_MAX)
-		return -1;
-
-	cvmx_cfg_opts[opt] = val;
-
-	return 0;
 }
 
 uint64_t cvmx_helper_cfg_opt_get(cvmx_helper_cfg_option_t opt)
@@ -298,18 +287,6 @@ int cvmx_pko_queue_init_from_cvmx_config_non_pknd(void)
 	return 0;
 }
 
-int cvmx_helper_pko_queue_config_get(int node, cvmx_user_static_pko_queue_config_t *cfg)
-{
-	*cfg = __cvmx_pko_queue_static_config[node];
-	return 0;
-}
-
-int cvmx_helper_pko_queue_config_set(int node, cvmx_user_static_pko_queue_config_t *cfg)
-{
-	__cvmx_pko_queue_static_config[node] = *cfg;
-	return 0;
-}
-
 static int queue_range_init;
 
 int init_cvmx_pko_que_range(void)
@@ -377,91 +354,6 @@ static int cvmx_pko_queue_alloc(u64 port, int count)
 }
 
 /*
- * return the queues for "port"
- *
- * @param  port   the port for which the queues are returned
- *
- * Return:  0 on success
- *         -1 on failure
- */
-int cvmx_pko_queue_free(uint64_t port)
-{
-	int ret_val = -1;
-
-	init_cvmx_pko_que_range();
-	if (port >= CVMX_HELPER_CFG_MAX_PKO_QUEUES) {
-		debug("ERROR: %s port=%d > %d", __func__, (int)port,
-		      CVMX_HELPER_CFG_MAX_PKO_QUEUES);
-		return -1;
-	}
-
-	ret_val = cvmx_free_global_resource_range_with_base(
-		CVMX_GR_TAG_PKO_QUEUES, cvmx_pko_queue_table[port].ccppp_queue_base,
-		cvmx_pko_queue_table[port].ccppp_num_queues);
-	if (ret_val != 0)
-		return ret_val;
-
-	cvmx_pko_queue_table[port].ccppp_num_queues = 0;
-	cvmx_pko_queue_table[port].ccppp_queue_base = CVMX_HELPER_CFG_INVALID_VALUE;
-	ret_val = 0;
-	return ret_val;
-}
-
-void cvmx_pko_queue_free_all(void)
-{
-	int i;
-
-	for (i = 0; i < CVMX_HELPER_CFG_MAX_PKO_PORT; i++)
-		if (cvmx_pko_queue_table[i].ccppp_queue_base !=
-		    CVMX_HELPER_CFG_INVALID_VALUE)
-			cvmx_pko_queue_free(i);
-}
-
-void cvmx_pko_queue_show(void)
-{
-	int i;
-
-	cvmx_show_global_resource_range(CVMX_GR_TAG_PKO_QUEUES);
-	for (i = 0; i < CVMX_HELPER_CFG_MAX_PKO_PORT; i++)
-		if (cvmx_pko_queue_table[i].ccppp_queue_base !=
-		    CVMX_HELPER_CFG_INVALID_VALUE)
-			debug("port=%d que_base=%d que_num=%d\n", i,
-			      (int)cvmx_pko_queue_table[i].ccppp_queue_base,
-			      (int)cvmx_pko_queue_table[i].ccppp_num_queues);
-}
-
-void cvmx_helper_cfg_show_cfg(void)
-{
-	int i, j;
-
-	for (i = 0; i < cvmx_helper_get_number_of_interfaces(); i++) {
-		debug("%s: interface%d mode %10s nports%4d\n", __func__, i,
-		      cvmx_helper_interface_mode_to_string(cvmx_helper_interface_get_mode(i)),
-		      cvmx_helper_interface_enumerate(i));
-
-		for (j = 0; j < cvmx_helper_interface_enumerate(i); j++) {
-			debug("\tpknd[%i][%d]%d", i, j,
-			      __cvmx_helper_cfg_pknd(i, j));
-			debug(" pko_port_base[%i][%d]%d", i, j,
-			      __cvmx_helper_cfg_pko_port_base(i, j));
-			debug(" pko_port_num[%i][%d]%d\n", i, j,
-			      __cvmx_helper_cfg_pko_port_num(i, j));
-		}
-	}
-
-	for (i = 0; i < CVMX_HELPER_CFG_MAX_PKO_PORT; i++) {
-		if (__cvmx_helper_cfg_pko_queue_base(i) !=
-		    CVMX_HELPER_CFG_INVALID_VALUE) {
-			debug("%s: pko_port%d qbase%d nqueues%d interface%d index%d\n",
-			      __func__, i, __cvmx_helper_cfg_pko_queue_base(i),
-			      __cvmx_helper_cfg_pko_queue_num(i),
-			      __cvmx_helper_cfg_pko_port_interface(i),
-			      __cvmx_helper_cfg_pko_port_index(i));
-		}
-	}
-}
-
-/*
  * initialize cvmx_cfg_pko_port_map
  */
 void cvmx_helper_cfg_init_pko_port_map(void)
@@ -513,141 +405,6 @@ void cvmx_helper_cfg_init_pko_port_map(void)
 		cvmx_helper_cfg_assert(pko_eid <= 0x14);
 
 	cvmx_cfg_max_pko_engines = pko_eid;
-}
-
-void cvmx_helper_cfg_set_jabber_and_frame_max(void)
-{
-	int interface, port;
-	/*Set the frame max size and jabber size to 65535. */
-	const unsigned int max_frame = 65535;
-
-	// FIXME: should support node argument for remote node init
-	if (octeon_has_feature(OCTEON_FEATURE_BGX)) {
-		int ipd_port;
-		int node = cvmx_get_node_num();
-
-		for (interface = 0;
-		     interface < cvmx_helper_get_number_of_interfaces();
-		     interface++) {
-			int xiface = cvmx_helper_node_interface_to_xiface(node, interface);
-			cvmx_helper_interface_mode_t imode = cvmx_helper_interface_get_mode(xiface);
-			int num_ports = cvmx_helper_ports_on_interface(xiface);
-
-			// FIXME: should be an easier way to determine
-			// that an interface is Ethernet/BGX
-			switch (imode) {
-			case CVMX_HELPER_INTERFACE_MODE_SGMII:
-			case CVMX_HELPER_INTERFACE_MODE_XAUI:
-			case CVMX_HELPER_INTERFACE_MODE_RXAUI:
-			case CVMX_HELPER_INTERFACE_MODE_XLAUI:
-			case CVMX_HELPER_INTERFACE_MODE_XFI:
-			case CVMX_HELPER_INTERFACE_MODE_10G_KR:
-			case CVMX_HELPER_INTERFACE_MODE_40G_KR4:
-				for (port = 0; port < num_ports; port++) {
-					ipd_port = cvmx_helper_get_ipd_port(xiface, port);
-					cvmx_pki_set_max_frm_len(ipd_port, max_frame);
-					cvmx_helper_bgx_set_jabber(xiface, port, max_frame);
-				}
-				break;
-			default:
-				break;
-			}
-		}
-	} else {
-		/*Set the frame max size and jabber size to 65535. */
-		for (interface = 0; interface < cvmx_helper_get_number_of_interfaces();
-		     interface++) {
-			int xiface = cvmx_helper_node_interface_to_xiface(cvmx_get_node_num(),
-									  interface);
-			/*
-			 * Set the frame max size and jabber size to 65535, as the defaults
-			 * are too small.
-			 */
-			cvmx_helper_interface_mode_t imode = cvmx_helper_interface_get_mode(xiface);
-			int num_ports = cvmx_helper_ports_on_interface(xiface);
-
-			switch (imode) {
-			case CVMX_HELPER_INTERFACE_MODE_SGMII:
-			case CVMX_HELPER_INTERFACE_MODE_QSGMII:
-			case CVMX_HELPER_INTERFACE_MODE_XAUI:
-			case CVMX_HELPER_INTERFACE_MODE_RXAUI:
-				for (port = 0; port < num_ports; port++)
-					csr_wr(CVMX_GMXX_RXX_JABBER(port, interface), 65535);
-				/* Set max and min value for frame check */
-				cvmx_pip_set_frame_check(interface, -1);
-				break;
-
-			case CVMX_HELPER_INTERFACE_MODE_RGMII:
-			case CVMX_HELPER_INTERFACE_MODE_GMII:
-				/* Set max and min value for frame check */
-				cvmx_pip_set_frame_check(interface, -1);
-				for (port = 0; port < num_ports; port++) {
-					csr_wr(CVMX_GMXX_RXX_FRM_MAX(port, interface), 65535);
-					csr_wr(CVMX_GMXX_RXX_JABBER(port, interface), 65535);
-				}
-				break;
-			case CVMX_HELPER_INTERFACE_MODE_ILK:
-				/* Set max and min value for frame check */
-				cvmx_pip_set_frame_check(interface, -1);
-				for (port = 0; port < num_ports; port++) {
-					int ipd_port = cvmx_helper_get_ipd_port(interface, port);
-
-					cvmx_ilk_enable_la_header(ipd_port, 0);
-				}
-				break;
-			case CVMX_HELPER_INTERFACE_MODE_SRIO:
-				/* Set max and min value for frame check */
-				cvmx_pip_set_frame_check(interface, -1);
-				break;
-			case CVMX_HELPER_INTERFACE_MODE_AGL:
-				/* Set max and min value for frame check */
-				cvmx_pip_set_frame_check(interface, -1);
-				csr_wr(CVMX_AGL_GMX_RXX_FRM_MAX(0), 65535);
-				csr_wr(CVMX_AGL_GMX_RXX_JABBER(0), 65535);
-				break;
-			default:
-				break;
-			}
-		}
-	}
-}
-
-/**
- * Enable storing short packets only in the WQE
- * unless NO_WPTR is set, which already has the same effect
- */
-void cvmx_helper_cfg_store_short_packets_in_wqe(void)
-{
-	int interface, port;
-	cvmx_ipd_ctl_status_t ipd_ctl_status;
-	unsigned int dyn_rs = 1;
-
-	if (octeon_has_feature(OCTEON_FEATURE_PKI))
-		return;
-
-	/* NO_WPTR combines WQE with 1st MBUF, RS is redundant */
-	ipd_ctl_status.u64 = csr_rd(CVMX_IPD_CTL_STATUS);
-	if (ipd_ctl_status.s.no_wptr) {
-		dyn_rs = 0;
-		/* Note: consider also setting 'ignrs' wtn NO_WPTR is set */
-	}
-
-	for (interface = 0; interface < cvmx_helper_get_number_of_interfaces(); interface++) {
-		int num_ports = cvmx_helper_ports_on_interface(interface);
-
-		for (port = 0; port < num_ports; port++) {
-			cvmx_pip_port_cfg_t port_cfg;
-			int pknd = port;
-
-			if (octeon_has_feature(OCTEON_FEATURE_PKND))
-				pknd = cvmx_helper_get_pknd(interface, port);
-			else
-				pknd = cvmx_helper_get_ipd_port(interface, port);
-			port_cfg.u64 = csr_rd(CVMX_PIP_PRT_CFGX(pknd));
-			port_cfg.s.dyn_rs = dyn_rs;
-			csr_wr(CVMX_PIP_PRT_CFGX(pknd), port_cfg.u64);
-		}
-	}
 }
 
 int __cvmx_helper_cfg_pko_port_interface(int pko_port)
@@ -714,16 +471,6 @@ int cvmx_helper_cfg_ipd2pko_port_base(int ipd_port)
 	ipd_x = __cvmx_helper_cfg_ipd2pko_cachex(ipd_port);
 
 	return ipd2pko_port_cache[ipd_y][ipd_x].ccppp_base_port;
-}
-
-int cvmx_helper_cfg_ipd2pko_port_num(int ipd_port)
-{
-	int ipd_y, ipd_x;
-
-	ipd_y = IPD2PKO_CACHE_Y(ipd_port);
-	ipd_x = __cvmx_helper_cfg_ipd2pko_cachex(ipd_port);
-
-	return ipd2pko_port_cache[ipd_y][ipd_x].ccppp_nports;
 }
 
 /**
@@ -980,8 +727,6 @@ int __cvmx_helper_init_port_valid(void)
 		rc = __cvmx_helper_parse_bgx_dt(fdt_addr);
 		if (!rc)
 			rc = __cvmx_fdt_parse_vsc7224(fdt_addr);
-		if (!rc)
-			rc = __cvmx_fdt_parse_avsp5410(fdt_addr);
 		if (!rc && octeon_has_feature(OCTEON_FEATURE_BGX_XCV))
 			rc = __cvmx_helper_parse_bgx_rgmii_dt(fdt_addr);
 
@@ -1030,44 +775,6 @@ int __cvmx_helper_init_port_valid(void)
 	return 0;
 }
 
-typedef int (*cvmx_import_config_t)(void);
-cvmx_import_config_t cvmx_import_app_config;
-
-int __cvmx_helper_init_port_config_data_local(void)
-{
-	int rv = 0;
-	int dbg = 0;
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-
-	if (octeon_has_feature(OCTEON_FEATURE_PKND)) {
-		if (cvmx_import_app_config) {
-			rv = (*cvmx_import_app_config)();
-			if (rv != 0) {
-				debug("failed to import config\n");
-				return -1;
-			}
-		}
-
-		cvmx_helper_cfg_init_pko_port_map();
-		__cvmx_helper_cfg_init_ipd2pko_cache();
-	} else {
-		if (cvmx_import_app_config) {
-			rv = (*cvmx_import_app_config)();
-			if (rv != 0) {
-				debug("failed to import config\n");
-				return -1;
-			}
-		}
-	}
-	if (dbg) {
-		cvmx_helper_cfg_show_cfg();
-		cvmx_pko_queue_show();
-	}
-	return rv;
-}
-
 /*
  * This call is made from Linux octeon_ethernet driver
  * to setup the PKO with a specific queue count and
@@ -1077,9 +784,8 @@ int cvmx_pko_alloc_iport_and_queues(int interface, int port, int port_cnt, int q
 {
 	int rv, p, port_start, cnt;
 
-	if (dbg)
-		debug("%s: intf %d/%d pcnt %d qcnt %d\n", __func__, interface, port, port_cnt,
-		      queue_cnt);
+	debug("%s: intf %d/%d pcnt %d qcnt %d\n", __func__, interface, port, port_cnt,
+	      queue_cnt);
 
 	if (!port_cfg_data_initialized)
 		cvmx_init_port_cfg();
@@ -1122,6 +828,7 @@ static void cvmx_init_port_cfg(void)
 				struct cvmx_srio_port_param *sr;
 
 				pcfg = &cvmx_cfg_port[node][i][j];
+
 				memset(pcfg, 0, sizeof(*pcfg));
 
 				pcfg->port_fdt_node = CVMX_HELPER_CFG_INVALID_VALUE;
@@ -1188,8 +895,7 @@ int __cvmx_helper_init_port_config_data(int node)
 	int pknd = 0, bpid = 0;
 	const int use_static_config = 1;
 
-	if (dbg)
-		printf("%s:\n", __func__);
+	debug("%s:\n", __func__);
 
 	if (!port_cfg_data_initialized)
 		cvmx_init_port_cfg();
@@ -1295,10 +1001,11 @@ int __cvmx_helper_init_port_config_data(int node)
 		__cvmx_helper_cfg_init_ipd2pko_cache();
 	}
 
-	if (dbg) {
-		cvmx_helper_cfg_show_cfg();
-		cvmx_pko_queue_show();
-	}
+#ifdef DEBUG
+	cvmx_helper_cfg_show_cfg();
+	cvmx_pko_queue_show();
+#endif
+
 	return rv;
 }
 
@@ -1334,39 +1041,6 @@ int cvmx_helper_get_port_fdt_node_offset(int xiface, int index)
 	if (!port_cfg_data_initialized)
 		cvmx_init_port_cfg();
 	return cvmx_cfg_port[xi.node][xi.interface][index].port_fdt_node;
-}
-
-/**
- * Search for a port based on its FDT node offset
- *
- * @param	of_offset	Node offset of port to search for
- * @param[out]	xiface		xinterface of match
- * @param[out]	index		port index of match
- *
- * Return:	0 if found, -1 if not found
- */
-int cvmx_helper_cfg_get_xiface_index_by_fdt_node_offset(int of_offset, int *xiface, int *index)
-{
-	int iface;
-	int i;
-	int node;
-	struct cvmx_cfg_port_param *pcfg = NULL;
-	*xiface = -1;
-	*index = -1;
-
-	for (node = 0; node < CVMX_MAX_NODES; node++) {
-		for (iface = 0; iface < CVMX_HELPER_MAX_IFACE; iface++) {
-			for (i = 0; i < CVMX_HELPER_CFG_MAX_PORT_PER_IFACE; i++) {
-				pcfg = &cvmx_cfg_port[node][iface][i];
-				if (pcfg->valid && pcfg->port_fdt_node == of_offset) {
-					*xiface = cvmx_helper_node_interface_to_xiface(node, iface);
-					*index = i;
-					return 0;
-				}
-			}
-		}
-	}
-	return -1;
 }
 
 /**
@@ -1441,23 +1115,6 @@ bool cvmx_helper_get_port_autonegotiation(int xiface, int index)
 
 /**
  * @INTERNAL
- * Override default forward error correction for a port
- *
- * @param xiface	node and interface
- * @param index		port index
- * @param enable	true to enable fec, false to disable it
- */
-void cvmx_helper_set_port_fec(int xiface, int index, bool enable)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	cvmx_cfg_port[xi.node][xi.interface][index].enable_fec = enable;
-}
-
-/**
- * @INTERNAL
  * Returns if forward error correction is enabled or not.
  *
  * @param xiface	node and interface
@@ -1472,161 +1129,6 @@ bool cvmx_helper_get_port_fec(int xiface, int index)
 	if (!port_cfg_data_initialized)
 		cvmx_init_port_cfg();
 	return cvmx_cfg_port[xi.node][xi.interface][index].enable_fec;
-}
-
-/**
- * @INTERNAL
- * Configure the SRIO RX interface AGC settings for host mode
- *
- * @param xiface	node and interface
- * @param index		lane
- * @param long_run	true for long run, false for short run
- * @param agc_override	true to put AGC in manual mode
- * @param ctle_zero	RX equalizer peaking control (default 0x6)
- * @param agc_pre_ctle	AGC pre-CTLE gain (default 0x5)
- * @param agc_post_ctle	AGC post-CTLE gain (default 0x4)
- *
- * NOTE: This must be called before SRIO is initialized to take effect
- */
-void cvmx_helper_set_srio_rx(int xiface, int index, bool long_run, bool ctle_zero_override,
-			     u8 ctle_zero, bool agc_override, uint8_t agc_pre_ctle,
-			     uint8_t agc_post_ctle)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-	struct cvmx_cfg_port_param *pcfg = &cvmx_cfg_port[xi.node][xi.interface][index];
-	struct cvmx_srio_port_param *sr = long_run ? &pcfg->srio_long : &pcfg->srio_short;
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	sr->srio_rx_ctle_zero_override = ctle_zero_override;
-	sr->srio_rx_ctle_zero = ctle_zero;
-	sr->srio_rx_ctle_agc_override = agc_override;
-	sr->srio_rx_agc_pre_ctle = agc_pre_ctle;
-	sr->srio_rx_agc_post_ctle = agc_post_ctle;
-}
-
-/**
- * @INTERNAL
- * Get the SRIO RX interface AGC settings for host mode
- *
- * @param xiface	node and interface
- * @param index		lane
- * @param long_run	true for long run, false for short run
- * @param[out] agc_override	true to put AGC in manual mode
- * @param[out] ctle_zero	RX equalizer peaking control (default 0x6)
- * @param[out] agc_pre_ctle	AGC pre-CTLE gain (default 0x5)
- * @param[out] agc_post_ctle	AGC post-CTLE gain (default 0x4)
- */
-void cvmx_helper_get_srio_rx(int xiface, int index, bool long_run, bool *ctle_zero_override,
-			     u8 *ctle_zero, bool *agc_override, uint8_t *agc_pre_ctle,
-			     uint8_t *agc_post_ctle)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-	struct cvmx_cfg_port_param *pcfg = &cvmx_cfg_port[xi.node][xi.interface][index];
-	struct cvmx_srio_port_param *sr = long_run ? &pcfg->srio_long : &pcfg->srio_short;
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	if (ctle_zero_override)
-		*ctle_zero_override = sr->srio_rx_ctle_zero_override;
-	if (ctle_zero)
-		*ctle_zero = sr->srio_rx_ctle_zero;
-	if (agc_override)
-		*agc_override = sr->srio_rx_ctle_agc_override;
-	if (agc_pre_ctle)
-		*agc_pre_ctle = sr->srio_rx_agc_pre_ctle;
-	if (agc_post_ctle)
-		*agc_post_ctle = sr->srio_rx_agc_post_ctle;
-}
-
-/**
- * @INTERNAL
- * Configure the SRIO TX interface for host mode
- *
- * @param xiface		node and interface
- * @param index			lane
- * @param long_run		true for long run, false for short run
- * @param tx_swing		tx swing value to use (default 0x7), -1 to not
- *				override.
- * @param tx_gain		PCS SDS TX gain (default 0x3), -1 to not
- *				override
- * @param tx_premptap_override	true to override preemphasis control
- * @param tx_premptap_pre	preemphasis pre tap value (default 0x0)
- * @param tx_premptap_post	preemphasis post tap value (default 0xF)
- * @param tx_vboost		vboost enable (1 = enable, -1 = don't override)
- *				hardware default is 1.
- *
- * NOTE: This must be called before SRIO is initialized to take effect
- */
-void cvmx_helper_set_srio_tx(int xiface, int index, bool long_run, int tx_swing, int tx_gain,
-			     bool tx_premptap_override, uint8_t tx_premptap_pre,
-			     u8 tx_premptap_post, int tx_vboost)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-	struct cvmx_cfg_port_param *pcfg = &cvmx_cfg_port[xi.node][xi.interface][index];
-	struct cvmx_srio_port_param *sr = long_run ? &pcfg->srio_long : &pcfg->srio_short;
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-
-	sr->srio_tx_swing_override = (tx_swing != -1);
-	sr->srio_tx_swing = tx_swing != -1 ? tx_swing : 0x7;
-	sr->srio_tx_gain_override = (tx_gain != -1);
-	sr->srio_tx_gain = tx_gain != -1 ? tx_gain : 0x3;
-	sr->srio_tx_premptap_override = tx_premptap_override;
-	sr->srio_tx_premptap_pre = tx_premptap_override ? tx_premptap_pre : 0;
-	sr->srio_tx_premptap_post = tx_premptap_override ? tx_premptap_post : 0xF;
-	sr->srio_tx_vboost_override = tx_vboost != -1;
-	sr->srio_tx_vboost = (tx_vboost != -1) ? tx_vboost : 1;
-}
-
-/**
- * @INTERNAL
- * Get the SRIO TX interface settings for host mode
- *
- * @param xiface			node and interface
- * @param index				lane
- * @param long_run			true for long run, false for short run
- * @param[out] tx_swing_override	true to override pcs_sds_txX_swing
- * @param[out] tx_swing			tx swing value to use (default 0x7)
- * @param[out] tx_gain_override		true to override default gain
- * @param[out] tx_gain			PCS SDS TX gain (default 0x3)
- * @param[out] tx_premptap_override	true to override preemphasis control
- * @param[out] tx_premptap_pre		preemphasis pre tap value (default 0x0)
- * @param[out] tx_premptap_post		preemphasis post tap value (default 0xF)
- * @param[out] tx_vboost_override	override vboost setting
- * @param[out] tx_vboost		vboost enable (default true)
- */
-void cvmx_helper_get_srio_tx(int xiface, int index, bool long_run, bool *tx_swing_override,
-			     u8 *tx_swing, bool *tx_gain_override, uint8_t *tx_gain,
-			     bool *tx_premptap_override, uint8_t *tx_premptap_pre,
-			     u8 *tx_premptap_post, bool *tx_vboost_override, bool *tx_vboost)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-	struct cvmx_cfg_port_param *pcfg = &cvmx_cfg_port[xi.node][xi.interface][index];
-	struct cvmx_srio_port_param *sr = long_run ? &pcfg->srio_long : &pcfg->srio_short;
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-
-	if (tx_swing_override)
-		*tx_swing_override = sr->srio_tx_swing_override;
-	if (tx_swing)
-		*tx_swing = sr->srio_tx_swing;
-	if (tx_gain_override)
-		*tx_gain_override = sr->srio_tx_gain_override;
-	if (tx_gain)
-		*tx_gain = sr->srio_tx_gain;
-	if (tx_premptap_override)
-		*tx_premptap_override = sr->srio_tx_premptap_override;
-	if (tx_premptap_pre)
-		*tx_premptap_pre = sr->srio_tx_premptap_pre;
-	if (tx_premptap_post)
-		*tx_premptap_post = sr->srio_tx_premptap_post;
-	if (tx_vboost_override)
-		*tx_vboost_override = sr->srio_tx_vboost_override;
-	if (tx_vboost)
-		*tx_vboost = sr->srio_tx_vboost;
 }
 
 /**
@@ -1685,23 +1187,6 @@ struct cvmx_phy_gpio_leds *cvmx_helper_get_port_phy_leds(int xiface, int index)
 
 /**
  * @INTERNAL
- * Sets a pointer to the PHY LED configuration (if local GPIOs drive them)
- *
- * @param xiface	node and interface
- * @param index		portindex
- * @param leds		pointer to led data structure
- */
-void cvmx_helper_set_port_phy_leds(int xiface, int index, struct cvmx_phy_gpio_leds *leds)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	cvmx_cfg_port[xi.node][xi.interface][index].gpio_leds = leds;
-}
-
-/**
- * @INTERNAL
  * Disables RGMII TX clock bypass and sets delay value
  *
  * @param xiface	node and interface
@@ -1744,59 +1229,6 @@ void cvmx_helper_cfg_get_rgmii_tx_clk_delay(int xiface, int index, bool *bypass,
 }
 
 /**
- * @INTERNAL
- * Retrieve the SFP node offset in the device tree
- *
- * @param xiface	node and interface
- * @param index		port index
- *
- * Return: offset in device tree or -1 if error or not defined.
- */
-int cvmx_helper_cfg_get_sfp_fdt_offset(int xiface, int index)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	return cvmx_cfg_port[xi.node][xi.interface][index].sfp_of_offset;
-}
-
-/**
- * @INTERNAL
- * Sets the SFP node offset
- *
- * @param xiface	node and interface
- * @param index		port index
- * @param sfp_of_offset	Offset of SFP node in device tree
- */
-void cvmx_helper_cfg_set_sfp_fdt_offset(int xiface, int index, int sfp_of_offset)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	cvmx_cfg_port[xi.node][xi.interface][index].sfp_of_offset = sfp_of_offset;
-}
-
-/**
- * Get data structure defining the Microsemi VSC7224 channel info
- * or NULL if not present
- *
- * @param xiface	node and interface
- * @param index		port index
- *
- * Return: pointer to vsc7224 data structure or NULL if not present
- */
-struct cvmx_vsc7224_chan *cvmx_helper_cfg_get_vsc7224_chan_info(int xiface, int index)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	return cvmx_cfg_port[xi.node][xi.interface][index].vsc7224_chan;
-}
-
-/**
  * Sets the Microsemi VSC7224 channel info data structure
  *
  * @param	xiface	node and interface
@@ -1811,40 +1243,6 @@ void cvmx_helper_cfg_set_vsc7224_chan_info(int xiface, int index,
 	if (!port_cfg_data_initialized)
 		cvmx_init_port_cfg();
 	cvmx_cfg_port[xi.node][xi.interface][index].vsc7224_chan = vsc7224_chan_info;
-}
-
-/**
- * Get data structure defining the Avago AVSP5410 phy info
- * or NULL if not present
- *
- * @param xiface	node and interface
- * @param index		port index
- *
- * Return: pointer to avsp5410 data structure or NULL if not present
- */
-struct cvmx_avsp5410 *cvmx_helper_cfg_get_avsp5410_info(int xiface, int index)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	return cvmx_cfg_port[xi.node][xi.interface][index].avsp5410;
-}
-
-/**
- * Sets the Avago AVSP5410 phy info data structure
- *
- * @param	xiface	node and interface
- * @param	index	port index
- * @param[in]	avsp5410_info	Avago AVSP5410 data structure
- */
-void cvmx_helper_cfg_set_avsp5410_info(int xiface, int index, struct cvmx_avsp5410 *avsp5410_info)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	cvmx_cfg_port[xi.node][xi.interface][index].avsp5410 = avsp5410_info;
 }
 
 /**
@@ -1878,37 +1276,4 @@ void cvmx_helper_cfg_set_sfp_info(int xiface, int index, struct cvmx_fdt_sfp_inf
 	if (!port_cfg_data_initialized)
 		cvmx_init_port_cfg();
 	cvmx_cfg_port[xi.node][xi.interface][index].sfp_info = sfp_info;
-}
-
-/**
- * Returns a pointer to the phy device associated with a port
- *
- * @param	xiface		node and interface
- * @param	index		port index
- *
- * return	pointer to phy device or NULL if none
- */
-struct phy_device *cvmx_helper_cfg_get_phy_device(int xiface, int index)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	return cvmx_cfg_port[xi.node][xi.interface][index].phydev;
-}
-
-/**
- * Sets the phy device associated with a port
- *
- * @param	xiface		node and interface
- * @param	index		port index
- * @param[in]	phydev		phy device to assiciate
- */
-void cvmx_helper_cfg_set_phy_device(int xiface, int index, struct phy_device *phydev)
-{
-	struct cvmx_xiface xi = cvmx_helper_xiface_to_node_interface(xiface);
-
-	if (!port_cfg_data_initialized)
-		cvmx_init_port_cfg();
-	cvmx_cfg_port[xi.node][xi.interface][index].phydev = phydev;
 }

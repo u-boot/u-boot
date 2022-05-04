@@ -267,5 +267,40 @@
 				interrupts = <0x6c010 4>;
 			};
 		};
+
+		/* SMI1 */
+		smi1: mdio@1180000003880 {
+			compatible = "cavium,octeon-3860-mdio";
+			reg = <0x11800 0x00003880 0x0 0x40>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		/* BGX 0 */
+		bgx0: ethernet-mac-nexus@11800e0000000 {
+			compatible = "cavium,octeon-7890-bgx";
+			reg = <0x11800 0xe0000000 0x0 0x1000000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		/* BGX 1 */
+		bgx1: ethernet-mac-nexus@11800e1000000 {
+			compatible = "cavium,octeon-7890-bgx";
+			reg = <0x11800 0xe1000000 0x0 0x1000000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		/* BGX 2*/
+		bgx2: ethernet-mac-nexus@11800e2000000 {
+			compatible = "cavium,octeon-7890-bgx";
+			reg = <0x11800 0xe2000000 0x0 0x1000000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
 	};
 };

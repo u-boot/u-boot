@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2021 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2021-2022 Stefan Roese <sr@denx.de>
  */
 
 #include <dm.h>
 #include <ram.h>
+#include <asm/gpio.h>
 
 #include <mach/octeon_ddr.h>
 #include <mach/cvmx-qlm.h>
@@ -84,6 +85,52 @@ int board_fix_fdt(void *fdt)
 	return rc;
 }
 
+int board_early_init_f(void)
+{
+	struct gpio_desc gpio = {};
+	ofnode node;
+
+	/* Initial GPIO configuration */
+
+	/* GPIO 7: Vitesse reset */
+	node = ofnode_by_compatible(ofnode_null(), "vitesse,vsc7224");
+	if (ofnode_valid(node)) {
+		gpio_request_by_name_nodev(node, "los", 0, &gpio, GPIOD_IS_IN);
+		dm_gpio_free(gpio.dev, &gpio);
+		gpio_request_by_name_nodev(node, "reset", 0, &gpio,
+					   GPIOD_IS_OUT);
+		if (dm_gpio_is_valid(&gpio)) {
+			/* Vitesse reset */
+			debug("%s: Setting GPIO 7 to 1\n", __func__);
+			dm_gpio_set_value(&gpio, 1);
+		}
+		dm_gpio_free(gpio.dev, &gpio);
+	}
+
+	/* SFP+ transmitters */
+	ofnode_for_each_compatible_node(node, "ethernet,sfp-slot") {
+		gpio_request_by_name_nodev(node, "tx_disable", 0,
+					   &gpio, GPIOD_IS_OUT);
+		if (dm_gpio_is_valid(&gpio)) {
+			debug("%s: Setting GPIO %d to 1\n", __func__,
+			      gpio.offset);
+			dm_gpio_set_value(&gpio, 1);
+		}
+		dm_gpio_free(gpio.dev, &gpio);
+		gpio_request_by_name_nodev(node, "mod_abs", 0, &gpio,
+					   GPIOD_IS_IN);
+		dm_gpio_free(gpio.dev, &gpio);
+		gpio_request_by_name_nodev(node, "tx_error", 0, &gpio,
+					   GPIOD_IS_IN);
+		dm_gpio_free(gpio.dev, &gpio);
+		gpio_request_by_name_nodev(node, "rx_los", 0, &gpio,
+					   GPIOD_IS_IN);
+		dm_gpio_free(gpio.dev, &gpio);
+	}
+
+	return 0;
+}
+
 void board_configure_qlms(void)
 {
 	octeon_configure_qlm(4, 3000, CVMX_QLM_MODE_SATA_2X1, 0, 0, 0, 0);
@@ -100,7 +147,45 @@ void board_configure_qlms(void)
 
 int board_late_init(void)
 {
+	struct gpio_desc gpio = {};
+	ofnode node;
+
+	/* Turn on SFP+ transmitters */
+	ofnode_for_each_compatible_node(node, "ethernet,sfp-slot") {
+		gpio_request_by_name_nodev(node, "tx_disable", 0,
+					   &gpio, GPIOD_IS_OUT);
+		if (dm_gpio_is_valid(&gpio)) {
+			debug("%s: Setting GPIO %d to 0\n", __func__,
+			      gpio.offset);
+			dm_gpio_set_value(&gpio, 0);
+		}
+		dm_gpio_free(gpio.dev, &gpio);
+	}
+
 	board_configure_qlms();
+
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	struct gpio_desc gpio = {};
+	ofnode node;
+
+	node = ofnode_by_compatible(ofnode_null(), "vitesse,vsc7224");
+	if (!ofnode_valid(node)) {
+		printf("Vitesse SPF DT node not found!");
+		return 0;
+	}
+
+	gpio_request_by_name_nodev(node, "reset", 0, &gpio, GPIOD_IS_OUT);
+	if (dm_gpio_is_valid(&gpio)) {
+		/* Take Vitesse retimer out of reset */
+		debug("%s: Setting GPIO 7 to 0\n", __func__);
+		dm_gpio_set_value(&gpio, 0);
+		mdelay(50);
+	}
+	dm_gpio_free(gpio.dev, &gpio);
 
 	return 0;
 }

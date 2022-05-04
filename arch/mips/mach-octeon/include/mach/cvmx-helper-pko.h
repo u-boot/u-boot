@@ -17,7 +17,7 @@
  * number. Users should set this pointer to a function before
  * calling any cvmx-helper operations.
  */
-void (*cvmx_override_pko_queue_priority)(int ipd_port, u8 *priorities);
+extern void (*cvmx_override_pko_queue_priority)(int ipd_port, u8 *priorities);
 
 /**
  * Gets the fpa pool number of pko pool

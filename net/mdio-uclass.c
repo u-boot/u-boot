@@ -129,6 +129,28 @@ static int dm_mdio_pre_remove(struct udevice *dev)
 	return 0;
 }
 
+struct phy_device *dm_phy_find_by_ofnode(ofnode phynode)
+{
+	struct mdio_perdev_priv *pdata;
+	struct udevice *mdiodev;
+	u32 phy_addr;
+
+	if (ofnode_read_u32(phynode, "reg", &phy_addr))
+		return NULL;
+
+	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
+					ofnode_get_parent(phynode),
+					&mdiodev))
+		return NULL;
+
+	if (device_probe(mdiodev))
+		return NULL;
+
+	pdata = dev_get_uclass_priv(mdiodev);
+
+	return phy_find_by_mask(pdata->mii_bus, BIT(phy_addr));
+}
+
 struct phy_device *dm_mdio_phy_connect(struct udevice *mdiodev, int phyaddr,
 				       struct udevice *ethdev,
 				       phy_interface_t interface)

@@ -6,6 +6,7 @@
 #ifndef __CVMX_REGS_H__
 #define __CVMX_REGS_H__
 
+#include <log.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
@@ -32,6 +33,7 @@
 
 /* Regs */
 #define CVMX_CIU3_NMI		0x0001010000000160ULL
+#define CVMX_CIU3_ISCX_W1C(x)	(0x0001010090000000ull + ((x) & 1048575) * 8)
 
 #define CVMX_MIO_BOOT_LOC_CFGX(x) (0x0001180000000080ULL + ((x) & 1) * 8)
 #define MIO_BOOT_LOC_CFG_BASE	GENMASK_ULL(27, 3)
@@ -55,11 +57,19 @@
 #define CVMX_RNM_CTL_STATUS	0x0001180040000000ULL
 #define RNM_CTL_STATUS_EER_VAL	BIT_ULL(9)
 
+/* IOBDMA/LMTDMA IO addresses */
+#define CVMX_LMTDMA_ORDERED_IO_ADDR 0xffffffffffffa400ull
 #define CVMX_IOBDMA_ORDERED_IO_ADDR 0xffffffffffffa200ull
 
 /* turn the variable name into a string */
 #define CVMX_TMP_STR(x)		CVMX_TMP_STR2(x)
 #define CVMX_TMP_STR2(x)	#x
+#define VASTR(...)		#__VA_ARGS__
+
+#define CVMX_PKO_LMTLINE	2ull
+#define CVMX_SCRATCH_BASE	(-32768l)	/* 0xffffffffffff8000 */
+
+#define COP0_CVMMEMCTL		$11,7	/* Cavium memory control */
 
 #define CVMX_RDHWR(result, regstr)					\
 	asm volatile("rdhwr %[rt],$" CVMX_TMP_STR(regstr) : [rt] "=d"(result))
@@ -67,6 +77,13 @@
 	asm("rdhwr %[rt],$" CVMX_TMP_STR(regstr) : [rt] "=d"(result))
 #define CVMX_POP(result, input)						\
 	asm("pop %[rd],%[rs]" : [rd] "=d"(result) : [rs] "d"(input))
+#define CVMX_MF_COP0(val, cop0)						\
+	asm("dmfc0 %[rt]," VASTR(cop0) : [rt] "=d" (val))
+#define CVMX_MT_COP0(val, cop0)						\
+	asm("dmtc0 %[rt]," VASTR(cop0) : : [rt] "d" (val))
+
+#define CVMX_MF_CVM_MEM_CTL(val)	CVMX_MF_COP0(val, COP0_CVMMEMCTL)
+#define CVMX_MT_CVM_MEM_CTL(val)	CVMX_MT_COP0(val, COP0_CVMMEMCTL)
 
 #define CVMX_SYNC   asm volatile("sync\n" : : : "memory")
 #define CVMX_SYNCW  asm volatile("syncw\nsyncw\n" : : : "memory")
@@ -80,6 +97,18 @@
 #define CVMX_SYNCIOBDMA		asm volatile("synciobdma" : : : "memory")
 
 #define CVMX_MF_CHORD(dest)	CVMX_RDHWR(dest, 30)
+
+#define CVMX_PREFETCH0(address)	CVMX_PREFETCH(address, 0)
+#define CVMX_PREFETCH128(address) CVMX_PREFETCH(address, 128)
+
+/** a normal prefetch */
+#define CVMX_PREFETCH(address, offset) CVMX_PREFETCH_PREF0(address, offset)
+
+/** normal prefetches that use the pref instruction */
+#define CVMX_PREFETCH_PREFX(X, address, offset)				\
+	asm volatile ("pref %[type], %[off](%[rbase])" : : [rbase] "d" (address), [off] "I" (offset), [type] "n" (X))
+#define CVMX_PREFETCH_PREF0(address, offset)	\
+	CVMX_PREFETCH_PREFX(0, address, offset)
 
 /*
  * The macros cvmx_likely and cvmx_unlikely use the
@@ -406,6 +435,30 @@ static inline unsigned int cvmx_get_local_core_num(void)
 }
 
 /**
+ * Given a CSR address return the node number of that address
+ *
+ * @param addr	Address to extract node number from
+ *
+ * @return node number
+ */
+static inline u8 cvmx_csr_addr_to_node(u64 addr)
+{
+	return (addr >> CVMX_NODE_IO_SHIFT) & CVMX_NODE_MASK;
+}
+
+/**
+ * Strip the node address bits from a CSR address
+ *
+ * @param addr	CSR address to strip the node bits from
+ *
+ * @return CSR address with the node bits set to zero
+ */
+static inline u64 cvmx_csr_addr_strip_node(u64 addr)
+{
+	return addr & ~((u64)CVMX_NODE_MASK << CVMX_NODE_IO_SHIFT);
+}
+
+/**
  * Returns the number of bits set in the provided value.
  * Simple wrapper for POP instruction.
  *
@@ -428,14 +481,45 @@ static inline u32 cvmx_pop(u32 val)
 #define cvmx_printf  printf
 #define cvmx_vprintf vprintf
 
-#if defined(DEBUG)
-void cvmx_warn(const char *format, ...) __printf(1, 2);
-#else
-void cvmx_warn(const char *format, ...);
-#endif
+/* Use common debug macros */
+#define cvmx_warn	debug
+#define cvmx_warn_if	debug_cond
 
-#define cvmx_warn_if(expression, format, ...)				\
-	if (expression)							\
-		cvmx_warn(format, ##__VA_ARGS__)
+/**
+ * Atomically adds a signed value to a 32 bit (aligned) memory location,
+ * and returns previous value.
+ *
+ * Memory access ordering is enforced before/after the atomic operation,
+ * so no additional 'sync' instructions are required.
+ *
+ * @param ptr    address in memory to add incr to
+ * @param incr   amount to increment memory location by (signed)
+ *
+ * @return Value of memory location before increment
+ */
+static inline int32_t cvmx_atomic_fetch_and_add32(int32_t * ptr, int32_t incr)
+{
+	int32_t val;
+
+	val = *ptr;
+	*ptr += incr;
+	return val;
+}
+
+/**
+ * Atomically adds a signed value to a 32 bit (aligned) memory location.
+ *
+ * This version does not perform 'sync' operations to enforce memory
+ * operations.  This should only be used when there are no memory operation
+ * ordering constraints.  (This should NOT be used for reference counting -
+ * use the standard version instead.)
+ *
+ * @param ptr    address in memory to add incr to
+ * @param incr   amount to increment memory location by (signed)
+ */
+static inline void cvmx_atomic_add32_nosync(int32_t * ptr, int32_t incr)
+{
+	*ptr += incr;
+}
 
 #endif /* __CVMX_REGS_H__ */

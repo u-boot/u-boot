@@ -1189,7 +1189,7 @@ s64 cvmx_bootmem_phy_mem_list_init(u64 mem_size,
 	if (mem_size > OCTEON_DDR1_SIZE) {
 		__cvmx_bootmem_phy_free(OCTEON_DDR1_BASE, OCTEON_DDR1_SIZE, 0);
 		__cvmx_bootmem_phy_free(OCTEON_DDR2_BASE,
-					mem_size - OCTEON_DDR1_SIZE, 0);
+					mem_size - OCTEON_DDR2_BASE, 0);
 	} else {
 		__cvmx_bootmem_phy_free(OCTEON_DDR1_BASE, mem_size, 0);
 	}
@@ -1349,7 +1349,6 @@ s64 cvmx_bootmem_phy_mem_list_init_multi(u8 node_mask,
 		addr += sizeof(struct cvmx_bootmem_named_block_desc);
 	}
 
-	// test-only: DEBUG ifdef???
 	cvmx_bootmem_phy_list_print();
 
 	return 1;

@@ -128,6 +128,26 @@ enum cvmx_pko_padding {
 };
 
 /**
+ * cvmx_override_iface_phy_mode(int interface, int index) is a function pointer.
+ * It is meant to allow customization of interfaces which do not have a PHY.
+ *
+ * @returns 0 if MAC decides TX_CONFIG_REG or 1 if PHY decides  TX_CONFIG_REG.
+ *
+ * If this function pointer is NULL then it defaults to the MAC.
+ */
+extern int (*cvmx_override_iface_phy_mode) (int interface, int index);
+
+/**
+ * cvmx_override_ipd_port_setup(int ipd_port) is a function
+ * pointer. It is meant to allow customization of the IPD port/port kind
+ * setup before packet input/output comes online. It is called
+ * after cvmx-helper does the default IPD configuration, but
+ * before IPD is enabled. Users should set this pointer to a
+ * function before calling any cvmx-helper operations.
+ */
+extern void (*cvmx_override_ipd_port_setup) (int ipd_port);
+
+/**
  * This function enables the IPD and also enables the packet interfaces.
  * The packet interfaces (RGMII and SPI) must be enabled after the
  * IPD.  This should be called by the user program after any additional
