@@ -38,6 +38,7 @@ config FWU_MULTI_BANK_UPDATE
 	select DM_SPI_FLASH
 	select DM_FWU_MDATA
 	select BOARD_LATE_INIT
+	select SET_DFU_ALT_INFO
 
 config FWU_NUM_BANKS
 	default 2
