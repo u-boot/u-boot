@@ -8,6 +8,8 @@
 
 #include <blk.h>
 #include <efi.h>
+#include <fwu_mdata.h>
+#include <mtd.h>
 
 #include <linux/types.h>
 

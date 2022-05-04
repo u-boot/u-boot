@@ -6,13 +6,18 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <cros_ec.h>
+#include <dfu.h>
 #include <dm.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env_internal.h>
+#include <fwu.h>
+#include <fwu_mdata.h>
 #include <init.h>
 #include <led.h>
+#include <mtd.h>
 #include <os.h>
+#include <uuid.h>
 #include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
@@ -51,8 +56,15 @@ struct efi_fw_image fw_images[] = {
 };
 
 struct efi_capsule_update_info update_info = {
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+	.dfu_string = "mtd nor0=u-boot-bin-a raw 0x100000 0x10000;"
+		"u-boot-env-a raw 0x120000 0x10000;"
+		"u-boot-bin-b raw 0x140000 0x10000;"
+		"u-boot-env-b raw 0x160000 0x10000",
+#else
 	.dfu_string = "sf 0:0=u-boot-bin raw 0x100000 0x50000;"
 		"u-boot-env raw 0x150000 0x200000",
+#endif
 	.images = fw_images,
 };
 
@@ -155,3 +167,40 @@ int board_late_init(void)
 	return 0;
 }
 #endif
+
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+int fwu_plat_get_alt_num(struct udevice __always_unused *dev,
+			 efi_guid_t *image_id, int *alt_num)
+{
+	return fwu_get_mtd_alt_num(image_id, alt_num, "nor0", 1);
+}
+
+int fwu_plat_get_update_index(u32 *update_idx)
+{
+	int ret;
+	u32 active_idx;
+
+	ret = fwu_get_active_index(&active_idx);
+
+	if (ret < 0)
+		return -1;
+
+	*update_idx = active_idx ^= 0x1;
+
+	return ret;
+}
+
+void fwu_plat_get_bootidx(void *boot_idx)
+{
+	int ret;
+	u32 active_idx;
+	u32 *bootidx = boot_idx;
+
+	ret = fwu_get_active_index(&active_idx);
+
+	if (ret < 0)
+		*bootidx = -1;
+
+	*bootidx = active_idx;
+}
+#endif /* CONFIG_FWU_MULTI_BANK_UPDATE */

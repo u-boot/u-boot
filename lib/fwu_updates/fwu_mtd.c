@@ -84,11 +84,11 @@ int fwu_get_mtd_alt_num(efi_guid_t *image_id, int *alt_num,
 int gen_image_alt_info(char *buf, size_t len, int sidx,
 		       struct fwu_image_entry *img, struct mtd_info *mtd)
 {
-	char *p = buf, *end = buf + len;
-	char uuidbuf[UUID_STR_LEN + 1];
-	ofnode node, parts_node;
-	const char *suuid;
 	int i;
+	const char *suuid;
+	ofnode node, parts_node;
+	char uuidbuf[UUID_STR_LEN + 1];
+	char *p = buf, *end = buf + len;
 
 	/* Find partition node under given MTD device. */
 	parts_node = ofnode_by_compatible(mtd_get_ofnode(mtd),
@@ -145,7 +145,7 @@ int gen_image_alt_info(char *buf, size_t len, int sidx,
 
 int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd)
 {
-	struct fwu_mdata *mdata;
+	struct fwu_mdata *mdata = NULL;
 	int i, l, ret;
 
 	ret = fwu_get_mdata(&mdata);
