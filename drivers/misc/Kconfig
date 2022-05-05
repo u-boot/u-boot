@@ -43,6 +43,22 @@ config VPL_MISC
 	  set of generic read, write and ioctl methods may be used to
 	  access the device.
 
+config NVMEM
+	bool "NVMEM support"
+	help
+	  This adds support for a common interface to different types of
+	  non-volatile memory. Consumers can use nvmem-cells properties to look
+	  up hardware configuration data such as MAC addresses and calibration
+	  settings.
+
+config SPL_NVMEM
+	bool "NVMEM support in SPL"
+	help
+	  This adds support for a common interface to different types of
+	  non-volatile memory. Consumers can use nvmem-cells properties to look
+	  up hardware configuration data such as MAC addresses and calibration
+	  settings.
+
 config ALTERA_SYSID
 	bool "Altera Sysid support"
 	depends on MISC

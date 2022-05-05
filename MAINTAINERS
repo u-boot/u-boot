@@ -1091,6 +1091,13 @@ F:	cmd/nvme.c
 F:	include/nvme.h
 F:	doc/develop/driver-model/nvme.rst
 
+NVMEM
+M:	Sean Anderson <seanga2@gmail.com>
+S:	Maintained
+F:	doc/api/nvmem.rst
+F:	drivers/misc/nvmem.c
+F:	include/nvmem.h
+
 NXP C45 TJA11XX PHY DRIVER
 M:	Radu Pirea <radu-nicolae.pirea@oss.nxp.com>
 S:	Maintained
