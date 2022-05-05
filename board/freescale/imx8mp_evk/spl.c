@@ -134,8 +134,6 @@ void board_init_f(ulong dummy)
 
 	init_uart_clk(1);
 
-	board_early_init_f();
-
 	ret = spl_early_init();
 	if (ret) {
 		debug("spl_init() failed: %d\n", ret);
