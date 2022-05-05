@@ -33,7 +33,8 @@ int i2c_eeprom_read(struct udevice *dev, int offset, uint8_t *buf, int size)
 	return ops->read(dev, offset, buf, size);
 }
 
-int i2c_eeprom_write(struct udevice *dev, int offset, uint8_t *buf, int size)
+int i2c_eeprom_write(struct udevice *dev, int offset, const uint8_t *buf,
+		     int size)
 {
 	const struct i2c_eeprom_ops *ops = device_get_ops(dev);
 
