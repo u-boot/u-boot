@@ -538,7 +538,8 @@
 	eth_3: sbe5 {
 		compatible = "sandbox,eth";
 		reg = <0x10005000 0x1000>;
-		mac-address = [ 02 00 11 22 33 45 ];
+		nvmem-cells = <&eth3_addr>;
+		nvmem-cell-names = "mac-address";
 	};
 
 	eth@10004000 {
@@ -701,6 +702,8 @@
 		pinctrl-0 = <&pinmux_i2c0_pins>;
 
 		eeprom@2c {
+			#address-cells = <1>;
+			#size-cells = <1>;
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
 			sandbox,emul = <&emul_eeprom>;
@@ -711,6 +714,10 @@
 				bootcount_i2c: bootcount@10 {
 					reg = <10 2>;
 				};
+			};
+
+			eth3_addr: mac-address@24 {
+				reg = <24 6>;
 			};
 		};
 
