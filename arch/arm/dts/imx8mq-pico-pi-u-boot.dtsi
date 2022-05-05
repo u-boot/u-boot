@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
+&pinctrl_uart1 {
+	u-boot,dm-spl;
+};
+
+&uart1 {
+	u-boot,dm-spl;
+};
