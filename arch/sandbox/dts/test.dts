@@ -558,7 +558,8 @@
 	dsa_eth0: dsa-test-eth {
 		compatible = "sandbox,eth";
 		reg = <0x10006000 0x1000>;
-		mac-address = [ 02 00 11 22 33 48 ];
+		nvmem-cells = <&eth4_addr>;
+		nvmem-cell-names = "mac-address";
 	};
 
 	dsa-test {
@@ -722,9 +723,15 @@
 		};
 
 		rtc_0: rtc@43 {
+			#address-cells = <1>;
+			#size-cells = <1>;
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
 			sandbox,emul = <&emul0>;
+
+			eth4_addr: mac-address@40 {
+				reg = <0x40 6>;
+			};
 		};
 
 		rtc_1: rtc@61 {
