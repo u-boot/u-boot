@@ -30,7 +30,4 @@
 	"initrd_addr=0x43800000\0"					\
 	"kernel_image=fitImage\0"
 
-#undef CONFIG_MXC_UART_BASE
-#define CONFIG_MXC_UART_BASE		UART2_BASE_ADDR
-
 #endif /* __IMX8MM_MX8MENLO_H */
