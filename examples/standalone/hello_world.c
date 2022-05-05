@@ -4,7 +4,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <exports.h>
 
 int hello_world(int argc, char *const argv[])
