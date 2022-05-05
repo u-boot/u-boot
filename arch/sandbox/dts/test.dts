@@ -28,6 +28,9 @@
 		ethernet3 = &eth_3;
 		ethernet4 = &dsa_eth0;
 		ethernet5 = &eth_5;
+		ethernet6 = "/eth@10004000";
+		ethernet7 = &swp_1;
+		ethernet8 = &phy_eth0;
 		gpio1 = &gpio_a;
 		gpio2 = &gpio_b;
 		gpio3 = &gpio_c;
