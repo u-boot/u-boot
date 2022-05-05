@@ -11,6 +11,8 @@
 #include <linux/bitops.h>
 
 static struct ccu_clk_gate h6_r_gates[] = {
+	[CLK_R_APB1]		= GATE_DUMMY,
+
 	[CLK_R_APB1_TIMER]	= GATE(0x11c, BIT(0)),
 	[CLK_R_APB1_TWD]	= GATE(0x12c, BIT(0)),
 	[CLK_R_APB1_PWM]	= GATE(0x13c, BIT(0)),

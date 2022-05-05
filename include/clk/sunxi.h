@@ -18,6 +18,7 @@
 enum ccu_flags {
 	CCU_CLK_F_IS_VALID		= BIT(0),
 	CCU_RST_F_IS_VALID		= BIT(1),
+	CCU_CLK_F_DUMMY_GATE		= BIT(2),
 };
 
 /**
@@ -36,6 +37,10 @@ struct ccu_clk_gate {
 	.off = _off,				\
 	.bit = _bit,				\
 	.flags = CCU_CLK_F_IS_VALID,		\
+}
+
+#define GATE_DUMMY {				\
+	.flags = CCU_CLK_F_DUMMY_GATE,		\
 }
 
 /**
