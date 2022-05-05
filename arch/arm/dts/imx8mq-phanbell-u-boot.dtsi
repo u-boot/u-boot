@@ -5,3 +5,11 @@
 &reg_usdhc2_vmmc {
 	u-boot,off-on-delay-us = <20000>;
 };
+
+&uart1 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_uart1 {
+	u-boot,dm-spl;
+};
