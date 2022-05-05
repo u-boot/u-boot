@@ -30,11 +30,6 @@ static int meson_reset_request(struct reset_ctl *reset_ctl)
 	return 0;
 }
 
-static int meson_reset_free(struct reset_ctl *reset_ctl)
-{
-	return 0;
-}
-
 static int meson_reset_level(struct reset_ctl *reset_ctl, bool assert)
 {
 	struct meson_reset_priv *priv = dev_get_priv(reset_ctl->dev);
@@ -65,7 +60,6 @@ static int meson_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops meson_reset_ops = {
 	.request = meson_reset_request,
-	.rfree = meson_reset_free,
 	.rst_assert = meson_reset_assert,
 	.rst_deassert = meson_reset_deassert,
 };

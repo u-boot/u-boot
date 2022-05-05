@@ -501,11 +501,12 @@ static int do_mmc_rescan(struct cmd_tbl *cmdtp, int flag,
 			 int argc, char *const argv[])
 {
 	struct mmc *mmc;
-	enum bus_mode speed_mode = MMC_MODES_END;
 
 	if (argc == 1) {
 		mmc = init_mmc_device(curr_device, true);
 	} else if (argc == 2) {
+		enum bus_mode speed_mode;
+
 		speed_mode = (int)dectoul(argv[1], NULL);
 		mmc = __init_mmc_device(curr_device, true, speed_mode);
 	} else {
@@ -543,7 +544,6 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 {
 	int dev, part = 0, ret;
 	struct mmc *mmc;
-	enum bus_mode speed_mode = MMC_MODES_END;
 
 	if (argc == 1) {
 		dev = curr_device;
@@ -561,6 +561,8 @@ static int do_mmc_dev(struct cmd_tbl *cmdtp, int flag,
 		}
 		mmc = init_mmc_device(dev, true);
 	} else if (argc == 4) {
+		enum bus_mode speed_mode;
+
 		dev = (int)dectoul(argv[1], NULL);
 		part = (int)dectoul(argv[2], NULL);
 		if (part > PART_ACCESS_MASK) {

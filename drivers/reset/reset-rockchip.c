@@ -40,14 +40,6 @@ static int rockchip_reset_request(struct reset_ctl *reset_ctl)
 	return 0;
 }
 
-static int rockchip_reset_free(struct reset_ctl *reset_ctl)
-{
-	debug("%s(reset_ctl=%p) (dev=%p, id=%lu)\n", __func__, reset_ctl,
-	      reset_ctl->dev, reset_ctl->id);
-
-	return 0;
-}
-
 static int rockchip_reset_assert(struct reset_ctl *reset_ctl)
 {
 	struct rockchip_reset_priv *priv = dev_get_priv(reset_ctl->dev);
@@ -80,7 +72,6 @@ static int rockchip_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops rockchip_reset_ops = {
 	.request = rockchip_reset_request,
-	.rfree = rockchip_reset_free,
 	.rst_assert = rockchip_reset_assert,
 	.rst_deassert = rockchip_reset_deassert,
 };

@@ -152,9 +152,6 @@ _DEFUN (ctime_r, (tim_p, result),
     return asctime_r (localtime_r (tim_p, &tm), result);
 }
 
-/* for compatibility with linux code */
-typedef __s64 time64_t;
-
 #ifdef CONFIG_LIB_DATE
 time64_t mktime64(const unsigned int year, const unsigned int mon,
 		  const unsigned int day, const unsigned int hour,

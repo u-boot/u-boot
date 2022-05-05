@@ -71,16 +71,12 @@ static int do_adc_info(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_adc_single(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
-	char *varname = NULL;
 	struct udevice *dev;
 	unsigned int data;
 	int ret, uV, val;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
-
-	if (argc >= 3)
-		varname = argv[2];
 
 	ret = adc_channel_single_shot(argv[1], simple_strtol(argv[2], NULL, 0),
 				      &data);
@@ -99,8 +95,7 @@ static int do_adc_single(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("%u\n", data);
 	}
 
-	if (varname)
-		env_set_ulong(varname, val);
+	env_set_ulong(argv[2], val);
 
 	return CMD_RET_SUCCESS;
 }

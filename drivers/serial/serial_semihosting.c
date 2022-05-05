@@ -54,6 +54,9 @@ static ssize_t smh_serial_puts(struct udevice *dev, const char *s, size_t len)
 		}
 
 		buf = strndup(s, len);
+		if (!buf)
+			return -ENOMEM;
+
 		smh_puts(buf);
 		free(buf);
 		return len;

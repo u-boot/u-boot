@@ -89,25 +89,7 @@ static int socfpga_reset_deassert(struct reset_ctl *reset_ctl)
 				 false, 500, false);
 }
 
-static int socfpga_reset_request(struct reset_ctl *reset_ctl)
-{
-	debug("%s(reset_ctl=%p) (dev=%p, id=%lu)\n", __func__,
-	      reset_ctl, reset_ctl->dev, reset_ctl->id);
-
-	return 0;
-}
-
-static int socfpga_reset_free(struct reset_ctl *reset_ctl)
-{
-	debug("%s(reset_ctl=%p) (dev=%p, id=%lu)\n", __func__, reset_ctl,
-	      reset_ctl->dev, reset_ctl->id);
-
-	return 0;
-}
-
 static const struct reset_ops socfpga_reset_ops = {
-	.request = socfpga_reset_request,
-	.rfree = socfpga_reset_free,
 	.rst_assert = socfpga_reset_assert,
 	.rst_deassert = socfpga_reset_deassert,
 };

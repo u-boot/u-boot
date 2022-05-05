@@ -41,13 +41,6 @@ static int sunxi_reset_request(struct reset_ctl *reset_ctl)
 	return 0;
 }
 
-static int sunxi_reset_free(struct reset_ctl *reset_ctl)
-{
-	debug("%s: (RST#%ld)\n", __func__, reset_ctl->id);
-
-	return 0;
-}
-
 static int sunxi_set_reset(struct reset_ctl *reset_ctl, bool on)
 {
 	struct sunxi_reset_priv *priv = dev_get_priv(reset_ctl->dev);
@@ -85,7 +78,6 @@ static int sunxi_reset_deassert(struct reset_ctl *reset_ctl)
 
 struct reset_ops sunxi_reset_ops = {
 	.request = sunxi_reset_request,
-	.rfree = sunxi_reset_free,
 	.rst_assert = sunxi_reset_assert,
 	.rst_deassert = sunxi_reset_deassert,
 };

@@ -65,14 +65,8 @@ static int scmi_reset_request(struct reset_ctl *rst)
 	return scmi_to_linux_errno(out.status);
 }
 
-static int scmi_reset_rfree(struct reset_ctl *rst)
-{
-	return 0;
-}
-
 static const struct reset_ops scmi_reset_domain_ops = {
 	.request	= scmi_reset_request,
-	.rfree		= scmi_reset_rfree,
 	.rst_assert	= scmi_reset_assert,
 	.rst_deassert	= scmi_reset_deassert,
 };

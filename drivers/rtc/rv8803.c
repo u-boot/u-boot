@@ -49,7 +49,7 @@ static int rv8803_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 		printf("WARNING: year should be between 2000 and 2099!\n");
 
 	buf[RTC_YR_REG_ADDR] = bin2bcd(tm->tm_year % 100);
-	buf[RTC_MON_REG_ADDR] = bin2bcd(tm->tm_mon);
+	buf[RTC_MON_REG_ADDR] = bin2bcd(tm->tm_mon + 1);
 	buf[RTC_DAY_REG_ADDR] = 1 << (tm->tm_wday & 0x7);
 	buf[RTC_DATE_REG_ADDR] = bin2bcd(tm->tm_mday);
 	buf[RTC_HR_REG_ADDR] = bin2bcd(tm->tm_hour);
@@ -90,7 +90,7 @@ static int rv8803_rtc_get(struct udevice *dev, struct rtc_time *tm)
 	tm->tm_min  = bcd2bin(buf[RTC_MIN_REG_ADDR] & 0x7F);
 	tm->tm_hour = bcd2bin(buf[RTC_HR_REG_ADDR] & 0x3F);
 	tm->tm_mday = bcd2bin(buf[RTC_DATE_REG_ADDR] & 0x3F);
-	tm->tm_mon  = bcd2bin(buf[RTC_MON_REG_ADDR] & 0x1F);
+	tm->tm_mon  = bcd2bin(buf[RTC_MON_REG_ADDR] & 0x1F) - 1;
 	tm->tm_year = bcd2bin(buf[RTC_YR_REG_ADDR]) + 2000;
 	tm->tm_wday = fls(buf[RTC_DAY_REG_ADDR] & 0x7F) - 1;
 	tm->tm_yday = 0;

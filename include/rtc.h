@@ -16,6 +16,8 @@
 #include <bcd.h>
 #include <rtc_def.h>
 
+typedef int64_t time64_t;
+
 #ifdef CONFIG_DM_RTC
 
 struct udevice;
@@ -301,7 +303,7 @@ int rtc_calc_weekday(struct rtc_time *time);
 void rtc_to_tm(u64 time_t, struct rtc_time *time);
 
 /**
- * rtc_mktime() - Convert a broken-out time into a time_t value
+ * rtc_mktime() - Convert a broken-out time into a time64_t value
  *
  * The following fields need to be valid for this function to work:
  *	tm_sec, tm_min, tm_hour, tm_mday, tm_mon, tm_year
@@ -309,9 +311,9 @@ void rtc_to_tm(u64 time_t, struct rtc_time *time);
  * Note that tm_wday and tm_yday are ignored.
  *
  * @time:	Broken-out time to convert
- * Return: corresponding time_t value, seconds since 1970-01-01 00:00:00
+ * Return: corresponding time64_t value, seconds since 1970-01-01 00:00:00
  */
-unsigned long rtc_mktime(const struct rtc_time *time);
+time64_t rtc_mktime(const struct rtc_time *time);
 
 /**
  * rtc_month_days() - The number of days in the month

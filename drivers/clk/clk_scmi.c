@@ -53,7 +53,7 @@ static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name)
 	if (ret)
 		return ret;
 
-	*name = out.clock_name;
+	*name = strdup(out.clock_name);
 
 	return 0;
 }
@@ -152,11 +152,9 @@ static int scmi_clk_probe(struct udevice *dev)
 		return ret;
 
 	for (i = 0; i < num_clocks; i++) {
-		char *name;
+		char *clock_name;
 
-		if (!scmi_clk_get_attibute(dev, i, &name)) {
-			char *clock_name = strdup(name);
-
+		if (!scmi_clk_get_attibute(dev, i, &clock_name)) {
 			clk = kzalloc(sizeof(*clk), GFP_KERNEL);
 			if (!clk || !clock_name)
 				ret = -ENOMEM;

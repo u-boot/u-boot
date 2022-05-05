@@ -53,7 +53,7 @@ static int arg_off_size_onenand(int argc, char *const argv[], ulong *off,
 	if (*size == mtd->size)
 		puts("whole chip\n");
 	else
-		printf("offset 0x%lx, size 0x%x\n", *off, *size);
+		printf("offset 0x%lx, size 0x%zx\n", *off, *size);
 
 	return 0;
 }
@@ -401,7 +401,7 @@ static int do_onenand_read(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	ret = onenand_block_read(ofs, len, &retlen, (u8 *)addr, oob);
 
-	printf(" %d bytes read: %s\n", retlen, ret ? "ERROR" : "OK");
+	printf(" %zu bytes read: %s\n", retlen, ret ? "ERROR" : "OK");
 
 	return ret == 0 ? 0 : 1;
 }
@@ -428,7 +428,7 @@ static int do_onenand_write(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	ret = onenand_block_write(ofs, len, &retlen, (u8 *)addr, withoob);
 
-	printf(" %d bytes written: %s\n", retlen, ret ? "ERROR" : "OK");
+	printf(" %zu bytes written: %s\n", retlen, ret ? "ERROR" : "OK");
 
 	return ret == 0 ? 0 : 1;
 }

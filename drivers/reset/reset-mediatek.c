@@ -24,16 +24,6 @@ struct mediatek_reset_priv {
 	u32 nr_resets;
 };
 
-static int mediatek_reset_request(struct reset_ctl *reset_ctl)
-{
-	return 0;
-}
-
-static int mediatek_reset_free(struct reset_ctl *reset_ctl)
-{
-	return 0;
-}
-
 static int mediatek_reset_assert(struct reset_ctl *reset_ctl)
 {
 	struct mediatek_reset_priv *priv = dev_get_priv(reset_ctl->dev);
@@ -59,8 +49,6 @@ static int mediatek_reset_deassert(struct reset_ctl *reset_ctl)
 }
 
 struct reset_ops mediatek_reset_ops = {
-	.request = mediatek_reset_request,
-	.rfree = mediatek_reset_free,
 	.rst_assert = mediatek_reset_assert,
 	.rst_deassert = mediatek_reset_deassert,
 };
