@@ -1,0 +1,26 @@
+if ARCH_NPCM
+
+config SYS_ARCH
+	default "arm"
+
+config SYS_TEXT_BASE
+	default 0x8000
+
+choice
+	prompt "Nuvoton SoC select"
+	default ARCH_NPCM7xx
+
+config ARCH_NPCM7xx
+	bool "Support Nuvoton NPCM7xx SoC"
+	select CPU_V7A
+	select OF_CONTROL
+	select DM
+	help
+	  General support for NPCM7xx BMC (Poleg).
+	  Nuvoton NPCM7xx BMC is based on the Cortex A9.
+
+endchoice
+
+source "arch/arm/mach-npcm/npcm7xx/Kconfig"
+
+endif

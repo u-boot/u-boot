@@ -172,6 +172,15 @@ config NOMADIK_MTU_TIMER
 	  The MTU provides 4 decrementing free-running timers.
 	  At the moment, only the first timer is used by the driver.
 
+config NPCM_TIMER
+	bool "Nuvoton NPCM timer support"
+	depends on TIMER
+	help
+	  Select this to enable a timer on Nuvoton NPCM SoCs.
+	  NPCM timer module has 5 down-counting timers, only the first timer
+	  is used to implement timer ops. No support for early timer and
+	  boot timer.
+
 config OMAP_TIMER
 	bool "Omap timer support"
 	depends on TIMER

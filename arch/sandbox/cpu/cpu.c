@@ -291,6 +291,31 @@ void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
 }
 
+/**
+ * setup_auto_tree() - Set up a basic device tree to allow sandbox to work
+ *
+ * This is used when no device tree is provided. It creates a simple tree with
+ * just a /binman node.
+ *
+ * @blob: Place to put the created device tree
+ * Returns: 0 on success, -ve FDT error code on failure
+ */
+static int setup_auto_tree(void *blob)
+{
+	int err;
+
+	err = fdt_create_empty_tree(blob, 256);
+	if (err)
+		return err;
+
+	/* Create a /binman node in case CONFIG_BINMAN is enabled */
+	err = fdt_add_subnode(blob, 0, "binman");
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 void *board_fdt_blob_setup(int *ret)
 {
 	struct sandbox_state *state = state_get_current();
@@ -303,7 +328,7 @@ void *board_fdt_blob_setup(int *ret)
 	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
 	*ret = 0;
 	if (!state->fdt_fname) {
-		err = fdt_create_empty_tree(blob, 256);
+		err = setup_auto_tree(blob);
 		if (!err)
 			goto done;
 		printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
