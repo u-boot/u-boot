@@ -17,10 +17,6 @@ config ARMADA_32BIT
 	select TRANSLATION_OFFSET
 	select SPL_SYS_NO_VECTOR_TABLE if SPL
 
-config ARMADA_64BIT
-	bool
-	select ARM64
-
 # ARMv7 SoCs...
 config ARMADA_375
 	bool
