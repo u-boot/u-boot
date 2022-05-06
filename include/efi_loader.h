@@ -300,6 +300,8 @@ extern const efi_guid_t efi_guid_image_security_database;
 extern const efi_guid_t efi_guid_sha256;
 extern const efi_guid_t efi_guid_cert_x509;
 extern const efi_guid_t efi_guid_cert_x509_sha256;
+extern const efi_guid_t efi_guid_cert_x509_sha384;
+extern const efi_guid_t efi_guid_cert_x509_sha512;
 extern const efi_guid_t efi_guid_cert_type_pkcs7;
 
 /* GUID of RNG protocol */
@@ -676,6 +678,10 @@ efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size);
 
 /* get a device path from a Boot#### option */
 struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
+
+/* get len, string (used in u-boot crypto from a guid */
+const char *guid_to_sha_str(const efi_guid_t *guid);
+int algo_to_len(const char *algo);
 
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages
