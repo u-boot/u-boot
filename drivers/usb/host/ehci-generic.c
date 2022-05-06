@@ -26,12 +26,9 @@ struct generic_ehci {
 	struct clk_bulk clocks;
 	struct reset_ctl_bulk resets;
 	struct phy phy;
-#ifdef CONFIG_DM_REGULATOR
 	struct udevice *vbus_supply;
-#endif
 };
 
-#ifdef CONFIG_DM_REGULATOR
 static int ehci_enable_vbus_supply(struct udevice *dev)
 {
 	struct generic_ehci *priv = dev_get_priv(dev);
@@ -62,17 +59,6 @@ static int ehci_disable_vbus_supply(struct generic_ehci *priv)
 	else
 		return 0;
 }
-#else
-static int ehci_enable_vbus_supply(struct udevice *dev)
-{
-	return 0;
-}
-
-static int ehci_disable_vbus_supply(struct generic_ehci *priv)
-{
-	return 0;
-}
-#endif
 
 static int ehci_usb_probe(struct udevice *dev)
 {
