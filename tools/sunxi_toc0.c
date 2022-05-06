@@ -4,6 +4,8 @@
  * (C) Copyright 2020-2021 Samuel Holland <samuel@sholland.org>
  */
 
+#define OPENSSL_API_COMPAT 0x10101000L
+
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -11,6 +13,7 @@
 #include <string.h>
 
 #include <openssl/asn1t.h>
+#include <openssl/bn.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 
