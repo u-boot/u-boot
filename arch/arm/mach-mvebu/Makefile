@@ -21,6 +21,7 @@ else # CONFIG_ARCH_KIRKWOOD
 
 obj-y	= cpu.o
 obj-y	+= dram.o
+obj-y	+= lowlevel.o
 obj-$(CONFIG_DM_RESET) += system-controller.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ARMADA_375) += ../../../drivers/ddr/marvell/axp/xor.o
