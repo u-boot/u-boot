@@ -23,17 +23,12 @@
  */
 struct generic_ehci {
 	struct ehci_ctrl ctrl;
-	struct clk *clocks;
-	struct reset_ctl *resets;
+	struct clk_bulk clocks;
+	struct reset_ctl_bulk resets;
 	struct phy phy;
-#ifdef CONFIG_DM_REGULATOR
 	struct udevice *vbus_supply;
-#endif
-	int clock_count;
-	int reset_count;
 };
 
-#ifdef CONFIG_DM_REGULATOR
 static int ehci_enable_vbus_supply(struct udevice *dev)
 {
 	struct generic_ehci *priv = dev_get_priv(dev);
@@ -47,7 +42,7 @@ static int ehci_enable_vbus_supply(struct udevice *dev)
 	if (priv->vbus_supply) {
 		ret = regulator_set_enable(priv->vbus_supply, true);
 		if (ret) {
-			dev_err(dev, "Error enabling VBUS supply\n");
+			dev_err(dev, "Error enabling VBUS supply (ret=%d)\n", ret);
 			return ret;
 		}
 	} else {
@@ -64,85 +59,37 @@ static int ehci_disable_vbus_supply(struct generic_ehci *priv)
 	else
 		return 0;
 }
-#else
-static int ehci_enable_vbus_supply(struct udevice *dev)
-{
-	return 0;
-}
-
-static int ehci_disable_vbus_supply(struct generic_ehci *priv)
-{
-	return 0;
-}
-#endif
 
 static int ehci_usb_probe(struct udevice *dev)
 {
 	struct generic_ehci *priv = dev_get_priv(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
-	int i, err, ret, clock_nb, reset_nb;
+	int err, ret;
 
 	err = 0;
-	priv->clock_count = 0;
-	clock_nb = ofnode_count_phandle_with_args(dev_ofnode(dev), "clocks",
-						  "#clock-cells", 0);
-	if (clock_nb > 0) {
-		priv->clocks = devm_kcalloc(dev, clock_nb, sizeof(struct clk),
-					    GFP_KERNEL);
-		if (!priv->clocks)
-			return -ENOMEM;
-
-		for (i = 0; i < clock_nb; i++) {
-			err = clk_get_by_index(dev, i, &priv->clocks[i]);
-
-			if (err < 0)
-				break;
-			err = clk_enable(&priv->clocks[i]);
-			if (err && err != -ENOSYS) {
-				dev_err(dev, "failed to enable clock %d\n", i);
-				clk_free(&priv->clocks[i]);
-				goto clk_err;
-			}
-			priv->clock_count++;
-		}
-	} else {
-		if (clock_nb != -ENOENT) {
-			dev_err(dev, "failed to get clock phandle(%d)\n",
-				clock_nb);
-			return clock_nb;
-		}
+	ret = clk_get_bulk(dev, &priv->clocks);
+	if (ret) {
+		dev_err(dev, "Failed to get clocks (ret=%d)\n", ret);
+		return ret;
 	}
 
-	priv->reset_count = 0;
-	reset_nb = ofnode_count_phandle_with_args(dev_ofnode(dev), "resets",
-						  "#reset-cells", 0);
-	if (reset_nb > 0) {
-		priv->resets = devm_kcalloc(dev, reset_nb,
-					    sizeof(struct reset_ctl),
-					    GFP_KERNEL);
-		if (!priv->resets)
-			return -ENOMEM;
+	err = clk_enable_bulk(&priv->clocks);
+	if (err) {
+		dev_err(dev, "Failed to enable clocks (err=%d)\n", err);
+		goto clk_err;
+	}
 
-		for (i = 0; i < reset_nb; i++) {
-			err = reset_get_by_index(dev, i, &priv->resets[i]);
-			if (err < 0)
-				break;
+	err = reset_get_bulk(dev, &priv->resets);
+	if (err) {
+		dev_err(dev, "Failed to get resets (err=%d)\n", err);
+		goto clk_err;
+	}
 
-			if (reset_deassert(&priv->resets[i])) {
-				dev_err(dev, "failed to deassert reset %d\n",
-					i);
-				reset_free(&priv->resets[i]);
-				goto reset_err;
-			}
-			priv->reset_count++;
-		}
-	} else {
-		if (reset_nb != -ENOENT) {
-			dev_err(dev, "failed to get reset phandle(%d)\n",
-				reset_nb);
-			goto clk_err;
-		}
+	err = reset_deassert_bulk(&priv->resets);
+	if (err) {
+		dev_err(dev, "Failed to get deassert resets (err=%d)\n", err);
+		goto reset_err;
 	}
 
 	err = ehci_enable_vbus_supply(dev);
@@ -166,21 +113,21 @@ static int ehci_usb_probe(struct udevice *dev)
 phy_err:
 	ret = ehci_shutdown_phy(dev, &priv->phy);
 	if (ret)
-		dev_err(dev, "failed to shutdown usb phy\n");
+		dev_err(dev, "failed to shutdown usb phy (ret=%d)\n", ret);
 
 regulator_err:
 	ret = ehci_disable_vbus_supply(priv);
 	if (ret)
-		dev_err(dev, "failed to disable VBUS supply\n");
+		dev_err(dev, "failed to disable VBUS supply (ret=%d)\n", ret);
 
 reset_err:
-	ret = reset_release_all(priv->resets, priv->reset_count);
+	ret = reset_release_bulk(&priv->resets);
 	if (ret)
-		dev_err(dev, "failed to assert all resets\n");
+		dev_err(dev, "failed to release resets (ret=%d)\n", ret);
 clk_err:
-	ret = clk_release_all(priv->clocks, priv->clock_count);
+	ret = clk_release_bulk(&priv->clocks);
 	if (ret)
-		dev_err(dev, "failed to disable all clocks\n");
+		dev_err(dev, "failed to release clocks (ret=%d)\n", ret);
 
 	return err;
 }
@@ -202,11 +149,11 @@ static int ehci_usb_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret =  reset_release_all(priv->resets, priv->reset_count);
+	ret = reset_release_bulk(&priv->resets);
 	if (ret)
 		return ret;
 
-	return clk_release_all(priv->clocks, priv->clock_count);
+	return clk_release_bulk(&priv->clocks);
 }
 
 static const struct udevice_id ehci_usb_ids[] = {
