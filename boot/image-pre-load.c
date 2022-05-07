@@ -23,11 +23,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IMAGE_PRE_LOAD_PROP_PUBLIC_KEY		"public-key"
 #define IMAGE_PRE_LOAD_PROP_MANDATORY		"mandatory"
 
-#ifndef CONFIG_SYS_BOOTM_LEN
-/* use 8MByte as default max gunzip size */
-#define CONFIG_SYS_BOOTM_LEN	0x800000
-#endif
-
 /*
  * Information in the device-tree about the signature in the header
  */
