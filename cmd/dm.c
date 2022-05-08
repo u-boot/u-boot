@@ -10,18 +10,10 @@
 #include <command.h>
 #include <dm/util.h>
 
-static int do_dm_dump_tree(struct cmd_tbl *cmdtp, int flag, int argc,
-			   char *const argv[])
+static int do_dm_dump_driver_compat(struct cmd_tbl *cmdtp, int flag, int argc,
+				    char * const argv[])
 {
-	dm_dump_tree();
-
-	return 0;
-}
-
-static int do_dm_dump_uclass(struct cmd_tbl *cmdtp, int flag, int argc,
-			     char *const argv[])
-{
-	dm_dump_uclass();
+	dm_dump_driver_compat();
 
 	return 0;
 }
@@ -42,37 +34,45 @@ static int do_dm_dump_drivers(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int do_dm_dump_driver_compat(struct cmd_tbl *cmdtp, int flag, int argc,
-				    char * const argv[])
-{
-	dm_dump_driver_compat();
-
-	return 0;
-}
-
-static int do_dm_dump_static_driver_info(struct cmd_tbl *cmdtp, int flag, int argc,
-					 char * const argv[])
+static int do_dm_dump_static_driver_info(struct cmd_tbl *cmdtp, int flag,
+					 int argc, char * const argv[])
 {
 	dm_dump_static_driver_info();
 
 	return 0;
 }
 
+static int do_dm_dump_tree(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
+{
+	dm_dump_tree();
+
+	return 0;
+}
+
+static int do_dm_dump_uclass(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
+{
+	dm_dump_uclass();
+
+	return 0;
+}
+
 #if CONFIG_IS_ENABLED(SYS_LONGHELP)
 static char dm_help_text[] =
-	"tree          Dump driver model tree ('*' = activated)\n"
-	"dm uclass        Dump list of instances for each uclass\n"
+	"compat        Dump list of drivers with compatibility strings\n"
 	"dm devres        Dump list of device resources for each device\n"
 	"dm drivers       Dump list of drivers with uclass and instances\n"
-	"dm compat        Dump list of drivers with compatibility strings\n"
-	"dm static        Dump list of drivers with static platform data"
+	"dm static        Dump list of drivers with static platform data\n"
+	"dn tree          Dump tree of driver model devices ('*' = activated)\n"
+	"dm uclass        Dump list of instances for each uclass"
 	;
 #endif
 
 U_BOOT_CMD_WITH_SUBCMDS(dm, "Driver model low level access", dm_help_text,
-	U_BOOT_SUBCMD_MKENT(tree, 1, 1, do_dm_dump_tree),
-	U_BOOT_SUBCMD_MKENT(uclass, 1, 1, do_dm_dump_uclass),
+	U_BOOT_SUBCMD_MKENT(compat, 1, 1, do_dm_dump_driver_compat),
 	U_BOOT_SUBCMD_MKENT(devres, 1, 1, do_dm_dump_devres),
 	U_BOOT_SUBCMD_MKENT(drivers, 1, 1, do_dm_dump_drivers),
-	U_BOOT_SUBCMD_MKENT(compat, 1, 1, do_dm_dump_driver_compat),
-	U_BOOT_SUBCMD_MKENT(static, 1, 1, do_dm_dump_static_driver_info));
+	U_BOOT_SUBCMD_MKENT(static, 1, 1, do_dm_dump_static_driver_info),
+	U_BOOT_SUBCMD_MKENT(tree, 1, 1, do_dm_dump_tree),
+	U_BOOT_SUBCMD_MKENT(uclass, 1, 1, do_dm_dump_uclass));
