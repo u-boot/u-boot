@@ -80,6 +80,12 @@ def efi_boot_env(request, u_boot_config):
         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                    shell=True)
+        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 384 db.crt dbx_hash384.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash384.crl dbx_hash384.auth'
+                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+                   shell=True)
+        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 512 db.crt dbx_hash512.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash512.crl dbx_hash512.auth'
+                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+                   shell=True)
         # dbx_hash1 (digest of TEST_db1 certificate)
         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -t "2020-04-06" -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
