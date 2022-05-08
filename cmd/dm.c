@@ -10,10 +10,10 @@
 #include <command.h>
 #include <dm/util.h>
 
-static int do_dm_dump_all(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[])
+static int do_dm_dump_tree(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
 {
-	dm_dump_all();
+	dm_dump_tree();
 
 	return 0;
 }
@@ -70,7 +70,7 @@ static char dm_help_text[] =
 #endif
 
 U_BOOT_CMD_WITH_SUBCMDS(dm, "Driver model low level access", dm_help_text,
-	U_BOOT_SUBCMD_MKENT(tree, 1, 1, do_dm_dump_all),
+	U_BOOT_SUBCMD_MKENT(tree, 1, 1, do_dm_dump_tree),
 	U_BOOT_SUBCMD_MKENT(uclass, 1, 1, do_dm_dump_uclass),
 	U_BOOT_SUBCMD_MKENT(devres, 1, 1, do_dm_dump_devres),
 	U_BOOT_SUBCMD_MKENT(drivers, 1, 1, do_dm_dump_drivers),

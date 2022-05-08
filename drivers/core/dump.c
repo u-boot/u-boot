@@ -45,7 +45,7 @@ static void show_devices(struct udevice *dev, int depth, int last_flag)
 	}
 }
 
-void dm_dump_all(void)
+void dm_dump_tree(void)
 {
 	struct udevice *root;
 

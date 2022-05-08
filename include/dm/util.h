@@ -25,7 +25,7 @@ struct list_head;
 int list_count_items(struct list_head *head);
 
 /* Dump out a tree of all devices */
-void dm_dump_all(void);
+void dm_dump_tree(void);
 
 /* Dump out a list of uclasses and their devices */
 void dm_dump_uclass(void);
