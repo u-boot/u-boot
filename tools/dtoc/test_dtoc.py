@@ -616,7 +616,7 @@ struct dm_test_pdata __attribute__ ((section (".priv_data")))
 u8 _denx_u_boot_test_bus_priv_some_bus[sizeof(struct dm_test_priv)]
 \t__attribute__ ((section (".priv_data")));
 #include <dm/test.h>
-u8 _denx_u_boot_test_bus_ucplat_some_bus[sizeof(struct dm_test_uclass_priv)]
+u8 _denx_u_boot_test_bus_ucplat_some_bus[sizeof(struct dm_test_uclass_plat)]
 \t__attribute__ ((section (".priv_data")));
 #include <test.h>
 
