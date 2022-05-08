@@ -674,6 +674,71 @@ void *dev_get_parent_priv(const struct udevice *dev)
 	return dm_priv_to_rw(dev->parent_priv_);
 }
 
+void *dev_get_attach_ptr(const struct udevice *dev, enum dm_tag_t tag)
+{
+	switch (tag) {
+	case DM_TAG_PLAT:
+		return dev_get_plat(dev);
+	case DM_TAG_PARENT_PLAT:
+		return dev_get_parent_plat(dev);
+	case DM_TAG_UC_PLAT:
+		return dev_get_uclass_plat(dev);
+	case DM_TAG_PRIV:
+		return dev_get_priv(dev);
+	case DM_TAG_PARENT_PRIV:
+		return dev_get_parent_priv(dev);
+	case DM_TAG_UC_PRIV:
+		return dev_get_uclass_priv(dev);
+	default:
+		return NULL;
+	}
+}
+
+int dev_get_attach_size(const struct udevice *dev, enum dm_tag_t tag)
+{
+	const struct udevice *parent = dev_get_parent(dev);
+	const struct uclass *uc = dev->uclass;
+	const struct uclass_driver *uc_drv = uc->uc_drv;
+	const struct driver *parent_drv = NULL;
+	int size = 0;
+
+	if (parent)
+		parent_drv = parent->driver;
+
+	switch (tag) {
+	case DM_TAG_PLAT:
+		size = dev->driver->plat_auto;
+		break;
+	case DM_TAG_PARENT_PLAT:
+		if (parent) {
+			size = parent_drv->per_child_plat_auto;
+			if (!size)
+				size = parent->uclass->uc_drv->per_child_plat_auto;
+		}
+		break;
+	case DM_TAG_UC_PLAT:
+		size = uc_drv->per_device_plat_auto;
+		break;
+	case DM_TAG_PRIV:
+		size = dev->driver->priv_auto;
+		break;
+	case DM_TAG_PARENT_PRIV:
+		if (parent) {
+			size = parent_drv->per_child_auto;
+			if (!size)
+				size = parent->uclass->uc_drv->per_child_auto;
+		}
+		break;
+	case DM_TAG_UC_PRIV:
+		size = uc_drv->per_device_auto;
+		break;
+	default:
+		break;
+	}
+
+	return size;
+}
+
 static int device_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)
 {

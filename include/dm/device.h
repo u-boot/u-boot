@@ -11,6 +11,7 @@
 #define _DM_DEVICE_H
 
 #include <dm/ofnode.h>
+#include <dm/tag.h>
 #include <dm/uclass-id.h>
 #include <fdtdec.h>
 #include <linker_lists.h>
@@ -545,6 +546,30 @@ void *dev_get_parent_priv(const struct udevice *dev);
  * Return: private uclass data for this device, or NULL if none
  */
 void *dev_get_uclass_priv(const struct udevice *dev);
+
+/**
+ * dev_get_attach_ptr() - Get the value of an attached pointed tag
+ *
+ * The tag is assumed to hold a pointer, if it exists
+ *
+ * @dev: Device to look at
+ * @tag: Tag to access
+ * @return value of tag, or NULL if there is no tag of this type
+ */
+void *dev_get_attach_ptr(const struct udevice *dev, enum dm_tag_t tag);
+
+/**
+ * dev_get_attach_size() - Get the size of an attached tag
+ *
+ * Core tags have an automatic-allocation mechanism where the allocated size is
+ * defined by the device, parent or uclass. This returns the size associated
+ * with a particular tag
+ *
+ * @dev: Device to look at
+ * @tag: Tag to access
+ * @return size of auto-allocated data, 0 if none
+ */
+int dev_get_attach_size(const struct udevice *dev, enum dm_tag_t tag);
 
 /**
  * dev_get_parent() - Get the parent of a device

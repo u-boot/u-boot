@@ -13,8 +13,19 @@
 struct udevice;
 
 enum dm_tag_t {
+	/* Types of core tags that can be attached to devices */
+	DM_TAG_PLAT,
+	DM_TAG_PARENT_PLAT,
+	DM_TAG_UC_PLAT,
+
+	DM_TAG_PRIV,
+	DM_TAG_PARENT_PRIV,
+	DM_TAG_UC_PRIV,
+	DM_TAG_DRIVER_DATA,
+	DM_TAG_ATTACH_COUNT,
+
 	/* EFI_LOADER */
-	DM_TAG_EFI = 0,
+	DM_TAG_EFI = DM_TAG_ATTACH_COUNT,
 
 	DM_TAG_COUNT,
 };
