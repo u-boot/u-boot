@@ -1355,3 +1355,14 @@ static int dm_test_dev_get_attach_bus(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_dev_get_attach_bus, UT_TESTF_SCAN_FDT);
+
+/* Test getting information about tags attached to bus devices */
+static int dm_test_dev_get_mem(struct unit_test_state *uts)
+{
+	struct dm_stats stats;
+
+	dm_get_mem(&stats);
+
+	return 0;
+}
+DM_TEST(dm_test_dev_get_mem, UT_TESTF_SCAN_FDT);

@@ -6,6 +6,7 @@
 
 #include <malloc.h>
 #include <asm/global_data.h>
+#include <dm/root.h>
 #include <dm/tag.h>
 #include <linux/err.h>
 #include <linux/list.h>
@@ -136,4 +137,14 @@ int dev_tag_del_all(struct udevice *dev)
 		return 0;
 
 	return -ENOENT;
+}
+
+void dev_tag_collect_stats(struct dm_stats *stats)
+{
+	struct dmtag_node *node;
+
+	list_for_each_entry(node, &gd->dmtag_list, sibling) {
+		stats->tag_count++;
+		stats->tag_size += sizeof(struct dmtag_node);
+	}
 }
