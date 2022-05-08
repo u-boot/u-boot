@@ -169,8 +169,6 @@ void dm_dump_static_driver_info(void)
 
 	puts("Driver                    Address\n");
 	puts("---------------------------------\n");
-	for (entry = drv; entry != drv + n_ents; entry++) {
-		printf("%-25.25s @%08lx\n", entry->name,
-		       (ulong)map_to_sysmem(entry->plat));
-	}
+	for (entry = drv; entry != drv + n_ents; entry++)
+		printf("%-25.25s %p\n", entry->name, entry->plat);
 }
