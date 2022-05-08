@@ -705,6 +705,92 @@ int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 	return 0;
 }
 
+static void restore_primary_gpt_header(gpt_header *gpt_h, struct blk_desc *dev_desc)
+{
+	u32 calc_crc32;
+	u64 val;
+
+	/* recalculate the values for the Primary GPT Header */
+	val = le64_to_cpu(gpt_h->my_lba);
+	gpt_h->my_lba = gpt_h->alternate_lba;
+	gpt_h->alternate_lba = cpu_to_le64(val);
+	gpt_h->partition_entry_lba = cpu_to_le64(partition_entries_offset(dev_desc));
+
+	gpt_h->header_crc32 = 0;
+
+	calc_crc32 = efi_crc32((const unsigned char *)gpt_h,
+			       le32_to_cpu(gpt_h->header_size));
+	gpt_h->header_crc32 = cpu_to_le32(calc_crc32);
+}
+
+static int write_one_gpt_table(struct blk_desc *dev_desc,
+			       gpt_header *gpt_h, gpt_entry *gpt_e)
+{
+	const int pte_blk_cnt = BLOCK_CNT((gpt_h->num_partition_entries
+					   * sizeof(gpt_entry)), dev_desc);
+	lbaint_t start;
+	int ret = 0;
+
+	start = le64_to_cpu(gpt_h->my_lba);
+	if (blk_dwrite(dev_desc, start, 1, gpt_h) != 1) {
+		ret = -1;
+		goto out;
+	}
+
+	start = le64_to_cpu(gpt_h->partition_entry_lba);
+	if (blk_dwrite(dev_desc, start, pte_blk_cnt, gpt_e) != pte_blk_cnt) {
+		ret = -1;
+		goto out;
+	}
+
+ out:
+	return ret;
+}
+
+int gpt_repair_headers(struct blk_desc *dev_desc)
+{
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_h1, 1, dev_desc->blksz);
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_h2, 1, dev_desc->blksz);
+	gpt_entry *gpt_e1 = NULL, *gpt_e2 = NULL;
+	int is_gpt1_valid, is_gpt2_valid;
+	int ret = -1;
+
+	is_gpt1_valid = is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
+				     gpt_h1, &gpt_e1);
+	is_gpt2_valid = is_gpt_valid(dev_desc, dev_desc->lba - 1,
+				     gpt_h2, &gpt_e2);
+
+	if (is_gpt1_valid && is_gpt2_valid) {
+		ret = 0;
+		goto out;
+	}
+
+	if (is_gpt1_valid && !is_gpt2_valid) {
+		prepare_backup_gpt_header(gpt_h1);
+		ret = write_one_gpt_table(dev_desc, gpt_h1, gpt_e1);
+		goto out;
+	}
+
+	if (!is_gpt1_valid && is_gpt2_valid) {
+		restore_primary_gpt_header(gpt_h2, dev_desc);
+		ret = write_one_gpt_table(dev_desc, gpt_h2, gpt_e2);
+		goto out;
+	}
+
+	if (!is_gpt1_valid && !is_gpt2_valid) {
+		ret = -1;
+		goto out;
+	}
+
+ out:
+	if (is_gpt1_valid)
+		free(gpt_e1);
+	if (is_gpt2_valid)
+		free(gpt_e2);
+
+	return ret;
+}
+
 int gpt_verify_partitions(struct blk_desc *dev_desc,
 			  struct disk_partition *partitions, int parts,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte)

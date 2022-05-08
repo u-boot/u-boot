@@ -1544,14 +1544,6 @@ int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle)
 #endif
 
 	ret = fdt_setprop_cell(fdt, nodeoffset, "phandle", phandle);
-	if (ret < 0)
-		return ret;
-
-	/*
-	 * For now, also set the deprecated "linux,phandle" property, so that we
-	 * don't break older kernels.
-	 */
-	ret = fdt_setprop_cell(fdt, nodeoffset, "linux,phandle", phandle);
 
 	return ret;
 }
