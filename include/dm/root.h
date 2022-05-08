@@ -182,7 +182,7 @@ void dm_get_stats(int *device_countp, int *uclass_countp);
 /**
  * dm_get_mem() - Get stats on memory usage in driver model
  *
- * @mem: Place to put the information
+ * @stats: Place to put the information
  */
 void dm_get_mem(struct dm_stats *stats);
 

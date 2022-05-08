@@ -6,6 +6,8 @@
 #ifndef __DM_UTIL_H
 #define __DM_UTIL_H
 
+struct dm_stats;
+
 #if CONFIG_IS_ENABLED(DM_WARN)
 #define dm_warn(fmt...) log(LOGC_DM, LOGL_WARNING, ##fmt)
 #else
@@ -47,6 +49,13 @@ void dm_dump_driver_compat(void);
 
 /* Dump out a list of drivers with static platform data */
 void dm_dump_static_driver_info(void);
+
+/**
+ * dm_dump_mem() - Dump stats on memory usage in driver model
+ *
+ * @mem: Stats to dump
+ */
+void dm_dump_mem(struct dm_stats *stats);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA_INST) && CONFIG_IS_ENABLED(READ_ONLY)
 void *dm_priv_to_rw(void *priv);

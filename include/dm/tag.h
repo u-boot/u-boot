@@ -129,4 +129,12 @@ int dev_tag_del_all(struct udevice *dev);
  */
 void dev_tag_collect_stats(struct dm_stats *stats);
 
+/**
+ * tag_get_name() - Get the name of a tag
+ *
+ * @tag: Tag to look up, which must be valid
+ * Returns: Name of tag
+ */
+const char *tag_get_name(enum dm_tag_t tag);
+
 #endif /* _DM_TAG_H */
