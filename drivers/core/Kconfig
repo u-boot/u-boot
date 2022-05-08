@@ -86,6 +86,16 @@ config DM_STATS
 
 	  To display the memory stats, use the 'dm mem' command.
 
+config SPL_DM_STATS
+	bool "Collect and show driver model stats in SPL"
+	depends on DM_SPL
+	help
+	  Enable this to collect and display memory statistics about driver
+	  model. This can help to figure out where all the memory is going and
+	  to find optimisations.
+
+	  The stats are displayed just before SPL boots to the next phase.
+
 config DM_DEVICE_REMOVE
 	bool "Support device removal"
 	depends on DM

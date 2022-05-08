@@ -34,6 +34,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <dm/root.h>
+#include <dm/util.h>
 #include <linux/compiler.h>
 #include <fdt_support.h>
 #include <bootcount.h>
@@ -779,6 +780,14 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		dram_init_banksize();
 
 	bootcount_inc();
+
+	/* Dump driver model states to aid analysis */
+	if (CONFIG_IS_ENABLED(DM_STATS)) {
+		struct dm_stats mem;
+
+		dm_get_mem(&mem);
+		dm_dump_mem(&mem);
+	}
 
 	memset(&spl_image, '\0', sizeof(spl_image));
 #ifdef CONFIG_SYS_SPL_ARGS_ADDR
