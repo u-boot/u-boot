@@ -85,4 +85,7 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	} > RAM2
 
+    gd = CONFIG_SYS_GLOBAL_DATA_POINTER;
+
+
 }
