@@ -83,7 +83,8 @@ void am33xx_spl_board_init(void)
 	/* Get the frequency */
 	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
 
-	if (i2c_probe(TPS65217_CHIP_PM))
+	/* Initialize for Power Management */
+	if (power_tps65217_init(0))
 		return;
 
 	/*
@@ -142,7 +143,6 @@ void am33xx_spl_board_init(void)
 const struct dpll_params *get_dpll_ddr_params(void)
 {
 	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	return &dpll_ddr;
 }
@@ -334,6 +334,10 @@ int board_late_init(void)
 		debug("video panel not found: %d\n", ret);
 		return ret;
 	}
+
+	/* Initialize to enable backlight */
+	if (power_tps65217_init(0))
+		return 0;
 
 	lcdbacklight_en();
 	if (IS_ENABLED(CONFIG_AM335X_LCD))

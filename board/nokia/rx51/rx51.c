@@ -32,6 +32,7 @@
 #include <i2c.h>
 #include <video.h>
 #include <keyboard.h>
+#include <ns16550.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/setup.h>
@@ -787,4 +788,15 @@ U_BOOT_DRVINFOS(rx51_video) = {
 
 U_BOOT_DRVINFOS(rx51_kp) = {
 	{ "rx51_kp" },
+};
+
+static const struct ns16550_plat rx51_serial = {
+	.base = CONFIG_SYS_NS16550_COM3,
+	.reg_shift = 2,
+	.clock = CONFIG_SYS_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
+};
+
+U_BOOT_DRVINFOS(rx51_uart) = {
+	{ "omap_serial", &rx51_serial },
 };
