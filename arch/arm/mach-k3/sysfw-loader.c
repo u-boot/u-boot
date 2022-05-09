@@ -346,6 +346,25 @@ static void k3_sysfw_spi_copy(u32 *dst, u32 *src, size_t len)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(NOR_SUPPORT)
+static void *get_sysfw_hf_addr(void)
+{
+	struct udevice *dev;
+	fdt_addr_t addr;
+	int ret;
+
+	ret = uclass_find_first_device(UCLASS_MTD, &dev);
+	if (ret)
+		return NULL;
+
+	addr = dev_read_addr_index(dev, 1);
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return (void *)(addr + CONFIG_K3_SYSFW_IMAGE_SPI_OFFS);
+}
+#endif
+
 void k3_sysfw_loader(bool rom_loaded_sysfw,
 		     void (*config_pm_pre_callback)(void),
 		     void (*config_pm_done_callback)(void))
@@ -407,6 +426,15 @@ void k3_sysfw_loader(bool rom_loaded_sysfw,
 #if CONFIG_IS_ENABLED(SPI_LOAD)
 	case BOOT_DEVICE_SPI:
 		sysfw_spi_base = k3_sysfw_get_spi_addr();
+		if (!sysfw_spi_base)
+			ret = -ENODEV;
+		k3_sysfw_spi_copy(sysfw_load_address, sysfw_spi_base,
+				  CONFIG_K3_SYSFW_IMAGE_SIZE_MAX);
+		break;
+#endif
+#if CONFIG_IS_ENABLED(NOR_SUPPORT)
+	case BOOT_DEVICE_HYPERFLASH:
+		sysfw_spi_base = get_sysfw_hf_addr();
 		if (!sysfw_spi_base)
 			ret = -ENODEV;
 		k3_sysfw_spi_copy(sysfw_load_address, sysfw_spi_base,
