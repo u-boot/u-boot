@@ -85,18 +85,6 @@ struct ccu_priv {
 	const struct ccu_desc *desc;
 };
 
-/**
- * sunxi_clk_bind - common sunxi clock bind
- * @dev:	clock device
- */
-int sunxi_clk_bind(struct udevice *dev);
-
-/**
- * sunxi_clk_probe - common sunxi clock probe
- * @dev:	clock device
- */
-int sunxi_clk_probe(struct udevice *dev);
-
 extern struct clk_ops sunxi_clk_ops;
 
 /**
