@@ -87,12 +87,4 @@ struct ccu_plat {
 
 extern struct clk_ops sunxi_clk_ops;
 
-/**
- * sunxi_reset_bind() - reset binding
- *
- * @dev:       reset device
- * Return: 0 success, or error value
- */
-int sunxi_reset_bind(struct udevice *dev);
-
 #endif /* _CLK_SUNXI_H */

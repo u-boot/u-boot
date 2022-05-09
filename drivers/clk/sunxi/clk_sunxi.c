@@ -12,8 +12,11 @@
 #include <reset.h>
 #include <asm/io.h>
 #include <clk/sunxi.h>
+#include <dm/device-internal.h>
 #include <linux/bitops.h>
 #include <linux/log2.h>
+
+extern U_BOOT_DRIVER(sunxi_reset);
 
 static const struct ccu_clk_gate *plat_to_gate(struct ccu_plat *plat,
 					       unsigned long id)
@@ -69,7 +72,9 @@ struct clk_ops sunxi_clk_ops = {
 
 static int sunxi_clk_bind(struct udevice *dev)
 {
-	return sunxi_reset_bind(dev);
+	/* Reuse the platform data for the reset driver. */
+	return device_bind(dev, DM_DRIVER_REF(sunxi_reset), "reset",
+			   dev_get_plat(dev), dev_ofnode(dev), NULL);
 }
 
 static int sunxi_clk_probe(struct udevice *dev)
