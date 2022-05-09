@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# (C) Copyright 2022 Broadcom Ltd
+#
+
+config SYS_BOARD
+	default "bcmbca"
+
+config SYS_VENDOR
+	default "broadcom"
+
+if TARGET_BCM947622
+
+config SYS_CONFIG_NAME
+	default "bcm947622"
+
+endif

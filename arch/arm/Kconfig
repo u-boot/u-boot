@@ -718,6 +718,11 @@ config ARCH_BCMSTB
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
 
+config ARCH_BCMBCA
+	bool "Broadcom broadband chip family"
+	select DM
+	select OF_CONTROL
+
 config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
 	select CPU_V7A
@@ -2186,6 +2191,8 @@ source "arch/arm/mach-aspeed/Kconfig"
 source "arch/arm/mach-at91/Kconfig"
 
 source "arch/arm/mach-bcm283x/Kconfig"
+
+source "arch/arm/mach-bcmbca/Kconfig"
 
 source "arch/arm/mach-bcmstb/Kconfig"
 
