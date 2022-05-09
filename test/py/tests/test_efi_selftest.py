@@ -73,7 +73,6 @@ def test_efi_selftest_text_input(u_boot_console):
     if u_boot_console.p.expect([r'To terminate type \'x\'']):
         raise Exception('No prompt for \'text input\' test')
     u_boot_console.drain_console()
-    u_boot_console.p.timeout = 500
     # EOT
     u_boot_console.run_command(cmd=chr(4), wait_for_echo=False,
                                send_nl=False, wait_for_prompt=False)
@@ -129,7 +128,6 @@ def test_efi_selftest_text_input_ex(u_boot_console):
     if u_boot_console.p.expect([r'To terminate type \'CTRL\+x\'']):
         raise Exception('No prompt for \'text input\' test')
     u_boot_console.drain_console()
-    u_boot_console.p.timeout = 500
     # EOT
     u_boot_console.run_command(cmd=chr(4), wait_for_echo=False,
                                send_nl=False, wait_for_prompt=False)
