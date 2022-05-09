@@ -70,6 +70,8 @@ struct ccu_reset {
 struct ccu_desc {
 	const struct ccu_clk_gate *gates;
 	const struct ccu_reset *resets;
+	u8 num_gates;
+	u8 num_resets;
 };
 
 /**

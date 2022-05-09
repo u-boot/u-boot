@@ -92,6 +92,8 @@ static struct ccu_reset a31_resets[] = {
 static const struct ccu_desc a31_ccu_desc = {
 	.gates = a31_gates,
 	.resets = a31_resets,
+	.num_gates = ARRAY_SIZE(a31_gates),
+	.num_resets = ARRAY_SIZE(a31_resets),
 };
 
 static int a31_clk_bind(struct udevice *dev)

@@ -67,6 +67,8 @@ static struct ccu_reset a10_resets[] = {
 static const struct ccu_desc a10_ccu_desc = {
 	.gates = a10_gates,
 	.resets = a10_resets,
+	.num_gates = ARRAY_SIZE(a10_gates),
+	.num_resets = ARRAY_SIZE(a10_resets),
 };
 
 static int a10_clk_bind(struct udevice *dev)

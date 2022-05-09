@@ -52,6 +52,8 @@ static struct ccu_reset v3s_resets[] = {
 static const struct ccu_desc v3s_ccu_desc = {
 	.gates = v3s_gates,
 	.resets = v3s_resets,
+	.num_gates = ARRAY_SIZE(v3s_gates),
+	.num_resets = ARRAY_SIZE(v3s_resets),
 };
 
 static int v3s_clk_bind(struct udevice *dev)

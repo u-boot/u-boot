@@ -77,11 +77,15 @@ static const struct ccu_reset a80_mmc_resets[] = {
 static const struct ccu_desc a80_ccu_desc = {
 	.gates = a80_gates,
 	.resets = a80_resets,
+	.num_gates = ARRAY_SIZE(a80_gates),
+	.num_resets = ARRAY_SIZE(a80_resets),
 };
 
 static const struct ccu_desc a80_mmc_clk_desc = {
 	.gates = a80_mmc_gates,
 	.resets = a80_mmc_resets,
+	.num_gates = ARRAY_SIZE(a80_mmc_gates),
+	.num_resets = ARRAY_SIZE(a80_mmc_resets),
 };
 
 static int a80_clk_bind(struct udevice *dev)

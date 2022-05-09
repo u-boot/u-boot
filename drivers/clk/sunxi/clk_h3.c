@@ -93,6 +93,8 @@ static struct ccu_reset h3_resets[] = {
 static const struct ccu_desc h3_ccu_desc = {
 	.gates = h3_gates,
 	.resets = h3_resets,
+	.num_gates = ARRAY_SIZE(h3_gates),
+	.num_resets = ARRAY_SIZE(h3_resets),
 };
 
 static int h3_clk_bind(struct udevice *dev)

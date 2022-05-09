@@ -50,6 +50,8 @@ static struct ccu_reset f1c100s_resets[] = {
 static const struct ccu_desc f1c100s_ccu_desc = {
 	.gates = f1c100s_gates,
 	.resets = f1c100s_resets,
+	.num_gates = ARRAY_SIZE(f1c100s_gates),
+	.num_resets = ARRAY_SIZE(f1c100s_resets),
 };
 
 static int f1c100s_clk_bind(struct udevice *dev)

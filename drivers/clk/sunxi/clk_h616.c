@@ -112,6 +112,8 @@ static struct ccu_reset h616_resets[] = {
 static const struct ccu_desc h616_ccu_desc = {
 	.gates = h616_gates,
 	.resets = h616_resets,
+	.num_gates = ARRAY_SIZE(h616_gates),
+	.num_resets = ARRAY_SIZE(h616_resets),
 };
 
 static int h616_clk_bind(struct udevice *dev)
