@@ -36,6 +36,7 @@ Optional properties:
 - regulator-always-on: regulator should never be disabled
 - regulator-boot-on: enabled by bootloader/firmware
 - regulator-ramp-delay: ramp delay for regulator (in uV/us)
+- regulator-force-boot-off: disabled during the boot stage
 - regulator-init-microvolt: a init allowed Voltage value
 - regulator-state-(standby|mem|disk)
   type: object
