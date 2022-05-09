@@ -79,11 +79,6 @@ static const struct ccu_desc a83t_ccu_desc = {
 	.num_resets = ARRAY_SIZE(a83t_resets),
 };
 
-static int a83t_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(a83t_resets));
-}
-
 static const struct udevice_id a83t_clk_ids[] = {
 	{ .compatible = "allwinner,sun8i-a83t-ccu",
 	  .data = (ulong)&a83t_ccu_desc },
@@ -97,5 +92,5 @@ U_BOOT_DRIVER(clk_sun8i_a83t) = {
 	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
-	.bind		= a83t_clk_bind,
+	.bind		= sunxi_clk_bind,
 };

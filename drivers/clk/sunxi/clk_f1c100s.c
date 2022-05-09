@@ -54,11 +54,6 @@ static const struct ccu_desc f1c100s_ccu_desc = {
 	.num_resets = ARRAY_SIZE(f1c100s_resets),
 };
 
-static int f1c100s_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(f1c100s_resets));
-}
-
 static const struct udevice_id f1c100s_clk_ids[] = {
 	{ .compatible = "allwinner,suniv-f1c100s-ccu",
 	  .data = (ulong)&f1c100s_ccu_desc },
@@ -72,5 +67,5 @@ U_BOOT_DRIVER(clk_suniv_f1c100s) = {
 	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
-	.bind		= f1c100s_clk_bind,
+	.bind		= sunxi_clk_bind,
 };

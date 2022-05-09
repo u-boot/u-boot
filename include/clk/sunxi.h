@@ -86,6 +86,12 @@ struct ccu_priv {
 };
 
 /**
+ * sunxi_clk_bind - common sunxi clock bind
+ * @dev:	clock device
+ */
+int sunxi_clk_bind(struct udevice *dev);
+
+/**
  * sunxi_clk_probe - common sunxi clock probe
  * @dev:	clock device
  */
@@ -97,9 +103,8 @@ extern struct clk_ops sunxi_clk_ops;
  * sunxi_reset_bind() - reset binding
  *
  * @dev:       reset device
- * @count:     reset count
  * Return: 0 success, or error value
  */
-int sunxi_reset_bind(struct udevice *dev, ulong count);
+int sunxi_reset_bind(struct udevice *dev);
 
 #endif /* _CLK_SUNXI_H */

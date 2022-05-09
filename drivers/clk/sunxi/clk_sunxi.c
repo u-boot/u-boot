@@ -67,6 +67,11 @@ struct clk_ops sunxi_clk_ops = {
 	.disable = sunxi_clk_disable,
 };
 
+int sunxi_clk_bind(struct udevice *dev)
+{
+	return sunxi_reset_bind(dev);
+}
+
 int sunxi_clk_probe(struct udevice *dev)
 {
 	struct ccu_priv *priv = dev_get_priv(dev);

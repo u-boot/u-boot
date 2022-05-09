@@ -19,7 +19,6 @@
 
 struct sunxi_reset_priv {
 	void *base;
-	ulong count;
 	const struct ccu_desc *desc;
 };
 
@@ -35,7 +34,7 @@ static int sunxi_reset_request(struct reset_ctl *reset_ctl)
 
 	debug("%s: (RST#%ld)\n", __func__, reset_ctl->id);
 
-	if (reset_ctl->id >= priv->count)
+	if (reset_ctl->id >= priv->desc->num_resets)
 		return -EINVAL;
 
 	return 0;
@@ -91,7 +90,7 @@ static int sunxi_reset_probe(struct udevice *dev)
 	return 0;
 }
 
-int sunxi_reset_bind(struct udevice *dev, ulong count)
+int sunxi_reset_bind(struct udevice *dev)
 {
 	struct udevice *rst_dev;
 	struct sunxi_reset_priv *priv;
@@ -104,7 +103,6 @@ int sunxi_reset_bind(struct udevice *dev, ulong count)
 		return ret;
 	}
 	priv = malloc(sizeof(struct sunxi_reset_priv));
-	priv->count = count;
 	priv->desc = (const struct ccu_desc *)dev_get_driver_data(dev);
 	dev_set_priv(rst_dev, priv);
 

@@ -75,11 +75,6 @@ static const struct ccu_desc a23_ccu_desc = {
 	.num_resets = ARRAY_SIZE(a23_resets),
 };
 
-static int a23_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(a23_resets));
-}
-
 static const struct udevice_id a23_clk_ids[] = {
 	{ .compatible = "allwinner,sun8i-a23-ccu",
 	  .data = (ulong)&a23_ccu_desc },
@@ -95,5 +90,5 @@ U_BOOT_DRIVER(clk_sun8i_a23) = {
 	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
-	.bind		= a23_clk_bind,
+	.bind		= sunxi_clk_bind,
 };

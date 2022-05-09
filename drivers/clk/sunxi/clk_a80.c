@@ -88,16 +88,6 @@ static const struct ccu_desc a80_mmc_clk_desc = {
 	.num_resets = ARRAY_SIZE(a80_mmc_resets),
 };
 
-static int a80_clk_bind(struct udevice *dev)
-{
-	ulong count = ARRAY_SIZE(a80_resets);
-
-	if (device_is_compatible(dev, "allwinner,sun9i-a80-mmc-config-clk"))
-		count = ARRAY_SIZE(a80_mmc_resets);
-
-	return sunxi_reset_bind(dev, count);
-}
-
 static const struct udevice_id a80_ccu_ids[] = {
 	{ .compatible = "allwinner,sun9i-a80-ccu",
 	  .data = (ulong)&a80_ccu_desc },
@@ -113,5 +103,5 @@ U_BOOT_DRIVER(clk_sun9i_a80) = {
 	.priv_auto	= sizeof(struct ccu_priv),
 	.ops		= &sunxi_clk_ops,
 	.probe		= sunxi_clk_probe,
-	.bind		= a80_clk_bind,
+	.bind		= sunxi_clk_bind,
 };
