@@ -28,11 +28,118 @@
 
 #define ETZPC_RESERVED		0xffffffff
 
+#define STM32MP13_FDCAN_BASE	0x4400F000
+#define STM32MP13_ADC1_BASE	0x48003000
+#define STM32MP13_TSC_BASE	0x5000B000
+#define STM32MP13_CRYP_BASE	0x54002000
+#define STM32MP13_ETH2_BASE	0x5800E000
+#define STM32MP13_DCMIPP_BASE	0x5A000000
+#define STM32MP13_LTDC_BASE	0x5A010000
+
 #define STM32MP15_FDCAN_BASE	0x4400e000
 #define STM32MP15_CRYP2_BASE	0x4c005000
 #define STM32MP15_CRYP1_BASE	0x54001000
 #define STM32MP15_GPU_BASE	0x59000000
 #define STM32MP15_DSI_BASE	0x5a000000
+
+static const u32 stm32mp13_ip_addr[] = {
+	0x50025000,		/* 0 VREFBUF APB3 */
+	0x50021000,		/* 1 LPTIM2 APB3 */
+	0x50022000,		/* 2 LPTIM3 APB3 */
+	STM32MP13_LTDC_BASE,	/* 3 LTDC APB4 */
+	STM32MP13_DCMIPP_BASE,	/* 4 DCMIPP APB4 */
+	0x5A006000,		/* 5 USBPHYCTRL APB4 */
+	0x5A003000,		/* 6 DDRCTRLPHY APB4 */
+	ETZPC_RESERVED,		/* 7 Reserved*/
+	ETZPC_RESERVED,		/* 8 Reserved*/
+	ETZPC_RESERVED,		/* 9 Reserved*/
+	0x5C006000,		/* 10 TZC APB5 */
+	0x58001000,		/* 11 MCE APB5 */
+	0x5C000000,		/* 12 IWDG1 APB5 */
+	0x5C008000,		/* 13 STGENC APB5 */
+	ETZPC_RESERVED,		/* 14 Reserved*/
+	ETZPC_RESERVED,		/* 15 Reserved*/
+	0x4C000000,		/* 16 USART1 APB6 */
+	0x4C001000,		/* 17 USART2 APB6 */
+	0x4C002000,		/* 18 SPI4 APB6 */
+	0x4C003000,		/* 19 SPI5 APB6 */
+	0x4C004000,		/* 20 I2C3 APB6 */
+	0x4C005000,		/* 21 I2C4 APB6 */
+	0x4C006000,		/* 22 I2C5 APB6 */
+	0x4C007000,		/* 23 TIM12 APB6 */
+	0x4C008000,		/* 24 TIM13 APB6 */
+	0x4C009000,		/* 25 TIM14 APB6 */
+	0x4C00A000,		/* 26 TIM15 APB6 */
+	0x4C00B000,		/* 27 TIM16 APB6 */
+	0x4C00C000,		/* 28 TIM17 APB6 */
+	ETZPC_RESERVED,		/* 29 Reserved*/
+	ETZPC_RESERVED,		/* 30 Reserved*/
+	ETZPC_RESERVED,		/* 31 Reserved*/
+	STM32MP13_ADC1_BASE,	/* 32 ADC1 AHB2 */
+	0x48004000,		/* 33 ADC2 AHB2 */
+	0x49000000,		/* 34 OTG AHB2 */
+	ETZPC_RESERVED,		/* 35 Reserved*/
+	ETZPC_RESERVED,		/* 36 Reserved*/
+	STM32MP13_TSC_BASE,	/* 37 TSC AHB4 */
+	ETZPC_RESERVED,		/* 38 Reserved*/
+	ETZPC_RESERVED,		/* 39 Reserved*/
+	0x54004000,		/* 40 RNG AHB5 */
+	0x54003000,		/* 41 HASH AHB5 */
+	STM32MP13_CRYP_BASE,	/* 42 CRYPT AHB5 */
+	0x54005000,		/* 43 SAES AHB5 */
+	0x54006000,		/* 44 PKA AHB5 */
+	0x54000000,		/* 45 BKPSRAM AHB5 */
+	ETZPC_RESERVED,		/* 46 Reserved*/
+	ETZPC_RESERVED,		/* 47 Reserved*/
+	0x5800A000,		/* 48 ETH1 AHB6 */
+	STM32MP13_ETH2_BASE,	/* 49 ETH2 AHB6 */
+	0x58005000,		/* 50 SDMMC1 AHB6 */
+	0x58007000,		/* 51 SDMMC2 AHB6 */
+	ETZPC_RESERVED,		/* 52 Reserved*/
+	ETZPC_RESERVED,		/* 53 Reserved*/
+	0x58002000,		/* 54 FMC AHB6 */
+	0x58003000,		/* 55 QSPI AHB6 */
+	ETZPC_RESERVED,		/* 56 Reserved*/
+	ETZPC_RESERVED,		/* 57 Reserved*/
+	ETZPC_RESERVED,		/* 58 Reserved*/
+	ETZPC_RESERVED,		/* 59 Reserved*/
+	0x30000000,		/* 60 SRAM1 MLAHB */
+	0x30004000,		/* 61 SRAM2 MLAHB */
+	0x30006000,		/* 62 SRAM3 MLAHB */
+	ETZPC_RESERVED,		/* 63 Reserved*/
+	ETZPC_RESERVED,		/* 64 Reserved*/
+	ETZPC_RESERVED,		/* 65 Reserved*/
+	ETZPC_RESERVED,		/* 66 Reserved*/
+	ETZPC_RESERVED,		/* 67 Reserved*/
+	ETZPC_RESERVED,		/* 68 Reserved*/
+	ETZPC_RESERVED,		/* 69 Reserved*/
+	ETZPC_RESERVED,		/* 70 Reserved*/
+	ETZPC_RESERVED,		/* 71 Reserved*/
+	ETZPC_RESERVED,		/* 72 Reserved*/
+	ETZPC_RESERVED,		/* 73 Reserved*/
+	ETZPC_RESERVED,		/* 74 Reserved*/
+	ETZPC_RESERVED,		/* 75 Reserved*/
+	ETZPC_RESERVED,		/* 76 Reserved*/
+	ETZPC_RESERVED,		/* 77 Reserved*/
+	ETZPC_RESERVED,		/* 78 Reserved*/
+	ETZPC_RESERVED,		/* 79 Reserved*/
+	ETZPC_RESERVED,		/* 80 Reserved*/
+	ETZPC_RESERVED,		/* 81 Reserved*/
+	ETZPC_RESERVED,		/* 82 Reserved*/
+	ETZPC_RESERVED,		/* 83 Reserved*/
+	ETZPC_RESERVED,		/* 84 Reserved*/
+	ETZPC_RESERVED,		/* 85 Reserved*/
+	ETZPC_RESERVED,		/* 86 Reserved*/
+	ETZPC_RESERVED,		/* 87 Reserved*/
+	ETZPC_RESERVED,		/* 88 Reserved*/
+	ETZPC_RESERVED,		/* 89 Reserved*/
+	ETZPC_RESERVED,		/* 90 Reserved*/
+	ETZPC_RESERVED,		/* 91 Reserved*/
+	ETZPC_RESERVED,		/* 92 Reserved*/
+	ETZPC_RESERVED,		/* 93 Reserved*/
+	ETZPC_RESERVED,		/* 94 Reserved*/
+	ETZPC_RESERVED,		/* 95 Reserved*/
+};
 
 static const u32 stm32mp15_ip_addr[] = {
 	0x5c008000,	/* 00 stgenc */
@@ -163,8 +270,10 @@ static int stm32_fdt_fixup_etzpc(void *fdt, int soc_node)
 	int offset, shift;
 	u32 addr, status, decprot[ETZPC_DECPROT_NB];
 
-	if (IS_ENABLED(CONFIG_STM32MP13x))
-		return 0;
+	if (IS_ENABLED(CONFIG_STM32MP13x)) {
+		array = stm32mp13_ip_addr;
+		array_size = ARRAY_SIZE(stm32mp13_ip_addr);
+	}
 
 	if (IS_ENABLED(CONFIG_STM32MP15x)) {
 		array = stm32mp15_ip_addr;
@@ -250,6 +359,43 @@ static void stm32_fdt_disable_optee(void *blob)
 
 		if (fdt_del_node(blob, node))
 			printf("Failed to remove optee reserved-memory node\n");
+	}
+}
+
+static void stm32mp13_fdt_fixup(void *blob, int soc, u32 cpu, char *name)
+{
+	switch (cpu) {
+	case CPU_STM32MP131Fxx:
+	case CPU_STM32MP131Dxx:
+	case CPU_STM32MP131Cxx:
+	case CPU_STM32MP131Axx:
+		stm32_fdt_disable(blob, soc, STM32MP13_FDCAN_BASE, "can", name);
+		stm32_fdt_disable(blob, soc, STM32MP13_ADC1_BASE, "adc", name);
+		fallthrough;
+	case CPU_STM32MP133Fxx:
+	case CPU_STM32MP133Dxx:
+	case CPU_STM32MP133Cxx:
+	case CPU_STM32MP133Axx:
+		stm32_fdt_disable(blob, soc, STM32MP13_LTDC_BASE, "ltdc", name);
+		stm32_fdt_disable(blob, soc, STM32MP13_DCMIPP_BASE, "dcmipp",
+				  name);
+		stm32_fdt_disable(blob, soc, STM32MP13_TSC_BASE, "tsc", name);
+		break;
+	default:
+		break;
+	}
+
+	switch (cpu) {
+	case CPU_STM32MP135Dxx:
+	case CPU_STM32MP135Axx:
+	case CPU_STM32MP133Dxx:
+	case CPU_STM32MP133Axx:
+	case CPU_STM32MP131Dxx:
+	case CPU_STM32MP131Axx:
+		stm32_fdt_disable(blob, soc, STM32MP13_CRYP_BASE, "cryp", name);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -344,6 +490,9 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	/* MPUs Part Numbers and name*/
 	cpu = get_cpu_type();
 	get_soc_name(name);
+
+	if (IS_ENABLED(CONFIG_STM32MP13x))
+		stm32mp13_fdt_fixup(blob, soc, cpu, name);
 
 	if (IS_ENABLED(CONFIG_STM32MP15x)) {
 		stm32mp15_fdt_fixup(blob, soc, cpu, name);
