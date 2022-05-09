@@ -75,12 +75,12 @@ struct ccu_desc {
 };
 
 /**
- * struct ccu_priv - sunxi clock control unit
+ * struct ccu_plat - sunxi clock control unit platform data
  *
  * @base:	base address
  * @desc:	ccu descriptor
  */
-struct ccu_priv {
+struct ccu_plat {
 	void *base;
 	const struct ccu_desc *desc;
 };

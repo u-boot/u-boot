@@ -15,19 +15,19 @@
 #include <linux/bitops.h>
 #include <linux/log2.h>
 
-static const struct ccu_clk_gate *priv_to_gate(struct ccu_priv *priv,
+static const struct ccu_clk_gate *plat_to_gate(struct ccu_plat *plat,
 					       unsigned long id)
 {
-	if (id >= priv->desc->num_gates)
+	if (id >= plat->desc->num_gates)
 		return NULL;
 
-	return &priv->desc->gates[id];
+	return &plat->desc->gates[id];
 }
 
 static int sunxi_set_gate(struct clk *clk, bool on)
 {
-	struct ccu_priv *priv = dev_get_priv(clk->dev);
-	const struct ccu_clk_gate *gate = priv_to_gate(priv, clk->id);
+	struct ccu_plat *plat = dev_get_plat(clk->dev);
+	const struct ccu_clk_gate *gate = plat_to_gate(plat, clk->id);
 	u32 reg;
 
 	if (gate && (gate->flags & CCU_CLK_F_DUMMY_GATE))
@@ -41,13 +41,13 @@ static int sunxi_set_gate(struct clk *clk, bool on)
 	debug("%s: (CLK#%ld) off#0x%x, BIT(%d)\n", __func__,
 	      clk->id, gate->off, ilog2(gate->bit));
 
-	reg = readl(priv->base + gate->off);
+	reg = readl(plat->base + gate->off);
 	if (on)
 		reg |= gate->bit;
 	else
 		reg &= ~gate->bit;
 
-	writel(reg, priv->base + gate->off);
+	writel(reg, plat->base + gate->off);
 
 	return 0;
 }
@@ -74,18 +74,9 @@ static int sunxi_clk_bind(struct udevice *dev)
 
 static int sunxi_clk_probe(struct udevice *dev)
 {
-	struct ccu_priv *priv = dev_get_priv(dev);
 	struct clk_bulk clk_bulk;
 	struct reset_ctl_bulk rst_bulk;
 	int ret;
-
-	priv->base = dev_read_addr_ptr(dev);
-	if (!priv->base)
-		return -ENOMEM;
-
-	priv->desc = (const struct ccu_desc *)dev_get_driver_data(dev);
-	if (!priv->desc)
-		return -EINVAL;
 
 	ret = clk_get_bulk(dev, &clk_bulk);
 	if (!ret)
@@ -94,6 +85,21 @@ static int sunxi_clk_probe(struct udevice *dev)
 	ret = reset_get_bulk(dev, &rst_bulk);
 	if (!ret)
 		reset_deassert_bulk(&rst_bulk);
+
+	return 0;
+}
+
+static int sunxi_clk_of_to_plat(struct udevice *dev)
+{
+	struct ccu_plat *plat = dev_get_plat(dev);
+
+	plat->base = dev_read_addr_ptr(dev);
+	if (!plat->base)
+		return -ENOMEM;
+
+	plat->desc = (const struct ccu_desc *)dev_get_driver_data(dev);
+	if (!plat->desc)
+		return -EINVAL;
 
 	return 0;
 }
@@ -213,6 +219,7 @@ U_BOOT_DRIVER(sunxi_clk) = {
 	.of_match	= sunxi_clk_ids,
 	.bind		= sunxi_clk_bind,
 	.probe		= sunxi_clk_probe,
-	.priv_auto	= sizeof(struct ccu_priv),
+	.of_to_plat	= sunxi_clk_of_to_plat,
+	.plat_auto	= sizeof(struct ccu_plat),
 	.ops		= &sunxi_clk_ops,
 };
