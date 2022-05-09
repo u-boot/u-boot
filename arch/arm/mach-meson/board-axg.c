@@ -106,7 +106,7 @@ int board_usb_init(int index, enum usb_init_type init)
 
 	/* find the usb glue node */
 	node = fdt_node_offset_by_compatible(blob, -1,
-					     "amlogic,meson-gxl-usb-ctrl");
+					     "amlogic,meson-axg-usb-ctrl");
 	if (node < 0) {
 		debug("Not found usb-control node\n");
 		return -ENODEV;
@@ -192,7 +192,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 	/* find the usb glue node */
 	node = fdt_node_offset_by_compatible(blob, -1,
-					     "amlogic,meson-gxl-usb-ctrl");
+					     "amlogic,meson-axg-usb-ctrl");
 	if (node < 0) {
 		debug("Not found usb-control node\n");
 		return -ENODEV;
