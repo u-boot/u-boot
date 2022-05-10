@@ -181,7 +181,7 @@ int stm32prog_get_medium_size_virt(struct dfu_entity *dfu, u64 *size)
 		*size = CMD_SIZE;
 		break;
 	case PHASE_OTP:
-		*size = OTP_SIZE;
+		*size = stm32prog_data->tee ? OTP_SIZE_TA : OTP_SIZE_SMC;
 		break;
 	case PHASE_PMIC:
 		*size = PMIC_SIZE;
@@ -206,9 +206,12 @@ bool stm32prog_usb_loop(struct stm32prog_data *data, int dev)
 	g_dnl_set_product(product);
 
 	if (stm32prog_data->phase == PHASE_FLASHLAYOUT) {
+		/* forget any previous Control C */
+		clear_ctrlc();
 		ret = run_usb_dnl_gadget(dev, "usb_dnl_dfu");
-		if (ret || stm32prog_data->phase != PHASE_FLASHLAYOUT)
-			return ret;
+		/* DFU reset received, no error or CtrlC */
+		if (ret || stm32prog_data->phase != PHASE_FLASHLAYOUT || had_ctrlc())
+			return ret; /* true = reset on DFU error */
 		/* prepare the second enumeration with the FlashLayout */
 		stm32prog_dfu_init(data);
 	}

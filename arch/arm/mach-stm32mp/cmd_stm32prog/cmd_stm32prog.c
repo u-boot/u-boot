@@ -73,16 +73,9 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* check STM32IMAGE presence */
 	if (size == 0) {
-		stm32prog_header_check((struct raw_header_s *)addr, &header);
+		stm32prog_header_check(addr, &header);
 		if (header.type == HEADER_STM32IMAGE) {
-			size = header.image_length + BL_HEADER_SIZE;
-
-#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
-			/* uImage detected in STM32IMAGE, execute the script */
-			if (IMAGE_FORMAT_LEGACY ==
-			    genimg_get_format((void *)(addr + BL_HEADER_SIZE)))
-				return image_source_script(addr + BL_HEADER_SIZE, "script@1");
-#endif
+			size = header.image_length + header.length;
 		}
 	}
 
@@ -160,6 +153,8 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		else if (CONFIG_IS_ENABLED(CMD_BOOTZ))
 			do_bootz(cmdtp, 0, 4, bootm_argv);
 	}
+	if (data->script)
+		image_source_script(data->script, "script@stm32prog");
 
 	if (reset) {
 		puts("Reset...\n");

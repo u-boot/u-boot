@@ -25,26 +25,6 @@ config STM32F7
 	select PINCTRL
 	select PINCTRL_STM32
 	select RAM
-	select SPL
-	select SPL_BOARD_INIT
-	select SPL_CLK
-	select SPL_DM
-	select SPL_DM_RESET
-	select SPL_DM_SEQ_ALIAS
-	select SPL_DRIVERS_MISC
-	select SPL_GPIO
-	select SPL_LIBCOMMON_SUPPORT
-	select SPL_LIBGENERIC_SUPPORT
-	select SPL_MTD_SUPPORT
-	select SPL_OF_CONTROL
-	select SPL_OF_LIBFDT
-	select SPL_OF_TRANSLATE
-	select SPL_PINCTRL
-	select SPL_RAM
-	select SPL_SERIAL
-	select SPL_SYS_MALLOC_SIMPLE
-	select SPL_TIMER
-	select SPL_XIP_SUPPORT
 	select STM32_RCC
 	select STM32_RESET
 	select STM32_SDRAM

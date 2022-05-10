@@ -26,6 +26,7 @@
 #define PWR_MPUCR_CSSF				BIT(9)
 
 /* RCC */
+#define RCC_MSSCKSELR				0x48
 #define RCC_DDRITFCR				0xd8
 
 #define RCC_DDRITFCR_DDRC1EN			BIT(0)
@@ -48,6 +49,10 @@
 #define RCC_MP_CIER				0x414
 #define RCC_MP_CIFR				0x418
 #define RCC_MP_CIFR_WKUPF			BIT(20)
+
+#define RCC_MCUDIVR				0x830
+#define RCC_PLL3CR				0x880
+#define RCC_PLL4CR				0x894
 
 /* SYSCFG */
 #define SYSCFG_CMPCR				0x20
@@ -690,6 +695,7 @@ static void __secure ddr_sw_self_refresh_exit(void)
 void __secure psci_system_suspend(u32 __always_unused function_id,
 				  u32 ep, u32 context_id)
 {
+	u32 saved_mcudivr, saved_pll3cr, saved_pll4cr, saved_mssckselr;
 	u32 saved_pwrctl, reg;
 
 	/* Disable IO compensation */
@@ -708,6 +714,11 @@ void __secure psci_system_suspend(u32 __always_unused function_id,
 	setbits_le32(STM32_PWR_BASE + PWR_MPUCR,
 		     PWR_MPUCR_CSSF | PWR_MPUCR_CSTDBYDIS | PWR_MPUCR_PDDS);
 
+	saved_mcudivr = readl(STM32_RCC_BASE + RCC_MCUDIVR);
+	saved_pll3cr = readl(STM32_RCC_BASE + RCC_PLL3CR);
+	saved_pll4cr = readl(STM32_RCC_BASE + RCC_PLL4CR);
+	saved_mssckselr = readl(STM32_RCC_BASE + RCC_MSSCKSELR);
+
 	psci_v7_flush_dcache_all();
 	ddr_sr_mode_ssr(&saved_pwrctl);
 	ddr_sw_self_refresh_in();
@@ -723,6 +734,11 @@ void __secure psci_system_suspend(u32 __always_unused function_id,
 	writel(0x3, STM32_RCC_BASE + RCC_MP_SREQCLRR);
 	ddr_sw_self_refresh_exit();
 	ddr_sr_mode_restore(saved_pwrctl);
+
+	writel(saved_mcudivr, STM32_RCC_BASE + RCC_MCUDIVR);
+	writel(saved_pll3cr, STM32_RCC_BASE + RCC_PLL3CR);
+	writel(saved_pll4cr, STM32_RCC_BASE + RCC_PLL4CR);
+	writel(saved_mssckselr, STM32_RCC_BASE + RCC_MSSCKSELR);
 
 	writel(SYSCFG_CMPENR_MPUEN, STM32_SYSCFG_BASE + SYSCFG_CMPENSETR);
 	clrbits_le32(STM32_SYSCFG_BASE + SYSCFG_CMPCR, SYSCFG_CMPCR_SW_CTRL);

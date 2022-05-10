@@ -31,3 +31,10 @@ config CMD_STM32PROG_SERIAL
 		activate the command "stm32prog serial" for STM32MP soc family
 		with the tools STM32CubeProgrammer using U-Boot serial device
 		and UART protocol.
+
+config CMD_STM32PROG_OTP
+	bool "support stm32prog for OTP update"
+	depends on CMD_STM32PROG
+	default y if ARM_SMCCC || OPTEE
+	help
+		Support the OTP update with the command "stm32prog" for STM32MP

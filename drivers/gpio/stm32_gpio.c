@@ -83,38 +83,22 @@ static enum stm32_gpio_pupd stm32_gpio_get_pupd(struct stm32_gpio_regs *regs,
 	return (readl(&regs->pupdr) >> PUPD_BITS(idx)) & PUPD_MASK;
 }
 
-/*
- * convert gpio offset to gpio index taking into account gpio holes
- * into gpio bank
- */
-int stm32_offset_to_index(struct udevice *dev, unsigned int offset)
+static bool stm32_gpio_is_mapped(struct udevice *dev, int offset)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
-	unsigned int idx = 0;
-	int i;
 
-	for (i = 0; i < STM32_GPIOS_PER_BANK; i++) {
-		if (priv->gpio_range & BIT(i)) {
-			if (idx == offset)
-				return idx;
-			idx++;
-		}
-	}
-	/* shouldn't happen */
-	return -EINVAL;
+	return !!(priv->gpio_range & BIT(offset));
 }
 
 static int stm32_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
-	int idx;
 
-	idx = stm32_offset_to_index(dev, offset);
-	if (idx < 0)
-		return idx;
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return -ENXIO;
 
-	stm32_gpio_set_moder(regs, idx, STM32_GPIO_MODE_IN);
+	stm32_gpio_set_moder(regs, offset, STM32_GPIO_MODE_IN);
 
 	return 0;
 }
@@ -124,15 +108,13 @@ static int stm32_gpio_direction_output(struct udevice *dev, unsigned offset,
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
-	int idx;
 
-	idx = stm32_offset_to_index(dev, offset);
-	if (idx < 0)
-		return idx;
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return -ENXIO;
 
-	stm32_gpio_set_moder(regs, idx, STM32_GPIO_MODE_OUT);
+	stm32_gpio_set_moder(regs, offset, STM32_GPIO_MODE_OUT);
 
-	writel(BSRR_BIT(idx, value), &regs->bsrr);
+	writel(BSRR_BIT(offset, value), &regs->bsrr);
 
 	return 0;
 }
@@ -141,26 +123,22 @@ static int stm32_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
-	int idx;
 
-	idx = stm32_offset_to_index(dev, offset);
-	if (idx < 0)
-		return idx;
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return -ENXIO;
 
-	return readl(&regs->idr) & BIT(idx) ? 1 : 0;
+	return readl(&regs->idr) & BIT(offset) ? 1 : 0;
 }
 
 static int stm32_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
-	int idx;
 
-	idx = stm32_offset_to_index(dev, offset);
-	if (idx < 0)
-		return idx;
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return -ENXIO;
 
-	writel(BSRR_BIT(idx, value), &regs->bsrr);
+	writel(BSRR_BIT(offset, value), &regs->bsrr);
 
 	return 0;
 }
@@ -171,14 +149,12 @@ static int stm32_gpio_get_function(struct udevice *dev, unsigned int offset)
 	struct stm32_gpio_regs *regs = priv->regs;
 	int bits_index;
 	int mask;
-	int idx;
 	u32 mode;
 
-	idx = stm32_offset_to_index(dev, offset);
-	if (idx < 0)
-		return idx;
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return GPIOF_UNKNOWN;
 
-	bits_index = MODE_BITS(idx);
+	bits_index = MODE_BITS(offset);
 	mask = MODE_BITS_MASK << bits_index;
 
 	mode = (readl(&regs->moder) & mask) >> bits_index;
@@ -197,30 +173,28 @@ static int stm32_gpio_set_flags(struct udevice *dev, unsigned int offset,
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
-	int idx;
 
-	idx = stm32_offset_to_index(dev, offset);
-	if (idx < 0)
-		return idx;
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return -ENXIO;
 
 	if (flags & GPIOD_IS_OUT) {
 		bool value = flags & GPIOD_IS_OUT_ACTIVE;
 
 		if (flags & GPIOD_OPEN_DRAIN)
-			stm32_gpio_set_otype(regs, idx, STM32_GPIO_OTYPE_OD);
+			stm32_gpio_set_otype(regs, offset, STM32_GPIO_OTYPE_OD);
 		else
-			stm32_gpio_set_otype(regs, idx, STM32_GPIO_OTYPE_PP);
+			stm32_gpio_set_otype(regs, offset, STM32_GPIO_OTYPE_PP);
 
-		stm32_gpio_set_moder(regs, idx, STM32_GPIO_MODE_OUT);
-		writel(BSRR_BIT(idx, value), &regs->bsrr);
+		stm32_gpio_set_moder(regs, offset, STM32_GPIO_MODE_OUT);
+		writel(BSRR_BIT(offset, value), &regs->bsrr);
 
 	} else if (flags & GPIOD_IS_IN) {
-		stm32_gpio_set_moder(regs, idx, STM32_GPIO_MODE_IN);
+		stm32_gpio_set_moder(regs, offset, STM32_GPIO_MODE_IN);
 	}
 	if (flags & GPIOD_PULL_UP)
-		stm32_gpio_set_pupd(regs, idx, STM32_GPIO_PUPD_UP);
+		stm32_gpio_set_pupd(regs, offset, STM32_GPIO_PUPD_UP);
 	else if (flags & GPIOD_PULL_DOWN)
-		stm32_gpio_set_pupd(regs, idx, STM32_GPIO_PUPD_DOWN);
+		stm32_gpio_set_pupd(regs, offset, STM32_GPIO_PUPD_DOWN);
 
 	return 0;
 }
@@ -230,19 +204,17 @@ static int stm32_gpio_get_flags(struct udevice *dev, unsigned int offset,
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_regs *regs = priv->regs;
-	int idx;
 	ulong dir_flags = 0;
 
-	idx = stm32_offset_to_index(dev, offset);
-	if (idx < 0)
-		return idx;
+	if (!stm32_gpio_is_mapped(dev, offset))
+		return -ENXIO;
 
-	switch (stm32_gpio_get_moder(regs, idx)) {
+	switch (stm32_gpio_get_moder(regs, offset)) {
 	case STM32_GPIO_MODE_OUT:
 		dir_flags |= GPIOD_IS_OUT;
-		if (stm32_gpio_get_otype(regs, idx) == STM32_GPIO_OTYPE_OD)
+		if (stm32_gpio_get_otype(regs, offset) == STM32_GPIO_OTYPE_OD)
 			dir_flags |= GPIOD_OPEN_DRAIN;
-		if (readl(&regs->idr) & BIT(idx))
+		if (readl(&regs->idr) & BIT(offset))
 			dir_flags |= GPIOD_IS_OUT_ACTIVE;
 		break;
 	case STM32_GPIO_MODE_IN:
@@ -251,7 +223,7 @@ static int stm32_gpio_get_flags(struct udevice *dev, unsigned int offset,
 	default:
 		break;
 	}
-	switch (stm32_gpio_get_pupd(regs, idx)) {
+	switch (stm32_gpio_get_pupd(regs, offset)) {
 	case STM32_GPIO_PUPD_UP:
 		dir_flags |= GPIOD_PULL_UP;
 		break;
@@ -304,16 +276,13 @@ static int gpio_stm32_probe(struct udevice *dev)
 	if (!ret && args.args_count < 3)
 		return -EINVAL;
 
-	if (ret == -ENOENT) {
-		uc_priv->gpio_count = STM32_GPIOS_PER_BANK;
+	uc_priv->gpio_count = STM32_GPIOS_PER_BANK;
+	if (ret == -ENOENT)
 		priv->gpio_range = GENMASK(STM32_GPIOS_PER_BANK - 1, 0);
-	}
 
 	while (ret != -ENOENT) {
 		priv->gpio_range |= GENMASK(args.args[2] + args.args[0] - 1,
 				    args.args[0]);
-
-		uc_priv->gpio_count += args.args[2];
 
 		ret = dev_read_phandle_with_args(dev, "gpio-ranges", NULL, 3,
 						 ++i, &args);

@@ -432,13 +432,13 @@ static void get_cpu_string_offsets(unsigned int *type, unsigned int *pkg,
 
 	/* Revision */
 	switch (get_cpu_rev()) {
-	case CPU_REVA:
+	case CPU_REV1:
 		*rev = 1;
 		break;
-	case CPU_REVB:
+	case CPU_REV2:
 		*rev = 2;
 		break;
-	case CPU_REVZ:
+	case CPU_REV2_1:
 		*rev = 3;
 		break;
 	default:
