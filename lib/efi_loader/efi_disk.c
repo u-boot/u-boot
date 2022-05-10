@@ -73,6 +73,33 @@ static efi_status_t EFIAPI efi_disk_reset(struct efi_block_io *this,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+/**
+ * efi_disk_is_removable() - check if the device is removable media
+ * @handle:		efi object handle;
+ *
+ * Examine the device and determine if the device is a local block device
+ * and removable media.
+ *
+ * Return:		true if removable, false otherwise
+ */
+bool efi_disk_is_removable(efi_handle_t handle)
+{
+	struct efi_handler *handler;
+	struct efi_block_io *io;
+	efi_status_t ret;
+
+	ret = efi_search_protocol(handle, &efi_block_io_guid, &handler);
+	if (ret != EFI_SUCCESS)
+		return false;
+
+	io = handler->protocol_interface;
+
+	if (!io || !io->media)
+		return false;
+
+	return (bool)io->media->removable_media;
+}
+
 enum efi_disk_direction {
 	EFI_DISK_READ,
 	EFI_DISK_WRITE,
