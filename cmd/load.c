@@ -1063,6 +1063,44 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 
 #endif
 
+#if defined(CONFIG_CMD_LOADM)
+static int do_load_memory_bin(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
+{
+	ulong	addr, dest, size;
+	void	*src, *dst;
+
+	if (argc != 4)
+		return CMD_RET_USAGE;
+
+	addr = simple_strtoul(argv[1], NULL, 16);
+
+	dest = simple_strtoul(argv[2], NULL, 16);
+
+	size = simple_strtoul(argv[3], NULL, 16);
+
+	if (!size) {
+		printf("loadm: can not load zero bytes\n");
+		return 1;
+	}
+
+	src = map_sysmem(addr, size);
+	dst = map_sysmem(dest, size);
+
+	memcpy(dst, src, size);
+
+	unmap_sysmem(src);
+	unmap_sysmem(dst);
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
+		efi_set_bootdev("Mem", "", "", map_sysmem(dest, 0), size);
+
+	printf("loaded bin to memory: size: %lu\n", size);
+
+	return 0;
+}
+#endif
+
 /* -------------------------------------------------------------------- */
 
 #if defined(CONFIG_CMD_LOADS)
@@ -1137,3 +1175,13 @@ U_BOOT_CMD(
 );
 
 #endif	/* CONFIG_CMD_LOADB */
+
+#if defined(CONFIG_CMD_LOADM)
+U_BOOT_CMD(
+	loadm, 4, 0,	do_load_memory_bin,
+	"load binary blob from source address to destination address",
+	"[src_addr] [dst_addr] [size]\n"
+	"     - load a binary blob from one memory location to other"
+	" from src_addr to dst_addr by size bytes"
+);
+#endif /* CONFIG_CMD_LOADM */

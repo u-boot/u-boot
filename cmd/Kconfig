@@ -1160,6 +1160,11 @@ config CMD_LOADB
 	help
 	  Load a binary file over serial line.
 
+config CMD_LOADM
+	bool "loadm"
+	help
+	  Load a binary over memory mapped.
+
 config CMD_LOADS
 	bool "loads"
 	default y

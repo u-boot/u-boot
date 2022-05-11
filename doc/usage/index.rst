@@ -44,6 +44,7 @@ Shell commands
    cmd/fatload
    cmd/for
    cmd/load
+   cmd/loadm
    cmd/loady
    cmd/mbr
    cmd/md
