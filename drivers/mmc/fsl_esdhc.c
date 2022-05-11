@@ -946,9 +946,8 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 	} else if (cfg->max_bus_width == 1) {
 		mmc_cfg->host_caps |= MMC_MODE_1BIT;
 	} else {
-		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
-				      MMC_MODE_8BIT;
-		printf("No max bus width provided. Assume 8-bit supported.\n");
+		mmc_cfg->host_caps |= MMC_MODE_1BIT;
+		printf("No max bus width provided. Fallback to 1-bit mode.\n");
 	}
 
 	if (IS_ENABLED(CONFIG_ESDHC_DETECT_8_BIT_QUIRK))
