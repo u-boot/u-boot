@@ -272,6 +272,47 @@ int ahab_release_caam(u32 core_did, u32 *response)
 	return ret;
 }
 
+int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct imx8ulp_s400_msg);
+	struct imx8ulp_s400_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	if (!fw_version) {
+		printf("Invalid parameters for f/w version read\n");
+		return -EINVAL;
+	}
+
+	if (!sha1) {
+		printf("Invalid parameters for commit sha1\n");
+		return -EINVAL;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 1;
+	msg.command = AHAB_GET_FW_VERSION_CID;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x\n",
+		       __func__, ret, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	*fw_version = msg.data[1];
+	*sha1 = msg.data[2];
+
+	return ret;
+}
+
 int ahab_dump_buffer(u32 *buffer, u32 buffer_length)
 {
 	struct udevice *dev = gd->arch.s400_dev;
