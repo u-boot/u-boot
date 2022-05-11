@@ -22,6 +22,7 @@ CONFIG_BOOTCOMMAND="${x_bootcmd_kernel}; setenv bootargs ${x_bootargs} ${x_boota
 CONFIG_USE_PREBOOT=y
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_HUSH_PARSER=y
+CONFIG_SYS_MAXARGS=32
 CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_FLASH is not set
 CONFIG_CMD_MMC=y

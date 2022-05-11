@@ -15,8 +15,6 @@
 
 /* Boot configuration */
 
-#define CONFIG_SYS_MAXARGS		32 /* max number of command args */
-
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \

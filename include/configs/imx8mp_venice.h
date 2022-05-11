@@ -102,7 +102,6 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		SZ_2K
-#define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)

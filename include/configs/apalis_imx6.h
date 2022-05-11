@@ -121,8 +121,6 @@
 /* Miscellaneous configurable options */
 #undef CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_CBSIZE		1024
-#undef CONFIG_SYS_MAXARGS
-#define CONFIG_SYS_MAXARGS		48
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

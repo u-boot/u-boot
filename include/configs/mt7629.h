@@ -13,7 +13,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_MAXARGS		8
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 #define CONFIG_SYS_CBSIZE		SZ_1K
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +	\

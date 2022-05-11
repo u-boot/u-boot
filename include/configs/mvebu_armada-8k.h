@@ -24,7 +24,6 @@
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
 
 /* End of 16M scrubbed by training in bootrom */
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)

@@ -36,8 +36,6 @@
 
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
-/* max number of command args */
-#define	CONFIG_SYS_MAXARGS	15
 
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 

@@ -71,6 +71,10 @@ config SYS_PROMPT_HUSH_PS2
 	  printed when the command interpreter needs more input
 	  to complete a command. Usually "> ".
 
+config SYS_MAXARGS
+	int "Maximum number arguments accepted by commands"
+	default 16
+
 config SYS_XTRACE
 	bool "Command execution tracer"
 	depends on CMDLINE

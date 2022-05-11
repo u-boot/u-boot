@@ -88,7 +88,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
-#define CONFIG_SYS_MAXARGS	48	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */

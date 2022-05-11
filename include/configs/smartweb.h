@@ -41,9 +41,6 @@
 
 /* misc settings */
 
-/* We set the max number of command args high to avoid HUSH bugs. */
-#define CONFIG_SYS_MAXARGS    32
-
 /* setting board specific options */
 #define CONFIG_SYS_AUTOLOAD "yes"
 

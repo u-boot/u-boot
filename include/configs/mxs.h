@@ -79,7 +79,6 @@
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
-#define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
 

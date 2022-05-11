@@ -86,9 +86,6 @@
 
 /* Miscellaneous configurable options */
 
-/* We set the max number of command args high to avoid HUSH bugs. */
-#define CONFIG_SYS_MAXARGS		64
-
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \
 					+ sizeof(CONFIG_SYS_PROMPT) + 16)

@@ -64,8 +64,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
-
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
 #define OCRAM_NONSECURE_SIZE		0x00010000

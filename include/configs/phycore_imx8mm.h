@@ -88,7 +88,6 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		SZ_2K
-#define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #endif /* __PHYCORE_IMX8MM_H */

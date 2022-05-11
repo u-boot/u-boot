@@ -25,8 +25,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		512
 
-#define CONFIG_SYS_MAXARGS		256
-
 /* Physical Memory Map */
 
 #define PHYS_SDRAM			0x60000000

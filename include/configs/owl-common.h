@@ -24,7 +24,6 @@
 
 /* Console configuration */
 #define CONFIG_SYS_CBSIZE		1024	/* Console buffer size */
-#define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #endif

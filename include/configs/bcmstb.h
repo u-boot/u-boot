@@ -91,7 +91,6 @@ extern phys_addr_t prior_stage_fdt_address;
  * CONFIG_SYS_LOAD_ADDR - 1 MiB.
  */
 #define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_MAXARGS		32
 
 /*
  * Large kernel image bootm configuration.

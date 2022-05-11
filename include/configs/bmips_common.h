@@ -13,7 +13,6 @@
 					  230400, 500000, 1500000 }
 
 /* Memory usage */
-#define CONFIG_SYS_MAXARGS		24
 #define CONFIG_SYS_BOOTPARAMS_LEN	SZ_128K
 #define CONFIG_SYS_CBSIZE		SZ_512
 

@@ -199,7 +199,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 #define CONFIG_SYS_CBSIZE		2048 /* Console I/O Buffer Size */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000

@@ -129,7 +129,6 @@
 
 /* Misc configuration */
 #define CONFIG_SYS_CBSIZE	2048
-#define CONFIG_SYS_MAXARGS	64
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 #endif /* __IMX8QXP_MEK_H */

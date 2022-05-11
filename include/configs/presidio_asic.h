@@ -61,7 +61,6 @@
 #define GLOBAL_IO_DRIVE_CONTROL_OFFSET          0x4c
 
 /* max command args */
-#define CONFIG_SYS_MAXARGS		64
 #define CONFIG_EXTRA_ENV_SETTINGS	"silent=y\0"
 
 /* nand driver parameters */

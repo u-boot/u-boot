@@ -8,7 +8,6 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_CBSIZE		1024
 
 #define CONFIG_SYS_HZ_CLOCK		24000000

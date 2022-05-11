@@ -1857,8 +1857,6 @@ Configuration Settings:
 
 - CONFIG_SYS_PBSIZE:	Buffer size for Console output
 
-- CONFIG_SYS_MAXARGS:	max. Number of arguments accepted for monitor commands
-
 - CONFIG_SYS_BARGSIZE: Buffer size for Boot Arguments which are passed to
 		the application (usually a Linux kernel) when it is
 		booted

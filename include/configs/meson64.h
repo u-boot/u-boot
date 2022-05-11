@@ -29,7 +29,6 @@
 #define STDIN_CFG "serial"
 #endif
 
-#define CONFIG_SYS_MAXARGS		32
 #define CONFIG_SYS_CBSIZE		1024
 
 #define CONFIG_SYS_SDRAM_BASE		0

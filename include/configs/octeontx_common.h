@@ -57,8 +57,6 @@
 #define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_MAXARGS		64	/** max command args */
-
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 
 /** EMMC specific defines */

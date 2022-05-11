@@ -27,9 +27,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-/* We set the max number of command args high to avoid HUSH bugs. */
-#define CONFIG_SYS_MAXARGS		32
-
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		1024
 

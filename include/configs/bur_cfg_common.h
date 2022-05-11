@@ -27,9 +27,6 @@
 
 /* As stated above, the following choices are optional. */
 
-/* We set the max number of command args high to avoid HUSH bugs. */
-#define CONFIG_SYS_MAXARGS		64
-
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
 

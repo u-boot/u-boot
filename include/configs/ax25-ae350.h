@@ -38,11 +38,6 @@
 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /*
- * max number of command args
- */
-#define CONFIG_SYS_MAXARGS	16
-
-/*
  * Boot Argument Buffer Size
  */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE

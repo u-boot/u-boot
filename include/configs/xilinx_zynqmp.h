@@ -55,7 +55,6 @@
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS		64
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)

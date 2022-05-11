@@ -18,8 +18,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000
 
-#define CONFIG_SYS_MAXARGS		16
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 

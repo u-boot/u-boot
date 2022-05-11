@@ -24,7 +24,5 @@
  * to enable certain macros
  */
 #include "mv-common.h"
-#undef CONFIG_SYS_MAXARGS
-#define CONFIG_SYS_MAXARGS 96
 
 #endif /* _CONFIG_CRS3XX_98DX3236_H */

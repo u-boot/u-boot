@@ -45,6 +45,5 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_MAXARGS		64
 
 #endif

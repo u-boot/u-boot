@@ -41,7 +41,6 @@
  */
 #define CONFIG_SYS_CBSIZE		(1024 * 2) /* Console I/O Buffer Size */
 /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		64	/* max number of command args */
 
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)

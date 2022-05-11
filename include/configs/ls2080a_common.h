@@ -144,7 +144,6 @@ unsigned long long get_qixis_addr(void);
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000

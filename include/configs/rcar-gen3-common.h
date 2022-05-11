@@ -26,7 +26,6 @@
 /* console */
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS		64
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }
 
 /* PHY needs a longer autoneg timeout */
