@@ -29,7 +29,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
 
 /*
  * Boot Argument Buffer Size

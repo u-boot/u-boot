@@ -88,7 +88,6 @@
 #endif
 
 /* General Boot Parameter */
-#define CONFIG_SYS_CBSIZE		512
 
 /*
  * The NAND Flash partitions:

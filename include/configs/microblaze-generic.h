@@ -34,9 +34,6 @@
 #define XILINX_DCACHE_BYTE_SIZE	32768
 #endif
 
-/* size of console buffer */
-#define	CONFIG_SYS_CBSIZE	512
-
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 
 /* architecture dependent code */

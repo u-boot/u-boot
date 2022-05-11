@@ -47,9 +47,6 @@
 					 CONFIG_SYS_MALLOC_LEN - \
 					 CONFIG_SYS_GBL_DATA_SIZE)
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-
 /* USB Configs */
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2

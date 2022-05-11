@@ -263,9 +263,6 @@
 		EXTRA_ENV_NAMES						       \
 		BOOTENV
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 /* 255 x 256KiB sectors + 4 x 64KiB sectors at the end = 259 */

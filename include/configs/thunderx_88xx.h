@@ -47,8 +47,6 @@
 
 /* Do not preserve environment */
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define PLL_REF_CLK			50000000	/* 50 MHz */
 #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
 

@@ -15,7 +15,6 @@
 /* U-Boot environment */
 
 /* U-Boot general configurations */
-#define CONFIG_SYS_CBSIZE	512
 
 /* UART */
 #define CONFIG_MXC_UART_BASE	UART1_BASE

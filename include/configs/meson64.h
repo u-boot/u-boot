@@ -29,8 +29,6 @@
 #define STDIN_CFG "serial"
 #endif
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_INIT_SP_ADDR		0x20000000
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20) /* 64 MiB */

@@ -197,7 +197,4 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE0, \
 					  CONFIG_SYS_FLASH_BASE1 }
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
 #endif /* VEXPRESS_COMMON_H */

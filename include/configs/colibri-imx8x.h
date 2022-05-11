@@ -106,8 +106,6 @@
 #define PHYS_SDRAM_1_SIZE		SZ_2G		/* 2 GB */
 #define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 GB */
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		SZ_2K
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* Generic Timer Definitions */

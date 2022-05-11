@@ -41,8 +41,8 @@
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x40000000 /* Minimum 1 GiB DDR */
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		2048
+#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
+
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* PHY needs a longer autonegotiation timeout after reset */

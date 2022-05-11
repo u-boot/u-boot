@@ -27,7 +27,6 @@
  * Command
  */
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
 

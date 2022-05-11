@@ -148,8 +148,6 @@ unsigned long long get_qixis_addr(void);
 	" 0x580e00000 \0"
 #endif
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 
 #ifdef CONFIG_SPL

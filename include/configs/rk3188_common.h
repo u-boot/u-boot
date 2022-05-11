@@ -9,8 +9,6 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #ifdef CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
 /* Bootrom will load u-boot binary to 0x60000000 once return from SPL */
 #endif

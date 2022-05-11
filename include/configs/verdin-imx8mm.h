@@ -86,8 +86,6 @@
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(1)
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		SZ_2K
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* ENET */

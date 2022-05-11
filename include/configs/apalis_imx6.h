@@ -119,8 +119,6 @@
 	"vidargs=mxc_hdmi.only_cea=1 fbmem=32M\0"
 
 /* Miscellaneous configurable options */
-#undef CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_CBSIZE		1024
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

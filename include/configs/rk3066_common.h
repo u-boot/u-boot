@@ -9,8 +9,6 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_CBSIZE		256
-
 #define CONFIG_SYS_INIT_SP_ADDR		0x78000000
 
 #define CONFIG_IRAM_BASE		0x10080000

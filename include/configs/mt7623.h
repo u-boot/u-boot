@@ -14,7 +14,6 @@
 /* Miscellaneous configurable options */
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
-#define CONFIG_SYS_CBSIZE		SZ_1K
 
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 

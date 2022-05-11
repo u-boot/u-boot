@@ -47,8 +47,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART4_BASE_ADDR
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		SZ_2K
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* I2C */

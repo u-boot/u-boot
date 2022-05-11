@@ -14,6 +14,5 @@
 
 /* Memory usage */
 #define CONFIG_SYS_BOOTPARAMS_LEN	SZ_128K
-#define CONFIG_SYS_CBSIZE		SZ_512
 
 #endif /* __CONFIG_BMIPS_COMMON_H */

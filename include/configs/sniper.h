@@ -61,8 +61,6 @@
 
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME			"u-boot.img"
 
-#define CONFIG_SYS_CBSIZE	512
-
 /*
  * Serial
  */

@@ -23,7 +23,6 @@
 #define LPUART_BASE			LPUART4_RBASE
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE		512
 
 /* Physical Memory Map */
 

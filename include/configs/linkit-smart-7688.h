@@ -42,7 +42,6 @@
 
 /* Memory usage */
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
-#define CONFIG_SYS_CBSIZE		512
 
 /* Environment settings */
 

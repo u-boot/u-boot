@@ -49,7 +49,4 @@
 			"ramdisk_addr_r=0x32400000\0"			\
 			BOOTENV
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512
-
 #endif /* _POPLAR_H_ */

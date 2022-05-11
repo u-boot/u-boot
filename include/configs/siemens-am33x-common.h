@@ -28,7 +28,6 @@
 #define V_SCLK				(V_OSCK)
 
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		1024
 
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE

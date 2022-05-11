@@ -27,7 +27,6 @@
 /*
  * U-Boot General Configurations
  */
-#define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /*

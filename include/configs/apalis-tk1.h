@@ -89,10 +89,6 @@
 		"source ${loadaddr}\0" \
 	"vidargs=fbcon=map:1\0"
 
-/* Increase console I/O buffer size */
-#undef CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_CBSIZE		1024
-
 /* Increase arguments buffer size */
 #undef CONFIG_SYS_BARGSIZE
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE

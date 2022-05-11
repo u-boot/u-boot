@@ -58,8 +58,6 @@
 	"run emmc_hdploadcmd; run distro_bootcmd;run emmc_bootcmd; " \
 	"env exists secureboot && esbc_halt;"
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
 
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */

@@ -24,7 +24,4 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_BOOTM_LEN	SZ_64M
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE	512
-
 #endif

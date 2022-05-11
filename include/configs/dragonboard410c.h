@@ -74,7 +74,4 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
 #endif

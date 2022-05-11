@@ -100,7 +100,6 @@ setenv core_iccm_2 0x10; setenv core_dccm_2 0x10; \
 setenv core_iccm_3 0x6; setenv core_dccm_3 0x6;\0"
 
 /* Cli configuration */
-#define CONFIG_SYS_CBSIZE		SZ_2K
 
 /*
  * Callback configuration

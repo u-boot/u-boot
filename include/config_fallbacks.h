@@ -29,13 +29,4 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #endif
 
-/* Console I/O Buffer Size */
-#ifndef CONFIG_SYS_CBSIZE
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024
-#else
-#define CONFIG_SYS_CBSIZE	256
-#endif
-#endif
-
 #endif	/* __CONFIG_FALLBACKS_H */

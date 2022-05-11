@@ -24,10 +24,6 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-/* Increase console I/O buffer size */
-#undef CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_CBSIZE		1024
-
 /* Increase arguments buffer size */
 #undef CONFIG_SYS_BARGSIZE
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE

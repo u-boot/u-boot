@@ -44,7 +44,6 @@
 #define CONFIG_EXTRA_CLOCK
 
 #define CONFIG_PRAM			2048	/* 2048 KB */
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 
 /* Boot Argument Buffer Size    */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE

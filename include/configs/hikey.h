@@ -61,7 +61,4 @@
 
 /* Preserve environment on eMMC */
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
 #endif /* __HIKEY_H */

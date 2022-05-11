@@ -14,7 +14,6 @@
 #define PHYS_SDRAM_1_SIZE			0x00198000
 
 /* user interface */
-#define CONFIG_SYS_CBSIZE			1024
 
 /* MISC */
 #define CONFIG_SYS_INIT_RAM_SIZE		0x8000

@@ -50,8 +50,6 @@
 
 /* auto boot */
 
-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-
 /*
  * Other required minimal configurations
  */

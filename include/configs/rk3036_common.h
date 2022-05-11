@@ -8,8 +8,6 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #define CONFIG_SYS_HZ_CLOCK		24000000
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x60100000

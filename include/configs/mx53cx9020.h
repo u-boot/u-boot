@@ -55,7 +55,6 @@
 	BOOTENV
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR

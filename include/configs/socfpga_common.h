@@ -59,7 +59,6 @@
 /*
  * U-Boot general configurations
  */
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 						/* Print buffer size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */

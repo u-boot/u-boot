@@ -13,8 +13,6 @@
 
 #undef CONFIG_SYS_SDRAM_BASE
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE             1024
 #define CONFIG_SYS_BARGSIZE           CONFIG_SYS_CBSIZE
 
 #undef CONFIG_EXTRA_ENV_SETTINGS

@@ -42,7 +42,6 @@
 #define CONFIG_MXC_UART_BASE		UART1_BASE_ADDR
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* PHY needs a longer autonegotiation timeout after reset */

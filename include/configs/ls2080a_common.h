@@ -142,9 +142,6 @@ unsigned long long get_qixis_addr(void);
 	"mcinitcmd=fsl_mc start mc 0x580a00000"	\
 	" 0x580e00000 \0"
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
 #define CONFIG_SPL_MAX_SIZE		0x16000

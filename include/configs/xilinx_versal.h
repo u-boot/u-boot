@@ -27,9 +27,7 @@
 
 /* Miscellaneous configurable options */
 
-/* Monitor Command Prompt */
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #if defined(CONFIG_CMD_DFU)

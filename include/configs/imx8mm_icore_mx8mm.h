@@ -68,8 +68,6 @@
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(2)
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* USDHC */

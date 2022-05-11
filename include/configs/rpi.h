@@ -60,7 +60,6 @@
 #endif
 
 /* Console configuration */
-#define CONFIG_SYS_CBSIZE		1024
 
 /* Environment */
 

@@ -51,9 +51,7 @@
 # define PARTS_DEFAULT
 #endif
 
-/* Monitor Command Prompt */
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* Ethernet driver */

@@ -26,10 +26,6 @@
 /* PCI networking support */
 #define CONFIG_E1000_NO_NVM
 
-/* Increase console I/O buffer size */
-#undef CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_CBSIZE		1024
-
 /* Increase arguments buffer size */
 #undef CONFIG_SYS_BARGSIZE
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE

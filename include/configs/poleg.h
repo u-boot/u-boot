@@ -11,7 +11,6 @@
 #define CONFIG_SYS_PL310_BASE	0xF03FC000       /* L2 - Cache Regs Base (4k Space)*/
 #endif
 
-#define CONFIG_SYS_CBSIZE               256
 #define CONFIG_SYS_BOOTMAPSZ            (0x30 << 20)
 #define CONFIG_SYS_SDRAM_BASE           0x0
 #define CONFIG_SYS_INIT_SP_ADDR         (0x00008000 - GENERATED_GBL_DATA_SIZE)

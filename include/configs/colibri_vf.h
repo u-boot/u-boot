@@ -82,7 +82,6 @@
 	"video-mode=dcufb:640x480-16@60,monitor=lcd\0"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* Physical memory map */

@@ -10,8 +10,6 @@
 
 #define CONFIG_IRAM_BASE		0x10080000
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #define CONFIG_SYS_TIMER_RATE		(24 * 1000 * 1000)
 /* TIMER1,initialized by ddr initialize code */
 #define CONFIG_SYS_TIMER_BASE		0x10350020

@@ -27,7 +27,4 @@
 
 /* As stated above, the following choices are optional. */
 
-/* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		512
-
 #endif	/* __BUR_CFG_COMMON_H__ */

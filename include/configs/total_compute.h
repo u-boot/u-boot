@@ -46,9 +46,6 @@
  * Else boot FIT image.
  */
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
 #define CONFIG_SYS_FLASH_BASE		0x0C000000
 /* 256 x 256KiB sectors */
 #define CONFIG_SYS_MAX_FLASH_SECT	256

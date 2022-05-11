@@ -26,7 +26,6 @@
 #include <asm/mach-imx/gpio.h>
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE	512
 
 /* MMC */
 

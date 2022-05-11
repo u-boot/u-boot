@@ -19,7 +19,6 @@
 /*
  * Console I/O buffer size
  */
-#define CONFIG_SYS_CBSIZE			SZ_1K
 
 /*
  * For booting Linux, use the first 256 MB of memory, since this is

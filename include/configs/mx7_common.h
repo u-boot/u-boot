@@ -23,7 +23,6 @@
 #define CONFIG_IOMUX_LPSR
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE		512
 
 /* UART */
 

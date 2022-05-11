@@ -53,8 +53,6 @@
 # define CONFIG_SYS_64BIT_LBA
 #endif
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192

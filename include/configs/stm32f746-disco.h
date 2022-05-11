@@ -26,8 +26,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 

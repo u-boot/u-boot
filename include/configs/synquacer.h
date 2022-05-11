@@ -40,8 +40,6 @@
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
 
-#define CONFIG_SYS_CBSIZE		1024
-
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 
 #define DEFAULT_DFU_ALT_INFO "dfu_alt_info="				\

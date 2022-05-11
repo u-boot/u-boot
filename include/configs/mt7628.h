@@ -18,8 +18,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		0x1000000
 
-#define CONFIG_SYS_CBSIZE		1024
-
 /* Serial SPL */
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL)
 #define CONFIG_SYS_NS16550_MEM32

@@ -12,8 +12,6 @@
 
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-
 /* GUIDs for capsule updatable firmware images */
 #define SANDBOX_UBOOT_IMAGE_GUID \
 	EFI_GUID(0x09d7cf52, 0x0720, 0x4710, 0x91, 0xd1, \

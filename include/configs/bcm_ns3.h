@@ -29,7 +29,6 @@
 /* console configuration */
 #define CONFIG_SYS_NS16550_CLK		25000000
 
-#define CONFIG_SYS_CBSIZE		SZ_1K
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /*

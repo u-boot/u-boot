@@ -41,7 +41,6 @@
 /*------------------------------------------------------------
  * Console Configuration
  */
-#define CONFIG_SYS_CBSIZE		1024 /* Console I/O Buffer Size   */
 
 /*--------------------------------------------------
  * USB Configuration

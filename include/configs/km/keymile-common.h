@@ -12,11 +12,6 @@
 /*
  * Miscellaneous configurable options
  */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size  */
-#endif
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_HUSH_INIT_VAR

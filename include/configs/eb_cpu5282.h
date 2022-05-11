@@ -29,7 +29,6 @@
  * Environment is in the second sector of the first 256k of flash	*
  *----------------------------------------------------------------------*/
 
-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
 /*#define CONFIG_SYS_DRAM_TEST		1 */

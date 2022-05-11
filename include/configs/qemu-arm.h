@@ -79,8 +79,6 @@
 	"ramdisk_addr_r=0x44000000\0" \
 	BOOTENV
 
-#define CONFIG_SYS_CBSIZE 512
-
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* Sector: 256K, Bank: 64M */
 
 #endif /* __CONFIG_H */

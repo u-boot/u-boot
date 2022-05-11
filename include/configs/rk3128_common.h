@@ -8,8 +8,6 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #define CONFIG_SYS_HZ_CLOCK		24000000
 
 #define CONFIG_IRAM_BASE		0x10080000

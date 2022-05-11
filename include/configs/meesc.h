@@ -69,6 +69,4 @@
 /* hw-controller addresses */
 #define CONFIG_ET1100_BASE		0x70000000
 
-#define CONFIG_SYS_CBSIZE		512
-
 #endif
