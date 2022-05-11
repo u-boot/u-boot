@@ -218,6 +218,7 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+		power-domains = <&zynqmp_firmware PD_PL>;
 	};
 
 	amba: axi {
