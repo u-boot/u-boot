@@ -971,6 +971,7 @@ int fsl_esdhc_mmc_init(struct bd_info *bis)
 
 	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
+	cfg->max_bus_width = CONFIG_SYS_FSL_ESDHC_DEFAULT_BUS_WIDTH;
 	/* Prefer peripheral clock which provides higher frequency. */
 	if (gd->arch.sdhc_per_clk)
 		cfg->sdhc_clk = gd->arch.sdhc_per_clk;

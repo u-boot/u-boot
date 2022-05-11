@@ -839,6 +839,11 @@ config FSL_ESDHC_VS33_NOT_SUPPORT
 	  For eSDHC, power supply is through peripheral circuit. 3.3V support is
 	  common. Select this if 3.3V power supply not supported.
 
+config SYS_FSL_ESDHC_DEFAULT_BUS_WIDTH
+	int
+	depends on FSL_ESDHC
+	default 1
+
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
 	help
