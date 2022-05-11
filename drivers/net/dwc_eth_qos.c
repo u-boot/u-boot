@@ -1399,8 +1399,6 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	if (ret)
 		return -EINVAL;
 
-	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
-
 	ret = clk_get_by_name(dev, "stmmaceth", &eqos->clk_master_bus);
 	if (ret) {
 		pr_err("clk_get_by_name(master_bus) failed: %d", ret);
@@ -1502,6 +1500,8 @@ static int eqos_probe(struct udevice *dev)
 	eqos->mtl_regs = (void *)(eqos->regs + EQOS_MTL_REGS_BASE);
 	eqos->dma_regs = (void *)(eqos->regs + EQOS_DMA_REGS_BASE);
 	eqos->tegra186_regs = (void *)(eqos->regs + EQOS_TEGRA186_REGS_BASE);
+
+	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
 
 	ret = eqos_probe_resources_core(dev);
 	if (ret < 0) {
