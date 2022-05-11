@@ -52,7 +52,7 @@ void spl_board_init(void)
 	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
 		if (ret)
-			printf("Failed to initialize %s: %d\n", dev->name, ret);
+			printf("Failed to initialize caam_jr: %d\n", ret);
 	}
 	puts("Normal Boot\n");
 
