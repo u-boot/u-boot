@@ -1,0 +1,7 @@
+CORSTONE1000 BOARD
+M:	Rui Miguel Silva <rui.silva@linaro.org>
+M:	Vishnu Banavath <vishnu.banavath@arm.com>
+S:	Maintained
+F:	board/armltd/corstone1000/
+F:	include/configs/corstone1000.h
+F:	configs/corstone1000_defconfig
