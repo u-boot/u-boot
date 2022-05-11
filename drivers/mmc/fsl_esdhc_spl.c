@@ -106,7 +106,7 @@ again:
 	blk_off = (sector * 512) % mmc->read_bl_len;
 	blk_cnt = DIV_ROUND_UP(512,  mmc->read_bl_len);
 	err = mmc->block_dev.block_read(&mmc->block_dev, blk_start, blk_cnt, tmp_buf);
-	if (err != 1) {
+	if (err != blk_cnt) {
 		puts("spl: mmc read failed!!\n");
 		hang();
 	}
