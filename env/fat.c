@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <fat.h>
 #include <mmc.h>
+#include <scsi.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <linux/stddef.h>
@@ -128,7 +129,12 @@ static int env_fat_load(void)
 	if (!strcmp(ifname, "mmc"))
 		mmc_initialize(NULL);
 #endif
-
+#ifndef CONFIG_SPL_BUILD
+#if defined(CONFIG_AHCI) || defined(CONFIG_SCSI)
+	if (!strcmp(CONFIG_ENV_FAT_INTERFACE, "scsi"))
+		scsi_scan(true);
+#endif
+#endif
 	part = blk_get_device_part_str(ifname, dev_and_part,
 				       &dev_desc, &info, 1);
 	if (part < 0)
