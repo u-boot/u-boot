@@ -40,6 +40,8 @@ ENTRY(gic_init_secure)
 	sub	w10, w10, #0x1
 	cbnz	w10, 0b
 #elif defined(CONFIG_GICV2)
+	switch_el x1, 2f, 1f, 1f
+2:
 	mov	w9, #0x3		/* EnableGrp0 | EnableGrp1 */
 	str	w9, [x0, GICD_CTLR]	/* Secure GICD_CTLR */
 	ldr	w9, [x0, GICD_TYPER]
@@ -141,6 +143,8 @@ ENTRY(gic_init_secure_percpu)
 	 * x0: Distributor Base
 	 * x1: Cpu Interface Base
 	 */
+	switch_el x2, 4f, 5f, 5f
+4:
 	mov	w9, #~0			/* Config SGIs and PPIs as Grp1 */
 	str	w9, [x0, GICD_IGROUPRn]	/* GICD_IGROUPR0 */
 	mov	w9, #0x1		/* Enable SGI 0 */
@@ -155,6 +159,7 @@ ENTRY(gic_init_secure_percpu)
 	mov	w9, #0x1 << 7		/* Non-Secure access to GICC_PMR */
 	str	w9, [x1, GICC_PMR]
 #endif
+5:
 	ret
 ENDPROC(gic_init_secure_percpu)
 
