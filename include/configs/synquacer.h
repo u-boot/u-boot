@@ -41,7 +41,6 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
 
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 

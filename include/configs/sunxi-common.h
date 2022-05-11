@@ -103,7 +103,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE	1024	/* Print Buffer Size */
 
 /* standalone support */
 #define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR

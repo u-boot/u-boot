@@ -87,7 +87,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 
 /* SMDKC100 has 1 banks of DRAM, we use only one in U-Boot */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* SDRAM Bank #1 */

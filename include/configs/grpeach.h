@@ -11,7 +11,6 @@
 /* Board Clock , P1 clock frequency (XTAL=13.33MHz) */
 
 /* Miscellaneous */
-#define CONFIG_SYS_PBSIZE	256
 
 /* Internal RAM Size (RZ/A1=3M, RZ/A1M=5M, RZ/A1H=10M) */
 #define CONFIG_SYS_SDRAM_BASE		0x20000000

@@ -75,6 +75,10 @@ config SYS_MAXARGS
 	int "Maximum number arguments accepted by commands"
 	default 16
 
+config SYS_PBSIZE
+	int "Buffer size for console output"
+	default 1044
+
 config SYS_XTRACE
 	bool "Command execution tracer"
 	depends on CMDLINE

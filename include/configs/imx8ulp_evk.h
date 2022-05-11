@@ -73,7 +73,6 @@
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR			WDG3_RBASE

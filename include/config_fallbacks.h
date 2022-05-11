@@ -38,8 +38,4 @@
 #endif
 #endif
 
-#ifndef CONFIG_SYS_PBSIZE
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#endif
-
 #endif	/* __CONFIG_FALLBACKS_H */

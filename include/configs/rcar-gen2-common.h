@@ -19,7 +19,6 @@
 #endif
 
 /* console */
-#define CONFIG_SYS_PBSIZE		256
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 38400, 115200 }
 
 #define CONFIG_SYS_SDRAM_BASE		(RCAR_GEN2_SDRAM_BASE)

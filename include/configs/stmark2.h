@@ -46,9 +46,6 @@
 #define CONFIG_PRAM			2048	/* 2048 KB */
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
 /* Boot Argument Buffer Size    */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 

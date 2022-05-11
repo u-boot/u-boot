@@ -43,8 +43,6 @@
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		256
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define KSEG1_ATU_XLAT(x) (x)

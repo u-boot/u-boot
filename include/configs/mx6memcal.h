@@ -25,8 +25,6 @@
 #error please define serial console (CONFIG_SERIAL_CONSOLE_UARTx)
 #endif
 
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + 16)
-
 /* Physical Memory Map */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
 
