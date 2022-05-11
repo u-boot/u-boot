@@ -89,6 +89,10 @@
 	};
 };
 
+&modepin_gpio {
+	label = "modepin";
+};
+
 &uart1 { /* MIO36/MIO37 */
 	status = "okay";
 };
