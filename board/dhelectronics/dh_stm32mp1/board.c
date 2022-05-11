@@ -594,14 +594,98 @@ static void board_init_fmc2(void)
 	setbits_le32(STM32_FMC2_BASE + STM32_FMC2_BCR1, STM32_FMC2_BCRx_FMCEN);
 }
 
+#ifdef CONFIG_DM_REGULATOR
+#define STPMIC_NVM_BUCKS_VOUT_SHR			0xfc
+#define STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_1V2		0
+#define STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_1V8		1
+#define STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_3V0		2
+#define STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_3V3		3
+#define STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_MASK		GENMASK(1, 0)
+#define STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_OFFSET(n)	((((n) - 1) & 3) * 2)
+static int board_get_regulator_buck3_nvm_uv_av96(int *uv)
+{
+	const void *fdt = gd->fdt_blob;
+	struct udevice *dev;
+	u8 bucks_vout = 0;
+	const char *prop;
+	int len, ret;
+
+	/* Check whether this is Avenger96 board. */
+	prop = fdt_getprop(fdt, 0, "compatible", &len);
+	if (!prop || !len)
+		return -ENODEV;
+
+	if (!strstr(prop, "avenger96"))
+		return -EINVAL;
+
+	/* Read out STPMIC1 NVM and determine default Buck3 voltage. */
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_DRIVER_GET(stpmic1_nvm),
+					  &dev);
+	if (ret)
+		return ret;
+
+	ret = misc_read(dev, STPMIC_NVM_BUCKS_VOUT_SHR, &bucks_vout, 1);
+	if (ret != 1)
+		return -EINVAL;
+
+	bucks_vout >>= STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_OFFSET(3);
+	bucks_vout &= STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_MASK;
+
+	/*
+	 * Avenger96 board comes in multiple regulator configurations:
+	 * - rev.100 or rev.200 have Buck3 preconfigured to 3V3 operation on
+	 *   boot and contains extra Enpirion EP53A8LQI DCDC converter which
+	 *   supplies the IO. Reduce Buck3 voltage to 2V9 to not waste power.
+	 * - rev.200L have Buck3 preconfigured to 1V8 operation and have no
+	 *   Enpirion EP53A8LQI DCDC anymore, the IO is supplied from Buck3.
+	 */
+	if (bucks_vout == STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_3V3)
+		*uv = 2900000;
+	else
+		*uv = 1800000;
+
+	return 0;
+}
+
+static void board_init_regulator_av96(void)
+{
+	struct udevice *rdev;
+	int ret, uv;
+
+	ret = board_get_regulator_buck3_nvm_uv_av96(&uv);
+	if (ret)	/* Not Avenger96 board. */
+		return;
+
+	ret = regulator_get_by_devname("buck3", &rdev);
+	if (ret)
+		return;
+
+	/* Adjust Buck3 per preconfigured PMIC voltage from NVM. */
+	regulator_set_value(rdev, uv);
+}
+
+static void board_init_regulator(void)
+{
+	board_init_regulator_av96();
+
+	regulators_enable_boot_on(_DEBUG);
+}
+#else
+static inline int board_get_regulator_buck3_nvm_uv_av96(int *uv)
+{
+	return -EINVAL;
+}
+
+static inline void board_init_regulator(void) {}
+#endif
+
 /* board dependent setup after realloc */
 int board_init(void)
 {
 	board_key_check();
 
-#ifdef CONFIG_DM_REGULATOR
-	regulators_enable_boot_on(_DEBUG);
-#endif
+	board_init_regulator();
 
 	sysconf_init();
 
@@ -721,6 +805,25 @@ int board_interface_eth_init(struct udevice *dev,
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	const char *buck3path = "/soc/i2c@5c002000/stpmic@33/regulators/buck3";
+	int buck3off, ret, uv;
+
+	ret = board_get_regulator_buck3_nvm_uv_av96(&uv);
+	if (ret)	/* Not Avenger96 board, do not patch Buck3 in DT. */
+		return 0;
+
+	buck3off = fdt_path_offset(blob, buck3path);
+	if (buck3off < 0)	/* No Buck3 regulator found. */
+		return 0;
+
+	ret = fdt_setprop_u32(blob, buck3off, "regulator-min-microvolt", uv);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_u32(blob, buck3off, "regulator-max-microvolt", uv);
+	if (ret < 0)
+		return ret;
+
 	return 0;
 }
 #endif
