@@ -219,15 +219,17 @@ config SPL_BOOTCOUNT_LIMIT
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
 	default n if (ARCH_MX6 && (SPL_MMC || SPL_SATA))
-	default y if !TI_SECURE_DEVICE
+	default y
+	depends on !TI_SECURE_DEVICE
 	help
 	  SPL will support loading and booting a RAW image when this option
 	  is y. If this is not set, SPL will move on to other available
 	  boot media to find a suitable image.
 
-config SPL_LEGACY_IMAGE_SUPPORT
+config SPL_LEGACY_IMAGE_FORMAT
 	bool "Support SPL loading and booting of Legacy images"
-	default y if !TI_SECURE_DEVICE && !SPL_LOAD_FIT
+	default y if !SPL_LOAD_FIT
+	depends on !TI_SECURE_DEVICE
 	help
 	  SPL will support loading and booting Legacy images when this option
 	  is y. If this is not set, SPL will move on to other available
@@ -235,7 +237,7 @@ config SPL_LEGACY_IMAGE_SUPPORT
 
 config SPL_LEGACY_IMAGE_CRC_CHECK
 	bool "Check CRC of Legacy images"
-	depends on SPL_LEGACY_IMAGE_SUPPORT
+	depends on SPL_LEGACY_IMAGE_FORMAT
 	select SPL_CRC32
 	help
 	  Enable this to check the CRC of Legacy images. While this increases
@@ -451,7 +453,7 @@ config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
 
 config SPL_CRC32
 	bool "Support CRC32"
-	default y if SPL_LEGACY_IMAGE_SUPPORT || SPL_EFI_PARTITION
+	default y if SPL_LEGACY_IMAGE_FORMAT || SPL_EFI_PARTITION
 	default y if SPL_ENV_SUPPORT || TPL_BLOBLIST
 	help
 	  Enable this to support CRC32 in uImages or FIT images within SPL.

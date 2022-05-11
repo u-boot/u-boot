@@ -22,6 +22,14 @@ config MTD_NOR_FLASH
 	help
 	  Enable support for parallel NOR flash.
 
+config MTD_CONCAT
+	bool "Enable MTD device concatenation"
+	depends on MTD
+	help
+	  Enable support for concatenating multiple physical MTD devices
+	  into a single logical device. The larger logical device can then
+	  be partitioned.
+
 config SYS_MTDPARTS_RUNTIME
 	bool "Allow MTDPARTS to be configured at runtime"
 	depends on MTD
