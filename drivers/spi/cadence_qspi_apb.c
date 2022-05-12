@@ -336,8 +336,7 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_plat *plat)
 	cadence_qspi_apb_controller_enable(plat->regbase);
 }
 
-static int cadence_qspi_apb_exec_flash_cmd(void *reg_base,
-	unsigned int reg)
+int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 {
 	unsigned int retry = CQSPI_REG_RETRY;
 

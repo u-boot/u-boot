@@ -27,6 +27,12 @@
 #define CQSPI_READ			2
 #define CQSPI_WRITE			3
 
+__weak int cadence_qspi_apb_dma_read(struct cadence_spi_plat *plat,
+				     const struct spi_mem_op *op)
+{
+	return 0;
+}
+
 static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 {
 	struct cadence_spi_plat *plat = dev_get_plat(bus);
@@ -288,8 +294,12 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 		break;
 	case CQSPI_READ:
 		err = cadence_qspi_apb_read_setup(plat, op);
-		if (!err)
-			err = cadence_qspi_apb_read_execute(plat, op);
+		if (!err) {
+			if (plat->is_dma)
+				err = cadence_qspi_apb_dma_read(plat, op);
+			else
+				err = cadence_qspi_apb_read_execute(plat, op);
+		}
 		break;
 	case CQSPI_WRITE:
 		err = cadence_qspi_apb_write_setup(plat, op);
@@ -341,6 +351,8 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	/* Use DAC mode only when MMIO window is at least 8M wide */
 	if (plat->ahbsize >= SZ_8M)
 		plat->use_dac_mode = true;
+
+	plat->is_dma = dev_read_bool(bus, "cdns,is-dma");
 
 	/* All other paramters are embedded in the child node */
 	subnode = dev_read_first_subnode(bus);

@@ -224,6 +224,7 @@ struct cadence_spi_plat {
 	u8		addr_width;
 	u8		data_width;
 	bool		dtr;
+	bool            is_dma;
 };
 
 struct cadence_spi_priv {
@@ -278,5 +279,9 @@ void cadence_qspi_apb_enter_xip(void *reg_base, char xip_dummy);
 void cadence_qspi_apb_readdata_capture(void *reg_base,
 	unsigned int bypass, unsigned int delay);
 unsigned int cm_get_qspi_controller_clk_hz(void);
+int cadence_qspi_apb_dma_read(struct cadence_spi_plat *plat,
+			      const struct spi_mem_op *op);
+int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_plat *plat);
+int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg);
 
 #endif /* __CADENCE_QSPI_H__ */
