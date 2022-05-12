@@ -151,7 +151,7 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	int err;
 
-	if (hz > plat->max_hz)
+	if (!hz || hz > plat->max_hz)
 		hz = plat->max_hz;
 
 	/* Disable QSPI */
