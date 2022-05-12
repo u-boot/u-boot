@@ -26,10 +26,6 @@
 /* PCI networking support */
 #define CONFIG_E1000_NO_NVM
 
-/* Increase arguments buffer size */
-#undef CONFIG_SYS_BARGSIZE
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
 #define UBOOT_UPDATE \
 	"uboot_hwpart=1\0" \
 	"uboot_blk=0\0" \

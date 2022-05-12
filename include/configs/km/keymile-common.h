@@ -12,7 +12,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_HUSH_INIT_VAR
 

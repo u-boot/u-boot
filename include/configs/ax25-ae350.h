@@ -30,11 +30,6 @@
  * Miscellaneous configurable options
  */
 
-/*
- * Boot Argument Buffer Size
- */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
 /* DT blob (fdt) address */
 #define CONFIG_SYS_FDT_BASE		0x800f0000
 

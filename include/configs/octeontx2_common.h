@@ -22,8 +22,6 @@
 					"ethrotate=yes\0"	\
 					"autoload=0\0"
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 
 #if defined(CONFIG_MMC_OCTEONTX)

@@ -13,8 +13,6 @@
 
 #undef CONFIG_SYS_SDRAM_BASE
 
-#define CONFIG_SYS_BARGSIZE           CONFIG_SYS_CBSIZE
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"loadimage=ext4load pvblock 0 0x90000000 /boot/Image;\0" \

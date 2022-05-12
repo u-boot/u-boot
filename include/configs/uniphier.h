@@ -41,9 +41,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
 
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
-
 #if !defined(CONFIG_ARM64)
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000

@@ -89,10 +89,6 @@
 		"source ${loadaddr}\0" \
 	"vidargs=fbcon=map:1\0"
 
-/* Increase arguments buffer size */
-#undef CONFIG_SYS_BARGSIZE
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

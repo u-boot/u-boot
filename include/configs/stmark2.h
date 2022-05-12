@@ -45,9 +45,6 @@
 
 #define CONFIG_PRAM			2048	/* 2048 KB */
 
-/* Boot Argument Buffer Size    */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_MBAR			0xFC000000
 
 /*

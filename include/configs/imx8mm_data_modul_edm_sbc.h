@@ -43,8 +43,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 /* PHY needs a longer autonegotiation timeout after reset */
 #define PHY_ANEG_TIMEOUT		20000
 

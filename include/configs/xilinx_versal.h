@@ -28,7 +28,6 @@
 /* Miscellaneous configurable options */
 
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300

@@ -27,8 +27,6 @@
  * Command
  */
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 
 /* USB, USB storage, USB ethernet */
 #define CONFIG_EHCI_MMIO_BIG_ENDIAN

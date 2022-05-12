@@ -32,8 +32,6 @@
 /*
  * U-Boot general configurations
  */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 
 /*
  * Serial Driver

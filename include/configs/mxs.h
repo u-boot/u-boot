@@ -78,8 +78,6 @@
  */
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 
 /*
  * Drivers

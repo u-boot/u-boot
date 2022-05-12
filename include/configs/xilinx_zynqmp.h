@@ -52,7 +52,6 @@
 #endif
 
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)

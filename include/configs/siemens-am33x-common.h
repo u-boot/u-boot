@@ -29,9 +29,6 @@
 
 /* Console I/O Buffer Size */
 
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 /*
  * memtest works on 8 MB in DRAM after skipping 32MB from
  * start addr of ram disk

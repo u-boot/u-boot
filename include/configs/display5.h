@@ -285,8 +285,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_STANDALONE_LOAD_ADDR	0x10001000
 
 /* Physical Memory Map */

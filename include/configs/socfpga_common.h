@@ -60,8 +60,6 @@
  * U-Boot general configurations
  */
 						/* Print buffer size */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 
 /*
  * Cache

@@ -17,9 +17,6 @@
 
 /* Miscellaneous configurable options */
 
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 /* select serial console configuration */
 
 /* IRAM Layout */

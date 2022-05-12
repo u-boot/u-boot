@@ -216,7 +216,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_LOADS_ECHO
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE

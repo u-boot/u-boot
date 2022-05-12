@@ -87,8 +87,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
-
 #define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
 
 /* Physical Memory Map */

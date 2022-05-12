@@ -1853,10 +1853,6 @@ Configuration Settings:
 - CONFIG_SYS_PROMPT:	This is what U-Boot prints on the console to
 		prompt for user input.
 
-- CONFIG_SYS_BARGSIZE: Buffer size for Boot Arguments which are passed to
-		the application (usually a Linux kernel) when it is
-		booted
-
 - CONFIG_SYS_BAUDRATE_TABLE:
 		List of legal baudrate settings for this board.
 

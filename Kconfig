@@ -228,6 +228,14 @@ config SYS_BOOT_GET_CMDLINE
 	  Enables allocating and saving kernel cmdline in space between
 	  "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
+config SYS_BARGSIZE
+	int "Size of kernel command line buffer in bytes"
+	depends on SYS_BOOT_GET_CMDLINE
+	default 512
+	help
+	  Buffer size for Boot Arguments which are passed to the application
+	  (usually a Linux kernel) when it is booted
+
 config SYS_BOOT_GET_KBD
 	bool "Enable kernel board information setup"
 	help

@@ -77,9 +77,6 @@
  */
 /* board_init_f->init_sequence, call arch_cpu_init */
 
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 /*-----------------------------------------------------------------------
  * serial console configuration
  */

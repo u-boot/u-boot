@@ -117,9 +117,6 @@
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1 GB */
 #define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 GB */
 
-/* Console buffer and boot args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define BOOTAUX_RESERVED_MEM_BASE	0x88000000
 #define BOOTAUX_RESERVED_MEM_SIZE	SZ_128M /* Reserve from second 128MB */
 

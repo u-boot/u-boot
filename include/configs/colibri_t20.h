@@ -28,10 +28,6 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	UBOOT_UPDATE
 
-/* Increase arguments buffer size */
-#undef CONFIG_SYS_BARGSIZE
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

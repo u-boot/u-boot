@@ -176,8 +176,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_LS102XA_STREAM_ID
 
 #define CONFIG_SYS_INIT_SP_OFFSET \

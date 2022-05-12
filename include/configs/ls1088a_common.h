@@ -148,8 +148,6 @@ unsigned long long get_qixis_addr(void);
 	" 0x580e00000 \0"
 #endif
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_BSS_START_ADDR      0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE                0x00100000

@@ -53,8 +53,6 @@
 # define CONFIG_SYS_64BIT_LBA
 #endif
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 
 /** EMMC specific defines */

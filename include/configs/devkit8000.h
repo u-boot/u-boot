@@ -111,8 +111,6 @@
 			"fi; " \
 		"else run nandboot; fi\0"
 
-/* Boot Argument Buffer Size */
-
 /* Defines for SPL */
 
 /* NAND boot config */

@@ -29,8 +29,6 @@
 /* console configuration */
 #define CONFIG_SYS_NS16550_CLK		25000000
 
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 /*
  * Increase max uncompressed/gunzip size, keeping size same as EMMC linux
  * partition.

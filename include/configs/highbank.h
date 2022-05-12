@@ -19,7 +19,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_64BIT_LBA
 

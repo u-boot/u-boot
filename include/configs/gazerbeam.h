@@ -58,8 +58,6 @@
  * Miscellaneous configurable options
  */
 
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 256 MB of memory, since this is

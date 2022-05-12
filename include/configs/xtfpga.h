@@ -98,9 +98,6 @@
 /*==============================*/
 
 	/* Console I/O Buffer Size  */
-	/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 /*==============================*/
 /* U-Boot autoboot configuration */
 /*==============================*/

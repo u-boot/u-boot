@@ -82,7 +82,6 @@
 	"video-mode=dcufb:640x480-16@60,monitor=lcd\0"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)
