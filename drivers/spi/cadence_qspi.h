@@ -283,5 +283,6 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_plat *plat,
 			      const struct spi_mem_op *op);
 int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_plat *plat);
 int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg);
+int cadence_qspi_versal_flash_reset(struct udevice *dev);
 
 #endif /* __CADENCE_QSPI_H__ */

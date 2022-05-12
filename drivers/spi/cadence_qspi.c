@@ -33,6 +33,11 @@ __weak int cadence_qspi_apb_dma_read(struct cadence_spi_plat *plat,
 	return 0;
 }
 
+__weak int cadence_qspi_versal_flash_reset(struct udevice *dev)
+{
+	return 0;
+}
+
 static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 {
 	struct cadence_spi_plat *plat = dev_get_plat(bus);
@@ -219,6 +224,16 @@ static int cadence_spi_probe(struct udevice *bus)
 	}
 
 	plat->wr_delay = 50 * DIV_ROUND_UP(NSEC_PER_SEC, plat->ref_clk_hz);
+
+	if (CONFIG_IS_ENABLED(ARCH_VERSAL)) {
+		/* Versal platform uses spi calibration to set read delay */
+		if (plat->read_delay >= 0)
+			plat->read_delay = -1;
+		/* Reset ospi flash device */
+		ret = cadence_qspi_versal_flash_reset(bus);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
