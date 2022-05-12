@@ -744,6 +744,7 @@ config RENESAS_RAVB
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
+	depends on DM_ETH
 	select MII
 	select SYS_DISCOVER_PHY
 	help

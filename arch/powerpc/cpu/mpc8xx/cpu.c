@@ -266,15 +266,3 @@ unsigned long get_tbclk(void)
 
 	return oscclk / 16;
 }
-
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-int cpu_eth_init(struct bd_info *bis)
-{
-#if defined(CONFIG_MPC8XX_FEC)
-	fec_initialize(bis);
-#endif
-	return 0;
-}
