@@ -7,7 +7,6 @@
  */
 #ifndef _CLOCKS_OMAP4_H_
 #define _CLOCKS_OMAP4_H_
-#include <asm/omap_common.h>
 
 /*
  * Assuming a maximum of 1.5 GHz ARM speed and a minimum of 2 cycles per

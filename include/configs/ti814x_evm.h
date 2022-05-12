@@ -77,7 +77,6 @@
  * Platform/Board specific defs
  */
 #define CONFIG_SYS_TIMERBASE		0x4802E000
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_SERIAL

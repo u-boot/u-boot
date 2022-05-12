@@ -71,9 +71,6 @@
 						GENERATED_GBL_DATA_SIZE)
 #endif
 
-/* Timer information. */
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-
 /* If DM_I2C, enable non-DM I2C support */
 
 /*

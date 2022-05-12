@@ -153,7 +153,6 @@
  * This rate is divided by a local divisor.
  */
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /*
  * Physical Memory Map
