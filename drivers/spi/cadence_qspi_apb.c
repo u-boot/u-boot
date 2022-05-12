@@ -38,6 +38,11 @@
 #include <malloc.h>
 #include "cadence_qspi.h"
 
+__weak void cadence_qspi_apb_enable_linear_mode(bool enable)
+{
+	return;
+}
+
 void cadence_qspi_apb_controller_enable(void *reg_base)
 {
 	unsigned int reg;
@@ -730,6 +735,9 @@ int cadence_qspi_apb_read_execute(struct cadence_spi_plat *plat,
 	void *buf = op->data.buf.in;
 	size_t len = op->data.nbytes;
 
+	if (CONFIG_IS_ENABLED(ARCH_VERSAL))
+		cadence_qspi_apb_enable_linear_mode(true);
+
 	if (plat->use_dac_mode && (from + len < plat->ahbsize)) {
 		if (len < 256 ||
 		    dma_memcpy(buf, plat->ahbbase + from, len) < 0) {
@@ -896,6 +904,9 @@ int cadence_qspi_apb_write_execute(struct cadence_spi_plat *plat,
 	u32 to = op->addr.val;
 	const void *buf = op->data.buf.out;
 	size_t len = op->data.nbytes;
+
+	if (CONFIG_IS_ENABLED(ARCH_VERSAL))
+		cadence_qspi_apb_enable_linear_mode(true);
 
 	/*
 	 * Some flashes like the Cypress Semper flash expect a dummy 4-byte

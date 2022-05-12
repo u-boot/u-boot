@@ -33,6 +33,7 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_plat *plat,
 	bytes_to_dma = n_rx - rx_rem;
 
 	if (bytes_to_dma) {
+		cadence_qspi_apb_enable_linear_mode(false);
 		reg = readl(plat->regbase + CQSPI_REG_CONFIG);
 		reg |= CQSPI_REG_CONFIG_ENBL_DMA;
 		writel(reg, plat->regbase + CQSPI_REG_CONFIG);
@@ -211,3 +212,26 @@ int cadence_spi_versal_flash_reset(struct udevice *dev)
 	return 0;
 }
 #endif
+
+void cadence_qspi_apb_enable_linear_mode(bool enable)
+{
+	if (CONFIG_IS_ENABLED(ZYNQMP_FIRMWARE)) {
+		if (enable)
+			/* ahb read mode */
+			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
+					  IOCTL_OSPI_MUX_SELECT,
+					  PM_OSPI_MUX_SEL_LINEAR, 0, NULL);
+		else
+			/* DMA mode */
+			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
+					  IOCTL_OSPI_MUX_SELECT,
+					  PM_OSPI_MUX_SEL_DMA, 0, NULL);
+	} else {
+		if (enable)
+			writel(readl(VERSAL_AXI_MUX_SEL) |
+			       VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+		else
+			writel(readl(VERSAL_AXI_MUX_SEL) &
+			       ~VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
+	}
+}

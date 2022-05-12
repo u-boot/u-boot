@@ -160,6 +160,12 @@ enum dll_reset_type {
 	PM_DLL_RESET_PULSE = 2,
 };
 
+enum ospi_mux_select_type {
+	PM_OSPI_MUX_SEL_DMA,
+	PM_OSPI_MUX_SEL_LINEAR,
+	PM_OSPI_MUX_GET_MODE,
+};
+
 enum pm_query_id {
 	PM_QID_INVALID = 0,
 	PM_QID_CLOCK_GET_NAME = 1,
@@ -427,6 +433,7 @@ enum pm_gem_config_type {
 #define ZYNQMP_PM_VERSION_INVALID	~0
 
 #define PMUFW_V1_0	((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
+#define PMIO_NODE_ID_BASE		0x1410801B
 
 #define PMIO_NODE_ID_BASE		0x1410801B
 

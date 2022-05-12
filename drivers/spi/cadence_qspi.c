@@ -18,7 +18,9 @@
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/sizes.h>
+#include <zynqmp_firmware.h>
 #include "cadence_qspi.h"
+#include <dt-bindings/power/xlnx-versal-power.h>
 
 #define NSEC_PER_SEC			1000000000L
 
@@ -195,6 +197,11 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	priv->regbase = plat->regbase;
 	priv->ahbbase = plat->ahbbase;
+
+	if (CONFIG_IS_ENABLED(ZYNQMP_FIRMWARE))
+		xilinx_pm_request(PM_REQUEST_NODE, PM_DEV_OSPI,
+				  ZYNQMP_PM_CAPABILITY_ACCESS, ZYNQMP_PM_MAX_QOS,
+				  ZYNQMP_PM_REQUEST_ACK_NO, NULL);
 
 	if (plat->ref_clk_hz == 0) {
 		ret = clk_get_by_index(bus, 0, &clk);
