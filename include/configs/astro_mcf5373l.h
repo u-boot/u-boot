@@ -204,8 +204,6 @@
 /* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

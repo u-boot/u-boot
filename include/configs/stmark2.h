@@ -73,7 +73,6 @@
 #define CONFIG_SERIAL_BOOT
 #endif
 
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 /* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 

@@ -92,7 +92,6 @@
 #define CONFIG_SYS_INT_FLASH_ENABLE	0x21
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
-#define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 
 /*
  * For booting Linux, the board info and command line data

@@ -28,7 +28,6 @@
 
 /* SDRAM Configuration (for final code, data, stack, heap) */
 #define CONFIG_SYS_SDRAM_BASE		0x88000000
-#define CONFIG_SYS_BOOTPARAMS_LEN	(4 << 10)
 
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 

@@ -15,8 +15,6 @@
 #define CONFIG_SPL_TARGET	"spl/u-boot-spl.scif"
 #endif
 
-#define CONFIG_SYS_BOOTPARAMS_LEN	SZ_128K
-
 /* boot option */
 
 /* Generic Interrupt Controller Definitions */

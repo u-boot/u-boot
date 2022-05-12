@@ -62,9 +62,6 @@
 # define CONFIG_SYS_MONITOR_LEN		0x00040000	/* 256KB */
 #endif
 
-/* Linux boot param area in RAM (used only when booting linux) */
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64  << 10)
-
 /* Memory test is destructive so default must not overlap vectors or U-Boot*/
 
 /* Load address for stand-alone applications.

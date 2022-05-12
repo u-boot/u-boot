@@ -40,9 +40,6 @@
 
 /* RAM */
 
-/* Memory usage */
-#define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
-
 /* Environment settings */
 
 #endif /* __CONFIG_LINKIT_SMART_7688_H */

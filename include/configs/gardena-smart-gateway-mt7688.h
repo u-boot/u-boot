@@ -39,9 +39,6 @@
 
 /* RAM */
 
-/* Memory usage */
-#define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
-
 /* Environment settings */
 
 #endif /* __CONFIG_GARDENA_SMART_GATEWAY_H */
