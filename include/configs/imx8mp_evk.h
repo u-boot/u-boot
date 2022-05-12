@@ -24,8 +24,6 @@
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          1
 
-#define DWC_NET_PHYADDR			1
-
 #define PHY_ANEG_TIMEOUT 20000
 
 #endif
