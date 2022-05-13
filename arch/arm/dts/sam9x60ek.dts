@@ -49,7 +49,7 @@
 				status = "okay";
 
 				nor_flash: sst26vf064@0 {
-					compatible = "spi-flash";
+					compatible = "jedec,spi-nor";
 					reg = <0>;
 					spi-max-frequency = <80000000>;
 					spi-rx-bus-width = <4>;
