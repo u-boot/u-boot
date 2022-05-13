@@ -16,7 +16,6 @@
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_SDCARD
-#define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_PAD_TO		0x18000
 #define CONFIG_SPL_MAX_SIZE		(96 * 1024)
@@ -36,7 +35,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
 #define CONFIG_SPL_SPI_FLASH_MINIMAL
-#define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_PAD_TO			0x18000
 #define CONFIG_SPL_MAX_SIZE			(96 * 1024)
@@ -53,8 +51,6 @@
 
 #ifdef CONFIG_MTD_RAW_NAND
 #ifdef CONFIG_NXP_ESBC
-#define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 
 #define CONFIG_SPL_MAX_SIZE		8192
@@ -65,7 +61,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #else
 #ifdef CONFIG_TPL_BUILD
-#define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_NAND_INIT
 #define CONFIG_SPL_COMMON_INIT_DDR
 #define CONFIG_SPL_MAX_SIZE		(128 << 10)
@@ -74,8 +69,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x11000000)
 #define CONFIG_SYS_NAND_U_BOOT_START	(0x11000000)
 #elif defined(CONFIG_SPL_BUILD)
-#define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_MAX_SIZE		8192
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(128 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0xD0000000
@@ -455,7 +448,7 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_INIT_MINIMAL)
+#if defined(CONFIG_SPL_BUILD) && CONFIG_IS_ENABLED(INIT_MINIMAL)
 #define CONFIG_NS16550_MIN_FUNCTIONS
 #endif
 

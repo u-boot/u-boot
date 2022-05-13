@@ -1716,9 +1716,6 @@ The following options need to be configured:
 		For ARM, enable an optional function to print more information
 		about the running system.
 
-		CONFIG_SPL_INIT_MINIMAL
-		Arch init code should be built for a very small image
-
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
 		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS
 		Sector and number of sectors to load kernel argument
@@ -1741,9 +1738,6 @@ The following options need to be configured:
 		start.S waits for the rest of the SPL to load before
 		continuing (the hardware starts execution after just
 		loading the first page rather than the full 4K).
-
-		CONFIG_SPL_SKIP_RELOCATE
-		Avoid SPL relocation
 
 		CONFIG_SPL_UBI
 		Support for a lightweight UBI (fastmap) scanner and

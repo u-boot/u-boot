@@ -140,6 +140,20 @@ config SPL_FSL_PBL
 
 endmenu
 
+menu "PowerPC SPL specific options"
+	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
+
+config SPL_INIT_MINIMAL
+	bool "Arch init code will be built for a very small image"
+
+config SPL_FLUSH_IMAGE
+	bool "Clean dcache and invalidate icache after loading the image"
+
+config SPL_SKIP_RELOCATE
+	bool "Skip relocating SPL"
+
+endmenu
+
 config HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
 	depends on SPL && BLOBLIST

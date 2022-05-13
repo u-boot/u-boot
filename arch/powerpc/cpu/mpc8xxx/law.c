@@ -79,7 +79,7 @@ void disable_law(u8 idx)
 }
 
 #if !defined(CONFIG_NAND_SPL) && \
-	(!defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL_INIT_MINIMAL))
+	(!defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(INIT_MINIMAL))
 static int get_law_entry(u8 i, struct law_entry *e)
 {
 	u32 lawar;
@@ -110,7 +110,7 @@ int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 }
 
 #if !defined(CONFIG_NAND_SPL) && \
-	(!defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL_INIT_MINIMAL))
+	(!defined(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(INIT_MINIMAL))
 int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
 	u32 idx;
