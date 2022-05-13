@@ -73,21 +73,11 @@ static int spl_sata_load_image(struct spl_image_info *spl_image,
 	int err = 0;
 	struct blk_desc *stor_dev;
 
-#if !defined(CONFIG_DM_SCSI) && !defined(CONFIG_AHCI)
-	err = init_sata(CONFIG_SPL_SATA_BOOT_DEVICE);
-#endif
-	if (err) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("spl: sata init failed: err - %d\n", err);
-#endif
-		return err;
-	} else {
-		/* try to recognize storage devices immediately */
-		scsi_scan(false);
-		stor_dev = blk_get_devnum_by_type(IF_TYPE_SCSI, 0);
-		if (!stor_dev)
-			return -ENODEV;
-	}
+	/* try to recognize storage devices immediately */
+	scsi_scan(false);
+	stor_dev = blk_get_devnum_by_type(IF_TYPE_SCSI, 0);
+	if (!stor_dev)
+		return -ENODEV;
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
 	if (spl_start_uboot() ||
