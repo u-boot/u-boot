@@ -185,6 +185,15 @@ config TPM2_TIS_SPI
 	  to the device using the standard TPM Interface Specification (TIS)
 	  protocol.
 
+config TPM2_TIS_I2C
+	bool "Enable support for TPMv2.x I2C chips"
+	depends on TPM_V2 && DM_I2C
+	help
+	  This driver supports TPMv2.x devices connected on the I2C bus.
+	  The usual TPM operations and the 'tpm' command can be used to talk
+	  to the device using the standard TPM Interface Specification (TIS)
+	  protocol.
+
 config TPM2_FTPM_TEE
 	bool "TEE based fTPM Interface"
 	depends on TEE && OPTEE && TPM_V2
