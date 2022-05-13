@@ -1743,10 +1743,6 @@ The following options need to be configured:
 		Support for a lightweight UBI (fastmap) scanner and
 		loader
 
-		CONFIG_SPL_NAND_RAW_ONLY
-		Support to boot only raw u-boot.bin images. Use this only
-		if you need to save space.
-
 		CONFIG_SPL_COMMON_INIT_DDR
 		Set for common ddr init with serial presence detect in
 		SPL binary.

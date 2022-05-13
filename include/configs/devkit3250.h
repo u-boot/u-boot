@@ -97,11 +97,6 @@
 
 /* SPL will use serial */
 
-/* SPL loads an image from NAND */
-#define CONFIG_SPL_NAND_RAW_ONLY
-
-#define CONFIG_SPL_NAND_SOFTECC
-
 #define CONFIG_SPL_MAX_SIZE		0x20000
 #define CONFIG_SPL_PAD_TO		CONFIG_SPL_MAX_SIZE
 

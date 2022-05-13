@@ -763,13 +763,23 @@ config SPL_NAND_SUPPORT
 	  This enables the drivers in drivers/mtd/nand/raw as part of an SPL
 	  build.
 
+config SPL_NAND_RAW_ONLY
+	bool "Support to boot only raw u-boot.bin images"
+	depends on SPL_NAND_SUPPORT
+	help
+	  Use this only if you need to save space.
+
 config SPL_NAND_DRIVERS
 	bool "Use standard NAND driver"
 	help
 	  SPL uses normal NAND drivers, not minimal drivers.
 
 config SPL_NAND_ECC
-	bool "Include standard software ECC in the SPL"
+	bool "Include standard ECC in SPL"
+
+config SPL_NAND_SOFTECC
+	bool "Use software ECC in SPL"
+	depends on SPL_NAND_ECC
 
 config SPL_NAND_SIMPLE
 	bool "Support simple NAND drivers in SPL"
