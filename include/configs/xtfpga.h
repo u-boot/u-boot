@@ -170,7 +170,6 @@
 /* Flash & Environment */
 /*=====================*/
 
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #ifdef CONFIG_XTFPGA_LX60
 # define CONFIG_SYS_FLASH_SIZE		0x0040000	/* 4MB */
 # define CONFIG_SYS_FLASH_SECT_SZ	0x10000		/* block size 64KB */

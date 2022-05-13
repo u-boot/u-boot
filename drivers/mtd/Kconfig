@@ -48,6 +48,35 @@ config FLASH_CFI_DRIVER
 	  option. Visit <http://www.amd.com/products/nvd/overview/cfi.html>
 	  for more information on CFI.
 
+choice
+	prompt "Data-width of the flash device"
+	depends on FLASH_CFI_DRIVER
+	default SYS_FLASH_CFI_WIDTH_8BIT
+
+config SYS_FLASH_CFI_WIDTH_8BIT
+	bool "Data-width of the device is 8-bit"
+
+config SYS_FLASH_CFI_WIDTH_16BIT
+	bool "Data-width of the device is 16-bit"
+
+config SYS_FLASH_CFI_WIDTH_32BIT
+	bool "Data-width of the device is 32-bit"
+
+config SYS_FLASH_CFI_WIDTH_64BIT
+	bool "Data-width of the device is 64-bit"
+
+endchoice
+
+config SYS_FLASH_CFI_WIDTH
+	hex
+	depends on FLASH_CFI_DRIVER
+	default 0x1 if SYS_FLASH_CFI_WIDTH_8BIT
+	default 0x2 if SYS_FLASH_CFI_WIDTH_16BIT
+	default 0x4 if SYS_FLASH_CFI_WIDTH_32BIT
+	default 0x8 if SYS_FLASH_CFI_WIDTH_64BIT
+	help
+	  This must be kept in sync with the table in include/flash.h
+
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
 	depends on DM_MTD

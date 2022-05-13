@@ -102,11 +102,6 @@
  */
 #ifdef CONFIG_SYS_FLASH_CFI
 #	define CONFIG_SYS_FLASH_SIZE		0x800000	/* Max size that the board might have */
-#ifdef CONFIG_NORFLASH_PS32BIT
-#	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
-#else
-#	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
-#endif
 #	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
 #endif
 

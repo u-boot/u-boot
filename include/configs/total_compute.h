@@ -50,8 +50,6 @@
 /* 256 x 256KiB sectors */
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
-
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
 

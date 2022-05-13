@@ -95,7 +95,6 @@
 #if defined(CONFIG_NOR)
 /* NOR: device related configs */
 #define CONFIG_SYS_MAX_FLASH_SECT	512
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 /* Reduce SPL size by removing unlikey targets */

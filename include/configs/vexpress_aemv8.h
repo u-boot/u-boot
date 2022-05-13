@@ -276,8 +276,6 @@
 /* Store environment at top of flash */
 #endif
 
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
-
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
