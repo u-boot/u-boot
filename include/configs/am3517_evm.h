@@ -104,8 +104,4 @@
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 
-/* Defines for SPL */
-
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-
 #endif /* __CONFIG_H */

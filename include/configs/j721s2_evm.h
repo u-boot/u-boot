@@ -50,10 +50,6 @@
 /* Image load address in RAM for DFU boot*/
 #endif
 
-#ifdef CONFIG_SYS_K3_SPL_ATF
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"tispl.bin"
-#endif
-
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M

@@ -22,8 +22,6 @@
 
 #ifndef CONFIG_TPL_BUILD
 /* Falcon Mode */
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"args"
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"uImage"
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x0ffe5000
 
 /* Falcon Mode - MMC support: args@16MB kernel@17MB */

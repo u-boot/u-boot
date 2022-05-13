@@ -51,8 +51,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 
 /* Falcon */
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"args"
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"uImage"
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x13000000
 
 /* MMC support: args@1MB kernel@2MB */

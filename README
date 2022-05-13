@@ -1722,17 +1722,6 @@ The following options need to be configured:
 		parameters from when MMC is being used in raw mode
 		(for falcon mode)
 
-		CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-		Filename to read to load U-Boot when reading from filesystem
-
-		CONFIG_SPL_FS_LOAD_KERNEL_NAME
-		Filename to read to load kernel uImage when reading
-		from filesystem (for Falcon mode)
-
-		CONFIG_SPL_FS_LOAD_ARGS_NAME
-		Filename to read to load kernel argument parameters
-		when reading from filesystem (for Falcon mode)
-
 		CONFIG_SPL_MPC83XX_WAIT_FOR_NAND
 		Set this for NAND SPL on PPC mpc83xx targets, so that
 		start.S waits for the rest of the SPL to load before

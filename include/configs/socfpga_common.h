@@ -162,13 +162,6 @@
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
 #endif
 
-/* SPL SDMMC boot support */
-#ifdef CONFIG_SPL_MMC
-#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-#endif
-#endif
-
 /* SPL QSPI boot support */
 
 /* SPL NAND boot support */

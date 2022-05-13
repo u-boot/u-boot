@@ -132,16 +132,8 @@
 					 CONFIG_SPL_TEXT_BASE)
 #endif
 
-
-/* FAT sd card locations. */
-#ifndef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-#endif
-
 #ifdef CONFIG_SPL_OS_BOOT
 /* FAT */
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"args"
 
 /* RAW SD card / eMMC */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x1500  /* address 0x2A0000 */

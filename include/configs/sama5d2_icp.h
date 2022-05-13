@@ -42,8 +42,4 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-#endif
-
 #endif

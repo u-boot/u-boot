@@ -215,20 +215,13 @@
 #endif
 
 /* u-boot is like dtb */
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"u-boot.bin"
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
 
 /* ATF is my kernel image */
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf-uboot.ub"
 
 /* MMC support */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
-# if defined(CONFIG_SPL_LOAD_FIT)
-#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.itb"
-# else
-#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-# endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 # define CONFIG_SPL_HASH

@@ -605,6 +605,31 @@ config SPL_FS_FAT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
 
+config SPL_FS_LOAD_PAYLOAD_NAME
+	string "File to load for U-Boot from the filesystem"
+	depends on SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS
+	default "tispl.bin" if SYS_K3_SPL_ATF
+	default "u-boot.itb" if SPL_LOAD_FIT
+	default "u-boot.img"
+	help
+	  Filename to read to load U-Boot when reading from filesystem.
+
+config SPL_FS_LOAD_KERNEL_NAME
+	string "File to load for the OS kernel from the filesystem"
+	depends on (SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS) && SPL_OS_BOOT
+	default "uImage"
+	help
+	  Filename to read to load for the OS kernel when reading from the
+	  filesystem.
+
+config SPL_FS_LOAD_ARGS_NAME
+	string "File to load for the OS kernel argument parameters from the filesystem"
+	depends on (SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS) && SPL_OS_BOOT
+	default "args"
+	help
+	  Filename to read to load for the OS kernel argument parameters from
+	  the filesystem.
+
 config SPL_FAT_WRITE
 	bool "Support write for FAT filesystems"
 	help

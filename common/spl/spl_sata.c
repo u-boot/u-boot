@@ -21,10 +21,6 @@
 #define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
 #endif
 
-#ifndef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-#endif
-
 #ifndef CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR
 /* Dummy value to make the compiler happy */
 #define CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR 0x100

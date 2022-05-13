@@ -212,16 +212,8 @@
 /* Boot FreeBSD/vxWorks from an ELF image */
 #define CONFIG_SYS_MMC_MAX_DEVICE	1
 
-/* MMC support */
-#ifdef CONFIG_MMC_SDHCI_ZYNQ
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
-#endif
-
 /* Address in RAM where the parameters must be copied by SPL. */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
-
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"system.dtb"
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
 
 /* Not using MMC raw mode - just for compilation purpose */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0

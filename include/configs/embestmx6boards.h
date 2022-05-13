@@ -59,8 +59,6 @@
 #include "imx6_spl.h"
 /* RiOTboard */
 #define CONFIG_SYS_SPL_ARGS_ADDR 0x13000000
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME "uImage"
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME "imx6dl-riotboard.dtb"
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR  0 /* offset 69KB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS 0 /* offset 69KB */

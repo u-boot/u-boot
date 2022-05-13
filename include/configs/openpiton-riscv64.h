@@ -28,7 +28,6 @@
 #define CONFIG_SPL_STACK    (0x80000000 + 0x04000000 - \
 		GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME "boot/fw_payload.bin"
 #define CONFIG_SPL_GD_ADDR 0x85000000
 #endif
 

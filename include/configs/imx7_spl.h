@@ -43,15 +43,6 @@
 #define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
 #endif
 
-/* Define the payload for FAT/EXT support */
-#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
-# ifdef CONFIG_OF_CONTROL
-#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot-dtb.img"
-# else
-#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-# endif
-#endif
-
 #define CONFIG_SPL_BSS_START_ADDR      0x88200000
 #define CONFIG_SPL_BSS_MAX_SIZE        0x100000		/* 1 MB */
 #define CONFIG_SYS_SPL_MALLOC_START    0x88300000

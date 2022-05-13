@@ -28,8 +28,6 @@
 
 /* Falcon Mode */
 #ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"args"
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"uImage"
 #define CONFIG_SYS_SPL_ARGS_ADDR       0x18000000
 
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */

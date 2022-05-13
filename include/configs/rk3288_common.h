@@ -23,9 +23,6 @@
 
 /* RAW SD card / eMMC locations. */
 
-/* FAT sd card locations. */
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0xfe000000

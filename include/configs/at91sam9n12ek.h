@@ -75,8 +75,4 @@
 #define CONFIG_SYS_MCKR			0x1301
 #define CONFIG_SYS_MCKR_CSS		0x1302
 
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-#endif
-
 #endif
