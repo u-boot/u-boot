@@ -2964,8 +2964,6 @@ static int sdram_init(struct dram_info *dram,
 		if (cap_info->rank == 0) {
 			clear_channel_params(params, 1);
 			continue;
-		} else {
-			params->base.num_channels++;
 		}
 
 		if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG)) {
@@ -2991,6 +2989,8 @@ static int sdram_init(struct dram_info *dram,
 			printf("no ddrconfig find, Cap not support!\n");
 			continue;
 		}
+		
+		params->base.num_channels++;
 		set_ddrconfig(chan, params, channel, cap_info->ddrconfig);
 		set_cap_relate_config(chan, params, channel);
 	}
