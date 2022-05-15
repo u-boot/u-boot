@@ -159,8 +159,6 @@ int event_register(const char *id, enum event_t type, event_handler_t func, void
 	struct event_state *state = gd_event_state();
 	struct event_spy *spy;
 
-	if (!CONFIG_IS_ENABLED(EVENT_DYNAMIC))
-		return -ENOSYS;
 	spy = malloc(sizeof(*spy));
 	if (!spy)
 		return log_msg_ret("alloc", -ENOMEM);
