@@ -612,6 +612,9 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 #endif
 	initr_reloc_global_data,
+#if CONFIG_IS_ENABLED(NEEDS_MANUAL_RELOC) && CONFIG_IS_ENABLED(EVENT)
+	event_manual_reloc,
+#endif
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 	initr_unlock_ram_in_cache,
 #endif

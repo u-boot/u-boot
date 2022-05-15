@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <linux/list.h>
+#include <relocate.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -147,6 +148,20 @@ void event_show_spy_list(void)
 		       event_spy_id(spy));
 	}
 }
+
+#if CONFIG_IS_ENABLED(NEEDS_MANUAL_RELOC)
+int event_manual_reloc(void)
+{
+	struct evspy_info *spy, *end;
+
+	spy = ll_entry_start(struct evspy_info, evspy_info);
+	end = ll_entry_end(struct evspy_info, evspy_info);
+	for (; spy < end; spy++)
+		MANUAL_RELOC(spy->func);
+
+	return 0;
+}
+#endif
 
 #if CONFIG_IS_ENABLED(EVENT_DYNAMIC)
 static void spy_free(struct event_spy *spy)
