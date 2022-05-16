@@ -34,6 +34,15 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
 	ut_assertok(virtio_get_status(dev, &status));
 	ut_asserteq(VIRTIO_CONFIG_S_ACKNOWLEDGE, status);
 
+	/* probe the virtio-rng driver */
+	ut_assertok(device_probe(dev));
+
+	/* check the device was reset and the driver picked up the device */
+	ut_assertok(virtio_get_status(dev, &status));
+	ut_asserteq(VIRTIO_CONFIG_S_DRIVER |
+		    VIRTIO_CONFIG_S_DRIVER_OK |
+		    VIRTIO_CONFIG_S_FEATURES_OK, status);
+
 	return 0;
 }
 DM_TEST(dm_test_virtio_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
