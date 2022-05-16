@@ -18,7 +18,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		0x00300000
 
-#define CONFIG_SPL_MAX_SIZE             0x40000
 #define CONFIG_SPL_BSS_START_ADDR       0x400000
 #define CONFIG_SPL_BSS_MAX_SIZE         0x20000
 #define CONFIG_SPL_STACK                0x00188000

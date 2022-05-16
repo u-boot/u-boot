@@ -194,7 +194,7 @@ LDPPFLAGS += \
 
 # Turn various CONFIG symbols into IMAGE symbols for easy reuse of
 # the scripts between SPL, TPL and VPL.
-ifneq ($(CONFIG_$(SPL_TPL_)MAX_SIZE),)
+ifneq ($(CONFIG_$(SPL_TPL_)MAX_SIZE),0x0)
 LDPPFLAGS += -DIMAGE_MAX_SIZE=$(CONFIG_$(SPL_TPL_)MAX_SIZE)
 endif
 ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)

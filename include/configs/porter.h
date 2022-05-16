@@ -40,6 +40,5 @@
 
 /* SPL support */
 #define CONFIG_SPL_STACK		0xe6340000
-#define CONFIG_SPL_MAX_SIZE		0x4000
 
 #endif /* __PORTER_H */

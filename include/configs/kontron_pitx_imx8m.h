@@ -9,7 +9,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		(32 * SZ_1M)
 
-#define CONFIG_SPL_MAX_SIZE		(124 * SZ_1K)
 #define CONFIG_SYS_MONITOR_LEN		(512 * SZ_1K)
 
 /* GUID for capsule updatable firmware image */

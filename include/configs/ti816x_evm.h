@@ -64,7 +64,5 @@
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
-					 CONFIG_SPL_TEXT_BASE)
 
 #endif

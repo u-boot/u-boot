@@ -21,14 +21,12 @@
  *    and some padding thus 'our' max size is really 0x00908000 - 0x00938000
  *    or 192KB
  */
-#define CONFIG_SPL_MAX_SIZE		0x30000
 #define CONFIG_SPL_STACK		0x0093FFB8
 /*
  * Pad SPL to 196KB (4KB header + 192KB max size). This allows to write the
  * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a
  * boot media (given that boot media specific offset is configured properly).
  */
-#define CONFIG_SPL_PAD_TO		0x31000
 #else
 /*
  * see Figure 8-3 in IMX6SDL Reference manuals:
@@ -42,14 +40,12 @@
  *    and some padding thus 'our' max size is really 0x00908000 - 0x00918000
  *    or 64KB
  */
-#define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_STACK		0x0091FFB8
 /*
  * Pad SPL to 68KB (4KB header + 64KB max size). This allows to write the
  * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a
  * boot media (given that boot media specific offset is configured properly).
  */
-#define CONFIG_SPL_PAD_TO		0x11000
 
 #endif
 

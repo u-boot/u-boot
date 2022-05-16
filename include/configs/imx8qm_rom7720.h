@@ -10,7 +10,6 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SPL_MAX_SIZE		(124 * 1024)
 #define CONFIG_SPL_BSS_START_ADDR	0x00128000
 #define CONFIG_SPL_BSS_MAX_SIZE	0x1000  /* 4 KB */
 

@@ -1665,12 +1665,6 @@ The following options need to be configured:
 		CONFIG_SPL_MAX_FOOTPRINT and CONFIG_SPL_BSS_MAX_SIZE
 		must not be both defined at the same time.
 
-		CONFIG_SPL_MAX_SIZE
-		Maximum size of the SPL image (text, data, rodata, and
-		linker lists sections), BSS excluded.
-		When defined, the linker checks that the actual size does
-		not exceed it.
-
 		CONFIG_SPL_RELOC_TEXT_BASE
 		Address to relocate to.  If unspecified, this is equal to
 		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
@@ -1760,13 +1754,6 @@ The following options need to be configured:
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
 
-		CONFIG_SPL_PAD_TO
-		Image offset to which the SPL should be padded before appending
-		the SPL payload. By default, this is defined as
-		CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
-		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
-		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
-
 		CONFIG_SPL_TARGET
 		Final target image containing SPL and payload.  Some SPLs
 		use an arch-specific makefile fragment instead, for
@@ -1777,17 +1764,6 @@ The following options need to be configured:
 		code to SPL. So this is normally disabled in SPL. Use this
 		option to re-enable it. This will affect the output of the
 		bootm command when booting a FIT image.
-
-- TPL framework
-		CONFIG_TPL
-		Enable building of TPL globally.
-
-		CONFIG_TPL_PAD_TO
-		Image offset to which the TPL should be padded before appending
-		the TPL payload. By default, this is defined as
-		CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
-		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
-		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
 
 - Interrupt support (PPC):
 

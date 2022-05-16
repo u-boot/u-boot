@@ -26,7 +26,6 @@
  *    CONFIG_SPL_TEXT_BASE could be moved to 0x00911000 to gain 4KB of space
  *    for the SPL, but 56KB should be more than enough for the SPL.
  */
-#define CONFIG_SPL_MAX_SIZE		0xE000
 #define CONFIG_SPL_STACK		0x00946BB8
 /*
  * Pad SPL to 68KB (4KB header + 56KB max size + 8KB extra padding)
@@ -36,7 +35,6 @@
  * u-boot-with-spl.imx directly to a boot media (given that boot media specific
  * offset is configured properly).
  */
-#define CONFIG_SPL_PAD_TO		0x11000
 
 /* MMC support */
 #if defined(CONFIG_SPL_MMC)

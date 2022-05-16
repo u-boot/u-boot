@@ -177,7 +177,6 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SPL_STACK	0x8001ff00
 #define CONFIG_SPL_MAX_FOOTPRINT	32768
-#define CONFIG_SPL_PAD_TO	32768
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000

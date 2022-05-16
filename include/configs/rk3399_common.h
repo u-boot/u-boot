@@ -14,12 +14,10 @@
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_TPL_BOOTROM_SUPPORT)
 #define CONFIG_SPL_STACK		0x00400000
-#define CONFIG_SPL_MAX_SIZE             0x40000
 #define CONFIG_SPL_BSS_START_ADDR	0x00400000
 #define CONFIG_SPL_BSS_MAX_SIZE         0x2000
 #else
 #define CONFIG_SPL_STACK		0xff8effff
-#define CONFIG_SPL_MAX_SIZE		0x30000 - 0x2000
 /*  BSS setup */
 #define CONFIG_SPL_BSS_START_ADDR       0xff8e0000
 #define CONFIG_SPL_BSS_MAX_SIZE         0x10000

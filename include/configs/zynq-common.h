@@ -230,7 +230,6 @@
 /* SP location before relocation, must use scratch RAM */
 
 /* 3 * 64kB blocks of OCM - one is on the top because of bootrom */
-#define CONFIG_SPL_MAX_SIZE	0x30000
 
 /* On the top of OCM space */
 #define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SPL_STACK_R_ADDR

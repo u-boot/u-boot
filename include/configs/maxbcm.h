@@ -48,7 +48,6 @@
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		((128 << 10) - (CONFIG_SPL_TEXT_BASE - 0x40000000))
 
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
 #define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)

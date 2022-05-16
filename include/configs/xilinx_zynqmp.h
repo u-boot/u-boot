@@ -202,7 +202,6 @@
 #endif
 
 #define CONFIG_SPL_STACK		0xfffffffc
-#define CONFIG_SPL_MAX_SIZE		0x40000
 
 /* Just random location in OCM */
 #define CONFIG_SPL_BSS_START_ADDR	0x0

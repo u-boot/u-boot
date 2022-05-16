@@ -97,9 +97,6 @@
 
 /* SPL will use serial */
 
-#define CONFIG_SPL_MAX_SIZE		0x20000
-#define CONFIG_SPL_PAD_TO		CONFIG_SPL_MAX_SIZE
-
 /* U-Boot will be 0x60000 bytes, loaded and run at CONFIG_SYS_TEXT_BASE */
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x60000
 

@@ -183,9 +183,6 @@
 
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
-#define CONFIG_SPL_MAX_SIZE			0x10000
 #define CONFIG_SPL_BSS_MAX_SIZE			0x2000
-
-#define CONFIG_SPL_PAD_TO			0x20000
 
 #endif /* __CONFIG_UNIPHIER_H__ */

@@ -19,7 +19,6 @@
 #define CONFIG_IRAM_BASE	0x10080000
 
 /* spl size 32kb sram - 2kb bootrom */
-#define CONFIG_SPL_MAX_SIZE		(0x8000 - 0x800)
 
 #define CONFIG_SPL_STACK		0x10087fff
 

@@ -32,6 +32,7 @@ CONFIG_BOOTARGS="console=ttyS1,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21
 CONFIG_BOOTCOMMAND="sf probe 0:0; sf read 0x806c0000 0x6c0000 0x40000; env exists mcinitcmd && env exists secureboot && esbc_validate 0x806C0000; sf read 0x80d00000 0xd00000 0x100000; env exists mcinitcmd && fsl_mc lazyapply dpl 0x80d00000; run distro_bootcmd;run qspi_bootcmd; env exists secureboot && esbc_halt;"
 CONFIG_MISC_INIT_R=y
 CONFIG_RESET_PHY_R=y
+CONFIG_SPL_MAX_SIZE=0x16000
 CONFIG_SYS_MAXARGS=64
 CONFIG_SYS_PBSIZE=532
 CONFIG_CMD_GREPENV=y

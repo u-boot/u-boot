@@ -15,7 +15,6 @@
 /* SPL config */
 #ifdef CONFIG_SPL_BUILD
 
-#define CONFIG_SPL_MAX_SIZE		(124 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
 #define CONFIG_SPL_STACK		0x013E000

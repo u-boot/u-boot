@@ -40,6 +40,8 @@ CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21
 CONFIG_BOOTCOMMAND="run distro_bootcmd; run qspi_bootcmd; env exists secureboot && esbc_halt;;"
 CONFIG_ARCH_MISC_INIT=y
 CONFIG_MISC_INIT_R=y
+CONFIG_SPL_MAX_SIZE=0x1f000
+CONFIG_SPL_PAD_TO=0x20000
 CONFIG_SPL_BOARD_INIT=y
 CONFIG_SPL_ENV_SUPPORT=y
 CONFIG_SPL_I2C=y

@@ -53,6 +53,5 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x1000
 #endif
 #define CONFIG_SPL_STACK		0xe6304000
-#define CONFIG_SPL_MAX_SIZE		0x7000
 
 #endif	/* __RCAR_GEN3_COMMON_H */

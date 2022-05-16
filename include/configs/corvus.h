@@ -57,7 +57,6 @@
 /* bootstrap + u-boot + env in nandflash */
 
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		(12 * SZ_1K)
 #define CONFIG_SPL_STACK		(SZ_16K)
 
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SPL_MAX_SIZE
@@ -79,7 +78,6 @@
 #define CONFIG_SYS_MCKR			0x1301
 #define CONFIG_SYS_MCKR_CSS		0x1302
 
-#define CONFIG_SPL_PAD_TO		CONFIG_SYS_NAND_U_BOOT_OFFS
 #define CONFIG_SYS_SPL_LEN		CONFIG_SPL_PAD_TO
 
 #endif

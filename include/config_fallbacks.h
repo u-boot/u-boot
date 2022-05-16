@@ -9,18 +9,10 @@
 #ifndef __CONFIG_FALLBACKS_H
 #define __CONFIG_FALLBACKS_H
 
-#ifdef CONFIG_SPL
 #ifdef CONFIG_SPL_PAD_TO
 #ifdef CONFIG_SPL_MAX_SIZE
 #if CONFIG_SPL_PAD_TO && CONFIG_SPL_PAD_TO < CONFIG_SPL_MAX_SIZE
 #error CONFIG_SPL_PAD_TO < CONFIG_SPL_MAX_SIZE
-#endif
-#endif
-#else
-#ifdef CONFIG_SPL_MAX_SIZE
-#define CONFIG_SPL_PAD_TO	CONFIG_SPL_MAX_SIZE
-#else
-#define CONFIG_SPL_PAD_TO	0
 #endif
 #endif
 #endif

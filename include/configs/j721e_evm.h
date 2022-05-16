@@ -49,8 +49,6 @@
 /* Image load address in RAM for DFU boot*/
 #endif
 
-#define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
-
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /* HyperFlash related configuration */

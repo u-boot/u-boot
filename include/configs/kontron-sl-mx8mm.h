@@ -58,7 +58,6 @@
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
-#define CONFIG_SPL_MAX_SIZE		(148 * SZ_1K)
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_STACK		0x91fff0

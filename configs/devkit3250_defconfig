@@ -23,6 +23,7 @@ CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="dhcp; tftp ${loadaddr} ${serverip}:${tftpdir}/${bootfile}; tftp ${dtbaddr} ${serverip}:${tftpdir}/devkit3250.dtb; setenv nfsargs ip=dhcp root=/dev/nfs nfsroot=${serverip}:${nfsroot},tcp; setenv bootargs ${bootargs} ${nfsargs} ${userargs}; bootm ${loadaddr} - ${dtbaddr}"
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_BOARD_EARLY_INIT_F=y
+CONFIG_SPL_MAX_SIZE=0x20000
 CONFIG_SPL_BOARD_INIT=y
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y
 CONFIG_SPL_NAND_SUPPORT=y

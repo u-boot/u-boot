@@ -75,6 +75,36 @@ config SPL_SIZE_LIMIT_PROVIDE_STACK
 	  of SRAM available for SPL when the stack required before reolcation
 	  uses this SRAM, too.
 
+config SPL_MAX_SIZE
+	hex "Maximum size of the SPL image, excluding BSS"
+	default 0x30000 if ARCH_MX6 && MX6_OCRAM_256KB
+	default 0x1b000 if AM33XX && !TI_SECURE_DEVICE
+	default 0x10000 if ARCH_MX6 && !MX6_OCRAM_256KB
+	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x10000
+	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x20000 && !MACH_SUN50I_H616
+	default 0x7000 if RCAR_GEN3
+	default 0x5fa0 if SUNXI_SRAM_ADDRESS = 0x0
+	default 0x0
+	help
+	  Maximum size of the SPL image (text, data, rodata, and linker lists
+	  sections), BSS excluded.  When defined, the linker checks that the
+	  actual size does not exceed it.
+
+config SPL_PAD_TO
+	hex "Offset to which the SPL should be padded before appending the SPL payload"
+	default 0x31000 if ARCH_MX6 && MX6_OCRAM_256KB
+	default 0x11000 if ARCH_MX7 || (ARCH_MX6 && !MX6_OCRAM_256KB)
+	default 0x10000 if ARCH_KEYSTONE
+	default 0x8000 if ARCH_SUNXI && !MACH_SUN50I_H616
+	default TPL_MAX_SIZE if TPL_MAX_SIZE > SPL_MAX_SIZE
+	default SPL_MAX_SIZE
+	help
+	  Image offset to which the SPL should be padded before appending the
+	  SPL payload. By default, this is defined as CONFIG_SPL_MAX_SIZE, or 0 if
+	  CONFIG_SPL_MAX_SIZE is undefined.  CONFIG_SPL_PAD_TO must be either
+	  0, meaning to append the SPL payload without any padding, or >=
+	  CONFIG_SPL_MAX_SIZE.
+
 config SPL_SYS_STACK_F_CHECK_BYTE
 	hex
 	default 0xaa
@@ -1489,11 +1519,25 @@ config TPL_TEXT_BASE
 	  The base address for the .text section of the TPL stage.
 
 config TPL_MAX_SIZE
-	int "Maximum size (in bytes) for the TPL stage"
-	default 0
-	depends on TPL
+	hex "Maximum size (in bytes) for the TPL stage"
+	default 0x2e000 if ROCKCHIP_RK3399
+	default 0x8000 if ROCKCHIP_RK3288
+	default 0x7000 if ROCKCHIP_RK322X || ROCKCHIP_RK3328 || ROCKCHIP_RK3368
+	default 0x2800 if ROCKCHIP_PX30
+	default 0x0
 	help
 	  The maximum size (in bytes) of the TPL stage.
+
+config TPL_PAD_TO
+	hex "Offset to which the TPL should be padded before appending the TPL payload"
+	depends on !TPL_FRAMEWORK && PPC
+	default TPL_MAX_SIZE
+	help
+	  Image offset to which the TPL should be padded before appending the
+	  TPL payload. By default, this is defined as CONFIG_TPL_MAX_SIZE, or 0 if
+	  CONFIG_TPL_MAX_SIZE is undefined.  CONFIG_TPL_PAD_TO must be either
+	  0, meaning to append the TPL payload without any padding, or >=
+	  CONFIG_TPL_MAX_SIZE.
 
 config TPL_STACK
 	hex "Address of the initial stack-pointer for the TPL stage"
