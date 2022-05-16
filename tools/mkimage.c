@@ -119,6 +119,7 @@ static void usage(const char *msg)
 		"Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
 		"          -k => set directory containing private keys\n"
 		"          -K => write public keys to this .dtb file\n"
+		"          -g => set key name hint\n"
 		"          -G => use this signing key (in lieu of -k)\n"
 		"          -c => add comment in signature node\n"
 		"          -F => re-sign existing FIT image\n"
@@ -163,7 +164,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-		   "a:A:b:B:c:C:d:D:e:Ef:FG:k:i:K:ln:N:p:o:O:rR:qstT:vVx")) != -1) {
+		   "a:A:b:B:c:C:d:D:e:Ef:Fg:G:k:i:K:ln:N:p:o:O:rR:qstT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -239,6 +240,8 @@ static void process_args(int argc, char **argv)
 			params.type = IH_TYPE_FLATDT;
 			params.fflag = 1;
 			break;
+		case 'g':
+			params.keyname = optarg;
 		case 'G':
 			params.keyfile = optarg;
 			break;

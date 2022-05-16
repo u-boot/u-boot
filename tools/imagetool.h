@@ -71,6 +71,7 @@ struct image_tool_params {
 	const char *keydir;	/* Directory holding private keys */
 	const char *keydest;	/* Destination .dtb for public key */
 	const char *keyfile;	/* Filename of private or public key */
+	const char *keyname;	/* Key name "hint" */
 	const char *comment;	/* Comment to add to signature node */
 	/* Algorithm name to use for hashing/signing or NULL to use the one
 	 * specified in the its */
