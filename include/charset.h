@@ -273,7 +273,7 @@ u16 *u16_strdup(const void *src);
  * Return:		required size including trailing 0x0000 in u16 words
  *			If return value >= count, truncation occurred.
  */
-size_t u16_strlcat(u16 *dest, const u16 *src, size_t size);
+size_t u16_strlcat(u16 *dest, const u16 *src, size_t count);
 
 /**
  * utf16_to_utf8() - Convert an utf16 string to utf8
