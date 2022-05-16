@@ -82,6 +82,9 @@ int virtqueue_add(struct virtqueue *vq, struct virtio_sg *sgs[],
 	/* Update free pointer */
 	vq->free_head = i;
 
+	/* Mark the descriptor as the head of a chain. */
+	vq->vring_desc_shadow[head].chain_head = true;
+
 	/*
 	 * Put entry in available array (but don't update avail->idx
 	 * until they do sync).
@@ -144,6 +147,9 @@ static void detach_buf(struct virtqueue *vq, unsigned int head)
 {
 	unsigned int i;
 
+	/* Unmark the descriptor as the head of a chain. */
+	vq->vring_desc_shadow[head].chain_head = false;
+
 	/* Put back on free list: unmap first-level descriptors and find end */
 	i = head;
 
@@ -190,6 +196,12 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len)
 
 	if (unlikely(i >= vq->vring.num)) {
 		printf("(%s.%d): id %u out of range\n",
+		       vq->vdev->name, vq->index, i);
+		return NULL;
+	}
+
+	if (unlikely(!vq->vring_desc_shadow[i].chain_head)) {
+		printf("(%s.%d): id %u is not a head\n",
 		       vq->vdev->name, vq->index, i);
 		return NULL;
 	}

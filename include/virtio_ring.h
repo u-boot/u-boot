@@ -61,6 +61,8 @@ struct vring_desc_shadow {
 	u32 len;
 	u16 flags;
 	u16 next;
+	/* Metadata about the descriptor. */
+	bool chain_head;
 };
 
 struct vring_avail {
