@@ -99,6 +99,30 @@ Set image name to 'image name'.
 .BI "\-R [" "secondary image name" "]"
 Some image types support a second image for additional data. For these types,
 use \-R to specify this second image.
+.TS
+allbox;
+lb lbx
+l l.
+Image Type	Secondary Image Description
+pblimage	Additional RCW-style header, typically used for PBI commands.
+zynqimage, zynqmpimage	T{
+Initialization parameters, one per line. Each parameter has the form
+.sp
+.ti 4
+.I address data
+.sp
+where
+.I address
+and
+.I data
+are hexadecimal integers. The boot ROM will write each
+.I data
+to
+.I address
+when loading the image. At most 256 parameters may be specified in this
+manner.
+T}
+.TE
 
 .TP
 .BI "\-d [" "image data file" "]"
@@ -110,8 +134,8 @@ Set XIP (execute in place) flag.
 
 .TP
 .BI "\-s"
-Create an image with no data. The header will be created, but the image itself
-will not contain data (such as U-Boot or any specified kernel).
+Don't copy in the image data. Depending on the image type, this may create
+just the header, everything but the image data, or nothing at all.
 
 .TP
 .BI "\-v"
@@ -175,6 +199,11 @@ Appends the ramdisk file to the FIT.
 Specifies the directory containing keys to use for signing. This directory
 should contain a private key file <name>.key for use with signing and a
 certificate <name>.crt (containing the public key) for use with verification.
+
+.TP
+.BI "\-G [" "key_file" "]"
+Specifies the private key file to use when signing. This option may be used
+instead of \-k.
 
 .TP
 .BI "\-K [" "key_destination" "]"
