@@ -130,3 +130,75 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_virtio_remove, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test all of the virtio ring */
+static int dm_test_virtio_ring(struct unit_test_state *uts)
+{
+	struct udevice *bus, *dev;
+	struct virtio_dev_priv *uc_priv;
+	struct virtqueue *vq;
+	struct virtio_sg sg[2];
+	struct virtio_sg *sgs[2];
+	unsigned int len;
+	u8 buffer[2][32];
+
+	/* check probe success */
+	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertnonnull(bus);
+
+	/* check the child virtio-blk device is bound */
+	ut_assertok(device_find_first_child(bus, &dev));
+	ut_assertnonnull(dev);
+
+	/*
+	 * fake the virtio device probe by filling in uc_priv->vdev
+	 * which is used by virtio_find_vqs/virtio_del_vqs.
+	 */
+	uc_priv = dev_get_uclass_priv(bus);
+	ut_assertnonnull(uc_priv);
+	uc_priv->vdev = dev;
+
+	/* prepare the scatter-gather buffer */
+	sg[0].addr = buffer[0];
+	sg[0].length = sizeof(buffer[0]);
+	sg[1].addr = buffer[1];
+	sg[1].length = sizeof(buffer[1]);
+	sgs[0] = &sg[0];
+	sgs[1] = &sg[1];
+
+	/* read a buffer and report written size from device */
+	ut_assertok(virtio_find_vqs(dev, 1, &vq));
+	ut_assertok(virtqueue_add(vq, sgs, 0, 1));
+	vq->vring.used->idx = 1;
+	vq->vring.used->ring[0].id = 0;
+	vq->vring.used->ring[0].len = 0x53355885;
+	ut_asserteq_ptr(buffer, virtqueue_get_buf(vq, &len));
+	ut_asserteq(0x53355885, len);
+	ut_assertok(virtio_del_vqs(dev));
+
+	/* rejects used descriptors that aren't a chain head */
+	ut_assertok(virtio_find_vqs(dev, 1, &vq));
+	ut_assertok(virtqueue_add(vq, sgs, 0, 2));
+	vq->vring.used->idx = 1;
+	vq->vring.used->ring[0].id = 1;
+	vq->vring.used->ring[0].len = 0x53355885;
+	ut_assertnull(virtqueue_get_buf(vq, &len));
+	ut_assertok(virtio_del_vqs(dev));
+
+	/* device changes to descriptor are ignored */
+	ut_assertok(virtio_find_vqs(dev, 1, &vq));
+	ut_assertok(virtqueue_add(vq, sgs, 0, 1));
+	vq->vring.desc[0].addr = cpu_to_virtio64(dev, 0xbadbad11);
+	vq->vring.desc[0].len = cpu_to_virtio32(dev, 0x11badbad);
+	vq->vring.desc[0].flags = cpu_to_virtio16(dev, VRING_DESC_F_NEXT);
+	vq->vring.desc[0].next = cpu_to_virtio16(dev, U16_MAX);
+	vq->vring.used->idx = 1;
+	vq->vring.used->ring[0].id = 0;
+	vq->vring.used->ring[0].len = 6;
+	ut_asserteq_ptr(buffer, virtqueue_get_buf(vq, &len));
+	ut_asserteq(6, len);
+	ut_assertok(virtio_del_vqs(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_virtio_ring, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
