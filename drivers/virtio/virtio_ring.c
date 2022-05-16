@@ -16,6 +16,18 @@
 #include <linux/bug.h>
 #include <linux/compat.h>
 
+static unsigned int virtqueue_attach_desc(struct virtqueue *vq, unsigned int i,
+					  struct virtio_sg *sg, u16 flags)
+{
+	struct vring_desc *desc = &vq->vring.desc[i];
+
+	desc->addr = cpu_to_virtio64(vq->vdev, (u64)(uintptr_t)sg->addr);
+	desc->len = cpu_to_virtio32(vq->vdev, sg->length);
+	desc->flags = cpu_to_virtio16(vq->vdev, flags);
+
+	return virtio16_to_cpu(vq->vdev, desc->next);
+}
+
 int virtqueue_add(struct virtqueue *vq, struct virtio_sg *sgs[],
 		  unsigned int out_sgs, unsigned int in_sgs)
 {
@@ -44,27 +56,13 @@ int virtqueue_add(struct virtqueue *vq, struct virtio_sg *sgs[],
 		return -ENOSPC;
 	}
 
-	for (n = 0; n < out_sgs; n++) {
-		struct virtio_sg *sg = sgs[n];
+	for (n = 0; n < descs_used; n++) {
+		u16 flags = VRING_DESC_F_NEXT;
 
-		desc[i].flags = cpu_to_virtio16(vq->vdev, VRING_DESC_F_NEXT);
-		desc[i].addr = cpu_to_virtio64(vq->vdev, (u64)(size_t)sg->addr);
-		desc[i].len = cpu_to_virtio32(vq->vdev, sg->length);
-
+		if (n >= out_sgs)
+			flags |= VRING_DESC_F_WRITE;
 		prev = i;
-		i = virtio16_to_cpu(vq->vdev, desc[i].next);
-	}
-	for (; n < (out_sgs + in_sgs); n++) {
-		struct virtio_sg *sg = sgs[n];
-
-		desc[i].flags = cpu_to_virtio16(vq->vdev, VRING_DESC_F_NEXT |
-						VRING_DESC_F_WRITE);
-		desc[i].addr = cpu_to_virtio64(vq->vdev,
-					       (u64)(uintptr_t)sg->addr);
-		desc[i].len = cpu_to_virtio32(vq->vdev, sg->length);
-
-		prev = i;
-		i = virtio16_to_cpu(vq->vdev, desc[i].next);
+		i = virtqueue_attach_desc(vq, i, sgs[n], flags);
 	}
 	/* Last one doesn't continue */
 	desc[prev].flags &= cpu_to_virtio16(vq->vdev, ~VRING_DESC_F_NEXT);
