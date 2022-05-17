@@ -143,7 +143,7 @@ UBOOT_SB_TIME_OFFSET
 Memory Emulation
 ----------------
 
-Memory emulation is supported, with the size set by CONFIG_SYS_SDRAM_SIZE.
+Memory emulation is supported, with the size set by CONFIG_SANDBOX_RAM_SIZE_MB.
 The -m option can be used to read memory from a file on start-up and write
 it when shutting down. This allows preserving of memory contents across
 test runs. You can tell U-Boot to remove the memory file after it is read
