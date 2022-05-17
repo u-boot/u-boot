@@ -477,6 +477,9 @@ board_init_f() and board_init_r().
 
 This approach can be used on normal boards as well as sandbox.
 
+For debugging with GDB or LLDB, it is preferable to reduce the compiler
+optimization level (CONFIG_CC_OPTIMIZE_FOR_DEBUG=y) and to disable Link Time
+Optimization (CONFIG_LTO=n).
 
 SDL_CONFIG
 ----------
