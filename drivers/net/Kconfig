@@ -523,6 +523,11 @@ config MT7628_ETH
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.
 
+config NET_NPCM750
+	bool "Nuvoton NPCM750 Ethernet MAC"
+	help
+	  support NPCM750 EMAC
+
 config NET_OCTEON
 	bool "MIPS Octeon ethernet support"
 	depends on ARCH_OCTEON

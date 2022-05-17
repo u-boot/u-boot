@@ -65,6 +65,7 @@ obj-$(CONFIG_MVMDIO) += mvmdio.o
 obj-$(CONFIG_MVNETA) += mvneta.o
 obj-$(CONFIG_MVPP2) += mvpp2.o
 obj-$(CONFIG_NETCONSOLE) += netconsole.o
+obj-$(CONFIG_NET_NPCM750) += npcm750_eth.o
 obj-$(CONFIG_NET_OCTEON) += octeon/
 obj-$(CONFIG_NET_OCTEONTX) += octeontx/
 obj-$(CONFIG_NET_OCTEONTX2) += octeontx2/
