@@ -46,7 +46,9 @@
 #define RXE		0x24
 #define RXC		0x28
 #define TFLETE		4
+#define TSSRS		6
 #define RFMTE		5
+#define RSSRS		6
 
 #define FAULTF		0x2c
 #define FAULTC		0x30
@@ -170,6 +172,11 @@ static void synquacer_cs_set(struct synquacer_spi_priv *priv, bool active)
 			priv->rx_words = 16;
 			read_fifo(priv);
 		}
+
+		/* wait until slave is deselected */
+		while (!(readl(priv->base + TXF) & BIT(TSSRS)) ||
+		       !(readl(priv->base + RXF) & BIT(RSSRS)))
+			;
 	}
 }
 
