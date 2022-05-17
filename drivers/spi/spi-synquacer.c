@@ -330,9 +330,11 @@ static int synquacer_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	writel(~0, priv->base + RXC);
 
 	/* Trigger */
-	val = readl(priv->base + DMSTART);
-	val |= BIT(TRIGGER);
-	writel(val, priv->base + DMSTART);
+	if (flags & SPI_XFER_BEGIN) {
+		val = readl(priv->base + DMSTART);
+		val |= BIT(TRIGGER);
+		writel(val, priv->base + DMSTART);
+	}
 
 	while (busy & (BIT(RXBIT) | BIT(TXBIT))) {
 		if (priv->rx_words)
