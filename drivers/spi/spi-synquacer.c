@@ -275,7 +275,7 @@ static int synquacer_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct synquacer_spi_priv *priv = dev_get_priv(bus);
-	u32 val, words, busy;
+	u32 val, words, busy = 0;
 
 	val = readl(priv->base + FIFOCFG);
 	val |= (1 << RX_FLUSH);
