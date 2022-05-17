@@ -400,6 +400,10 @@ class ConsoleBase(object):
         """
 
         if self.p:
+            # Reset the console timeout value as some tests may change
+            # its default value during the execution
+            if not self.config.gdbserver:
+                self.p.timeout = 30000
             return
         try:
             self.log.start_section('Starting U-Boot')
