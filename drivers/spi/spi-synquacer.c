@@ -45,6 +45,7 @@
 #define RXF		0x20
 #define RXE		0x24
 #define RXC		0x28
+#define TFES		1
 #define TFLETE		4
 #define TSSRS		6
 #define RFMTE		5
@@ -345,13 +346,10 @@ static int synquacer_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		if (priv->tx_words) {
 			write_fifo(priv);
 		} else {
-			u32 len;
-
-			do { /* wait for shifter to empty out */
+			/* wait for shifter to empty out */
+			while (!(readl(priv->base + TXF) & BIT(TFES)))
 				cpu_relax();
-				len = readl(priv->base + DMSTATUS);
-				len = (len >> TX_DATA_SHIFT) & TX_DATA_MASK;
-			} while (tx_buf && len);
+
 			busy &= ~BIT(TXBIT);
 		}
 	}
