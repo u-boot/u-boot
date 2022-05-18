@@ -140,6 +140,15 @@ cat << __CONF_SECTION1_EOF
 		};
 __CONF_SECTION1_EOF
 else
+if [ -f $BL32 ]; then
+cat << __CONF_SECTION1_EOF
+		config_1 {
+			description = "Multi DTB with TF-A and TEE";
+			firmware = "atf";
+			loadables = "uboot", "tee", "fdt_1";
+		};
+__CONF_SECTION1_EOF
+else
 cat << __CONF_SECTION1_EOF
 		config_1 {
 			description = "Multi DTB with TF-A";
@@ -147,6 +156,7 @@ cat << __CONF_SECTION1_EOF
 			loadables = "uboot", "fdt_1";
 		};
 __CONF_SECTION1_EOF
+fi
 fi
 
 cat << __ITS_EOF
