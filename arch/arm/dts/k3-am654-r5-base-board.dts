@@ -309,6 +309,7 @@
 &dwc3_0 {
 	status = "okay";
 	u-boot,dm-spl;
+	/delete-property/ clocks;
 	/delete-property/ power-domains;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
