@@ -401,6 +401,12 @@ config SYS_ARM_CACHE_WRITEALLOC
 	  write is performed.
 endchoice
 
+config ARCH_VERY_EARLY_INIT
+	bool
+
+config SPL_ARCH_VERY_EARLY_INIT
+	bool
+
 config ARCH_CPU_INIT
 	bool "Enable ARCH_CPU_INIT"
 	help

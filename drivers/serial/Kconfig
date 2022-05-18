@@ -508,6 +508,20 @@ config DEBUG_UART_BASE
 	  A default should be provided by your board, but if not you will need
 	  to use the correct value here.
 
+config SPL_DEBUG_UART_BASE
+	hex "Base address of UART for SPL"
+	depends on SPL && DEBUG_UART
+	default DEBUG_UART_BASE
+	help
+	  This is the base address of your UART for memory-mapped UARTs for SPL.
+
+config TPL_DEBUG_UART_BASE
+	hex "Base address of UART for TPL"
+	depends on TPL && DEBUG_UART
+	default DEBUG_UART_BASE
+	help
+	  This is the base address of your UART for memory-mapped UARTs for TPL.
+
 config DEBUG_UART_CLOCK
 	int "UART input clock"
 	depends on DEBUG_UART
