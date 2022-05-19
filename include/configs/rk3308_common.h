@@ -9,7 +9,6 @@
 #include "rockchip-common.h"
 
 #define CONFIG_SPL_BSS_START_ADDR	0x00400000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x2000
 
 #define CONFIG_SYS_NS16550_MEM32
 

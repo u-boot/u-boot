@@ -33,7 +33,6 @@
 #define PHYS_SDRAM_1_SIZE	(64 << 20) /* SDRAM size 64MB */
 #define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
 #define CONFIG_SPL_BSS_START_ADDR DAVINCI_DDR_EMIF_DATA_BASE
-#define CONFIG_SPL_BSS_MAX_SIZE 0x1080000
 /* memtest start addr */
 
 /* memtest will be run on 16MB */
@@ -184,7 +183,6 @@
 						CONFIG_SYS_MALLOC_LEN)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SPL_STACK	0x8001ff00
-#define CONFIG_SPL_MAX_FOOTPRINT	32768
 
 #endif
 

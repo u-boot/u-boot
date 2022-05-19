@@ -11,7 +11,6 @@
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_SPL_BSS_START_ADDR	0x00128000
-#define CONFIG_SPL_BSS_MAX_SIZE	0x1000  /* 4 KB */
 
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

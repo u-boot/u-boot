@@ -71,7 +71,6 @@
  * ----------------------------------------------------------------------------
  */
 #define CONFIG_SPL_BSS_START_ADDR	0x80A00000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
 					CONFIG_SPL_BSS_MAX_SIZE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN

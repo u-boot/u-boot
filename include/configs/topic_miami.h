@@ -16,10 +16,6 @@
 
 /* Fixup settings */
 
-/* SPL settings */
-#undef CONFIG_SPL_MAX_FOOTPRINT
-#define CONFIG_SPL_MAX_FOOTPRINT	CONFIG_SYS_SPI_U_BOOT_OFFS
-
 /* Setup proper boot sequences for Miami boards */
 
 #if defined(CONFIG_USB_HOST)

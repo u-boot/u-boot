@@ -22,13 +22,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
 #else
 /*
- * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
- * possible (to allow the build to go through), as this directly affects
- * our memory footprint. The less we use for BSS the more we have available
- * for everything else.
- */
-#define CONFIG_SPL_BSS_MAX_SIZE		0xc00
-/*
  * Link BSS to be within SPL in a dedicated region located near the top of
  * the MCU SRAM, this way making it available also before relocation. Note
  * that we are not using the actual top of the MCU SRAM as there is a memory

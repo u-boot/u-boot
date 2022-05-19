@@ -24,7 +24,6 @@
  */
 
 #define CONFIG_SPL_BSS_START_ADDR       0x80000500 /* leave space for bootargs*/
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */

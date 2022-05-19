@@ -34,7 +34,6 @@
 #define CONFIG_SPL_STACK		0xf4008000 /* only max. 2KB spare! */
 
 #define CONFIG_SPL_BSS_START_ADDR	0xf4004000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x00002000 /* 512KB, arbitrary */
 
 #define CONFIG_SPL_START_S_PATH		"arch/mips/mach-jz47xx"
 

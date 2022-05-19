@@ -105,6 +105,44 @@ config SPL_PAD_TO
 	  0, meaning to append the SPL payload without any padding, or >=
 	  CONFIG_SPL_MAX_SIZE.
 
+choice
+	prompt "Enforce SPL BSS limit"
+	depends on SPL && !PPC
+	default SPL_BSS_LIMIT
+	help
+	  In some platforms we only want to enforce a limit on the size of the
+	  BSS in memory.  On other platforms we need to enforce a limit on the
+	  whole of the memory allocation as we're strictly limited to a small
+	  typically non-DRAM location.  Finally, other platforms do not enforce
+	  a memory limit within SPL.
+
+config SPL_NO_BSS_LIMIT
+	bool "Do not enforce a build time limit on the size of the BSS"
+
+config SPL_BSS_LIMIT
+	bool "Enforce a limit on the size of the BSS only"
+
+config SPL_FOOTPRINT_LIMIT
+	bool "Enforce a limit on the whole of memory allocated to SPL, BSS included"
+
+endchoice
+
+config SPL_BSS_MAX_SIZE
+	hex "Maximum size in memory allocated to the SPL BSS"
+	depends on SPL_BSS_LIMIT
+	default 0x100000 if ARCH_MX6 || RISCV
+	default 0x80000 if ARCH_OMAP2PLUS || ARCH_SUNXI
+	help
+	  When non-zero, the linker checks that the actual memory used by SPL
+	  from __bss_start to __bss_end does not exceed it.
+
+config SPL_MAX_FOOTPRINT
+	hex "Maximum size in memory allocated to the SPL, BSS included"
+	depends on SPL_FOOTPRINT_LIMIT
+	help
+	  When non-zero, the linker checks that the actual memory used by SPL
+	  from _start to __bss_end does not exceed it.
+
 config SPL_SYS_STACK_F_CHECK_BYTE
 	hex
 	default 0xaa

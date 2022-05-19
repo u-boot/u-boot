@@ -55,7 +55,6 @@
 /* Defines for SPL */
 
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
-#define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
 
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_MALLOC_SIMPLE

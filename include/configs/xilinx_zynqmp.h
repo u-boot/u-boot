@@ -205,7 +205,6 @@
 
 /* Just random location in OCM */
 #define CONFIG_SPL_BSS_START_ADDR	0x0
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 #if defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 # define CONFIG_SYS_SPI_KERNEL_OFFS	0x80000

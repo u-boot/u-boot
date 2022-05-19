@@ -244,6 +244,5 @@
 
 /* BSS setup */
 #define CONFIG_SPL_BSS_START_ADDR	0x100000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x100000
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

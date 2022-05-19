@@ -61,8 +61,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
 #endif
 
-#define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
-
 /*
  * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
  * slightly bigger. Note that it is possible to map the first 32 KiB of the

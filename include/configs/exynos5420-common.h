@@ -16,8 +16,6 @@
 
 #define CONFIG_IRAM_TOP			0x02074000
 
-#define CONFIG_SPL_MAX_FOOTPRINT	(30 * 1024)
-
 #define CONFIG_PHY_IRAM_BASE		0x02020000
 
 /* Address for relocating helper code (Last 4 KB of IRAM) */
