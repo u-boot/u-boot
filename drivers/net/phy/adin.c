@@ -100,27 +100,27 @@ static u32 adin_get_reg_value(struct phy_device *phydev,
  * The function gets phy-mode string from property 'adi,phy-mode-override'
  * and return its index in phy_interface_strings table, or -1 in error case.
  */
-int adin_get_phy_mode_override(struct phy_device *phydev)
+phy_interface_t adin_get_phy_mode_override(struct phy_device *phydev)
 {
 	ofnode node = phy_get_ofnode(phydev);
 	const char *phy_mode_override;
 	const char *prop_phy_mode_override = "adi,phy-mode-override";
-	int override_interface;
+	int i;
 
 	phy_mode_override = ofnode_read_string(node, prop_phy_mode_override);
 	if (!phy_mode_override)
-		return -ENODEV;
+		return PHY_INTERFACE_MODE_NA;
 
 	debug("%s: %s = '%s'\n",
 	      __func__, prop_phy_mode_override, phy_mode_override);
 
-	override_interface = phy_get_interface_by_name(phy_mode_override);
+	for (i = 0; i < PHY_INTERFACE_MODE_MAX; i++)
+		if (!strcmp(phy_mode_override, phy_interface_strings[i]))
+			return (phy_interface_t) i;
 
-	if (override_interface < 0)
-		printf("%s: %s = '%s' is not valid\n",
-		       __func__, prop_phy_mode_override, phy_mode_override);
+	printf("%s: Invalid PHY interface '%s'\n", __func__, phy_mode_override);
 
-	return override_interface;
+	return PHY_INTERFACE_MODE_NA;
 }
 
 static u16 adin_ext_read(struct phy_device *phydev, const u32 regnum)
@@ -148,10 +148,10 @@ static int adin_config_rgmii_mode(struct phy_device *phydev)
 {
 	u16 reg_val;
 	u32 val;
-	int phy_mode_override = adin_get_phy_mode_override(phydev);
+	phy_interface_t phy_mode_override = adin_get_phy_mode_override(phydev);
 
-	if (phy_mode_override >= 0) {
-		phydev->interface = (phy_interface_t) phy_mode_override;
+	if (phy_mode_override != PHY_INTERFACE_MODE_NA) {
+		phydev->interface = phy_mode_override;
 	}
 
 	reg_val = adin_ext_read(phydev, ADIN1300_GE_RGMII_CFG);
