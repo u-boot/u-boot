@@ -14,8 +14,6 @@
 #include <asm/arch/sys_proto.h>
 #include <power/regulator.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 int checkboard(void)
 {
 	char *mode;
@@ -28,8 +26,8 @@ int checkboard(void)
 		mode = "basic";
 
 	printf("Board: stm32mp1 in %s mode", mode);
-	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
-				 &fdt_compat_len);
+	fdt_compat = ofnode_get_property(ofnode_root(), "compatible",
+					 &fdt_compat_len);
 	if (fdt_compat && fdt_compat_len)
 		printf(" (%s)", fdt_compat);
 	puts("\n");
