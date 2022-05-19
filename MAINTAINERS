@@ -169,12 +169,23 @@ ARM ASPEED
 M:	Ryan Chen <ryan_chen@aspeedtech.com>
 M:	Chia-Wei Wang <chiawei_wang@aspeedtech.com>
 R:	Aspeed BMC SW team <BMC-SW@aspeedtech.com>
+R:	Joel Stanley <joel@jms.id.au>
 S:	Maintained
 F:	arch/arm/mach-aspeed/
 F:	arch/arm/include/asm/arch-aspeed/
 F:	board/aspeed/
 F:	drivers/clk/aspeed/
+F:	drivers/crypto/aspeed/
+F:	drivers/gpio/gpio-aspeed.c
+F:	drivers/i2c/ast_i2c.[ch]
+F:	drivers/mmc/aspeed_sdhci.c
+F:	drivers/net/aspeed_mdio.c
+F:	drivers/net/ftgmac100.[ch]
 F:	drivers/pinctrl/aspeed/
+F:	drivers/pwm/pwm-aspeed.c
+F:	drivers/ram/aspeed/
+F:	drivers/reset/reset-ast2500.c
+F:	drivers/watchdog/ast_wdt.c
 N:	aspeed
 
 ARM BROADCOM BCM283X / BCM27XX
