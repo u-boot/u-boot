@@ -19,6 +19,7 @@
 #include <fdt_support.h>
 #include <exports.h>
 #include <fdtdec.h>
+#include <version.h>
 
 /**
  * fdt_getprop_u32_default_node - Return a node's property or a default
@@ -303,6 +304,15 @@ int fdt_chosen(void *fdt)
 			       fdt_strerror(err));
 			return err;
 		}
+	}
+
+	/* add u-boot version */
+	err = fdt_setprop(fdt, nodeoffset, "u-boot,version", PLAIN_VERSION,
+			  strlen(PLAIN_VERSION) + 1);
+	if (err < 0) {
+		printf("WARNING: could not set u-boot,version %s.\n",
+		       fdt_strerror(err));
+		return err;
 	}
 
 	return fdt_fixup_stdout(fdt, nodeoffset);
