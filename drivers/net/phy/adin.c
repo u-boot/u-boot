@@ -4,6 +4,7 @@
  *
  * Copyright 2019 Analog Devices Inc.
  * Copyright 2022 Variscite Ltd.
+ * Copyright 2022 Josua Mayer <josua@solid-run.com>
  */
 #include <common.h>
 #include <phy.h>
@@ -13,6 +14,16 @@
 #define PHY_ID_ADIN1300				0x0283bc30
 #define ADIN1300_EXT_REG_PTR			0x10
 #define ADIN1300_EXT_REG_DATA			0x11
+
+#define ADIN1300_GE_CLK_CFG_REG			0xff1f
+#define   ADIN1300_GE_CLK_CFG_MASK		GENMASK(5, 0)
+#define   ADIN1300_GE_CLK_CFG_RCVR_125		BIT(5)
+#define   ADIN1300_GE_CLK_CFG_FREE_125		BIT(4)
+#define   ADIN1300_GE_CLK_CFG_REF_EN		BIT(3)
+#define   ADIN1300_GE_CLK_CFG_HRT_RCVR		BIT(2)
+#define   ADIN1300_GE_CLK_CFG_HRT_FREE		BIT(1)
+#define   ADIN1300_GE_CLK_CFG_25		BIT(0)
+
 #define ADIN1300_GE_RGMII_CFG			0xff23
 #define ADIN1300_GE_RGMII_RX_MSK		GENMASK(8, 6)
 #define ADIN1300_GE_RGMII_RX_SEL(x)		\
@@ -144,6 +155,33 @@ static int adin_ext_write(struct phy_device *phydev, const u32 regnum, const u16
 	return phy_write(phydev, MDIO_DEVAD_NONE, ADIN1300_EXT_REG_DATA, val);
 }
 
+static int adin_config_clk_out(struct phy_device *phydev)
+{
+	ofnode node = phy_get_ofnode(phydev);
+	const char *val = NULL;
+	u8 sel = 0;
+
+	val = ofnode_read_string(node, "adi,phy-output-clock");
+	if (!val) {
+		/* property not present, do not enable GP_CLK pin */
+	} else if (strcmp(val, "25mhz-reference") == 0) {
+		sel |= ADIN1300_GE_CLK_CFG_25;
+	} else if (strcmp(val, "125mhz-free-running") == 0) {
+		sel |= ADIN1300_GE_CLK_CFG_FREE_125;
+	} else if (strcmp(val, "adaptive-free-running") == 0) {
+		sel |= ADIN1300_GE_CLK_CFG_HRT_FREE;
+	} else {
+		pr_err("%s: invalid adi,phy-output-clock\n", __func__);
+		return -EINVAL;
+	}
+
+	if (ofnode_read_bool(node, "adi,phy-output-reference-clock"))
+		sel |= ADIN1300_GE_CLK_CFG_REF_EN;
+
+	return adin_ext_write(phydev, ADIN1300_GE_CLK_CFG_REG,
+			      ADIN1300_GE_CLK_CFG_MASK & sel);
+}
+
 static int adin_config_rgmii_mode(struct phy_device *phydev)
 {
 	u16 reg_val;
@@ -201,6 +239,10 @@ static int adin1300_config(struct phy_device *phydev)
 	int ret;
 
 	printf("ADIN1300 PHY detected at addr %d\n", phydev->addr);
+
+	ret = adin_config_clk_out(phydev);
+	if (ret < 0)
+		return ret;
 
 	ret = adin_config_rgmii_mode(phydev);
 
