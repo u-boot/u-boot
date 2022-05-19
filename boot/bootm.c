@@ -498,7 +498,8 @@ ulong bootm_disable_interrupts(void)
 }
 
 #define CONSOLE_ARG		"console="
-#define CONSOLE_ARG_SIZE	sizeof(CONSOLE_ARG)
+#define NULL_CONSOLE		(CONSOLE_ARG "ttynull")
+#define CONSOLE_ARG_SIZE	sizeof(NULL_CONSOLE)
 
 /**
  * fixup_silent_linux() - Handle silencing the linux boot if required
@@ -550,21 +551,22 @@ static int fixup_silent_linux(char *buf, int maxlen)
 			char *end = strchr(start, ' ');
 			int start_bytes;
 
-			start_bytes = start - cmdline + CONSOLE_ARG_SIZE - 1;
+			start_bytes = start - cmdline;
 			strncpy(buf, cmdline, start_bytes);
+			strncpy(buf + start_bytes, NULL_CONSOLE, CONSOLE_ARG_SIZE);
 			if (end)
-				strcpy(buf + start_bytes, end);
+				strcpy(buf + start_bytes + CONSOLE_ARG_SIZE - 1, end);
 			else
-				buf[start_bytes] = '\0';
+				buf[start_bytes + CONSOLE_ARG_SIZE] = '\0';
 		} else {
-			sprintf(buf, "%s %s", cmdline, CONSOLE_ARG);
+			sprintf(buf, "%s %s", cmdline, NULL_CONSOLE);
 		}
 		if (buf + strlen(buf) >= cmdline)
 			return -ENOSPC;
 	} else {
-		if (maxlen < sizeof(CONSOLE_ARG))
+		if (maxlen < CONSOLE_ARG_SIZE)
 			return -ENOSPC;
-		strcpy(buf, CONSOLE_ARG);
+		strcpy(buf, NULL_CONSOLE);
 	}
 	debug("after silent fix-up: %s\n", buf);
 

@@ -83,12 +83,12 @@ static int bootm_test_silent(struct unit_test_state *uts)
 
 	ut_assertok(env_set("silent_linux", "yes"));
 	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
-	ut_asserteq_str("console=", buf);
+	ut_asserteq_str("console=ttynull", buf);
 
 	/* Empty buffer should still add the string */
 	*buf = '\0';
 	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
-	ut_asserteq_str("console=", buf);
+	ut_asserteq_str("console=ttynull", buf);
 
 	/* Check nothing happens when do_silent is false */
 	*buf = '\0';
@@ -97,21 +97,21 @@ static int bootm_test_silent(struct unit_test_state *uts)
 
 	/* Not enough space */
 	*buf = '\0';
-	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, 8, BOOTM_CL_SILENT));
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, 15, BOOTM_CL_SILENT));
 
 	/* Just enough space */
 	*buf = '\0';
-	ut_assertok(bootm_process_cmdline(buf, 9, BOOTM_CL_SILENT));
+	ut_assertok(bootm_process_cmdline(buf, 16, BOOTM_CL_SILENT));
 
 	/* add at end */
 	strcpy(buf, "something");
 	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
-	ut_asserteq_str("something console=", buf);
+	ut_asserteq_str("something console=ttynull", buf);
 
 	/* change at start */
 	strcpy(buf, CONSOLE_STR " something");
 	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_SILENT));
-	ut_asserteq_str("console= something", buf);
+	ut_asserteq_str("console=ttynull something", buf);
 
 	return 0;
 }
@@ -210,12 +210,12 @@ static int bootm_test_subst_var(struct unit_test_state *uts)
 {
 	env_set("bootargs", NULL);
 	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
-	ut_asserteq_str("console=", env_get("bootargs"));
+	ut_asserteq_str("console=ttynull", env_get("bootargs"));
 
 	ut_assertok(env_set("var", "abc"));
 	ut_assertok(env_set("bootargs", "some${var}thing"));
 	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_SILENT));
-	ut_asserteq_str("some${var}thing console=", env_get("bootargs"));
+	ut_asserteq_str("some${var}thing console=ttynull", env_get("bootargs"));
 
 	return 0;
 }
@@ -227,12 +227,12 @@ static int bootm_test_subst_both(struct unit_test_state *uts)
 	ut_assertok(env_set("silent_linux", "yes"));
 	env_set("bootargs", NULL);
 	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_ALL));
-	ut_asserteq_str("console=", env_get("bootargs"));
+	ut_asserteq_str("console=ttynull", env_get("bootargs"));
 
 	ut_assertok(env_set("bootargs", "some${var}thing " CONSOLE_STR));
 	ut_assertok(env_set("var", "1234567890"));
 	ut_assertok(bootm_process_cmdline_env(BOOTM_CL_ALL));
-	ut_asserteq_str("some1234567890thing console=", env_get("bootargs"));
+	ut_asserteq_str("some1234567890thing console=ttynull", env_get("bootargs"));
 
 	return 0;
 }
