@@ -82,11 +82,6 @@
 #define SYSCFG_PMCSETR_ETH_SEL_RGMII	BIT(21)
 #define SYSCFG_PMCSETR_ETH_SEL_RMII	BIT(23)
 
-/*
- * Get a global data pointer
- */
-DECLARE_GLOBAL_DATA_PTR;
-
 #define USB_LOW_THRESHOLD_UV		200000
 #define USB_WARNING_LOW_THRESHOLD_UV	660000
 #define USB_START_LOW_THRESHOLD_UV	1230000
@@ -116,8 +111,8 @@ int checkboard(void)
 		mode = "basic";
 	}
 
-	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
-				 &fdt_compat_len);
+	fdt_compat = ofnode_get_property(ofnode_root(), "compatible",
+					 &fdt_compat_len);
 
 	log_info("Board: stm32mp1 in %s mode (%s)\n", mode,
 		 fdt_compat && fdt_compat_len ? fdt_compat : "");
@@ -690,8 +685,8 @@ int board_late_init(void)
 	int buf_len;
 
 	if (IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)) {
-		fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
-					 &fdt_compat_len);
+		fdt_compat = ofnode_get_property(ofnode_root(), "compatible",
+						 &fdt_compat_len);
 		if (fdt_compat && fdt_compat_len) {
 			if (strncmp(fdt_compat, "st,", 3) != 0) {
 				env_set("board_name", fdt_compat);
