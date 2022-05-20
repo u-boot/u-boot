@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause
+/*
+ * Copyright (C) 2022, STMicroelectronics - All Rights Reserved
+ */
+
+#include "stm32mp13-u-boot.dtsi"
+
+/ {
+	aliases {
+		mmc0 = &sdmmc1;
+	};
+
+	config {
+		u-boot,mmc-env-partition = "u-boot-env";
+	};
+};
+
+&uart4 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart4_pins_a {
+	u-boot,dm-pre-reloc;
+	pins1 {
+		u-boot,dm-pre-reloc;
+	};
+	pins2 {
+		u-boot,dm-pre-reloc;
+	};
+};
