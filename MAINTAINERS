@@ -378,6 +378,14 @@ F:	tools/mtk_image.c
 F:	tools/mtk_image.h
 N:	mediatek
 
+ARM METHODE SUPPORT
+M:	Robert Marko <robert.marko@sartura.hr>
+S:	Maintained
+F:	arch/arm/dts/armada-3720-eDPU*
+F:	arch/arm/dts/armada-3720-uDPU*
+F:	configs/eDPU_defconfig
+F:	configs/uDPU_defconfig
+
 ARM MICROCHIP/ATMEL AT91
 M:	Eugen Hristev <eugen.hristev@microchip.com>
 S:	Maintained
