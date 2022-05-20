@@ -191,7 +191,7 @@ config WDT_MT7620
 
 config WDT_MT7621
 	bool "MediaTek MT7621 watchdog timer support"
-	depends on WDT && SOC_MT7628
+	depends on WDT && (SOC_MT7621 || SOC_MT7628)
 	help
 	  Select this to enable Ralink / Mediatek watchdog timer,
 	  which can be found on some MediaTek chips.
