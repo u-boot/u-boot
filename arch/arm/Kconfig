@@ -1928,7 +1928,7 @@ config ARCH_STM32
 	imply CMD_DM
 
 config ARCH_STI
-	bool "Support STMicrolectronics SoCs"
+	bool "Support STMicroelectronics SoCs"
 	select BLK
 	select CPU_V7A
 	select DM

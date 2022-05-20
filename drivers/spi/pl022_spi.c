@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012
- * Armando Visconti, ST Microelectronics, armando.visconti@st.com.
+ * Armando Visconti, STMicroelectronics, armando.visconti@st.com.
  *
  * (C) Copyright 2018
  * Quentin Schulz, Bootlin, quentin.schulz@bootlin.com

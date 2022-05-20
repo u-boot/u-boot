@@ -272,7 +272,7 @@ config PINCTRL_STI
 	depends on DM && ARCH_STI
 	default y
 	help
-	  Support pin multiplexing control on STMicrolectronics STi SoCs.
+	  Support pin multiplexing control on STMicroelectronics STi SoCs.
 
 	  The driver is controlled by a device tree node which contains both
 	  the GPIO definitions and pin control functions for each available
