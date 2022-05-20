@@ -200,4 +200,28 @@ union lk_hdr {
 
 #define LK_PART_MAGIC		0x58881688
 
+/* MT7621 NAND SPL image header */
+
+#define MT7621_IH_NMLEN			12
+#define MT7621_IH_CRC_POLYNOMIAL	0x04c11db7
+
+struct mt7621_nand_header {
+	char ih_name[MT7621_IH_NMLEN];
+	uint32_t nand_ac_timing;
+	uint32_t ih_stage_offset;
+	uint32_t ih_bootloader_offset;
+	uint32_t nand_info_1_data;
+	uint32_t crc;
+};
+
+struct mt7621_stage1_header {
+	uint32_t jump_insn[2];
+	uint32_t ep;
+	uint32_t stage_size;
+	uint32_t has_stage2;
+	uint32_t next_ep;
+	uint32_t next_size;
+	uint32_t next_offset;
+};
+
 #endif /* _MTK_IMAGE_H */
