@@ -159,8 +159,9 @@ struct mtk_eth_priv {
 
 	void __iomem *fe_base;
 	void __iomem *gmac_base;
-	void __iomem *ethsys_base;
 	void __iomem *sgmii_base;
+
+	struct regmap *ethsys_regmap;
 
 	struct mii_dev *mdio_bus;
 	int (*mii_read)(struct mtk_eth_priv *priv, u8 phy, u8 reg);
@@ -233,7 +234,12 @@ static void mtk_gmac_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr, u32 set)
 static void mtk_ethsys_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
 			   u32 set)
 {
-	clrsetbits_le32(priv->ethsys_base + reg, clr, set);
+	uint val;
+
+	regmap_read(priv->ethsys_regmap, reg, &val);
+	val &= ~clr;
+	val |= set;
+	regmap_write(priv->ethsys_regmap, reg, val);
 }
 
 /* Direct MDIO clause 22/45 access via SoC */
@@ -1427,15 +1433,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	regmap = syscon_node_to_regmap(args.node);
-	if (IS_ERR(regmap))
-		return PTR_ERR(regmap);
-
-	priv->ethsys_base = regmap_get_range(regmap, 0);
-	if (!priv->ethsys_base) {
-		dev_err(dev, "Unable to find ethsys\n");
-		return -ENODEV;
-	}
+	priv->ethsys_regmap = syscon_node_to_regmap(args.node);
+	if (IS_ERR(priv->ethsys_regmap))
+		return PTR_ERR(priv->ethsys_regmap);
 
 	/* Reset controllers */
 	ret = reset_get_by_name(dev, "fe", &priv->rst_fe);
