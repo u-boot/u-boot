@@ -30,9 +30,6 @@
 /* Bootcounter */
 #define CONFIG_SYS_BOOTCOUNT_BE
 
-/* FEC ethernet */
-#define CONFIG_FEC_MXC_PHYADDR		7
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	3
