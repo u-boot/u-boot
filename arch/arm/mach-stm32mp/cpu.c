@@ -290,16 +290,18 @@ __weak int setup_mac_address(void)
 {
 	int ret;
 	int i;
-	u32 otp[2];
+	u32 otp[3];
 	uchar enetaddr[6];
 	struct udevice *dev;
+	int nb_eth, nb_otp, index;
 
 	if (!IS_ENABLED(CONFIG_NET))
 		return 0;
 
-	/* MAC already in environment */
-	if (eth_env_get_enetaddr("ethaddr", enetaddr))
-		return 0;
+	nb_eth = get_eth_nb();
+
+	/* 6 bytes for each MAC addr and 4 bytes for each OTP */
+	nb_otp = DIV_ROUND_UP(6 * nb_eth, 4);
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(stm32mp_bsec),
@@ -307,22 +309,31 @@ __weak int setup_mac_address(void)
 	if (ret)
 		return ret;
 
-	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_MAC),
-			otp, sizeof(otp));
+	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_MAC), otp, 4 * nb_otp);
 	if (ret < 0)
 		return ret;
 
-	for (i = 0; i < 6; i++)
-		enetaddr[i] = ((uint8_t *)&otp)[i];
+	for (index = 0; index < nb_eth; index++) {
+		/* MAC already in environment */
+		if (eth_env_get_enetaddr_by_index("eth", index, enetaddr))
+			continue;
 
-	if (!is_valid_ethaddr(enetaddr)) {
-		log_err("invalid MAC address in OTP %pM\n", enetaddr);
-		return -EINVAL;
+		for (i = 0; i < 6; i++)
+			enetaddr[i] = ((uint8_t *)&otp)[i + 6 * index];
+
+		if (!is_valid_ethaddr(enetaddr)) {
+			log_err("invalid MAC address %d in OTP %pM\n",
+				index, enetaddr);
+			return -EINVAL;
+		}
+		log_debug("OTP MAC address %d = %pM\n", index, enetaddr);
+		ret = eth_env_set_enetaddr_by_index("eth", index, enetaddr);
+		if (ret) {
+			log_err("Failed to set mac address %pM from OTP: %d\n",
+				enetaddr, ret);
+			return ret;
+		}
 	}
-	log_debug("OTP MAC address = %pM\n", enetaddr);
-	ret = eth_env_set_enetaddr("ethaddr", enetaddr);
-	if (ret)
-		log_err("Failed to set mac address %pM from OTP: %d\n", enetaddr, ret);
 
 	return 0;
 }

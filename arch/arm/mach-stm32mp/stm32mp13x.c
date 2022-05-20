@@ -51,6 +51,26 @@ u32 get_cpu_type(void)
 	return (get_cpu_dev() << 16) | get_cpu_rpn();
 }
 
+int get_eth_nb(void)
+{
+	int nb_eth = 2;
+
+	switch (get_cpu_type()) {
+	case CPU_STM32MP131Dxx:
+		fallthrough;
+	case CPU_STM32MP131Cxx:
+		fallthrough;
+	case CPU_STM32MP131Axx:
+		nb_eth = 1;
+		break;
+	default:
+		nb_eth = 2;
+		break;
+	}
+
+	return nb_eth;
+}
+
 void get_soc_name(char name[SOC_NAME_SIZE])
 {
 	char *cpu_s, *cpu_r;

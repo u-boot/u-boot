@@ -64,6 +64,7 @@ void get_soc_name(char name[SOC_NAME_SIZE]);
 /* return boot mode */
 u32 get_bootmode(void);
 
+int get_eth_nb(void);
 int setup_mac_address(void);
 
 /* board power management : configure vddcore according OPP */

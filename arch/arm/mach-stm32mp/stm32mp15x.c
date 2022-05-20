@@ -247,6 +247,11 @@ u32 get_cpu_type(void)
 	return (get_cpu_dev() << 16) | get_cpu_rpn();
 }
 
+int get_eth_nb(void)
+{
+	return 1;
+}
+
 /* Get Package options from OTP */
 u32 get_cpu_package(void)
 {
