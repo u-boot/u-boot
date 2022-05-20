@@ -16,7 +16,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)KSEG1, SZ_256M);
+	gd->ram_size = get_ram_size((void *)KSEG1, CONFIG_MAX_MEM_SIZE << 20);
 
 	return 0;
 }
