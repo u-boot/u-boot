@@ -42,7 +42,7 @@ config USB_XHCI_EXYNOS
 
 config USB_XHCI_MTK
 	bool "Support for MediaTek on-chip xHCI USB controller"
-	depends on ARCH_MEDIATEK
+	depends on ARCH_MEDIATEK || SOC_MT7621
 	help
 	  Enables support for the on-chip xHCI controller on MediaTek SoCs.
 
