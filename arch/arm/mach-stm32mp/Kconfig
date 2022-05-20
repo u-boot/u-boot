@@ -37,6 +37,24 @@ choice
 	prompt "Select STMicroelectronics STM32MPxxx Soc"
 	default STM32MP15x
 
+config STM32MP13x
+	bool "Support STMicroelectronics STM32MP13x Soc"
+	select ARM_SMCCC
+	select CPU_V7A
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select OF_BOARD
+	select OF_BOARD_SETUP
+	select PINCTRL_STM32
+	select STM32_RCC
+	select STM32_RESET
+	select STM32_SERIAL
+	select SYS_ARCH_TIMER
+	imply CMD_NVEDIT_INFO
+	help
+		support of STMicroelectronics SOC STM32MP13x family
+		STMicroelectronics MPU with core ARMv7
+
 config STM32MP15x
 	bool "Support STMicroelectronics STM32MP15x Soc"
 	select ARCH_SUPPORT_PSCI
@@ -85,7 +103,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 
 config STM32_ETZPC
 	bool "STM32 Extended TrustZone Protection"
-	depends on STM32MP15x
+	depends on STM32MP15x || STM32MP13x
 	default y
 	imply BOOTP_SERVERIP
 	help
@@ -108,6 +126,7 @@ config CMD_STM32KEY
 		This command is used to evaluate the secure boot on stm32mp SOC,
 		it is deactivated by default in real products.
 
+source "arch/arm/mach-stm32mp/Kconfig.13x"
 source "arch/arm/mach-stm32mp/Kconfig.15x"
 
 source "arch/arm/mach-stm32mp/cmd_stm32prog/Kconfig"

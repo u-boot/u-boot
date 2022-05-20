@@ -52,8 +52,11 @@ void dram_bank_mmu_setup(int bank)
 	enum dcache_option option;
 
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+/* STM32_SYSRAM_BASE exist only when SPL is supported */
+#ifdef CONFIG_SPL
 		start = ALIGN_DOWN(STM32_SYSRAM_BASE, MMU_SECTION_SIZE);
 		size = ALIGN(STM32_SYSRAM_SIZE, MMU_SECTION_SIZE);
+#endif
 	} else if (gd->flags & GD_FLG_RELOC) {
 		/* bd->bi_dram is available only after relocation */
 		start = bd->bi_dram[bank].start;

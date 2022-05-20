@@ -259,6 +259,9 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	u32 pkg, cpu;
 	char name[SOC_NAME_SIZE];
 
+	if (IS_ENABLED(CONFIG_STM32MP13x))
+		return 0;
+
 	soc = fdt_path_offset(blob, "/soc");
 	/* when absent, nothing to do */
 	if (soc == -FDT_ERR_NOTFOUND)
