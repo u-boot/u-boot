@@ -79,6 +79,26 @@ config MT7621_BOOT_FROM_NAND
 choice
 	prompt "Board select"
 
+config BOARD_MT7621_RFB
+	bool "MediaTek MT7621 RFB (SPI-NOR)"
+	help
+	  The reference design of MT7621A (WS3010) booting from SPI-NOR flash.
+	  The board can be configured with DDR2 (64MiB~256MiB) or DDR3
+	  (128MiB~512MiB). The board has 16 MiB SPI-NOR flash, built-in MT7530
+	  GbE switch, 1 UART, 1 USB 2.0 host, 1 USB 3.0 host, 1 SDXC, 3 PCIe
+	  sockets, 1 RGMII to external GbE PHY, 2 audio jacks (in/out),
+	  JTAG pins and expansion GPIO pins.
+
+config BOARD_MT7621_NAND_RFB
+	bool "MediaTek MT7621 RFB (NAND)"
+	help
+	  The reference design of MT7621A (WS3010) booting from NAND flash.
+	  The board can be configured with DDR2 (64MiB~256MiB) or DDR3
+	  (128MiB~512MiB). The board has 128 MiB parallel NAND flash, built-in
+	  MT7530 GbE switch, 1 UART, 1 USB 2.0 host, 1 USB 3.0 host, 3 PCIe
+	  sockets, 1 RGMII to external GbE PHY, 2 audio jacks (in/out),
+	  JTAG pins and expansion GPIO pins.
+
 endchoice
 
 config SYS_CONFIG_NAME
