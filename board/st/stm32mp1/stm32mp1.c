@@ -554,8 +554,7 @@ static void sysconf_init(void)
 	clrbits_le32(syscfg + SYSCFG_CMPCR, SYSCFG_CMPCR_SW_CTRL);
 }
 
-/* Fix to make I2C1 usable on DK2 for touchscreen usage in kernel */
-static int dk2_i2c1_fix(void)
+static int board_stm32mp15x_dk2_init(void)
 {
 	ofnode node;
 	struct gpio_desc hdmi, audio;
@@ -564,6 +563,7 @@ static int dk2_i2c1_fix(void)
 	if (!IS_ENABLED(CONFIG_DM_REGULATOR))
 		return -ENODEV;
 
+	/* Fix to make I2C1 usable on DK2 for touchscreen usage in kernel */
 	node = ofnode_path("/soc/i2c@40012000/hdmi-transmitter@39");
 	if (!ofnode_valid(node)) {
 		log_debug("no hdmi-transmitter@39 ?\n");
@@ -611,7 +611,7 @@ error:
 	return ret;
 }
 
-static bool board_is_dk2(void)
+static bool board_is_stm32mp15x_dk2(void)
 {
 	if (CONFIG_IS_ENABLED(TARGET_ST_STM32MP15x) &&
 	    of_machine_is_compatible("st,stm32mp157c-dk2"))
@@ -620,7 +620,7 @@ static bool board_is_dk2(void)
 	return false;
 }
 
-static bool board_is_ev1(void)
+static bool board_is_stm32mp15x_ev1(void)
 {
 	if (CONFIG_IS_ENABLED(TARGET_ST_STM32MP15x) &&
 	    (of_machine_is_compatible("st,stm32mp157a-ev1") ||
@@ -644,7 +644,7 @@ U_BOOT_DRIVER(goodix) = {
 	.of_match	= goodix_ids,
 };
 
-static void board_ev1_init(void)
+static void board_stm32mp15x_ev1_init(void)
 {
 	struct udevice *dev;
 
@@ -657,11 +657,11 @@ int board_init(void)
 {
 	board_key_check();
 
-	if (board_is_ev1())
-		board_ev1_init();
+	if (board_is_stm32mp15x_ev1())
+		board_stm32mp15x_ev1_init();
 
-	if (board_is_dk2())
-		dk2_i2c1_fix();
+	if (board_is_stm32mp15x_dk2())
+		board_stm32mp15x_dk2_init();
 
 	if (IS_ENABLED(CONFIG_DM_REGULATOR))
 		regulators_enable_boot_on(_DEBUG);
