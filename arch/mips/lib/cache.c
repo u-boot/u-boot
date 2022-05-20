@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <malloc.h>
 #include <asm/cache.h>
 #include <asm/cacheops.h>
 #include <asm/cm.h>
@@ -197,3 +198,45 @@ void dcache_disable(void)
 	/* ensure the pipeline doesn't contain now-invalid instructions */
 	instruction_hazard_barrier();
 }
+
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+static unsigned long noncached_start;
+static unsigned long noncached_end;
+static unsigned long noncached_next;
+
+void noncached_set_region(void)
+{
+}
+
+int noncached_init(void)
+{
+	phys_addr_t start, end;
+	size_t size;
+
+	/* If this calculation changes, update board_f.c:reserve_noncached() */
+	end = ALIGN(mem_malloc_start, MMU_SECTION_SIZE) - MMU_SECTION_SIZE;
+	size = ALIGN(CONFIG_SYS_NONCACHED_MEMORY, MMU_SECTION_SIZE);
+	start = end - size;
+
+	debug("mapping memory %pa-%pa non-cached\n", &start, &end);
+
+	noncached_start = start;
+	noncached_end = end;
+	noncached_next = start;
+
+	return 0;
+}
+
+phys_addr_t noncached_alloc(size_t size, size_t align)
+{
+	phys_addr_t next = ALIGN(noncached_next, align);
+
+	if (next >= noncached_end || (noncached_end - next) < size)
+		return 0;
+
+	debug("allocated %zu bytes of uncached memory @%pa\n", size, &next);
+	noncached_next = next + size;
+
+	return CKSEG1ADDR(next);
+}
+#endif /* CONFIG_SYS_NONCACHED_MEMORY */
