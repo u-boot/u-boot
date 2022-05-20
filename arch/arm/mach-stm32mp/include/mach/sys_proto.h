@@ -52,3 +52,6 @@ int setup_mac_address(void);
 
 /* board power management : configure vddcore according OPP */
 void board_vddcore_init(u32 voltage_mv);
+
+/* helper function: read data from OTP */
+u32 get_otp(int index, int shift, int mask);
