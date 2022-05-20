@@ -46,6 +46,7 @@ config STM32MP15x
 	select STM32_RCC
 	select STM32_RESET
 	select STM32_SERIAL
+	select SUPPORT_SPL
 	select SYS_ARCH_TIMER
 	imply CMD_NVEDIT_INFO
 	help

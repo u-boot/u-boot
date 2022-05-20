@@ -1956,7 +1956,6 @@ config ARCH_STM32MP
 	select OF_SYSTEM_SETUP
 	select PINCTRL
 	select REGMAP
-	select SUPPORT_SPL
 	select SYSCON
 	select SYSRESET
 	select SYS_THUMB_BUILD
