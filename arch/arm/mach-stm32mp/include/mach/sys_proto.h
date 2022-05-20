@@ -36,10 +36,12 @@ u32 get_cpu_rev(void);
 /* Get Package options from OTP */
 u32 get_cpu_package(void);
 
-#define PKG_AA_LBGA448	4
-#define PKG_AB_LBGA354	3
-#define PKG_AC_TFBGA361	2
-#define PKG_AD_TFBGA257	1
+/* package used for STM32MP15x */
+#define STM32MP15_PKG_AA_LBGA448	4
+#define STM32MP15_PKG_AB_LBGA354	3
+#define STM32MP15_PKG_AC_TFBGA361	2
+#define STM32MP15_PKG_AD_TFBGA257	1
+#define STM32MP15_PKG_UNKNOWN		0
 
 /* Get SOC name */
 #define SOC_NAME_SIZE 20
@@ -52,6 +54,10 @@ int setup_mac_address(void);
 
 /* board power management : configure vddcore according OPP */
 void board_vddcore_init(u32 voltage_mv);
+
+/* weak function */
+void stm32mp_cpu_init(void);
+void stm32mp_misc_init(void);
 
 /* helper function: read data from OTP */
 u32 get_otp(int index, int shift, int mask);

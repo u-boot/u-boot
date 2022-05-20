@@ -8,6 +8,8 @@ obj-y += dram_init.o
 obj-y += syscon.o
 obj-y += bsec.o
 
+obj-$(CONFIG_STM32MP15x) += stm32mp15x.o
+
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 obj-y += tzc400.o

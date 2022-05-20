@@ -312,16 +312,16 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	}
 
 	switch (get_cpu_package()) {
-	case PKG_AA_LBGA448:
+	case STM32MP15_PKG_AA_LBGA448:
 		pkg = STM32MP_PKG_AA;
 		break;
-	case PKG_AB_LBGA354:
+	case STM32MP15_PKG_AB_LBGA354:
 		pkg = STM32MP_PKG_AB;
 		break;
-	case PKG_AC_TFBGA361:
+	case STM32MP15_PKG_AC_TFBGA361:
 		pkg = STM32MP_PKG_AC;
 		break;
-	case PKG_AD_TFBGA257:
+	case STM32MP15_PKG_AD_TFBGA257:
 		pkg = STM32MP_PKG_AD;
 		break;
 	default:
