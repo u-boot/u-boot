@@ -100,9 +100,9 @@ static int setup_dhcom_mac_from_fuse(void)
 		return 0;
 	}
 
-	eeprom = ofnode_path("/soc/aips-bus@2100000/i2c@21a8000/eeprom@50");
+	eeprom = ofnode_get_aliases_node("eeprom0");
 	if (!ofnode_valid(eeprom)) {
-		printf("Invalid hardware path to EEPROM!\n");
+		printf("Can't find eeprom0 alias!\n");
 		return -ENODEV;
 	}
 
