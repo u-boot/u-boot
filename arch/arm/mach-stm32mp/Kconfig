@@ -33,6 +33,10 @@ config SYS_MALLOC_LEN
 config ENV_SIZE
 	default 0x2000
 
+choice
+	prompt "Select STMicroelectronics STM32MPxxx Soc"
+	default STM32MP15x
+
 config STM32MP15x
 	bool "Support STMicroelectronics STM32MP15x Soc"
 	select ARCH_SUPPORT_PSCI
@@ -54,11 +58,13 @@ config STM32MP15x
 		STM32MP157, STM32MP153 or STM32MP151
 		STMicroelectronics MPU with core ARMv7
 		dual core A7 for STM32MP157/3, monocore for STM32MP151
-		target all the STMicroelectronics board with SOC STM32MP1 family
+endchoice
+
+if STM32MP15x
 
 config STM32MP15x_STM32IMAGE
 	bool "Support STM32 image for generated U-Boot image"
-	depends on STM32MP15x && TFABOOT
+	depends on TFABOOT
 	help
 		Support of STM32 image generation for SOC STM32MP15x
 		for TF-A boot when FIP container is not used
@@ -69,7 +75,6 @@ choice
 
 config TARGET_ST_STM32MP15x
 	bool "STMicroelectronics STM32MP15x boards"
-	select STM32MP15x
 	imply BOOTSTAGE
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
@@ -84,7 +89,6 @@ config TARGET_ST_STM32MP15x
 
 config TARGET_MICROGEA_STM32MP1
 	bool "Engicam MicroGEA STM32MP1 SOM"
-	select STM32MP15x
 	imply BOOTSTAGE
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
@@ -109,7 +113,6 @@ config TARGET_MICROGEA_STM32MP1
 
 config TARGET_ICORE_STM32MP1
 	bool "Engicam i.Core STM32MP1 SOM"
-	select STM32MP15x
 	imply BOOTSTAGE
 	imply CMD_BOOTSTAGE
 	imply CMD_CLS if CMD_BMP
@@ -131,11 +134,15 @@ config TARGET_ICORE_STM32MP1
 
 config TARGET_DH_STM32MP1_PDK2
 	bool "DH STM32MP1 PDK2"
-	select STM32MP15x
 	help
 		Target the DH PDK2 development kit with STM32MP15x SoM.
 
 endchoice
+
+source "board/st/stm32mp1/Kconfig"
+source "board/dhelectronics/dh_stm32mp1/Kconfig"
+source "board/engicam/stm32mp1/Kconfig"
+endif
 
 config SYS_TEXT_BASE
 	default 0xC0100000
@@ -221,8 +228,4 @@ config DEBUG_UART_CLOCK
 endif
 
 source "arch/arm/mach-stm32mp/cmd_stm32prog/Kconfig"
-source "board/dhelectronics/dh_stm32mp1/Kconfig"
-source "board/engicam/stm32mp1/Kconfig"
-source "board/st/stm32mp1/Kconfig"
-
 endif
