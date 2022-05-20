@@ -19,8 +19,10 @@ DECLARE_GLOBAL_DATA_PTR;
 static const struct pmic_child_info pmic_children_info[] = {
 	/* buck */
 	{ .prefix = "b", .driver = PCA9450_REGULATOR_DRIVER},
+	{ .prefix = "B", .driver = PCA9450_REGULATOR_DRIVER},
 	/* ldo */
 	{ .prefix = "l", .driver = PCA9450_REGULATOR_DRIVER},
+	{ .prefix = "L", .driver = PCA9450_REGULATOR_DRIVER},
 	{ },
 };
 
