@@ -88,21 +88,38 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 	/* Read header into local struct */
 	load->read(load, header, sizeof(hdr), &hdr);
 
+	/*
+	 * If the payload is compressed, the decompressed data should be
+	 * directly write to its load address.
+	 */
+	if (spl_image_get_comp(&hdr) != IH_COMP_NONE)
+		spl_image->flags |= SPL_COPY_PAYLOAD_ONLY;
+
 	ret = spl_parse_image_header(spl_image, bootdev, &hdr);
 	if (ret)
 		return ret;
 
-	dataptr = header + sizeof(hdr);
-
 	/* Read image */
 	switch (spl_image_get_comp(&hdr)) {
 	case IH_COMP_NONE:
+		dataptr = header;
+
+		/*
+		 * Image header will be skipped only if SPL_COPY_PAYLOAD_ONLY
+		 * is set
+		 */
+		if (spl_image->flags & SPL_COPY_PAYLOAD_ONLY)
+			dataptr += sizeof(hdr);
+
 		load->read(load, dataptr, spl_image->size,
 			   (void *)(unsigned long)spl_image->load_addr);
 		break;
 
 	case IH_COMP_LZMA:
 		lzma_len = LZMA_LEN;
+
+		/* dataptr points to compressed payload  */
+		dataptr = header + sizeof(hdr);
 
 		debug("LZMA: Decompressing %08lx to %08lx\n",
 		      dataptr, spl_image->load_addr);
