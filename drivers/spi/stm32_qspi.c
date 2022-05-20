@@ -150,19 +150,18 @@ static int _stm32_qspi_wait_cmd(struct stm32_qspi_priv *priv,
 	u32 sr;
 	int ret = 0;
 
-	if (op->data.nbytes) {
-		ret = readl_poll_timeout(&priv->regs->sr, sr,
-					 sr & STM32_QSPI_SR_TCF,
-					 STM32_QSPI_CMD_TIMEOUT_US);
-		if (ret) {
-			log_err("cmd timeout (stat:%#x)\n", sr);
-		} else if (readl(&priv->regs->sr) & STM32_QSPI_SR_TEF) {
-			log_err("transfer error (stat:%#x)\n", sr);
-			ret = -EIO;
-		}
-		/* clear flags */
-		writel(STM32_QSPI_FCR_CTCF | STM32_QSPI_FCR_CTEF, &priv->regs->fcr);
+	ret = readl_poll_timeout(&priv->regs->sr, sr,
+				 sr & STM32_QSPI_SR_TCF,
+				 STM32_QSPI_CMD_TIMEOUT_US);
+	if (ret) {
+		log_err("cmd timeout (stat:%#x)\n", sr);
+	} else if (readl(&priv->regs->sr) & STM32_QSPI_SR_TEF) {
+		log_err("transfer error (stat:%#x)\n", sr);
+		ret = -EIO;
 	}
+
+	/* clear flags */
+	writel(STM32_QSPI_FCR_CTCF | STM32_QSPI_FCR_CTEF, &priv->regs->fcr);
 
 	if (!ret)
 		ret = _stm32_qspi_wait_for_not_busy(priv);
@@ -255,10 +254,6 @@ static int stm32_qspi_exec_op(struct spi_slave *slave,
 		op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
 		op->dummy.buswidth, op->data.buswidth,
 		op->addr.val, op->data.nbytes);
-
-	ret = _stm32_qspi_wait_for_not_busy(priv);
-	if (ret)
-		return ret;
 
 	addr_max = op->addr.val + op->data.nbytes + 1;
 
