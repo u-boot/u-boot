@@ -884,7 +884,7 @@ config SPL_NAND_SIMPLE
 	  expose the cmd_ctrl() interface.
 
 config SPL_NAND_BASE
-	depends on SPL_NAND_DRIVERS
+	depends on SPL_NAND_SUPPORT
 	bool "Use Base NAND Driver"
 	help
 	  Include nand_base.c in the SPL.
