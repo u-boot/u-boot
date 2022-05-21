@@ -206,6 +206,17 @@ config SPL_FSL_PBL
 	  Create boot binary having SPL binary in PBI format concatenated with
 	  u-boot binary.
 
+config SPL_SYS_CCSR_DO_NOT_RELOCATE
+	bool "Ensures that CCSR is not relocated"
+	depends on PPC
+	help
+	  If this is defined, then CONFIG_SYS_CCSRBAR_PHYS will be forced to a
+	  value that ensures that CCSR is not relocated.
+
+config TPL_SYS_CCSR_DO_NOT_RELOCATE
+	def_bool y
+	depends on SPL_SYS_CCSR_DO_NOT_RELOCATE
+
 endmenu
 
 menu "PowerPC SPL specific options"

@@ -2117,10 +2117,6 @@ Low Level (hardware related) configuration options:
 		used in assembly code, so it must not contain typecasts or
 		integer size suffixes (e.g. "ULL").
 
-- CONFIG_SYS_CCSR_DO_NOT_RELOCATE:
-		If this macro is defined, then CONFIG_SYS_CCSRBAR_PHYS will be
-		forced to a value that ensures that CCSR is not relocated.
-
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're
 		doing! (11-4) [MPC8xx systems only]

@@ -15,10 +15,7 @@
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_RAMBOOT_PBL
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_COMMON_INIT_DDR
-#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
-#endif
 #define RESET_VECTOR_OFFSET		0x27FFC
 #define BOOT_PAGE_OFFSET		0x27000
 

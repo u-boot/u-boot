@@ -139,12 +139,6 @@
 #define CONFIG_SYS_CCSRBAR		0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
-/* IN case of NAND bootloader relocate CCSRBAR in RAMboot code not in the 4k
-       SPL code*/
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
-#endif
-
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_SPD_BUS_NUM 1

@@ -189,11 +189,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_CCSRBAR			0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW		CONFIG_SYS_CCSRBAR
 
-/* Don't relocate CCSRBAR while in NAND_SPL */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
-#endif
-
 /*
  * Memory map
  *

@@ -36,10 +36,7 @@
 #endif
 #endif
 
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_COMMON_INIT_DDR
-#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
-#endif
 
 #endif
 #endif /* CONFIG_RAMBOOT_PBL */
