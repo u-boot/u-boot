@@ -1,0 +1,8 @@
+DH electronics DHCOM Premium Developer Kit (2) i.MX8M Plus
+M:	Marek Vasut <marex@denx.de>
+S:	Maintained
+F:	arch/arm/dts/imx8mp-dhcom-pdk2.dts
+F:	arch/arm/dts/imx8mp-dhcom-pdk2-u-boot.dtsi
+F:	board/dhelectronics/imx8mp_dhcom_pdk2/
+F:	configs/imx8mp_dhcom_pdk2_defconfig
+F:	include/configs/imx8mp_dhcom_pdk2.h

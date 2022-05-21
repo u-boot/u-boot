@@ -148,6 +148,13 @@ config TARGET_IMX8MN_VENICE
 	select GATEWORKS_SC
 	select MISC
 
+config TARGET_IMX8MP_DH_DHCOM_PDK2
+	bool "DH electronics DHCOM Premium Developer Kit (2) i.MX8M Plus"
+	select BINMAN
+	select IMX8MP
+	select IMX8M_LPDDR4
+	select SUPPORT_SPL
+
 config TARGET_IMX8MP_EVK
 	bool "imx8mp LPDDR4 EVK board"
 	select BINMAN
@@ -265,6 +272,7 @@ source "board/beacon/imx8mn/Kconfig"
 source "board/bsh/imx8mn_smm_s2/Kconfig"
 source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
 source "board/data_modul/imx8mm_edm_sbc/Kconfig"
+source "board/dhelectronics/dh_imx8mp/Kconfig"
 source "board/engicam/imx8mm/Kconfig"
 source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
