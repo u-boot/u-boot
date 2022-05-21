@@ -209,6 +209,12 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	writel(reg, &dwc3_reg->g_usb2phycfg[0]);
 
 	dr_mode = usb_get_dr_mode(dev_ofnode(dev));
+	if (dr_mode == USB_DR_MODE_OTG &&
+	    dev_read_bool(dev, "usb-role-switch")) {
+		dr_mode = usb_get_role_switch_default_mode(dev_ofnode(dev));
+		if (dr_mode == USB_DR_MODE_UNKNOWN)
+			dr_mode = USB_DR_MODE_OTG;
+	}
 	if (dr_mode == USB_DR_MODE_UNKNOWN)
 		/* by default set dual role mode to HOST */
 		dr_mode = USB_DR_MODE_HOST;

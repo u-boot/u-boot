@@ -28,6 +28,16 @@ enum usb_dr_mode {
 enum usb_dr_mode usb_get_dr_mode(ofnode node);
 
 /**
+ * usb_get_dr_mode() - Get dual role mode for given device
+ * @node: ofnode of the given device
+ *
+ * The function gets phy interface string from property
+ * 'role-switch-defaulr-mode', and returns the correspondig enum
+ * usb_dr_mode
+ */
+enum usb_dr_mode usb_get_role_switch_default_mode(ofnode node);
+
+/**
  * usb_get_maximum_speed() - Get maximum speed for given device
  * @node: ofnode of the given device
  *

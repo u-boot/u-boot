@@ -40,6 +40,22 @@ enum usb_dr_mode usb_get_dr_mode(ofnode node)
 	return USB_DR_MODE_UNKNOWN;
 }
 
+enum usb_dr_mode usb_get_role_switch_default_mode(ofnode node)
+{
+	const char *dr_mode;
+	int i;
+
+	dr_mode = ofnode_read_string(node, "role-switch-default-mode");
+	if (!dr_mode)
+		return USB_DR_MODE_UNKNOWN;
+
+	for (i = 0; i < ARRAY_SIZE(usb_dr_modes); i++)
+		if (!strcmp(dr_mode, usb_dr_modes[i]))
+			return i;
+
+	return USB_DR_MODE_UNKNOWN;
+}
+
 static const char *const speed_names[] = {
 	[USB_SPEED_UNKNOWN] = "UNKNOWN",
 	[USB_SPEED_LOW] = "low-speed",
