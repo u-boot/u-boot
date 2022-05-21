@@ -1712,10 +1712,6 @@ The following options need to be configured:
 		Support for a lightweight UBI (fastmap) scanner and
 		loader
 
-		CONFIG_SPL_COMMON_INIT_DDR
-		Set for common ddr init with serial presence detect in
-		SPL binary.
-
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
 		CONFIG_SYS_NAND_BLOCK_SIZE, CONFIG_SYS_NAND_BAD_BLOCK_POS,

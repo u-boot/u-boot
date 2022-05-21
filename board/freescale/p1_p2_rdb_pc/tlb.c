@@ -77,8 +77,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			0, 7, BOOKE_PAGESZ_1M, 1),
 #endif
 
-#if defined(CONFIG_SYS_RAMBOOT) || \
-	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_COMMON_INIT_DDR))
+#if defined(CONFIG_SYS_RAMBOOT) || !CONFIG_IS_ENABLED(COMMON_INIT_DDR)
 	/* **M** - 1G DDR for eSDHC/eSPI/NAND boot */
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_M,

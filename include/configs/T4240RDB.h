@@ -36,8 +36,6 @@
 #endif
 #endif
 
-#define CONFIG_SPL_COMMON_INIT_DDR
-
 #endif
 #endif /* CONFIG_RAMBOOT_PBL */
 
