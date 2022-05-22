@@ -218,7 +218,7 @@
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"nand_active_ubi_vol_A=rootfs_a\0" \
 	"nand_active_ubi_vol_B=rootfs_b\0" \
-	"nand_root_fs_type=ubifs rootwait=1\0" \
+	"nand_root_fs_type=ubifs rootwait\0" \
 	"nand_src_addr=0x280000\0" \
 	"nand_src_addr_A=0x280000\0" \
 	"nand_src_addr_B=0x780000\0" \
@@ -295,7 +295,7 @@
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
-	"nand_root_fs_type=ubifs rootwait=1\0" \
+	"nand_root_fs_type=ubifs rootwait\0" \
 	"nand_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv ${partitionset_active} true;" \

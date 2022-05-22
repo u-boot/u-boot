@@ -107,7 +107,7 @@
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
-	"nand_root_fs_type=ubifs rootwait=1\0" \
+	"nand_root_fs_type=ubifs rootwait\0" \
 	"nand_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv ${partitionset_active} true;" \

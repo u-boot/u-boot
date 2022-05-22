@@ -165,7 +165,7 @@
 		"sf write ${loadaddr} 0 ${filesize}\0"		\
 	"burn_uboot_nand=nand erase 0 0x100000; "			\
 		"nand write ${loadaddr} 0 ${filesize}\0"		\
-	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1 "	\
+	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait "	\
 		KERNEL_MTD_PARTS					\
 	"args_net=setenv bootargs ${bootargs} rootfstype=nfs "		\
 		"root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},"	\

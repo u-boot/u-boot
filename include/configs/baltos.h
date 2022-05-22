@@ -37,7 +37,7 @@
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=5\0" \
-	"nandrootfstype=ubifs rootwait=1\0" \
+	"nandrootfstype=ubifs rootwait\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"setenv loadaddr 0x84000000; " \
