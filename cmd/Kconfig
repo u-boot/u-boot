@@ -2569,6 +2569,7 @@ config CMD_UBIFS
 	depends on CMD_UBI
 	default y if CMD_UBI
 	select LZO
+	select GZIP
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
 
