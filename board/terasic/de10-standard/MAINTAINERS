@@ -1,0 +1,5 @@
+DE10-STANDARD BOARD
+M:	Humberto Naves <hsnaves@gmail.com>
+S:	Maintained
+F:	include/configs/socfpga_de10_standard.h
+F:	configs/socfpga_de10_standard_defconfig
