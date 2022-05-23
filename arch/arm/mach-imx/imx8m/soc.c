@@ -72,15 +72,13 @@ void enable_tzc380(void)
 	 * According to TRM, TZASC_ID_SWAP_BYPASS should be set in
 	 * order to avoid AXI Bus errors when GPU is in use
 	 */
-	if (is_imx8mq() || is_imx8mm() || is_imx8mn() || is_imx8mp())
-		setbits_le32(&gpr->gpr[10], GPR_TZASC_ID_SWAP_BYPASS);
+	setbits_le32(&gpr->gpr[10], GPR_TZASC_ID_SWAP_BYPASS);
 
 	/*
 	 * imx8mn and imx8mp implements the lock bit for
 	 * TZASC_ID_SWAP_BYPASS, enable it to lock settings
 	 */
-	if (is_imx8mn() || is_imx8mp())
-		setbits_le32(&gpr->gpr[10], GPR_TZASC_ID_SWAP_BYPASS_LOCK);
+	setbits_le32(&gpr->gpr[10], GPR_TZASC_ID_SWAP_BYPASS_LOCK);
 
 	/*
 	 * set Region 0 attribute to allow secure and non-secure
@@ -1410,7 +1408,7 @@ int arch_misc_init(void)
 
 		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
 		if (ret)
-			printf("Failed to initialize %s: %d\n", dev->name, ret);
+			printf("Failed to initialize caam_jr: %d\n", ret);
 	}
 
 	return 0;
@@ -1535,6 +1533,16 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 		return ENVL_UNKNOWN;
 
 	switch (dev) {
+	case USB_BOOT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+			return ENVL_NAND;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
+			return ENVL_MMC;
+		if (IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+			return ENVL_NOWHERE;
+		return ENVL_UNKNOWN;
 	case QSPI_BOOT:
 	case SPI_NOR_BOOT:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
@@ -1562,4 +1570,30 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 	}
 }
 
+#endif
+
+#ifdef CONFIG_IMX_BOOTAUX
+const struct rproc_att hostmap[] = {
+	/* aux core , host core,  size */
+	{ 0x00000000, 0x007e0000, 0x00020000 },
+	/* OCRAM_S */
+	{ 0x00180000, 0x00180000, 0x00008000 },
+	/* OCRAM */
+	{ 0x00900000, 0x00900000, 0x00020000 },
+	/* OCRAM */
+	{ 0x00920000, 0x00920000, 0x00020000 },
+	/* QSPI Code - alias */
+	{ 0x08000000, 0x08000000, 0x08000000 },
+	/* DDR (Code) - alias */
+	{ 0x10000000, 0x80000000, 0x0FFE0000 },
+	/* TCML */
+	{ 0x1FFE0000, 0x007E0000, 0x00040000 },
+	/* OCRAM_S */
+	{ 0x20180000, 0x00180000, 0x00008000 },
+	/* OCRAM */
+	{ 0x20200000, 0x00900000, 0x00040000 },
+	/* DDR (Data) */
+	{ 0x40000000, 0x40000000, 0x80000000 },
+	{ /* sentinel */ }
+};
 #endif

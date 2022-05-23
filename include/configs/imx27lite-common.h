@@ -70,7 +70,7 @@
 /*
  * Serial Driver info
  */
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CONFIG_MXC_UART_BASE	UART_BASE_ADDR(1)
 
 /*
  * Flash & Environment

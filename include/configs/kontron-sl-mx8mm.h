@@ -28,7 +28,7 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Board and environment settings */
-#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
+#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
 #define CONFIG_HOSTNAME			"kontron-mx8mm"
 
 #ifdef CONFIG_USB_EHCI_HCD
@@ -69,8 +69,6 @@
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CONFIG_MALLOC_F_ADDR		0x930000
 #endif
-
-#define FEC_QUIRK_ENET_MAC
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \

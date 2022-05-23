@@ -84,7 +84,7 @@
 #define PHYS_SDRAM_SIZE                 SZ_2G /* 2GB DDR */
 
 /* UART */
-#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
+#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		SZ_2K

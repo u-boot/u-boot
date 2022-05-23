@@ -5,19 +5,6 @@
 
 #include "imx6qdl-dhcom-u-boot.dtsi"
 
-/ {
-	fec_vio: regulator-fec {
-		compatible = "regulator-fixed";
-
-		regulator-name = "fec-vio";
-		gpio = <&gpio1 7 GPIO_ACTIVE_LOW>;
-	};
-};
-
 &fec {
 	phy-reset-gpios = <&gpio3 29 GPIO_ACTIVE_LOW>;
-	phy-reset-duration = <1>;
-	phy-reset-post-delay = <10>;
-
-	phy-supply = <&fec_vio>;
 };

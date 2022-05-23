@@ -100,9 +100,9 @@ static int setup_dhcom_mac_from_fuse(void)
 		return 0;
 	}
 
-	eeprom = ofnode_path("/soc/aips-bus@2100000/i2c@21a8000/eeprom@50");
+	eeprom = ofnode_get_aliases_node("eeprom0");
 	if (!ofnode_valid(eeprom)) {
-		printf("Invalid hardware path to EEPROM!\n");
+		printf("Can't find eeprom0 alias!\n");
 		return -ENODEV;
 	}
 
@@ -225,16 +225,35 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_MULTI_DTB_FIT
+static int strcmp_prefix(const char *s1, const char *s2)
+{
+	size_t n;
+
+	n = min(strlen(s1), strlen(s2));
+	return strncmp(s1, s2, n);
+}
+
 int board_fit_config_name_match(const char *name)
 {
-	if (is_mx6dq()) {
-		if (!strcmp(name, "imx6q-dhcom-pdk2"))
-			return 0;
-	} else if (is_mx6sdl()) {
-		if (!strcmp(name, "imx6dl-dhcom-pdk2"))
+	char *want;
+	char *have;
+
+	/* Test Board suffix, e.g. -dhcom-drc02 */
+	want = strchr(CONFIG_DEFAULT_DEVICE_TREE, '-');
+	have = strchr(name, '-');
+
+	if (!want || !have || strcmp(want, have))
+		return -EINVAL;
+
+	/* Test SoC prefix */
+	if (is_mx6dq() && !strcmp_prefix(name, "imx6q-"))
+		return 0;
+
+	if (is_mx6sdl()) {
+		if (!strcmp_prefix(name, "imx6s-") || !strcmp_prefix(name, "imx6dl-"))
 			return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 #endif

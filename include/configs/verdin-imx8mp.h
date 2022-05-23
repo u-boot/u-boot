@@ -36,7 +36,6 @@
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR		7
-#define FEC_QUIRK_ENET_MAC
 
 #define PHY_ANEG_TIMEOUT 20000
 #endif /* CONFIG_CMD_NET */
@@ -101,7 +100,7 @@
 #define PHYS_SDRAM_2_SIZE		(SZ_4G + SZ_1G)
 
 /* UART */
-#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
+#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		SZ_2K

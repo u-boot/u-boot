@@ -179,16 +179,16 @@ struct fuse_bank0_regs {
 #define IMX_TIM2_BASE		(0x04000 + IMX_IO_BASE)
 #define IMX_TIM3_BASE		(0x05000 + IMX_IO_BASE)
 #define IMX_RTC_BASE		(0x07000 + IMX_IO_BASE)
-#define UART1_BASE		(0x0a000 + IMX_IO_BASE)
-#define UART2_BASE		(0x0b000 + IMX_IO_BASE)
-#define UART3_BASE		(0x0c000 + IMX_IO_BASE)
-#define UART4_BASE		(0x0d000 + IMX_IO_BASE)
+#define UART1_BASE_ADDR		(0x0a000 + IMX_IO_BASE)
+#define UART2_BASE_ADDR		(0x0b000 + IMX_IO_BASE)
+#define UART3_BASE_ADDR		(0x0c000 + IMX_IO_BASE)
+#define UART4_BASE_ADDR		(0x0d000 + IMX_IO_BASE)
 #define I2C1_BASE_ADDR		(0x12000 + IMX_IO_BASE)
 #define IMX_GPIO_BASE		(0x15000 + IMX_IO_BASE)
 #define IMX_TIM4_BASE		(0x19000 + IMX_IO_BASE)
 #define IMX_TIM5_BASE		(0x1a000 + IMX_IO_BASE)
-#define IMX_UART5_BASE		(0x1b000 + IMX_IO_BASE)
-#define IMX_UART6_BASE		(0x1c000 + IMX_IO_BASE)
+#define UART5_BASE_ADDR		(0x1b000 + IMX_IO_BASE)
+#define UART6_BASE_ADDR		(0x1c000 + IMX_IO_BASE)
 #define I2C2_BASE_ADDR		(0x1D000 + IMX_IO_BASE)
 #define IMX_TIM6_BASE		(0x1f000 + IMX_IO_BASE)
 #define IMX_AIPI2_BASE		(0x20000 + IMX_IO_BASE)
@@ -204,6 +204,18 @@ struct fuse_bank0_regs {
 
 #define NFC_BASE_ADDR		IMX_NFC_BASE
 
+#define UART_BASE_ADDR(n)	(			\
+	!!sizeof(struct {				\
+		static_assert((n) >= 1 && (n) <= 6);	\
+		int pad;				\
+		}) * (					\
+	(n) == 1 ? UART1_BASE_ADDR :			\
+	(n) == 2 ? UART2_BASE_ADDR :			\
+	(n) == 3 ? UART3_BASE_ADDR :			\
+	(n) == 4 ? UART4_BASE_ADDR :			\
+	(n) == 5 ? UART5_BASE_ADDR :			\
+	UART6_BASE_ADDR)				\
+	)
 
 /* FMCR System Control bit definition*/
 #define UART4_RXD_CTL	(1 << 25)

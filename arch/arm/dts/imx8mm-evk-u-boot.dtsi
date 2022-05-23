@@ -121,6 +121,10 @@
 	u-boot,dm-spl;
 };
 
+&pinctrl_wdog {
+	u-boot,dm-spl;
+};
+
 &fec1 {
 	phy-reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
 };

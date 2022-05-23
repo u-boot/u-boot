@@ -56,4 +56,15 @@ enum {
 
 int power_pca9450_init(unsigned char bus, unsigned char addr);
 
+enum {
+	NXP_CHIP_TYPE_PCA9450A = 0,
+	NXP_CHIP_TYPE_PCA9450BC,
+	NXP_CHIP_TYPE_AMOUNT
+};
+
+#define PCA9450_DVS_BUCK_RUN_MASK	0x7f
+#define PCA9450_LDO12_MASK		0x07
+#define PCA9450_LDO34_MASK		0x1f
+#define PCA9450_LDO5_MASK		0x0f
+
 #endif

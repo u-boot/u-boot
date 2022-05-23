@@ -598,6 +598,18 @@ struct esdc_regs {
 #define UART4_BASE	0x43FB0000
 #define UART5_BASE	0x43FB4000
 
+#define UART_BASE_ADDR(n)	(			\
+	!!sizeof(struct {				\
+		static_assert((n) >= 1 && (n) <= 5);	\
+		int pad;				\
+		}) * (					\
+	(n) == 1 ? UART1_BASE :				\
+	(n) == 2 ? UART2_BASE :				\
+	(n) == 3 ? UART3_BASE :				\
+	(n) == 4 ? UART4_BASE :				\
+	UART5_BASE_ADDR)				\
+	)
+
 #define I2C1_BASE_ADDR          0x43f80000
 #define I2C1_CLK_OFFSET		26
 #define I2C2_BASE_ADDR          0x43F98000

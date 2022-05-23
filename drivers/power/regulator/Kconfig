@@ -60,6 +60,21 @@ config SPL_DM_REGULATOR_BD71837
 	This config enables implementation of driver-model regulator uclass
 	features for regulators on ROHM BD71837 and BD71847 in SPL.
 
+config DM_REGULATOR_PCA9450
+	bool "Enable Driver Model for NXP PCA9450 regulators"
+	depends on DM_REGULATOR && DM_PMIC_PCA9450
+	help
+	This config enables implementation of driver-model regulator uclass
+	features for regulators on NXP PCA9450 PMICs. PCA9450 contains 6 bucks
+	and 5 LDOS. The driver implements get/set api for value and enable.
+
+config SPL_DM_REGULATOR_PCA9450
+	bool "Enable Driver Model for NXP PCA9450 regulators in SPL"
+	depends on DM_REGULATOR_PCA9450
+	help
+	This config enables implementation of driver-model regulator uclass
+	features for regulators on ROHM PCA9450 in SPL.
+
 config DM_REGULATOR_DA9063
 	bool "Enable Driver Model for REGULATOR DA9063"
 	depends on DM_REGULATOR && DM_PMIC_DA9063

@@ -347,6 +347,20 @@ config TARGET_MX6Q_ENGICAM
 	select SUPPORT_SPL
 	imply CMD_DM
 
+config TARGET_MX6Q_ACC
+	bool "Support for Bosch ACC board"
+	depends on MX6QDL
+	select BOARD_LATE_INIT
+	select OF_CONTROL
+	select SPL_OF_LIBFDT
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MX6SABREAUTO
 	bool "mx6sabreauto"
 	depends on MX6QDL
@@ -686,6 +700,7 @@ source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/mx6sxsabreauto/Kconfig"
 source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/mx6ullevk/Kconfig"
+source "board/bosch/acc/Kconfig"
 source "board/grinn/liteboard/Kconfig"
 source "board/phytec/pcm058/Kconfig"
 source "board/phytec/pcl063/Kconfig"

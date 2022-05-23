@@ -48,6 +48,16 @@
 #ifdef CONFIG_IMX8MM
 #define USDHC3_BASE_ADDR	0x30B60000
 #endif
+#define UART_BASE_ADDR(n)	(			\
+	!!sizeof(struct {				\
+		static_assert((n) >= 1 && (n) <= 4);	\
+		int pad;				\
+		}) * (					\
+	(n) == 1 ? UART1_BASE_ADDR :			\
+	(n) == 2 ? UART2_BASE_ADDR :			\
+	(n) == 3 ? UART3_BASE_ADDR :			\
+	UART4_BASE_ADDR)				\
+	)
 
 #define TZASC_BASE_ADDR		0x32F80000
 

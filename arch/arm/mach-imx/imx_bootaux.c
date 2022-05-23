@@ -14,7 +14,13 @@
 #include <linux/compiler.h>
 #include <cpu_func.h>
 
-#ifndef CONFIG_IMX8M
+/* Just to avoid build error */
+#if CONFIG_IS_ENABLED(IMX8M)
+#define SRC_M4C_NON_SCLR_RST_MASK	BIT(0)
+#define SRC_M4_ENABLE_MASK		BIT(0)
+#define SRC_M4_REG_OFFSET		0
+#endif
+
 const __weak struct rproc_att hostmap[] = { };
 
 static const struct rproc_att *get_host_mapping(unsigned long auxcore)
@@ -36,10 +42,11 @@ static const struct rproc_att *get_host_mapping(unsigned long auxcore)
  * is valid, returns the entry point address.
  * Translates load addresses in the elf file to the U-Boot address space.
  */
-static unsigned long load_elf_image_m_core_phdr(unsigned long addr)
+static unsigned long load_elf_image_m_core_phdr(unsigned long addr, ulong *stack)
 {
 	Elf32_Ehdr *ehdr; /* ELF header structure pointer */
 	Elf32_Phdr *phdr; /* Program header structure pointer */
+	int num = 0;
 	int i;
 
 	ehdr = (Elf32_Ehdr *)addr;
@@ -54,19 +61,24 @@ static unsigned long load_elf_image_m_core_phdr(unsigned long addr)
 			continue;
 
 		if (!mmap) {
-			printf("Invalid aux core address: %08x",
+			printf("Invalid aux core address: %08x\n",
 			       phdr->p_paddr);
 			return 0;
 		}
 
-		dst = (void *)(phdr->p_paddr - mmap->da) + mmap->sa;
+		dst = (void *)(ulong)(phdr->p_paddr - mmap->da) + mmap->sa;
 		src = (void *)addr + phdr->p_offset;
 
 		debug("Loading phdr %i to 0x%p (%i bytes)\n",
 		      i, dst, phdr->p_filesz);
 
-		if (phdr->p_filesz)
+		if (phdr->p_filesz) {
 			memcpy(dst, src, phdr->p_filesz);
+			/* Stack in __isr_vector is the first section/word */
+			if (!num)
+				*stack = *(uint32_t *)src;
+			num++;
+		}
 		if (phdr->p_filesz != phdr->p_memsz)
 			memset(dst + phdr->p_filesz, 0x00,
 			       phdr->p_memsz - phdr->p_filesz);
@@ -77,7 +89,6 @@ static unsigned long load_elf_image_m_core_phdr(unsigned long addr)
 
 	return ehdr->e_entry;
 }
-#endif
 
 int arch_auxiliary_core_up(u32 core_id, ulong addr)
 {
@@ -86,20 +97,17 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 	if (!addr)
 		return -EINVAL;
 
-#ifdef CONFIG_IMX8M
-	stack = *(u32 *)addr;
-	pc = *(u32 *)(addr + 4);
-#else
 	/*
 	 * handling ELF64 binaries
 	 * isn't supported yet.
 	 */
 	if (valid_elf_image(addr)) {
-		stack = 0x0;
-		pc = load_elf_image_m_core_phdr(addr);
+		pc = load_elf_image_m_core_phdr(addr, &stack);
 		if (!pc)
 			return CMD_RET_FAILURE;
 
+		if (!CONFIG_IS_ENABLED(ARM64))
+			stack = 0x0;
 	} else {
 		/*
 		 * Assume binary file with vector table at the beginning.
@@ -109,7 +117,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 		stack = *(u32 *)addr;
 		pc = *(u32 *)(addr + 4);
 	}
-#endif
+
 	printf("## Starting auxiliary core stack = 0x%08lX, pc = 0x%08lX...\n",
 	       stack, pc);
 
@@ -120,28 +128,25 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 	flush_dcache_all();
 
 	/* Enable M4 */
-#ifdef CONFIG_IMX8M
-	arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_START, 0, 0,
-		      0, 0, 0, 0, NULL);
-#else
-	clrsetbits_le32(SRC_BASE_ADDR + SRC_M4_REG_OFFSET,
-			SRC_M4C_NON_SCLR_RST_MASK, SRC_M4_ENABLE_MASK);
-#endif
+	if (CONFIG_IS_ENABLED(IMX8M)) {
+		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_START, 0, 0, 0, 0, 0, 0, NULL);
+	} else {
+		clrsetbits_le32(SRC_BASE_ADDR + SRC_M4_REG_OFFSET,
+				SRC_M4C_NON_SCLR_RST_MASK, SRC_M4_ENABLE_MASK);
+	}
 
 	return 0;
 }
 
 int arch_auxiliary_core_check_up(u32 core_id)
 {
-#ifdef CONFIG_IMX8M
 	struct arm_smccc_res res;
-
-	arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_STARTED, 0, 0,
-		      0, 0, 0, 0, &res);
-
-	return res.a0;
-#else
 	unsigned int val;
+
+	if (CONFIG_IS_ENABLED(IMX8M)) {
+		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_STARTED, 0, 0, 0, 0, 0, 0, &res);
+		return res.a0;
+	}
 
 	val = readl(SRC_BASE_ADDR + SRC_M4_REG_OFFSET);
 
@@ -149,7 +154,6 @@ int arch_auxiliary_core_check_up(u32 core_id)
 		return 0;  /* assert in reset */
 
 	return 1;
-#endif
 }
 
 /*

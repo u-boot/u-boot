@@ -43,7 +43,7 @@ void spl_board_init(void)
 
 		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
 		if (ret)
-			printf("Failed to initialize %s: %d\n", dev->name, ret);
+			printf("Failed to initialize caam_jr: %d\n", ret);
 	}
 	/*
 	 * Set GIC clock to 500Mhz for OD VDD_SOC. Kernel driver does
@@ -133,8 +133,6 @@ void board_init_f(ulong dummy)
 	arch_cpu_init();
 
 	init_uart_clk(1);
-
-	board_early_init_f();
 
 	ret = spl_early_init();
 	if (ret) {

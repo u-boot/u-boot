@@ -39,6 +39,14 @@ static int imx_rgpio2p_is_output(struct gpio_regs *regs, int offset)
 	return val & (1 << offset) ? 1 : 0;
 }
 
+static int imx_rgpio2p_bank_get_direction(struct gpio_regs *regs, int offset)
+{
+	if ((readl(&regs->gpio_pddr) >> offset) & 0x01)
+		return IMX_RGPIO2P_DIRECTION_OUT;
+
+	return IMX_RGPIO2P_DIRECTION_IN;
+}
+
 static void imx_rgpio2p_bank_direction(struct gpio_regs *regs, int offset,
 				    enum imx_rgpio2p_direction direction)
 {
@@ -67,7 +75,11 @@ static void imx_rgpio2p_bank_set_value(struct gpio_regs *regs, int offset,
 
 static int imx_rgpio2p_bank_get_value(struct gpio_regs *regs, int offset)
 {
-	return (readl(&regs->gpio_pdir) >> offset) & 0x01;
+	if (imx_rgpio2p_bank_get_direction(regs, offset) ==
+	    IMX_RGPIO2P_DIRECTION_IN)
+		return (readl(&regs->gpio_pdir) >> offset) & 0x01;
+
+	return (readl(&regs->gpio_pdor) >> offset) & 0x01;
 }
 
 static int  imx_rgpio2p_direction_input(struct udevice *dev, unsigned offset)

@@ -2,30 +2,6 @@
 
 #include "imx8mq-u-boot.dtsi"
 
-&{/soc@0} {
-	u-boot,dm-spl;
-};
-
-&{/soc@0/bus@30000000} {
-	u-boot,dm-spl;
-};
-
-&{/soc@0/bus@30400000} {
-	u-boot,dm-spl;
-};
-
-&{/soc@0/bus@30800000} {
-	u-boot,dm-spl;
-};
-
-&{/soc@0/bus@32c00000} {
-	u-boot,dm-spl;
-};
-
-&iomuxc {
-	u-boot,dm-spl;
-};
-
 &pinctrl_uart1 {
 	u-boot,dm-spl;
 };

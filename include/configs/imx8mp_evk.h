@@ -32,7 +32,6 @@
 
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          1
-#define FEC_QUIRK_ENET_MAC
 
 #define DWC_NET_PHYADDR			1
 
@@ -80,7 +79,7 @@
 #define PHYS_SDRAM_2			0x100000000
 #define PHYS_SDRAM_2_SIZE		0xC0000000	/* 3 GB */
 
-#define CONFIG_MXC_UART_BASE		UART2_BASE_ADDR
+#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(2)
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		2048

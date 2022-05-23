@@ -64,7 +64,7 @@
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			SZ_1G /* 1GB DDR */
 
-#define CONFIG_MXC_UART_BASE		UART4_BASE_ADDR
+#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(4)
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		SZ_2K

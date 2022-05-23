@@ -19,8 +19,10 @@ DECLARE_GLOBAL_DATA_PTR;
 static const struct pmic_child_info pmic_children_info[] = {
 	/* buck */
 	{ .prefix = "b", .driver = PCA9450_REGULATOR_DRIVER},
+	{ .prefix = "B", .driver = PCA9450_REGULATOR_DRIVER},
 	/* ldo */
 	{ .prefix = "l", .driver = PCA9450_REGULATOR_DRIVER},
+	{ .prefix = "L", .driver = PCA9450_REGULATOR_DRIVER},
 	{ },
 };
 
@@ -81,9 +83,9 @@ static struct dm_pmic_ops pca9450_ops = {
 };
 
 static const struct udevice_id pca9450_ids[] = {
-	{ .compatible = "nxp,pca9450a", .data = 0x25, },
-	{ .compatible = "nxp,pca9450b", .data = 0x25, },
-	{ .compatible = "nxp,pca9450c", .data = 0x25, },
+	{ .compatible = "nxp,pca9450a", .data = NXP_CHIP_TYPE_PCA9450A, },
+	{ .compatible = "nxp,pca9450b", .data = NXP_CHIP_TYPE_PCA9450BC, },
+	{ .compatible = "nxp,pca9450c", .data = NXP_CHIP_TYPE_PCA9450BC, },
 	{ }
 };
 

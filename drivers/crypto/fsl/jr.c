@@ -623,7 +623,7 @@ static void kick_trng(int ent_delay, ccsr_sec_t *sec)
 
 static int rng_init(uint8_t sec_idx, ccsr_sec_t *sec)
 {
-	int ret, gen_sk, ent_delay = RTSDCTL_ENT_DLY_MIN;
+	int ret, gen_sk, ent_delay = RTSDCTL_ENT_DLY;
 	struct rng4tst __iomem *rng =
 			(struct rng4tst __iomem *)&sec->rng;
 	u32 inst_handles;
@@ -652,6 +652,15 @@ static int rng_init(uint8_t sec_idx, ccsr_sec_t *sec)
 		 * the RNG.
 		 */
 		ret = instantiate_rng(sec_idx, sec, gen_sk);
+		/*
+		 * entropy delay is calculated via self-test method.
+		 * self-test are run across different volatge, temp.
+		 * if worst case value for ent_dly is identified,
+		 * loop can be skipped for that platform.
+		 */
+		if (IS_ENABLED(CONFIG_MX6SX))
+			break;
+
 	} while ((ret == -1) && (ent_delay < RTSDCTL_ENT_DLY_MAX));
 	if (ret) {
 		printf("SEC%u:  Failed to instantiate RNG\n", sec_idx);
@@ -758,8 +767,14 @@ init:
 		return -1;
 	}
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-	if (ofnode_valid(scu_node))
+	if (ofnode_valid(scu_node)) {
+		if (IS_ENABLED(CONFIG_DM_RNG)) {
+			ret = device_bind_driver(NULL, "caam-rng", "caam-rng", NULL);
+			if (ret)
+				printf("Couldn't bind rng driver (%d)\n", ret);
+		}
 		return ret;
+	}
 #endif
 
 #ifdef CONFIG_FSL_CORENET

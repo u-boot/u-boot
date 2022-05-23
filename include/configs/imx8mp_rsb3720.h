@@ -51,7 +51,6 @@
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          4
-#define FEC_QUIRK_ENET_MAC
 
 #define DWC_NET_PHYADDR			4
 #ifdef CONFIG_DWC_ETH_QOS
@@ -168,8 +167,6 @@
 #define PHYS_SDRAM_2			0xC0000000
 #define PHYS_SDRAM_2_SIZE		0x80000000	/* 2 GB */
 #endif
-
-#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		2048

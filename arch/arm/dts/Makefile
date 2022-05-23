@@ -738,6 +738,7 @@ dtb-y += \
 	imx6dl-cubox-i-emmc-som-v15.dtb \
 	imx6dl-cubox-i-som-v15.dtb \
 	imx6dl-dhcom-pdk2.dtb \
+	imx6dl-dhcom-picoitx.dts \
 	imx6dl-gw51xx.dtb \
 	imx6dl-gw52xx.dtb \
 	imx6dl-gw53xx.dtb \
@@ -771,12 +772,14 @@ dtb-y += \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revd1.dtb \
+	imx6s-dhcom-drc02.dtb
 
 endif
 
 ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
 dtb-y += \
 	imx6-apalis.dtb \
+	imx6q-bosch-acc.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-cubox-i.dtb \
 	imx6q-cubox-i-emmc-som-v15.dtb \
@@ -936,6 +939,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mn-beacon-kit.dtb \
 	imx8mq-mnt-reform2.dtb \
 	imx8mq-phanbell.dtb \
+	imx8mp-dhcom-pdk2.dtb \
 	imx8mp-evk.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
 	imx8mp-venice.dtb \
