@@ -572,6 +572,23 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
  * Given a bus number and chip select, this finds the corresponding bus
  * device and slave device.
  *
+ * @busnum:	SPI bus number
+ * @cs:		Chip select to look for
+ * @busp:	Returns bus device
+ * @devp:	Return slave device
+ * @return 0 if found, -ve on error
+ */
+int spi_get_bus_and_cs(int busnum, int cs,
+		       struct udevice **busp, struct spi_slave **devp);
+
+/**
+ * _spi_get_bus_and_cs() - Find and activate bus and slave devices by number
+ * As spi_flash_probe(), This is an old-style function. We should remove
+ * it when all SPI flash drivers use dm
+ *
+ * Given a bus number and chip select, this finds the corresponding bus
+ * device and slave device.
+ *
  * If no such slave exists, and drv_name is not NULL, then a new slave device
  * is automatically bound on this chip select with requested speed and mode.
  *
@@ -588,7 +605,7 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
  * @devp:	Return slave device
  * Return: 0 if found, -ve on error
  */
-int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
+int _spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 			const char *drv_name, const char *dev_name,
 			struct udevice **busp, struct spi_slave **devp);
 

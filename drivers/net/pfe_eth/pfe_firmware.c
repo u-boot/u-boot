@@ -172,31 +172,20 @@ static int pfe_fit_check(void)
 int pfe_spi_flash_init(void)
 {
 	struct spi_flash *pfe_flash;
-	struct udevice *new;
 	int ret = 0;
 	void *addr = malloc(CONFIG_SYS_LS_PFE_FW_LENGTH);
 
 	if (!addr)
 		return -ENOMEM;
 
-	ret = spi_flash_probe_bus_cs(CONFIG_SYS_FSL_PFE_SPI_BUS,
-				     CONFIG_SYS_FSL_PFE_SPI_CS,
-				     CONFIG_SYS_FSL_PFE_SPI_MAX_HZ,
-				     CONFIG_SYS_FSL_PFE_SPI_MODE,
-				     &new);
-	if (ret) {
-		printf("SF: failed to probe spi\n");
-		free(addr);
-		device_remove(new, DM_REMOVE_NORMAL);
-		return ret;
-	}
+	pfe_flash = spi_flash_probe(CONFIG_SYS_FSL_PFE_SPI_BUS,
+				    CONFIG_SYS_FSL_PFE_SPI_CS,
+				    CONFIG_SYS_FSL_PFE_SPI_MAX_HZ,
+				    CONFIG_SYS_FSL_PFE_SPI_MODE);
 
-
-	pfe_flash = dev_get_uclass_priv(new);
 	if (!pfe_flash) {
 		printf("SF: probe for pfe failed\n");
 		free(addr);
-		device_remove(new, DM_REMOVE_NORMAL);
 		return -ENODEV;
 	}
 

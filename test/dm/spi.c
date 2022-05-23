@@ -46,19 +46,18 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 
 	/* This finds nothing because we removed the device */
 	ut_asserteq(-ENODEV, spi_find_bus_and_cs(busnum, cs, &bus, &dev));
-	ut_asserteq(-ENODEV, spi_get_bus_and_cs(busnum, cs, speed, mode,
-						NULL, 0, &bus, &slave));
+	ut_asserteq(-ENODEV, spi_get_bus_and_cs(busnum, cs, &bus, &slave));
 
 	/*
 	 * This forces the device to be re-added, but there is no emulation
 	 * connected so the probe will fail. We require that bus is left
-	 * alone on failure, and that the spi_get_bus_and_cs() does not add
+	 * alone on failure, and that the _spi_get_bus_and_cs() does not add
 	 * a 'partially-inited' device.
 	 */
 	ut_asserteq(-ENODEV, spi_find_bus_and_cs(busnum, cs, &bus, &dev));
-	ut_asserteq(-ENOENT, spi_get_bus_and_cs(busnum, cs, speed, mode,
-						"jedec_spi_nor", "name", &bus,
-						&slave));
+	ut_asserteq(-ENOENT, _spi_get_bus_and_cs(busnum, cs, speed, mode,
+						 "jedec_spi_nor", "name", &bus,
+						 &slave));
 	sandbox_sf_unbind_emul(state_get_current(), busnum, cs);
 	ut_assertok(spi_cs_info(bus, cs, &info));
 	ut_asserteq_ptr(NULL, info.dev);
@@ -67,8 +66,8 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs, bus, node,
 					 "name"));
 	ut_assertok(spi_find_bus_and_cs(busnum, cs, &bus, &dev));
-	ut_assertok(spi_get_bus_and_cs(busnum, cs, speed, mode,
-				       "jedec_spi_nor", "name", &bus, &slave));
+	ut_assertok(_spi_get_bus_and_cs(busnum, cs, speed, mode,
+					"jedec_spi_nor", "name", &bus, &slave));
 
 	ut_assertok(spi_cs_info(bus, cs, &info));
 	ut_asserteq_ptr(info.dev, slave->dev);
@@ -76,8 +75,9 @@ static int dm_test_spi_find(struct unit_test_state *uts)
 	/* We should be able to add something to another chip select */
 	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs_b, bus, node,
 					 "name"));
-	ut_asserteq(-EINVAL, spi_get_bus_and_cs(busnum, cs_b, speed, mode,
-				       "jedec_spi_nor", "name", &bus, &slave));
+	ut_asserteq(-EINVAL, _spi_get_bus_and_cs(busnum, cs_b, speed, mode,
+						 "jedec_spi_nor", "name", &bus,
+						 &slave));
 	ut_asserteq(-EINVAL, spi_cs_info(bus, cs_b, &info));
 	ut_asserteq_ptr(NULL, info.dev);
 
@@ -142,14 +142,12 @@ static int dm_test_spi_claim_bus(struct unit_test_state *uts)
 	struct udevice *bus;
 	struct spi_slave *slave_a, *slave_b;
 	struct dm_spi_slave_plat *slave_plat;
-	const int busnum = 0, cs_a = 0, cs_b = 1, mode = 0;
+	const int busnum = 0, cs_a = 0, cs_b = 1;
 
 	/* Get spi slave on CS0 */
-	ut_assertok(spi_get_bus_and_cs(busnum, cs_a, 1000000, mode, NULL, 0,
-				       &bus, &slave_a));
+	ut_assertok(spi_get_bus_and_cs(busnum, cs_a, &bus, &slave_a));
 	/* Get spi slave on CS1 */
-	ut_assertok(spi_get_bus_and_cs(busnum, cs_b, 1000000, mode, NULL, 0,
-				       &bus, &slave_b));
+	ut_assertok(spi_get_bus_and_cs(busnum, cs_b, &bus, &slave_b));
 
 	/* Different max_hz, different mode. */
 	ut_assert(slave_a->max_hz != slave_b->max_hz);
@@ -178,12 +176,11 @@ static int dm_test_spi_xfer(struct unit_test_state *uts)
 {
 	struct spi_slave *slave;
 	struct udevice *bus;
-	const int busnum = 0, cs = 0, mode = 0;
+	const int busnum = 0, cs = 0;
 	const char dout[5] = {0x9f};
 	unsigned char din[5];
 
-	ut_assertok(spi_get_bus_and_cs(busnum, cs, 1000000, mode, NULL, 0,
-				       &bus, &slave));
+	ut_assertok(spi_get_bus_and_cs(busnum, cs, &bus, &slave));
 	ut_assertok(spi_claim_bus(slave));
 	ut_assertok(spi_xfer(slave, 40, dout, din,
 			     SPI_XFER_BEGIN | SPI_XFER_END));

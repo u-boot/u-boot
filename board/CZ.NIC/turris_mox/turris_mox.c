@@ -149,9 +149,9 @@ static int mox_do_spi(u8 *in, u8 *out, size_t size)
 	struct udevice *dev;
 	int ret;
 
-	ret = spi_get_bus_and_cs(0, 1, 1000000, SPI_CPHA | SPI_CPOL,
-				 "spi_generic_drv", "moxtet@1", &dev,
-				 &slave);
+	ret = _spi_get_bus_and_cs(0, 1, 1000000, SPI_CPHA | SPI_CPOL,
+				  "spi_generic_drv", "moxtet@1", &dev,
+				  &slave);
 	if (ret)
 		goto fail;
 

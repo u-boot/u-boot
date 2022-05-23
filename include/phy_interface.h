@@ -85,7 +85,7 @@ static const char * const backplane_mode_strings[] = {
 static inline const char *phy_string_for_interface(phy_interface_t i)
 {
 	/* Default to unknown */
-	if (i > PHY_INTERFACE_MODE_NA)
+	if (i >= PHY_INTERFACE_MODE_MAX)
 		i = PHY_INTERFACE_MODE_NA;
 
 	return phy_interface_strings[i];

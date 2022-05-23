@@ -46,25 +46,12 @@ int spl_flash_get_sw_write_prot(struct udevice *dev)
  * TODO(sjg@chromium.org): This is an old-style function. We should remove
  * it when all SPI flash drivers use dm
  */
-struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 				  unsigned int max_hz, unsigned int spi_mode)
-{
-	struct udevice *dev;
-
-	if (spi_flash_probe_bus_cs(bus, cs, max_hz, spi_mode, &dev))
-		return NULL;
-
-	return dev_get_uclass_priv(dev);
-}
-
-int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
-			   unsigned int max_hz, unsigned int spi_mode,
-			   struct udevice **devp)
 {
 	struct spi_slave *slave;
 	struct udevice *bus;
 	char *str;
-	int ret;
 
 #if defined(CONFIG_SPL_BUILD) && CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	str = "spi_flash";
@@ -74,8 +61,22 @@ int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 	snprintf(name, sizeof(name), "spi_flash@%d:%d", busnum, cs);
 	str = strdup(name);
 #endif
-	ret = spi_get_bus_and_cs(busnum, cs, max_hz, spi_mode,
-				  "jedec_spi_nor", str, &bus, &slave);
+
+	if (_spi_get_bus_and_cs(busnum, cs, max_hz, spi_mode,
+				"jedec_spi_nor", str, &bus, &slave))
+		return NULL;
+
+	return dev_get_uclass_priv(slave->dev);
+}
+
+int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
+			   struct udevice **devp)
+{
+	struct spi_slave *slave;
+	struct udevice *bus;
+	int ret;
+
+	ret = spi_get_bus_and_cs(busnum, cs, &bus, &slave);
 	if (ret)
 		return ret;
 

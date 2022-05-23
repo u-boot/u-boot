@@ -621,12 +621,10 @@ static int netsec_stop_gmac(struct netsec_priv *priv)
 
 static void netsec_spi_read(char *buf, loff_t len, loff_t offset)
 {
-	struct udevice *new;
 	struct spi_flash *flash;
 
-	spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
-			       CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE, &new);
-	flash = dev_get_uclass_priv(new);
+	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
+				CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE);
 
 	spi_flash_read(flash, offset, len, buf);
 }

@@ -8,6 +8,7 @@
  */
 
 #include <asm/unaligned.h>
+#include <div64.h>
 #include <errno.h>
 #include <fs.h>
 #include <linux/types.h>
@@ -1442,7 +1443,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	for (j = 0; j < datablk_count; j++) {
 		char *data_buffer;
 
-		start = data_offset / ctxt.cur_dev->blksz;
+		start = lldiv(data_offset, ctxt.cur_dev->blksz);
 		table_size = SQFS_BLOCK_SIZE(finfo.blk_sizes[j]);
 		table_offset = data_offset - (start * ctxt.cur_dev->blksz);
 		n_blks = DIV_ROUND_UP(table_size + table_offset,
@@ -1516,7 +1517,7 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 		goto out;
 	}
 
-	start = frag_entry.start / ctxt.cur_dev->blksz;
+	start = lldiv(frag_entry.start, ctxt.cur_dev->blksz);
 	table_size = SQFS_BLOCK_SIZE(frag_entry.size);
 	table_offset = frag_entry.start - (start * ctxt.cur_dev->blksz);
 	n_blks = DIV_ROUND_UP(table_size + table_offset, ctxt.cur_dev->blksz);
