@@ -50,6 +50,12 @@
 #define BOOT_TARGET_DEVICES_SCSI(func)
 #endif
 
+#ifdef CONFIG_NVME
+#define BOOT_TARGET_DEVICES_NVME(func) func(NVME, nvme, 0)
+#else
+#define BOOT_TARGET_DEVICES_NVME(func)
+#endif
+
 #if defined(CONFIG_CMD_DHCP) && defined(CONFIG_CMD_PXE)
 #define BOOT_TARGET_DEVICES_PXE(func) func(PXE, pxe, na)
 #else
@@ -66,6 +72,7 @@
 	BOOT_TARGET_DEVICES_MMC(func, 1) \
 	BOOT_TARGET_DEVICES_MMC(func, 0) \
 	BOOT_TARGET_DEVICES_USB(func) \
+	BOOT_TARGET_DEVICES_NVME(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
