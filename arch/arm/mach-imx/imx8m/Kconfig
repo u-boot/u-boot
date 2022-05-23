@@ -8,6 +8,7 @@ config IMX8M
 config IMX8MQ
 	bool
 	select IMX8M
+	select CLK_IMX8MQ
 
 config IMX8MM
 	bool
