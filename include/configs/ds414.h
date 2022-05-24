@@ -49,7 +49,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
 
 #define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
-#define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
 /* Default Environment */
 

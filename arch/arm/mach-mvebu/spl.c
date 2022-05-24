@@ -283,7 +283,7 @@ u32 spl_boot_device(void)
 int board_return_to_bootrom(struct spl_image_info *spl_image,
 			    struct spl_boot_device *bootdev)
 {
-	u32 *regs = *(u32 **)CONFIG_SPL_BOOTROM_SAVE;
+	u32 *regs = *(u32 **)(CONFIG_SPL_STACK + 4);
 
 	printf("Returning to BootROM (return address 0x%08x)...\n", regs[13]);
 	return_to_bootrom();
