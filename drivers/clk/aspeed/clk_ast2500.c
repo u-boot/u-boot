@@ -30,6 +30,12 @@
 
 #define D2PLL_DEFAULT_RATE	(250 * 1000 * 1000)
 
+/*
+ * AXI/AHB clock selection, taken from Aspeed SDK
+ */
+#define SCU_HWSTRAP_AXIAHB_DIV_SHIFT    9
+#define SCU_HWSTRAP_AXIAHB_DIV_MASK     (0x7 << SCU_HWSTRAP_AXIAHB_DIV_SHIFT)
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -84,6 +90,20 @@ static ulong ast2500_get_clkin(struct ast2500_scu *scu)
 {
 	return readl(&scu->hwstrap) & SCU_HWSTRAP_CLKIN_25MHZ
 			? 25 * 1000 * 1000 : 24 * 1000 * 1000;
+}
+
+static u32 ast2500_get_hclk(ulong clkin, struct ast2500_scu *scu)
+{
+	u32 hpll_reg = readl(&scu->h_pll_param);
+	ulong axi_div = 2;
+	u32 rate;
+	ulong ahb_div = 1 + ((readl(&scu->hwstrap)
+			      & SCU_HWSTRAP_AXIAHB_DIV_MASK)
+			     >> SCU_HWSTRAP_AXIAHB_DIV_SHIFT);
+
+	rate = ast2500_get_hpll_rate(clkin, hpll_reg);
+
+	return (rate / axi_div / ahb_div);
 }
 
 /**
@@ -146,6 +166,9 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 							   scu->h_pll_param));
 			rate = rate / apb_div;
 		}
+		break;
+	case ASPEED_CLK_AHB:
+		rate = ast2500_get_hclk(clkin, priv->scu);
 		break;
 	case ASPEED_CLK_SDIO:
 		{
