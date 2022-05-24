@@ -618,6 +618,18 @@ config MMC_SDHCI_MV
 
 	  If unsure, say N.
 
+config MMC_SDHCI_NPCM
+	bool "SDHCI support on Nuvoton NPCM device"
+	depends on MMC_SDHCI
+	depends on DM_MMC
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  on Nuvoton NPCM device.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_PIC32
 	bool "Microchip PIC32 on-chip SDHCI support"
 	depends on DM_MMC && MACH_PIC32
