@@ -85,6 +85,8 @@ struct aspeed_spi_info {
 
 static int aspeed_spi_trim_decoded_size(struct udevice *bus,
 					u32 decoded_sz_arr[]);
+static int aspeed_spi_decoded_range_config(struct udevice *bus,
+					   u32 decoded_sz_arr[]);
 
 static u32 aspeed_spi_get_io_mode(u32 bus_width)
 {
@@ -509,6 +511,95 @@ static int aspeed_spi_exec_op_user_mode(struct spi_slave *slave,
 	return 0;
 }
 
+static int aspeed_spi_dirmap_create(struct spi_mem_dirmap_desc *desc)
+{
+	int ret = 0;
+	struct udevice *dev = desc->slave->dev;
+	struct udevice *bus = dev->parent;
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	const struct aspeed_spi_info *info = priv->info;
+	struct spi_mem_op op_tmpl = desc->info.op_tmpl;
+	u32 i;
+	u32 cs = slave_plat->cs;
+	u32 decoded_sz_arr[ASPEED_SPI_MAX_CS];
+	u32 reg_val;
+
+	if (desc->info.op_tmpl.data.dir == SPI_MEM_DATA_IN) {
+		for (i = 0; i < priv->num_cs; i++) {
+			reg_val = readl(plat->ctrl_base +
+					REG_CE0_DECODED_ADDR_REG + i * 4);
+			decoded_sz_arr[i] =
+				info->segment_end(bus, reg_val) -
+				info->segment_start(bus, reg_val);
+		}
+
+		decoded_sz_arr[cs] = desc->info.length;
+
+		if (info->adjust_decoded_sz)
+			info->adjust_decoded_sz(bus, decoded_sz_arr);
+
+		for (i = 0; i < priv->num_cs; i++) {
+			dev_dbg(dev, "cs: %d, sz: 0x%x\n", i,
+				decoded_sz_arr[i]);
+		}
+
+		ret = aspeed_spi_decoded_range_config(bus, decoded_sz_arr);
+		if (ret)
+			return ret;
+
+		reg_val = readl(plat->ctrl_base + REG_CE0_CTRL_REG + cs * 4) &
+			  (~info->cmd_io_ctrl_mask);
+		reg_val |= aspeed_spi_get_io_mode(op_tmpl.data.buswidth) |
+			   op_tmpl.cmd.opcode << 16 |
+			   ((op_tmpl.dummy.nbytes) & 0x3) << 6 |
+			   ((op_tmpl.dummy.nbytes) & 0x4) << 14 |
+			   CTRL_IO_MODE_CMD_READ;
+
+		writel(reg_val,
+		       plat->ctrl_base + REG_CE0_CTRL_REG + cs * 4);
+		priv->flashes[cs].ce_ctrl_read = reg_val;
+
+		dev_dbg(dev, "read bus width: %d [0x%08x]\n",
+			op_tmpl.data.buswidth, priv->flashes[cs].ce_ctrl_read);
+	} else {
+		/*
+		 * dirmap_write is not supported currently due to a HW
+		 * limitation for command write mode: The written data
+		 * length should be multiple of 4-byte.
+		 */
+		return -EOPNOTSUPP;
+	}
+
+	return ret;
+}
+
+static ssize_t aspeed_spi_dirmap_read(struct spi_mem_dirmap_desc *desc,
+				      u64 offs, size_t len, void *buf)
+{
+	struct udevice *dev = desc->slave->dev;
+	struct aspeed_spi_priv *priv = dev_get_priv(dev->parent);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	u32 cs = slave_plat->cs;
+	int ret;
+
+	dev_dbg(dev, "read op:0x%x, addr:0x%llx, len:0x%x\n",
+		desc->info.op_tmpl.cmd.opcode, offs, len);
+
+	if (priv->flashes[cs].ahb_win_sz < offs + len ||
+	    (offs + len) % 4 != 0) {
+		ret = aspeed_spi_exec_op_user_mode(desc->slave,
+						   &desc->info.op_tmpl);
+		if (ret != 0)
+			return 0;
+	} else {
+		memcpy_fromio(buf, priv->flashes[cs].ahb_base + offs, len);
+	}
+
+	return len;
+}
+
 static struct aspeed_spi_flash *aspeed_spi_get_flash(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
@@ -792,6 +883,8 @@ static int aspeed_spi_probe(struct udevice *bus)
 static const struct spi_controller_mem_ops aspeed_spi_mem_ops = {
 	.supports_op = aspeed_spi_supports_op,
 	.exec_op = aspeed_spi_exec_op_user_mode,
+	.dirmap_create = aspeed_spi_dirmap_create,
+	.dirmap_read = aspeed_spi_dirmap_read,
 };
 
 static const struct dm_spi_ops aspeed_spi_ops = {
