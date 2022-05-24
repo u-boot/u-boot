@@ -216,8 +216,6 @@ Or if you want to use a compressed kernel image file such as Image.gz
             1.2 MiB/s
    done
    Bytes transferred = 4809458 (4962f2 hex)
-   =>setenv kernel_comp_addr_r 0x90000000
-   =>setenv kernel_comp_size 0x500000
 
 By this time, correct kernel image is loaded and required environment variables
 are set. You can proceed to load the ramdisk and device tree from the tftp server
