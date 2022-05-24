@@ -1160,8 +1160,8 @@ _start_cont:
 	bne	1b
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
-	lis	r4,(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
-	ori	r4,r4,(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
+	lis	r4,CONFIG_SYS_INIT_SP_ADDR@h
+	ori	r4,r4,CONFIG_SYS_INIT_SP_ADDR@l
 
 	addi	r3,r3,16	/* Pre-relocation malloc area */
 	stw	r3,GD_MALLOC_BASE(r4)

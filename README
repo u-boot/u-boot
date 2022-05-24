@@ -2130,24 +2130,6 @@ Low Level (hardware related) configuration options:
 		U-Boot uses the following memory types:
 		- MPC8xx: IMMR (internal memory of the CPU)
 
-- CONFIG_SYS_GBL_DATA_OFFSET:
-
-		Offset of the initial data structure in the memory
-		area defined by CONFIG_SYS_INIT_RAM_ADDR. Usually
-		CONFIG_SYS_GBL_DATA_OFFSET is chosen such that the initial
-		data is located at the end of the available space
-		(sometimes written as (CONFIG_SYS_INIT_RAM_SIZE -
-		GENERATED_GBL_DATA_SIZE), and the initial stack is just
-		below that area (growing from (CONFIG_SYS_INIT_RAM_ADDR +
-		CONFIG_SYS_GBL_DATA_OFFSET) downward.
-
-	Note:
-		On the MPC824X (or other systems that use the data
-		cache for initial memory) the address chosen for
-		CONFIG_SYS_INIT_RAM_ADDR is basically arbitrary - it must
-		point to an otherwise UNUSED address space between
-		the top of RAM and the start of the PCI space.
-
 - CONFIG_SYS_SCCR:	System Clock and reset Control Register (15-27)
 
 - CONFIG_SYS_OR_TIMING_SDRAM:

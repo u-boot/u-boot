@@ -229,8 +229,8 @@ in_flash:
 	/* set up the stack pointer in our newly created
 	 * cache-ram; use r3 to keep the new SP for now to
 	 * avoid overiding the SP it uselessly */
-	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
-	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
+	lis	r3, CONFIG_SYS_INIT_SP_ADDR@h
+	ori	r3, r3, CONFIG_SYS_INIT_SP_ADDR@l
 
 	/* r4 = end of GD area */
 	addi r4, r3, GENERATED_GBL_DATA_SIZE

@@ -94,7 +94,7 @@ void cpu_init_early_f(void *fdt)
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+	gd = (gd_t *)CONFIG_SYS_INIT_SP_ADDR;
 
 	/* gd area was zeroed during startup */
 
