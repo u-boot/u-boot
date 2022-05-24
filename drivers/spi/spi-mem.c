@@ -21,6 +21,8 @@
 #include <spi.h>
 #include <spi-mem.h>
 #include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <linux/bug.h>
 #endif
 
 #ifndef __UBOOT__
@@ -490,6 +492,272 @@ int spi_mem_adjust_op_size(struct spi_slave *slave, struct spi_mem_op *op)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(spi_mem_adjust_op_size);
+
+static ssize_t spi_mem_no_dirmap_read(struct spi_mem_dirmap_desc *desc,
+				      u64 offs, size_t len, void *buf)
+{
+	struct spi_mem_op op = desc->info.op_tmpl;
+	int ret;
+
+	op.addr.val = desc->info.offset + offs;
+	op.data.buf.in = buf;
+	op.data.nbytes = len;
+	ret = spi_mem_adjust_op_size(desc->slave, &op);
+	if (ret)
+		return ret;
+
+	ret = spi_mem_exec_op(desc->slave, &op);
+	if (ret)
+		return ret;
+
+	return op.data.nbytes;
+}
+
+static ssize_t spi_mem_no_dirmap_write(struct spi_mem_dirmap_desc *desc,
+				       u64 offs, size_t len, const void *buf)
+{
+	struct spi_mem_op op = desc->info.op_tmpl;
+	int ret;
+
+	op.addr.val = desc->info.offset + offs;
+	op.data.buf.out = buf;
+	op.data.nbytes = len;
+	ret = spi_mem_adjust_op_size(desc->slave, &op);
+	if (ret)
+		return ret;
+
+	ret = spi_mem_exec_op(desc->slave, &op);
+	if (ret)
+		return ret;
+
+	return op.data.nbytes;
+}
+
+/**
+ * spi_mem_dirmap_create() - Create a direct mapping descriptor
+ * @mem: SPI mem device this direct mapping should be created for
+ * @info: direct mapping information
+ *
+ * This function is creating a direct mapping descriptor which can then be used
+ * to access the memory using spi_mem_dirmap_read() or spi_mem_dirmap_write().
+ * If the SPI controller driver does not support direct mapping, this function
+ * falls back to an implementation using spi_mem_exec_op(), so that the caller
+ * doesn't have to bother implementing a fallback on his own.
+ *
+ * Return: a valid pointer in case of success, and ERR_PTR() otherwise.
+ */
+struct spi_mem_dirmap_desc *
+spi_mem_dirmap_create(struct spi_slave *slave,
+		      const struct spi_mem_dirmap_info *info)
+{
+	struct udevice *bus = slave->dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+	struct spi_mem_dirmap_desc *desc;
+	int ret = -EOPNOTSUPP;
+
+	/* Make sure the number of address cycles is between 1 and 8 bytes. */
+	if (!info->op_tmpl.addr.nbytes || info->op_tmpl.addr.nbytes > 8)
+		return ERR_PTR(-EINVAL);
+
+	/* data.dir should either be SPI_MEM_DATA_IN or SPI_MEM_DATA_OUT. */
+	if (info->op_tmpl.data.dir == SPI_MEM_NO_DATA)
+		return ERR_PTR(-EINVAL);
+
+	desc = kzalloc(sizeof(*desc), GFP_KERNEL);
+	if (!desc)
+		return ERR_PTR(-ENOMEM);
+
+	desc->slave = slave;
+	desc->info = *info;
+	if (ops->mem_ops && ops->mem_ops->dirmap_create)
+		ret = ops->mem_ops->dirmap_create(desc);
+
+	if (ret) {
+		desc->nodirmap = true;
+		if (!spi_mem_supports_op(desc->slave, &desc->info.op_tmpl))
+			ret = -EOPNOTSUPP;
+		else
+			ret = 0;
+	}
+
+	if (ret) {
+		kfree(desc);
+		return ERR_PTR(ret);
+	}
+
+	return desc;
+}
+EXPORT_SYMBOL_GPL(spi_mem_dirmap_create);
+
+/**
+ * spi_mem_dirmap_destroy() - Destroy a direct mapping descriptor
+ * @desc: the direct mapping descriptor to destroy
+ *
+ * This function destroys a direct mapping descriptor previously created by
+ * spi_mem_dirmap_create().
+ */
+void spi_mem_dirmap_destroy(struct spi_mem_dirmap_desc *desc)
+{
+	struct udevice *bus = desc->slave->dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+
+	if (!desc->nodirmap && ops->mem_ops && ops->mem_ops->dirmap_destroy)
+		ops->mem_ops->dirmap_destroy(desc);
+
+	kfree(desc);
+}
+EXPORT_SYMBOL_GPL(spi_mem_dirmap_destroy);
+
+#ifndef __UBOOT__
+static void devm_spi_mem_dirmap_release(struct udevice *dev, void *res)
+{
+	struct spi_mem_dirmap_desc *desc = *(struct spi_mem_dirmap_desc **)res;
+
+	spi_mem_dirmap_destroy(desc);
+}
+
+/**
+ * devm_spi_mem_dirmap_create() - Create a direct mapping descriptor and attach
+ *				  it to a device
+ * @dev: device the dirmap desc will be attached to
+ * @mem: SPI mem device this direct mapping should be created for
+ * @info: direct mapping information
+ *
+ * devm_ variant of the spi_mem_dirmap_create() function. See
+ * spi_mem_dirmap_create() for more details.
+ *
+ * Return: a valid pointer in case of success, and ERR_PTR() otherwise.
+ */
+struct spi_mem_dirmap_desc *
+devm_spi_mem_dirmap_create(struct udevice *dev, struct spi_slave *slave,
+			   const struct spi_mem_dirmap_info *info)
+{
+	struct spi_mem_dirmap_desc **ptr, *desc;
+
+	ptr = devres_alloc(devm_spi_mem_dirmap_release, sizeof(*ptr),
+			   GFP_KERNEL);
+	if (!ptr)
+		return ERR_PTR(-ENOMEM);
+
+	desc = spi_mem_dirmap_create(slave, info);
+	if (IS_ERR(desc)) {
+		devres_free(ptr);
+	} else {
+		*ptr = desc;
+		devres_add(dev, ptr);
+	}
+
+	return desc;
+}
+EXPORT_SYMBOL_GPL(devm_spi_mem_dirmap_create);
+
+static int devm_spi_mem_dirmap_match(struct udevice *dev, void *res, void *data)
+{
+	struct spi_mem_dirmap_desc **ptr = res;
+
+	if (WARN_ON(!ptr || !*ptr))
+		return 0;
+
+	return *ptr == data;
+}
+
+/**
+ * devm_spi_mem_dirmap_destroy() - Destroy a direct mapping descriptor attached
+ *				   to a device
+ * @dev: device the dirmap desc is attached to
+ * @desc: the direct mapping descriptor to destroy
+ *
+ * devm_ variant of the spi_mem_dirmap_destroy() function. See
+ * spi_mem_dirmap_destroy() for more details.
+ */
+void devm_spi_mem_dirmap_destroy(struct udevice *dev,
+				 struct spi_mem_dirmap_desc *desc)
+{
+	devres_release(dev, devm_spi_mem_dirmap_release,
+		       devm_spi_mem_dirmap_match, desc);
+}
+EXPORT_SYMBOL_GPL(devm_spi_mem_dirmap_destroy);
+#endif /* __UBOOT__ */
+
+/**
+ * spi_mem_dirmap_read() - Read data through a direct mapping
+ * @desc: direct mapping descriptor
+ * @offs: offset to start reading from. Note that this is not an absolute
+ *	  offset, but the offset within the direct mapping which already has
+ *	  its own offset
+ * @len: length in bytes
+ * @buf: destination buffer. This buffer must be DMA-able
+ *
+ * This function reads data from a memory device using a direct mapping
+ * previously instantiated with spi_mem_dirmap_create().
+ *
+ * Return: the amount of data read from the memory device or a negative error
+ * code. Note that the returned size might be smaller than @len, and the caller
+ * is responsible for calling spi_mem_dirmap_read() again when that happens.
+ */
+ssize_t spi_mem_dirmap_read(struct spi_mem_dirmap_desc *desc,
+			    u64 offs, size_t len, void *buf)
+{
+	struct udevice *bus = desc->slave->dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+	ssize_t ret;
+
+	if (desc->info.op_tmpl.data.dir != SPI_MEM_DATA_IN)
+		return -EINVAL;
+
+	if (!len)
+		return 0;
+
+	if (desc->nodirmap)
+		ret = spi_mem_no_dirmap_read(desc, offs, len, buf);
+	else if (ops->mem_ops && ops->mem_ops->dirmap_read)
+		ret = ops->mem_ops->dirmap_read(desc, offs, len, buf);
+	else
+		ret = -EOPNOTSUPP;
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(spi_mem_dirmap_read);
+
+/**
+ * spi_mem_dirmap_write() - Write data through a direct mapping
+ * @desc: direct mapping descriptor
+ * @offs: offset to start writing from. Note that this is not an absolute
+ *	  offset, but the offset within the direct mapping which already has
+ *	  its own offset
+ * @len: length in bytes
+ * @buf: source buffer. This buffer must be DMA-able
+ *
+ * This function writes data to a memory device using a direct mapping
+ * previously instantiated with spi_mem_dirmap_create().
+ *
+ * Return: the amount of data written to the memory device or a negative error
+ * code. Note that the returned size might be smaller than @len, and the caller
+ * is responsible for calling spi_mem_dirmap_write() again when that happens.
+ */
+ssize_t spi_mem_dirmap_write(struct spi_mem_dirmap_desc *desc,
+			     u64 offs, size_t len, const void *buf)
+{
+	struct udevice *bus = desc->slave->dev->parent;
+	struct dm_spi_ops *ops = spi_get_ops(bus);
+	ssize_t ret;
+
+	if (desc->info.op_tmpl.data.dir != SPI_MEM_DATA_OUT)
+		return -EINVAL;
+
+	if (!len)
+		return 0;
+
+	if (desc->nodirmap)
+		ret = spi_mem_no_dirmap_write(desc, offs, len, buf);
+	else if (ops->mem_ops && ops->mem_ops->dirmap_write)
+		ret = ops->mem_ops->dirmap_write(desc, offs, len, buf);
+	else
+		ret = -EOPNOTSUPP;
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(spi_mem_dirmap_write);
 
 #ifndef __UBOOT__
 static inline struct spi_mem_driver *to_spi_mem_drv(struct device_driver *drv)
