@@ -146,15 +146,14 @@ def get_mksquashfs_version():
     out = subprocess.run(['mksquashfs -version'], shell=True, check=True,
                          capture_output=True, text=True)
     # 'out' is: mksquashfs version X (yyyy/mm/dd) ...
-    return float(out.stdout.split()[2].split('-')[0])
+    return out.stdout.split()[2].split('.')[0:2]
 
 def check_mksquashfs_version():
     """ Checks if mksquashfs meets the required version. """
 
-    required_version = 4.4
-    if get_mksquashfs_version() < required_version:
-        print('Error: mksquashfs is too old.')
-        print('Required version: {}'.format(required_version))
+    version = get_mksquashfs_version();
+    if int(version[0]) < 4 or int(version[0]) == 4 and int(version[1]) < 4 :
+        print('Error: mksquashfs is too old, required version: 4.4')
         raise AssertionError
 
 def make_all_images(build_dir):
