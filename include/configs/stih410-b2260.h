@@ -42,10 +42,9 @@
 
 /* Extra Commands */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	1024	/* Global data structures */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - \
 					 CONFIG_SYS_MALLOC_LEN - \
-					 CONFIG_SYS_GBL_DATA_SIZE)
+					 GENERATED_GBL_DATA_SIZE)
 
 /* USB Configs */
 #define CONFIG_USB_OHCI_NEW
