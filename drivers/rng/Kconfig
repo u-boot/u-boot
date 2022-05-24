@@ -31,6 +31,13 @@ config RNG_MSM
 	  This driver provides support for the Random Number
 	  Generator hardware found on Qualcomm SoCs.
 
+config RNG_NPCM
+	bool "Nuvoton NPCM SoCs Random Number Generator support"
+	depends on DM_RNG
+	help
+	  Enable random number generator on NPCM SoCs.
+	  This unit can provide 750 to 1000 random bits per second
+
 config RNG_OPTEE
 	bool "OP-TEE based Random Number Generator support"
 	depends on DM_RNG && OPTEE
