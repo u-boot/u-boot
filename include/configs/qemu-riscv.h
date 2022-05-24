@@ -54,10 +54,12 @@
 	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"kernel_addr_r=0x84000000\0" \
-	"fdt_addr_r=0x88000000\0" \
-	"scriptaddr=0x88100000\0" \
-	"pxefile_addr_r=0x88200000\0" \
-	"ramdisk_addr_r=0x88300000\0" \
+	"kernel_comp_addr_r=0x88000000\0" \
+	"kernel_comp_size=0x4000000\0" \
+	"fdt_addr_r=0x8c000000\0" \
+	"scriptaddr=0x8c100000\0" \
+	"pxefile_addr_r=0x8c200000\0" \
+	"ramdisk_addr_r=0x8c300000\0" \
 	BOOTENV
 #endif
 
