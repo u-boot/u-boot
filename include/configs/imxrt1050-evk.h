@@ -31,12 +31,7 @@
  * Configuration of the external SDRAM memory
  */
 
-/* For SPL */
-#ifdef CONFIG_SUPPORT_SPL
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SYS_SPL_LEN		0x00008000
 #define CONFIG_SYS_UBOOT_START		0x800023FD
-#endif
-/* For SPL ends */
 
 #endif /* __IMXRT1050_EVK_H */

@@ -39,9 +39,6 @@
 			"ramdisk_addr_r=0xC0438000\0"		\
 			BOOTENV
 
-/* For SPL */
-#ifdef CONFIG_SUPPORT_SPL
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_SPL_LEN		0x00008000
 #define CONFIG_SYS_UBOOT_START		0x080083FD
@@ -51,8 +48,6 @@
 /* DT blob (fdt) address */
 #define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_FLASH_BASE + \
 					0x1C0000)
-#endif
-/* For SPL ends */
 
 /* For splashcreen */
 

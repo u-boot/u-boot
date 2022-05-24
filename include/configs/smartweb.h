@@ -104,9 +104,6 @@
 									\
 	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"
 
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_INIT_SP_ADDR		0x301000
-#else
 /*
  * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
  * leaving the correct space for initial global data structure above that
@@ -114,10 +111,10 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(ATMEL_BASE_SRAM1 + 0x1000 - GENERATED_GBL_DATA_SIZE)
-#endif
 
 /* Defines for SPL */
 
+#define CONFIG_SPL_STACK		0x301000
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_SPL_MALLOC_START     (CONFIG_SPL_BSS_START_ADDR + \
 					CONFIG_SPL_BSS_MAX_SIZE)
