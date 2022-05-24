@@ -45,6 +45,7 @@ config DM_MMC
 config SPL_DM_MMC
 	bool "Enable MMC controllers using Driver Model in SPL"
 	depends on SPL_DM && DM_MMC
+	default n if ARCH_MVEBU && !MVEBU_SPL_BOOT_DEVICE_MMC
 	default y
 	help
 	  This enables the MultiMediaCard (MMC) uclass which supports MMC and

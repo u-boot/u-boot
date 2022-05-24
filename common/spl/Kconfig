@@ -294,6 +294,7 @@ config SPL_BOOTCOUNT_LIMIT
 
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
+	default n if ARCH_MVEBU
 	default n if (ARCH_MX6 && (SPL_MMC || SPL_SATA))
 	default y
 	depends on !TI_SECURE_DEVICE
@@ -304,6 +305,7 @@ config SPL_RAW_IMAGE_SUPPORT
 
 config SPL_LEGACY_IMAGE_FORMAT
 	bool "Support SPL loading and booting of Legacy images"
+	default n if ARCH_MVEBU
 	default y if !SPL_LOAD_FIT
 	depends on !TI_SECURE_DEVICE
 	help
