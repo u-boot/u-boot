@@ -180,6 +180,10 @@ config TARGET_SOCFPGA_TERASIC_DE10_NANO
 	bool "Terasic DE10-Nano (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
 
+config TARGET_SOCFPGA_TERASIC_DE10_STANDARD
+	bool "Terasic DE10-Standard (Cyclone V)"
+	select TARGET_SOCFPGA_CYCLONE5
+
 config TARGET_SOCFPGA_TERASIC_DE1_SOC
 	bool "Terasic DE1-SoC (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
@@ -199,6 +203,7 @@ config SYS_BOARD
 	default "de0-nano-soc" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "de1-soc" if TARGET_SOCFPGA_TERASIC_DE1_SOC
 	default "de10-nano" if TARGET_SOCFPGA_TERASIC_DE10_NANO
+	default "de10-standard" if TARGET_SOCFPGA_TERASIC_DE10_STANDARD
 	default "is1" if TARGET_SOCFPGA_IS1
 	default "mcvevk" if TARGET_SOCFPGA_ARIES_MCVEVK
 	default "n5x-socdk" if TARGET_SOCFPGA_N5X_SOCDK
@@ -224,6 +229,7 @@ config SYS_VENDOR
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE1_SOC
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE10_NANO
+	default "terasic" if TARGET_SOCFPGA_TERASIC_DE10_STANDARD
 	default "terasic" if TARGET_SOCFPGA_TERASIC_SOCKIT
 
 config SYS_SOC
@@ -239,6 +245,7 @@ config SYS_CONFIG_NAME
 	default "socfpga_de0_nano_soc" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "socfpga_de1_soc" if TARGET_SOCFPGA_TERASIC_DE1_SOC
 	default "socfpga_de10_nano" if TARGET_SOCFPGA_TERASIC_DE10_NANO
+	default "socfpga_de10_standard" if TARGET_SOCFPGA_TERASIC_DE10_STANDARD
 	default "socfpga_is1" if TARGET_SOCFPGA_IS1
 	default "socfpga_mcvevk" if TARGET_SOCFPGA_ARIES_MCVEVK
 	default "socfpga_n5x_socdk" if TARGET_SOCFPGA_N5X_SOCDK
