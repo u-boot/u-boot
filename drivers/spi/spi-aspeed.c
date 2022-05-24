@@ -504,10 +504,6 @@ static int aspeed_spi_exec_op_user_mode(struct spi_slave *slave,
 	/* Restore controller setting. */
 	writel(flash->ce_ctrl_read, ctrl_reg);
 
-	/* Set controller to 4-byte mode when flash is in 4-byte mode. */
-	if (op->cmd.opcode == SPINOR_OP_EN4B)
-		priv->info->set_4byte(bus, cs);
-
 	return 0;
 }
 
@@ -560,6 +556,9 @@ static int aspeed_spi_dirmap_create(struct spi_mem_dirmap_desc *desc)
 		writel(reg_val,
 		       plat->ctrl_base + REG_CE0_CTRL_REG + cs * 4);
 		priv->flashes[cs].ce_ctrl_read = reg_val;
+
+		if (op_tmpl.addr.nbytes == 4)
+			priv->info->set_4byte(bus, cs);
 
 		dev_dbg(dev, "read bus width: %d [0x%08x]\n",
 			op_tmpl.data.buswidth, priv->flashes[cs].ce_ctrl_read);
