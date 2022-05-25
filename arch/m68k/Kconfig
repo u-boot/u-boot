@@ -53,12 +53,6 @@ config MCF5441x
         select DM_SERIAL
 	bool
 
-config MCF5227x
-	select OF_CONTROL
-	select DM
-        select DM_SERIAL
-	bool
-
 # processor type
 config M5208
 	bool
