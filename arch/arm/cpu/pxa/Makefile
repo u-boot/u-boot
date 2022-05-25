@@ -5,7 +5,6 @@
 
 extra-y	= start.o
 
-obj-$(CONFIG_CPU_PXA25X)	+= pxa2xx.o
 obj-$(CONFIG_CPU_PXA27X)	+= pxa2xx.o
 
 obj-y	+= cpuinfo.o

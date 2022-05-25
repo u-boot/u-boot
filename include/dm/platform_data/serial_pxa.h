@@ -16,27 +16,12 @@
 #define BTUART_INDEX	0
 #define FFUART_INDEX	1
 #define STUART_INDEX	2
-#elif CONFIG_CPU_PXA25X
-#define UART_CLK_BASE	BIT(4)	/* HWUART */
-#define UART_CLK_REG	CKEN
-#define HWUART_INDEX	0
-#define STUART_INDEX	1
-#define FFUART_INDEX	2
-#define BTUART_INDEX	3
 #else /* PXA27x */
 #define UART_CLK_BASE	CKEN5_STUART
 #define UART_CLK_REG	CKEN
 #define STUART_INDEX	0
 #define FFUART_INDEX	1
 #define BTUART_INDEX	2
-#endif
-
-/*
- * Only PXA250 has HWUART, to avoid poluting the code with more macros,
- * artificially introduce this.
- */
-#ifndef CONFIG_CPU_PXA25X
-#define HWUART_INDEX	0xff
 #endif
 
 /*
