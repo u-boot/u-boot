@@ -226,7 +226,6 @@
 #define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf-uboot.ub"
 
 /* MMC support */
-#ifdef CONFIG_MMC_SDHCI_ZYNQ
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
 # define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
 # if defined(CONFIG_SPL_LOAD_FIT)
@@ -234,7 +233,6 @@
 # else
 #  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 # endif
-#endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 # define CONFIG_SPL_HASH

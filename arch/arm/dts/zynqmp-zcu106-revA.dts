@@ -593,7 +593,26 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			/* SI5328 - u20 */
+			si5328: clock-generator@69 {/* SI5328 - u20 */
+				compatible = "silabs,si5328";
+				reg = <0x69>;
+				/*
+				 * Chip has interrupt present connected to PL
+				 * interrupt-parent = <&>;
+				 * interrupts = <>;
+				 */
+				#address-cells = <1>;
+				#size-cells = <0>;
+				#clock-cells = <1>;
+				clocks = <&refhdmi>;
+				clock-names = "xtal";
+				clock-output-names = "si5328";
+
+				si5328_clk: clk0@0 {
+					reg = <0>;
+					clock-frequency = <27000000>;
+				};
+			};
 		};
 		i2c@5 {
 			#address-cells = <1>;
@@ -942,7 +961,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
-		spi-tx-bus-width = <1>;
+		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */
 		partition@0 { /* for testing purpose */

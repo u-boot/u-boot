@@ -74,6 +74,9 @@ static unsigned long psu_clock_init_data(void)
 	psu_mask_write(0xFF5E0128, 0x01003F07U, 0x01000A00U);
 	psu_mask_write(0xFD1A0060, 0x03003F07U, 0x03000100U);
 	psu_mask_write(0xFD1A0068, 0x01003F07U, 0x01000200U);
+	psu_mask_write(0xFD1A0070, 0x013F3F07U, 0x01010500U);
+	psu_mask_write(0xFD1A0074, 0x013F3F07U, 0x01013C03U);
+	psu_mask_write(0xFD1A007C, 0x013F3F07U, 0x01013803U);
 	psu_mask_write(0xFD1A0080, 0x00003F07U, 0x00000200U);
 	psu_mask_write(0xFD1A0084, 0x07003F07U, 0x07000100U);
 	psu_mask_write(0xFD1A00B8, 0x01003F07U, 0x01000203U);
