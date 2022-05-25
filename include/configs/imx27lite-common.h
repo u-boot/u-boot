@@ -137,6 +137,4 @@
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
-					GENERATED_GBL_DATA_SIZE)
 #endif /* __IMX27LITE_COMMON_CONFIG_H */

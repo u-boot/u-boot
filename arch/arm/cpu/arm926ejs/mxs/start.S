@@ -21,6 +21,7 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <common.h>
+#include <system-constants.h>
 
 /*
  *************************************************************************
@@ -44,7 +45,7 @@ reset:
 	 * it point to the end of OCRAM if the SP is zero.
 	 */
 	cmp	sp, #0x00000000
-	ldreq	sp, =CONFIG_SYS_INIT_SP_ADDR
+	ldreq	sp, =SYS_INIT_SP_ADDR
 
 	/*
 	 * Store all registers on old stack pointer, this will allow us later to

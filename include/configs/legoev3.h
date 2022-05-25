@@ -94,8 +94,6 @@
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x80010000
-
 #include <asm/arch/hardware.h>
 
 #endif /* __CONFIG_H */

@@ -22,7 +22,6 @@
 /*
  * Boot info
  */
-#define CONFIG_SYS_INIT_SP_ADDR		(0xe0000000)	/* stack of init proccess */
 
 /*
  * Hardware drivers support

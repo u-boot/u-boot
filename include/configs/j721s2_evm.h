@@ -21,7 +21,6 @@
 
 /* SPL Loader Configuration */
 #if defined(CONFIG_TARGET_J721S2_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
 #define CONFIG_SYS_UBOOT_BASE		0x50280000
 /* Image load address in RAM for DFU boot*/
 #else
@@ -36,7 +35,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	(0x41c80000 -\
 					 CONFIG_SPL_BSS_MAX_SIZE)
 /* Set the stack right below the SPL BSS section */
-#define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
 /* Configure R5 SPL post-relocation malloc pool in DDR */
 #define CONFIG_SYS_SPL_MALLOC_START	0x84000000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M

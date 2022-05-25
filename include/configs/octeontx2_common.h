@@ -14,7 +14,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_TEXT_BASE
 
 /** Stack starting address */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\

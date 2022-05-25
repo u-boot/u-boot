@@ -13,6 +13,7 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc83xx.h>
+#include <system-constants.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -229,8 +230,8 @@ in_flash:
 	/* set up the stack pointer in our newly created
 	 * cache-ram; use r3 to keep the new SP for now to
 	 * avoid overiding the SP it uselessly */
-	lis	r3, CONFIG_SYS_INIT_SP_ADDR@h
-	ori	r3, r3, CONFIG_SYS_INIT_SP_ADDR@l
+	lis	r3, SYS_INIT_SP_ADDR@h
+	ori	r3, r3, SYS_INIT_SP_ADDR@l
 
 	/* r4 = end of GD area */
 	addi r4, r3, GENERATED_GBL_DATA_SIZE

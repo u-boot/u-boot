@@ -13,7 +13,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		SZ_4M + SZ_2M
 
 #define CONFIG_SYS_FLASH_BASE		0x08000000
-#define CONFIG_SYS_INIT_SP_ADDR		0x20050000
 
 /*
  * Configuration of the external SDRAM memory

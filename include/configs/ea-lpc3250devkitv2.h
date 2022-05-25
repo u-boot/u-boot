@@ -18,7 +18,6 @@
 /*
  * cmd
  */
-#define CONFIG_SYS_INIT_SP_ADDR (CONFIG_SYS_SDRAM_BASE + SZ_4K - GENERATED_GBL_DATA_SIZE)
 
 /*
  * SoC-specific config

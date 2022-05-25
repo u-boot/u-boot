@@ -14,6 +14,7 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc85xx.h>
+#include <system-constants.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -1160,8 +1161,8 @@ _start_cont:
 	bne	1b
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
-	lis	r4,CONFIG_SYS_INIT_SP_ADDR@h
-	ori	r4,r4,CONFIG_SYS_INIT_SP_ADDR@l
+	lis	r4,SYS_INIT_SP_ADDR@h
+	ori	r4,r4,SYS_INIT_SP_ADDR@l
 
 	addi	r3,r3,16	/* Pre-relocation malloc area */
 	stw	r3,GD_MALLOC_BASE(r4)

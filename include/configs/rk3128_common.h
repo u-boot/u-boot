@@ -12,8 +12,6 @@
 
 #define CONFIG_IRAM_BASE		0x10080000
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x60100000
-
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
 /* RAW SD card / eMMC locations. */

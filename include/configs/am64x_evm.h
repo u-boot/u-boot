@@ -19,7 +19,6 @@
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
 #if defined(CONFIG_TARGET_AM642_A53_EVM)
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
 #else
 /*
  * Link BSS to be within SPL in a dedicated region located near the top of
@@ -31,7 +30,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	(TI_SRAM_SCRATCH_BOARD_EEPROM_START -\
 					 CONFIG_SPL_BSS_MAX_SIZE)
 /* Set the stack right below the SPL BSS section */
-#define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
 /* Configure R5 SPL post-relocation malloc pool in DDR */
 #define CONFIG_SYS_SPL_MALLOC_START    0x84000000
 #define CONFIG_SYS_SPL_MALLOC_SIZE     SZ_16M

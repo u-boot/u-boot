@@ -26,7 +26,6 @@
 #define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	1
 
 /* early stack pointer */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xeff0)
 
 /* SMP */
 #define CPU_RELEASE_ADDR		secondary_boot_addr

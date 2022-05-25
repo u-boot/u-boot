@@ -60,8 +60,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x80200000
-
 /* On Apalis iMX8 USDHC1 is eMMC, USDHC2 is 8-bit and USDHC3 is 4-bit MMC/SD */
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 

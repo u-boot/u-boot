@@ -12,7 +12,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 /* SIZE of malloc pool */
-#define CONFIG_SYS_INIT_SP_ADDR		(0x29800000 + 0x1a000)
 
 /*BOOT*/
 #define CONFIG_SYS_BOOTM_LEN		0x3c00000

@@ -14,8 +14,6 @@
 #include <linux/sizes.h>
 
 /* SPL Loader Configuration */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SPL_TEXT_BASE + \
-					 CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE)
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 

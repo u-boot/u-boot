@@ -10,12 +10,6 @@
 #include <asm/arch/stream_id_lsch2.h>
 #include <linux/sizes.h>
 
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_INIT_SP_ADDR                CONFIG_SYS_TEXT_BASE
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
-#endif
-
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE

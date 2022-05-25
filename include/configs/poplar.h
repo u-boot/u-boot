@@ -17,7 +17,6 @@
 
 /* SYS */
 #define CONFIG_SYS_BOOTM_LEN			SZ_64M
-#define CONFIG_SYS_INIT_SP_ADDR			0x200000
 
 /* ATF bl33.bin load address (must match) */
 

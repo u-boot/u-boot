@@ -11,10 +11,8 @@
 
 /* Link Definitions */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 #else
 /* ATF loads u-boot here for BASE_FVP model */
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x03f00000)
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */

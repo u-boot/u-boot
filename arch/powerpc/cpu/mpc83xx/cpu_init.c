@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm-offsets.h>
 #include <mpc83xx.h>
+#include <system-constants.h>
 #include <ioports.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -138,7 +139,7 @@ void cpu_init_f (volatile immap_t * im)
 		0;
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *)CONFIG_SYS_INIT_SP_ADDR;
+	gd = (gd_t *)SYS_INIT_SP_ADDR;
 
 	/* global data region was cleared in start.S */
 

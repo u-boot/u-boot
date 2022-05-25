@@ -242,6 +242,24 @@ config SYS_BOOT_GET_KBD
 	  Enables allocating and saving a kernel copy of the bd_info in
 	  space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
+config HAS_CUSTOM_SYS_INIT_SP_ADDR
+	bool "Use a custom location for the initial stack pointer address"
+	depends on ARC || (ARM && !INIT_SP_RELATIVE) || MIPS || PPC || RISCV
+	default y if TFABOOT
+	help
+	  Typically, we use an initial stack pointer address that is calculated
+	  by taking the statically defined CONFIG_SYS_INIT_RAM_ADDR, adding the
+	  statically defined CONFIG_SYS_INIT_RAM_SIZE and then subtracting the
+	  build-time constant of GENERATED_GBL_DATA_SIZE.  On MIPS a different
+	  but statica calculation is performed.  However, some platforms will
+	  take a different approach.  Say Y here to define the address statically
+	  instead.
+
+config CUSTOM_SYS_INIT_SP_ADDR
+	hex "Static location for the initial stack pointer"
+	depends on HAS_CUSTOM_SYS_INIT_SP_ADDR
+	default SYS_TEXT_BASE if TFABOOT
+
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
 	default y if DM

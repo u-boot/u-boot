@@ -24,9 +24,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
-					- GENERATED_GBL_DATA_SIZE)
-
 /* Partitions name */
 #define PARTS_BOOT		"boot"
 #define PARTS_ROOT		"platform"

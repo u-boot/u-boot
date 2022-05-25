@@ -23,7 +23,6 @@
  * Just before re-loaction, new SP is updated and re-location happens.
  * So pointing the initial SP to end of 2GB DDR is not a problem
  */
-#define CONFIG_SYS_INIT_SP_ADDR		(PHYS_SDRAM_1 + 0x80000000)
 /* 12MB Malloc size */
 
 /* console configuration */

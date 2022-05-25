@@ -18,9 +18,6 @@
 
 /* Uboot definition */
 #define CONFIG_SYS_UBOOT_START			CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_INIT_SP_ADDR			(CONFIG_SYS_TEXT_BASE + \
-						SZ_2M - \
-						GENERATED_GBL_DATA_SIZE)
 
 #define ENV_BOOT_READ_IMAGE \
 	"boot_rd_img=mmc dev 0" \

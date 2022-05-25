@@ -13,7 +13,6 @@
 
 #define CONFIG_SYS_BOOTMAPSZ            (0x30 << 20)
 #define CONFIG_SYS_SDRAM_BASE           0x0
-#define CONFIG_SYS_INIT_SP_ADDR         (0x00008000 - GENERATED_GBL_DATA_SIZE)
 
 /* Default environemnt variables */
 #define CONFIG_SERVERIP                 192.168.0.1

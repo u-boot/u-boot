@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_INIT_RAM_ADDR        0xbd000000
 #define CONFIG_SYS_INIT_RAM_SIZE        0x8000
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE - 1)
 
 /* Miscellaneous configurable options */
 

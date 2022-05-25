@@ -91,8 +91,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x80200000
-
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
 
 /* On Colibri iMX8X USDHC1 is eMMC, USDHC2 is 4-bit SD */

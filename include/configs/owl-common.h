@@ -20,7 +20,6 @@
  * image to the top of SDRAM. After relocation u-boot moves the stack to the
  * proper place.
  */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + 0x7ff00)
 
 /* Console configuration */
 

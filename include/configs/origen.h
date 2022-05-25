@@ -48,6 +48,4 @@
 #define RESERVE_BLOCK_SIZE		(512)
 #define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x02040000
-
 #endif	/* __CONFIG_H */

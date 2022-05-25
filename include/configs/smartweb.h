@@ -109,8 +109,8 @@
  * leaving the correct space for initial global data structure above that
  * address while providing maximum stack area below.
  */
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM1 + 0x1000 - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM1
 
 /* Defines for SPL */
 

@@ -59,10 +59,6 @@
 #endif
 
 /* Point initial SP in SRAM so SPL can use it too. */
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /*
  * We need to sacrifice first 4 bytes of RAM here to avoid triggering some

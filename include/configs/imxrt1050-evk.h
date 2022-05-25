@@ -9,8 +9,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x20280000
-
 #define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
 
 #define PHYS_SDRAM			0x80000000

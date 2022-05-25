@@ -25,9 +25,6 @@
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
-					- GENERATED_GBL_DATA_SIZE)
-
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
 #define PARTS_BOOT		"boot"

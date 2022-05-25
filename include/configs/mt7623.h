@@ -20,8 +20,6 @@
 /* Environment */
 
 /* Preloader -> Uboot */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - \
-					 GENERATED_GBL_DATA_SIZE)
 
 /* MMC */
 #define MMC_SUPPORTS_TUNING

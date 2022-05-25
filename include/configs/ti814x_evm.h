@@ -70,8 +70,6 @@
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1024MB */
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
-#define CONFIG_SYS_INIT_SP_ADDR		(NON_SECURE_SRAM_END - \
-					 GENERATED_GBL_DATA_SIZE)
 
 /**
  * Platform/Board specific defs

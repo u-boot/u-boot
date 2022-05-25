@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <system-constants.h>
 #include <asm-offsets.h>
 #include <asm/global_data.h>
 #include <asm/processor.h>
@@ -94,7 +95,7 @@ void cpu_init_early_f(void *fdt)
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *)CONFIG_SYS_INIT_SP_ADDR;
+	gd = (gd_t *)SYS_INIT_SP_ADDR;
 
 	/* gd area was zeroed during startup */
 

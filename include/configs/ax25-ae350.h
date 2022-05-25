@@ -47,8 +47,6 @@
 #define CONFIG_SYS_NS16550_CLK		19660800
 
 /* Init Stack Pointer */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000000 - \
-					GENERATED_GBL_DATA_SIZE)
 
 /* support JEDEC */
 #define PHYS_FLASH_1			0x88000000	/* BANK 0 */

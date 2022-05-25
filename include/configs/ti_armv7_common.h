@@ -66,11 +66,6 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
-#ifndef CONFIG_SYS_INIT_SP_ADDR
-#define CONFIG_SYS_INIT_SP_ADDR         (NON_SECURE_SRAM_END - \
-						GENERATED_GBL_DATA_SIZE)
-#endif
-
 /* If DM_I2C, enable non-DM I2C support */
 
 /*

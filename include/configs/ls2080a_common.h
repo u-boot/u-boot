@@ -11,11 +11,6 @@
 #include <asm/arch/config.h>
 
 /* Link Definitions */
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
-#endif
 
 /* We need architecture specific misc initializations */
 

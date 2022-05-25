@@ -191,13 +191,6 @@
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_SYS_INIT_SP_ADDR		0x8001ff00
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
-					GENERATED_GBL_DATA_SIZE)
-#endif /* CONFIG_MTD_NOR_FLASH */
-
 #include <asm/arch/hardware.h>
 
 #endif /* __CONFIG_H */

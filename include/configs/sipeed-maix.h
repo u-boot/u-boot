@@ -8,9 +8,6 @@
 
 #include <linux/sizes.h>
 
-/* Start just below the second bank so we don't clobber it during reloc */
-#define CONFIG_SYS_INIT_SP_ADDR 0x803FFFFF
-
 #define CONFIG_SYS_SDRAM_BASE 0x80000000
 #define CONFIG_SYS_SDRAM_SIZE SZ_8M
 

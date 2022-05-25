@@ -110,8 +110,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_SP_ADDR         0x80200000
-
 /* Default environment is in SD */
 
 /* On LPDDR4 board, USDHC1 is for eMMC, USDHC2 is for SD on CPU board */

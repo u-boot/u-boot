@@ -8,7 +8,6 @@
 #ifndef __PRESIDIO_ASIC_H
 #define __PRESIDIO_ASIC_H
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x00100000
 #define CONFIG_SYS_BOOTM_LEN		0x00c00000
 
 /* Generic Timer Definitions */

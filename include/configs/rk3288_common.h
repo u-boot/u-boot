@@ -13,10 +13,6 @@
 
 #define CONFIG_SYS_HZ_CLOCK		24000000
 
-#ifdef CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
-/* Bootrom will load u-boot binary to 0x0 once return from SPL */
-#endif
-#define CONFIG_SYS_INIT_SP_ADDR		0x00100000
 #define CONFIG_SPL_STACK		0xff718000
 
 #define CONFIG_IRAM_BASE		0xff700000

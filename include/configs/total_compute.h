@@ -10,7 +10,6 @@
 #define __TOTAL_COMPUTE_H
 
 /* Link Definitions */
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 

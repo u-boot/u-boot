@@ -29,9 +29,6 @@
  * Other required minimal configurations
  */
 
-/* End of 16M scrubbed by training in bootrom */
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
-
 /*
  * Environment
  */

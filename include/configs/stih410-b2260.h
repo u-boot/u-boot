@@ -42,10 +42,6 @@
 
 /* Extra Commands */
 
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - \
-					 CONFIG_SYS_MALLOC_LEN - \
-					 GENERATED_GBL_DATA_SIZE)
-
 /* USB Configs */
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2

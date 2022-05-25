@@ -16,6 +16,5 @@
 
 /* Undef unneeded configs */
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#undef CONFIG_SYS_INIT_SP_ADDR
 
 #endif /* __CONFIG_ZYNQMP_MINI_H */

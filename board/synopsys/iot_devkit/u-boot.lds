@@ -5,6 +5,7 @@
  */
 
 #include <config.h>
+#include <system-constants.h>
 
 MEMORY {
 	ROM : ORIGIN = ROM_BASE, LENGTH = ROM_SIZE

@@ -118,8 +118,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x80200000
-
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000

@@ -11,7 +11,6 @@
 #include <asm/arch/soc.h>
 
 /* Link Definitions */
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL

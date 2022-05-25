@@ -34,17 +34,11 @@
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
 #define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
-/*
- * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
- * leaving the correct space for initial global data structure above
- * that address while providing maximum stack area below.
- */
+#define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
 #ifdef CONFIG_AT91SAM9XE
-# define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
+# define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
 #else
-# define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM1 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
+# define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM1
 #endif
 
 /* NAND flash */

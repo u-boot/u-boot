@@ -46,11 +46,6 @@
  * phase of U-Boot, too. This prevents overwriting SPL data if stack/heap usage
  * in U-Boot pre-reloc is higher than in SPL.
  */
-#if defined(CONFIG_SPL_STACK_R_ADDR) && CONFIG_SPL_STACK_R_ADDR
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK_R_ADDR
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK
-#endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 

@@ -19,7 +19,6 @@
 
 /* SPL Loader Configuration */
 #ifdef CONFIG_TARGET_AM654_A53_EVM
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
 #else
 /*
  * Link BSS to be within SPL in a dedicated region located near the top of
@@ -31,7 +30,6 @@
 #define CONFIG_SPL_BSS_START_ADDR	(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX -\
 					 CONFIG_SPL_BSS_MAX_SIZE)
 /* Set the stack right below the SPL BSS section */
-#define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
 /* Configure R5 SPL post-relocation malloc pool in DDR */
 #define CONFIG_SYS_SPL_MALLOC_START	0x84000000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M

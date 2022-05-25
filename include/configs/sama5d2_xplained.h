@@ -11,9 +11,6 @@
 
 #include "at91-sama5_common.h"
 
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(0x22000000 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
-
 /* SPL */
 #define CONFIG_SPL_STACK		0x218000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000

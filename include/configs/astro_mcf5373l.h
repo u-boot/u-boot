@@ -162,8 +162,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
 #define CONFIG_SYS_INIT_RAM_SIZE		0x8000
 #define CONFIG_SYS_INIT_RAM_CTRL	0x221
-#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
 
 /*
  * Start addresses for the final memory configuration

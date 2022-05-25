@@ -201,9 +201,6 @@
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x2000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					CONFIG_SYS_INIT_RAM_SIZE - \
-					GENERATED_GBL_DATA_SIZE)
 
 
 /* Extend size of kernel image for uncompression */

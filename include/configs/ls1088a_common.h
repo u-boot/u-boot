@@ -25,11 +25,6 @@
 
 #define LS1088ARDB_PB_BOARD            0x4A
 /* Link Definitions */
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
-#endif
 
 /* Link Definitions */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000

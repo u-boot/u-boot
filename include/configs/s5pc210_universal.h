@@ -21,9 +21,6 @@
 
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
-					- GENERATED_GBL_DATA_SIZE)
-
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
 
 #define NORMAL_MTDPARTS_DEFAULT CONFIG_MTDPARTS_DEFAULT
