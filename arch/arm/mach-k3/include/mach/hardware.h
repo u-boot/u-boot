@@ -22,6 +22,10 @@
 #include "am64_hardware.h"
 #endif
 
+#ifdef CONFIG_SOC_K3_AM625
+#include "am62_hardware.h"
+#endif
+
 /* Assuming these addresses and definitions stay common across K3 devices */
 #define CTRLMMR_WKUP_JTAG_ID	0x43000014
 #define JTAG_ID_VARIANT_SHIFT	28

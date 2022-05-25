@@ -16,6 +16,9 @@ config SOC_K3_J721S2
 config SOC_K3_AM642
 	bool "TI's K3 based AM642 SoC Family Support"
 
+config SOC_K3_AM625
+	bool "TI's K3 based AM625 SoC Family Support"
+
 endchoice
 
 config SYS_SOC
@@ -26,6 +29,7 @@ config SYS_K3_NON_SECURE_MSRAM_SIZE
 	default 0x80000 if SOC_K3_AM6
 	default 0x100000 if SOC_K3_J721E || SOC_K3_J721S2
 	default 0x1c0000 if SOC_K3_AM642
+	default 0x3c000 if SOC_K3_AM625
 	help
 	  Describes the total size of the MCU or OCMC MSRAM present on
 	  the SoC in use. This doesn't specify the total size of SPL as
@@ -37,6 +41,7 @@ config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 	default 0x58000 if SOC_K3_AM6
 	default 0xc0000 if SOC_K3_J721E || SOC_K3_J721S2
 	default 0x180000 if SOC_K3_AM642
+	default 0x38000 if SOC_K3_AM625
 	help
 	  Describes the maximum size of the image that ROM can download
 	  from any boot media.
@@ -61,6 +66,7 @@ config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	default 0x41cffbfc if SOC_K3_J721E
 	default 0x41cfdbfc if SOC_K3_J721S2
 	default 0x701bebfc if SOC_K3_AM642
+	default 0x43c3f290 if SOC_K3_AM625
 	help
 	  Address at which ROM stores the value which determines if SPL
 	  is booted up by primary boot media or secondary boot media.
@@ -129,6 +135,7 @@ config K3_SYSFW_IMAGE_MMCSD_RAW_MODE_PART
 config K3_SYSFW_IMAGE_SIZE_MAX
 	int "Amount of memory dynamically allocated for loading SYSFW blob"
 	depends on K3_LOAD_SYSFW
+	default 163840 if SOC_K3_AM625
 	default	278000
 	help
 	  Amount of memory (in bytes) reserved through dynamic allocation at
@@ -160,7 +167,7 @@ config K3_ATF_LOAD_ADDR
 
 config K3_DM_FW
 	bool "Separate DM firmware image"
-	depends on SPL && CPU_V7R && (SOC_K3_J721E || SOC_K3_J721S2) && !CLK_TI_SCI && !TI_SCI_POWER_DOMAIN
+	depends on SPL && CPU_V7R && (SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_AM625) && !CLK_TI_SCI && !TI_SCI_POWER_DOMAIN
 	default y
 	help
 	  Enabling this will indicate that the system has separate DM
