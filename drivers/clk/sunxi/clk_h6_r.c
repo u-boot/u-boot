@@ -11,6 +11,8 @@
 #include <linux/bitops.h>
 
 static struct ccu_clk_gate h6_r_gates[] = {
+	[CLK_R_APB1]		= GATE_DUMMY,
+
 	[CLK_R_APB1_TIMER]	= GATE(0x11c, BIT(0)),
 	[CLK_R_APB1_TWD]	= GATE(0x12c, BIT(0)),
 	[CLK_R_APB1_PWM]	= GATE(0x13c, BIT(0)),
@@ -50,8 +52,8 @@ static const struct udevice_id h6_r_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_sun6i_h6_r) = {
-	.name		= "sun6i_h6_r_ccu",
+U_BOOT_DRIVER(clk_sun50i_h6_r) = {
+	.name		= "sun50i_h6_r_ccu",
 	.id		= UCLASS_CLK,
 	.of_match	= h6_r_clk_ids,
 	.priv_auto	= sizeof(struct ccu_priv),

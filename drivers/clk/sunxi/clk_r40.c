@@ -32,6 +32,8 @@ static struct ccu_clk_gate r40_gates[] = {
 
 	[CLK_BUS_GMAC]		= GATE(0x064, BIT(17)),
 
+	[CLK_BUS_PIO]		= GATE(0x068, BIT(5)),
+
 	[CLK_BUS_I2C0]		= GATE(0x06c, BIT(0)),
 	[CLK_BUS_I2C1]		= GATE(0x06c, BIT(1)),
 	[CLK_BUS_I2C2]		= GATE(0x06c, BIT(2)),

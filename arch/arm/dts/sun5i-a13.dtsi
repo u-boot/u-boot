@@ -42,17 +42,13 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "skeleton.dtsi"
-
 #include "sun5i.dtsi"
 
 #include <dt-bindings/thermal/thermal.h>
 
 / {
-	interrupt-parent = <&intc>;
-
 	thermal-zones {
-		cpu_thermal {
+		cpu-thermal {
 			/* milliseconds */
 			polling-delay-passive = <250>;
 			polling-delay = <1000>;
@@ -88,7 +84,7 @@
 		allwinner,pipelines = <&fe0>;
 	};
 
-	soc@1c00000 {
+	soc {
 		pwm: pwm@1c20e00 {
 			compatible = "allwinner,sun5i-a13-pwm";
 			reg = <0x01c20e00 0xc>;
@@ -106,15 +102,14 @@
 
 &cpu0 {
 	clock-latency = <244144>; /* 8 32k periods */
-	operating-points = <
+	operating-points =
 		/* kHz	  uV */
-		1008000 1400000
-		912000	1350000
-		864000	1300000
-		624000	1200000
-		576000	1200000
-		432000	1200000
-		>;
+		<1008000 1400000>,
+		<912000 1350000>,
+		<864000 1300000>,
+		<624000 1200000>,
+		<576000 1200000>,
+		<432000 1200000>;
 	#cooling-cells = <2>;
 };
 

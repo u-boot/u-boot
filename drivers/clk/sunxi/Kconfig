@@ -10,6 +10,13 @@ config CLK_SUNXI
 
 if CLK_SUNXI
 
+config CLK_SUNIV_F1C100S
+	bool "Clock driver for Allwinner F1C100s"
+	default MACH_SUNIV
+	help
+	  This enables common clock driver support for platforms based
+	  on Allwinner F1C100s SoC.
+
 config CLK_SUN4I_A10
 	bool "Clock driver for Allwinner A10/A20"
 	default MACH_SUN4I || MACH_SUN7I

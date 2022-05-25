@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 FUKAUMI Naoki <naobsd@gmail.com>
+ * Copyright 2015 Hans de Goede <hdegoede@redhat.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -41,35 +41,33 @@
  */
 
 /dts-v1/;
-#include "sun8i-a33.dtsi"
+#include "sun8i-a23.dtsi"
+#include "sun8i-q8-common.dtsi"
 
 / {
-	model = "Nintendo NES Classic Edition";
-	compatible = "nintendo,nes-classic-edition", "allwinner,sun8i-a33";
-
-	aliases {
-		serial0 = &uart0;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
+	model = "Q8 A23 Tablet";
+	compatible = "allwinner,q8-a23", "allwinner,sun8i-a23";
 };
 
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
+&codec {
+	allwinner,pa-gpios = <&pio 7 9 GPIO_ACTIVE_HIGH>; /* PH9 */
+	allwinner,audio-routing =
+		"Headphone", "HP",
+		"Headphone", "HPCOM",
+		"Speaker", "HP",
+		"MIC1", "Mic",
+		"MIC2", "Headset Mic",
+		"Mic",  "MBIAS",
+		"Headset Mic", "HBIAS";
 	status = "okay";
 };
 
-&nfc {
-	status = "okay";
+&panel {
+	compatible = "bananapi,s070wv20-ct16";
+};
 
-	nand@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		reg = <0>;
-		allwinner,rb = <0>;
-		nand-ecc-mode = "hw";
+&tcon0_out {
+	tcon0_out_lcd: endpoint {
+		remote-endpoint = <&panel_input>;
 	};
 };

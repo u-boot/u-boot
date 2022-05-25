@@ -39,7 +39,9 @@
 	phy = <&phy1>;
 	phy-mode = "mii";
 	status = "okay";
+};
 
+&gmac_mdio {
 	phy1: ethernet-phy@1 {
 		reg = <1>;
 	};

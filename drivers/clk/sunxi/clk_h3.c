@@ -14,6 +14,8 @@
 #include <linux/bitops.h>
 
 static struct ccu_clk_gate h3_gates[] = {
+	[CLK_PLL_PERIPH0]	= GATE(0x028, BIT(31)),
+
 	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),
 	[CLK_BUS_MMC1]		= GATE(0x060, BIT(9)),
 	[CLK_BUS_MMC2]		= GATE(0x060, BIT(10)),
@@ -29,6 +31,8 @@ static struct ccu_clk_gate h3_gates[] = {
 	[CLK_BUS_OHCI1]		= GATE(0x060, BIT(29)),
 	[CLK_BUS_OHCI2]		= GATE(0x060, BIT(30)),
 	[CLK_BUS_OHCI3]		= GATE(0x060, BIT(31)),
+
+	[CLK_BUS_PIO]		= GATE(0x068, BIT(5)),
 
 	[CLK_BUS_I2C0]		= GATE(0x06c, BIT(0)),
 	[CLK_BUS_I2C1]		= GATE(0x06c, BIT(1)),

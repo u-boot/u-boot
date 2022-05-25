@@ -207,7 +207,6 @@ config MACH_SUN5I
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
-	imply CONS_INDEX_2 if !DM_SERIAL
 	imply SPL_SYS_I2C_LEGACY
 	imply SYS_I2C_LEGACY
 
@@ -255,7 +254,6 @@ config MACH_SUN8I_A23
 	select SUPPORT_SPL
 	select SYS_I2C_SUN8I_RSB
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
-	imply CONS_INDEX_5 if !DM_SERIAL
 
 config MACH_SUN8I_A33
 	bool "sun8i (Allwinner A33)"
@@ -270,7 +268,6 @@ config MACH_SUN8I_A33
 	select SUPPORT_SPL
 	select SYS_I2C_SUN8I_RSB
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
-	imply CONS_INDEX_5 if !DM_SERIAL
 
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
@@ -911,7 +908,7 @@ config VIDEO_LCD_PANEL_I2C
 config VIDEO_LCD_PANEL_I2C_NAME
 	string "LCD panel i2c interface node name"
 	depends on VIDEO_LCD_PANEL_I2C
-	default "i2c@0"
+	default "i2c"
 	---help---
 	Set the device tree node name for the LCD i2c interface.
 

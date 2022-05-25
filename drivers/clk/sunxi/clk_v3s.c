@@ -20,6 +20,8 @@ static struct ccu_clk_gate v3s_gates[] = {
 	[CLK_BUS_SPI0]		= GATE(0x060, BIT(20)),
 	[CLK_BUS_OTG]		= GATE(0x060, BIT(24)),
 
+	[CLK_BUS_PIO]		= GATE(0x068, BIT(5)),
+
 	[CLK_BUS_I2C0]		= GATE(0x06c, BIT(0)),
 	[CLK_BUS_I2C1]		= GATE(0x06c, BIT(1)),
 	[CLK_BUS_UART0]		= GATE(0x06c, BIT(16)),

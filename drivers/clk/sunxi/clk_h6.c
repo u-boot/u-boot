@@ -14,6 +14,10 @@
 #include <linux/bitops.h>
 
 static struct ccu_clk_gate h6_gates[] = {
+	[CLK_PLL_PERIPH0]	= GATE(0x020, BIT(31)),
+
+	[CLK_APB1]		= GATE_DUMMY,
+
 	[CLK_BUS_MMC0]		= GATE(0x84c, BIT(0)),
 	[CLK_BUS_MMC1]		= GATE(0x84c, BIT(1)),
 	[CLK_BUS_MMC2]		= GATE(0x84c, BIT(2)),

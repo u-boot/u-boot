@@ -1,5 +1,9 @@
 /*
- * Copyright 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright 2016 Icenowy Zheng <icenowy@aosc.xyz>
+ *
+ * Based on sun5i-a13-olinuxino.dts, which is
+ *   Copyright 2012 Maxime Ripard <maxime.ripard@free-electrons.com>
+ *   Copyright 2013 Hans de Goede <hdegoede@redhat.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -39,25 +43,45 @@
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "sunxi-q8-common.dtsi"
 
-#include <dt-bindings/pwm/pwm.h>
+/dts-v1/;
+#include "sun5i-a13.dtsi"
+#include "sunxi-common-regulators.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
 
 / {
+	model = "Lichee Pi One";
+	compatible = "licheepi,licheepi-one", "allwinner,sun5i-a13";
+
 	aliases {
 		serial0 = &uart1;
 	};
 
-	backlight: backlight {
-		compatible = "pwm-backlight";
-		pwms = <&pwm 0 50000 PWM_POLARITY_INVERTED>;
-		brightness-levels = <0 10 20 30 40 50 60 70 80 90 100>;
-		default-brightness-level = <8>;
-		/* TODO: backlight uses axp gpio1 as enable pin */
-	};
-
 	chosen {
 		stdout-path = "serial0:115200n8";
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led-0 {
+			label ="licheepi:red:usr";
+			gpios = <&pio 2 5 GPIO_ACTIVE_LOW>;
+		};
+
+		led-1 {
+			label ="licheepi:green:usr";
+			gpios = <&pio 2 19 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+
+		led-2 {
+			label ="licheepi:blue:usr";
+			gpios = <&pio 2 4 GPIO_ACTIVE_LOW>;
+		};
+
 	};
 };
 
@@ -70,28 +94,55 @@
 };
 
 &i2c0 {
+	status = "okay";
+
 	axp209: pmic@34 {
+		compatible = "x-powers,axp209";
 		reg = <0x34>;
 		interrupts = <0>;
+
+		interrupt-controller;
+		#interrupt-cells = <1>;
 	};
 };
 
 &i2c1 {
-	pcf8563: rtc@51 {
-		compatible = "nxp,pcf8563";
-		reg = <0x51>;
+	status = "disabled";
+};
+
+&i2c2 {
+	status = "disabled";
+};
+
+&lradc {
+	vref-supply = <&reg_ldo2>;
+	status = "okay";
+
+	button-984 {
+		label = "Home";
+		linux,code = <KEY_HOMEPAGE>;
+		channel = <0>;
+		voltage = <984126>;
 	};
 };
 
-#include "axp209.dtsi"
-
 &mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_q8>;
-	vmmc-supply = <&reg_vcc3v0>;
+	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
-	cd-gpios = <&pio 6 0 GPIO_ACTIVE_HIGH>; /* PG0 */
-	cd-inverted;
+	broken-cd;
+	status = "okay";
+};
+
+&mmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc2_4bit_pc_pins>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	broken-cd;
+	status = "okay";
+};
+
+&ohci0 {
 	status = "okay";
 };
 
@@ -99,35 +150,7 @@
 	status = "okay";
 };
 
-&pio {
-	mmc0_cd_pin_q8: mmc0_cd_pin@0 {
-		allwinner,pins = "PG0";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
-	};
-
-	usb0_vbus_detect_pin: usb0_vbus_detect_pin@0 {
-		allwinner,pins = "PG1";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_PULL_DOWN>;
-	};
-
-	usb0_id_detect_pin: usb0_id_detect_pin@0 {
-		allwinner,pins = "PG2";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
-	};
-
-	usb0_vbus_pin_a: usb0_vbus_pin@0 {
-		allwinner,pins = "PG12";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
+#include "axp209.dtsi"
 
 &reg_dcdc2 {
 	regulator-always-on;
@@ -140,7 +163,7 @@
 	regulator-always-on;
 	regulator-min-microvolt = <1000000>;
 	regulator-max-microvolt = <1400000>;
-	regulator-name = "vdd-int-pll";
+	regulator-name = "vdd-int-dll";
 };
 
 &reg_ldo1 {
@@ -154,14 +177,26 @@
 	regulator-name = "avcc";
 };
 
+&reg_ldo3 {
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	regulator-name = "csi-1.8v";
+};
+
+&reg_ldo4 {
+	regulator-min-microvolt = <2800000>;
+	regulator-max-microvolt = <2800000>;
+	regulator-name = "csi-2.8v";
+};
+
 &reg_usb0_vbus {
-	gpio = <&pio 6 12 GPIO_ACTIVE_HIGH>; /* PG12 */
+	gpio = <&pio 2 12 GPIO_ACTIVE_HIGH>; /* PC12 */
 	status = "okay";
 };
 
 &uart1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart1_pins_b>;
+	pinctrl-0 = <&uart1_pg_pins>;
 	status = "okay";
 };
 
@@ -171,10 +206,9 @@
 };
 
 &usbphy {
-	pinctrl-names = "default";
-	pinctrl-0 = <&usb0_id_detect_pin>, <&usb0_vbus_detect_pin>;
-	usb0_id_det-gpio = <&pio 6 2 GPIO_ACTIVE_HIGH>; /* PG2 */
-	usb0_vbus_det-gpio = <&pio 6 1 GPIO_ACTIVE_HIGH>; /* PG1 */
+	usb0_id_det-gpios = <&pio 6 2 GPIO_ACTIVE_HIGH>; /* PG2 */
+	usb0_vbus_det-gpios = <&pio 6 1 GPIO_ACTIVE_HIGH>; /* PG1 */
 	usb0_vbus-supply = <&reg_usb0_vbus>;
+	usb1_vbus-supply = <&reg_vcc5v0>;
 	status = "okay";
 };
