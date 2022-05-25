@@ -36,6 +36,11 @@ static struct atmel_pio4_port *atmel_pio4_port_base(u32 port)
 	case AT91_PIO_PORTD:
 		base = (struct atmel_pio4_port *)ATMEL_BASE_PIOD;
 		break;
+#if (ATMEL_PIO_PORTS > 4)
+	case AT91_PIO_PORTE:
+		base = (struct atmel_pio4_port *)ATMEL_BASE_PIOE;
+		break;
+#endif
 	default:
 		printf("Error: Atmel PIO4: Failed to get PIO base of port#%d!\n",
 		       port);

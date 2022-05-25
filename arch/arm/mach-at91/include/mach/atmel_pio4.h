@@ -74,6 +74,7 @@ struct atmel_pio4_port {
 #define AT91_PIO_PORTB		0x1
 #define AT91_PIO_PORTC		0x2
 #define AT91_PIO_PORTD		0x3
+#define AT91_PIO_PORTE		0x4
 
 int atmel_pio4_set_gpio(u32 port, u32 pin, u32 config);
 int atmel_pio4_set_a_periph(u32 port, u32 pin, u32 config);
