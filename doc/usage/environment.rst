@@ -347,7 +347,7 @@ bootpretryperiod
     Unsigned value, in milliseconds. If not set, the period will
     be either the default (28000), or a value based on
     CONFIG_NET_RETRY_COUNT, if defined. This value has
-    precedence over the valu based on CONFIG_NET_RETRY_COUNT.
+    precedence over the value based on CONFIG_NET_RETRY_COUNT.
 
 memmatches
     Number of matches found by the last 'ms' command, in hex
