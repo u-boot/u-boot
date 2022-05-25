@@ -75,7 +75,7 @@
 	"fdt_board=dev\0" \
 	"initrd_addr=0x43800000\0" \
 	"initrd_high=0xffffffffffffffff\0" \
-	"setup=setenv setupargs console=${console},${baudrate} console=tty1 " \
+	"setup=setenv setupargs console=tty1 console=${console},${baudrate} " \
 		"consoleblank=0 earlycon\0" \
 	"update_uboot=askenv confirm Did you load flash.bin (y/N)?; " \
 		"if test \"$confirm\" = \"y\"; then " \
