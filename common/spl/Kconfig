@@ -360,7 +360,7 @@ config TPL_SYS_MALLOC_SIMPLE
 config SPL_SHARES_INIT_SP_ADDR
 	bool "SPL and U-Boot use the same initial stack pointer location"
 	depends on (ARM || ARCH_JZ47XX || MICROBLAZE || RISCV) && SPL_FRAMEWORK
-	default n if ARCH_SUNXI
+	default n if ARCH_SUNXI || ARCH_MX6
 	default y
 	help
 	  In many cases, we can use the same initial stack pointer address for
@@ -371,6 +371,8 @@ config SPL_STACK
 	hex "Initial stack pointer location"
 	depends on (ARM || ARCH_JZ47XX || MICROBLAZE || RISCV) && SPL_FRAMEWORK
 	depends on !SPL_SHARES_INIT_SP_ADDR
+	default 0x93ffb8 if ARCH_MX6 && MX6_OCRAM_256KB
+	default 0x91ffb8 if ARCH_MX6 && !MX6_OCRAM_256KB
 	help
 	  Address of the start of the stack SPL will use before SDRAM is
 	  initialized.
