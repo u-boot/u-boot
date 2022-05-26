@@ -356,7 +356,7 @@ static struct bootmenu_data *bootmenu_create(int delay)
 			goto cleanup;
 
 		/* Add Quit entry if entering U-Boot console is disabled */
-		if (IS_ENABLED(CONFIG_CMD_BOOTMENU_ENTER_UBOOT_CONSOLE))
+		if (!IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE))
 			entry->title = u16_strdup(u"U-Boot console");
 		else
 			entry->title = u16_strdup(u"Quit");
@@ -589,7 +589,7 @@ int menu_show(int bootdelay)
 		if (ret == BOOTMENU_RET_UPDATED)
 			continue;
 
-		if (!IS_ENABLED(CONFIG_CMD_BOOTMENU_ENTER_UBOOT_CONSOLE)) {
+		if (IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE)) {
 			if (ret == BOOTMENU_RET_QUIT) {
 				/* default boot process */
 				if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
