@@ -68,19 +68,19 @@
 				status = "okay";
 
 				eeprom@50 {
-					compatible = "microchip,24aa02e48";
+					compatible = "atmel,24c02"; /* EEPROM is 2Kbits microchip 24aa025e48, an at24c02 with page size of 16 */
 					reg = <0x50>;
 					pagesize = <16>;
 				};
 
 				eeprom@52 {
-					compatible = "microchip,24aa02e48";
+					compatible = "atmel,24c02"; /* EEPROM is 2Kbits microchip 24aa025e48, an at24c02 with page size of 16 */
 					reg = <0x52>;
 					pagesize = <16>;
 				};
 
 				eeprom@53 {
-					compatible = "microchip,24aa02e48";
+					compatible = "atmel,24c02"; /* EEPROM is 2Kbits microchip 24aa025e48, an at24c02 with page size of 16 */
 					reg = <0x53>;
 					pagesize = <16>;
 				};
