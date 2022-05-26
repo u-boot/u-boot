@@ -82,18 +82,6 @@
  * U-Boot Commands
  */
 
-/*
- * SPL specific defines
- */
-/* SPL will be executed at offset 0 */
-
-/* SPL will use SRAM as stack */
-#define CONFIG_SPL_STACK		0x0000FFF8
-
-/* Use the framework and generic lib */
-
-/* SPL will use serial */
-
 /* U-Boot will be 0x60000 bytes, loaded and run at CONFIG_SYS_TEXT_BASE */
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x60000
 

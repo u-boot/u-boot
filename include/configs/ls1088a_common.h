@@ -145,7 +145,6 @@ unsigned long long get_qixis_addr(void);
 
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_BSS_START_ADDR      0x80100000
-#define CONFIG_SPL_STACK               (CONFIG_SYS_FSL_OCRAM_BASE + 0x9ff0)
 #define CONFIG_SPL_TARGET              "u-boot-with-spl.bin"
 
 #define CONFIG_SYS_SPL_MALLOC_SIZE     0x00100000

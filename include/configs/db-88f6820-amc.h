@@ -44,8 +44,6 @@
 
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + CONFIG_SPL_SIZE)
 
-#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

@@ -71,6 +71,4 @@
 
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + CONFIG_SPL_SIZE)
 
-#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
-
 #endif /* _CONFIG_X530_H */

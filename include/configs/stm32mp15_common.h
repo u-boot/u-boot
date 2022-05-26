@@ -36,8 +36,6 @@
 
 /* Restrict SPL to fit within SYSRAM */
 #define STM32_SYSRAM_END		(STM32_SYSRAM_BASE + STM32_SYSRAM_SIZE)
-#define CONFIG_SPL_STACK		(STM32_SYSRAM_BASE + \
-					 STM32_SYSRAM_SIZE)
 #endif /* #ifdef CONFIG_SPL */
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3

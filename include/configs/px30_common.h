@@ -13,7 +13,6 @@
 /* FIXME: ff020000 is pmu_mem (10k), while ff0e0000 is regular int_mem */
 #define CONFIG_IRAM_BASE		0xff020000
 
-#define CONFIG_SPL_STACK		0x00400000
 #define CONFIG_SPL_BSS_START_ADDR	0x4000000
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)	/* 64M */
 

@@ -31,7 +31,6 @@
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* SPL */
-#define CONFIG_SPL_STACK		0xf4008000 /* only max. 2KB spare! */
 
 #define CONFIG_SPL_BSS_START_ADDR	0xf4004000
 

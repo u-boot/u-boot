@@ -125,8 +125,6 @@
 #define LOW_LEVEL_SRAM_STACK		0x00008000	/* End of sram */
 #endif
 
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
-
 /* Ethernet support */
 
 #ifdef CONFIG_USB_EHCI_HCD

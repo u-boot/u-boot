@@ -15,7 +15,6 @@
 #include <linux/sizes.h>
 
 /* SPL */
-#define CONFIG_SPL_STACK		0x20000
 
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x44000000
 

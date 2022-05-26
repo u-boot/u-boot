@@ -21,7 +21,6 @@
  *    and some padding thus 'our' max size is really 0x00908000 - 0x00938000
  *    or 192KB
  */
-#define CONFIG_SPL_STACK		0x0093FFB8
 /*
  * Pad SPL to 196KB (4KB header + 192KB max size). This allows to write the
  * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a
@@ -40,7 +39,6 @@
  *    and some padding thus 'our' max size is really 0x00908000 - 0x00918000
  *    or 64KB
  */
-#define CONFIG_SPL_STACK		0x0091FFB8
 /*
  * Pad SPL to 68KB (4KB header + 64KB max size). This allows to write the
  * SPL/U-Boot combination generated with u-boot-with-spl.imx directly to a

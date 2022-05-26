@@ -357,6 +357,24 @@ config TPL_SYS_MALLOC_SIMPLE
 	  this will make the TPL binary smaller at the cost of more heap
 	  usage as the *_simple malloc functions do not re-use free-ed mem.
 
+config SPL_SHARES_INIT_SP_ADDR
+	bool "SPL and U-Boot use the same initial stack pointer location"
+	depends on (ARM || ARCH_JZ47XX || MICROBLAZE || RISCV) && SPL_FRAMEWORK
+	default n if ARCH_SUNXI
+	default y
+	help
+	  In many cases, we can use the same initial stack pointer address for
+	  both SPL and U-Boot itself.  If you need to specify a different address
+	  however, say N here and then set a different value in CONFIG_SPL_STACK.
+
+config SPL_STACK
+	hex "Initial stack pointer location"
+	depends on (ARM || ARCH_JZ47XX || MICROBLAZE || RISCV) && SPL_FRAMEWORK
+	depends on !SPL_SHARES_INIT_SP_ADDR
+	help
+	  Address of the start of the stack SPL will use before SDRAM is
+	  initialized.
+
 config SPL_STACK_R
 	bool "Enable SDRAM location for SPL stack"
 	help

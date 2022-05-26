@@ -38,6 +38,5 @@
 	"bootm_size=0x10000000\0"
 
 /* SPL support */
-#define CONFIG_SPL_STACK		0xe6340000
 
 #endif /* __PORTER_H */

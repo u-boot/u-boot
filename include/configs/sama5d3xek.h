@@ -38,8 +38,6 @@
 #define CONFIG_SYS_SDRAM_BASE           0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
 
-#define CONFIG_SPL_STACK		0x318000
-
 /* SerialFlash */
 
 /* NAND flash */

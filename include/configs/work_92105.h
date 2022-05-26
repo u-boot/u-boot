@@ -60,7 +60,6 @@
 
 /* SPL will be executed at offset 0 */
 /* SPL will use SRAM as stack */
-#define CONFIG_SPL_STACK     0x0000FFF8
 /* Use the framework and generic lib */
 /* SPL will use serial */
 /* SPL will load U-Boot from NAND offset 0x40000 */

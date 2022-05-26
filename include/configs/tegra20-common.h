@@ -56,7 +56,6 @@
 
 /* Defines for SPL */
 #define CONFIG_SYS_SPL_MALLOC_START	0x00090000
-#define CONFIG_SPL_STACK		0x000ffffc
 
 /* Align LCD to 1MB boundary */
 #define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE

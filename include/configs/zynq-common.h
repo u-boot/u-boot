@@ -237,7 +237,6 @@
  * 0xfffffe00 is used for putting wfi loop.
  * Set it up as limit for now.
  */
-#define CONFIG_SPL_STACK	0xfffffe00
 
 /* BSS setup */
 #define CONFIG_SPL_BSS_START_ADDR	0x100000

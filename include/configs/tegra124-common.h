@@ -57,7 +57,6 @@
 
 /* Defines for SPL */
 #define CONFIG_SYS_SPL_MALLOC_START	0x80090000
-#define CONFIG_SPL_STACK		0x800ffffc
 
 /* For USB EHCI controller */
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10

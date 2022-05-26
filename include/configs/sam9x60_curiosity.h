@@ -20,6 +20,4 @@
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x8000000	/* 128 MB */
 
-#define CONFIG_SPL_STACK         0x218000
-
 #endif

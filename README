@@ -293,33 +293,6 @@ board_init_r():
 
 	SPL-specific notes:
 	- stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined and
-		CONFIG_SPL_STACK_R_ADDR points into SDRAM
-	- preloader_console_init() can be called here - typically this is
-		done by selecting CONFIG_SPL_BOARD_INIT and then supplying a
-		spl_board_init() function containing this call
-	- loads U-Boot or (in falcon mode) Linux
-
-
-Configuration Options:
-----------------------
-
-Configuration depends on the combination of board and CPU type; all
-such information is kept in a configuration file
-"include/configs/<board_name>.h".
-
-Example: For a TQM823L module, all configuration settings are in
-"include/configs/TQM823L.h".
-
-
-Many of the options are named exactly as the corresponding Linux
-kernel configuration options. The intention is to make it easier to
-build a config tool - later.
-
-- ARM Platform Bus Type(CCI):
-		CoreLink Cache Coherent Interconnect (CCI) is ARM BUS which
-		provides full cache coherency between two clusters of multi-core
-		CPUs and I/O coherency for devices and I/O masters
-
 		CONFIG_SYS_FSL_HAS_CCI400
 
 		Defined For SoC that has cache coherent interconnect
@@ -1659,9 +1632,6 @@ The following options need to be configured:
 		CONFIG_SPL_BSS_START_ADDR
 		Link address for the BSS within the SPL binary.
 
-		CONFIG_SPL_STACK
-		Adress of the start of the stack SPL will use
-
 		CONFIG_SPL_PANIC_ON_RAW_IMAGE
 		When defined, SPL will panic() if the image it has
 		loaded does not have a signature.
@@ -1675,8 +1645,6 @@ The following options need to be configured:
 		CONFIG_SPL_RELOC_STACK
 		Adress of the start of the stack SPL will use after
 		relocation.  If unspecified, this is equal to
-		CONFIG_SPL_STACK.
-
 		CONFIG_SYS_SPL_MALLOC_START
 		Starting address of the malloc pool used in SPL.
 		When this option is set the full malloc is used in SPL and

@@ -18,8 +18,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
 
-#define CONFIG_SPL_STACK		0x218000
-
 #ifdef CONFIG_SD_BOOT
 /* u-boot env in sd/mmc card */
 #define FAT_ENV_INTERFACE	"mmc"

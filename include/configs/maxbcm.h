@@ -51,8 +51,6 @@
 
 #define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
 
-#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
-
 /* SPL related SPI defines */
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */

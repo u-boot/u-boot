@@ -174,7 +174,6 @@
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
 /* only for SPL */
-#define CONFIG_SPL_STACK		(0x00100000)
 
 /* subtract sizeof(struct image_header) */
 #define CONFIG_SYS_UBOOT_BASE			(0x130000 - 0x40)

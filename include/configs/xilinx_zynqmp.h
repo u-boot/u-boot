@@ -199,8 +199,6 @@
 	"dfu_bufsiz=0x1000\0"
 #endif
 
-#define CONFIG_SPL_STACK		0xfffffffc
-
 /* Just random location in OCM */
 #define CONFIG_SPL_BSS_START_ADDR	0x0
 

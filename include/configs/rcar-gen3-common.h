@@ -49,6 +49,5 @@
 #else
 #define CONFIG_SPL_BSS_START_ADDR	0xe631f000
 #endif
-#define CONFIG_SPL_STACK		0xe6304000
 
 #endif	/* __RCAR_GEN3_COMMON_H */

@@ -43,7 +43,6 @@
 #endif
 
 /* Defines for SPL */
-#define CONFIG_SPL_STACK		0x310000
 
 #define CONFIG_SYS_MONITOR_LEN		0x80000
 

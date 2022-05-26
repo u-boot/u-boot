@@ -19,7 +19,7 @@ _start:
 	mts	rslr, r8
 
 #if defined(CONFIG_SPL_BUILD)
-	addi	r1, r0, CONFIG_SPL_STACK_ADDR
+	addi	r1, r0, CONFIG_SPL_STACK
 #else
 	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
 #endif

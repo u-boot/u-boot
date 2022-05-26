@@ -128,9 +128,6 @@
 /* BRAM size - will be generated */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x100000
 
-# define CONFIG_SPL_STACK_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE)
-
 /* Just for sure that there is a space for stack */
 #define CONFIG_SPL_STACK_SIZE		0x100
 
