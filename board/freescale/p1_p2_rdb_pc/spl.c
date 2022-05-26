@@ -63,7 +63,7 @@ void board_init_f(ulong bootflag)
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
 	 */
-	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);
+	relocate_code(CONFIG_VAL(RELOC_STACK), 0, CONFIG_SPL_RELOC_TEXT_BASE);
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)
@@ -79,8 +79,8 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 
 	arch_cpu_init();
 	get_clocks();
-	mem_malloc_init(CONFIG_SPL_RELOC_MALLOC_ADDR,
-			CONFIG_SPL_RELOC_MALLOC_SIZE);
+	mem_malloc_init(CONFIG_VAL(RELOC_MALLOC_ADDR),
+			CONFIG_VAL(RELOC_MALLOC_SIZE));
 	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
 
 #ifdef CONFIG_SPL_ENV_SUPPORT

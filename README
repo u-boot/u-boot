@@ -1625,10 +1625,6 @@ The following options need to be configured:
 		CONFIG_SPL
 		Enable building of SPL globally.
 
-		CONFIG_SPL_RELOC_TEXT_BASE
-		Address to relocate to.  If unspecified, this is equal to
-		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
-
 		CONFIG_SPL_BSS_START_ADDR
 		Link address for the BSS within the SPL binary.
 
@@ -1641,15 +1637,6 @@ The following options need to be configured:
 		An example is the LPC32XX MLC NAND driver, which will
 		consider that a completely unreadable NAND block is bad,
 		and thus should be skipped silently.
-
-		CONFIG_SPL_RELOC_STACK
-		Adress of the start of the stack SPL will use after
-		relocation.  If unspecified, this is equal to
-		CONFIG_SYS_SPL_MALLOC_START
-		Starting address of the malloc pool used in SPL.
-		When this option is set the full malloc is used in SPL and
-		it is set up by spl_init() and before that, the simple malloc()
-		can be used if CONFIG_SYS_MALLOC_F is defined.
 
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
