@@ -72,7 +72,7 @@
 					status = "okay";
 
 					eeprom@53 {
-						compatible = "atmel,24c32";
+						compatible = "atmel,24c02"; /* EEPROM is 2Kbits microchip 24aa025e48, an at24c02 with page size of 16 */
 						reg = <0x53>;
 						pagesize = <16>;
 					};
