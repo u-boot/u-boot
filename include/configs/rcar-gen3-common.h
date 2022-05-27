@@ -11,10 +11,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#ifdef CONFIG_SPL
-#define CONFIG_SPL_TARGET	"spl/u-boot-spl.scif"
-#endif
-
 /* boot option */
 
 /* Generic Interrupt Controller Definitions */

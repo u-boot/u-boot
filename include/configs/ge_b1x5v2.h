@@ -13,7 +13,6 @@
 #include "mx6_common.h"
 
 #include "imx6_spl.h"
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.imx"
 
 /* PWM */
 #define CONFIG_IMX6_PWM_PER_CLK		66000000

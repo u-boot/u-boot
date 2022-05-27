@@ -143,6 +143,5 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
  * 0x8000_0000 ...... End of SDRAM_1 (assume 2GB)
  *
  */
-#define CONFIG_SPL_TARGET		"spl/u-boot-spl-dtb.hex"
 
 #endif	/* __CONFIG_SOCFPGA_SOC64_COMMON_H__ */

@@ -144,8 +144,6 @@ unsigned long long get_qixis_addr(void);
 #endif
 
 #ifdef CONFIG_SPL
-#define CONFIG_SPL_TARGET              "u-boot-with-spl.bin"
-
 #ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
 /*

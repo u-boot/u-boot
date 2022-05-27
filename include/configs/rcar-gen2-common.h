@@ -10,10 +10,6 @@
 
 #include <asm/arch/rmobile.h>
 
-#ifdef CONFIG_SPL
-#define CONFIG_SPL_TARGET	"spl/u-boot-spl.srec"
-#endif
-
 #ifndef CONFIG_PINCTRL_PFC
 #define CONFIG_SH_GPIO_PFC
 #endif

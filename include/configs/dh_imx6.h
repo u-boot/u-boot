@@ -23,7 +23,6 @@
 
 /* SPL */
 #include "imx6_spl.h"			/* common IMX6 SPL configuration */
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.imx"
 
 /* Miscellaneous configurable options */
 

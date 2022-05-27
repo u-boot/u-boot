@@ -16,7 +16,6 @@
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_SDCARD
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(512 << 10)
 #define CONFIG_SYS_MMC_U_BOOT_DST	(0x11000000)
 #define CONFIG_SYS_MMC_U_BOOT_START	(0x11000000)
@@ -29,7 +28,6 @@
 #define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE	(512 << 10)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x11000000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x11000000)
@@ -40,8 +38,6 @@
 
 #ifdef CONFIG_MTD_RAW_NAND
 #ifdef CONFIG_NXP_ESBC
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	((768 << 10) - 0x2000)
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x00200000 - CONFIG_SPL_MAX_SIZE)
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
@@ -60,7 +56,6 @@
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
 #endif
-#define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #endif
 #endif
 

@@ -12,7 +12,6 @@
 /* U-Boot Build Configuration */
 
 /* SoC Configuration */
-#define CONFIG_SPL_TARGET		"u-boot-spi.gph"
 
 /* Memory Configuration */
 #define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000

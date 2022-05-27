@@ -1679,11 +1679,6 @@ The following options need to be configured:
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
 
-		CONFIG_SPL_TARGET
-		Final target image containing SPL and payload.  Some SPLs
-		use an arch-specific makefile fragment instead, for
-		example if more than one image needs to be produced.
-
 		CONFIG_SPL_FIT_PRINT
 		Printing information about a FIT image adds quite a bit of
 		code to SPL. So this is normally disabled in SPL. Use this

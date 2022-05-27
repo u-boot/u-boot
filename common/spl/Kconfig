@@ -1583,6 +1583,15 @@ config SPL_OPENSBI_LOAD_ADDR
 	help
 	  Load address of the OpenSBI binary.
 
+config SPL_TARGET
+	string "Addtional build targets for 'make'"
+	default "spl/u-boot-spl.srec" if RCAR_GEN2
+	default "spl/u-boot-spl.scif" if RCAR_GEN3
+	default ""
+	help
+	  On some platforms we need to have 'make' run additional build target
+	  rules. If required on your platform, enter it here, otherwise leave blank.
+
 config TPL
 	bool
 	depends on SUPPORT_TPL

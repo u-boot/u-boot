@@ -61,7 +61,6 @@
 #endif
 
 #if defined(CONFIG_QSPI_BOOT) && defined(CONFIG_SPL)
-#define CONFIG_SPL_TARGET		"spl/u-boot-spl.pbl"
 #define CONFIG_SYS_MONITOR_LEN		0x100000
 #endif
 

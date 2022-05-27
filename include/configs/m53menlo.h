@@ -108,7 +108,6 @@
 /*
  * NAND SPL
  */
-#define CONFIG_SPL_TARGET		"u-boot-with-nand-spl.imx"
 
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
 
