@@ -6,10 +6,50 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <errno.h>
 #include <log.h>
 #include <power/rk8xx_pmic.h>
 #include <power/pmic.h>
+#include <sysreset.h>
+
+static int rk8xx_sysreset_request(struct udevice *dev, enum sysreset_t type)
+{
+	struct rk8xx_priv *priv = dev_get_priv(dev->parent);
+
+	if (type != SYSRESET_POWER_OFF)
+		return -EPROTONOSUPPORT;
+
+	switch (priv->variant) {
+	case RK805_ID:
+	case RK808_ID:
+	case RK816_ID:
+	case RK818_ID:
+		pmic_clrsetbits(dev->parent, REG_DEVCTRL, 0, BIT(0));
+		break;
+	case RK809_ID:
+	case RK817_ID:
+		pmic_clrsetbits(dev->parent, RK817_REG_SYS_CFG3, 0,
+				BIT(0));
+		break;
+	default:
+		printf("Unknown PMIC RK%x: Cannot shutdown\n",
+		       priv->variant);
+		return -EPROTONOSUPPORT;
+	};
+
+	return -EINPROGRESS;
+}
+
+static struct sysreset_ops rk8xx_sysreset_ops = {
+	.request	= rk8xx_sysreset_request,
+};
+
+U_BOOT_DRIVER(rk8xx_sysreset) = {
+	.name		= "rk8xx_sysreset",
+	.id		= UCLASS_SYSRESET,
+	.ops		= &rk8xx_sysreset_ops,
+};
 
 static struct reg_data rk817_init_reg[] = {
 /* enable the under-voltage protection,
@@ -61,7 +101,7 @@ static int rk8xx_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 static int rk8xx_bind(struct udevice *dev)
 {
 	ofnode regulators_node;
-	int children;
+	int children, ret;
 
 	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
@@ -71,6 +111,14 @@ static int rk8xx_bind(struct udevice *dev)
 	}
 
 	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
+
+	if (CONFIG_IS_ENABLED(SYSRESET)) {
+		ret = device_bind_driver_to_node(dev, "rk8xx_sysreset",
+						 "rk8xx_sysreset",
+						 dev_ofnode(dev), NULL);
+		if (ret)
+			return ret;
+	}
 
 	children = pmic_bind_children(dev, regulators_node, pmic_children_info);
 	if (!children)
