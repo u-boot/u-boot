@@ -35,5 +35,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply SMP
 	imply SPL_RAM_SUPPORT
 	imply SPL_RAM_DEVICE
+	imply OF_HAS_PRIOR_STAGE
 
 endif

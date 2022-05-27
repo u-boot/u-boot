@@ -26,6 +26,7 @@ static struct sbi_imp implementations[] = {
 	{ 3, "KVM" },
 	{ 4, "RustSBI" },
 	{ 5, "Diosix" },
+	{ 6, "Coffer" },
 };
 
 static struct sbi_ext extensions[] = {
