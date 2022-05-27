@@ -137,7 +137,7 @@ U_BOOT_DRIVER(serial_arc) = {
 
 static inline void _debug_uart_init(void)
 {
-	struct arc_serial_regs *regs = (struct arc_serial_regs *)CONFIG_DEBUG_UART_BASE;
+	struct arc_serial_regs *regs = (struct arc_serial_regs *)CONFIG_VAL(DEBUG_UART_BASE);
 	int arc_console_baud = CONFIG_DEBUG_UART_CLOCK / (CONFIG_BAUDRATE * 4) - 1;
 
 	writeb(arc_console_baud & 0xff, &regs->baudl);
@@ -146,7 +146,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int c)
 {
-	struct arc_serial_regs *regs = (struct arc_serial_regs *)CONFIG_DEBUG_UART_BASE;
+	struct arc_serial_regs *regs = (struct arc_serial_regs *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (!(readb(&regs->status) & UART_TXEMPTY))
 		;
