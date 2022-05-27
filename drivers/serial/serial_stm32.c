@@ -270,7 +270,7 @@ static inline struct stm32_uart_info *_debug_uart_info(void)
 
 static inline void _debug_uart_init(void)
 {
-	fdt_addr_t base = CONFIG_DEBUG_UART_BASE;
+	fdt_addr_t base = CONFIG_VAL(DEBUG_UART_BASE);
 	struct stm32_uart_info *uart_info = _debug_uart_info();
 
 	_stm32_serial_init(base, uart_info);
@@ -281,7 +281,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int c)
 {
-	fdt_addr_t base = CONFIG_DEBUG_UART_BASE;
+	fdt_addr_t base = CONFIG_VAL(DEBUG_UART_BASE);
 	struct stm32_uart_info *uart_info = _debug_uart_info();
 
 	while (_stm32_serial_putc(base, uart_info, c) == -EAGAIN)

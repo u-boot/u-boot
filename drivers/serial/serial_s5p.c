@@ -276,7 +276,7 @@ static inline void _debug_uart_init(void)
 	if (IS_ENABLED(CONFIG_DEBUG_UART_SKIP_INIT))
 		return;
 
-	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_DEBUG_UART_BASE;
+	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	s5p_serial_init(uart);
 #if CONFIG_IS_ENABLED(ARCH_APPLE)
@@ -288,7 +288,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int ch)
 {
-	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_DEBUG_UART_BASE;
+	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 #if CONFIG_IS_ENABLED(ARCH_APPLE)
 	while (readl(&uart->ufstat) & S5L_TX_FIFO_FULL);

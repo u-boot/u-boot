@@ -372,7 +372,7 @@ U_BOOT_DRIVER(serial_mxc) = {
 
 static inline void _debug_uart_init(void)
 {
-	struct mxc_uart *base = (struct mxc_uart *)CONFIG_DEBUG_UART_BASE;
+	struct mxc_uart *base = (struct mxc_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	_mxc_serial_init(base, false);
 	_mxc_serial_setbrg(base, CONFIG_DEBUG_UART_CLOCK,
@@ -381,7 +381,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int ch)
 {
-	struct mxc_uart *base = (struct mxc_uart *)CONFIG_DEBUG_UART_BASE;
+	struct mxc_uart *base = (struct mxc_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (!(readl(&base->ts) & UTS_TXEMPTY))
 		WATCHDOG_RESET();

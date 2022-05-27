@@ -212,7 +212,7 @@ U_BOOT_DRIVER(serial_sifive) = {
 static inline void _debug_uart_init(void)
 {
 	struct uart_sifive *regs =
-			(struct uart_sifive *)CONFIG_DEBUG_UART_BASE;
+			(struct uart_sifive *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	_sifive_serial_setbrg(regs, CONFIG_DEBUG_UART_CLOCK,
 			      CONFIG_BAUDRATE);
@@ -222,7 +222,7 @@ static inline void _debug_uart_init(void)
 static inline void _debug_uart_putc(int ch)
 {
 	struct uart_sifive *regs =
-			(struct uart_sifive *)CONFIG_DEBUG_UART_BASE;
+			(struct uart_sifive *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (_sifive_serial_putc(regs, ch) == -EAGAIN)
 		WATCHDOG_RESET();

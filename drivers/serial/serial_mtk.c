@@ -426,7 +426,7 @@ static inline void _debug_uart_init(void)
 {
 	struct mtk_serial_priv priv;
 
-	priv.regs = (void *) CONFIG_DEBUG_UART_BASE;
+	priv.regs = (void *) CONFIG_VAL(DEBUG_UART_BASE);
 	priv.clock = CONFIG_DEBUG_UART_CLOCK;
 
 	writel(0, &priv.regs->ier);
@@ -439,7 +439,7 @@ static inline void _debug_uart_init(void)
 static inline void _debug_uart_putc(int ch)
 {
 	struct mtk_serial_regs __iomem *regs =
-		(void *) CONFIG_DEBUG_UART_BASE;
+		(void *) CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (!(readl(&regs->lsr) & UART_LSR_THRE))
 		;

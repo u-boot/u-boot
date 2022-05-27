@@ -403,7 +403,7 @@ U_BOOT_DRIVER(serial_pl01x) = {
 static void _debug_uart_init(void)
 {
 #ifndef CONFIG_DEBUG_UART_SKIP_INIT
-	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_DEBUG_UART_BASE;
+	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_VAL(DEBUG_UART_BASE);
 	enum pl01x_type type;
 
 	if (IS_ENABLED(CONFIG_DEBUG_UART_PL011))
@@ -419,7 +419,7 @@ static void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int ch)
 {
-	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_DEBUG_UART_BASE;
+	struct pl01x_regs *regs = (struct pl01x_regs *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (pl01x_putc(regs, ch) == -EAGAIN)
 		;

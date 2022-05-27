@@ -220,7 +220,7 @@ static inline void _debug_uart_init(void)
 {
 	struct mt7620_serial_plat plat;
 
-	plat.regs = (void *)CONFIG_DEBUG_UART_BASE;
+	plat.regs = (void *)CONFIG_VAL(DEBUG_UART_BASE);
 	plat.clock = CONFIG_DEBUG_UART_CLOCK;
 
 	writel(0, &plat.regs->ier);
@@ -233,7 +233,7 @@ static inline void _debug_uart_init(void)
 static inline void _debug_uart_putc(int ch)
 {
 	struct mt7620_serial_regs __iomem *regs =
-		(void *)CONFIG_DEBUG_UART_BASE;
+		(void *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (!(readl(&regs->lsr) & UART_LSR_THRE))
 		;
