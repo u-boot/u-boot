@@ -17,10 +17,6 @@
 #define CONFIG_SYS_SDRAM_BASE 0x80000000
 #define CONFIG_SYS_BOOTM_LEN        SZ_256M
 
-#ifdef CONFIG_SPL
-#define CONFIG_SPL_GD_ADDR 0x85000000
-#endif
-
 /* ---------------------------------------------------------------------
  * Board boot configuration
  */

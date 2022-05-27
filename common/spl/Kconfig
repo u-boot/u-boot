@@ -246,6 +246,10 @@ config SPL_FLUSH_IMAGE
 config SPL_SKIP_RELOCATE
 	bool "Skip relocating SPL"
 
+config SPL_GD_ADDR
+	hex "Address to use for global data (gd) in SPL"
+	depends on !SPL_INIT_MINIMAL
+
 config SPL_RELOC_TEXT_BASE
 	hex "Address to relocate SPL to"
 	default SPL_TEXT_BASE
@@ -271,6 +275,10 @@ config SPL_RELOC_MALLOC_ADDR
 config SPL_RELOC_MALLOC_SIZE
 	hex "Size of malloc pool in SPL"
 	depends on SPL_RELOC_MALLOC
+
+config TPL_GD_ADDR
+	hex "Address to use for global data (gd) in TPL"
+	depends on TPL
 
 config TPL_RELOC_TEXT_BASE
 	hex "Address to relocate TPL to"
