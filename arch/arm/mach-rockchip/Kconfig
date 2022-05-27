@@ -361,6 +361,16 @@ config ROCKCHIP_BOOT_MODE_REG
 	  The Soc will enter to different boot mode(defined in asm/arch-rockchip/boot_mode.h)
 	  according to the value from this register.
 
+config ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON
+	bool "Disable device boot on power plug-in"
+	depends on PMIC_RK8XX
+	default n
+	---help---
+	  Say Y here to prevent the device from booting up because of a plug-in
+	  event. When set, the device will boot briefly to determine why it was
+	  powered on, and if it was determined because of a plug-in event
+	  instead of a button press event it will shut back off.
+
 config ROCKCHIP_STIMER
 	bool "Rockchip STIMER support"
 	default y

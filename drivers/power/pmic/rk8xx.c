@@ -51,6 +51,38 @@ U_BOOT_DRIVER(rk8xx_sysreset) = {
 	.ops		= &rk8xx_sysreset_ops,
 };
 
+/* In the event of a plug-in and the appropriate option has been
+ * selected, we simply shutdown instead of continue the normal boot
+ * process. Please note the rk808 is not supported as it doesn't
+ * have the appropriate register.
+ */
+void rk8xx_off_for_plugin(struct udevice *dev)
+{
+	struct rk8xx_priv *priv = dev_get_priv(dev);
+
+	switch (priv->variant) {
+	case RK805_ID:
+	case RK816_ID:
+	case RK818_ID:
+		if (pmic_reg_read(dev, RK8XX_ON_SOURCE) & RK8XX_ON_PLUG_IN) {
+			printf("Power Off due to plug-in event\n");
+			pmic_clrsetbits(dev, REG_DEVCTRL, 0, BIT(0));
+		}
+		break;
+	case RK809_ID:
+	case RK817_ID:
+		if (pmic_reg_read(dev, RK817_ON_SOURCE) & RK8XX_ON_PLUG_IN) {
+			printf("Power Off due to plug-in event\n");
+			pmic_clrsetbits(dev, RK817_REG_SYS_CFG3, 0,
+					BIT(0));
+		}
+		break;
+	default:
+		printf("PMIC RK%x: Cannot read boot reason.\n",
+		       priv->variant);
+	}
+}
+
 static struct reg_data rk817_init_reg[] = {
 /* enable the under-voltage protection,
  * the under-voltage protection will shutdown the LDO3 and reset the PMIC
@@ -211,6 +243,8 @@ static int rk8xx_probe(struct udevice *dev)
 		       pmic_reg_read(dev, on_source),
 		       pmic_reg_read(dev, off_source));
 	printf("\n");
+	if (CONFIG_IS_ENABLED(ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON))
+		rk8xx_off_for_plugin(dev);
 
 	return 0;
 }
