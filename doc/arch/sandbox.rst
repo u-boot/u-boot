@@ -495,18 +495,104 @@ It is possible to run U-Boot under valgrind to check memory allocations::
 
     valgrind ./u-boot
 
-For more detailed results, enable `CONFIG_VALGRIND`. There are many false
-positives due to `malloc` itself. Suppress these with::
+However, this does not give very useful results. The sandbox allocates a memory
+pool via mmap(). U-Boot's internal malloc() and free() work on this memory pool.
+Custom allocators and deallocators are invisible to valgrind by default. To
+expose U-Boot's malloc() and free() to valgrind, enable ``CONFIG_VALGRIND``.
+Enabling this option will inject placeholder assembler code which valgrind
+interprets. This is used to annotate sections of memory as safe or unsafe, and
+to inform valgrind about malloc()s and free()s. There are currently no standard
+placeholder assembly sequences for RISC-V, so this option cannot be enabled on
+that architecture.
+
+Malloc's bookkeeping information is marked as unsafe by default. However, this
+will generate many false positives when malloc itself accesses this information.
+These warnings can be suppressed with::
 
     valgrind --suppressions=scripts/u-boot.supp ./u-boot
 
-If you are running sandbox SPL or TPL, then valgrind will not by default
-notice when U-Boot jumps from TPL to SPL, or from SPL to U-Boot proper. To
-fix this, use `--trace-children=yes`. To show who alloc'd some troublesome
-memory, use `--track-origins=yes`. To uncover possible errors, try running all
-unit tests with::
+Additionally, you may experience false positives if U-Boot is using a smaller
+pointer size than your host architecture. This is because the pointers used by
+U-Boot will only contain 32 bits of addressing information. When interpreted as
+64-bit pointers, valgrind will think that they are not initialized properly. To
+fix this, enable ``CONFIG_SANDBOX64`` (such as via ``sandbox64_defconfig``)
+when running on a 64-bit host.
 
-    valgrind --track-origins=yes --suppressions=scripts/u-boot.supp ./u-boot -Tc 'ut all'
+Additional options
+^^^^^^^^^^^^^^^^^^
+
+The following valgrind options are useful in addition to the above examples:
+
+``--trace-childen=yes``
+    tells valgrind to keep tracking subprocesses, such
+    as when U-Boot jumps from TPL to SPL, or from SPL to U-Boot proper.
+
+``--track-origins=yes``
+    will (for a small overhead) tell valgrind to keep
+    track of who allocated some troublesome memory.
+
+``--error-limit``
+    will enable printing more than 1000 errors in a single session.
+
+``--vgdb=yes --vgdb-error=0``
+    will let you use GDB to attach like::
+
+        gdb -ex "target remote | vgdb" u-boot
+
+    This is very helpful for inspecting the program state when there is
+    an error.
+
+The following U-Boot option are also helpful:
+
+``-Tc 'ut all'``
+    lets U-Boot run unit tests automatically. Note
+    that not all unit tests will succeed in the default configuration.
+
+``-t cooked``
+    will keep the console in a sane state if you
+    terminate it early (instead of having to run tset).
+
+Future work
+^^^^^^^^^^^
+
+The biggest limitation to the current approach is that supressions don't
+"un-taint" uninitialized memory accesses. Currently, dlmalloc's bookkeeping
+information is marked as a "red zone." This means that all reads to that zone
+are marked as illegal by valgrind. This is fine for regular code, but dlmalloc
+really does need to access this area, so we suppress its violations. However, if
+dlmalloc then passes a result calculated from a "tainted" access, that result is
+still tainted. So the first accessor will raise a warning. This means that every
+construct like
+
+.. code-block::
+
+    foo = malloc(sizeof(*foo));
+    if (!foo)
+        return -ENOMEM;
+
+will raise a warning when we check the result of malloc. Whoops.
+
+There are at least four possible ways to address this:
+
+* Don't mark dlmalloc bookkeeping information as a red zone. This is the
+  simplest solution, but reduces the power of valgrind immensely, since we can
+  no longer determine that (e.g.) access past the end of an array is undefined.
+* Implement red zones properly. This would involve growing every allocation by a
+  fixed amount (16 bytes or so) and then using that extra space for a real red
+  zone that neither regular code nor dlmalloc needs to access. Unfortunately,
+  this would probably some fairly intensive surgery to dlmalloc to add/remove
+  the offset appropriately.
+* Mark bookkeeping information as valid before we use it in dlmalloc, and then
+  mark it invalid before returning. This would be the most correct, but it would
+  be very tricky to implement since there are so many code paths to mark. I
+  think it would be the most effort out of the three options here.
+* Use the host malloc and free instead of U-Boot's custom allocator. This will
+  eliminate the need to annotate dlmalloc. However, using a different allocator
+  for sandbox will mean that bugs in dlmalloc will only be tested when running
+  on read (or emulated) hardware.
+
+Until one of the above options are implemented, it will remain difficult
+to sift through the massive amount of spurious warnings.
 
 Testing
 -------
