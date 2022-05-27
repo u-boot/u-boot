@@ -8,6 +8,10 @@
 		stdout-path = "serial2:115200n8";
 		tick-timer = &timer1;
 	};
+
+	memory@80000000 {
+		u-boot,dm-spl;
+	};
 };
 
 &cbass_main{

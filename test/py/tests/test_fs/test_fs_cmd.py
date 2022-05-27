@@ -6,7 +6,7 @@ import pytest
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
-def test_dm_compat(u_boot_console):
+def test_fstypes(u_boot_console):
     """Test that `fstypes` prints a result which includes `sandbox`."""
     output = u_boot_console.run_command('fstypes')
     assert "Supported filesystems:" in output
