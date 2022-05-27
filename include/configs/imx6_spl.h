@@ -18,14 +18,6 @@
 #define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
 #endif
 
-#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6SL) || \
-	defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL)
-#define CONFIG_SYS_SPL_MALLOC_START    0x88300000
-#define CONFIG_SYS_SPL_MALLOC_SIZE     0x100000		/* 1 MB */
-#else
-#define CONFIG_SYS_SPL_MALLOC_START	0x18300000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
-#endif
 #endif
 
 #endif

@@ -56,7 +56,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_MALLOC_LEN
 
 /* Defines for SPL */
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00010000
 #endif
 
 #endif /* _TEGRA_COMMON_H_ */

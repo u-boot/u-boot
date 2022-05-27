@@ -12,8 +12,6 @@
 #include "at91-sama5_common.h"
 
 /* SPL */
-#define CONFIG_SYS_SPL_MALLOC_START	0x20080000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 

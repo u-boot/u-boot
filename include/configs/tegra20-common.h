@@ -55,7 +55,6 @@
 	"ramdisk_addr_r=0x03100000\0"
 
 /* Defines for SPL */
-#define CONFIG_SYS_SPL_MALLOC_START	0x00090000
 
 /* Align LCD to 1MB boundary */
 #define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE

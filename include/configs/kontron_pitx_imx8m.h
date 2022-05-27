@@ -17,8 +17,6 @@
 		 0x40, 0xd4, 0x5c, 0xca, 0x13, 0x99)
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_SPL_MALLOC_START     0x42200000
-#define CONFIG_SYS_SPL_MALLOC_SIZE      SZ_512K
 #define CONFIG_SYS_SPL_PTE_RAM_BASE     0x41580000
 
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */

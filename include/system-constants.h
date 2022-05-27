@@ -19,4 +19,14 @@
 #endif
 #endif
 
+/*
+ * Typically, we have the SPL malloc pool at the end of the BSS area.
+ */
+#ifdef CONFIG_HAS_CUSTOM_SPL_MALLOC_START
+#define SYS_SPL_MALLOC_START		CONFIG_CUSTOM_SYS_SPL_MALLOC_ADDR
+#else
+#define SYS_SPL_MALLOC_START		(CONFIG_SPL_BSS_START_ADDR + \
+					 CONFIG_SPL_BSS_MAX_SIZE)
+#endif
+
 #endif

@@ -25,11 +25,6 @@
 /* Image load address in RAM for DFU boot*/
 #else
 #define CONFIG_SYS_UBOOT_BASE		0x50080000
-/* Set the stack right below the SPL BSS section */
-/* Configure R5 SPL post-relocation malloc pool in DDR */
-#define CONFIG_SYS_SPL_MALLOC_START	0x84000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M
-/* Image load address in RAM for DFU boot*/
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M

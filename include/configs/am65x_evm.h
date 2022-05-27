@@ -17,14 +17,6 @@
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
-/* SPL Loader Configuration */
-#ifndef CONFIG_TARGET_AM654_A53_EVM
-/* Set the stack right below the SPL BSS section */
-/* Configure R5 SPL post-relocation malloc pool in DDR */
-#define CONFIG_SYS_SPL_MALLOC_START	0x84000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M
-#endif
-
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 #define PARTS_DEFAULT \

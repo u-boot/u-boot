@@ -48,9 +48,6 @@
  * SPL
  */
 
-#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(1024 * 1024)
-
 /*
  * Serial
  */

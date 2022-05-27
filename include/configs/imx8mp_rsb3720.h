@@ -27,9 +27,6 @@
 		 0x5f, 0xd3, 0x6b, 0x9b, 0xe5, 0xb9)
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_SPL_MALLOC_START	0x42200000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_512K	/* 512 KB */
-
 #define CONFIG_MALLOC_F_ADDR		0x184000 /* malloc f used before \
 						  * GD_FLG_FULL_MALLOC_INIT \
 						  * set \

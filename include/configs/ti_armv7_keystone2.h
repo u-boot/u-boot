@@ -25,9 +25,6 @@
 #endif
 
 /* SPL SPI Loader Configuration */
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
-					CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(32 * 1024)
 #define KEYSTONE_SPL_STACK_SIZE		(8 * 1024)
 
 /* SRAM scratch space entries  */

@@ -1635,9 +1635,6 @@ The following options need to be configured:
 		consider that a completely unreadable NAND block is bad,
 		and thus should be skipped silently.
 
-		CONFIG_SYS_SPL_MALLOC_SIZE
-		The size of the malloc pool used in SPL.
-
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
 		about the running system.
@@ -1782,7 +1779,7 @@ Configuration Settings:
 - CONFIG_SYS_MALLOC_SIMPLE
 		Provides a simple and small malloc() and calloc() for those
 		boards which do not use the full malloc in SPL (which is
-		enabled with CONFIG_SYS_SPL_MALLOC_START).
+		enabled with CONFIG_SYS_SPL_MALLOC).
 
 - CONFIG_SYS_NONCACHED_MEMORY:
 		Size of non-cached memory area. This area of memory will be

@@ -229,8 +229,6 @@
 /* 3 * 64kB blocks of OCM - one is on the top because of bootrom */
 
 /* On the top of OCM space */
-#define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SPL_STACK_R_ADDR
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x2000000
 
 /*
  * SPL stack position - and stack goes down

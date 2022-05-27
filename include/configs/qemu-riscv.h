@@ -8,13 +8,6 @@
 
 #include <linux/sizes.h>
 
-#ifdef CONFIG_SPL
-
-#define CONFIG_SYS_SPL_MALLOC_START	0x84100000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
-
-#endif
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M

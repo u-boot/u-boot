@@ -219,9 +219,6 @@
 # define CONFIG_ENV_MAX_ENTRIES	10
 #endif
 
-#define CONFIG_SYS_SPL_MALLOC_START	0x20000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000000
-
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"
 #endif

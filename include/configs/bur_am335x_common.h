@@ -68,9 +68,6 @@
  *
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
-					CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
 
 /* General parts of the framework, required. */
 

@@ -42,8 +42,6 @@
 
 /* SPL */
 
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
-#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
 /* GUID for capsule updatable firmware image */

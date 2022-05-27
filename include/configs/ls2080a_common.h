@@ -143,8 +143,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x80400000
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
 #endif
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
-#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */

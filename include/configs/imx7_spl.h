@@ -17,9 +17,6 @@
 #define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
 #endif
 
-#define CONFIG_SYS_SPL_MALLOC_START    0x88300000
-#define CONFIG_SYS_SPL_MALLOC_SIZE     0x100000		/* 1 MB */
-
 #endif /* CONFIG_SPL */
 
 #endif /* __IMX7_SPL_CONFIG_H */

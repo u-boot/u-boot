@@ -15,9 +15,6 @@
 #define CONFIG_SYS_MONITOR_LEN		SZ_1M
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_SPL_MALLOC_START	0x4c000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_512K	/* 512 kiB */
-
 /* For RAW image gives a error info not panic */
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 

@@ -16,9 +16,6 @@
 #define CONFIG_SYS_BOOTM_LEN           SZ_64M
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_SPL_MALLOC_START	0x42200000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_512K	/* 512 KB */
-
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CONFIG_MALLOC_F_ADDR		0x930000
 /* For RAW image gives a error info not panic */
