@@ -46,8 +46,6 @@
 /* SPL */
 /* Defines for SPL */
 
-#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
-
 /* Default Environment */
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\

@@ -144,8 +144,6 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
  *
  */
 #define CONFIG_SPL_TARGET		"spl/u-boot-spl-dtb.hex"
-#define CONFIG_SPL_BSS_START_ADDR	(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE \
-					- CONFIG_SPL_BSS_MAX_SIZE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	(CONFIG_SYS_MALLOC_LEN)
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR \
 					- CONFIG_SYS_SPL_MALLOC_SIZE)

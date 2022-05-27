@@ -86,8 +86,6 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SPL_BSS_START_ADDR	0x80000000
-
 #define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
 
 /*

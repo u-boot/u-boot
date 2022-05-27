@@ -105,6 +105,21 @@ config SPL_PAD_TO
 	  0, meaning to append the SPL payload without any padding, or >=
 	  CONFIG_SPL_MAX_SIZE.
 
+config SPL_HAS_BSS_LINKER_SECTION
+	depends on SPL_FRAMEWORK
+	bool "Use a specific address for the BSS via the linker script"
+	default y if ARCH_SUNXI || ARCH_MX6 || ARCH_OMAP2PLUS || MIPS || RISCV
+
+config SPL_BSS_START_ADDR
+	hex "Link address for the BSS within the SPL binary"
+	depends on SPL_HAS_BSS_LINKER_SECTION
+	default 0x88200000 if (ARCH_MX6 && (MX6SX || MX6SL || MX6UL || MX6ULL)) || ARCH_MX7
+	default 0x18200000 if ARCH_MX6 && !(MX6SX || MX6SL || MX6UL || MX6ULL)
+	default 0x80a00000 if ARCH_OMAP2PLUS
+	default 0x81f80000 if ARCH_SUNXI && MACH_SUNIV
+	default 0x4ff80000 if ARCH_SUNXI && !(MACH_SUN9I || MACH_SUNIV)
+	default 0x2ff80000 if ARCH_SUNXI && MACH_SUN9I
+
 choice
 	prompt "Enforce SPL BSS limit"
 	depends on SPL && !PPC

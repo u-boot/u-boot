@@ -43,11 +43,4 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"
 
-/* SPL support */
-#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796) || defined(CONFIG_R8A77965)
-#define CONFIG_SPL_BSS_START_ADDR	0xe633f000
-#else
-#define CONFIG_SPL_BSS_START_ADDR	0xe631f000
-#endif
-
 #endif	/* __RCAR_GEN3_COMMON_H */

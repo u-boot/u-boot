@@ -7,10 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_SPL
-#define CONFIG_SPL_BSS_START_ADDR	0x04000000
-#endif
-
 #define RISCV_MMODE_TIMERBASE           0xe6000000
 #define RISCV_MMODE_TIMER_FREQ          60000000
 

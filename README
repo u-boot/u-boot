@@ -1625,9 +1625,6 @@ The following options need to be configured:
 		CONFIG_SPL
 		Enable building of SPL globally.
 
-		CONFIG_SPL_BSS_START_ADDR
-		Link address for the BSS within the SPL binary.
-
 		CONFIG_SPL_PANIC_ON_RAW_IMAGE
 		When defined, SPL will panic() if the image it has
 		loaded does not have a signature.

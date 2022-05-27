@@ -46,13 +46,6 @@
  * L2 cache thus cannot be used.
  */
 
-/* SPL */
-/* Defines for SPL */
-
-#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
-
-/* SPL related SPI defines */
-
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
 #define CONFIG_SYS_SDRAM_SIZE		SZ_1G
 

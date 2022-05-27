@@ -54,8 +54,6 @@
 /* SPL */
 /* Defines for SPL */
 
-#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
-
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
 #define CONFIG_SPD_EEPROM		0x4e
 

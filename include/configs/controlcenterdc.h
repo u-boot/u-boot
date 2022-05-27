@@ -37,8 +37,6 @@
 /* Defines for SPL */
 #define CONFIG_SPL_SIZE			(160 << 10)
 
-#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + CONFIG_SPL_SIZE)
-
 #if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
 /* SPL related MMC defines */
 #ifdef CONFIG_SPL_BUILD

@@ -199,9 +199,6 @@
 	"dfu_bufsiz=0x1000\0"
 #endif
 
-/* Just random location in OCM */
-#define CONFIG_SPL_BSS_START_ADDR	0x0
-
 #if defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 # define CONFIG_SYS_SPI_KERNEL_OFFS	0x80000
 # define CONFIG_SYS_SPI_ARGS_OFFS	0xa0000

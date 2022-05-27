@@ -16,8 +16,6 @@
 
 #define CONFIG_IRAM_BASE		0xff8c0000
 
-#define CONFIG_SPL_BSS_START_ADDR       0x400000
-
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
 #ifndef CONFIG_SPL_BUILD

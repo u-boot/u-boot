@@ -14,6 +14,7 @@ CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x4020ff00
 CONFIG_BOOTCOMMAND="setenv boot_mmc_part ${kernel_mmc_part}; if test reboot-${reboot-mode} = reboot-r; then echo recovery; setenv boot_mmc_part ${recovery_mmc_part}; fi; if test reboot-${reboot-mode} = reboot-b; then echo fastboot; fastboot 0; fi; part start mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_start; part size mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_size; mmc dev ${boot_mmc_dev}; mmc read ${kernel_addr_r} ${boot_mmc_start} ${boot_mmc_size} && bootm ${kernel_addr_r};"
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 CONFIG_SPL_MAX_SIZE=0xec00
+CONFIG_SPL_BSS_START_ADDR=0x80000000
 # CONFIG_SPL_SHARES_INIT_SP_ADDR is not set
 CONFIG_SPL_STACK=0x4020fffc
 # CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR is not set

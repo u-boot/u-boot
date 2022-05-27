@@ -238,7 +238,4 @@
  * Set it up as limit for now.
  */
 
-/* BSS setup */
-#define CONFIG_SPL_BSS_START_ADDR	0x100000
-
 #endif /* __CONFIG_ZYNQ_COMMON_H */

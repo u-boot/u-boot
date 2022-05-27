@@ -26,6 +26,7 @@ CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="echo SD boot attempt ...; run sdbootscript; run sdboot; echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; echo USB boot attempt ...; run usbbootscript; "
 CONFIG_BOARD_LATE_INIT=y
 CONFIG_SPL_MAX_SIZE=0xe000
+CONFIG_SPL_HAS_BSS_LINKER_SECTION=y
 CONFIG_SPL_BSS_MAX_SIZE=0x100000
 CONFIG_SPL_BOARD_INIT=y
 CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x80

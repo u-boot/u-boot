@@ -32,8 +32,6 @@
 
 /* SPL */
 
-#define CONFIG_SPL_BSS_START_ADDR	0xf4004000
-
 #define CONFIG_SPL_START_S_PATH		"arch/mips/mach-jz47xx"
 
 #endif /* __CONFIG_CI20_H__ */

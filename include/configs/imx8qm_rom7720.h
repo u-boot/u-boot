@@ -10,8 +10,6 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SPL_BSS_START_ADDR	0x00128000
-
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5B010000
