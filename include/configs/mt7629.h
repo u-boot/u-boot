@@ -27,7 +27,6 @@
 /* SPL -> Uboot */
 
 /* UBoot -> Kernel */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x40000000
 
 /* DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000

@@ -27,8 +27,6 @@
 #define CONFIG_POWER_TPS62362
 
 /* SPL defines. */
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
-					 (128 << 20))
 
 /* Enabling L2 Cache */
 #define CONFIG_SYS_L2_PL310

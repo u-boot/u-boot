@@ -74,8 +74,8 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 			       (void *)(CONFIG_SYS_OS_BASE +
 					sizeof(struct image_header)),
 			       spl_image->size);
-#ifdef CONFIG_SYS_FDT_BASE
-			spl_image->arg = (void *)CONFIG_SYS_FDT_BASE;
+#ifdef CONFIG_SYS_SPL_ARGS_ADDR
+			spl_image->arg = (void *)CONFIG_SYS_SPL_ARGS_ADDR;
 #endif
 
 			return 0;

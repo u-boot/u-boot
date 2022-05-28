@@ -14,7 +14,6 @@
 
 #ifdef CONFIG_SPL_OS_BOOT
 /* Falcon Mode */
-#define CONFIG_SYS_SPL_ARGS_ADDR   0x18000000
 
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR  0x800   /* 1MB */

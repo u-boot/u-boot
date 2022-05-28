@@ -22,7 +22,6 @@
 
 #ifndef CONFIG_TPL_BUILD
 /* Falcon Mode */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x0ffe5000
 
 /* Falcon Mode - MMC support: args@16MB kernel@17MB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR		0x8000	/* 16MB */

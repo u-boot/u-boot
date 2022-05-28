@@ -1188,6 +1188,14 @@ config SPL_OS_BOOT
 	  Enable booting directly to an OS from SPL.
 	  for more info read doc/README.falcon
 
+config SYS_SPL_ARGS_ADDR
+	hex "Address in memory to load 'args' file for Falcon Mode to"
+	depends on SPL_OS_BOOT
+	default 0x88000000 if ARCH_OMAP2PLUS
+	help
+	  Address in memory where the 'args' file, typically a device tree
+	  will be loaded in to memory.
+
 if SPL_OS_BOOT
 config SYS_OS_BASE
 	hex "addr, where OS is found"

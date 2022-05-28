@@ -53,7 +53,6 @@
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
 /* RiOTboard */
-#define CONFIG_SYS_SPL_ARGS_ADDR 0x13000000
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR  0 /* offset 69KB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS 0 /* offset 69KB */

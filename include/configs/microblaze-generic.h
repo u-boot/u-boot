@@ -115,13 +115,6 @@
 
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
 
-/* for booting directly linux */
-#define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_TEXT_BASE + \
-					0x40000)
-
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_TEXT_BASE + \
-					 0x1000000)
-
 /* SP location before relocation, must use scratch RAM */
 /* BRAM start */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0

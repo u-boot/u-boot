@@ -113,8 +113,6 @@
  * SPL is overlapped with public stack and breaking non HS devices to boot.
  * So moving TEXT_BASE down to non-HS limit.
  */
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
-					 (128 << 20))
 
 #ifdef CONFIG_SPL_BUILD
 /* No need for i2c in SPL mode as we will use SRI2C for PMIC access on OMAP4 */

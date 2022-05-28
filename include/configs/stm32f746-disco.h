@@ -43,10 +43,6 @@
 #define CONFIG_SYS_UBOOT_BASE		(CONFIG_SYS_FLASH_BASE + \
 					 CONFIG_SPL_PAD_TO)
 
-/* DT blob (fdt) address */
-#define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_FLASH_BASE + \
-					0x1C0000)
-
 /* For splashcreen */
 
 #endif /* __CONFIG_H */

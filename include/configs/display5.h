@@ -10,7 +10,6 @@
 #include "mx6_common.h"
 
 /* Falcon Mode */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
 
 /* Falcon Mode - MMC support */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x3F00

@@ -10,7 +10,6 @@
 /* Location in NAND to read U-Boot from */
 
 /* Falcon Mode */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
 
 /* Falcon Mode - NAND support: args@17MB kernel@18MB */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	(18 * SZ_1M)

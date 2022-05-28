@@ -206,7 +206,6 @@
 #endif
 
 /* u-boot is like dtb */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
 
 /* ATF is my kernel image */
 

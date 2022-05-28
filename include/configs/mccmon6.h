@@ -12,7 +12,6 @@
 #include "imx6_spl.h"
 
 #define CONFIG_SYS_UBOOT_BASE (CONFIG_SYS_FLASH_BASE + 0x80000)
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
 
 /*
  * Below defines are set but NOT really used since we by

@@ -51,7 +51,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 
 /* Falcon */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x13000000
 
 /* MMC support: args@1MB kernel@2MB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR		0x800   /* 1MB */

@@ -76,7 +76,6 @@
 		"bootz ${loadaddr} - ${fdtaddr}\0"
 
 /* SPL defines. */
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + (128 << 20))
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 /* EEPROM */

@@ -210,7 +210,6 @@
 #define CONFIG_SYS_MMC_MAX_DEVICE	1
 
 /* Address in RAM where the parameters must be copied by SPL. */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
 
 /* Not using MMC raw mode - just for compilation purpose */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0
