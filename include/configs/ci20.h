@@ -30,8 +30,4 @@
 /* Miscellaneous configuration options */
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
-/* SPL */
-
-#define CONFIG_SPL_START_S_PATH		"arch/mips/mach-jz47xx"
-
 #endif /* __CONFIG_CI20_H__ */

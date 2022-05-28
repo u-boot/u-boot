@@ -43,11 +43,6 @@
 
 /* Startup hooks */
 
-/* SPL */
-#ifndef CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
-#endif
-
 /* Memory sizes */
 
 /* OCRAM at 0x0 ; 32kB on MX23 ; 128kB on MX28 */
