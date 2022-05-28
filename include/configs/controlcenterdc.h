@@ -22,18 +22,6 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-/* SPL */
-/*
- * Select the boot device here
- *
- * Currently supported are:
- * SPL_BOOT_SPI_NOR_FLASH	- Booting via SPI NOR flash
- * SPL_BOOT_SDIO_MMC_CARD	- Booting via SDIO/MMC card (partition 1)
- */
-#define SPL_BOOT_SPI_NOR_FLASH		1
-#define SPL_BOOT_SDIO_MMC_CARD		2
-#define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
-
 /*
  * Environment Configuration
  */

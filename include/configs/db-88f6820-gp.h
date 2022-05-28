@@ -27,18 +27,6 @@
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
-/* SPL */
-/*
- * Select the boot device here
- *
- * Currently supported are:
- * SPL_BOOT_SPI_NOR_FLASH	- Booting via SPI NOR flash
- * SPL_BOOT_SDIO_MMC_CARD	- Booting via SDIO/MMC card (partition 1)
- */
-#define SPL_BOOT_SPI_NOR_FLASH		1
-#define SPL_BOOT_SDIO_MMC_CARD		2
-#define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
