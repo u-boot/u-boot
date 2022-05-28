@@ -34,13 +34,6 @@
 #define SPL_BOOT_SDIO_MMC_CARD		2
 #define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
 
-#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
-/* SPL related MMC defines */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
-#endif
-#endif
-
 /*
  * Environment Configuration
  */

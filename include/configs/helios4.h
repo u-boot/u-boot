@@ -40,15 +40,6 @@
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
-/* SPL */
-
-#if defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC) || defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_SATA)
-/* SPL related MMC defines */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
-#endif
-#endif
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

@@ -484,6 +484,19 @@ config SPL_MMC_SDHCI_ADMA
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00 in SPL.
 
+config FIXED_SDHCI_ALIGNED_BUFFER
+	hex "SDRAM address for fixed buffer"
+	depends on SPL && MVEBU_SPL_BOOT_DEVICE_MMC
+	default 0x00180000
+	help
+	  On the Marvell Armada 38x when the SPL runs it located in internal
+	  SRAM which is the L2 cache locked to memory. When the MMC buffers
+	  are located on the stack (or bss), the SDIO controller (SDHCI) can't
+	  write into this L2 cache memory.
+
+	  This specifies the address of a fixed buffer located in SDRAM that
+	  will be used for all SDHCI transfers in the SPL.
+
 config MMC_SDHCI_ASPEED
 	bool "Aspeed SDHCI controller"
 	depends on ARCH_ASPEED
