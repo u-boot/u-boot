@@ -42,9 +42,6 @@
 
 /* SPL */
 
-/* Defines for SPL */
-#define CONFIG_SPL_SIZE			(140 << 10)
-
 #if defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC) || defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_SATA)
 /* SPL related MMC defines */
 #ifdef CONFIG_SPL_BUILD

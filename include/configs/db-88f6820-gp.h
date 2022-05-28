@@ -39,9 +39,6 @@
 #define SPL_BOOT_SDIO_MMC_CARD		2
 #define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
 
-/* Defines for SPL */
-#define CONFIG_SPL_SIZE			(140 << 10)
-
 #if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
 /* SPL related MMC defines */
 #ifdef CONFIG_SPL_BUILD

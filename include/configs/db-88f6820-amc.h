@@ -39,9 +39,6 @@
 #define SPL_BOOT_SPI_NOR_FLASH		1
 #define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
 
-/* Defines for SPL */
-#define CONFIG_SPL_SIZE			(140 << 10)
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

@@ -26,9 +26,6 @@
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
-/* Defines for SPL */
-#define CONFIG_SPL_SIZE			(140 << 10)
-
 #ifdef CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC
 /* SPL related MMC defines */
 # ifdef CONFIG_SPL_BUILD

@@ -64,9 +64,4 @@
 #define CONFIG_UBI_PART			user
 #define CONFIG_UBIFS_VOLUME		user
 
-/* SPL */
-
-/* Defines for SPL */
-#define CONFIG_SPL_SIZE			(140 << 10)
-
 #endif /* _CONFIG_X530_H */
