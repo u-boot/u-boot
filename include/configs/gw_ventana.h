@@ -11,9 +11,6 @@
 
 /* Falcon Mode */
 
-/* Falcon Mode - NAND support: args@17MB kernel@18MB */
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	(18 * SZ_1M)
-
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x800	/* 1MB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)

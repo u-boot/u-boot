@@ -86,9 +86,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x500000
-#endif
 
 /* GPIO pin + bank to pin ID mapping */
 #define GPIO_PIN(_bank, _pin)		((_bank << 5) + _pin)

@@ -158,11 +158,4 @@
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 
-/* Defines for SPL */
-
-/* NAND: SPL falcon mode configs */
-#ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x280000
-#endif
-
 #endif /* __CONFIG_H */

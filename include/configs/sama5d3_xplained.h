@@ -58,9 +58,4 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
 /* U-Boot proper stored by default at 0x200 (256 KiB) */
 
-/* Falcon boot support on FAT on MMC */
-
-/* Falcon boot support on raw NAND */
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x1a0000
-
 #endif

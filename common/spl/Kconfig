@@ -1196,6 +1196,10 @@ config SYS_SPL_ARGS_ADDR
 	  Address in memory where the 'args' file, typically a device tree
 	  will be loaded in to memory.
 
+config SYS_NAND_SPL_KERNEL_OFFS
+	hex "Address in memory to load the OS file for Falcon mode to"
+	depends on SPL_OS_BOOT && SPL_NAND_SUPPORT
+
 if SPL_OS_BOOT
 config SYS_OS_BASE
 	hex "addr, where OS is found"
