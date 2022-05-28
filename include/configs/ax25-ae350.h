@@ -20,9 +20,6 @@
  * Miscellaneous configurable options
  */
 
-/* DT blob (fdt) address */
-#define CONFIG_SYS_FDT_BASE		0x800f0000
-
 /*
  * Physical Memory Map
  */
