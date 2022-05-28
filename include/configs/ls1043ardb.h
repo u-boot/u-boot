@@ -19,11 +19,6 @@
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
 
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x500
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	30
-#endif
-
 /*
  * NOR Flash Definitions
  */

@@ -1226,6 +1226,20 @@ config SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
 	  Note that the Falcon mode image can also be a FIT, if FIT support is
 	  enabled.
 
+config SYS_MMCSD_RAW_MODE_ARGS_SECTOR
+	hex "Falcon mode: Sector to load 'args' from MMC"
+	depends on SPL_FALCON_BOOT_MMCSD
+	help
+	  When Falcon mode is used with an MMC or SD media, SPL needs to know
+	  where to look for the OS 'args', typically a device tree. The
+	  contents are expected to begin at the raw MMC specified in this config.
+	  Note that if using a FIT image, this and the next option can be set to
+	  0x0.
+
+config SYS_MMCSD_RAW_MODE_ARGS_SECTORS
+	hex "Falcon mode: Number of sectors to load for 'args' from MMC"
+	depends on SPL_FALCON_BOOT_MMCSD && SYS_MMCSD_RAW_MODE_ARGS_SECTOR != 0x0
+
 config SPL_PAYLOAD
 	string "SPL payload"
 	default "tpl/u-boot-with-tpl.bin" if TPL

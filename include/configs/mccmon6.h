@@ -18,8 +18,6 @@
  * design force U-Boot run when we boot in development
  * mode from SD card (SD2)
  */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR (0x800)
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS (0x80)
 
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 

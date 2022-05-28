@@ -54,8 +54,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(2 * SZ_512K)
 
 /* Falcon boot support on raw MMC */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x100  /* 128 KiB */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
 /* U-Boot proper stored by default at 0x200 (256 KiB) */
 
 #endif

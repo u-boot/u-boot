@@ -12,9 +12,6 @@
 /* Falcon Mode */
 
 /* Falcon Mode - MMC support */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x3F00
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	\
-	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
 
 /*
  * display5 SPI-NOR memory layout

@@ -1639,12 +1639,6 @@ The following options need to be configured:
 		For ARM, enable an optional function to print more information
 		about the running system.
 
-		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
-		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS
-		Sector and number of sectors to load kernel argument
-		parameters from when MMC is being used in raw mode
-		(for falcon mode)
-
 		CONFIG_SPL_MPC83XX_WAIT_FOR_NAND
 		Set this for NAND SPL on PPC mpc83xx targets, so that
 		start.S waits for the rest of the SPL to load before

@@ -209,10 +209,6 @@
 
 /* ATF is my kernel image */
 
-/* MMC support */
-# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
-# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
-
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 # define CONFIG_SPL_HASH
 # define CONFIG_ENV_MAX_ENTRIES	10

@@ -118,8 +118,6 @@
 /* FAT */
 
 /* RAW SD card / eMMC */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x1500  /* address 0x2A0000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x200   /* 256KiB */
 #endif
 
 /* General parts of the framework, required. */

@@ -30,8 +30,6 @@
 
 #ifdef CONFIG_SPL_OS_BOOT
 /* RAW SD card / eMMC */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x80	/* address 0x10000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
 
 #endif /* CONFIG_SPL_OS_BOOT */
 
