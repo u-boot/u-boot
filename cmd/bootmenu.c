@@ -43,7 +43,7 @@ enum boot_type {
 struct bootmenu_entry {
 	unsigned short int num;		/* unique number 0 .. MAX_COUNT */
 	char key[3];			/* key identifier of number */
-	u16 *title;			/* title of entry */
+	char *title;			/* title of entry */
 	char *command;			/* hush command of entry */
 	enum boot_type type;		/* boot type of entry */
 	u16 bootorder;			/* order for each boot type */
@@ -76,7 +76,7 @@ static void bootmenu_print_entry(void *data)
 	if (reverse)
 		puts(ANSI_COLOR_REVERSE);
 
-	printf("%ls", entry->title);
+	printf("%s", entry->title);
 
 	if (reverse)
 		puts(ANSI_COLOR_RESET);
@@ -162,7 +162,6 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 				  struct bootmenu_entry **current,
 				  unsigned short int *index)
 {
-	int len;
 	char *sep;
 	const char *option;
 	unsigned short int i = *index;
@@ -170,8 +169,8 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 	struct bootmenu_entry *iter = *current;
 
 	while ((option = bootmenu_getoption(i))) {
-		u16 *buf;
 
+		/* bootmenu_[num] format is "[title]=[commands]" */
 		sep = strchr(option, '=');
 		if (!sep) {
 			printf("Invalid bootmenu entry: %s\n", option);
@@ -182,24 +181,18 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 		if (!entry)
 			return -ENOMEM;
 
-		len = sep-option;
-		buf = calloc(1, (len + 1) * sizeof(u16));
-		entry->title = buf;
+		entry->title = strndup(option, sep - option);
 		if (!entry->title) {
 			free(entry);
 			return -ENOMEM;
 		}
-		utf8_utf16_strncpy(&buf, option, len);
 
-		len = strlen(sep + 1);
-		entry->command = malloc(len + 1);
+		entry->command = strdup(sep + 1);
 		if (!entry->command) {
 			free(entry->title);
 			free(entry);
 			return -ENOMEM;
 		}
-		memcpy(entry->command, sep + 1, len);
-		entry->command[len] = 0;
 
 		sprintf(entry->key, "%d", i);
 
@@ -227,6 +220,7 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 	return 1;
 }
 
+#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR))
 /**
  * prepare_uefi_bootorder_entry() - generate the uefi bootmenu entries
  *
@@ -279,13 +273,17 @@ static int prepare_uefi_bootorder_entry(struct bootmenu_data *menu,
 		}
 
 		if (lo.attributes & LOAD_OPTION_ACTIVE) {
-			entry->title = u16_strdup(lo.label);
-			if (!entry->title) {
+			char *buf;
+
+			buf = calloc(1, utf16_utf8_strlen(lo.label) + 1);
+			if (!buf) {
 				free(load_option);
 				free(entry);
 				free(bootorder);
 				return -ENOMEM;
 			}
+			entry->title = buf;
+			utf16_utf8_strncpy(&buf, lo.label, u16_strlen(lo.label));
 			entry->command = strdup("bootefi bootmgr");
 			sprintf(entry->key, "%d", i);
 			entry->num = i;
@@ -315,6 +313,7 @@ static int prepare_uefi_bootorder_entry(struct bootmenu_data *menu,
 
 	return 1;
 }
+#endif
 
 static struct bootmenu_data *bootmenu_create(int delay)
 {
@@ -341,13 +340,13 @@ static struct bootmenu_data *bootmenu_create(int delay)
 	if (ret < 0)
 		goto cleanup;
 
-	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
-		if (i < MAX_COUNT - 1) {
+#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR))
+	if (i < MAX_COUNT - 1) {
 			ret = prepare_uefi_bootorder_entry(menu, &iter, &i);
 			if (ret < 0 && ret != -ENOENT)
 				goto cleanup;
-		}
 	}
+#endif
 
 	/* Add U-Boot console entry at the end */
 	if (i <= MAX_COUNT - 1) {
@@ -357,9 +356,9 @@ static struct bootmenu_data *bootmenu_create(int delay)
 
 		/* Add Quit entry if entering U-Boot console is disabled */
 		if (!IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE))
-			entry->title = u16_strdup(u"U-Boot console");
+			entry->title = strdup("U-Boot console");
 		else
-			entry->title = u16_strdup(u"Quit");
+			entry->title = strdup("Quit");
 
 		if (!entry->title) {
 			free(entry);
@@ -461,7 +460,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 	int cmd_ret;
 	int init = 0;
 	void *choice = NULL;
-	u16 *title = NULL;
+	char *title = NULL;
 	char *command = NULL;
 	struct menu *menu;
 	struct bootmenu_entry *iter;
@@ -517,7 +516,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 
 	if (menu_get_choice(menu, &choice) == 1) {
 		iter = choice;
-		title = u16_strdup(iter->title);
+		title = strdup(iter->title);
 		command = strdup(iter->command);
 
 		/* last entry is U-Boot console or Quit */
@@ -561,7 +560,7 @@ cleanup:
 	}
 
 	if (title && command) {
-		debug("Starting entry '%ls'\n", title);
+		debug("Starting entry '%s'\n", title);
 		free(title);
 		if (efi_ret == EFI_SUCCESS)
 			cmd_ret = run_command(command, 0);
