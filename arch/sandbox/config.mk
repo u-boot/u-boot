@@ -19,6 +19,9 @@ SANITIZERS :=
 ifdef CONFIG_ASAN
 SANITIZERS	+= -fsanitize=address
 endif
+ifdef CONFIG_FUZZ
+SANITIZERS	+= -fsanitize=fuzzer
+endif
 KBUILD_CFLAGS	+= $(SANITIZERS)
 
 cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds $(u-boot-init) \
