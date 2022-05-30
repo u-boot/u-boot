@@ -73,6 +73,13 @@ int fsl_initdram(void)
 	case GPPORCR1_MEM_4GB_CS0_1:
 		dram_size = 0x100000000ULL;
 		break;
+	case GPPORCR1_MEM_8GB_CS0_1:
+		dram_size = 0x200000000ULL;
+		ddr_cfg_regs.cs[0].bnds = 0x000000ff;
+		ddr_cfg_regs.cs[0].config = 0x80044403;
+		ddr_cfg_regs.cs[1].bnds = 0x010001ff;
+		ddr_cfg_regs.cs[1].config = 0x80044403;
+		break;
 	case GPPORCR1_MEM_512MB_CS0:
 		dram_size = 0x20000000;
 		fallthrough; /* for now */
@@ -82,7 +89,6 @@ int fsl_initdram(void)
 	case GPPORCR1_MEM_4GB_CS0_2:
 		dram_size = 0x100000000ULL;
 		fallthrough; /* for now */
-	case GPPORCR1_MEM_8GB_CS0_1:
 	case GPPORCR1_MEM_8GB_CS0_1_2_3:
 		dram_size = 0x200000000ULL;
 		fallthrough; /* for now */
