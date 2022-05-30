@@ -77,7 +77,7 @@
 #endif
 
 #ifdef CONFIG_CMD_UBIFS
-#define BOOT_TARGET_UBIFS(func)	func(UBIFS, ubifs, 0)
+#define BOOT_TARGET_UBIFS(func)	func(UBIFS, ubifs, 0, UBI, boot)
 #else
 #define BOOT_TARGET_UBIFS(func)
 #endif

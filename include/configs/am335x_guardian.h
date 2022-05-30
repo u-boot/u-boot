@@ -29,7 +29,7 @@
 	"ramdisk_addr_r=0x88080000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(UBIFS, ubifs, 0)
+	func(UBIFS, ubifs, 0, UBI, rootfs)
 
 #define AM335XX_BOARD_FDTFILE "fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"
 
@@ -54,7 +54,6 @@
 	GUARDIAN_DEFAULT_PROD_ENV \
 	"autoload=no\0" \
 	"backlight_brightness=50\0" \
-	"bootubivol=rootfs\0" \
 	"distro_bootcmd=" \
 		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
 		"setenv ethact usb_ether; " \

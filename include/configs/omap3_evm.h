@@ -60,7 +60,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(LEGACY_MMC, legacy_mmc, 0) \
-	func(UBIFS, ubifs, 0) \
+	func(UBIFS, ubifs, 0, rootfs, rootfs) \
 	func(NAND, nand, 0)
 
 #else /* !CONFIG_MTD_RAW_NAND */
@@ -88,8 +88,6 @@
 	"bootenv=uEnv.txt\0" \
 	"bootfile=zImage\0" \
 	"bootpart=0:2\0" \
-	"bootubivol=rootfs\0" \
-	"bootubipart=rootfs\0" \
 	"optargs=\0" \
 	"nandroot=ubi0:rootfs ubi.mtd=rootfs rw noinitrd\0" \
 	"nandrootfstype=ubifs rootwait\0" \
