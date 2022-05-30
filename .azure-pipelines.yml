@@ -473,6 +473,12 @@ stages:
           BUILDMAN: "imx8"
         keystone2_keystone3:
           BUILDMAN: "k2 k3"
+        sandbox_asan:
+          BUILDMAN: "sandbox"
+          OVERRIDE: "-a ASAN"
+        sandbox_clang_asan:
+          BUILDMAN: "sandbox"
+          OVERRIDE: "-O clang-13 -a ASAN"
         samsung_socfpga:
           BUILDMAN: "samsung socfpga"
         sun4i:
