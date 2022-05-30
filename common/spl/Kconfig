@@ -1,5 +1,3 @@
-menu "SPL / TPL / VPL"
-
 config SUPPORT_SPL
 	bool
 
@@ -13,15 +11,16 @@ config SPL_DFU_NO_RESET
 	bool
 
 config SPL
-	bool
+	bool "Enable SPL"
 	depends on SUPPORT_SPL
-	prompt "Enable SPL"
 	help
 	  If you want to build SPL as well as the normal image, say Y.
 
+menu "SPL configuration options"
+	depends on SPL
+
 config SPL_FRAMEWORK
 	bool "Support SPL based upon the common SPL framework"
-	depends on SPL
 	default y
 	help
 	  Enable the SPL framework under common/spl/.  This framework
@@ -39,7 +38,6 @@ config SPL_FRAMEWORK_BOARD_INIT_F
 
 config SPL_SIZE_LIMIT
 	hex "Maximum size of SPL image"
-	depends on SPL
 	default 0x11000 if ARCH_MX6 && !MX6_OCRAM_256KB
 	default 0x31000 if ARCH_MX6 && MX6_OCRAM_256KB
 	default 0x0
@@ -122,7 +120,7 @@ config SPL_BSS_START_ADDR
 
 choice
 	prompt "Enforce SPL BSS limit"
-	depends on SPL && !PPC
+	depends on !PPC
 	default SPL_BSS_LIMIT
 	help
 	  In some platforms we only want to enforce a limit on the size of the
@@ -203,15 +201,13 @@ source "common/spl/Kconfig.nxp"
 
 config HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
-	depends on SPL && BLOBLIST
+	depends on BLOBLIST
 	help
 	  It is useful to be able to pass information from SPL to U-Boot
 	  proper to preserve state that is known in SPL and is needed in U-Boot.
 	  Enable this to locate the handoff information in U-Boot proper, early
 	  in boot. It is available in gd->handoff. The state state is set up
 	  in SPL (or TPL if that is being used).
-
-if SPL
 
 config SPL_HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
@@ -300,8 +296,7 @@ config SPL_LEGACY_IMAGE_CRC_CHECK
 	  are correct, without further integrity checks.
 
 config SPL_SYS_MALLOC_SIMPLE
-	bool
-	prompt "Only use malloc_simple functions in the SPL"
+	bool "Only use malloc_simple functions in the SPL"
 	help
 	  Say Y here to only use the *_simple malloc functions from
 	  malloc_simple.c, rather then using the versions from dlmalloc.c;
@@ -1020,7 +1015,6 @@ config SPL_NOR_SUPPORT
 
 config SPL_XIP_SUPPORT
 	bool "Support XIP"
-	depends on SPL
 	help
 	  Enable support for execute in place of U-Boot or kernel image. There
 	  is no need to copy image from flash to ram if flash supports execute
@@ -1131,7 +1125,6 @@ config SPL_POST_MEM_SUPPORT
 
 config SPL_DM_RESET
 	bool "Support reset drivers"
-	depends on SPL
 	help
 	  Enable support for reset control in SPL.
 	  That can be useful in SPL to handle IP reset in driver, as in U-Boot,
@@ -1472,24 +1465,6 @@ config SPL_TARGET
 	  On some platforms we need to have 'make' run additional build target
 	  rules. If required on your platform, enter it here, otherwise leave blank.
 
-config TPL
-	bool
-	depends on SUPPORT_TPL
-	prompt "Enable TPL"
-	help
-	  If you want to build TPL as well as the normal image and SPL, say Y.
-
-source "common/spl/Kconfig.tpl"
-
-config VPL
-	bool
-	depends on SUPPORT_SPL
-	prompt "Enable VPL"
-	help
-	  If you want to build VPL as well as the normal image, TPL and SPL,
-	  say Y.
-
-source "common/spl/Kconfig.vpl"
 
 config SPL_AT91_MCK_BYPASS
 	bool "Use external clock signal as a source of main clock for AT91 platforms"
@@ -1501,6 +1476,21 @@ config SPL_AT91_MCK_BYPASS
 	  The external source has to provide a stable clock on the XIN pin.
 	  If this option is disabled, the SoC expects a crystal oscillator
 	  that needs driving on both XIN and XOUT lines.
-
-endif # SPL
 endmenu
+
+config TPL
+	depends on SUPPORT_TPL
+	bool "Enable TPL"
+	help
+	  If you want to build TPL as well as the normal image and SPL, say Y.
+
+source "common/spl/Kconfig.tpl"
+
+config VPL
+	depends on SUPPORT_SPL
+	bool "Enable VPL"
+	help
+	  If you want to build VPL as well as the normal image, TPL and SPL,
+	  say Y.
+
+source "common/spl/Kconfig.vpl"
