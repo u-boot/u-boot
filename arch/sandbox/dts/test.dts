@@ -92,6 +92,10 @@
 		};
 	};
 
+	fuzzing-engine {
+		compatible = "sandbox,fuzzing-engine";
+	};
+
 	reboot-mode0 {
 		compatible = "reboot-mode-gpio";
 		gpios = <&gpio_c 0 GPIO_ACTIVE_HIGH>, <&gpio_c 1 GPIO_ACTIVE_HIGH>;

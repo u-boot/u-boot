@@ -3,7 +3,15 @@ config DM_FUZZING_ENGINE
 	depends on DM
 	help
 	  Enable driver model for fuzzing engine devices. This interface is
-	  used to get successive inputs from a fuzzing engine that aims to
-	  explore different code paths in a fuzz test. The fuzzing engine may
-	  be instrumenting the execution in order to more effectively generate
-	  inputs that explore different code paths.
+	  used to get fuzzing inputs from a fuzzing engine.
+
+if DM_FUZZING_ENGINE
+
+config FUZZING_ENGINE_SANDBOX
+	bool "Sanbox fuzzing engine"
+	depends on SANDBOX
+	default y
+	help
+	  Enable fuzzing engine for sandbox.
+
+endif
