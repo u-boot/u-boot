@@ -69,7 +69,6 @@ int fsl_initdram(void)
 		dram_size = 0x80000000;
 		ddr_cfg_regs.cs[1].bnds = 0;
 		ddr_cfg_regs.cs[1].config = 0;
-		ddr_cfg_regs.cs[1].config_2 = 0;
 		break;
 	case GPPORCR1_MEM_4GB_CS0_1:
 		dram_size = 0x100000000ULL;
