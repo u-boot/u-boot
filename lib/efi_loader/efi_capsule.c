@@ -1062,6 +1062,9 @@ static efi_status_t check_run_capsules(void)
 	efi_uintn_t size;
 	efi_status_t r;
 
+	if (IS_ENABLED(CONFIG_EFI_IGNORE_OSINDICATIONS))
+		return EFI_SUCCESS;
+
 	size = sizeof(os_indications);
 	r = efi_get_variable_int(u"OsIndications", &efi_global_variable_guid,
 				 NULL, &size, &os_indications, NULL);
@@ -1081,8 +1084,6 @@ static efi_status_t check_run_capsules(void)
 					 &os_indications, false);
 		if (r != EFI_SUCCESS)
 			log_err("Setting %ls failed\n", L"OsIndications");
-		return EFI_SUCCESS;
-	} else if (IS_ENABLED(CONFIG_EFI_IGNORE_OSINDICATIONS)) {
 		return EFI_SUCCESS;
 	} else  {
 		return EFI_NOT_FOUND;
