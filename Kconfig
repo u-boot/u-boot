@@ -161,6 +161,15 @@ config ASAN
 	  Enables AddressSanitizer to discover out-of-bounds accesses,
 	  use-after-free, double-free and memory leaks.
 
+config FUZZ
+	bool "Enable fuzzing"
+	depends on CC_IS_CLANG
+	depends on DM_FUZZING_ENGINE
+	select ASAN
+	help
+	  Enables the fuzzing infrastructure to generate fuzzing data and run
+          fuzz tests.
+
 config CC_HAS_ASM_INLINE
 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
 
