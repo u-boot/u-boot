@@ -114,7 +114,7 @@ static ssize_t sandbox_serial_puts(struct udevice *dev, const char *s,
 	struct sandbox_serial_priv *priv = dev_get_priv(dev);
 	ssize_t ret;
 
-	if (s[len - 1] == '\n')
+	if (len && s[len - 1] == '\n')
 		priv->start_of_line = true;
 
 	if (sandbox_serial_enabled) {
