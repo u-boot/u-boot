@@ -13,7 +13,7 @@ then the corresponding input section name is
 
 ::
 
-  .u_boot_list_ + 2_ + @_list + _2_ + @_entry
+  __u_boot_list_ + 2_ + @_list + _2_ + @_entry
 
 and the C variable name is
 
@@ -23,7 +23,7 @@ and the C variable name is
 
 This ensures uniqueness for both input section and C variable name.
 
-Note that the names differ only in the first character, "." for the
+Note that the names differ only in the characters, "__" for the
 section and "_" for the variable, so that the linker cannot confuse
 section and symbol names. From now on, both names will be referred
 to as
@@ -63,11 +63,11 @@ iterated at least once.
 
 ::
 
-  .u_boot_list_2_array_1
-  .u_boot_list_2_array_2_first
-  .u_boot_list_2_array_2_second
-  .u_boot_list_2_array_2_third
-  .u_boot_list_2_array_3
+  __u_boot_list_2_array_1
+  __u_boot_list_2_array_2_first
+  __u_boot_list_2_array_2_second
+  __u_boot_list_2_array_2_third
+  __u_boot_list_2_array_3
 
 If lists must be divided into sublists (e.g. for iterating only on
 part of a list), one can simply give the list a name of the form
@@ -129,17 +129,17 @@ the compiler cannot update the alignment of the linker_list item.
 
 In the first case, an 8-byte 'fill' region is added::
 
-   .u_boot_list_2_driver_2_testbus_drv
+   __u_boot_list_2_driver_2_testbus_drv
                0x0000000000270018       0x80 test/built-in.o
                0x0000000000270018                _u_boot_list_2_driver_2_testbus_drv
-   .u_boot_list_2_driver_2_testfdt1_drv
+   __u_boot_list_2_driver_2_testfdt1_drv
                0x0000000000270098       0x80 test/built-in.o
                0x0000000000270098                _u_boot_list_2_driver_2_testfdt1_drv
    *fill*         0x0000000000270118        0x8
-   .u_boot_list_2_driver_2_testfdt_drv
+   __u_boot_list_2_driver_2_testfdt_drv
                0x0000000000270120       0x80 test/built-in.o
                0x0000000000270120                _u_boot_list_2_driver_2_testfdt_drv
-   .u_boot_list_2_driver_2_testprobe_drv
+   __u_boot_list_2_driver_2_testprobe_drv
                0x00000000002701a0       0x80 test/built-in.o
                0x00000000002701a0                _u_boot_list_2_driver_2_testprobe_drv
 

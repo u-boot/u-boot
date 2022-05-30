@@ -65,6 +65,6 @@ PLATFORM_CPPFLAGS		+= -msoft-float
 KBUILD_LDFLAGS			+= -G 0 -static -n -nostdlib
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
 LDFLAGS_FINAL			+= --gc-sections
-OBJCOPYFLAGS			+= -j .text -j .rodata -j .data -j .u_boot_list
+OBJCOPYFLAGS			+= -j .text -j .rodata -j .data -j __u_boot_list
 
 LDFLAGS_STANDALONE		+= --gc-sections

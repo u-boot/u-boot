@@ -9,8 +9,8 @@ SECTIONS
 {
 
 	. = ALIGN(32);
-	.u_boot_list : {
-		KEEP(*(SORT(.u_boot_list*)));
+	__u_boot_list : {
+		KEEP(*(SORT(__u_boot_list*)));
 	}
 
 	/* Private data for devices with OF_PLATDATA_RT */
