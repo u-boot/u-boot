@@ -453,7 +453,7 @@ void sandbox_reset(void)
 	os_relaunch(os_argv);
 }
 
-int main(int argc, char *argv[])
+int sandbox_main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
 	void * text_base;
