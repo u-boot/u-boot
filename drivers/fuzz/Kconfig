@@ -1,0 +1,9 @@
+config DM_FUZZING_ENGINE
+	bool "Driver support for fuzzing engine devices"
+	depends on DM
+	help
+	  Enable driver model for fuzzing engine devices. This interface is
+	  used to get successive inputs from a fuzzing engine that aims to
+	  explore different code paths in a fuzz test. The fuzzing engine may
+	  be instrumenting the execution in order to more effectively generate
+	  inputs that explore different code paths.
