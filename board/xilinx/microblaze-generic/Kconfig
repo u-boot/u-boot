@@ -38,6 +38,14 @@ config XILINX_MICROBLAZE0_HW_VER
 	string "Core version number"
 	default "7.10.d"
 
+config XILINX_MICROBLAZE0_FPGA_FAMILY
+	string "Targeted FPGA family"
+	default "virtex5"
+	help
+	  This option contains info about the target FPGA architecture
+	  (Zynq-7000, UltraScale+ Kintex, etc) that the MicroBlaze soft core is
+	  implemented on. It corresponds to the C_FAMILY hdl parameter.
+
 config XILINX_MICROBLAZE0_USR_EXCEP
 	bool "MicroBlaze user exception support"
 	default y
