@@ -13,6 +13,7 @@
 #include <asm/types.h>
 
 struct udevice;
+struct scmi_channel;
 
 /*
  * struct scmi_msg - Context of a SCMI message sent and the response received
@@ -52,10 +53,12 @@ struct scmi_msg {
  * On return, scmi_msg::out_msg_sz stores the response payload size.
  *
  * @dev:	SCMI device
+ * @channel:	Communication channel for the device
  * @msg:	Message structure reference
  * Return: 0 on success and a negative errno on failure
  */
-int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg);
+int devm_scmi_process_msg(struct udevice *dev, struct scmi_channel *channel,
+			  struct scmi_msg *msg);
 
 /**
  * scmi_to_linux_errno() - Convert an SCMI error code into a Linux errno code

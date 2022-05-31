@@ -38,7 +38,7 @@ static int scmi_voltd_set_enable(struct udevice *dev, bool enable)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(dev, &msg);
+	ret = devm_scmi_process_msg(dev, NULL, &msg);
 	if (ret)
 		return ret;
 
@@ -61,7 +61,7 @@ static int scmi_voltd_get_enable(struct udevice *dev)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(dev, &msg);
+	ret = devm_scmi_process_msg(dev, NULL, &msg);
 	if (ret < 0)
 		return ret;
 
@@ -85,7 +85,7 @@ static int scmi_voltd_set_voltage_level(struct udevice *dev, int uV)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(dev, &msg);
+	ret = devm_scmi_process_msg(dev, NULL, &msg);
 	if (ret < 0)
 		return ret;
 
@@ -104,7 +104,7 @@ static int scmi_voltd_get_voltage_level(struct udevice *dev)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(dev, &msg);
+	ret = devm_scmi_process_msg(dev, NULL, &msg);
 	if (ret < 0)
 		return ret;
 
@@ -147,7 +147,7 @@ static int scmi_regulator_probe(struct udevice *dev)
 	/* Check voltage domain is known from SCMI server */
 	in.domain_id = pdata->domain_id;
 
-	ret = devm_scmi_process_msg(dev, &scmi_msg);
+	ret = devm_scmi_process_msg(dev, NULL, &scmi_msg);
 	if (ret) {
 		dev_err(dev, "Failed to query voltage domain %u: %d\n",
 			pdata->domain_id, ret);

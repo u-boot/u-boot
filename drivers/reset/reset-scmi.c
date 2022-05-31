@@ -26,7 +26,7 @@ static int scmi_reset_set_level(struct reset_ctl *rst, bool assert_not_deassert)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(rst->dev, &msg);
+	ret = devm_scmi_process_msg(rst->dev, NULL, &msg);
 	if (ret)
 		return ret;
 
@@ -58,7 +58,7 @@ static int scmi_reset_request(struct reset_ctl *rst)
 	 * We don't really care about the attribute, just check
 	 * the reset domain exists.
 	 */
-	ret = devm_scmi_process_msg(rst->dev, &msg);
+	ret = devm_scmi_process_msg(rst->dev, NULL, &msg);
 	if (ret)
 		return ret;
 

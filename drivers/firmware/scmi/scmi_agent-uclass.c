@@ -114,7 +114,8 @@ static const struct scmi_agent_ops *transport_dev_ops(struct udevice *dev)
 	return (const struct scmi_agent_ops *)dev->driver->ops;
 }
 
-int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg)
+int devm_scmi_process_msg(struct udevice *dev, struct scmi_channel *channel,
+			  struct scmi_msg *msg)
 {
 	const struct scmi_agent_ops *ops;
 	struct udevice *parent = dev;

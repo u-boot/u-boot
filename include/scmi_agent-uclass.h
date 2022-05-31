@@ -15,7 +15,7 @@ struct scmi_agent_ops {
 	/*
 	 * process_msg - Request transport to get the SCMI message processed
 	 *
-	 * @agent:		Agent using the transport
+	 * @dev:		SCMI protocol device using the transport
 	 * @msg:		SCMI message to be transmitted
 	 */
 	int (*process_msg)(struct udevice *dev, struct scmi_msg *msg);
