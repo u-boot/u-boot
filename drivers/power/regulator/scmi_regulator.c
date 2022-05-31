@@ -51,11 +51,7 @@ static int scmi_voltd_set_enable(struct udevice *dev, bool enable)
 	if (ret)
 		return ret;
 
-	ret = scmi_to_linux_errno(out.status);
-	if (ret)
-		return ret;
-
-	return ret;
+	return scmi_to_linux_errno(out.status);
 }
 
 static int scmi_voltd_get_enable(struct udevice *dev)
