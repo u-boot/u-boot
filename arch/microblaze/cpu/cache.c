@@ -10,6 +10,34 @@
 #include <asm/asm.h>
 #include <asm/cache.h>
 
+static void __invalidate_icache(ulong addr, ulong size)
+{
+	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WIC)) {
+		for (int i = 0; i < size; i += 4) {
+			asm volatile (
+				"wic	%0, r0;"
+				"nop;"
+				:
+				: "r" (addr + i)
+				: "memory");
+		}
+	}
+}
+
+static void __flush_dcache(ulong addr, ulong size)
+{
+	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WDC)) {
+		for (int i = 0; i < size; i += 4) {
+			asm volatile (
+				"wdc.flush	%0, r0;"
+				"nop;"
+				:
+				: "r" (addr + i)
+				: "memory");
+		}
+	}
+}
+
 int dcache_status(void)
 {
 	int i = 0;
@@ -38,7 +66,8 @@ void icache_enable(void)
 void icache_disable(void)
 {
 	/* we are not generate ICACHE size -> flush whole cache */
-	flush_cache(0, 32768);
+	__invalidate_icache(0, 32768);
+
 	MSRCLR(0x20);
 }
 
@@ -49,31 +78,13 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
+	__flush_dcache(0, XILINX_DCACHE_BYTE_SIZE);
 
 	MSRCLR(0x80);
 }
 
 void flush_cache(ulong addr, ulong size)
 {
-	int i;
-	for (i = 0; i < size; i += 4) {
-		if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WIC)) {
-			asm volatile (
-				"wic	%0, r0;"
-				"nop;"
-				:
-				: "r" (addr + i)
-				: "memory");
-		}
-
-		if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WDC)) {
-			asm volatile (
-				"wdc.flush	%0, r0;"
-				"nop;"
-				:
-				: "r" (addr + i)
-				: "memory");
-		}
-	}
+	__invalidate_icache(addr, size);
+	__flush_dcache(addr, size);
 }
