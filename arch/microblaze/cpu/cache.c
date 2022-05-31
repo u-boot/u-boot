@@ -24,6 +24,11 @@ static void __invalidate_icache(ulong addr, ulong size)
 	}
 }
 
+void invalidate_icache_all(void)
+{
+	__invalidate_icache(0, CONFIG_XILINX_MICROBLAZE0_ICACHE_SIZE);
+}
+
 static void __flush_dcache(ulong addr, ulong size)
 {
 	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WDC)) {
@@ -36,6 +41,11 @@ static void __flush_dcache(ulong addr, ulong size)
 				: "memory");
 		}
 	}
+}
+
+void flush_dcache_all(void)
+{
+	__flush_dcache(0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE);
 }
 
 int dcache_status(void)
@@ -65,7 +75,7 @@ void icache_enable(void)
 
 void icache_disable(void)
 {
-	__invalidate_icache(0, CONFIG_XILINX_MICROBLAZE0_ICACHE_SIZE);
+	invalidate_icache_all();
 
 	MSRCLR(0x20);
 }
@@ -77,7 +87,7 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-	__flush_dcache(0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE);
+	flush_dcache_all();
 
 	MSRCLR(0x80);
 }
@@ -86,4 +96,10 @@ void flush_cache(ulong addr, ulong size)
 {
 	__invalidate_icache(addr, size);
 	__flush_dcache(addr, size);
+}
+
+void flush_cache_all(void)
+{
+	invalidate_icache_all();
+	flush_dcache_all();
 }

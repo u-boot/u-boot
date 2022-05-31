@@ -57,7 +57,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	       "(fake run for tracing)" : "");
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
 
-	flush_cache(0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE);
+	flush_cache_all();
 
 	if (!fake) {
 		/*

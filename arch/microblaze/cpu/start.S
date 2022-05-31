@@ -98,9 +98,7 @@ uboot_sym_start:
 #endif
 
 	/* Flush cache before enable cache */
-	addik	r5, r0, 0
-	addik	r6, r0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE
-	brlid	r15, flush_cache
+	brlid	r15, flush_cache_all
 	nop
 
 	/* enable instruction and data cache */
@@ -349,9 +347,7 @@ relocate_code:
 #endif
 
 	/* Flush caches to ensure consistency */
-	addik	r5, r0, 0
-	addik	r6, r0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE
-	brlid	r15, flush_cache
+	brlid	r15, flush_cache_all
 	nop
 
 2:	addi	r5, r31, 0 /* gd is initialized in board_r.c */
