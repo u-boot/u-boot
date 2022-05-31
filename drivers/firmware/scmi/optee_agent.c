@@ -91,8 +91,6 @@ enum optee_smci_pta_cmd {
 	/*
 	 * PTA_SCMI_CMD_GET_CHANNEL - Get channel handle
 	 *
-	 * SCMI shm information are 0 if agent expects to use OP-TEE regular SHM
-	 *
 	 * [in]     value[0].a: Channel identifier
 	 * [out]    value[0].a: Returned channel handle
 	 * [in]     value[0].b: Requested capabilities mask (enum pta_scmi_caps)
