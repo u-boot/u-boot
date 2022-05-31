@@ -133,7 +133,7 @@ int devm_scmi_process_msg(struct udevice *dev, struct scmi_channel *channel,
 	ops = transport_dev_ops(parent);
 
 	if (ops->process_msg)
-		return ops->process_msg(parent, msg);
+		return ops->process_msg(parent, NULL, msg);
 
 	return -EPROTONOSUPPORT;
 }

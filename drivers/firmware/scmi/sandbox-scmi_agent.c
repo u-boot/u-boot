@@ -471,6 +471,7 @@ static int sandbox_scmi_voltd_level_get(struct udevice *dev,
 }
 
 static int sandbox_scmi_test_process_msg(struct udevice *dev,
+					 struct scmi_channel *channel,
 					 struct scmi_msg *msg)
 {
 	switch (msg->protocol_id) {

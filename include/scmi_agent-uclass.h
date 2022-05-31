@@ -7,6 +7,7 @@
 
 struct udevice;
 struct scmi_msg;
+struct scmi_channel;
 
 /**
  * struct scmi_transport_ops - The functions that a SCMI transport layer must implement.
@@ -18,7 +19,8 @@ struct scmi_agent_ops {
 	 * @dev:		SCMI protocol device using the transport
 	 * @msg:		SCMI message to be transmitted
 	 */
-	int (*process_msg)(struct udevice *dev, struct scmi_msg *msg);
+	int (*process_msg)(struct udevice *dev, struct scmi_channel *channel,
+			   struct scmi_msg *msg);
 };
 
 #endif /* _SCMI_TRANSPORT_UCLASS_H */

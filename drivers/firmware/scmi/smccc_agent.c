@@ -30,7 +30,9 @@ struct scmi_smccc_channel {
 	struct scmi_smt smt;
 };
 
-static int scmi_smccc_process_msg(struct udevice *dev, struct scmi_msg *msg)
+static int scmi_smccc_process_msg(struct udevice *dev,
+				  struct scmi_channel *channel,
+				  struct scmi_msg *msg)
 {
 	struct scmi_smccc_channel *chan = dev_get_plat(dev);
 	struct arm_smccc_res res;

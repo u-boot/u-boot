@@ -31,7 +31,9 @@ struct scmi_mbox_channel {
 	ulong timeout_us;
 };
 
-static int scmi_mbox_process_msg(struct udevice *dev, struct scmi_msg *msg)
+static int scmi_mbox_process_msg(struct udevice *dev,
+				 struct scmi_channel *channel,
+				 struct scmi_msg *msg)
 {
 	struct scmi_mbox_channel *chan = dev_get_plat(dev);
 	int ret;

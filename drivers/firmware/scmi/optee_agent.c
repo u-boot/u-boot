@@ -267,7 +267,9 @@ static void release_shm(struct udevice *dev, struct channel_session *sess)
 		tee_shm_free(sess->tee_shm);
 }
 
-static int scmi_optee_process_msg(struct udevice *dev, struct scmi_msg *msg)
+static int scmi_optee_process_msg(struct udevice *dev,
+				  struct scmi_channel *channel,
+				  struct scmi_msg *msg)
 {
 	struct channel_session sess = { };
 	int ret;
