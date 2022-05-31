@@ -49,26 +49,31 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-#ifdef CONFIG_DCACHE
 	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
-#endif
+
 	MSRCLR(0x80);
 }
 
 void flush_cache(ulong addr, ulong size)
 {
 	int i;
-	for (i = 0; i < size; i += 4)
+	for (i = 0; i < size; i += 4) {
 		asm volatile (
 #ifdef CONFIG_ICACHE
 				"wic	%0, r0;"
 #endif
 				"nop;"
-#ifdef CONFIG_DCACHE
+				:
+				: "r" (addr + i)
+				: "memory");
+
+		if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WDC)) {
+			asm volatile (
 				"wdc.flush	%0, r0;"
-#endif
 				"nop;"
 				:
 				: "r" (addr + i)
 				: "memory");
+		}
+	}
 }

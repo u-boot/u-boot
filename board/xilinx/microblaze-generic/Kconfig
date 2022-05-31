@@ -63,4 +63,15 @@ config XILINX_MICROBLAZE0_VECTOR_BASE_ADDR
 	  Memory address location of the exception vector table. It is
 	  configurable via the C_BASE_VECTORS hdl parameter.
 
+config XILINX_MICROBLAZE0_USE_WDC
+	bool "MicroBlaze wdc instruction support"
+	default y
+	help
+	  Enable this option if the MicroBlaze processor is configured with
+	  support for the "wdc" (Write to Data Cache) instruction.
+
+config SPL_XILINX_MICROBLAZE0_USE_WDC
+	bool
+	default XILINX_MICROBLAZE0_USE_WDC
+
 endif
