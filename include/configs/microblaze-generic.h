@@ -26,10 +26,6 @@
 # define CONFIG_SYS_MAX_FLASH_SECT	2048
 #endif
 
-#ifndef XILINX_DCACHE_BYTE_SIZE
-#define XILINX_DCACHE_BYTE_SIZE	32768
-#endif
-
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
 /* max number of command args */

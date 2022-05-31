@@ -99,7 +99,7 @@ uboot_sym_start:
 
 	/* Flush cache before enable cache */
 	addik	r5, r0, 0
-	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
+	addik	r6, r0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE
 	brlid	r15, flush_cache
 	nop
 
@@ -350,7 +350,7 @@ relocate_code:
 
 	/* Flush caches to ensure consistency */
 	addik	r5, r0, 0
-	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
+	addik	r6, r0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE
 	brlid	r15, flush_cache
 	nop
 

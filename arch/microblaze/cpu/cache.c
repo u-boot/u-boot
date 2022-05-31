@@ -65,8 +65,7 @@ void icache_enable(void)
 
 void icache_disable(void)
 {
-	/* we are not generate ICACHE size -> flush whole cache */
-	__invalidate_icache(0, 32768);
+	__invalidate_icache(0, CONFIG_XILINX_MICROBLAZE0_ICACHE_SIZE);
 
 	MSRCLR(0x20);
 }
@@ -78,7 +77,7 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-	__flush_dcache(0, XILINX_DCACHE_BYTE_SIZE);
+	__flush_dcache(0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE);
 
 	MSRCLR(0x80);
 }

@@ -85,4 +85,20 @@ config SPL_XILINX_MICROBLAZE0_USE_WIC
 	bool
 	default XILINX_MICROBLAZE0_USE_WIC
 
+config XILINX_MICROBLAZE0_DCACHE_SIZE
+	int "Default data cache size"
+	default 32768
+	help
+	  This fallback size will be used when no dcache info can be found in
+	  the device tree, or when the data cache is flushed very early in the
+	  boot process, before device tree is available.
+
+config XILINX_MICROBLAZE0_ICACHE_SIZE
+	int "Default instruction cache size"
+	default 32768
+	help
+	  This fallback size will be used when no icache info can be found in
+	  the device tree, or when the instruction cache is flushed very early
+	  in the boot process, before device tree is available.
+
 endif
