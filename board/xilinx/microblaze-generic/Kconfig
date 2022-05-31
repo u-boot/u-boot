@@ -109,4 +109,12 @@ config XILINX_MICROBLAZE0_ICACHE_SIZE
 	  the device tree, or when the instruction cache is flushed very early
 	  in the boot process, before device tree is available.
 
+config XILINX_MICROBLAZE0_PVR
+	bool "MicroBlaze PVR support"
+	help
+	  Enables helper functions and macros needed to manipulate PVR
+	  (Processor Version Register) data. Currently, only the microblaze
+	  UCLASS_CPU driver makes use of this feature to retrieve CPU info at
+	  runtime.
+
 endif

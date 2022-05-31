@@ -7,4 +7,5 @@ extra-y	= start.o
 obj-y	= irq.o
 obj-y	+= interrupts.o cache.o exception.o timer.o cpuinfo.o
 obj-$(CONFIG_STATIC_RELA)	+= relocate.o
+obj-$(CONFIG_XILINX_MICROBLAZE0_PVR) += pvr.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
