@@ -19,3 +19,12 @@ config CPU_RISCV
 	depends on CPU && RISCV
 	help
 	  Support CPU cores for RISC-V architecture.
+
+config CPU_MICROBLAZE
+	bool "Enable Microblaze CPU driver"
+	depends on CPU && MICROBLAZE
+	select EVENT
+	select DM_EVENT
+	select XILINX_MICROBLAZE0_PVR
+	help
+	  Support CPU cores for Microblaze architecture.
