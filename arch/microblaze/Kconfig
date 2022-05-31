@@ -39,10 +39,6 @@ config TARGET_MICROBLAZE_GENERIC
 
 endchoice
 
-config ICACHE
-	bool "Enable icache support"
-	default y
-
 source "board/xilinx/Kconfig"
 source "board/xilinx/microblaze-generic/Kconfig"
 

@@ -74,4 +74,15 @@ config SPL_XILINX_MICROBLAZE0_USE_WDC
 	bool
 	default XILINX_MICROBLAZE0_USE_WDC
 
+config XILINX_MICROBLAZE0_USE_WIC
+	bool "MicroBlaze wic instruction support"
+	default y
+	help
+	  Enable this option if the MicroBlaze processor is configured with
+	  support for the "wic" (Write to Instruction Cache) instruction.
+
+config SPL_XILINX_MICROBLAZE0_USE_WIC
+	bool
+	default XILINX_MICROBLAZE0_USE_WIC
+
 endif

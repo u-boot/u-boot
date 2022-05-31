@@ -58,14 +58,14 @@ void flush_cache(ulong addr, ulong size)
 {
 	int i;
 	for (i = 0; i < size; i += 4) {
-		asm volatile (
-#ifdef CONFIG_ICACHE
+		if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WIC)) {
+			asm volatile (
 				"wic	%0, r0;"
-#endif
 				"nop;"
 				:
 				: "r" (addr + i)
 				: "memory");
+		}
 
 		if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WDC)) {
 			asm volatile (
