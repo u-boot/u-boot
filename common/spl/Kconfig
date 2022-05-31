@@ -750,6 +750,7 @@ config SPL_LIBGENERIC_SUPPORT
 
 config SPL_DM_MAILBOX
 	bool "Support Mailbox"
+	depends on SPL_DM
 	help
 	  Enable support for Mailbox within SPL. This enable the inter
 	  processor communication protocols tobe used within SPL. Enable
@@ -874,19 +875,9 @@ config SPL_UBI
 	  Enable support for loading payloads from UBI. See
 	  README.ubispl for more info.
 
-if SPL_DM
-config SPL_DM_SPI
-	bool "Support SPI DM drivers in SPL"
-	help
-	  Enable support for SPI DM drivers in SPL.
+menu "UBI configuration for SPL"
+	depends on SPL_UBI
 
-config SPL_DM_SPI_FLASH
-	bool "Support SPI DM FLASH drivers in SPL"
-	help
-	  Enable support for SPI DM flash drivers in SPL.
-
-endif
-if SPL_UBI
 config SPL_UBI_LOAD_BY_VOLNAME
 	bool "Support loading volumes by name"
 	help
@@ -896,58 +887,49 @@ config SPL_UBI_LOAD_BY_VOLNAME
 
 config SPL_UBI_MAX_VOL_LEBS
 	int "Maximum number of LEBs per volume"
-	depends on SPL_UBI
 	help
 	  The maximum number of logical eraseblocks which a static volume
 	  to load can contain. Used for sizing the scan data structure.
 
 config SPL_UBI_MAX_PEB_SIZE
 	int "Maximum PEB size"
-	depends on SPL_UBI
 	help
 	  The maximum physical erase block size.
 
 config SPL_UBI_MAX_PEBS
 	int "Maximum number of PEBs"
-	depends on SPL_UBI
 	help
 	  The maximum physical erase block size. If not overridden by
 	  board code, this value will be used as the actual number of PEBs.
 
 config SPL_UBI_PEB_OFFSET
 	int "Offset to first UBI PEB"
-	depends on SPL_UBI
 	help
 	  The offset in number of PEBs from the start of flash to the first
 	  PEB part of the UBI image.
 
 config SPL_UBI_VID_OFFSET
 	int "Offset to VID header"
-	depends on SPL_UBI
 
 config SPL_UBI_LEB_START
 	int "Offset to LEB in PEB"
-	depends on SPL_UBI
 	help
 	  The offset in bytes to the LEB within a PEB.
 
 config SPL_UBI_INFO_ADDR
 	hex "Address to place UBI scan info"
-	depends on SPL_UBI
 	help
 	  Address for ubispl to place the scan info. Read README.ubispl to
 	  determine the required size
 
 config SPL_UBI_VOL_IDS
 	int "Maximum volume id"
-	depends on SPL_UBI
 	help
 	  The maximum volume id which can be loaded. Used for sizing the
 	  scan data structure.
 
 config SPL_UBI_LOAD_MONITOR_ID
 	int "id of U-Boot volume"
-	depends on SPL_UBI
 	help
 	  The UBI volume id from which to load U-Boot
 
@@ -959,13 +941,13 @@ config SPL_UBI_LOAD_MONITOR_VOLNAME
 
 config SPL_UBI_LOAD_KERNEL_ID
 	int "id of kernel volume"
-	depends on SPL_OS_BOOT && SPL_UBI
+	depends on SPL_OS_BOOT
 	help
 	  The UBI volume id from which to load the kernel
 
 config SPL_UBI_LOAD_ARGS_ID
 	int "id of kernel args volume"
-	depends on SPL_OS_BOOT && SPL_UBI
+	depends on SPL_OS_BOOT
 	help
 	  The UBI volume id from which to load the device tree
 
@@ -975,7 +957,19 @@ config UBI_SPL_SILENCE_MSG
 	  Disable messages from UBI SPL. This leaves warnings
 	  and errors enabled.
 
-endif   # if SPL_UBI
+endmenu
+
+config SPL_DM_SPI
+	bool "Support SPI DM drivers in SPL"
+	depends on SPL_DM
+	help
+	  Enable support for SPI DM drivers in SPL.
+
+config SPL_DM_SPI_FLASH
+	bool "Support SPI DM FLASH drivers in SPL"
+	depends on SPL_DM
+	help
+	  Enable support for SPI DM flash drivers in SPL.
 
 config SPL_NET
 	bool "Support networking"
@@ -986,19 +980,19 @@ config SPL_NET
 	  the network stack uses a number of environment variables. See also
 	  SPL_ETH.
 
-if SPL_NET
 config SPL_NET_VCI_STRING
 	string "BOOTP Vendor Class Identifier string sent by SPL"
+	depends on SPL_NET
 	help
 	  As defined by RFC 2132 the vendor class identifier field can be
 	  sent by the client to identify the vendor type and configuration
 	  of a client.  This is often used in practice to allow for the DHCP
 	  server to specify different files to load depending on if the ROM,
 	  SPL or U-Boot itself makes the request
-endif   # if SPL_NET
 
 config SPL_NO_CPU_SUPPORT
-	bool "Drop CPU code in SPL"
+	def_bool y
+	depends on (ARCH_MX23 || ARCH_MX28) && !SPL_FRAMEWORK
 	help
 	  This is specific to the ARM926EJ-S CPU. It disables the standard
 	  start.S start-up code, presumably so that a replacement can be
@@ -1048,15 +1042,12 @@ config SYS_NAND_SPL_KERNEL_OFFS
 	hex "Address in memory to load the OS file for Falcon mode to"
 	depends on SPL_OS_BOOT && SPL_NAND_SUPPORT
 
-if SPL_OS_BOOT
 config SYS_OS_BASE
 	hex "addr, where OS is found"
-	depends on SPL_NOR_SUPPORT
+	depends on SPL_OS_BOOT && SPL_NOR_SUPPORT
 	help
 	  Specify the address, where the OS image is found, which
 	  gets booted.
-
-endif # SPL_OS_BOOT
 
 config SPL_FALCON_BOOT_MMCSD
 	bool "Enable Falcon boot from MMC or SD media"
@@ -1125,6 +1116,7 @@ config SPL_POST_MEM_SUPPORT
 
 config SPL_DM_RESET
 	bool "Support reset drivers"
+	depends on SPL_DM
 	help
 	  Enable support for reset control in SPL.
 	  That can be useful in SPL to handle IP reset in driver, as in U-Boot,
@@ -1427,6 +1419,7 @@ config SPL_ATF_NO_PLATFORM_PARAM
 
 config SPL_AM33XX_ENABLE_RTC32K_OSC
 	bool "Enable the RTC32K OSC on AM33xx based platforms"
+	depends on AM33XX
 	default y if AM33XX
 	help
 	  Enable access to the AM33xx RTC and select the external 32kHz clock
