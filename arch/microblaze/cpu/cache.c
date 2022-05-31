@@ -49,7 +49,7 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-#ifdef XILINX_USE_DCACHE
+#ifdef CONFIG_DCACHE
 	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
 #endif
 	MSRCLR(0x80);
