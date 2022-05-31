@@ -42,13 +42,9 @@ static int scmi_smccc_process_msg(struct udevice *dev,
 				  struct scmi_channel *channel,
 				  struct scmi_msg *msg)
 {
-	struct scmi_smccc_channel *chan = dev_get_plat(dev);
+	struct scmi_smccc_channel *chan = &channel->ref;
 	struct arm_smccc_res res;
 	int ret;
-
-	/* Support SCMI drivers upgraded to of_get_channel operator */
-	if (channel)
-		chan = &channel->ref;
 
 	ret = scmi_write_msg_to_smt(dev, &chan->smt, msg);
 	if (ret)

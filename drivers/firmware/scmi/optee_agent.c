@@ -278,12 +278,9 @@ static int scmi_optee_process_msg(struct udevice *dev,
 				  struct scmi_channel *channel,
 				  struct scmi_msg *msg)
 {
+	struct scmi_optee_channel *chan = &channel->ref;
 	struct channel_session sess = { };
 	int ret;
-
-	/* Support SCMI drivers upgraded to of_get_channel operator */
-	if (channel)
-		chan = &channel->ref;
 
 	ret = open_channel(dev, chan, &sess);
 	if (ret)
