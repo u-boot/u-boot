@@ -36,6 +36,14 @@ struct scmi_optee_channel {
 };
 
 /**
+ * struct scmi_channel - Channel instance referenced in SCMI drivers
+ * @ref: Reference to local channel instance
+ **/
+struct scmi_channel {
+	struct scmi_optee_channel ref;
+};
+
+/**
  * struct channel_session - Aggreates SCMI service session context references
  * @tee:		OP-TEE device to invoke
  * @tee_session:	OP-TEE session identifier
@@ -132,10 +140,10 @@ enum optee_smci_pta_cmd {
 #define PTA_SCMI_CAPS_MASK		(PTA_SCMI_CAPS_SMT_HEADER | \
 					 PTA_SCMI_CAPS_MSG_HEADER)
 
-static int open_channel(struct udevice *dev, struct channel_session *sess)
+static int open_channel(struct udevice *dev, struct scmi_optee_channel *chan,
+			struct channel_session *sess)
 {
 	const struct tee_optee_ta_uuid uuid = TA_SCMI_UUID;
-	struct scmi_optee_channel *chan = dev_get_plat(dev);
 	struct tee_open_session_arg sess_arg = { };
 	struct tee_invoke_arg cmd_arg = { };
 	struct tee_param param[1] = { };
@@ -187,10 +195,9 @@ static void close_channel(struct channel_session *sess)
 	tee_close_session(sess->tee, sess->tee_session);
 }
 
-static int invoke_cmd(struct udevice *dev, struct channel_session *sess,
-		      struct scmi_msg *msg)
+static int invoke_cmd(struct udevice *dev, struct scmi_optee_channel *chan,
+		      struct channel_session *sess, struct scmi_msg *msg)
 {
-	struct scmi_optee_channel *chan = dev_get_plat(dev);
 	struct tee_invoke_arg arg = { };
 	struct tee_param param[3] = { };
 	int ret;
@@ -237,9 +244,9 @@ static int invoke_cmd(struct udevice *dev, struct channel_session *sess,
 	return ret;
 }
 
-static int prepare_shm(struct udevice *dev, struct channel_session *sess)
+static int prepare_shm(struct udevice *dev, struct scmi_optee_channel *chan,
+		       struct channel_session *sess)
 {
-	struct scmi_optee_channel *chan = dev_get_plat(dev);
 	int ret;
 
 	/* Static shm is already prepared by the firmware: nothing to do */
@@ -274,15 +281,19 @@ static int scmi_optee_process_msg(struct udevice *dev,
 	struct channel_session sess = { };
 	int ret;
 
-	ret = open_channel(dev, &sess);
+	/* Support SCMI drivers upgraded to of_get_channel operator */
+	if (channel)
+		chan = &channel->ref;
+
+	ret = open_channel(dev, chan, &sess);
 	if (ret)
 		return ret;
 
-	ret = prepare_shm(dev, &sess);
+	ret = prepare_shm(dev, chan, &sess);
 	if (ret)
 		goto out;
 
-	ret = invoke_cmd(dev, &sess, msg);
+	ret = invoke_cmd(dev, chan, &sess, msg);
 
 	release_shm(dev, &sess);
 
@@ -292,9 +303,8 @@ out:
 	return ret;
 }
 
-static int scmi_optee_of_to_plat(struct udevice *dev)
+static int setup_channel(struct udevice *dev, struct scmi_optee_channel *chan)
 {
-	struct scmi_optee_channel *chan = dev_get_plat(dev);
 	int ret;
 
 	if (dev_read_u32(dev, "linaro,optee-channel-id", &chan->channel_id)) {
@@ -316,13 +326,52 @@ static int scmi_optee_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static int scmi_optee_get_channel(struct udevice *dev,
+				  struct scmi_channel **channel)
+{
+	struct scmi_optee_channel *base_chan = dev_get_plat(dev->parent);
+	struct scmi_optee_channel *chan;
+	u32 channel_id;
+	int ret;
+
+	if (dev_read_u32(dev, "linaro,optee-channel-id", &channel_id)) {
+		/* Uses agent base channel */
+		*channel = container_of(base_chan, struct scmi_channel, ref);
+
+		return 0;
+	}
+
+	/* Setup a dedicated channel */
+	chan = calloc(1, sizeof(*chan));
+	if (!chan)
+		return -ENOMEM;
+
+	ret = setup_channel(dev, chan);
+	if (ret) {
+		free(chan);
+		return ret;
+	}
+
+	*channel = container_of(chan, struct scmi_channel, ref);
+
+	return 0;
+}
+
+static int scmi_optee_of_to_plat(struct udevice *dev)
+{
+	struct scmi_optee_channel *chan = dev_get_plat(dev);
+
+	return setup_channel(dev, chan);
+}
+
 static int scmi_optee_probe(struct udevice *dev)
 {
+	struct scmi_optee_channel *chan = dev_get_plat(dev);
 	struct channel_session sess;
 	int ret;
 
 	/* Check OP-TEE service acknowledges the SCMI channel */
-	ret = open_channel(dev, &sess);
+	ret = open_channel(dev, chan, &sess);
 	if (!ret)
 		close_channel(&sess);
 
@@ -335,6 +384,7 @@ static const struct udevice_id scmi_optee_ids[] = {
 };
 
 static const struct scmi_agent_ops scmi_optee_ops = {
+	.of_get_channel = scmi_optee_get_channel,
 	.process_msg = scmi_optee_process_msg,
 };
 
