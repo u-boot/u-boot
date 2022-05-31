@@ -49,6 +49,17 @@ static void __flush_dcache(ulong addr, ulong size)
 	}
 }
 
+void flush_dcache_range(unsigned long start, unsigned long end)
+{
+	if (start >= end) {
+		debug("Invalid dcache range - start: 0x%08lx end: 0x%08lx\n",
+		      start, end);
+		return;
+	}
+
+	__flush_dcache(start, end - start);
+}
+
 void flush_dcache_all(void)
 {
 	__flush_dcache(0, gd_cpuinfo()->dcache_size);
