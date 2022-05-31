@@ -197,8 +197,8 @@ static efi_status_t efi_fill_image_desc_array(
  * @descriptor_version:		Pointer to version number
  * @descriptor_count:		Pointer to number of descriptors
  * @descriptor_size:		Pointer to descriptor size
- * package_version:		Package version
- * package_version_name:	Package version's name
+ * @package_version:		Package version
+ * @package_version_name:	Package version's name
  *
  * Return information bout the current firmware image in @image_info.
  * @image_info will consist of a number of descriptors.
@@ -296,15 +296,15 @@ const struct efi_firmware_management_protocol efi_fmp_fit = {
 
 /**
  * efi_firmware_raw_get_image_info - return information about the current
-				     firmware image
+ *				     firmware image
  * @this:			Protocol instance
  * @image_info_size:		Size of @image_info
  * @image_info:			Image information
  * @descriptor_version:		Pointer to version number
  * @descriptor_count:		Pointer to number of descriptors
  * @descriptor_size:		Pointer to descriptor size
- * package_version:		Package version
- * package_version_name:	Package version's name
+ * @package_version:		Package version
+ * @package_version_name:	Package version's name
  *
  * Return information bout the current firmware image in @image_info.
  * @image_info will consist of a number of descriptors.

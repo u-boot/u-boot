@@ -357,16 +357,6 @@ config CMD_BOOTMENU
 	help
 	  Add an ANSI terminal boot menu command.
 
-config CMD_BOOTMENU_ENTER_UBOOT_CONSOLE
-	bool "Allow Bootmenu to enter the U-Boot console"
-	depends on CMD_BOOTMENU
-	default n
-	help
-	  Add an entry to enter U-Boot console in bootmenu.
-	  If this option is disabled, user can not enter
-	  the U-Boot console from bootmenu. It increases
-	  the system security.
-
 config CMD_ADTIMG
 	bool "adtimg"
 	help

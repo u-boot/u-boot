@@ -1061,10 +1061,8 @@ static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 
 	/* Read and allocate Partition Table Entries */
 	*pgpt_pte = alloc_read_gpt_entries(dev_desc, pgpt_head);
-	if (*pgpt_pte == NULL) {
-		printf("GPT: Failed to allocate memory for PTE\n");
+	if (!*pgpt_pte)
 		return 0;
-	}
 
 	if (validate_gpt_entries(pgpt_head, *pgpt_pte)) {
 		free(*pgpt_pte);

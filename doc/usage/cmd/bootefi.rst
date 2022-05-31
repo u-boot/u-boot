@@ -9,10 +9,10 @@ Synopsis
 
 ::
 
-    bootefi [image_addr] [fdt_addr [image_size]]
-    bootefi bootmgr [fdt_addr]
-    bootefi hello [fdt_addr]
-    bootefi selftest [fdt_addr]
+    bootefi <image_addr>[:<image_size>] [<fdt_addr>]
+    bootefi bootmgr [<fdt_addr>]
+    bootefi hello [<fdt_addr>]
+    bootefi selftest [<fdt_addr>]
 
 Description
 -----------

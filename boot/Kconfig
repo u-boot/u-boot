@@ -1143,6 +1143,13 @@ config AUTOBOOT_MENU_SHOW
 	  environmnent variable (if enabled) and before handling the boot delay.
 	  See README.bootmenu for more details.
 
+config BOOTMENU_DISABLE_UBOOT_CONSOLE
+	bool "Disallow bootmenu to enter the U-Boot console"
+	depends on AUTOBOOT_MENU_SHOW
+	help
+	  If this option is enabled, user can not enter the U-Boot console from
+	  bootmenu. It increases the system security.
+
 config BOOT_RETRY
 	bool "Boot retry feature"
 	help

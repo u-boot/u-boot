@@ -305,6 +305,7 @@ config TPL_SYS_MALLOC_F_LEN
 
 config VALGRIND
 	bool "Inform valgrind about memory allocations"
+	depends on !RISCV
 	help
 	  Valgrind is an instrumentation framework for building dynamic analysis
 	  tools. In particular, it may be used to detect memory management bugs

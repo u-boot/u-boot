@@ -77,6 +77,100 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 }
 
 /**
+ * try_load_from_file_path() - try to load a file
+ *
+ * Given a file media path iterate through a list of handles and try to
+ * to load the file from each of them until the first success.
+ *
+ * @fs_handles: array of handles with the simple file protocol
+ * @num:	number of handles in fs_handles
+ * @fp:		file path to open
+ * @handle:	on return pointer to handle for loaded image
+ * @removable:	if true only consider removable media, else only non-removable
+ */
+static efi_status_t try_load_from_file_path(efi_handle_t *fs_handles,
+					    efi_uintn_t num,
+					    struct efi_device_path *fp,
+					    efi_handle_t *handle,
+					    bool removable)
+{
+	struct efi_handler *handler;
+	struct efi_device_path *dp;
+	int i;
+	efi_status_t ret;
+
+	for (i = 0; i < num; i++) {
+		if (removable != efi_disk_is_removable(fs_handles[i]))
+			continue;
+
+		ret = efi_search_protocol(fs_handles[i], &efi_guid_device_path,
+					  &handler);
+		if (ret != EFI_SUCCESS)
+			continue;
+
+		dp = handler->protocol_interface;
+		if (!dp)
+			continue;
+
+		dp = efi_dp_append(dp, fp);
+		if (!dp)
+			continue;
+
+		ret = EFI_CALL(efi_load_image(true, efi_root, dp, NULL, 0,
+					      handle));
+		efi_free_pool(dp);
+		if (ret == EFI_SUCCESS)
+			return ret;
+	}
+
+	return EFI_NOT_FOUND;
+}
+
+/**
+ * try_load_from_short_path
+ * @fp:		file path
+ * @handle:	pointer to handle for newly installed image
+ *
+ * Enumerate all the devices which support file system operations,
+ * prepend its media device path to the file path, @fp, and
+ * try to load the file.
+ * This function should be called when handling a short-form path
+ * which is starting with a file device path.
+ *
+ * Return:	status code
+ */
+static efi_status_t try_load_from_short_path(struct efi_device_path *fp,
+					     efi_handle_t *handle)
+{
+	efi_handle_t *fs_handles;
+	efi_uintn_t num;
+	efi_status_t ret;
+
+	ret = EFI_CALL(efi_locate_handle_buffer(
+					BY_PROTOCOL,
+					&efi_simple_file_system_protocol_guid,
+					NULL,
+					&num, &fs_handles));
+	if (ret != EFI_SUCCESS)
+		return ret;
+	if (!num)
+		return EFI_NOT_FOUND;
+
+	/* removable media first */
+	ret = try_load_from_file_path(fs_handles, num, fp, handle, true);
+	if (ret == EFI_SUCCESS)
+		goto out;
+
+	/* fixed media */
+	ret = try_load_from_file_path(fs_handles, num, fp, handle, false);
+	if (ret == EFI_SUCCESS)
+		goto out;
+
+out:
+	return ret;
+}
+
+/**
  * try_load_entry() - try to load image for boot option
  *
  * Attempt to load load-option number 'n', returning device_path and file_path
@@ -116,10 +210,15 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		log_debug("trying to load \"%ls\" from %pD\n", lo.label,
 			  lo.file_path);
 
-		file_path = expand_media_path(lo.file_path);
-		ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
-					      NULL, 0, handle));
-		efi_free_pool(file_path);
+		if (EFI_DP_TYPE(lo.file_path, MEDIA_DEVICE, FILE_PATH)) {
+			/* file_path doesn't contain a device path */
+			ret = try_load_from_short_path(lo.file_path, handle);
+		} else {
+			file_path = expand_media_path(lo.file_path);
+			ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
+						      NULL, 0, handle));
+			efi_free_pool(file_path);
+		}
 		if (ret != EFI_SUCCESS) {
 			log_warning("Loading %ls '%ls' failed\n",
 				    varname, lo.label);
