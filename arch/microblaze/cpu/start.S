@@ -97,6 +97,13 @@ uboot_sym_start:
 	nop
 #endif
 
+	/*
+	 * Initialize global data cpuinfo with default values (cache
+	 * size, cache line size, etc).
+	 */
+	brlid	r15, microblaze_early_cpuinfo_init
+	nop
+
 	/* Flush cache before enable cache */
 	brlid	r15, flush_cache_all
 	nop

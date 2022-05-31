@@ -9,11 +9,16 @@
 #include <cpu_func.h>
 #include <asm/asm.h>
 #include <asm/cache.h>
+#include <asm/cpuinfo.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static void __invalidate_icache(ulong addr, ulong size)
 {
 	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WIC)) {
-		for (int i = 0; i < size; i += 4) {
+		for (int i = 0; i < size;
+		     i += gd_cpuinfo()->icache_line_length) {
 			asm volatile (
 				"wic	%0, r0;"
 				"nop;"
@@ -26,13 +31,14 @@ static void __invalidate_icache(ulong addr, ulong size)
 
 void invalidate_icache_all(void)
 {
-	__invalidate_icache(0, CONFIG_XILINX_MICROBLAZE0_ICACHE_SIZE);
+	__invalidate_icache(0, gd_cpuinfo()->icache_size);
 }
 
 static void __flush_dcache(ulong addr, ulong size)
 {
 	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USE_WDC)) {
-		for (int i = 0; i < size; i += 4) {
+		for (int i = 0; i < size;
+		     i += gd_cpuinfo()->dcache_line_length) {
 			asm volatile (
 				"wdc.flush	%0, r0;"
 				"nop;"
@@ -45,7 +51,7 @@ static void __flush_dcache(ulong addr, ulong size)
 
 void flush_dcache_all(void)
 {
-	__flush_dcache(0, CONFIG_XILINX_MICROBLAZE0_DCACHE_SIZE);
+	__flush_dcache(0, gd_cpuinfo()->dcache_size);
 }
 
 int dcache_status(void)
