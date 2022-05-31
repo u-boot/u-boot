@@ -85,7 +85,7 @@ class TestEfiCapsuleFirmwareSigned(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
@@ -160,7 +160,7 @@ class TestEfiCapsuleFirmwareSigned(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
             # deleted any way
             output = u_boot_console.run_command_list([
@@ -237,7 +237,7 @@ class TestEfiCapsuleFirmwareSigned(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
             # deleted any way
             output = u_boot_console.run_command_list([

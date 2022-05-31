@@ -101,7 +101,7 @@ def efi_capsule_data(request, u_boot_config):
             check_call('cd %s; '
                        '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
                             '--private-key SIGNER.key --certificate SIGNER.crt '
-                            '--guid 09D7DF52-0720-4710-91D1-08469B7FE9C8 '
+                            '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
                             'u-boot.bin.new Test11'
                        % (data_dir, u_boot_config.build_dir),
                        shell=True)
@@ -110,7 +110,7 @@ def efi_capsule_data(request, u_boot_config):
                        '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
                             '--private-key SIGNER2.key '
                             '--certificate SIGNER2.crt '
-                            '--guid 09D7DF52-0720-4710-91D1-08469B7FE9C8 '
+                            '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
                             'u-boot.bin.new Test12'
                        % (data_dir, u_boot_config.build_dir),
                        shell=True)
