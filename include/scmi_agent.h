@@ -46,6 +46,15 @@ struct scmi_msg {
 	}
 
 /**
+ * devm_scmi_of_get_channel() - Get SCMI channel handle from SCMI agent DT node
+ *
+ * @dev:	Device requesting a channel
+ * @channel:	Output reference to the SCMI channel upon success
+ * @return 0 on success and a negative errno on failure
+ */
+int devm_scmi_of_get_channel(struct udevice *dev, struct scmi_channel **channel);
+
+/**
  * devm_scmi_process_msg() - Send and process an SCMI message
  *
  * Send a message to an SCMI server through a target SCMI agent device.
