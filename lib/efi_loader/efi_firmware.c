@@ -130,9 +130,6 @@ static efi_status_t efi_fill_image_desc_array(
 	struct efi_fw_image *fw_array;
 	int i;
 
-	fw_array = update_info.images;
-	*descriptor_count = num_image_type_guids;
-
 	total_size = sizeof(*image_info) * num_image_type_guids;
 
 	if (*image_info_size < total_size) {
@@ -142,6 +139,8 @@ static efi_status_t efi_fill_image_desc_array(
 	}
 	*image_info_size = total_size;
 
+	fw_array = update_info.images;
+	*descriptor_count = num_image_type_guids;
 	*descriptor_version = EFI_FIRMWARE_IMAGE_DESCRIPTOR_VERSION;
 	*descriptor_size = sizeof(*image_info);
 	*package_version = 0xffffffff; /* not supported */
