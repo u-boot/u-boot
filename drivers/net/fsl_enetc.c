@@ -361,6 +361,9 @@ static int enetc_remove(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 
+	if (miiphy_get_dev_by_name(priv->imdio.name))
+		mdio_unregister(&priv->imdio);
+
 	free(priv->enetc_txbd);
 	free(priv->enetc_rxbd);
 
