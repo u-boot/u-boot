@@ -97,7 +97,7 @@ def efi_capsule_data(request, u_boot_config):
                    shell=True)
 
         if capsule_auth_enabled:
-            # firmware signed with proper key
+            # raw firmware signed with proper key
             check_call('cd %s; '
                        '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
                             '--private-key SIGNER.key --certificate SIGNER.crt '
@@ -105,13 +105,30 @@ def efi_capsule_data(request, u_boot_config):
                             'u-boot.bin.new Test11'
                        % (data_dir, u_boot_config.build_dir),
                        shell=True)
-            # firmware signed with *mal* key
+            # raw firmware signed with *mal* key
             check_call('cd %s; '
                        '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
                             '--private-key SIGNER2.key '
                             '--certificate SIGNER2.crt '
                             '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
                             'u-boot.bin.new Test12'
+                       % (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # FIT firmware signed with proper key
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                            '--private-key SIGNER.key --certificate SIGNER.crt '
+                            '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
+                            'uboot_bin_env.itb Test13'
+                       % (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # FIT firmware signed with *mal* key
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                            '--private-key SIGNER2.key '
+                            '--certificate SIGNER2.crt '
+                            '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
+                            'uboot_bin_env.itb Test14'
                        % (data_dir, u_boot_config.build_dir),
                        shell=True)
 

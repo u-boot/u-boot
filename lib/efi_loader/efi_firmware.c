@@ -177,6 +177,70 @@ static efi_status_t efi_fill_image_desc_array(
 	return EFI_SUCCESS;
 }
 
+/**
+ * efi_firmware_capsule_authenticate - authenticate the capsule if enabled
+ * @p_image:		Pointer to new image
+ * @p_image_size:	Pointer to size of new image
+ *
+ * Authenticate the capsule if authentication is enabled.
+ * The image pointer and the image size are updated in case of success.
+ *
+ * Return:		status code
+ */
+static
+efi_status_t efi_firmware_capsule_authenticate(const void **p_image,
+					       efi_uintn_t *p_image_size)
+{
+	const void *image = *p_image;
+	efi_uintn_t image_size = *p_image_size;
+	u32 fmp_hdr_signature;
+	struct fmp_payload_header *header;
+	void *capsule_payload;
+	efi_status_t status;
+	efi_uintn_t capsule_payload_size;
+
+	if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE)) {
+		capsule_payload = NULL;
+		capsule_payload_size = 0;
+		status = efi_capsule_authenticate(image, image_size,
+						  &capsule_payload,
+						  &capsule_payload_size);
+
+		if (status == EFI_SECURITY_VIOLATION) {
+			printf("Capsule authentication check failed. Aborting update\n");
+			return status;
+		} else if (status != EFI_SUCCESS) {
+			return status;
+		}
+
+		debug("Capsule authentication successful\n");
+		image = capsule_payload;
+		image_size = capsule_payload_size;
+	} else {
+		debug("Capsule authentication disabled. ");
+		debug("Updating capsule without authenticating.\n");
+	}
+
+	fmp_hdr_signature = FMP_PAYLOAD_HDR_SIGNATURE;
+	header = (void *)image;
+
+	if (!memcmp(&header->signature, &fmp_hdr_signature,
+		    sizeof(fmp_hdr_signature))) {
+		/*
+		 * When building the capsule with the scripts in
+		 * edk2, a FMP header is inserted above the capsule
+		 * payload. Compensate for this header to get the
+		 * actual payload that is to be updated.
+		 */
+		image += header->header_size;
+		image_size -= header->header_size;
+	}
+
+	*p_image = image;
+	*p_image_size = image_size;
+	return EFI_SUCCESS;
+}
+
 #ifdef CONFIG_EFI_CAPSULE_FIRMWARE_FIT
 /*
  * This FIRMWARE_MANAGEMENT_PROTOCOL driver provides a firmware update
@@ -265,11 +329,17 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 	efi_status_t (*progress)(efi_uintn_t completion),
 	u16 **abort_reason)
 {
+	efi_status_t status;
+
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
 
 	if (!image || image_index != 1)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	status = efi_firmware_capsule_authenticate(&image, &image_size);
+	if (status != EFI_SUCCESS)
+		return EFI_EXIT(status);
 
 	if (fit_update(image))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
@@ -371,11 +441,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	efi_status_t (*progress)(efi_uintn_t completion),
 	u16 **abort_reason)
 {
-	u32 fmp_hdr_signature;
-	struct fmp_payload_header *header;
-	void *capsule_payload;
 	efi_status_t status;
-	efi_uintn_t capsule_payload_size;
 
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
@@ -383,44 +449,9 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	if (!image)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	/* Authenticate the capsule if authentication enabled */
-	if (IS_ENABLED(CONFIG_EFI_CAPSULE_AUTHENTICATE)) {
-		capsule_payload = NULL;
-		capsule_payload_size = 0;
-		status = efi_capsule_authenticate(image, image_size,
-						  &capsule_payload,
-						  &capsule_payload_size);
-
-		if (status == EFI_SECURITY_VIOLATION) {
-			printf("Capsule authentication check failed. Aborting update\n");
-			return EFI_EXIT(status);
-		} else if (status != EFI_SUCCESS) {
-			return EFI_EXIT(status);
-		}
-
-		debug("Capsule authentication successfull\n");
-		image = capsule_payload;
-		image_size = capsule_payload_size;
-	} else {
-		debug("Capsule authentication disabled. ");
-		debug("Updating capsule without authenticating.\n");
-	}
-
-	fmp_hdr_signature = FMP_PAYLOAD_HDR_SIGNATURE;
-	header = (void *)image;
-
-	if (!memcmp(&header->signature, &fmp_hdr_signature,
-		    sizeof(fmp_hdr_signature))) {
-		/*
-		 * When building the capsule with the scripts in
-		 * edk2, a FMP header is inserted above the capsule
-		 * payload. Compensate for this header to get the
-		 * actual payload that is to be updated.
-		 */
-		image += header->header_size;
-		image_size -= header->header_size;
-
-	}
+	status = efi_firmware_capsule_authenticate(&image, &image_size);
+	if (status != EFI_SUCCESS)
+		return EFI_EXIT(status);
 
 	if (dfu_write_by_alt(image_index - 1, (void *)image, image_size,
 			     NULL, NULL))
