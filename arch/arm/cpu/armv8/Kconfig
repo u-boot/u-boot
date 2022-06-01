@@ -185,4 +185,15 @@ config ARMV8_EA_EL3_FIRST
 	  Exception handling at all exception levels for External Abort and
 	  SError interrupt exception are taken in EL3.
 
+menuconfig ARMV8_CRYPTO
+	bool "ARM64 Accelerated Cryptographic Algorithms"
+
+if ARMV8_CRYPTO
+
+config ARMV8_CE_SHA1
+	bool "SHA-1 digest algorithm (ARMv8 Crypto Extensions)"
+	default y if SHA1
+
+endif
+
 endif
