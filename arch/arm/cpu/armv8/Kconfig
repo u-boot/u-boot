@@ -194,6 +194,10 @@ config ARMV8_CE_SHA1
 	bool "SHA-1 digest algorithm (ARMv8 Crypto Extensions)"
 	default y if SHA1
 
+config ARMV8_CE_SHA256
+	bool "SHA-256 digest algorithm (ARMv8 Crypto Extensions)"
+	default y if SHA256
+
 endif
 
 endif
