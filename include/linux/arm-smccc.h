@@ -51,6 +51,10 @@
 #define ARM_SMCCC_QUIRK_NONE		0
 #define ARM_SMCCC_QUIRK_QCOM_A6		1 /* Save/restore register a6 */
 
+#define ARM_SMCCC_ARCH_FEATURES		0x80000001
+
+#define ARM_SMCCC_RET_NOT_SUPPORTED	((unsigned long)-1)
+
 #ifndef __ASSEMBLY__
 
 #include <linux/linkage.h>
