@@ -30,7 +30,7 @@ extern const uint8_t sha1_der_prefix[];
 typedef struct
 {
     unsigned long total[2];	/*!< number of bytes processed	*/
-    unsigned long state[5];	/*!< intermediate digest state	*/
+    uint32_t state[5];		/*!< intermediate digest state	*/
     unsigned char buffer[64];	/*!< data block being processed */
 }
 sha1_context;
