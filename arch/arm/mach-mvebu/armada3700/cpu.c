@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
- * Copyright (C) 2020 Marek Behun <marek.behun@nic.cz>
+ * Copyright (C) 2020 Marek Behún <kabel@kernel.org>
  */
 
 #include <common.h>

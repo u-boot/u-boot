@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2014 Josh Datko, Cryptotronix, jbd@cryptotronix.com
  *		 2016 Tomas Hlavacek, CZ.NIC, tmshlvck@gmail.com
- *		 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
+ *		 2017 Marek Behún, CZ.NIC, kabel@kernel.org
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under the terms of the GNU General Public License version 2 as

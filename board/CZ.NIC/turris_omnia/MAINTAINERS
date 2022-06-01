@@ -1,5 +1,5 @@
 TURRIS OMNIA BOARD
-M:	Marek Behún <marek.behun@nic.cz>
+M:	Marek Behún <kabel@kernel.org>
 M:	Pali Rohár <pali@kernel.org>
 S:	Maintained
 F:	arch/arm/dts/armada-385-turris-omnia*.dts*
