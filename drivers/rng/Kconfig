@@ -65,4 +65,13 @@ config RNG_IPROC200
 	depends on DM_RNG
 	help
 	  Enable random number generator for RPI4.
+
+config RNG_SMCCC_TRNG
+	bool "Arm SMCCC TRNG interface"
+	depends on DM_RNG && ARM_PSCI_FW
+	default y if ARM_SMCCC_FEATURES
+	help
+	  Enable random number generator for platforms that support Arm
+	  SMCCC TRNG interface.
+
 endif
