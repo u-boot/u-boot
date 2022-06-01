@@ -1,6 +1,9 @@
 TURRIS OMNIA BOARD
 M:	Marek Behún <marek.behun@nic.cz>
+M:	Pali Rohár <pali@kernel.org>
 S:	Maintained
+F:	arch/arm/dts/armada-385-turris-omnia*.dts*
+F:	board/CZ.NIC/turris_atsha_otp.*
 F:	board/CZ.NIC/turris_omnia/
-F:	include/configs/turris_omnia.h
 F:	configs/turris_omnia_defconfig
+F:	include/configs/turris_omnia.h
