@@ -140,9 +140,11 @@ call_harts_early_init:
 	 * accesses gd).
 	 */
 	mv	gp, s0
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
 	bnez	tp, secondary_hart_loop
 #endif
-
+#endif
+	
 	mv      a0, s0
 	jal	board_init_f_init_reserve
 
