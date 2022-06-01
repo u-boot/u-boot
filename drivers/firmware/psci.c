@@ -9,18 +9,18 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <irq_func.h>
 #include <log.h>
-#include <dm/lists.h>
-#include <efi_loader.h>
 #include <sysreset.h>
-#include <linux/delay.h>
-#include <linux/libfdt.h>
+#include <asm/system.h>
+#include <dm/lists.h>
 #include <linux/arm-smccc.h>
+#include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/libfdt.h>
 #include <linux/printk.h>
 #include <linux/psci.h>
-#include <asm/system.h>
 
 #define DRIVER_NAME "psci"
 
