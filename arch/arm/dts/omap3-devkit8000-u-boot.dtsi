@@ -11,4 +11,10 @@
 	chosen {
 		stdout-path = &uart3;
 	};
+
+	ethernet@2c000000 {
+	        compatible = "davicom,dm9000";
+	        reg = <0x2c000000 2 0x2c000400 2>;
+	        bank-width = <2>;
+	};
 };
