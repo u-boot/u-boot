@@ -1069,6 +1069,8 @@ dtb-$(CONFIG_TARGET_OMAP3_BEAGLE) += \
 	omap3-beagle-xm.dtb \
 	omap3-beagle.dtb
 
+dtb-$(CONFIG_TARGET_DEVKIT8000) += omap3-devkit8000.dtb
+
 dtb-$(CONFIG_TARGET_OMAP3_IGEP00X0) += \
 	omap3-igep0020.dtb
 
