@@ -3,7 +3,7 @@ image: debian:bullseye
 build:
   stage: build
   before_script:
-    - apt update && apt -y install build-essential
+    - apt update && apt -y install bc bison build-essential flex libssl-dev gcc-arm-linux-gnueabihf
   script:
     - ./build-am335x.sh
     - ./build-am57xx.sh
