@@ -16,6 +16,10 @@
 		device_type = "memory";
 		reg = <0x80000000 0x20000000>; /* 512 MB */
 	};
+
+	chosen {
+		tick-timer = &timer2;
+	};
 };
 
 &cpu0_opp_table {
