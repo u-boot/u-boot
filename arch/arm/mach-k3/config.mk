@@ -74,6 +74,7 @@ ifeq ($(CONFIG_SOC_K3_J721E),)
 export DM := /dev/null
 endif
 
+ifndef CONFIG_TARGET_J721E_A72_EVM
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 SPL_ITS := u-boot-spl-k3_HS.its
 $(SPL_ITS): export IS_HS=1
@@ -98,14 +99,18 @@ cmd_k3_mkits = \
 $(SPL_ITS): FORCE
 	$(call cmd,k3_mkits)
 endif
+endif
 
 else
 
+ifndef CONFIG_TARGET_J721E_A72_EVM
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 INPUTS-y	+= u-boot.img_HS
 else
 INPUTS-y	+= u-boot.img
 endif
+endif
+
 endif
 
 include $(srctree)/arch/arm/mach-k3/config_secure.mk
