@@ -46,6 +46,7 @@ INPUTS-y	+= sec-cfg.bin
 endif
 endif
 
+ifneq ($(CONFIG_TARGET_J721E_R5_EVM), y)
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
 ifdef CONFIG_CPU_V7R
@@ -63,6 +64,8 @@ tiboot3.bin: image_check FORCE
 				-o $@ -l $(CONFIG_SPL_TEXT_BASE) -k $(KEY)
 
 INPUTS-y	+= tiboot3.bin
+endif
+
 endif
 
 ifdef CONFIG_ARM64
