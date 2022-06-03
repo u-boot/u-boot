@@ -122,15 +122,15 @@ static const char *imx8mp_gic_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_p
 					"sys_pll2_100m", "sys_pll1_800m",
 					"sys_pll2_500m", "clk_ext4", "audio_pll2_out" };
 
-static const char *imx8mp_ecspi1_sels[] = {"clock-osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mp_ecspi1_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 						  "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						  "sys_pll2_250m", "audio_pll2_out", };
 
-static const char *imx8mp_ecspi2_sels[] = {"clock-osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mp_ecspi2_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 						  "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						  "sys_pll2_250m", "audio_pll2_out", };
 
-static const char *imx8mp_ecspi3_sels[] = {"clock-osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mp_ecspi3_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 						  "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						  "sys_pll2_250m", "audio_pll2_out", };
 
