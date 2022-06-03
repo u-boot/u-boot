@@ -23,7 +23,7 @@ SECTIONS
 {
 	.text : {
 		. = ALIGN(8);
-		*(.__image_copy_start)
+		__image_copy_start = .;
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	} >.sram
