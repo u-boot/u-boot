@@ -324,9 +324,9 @@ static void *k3_sysfw_get_spi_addr(void)
 	struct udevice *dev;
 	fdt_addr_t addr;
 	int ret;
+	unsigned int sf_bus = spl_spi_boot_bus();
 
-	ret = uclass_find_device_by_seq(UCLASS_SPI, CONFIG_SF_DEFAULT_BUS,
-					&dev);
+	ret = uclass_find_device_by_seq(UCLASS_SPI, sf_bus, &dev);
 	if (ret)
 		return NULL;
 
