@@ -99,9 +99,9 @@
 #define TCR_TG0_16K		(2 << 14)
 #define TCR_EPD1_DISABLE	(1 << 23)
 
-#define TCR_EL1_RSVD		(1 << 31)
-#define TCR_EL2_RSVD		(1 << 31 | 1 << 23)
-#define TCR_EL3_RSVD		(1 << 31 | 1 << 23)
+#define TCR_EL1_RSVD		(1U << 31)
+#define TCR_EL2_RSVD		(1U << 31 | 1 << 23)
+#define TCR_EL3_RSVD		(1U << 31 | 1 << 23)
 
 #ifndef __ASSEMBLY__
 static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)

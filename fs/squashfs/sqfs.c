@@ -12,8 +12,7 @@
 #include <errno.h>
 #include <fs.h>
 #include <linux/types.h>
-#include <linux/byteorder/little_endian.h>
-#include <linux/byteorder/generic.h>
+#include <asm/byteorder.h>
 #include <memalign.h>
 #include <stdlib.h>
 #include <string.h>

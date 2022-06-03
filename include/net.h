@@ -391,6 +391,8 @@ struct ip_hdr {
 
 #define IP_HDR_SIZE		(sizeof(struct ip_hdr))
 
+#define IP_MIN_FRAG_DATAGRAM_SIZE	(IP_HDR_SIZE + 8)
+
 /*
  *	Internet Protocol (IP) + UDP header.
  */
