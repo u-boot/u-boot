@@ -378,6 +378,22 @@ void preloader_console_init(void);
 u32 spl_boot_device(void);
 
 /**
+ * spl_spi_boot_bus() - Lookup function for the SPI boot bus source.
+ *
+ * This function returns the SF bus to load from.
+ * If not overridden, it is weakly defined in common/spl/spl_spi.c.
+ */
+u32 spl_spi_boot_bus(void);
+
+/**
+ * spl_spi_boot_cs() - Lookup function for the SPI boot CS source.
+ *
+ * This function returns the SF CS to load from.
+ * If not overridden, it is weakly defined in common/spl/spl_spi.c.
+ */
+u32 spl_spi_boot_cs(void);
+
+/**
  * spl_mmc_boot_mode() - Lookup function for the mode of an MMC boot source.
  * @boot_device:	ID of the device which the MMC driver wants to read
  *			from.  Common values are e.g. BOOT_DEVICE_MMC1,
