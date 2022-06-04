@@ -326,7 +326,7 @@ bit in OsIndications variable with
 
 .. code-block:: console
 
-    => setenv -e -nv -bs -rt -v OsIndications =0x04
+    => setenv -e -nv -bs -rt -v OsIndications =0x0000000000000004
 
 Since U-boot doesn't currently support SetVariable at runtime, its value
 won't be taken over across the reboot. If this is the case, you can skip

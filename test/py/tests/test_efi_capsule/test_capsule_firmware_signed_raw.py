@@ -2,11 +2,11 @@
 # Copyright (c) 2021, Linaro Limited
 # Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
 #
-# U-Boot UEFI: Firmware Update (Signed capsule) Test
+# U-Boot UEFI: Firmware Update (Signed capsule with raw images) Test
 
 """
 This test verifies capsule-on-disk firmware update
-with signed capsule files
+with signed capsule files containing raw images
 """
 
 import pytest
@@ -23,7 +23,7 @@ from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 @pytest.mark.buildconfigspec('cmd_nvedit_efi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.slow
-class TestEfiCapsuleFirmwareSigned(object):
+class TestEfiCapsuleFirmwareSignedRaw(object):
     def test_efi_capsule_auth1(
             self, u_boot_config, u_boot_console, efi_capsule_data):
         """
@@ -85,7 +85,7 @@ class TestEfiCapsuleFirmwareSigned(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
@@ -160,7 +160,7 @@ class TestEfiCapsuleFirmwareSigned(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
             # deleted any way
             output = u_boot_console.run_command_list([
@@ -237,9 +237,9 @@ class TestEfiCapsuleFirmwareSigned(object):
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
-                    'env print -e Capsule0000')
+                    'env print -e Capsule0000', wait_for_reboot = True)
 
-            # deleted any way
+            # deleted anyway
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
