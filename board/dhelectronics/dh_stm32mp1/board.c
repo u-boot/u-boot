@@ -9,7 +9,6 @@
 #include <net.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <bootm.h>
@@ -78,11 +77,6 @@
 #define SYSCFG_PMCSETR_ETH_SEL_RGMII	BIT(21)
 #define SYSCFG_PMCSETR_ETH_SEL_RMII	BIT(23)
 
-/*
- * Get a global data pointer
- */
-DECLARE_GLOBAL_DATA_PTR;
-
 #define KS_CCR		0x08
 #define KS_CCR_EEPROM	BIT(9)
 #define KS_BE0		BIT(12)
@@ -96,14 +90,15 @@ int setup_mac_address(void)
 	bool skip_eth0 = false;
 	bool skip_eth1 = false;
 	struct udevice *dev;
-	int off, ret;
+	int ret;
+	ofnode node;
 
 	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
 	if (ret)	/* ethaddr is already set */
 		skip_eth0 = true;
 
-	off = fdt_path_offset(gd->fdt_blob, "ethernet1");
-	if (off < 0) {
+	node = ofnode_path("ethernet1");
+	if (!ofnode_valid(node)) {
 		/* ethernet1 is not present in the system */
 		skip_eth1 = true;
 		goto out_set_ethaddr;
@@ -116,7 +111,7 @@ int setup_mac_address(void)
 		goto out_set_ethaddr;
 	}
 
-	ret = fdt_node_check_compatible(gd->fdt_blob, off, "micrel,ks8851-mll");
+	ret = ofnode_device_is_compatible(node, "micrel,ks8851-mll");
 	if (ret)
 		goto out_set_ethaddr;
 
@@ -127,7 +122,7 @@ int setup_mac_address(void)
 	 * MAC address.
 	 */
 	u32 reg, cider, ccr;
-	reg = fdt_get_base_address(gd->fdt_blob, off);
+	reg = ofnode_get_addr(node);
 	if (!reg)
 		goto out_set_ethaddr;
 
@@ -149,13 +144,13 @@ out_set_ethaddr:
 	if (skip_eth0 && skip_eth1)
 		return 0;
 
-	off = fdt_path_offset(gd->fdt_blob, "eeprom0");
-	if (off < 0) {
+	node = ofnode_path("eeprom0");
+	if (!ofnode_valid(node)) {
 		printf("%s: No eeprom0 path offset\n", __func__);
-		return off;
+		return -ENOENT;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_I2C_EEPROM, off, &dev);
+	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, node, &dev);
 	if (ret) {
 		printf("Cannot find EEPROM!\n");
 		return ret;
@@ -191,8 +186,8 @@ int checkboard(void)
 		mode = "basic";
 
 	printf("Board: stm32mp1 in %s mode", mode);
-	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
-				 &fdt_compat_len);
+	fdt_compat = ofnode_get_property(ofnode_root(), "compatible",
+					 &fdt_compat_len);
 	if (fdt_compat && fdt_compat_len)
 		printf(" (%s)", fdt_compat);
 	puts("\n");
@@ -289,7 +284,7 @@ int board_fit_config_name_match(const char *name)
 	const char *compat;
 	char test[128];
 
-	compat = fdt_getprop(gd->fdt_blob, 0, "compatible", NULL);
+	compat = ofnode_get_property(ofnode_root(), "compatible", NULL);
 
 	snprintf(test, sizeof(test), "%s_somrev%d_boardrev%d",
 		compat, somcode, brdcode);
@@ -604,14 +599,13 @@ static void board_init_fmc2(void)
 #define STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_OFFSET(n)	((((n) - 1) & 3) * 2)
 static int board_get_regulator_buck3_nvm_uv_av96(int *uv)
 {
-	const void *fdt = gd->fdt_blob;
 	struct udevice *dev;
 	u8 bucks_vout = 0;
 	const char *prop;
 	int len, ret;
 
 	/* Check whether this is Avenger96 board. */
-	prop = fdt_getprop(fdt, 0, "compatible", &len);
+	prop = ofnode_get_property(ofnode_root(), "compatible", &len);
 	if (!prop || !len)
 		return -ENODEV;
 
@@ -701,8 +695,8 @@ int board_late_init(void)
 	const void *fdt_compat;
 	int fdt_compat_len;
 
-	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
-				 &fdt_compat_len);
+	fdt_compat = ofnode_get_property(ofnode_root(), "compatible",
+					 &fdt_compat_len);
 	if (fdt_compat && fdt_compat_len) {
 		if (strncmp(fdt_compat, "st,", 3) != 0)
 			env_set("board_name", fdt_compat);
