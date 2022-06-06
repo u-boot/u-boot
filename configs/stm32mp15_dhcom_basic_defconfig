@@ -84,6 +84,7 @@ CONFIG_MTDPARTS_DEFAULT="mtdparts=nor0:256k(fsbl1),256k(fsbl2),1408k(uboot),64k(
 # CONFIG_SPL_DOS_PARTITION is not set
 # CONFIG_ISO_PARTITION is not set
 # CONFIG_SPL_PARTITION_UUIDS is not set
+CONFIG_OF_LIVE=y
 CONFIG_OF_LIST="stm32mp15xx-dhcom-pdk2 stm32mp15xx-dhcom-drc02 stm32mp15xx-dhcom-picoitx"
 CONFIG_OF_SPL_REMOVE_PROPS="interrupts interrupt-names interrupts-extended interrupt-controller \\\#interrupt-cells interrupt-parent dmas dma-names assigned-clocks assigned-clock-rates assigned-clock-parents hwlocks"
 CONFIG_ENV_IS_IN_SPI_FLASH=y
