@@ -32,10 +32,6 @@
 #define CONFIG_SYS_NAND_ECCSIZE         512
 #define CONFIG_SYS_NAND_ECCBYTES        3
 #define CONFIG_SYS_ENV_SECT_SIZE        SZ_128K
-/* NAND: SPL falcon mode configs */
-#if defined(CONFIG_SPL_OS_BOOT)
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x2a0000
-#endif /* CONFIG_SPL_OS_BOOT */
 #endif /* CONFIG_MTD_RAW_NAND */
 
 #define BOOTENV_DEV_LEGACY_MMC(devtypeu, devtypel, instance) \

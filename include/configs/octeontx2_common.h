@@ -14,19 +14,12 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_TEXT_BASE
 
 /** Stack starting address */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
 
 /** Extra environment settings */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 					"loadaddr=20080000\0"	\
 					"ethrotate=yes\0"	\
 					"autoload=0\0"
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
-#define CONFIG_SYS_MAXARGS		64	/** max command args */
 
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 

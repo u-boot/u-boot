@@ -153,7 +153,6 @@
  * This rate is divided by a local divisor.
  */
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /*
  * Physical Memory Map
@@ -167,8 +166,6 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-			CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
  * Attached kernel image

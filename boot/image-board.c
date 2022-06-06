@@ -21,10 +21,6 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 
-#ifndef CONFIG_SYS_BARGSIZE
-#define CONFIG_SYS_BARGSIZE 512
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
@@ -827,6 +823,7 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
+#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -900,6 +897,7 @@ int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
 
 	return 0;
 }
+#endif
 
 int image_setup_linux(bootm_headers_t *images)
 {

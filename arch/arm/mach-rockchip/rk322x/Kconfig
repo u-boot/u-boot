@@ -26,9 +26,6 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_SERIAL
 	default y
 
-config TPL_MAX_SIZE
-        default 28672
-
 config TPL_STACK
         default 0x10088000
 

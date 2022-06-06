@@ -19,11 +19,6 @@
 #include <linux/sizes.h>
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		1024	/* Print Buffer Size */
-
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CPU_RELEASE_ADDR		secondary_boot_addr
 
@@ -31,7 +26,6 @@
 	{9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600}
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_BOOTM_LEN	SZ_32M
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */

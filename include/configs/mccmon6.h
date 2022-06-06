@@ -12,16 +12,12 @@
 #include "imx6_spl.h"
 
 #define CONFIG_SYS_UBOOT_BASE (CONFIG_SYS_FLASH_BASE + 0x80000)
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
 
 /*
  * Below defines are set but NOT really used since we by
  * design force U-Boot run when we boot in development
  * mode from SD card (SD2)
  */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR (0x800)
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS (0x80)
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME "fitImage"
 
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
@@ -31,7 +27,6 @@
 
 /* NOR 16-bit mode */
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
-#define CONFIG_SYS_FLASH_CFI_WIDTH FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_FLASH_VERIFY
 
@@ -226,11 +221,6 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
-
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
 

@@ -142,25 +142,6 @@
 #define TP_CLUSTER_INIT_MASK    0x0000003f      /* initiator mask */
 #define TP_INIT_PER_CLUSTER     4
 
-/*
- * Define default values for some CCSR macros to make header files cleaner*
- *
- * To completely disable CCSR relocation in a board header file, define
- * CONFIG_SYS_CCSR_DO_NOT_RELOCATE.  This will force CONFIG_SYS_CCSRBAR_PHYS
- * to a value that is the same as CONFIG_SYS_CCSRBAR.
- */
-
-#ifdef CONFIG_SYS_CCSRBAR_PHYS
-#error "Do not define CONFIG_SYS_CCSRBAR_PHYS directly.  Use \
-CONFIG_SYS_CCSRBAR_PHYS_LOW and/or CONFIG_SYS_CCSRBAR_PHYS_HIGH instead."
-#endif
-
-#ifdef CONFIG_SYS_CCSR_DO_NOT_RELOCATE
-#undef CONFIG_SYS_CCSRBAR_PHYS_HIGH
-#undef CONFIG_SYS_CCSRBAR_PHYS_LOW
-#define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0
-#endif
-
 #ifndef CONFIG_SYS_CCSRBAR
 #define CONFIG_SYS_CCSRBAR		0x01000000
 #endif

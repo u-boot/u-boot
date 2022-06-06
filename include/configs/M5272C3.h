@@ -76,8 +76,6 @@
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000	/* Size of used area in internal SRAM    */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -89,7 +87,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xffe00000
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
-#define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 
 /*
  * For booting Linux, the board info and command line data
@@ -103,7 +100,6 @@
  */
 #ifdef CONFIG_SYS_FLASH_CFI
 #	define CONFIG_SYS_FLASH_SIZE		0x800000	/* Max size that the board might have */
-#	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
 #endif
 

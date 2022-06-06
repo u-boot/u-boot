@@ -91,8 +91,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x80200000
-
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
 
 /* On Colibri iMX8X USDHC1 is eMMC, USDHC2 is 4-bit SD */
@@ -105,13 +103,6 @@
 #define PHYS_SDRAM_2			0x880000000
 #define PHYS_SDRAM_1_SIZE		SZ_2G		/* 2 GB */
 #define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 GB */
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		SZ_2K
-#define CONFIG_SYS_MAXARGS		64
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Generic Timer Definitions */
 

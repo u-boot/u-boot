@@ -17,6 +17,8 @@ CONFIG_FSL_QIXIS=y
 # CONFIG_QIXIS_I2C_ACCESS is not set
 CONFIG_FSL_LS_PPA=y
 CONFIG_AHCI=y
+CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
+CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x1800fff0
 # CONFIG_SYS_MALLOC_F is not set
 CONFIG_REMAKE_ELF=y
 CONFIG_MP=y
@@ -30,6 +32,9 @@ CONFIG_BOOTARGS="console=ttyS1,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21
 CONFIG_BOOTCOMMAND="env exists mcinitcmd && env exists secureboot && esbc_validate 0x5806C0000; env exists mcinitcmd && fsl_mc lazyapply dpl 0x580d00000;run distro_bootcmd;run nor_bootcmd; env exists secureboot && esbc_halt;"
 CONFIG_MISC_INIT_R=y
 CONFIG_RESET_PHY_R=y
+CONFIG_SPL_MAX_SIZE=0x16000
+CONFIG_SYS_MAXARGS=64
+CONFIG_SYS_PBSIZE=532
 CONFIG_CMD_IMLS=y
 CONFIG_CMD_GREPENV=y
 CONFIG_CMD_EEPROM=y

@@ -18,7 +18,6 @@
 /* Note: 8 MiB (0x86000000 - 0x86800000) are reserved for tz/smem/hyp/rmtfs/rfsa */
 #define PHYS_SDRAM_1_SIZE		SZ_1G
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /* UART */
@@ -73,9 +72,5 @@ REFLASH(dragonboard/u-boot.img, 8)\
 	"scriptaddr=0x90000000\0"\
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #endif

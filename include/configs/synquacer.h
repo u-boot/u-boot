@@ -22,7 +22,6 @@
 /*
  * Boot info
  */
-#define CONFIG_SYS_INIT_SP_ADDR		(0xe0000000)	/* stack of init proccess */
 
 /*
  * Hardware drivers support
@@ -39,10 +38,6 @@
 /* Support MTD */
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
-
-#define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_MAXARGS		128
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 

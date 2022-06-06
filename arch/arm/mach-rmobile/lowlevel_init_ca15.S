@@ -8,6 +8,7 @@
 
 #include <config.h>
 #include <linux/linkage.h>
+#include <system-constants.h>
 
 ENTRY(lowlevel_init)
 #ifndef CONFIG_SPL_BUILD
@@ -75,7 +76,7 @@ _enable_actlr_smp: /* R8A7794 only (CA7) */
 #endif
 
 _exit_init_l2_a15:
-	ldr	r3, =(CONFIG_SYS_INIT_SP_ADDR)
+	ldr	r3, =(SYS_INIT_SP_ADDR)
 	sub	sp, r3, #4
 	str	lr, [sp]
 

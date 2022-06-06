@@ -88,7 +88,6 @@ static struct pxa_uart_regs *pxa_uart_index_to_regs(uint32_t uart_index)
 	case FFUART_INDEX: return (struct pxa_uart_regs *)FFUART_BASE;
 	case BTUART_INDEX: return (struct pxa_uart_regs *)BTUART_BASE;
 	case STUART_INDEX: return (struct pxa_uart_regs *)STUART_BASE;
-	case HWUART_INDEX: return (struct pxa_uart_regs *)HWUART_BASE;
 	default:
 		return NULL;
 	}

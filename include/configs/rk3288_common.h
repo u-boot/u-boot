@@ -11,22 +11,11 @@
 
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20) /* 64MB */
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #define CONFIG_SYS_HZ_CLOCK		24000000
-
-#ifdef CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
-/* Bootrom will load u-boot binary to 0x0 once return from SPL */
-#endif
-#define CONFIG_SYS_INIT_SP_ADDR		0x00100000
-#define CONFIG_SPL_STACK		0xff718000
 
 #define CONFIG_IRAM_BASE		0xff700000
 
 /* RAW SD card / eMMC locations. */
-
-/* FAT sd card locations. */
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_BANK_SIZE			(2UL << 30)

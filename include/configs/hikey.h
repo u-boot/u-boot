@@ -30,8 +30,6 @@
 
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
-
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			0xf6801000
 #define GICC_BASE			0xf6802000
@@ -60,9 +58,5 @@
 				BOOTENV
 
 /* Preserve environment on eMMC */
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #endif /* __HIKEY_H */

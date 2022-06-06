@@ -23,12 +23,6 @@
  * other needs.
  */
 
-#define CONFIG_SPL_BSS_START_ADDR       0x80000500 /* leave space for bootargs*/
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
-
-#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
-
 /*  Physical Memory Map  */
 
 #include <configs/ti_omap3_common.h>
@@ -111,8 +105,6 @@
 			"fi; " \
 		"else run nandboot; fi\0"
 
-/* Boot Argument Buffer Size */
-
 /* Defines for SPL */
 
 /* NAND boot config */
@@ -123,16 +115,5 @@
 #define CONFIG_SYS_NAND_ECCBYTES	3
 
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
-
-/* SPL OS boot options */
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x280000
-
-#undef CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR
-#undef CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x8   /* address 0x1000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	8     /* 4KB */
-
-#undef CONFIG_SYS_SPL_ARGS_ADDR
-#define CONFIG_SYS_SPL_ARGS_ADDR        (PHYS_SDRAM_1 + 0x100)
 
 #endif /* __CONFIG_H */

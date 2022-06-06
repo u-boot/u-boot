@@ -23,12 +23,9 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x10000
 #define CONFIG_SYS_INIT_RAM_ADDR	\
 	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_SRAM_SIZE - CONFIG_SYS_INIT_RAM_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR		\
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE - 1)
 
 /* SDRAM Configuration (for final code, data, stack, heap) */
 #define CONFIG_SYS_SDRAM_BASE		0x88000000
-#define CONFIG_SYS_BOOTPARAMS_LEN	(4 << 10)
 
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
@@ -41,7 +38,6 @@
 /*------------------------------------------------------------
  * Console Configuration
  */
-#define CONFIG_SYS_CBSIZE		1024 /* Console I/O Buffer Size   */
 
 /*--------------------------------------------------
  * USB Configuration

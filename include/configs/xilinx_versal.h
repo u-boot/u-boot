@@ -14,8 +14,6 @@
 #define GICD_BASE	0xF9000000
 #define GICR_BASE	0xF9080000
 
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-
 /* Serial setup */
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
@@ -27,11 +25,7 @@
 
 /* Miscellaneous configurable options */
 
-/* Monitor Command Prompt */
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		2048
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS		64
 
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300

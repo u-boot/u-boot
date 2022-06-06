@@ -28,7 +28,6 @@
  * Platform/Board specific defs
  */
 #define CONFIG_SYS_TIMERBASE    0x4802E000
-#define CONFIG_SYS_PTV          2   /* Divisor: 2^(PTV+1) => 8 */
 
 /*
  * NS16550 Configuration
@@ -65,7 +64,5 @@
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
-					 CONFIG_SPL_TEXT_BASE)
 
 #endif

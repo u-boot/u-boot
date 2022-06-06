@@ -128,7 +128,6 @@
 #endif
 
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_SPL_PAD_TO		0x20000		/* block aligned */
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 << 10)
 #endif
 
@@ -314,9 +313,6 @@
 /*
  * Miscellaneous configurable options
  */
-
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
  * Environment

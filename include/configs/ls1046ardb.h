@@ -20,7 +20,6 @@
 
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_SYS_UBOOT_BASE		0x40100000
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x90000000
 #endif
 
 #define CONFIG_SYS_NAND_BASE		0x7e800000
@@ -138,8 +137,6 @@
 			   "env exists secureboot && esbc_halt;"
 #endif
 #endif
-
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME "u-boot.img"
 
 #include <asm/fsl_secure_boot.h>
 

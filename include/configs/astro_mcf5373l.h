@@ -162,9 +162,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
 #define CONFIG_SYS_INIT_RAM_SIZE		0x8000
 #define CONFIG_SYS_INIT_RAM_CTRL	0x221
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Start addresses for the final memory configuration
@@ -203,8 +200,6 @@
 
 /* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 
 /*
  * For booting Linux, the board info and command line data

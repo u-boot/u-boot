@@ -27,9 +27,6 @@
 
 #define CONFIG_SYS_L2_PL310
 
-/* end of 16M scrubbed by training in bootrom */
-#define CONFIG_SYS_INIT_SP_ADDR		0x00FF0000
-
 #define MV_UART_CONSOLE_BASE		MVEBU_UART0_BASE
 
 /* Needed for SPI NOR booting in SPL */

@@ -18,7 +18,6 @@
 /*-----------------------------------------------------------------------
  *  System memory Configuration
  */
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MEM_SIZE		0x40000000
 #define CONFIG_SYS_SDRAM_BASE		0x71000000
 
@@ -76,16 +75,6 @@
  *  System initialize options (board_init_f)
  */
 /* board_init_f->init_sequence, call arch_cpu_init */
-
-/* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		1024
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +             \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
-/* max number of command args */
-#define CONFIG_SYS_MAXARGS		16
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 /*-----------------------------------------------------------------------
  * serial console configuration

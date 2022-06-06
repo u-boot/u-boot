@@ -10,14 +10,8 @@
 /* Location in NAND to read U-Boot from */
 
 /* Falcon Mode */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
-
-/* Falcon Mode - NAND support: args@17MB kernel@18MB */
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	(18 * SZ_1M)
 
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x800	/* 1MB */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
@@ -81,11 +75,6 @@
 #define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
-
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /*
  * MTD Command for mtdparts

@@ -44,14 +44,6 @@
 #define CONFIG_EXTRA_CLOCK
 
 #define CONFIG_PRAM			2048	/* 2048 KB */
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16
-/* Boot Argument Buffer Size    */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MBAR			0xFC000000
 
@@ -62,9 +54,8 @@
 /* End of used area in internal SRAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x10000
 #define CONFIG_SYS_INIT_RAM_CTRL	0x221
-#define CONFIG_SYS_GBL_DATA_OFFSET	((CONFIG_SYS_INIT_RAM_SIZE - \
+#define CONFIG_SYS_INIT_SP_OFFSET	((CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE) - 32)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 #define CONFIG_SYS_SBFHDR_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - 32)
 
 /*
@@ -81,7 +72,6 @@
 #define CONFIG_SERIAL_BOOT
 #endif
 
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 /* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 

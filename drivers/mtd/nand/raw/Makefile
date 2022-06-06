@@ -16,7 +16,7 @@ obj-$(CONFIG_SPL_NAND_LOAD) += nand_spl_load.o
 obj-$(CONFIG_SPL_NAND_ECC) += nand_ecc.o
 obj-$(CONFIG_SPL_NAND_BASE) += nand_base.o
 obj-$(CONFIG_SPL_NAND_IDENT) += nand_ids.o nand_timings.o
-obj-$(CONFIG_SPL_NAND_INIT) += nand.o
+obj-$(CONFIG_TPL_NAND_INIT) += nand.o
 ifeq ($(CONFIG_SPL_ENV_SUPPORT),y)
 obj-$(CONFIG_ENV_IS_IN_NAND) += nand_util.o
 endif

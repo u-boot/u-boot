@@ -22,14 +22,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
 
-/*
- * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
- * leaving the correct space for initial global data structure above
- * that address while providing maximum stack area below.
- */
-# define CONFIG_SYS_INIT_SP_ADDR \
-	(0x00300000 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
-
 /* DataFlash */
 
 /* NAND flash */
@@ -60,13 +52,6 @@
 #endif
 
 /* SPL */
-#define CONFIG_SPL_MAX_SIZE		0x6000
-#define CONFIG_SPL_STACK		0x308000
-
-#define CONFIG_SPL_BSS_START_ADDR	0x20000000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
-#define CONFIG_SYS_SPL_MALLOC_START	0x20080000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 
@@ -74,9 +59,5 @@
 #define CONFIG_SYS_AT91_PLLA		0x20953f03
 #define CONFIG_SYS_MCKR			0x1301
 #define CONFIG_SYS_MCKR_CSS		0x1302
-
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-#endif
 
 #endif

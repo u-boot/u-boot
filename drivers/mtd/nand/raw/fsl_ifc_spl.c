@@ -297,7 +297,7 @@ void nand_boot(void)
 	uboot();
 }
 
-#ifndef CONFIG_SPL_NAND_INIT
+#ifndef CONFIG_TPL_NAND_INIT
 void nand_init(void)
 {
 }

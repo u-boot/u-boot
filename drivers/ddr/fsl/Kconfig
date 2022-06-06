@@ -263,6 +263,20 @@ config SYS_OR7_PRELIM
 	depends on SYS_BR7_PRELIM_BOOL
 endmenu
 
+if TARGET_P1010RDB_PA || TARGET_P1010RDB_PB || TARGET_P1020RDB_PC || \
+	TARGET_P1020RDB_PD || TARGET_P2020RDB
+
+config COMMON_INIT_DDR
+	bool "Do not have a TLB entry to cover common DDR init with serial presence detect (SPD)"
+
+config SPL_COMMON_INIT_DDR
+	bool "Do not have a TLB entry to cover common DDR init with SPD in SPL"
+
+config TPL_COMMON_INIT_DDR
+	bool "Do not have a TLB entry to cover common DDR init with SPD in TPL"
+
+endif
+
 config SYS_FSL_ERRATUM_A008378
 	bool
 

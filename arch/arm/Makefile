@@ -103,8 +103,8 @@ libs-y += $(machdirs)
 head-y := arch/arm/cpu/$(CPU)/start.o
 
 ifeq ($(CONFIG_SPL_BUILD),y)
-ifneq ($(CONFIG_SPL_START_S_PATH),)
-head-y := $(CONFIG_SPL_START_S_PATH:"%"=%)/start.o
+ifeq ($(CONFIG_SYS_SOC)$(CONFIG_SPL_FRAMEWORK),"mxs")
+head-y := arch/arm/cpu/arm926ejs/mxs/start.o
 endif
 endif
 

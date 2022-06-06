@@ -25,15 +25,9 @@
 					  4000000, 4500000, 5000000, 5500000, \
 					  6000000 }
 
-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-/* End of 16M scrubbed by training in bootrom */
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
 
 /*
  * Environment

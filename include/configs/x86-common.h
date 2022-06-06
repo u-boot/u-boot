@@ -40,7 +40,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_CBSIZE			512
 
 /*-----------------------------------------------------------------------
  * CPU Features

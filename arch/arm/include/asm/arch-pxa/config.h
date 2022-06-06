@@ -13,8 +13,6 @@
  */
 #if defined(CONFIG_CPU_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 #define	CONFIG_SYS_TIMER_RATE	3250000
-#elif defined(CONFIG_CPU_PXA25X)
-#define	CONFIG_SYS_TIMER_RATE	3686400
 #else
 #error "Timer frequency unknown - please config PXA CPU type"
 #endif

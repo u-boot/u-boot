@@ -199,14 +199,8 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_MAXARGS		32 /* max number of command args */
-#define CONFIG_SYS_CBSIZE		2048 /* Console I/O Buffer Size */
-
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x2000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					CONFIG_SYS_INIT_RAM_SIZE - \
-					GENERATED_GBL_DATA_SIZE)
 
 
 /* Extend size of kernel image for uncompression */
@@ -215,20 +209,9 @@
 /* Boot FreeBSD/vxWorks from an ELF image */
 #define CONFIG_SYS_MMC_MAX_DEVICE	1
 
-/* MMC support */
-#ifdef CONFIG_MMC_SDHCI_ZYNQ
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
-#endif
-
 /* Address in RAM where the parameters must be copied by SPL. */
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
-
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"system.dtb"
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
 
 /* Not using MMC raw mode - just for compilation purpose */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0
 
 /* qspi mode is working fine */
 #ifdef CONFIG_ZYNQ_QSPI
@@ -241,21 +224,13 @@
 /* SP location before relocation, must use scratch RAM */
 
 /* 3 * 64kB blocks of OCM - one is on the top because of bootrom */
-#define CONFIG_SPL_MAX_SIZE	0x30000
 
 /* On the top of OCM space */
-#define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SPL_STACK_R_ADDR
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x2000000
 
 /*
  * SPL stack position - and stack goes down
  * 0xfffffe00 is used for putting wfi loop.
  * Set it up as limit for now.
  */
-#define CONFIG_SPL_STACK	0xfffffe00
-
-/* BSS setup */
-#define CONFIG_SPL_BSS_START_ADDR	0x100000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x100000
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

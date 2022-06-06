@@ -14,8 +14,6 @@
 #define GICD_BASE	0xF9010000
 #define GICC_BASE	0xF9020000
 
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-
 /* Serial setup */
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
@@ -51,11 +49,7 @@
 # define PARTS_DEFAULT
 #endif
 
-/* Monitor Command Prompt */
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		2048
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS		64
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
@@ -205,13 +199,6 @@
 	"dfu_bufsiz=0x1000\0"
 #endif
 
-#define CONFIG_SPL_STACK		0xfffffffc
-#define CONFIG_SPL_MAX_SIZE		0x40000
-
-/* Just random location in OCM */
-#define CONFIG_SPL_BSS_START_ADDR	0x0
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
-
 #if defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
 # define CONFIG_SYS_SPI_KERNEL_OFFS	0x80000
 # define CONFIG_SYS_SPI_ARGS_OFFS	0xa0000
@@ -219,28 +206,13 @@
 #endif
 
 /* u-boot is like dtb */
-#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"u-boot.bin"
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x8000000
 
 /* ATF is my kernel image */
-#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"atf-uboot.ub"
-
-/* MMC support */
-# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0 /* unused */
-# define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0 /* unused */
-# if defined(CONFIG_SPL_LOAD_FIT)
-#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.itb"
-# else
-#  define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
-# endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 # define CONFIG_SPL_HASH
 # define CONFIG_ENV_MAX_ENTRIES	10
 #endif
-
-#define CONFIG_SYS_SPL_MALLOC_START	0x20000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000000
 
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"

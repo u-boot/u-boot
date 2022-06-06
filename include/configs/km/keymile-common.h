@@ -12,15 +12,6 @@
 /*
  * Miscellaneous configurable options
  */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#else
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size  */
-#endif
-#define CONFIG_SYS_MAXARGS		32 /* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
-#define CONFIG_HUSH_INIT_VAR
 
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 19200, 38400, 57600, 115200, 230400 }
 

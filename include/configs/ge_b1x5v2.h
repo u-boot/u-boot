@@ -13,7 +13,6 @@
 #include "mx6_common.h"
 
 #include "imx6_spl.h"
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.imx"
 
 /* PWM */
 #define CONFIG_IMX6_PWM_PER_CLK		66000000
@@ -46,11 +45,6 @@
 #define CONFIG_SYS_SDRAM_BASE	       PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
-
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Command definition */
 #define CONFIG_EXTRA_ENV_SETTINGS \

@@ -8,12 +8,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_CBSIZE		1024
-
 #define CONFIG_SYS_HZ_CLOCK		24000000
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x60100000
-#define CONFIG_SPL_STACK		0x10081fff
 
 #define CONFIG_ROCKCHIP_MAX_INIT_SIZE	(4 << 10)
 #define CONFIG_ROCKCHIP_CHIP_TAG	"RK30"

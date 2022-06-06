@@ -7,16 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_SPL
-#define CONFIG_SPL_MAX_SIZE		0x00100000
-#define CONFIG_SPL_BSS_START_ADDR	0x04000000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
-
-#ifdef CONFIG_SPL_MMC
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.itb"
-#endif
-#endif
-
 #define RISCV_MMODE_TIMERBASE           0xe6000000
 #define RISCV_MMODE_TIMER_FREQ          60000000
 
@@ -29,26 +19,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
-
-/*
- * Print Buffer Size
- */
-#define CONFIG_SYS_PBSIZE	\
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-
-/*
- * max number of command args
- */
-#define CONFIG_SYS_MAXARGS	16
-
-/*
- * Boot Argument Buffer Size
- */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
-/* DT blob (fdt) address */
-#define CONFIG_SYS_FDT_BASE		0x800f0000
 
 /*
  * Physical Memory Map
@@ -70,13 +40,6 @@
 #define CONFIG_SYS_NS16550_CLK		19660800
 
 /* Init Stack Pointer */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000000 - \
-					GENERATED_GBL_DATA_SIZE)
-
-/* use CFI framework */
-
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
-#define CONFIG_SYS_CFI_FLASH_STATUS_POLL
 
 /* support JEDEC */
 #define PHYS_FLASH_1			0x88000000	/* BANK 0 */

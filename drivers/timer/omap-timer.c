@@ -11,6 +11,7 @@
 #include <timer.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/omap_common.h>
 #include <linux/bitops.h>
 
 /* Timer register bits */
@@ -61,13 +62,13 @@ static int omap_timer_probe(struct udevice *dev)
 	if (!uc_priv->clock_rate)
 		uc_priv->clock_rate = V_SCLK;
 
-	uc_priv->clock_rate /= (2 << CONFIG_SYS_PTV);
+	uc_priv->clock_rate /= (2 << SYS_PTV);
 
 	/* start the counter ticking up, reload value on overflow */
 	writel(0, &priv->regs->tldr);
 	writel(0, &priv->regs->tcrr);
 	/* enable timer */
-	writel((CONFIG_SYS_PTV << 2) | TCLR_PRE_EN | TCLR_AUTO_RELOAD |
+	writel((SYS_PTV << 2) | TCLR_PRE_EN | TCLR_AUTO_RELOAD |
 	       TCLR_START, &priv->regs->tclr);
 
 	return 0;

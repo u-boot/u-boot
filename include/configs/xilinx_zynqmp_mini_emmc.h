@@ -12,6 +12,4 @@
 
 #include <configs/xilinx_zynqmp_mini.h>
 
-#define CONFIG_SYS_INIT_SP_ADDR	CONFIG_SYS_TEXT_BASE
-
 #endif /* __CONFIG_ZYNQMP_MINI_EMMC_H */

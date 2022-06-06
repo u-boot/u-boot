@@ -9,8 +9,6 @@
 
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x10010000
-
 /*
  * Configuration of the external SDRAM memory
  */
@@ -18,8 +16,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	12
 
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
-
-#define CONFIG_SYS_CBSIZE		1024
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs_romfs=uclinux.physaddr=0x08180000 root=/dev/mtdblock0\0" \

@@ -20,7 +20,5 @@
  * to enable certain macros
  */
 #include "mv-common.h"
-#undef CONFIG_SYS_MAXARGS
-#define CONFIG_SYS_MAXARGS 96
 
 #endif /* _CONFIG_DB_XC3_24G4G_H */

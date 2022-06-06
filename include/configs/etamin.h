@@ -77,12 +77,6 @@
 
 #define CONFIG_FACTORYSET
 
-/* use both define to compile a SPL compliance test  */
-/*
-#define CONFIG_SPL_CMT
-#define CONFIG_SPL_CMT_DEBUG
-*/
-
 /* nedded by compliance test in read mode */
 
 /* Define own nand partitions */

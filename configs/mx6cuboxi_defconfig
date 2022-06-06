@@ -26,9 +26,13 @@ CONFIG_BOOTCOMMAND="run findfdt; run finduuid; run distro_bootcmd"
 CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="if hdmidet; then usb start; setenv stdin  serial,usbkbd; setenv stdout serial,vidconsole; setenv stderr serial,vidconsole; else setenv stdin  serial; setenv stdout serial; setenv stderr serial; fi;"
 CONFIG_BOARD_EARLY_INIT_F=y
+CONFIG_SYS_SPL_MALLOC=y
 CONFIG_SPL_FS_EXT4=y
+CONFIG_SPL_FS_LOAD_PAYLOAD_NAME="u-boot-dtb.img"
 CONFIG_SPL_I2C=y
 CONFIG_SPL_WATCHDOG=y
+CONFIG_SYS_MAXARGS=32
+CONFIG_SYS_PBSIZE=532
 CONFIG_CMD_GPIO=y
 CONFIG_CMD_MMC=y
 # CONFIG_CMD_PINMUX is not set

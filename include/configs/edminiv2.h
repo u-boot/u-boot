@@ -15,12 +15,6 @@
  * SPL
  */
 
-#define CONFIG_SPL_MAX_SIZE		0x0000fff0
-#define CONFIG_SPL_STACK		0x00020000
-#define CONFIG_SPL_BSS_START_ADDR	0x00020000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x0001ffff
-#define CONFIG_SYS_SPL_MALLOC_START	0x00040000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x0001ffff
 #define CONFIG_SYS_UBOOT_BASE		0xfff90000
 #define CONFIG_SYS_UBOOT_START		0x00800000
 
@@ -90,8 +84,6 @@
 
 /* auto boot */
 
-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-
 /*
  * Network
  */
@@ -141,7 +133,5 @@
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_SYS_INIT_SP_ADDR	\
-	(CONFIG_SYS_SDRAM_BASE + 0x1000 - GENERATED_GBL_DATA_SIZE)
 
 #endif /* _CONFIG_EDMINIV2_H */

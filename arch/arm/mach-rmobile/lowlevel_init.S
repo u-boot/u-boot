@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <linux/linkage.h>
+#include <system-constants.h>
 
 ENTRY(lowlevel_init)
 	ldr		r0, =MERAM_BASE

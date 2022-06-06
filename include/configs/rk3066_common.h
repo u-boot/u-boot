@@ -9,15 +9,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_CBSIZE		256
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x78000000
-
 #define CONFIG_IRAM_BASE		0x10080000
-
-#define CONFIG_SPL_MAX_SIZE		0x32000
-
-#define CONFIG_SPL_STACK		0x1008FFFF
 
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_BANK_SIZE			(1024UL << 20UL)

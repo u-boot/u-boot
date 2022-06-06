@@ -24,18 +24,9 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
 #define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
 /*
  * U-Boot general configurations
  */
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
-#define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 
 /*
  * Serial Driver
@@ -117,9 +108,6 @@
 /*
  * NAND SPL
  */
-#define CONFIG_SPL_TARGET		"u-boot-with-nand-spl.imx"
-#define CONFIG_SPL_PAD_TO		0x8000
-#define CONFIG_SPL_STACK		0x70004000
 
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
 

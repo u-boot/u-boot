@@ -62,9 +62,6 @@
 # define CONFIG_SYS_MONITOR_LEN		0x00040000	/* 256KB */
 #endif
 
-/* Linux boot param area in RAM (used only when booting linux) */
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64  << 10)
-
 /* Memory test is destructive so default must not overlap vectors or U-Boot*/
 
 /* Load address for stand-alone applications.
@@ -98,10 +95,6 @@
 /*==============================*/
 
 	/* Console I/O Buffer Size  */
-#define CONFIG_SYS_CBSIZE		1024
-	/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 /*==============================*/
 /* U-Boot autoboot configuration */
 /*==============================*/
@@ -177,7 +170,6 @@
 /* Flash & Environment */
 /*=====================*/
 
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #ifdef CONFIG_XTFPGA_LX60
 # define CONFIG_SYS_FLASH_SIZE		0x0040000	/* 4MB */
 # define CONFIG_SYS_FLASH_SECT_SZ	0x10000		/* block size 64KB */

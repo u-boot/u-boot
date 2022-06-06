@@ -13,16 +13,8 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
-#define CONFIG_SYS_CBSIZE		1024
 
 #define CONFIG_IRAM_BASE		0xff8c0000
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x00300000
-
-#define CONFIG_SPL_MAX_SIZE             0x40000
-#define CONFIG_SPL_BSS_START_ADDR       0x400000
-#define CONFIG_SPL_BSS_MAX_SIZE         0x20000
-#define CONFIG_SPL_STACK                0x00188000
 
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 

@@ -44,10 +44,6 @@
 #define RESERVE_BLOCK_SIZE		(512)
 #define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
 
-#define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x02040000
-
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_ENV_SROM_BANK		1

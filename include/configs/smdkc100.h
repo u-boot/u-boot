@@ -87,7 +87,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 
 /* SMDKC100 has 1 banks of DRAM, we use only one in U-Boot */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* SDRAM Bank #1 */
@@ -116,8 +115,6 @@
 #define CONFIG_USE_ONENAND_BOARD_INIT
 #define CONFIG_SAMSUNG_ONENAND		1
 #define CONFIG_SYS_ONENAND_BASE		0xE7100000
-
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
 /*
  * Ethernet Contoller driver

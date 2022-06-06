@@ -305,7 +305,4 @@
  */
 #endif
 
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
-					 (128 << 20))
-
 #endif /* __CONFIG_TI_OMAP5_COMMON_H */

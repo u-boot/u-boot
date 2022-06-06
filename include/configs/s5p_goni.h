@@ -121,8 +121,6 @@
 	"opts=always_resume=1\0" \
 	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
 
-#define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
-
 /* Goni has 3 banks of DRAM, but swap the bank */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */
 #define PHYS_SDRAM_1_SIZE	(80 << 20)		/* 80 MB in Bank #0 */
@@ -139,8 +137,6 @@
 #define CONFIG_USE_ONENAND_BOARD_INIT
 #define CONFIG_SAMSUNG_ONENAND		1
 #define CONFIG_SYS_ONENAND_BASE		0xB0000000
-
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
 

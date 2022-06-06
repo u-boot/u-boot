@@ -28,18 +28,6 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	UBOOT_UPDATE
 
-/* Increase console I/O buffer size */
-#undef CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_CBSIZE		1024
-
-/* Increase arguments buffer size */
-#undef CONFIG_SYS_BARGSIZE
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
-/* Increase maximum number of arguments */
-#undef CONFIG_SYS_MAXARGS
-#define CONFIG_SYS_MAXARGS		32
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

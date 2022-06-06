@@ -41,10 +41,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
 
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
-
 #if !defined(CONFIG_ARM64)
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000
@@ -177,19 +173,9 @@
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
-
 /* only for SPL */
-#define CONFIG_SPL_STACK		(0x00100000)
 
 /* subtract sizeof(struct image_header) */
 #define CONFIG_SYS_UBOOT_BASE			(0x130000 - 0x40)
-
-#define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
-#define CONFIG_SPL_MAX_FOOTPRINT		0x10000
-#define CONFIG_SPL_MAX_SIZE			0x10000
-#define CONFIG_SPL_BSS_MAX_SIZE			0x2000
-
-#define CONFIG_SPL_PAD_TO			0x20000
 
 #endif /* __CONFIG_UNIPHIER_H__ */
