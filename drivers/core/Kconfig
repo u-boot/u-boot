@@ -89,8 +89,7 @@ config DM_DEVICE_REMOVE
 
 config DM_EVENT
 	bool "Support events with driver model"
-	depends on DM
-	imply EVENT
+	depends on DM && EVENT
 	default y if SANDBOX
 	help
 	  This enables support for generating events related to driver model

@@ -567,6 +567,11 @@ cmd_xzmisc = (cat $(filter-out FORCE,$^) | \
 
 # Additional commands for U-Boot
 #
+# bin2c
+# ---------------------------------------------------------------------------
+quiet_cmd_bin2c = BIN2C   $@
+      cmd_bin2c = $(objtree)/scripts/bin2c $2 < $< > $@
+
 # mkimage
 # ---------------------------------------------------------------------------
 MKIMAGEOUTPUT ?= /dev/null

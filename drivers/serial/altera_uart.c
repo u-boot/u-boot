@@ -123,7 +123,7 @@ U_BOOT_DRIVER(altera_uart) = {
 
 static inline void _debug_uart_init(void)
 {
-	struct altera_uart_regs *regs = (void *)CONFIG_DEBUG_UART_BASE;
+	struct altera_uart_regs *regs = (void *)CONFIG_VAL(DEBUG_UART_BASE);
 	u32 div;
 
 	div = (CONFIG_DEBUG_UART_CLOCK / CONFIG_BAUDRATE) - 1;
@@ -132,7 +132,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int ch)
 {
-	struct altera_uart_regs *regs = (void *)CONFIG_DEBUG_UART_BASE;
+	struct altera_uart_regs *regs = (void *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (1) {
 		u32 st = readl(&regs->status);

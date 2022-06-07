@@ -1125,9 +1125,7 @@ bool device_is_compatible(const struct udevice *dev, const char *compat)
 
 bool of_machine_is_compatible(const char *compat)
 {
-	const void *fdt = gd->fdt_blob;
-
-	return !fdt_node_check_compatible(fdt, 0, compat);
+	return ofnode_device_is_compatible(ofnode_root(), compat);
 }
 
 int dev_disable_by_path(const char *path)

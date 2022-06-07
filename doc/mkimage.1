@@ -99,6 +99,30 @@ Set image name to 'image name'.
 .BI "\-R [" "secondary image name" "]"
 Some image types support a second image for additional data. For these types,
 use \-R to specify this second image.
+.TS
+allbox;
+lb lbx
+l l.
+Image Type	Secondary Image Description
+pblimage	Additional RCW-style header, typically used for PBI commands.
+zynqimage, zynqmpimage	T{
+Initialization parameters, one per line. Each parameter has the form
+.sp
+.ti 4
+.I address data
+.sp
+where
+.I address
+and
+.I data
+are hexadecimal integers. The boot ROM will write each
+.I data
+to
+.I address
+when loading the image. At most 256 parameters may be specified in this
+manner.
+T}
+.TE
 
 .TP
 .BI "\-d [" "image data file" "]"
@@ -110,8 +134,8 @@ Set XIP (execute in place) flag.
 
 .TP
 .BI "\-s"
-Create an image with no data. The header will be created, but the image itself
-will not contain data (such as U-Boot or any specified kernel).
+Don't copy in the image data. Depending on the image type, this may create
+just the header, everything but the image data, or nothing at all.
 
 .TP
 .BI "\-v"
@@ -177,6 +201,11 @@ should contain a private key file <name>.key for use with signing and a
 certificate <name>.crt (containing the public key) for use with verification.
 
 .TP
+.BI "\-G [" "key_file" "]"
+Specifies the private key file to use when signing. This option may be used
+instead of \-k.
+
+.TP
 .BI "\-K [" "key_destination" "]"
 Specifies a compiled device tree binary file (typically .dtb) to write
 public key information into. When a private key is used to sign an image,
@@ -188,6 +217,13 @@ CONFIG_OF_CONTROL in U-Boot.
 .BI "\-G [" "key_file" "]"
 Specifies the private key file to use when signing. This option may be used
 instead of \-k.
+
+.TP
+.BI "\-g [" "key_name_hint" "]"
+Sets the key-name-hint property when used with \-f auto. This is the <name>
+part of the key. The directory part is set by \-k. This option also indicates
+that the images included in the FIT should be signed. If this option is
+specified, \-o must be specified as well.
 
 .TP
 .BI "\-o [" "signing algorithm" "]"
@@ -250,6 +286,15 @@ skipping those for which keys cannot be found. Also add a comment.
 .fi
 
 .P
+Add public keys to u-boot.dtb without needing a FIT to sign. This will also
+create a FIT containing an images node with no data named unused.itb.
+.nf
+.B mkimage -f auto -d /dev/null -k /public/signing-keys -g dev \\\\
+.br
+.B -o sha256,rsa2048 -K u-boot.dtb unused.itb
+.fi
+
+.P
 Update an existing FIT image, signing it with additional keys.
 Add corresponding public keys into u-boot.dtb. This will resign all images
 with keys that are available in the new directory. Images that request signing
@@ -276,6 +321,14 @@ automatic mode. No .its file is required.
 .br
 .B -c """Kernel 4.4 image for production devices""" -d vmlinuz \\\\
 .B -b /path/to/rk3288-firefly.dtb -b /path/to/rk3288-jerry.dtb kernel.itb
+.fi
+.P
+Create a FIT image containing a signed kernel, using automatic mode. No .its
+file is required.
+.nf
+.B mkimage -f auto -A arm -O linux -T kernel -C none -a 43e00000 -e 0 \\\\
+.br
+.B -d vmlinuz -k /secret/signing-keys -g dev -o sha256,rsa2048 kernel.itb
 .fi
 
 .SH HOMEPAGE

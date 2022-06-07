@@ -902,7 +902,8 @@ int add_mtd_partitions_of(struct mtd_info *master)
 	ofnode_for_each_subnode(child, parts) {
 		struct mtd_partition part = { 0 };
 		struct mtd_info *slave;
-		fdt_addr_t offset, size;
+		fdt_addr_t offset;
+		fdt_size_t size;
 
 		if (!ofnode_is_available(child))
 			continue;

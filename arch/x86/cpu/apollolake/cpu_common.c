@@ -72,7 +72,7 @@ static void pch_uart_init(void)
 	}
 
 #ifdef CONFIG_DEBUG_UART
-	apl_uart_init(PCH_DEV_UART, CONFIG_DEBUG_UART_BASE);
+	apl_uart_init(PCH_DEV_UART, CONFIG_VAL(DEBUG_UART_BASE));
 #endif
 }
 

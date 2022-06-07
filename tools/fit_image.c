@@ -199,15 +199,36 @@ static void get_basename(char *str, int size, const char *fname)
 }
 
 /**
- * add_crc_node() - Add a hash node to request a CRC checksum for an image
+ * add_hash_node() - Add a hash or signature node
  *
+ * @params: Image parameters
  * @fdt: Device tree to add to (in sequential-write mode)
+ *
+ * If there is a key name hint, try to sign the images. Otherwise, just add a
+ * CRC.
+ *
+ * Return: 0 on success, or -1 on failure
  */
-static void add_crc_node(void *fdt)
+static int add_hash_node(struct image_tool_params *params, void *fdt)
 {
-	fdt_begin_node(fdt, "hash-1");
-	fdt_property_string(fdt, FIT_ALGO_PROP, "crc32");
+	if (params->keyname) {
+		if (!params->algo_name) {
+			fprintf(stderr,
+				"%s: Algorithm name must be specified\n",
+				params->cmdname);
+			return -1;
+		}
+
+		fdt_begin_node(fdt, "signature-1");
+		fdt_property_string(fdt, FIT_ALGO_PROP, params->algo_name);
+		fdt_property_string(fdt, FIT_KEY_HINT, params->keyname);
+	} else {
+		fdt_begin_node(fdt, "hash-1");
+		fdt_property_string(fdt, FIT_ALGO_PROP, "crc32");
+	}
+
 	fdt_end_node(fdt);
+	return 0;
 }
 
 /**
@@ -248,7 +269,9 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 	ret = fdt_property_file(params, fdt, FIT_DATA_PROP, params->datafile);
 	if (ret)
 		return ret;
-	add_crc_node(fdt);
+	ret = add_hash_node(params, fdt);
+	if (ret)
+		return ret;
 	fdt_end_node(fdt);
 
 	/* Now the device tree files if available */
@@ -271,7 +294,9 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 				    genimg_get_arch_short_name(params->arch));
 		fdt_property_string(fdt, FIT_COMP_PROP,
 				    genimg_get_comp_short_name(IH_COMP_NONE));
-		add_crc_node(fdt);
+		ret = add_hash_node(params, fdt);
+		if (ret)
+			return ret;
 		fdt_end_node(fdt);
 	}
 
@@ -289,7 +314,9 @@ static int fit_write_images(struct image_tool_params *params, char *fdt)
 					params->fit_ramdisk);
 		if (ret)
 			return ret;
-		add_crc_node(fdt);
+		ret = add_hash_node(params, fdt);
+		if (ret)
+			return ret;
 		fdt_end_node(fdt);
 	}
 

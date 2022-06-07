@@ -295,7 +295,7 @@ U_BOOT_DRIVER(serial_zynq) = {
 #ifdef CONFIG_DEBUG_UART_ZYNQ
 static inline void _debug_uart_init(void)
 {
-	struct uart_zynq *regs = (struct uart_zynq *)CONFIG_DEBUG_UART_BASE;
+	struct uart_zynq *regs = (struct uart_zynq *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	_uart_zynq_serial_init(regs);
 	_uart_zynq_serial_setbrg(regs, CONFIG_DEBUG_UART_CLOCK,
@@ -304,7 +304,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int ch)
 {
-	struct uart_zynq *regs = (struct uart_zynq *)CONFIG_DEBUG_UART_BASE;
+	struct uart_zynq *regs = (struct uart_zynq *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (_uart_zynq_serial_putc(regs, ch) == -EAGAIN)
 		WATCHDOG_RESET();

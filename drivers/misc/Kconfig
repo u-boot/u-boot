@@ -125,7 +125,7 @@ config CROS_EC
 
 config SPL_CROS_EC
 	bool "Enable Chrome OS EC in SPL"
-	depends on SPL
+	depends on SPL_MISC
 	help
 	  Enable access to the Chrome OS EC in SPL. This is a separate
 	  microcontroller typically available on a SPI bus on Chromebooks. It
@@ -135,7 +135,7 @@ config SPL_CROS_EC
 
 config TPL_CROS_EC
 	bool "Enable Chrome OS EC in TPL"
-	depends on TPL
+	depends on TPL_MISC
 	help
 	  Enable access to the Chrome OS EC in TPL. This is a separate
 	  microcontroller typically available on a SPI bus on Chromebooks. It
@@ -145,7 +145,7 @@ config TPL_CROS_EC
 
 config VPL_CROS_EC
 	bool "Enable Chrome OS EC in VPL"
-	depends on VPL
+	depends on VPL_MISC
 	help
 	  Enable access to the Chrome OS EC in VPL. This is a separate
 	  microcontroller typically available on a SPI bus on Chromebooks. It
@@ -173,7 +173,7 @@ config CROS_EC_LPC
 
 config SPL_CROS_EC_LPC
 	bool "Enable Chrome OS EC LPC driver in SPL"
-	depends on CROS_EC
+	depends on CROS_EC && SPL_MISC
 	help
 	  Enable I2C access to the Chrome OS EC. This is used on x86
 	  Chromebooks such as link and falco. The keyboard is provided
@@ -182,7 +182,7 @@ config SPL_CROS_EC_LPC
 
 config TPL_CROS_EC_LPC
 	bool "Enable Chrome OS EC LPC driver in TPL"
-	depends on CROS_EC
+	depends on CROS_EC && TPL_MISC
 	help
 	  Enable I2C access to the Chrome OS EC. This is used on x86
 	  Chromebooks such as link and falco. The keyboard is provided
@@ -191,7 +191,7 @@ config TPL_CROS_EC_LPC
 
 config VPL_CROS_EC_LPC
 	bool "Enable Chrome OS EC LPC driver in VPL"
-	depends on CROS_EC
+	depends on CROS_EC && VPL_MISC
 	help
 	  Enable I2C access to the Chrome OS EC. This is used on x86
 	  Chromebooks such as link and falco. The keyboard is provided
@@ -284,7 +284,7 @@ config MXC_OCOTP
 
 config SPL_MXC_OCOTP
 	bool "Enable MXC OCOTP driver in SPL"
-	depends on SPL && (ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610)
+	depends on SPL_MISC && (ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610)
 	default y
 	help
 	  If you say Y here, you will get support for the One Time
@@ -314,7 +314,7 @@ config P2SB
 
 config SPL_P2SB
 	bool "Intel Primary to Sideband Bridge in SPL"
-	depends on SPL && (X86 || SANDBOX)
+	depends on SPL_MISC && (X86 || SANDBOX)
 	help
 	  The Primary to Sideband Bridge is used to access various peripherals
 	  through memory-mapped I/O in a large chunk of PCI space. The space is
@@ -324,7 +324,7 @@ config SPL_P2SB
 
 config TPL_P2SB
 	bool "Intel Primary to Sideband Bridge in TPL"
-	depends on TPL && (X86 || SANDBOX)
+	depends on TPL_MISC && (X86 || SANDBOX)
 	help
 	  The Primary to Sideband Bridge is used to access various peripherals
 	  through memory-mapped I/O in a large chunk of PCI space. The space is
@@ -343,7 +343,7 @@ config PWRSEQ
 
 config SPL_PWRSEQ
 	bool "Enable power-sequencing drivers for SPL"
-	depends on PWRSEQ
+	depends on SPL_MISC && PWRSEQ
 	help
 	  Power-sequencing drivers provide support for controlling power for
 	  devices. They are typically referenced by a phandle from another
@@ -451,7 +451,7 @@ config I2C_EEPROM
 
 config SPL_I2C_EEPROM
 	bool "Enable driver for generic I2C-attached EEPROMs for SPL"
-	depends on MISC && SPL && SPL_DM
+	depends on SPL_MISC
 	help
 	  This option is an SPL-variant of the I2C_EEPROM option.
 	  See the help of I2C_EEPROM for details.
@@ -504,6 +504,7 @@ config FS_LOADER
 
 config SPL_FS_LOADER
 	bool "Enable loader driver for file system"
+	depends on SPL
 	help
 	  This is file system generic loader which can be used to load
 	  the file image from the storage into target such as memory.

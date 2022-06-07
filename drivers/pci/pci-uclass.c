@@ -954,7 +954,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 	return 0;
 }
 
-static void decode_regions(struct pci_controller *hose, ofnode parent_node,
+static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 			   ofnode node)
 {
 	int pci_addr_cells, addr_cells, size_cells;
@@ -968,7 +968,7 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 	prop = ofnode_get_property(node, "ranges", &len);
 	if (!prop) {
 		debug("%s: Cannot decode regions\n", __func__);
-		return;
+		return -EINVAL;
 	}
 
 	pci_addr_cells = ofnode_read_simple_addr_cells(node);
@@ -986,6 +986,8 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 	max_regions = len / cells_per_record + CONFIG_NR_DRAM_BANKS;
 	hose->regions = (struct pci_region *)
 		calloc(1, max_regions * sizeof(struct pci_region));
+	if (!hose->regions)
+		return -ENOMEM;
 
 	for (i = 0; i < max_regions; i++, len -= cells_per_record) {
 		u64 pci_addr, addr, size;
@@ -1053,7 +1055,7 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 	/* Add a region for our local memory */
 	bd = gd->bd;
 	if (!bd)
-		return;
+		return 0;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		if (bd->bi_dram[i].size) {
@@ -1068,7 +1070,7 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 		}
 	}
 
-	return;
+	return 0;
 }
 
 static int pci_uclass_pre_probe(struct udevice *bus)
@@ -1097,7 +1099,10 @@ static int pci_uclass_pre_probe(struct udevice *bus)
 	/* For bridges, use the top-level PCI controller */
 	if (!device_is_on_pci_bus(bus)) {
 		hose->ctlr = bus;
-		decode_regions(hose, dev_ofnode(bus->parent), dev_ofnode(bus));
+		ret = decode_regions(hose, dev_ofnode(bus->parent),
+				     dev_ofnode(bus));
+		if (ret)
+			return ret;
 	} else {
 		struct pci_controller *parent_hose;
 

@@ -48,7 +48,6 @@ struct bd_info {
 #endif
 	unsigned long	bi_bootflags;	/* boot / reboot flag (Unused) */
 	unsigned long	bi_ip_addr;	/* IP Address */
-	unsigned char	bi_enetaddr[6];	/* OLD: see README.enetaddr */
 	unsigned short	bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
