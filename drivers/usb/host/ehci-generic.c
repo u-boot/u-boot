@@ -69,7 +69,7 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	err = 0;
 	ret = clk_get_bulk(dev, &priv->clocks);
-	if (ret) {
+	if (ret && ret != -ENOENT) {
 		dev_err(dev, "Failed to get clocks (ret=%d)\n", ret);
 		return ret;
 	}
@@ -81,7 +81,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	}
 
 	err = reset_get_bulk(dev, &priv->resets);
-	if (err) {
+	if (ret && ret != -ENOENT) {
 		dev_err(dev, "Failed to get resets (err=%d)\n", err);
 		goto clk_err;
 	}
