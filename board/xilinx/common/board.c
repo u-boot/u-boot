@@ -245,6 +245,10 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	}
 	strncpy(desc->revision, (char *)fru_data.brd.rev,
 		sizeof(desc->revision));
+	for (i = 0; i < sizeof(desc->revision); i++) {
+		if (desc->revision[i] == ' ')
+			desc->revision[i] = '\0';
+	}
 	strncpy(desc->serial, (char *)fru_data.brd.serial_number,
 		sizeof(desc->serial));
 
