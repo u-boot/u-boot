@@ -21,26 +21,15 @@
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
 	{
-		.image_type_id = DEVELOPERBOX_UBOOT_IMAGE_GUID,
-		.fw_name = u"DEVELOPERBOX-UBOOT",
-		.image_index = 1,
-	},
-	{
 		.image_type_id = DEVELOPERBOX_FIP_IMAGE_GUID,
 		.fw_name = u"DEVELOPERBOX-FIP",
-		.image_index = 2,
-	},
-	{
-		.image_type_id = DEVELOPERBOX_OPTEE_IMAGE_GUID,
-		.fw_name = u"DEVELOPERBOX-OPTEE",
-		.image_index = 3,
+		.image_index = 1,
 	},
 };
 
 struct efi_capsule_update_info update_info = {
-	.dfu_string = "mtd nor1=u-boot.bin raw 200000 100000;"
-			"fip.bin raw 180000 78000;"
-			"optee.bin raw 500000 100000",
+	.dfu_string = "mtd nor1=bank0 raw 600000 400000;"
+			"bank1 raw a00000 400000;",
 	.images = fw_images,
 };
 
