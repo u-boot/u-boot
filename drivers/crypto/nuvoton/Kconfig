@@ -1,0 +1,8 @@
+config NPCM_AES
+	bool "Support the NPCM AES algorithm"
+	select NPCM_OTP
+	help
+	  This provides a means to encrypt and decrypt data using the NPCM
+	  AES (Advanced Encryption Standard). This algorithm uses a symmetric
+	  key and is widely used as a streaming cipher. This command only
+	  supports AES256-CBC.
