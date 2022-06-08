@@ -239,6 +239,10 @@ config E1000
 
 	  <http://support.intel.com/support/network/adapter/pro100/21397.htm>
 
+config E1000_NO_NVM
+	bool "Intel PRO/1000 has no NVMEM / EEPROM"
+	depends on E1000
+
 config E1000_SPI_GENERIC
 	bool "Allow access to the Intel 8257x SPI bus"
 	depends on E1000
