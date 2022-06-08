@@ -120,7 +120,7 @@ unsigned long flash_init(void)
 		if (i%32 == 0)
 			tmp = readl(&eefc->frr);
 		flash_info[0].protect[i] = (tmp >> (i%32)) & 1;
-#if defined(CONFIG_EFLASH_PROTSECTORS)
+#if CONFIG_VAL(EFLASH_PROTSECTORS)
 		if (i < CONFIG_EFLASH_PROTSECTORS)
 			flash_info[0].protect[i] = 1;
 #endif
@@ -158,7 +158,7 @@ int flash_real_protect (flash_info_t *info, long sector, int prot)
 
 	debug("protect sector=%ld prot=%d\n", sector, prot);
 
-#if defined(CONFIG_EFLASH_PROTSECTORS)
+#if CONFIG_VAL(EFLASH_PROTSECTORS)
 	if (sector < CONFIG_EFLASH_PROTSECTORS) {
 		if (!prot) {
 			printf("eflash: sector %lu cannot be unprotected\n",

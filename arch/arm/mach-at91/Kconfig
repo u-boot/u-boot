@@ -327,6 +327,13 @@ config AT91_EFLASH
 	  Enable the driver for the embedded flash used in the Atmel
 	  AT91SAM9XE devices.
 
+config EFLASH_PROTSECTORS
+	int "Number of flash sectors to protect from erasing"
+	depends on AT91_EFLASH
+	help
+	  If non-zero, this will be the number of sectors of the flash to disallow
+	  U-Boot to ease, starting from the beginning of flash.
+
 config AT91_GPIO_PULLUP
 	bool "Keep pullups on peripheral pins"
 	depends on CPU_ARM926EJS

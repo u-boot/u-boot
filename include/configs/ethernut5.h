@@ -32,7 +32,6 @@
 /* 512kB on-chip NOR flash */
 # define CONFIG_SYS_FLASH_BASE		0x00200000 /* AT91SAM9XE_FLASH_BASE */
 # define CONFIG_SYS_MAX_FLASH_SECT	32
-# define CONFIG_EFLASH_PROTSECTORS	1
 
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
