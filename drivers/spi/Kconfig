@@ -186,6 +186,12 @@ config FSL_QSPI_AHB_FULL_MAP
 	  Enable the Freescale QSPI driver to use full AHB memory map space for
 	  flash access.
 
+config GXP_SPI
+	bool "SPI driver for GXP"
+	imply SPI_FLASH_BAR
+	help
+	  Enable support for SPI on GXP.
+
 config ICH_SPI
 	bool "Intel ICH SPI driver"
 	help
