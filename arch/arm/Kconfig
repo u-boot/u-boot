@@ -2095,6 +2095,12 @@ config TARGET_XENGUEST_ARM64
 	select SSCANF
 	imply OF_HAS_PRIOR_STAGE
 
+config ARCH_GXP
+	bool "Support HPE GXP SoCs"
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 endchoice
 
 config SUPPORT_PASSING_ATAGS
@@ -2204,6 +2210,8 @@ source "arch/arm/mach-bcmstb/Kconfig"
 source "arch/arm/mach-davinci/Kconfig"
 
 source "arch/arm/mach-exynos/Kconfig"
+
+source "arch/arm/mach-hpe/gxp/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
 
