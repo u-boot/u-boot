@@ -57,7 +57,4 @@
 
 /* Defines for SPL */
 
-/* GPU needs setup */
-#define CONFIG_TEGRA_GPU
-
 #endif /* _TEGRA124_COMMON_H_ */
