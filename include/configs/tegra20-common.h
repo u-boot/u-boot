@@ -69,12 +69,4 @@
 #define TEGRA_LP0_VEC
 #endif
 
-/*
- * This parameter affects a TXFILLTUNING field that controls how much data is
- * sent to the latency fifo before it is sent to the wire. Without this
- * parameter, the default (2) causes occasional Data Buffer Errors in OUT
- * packets depending on the buffer address and size.
- */
-#define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
-
 #endif /* _TEGRA20_COMMON_H_ */

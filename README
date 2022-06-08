@@ -793,9 +793,6 @@ The following options need to be configured:
 		Supported are USB Keyboards and USB Floppy drives
 		(TEAC FD-05PUB).
 
-		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
-		txfilltuning field in the EHCI controller on reset.
-
 		CONFIG_USB_DWC2_REG_ADDR the physical CPU address of the DWC2
 		HW module registers.
 

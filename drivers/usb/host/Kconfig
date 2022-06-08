@@ -268,6 +268,17 @@ config USB_EHCI_FSL
 	select EHCI_HCD_INIT_AFTER_RESET
 	---help---
 	  Enables support for the on-chip EHCI controller on FSL chips.
+
+config USB_EHCI_TXFIFO_THRESH
+	hex
+	depends on USB_EHCI_TEGRA
+	default 0x10
+	help
+	  This parameter affects a TXFILLTUNING field that controls how much
+	  data is sent to the latency fifo before it is sent to the wire.
+	  Without this parameter, the default (2) causes occasional Data Buffer
+	  Errors in OUT packets depending on the buffer address and size.
+
 endif # USB_EHCI_HCD
 
 config USB_OHCI_HCD
