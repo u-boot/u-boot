@@ -116,11 +116,19 @@ config USB_XHCI_BRCM
 
 endif # USB_XHCI_HCD
 
+config EHCI_DESC_BIG_ENDIAN
+	bool
+
+config EHCI_MMIO_BIG_ENDIAN
+	bool
+
 config USB_EHCI_HCD
 	bool "EHCI HCD (USB 2.0) support"
 	default y if ARCH_MX5 || ARCH_MX6
 	depends on DM && OF_CONTROL
 	select USB_HOST
+	select EHCI_DESC_BIG_ENDIAN if SYS_BIG_ENDIAN
+	select EHCI_MMIO_BIG_ENDIAN if SYS_BIG_ENDIAN
 	---help---
 	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
 	  "high speed" (480 Mbit/sec, 60 Mbyte/sec) host controller hardware.
@@ -166,6 +174,7 @@ config USB_EHCI_MX5
 config USB_EHCI_MX6
 	bool "Support for i.MX6/i.MX7ULP on-chip EHCI USB controller"
 	depends on ARCH_MX6 || ARCH_MX7ULP || ARCH_IMXRT
+	select EHCI_HCD_INIT_AFTER_RESET
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on i.MX6 SoCs.
@@ -173,6 +182,7 @@ config USB_EHCI_MX6
 config USB_EHCI_MX7
 	bool "Support for i.MX7 on-chip EHCI USB controller"
 	depends on ARCH_MX7 || IMX8M
+	select EHCI_HCD_INIT_AFTER_RESET if ARCH_MX7
 	select PHY if IMX8M
 	select NOP_PHY if IMX8M
 	default y
