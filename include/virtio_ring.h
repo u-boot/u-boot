@@ -55,6 +55,16 @@ struct vring_desc {
 	__virtio16 next;
 };
 
+/* Shadow of struct vring_desc in guest byte order. */
+struct vring_desc_shadow {
+	u64 addr;
+	u32 len;
+	u16 flags;
+	u16 next;
+	/* Metadata about the descriptor. */
+	bool chain_head;
+};
+
 struct vring_avail {
 	__virtio16 flags;
 	__virtio16 idx;
@@ -89,6 +99,7 @@ struct vring {
  * @index: the zero-based ordinal number for this queue
  * @num_free: number of elements we expect to be able to fit
  * @vring: actual memory layout for this queue
+ * @vring_desc_shadow: guest-only copy of descriptors
  * @event: host publishes avail event idx
  * @free_head: head of free buffer list
  * @num_added: number we've added since last sync
@@ -102,6 +113,7 @@ struct virtqueue {
 	unsigned int index;
 	unsigned int num_free;
 	struct vring vring;
+	struct vring_desc_shadow *vring_desc_shadow;
 	bool event;
 	unsigned int free_head;
 	unsigned int num_added;
