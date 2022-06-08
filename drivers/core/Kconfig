@@ -224,7 +224,7 @@ config SPL_SYSCON
 
 config TPL_SYSCON
 	bool "Support system controllers in TPL"
-	depends on SPL_REGMAP
+	depends on TPL_REGMAP
 	help
 	  Many SoCs have a number of system controllers which are dealt with
 	  as a group by a single driver. Some common functionality is provided

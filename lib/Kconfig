@@ -248,6 +248,7 @@ config SPL_TINY_MEMSET
 
 config TPL_TINY_MEMSET
 	bool "Use a very small memset() in TPL"
+	depends on TPL
 	help
 	  The faster memset() is the arch-specific one (if available) enabled
 	  by CONFIG_USE_ARCH_MEMSET. If that is not enabled, we can still get
@@ -771,7 +772,7 @@ config TPL_OF_LIBFDT
 
 config TPL_OF_LIBFDT_ASSUME_MASK
 	hex "Mask of conditions to assume for libfdt"
-	depends on TPL_OF_LIBFDT || FIT
+	depends on TPL_OF_LIBFDT || (FIT && TPL)
 	default 0xff
 	help
 	  Use this to change the assumptions made by libfdt in TPL about the
