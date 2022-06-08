@@ -221,6 +221,18 @@ config SPL_HANDOFF
 
 config SPL_LDSCRIPT
 	string "Linker script for the SPL stage"
+	default "arch/arm/cpu/arm926ejs/sunxi/u-boot-spl.lds" if MACH_SUNIV
+	default "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds" if ARCH_SUNXI && !MACH_SUNIV && !ARM64
+	default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if (ARCH_MX23 || ARCH_MX28) && !SPL_FRAMEWORK
+	default "arch/arm/cpu/arm1136/u-boot-spl.lds" if CPU_ARM1136
+	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
+	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
+	default "arch/arm/mach-at91/arm926ejs/u-boot-spl.lds" if ARCH_AT91 && CPU_ARM926EJS
+	default "arch/arm/mach-at91/armv7/u-boot-spl.lds" if ARCH_AT91 && CPU_V7A
+	default "arch/arm/mach-omap2/u-boot-spl.lds" if ARCH_MX6 || ARCH_OMAP2PLUS || (ARCH_K3 && !ARM64)
+	default "arch/arm/mach-zynq/u-boot-spl.lds" if ARCH_ZYNQ
+	default "board/samsung/common/exynos-uboot-spl.lds" if ARCH_EXYNOS5 || ARCH_EXYNOS4
+	default "board/davinci/da8xxevm/u-boot-spl-da850evm.lds" if ARCH_DAVINCI
 	default "arch/\$(ARCH)/cpu/u-boot-spl.lds"
 	help
 	  The SPL stage will usually require a different linker-script

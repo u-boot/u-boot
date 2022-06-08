@@ -701,9 +701,6 @@ config SYS_FSL_HAS_RGMII
 	bool
 	depends on SYS_FSL_EC1 || SYS_FSL_EC2
 
-config SPL_LDSCRIPT
-	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
-
 config HAS_FSL_XHCI_USB
 	bool
 	help

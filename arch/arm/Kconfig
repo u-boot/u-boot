@@ -996,11 +996,6 @@ config ARCH_MX6
 	imply SYS_THUMB_BUILD
 	imply SPL_SEPARATE_BSS
 
-if ARCH_MX6
-config SPL_LDSCRIPT
-	default "arch/arm/mach-omap2/u-boot-spl.lds"
-endif
-
 config ARCH_MX5
 	bool "Freescale MX5"
 	select BOARD_EARLY_INIT_F
@@ -2368,8 +2363,3 @@ source "board/xen/xenguest_arm64/Kconfig"
 source "arch/arm/Kconfig.debug"
 
 endmenu
-
-config SPL_LDSCRIPT
-	default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if (ARCH_MX23 || ARCH_MX28) && !SPL_FRAMEWORK
-	default "arch/arm/cpu/arm1136/u-boot-spl.lds" if CPU_ARM1136
-	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
