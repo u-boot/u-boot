@@ -490,8 +490,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
-#define CONFIG_HAS_FSL_DR_USB
-
 /*
  * Environment
  */

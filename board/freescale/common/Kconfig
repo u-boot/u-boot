@@ -108,3 +108,7 @@ config QIXIS_I2C_ACCESS
 	bool "Access to QIXIS is over i2c"
 	depends on FSL_QIXIS
 	default y
+
+config HAS_FSL_DR_USB
+	def_bool y
+	depends on USB_EHCI_HCD && PPC

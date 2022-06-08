@@ -376,7 +376,6 @@
 /*
 * USB
 */
-#define CONFIG_HAS_FSL_DR_USB
 #define CONFIG_HAS_FSL_MPH_USB
 
 #ifdef CONFIG_MMC

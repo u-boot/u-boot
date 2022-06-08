@@ -306,8 +306,6 @@
  * Environment Configuration
  */
 
-#define CONFIG_HAS_FSL_DR_USB
-
 #define CONFIG_NETDEV		"eth1"
 
 #define CONFIG_HOSTNAME		"mpc837x_rdb"

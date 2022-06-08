@@ -11,4 +11,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "p1_p2_rdb_pc"
 
+source "board/freescale/common/Kconfig"
+
 endif

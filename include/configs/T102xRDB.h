@@ -399,7 +399,6 @@
 /*
  * USB
  */
-#define CONFIG_HAS_FSL_DR_USB
 
 /*
  * SDHC

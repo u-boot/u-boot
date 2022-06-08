@@ -430,9 +430,6 @@
 /*
  * USB
  */
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_HAS_FSL_DR_USB
-#endif
 
 /*
  * SDHC
