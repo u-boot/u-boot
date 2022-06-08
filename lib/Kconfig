@@ -783,6 +783,7 @@ config TPL_OF_LIBFDT_ASSUME_MASK
 
 config VPL_OF_LIBFDT
 	bool "Enable the FDT library for VPL"
+	depends on VPL
 	default y if VPL_OF_CONTROL && !VPL_OF_PLATDATA
 	help
 	  This enables the FDT library (libfdt). It provides functions for
@@ -793,7 +794,7 @@ config VPL_OF_LIBFDT
 
 config VPL_OF_LIBFDT_ASSUME_MASK
 	hex "Mask of conditions to assume for libfdt"
-	depends on VPL_OF_LIBFDT || FIT
+	depends on VPL_OF_LIBFDT || (FIT && VPL)
 	default 0xff
 	help
 	  Use this to change the assumptions made by libfdt in SPL about the

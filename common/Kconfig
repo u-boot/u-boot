@@ -92,6 +92,7 @@ config TPL_LOGLEVEL
 
 config VPL_LOGLEVEL
 	int "loglevel for VPL"
+	depends on VPL
 	default LOGLEVEL
 	help
 	  All Messages with a loglevel smaller than the console loglevel will
@@ -272,15 +273,6 @@ config LOG
 
 if LOG
 
-config VPL_LOG
-	bool "Enable logging support in VPL"
-	depends on LOG
-	help
-	  This enables support for logging of status and debug messages. These
-	  can be displayed on the console, recorded in a memory buffer, or
-	  discarded if not needed. Logging supports various categories and
-	  levels of severity.
-
 config LOG_MAX_LEVEL
 	int "Maximum log level to record"
 	default 6
@@ -452,7 +444,7 @@ endif
 
 config VPL_LOG
 	bool "Enable logging support in VPL"
-	depends on LOG
+	depends on LOG && VPL
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or
