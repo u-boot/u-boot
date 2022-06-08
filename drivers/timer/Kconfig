@@ -139,6 +139,13 @@ config DESIGNWARE_APB_TIMER
 	  Enables support for the Designware APB Timer driver. This timer is
 	  present on Altera SoCFPGA SoCs.
 
+config GXP_TIMER
+	bool "HPE GXP Timer"
+	depends on TIMER
+	help
+	  Enables support for the GXP Timer driver. This timer is
+	  present on HPE GXP SoCs.
+
 config MPC83XX_TIMER
 	bool "MPC83xx timer support"
 	depends on TIMER
