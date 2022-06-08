@@ -187,7 +187,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 /* add board specific code here */
 int board_init(void)
 {
-	__maybe_unused int id_pfr1, ret, macpwr_pin;
+	__maybe_unused int id_pfr1, ret;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -224,15 +224,6 @@ int board_init(void)
 	if (ret)
 		return ret;
 
-	/* strcmp() would look better, but doesn't get optimised away. */
-	if (CONFIG_MACPWR[0]) {
-		macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
-		if (macpwr_pin >= 0) {
-			gpio_request(macpwr_pin, "macpwr");
-			gpio_direction_output(macpwr_pin, 1);
-		}
-	}
-
 #if CONFIG_IS_ENABLED(DM_I2C)
 	/*
 	 * Temporary workaround for enabling I2C clocks until proper sunxi DM
@@ -240,7 +231,6 @@ int board_init(void)
 	 */
 	i2c_init_board();
 #endif
-
 	eth_init_board();
 
 	return 0;

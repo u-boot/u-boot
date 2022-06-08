@@ -598,9 +598,9 @@ static int sunxi_emac_eth_of_to_plat(struct udevice *dev)
 	pdata->iobase = dev_read_addr(dev);
 
 	phy_node = dev_get_phy_node(dev);
-	if (phy_node == ofnode_null()) {
+	if (!ofnode_valid(phy_node)) {
 		dev_err(dev, "failed to get PHY node\n");
-		return ret;
+		return -ENOENT;
 	}
 	/*
 	 * The PHY regulator is in the MDIO node, not the EMAC or PHY node.
