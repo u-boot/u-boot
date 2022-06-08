@@ -146,21 +146,6 @@
 #define MPC83XX_SCCR_USB_DRCM_01	0x00100000
 #define MPC83XX_SCCR_USB_DRCM_10	0x00200000
 
-#if defined(CONFIG_MPC83xx)
-#define CONFIG_SYS_FSL_USB1_ADDR CONFIG_SYS_MPC83xx_USB1_ADDR
-#if defined(CONFIG_ARCH_MPC834X)
-#define CONFIG_SYS_FSL_USB2_ADDR CONFIG_SYS_MPC83xx_USB2_ADDR
-#else
-#define CONFIG_SYS_FSL_USB2_ADDR	0
-#endif
-#elif defined(CONFIG_MPC85xx)
-#define CONFIG_SYS_FSL_USB1_ADDR CONFIG_SYS_MPC85xx_USB1_ADDR
-#define CONFIG_SYS_FSL_USB2_ADDR CONFIG_SYS_MPC85xx_USB2_ADDR
-#elif defined(CONFIG_ARCH_LS1021A) || defined(CONFIG_ARCH_LS1012A)
-#define CONFIG_SYS_FSL_USB1_ADDR CONFIG_SYS_EHCI_USB1_ADDR
-#define CONFIG_SYS_FSL_USB2_ADDR        0
-#endif
-
 /*
  * Increasing TX FIFO threshold value from 2 to 4 decreases
  * data burst rate with which data packets are posted from the TX
