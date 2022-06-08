@@ -448,7 +448,6 @@
 /*
 * USB
 */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_HAS_FSL_DR_USB
 
 #ifdef CONFIG_MMC

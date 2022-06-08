@@ -260,9 +260,12 @@ config USB_EHCI_GENERIC
 	---help---
 	  Enables support for generic EHCI controller.
 
+config EHCI_HCD_INIT_AFTER_RESET
+	bool
+
 config USB_EHCI_FSL
 	bool  "Support for FSL on-chip EHCI USB controller"
-	select  CONFIG_EHCI_HCD_INIT_AFTER_RESET
+	select EHCI_HCD_INIT_AFTER_RESET
 	---help---
 	  Enables support for the on-chip EHCI controller on FSL chips.
 endif # USB_EHCI_HCD

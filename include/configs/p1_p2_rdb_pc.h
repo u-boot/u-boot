@@ -458,12 +458,6 @@
  */
 #define CONFIG_HAS_FSL_DR_USB
 
-#if defined(CONFIG_HAS_FSL_DR_USB)
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#endif
-#endif
-
 #if defined(CONFIG_TARGET_P1020RDB_PD)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 #endif

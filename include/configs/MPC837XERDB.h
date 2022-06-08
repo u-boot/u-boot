@@ -307,7 +307,6 @@
  */
 
 #define CONFIG_HAS_FSL_DR_USB
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 #define CONFIG_NETDEV		"eth1"
 
