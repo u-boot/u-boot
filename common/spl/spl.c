@@ -149,9 +149,11 @@ void spl_fixup_fdt(void *fdt_blob)
 #endif
 }
 
-#if CONFIG_IS_ENABLED(BINMAN_SYMBOLS)
 ulong spl_get_image_pos(void)
 {
+	if (!CONFIG_IS_ENABLED(BINMAN_SYMBOLS))
+		return BINMAN_SYM_MISSING;
+
 #ifdef CONFIG_VPL
 	if (spl_next_phase() == PHASE_VPL)
 		return binman_sym(ulong, u_boot_vpl, image_pos);
@@ -163,6 +165,9 @@ ulong spl_get_image_pos(void)
 
 ulong spl_get_image_size(void)
 {
+	if (!CONFIG_IS_ENABLED(BINMAN_SYMBOLS))
+		return BINMAN_SYM_MISSING;
+
 #ifdef CONFIG_VPL
 	if (spl_next_phase() == PHASE_VPL)
 		return binman_sym(ulong, u_boot_vpl, size);
@@ -171,7 +176,6 @@ ulong spl_get_image_size(void)
 		binman_sym(ulong, u_boot_spl, size) :
 		binman_sym(ulong, u_boot_any, size);
 }
-#endif /* BINMAN_SYMBOLS */
 
 ulong spl_get_image_text_base(void)
 {
@@ -222,7 +226,7 @@ __weak struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
 
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 {
-	ulong u_boot_pos = binman_sym(ulong, u_boot_any, image_pos);
+	ulong u_boot_pos = spl_get_image_pos();
 
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;
 
