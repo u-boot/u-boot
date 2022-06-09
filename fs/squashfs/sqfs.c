@@ -975,6 +975,7 @@ int sqfs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 	int i_number, offset = 0, ret;
 	struct fs_dirent *dent;
 	unsigned char *ipos;
+	u16 name_size;
 
 	dirs = (struct squashfs_dir_stream *)fs_dirs;
 	if (!dirs->size) {
@@ -1057,9 +1058,10 @@ int sqfs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 		return -SQFS_STOP_READDIR;
 	}
 
-	/* Set entry name */
-	strncpy(dent->name, dirs->entry->name, dirs->entry->name_size + 1);
-	dent->name[dirs->entry->name_size + 1] = '\0';
+	/* Set entry name (capped at FS_DIRENT_NAME_LEN which is a U-Boot limitation) */
+	name_size = min_t(u16, dirs->entry->name_size + 1, FS_DIRENT_NAME_LEN - 1);
+	strncpy(dent->name, dirs->entry->name, name_size);
+	dent->name[name_size] = '\0';
 
 	offset = dirs->entry->name_size + 1 + SQFS_ENTRY_BASE_LENGTH;
 	dirs->entry_count--;
