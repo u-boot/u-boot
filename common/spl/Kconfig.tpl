@@ -10,7 +10,7 @@ config TPL_SIZE_LIMIT
 
 config TPL_BINMAN_SYMBOLS
 	bool "Declare binman symbols in TPL"
-	depends on SPL_FRAMEWORK && BINMAN
+	depends on TPL_FRAMEWORK && BINMAN
 	default y
 	help
 	  This enables use of symbols in TPL which refer to U-Boot, enabling TPL
