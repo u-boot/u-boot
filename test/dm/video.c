@@ -105,6 +105,7 @@ static int check_copy_frame_buffer(struct unit_test_state *uts,
 	if (!IS_ENABLED(CONFIG_VIDEO_COPY))
 		return 0;
 
+	video_sync(dev, false);
 	ut_assertf(!memcmp(priv->fb, priv->copy_fb, priv->fb_size),
 		   "Copy framebuffer does not match fb");
 
@@ -700,12 +701,22 @@ static int dm_test_video_copy(struct unit_test_state *uts)
 
 	/*
 	 * We should have the full content on the main buffer, but only
-	 * the new content should have been copied to the copy buffer.
+	 * 'damage' should have been copied to the copy buffer. This consists
+	 * of a while rectangle with the Denx logo and four lines of text. The
+	 * rest of the display is black.
+	 *
+	 * An easy way to try this is by changing video_sync() to call
+	 * sandbox_sdl_sync(priv->copy_fb) instead of priv->fb then running the
+	 * unit test:
+	 *
+	 *   ./u-boot -Tl
+	 *   ut dm dm_test_video_copy
 	 */
 	vidconsole_put_string(con, test_string);
 	vidconsole_put_string(con, test_string);
+	video_sync(dev, true);
 	ut_asserteq(7589, compress_frame_buffer(uts, dev, false));
-	ut_asserteq(5278, compress_frame_buffer(uts, dev, true));
+	ut_asserteq(7704, compress_frame_buffer(uts, dev, true));
 
 	return 0;
 }

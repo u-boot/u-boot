@@ -355,43 +355,6 @@ void video_set_default_colors(struct udevice *dev, bool invert);
  */
 int video_default_font_height(struct udevice *dev);
 
-#ifdef CONFIG_VIDEO_COPY
-/**
- * vidconsole_sync_copy() - Sync back to the copy framebuffer
- *
- * This ensures that the copy framebuffer has the same data as the framebuffer
- * for a particular region. It should be called after the framebuffer is updated
- *
- * @from and @to can be in either order. The region between them is synced.
- *
- * @dev: Vidconsole device being updated
- * @from: Start/end address within the framebuffer (->fb)
- * @to: Other address within the frame buffer
- * Return: 0 if OK, -EFAULT if the start address is before the start of the
- *	frame buffer start
- */
-int video_sync_copy(struct udevice *dev, void *from, void *to);
-
-/**
- * video_sync_copy_all() - Sync the entire framebuffer to the copy
- *
- * @dev: Vidconsole device being updated
- * Return: 0 (always)
- */
-int video_sync_copy_all(struct udevice *dev);
-#else
-static inline int video_sync_copy(struct udevice *dev, void *from, void *to)
-{
-	return 0;
-}
-
-static inline int video_sync_copy_all(struct udevice *dev)
-{
-	return 0;
-}
-
-#endif
-
 #ifdef CONFIG_VIDEO_DAMAGE
 /**
  * video_damage() - Notify the video subsystem about screen updates.

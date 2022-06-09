@@ -35,10 +35,6 @@ static int console_set_row(struct udevice *dev, uint row, int clr)
 		fill_pixel_and_goto_next(&dst, clr, pbytes, pbytes);
 	end = dst;
 
-	ret = vidconsole_sync_copy(dev, line, end);
-	if (ret)
-		return ret;
-
 	video_damage(dev->parent,
 		     0,
 		     fontdata->height * row,
@@ -57,14 +53,11 @@ static int console_move_rows(struct udevice *dev, uint rowdst,
 	void *dst;
 	void *src;
 	int size;
-	int ret;
 
 	dst = vid_priv->fb + rowdst * fontdata->height * vid_priv->line_length;
 	src = vid_priv->fb + rowsrc * fontdata->height * vid_priv->line_length;
 	size = fontdata->height * vid_priv->line_length * count;
-	ret = vidconsole_memmove(dev, dst, src, size);
-	if (ret)
-		return ret;
+	memmove(dst, src, size);
 
 	video_damage(dev->parent,
 		     0,
@@ -108,10 +101,6 @@ static int console_putc_xy(struct udevice *dev, uint x_frac, uint y, int cp)
 		     y,
 		     fontdata->width,
 		     fontdata->height);
-
-	ret = vidconsole_sync_copy(dev, start, line);
-	if (ret)
-		return ret;
 
 	return VID_TO_POS(fontdata->width);
 }
