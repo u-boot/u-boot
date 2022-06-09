@@ -459,6 +459,8 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 		break;
 	};
 
+	video_damage(dev, x, y, width, height);
+
 	/* Find the position of the top left of the image in the framebuffer */
 	fb = (uchar *)(priv->fb + y * priv->line_length + x * bpix / 8);
 	ret = video_sync_copy(dev, start, fb);
