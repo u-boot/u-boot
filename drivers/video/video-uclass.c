@@ -369,6 +369,34 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 	priv->colour_bg = video_index_to_colour(priv, back);
 }
 
+/* Notify about changes in the frame buffer */
+#ifdef CONFIG_VIDEO_DAMAGE
+void video_damage(struct udevice *vid, int x, int y, int width, int height)
+{
+	struct video_priv *priv = dev_get_uclass_priv(vid);
+	int xend = x + width;
+	int yend = y + height;
+
+	if (x > priv->xsize)
+		return;
+
+	if (y > priv->ysize)
+		return;
+
+	if (xend > priv->xsize)
+		xend = priv->xsize;
+
+	if (yend > priv->ysize)
+		yend = priv->ysize;
+
+	/* Span a rectangle across all old and new damage */
+	priv->damage.xstart = min(x, priv->damage.xstart);
+	priv->damage.ystart = min(y, priv->damage.ystart);
+	priv->damage.xend = max(xend, priv->damage.xend);
+	priv->damage.yend = max(yend, priv->damage.yend);
+}
+#endif
+
 /* Flush video activity to the caches */
 int video_sync(struct udevice *vid, bool force)
 {
@@ -401,6 +429,13 @@ int video_sync(struct udevice *vid, bool force)
 	sandbox_sdl_sync(priv->fb);
 #endif
 	priv->last_sync = get_timer(0);
+
+	if (IS_ENABLED(CONFIG_VIDEO_DAMAGE)) {
+		priv->damage.xstart = priv->xsize;
+		priv->damage.ystart = priv->ysize;
+		priv->damage.xend = 0;
+		priv->damage.yend = 0;
+	}
 
 	return 0;
 }
