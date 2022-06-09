@@ -214,6 +214,8 @@ int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 	if (ret)
 		return ret;
 
+	video_damage(dev, xstart, ystart, xend - xstart, yend - ystart);
+
 	return 0;
 }
 
@@ -263,6 +265,8 @@ int video_fill(struct udevice *dev, u32 colour)
 	ret = video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
 	if (ret)
 		return ret;
+
+	video_damage(dev, 0, 0, priv->xsize, priv->ysize);
 
 	return video_sync(dev, false);
 }
