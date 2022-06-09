@@ -14,6 +14,7 @@ U-Boot API documentation
    linker_lists
    lmb
    logging
+   nvmem
    pinctrl
    rng
    sandbox

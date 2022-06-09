@@ -28,6 +28,9 @@
 		ethernet3 = &eth_3;
 		ethernet4 = &dsa_eth0;
 		ethernet5 = &eth_5;
+		ethernet6 = "/eth@10004000";
+		ethernet7 = &swp_1;
+		ethernet8 = &phy_eth0;
 		gpio1 = &gpio_a;
 		gpio2 = &gpio_b;
 		gpio3 = &gpio_c;
@@ -524,31 +527,31 @@
 	eth@10002000 {
 		compatible = "sandbox,eth";
 		reg = <0x10002000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 00];
 	};
 
 	eth_5: eth@10003000 {
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 11];
+		nvmem-cells = <&eth5_addr>;
+		nvmem-cell-names = "mac-address";
 	};
 
 	eth_3: sbe5 {
 		compatible = "sandbox,eth";
 		reg = <0x10005000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 33];
+		nvmem-cells = <&eth3_addr>;
+		nvmem-cell-names = "mac-address";
 	};
 
 	eth@10004000 {
 		compatible = "sandbox,eth";
 		reg = <0x10004000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 22];
 	};
 
 	phy_eth0: phy-test-eth {
 		compatible = "sandbox,eth";
 		reg = <0x10007000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 77];
+		mac-address = [ 02 00 11 22 33 49 ];
 		phy-handle = <&ethphy1>;
 		phy-mode = "2500base-x";
 	};
@@ -556,7 +559,8 @@
 	dsa_eth0: dsa-test-eth {
 		compatible = "sandbox,eth";
 		reg = <0x10006000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 66];
+		nvmem-cells = <&eth4_addr>;
+		nvmem-cell-names = "mac-address";
 	};
 
 	dsa-test {
@@ -700,6 +704,8 @@
 		pinctrl-0 = <&pinmux_i2c0_pins>;
 
 		eeprom@2c {
+			#address-cells = <1>;
+			#size-cells = <1>;
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
 			sandbox,emul = <&emul_eeprom>;
@@ -711,12 +717,22 @@
 					reg = <10 2>;
 				};
 			};
+
+			eth3_addr: mac-address@24 {
+				reg = <24 6>;
+			};
 		};
 
 		rtc_0: rtc@43 {
+			#address-cells = <1>;
+			#size-cells = <1>;
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
 			sandbox,emul = <&emul0>;
+
+			eth4_addr: mac-address@40 {
+				reg = <0x40 6>;
+			};
 		};
 
 		rtc_1: rtc@61 {
@@ -898,7 +914,13 @@
 	};
 
 	misc-test {
+		#address-cells = <1>;
+		#size-cells = <1>;
 		compatible = "sandbox,misc_sandbox";
+
+		eth5_addr: mac-address@10 {
+			reg = <0x10 6>;
+		};
 	};
 
 	mmc2 {

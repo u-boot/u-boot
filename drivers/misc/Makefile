@@ -4,6 +4,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-$(CONFIG_$(SPL_TPL_)MISC) += misc-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)NVMEM) += nvmem.o
 
 obj-$(CONFIG_$(SPL_TPL_)CROS_EC) += cros_ec.o
 obj-$(CONFIG_$(SPL_TPL_)CROS_EC_SANDBOX) += cros_ec_sandbox.o

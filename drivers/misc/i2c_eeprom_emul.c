@@ -171,10 +171,14 @@ static int sandbox_i2c_eeprom_probe(struct udevice *dev)
 {
 	struct sandbox_i2c_flash_plat_data *plat = dev_get_plat(dev);
 	struct sandbox_i2c_flash *priv = dev_get_priv(dev);
+	/* For eth3 */
+	const u8 mac[] = { 0x02, 0x00, 0x11, 0x22, 0x33, 0x45 };
 
 	priv->data = calloc(1, plat->size);
 	if (!priv->data)
 		return -ENOMEM;
+
+	memcpy(&priv->data[24], mac, sizeof(mac));
 
 	return 0;
 }
