@@ -5,6 +5,7 @@
  * file name is defined in this include.
  *
  * Copyright (c) 2022, Heinrich Schuchardt <xypron.glpk@gmx.de>
+ * Copyright (c) 2022, Linaro Limited
  */
 
 #ifndef _EFI_DEFAULT_FILENAME_H
@@ -14,32 +15,42 @@
 
 #undef BOOTEFI_NAME
 
+#ifdef CONFIG_SANDBOX
+
 #if HOST_ARCH == HOST_ARCH_X86_64
 #define BOOTEFI_NAME "BOOTX64.EFI"
-#endif
-
-#if HOST_ARCH == HOST_ARCH_X86
+#elif HOST_ARCH == HOST_ARCH_X86
 #define BOOTEFI_NAME "BOOTIA32.EFI"
-#endif
-
-#if HOST_ARCH == HOST_ARCH_AARCH64
+#elif HOST_ARCH == HOST_ARCH_AARCH64
 #define BOOTEFI_NAME "BOOTAA64.EFI"
-#endif
-
-#if HOST_ARCH == HOST_ARCH_ARM
+#elif HOST_ARCH == HOST_ARCH_ARM
 #define BOOTEFI_NAME "BOOTARM.EFI"
-#endif
-
-#if HOST_ARCH == HOST_ARCH_RISCV32
+#elif HOST_ARCH == HOST_ARCH_RISCV32
 #define BOOTEFI_NAME "BOOTRISCV32.EFI"
-#endif
-
-#if HOST_ARCH == HOST_ARCH_RISCV64
+#elif HOST_ARCH == HOST_ARCH_RISCV64
 #define BOOTEFI_NAME "BOOTRISCV64.EFI"
+#else
+#error Unsupported UEFI architecture
 #endif
 
-#ifndef BOOTEFI_NAME
+#else
+
+#if defined(CONFIG_ARM64)
+#define BOOTEFI_NAME "BOOTAA64.EFI"
+#elif defined(CONFIG_ARM)
+#define BOOTEFI_NAME "BOOTARM.EFI"
+#elif defined(CONFIG_X86_64)
+#define BOOTEFI_NAME "BOOTX64.EFI"
+#elif defined(CONFIG_X86)
+#define BOOTEFI_NAME "BOOTIA32.EFI"
+#elif defined(CONFIG_ARCH_RV32I)
+#define BOOTEFI_NAME "BOOTRISCV32.EFI"
+#elif defined(CONFIG_ARCH_RV64I)
+#define BOOTEFI_NAME "BOOTRISCV64.EFI"
+#else
 #error Unsupported UEFI architecture
+#endif
+
 #endif
 
 #endif
