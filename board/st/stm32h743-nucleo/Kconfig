@@ -27,7 +27,7 @@ config SYS_EXEC_IN_PLACE
 
 config SYS_GLOBAL_DATA_POINTER
 	hex "Address of global data pointer in RAM"
-	default 0x30000000
+	default 0x30047FC0
 	help
 	  If defined, this is the address in RAM of the global data pointer.
 	  For most targets the global data pointer is held in a reserved

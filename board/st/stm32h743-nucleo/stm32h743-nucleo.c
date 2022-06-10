@@ -41,12 +41,12 @@ int arm_reserve_mmu(void)
 
 phys_size_t get_effective_memsize(void)
     {
-    return 0x00048000;          // use the 256K+32K at 0x30000000
+    return 0x00048000 - 64;          // use the 256K+32K at 0x30000000
     }
 
 ulong board_get_usable_ram_top(ulong total_size)
     {
-    return 0x30048000;          // use the RAM at 0x30000000
+    return 0x30048000 - 64;          // use the RAM at 0x30000000
     }
 
 
