@@ -21,4 +21,9 @@
 #ifdef CONFIG_SOC_K3_AM642
 #include "am64_spl.h"
 #endif
+
+#ifdef CONFIG_SOC_K3_AM625
+#include "am62_spl.h"
+#endif
+
 #endif /* _ASM_ARCH_SPL_H_ */

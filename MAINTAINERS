@@ -206,6 +206,17 @@ F:	drivers/pinctrl/broadcom/
 F:	configs/rpi_*
 T:	git https://source.denx.de/u-boot/custodians/u-boot-arm.git
 
+ARM BROADCOM BCMBCA
+M:	Anand Gore <anand.gore@broadcom.com>
+M:	William Zhang <william.zhang@broadcom.com>
+M:	Kursad Oney <kursad.oney@broadcom.com>
+M:	Joel Peshkin <joel.peshkin@broadcom.com>
+S:	Maintained
+F:	arch/arm/mach-bcmbca/
+F:	board/broadcom/bcmbca/
+F:	configs/bcm947622_defconfig
+F:	include/configs/bcm947622.h
+
 ARM BROADCOM BCMSTB
 M:	Thomas Fitzsimmons <fitzsim@fitzsim.org>
 S:	Maintained

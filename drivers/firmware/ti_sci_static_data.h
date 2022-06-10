@@ -118,6 +118,19 @@ static struct ti_sci_resource_static_data rm_static_data[] = {
 };
 #endif /* CONFIG_TARGET_J721S2_R5_EVM */
 
+#if IS_ENABLED(CONFIG_SOC_K3_AM625)
+static struct ti_sci_resource_static_data rm_static_data[] = {
+	/* BC channels */
+	{
+		.dev_id = 26,
+		.subtype = 32,
+		.range_start = 18,
+		.range_num = 2,
+	},
+	{ },
+};
+#endif /* CONFIG_SOC_K3_AM625 */
+
 #else
 static struct ti_sci_resource_static_data rm_static_data[] = {
 	{ },

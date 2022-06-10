@@ -127,8 +127,8 @@ static int fixup_usb_boot(void)
 		 * before the dwc3 bind takes place
 		 */
 		ret = fdt_find_and_setprop((void *)gd->fdt_blob,
-				"/interconnect@100000/dwc3@4000000/usb@10000",
-				"dr_mode", "host", 11, 0);
+				"/bus@100000/dwc3@4000000/usb@10000",
+				"dr_mode", "host", 5, 0);
 		if (ret)
 			printf("%s: fdt_find_and_setprop() failed:%d\n", __func__,
 			       ret);

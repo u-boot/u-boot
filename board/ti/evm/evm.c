@@ -159,6 +159,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 int misc_init_r(void)
 {
 	twl4030_power_init();
+	twl4030_power_mmc_init(0);
 
 #if defined(CONFIG_SMC911X)
 	setup_net_chip();
@@ -247,10 +248,3 @@ static void reset_net_chip(void)
 	gpio_set_value(rst_gpio, 1);
 }
 #endif /* CONFIG_SMC911X */
-
-#if defined(CONFIG_MMC)
-void board_mmc_power_init(void)
-{
-	twl4030_power_mmc_init(0);
-}
-#endif /* CONFIG_MMC */

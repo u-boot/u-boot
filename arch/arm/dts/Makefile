@@ -1154,6 +1154,9 @@ dtb-$(CONFIG_TARGET_BCMNS3) += ns3-board.dtb
 
 dtb-$(CONFIG_ARCH_BCMSTB) += bcm7xxx.dtb
 
+dtb-$(CONFIG_BCM47622) += \
+	bcm947622.dtb
+
 dtb-$(CONFIG_ASPEED_AST2500) += ast2500-evb.dtb
 dtb-$(CONFIG_ASPEED_AST2600) += ast2600-evb.dtb
 
@@ -1194,6 +1197,9 @@ dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-evm.dtb \
 			      k3-am642-r5-evm.dtb \
 			      k3-am642-sk.dtb \
 			      k3-am642-r5-sk.dtb
+
+dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-sk.dtb \
+			      k3-am625-r5-sk.dtb
 
 dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7622-rfb.dtb \

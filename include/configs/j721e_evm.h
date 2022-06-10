@@ -17,6 +17,8 @@
 
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
+/* FLASH Configuration */
+#define CONFIG_SYS_FLASH_BASE		0x000000000
 
 /* SPL Loader Configuration */
 #if defined(CONFIG_TARGET_J721E_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
