@@ -200,6 +200,7 @@ config SPL_BINMAN_SYMBOLS
 config SPL_BINMAN_UBOOT_SYMBOLS
 	bool "Declare binman symbols for U-Boot phases in SPL"
 	depends on SPL_BINMAN_SYMBOLS
+	default n if ARCH_IMX8M
 	default y
 	help
 	  This enables use of symbols in SPL which refer to U-Boot phases,
