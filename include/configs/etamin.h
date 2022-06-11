@@ -75,8 +75,6 @@
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 
-#define CONFIG_FACTORYSET
-
 /* nedded by compliance test in read mode */
 
 /* Define own nand partitions */

@@ -37,8 +37,6 @@
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 
-#define CONFIG_FACTORYSET
-
 /* Define own nand partitions */
 #define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
 

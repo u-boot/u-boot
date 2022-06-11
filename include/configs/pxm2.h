@@ -30,8 +30,6 @@
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 1GB */
 
-#define CONFIG_FACTORYSET
-
 #ifndef CONFIG_SPL_BUILD
 
 /* Use common default */

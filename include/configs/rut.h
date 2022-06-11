@@ -21,8 +21,6 @@
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20) /* 256 MiB */
 
-#define CONFIG_FACTORYSET
-
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14
 
