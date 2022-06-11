@@ -30,6 +30,7 @@ Shell commands
    cmd/bootmenu
    cmd/bootmeth
    cmd/button
+   cmd/bootz
    cmd/cbsysinfo
    cmd/conitrace
    cmd/echo
