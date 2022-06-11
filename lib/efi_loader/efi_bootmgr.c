@@ -46,7 +46,6 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 {
 	struct efi_device_path *dp, *rem, *full_path;
 	efi_handle_t handle;
-	efi_status_t ret;
 
 	if (!device_path)
 		return NULL;
@@ -59,7 +58,7 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 	dp = device_path;
 	handle = efi_dp_find_obj(dp, &efi_simple_file_system_protocol_guid,
 				 &rem);
-	if (ret == EFI_SUCCESS) {
+	if (handle) {
 		if (rem->type == DEVICE_PATH_TYPE_END) {
 			dp = efi_dp_from_file(NULL, 0,
 					      "/EFI/BOOT/" BOOTEFI_NAME);
