@@ -391,7 +391,6 @@
 #endif	/* CONFIG_PCI */
 
 /* SATA */
-#define CONFIG_FSL_SATA_V2
 #ifdef CONFIG_FSL_SATA_V2
 #define CONFIG_LBA48
 #endif

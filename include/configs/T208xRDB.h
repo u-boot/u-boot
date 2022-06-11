@@ -14,7 +14,6 @@
 #include <linux/stringify.h>
 
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
-#define CONFIG_FSL_SATA_V2
 
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */

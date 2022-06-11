@@ -9,7 +9,6 @@
  */
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
-#define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE3
 #define CONFIG_PCIE4
 #define CONFIG_SYS_DPAA_RMAN
