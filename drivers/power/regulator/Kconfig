@@ -55,7 +55,7 @@ config DM_REGULATOR_BD71837
 
 config SPL_DM_REGULATOR_BD71837
 	bool "Enable Driver Model for ROHM BD71837/BD71847 regulators in SPL"
-	depends on DM_REGULATOR_BD71837
+	depends on DM_REGULATOR_BD71837 && SPL
 	help
 	This config enables implementation of driver-model regulator uclass
 	features for regulators on ROHM BD71837 and BD71847 in SPL.
@@ -70,7 +70,7 @@ config DM_REGULATOR_PCA9450
 
 config SPL_DM_REGULATOR_PCA9450
 	bool "Enable Driver Model for NXP PCA9450 regulators in SPL"
-	depends on DM_REGULATOR_PCA9450
+	depends on DM_REGULATOR_PCA9450 && SPL
 	help
 	This config enables implementation of driver-model regulator uclass
 	features for regulators on ROHM PCA9450 in SPL.
@@ -115,7 +115,7 @@ config REGULATOR_PWM
 
 config SPL_REGULATOR_PWM
 	bool "Enable Driver for PWM regulators in SPL"
-	depends on REGULATOR_PWM
+	depends on REGULATOR_PWM && SPL
 	help
 	  This config enables implementation of driver-model regulator uclass
 	  features for PWM regulators in SPL.
@@ -163,7 +163,7 @@ config DM_REGULATOR_FIXED
 
 config SPL_DM_REGULATOR_FIXED
 	bool "Enable Driver Model for REGULATOR Fixed value in SPL"
-	depends on DM_REGULATOR_FIXED
+	depends on DM_REGULATOR_FIXED && SPL
 	select SPL_DM_REGULATOR_COMMON
 	---help---
 	This config enables implementation of driver-model regulator uclass
@@ -345,7 +345,7 @@ config SPL_DM_REGULATOR_STPMIC1
 
 config SPL_DM_REGULATOR_PALMAS
 	bool "Enable driver for PALMAS PMIC regulators"
-       depends on SPL_PMIC_PALMAS
+	depends on SPL_PMIC_PALMAS
 	help
 	This enables implementation of driver-model regulator uclass
 	features for REGULATOR PALMAS and the family of PALMAS PMICs.
@@ -353,7 +353,7 @@ config SPL_DM_REGULATOR_PALMAS
 
 config SPL_DM_REGULATOR_LP87565
 	bool "Enable driver for LP87565 PMIC regulators"
-       depends on SPL_PMIC_LP87565
+	depends on SPL_PMIC_LP87565
 	help
 	This enables implementation of driver-model regulator uclass
 	features for REGULATOR LP87565 and the family of LP87565 PMICs.

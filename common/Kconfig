@@ -83,6 +83,7 @@ config LOGLEVEL
 
 config SPL_LOGLEVEL
 	int
+	depends on SPL
 	default LOGLEVEL
 
 config TPL_LOGLEVEL
@@ -358,7 +359,7 @@ config LOG_SYSLOG
 
 config SPL_LOG
 	bool "Enable logging support in SPL"
-	depends on LOG
+	depends on LOG && SPL
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or

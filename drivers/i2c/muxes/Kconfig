@@ -9,7 +9,7 @@ config I2C_MUX
 
 config SPL_I2C_MUX
 	bool "Support I2C multiplexers on SPL"
-	depends on I2C_MUX
+	depends on SPL && I2C_MUX
 	help
 	  This enables I2C buses to be multiplexed, so that you can select
 	  one of several buses using some sort of control mechanism. The

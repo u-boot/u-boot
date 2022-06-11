@@ -8,6 +8,7 @@ menuconfig UNIT_TEST
 
 config SPL_UNIT_TEST
 	bool "Unit tests in SPL"
+	depends on SPL
 	# We need to be able to unbind devices for tests to work
 	select SPL_DM_DEVICE_REMOVE
 	help

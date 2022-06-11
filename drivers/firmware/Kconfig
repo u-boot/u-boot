@@ -3,7 +3,7 @@ config FIRMWARE
 
 config SPL_FIRMWARE
 	bool "Enable Firmware driver support in SPL"
-	depends on FIRMWARE
+	depends on FIRMWARE && SPL
 
 config SPL_ARM_PSCI_FW
 	bool

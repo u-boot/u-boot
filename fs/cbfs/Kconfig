@@ -9,6 +9,7 @@ config FS_CBFS
 
 config SPL_FS_CBFS
 	bool "Enable CBFS (Coreboot Filesystem) in SPL"
+	depends on SPL
 	help
 	  Define this to enable support for reading from a Coreboot
 	  filesystem. This is a ROM-based filesystem used for accessing files

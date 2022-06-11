@@ -239,6 +239,7 @@ config GENERATE_ACPI_TABLE
 
 config SPL_TINY_MEMSET
 	bool "Use a very small memset() in SPL"
+	depends on SPL
 	help
 	  The faster memset() is the arch-specific one (if available) enabled
 	  by CONFIG_USE_ARCH_MEMSET. If that is not enabled, we can still get
@@ -557,6 +558,7 @@ config MD5
 
 config SPL_MD5
 	bool "Support MD5 algorithm in SPL"
+	depends on SPL
 	help
 	  This option enables MD5 support in SPL. MD5 is an algorithm designed
 	  in 1991 that produces a 16-byte digest (or checksum) from its input
@@ -643,6 +645,7 @@ config ZSTD
 
 config SPL_LZ4
 	bool "Enable LZ4 decompression support in SPL"
+	depends on SPL
 	help
 	  This enables support for the LZ4 decompression algorithm in SPL. LZ4
 	  is a lossless data compression algorithm that is focused on
@@ -651,6 +654,7 @@ config SPL_LZ4
 
 config SPL_LZMA
 	bool "Enable LZMA decompression support for SPL build"
+	depends on SPL
 	help
 	  This enables support for LZMA compression algorithm for SPL boot.
 
@@ -662,6 +666,7 @@ config VPL_LZMA
 
 config SPL_LZO
 	bool "Enable LZO decompression support in SPL"
+	depends on SPL
 	help
 	  This enables support for LZO compression algorithm in the SPL.
 
@@ -678,6 +683,7 @@ config SPL_ZLIB
 
 config SPL_ZSTD
 	bool "Enable Zstandard decompression support in SPL"
+	depends on SPL
 	select XXHASH
 	help
 	  This enables Zstandard decompression library in the SPL.
@@ -750,7 +756,7 @@ config SPL_OF_LIBFDT
 
 config SPL_OF_LIBFDT_ASSUME_MASK
 	hex "Mask of conditions to assume for libfdt"
-	depends on SPL_OF_LIBFDT || FIT
+	depends on SPL_OF_LIBFDT || (FIT && SPL)
 	default 0xff
 	help
 	  Use this to change the assumptions made by libfdt in SPL about the
