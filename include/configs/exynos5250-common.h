@@ -11,11 +11,6 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
-/* USB */
-#define CONFIG_USB_EHCI_EXYNOS
-
-#define CONFIG_USB_XHCI_EXYNOS
-
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 

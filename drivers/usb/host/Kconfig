@@ -32,6 +32,14 @@ config USB_XHCI_DWC3_OF_SIMPLE
 	  Support USB2/3 functionality in simple SoC integrations with
 	  USB controller based on the DesignWare USB3 IP Core.
 
+config USB_XHCI_EXYNOS
+	bool "Support for Samsung Exynos5 family on-chip xHCI USB controller"
+	depends on ARCH_EXYNOS5
+	default y
+	help
+	  Enables support for he on-chip xHCI controller on Samsung Exynos5
+	  SoCs.
+
 config USB_XHCI_MTK
 	bool "Support for MediaTek on-chip xHCI USB controller"
 	depends on ARCH_MEDIATEK
@@ -156,6 +164,14 @@ config USB_EHCI_ATMEL
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on Atmel chips.
+
+config USB_EHCI_EXYNOS
+	bool "Support for Samsung Exynos EHCI USB controller"
+	depends on ARCH_EXYNOS
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on Samsung Exynos
+	  SoCs.
 
 config USB_EHCI_MARVELL
 	bool "Support for Marvell on-chip EHCI USB controller"
