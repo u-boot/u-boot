@@ -140,7 +140,6 @@
 
 /* LCD */
 #define CONFIG_FB_ADDR		0x52504000
-#define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

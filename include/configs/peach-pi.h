@@ -22,13 +22,6 @@
 
 #define CONFIG_SYS_SDRAM_BASE	0x20000000
 
-/* Display */
-#ifdef CONFIG_LCD
-#define CONFIG_EXYNOS_FB
-#define CONFIG_EXYNOS_DP
-#define LCD_BPP			LCD_COLOR16
-#endif
-
 #define CONFIG_POWER_TPS65090_EC
 
 /* DRAM Memory Banks */
