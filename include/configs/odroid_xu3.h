@@ -31,9 +31,6 @@
 #define CONFIG_G_DNL_UMS_VENDOR_NUM	0x0525
 #define CONFIG_G_DNL_UMS_PRODUCT_NUM	0xA4A5
 
-/* FIXME: MUST BE REMOVED AFTER TMU IS TURNED ON */
-#undef CONFIG_EXYNOS_TMU
-
 #define CONFIG_DFU_ALT_SYSTEM               \
 	"uImage fat 0 1;"                   \
 	"zImage fat 0 1;"                   \

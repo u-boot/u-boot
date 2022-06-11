@@ -609,6 +609,9 @@ config ARM64_SUPPORT_AARCH32
 	help
 	  This ARM64 system supports AArch32 execution state.
 
+config S5P
+	def_bool y if ARCH_EXYNOS || ARCH_S5PC1XX
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY

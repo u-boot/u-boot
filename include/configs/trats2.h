@@ -116,9 +116,6 @@
 
 /* GPT */
 
-/* Security subsystem - enable hw_rand() */
-#define CONFIG_EXYNOS_ACE_SHA
-
 /* Common misc for Samsung */
 #define CONFIG_MISC_COMMON
 

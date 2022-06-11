@@ -9,8 +9,6 @@
 #ifndef __CONFIG_5250_H
 #define __CONFIG_5250_H
 
-#define CONFIG_EXYNOS5250
-
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
 /* USB */

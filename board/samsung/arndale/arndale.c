@@ -112,10 +112,10 @@ int checkboard(void)
 }
 #endif
 
-#ifdef CONFIG_S5P_PA_SYSRAM
+#ifdef CONFIG_SMP_PEN_ADDR
 void smp_set_core_boot_addr(unsigned long addr, int corenr)
 {
-	writel(addr, CONFIG_S5P_PA_SYSRAM);
+	writel(addr, CONFIG_SMP_PEN_ADDR);
 
 	/* make sure this write is really executed */
 	__asm__ volatile ("dsb\n");

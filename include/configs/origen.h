@@ -10,10 +10,6 @@
 
 #include <configs/exynos4-common.h>
 
-/* High Level Configuration Options */
-#define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
-#define CONFIG_ORIGEN			1	/* working with ORIGEN*/
-
 /* ORIGEN has 4 bank of DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE

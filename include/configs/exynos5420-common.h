@@ -8,18 +8,11 @@
 #ifndef __CONFIG_EXYNOS5420_H
 #define __CONFIG_EXYNOS5420_H
 
-#define CONFIG_EXYNOS5420
-
-#define CONFIG_EXYNOS5_DT
-
 #define CONFIG_VAR_SIZE_SPL
 
 #define CONFIG_IRAM_TOP			0x02074000
 
 #define CONFIG_PHY_IRAM_BASE		0x02020000
-
-/* Address for relocating helper code (Last 4 KB of IRAM) */
-#define CONFIG_EXYNOS_RELOCATE_CODE_BASE	(CONFIG_IRAM_TOP - 0x1000)
 
 /*
  * Low Power settings
