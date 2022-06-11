@@ -32,7 +32,6 @@ enum {
 
 #define GPIO_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
 #define I2C_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE)
-#define UART_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_FSEL1)
 #define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
 
 #define TOUCH_RESET_GPIO	IMX_GPIO_NR(3, 23)
@@ -49,11 +48,6 @@ static iomux_v3_cfg_t const i2c2_pads[] = {
 
 static iomux_v3_cfg_t const touch_gpio[] = {
 	IMX8MM_PAD_SAI5_RXD2_GPIO3_IO23 | MUX_PAD_CTRL(GPIO_PAD_CTRL)
-};
-
-static iomux_v3_cfg_t const uart_pads[] = {
-	IMX8MM_PAD_UART3_RXD_UART3_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	IMX8MM_PAD_UART3_TXD_UART3_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
 static iomux_v3_cfg_t const wdog_pads[] = {
@@ -230,8 +224,6 @@ int board_early_init_f(void)
 
 	set_wdog_reset(wdog);
 
-	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
-
 	return 0;
 }
 
@@ -273,8 +265,6 @@ void board_init_f(ulong dummy)
 
 	timer_init();
 
-	preloader_console_init();
-
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
@@ -283,6 +273,8 @@ void board_init_f(ulong dummy)
 		debug("spl_init() failed: %d\n", ret);
 		hang();
 	}
+
+	preloader_console_init();
 
 	enable_tzc380();
 
