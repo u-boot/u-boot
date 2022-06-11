@@ -96,6 +96,4 @@
 #define PHYS_SDRAM_SIZE		0x40000000 /* 1GB DDR */
 #endif
 
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(2)
-
 #endif
