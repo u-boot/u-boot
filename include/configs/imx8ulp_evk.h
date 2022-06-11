@@ -16,7 +16,6 @@
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_MALLOC_F_ADDR		0x22040000
 
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */
 
 #endif
 

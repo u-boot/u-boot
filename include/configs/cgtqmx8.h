@@ -19,7 +19,6 @@
 
 #define CONFIG_SPL_RAW_IMAGE_ARM_TRUSTED_FIRMWARE
 
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
 /* Flat Device Tree Definitions */

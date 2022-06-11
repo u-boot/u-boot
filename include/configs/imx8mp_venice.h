@@ -15,7 +15,6 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* For RAW image gives a error info not panic */
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
 #define MEM_LAYOUT_ENV_SETTINGS \
