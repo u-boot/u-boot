@@ -12,7 +12,6 @@
 
 #define PHYS_SDRAM_SIZE			SZ_1G
 
-#define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 #ifdef CONFIG_IMX_BOOTAUX
 /* Set to QSPI1 A flash at default */
