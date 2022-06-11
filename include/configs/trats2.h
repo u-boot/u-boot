@@ -12,8 +12,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_TIZEN			/* TIZEN lib */
-
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	0x10502000

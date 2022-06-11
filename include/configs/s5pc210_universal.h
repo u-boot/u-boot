@@ -11,8 +11,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_TIZEN			/* TIZEN lib */
-
 /* Keep L2 Cache Disabled */
 
 /* Universal has 2 banks of DRAM */
