@@ -1185,6 +1185,29 @@ config SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to
 		eLBC controller).
 
+config SYS_MPC85XX_NO_RESETVEC
+	bool "Discard resetvec section and move bootpg section up"
+	depends on MPC85xx
+	help
+	  If this variable is specified, the section .resetvec is not kept and
+	  the section .bootpg is placed in the previous 4k of the .text section.
+
+config SPL_SYS_MPC85XX_NO_RESETVEC
+	bool "Discard resetvec section and move bootpg section up, in SPL"
+	depends on MPC85xx && SPL
+	help
+	  If this variable is specified, the section .resetvec is not kept and
+	  the section .bootpg is placed in the previous 4k of the .text section,
+	  of the SPL portion of the binary.
+
+config TPL_SYS_MPC85XX_NO_RESETVEC
+	bool "Discard resetvec section and move bootpg section up, in TPL"
+	depends on MPC85xx && TPL
+	help
+	  If this variable is specified, the section .resetvec is not kept and
+	  the section .bootpg is placed in the previous 4k of the .text section,
+	  of the SPL portion of the binary.
+
 config FSL_VIA
 	bool
 

@@ -2164,11 +2164,6 @@ Low Level (hardware related) configuration options:
 		proper). Code that needs stage-specific behavior should check
 		this.
 
-- CONFIG_SYS_MPC85XX_NO_RESETVEC
-		Only for 85xx systems. If this variable is specified, the section
-		.resetvec is not kept and the section .bootpg is placed in the
-		previous 4k of the .text section.
-
 - CONFIG_ARCH_MAP_SYSMEM
 		Generally U-Boot (and in particular the md command) uses
 		effective address. It is therefore not necessary to regard
