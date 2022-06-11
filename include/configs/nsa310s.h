@@ -25,8 +25,4 @@
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	1
 
-/* Support large HDDs for USB and SATA */
-#define CONFIG_LBA48
-#define CONFIG_SYS_64BIT_LBA
-
 #endif /* _CONFIG_NSA310S_H */

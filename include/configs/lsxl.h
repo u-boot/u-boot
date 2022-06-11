@@ -94,9 +94,4 @@
 #define CONFIG_PHY_BASE_ADR		7
 #endif /* CONFIG_CMD_NET */
 
-#ifdef CONFIG_SATA
-#define CONFIG_SYS_64BIT_LBA
-#define CONFIG_LBA48
-#endif
-
 #endif /* _CONFIG_LSXL_H */

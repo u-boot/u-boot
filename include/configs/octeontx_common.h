@@ -44,14 +44,6 @@
 
 /** Heap size for U-Boot */
 
-/* AHCI support Definitions */
-#ifdef CONFIG_DM_SCSI
-/** Enable 48-bit SATA addressing */
-# define CONFIG_LBA48
-/** Enable 64-bit addressing */
-# define CONFIG_SYS_64BIT_LBA
-#endif
-
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
 
 /** EMMC specific defines */

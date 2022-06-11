@@ -14,9 +14,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
-/* SATA Configs */
-#define CONFIG_LBA48
-
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 

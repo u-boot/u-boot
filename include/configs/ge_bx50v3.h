@@ -17,11 +17,6 @@
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
-/* SATA Configs */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_LBA48
-#endif
-
 #ifdef CONFIG_CMD_NFS
 #define NETWORKBOOT \
         "setnetworkboot=" \

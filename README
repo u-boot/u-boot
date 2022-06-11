@@ -664,18 +664,6 @@ The following options need to be configured:
 		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 
-- LBA48 Support
-		CONFIG_LBA48
-
-		Set this to enable support for disks larger than 137GB
-		Also look at CONFIG_SYS_64BIT_LBA.
-		Whithout these , LBA48 support uses 32bit variables and will 'only'
-		support disks up to 2.1TB.
-
-		CONFIG_SYS_64BIT_LBA:
-			When enabled, makes the IDE subsystem use 64bit sector addresses.
-			Default is 32bit.
-
 - NETWORK Support (PCI):
 		CONFIG_E1000_SPI
 		Utility code for direct access to the SPI bus on Intel 8257x.

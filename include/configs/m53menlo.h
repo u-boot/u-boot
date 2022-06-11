@@ -83,13 +83,6 @@
 #endif
 
 /*
- * SATA
- */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_LBA48
-#endif
-
-/*
  * LCD
  */
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)

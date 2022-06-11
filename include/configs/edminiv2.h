@@ -101,8 +101,6 @@
 #define __io
 /* Data, registers and alternate blocks are at the same offset */
 /* Each 8-bit ATA register is aligned to a 4-bytes address */
-/* Controller supports 48-bits LBA addressing */
-#define CONFIG_LBA48
 /* A single bus, a single device */
 /* ATA registers base is at SATA controller base */
 /* ATA bus 0 is orion5x port 1 on ED Mini V2 */

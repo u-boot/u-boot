@@ -116,6 +116,7 @@ config FSL_SATA
 	depends on PPC
 	select AHCI
 	select LIBATA
+	imply LBA48
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Freescale PowerPC SoCs.

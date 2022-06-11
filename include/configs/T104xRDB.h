@@ -390,11 +390,6 @@
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
-/* SATA */
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LBA48
-#endif
-
 /*
 * USB
 */

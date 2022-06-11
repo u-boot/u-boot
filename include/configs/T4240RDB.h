@@ -152,11 +152,6 @@
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
-/* SATA */
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LBA48
-#endif
-
 /*
  * Environment
  */
@@ -423,11 +418,6 @@
 #define CORTINA_PHY_ADDR2	FM1_10GEC2_PHY_ADDR
 #define CORTINA_PHY_ADDR3	FM2_10GEC1_PHY_ADDR
 #define CORTINA_PHY_ADDR4	FM2_10GEC2_PHY_ADDR
-#endif
-
-/* SATA */
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LBA48
 #endif
 
 /*

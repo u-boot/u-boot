@@ -40,9 +40,6 @@
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
-/* SATA support */
-#define CONFIG_LBA48
-
 /* FPGA programming support */
 #define CONFIG_FPGA_STRATIX_V
 

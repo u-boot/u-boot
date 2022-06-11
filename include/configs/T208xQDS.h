@@ -458,13 +458,6 @@
 #endif
 
 /*
- * SATA
- */
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LBA48
-#endif
-
-/*
  * USB
  */
 

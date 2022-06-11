@@ -33,9 +33,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
-/* SATA Configs */
-#define CONFIG_LBA48
-
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 

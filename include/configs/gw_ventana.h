@@ -29,13 +29,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
 /*
- * SATA Configs
- */
-#ifdef CONFIG_CMD_SATA
-  #define CONFIG_LBA48
-#endif
-
-/*
  * PCI express
  */
 #ifdef CONFIG_CMD_PCI

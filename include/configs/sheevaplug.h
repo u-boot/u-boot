@@ -27,10 +27,4 @@
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 
-/*
- * Support large disk for SATA and USB
- */
-#define CONFIG_SYS_64BIT_LBA
-#define CONFIG_LBA48
-
 #endif /* _CONFIG_SHEEVAPLUG_H */

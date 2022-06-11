@@ -19,13 +19,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 #define CONFIG_SYS_FSL_USDHC_NUM       2
 
-/*
- * SATA Configs
- */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_LBA48
-#endif
-
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR		6
 

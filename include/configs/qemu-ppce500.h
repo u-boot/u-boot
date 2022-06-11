@@ -60,8 +60,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
-#define CONFIG_LBA48
-
 /* RTC */
 #define CONFIG_RTC_PT7C4338
 

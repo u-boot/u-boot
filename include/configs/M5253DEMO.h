@@ -22,7 +22,6 @@
 #ifdef CONFIG_IDE
 /* ATA */
 #	define CONFIG_IDE_PREINIT	1
-#	undef CONFIG_LBA48
 #endif
 
 #ifdef CONFIG_DRIVER_DM9000

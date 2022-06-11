@@ -20,8 +20,6 @@
  * Miscellaneous configurable options
  */
 
-#define CONFIG_SYS_64BIT_LBA
-
 /* Environment data setup
 */
 #define CONFIG_SYS_NVRAM_BASE_ADDR	0xfff88000	/* NVRAM base address */

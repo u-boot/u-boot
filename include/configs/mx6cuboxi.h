@@ -16,11 +16,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
-/* SATA Configuration */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_LBA48
-#endif
-
 /* Framebuffer */
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP

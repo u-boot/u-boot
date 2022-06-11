@@ -337,11 +337,6 @@
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
-/* SATA */
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_LBA48
-#endif
-
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC1_PHY_ADDR	0x1c
 #define CONFIG_SYS_FM1_DTSEC2_PHY_ADDR	0x1d

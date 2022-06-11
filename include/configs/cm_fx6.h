@@ -149,9 +149,6 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
-/* SATA */
-#define CONFIG_LBA48
-
 /* Boot */
 #define CONFIG_SYS_BOOTMAPSZ	        (8 << 20)
 

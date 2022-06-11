@@ -25,13 +25,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
-/*
- * SATA Configs
- */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_LBA48
-#endif
-
 /* Network */
 #define PHY_ANEG_TIMEOUT		15000 /* PHY needs longer aneg time */
 

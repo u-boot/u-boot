@@ -11,8 +11,6 @@
 
 #define CONFIG_PCIE3
 
-#define CONFIG_LBA48
-
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */

@@ -263,13 +263,6 @@
 #endif
 
 /*
- * SATA
- */
-#ifdef CONFIG_FSL_SATA
-#define CONFIG_LBA48
-#endif
-
-/*
  * Environment
  */
 
