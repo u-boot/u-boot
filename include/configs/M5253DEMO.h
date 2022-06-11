@@ -19,11 +19,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text*);
 
-#ifdef CONFIG_IDE
-/* ATA */
-#	define CONFIG_IDE_PREINIT	1
-#endif
-
 #ifdef CONFIG_DRIVER_DM9000
 #	define CONFIG_DM9000_BASE	(CONFIG_SYS_CS1_BASE | 0x300)
 #	define DM9000_IO		CONFIG_DM9000_BASE

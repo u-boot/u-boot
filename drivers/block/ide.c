@@ -695,15 +695,6 @@ void ide_init(void)
 	unsigned char c;
 	int i, bus;
 
-#ifdef CONFIG_IDE_PREINIT
-	WATCHDOG_RESET();
-
-	if (ide_preinit()) {
-		puts("ide_preinit failed\n");
-		return;
-	}
-#endif /* CONFIG_IDE_PREINIT */
-
 	WATCHDOG_RESET();
 
 	/* ATAPI Drives seems to need a proper IDE Reset */
