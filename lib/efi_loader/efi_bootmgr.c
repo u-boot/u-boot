@@ -44,7 +44,7 @@ static const struct efi_runtime_services *rs;
 static
 struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 {
-	struct efi_device_path *dp, *full_path;
+	struct efi_device_path *dp, *rem, *full_path;
 	efi_handle_t handle;
 	efi_status_t ret;
 
@@ -57,11 +57,10 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 	 * booting from removable media.
 	 */
 	dp = device_path;
-	ret = EFI_CALL(efi_locate_device_path(
-				&efi_simple_file_system_protocol_guid,
-				&dp, &handle));
+	handle = efi_dp_find_obj(dp, &efi_simple_file_system_protocol_guid,
+				 &rem);
 	if (ret == EFI_SUCCESS) {
-		if (dp->type == DEVICE_PATH_TYPE_END) {
+		if (rem->type == DEVICE_PATH_TYPE_END) {
 			dp = efi_dp_from_file(NULL, 0,
 					      "/EFI/BOOT/" BOOTEFI_NAME);
 			full_path = efi_dp_append(device_path, dp);
