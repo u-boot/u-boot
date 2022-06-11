@@ -31,9 +31,7 @@
 					func(USB, usb, 0)		\
 					func(MMC, mmc, 0)		\
 					func(DHCP, dhcp, na)
-#ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
-#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 			"loader_mmc_blknum=0x0\0"			\

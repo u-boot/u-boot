@@ -32,7 +32,6 @@
 	#define CONSOLE_DEV "ttyO5"
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"fdtfile=am335x-pdu001.dtb\0" \
@@ -49,7 +48,6 @@
 			"reset;" \
 		"fi;" \
 	"\0"
-#endif
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1	UART0_BASE

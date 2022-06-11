@@ -37,12 +37,10 @@
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
 
-#ifndef CONFIG_SPL_BUILD
 # define PARTS_DEFAULT \
 	"partitions=uuid_disk=${uuid_gpt_disk};" \
 	"name=""boot"",size=16M,uuid=${uuid_gpt_boot};" \
 	"name=""Linux"",size=-M,uuid=${uuid_gpt_Linux}\0"
-#endif
 #endif
 
 #if !defined(PARTS_DEFAULT)

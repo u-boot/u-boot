@@ -48,7 +48,6 @@
 #undef CONFIG_SERVERIP
 #define CONFIG_SERVERIP			192.168.10.1
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
@@ -58,9 +57,6 @@
 #include <config_distro_bootcmd.h>
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START ""
-#else /* CONFIG_SPL_BUILD */
-#define BOOTENV
-#endif /* CONFIG_SPL_BUILD */
 
 #define UBOOT_UPDATE \
 	"uboot_hwpart=1\0" \

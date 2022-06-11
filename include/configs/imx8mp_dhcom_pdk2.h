@@ -32,8 +32,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
-#if !defined(CONFIG_SPL_BUILD)
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd=run bootcmd ; reset\0"				\
 	"bootlimit=3\0"							\
@@ -83,7 +81,5 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#endif
 
 #endif

@@ -32,14 +32,12 @@
 #define CONFIG_FEC_MXC_PHYADDR          0
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
        func(MMC, mmc, 0) \
        func(MMC, mmc, 1) \
        func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-#endif
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\

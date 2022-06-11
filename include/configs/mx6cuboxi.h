@@ -27,7 +27,6 @@
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"som_rev=undefined\0" \
 	"has_emmc=undefined\0" \
@@ -86,10 +85,6 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif /* CONFIG_SPL_BUILD */
 
 /* Physical Memory Map */
 #define CONFIG_SYS_SDRAM_BASE          MMDC0_ARB_BASE_ADDR

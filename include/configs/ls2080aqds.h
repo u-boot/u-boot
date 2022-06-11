@@ -410,7 +410,7 @@
 			"env exists secureboot && esbc_halt;"
 #endif
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET)
 #define CONFIG_FSL_MEMAC
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C
 #define SGMII_CARD_PORT2_PHY_ADDR 0x1d

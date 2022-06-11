@@ -36,7 +36,6 @@
 	EFI_GUID(0xd488e45a, 0x4929, 0x4b55, 0x8c, 0x14, \
 		 0x86, 0xce, 0xa2, 0xcd, 0x66, 0x29)
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
@@ -46,9 +45,6 @@
 /* Do not try to probe USB net adapters for net boot */
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START
-#else
-#define BOOTENV
-#endif
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 

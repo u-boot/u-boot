@@ -125,8 +125,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 #endif
 
-#ifndef CONFIG_SPL_BUILD
-
 #ifdef CONFIG_ARM64
 /*
  * Boards seem to come with at least 512MB of DRAM.
@@ -371,9 +369,5 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
-
-#else /* ifndef CONFIG_SPL_BUILD */
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif
 
 #endif /* _SUNXI_COMMON_CONFIG_H */

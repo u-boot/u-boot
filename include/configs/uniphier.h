@@ -10,7 +10,6 @@
 #ifndef __CONFIG_UNIPHIER_H__
 #define __CONFIG_UNIPHIER_H__
 
-#ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_CMD_MMC
@@ -35,9 +34,6 @@
 	BOOT_TARGET_DEVICE_MMC(func)	\
 	BOOT_TARGET_DEVICE_UBIFS(func)	\
 	BOOT_TARGET_DEVICE_USB(func)
-#else
-#define BOOTENV
-#endif
 
 #define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
 

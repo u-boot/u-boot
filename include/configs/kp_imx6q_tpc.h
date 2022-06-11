@@ -26,7 +26,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2 /* Enabled USB controller number */
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"console=ttymxc0,115200\0"	\
 	"fdt_addr=0x18000000\0"		\
@@ -87,7 +86,6 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-#endif
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

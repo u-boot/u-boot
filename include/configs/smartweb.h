@@ -69,7 +69,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
-#if !defined(CONFIG_SPL_BUILD)
 /* USB configuration */
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB
@@ -85,7 +84,6 @@
 
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
-#endif
 
 /* General Boot Parameter */
 

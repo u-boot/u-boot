@@ -18,7 +18,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
-#ifndef CONFIG_SPL_BUILD
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \
@@ -32,7 +31,5 @@
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	ENV_MEM_LAYOUT_SETTINGS	\
 	BOOTENV
-
-#endif
 
 #endif

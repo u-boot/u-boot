@@ -17,9 +17,7 @@
 
 /* commands to include */
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_ROOTPATH		"/opt/eldk"
-#endif
 
 #define CONFIG_SYS_AUTOLOAD	"yes"
 
@@ -81,15 +79,11 @@
  * we don't need to do it twice.
  */
 
-#ifndef CONFIG_SPL_BUILD
-
 /* USB DRACO ID as default */
 #define CONFIG_USBD_HS
 
 /* USB Device Firmware Update support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
-
-#endif /* CONFIG_SPL_BUILD */
 
 /*
  * Default to using SPI for environment, etc.  We have multiple copies

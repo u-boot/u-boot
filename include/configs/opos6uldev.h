@@ -30,11 +30,7 @@
 #endif
 
 /* LCD */
-#ifndef CONFIG_SPL_BUILD
-#ifdef CONFIG_DM_VIDEO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
-#endif
-#endif
 
 /* Environment is stored in the eMMC boot partition */
 

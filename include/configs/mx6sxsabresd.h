@@ -136,10 +136,6 @@
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(2, 1)
 #endif
 
-#ifndef CONFIG_SPL_BUILD
-#ifdef CONFIG_DM_VIDEO
 #define MXS_LCDIF_BASE MX6SX_LCDIF1_BASE_ADDR
-#endif
-#endif
 
 #endif				/* __CONFIG_H */

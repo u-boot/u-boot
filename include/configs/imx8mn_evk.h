@@ -16,19 +16,12 @@
 #define CONFIG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
-#ifdef CONFIG_SPL_BUILD
-/* For RAW image gives a error info not panic */
-
-#endif
-
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-#endif
 
 /* Initial environment variables */
 /* see include/configs/ti_armv7_common.h */

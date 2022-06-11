@@ -99,7 +99,6 @@ MMCSPI_TGTS \
 
 #define LOAD_OFFSET(x)			0x8##x
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
 "verify=no\0" \
@@ -123,7 +122,6 @@ NANDTGTS \
 "b_default=run b_deftgts; for target in ${b_tgts};"\
 " do echo \"### booting ${target} ###\"; run b_${target};" \
 " if test ${b_break} = 1; then; exit; fi; done\0"
-#endif /* !CONFIG_SPL_BUILD*/
 
 #ifdef CONFIG_MTD_RAW_NAND
 /*

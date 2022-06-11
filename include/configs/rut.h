@@ -24,8 +24,6 @@
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14
 
-#ifndef CONFIG_SPL_BUILD
-
 /* Use common default */
 
 /* Default env settings */
@@ -58,11 +56,5 @@
 		"run mmc_load_uimage; " \
 		"bootm ${kloadaddr}\0" \
 	""
-
-#ifndef CONFIG_RESTORE_FLASH
-/* set to negative value for no autoboot */
-#endif
-
-#endif /* CONFIG_SPL_BUILD */
 
 #endif	/* ! __CONFIG_RUT_H */

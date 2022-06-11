@@ -19,7 +19,6 @@
 #define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0x80000000
 
-#ifndef CONFIG_SPL_BUILD
 /* usb otg */
 
 /* usb host support */
@@ -42,7 +41,5 @@
 	ENV_MEM_LAYOUT_SETTINGS \
 	ROCKCHIP_DEVICE_SETTINGS \
 	BOOTENV
-
-#endif /* CONFIG_SPL_BUILD */
 
 #endif

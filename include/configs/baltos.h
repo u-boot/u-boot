@@ -52,7 +52,6 @@
 #define NANDARGS ""
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"boot_fdt=try\0" \
@@ -183,7 +182,6 @@
 	"findfdt=setenv fdtfile am335x-baltos.dtb\0" \
 	NANDARGS
 	/*DFUARGS*/
-#endif
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */

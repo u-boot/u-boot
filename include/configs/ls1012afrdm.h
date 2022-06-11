@@ -12,11 +12,9 @@
 /* DDR */
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
 
-#ifndef CONFIG_SPL_BUILD
 #undef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0)
-#endif
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\

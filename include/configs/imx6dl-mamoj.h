@@ -20,7 +20,6 @@
 /* Environment in MMC */
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"scriptaddr=0x14000000\0"	\
 	"fdt_addr_r=0x13000000\0"	\
@@ -34,7 +33,6 @@
 	func(MMC, mmc, 2)
 
 #include <config_distro_bootcmd.h>
-#endif
 
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART3_BASE

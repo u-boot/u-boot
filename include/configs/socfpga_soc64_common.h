@@ -35,21 +35,6 @@
  */
 
 /*
- * QSPI support
- */
- #ifdef CONFIG_CADENCE_QSPI
-/* Enable it if you want to use dual-stacked mode */
-/*#define CONFIG_QSPI_RBF_ADDR		0x720000*/
-
-/* Flash device info */
-
-#ifndef CONFIG_SPL_BUILD
-#define MTDIDS_DEFAULT			"nor0=ff705000.spi.0"
-#endif /* CONFIG_SPL_BUILD */
-
-#endif /* CONFIG_CADENCE_QSPI */
-
-/*
  * Environment variable
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \

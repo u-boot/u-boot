@@ -76,7 +76,6 @@
 #define CONFIG_IMX_VIDEO_SKIP
 
 /* Extra U-Boot environment. */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"fdt_high=0xffffffff\0"						\
 	"initrd_high=0xffffffff\0"					\
@@ -146,9 +145,5 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif /* CONFIG_SPL_BUILD */
 
 #endif				/* __CONFIG_H */

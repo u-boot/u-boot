@@ -21,8 +21,6 @@
 #define EXTRA_ENV_IOT2050_BOARD_SETTINGS				\
 	"usb_pgood_delay=900\0"
 
-#ifndef CONFIG_SPL_BUILD
-
 #if CONFIG_IS_ENABLED(CMD_USB)
 # define BOOT_TARGET_USB(func) \
 	func(USB, usb, 0) \
@@ -43,8 +41,6 @@
 	BOOT_TARGET_USB(func)
 
 #include <config_distro_bootcmd.h>
-
-#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\

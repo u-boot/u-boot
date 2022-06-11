@@ -30,7 +30,6 @@
 
 /* Environment */
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -130,16 +129,11 @@
 	func(SATA, sata, 0)
 
 #include <config_distro_bootcmd.h>
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif
 
 /* NAND */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 /* APBH DMA is required for NAND support */
-#endif
 
 /* Ethernet */
 #define CONFIG_FEC_MXC_PHYADDR		0

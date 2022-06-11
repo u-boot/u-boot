@@ -16,12 +16,10 @@
 /*BOOT*/
 #define CONFIG_SYS_BOOTM_LEN		0x3c00000
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(SCSI, scsi, 0) \
 
 #include <config_distro_bootcmd.h>
-#endif
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\

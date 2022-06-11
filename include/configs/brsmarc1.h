@@ -24,8 +24,6 @@
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#ifndef CONFIG_SPL_BUILD
-
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 BUR_COMMON_ENV \
@@ -56,7 +54,6 @@ BUR_COMMON_ENV \
 " fdt boardsetup\0" \
 "startsys=run vxargs && mw 0x80001100 0 && run vxfdt &&" \
 " bootm ${loadaddr} - ${dtbaddr}\0"
-#endif /* !CONFIG_SPL_BUILD*/
 
 /* SPI Flash */
 

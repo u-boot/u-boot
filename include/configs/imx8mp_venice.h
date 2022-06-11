@@ -25,16 +25,12 @@
 	"kernel_comp_addr_r=0x40200000\0"
 
 /* Enable Distro Boot */
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#else
-#define BOOTENV
-#endif
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS \

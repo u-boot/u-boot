@@ -35,7 +35,6 @@
 #endif
 
 /* Boot order for distro boot */
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
@@ -44,9 +43,6 @@
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#else
-#define BOOTENV
-#endif
 
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC
