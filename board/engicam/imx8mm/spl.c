@@ -54,8 +54,6 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-#define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
-
 int board_early_init_f(void)
 {
        return 0;
