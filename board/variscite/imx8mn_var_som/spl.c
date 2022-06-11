@@ -40,19 +40,8 @@ void spl_board_init(void)
 		puts("Failed to find clock node. Check device tree\n");
 }
 
-#define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
-
-static const iomux_v3_cfg_t wdog_pads[] = {
-	IMX8MN_PAD_GPIO1_IO02__WDOG1_WDOG_B | MUX_PAD_CTRL(WDOG_PAD_CTRL),
-};
-
 int board_early_init_f(void)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
-	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
-	set_wdog_reset(wdog);
-
 	init_uart_clk(3);
 
 	return 0;
