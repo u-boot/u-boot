@@ -32,7 +32,6 @@ enum {
 
 #define GPIO_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
 #define I2C_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE)
-#define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
 
 #define TOUCH_RESET_GPIO	IMX_GPIO_NR(3, 23)
 
@@ -48,10 +47,6 @@ static iomux_v3_cfg_t const i2c2_pads[] = {
 
 static iomux_v3_cfg_t const touch_gpio[] = {
 	IMX8MM_PAD_SAI5_RXD2_GPIO3_IO23 | MUX_PAD_CTRL(GPIO_PAD_CTRL)
-};
-
-static iomux_v3_cfg_t const wdog_pads[] = {
-	IMX8MM_PAD_GPIO1_IO02_WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
 };
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
@@ -216,17 +211,6 @@ void spl_board_init(void)
 		printf("Failed to find clock node. Check device tree\n");
 }
 
-int board_early_init_f(void)
-{
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
-	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
-
-	set_wdog_reset(wdog);
-
-	return 0;
-}
-
 static int power_init_board(void)
 {
 	struct udevice *dev;
@@ -260,8 +244,6 @@ void board_init_f(ulong dummy)
 	arch_cpu_init();
 
 	init_uart_clk(2);
-
-	board_early_init_f();
 
 	timer_init();
 
