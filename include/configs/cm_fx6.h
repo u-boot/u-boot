@@ -151,8 +151,6 @@
 
 /* SATA */
 #define CONFIG_LBA48
-#define CONFIG_DWC_AHSATA_PORT_ID	0
-#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 
 /* Boot */
 #define CONFIG_SYS_BOOTMAPSZ	        (8 << 20)
