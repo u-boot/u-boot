@@ -19,8 +19,6 @@
 
 #define CONFIG_MALLOC_F_ADDR		0x00120000
 
-#define CONFIG_SPL_RAW_IMAGE_ARM_TRUSTED_FIRMWARE
-
 #endif /* CONFIG_SPL_BUILD */
 
 /* ENET1 connects to base board and MUX with ESAI */
