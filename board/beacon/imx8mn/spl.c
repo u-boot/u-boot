@@ -68,26 +68,16 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-#define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
 #define PWM1_PAD_CTRL (PAD_CTL_FSEL2 | PAD_CTL_DSE6)
 
 static iomux_v3_cfg_t const pwm_pads[] = {
 	IMX8MN_PAD_GPIO1_IO01__PWM1_OUT | MUX_PAD_CTRL(PWM1_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const wdog_pads[] = {
-	IMX8MN_PAD_GPIO1_IO02__WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
-};
-
 int board_early_init_f(void)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
 	/* Claiming pwm pins prevents LCD flicker during startup*/
 	imx_iomux_v3_setup_multiple_pads(pwm_pads, ARRAY_SIZE(pwm_pads));
-
-	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
-	set_wdog_reset(wdog);
 
 	init_uart_clk(1);
 

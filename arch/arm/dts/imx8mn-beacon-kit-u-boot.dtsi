@@ -132,6 +132,10 @@
 	u-boot,dm-spl;
 };
 
+&pinctrl_wdog {
+	u-boot,dm-spl;
+};
+
 &binman {
 	 u-boot-spl-ddr {
 		filename = "u-boot-spl-ddr.bin";
