@@ -26,7 +26,7 @@
 /*
  * BusyBox Version: UPDATE THIS WHEN PULLING NEW UPSTREAM REVISION!
  */
-#define BB_VER			"1.34.0.git37460f5daff9"
+#define BB_VER			"1.35.0.git7d1c7d833785"
 
 /*
  * Define hush features by the names used upstream.
@@ -234,6 +234,24 @@ static size_t list_size(char **list)
 	for (size = 0; list[size] != NULL; size++);
 
 	return size;
+}
+
+static int varcmp(const char *p, const char *q)
+{
+	int c, d;
+
+	while ((c = *p) == (d = *q)) {
+		if (c == '\0' || c == '=')
+			goto out;
+		p++;
+		q++;
+	}
+	if (c == '=')
+		c = '\0';
+	if (d == '=')
+		d = '\0';
+out:
+	return c - d;
 }
 
 struct in_str;
