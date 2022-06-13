@@ -89,11 +89,13 @@ int show_board_info(void)
 		tdx_eth_addr.nic = htonl(tdx_serial << 8);
 		checkboard();
 	} else {
-		sprintf(tdx_serial_str, "%08u", tdx_serial);
-		sprintf(tdx_board_rev_str, "V%1d.%1d%c",
-			tdx_hw_tag.ver_major,
-			tdx_hw_tag.ver_minor,
-			(char)tdx_hw_tag.ver_assembly + 'A');
+		snprintf(tdx_serial_str, sizeof(tdx_serial_str),
+			 "%08u", tdx_serial);
+		snprintf(tdx_board_rev_str, sizeof(tdx_board_rev_str),
+			 "V%1d.%1d%c",
+			 tdx_hw_tag.ver_major,
+			 tdx_hw_tag.ver_minor,
+			 (char)tdx_hw_tag.ver_assembly + 'A');
 
 		env_set("serial#", tdx_serial_str);
 
@@ -109,12 +111,13 @@ int show_board_info(void)
 			tdx_carrier_board_name = (char *)
 				toradex_carrier_boards[tdx_car_hw_tag.prodid];
 
-			sprintf(tdx_car_serial_str, "%08u", tdx_car_serial);
-			sprintf(tdx_car_rev_str, "V%1d.%1d%c",
-				tdx_car_hw_tag.ver_major,
-				tdx_car_hw_tag.ver_minor,
-				(char)tdx_car_hw_tag.ver_assembly +
-				'A');
+			snprintf(tdx_car_serial_str, sizeof(tdx_car_serial_str),
+				 "%08u", tdx_car_serial);
+			snprintf(tdx_car_rev_str, sizeof(tdx_car_rev_str),
+				 "V%1d.%1d%c",
+				 tdx_car_hw_tag.ver_major,
+				 tdx_car_hw_tag.ver_minor,
+				 (char)tdx_car_hw_tag.ver_assembly + 'A');
 
 			env_set("carrier_serial#", tdx_car_serial_str);
 			printf("Carrier: Toradex %s %s, Serial# %s\n",
@@ -170,7 +173,7 @@ int ft_common_board_setup(void *blob, struct bd_info *bd)
 	if (tdx_hw_tag.ver_major) {
 		char prod_id[5];
 
-		sprintf(prod_id, "%04u", tdx_hw_tag.prodid);
+		snprintf(prod_id, sizeof(prod_id), "%04u", tdx_hw_tag.prodid);
 		fdt_setprop(blob, 0, "toradex,product-id", prod_id, 5);
 
 		fdt_setprop(blob, 0, "toradex,board-rev", tdx_board_rev_str,
