@@ -24,7 +24,7 @@
 
 #define SERIAL_STR_LEN 8
 #define MODULE_VER_STR_LEN 4 // V1.1
-#define MODULE_REV_STR_LEN 1 // [A-Z]
+#define MODULE_REV_STR_LEN 3 // [A-Z] or #[26-99]
 
 #ifdef CONFIG_TDX_CFG_BLOCK
 static char tdx_serial_str[SERIAL_STR_LEN + 1];
@@ -83,6 +83,21 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif /* CONFIG_SERIAL_TAG */
 
+static const char *get_board_assembly(u16 ver_assembly)
+{
+	static char ver_name[MODULE_REV_STR_LEN + 1];
+
+	if (ver_assembly < 26) {
+		ver_name[0] = (char)ver_assembly + 'A';
+		ver_name[1] = '\0';
+	} else {
+		snprintf(ver_name, sizeof(ver_name),
+			 "#%u", ver_assembly);
+	}
+
+	return ver_name;
+}
+
 int show_board_info(void)
 {
 	unsigned char ethaddr[6];
@@ -96,10 +111,10 @@ int show_board_info(void)
 		snprintf(tdx_serial_str, sizeof(tdx_serial_str),
 			 "%08u", tdx_serial);
 		snprintf(tdx_board_rev_str, sizeof(tdx_board_rev_str),
-			 "V%1d.%1d%c",
+			 "V%1d.%1d%s",
 			 tdx_hw_tag.ver_major,
 			 tdx_hw_tag.ver_minor,
-			 (char)tdx_hw_tag.ver_assembly + 'A');
+			 get_board_assembly(tdx_hw_tag.ver_assembly));
 
 		env_set("serial#", tdx_serial_str);
 
@@ -118,10 +133,10 @@ int show_board_info(void)
 			snprintf(tdx_car_serial_str, sizeof(tdx_car_serial_str),
 				 "%08u", tdx_car_serial);
 			snprintf(tdx_car_rev_str, sizeof(tdx_car_rev_str),
-				 "V%1d.%1d%c",
+				 "V%1d.%1d%s",
 				 tdx_car_hw_tag.ver_major,
 				 tdx_car_hw_tag.ver_minor,
-				 (char)tdx_car_hw_tag.ver_assembly + 'A');
+				 get_board_assembly(tdx_car_hw_tag.ver_assembly));
 
 			env_set("carrier_serial#", tdx_car_serial_str);
 			printf("Carrier: Toradex %s %s, Serial# %s\n",
