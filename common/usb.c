@@ -49,10 +49,6 @@ char usb_started; /* flag for the started/stopped USB status */
 static struct usb_device usb_dev[USB_MAX_DEVICE];
 static int dev_index;
 
-#ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
-#endif
-
 /***************************************************************************
  * Init USB Device
  */

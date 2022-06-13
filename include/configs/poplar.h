@@ -21,7 +21,6 @@
 /* ATF bl33.bin load address (must match) */
 
 /* USB configuration */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 
 /*****************************************************************************
  *  Initial environment variables

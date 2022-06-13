@@ -10,7 +10,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
 /* XHCI Support - enabled by default */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 
 #define DDR_SDRAM_CFG			0x470c0008
 #define DDR_CS0_BNDS			0x008000bf

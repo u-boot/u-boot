@@ -364,3 +364,9 @@ config USB_R8A66597_HCD
 	---help---
 	  This enables support for the on-chip Renesas R8A66597 USB 2.0
 	  controller, present in various RZ and SH SoCs.
+
+config USB_MAX_CONTROLLER_COUNT
+	int "Maximum number of USB host controllers"
+	depends on USB_EHCI_FSL || USB_XHCI_FSL || \
+		(SPL_USB_HOST && !DM_SPL_USB) || (USB_HOST && !DM_USB)
+	default 1

@@ -29,7 +29,6 @@
 #define CONFIG_I2C_MVTWSI_BASE1		MVEBU_TWSI1_BASE
 
 /* USB/EHCI configuration */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* Environment in SPI NOR flash */
 

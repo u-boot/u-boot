@@ -18,8 +18,6 @@
 					  4000000, 4500000, 5000000, 5500000, \
 					  6000000 }
 
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	6
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(NVME, nvme, 0) \

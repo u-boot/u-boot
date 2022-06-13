@@ -34,8 +34,6 @@
  */
 #define DEFAULT_ENV_IS_RW		/* required for configuring default fdtfile= */
 
-#define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \

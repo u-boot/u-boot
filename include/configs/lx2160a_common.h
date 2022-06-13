@@ -96,11 +96,6 @@
 #endif
 
 /* USB */
-#ifdef CONFIG_USB_HOST
-#ifndef CONFIG_TARGET_LX2162AQDS
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-#endif
-#endif
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 

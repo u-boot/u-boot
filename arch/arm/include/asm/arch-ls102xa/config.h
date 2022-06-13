@@ -95,7 +95,6 @@
 #define DCU_LAYER_MAX_NUM			16
 
 #ifdef CONFIG_ARCH_LS1021A
-#define CONFIG_USB_MAX_CONTROLLER_COUNT		1
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 #else
 #error SoC not defined

@@ -38,7 +38,6 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	1 /* Enabled USB controller number */
 #endif
 
 #endif                         /* __MX6SABRESD_CONFIG_H */
