@@ -1877,14 +1877,6 @@ Configuration Settings:
 		while unprotecting/erasing/programming. Please only enable
 		this option if you really know what you are doing.
 
-- CONFIG_ENV_MAX_ENTRIES
-
-	Maximum number of entries in the hash table that is used
-	internally to store the environment settings. The default
-	setting is supposed to be generous and should work in most
-	cases. This setting can be used to tune behaviour; see
-	lib/hashtable.c for details.
-
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
 - CONFIG_ENV_FLAGS_LIST_STATIC
 	Enable validation of the values given to environment variables when

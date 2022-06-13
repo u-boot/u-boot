@@ -207,11 +207,6 @@
 
 /* ATF is my kernel image */
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
-# define CONFIG_SPL_HASH
-# define CONFIG_ENV_MAX_ENTRIES	10
-#endif
-
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"
 #endif

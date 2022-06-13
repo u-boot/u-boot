@@ -30,6 +30,22 @@ config ENV_OVERWRITE
 	  Use this to permit overriding of certain environmental variables
 	  like Ethernet and Serial
 
+config ENV_MIN_ENTRIES
+	int "Minimum number of entries in the environment hashtable"
+	default 64
+	help
+	  Minimum number of entries in the hash table that is used internally
+	  to store the environment settings.
+
+config ENV_MAX_ENTRIES
+	int "Maximumm number of entries in the environment hashtable"
+	default 512
+	help
+	  Maximum number of entries in the hash table that is used internally
+	  to store the environment settings. The default setting is supposed to
+	  be generous and should work in most cases. This setting can be used
+	  to tune behaviour; see lib/hashtable.c for details.
+
 config ENV_IS_NOWHERE
 	bool "Environment is not stored"
 	default y if !ENV_IS_IN_EEPROM && !ENV_IS_IN_EXT4 && \
