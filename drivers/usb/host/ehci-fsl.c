@@ -25,10 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
-#endif
-
 struct ehci_fsl_priv {
 	struct ehci_ctrl ehci;
 	fdt_addr_t hcd_base;
