@@ -175,6 +175,13 @@ config WDT_MAX6370
 	help
 	  Select this to enable max6370 watchdog timer.
 
+config WDT_MESON_GXBB
+	bool "Amlogic watchdog timer support"
+	depends on WDT
+	help
+	  Select this to enable Meson watchdog timer,
+	  which can be found on some Amlogic platforms.
+
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
