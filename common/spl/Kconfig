@@ -1317,6 +1317,13 @@ config SPL_USB_STORAGE
 	  config options. This enables loading from USB using a configured
 	  device.
 
+config SYS_USB_FAT_BOOT_PARTITION
+	int "Partition on USB to use to load U-Boot from"
+	depends on SPL_USB_STORAGE
+	default 1
+	help
+	  Partition on the USB storage device to load U-Boot from
+
 config SPL_USB_GADGET
 	bool "Suppport USB Gadget drivers"
 	help

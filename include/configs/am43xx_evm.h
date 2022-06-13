@@ -48,12 +48,6 @@
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 
-/* SPL USB Support */
-
-#if defined(CONFIG_SPL_USB_HOST) || !defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
 #define DFUARGS \
