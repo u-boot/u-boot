@@ -23,10 +23,9 @@ obj-$(CONFIG_MII) += miiphyutil.o
 obj-$(CONFIG_CMD_MII) += miiphyutil.o
 obj-$(CONFIG_PHYLIB) += miiphyutil.o
 
-ifdef CONFIG_USB
-obj-y += usb.o usb_hub.o
+obj-$(CONFIG_USB_HOST) += usb.o usb_hub.o
+obj-$(CONFIG_USB_GADGET) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
-endif
 
 # others
 obj-$(CONFIG_CONSOLE_MUX) += iomux.o
@@ -57,13 +56,9 @@ endif
 obj-$(CONFIG_SPL_NET) += miiphyutil.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
 
-ifdef CONFIG_SPL_USB_HOST
-obj-y += usb.o
-obj-y += usb_hub.o
+obj-$(CONFIG_SPL_USB_HOST) += usb.o usb_hub.o
 obj-$(CONFIG_SPL_USB_STORAGE) += usb_storage.o
-else
-obj-$(CONFIG_USB_MUSB_HOST) += usb.o
-endif
+obj-$(CONFIG_SPL_MUSB_NEW) += usb.o
 endif # CONFIG_SPL_BUILD
 
 #others
