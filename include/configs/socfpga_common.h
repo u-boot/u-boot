@@ -59,13 +59,6 @@
 #endif
 
 /*
- * FPGA Driver
- */
-#ifdef CONFIG_CMD_FPGA
-#define CONFIG_FPGA_COUNT		1
-#endif
-
-/*
  * L4 OSC1 Timer 0
  */
 #ifndef CONFIG_TIMER

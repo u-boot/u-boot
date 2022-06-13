@@ -1350,10 +1350,6 @@ The following options need to be configured:
 		Enables support for FPGA family.
 		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
 
-		CONFIG_FPGA_COUNT
-
-		Specify the number of FPGA devices to support.
-
 		CONFIG_SYS_FPGA_PROG_FEEDBACK
 
 		Enable printing of hash marks during FPGA configuration.
