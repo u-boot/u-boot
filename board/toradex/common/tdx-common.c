@@ -22,13 +22,17 @@
 
 #define TORADEX_OUI 0x00142dUL
 
+#define SERIAL_STR_LEN 8
+#define MODULE_VER_STR_LEN 4 // V1.1
+#define MODULE_REV_STR_LEN 1 // [A-Z]
+
 #ifdef CONFIG_TDX_CFG_BLOCK
-static char tdx_serial_str[9];
-static char tdx_board_rev_str[6];
+static char tdx_serial_str[SERIAL_STR_LEN + 1];
+static char tdx_board_rev_str[MODULE_VER_STR_LEN + MODULE_REV_STR_LEN + 1];
 
 #ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
-static char tdx_car_serial_str[9];
-static char tdx_car_rev_str[6];
+static char tdx_car_serial_str[SERIAL_STR_LEN + 1];
+static char tdx_car_rev_str[MODULE_VER_STR_LEN + MODULE_REV_STR_LEN + 1];
 static char *tdx_carrier_board_name;
 #endif
 
