@@ -52,6 +52,8 @@
 #define APPLE_RTKIT_BUFFER_REQUEST_SIZE GENMASK(51, 44)
 #define APPLE_RTKIT_BUFFER_REQUEST_IOVA GENMASK(41, 0)
 
+#define TIMEOUT_1SEC_US 1000000
+
 struct apple_rtkit {
 	struct mbox_chan *chan;
 	void *cookie;
@@ -168,7 +170,7 @@ int apple_rtkit_boot(struct apple_rtkit *rtk)
 		return ret;
 
 	/* Wait for protocol version negotiation message. */
-	ret = mbox_recv(rtk->chan, &msg, 10000);
+	ret = mbox_recv(rtk->chan, &msg, TIMEOUT_1SEC_US);
 	if (ret < 0)
 		return ret;
 
@@ -210,7 +212,7 @@ int apple_rtkit_boot(struct apple_rtkit *rtk)
 
 wait_epmap:
 	/* Wait for endpoint map message. */
-	ret = mbox_recv(rtk->chan, &msg, 10000);
+	ret = mbox_recv(rtk->chan, &msg, TIMEOUT_1SEC_US);
 	if (ret < 0)
 		return ret;
 
@@ -275,7 +277,7 @@ wait_epmap:
 
 	pwrstate = APPLE_RTKIT_PWR_STATE_SLEEP;
 	while (pwrstate != APPLE_RTKIT_PWR_STATE_ON) {
-		ret = mbox_recv(rtk->chan, &msg, 100000);
+		ret = mbox_recv(rtk->chan, &msg, TIMEOUT_1SEC_US);
 		if (ret < 0)
 			return ret;
 
@@ -330,7 +332,7 @@ int apple_rtkit_shutdown(struct apple_rtkit *rtk, int pwrstate)
 	if (ret < 0)
 		return ret;
 
-	ret = mbox_recv(rtk->chan, &msg, 100000);
+	ret = mbox_recv(rtk->chan, &msg, TIMEOUT_1SEC_US);
 	if (ret < 0)
 		return ret;
 
