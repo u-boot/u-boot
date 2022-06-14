@@ -23,17 +23,10 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = 0x80000000;
-
-	return 0;
+	return fdtdec_setup_mem_size_base();
 }
 
 int dram_init_banksize(void)
 {
-	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = 0x80000000;
-	gd->ram_size = 0x80000000;
-
-	return 0;
+	return fdtdec_setup_memory_banksize();
 }
