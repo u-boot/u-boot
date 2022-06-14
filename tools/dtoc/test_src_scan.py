@@ -151,6 +151,7 @@ class TestSrcScan(unittest.TestCase):
         self.assertEqual('UCLASS_I2C', drv.uclass_id)
         self.assertEqual(
             {'nvidia,tegra114-i2c': 'TYPE_114',
+             'nvidia,tegra124-i2c': 'TYPE_114',
              'nvidia,tegra20-i2c': 'TYPE_STD',
              'nvidia,tegra20-i2c-dvc': 'TYPE_DVC'}, drv.compat)
         self.assertEqual('i2c_bus', drv.priv)
