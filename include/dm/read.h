@@ -32,6 +32,47 @@ static inline const struct device_node *dev_np(const struct udevice *dev)
 
 #if !defined(CONFIG_DM_DEV_READ_INLINE) || CONFIG_IS_ENABLED(OF_PLATDATA)
 /**
+ * dev_read_u8() - read a 8-bit integer from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * Return: 0 if OK, -ve on error
+ */
+int dev_read_u8(const struct udevice *dev, const char *propname, u8 *outp);
+
+/**
+ * dev_read_u8_default() - read a 8-bit integer from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * Return: property value, or @def if not found
+ */
+u8 dev_read_u8_default(const struct udevice *dev, const char *propname, u8 def);
+
+/**
+ * dev_read_u16() - read a 16-bit integer from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * Return: 0 if OK, -ve on error
+ */
+int dev_read_u16(const struct udevice *dev, const char *propname, u16 *outp);
+
+/**
+ * dev_read_u16_default() - read a 16-bit integer from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * Return: property value, or @def if not found
+ */
+u16 dev_read_u16_default(const struct udevice *dev, const char *propname,
+			 u16 def);
+
+/**
  * dev_read_u32() - read a 32-bit integer from a device's DT property
  *
  * @dev:	device to read DT property from
@@ -771,6 +812,30 @@ phy_interface_t dev_read_phy_mode(const struct udevice *dev);
 
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 #include <asm/global_data.h>
+
+static inline int dev_read_u8(const struct udevice *dev,
+			      const char *propname, u8 *outp)
+{
+	return ofnode_read_u8(dev_ofnode(dev), propname, outp);
+}
+
+static inline int dev_read_u8_default(const struct udevice *dev,
+				      const char *propname, u8 def)
+{
+	return ofnode_read_u8_default(dev_ofnode(dev), propname, def);
+}
+
+static inline int dev_read_u16(const struct udevice *dev,
+			       const char *propname, u16 *outp)
+{
+	return ofnode_read_u16(dev_ofnode(dev), propname, outp);
+}
+
+static inline int dev_read_u16_default(const struct udevice *dev,
+				       const char *propname, u16 def)
+{
+	return ofnode_read_u16_default(dev_ofnode(dev), propname, def);
+}
 
 static inline int dev_read_u32(const struct udevice *dev,
 			       const char *propname, u32 *outp)

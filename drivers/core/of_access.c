@@ -488,6 +488,44 @@ static void *of_find_property_value_of_size(const struct device_node *np,
 	return prop->value;
 }
 
+int of_read_u8(const struct device_node *np, const char *propname, u8 *outp)
+{
+	const u8 *val;
+
+	debug("%s: %s: ", __func__, propname);
+	if (!np)
+		return -EINVAL;
+	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
+	if (IS_ERR(val)) {
+		debug("(not found)\n");
+		return PTR_ERR(val);
+	}
+
+	*outp = *val;
+	debug("%#x (%d)\n", *outp, *outp);
+
+	return 0;
+}
+
+int of_read_u16(const struct device_node *np, const char *propname, u16 *outp)
+{
+	const __be16 *val;
+
+	debug("%s: %s: ", __func__, propname);
+	if (!np)
+		return -EINVAL;
+	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
+	if (IS_ERR(val)) {
+		debug("(not found)\n");
+		return PTR_ERR(val);
+	}
+
+	*outp = be16_to_cpup(val);
+	debug("%#x (%d)\n", *outp, *outp);
+
+	return 0;
+}
+
 int of_read_u32(const struct device_node *np, const char *propname, u32 *outp)
 {
 	return of_read_u32_index(np, propname, 0, outp);

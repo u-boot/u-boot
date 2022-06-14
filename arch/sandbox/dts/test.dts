@@ -233,6 +233,8 @@
 		test5-gpios = <&gpio_a 19>;
 
 		bool-value;
+		int8-value = /bits/ 8 <0x12>;
+		int16-value = /bits/ 16 <0x1234>;
 		int-value = <1234>;
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;

@@ -222,6 +222,46 @@ static inline oftree oftree_default(void)
 bool ofnode_name_eq(ofnode node, const char *name);
 
 /**
+ * ofnode_read_u8() - Read a 8-bit integer from a property
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * Return: 0 if OK, -ve on error
+ */
+int ofnode_read_u8(ofnode node, const char *propname, u8 *outp);
+
+/**
+ * ofnode_read_u8_default() - Read a 8-bit integer from a property
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * Return: property value, or @def if not found
+ */
+u8 ofnode_read_u8_default(ofnode node, const char *propname, u8 def);
+
+/**
+ * ofnode_read_u16() - Read a 16-bit integer from a property
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * Return: 0 if OK, -ve on error
+ */
+int ofnode_read_u16(ofnode node, const char *propname, u16 *outp);
+
+/**
+ * ofnode_read_u16_default() - Read a 16-bit integer from a property
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * Return: property value, or @def if not found
+ */
+u16 ofnode_read_u16_default(ofnode node, const char *propname, u16 def);
+
+/**
  * ofnode_read_u32() - Read a 32-bit integer from a property
  *
  * @node:	valid node reference to read property from

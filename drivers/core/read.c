@@ -13,6 +13,27 @@
 #include <asm/io.h>
 #include <linux/ioport.h>
 
+int dev_read_u8(const struct udevice *dev, const char *propname, u8 *outp)
+{
+	return ofnode_read_u8(dev_ofnode(dev), propname, outp);
+}
+
+u8 dev_read_u8_default(const struct udevice *dev, const char *propname, u8 def)
+{
+	return ofnode_read_u8_default(dev_ofnode(dev), propname, def);
+}
+
+int dev_read_u16(const struct udevice *dev, const char *propname, u16 *outp)
+{
+	return ofnode_read_u16(dev_ofnode(dev), propname, outp);
+}
+
+u16 dev_read_u16_default(const struct udevice *dev, const char *propname,
+			 u16 def)
+{
+	return ofnode_read_u16_default(dev_ofnode(dev), propname, def);
+}
+
 int dev_read_u32(const struct udevice *dev, const char *propname, u32 *outp)
 {
 	return ofnode_read_u32(dev_ofnode(dev), propname, outp);
