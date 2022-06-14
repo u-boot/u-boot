@@ -13,6 +13,10 @@
 	aliases {
 		mmc1 = &sdhci1;
 	};
+
+	memory@80000000 {
+		u-boot,dm-spl;
+	};
 };
 
 &cbass_main{
