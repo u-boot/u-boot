@@ -400,14 +400,14 @@ static int usb251xb_of_to_plat(struct udevice *dev)
 		}
 	}
 
-	if (dev_read_u32(dev, "vendor-id", &hub->vendor_id))
-		hub->vendor_id = USB251XB_DEF_VENDOR_ID;
+	hub->vendor_id = dev_read_u16_default(dev, "vendor-id",
+					      USB251XB_DEF_VENDOR_ID);
 
-	if (dev_read_u32(dev, "product-id", &hub->product_id))
-		hub->product_id = data->product_id;
+	hub->product_id = dev_read_u16_default(dev, "product-id",
+					       data->product_id);
 
-	if (dev_read_u32(dev, "device-id", &hub->device_id))
-		hub->device_id = USB251XB_DEF_DEVICE_ID;
+	hub->device_id = dev_read_u16_default(dev, "device-id",
+					      USB251XB_DEF_DEVICE_ID);
 
 	hub->conf_data1 = USB251XB_DEF_CONFIG_DATA_1;
 	if (dev_read_bool(dev, "self-powered")) {
@@ -513,11 +513,11 @@ static int usb251xb_of_to_plat(struct udevice *dev)
 	if (!dev_read_u32(dev, "power-on-time-ms", &property_u32))
 		hub->power_on_time = min_t(u8, property_u32 / 2, 255);
 
-	if (dev_read_u32(dev, "language-id", &hub->lang_id))
-		hub->lang_id = USB251XB_DEF_LANGUAGE_ID;
+	hub->lang_id = dev_read_u16_default(dev, "language-id",
+					    USB251XB_DEF_LANGUAGE_ID);
 
-	if (!dev_read_u32(dev, "boost-up", &hub->boost_up))
-		hub->boost_up = USB251XB_DEF_BOOST_UP;
+	hub->boost_up = dev_read_u8_default(dev, "boost-up",
+					    USB251XB_DEF_BOOST_UP);
 
 	cproperty_char = dev_read_string(dev, "manufacturer");
 	strlcpy(str, cproperty_char ? : USB251XB_DEF_MANUFACTURER_STRING,
