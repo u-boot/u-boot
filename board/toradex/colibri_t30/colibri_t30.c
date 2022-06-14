@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <init.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/pinmux.h>
@@ -12,6 +13,7 @@
 #include <asm/arch-tegra/tegra.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <fdt_support.h>
 #include <i2c.h>
 #include <linux/delay.h>
 #include "pinmux-config-colibri_t30.h"
@@ -36,6 +38,24 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	u8 enetaddr[6];
+
+	/* MAC addr */
+	if (eth_env_get_enetaddr("ethaddr", enetaddr)) {
+		int err = fdt_find_and_setprop(blob,
+					       "/usb@7d004000/ethernet@1",
+					       "local-mac-address", enetaddr, 6, 0);
+
+		/* Older device trees might have used a different node name */
+		if (err < 0)
+			err = fdt_find_and_setprop(blob,
+						   "/usb@7d004000/asix@1",
+						   "local-mac-address", enetaddr, 6, 0);
+
+		if (err >= 0)
+			puts("   MAC address updated...\n");
+	}
+
 	return ft_common_board_setup(blob, bd);
 }
 #endif

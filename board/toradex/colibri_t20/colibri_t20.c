@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <env.h>
+#include <fdt_support.h>
 #include <init.h>
 #include <log.h>
 #include <asm/arch/clock.h>
@@ -81,6 +83,24 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	u8 enetaddr[6];
+
+	/* MAC addr */
+	if (eth_env_get_enetaddr("ethaddr", enetaddr)) {
+		int err = fdt_find_and_setprop(blob,
+					       "/usb@7d004000/ethernet@1",
+					       "local-mac-address", enetaddr, 6, 0);
+
+		/* Older device trees might have used a different node name */
+		if (err < 0)
+			err = fdt_find_and_setprop(blob,
+						   "/usb@7d004000/asix@1",
+						   "local-mac-address", enetaddr, 6, 0);
+
+		if (err >= 0)
+			puts("   MAC address updated...\n");
+	}
+
 	return ft_common_board_setup(blob, bd);
 }
 #endif
