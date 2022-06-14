@@ -25,10 +25,6 @@
 	};
 };
 
-&fec1 {
-	phy-mode = "rgmii-rxid";
-};
-
 &i2c1 {
 	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
