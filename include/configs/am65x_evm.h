@@ -65,14 +65,6 @@
 		"0 /lib/firmware/am65x-mcu-r5f0_0-fw "			\
 		"1 /lib/firmware/am65x-mcu-r5f0_1-fw "
 
-#ifdef CONFIG_TARGET_AM654_A53_EVM
-#define EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD				\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
-#else
-#define EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD
-#endif
-
 #define EXTRA_ENV_AM65X_BOARD_SETTINGS_UBI				\
 	"init_ubi=run args_all args_ubi; sf probe; "			\
 		"ubi part ospi.rootfs; ubifsmount ubi:rootfs;\0"	\
@@ -104,7 +96,6 @@
 	DEFAULT_FIT_TI_ARGS						\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC				\
-	EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD				\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_UBI				\
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\

@@ -53,8 +53,6 @@
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
 	"doboot=bootm ${kernel_addr_r}\0" \
 	"doloadfdt=false\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setboottypez=setenv kernel ${zImage};" \
 		"setenv doboot bootz ${kernel_addr_r} - ${fdt_addr_r};" \
 		"setenv doloadfdt true;\0" \

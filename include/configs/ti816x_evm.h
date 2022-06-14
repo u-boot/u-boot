@@ -13,9 +13,7 @@
 #include <asm/arch/omap.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	DEFAULT_LINUX_BOOT_ENV \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	DEFAULT_LINUX_BOOT_ENV
 
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */

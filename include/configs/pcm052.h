@@ -49,7 +49,6 @@
 	"nfs_root=/path/to/nfs/root\0" \
 	"tftptimeout=1000\0" \
 	"tftptimeoutcountmax=1000000\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"bootargs_base=setenv bootargs rw " \
 		" mem=" __stringify(CONFIG_PCM052_DDR_SIZE) "M " \
 		"console=ttyLP1,115200n8\0" \

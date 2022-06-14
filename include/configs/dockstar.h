@@ -24,8 +24,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \
-	"mtdids=nand0=orion_nand\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT \
 	"kernel=/boot/uImage\0" \
 	"initrd=/boot/uInitrd\0" \
 	"bootargs_root=ubi.mtd=1 root=ubi0:root rootfstype=ubifs ro\0"

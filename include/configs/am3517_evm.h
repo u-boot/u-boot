@@ -49,8 +49,6 @@
 	"bootenv=uEnv.txt\0" \
 	"cmdline=\0" \
 	"optargs=\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \

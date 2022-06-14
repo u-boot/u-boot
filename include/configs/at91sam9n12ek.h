@@ -36,7 +36,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"console=console=ttyS0,115200\0"                                \
-	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"					\
 	"bootargs_nand=rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs rw\0"\
 	"bootargs_mmc=root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait\0"
 

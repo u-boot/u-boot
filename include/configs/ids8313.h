@@ -244,8 +244,6 @@
 			"${netmask}:${hostname}:${netdev}:off "		\
 			"console=${console},${baudrate} ${othbootargs}\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
 /* UBI Support */

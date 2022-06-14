@@ -39,8 +39,6 @@
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define NANDTGTS \
-"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 "cfgscr=mw ${dtbaddr} 0; nand read ${cfgaddr} cfgscr && source ${cfgaddr};" \
 " fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0" \
 "nandargs=setenv bootargs console=${console} ${optargs} ${optargs_rot} " \

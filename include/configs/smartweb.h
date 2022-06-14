@@ -92,7 +92,6 @@
 									\
 	"basicargs=console=ttyS0,115200\0"				\
 									\
-	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"
 
 /*
  * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,

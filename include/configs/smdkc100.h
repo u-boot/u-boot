@@ -69,7 +69,6 @@
 		" console=ttySAC0,115200n8 mem=128M" \
 		" initrd=0x33000000,8M ramdisk=8192\0" \
 	"rootfstype=cramfs\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"meminfo=mem=128M\0" \
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=5\0" \

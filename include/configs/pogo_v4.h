@@ -26,8 +26,6 @@
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"dtb_file=/boot/dts/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"\
-	"mtdids=nand0=orion_nand\0"\
 	"bootargs_console=console=ttyS0,115200\0" \
 	"bootcmd_usb=usb start; load usb 0:1 0x00800000 /boot/uImage; " \
 	"load usb 0:1 0x01100000 /boot/uInitrd; " \

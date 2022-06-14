@@ -31,8 +31,6 @@
 		"bootm ${loadaddr}\0"
 
 #define NANDARGS \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandroot=ubi0:rootfs rw\0" \
 	"nandrootfstype=ubifs\0" \
 	"nandargs=setenv bootargs console=${console} " \

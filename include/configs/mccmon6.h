@@ -109,7 +109,6 @@
 			  "fi;" \
 		     "fi;" \
 		"fi\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"bootdev=1\0" \
 	"bootpart=1\0" \
 	"netdev=eth0\0" \

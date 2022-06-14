@@ -65,7 +65,6 @@
 #define DFU_ALT_NAND_INFO "imx6ull-bcb part 0,1;u-boot1 part 0,2;u-boot2 part 0,3;u-boot-env part 0,4;ubi partubi 0,5"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	UBI_BOOTCMD
 #else
 #define	MODULE_EXTRA_ENV_SETTINGS ""

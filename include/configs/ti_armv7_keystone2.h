@@ -184,9 +184,7 @@
 	"args_ramfs=setenv bootargs ${bootargs} "			\
 		"rdinit=/sbin/init rw root=/dev/ram0 "			\
 		"initrd=0x808080000,80M\0"				\
-	"no_post=1\0"							\
-	"mtdparts=mtdparts=davinci_nand.0:"				\
-		"1024k(bootloader)ro,512k(params)ro,-(ubifs)\0"
+	"no_post=1\0"
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

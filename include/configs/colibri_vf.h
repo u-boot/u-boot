@@ -68,7 +68,6 @@
 	"fdt_board=eval-v3\0" \
 	"fdt_fixup=;\0" \
 	"kernel_image=zImage\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setsdupdate=mmc rescan && set interface mmc && " \
 		"fatload ${interface} 0:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \

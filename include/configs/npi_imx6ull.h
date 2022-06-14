@@ -48,8 +48,6 @@
 	"console=ttymxc0,115200n8\0" \
 	"image=zImage\0" \
 	"fdtfile=imx6ull-seeed-npi-dev-board.dtb\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"fdt_addr_r=0x82000000\0" \
 	"kernel_addr_r=0x81000000\0" \
 	"pxefile_addr_r=0x87100000\0" \

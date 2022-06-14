@@ -167,7 +167,6 @@
 	"kernelhdr_size_sd=0x10\0"		\
 	"console=ttyS0,115200\0"		\
 	"boot_os=y\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
 	BOOTENV					\
 	"boot_scripts=ls1043ardb_boot.scr\0"	\
 	"boot_script_hdr=hdr_ls1043ardb_bs.out\0"	\

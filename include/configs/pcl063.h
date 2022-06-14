@@ -51,8 +51,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200n8\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"fdt_addr_r=0x82000000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

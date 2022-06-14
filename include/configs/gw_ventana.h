@@ -85,8 +85,6 @@
 	"hwconfig=_UNKNOWN_\0" \
 	"video=\0" \
 	\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 	"disk=0\0" \
 	"part=1\0" \
 	\

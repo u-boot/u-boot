@@ -184,8 +184,6 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"partition=nand0,0\0"					\
 	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "		\

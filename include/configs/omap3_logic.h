@@ -35,8 +35,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"	\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"mmcrootfstype=ext4 rootwait\0" \

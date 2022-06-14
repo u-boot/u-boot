@@ -112,8 +112,6 @@
 	"mmcpart=1\0"							\
 	"rootpath=/srv/\0"						\
 	"kernel_addr_r=0x72000000\0"					\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"netdev=eth0\0"							\
 	"splashsource=mmc_fs\0"						\
 	"splashfile=boot/usplash.bmp.gz\0"				\

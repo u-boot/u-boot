@@ -82,7 +82,6 @@
 	"kernelhdr_addr_sd=0x3000\0"		\
 	"kernelhdr_size_sd=0x20\0"		\
 	"console=ttyS0,115200\0"                \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
 	BOOTENV					\
 	"boot_scripts=ls1028ardb_boot.scr\0"    \
 	"boot_script_hdr=hdr_ls1028ardb_bs.out\0"	\
