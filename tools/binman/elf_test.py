@@ -127,7 +127,7 @@ class TestElf(unittest.TestCase):
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         with self.assertRaises(ValueError) as e:
             elf.LookupAndWriteSymbols(elf_fname, entry, section)
-        self.assertIn('entry_path has offset 4 (size 8) but the contents size '
+        self.assertIn('entry_path has offset 8 (size 8) but the contents size '
                       'is a', str(e.exception))
 
     def testMissingImageStart(self):
@@ -161,18 +161,20 @@ class TestElf(unittest.TestCase):
         This should produce -1 values for all thress symbols, taking up the
         first 16 bytes of the image.
         """
-        entry = FakeEntry(24)
+        entry = FakeEntry(28)
         section = FakeSection(sym_value=None)
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         elf.LookupAndWriteSymbols(elf_fname, entry, section)
-        self.assertEqual(tools.get_bytes(255, 20) + tools.get_bytes(ord('a'), 4),
-                                                                  entry.data)
+        expected = (struct.pack('<L', elf.BINMAN_SYM_MAGIC_VALUE) +
+                    tools.get_bytes(255, 20) +
+                    tools.get_bytes(ord('a'), 4))
+        self.assertEqual(expected, entry.data)
 
     def testDebug(self):
         """Check that enabling debug in the elf module produced debug output"""
         try:
             tout.init(tout.DEBUG)
-            entry = FakeEntry(20)
+            entry = FakeEntry(24)
             section = FakeSection()
             elf_fname = self.ElfTestFile('u_boot_binman_syms')
             with test_util.capture_sys_output() as (stdout, stderr):
