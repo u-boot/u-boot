@@ -12,6 +12,7 @@
 
 #include <asm/io.h>
 #include <asm/arch/rtkit.h>
+#include <asm/arch/sart.h>
 #include <linux/iopoll.h>
 
 /* ASC registers */
@@ -66,6 +67,8 @@ struct apple_nvme_priv {
 	void *asc;		/* ASC registers */
 	struct reset_ctl_bulk resets; /* ASC reset */
 	struct mbox_chan chan;
+	struct apple_sart *sart;
+	struct apple_rtkit *rtk;
 	struct ans_nvmmu_tcb *tcbs[NVME_Q_NUM]; /* Submission queue TCBs */
 	u32 __iomem *q_db[NVME_Q_NUM]; /* Submission queue doorbell */
 };
@@ -143,11 +146,51 @@ static void apple_nvme_complete_cmd(struct nvme_queue *nvmeq,
 	nvmeq->sq_tail = tail;
 }
 
+static int nvme_shmem_setup(void *cookie, struct apple_rtkit_buffer *buf)
+{
+	struct apple_nvme_priv *priv = (struct apple_nvme_priv *)cookie;
+
+	if (!buf || buf->dva || !buf->size)
+		return -1;
+
+	buf->buffer = memalign(SZ_16K, ALIGN(buf->size, SZ_16K));
+	if (!buf->buffer)
+		return -ENOMEM;
+
+	if (!sart_add_allowed_region(priv->sart, buf->buffer, buf->size)) {
+		free(buf->buffer);
+		buf->buffer = NULL;
+		buf->size = 0;
+		return -1;
+	}
+
+	buf->dva = (u64)buf->buffer;
+
+	return 0;
+}
+
+static void nvme_shmem_destroy(void *cookie, struct apple_rtkit_buffer *buf)
+{
+	struct apple_nvme_priv *priv = (struct apple_nvme_priv *)cookie;
+
+	if (!buf)
+		return;
+
+	if (buf->buffer) {
+		sart_remove_allowed_region(priv->sart, buf->buffer, buf->size);
+		free(buf->buffer);
+		buf->buffer = NULL;
+		buf->size = 0;
+		buf->dva = 0;
+	}
+}
+
 static int apple_nvme_probe(struct udevice *dev)
 {
 	struct apple_nvme_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
-	u32 ctrl, stat;
+	ofnode of_sart;
+	u32 ctrl, stat, phandle;
 	int ret;
 
 	priv->base = dev_read_addr_ptr(dev);
@@ -167,12 +210,27 @@ static int apple_nvme_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
+	ret = dev_read_u32(dev, "apple,sart", &phandle);
+	if (ret < 0)
+		return ret;
+
+	of_sart = ofnode_get_by_phandle(phandle);
+	priv->sart = sart_init(of_sart);
+	if (!priv->sart)
+		return -EINVAL;
+
 	ctrl = readl(priv->asc + REG_CPU_CTRL);
 	writel(ctrl | REG_CPU_CTRL_RUN, priv->asc + REG_CPU_CTRL);
 
-	ret = apple_rtkit_init(&priv->chan);
-	if (ret < 0)
+	priv->rtk = apple_rtkit_init(&priv->chan, priv, nvme_shmem_setup, nvme_shmem_destroy);
+	if (!priv->rtk)
+		return -ENOMEM;
+
+	ret = apple_rtkit_boot(priv->rtk);
+	if (ret < 0) {
+		printf("%s: NVMe apple_rtkit_boot returned: %d\n", __func__, ret);
 		return ret;
+	}
 
 	ret = readl_poll_sleep_timeout(priv->base + ANS_BOOT_STATUS, stat,
 				       (stat == ANS_BOOT_STATUS_OK), 100,
@@ -206,10 +264,16 @@ static int apple_nvme_remove(struct udevice *dev)
 
 	nvme_shutdown(dev);
 
-	apple_rtkit_shutdown(&priv->chan, APPLE_RTKIT_PWR_STATE_SLEEP);
+	apple_rtkit_shutdown(priv->rtk, APPLE_RTKIT_PWR_STATE_SLEEP);
 
 	ctrl = readl(priv->asc + REG_CPU_CTRL);
 	writel(ctrl & ~REG_CPU_CTRL_RUN, priv->asc + REG_CPU_CTRL);
+
+	apple_rtkit_free(priv->rtk);
+	priv->rtk = NULL;
+
+	sart_free(priv->sart);
+	priv->sart = NULL;
 
 	reset_assert_bulk(&priv->resets);
 	reset_deassert_bulk(&priv->resets);
