@@ -41,9 +41,6 @@
 
 /* misc settings */
 
-/* setting board specific options */
-#define CONFIG_SYS_AUTOLOAD "yes"
-
 /*
  * SDRAM: 1 bank, 64 MB, base address 0x20000000
  * Already initialized before u-boot gets started.

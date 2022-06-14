@@ -33,7 +33,6 @@
 /* Ethernet need */
 #ifdef CONFIG_DWC_ETH_QOS
 #define CONFIG_SERVERIP                 192.168.1.1
-#define CONFIG_SYS_AUTOLOAD		"no"
 #endif
 
 /*****************************************************************************/

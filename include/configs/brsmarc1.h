@@ -27,7 +27,6 @@
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 BUR_COMMON_ENV \
-"autoload=0\0" \
 "scradr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 "cfgscr=mw ${dtbaddr} 0;" \
 " sf probe && sf read ${scradr} 0xC0000 0x10000 && source ${scradr};" \

@@ -26,7 +26,6 @@
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 BUR_COMMON_ENV \
-"autoload=0\0" \
 "scradr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 "bootaddr=0x80001100\0" \
 "bootdev=cpsw(0,0)\0" \

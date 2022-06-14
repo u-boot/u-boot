@@ -98,11 +98,6 @@
 #define I2C_DELAY	udelay(100)
 #define I2C_READ	at91_get_pio_value(AT91_PIO_PORTA, 23)
 
-/* DHCP/BOOTP options */
-#ifdef CONFIG_CMD_DHCP
-#define CONFIG_SYS_AUTOLOAD	"n"
-#endif
-
 /* File systems */
 
 /* Boot command */

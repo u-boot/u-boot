@@ -57,7 +57,6 @@
 	"stderr=serial\0"					\
 	"bootfile=uImage\0"					\
 	"loadaddr=0x800000\0"					\
-	"autoload=no\0"						\
 	"netconsole="						\
 		"set stdin $stdin,nc; "				\
 		"set stdout $stdout,nc; "			\

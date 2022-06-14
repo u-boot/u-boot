@@ -55,8 +55,6 @@
 	MMCARGS \
 	NANDARGS
 
-#define CONFIG_SYS_AUTOLOAD		"no"
-
 /* Serial console configuration */
 
 /* NS16550 Configuration */

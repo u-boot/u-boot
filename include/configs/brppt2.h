@@ -29,7 +29,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
-"autoload=0\0" \
 "cfgaddr=0x106F0000\0" \
 "scraddr=0x10700000\0" \
 "loadaddr=0x10800000\0" \

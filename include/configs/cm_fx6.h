@@ -43,7 +43,6 @@
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0" \
 	"panel=HDMI\0" \
-	"autoload=no\0" \
 	"uImage=uImage-cm-fx6\0" \
 	"zImage=zImage-cm-fx6\0" \
 	"kernel=uImage-cm-fx6\0" \

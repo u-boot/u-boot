@@ -19,8 +19,6 @@
 
 #define CONFIG_ROOTPATH		"/opt/eldk"
 
-#define CONFIG_SYS_AUTOLOAD	"yes"
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

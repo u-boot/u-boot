@@ -102,7 +102,6 @@ MMCSPI_TGTS \
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
 "verify=no\0" \
-"autoload=0\0" \
 "scraddr=" __stringify(LOAD_OFFSET(0000000)) "\0" \
 "cfgaddr=" __stringify(LOAD_OFFSET(0020000)) "\0" \
 "dtbaddr=" __stringify(LOAD_OFFSET(0040000)) "\0" \

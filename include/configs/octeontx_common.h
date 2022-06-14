@@ -18,7 +18,6 @@
 #include <config_distro_bootcmd.h>
 /* Extra environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"autoload=0\0"			\
 	"loadaddr=0x20080000\0"		\
 	"kernel_addr_r=0x02000000\0"	\
 	"ramdisk_addr_r=0x03000000\0"	\

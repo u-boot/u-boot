@@ -40,7 +40,6 @@
 	"stdout=serial\0" \
 	"stderr=serial\0" \
 	"loadaddr=0x800000\0" \
-	"autoload=no\0" \
 	"console=ttyS0,115200\0" \
 	"mtdparts="CONFIG_MTDPARTS_DEFAULT \
 	"optargs=\0" \
