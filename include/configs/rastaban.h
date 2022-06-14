@@ -37,9 +37,6 @@
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 
-/* Define own nand partitions */
-#define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
-
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"hostname=rastaban\0" \

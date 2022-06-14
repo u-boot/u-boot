@@ -27,9 +27,6 @@
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
-/* Define own nand partitions */
-#define CONFIG_ENV_RANGE        (4 * CONFIG_SYS_ENV_SECT_SIZE)
-
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"hostname=draco\0" \

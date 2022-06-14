@@ -91,11 +91,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-/* Environment organization */
-#ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_RANGE		(4 * 64 * 2048)
-#endif
-
 /* USB Host Support */
 
 /* USB DFU */

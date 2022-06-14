@@ -15,17 +15,6 @@
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* Max 1 GB RAM */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
-/* Environment */
-
-/* Environment is in MMC */
-
-/* Environment is in NAND */
-#if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_RANGE		(512 * 1024)
-#endif
-
-/* Environment is in SPI flash */
-
 /* UBI and NAND partitioning */
 
 /* RTC */

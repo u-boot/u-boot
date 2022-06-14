@@ -166,11 +166,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-/* environment organization */
-#if defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_ENV_RANGE	(4 * CONFIG_ENV_SIZE)
-#endif
-
 #ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

@@ -51,9 +51,6 @@
 #define CONFIG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_MXC_NAND_HWECC
-
-/* Environment is in NAND */
-#define CONFIG_ENV_RANGE		(0x00080000) /* 512 KiB */
 #endif
 
 /*

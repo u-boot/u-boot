@@ -88,11 +88,6 @@
 /* General Boot Parameter */
 
 /*
- * The NAND Flash partitions:
- */
-#define CONFIG_ENV_RANGE		(SZ_512K)
-
-/*
  * Predefined environment variables.
  * Usefull to define some easy to use boot commands.
  */

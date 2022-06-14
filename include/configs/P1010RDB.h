@@ -477,12 +477,6 @@ extern unsigned long get_sdram_size(void);
 #elif defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
 #define SPL_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
-#else
-#if defined(CONFIG_TARGET_P1010RDB_PA)
-#define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE) /* 3*16=48K for env */
-#elif defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_ENV_RANGE	(32 * CONFIG_ENV_SIZE) /* new block size 512K */
-#endif
 #endif
 #endif
 
