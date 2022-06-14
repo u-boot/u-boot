@@ -109,9 +109,6 @@ const char default_environment[] = {
 	"bootlimit="	__stringify(CONFIG_BOOTCOUNT_BOOTLIMIT)"\0"
 #endif
 #ifdef CONFIG_EXTRA_ENV_TEXT
-# ifdef CONFIG_EXTRA_ENV_SETTINGS
-# error "Your board uses a text-file environment, so must not define CONFIG_EXTRA_ENV_SETTINGS"
-# endif
 	/* This is created in the Makefile */
 	CONFIG_EXTRA_ENV_TEXT
 #endif
