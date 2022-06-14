@@ -5,6 +5,8 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <charset.h>
 #include <malloc.h>
@@ -12,6 +14,7 @@
 #include <dm/device.h>
 #include <efi_loader.h>
 #include <env.h>
+#include <log.h>
 #include <stdio_dev.h>
 #include <video_console.h>
 #include <linux/delay.h>
@@ -58,7 +61,12 @@ const efi_guid_t efi_guid_text_output_protocol =
 #define cESC '\x1b'
 #define ESC "\x1b"
 
-/* Default to mode 0 */
+/*
+ * efi_con_mode - mode information of the Simple Text Output Protocol
+ *
+ * Use safe settings before efi_setup_console_size() is called.
+ * By default enable only the 80x25 mode which must always exist.
+ */
 static struct simple_text_output_mode efi_con_mode = {
 	.max_mode = 1,
 	.mode = 0,
@@ -333,13 +341,13 @@ static int __maybe_unused query_vidconsole(int *rows, int *cols)
 }
 
 /**
- * query_console_size() - update the mode table.
+ * efi_setup_console_size() - update the mode table.
  *
  * By default the only mode available is 80x25. If the console has at least 50
  * lines, enable mode 80x50. If we can query the console size and it is neither
  * 80x25 nor 80x50, set it as an additional mode.
  */
-static void query_console_size(void)
+void efi_setup_console_size(void)
 {
 	int rows = 25, cols = 80;
 	int ret = -ENODEV;
@@ -350,6 +358,8 @@ static void query_console_size(void)
 		ret = query_console_serial(&rows, &cols);
 	if (ret)
 		return;
+
+	log_debug("Console size %dx%d\n", rows, cols);
 
 	/* Test if we can have Mode 1 */
 	if (cols >= 80 && rows >= 50) {
@@ -370,7 +380,6 @@ static void query_console_size(void)
 		efi_con_mode.mode = EFI_COUT_MODE_2;
 	}
 }
-
 
 /**
  * efi_cout_query_mode() - get terminal size for a text mode
@@ -1261,9 +1270,6 @@ efi_status_t efi_console_register(void)
 {
 	efi_status_t r;
 	struct efi_device_path *dp;
-
-	/* Set up mode information */
-	query_console_size();
 
 	/* Install protocols on root node */
 	r = EFI_CALL(efi_install_multiple_protocol_interfaces
