@@ -109,7 +109,6 @@
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 
 /* DDR Setup */
-#define CONFIG_SYS_DDR_RAW_TIMING
 #define SPD_EEPROM_ADDRESS		0x52
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef

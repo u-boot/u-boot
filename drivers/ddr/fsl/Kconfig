@@ -175,6 +175,13 @@ config ECC_INIT_VIA_DDRCONTROLLER
 	  Use the DDR controller to auto initialize memory.  If not enabled,
 	  the DMA controller is responsible for doing this.
 
+config SYS_DDR_RAW_TIMING
+	bool "Get DDR timing information from something other than SPD"
+	help
+	  This is common with soldered DDR chips onboard without SPD. DDR raw
+	  timing parameters are extracted from datasheet and hard-coded into
+	  header files or board specific files.
+
 endif
 
 menu "PowerPC / M68K initial memory controller definitions (FLASH, SDRAM, etc)"
