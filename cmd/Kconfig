@@ -1298,6 +1298,10 @@ config CMD_ONENAND
 	  and erasing blocks. It allso provides a way to show and change
 	  bad blocks, and test the device.
 
+config USE_ONENAND_BOARD_INIT
+	bool "Call onenand_board_init() in the onenand command"
+	depends on CMD_ONENAND
+
 config CMD_OSD
 	bool "osd"
 	help

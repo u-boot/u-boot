@@ -90,7 +90,6 @@
  * Boot configuration
  */
 
-#define CONFIG_USE_ONENAND_BOARD_INIT
 #define CONFIG_SYS_ONENAND_BASE		0xE7100000
 
 /*

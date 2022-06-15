@@ -87,7 +87,6 @@
 	"mmcrootpart=3\0" \
 	"opts=always_resume=1"
 
-#define CONFIG_USE_ONENAND_BOARD_INIT
 #define CONFIG_SYS_ONENAND_BASE		0x0C000000
 
 #define CONFIG_USB_GADGET_DWC2_OTG_PHY
