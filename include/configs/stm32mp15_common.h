@@ -16,10 +16,6 @@
 #define CONFIG_SYS_SDRAM_BASE			STM32_DDR_BASE
 
 /*
- * Console I/O buffer size
- */
-
-/*
  * For booting Linux, use the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
@@ -28,13 +24,6 @@
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
-/* SPL support */
-#ifdef CONFIG_SPL
-/* SPL use DDR */
-
-/* Restrict SPL to fit within SYSRAM */
-#define STM32_SYSRAM_END		(STM32_SYSRAM_BASE + STM32_SYSRAM_SIZE)
-#endif /* #ifdef CONFIG_SPL */
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 
