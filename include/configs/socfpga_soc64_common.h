@@ -89,11 +89,6 @@
  * Flash configurations
  */
 
-/* Ethernet on SoC (EMAC) */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_DW_ALTDESCRIPTOR
-#endif /* CONFIG_CMD_NET */
-
 /*
  * L4 Watchdog
  */

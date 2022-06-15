@@ -21,9 +21,6 @@
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
-/* 10/100M Ethernet support */
-#define CONFIG_DW_ALTDESCRIPTOR
-
 /* Environment configuration */
 
 #endif	/* __CONFIG_H */

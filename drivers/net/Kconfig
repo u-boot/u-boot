@@ -312,6 +312,7 @@ config ETH_DESIGNWARE_MESON8B
 config ETH_DESIGNWARE_SOCFPGA
 	select REGMAP
 	select SYSCON
+	select DW_ALTDESCRIPTOR
 	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
 	depends on DM_ETH && ETH_DESIGNWARE
 	help
@@ -325,6 +326,10 @@ config ETH_DESIGNWARE_S700
 	help
 	  This provides glue layer to use Synopsys Designware Ethernet MAC
 	  present on Actions S700 SoC.
+
+config DW_ALTDESCRIPTOR
+	bool "Designware Ethernet MAC uses alternate (enhanced) descriptors"
+	depends on ETH_DESIGNWARE
 
 config ETHOC
 	bool "OpenCores 10/100 Mbps Ethernet MAC"
