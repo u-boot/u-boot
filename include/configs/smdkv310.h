@@ -10,8 +10,6 @@
 
 #include "exynos4-common.h"
 
-#undef CONFIG_USB_GADGET_DWC2_OTG_PHY
-
 /* High Level Configuration Options */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 

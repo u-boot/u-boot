@@ -89,8 +89,6 @@
 
 #define CONFIG_SYS_ONENAND_BASE		0x0C000000
 
-#define CONFIG_USB_GADGET_DWC2_OTG_PHY
-
 #ifndef	__ASSEMBLY__
 void universal_spi_scl(int bit);
 void universal_spi_sda(int bit);
