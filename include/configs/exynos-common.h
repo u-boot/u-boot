@@ -18,9 +18,6 @@
 
 /* select serial console configuration */
 
-/* PWM */
-#define CONFIG_PWM
-
 /* Miscellaneous configurable options */
 
 #endif	/* __CONFIG_H */

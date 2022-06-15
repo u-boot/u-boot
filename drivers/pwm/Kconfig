@@ -84,6 +84,11 @@ config PWM_SANDBOX
 	  useful. The PWM can be enabled but is not connected to any outputs
 	  so this is not very useful.
 
+config PWM_S5P
+	bool "Enable non-DM support for S5P PWM"
+	depends on (S5P || ARCH_NEXELL)
+	default y
+
 config PWM_SIFIVE
 	bool "Enable support for SiFive PWM"
 	depends on DM_PWM

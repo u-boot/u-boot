@@ -24,9 +24,6 @@
  * select serial console configuration
  */
 
-/* PWM */
-#define CONFIG_PWM			1
-
 #define COMMON_BOOT	"console=ttySAC0,115200n8" \
 				" mem=128M " \
 				" " CONFIG_MTDPARTS_DEFAULT

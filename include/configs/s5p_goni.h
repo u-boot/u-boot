@@ -21,9 +21,6 @@
 /* MMC */
 #define SDHCI_MAX_HOSTS		4
 
-/* PWM */
-#define CONFIG_PWM			1
-
 /* USB Composite download gadget - g_dnl */
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
