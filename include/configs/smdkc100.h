@@ -89,16 +89,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
 
-#if !defined(CONFIG_NAND_SPL) && (CONFIG_SYS_TEXT_BASE >= 0xc0000000)
-#define CONFIG_ENABLE_MMU
-#endif
-
-#ifdef CONFIG_ENABLE_MMU
-#define CONFIG_SYS_MAPPED_RAM_BASE	0xc0000000
-#else
-#define CONFIG_SYS_MAPPED_RAM_BASE	CONFIG_SYS_SDRAM_BASE
-#endif
-
 /*-----------------------------------------------------------------------
  * Boot configuration
  */
