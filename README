@@ -388,10 +388,6 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
 
-		CONFIG_SYS_FSL_DDR_EMU
-		Specify emulator support for DDR. Some DDR features such as
-		deskew training are not available.
-
 		CONFIG_SYS_FSL_DDRC_GEN1
 		Freescale DDR1 controller.
 

@@ -10,6 +10,12 @@ config SYS_FSL_MMDC
 	help
 	  Select Freescale Multi Mode DDR controller (MMDC).
 
+config SYS_FSL_DDR_EMU
+	bool
+	help
+	  Specify emulator support for DDR. Some DDR features such as deskew
+	  training are not available.
+
 if SYS_FSL_DDR || SYS_FSL_MMDC
 
 config SYS_FSL_DDR_BE
