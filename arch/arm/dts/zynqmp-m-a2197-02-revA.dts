@@ -190,10 +190,6 @@
 				compatible = "ti,tps544b25";
 				reg = <0x1e>;
 			};
-			reg_vpp_2v5_ddr4: tps544@1x { /* u3007 */
-				compatible = "ti,tps544b25";
-				reg = <0x17>; /* FIXME wrong in schematics */
-			};
 		};
 		i2c@1 { /* PMBUS_INA226 */
 			#address-cells = <1>;

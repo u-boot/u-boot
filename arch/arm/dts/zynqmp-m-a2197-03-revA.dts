@@ -190,9 +190,9 @@
 				compatible = "ti,tps544b25";
 				reg = <0x1e>;
 			};
-			reg_vpp_2v5_ddr4: tps544@1x { /* u3007 */
+			reg_vcc1v2_ddr4: tps544@18 { /* u3022 */
 				compatible = "ti,tps544b25";
-				reg = <0x17>; /* FIXME wrong in schematics */
+				reg = <0x18>;
 			};
 		};
 		i2c@1 { /* PMBUS_INA226 */
