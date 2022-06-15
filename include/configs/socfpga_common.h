@@ -66,7 +66,6 @@
 /*
  * L4 Watchdog
  */
-#define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #define CONFIG_DW_WDT_CLOCK_KHZ		25000
 
 /*
