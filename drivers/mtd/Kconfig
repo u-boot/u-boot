@@ -168,6 +168,9 @@ config STM32_FLASH
 	 This is the driver of embedded flash for some STMicroelectronics
 	 STM32 MCU.
 
+config SAMSUNG_ONENAND
+	bool "Samsung OneNAND driver support"
+
 config USE_SYS_MAX_FLASH_BANKS
 	bool "Enable Max number of Flash memory banks"
 	help
