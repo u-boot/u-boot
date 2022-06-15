@@ -11,8 +11,6 @@
 
 #define CONFIG_SYS_RAMBOOT
 
-#define CONFIG_ENABLE_36BIT_PHYS
-
 /* Needed to fill the ccsrbar pointer */
 
 /* Virtual address to CCSRBAR */

@@ -108,9 +108,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 
-
-#define CONFIG_ENABLE_36BIT_PHYS
-
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_SPD_BUS_NUM		1

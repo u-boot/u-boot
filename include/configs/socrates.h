@@ -22,7 +22,6 @@
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
-#define CONFIG_ENABLE_36BIT_PHYS	1
 
 /*
  * sysclk for MPC85xx

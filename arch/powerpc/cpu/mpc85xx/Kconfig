@@ -1185,6 +1185,9 @@ config SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to
 		eLBC controller).
 
+config ENABLE_36BIT_PHYS
+	bool "Enable 36bit physical address space support"
+
 config SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up"
 	depends on MPC85xx

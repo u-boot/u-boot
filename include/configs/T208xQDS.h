@@ -22,7 +22,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */
-#define CONFIG_ENABLE_36BIT_PHYS
 
 #define CONFIG_SYS_FSL_CPC	/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS

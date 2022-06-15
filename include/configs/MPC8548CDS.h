@@ -34,7 +34,6 @@
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
-#define CONFIG_ENABLE_36BIT_PHYS	1
 
 #define CONFIG_SYS_CCSRBAR		0xe0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR

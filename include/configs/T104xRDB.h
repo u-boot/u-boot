@@ -83,8 +83,6 @@
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
-#define CONFIG_ENABLE_36BIT_PHYS
-
 /*
  *  Config the L3 Cache as L3 SRAM
  */
