@@ -647,9 +647,6 @@ void i2c_early_init_f(void);
 #if !defined(CONFIG_SYS_RTC_BUS_NUM)
 #define CONFIG_SYS_RTC_BUS_NUM		0
 #endif
-#if !defined(CONFIG_SYS_SPD_BUS_NUM)
-#define CONFIG_SYS_SPD_BUS_NUM		0
-#endif
 
 struct i2c_adapter {
 	void		(*init)(struct i2c_adapter *adap, int speed,

@@ -116,7 +116,6 @@
 
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_SYS_SPD_BUS_NUM 1
 #define SPD_EEPROM_ADDRESS 0x52
 
 #if defined(CONFIG_TARGET_P1020RDB_PD)
@@ -345,8 +344,6 @@
 #if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x29} }
 #endif
-
-#define CONFIG_SYS_SPD_BUS_NUM		1 /* For rom_loc and flash bank */
 
 /*
  * I2C2 EEPROM

@@ -263,8 +263,6 @@
  */
 #if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
-#else
-#define CONFIG_SYS_SPD_BUS_NUM 0
 #endif
 
 /* EEPROM */

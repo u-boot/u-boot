@@ -110,7 +110,6 @@
 
 /* DDR Setup */
 #define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_SYS_SPD_BUS_NUM		1
 #define SPD_EEPROM_ADDRESS		0x52
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef

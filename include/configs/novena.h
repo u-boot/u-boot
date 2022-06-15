@@ -39,7 +39,6 @@
 
 /* I2C */
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_SPD_BUS_NUM		0
 
 /* I2C EEPROM */
 

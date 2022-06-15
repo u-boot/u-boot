@@ -118,8 +118,6 @@
 #define CONFIG_SYS_LIME_BASE		0xc8000000
 #define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/
 
-#define CONFIG_SYS_SPD_BUS_NUM 0
-
 /*
  * General PCI
  * Memory space is mapped 1-1.

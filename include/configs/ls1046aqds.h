@@ -13,7 +13,6 @@
 /* Physical Memory Map */
 
 #define SPD_EEPROM_ADDRESS		0x51
-#define CONFIG_SYS_SPD_BUS_NUM		0
 
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef

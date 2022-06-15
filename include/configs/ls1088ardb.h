@@ -17,7 +17,6 @@
 
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS	0x51
-#define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
 
 
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)

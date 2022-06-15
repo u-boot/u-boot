@@ -1302,11 +1302,6 @@ The following options need to be configured:
 
 		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
 
-		CONFIG_SYS_SPD_BUS_NUM
-
-		If defined, then this indicates the I2C bus number for DDR SPD.
-		If not defined, then U-Boot assumes that SPD is on I2C bus 0.
-
 		CONFIG_SYS_RTC_BUS_NUM
 
 		If defined, then this indicates the I2C bus number for the RTC.
