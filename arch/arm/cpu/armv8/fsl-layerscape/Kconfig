@@ -511,6 +511,11 @@ config DP_DDR_CTRL
 	depends on SYS_FSL_HAS_DP_DDR
 	default 2 if ARCH_LS2080A
 
+config DP_DDR_DIMM_SLOTS_PER_CTLR
+	int
+	depends on SYS_FSL_HAS_DP_DDR
+	default 1 if ARCH_LS2080A
+
 config DP_DDR_NUM_CTRLS
 	int
 	depends on SYS_FSL_HAS_DP_DDR

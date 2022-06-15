@@ -30,9 +30,6 @@
 #define SPD_EEPROM_ADDRESS6	0x56	/* dummy address */
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1
 #define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
-#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-#define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
-#endif
 
 #if !defined(CONFIG_FSL_QSPI) || defined(CONFIG_TFABOOT)
 
