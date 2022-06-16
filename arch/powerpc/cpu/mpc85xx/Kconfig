@@ -187,6 +187,7 @@ config ARCH_B4420
 	select E500MC
 	select E6500
 	select FSL_LAW
+	select HETROGENOUS_CLUSTERS
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004477
 	select SYS_FSL_ERRATUM_A005871
@@ -214,6 +215,7 @@ config ARCH_B4860
 	select E500MC
 	select E6500
 	select FSL_LAW
+	select HETROGENOUS_CLUSTERS
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004477
 	select SYS_FSL_ERRATUM_A005871
@@ -822,6 +824,9 @@ config FSL_LAW
 	help
 		Use Freescale common code for Local Access Window
 
+config HETROGENOUS_CLUSTERS
+	bool
+
 config NXP_ESBC
 	bool	"NXP_ESBC"
 	help
@@ -1120,6 +1125,35 @@ config SYS_NUM_TLBCAMS
 	help
 		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
 		16 for other E500 SoCs.
+
+if HETROGENOUS_CLUSTERS
+
+config SYS_MAPLE
+	def_bool y
+
+config SYS_CPRI
+	def_bool y
+
+config PPC_CLUSTER_START
+	int
+	default 0
+
+config DSP_CLUSTER_START
+	int
+	default 1
+
+config SYS_CPRI_CLK
+	int
+	default 3
+
+config SYS_ULB_CLK
+	int
+	default 4
+
+config SYS_ETVPE_CLK
+	int
+	default 1
+endif
 
 config BACKSIDE_L2_CACHE
 	bool

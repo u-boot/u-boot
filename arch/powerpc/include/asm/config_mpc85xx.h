@@ -206,19 +206,11 @@
 #elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420)
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
-#define CONFIG_HETROGENOUS_CLUSTERS     /* DSP/SC3900 core clusters */
-#define CONFIG_PPC_CLUSTER_START	0 /*Start index of ppc clusters*/
-#define CONFIG_DSP_CLUSTER_START	1 /*Start index of dsp clusters*/
 #define CONFIG_SYS_FSL_SRDS_1
 #define CONFIG_SYS_FSL_SRDS_2
-#define CONFIG_SYS_MAPLE
-#define CONFIG_SYS_CPRI
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	5
 #define CONFIG_SYS_NUM_FMAN		1
 #define CONFIG_SYS_FM1_CLK		0
-#define CONFIG_SYS_CPRI_CLK		3
-#define CONFIG_SYS_ULB_CLK		4
-#define CONFIG_SYS_ETVPE_CLK		1
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	4
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
