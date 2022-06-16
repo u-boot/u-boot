@@ -9,24 +9,15 @@
 #include "config.h"
 
 OUTPUT_ARCH(powerpc)
-#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
-PHDRS
-{
-	text PT_LOAD;
-	bss PT_LOAD;
-}
-#endif
+
 SECTIONS
 {
-/* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
-#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
-	.bootpg IMAGE_TEXT_BASE - 0x1000 :
-	{
-		KEEP(*(.bootpg))
-	} :text = 0xffff
-#endif
 	. = IMAGE_TEXT_BASE;
 	.text : {
+/* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+		KEEP(*(.bootpg))
+#endif
 		*(.text*)
 	}
 	_etext = .;
