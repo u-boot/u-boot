@@ -92,8 +92,6 @@
 #define CONFIG_SPL_UBOOT_KEY_HASH	NULL
 #endif /* ifdef CONFIG_SPL_BUILD */
 
-#define CONFIG_FSL_SEC_MON
-
 #ifndef CONFIG_SPL_BUILD
 /*
  * fsl_setenv_chain_of_trust() must be called from

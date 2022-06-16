@@ -275,6 +275,20 @@ config FSL_SEC_MON
 	  Security Monitor can be transitioned on any security failures,
 	  like software violations or hardware security violations.
 
+choice
+	prompt "Security monitor interaction endianess"
+	depends on FSL_SEC_MON
+	default SYS_FSL_SEC_MON_BE if PPC
+	default SYS_FSL_SEC_MON_LE
+
+config SYS_FSL_SEC_MON_LE
+	bool "Security monitor interactions are little endian"
+
+config SYS_FSL_SEC_MON_BE
+	bool "Security monitor interactions are big endian"
+
+endchoice
+
 config IRQ
 	bool "Interrupt controller"
 	help

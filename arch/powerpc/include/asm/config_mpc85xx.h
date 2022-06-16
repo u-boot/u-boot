@@ -19,7 +19,6 @@
 /* IP endianness */
 #define CONFIG_SYS_FSL_IFC_BE
 #define CONFIG_SYS_FSL_SFP_BE
-#define CONFIG_SYS_FSL_SEC_MON_BE
 
 #if defined(CONFIG_ARCH_MPC8548)
 #define CONFIG_SYS_FSL_SRIO_MAX_PORTS	1
