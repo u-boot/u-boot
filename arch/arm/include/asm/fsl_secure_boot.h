@@ -25,14 +25,6 @@
 
 #define CONFIG_KEY_REVOCATION
 
-#if defined(CONFIG_FSL_LAYERSCAPE)
-/*
- * For fsl layerscape based platforms, ESBC image Address in Header
- * is 64 bit.
- */
-#define CONFIG_ESBC_ADDR_64BIT
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images

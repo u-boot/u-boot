@@ -24,6 +24,15 @@ config CMD_ESBC_VALIDATE
 	    esbc_validate - validate signature using RSA verification
 	    esbc_halt - put the core in spin loop (Secure Boot Only)
 
+config ESBC_HDR_LS
+	bool
+
+config ESBC_ADDR_64BIT
+	def_bool y
+	depends on ESBC_HDR_LS && FSL_LAYERSCAPE
+	help
+	  For Layerscape based platforms, ESBC image Address in Header is 64bit.
+
 config DEEP_SLEEP
 	bool "Enable SoC deep sleep feature"
 	depends on ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || ARCH_LS1021A

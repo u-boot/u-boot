@@ -63,9 +63,6 @@
 /* Security Monitor */
 #define CONFIG_SYS_FSL_SEC_MON_LE
 
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
-
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
 
@@ -168,9 +165,6 @@
 /* Security Monitor */
 #define CONFIG_SYS_FSL_SEC_MON_LE
 
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
-
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC	1
@@ -222,9 +216,6 @@
 
 /* Security Monitor */
 #define CONFIG_SYS_FSL_SEC_MON_LE
-
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
 
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
@@ -284,9 +275,6 @@
 
 /* Security Monitor */
 #define CONFIG_SYS_FSL_SEC_MON_LE
-
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
 
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
