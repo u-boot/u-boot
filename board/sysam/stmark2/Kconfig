@@ -3,6 +3,9 @@ if TARGET_STMARK2
 config CF_SBF
 	def_bool y
 
+config EXTRA_CLOCK
+	def_bool y
+
 config SYS_INPUT_CLKSRC
 	hex
 	default 30000000

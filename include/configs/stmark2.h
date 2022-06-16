@@ -41,7 +41,6 @@
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 
 /* Input, PCI, Flexbus, and VCO */
-#define CONFIG_EXTRA_CLOCK
 
 #define CONFIG_PRAM			2048	/* 2048 KB */
 
