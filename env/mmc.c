@@ -257,12 +257,15 @@ static inline int erase_env(struct mmc *mmc, unsigned long size,
 {
 	uint blk_start, blk_cnt, n;
 	struct blk_desc *desc = mmc_get_blk_desc(mmc);
+	u32 erase_size;
 
-	blk_start	= ALIGN(offset, mmc->write_bl_len) / mmc->write_bl_len;
-	blk_cnt		= ALIGN(size, mmc->write_bl_len) / mmc->write_bl_len;
+	erase_size = mmc->erase_grp_size * desc->blksz;
+	blk_start = ALIGN_DOWN(offset, erase_size) / desc->blksz;
+	blk_cnt = ALIGN(size, erase_size) / desc->blksz;
 
 	n = blk_derase(desc, blk_start, blk_cnt);
-	printf("%d blocks erased: %s\n", n, (n == blk_cnt) ? "OK" : "ERROR");
+	printf("%d blocks erased at 0x%x: %s\n", n, blk_start,
+	       (n == blk_cnt) ? "OK" : "ERROR");
 
 	return (n == blk_cnt) ? 0 : 1;
 }
@@ -286,6 +289,7 @@ static int env_mmc_erase(void)
 		goto fini;
 	}
 
+	printf("\n");
 	ret = erase_env(mmc, CONFIG_ENV_SIZE, offset);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
