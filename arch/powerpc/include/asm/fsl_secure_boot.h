@@ -31,7 +31,6 @@
 #ifndef CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_CPC_REINIT_F
 #endif
-#define CONFIG_KEY_REVOCATION
 #undef CONFIG_SYS_INIT_L3_ADDR
 #define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
 #endif
@@ -45,10 +44,6 @@
 #else
 #define CONFIG_SYS_INIT_L3_ADDR		0xbff00000
 #endif
-#endif
-
-#if defined(CONFIG_TARGET_C29XPCIE)
-#define CONFIG_KEY_REVOCATION
 #endif
 
 #if defined(CONFIG_ARCH_P3041)	||	\

@@ -18,7 +18,6 @@
 
 /* IP endianness */
 #define CONFIG_SYS_FSL_IFC_BE
-#define CONFIG_SYS_FSL_SFP_BE
 
 #if defined(CONFIG_ARCH_MPC8548)
 #define CONFIG_SYS_FSL_SRIO_MAX_PORTS	1
@@ -199,7 +198,6 @@
 #define CONFIG_SYS_FSL_SRIO_LIODN
 #define CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE
 #define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 #define CONFIG_SYS_FSL_PCI_VER_3_X
 
 #elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420)
@@ -216,7 +214,6 @@
 #define CONFIG_SYS_FSL_TBCLK_DIV	16
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.4"
 #define CONFIG_SYS_FSL_USB1_PHY_ENABLE
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #ifdef CONFIG_ARCH_B4860
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
@@ -264,7 +261,6 @@
 #define QE_MURAM_SIZE			0x6000UL
 #define MAX_QE_RISC			1
 #define QE_NUM_OF_SNUM			28
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #elif defined(CONFIG_ARCH_T1024)
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
@@ -291,7 +287,6 @@
 #define QE_MURAM_SIZE			0x6000UL
 #define MAX_QE_RISC			1
 #define QE_NUM_OF_SNUM			28
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #elif defined(CONFIG_ARCH_T2080)
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
@@ -321,10 +316,8 @@
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v3.0"
 #define CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE
 #define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 #define CONFIG_SYS_FSL_ISBC_VER		2
 #define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 
 #elif defined(CONFIG_ARCH_C29X)

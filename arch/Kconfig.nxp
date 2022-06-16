@@ -34,6 +34,39 @@ config ESBC_ADDR_64BIT
 	help
 	  For Layerscape based platforms, ESBC image Address in Header is 64bit.
 
+config SYS_FSL_SFP_BE
+	def_bool y
+	depends on CHAIN_OF_TRUST && (PPC || FSL_LSCH2 || ARCH_LS1021A)
+
+config SYS_FSL_SFP_LE
+	def_bool y
+	depends on CHAIN_OF_TRUST && !SYS_FSL_SFP_BE
+
+choice
+	prompt "SFP IP revision"
+	depends on CHAIN_OF_TRUST
+	default SYS_FSL_SFP_VER_3_0 if PPC
+	default SYS_FSL_SFP_VER_3_4
+
+config SYS_FSL_SFP_VER_3_0
+	bool "SFP version 3.0"
+
+config SYS_FSL_SFP_VER_3_2
+	bool "SFP version 3.2"
+
+config SYS_FSL_SFP_VER_3_4
+	bool "SFP version 3.4"
+
+endchoice
+
+config SYS_FSL_SRK_LE
+	def_bool y
+	depends on CHAIN_OF_TRUST && ARM
+
+config KEY_REVOCATION
+	def_bool y
+	depends on CHAIN_OF_TRUST
+
 config DEEP_SLEEP
 	bool "Enable SoC deep sleep feature"
 	depends on ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || ARCH_LS1021A

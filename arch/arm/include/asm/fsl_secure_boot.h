@@ -21,8 +21,6 @@
 #define CONFIG_SPL_UBOOT_KEY_HASH	NULL
 #endif /* ifdef CONFIG_SPL_BUILD */
 
-#define CONFIG_KEY_REVOCATION
-
 #ifndef CONFIG_SPL_BUILD
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images

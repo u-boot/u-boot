@@ -24,8 +24,6 @@
 #define sfp_in32(a)       in_be32(a)
 #define sfp_out32(a, v)   out_be32(a, v)
 #define sfp_in16(a)       in_be16(a)
-#else
-#error Neither CONFIG_SYS_FSL_SFP_LE nor CONFIG_SYS_FSL_SFP_BE is defined
 #endif
 
 /* Number of SRKH registers */
