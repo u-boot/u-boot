@@ -58,7 +58,9 @@
 	};
 
 
-	flash {
+	spl {
+		filename = "spl.bin";
+
 		mkimage {
 			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x912000";
 

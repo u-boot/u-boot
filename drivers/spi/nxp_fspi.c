@@ -866,9 +866,6 @@ static int nxp_fspi_default_setup(struct nxp_fspi *f)
 	u32 reg;
 
 #if CONFIG_IS_ENABLED(CLK)
-	/* disable and unprepare clock to avoid glitch pass to controller */
-	nxp_fspi_clk_disable_unprep(f);
-
 	/* the default frequency, we will change it later if necessary. */
 	ret = clk_set_rate(&f->clk, 20000000);
 	if (ret < 0)

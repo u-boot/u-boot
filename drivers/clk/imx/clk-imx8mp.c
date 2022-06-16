@@ -122,15 +122,15 @@ static const char *imx8mp_gic_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_p
 					"sys_pll2_100m", "sys_pll1_800m",
 					"sys_pll2_500m", "clk_ext4", "audio_pll2_out" };
 
-static const char *imx8mp_ecspi1_sels[] = {"clock-osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mp_ecspi1_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 						  "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						  "sys_pll2_250m", "audio_pll2_out", };
 
-static const char *imx8mp_ecspi2_sels[] = {"clock-osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mp_ecspi2_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 						  "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						  "sys_pll2_250m", "audio_pll2_out", };
 
-static const char *imx8mp_ecspi3_sels[] = {"clock-osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mp_ecspi3_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 						  "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						  "sys_pll2_250m", "audio_pll2_out", };
 
@@ -300,7 +300,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_UART2_ROOT, imx_clk_gate4("uart2_root_clk", "uart2", base + 0x44a0, 0));
 	clk_dm(IMX8MP_CLK_UART3_ROOT, imx_clk_gate4("uart3_root_clk", "uart3", base + 0x44b0, 0));
 	clk_dm(IMX8MP_CLK_UART4_ROOT, imx_clk_gate4("uart4_root_clk", "uart4", base + 0x44c0, 0));
-	clk_dm(IMX8MP_CLK_USB_ROOT, imx_clk_gate4("usb_root_clk", "osc_32k", base + 0x44d0, 0));
+	clk_dm(IMX8MP_CLK_USB_ROOT, imx_clk_gate4("usb_root_clk", "usb_core_ref", base + 0x44d0, 0));
 	clk_dm(IMX8MP_CLK_USB_PHY_ROOT, imx_clk_gate4("usb_phy_root_clk", "usb_phy_ref", base + 0x44f0, 0));
 	clk_dm(IMX8MP_CLK_USDHC1_ROOT, imx_clk_gate4("usdhc1_root_clk", "usdhc1", base + 0x4510, 0));
 	clk_dm(IMX8MP_CLK_USDHC2_ROOT, imx_clk_gate4("usdhc2_root_clk", "usdhc2", base + 0x4520, 0));
