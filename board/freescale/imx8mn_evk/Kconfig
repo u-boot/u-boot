@@ -15,6 +15,4 @@ config IMX8MN_LOW_DRIVE_MODE
 config IMX_CONFIG
 	default "board/freescale/imx8mn_evk/imximage-8mn-ddr4.cfg"
 
-source "board/freescale/common/Kconfig"
-
 endif

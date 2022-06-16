@@ -16,7 +16,8 @@ config CHAIN_OF_TRUST
 
 config CMD_ESBC_VALIDATE
 	bool "Enable the 'esbc_validate' and 'esbc_halt' commands"
-	default y if CHAIN_OF_TRUST
+	depends on CHAIN_OF_TRUST
+	default y
 	help
 	  This option enables two commands used for secure booting:
 
@@ -25,26 +26,28 @@ config CMD_ESBC_VALIDATE
 
 config DEEP_SLEEP
 	bool "Enable SoC deep sleep feature"
-	default y if ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || ARCH_LS1021A
+	depends on ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || ARCH_LS1021A
+	default y
 	help
 	  Indicates this SoC supports deep sleep feature. If deep sleep is
 	  supported, core will start to execute uboot when wakes up.
 
 config FSL_USE_PCA9547_MUX
 	bool "Enable PCA9547 I2C Mux on Freescale boards"
+	depends on PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
 	help
 	 This option enables the PCA9547 I2C mux on Freescale boards.
 
 config VID
 	bool "Enable Freescale VID"
-	depends on I2C || DM_I2C
+	depends on (PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3) && (I2C || DM_I2C)
 	help
 	 This option enables setting core voltage based on individual
 	 values saved in SoC fuses.
 
 config SPL_VID
 	bool "Enable Freescale VID in SPL"
-	depends on I2C || DM_I2C
+	depends on (PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3) && (SPL_I2C || DM_SPL_I2C)
 	help
 	 This option enables setting core voltage based on individual
 	 values saved in SoC fuses, in SPL.
@@ -103,6 +106,7 @@ endif
 
 config FSL_QIXIS
 	bool "Enable QIXIS support"
+	depends on PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
 
 config QIXIS_I2C_ACCESS
 	bool "Access to QIXIS is over i2c"

@@ -12,6 +12,4 @@ config SYS_CONFIG_NAME
 config T2080RDB_REV_D
 	bool "Support for T2080RDB revisions D and up"
 
-source "board/freescale/common/Kconfig"
-
 endif

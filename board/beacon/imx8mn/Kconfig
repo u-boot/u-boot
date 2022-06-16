@@ -18,6 +18,4 @@ config IMX8MN_BEACON_2GB_LPDDR
 config IMX_CONFIG
 	default "board/beacon/imx8mn/imximage-8mn-lpddr4.cfg"
 
-source "board/freescale/common/Kconfig"
-
 endif

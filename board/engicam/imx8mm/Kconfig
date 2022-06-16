@@ -12,6 +12,4 @@ config SYS_CONFIG_NAME
 config IMX_CONFIG
 	default "arch/arm/mach-imx/imx8m/imximage-8mm-lpddr4.cfg"
 
-source "board/freescale/common/Kconfig"
-
 endif

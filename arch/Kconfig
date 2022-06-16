@@ -451,6 +451,7 @@ source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"
 source "arch/riscv/Kconfig"
 
+source "board/freescale/common/Kconfig"
 source "board/keymile/Kconfig"
 
 if MIPS || MICROBLAZE
