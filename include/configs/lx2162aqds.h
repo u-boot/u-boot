@@ -13,16 +13,6 @@
 /* RTC */
 #define CONFIG_SYS_RTC_BUS_NUM		0
 
-/*
- * MMC
- */
-#ifdef CONFIG_MMC
-#ifndef __ASSEMBLY__
-u8 qixis_esdhc_detect_quirk(void);
-#endif
-#define CONFIG_ESDHC_DETECT_QUIRK  qixis_esdhc_detect_quirk()
-#endif
-
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0

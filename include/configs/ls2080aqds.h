@@ -239,14 +239,6 @@
 #define FSL_QIXIS_BRDCFG9_QSPI		0x1
 
 /*
- * MMC
- */
-#ifdef CONFIG_MMC
-#define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
-	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
-#endif
-
-/*
  * RTC configuration
  */
 #define RTC

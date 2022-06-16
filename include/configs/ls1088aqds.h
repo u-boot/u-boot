@@ -305,10 +305,6 @@
 
 #define CONFIG_FSL_MEMAC
 
-/*  MMC  */
-#define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
-	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
-
 #define COMMON_ENV \
 	"kernelheader_addr_r=0x80200000\0"	\
 	"fdtheader_addr_r=0x80100000\0"		\

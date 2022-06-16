@@ -844,6 +844,10 @@ config SYS_FSL_ESDHC_DEFAULT_BUS_WIDTH
 	depends on FSL_ESDHC
 	default 1
 
+config ESDHC_DETECT_QUIRK
+	bool "QIXIS-based eSDHC quirk detection"
+	depends on FSL_ESDHC && FSL_QIXIS
+
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
 	help
