@@ -16,7 +16,6 @@
 /* SPL options */
 #include "imx6_spl.h"
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC

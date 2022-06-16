@@ -19,7 +19,6 @@
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CONFIG_MALLOC_F_ADDR				0x184000
 /* For RAW image gives a error info not panic */
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
 #define CONFIG_POWER_PCA9450
 
@@ -88,8 +87,5 @@
 #define PHYS_SDRAM_SIZE			(SZ_2G + SZ_1G)
 #define PHYS_SDRAM_2			0x100000000
 #define PHYS_SDRAM_2_SIZE		(SZ_4G + SZ_1G)
-
-/* UART */
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
 
 #endif /* __VERDIN_IMX8MP_H */

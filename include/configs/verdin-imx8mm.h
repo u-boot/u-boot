@@ -19,7 +19,6 @@
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CONFIG_MALLOC_F_ADDR		0x930000
 /* For RAW image gives a error info not panic */
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 #endif
 
 #define MEM_LAYOUT_ENV_SETTINGS \
@@ -71,9 +70,6 @@
 /* SDRAM configuration */
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			SZ_2G /* 2GB DDR */
-
-/* UART */
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(1)
 
 /* ENET */
 #define CONFIG_FEC_MXC_PHYADDR          7

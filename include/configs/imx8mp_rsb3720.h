@@ -32,7 +32,6 @@
 						  * set \
 						  */
 
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
 #if defined(CONFIG_NAND_BOOT)
 #define CONFIG_SPL_NAND_MXS

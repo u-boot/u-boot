@@ -18,7 +18,6 @@
 #define CONFIG_MALLOC_F_ADDR		0x184000
 
 /* For RAW image gives a error info not panic */
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
 #endif /* CONFIG_SPL_BUILD */
 
@@ -95,7 +94,5 @@
 #else
 #define PHYS_SDRAM_SIZE		0x40000000 /* 1GB DDR */
 #endif
-
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(2)
 
 #endif

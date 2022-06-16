@@ -14,10 +14,8 @@
 #define CONFIG_HOSTNAME		"aristainetos2"
 
 #if (CONFIG_SYS_BOARD_VERSION == 5)
-#define CONFIG_MXC_UART_BASE	UART2_BASE
 #define CONSOLE_DEV	"ttymxc1"
 #elif (CONFIG_SYS_BOARD_VERSION == 6)
-#define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV	"ttymxc0"
 #endif
 

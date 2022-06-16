@@ -20,7 +20,6 @@
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CONFIG_MALLOC_F_ADDR		0x912000
 /* For RAW image gives a error info not panic */
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
 
 #endif
 
@@ -133,8 +132,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
-
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
 
 /* USDHC */
 

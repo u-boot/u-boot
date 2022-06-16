@@ -28,12 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
-
-static const iomux_v3_cfg_t wdog_pads[] = {
-	MX8MP_PAD_GPIO1_IO02__WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
-};
-
 #ifdef CONFIG_NAND_MXS
 static void setup_gpmi_nand(void)
 {
@@ -69,12 +63,6 @@ u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 
 int board_early_init_f(void)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
-	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
-
-	set_wdog_reset(wdog);
-
 	init_uart_clk(2);
 
 	return 0;
