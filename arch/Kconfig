@@ -451,7 +451,12 @@ source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"
 source "arch/riscv/Kconfig"
 
-source "board/freescale/common/Kconfig"
+if ARM || M68K || PPC
+
+source "arch/Kconfig.nxp"
+
+endif
+
 source "board/keymile/Kconfig"
 
 if MIPS || MICROBLAZE
