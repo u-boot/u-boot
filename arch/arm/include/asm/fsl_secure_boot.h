@@ -24,76 +24,6 @@
 
 #endif
 
-#ifdef CONFIG_ARCH_LS2080A
-#define CONFIG_EXTRA_ENV \
-	"setenv fdt_high 0xa0000000;"	\
-	"setenv initrd_high 0xcfffffff;"	\
-	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
-#else
-#define CONFIG_EXTRA_ENV \
-	"setenv fdt_high 0xffffffff;"	\
-	"setenv initrd_high 0xffffffff;"	\
-	"setenv hwconfig \'fsl_ddr:ctlr_intlv=null,bank_intlv=null\';"
-#endif
-
-/* Copying Bootscript and Header to DDR from NOR for LS2 and for rest, from
- * Non-XIP Memory (Nand/SD)*/
-#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_FSL_LSCH3) || \
-	defined(CONFIG_SD_BOOT) || defined(CONFIG_NAND_BOOT)
-#define CONFIG_BOOTSCRIPT_COPY_RAM
-#endif
-/* The address needs to be modified according to NOR, NAND, SD and
- * DDR memory map
- */
-#ifdef CONFIG_FSL_LSCH3
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_BS_ADDR_DEVICE		0x20600000
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x20640000
-#else /* NOR BOOT */
-#define CONFIG_BS_ADDR_DEVICE		0x580600000
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x580640000
-#endif /*ifdef CONFIG_QSPI_BOOT */
-#define CONFIG_BS_SIZE			0x00001000
-#define CONFIG_BS_HDR_SIZE		0x00004000
-#define CONFIG_BS_ADDR_RAM		0xa0600000
-#define CONFIG_BS_HDR_ADDR_RAM		0xa0640000
-#else
-#ifdef CONFIG_SD_BOOT
-/* For SD boot address and size are assigned in terms of sector
- * offset and no. of sectors respectively.
- */
-#define CONFIG_BS_ADDR_DEVICE		0x00003000
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x00003200
-#define CONFIG_BS_SIZE			0x00000008
-#define CONFIG_BS_HDR_SIZE		0x00000010
-#elif defined(CONFIG_NAND_BOOT)
-#define CONFIG_BS_ADDR_DEVICE		0x00600000
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x00640000
-#define CONFIG_BS_SIZE			0x00001000
-#define CONFIG_BS_HDR_SIZE		0x00002000
-#elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_BS_ADDR_DEVICE		0x40600000
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x40640000
-#define CONFIG_BS_SIZE			0x00001000
-#define CONFIG_BS_HDR_SIZE		0x00002000
-#else /* Default NOR Boot */
-#define CONFIG_BS_ADDR_DEVICE		0x60600000
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x60640000
-#define CONFIG_BS_SIZE			0x00001000
-#define CONFIG_BS_HDR_SIZE		0x00002000
-#endif
-#define CONFIG_BS_ADDR_RAM		0x81000000
-#define CONFIG_BS_HDR_ADDR_RAM		0x81020000
-#endif
-
-#ifdef CONFIG_BOOTSCRIPT_COPY_RAM
-#define CONFIG_BOOTSCRIPT_ADDR		CONFIG_BS_ADDR_RAM
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_RAM
-#else
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_DEVICE
-/* BOOTSCRIPT_ADDR is not required */
-#endif
-
 #ifdef CONFIG_FSL_LS_PPA
 /* Define the key hash here if SRK used for signing PPA image is
  * different from SRK hash put in SFP used for U-Boot.
@@ -104,7 +34,6 @@
 #define PPA_KEY_HASH		NULL
 #endif /* ifdef CONFIG_FSL_LS_PPA */
 
-#include <config_fsl_chain_trust.h>
 #endif /* #ifndef CONFIG_SPL_BUILD */
 #endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
 #endif
