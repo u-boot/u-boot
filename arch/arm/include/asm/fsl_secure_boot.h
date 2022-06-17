@@ -8,19 +8,6 @@
 #define __FSL_SECURE_BOOT_H
 
 #ifdef CONFIG_CHAIN_OF_TRUST
-#ifdef CONFIG_SPL_BUILD
-/*
- * Define the key hash for U-Boot here if public/private key pair used to
- * sign U-boot are different from the SRK hash put in the fuse
- * Example of defining KEY_HASH is
- * #define CONFIG_SPL_UBOOT_KEY_HASH \
- *      "41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b"
- * else leave it defined as NULL
- */
-
-#define CONFIG_SPL_UBOOT_KEY_HASH	NULL
-#endif /* ifdef CONFIG_SPL_BUILD */
-
 #ifndef CONFIG_SPL_BUILD
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images

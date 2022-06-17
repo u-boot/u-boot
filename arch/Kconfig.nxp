@@ -64,6 +64,17 @@ config SYS_FSL_SFP_VER_3_4
 
 endchoice
 
+config SPL_UBOOT_KEY_HASH
+	string "Non-SRK key hash for U-Boot public/private key pair"
+	depends on SPL
+	default ""
+	help
+	  Set the key hash for U-Boot here if public/private key pair used to
+	  sign U-boot are different from the SRK hash put in the fuse.  Example
+	  of a key hash is
+	  41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b.
+	  Otherwise leave this empty.
+
 config SYS_FSL_SRK_LE
 	def_bool y
 	depends on ARM
