@@ -86,7 +86,7 @@ __weak void gpi2c_init(void)
 static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 					    u32 header, u32 size, uint8_t *ep)
 {
-	u32 hdr_read;
+	u32 hdr_read = 0xdeadbeef;
 	int rc;
 
 #if CONFIG_IS_ENABLED(DM_I2C)
@@ -107,9 +107,13 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	if (rc)
 		return rc;
 
-	rc = dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
-	if (rc)
-		return rc;
+	/*
+	 * Skip checking result here since this could be a valid i2c read fail
+	 * on some boards that use 1 byte addressing.
+	 * We must allow for fall through to check the data if 1 byte
+	 * addressing works
+	 */
+	(void)dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
 
 	/* Corrupted data??? */
 	if (hdr_read != header) {
@@ -144,9 +148,13 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	 */
 	byte = 2;
 
-	rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read, 4);
-	if (rc)
-		return rc;
+	/*
+	 * Skip checking result here since this could be a valid i2c read fail
+	 * on some boards that use 1 byte addressing.
+	 * We must allow for fall through to check the data if 1 byte
+	 * addressing works
+	 */
+	(void)i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read, 4);
 
 	/* Corrupted data??? */
 	if (hdr_read != header) {
