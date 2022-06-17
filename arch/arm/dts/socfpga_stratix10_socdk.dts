@@ -92,7 +92,7 @@
 	broken-cd;
 	bus-width = <4>;
 	drvsel = <3>;
-	smplsel = <0>;
+	smplsel = <2>;
 };
 
 &qspi {
