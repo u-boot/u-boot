@@ -434,6 +434,7 @@ int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
 	struct ti_am6_eeprom_record_board_id board_id;
 	struct ti_am6_eeprom_record record;
 	int rc;
+	int consecutive_bad_records = 0;
 
 	/* Initialize with a known bad marker for i2c fails.. */
 	memset(ep, 0, sizeof(*ep));
@@ -470,7 +471,7 @@ int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
 	 */
 	eeprom_addr = sizeof(board_id);
 
-	while (true) {
+	while (consecutive_bad_records < 10) {
 		rc = dm_i2c_read(dev, eeprom_addr, (uint8_t *)&record.header,
 				 sizeof(record.header));
 		if (rc)
@@ -506,6 +507,7 @@ int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
 				pr_err("%s: EEPROM parsing error!\n", __func__);
 				return rc;
 			}
+			consecutive_bad_records = 0;
 		} else {
 			/*
 			 * We may get here in case of larger records which
@@ -513,6 +515,7 @@ int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
 			 */
 			pr_err("%s: Ignoring record id %u\n", __func__,
 			       record.header.id);
+			consecutive_bad_records++;
 		}
 
 		eeprom_addr += record.header.len;
