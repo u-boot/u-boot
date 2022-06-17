@@ -47,6 +47,9 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 3);
 	mmr_unlock(CTRL_MMR0_BASE, 5);
 	mmr_unlock(CTRL_MMR0_BASE, 6);
+
+	/* Unlock all MCU_PADCFG_MMR1 module registers */
+	mmr_unlock(MCU_PADCFG_MMR1_BASE, 1);
 }
 
 /*
