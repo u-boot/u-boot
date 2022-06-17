@@ -103,14 +103,14 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	/*
 	 * Read the header first then only read the other contents.
 	 */
-	rc = i2c_set_chip_offset_len(dev, 2);
+	rc = i2c_set_chip_offset_len(dev, 1);
 	if (rc)
 		return rc;
 
 	/*
 	 * Skip checking result here since this could be a valid i2c read fail
-	 * on some boards that use 1 byte addressing.
-	 * We must allow for fall through to check the data if 1 byte
+	 * on some boards that use 2 byte addressing.
+	 * We must allow for fall through to check the data if 2 byte
 	 * addressing works
 	 */
 	(void)dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
@@ -119,9 +119,9 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	if (hdr_read != header) {
 		/*
 		 * read the eeprom header using i2c again, but use only a
-		 * 1 byte address (some legacy boards need this..)
+		 * 2 byte address (some newer boards need this..)
 		 */
-		rc = i2c_set_chip_offset_len(dev, 1);
+		rc = i2c_set_chip_offset_len(dev, 2);
 		if (rc)
 			return rc;
 
@@ -146,12 +146,12 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	/*
 	 * Read the header first then only read the other contents.
 	 */
-	byte = 2;
+	byte = 1;
 
 	/*
 	 * Skip checking result here since this could be a valid i2c read fail
-	 * on some boards that use 1 byte addressing.
-	 * We must allow for fall through to check the data if 1 byte
+	 * on some boards that use 2 byte addressing.
+	 * We must allow for fall through to check the data if 2 byte
 	 * addressing works
 	 */
 	(void)i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read, 4);
@@ -160,9 +160,9 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	if (hdr_read != header) {
 		/*
 		 * read the eeprom header using i2c again, but use only a
-		 * 1 byte address (some legacy boards need this..)
+		 * 2 byte address (some newer boards need this..)
 		 */
-		byte = 1;
+		byte = 2;
 		rc = i2c_read(dev_addr, 0x0, byte, (uint8_t *)&hdr_read,
 			      4);
 		if (rc)
