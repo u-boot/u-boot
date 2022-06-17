@@ -66,14 +66,6 @@
 #define CONFIG_PCIE3			/* PCIE controller 3 */
 #define CONFIG_PCIE4			/* PCIE controller 4 */
 
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_MTD_RAW_NAND)
-#ifdef CONFIG_NXP_ESBC
-#define CONFIG_RAMBOOT_NAND
-#define CONFIG_BOOTSCRIPT_COPY_RAM
-#endif
-#endif
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

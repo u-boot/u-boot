@@ -10,19 +10,12 @@
 #ifdef CONFIG_NXP_ESBC
 #if defined(CONFIG_FSL_CORENET)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc0000000
-#elif defined(CONFIG_TARGET_BSC9132QDS)
-#define CONFIG_SYS_PBI_FLASH_BASE		0xc8000000
-#elif defined(CONFIG_TARGET_C29XPCIE)
-#define CONFIG_SYS_PBI_FLASH_BASE		0xcc000000
 #else
 #define CONFIG_SYS_PBI_FLASH_BASE		0xce000000
 #endif
 #define CONFIG_SYS_PBI_FLASH_WINDOW		0xcff80000
 
-#if defined(CONFIG_TARGET_B4860QDS) || \
-	defined(CONFIG_TARGET_B4420QDS) || \
-	defined(CONFIG_TARGET_T4240QDS) || \
-	defined(CONFIG_TARGET_T2080QDS) || \
+#if defined(CONFIG_TARGET_T2080QDS) || \
 	defined(CONFIG_TARGET_T2080RDB) || \
 	defined(CONFIG_TARGET_T1042RDB) || \
 	defined(CONFIG_TARGET_T1042D4RDB) || \
@@ -78,40 +71,6 @@
 #endif /* ifdef CONFIG_SPL_BUILD */
 
 #ifndef CONFIG_SPL_BUILD
-/*
- * fsl_setenv_chain_of_trust() must be called from
- * board_late_init()
- */
-
-/* If Boot Script is not on NOR and is required to be copied on RAM */
-#ifdef CONFIG_BOOTSCRIPT_COPY_RAM
-#define CONFIG_BS_HDR_ADDR_RAM		0x00010000
-#define CONFIG_BS_HDR_ADDR_DEVICE	0x00800000
-#define CONFIG_BS_HDR_SIZE		0x00002000
-#define CONFIG_BS_ADDR_RAM		0x00012000
-#define CONFIG_BS_ADDR_DEVICE		0x00802000
-#define CONFIG_BS_SIZE			0x00001000
-
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_RAM
-#else
-
-/* The bootscript header address is different for B4860 because the NOR
- * mapping is different on B4 due to reduced NOR size.
- */
-#if defined(CONFIG_TARGET_B4860QDS) || defined(CONFIG_TARGET_B4420QDS)
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xecc00000
-#elif defined(CONFIG_FSL_CORENET)
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xe8e00000
-#elif defined(CONFIG_TARGET_BSC9132QDS)
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	0x88020000
-#elif defined(CONFIG_TARGET_C29XPCIE)
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xec020000
-#else
-#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xee020000
-#endif
-
-#endif /* #ifdef CONFIG_BOOTSCRIPT_COPY_RAM */
-
 #include <config_fsl_chain_trust.h>
 #endif /* #ifndef CONFIG_SPL_BUILD */
 #endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
