@@ -15,6 +15,10 @@
 
 #ifdef CONFIG_SPL_BUILD
 
+void sdelay(unsigned long loops);
+u32 wait_on_value(u32 read_bit_mask, u32 match_value, void *read_addr,
+		  u32 bound);
+
 static u32 eosc1_hz;
 static u32 cb_intosc_hz;
 static u32 f2s_free_hz;
@@ -551,13 +555,13 @@ static void cm_pll_ramp_main(struct mainpll_cfg *main_cfg,
 			CLKMGR_MAINPLL_VCO1_DENOM_LSB) |
 			cm_calc_safe_pll_numer(0, main_cfg, per_cfg, clk_hz),
 			socfpga_get_clkmgr_addr() + CLKMGR_A10_MAINPLL_VCO1);
-		mdelay(1);
+		sdelay(1000000); /* 1ms */
 		cm_wait_for_lock(LOCKED_MASK);
 	}
 	writel((main_cfg->vco1_denom << CLKMGR_MAINPLL_VCO1_DENOM_LSB) |
 		main_cfg->vco1_numer,
 		socfpga_get_clkmgr_addr() + CLKMGR_A10_MAINPLL_VCO1);
-	mdelay(1);
+	sdelay(1000000); /* 1ms */
 	cm_wait_for_lock(LOCKED_MASK);
 }
 
@@ -585,14 +589,23 @@ static void cm_pll_ramp_periph(struct mainpll_cfg *main_cfg,
 						     clk_hz),
 			      socfpga_get_clkmgr_addr() +
 			      CLKMGR_A10_PERPLL_VCO1);
-		mdelay(1);
+		sdelay(1000000); /* 1ms */
 		cm_wait_for_lock(LOCKED_MASK);
 	}
 	writel((per_cfg->vco1_denom << CLKMGR_PERPLL_VCO1_DENOM_LSB) |
 		      per_cfg->vco1_numer,
 		      socfpga_get_clkmgr_addr() + CLKMGR_A10_PERPLL_VCO1);
-	mdelay(1);
+	sdelay(1000000); /* 1ms */
 	cm_wait_for_lock(LOCKED_MASK);
+}
+
+/* function to poll in the fsm busy bit */
+static int cm_busy_wait_for_fsm(void)
+{
+	void *reg = (void *)(socfpga_get_clkmgr_addr() + CLKMGR_STAT);
+
+	/* 20s timeout */
+	return wait_on_value(CLKMGR_STAT_BUSY, 0, reg, 100000000);
 }
 
 /*
@@ -727,7 +740,7 @@ static int cm_full_cfg(struct mainpll_cfg *main_cfg, struct perpll_cfg *per_cfg)
 			socfpga_get_clkmgr_addr() + CLKMGR_A10_PERPLL_VCO1);
 
 	/* Wait for at least 5 us */
-	udelay(5);
+	sdelay(5000);
 
 	/* Now deassert BGPWRDN and PWRDN */
 	clrbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_A10_MAINPLL_VCO0,
@@ -738,7 +751,7 @@ static int cm_full_cfg(struct mainpll_cfg *main_cfg, struct perpll_cfg *per_cfg)
 		     CLKMGR_PERPLL_VCO0_PWRDN_SET_MSK);
 
 	/* Wait for at least 7 us */
-	udelay(7);
+	sdelay(7000);
 
 	/* enable the VCO and disable the external regulator to PLL */
 	writel((readl(socfpga_get_clkmgr_addr() + CLKMGR_A10_MAINPLL_VCO0) &
@@ -878,19 +891,19 @@ static int cm_full_cfg(struct mainpll_cfg *main_cfg, struct perpll_cfg *per_cfg)
 	writel(CLKMGR_MAINPLL_BYPASS_RESET,
 	       socfpga_get_clkmgr_addr() + CLKMGR_A10_MAINPLL_BYPASSR);
 	/* wait till Clock Manager is not busy */
-	cm_wait_for_fsm();
+	cm_busy_wait_for_fsm();
 
 	/* release perpll from bypass */
 	writel(CLKMGR_PERPLL_BYPASS_RESET,
 	       socfpga_get_clkmgr_addr() + CLKMGR_A10_PERPLL_BYPASSR);
 	/* wait till Clock Manager is not busy */
-	cm_wait_for_fsm();
+	cm_busy_wait_for_fsm();
 
 	/* clear boot mode */
 	clrbits_le32(socfpga_get_clkmgr_addr() + CLKMGR_A10_CTRL,
 		     CLKMGR_CLKMGR_CTL_BOOTMOD_SET_MSK);
 	/* wait till Clock Manager is not busy */
-	cm_wait_for_fsm();
+	cm_busy_wait_for_fsm();
 
 	/* At here, we need to ramp to final value if needed */
 	if (pll_ramp_main_hz != 0)
