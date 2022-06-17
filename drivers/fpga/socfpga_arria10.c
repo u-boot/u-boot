@@ -80,6 +80,13 @@ static int wait_for_user_mode(void)
 		1, FPGA_TIMEOUT_MSEC, false);
 }
 
+static int wait_for_fifo_empty(void)
+{
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat,
+		ALT_FPGAMGR_IMGCFG_STAT_F2S_IMGCFG_FIFOEMPTY_SET_MSK,
+		1, FPGA_TIMEOUT_MSEC, false);
+}
+
 int is_fpgamgr_early_user_mode(void)
 {
 	return (readl(&fpga_manager_base->imgcfg_stat) &
@@ -874,6 +881,7 @@ int socfpga_loadfs(fpga_fs_info *fpga_fsinfo, const void *buf, size_t bsize,
 
 		WATCHDOG_RESET();
 	}
+	wait_for_fifo_empty();
 
 	if (fpga_loadfs.rbfinfo.section == periph_section) {
 		if (fpgamgr_wait_early_user_mode() != -ETIMEDOUT) {
