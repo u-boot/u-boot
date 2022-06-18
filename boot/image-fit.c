@@ -1264,8 +1264,7 @@ int calculate_hash(const void *data, int data_len, const char *name,
 static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 				size_t size, char **err_msgp)
 {
-	DEFINE_ALIGN_BUFFER(uint8_t, value, FIT_MAX_HASH_LEN,
-			    ARCH_DMA_MINALIGN);
+	ALLOC_CACHE_ALIGN_BUFFER(uint8_t, value, FIT_MAX_HASH_LEN);
 	int value_len;
 	const char *algo;
 	uint8_t *fit_value;
