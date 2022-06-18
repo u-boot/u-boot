@@ -25,6 +25,9 @@ try:
 except:  # pragma: no cover
     ELF_TOOLS = False
 
+# BSYM in little endian, keep in sync with include/binman_sym.h
+BINMAN_SYM_MAGIC_VALUE = 0x4d595342
+
 # Information about an EFL symbol:
 # section (str): Name of the section containing this symbol
 # address (int): Address of the symbol (its value)
@@ -223,9 +226,12 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
                 raise ValueError('%s has size %d: only 4 and 8 are supported' %
                                  (msg, sym.size))
 
-            # Look up the symbol in our entry tables.
-            value = section.GetImage().LookupImageSymbol(name, sym.weak, msg,
-                                                         base.address)
+            if name == '_binman_sym_magic':
+                value = BINMAN_SYM_MAGIC_VALUE
+            else:
+                # Look up the symbol in our entry tables.
+                value = section.GetImage().LookupImageSymbol(name, sym.weak,
+                                                             msg, base.address)
             if value is None:
                 value = -1
                 pack_string = pack_string.lower()
