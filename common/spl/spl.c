@@ -52,11 +52,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 *boot_params_ptr = NULL;
 
-#if CONFIG_IS_ENABLED(BINMAN_SYMBOLS)
+#if CONFIG_IS_ENABLED(BINMAN_UBOOT_SYMBOLS)
 /* See spl.h for information about this */
 binman_sym_declare(ulong, u_boot_any, image_pos);
 binman_sym_declare(ulong, u_boot_any, size);
-#endif
 
 #ifdef CONFIG_TPL
 binman_sym_declare(ulong, u_boot_spl, image_pos);
@@ -67,6 +66,8 @@ binman_sym_declare(ulong, u_boot_spl, size);
 binman_sym_declare(ulong, u_boot_vpl, image_pos);
 binman_sym_declare(ulong, u_boot_vpl, size);
 #endif
+
+#endif /* BINMAN_UBOOT_SYMBOLS */
 
 /* Define board data structure */
 static struct bd_info bdata __attribute__ ((section(".data")));
@@ -152,7 +153,7 @@ void spl_fixup_fdt(void *fdt_blob)
 
 ulong spl_get_image_pos(void)
 {
-	if (!CONFIG_IS_ENABLED(BINMAN_SYMBOLS))
+	if (!CONFIG_IS_ENABLED(BINMAN_UBOOT_SYMBOLS))
 		return BINMAN_SYM_MISSING;
 
 #ifdef CONFIG_VPL
@@ -166,7 +167,7 @@ ulong spl_get_image_pos(void)
 
 ulong spl_get_image_size(void)
 {
-	if (!CONFIG_IS_ENABLED(BINMAN_SYMBOLS))
+	if (!CONFIG_IS_ENABLED(BINMAN_UBOOT_SYMBOLS))
 		return BINMAN_SYM_MISSING;
 
 #ifdef CONFIG_VPL

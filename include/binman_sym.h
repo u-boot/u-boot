@@ -13,7 +13,7 @@
 
 #define BINMAN_SYM_MISSING	(-1UL)
 
-#ifdef CONFIG_BINMAN
+#if CONFIG_IS_ENABLED(BINMAN_SYMBOLS)
 
 /**
  * binman_symname() - Internal function to get a binman symbol name
@@ -77,7 +77,7 @@
 #define binman_sym(_type, _entry_name, _prop_name) \
 	(*(_type *)&binman_symname(_entry_name, _prop_name))
 
-#else /* !BINMAN */
+#else /* !CONFIG_IS_ENABLED(BINMAN_SYMBOLS) */
 
 #define binman_sym_declare(_type, _entry_name, _prop_name)
 
@@ -87,6 +87,6 @@
 
 #define binman_sym(_type, _entry_name, _prop_name) BINMAN_SYM_MISSING
 
-#endif /* BINMAN */
+#endif /* CONFIG_IS_ENABLED(BINMAN_SYMBOLS) */
 
 #endif
