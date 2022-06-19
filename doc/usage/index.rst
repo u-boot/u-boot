@@ -30,6 +30,7 @@ Shell commands
    cmd/bootmenu
    cmd/bootmeth
    cmd/button
+   cmd/bootz
    cmd/cbsysinfo
    cmd/conitrace
    cmd/echo
@@ -48,6 +49,7 @@ Shell commands
    cmd/md
    cmd/mmc
    cmd/pinmux
+   cmd/printenv
    cmd/pstore
    cmd/qfw
    cmd/reset

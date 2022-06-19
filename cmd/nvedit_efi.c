@@ -182,8 +182,10 @@ static int efi_dump_var_all(int argc,  char *const argv[],
 	}
 	free(var_name16);
 
-	if (!match && argc == 1)
+	if (!match && argc == 1) {
 		printf("Error: \"%s\" not defined\n", argv[0]);
+		return CMD_RET_FAILURE;
+	}
 
 	return CMD_RET_SUCCESS;
 }
