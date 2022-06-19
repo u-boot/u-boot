@@ -49,6 +49,7 @@ Shell commands
    cmd/md
    cmd/mmc
    cmd/pinmux
+   cmd/printenv
    cmd/pstore
    cmd/qfw
    cmd/reset
