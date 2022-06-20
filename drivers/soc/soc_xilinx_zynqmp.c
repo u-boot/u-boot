@@ -54,8 +54,7 @@ static int soc_xilinx_zynqmp_probe(struct udevice *dev)
 
 	priv->family = zynqmp_family;
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3 ||
-	    !IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
+	if (!IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE))
 		ret = zynqmp_mmio_read(ZYNQMP_PS_VERSION, &ret_payload[2]);
 	else
 		ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0,
