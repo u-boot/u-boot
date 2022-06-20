@@ -143,6 +143,14 @@ sed -i -r 's| \{(\r[^\r]*;)\r\t*\}|\1|g' ${TMP}
 # if ((p_code >= 0x26) && ...) -> if (p_code >= 0x26 && ...)
 sed -i -r 's|\((._code .= [x[:xdigit:]]+)\)|\1|g' ${TMP}
 
+# Move helper functions below header includes
+TARGET="#include <xil_io.h>"
+START="static int serdes_rst_seq"
+END="static int serdes_enb_coarse_saturation"
+
+sed -i -e "s|\(${TARGET}\r\r\)\(.*\)\(${START}(.*\)\(${END}(\)|\1\3\2\4|g" \
+    ${TMP}
+
 # Convert back newlines
 tr "\r" "\n" <${TMP} >${OUT}
 
