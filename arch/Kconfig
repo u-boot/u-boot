@@ -371,6 +371,9 @@ config SYS_IMMR
 	default 0xF0000000 if ARCH_MPC8313
 	default 0xE0000000 if MPC83xx && !ARCH_MPC8313
 	default 0x01000000 if ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
+	default 0xFFE00000 if ARCH_P1010 || ARCH_P1011 || ARCH_P1020 || \
+			      ARCH_P1021 || ARCH_P1024 || ARCH_P1025 || \
+			      ARCH_P2020
 	default SYS_CCSRBAR_DEFAULT
 	help
 	  Address for the Internal Memory-Mapped Registers (IMMR) window used

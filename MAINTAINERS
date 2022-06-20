@@ -293,6 +293,11 @@ F:	drivers/spi/spi-qup.c
 F:	drivers/net/mdio-ipq4019.c
 F:	drivers/rng/msm_rng.c
 
+ARM LAYERSCAPE SFP
+M:	Sean Anderson <sean.anderson@seco.com>
+S:	Maintained
+F:	drivers/misc/ls2_sfp.c
+
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 
-#ifndef __SL28_H
-#define __SL28_H
+#ifndef __SL28_CONFIG_H
+#define __SL28_CONFIG_H
 
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
@@ -80,4 +80,4 @@
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 
-#endif /* __SL28_H */
+#endif /* __SL28_CONFIG_H */

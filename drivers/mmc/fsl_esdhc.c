@@ -946,9 +946,8 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 	} else if (cfg->max_bus_width == 1) {
 		mmc_cfg->host_caps |= MMC_MODE_1BIT;
 	} else {
-		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
-				      MMC_MODE_8BIT;
-		printf("No max bus width provided. Assume 8-bit supported.\n");
+		mmc_cfg->host_caps |= MMC_MODE_1BIT;
+		printf("No max bus width provided. Fallback to 1-bit mode.\n");
 	}
 
 	if (IS_ENABLED(CONFIG_ESDHC_DETECT_8_BIT_QUIRK))
@@ -972,6 +971,7 @@ int fsl_esdhc_mmc_init(struct bd_info *bis)
 
 	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
+	cfg->max_bus_width = CONFIG_SYS_FSL_ESDHC_DEFAULT_BUS_WIDTH;
 	/* Prefer peripheral clock which provides higher frequency. */
 	if (gd->arch.sdhc_per_clk)
 		cfg->sdhc_clk = gd->arch.sdhc_per_clk;

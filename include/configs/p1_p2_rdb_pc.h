@@ -491,31 +491,7 @@
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
-#ifdef __SW_BOOT_NOR
-#define __NOR_RST_CMD	\
-norboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_NOR 1; \
-i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
-#endif
-#ifdef __SW_BOOT_SPI
-#define __SPI_RST_CMD	\
-spiboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_SPI 1; \
-i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
-#endif
-#ifdef __SW_BOOT_SD
-#define __SD_RST_CMD	\
-sdboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_SD 1; \
-i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
-#endif
-#ifdef __SW_BOOT_NAND
-#define __NAND_RST_CMD	\
-nandboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_NAND 1; \
-i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
-#endif
-#ifdef __SW_BOOT_PCIE
-#define __PCIE_RST_CMD	\
-pciboot=i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 __SW_BOOT_PCIE 1; \
-i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
-#endif
+#include "p1_p2_bootsrc.h"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 "netdev=eth0\0"	\
@@ -542,13 +518,14 @@ i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 __SW_BOOT_MASK 1; reset
 "nandfdtaddr=80000\0"		\
 "ramdisk_size=120000\0"	\
 __VSCFW_ADDR	\
-"map_lowernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 "__stringify(__SW_NOR_BANK_LO)" 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 "__stringify(__SW_NOR_BANK_MASK)" 1\0" \
-"map_uppernorbank=i2c dev "__stringify(CONFIG_SYS_SPD_BUS_NUM)"; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 1 "__stringify(__SW_NOR_BANK_UP)" 1; i2c mw "__stringify(CONFIG_SYS_I2C_PCA9557_ADDR)" 3 "__stringify(__SW_NOR_BANK_MASK)" 1\0" \
-__stringify(__NOR_RST_CMD)"\0" \
-__stringify(__SPI_RST_CMD)"\0" \
-__stringify(__SD_RST_CMD)"\0" \
-__stringify(__NAND_RST_CMD)"\0" \
-__stringify(__PCIE_RST_CMD)"\0"
+MAP_NOR_LO_CMD(map_lowernorbank) \
+MAP_NOR_UP_CMD(map_uppernorbank) \
+RST_NOR_CMD(norboot) \
+RST_SPI_CMD(spiboot) \
+RST_SD_CMD(sdboot) \
+RST_NAND_CMD(nandboot) \
+RST_PCIE_CMD(pciboot) \
+""
 
 #define CONFIG_USB_FAT_BOOT	\
 "setenv bootargs root=/dev/ram rw "	\

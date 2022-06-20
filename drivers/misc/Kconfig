@@ -289,6 +289,20 @@ config JZ4780_EFUSE
 	help
 	  This selects support for the eFUSE on Ingenic JZ4780 SoCs.
 
+config LS2_SFP
+	bool "Layerscape Security Fuse Processor"
+	depends on FSL_LSCH2 || ARCH_LS1021A
+	depends on MISC
+	imply DM_REGULATOR
+	help
+	  This adds support for the Security Fuse Processor found on Layerscape
+	  SoCs. It contains various fuses related to secure boot, including the
+	  Super Root Key hash, One-Time-Programmable Master Key, Debug
+	  Challenge/Response values, and others. Fuses are numbered according
+	  to their four-byte offset from the start of the bank.
+
+	  If you don't need to read/program fuses, say 'n'.
+
 config MXC_OCOTP
 	bool "Enable MXC OCOTP Driver"
 	depends on ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610

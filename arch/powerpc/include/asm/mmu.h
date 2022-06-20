@@ -447,7 +447,7 @@ extern void print_bats(void);
 		(((ts) << 12) & MAS1_TS)                |\
 		(MAS1_TSIZE(tsize)))
 #define FSL_BOOKE_MAS2(epn, wimge) \
-		(((epn) & MAS3_RPN) | (wimge))
+		(((epn) & MAS2_EPN) | (wimge))
 #define FSL_BOOKE_MAS3(rpn, user, perms) \
 		(((rpn) & MAS3_RPN) | (user) | (perms))
 #define FSL_BOOKE_MAS7(rpn) \
