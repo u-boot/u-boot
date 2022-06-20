@@ -178,6 +178,10 @@ enum boot_dev_type_e {
 #define ROM_API_OKAY		0xF0
 
 extern struct rom_api *g_rom_api;
+
+u32 rom_api_download_image(u8 *dest, u32 offset, u32 size);
+u32 rom_api_query_boot_infor(u32 info_type, u32 *info);
+
 #endif
 
 /* For i.MX ULP */
