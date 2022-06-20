@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (C) 2018 Michal Simek <michal.simek@xilinx.com>
 # Copyright (C) 2019 Luca Ceresoli <luca@lucaceresoli.net>
+# Copyright (C) 2022 Weidmüller Interface GmbH & Co. KG
+# Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>
 
 usage()
 {
@@ -143,5 +145,20 @@ sed -i -r 's|\((._code .= [x[:xdigit:]]+)\)|\1|g' ${TMP}
 
 # Convert back newlines
 tr "\r" "\n" <${TMP} >${OUT}
+
+# Remove unnecessary settings
+# - Low level UART
+SETTINGS_TO_REMOVE="0xFF000000
+0xFF000004
+0xFF000018
+0xFF000034
+0xFF010000
+0xFF010004
+0xFF010018
+0xFF010034
+"
+for i in $SETTINGS_TO_REMOVE; do
+sed -i "/^\tpsu_mask_write($i,.*$/d" ${OUT}
+done
 
 rm ${TMP}
