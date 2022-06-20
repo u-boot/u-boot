@@ -26,7 +26,7 @@
 struct zynqmp_power {
 	struct mbox_chan tx_chan;
 	struct mbox_chan rx_chan;
-} zynqmp_power;
+} zynqmp_power = {};
 
 #define NODE_ID_LOCATION	5
 
@@ -79,6 +79,20 @@ int zynqmp_pmufw_node(u32 id)
 	return 0;
 }
 
+static int do_pm_probe(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_FIRMWARE,
+					  DM_DRIVER_GET(zynqmp_power),
+					  &dev);
+	if (ret)
+		debug("%s: Probing device failed: %d\n", __func__, ret);
+
+	return ret;
+}
+
 static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 {
 	struct zynqmp_ipi_msg msg;
@@ -92,8 +106,11 @@ static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 	    res_maxlen > PMUFW_PAYLOAD_ARG_CNT)
 		return -EINVAL;
 
-	if (!(zynqmp_power.tx_chan.dev) || !(zynqmp_power.rx_chan.dev))
-		return -EINVAL;
+	if (!(zynqmp_power.tx_chan.dev) || !(zynqmp_power.rx_chan.dev)) {
+		ret = do_pm_probe();
+		if (ret)
+			return ret;
+	}
 
 	debug("%s, Sending IPI message with ID: 0x%0x\n", __func__, req[0]);
 	msg.buf = (u32 *)req;
