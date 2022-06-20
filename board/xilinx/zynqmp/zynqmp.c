@@ -49,6 +49,7 @@
 #define EFUSE_VCU_DIS_SHIFT	8
 #define EFUSE_GPU_DIS_MASK	0x20
 #define EFUSE_GPU_DIS_SHIFT	5
+#define IDCODE_DEV_TYPE_MASK	GENMASK(27, 0)
 #define IDCODE2_PL_INIT_MASK	0x200
 #define IDCODE2_PL_INIT_SHIFT	9
 
@@ -218,7 +219,7 @@ static char *zynqmp_detect_svd_name(u32 idcode)
 	u32 i;
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_svd_devices); i++) {
-		if (zynqmp_svd_devices[i].id == (idcode & 0x0FFFFFFF))
+		if (zynqmp_svd_devices[i].id == (idcode & IDCODE_DEV_TYPE_MASK))
 			return zynqmp_svd_devices[i].name;
 	}
 
@@ -254,7 +255,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	      idcode2);
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == (idcode & 0x0FFFFFFF))
+		if (zynqmp_devices[i].id == (idcode & IDCODE_DEV_TYPE_MASK))
 			break;
 	}
 
