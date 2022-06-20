@@ -134,6 +134,10 @@ config DEEP_SLEEP
 	  Indicates this SoC supports deep sleep feature. If deep sleep is
 	  supported, core will start to execute uboot when wakes up.
 
+config LAYERSCAPE_NS_ACCESS
+	bool "Layerscape non-secure access support"
+	depends on ARCH_LS1021A || FSL_LSCH2
+
 config FSL_USE_PCA9547_MUX
 	bool "Enable PCA9547 I2C Mux on Freescale boards"
 	depends on PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3

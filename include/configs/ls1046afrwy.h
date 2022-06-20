@@ -8,8 +8,6 @@
 
 #include "ls1046a_common.h"
 
-#define CONFIG_LAYERSCAPE_NS_ACCESS
-
 #define CONFIG_SYS_UBOOT_BASE		0x40100000
 
 /*

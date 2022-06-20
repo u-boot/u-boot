@@ -8,8 +8,6 @@
 
 #include "ls1043a_common.h"
 
-#define CONFIG_LAYERSCAPE_NS_ACCESS
-
 /* Physical Memory Map */
 
 #ifndef CONFIG_SPL
