@@ -745,7 +745,11 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr, struct udevice *dev)
 		return ret;
 
 	/* If nand_scan_ident() has not selected ecc.mode, do it now */
-	if (nand->ecc.mode == NAND_ECC_NONE) {
+	if (nand->ecc.mode == 0
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	    && !ofnode_read_string(nand->flash_node, "nand-ecc-mode")
+#endif
+	   ) {
 		/* If CS Base Register selects full hardware ECC then use it */
 		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
 			nand->ecc.mode = NAND_ECC_HW;
