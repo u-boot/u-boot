@@ -31,9 +31,6 @@
 /*
  * PCI express
  */
-#ifdef CONFIG_CMD_PCI
-#define CONFIG_PCIE_IMX
-#endif
 
 /*
  * PMIC

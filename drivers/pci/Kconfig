@@ -254,6 +254,10 @@ config FSL_PCIE_EP_COMPAT
 	  This compatible is used to find pci controller ep node in Kernel DT
 	  to complete fixup.
 
+config PCIE_IMX
+	bool "i.MX PCIe support"
+	depends on ARCH_MX6
+
 config PCIE_INTEL_FPGA
 	bool "Intel FPGA PCIe support"
 	help
