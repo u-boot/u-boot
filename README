@@ -1509,20 +1509,6 @@ The following options need to be configured:
 		overwriting the architecture dependent default
 		settings.
 
-- Frame Buffer Address:
-		CONFIG_FB_ADDR
-
-		Define CONFIG_FB_ADDR if you want to use specific
-		address for frame buffer.  This is typically the case
-		when using a graphics controller has separate video
-		memory.  U-Boot will then place the frame buffer at
-		the given address instead of dynamically reserving it
-		in system RAM by calling lcd_setmem(), which grabs
-		the memory for the frame buffer depending on the
-		configured panel size.
-
-		Please see board_init_f function.
-
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
 		CONFIG_UPDATE_TFTP_CNT_MAX

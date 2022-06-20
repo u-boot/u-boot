@@ -400,13 +400,9 @@ static int reserve_video(void)
 	      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
 	gd->relocaddr = addr;
 #elif defined(CONFIG_LCD)
-#  ifdef CONFIG_FB_ADDR
-	gd->fb_base = CONFIG_FB_ADDR;
-#  else
 	/* reserve memory for LCD display (always full pages) */
 	gd->relocaddr = lcd_setmem(gd->relocaddr);
 	gd->fb_base = gd->relocaddr;
-#  endif /* CONFIG_FB_ADDR */
 #endif
 
 	return 0;
