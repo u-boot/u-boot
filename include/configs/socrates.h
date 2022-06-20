@@ -123,8 +123,6 @@
  * Memory space is mapped 1-1.
  */
 
-/* PCI is clocked by the external source at 33 MHz */
-#define CONFIG_PCI_CLK_FREQ	33000000
 #define CONFIG_SYS_PCI1_MEM_BASE	0x80000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M			*/
