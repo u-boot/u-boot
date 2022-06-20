@@ -16,10 +16,6 @@
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 
-#define CONFIG_PCI1		/* PCI controller 1 */
-#define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
-#undef CONFIG_PCI2
-
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #ifndef __ASSEMBLY__

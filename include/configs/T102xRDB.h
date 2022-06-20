@@ -352,9 +352,6 @@
  * General PCIe
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-#define CONFIG_PCIE1		/* PCIE controller 1 */
-#define CONFIG_PCIE2		/* PCIE controller 2 */
-#define CONFIG_PCIE3		/* PCIE controller 3 */
 
 #ifdef CONFIG_PCI
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */

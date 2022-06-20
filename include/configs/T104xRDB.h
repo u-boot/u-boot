@@ -61,10 +61,6 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_PCIE1			/* PCIE controller 1 */
-#define CONFIG_PCIE2			/* PCIE controller 2 */
-#define CONFIG_PCIE3			/* PCIE controller 3 */
-#define CONFIG_PCIE4			/* PCIE controller 4 */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.

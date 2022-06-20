@@ -9,8 +9,6 @@
  */
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
-#define CONFIG_PCIE3
-
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */

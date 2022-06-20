@@ -138,6 +138,22 @@ config LAYERSCAPE_NS_ACCESS
 	bool "Layerscape non-secure access support"
 	depends on ARCH_LS1021A || FSL_LSCH2
 
+config PCIE1
+	bool "PCIe controller #1"
+	depends on LAYERSCAPE_NS_ACCESS || PPC
+
+config PCIE2
+	bool "PCIe controller #2"
+	depends on LAYERSCAPE_NS_ACCESS || PPC
+
+config PCIE3
+	bool "PCIe controller #3"
+	depends on LAYERSCAPE_NS_ACCESS || PPC
+
+config PCIE4
+	bool "PCIe controller #4"
+	depends on LAYERSCAPE_NS_ACCESS || PPC
+
 config FSL_USE_PCA9547_MUX
 	bool "Enable PCA9547 I2C Mux on Freescale boards"
 	depends on PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3

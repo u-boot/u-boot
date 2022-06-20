@@ -102,9 +102,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
-#define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
-
 #define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.

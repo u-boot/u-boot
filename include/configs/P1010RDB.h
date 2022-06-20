@@ -63,9 +63,6 @@
 /* High Level Configuration Options */
 
 #if defined(CONFIG_PCI)
-#define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
-#define CONFIG_PCIE2			/* PCIE controller 2 (slot 2) */
-
 /*
  * PCI Windows
  * Memory space is mapped 1-1, but I/O space must start from 0.

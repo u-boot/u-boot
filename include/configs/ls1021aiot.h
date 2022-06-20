@@ -97,10 +97,6 @@
 #define TSEC2_PHYIDX			0
 #endif
 
-/* PCIe */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
-
 #define FSL_PCIE_COMPAT		"fsl,ls1021a-pcie"
 
 #ifdef CONFIG_PCI
