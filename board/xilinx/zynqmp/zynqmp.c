@@ -282,13 +282,13 @@ static char *zynqmp_get_silicon_idcode_name(void)
 			 */
 			switch (family) {
 			case 0x00:
-				strncat(name, "ev", 2);
+				strlcat(name, "ev", sizeof(name));
 				break;
 			case 0x10:
-				strncat(name, "eg", 2);
+				strlcat(name, "eg", sizeof(name));
 				break;
 			case 0x11:
-				strncat(name, "cg", 2);
+				strlcat(name, "cg", sizeof(name));
 				break;
 			default:
 				/* Do not append family name*/
@@ -300,16 +300,17 @@ static char *zynqmp_get_silicon_idcode_name(void)
 			 * read. So, ignore the bit and just findout if it is CG
 			 * or EG/EV variant.
 			 */
-			strncat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" :
-				"e", 2);
+			strlcat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" :
+				"e", sizeof(name));
 		}
 	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_CG) {
 		/* Devices with CG variant might be EG or CG family */
-		strncat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" : "eg", 2);
+		strlcat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" : "eg",
+			sizeof(name));
 	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EG) {
-		strncat(name, "eg", 2);
+		strlcat(name, "eg", sizeof(name));
 	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_DR) {
-		strncat(name, "dr", 2);
+		strlcat(name, "dr", sizeof(name));
 	} else {
 		debug("Variant not identified\n");
 	}
