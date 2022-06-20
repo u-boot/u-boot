@@ -171,6 +171,12 @@ config PCI_SANDBOX
 	  the device tree but the normal PCI scan technique is used to find
 	  then.
 
+config SH7751_PCI
+	bool "SH7751 PCI controller support"
+	depends on SH
+	help
+	  SuperH PCI Bridge Configuration
+
 config PCI_TEGRA
 	bool "Tegra PCI support"
 	depends on ARCH_TEGRA
