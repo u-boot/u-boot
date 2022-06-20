@@ -868,6 +868,7 @@
 		clocks = <&scu ASPEED_CLK_APB2>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c3_default>;
+		status = "disabled";
 	};
 
 	i2c3: i2c@200 {
@@ -883,6 +884,7 @@
 		clocks = <&scu ASPEED_CLK_APB2>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c4_default>;
+		status = "disabled";
 	};
 
 	i2c4: i2c@280 {
@@ -898,6 +900,7 @@
 		clocks = <&scu ASPEED_CLK_APB2>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c5_default>;
+		status = "disabled";
 	};
 
 	i2c5: i2c@300 {
@@ -913,6 +916,7 @@
 		clocks = <&scu ASPEED_CLK_APB2>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c6_default>;
+		status = "disabled";
 	};
 
 	i2c6: i2c@380 {
@@ -928,6 +932,7 @@
 		clocks = <&scu ASPEED_CLK_APB2>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c7_default>;
+		status = "disabled";
 	};
 
 	i2c7: i2c@400 {
@@ -943,6 +948,7 @@
 		clocks = <&scu ASPEED_CLK_APB2>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c8_default>;
+		status = "disabled";
 	};
 
 	i2c8: i2c@480 {
@@ -958,6 +964,7 @@
 		clocks = <&scu ASPEED_CLK_APB2>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c9_default>;
+		status = "disabled";
 	};
 
 	i2c9: i2c@500 {
