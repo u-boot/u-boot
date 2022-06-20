@@ -48,6 +48,10 @@ config PCI_REGION_MULTI_ENTRY
 	  region type. This helps to add support for SoC's like OcteonTX/TX2
 	  where every peripheral is on the PCI bus.
 
+config PCI_CONFIG_HOST_BRIDGE
+	bool "Configure PCI host bridges"
+	default y if X86
+
 config PCI_MAP_SYSTEM_MEMORY
 	bool "Map local system memory from a virtual base address"
 	depends on MIPS
