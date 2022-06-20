@@ -121,7 +121,7 @@ tr "\n" "\r" <${OUT} >${TMP}
 # |           | ==> |while (e)|
 # |    }      |     |    ;    |
 # |           |
-sed -i -r 's| \{\r+(\t*)\}\r\r|\n\1\t;\n|g' ${TMP}
+sed -i -r 's| \{\r+(\t*)\}\r\r|\r\1\t;\r|g' ${TMP}
 
 # Remove empty line between variable declaration
 sed -i -r 's|\r(\r\t(unsigned )?int )|\1|g' ${TMP}
