@@ -39,11 +39,6 @@
 #define CONFIG_PCIE1			/* PCIE controller 1 */
 #define CONFIG_PCIE2			/* PCIE controller 2 */
 
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_SDCARD)
-#define CONFIG_FSL_FIXED_MMC_LOCATION
-#endif
-
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

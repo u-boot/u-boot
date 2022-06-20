@@ -43,11 +43,6 @@
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_SDCARD)
-	#define CONFIG_FSL_FIXED_MMC_LOCATION
-#endif
-
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
 #endif

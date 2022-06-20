@@ -465,9 +465,7 @@ extern unsigned long get_sdram_size(void);
 /*
  * Environment
  */
-#if defined(CONFIG_SDCARD)
-#define CONFIG_FSL_FIXED_MMC_LOCATION
-#elif defined(CONFIG_MTD_RAW_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
 #define SPL_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
 #endif
