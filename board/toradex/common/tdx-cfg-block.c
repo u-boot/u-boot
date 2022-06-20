@@ -144,6 +144,7 @@ const char * const toradex_modules[] = {
 	[64] = "Verdin iMX8M Plus Quad 2GB Wi-Fi / BT IT",
 	[65] = "Verdin iMX8M Plus QuadLite 1GB IT",
 	[66] = "Verdin iMX8M Plus Quad 8GB Wi-Fi / BT",
+	[67] = "Apalis iMX8 QuadMax 8GB Wi-Fi / BT IT",
 };
 
 const char * const toradex_carrier_boards[] = {
@@ -359,6 +360,7 @@ static int get_cfgblock_interactive(void)
 	char *soc;
 	char it = 'n';
 	char wb = 'n';
+	char mem8g = 'n';
 	int len = 0;
 
 	/* Unknown module by default */
@@ -377,6 +379,14 @@ static int get_cfgblock_interactive(void)
 	sprintf(message, "Does the module have Wi-Fi / Bluetooth? [y/N] ");
 	len = cli_readline(message);
 	wb = console_buffer[0];
+
+#if defined(CONFIG_TARGET_APALIS_IMX8)
+	if ((wb == 'y' || wb == 'Y') && (it == 'y' || it == 'Y')) {
+		sprintf(message, "Does your module have 8GB of RAM? [y/N] ");
+		len = cli_readline(message);
+		mem8g = console_buffer[0];
+	}
+#endif
 #endif
 
 	soc = env_get("soc");
@@ -430,8 +440,12 @@ static int get_cfgblock_interactive(void)
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
 	else if (is_cpu_type(MXC_CPU_IMX8QM)) {
 		if (it == 'y' || it == 'Y') {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = APALIS_IMX8QM_WIFI_BT_IT;
+			if (wb == 'y' || wb == 'Y') {
+				if (mem8g == 'y' || mem8g == 'Y')
+					tdx_hw_tag.prodid = APALIS_IMX8QM_8GB_WIFI_BT_IT;
+				else
+					tdx_hw_tag.prodid = APALIS_IMX8QM_WIFI_BT_IT;
+			}
 			else
 				tdx_hw_tag.prodid = APALIS_IMX8QM_IT;
 		} else {

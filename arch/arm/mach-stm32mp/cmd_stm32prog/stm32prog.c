@@ -1262,7 +1262,7 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 				   "raw 0x%llx 0x%llx",
 				   part->addr, nb_blk);
 		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
-				   " mmcpart %d;", -(part->part_id));
+				   " mmcpart %d", -(part->part_id));
 	} else {
 		if (part->part_type == PART_SYSTEM &&
 		    (part->target == STM32PROG_NAND ||
@@ -1280,7 +1280,7 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 			offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
 					   " %d", part->dev_id);
 		offset += snprintf(buf + offset, ALT_BUF_LEN - offset,
-				   " %d;", part->part_id);
+				   " %d", part->part_id);
 	}
 	ret = -ENODEV;
 	switch (part->target) {

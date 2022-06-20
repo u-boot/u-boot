@@ -122,11 +122,13 @@ static int xhci_mtk_host_disable(struct mtk_xhci *mtk)
 
 	/* power down all u3 ports */
 	for (i = 0; i < mtk->num_u3ports; i++)
-		setbits_le32(mtk->ippc + IPPC_U3_CTRL(i), CTRL_U3_PORT_PDN);
+		setbits_le32(mtk->ippc + IPPC_U3_CTRL(i),
+			     CTRL_U3_PORT_PDN | CTRL_U3_PORT_DIS);
 
 	/* power down all u2 ports */
 	for (i = 0; i < mtk->num_u2ports; i++)
-		setbits_le32(mtk->ippc + IPPC_U2_CTRL(i), CTRL_U2_PORT_PDN);
+		setbits_le32(mtk->ippc + IPPC_U2_CTRL(i),
+			     CTRL_U2_PORT_PDN | CTRL_U2_PORT_DIS);
 
 	/* power down host ip */
 	setbits_le32(mtk->ippc + IPPC_IP_PW_CTRL1, CTRL1_IP_HOST_PDN);

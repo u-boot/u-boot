@@ -84,7 +84,7 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 
 	len = ofnode_read_string_count(node, "nvidia,lanes");
 	if (len < 0) {
-		pr_err("failed to parse \"nvidia,lanes\" property");
+		pr_err("failed to parse \"nvidia,lanes\" property\n");
 		return -EINVAL;
 	}
 
@@ -94,7 +94,7 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 		ret = ofnode_read_string_index(node, "nvidia,lanes", i,
 					       &group->pins[i]);
 		if (ret) {
-			pr_err("failed to read string from \"nvidia,lanes\" property");
+			pr_err("failed to read string from \"nvidia,lanes\" property\n");
 			return -EINVAL;
 		}
 	}
@@ -104,7 +104,7 @@ tegra_xusb_padctl_group_parse_dt(struct tegra_xusb_padctl *padctl,
 	ret = ofnode_read_string_index(node, "nvidia,function", 0,
 				       &group->func);
 	if (ret) {
-		pr_err("failed to parse \"nvidia,func\" property");
+		pr_err("failed to parse \"nvidia,func\" property\n");
 		return -EINVAL;
 	}
 
@@ -232,7 +232,7 @@ tegra_xusb_padctl_config_parse_dt(struct tegra_xusb_padctl *padctl,
 
 		err = tegra_xusb_padctl_group_parse_dt(padctl, group, subnode);
 		if (err < 0) {
-			pr_err("failed to parse group %s", group->name);
+			pr_err("failed to parse group %s\n", group->name);
 			return err;
 		}
 
@@ -261,7 +261,7 @@ static int tegra_xusb_padctl_parse_dt(struct tegra_xusb_padctl *padctl,
 		err = tegra_xusb_padctl_config_parse_dt(padctl, config,
 							subnode);
 		if (err < 0) {
-			pr_err("failed to parse entry %s: %d",
+			pr_err("failed to parse entry %s: %d\n",
 			      config->name, err);
 			continue;
 		}
@@ -289,7 +289,7 @@ int tegra_xusb_process_nodes(ofnode nodes[], unsigned int count,
 
 		err = tegra_xusb_padctl_parse_dt(&padctl, nodes[i]);
 		if (err < 0) {
-			pr_err("failed to parse DT: %d", err);
+			pr_err("failed to parse DT: %d\n", err);
 			continue;
 		}
 

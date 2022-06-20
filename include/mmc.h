@@ -561,6 +561,7 @@ struct mmc_ops {
 	int (*getwp)(struct mmc *mmc);
 	int (*host_power_cycle)(struct mmc *mmc);
 	int (*get_b_max)(struct mmc *mmc, void *dst, lbaint_t blkcnt);
+	int (*wait_dat0)(struct mmc *mmc, int state, int timeout_us);
 };
 
 static inline int mmc_hs400_prepare_ddr(struct mmc *mmc)

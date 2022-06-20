@@ -4,6 +4,7 @@
  *
  * Copyright 2019 Analog Devices Inc.
  * Copyright 2022 Variscite Ltd.
+ * Copyright 2022 Josua Mayer <josua@solid-run.com>
  */
 #include <common.h>
 #include <phy.h>
@@ -13,6 +14,16 @@
 #define PHY_ID_ADIN1300				0x0283bc30
 #define ADIN1300_EXT_REG_PTR			0x10
 #define ADIN1300_EXT_REG_DATA			0x11
+
+#define ADIN1300_GE_CLK_CFG_REG			0xff1f
+#define   ADIN1300_GE_CLK_CFG_MASK		GENMASK(5, 0)
+#define   ADIN1300_GE_CLK_CFG_RCVR_125		BIT(5)
+#define   ADIN1300_GE_CLK_CFG_FREE_125		BIT(4)
+#define   ADIN1300_GE_CLK_CFG_REF_EN		BIT(3)
+#define   ADIN1300_GE_CLK_CFG_HRT_RCVR		BIT(2)
+#define   ADIN1300_GE_CLK_CFG_HRT_FREE		BIT(1)
+#define   ADIN1300_GE_CLK_CFG_25		BIT(0)
+
 #define ADIN1300_GE_RGMII_CFG			0xff23
 #define ADIN1300_GE_RGMII_RX_MSK		GENMASK(8, 6)
 #define ADIN1300_GE_RGMII_RX_SEL(x)		\
@@ -100,27 +111,27 @@ static u32 adin_get_reg_value(struct phy_device *phydev,
  * The function gets phy-mode string from property 'adi,phy-mode-override'
  * and return its index in phy_interface_strings table, or -1 in error case.
  */
-int adin_get_phy_mode_override(struct phy_device *phydev)
+phy_interface_t adin_get_phy_mode_override(struct phy_device *phydev)
 {
 	ofnode node = phy_get_ofnode(phydev);
 	const char *phy_mode_override;
 	const char *prop_phy_mode_override = "adi,phy-mode-override";
-	int override_interface;
+	int i;
 
 	phy_mode_override = ofnode_read_string(node, prop_phy_mode_override);
 	if (!phy_mode_override)
-		return -ENODEV;
+		return PHY_INTERFACE_MODE_NA;
 
 	debug("%s: %s = '%s'\n",
 	      __func__, prop_phy_mode_override, phy_mode_override);
 
-	override_interface = phy_get_interface_by_name(phy_mode_override);
+	for (i = 0; i < PHY_INTERFACE_MODE_MAX; i++)
+		if (!strcmp(phy_mode_override, phy_interface_strings[i]))
+			return (phy_interface_t) i;
 
-	if (override_interface < 0)
-		printf("%s: %s = '%s' is not valid\n",
-		       __func__, prop_phy_mode_override, phy_mode_override);
+	printf("%s: Invalid PHY interface '%s'\n", __func__, phy_mode_override);
 
-	return override_interface;
+	return PHY_INTERFACE_MODE_NA;
 }
 
 static u16 adin_ext_read(struct phy_device *phydev, const u32 regnum)
@@ -144,14 +155,41 @@ static int adin_ext_write(struct phy_device *phydev, const u32 regnum, const u16
 	return phy_write(phydev, MDIO_DEVAD_NONE, ADIN1300_EXT_REG_DATA, val);
 }
 
+static int adin_config_clk_out(struct phy_device *phydev)
+{
+	ofnode node = phy_get_ofnode(phydev);
+	const char *val = NULL;
+	u8 sel = 0;
+
+	val = ofnode_read_string(node, "adi,phy-output-clock");
+	if (!val) {
+		/* property not present, do not enable GP_CLK pin */
+	} else if (strcmp(val, "25mhz-reference") == 0) {
+		sel |= ADIN1300_GE_CLK_CFG_25;
+	} else if (strcmp(val, "125mhz-free-running") == 0) {
+		sel |= ADIN1300_GE_CLK_CFG_FREE_125;
+	} else if (strcmp(val, "adaptive-free-running") == 0) {
+		sel |= ADIN1300_GE_CLK_CFG_HRT_FREE;
+	} else {
+		pr_err("%s: invalid adi,phy-output-clock\n", __func__);
+		return -EINVAL;
+	}
+
+	if (ofnode_read_bool(node, "adi,phy-output-reference-clock"))
+		sel |= ADIN1300_GE_CLK_CFG_REF_EN;
+
+	return adin_ext_write(phydev, ADIN1300_GE_CLK_CFG_REG,
+			      ADIN1300_GE_CLK_CFG_MASK & sel);
+}
+
 static int adin_config_rgmii_mode(struct phy_device *phydev)
 {
 	u16 reg_val;
 	u32 val;
-	int phy_mode_override = adin_get_phy_mode_override(phydev);
+	phy_interface_t phy_mode_override = adin_get_phy_mode_override(phydev);
 
-	if (phy_mode_override >= 0) {
-		phydev->interface = (phy_interface_t) phy_mode_override;
+	if (phy_mode_override != PHY_INTERFACE_MODE_NA) {
+		phydev->interface = phy_mode_override;
 	}
 
 	reg_val = adin_ext_read(phydev, ADIN1300_GE_RGMII_CFG);
@@ -201,6 +239,10 @@ static int adin1300_config(struct phy_device *phydev)
 	int ret;
 
 	printf("ADIN1300 PHY detected at addr %d\n", phydev->addr);
+
+	ret = adin_config_clk_out(phydev);
+	if (ret < 0)
+		return ret;
 
 	ret = adin_config_rgmii_mode(phydev);
 

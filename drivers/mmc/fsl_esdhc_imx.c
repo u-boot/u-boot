@@ -1060,6 +1060,30 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 	return timeout > 0;
 }
 
+static int esdhc_wait_dat0_common(struct fsl_esdhc_priv *priv, int state,
+				  int timeout_us)
+{
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+	int ret, err;
+	u32 tmp;
+
+	/* make sure the card clock keep on */
+	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+
+	ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp,
+				!!(tmp & PRSSTAT_DAT0) == !!state,
+				timeout_us);
+
+	/* change to default setting, let host control the card clock */
+	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
+
+	err = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp, tmp & PRSSTAT_SDOFF, 100);
+	if (err)
+		pr_warn("card clock not gate off as expect.\n");
+
+	return ret;
+}
+
 static int esdhc_reset(struct fsl_esdhc *regs)
 {
 	ulong start;
@@ -1109,11 +1133,19 @@ static int esdhc_set_ios(struct mmc *mmc)
 	return esdhc_set_ios_common(priv, mmc);
 }
 
+static int esdhc_wait_dat0(struct mmc *mmc, int state, int timeout_us)
+{
+	struct fsl_esdhc_priv *priv = mmc->priv;
+
+	return esdhc_wait_dat0_common(priv, state, timeout_us);
+}
+
 static const struct mmc_ops esdhc_ops = {
 	.getcd		= esdhc_getcd,
 	.init		= esdhc_init,
 	.send_cmd	= esdhc_send_cmd,
 	.set_ios	= esdhc_set_ios,
+	.wait_dat0	= esdhc_wait_dat0,
 };
 #endif
 
@@ -1576,25 +1608,9 @@ static int __maybe_unused fsl_esdhc_set_enhanced_strobe(struct udevice *dev)
 static int fsl_esdhc_wait_dat0(struct udevice *dev, int state,
 				int timeout_us)
 {
-	int ret, err;
-	u32 tmp;
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
-	struct fsl_esdhc *regs = priv->esdhc_regs;
 
-	/* make sure the card clock keep on */
-	esdhc_setbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
-
-	ret = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp,
-				!!(tmp & PRSSTAT_DAT0) == !!state,
-				timeout_us);
-
-	/* change to default setting, let host control the card clock */
-	esdhc_clrbits32(&regs->vendorspec, VENDORSPEC_FRC_SDCLK_ON);
-	err = readx_poll_timeout(esdhc_read32, &regs->prsstat, tmp, tmp & PRSSTAT_SDOFF, 100);
-	if (err)
-		dev_warn(dev, "card clock not gate off as expect.\n");
-
-	return ret;
+	return esdhc_wait_dat0_common(priv, state, timeout_us);
 }
 
 static const struct dm_mmc_ops fsl_esdhc_ops = {

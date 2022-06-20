@@ -84,6 +84,7 @@
 	"rootfstype=ext4\0" \
 	"console=console=ttySAC2,115200n8\0" \
 	"fdtfile=exynos5422-odroidxu3.dtb\0" \
+	"board=odroid\0" \
 	"board_name=odroidxu3\0" \
 	"mmcbootdev=0\0" \
 	"mmcrootdev=0\0" \

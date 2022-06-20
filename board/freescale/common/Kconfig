@@ -3,6 +3,7 @@ config CHAIN_OF_TRUST
 	imply CMD_BLOB
 	imply CMD_HASH if ARM
 	select FSL_CAAM
+	select ARCH_MISC_INIT
 	select SPL_BOARD_INIT if (ARM && SPL)
 	select SPL_HASH if (ARM && SPL)
 	select SHA_HW_ACCEL

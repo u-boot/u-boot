@@ -1058,14 +1058,15 @@ static void efi_capsule_scan_done(void)
  */
 static efi_status_t check_run_capsules(void)
 {
-	u64 os_indications;
+	u64 os_indications = 0x0;
 	efi_uintn_t size;
 	efi_status_t r;
 
 	size = sizeof(os_indications);
 	r = efi_get_variable_int(u"OsIndications", &efi_global_variable_guid,
 				 NULL, &size, &os_indications, NULL);
-	if (r != EFI_SUCCESS || size != sizeof(os_indications))
+	if (!IS_ENABLED(CONFIG_EFI_IGNORE_OSINDICATIONS) &&
+	    (r != EFI_SUCCESS || size != sizeof(os_indications)))
 		return EFI_NOT_FOUND;
 
 	if (os_indications &
@@ -1084,7 +1085,7 @@ static efi_status_t check_run_capsules(void)
 		return EFI_SUCCESS;
 	} else if (IS_ENABLED(CONFIG_EFI_IGNORE_OSINDICATIONS)) {
 		return EFI_SUCCESS;
-	} else  {
+	} else {
 		return EFI_NOT_FOUND;
 	}
 }

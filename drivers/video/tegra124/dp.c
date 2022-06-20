@@ -1609,6 +1609,7 @@ static int dp_tegra_probe(struct udevice *dev)
 
 static const struct udevice_id tegra_dp_ids[] = {
 	{ .compatible = "nvidia,tegra124-dpaux" },
+	{ .compatible = "nvidia,tegra210-dpaux" },
 	{ }
 };
 

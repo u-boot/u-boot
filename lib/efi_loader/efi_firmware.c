@@ -241,18 +241,8 @@ efi_status_t efi_firmware_capsule_authenticate(const void **p_image,
 	return EFI_SUCCESS;
 }
 
-#ifdef CONFIG_EFI_CAPSULE_FIRMWARE_FIT
-/*
- * This FIRMWARE_MANAGEMENT_PROTOCOL driver provides a firmware update
- * method with existing FIT image format, and handles
- *   - multiple regions of firmware via DFU
- * but doesn't support
- *   - versioning of firmware image
- *   - package information
- */
-
 /**
- * efi_firmware_fit_get_image_info - return information about the current
+ * efi_firmware_get_image_info - return information about the current
  *				     firmware image
  * @this:			Protocol instance
  * @image_info_size:		Size of @image_info
@@ -270,7 +260,7 @@ efi_status_t efi_firmware_capsule_authenticate(const void **p_image,
  * Return		status code
  */
 static
-efi_status_t EFIAPI efi_firmware_fit_get_image_info(
+efi_status_t EFIAPI efi_firmware_get_image_info(
 	struct efi_firmware_management_protocol *this,
 	efi_uintn_t *image_info_size,
 	struct efi_firmware_image_descriptor *image_info,
@@ -302,6 +292,16 @@ efi_status_t EFIAPI efi_firmware_fit_get_image_info(
 
 	return EFI_EXIT(ret);
 }
+
+#ifdef CONFIG_EFI_CAPSULE_FIRMWARE_FIT
+/*
+ * This FIRMWARE_MANAGEMENT_PROTOCOL driver provides a firmware update
+ * method with existing FIT image format, and handles
+ *   - multiple regions of firmware via DFU
+ * but doesn't support
+ *   - versioning of firmware image
+ *   - package information
+ */
 
 /**
  * efi_firmware_fit_set_image - update the firmware image
@@ -348,7 +348,7 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 }
 
 const struct efi_firmware_management_protocol efi_fmp_fit = {
-	.get_image_info = efi_firmware_fit_get_image_info,
+	.get_image_info = efi_firmware_get_image_info,
 	.get_image = efi_firmware_get_image_unsupported,
 	.set_image = efi_firmware_fit_set_image,
 	.check_image = efi_firmware_check_image_unsupported,
@@ -362,58 +362,6 @@ const struct efi_firmware_management_protocol efi_fmp_fit = {
  * This FIRMWARE_MANAGEMENT_PROTOCOL driver provides a firmware update
  * method with raw data.
  */
-
-/**
- * efi_firmware_raw_get_image_info - return information about the current
- *				     firmware image
- * @this:			Protocol instance
- * @image_info_size:		Size of @image_info
- * @image_info:			Image information
- * @descriptor_version:		Pointer to version number
- * @descriptor_count:		Pointer to number of descriptors
- * @descriptor_size:		Pointer to descriptor size
- * @package_version:		Package version
- * @package_version_name:	Package version's name
- *
- * Return information bout the current firmware image in @image_info.
- * @image_info will consist of a number of descriptors.
- * Each descriptor will be created based on "dfu_alt_info" variable.
- *
- * Return		status code
- */
-static
-efi_status_t EFIAPI efi_firmware_raw_get_image_info(
-	struct efi_firmware_management_protocol *this,
-	efi_uintn_t *image_info_size,
-	struct efi_firmware_image_descriptor *image_info,
-	u32 *descriptor_version,
-	u8 *descriptor_count,
-	efi_uintn_t *descriptor_size,
-	u32 *package_version,
-	u16 **package_version_name)
-{
-	efi_status_t ret = EFI_SUCCESS;
-
-	EFI_ENTRY("%p %p %p %p %p %p %p %p\n", this,
-		  image_info_size, image_info,
-		  descriptor_version, descriptor_count, descriptor_size,
-		  package_version, package_version_name);
-
-	if (!image_info_size)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
-
-	if (*image_info_size &&
-	    (!image_info || !descriptor_version || !descriptor_count ||
-	     !descriptor_size || !package_version || !package_version_name))
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
-
-	ret = efi_fill_image_desc_array(image_info_size, image_info,
-					descriptor_version, descriptor_count,
-					descriptor_size, package_version,
-					package_version_name);
-
-	return EFI_EXIT(ret);
-}
 
 /**
  * efi_firmware_raw_set_image - update the firmware image
@@ -461,7 +409,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 }
 
 const struct efi_firmware_management_protocol efi_fmp_raw = {
-	.get_image_info = efi_firmware_raw_get_image_info,
+	.get_image_info = efi_firmware_get_image_info,
 	.get_image = efi_firmware_get_image_unsupported,
 	.set_image = efi_firmware_raw_set_image,
 	.check_image = efi_firmware_check_image_unsupported,

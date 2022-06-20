@@ -10,3 +10,18 @@
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
 };
+
+&uart1 {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+};
+
+&uart2 {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+};
+
+&uart3 {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+};

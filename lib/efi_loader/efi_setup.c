@@ -243,6 +243,10 @@ efi_status_t efi_init_obj_list(void)
 			goto out;
 	}
 
+	/* Set up console modes */
+	efi_setup_console_size();
+
+	/* Install EFI_RNG_PROTOCOL */
 	if (IS_ENABLED(CONFIG_EFI_RNG_PROTOCOL)) {
 		ret = efi_rng_register();
 		if (ret != EFI_SUCCESS)

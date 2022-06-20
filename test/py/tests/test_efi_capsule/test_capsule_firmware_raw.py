@@ -115,6 +115,7 @@ class TestEfiCapsuleFirmwareRaw:
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
+                'printenv -e PlatformLangCodes', # workaround for terminal size determination
                 'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi -s ""',
                 'efidebug boot order 1',
                 'env set -e OsIndications',
@@ -197,6 +198,7 @@ class TestEfiCapsuleFirmwareRaw:
         with u_boot_console.log.section('Test Case 3-a, before reboot'):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
+                'printenv -e PlatformLangCodes', # workaround for terminal size determination
                 'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi -s ""',
                 'efidebug boot order 1',
                 'env set -e -nv -bs -rt OsIndications =0x0000000000000004',

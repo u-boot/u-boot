@@ -174,6 +174,8 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 #define FS_DT_REG  8         /* regular file */
 #define FS_DT_LNK  10        /* symbolic link */
 
+#define FS_DIRENT_NAME_LEN 256
+
 /**
  * struct fs_dirent - directory entry
  *
@@ -194,7 +196,7 @@ struct fs_dirent {
 	/** change_time:	time of last modification */
 	struct rtc_time change_time;
 	/** name:		file name */
-	char name[256];
+	char name[FS_DIRENT_NAME_LEN];
 };
 
 /* Note: fs_dir_stream should be treated as opaque to the user of fs layer */

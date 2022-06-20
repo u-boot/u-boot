@@ -116,7 +116,8 @@
 	"addargs=run addcons addmtd addmisc\0"				\
 	"ubiload="							\
 		"ubi part ${ubimtd} ; ubifsmount ${ubipart} ; "		\
-		"ubifsload ${kernel_addr_r} /boot/${bootfile}\0"	\
+		"ubifsload ${kernel_addr_r} /boot/${bootfile} ; "	\
+		"ubifsumount ; ubi detach\0"				\
 	"netload="							\
 		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
 	"miscargs=nohlt panic=1\0"					\

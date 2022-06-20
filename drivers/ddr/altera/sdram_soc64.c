@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2016-2021 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2022 Intel Corporation <www.intel.com>
  *
  */
 
@@ -239,7 +239,8 @@ phys_size_t sdram_calculate_size(struct altera_sdram_plat *plat)
 {
 	u32 dramaddrw = hmc_readl(plat, DRAMADDRW);
 
-	phys_size_t size = 1 << (DRAMADDRW_CFG_CS_ADDR_WIDTH(dramaddrw) +
+	phys_size_t size = (phys_size_t)1 <<
+			(DRAMADDRW_CFG_CS_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_BANK_GRP_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_BANK_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_ROW_ADDR_WIDTH(dramaddrw) +

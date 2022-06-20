@@ -10,6 +10,7 @@
 *.asn1.[ch]
 *.bin
 *.cfgout
+*.cover
 *.dtb
 *.dtbo
 *.dtb.S
@@ -22,6 +23,7 @@
 *.lex.c
 *.lst
 *.mod.c
+*.mbx
 *.o
 *.o.*
 *.order
