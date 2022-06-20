@@ -32,6 +32,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Virtual address range for PCI region maps */
+#define SYS_PCI_MAP_START	0x80000000
+#define SYS_PCI_MAP_END		0xe0000000
+
 static void *get_fdt_virt(void)
 {
 	if (gd->flags & GD_FLG_RELOC)
@@ -101,7 +105,7 @@ static int pci_map_region(phys_addr_t paddr, phys_size_t size, ulong *pmap_addr)
 	map_addr += size - 1;
 	map_addr &= ~(size - 1);
 
-	if (map_addr + size >= CONFIG_SYS_PCI_MAP_END)
+	if (map_addr + size >= SYS_PCI_MAP_END)
 		return -1;
 
 	/* Map virtual memory for range */
@@ -137,7 +141,7 @@ int misc_init_r(void)
 	pci_get_regions(dev, &io, &mem, &pre);
 
 	/* Start MMIO and PIO range maps above RAM */
-	map_addr = CONFIG_SYS_PCI_MAP_START;
+	map_addr = SYS_PCI_MAP_START;
 
 	/* Map MMIO range */
 	ret = pci_map_region(mem->phys_start, mem->size, &map_addr);
