@@ -98,7 +98,12 @@ struct virt_internal_data {
 	int dev_num;
 };
 
+
+#if defined(CONFIG_DFU_NAME_MAX_SIZE)
+#define DFU_NAME_SIZE			CONFIG_DFU_NAME_MAX_SIZE
+#else
 #define DFU_NAME_SIZE			32
+#endif
 #ifndef DFU_DEFAULT_POLL_TIMEOUT
 #define DFU_DEFAULT_POLL_TIMEOUT 0
 #endif
