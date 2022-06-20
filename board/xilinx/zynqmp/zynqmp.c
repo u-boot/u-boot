@@ -65,11 +65,13 @@ enum {
 	ZYNQMP_VARIANT_DR = BIT(3U),
 };
 
-static const struct {
+struct zynqmp_device {
 	u32 id;
 	u8 device;
 	u8 variants;
-} zynqmp_devices[] = {
+};
+
+static const struct zynqmp_device zynqmp_devices[] = {
 	{
 		.id = 0x04688093,
 		.device = 1,
@@ -198,37 +200,33 @@ static const struct {
 		.device = 67,
 		.variants = ZYNQMP_VARIANT_DR,
 	},
-};
-
-static const struct {
-	u32 id;
-	char *name;
-} zynqmp_svd_devices[] = {
 	{
 		.id = 0x04714093,
-		.name = "xck24"
+		.device = 24,
+		.variants = 0,
 	},
 	{
 		.id = 0x04724093,
-		.name = "xck26",
+		.device = 26,
+		.variants = 0,
 	},
 };
 
-static char *zynqmp_detect_svd_name(u32 idcode)
+static const struct zynqmp_device *zynqmp_get_device(u32 idcode)
 {
-	u32 i;
+	idcode &= IDCODE_DEV_TYPE_MASK;
 
-	for (i = 0; i < ARRAY_SIZE(zynqmp_svd_devices); i++) {
-		if (zynqmp_svd_devices[i].id == (idcode & IDCODE_DEV_TYPE_MASK))
-			return zynqmp_svd_devices[i].name;
+	for (int i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
+		if (zynqmp_devices[i].id == idcode)
+			return &zynqmp_devices[i];
 	}
 
-	return "unknown";
+	return NULL;
 }
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
-	u32 i;
+	const struct zynqmp_device *device;
 	u32 idcode, idcode2;
 	char name[ZYNQMP_VERSION_SIZE];
 	u32 ret_payload[PAYLOAD_ARG_CNT];
@@ -254,21 +252,17 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	debug("%s, IDCODE: 0x%0x, IDCODE2: 0x%0x\r\n", __func__, idcode,
 	      idcode2);
 
-	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == (idcode & IDCODE_DEV_TYPE_MASK))
-			break;
-	}
-
-	if (i >= ARRAY_SIZE(zynqmp_devices))
-		return zynqmp_detect_svd_name(idcode);
+	device = zynqmp_get_device(idcode);
+	if (!device)
+		return "unknown";
 
 	/* Add device prefix to the name */
-	ret = snprintf(name, ZYNQMP_VERSION_SIZE, "zu%d",
-		       zynqmp_devices[i].device);
+	ret = snprintf(name, ZYNQMP_VERSION_SIZE, "%s%d",
+		       device->variants ? "zu" : "xck", device->device);
 	if (ret < 0)
 		return "unknown";
 
-	if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EV) {
+	if (device->variants & ZYNQMP_VARIANT_EV) {
 		/* Devices with EV variant might be EG/CG/EV family */
 		if (idcode2 & IDCODE2_PL_INIT_MASK) {
 			u32 family = ((idcode2 & EFUSE_VCU_DIS_MASK) >>
@@ -304,13 +298,13 @@ static char *zynqmp_get_silicon_idcode_name(void)
 			strlcat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" :
 				"e", sizeof(name));
 		}
-	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_CG) {
+	} else if (device->variants & ZYNQMP_VARIANT_CG) {
 		/* Devices with CG variant might be EG or CG family */
 		strlcat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" : "eg",
 			sizeof(name));
-	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_EG) {
+	} else if (device->variants & ZYNQMP_VARIANT_EG) {
 		strlcat(name, "eg", sizeof(name));
-	} else if (zynqmp_devices[i].variants & ZYNQMP_VARIANT_DR) {
+	} else if (device->variants & ZYNQMP_VARIANT_DR) {
 		strlcat(name, "dr", sizeof(name));
 	} else {
 		debug("Variant not identified\n");
