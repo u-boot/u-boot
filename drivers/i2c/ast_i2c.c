@@ -351,6 +351,7 @@ static const struct dm_i2c_ops ast_i2c_ops = {
 static const struct udevice_id ast_i2c_ids[] = {
 	{ .compatible = "aspeed,ast2400-i2c-bus" },
 	{ .compatible = "aspeed,ast2500-i2c-bus" },
+	{ .compatible = "aspeed,ast2600-i2c-bus" },
 	{ },
 };
 
