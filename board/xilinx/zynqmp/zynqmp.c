@@ -667,6 +667,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 				 bootseq, multiboot, bootseq,
 				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
 		break;
+#if defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
 		snprintf(buf, DFU_ALT_BUF_LEN,
@@ -675,6 +676,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			 multiboot * SZ_32K, CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
 			 CONFIG_SYS_SPI_U_BOOT_OFFS);
 		break;
+#endif
 	default:
 		return;
 	}
