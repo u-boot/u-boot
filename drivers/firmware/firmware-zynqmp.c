@@ -92,7 +92,7 @@ static int ipi_req(const u32 *req, size_t req_len, u32 *res, size_t res_maxlen)
 	    res_maxlen > PMUFW_PAYLOAD_ARG_CNT)
 		return -EINVAL;
 
-	if (!(zynqmp_power.tx_chan.dev) || !(&zynqmp_power.rx_chan.dev))
+	if (!(zynqmp_power.tx_chan.dev) || !(zynqmp_power.rx_chan.dev))
 		return -EINVAL;
 
 	debug("%s, Sending IPI message with ID: 0x%0x\n", __func__, req[0]);
