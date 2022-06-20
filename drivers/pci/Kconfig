@@ -146,6 +146,10 @@ config PCI_MPC85XX
 	  Say Y here if you want to enable PCI controller support on FSL
 	  PowerPC MPC85xx SoC.
 
+config PCI_MSC01
+	bool "MSC01 PCI support"
+	depends on TARGET_MALTA
+
 config PCI_RCAR_GEN2
 	bool "Renesas RCar Gen2 PCIe driver"
 	depends on RCAR_32
