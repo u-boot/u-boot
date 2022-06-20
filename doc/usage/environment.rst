@@ -204,7 +204,9 @@ fdt_high
     to work it must reside in writable memory, have
     sufficient padding on the end of it for u-boot to
     add the information it needs into it, and the memory
-    must be accessible by the kernel.
+    must be accessible by the kernel. This usage is strongly discouraged
+    however as it also stops U-Boot from ensuring the device tree starting
+    address is properly aligned and a misaligned tree will cause OS failures.
 
 fdtcontroladdr
     if set this is the address of the control flattened
@@ -240,14 +242,21 @@ initrd_high
     memory. In this case U-Boot will NOT COPY the
     ramdisk at all. This may be useful to reduce the
     boot time on your system, but requires that this
-    feature is supported by your Linux kernel.
+    feature is supported by your Linux kernel. This usage however requires
+    that the user ensure that there will be no overlap with other parts of the
+    image such as the Linux kernel BSS. It should not be enabled by default
+    and only done as part of optimizing a deployment.
 
 ipaddr
     IP address; needed for tftpboot command
 
 loadaddr
     Default load address for commands like "bootp",
-    "rarpboot", "tftpboot", "loadb" or "diskboot"
+    "rarpboot", "tftpboot", "loadb" or "diskboot".  Note that the optimal
+    default values here will vary between architectures.  On 32bit ARM for
+    example, some offset from start of memory is used as the Linux kernel
+    zImage has a self decompressor and it's best if we stay out of where that
+    will be working.
 
 loads_echo
     see CONFIG_LOADS_ECHO
