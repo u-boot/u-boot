@@ -133,8 +133,12 @@ config PCIE_DW_SIFIVE
 	  Say Y here if you want to enable PCIe controller support on
 	  FU740.
 
+config SYS_FSL_PCI_VER_3_X
+	bool
+
 config PCIE_FSL
 	bool "FSL PowerPC PCIe support"
+	select SYS_FSL_PCI_VER_3_X if ARCH_T2080 || ARCH_T4240
 	help
 	  Say Y here if you want to enable PCIe controller support on FSL
 	  PowerPC MPC85xx, MPC86xx, B series, P series and T series SoCs.
