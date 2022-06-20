@@ -19,9 +19,6 @@
 /* I2C */
 #define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 
-/* PCIe support */
-#define CONFIG_PCI_SCAN_SHOW
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

@@ -138,10 +138,6 @@
 #define CONFIG_SYS_PCIE4_MEM_PHYS	0xc60000000ull
 #define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
-
 /*
  * Environment
  */

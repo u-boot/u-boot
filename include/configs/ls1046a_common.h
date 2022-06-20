@@ -76,10 +76,6 @@
 
 /* I2C */
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 /* SATA */
 #ifndef SPL_NO_SATA
 #define CONFIG_SYS_SATA				AHCI_BASE_ADDR

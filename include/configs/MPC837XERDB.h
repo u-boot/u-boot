@@ -232,10 +232,6 @@
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xD8000000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000
 
-#ifdef CONFIG_PCI
-#undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
-
 /*
  * TSEC
  */

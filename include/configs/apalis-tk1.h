@@ -19,9 +19,6 @@
 #define FDT_MODULE			"apalis-v1.2"
 #define FDT_MODULE_V1_0			"apalis"
 
-/* PCI host support */
-#undef CONFIG_PCI_SCAN_SHOW
-
 /*
  * Custom Distro Boot configuration:
  * 1. 8bit SD port (MMC1)

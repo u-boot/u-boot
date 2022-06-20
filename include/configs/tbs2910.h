@@ -26,7 +26,6 @@
 
 /* PCI */
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
 #endif
 

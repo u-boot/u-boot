@@ -321,10 +321,6 @@
 #define CONFIG_SYS_DPAA_PME
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
-
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC1_PHY_ADDR	0x2
 #define CONFIG_SYS_FM1_DTSEC2_PHY_ADDR	0x3

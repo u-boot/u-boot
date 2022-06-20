@@ -81,6 +81,10 @@ config PCI_ARID
           support on PCI devices. This helps to skip some devices in BDF
           scan that are not present.
 
+config PCI_SCAN_SHOW
+	bool "Show PCI devices during startup"
+	depends on PCIE_IMX
+
 config PCIE_ECAM_GENERIC
 	bool "Generic ECAM-based PCI host controller support"
 	help

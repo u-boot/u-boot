@@ -384,8 +384,6 @@
 #else
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc00000
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)

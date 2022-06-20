@@ -81,9 +81,6 @@
 
 /* PCIe */
 #define FSL_PCIE_COMPAT			"fsl,ls1021a-pcie"
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256

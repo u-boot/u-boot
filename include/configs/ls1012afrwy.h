@@ -25,8 +25,6 @@
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 
-#define CONFIG_PCI_SCAN_SHOW
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\

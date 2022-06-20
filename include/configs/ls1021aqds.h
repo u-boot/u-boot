@@ -301,10 +301,6 @@
 
 #endif
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 

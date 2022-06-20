@@ -362,8 +362,6 @@
 #define CONFIG_SYS_PCIE4_IO_VIRT	0xf8030000
 #define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
 /*

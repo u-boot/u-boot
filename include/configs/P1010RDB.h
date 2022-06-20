@@ -94,8 +94,6 @@
 #else
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif
 
 #define CONFIG_HWCONFIG

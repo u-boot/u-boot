@@ -312,10 +312,6 @@
 #endif
 #define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
-#if defined(CONFIG_PCI)
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
-
 #if defined(CONFIG_TSEC_ENET)
 
 #define CONFIG_TSEC1	1

@@ -36,8 +36,6 @@
 #define __PHY_ETH2_MASK		0xFB
 #define __PHY_ETH1_MASK		0xFD
 
-#define CONFIG_PCI_SCAN_SHOW
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\

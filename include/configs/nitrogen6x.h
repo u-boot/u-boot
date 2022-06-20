@@ -97,11 +97,4 @@
 
 /* Environment organization */
 
-/*
- * PCI express
- */
-#ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 #endif	       /* __CONFIG_H */

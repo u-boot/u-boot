@@ -251,10 +251,6 @@
 
 #define CONFIG_FSL_MEMAC
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #ifdef CONFIG_NXP_ESBC

@@ -82,8 +82,6 @@
 				DSPI_CTAR_CSSCK(2) | DSPI_CTAR_ASC(0) | \
 				DSPI_CTAR_DT(0))
 
-#define CONFIG_PCI_SCAN_SHOW
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\

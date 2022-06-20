@@ -89,11 +89,6 @@
 /* Qixis */
 #define CONFIG_SYS_I2C_FPGA_ADDR		0x66
 
-/* PCI */
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 /* USB */
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
