@@ -390,7 +390,6 @@ in U-Boot code.
 ================= ============== ================ ==============
 Image             File Name      RAM Address      Flash Location
 ================= ============== ================ ==============
-u-boot            u-boot         u-boot_addr_r    u-boot_addr
 Linux kernel      bootfile       kernel_addr_r    kernel_addr
 device tree blob  fdtfile        fdt_addr_r       fdt_addr
 ramdisk           ramdiskfile    ramdisk_addr_r   ramdisk_addr
