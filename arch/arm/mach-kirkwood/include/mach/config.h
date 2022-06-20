@@ -23,9 +23,6 @@
 #endif /* CONFIG_KW88F6281 */
 
 #include <asm/arch/soc.h>
-#define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
-#define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
-#define CONFIG_KIRKWOOD_PCIE_INIT       /* Enable PCIE Port0 for kernel */
 
 #define CONFIG_I2C_MVTWSI_BASE0	KW_TWSI_BASE
 #define MV_UART_CONSOLE_BASE	KW_UART0_BASE
