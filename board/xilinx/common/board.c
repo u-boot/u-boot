@@ -506,6 +506,10 @@ int print_cpuinfo(void)
 	if (ret)
 		printf("Silicon: %s\n", name);
 
+	ret = soc_get_machine(soc, name, SOC_MAX_STR_SIZE);
+	if (ret)
+		printf("Chip:  %s\n", name);
+
 	return 0;
 }
 #endif
