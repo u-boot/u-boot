@@ -19,6 +19,7 @@
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
+#include <soc.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <wdt.h>
@@ -44,274 +45,10 @@
 
 #include "pm_cfg_obj.h"
 
-#define ZYNQMP_VERSION_SIZE	7
-#define EFUSE_VCU_DIS_SHIFT	8
-#define EFUSE_VCU_DIS_MASK	BIT(EFUSE_VCU_DIS_SHIFT)
-#define EFUSE_GPU_DIS_SHIFT	5
-#define EFUSE_GPU_DIS_MASK	BIT(EFUSE_GPU_DIS_SHIFT)
-#define IDCODE_DEV_TYPE_MASK	GENMASK(27, 0)
-#define IDCODE2_PL_INIT_SHIFT	9
-#define IDCODE2_PL_INIT_MASK	BIT(IDCODE2_PL_INIT_SHIFT)
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
-
-enum {
-	ZYNQMP_VARIANT_EG = BIT(0U),
-	ZYNQMP_VARIANT_EV = BIT(1U),
-	ZYNQMP_VARIANT_CG = BIT(2U),
-	ZYNQMP_VARIANT_DR = BIT(3U),
-};
-
-struct zynqmp_device {
-	u32 id;
-	u8 device;
-	u8 variants;
-};
-
-static const struct zynqmp_device zynqmp_devices[] = {
-	{
-		.id = 0x04688093,
-		.device = 1,
-		.variants = ZYNQMP_VARIANT_EG,
-	},
-	{
-		.id = 0x04711093,
-		.device = 2,
-		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
-	},
-	{
-		.id = 0x04710093,
-		.device = 3,
-		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
-	},
-	{
-		.id = 0x04721093,
-		.device = 4,
-		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG |
-			ZYNQMP_VARIANT_EV,
-	},
-	{
-		.id = 0x04720093,
-		.device = 5,
-		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG |
-			ZYNQMP_VARIANT_EV,
-	},
-	{
-		.id = 0x04739093,
-		.device = 6,
-		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
-	},
-	{
-		.id = 0x04730093,
-		.device = 7,
-		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG |
-			ZYNQMP_VARIANT_EV,
-	},
-	{
-		.id = 0x04738093,
-		.device = 9,
-		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
-	},
-	{
-		.id = 0x04740093,
-		.device = 11,
-		.variants = ZYNQMP_VARIANT_EG,
-	},
-	{
-		.id = 0x04750093,
-		.device = 15,
-		.variants = ZYNQMP_VARIANT_EG,
-	},
-	{
-		.id = 0x04759093,
-		.device = 17,
-		.variants = ZYNQMP_VARIANT_EG,
-	},
-	{
-		.id = 0x04758093,
-		.device = 19,
-		.variants = ZYNQMP_VARIANT_EG,
-	},
-	{
-		.id = 0x047E1093,
-		.device = 21,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047E3093,
-		.device = 23,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047E5093,
-		.device = 25,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047E4093,
-		.device = 27,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047E0093,
-		.device = 28,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047E2093,
-		.device = 29,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047E6093,
-		.device = 39,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047FD093,
-		.device = 43,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047F8093,
-		.device = 46,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047FF093,
-		.device = 47,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047FB093,
-		.device = 48,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x047FE093,
-		.device = 49,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x046d0093,
-		.device = 67,
-		.variants = ZYNQMP_VARIANT_DR,
-	},
-	{
-		.id = 0x04714093,
-		.device = 24,
-		.variants = 0,
-	},
-	{
-		.id = 0x04724093,
-		.device = 26,
-		.variants = 0,
-	},
-};
-
-static const struct zynqmp_device *zynqmp_get_device(u32 idcode)
-{
-	idcode &= IDCODE_DEV_TYPE_MASK;
-
-	for (int i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == idcode)
-			return &zynqmp_devices[i];
-	}
-
-	return NULL;
-}
-
-static char *zynqmp_get_silicon_idcode_name(void)
-{
-	const struct zynqmp_device *device;
-	u32 idcode, idcode2;
-	char name[ZYNQMP_VERSION_SIZE];
-	u32 ret_payload[PAYLOAD_ARG_CNT];
-	int ret;
-
-	ret = xilinx_pm_request(PM_GET_CHIPID, 0, 0, 0, 0, ret_payload);
-	if (ret) {
-		debug("%s: Getting chipid failed\n", __func__);
-		return "unknown";
-	}
-
-	/*
-	 * Firmware returns:
-	 * payload[0][31:0]  = status of the operation
-	 * payload[1]] = IDCODE
-	 * payload[2][19:0]  = Version
-	 * payload[2][28:20] = EXTENDED_IDCODE
-	 * payload[2][29] = PL_INIT
-	 */
-
-	idcode  = ret_payload[1];
-	idcode2 = ret_payload[2] >> ZYNQMP_CSU_VERSION_EMPTY_SHIFT;
-	debug("%s, IDCODE: 0x%0x, IDCODE2: 0x%0x\r\n", __func__, idcode,
-	      idcode2);
-
-	device = zynqmp_get_device(idcode);
-	if (!device)
-		return "unknown";
-
-	/* Add device prefix to the name */
-	ret = snprintf(name, ZYNQMP_VERSION_SIZE, "%s%d",
-		       device->variants ? "zu" : "xck", device->device);
-	if (ret < 0)
-		return "unknown";
-
-	if (device->variants & ZYNQMP_VARIANT_EV) {
-		/* Devices with EV variant might be EG/CG/EV family */
-		if (idcode2 & IDCODE2_PL_INIT_MASK) {
-			u32 family = ((idcode2 & EFUSE_VCU_DIS_MASK) >>
-				      EFUSE_VCU_DIS_SHIFT) << 1 |
-				     ((idcode2 & EFUSE_GPU_DIS_MASK) >>
-				      EFUSE_GPU_DIS_SHIFT);
-
-			/*
-			 * Get family name based on extended idcode values as
-			 * determined on UG1087, EXTENDED_IDCODE register
-			 * description
-			 */
-			switch (family) {
-			case 0x00:
-				strlcat(name, "ev", sizeof(name));
-				break;
-			case 0x10:
-				strlcat(name, "eg", sizeof(name));
-				break;
-			case 0x11:
-				strlcat(name, "cg", sizeof(name));
-				break;
-			default:
-				/* Do not append family name*/
-				break;
-			}
-		} else {
-			/*
-			 * When PL powered down the VCU Disable efuse cannot be
-			 * read. So, ignore the bit and just findout if it is CG
-			 * or EG/EV variant.
-			 */
-			strlcat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" :
-				"e", sizeof(name));
-		}
-	} else if (device->variants & ZYNQMP_VARIANT_CG) {
-		/* Devices with CG variant might be EG or CG family */
-		strlcat(name, (idcode2 & EFUSE_GPU_DIS_MASK) ? "cg" : "eg",
-			sizeof(name));
-	} else if (device->variants & ZYNQMP_VARIANT_EG) {
-		strlcat(name, "eg", sizeof(name));
-	} else if (device->variants & ZYNQMP_VARIANT_DR) {
-		strlcat(name, "dr", sizeof(name));
-	} else {
-		debug("Variant not identified\n");
-	}
-
-	return strdup(name);
-}
 #endif
 
 int __maybe_unused psu_uboot_init(void)
@@ -402,6 +139,11 @@ static void print_secure_boot(void)
 
 int board_init(void)
 {
+#if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
+	struct udevice *soc;
+	char name[SOC_MAX_STR_SIZE];
+	int ret;
+#endif
 #if defined(CONFIG_ZYNQMP_FIRMWARE)
 	struct udevice *dev;
 
@@ -428,10 +170,15 @@ int board_init(void)
 	printf("EL Level:\tEL%d\n", current_el());
 
 #if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
-	zynqmppl.name = zynqmp_get_silicon_idcode_name();
-	printf("Chip ID:\t%s\n", zynqmppl.name);
-	fpga_init();
-	fpga_add(fpga_xilinx, &zynqmppl);
+	ret = soc_get(&soc);
+	if (!ret) {
+		ret = soc_get_machine(soc, name, sizeof(name));
+		if (ret >= 0) {
+			zynqmppl.name = strdup(name);
+			fpga_init();
+			fpga_add(fpga_xilinx, &zynqmppl);
+		}
+	}
 #endif
 
 	/* display secure boot information */
