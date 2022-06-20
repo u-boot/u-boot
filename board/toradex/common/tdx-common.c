@@ -20,8 +20,6 @@
 #include <asm/setup.h>
 #include "tdx-common.h"
 
-#define TORADEX_OUI 0x00142dUL
-
 #define SERIAL_STR_LEN 8
 #define MODULE_VER_STR_LEN 4 // V1.1
 #define MODULE_REV_STR_LEN 3 // [A-Z] or #[26-99]
@@ -104,8 +102,7 @@ int show_board_info(void)
 
 	if (read_tdx_cfg_block()) {
 		printf("MISSING TORADEX CONFIG BLOCK\n");
-		tdx_eth_addr.oui = htonl(TORADEX_OUI << 8);
-		tdx_eth_addr.nic = htonl(tdx_serial << 8);
+		get_mac_from_serial(tdx_serial, &tdx_eth_addr);
 		checkboard();
 	} else {
 		snprintf(tdx_serial_str, sizeof(tdx_serial_str),
