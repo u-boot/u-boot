@@ -39,6 +39,11 @@ struct stm32_rcc_clk stm32_rcc_clk_mp1 = {
 	.soc = STM32MP1,
 };
 
+struct stm32_rcc_clk stm32_rcc_clk_mp13 = {
+	.drv_name = "stm32mp13_clk",
+	.soc = STM32MP1,
+};
+
 static int stm32_rcc_bind(struct udevice *dev)
 {
 	struct udevice *child;
@@ -79,6 +84,7 @@ static const struct udevice_id stm32_rcc_ids[] = {
 	{.compatible = "st,stm32f746-rcc", .data = (ulong)&stm32_rcc_clk_f7 },
 	{.compatible = "st,stm32h743-rcc", .data = (ulong)&stm32_rcc_clk_h7 },
 	{.compatible = "st,stm32mp1-rcc", .data = (ulong)&stm32_rcc_clk_mp1 },
+	{.compatible = "st,stm32mp13-rcc", .data = (ulong)&stm32_rcc_clk_mp13 },
 	{ }
 };
 

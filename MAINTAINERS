@@ -496,7 +496,7 @@ S:	Maintained
 F:	arch/arm/mach-stm32mp/
 F:	doc/board/st/
 F:	drivers/adc/stm32-adc*
-F:	drivers/clk/clk_stm32mp1.c
+F:	drivers/clk/stm32/
 F:	drivers/gpio/stm32_gpio.c
 F:	drivers/hwspinlock/stm32_hwspinlock.c
 F:	drivers/i2c/stm32f7_i2c.c

@@ -1,0 +1,23 @@
+config CLK_STM32F
+	bool "Enable clock driver support for STM32F family"
+	depends on CLK && (STM32F7 || STM32F4)
+	default y
+	help
+	  This clock driver adds support for RCC clock management
+	  for STM32F4 and STM32F7 SoCs.
+
+config CLK_STM32H7
+	bool "Enable clock driver support for STM32H7 family"
+	depends on CLK && STM32H7
+	default y
+	help
+	  This clock driver adds support for RCC clock management
+	  for STM32H7 SoCs.
+
+config CLK_STM32MP1
+	bool "Enable RCC clock driver for STM32MP15"
+	depends on ARCH_STM32MP && CLK
+	default y if STM32MP15x
+	help
+	  Enable the STM32 clock (RCC) driver. Enable support for
+	  manipulating STM32MP15's on-SoC clocks.

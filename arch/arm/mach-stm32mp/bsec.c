@@ -632,3 +632,20 @@ bool bsec_dbgswenable(void)
 
 	return false;
 }
+
+u32 get_otp(int index, int shift, int mask)
+{
+	int ret;
+	struct udevice *dev;
+	u32 otp = 0;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_DRIVER_GET(stm32mp_bsec),
+					  &dev);
+
+	if (!ret)
+		ret = misc_read(dev, STM32_BSEC_SHADOW(index),
+				&otp, sizeof(otp));
+
+	return (otp >> shift) & mask;
+}

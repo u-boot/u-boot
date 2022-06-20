@@ -9,7 +9,7 @@ choice
 config TARGET_STIH410_B2260
 	bool "96Boards STiH410-B2260"
 	help
-	  Support for 96Board STiH410-B2260 based on STMicrolectronics
+	  Support for 96Board STiH410-B2260 based on STMicroelectronics
 	  STiH410 soc. This board complies with 96Board Open Platform
 	  Specifications. Features:
 	  - 1GB DDR

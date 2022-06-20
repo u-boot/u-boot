@@ -230,29 +230,29 @@ static u8 get_nb_col(struct stm32mp1_ddrctl *ctl, u8 data_bus_width)
 
 	reg = readl(&ctl->addrmap3);
 	/* addrmap3.addrmap_col_b6 */
-	val = (reg & GENMASK(3, 0)) >> 0;
+	val = (reg & GENMASK(4, 0)) >> 0;
 	if (val <= 7)
 		bits++;
 	/* addrmap3.addrmap_col_b7 */
-	val = (reg & GENMASK(11, 8)) >> 8;
+	val = (reg & GENMASK(12, 8)) >> 8;
 	if (val <= 7)
 		bits++;
 	/* addrmap3.addrmap_col_b8 */
-	val = (reg & GENMASK(19, 16)) >> 16;
+	val = (reg & GENMASK(20, 16)) >> 16;
 	if (val <= 7)
 		bits++;
 	/* addrmap3.addrmap_col_b9 */
-	val = (reg & GENMASK(27, 24)) >> 24;
+	val = (reg & GENMASK(28, 24)) >> 24;
 	if (val <= 7)
 		bits++;
 
 	reg = readl(&ctl->addrmap4);
 	/* addrmap4.addrmap_col_b10 */
-	val = (reg & GENMASK(3, 0)) >> 0;
+	val = (reg & GENMASK(4, 0)) >> 0;
 	if (val <= 7)
 		bits++;
 	/* addrmap4.addrmap_col_b11 */
-	val = (reg & GENMASK(11, 8)) >> 8;
+	val = (reg & GENMASK(12, 8)) >> 8;
 	if (val <= 7)
 		bits++;
 
@@ -296,20 +296,23 @@ static u8 get_nb_row(struct stm32mp1_ddrctl *ctl)
 	reg = readl(&ctl->addrmap6);
 	/* addrmap6.addrmap_row_b12 */
 	val = (reg & GENMASK(3, 0)) >> 0;
-	if (val <= 7)
+	if (val <= 11)
 		bits++;
 	/* addrmap6.addrmap_row_b13 */
 	val = (reg & GENMASK(11, 8)) >> 8;
-	if (val <= 7)
+	if (val <= 11)
 		bits++;
 	/* addrmap6.addrmap_row_b14 */
 	val = (reg & GENMASK(19, 16)) >> 16;
-	if (val <= 7)
+	if (val <= 11)
 		bits++;
 	/* addrmap6.addrmap_row_b15 */
 	val = (reg & GENMASK(27, 24)) >> 24;
-	if (val <= 7)
+	if (val <= 11)
 		bits++;
+
+	if (reg & BIT(31))
+		printf("warning: LPDDR3_6GB_12GB is not supported\n");
 
 	return bits;
 }
@@ -392,12 +395,17 @@ static struct ram_ops stm32mp1_ddr_ops = {
 	.get_info = stm32mp1_ddr_get_info,
 };
 
+static const struct stm32mp1_ddr_cfg stm32mp13x_ddr_cfg = {
+	.nb_bytes = 2,
+};
+
 static const struct stm32mp1_ddr_cfg stm32mp15x_ddr_cfg = {
 	.nb_bytes = 4,
 };
 
 static const struct udevice_id stm32mp1_ddr_ids[] = {
 	{ .compatible = "st,stm32mp1-ddr", .data = (ulong)&stm32mp15x_ddr_cfg},
+	{ .compatible = "st,stm32mp13-ddr", .data = (ulong)&stm32mp13x_ddr_cfg},
 	{ }
 };
 

@@ -1,41 +1,31 @@
 .. SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 .. sectionauthor:: Patrick Delaunay <patrick.delaunay@foss.st.com>
 
-STM32MP15x boards
+STM32MP1xx boards
 =================
 
-This is a quick instruction for setup STM32MP15x boards.
+This is a quick instruction for setup STMicroelectronics STM32MP1xx boards.
 
-Futher information can be found in STMicrolectronics STM32 WIKI_.
+Further information can be found in STMicroelectronics STM32 WIKI_.
 
 Supported devices
 -----------------
 
-U-Boot supports STMP32MP15x SoCs:
+U-Boot supports all the STMicroelectronics MPU with the associated boards
 
- - STM32MP157
- - STM32MP153
- - STM32MP151
+ - STMP32MP15x SoCs:
 
-The STM32MP15x is a Cortex-A MPU aimed at various applications.
+  - STM32MP157
+  - STM32MP153
+  - STM32MP151
 
-It features:
+ - STMP32MP13x SoCs:
 
- - Dual core Cortex-A7 application core (Single on STM32MP151)
- - 2D/3D image composition with GPU (only on STM32MP157)
- - Standard memories interface support
- - Standard connectivity, widely inherited from the STM32 MCU family
- - Comprehensive security support
+  - STM32MP135
+  - STM32MP133
+  - STM32MP131
 
-Each line comes with a security option (cryptography & secure boot) and
-a Cortex-A frequency option:
-
- - A : Cortex-A7 @ 650 MHz
- - C : Secure Boot + HW Crypto + Cortex-A7 @ 650 MHz
- - D : Cortex-A7 @ 800 MHz
- - F : Secure Boot + HW Crypto + Cortex-A7 @ 800 MHz
-
-Everything is supported in Linux but U-Boot is limited to:
+Everything is supported in Linux but U-Boot is limited to the boot device:
 
  1. UART
  2. SD card/MMC controller (SDMMC)
@@ -49,7 +39,35 @@ And the necessary drivers
  1. I2C
  2. STPMIC1 (PMIC and regulator)
  3. Clock, Reset, Sysreset
- 4. Fuse
+ 4. Fuse (BSEC)
+ 5. OP-TEE
+ 6. ETH
+ 7. USB host
+ 8. WATCHDOG
+ 9. RNG
+ 10. RTC
+
+STM32MP15x
+``````````
+
+The STM32MP15x is a Cortex-A7 MPU aimed at various applications.
+
+It features:
+
+ - Dual core Cortex-A7 application core (Single on STM32MP151)
+ - 2D/3D image composition with GPU (only on STM32MP157)
+ - Standard memories interface support
+ - Standard connectivity, widely inherited from the STM32 MCU family
+ - Comprehensive security support
+ - Cortex M4 coprocessor
+
+Each line comes with a security option (cryptography & secure boot) and
+a Cortex-A frequency option:
+
+ - A : Cortex-A7 @ 650 MHz
+ - C : Secure Boot + HW Crypto + Cortex-A7 @ 650 MHz
+ - D : Cortex-A7 @ 800 MHz
+ - F : Secure Boot + HW Crypto + Cortex-A7 @ 800 MHz
 
 Currently the following boards are supported:
 
@@ -58,6 +76,16 @@ Currently the following boards are supported:
  + stm32mp157c-ed1.dts
  + stm32mp157c-ev1.dts
  + stm32mp15xx-dhcor-avenger96.dts
+
+STM32MP13x
+``````````
+
+The STM32MP13x is a single Cortex-A7 MPU aimed at various applications.
+
+Currently the following boards are supported:
+
+ + stm32mp135f-dk.dts
+
 
 Boot Sequences
 --------------
@@ -71,12 +99,22 @@ Boot Sequences
 +          +------------------------+-------------------------+--------------+
 |          | embedded RAM           | DDR                                    |
 +----------+------------------------+-------------------------+--------------+
+| TrustZone|                         secure monitor                          |
++----------+------------------------+-------------------------+--------------+
+
+The trusted boot chain is recommended with:
+
+- FSBL = **TF-A BL2**
+- Secure monitor = **OP-TEE**
+- SSBL = **U-Boot**
+
+It is the only supported boot chain for STM32MP13x family.
 
 The **Trusted** boot chain with TF-A_
 `````````````````````````````````````
 
 defconfig_file :
-   + **stm32mp15_defconfig** (for TF-A_ with FIP support)
+   + **stm32mp15_defconfig**  and **stm32mp13_defconfig** (for TF-A_ with FIP support)
    + **stm32mp15_trusted_defconfig** (for TF-A_ without FIP support)
 
     +-------------+--------------------------+------------+-------+
@@ -98,8 +136,8 @@ TF-A_ (BL2) initialize the DDR and loads the next stage binaries from a FIP file
      the secure monitor to access to secure resources.
    + HW_CONFIG: The hardware configuration file = the U-Boot device tree
 
-The **Basic** boot chain with SPL
-`````````````````````````````````
+The **Basic** boot chain with SPL (for STM32MP15x)
+``````````````````````````````````````````````````
 
 defconfig_file :
    + **stm32mp15_basic_defconfig**
@@ -117,16 +155,19 @@ SPL has limited security initialization.
 U-Boot is running in secure mode and provide a secure monitor to the kernel
 with only PSCI support (Power State Coordination Interface defined by ARM).
 
-All the STM32MP15x boards supported by U-Boot use the same generic board
-stm32mp1 which support all the bootable devices.
+.. warning:: This alternate **basic** boot chain with SPL is not supported/promoted by STMicroelectronics to make product.
 
-Each board is configured only with the associated device tree.
+Device Tree
+-----------
 
-Device Tree Selection
----------------------
+All the STM32MP15x and STM32MP13x boards supported by U-Boot use the same generic board
+stm32mp1 which supports all the bootable devices.
 
-You need to select the appropriate device tree for your board,
-the supported device trees for STM32MP15x are:
+Each STMicroelectronics board is only configured with the associated device tree.
+
+STM32MP15x device Tree Selection
+````````````````````````````````
+The supported device trees for STM32MP15x (stm32mp15_trusted_defconfig and stm32mp15_basic_defconfig) are:
 
 + ev1: eval board with pmic stpmic1 (ev1 = mother board + daughter ed1)
 
@@ -147,6 +188,15 @@ the supported device trees for STM32MP15x are:
 + avenger96: Avenger96 board from Arrow Electronics based on DH Elec. DHCOR SoM
 
    + stm32mp15xx-dhcor-avenger96
+
+STM32MP13x device Tree Selection
+````````````````````````````````
+The supported device trees for STM32MP13x (stm32mp13_defconfig) are:
+
++ dk: Discovery board
+
+   + stm32mp135f-dk
+
 
 Build Procedure
 ---------------
@@ -170,6 +220,7 @@ Build Procedure
 
    for example: use one output directory for each configuration::
 
+   # export KBUILD_OUTPUT=stm32mp13
    # export KBUILD_OUTPUT=stm32mp15
    # export KBUILD_OUTPUT=stm32mp15_trusted
    # export KBUILD_OUTPUT=stm32mp15_basic
@@ -184,9 +235,10 @@ Build Procedure
 
    with <defconfig_file>:
 
-   - For **trusted** boot mode : **stm32mp15_defconfig** or
-     stm32mp15_trusted_defconfig
-   - For basic boot mode: stm32mp15_basic_defconfig
+   - For **trusted** boot mode :
+     - For STM32MP13x: **stm32mp13_defconfig**
+     - For STM32MP15x: **stm32mp15_defconfig** or stm32mp15_trusted_defconfig
+   - For STM32MP15x basic boot mode: stm32mp15_basic_defconfig
 
 5. Configure the device-tree and build the U-Boot image::
 
@@ -194,37 +246,42 @@ Build Procedure
 
    Examples:
 
-  a) trusted boot with FIP on ev1::
+  a) trusted boot with FIP on STM32MP15x ev1::
 
      # export KBUILD_OUTPUT=stm32mp15
      # make stm32mp15_defconfig
      # make DEVICE_TREE=stm32mp157c-ev1 all
 
-  b) trusted boot without FIP on dk2::
+  b) trusted boot on STM32MP13x discovery board::
 
-      # export KBUILD_OUTPUT=stm32mp15_trusted
-      # make stm32mp15_trusted_defconfig
-      # make DEVICE_TREE=stm32mp157c-dk2 all
+     # export KBUILD_OUTPUT=stm32mp13
+     # make stm32mp13_defconfig
+     # make DEVICE_TREE=stm32mp135f-dk all
 
-  c) basic boot on ev1::
+    DEVICE_TEE selection is optional as stm32mp135f-dk is the default board of the defconfig::
+
+     # make stm32mp13_defconfig
+     # make all
+
+  c) basic boot on STM32MP15x ev1::
 
       # export KBUILD_OUTPUT=stm32mp15_basic
       # make stm32mp15_basic_defconfig
       # make DEVICE_TREE=stm32mp157c-ev1 all
 
-  d) basic boot on ed1::
+  d) basic boot on STM32MP15x ed1::
 
       # export KBUILD_OUTPUT=stm32mp15_basic
       # make stm32mp15_basic_defconfig
       # make DEVICE_TREE=stm32mp157c-ed1 all
 
-  e) basic boot on dk1::
+  e) basic boot on STM32MP15x dk1::
 
      # export KBUILD_OUTPUT=stm32mp15_basic
      # make stm32mp15_basic_defconfig
      # make DEVICE_TREE=stm32mp157a-dk1 all
 
-  f) basic boot on avenger96::
+  f) basic boot on STM32MP15x avenger96::
 
      # export KBUILD_OUTPUT=stm32mp15_basic
      # make stm32mp15_basic_defconfig
@@ -235,6 +292,7 @@ Build Procedure
    So in the output directory (selected by KBUILD_OUTPUT),
    you can found the needed U-Boot files:
 
+     - stm32mp13_defconfig = **u-boot-nodtb.bin** and **u-boot.dtb**
      - stm32mp15_defconfig = **u-boot-nodtb.bin** and **u-boot.dtb**
 
      - stm32mp15_trusted_defconfig = u-boot.stm32
@@ -325,9 +383,9 @@ the boot pin values = BOOT0, BOOT1, BOOT2
   | SPI-NAND    |  1      |  1      |  1      |
   +-------------+---------+---------+---------+
 
-- on the **daugther board ed1 = MB1263** with the switch SW1
-- on **Avenger96** with switch S3 (NOR and SPI-NAND are not applicable)
-- on board **DK1/DK2** with the switch SW1 = BOOT0, BOOT2
+- on the STM32MP15x **daughter board ed1 = MB1263** with the switch SW1
+- on STM32MP15x **Avenger96** with switch S3 (NOR and SPI-NAND are not applicable)
+- on board STM32MP15x **DK1/DK2** with the switch SW1 = BOOT0, BOOT2
   with only 2 pins available (BOOT1 is forced to 0 and NOR not supported),
   the possible value becomes:
 
@@ -355,7 +413,7 @@ The communication between HOST and board is based on
 Prepare an SD card
 ------------------
 
-The minimal requirements for STMP32MP15x boot up to U-Boot are:
+The minimal requirements for STMP32MP15x and STM32MP13x boot up to U-Boot are:
 
 - GPT partitioning (with gdisk or with sgdisk)
 - 2 fsbl partitions, named "fsbl1" and "fsbl2", size at least 256KiB
@@ -511,13 +569,24 @@ MAC Address
 Please read doc/README.enetaddr for the implementation guidelines for mac id
 usage. Basically, environment has precedence over board specific storage.
 
-For STMicroelectonics board, it is retrieved in STM32MP15x OTP :
+For STMicroelectronics board, it is retrieved in:
 
- - OTP_57[31:0] = MAC_ADDR[31:0]
- - OTP_58[15:0] = MAC_ADDR[47:32]
+ - STM32MP15x OTP:
 
-To program a MAC address on virgin OTP words above, you can use the fuse command
+   - OTP_57[31:0] = MAC_ADDR[31:0]
+   - OTP_58[15:0] = MAC_ADDR[47:32]
+
+ - STM32MP13x OTP:
+
+  - OTP_57[31:0]  = MAC_ADDR0[31:0]
+  - OTP_58[15:0]  = MAC_ADDR0[47:32]
+  - OTP_58[31:16] = MAC_ADDR1[15:0]
+  - OTP_59[31:0]  = MAC_ADDR1[47:16]
+
+To program a MAC address on virgin STM32MP15x OTP words above, you can use the fuse command
 on bank 0 to access to internal OTP and lock them:
+
+In the next example we are using the 2 OTPs used on STM32MP15x.
 
 Prerequisite: check if a MAC address isn't yet programmed in OTP
 
@@ -571,8 +640,8 @@ Example to set mac address "12:34:56:78:9a:bc"
              OTP are protected. It is already done for the board
              provided by STMicroelectronics.
 
-Coprocessor firmware
---------------------
+Coprocessor firmware on STM32MP15x
+----------------------------------
 
 U-Boot can boot the coprocessor before the kernel (coprocessor early boot).
 
@@ -678,7 +747,7 @@ All the supported device are exported for dfu-util tool::
 
 You can update the boot device:
 
-- SD card (mmc0) ::
+- SD card (mmc0)::
 
   $> dfu-util -d 0483:5720 -a 3 -D tf-a-stm32mp157c-ev1.stm32
   $> dfu-util -d 0483:5720 -a 4 -D tf-a-stm32mp157c-ev1.stm32
