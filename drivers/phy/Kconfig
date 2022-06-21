@@ -274,6 +274,13 @@ config PHY_MTK_TPHY
 	  multi-ports is first version, otherwise is second veriosn,
 	  so you can easily distinguish them by banks layout.
 
+config PHY_NPCM_USB
+	bool "Nuvoton NPCM USB PHY support"
+	depends on PHY
+	depends on ARCH_NPCM
+	help
+	  Support the USB PHY in NPCM SoCs
+
 config PHY_IMX8MQ_USB
 	bool "NXP i.MX8MQ/i.MX8MP USB PHY Driver"
 	depends on PHY
