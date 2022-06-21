@@ -416,60 +416,51 @@
 				status = "disabled";
 			};
 
-			sdhci: sdhci@1e740000 {
-				#interrupt-cells = <1>;
-				compatible = "aspeed,aspeed-sdhci-irq", "simple-mfd";
-				reg = <0x1e740000 0x1000>;
-				interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
-				interrupt-controller;
-				clocks = <&scu ASPEED_CLK_GATE_SDCLK>,
-					 <&scu ASPEED_CLK_GATE_SDEXTCLK>;
-				clock-names = "ctrlclk", "extclk";
+			sdc: sdc@1e740000 {
+				compatible = "aspeed,ast2600-sd-controller";
+				reg = <0x1e740000 0x100>;
 				#address-cells = <1>;
 				#size-cells = <1>;
-				ranges = <0x0 0x1e740000 0x1000>;
+				ranges = <0 0x1e740000 0x10000>;
+				clocks = <&scu ASPEED_CLK_GATE_SDCLK>;
+				status = "disabled";
 
-				sdhci_slot0: sdhci_slot0@100 {
-					compatible = "aspeed,sdhci-ast2600";
+				sdhci0: sdhci@1e740100 {
+					compatible = "aspeed,ast2600-sdhci", "sdhci";
 					reg = <0x100 0x100>;
-					interrupts = <0>;
-					interrupt-parent = <&sdhci>;
+					interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
 					sdhci,auto-cmd12;
 					clocks = <&scu ASPEED_CLK_SDIO>;
 					status = "disabled";
 				};
 
-				sdhci_slot1: sdhci_slot1@200 {
-					compatible = "aspeed,sdhci-ast2600";
+				sdhci1: sdhci@1e740200 {
+					compatible = "aspeed,ast2600-sdhci", "sdhci";
 					reg = <0x200 0x100>;
-					interrupts = <1>;
-					interrupt-parent = <&sdhci>;
+					interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
 					sdhci,auto-cmd12;
 					clocks = <&scu ASPEED_CLK_SDIO>;
 					status = "disabled";
 				};
 			};
 
-			emmc: emmc@1e750000 {
-				#interrupt-cells = <1>;
-				compatible = "aspeed,aspeed-emmc-irq", "simple-mfd";
-				reg = <0x1e750000 0x1000>;
-				interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
-				interrupt-controller;
-				clocks = <&scu ASPEED_CLK_GATE_EMMCCLK>,
-					 <&scu ASPEED_CLK_GATE_EMMCEXTCLK>;
-				clock-names = "ctrlclk", "extclk";
+			emmc_controller: sdc@1e750000 {
+				compatible = "aspeed,ast2600-sd-controller";
+				reg = <0x1e750000 0x100>;
 				#address-cells = <1>;
 				#size-cells = <1>;
-				ranges = <0x0 0x1e750000 0x1000>;
+				ranges = <0 0x1e750000 0x10000>;
+				clocks = <&scu ASPEED_CLK_GATE_EMMCCLK>;
+				status = "disabled";
 
-				emmc_slot0: emmc_slot0@100 {
-					compatible = "aspeed,emmc-ast2600";
+				emmc: sdhci@1e750100 {
+					compatible = "aspeed,ast2600-sdhci";
 					reg = <0x100 0x100>;
-					interrupts = <0>;
-					interrupt-parent = <&emmc>;
+					sdhci,auto-cmd12;
+					interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
 					clocks = <&scu ASPEED_CLK_EMMC>;
-					status = "disabled";
+					pinctrl-names = "default";
+					pinctrl-0 = <&pinctrl_emmc_default>;
 				};
 			};
 
