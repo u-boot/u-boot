@@ -214,6 +214,14 @@ config USB_EHCI_MXS
 	  Enables support for the on-chip EHCI controller on i.MX23 and
 	  i.MX28 SoCs.
 
+config USB_EHCI_NPCM
+	bool "Support for Nuvoton NPCM on-chip EHCI USB controller"
+	depends on ARCH_NPCM
+	default n
+	---help---
+	  Enables support for the on-chip EHCI controller on
+	  Nuvoton NPCM chips.
+
 config USB_EHCI_OMAP
 	bool "Support for OMAP3+ on-chip EHCI USB controller"
 	depends on ARCH_OMAP2PLUS
@@ -342,6 +350,14 @@ config USB_OHCI_DA8XX
 	bool "Support for da850 OHCI USB controller"
 	help
 	  Enable support for the da850 USB controller.
+
+config USB_OHCI_NPCM
+	bool "Support for Nuvoton NPCM on-chip OHCI USB controller"
+	depends on ARCH_NPCM
+	default n
+	---help---
+	  Enables support for the on-chip OHCI controller on
+	  Nuvoton NPCM chips.
 
 endif # USB_OHCI_HCD
 
