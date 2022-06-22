@@ -47,7 +47,6 @@
 			xlnx,device_id = <0>;
 			no-1-8-v;
 			xlnx,mio-bank = <0>;
-			#stream-id-cells = <1>;
 		};
 	};
 
