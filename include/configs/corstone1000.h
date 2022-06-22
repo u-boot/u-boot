@@ -24,18 +24,4 @@
 
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
-#define CONFIG_EXTRA_ENV_SETTINGS							\
-				"usb_pgood_delay=250\0"					\
-				"boot_bank_flag=0x08002000\0"				\
-				"kernel_addr_bank_0=0x083EE000\0"			\
-				"kernel_addr_bank_1=0x0936E000\0"			\
-				"retrieve_kernel_load_addr="				\
-					"if itest.l *${boot_bank_flag} == 0; then "	\
-					    "setenv kernel_addr $kernel_addr_bank_0;"	\
-					"else "						\
-					    "setenv kernel_addr $kernel_addr_bank_1;"	\
-					"fi;"						\
-					"\0"						\
-				"kernel_addr_r=0x88200000\0"
-
 #endif
