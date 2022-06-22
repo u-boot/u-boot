@@ -974,6 +974,22 @@ static int nand_reset_data_interface(struct nand_chip *chip, int chipnr)
 	return ret;
 }
 
+static int nand_onfi_set_timings(struct mtd_info *mtd, struct nand_chip *chip)
+{
+	if (!chip->onfi_version ||
+	    !(le16_to_cpu(chip->onfi_params.opt_cmd)
+	      & ONFI_OPT_CMD_SET_GET_FEATURES))
+		return 0;
+
+	u8 tmode_param[ONFI_SUBFEATURE_PARAM_LEN] = {
+		chip->onfi_timing_mode_default,
+	};
+
+	return chip->onfi_set_features(mtd, chip,
+				       ONFI_FEATURE_ADDR_TIMING_MODE,
+				       tmode_param);
+}
+
 /**
  * nand_setup_data_interface - Setup the best data interface and timings
  * @chip: The NAND chip
@@ -999,17 +1015,9 @@ static int nand_setup_data_interface(struct nand_chip *chip, int chipnr)
 	 * Ensure the timing mode has been changed on the chip side
 	 * before changing timings on the controller side.
 	 */
-	if (chip->onfi_version) {
-		u8 tmode_param[ONFI_SUBFEATURE_PARAM_LEN] = {
-			chip->onfi_timing_mode_default,
-		};
-
-		ret = chip->onfi_set_features(mtd, chip,
-				ONFI_FEATURE_ADDR_TIMING_MODE,
-				tmode_param);
-		if (ret)
-			goto err;
-	}
+	ret = nand_onfi_set_timings(mtd, chip);
+	if (ret)
+		goto err;
 
 	ret = chip->setup_data_interface(mtd, chipnr, chip->data_interface);
 err:
