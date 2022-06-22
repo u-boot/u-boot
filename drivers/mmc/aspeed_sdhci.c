@@ -99,6 +99,21 @@ U_BOOT_DRIVER(aspeed_sdhci_drv) = {
 
 static int aspeed_sdc_probe(struct udevice *parent)
 {
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_index(parent, 0, &clk);
+	if (ret) {
+		debug("%s: clock get failed %d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = clk_enable(&clk);
+	if (ret) {
+		debug("%s: clock enable failed %d\n", __func__, ret);
+		return ret;
+	}
+
 	return 0;
 }
 
