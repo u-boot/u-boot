@@ -228,8 +228,11 @@ int checkboard(void)
 	val = (in & io_config) | (out & (~io_config));
 
 	puts("rom_loc: ");
-	if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD) {
+	if (0) {
+#ifdef __SW_BOOT_SD
+	} else if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD) {
 		puts("sd");
+#endif
 #ifdef __SW_BOOT_SD2
 	} else if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD2) {
 		puts("sd");
