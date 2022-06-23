@@ -13,6 +13,7 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
+#include <fwu.h>
 #include <init.h>
 #include <net.h>
 #include <version_string.h>
@@ -53,6 +54,9 @@ void main_loop(void)
 
 	if (IS_ENABLED(CONFIG_UPDATE_TFTP))
 		update_tftp(0UL, NULL, NULL);
+
+	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE))
+		fwu_boottime_checks();
 
 	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY)) {
 		/* efi_init_early() already called */
