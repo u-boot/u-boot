@@ -145,6 +145,19 @@ u8 fwu_update_checks_pass(void)
 	return !trial_state && boottime_check;
 }
 
+int fwu_trial_state_ctr_start(void)
+{
+	int ret;
+	u16 trial_state_ctr;
+
+	trial_state_ctr = 0;
+	ret = trial_counter_update(&trial_state_ctr);
+	if (ret)
+		log_err("Unable to initialise TrialStateCtr\n");
+
+	return ret;
+}
+
 int fwu_boottime_checks(void)
 {
 	int ret;
