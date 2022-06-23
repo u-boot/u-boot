@@ -6,4 +6,6 @@ source drivers/crypto/fsl/Kconfig
 
 source drivers/crypto/aspeed/Kconfig
 
+source drivers/crypto/nuvoton/Kconfig
+
 endmenu

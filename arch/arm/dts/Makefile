@@ -1069,6 +1069,8 @@ dtb-$(CONFIG_TARGET_OMAP3_BEAGLE) += \
 	omap3-beagle-xm.dtb \
 	omap3-beagle.dtb
 
+dtb-$(CONFIG_TARGET_DEVKIT8000) += omap3-devkit8000.dtb
+
 dtb-$(CONFIG_TARGET_OMAP3_IGEP00X0) += \
 	omap3-igep0020.dtb
 
@@ -1245,6 +1247,8 @@ dtb-$(CONFIG_TARGET_POMELO) += phytium-pomelo.dtb
 
 dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 
+dtb-$(CONFIG_TARGET_GXP) += hpe-bmc-dl360gen10.dts
+
 dtb-$(CONFIG_TARGET_IMX8MM_CL_IOT_GATE) += imx8mm-cl-iot-gate.dtb \
 					imx8mm-cl-iot-gate-ied.dtbo \
 					imx8mm-cl-iot-gate-ied-adc0.dtbo \
@@ -1270,6 +1274,9 @@ endif
 dtb-$(CONFIG_TARGET_EA_LPC3250DEVKITV2) += lpc3250-ea3250.dtb
 
 dtb-$(CONFIG_ARCH_QEMU) += qemu-arm.dtb qemu-arm64.dtb
+
+dtb-$(CONFIG_TARGET_CORSTONE1000) += corstone1000-mps3.dtb \
+				corstone1000-fvp.dtb
 
 include $(srctree)/scripts/Makefile.dts
 

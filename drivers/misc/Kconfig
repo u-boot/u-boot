@@ -321,6 +321,15 @@ config SPL_MXC_OCOTP
 	  Programmable memory pages, that are stored on some
 	  Freescale i.MX processors, in SPL.
 
+config NPCM_OTP
+	bool "Nnvoton NPCM BMC On-Chip OTP Memory Support"
+	depends on (ARM && ARCH_NPCM)
+	default n
+	help
+	  Support NPCM BMC OTP memory (fuse).
+	  To compile this driver as a module, choose M here: the module
+	  will be called npcm_otp.
+
 config NUVOTON_NCT6102D
 	bool "Enable Nuvoton NCT6102D Super I/O driver"
 	help

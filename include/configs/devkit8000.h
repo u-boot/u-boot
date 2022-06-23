@@ -14,17 +14,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* High Level Configuration Options */
-
-/*
- * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
- * 64 bytes before this address should be set aside for u-boot.img's
- * header. That is 0x800FFFC0--0x80100000 should not be used for any
- * other needs.
- */
-
-/*  Physical Memory Map  */
-
 #include <configs/ti_omap3_common.h>
 
 /* Hardware drivers */
@@ -40,9 +29,12 @@
 
 /* BOOTP/DHCP options */
 
+#define MEM_LAYOUT_ENV_SETTINGS \
+	DEFAULT_LINUX_BOOT_ENV
+
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
+	MEM_LAYOUT_ENV_SETTINGS \
 	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
 	"vram=12M\0" \

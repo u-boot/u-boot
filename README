@@ -2415,6 +2415,7 @@ rarpboot- boot image via network using RARP/TFTP protocol
 diskboot- boot from IDE devicebootd   - boot default, i.e., run 'bootcmd'
 loads	- load S-Record file over serial line
 loadb	- load binary file over serial line (kermit mode)
+loadm   - load binary blob from source address to destination address
 md	- memory display
 mm	- memory modify (auto-incrementing)
 nm	- memory modify (constant address)
