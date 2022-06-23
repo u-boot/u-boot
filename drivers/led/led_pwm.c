@@ -95,26 +95,16 @@ static enum led_state_t led_pwm_get_state(struct udevice *dev)
 static int led_pwm_probe(struct udevice *dev)
 {
 	struct led_pwm_priv *priv = dev_get_priv(dev);
-	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
-
-	/* Ignore the top-level LED node */
-	if (!uc_plat->label)
-		return 0;
 
 	return led_pwm_set_state(dev, (priv->enabled) ? LEDST_ON : LEDST_OFF);
 }
 
 static int led_pwm_of_to_plat(struct udevice *dev)
 {
-	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct led_pwm_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
 	uint def_brightness, max_brightness;
 	int ret;
-
-	/* Ignore the top-level LED node */
-	if (!uc_plat->label)
-		return 0;
 
 	ret = dev_read_phandle_with_args(dev, "pwms", "#pwm-cells", 0, 0, &args);
 	if (ret)
@@ -173,10 +163,15 @@ static const struct udevice_id led_pwm_ids[] = {
 U_BOOT_DRIVER(led_pwm) = {
 	.name = LEDS_PWM_DRIVER_NAME,
 	.id = UCLASS_LED,
-	.of_match = led_pwm_ids,
 	.ops = &led_pwm_ops,
 	.priv_auto = sizeof(struct led_pwm_priv),
-	.bind = led_pwm_bind,
 	.probe = led_pwm_probe,
 	.of_to_plat = led_pwm_of_to_plat,
+};
+
+U_BOOT_DRIVER(led_pwm_wrap) = {
+	.name = LEDS_PWM_DRIVER_NAME "_wrap",
+	.id = UCLASS_NOP,
+	.of_match = led_pwm_ids,
+	.bind = led_pwm_bind,
 };
