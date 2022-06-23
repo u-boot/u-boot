@@ -173,7 +173,6 @@
  * 0xf8f8_0000 0xf8ff_ffff	L2 SRAM		Up to 512K cacheable
  *   (early boot only)
  * 0xff80_0000 0xff80_7fff	NAND flash	32K non-cacheable	CS1/0
- * 0xff98_0000 0xff98_ffff	PMC		64K non-cacheable	CS2
  * 0xffa0_0000 0xffaf_ffff	CPLD		1M non-cacheable	CS3
  * 0xffb0_0000 0xffbf_ffff	VSC7385 switch  1M non-cacheable	CS2
  * 0xffc0_0000 0xffc3_ffff	PCI IO range	256k non-cacheable
@@ -279,14 +278,6 @@
 #define CONFIG_SYS_CPLD_BASE_PHYS	CONFIG_SYS_CPLD_BASE
 #endif
 /* CPLD config size: 1Mb */
-
-#define CONFIG_SYS_PMC_BASE	0xff980000
-#define CONFIG_SYS_PMC_BASE_PHYS	CONFIG_SYS_PMC_BASE
-#define CONFIG_PMC_BR_PRELIM	(BR_PHYS_ADDR(CONFIG_SYS_PMC_BASE_PHYS) | \
-					BR_PS_8 | BR_V)
-#define CONFIG_PMC_OR_PRELIM	(OR_AM_64KB | OR_GPCM_CSNT | OR_GPCM_XACS | \
-				 OR_GPCM_SCY | OR_GPCM_TRLX | OR_GPCM_EHTR | \
-				 OR_GPCM_EAD)
 
 /* Vsc7385 switch */
 #ifdef CONFIG_VSC7385_ENET
