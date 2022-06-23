@@ -6,7 +6,6 @@
 /dts-v1/;
 
 #include "imx8mm-kontron-n801x-som.dtsi"
-#include <dt-bindings/net/mscc-phy-vsc8531.h>
 
 / {
 	model = "Kontron i.MX8MM N801X S";
@@ -81,7 +80,6 @@
 		regulator-name = "vdd-5v";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		regulator-always-on;
 	};
 };
 
@@ -124,35 +122,11 @@
 		#size-cells = <0>;
 
 		ethphy: ethernet-phy@0 {
-			compatible = "ethernet-phy-id0007.0570";
 			reg = <0>;
-			reset-assert-us = <100>;
-			reset-deassert-us = <100>;
+			reset-assert-us = <1>;
+			reset-deassert-us = <15000>;
 			reset-gpios = <&gpio4 27 GPIO_ACTIVE_LOW>;
-			vsc8531,led-0-mode = <VSC8531_LINK_100_1000_ACTIVITY>;
-			vsc8531,led-1-mode = <VSC8531_LINK_ACTIVITY>;
-			vsc8531,led-0-combine-disable;
 		};
-	};
-};
-
-&gpio4 {
-	dsi_mux_sel: dsi_mux_sel {
-		gpio-hog;
-		gpios = <14 GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "dsi-mux-sel";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_dsi_sel>;
-	};
-
-	dsi_mux_oe {
-		gpio-hog;
-		gpios = <15 GPIO_ACTIVE_LOW>;
-		output-high;
-		line-name = "dsi-mux-oe";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_dsi_oe>;
 	};
 };
 
@@ -208,7 +182,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		usbnet: usbether@1 {
+		usbnet: ethernet@1 {
 			compatible = "usb424,ec00";
 			reg = <1>;
 			local-mac-address = [ 00 00 00 00 00 00 ];
@@ -234,18 +208,6 @@
 	pinctrl_can: cangrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_SAI3_RXFS_GPIO4_IO28		0x19
-		>;
-	};
-
-	pinctrl_dsi_sel: dsiselgrp {
-		fsl,pins = <
-			MX8MM_IOMUXC_SAI1_TXD2_GPIO4_IO14		0x19
-		>;
-	};
-
-	pinctrl_dsi_oe: dsioegrp {
-		fsl,pins = <
-			MX8MM_IOMUXC_SAI1_TXD3_GPIO4_IO15		0x19
 		>;
 	};
 
@@ -362,7 +324,7 @@
 		>;
 	};
 
-	pinctrl_usdhc2_100mhz: usdhc2grp100mhz {
+	pinctrl_usdhc2_100mhz: usdhc2-100mhzgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_SD2_CLK_USDHC2_CLK			0x194
 			MX8MM_IOMUXC_SD2_CMD_USDHC2_CMD			0x1d4
@@ -374,7 +336,7 @@
 		>;
 	};
 
-	pinctrl_usdhc2_200mhz: usdhc2grp200mhz {
+	pinctrl_usdhc2_200mhz: usdhc2-200mhzgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_SD2_CLK_USDHC2_CLK			0x196
 			MX8MM_IOMUXC_SD2_CMD_USDHC2_CMD			0x1d6
