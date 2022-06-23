@@ -12,7 +12,7 @@ ENTRY(_start)
 SECTIONS
 {
 #ifndef CONFIG_CMDLINE
-	/DISCARD/ : { *(.u_boot_list_2_cmd_*) }
+	/DISCARD/ : { *(__u_boot_list_2_cmd_*) }
 #endif
 
 #ifdef CONFIG_SYS_TEXT_BASE
@@ -41,8 +41,8 @@ SECTIONS
 	. = ALIGN(4);
 
 	. = ALIGN(4);
-	.u_boot_list : {
-		KEEP(*(SORT(.u_boot_list*)));
+	__u_boot_list : {
+		KEEP(*(SORT(__u_boot_list*)));
 	}
 
 	. = ALIGN(4);

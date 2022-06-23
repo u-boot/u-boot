@@ -51,7 +51,7 @@ SECTIONS
 
 		/* U-Boot lists and device tree */
 		. = ALIGN(8);
-		*(SORT(.u_boot_list*));
+		*(SORT(__u_boot_list*));
 		. = ALIGN(8);
 		*(.dtb*);
 	}
@@ -69,7 +69,7 @@ SECTIONS
 		*(.data.rel.local)
 		*(.data.rel.ro)
 		*(.data.rel*)
-		*(.rel.u_boot_list*)
+		*(.rel__u_boot_list*)
 	}
 	. = ALIGN(4096);
 		.reloc :	/* This is the PECOFF .reloc section! */

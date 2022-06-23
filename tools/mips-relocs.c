@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 		goto out_free_relocs;
 	}
 
-	rel_pfx = is_64 ? ".rela." : ".rel.";
+	rel_pfx = is_64 ? ".rela" : ".rel";
 
 	for (i = 0; i < ehdr_field(e_shnum); i++) {
 		sh_type = shdr_field(i, sh_type);
@@ -321,10 +321,11 @@ int main(int argc, char *argv[])
 
 		sh_name = shstr(shdr_field(i, sh_name));
 		if (strncmp(sh_name, rel_pfx, strlen(rel_pfx))) {
-			if (strcmp(sh_name, ".rel") && strcmp(sh_name, ".rel.dyn"))
-				fprintf(stderr, "WARNING: Unexpected reloc section name '%s'\n", sh_name);
+			fprintf(stderr, "WARNING: Unexpected reloc section name '%s'\n", sh_name);
 			continue;
 		}
+		if (!strcmp(sh_name, ".rel") || !strcmp(sh_name, ".rel.dyn"))
+			continue;
 
 		/*
 		 * Skip reloc sections which either don't correspond to another
@@ -334,7 +335,7 @@ int main(int argc, char *argv[])
 		 */
 		skip = true;
 		for (j = 0; j < ehdr_field(e_shnum); j++) {
-			if (strcmp(&sh_name[strlen(rel_pfx) - 1], shstr(shdr_field(j, sh_name))))
+			if (strcmp(&sh_name[strlen(rel_pfx)], shstr(shdr_field(j, sh_name))))
 				continue;
 
 			skip = !(shdr_field(j, sh_flags) & SHF_ALLOC);
