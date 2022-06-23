@@ -199,6 +199,7 @@ static efi_status_t __efi_init_early(void)
 		goto out;
 
 	ret = efi_disk_init();
+
 out:
 	return ret;
 }
