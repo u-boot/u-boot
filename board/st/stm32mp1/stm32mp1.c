@@ -7,9 +7,11 @@
 
 #include <common.h>
 #include <adc.h>
+#include <blk.h>
 #include <bootm.h>
 #include <clk.h>
 #include <config.h>
+#include <dfu.h>
 #include <dm.h>
 #include <efi_loader.h>
 #include <env.h>
@@ -25,9 +27,11 @@
 #include <log.h>
 #include <malloc.h>
 #include <misc.h>
+#include <mmc.h>
 #include <mtd_node.h>
 #include <net.h>
 #include <netdev.h>
+#include <part.h>
 #include <phy.h>
 #include <remoteproc.h>
 #include <reset.h>
@@ -962,3 +966,39 @@ static void board_copro_image_process(ulong fw_image, size_t fw_size)
 }
 
 U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_COPRO, board_copro_image_process);
+
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+
+#include <fwu.h>
+#include <fwu_mdata.h>
+
+int fwu_plat_get_alt_num(struct udevice *dev, efi_guid_t *image_guid,
+			 int *alt_num)
+{
+	struct blk_desc *desc;
+	struct fwu_mdata_gpt_blk_priv *priv = dev_get_priv(dev);
+
+	desc = dev_get_uclass_plat(priv->blk_dev);
+	if (!desc) {
+		log_err("Block device not found\n");
+		return -ENODEV;
+	}
+
+	return fwu_gpt_get_alt_num(desc, image_guid, alt_num, DFU_DEV_MMC);
+}
+
+int fwu_plat_get_update_index(u32 *update_idx)
+{
+	int ret;
+	u32 active_idx;
+
+	ret = fwu_get_active_index(&active_idx);
+
+	if (ret < 0)
+		return -1;
+
+	*update_idx = active_idx ^= 0x1;
+
+	return ret;
+}
+#endif /* CONFIG_FWU_MULTI_BANK_UPDATE */

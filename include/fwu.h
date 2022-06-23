@@ -51,4 +51,7 @@ int fwu_clear_accept_image(efi_guid_t *img_type_id, u32 bank);
 
 int fwu_plat_get_alt_num(struct udevice *dev, efi_guid_t *image_guid,
 			 int *alt_num);
+int fwu_gpt_get_alt_num(struct blk_desc *desc, efi_guid_t *image_guid,
+			int *alt_num, unsigned char dfu_dev);
+int fwu_plat_get_update_index(u32 *update_idx);
 #endif /* _FWU_H_ */
