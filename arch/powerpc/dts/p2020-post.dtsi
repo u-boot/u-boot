@@ -13,49 +13,6 @@
 	compatible = "fsl,p2020-immr", "simple-bus";
 	bus-frequency = <0x0>;
 
-	usb@22000 {
-		compatible = "fsl-usb2-dr-v1.6", "fsl-usb2-dr";
-		reg = <0x22000 0x1000>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		interrupts = <28 0x2 0 0>;
-		phy_type = "ulpi";
-	};
-
-	mpic: pic@40000 {
-		interrupt-controller;
-		#address-cells = <0>;
-		#interrupt-cells = <4>;
-		reg = <0x40000 0x40000>;
-		compatible = "fsl,mpic";
-		device_type = "open-pic";
-		big-endian;
-		single-cpu-affinity;
-		last-interrupt-source = <255>;
-	};
-
-	esdhc: sdhc@2e000 {
-		compatible = "fsl,p2020-esdhc", "fsl,esdhc";
-		reg = <0x2e000 0x1000>;
-		interrupts = <72 0x2 0 0>;
-		/* Filled in by U-Boot */
-		clock-frequency = <0>;
-	};
-
-	espi0: spi@7000 {
-		compatible = "fsl,mpc8536-espi";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0x7000 0x1000>;
-		interrupts = < 0x3b 0x02 0x00 0x00 >;
-		fsl,espi-num-chipselects = <4>;
-	};
-
-/include/ "pq3-i2c-0.dtsi"
-/include/ "pq3-i2c-1.dtsi"
-/include/ "pq3-duart-0.dtsi"
-/include/ "pq3-gpio-0.dtsi"
-
 	ecm-law@0 {
 		compatible = "fsl,ecm-law";
 		reg = <0x0 0x1000>;
@@ -74,6 +31,22 @@
 		interrupts = <18 2 0 0>;
 	};
 
+/include/ "pq3-i2c-0.dtsi"
+/include/ "pq3-i2c-1.dtsi"
+/include/ "pq3-duart-0.dtsi"
+
+	espi0: spi@7000 {
+		compatible = "fsl,mpc8536-espi";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x7000 0x1000>;
+		interrupts = < 0x3b 0x02 0x00 0x00 >;
+		fsl,espi-num-chipselects = <4>;
+	};
+
+/include/ "pq3-dma-1.dtsi"
+/include/ "pq3-gpio-0.dtsi"
+
 	L2: l2-cache-controller@20000 {
 		compatible = "fsl,p2020-l2-cache-controller";
 		reg = <0x20000 0x1000>;
@@ -83,7 +56,15 @@
 	};
 
 /include/ "pq3-dma-0.dtsi"
-/include/ "pq3-dma-1.dtsi"
+
+	usb@22000 {
+		compatible = "fsl-usb2-dr-v1.6", "fsl-usb2-dr";
+		reg = <0x22000 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		interrupts = <28 0x2 0 0>;
+		phy_type = "ulpi";
+	};
 
 /include/ "pq3-etsec1-0.dtsi"
 /include/ "pq3-etsec1-timer-0.dtsi"
@@ -95,9 +76,29 @@
 /include/ "pq3-etsec1-1.dtsi"
 /include/ "pq3-etsec1-2.dtsi"
 
+	esdhc: sdhc@2e000 {
+		compatible = "fsl,p2020-esdhc", "fsl,esdhc";
+		reg = <0x2e000 0x1000>;
+		interrupts = <72 0x2 0 0>;
+		/* Filled in by U-Boot */
+		clock-frequency = <0>;
+	};
+
 /include/ "pq3-sec3.1-0.dtsi"
 /include/ "pq3-mpic.dtsi"
 /include/ "pq3-mpic-timer-B.dtsi"
+
+	mpic: pic@40000 {
+		interrupt-controller;
+		#address-cells = <0>;
+		#interrupt-cells = <4>;
+		reg = <0x40000 0x40000>;
+		compatible = "fsl,mpic";
+		device_type = "open-pic";
+		big-endian;
+		single-cpu-affinity;
+		last-interrupt-source = <255>;
+	};
 
 	global-utilities@e0000 {
 		compatible = "fsl,p2020-guts";
