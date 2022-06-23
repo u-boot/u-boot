@@ -1499,5 +1499,6 @@ F:	*/
 CAAM
 M:	Gaurav Jain <gaurav.jain@nxp.com>
 S:	Maintained
+F:	arch/arm/dts/ls1021a-twr-u-boot.dtsi
 F:	drivers/crypto/fsl/
 F:	include/fsl_sec.h
