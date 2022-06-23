@@ -32,13 +32,23 @@ struct fwu_mdata_ops {
 };
 
 #define FWU_MDATA_VERSION	0x1
+#define FWU_IMAGE_ACCEPTED	0x1
 
 #define FWU_MDATA_GUID \
 	EFI_GUID(0x8a7a84a0, 0x8387, 0x40f6, 0xab, 0x41, \
 		 0xa8, 0xb9, 0xa5, 0xa6, 0x0d, 0x23)
 
+#define FWU_OS_REQUEST_FW_REVERT_GUID \
+	EFI_GUID(0xacd58b4b, 0xc0e8, 0x475f, 0x99, 0xb5, \
+		 0x6b, 0x3f, 0x7e, 0x07, 0xaa, 0xf0)
+
+#define FWU_OS_REQUEST_FW_ACCEPT_GUID \
+	EFI_GUID(0x0c996046, 0xbcc0, 0x4d04, 0x85, 0xec, \
+		 0xe1, 0xfc, 0xed, 0xf1, 0xc6, 0xf8)
+
 u8 fwu_update_checks_pass(void);
 int fwu_boottime_checks(void);
+int fwu_trial_state_ctr_start(void);
 
 int fwu_get_mdata(struct fwu_mdata **mdata);
 int fwu_update_mdata(struct fwu_mdata *mdata);
