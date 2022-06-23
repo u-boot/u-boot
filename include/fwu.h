@@ -353,4 +353,30 @@ int fwu_plat_get_update_index(uint *update_idx);
  *
  */
 void fwu_plat_get_bootidx(uint *boot_idx);
+
+/**
+ * fwu_update_checks_pass() - Check if FWU update can be done
+ *
+ * Check if the FWU update can be executed. The updates are
+ * allowed only when the platform is not in Trial State and
+ * the boot time checks have passed
+ *
+ * Return: 1 if OK, 0 if checks do not pass
+ *
+ */
+u8 fwu_update_checks_pass(void);
+
+/**
+ * fwu_empty_capsule_checks_pass() - Check if empty capsule can be processed
+ *
+ * Check if the empty capsule can be processed to either accept or revert
+ * an earlier executed update. The empty capsules need to be processed
+ * only when the platform is in Trial State and the boot time checks have
+ * passed
+ *
+ * Return: 1 if OK, 0 if not to be allowed
+ *
+ */
+u8 fwu_empty_capsule_checks_pass(void);
+
 #endif /* _FWU_H_ */
