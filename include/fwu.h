@@ -252,4 +252,28 @@ int fwu_plat_get_update_index(uint *update_idx);
  *
  */
 void fwu_plat_get_bootidx(void *boot_idx);
+
+/**
+ * fwu_update_checks_pass() - Check if FWU update can be done
+ *
+ * Check if the FWU update can be executed. The updates are
+ * allowed only when the platform is not in Trial State and
+ * the boot time checks have passed
+ *
+ * Return: 1 if OK, 0 on error
+ *
+ */
+u8 fwu_update_checks_pass(void);
+
+/**
+ * fwu_boottime_checks() - Run some FWU boot time checks
+ *
+ * The FWU specification requires some checks to be run at
+ * the time of platform boot. Run these checks.
+ *
+ * Return: 0 if OK
+ *
+ */
+int fwu_boottime_checks(void);
+
 #endif /* _FWU_H_ */
