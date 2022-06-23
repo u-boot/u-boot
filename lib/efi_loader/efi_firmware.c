@@ -10,6 +10,7 @@
 #include <charset.h>
 #include <dfu.h>
 #include <efi_loader.h>
+#include <fwu.h>
 #include <image.h>
 #include <signatures.h>
 
@@ -389,6 +390,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	efi_status_t (*progress)(efi_uintn_t completion),
 	u16 **abort_reason)
 {
+	int ret;
 	efi_status_t status;
 
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
@@ -400,6 +402,18 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	status = efi_firmware_capsule_authenticate(&image, &image_size);
 	if (status != EFI_SUCCESS)
 		return EFI_EXIT(status);
+
+	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
+		/*
+		 * Based on the value of update bank, derive the
+		 * image index value.
+		 */
+		ret = fwu_get_image_index(&image_index);
+		if (ret) {
+			log_debug("Unable to get FWU image_index\n");
+			return EFI_EXIT(EFI_DEVICE_ERROR);
+		}
+	}
 
 	if (dfu_write_by_alt(image_index - 1, (void *)image, image_size,
 			     NULL, NULL))
