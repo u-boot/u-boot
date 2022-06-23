@@ -150,37 +150,22 @@
 
 &i2c4 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c5_default>;
 };
 
 &i2c5 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c6_default>;
 };
 
 &i2c6 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c7_default>;
 };
 
 &i2c7 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c8_default>;
 };
 
 &i2c8 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c9_default>;
 };
 
 &mdio0 {
