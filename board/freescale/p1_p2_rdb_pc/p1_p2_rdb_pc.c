@@ -186,7 +186,11 @@ int checkboard(void)
 	int bus_num = CONFIG_SYS_SPD_BUS_NUM;
 
 	/* FIXME: This should just use the model from the device tree or similar */
-	printf("Board: %s CPLD: V%d.%d PCBA: V%d.0\n", BOARD_NAME,
+#ifdef BOARD_NAME
+	printf("Board: %s ", BOARD_NAME);
+#endif
+
+	printf("CPLD: V%d.%d PCBA: V%d.0\n",
 		in_8(&cpld_data->cpld_rev_major) & 0x0F,
 		in_8(&cpld_data->cpld_rev_minor) & 0x0F,
 		in_8(&cpld_data->pcba_rev) & 0x0F);
