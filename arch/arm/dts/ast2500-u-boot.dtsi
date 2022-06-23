@@ -28,31 +28,6 @@
 		clocks = <&scu ASPEED_CLK_MPLL>;
 		resets = <&rst ASPEED_RESET_SDRAM>;
 	};
-
-	ahb {
-		u-boot,dm-pre-reloc;
-
-		apb {
-			u-boot,dm-pre-reloc;
-
-			sdhci0: sdhci@1e740100 {
-				compatible = "aspeed,ast2500-sdhci";
-				reg = <0x1e740100>;
-				#reset-cells = <1>;
-				clocks = <&scu ASPEED_CLK_SDIO>;
-				resets = <&rst ASPEED_RESET_SDIO>;
-			};
-
-			sdhci1: sdhci@1e740200 {
-				compatible = "aspeed,ast2500-sdhci";
-				reg = <0x1e740200>;
-				#reset-cells = <1>;
-				clocks = <&scu ASPEED_CLK_SDIO>;
-				resets = <&rst ASPEED_RESET_SDIO>;
-			};
-		};
-
-	};
 };
 
 &uart1 {
