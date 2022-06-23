@@ -502,6 +502,7 @@ config MMC_SDHCI_ASPEED
 	depends on ARCH_ASPEED
 	depends on DM_MMC
 	depends on MMC_SDHCI
+	select MISC
 	help
 	  Enables support for the Aspeed SDHCI 2.0 controller present on Aspeed
 	  SoCs. This device is compatible with SD 3.0 and/or MMC 4.3
