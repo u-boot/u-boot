@@ -51,6 +51,10 @@
 #define ARM_SMCCC_QUIRK_NONE		0
 #define ARM_SMCCC_QUIRK_QCOM_A6		1 /* Save/restore register a6 */
 
+#define ARM_SMCCC_ARCH_FEATURES		0x80000001
+
+#define ARM_SMCCC_RET_NOT_SUPPORTED	((unsigned long)-1)
+
 #ifndef __ASSEMBLY__
 
 #include <linux/linkage.h>
@@ -78,6 +82,22 @@ struct arm_smccc_quirk {
 		unsigned long a6;
 	} state;
 };
+
+/**
+ * struct arm_smccc_feature - Driver registration data for discoverable feature
+ * @driver_name: name of the driver relate to the SMCCC feature
+ * @is_supported: callback to test if SMCCC feature is supported
+ */
+struct arm_smccc_feature {
+	const char *driver_name;
+	bool (*is_supported)(void (*invoke_fn)(unsigned long a0, unsigned long a1, unsigned long a2,
+					       unsigned long a3, unsigned long a4, unsigned long a5,
+					       unsigned long a6, unsigned long a7,
+					       struct arm_smccc_res *res));
+};
+
+#define ARM_SMCCC_FEATURE_DRIVER(__name) \
+	ll_entry_declare(struct arm_smccc_feature, __name, arm_smccc_feature)
 
 /**
  * __arm_smccc_smc() - make SMC calls

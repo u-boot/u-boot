@@ -1278,6 +1278,11 @@ F:	drivers/gpio/sl28cpld-gpio.c
 F:	drivers/misc/sl28cpld.c
 F:	drivers/watchdog/sl28cpld-wdt.c
 
+SMCCC TRNG
+M:	Etienne Carriere <etienne.carriere@linaro.org>
+S:	Maintained
+F:	drivers/rng/smccc_trng.c
+
 SPI
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
