@@ -1006,4 +1006,12 @@ int fwu_plat_get_update_index(u32 *update_idx)
 
 	return ret;
 }
+
+void fwu_plat_get_bootidx(void *boot_idx)
+{
+	u32 *bootidx = boot_idx;
+
+	*bootidx = (readl(TAMP_FWU_BOOT_INFO_REG) >>
+		    TAMP_FWU_BOOT_IDX_OFFSET) & TAMP_FWU_BOOT_IDX_MASK;
+}
 #endif /* CONFIG_FWU_MULTI_BANK_UPDATE */
