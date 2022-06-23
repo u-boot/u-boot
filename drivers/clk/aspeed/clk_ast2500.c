@@ -173,6 +173,7 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 		rate = ast2500_get_uart_clk_rate(priv->scu, 5);
 		break;
 	default:
+		debug("%s: unknown clk %ld\n", __func__, clk->id);
 		return -ENOENT;
 	}
 
@@ -438,6 +439,7 @@ static ulong ast2500_clk_set_rate(struct clk *clk, ulong rate)
 		new_rate = ast2500_configure_d2pll(priv->scu, rate);
 		break;
 	default:
+		debug("%s: unknown clk %ld\n", __func__, clk->id);
 		return -ENOENT;
 	}
 
@@ -480,6 +482,7 @@ static int ast2500_clk_enable(struct clk *clk)
 		ast2500_configure_d2pll(priv->scu, D2PLL_DEFAULT_RATE);
 		break;
 	default:
+		debug("%s: unknown clk %ld\n", __func__, clk->id);
 		return -ENOENT;
 	}
 
