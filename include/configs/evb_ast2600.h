@@ -10,6 +10,9 @@
 
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
 
+/* The maximum size the AST2600 bootrom can load is 64KB */
+#define CONFIG_SPL_MAX_SIZE		65536
+
 /* Misc */
 #define STR_HELPER(s)	#s
 #define STR(s)		STR_HELPER(s)
