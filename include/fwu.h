@@ -37,6 +37,9 @@ struct fwu_mdata_ops {
 	EFI_GUID(0x8a7a84a0, 0x8387, 0x40f6, 0xab, 0x41, \
 		 0xa8, 0xb9, 0xa5, 0xa6, 0x0d, 0x23)
 
+u8 fwu_update_checks_pass(void);
+int fwu_boottime_checks(void);
+
 int fwu_get_mdata(struct fwu_mdata **mdata);
 int fwu_update_mdata(struct fwu_mdata *mdata);
 int fwu_get_active_index(u32 *active_idx);
