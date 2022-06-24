@@ -18,10 +18,6 @@
 # define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
-/* Stack location before relocation */
-#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_TEXT_BASE - \
-					 CONFIG_SYS_MALLOC_F_LEN)
-
 #ifdef CONFIG_CFI_FLASH
 /* ?empty sector */
 # define CONFIG_SYS_FLASH_EMPTY_INFO	1

@@ -22,7 +22,7 @@ _start:
 #if defined(CONFIG_SPL_BUILD)
 	addi	r1, r0, CONFIG_SPL_STACK_ADDR
 #else
-	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
+	add	r1, r0, r8
 #endif
 
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
