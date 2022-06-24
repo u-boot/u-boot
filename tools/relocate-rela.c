@@ -420,6 +420,170 @@ static int rela_elf64(char **argv, FILE *f)
 	return 0;
 }
 
+static bool supported_rela32(Elf32_Rela *rela, uint32_t *type)
+{
+	uint32_t mask = 0xffULL; /* would be different on 32-bit */
+	*type = rela->r_info & mask;
+
+	debug("Type:\t");
+
+	switch (*type) {
+	case R_MICROBLAZE_32:
+		debug("R_MICROBLAZE_32\n");
+		return true;
+	case R_MICROBLAZE_GLOB_DAT:
+		debug("R_MICROBLAZE_GLOB_DAT\n");
+		return true;
+	case R_MICROBLAZE_NONE:
+		debug("R_MICROBLAZE_NONE - ignoring - do nothing\n");
+		return false;
+	case R_MICROBLAZE_REL:
+		debug("R_MICROBLAZE_REL\n");
+		return true;
+	default:
+		fprintf(stderr, "warning: unsupported relocation type %"
+			PRIu32 " at %" PRIx32 "\n", *type, rela->r_offset);
+
+		return false;
+	}
+}
+
+static int rela_elf32(char **argv, FILE *f)
+{
+	int i, num, index;
+	uint32_t value, type;
+
+	if ((rela_end - rela_start) % sizeof(Elf32_Rela)) {
+		fprintf(stderr, "%s: rela size isn't a multiple of Elf32_Rela\n", argv[0]);
+		return 3;
+	}
+
+	num = (rela_end - rela_start) / sizeof(Elf32_Rela);
+
+	debug("Number of entries: %u\n", num);
+
+	for (i = 0; i < num; i++) {
+		Elf32_Rela rela, swrela;
+		Elf32_Sym symbols;
+		uint32_t pos = rela_start + sizeof(Elf32_Rela) * i;
+		uint32_t addr, pos_dyn;
+
+		debug("\nPossition:\t%d/0x%x\n", i, pos);
+
+		if (fseek(f, pos, SEEK_SET) < 0) {
+			fprintf(stderr, "%s: %s: seek to %" PRIx32
+					" failed: %s\n",
+				argv[0], argv[1], pos, strerror(errno));
+		}
+
+		if (fread(&rela, sizeof(rela), 1, f) != 1) {
+			fprintf(stderr, "%s: %s: read rela failed at %"
+					PRIx32 "\n",
+				argv[0], argv[1], pos);
+			return 4;
+		}
+
+		debug("Rela:\toffset:\t%" PRIx32 " r_info:\t%"
+		      PRIu32 " r_addend:\t%" PRIx32 "\n",
+		      rela.r_offset, rela.r_info, rela.r_addend);
+
+		swrela.r_offset = cpu_to_le32(rela.r_offset);
+		swrela.r_info = cpu_to_le32(rela.r_info);
+		swrela.r_addend = cpu_to_le32(rela.r_addend);
+
+		debug("SWRela:\toffset:\t%" PRIx32 " r_info:\t%"
+		      PRIu32 " r_addend:\t%" PRIx32 "\n",
+		      swrela.r_offset, swrela.r_info, swrela.r_addend);
+
+		if (!supported_rela32(&swrela, &type))
+			continue;
+
+		if (swrela.r_offset < text_base) {
+			fprintf(stderr, "%s: %s: bad rela at %" PRIx32 "\n",
+				argv[0], argv[1], pos);
+			return 4;
+		}
+
+		addr = swrela.r_offset - text_base;
+
+		debug("Addr:\t0x%" PRIx32 "\n", addr);
+
+		switch (type) {
+		case R_MICROBLAZE_REL:
+			if (fseek(f, addr, SEEK_SET) < 0) {
+				fprintf(stderr, "%s: %s: seek to %"
+					PRIx32 " failed: %s\n",
+					argv[0], argv[1], addr, strerror(errno));
+				return 5;
+			}
+
+			debug("Write addend\n");
+
+			if (fwrite(&rela.r_addend, sizeof(rela.r_addend), 1, f) != 1) {
+				fprintf(stderr, "%s: %s: write failed at %" PRIx32 "\n",
+					argv[0], argv[1], addr);
+				return 4;
+			}
+			break;
+		case R_MICROBLAZE_32:
+		case R_MICROBLAZE_GLOB_DAT:
+			/* global symbols read it and add reloc offset */
+			index = swrela.r_info >> 8;
+			pos_dyn = dyn_start + sizeof(Elf32_Sym) * index;
+
+			debug("Index:\t%d\n", index);
+			debug("Pos_dyn:\t0x%x\n", pos_dyn);
+
+			if (fseek(f, pos_dyn, SEEK_SET) < 0) {
+				fprintf(stderr, "%s: %s: seek to %"
+					PRIx32 " failed: %s\n",
+					argv[0], argv[1], pos_dyn, strerror(errno));
+				return 5;
+			}
+
+			if (fread(&symbols, sizeof(symbols), 1, f) != 1) {
+				fprintf(stderr, "%s: %s: read symbols failed at %"
+						PRIx32 "\n",
+					argv[0], argv[1], pos_dyn);
+				return 4;
+			}
+
+			debug("Symbol description:\n");
+			debug(" st_name:\t0x%x\n", symbols.st_name);
+			debug(" st_value:\t0x%x\n", symbols.st_value);
+			debug(" st_size:\t0x%x\n", symbols.st_size);
+
+			value = swrela.r_addend + symbols.st_value;
+
+			debug("Value:\t0x%x\n", value);
+
+			if (fseek(f, addr, SEEK_SET) < 0) {
+				fprintf(stderr, "%s: %s: seek to %"
+					PRIx32 " failed: %s\n",
+					argv[0], argv[1], addr, strerror(errno));
+				return 5;
+			}
+
+			if (fwrite(&value, sizeof(rela.r_addend), 1, f) != 1) {
+				fprintf(stderr, "%s: %s: write failed at %" PRIx32 "\n",
+					argv[0], argv[1], addr);
+				return 4;
+			}
+
+			break;
+		case R_MICROBLAZE_NONE:
+			debug("R_MICROBLAZE_NONE - skip\n");
+			break;
+		default:
+			fprintf(stderr, "warning: unsupported relocation type %"
+				PRIu32 " at %" PRIx32 "\n",
+				type, rela.r_offset);
+		}
+	}
+
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	FILE *f;
@@ -467,6 +631,8 @@ int main(int argc, char **argv)
 
 	if (ei_class == 2)
 		ret = rela_elf64(argv, f);
+	else
+		ret = rela_elf32(argv, f);
 
 	if (fclose(f) < 0) {
 		fprintf(stderr, "%s: %s: close failed: %s\n",
