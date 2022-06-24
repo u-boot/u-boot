@@ -268,6 +268,7 @@ relocate_code:
 	 * r7 - reloc_addr
 	 */
 	addi	r1, r5, 0 /* Start to use new SP */
+	mts	rshr, r1
 	addi	r31, r6, 0 /* Start to use new GD */
 
 	add	r23, r0, r7 /* Move reloc addr to r23 */
