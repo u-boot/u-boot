@@ -75,6 +75,11 @@ config MICROBLAZE
 	bool "MicroBlaze architecture"
 	select SUPPORT_OF_CONTROL
 	imply CMD_IRQ
+	imply CMD_TIMER
+	imply SPL_REGMAP if SPL
+	imply SPL_TIMER if SPL
+	imply TIMER
+	imply XILINX_TIMER
 
 config MIPS
 	bool "MIPS architecture"
