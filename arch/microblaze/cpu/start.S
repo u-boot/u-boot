@@ -14,15 +14,16 @@
 	.global _start
 _start:
 	mts	rmsr, r0	/* disable cache */
+	mfs	r20, rpc
+	addi	r20, r20, -4
 
 	mts	rslr, r0
-	addi	r8, r0, _start
-	mts	rshr, r8
+	mts	rshr, r20
 
 #if defined(CONFIG_SPL_BUILD)
 	addi	r1, r0, CONFIG_SPL_STACK_ADDR
 #else
-	add	r1, r0, r8
+	add	r1, r0, r20
 #endif
 
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
