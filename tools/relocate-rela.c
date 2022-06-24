@@ -79,6 +79,11 @@ static int decode_elf64(FILE *felf, char **argv)
 	machine = header.e_machine;
 	debug("Machine\t%d\n", machine);
 
+	if (machine != EM_AARCH64) {
+		fprintf(stderr, "%s: Not supported machine type\n", argv[0]);
+		return 30;
+	}
+
 	text_base = header.e_entry;
 	section_header_base = header.e_shoff;
 	section_header_size = header.e_shentsize * header.e_shnum;
