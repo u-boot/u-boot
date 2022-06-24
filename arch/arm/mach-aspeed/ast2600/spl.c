@@ -46,13 +46,18 @@ u32 spl_boot_device(void)
 	}
 
 	/* boot from UART has higher priority */
-	if (scu->hwstrap2 & SCU_HWSTRAP2_BOOT_UART)
+	if (scu->hwstrap2 & SCU_HWSTRAP2_BOOT_UART) {
+		debug("%s: strapped for UART boot\n", __func__);
 		return BOOT_DEVICE_UART;
+	}
 
-	if (scu->hwstrap1 & SCU_HWSTRAP1_BOOT_EMMC)
+	if (scu->hwstrap1 & SCU_HWSTRAP1_BOOT_EMMC) {
+		debug("%s: strapped for MMC boot\n", __func__);
 		return BOOT_DEVICE_MMC1;
+	}
 
 out:
+	debug("%s: strapped for RAM (SPI NOR) boot\n", __func__);
 	return BOOT_DEVICE_RAM;
 }
 
