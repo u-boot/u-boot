@@ -29,7 +29,7 @@ _start:
 	/* Call board_init_f_alloc_reserve with the current stack pointer as
 	 * parameter. */
 	add	r5, r0, r1
-	bralid	r15, board_init_f_alloc_reserve
+	brlid	r15, board_init_f_alloc_reserve
 	nop
 
 	/* board_init_f_alloc_reserve returns a pointer to the allocated area
@@ -41,20 +41,20 @@ _start:
 	/* Call board_init_f_init_reserve with the address returned by
 	 * board_init_f_alloc_reserve as parameter. */
 	add	r5, r0, r3
-	bralid	r15, board_init_f_init_reserve
+	brlid	r15, board_init_f_init_reserve
 	nop
 
 #if !defined(CONFIG_SPL_BUILD)
 	/* Setup vectors with pre-relocation symbols */
 	or	r5, r0, r0
-	bralid	r15, __setup_exceptions
+	brlid	r15, __setup_exceptions
 	nop
 #endif
 
 	/* Flush cache before enable cache */
 	addik	r5, r0, 0
 	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
-	bralid	r15, flush_cache
+	brlid	r15, flush_cache
 	nop
 
 	/* enable instruction and data cache */
@@ -75,14 +75,14 @@ clear_bss:
 	bnei    r6, 2b
 3:	/* jumping to board_init */
 #ifdef CONFIG_DEBUG_UART
-	bralid	r15, debug_uart_init
+	brlid	r15, debug_uart_init
 	nop
 #endif
 #ifndef CONFIG_SPL_BUILD
 	or	r5, r0, r0	/* flags - empty */
-	brai	board_init_f
+	bri	board_init_f
 #else
-	brai	board_init_r
+	bri	board_init_r
 #endif
 1:	bri	1b
 
@@ -289,7 +289,7 @@ relocate_code:
 
 	/* Setup vectors with post-relocation symbols */
 	add	r5, r0, r23 /* load gd->reloc_off to r5 */
-	bralid	r15, __setup_exceptions
+	brlid	r15, __setup_exceptions
 	nop
 
 	/* Check if GOT exist */
@@ -318,7 +318,7 @@ relocate_code:
 	/* Flush caches to ensure consistency */
 	addik	r5, r0, 0
 	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
-	bralid	r15, flush_cache
+	brlid	r15, flush_cache
 	nop
 
 2:	addi	r5, r31, 0 /* gd is initialized in board_r.c */
