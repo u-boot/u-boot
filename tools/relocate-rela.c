@@ -73,13 +73,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	f = fopen(argv[1], "r+b");
-	if (!f) {
-		fprintf(stderr, "%s: Cannot open %s: %s\n",
-			argv[0], argv[1], strerror(errno));
-		return 2;
-	}
-
 	if (!read_num(argv[2], &text_base) ||
 	    !read_num(argv[3], &rela_start) ||
 	    !read_num(argv[4], &rela_end)) {
@@ -94,6 +87,13 @@ int main(int argc, char **argv)
 
 	rela_start -= text_base;
 	rela_end -= text_base;
+
+	f = fopen(argv[1], "r+b");
+	if (!f) {
+		fprintf(stderr, "%s: Cannot open %s: %s\n",
+			argv[0], argv[1], strerror(errno));
+		return 2;
+	}
 
 	fseek(f, 0, SEEK_END);
 	file_size = ftell(f);
