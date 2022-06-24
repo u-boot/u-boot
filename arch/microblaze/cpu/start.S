@@ -310,11 +310,6 @@ relocate_code:
 	bneid	r12, 3b
 	addik	r21. r21, 4
 
-	/* Update pointer to GOT */
-	mfs	r20, rpc
-	addik	r20, r20, _GLOBAL_OFFSET_TABLE_ + 8
-	addk	r20, r20, r23
-
 	/* Flush caches to ensure consistency */
 	addik	r5, r0, 0
 	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
