@@ -144,6 +144,7 @@ __setup_exceptions:
 	swi	r3, r4, 0x4	/* reset address - brai opcode */
 
 	addik	r6, r0, _start
+	/* Intentionally keep reset vector back to origin u-boot location */
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x2
