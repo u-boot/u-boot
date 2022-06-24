@@ -15,8 +15,9 @@
 _start:
 	mts	rmsr, r0	/* disable cache */
 
-	addi	r8, r0, _end
-	mts	rslr, r8
+	mts	rslr, r0
+	addi	r8, r0, _start
+	mts	rshr, r8
 
 #if defined(CONFIG_SPL_BUILD)
 	addi	r1, r0, CONFIG_SPL_STACK_ADDR
