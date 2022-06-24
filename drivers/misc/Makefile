@@ -57,6 +57,7 @@ obj-$(CONFIG_$(SPL_TPL_)LS2_SFP) += ls2_sfp.o
 obj-$(CONFIG_$(SPL_)MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NPCM_OTP) += npcm_otp.o
+obj-$(CONFIG_NPCM_HOST) += npcm_host_intf.o
 obj-$(CONFIG_NUVOTON_NCT6102D) += nuvoton_nct6102d.o
 obj-$(CONFIG_P2SB) += p2sb-uclass.o
 obj-$(CONFIG_PCA9551_LED) += pca9551_led.o

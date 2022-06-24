@@ -326,6 +326,12 @@ config MXC_OCOTP
 	  Programmable memory pages that are stored on the some
 	  Freescale i.MX processors.
 
+config NPCM_HOST
+	bool "Enable support espi or LPC for Host"
+	depends on REGMAP && SYSCON
+	help
+	  Enable NPCM BMC espi or LPC support for Host reading and writing.
+
 config SPL_MXC_OCOTP
 	bool "Enable MXC OCOTP driver in SPL"
 	depends on SPL_MISC && (ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610)
