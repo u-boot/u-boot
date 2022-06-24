@@ -10,6 +10,9 @@
 #include <asm-offsets.h>
 #include <config.h>
 
+#define SYM_ADDR(reg, reg_add, symbol)	\
+	addi	reg, reg_add, symbol
+
 	.text
 	.global _start
 _start:
@@ -66,8 +69,8 @@ _start:
 
 clear_bss:
 	/* clear BSS segments */
-	addi	r5, r0, __bss_start
-	addi	r4, r0, __bss_end
+	SYM_ADDR(r5, r0, __bss_start)
+	SYM_ADDR(r4, r0, __bss_end)
 	cmp	r6, r5, r4
 	beqi	r6, 3f
 2:
@@ -143,7 +146,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x0	/* reset address - imm opcode */
 	swi	r3, r4, 0x4	/* reset address - brai opcode */
 
-	addik	r6, r0, _start
+	SYM_ADDR(r6, r0, _start)
 	/* Intentionally keep reset vector back to origin u-boot location */
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
@@ -157,7 +160,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x8	/* user vector exception - imm opcode */
 	swi	r3, r4, 0xC	/* user vector exception - brai opcode */
 
-	addik	r6, r5, _exception_handler
+	SYM_ADDR(r6, r5, _exception_handler)
 	sw	r6, r1, r0
 	/*
 	 * BIG ENDIAN memory map for user exception
@@ -190,7 +193,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x10	/* interrupt - imm opcode */
 	swi	r3, r4, 0x14	/* interrupt - brai opcode */
 
-	addik	r6, r5, _interrupt_handler
+	SYM_ADDR(r6, r5, _interrupt_handler)
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x12
@@ -202,7 +205,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x20	/* hardware exception - imm opcode */
 	swi	r3, r4, 0x24	/* hardware exception - brai opcode */
 
-	addik	r6, r5, _hw_exception_handler
+	SYM_ADDR(r6, r5, _hw_exception_handler)
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x22
@@ -274,8 +277,8 @@ relocate_code:
 	addi	r31, r6, 0 /* Start to use new GD */
 
 	/* Relocate text and data - r12 temp value */
-	addi	r21, r0, _start
-	addi	r22, r0, _end /* Include BSS too */
+	SYM_ADDR(r21, r0, _start)
+	SYM_ADDR(r22, r0, _end) /* Include BSS too */
 	addi	r22, r22, -4
 
 	rsub	r6, r21, r22
@@ -319,8 +322,8 @@ relocate_code:
 	nop
 
 2:	addi	r5, r31, 0 /* gd is initialized in board_r.c */
-	addi	r6, r0, _start
-	addi	r12, r23, board_init_r
+	SYM_ADDR(r6, r0, _start)
+	SYM_ADDR(r12, r23, board_init_r)
 	bra	r12 /* Jump to relocated code */
 
 	.end	relocate_code
