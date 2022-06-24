@@ -271,7 +271,6 @@ relocate_code:
 	mts	rshr, r1
 	addi	r31, r6, 0 /* Start to use new GD */
 
-	add	r23, r0, r7 /* Move reloc addr to r23 */
 	/* Relocate text and data - r12 temp value */
 	addi	r21, r0, _start
 	addi	r22, r0, _end /* Include BSS too */
@@ -280,15 +279,13 @@ relocate_code:
 	rsub	r6, r21, r22
 	or	r5, r0, r0
 1:	lw	r12, r21, r5 /* Load u-boot data */
-	sw	r12, r23, r5 /* Write zero to loc */
+	sw	r12, r7, r5 /* Write zero to loc */
 	cmp	r12, r5, r6 /* Check if we have reach the end */
 	bneid	r12, 1b
 	addi	r5, r5, 4 /* Increment to next loc - relocate code */
 
 	/* R23 points to the base address. */
-	add	r23, r0, r7 /* Move reloc addr to r23 */
-	addi	r24, r0, _start /* Get reloc offset */
-	rsub	r23, r24, r23 /* keep - this is already here gd->reloc_off */
+	rsub	r23, r21, r7 /* keep - this is already here gd->reloc_off */
 
 	/* Setup vectors with post-relocation symbols */
 	add	r5, r0, r23 /* load gd->reloc_off to r5 */
