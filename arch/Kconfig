@@ -448,7 +448,7 @@ source "arch/riscv/Kconfig"
 
 source "board/keymile/Kconfig"
 
-if MIPS
+if MIPS || MICROBLAZE
 
 choice
 	prompt "Endianness selection"
@@ -460,11 +460,11 @@ choice
 
 config SYS_BIG_ENDIAN
 	bool "Big endian"
-	depends on SUPPORTS_BIG_ENDIAN
+	depends on (SUPPORTS_BIG_ENDIAN && MIPS) || MICROBLAZE
 
 config SYS_LITTLE_ENDIAN
 	bool "Little endian"
-	depends on SUPPORTS_LITTLE_ENDIAN
+	depends on (SUPPORTS_LITTLE_ENDIAN && MIPS) || MICROBLAZE
 
 endchoice
 
