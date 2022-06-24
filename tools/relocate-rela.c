@@ -20,6 +20,8 @@
 #define R_AARCH64_RELATIVE	1027
 #endif
 
+static int ei_class;
+
 static uint64_t rela_start, rela_end, text_base;
 
 static const bool debug_en;
@@ -54,32 +56,183 @@ static bool supported_rela(Elf64_Rela *rela)
 	}
 }
 
-static bool read_num(const char *str, uint64_t *num)
+static int decode_elf64(FILE *felf, char **argv)
 {
-	char *endptr;
-	*num = strtoull(str, &endptr, 16);
-	return str[0] && !endptr[0];
+	size_t size;
+	Elf64_Ehdr header;
+	uint64_t section_header_base, section_header_size, sh_offset, sh_size;
+	Elf64_Shdr *sh_table; /* Elf symbol table */
+	int ret, i, machine;
+	char *sh_str;
+
+	debug("64bit version\n");
+
+	/* Make sure we are at start */
+	rewind(felf);
+
+	size = fread(&header, 1, sizeof(header), felf);
+	if (size != sizeof(header)) {
+		fclose(felf);
+		return 25;
+	}
+
+	machine = header.e_machine;
+	debug("Machine\t%d\n", machine);
+
+	text_base = header.e_entry;
+	section_header_base = header.e_shoff;
+	section_header_size = header.e_shentsize * header.e_shnum;
+
+	sh_table = malloc(section_header_size);
+	if (!sh_table) {
+		fprintf(stderr, "%s: Cannot allocate space for section header\n",
+			argv[0]);
+		fclose(felf);
+		return 26;
+	}
+
+	ret = fseek(felf, section_header_base, SEEK_SET);
+	if (ret) {
+		fprintf(stderr, "%s: Can't set pointer to section header: %x/%lx\n",
+			argv[0], ret, section_header_base);
+		free(sh_table);
+		fclose(felf);
+		return 26;
+	}
+
+	size = fread(sh_table, 1, section_header_size, felf);
+	if (size != section_header_size) {
+		fprintf(stderr, "%s: Can't read section header: %lx/%lx\n",
+			argv[0], size, section_header_size);
+		free(sh_table);
+		fclose(felf);
+		return 27;
+	}
+
+	sh_size = sh_table[header.e_shstrndx].sh_size;
+	debug("e_shstrndx\t0x%08x\n", header.e_shstrndx);
+	debug("sh_size\t\t0x%08lx\n", sh_size);
+
+	sh_str = malloc(sh_size);
+	if (!sh_str) {
+		fprintf(stderr, "malloc failed\n");
+		free(sh_table);
+		fclose(felf);
+		return 28;
+	}
+
+	/*
+	 * Specifies the byte offset from the beginning of the file
+	 * to the first byte in the section.
+	 */
+	sh_offset = sh_table[header.e_shstrndx].sh_offset;
+
+	debug("sh_offset\t0x%08x\n", header.e_shnum);
+
+	ret = fseek(felf, sh_offset, SEEK_SET);
+	if (ret) {
+		fprintf(stderr, "Setting up sh_offset failed\n");
+		free(sh_str);
+		free(sh_table);
+		fclose(felf);
+		return 29;
+	}
+
+	size = fread(sh_str, 1, sh_size, felf);
+	if (size != sh_size) {
+		fprintf(stderr, "%s: Can't read section: %lx/%lx\n",
+			argv[0], size, sh_size);
+		free(sh_str);
+		free(sh_table);
+		fclose(felf);
+		return 30;
+	}
+
+	for (i = 0; i < header.e_shnum; i++) {
+		/* fprintf(stderr, "%s\n", sh_str + sh_table[i].sh_name); Debug only */
+		if (!strcmp(".rela.dyn", (sh_str + sh_table[i].sh_name))) {
+			debug("Found section\t\".rela_dyn\"\n");
+			debug(" at addr\t0x%08x\n",
+			      (unsigned int)sh_table[i].sh_addr);
+			debug(" at offset\t0x%08x\n",
+			      (unsigned int)sh_table[i].sh_offset);
+			debug(" of size\t0x%08x\n",
+			      (unsigned int)sh_table[i].sh_size);
+			rela_start = sh_table[i].sh_addr;
+			rela_end = rela_start + sh_table[i].sh_size;
+			break;
+		}
+	}
+
+	/* Clean up */
+	free(sh_str);
+	free(sh_table);
+	fclose(felf);
+
+	debug("text_base\t0x%08lx\n", text_base);
+	debug("rela_start\t0x%08lx\n", rela_start);
+	debug("rela_end\t0x%08lx\n", rela_end);
+
+	if (!rela_start)
+		return 1;
+
+	return 0;
+}
+
+static int decode_elf(char **argv)
+{
+	FILE *felf;
+	size_t size;
+	unsigned char e_ident[EI_NIDENT];
+
+	felf = fopen(argv[2], "r+b");
+	if (!felf) {
+		fprintf(stderr, "%s: Cannot open %s: %s\n",
+			argv[0], argv[5], strerror(errno));
+		return 2;
+	}
+
+	size = fread(e_ident, 1, EI_NIDENT, felf);
+	if (size != EI_NIDENT) {
+		fclose(felf);
+		return 25;
+	}
+
+	/* Check if this is really ELF file */
+	if (e_ident[0] != 0x7f &&
+	    e_ident[1] != 'E' &&
+	    e_ident[2] != 'L' &&
+	    e_ident[3] != 'F') {
+		fclose(felf);
+		return 1;
+	}
+
+	ei_class = e_ident[4];
+	debug("EI_CLASS(1=32bit, 2=64bit) %d\n", ei_class);
+
+	if (ei_class == 2)
+		return decode_elf64(felf, argv);
+
+	return 1;
 }
 
 int main(int argc, char **argv)
 {
 	FILE *f;
-	int i, num;
+	int i, num, ret;
 	uint64_t file_size;
 
-	if (argc != 5) {
+	if (argc != 3) {
 		fprintf(stderr, "Statically apply ELF rela relocations\n");
-		fprintf(stderr, "Usage: %s <bin file> <text base> " \
-				"<rela start> <rela end>\n", argv[0]);
-		fprintf(stderr, "All numbers in hex.\n");
+		fprintf(stderr, "Usage: %s <bin file> <u-boot ELF>\n",
+			argv[0]);
 		return 1;
 	}
 
-	if (!read_num(argv[2], &text_base) ||
-	    !read_num(argv[3], &rela_start) ||
-	    !read_num(argv[4], &rela_end)) {
-		fprintf(stderr, "%s: bad number\n", argv[0]);
-		return 3;
+	ret = decode_elf(argv);
+	if (ret) {
+		fprintf(stderr, "ELF decoding failed\n");
+		return ret;
 	}
 
 	if (rela_start > rela_end || rela_start < text_base) {
