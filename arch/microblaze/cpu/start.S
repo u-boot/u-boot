@@ -273,7 +273,8 @@ relocate_code:
 	add	r23, r0, r7 /* Move reloc addr to r23 */
 	/* Relocate text and data - r12 temp value */
 	addi	r21, r0, _start
-	addi	r22, r0, _end - 4 /* Include BSS too */
+	addi	r22, r0, _end /* Include BSS too */
+	addi	r22, r22, -4
 
 	rsub	r6, r21, r22
 	or	r5, r0, r0
