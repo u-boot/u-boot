@@ -17,6 +17,11 @@ ifeq ($(CONFIG_SPL_BUILD),)
 PLATFORM_CPPFLAGS += -fPIC
 endif
 
+ifeq ($(CONFIG_STATIC_RELA),y)
+PLATFORM_CPPFLAGS += -fPIC
+LDFLAGS_u-boot += -pic
+endif
+
 ifeq ($(CONFIG_SYS_LITTLE_ENDIAN),y)
 PLATFORM_ELFFLAGS += -B microblaze $(OBJCOPYFLAGS) -O elf32-microblazeel
 else

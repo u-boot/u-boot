@@ -8,9 +8,6 @@ config CREATE_ARCH_SYMLINK
 config HAVE_ARCH_IOREMAP
 	bool
 
-config NEEDS_MANUAL_RELOC
-	bool
-
 config SYS_CACHE_SHIFT_4
 	bool
 
@@ -76,7 +73,6 @@ config M68K
 
 config MICROBLAZE
 	bool "MicroBlaze architecture"
-	select NEEDS_MANUAL_RELOC
 	select SUPPORT_OF_CONTROL
 	imply CMD_IRQ
 

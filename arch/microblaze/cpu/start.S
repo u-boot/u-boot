@@ -10,8 +10,16 @@
 #include <asm-offsets.h>
 #include <config.h>
 
+#if defined(CONFIG_STATIC_RELA)
+#define SYM_ADDR(reg, reg_add, symbol)	\
+	mfs	r20, rpc; \
+	addik	r20, r20, _GLOBAL_OFFSET_TABLE_ + 8; \
+	lwi	reg, r20, symbol@GOT; \
+	addk	reg, reg reg_add;
+#else
 #define SYM_ADDR(reg, reg_add, symbol)	\
 	addi	reg, reg_add, symbol
+#endif
 
 	.text
 	.global _start
@@ -27,6 +35,39 @@ _start:
 	addi	r1, r0, CONFIG_SPL_STACK_ADDR
 #else
 	add	r1, r0, r20
+#if defined(CONFIG_STATIC_RELA)
+	bri	1f
+
+	/* Force alignment for easier ASM code below */
+#define ALIGNMENT_ADDR	0x20
+	.align	4
+uboot_dyn_start:
+	.word	__rel_dyn_start
+
+uboot_dyn_end:
+	.word	__rel_dyn_end
+
+uboot_sym_start:
+	.word	__dyn_sym_start
+1:
+
+	addi	r5, r20, 0
+	add	r6, r0, r0
+
+	lwi	r7, r20, ALIGNMENT_ADDR
+	addi	r7, r7, -CONFIG_SYS_TEXT_BASE
+	add	r7, r7, r5
+	lwi	r8, r20, ALIGNMENT_ADDR + 0x4
+	addi	r8, r8, -CONFIG_SYS_TEXT_BASE
+	add	r8, r8, r5
+	lwi	r9, r20, ALIGNMENT_ADDR + 0x8
+	addi	r9, r9, -CONFIG_SYS_TEXT_BASE
+	add	r9, r9, r5
+	addi	r10, r0, CONFIG_SYS_TEXT_BASE
+
+	brlid	r15, mb_fix_rela
+	nop
+#endif
 #endif
 
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
@@ -297,6 +338,30 @@ relocate_code:
 	brlid	r15, __setup_exceptions
 	nop
 
+#if defined(CONFIG_STATIC_RELA)
+	/* reloc_offset is current location */
+	SYM_ADDR(r10, r0, _start)
+
+	/* r5 new address where I should copy code */
+	add	r5, r0, r7 /* Move reloc addr to r5 */
+
+	/* Verbose message */
+	addi	r6, r0, 0
+
+	SYM_ADDR(r7, r0, __rel_dyn_start)
+	rsub	r7, r10, r7
+	add	r7, r7, r5
+	SYM_ADDR(r8, r0, __rel_dyn_end)
+	rsub	r8, r10, r8
+	add	r8, r8, r5
+	SYM_ADDR(r9, r0, __dyn_sym_start)
+	rsub	r9, r10, r9
+	add	r9, r9, r5
+	brlid	r15, mb_fix_rela
+	nop
+
+	/* end of code which does relocation */
+#else
 	/* Check if GOT exist */
 	addik	r21, r23, _got_start
 	addik	r22, r23, _got_end
@@ -314,6 +379,7 @@ relocate_code:
 	cmpu	r12, r21, r22 /* Check if this cross boundary */
 	bneid	r12, 3b
 	addik	r21. r21, 4
+#endif
 
 	/* Flush caches to ensure consistency */
 	addik	r5, r0, 0

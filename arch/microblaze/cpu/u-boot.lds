@@ -46,6 +46,20 @@ SECTIONS
 	}
 	__init_end = . ;
 
+	. = ALIGN(4);
+	__rel_dyn_start = .;
+	.rela.dyn : {
+		*(.rela.dyn)
+	}
+	__rel_dyn_end = .;
+
+	. = ALIGN(4);
+	__dyn_sym_start = .;
+	.dynsym : {
+		*(.dynsym)
+	}
+	__dyn_sym_end = .;
+
 	.bss ALIGN(0x4):
 	{
 		__bss_start = .;
