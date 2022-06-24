@@ -20,6 +20,8 @@
 #define R_AARCH64_RELATIVE	1027
 #endif
 
+static uint64_t rela_start, rela_end, text_base;
+
 static const bool debug_en;
 
 static void debug(const char *fmt, ...)
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
 {
 	FILE *f;
 	int i, num;
-	uint64_t rela_start, rela_end, text_base, file_size;
+	uint64_t file_size;
 
 	if (argc != 5) {
 		fprintf(stderr, "Statically apply ELF rela relocations\n");
