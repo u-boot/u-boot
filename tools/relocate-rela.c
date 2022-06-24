@@ -216,49 +216,9 @@ static int decode_elf(char **argv)
 	return 1;
 }
 
-int main(int argc, char **argv)
+static int rela_elf64(char **argv, FILE *f)
 {
-	FILE *f;
-	int i, num, ret;
-	uint64_t file_size;
-
-	if (argc != 3) {
-		fprintf(stderr, "Statically apply ELF rela relocations\n");
-		fprintf(stderr, "Usage: %s <bin file> <u-boot ELF>\n",
-			argv[0]);
-		return 1;
-	}
-
-	ret = decode_elf(argv);
-	if (ret) {
-		fprintf(stderr, "ELF decoding failed\n");
-		return ret;
-	}
-
-	if (rela_start > rela_end || rela_start < text_base) {
-		fprintf(stderr, "%s: bad rela bounds\n", argv[0]);
-		return 3;
-	}
-
-	rela_start -= text_base;
-	rela_end -= text_base;
-
-	f = fopen(argv[1], "r+b");
-	if (!f) {
-		fprintf(stderr, "%s: Cannot open %s: %s\n",
-			argv[0], argv[1], strerror(errno));
-		return 2;
-	}
-
-	fseek(f, 0, SEEK_END);
-	file_size = ftell(f);
-	rewind(f);
-
-	if (rela_end > file_size) {
-		// Most likely compiler inserted some section that didn't get
-		// objcopy-ed into the final binary
-		rela_end = file_size;
-	}
+	int i, num;
 
 	if ((rela_end - rela_start) % sizeof(Elf64_Rela)) {
 		fprintf(stderr, "%s: rela size isn't a multiple of Elf64_Rela\n", argv[0]);
@@ -316,11 +276,61 @@ int main(int argc, char **argv)
 		}
 	}
 
+	return 0;
+}
+
+int main(int argc, char **argv)
+{
+	FILE *f;
+	int ret;
+	uint64_t file_size;
+
+	if (argc != 3) {
+		fprintf(stderr, "Statically apply ELF rela relocations\n");
+		fprintf(stderr, "Usage: %s <bin file> <u-boot ELF>\n",
+			argv[0]);
+		return 1;
+	}
+
+	ret = decode_elf(argv);
+	if (ret) {
+		fprintf(stderr, "ELF decoding failed\n");
+		return ret;
+	}
+
+	if (rela_start > rela_end || rela_start < text_base) {
+		fprintf(stderr, "%s: bad rela bounds\n", argv[0]);
+		return 3;
+	}
+
+	rela_start -= text_base;
+	rela_end -= text_base;
+
+	f = fopen(argv[1], "r+b");
+	if (!f) {
+		fprintf(stderr, "%s: Cannot open %s: %s\n",
+			argv[0], argv[1], strerror(errno));
+		return 2;
+	}
+
+	fseek(f, 0, SEEK_END);
+	file_size = ftell(f);
+	rewind(f);
+
+	if (rela_end > file_size) {
+		// Most likely compiler inserted some section that didn't get
+		// objcopy-ed into the final binary
+		rela_end = file_size;
+	}
+
+	if (ei_class == 2)
+		ret = rela_elf64(argv, f);
+
 	if (fclose(f) < 0) {
 		fprintf(stderr, "%s: %s: close failed: %s\n",
 			argv[0], argv[1], strerror(errno));
 		return 4;
 	}
 
-	return 0;
+	return ret;
 }
