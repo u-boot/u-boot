@@ -142,7 +142,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x0	/* reset address - imm opcode */
 	swi	r3, r4, 0x4	/* reset address - brai opcode */
 
-	addik	r6, r0, CONFIG_SYS_TEXT_BASE
+	addik	r6, r0, _start
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x2
@@ -285,7 +285,7 @@ relocate_code:
 
 	/* R23 points to the base address. */
 	add	r23, r0, r7 /* Move reloc addr to r23 */
-	addi	r24, r0, CONFIG_SYS_TEXT_BASE /* Get reloc offset */
+	addi	r24, r0, _start /* Get reloc offset */
 	rsub	r23, r24, r23 /* keep - this is already here gd->reloc_off */
 
 	/* Setup vectors with post-relocation symbols */
@@ -323,7 +323,7 @@ relocate_code:
 	nop
 
 2:	addi	r5, r31, 0 /* gd is initialized in board_r.c */
-	addi	r6, r0, CONFIG_SYS_TEXT_BASE
+	addi	r6, r0, _start
 	addi	r12, r23, board_init_r
 	bra	r12 /* Jump to relocated code */
 
