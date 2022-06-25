@@ -52,7 +52,7 @@ supports verified boot.
 .
 .SH OPTIONS
 .
-.B List image information:
+.SS General options
 .
 .TP
 .BI \-l " uimage-file-name"
@@ -68,8 +68,7 @@ Without this option image type is autodetected.
 .B \-q
 Quiet. Don't print the image header on successful verification.
 .
-.P
-.B Create old legacy image:
+.SS General image-creation options
 .
 .TP
 .BI \-A " architecture"
@@ -152,8 +151,7 @@ just the header, everything but the image data, or nothing at all.
 .B \-v
 Verbose. Print file names as they are added to the image.
 .
-.P
-.B Create FIT image:
+.SS Options for creating FIT images
 .
 .TP
 .BI \-b " device-tree-file"
