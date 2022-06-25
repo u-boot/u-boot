@@ -194,44 +194,22 @@ command will jump to this address after loading the image.
 will be interpreted as a hexadecimal number.
 .
 .TP
-.BI \-n " image-name"
+.BI \-n " primary-configuration"
 .TQ
-.BI \-\-primary\-image " image-name"
-Set the image name to
-.IR image-name .
+.BI \-\-config " primary-configuration"
+Images may require additional configuration not specified with other options,
+often in a image-type-specific format. The image types which support this
+option and the format of their configuration are listed in
+.BR CONFIGURATION .
 .
 .TP
-.BI \-R " secondary-image-name"
+.BI \-R " secondary-configuration"
 .TQ
-.BI \-\-secondary\-image " image-name"
-Some image types support a second image for additional data. For these types,
-use
-.B \-R
-to specify this second image.
-.TS
-allbox;
-lb lbx
-l l.
-Image Type	Secondary Image Description
-pblimage	Additional RCW-style header, typically used for PBI commands.
-zynqimage, zynqmpimage	T{
-Initialization parameters, one per line. Each parameter has the form
-.sp
-.ti 4
-.I address data
-.sp
-where
-.I address
-and
-.I data
-are hexadecimal integers. The boot ROM will write each
-.I data
-to
-.I address
-when loading the image. At most 256 parameters may be specified in this
-manner.
-T}
-.TE
+.BI \-\-secondary\-config " secondary-configuration"
+Some image types support a second set of configuration data. The image types
+which support secondary configuration and the formap of their configuration are
+listed in
+.BR CONFIGURATION .
 .
 .TP
 .BI \-d " image-data-file"
@@ -469,6 +447,230 @@ using
 .BR -f .
 But if the original input to mkimage is a binary file (already compiled), then
 the timestamp is assumed to have been set previously.
+.
+.SH CONFIGURATION
+This section documents the formats of the primary and secondary configuration
+options for each image type which supports them.
+.
+.SS aisimage
+The primary configuration is a file containing a series of
+.I AIS
+(Application Image Script) commands, one per line. Each command has the form
+.RS
+.P
+.IR "command argument " .\|.\|.
+.RE
+.P
+See
+.UR https://\:www\:.ti\:.com/\:lit/\:pdf/\:spraag0
+TI application report SPRAAG0E
+.UE
+for details.
+.
+.SS atmelimage
+The primary configuration is a comma-separated list of NAND Flash parameters of
+the form
+.RS
+.P
+\fIparameter\fB=\fIvalue\fR[\fB,\fIparameter\fB=\fIvalue\fR.\|.\|.\&]
+.RE
+.P
+Valid
+.IR parameter s
+are
+.RS
+.P
+.TS
+lb.
+usePmecc
+nbSectorPerPage
+spareSize
+eccBitReq
+sectorSize
+eccOffset
+.TE
+.RE
+.P
+and valid
+.IR value s
+are decimal numbers. See section 11.4.4.1 of the SAMA5D3 Series Data Sheet for
+valid values for each parameter.
+.
+.SS imximage
+The primary configuration is a file containing configuration commands, as
+documented in doc/\:imx/\:mkimage/\:imximage.txt of the U-Boot source.
+.
+.SS imx8image and imx8mimage
+The primary configuration is a file containing configuration commands, as
+documented in doc/\:imx/\:mkimage/\:imx8image.txt of the U-Boot source.
+.
+.SS kwbimage
+The primary configuration is a file containing configuration commands, as
+documented in doc/\:imx/\:mkimage/\:kwbimage.txt of the U-Boot source.
+.
+.SS mtk_image
+The primary configuration is a semicolon-separated list of header options of the
+form
+.RS
+.P
+\fIkey\fB=\fIvalue\fR[\fB;\fIkey\fB=\fIvalue\fR.\|.\|.\&]
+.RE
+.P
+where the valid keys are:
+.RS
+.P
+.TS
+lb lbx
+lb l.
+Key	Description
+_
+lk	T{
+If \fB1\fP, then an \fILK\fP (legacy) image header is used. Otherwise, a
+\fIBootROM\fP image header is used.
+T}
+lkname	T{
+The name of the LK image header. The maximum length is 32 ASCII characters. If
+not specified, the default value is \fBU-Boot\fP.
+T}
+media	The boot device. See below for valid values.
+nandinfo	The desired NAND device type. See below for valid values.
+arm64	If \fB1\fP, then this denotes an AArch64 image.
+hdroffset	Increase the reported size of the BRLYT header by this amount.
+.TE
+.RE
+.P
+Valid values for
+.B media
+are:
+.RS
+.P
+.TS
+lb lb
+lb l.
+Value	Description
+_
+nand	Parallel NAND flash
+snand	Serial NAND flash
+nor	Serial NOR flash
+emmc	\fIeMMC\fP (Embedded Multi-Media Card)
+sdmmc	\fISD\fP (Secure Digital) card
+.TE
+.RE
+.P
+Valid values for
+.B nandinfo
+are:
+.RS
+.P
+.TS
+lb lb lb	lb	lb
+lb l	l	l	l.
+Value	NAND type	Page size	OOB size	Total size
+_
+2k+64	Serial	2KiB	64B
+2k+120	Serial	2KiB	120B
+2k+128	Serial	2KiB	128B
+4k+256	Serial	4KiB	256B
+1g:2k+64	Parallel	2KiB	64B	1Gbit
+2g:2k+64	Parallel	2KiB	64B	2Gbit
+4g:2k+64	Parallel	2KiB	64B	4Gbit
+2g:2k+128	Parallel	2KiB	128B	2Gbit
+4g:2k+128	Parallel	2KiB	128B	4Gbit
+.TE
+.RE
+.
+.SS mxsimage
+The primary configuration is a file containing configuration commands, as
+documented in doc/\:imx/\:mkimage/\:mxsimage.txt of the U-Boot source.
+.
+.SS omapimage
+The primary configuration is the optional value
+.BR byteswap .
+If present, each 32-bit word of the image will have its bytes swapped
+(converting from little-endian to big-endian, or vice versa).
+.
+.SS pblimage
+The primary configuration is a file containing the
+.I PBI
+(Pre-Boot Image) header. Each line of the configuration has the format
+.RS
+.P
+.IR value "[ " value .\|.\|.\&]
+.RE
+.P
+Where
+.I value
+is a 32-bit hexadecimal integer. Each
+.I value
+will, after being converted to raw bytes, be literally prepended to the PBI.
+.P
+The secondary configuration is a file with the same format as the primary
+configuration file. It will be inserted into the image after the primary
+configuration data and before the image data.
+.P
+It is traditional to use the primary configuration file for the
+.I RCW
+(Reset Configuration Word), and the secondary configuration file for any
+additional PBI commands. However, it is also possible to convert an existing PBI
+to the above format and \(lqchain\(rq additional data onto the end of the
+image. This may be especially useful for creating secure boot images.
+.
+.SS rkimage
+The primary configuration is the name of the processor to generate the image
+for. Valid values are:
+.RS
+.P
+.TS
+lb.
+px30
+rk3036
+rk3066
+rk3128
+rk3188
+rk322x
+rk3288
+rk3308
+rk3328
+rk3368
+rk3399
+rv1108
+rk3568
+.TE
+.RE
+.
+.SS sunxi_egon
+The primary configuration is the name to use for the device tree.
+.
+.SS ublimage
+The primary configuration is a file containing configuration commands, as
+documented in doc/\:README.ublimage of the U-Boot source.
+.
+.SS zynqimage and zynqmpimage
+For
+.BR zynqmpimage ,
+the primary configuration is a file containing the
+.I PMUFW
+(Power Management Unit Firmware).
+.B zynqimage
+does not use the primary configuration.
+.P
+For both image types, the secondary configuration is a file containinig
+initialization parameters, one per line. Each parameter has the form
+.RS
+.P
+.I address data
+.RE
+.P
+where
+.I address
+and
+.I data
+are hexadecimal integers. The boot ROM will write each
+.I data
+to
+.I address
+when loading the image. At most 256 parameters may be specified in this
+manner.
 .
 .SH BUGS
 Please report bugs to the
