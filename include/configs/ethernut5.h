@@ -59,11 +59,6 @@
 #define CONFIG_SYS_MMC_CD_PIN		AT91_PIO_PORTC, 8
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_SYS_USB_OHCI_REGS_BASE	0x00500000
-#endif
-
 /* RTC */
 #if defined(CONFIG_CMD_DATE) || defined(CONFIG_CMD_SNTP)
 #define CONFIG_SYS_I2C_RTC_ADDR		0x51

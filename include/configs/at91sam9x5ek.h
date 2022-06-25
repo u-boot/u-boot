@@ -38,13 +38,6 @@
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PD5
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#ifndef CONFIG_USB_EHCI_HCD
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		ATMEL_BASE_OHCI
-#endif
-#endif
-
 /* SPL */
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)

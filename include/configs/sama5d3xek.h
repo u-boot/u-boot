@@ -50,11 +50,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		ATMEL_BASE_OHCI
-#endif
-
 /* SPL */
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)

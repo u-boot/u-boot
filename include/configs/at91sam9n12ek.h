@@ -39,11 +39,6 @@
 	"bootargs_nand=rootfstype=ubifs ubi.mtd=7 root=ubi0:rootfs rw\0"\
 	"bootargs_mmc=root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait\0"
 
-/* USB host */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_SYS_USB_OHCI_REGS_BASE	ATMEL_BASE_OHCI
-#endif
-
 /* SPL */
 
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)

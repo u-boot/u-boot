@@ -66,9 +66,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
-/* USB configuration */
-#define CONFIG_SYS_USB_OHCI_REGS_BASE	ATMEL_UHP_BASE
-
 /* USB DFU support */
 
 #define CONFIG_USB_GADGET_AT91

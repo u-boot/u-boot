@@ -43,11 +43,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00a00000
-#endif
-
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 

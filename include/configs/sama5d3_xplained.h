@@ -37,11 +37,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00600000
-#endif
-
 /* SPL */
 
 /* size of u-boot.bin to load */
