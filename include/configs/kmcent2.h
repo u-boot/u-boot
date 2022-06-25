@@ -137,7 +137,6 @@
 
 #define CONFIG_RESET_VECTOR_ADDRESS	0xebfffffc
 
-#define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
 /* Environment in parallel NOR-Flash */

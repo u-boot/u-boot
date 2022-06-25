@@ -1221,6 +1221,15 @@ config SYS_BOOK3E_HV
 	bool "Category E.HV is supported"
 	depends on BOOKE
 
+config SYS_CPC_REINIT_F
+	bool
+	help
+	  The CPC is configured as SRAM at the time of U-Boot entry and is
+	  required to be re-initialized.
+
+config SYS_FSL_CPC
+	bool "Corenet Platform Cache support"
+
 config SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up"
 	depends on MPC85xx

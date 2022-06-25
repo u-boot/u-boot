@@ -15,7 +15,6 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
 #ifdef CONFIG_RAMBOOT_PBL

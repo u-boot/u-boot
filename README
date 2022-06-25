@@ -371,10 +371,6 @@ The following options need to be configured:
 		In this mode, a single differential clock is used to supply
 		clocks to the sysclock, ddrclock and usbclock.
 
-		CONFIG_SYS_CPC_REINIT_F
-		This CONFIG is defined when the CPC is configured as SRAM at the
-		time of U-Boot entry and is required to be re-initialized.
-
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
