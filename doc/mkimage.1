@@ -55,8 +55,18 @@ supports verified boot.
 .SS General options
 .
 .TP
-.BI \-l " uimage-file-name"
-mkimage lists the information contained in the header of an existing U-Boot image.
+.B \-h
+Print a help message and exit.
+.
+.TP
+.B \-l
+mkimage lists the information contained in the header of an existing U-Boot
+image.
+.
+.TP
+.B \-s
+Don't copy in the image data. Depending on the image type, this may create
+just the header, everything but the image data, or nothing at all.
 .
 .TP
 .BI \-T " image-type"
@@ -66,23 +76,27 @@ Without this option image type is autodetected.
 .
 .TP
 .B \-q
-Quiet. Don't print the image header on successful verification.
+Quiet. Don't print the image header.
+.
+.TP
+.B \-v
+Verbose. Print file names as they are added to the image.
+.
+.TP
+.B \-V
+Print version information and exit.
 .
 .SS General image-creation options
 .
 .TP
 .BI \-A " architecture"
-Set architecture. Pass \-h as the architecture to see the list of supported architectures.
+Set architecture. Pass \-h as the architecture to see the list of supported
+architectures.
 .
 .TP
 .BI \-O " os"
 Set operating system. bootm command of u-boot changes boot method by os type.
 Pass \-h as the OS to see the list of supported OS.
-.
-.TP
-.BI \-T " image-type"
-Set image type.
-Pass \-h as the image to see the list of supported image type.
 .
 .TP
 .BI \-C " compression-type"
@@ -96,10 +110,6 @@ Set load address with a hex number.
 .TP
 .BI \-e " entry-point"
 Set entry point with a hex number.
-.
-.TP
-.B \-l
-List the contents of an image.
 .
 .TP
 .BI \-n " image-name"
@@ -142,15 +152,6 @@ Use image data from 'image data file'.
 .B \-x
 Set XIP (execute in place) flag.
 .
-.TP
-.B \-s
-Don't copy in the image data. Depending on the image type, this may create
-just the header, everything but the image data, or nothing at all.
-.
-.TP
-.B \-v
-Verbose. Print file names as they are added to the image.
-.
 .SS Options for creating FIT images
 .
 .TP
@@ -181,6 +182,12 @@ byte after the FIT.
 .BI \-B " alignment"
 The alignment, in hexadecimal, that external data will be aligned to. This
 option only has an effect when \-E is specified.
+.
+.TP
+.BI \-p " external-position"
+Place external data at a static external position. See \-E. Instead of writing
+a 'data-offset' property defining the offset from the end of the FIT, \-p will
+use 'data-position' as the absolute position from the base of the FIT.
 .
 .TP
 .BI \-f " image-tree-source-file"
@@ -223,11 +230,6 @@ verification. Typically the file here is the device tree binary used by
 CONFIG_OF_CONTROL in U-Boot.
 .
 .TP
-.BI \-G " key-file"
-Specifies the private key file to use when signing. This option may be used
-instead of \-k.
-.
-.TP
 .BI \-g " key-name-hint"
 Sets the key-name-hint property when used with \-f auto. This is the <name>
 part of the key. The directory part is set by \-k. This option also indicates
@@ -238,12 +240,6 @@ specified, \-o must be specified as well.
 .BI \-o " signing-algorithm"
 Specifies the algorithm to be used for signing a FIT image. The default is
 taken from the signature node's 'algo' property.
-.
-.TP
-.BI \-p " external-position"
-Place external data at a static external position. See \-E. Instead of writing
-a 'data-offset' property defining the offset from the end of the FIT, \-p will
-use 'data-position' as the absolute position from the base of the FIT.
 .
 .TP
 .B \-r
