@@ -78,8 +78,10 @@ __weak void board_init_f_init_stack_protection(void)
 ulong board_init_f_alloc_reserve(ulong top)
 {
 	/* Reserve early malloc arena */
+#ifndef CONFIG_MALLOC_F_ADDR
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	top -= CONFIG_VAL(SYS_MALLOC_F_LEN);
+#endif
 #endif
 	/* LAST : reserve GD (rounded up to a multiple of 16 bytes) */
 	top = rounddown(top-sizeof(struct global_data), 16);
