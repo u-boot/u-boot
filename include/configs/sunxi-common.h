@@ -120,11 +120,6 @@
 
 /* Ethernet support */
 
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
-#endif
-
 #ifdef CONFIG_ARM64
 /*
  * Boards seem to come with at least 512MB of DRAM.

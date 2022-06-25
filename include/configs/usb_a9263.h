@@ -45,12 +45,7 @@
 
 /* USB */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_ATMEL
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_CPU_INIT
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00a00000
-#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #endif
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */

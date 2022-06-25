@@ -30,8 +30,4 @@
 	"partitions=" PARTS_DEFAULT \
 	BOOTENV
 
-/* rockchip ohci host driver */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
-
 #endif

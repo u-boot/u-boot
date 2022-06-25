@@ -274,11 +274,6 @@
 /* Store environment at top of flash */
 #endif
 
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
-#endif
-
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
 

@@ -138,12 +138,6 @@
  */
 
 /*
- * USB Configs
- */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
-
-/*
  * Linux Information
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)

@@ -170,10 +170,6 @@
 	"console=ttyS2,115200n8\0" \
 	"hwconfig=dsp:wake=yes"
 
-/* USB Configs */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
-
 #ifdef CONFIG_SPL_BUILD
 /* defines for SPL */
 
