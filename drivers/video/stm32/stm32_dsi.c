@@ -433,19 +433,17 @@ static int stm32_dsi_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
-		ret =  device_get_supply_regulator(dev, "phy-dsi-supply",
-						   &priv->vdd_reg);
-		if (ret && ret != -ENOENT) {
-			dev_err(dev, "Warning: cannot get phy dsi supply\n");
-			return -ENODEV;
-		}
+	ret =  device_get_supply_regulator(dev, "phy-dsi-supply",
+					   &priv->vdd_reg);
+	if (ret && ret != -ENOENT) {
+		dev_err(dev, "Warning: cannot get phy dsi supply\n");
+		return -ENODEV;
+	}
 
-		if (ret != -ENOENT) {
-			ret = regulator_set_enable(priv->vdd_reg, true);
-			if (ret)
-				return ret;
-		}
+	if (ret != -ENOENT) {
+		ret = regulator_set_enable(priv->vdd_reg, true);
+		if (ret)
+			return ret;
 	}
 
 	ret = clk_get_by_name(device->dev, "pclk", &clk);
@@ -493,8 +491,7 @@ static int stm32_dsi_probe(struct udevice *dev)
 err_clk:
 	clk_disable(&clk);
 err_reg:
-	if (IS_ENABLED(CONFIG_DM_REGULATOR))
-		regulator_set_enable(priv->vdd_reg, false);
+	regulator_set_enable(priv->vdd_reg, false);
 
 	return ret;
 }

@@ -1768,10 +1768,13 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
    int s; // vertical subsample index
    unsigned char scanline_data[512], *scanline;
 
-   if (result->w > 512)
+   if (result->w > 512) {
       scanline = (unsigned char *) STBTT_malloc(result->w, userdata);
-   else
+      if (!scanline)
+         return;
+   } else {
       scanline = scanline_data;
+   }
 
    y = off_y * vsubsample;
    e[n].y0 = (off_y + result->h) * (float) vsubsample + 1;
@@ -1821,6 +1824,8 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
          while (e->y0 <= scan_y) {
             if (e->y1 > scan_y) {
                stbtt__active_edge *z = stbtt__new_active(&hh, e, off_x, scan_y, userdata);
+               if (!z)
+                  return;
                // find insertion point
                if (active == NULL)
                   active = z;
@@ -2068,10 +2073,13 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
    int y,j=0, i;
    float scanline_data[129], *scanline, *scanline2;
 
-   if (result->w > 64)
+   if (result->w > 64) {
       scanline = (float *) STBTT_malloc((result->w*2+1) * sizeof(float), userdata);
-   else
+      if (!scanline)
+         return;
+   } else {
       scanline = scanline_data;
+   }
 
    scanline2 = scanline + result->w;
 
@@ -2105,6 +2113,8 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
       while (e->y0 <= scan_y_bottom) {
          if (e->y0 != e->y1) {
             stbtt__active_edge *z = stbtt__new_active(&hh, e, off_x, scan_y_top, userdata);
+            if (!z)
+               return;
             STBTT_assert(z->ey >= scan_y_top);
             // insert at front
             z->next = active;
