@@ -23,15 +23,8 @@
 #define CONFIG_WATCHDOG_TIMEOUT		5000
 
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_SYS_DISCOVER_PHY
 #	define CONFIG_SYS_TX_ETH_BUFFER	8
 #	define CONFIG_SYS_FEC_BUF_USE_SRAM
-
-/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
-#	ifndef CONFIG_SYS_DISCOVER_PHY
-#		define FECDUPLEX	FULL
-#		define FECSPEED		_100BASET
-#	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
 #define CONFIG_SYS_RTC_CNT		(0x8000)

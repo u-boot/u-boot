@@ -85,15 +85,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
 
-#ifdef CONFIG_MCFFEC
-#	define CONFIG_SYS_DISCOVER_PHY
-/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
-#	ifndef CONFIG_SYS_DISCOVER_PHY
-#		define FECDUPLEX	FULL
-#		define FECSPEED		_100BASET
-#	endif			/* CONFIG_SYS_DISCOVER_PHY */
-#endif
-
 /*
  *-----------------------------------------------------------------------------
  * Define user parameters that have to be customized most likely
@@ -157,7 +148,6 @@ enter a valid image address in flash */
  * ---
  */
 
-#define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_SYS_ENET_BD_BASE	0x780000
 
 /*-----------------------------------------------------------------------

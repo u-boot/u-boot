@@ -400,11 +400,14 @@ config FTGMAC100
 	  offers high-priority transmit queue for QoS and CoS
 	  applications.
 
+config SYS_DISCOVER_PHY
+	bool
 
 config MCFFEC
 	bool "ColdFire Ethernet Support"
 	depends on DM_ETH
 	select PHYLIB
+	select SYS_DISCOVER_PHY
 	help
 	  This driver supports the network interface units in the
 	  ColdFire family.
@@ -417,6 +420,7 @@ config FSLDMAFEC
         bool "ColdFire DMA Ethernet Support"
 	depends on DM_ETH
 	select PHYLIB
+	select SYS_DISCOVER_PHY
 	help
 	  This driver supports the network interface units in the
 	  ColdFire family.
@@ -732,6 +736,7 @@ config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
 	select MII
+	select SYS_DISCOVER_PHY
 	help
 	  This driver implements support for the Fast Ethernet Controller
 	  on MPC8XX
