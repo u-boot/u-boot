@@ -25,7 +25,6 @@
 #endif
 
 /* High Level Configuration Options */
-#define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc

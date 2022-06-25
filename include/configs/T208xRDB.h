@@ -16,7 +16,6 @@
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 
 /* High Level Configuration Options */
-#define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */
 
 #define CONFIG_SYS_FSL_CPC	/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS

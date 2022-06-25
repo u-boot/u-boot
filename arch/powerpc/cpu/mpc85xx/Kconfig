@@ -1216,6 +1216,10 @@ config SYS_FSL_LBC_CLK_DIV
 config ENABLE_36BIT_PHYS
 	bool "Enable 36bit physical address space support"
 
+config SYS_BOOK3E_HV
+	bool "Category E.HV is supported"
+	depends on BOOKE
+
 config SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up"
 	depends on MPC85xx
