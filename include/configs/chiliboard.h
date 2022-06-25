@@ -105,8 +105,6 @@
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
 /* SPL */
-/* Bootcount using the RTC block */
-#define CONFIG_SYS_BOOTCOUNT_BE
 
 /* NAND: device related configs */
 /* NAND: driver related configs */

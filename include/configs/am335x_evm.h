@@ -170,14 +170,6 @@
 /* PMIC support */
 #define CONFIG_POWER_TPS65910
 
-/* SPL */
-#ifndef CONFIG_NOR_BOOT
-/* Bootcount using the RTC block */
-#define CONFIG_SYS_BOOTCOUNT_BE
-
-/* USB gadget RNDIS */
-#endif
-
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 /* NAND: driver related configs */

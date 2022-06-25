@@ -187,8 +187,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		0x100000     /* 1Mbyte */
 
-#define CONFIG_SYS_BOOTCOUNT_BE
-
 /*
  * Environment
  */

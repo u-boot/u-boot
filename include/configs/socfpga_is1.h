@@ -16,9 +16,4 @@
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
-/*
- * Bootcounter
- */
-#define CONFIG_SYS_BOOTCOUNT_BE
-
 #endif	/* __CONFIG_SOCFPGA_IS1_H__ */

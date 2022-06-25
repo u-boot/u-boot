@@ -50,9 +50,6 @@
 
 /* SPL */
 
-/* Bootcount using the RTC block */
-#define CONFIG_SYS_BOOTCOUNT_BE
-
 /* Network. */
 
 #endif	/* ! __CONFIG_AM335X_SL50_H */
