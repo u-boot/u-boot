@@ -11,7 +11,6 @@ arch-$(CONFIG_CPU_ARM920T)	=-march=armv4t
 arch-$(CONFIG_CPU_ARM926EJS)	=-march=armv5te
 arch-$(CONFIG_CPU_ARM946ES)	=-march=armv5te
 arch-$(CONFIG_CPU_SA1100)	=-march=armv4
-arch-$(CONFIG_CPU_PXA)		=
 arch-$(CONFIG_CPU_ARM1136)	=-march=armv5t
 arch-$(CONFIG_CPU_ARM1176)	=-march=armv5t
 arch-$(CONFIG_CPU_V7A)		=$(call cc-option, -march=armv7-a, \
@@ -41,7 +40,6 @@ tune-$(CONFIG_CPU_ARM920T)	=
 tune-$(CONFIG_CPU_ARM926EJS)	=
 tune-$(CONFIG_CPU_ARM946ES)	=
 tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
-tune-$(CONFIG_CPU_PXA)		=-mcpu=xscale
 tune-$(CONFIG_CPU_ARM1136)	=
 tune-$(CONFIG_CPU_ARM1176)	=
 tune-$(CONFIG_CPU_V7A)		=-mtune=generic-armv7-a

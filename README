@@ -850,13 +850,6 @@ The following options need to be configured:
 		the appropriate value in Hz.
 
 - MMC Support:
-		The MMC controller on the Intel PXA is supported. To
-		enable this define CONFIG_MMC. The MMC can be
-		accessed from the boot prompt by mapping the device
-		to physical memory similar to flash. Command line is
-		enabled with CONFIG_CMD_MMC. The MMC driver also works with
-		the FAT fs. This is enabled with CONFIG_CMD_FAT.
-
 		CONFIG_SH_MMCIF
 		Support for Renesas on-chip MMCIF controller
 

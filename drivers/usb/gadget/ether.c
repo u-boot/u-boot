@@ -1325,24 +1325,6 @@ eth_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		if (!cdc_active(dev) && wIndex != 0)
 			break;
 
-		/*
-		 * PXA hardware partially handles SET_INTERFACE;
-		 * we need to kluge around that interference.
-		 */
-		if (gadget_is_pxa(gadget)) {
-			value = eth_set_config(dev, DEV_CONFIG_VALUE,
-						GFP_ATOMIC);
-			/*
-			 * PXA25x driver use non-CDC ethernet gadget.
-			 * But only _CDC and _RNDIS code can signalize
-			 * that network is working. So we signalize it
-			 * here.
-			 */
-			dev->network_started = 1;
-			debug("USB network up!\n");
-			goto done_set_intf;
-		}
-
 #ifdef CONFIG_USB_ETH_CDC
 		switch (wIndex) {
 		case 0:		/* control/master intf */
@@ -1386,8 +1368,6 @@ eth_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		 */
 		debug("set_interface ignored!\n");
 #endif /* CONFIG_USB_ETH_CDC */
-
-done_set_intf:
 		break;
 	case USB_REQ_GET_INTERFACE:
 		if (ctrl->bRequestType != (USB_DIR_IN|USB_RECIP_INTERFACE)
@@ -2032,10 +2012,7 @@ static int eth_bind(struct usb_gadget *gadget)
 	 * standard protocol is _strongly_ preferred for interop purposes.
 	 * (By everyone except Microsoft.)
 	 */
-	if (gadget_is_pxa(gadget)) {
-		/* pxa doesn't support altsettings */
-		cdc = 0;
-	} else if (gadget_is_musbhdrc(gadget)) {
+	if (gadget_is_musbhdrc(gadget)) {
 		/* reduce tx dma overhead by avoiding special cases */
 		zlp = 0;
 	} else if (gadget_is_sh(gadget)) {

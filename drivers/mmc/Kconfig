@@ -346,14 +346,6 @@ config MVEBU_MMC
 
 	  If unsure, say N.
 
-config PXA_MMC_GENERIC
-	bool "Support for MMC controllers on PXA"
-	help
-	  This selects MMC controllers on PXA.
-	  If you are on a PXA architecture, say Y here.
-
-	  If unsure, say N.
-
 config MMC_OMAP_HS
 	bool "TI OMAP High Speed Multimedia Card Interface support"
 	select DM_REGULATOR_PBIAS if DM_MMC && DM_REGULATOR
