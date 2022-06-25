@@ -1754,11 +1754,6 @@ Configuration Settings:
 		CONFIG_SYS_BOOTMAPSZ.  If CONFIG_SYS_BOOTMAPSZ is undefined,
 		then the value in "bootm_size" will be used instead.
 
-- CONFIG_SYS_BOOT_RAMDISK_HIGH:
-		Enable initrd_high functionality.  If defined then the
-		initrd_high feature is enabled and the bootm ramdisk subcommand
-		is enabled.
-
 - CONFIG_SYS_BOOT_GET_CMDLINE:
 		Enables allocating and saving kernel cmdline in space between
 		"bootm_low" and "bootm_low" + BOOTMAPSZ.
