@@ -409,6 +409,10 @@ config MCFFEC
 	  This driver supports the network interface units in the
 	  ColdFire family.
 
+config SYS_UNIFY_CACHE
+	depends on MCFFEC
+	bool "Invalidate icache during ethernet operations"
+
 config FSLDMAFEC
         bool "ColdFire DMA Ethernet Support"
 	depends on DM_ETH

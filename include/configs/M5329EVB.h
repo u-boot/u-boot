@@ -22,8 +22,6 @@
 
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
-#define CONFIG_SYS_UNIFY_CACHE
-
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_SYS_DISCOVER_PHY
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
