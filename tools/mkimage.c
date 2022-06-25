@@ -11,6 +11,7 @@
 #include "mkimage.h"
 #include "imximage.h"
 #include <fit_common.h>
+#include <getopt.h>
 #include <image.h>
 #include <version.h>
 #ifdef __linux__
@@ -134,6 +135,7 @@ static void usage(const char *msg)
 	fprintf(stderr, "       %s -V ==> print version information and exit\n",
 		params.cmdname);
 	fprintf(stderr, "Use '-T list' to see a list of available image types\n");
+	fprintf(stderr, "Long options are available; read the man page for details\n");
 
 	exit(EXIT_FAILURE);
 }
@@ -156,6 +158,45 @@ static int add_content(int type, const char *fname)
 	return 0;
 }
 
+static const char optstring[] =
+	"a:A:b:B:c:C:d:D:e:Ef:Fg:G:i:k:K:ln:N:o:O:p:qrR:stT:vVx";
+
+static const struct option longopts[] = {
+	{ "load-address", required_argument, NULL, 'a' },
+	{ "architecture", required_argument, NULL, 'A' },
+	{ "device-tree", required_argument, NULL, 'b' },
+	{ "alignment", required_argument, NULL, 'B' },
+	{ "comment", required_argument, NULL, 'c' },
+	{ "compression", required_argument, NULL, 'C' },
+	{ "image", required_argument, NULL, 'd' },
+	{ "dtcopts", required_argument, NULL, 'D' },
+	{ "entry-point", required_argument, NULL, 'e' },
+	{ "external", no_argument, NULL, 'E' },
+	{ "fit", required_argument, NULL, 'f' },
+	{ "update", no_argument, NULL, 'F' },
+	{ "key-name-hint", required_argument, NULL, 'g' },
+	{ "key-file", required_argument, NULL, 'G' },
+	{ "help", no_argument, NULL, 'h' },
+	{ "initramfs", required_argument, NULL, 'i' },
+	{ "key-dir", required_argument, NULL, 'k' },
+	{ "key-dest", required_argument, NULL, 'K' },
+	{ "list", no_argument, NULL, 'l' },
+	{ "config", required_argument, NULL, 'n' },
+	{ "engine", required_argument, NULL, 'N' },
+	{ "algo", required_argument, NULL, 'o' },
+	{ "os", required_argument, NULL, 'O' },
+	{ "position", required_argument, NULL, 'p' },
+	{ "quiet", no_argument, NULL, 'q' },
+	{ "key-required", no_argument, NULL, 'r' },
+	{ "secondary-config", required_argument, NULL, 'R' },
+	{ "no-copy", no_argument, NULL, 's' },
+	{ "touch", no_argument, NULL, 't' },
+	{ "type", required_argument, NULL, 'T' },
+	{ "verbose", no_argument, NULL, 'v' },
+	{ "version", no_argument, NULL, 'V' },
+	{ "xip", no_argument, NULL, 'x' },
+};
+
 static void process_args(int argc, char **argv)
 {
 	char *ptr;
@@ -163,8 +204,8 @@ static void process_args(int argc, char **argv)
 	char *datafile = NULL;
 	int opt;
 
-	while ((opt = getopt(argc, argv,
-		   "a:A:b:B:c:C:d:D:e:Ef:Fg:G:k:i:K:ln:N:p:o:O:rR:qstT:vVx")) != -1) {
+	while ((opt = getopt_long(argc, argv, optstring,
+				  longopts, NULL)) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
