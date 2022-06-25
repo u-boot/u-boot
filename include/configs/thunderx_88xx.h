@@ -6,10 +6,6 @@
 #ifndef __THUNDERX_88XX_H__
 #define __THUNDERX_88XX_H__
 
-#define CONFIG_THUNDERX
-
-#define CONFIG_SYS_64BIT
-
 #define MEM_BASE			0x00500000
 
 #define CONFIG_SYS_LOWMEM_BASE		MEM_BASE
