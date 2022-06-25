@@ -222,7 +222,4 @@
 
 /* pass open firmware flat tree */
 
-/* USB support */
-#define CONFIG_PCI_OHCI			1
-
 #endif	/* __CONFIG_H */
