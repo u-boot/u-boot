@@ -19,8 +19,6 @@
 /* Use General purpose timer 1 */
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 
-#define CONFIG_PALMAS_POWER
-
 #include <linux/stringify.h>
 
 #include <asm/arch/cpu.h>

@@ -426,6 +426,10 @@ config POWER_MT6323
 	  This adds poweroff driver for mt6323
 	  this pmic is used on mt7623 / Bananapi R2
 
+config PALMAS_POWER
+	bool "Palmas power support"
+	depends on OMAP54XX
+
 config POWER_I2C
 	bool "I2C-based power control for legacy power"
 	depends on POWER_LEGACY
