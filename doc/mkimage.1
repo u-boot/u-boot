@@ -1,5 +1,5 @@
 .TH MKIMAGE 1 "2022-02-07"
-
+.
 .SH NAME
 mkimage \- Generate image for U-Boot
 .SH SYNOPSIS
@@ -7,35 +7,35 @@ mkimage \- Generate image for U-Boot
 .OP \-T type
 .BI \-l\~ image-file-name
 .YS
-
+.
 .SY mkimage
 .RI [ option\~ .\|.\|.\&]
 .OP \-T type
 .I image-file-name
 .YS
-
+.
 .SY mkimage
 .RI [ option\~ .\|.\|.\&]
 .BI \-f\~ image-tree-source-file\c
 .RB | auto
 .I image-file-name
 .YS
-
+.
 .SY mkimage
 .RI [ option\~ .\|.\|.\&]
 .BI \-F\~ image-file-name
 .YS
-
+.
 .SH "DESCRIPTION"
 The
 .B mkimage
 command is used to create images for use with the U-Boot boot loader.
 These images can contain the linux kernel, device tree blob, root file
 system image, firmware images etc., either separate or combined.
-
+.P
 .B mkimage
 supports two different formats:
-
+.P
 The old
 .I legacy image
 format concatenates the individual parts (for example, kernel image,
@@ -43,69 +43,69 @@ device tree blob and ramdisk image) and adds a 64 bytes header
 containing information about target architecture, operating system,
 image type, compression method, entry points, time stamp, checksums,
 etc.
-
+.P
 The new
 .I FIT (Flattened Image Tree) format
 allows for more flexibility in handling images of various types and also
 enhances integrity protection of images with stronger checksums. It also
 supports verified boot.
-
+.
 .SH "OPTIONS"
-
+.
 .B List image information:
-
+.
 .TP
 .BI "\-l [" "uimage file name" "]"
 mkimage lists the information contained in the header of an existing U-Boot image.
-
+.
 .TP
 .BI "\-T [" "image type" "]"
 Parse image file as type.
 Pass \-h as the image to see the list of supported image type.
 Without this option image type is autodetected.
-
+.
 .TP
 .BI "\-q"
 Quiet. Don't print the image header on successful verification.
-
+.
 .P
 .B Create old legacy image:
-
+.
 .TP
 .BI "\-A [" "architecture" "]"
 Set architecture. Pass \-h as the architecture to see the list of supported architectures.
-
+.
 .TP
 .BI "\-O [" "os" "]"
 Set operating system. bootm command of u-boot changes boot method by os type.
 Pass \-h as the OS to see the list of supported OS.
-
+.
 .TP
 .BI "\-T [" "image type" "]"
 Set image type.
 Pass \-h as the image to see the list of supported image type.
-
+.
 .TP
 .BI "\-C [" "compression type" "]"
 Set compression type.
 Pass \-h as the compression to see the list of supported compression type.
-
+.
 .TP
 .BI "\-a [" "load address" "]"
 Set load address with a hex number.
-
+.
 .TP
 .BI "\-e [" "entry point" "]"
 Set entry point with a hex number.
-
+.
 .TP
 .BI "\-l"
 List the contents of an image.
-
+.
 .TP
 .BI "\-n [" "image name" "]"
 Set image name to 'image name'.
-
+.
 .TP
 .BI "\-R [" "secondary image name" "]"
 Some image types support a second image for additional data. For these types,
@@ -134,42 +134,42 @@ when loading the image. At most 256 parameters may be specified in this
 manner.
 T}
 .TE
-
+.
 .TP
 .BI "\-d [" "image data file" "]"
 Use image data from 'image data file'.
-
+.
 .TP
 .BI "\-x"
 Set XIP (execute in place) flag.
-
+.
 .TP
 .BI "\-s"
 Don't copy in the image data. Depending on the image type, this may create
 just the header, everything but the image data, or nothing at all.
-
+.
 .TP
 .BI "\-v"
 Verbose. Print file names as they are added to the image.
-
+.
 .P
 .B Create FIT image:
-
+.
 .TP
 .BI "\-b [" "device tree file" "]
 Appends the device tree binary file (.dtb) to the FIT.
-
+.
 .TP
 .BI "\-c [" "comment" "]"
 Specifies a comment to be added when signing. This is typically a useful
 message which describes how the image was signed or some other useful
 information.
-
+.
 .TP
 .BI "\-D [" "dtc options" "]"
 Provide special options to the device tree compiler that is used to
 create the image.
-
+.
 .TP
 .BI "\-E
 After processing, move the image data outside the FIT and store a data offset
@@ -178,44 +178,44 @@ FIT, with each one aligned to a 4-byte boundary. The existing 'data' property
 in each image will be replaced with 'data-offset' and 'data-size' properties.
 A 'data-offset' of 0 indicates that it starts in the first (4-byte aligned)
 byte after the FIT.
-
+.
 .TP
 .BI "\-B [" "alignment" "]"
 The alignment, in hexadecimal, that external data will be aligned to. This
 option only has an effect when \-E is specified.
-
+.
 .TP
 .BI "\-f [" "image tree source file" " | " "auto" "]"
 Image tree source file that describes the structure and contents of the
 FIT image.
-
+.IP
 This can be automatically generated for some simple cases.
 Use "-f auto" for this. In that case the arguments -d, -A, -O, -T, -C, -a
 and -e are used to specify the image to include in the FIT and its attributes.
 No .its file is required.
-
+.
 .TP
 .BI "\-F"
 Indicates that an existing FIT image should be modified. No dtc
 compilation is performed and the \-f flag should not be given.
 This can be used to sign images with additional keys after initial image
 creation.
-
+.
 .TP
 .BI "\-i [" "ramdisk_file" "]"
 Appends the ramdisk file to the FIT.
-
+.
 .TP
 .BI "\-k [" "key_directory" "]"
 Specifies the directory containing keys to use for signing. This directory
 should contain a private key file <name>.key for use with signing and a
 certificate <name>.crt (containing the public key) for use with verification.
-
+.
 .TP
 .BI "\-G [" "key_file" "]"
 Specifies the private key file to use when signing. This option may be used
 instead of \-k.
-
+.
 .TP
 .BI "\-K [" "key_destination" "]"
 Specifies a compiled device tree binary file (typically .dtb) to write
@@ -223,53 +223,53 @@ public key information into. When a private key is used to sign an image,
 the corresponding public key is written into this file for for run-time
 verification. Typically the file here is the device tree binary used by
 CONFIG_OF_CONTROL in U-Boot.
-
+.
 .TP
 .BI "\-G [" "key_file" "]"
 Specifies the private key file to use when signing. This option may be used
 instead of \-k.
-
+.
 .TP
 .BI "\-g [" "key_name_hint" "]"
 Sets the key-name-hint property when used with \-f auto. This is the <name>
 part of the key. The directory part is set by \-k. This option also indicates
 that the images included in the FIT should be signed. If this option is
 specified, \-o must be specified as well.
-
+.
 .TP
 .BI "\-o [" "signing algorithm" "]"
 Specifies the algorithm to be used for signing a FIT image. The default is
 taken from the signature node's 'algo' property.
-
+.
 .TP
 .BI "\-p [" "external position" "]"
 Place external data at a static external position. See \-E. Instead of writing
 a 'data-offset' property defining the offset from the end of the FIT, \-p will
 use 'data-position' as the absolute position from the base of the FIT.
-
+.
 .TP
 .BI "\-r"
 Specifies that keys used to sign the FIT are required. This means that they
 must be verified for the image to boot. Without this option, the verification
 will be optional (useful for testing but not for release).
-
+.
 .TP
 .BI "\-N [" "engine" "]"
 The openssl engine to use when signing and verifying the image. For a complete list of
 available engines, refer to
 .BR engine (1).
-
+.
 .TP
 .BI "\-t
 Update the timestamp in the FIT.
-
+.IP
 Normally the FIT timestamp is created the first time mkimage is run on a FIT,
 when converting the source .its to the binary .fit file. This corresponds to
 using the -f flag. But if the original input to mkimage is a binary file
 (already compiled) then the timestamp is assumed to have been set previously.
-
+.
 .SH EXAMPLES
-
+.
 List image information:
 .nf
 .B mkimage -l uImage
@@ -295,7 +295,7 @@ skipping those for which keys cannot be found. Also add a comment.
 .br
 .B -c """Kernel 3.8 image for production devices""" kernel.itb
 .fi
-
+.
 .P
 Add public keys to u-boot.dtb without needing a FIT to sign. This will also
 create a FIT containing an images node with no data named unused.itb.
@@ -304,7 +304,7 @@ create a FIT containing an images node with no data named unused.itb.
 .br
 .B -o sha256,rsa2048 -K u-boot.dtb unused.itb
 .fi
-
+.
 .P
 Update an existing FIT image, signing it with additional keys.
 Add corresponding public keys into u-boot.dtb. This will resign all images
@@ -315,7 +315,7 @@ with unavailable keys are skipped.
 .br
 .B -c """Kernel 3.8 image for production devices""" kernel.itb
 .fi
-
+.
 .P
 Create a FIT image containing a kernel, using automatic mode. No .its file
 is required.
@@ -341,7 +341,7 @@ file is required.
 .br
 .B -d vmlinuz -k /secret/signing-keys -g dev -o sha256,rsa2048 kernel.itb
 .fi
-
+.
 .SH HOMEPAGE
 http://www.denx.de/wiki/U-Boot/WebHome
 .PP
