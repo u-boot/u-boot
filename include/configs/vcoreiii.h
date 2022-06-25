@@ -32,8 +32,6 @@
 #error Unknown DDR size - please add!
 #endif
 
-#define CONFIG_SYS_BOOTM_LEN      (16 << 20)      /* Increase max gunzip size */
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"loadaddr=0x81000000\0"						\
 	"spi_image_off=0x00100000\0"					\

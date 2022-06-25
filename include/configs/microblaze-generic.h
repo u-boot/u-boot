@@ -11,8 +11,6 @@
 /* Microblaze is microblaze_0 */
 #define XILINX_FSL_NUMBER	3
 
-#define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024)
-
 /* uart */
 /* The following table includes the supported baudrates */
 # define CONFIG_SYS_BAUDRATE_TABLE \

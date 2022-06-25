@@ -11,7 +11,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 #define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Uboot definition */

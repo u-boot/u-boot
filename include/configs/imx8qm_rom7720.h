@@ -16,8 +16,6 @@
 #define USDHC2_BASE_ADDR		0x5B020000
 #define USDHC3_BASE_ADDR		0x5B030000
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 /* FUSE command */
 
 /* Boot M4 */

@@ -18,7 +18,6 @@
 /* ------------------------------------------------------------------------- */
 
 /* memory */
-#define CONFIG_SYS_BOOTM_LEN		(32 * 1024 * 1024)
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */

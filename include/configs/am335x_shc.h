@@ -16,8 +16,6 @@
 
 /* settings we don;t want on this board */
 
-#define CONFIG_SYS_BOOTM_LEN		(16 << 20)
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)

@@ -16,7 +16,6 @@
 /* DRAM banks */
 
 /* SYS */
-#define CONFIG_SYS_BOOTM_LEN			SZ_64M
 
 /* ATF bl33.bin load address (must match) */
 

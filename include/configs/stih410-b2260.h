@@ -24,8 +24,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ		SZ_256M
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_16M
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \

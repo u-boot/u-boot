@@ -15,8 +15,6 @@
 /*  BSS setup */
 #endif
 
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
-
 /* MMC/SD IP block */
 #define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
 

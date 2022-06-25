@@ -33,10 +33,6 @@
  */
 #define CONFIG_SYS_SDRAM_SIZE		SZ_128M
 
-#ifdef CONFIG_ARM64
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-#endif
-
 /* Devices */
 /* LCD */
 

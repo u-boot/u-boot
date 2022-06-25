@@ -19,6 +19,5 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 
 /* Extend size of kernel image for uncompression */
-#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
 #endif /* __CONFIG_ZYNQ_ZYNQMP_R5_H */

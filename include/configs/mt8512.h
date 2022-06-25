@@ -13,9 +13,6 @@
 
 #define CONFIG_SYS_NONCACHED_MEMORY		SZ_1M
 
-
-#define CONFIG_SYS_BOOTM_LEN			SZ_64M
-
 /* Uboot definition */
 #define CONFIG_SYS_UBOOT_START			CONFIG_SYS_TEXT_BASE
 

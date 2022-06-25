@@ -15,10 +15,6 @@
 #include <asm/arch/cpu.h>
 #include <linux/stringify.h>
 
-#ifdef CONFIG_ARM64
-#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
-#endif
-
 /* Serial & console */
 #define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */

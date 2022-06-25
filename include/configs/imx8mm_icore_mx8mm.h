@@ -47,7 +47,6 @@
 /* SDRAM configuration */
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			SZ_2G /* 2GB DDR */
-#define CONFIG_SYS_BOOTM_LEN		SZ_256M
 
 /* USDHC */
 #define CONFIG_SYS_FSL_USDHC_NUM	2

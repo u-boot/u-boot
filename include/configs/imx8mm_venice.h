@@ -83,7 +83,6 @@
 /* SDRAM configuration */
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			SZ_4G
-#define CONFIG_SYS_BOOTM_LEN		SZ_256M
 
 /* FEC */
 #define CONFIG_FEC_MXC_PHYADDR          0

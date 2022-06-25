@@ -14,7 +14,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /* Generic TPM interfaced through LPC bus */
 #define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000

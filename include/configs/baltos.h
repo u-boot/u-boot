@@ -24,7 +24,6 @@
 #define V_SCLK				(V_OSCK)
 
 /* FIT support */
-#define CONFIG_SYS_BOOTM_LEN         SZ_64M
 
 #ifdef CONFIG_MTD_RAW_NAND
 

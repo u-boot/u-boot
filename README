@@ -1736,12 +1736,6 @@ Configuration Settings:
 
 		Non-cached memory is only supported on 32-bit ARM at present.
 
-- CONFIG_SYS_BOOTM_LEN:
-		Normally compressed uImages are limited to an
-		uncompressed size of 8 MBytes. If this is not enough,
-		you can define CONFIG_SYS_BOOTM_LEN in your board config file
-		to adjust this setting to your needs.
-
 - CONFIG_SYS_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of
 		the Linux kernel; all data that must be processed by

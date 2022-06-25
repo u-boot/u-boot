@@ -13,12 +13,8 @@
 /* FIXME: ff020000 is pmu_mem (10k), while ff0e0000 is regular int_mem */
 #define CONFIG_IRAM_BASE		0xff020000
 
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20)	/* 64M */
-
 #define GICD_BASE			0xff131000
 #define GICC_BASE			0xff132000
-
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000

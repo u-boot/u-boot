@@ -28,6 +28,5 @@
 #define DM9000_DATA			(CONFIG_DM9000_BASE + 2)
 
 /* Miscellaneous configuration options */
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 #endif /* __CONFIG_CI20_H__ */

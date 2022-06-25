@@ -27,8 +27,6 @@
 #define CONFIG_SYS_UBOOT_BASE		0x50080000
 #endif
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 /* U-Boot general configuration */
 #define EXTRA_ENV_J721S2_BOARD_SETTINGS					\
 	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"	\

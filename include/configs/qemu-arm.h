@@ -12,8 +12,6 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 /* GUIDs for capsule updatable firmware images */
 #define QEMU_ARM_UBOOT_IMAGE_GUID \
 	EFI_GUID(0xf885b085, 0x99f8, 0x45af, 0x84, 0x7d, \

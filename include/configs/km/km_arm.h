@@ -25,7 +25,6 @@
 #include "keymile-common.h"
 
 /* Increase max size of compressed kernel */
-#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 
 #include "asm/arch/config.h"
 

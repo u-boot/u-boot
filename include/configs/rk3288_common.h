@@ -9,8 +9,6 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20) /* 64MB */
-
 #define CONFIG_SYS_HZ_CLOCK		24000000
 
 #define CONFIG_IRAM_BASE		0xff700000

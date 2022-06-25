@@ -22,7 +22,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		SZ_256M
 
 /* Extend size of kernel image for uncompression */
-#define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3

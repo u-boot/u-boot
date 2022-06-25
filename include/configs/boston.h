@@ -9,7 +9,6 @@
 /*
  * General board configuration
  */
-#define CONFIG_SYS_BOOTM_LEN		(64 * 1024 * 1024)
 
 /*
  * CPU

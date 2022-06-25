@@ -22,6 +22,5 @@
 	"bootcmd=source $prevbl_initrd_start_addr:bootscript\0"
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_BOOTM_LEN	SZ_64M
 
 #endif

@@ -15,8 +15,6 @@
 #include "imx7ulp_spl.h"
 #endif
 
-#define CONFIG_SYS_BOOTM_LEN		0x1000000
-
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR			WDG1_RBASE
 

@@ -20,7 +20,6 @@
 #define PHYS_SDRAM_2_SIZE		0x5ea4ffff
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 #include <config_distro_bootcmd.h>
 

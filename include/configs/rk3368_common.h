@@ -16,8 +16,6 @@
 
 #define CONFIG_IRAM_BASE		0xff8c0000
 
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
-
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \

@@ -57,8 +57,6 @@
 	"run emmc_hdploadcmd; run distro_bootcmd;run emmc_bootcmd; " \
 	"env exists secureboot && esbc_halt;"
 
-#define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
-
 #define OCRAM_NONSECURE_SIZE		0x00010000
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
 

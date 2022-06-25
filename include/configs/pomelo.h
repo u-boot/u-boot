@@ -14,7 +14,6 @@
 /* SIZE of malloc pool */
 
 /*BOOT*/
-#define CONFIG_SYS_BOOTM_LEN		0x3c00000
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(SCSI, scsi, 0) \

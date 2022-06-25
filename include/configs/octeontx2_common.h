@@ -8,7 +8,6 @@
 #define __OCTEONTX2_COMMON_H__
 
 /** Maximum size of image supported for bootm (and bootable FIT images) */
-#define CONFIG_SYS_BOOTM_LEN		(256 << 20)
 
 /** Memory base address */
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_TEXT_BASE

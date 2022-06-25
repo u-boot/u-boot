@@ -10,8 +10,6 @@
  * High Level Configuration Options (easy to change)
  */
 
-#define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024) /* 64 MB */
-
 /* Environment in SPI NOR flash */
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
