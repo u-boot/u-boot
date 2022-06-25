@@ -555,8 +555,12 @@ config CHROMEOS_VBOOT
 	  distinguishing between booting Chrome OS in a basic way (developer
 	  mode) and a full boot.
 
+config SYS_RAMBOOT
+	bool
+
 config RAMBOOT_PBL
 	bool "Freescale PBL(pre-boot loader) image format support"
+	select SYS_RAMBOOT if PPC
 	help
 	  Some SoCs use PBL to load RCW and/or pre-initialization instructions.
 	  For more details refer to doc/README.pblimage

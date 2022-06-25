@@ -267,10 +267,6 @@
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
 #endif
 
-#if defined(CONFIG_RAMBOOT_PBL)
-#define CONFIG_SYS_RAMBOOT
-#endif
-
 #define CONFIG_HWCONFIG
 
 /* define to use L1 as initial stack */

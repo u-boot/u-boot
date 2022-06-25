@@ -321,10 +321,6 @@
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_RAMBOOT_PBL)
-#define CONFIG_SYS_RAMBOOT
-#endif
-
 /* I2C */
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC		0x76 /* I2C bus multiplexer,secondary */

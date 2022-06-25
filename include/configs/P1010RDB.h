@@ -342,12 +342,6 @@ extern unsigned long get_sdram_size(void);
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
-#define CONFIG_SYS_RAMBOOT
-#else
-#undef CONFIG_SYS_RAMBOOT
-#endif
-
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000 /* End of used area in RAM */

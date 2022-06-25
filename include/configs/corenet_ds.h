@@ -119,10 +119,6 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
 
-#if defined(CONFIG_RAMBOOT_PBL)
-#define CONFIG_SYS_RAMBOOT
-#endif
-
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC
 #define CONFIG_SYS_NAND_BASE		0xffa00000

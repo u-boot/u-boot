@@ -9,8 +9,6 @@
 #ifndef __QEMU_PPCE500_H
 #define __QEMU_PPCE500_H
 
-#define CONFIG_SYS_RAMBOOT
-
 /* Needed to fill the ccsrbar pointer */
 
 /* Virtual address to CCSRBAR */

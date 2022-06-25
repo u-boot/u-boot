@@ -25,10 +25,6 @@
  */
 #define CONFIG_SYS_FLASH_BASE		0xF0000000
 
-#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
-#define CONFIG_SYS_RAMBOOT
-#endif
-
 /* Reserve 768 kB for Mon */
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 
@@ -80,10 +76,6 @@
 /*
  * Environment
  */
-
-#ifndef CONFIG_SYS_RAMBOOT
-/* Address and size of Redundant Environment Sector	*/
-#endif /* CFG_SYS_RAMBOOT */
 
 /*
  * Environment Configuration
