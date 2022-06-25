@@ -3,17 +3,28 @@
 .SH NAME
 mkimage \- Generate image for U-Boot
 .SH SYNOPSIS
-.B mkimage
-.RB [ \-T " \fItype\fP] " \-l " [\fIuimage file name\fP]"
+.SY mkimage
+.OP \-T type
+.BI \-l\~ image-file-name
+.YS
 
-.B mkimage
-.RB [\fIoptions\fP] " \-f [" "image tree source file" "]" " [" "uimage file name" "]"
+.SY mkimage
+.RI [ option\~ .\|.\|.\&]
+.OP \-T type
+.I image-file-name
+.YS
 
-.B mkimage
-.RB [\fIoptions\fP] " \-F [" "uimage file name" "]"
+.SY mkimage
+.RI [ option\~ .\|.\|.\&]
+.BI \-f\~ image-tree-source-file\c
+.RB | auto
+.I image-file-name
+.YS
 
-.B mkimage
-.RB [\fIoptions\fP] " (legacy mode)"
+.SY mkimage
+.RI [ option\~ .\|.\|.\&]
+.BI \-F\~ image-file-name
+.YS
 
 .SH "DESCRIPTION"
 The
