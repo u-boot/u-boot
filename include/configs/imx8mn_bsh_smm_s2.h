@@ -18,6 +18,7 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs " \
 		"${optargs} " \
+		"mtdparts=${mtdparts} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
 	"nandroot=ubi0:root rw ubi.mtd=nandrootfs\0" \
