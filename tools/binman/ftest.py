@@ -85,8 +85,10 @@ FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
 TEE_OS_DATA           = b'this is some tee OS data'
+TI_DM_DATA            = b'tidmtidm'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
+TI_SYSFW_DATA         = b'sysfw'
 SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
@@ -94,6 +96,7 @@ ENV_DATA              = b'var1=1\nvar2="2"'
 PRE_LOAD_MAGIC        = b'UBSH'
 PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
 PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
+X509_DATA             = b'filetobesigned'
 
 # Subdirectory of the input dir to use to put test FDTs
 TEST_FDT_SUBDIR       = 'fdts'
@@ -193,9 +196,12 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
         TestFunctional._MakeInputFile('tee-pager.bin', TEE_OS_DATA)
+        TestFunctional._MakeInputFile('dm.bin', TI_DM_DATA)
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
+        TestFunctional._MakeInputFile('sysfw.bin', TI_SYSFW_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
+        TestFunctional._MakeInputFile('tosign.bin', X509_DATA)
 
         # Add a few .dtb files for testing
         TestFunctional._MakeInputFile('%s/test-fdt1.dtb' % TEST_FDT_SUBDIR,
@@ -5305,6 +5311,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('222_tee_os.dts')
         self.assertEqual(TEE_OS_DATA, data[:len(TEE_OS_DATA)])
 
+    def testPackTiDm(self):
+        """Test that an image with a TI DM binary can be created"""
+        data = self._DoReadFile('225_ti_dm.dts')
+        self.assertEqual(TI_DM_DATA, data[:len(TI_DM_DATA)])
+
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""
         entry_args = {
@@ -5529,6 +5540,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test an image with a pre-load header with an invalid key"""
         with self.assertRaises(ValueError) as e:
             data = self._DoReadFile('231_pre_load_invalid_key.dts')
+    
+    def testPackTiSysfw(self):
+        """Test that an image with a SYSFW binary can be created"""
+        data = self._DoReadFile('232_ti_sysfw.dts')
+        self.assertEqual(TI_SYSFW_DATA, data[:len(TI_SYSFW_DATA)])
 
     def _CheckSafeUniqueNames(self, *images):
         """Check all entries of given images for unsafe unique names"""
@@ -5702,6 +5718,10 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             dts='234_replace_section_simple.dts')
         self.assertEqual(new_data, data)
 
+    def testX509Cert(self):
+        """Test an image with the default x509 certificate header"""
+        data = self._DoReadFile('232_x509_cert.dts')
+        self.assertGreater(len(data), len(X509_DATA))
 
 if __name__ == "__main__":
     unittest.main()

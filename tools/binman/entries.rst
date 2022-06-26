@@ -1203,6 +1203,27 @@ This entry holds firmware for an external platform-specific coprocessor.
 
 
 
+Entry: sysfw: Texas Instruments System Firmware (SYSFW) blob
+------------------------------------------------------------
+
+Properties / Entry arguments:
+    - ti-sysfw-path: Filename of file to read into the entry, typically sysfw.bin
+
+This entry contains system firmware necessary for booting of K3 architecture
+devices.
+
+
+
+Entry: ti-dm: Texas Instruments Device Manager (DM) blob
+-----------------------------------------------------------------
+
+Properties / Entry arguments:
+    - ti-dm-path: Filename of file to read into the entry, typically dm.bin
+
+This entry holds the device manager responsible for resource and power management in K3 devices.
+
+
+
 Entry: section: Entry that contains other entries
 -------------------------------------------------
 
@@ -1866,6 +1887,21 @@ Output files:
 Chromium OS signs the read-write firmware and kernel, writing the signature
 in this block. This allows U-Boot to verify that the next firmware stage
 and kernel are genuine.
+
+
+
+Entry: x509cert: x509 certificate for K3 devices
+------------------------------------------------
+
+Properties / Entry arguments:
+        - content: Phandle of binary to sign
+        - output: Name of the final output file
+        - key_file: File with key inside it. If not provided, script generates RSA degenerate key
+        - core: Target core ID on which image would be running
+        - load: Target load address of the binary in hex
+
+    Output files:
+        - certificate.bin: Signed certificate binary
 
 
 
