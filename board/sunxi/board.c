@@ -128,26 +128,37 @@ void i2c_init_board(void)
  * Try to use the environment from the boot source first.
  * For MMC, this means a FAT partition on the boot device (SD or eMMC).
  * If the raw MMC environment is also enabled, this is tried next.
+ * When booting from NAND we try UBI first, then NAND directly.
  * SPI flash falls back to FAT (on SD card).
  */
 enum env_location env_get_location(enum env_operation op, int prio)
 {
-	enum env_location boot_loc = ENVL_FAT;
+	if (prio > 1)
+		return ENVL_UNKNOWN;
 
-	gd->env_load_prio = prio;
+	/* NOWHERE is exclusive, no other option can be defined. */
+	if (IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+		return ENVL_NOWHERE;
 
 	switch (sunxi_get_boot_device()) {
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
-		boot_loc = ENVL_FAT;
+		if (prio == 0 && IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
+			return ENVL_MMC;
 		break;
 	case BOOT_DEVICE_NAND:
+		if (prio == 0 && IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
+			return ENVL_UBI;
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
-			boot_loc = ENVL_NAND;
+			return ENVL_NAND;
 		break;
 	case BOOT_DEVICE_SPI:
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
-			boot_loc = ENVL_SPI_FLASH;
+		if (prio == 0 && IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
 		break;
 	case BOOT_DEVICE_BOARD:
 		break;
@@ -155,21 +166,19 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		break;
 	}
 
-	/* Always try to access the environment on the boot device first. */
-	if (prio == 0)
-		return boot_loc;
-
-	if (prio == 1) {
-		switch (boot_loc) {
-		case ENVL_SPI_FLASH:
+	/*
+	 * If we come here for the first time, we *must* return a valid
+	 * environment location other than ENVL_UNKNOWN, or the setup sequence
+	 * in board_f() will silently hang. This is arguably a bug in
+	 * env_init(), but for now pick one environment for which we know for
+	 * sure to have a driver for. For all defconfigs this is either FAT
+	 * or UBI, or NOWHERE, which is already handled above.
+	 */
+	if (prio == 0) {
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
 			return ENVL_FAT;
-		case ENVL_FAT:
-			if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
-				return ENVL_MMC;
-			break;
-		default:
-			break;
-		}
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
+			return ENVL_UBI;
 	}
 
 	return ENVL_UNKNOWN;

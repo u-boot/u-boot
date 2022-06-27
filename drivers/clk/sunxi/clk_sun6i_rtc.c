@@ -24,6 +24,8 @@ static const struct udevice_id sun6i_rtc_ids[] = {
 	{ .compatible = "allwinner,sun8i-v3-rtc" },
 	{ .compatible = "allwinner,sun50i-h5-rtc" },
 	{ .compatible = "allwinner,sun50i-h6-rtc" },
+	{ .compatible = "allwinner,sun50i-h616-rtc" },
+	{ .compatible = "allwinner,sun50i-r329-rtc" },
 	{ }
 };
 
