@@ -45,13 +45,6 @@
 #define	gadget_is_sh(g)		0
 #endif
 
-/* not yet stable on 2.6 (would help "original Zaurus") */
-#ifdef CONFIG_USB_GADGET_SA1100
-#define	gadget_is_sa1100(g)	(!strcmp("sa1100_udc", (g)->name))
-#else
-#define	gadget_is_sa1100(g)	0
-#endif
-
 /* handhelds.org tree (?) */
 #ifdef CONFIG_USB_GADGET_MQ11XX
 #define	gadget_is_mq11xx(g)	(!strcmp("mq11xx_udc", (g)->name))
@@ -183,8 +176,6 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x02;
 	else if (gadget_is_sh(gadget))
 		return 0x04;
-	else if (gadget_is_sa1100(gadget))
-		return 0x05;
 	else if (gadget_is_goku(gadget))
 		return 0x06;
 	else if (gadget_is_mq11xx(gadget))
