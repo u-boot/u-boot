@@ -45,7 +45,6 @@
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
-#define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
 
 #define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */

@@ -1230,6 +1230,9 @@ config SYS_CPC_REINIT_F
 config SYS_FSL_CPC
 	bool "Corenet Platform Cache support"
 
+config SYS_CACHE_STASHING
+	bool "Enable cache stashing"
+
 config SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up"
 	depends on MPC85xx
