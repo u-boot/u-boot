@@ -85,9 +85,6 @@
 
 /* memtest works on */
 
-/* Physical Memory Map */
-#define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
-
 /* FLASH and environment organization */
 
 /* **** PISMO SUPPORT *** */
