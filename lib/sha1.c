@@ -25,6 +25,8 @@
 #include <watchdog.h>
 #include <u-boot/sha1.h>
 
+#include <linux/compiler_attributes.h>
+
 const uint8_t sha1_der_prefix[SHA1_DER_LEN] = {
 	0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e,
 	0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14
@@ -65,7 +67,7 @@ void sha1_starts (sha1_context * ctx)
 	ctx->state[4] = 0xC3D2E1F0;
 }
 
-static void sha1_process(sha1_context *ctx, const unsigned char data[64])
+static void __maybe_unused sha1_process_one(sha1_context *ctx, const unsigned char data[64])
 {
 	unsigned long temp, W[16], A, B, C, D, E;
 
@@ -219,6 +221,18 @@ static void sha1_process(sha1_context *ctx, const unsigned char data[64])
 	ctx->state[4] += E;
 }
 
+__weak void sha1_process(sha1_context *ctx, const unsigned char *data,
+			 unsigned int blocks)
+{
+	if (!blocks)
+		return;
+
+	while (blocks--) {
+		sha1_process_one(ctx, data);
+		data += 64;
+	}
+}
+
 /*
  * SHA-1 process buffer
  */
@@ -242,17 +256,15 @@ void sha1_update(sha1_context *ctx, const unsigned char *input,
 
 	if (left && ilen >= fill) {
 		memcpy ((void *) (ctx->buffer + left), (void *) input, fill);
-		sha1_process (ctx, ctx->buffer);
+		sha1_process(ctx, ctx->buffer, 1);
 		input += fill;
 		ilen -= fill;
 		left = 0;
 	}
 
-	while (ilen >= 64) {
-		sha1_process (ctx, input);
-		input += 64;
-		ilen -= 64;
-	}
+	sha1_process(ctx, input, ilen / 64);
+	input += ilen / 64 * 64;
+	ilen = ilen % 64;
 
 	if (ilen > 0) {
 		memcpy ((void *) (ctx->buffer + left), (void *) input, ilen);
