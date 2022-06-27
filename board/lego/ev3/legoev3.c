@@ -27,6 +27,7 @@
 #include <hwconfig.h>
 #include <asm/mach-types.h>
 #include <asm/setup.h>
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -57,6 +58,8 @@ const int lpsc_size = ARRAY_SIZE(lpsc);
  */
 static void setup_serial_number(void)
 {
+	struct udevice *idev, *ibus;
+	int ret;
 	u32 offset;
 	char serial_number[13];
 	u8 buf[6];
@@ -65,7 +68,15 @@ static void setup_serial_number(void)
 	if (env_get("serial#"))
 		return;
 
-	if (i2c_read(EEPROM_I2C_ADDR, EEPROM_REV_OFFSET, 2, buf, 2)) {
+	ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &ibus);
+	if (ret)
+		return;
+
+	ret = dm_i2c_probe(ibus, EEPROM_I2C_ADDR, 0, &idev);
+	if (ret)
+		return;
+
+	if (dm_i2c_read(idev, EEPROM_REV_OFFSET, buf, 2)) {
 		printf("\nEEPROM revision read failed!\n");
 		return;
 	}
@@ -83,7 +94,7 @@ static void setup_serial_number(void)
 	/* EEPROM rev 3 has Bluetooth address where rev should be */
 	offset = (eeprom_rev == 3) ? EEPROM_REV_OFFSET : EEPROM_BDADDR_OFFSET;
 
-	if (i2c_read(EEPROM_I2C_ADDR, offset, 2, buf, 6)) {
+	if (dm_i2c_read(idev, offset, buf, 6)) {
 		printf("\nEEPROM serial read failed!\n");
 		return;
 	}
