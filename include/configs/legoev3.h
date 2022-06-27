@@ -42,12 +42,6 @@
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
 
 /*
- * I2C Configuration
- */
-#define CONFIG_SYS_DAVINCI_I2C_SPEED		400000
-#define CONFIG_SYS_DAVINCI_I2C_SLAVE   10 /* Bogus, master-only in U-Boot */
-
-/*
  * U-Boot general configuration
  */
 
