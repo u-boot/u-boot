@@ -684,6 +684,8 @@ static int setup_reloc(void)
 #ifdef CONFIG_SYS_TEXT_BASE
 #ifdef ARM
 		gd->reloc_off = gd->relocaddr - (unsigned long)__image_copy_start;
+#elif defined(CONFIG_MICROBLAZE)
+		gd->reloc_off = gd->relocaddr - (u32)_start;
 #elif defined(CONFIG_M68K)
 		/*
 		 * On all ColdFire arch cpu, monitor code starts always

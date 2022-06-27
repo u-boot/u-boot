@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (C) 2018 Michal Simek <michal.simek@xilinx.com>
 # Copyright (C) 2019 Luca Ceresoli <luca@lucaceresoli.net>
+# Copyright (C) 2022 Weidmüller Interface GmbH & Co. KG
+# Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>
 
 usage()
 {
@@ -119,7 +121,7 @@ tr "\n" "\r" <${OUT} >${TMP}
 # |           | ==> |while (e)|
 # |    }      |     |    ;    |
 # |           |
-sed -i -r 's| \{\r+(\t*)\}\r\r|\n\1\t;\n|g' ${TMP}
+sed -i -r 's| \{\r+(\t*)\}\r\r|\r\1\t;\r|g' ${TMP}
 
 # Remove empty line between variable declaration
 sed -i -r 's|\r(\r\t(unsigned )?int )|\1|g' ${TMP}
@@ -141,7 +143,30 @@ sed -i -r 's| \{(\r[^\r]*;)\r\t*\}|\1|g' ${TMP}
 # if ((p_code >= 0x26) && ...) -> if (p_code >= 0x26 && ...)
 sed -i -r 's|\((._code .= [x[:xdigit:]]+)\)|\1|g' ${TMP}
 
+# Move helper functions below header includes
+TARGET="#include <xil_io.h>"
+START="static int serdes_rst_seq"
+END="static int serdes_enb_coarse_saturation"
+
+sed -i -e "s|\(${TARGET}\r\r\)\(.*\)\(${START}(.*\)\(${END}(\)|\1\3\2\4|g" \
+    ${TMP}
+
 # Convert back newlines
 tr "\r" "\n" <${TMP} >${OUT}
+
+# Remove unnecessary settings
+# - Low level UART
+SETTINGS_TO_REMOVE="0xFF000000
+0xFF000004
+0xFF000018
+0xFF000034
+0xFF010000
+0xFF010004
+0xFF010018
+0xFF010034
+"
+for i in $SETTINGS_TO_REMOVE; do
+sed -i "/^\tpsu_mask_write($i,.*$/d" ${OUT}
+done
 
 rm ${TMP}

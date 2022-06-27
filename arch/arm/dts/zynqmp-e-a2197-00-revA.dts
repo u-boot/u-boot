@@ -294,10 +294,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			clock_8t49n287: clock-generator@d8 { /* u39 8T49N240 */
+			clock_8t49n287: clock-generator@6c { /* u39 8T49N240 */
 				#clock-cells = <1>; /* author David Cater <david.cater@idt.com>*/
 				compatible = "idt,8t49n240", "idt,8t49n241"; /* FIXME no driver for 240 */
-				reg = <0xd8>;
+				reg = <0x6c>;
 				/* Documentation/devicetree/bindings/clock/idt,idt8t49n24x.txt */
 				/* FIXME there input via J241 Samtec CLK1 and CLK0 from U38 - selection PIN */
 			};
@@ -447,7 +447,7 @@
 			si570_user1: clock-generator@5d { /* u205 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5f>;
+				reg = <0x5d>;
 				temperature-stability = <50>;
 				factory-fout = <100000000>;
 				clock-frequency = <100000000>;

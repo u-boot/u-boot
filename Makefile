@@ -922,12 +922,10 @@ endif
 # the raw binary, but certain simulators only accept an ELF file (but don't
 # do the relocation).
 ifneq ($(CONFIG_STATIC_RELA),)
-# $(1) is u-boot ELF, $(2) is u-boot bin, $(3) is text base
+# $(2) is u-boot ELF, $(3) is u-boot bin, $(4) is text base
 quiet_cmd_static_rela = RELOC   $@
 cmd_static_rela = \
-	start=$$($(NM) $(2) | grep __rel_dyn_start | cut -f 1 -d ' '); \
-	end=$$($(NM) $(2) | grep __rel_dyn_end | cut -f 1 -d ' '); \
-	tools/relocate-rela $(3) $(4) $$start $$end
+	tools/relocate-rela $(3) $(2)
 else
 quiet_cmd_static_rela =
 cmd_static_rela =

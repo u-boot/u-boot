@@ -279,4 +279,13 @@ config IMX_GPT_TIMER
 	  Select this to enable support for the timer found on
 	  NXP i.MX devices.
 
+config XILINX_TIMER
+	bool "Xilinx timer support"
+	depends on TIMER
+	select REGMAP
+	select SPL_REGMAP if SPL
+	help
+	  Select this to enable support for the timer found on
+	  any Xilinx boards (axi timer).
+
 endmenu

@@ -18,4 +18,9 @@
 #define ARCH_DMA_MINALIGN	16
 #endif
 
+/**
+ * flush_cache_all - flush the entire instruction/data caches
+ */
+void flush_cache_all(void);
+
 #endif /* __MICROBLAZE_CACHE_H__ */

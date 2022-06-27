@@ -328,13 +328,8 @@ static void *alloc_priv(int size, uint flags)
 			 * within this range at the start. The driver can then
 			 * use normal flush-after-write, invalidate-before-read
 			 * procedures.
-			 *
-			 * TODO(sjg@chromium.org): Drop this microblaze
-			 * exception.
 			 */
-#ifndef CONFIG_MICROBLAZE
 			flush_dcache_range((ulong)priv, (ulong)priv + size);
-#endif
 		}
 	} else {
 		priv = calloc(1, size);
