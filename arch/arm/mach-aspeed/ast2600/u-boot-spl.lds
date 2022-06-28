@@ -40,8 +40,8 @@ SECTIONS
 	} > .nor
 
 	. = ALIGN(4);
-	.u_boot_list : {
-		KEEP(*(SORT(.u_boot_list*)));
+	__u_boot_list : {
+		KEEP(*(SORT(__u_boot_list*)));
 	} > .nor
 
 	. = ALIGN(4);
@@ -68,7 +68,7 @@ SECTIONS
 
 	_image_binary_end = .;
 
-	.bss : {
+	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
 		*(.bss*)
 		 . = ALIGN(4);
