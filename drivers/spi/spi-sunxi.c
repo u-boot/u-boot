@@ -75,7 +75,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SUN4I_SPI_MAX_RATE		24000000
 #define SUN4I_SPI_MIN_RATE		3000
 #define SUN4I_SPI_DEFAULT_RATE		1000000
-#define SUN4I_SPI_TIMEOUT_US		1000000
+#define SUN4I_SPI_TIMEOUT_MS		1000
 
 #define SPI_REG(priv, reg)		((priv)->base + \
 					(priv)->variant->regs[reg])
@@ -262,7 +262,6 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 
 	u32 len = bitlen / 8;
-	u32 rx_fifocnt;
 	u8 nbytes;
 	int ret;
 
@@ -300,13 +299,10 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		setbits_le32(SPI_REG(priv, SPI_TCR),
 			     SPI_BIT(priv, SPI_TCR_XCH));
 
-		/* Wait till RX FIFO to be empty */
-		ret = readl_poll_timeout(SPI_REG(priv, SPI_FSR),
-					 rx_fifocnt,
-					 (((rx_fifocnt &
-					 SPI_BIT(priv, SPI_FSR_RF_CNT_MASK)) >>
-					 SUN4I_FIFO_STA_RF_CNT_BITS) >= nbytes),
-					 SUN4I_SPI_TIMEOUT_US);
+		/* Wait for the transfer to be done */
+		ret = wait_for_bit_le32((const void *)SPI_REG(priv, SPI_TCR),
+					SPI_BIT(priv, SPI_TCR_XCH),
+					false, SUN4I_SPI_TIMEOUT_MS, false);
 		if (ret < 0) {
 			printf("ERROR: sun4i_spi: Timeout transferring data\n");
 			sun4i_spi_set_cs(bus, slave_plat->cs, false);
