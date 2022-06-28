@@ -1126,9 +1126,8 @@ switch_as:
 #else
 	/* Calculate absolute address in FLASH and jump there		*/
 	/*--------------------------------------------------------------*/
-	lis	r3,CONFIG_VAL(SYS_MONITOR_BASE)@h
-	ori	r3,r3,CONFIG_VAL(SYS_MONITOR_BASE)@l
-	addi	r3,r3,_start_cont - CONFIG_VAL(SYS_MONITOR_BASE)
+	lis	r3,_start_cont@h
+	ori	r3,r3,_start_cont@l
 	mtlr	r3
 	blr
 #endif
