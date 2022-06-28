@@ -71,7 +71,6 @@
 		"mtd nor0=sf raw 0x0 0x1000000\0"			\
 	"dmo_preboot="							\
 		"sf probe ; " /* Scan for SPI NOR, needed by DFU */	\
-		"run dmo_usb_start_hub ; "				\
 		/* Attempt to start USB and Network console */		\
 		"run dmo_usb_cdc_acm_start ; "				\
 		"run dmo_netconsole_start\0"				\
@@ -91,25 +90,6 @@
 				"setenv stdin ${stdin},usbacm ; "	\
 			"fi ; "						\
 		"fi\0"							\
-	"dmo_usb_start_hub="						\
-		"i2c dev 1 ; "						\
-		/* Reset the USB USB */					\
-		"gpio clear GPIO5_2 ; sleep 0.01 ; " /* t1 > 1us */	\
-		"gpio set GPIO5_2 ; sleep 0.01 ; " /* t5 > 3us */	\
-		/* Write chunks of descriptor into the USB HUB */	\
-		"mw.l 0x7e1000 0x14042417 ; mw.l 0x7e1004 0x9b0bb325 ; "\
-		"mw.l 0x7e1008 0x00000220 ; mw.l 0x7e100c 0x01320100 ; "\
-		"mw.l 0x7e1010 0x00003232 ; mw.l 0x7e1014 0x4d000909 ; "\
-		"i2c write 0x7e1000 0x2c 0x00 0x18 -s ; "		\
-		"mw.l 0x7e1000 0x6300690f ; mw.l 0x7e1004 0x6f007200 ; "\
-		"mw.l 0x7e1008 0x68006300 ; mw.l 0x7e100c 0x70006900 ; "\
-		"i2c write 0x7e1000 0x2c 0x18 0x10 -s ; "		\
-		"mw.l 0x7e1000 0x53005511 ; mw.l 0x7e1004 0x32004200 ; "\
-		"mw.l 0x7e1008 0x31003500 ; mw.l 0x7e100c 0x42003400 ; "\
-		"mw.l 0x7e1010 0x00006900 ; "				\
-		"i2c write 0x7e1000 0x2c 0x54 0x12 -s ; "		\
-		"mw.l 0x7e1000 0x00000101 ; "				\
-		"i2c write 0x7e1000 0x2c 0xff 0x2 -s\0"			\
 	"dmo_netconsole_start="						\
 		"if test \"${dmo_netconsole_enabled}\" = \"true\" ; then "\
 			"setenv autoload false && "			\
