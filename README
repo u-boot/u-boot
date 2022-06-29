@@ -664,18 +664,6 @@ The following options need to be configured:
 		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 
-- LBA48 Support
-		CONFIG_LBA48
-
-		Set this to enable support for disks larger than 137GB
-		Also look at CONFIG_SYS_64BIT_LBA.
-		Whithout these , LBA48 support uses 32bit variables and will 'only'
-		support disks up to 2.1TB.
-
-		CONFIG_SYS_64BIT_LBA:
-			When enabled, makes the IDE subsystem use 64bit sector addresses.
-			Default is 32bit.
-
 - NETWORK Support (PCI):
 		CONFIG_E1000_SPI
 		Utility code for direct access to the SPI bus on Intel 8257x.
@@ -792,9 +780,6 @@ The following options need to be configured:
 		Note:
 		Supported are USB Keyboards and USB Floppy drives
 		(TEAC FD-05PUB).
-
-		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
-		txfilltuning field in the EHCI controller on reset.
 
 		CONFIG_USB_DWC2_REG_ADDR the physical CPU address of the DWC2
 		HW module registers.
@@ -1365,10 +1350,6 @@ The following options need to be configured:
 		Enables support for FPGA family.
 		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
 
-		CONFIG_FPGA_COUNT
-
-		Specify the number of FPGA devices to support.
-
 		CONFIG_SYS_FPGA_PROG_FEEDBACK
 
 		Enable printing of hash marks during FPGA configuration.
@@ -1892,14 +1873,6 @@ Configuration Settings:
 		while unprotecting/erasing/programming. Please only enable
 		this option if you really know what you are doing.
 
-- CONFIG_ENV_MAX_ENTRIES
-
-	Maximum number of entries in the hash table that is used
-	internally to store the environment settings. The default
-	setting is supposed to be generous and should work in most
-	cases. This setting can be used to tune behaviour; see
-	lib/hashtable.c for details.
-
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
 - CONFIG_ENV_FLAGS_LIST_STATIC
 	Enable validation of the values given to environment variables when
@@ -2178,11 +2151,6 @@ Low Level (hardware related) configuration options:
 		that will end up in the TPL (as opposed to the SPL or U-Boot
 		proper). Code that needs stage-specific behavior should check
 		this.
-
-- CONFIG_SYS_MPC85XX_NO_RESETVEC
-		Only for 85xx systems. If this variable is specified, the section
-		.resetvec is not kept and the section .bootpg is placed in the
-		previous 4k of the .text section.
 
 - CONFIG_ARCH_MAP_SYSMEM
 		Generally U-Boot (and in particular the md command) uses

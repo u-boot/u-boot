@@ -24,7 +24,6 @@
 /* Environment configs */
 
 /* USB configs */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #endif

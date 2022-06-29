@@ -68,7 +68,6 @@
 	"fdt_board=eval-v3\0" \
 	"fdt_fixup=;\0" \
 	"kernel_image=zImage\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setsdupdate=mmc rescan && set interface mmc && " \
 		"fatload ${interface} 0:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
@@ -91,14 +90,7 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-/* Environment organization */
-#ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_RANGE		(4 * 64 * 2048)
-#endif
-
 /* USB Host Support */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 /* USB DFU */
 

@@ -25,26 +25,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
-#endif
-
-#if CONFIG_IS_ENABLED(DM_USB)
 struct ehci_fsl_priv {
 	struct ehci_ctrl ehci;
 	fdt_addr_t hcd_base;
 	char *phy_type;
 };
-#endif
 
 static void set_txfifothresh(struct usb_ehci *, u32);
-#if CONFIG_IS_ENABLED(DM_USB)
 static int ehci_fsl_init(struct ehci_fsl_priv *priv, struct usb_ehci *ehci,
 		  struct ehci_hccr *hccr, struct ehci_hcor *hcor);
-#else
-static int ehci_fsl_init(int index, struct usb_ehci *ehci,
-			 struct ehci_hccr *hccr, struct ehci_hcor *hcor);
-#endif
 
 /* Check USB PHY clock valid */
 static int usb_phy_clk_valid(struct usb_ehci *ehci)
@@ -58,7 +47,6 @@ static int usb_phy_clk_valid(struct usb_ehci *ehci)
 	}
 }
 
-#if CONFIG_IS_ENABLED(DM_USB)
 static int ehci_fsl_of_to_plat(struct udevice *dev)
 {
 	struct ehci_fsl_priv *priv = dev_get_priv(dev);
@@ -150,64 +138,11 @@ U_BOOT_DRIVER(ehci_fsl) = {
 	.priv_auto	= sizeof(struct ehci_fsl_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#else
-/*
- * Create the appropriate control structures to manage
- * a new EHCI host controller.
- *
- * Excerpts from linux ehci fsl driver.
- */
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	struct ehci_ctrl *ehci_ctrl = container_of(hccr,
-					struct ehci_ctrl, hccr);
-	struct usb_ehci *ehci = NULL;
 
-	switch (index) {
-	case 0:
-		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
-		break;
-	case 1:
-		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB2_ADDR;
-		break;
-	default:
-		printf("ERROR: wrong controller index!!\n");
-		return -EINVAL;
-	};
-
-	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
-			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
-
-	ehci_ctrl->has_fsl_erratum_a005275 = has_erratum_a005275();
-
-	return ehci_fsl_init(index, ehci, *hccr, *hcor);
-}
-
-/*
- * Destroy the appropriate control structures corresponding
- * the the EHCI host controller.
- */
-int ehci_hcd_stop(int index)
-{
-	return 0;
-}
-#endif
-
-#if CONFIG_IS_ENABLED(DM_USB)
 static int ehci_fsl_init(struct ehci_fsl_priv *priv, struct usb_ehci *ehci,
 		  struct ehci_hccr *hccr, struct ehci_hcor *hcor)
-#else
-static int ehci_fsl_init(int index, struct usb_ehci *ehci,
-			 struct ehci_hccr *hccr, struct ehci_hcor *hcor)
-#endif
 {
 	const char *phy_type = NULL;
-#if !CONFIG_IS_ENABLED(DM_USB)
-	size_t len;
-	char current_usb_controller[5];
-#endif
 #ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
 	char usb_phy[5];
 
@@ -230,18 +165,8 @@ static int ehci_fsl_init(int index, struct usb_ehci *ehci,
 	out_be32(&ehci->snoop2, 0x80000000 | SNOOP_SIZE_2GB);
 
 	/* Init phy */
-#if CONFIG_IS_ENABLED(DM_USB)
 	if (priv->phy_type)
 		phy_type = priv->phy_type;
-#else
-	memset(current_usb_controller, '\0', 5);
-	snprintf(current_usb_controller, sizeof(current_usb_controller),
-		 "usb%d", index+1);
-
-	if (hwconfig_sub(current_usb_controller, "phy_type"))
-		phy_type = hwconfig_subarg(current_usb_controller,
-				"phy_type", &len);
-#endif
 	else
 		phy_type = env_get("usb_phy_type");
 

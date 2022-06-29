@@ -29,11 +29,6 @@
 #define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
 #endif
 
-/* SATA */
-
-#define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1
-#define CONFIG_SYS_SATA2			AHCI_BASE_ADDR2
-
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR_AMASK		IFC_AMASK(128*1024*1024)
 #define CONFIG_SYS_NOR_AMASK_EARLY	IFC_AMASK(64*1024*1024)
@@ -415,7 +410,7 @@
 			"env exists secureboot && esbc_halt;"
 #endif
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET)
 #define CONFIG_FSL_MEMAC
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C
 #define SGMII_CARD_PORT2_PHY_ADDR 0x1d

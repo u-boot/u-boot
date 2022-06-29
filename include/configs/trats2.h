@@ -12,8 +12,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_TIZEN			/* TIZEN lib */
-
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	0x10502000
@@ -118,9 +116,6 @@
 
 /* GPT */
 
-/* Security subsystem - enable hw_rand() */
-#define CONFIG_EXYNOS_ACE_SHA
-
 /* Common misc for Samsung */
 #define CONFIG_MISC_COMMON
 
@@ -145,7 +140,6 @@
 
 /* LCD */
 #define CONFIG_FB_ADDR		0x52504000
-#define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

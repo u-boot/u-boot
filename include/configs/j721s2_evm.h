@@ -128,14 +128,6 @@
 	DFU_ALT_INFO_RAM \
 	DFU_ALT_INFO_OSPI
 
-#if defined(CONFIG_TARGET_J721S2_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
-#define EXTRA_ENV_J721S2_BOARD_SETTINGS_MTD				\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
-#else
-#define EXTRA_ENV_J721S2_BOARD_SETTINGS_MTD
-#endif
-
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
@@ -146,7 +138,6 @@
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\
 	DEFAULT_UFS_TI_ARGS						\
-	EXTRA_ENV_J721S2_BOARD_SETTINGS_MTD				\
 	EXTRA_ENV_CONFIG_MAIN_CPSW0_QSGMII_PHY
 
 /* Now for the remaining common defines */

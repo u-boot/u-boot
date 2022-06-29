@@ -9,8 +9,6 @@
 #ifndef __QEMU_PPCE500_H
 #define __QEMU_PPCE500_H
 
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
-
 #define CONFIG_SYS_RAMBOOT
 
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -59,8 +57,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-
-#define CONFIG_LBA48
 
 /* RTC */
 #define CONFIG_RTC_PT7C4338

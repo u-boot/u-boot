@@ -9,8 +9,6 @@
 
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)	/* 1 MiB */
 
-#ifndef CONFIG_SPL_BUILD
-
 #if CONFIG_IS_ENABLED(CMD_USB)
 # define BOOT_TARGET_USB(func) func(USB, usb, 0)
 #else
@@ -26,9 +24,6 @@
 	func(DHCP, dhcp, na)
 #endif
 #include <config_distro_bootcmd.h>
-#else
-#define BOOTENV
-#endif
 
 #ifdef CONFIG_TEGRA_KEYBOARD
 #define STDIN_KBD_KBC ",tegra-kbc"

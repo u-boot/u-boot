@@ -51,9 +51,6 @@
 #define CONFIG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_MXC_NAND_HWECC
-
-/* Environment is in NAND */
-#define CONFIG_ENV_RANGE		(0x00080000) /* 512 KiB */
 #endif
 
 /*
@@ -80,15 +77,6 @@
 #define CONFIG_MXC_USB_PORT		1
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-#endif
-
-/*
- * SATA
- */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_DWC_AHSATA_PORT_ID	0
-#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_BASE_ADDR
-#define CONFIG_LBA48
 #endif
 
 /*
@@ -124,8 +112,6 @@
 	"mmcpart=1\0"							\
 	"rootpath=/srv/\0"						\
 	"kernel_addr_r=0x72000000\0"					\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"netdev=eth0\0"							\
 	"splashsource=mmc_fs\0"						\
 	"splashfile=boot/usplash.bmp.gz\0"				\

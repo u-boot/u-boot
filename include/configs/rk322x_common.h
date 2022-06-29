@@ -20,8 +20,6 @@
 #define SDRAM_BANK_SIZE			(512UL << 20UL)
 #define SDRAM_MAX_SIZE			0x80000000
 
-#ifndef CONFIG_SPL_BUILD
-
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60000000\0" \
 	"pxefile_addr_r=0x60100000\0" \
@@ -39,6 +37,5 @@
 	"partitions=" PARTS_DEFAULT \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
-#endif
 
 #endif

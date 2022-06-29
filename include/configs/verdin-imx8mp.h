@@ -40,15 +40,11 @@
 	"scriptaddr=0x46000000\0"
 
 /* Enable Distro Boot */
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#else
-#define BOOTENV
-#endif
 
 #if defined(CONFIG_TDX_EASY_INSTALLER)
 #  define BOOT_SCRIPT	"boot-tezi.scr"

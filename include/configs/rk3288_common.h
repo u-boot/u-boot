@@ -23,8 +23,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN (600 * 1024)
 
-#ifndef CONFIG_SPL_BUILD
-
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00000000\0" \
 	"pxefile_addr_r=0x00100000\0" \
@@ -44,6 +42,5 @@
 	ENV_MEM_LAYOUT_SETTINGS \
 	ROCKCHIP_DEVICE_SETTINGS \
 	BOOTENV
-#endif
 
 #endif

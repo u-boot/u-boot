@@ -609,6 +609,9 @@ config ARM64_SUPPORT_AARCH32
 	help
 	  This ARM64 system supports AArch32 execution state.
 
+config S5P
+	def_bool y if ARCH_EXYNOS || ARCH_S5PC1XX
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY
@@ -995,11 +998,6 @@ config ARCH_MX6
 	imply MXC_GPIO
 	imply SYS_THUMB_BUILD
 	imply SPL_SEPARATE_BSS
-
-if ARCH_MX6
-config SPL_LDSCRIPT
-	default "arch/arm/mach-omap2/u-boot-spl.lds"
-endif
 
 config ARCH_MX5
 	bool "Freescale MX5"
@@ -2354,6 +2352,7 @@ source "board/hisilicon/poplar/Kconfig"
 source "board/isee/igep003x/Kconfig"
 source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
+source "board/siemens/common/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
 source "board/st/stv0991/Kconfig"
@@ -2368,8 +2367,3 @@ source "board/xen/xenguest_arm64/Kconfig"
 source "arch/arm/Kconfig.debug"
 
 endmenu
-
-config SPL_LDSCRIPT
-	default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if (ARCH_MX23 || ARCH_MX28) && !SPL_FRAMEWORK
-	default "arch/arm/cpu/arm1136/u-boot-spl.lds" if CPU_ARM1136
-	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64

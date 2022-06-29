@@ -29,7 +29,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
-"autoload=0\0" \
 "cfgaddr=0x106F0000\0" \
 "scraddr=0x10700000\0" \
 "loadaddr=0x10800000\0" \
@@ -86,7 +85,6 @@ BUR_COMMON_ENV \
 #define CONFIG_FEC_FIXED_SPEED		_1000BASET
 
 /* USB Configs */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 /* SPL */

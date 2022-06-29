@@ -18,8 +18,6 @@
  * U-Boot into it.
  */
 
-#define CONFIG_ENV_MIN_ENTRIES		128
-
 /* Environment in MMC */
 /*
  * For SD - reserve 1 LBA for MBR + 1M for u-boot image. The MMC/eMMC
@@ -31,9 +29,7 @@
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* PCIe support */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_PCI_SCAN_SHOW
-#endif
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */
 #define RELOCATION_LIMITS_ENV_SETTINGS	\
@@ -47,8 +43,6 @@
 #include "mv-common.h"
 
 /* Include the common distro boot environment */
-#ifndef CONFIG_SPL_BUILD
-
 #ifdef CONFIG_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
 #else
@@ -124,7 +118,5 @@
 	LOAD_ADDRESS_ENV_SETTINGS \
 	"console=ttyS0,115200\0" \
 	BOOTENV
-
-#endif /* CONFIG_SPL_BUILD */
 
 #endif /* _CONFIG_CLEARFOG_H */

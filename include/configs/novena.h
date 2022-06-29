@@ -59,15 +59,11 @@
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
-/* SATA Configs */
-#define CONFIG_LBA48
-
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
 /* Gadget part */
@@ -79,7 +75,6 @@
 #define CONFIG_IMX_VIDEO_SKIP
 
 /* Extra U-Boot environment. */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"fdt_high=0xffffffff\0"						\
 	"initrd_high=0xffffffff\0"					\
@@ -149,9 +144,5 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif /* CONFIG_SPL_BUILD */
 
 #endif				/* __CONFIG_H */

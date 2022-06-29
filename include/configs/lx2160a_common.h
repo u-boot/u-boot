@@ -95,19 +95,7 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-/* SATA */
-
-#ifdef CONFIG_SCSI
-#define CONFIG_SYS_SATA1		AHCI_BASE_ADDR1
-#define CONFIG_SYS_SATA2		AHCI_BASE_ADDR2
-#endif
-
 /* USB */
-#ifdef CONFIG_USB_HOST
-#ifndef CONFIG_TARGET_LX2162AQDS
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-#endif
-#endif
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 

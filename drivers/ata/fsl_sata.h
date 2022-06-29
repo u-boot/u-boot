@@ -319,7 +319,6 @@ typedef struct fsl_sata {
 #define READ_CMD	0
 #define WRITE_CMD	1
 
-#if CONFIG_IS_ENABLED(BLK)
 struct fsl_ata_priv {
 	u32 base;
 	u32 flag;
@@ -327,6 +326,5 @@ struct fsl_ata_priv {
 	u32 offset;
 	fsl_sata_t *fsl_sata;
 };
-#endif
 
 #endif /* __FSL_SATA_H__ */

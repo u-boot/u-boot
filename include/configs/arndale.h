@@ -14,13 +14,9 @@
 #include "exynos5250-common.h"
 #include <configs/exynos5-common.h>
 
-/* MMC SPL */
-#define CONFIG_EXYNOS_SPL
-
 /* Miscellaneous configurable options */
 
-#define CONFIG_S5P_PA_SYSRAM	0x02020000
-#define CONFIG_SMP_PEN_ADDR	CONFIG_S5P_PA_SYSRAM
+#define CONFIG_SMP_PEN_ADDR	0x02020000
 
 /* The PERIPHBASE in the CBAR register is wrong on the Arndale, so override it */
 #define CONFIG_ARM_GIC_BASE_ADDRESS	0x10480000

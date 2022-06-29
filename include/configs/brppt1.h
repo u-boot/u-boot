@@ -39,8 +39,6 @@
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define NANDTGTS \
-"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 "cfgscr=mw ${dtbaddr} 0; nand read ${cfgaddr} cfgscr && source ${cfgaddr};" \
 " fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0" \
 "nandargs=setenv bootargs console=${console} ${optargs} ${optargs_rot} " \
@@ -99,11 +97,9 @@ MMCSPI_TGTS \
 
 #define LOAD_OFFSET(x)			0x8##x
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
 "verify=no\0" \
-"autoload=0\0" \
 "scraddr=" __stringify(LOAD_OFFSET(0000000)) "\0" \
 "cfgaddr=" __stringify(LOAD_OFFSET(0020000)) "\0" \
 "dtbaddr=" __stringify(LOAD_OFFSET(0040000)) "\0" \
@@ -123,7 +119,6 @@ NANDTGTS \
 "b_default=run b_deftgts; for target in ${b_tgts};"\
 " do echo \"### booting ${target} ###\"; run b_${target};" \
 " if test ${b_break} = 1; then; exit; fi; done\0"
-#endif /* !CONFIG_SPL_BUILD*/
 
 #ifdef CONFIG_MTD_RAW_NAND
 /*

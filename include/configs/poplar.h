@@ -21,7 +21,6 @@
 /* ATF bl33.bin load address (must match) */
 
 /* USB configuration */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 
 /*****************************************************************************
  *  Initial environment variables
@@ -31,9 +30,7 @@
 					func(USB, usb, 0)		\
 					func(MMC, mmc, 0)		\
 					func(DHCP, dhcp, na)
-#ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
-#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 			"loader_mmc_blknum=0x0\0"			\

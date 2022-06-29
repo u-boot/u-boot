@@ -14,7 +14,6 @@
 #include <linux/stringify.h>
 
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
-#define CONFIG_FSL_SATA_V2
 
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV	/* Category E.HV supported */
@@ -31,9 +30,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
-#ifndef CONFIG_MPC85XX_HAVE_RESET_VECTOR
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -42,9 +38,6 @@
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST                (0x00200000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_START      (0x00200000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS       (256 << 10)
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -53,9 +46,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_DST      (0x00200000)
 #define CONFIG_SYS_MMC_U_BOOT_START    (0x00200000)
 #define CONFIG_SYS_MMC_U_BOOT_OFFS     (260 << 10)
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#endif
 #endif
 
 #endif /* CONFIG_RAMBOOT_PBL */
@@ -415,25 +405,8 @@
 #endif
 
 /*
- * SATA
- */
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_SATA1
-#define CONFIG_SYS_SATA1		CONFIG_SYS_MPC85xx_SATA1_ADDR
-#define CONFIG_SYS_SATA1_FLAGS		FLAGS_DMA
-#define CONFIG_SATA2
-#define CONFIG_SYS_SATA2		CONFIG_SYS_MPC85xx_SATA2_ADDR
-#define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
-#define CONFIG_LBA48
-#endif
-
-/*
  * USB
  */
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_HAS_FSL_DR_USB
-#endif
 
 /*
  * SDHC

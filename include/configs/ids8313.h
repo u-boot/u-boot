@@ -182,7 +182,6 @@
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0))
 
-#define CONFIG_HAS_FSL_DR_USB
 #define CONFIG_SYS_SCCR_USBDRCM	3
 
 /*
@@ -245,8 +244,6 @@
 			"${netmask}:${hostname}:${netdev}:off "		\
 			"console=${console},${baudrate} ${othbootargs}\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
 /* UBI Support */

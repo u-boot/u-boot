@@ -116,11 +116,19 @@ config USB_XHCI_BRCM
 
 endif # USB_XHCI_HCD
 
+config EHCI_DESC_BIG_ENDIAN
+	bool
+
+config EHCI_MMIO_BIG_ENDIAN
+	bool
+
 config USB_EHCI_HCD
 	bool "EHCI HCD (USB 2.0) support"
 	default y if ARCH_MX5 || ARCH_MX6
 	depends on DM && OF_CONTROL
 	select USB_HOST
+	select EHCI_DESC_BIG_ENDIAN if SYS_BIG_ENDIAN
+	select EHCI_MMIO_BIG_ENDIAN if SYS_BIG_ENDIAN
 	---help---
 	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
 	  "high speed" (480 Mbit/sec, 60 Mbyte/sec) host controller hardware.
@@ -166,6 +174,7 @@ config USB_EHCI_MX5
 config USB_EHCI_MX6
 	bool "Support for i.MX6/i.MX7ULP on-chip EHCI USB controller"
 	depends on ARCH_MX6 || ARCH_MX7ULP || ARCH_IMXRT
+	select EHCI_HCD_INIT_AFTER_RESET
 	default y
 	---help---
 	  Enables support for the on-chip EHCI controller on i.MX6 SoCs.
@@ -173,6 +182,7 @@ config USB_EHCI_MX6
 config USB_EHCI_MX7
 	bool "Support for i.MX7 on-chip EHCI USB controller"
 	depends on ARCH_MX7 || IMX8M
+	select EHCI_HCD_INIT_AFTER_RESET if ARCH_MX7
 	select PHY if IMX8M
 	select NOP_PHY if IMX8M
 	default y
@@ -250,11 +260,25 @@ config USB_EHCI_GENERIC
 	---help---
 	  Enables support for generic EHCI controller.
 
+config EHCI_HCD_INIT_AFTER_RESET
+	bool
+
 config USB_EHCI_FSL
 	bool  "Support for FSL on-chip EHCI USB controller"
-	select  CONFIG_EHCI_HCD_INIT_AFTER_RESET
+	select EHCI_HCD_INIT_AFTER_RESET
 	---help---
 	  Enables support for the on-chip EHCI controller on FSL chips.
+
+config USB_EHCI_TXFIFO_THRESH
+	hex
+	depends on USB_EHCI_TEGRA
+	default 0x10
+	help
+	  This parameter affects a TXFILLTUNING field that controls how much
+	  data is sent to the latency fifo before it is sent to the wire.
+	  Without this parameter, the default (2) causes occasional Data Buffer
+	  Errors in OUT packets depending on the buffer address and size.
+
 endif # USB_EHCI_HCD
 
 config USB_OHCI_HCD
@@ -340,3 +364,9 @@ config USB_R8A66597_HCD
 	---help---
 	  This enables support for the on-chip Renesas R8A66597 USB 2.0
 	  controller, present in various RZ and SH SoCs.
+
+config USB_MAX_CONTROLLER_COUNT
+	int "Maximum number of USB host controllers"
+	depends on USB_EHCI_FSL || USB_XHCI_FSL || \
+		(SPL_USB_HOST && !DM_SPL_USB) || (USB_HOST && !DM_USB)
+	default 1

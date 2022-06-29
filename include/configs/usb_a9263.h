@@ -55,6 +55,5 @@
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 
 #endif

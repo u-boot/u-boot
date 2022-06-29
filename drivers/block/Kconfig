@@ -218,3 +218,19 @@ config IDE_RESET
 	  must be defined in a board-specific file.
 
 endif  # IDE
+
+config LBA48
+	bool "Enable LBA support for disks larger than 137GB"
+	depends on HAVE_BLOCK_DEVICE
+	help
+	  Set this to enable support for disks larger than 137GB.
+	  Also look at CONFIG_SYS_64BIT_LBA.  Without both of these, LBA48
+	  support uses 32bit variables and will 'only' support disks up to
+	  2.1TB.
+
+config SYS_64BIT_LBA
+	bool "Enable 64bit number of blocks on a block device"
+	depends on HAVE_BLOCK_DEVICE
+	help
+	  Make the block subsystem use 64bit sector addresses, rather than the
+	  default of 32bit.

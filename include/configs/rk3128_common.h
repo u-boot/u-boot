@@ -22,8 +22,6 @@
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS     1
 
-#ifndef CONFIG_SPL_BUILD
-
 /* usb mass storage */
 
 #define ENV_MEM_LAYOUT_SETTINGS \
@@ -39,7 +37,5 @@
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
 	BOOTENV
-
-#endif
 
 #endif

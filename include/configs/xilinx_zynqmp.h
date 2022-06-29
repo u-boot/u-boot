@@ -37,12 +37,10 @@
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
 
-#ifndef CONFIG_SPL_BUILD
 # define PARTS_DEFAULT \
 	"partitions=uuid_disk=${uuid_gpt_disk};" \
 	"name=""boot"",size=16M,uuid=${uuid_gpt_boot};" \
 	"name=""Linux"",size=-M,uuid=${uuid_gpt_Linux}\0"
-#endif
 #endif
 
 #if !defined(PARTS_DEFAULT)
@@ -208,11 +206,6 @@
 /* u-boot is like dtb */
 
 /* ATF is my kernel image */
-
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
-# define CONFIG_SPL_HASH
-# define CONFIG_ENV_MAX_ENTRIES	10
-#endif
 
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"

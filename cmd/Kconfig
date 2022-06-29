@@ -1737,6 +1737,15 @@ config NFS_TIMEOUT
 	  "ERROR: Cannot umount" in nfs command, try longer timeout such as
 	  10000.
 
+config SYS_DISABLE_AUTOLOAD
+	bool "Disable automatically loading files over the network"
+	depends on CMD_BOOTP || CMD_DHCP || CMD_NFS || CMD_RARP
+	help
+	  Typically, commands such as "dhcp" will attempt to automatically
+	  load a file from the network, once the initial network configuration
+	  is complete.  Enable this option to disable this behavior and instead
+	  require files to be loaded over the network by subsequent commands.
+
 config CMD_MII
 	bool "mii"
 	imply CMD_MDIO

@@ -100,12 +100,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
 #define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
-#ifdef CONFIG_CMD_SATA
-	#define CONFIG_DWC_AHSATA_PORT_ID       0
-	#define CONFIG_DWC_AHSATA_BASE_ADDR     SATA_BASE_ADDR
-	#define CONFIG_LBA48
-#endif
-
 /* Framebuffer and LCD */
 
 #endif				/* __CONFIG_H */

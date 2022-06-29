@@ -75,10 +75,6 @@
 #define PHYS_SDRAM_0			CONFIG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
 
-#ifdef CONFIG_AHCI
-#define CONFIG_SYS_64BIT_LBA
-#endif
-
 #ifdef CONFIG_NAND_SUNXI
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
@@ -128,8 +124,6 @@
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 #endif
-
-#ifndef CONFIG_SPL_BUILD
 
 #ifdef CONFIG_ARM64
 /*
@@ -323,20 +317,6 @@
 	"stderr=serial\0"
 #endif
 
-#ifdef CONFIG_MTDIDS_DEFAULT
-#define SUNXI_MTDIDS_DEFAULT \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"
-#else
-#define SUNXI_MTDIDS_DEFAULT
-#endif
-
-#ifdef CONFIG_MTDPARTS_DEFAULT
-#define SUNXI_MTDPARTS_DEFAULT \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
-#else
-#define SUNXI_MTDPARTS_DEFAULT
-#endif
-
 #define PARTS_DEFAULT \
 	"name=loader1,start=8k,size=32k,uuid=${uuid_gpt_loader1};" \
 	"name=loader2,size=984k,uuid=${uuid_gpt_loader2};" \
@@ -368,16 +348,10 @@
 	DFU_ALT_INFO_RAM \
 	"fdtfile=" FDTFILE "\0" \
 	"console=ttyS0,115200\0" \
-	SUNXI_MTDIDS_DEFAULT \
-	SUNXI_MTDPARTS_DEFAULT \
 	"uuid_gpt_esp=" UUID_GPT_ESP "\0" \
 	"uuid_gpt_system=" UUID_GPT_SYSTEM "\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
 	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
-
-#else /* ifndef CONFIG_SPL_BUILD */
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif
 
 #endif /* _SUNXI_COMMON_CONFIG_H */

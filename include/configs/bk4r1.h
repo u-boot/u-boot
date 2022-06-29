@@ -67,7 +67,6 @@
 /* Extra env settings (including the target-defined ones if any) */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BK4_EXTRA_ENV_SETTINGS \
-	"autoload=no\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"blimg_file=u-boot.vyb\0" \
@@ -81,7 +80,6 @@
 	"nfs_root=/path/to/nfs/root\0" \
 	"tftptimeout=1000\0" \
 	"tftptimeoutcountmax=1000000\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"ipaddr=192.168.0.60\0" \
 	"serverip=192.168.0.1\0" \
 	"bootargs_base=setenv bootargs rw " \

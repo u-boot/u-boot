@@ -336,20 +336,6 @@
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
-/* SATA */
-#define CONFIG_FSL_SATA_V2
-
-#ifdef CONFIG_FSL_SATA_V2
-#define CONFIG_SATA1
-#define CONFIG_SYS_SATA1		CONFIG_SYS_MPC85xx_SATA1_ADDR
-#define CONFIG_SYS_SATA1_FLAGS		FLAGS_DMA
-#define CONFIG_SATA2
-#define CONFIG_SYS_SATA2		CONFIG_SYS_MPC85xx_SATA2_ADDR
-#define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
-
-#define CONFIG_LBA48
-#endif
-
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC1_PHY_ADDR	0x2
 #define CONFIG_SYS_FM1_DTSEC2_PHY_ADDR	0x3
@@ -372,16 +358,6 @@
  */
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
-
-/*
-* USB
-*/
-#define CONFIG_HAS_FSL_DR_USB
-#define CONFIG_HAS_FSL_MPH_USB
-
-#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#endif
 
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR

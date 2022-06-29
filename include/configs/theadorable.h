@@ -29,7 +29,6 @@
 #define CONFIG_I2C_MVTWSI_BASE1		MVEBU_TWSI1_BASE
 
 /* USB/EHCI configuration */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* Environment in SPI NOR flash */
 
@@ -39,12 +38,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
-
-/* SATA support */
-#define CONFIG_LBA48
-
-/* FPGA programming support */
-#define CONFIG_FPGA_STRATIX_V
 
 /*
  * Bootcounter

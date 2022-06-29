@@ -19,25 +19,18 @@
 
 #define CONFIG_MALLOC_F_ADDR		0x00120000
 
-#define CONFIG_SPL_RAW_IMAGE_ARM_TRUSTED_FIRMWARE
-
 #endif /* CONFIG_SPL_BUILD */
-
-#define CONFIG_FACTORYSET
 
 /* ENET1 connects to base board and MUX with ESAI */
 #define CONFIG_FEC_ENET_DEV		1
 #define CONFIG_FEC_MXC_PHYADDR		0x0
 
-/* I2C Configuration */
-#ifndef CONFIG_SPL_BUILD
 /* EEPROM */
 #define  EEPROM_I2C_BUS		0 /* I2C0 */
 #define  EEPROM_I2C_ADDR	0x50
 /* PCA9552 */
 #define  PCA9552_1_I2C_BUS	1 /* I2C1 */
 #define  PCA9552_1_I2C_ADDR	0x60
-#endif /* !CONFIG_SPL_BUILD */
 
 /* AHAB */
 #ifdef CONFIG_AHAB_BOOT

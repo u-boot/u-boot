@@ -28,15 +28,11 @@
 	"scriptaddr=0x46000000\0"
 
 /* Enable Distro Boot */
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#else
-#define BOOTENV
-#endif
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -75,8 +71,6 @@
 #define CONFIG_FEC_MXC_PHYADDR          7
 
 /* USB Configs */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 
 #endif /* __VERDIN_IMX8MM_H */

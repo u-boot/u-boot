@@ -119,10 +119,8 @@
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS   0
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #endif
 
 #ifdef CONFIG_CMD_NET
@@ -135,10 +133,6 @@
 #endif
 #endif
 
-#ifndef CONFIG_SPL_BUILD
-#if defined(CONFIG_DM_VIDEO)
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
-#endif
-#endif
 
 #endif

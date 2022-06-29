@@ -26,10 +26,8 @@
 #define CONFIG_HOSTNAME			"kontron-mx8mm"
 
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #endif
 
 /* GUID for capsule updatable firmware image */
@@ -37,7 +35,6 @@
 	EFI_GUID(0xd488e45a, 0x4929, 0x4b55, 0x8c, 0x14, \
 		 0x86, 0xce, 0xa2, 0xcd, 0x66, 0x29)
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
@@ -47,9 +44,6 @@
 /* Do not try to probe USB net adapters for net boot */
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START
-#else
-#define BOOTENV
-#endif
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 

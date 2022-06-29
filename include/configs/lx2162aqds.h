@@ -9,8 +9,6 @@
 #include "lx2160a_common.h"
 
 /* USB */
-#undef CONFIG_USB_MAX_CONTROLLER_COUNT
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 
 /* RTC */
 #define CONFIG_SYS_RTC_BUS_NUM		0

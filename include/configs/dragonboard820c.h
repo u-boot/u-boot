@@ -22,9 +22,7 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
-#ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
-#endif
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)

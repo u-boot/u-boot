@@ -106,6 +106,4 @@
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
-#define CONFIG_SYS_USB_FAT_BOOT_PARTITION 1
-
 #endif /* __CONFIG_AM642_EVM_H */

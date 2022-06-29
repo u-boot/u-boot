@@ -66,8 +66,6 @@
 	"fdt_addr=" __stringify(CONFIG_KM_FDT_ADDR) "\0" \
 	"load=tftpboot ${loadaddr} u-boot-with-nand-spl.sfp\0" \
 	"loadaddr=" __stringify(CONFIG_KM_KERNEL_ADDR) "\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"update=nand erase 0x0 0x00100000 && nand write ${loadaddr} 0x0 ${filesize}\0" \
 	"userload=ubi part nand.ubi &&" \
 		"ubi check rootfs$bootnum &&" \

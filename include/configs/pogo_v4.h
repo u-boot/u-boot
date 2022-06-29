@@ -26,8 +26,6 @@
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"dtb_file=/boot/dts/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"\
-	"mtdids=nand0=orion_nand\0"\
 	"bootargs_console=console=ttyS0,115200\0" \
 	"bootcmd_usb=usb start; load usb 0:1 0x00800000 /boot/uImage; " \
 	"load usb 0:1 0x01100000 /boot/uInitrd; " \
@@ -38,11 +36,5 @@
  */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
-
-/*
- * Support large disk for SATA and USB
- */
-#define CONFIG_SYS_64BIT_LBA
-#define CONFIG_LBA48
 
 #endif /* _CONFIG_POGO_V4_H */

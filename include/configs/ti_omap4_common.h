@@ -47,9 +47,7 @@
 #endif
 
 /* TWL6030 */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_TWL6030_POWER		1
-#endif
 
 /*
  * Environment setup

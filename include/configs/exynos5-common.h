@@ -8,14 +8,7 @@
 #ifndef __CONFIG_EXYNOS5_COMMON_H
 #define __CONFIG_EXYNOS5_COMMON_H
 
-#define CONFIG_EXYNOS5			/* Exynos5 Family */
-
 #include "exynos-common.h"
-
-#define CONFIG_EXYNOS_SPL
-
-/* Enable ACE acceleration for SHA1 and SHA256 */
-#define CONFIG_EXYNOS_ACE_SHA
 
 /* Power Down Modes */
 #define S5P_CHECK_SLEEP			0x00000BAD
@@ -30,9 +23,6 @@
 
 /* select serial console configuration */
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
-
-/* Thermal Management Unit */
-#define CONFIG_EXYNOS_TMU
 
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030

@@ -49,8 +49,6 @@
 #define __io
 /* Data, registers and alternate blocks are at the same offset */
 /* Each 8-bit ATA register is aligned to a 4-bytes address */
-/* Controller supports 48-bits LBA addressing */
-#define CONFIG_LBA48
 /* CONFIG_IDE requires some #defines for ATA registers */
 /* ATA registers base is at SATA controller base */
 #endif /* CONFIG_IDE */

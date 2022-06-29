@@ -28,8 +28,6 @@
 #define GPIO_IGEP00X0_BOARD_DETECTION		28
 #define GPIO_IGEP00X0_REVISION_DETECTION	129
 
-#ifndef CONFIG_SPL_BUILD
-
 /* Environment */
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial\0" \
@@ -66,8 +64,6 @@
 	ENV_DEVICE_SETTINGS \
 	MEM_LAYOUT_SETTINGS \
 	BOOTENV
-
-#endif
 
 /* OneNAND config */
 #define CONFIG_USE_ONENAND_BOARD_INIT

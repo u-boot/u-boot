@@ -60,7 +60,6 @@
 		 0xf0, 0xa3, 0x83, 0x87, 0xe6, 0x30)
 
 /* Distro boot settings */
-#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_CMD_USB
 #define BOOT_TARGET_DEVICE_USB(func)	func(USB, usb, 0)
 #else
@@ -92,9 +91,6 @@
 	BOOT_TARGET_DEVICE_NVME(func)	\
 
 #include <config_distro_bootcmd.h>
-#else /* CONFIG_SPL_BUILD */
-#define BOOTENV
-#endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS		\
 	"fdt_addr_r=0x9fe00000\0"		\

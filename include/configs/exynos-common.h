@@ -8,10 +8,6 @@
 #ifndef __EXYNOS_COMMON_H
 #define __EXYNOS_COMMON_H
 
-/* High Level Configuration Options */
-#define CONFIG_SAMSUNG			/* in a SAMSUNG core */
-#define CONFIG_S5P			/* S5P Family */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <linux/sizes.h>
 #include <linux/stringify.h>

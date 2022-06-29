@@ -21,7 +21,6 @@
 
 /* Environment options */
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(QEMU, qemu, na) \
 	func(VIRTIO, virtio, 0) \
@@ -50,6 +49,5 @@
 	"pxefile_addr_r=0x8c200000\0" \
 	"ramdisk_addr_r=0x8c300000\0" \
 	BOOTENV
-#endif
 
 #endif /* __CONFIG_H */

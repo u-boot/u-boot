@@ -956,6 +956,7 @@ config SPL_ACPI_GPE
 
 config TPL_ACPI_GPE
 	bool "Support ACPI general-purpose events in TPL"
+	depends on TPL
 	help
 	  Enable a driver for ACPI GPEs to allow peripherals to send interrupts
 	  via ACPI to the OS. In U-Boot this is only used when U-Boot itself

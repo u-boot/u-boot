@@ -133,7 +133,6 @@
  * it needs non-blocking CFI routines.
  */
 
-#define CONFIG_FPGA_COUNT	1
 #define CONFIG_SYS_FPGA_PROG_FEEDBACK
 #define CONFIG_SYS_FPGA_WAIT		1000
 

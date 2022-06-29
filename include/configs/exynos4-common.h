@@ -8,8 +8,6 @@
 #ifndef __CONFIG_EXYNOS4_COMMON_H
 #define __CONFIG_EXYNOS4_COMMON_H
 
-#define CONFIG_EXYNOS4			/* Exynos4 Family */
-
 #include "exynos-common.h"
 
 /* SD/MMC configuration */

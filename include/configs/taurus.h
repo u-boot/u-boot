@@ -84,13 +84,8 @@
 /* SPI EEPROM */
 #define TAURUS_SPI_MASK (1 << 4)
 
-#if defined(CONFIG_SPL_BUILD)
-/* SPL related */
-#endif
-
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
 
-#ifndef CONFIG_SPL_BUILD
 #if defined(CONFIG_BOARD_AXM)
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:" \
@@ -139,7 +134,6 @@
 	"stdout=serial\0" \
 	"upgrade_available=0\0"
 #endif
-#endif /* #ifndef CONFIG_SPL_BUILD */
 
 /* Defines for SPL */
 

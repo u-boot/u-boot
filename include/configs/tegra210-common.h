@@ -46,10 +46,4 @@
 	"fdt_addr_r=0x83000000\0" \
 	"ramdisk_addr_r=0x83420000\0"
 
-/* For USB EHCI controller */
-#define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
-
-/* GPU needs setup */
-#define CONFIG_TEGRA_GPU
-
 #endif /* _TEGRA210_COMMON_H_ */

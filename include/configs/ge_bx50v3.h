@@ -17,13 +17,6 @@
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
-/* SATA Configs */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_DWC_AHSATA_PORT_ID	0
-#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
-#define CONFIG_LBA48
-#endif
-
 #ifdef CONFIG_CMD_NFS
 #define NETWORKBOOT \
         "setnetworkboot=" \

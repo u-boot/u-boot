@@ -26,7 +26,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"				\
 	"mtdids=nand0=orion_nand\0"					\
-	"mtdparts="CONFIG_MTDPARTS_DEFAULT			\
 	"kernel=/boot/zImage\0"						\
 	"fdt=/boot/guruplug-server-plus.dtb\0"				\
 	"bootargs_root=ubi.mtd=2 root=ubi0:rootfs rootfstype=ubifs rw\0"

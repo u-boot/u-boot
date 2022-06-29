@@ -22,9 +22,6 @@
 /* PCI host support */
 #undef CONFIG_PCI_SCAN_SHOW
 
-/* PCI networking support */
-#define CONFIG_E1000_NO_NVM
-
 /*
  * Custom Distro Boot configuration:
  * 1. 8bit SD port (MMC1)

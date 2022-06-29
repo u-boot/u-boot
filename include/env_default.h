@@ -59,8 +59,8 @@ const char default_environment[] = {
 #ifdef	CONFIG_SERVERIP
 	"serverip="	__stringify(CONFIG_SERVERIP)	"\0"
 #endif
-#ifdef	CONFIG_SYS_AUTOLOAD
-	"autoload="	CONFIG_SYS_AUTOLOAD		"\0"
+#ifdef	CONFIG_SYS_DISABLE_AUTOLOAD
+	"autoload=0\0"
 #endif
 #ifdef	CONFIG_PREBOOT
 	"preboot="	CONFIG_PREBOOT			"\0"
@@ -108,10 +108,13 @@ const char default_environment[] = {
 #if defined(CONFIG_BOOTCOUNT_BOOTLIMIT) && (CONFIG_BOOTCOUNT_BOOTLIMIT > 0)
 	"bootlimit="	__stringify(CONFIG_BOOTCOUNT_BOOTLIMIT)"\0"
 #endif
+#ifdef CONFIG_MTDIDS_DEFAULT
+	 "mtdids="	CONFIG_MTDIDS_DEFAULT		"\0"
+#endif
+#ifdef CONFIG_MTDPARTS_DEFAULT
+	"mtdparts="	CONFIG_MTDPARTS_DEFAULT		"\0"
+#endif
 #ifdef CONFIG_EXTRA_ENV_TEXT
-# ifdef CONFIG_EXTRA_ENV_SETTINGS
-# error "Your board uses a text-file environment, so must not define CONFIG_EXTRA_ENV_SETTINGS"
-# endif
 	/* This is created in the Makefile */
 	CONFIG_EXTRA_ENV_TEXT
 #endif

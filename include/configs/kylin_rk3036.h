@@ -9,10 +9,4 @@
 #include <linux/sizes.h>
 #include <configs/rk3036_common.h>
 
-#ifndef CONFIG_SPL_BUILD
-
-/* Store env in emmc */
-
-#endif
-
 #endif

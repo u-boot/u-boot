@@ -16,13 +16,6 @@
  */
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
-/* SATA AHCI storage */
-#ifdef CONFIG_SCSI_AHCI
-#define CONFIG_LBA48
-#define CONFIG_SYS_64BIT_LBA
-
-#endif
-
 /* Generic TPM interfaced through LPC bus */
 #define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
 

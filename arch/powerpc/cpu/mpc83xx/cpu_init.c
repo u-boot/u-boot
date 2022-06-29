@@ -251,19 +251,6 @@ void cpu_init_f (volatile immap_t * im)
 	im->gpio[1].dat = CONFIG_SYS_GPIO2_DAT;
 	im->gpio[1].dir = CONFIG_SYS_GPIO2_DIR;
 #endif
-#if defined(CONFIG_USB_EHCI_FSL) && defined(CONFIG_ARCH_MPC831X)
-	uint32_t temp;
-	struct usb_ehci *ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
-
-	/* Configure interface. */
-	setbits_be32(&ehci->control, REFSEL_16MHZ | UTMI_PHY_EN);
-
-	/* Wait for clock to stabilize */
-	do {
-		temp = __raw_readl(&ehci->control);
-		udelay(1000);
-	} while (!(temp & PHY_CLK_VALID));
-#endif
 }
 
 int cpu_init_r (void)

@@ -138,6 +138,7 @@ config TARGET_DRACO
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select FACTORYSET
 	imply CMD_DM
 
 config TARGET_ETAMIN
@@ -146,6 +147,7 @@ config TARGET_ETAMIN
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select FACTORYSET
 	imply CMD_DM
 
 config TARGET_PCM051
@@ -168,6 +170,7 @@ config TARGET_PXM2
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select FACTORYSET
 	imply CMD_DM
 
 config TARGET_RASTABAN
@@ -176,6 +179,7 @@ config TARGET_RASTABAN
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select FACTORYSET
 	imply CMD_DM
 
 config TARGET_RUT
@@ -184,6 +188,7 @@ config TARGET_RUT
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select FACTORYSET
 	imply CMD_DM
 
 config TARGET_THUBAN
@@ -192,6 +197,7 @@ config TARGET_THUBAN
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select FACTORYSET
 	imply CMD_DM
 
 config TARGET_PDU001

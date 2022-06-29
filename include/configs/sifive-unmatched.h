@@ -19,7 +19,6 @@
 
 /* Environment options */
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(NVME, nvme, 0) \
 	func(USB, usb, 0) \
@@ -53,7 +52,6 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTENV
-#endif /* CONFIG_SPL_BUILD */
 
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
 

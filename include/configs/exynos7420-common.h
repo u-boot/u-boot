@@ -8,10 +8,6 @@
 #ifndef __CONFIG_EXYNOS7420_COMMON_H
 #define __CONFIG_EXYNOS7420_COMMON_H
 
-/* High Level Configuration Options */
-#define CONFIG_SAMSUNG			/* in a SAMSUNG core */
-#define CONFIG_S5P
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <linux/sizes.h>
 

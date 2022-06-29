@@ -33,10 +33,6 @@ ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
 #endif
 
-#ifdef CONFIG_IDE_PREINIT
-int ide_preinit(void);
-#endif
-
 #if defined(CONFIG_OF_IDE_FIXUP)
 int ide_device_present(int dev);
 #endif

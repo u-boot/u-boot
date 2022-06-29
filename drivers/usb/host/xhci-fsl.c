@@ -20,16 +20,11 @@
 #include <dm.h>
 
 /* Declare global data pointer */
-#if !CONFIG_IS_ENABLED(DM_USB)
-static struct fsl_xhci fsl_xhci;
-unsigned long ctr_addr[] = FSL_USB_XHCI_ADDR;
-#else
 struct xhci_fsl_priv {
 	struct xhci_ctrl xhci;
 	fdt_addr_t hcd_base;
 	struct fsl_xhci ctx;
 };
-#endif
 
 __weak int __board_usb_init(int index, enum usb_init_type init)
 {
@@ -108,7 +103,6 @@ static int fsl_xhci_core_exit(struct fsl_xhci *fsl_xhci)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(DM_USB)
 static int xhci_fsl_probe(struct udevice *dev)
 {
 	struct xhci_fsl_priv *priv = dev_get_priv(dev);
@@ -174,44 +168,3 @@ U_BOOT_DRIVER(xhci_fsl) = {
 	.priv_auto	= sizeof(struct xhci_fsl_priv),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#else
-int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
-{
-	struct fsl_xhci *ctx = &fsl_xhci;
-	int ret = 0;
-
-	ctx->hcd = (struct xhci_hccr *)ctr_addr[index];
-	ctx->dwc3_reg = (struct dwc3 *)((char *)(ctx->hcd) + DWC3_REG_OFFSET);
-
-	ret = board_usb_init(index, USB_INIT_HOST);
-	if (ret != 0) {
-		puts("Failed to initialize board for USB\n");
-		return ret;
-	}
-
-	fsl_apply_xhci_errata();
-
-	ret = fsl_xhci_core_init(ctx);
-	if (ret < 0) {
-		puts("Failed to initialize xhci\n");
-		return ret;
-	}
-
-	*hccr = (struct xhci_hccr *)ctx->hcd;
-	*hcor = (struct xhci_hcor *)((uintptr_t) *hccr
-				+ HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase)));
-
-	debug("fsl-xhci: init hccr %lx and hcor %lx hc_length %lx\n",
-	      (uintptr_t)*hccr, (uintptr_t)*hcor,
-	      (uintptr_t)HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase)));
-
-	return ret;
-}
-
-void xhci_hcd_stop(int index)
-{
-	struct fsl_xhci *ctx = &fsl_xhci;
-
-	fsl_xhci_core_exit(ctx);
-}
-#endif

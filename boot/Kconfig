@@ -622,7 +622,7 @@ config SPL_BOOTSTAGE
 
 config TPL_BOOTSTAGE
 	bool "Boot timing and reported in TPL"
-	depends on BOOTSTAGE
+	depends on BOOTSTAGE && TPL
 	help
 	  Enable recording of boot time in SPL. To make this visible to U-Boot
 	  proper, enable BOOTSTAGE_STASH as well. This will stash the timing

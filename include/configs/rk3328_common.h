@@ -16,8 +16,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 
-#ifndef CONFIG_SPL_BUILD
-
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \
@@ -31,8 +29,6 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
 	BOOTENV
-
-#endif
 
 /* rockchip ohci host driver */
 #define CONFIG_USB_OHCI_NEW

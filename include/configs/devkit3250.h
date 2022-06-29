@@ -71,7 +71,6 @@
  */
 
 #define CONFIG_EXTRA_ENV_SETTINGS		\
-	"autoload=no\0"				\
 	"ethaddr=00:01:90:00:C0:81\0"		\
 	"dtbaddr=0x81000000\0"			\
 	"nfsroot=/opt/projects/images/vladimir/oe/devkit3250/rootfs\0"	\

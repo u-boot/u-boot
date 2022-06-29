@@ -15,7 +15,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xf0000000
 
-#ifndef CONFIG_SPL_BUILD
 #define ENV_MEM_LAYOUT_SETTINGS		\
 	"scriptaddr=0x00c00000\0"	\
 	"pxefile_addr_r=0x00e00000\0"	\
@@ -30,6 +29,5 @@
 	"partitions=" PARTS_DEFAULT		\
 	ROCKCHIP_DEVICE_SETTINGS		\
 	BOOTENV
-#endif
 
 #endif

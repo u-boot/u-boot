@@ -76,8 +76,6 @@
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"fdt_high=0xffffffff\0" \
 	"console=ttyO0,115200n8\0" \
 	"bootdir=/boot\0" \

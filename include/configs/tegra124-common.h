@@ -57,10 +57,4 @@
 
 /* Defines for SPL */
 
-/* For USB EHCI controller */
-#define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
-
-/* GPU needs setup */
-#define CONFIG_TEGRA_GPU
-
 #endif /* _TEGRA124_COMMON_H_ */

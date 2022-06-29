@@ -178,6 +178,10 @@ source "arch/arm/mach-tegra/tegra124/Kconfig"
 source "arch/arm/mach-tegra/tegra210/Kconfig"
 source "arch/arm/mach-tegra/tegra186/Kconfig"
 
+config TEGRA_GPU
+	bool "Enable setting up the GPU"
+	depends on TEGRA124 || TEGRA210
+
 config CMD_ENTERRCM
 	bool "Enable 'enterrcm' command"
 	default y

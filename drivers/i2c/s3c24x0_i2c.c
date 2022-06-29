@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <dm.h>
 #include <fdtdec.h>
-#if (defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
+#if defined(CONFIG_ARCH_EXYNOS4) || defined(CONFIG_ARCH_EXYNOS5)
 #include <log.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
@@ -53,7 +53,7 @@ static void read_write_byte(struct s3c24x0_i2c *i2c)
 static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 {
 	ulong freq, pres = 16, div;
-#if (defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
+#if defined(CONFIG_ARCH_EXYNOS4) || defined(CONFIG_ARCH_EXYNOS5)
 	freq = get_i2c_clk();
 #else
 	freq = get_PCLK();

@@ -25,10 +25,6 @@
 
 #include "ehci.h"
 
-#ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
-#endif
-
 /*
  * EHCI spec page 20 says that the HC may take up to 16 uFrames (= 4ms) to halt.
  * Let's time out after 8 to have a little safety margin on top of that.

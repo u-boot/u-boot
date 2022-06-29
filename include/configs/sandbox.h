@@ -6,9 +6,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_IO_TRACE
-#endif
 
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 

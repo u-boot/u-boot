@@ -30,6 +30,22 @@ config ENV_OVERWRITE
 	  Use this to permit overriding of certain environmental variables
 	  like Ethernet and Serial
 
+config ENV_MIN_ENTRIES
+	int "Minimum number of entries in the environment hashtable"
+	default 64
+	help
+	  Minimum number of entries in the hash table that is used internally
+	  to store the environment settings.
+
+config ENV_MAX_ENTRIES
+	int "Maximumm number of entries in the environment hashtable"
+	default 512
+	help
+	  Maximum number of entries in the hash table that is used internally
+	  to store the environment settings. The default setting is supposed to
+	  be generous and should work in most cases. This setting can be used
+	  to tune behaviour; see lib/hashtable.c for details.
+
 config ENV_IS_NOWHERE
 	bool "Environment is not stored"
 	default y if !ENV_IS_IN_EEPROM && !ENV_IS_IN_EXT4 && \
@@ -248,14 +264,6 @@ config ENV_IS_IN_NAND
 	  during a "saveenv" operation.	 CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase block boundary.
 
-	  - CONFIG_ENV_RANGE (optional):
-
-	  Specifies the length of the region in which the environment
-	  can be written.  This should be a multiple of the NAND device's
-	  block size.  Specifying a range with more erase blocks than
-	  are needed to hold CONFIG_ENV_SIZE allows bad blocks within
-	  the range to be avoided.
-
 	  - CONFIG_ENV_OFFSET_OOB (optional):
 
 	  Enables support for dynamically retrieving the offset of the
@@ -263,6 +271,16 @@ config ENV_IS_IN_NAND
 	  "nand env.oob" command can be used to record this offset.
 	  Currently, CONFIG_ENV_OFFSET_REDUND is not supported when
 	  using CONFIG_ENV_OFFSET_OOB.
+
+config ENV_RANGE
+	hex "Length of the region in which the environment can be written"
+	depends on ENV_IS_IN_NAND
+	range ENV_SIZE 0x7fffffff
+	default ENV_SIZE
+	help
+	  This should be a multiple of the NAND device's block size.
+	  Specifying a range with more erase blocks than are needed to hold
+	  CONFIG_ENV_SIZE allows bad blocks within the range to be avoided.
 
 config ENV_IS_IN_NVRAM
 	bool "Environment in a non-volatile RAM"

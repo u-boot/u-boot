@@ -24,7 +24,6 @@
 
 /* Environment options */
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(SF, sf, 0) \
@@ -61,6 +60,5 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTENV \
 	BOOTENV_SF
-#endif
 
 #endif /* __CONFIG_H */

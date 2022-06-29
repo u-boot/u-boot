@@ -32,7 +32,6 @@
 /* 512kB on-chip NOR flash */
 # define CONFIG_SYS_FLASH_BASE		0x00200000 /* AT91SAM9XE_FLASH_BASE */
 # define CONFIG_SYS_MAX_FLASH_SECT	32
-# define CONFIG_EFLASH_PROTSECTORS	1
 
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
@@ -98,11 +97,6 @@
 #define I2C_SDA(bit)	at91_set_pio_value(AT91_PIO_PORTA, 23, bit)
 #define I2C_DELAY	udelay(100)
 #define I2C_READ	at91_get_pio_value(AT91_PIO_PORTA, 23)
-
-/* DHCP/BOOTP options */
-#ifdef CONFIG_CMD_DHCP
-#define CONFIG_SYS_AUTOLOAD	"n"
-#endif
 
 /* File systems */
 

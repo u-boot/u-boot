@@ -11,8 +11,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_TIZEN			/* TIZEN lib */
-
 /* Keep L2 Cache Disabled */
 
 /* Universal has 2 banks of DRAM */
@@ -77,7 +75,6 @@
 	"verify=n\0" \
 	"rootfstype=ext4\0" \
 	"console=console=ttySAC1,115200n8\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT \
 	"mbrparts=" MBRPARTS_DEFAULT \
 	"meminfo=crashkernel=32M@0x50000000\0" \
 	"nfsroot=/nfsroot/arm\0" \

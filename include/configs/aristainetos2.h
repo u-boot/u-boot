@@ -110,9 +110,6 @@
 	"splashpos=m,m\0" \
 	"console=" CONSOLE_DEV "\0" \
 	"emmcroot=/dev/mmcblk1p1 rootwait rw\0" \
-	"mtdids=nor0=spi0.0\0" \
-	"mtdparts=mtdparts=spi0.0:832k(u-boot),64k(env),64k(env-red)," \
-		"-(ubi-nor)\0" \
 	"mk_fitfile_path=setenv fit_file /${sysnum}/system.itb\0" \
 	"mk_rescue_fitfile_path=setenv rescue_fit_file /${rescue_sysnum}/system.itb\0" \
 	"mk_uboot_path=setenv uboot /${sysnum}/u-boot.imx\0" \
@@ -420,7 +417,6 @@
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
 /* USB Configs */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
 

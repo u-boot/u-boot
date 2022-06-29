@@ -41,9 +41,6 @@
 
 /* misc settings */
 
-/* setting board specific options */
-#define CONFIG_SYS_AUTOLOAD "yes"
-
 /*
  * SDRAM: 1 bank, 64 MB, base address 0x20000000
  * Already initialized before u-boot gets started.
@@ -69,7 +66,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
-#if !defined(CONFIG_SPL_BUILD)
 /* USB configuration */
 #define CONFIG_USB_ATMEL
 #define CONFIG_USB_ATMEL_CLK_SEL_PLLB
@@ -85,14 +81,8 @@
 
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
-#endif
 
 /* General Boot Parameter */
-
-/*
- * The NAND Flash partitions:
- */
-#define CONFIG_ENV_RANGE		(SZ_512K)
 
 /*
  * Predefined environment variables.
@@ -102,7 +92,6 @@
 									\
 	"basicargs=console=ttyS0,115200\0"				\
 									\
-	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"
 
 /*
  * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,

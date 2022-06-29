@@ -27,15 +27,7 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
-
 /* USB ethernet */
-
-/*
- * SATA/SCSI/AHCI configuration
- */
-#define CONFIG_LBA48
-#define CONFIG_SYS_64BIT_LBA
 
 /*
  * PCI configuration

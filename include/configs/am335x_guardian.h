@@ -52,7 +52,6 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
 	GUARDIAN_DEFAULT_PROD_ENV \
-	"autoload=no\0" \
 	"backlight_brightness=50\0" \
 	"bootubivol=rootfs\0" \
 	"distro_bootcmd=" \
