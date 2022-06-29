@@ -16,6 +16,7 @@
 #include <asm/arch/scu_ast2500.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+#include <reset.h>
 
 #include "ast_i2c.h"
 
@@ -108,19 +109,26 @@ static int ast_i2c_of_to_plat(struct udevice *dev)
 
 static int ast_i2c_probe(struct udevice *dev)
 {
-	struct ast2500_scu *scu;
+	struct reset_ctl reset_ctl;
+	int rc;
 
 	debug("Enabling I2C%u\n", dev_seq(dev));
 
 	/*
 	 * Get all I2C devices out of Reset.
-	 * Only needs to be done once, but doing it for every
-	 * device does not hurt.
+	 *
+	 * Only needs to be done once so test before performing reset.
 	 */
-	scu = ast_get_scu();
-	ast_scu_unlock(scu);
-	clrbits_le32(&scu->sysreset_ctrl1, SCU_SYSRESET_I2C);
-	ast_scu_lock(scu);
+	rc = reset_get_by_index(dev, 0, &reset_ctl);
+	if (rc) {
+		printf("%s: Failed to get reset signal\n", __func__);
+		return rc;
+	}
+
+	if (reset_status(&reset_ctl) > 0) {
+		reset_assert(&reset_ctl);
+		reset_deassert(&reset_ctl);
+	}
 
 	ast_i2c_init_bus(dev);
 
@@ -343,6 +351,7 @@ static const struct dm_i2c_ops ast_i2c_ops = {
 static const struct udevice_id ast_i2c_ids[] = {
 	{ .compatible = "aspeed,ast2400-i2c-bus" },
 	{ .compatible = "aspeed,ast2500-i2c-bus" },
+	{ .compatible = "aspeed,ast2600-i2c-bus" },
 	{ },
 };
 

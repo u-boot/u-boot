@@ -728,6 +728,13 @@ S:	Maintained
 F:	drivers/pci/pcie_phytium.c
 F:	arch/arm/dts/phytium-durian.dts
 
+ASPEED FMC SPI DRIVER
+M:	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>
+M:	Cédric Le Goater <clg@kaod.org>
+R:	Aspeed BMC SW team <BMC-SW@aspeedtech.com>
+S:	Maintained
+F:	drivers/spi/spi-aspeed.c
+
 BINMAN
 M:	Simon Glass <sjg@chromium.org>
 M:	Alper Nebi Yasak <alpernebiyasak@gmail.com>
