@@ -1,16 +1,32 @@
-#ifndef __USB_COMPAT_H__
-#define __USB_COMPAT_H__
+/* SPDX-License-Identifier: GPL-2.0+ */
 
-#include "usb.h"
+#ifndef __USB_URB_COMPAT_H__
+#define __USB_URB_COMPAT_H__
+
+#include <linux/compat.h>
+#include <usb.h>
 
 struct udevice;
+struct urb;
+struct usb_hcd;
+
+struct usb_urb_ops {
+	int (*urb_enqueue)(struct usb_hcd *hcd, struct urb *urb,
+			   gfp_t mem_flags);
+	int (*urb_dequeue)(struct usb_hcd *hcd, struct urb *urb, int status);
+	int (*hub_control)(struct usb_hcd *hcd, struct usb_device *dev,
+			   unsigned long pipe, void *buffer, int len,
+			   struct devrequest *setup);
+	irqreturn_t (*isr)(int irq, void *priv);
+};
 
 struct usb_hcd {
 	void *hcd_priv;
+	const struct usb_urb_ops *urb_ops;
 };
 
 struct usb_host_endpoint {
-	struct usb_endpoint_descriptor		desc;
+	struct usb_endpoint_descriptor desc;
 	struct list_head urb_list;
 	void *hcpriv;
 };
@@ -22,8 +38,6 @@ struct usb_host_endpoint {
  */
 #define URB_SHORT_NOT_OK	0x0001	/* report short reads as errors */
 #define URB_ZERO_PACKET		0x0040	/* Finish bulk OUT with short packet */
-
-struct urb;
 
 typedef void (*usb_complete_t)(struct urb *);
 
@@ -75,5 +89,26 @@ static inline int usb_hcd_unmap_urb_for_dma(struct usb_hcd *hcd,
  * Return: associated device for which udev == dev_get_parent_priv(dev)
  */
 struct usb_device *usb_dev_get_parent(struct usb_device *udev);
+
+int usb_urb_submit_control(struct usb_hcd *hcd, struct urb *urb,
+			   struct usb_host_endpoint *hep,
+			   struct usb_device *dev, unsigned long pipe,
+			   void *buffer, int len, struct devrequest *setup,
+			   int interval, enum usb_device_speed speed);
+
+int usb_urb_submit_bulk(struct usb_hcd *hcd, struct urb *urb,
+			struct usb_host_endpoint *hep, struct usb_device *dev,
+			unsigned long pipe, void *buffer, int len);
+
+int usb_urb_submit_irq(struct usb_hcd *hcd, struct urb *urb,
+		       struct usb_host_endpoint *hep, struct usb_device *dev,
+		       unsigned long pipe, void *buffer, int len, int interval);
+
+void usb_urb_fill(struct urb *urb, struct usb_host_endpoint *hep,
+		  struct usb_device *dev, int endpoint_type,
+		  unsigned long pipe, void *buffer, int len,
+		  struct devrequest *setup, int interval);
+
+int usb_urb_submit(struct usb_hcd *hcd, struct urb *urb);
 
 #endif /* __USB_COMPAT_H__ */
