@@ -505,14 +505,6 @@ void build_image(int ofd)
 			exit(EXIT_FAILURE);
 		} else {
 			sld_header_off = sld_src_off - rom_image_offset;
-			/*
-			 * Record the second bootloader relative offset in
-			 * image's IVT reserved1
-			 */
-			if (rom_version == ROM_V1) {
-				imx_header[IMAGE_IVT_ID].fhdr.reserved1 =
-					sld_header_off - header_image_off;
-			}
 			sld_fd = open(sld_img, O_RDONLY | O_BINARY);
 			if (sld_fd < 0) {
 				fprintf(stderr, "%s: Can't open: %s\n",
