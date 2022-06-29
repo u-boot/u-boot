@@ -1,5 +1,5 @@
 BRXRE1 BOARD
-M:	Hannes Schmelzer <hannes.schmelzer@br-automation.com>
+M:	Wolfgang Wallner <wolfgang.wallner@br-automation.com>
 S:	Maintained
 F:	board/BuR/brxre1/
 F:	include/configs/brxre1.h

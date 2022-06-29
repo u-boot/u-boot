@@ -1,5 +1,5 @@
 BUR_PPT2 BOARD
-M:	Hannes Schmelzer <hannes.schmelzer@br-automation.com>
+M:	Wolfgang Wallner <wolfgang.wallner@br-automation.com>
 S:	Maintained
 F:	board/BuR/brppt2/
 F:	include/configs/brppt2.h
