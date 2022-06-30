@@ -267,6 +267,10 @@ static const struct stm32_i2c_data stm32mp15_data = {
 	.fmp_clr_offset = 0x40,
 };
 
+static const struct stm32_i2c_data stm32mp13_data = {
+	.fmp_clr_offset = 0x4,
+};
+
 static int stm32_i2c_check_device_busy(struct stm32_i2c_priv *i2c_priv)
 {
 	struct stm32_i2c_regs *regs = i2c_priv->regs;
@@ -957,6 +961,7 @@ static const struct dm_i2c_ops stm32_i2c_ops = {
 static const struct udevice_id stm32_i2c_of_match[] = {
 	{ .compatible = "st,stm32f7-i2c", .data = (ulong)&stm32f7_data },
 	{ .compatible = "st,stm32mp15-i2c", .data = (ulong)&stm32mp15_data },
+	{ .compatible = "st,stm32mp13-i2c", .data = (ulong)&stm32mp13_data },
 	{}
 };
 
