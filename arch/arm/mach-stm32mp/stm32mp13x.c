@@ -126,6 +126,9 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 	case CPU_REV1_1:
 		cpu_r = "Z";
 		break;
+	case CPU_REV1_2:
+		cpu_r = "Y";
+		break;
 	default:
 		cpu_r = "?";
 		break;

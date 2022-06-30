@@ -41,6 +41,7 @@ u32 get_cpu_dev(void);
 
 #define CPU_REV1	0x1000
 #define CPU_REV1_1	0x1001
+#define CPU_REV1_2	0x1003
 #define CPU_REV2	0x2000
 #define CPU_REV2_1	0x2001
 
