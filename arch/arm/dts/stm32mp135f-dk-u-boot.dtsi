@@ -11,7 +11,17 @@
 	};
 
 	config {
+		u-boot,boot-led = "led-blue";
+		u-boot,error-led = "led-red";
 		u-boot,mmc-env-partition = "u-boot-env";
+	};
+
+	leds {
+		led-red {
+			color = <LED_COLOR_ID_RED>;
+			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
 	};
 };
 
