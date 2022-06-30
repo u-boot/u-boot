@@ -763,7 +763,7 @@ clk_free:
 	return ret;
 }
 
-static int stm32_sdmmc_bind(struct udevice *dev)
+static int stm32_sdmmc2_bind(struct udevice *dev)
 {
 	struct stm32_sdmmc2_plat *plat = dev_get_plat(dev);
 
@@ -781,7 +781,7 @@ U_BOOT_DRIVER(stm32_sdmmc2) = {
 	.of_match = stm32_sdmmc2_ids,
 	.ops = &stm32_sdmmc2_ops,
 	.probe = stm32_sdmmc2_probe,
-	.bind = stm32_sdmmc_bind,
+	.bind = stm32_sdmmc2_bind,
 	.priv_auto	= sizeof(struct stm32_sdmmc2_priv),
 	.plat_auto	= sizeof(struct stm32_sdmmc2_plat),
 };
