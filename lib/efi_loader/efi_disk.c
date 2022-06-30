@@ -35,7 +35,6 @@ const efi_guid_t efi_system_partition_guid = PARTITION_SYSTEM_GUID;
  * @dp:		device path to the block device
  * @part:	partition
  * @volume:	simple file system protocol of the partition
- * @offset:	offset into disk for simple partition
  * @dev:	associated DM device
  */
 struct efi_disk_obj {
@@ -47,7 +46,6 @@ struct efi_disk_obj {
 	struct efi_device_path *dp;
 	unsigned int part;
 	struct efi_simple_file_system_protocol *volume;
-	lbaint_t offset;
 	struct udevice *dev; /* TODO: move it to efi_object */
 };
 
@@ -117,7 +115,6 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	diskobj = container_of(this, struct efi_disk_obj, ops);
 	blksz = diskobj->media.block_size;
 	blocks = buffer_size / blksz;
-	lba += diskobj->offset;
 
 	EFI_PRINT("blocks=%x lba=%llx blksz=%x dir=%d\n",
 		  blocks, lba, blksz, direction);
@@ -440,13 +437,11 @@ static efi_status_t efi_disk_add_dev(
 
 		diskobj->dp = efi_dp_append_node(dp_parent, node);
 		efi_free_pool(node);
-		diskobj->offset = part_info->start;
 		diskobj->media.last_block = part_info->size - 1;
 		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION)
 			guid = &efi_system_partition_guid;
 	} else {
 		diskobj->dp = efi_dp_from_part(desc, part);
-		diskobj->offset = 0;
 		diskobj->media.last_block = desc->lba - 1;
 	}
 	diskobj->part = part;
@@ -501,12 +496,11 @@ static efi_status_t efi_disk_add_dev(
 		*disk = diskobj;
 
 	EFI_PRINT("BlockIO: part %u, present %d, logical %d, removable %d"
-		  ", offset " LBAF ", last_block %llu\n",
+		  ", last_block %llu\n",
 		  diskobj->part,
 		  diskobj->media.media_present,
 		  diskobj->media.logical_partition,
 		  diskobj->media.removable_media,
-		  diskobj->offset,
 		  diskobj->media.last_block);
 
 	/* Store first EFI system partition */

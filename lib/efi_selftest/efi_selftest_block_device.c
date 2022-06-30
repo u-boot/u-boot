@@ -11,6 +11,8 @@
  * ConnectController is used to setup partitions and to install the simple
  * file protocol.
  * A known file is read from the file system and verified.
+ * The same block is read via the EFI_BLOCK_IO_PROTOCOL and compared to the file
+ * contents.
  */
 
 #include <efi_selftest.h>
@@ -312,6 +314,7 @@ static int execute(void)
 	char buf[16] __aligned(ARCH_DMA_MINALIGN);
 	u32 part1_size;
 	u64 pos;
+	char block_io_aligned[1 << LB_BLOCK_SIZE] __aligned(1 << LB_BLOCK_SIZE);
 
 	/* Connect controller to virtual disk */
 	ret = boottime->connect_controller(disk_handle, NULL, NULL, 1);
@@ -446,6 +449,30 @@ static int execute(void)
 	ret = file->close(file);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to close file\n");
+		return EFI_ST_FAILURE;
+	}
+
+	/*
+	 * Test that read_blocks() can read same file data.
+	 *
+	 * In the test data, the partition starts at block 1 and the file
+	 * hello.txt with the content 'Hello world!' is located at 0x5000
+	 * of the disk. Here we read block 0x27 (offset 0x4e00 of the
+	 * partition) and expect the string 'Hello world!' to be at the
+	 * start of block.
+	 */
+	ret = block_io_protocol->read_blocks(block_io_protocol,
+				      block_io_protocol->media->media_id,
+				      (0x5000 >> LB_BLOCK_SIZE) - 1,
+				      block_io_protocol->media->block_size,
+				      block_io_aligned);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("ReadBlocks failed\n");
+		return EFI_ST_FAILURE;
+	}
+
+	if (memcmp(block_io_aligned + 1, buf, 11)) {
+		efi_st_error("Unexpected block content\n");
 		return EFI_ST_FAILURE;
 	}
 
