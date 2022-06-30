@@ -645,6 +645,47 @@ static const struct dm_mmc_ops stm32_sdmmc2_ops = {
 	.host_power_cycle = stm32_sdmmc2_host_power_cycle,
 };
 
+static int stm32_sdmmc2_of_to_plat(struct udevice *dev)
+{
+	struct stm32_sdmmc2_plat *plat = dev_get_plat(dev);
+	struct mmc_config *cfg = &plat->cfg;
+	int ret;
+
+	plat->base = dev_read_addr(dev);
+	if (plat->base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	if (dev_read_bool(dev, "st,neg-edge"))
+		plat->clk_reg_msk |= SDMMC_CLKCR_NEGEDGE;
+	if (dev_read_bool(dev, "st,sig-dir"))
+		plat->pwr_reg_msk |= SDMMC_POWER_DIRPOL;
+	if (dev_read_bool(dev, "st,use-ckin"))
+		plat->clk_reg_msk |= SDMMC_CLKCR_SELCLKRX_CKIN;
+
+	cfg->f_min = 400000;
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+	cfg->name = "STM32 SD/MMC";
+	cfg->host_caps = 0;
+	cfg->f_max = 52000000;
+	ret = mmc_of_parse(dev, cfg);
+	if (ret)
+		return ret;
+
+	ret = clk_get_by_index(dev, 0, &plat->clk);
+	if (ret)
+		return ret;
+
+	ret = reset_get_by_index(dev, 0, &plat->reset_ctl);
+	if (ret)
+		dev_dbg(dev, "No reset provided\n");
+
+	gpio_request_by_name(dev, "cd-gpios", 0, &plat->cd_gpio,
+			     GPIOD_IS_IN);
+
+	return 0;
+}
+
 static int stm32_sdmmc2_probe_level_translator(struct udevice *dev)
 {
 	struct stm32_sdmmc2_plat *plat = dev_get_plat(dev);
@@ -652,12 +693,6 @@ static int stm32_sdmmc2_probe_level_translator(struct udevice *dev)
 	struct gpio_desc ck_gpio;
 	struct gpio_desc ckin_gpio;
 	int clk_hi, clk_lo, ret;
-
-	/*
-	 * Assume the level translator is present if st,use-ckin is set.
-	 * This is to cater for DTs which do not implement this test.
-	 */
-	plat->clk_reg_msk |= SDMMC_CLKCR_SELCLKRX_CKIN;
 
 	ret = gpio_request_by_name(dev, "st,cmd-gpios", 0, &cmd_gpio,
 				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
@@ -709,54 +744,23 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct stm32_sdmmc2_plat *plat = dev_get_plat(dev);
-	struct mmc_config *cfg = &plat->cfg;
 	int ret;
 
-	plat->base = dev_read_addr(dev);
-	if (plat->base == FDT_ADDR_T_NONE)
-		return -EINVAL;
-
-	if (dev_read_bool(dev, "st,neg-edge"))
-		plat->clk_reg_msk |= SDMMC_CLKCR_NEGEDGE;
-	if (dev_read_bool(dev, "st,sig-dir"))
-		plat->pwr_reg_msk |= SDMMC_POWER_DIRPOL;
-	if (dev_read_bool(dev, "st,use-ckin"))
-		stm32_sdmmc2_probe_level_translator(dev);
-
-	ret = clk_get_by_index(dev, 0, &plat->clk);
-	if (ret)
-		return ret;
-
 	ret = clk_enable(&plat->clk);
-	if (ret)
-		goto clk_free;
-
-	ret = reset_get_by_index(dev, 0, &plat->reset_ctl);
-	if (ret)
-		dev_dbg(dev, "No reset provided\n");
-
-	gpio_request_by_name(dev, "cd-gpios", 0, &plat->cd_gpio,
-			     GPIOD_IS_IN);
-
-	cfg->f_min = 400000;
-	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-	cfg->name = "STM32 SD/MMC";
-
-	cfg->host_caps = 0;
-	cfg->f_max = 52000000;
-	mmc_of_parse(dev, cfg);
+	if (ret) {
+		clk_free(&plat->clk);
+		return ret;
+	}
 
 	upriv->mmc = &plat->mmc;
 
+	if (plat->clk_reg_msk & SDMMC_CLKCR_SELCLKRX_CKIN)
+		stm32_sdmmc2_probe_level_translator(dev);
+
 	/* SDMMC init */
 	stm32_sdmmc2_reset(plat);
+
 	return 0;
-
-clk_free:
-	clk_free(&plat->clk);
-
-	return ret;
 }
 
 static int stm32_sdmmc2_bind(struct udevice *dev)
@@ -778,5 +782,6 @@ U_BOOT_DRIVER(stm32_sdmmc2) = {
 	.ops = &stm32_sdmmc2_ops,
 	.probe = stm32_sdmmc2_probe,
 	.bind = stm32_sdmmc2_bind,
+	.of_to_plat = stm32_sdmmc2_of_to_plat,
 	.plat_auto	= sizeof(struct stm32_sdmmc2_plat),
 };
