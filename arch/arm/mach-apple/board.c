@@ -16,7 +16,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Apple M1 */
+/* Apple M1/M2 */
 
 static struct mm_region t8103_mem_map[] = {
 	{
@@ -376,7 +376,8 @@ void build_mem_map(void)
 	fdt_size_t size;
 	int i;
 
-	if (of_machine_is_compatible("apple,t8103"))
+	if (of_machine_is_compatible("apple,t8103") ||
+	    of_machine_is_compatible("apple,t8112"))
 		mem_map = t8103_mem_map;
 	else if (of_machine_is_compatible("apple,t6000"))
 		mem_map = t6000_mem_map;
