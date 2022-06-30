@@ -18,7 +18,9 @@
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/sizes.h>
+#include <zynqmp_firmware.h>
 #include "cadence_qspi.h"
+#include <dt-bindings/power/xlnx-versal-power.h>
 
 #define NSEC_PER_SEC			1000000000L
 
@@ -26,6 +28,17 @@
 #define CQSPI_STIG_WRITE		1
 #define CQSPI_READ			2
 #define CQSPI_WRITE			3
+
+__weak int cadence_qspi_apb_dma_read(struct cadence_spi_plat *plat,
+				     const struct spi_mem_op *op)
+{
+	return 0;
+}
+
+__weak int cadence_qspi_versal_flash_reset(struct udevice *dev)
+{
+	return 0;
+}
 
 static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 {
@@ -138,7 +151,7 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
 	int err;
 
-	if (hz > plat->max_hz)
+	if (!hz || hz > plat->max_hz)
 		hz = plat->max_hz;
 
 	/* Disable QSPI */
@@ -185,6 +198,11 @@ static int cadence_spi_probe(struct udevice *bus)
 	priv->regbase = plat->regbase;
 	priv->ahbbase = plat->ahbbase;
 
+	if (CONFIG_IS_ENABLED(ZYNQMP_FIRMWARE))
+		xilinx_pm_request(PM_REQUEST_NODE, PM_DEV_OSPI,
+				  ZYNQMP_PM_CAPABILITY_ACCESS, ZYNQMP_PM_MAX_QOS,
+				  ZYNQMP_PM_REQUEST_ACK_NO, NULL);
+
 	if (plat->ref_clk_hz == 0) {
 		ret = clk_get_by_index(bus, 0, &clk);
 		if (ret) {
@@ -213,6 +231,16 @@ static int cadence_spi_probe(struct udevice *bus)
 	}
 
 	plat->wr_delay = 50 * DIV_ROUND_UP(NSEC_PER_SEC, plat->ref_clk_hz);
+
+	if (CONFIG_IS_ENABLED(ARCH_VERSAL)) {
+		/* Versal platform uses spi calibration to set read delay */
+		if (plat->read_delay >= 0)
+			plat->read_delay = -1;
+		/* Reset ospi flash device */
+		ret = cadence_qspi_versal_flash_reset(bus);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -288,8 +316,12 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 		break;
 	case CQSPI_READ:
 		err = cadence_qspi_apb_read_setup(plat, op);
-		if (!err)
-			err = cadence_qspi_apb_read_execute(plat, op);
+		if (!err) {
+			if (plat->is_dma)
+				err = cadence_qspi_apb_dma_read(plat, op);
+			else
+				err = cadence_qspi_apb_read_execute(plat, op);
+		}
 		break;
 	case CQSPI_WRITE:
 		err = cadence_qspi_apb_write_setup(plat, op);
@@ -341,6 +373,8 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	/* Use DAC mode only when MMIO window is at least 8M wide */
 	if (plat->ahbsize >= SZ_8M)
 		plat->use_dac_mode = true;
+
+	plat->is_dma = dev_read_bool(bus, "cdns,is-dma");
 
 	/* All other paramters are embedded in the child node */
 	subnode = dev_read_first_subnode(bus);

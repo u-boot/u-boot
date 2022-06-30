@@ -38,156 +38,10 @@
 #include <malloc.h>
 #include "cadence_qspi.h"
 
-#define CQSPI_REG_POLL_US			1 /* 1us */
-#define CQSPI_REG_RETRY				10000
-#define CQSPI_POLL_IDLE_RETRY			3
-
-/* Transfer mode */
-#define CQSPI_INST_TYPE_SINGLE			0
-#define CQSPI_INST_TYPE_DUAL			1
-#define CQSPI_INST_TYPE_QUAD			2
-#define CQSPI_INST_TYPE_OCTAL			3
-
-#define CQSPI_STIG_DATA_LEN_MAX			8
-
-#define CQSPI_DUMMY_CLKS_PER_BYTE		8
-#define CQSPI_DUMMY_CLKS_MAX			31
-
-/****************************************************************************
- * Controller's configuration and status register (offset from QSPI_BASE)
- ****************************************************************************/
-#define	CQSPI_REG_CONFIG			0x00
-#define	CQSPI_REG_CONFIG_ENABLE			BIT(0)
-#define	CQSPI_REG_CONFIG_CLK_POL		BIT(1)
-#define	CQSPI_REG_CONFIG_CLK_PHA		BIT(2)
-#define	CQSPI_REG_CONFIG_DIRECT			BIT(7)
-#define	CQSPI_REG_CONFIG_DECODE			BIT(9)
-#define	CQSPI_REG_CONFIG_XIP_IMM		BIT(18)
-#define	CQSPI_REG_CONFIG_CHIPSELECT_LSB		10
-#define	CQSPI_REG_CONFIG_BAUD_LSB		19
-#define CQSPI_REG_CONFIG_DTR_PROTO		BIT(24)
-#define CQSPI_REG_CONFIG_DUAL_OPCODE		BIT(30)
-#define	CQSPI_REG_CONFIG_IDLE_LSB		31
-#define	CQSPI_REG_CONFIG_CHIPSELECT_MASK	0xF
-#define	CQSPI_REG_CONFIG_BAUD_MASK		0xF
-
-#define	CQSPI_REG_RD_INSTR			0x04
-#define	CQSPI_REG_RD_INSTR_OPCODE_LSB		0
-#define	CQSPI_REG_RD_INSTR_TYPE_INSTR_LSB	8
-#define	CQSPI_REG_RD_INSTR_TYPE_ADDR_LSB	12
-#define	CQSPI_REG_RD_INSTR_TYPE_DATA_LSB	16
-#define	CQSPI_REG_RD_INSTR_MODE_EN_LSB		20
-#define	CQSPI_REG_RD_INSTR_DUMMY_LSB		24
-#define	CQSPI_REG_RD_INSTR_TYPE_INSTR_MASK	0x3
-#define	CQSPI_REG_RD_INSTR_TYPE_ADDR_MASK	0x3
-#define	CQSPI_REG_RD_INSTR_TYPE_DATA_MASK	0x3
-#define	CQSPI_REG_RD_INSTR_DUMMY_MASK		0x1F
-
-#define	CQSPI_REG_WR_INSTR			0x08
-#define	CQSPI_REG_WR_INSTR_OPCODE_LSB		0
-#define CQSPI_REG_WR_INSTR_TYPE_ADDR_LSB	12
-#define	CQSPI_REG_WR_INSTR_TYPE_DATA_LSB	16
-
-#define	CQSPI_REG_DELAY				0x0C
-#define	CQSPI_REG_DELAY_TSLCH_LSB		0
-#define	CQSPI_REG_DELAY_TCHSH_LSB		8
-#define	CQSPI_REG_DELAY_TSD2D_LSB		16
-#define	CQSPI_REG_DELAY_TSHSL_LSB		24
-#define	CQSPI_REG_DELAY_TSLCH_MASK		0xFF
-#define	CQSPI_REG_DELAY_TCHSH_MASK		0xFF
-#define	CQSPI_REG_DELAY_TSD2D_MASK		0xFF
-#define	CQSPI_REG_DELAY_TSHSL_MASK		0xFF
-
-#define	CQSPI_REG_RD_DATA_CAPTURE		0x10
-#define	CQSPI_REG_RD_DATA_CAPTURE_BYPASS	BIT(0)
-#define	CQSPI_REG_RD_DATA_CAPTURE_DELAY_LSB	1
-#define	CQSPI_REG_RD_DATA_CAPTURE_DELAY_MASK	0xF
-
-#define	CQSPI_REG_SIZE				0x14
-#define	CQSPI_REG_SIZE_ADDRESS_LSB		0
-#define	CQSPI_REG_SIZE_PAGE_LSB			4
-#define	CQSPI_REG_SIZE_BLOCK_LSB		16
-#define	CQSPI_REG_SIZE_ADDRESS_MASK		0xF
-#define	CQSPI_REG_SIZE_PAGE_MASK		0xFFF
-#define	CQSPI_REG_SIZE_BLOCK_MASK		0x3F
-
-#define	CQSPI_REG_SRAMPARTITION			0x18
-#define	CQSPI_REG_INDIRECTTRIGGER		0x1C
-
-#define	CQSPI_REG_REMAP				0x24
-#define	CQSPI_REG_MODE_BIT			0x28
-
-#define	CQSPI_REG_SDRAMLEVEL			0x2C
-#define	CQSPI_REG_SDRAMLEVEL_RD_LSB		0
-#define	CQSPI_REG_SDRAMLEVEL_WR_LSB		16
-#define	CQSPI_REG_SDRAMLEVEL_RD_MASK		0xFFFF
-#define	CQSPI_REG_SDRAMLEVEL_WR_MASK		0xFFFF
-
-#define CQSPI_REG_WR_COMPLETION_CTRL		0x38
-#define CQSPI_REG_WR_DISABLE_AUTO_POLL		BIT(14)
-
-#define	CQSPI_REG_IRQSTATUS			0x40
-#define	CQSPI_REG_IRQMASK			0x44
-
-#define	CQSPI_REG_INDIRECTRD			0x60
-#define	CQSPI_REG_INDIRECTRD_START		BIT(0)
-#define	CQSPI_REG_INDIRECTRD_CANCEL		BIT(1)
-#define	CQSPI_REG_INDIRECTRD_INPROGRESS		BIT(2)
-#define	CQSPI_REG_INDIRECTRD_DONE		BIT(5)
-
-#define	CQSPI_REG_INDIRECTRDWATERMARK		0x64
-#define	CQSPI_REG_INDIRECTRDSTARTADDR		0x68
-#define	CQSPI_REG_INDIRECTRDBYTES		0x6C
-
-#define	CQSPI_REG_CMDCTRL			0x90
-#define	CQSPI_REG_CMDCTRL_EXECUTE		BIT(0)
-#define	CQSPI_REG_CMDCTRL_INPROGRESS		BIT(1)
-#define	CQSPI_REG_CMDCTRL_DUMMY_LSB		7
-#define	CQSPI_REG_CMDCTRL_WR_BYTES_LSB		12
-#define	CQSPI_REG_CMDCTRL_WR_EN_LSB		15
-#define	CQSPI_REG_CMDCTRL_ADD_BYTES_LSB		16
-#define	CQSPI_REG_CMDCTRL_ADDR_EN_LSB		19
-#define	CQSPI_REG_CMDCTRL_RD_BYTES_LSB		20
-#define	CQSPI_REG_CMDCTRL_RD_EN_LSB		23
-#define	CQSPI_REG_CMDCTRL_OPCODE_LSB		24
-#define	CQSPI_REG_CMDCTRL_DUMMY_MASK		0x1F
-#define	CQSPI_REG_CMDCTRL_WR_BYTES_MASK		0x7
-#define	CQSPI_REG_CMDCTRL_ADD_BYTES_MASK	0x3
-#define	CQSPI_REG_CMDCTRL_RD_BYTES_MASK		0x7
-#define	CQSPI_REG_CMDCTRL_OPCODE_MASK		0xFF
-
-#define	CQSPI_REG_INDIRECTWR			0x70
-#define	CQSPI_REG_INDIRECTWR_START		BIT(0)
-#define	CQSPI_REG_INDIRECTWR_CANCEL		BIT(1)
-#define	CQSPI_REG_INDIRECTWR_INPROGRESS		BIT(2)
-#define	CQSPI_REG_INDIRECTWR_DONE		BIT(5)
-
-#define	CQSPI_REG_INDIRECTWRWATERMARK		0x74
-#define	CQSPI_REG_INDIRECTWRSTARTADDR		0x78
-#define	CQSPI_REG_INDIRECTWRBYTES		0x7C
-
-#define	CQSPI_REG_CMDADDRESS			0x94
-#define	CQSPI_REG_CMDREADDATALOWER		0xA0
-#define	CQSPI_REG_CMDREADDATAUPPER		0xA4
-#define	CQSPI_REG_CMDWRITEDATALOWER		0xA8
-#define	CQSPI_REG_CMDWRITEDATAUPPER		0xAC
-
-#define CQSPI_REG_OP_EXT_LOWER			0xE0
-#define CQSPI_REG_OP_EXT_READ_LSB		24
-#define CQSPI_REG_OP_EXT_WRITE_LSB		16
-#define CQSPI_REG_OP_EXT_STIG_LSB		0
-
-#define CQSPI_REG_IS_IDLE(base)					\
-	((readl(base + CQSPI_REG_CONFIG) >>		\
-		CQSPI_REG_CONFIG_IDLE_LSB) & 0x1)
-
-#define CQSPI_GET_RD_SRAM_LEVEL(reg_base)			\
-	(((readl(reg_base + CQSPI_REG_SDRAMLEVEL)) >>	\
-	CQSPI_REG_SDRAMLEVEL_RD_LSB) & CQSPI_REG_SDRAMLEVEL_RD_MASK)
-
-#define CQSPI_GET_WR_SRAM_LEVEL(reg_base)			\
-	(((readl(reg_base + CQSPI_REG_SDRAMLEVEL)) >>	\
-	CQSPI_REG_SDRAMLEVEL_WR_LSB) & CQSPI_REG_SDRAMLEVEL_WR_MASK)
+__weak void cadence_qspi_apb_enable_linear_mode(bool enable)
+{
+	return;
+}
 
 void cadence_qspi_apb_controller_enable(void *reg_base)
 {
@@ -487,8 +341,7 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_plat *plat)
 	cadence_qspi_apb_controller_enable(plat->regbase);
 }
 
-static int cadence_qspi_apb_exec_flash_cmd(void *reg_base,
-	unsigned int reg)
+int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 {
 	unsigned int retry = CQSPI_REG_RETRY;
 
@@ -882,6 +735,9 @@ int cadence_qspi_apb_read_execute(struct cadence_spi_plat *plat,
 	void *buf = op->data.buf.in;
 	size_t len = op->data.nbytes;
 
+	if (CONFIG_IS_ENABLED(ARCH_VERSAL))
+		cadence_qspi_apb_enable_linear_mode(true);
+
 	if (plat->use_dac_mode && (from + len < plat->ahbsize)) {
 		if (len < 256 ||
 		    dma_memcpy(buf, plat->ahbbase + from, len) < 0) {
@@ -1048,6 +904,9 @@ int cadence_qspi_apb_write_execute(struct cadence_spi_plat *plat,
 	u32 to = op->addr.val;
 	const void *buf = op->data.buf.out;
 	size_t len = op->data.nbytes;
+
+	if (CONFIG_IS_ENABLED(ARCH_VERSAL))
+		cadence_qspi_apb_enable_linear_mode(true);
 
 	/*
 	 * Some flashes like the Cypress Semper flash expect a dummy 4-byte

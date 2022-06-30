@@ -136,6 +136,14 @@ config CQSPI_REF_CLK
 	int "Cadence QSPI reference clock value in Hz"
 	depends on HAS_CQSPI_REF_CLK
 
+config CADENCE_OSPI_VERSAL
+	bool "Configure Versal OSPI"
+	depends on ARCH_VERSAL && CADENCE_QSPI
+	imply DM_GPIO
+	help
+	  This option is used to enable Versal OSPI DMA operations which
+	  are used for ospi flash read using cadence qspi controller.
+
 config CF_SPI
         bool "ColdFire SPI driver"
         help
