@@ -92,7 +92,7 @@
 				status = "okay";
 
 				i2c_eeprom: i2c_eeprom@50 {
-					compatible = "microchip,24aa02e48";
+					compatible = "atmel,24c02"; /* EEPROM is 2Kbits microchip 24aa02e48 */
 					reg = <0x50>;
 				};
 			};
