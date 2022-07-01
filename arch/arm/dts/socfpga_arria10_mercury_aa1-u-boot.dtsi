@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright 2022 Google LLC
+ */
+#include "socfpga_arria10-u-boot.dtsi"
+
+/ {
+	chosen {
+		firmware-loader = <&fs_loader0>;
+	};
+
+	fs_loader0: fs-loader {
+		u-boot,dm-pre-reloc;
+		compatible = "u-boot,fs-loader";
+		phandlepart = <&mmc 1>;
+	};
+};
+
+&atsha204a {
+	u-boot,dm-pre-reloc;
+};
+
+&fpga_mgr {
+	u-boot,dm-pre-reloc;
+	altr,bitstream = "fpga.itb";
+};
+
+&i2c1 {
+	u-boot,dm-pre-reloc;
+};
+
+&main_sdmmc_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&mmc {
+	u-boot,dm-pre-reloc;
+};
+
+&peri_sdmmc_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc_free_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+};
