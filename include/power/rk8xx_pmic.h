@@ -214,6 +214,9 @@ enum {
 #define RK817_ON_SOURCE		0xf5
 #define RK817_OFF_SOURCE	0xf6
 
+#define RK8XX_ON_PWRON		BIT(7)
+#define RK8XX_ON_PLUG_IN	BIT(6)
+
 struct reg_data {
 	u8 reg;
 	u8 val;

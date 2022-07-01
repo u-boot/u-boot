@@ -42,6 +42,12 @@ struct rockchip_usb2_phy_dt_id {
 	const void	*data;
 };
 
+static const struct rockchip_usb2_phy_cfg rk3066a_pdata = {
+	.port_reset	= {0x00, 12, 12, 0, 1},
+	.soft_con	= {0x08, 2, 2, 0, 1},
+	.suspend	= {0x08, 8, 3, (0x01 << 3), (0x2A << 3)},
+};
+
 static const struct rockchip_usb2_phy_cfg rk3288_pdata = {
 	.port_reset     = {0x00, 12, 12, 0, 1},
 	.soft_con       = {0x08, 2, 2, 0, 1},
@@ -49,6 +55,8 @@ static const struct rockchip_usb2_phy_cfg rk3288_pdata = {
 };
 
 static struct rockchip_usb2_phy_dt_id rockchip_usb2_phy_dt_ids[] = {
+	{ .compatible = "rockchip,rk3066a-usb-phy", .data = &rk3066a_pdata },
+	{ .compatible = "rockchip,rk3188-usb-phy", .data = &rk3288_pdata },
 	{ .compatible = "rockchip,rk3288-usb-phy", .data = &rk3288_pdata },
 	{}
 };

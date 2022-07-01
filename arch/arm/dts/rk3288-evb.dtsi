@@ -448,7 +448,7 @@
 	status = "okay";
 };
 
-&mipi_dsi0 {
+&mipi_dsi {
 	status = "disabled";
 	rockchip,panel = <&panel>;
 	display-timings {
