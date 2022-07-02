@@ -3,6 +3,8 @@
  * Configuration settings for the Allwinner A64 (sun50i) CPU
  */
 
+#include <asm/arch/cpu.h>
+
 #if defined(CONFIG_RESERVE_ALLWINNER_BOOT0_HEADER) && !defined(CONFIG_SPL_BUILD)
 /* reserve space for BOOT0 header information */
 	b	reset
