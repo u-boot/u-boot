@@ -615,6 +615,18 @@ config SYS_BOARD
 config SYS_SOC
 	default "sunxi"
 
+config SUNXI_MINIMUM_DRAM_MB
+	int "minimum DRAM size"
+	default 32 if MACH_SUNIV
+	default 64 if MACH_SUN8I_V3S
+	default 256
+	---help---
+	Minimum DRAM size expected on the board. Traditionally we assumed
+	256 MB, so that U-Boot would load at 160MB. With co-packaged DRAM
+	we have smaller sizes, though, so that U-Boot's own load address and
+	the default payload addresses must be shifted down.
+	This is expected to be fixed by the SoC selection.
+
 config UART0_PORT_F
 	bool "UART0 on MicroSD breakout board"
 	---help---

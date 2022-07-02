@@ -135,7 +135,21 @@
 #define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(FE00000))
 #define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(FF00000))
 
-#elif defined(CONFIG_MACH_SUN8I_V3S)
+#elif (CONFIG_SUNXI_MINIMUM_DRAM_MB >= 256)
+/*
+ * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
+ * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
+ * 1M script, 1M pxe, 1M dt overlay and the ramdisk at the end.
+ */
+#define BOOTM_SIZE        __stringify(0xa000000)
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(2000000))
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(3000000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(3100000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(3200000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(3300000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(3400000))
+
+#elif (CONFIG_SUNXI_MINIMUM_DRAM_MB >= 64)
 /*
  * 64M RAM minus 2MB heap + 16MB for u-boot, stack, fb, etc.
  * 16M uncompressed kernel, 8M compressed kernel, 1M fdt,
@@ -149,7 +163,7 @@
 #define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(1B00000))
 #define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(1C00000))
 
-#elif defined(CONFIG_MACH_SUNIV)
+#elif (CONFIG_SUNXI_MINIMUM_DRAM_MB >= 32)
 /*
  * 32M RAM minus 1MB heap + 8MB for u-boot, stack, fb, etc.
  * 8M uncompressed kernel, 4M compressed kernel, 512K fdt,
@@ -164,18 +178,7 @@
 #define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(0D60000))
 
 #else
-/*
- * 160M RAM (256M minimum minus 64MB heap + 32MB for u-boot, stack, fb, etc.
- * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
- * 1M script, 1M pxe, 1M dt overlay and the ramdisk at the end.
- */
-#define BOOTM_SIZE        __stringify(0xa000000)
-#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(2000000))
-#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(3000000))
-#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(3100000))
-#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(3200000))
-#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(3300000))
-#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(3400000))
+#error Need at least 32MB of DRAM. Please adjust load addresses.
 #endif
 
 #define MEM_LAYOUT_ENV_SETTINGS \
