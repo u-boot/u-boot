@@ -81,7 +81,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	}
 
 	err = reset_get_bulk(dev, &priv->resets);
-	if (ret && ret != -ENOENT) {
+	if (err && err != -ENOENT) {
 		dev_err(dev, "Failed to get resets (err=%d)\n", err);
 		goto clk_err;
 	}
