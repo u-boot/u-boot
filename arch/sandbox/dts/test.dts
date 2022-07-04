@@ -850,10 +850,19 @@
 		};
 	};
 
-	gpio-wdt {
+	wdt-gpio-toggle {
 		gpios = <&gpio_a 7 0>;
 		compatible = "linux,wdt-gpio";
 		hw_margin_ms = <100>;
+		hw_algo = "toggle";
+		always-running;
+	};
+
+	wdt-gpio-level {
+		gpios = <&gpio_a 7 0>;
+		compatible = "linux,wdt-gpio";
+		hw_margin_ms = <100>;
+		hw_algo = "level";
 		always-running;
 	};
 
