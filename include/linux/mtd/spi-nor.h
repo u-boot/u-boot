@@ -290,6 +290,7 @@ enum spi_nor_option_flags {
 	SNOR_F_USE_CLSR		= BIT(5),
 	SNOR_F_BROKEN_RESET	= BIT(6),
 	SNOR_F_SOFT_RESET	= BIT(7),
+	SNOR_F_IO_MODE_EN_VOLATILE = BIT(8),
 };
 
 struct spi_nor;

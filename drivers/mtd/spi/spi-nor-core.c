@@ -65,6 +65,10 @@ struct sfdp_parameter_header {
 #define SFDP_SECTOR_MAP_ID	0xff81	/* Sector Map Table */
 #define SFDP_SST_ID		0x01bf	/* Manufacturer specific Table */
 #define SFDP_PROFILE1_ID	0xff05	/* xSPI Profile 1.0 Table */
+#define SFDP_SCCR_MAP_ID	0xff87	/*
+					 * Status, Control and Configuration
+					 * Register Map.
+					 */
 
 #define SFDP_SIGNATURE		0x50444653U
 #define SFDP_JESD216_MAJOR	1
@@ -173,6 +177,9 @@ struct sfdp_header {
 #define PROFILE1_DWORD5_DUMMY_133MHZ		GENMASK(21, 17)
 #define PROFILE1_DWORD5_DUMMY_100MHZ		GENMASK(11, 7)
 #define PROFILE1_DUMMY_DEFAULT			20
+
+/* Status, Control and Configuration Register Map(SCCR) */
+#define SCCR_DWORD22_OCTAL_DTR_EN_VOLATILE      BIT(31)
 
 struct sfdp_bfpt {
 	u32	dwords[BFPT_DWORD_MAX];
@@ -2457,6 +2464,44 @@ out:
 }
 
 /**
+ * spi_nor_parse_sccr() - Parse the Status, Control and Configuration Register
+ *			  Map.
+ * @nor:		  pointer to a 'struct spi_nor'
+ * @sccr_header:	  pointer to the 'struct sfdp_parameter_header' describing
+ * 			  the SCCR Map table length and version.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int spi_nor_parse_sccr(struct spi_nor *nor,
+			      const struct sfdp_parameter_header *sccr_header)
+{
+	u32 *table, addr;
+	size_t len;
+	int ret, i;
+
+	len = sccr_header->length * sizeof(*table);
+	table = kmalloc(len, GFP_KERNEL);
+	if (!table)
+		return -ENOMEM;
+
+	addr = SFDP_PARAM_HEADER_PTP(sccr_header);
+	ret = spi_nor_read_sfdp(nor, addr, len, table);
+	if (ret)
+		goto out;
+
+	/* Fix endianness of the table DWORDs. */
+	for (i = 0; i < sccr_header->length; i++)
+		table[i] = le32_to_cpu(table[i]);
+
+	if (FIELD_GET(SCCR_DWORD22_OCTAL_DTR_EN_VOLATILE, table[22]))
+		nor->flags |= SNOR_F_IO_MODE_EN_VOLATILE;
+
+out:
+	kfree(table);
+	return ret;
+}
+
+/**
  * spi_nor_parse_sfdp() - parse the Serial Flash Discoverable Parameters.
  * @nor:		pointer to a 'struct spi_nor'
  * @params:		pointer to the 'struct spi_nor_flash_parameter' to be
@@ -2560,6 +2605,10 @@ static int spi_nor_parse_sfdp(struct spi_nor *nor,
 
 		case SFDP_PROFILE1_ID:
 			err = spi_nor_parse_profile1(nor, param_header, params);
+			break;
+
+		case SFDP_SCCR_MAP_ID:
+			err = spi_nor_parse_sccr(nor, param_header);
 			break;
 
 		default:
@@ -3618,6 +3667,9 @@ static int spi_nor_octal_dtr_enable(struct spi_nor *nor)
 
 	if (!(nor->read_proto == SNOR_PROTO_8_8_8_DTR &&
 	      nor->write_proto == SNOR_PROTO_8_8_8_DTR))
+		return 0;
+
+	if (!(nor->flags & SNOR_F_IO_MODE_EN_VOLATILE))
 		return 0;
 
 	ret = nor->octal_dtr_enable(nor);
