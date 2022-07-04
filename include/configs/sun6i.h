@@ -4,15 +4,12 @@
  * (C) Copyright 2013 Luke Kenneth Casson Leighton <lkcl@lkcl.net>
  * (C) Copyright 2013 Maxime Ripard <maxime.ripard@free-electrons.com>
  *
- * Configuration settings for the Allwinner A31 (sun6i) CPU
+ * Placeholder wrapper to allow addressing Allwinner A31 (sun6i) CPU
+ * based devices separately. Please do not add anything in here.
  */
-
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * Include common sunxi configuration where most the settings are
- */
 #include <configs/sunxi-common.h>
 
 #endif /* __CONFIG_H */
