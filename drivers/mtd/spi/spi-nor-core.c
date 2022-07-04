@@ -3526,6 +3526,84 @@ static struct spi_nor_fixups mt35xu512aba_fixups = {
 };
 #endif /* CONFIG_SPI_FLASH_MT35XU */
 
+#if CONFIG_IS_ENABLED(SPI_FLASH_MACRONIX)
+/**
+ * spi_nor_macronix_octal_dtr_enable() - Enable octal DTR on Macronix flashes.
+ * @nor:	pointer to a 'struct spi_nor'
+ *
+ * Set Macronix max dummy cycles 20 to allow the flash to run at fastest frequency.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int spi_nor_macronix_octal_dtr_enable(struct spi_nor *nor)
+{
+	struct spi_mem_op op;
+	int ret;
+	u8 buf;
+
+	ret = write_enable(nor);
+	if (ret)
+		return ret;
+
+	buf = SPINOR_REG_MXIC_DC_20;
+	op = (struct spi_mem_op)
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_CR2, 1),
+			   SPI_MEM_OP_ADDR(4, SPINOR_REG_MXIC_CR2_DC, 1),
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_DATA_OUT(1, &buf, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	ret = spi_nor_wait_till_ready(nor);
+	if (ret)
+		return ret;
+
+	nor->read_dummy = MXIC_MAX_DC;
+	ret = write_enable(nor);
+	if (ret)
+		return ret;
+
+	buf = SPINOR_REG_MXIC_OPI_DTR_EN;
+	op = (struct spi_mem_op)
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_CR2, 1),
+			   SPI_MEM_OP_ADDR(4, SPINOR_REG_MXIC_CR2_MODE, 1),
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_DATA_OUT(1, &buf, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret) {
+		dev_err(nor->dev, "Failed to enable octal DTR mode\n");
+		return ret;
+	}
+	nor->reg_proto = SNOR_PROTO_8_8_8_DTR;
+
+	return 0;
+}
+
+static void macronix_octal_default_init(struct spi_nor *nor)
+{
+	nor->octal_dtr_enable = spi_nor_macronix_octal_dtr_enable;
+}
+
+static void macronix_octal_post_sfdp_fixup(struct spi_nor *nor,
+					 struct spi_nor_flash_parameter *params)
+{
+	/*
+	 * Adding SNOR_HWCAPS_PP_8_8_8_DTR in hwcaps.mask when
+	 * SPI_NOR_OCTAL_DTR_READ flag exists.
+	 */
+	if (params->hwcaps.mask & SNOR_HWCAPS_READ_8_8_8_DTR)
+		params->hwcaps.mask |= SNOR_HWCAPS_PP_8_8_8_DTR;
+}
+
+static struct spi_nor_fixups macronix_octal_fixups = {
+	.default_init = macronix_octal_default_init,
+	.post_sfdp = macronix_octal_post_sfdp_fixup,
+};
+#endif /* CONFIG_SPI_FLASH_MACRONIX */
+
 /** spi_nor_octal_dtr_enable() - enable Octal DTR I/O if needed
  * @nor:                 pointer to a 'struct spi_nor'
  *
@@ -3696,6 +3774,10 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 	if (!strcmp(nor->info->name, "mt35xu512aba"))
 		nor->fixups = &mt35xu512aba_fixups;
 #endif
+
+#if CONFIG_IS_ENABLED(SPI_FLASH_MACRONIX)
+	nor->fixups = &macronix_octal_fixups;
+#endif /* SPI_FLASH_MACRONIX */
 }
 
 int spi_nor_scan(struct spi_nor *nor)
