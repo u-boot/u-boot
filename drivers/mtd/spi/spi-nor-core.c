@@ -3697,7 +3697,12 @@ static int spi_nor_soft_reset(struct spi_nor *nor)
 	enum spi_nor_cmd_ext ext;
 
 	ext = nor->cmd_ext_type;
-	nor->cmd_ext_type = SPI_NOR_EXT_REPEAT;
+	if (nor->cmd_ext_type == SPI_NOR_EXT_NONE) {
+		nor->cmd_ext_type = SPI_NOR_EXT_REPEAT;
+#if CONFIG_IS_ENABLED(SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT)
+		nor->cmd_ext_type = SPI_NOR_EXT_INVERT;
+#endif /* SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT */
+	}
 
 	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_SRSTEN, 0),
 			SPI_MEM_OP_NO_DUMMY,
