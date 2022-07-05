@@ -82,4 +82,13 @@ config PKCS7_MESSAGE_PARSER
 config PKCS7_VERIFY
 	bool
 
+config MSCODE_PARSER
+	bool "MS authenticode parser"
+	select ASN1_DECODER
+	select ASN1_COMPILER
+	select OID_REGISTRY
+	help
+	  This option provides support for parsing MicroSoft's Authenticode
+	  in pkcs7 message.
+
 endif # ASYMMETRIC_KEY_TYPE
