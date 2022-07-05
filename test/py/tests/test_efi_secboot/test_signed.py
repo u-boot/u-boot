@@ -334,3 +334,38 @@ class TestEfiSignedImage(object):
                 'efidebug test bootmgr'])
             assert '\'HELLO\' failed' in ''.join(output)
             assert 'efi_start_image() returned: 26' in ''.join(output)
+
+    def test_efi_signed_image_auth8(self, u_boot_console, efi_boot_env):
+        """
+        Test Case 8 - Secure boot is in force,
+                      Same as Test Case 2 but the image binary to be loaded
+                      was willfully modified (forged)
+                      Must be rejected.
+        """
+        u_boot_console.restart_uboot()
+        disk_img = efi_boot_env
+        with u_boot_console.log.section('Test Case 8a'):
+            # Test Case 8a, Secure boot is not yet forced
+            output = u_boot_console.run_command_list([
+                'host bind 0 %s' % disk_img,
+                'efidebug boot add -b 1 HELLO1 host 0:1 /helloworld_forged.efi.signed -s ""',
+                'efidebug boot next 1',
+                'efidebug test bootmgr'])
+            assert('hELLO, world!' in ''.join(output))
+
+        with u_boot_console.log.section('Test Case 8b'):
+            # Test Case 8b, Install signature database and verify the image
+            output = u_boot_console.run_command_list([
+                'fatload host 0:1 4000000 db.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize db',
+                'fatload host 0:1 4000000 KEK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize KEK',
+                'fatload host 0:1 4000000 PK.auth',
+                'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK'])
+            assert 'Failed to set EFI variable' not in ''.join(output)
+            output = u_boot_console.run_command_list([
+                'efidebug boot next 1',
+                'efidebug test bootmgr'])
+            assert(not 'hELLO, world!' in ''.join(output))
+            assert('\'HELLO1\' failed' in ''.join(output))
+            assert('efi_start_image() returned: 26' in ''.join(output))
