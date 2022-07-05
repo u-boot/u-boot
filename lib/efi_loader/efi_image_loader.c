@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <pe.h>
 #include <sort.h>
+#include <crypto/mscode.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
 
@@ -517,6 +518,51 @@ err:
 
 #ifdef CONFIG_EFI_SECURE_BOOT
 /**
+ * efi_image_verify_digest - verify image's message digest
+ * @regs:	Array of memory regions to digest
+ * @msg:	Signature in pkcs7 structure
+ *
+ * @regs contains all the data in a PE image to digest. Calculate
+ * a hash value based on @regs and compare it with a messaged digest
+ * in the content (SpcPeImageData) of @msg's contentInfo.
+ *
+ * Return:	true if verified, false if not
+ */
+static bool efi_image_verify_digest(struct efi_image_regions *regs,
+				    struct pkcs7_message *msg)
+{
+	struct pefile_context ctx;
+	void *hash;
+	int hash_len, ret;
+
+	const void *data;
+	size_t data_len;
+	size_t asn1hdrlen;
+
+	/* get pkcs7's contentInfo */
+	ret = pkcs7_get_content_data(msg, &data, &data_len, &asn1hdrlen);
+	if (ret < 0 || !data)
+		return false;
+
+	/* parse data and retrieve a message digest into ctx */
+	ret = mscode_parse(&ctx, data, data_len, asn1hdrlen);
+	if (ret < 0)
+		return false;
+
+	/* calculate a hash value of PE image */
+	hash = NULL;
+	if (!efi_hash_regions(regs->reg, regs->num, &hash, ctx.digest_algo,
+			      &hash_len))
+		return false;
+
+	/* match the digest */
+	if (ctx.digest_len != hash_len || memcmp(ctx.digest, hash, hash_len))
+		return false;
+
+	return true;
+}
+
+/**
  * efi_image_authenticate() - verify a signature of signed image
  * @efi:	Pointer to image
  * @efi_size:	Size of @efi
@@ -645,6 +691,9 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		}
 
 		/*
+		 * verify signatures in pkcs7's signedInfos which are
+		 * to authenticate the integrity of pkcs7's contentInfo.
+		 *
 		 * NOTE:
 		 * UEFI specification defines two signature types possible
 		 * in signature database:
@@ -677,12 +726,21 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		}
 
 		/* try white-list */
-		if (efi_signature_verify(regs, msg, db, dbx)) {
+		if (!efi_signature_verify(regs, msg, db, dbx)) {
+			log_debug("Signature was not verified by \"db\"\n");
+			continue;
+		}
+
+		/*
+		 * now calculate an image's hash value and compare it with
+		 * a messaged digest embedded in pkcs7's contentInfo
+		 */
+		if (efi_image_verify_digest(regs, msg)) {
 			ret = true;
 			continue;
 		}
 
-		log_debug("Signature was not verified by \"db\"\n");
+		log_debug("Message digest doesn't match\n");
 	}
 
 
