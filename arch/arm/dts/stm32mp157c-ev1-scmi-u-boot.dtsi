@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause
+/*
+ * Copyright : STMicroelectronics 2022
+ */
+
+#include "stm32mp157c-ed1-scmi-u-boot.dtsi"
+
+/ {
+	aliases {
+		gpio26 = &stmfx_pinctrl;
+		i2c1 = &i2c2;
+		i2c4 = &i2c5;
+		pinctrl2 = &stmfx_pinctrl;
+		spi0 = &qspi;
+		usb0 = &usbotg_hs;
+	};
+};
