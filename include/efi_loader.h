@@ -931,6 +931,8 @@ struct efi_signature_store {
 struct x509_certificate;
 struct pkcs7_message;
 
+bool efi_hash_regions(struct image_region *regs, int count,
+		      void **hash, const char *hash_algo, int *len);
 bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 				 struct efi_signature_store *db,
 				 bool dbx);
