@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <pe.h>
 #include <sort.h>
+#include <crypto/mscode.h>
 #include <crypto/pkcs7_parser.h>
 #include <linux/err.h>
 
@@ -238,7 +239,7 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 	int i, j;
 
 	if (regs->num >= regs->max) {
-		EFI_PRINT("%s: no more room for regions\n", __func__);
+		log_err("%s: no more room for regions\n", __func__);
 		return EFI_OUT_OF_RESOURCES;
 	}
 
@@ -263,7 +264,7 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
 		}
 
 		/* new data overlapping registered region */
-		EFI_PRINT("%s: new region already part of another\n", __func__);
+		log_err("%s: new region already part of another\n", __func__);
 		return EFI_INVALID_PARAMETER;
 	}
 
@@ -434,8 +435,8 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		bytes_hashed = opt->SizeOfHeaders;
 		align = opt->FileAlignment;
 	} else {
-		EFI_PRINT("%s: Invalid optional header magic %x\n", __func__,
-			  nt->OptionalHeader.Magic);
+		log_err("%s: Invalid optional header magic %x\n", __func__,
+			nt->OptionalHeader.Magic);
 		goto err;
 	}
 
@@ -445,7 +446,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 			    nt->FileHeader.SizeOfOptionalHeader);
 	sorted = calloc(sizeof(IMAGE_SECTION_HEADER *), num_sections);
 	if (!sorted) {
-		EFI_PRINT("%s: Out of memory\n", __func__);
+		log_err("%s: Out of memory\n", __func__);
 		goto err;
 	}
 
@@ -464,7 +465,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 		efi_image_region_add(regs, efi + sorted[i]->PointerToRawData,
 				     efi + sorted[i]->PointerToRawData + size,
 				     0);
-		EFI_PRINT("section[%d](%s): raw: 0x%x-0x%x, virt: %x-%x\n",
+		log_debug("section[%d](%s): raw: 0x%x-0x%x, virt: %x-%x\n",
 			  i, sorted[i]->Name,
 			  sorted[i]->PointerToRawData,
 			  sorted[i]->PointerToRawData + size,
@@ -478,7 +479,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 
 	/* 3. Extra data excluding Certificates Table */
 	if (bytes_hashed + authsz < len) {
-		EFI_PRINT("extra data for hash: %zu\n",
+		log_debug("extra data for hash: %zu\n",
 			  len - (bytes_hashed + authsz));
 		efi_image_region_add(regs, efi + bytes_hashed,
 				     efi + len - authsz, 0);
@@ -487,18 +488,18 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
 	/* Return Certificates Table */
 	if (authsz) {
 		if (len < authoff + authsz) {
-			EFI_PRINT("%s: Size for auth too large: %u >= %zu\n",
-				  __func__, authsz, len - authoff);
+			log_err("%s: Size for auth too large: %u >= %zu\n",
+				__func__, authsz, len - authoff);
 			goto err;
 		}
 		if (authsz < sizeof(*auth)) {
-			EFI_PRINT("%s: Size for auth too small: %u < %zu\n",
-				  __func__, authsz, sizeof(*auth));
+			log_err("%s: Size for auth too small: %u < %zu\n",
+				__func__, authsz, sizeof(*auth));
 			goto err;
 		}
 		*auth = efi + authoff;
 		*auth_len = authsz;
-		EFI_PRINT("WIN_CERTIFICATE: 0x%x, size: 0x%x\n", authoff,
+		log_debug("WIN_CERTIFICATE: 0x%x, size: 0x%x\n", authoff,
 			  authsz);
 	} else {
 		*auth = NULL;
@@ -516,6 +517,51 @@ err:
 }
 
 #ifdef CONFIG_EFI_SECURE_BOOT
+/**
+ * efi_image_verify_digest - verify image's message digest
+ * @regs:	Array of memory regions to digest
+ * @msg:	Signature in pkcs7 structure
+ *
+ * @regs contains all the data in a PE image to digest. Calculate
+ * a hash value based on @regs and compare it with a messaged digest
+ * in the content (SpcPeImageData) of @msg's contentInfo.
+ *
+ * Return:	true if verified, false if not
+ */
+static bool efi_image_verify_digest(struct efi_image_regions *regs,
+				    struct pkcs7_message *msg)
+{
+	struct pefile_context ctx;
+	void *hash;
+	int hash_len, ret;
+
+	const void *data;
+	size_t data_len;
+	size_t asn1hdrlen;
+
+	/* get pkcs7's contentInfo */
+	ret = pkcs7_get_content_data(msg, &data, &data_len, &asn1hdrlen);
+	if (ret < 0 || !data)
+		return false;
+
+	/* parse data and retrieve a message digest into ctx */
+	ret = mscode_parse(&ctx, data, data_len, asn1hdrlen);
+	if (ret < 0)
+		return false;
+
+	/* calculate a hash value of PE image */
+	hash = NULL;
+	if (!efi_hash_regions(regs->reg, regs->num, &hash, ctx.digest_algo,
+			      &hash_len))
+		return false;
+
+	/* match the digest */
+	if (ctx.digest_len != hash_len || memcmp(ctx.digest, hash, hash_len))
+		return false;
+
+	return true;
+}
+
 /**
  * efi_image_authenticate() - verify a signature of signed image
  * @efi:	Pointer to image
@@ -549,7 +595,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	size_t auth_size;
 	bool ret = false;
 
-	EFI_PRINT("%s: Enter, %d\n", __func__, ret);
+	log_debug("%s: Enter, %d\n", __func__, ret);
 
 	if (!efi_secure_boot_enabled())
 		return true;
@@ -560,7 +606,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 
 	if (!efi_image_parse(new_efi, efi_size, &regs, &wincerts,
 			     &wincerts_len)) {
-		EFI_PRINT("Parsing PE executable image failed\n");
+		log_err("Parsing PE executable image failed\n");
 		goto out;
 	}
 
@@ -569,18 +615,18 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	 */
 	db = efi_sigstore_parse_sigdb(u"db");
 	if (!db) {
-		EFI_PRINT("Getting signature database(db) failed\n");
+		log_err("Getting signature database(db) failed\n");
 		goto out;
 	}
 
 	dbx = efi_sigstore_parse_sigdb(u"dbx");
 	if (!dbx) {
-		EFI_PRINT("Getting signature database(dbx) failed\n");
+		log_err("Getting signature database(dbx) failed\n");
 		goto out;
 	}
 
 	if (efi_signature_lookup_digest(regs, dbx, true)) {
-		EFI_PRINT("Image's digest was found in \"dbx\"\n");
+		log_debug("Image's digest was found in \"dbx\"\n");
 		goto out;
 	}
 
@@ -602,12 +648,12 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 			break;
 
 		if (wincert->dwLength <= sizeof(*wincert)) {
-			EFI_PRINT("dwLength too small: %u < %zu\n",
+			log_debug("dwLength too small: %u < %zu\n",
 				  wincert->dwLength, sizeof(*wincert));
 			continue;
 		}
 
-		EFI_PRINT("WIN_CERTIFICATE_TYPE: 0x%x\n",
+		log_debug("WIN_CERTIFICATE_TYPE: 0x%x\n",
 			  wincert->wCertificateType);
 
 		auth = (u8 *)wincert + sizeof(*wincert);
@@ -617,12 +663,12 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 				break;
 
 			if (auth_size <= sizeof(efi_guid_t)) {
-				EFI_PRINT("dwLength too small: %u < %zu\n",
+				log_debug("dwLength too small: %u < %zu\n",
 					  wincert->dwLength, sizeof(*wincert));
 				continue;
 			}
 			if (guidcmp(auth, &efi_guid_cert_type_pkcs7)) {
-				EFI_PRINT("Certificate type not supported: %pUs\n",
+				log_debug("Certificate type not supported: %pUs\n",
 					  auth);
 				ret = false;
 				goto out;
@@ -632,19 +678,22 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 			auth_size -= sizeof(efi_guid_t);
 		} else if (wincert->wCertificateType
 				!= WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
-			EFI_PRINT("Certificate type not supported\n");
+			log_debug("Certificate type not supported\n");
 			ret = false;
 			goto out;
 		}
 
 		msg = pkcs7_parse_message(auth, auth_size);
 		if (IS_ERR(msg)) {
-			EFI_PRINT("Parsing image's signature failed\n");
+			log_err("Parsing image's signature failed\n");
 			msg = NULL;
 			continue;
 		}
 
 		/*
+		 * verify signatures in pkcs7's signedInfos which are
+		 * to authenticate the integrity of pkcs7's contentInfo.
+		 *
 		 * NOTE:
 		 * UEFI specification defines two signature types possible
 		 * in signature database:
@@ -666,23 +715,32 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		/* try black-list first */
 		if (efi_signature_verify_one(regs, msg, dbx)) {
 			ret = false;
-			EFI_PRINT("Signature was rejected by \"dbx\"\n");
+			log_debug("Signature was rejected by \"dbx\"\n");
 			goto out;
 		}
 
 		if (!efi_signature_check_signers(msg, dbx)) {
 			ret = false;
-			EFI_PRINT("Signer(s) in \"dbx\"\n");
+			log_debug("Signer(s) in \"dbx\"\n");
 			goto out;
 		}
 
 		/* try white-list */
-		if (efi_signature_verify(regs, msg, db, dbx)) {
+		if (!efi_signature_verify(regs, msg, db, dbx)) {
+			log_debug("Signature was not verified by \"db\"\n");
+			continue;
+		}
+
+		/*
+		 * now calculate an image's hash value and compare it with
+		 * a messaged digest embedded in pkcs7's contentInfo
+		 */
+		if (efi_image_verify_digest(regs, msg)) {
 			ret = true;
 			continue;
 		}
 
-		EFI_PRINT("Signature was not verified by \"db\"\n");
+		log_debug("Message digest doesn't match\n");
 	}
 
 
@@ -698,7 +756,7 @@ out:
 	if (new_efi != efi)
 		free(new_efi);
 
-	EFI_PRINT("%s: Exit, %d\n", __func__, ret);
+	log_debug("%s: Exit, %d\n", __func__, ret);
 	return ret;
 }
 #else

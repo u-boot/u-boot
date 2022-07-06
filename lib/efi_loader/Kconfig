@@ -366,6 +366,7 @@ config EFI_SECURE_BOOT
 	select X509_CERTIFICATE_PARSER
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
+	select MSCODE_PARSER
 	select EFI_SIGNATURE_SUPPORT
 	help
 	  Select this option to enable EFI secure boot support.

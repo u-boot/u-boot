@@ -125,8 +125,8 @@ struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
  *
  * Return:	true on success, false on error
  */
-static bool efi_hash_regions(struct image_region *regs, int count,
-			     void **hash, const char *hash_algo, int *len)
+bool efi_hash_regions(struct image_region *regs, int count,
+		      void **hash, const char *hash_algo, int *len)
 {
 	int ret, hash_len;
 
