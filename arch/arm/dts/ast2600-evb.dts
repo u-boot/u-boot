@@ -15,9 +15,9 @@
 	};
 
 	aliases {
-		mmc0 = &emmc_slot0;
-		mmc1 = &sdhci_slot0;
-		mmc2 = &sdhci_slot1;
+		mmc0 = &emmc;
+		mmc1 = &sdhci0;
+		mmc2 = &sdhci1;
 		spi0 = &fmc;
 		spi1 = &spi1;
 		spi2 = &spi2;
@@ -134,53 +134,52 @@
 	};
 };
 
-&emmc {
-	u-boot,dm-pre-reloc;
-	timing-phase = <0x700ff>;
+
+&emmc_controller {
+        status = "okay";
 };
 
-&emmc_slot0 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-	bus-width = <4>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_emmc_default>;
-	sdhci-drive-type = <1>;
+&emmc {
+        non-removable;
+        bus-width = <4>;
+        max-frequency = <100000000>;
+        clk-phase-mmc-hs200 = <9>, <225>;
 };
 
 &i2c4 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c5_default>;
 };
 
 &i2c5 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c6_default>;
 };
 
 &i2c6 {
 	status = "okay";
-
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c7_default>;
 };
 
 &i2c7 {
 	status = "okay";
 
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c8_default>;
+	temp@2e {
+		compatible = "adi,adt7490";
+		reg = <0x2e>;
+	};
+
+	eeprom@50 {
+		compatible = "atmel,24c08";
+		reg = <0x50>;
+		pagesize = <16>;
+	};
 };
 
 &i2c8 {
 	status = "okay";
 
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c9_default>;
+	lm75@4d {
+		compatible = "national,lm75";
+		reg = <0x4d>;
+	};
 };
 
 &mdio0 {

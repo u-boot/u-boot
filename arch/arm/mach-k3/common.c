@@ -516,7 +516,7 @@ void spl_enable_dcache(void)
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	phys_addr_t ram_top = CONFIG_SYS_SDRAM_BASE;
 
-	dram_init_banksize();
+	dram_init();
 
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;

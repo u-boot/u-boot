@@ -20,15 +20,17 @@
 #include <asm/setup.h>
 #include "tdx-common.h"
 
-#define TORADEX_OUI 0x00142dUL
+#define SERIAL_STR_LEN 8
+#define MODULE_VER_STR_LEN 4 // V1.1
+#define MODULE_REV_STR_LEN 3 // [A-Z] or #[26-99]
 
 #ifdef CONFIG_TDX_CFG_BLOCK
-static char tdx_serial_str[9];
-static char tdx_board_rev_str[6];
+static char tdx_serial_str[SERIAL_STR_LEN + 1];
+static char tdx_board_rev_str[MODULE_VER_STR_LEN + MODULE_REV_STR_LEN + 1];
 
 #ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
-static char tdx_car_serial_str[9];
-static char tdx_car_rev_str[6];
+static char tdx_car_serial_str[SERIAL_STR_LEN + 1];
+static char tdx_car_rev_str[MODULE_VER_STR_LEN + MODULE_REV_STR_LEN + 1];
 static char *tdx_carrier_board_name;
 #endif
 
@@ -79,21 +81,37 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif /* CONFIG_SERIAL_TAG */
 
+static const char *get_board_assembly(u16 ver_assembly)
+{
+	static char ver_name[MODULE_REV_STR_LEN + 1];
+
+	if (ver_assembly < 26) {
+		ver_name[0] = (char)ver_assembly + 'A';
+		ver_name[1] = '\0';
+	} else {
+		snprintf(ver_name, sizeof(ver_name),
+			 "#%u", ver_assembly);
+	}
+
+	return ver_name;
+}
+
 int show_board_info(void)
 {
 	unsigned char ethaddr[6];
 
 	if (read_tdx_cfg_block()) {
 		printf("MISSING TORADEX CONFIG BLOCK\n");
-		tdx_eth_addr.oui = htonl(TORADEX_OUI << 8);
-		tdx_eth_addr.nic = htonl(tdx_serial << 8);
+		get_mac_from_serial(tdx_serial, &tdx_eth_addr);
 		checkboard();
 	} else {
-		sprintf(tdx_serial_str, "%08u", tdx_serial);
-		sprintf(tdx_board_rev_str, "V%1d.%1d%c",
-			tdx_hw_tag.ver_major,
-			tdx_hw_tag.ver_minor,
-			(char)tdx_hw_tag.ver_assembly + 'A');
+		snprintf(tdx_serial_str, sizeof(tdx_serial_str),
+			 "%08u", tdx_serial);
+		snprintf(tdx_board_rev_str, sizeof(tdx_board_rev_str),
+			 "V%1d.%1d%s",
+			 tdx_hw_tag.ver_major,
+			 tdx_hw_tag.ver_minor,
+			 get_board_assembly(tdx_hw_tag.ver_assembly));
 
 		env_set("serial#", tdx_serial_str);
 
@@ -109,12 +127,13 @@ int show_board_info(void)
 			tdx_carrier_board_name = (char *)
 				toradex_carrier_boards[tdx_car_hw_tag.prodid];
 
-			sprintf(tdx_car_serial_str, "%08u", tdx_car_serial);
-			sprintf(tdx_car_rev_str, "V%1d.%1d%c",
-				tdx_car_hw_tag.ver_major,
-				tdx_car_hw_tag.ver_minor,
-				(char)tdx_car_hw_tag.ver_assembly +
-				'A');
+			snprintf(tdx_car_serial_str, sizeof(tdx_car_serial_str),
+				 "%08u", tdx_car_serial);
+			snprintf(tdx_car_rev_str, sizeof(tdx_car_rev_str),
+				 "V%1d.%1d%s",
+				 tdx_car_hw_tag.ver_major,
+				 tdx_car_hw_tag.ver_minor,
+				 get_board_assembly(tdx_car_hw_tag.ver_assembly));
 
 			env_set("carrier_serial#", tdx_car_serial_str);
 			printf("Carrier: Toradex %s %s, Serial# %s\n",
@@ -170,7 +189,7 @@ int ft_common_board_setup(void *blob, struct bd_info *bd)
 	if (tdx_hw_tag.ver_major) {
 		char prod_id[5];
 
-		sprintf(prod_id, "%04u", tdx_hw_tag.prodid);
+		snprintf(prod_id, sizeof(prod_id), "%04u", tdx_hw_tag.prodid);
 		fdt_setprop(blob, 0, "toradex,product-id", prod_id, 5);
 
 		fdt_setprop(blob, 0, "toradex,board-rev", tdx_board_rev_str,

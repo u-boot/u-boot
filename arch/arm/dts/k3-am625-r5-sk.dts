@@ -28,6 +28,7 @@
 		/* 2G RAM */
 		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
 
+		u-boot,dm-spl;
 	};
 
 	reserved-memory {

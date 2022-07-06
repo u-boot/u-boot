@@ -382,19 +382,25 @@ void configure_serdes_torrent(void)
 	ret = uclass_get_device_by_driver(UCLASS_PHY,
 					  DM_DRIVER_GET(torrent_phy_provider),
 					  &dev);
-	if (ret)
+	if (ret) {
 		printf("Torrent init failed:%d\n", ret);
+		return;
+	}
 
 	serdes.dev = dev;
 	serdes.id = 0;
 
 	ret = generic_phy_init(&serdes);
-	if (ret)
-		printf("phy_init failed!!\n");
+	if (ret) {
+		printf("phy_init failed!!: %d\n", ret);
+		return;
+	}
 
 	ret = generic_phy_power_on(&serdes);
-	if (ret)
-		printf("phy_power_on failed !!\n");
+	if (ret) {
+		printf("phy_power_on failed!!: %d\n", ret);
+		return;
+	}
 }
 
 void configure_serdes_sierra(void)
@@ -410,21 +416,27 @@ void configure_serdes_sierra(void)
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(sierra_phy_provider),
 					  &dev);
-	if (ret)
+	if (ret) {
 		printf("Sierra init failed:%d\n", ret);
+		return;
+	}
 
 	count = device_get_child_count(dev);
 	for (i = 0; i < count; i++) {
 		ret = device_get_child(dev, i, &link_dev);
-		if (ret)
-			printf("probe of sierra child node %d failed\n", i);
+		if (ret) {
+			printf("probe of sierra child node %d failed: %d\n", i, ret);
+			return;
+		}
 		if (link_dev->driver->id == UCLASS_PHY) {
 			link.dev = link_dev;
 			link.id = link_count++;
 
 			ret = generic_phy_power_on(&link);
-			if (ret)
-				printf("phy_power_on failed !!\n");
+			if (ret) {
+				printf("phy_power_on failed!!: %d\n", ret);
+				return;
+			}
 		}
 	}
 }

@@ -355,6 +355,17 @@ static u32 __get_primary_bootmedia(u32 main_devstat, u32 wkup_devstat)
 	return bootmode;
 }
 
+u32 spl_spi_boot_bus(void)
+{
+	u32 wkup_devstat = readl(CTRLMMR_WKUP_DEVSTAT);
+	u32 main_devstat = readl(CTRLMMR_MAIN_DEVSTAT);
+	u32 bootmode = ((wkup_devstat & WKUP_DEVSTAT_PRIMARY_BOOTMODE_MASK) >>
+			WKUP_DEVSTAT_PRIMARY_BOOTMODE_SHIFT) |
+			((main_devstat & MAIN_DEVSTAT_BOOT_MODE_B_MASK) << BOOT_MODE_B_SHIFT);
+
+	return (bootmode == BOOT_DEVICE_QSPI) ? 1 : 0;
+}
+
 u32 spl_boot_device(void)
 {
 	u32 wkup_devstat = readl(CTRLMMR_WKUP_DEVSTAT);
