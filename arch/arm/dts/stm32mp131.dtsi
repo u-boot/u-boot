@@ -27,6 +27,13 @@
 		interrupt-parent = <&intc>;
 	};
 
+	firmware {
+		optee: optee {
+			method = "smc";
+			compatible = "linaro,optee-tz";
+		};
+	};
+
 	clocks {
 		clk_axi: clk-axi {
 			#clock-cells = <0>;

@@ -82,6 +82,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&optee {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };
