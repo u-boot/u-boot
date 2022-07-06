@@ -164,6 +164,16 @@ config SILENT_CONSOLE_UPDATE_ON_RELOC
 	  (e.g. NAND). This option makes the value of the 'silent'
 	  environment variable take effect at relocation.
 
+config SILENT_CONSOLE_UNTIL_ENV
+	bool "Keep console silent until environment is loaded"
+	depends on SILENT_CONSOLE
+	help
+	  This option makes sure U-Boot will never use the console unless the
+	  environment from flash does not contain the 'silent' variable.  If
+	  set, the console is kept silent until after the environment was
+	  loaded.  Use this in combination with PRE_CONSOLE_BUFFER to print out
+	  earlier messages after loading the environment when allowed.
+
 config PRE_CONSOLE_BUFFER
 	bool "Buffer characters before the console is available"
 	help
