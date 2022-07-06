@@ -81,6 +81,7 @@ Boot Documentation
    :maxdepth: 1
 
    pre-generated-fip
+   boot-flow
 
 Board Documentation
 -------------------
