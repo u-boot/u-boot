@@ -25,9 +25,4 @@
  */
 #define	CONFIG_SYS_PLL_SETTLING_TIME	100/* in us */
 
-/*
- * SuperH PCI Bridge Configration
- */
-#define CONFIG_SH7751_PCI
-
 #endif /* __CONFIG_H */

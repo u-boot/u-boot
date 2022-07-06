@@ -121,6 +121,18 @@ endchoice
 config SYS_SOC
 	default "kirkwood"
 
+config KIRKWOOD_RGMII_PAD_1V8
+	bool "Configures the I/O voltage of the pads connected gigabit interface to 1.8V"
+	default y
+
+config KIRKWOOD_EGIGA_INIT
+	bool "Enable GbePort0/1 for kernel"
+	default y
+
+config KIRKWOOD_PCIE_INIT
+	bool "Enable PCIe Port0 for kernel"
+	default y
+
 source "board/Marvell/openrd/Kconfig"
 source "board/Marvell/dreamplug/Kconfig"
 source "board/Synology/ds109/Kconfig"

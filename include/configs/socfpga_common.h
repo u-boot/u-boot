@@ -52,13 +52,6 @@
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
 
 /*
- * Ethernet on SoC (EMAC)
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_DW_ALTDESCRIPTOR
-#endif
-
-/*
  * L4 OSC1 Timer 0
  */
 #ifndef CONFIG_TIMER
@@ -73,7 +66,6 @@
 /*
  * L4 Watchdog
  */
-#define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #define CONFIG_DW_WDT_CLOCK_KHZ		25000
 
 /*

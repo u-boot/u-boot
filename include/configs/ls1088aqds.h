@@ -16,7 +16,6 @@
 
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #define SPD_EEPROM_ADDRESS		0x51
-#define CONFIG_SYS_SPD_BUS_NUM		0
 
 
 /*
@@ -305,10 +304,6 @@
 #endif
 
 #define CONFIG_FSL_MEMAC
-
-/*  MMC  */
-#define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
-	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
 
 #define COMMON_ENV \
 	"kernelheader_addr_r=0x80200000\0"	\

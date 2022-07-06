@@ -23,11 +23,6 @@
 #endif
 
 #define SPD_EEPROM_ADDRESS		0x51
-#define CONFIG_SYS_SPD_BUS_NUM		0
-
-#ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_DDR_RAW_TIMING
-#endif
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
@@ -306,16 +301,7 @@
 
 #endif
 
-/* PCIe */
-#define CONFIG_PCIE1		/* PCIE controller 1 */
-#define CONFIG_PCIE2		/* PCIE controller 2 */
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
-#define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 
 #define CONFIG_HWCONFIG

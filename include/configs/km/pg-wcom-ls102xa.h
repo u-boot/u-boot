@@ -22,7 +22,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS		0x54
 
 /* POST memory regions test */
@@ -174,7 +173,6 @@
 					{1, {I2C_NULL_HOP}                 }, \
 				}
 
-#define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 
 #define CONFIG_HWCONFIG

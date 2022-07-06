@@ -24,9 +24,6 @@
  * select serial console configuration
  */
 
-/* PWM */
-#define CONFIG_PWM			1
-
 #define COMMON_BOOT	"console=ttySAC0,115200n8" \
 				" mem=128M " \
 				" " CONFIG_MTDPARTS_DEFAULT
@@ -89,22 +86,10 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
 
-#if !defined(CONFIG_NAND_SPL) && (CONFIG_SYS_TEXT_BASE >= 0xc0000000)
-#define CONFIG_ENABLE_MMU
-#endif
-
-#ifdef CONFIG_ENABLE_MMU
-#define CONFIG_SYS_MAPPED_RAM_BASE	0xc0000000
-#else
-#define CONFIG_SYS_MAPPED_RAM_BASE	CONFIG_SYS_SDRAM_BASE
-#endif
-
 /*-----------------------------------------------------------------------
  * Boot configuration
  */
 
-#define CONFIG_USE_ONENAND_BOARD_INIT
-#define CONFIG_SAMSUNG_ONENAND		1
 #define CONFIG_SYS_ONENAND_BASE		0xE7100000
 
 /*

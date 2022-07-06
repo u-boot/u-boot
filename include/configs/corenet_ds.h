@@ -15,17 +15,8 @@
 #include "../board/freescale/common/ics307_clk.h"
 
 #ifdef CONFIG_RAMBOOT_PBL
-#ifdef CONFIG_NXP_ESBC
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_RAMBOOT_NAND
-#endif
-#define CONFIG_BOOTSCRIPT_COPY_RAM
-#else
-#define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
-#define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#endif
 #endif
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
@@ -45,13 +36,6 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_PCIE1			/* PCIE controller 1 */
-#define CONFIG_PCIE2			/* PCIE controller 2 */
-
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_SDCARD)
-#define CONFIG_FSL_FIXED_MMC_LOCATION
-#endif
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -61,8 +45,6 @@
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
-
-#define CONFIG_ENABLE_36BIT_PHYS
 
 #define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
 
@@ -94,7 +76,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_SYS_SPD_BUS_NUM	1
 #define SPD_EEPROM_ADDRESS1	0x51
 #define SPD_EEPROM_ADDRESS2	0x52
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1	/* for p3041/p5010 */
@@ -332,10 +313,6 @@
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
 
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC1_PHY_ADDR	0x1c

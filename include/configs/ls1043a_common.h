@@ -108,17 +108,6 @@
 
 /* I2C */
 
-/* PCIe */
-#ifndef SPL_NO_PCIE
-#define CONFIG_PCIE1		/* PCIE controller 1 */
-#define CONFIG_PCIE2		/* PCIE controller 2 */
-#define CONFIG_PCIE3		/* PCIE controller 3 */
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-#endif
-
 /*  DSPI  */
 
 /* FMan ucode */

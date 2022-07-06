@@ -16,10 +16,6 @@
 
 /* Link Definitions */
 
-#ifndef CONFIG_SYS_FSL_DDR4
-#define CONFIG_SYS_DDR_RAW_TIMING
-#endif
-
 #define CONFIG_SYS_FSL_DDR_INTLV_256B	/* force 256 byte interleaving */
 
 #define CONFIG_VERY_BIG_RAM

@@ -29,10 +29,6 @@
 #define SPD_EEPROM_ADDRESS5	0x55
 #define SPD_EEPROM_ADDRESS6	0x56	/* dummy address */
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1
-#define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
-#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-#define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
-#endif
 
 #if !defined(CONFIG_FSL_QSPI) || defined(CONFIG_TFABOOT)
 
@@ -241,10 +237,6 @@
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 
 #define CONFIG_FSL_MEMAC
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \

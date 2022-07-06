@@ -12,7 +12,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "lx2160ardb"
 
-source "board/freescale/common/Kconfig"
 endif
 
 if TARGET_LX2160AQDS
@@ -29,7 +28,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "lx2160aqds"
 
-source "board/freescale/common/Kconfig"
 endif
 
 if TARGET_LX2162AQDS
@@ -46,5 +44,4 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "lx2162aqds"
 
-source "board/freescale/common/Kconfig"
 endif

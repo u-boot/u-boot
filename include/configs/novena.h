@@ -39,7 +39,6 @@
 
 /* I2C */
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_SPD_BUS_NUM		0
 
 /* I2C EEPROM */
 
@@ -49,8 +48,6 @@
 
 /* PCI express */
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#define CONFIG_PCIE_IMX
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(3, 29)
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(7, 12)
 #endif

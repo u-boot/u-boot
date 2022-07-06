@@ -22,7 +22,6 @@
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
-#define CONFIG_ENABLE_36BIT_PHYS	1
 
 /*
  * sysclk for MPC85xx
@@ -119,15 +118,11 @@
 #define CONFIG_SYS_LIME_BASE		0xc8000000
 #define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/
 
-#define CONFIG_SYS_SPD_BUS_NUM 0
-
 /*
  * General PCI
  * Memory space is mapped 1-1.
  */
 
-/* PCI is clocked by the external source at 33 MHz */
-#define CONFIG_PCI_CLK_FREQ	33000000
 #define CONFIG_SYS_PCI1_MEM_BASE	0x80000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M			*/

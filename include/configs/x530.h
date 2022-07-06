@@ -47,9 +47,6 @@
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
-/* PCIe support */
-#define CONFIG_PCI_SCAN_SHOW
-
 /* NAND */
 
 #include <asm/arch/config.h>

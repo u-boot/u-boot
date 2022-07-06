@@ -26,7 +26,6 @@
 #define CONFIG_FEC_MXC_PHYADDR          0
 
 /* I2C Configs */
-#define CONFIG_SYS_SPD_BUS_NUM		0
 
 /*
  * We do have 128MB of memory on the Vybrid Tower board. Leave the last

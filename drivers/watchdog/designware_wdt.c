@@ -60,26 +60,6 @@ static void designware_wdt_reset_common(void __iomem *base)
 		writel(DW_WDT_CRR_RESTART_VAL, base + DW_WDT_CRR);
 }
 
-#if !CONFIG_IS_ENABLED(WDT)
-void hw_watchdog_reset(void)
-{
-	designware_wdt_reset_common((void __iomem *)CONFIG_DW_WDT_BASE);
-}
-
-void hw_watchdog_init(void)
-{
-	/* reset to disable the watchdog */
-	hw_watchdog_reset();
-	/* set timer in miliseconds */
-	designware_wdt_settimeout((void __iomem *)CONFIG_DW_WDT_BASE,
-				  CONFIG_DW_WDT_CLOCK_KHZ,
-				  CONFIG_WATCHDOG_TIMEOUT_MSECS);
-	/* enable the watchdog */
-	designware_wdt_enable((void __iomem *)CONFIG_DW_WDT_BASE);
-	/* reset the watchdog */
-	hw_watchdog_reset();
-}
-#else
 static int designware_wdt_reset(struct udevice *dev)
 {
 	struct designware_wdt_priv *priv = dev_get_priv(dev);
@@ -195,4 +175,3 @@ U_BOOT_DRIVER(designware_wdt) = {
 	.ops = &designware_wdt_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
-#endif

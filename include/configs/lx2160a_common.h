@@ -31,7 +31,6 @@
 #define SPD_EEPROM_ADDRESS5		0x55
 #define SPD_EEPROM_ADDRESS6		0x56
 #define SPD_EEPROM_ADDRESS		SPD_EEPROM_ADDRESS1
-#define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD on I2C bus 0 */
 #define CONFIG_SYS_MONITOR_LEN		(936 * 1024)
 
 /* Miscellaneous configurable options */
@@ -89,11 +88,6 @@
 
 /* Qixis */
 #define CONFIG_SYS_I2C_FPGA_ADDR		0x66
-
-/* PCI */
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
 
 /* USB */
 

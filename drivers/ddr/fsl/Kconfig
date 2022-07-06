@@ -10,6 +10,12 @@ config SYS_FSL_MMDC
 	help
 	  Select Freescale Multi Mode DDR controller (MMDC).
 
+config SYS_FSL_DDR_EMU
+	bool
+	help
+	  Specify emulator support for DDR. Some DDR features such as deskew
+	  training are not available.
+
 if SYS_FSL_DDR || SYS_FSL_MMDC
 
 config SYS_FSL_DDR_BE
@@ -168,6 +174,13 @@ config ECC_INIT_VIA_DDRCONTROLLER
 	help
 	  Use the DDR controller to auto initialize memory.  If not enabled,
 	  the DMA controller is responsible for doing this.
+
+config SYS_DDR_RAW_TIMING
+	bool "Get DDR timing information from something other than SPD"
+	help
+	  This is common with soldered DDR chips onboard without SPD. DDR raw
+	  timing parameters are extracted from datasheet and hard-coded into
+	  header files or board specific files.
 
 endif
 

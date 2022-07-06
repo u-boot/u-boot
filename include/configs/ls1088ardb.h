@@ -15,13 +15,8 @@
 
 #define COUNTER_FREQUENCY_REAL		25000000	/* 25MHz */
 
-#ifdef CONFIG_EMU
-#define CONFIG_SYS_FSL_DDR_EMU
-#else
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
-#endif
 #define SPD_EEPROM_ADDRESS	0x51
-#define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
 
 
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)

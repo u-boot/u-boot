@@ -140,7 +140,6 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_PCIE1			/* PCIE controller 1 */
 
 /* Environment in parallel NOR-Flash */
 #define CONFIG_ENV_TOTAL_SIZE		0x040000
@@ -151,8 +150,6 @@
  */
 #define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
-
-#define CONFIG_ENABLE_36BIT_PHYS
 
 /* POST memory regions test */
 #define CONFIG_POST CONFIG_SYS_POST_MEM_REGIONS
@@ -173,7 +170,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x54
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 

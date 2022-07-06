@@ -16,10 +16,6 @@
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 
-#define CONFIG_PCI1		/* PCI controller 1 */
-#define CONFIG_PCIE1		/* PCIE controller 1 (slot 1) */
-#undef CONFIG_PCI2
-
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #ifndef __ASSEMBLY__
@@ -34,7 +30,6 @@
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
-#define CONFIG_ENABLE_36BIT_PHYS	1
 
 #define CONFIG_SYS_CCSRBAR		0xe0000000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
@@ -264,8 +259,6 @@
  */
 #if !CONFIG_IS_ENABLED(DM_I2C)
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
-#else
-#define CONFIG_SYS_SPD_BUS_NUM 0
 #endif
 
 /* EEPROM */
@@ -318,10 +311,6 @@
 #define CONFIG_SYS_SRIO1_MEM_PHYS	0xc0000000
 #endif
 #define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
-
-#if defined(CONFIG_PCI)
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
 

@@ -166,4 +166,25 @@ defined(CONFIG_TARGET_LX2160ARDB)
 #define QIXIS_ESDHC_NO_ADAPTER		0x7
 #endif
 
+/*
+ * implementation of CONFIG_ESDHC_DETECT_QUIRK Macro.
+ */
+static inline u8 qixis_esdhc_detect_quirk(void)
+{
+	/*
+	 * SDHC1 Card ID:
+	 * Specifies the type of card installed in the SDHC1 adapter slot.
+	 * 000= (reserved)
+	 * 001= eMMC V4.5 adapter is installed.
+	 * 010= SD/MMC 3.3V adapter is installed.
+	 * 011= eMMC V4.4 adapter is installed.
+	 * 100= eMMC V5.0 adapter is installed.
+	 * 101= MMC card/Legacy (3.3V) adapter is installed.
+	 * 110= SDCard V2/V3 adapter installed.
+	 * 111= no adapter is installed.
+	 */
+	return ((QIXIS_READ(sdhc1) & QIXIS_SDID_MASK) !=
+		 QIXIS_ESDHC_NO_ADAPTER);
+}
+
 #endif

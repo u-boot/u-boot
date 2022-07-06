@@ -33,20 +33,12 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_PCIE1			/* PCIE controller 1 */
-#define CONFIG_PCIE2			/* PCIE controller 2 */
-#define CONFIG_PCIE3			/* PCIE controller 3 */
 
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
-
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_SDCARD)
-	#define CONFIG_FSL_FIXED_MMC_LOCATION
-#endif
 
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
@@ -57,8 +49,6 @@
  */
 #define CONFIG_SYS_CACHE_STASHING
 #define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
-
-#define CONFIG_ENABLE_36BIT_PHYS
 
 #define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
 
@@ -91,7 +81,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x52
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 
@@ -331,10 +320,6 @@
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
 
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC1_PHY_ADDR	0x2

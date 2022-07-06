@@ -22,8 +22,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select BSH_SMM_S2_DDR3L_256
 
-source "board/freescale/common/Kconfig"
-
 endif
 
 if TARGET_IMX8MN_BSH_SMM_S2PRO
@@ -43,7 +41,5 @@ config SYS_CONFIG_NAME
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select BSH_SMM_S2_DDR3L_512
-
-source "board/freescale/common/Kconfig"
 
 endif

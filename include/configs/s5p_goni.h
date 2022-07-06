@@ -21,9 +21,6 @@
 /* MMC */
 #define SDHCI_MAX_HOSTS		4
 
-/* PWM */
-#define CONFIG_PWM			1
-
 /* USB Composite download gadget - g_dnl */
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
@@ -129,10 +126,6 @@
 /* FLASH and environment organization */
 #define CONFIG_MMC_DEFAULT_DEV	0
 
-#define CONFIG_USE_ONENAND_BOARD_INIT
-#define CONFIG_SAMSUNG_ONENAND		1
 #define CONFIG_SYS_ONENAND_BASE		0xB0000000
-
-#define CONFIG_USB_GADGET_DWC2_OTG_PHY
 
 #endif	/* __CONFIG_H */

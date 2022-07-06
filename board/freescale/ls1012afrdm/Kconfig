@@ -89,7 +89,3 @@ config SYS_LS_PFE_ESBC_LENGTH
 	hex "length of PFE Firmware HDR"
 	default 0xc00
 endif
-
-if TARGET_LS1012AFRDM || TARGET_LS1012AFRWY
-source "board/freescale/common/Kconfig"
-endif

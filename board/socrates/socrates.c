@@ -59,7 +59,8 @@ int checkboard (void)
 		f = get_board_sys_clk();
 	} else {
 		src = "PCI_CLK";
-		f = CONFIG_PCI_CLK_FREQ;
+		/* PCI is clocked by the external source at 33 MHz */
+		f = 33000000;
 	}
 	printf ("PCI1:  32 bit, %d MHz (%s)\n",	f/1000000, src);
 #else

@@ -388,10 +388,6 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
 
-		CONFIG_SYS_FSL_DDR_EMU
-		Specify emulator support for DDR. Some DDR features such as
-		deskew training are not available.
-
 		CONFIG_SYS_FSL_DDRC_GEN1
 		Freescale DDR1 controller.
 
@@ -1306,11 +1302,6 @@ The following options need to be configured:
 
 		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
 
-		CONFIG_SYS_SPD_BUS_NUM
-
-		If defined, then this indicates the I2C bus number for DDR SPD.
-		If not defined, then U-Boot assumes that SPD is on I2C bus 0.
-
 		CONFIG_SYS_RTC_BUS_NUM
 
 		If defined, then this indicates the I2C bus number for the RTC.
@@ -1517,20 +1508,6 @@ The following options need to be configured:
 		address where standalone program gets loaded, thus
 		overwriting the architecture dependent default
 		settings.
-
-- Frame Buffer Address:
-		CONFIG_FB_ADDR
-
-		Define CONFIG_FB_ADDR if you want to use specific
-		address for frame buffer.  This is typically the case
-		when using a graphics controller has separate video
-		memory.  U-Boot will then place the frame buffer at
-		the given address instead of dynamically reserving it
-		in system RAM by calling lcd_setmem(), which grabs
-		the memory for the frame buffer depending on the
-		configured panel size.
-
-		Please see board_init_f function.
 
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
@@ -2087,12 +2064,6 @@ Low Level (hardware related) configuration options:
 		If SPD EEPROM is on an I2C bus other than the first
 		one, specify here. Note that the value must resolve
 		to something your driver can deal with.
-
-- CONFIG_SYS_DDR_RAW_TIMING
-		Get DDR timing information from other than SPD. Common with
-		soldered DDR chips onboard without SPD. DDR raw timing
-		parameters are extracted from datasheet and hard-coded into
-		header files or board specific files.
 
 - CONFIG_FSL_DDR_INTERACTIVE
 		Enable interactive DDR debugging. See doc/README.fsl-ddr.

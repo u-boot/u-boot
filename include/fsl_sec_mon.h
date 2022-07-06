@@ -23,8 +23,6 @@
 #define sec_mon_in16(a)       in_be16(a)
 #define sec_mon_clrbits32     clrbits_be32
 #define sec_mon_setbits32     setbits_be32
-#else
-#error Neither CONFIG_SYS_FSL_SEC_MON_LE nor CONFIG_SYS_FSL_SEC_MON_BE defined
 #endif
 
 struct ccsr_sec_mon_regs {

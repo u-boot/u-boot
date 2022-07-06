@@ -12,8 +12,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls2080ardb"
 
-source "board/freescale/common/Kconfig"
-
 if FSL_LS_PPA
 config SYS_LS_PPA_FW_ADDR
 	hex "PPA Firmware Addr"
@@ -29,7 +27,5 @@ config SYS_LS_PPA_ESBC_ADDR
 	default 0x680000 if SYS_LS_PPA_FW_IN_MMC || SYS_LS_PPA_FW_IN_NAND
 endif
 endif
-
-source "board/freescale/common/Kconfig"
 
 endif

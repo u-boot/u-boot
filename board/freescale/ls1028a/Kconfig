@@ -32,8 +32,6 @@ config SYS_LS_PPA_ESBC_ADDR
 endif
 endif
 
-source "board/freescale/common/Kconfig"
-
 endif
 
 if TARGET_LS1028ARDB
@@ -57,7 +55,5 @@ config SYS_TEXT_BASE
 	default 0x96000000 if SD_BOOT || EMMC_BOOT
 	default 0x82000000 if TFABOOT
 	default 0x20100000
-
-source "board/freescale/common/Kconfig"
 
 endif

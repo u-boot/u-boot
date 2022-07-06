@@ -18,8 +18,6 @@
 
 /* IP endianness */
 #define CONFIG_SYS_FSL_IFC_BE
-#define CONFIG_SYS_FSL_SFP_BE
-#define CONFIG_SYS_FSL_SEC_MON_BE
 
 #if defined(CONFIG_ARCH_MPC8548)
 #define CONFIG_SYS_FSL_SRIO_MAX_PORTS	1
@@ -35,7 +33,6 @@
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.2"
 #define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
 #define CONFIG_SYS_FSL_USB1_PHY_ENABLE
-#define CONFIG_ESDHC_HC_BLK_ADDR
 
 /* P1011 is single core version of P1020 */
 #elif defined(CONFIG_ARCH_P1011)
@@ -150,7 +147,6 @@
 #define CONFIG_SYS_FSL_DSP_M2_RAM_ADDR	0xb0000000
 #define CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT	0xff600000
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	3
-#define CONFIG_ESDHC_HC_BLK_ADDR
 
 #elif defined(CONFIG_ARCH_BSC9132)
 #define CONFIG_FSL_SDHC_V2_3
@@ -162,7 +158,6 @@
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	3
 #define CONFIG_SYS_FSL_ESDHC_P1010_BROKEN_SDCLK
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.2"
-#define CONFIG_ESDHC_HC_BLK_ADDR
 
 #elif defined(CONFIG_ARCH_T4240)
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
@@ -200,32 +195,21 @@
 #define CONFIG_SYS_FSL_SRIO_LIODN
 #define CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE
 #define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
-#define CONFIG_SYS_FSL_SFP_VER_3_0
-#define CONFIG_SYS_FSL_PCI_VER_3_X
 
 #elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420)
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
-#define CONFIG_HETROGENOUS_CLUSTERS     /* DSP/SC3900 core clusters */
-#define CONFIG_PPC_CLUSTER_START	0 /*Start index of ppc clusters*/
-#define CONFIG_DSP_CLUSTER_START	1 /*Start index of dsp clusters*/
 #define CONFIG_SYS_FSL_SRDS_1
 #define CONFIG_SYS_FSL_SRDS_2
-#define CONFIG_SYS_MAPLE
-#define CONFIG_SYS_CPRI
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	5
 #define CONFIG_SYS_NUM_FMAN		1
 #define CONFIG_SYS_FM1_CLK		0
-#define CONFIG_SYS_CPRI_CLK		3
-#define CONFIG_SYS_ULB_CLK		4
-#define CONFIG_SYS_ETVPE_CLK		1
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	4
 #define CONFIG_SYS_FMAN_V3
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 #define CONFIG_SYS_FSL_TBCLK_DIV	16
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.4"
 #define CONFIG_SYS_FSL_USB1_PHY_ENABLE
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #ifdef CONFIG_ARCH_B4860
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
@@ -273,7 +257,6 @@
 #define QE_MURAM_SIZE			0x6000UL
 #define MAX_QE_RISC			1
 #define QE_NUM_OF_SNUM			28
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #elif defined(CONFIG_ARCH_T1024)
 #define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
@@ -300,7 +283,6 @@
 #define QE_MURAM_SIZE			0x6000UL
 #define MAX_QE_RISC			1
 #define QE_NUM_OF_SNUM			28
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #elif defined(CONFIG_ARCH_T2080)
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
@@ -310,7 +292,6 @@
 #define CONFIG_SYS_NUM_FMAN		1
 #define CONFIG_SYS_FSL_CLUSTER_CLOCKS	{ 1, 4, 4, 4 }
 #define CONFIG_SYS_FSL_SRDS_1
-#define CONFIG_SYS_FSL_PCI_VER_3_X
 #if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_NUM_FM1_DTSEC	8
 #define CONFIG_SYS_NUM_FM1_10GEC	4
@@ -330,10 +311,8 @@
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v3.0"
 #define CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE
 #define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 #define CONFIG_SYS_FSL_ISBC_VER		2
 #define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
-#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 
 #elif defined(CONFIG_ARCH_C29X)

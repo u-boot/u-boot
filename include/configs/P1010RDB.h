@@ -53,7 +53,6 @@
 #endif
 
 #ifdef CONFIG_NAND_SECBOOT	/* NAND Boot */
-#define CONFIG_RAMBOOT_NAND
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
@@ -64,9 +63,6 @@
 /* High Level Configuration Options */
 
 #if defined(CONFIG_PCI)
-#define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
-#define CONFIG_PCIE2			/* PCIE controller 2 (slot 2) */
-
 /*
  * PCI Windows
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -98,8 +94,6 @@
 #else
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif
 
 #define CONFIG_HWCONFIG
@@ -108,12 +102,7 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 
-
-#define CONFIG_ENABLE_36BIT_PHYS
-
 /* DDR Setup */
-#define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_SYS_SPD_BUS_NUM		1
 #define SPD_EEPROM_ADDRESS		0x52
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
@@ -353,8 +342,7 @@ extern unsigned long get_sdram_size(void);
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH) || \
-	defined(CONFIG_RAMBOOT_NAND)
+#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
 #define CONFIG_SYS_RAMBOOT
 #else
 #undef CONFIG_SYS_RAMBOOT
@@ -472,9 +460,7 @@ extern unsigned long get_sdram_size(void);
 /*
  * Environment
  */
-#if defined(CONFIG_SDCARD)
-#define CONFIG_FSL_FIXED_MMC_LOCATION
-#elif defined(CONFIG_MTD_RAW_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
 #define SPL_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
 #endif

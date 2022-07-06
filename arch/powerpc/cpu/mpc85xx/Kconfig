@@ -187,6 +187,7 @@ config ARCH_B4420
 	select E500MC
 	select E6500
 	select FSL_LAW
+	select HETROGENOUS_CLUSTERS
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004477
 	select SYS_FSL_ERRATUM_A005871
@@ -195,7 +196,7 @@ config ARCH_B4420
 	select SYS_FSL_ERRATUM_A006475
 	select SYS_FSL_ERRATUM_A006593
 	select SYS_FSL_ERRATUM_A007075
-	select SYS_FSL_ERRATUM_A007186
+	select SYS_FSL_ERRATUM_A007186 if CHAIN_OF_TRUST
 	select SYS_FSL_ERRATUM_A007212
 	select SYS_FSL_ERRATUM_A009942
 	select SYS_FSL_HAS_DDR3
@@ -214,6 +215,7 @@ config ARCH_B4860
 	select E500MC
 	select E6500
 	select FSL_LAW
+	select HETROGENOUS_CLUSTERS
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A004477
 	select SYS_FSL_ERRATUM_A005871
@@ -222,7 +224,7 @@ config ARCH_B4860
 	select SYS_FSL_ERRATUM_A006475
 	select SYS_FSL_ERRATUM_A006593
 	select SYS_FSL_ERRATUM_A007075
-	select SYS_FSL_ERRATUM_A007186
+	select SYS_FSL_ERRATUM_A007186 if CHAIN_OF_TRUST
 	select SYS_FSL_ERRATUM_A007212
 	select SYS_FSL_ERRATUM_A007907
 	select SYS_FSL_ERRATUM_A009942
@@ -733,7 +735,7 @@ config ARCH_T2080
 	select SYS_FSL_DDR_VER_47
 	select SYS_FSL_ERRATUM_A006379
 	select SYS_FSL_ERRATUM_A006593
-	select SYS_FSL_ERRATUM_A007186
+	select SYS_FSL_ERRATUM_A007186 if CHAIN_OF_TRUST
 	select SYS_FSL_ERRATUM_A007212
 	select SYS_FSL_ERRATUM_A007815
 	select SYS_FSL_ERRATUM_A007907
@@ -766,7 +768,7 @@ config ARCH_T4240
 	select SYS_FSL_ERRATUM_A006261
 	select SYS_FSL_ERRATUM_A006379
 	select SYS_FSL_ERRATUM_A006593
-	select SYS_FSL_ERRATUM_A007186
+	select SYS_FSL_ERRATUM_A007186 if CHAIN_OF_TRUST
 	select SYS_FSL_ERRATUM_A007798
 	select SYS_FSL_ERRATUM_A007815
 	select SYS_FSL_ERRATUM_A007907
@@ -822,11 +824,8 @@ config FSL_LAW
 	help
 		Use Freescale common code for Local Access Window
 
-config NXP_ESBC
-	bool	"NXP_ESBC"
-	help
-		Enable Freescale Secure Boot feature. Normally selected
-		by defconfig. If unsure, do not change.
+config HETROGENOUS_CLUSTERS
+	bool
 
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for MPC85xx"
@@ -1121,6 +1120,35 @@ config SYS_NUM_TLBCAMS
 		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
 		16 for other E500 SoCs.
 
+if HETROGENOUS_CLUSTERS
+
+config SYS_MAPLE
+	def_bool y
+
+config SYS_CPRI
+	def_bool y
+
+config PPC_CLUSTER_START
+	int
+	default 0
+
+config DSP_CLUSTER_START
+	int
+	default 1
+
+config SYS_CPRI_CLK
+	int
+	default 3
+
+config SYS_ULB_CLK
+	int
+	default 4
+
+config SYS_ETVPE_CLK
+	int
+	default 1
+endif
+
 config BACKSIDE_L2_CACHE
 	bool
 
@@ -1184,6 +1212,9 @@ config SYS_FSL_LBC_CLK_DIV
 	help
 		Defines divider of platform clock(clock input to
 		eLBC controller).
+
+config ENABLE_36BIT_PHYS
+	bool "Enable 36bit physical address space support"
 
 config SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up"

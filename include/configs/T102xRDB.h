@@ -15,7 +15,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
-#define CONFIG_ENABLE_36BIT_PHYS
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
@@ -127,11 +126,9 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #if defined(CONFIG_TARGET_T1024RDB)
-#define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 #elif defined(CONFIG_TARGET_T1023RDB)
-#define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_SDRAM_SIZE   2048
 #endif
 
@@ -355,9 +352,6 @@
  * General PCIe
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-#define CONFIG_PCIE1		/* PCIE controller 1 */
-#define CONFIG_PCIE2		/* PCIE controller 2 */
-#define CONFIG_PCIE3		/* PCIE controller 3 */
 
 #ifdef CONFIG_PCI
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */
@@ -383,8 +377,6 @@
 #define CONFIG_SYS_PCIE3_IO_VIRT	0xf8020000
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xff8020000ull
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
 /*

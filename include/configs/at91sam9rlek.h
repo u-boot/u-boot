@@ -22,8 +22,6 @@
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
-/* Let board_init_f handle the framebuffer allocation */
-#undef CONFIG_FB_ADDR
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1

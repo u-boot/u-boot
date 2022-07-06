@@ -97,18 +97,9 @@
 #define TSEC2_PHYIDX			0
 #endif
 
-/* PCIe */
-#define CONFIG_PCIE1		/* PCIE controler 1 */
-#define CONFIG_PCIE2		/* PCIE controler 2 */
-
 #define FSL_PCIE_COMPAT		"fsl,ls1021a-pcie"
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
-#define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 
 #define CONFIG_HWCONFIG

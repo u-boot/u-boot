@@ -20,10 +20,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR		0x00190000
 /* U-Boot Load Address */
 
-/* GMAC related configs */
-
-#define CONFIG_DW_ALTDESCRIPTOR
-
 /* Misc configuration */
 
 #endif /* __CONFIG_H */

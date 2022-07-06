@@ -12,6 +12,4 @@ config SYS_CONFIG_NAME
 config IMX_CONFIG
 	default "board/beacon/imx8mm/imximage-8mm-lpddr4.cfg"
 
-source "board/freescale/common/Kconfig"
-
 endif

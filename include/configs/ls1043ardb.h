@@ -8,14 +8,9 @@
 
 #include "ls1043a_common.h"
 
-#define CONFIG_LAYERSCAPE_NS_ACCESS
-
 /* Physical Memory Map */
 
-#define CONFIG_SYS_SPD_BUS_NUM		0
-
 #ifndef CONFIG_SPL
-#define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif
 

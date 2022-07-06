@@ -575,6 +575,19 @@ config SPIFLASH
 
 endchoice
 
+config FSL_FIXED_MMC_LOCATION
+	bool "PBL MMC is at a fixed location"
+	depends on SDCARD && !RAMBOOT_PBL
+
+config ESDHC_HC_BLK_ADDR
+	def_bool y
+	depends on FSL_FIXED_MMC_LOCATION && (ARCH_BSC9131 || ARCH_BSC9132 || ARCH_P1010)
+	help
+	  In High Capacity SD Cards (> 2 GBytes), the 32-bit source address and
+	  code length of these soc specify the memory address in block address
+	  format. Block length is fixed to 512 bytes as per the SD High
+	  Capacity specification.
+
 config SYS_FSL_PBL_PBI
 	string "PBI(pre-boot instructions) commands for the PBL image"
 	depends on RAMBOOT_PBL

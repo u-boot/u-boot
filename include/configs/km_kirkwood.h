@@ -23,7 +23,6 @@
 /* KM_KIRKWOOD */
 #if defined(CONFIG_KM_KIRKWOOD)
 #define CONFIG_HOSTNAME			"km_kirkwood"
-#define CONFIG_KM_DISABLE_PCIE
 
 /* KM_KIRKWOOD_PCI */
 #elif defined(CONFIG_KM_KIRKWOOD_PCI)
@@ -34,7 +33,6 @@
 /* KM_KIRKWOOD_128M16 */
 #elif defined(CONFIG_KM_KIRKWOOD_128M16)
 #define CONFIG_HOSTNAME			"km_kirkwood_128m16"
-#define CONFIG_KM_DISABLE_PCIE
 
 /* KM_NUSA */
 #elif defined(CONFIG_KM_NUSA)
@@ -44,7 +42,6 @@
 /* KMCOGE5UN */
 #elif defined(CONFIG_KM_COGE5UN)
 #define CONFIG_HOSTNAME			"kmcoge5un"
-#define CONFIG_KM_DISABLE_PCIE
 
 /* KM_SUSE2 */
 #elif defined(CONFIG_KM_SUSE2)
@@ -116,10 +113,6 @@
 	MVGBE_DIS_FLOW_CTRL_TX_RX_IN_FULL_DUPLEX	|\
 	MVGBE_SET_GMII_SPEED_TO_10_100	|\
 	MVGBE_SET_MII_SPEED_TO_100)
-#endif
-
-#ifdef CONFIG_KM_DISABLE_PCIE
-#undef  CONFIG_KIRKWOOD_PCIE_INIT
 #endif
 
 #endif /* _CONFIG_KM_KIRKWOOD */

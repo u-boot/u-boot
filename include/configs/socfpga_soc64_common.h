@@ -89,15 +89,9 @@
  * Flash configurations
  */
 
-/* Ethernet on SoC (EMAC) */
-#if defined(CONFIG_CMD_NET)
-#define CONFIG_DW_ALTDESCRIPTOR
-#endif /* CONFIG_CMD_NET */
-
 /*
  * L4 Watchdog
  */
-#define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
 #ifndef __ASSEMBLY__
 unsigned int cm_get_l4_sys_free_clk_hz(void);

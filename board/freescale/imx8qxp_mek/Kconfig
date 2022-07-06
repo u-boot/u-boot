@@ -12,6 +12,4 @@ config SYS_CONFIG_NAME
 config IMX_CONFIG
 	default "board/freescale/imx8qxp_mek/imximage.cfg"
 
-source "board/freescale/common/Kconfig"
-
 endif

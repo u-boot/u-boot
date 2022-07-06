@@ -102,23 +102,16 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
-#define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
-
 #define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_L2_CACHE
 
-#define CONFIG_ENABLE_36BIT_PHYS
-
 #define CONFIG_SYS_CCSRBAR		0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
-#define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_SYS_SPD_BUS_NUM 1
 #define SPD_EEPROM_ADDRESS 0x52
 
 #if defined(CONFIG_TARGET_P1020RDB_PD)
@@ -348,8 +341,6 @@
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x29} }
 #endif
 
-#define CONFIG_SYS_SPD_BUS_NUM		1 /* For rom_loc and flash bank */
-
 /*
  * I2C2 EEPROM
  */
@@ -393,8 +384,6 @@
 #else
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc00000
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
@@ -421,9 +410,7 @@
 /*
  * Environment
  */
-#if defined(CONFIG_SDCARD)
-#define CONFIG_FSL_FIXED_MMC_LOCATION
-#elif defined(CONFIG_MTD_RAW_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
 #define SPL_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
 #endif

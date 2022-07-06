@@ -11,6 +11,4 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "T104xRDB"
 
-source "board/freescale/common/Kconfig"
-
 endif

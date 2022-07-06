@@ -30,6 +30,7 @@
 #include <linux/iopoll.h>
 #include <linux/dma-mapping.h>
 #include <sdhci.h>
+#include "../../board/freescale/common/qixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -773,7 +774,7 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 
 #ifdef CONFIG_ESDHC_DETECT_QUIRK
-	if (CONFIG_ESDHC_DETECT_QUIRK)
+	if (qixis_esdhc_detect_quirk())
 		return 1;
 #endif
 	if (esdhc_read32(&regs->prsstat) & PRSSTAT_CINS)

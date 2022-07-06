@@ -24,10 +24,6 @@
 #define SPD_EEPROM_ADDRESS5	0x55
 #define SPD_EEPROM_ADDRESS6	0x56	/* dummy address */
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1
-#define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
-#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-#define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
-#endif
 
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR_AMASK		IFC_AMASK(128*1024*1024)
@@ -243,14 +239,6 @@
 #define FSL_QIXIS_BRDCFG9_QSPI		0x1
 
 /*
- * MMC
- */
-#ifdef CONFIG_MMC
-#define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
-	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
-#endif
-
-/*
  * RTC configuration
  */
 #define RTC
@@ -262,10 +250,6 @@
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 
 #define CONFIG_FSL_MEMAC
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS

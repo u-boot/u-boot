@@ -61,18 +61,6 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_PCIE1			/* PCIE controller 1 */
-#define CONFIG_PCIE2			/* PCIE controller 2 */
-#define CONFIG_PCIE3			/* PCIE controller 3 */
-#define CONFIG_PCIE4			/* PCIE controller 4 */
-
-#if defined(CONFIG_SPIFLASH)
-#elif defined(CONFIG_MTD_RAW_NAND)
-#ifdef CONFIG_NXP_ESBC
-#define CONFIG_RAMBOOT_NAND
-#define CONFIG_BOOTSCRIPT_COPY_RAM
-#endif
-#endif
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -82,8 +70,6 @@
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
-
-#define CONFIG_ENABLE_36BIT_PHYS
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -108,7 +94,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
 
 #define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
@@ -377,8 +362,6 @@
 #define CONFIG_SYS_PCIE4_IO_VIRT	0xf8030000
 #define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif	/* CONFIG_PCI */
 
 /*

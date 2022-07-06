@@ -12,8 +12,6 @@
 
 #include <linux/stringify.h>
 
-#define CONFIG_PCIE4
-
 #define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
 
 #ifdef CONFIG_RAMBOOT_PBL
@@ -44,9 +42,6 @@
 
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
-#define CONFIG_PCIE1			/* PCIE controller 1 */
-#define CONFIG_PCIE2			/* PCIE controller 2 */
-#define CONFIG_PCIE3			/* PCIE controller 3 */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -55,8 +50,6 @@
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
-
-#define CONFIG_ENABLE_36BIT_PHYS
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -145,10 +138,6 @@
 #define CONFIG_SYS_PCIE4_MEM_PHYS	0xc60000000ull
 #define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
 
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#endif	/* CONFIG_PCI */
-
 /*
  * Environment
  */
@@ -180,7 +169,6 @@
 /*
  * DDR Setup
  */
-#define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS1	0x52
 #define SPD_EEPROM_ADDRESS2	0x54
 #define SPD_EEPROM_ADDRESS3	0x56
