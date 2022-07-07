@@ -253,6 +253,7 @@ int dram_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
 ulong board_get_usable_ram_top(ulong total_size)
 {
 	phys_size_t size;
@@ -277,6 +278,8 @@ ulong board_get_usable_ram_top(ulong total_size)
 
 	return reg + size;
 }
+#endif
+
 #else
 int dram_init_banksize(void)
 {

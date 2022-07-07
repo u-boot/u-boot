@@ -64,7 +64,7 @@ static void announce_and_cleanup(int fake)
 
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && CONFIG_IS_ENABLED(LMB) && images->ft_len) {
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
 			printf("FDT creation failed! hanging...");

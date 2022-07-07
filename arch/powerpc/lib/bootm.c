@@ -214,9 +214,11 @@ static int boot_body_linux(bootm_headers_t *images)
 	if (ret)
 		return ret;
 
-	ret = image_setup_linux(images);
-	if (ret)
-		return ret;
+	if (CONFIG_IS_ENABLED(LMB)) {
+		ret = image_setup_linux(images);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
