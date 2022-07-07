@@ -435,8 +435,6 @@ enum pm_gem_config_type {
 #define PMUFW_V1_0	((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
 #define PMIO_NODE_ID_BASE		0x1410801B
 
-#define PMIO_NODE_ID_BASE		0x1410801B
-
 /*
  * Return payload size
  * Not every firmware call expects the same amount of return bytes, however the
