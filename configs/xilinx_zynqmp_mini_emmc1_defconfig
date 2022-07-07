@@ -78,3 +78,4 @@ CONFIG_ARM_DCC=y
 CONFIG_PANIC_HANG=y
 # CONFIG_GZIP is not set
 # CONFIG_EFI_LOADER is not set
+# CONFIG_LMB is not set
