@@ -12,8 +12,6 @@
 
 #include <configs/ti_am335x_common.h>
 
-#define CONFIG_SYS_BOOTM_LEN		(16 << 20)
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -92,9 +90,6 @@
 #define CONFIG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
 #define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
-
-/* Bootcount using the RTC block */
-#define CONFIG_SYS_BOOTCOUNT_LE
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_ECCPOS  {   2,   3,   4,   5,   6,   7,   8,   9, \

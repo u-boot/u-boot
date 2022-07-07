@@ -3,15 +3,6 @@
 How to port a serial driver to driver model
 ===========================================
 
-Almost all of the serial drivers have been converted as at January 2016. These
-ones remain:
-
-   * serial_bfin.c
-   * serial_pxa.c
-
-The deadline for this work was the end of January 2016. If no one steps
-forward to convert these, at some point there may come a patch to remove them!
-
 Here is a suggested approach for converting your serial driver over to driver
 model. Please feel free to update this file with your ideas and suggestions.
 

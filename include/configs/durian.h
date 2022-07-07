@@ -14,7 +14,6 @@
 #define CONFIG_SYS_SDRAM_BASE   PHYS_SDRAM_1
 
 /* BOOT */
-#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"load_kernel=ext4load scsi 0:1 0x90100000 uImage-2004\0"	\

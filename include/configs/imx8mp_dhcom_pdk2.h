@@ -10,8 +10,6 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_128M
-
 #define CONFIG_SYS_MONITOR_LEN		SZ_1M
 
 /* Link Definitions */

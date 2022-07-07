@@ -32,7 +32,6 @@
 #define CONFIG_MAX_MEM_MAPPED		(0x80000000u - DRAM_RSV_SIZE)
 
 #define CONFIG_SYS_MONITOR_LEN		(1 * 1024 * 1024)
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* ENV setting */
 

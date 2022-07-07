@@ -15,8 +15,6 @@
 
 /* SPL Loader Configuration */
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 /* U-Boot general configuration */
 #define EXTRA_ENV_IOT2050_BOARD_SETTINGS				\
 	"usb_pgood_delay=900\0"

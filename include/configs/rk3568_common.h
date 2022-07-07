@@ -10,8 +10,6 @@
 
 #define CONFIG_IRAM_BASE		0xfdcc0000
 
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20)	/* 64M */
-
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xf0000000
 

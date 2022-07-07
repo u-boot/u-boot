@@ -17,8 +17,6 @@
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \
 	"name=rootfs,start=0,size=-,uuid=${uuid_gpt_rootfs}\0"

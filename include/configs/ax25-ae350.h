@@ -73,7 +73,6 @@
 /* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)
 /* Increase max gunzip size */
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)
 
 /* Support autoboot from RAM (kernel image is loaded via debug port) */
 #define KERNEL_IMAGE_ADDR	"0x2000000 "

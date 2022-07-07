@@ -29,6 +29,7 @@ config POWER_LEGACY
 
 config SPL_POWER_LEGACY
 	bool "Legacy power support in SPL"
+	depends on SPL && !SPL_DM_PMIC
 	default y if POWER_LEGACY
 	help
 	  Note: This is a legacy option. Use SPL_DM_PMIC instead.
@@ -424,6 +425,10 @@ config POWER_MT6323
 	help
 	  This adds poweroff driver for mt6323
 	  this pmic is used on mt7623 / Bananapi R2
+
+config PALMAS_POWER
+	bool "Palmas power support"
+	depends on OMAP54XX
 
 config POWER_I2C
 	bool "I2C-based power control for legacy power"

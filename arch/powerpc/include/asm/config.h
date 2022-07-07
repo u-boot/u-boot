@@ -14,8 +14,6 @@
   #define HWCONFIG_BUFFER_SIZE 256
 #endif
 
-#define CONFIG_SYS_BOOT_RAMDISK_HIGH
-
 #ifndef CONFIG_MAX_MEM_MAPPED
 #if	defined(CONFIG_E500)		|| \
 	defined(CONFIG_MPC86xx)		|| \

@@ -169,6 +169,27 @@ config TI_SECURE_EMIF_PROTECTED_REGION_SIZE
 	  using hardware memory firewalls. This value must be smaller than the
 	  TI_SECURE_EMIF_TOTAL_REGION_SIZE value.
 
+config SYS_AUTOMATIC_SDRAM_DETECTION
+	bool
+
+choice
+	depends on OMAP44XX || OMAP54XX
+	prompt "Static or dynamic DDR timing calculations"
+	default SYS_EMIF_PRECALCULATED_TIMING_REGS
+	help
+	  For the DDR timing information we can either dynamically determine
+	  the timings to use or use pre-determined timings (based on using the
+	  dynamic method).  Default to the static timing information.
+
+config SYS_EMIF_PRECALCULATED_TIMING_REGS
+	bool "Use precalcualted timing values"
+
+config SYS_DEFAULT_LPDDR2_TIMINGS
+	bool "Use default LPDDR2 timing values"
+	select SYS_AUTOMATIC_SDRAM_DETECTION
+
+endchoice
+
 source "arch/arm/mach-omap2/omap3/Kconfig"
 
 source "arch/arm/mach-omap2/omap4/Kconfig"

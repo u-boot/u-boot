@@ -153,6 +153,5 @@ unsigned long long get_qixis_addr(void);
 #endif /* ifdef CONFIG_NXP_ESBC */
 
 #endif
-#define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
 #endif /* __LS1088_COMMON_H */

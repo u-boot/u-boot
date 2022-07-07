@@ -32,7 +32,6 @@
  * Increase max uncompressed/gunzip size, keeping size same as EMMC linux
  * partition.
  */
-#define CONFIG_SYS_BOOTM_LEN		0x01800000
 
 /* Access eMMC Boot_1 and Boot_2 partitions */
 

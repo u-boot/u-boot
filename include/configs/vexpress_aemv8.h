@@ -15,8 +15,6 @@
 /* ATF loads u-boot here for BASE_FVP model */
 #endif
 
-#define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
-
 /* CS register bases for the original memory map. */
 #ifdef CONFIG_TARGET_VEXPRESS64_BASER_FVP
 #define V2M_DRAM_BASE			0x00000000
@@ -272,11 +270,6 @@
 /* 256 x 256KiB sectors */
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 /* Store environment at top of flash */
-#endif
-
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 #endif
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */

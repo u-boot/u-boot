@@ -30,15 +30,6 @@
 	env/embedded.o(.text*);
 
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_SYS_DISCOVER_PHY
-/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
-#	ifndef CONFIG_SYS_DISCOVER_PHY
-#		define FECDUPLEX	FULL
-#		define FECSPEED		_100BASET
-#	endif			/* CONFIG_SYS_DISCOVER_PHY */
-#endif
-
-#ifdef CONFIG_MCFFEC
 #	define CONFIG_IPADDR	192.162.1.2
 #	define CONFIG_NETMASK	255.255.255.0
 #	define CONFIG_SERVERIP	192.162.1.1

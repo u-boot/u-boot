@@ -106,12 +106,4 @@
 #define CACR_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					CONFIG_SYS_INIT_RAM_SIZE - 12)
 
-#ifdef CONFIG_MCFFEC
-#define CONFIG_SYS_DISCOVER_PHY
-/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
-#ifndef CONFIG_SYS_DISCOVER_PHY
-#define FECDUPLEX			FULL
-#define FECSPEED			_100BASET
-#endif /* CONFIG_SYS_DISCOVER_PHY */
-#endif
 #endif /* __STMARK2_CONFIG_H */

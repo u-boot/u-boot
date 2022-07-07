@@ -16,6 +16,4 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0xffffffff80000000
 
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20)	/* 64M */
-
 #endif /* __OCTEON_COMMON_H__ */

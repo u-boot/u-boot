@@ -28,8 +28,6 @@
 #define CONFIG_SYS_UBOOT_BASE		0x50080000
 #endif
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 /* HyperFlash related configuration */
 
 /* U-Boot general configuration */

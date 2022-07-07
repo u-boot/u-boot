@@ -371,10 +371,6 @@ The following options need to be configured:
 		In this mode, a single differential clock is used to supply
 		clocks to the sysclock, ddrclock and usbclock.
 
-		CONFIG_SYS_CPC_REINIT_F
-		This CONFIG is defined when the CPC is configured as SRAM at the
-		time of U-Boot entry and is required to be re-initialized.
-
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
@@ -850,13 +846,6 @@ The following options need to be configured:
 		the appropriate value in Hz.
 
 - MMC Support:
-		The MMC controller on the Intel PXA is supported. To
-		enable this define CONFIG_MMC. The MMC can be
-		accessed from the boot prompt by mapping the device
-		to physical memory similar to flash. Command line is
-		enabled with CONFIG_CMD_MMC. The MMC driver also works with
-		the FAT fs. This is enabled with CONFIG_CMD_FAT.
-
 		CONFIG_SH_MMCIF
 		Support for Renesas on-chip MMCIF controller
 
@@ -1747,12 +1736,6 @@ Configuration Settings:
 
 		Non-cached memory is only supported on 32-bit ARM at present.
 
-- CONFIG_SYS_BOOTM_LEN:
-		Normally compressed uImages are limited to an
-		uncompressed size of 8 MBytes. If this is not enough,
-		you can define CONFIG_SYS_BOOTM_LEN in your board config file
-		to adjust this setting to your needs.
-
 - CONFIG_SYS_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of
 		the Linux kernel; all data that must be processed by
@@ -1764,11 +1747,6 @@ Configuration Settings:
 		variable "bootm_mapsize" will override the value of
 		CONFIG_SYS_BOOTMAPSZ.  If CONFIG_SYS_BOOTMAPSZ is undefined,
 		then the value in "bootm_size" will be used instead.
-
-- CONFIG_SYS_BOOT_RAMDISK_HIGH:
-		Enable initrd_high functionality.  If defined then the
-		initrd_high feature is enabled and the bootm ramdisk subcommand
-		is enabled.
 
 - CONFIG_SYS_BOOT_GET_CMDLINE:
 		Enables allocating and saving kernel cmdline in space between
@@ -2073,10 +2051,6 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_FSL_DDR_BIST
 		Enable built-in memory test for Freescale DDR controllers.
-
-- CONFIG_SYS_83XX_DDR_USES_CS0
-		Only for 83xx systems. If specified, then DDR should
-		be configured using CS0 and CS1 instead of CS2 and CS3.
 
 - CONFIG_RMII
 		Enable RMII mode for all FECs.

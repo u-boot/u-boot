@@ -19,8 +19,6 @@
 #include <configs/ti_am335x_common.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_16M
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -169,14 +167,6 @@
 
 /* PMIC support */
 #define CONFIG_POWER_TPS65910
-
-/* SPL */
-#ifndef CONFIG_NOR_BOOT
-/* Bootcount using the RTC block */
-#define CONFIG_SYS_BOOTCOUNT_BE
-
-/* USB gadget RNDIS */
-#endif
 
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */

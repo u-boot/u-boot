@@ -414,8 +414,6 @@
 #ifdef CONFIG_TPL_BUILD
 #define SPL_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
 #endif
-#elif defined(CONFIG_SYS_RAMBOOT)
-#define SPL_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #endif
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
@@ -439,7 +437,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory for Linux*/
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 /*
  * Environment Configuration

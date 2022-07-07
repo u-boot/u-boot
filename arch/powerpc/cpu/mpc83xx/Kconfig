@@ -11,6 +11,11 @@ config E300
 config SYS_CPU
 	default "mpc83xx"
 
+config SYS_83XX_DDR_USES_CS0
+	bool
+	help
+	  DDR should be configured using CS0 and CS1 instead of CS2 and CS3.
+
 choice
 	prompt "Target select"
 	optional
@@ -19,6 +24,7 @@ config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
 	select ARCH_MPC837X
 	select BOARD_EARLY_INIT_F
+	select SYS_83XX_DDR_USES_CS0
 
 config TARGET_IDS8313
 	bool "Support ids8313"

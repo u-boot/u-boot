@@ -34,8 +34,6 @@
 
 #define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 
-#define CONFIG_SYS_BOOTM_LEN		(64 * 1024 * 1024)
-
 /*
  * Serial driver
  */

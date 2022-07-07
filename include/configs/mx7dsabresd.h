@@ -12,10 +12,7 @@
 
 #define PHYS_SDRAM_SIZE			SZ_1G
 
-
 #ifdef CONFIG_IMX_BOOTAUX
-/* Set to QSPI1 A flash at default */
-#define CONFIG_SYS_AUXCORE_BOOTDATA 0x60000000
 
 #define UPDATE_M4_ENV \
 	"m4image=m4_qspi.bin\0" \
@@ -30,7 +27,7 @@
 				"sf write ${loadaddr} 0x0 ${filesize}; " \
 			"fi; " \
 		"fi\0" \
-	"m4boot=sf probe 0:0; bootaux "__stringify(CONFIG_SYS_AUXCORE_BOOTDATA)"\0"
+	"m4boot=sf probe 0:0; bootaux 0x60000000\0"
 #else
 #define UPDATE_M4_ENV ""
 #endif

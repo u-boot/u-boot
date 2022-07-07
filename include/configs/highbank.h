@@ -14,8 +14,6 @@
 
 #define CONFIG_PL011_CLOCK		150000000
 
-#define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
-
 /*
  * Miscellaneous configurable options
  */

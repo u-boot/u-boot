@@ -16,7 +16,6 @@
 #include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
 /* memory */
-#define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */

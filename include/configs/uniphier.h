@@ -54,8 +54,6 @@
 #define CONFIG_GATEWAYIP		192.168.11.1
 #define CONFIG_NETMASK			255.255.255.0
 
-#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
-
 #if defined(CONFIG_ARM64)
 /* ARM Trusted Firmware */
 #define BOOT_IMAGES \

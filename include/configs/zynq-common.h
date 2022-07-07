@@ -204,7 +204,6 @@
 
 
 /* Extend size of kernel image for uncompression */
-#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
 /* Boot FreeBSD/vxWorks from an ELF image */
 #define CONFIG_SYS_MMC_MAX_DEVICE	1

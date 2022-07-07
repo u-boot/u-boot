@@ -67,7 +67,7 @@ config LED_BLINK
 
 config SPL_LED
 	bool "Enable LED support in SPL"
-	depends on SPL && SPL_DM
+	depends on SPL_DM
 	help
 	  The LED subsystem adds a small amount of overhead to the image.
 	  If this is acceptable and you have a need to use LEDs in SPL,
@@ -85,7 +85,7 @@ config LED_GPIO
 
 config SPL_LED_GPIO
 	bool "LED support for GPIO-connected LEDs in SPL"
-        depends on SPL_LED && DM_GPIO
+        depends on SPL_LED && SPL_DM_GPIO
 	help
 	  This option is an SPL-variant of the LED_GPIO option.
 	  See the help of LED_GPIO for details.

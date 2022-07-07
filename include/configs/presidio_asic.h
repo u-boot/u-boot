@@ -8,8 +8,6 @@
 #ifndef __PRESIDIO_ASIC_H
 #define __PRESIDIO_ASIC_H
 
-#define CONFIG_SYS_BOOTM_LEN		0x00c00000
-
 /* Generic Timer Definitions */
 #define CONFIG_SYS_TIMER_RATE		25000000
 #define CONFIG_SYS_TIMER_COUNTER	0xf4321008

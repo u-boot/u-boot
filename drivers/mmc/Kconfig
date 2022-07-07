@@ -123,6 +123,7 @@ config MMC_IO_VOLTAGE
 
 config SPL_MMC_IO_VOLTAGE
 	bool "Support IO voltage configuration in SPL"
+	depends on SPL_MMC
 	help
 	  IO voltage configuration allows selecting the voltage level of the IO
 	  lines (not the level of main supply). This is required for UHS
@@ -153,6 +154,7 @@ config MMC_HS400_ES_SUPPORT
 
 config SPL_MMC_HS400_ES_SUPPORT
 	bool "enable HS400 Enhanced Strobe support in SPL"
+	depends on SPL_MMC
 	help
 	  The HS400 Enhanced Strobe mode is support by some eMMC. The bus
 	  frequency is up to 200MHz. This mode does not tune the IO.
@@ -166,6 +168,7 @@ config MMC_HS400_SUPPORT
 
 config SPL_MMC_HS400_SUPPORT
 	bool "enable HS400 support in SPL"
+	depends on SPL_MMC
 	select SPL_MMC_HS200_SUPPORT
 	help
 	  The HS400 mode is support by some eMMC. The bus frequency is up to
@@ -179,6 +182,7 @@ config MMC_HS200_SUPPORT
 
 config SPL_MMC_HS200_SUPPORT
 	bool "enable HS200 support in SPL"
+	depends on SPL_MMC
 	help
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
@@ -342,14 +346,6 @@ config MVEBU_MMC
 
 	  If unsure, say N.
 
-config PXA_MMC_GENERIC
-	bool "Support for MMC controllers on PXA"
-	help
-	  This selects MMC controllers on PXA.
-	  If you are on a PXA architecture, say Y here.
-
-	  If unsure, say N.
-
 config MMC_OMAP_HS
 	bool "TI OMAP High Speed Multimedia Card Interface support"
 	select DM_REGULATOR_PBIAS if DM_MMC && DM_REGULATOR
@@ -478,7 +474,7 @@ config MMC_SDHCI_ADMA
 
 config SPL_MMC_SDHCI_ADMA
 	bool "Support SDHCI ADMA2 in SPL"
-	depends on MMC_SDHCI
+	depends on SPL_MMC && MMC_SDHCI
 	select MMC_SDHCI_ADMA_HELPERS
 	help
 	  This enables support for the ADMA (Advanced DMA) defined

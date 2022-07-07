@@ -18,8 +18,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 
 /* rockchip ohci host driver */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60000000\0" \

@@ -10,8 +10,6 @@
 
 #define CONFIG_IRAM_BASE		0xff090000
 
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
-
 /* FAT sd card locations. */
 #define CONFIG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
@@ -29,9 +27,5 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
 	BOOTENV
-
-/* rockchip ohci host driver */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 
 #endif

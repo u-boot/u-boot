@@ -22,9 +22,6 @@
 /* NAND */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#undef CONFIG_SYS_BOOTM_LEN
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20)
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 

@@ -14,10 +14,6 @@
 #include <reset.h>
 #include "ohci.h"
 
-#if !defined(CONFIG_USB_OHCI_NEW)
-# error "Generic OHCI driver requires CONFIG_USB_OHCI_NEW"
-#endif
-
 struct generic_ohci {
 	ohci_t ohci;
 	struct clk *clocks;	/* clock list */

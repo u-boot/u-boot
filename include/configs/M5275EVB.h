@@ -33,15 +33,6 @@
 
 /* Available command configuration */
 
-#ifdef CONFIG_MCFFEC
-#define CONFIG_SYS_DISCOVER_PHY
-/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
-#ifndef CONFIG_SYS_DISCOVER_PHY
-#define FECDUPLEX		FULL
-#define FECSPEED		_100BASET
-#endif
-#endif
-
 /* I2C */
 #define CONFIG_SYS_I2C_PINMUX_REG	(gpio_reg->par_feci2c)
 #define CONFIG_SYS_I2C_PINMUX_CLR	(0xFFF0)
@@ -96,7 +87,6 @@
  * the maximum mapped by the Linux kernel during initialization ??
  */
 #define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
-#define CONFIG_SYS_BOOTM_LEN		(CONFIG_SYS_SDRAM_SIZE << 20)
 
 /*-----------------------------------------------------------------------
  * FLASH organization

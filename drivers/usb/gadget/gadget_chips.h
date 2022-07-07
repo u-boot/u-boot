@@ -32,12 +32,6 @@
 #define	gadget_is_dummy(g)	0
 #endif
 
-#ifdef CONFIG_USB_GADGET_PXA2XX
-#define	gadget_is_pxa(g)	(!strcmp("pxa2xx_udc", (g)->name))
-#else
-#define	gadget_is_pxa(g)	0
-#endif
-
 #ifdef CONFIG_USB_GADGET_GOKU
 #define	gadget_is_goku(g)	(!strcmp("goku_udc", (g)->name))
 #else
@@ -76,13 +70,6 @@
 #define	gadget_is_n9604(g)	(!strcmp("n9604_udc", (g)->name))
 #else
 #define	gadget_is_n9604(g)	0
-#endif
-
-/* various unstable versions available */
-#ifdef CONFIG_USB_GADGET_PXA27X
-#define	gadget_is_pxa27x(g)	(!strcmp("pxa27x_udc", (g)->name))
-#else
-#define	gadget_is_pxa27x(g)	0
 #endif
 
 #ifdef CONFIG_USB_GADGET_ATMEL_USBA
@@ -194,8 +181,6 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x01;
 	else if (gadget_is_dummy(gadget))
 		return 0x02;
-	else if (gadget_is_pxa(gadget))
-		return 0x03;
 	else if (gadget_is_sh(gadget))
 		return 0x04;
 	else if (gadget_is_sa1100(gadget))
@@ -208,8 +193,6 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x08;
 	else if (gadget_is_n9604(gadget))
 		return 0x09;
-	else if (gadget_is_pxa27x(gadget))
-		return 0x10;
 	else if (gadget_is_at91(gadget))
 		return 0x12;
 	else if (gadget_is_imx(gadget))

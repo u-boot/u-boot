@@ -37,17 +37,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CONFIG_USB_ATMEL
-#define CONFIG_USB_ATMEL_CLK_SEL_UPLL
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_CPU_INIT
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00600000
-#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"SAMA5D3 Xplained"
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
-#endif
-
 /* SPL */
 
 /* size of u-boot.bin to load */

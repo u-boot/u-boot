@@ -15,8 +15,6 @@
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 
-#define CONFIG_SYS_BOOTM_LEN	SZ_64M /* Increase max gunzip size */
-
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 300, 600, 1200, 1800, 2400, 4800, \
 					  9600, 19200, 38400, 57600, 115200, \
 					  230400, 460800, 500000, 576000, \

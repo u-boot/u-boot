@@ -32,6 +32,14 @@ config USB_XHCI_DWC3_OF_SIMPLE
 	  Support USB2/3 functionality in simple SoC integrations with
 	  USB controller based on the DesignWare USB3 IP Core.
 
+config USB_XHCI_EXYNOS
+	bool "Support for Samsung Exynos5 family on-chip xHCI USB controller"
+	depends on ARCH_EXYNOS5
+	default y
+	help
+	  Enables support for he on-chip xHCI controller on Samsung Exynos5
+	  SoCs.
+
 config USB_XHCI_MTK
 	bool "Support for MediaTek on-chip xHCI USB controller"
 	depends on ARCH_MEDIATEK
@@ -157,6 +165,14 @@ config USB_EHCI_ATMEL
 	---help---
 	  Enables support for the on-chip EHCI controller on Atmel chips.
 
+config USB_EHCI_EXYNOS
+	bool "Support for Samsung Exynos EHCI USB controller"
+	depends on ARCH_EXYNOS
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on Samsung Exynos
+	  SoCs.
+
 config USB_EHCI_MARVELL
 	bool "Support for Marvell on-chip EHCI USB controller"
 	depends on ARCH_MVEBU || ARCH_KIRKWOOD || ARCH_ORION5X
@@ -281,10 +297,17 @@ config USB_EHCI_TXFIFO_THRESH
 
 endif # USB_EHCI_HCD
 
+config USB_OHCI_NEW
+	bool
+
+config SYS_USB_OHCI_CPU_INIT
+	bool
+
 config USB_OHCI_HCD
 	bool "OHCI HCD (USB 1.1) support"
 	depends on DM && OF_CONTROL
 	select USB_HOST
+	select USB_OHCI_NEW
 	---help---
 	  The Open Host Controller Interface (OHCI) is a standard for accessing
 	  USB 1.1 host controller hardware.  It does more in hardware than Intel's
@@ -315,6 +338,19 @@ config USB_OHCI_DA8XX
 	  Enable support for the da850 USB controller.
 
 endif # USB_OHCI_HCD
+
+config SYS_USB_OHCI_SLOT_NAME
+	string "Display name for the OHCI controller"
+	depends on USB_OHCI_NEW && !DM_USB
+
+config SYS_USB_OHCI_MAX_ROOT_PORTS
+	int "Maximal number of ports of the root hub"
+	depends on USB_OHCI_NEW
+	default 1 if ARCH_SUNXI
+
+config SYS_OHCI_SWAP_REG_ACCESS
+	bool "Perform byte swapping on OHCI controller register accesses"
+	depends on USB_OHCI_NEW
 
 config USB_UHCI_HCD
 	bool "UHCI HCD (most Intel and VIA) support"
@@ -364,6 +400,30 @@ config USB_R8A66597_HCD
 	---help---
 	  This enables support for the on-chip Renesas R8A66597 USB 2.0
 	  controller, present in various RZ and SH SoCs.
+
+config USB_ATMEL
+	bool "AT91 OHCI USB support"
+	depends on ARCH_AT91
+	select SYS_USB_OHCI_CPU_INIT
+	select USB_OHCI_NEW
+
+choice
+	prompt "Clock for OHCI"
+	depends on USB_ATMEL
+
+config USB_ATMEL_CLK_SEL_PLLB
+	bool "PLLB"
+
+config USB_ATMEL_CLK_SEL_UPLL
+	bool "UPLL"
+
+endchoice
+
+config USB_OHCI_LPC32XX
+	bool "LPC32xx USB OHCI support"
+	depends on ARCH_LPC32XX
+	select SYS_USB_OHCI_CPU_INIT
+	select USB_OHCI_NEW
 
 config USB_MAX_CONTROLLER_COUNT
 	int "Maximum number of USB host controllers"

@@ -144,11 +144,6 @@
 	"kernel_addr_r=0x41000000\0" \
 	BOOTENV
 
-/* GPT */
-
-/* USB */
-#define CONFIG_USB_EHCI_EXYNOS
-
 /*
  * Supported Odroid boards: X3, U3
  * TODO: Add Odroid X support

@@ -12,15 +12,10 @@
 
 #define CONFIG_IRAM_BASE		0x10080000
 
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
-
 /* RAW SD card / eMMC locations. */
 
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_MAX_SIZE			0x80000000
-
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS     1
 
 /* usb mass storage */
 

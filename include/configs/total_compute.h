@@ -11,8 +11,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)
-
 #define UART0_BASE		0x7ff80000
 
 /* PL011 Serial Configuration */

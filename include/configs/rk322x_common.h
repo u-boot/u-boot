@@ -8,8 +8,6 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/*  64M */
-
 #define CONFIG_SYS_HZ_CLOCK		24000000
 
 #define CONFIG_ROCKCHIP_MAX_INIT_SIZE	(28 << 10)

@@ -139,8 +139,6 @@ unsigned long long get_qixis_addr(void);
 #endif
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
-#define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
-
 #include <asm/arch/soc.h>
 
 #endif /* __LS2_COMMON_H */

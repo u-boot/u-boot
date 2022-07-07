@@ -162,6 +162,4 @@
 
 /* Environment */
 
-#define CONFIG_SYS_BOOTM_LEN		0x8000000 /* 128 MB */
-
 #endif

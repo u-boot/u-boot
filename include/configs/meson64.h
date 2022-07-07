@@ -30,7 +30,6 @@
 #endif
 
 #define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20) /* 64 MiB */
 
 /* ROM USB boot support, auto-execute boot.scr at scriptaddr */
 #define BOOTENV_DEV_ROMUSB(devtypeu, devtypel, instance) \

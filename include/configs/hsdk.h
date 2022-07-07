@@ -24,8 +24,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_SYS_SDRAM_SIZE		SZ_1G
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_128M
-
 /*
  * UART configuration
  */
@@ -36,12 +34,6 @@
 /*
  * Ethernet PHY configuration
  */
-
-/*
- * USB 1.1 configuration
- */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 
 /*
  * Environment settings

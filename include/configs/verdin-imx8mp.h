@@ -75,8 +75,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_512K
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M /* Increase max gunzip size */
-
 /* i.MX 8M Plus supports max. 8GB memory in two albeit concecutive banks */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000

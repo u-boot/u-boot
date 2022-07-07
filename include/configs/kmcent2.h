@@ -133,12 +133,10 @@
 #define KM_I2C_DEBLOCK_SDA	21
 
 /* High Level Configuration Options */
-#define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 
 #define CONFIG_RESET_VECTOR_ADDRESS	0xebfffffc
 
-#define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
 /* Environment in parallel NOR-Flash */
@@ -411,7 +409,6 @@ int get_scl(void);
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial map for Linux*/
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 /*
  * Environment Configuration

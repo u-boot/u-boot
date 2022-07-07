@@ -96,8 +96,6 @@
 /* On Colibri iMX8X USDHC1 is eMMC, USDHC2 is 4-bit SD */
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M /* Increase max gunzip size */
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000

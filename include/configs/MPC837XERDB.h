@@ -61,7 +61,6 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	0x03000000
-#define CONFIG_SYS_83XX_DDR_USES_CS0
 
 #define CONFIG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
 
@@ -126,12 +125,6 @@
 /*
  * The reserved memory
  */
-
-#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
-#define CONFIG_SYS_RAMBOOT
-#else
-#undef	CONFIG_SYS_RAMBOOT
-#endif
 
 #define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
 
@@ -227,7 +220,6 @@
 
 #ifdef CONFIG_TSEC2
 #define CONFIG_TSEC2_NAME		"TSEC1"
-#define CONFIG_SYS_TSEC2_OFFSET		0x25000
 #define TSEC2_PHY_ADDR			0x1c
 #define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC2_PHYIDX			0
@@ -256,7 +248,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 /*
  * Environment Configuration

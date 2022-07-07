@@ -15,7 +15,6 @@
 
 /* Environment options */
 #define CONFIG_SYS_SDRAM_BASE 0x80000000
-#define CONFIG_SYS_BOOTM_LEN        SZ_256M
 
 /* ---------------------------------------------------------------------
  * Board boot configuration

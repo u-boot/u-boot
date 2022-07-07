@@ -96,8 +96,6 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
-#define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
-
 /* Initial environment variables */
 #define XSPI_MC_INIT_CMD				\
 	"sf probe 0:0 && "				\

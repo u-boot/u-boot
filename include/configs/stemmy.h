@@ -13,7 +13,6 @@
  * low-level initialization and rely on configuration provided by the Samsung
  * bootloader. New images are loaded at the same address for compatibility.
  */
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /* FIXME: This should be loaded from device tree... */
 #define CONFIG_SYS_L2_PL310

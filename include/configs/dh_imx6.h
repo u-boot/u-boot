@@ -26,9 +26,6 @@
 
 /* Miscellaneous configurable options */
 
-/* Bootcounter */
-#define CONFIG_SYS_BOOTCOUNT_BE
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	3

@@ -24,17 +24,6 @@
 
 #define CONFIG_WATCHDOG_TIMEOUT	3360	/* timeout in ms, max is 3.36 sec */
 
-#define CONFIG_SYS_UNIFY_CACHE
-
-#ifdef CONFIG_MCFFEC
-#	define CONFIG_SYS_DISCOVER_PHY
-/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
-#	ifndef CONFIG_SYS_DISCOVER_PHY
-#		define FECDUPLEX	FULL
-#		define FECSPEED		_100BASET
-#	endif			/* CONFIG_SYS_DISCOVER_PHY */
-#endif
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC
@@ -99,7 +88,6 @@
  * the maximum mapped by the Linux kernel during initialization ??
  */
 #define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
-#define CONFIG_SYS_BOOTM_LEN		(CONFIG_SYS_SDRAM_SIZE << 20)
 
 /*-----------------------------------------------------------------------
  * FLASH organization
