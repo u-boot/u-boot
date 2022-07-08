@@ -810,7 +810,6 @@ config ARCH_KEYSTONE
 	select CMD_POWEROFF
 	select CPU_V7A
 	select DDR_SPD
-	select GPIO_EXTRA_HEADER
 	select SUPPORT_SPL
 	select SYS_ARCH_TIMER
 	select SYS_THUMB_BUILD
