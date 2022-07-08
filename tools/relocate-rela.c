@@ -43,10 +43,8 @@ static bool supported_rela(Elf64_Rela *rela)
 	uint32_t type = rela->r_info & mask;
 
 	switch (type) {
-#ifdef R_AARCH64_RELATIVE
 	case R_AARCH64_RELATIVE:
 		return true;
-#endif
 	default:
 		fprintf(stderr, "warning: unsupported relocation type %"
 				PRIu32 " at %" PRIx64 "\n",
