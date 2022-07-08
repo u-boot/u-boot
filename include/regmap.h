@@ -460,7 +460,7 @@ struct reg_field {
 struct regmap_field;
 
 /**
- * REG_FIELD() - A convenient way to initialize a 'struct reg_feild'.
+ * REG_FIELD() - A convenient way to initialize a 'struct reg_field'.
  *
  * @_reg: Offset of the register within the regmap bank
  * @_lsb: lsb of the register field.
@@ -519,9 +519,9 @@ void devm_regmap_field_free(struct udevice *dev, struct regmap_field *field);
 int regmap_field_write(struct regmap_field *field, unsigned int val);
 
 /**
- * regmap_read() - Read a 32-bit value from a regmap
+ * regmap_field_read() - Read a 32-bit value from a regmap
  *
- * @field:	Regmap field to write to
+ * @field:	Regmap field to read from
  * @valp:	Pointer to the buffer to receive the data read from the regmap
  *		field
  *

@@ -328,6 +328,10 @@ static inline void _debug_uart_init(void)
 	struct ns16550 *com_port = (struct ns16550 *)CONFIG_VAL(DEBUG_UART_BASE);
 	int baud_divisor;
 
+	/* Wait until tx buffer is empty */
+	while (!(serial_din(&com_port->lsr) & UART_LSR_TEMT))
+		;
+
 	/*
 	 * We copy the code from above because it is already horribly messy.
 	 * Trying to refactor to nicely remove the duplication doesn't seem

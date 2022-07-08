@@ -23,6 +23,7 @@
 
 #define DA7219_ACPI_HID		"DLGS7219"
 
+__maybe_unused
 static int da7219_acpi_fill_ssdt(const struct udevice *dev,
 				 struct acpi_ctx *ctx)
 {
@@ -171,9 +172,11 @@ static int da7219_acpi_setup_nhlt(const struct udevice *dev,
 #endif
 
 struct acpi_ops da7219_acpi_ops = {
+#ifdef CONFIG_ACPIGEN
 	.fill_ssdt	= da7219_acpi_fill_ssdt,
 #ifdef CONFIG_X86
 	.setup_nhlt	= da7219_acpi_setup_nhlt,
+#endif
 #endif
 };
 
