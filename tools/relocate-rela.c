@@ -16,8 +16,32 @@
 #include <string.h>
 #include "compiler.h"
 
+#ifndef EM_AARCH64
+#define EM_AARCH64		183
+#endif
+
 #ifndef R_AARCH64_RELATIVE
 #define R_AARCH64_RELATIVE	1027
+#endif
+
+#ifndef EM_MICROBLAZE
+#define EM_MICROBLAZE		189
+#endif
+
+#ifndef R_MICROBLAZE_NONE
+#define R_MICROBLAZE_NONE	0
+#endif
+
+#ifndef R_MICROBLAZE_32
+#define R_MICROBLAZE_32		1
+#endif
+
+#ifndef R_MICROBLAZE_REL
+#define R_MICROBLAZE_REL	16
+#endif
+
+#ifndef R_MICROBLAZE_GLOB_DAT
+#define R_MICROBLAZE_GLOB_DAT	18
 #endif
 
 static int ei_class;
