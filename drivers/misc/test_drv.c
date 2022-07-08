@@ -108,8 +108,10 @@ UCLASS_DRIVER(testbus) = {
 	.child_pre_probe = testbus_child_pre_probe_uclass,
 	.child_post_probe = testbus_child_post_probe_uclass,
 
-	/* This is for dtoc testing only */
-	.per_device_plat_auto   = sizeof(struct dm_test_uclass_priv),
+	.per_device_auto   = sizeof(struct dm_test_uclass_priv),
+
+	/* Note: this is for dtoc testing as well as tags*/
+	.per_device_plat_auto   = sizeof(struct dm_test_uclass_plat),
 };
 
 static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)

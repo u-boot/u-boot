@@ -31,6 +31,7 @@ from subunit import ProtocolTestCase, TestProtocolClient
 from subunit.test_results import AutoTimingTestResultDecorator
 
 from testtools import ConcurrentTestSuite, iterate_tests
+from testtools.content import TracebackContent, text_content
 
 
 _all__ = [
@@ -43,11 +44,81 @@ _all__ = [
 CPU_COUNT = cpu_count()
 
 
-def fork_for_tests(concurrency_num=CPU_COUNT):
+class BufferingTestProtocolClient(TestProtocolClient):
+    """A TestProtocolClient which can buffer the test outputs
+
+    This class captures the stdout and stderr output streams of the
+    tests as it runs them, and includes the output texts in the subunit
+    stream as additional details.
+
+    Args:
+        stream: A file-like object to write a subunit stream to
+        buffer (bool): True to capture test stdout/stderr outputs and
+            include them in the test details
+    """
+    def __init__(self, stream, buffer=True):
+        super().__init__(stream)
+        self.buffer = buffer
+
+    def _addOutcome(self, outcome, test, error=None, details=None,
+            error_permitted=True):
+        """Report a test outcome to the subunit stream
+
+        The parent class uses this function as a common implementation
+        for various methods that report successes, errors, failures, etc.
+
+        This version automatically upgrades the error tracebacks to the
+        new 'details' format by wrapping them in a Content object, so
+        that we can include the captured test output in the test result
+        details.
+
+        Args:
+            outcome: A string describing the outcome - used as the
+                event name in the subunit stream.
+            test: The test case whose outcome is to be reported
+            error: Standard unittest positional argument form - an
+                exc_info tuple.
+            details: New Testing-in-python drafted API; a dict from
+                string to subunit.Content objects.
+            error_permitted: If True then one and only one of error or
+                details must be supplied. If False then error must not
+                be supplied and details is still optional.
+        """
+        if details is None:
+            details = {}
+
+        # Parent will raise an exception if error_permitted is False but
+        # error is not None. We want that exception in that case, so
+        # don't touch error when error_permitted is explicitly False.
+        if error_permitted and error is not None:
+            # Parent class prefers error over details
+            details['traceback'] = TracebackContent(error, test)
+            error_permitted = False
+            error = None
+
+        if self.buffer:
+            stdout = sys.stdout.getvalue()
+            if stdout:
+                details['stdout'] = text_content(stdout)
+
+            stderr = sys.stderr.getvalue()
+            if stderr:
+                details['stderr'] = text_content(stderr)
+
+        return super()._addOutcome(outcome, test, error=error,
+                details=details, error_permitted=error_permitted)
+
+
+def fork_for_tests(concurrency_num=CPU_COUNT, buffer=False):
     """Implementation of `make_tests` used to construct `ConcurrentTestSuite`.
 
     :param concurrency_num: number of processes to use.
     """
+    if buffer:
+        test_protocol_client_class = BufferingTestProtocolClient
+    else:
+        test_protocol_client_class = TestProtocolClient
+
     def do_fork(suite):
         """Take suite and start up multiple runners by forking (Unix only).
 
@@ -76,7 +147,7 @@ def fork_for_tests(concurrency_num=CPU_COUNT):
                     # child actually gets keystrokes for pdb etc).
                     sys.stdin.close()
                     subunit_result = AutoTimingTestResultDecorator(
-                        TestProtocolClient(stream)
+                        test_protocol_client_class(stream)
                     )
                     process_suite.run(subunit_result)
                 except:
@@ -93,7 +164,13 @@ def fork_for_tests(concurrency_num=CPU_COUNT):
             else:
                 os.close(c2pwrite)
                 stream = os.fdopen(c2pread, 'rb')
-                test = ProtocolTestCase(stream)
+                # If we don't pass the second argument here, it defaults
+                # to sys.stdout.buffer down the line. But if we don't
+                # pass it *now*, it may be resolved after sys.stdout is
+                # replaced with a StringIO (to capture tests' outputs)
+                # which doesn't have a buffer attribute and can end up
+                # occasionally causing a 'broken-runner' error.
+                test = ProtocolTestCase(stream, sys.stdout.buffer)
                 result.append(test)
         return result
     return do_fork

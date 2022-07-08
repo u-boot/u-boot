@@ -11,7 +11,7 @@
 			};
 
 			u-boot {
-				offset = <24>;
+				offset = <28>;
 			};
 		};
 

@@ -331,27 +331,27 @@ void *board_fdt_blob_setup(int *ret)
 		err = setup_auto_tree(blob);
 		if (!err)
 			goto done;
-		printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
+		os_printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
 		*ret = -EINVAL;
 		goto fail;
 	}
 
 	err = os_get_filesize(fname, &size);
 	if (err < 0) {
-		printf("Failed to find FDT file '%s'\n", fname);
+		os_printf("Failed to find FDT file '%s'\n", fname);
 		*ret = err;
 		goto fail;
 	}
 	fd = os_open(fname, OS_O_RDONLY);
 	if (fd < 0) {
-		printf("Failed to open FDT file '%s'\n", fname);
+		os_printf("Failed to open FDT file '%s'\n", fname);
 		*ret = -EACCES;
 		goto fail;
 	}
 
 	if (os_read(fd, blob, size) != size) {
 		os_close(fd);
-		printf("Failed to read FDT file '%s'\n", fname);
+		os_printf("Failed to read FDT file '%s'\n", fname);
 		*ret =  -EIO;
 		goto fail;
 	}

@@ -616,8 +616,11 @@ struct dm_test_pdata __attribute__ ((section (".priv_data")))
 u8 _denx_u_boot_test_bus_priv_some_bus[sizeof(struct dm_test_priv)]
 \t__attribute__ ((section (".priv_data")));
 #include <dm/test.h>
-u8 _denx_u_boot_test_bus_ucplat_some_bus[sizeof(struct dm_test_uclass_priv)]
+u8 _denx_u_boot_test_bus_ucplat_some_bus[sizeof(struct dm_test_uclass_plat)]
 \t__attribute__ ((section (".priv_data")));
+#include <dm/test.h>
+u8 _denx_u_boot_test_bus_uc_priv_some_bus[sizeof(struct dm_test_uclass_priv)]
+	__attribute__ ((section (".priv_data")));
 #include <test.h>
 
 DM_DEVICE_INST(some_bus) = {
@@ -628,6 +631,7 @@ DM_DEVICE_INST(some_bus) = {
 \t.driver_data\t= DM_TEST_TYPE_FIRST,
 \t.priv_\t\t= _denx_u_boot_test_bus_priv_some_bus,
 \t.uclass\t\t= DM_UCLASS_REF(testbus),
+\t.uclass_priv_ = _denx_u_boot_test_bus_uc_priv_some_bus,
 \t.uclass_node\t= {
 \t\t.prev = &DM_UCLASS_REF(testbus)->dev_head,
 \t\t.next = &DM_UCLASS_REF(testbus)->dev_head,

@@ -198,4 +198,29 @@ config VPL_TEXT_BASE
 	help
 	  The address in memory that VPL will be running from.
 
+config VPL_BINMAN_SYMBOLS
+	bool "Declare binman symbols in VPL"
+	depends on VPL_FRAMEWORK && BINMAN
+	default y
+	help
+	  This enables use of symbols in VPL which refer to other entries in
+	  the same binman image as the VPL. These can be declared with the
+	  binman_sym_declare(type, entry, prop) macro and accessed by the
+	  binman_sym(type, entry, prop) macro defined in binman_sym.h.
+
+	  See tools/binman/binman.rst for a detailed explanation.
+
+config VPL_BINMAN_UBOOT_SYMBOLS
+	bool "Declare binman symbols for U-Boot phases in VPL"
+	depends on VPL_BINMAN_SYMBOLS
+	default n if ARCH_IMX8M
+	default y
+	help
+	  This enables use of symbols in VPL which refer to U-Boot phases,
+	  enabling VPL to obtain the location and size of its next phase simply
+	  by calling spl_get_image_pos() and spl_get_image_size().
+
+	  For this to work, you must have all U-Boot phases in the same binman
+	  image, so binman can update VPL with the locations of everything.
+
 endmenu

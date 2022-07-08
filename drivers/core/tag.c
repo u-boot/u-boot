@@ -6,6 +6,7 @@
 
 #include <malloc.h>
 #include <asm/global_data.h>
+#include <dm/root.h>
 #include <dm/tag.h>
 #include <linux/err.h>
 #include <linux/list.h>
@@ -14,6 +15,24 @@
 struct udevice;
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static const char *const tag_name[] = {
+	[DM_TAG_PLAT]		= "plat",
+	[DM_TAG_PARENT_PLAT]	= "parent_plat",
+	[DM_TAG_UC_PLAT]	= "uclass_plat",
+
+	[DM_TAG_PRIV]		= "priv",
+	[DM_TAG_PARENT_PRIV]	= "parent_priv",
+	[DM_TAG_UC_PRIV]	= "uclass_priv",
+	[DM_TAG_DRIVER_DATA]	= "driver_data",
+
+	[DM_TAG_EFI]		= "efi",
+};
+
+const char *tag_get_name(enum dm_tag_t tag)
+{
+	return tag_name[tag];
+}
 
 int dev_tag_set_ptr(struct udevice *dev, enum dm_tag_t tag, void *ptr)
 {
@@ -136,4 +155,14 @@ int dev_tag_del_all(struct udevice *dev)
 		return 0;
 
 	return -ENOENT;
+}
+
+void dev_tag_collect_stats(struct dm_stats *stats)
+{
+	struct dmtag_node *node;
+
+	list_for_each_entry(node, &gd->dmtag_list, sibling) {
+		stats->tag_count++;
+		stats->tag_size += sizeof(struct dmtag_node);
+	}
 }

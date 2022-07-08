@@ -228,9 +228,9 @@ static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
 			ulong transfer_len)
 {
 	debug("%s: lba=%lx, transfer_len=%lx\n", __func__, lba, transfer_len);
+	priv->read_len = transfer_len;
 	if (priv->fd != -1) {
 		os_lseek(priv->fd, lba * SANDBOX_FLASH_BLOCK_LEN, OS_SEEK_SET);
-		priv->read_len = transfer_len;
 		setup_response(priv, priv->buff,
 			       transfer_len * SANDBOX_FLASH_BLOCK_LEN);
 	} else {
@@ -335,6 +335,9 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			      len, priv->alloc_len, priv->read_len);
 			if (priv->read_len) {
 				ulong bytes_read;
+
+				if (priv->fd == -1)
+					return -EIO;
 
 				bytes_read = os_read(priv->fd, buff, len);
 				if (bytes_read != len)

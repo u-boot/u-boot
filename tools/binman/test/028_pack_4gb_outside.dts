@@ -13,7 +13,7 @@
 		};
 
 		u-boot-spl {
-			offset = <0xffffffe7>;
+			offset = <0xffffffe3>;
 		};
 	};
 };

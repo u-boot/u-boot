@@ -12,6 +12,7 @@
 #include <getopt.h>
 #include <setjmp.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -52,6 +53,18 @@ ssize_t os_read(int fd, void *buf, size_t count)
 ssize_t os_write(int fd, const void *buf, size_t count)
 {
 	return write(fd, buf, count);
+}
+
+int os_printf(const char *fmt, ...)
+{
+	va_list args;
+	int i;
+
+	va_start(args, fmt);
+	i = vfprintf(stdout, fmt, args);
+	va_end(args);
+
+	return i;
 }
 
 off_t os_lseek(int fd, off_t offset, int whence)

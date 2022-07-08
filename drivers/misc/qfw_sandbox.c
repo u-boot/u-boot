@@ -48,7 +48,7 @@ static void qfw_sandbox_read_entry_dma(struct udevice *dev, struct qfw_dma *dma)
 {
 	u16 entry;
 	u32 control = be32_to_cpu(dma->control);
-	void *address = (void *)be64_to_cpu(dma->address);
+	void *address = (void *)(uintptr_t)be64_to_cpu(dma->address);
 	u32 length = be32_to_cpu(dma->length);
 	struct qfw_sandbox_plat *plat = dev_get_plat(dev);
 	struct fw_cfg_file *file;

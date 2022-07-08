@@ -9,16 +9,29 @@ config TPL_SIZE_LIMIT
 	  If this value is zero, it is ignored.
 
 config TPL_BINMAN_SYMBOLS
-	bool "Declare binman symbols in TPL"
-	depends on SPL_FRAMEWORK && BINMAN
+	bool "Support binman symbols in TPL"
+	depends on TPL_FRAMEWORK && BINMAN
 	default y
 	help
-	  This enables use of symbols in TPL which refer to U-Boot, enabling TPL
-	  to obtain the location of U-Boot simply by calling spl_get_image_pos()
-	  and spl_get_image_size().
+	  This enables use of symbols in TPL which refer to other entries in
+	  the same binman image as the TPL. These can be declared with the
+	  binman_sym_declare(type, entry, prop) macro and accessed by the
+	  binman_sym(type, entry, prop) macro defined in binman_sym.h.
 
-	  For this to work, you must have a U-Boot image in the binman image, so
-	  binman can update TPL with the location of it.
+	  See tools/binman/binman.rst for a detailed explanation.
+
+config TPL_BINMAN_UBOOT_SYMBOLS
+	bool "Declare binman symbols for U-Boot phases in TPL"
+	depends on TPL_BINMAN_SYMBOLS
+	default n if ARCH_IMX8M
+	default y
+	help
+	  This enables use of symbols in TPL which refer to U-Boot phases,
+	  enabling TPL to obtain the location and size of its next phase simply
+	  by calling spl_get_image_pos() and spl_get_image_size().
+
+	  For this to work, you must have all U-Boot phases in the same binman
+	  image, so binman can update TPL with the locations of everything.
 
 config TPL_FRAMEWORK
 	bool "Support TPL based upon the common SPL framework"

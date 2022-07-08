@@ -11,7 +11,6 @@ import multiprocessing
 import os
 import re
 import sys
-import unittest
 
 # Bring in the patman libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
@@ -34,19 +33,18 @@ def RunTests(skip_net_tests, verboose, args):
     from buildman import test
     import doctest
 
-    result = unittest.TestResult()
     test_name = args and args[0] or None
     if skip_net_tests:
         test.use_network = False
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
-    test_util.run_test_suites(
-        result, False, verboose, False, None, test_name, [],
+    result = test_util.run_test_suites(
+        'buildman', False, verboose, False, None, test_name, [],
         [test.TestBuild, func_test.TestFunctional,
          'buildman.toolchain', 'patman.gitutil'])
 
-    return test_util.report_result('buildman', test_name, result)
+    return (0 if result.wasSuccessful() else 1)
 
 options, args = cmdline.ParseArgs()
 

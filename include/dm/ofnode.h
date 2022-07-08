@@ -1182,6 +1182,33 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value);
 int ofnode_set_enabled(ofnode node, bool value);
 
 /**
+ * ofnode_get_phy_node() - Get PHY node for a MAC (if not fixed-link)
+ *
+ * This function parses PHY handle from the Ethernet controller's ofnode
+ * (trying all possible PHY handle property names), and returns the PHY ofnode.
+ *
+ * Before this is used, ofnode_phy_is_fixed_link() should be checked first, and
+ * if the result to that is true, this function should not be called.
+ *
+ * @eth_node:	ofnode belonging to the Ethernet controller
+ * Return: ofnode of the PHY, if it exists, otherwise an invalid ofnode
+ */
+ofnode ofnode_get_phy_node(ofnode eth_node);
+
+/**
+ * ofnode_read_phy_mode() - Read PHY connection type from a MAC node
+ *
+ * This function parses the "phy-mode" / "phy-connection-type" property and
+ * returns the corresponding PHY interface type.
+ *
+ * @mac_node:	ofnode containing the property
+ * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NA on
+ *	   error
+ */
+phy_interface_t ofnode_read_phy_mode(ofnode mac_node);
+
+#if CONFIG_IS_ENABLED(DM)
+/**
  * ofnode_conf_read_bool() - Read a boolean value from the U-Boot config
  *
  * This reads a property from the /config node of the devicetree.
@@ -1218,30 +1245,21 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
  */
 const char *ofnode_conf_read_str(const char *prop_name);
 
-/**
- * ofnode_get_phy_node() - Get PHY node for a MAC (if not fixed-link)
- *
- * This function parses PHY handle from the Ethernet controller's ofnode
- * (trying all possible PHY handle property names), and returns the PHY ofnode.
- *
- * Before this is used, ofnode_phy_is_fixed_link() should be checked first, and
- * if the result to that is true, this function should not be called.
- *
- * @eth_node:	ofnode belonging to the Ethernet controller
- * Return: ofnode of the PHY, if it exists, otherwise an invalid ofnode
- */
-ofnode ofnode_get_phy_node(ofnode eth_node);
+#else /* CONFIG_DM */
+static inline bool ofnode_conf_read_bool(const char *prop_name)
+{
+	return false;
+}
 
-/**
- * ofnode_read_phy_mode() - Read PHY connection type from a MAC node
- *
- * This function parses the "phy-mode" / "phy-connection-type" property and
- * returns the corresponding PHY interface type.
- *
- * @mac_node:	ofnode containing the property
- * Return: one of PHY_INTERFACE_MODE_* constants, PHY_INTERFACE_MODE_NA on
- *	   error
- */
-phy_interface_t ofnode_read_phy_mode(ofnode mac_node);
+static inline int ofnode_conf_read_int(const char *prop_name, int default_val)
+{
+	return default_val;
+}
+
+static inline const char *ofnode_conf_read_str(const char *prop_name)
+{
+	return NULL;
+}
+#endif /* CONFIG_DM */
 
 #endif

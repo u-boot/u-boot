@@ -43,8 +43,8 @@ from patman import tout
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = b'1234'
 U_BOOT_IMG_DATA       = b'img'
-U_BOOT_SPL_DATA       = b'56780123456789abcdefghi'
-U_BOOT_TPL_DATA       = b'tpl9876543210fedcbazyw'
+U_BOOT_SPL_DATA       = b'56780123456789abcdefghijklm'
+U_BOOT_TPL_DATA       = b'tpl9876543210fedcbazywvuts'
 BLOB_DATA             = b'89'
 ME_DATA               = b'0abcd'
 VGA_DATA              = b'vga'
@@ -1406,8 +1406,9 @@ class TestFunctional(unittest.TestCase):
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
         addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
+        self.assertEqual(syms['_binman_sym_magic'].address, addr)
         self.assertEqual(syms['_binman_u_boot_spl_any_prop_offset'].address,
-                         addr)
+                         addr + 4)
 
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFileDtb(dts, entry_args=entry_args,
@@ -1415,17 +1416,17 @@ class TestFunctional(unittest.TestCase):
         # The image should contain the symbols from u_boot_binman_syms.c
         # Note that image_pos is adjusted by the base address of the image,
         # which is 0x10 in our test image
-        sym_values = struct.pack('<LQLL', 0x00,
-                                 u_boot_offset + len(U_BOOT_DATA),
+        sym_values = struct.pack('<LLQLL', elf.BINMAN_SYM_MAGIC_VALUE,
+                                 0x00, u_boot_offset + len(U_BOOT_DATA),
                                  0x10 + u_boot_offset, 0x04)
-        expected = (sym_values + base_data[20:] +
+        expected = (sym_values + base_data[24:] +
                     tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values +
-                    base_data[20:])
+                    base_data[24:])
         self.assertEqual(expected, data)
 
     def testSymbols(self):
         """Test binman can assign symbols embedded in U-Boot"""
-        self.checkSymbols('053_symbols.dts', U_BOOT_SPL_DATA, 0x18)
+        self.checkSymbols('053_symbols.dts', U_BOOT_SPL_DATA, 0x1c)
 
     def testSymbolsNoDtb(self):
         """Test binman can assign symbols embedded in U-Boot SPL"""
@@ -3610,20 +3611,20 @@ class TestFunctional(unittest.TestCase):
 
     def _CheckSymbolsTplSection(self, dts, expected_vals):
         data = self._DoReadFile(dts)
-        sym_values = struct.pack('<LQLL', *expected_vals)
+        sym_values = struct.pack('<LLQLL', elf.BINMAN_SYM_MAGIC_VALUE, *expected_vals)
         upto1 = 4 + len(U_BOOT_SPL_DATA)
-        expected1 = tools.get_bytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[20:]
+        expected1 = tools.get_bytes(0xff, 4) + sym_values + U_BOOT_SPL_DATA[24:]
         self.assertEqual(expected1, data[:upto1])
 
         upto2 = upto1 + 1 + len(U_BOOT_SPL_DATA)
-        expected2 = tools.get_bytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[20:]
+        expected2 = tools.get_bytes(0xff, 1) + sym_values + U_BOOT_SPL_DATA[24:]
         self.assertEqual(expected2, data[upto1:upto2])
 
-        upto3 = 0x34 + len(U_BOOT_DATA)
+        upto3 = 0x3c + len(U_BOOT_DATA)
         expected3 = tools.get_bytes(0xff, 1) + U_BOOT_DATA
         self.assertEqual(expected3, data[upto2:upto3])
 
-        expected4 = sym_values + U_BOOT_TPL_DATA[20:]
+        expected4 = sym_values + U_BOOT_TPL_DATA[24:]
         self.assertEqual(expected4, data[upto3:upto3 + len(U_BOOT_TPL_DATA)])
 
     def testSymbolsTplSection(self):
@@ -3631,14 +3632,14 @@ class TestFunctional(unittest.TestCase):
         self._SetupSplElf('u_boot_binman_syms')
         self._SetupTplElf('u_boot_binman_syms')
         self._CheckSymbolsTplSection('149_symbols_tpl.dts',
-                                     [0x04, 0x1c, 0x10 + 0x34, 0x04])
+                                     [0x04, 0x20, 0x10 + 0x3c, 0x04])
 
     def testSymbolsTplSectionX86(self):
         """Test binman can assign symbols in a section with end-at-4gb"""
         self._SetupSplElf('u_boot_binman_syms_x86')
         self._SetupTplElf('u_boot_binman_syms_x86')
         self._CheckSymbolsTplSection('155_symbols_tpl_x86.dts',
-                                     [0xffffff04, 0xffffff1c, 0xffffff34,
+                                     [0xffffff04, 0xffffff20, 0xffffff3c,
                                       0x04])
 
     def testPackX86RomIfwiSectiom(self):
@@ -4488,7 +4489,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSymbolsSubsection(self):
         """Test binman can assign symbols from a subsection"""
-        self.checkSymbols('187_symbols_sub.dts', U_BOOT_SPL_DATA, 0x18)
+        self.checkSymbols('187_symbols_sub.dts', U_BOOT_SPL_DATA, 0x1c)
 
     def testReadImageEntryArg(self):
         """Test reading an image that would need an entry arg to generate"""
