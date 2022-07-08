@@ -1048,13 +1048,6 @@ static int eth_set_config(struct eth_dev *dev, unsigned number,
 	int			result = 0;
 	struct usb_gadget	*gadget = dev->gadget;
 
-	if (gadget_is_sa1100(gadget)
-			&& dev->config
-			&& dev->tx_qlen != 0) {
-		/* tx fifo is full, but we can't clear it...*/
-		pr_err("can't change configurations");
-		return -ESPIPE;
-	}
 	eth_reset_config(dev);
 
 	switch (number) {
@@ -2019,14 +2012,6 @@ static int eth_bind(struct usb_gadget *gadget)
 		/* sh doesn't support multiple interfaces or configs */
 		cdc = 0;
 		rndis = 0;
-	} else if (gadget_is_sa1100(gadget)) {
-		/* hardware can't write zlps */
-		zlp = 0;
-		/*
-		 * sa1100 CAN do CDC, without status endpoint ... we use
-		 * non-CDC to be compatible with ARM Linux-2.4 "usb-eth".
-		 */
-		cdc = 0;
 	}
 
 	gcnum = usb_gadget_controller_number(gadget);

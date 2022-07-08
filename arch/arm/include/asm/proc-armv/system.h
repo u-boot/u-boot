@@ -163,8 +163,7 @@
 
 #endif	/* CONFIG_ARM64 */
 
-#if defined(CONFIG_CPU_SA1100) || defined(CONFIG_CPU_SA110) || \
-	defined(CONFIG_ARM64)
+#if defined(CONFIG_ARM64)
 /*
  * On the StrongARM, "swp" is terminally broken since it bypasses the
  * cache totally.  This means that the cache becomes inconsistent, and,
