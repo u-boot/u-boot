@@ -401,8 +401,13 @@ void enable_board_pin_mux(void)
 		configure_module_pin_mux(mmc0_pin_mux_sk_evm);
 	} else if (board_is_bone_lt()) {
 		if (board_is_bben()) {
+			char subtype_id = board_ti_get_config()[1];
+
 			/* SanCloud Beaglebone LT Enhanced pinmux */
 			configure_module_pin_mux(rgmii1_pin_mux);
+
+			if (subtype_id == 'L')
+				configure_module_pin_mux(spi0_pin_mux);
 		} else {
 			/* Beaglebone LT pinmux */
 			configure_module_pin_mux(mii1_pin_mux);
