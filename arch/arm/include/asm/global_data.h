@@ -107,7 +107,9 @@ static inline gd_t *get_gd(void)
 {
 	gd_t *gd_ptr;
 
-#ifdef CONFIG_ARM64
+#ifdef CONFIG_SYS_GLOBAL_DATA_POINTER
+    gd_ptr = *(gd_t **)CONFIG_SYS_GLOBAL_DATA_POINTER;
+#elif CONFIG_ARM64
 	__asm__ volatile("mov %0, x18\n" : "=r" (gd_ptr));
 #else
 	__asm__ volatile("mov %0, r9\n" : "=r" (gd_ptr));
@@ -118,7 +120,9 @@ static inline gd_t *get_gd(void)
 
 #else
 
-#ifdef CONFIG_ARM64
+#ifdef CONFIG_SYS_GLOBAL_DATA_POINTER
+#define DECLARE_GLOBAL_DATA_PTR		extern gd_t *gd
+#elif CONFIG_ARM64
 #define DECLARE_GLOBAL_DATA_PTR		register volatile gd_t *gd asm ("x18")
 #else
 #define DECLARE_GLOBAL_DATA_PTR		register volatile gd_t *gd asm ("r9")
@@ -127,7 +131,9 @@ static inline gd_t *get_gd(void)
 
 static inline void set_gd(volatile gd_t *gd_ptr)
 {
-#ifdef CONFIG_ARM64
+#ifdef CONFIG_SYS_GLOBAL_DATA_POINTER
+    *(volatile gd_t **)CONFIG_SYS_GLOBAL_DATA_POINTER = gd_ptr;
+#elif CONFIG_ARM64
 	__asm__ volatile("ldr x18, %0\n" : : "m"(gd_ptr));
 #elif __ARM_ARCH >= 7
 	__asm__ volatile("ldr r9, %0\n" : : "m"(gd_ptr));

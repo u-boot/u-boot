@@ -330,13 +330,14 @@ struct pll_psc {
 };
 
 /*
- * OSC_HSE = 25 MHz
- * VCO = 500MHz
- * pll1_p = 250MHz / pll1_q = 250MHz pll1_r = 250Mhz
+ * TODO -- this is broken: various H743 boards use different crystals. The crystal frequency should be in the device tree, and that should control the PLL setup.
+ * OSC_HSE = 8 MHz
+ * VCO = 960Hz
+ * pll1_p = 480MHz / pll1_q = 480MHz pll1_r = 480Mhz
  */
 struct pll_psc sys_pll_psc = {
-	.divm = 4,
-	.divn = 80,
+	.divm = 1,
+	.divn = 120,
 	.divp = 2,
 	.divq = 2,
 	.divr = 2,
@@ -347,6 +348,15 @@ enum apb {
 	APB2,
 };
 
+
+struct stm32_syscfg_regs {
+    u32 foo[0x2c/4];
+    u32 pwrcr;
+};
+
+#define SYSCFG_PWRCR_ODEN 0x00000001
+
+
 int configure_clocks(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
@@ -355,6 +365,10 @@ int configure_clocks(struct udevice *dev)
 	uint32_t pllckselr = 0;
 	uint32_t pll1divr = 0;
 	uint32_t pllcfgr = 0;
+
+    /* Get the address of the syscfg register bank, which contains the overdrive enable bit. */
+    /* This is hacky, but I could NOT get the syscfg to bind before the rcc. Device tree and driver model documentation is really horrible. */
+    struct stm32_syscfg_regs *syscfg = (struct stm32_syscfg_regs *)0x58000400;
 
 	/* Switch on HSI */
 	setbits_le32(&regs->cr, RCC_CR_HSION);
@@ -374,6 +388,11 @@ int configure_clocks(struct udevice *dev)
 			VOS_SCALE_1 << PWR_D3CR_VOS_SHIFT);
 	/* Lock supply configuration update */
 	clrbits_le32(pwr_base + PWR_CR3, PWR_CR3_SCUEN);
+	while (!(readl(pwr_base + PWR_D3CR) & PWR_D3CR_VOSREADY))
+		;
+
+    /* set voltage scaling at scale 0 (1.35 volts) for highest performance */
+    syscfg->pwrcr |= SYSCFG_PWRCR_ODEN;
 	while (!(readl(pwr_base + PWR_D3CR) & PWR_D3CR_VOSREADY))
 		;
 

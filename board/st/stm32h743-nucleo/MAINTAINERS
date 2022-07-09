@@ -1,0 +1,6 @@
+STM32H743 NUCLEO BOARD
+M:	Patrice Chotard <patrice.chotard@foss.st.com>
+S:	Maintained
+F:	board/st/stm32h743-nucleo
+F:	include/configs/stm32h743-nucleo.h
+F:	configs/stm32h743-nucleo_defconfig

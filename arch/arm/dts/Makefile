@@ -514,6 +514,7 @@ dtb-$(CONFIG_STM32F7) += stm32f746-disco.dtb \
 	stm32746g-eval.dtb
 dtb-$(CONFIG_STM32H7) += stm32h743i-disco.dtb \
 	stm32h743i-eval.dtb \
+	stm32h743i-nucleo.dtb \
 	stm32h750i-art-pi.dtb
 
 dtb-$(CONFIG_MACH_SUNIV) += \

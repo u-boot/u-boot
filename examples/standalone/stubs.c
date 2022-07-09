@@ -53,6 +53,21 @@ gd_t *global_data;
 "	ldr	x9, [x9, %1]\n"		\
 "	br	x9\n"		\
 	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)) : "x9");
+#elif defined(CONFIG_SYS_GLOBAL_DATA_POINTER)
+/*
+ * global data pointer is in a fixed RAM location, ip is a call-clobbered
+ * register
+ */
+#define EXPORT_FUNC(f, a, x, ...)                       \
+	asm volatile (			                            \
+"	.globl " #x "\n"		                            \
+#x ":\n"				                                \
+"   movw ip, #:lower16:%2\n" \
+"   movt ip, #:upper16:%2\n" \
+"   ldr ip, [ip]\n"                                     \
+"	ldr	ip, [ip, %0]\n"		                            \
+"	ldr	pc, [ip, %1]\n"		                            \
+	: : "i"(offsetof(gd_t, jt)), "i"(FO(x)), "i"(CONFIG_SYS_GLOBAL_DATA_POINTER) : "ip");
 #else
 /*
  * r9 holds the pointer to the global_data, ip is a call-clobbered

@@ -28,7 +28,6 @@
 *.o.*
 *.order
 *.patch
-*.s
 *.su
 *.swp
 *.tab.[ch]
@@ -104,3 +103,22 @@ __pycache__
 # pylint files
 /pylint.cur
 /pylint.out/
+
+/H743 addresses.xlsx
+/ST_STM32H743_TraceBuffer.pex
+/arch/arm/include/asm/arch.link
+/list
+/macros.txt
+/sources.txt
+/tools/boot/bootm.c
+/tools/boot/fdt_region.c
+/tools/boot/image-cipher.c
+/tools/boot/image-fit-sig.c
+/tools/boot/image-fit.c
+/tools/boot/image-host.c
+/tools/boot/image.c
+/uboot.und/id.txt
+/uboot.und/settings.xml
+/H743.jdebug.user
+/lib/asm-offsets.s
+/arch/arm/lib/asm-offsets.s

@@ -1,0 +1,39 @@
+if TARGET_STM32H743_NUCLEO
+
+config SYS_BOARD
+	string
+	default "stm32h743-nucleo"
+
+config SYS_VENDOR
+	string
+	default "st"
+
+config SYS_SOC
+	string
+	default "stm32h7"
+
+config SYS_CONFIG_NAME
+	string
+	default "stm32h743-nucleo"
+
+config SYS_EXEC_IN_PLACE
+	bool "Execute-in-place (ROM) rather than relocating to RAM"
+	default y
+	help
+	  If true, execute U-boot code in-place from flash ROM.
+	  Do not relocate the code and read-only data to RAM.
+	  The .data and .bss sections must be located in RAM.
+	  The .data section will be initialized from a ROM copy.
+
+config SYS_GLOBAL_DATA_POINTER
+	hex "Address of global data pointer in RAM"
+	default 0x30047FC0
+	help
+	  If defined, this is the address in RAM of the global data pointer.
+	  For most targets the global data pointer is held in a reserved
+	  CPU register. If the register is needed for something else, the
+	  pointer can be stored in a known fixed RAM location. This costs
+	  two memory-referencing instructions for reference to global data,
+	  but it frees up a CPU register for use by application programs.
+
+endif

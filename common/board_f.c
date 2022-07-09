@@ -150,8 +150,14 @@ static int display_text_info(void)
 	text_base = CONFIG_SYS_MONITOR_BASE;
 #endif
 
+#if defined(CONFIG_SYS_EXEC_IN_PLACE)
+	printf("U-Boot code: %08lX -> %08lX\n", (ulong)&__image_copy_start, (ulong)&__image_copy_end);
+	printf("U-Boot data: %08lX -> %08lX\n", (ulong)&_sdata, (ulong)&_edata);
+	printf("U-Boot  bss: %08lX -> %08lX\n", bss_start, bss_end);
+#else
 	debug("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
 	      text_base, bss_start, bss_end);
+#endif
 #endif
 
 	return 0;
@@ -208,11 +214,13 @@ static int print_cpuinfo(void)
 }
 #endif
 
+#ifndef CONFIG_TARGET_STM32H743_NUCLEO
 static int announce_dram_init(void)
 {
 	puts("DRAM:  ");
 	return 0;
 }
+#endif
 
 static int show_dram_config(void)
 {
@@ -264,7 +272,9 @@ __weak int init_func_vid(void)
 
 static int setup_mon_len(void)
 {
-#if defined(__ARM__) || defined(__MICROBLAZE__)
+#if defined(CONFIG_SYS_EXEC_IN_PLACE)
+	gd->mon_len = (ulong)&_etext - (ulong)_stext;
+#elif defined(__ARM__) || defined(__MICROBLAZE__)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = 0;
@@ -884,8 +894,11 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_VID) && !defined(CONFIG_SPL)
 	init_func_vid,
 #endif
+#ifndef CONFIG_TARGET_STM32H743_NUCLEO
 	announce_dram_init,
 	dram_init,		/* configure available RAM banks */
+#endif
+	fdtdec_setup_mem_size_base,
 #ifdef CONFIG_POST
 	post_init_f,
 #endif

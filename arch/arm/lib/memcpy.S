@@ -181,7 +181,7 @@ ENTRY(memcpy)
 	CALGN(	subcc	r2, r2, ip		)
 	CALGN(	bcc	15f			)
 
-11:		stmfd	sp!, {r5 - r9}
+11:		stmfd	sp!, {r5 - r8, r10}
 
 	PLD(	pld	[r1, #0]		)
 	PLD(	subs	r2, r2, #96		)
@@ -194,7 +194,7 @@ ENTRY(memcpy)
 13:		ldr4w	r1, r4, r5, r6, r7, abort=19f
 		mov	r3, lr, lspull #\pull
 		subs	r2, r2, #32
-		ldr4w	r1, r8, r9, ip, lr, abort=19f
+		ldr4w	r1, r8, r10, ip, lr, abort=19f
 		orr	r3, r3, r4, lspush #\push
 		mov	r4, r4, lspull #\pull
 		orr	r4, r4, r5, lspush #\push
@@ -205,17 +205,17 @@ ENTRY(memcpy)
 		mov	r7, r7, lspull #\pull
 		orr	r7, r7, r8, lspush #\push
 		mov	r8, r8, lspull #\pull
-		orr	r8, r8, r9, lspush #\push
-		mov	r9, r9, lspull #\pull
-		orr	r9, r9, ip, lspush #\push
+		orr	r8, r8, r10, lspush #\push
+		mov	r10, r10, lspull #\pull
+		orr	r10, r10, ip, lspush #\push
 		mov	ip, ip, lspull #\pull
 		orr	ip, ip, lr, lspush #\push
-		str8w	r0, r3, r4, r5, r6, r7, r8, r9, ip, abort=19f
+		str8w	r0, r3, r4, r5, r6, r7, r8, r10, ip, abort=19f
 		bge	12b
 	PLD(	cmn	r2, #96			)
 	PLD(	bge	13b			)
 
-		ldmfd	sp!, {r5 - r9}
+		ldmfd	sp!, {r5 - r8, r10}
 
 14:		ands	ip, r2, #28
 		beq	16f
@@ -250,7 +250,7 @@ ENTRY(memcpy)
  */
 
 	.macro	copy_abort_preamble
-19:	ldmfd	sp!, {r5 - r9}
+19:	ldmfd	sp!, {r5 - r8, r10}
 	b	21f
 20:	ldmfd	sp!, {r5 - r8}
 21:
