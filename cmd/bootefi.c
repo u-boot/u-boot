@@ -119,9 +119,9 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
 			efi_free_pool(image_tmp);
 		}
 		bootefi_image_path = image;
-		log_debug("- recorded device %ls\n", efi_dp_str(device));
+		log_debug("- boot device %pD\n", device);
 		if (image)
-			log_debug("- and image %ls\n", efi_dp_str(image));
+			log_debug("- image %pD\n", image);
 	} else {
 		log_debug("- efi_dp_from_name() failed, err=%lx\n", ret);
 		efi_clear_bootdev();
