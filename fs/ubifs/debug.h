@@ -173,13 +173,7 @@ struct ubifs_global_debug_info {
 	}                                                                      \
 } while (0)
 
-#define ubifs_assert_cmt_locked(c) do {                                        \
-	if (unlikely(down_write_trylock(&(c)->commit_sem))) {                  \
-		up_write(&(c)->commit_sem);                                    \
-		pr_debug("commit lock is not locked!\n");                      \
-		ubifs_assert(0);                                               \
-	}                                                                      \
-} while (0)
+#define ubifs_assert_cmt_locked(c) do { } while (0)
 
 #define ubifs_dbg_msg(type, fmt, ...) \
 	pr_debug("UBIFS DBG " type ": " fmt "\n",                              \
