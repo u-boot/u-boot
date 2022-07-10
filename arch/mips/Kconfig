@@ -39,14 +39,6 @@ config TARGET_MALTA
 	select SWAP_IO_SPACE
 	imply CMD_DM
 
-config TARGET_VCT
-	bool "Support vct"
-	select ROM_EXCEPTION_VECTORS
-	select SUPPORTS_BIG_ENDIAN
-	select SUPPORTS_CPU_MIPS32_R1
-	select SUPPORTS_CPU_MIPS32_R2
-	select SYS_MIPS_CACHE_INIT_RAM_LOAD
-
 config ARCH_ATH79
 	bool "Support QCA/Atheros ath79"
 	select DM
