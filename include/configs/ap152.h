@@ -6,8 +6,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_MHZ                  375
-#define CONFIG_SYS_MIPS_TIMER_FREQ      (CONFIG_SYS_MHZ * 1000000)
+#define CONFIG_SYS_MIPS_TIMER_FREQ      375000000
 
 #define CONFIG_SYS_SDRAM_BASE           0x80000000
 

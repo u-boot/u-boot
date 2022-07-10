@@ -10,8 +10,7 @@
 #define __CONFIG_CI20_H__
 
 /* Ingenic JZ4780 clock configuration. */
-#define CONFIG_SYS_MHZ			1200
-#define CONFIG_SYS_MIPS_TIMER_FREQ	(CONFIG_SYS_MHZ * 1000000)
+#define CONFIG_SYS_MIPS_TIMER_FREQ	1200000000
 
 /* Memory configuration */
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
