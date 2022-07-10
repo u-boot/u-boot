@@ -13,7 +13,6 @@
 /*
  * CPU
  */
-#define CONFIG_SYS_MIPS_TIMER_FREQ	30000000
 
 /*
  * PCI

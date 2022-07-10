@@ -18,7 +18,6 @@
 /*
  * CPU Configuration
  */
-#define CONFIG_SYS_MIPS_TIMER_FREQ	250000000
 
 /*
  * Memory map

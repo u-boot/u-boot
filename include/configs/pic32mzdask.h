@@ -13,8 +13,6 @@
 /*--------------------------------------------
  * CPU configuration
  */
-/* CPU Timer rate */
-#define CONFIG_SYS_MIPS_TIMER_FREQ	100000000
 
 /*----------------------------------------------------------------------
  * Memory Layout
