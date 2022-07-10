@@ -165,14 +165,9 @@ struct ubifs_global_debug_info {
 		 dbg_snprintf_key(c, key, __tmp_key_buf, DBG_KEY_BUF_LEN));    \
 } while (0)
 #else
-#define ubifs_assert(expr) do {                                                \
-	if (unlikely(!(expr))) {                                               \
-		pr_debug("UBIFS assert failed in %s at %u\n",                  \
-		       __func__, __LINE__);                                    \
-		dump_stack();                                                  \
-	}                                                                      \
-} while (0)
 
+#include <log.h>
+#define ubifs_assert(expr) assert(expr)
 #define ubifs_assert_cmt_locked(c) do { } while (0)
 
 #define ubifs_dbg_msg(type, fmt, ...) \
