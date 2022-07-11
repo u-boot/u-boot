@@ -398,6 +398,17 @@ int __weak spl_mmc_emmc_boot_partition(struct mmc *mmc)
 	return default_spl_mmc_emmc_boot_partition(mmc);
 }
 
+static int spl_mmc_get_mmc_devnum(struct mmc *mmc)
+{
+	struct blk_desc *block_dev;
+#if !CONFIG_IS_ENABLED(BLK)
+	block_dev = &mmc->block_dev;
+#else
+	block_dev = dev_get_uclass_plat(mmc->dev);
+#endif
+	return block_dev->devnum;
+}
+
 int spl_mmc_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev,
 		 const char *filename,
@@ -408,9 +419,11 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	u32 boot_mode;
 	int err = 0;
 	__maybe_unused int part = 0;
+	int mmc_dev;
 
-	/* Perform peripheral init only once */
-	if (!mmc) {
+	/* Perform peripheral init only once for an mmc device */
+	mmc_dev = spl_mmc_get_device_index(bootdev->boot_device);
+	if (!mmc || spl_mmc_get_mmc_devnum(mmc) != mmc_dev) {
 		err = spl_mmc_find_device(&mmc, bootdev->boot_device);
 		if (err)
 			return err;
