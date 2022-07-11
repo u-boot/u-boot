@@ -984,10 +984,10 @@ struct phy_device *fixed_phy_create(ofnode node)
 	}
 
 	phydev = phy_device_create(NULL, 0, PHY_FIXED_ID, false);
-	if (phydev)
+	if (phydev) {
 		phydev->node = subnode;
-
-	phydev->interface = ofnode_read_phy_mode(node);
+		phydev->interface = ofnode_read_phy_mode(node);
+	}
 
 	return phydev;
 }
