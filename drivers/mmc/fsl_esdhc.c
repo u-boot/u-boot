@@ -30,6 +30,7 @@
 #include <linux/iopoll.h>
 #include <linux/dma-mapping.h>
 #include <sdhci.h>
+#include "../../board/freescale/common/qixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -773,7 +774,7 @@ static int esdhc_getcd_common(struct fsl_esdhc_priv *priv)
 	struct fsl_esdhc *regs = priv->esdhc_regs;
 
 #ifdef CONFIG_ESDHC_DETECT_QUIRK
-	if (CONFIG_ESDHC_DETECT_QUIRK)
+	if (qixis_esdhc_detect_quirk())
 		return 1;
 #endif
 	if (esdhc_read32(&regs->prsstat) & PRSSTAT_CINS)
@@ -946,9 +947,8 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 	} else if (cfg->max_bus_width == 1) {
 		mmc_cfg->host_caps |= MMC_MODE_1BIT;
 	} else {
-		mmc_cfg->host_caps |= MMC_MODE_1BIT | MMC_MODE_4BIT |
-				      MMC_MODE_8BIT;
-		printf("No max bus width provided. Assume 8-bit supported.\n");
+		mmc_cfg->host_caps |= MMC_MODE_1BIT;
+		printf("No max bus width provided. Fallback to 1-bit mode.\n");
 	}
 
 	if (IS_ENABLED(CONFIG_ESDHC_DETECT_8_BIT_QUIRK))
@@ -972,6 +972,7 @@ int fsl_esdhc_mmc_init(struct bd_info *bis)
 
 	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
+	cfg->max_bus_width = CONFIG_SYS_FSL_ESDHC_DEFAULT_BUS_WIDTH;
 	/* Prefer peripheral clock which provides higher frequency. */
 	if (gd->arch.sdhc_per_clk)
 		cfg->sdhc_clk = gd->arch.sdhc_per_clk;

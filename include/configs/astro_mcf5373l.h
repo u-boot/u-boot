@@ -65,8 +65,6 @@
 #define CONFIG_SYS_CORE_SRAM_SIZE	0x8000
 #define CONFIG_SYS_CORE_SRAM		0x80000000
 
-#define CONFIG_SYS_UNIFY_CACHE
-
 /*
  * Define baudrate for UART1 (console output, tftp, ...)
  * default value of CONFIG_BAUDRATE for Sentec board: 19200 baud
@@ -133,7 +131,6 @@
  * it needs non-blocking CFI routines.
  */
 
-#define CONFIG_FPGA_COUNT	1
 #define CONFIG_SYS_FPGA_PROG_FEEDBACK
 #define CONFIG_SYS_FPGA_WAIT		1000
 
@@ -162,9 +159,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
 #define CONFIG_SYS_INIT_RAM_SIZE		0x8000
 #define CONFIG_SYS_INIT_RAM_CTRL	0x221
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Start addresses for the final memory configuration
@@ -203,8 +197,6 @@
 
 /* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 
 /*
  * For booting Linux, the board info and command line data

@@ -23,7 +23,7 @@ SECTIONS
 {
 	.text : {
 		. = ALIGN(8);
-		*(.__image_copy_start)
+		__image_copy_start = .;
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	} >.sram
@@ -46,9 +46,9 @@ SECTIONS
 	} >.sram
 #endif
 
-	.u_boot_list : {
+	__u_boot_list : {
 		. = ALIGN(8);
-		KEEP(*(SORT(.u_boot_list*)));
+		KEEP(*(SORT(__u_boot_list*)));
 	} >.sram
 
 	.image_copy_end : {

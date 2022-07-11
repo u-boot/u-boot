@@ -514,10 +514,12 @@ retry_cmd:
  */
 static void stm32_sdmmc2_reset(struct stm32_sdmmc2_priv *priv)
 {
-	/* Reset */
-	reset_assert(&priv->reset_ctl);
-	udelay(2);
-	reset_deassert(&priv->reset_ctl);
+	if (reset_valid(&priv->reset_ctl)) {
+		/* Reset */
+		reset_assert(&priv->reset_ctl);
+		udelay(2);
+		reset_deassert(&priv->reset_ctl);
+	}
 
 	/* init the needed SDMMC register after reset */
 	writel(priv->pwr_reg_msk, priv->base + SDMMC_POWER);
@@ -735,7 +737,7 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 
 	ret = reset_get_by_index(dev, 0, &priv->reset_ctl);
 	if (ret)
-		goto clk_disable;
+		dev_dbg(dev, "No reset provided\n");
 
 	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
 			     GPIOD_IS_IN);
@@ -755,8 +757,6 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	stm32_sdmmc2_reset(priv);
 	return 0;
 
-clk_disable:
-	clk_disable(&priv->clk);
 clk_free:
 	clk_free(&priv->clk);
 

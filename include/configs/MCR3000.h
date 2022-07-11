@@ -86,7 +86,6 @@
 /* environment is in FLASH */
 
 /* Ethernet configuration part */
-#define CONFIG_SYS_DISCOVER_PHY		1
 
 /* NAND configuration part */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

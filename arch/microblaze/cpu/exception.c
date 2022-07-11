@@ -16,7 +16,7 @@ void _hw_exception_handler (void)
 
 	/* loading address of exception EAR */
 	MFS(address, rear);
-	/* loading excetpion state register ESR */
+	/* loading exception state register ESR */
 	MFS(state, resr);
 	printf("Hardware exception at 0x%x address\n", address);
 	R17(address);

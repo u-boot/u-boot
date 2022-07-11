@@ -37,13 +37,11 @@ ifdef CONFIG_USB_ETHER
 obj-y += ether.o
 obj-$(CONFIG_USB_ETH_RNDIS) += rndis.o
 obj-$(CONFIG_CI_UDC)	+= ci_udc.o
-obj-$(CONFIG_CPU_PXA25X) += pxa25x_udc.o
 else
 # Devices not related to the new gadget layer depend on CONFIG_USB_DEVICE
 ifdef CONFIG_USB_DEVICE
 obj-y += core.o
 obj-y += ep0.o
 obj-$(CONFIG_DW_UDC) += designware_udc.o
-obj-$(CONFIG_CPU_PXA27X) += pxa27x_udc.o
 endif
 endif

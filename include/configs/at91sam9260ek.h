@@ -34,17 +34,11 @@
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
 #define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
-/*
- * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
- * leaving the correct space for initial global data structure above
- * that address while providing maximum stack area below.
- */
+#define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
 #ifdef CONFIG_AT91SAM9XE
-# define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
+# define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
 #else
-# define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM1 + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
+# define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM1
 #endif
 
 /* NAND flash */
@@ -59,12 +53,6 @@
 #endif
 
 /* USB */
-#define CONFIG_USB_ATMEL
-#define CONFIG_USB_ATMEL_CLK_SEL_PLLB
-#define CONFIG_USB_OHCI_NEW		1
-#define CONFIG_SYS_USB_OHCI_CPU_INIT		1
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
-#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9260"
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
 #endif

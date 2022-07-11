@@ -45,8 +45,11 @@
 #define RXF		0x20
 #define RXE		0x24
 #define RXC		0x28
+#define TFES		1
 #define TFLETE		4
+#define TSSRS		6
 #define RFMTE		5
+#define RSSRS		6
 
 #define FAULTF		0x2c
 #define FAULTC		0x30
@@ -170,6 +173,11 @@ static void synquacer_cs_set(struct synquacer_spi_priv *priv, bool active)
 			priv->rx_words = 16;
 			read_fifo(priv);
 		}
+
+		/* wait until slave is deselected */
+		while (!(readl(priv->base + TXF) & BIT(TSSRS)) ||
+		       !(readl(priv->base + RXF) & BIT(RSSRS)))
+			;
 	}
 }
 
@@ -275,7 +283,7 @@ static int synquacer_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct udevice *bus = dev->parent;
 	struct synquacer_spi_priv *priv = dev_get_priv(bus);
-	u32 val, words, busy;
+	u32 val, words, busy = 0;
 
 	val = readl(priv->base + FIFOCFG);
 	val |= (1 << RX_FLUSH);
@@ -323,9 +331,11 @@ static int synquacer_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	writel(~0, priv->base + RXC);
 
 	/* Trigger */
-	val = readl(priv->base + DMSTART);
-	val |= BIT(TRIGGER);
-	writel(val, priv->base + DMSTART);
+	if (flags & SPI_XFER_BEGIN) {
+		val = readl(priv->base + DMSTART);
+		val |= BIT(TRIGGER);
+		writel(val, priv->base + DMSTART);
+	}
 
 	while (busy & (BIT(RXBIT) | BIT(TXBIT))) {
 		if (priv->rx_words)
@@ -336,13 +346,10 @@ static int synquacer_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		if (priv->tx_words) {
 			write_fifo(priv);
 		} else {
-			u32 len;
-
-			do { /* wait for shifter to empty out */
+			/* wait for shifter to empty out */
+			while (!(readl(priv->base + TXF) & BIT(TFES)))
 				cpu_relax();
-				len = readl(priv->base + DMSTATUS);
-				len = (len >> TX_DATA_SHIFT) & TX_DATA_MASK;
-			} while (tx_buf && len);
+
 			busy &= ~BIT(TXBIT);
 		}
 	}

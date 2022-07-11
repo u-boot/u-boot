@@ -30,11 +30,6 @@
 #include <asm/arch/config.h>
 
 /* Link Definitions */
-#ifdef CONFIG_TFABOOT
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
-#endif
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
@@ -51,17 +46,6 @@
 
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
-
-#define CONFIG_SPL_MAX_SIZE		0x17000
-#define CONFIG_SPL_STACK		0x1001e000
-#define CONFIG_SPL_PAD_TO		0x1d000
-
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
-					CONFIG_SPL_BSS_MAX_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
-#define CONFIG_SPL_BSS_START_ADDR	0x8f000000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
-
 #ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
 /*
@@ -78,15 +62,8 @@
 
 /* NAND SPL */
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_SPL_PBL_PAD
-#define CONFIG_SPL_MAX_SIZE		0x1a000
-#define CONFIG_SPL_STACK		0x1001d000
 #define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
-#define CONFIG_SPL_BSS_START_ADDR	0x80100000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 #ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
@@ -131,17 +108,6 @@
 
 /* I2C */
 
-/* PCIe */
-#ifndef SPL_NO_PCIE
-#define CONFIG_PCIE1		/* PCIE controller 1 */
-#define CONFIG_PCIE2		/* PCIE controller 2 */
-#define CONFIG_PCIE3		/* PCIE controller 3 */
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-#endif
-
 /*  DSPI  */
 
 /* FMan ucode */
@@ -160,13 +126,11 @@
 #define HWCONFIG_BUFFER_SIZE		128
 
 #ifndef SPL_NO_MISC
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#endif
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
@@ -192,7 +156,6 @@
 	"kernelhdr_size_sd=0x10\0"		\
 	"console=ttyS0,115200\0"		\
 	"boot_os=y\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
 	BOOTENV					\
 	"boot_scripts=ls1043ardb_boot.scr\0"	\
 	"boot_script_hdr=hdr_ls1043ardb_bs.out\0"	\
@@ -253,13 +216,6 @@
 			   "env exists secureboot && esbc_halt;"
 #endif
 #endif
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
-
-#define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
 
 #include <asm/arch/soc.h>
 

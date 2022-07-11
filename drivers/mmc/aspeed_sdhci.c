@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <sdhci.h>
 #include <linux/err.h>
+#include <dm/lists.h>
 
 struct aspeed_sdhci_plat {
 	struct mmc_config cfg;
@@ -26,12 +27,16 @@ static int aspeed_sdhci_probe(struct udevice *dev)
 	int ret;
 
 	ret = clk_get_by_index(dev, 0, &clk);
-	if (ret)
+	if (ret) {
+		debug("%s: clock get failed %d\n", __func__, ret);
 		return ret;
+	}
 
 	ret = clk_enable(&clk);
-	if (ret)
+	if (ret) {
+		debug("%s: clock enable failed %d\n", __func__, ret);
 		goto free;
+	}
 
 	host->name = dev->name;
 	host->ioaddr = dev_read_addr_ptr(dev);
@@ -39,6 +44,7 @@ static int aspeed_sdhci_probe(struct udevice *dev)
 	max_clk = clk_get_rate(&clk);
 	if (IS_ERR_VALUE(max_clk)) {
 		ret = max_clk;
+		debug("%s: clock rate get failed %d\n", __func__, ret);
 		goto err;
 	}
 
@@ -88,4 +94,39 @@ U_BOOT_DRIVER(aspeed_sdhci_drv) = {
 	.probe		= aspeed_sdhci_probe,
 	.priv_auto	= sizeof(struct sdhci_host),
 	.plat_auto	= sizeof(struct aspeed_sdhci_plat),
+};
+
+
+static int aspeed_sdc_probe(struct udevice *parent)
+{
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_index(parent, 0, &clk);
+	if (ret) {
+		debug("%s: clock get failed %d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = clk_enable(&clk);
+	if (ret) {
+		debug("%s: clock enable failed %d\n", __func__, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static const struct udevice_id aspeed_sdc_ids[] = {
+	{ .compatible = "aspeed,ast2400-sd-controller" },
+	{ .compatible = "aspeed,ast2500-sd-controller" },
+	{ .compatible = "aspeed,ast2600-sd-controller" },
+	{ }
+};
+
+U_BOOT_DRIVER(aspeed_sdc_drv) = {
+	.name		= "aspeed_sdc",
+	.id		= UCLASS_MISC,
+	.of_match	= aspeed_sdc_ids,
+	.probe		= aspeed_sdc_probe,
 };

@@ -8,6 +8,7 @@ config ACPI_PMC
 
 config SPL_ACPI_PMC
 	bool "Power Manager (x86 PMC) support in SPL"
+	depends on SPL
 	default y if ACPI_PMC
 	help
 	  Enable support for an x86-style power-management controller which
@@ -17,6 +18,7 @@ config SPL_ACPI_PMC
 
 config TPL_ACPI_PMC
 	bool "Power Manager (x86 PMC) support in TPL"
+	depends on TPL
 	default y if ACPI_PMC
 	help
 	  Enable support for an x86-style power-management controller which

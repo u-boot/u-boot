@@ -30,5 +30,10 @@ config DDR_SPD
 	  For memory controllers that can utilize it, add enable support for
 	  using the JEDEC SDP standard.
 
+config SYS_SPD_BUS_NUM
+	int "I2C bus number for DDR SPD"
+	depends on DDR_SPD || SYS_I2C_LEGACY || SPL_SYS_I2C_LEGACY
+	default 0
+
 source "drivers/ddr/altera/Kconfig"
 source "drivers/ddr/imx/Kconfig"

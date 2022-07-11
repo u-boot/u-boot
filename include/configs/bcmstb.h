@@ -83,20 +83,14 @@ extern phys_addr_t prior_stage_fdt_address;
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x100000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR +	\
-					 CONFIG_SYS_INIT_RAM_SIZE -	\
-					 GENERATED_GBL_DATA_SIZE)
 
 /*
  * CONFIG_SYS_LOAD_ADDR - 1 MiB.
  */
-#define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_MAXARGS		32
 
 /*
  * Large kernel image bootm configuration.
  */
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /*
  * NS16550 configuration.

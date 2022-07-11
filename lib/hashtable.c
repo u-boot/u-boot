@@ -35,13 +35,6 @@
 # include <linux/ctype.h>
 #endif
 
-#ifndef	CONFIG_ENV_MIN_ENTRIES	/* minimum number of entries */
-#define	CONFIG_ENV_MIN_ENTRIES 64
-#endif
-#ifndef	CONFIG_ENV_MAX_ENTRIES	/* maximum number of entries */
-#define	CONFIG_ENV_MAX_ENTRIES 512
-#endif
-
 #define USED_FREE 0
 #define USED_DELETED -1
 

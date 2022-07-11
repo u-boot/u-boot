@@ -29,9 +29,6 @@
  * Environment is in the second sector of the first 256k of flash	*
  *----------------------------------------------------------------------*/
 
-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
 /*#define CONFIG_SYS_DRAM_TEST		1 */
 #undef CONFIG_SYS_DRAM_TEST
 
@@ -50,7 +47,6 @@
  *----------------------------------------------------------------------*/
 
 #ifdef CONFIG_MCFFEC
-#define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif
 
@@ -68,9 +64,6 @@
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x10000
-#define CONFIG_SYS_GBL_DATA_OFFSET	\
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -84,7 +77,6 @@
 #define	CONFIG_SYS_SDRAM_SIZE		CONFIG_SYS_SDRAM_SIZE0
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
-#define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 
 /*
  * For booting Linux, the board info and command line data
@@ -106,7 +98,6 @@
 #define	CONFIG_SYS_FLASH_ERASE_TOUT	10000000
 
 #define CONFIG_SYS_FLASH_SIZE		16*1024*1024
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 

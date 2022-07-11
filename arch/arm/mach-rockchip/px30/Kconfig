@@ -56,9 +56,6 @@ config TPL_LDSCRIPT
 config TPL_TEXT_BASE
 	default 0xff0e1000
 
-config TPL_MAX_SIZE
-	default 10240
-
 config TPL_STACK
 	default 0xff0e4fff
 

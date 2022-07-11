@@ -8,19 +8,19 @@
  * contains U-Boot SPL, optionally it can also contain additional arguments.
  * The number of these arguments is in r0, pointer to the argument array in r1.
  * BootROM expects executable BIN header code to return to address stored in lr.
- * Other registers (r2 - r12) must be preserved. We save all registers to
- * CONFIG_SPL_BOOTROM_SAVE address. BIN header arguments (passed via r0 and r1)
+ * Other registers (r2 - r12) must be preserved. We save all registers to the
+ * address of CONFIG_SPL_STACK + 4. BIN header arguments (passed via r0 and r1)
  * are currently not used by U-Boot SPL binary.
  */
 ENTRY(save_boot_params)
 	stmfd	sp!, {r0 - r12, lr}	/* @ save registers on stack */
-	ldr	r12, =CONFIG_SPL_BOOTROM_SAVE
+	ldr	r12, =(CONFIG_SPL_STACK + 4)
 	str	sp, [r12]
 	b	save_boot_params_ret
 ENDPROC(save_boot_params)
 
 ENTRY(return_to_bootrom)
-	ldr	r12, =CONFIG_SPL_BOOTROM_SAVE
+	ldr	r12, =(CONFIG_SPL_STACK + 4)
 	ldr	sp, [r12]
 	ldmfd	sp!, {r0 - r12, lr}	/* @ restore registers from stack */
 	mov	r0, #0x0		/* @ return value: 0x0 NO_ERR */

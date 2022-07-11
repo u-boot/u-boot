@@ -35,6 +35,18 @@ static void *image_addr;
 static size_t image_size;
 
 /**
+ * efi_get_image_parameters() - return image parameters
+ *
+ * @img_addr:		address of loaded image in memory
+ * @img_size:		size of loaded image
+ */
+void efi_get_image_parameters(void **img_addr, size_t *img_size)
+{
+	*img_addr = image_addr;
+	*img_size = image_size;
+}
+
+/**
  * efi_clear_bootdev() - clear boot device
  */
 static void efi_clear_bootdev(void)

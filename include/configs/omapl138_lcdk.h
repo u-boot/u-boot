@@ -28,9 +28,6 @@
 #define PHYS_SDRAM_1_SIZE	(128 << 20) /* SDRAM size 128MB */
 #define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
 
-#define CONFIG_SPL_BSS_START_ADDR DAVINCI_DDR_EMIF_DATA_BASE
-#define CONFIG_SPL_BSS_MAX_SIZE 0x1080000
-
 /* memtest start addr */
 
 /* memtest will be run on 16MB */
@@ -102,8 +99,6 @@
 /*
  * I2C Configuration
  */
-#define CONFIG_SYS_DAVINCI_I2C_SPEED	25000
-#define CONFIG_SYS_DAVINCI_I2C_SLAVE	10 /* Bogus, master-only in U-Boot */
 #define CONFIG_SYS_I2C_EXPANDER_ADDR	0x20
 
 /*
@@ -139,14 +134,6 @@
 /*
  * U-Boot general configuration
  */
-#define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
-
-/*
- * USB Configs
- */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 
 /*
  * Linux Information
@@ -174,17 +161,9 @@
 /* SD/MMC */
 
 /* defines for SPL */
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \
-						CONFIG_SYS_MALLOC_LEN)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	CONFIG_SYS_MALLOC_LEN
-#define CONFIG_SPL_STACK	0x8001ff00
-#define CONFIG_SPL_MAX_FOOTPRINT	32768
-#define CONFIG_SPL_PAD_TO	32768
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
-					GENERATED_GBL_DATA_SIZE)
 
 #include <asm/arch/hardware.h>
 

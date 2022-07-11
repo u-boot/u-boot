@@ -10,7 +10,6 @@
 #define CONFIG_SYS_SDRAM_SIZE	0x40000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"autoload=no\0" \
 	"pxefile_addr_r=0x2000000\0" \
 	"scriptaddr=0x3000000\0" \
 	"kernel_addr_r=0x2000000\0" \

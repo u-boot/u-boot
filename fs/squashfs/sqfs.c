@@ -50,7 +50,7 @@ static int sqfs_read_sblk(struct squashfs_super_block **sblk)
 
 	if (sqfs_disk_read(0, 1, *sblk) != 1) {
 		free(*sblk);
-		sblk = NULL;
+		*sblk = NULL;
 		return -EINVAL;
 	}
 

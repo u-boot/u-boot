@@ -55,17 +55,6 @@
 /* SMMU Defintions */
 #define SMMU_BASE			0x05000000 /* GR0 Base */
 
-/* SFP */
-#define CONFIG_SYS_FSL_SFP_VER_3_4
-#define CONFIG_SYS_FSL_SFP_LE
-#define CONFIG_SYS_FSL_SRK_LE
-
-/* Security Monitor */
-#define CONFIG_SYS_FSL_SEC_MON_LE
-
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
-
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
 
@@ -160,17 +149,6 @@
 
 #define CONFIG_SYS_MEMAC_LITTLE_ENDIAN
 
-/* SFP */
-#define CONFIG_SYS_FSL_SFP_VER_3_4
-#define CONFIG_SYS_FSL_SFP_LE
-#define CONFIG_SYS_FSL_SRK_LE
-
-/* Security Monitor */
-#define CONFIG_SYS_FSL_SEC_MON_LE
-
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
-
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC	1
@@ -214,17 +192,6 @@
 
 /* SMMU Definitions */
 #define SMMU_BASE				0x05000000 /* GR0 Base */
-
-/* SFP */
-#define CONFIG_SYS_FSL_SFP_VER_3_4
-#define CONFIG_SYS_FSL_SFP_LE
-#define CONFIG_SYS_FSL_SRK_LE
-
-/* Security Monitor */
-#define CONFIG_SYS_FSL_SEC_MON_LE
-
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
 
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
@@ -274,19 +241,8 @@
 
 #define CONFIG_SYS_MEMAC_LITTLE_ENDIAN
 
-/* SFP */
-#define CONFIG_SYS_FSL_SFP_VER_3_4
-#define CONFIG_SYS_FSL_SFP_LE
-#define CONFIG_SYS_FSL_SRK_LE
-
 /* SEC */
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
-
-/* Security Monitor */
-#define CONFIG_SYS_FSL_SEC_MON_LE
-
-/* Secure Boot */
-#define CONFIG_ESBC_HDR_LS
 
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_CCSR_GUR_LE
@@ -321,11 +277,6 @@
 #define QE_NUM_OF_SNUM		28
 
 #define CONFIG_SYS_FSL_IFC_BE
-#define CONFIG_SYS_FSL_SFP_VER_3_2
-#define CONFIG_SYS_FSL_SEC_MON_BE
-#define CONFIG_SYS_FSL_SFP_BE
-#define CONFIG_SYS_FSL_SRK_LE
-#define CONFIG_KEY_REVOCATION
 
 /* SMMU Defintions */
 #define SMMU_BASE		0x09000000
@@ -361,11 +312,6 @@
 #elif defined(CONFIG_ARCH_LS1012A)
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
-#define CONFIG_SYS_FSL_SFP_VER_3_2
-#define CONFIG_SYS_FSL_SEC_MON_BE
-#define CONFIG_SYS_FSL_SFP_BE
-#define CONFIG_SYS_FSL_SRK_LE
-#define CONFIG_KEY_REVOCATION
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC           1
 #define CONFIG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
@@ -380,11 +326,6 @@
 #define CONFIG_MAX_MEM_MAPPED           CONFIG_SYS_DDR_BLOCK1_SIZE
 
 #define CONFIG_SYS_FSL_IFC_BE
-#define CONFIG_SYS_FSL_SFP_VER_3_2
-#define CONFIG_SYS_FSL_SEC_MON_BE
-#define CONFIG_SYS_FSL_SFP_BE
-#define CONFIG_SYS_FSL_SRK_LE
-#define CONFIG_KEY_REVOCATION
 
 /* SMMU Defintions */
 #define SMMU_BASE		0x09000000

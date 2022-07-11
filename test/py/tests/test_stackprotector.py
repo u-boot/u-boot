@@ -5,6 +5,7 @@ import pytest
 import signal
 
 @pytest.mark.buildconfigspec('cmd_stackprotector_test')
+@pytest.mark.notbuildconfigspec('asan')
 def test_stackprotector(u_boot_console):
     """Test that the stackprotector function works."""
 

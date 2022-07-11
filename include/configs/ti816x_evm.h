@@ -13,9 +13,7 @@
 #include <asm/arch/omap.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	DEFAULT_LINUX_BOOT_ENV \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	DEFAULT_LINUX_BOOT_ENV
 
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */
@@ -28,7 +26,6 @@
  * Platform/Board specific defs
  */
 #define CONFIG_SYS_TIMERBASE    0x4802E000
-#define CONFIG_SYS_PTV          2   /* Divisor: 2^(PTV+1) => 8 */
 
 /*
  * NS16550 Configuration
@@ -65,7 +62,5 @@
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
-					 CONFIG_SPL_TEXT_BASE)
 
 #endif

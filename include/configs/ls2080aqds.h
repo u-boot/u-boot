@@ -24,15 +24,6 @@
 #define SPD_EEPROM_ADDRESS5	0x55
 #define SPD_EEPROM_ADDRESS6	0x56	/* dummy address */
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1
-#define CONFIG_SYS_SPD_BUS_NUM	0	/* SPD on I2C bus 0 */
-#ifdef CONFIG_SYS_FSL_HAS_DP_DDR
-#define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
-#endif
-
-/* SATA */
-
-#define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1
-#define CONFIG_SYS_SATA2			AHCI_BASE_ADDR2
 
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR_AMASK		IFC_AMASK(128*1024*1024)
@@ -191,7 +182,6 @@
 #define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
 
-#define CONFIG_SPL_PAD_TO		0x20000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(640 * 1024)
 #endif
 #else
@@ -249,14 +239,6 @@
 #define FSL_QIXIS_BRDCFG9_QSPI		0x1
 
 /*
- * MMC
- */
-#ifdef CONFIG_MMC
-#define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
-	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
-#endif
-
-/*
  * RTC configuration
  */
 #define RTC
@@ -268,10 +250,6 @@
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 
 #define CONFIG_FSL_MEMAC
-
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
@@ -416,7 +394,7 @@
 			"env exists secureboot && esbc_halt;"
 #endif
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET)
 #define CONFIG_FSL_MEMAC
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C
 #define SGMII_CARD_PORT2_PHY_ADDR 0x1d

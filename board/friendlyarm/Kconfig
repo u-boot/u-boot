@@ -11,6 +11,7 @@ config S5P4418_ONEWIRE
 
 config PWM_NX
 	bool "PWM"
+	select PWM_S5P
 	help
 	  This enables LCD-Backlight control via PWM.
 endchoice

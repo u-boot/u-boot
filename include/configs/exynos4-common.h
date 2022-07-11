@@ -8,8 +8,6 @@
 #ifndef __CONFIG_EXYNOS4_COMMON_H
 #define __CONFIG_EXYNOS4_COMMON_H
 
-#define CONFIG_EXYNOS4			/* Exynos4 Family */
-
 #include "exynos-common.h"
 
 /* SD/MMC configuration */
@@ -24,8 +22,6 @@
 #define CONFIG_G_DNL_UMS_PRODUCT_NUM 0xA4A5
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
-#define CONFIG_USB_GADGET_DWC2_OTG_PHY
 
 /* Common environment variables */
 #define ENV_ITB \

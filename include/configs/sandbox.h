@@ -6,13 +6,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_IO_TRACE
-#endif
 
 #define CONFIG_MALLOC_F_ADDR		0x0010000
-
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
 /* GUIDs for capsule updatable firmware images */
 #define SANDBOX_UBOOT_IMAGE_GUID \

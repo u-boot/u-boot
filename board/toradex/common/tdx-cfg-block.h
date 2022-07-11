@@ -114,4 +114,6 @@ int read_tdx_cfg_block_carrier(void);
 
 int try_migrate_tdx_cfg_block_carrier(void);
 
+void get_mac_from_serial(u32 tdx_serial, struct toradex_eth_addr *eth_addr);
+
 #endif /* _TDX_CFG_BLOCK_H */

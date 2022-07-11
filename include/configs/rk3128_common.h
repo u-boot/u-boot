@@ -8,26 +8,14 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_CBSIZE		1024
-
 #define CONFIG_SYS_HZ_CLOCK		24000000
 
 #define CONFIG_IRAM_BASE		0x10080000
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x60100000
-
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
 /* RAW SD card / eMMC locations. */
 
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_MAX_SIZE			0x80000000
-
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS     1
-
-#ifndef CONFIG_SPL_BUILD
 
 /* usb mass storage */
 
@@ -44,7 +32,5 @@
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
 	BOOTENV
-
-#endif
 
 #endif

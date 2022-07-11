@@ -10,7 +10,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
 /* XHCI Support - enabled by default */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 
 #define DDR_SDRAM_CFG			0x470c0008
 #define DDR_CS0_BNDS			0x008000bf
@@ -43,16 +42,6 @@
 #ifdef CONFIG_NXP_ESBC
 #define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
 #endif /* ifdef CONFIG_NXP_ESBC */
-
-#define CONFIG_SPL_MAX_SIZE		0x1a000
-#define CONFIG_SPL_STACK		0x1001d000
-#define CONFIG_SPL_PAD_TO		0x1c000
-
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE + \
-		CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
-#define CONFIG_SPL_BSS_START_ADDR	0x80100000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 #ifdef CONFIG_U_BOOT_HDR_SIZE
 /*
@@ -91,14 +80,7 @@
 #define FSL_QSPI_FLASH_NUM		2
 
 /* PCIe */
-#define CONFIG_PCIE1			/* PCIE controller 1 */
-#define CONFIG_PCIE2			/* PCIE controller 2 */
 #define FSL_PCIE_COMPAT			"fsl,ls1021a-pcie"
-#ifdef CONFIG_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
-#define CONFIG_LAYERSCAPE_NS_ACCESS
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
@@ -176,21 +158,8 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		\
-		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 #define CONFIG_LS102XA_STREAM_ID
 
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
 /* Environment */
-
-#define CONFIG_SYS_BOOTM_LEN		0x8000000 /* 128 MB */
 
 #endif

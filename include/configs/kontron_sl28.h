@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 
-#ifndef __SL28_H
-#define __SL28_H
+#ifndef __SL28_CONFIG_H
+#define __SL28_CONFIG_H
 
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>
@@ -26,7 +26,6 @@
 #define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	1
 
 /* early stack pointer */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xeff0)
 
 /* SMP */
 #define CPU_RELEASE_ADDR		secondary_boot_addr
@@ -42,13 +41,7 @@
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
 /* SPL */
-#define CONFIG_SPL_BSS_START_ADDR	0x80100000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
-#define CONFIG_SPL_MAX_SIZE		0x20000
-#define CONFIG_SPL_STACK		(CONFIG_SYS_FSL_OCRAM_BASE + 0x9ff0)
 
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
-#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
 /* GUID for capsule updatable firmware image */
@@ -87,4 +80,4 @@
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 
-#endif /* __SL28_H */
+#endif /* __SL28_CONFIG_H */

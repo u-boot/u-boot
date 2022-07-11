@@ -139,6 +139,13 @@ config DESIGNWARE_APB_TIMER
 	  Enables support for the Designware APB Timer driver. This timer is
 	  present on Altera SoCFPGA SoCs.
 
+config GXP_TIMER
+	bool "HPE GXP Timer"
+	depends on TIMER
+	help
+	  Enables support for the GXP Timer driver. This timer is
+	  present on HPE GXP SoCs.
+
 config MPC83XX_TIMER
 	bool "MPC83xx timer support"
 	depends on TIMER
@@ -271,5 +278,14 @@ config IMX_GPT_TIMER
 	help
 	  Select this to enable support for the timer found on
 	  NXP i.MX devices.
+
+config XILINX_TIMER
+	bool "Xilinx timer support"
+	depends on TIMER
+	select REGMAP
+	select SPL_REGMAP if SPL
+	help
+	  Select this to enable support for the timer found on
+	  any Xilinx boards (axi timer).
 
 endmenu

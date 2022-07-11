@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# (C) Copyright 2022 Broadcom Ltd
+#
+
+if ARCH_BCMBCA
+
+config BCM47622
+	bool "Support for Broadcom 47622 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select PL01X_SERIAL
+
+endif
+
+source "arch/arm/mach-bcmbca/bcm47622/Kconfig"

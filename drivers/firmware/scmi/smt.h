@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.
- * Copyright (C) 2019-2020 Linaro Limited.
+ * Copyright (C) 2019-2022 Linaro Limited.
  */
 #ifndef SCMI_SMT_H
 #define SCMI_SMT_H
@@ -25,6 +25,17 @@ struct scmi_smt_header {
 	__le32 flags;
 #define SCMI_SHMEM_FLAG_INTR_ENABLED		BIT(0)
 	__le32 length;
+	__le32 msg_header;
+	u8 msg_payload[0];
+};
+
+/**
+ * struct scmi_msg_header - Description of a MSG shared memory message buffer
+ *
+ * MSG communication protocol uses a 32bit header memory cell to store SCMI
+ * protocol data followed by the exchange SCMI message payload.
+ */
+struct scmi_smt_msg_header {
 	__le32 msg_header;
 	u8 msg_payload[0];
 };
@@ -75,12 +86,44 @@ static inline void scmi_smt_put_channel(struct scmi_smt *smt)
 
 int scmi_dt_get_smt_buffer(struct udevice *dev, struct scmi_smt *smt);
 
+/*
+ * Write SCMI message to a SMT shared memory
+ * @dev: SCMI device
+ * @smt: Reference to shared memory using SMT header
+ * @msg: Input SCMI message transmitted
+ */
 int scmi_write_msg_to_smt(struct udevice *dev, struct scmi_smt *smt,
 			  struct scmi_msg *msg);
 
+/*
+ * Read SCMI message from a SMT shared memory
+ * @dev: SCMI device
+ * @smt: Reference to shared memory using SMT header
+ * @msg: Output SCMI message received
+ */
 int scmi_read_resp_from_smt(struct udevice *dev, struct scmi_smt *smt,
 			    struct scmi_msg *msg);
 
 void scmi_clear_smt_channel(struct scmi_smt *smt);
+
+/*
+ * Write SCMI message to SMT_MSG shared memory
+ * @dev: SCMI device
+ * @smt: Reference to shared memory using SMT_MSG header
+ * @msg: Input SCMI message transmitted
+ * @buf_size: Size of the full SMT_MSG buffer transmitted
+ */
+int scmi_msg_to_smt_msg(struct udevice *dev, struct scmi_smt *smt,
+			struct scmi_msg *msg, size_t *buf_size);
+
+/*
+ * Read SCMI message from SMT_MSG shared memory
+ * @dev: SCMI device
+ * @smt: Reference to shared memory using SMT_MSG header
+ * @msg: Output SCMI message received
+ * @buf_size: Size of the full SMT_MSG buffer received
+ */
+int scmi_msg_from_smt_msg(struct udevice *dev, struct scmi_smt *smt,
+			  struct scmi_msg *msg, size_t buf_size);
 
 #endif /* SCMI_SMT_H */

@@ -42,16 +42,8 @@
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
 
 /*
- * I2C Configuration
- */
-#define CONFIG_SYS_DAVINCI_I2C_SPEED		400000
-#define CONFIG_SYS_DAVINCI_I2C_SLAVE   10 /* Bogus, master-only in U-Boot */
-
-/*
  * U-Boot general configuration
  */
-#define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
 
 /*
  * Linux Information
@@ -95,8 +87,6 @@
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x80010000
 
 #include <asm/arch/hardware.h>
 

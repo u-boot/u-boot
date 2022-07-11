@@ -30,12 +30,12 @@
  *   :           :                     |
  *   :           :                    CONFIG_SYS_MALLOC_LEN
  *   :           :
- *   :          Specified explicitly by CONFIG_SYS_INIT_SP_ADDR
+ *   :          Specified explicitly by CONFIG_CUSTOM_SYS_INIT_SP_ADDR
  *   :
  *  Specified explicitly by CONFIG_SYS_SDRAM_BASE
  *
  *  NOTES:
- *    - Stack starts from CONFIG_SYS_INIT_SP_ADDR and grows down,
+ *    - Stack starts from CONFIG_CUSTOM_SYS_INIT_SP_ADDR and grows down,
  *      i.e. towards CONFIG_SYS_SDRAM_BASE but nothing stops it from crossing
  *      that CONFIG_SYS_SDRAM_BASE in which case data won't be really saved on
  *      stack any longer and values popped from stack will contain garbage
@@ -53,16 +53,12 @@
 #define CONFIG_SYS_SDRAM_BASE		DCCM_BASE
 #define CONFIG_SYS_SDRAM_SIZE		DCCM_SIZE
 
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_32K)
-
-#define CONFIG_SYS_BOOTM_LEN		SZ_128K
-
 #define ROM_BASE			CONFIG_SYS_MONITOR_BASE
 #define ROM_SIZE			SZ_256K
 
-#define RAM_DATA_BASE			CONFIG_SYS_INIT_SP_ADDR
+#define RAM_DATA_BASE			SYS_INIT_SP_ADDR
 #define RAM_DATA_SIZE			CONFIG_SYS_SDRAM_SIZE - \
-					(CONFIG_SYS_INIT_SP_ADDR - \
+					(SYS_INIT_SP_ADDR - \
 					CONFIG_SYS_SDRAM_BASE) - \
 					CONFIG_SYS_MALLOC_LEN - \
 					CONFIG_ENV_SIZE

@@ -8,8 +8,6 @@
 
 #include "ls1046a_common.h"
 
-#define CONFIG_LAYERSCAPE_NS_ACCESS
-
 #define CONFIG_SYS_UBOOT_BASE		0x40100000
 
 /*
@@ -80,13 +78,11 @@
  */
 #define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
 
-#ifndef CONFIG_SPL_BUILD
 #undef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
-#endif
 
 /* FMan */
 #ifdef CONFIG_SYS_DPAA_FMAN

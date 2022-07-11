@@ -28,10 +28,6 @@
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFD000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000  /* End of used area in DPRAM */
-#define CONFIG_SYS_GBL_DATA_SIZE	0x100
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE \
-					 - CONFIG_SYS_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Internal Definitions
@@ -108,7 +104,6 @@
 /*
  * NOR FLASH setup
  */
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #define CONFIG_FLASH_SHOW_PROGRESS	50
 
 #define CONFIG_SYS_FLASH_BASE		0xFF800000
@@ -169,7 +164,6 @@
 
 #ifdef CONFIG_TSEC2
 #define CONFIG_TSEC2_NAME		"TSEC1"
-#define CONFIG_SYS_TSEC2_OFFSET	0x25000
 #define TSEC2_PHY_ADDR			0x3
 #define TSEC2_FLAGS			TSEC_GIGABIT
 #define TSEC2_PHYIDX			0
@@ -187,7 +181,6 @@
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR + 0x4600)
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0))
 
-#define CONFIG_HAS_FSL_DR_USB
 #define CONFIG_SYS_SCCR_USBDRCM	3
 
 /*
@@ -216,8 +209,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_LOADS_ECHO
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE
@@ -252,8 +243,6 @@
 			"${netmask}:${hostname}:${netdev}:off "		\
 			"console=${console},${baudrate} ${othbootargs}\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"					\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"				\
 	"\0"
 
 /* UBI Support */

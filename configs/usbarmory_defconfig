@@ -16,6 +16,7 @@ CONFIG_SYS_MEMTEST_START=0x70000000
 CONFIG_SYS_MEMTEST_END=0x90000000
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTCOMMAND="run distro_bootcmd; setenv bootargs console=${console} ${bootargs_default}; ext2load mmc 0:1 ${kernel_addr_r} /boot/zImage; ext2load mmc 0:1 ${fdt_addr_r} /boot/${fdtfile}; bootz ${kernel_addr_r} - ${fdt_addr_r}"
+CONFIG_SYS_PBSIZE=532
 CONFIG_CMD_MEMTEST=y
 CONFIG_CMD_FUSE=y
 CONFIG_CMD_I2C=y

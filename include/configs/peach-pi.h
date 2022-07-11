@@ -21,14 +21,6 @@
 #include <configs/exynos5-common.h>
 
 #define CONFIG_SYS_SDRAM_BASE	0x20000000
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_IRAM_TOP - 0x800)
-
-/* Display */
-#ifdef CONFIG_LCD
-#define CONFIG_EXYNOS_FB
-#define CONFIG_EXYNOS_DP
-#define LCD_BPP			LCD_COLOR16
-#endif
 
 #define CONFIG_POWER_TPS65090_EC
 

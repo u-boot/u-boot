@@ -62,7 +62,6 @@
 
 
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		512
 
 /**
  * Physical Memory Map
@@ -71,14 +70,11 @@
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1024MB */
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
-#define CONFIG_SYS_INIT_SP_ADDR		(NON_SECURE_SRAM_END - \
-					 GENERATED_GBL_DATA_SIZE)
 
 /**
  * Platform/Board specific defs
  */
 #define CONFIG_SYS_TIMERBASE		0x4802E000
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_SERIAL
@@ -89,13 +85,6 @@
 /* CPU */
 
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
-					 CONFIG_SPL_TEXT_BASE)
-
-#define CONFIG_SPL_BSS_START_ADDR	0x80000000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
-
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
 
 #define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
 
@@ -105,8 +94,6 @@
  * header. That is 0x800FFFC0--0x80800000 should not be used for any
  * other needs.
  */
-#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 /*
  * Since SPL did pll and ddr initialization for us,

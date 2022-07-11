@@ -16,18 +16,10 @@
 #include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_SDCARD
-#define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_PAD_TO		0x18000
-#define CONFIG_SPL_MAX_SIZE		(96 * 1024)
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(512 << 10)
 #define CONFIG_SYS_MMC_U_BOOT_DST	(0x11000000)
 #define CONFIG_SYS_MMC_U_BOOT_START	(0x11000000)
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(96 << 10)
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_COMMON_INIT_DDR
-#endif
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -35,65 +27,32 @@
 #define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
-#define CONFIG_SPL_SPI_FLASH_MINIMAL
-#define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_PAD_TO			0x18000
-#define CONFIG_SPL_MAX_SIZE			(96 * 1024)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE	(512 << 10)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x11000000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x11000000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	(96 << 10)
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_COMMON_INIT_DDR
-#endif
 #endif
 #endif
 
 #ifdef CONFIG_MTD_RAW_NAND
 #ifdef CONFIG_NXP_ESBC
-#define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-
-#define CONFIG_SPL_MAX_SIZE		8192
-#define CONFIG_SPL_RELOC_TEXT_BASE	0x00100000
-#define CONFIG_SPL_RELOC_STACK		0x00100000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	((768 << 10) - 0x2000)
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x00200000 - CONFIG_SPL_MAX_SIZE)
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #else
 #ifdef CONFIG_TPL_BUILD
-#define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_NAND_INIT
-#define CONFIG_SPL_COMMON_INIT_DDR
-#define CONFIG_SPL_MAX_SIZE		(128 << 10)
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(576 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x11000000)
 #define CONFIG_SYS_NAND_U_BOOT_START	(0x11000000)
 #elif defined(CONFIG_SPL_BUILD)
-#define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_NAND_MINIMAL
-#define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_MAX_SIZE		8192
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(128 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST	0xD0000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0xD0000000
-#else
-#ifndef CONFIG_MPC85XX_HAVE_RESET_VECTOR
-#define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#endif
-#define CONFIG_SPL_PAD_TO	0x20000
-#define CONFIG_TPL_PAD_TO	0x20000
-#define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #endif
 #endif
 
 #ifdef CONFIG_NAND_SECBOOT	/* NAND Boot */
-#define CONFIG_RAMBOOT_NAND
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
@@ -104,9 +63,6 @@
 /* High Level Configuration Options */
 
 #if defined(CONFIG_PCI)
-#define CONFIG_PCIE1			/* PCIE controller 1 (slot 1) */
-#define CONFIG_PCIE2			/* PCIE controller 2 (slot 2) */
-
 /*
  * PCI Windows
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -138,8 +94,6 @@
 #else
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
 #endif
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #endif
 
 #define CONFIG_HWCONFIG
@@ -148,12 +102,7 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 
-
-#define CONFIG_ENABLE_36BIT_PHYS
-
 /* DDR Setup */
-#define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_SYS_SPD_BUS_NUM		1
 #define SPD_EEPROM_ADDRESS		0x52
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
@@ -169,7 +118,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000003f
 #define CONFIG_SYS_DDR_CS0_CONFIG	0x80014302
 #define CONFIG_SYS_DDR_CS0_CONFIG_2	0x00000000
-#define CONFIG_SYS_DDR_DATA_INIT	0xdeadbeef
 #define CONFIG_SYS_DDR_INIT_ADDR	0x00000000
 #define CONFIG_SYS_DDR_INIT_EXT_ADDR	0x00000000
 #define CONFIG_SYS_DDR_MODE_CONTROL	0x00000000
@@ -205,11 +153,6 @@ extern unsigned long get_sdram_size(void);
 
 #define CONFIG_SYS_CCSRBAR			0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW		CONFIG_SYS_CCSRBAR
-
-/* Don't relocate CCSRBAR while in NAND_SPL */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
-#endif
 
 /*
  * Memory map
@@ -398,20 +341,11 @@ extern unsigned long get_sdram_size(void);
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH) || \
-	defined(CONFIG_RAMBOOT_NAND)
-#define CONFIG_SYS_RAMBOOT
-#else
-#undef CONFIG_SYS_RAMBOOT
-#endif
-
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000 /* End of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE \
-						- GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 
@@ -424,29 +358,17 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
 #define CONFIG_SYS_L2_SIZE		(256 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
-#define CONFIG_SPL_RELOC_TEXT_BASE	0xD0001000
-#define CONFIG_SPL_RELOC_STACK		(CONFIG_SYS_INIT_L2_ADDR + 112 * 1024)
-#define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SYS_INIT_L2_ADDR + 128 * 1024)
-#define CONFIG_SPL_RELOC_MALLOC_SIZE	(128 << 10)
-#define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L2_ADDR + 96 * 1024)
 #elif defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SYS_INIT_L2_ADDR		0xD0000000
 #define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
 #define CONFIG_SYS_L2_SIZE		(256 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
-#define CONFIG_SPL_RELOC_TEXT_BASE	0xD0001000
-#define CONFIG_SPL_RELOC_STACK		(CONFIG_SYS_INIT_L2_ADDR + 192 * 1024)
-#define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SYS_INIT_L2_ADDR + 208 * 1024)
-#define CONFIG_SPL_RELOC_MALLOC_SIZE	(48 << 10)
-#define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L2_ADDR + 176 * 1024)
 #else
 #define CONFIG_SYS_INIT_L2_ADDR		0xD0000000
 #define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
 #define CONFIG_SYS_L2_SIZE		(256 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
-#define CONFIG_SPL_RELOC_TEXT_BASE	(CONFIG_SYS_INIT_L2_END - 0x3000)
-#define CONFIG_SPL_RELOC_STACK		((CONFIG_SYS_INIT_L2_END - 1) & ~0xF)
 #endif
 #endif
 #endif
@@ -456,7 +378,7 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_INIT_MINIMAL)
+#if defined(CONFIG_SPL_BUILD) && CONFIG_IS_ENABLED(INIT_MINIMAL)
 #define CONFIG_NS16550_MIN_FUNCTIONS
 #endif
 
@@ -524,46 +446,16 @@ extern unsigned long get_sdram_size(void);
 
 #endif	/* CONFIG_TSEC_ENET */
 
-/* SATA */
-#define CONFIG_FSL_SATA_V2
-
-#ifdef CONFIG_FSL_SATA
-#define CONFIG_SATA1
-#define CONFIG_SYS_SATA1		CONFIG_SYS_MPC85xx_SATA1_ADDR
-#define CONFIG_SYS_SATA1_FLAGS		FLAGS_DMA
-#define CONFIG_SATA2
-#define CONFIG_SYS_SATA2		CONFIG_SYS_MPC85xx_SATA2_ADDR
-#define CONFIG_SYS_SATA2_FLAGS		FLAGS_DMA
-
-#define CONFIG_LBA48
-#endif /* #ifdef CONFIG_FSL_SATA  */
-
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#endif
-
-#define CONFIG_HAS_FSL_DR_USB
-
-#if defined(CONFIG_HAS_FSL_DR_USB)
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#endif
 #endif
 
 /*
  * Environment
  */
-#if defined(CONFIG_SDCARD)
-#define CONFIG_FSL_FIXED_MMC_LOCATION
-#elif defined(CONFIG_MTD_RAW_NAND)
+#if defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
 #define SPL_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
-#else
-#if defined(CONFIG_TARGET_P1010RDB_PA)
-#define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE) /* 3*16=48K for env */
-#elif defined(CONFIG_TARGET_P1010RDB_PB)
-#define CONFIG_ENV_RANGE	(32 * CONFIG_ENV_SIZE) /* new block size 512K */
-#endif
 #endif
 #endif
 
@@ -584,7 +476,6 @@ extern unsigned long get_sdram_size(void);
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(64 << 20) /* Initial Memory map for Linux */
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */
 
 /*
  * Environment Configuration

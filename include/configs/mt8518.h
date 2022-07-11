@@ -18,12 +18,7 @@
 #define CONFIG_SYS_SDRAM_BASE			0x40000000
 #define CONFIG_SYS_SDRAM_SIZE			0x20000000
 
-#define CONFIG_SYS_BOOTM_LEN			SZ_64M
-
 /* Uboot definition */
-#define CONFIG_SYS_INIT_SP_ADDR			(CONFIG_SYS_TEXT_BASE + \
-						SZ_2M - \
-						GENERATED_GBL_DATA_SIZE)
 
 #define ENV_BOOT_READ_IMAGE \
 	"boot_rd_img=mmc dev 0" \

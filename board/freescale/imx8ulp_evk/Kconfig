@@ -9,6 +9,4 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "imx8ulp_evk"
 
-source "board/freescale/common/Kconfig"
-
 endif

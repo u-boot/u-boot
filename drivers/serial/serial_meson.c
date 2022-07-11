@@ -182,7 +182,7 @@ static inline void _debug_uart_init(void)
 
 static inline void _debug_uart_putc(int ch)
 {
-	struct meson_uart *regs = (struct meson_uart *)CONFIG_DEBUG_UART_BASE;
+	struct meson_uart *regs = (struct meson_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (readl(&regs->status) & AML_UART_TX_FULL)
 		;

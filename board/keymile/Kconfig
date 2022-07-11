@@ -11,6 +11,9 @@ if VENDOR_KM
 
 menu "KM Board Setup"
 
+config HUSH_INIT_VAR
+	def_bool y
+
 config KM_PNVRAM
 	hex "Pseudo RAM"
 	default 0x80000

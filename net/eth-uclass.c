@@ -14,6 +14,7 @@
 #include <env.h>
 #include <log.h>
 #include <net.h>
+#include <nvmem.h>
 #include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
@@ -507,17 +508,21 @@ static bool eth_dev_get_mac_address(struct udevice *dev, u8 mac[ARP_HLEN])
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	const uint8_t *p;
+	struct nvmem_cell mac_cell;
 
 	p = dev_read_u8_array_ptr(dev, "mac-address", ARP_HLEN);
 	if (!p)
 		p = dev_read_u8_array_ptr(dev, "local-mac-address", ARP_HLEN);
 
-	if (!p)
+	if (p) {
+		memcpy(mac, p, ARP_HLEN);
+		return true;
+	}
+
+	if (nvmem_cell_get_by_name(dev, "mac-address", &mac_cell))
 		return false;
 
-	memcpy(mac, p, ARP_HLEN);
-
-	return true;
+	return !nvmem_cell_read(&mac_cell, mac, ARP_HLEN);
 #else
 	return false;
 #endif

@@ -1713,6 +1713,67 @@ static int check_device_config(int dev)
 	return rc;
 }
 
+static int find_nvmem_device(void)
+{
+	const char *path = "/sys/bus/nvmem/devices";
+	struct dirent *dent;
+	char *nvmem = NULL;
+	char comp[256];
+	char buf[32];
+	int bytes;
+	DIR *dir;
+
+	dir = opendir(path);
+	if (!dir) {
+		return -EIO;
+	}
+
+	while (!nvmem && (dent = readdir(dir))) {
+		FILE *fp;
+
+		if (!strcmp(dent->d_name, ".") || !strcmp(dent->d_name, "..")) {
+			continue;
+		}
+
+		bytes = snprintf(comp, sizeof(comp), "%s/%s/of_node/compatible", path, dent->d_name);
+		if (bytes < 0 || bytes == sizeof(comp)) {
+			continue;
+		}
+
+		fp = fopen(comp, "r");
+		if (!fp) {
+			continue;
+		}
+
+		fread(buf, sizeof(buf), 1, fp);
+
+		if (!strcmp(buf, "u-boot,env")) {
+			bytes = asprintf(&nvmem, "%s/%s/nvmem", path, dent->d_name);
+			if (bytes < 0) {
+				nvmem = NULL;
+			}
+		}
+
+		fclose(fp);
+	}
+
+	closedir(dir);
+
+	if (nvmem) {
+		struct stat s;
+
+		stat(nvmem, &s);
+
+		DEVNAME(0) = nvmem;
+		DEVOFFSET(0) = 0;
+		ENVSIZE(0) = s.st_size;
+
+		return 0;
+	}
+
+	return -ENOENT;
+}
+
 static int parse_config(struct env_opts *opts)
 {
 	int rc;
@@ -1723,9 +1784,12 @@ static int parse_config(struct env_opts *opts)
 #if defined(CONFIG_FILE)
 	/* Fills in DEVNAME(), ENVSIZE(), DEVESIZE(). Or don't. */
 	if (get_config(opts->config_file)) {
-		fprintf(stderr, "Cannot parse config file '%s': %m\n",
-			opts->config_file);
-		return -1;
+		if (find_nvmem_device()) {
+			fprintf(stderr, "Cannot parse config file '%s': %m\n",
+				opts->config_file);
+			fprintf(stderr, "Failed to find NVMEM device\n");
+			return -1;
+		}
 	}
 #else
 	DEVNAME(0) = DEVICE1_NAME;

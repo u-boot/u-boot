@@ -14,12 +14,6 @@
  * Configuration of the external SRAM memory used by U-Boot
  */
 #define CONFIG_SYS_SDRAM_BASE			STM32_DDR_BASE
-#define CONFIG_SYS_INIT_SP_ADDR			CONFIG_SYS_TEXT_BASE
-
-/*
- * Console I/O buffer size
- */
-#define CONFIG_SYS_CBSIZE			SZ_1K
 
 /*
  * For booting Linux, use the first 256 MB of memory, since this is
@@ -28,20 +22,7 @@
 #define CONFIG_SYS_BOOTMAPSZ		SZ_256M
 
 /* Extend size of kernel image for uncompression */
-#define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
-/* SPL support */
-#ifdef CONFIG_SPL
-/* SPL use DDR */
-#define CONFIG_SYS_SPL_MALLOC_START	0xC0300000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x01D00000
-
-/* Restrict SPL to fit within SYSRAM */
-#define STM32_SYSRAM_END		(STM32_SYSRAM_BASE + STM32_SYSRAM_SIZE)
-#define CONFIG_SPL_MAX_FOOTPRINT	(STM32_SYSRAM_END - CONFIG_SPL_TEXT_BASE)
-#define CONFIG_SPL_STACK		(STM32_SYSRAM_BASE + \
-					 STM32_SYSRAM_SIZE)
-#endif /* #ifdef CONFIG_SPL */
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 
@@ -51,7 +32,6 @@
 /* Ethernet need */
 #ifdef CONFIG_DWC_ETH_QOS
 #define CONFIG_SERVERIP                 192.168.1.1
-#define CONFIG_SYS_AUTOLOAD		"no"
 #endif
 
 /*****************************************************************************/
@@ -77,7 +57,7 @@
 #endif
 
 #ifdef CONFIG_CMD_UBIFS
-#define BOOT_TARGET_UBIFS(func)	func(UBIFS, ubifs, 0)
+#define BOOT_TARGET_UBIFS(func)	func(UBIFS, ubifs, 0, UBI, boot)
 #else
 #define BOOT_TARGET_UBIFS(func)
 #endif
@@ -97,7 +77,7 @@
 	BOOT_TARGET_PXE(func)
 
 /*
- * default bootcmd for stm32mp1:
+ * default bootcmd for stm32mp15:
  * for serial/usb: execute the stm32prog command
  * for mmc boot (eMMC, SD card), distro boot on the same mmc device
  * for nand or spi-nand boot, distro boot with ubifs on UBI partition

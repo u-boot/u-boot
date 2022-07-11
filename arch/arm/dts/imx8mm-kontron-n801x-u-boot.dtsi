@@ -139,3 +139,7 @@
 &wdog1 {
 	u-boot,dm-spl;
 };
+
+&pinctrl_wdog {
+	u-boot,dm-spl;
+};

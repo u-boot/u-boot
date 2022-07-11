@@ -670,6 +670,10 @@ static const struct udevice_id am654_sdhci_ids[] = {
 		.compatible = "ti,am64-sdhci-4bit",
 		.data = (ulong)&sdhci_am64_4bit_drvdata,
 	},
+	{
+		.compatible = "ti,am62-sdhci",
+		.data = (ulong)&sdhci_am64_4bit_drvdata,
+	},
 	{ }
 };
 

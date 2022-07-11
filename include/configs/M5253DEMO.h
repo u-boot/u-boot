@@ -19,12 +19,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text*);
 
-#ifdef CONFIG_IDE
-/* ATA */
-#	define CONFIG_IDE_PREINIT	1
-#	undef CONFIG_LBA48
-#endif
-
 #ifdef CONFIG_DRIVER_DM9000
 #	define CONFIG_DM9000_BASE	(CONFIG_SYS_CS1_BASE | 0x300)
 #	define DM9000_IO		CONFIG_DM9000_BASE
@@ -79,8 +73,6 @@
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x10000	/* Size of used area in internal SRAM */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Start addresses for the final memory configuration
@@ -91,7 +83,6 @@
 #define CONFIG_SYS_SDRAM_SIZE		16	/* SDRAM size in MB */
 
 #define CONFIG_SYS_MONITOR_LEN		0x40000
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64*1024)
 
 /*
  * For booting Linux, the board info and command line data
@@ -99,7 +90,6 @@
  * the maximum mapped by the Linux kernel during initialization ??
  */
 #define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
-#define CONFIG_SYS_BOOTM_LEN		(CONFIG_SYS_SDRAM_SIZE << 20)
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE)
@@ -116,7 +106,6 @@
  * 0x30 is block erase in SST
  */
 #	define CONFIG_SYS_FLASH_SIZE		0x800000
-#	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_FLASH_CFI_LEGACY
 #else
 #	define CONFIG_SYS_SST_SECT		2048

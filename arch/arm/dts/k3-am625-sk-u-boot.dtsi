@@ -1,0 +1,104 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Common AM625 SK dts file for SPLs
+ * Copyright (C) 2021-2022 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &timer1;
+	};
+
+	aliases {
+		mmc1 = &sdhci1;
+	};
+
+	memory@80000000 {
+		u-boot,dm-spl;
+	};
+};
+
+&cbass_main{
+	u-boot,dm-spl;
+
+	timer1: timer@2400000 {
+		compatible = "ti,omap5430-timer";
+		reg = <0x00 0x2400000 0x00 0x80>;
+		ti,timer-alwon;
+		clock-frequency = <25000000>;
+		u-boot,dm-spl;
+	};
+};
+
+&dmss {
+	u-boot,dm-spl;
+};
+
+&secure_proxy_main {
+	u-boot,dm-spl;
+};
+
+&dmsc {
+	u-boot,dm-spl;
+};
+
+&k3_pds {
+	u-boot,dm-spl;
+};
+
+&k3_clks {
+	u-boot,dm-spl;
+};
+
+&k3_reset {
+	u-boot,dm-spl;
+};
+
+&wkup_conf {
+	u-boot,dm-spl;
+};
+
+&chipid {
+	u-boot,dm-spl;
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+};
+
+&main_uart0 {
+	u-boot,dm-spl;
+};
+
+&main_uart0_pins_default {
+	u-boot,dm-spl;
+};
+
+&main_uart1 {
+	u-boot,dm-spl;
+};
+
+&cbass_mcu {
+	u-boot,dm-spl;
+};
+
+&cbass_wakeup {
+	u-boot,dm-spl;
+};
+
+&mcu_pmx0 {
+	u-boot,dm-spl;
+};
+
+&wkup_uart0 {
+	u-boot,dm-spl;
+};
+
+&sdhci1 {
+	u-boot,dm-spl;
+};
+
+&main_mmc1_pins_default {
+	u-boot,dm-spl;
+};

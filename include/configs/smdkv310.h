@@ -10,11 +10,7 @@
 
 #include "exynos4-common.h"
 
-#undef CONFIG_USB_GADGET_DWC2_OTG_PHY
-
 /* High Level Configuration Options */
-#define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
-
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 
 /* Handling Sleep Mode*/
@@ -43,10 +39,6 @@
 
 #define RESERVE_BLOCK_SIZE		(512)
 #define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
-
-#define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x02040000
 
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET

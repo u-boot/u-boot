@@ -44,7 +44,7 @@ struct sandbox_cmdline_option {
 		.callback = sandbox_cmdline_cb_##f, \
 	}; \
 	/* Ppointer to the struct in a special section for the linker script */ \
-	static __used __section(".u_boot_sandbox_getopt") \
+	static __used __section("_u_boot_sandbox_getopt") \
 		struct sandbox_cmdline_option \
 			*sandbox_cmdline_option_##f##_ptr = \
 			&sandbox_cmdline_option_##f

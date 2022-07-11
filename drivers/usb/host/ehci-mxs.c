@@ -112,82 +112,6 @@ static int __ehci_hcd_stop(struct ehci_mxs_port *port)
 	return ehci_mxs_toggle_clock(port, 0);
 }
 
-#if !CONFIG_IS_ENABLED(DM_USB)
-static const struct ehci_mxs_port mxs_port[] = {
-#ifdef CONFIG_EHCI_MXS_PORT0
-	{
-		MXS_USBCTRL0_BASE,
-		(struct mxs_usbphy_regs *)MXS_USBPHY0_BASE,
-		(struct mxs_register_32 *)(MXS_CLKCTRL_BASE +
-			offsetof(struct mxs_clkctrl_regs,
-			hw_clkctrl_pll0ctrl0_reg)),
-		CLKCTRL_PLL0CTRL0_EN_USB_CLKS | CLKCTRL_PLL0CTRL0_POWER,
-		CLKCTRL_PLL0CTRL0_EN_USB_CLKS,
-		HW_DIGCTL_CTRL_USB0_CLKGATE,
-	},
-#endif
-#ifdef CONFIG_EHCI_MXS_PORT1
-	{
-		MXS_USBCTRL1_BASE,
-		(struct mxs_usbphy_regs *)MXS_USBPHY1_BASE,
-		(struct mxs_register_32 *)(MXS_CLKCTRL_BASE +
-			offsetof(struct mxs_clkctrl_regs,
-			hw_clkctrl_pll1ctrl0_reg)),
-		CLKCTRL_PLL1CTRL0_EN_USB_CLKS | CLKCTRL_PLL1CTRL0_POWER,
-		CLKCTRL_PLL1CTRL0_EN_USB_CLKS,
-		HW_DIGCTL_CTRL_USB1_CLKGATE,
-	},
-#endif
-};
-
-int __weak board_ehci_hcd_init(int port)
-{
-	return 0;
-}
-
-int __weak board_ehci_hcd_exit(int port)
-{
-	return 0;
-}
-
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-
-	int ret;
-	const struct ehci_mxs_port *port;
-
-	if ((index < 0) || (index >= ARRAY_SIZE(mxs_port))) {
-		printf("Invalid port index (index = %d)!\n", index);
-		return -EINVAL;
-	}
-
-	ret = board_ehci_hcd_init(index);
-	if (ret)
-		return ret;
-
-	port = &mxs_port[index];
-	return __ehci_hcd_init(port, init, hccr, hcor);
-}
-
-int ehci_hcd_stop(int index)
-{
-	int ret;
-	const struct ehci_mxs_port *port;
-
-	if ((index < 0) || (index >= ARRAY_SIZE(mxs_port))) {
-		printf("Invalid port index (index = %d)!\n", index);
-		return -EINVAL;
-	}
-
-	port = &mxs_port[index];
-
-	ret = __ehci_hcd_stop(port);
-	board_ehci_hcd_exit(index);
-
-	return ret;
-}
-#else /* CONFIG_IS_ENABLED(DM_USB) */
 struct ehci_mxs_priv_data {
 	struct ehci_ctrl ctrl;
 	struct usb_ehci *ehci;
@@ -367,4 +291,3 @@ U_BOOT_DRIVER(usb_mxs) = {
 	.priv_auto = sizeof(struct ehci_mxs_priv_data),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif /* !CONFIG_IS_ENABLED(DM_USB) */

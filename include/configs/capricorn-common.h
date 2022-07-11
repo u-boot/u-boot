@@ -15,36 +15,22 @@
 /* SPL config */
 #ifdef CONFIG_SPL_BUILD
 
-#define CONFIG_SPL_MAX_SIZE		(124 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
-#define CONFIG_SPL_STACK		0x013E000
-#define CONFIG_SPL_BSS_START_ADDR	0x00128000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x1000	/* 4 KB */
-#define CONFIG_SYS_SPL_MALLOC_START	0x00120000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x3000	/* 12 KB */
 #define CONFIG_MALLOC_F_ADDR		0x00120000
 
-#define CONFIG_SPL_RAW_IMAGE_ARM_TRUSTED_FIRMWARE
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
-
 #endif /* CONFIG_SPL_BUILD */
-
-#define CONFIG_FACTORYSET
 
 /* ENET1 connects to base board and MUX with ESAI */
 #define CONFIG_FEC_ENET_DEV		1
 #define CONFIG_FEC_MXC_PHYADDR		0x0
 
-/* I2C Configuration */
-#ifndef CONFIG_SPL_BUILD
 /* EEPROM */
 #define  EEPROM_I2C_BUS		0 /* I2C0 */
 #define  EEPROM_I2C_ADDR	0x50
 /* PCA9552 */
 #define  PCA9552_1_I2C_BUS	1 /* I2C1 */
 #define  PCA9552_1_I2C_ADDR	0x60
-#endif /* !CONFIG_SPL_BUILD */
 
 /* AHAB */
 #ifdef CONFIG_AHAB_BOOT
@@ -106,7 +92,6 @@
 	ENV_NET
 
 /* Default location for tftp and bootm */
-#define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
 /* On CCP board, USDHC1 is for eMMC */
 
@@ -116,11 +101,6 @@
 /* DDR3 board total DDR is 1 GB */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1 GB */
 #define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 GB */
-
-/* Console buffer and boot args */
-#define CONFIG_SYS_CBSIZE		2048
-#define CONFIG_SYS_MAXARGS		64
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define BOOTAUX_RESERVED_MEM_BASE	0x88000000
 #define BOOTAUX_RESERVED_MEM_SIZE	SZ_128M /* Reserve from second 128MB */

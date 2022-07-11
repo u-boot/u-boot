@@ -15,8 +15,6 @@
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
 
-#define CONFIG_SYS_BOOTM_LEN	SZ_64M /* Increase max gunzip size */
-
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 300, 600, 1200, 1800, 2400, 4800, \
 					  9600, 19200, 38400, 57600, 115200, \
 					  230400, 460800, 500000, 576000, \
@@ -25,28 +23,14 @@
 					  4000000, 4500000, 5000000, 5500000, \
 					  6000000 }
 
-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-/* End of 16M scrubbed by training in bootrom */
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
 
 /*
  * Environment
  */
 #define DEFAULT_ENV_IS_RW		/* required for configuring default fdtfile= */
-
-#define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
-
-/*
- * SATA/SCSI/AHCI configuration
- */
-#define CONFIG_LBA48
-#define CONFIG_SYS_64BIT_LBA
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \

@@ -3,9 +3,7 @@
 head-y := arch/mips/cpu/start.o
 
 ifeq ($(CONFIG_SPL_BUILD),y)
-ifneq ($(CONFIG_SPL_START_S_PATH),)
-head-y := $(CONFIG_SPL_START_S_PATH:"%"=%)/start.o
-endif
+head-$(CONFIG_ARCH_JZ47XX) := arch/mips/mach-jz47xx/start.o
 endif
 
 libs-y += arch/mips/cpu/

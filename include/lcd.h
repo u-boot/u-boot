@@ -40,10 +40,7 @@ ulong lcd_setmem(ulong addr);
  */
 void lcd_set_flush_dcache(int flush);
 
-#if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
-	defined CONFIG_CPU_MONAHANS
-#include <pxa_lcd.h>
-#elif defined(CONFIG_ATMEL_LCD) || defined(CONFIG_ATMEL_HLCD)
+#if defined(CONFIG_ATMEL_LCD) || defined(CONFIG_ATMEL_HLCD)
 #include <atmel_lcd.h>
 #elif defined(CONFIG_EXYNOS_FB)
 #include <exynos_lcd.h>

@@ -10,17 +10,11 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SPL_MAX_SIZE		(124 * 1024)
-#define CONFIG_SPL_BSS_START_ADDR	0x00128000
-#define CONFIG_SPL_BSS_MAX_SIZE	0x1000  /* 4 KB */
-
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5B010000
 #define USDHC2_BASE_ADDR		0x5B020000
 #define USDHC3_BASE_ADDR		0x5B030000
-
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 /* FUSE command */
 
@@ -107,8 +101,6 @@
 		"fi;\0"
 
 /* Link Definitions */
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x80200000
 
 /* On LPDDR4 board, USDHC1 is for eMMC, USDHC2 is for SD on CPU board,
  * USDHC3 is for SD on base board On DDR4 board, USDHC1 is mux for NAND,

@@ -18,9 +18,13 @@ obj-$(CONFIG_UT_DM) += core.o
 obj-$(CONFIG_UT_DM) += read.o
 obj-$(CONFIG_UT_DM) += phys2bus.o
 ifneq ($(CONFIG_SANDBOX),)
-obj-$(CONFIG_ACPIGEN) += acpi.o
-obj-$(CONFIG_ACPIGEN) += acpigen.o
-obj-$(CONFIG_ACPIGEN) += acpi_dp.o
+ifeq ($(CONFIG_ACPIGEN),y)
+obj-y += acpi.o
+obj-y += acpigen.o
+obj-y += acpi_dp.o
+obj-(CONFIG_DM_GPIO) += gpio.o
+obj-y += irq.o
+endif
 obj-$(CONFIG_ADC) += adc.o
 obj-$(CONFIG_SOUND) += audio.o
 obj-$(CONFIG_AXI) += axi.o
@@ -43,11 +47,9 @@ ifneq ($(CONFIG_EFI_PARTITION),)
 obj-$(CONFIG_FASTBOOT_FLASH_MMC) += fastboot.o
 endif
 obj-$(CONFIG_FIRMWARE) += firmware.o
-obj-$(CONFIG_DM_GPIO) += gpio.o
 obj-$(CONFIG_DM_HWSPINLOCK) += hwspinlock.o
 obj-$(CONFIG_DM_I2C) += i2c.o
 obj-$(CONFIG_SOUND) += i2s.o
-obj-y += irq.o
 obj-$(CONFIG_CLK_K210_SET_RATE) += k210_pll.o
 obj-$(CONFIG_IOMMU) += iommu.o
 obj-$(CONFIG_LED) += led.o
@@ -107,7 +109,11 @@ obj-$(CONFIG_TEE) += tee.o
 obj-$(CONFIG_TIMER) += timer.o
 obj-$(CONFIG_DM_USB) += usb.o
 obj-$(CONFIG_DM_VIDEO) += video.o
-obj-$(CONFIG_VIRTIO_SANDBOX) += virtio.o
+ifeq ($(CONFIG_VIRTIO_SANDBOX),y)
+obj-y += virtio.o
+obj-$(CONFIG_VIRTIO_RNG) += virtio_device.o
+obj-$(CONFIG_VIRTIO_RNG) += virtio_rng.o
+endif
 ifeq ($(CONFIG_WDT_GPIO)$(CONFIG_WDT_SANDBOX),yy)
 obj-y += wdt.o
 endif

@@ -57,24 +57,24 @@ void board_init_f(ulong bootflag)
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
 	*/
-	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);
+	relocate_code(CONFIG_VAL(RELOC_STACK), 0, CONFIG_SPL_RELOC_TEXT_BASE);
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)
 {
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *)CONFIG_SPL_GD_ADDR;
+	gd = (gd_t *)CONFIG_VAL(GD_ADDR);
 	struct bd_info *bd;
 
 	memset(gd, 0, sizeof(gd_t));
-	bd = (struct bd_info *)(CONFIG_SPL_GD_ADDR + sizeof(gd_t));
+	bd = (struct bd_info *)(CONFIG_VAL(GD_ADDR) + sizeof(gd_t));
 	memset(bd, 0, sizeof(struct bd_info));
 	gd->bd = bd;
 
 	arch_cpu_init();
 	get_clocks();
-	mem_malloc_init(CONFIG_SPL_RELOC_MALLOC_ADDR,
-			CONFIG_SPL_RELOC_MALLOC_SIZE);
+	mem_malloc_init(CONFIG_VAL(RELOC_MALLOC_ADDR),
+			CONFIG_VAL(RELOC_MALLOC_SIZE));
 	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
 
 #ifndef CONFIG_SPL_NAND_BOOT

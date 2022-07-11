@@ -3,7 +3,7 @@ config FIRMWARE
 
 config SPL_FIRMWARE
 	bool "Enable Firmware driver support in SPL"
-	depends on FIRMWARE
+	depends on FIRMWARE && SPL
 
 config SPL_ARM_PSCI_FW
 	bool
@@ -36,5 +36,13 @@ config ZYNQMP_FIRMWARE
 	  various platform management services.
 	  Say yes to enable ZynqMP firmware interface driver.
 	  If in doubt, say N.
+
+config ARM_SMCCC_FEATURES
+	bool "Arm SMCCC features discovery"
+	depends on ARM_PSCI_FW
+	help
+	  Discover Arm SMCCC features for which a U-Boot driver is defined. When enabled,
+	  the PSCI driver is always probed and binds dirvers registered to the Arm SMCCC
+	  services if any and reported as supported by the SMCCC firmware.
 
 source "drivers/firmware/scmi/Kconfig"

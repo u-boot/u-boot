@@ -19,7 +19,6 @@
 /*
  * CFI Flash
  */
-#define CONFIG_SYS_CFI_FLASH_STATUS_POLL /* fix amd flash issue */
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /*

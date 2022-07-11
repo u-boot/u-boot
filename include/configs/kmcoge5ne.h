@@ -35,12 +35,6 @@
 	CSCONFIG_ROW_BIT_13 | \
 	CSCONFIG_COL_BIT_10)
 
-/*
- * BFTIC3 on the local bus CS4
- */
-#define CONFIG_SYS_BFTIC3_BASE			0xB0000000
-#define CONFIG_SYS_BFTIC3_SIZE			256
-
 /* enable POST tests */
 #define CONFIG_POST (CONFIG_SYS_POST_MEMORY|CONFIG_SYS_POST_MEM_REGIONS)
 #define CONFIG_POST_EXTERNAL_WORD_FUNCS /* use own functions, not generic */

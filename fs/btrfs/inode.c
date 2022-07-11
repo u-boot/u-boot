@@ -546,15 +546,12 @@ static int lookup_data_extent(struct btrfs_root *root, struct btrfs_path *path,
 	/* Error or we're already at the file extent */
 	if (ret <= 0)
 		return ret;
-	if (ret > 0) {
-		/* Check previous file extent */
-		ret = btrfs_previous_item(root, path, ino,
-					  BTRFS_EXTENT_DATA_KEY);
-		if (ret < 0)
-			return ret;
-		if (ret > 0)
-			goto check_next;
-	}
+	/* Check previous file extent */
+	ret = btrfs_previous_item(root, path, ino, BTRFS_EXTENT_DATA_KEY);
+	if (ret < 0)
+		return ret;
+	if (ret > 0)
+		goto check_next;
 	/* Now the key.offset must be smaller than @file_offset */
 	btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
 	if (key.objectid != ino ||

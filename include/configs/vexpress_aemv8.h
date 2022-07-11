@@ -11,13 +11,9 @@
 
 /* Link Definitions */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 #else
 /* ATF loads u-boot here for BASE_FVP model */
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x03f00000)
 #endif
-
-#define CONFIG_SYS_BOOTM_LEN (64 << 20)      /* Increase max gunzip size */
 
 /* CS register bases for the original memory map. */
 #ifdef CONFIG_TARGET_VEXPRESS64_BASER_FVP
@@ -263,10 +259,6 @@
 		EXTRA_ENV_NAMES						       \
 		BOOTENV
 
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
-
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_SYS_FLASH_BASE		0x08000000
 /* 255 x 256KiB sectors + 4 x 64KiB sectors at the end = 259 */
@@ -278,13 +270,6 @@
 /* 256 x 256KiB sectors */
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 /* Store environment at top of flash */
-#endif
-
-#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
-
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 #endif
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */

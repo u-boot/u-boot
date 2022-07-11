@@ -30,9 +30,19 @@ struct scmi_smccc_channel {
 	struct scmi_smt smt;
 };
 
-static int scmi_smccc_process_msg(struct udevice *dev, struct scmi_msg *msg)
+/**
+ * struct scmi_channel - Channel instance referenced in SCMI drivers
+ * @ref: Reference to local channel instance
+ **/
+struct scmi_channel {
+	struct scmi_smccc_channel ref;
+};
+
+static int scmi_smccc_process_msg(struct udevice *dev,
+				  struct scmi_channel *channel,
+				  struct scmi_msg *msg)
 {
-	struct scmi_smccc_channel *chan = dev_get_plat(dev);
+	struct scmi_smccc_channel *chan = &channel->ref;
 	struct arm_smccc_res res;
 	int ret;
 
@@ -51,9 +61,8 @@ static int scmi_smccc_process_msg(struct udevice *dev, struct scmi_msg *msg)
 	return ret;
 }
 
-static int scmi_smccc_of_to_plat(struct udevice *dev)
+static int setup_channel(struct udevice *dev, struct scmi_smccc_channel *chan)
 {
-	struct scmi_smccc_channel *chan = dev_get_plat(dev);
 	u32 func_id;
 	int ret;
 
@@ -71,12 +80,51 @@ static int scmi_smccc_of_to_plat(struct udevice *dev)
 	return ret;
 }
 
+static int scmi_smccc_get_channel(struct udevice *dev,
+				  struct scmi_channel **channel)
+{
+	struct scmi_smccc_channel *base_chan = dev_get_plat(dev->parent);
+	struct scmi_smccc_channel *chan;
+	u32 func_id;
+	int ret;
+
+	if (dev_read_u32(dev, "arm,smc-id", &func_id)) {
+		/* Uses agent base channel */
+		*channel = container_of(base_chan, struct scmi_channel, ref);
+
+		return 0;
+	}
+
+	/* Setup a dedicated channel */
+	chan = calloc(1, sizeof(*chan));
+	if (!chan)
+		return -ENOMEM;
+
+	ret = setup_channel(dev, chan);
+	if (ret) {
+		free(chan);
+		return ret;
+	}
+
+	*channel = container_of(chan, struct scmi_channel, ref);
+
+	return 0;
+}
+
+static int scmi_smccc_of_to_plat(struct udevice *dev)
+{
+	struct scmi_smccc_channel *chan = dev_get_plat(dev);
+
+	return setup_channel(dev, chan);
+}
+
 static const struct udevice_id scmi_smccc_ids[] = {
 	{ .compatible = "arm,scmi-smc" },
 	{ }
 };
 
 static const struct scmi_agent_ops scmi_smccc_ops = {
+	.of_get_channel = scmi_smccc_get_channel,
 	.process_msg = scmi_smccc_process_msg,
 };
 

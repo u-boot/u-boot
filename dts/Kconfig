@@ -534,6 +534,7 @@ endif
 
 config VPL_OF_REAL
 	def_bool y
+	depends on VPL
 	help
 	  Indicates that a real devicetree is available which can be accessed
 	  at runtime. This means that dev_read_...() functions can be used to

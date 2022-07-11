@@ -166,22 +166,6 @@ config CLK_SCMI
 	  by a SCMI agent based on SCMI clock protocol communication
 	  with a SCMI server.
 
-config CLK_STM32F
-	bool "Enable clock driver support for STM32F family"
-	depends on CLK && (STM32F7 || STM32F4)
-	default y
-	help
-	  This clock driver adds support for RCC clock management
-	  for STM32F4 and STM32F7 SoCs.
-
-config CLK_STM32MP1
-	bool "Enable RCC clock driver for STM32MP1"
-	depends on ARCH_STM32MP && CLK
-	default y
-	help
-	  Enable the STM32 clock (RCC) driver. Enable support for
-	  manipulating STM32MP1's on-SoC clocks.
-
 config CLK_HSDK
 	bool "Enable cgu clock driver for HSDK boards"
 	depends on CLK && TARGET_HSDK
@@ -251,6 +235,7 @@ source "drivers/clk/owl/Kconfig"
 source "drivers/clk/renesas/Kconfig"
 source "drivers/clk/sunxi/Kconfig"
 source "drivers/clk/sifive/Kconfig"
+source "drivers/clk/stm32/Kconfig"
 source "drivers/clk/tegra/Kconfig"
 source "drivers/clk/ti/Kconfig"
 source "drivers/clk/uniphier/Kconfig"

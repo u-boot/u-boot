@@ -65,14 +65,8 @@ source "board/rockchip/sheep_rk3368/Kconfig"
 source "board/geekbuying/geekbox/Kconfig"
 source "board/rockchip/evb_px5/Kconfig"
 
-config SPL_LDSCRIPT
-	default "arch/arm/cpu/armv8/u-boot-spl.lds"
-
 config SPL_STACK_R_ADDR
 	default 0x04000000
-
-config TPL_MAX_SIZE
-        default 28672
 
 config TPL_STACK
         default 0xff8cffff

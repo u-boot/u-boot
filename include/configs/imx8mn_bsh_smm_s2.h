@@ -14,15 +14,13 @@
 #include <config_distro_bootcmd.h>
 
 #define NANDARGS \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-	"nandargs=setenv bootargs " \
+	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"mtdparts=${mtdparts} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
 	"nandroot=ubi0:root rw ubi.mtd=nandrootfs\0" \
-	"nandrootfstype=ubifs rootwait=1\0" \
+	"nandrootfstype=ubifs rootwait\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${fdt_addr_r} nanddtb; " \

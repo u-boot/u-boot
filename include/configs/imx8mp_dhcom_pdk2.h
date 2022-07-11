@@ -10,43 +10,17 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_128M
-
-#define CONFIG_SPL_MAX_SIZE		(148 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		SZ_1M
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_STACK		0x96FC00
-#define CONFIG_SPL_BSS_START_ADDR	0x0096FC00
-#define CONFIG_SPL_BSS_MAX_SIZE		0x400	/* 1 KiB */
-#define CONFIG_SYS_SPL_MALLOC_START	0x4c000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_512K	/* 512 kiB */
-
-/* For RAW image gives a error info not panic */
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
-
-#endif
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x200000
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x20000000 /* Minimum 512 MiB DDR */
 
 #define CONFIG_MXC_UART_BASE		UART1_BASE_ADDR
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		2048
-#define CONFIG_SYS_MAXARGS		64
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_PBSIZE		\
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* PHY needs a longer autonegotiation timeout after reset */
 #define PHY_ANEG_TIMEOUT		20000
@@ -55,8 +29,6 @@
 /* USDHC */
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
-
-#if !defined(CONFIG_SPL_BUILD)
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd=run bootcmd ; reset\0"				\
@@ -107,7 +79,5 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#endif
 
 #endif

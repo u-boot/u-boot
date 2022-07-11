@@ -77,7 +77,4 @@ config PFE_SGMII_2500_PHY2_ADDR
 
 endif
 
-
-source "board/freescale/common/Kconfig"
-
 endif

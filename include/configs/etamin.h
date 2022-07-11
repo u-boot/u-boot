@@ -75,19 +75,7 @@
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 
-#define CONFIG_FACTORYSET
-
-/* use both define to compile a SPL compliance test  */
-/*
-#define CONFIG_SPL_CMT
-#define CONFIG_SPL_CMT_DEBUG
-*/
-
 /* nedded by compliance test in read mode */
-
-/* Define own nand partitions */
-#define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
-
 
 #undef COMMON_ENV_DFU_ARGS
 #define COMMON_ENV_DFU_ARGS	"dfu_args=run bootargs_defaults;" \
@@ -113,7 +101,7 @@
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
-	"nand_root_fs_type=ubifs rootwait=1\0" \
+	"nand_root_fs_type=ubifs rootwait\0" \
 	"nand_args=run bootargs_defaults;" \
 		"mtdparts default;" \
 		"setenv ${partitionset_active} true;" \

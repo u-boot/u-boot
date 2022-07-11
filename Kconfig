@@ -154,6 +154,22 @@ config CC_COVERAGE
 	  Enabling this option will pass "--coverage" to gcc to compile
 	  and link code instrumented for coverage analysis.
 
+config ASAN
+	bool "Enable AddressSanitizer"
+	depends on SANDBOX
+	help
+	  Enables AddressSanitizer to discover out-of-bounds accesses,
+	  use-after-free, double-free and memory leaks.
+
+config FUZZ
+	bool "Enable fuzzing"
+	depends on CC_IS_CLANG
+	depends on DM_FUZZING_ENGINE
+	select ASAN
+	help
+	  Enables the fuzzing infrastructure to generate fuzzing data and run
+          fuzz tests.
+
 config CC_HAS_ASM_INLINE
 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
 
@@ -228,11 +244,37 @@ config SYS_BOOT_GET_CMDLINE
 	  Enables allocating and saving kernel cmdline in space between
 	  "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
+config SYS_BARGSIZE
+	int "Size of kernel command line buffer in bytes"
+	depends on SYS_BOOT_GET_CMDLINE
+	default 512
+	help
+	  Buffer size for Boot Arguments which are passed to the application
+	  (usually a Linux kernel) when it is booted
+
 config SYS_BOOT_GET_KBD
 	bool "Enable kernel board information setup"
 	help
 	  Enables allocating and saving a kernel copy of the bd_info in
 	  space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
+
+config HAS_CUSTOM_SYS_INIT_SP_ADDR
+	bool "Use a custom location for the initial stack pointer address"
+	depends on ARC || (ARM && !INIT_SP_RELATIVE) || MIPS || PPC || RISCV
+	default y if TFABOOT
+	help
+	  Typically, we use an initial stack pointer address that is calculated
+	  by taking the statically defined CONFIG_SYS_INIT_RAM_ADDR, adding the
+	  statically defined CONFIG_SYS_INIT_RAM_SIZE and then subtracting the
+	  build-time constant of GENERATED_GBL_DATA_SIZE.  On MIPS a different
+	  but statica calculation is performed.  However, some platforms will
+	  take a different approach.  Say Y here to define the address statically
+	  instead.
+
+config CUSTOM_SYS_INIT_SP_ADDR
+	hex "Static location for the initial stack pointer"
+	depends on HAS_CUSTOM_SYS_INIT_SP_ADDR
+	default SYS_TEXT_BASE if TFABOOT
 
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"

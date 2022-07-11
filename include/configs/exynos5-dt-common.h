@@ -15,17 +15,8 @@
 		"stdout=serial,vidconsole\0" \
 		"stderr=serial,vidconsole\0"
 
-#define CONFIG_EXYNOS5_DT
-
 #define CONFIG_SYS_SPI_BASE	0x12D30000
 #define FLASH_SIZE		(4 << 20)
 #define CONFIG_SPI_BOOTING
-
-/* Display */
-#ifdef CONFIG_LCD
-#define CONFIG_EXYNOS_FB
-#define CONFIG_EXYNOS_DP
-#define LCD_BPP			LCD_COLOR16
-#endif
 
 #endif

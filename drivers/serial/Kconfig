@@ -476,6 +476,8 @@ config DEBUG_UART_BASE
 	depends on DEBUG_UART
 	default 0 if DEBUG_SBI_CONSOLE
 	default 0 if DEBUG_UART_SANDBOX
+	default 0xff000000 if DEBUG_UART_ZYNQ && ARCH_ZYNQMP
+	default 0xe0000000 if DEBUG_UART_ZYNQ && ARCH_ZYNQ
 	help
 	  This is the base address of your UART for memory-mapped UARTs.
 
@@ -502,6 +504,8 @@ config DEBUG_UART_CLOCK
 	default 0 if DEBUG_SBI_CONSOLE
 	default 0 if DEBUG_UART_SANDBOX
 	default 0 if DEBUG_MVEBU_A3700_UART
+	default 100000000 if DEBUG_UART_ZYNQ && ARCH_ZYNQMP
+	default 50000000 if DEBUG_UART_ZYNQ && ARCH_ZYNQ
 	help
 	  The UART input clock determines the speed of the internal UART
 	  circuitry. The baud rate is derived from this by dividing the input
@@ -935,12 +939,6 @@ config OWL_SERIAL
 	  If you have a Actions Semi OWL based board and want to use the on-chip
 	  serial port, say Y to this option. If unsure, say N.
 	  Single baudrate is supported in current implementation (115200).
-
-config PXA_SERIAL
-	bool "PXA serial port support"
-	help
-	  If you have a machine based on a Marvell XScale PXA2xx CPU you
-	  can enable its onboard serial ports by enabling this option.
 
 config HTIF_CONSOLE
 	bool "RISC-V HTIF console support"

@@ -113,11 +113,19 @@ config SATA_CEVA
 
 config FSL_SATA
 	bool "Enable Freescale SATA controller driver support"
+	depends on PPC
 	select AHCI
 	select LIBATA
+	imply LBA48
 	help
 	  Enable this driver to support the SATA controller found in
 	  some Freescale PowerPC SoCs.
+
+config FSL_SATA_V2
+	bool "Enable support for V2 of the Freescale SATA controller"
+	depends on FSL_SATA
+	help
+	  Enable support for V2 of this controller, rather than V1.
 
 config SATA_MV
 	bool "Enable Marvell SATA controller driver support"

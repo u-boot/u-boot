@@ -228,52 +228,6 @@ __weak void mx5_ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 	mdelay(50);
 }
 
-#if !CONFIG_IS_ENABLED(DM_USB)
-static const struct ehci_ops mx5_ehci_ops = {
-	.powerup_fixup		= mx5_ehci_powerup_fixup,
-};
-
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	struct usb_ehci *ehci;
-
-	/* The only user for this is efikamx-usb */
-	ehci_set_controller_priv(index, NULL, &mx5_ehci_ops);
-	set_usboh3_clk();
-	enable_usboh3_clk(true);
-	set_usb_phy_clk();
-	enable_usb_phy1_clk(true);
-	enable_usb_phy2_clk(true);
-	mdelay(1);
-
-	/* Do board specific initialization */
-	board_ehci_hcd_init(CONFIG_MXC_USB_PORT);
-
-	ehci = (struct usb_ehci *)(OTG_BASE_ADDR +
-		(0x200 * CONFIG_MXC_USB_PORT));
-	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
-			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
-	setbits_le32(&ehci->usbmode, CM_HOST);
-
-	__raw_writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
-	setbits_le32(&ehci->portsc, USB_EN);
-
-	mxc_set_usbcontrol(CONFIG_MXC_USB_PORT, CONFIG_MXC_USB_FLAGS);
-	mdelay(10);
-
-	/* Do board specific post-initialization */
-	board_ehci_hcd_postinit(ehci, CONFIG_MXC_USB_PORT);
-
-	return 0;
-}
-
-int ehci_hcd_stop(int index)
-{
-	return 0;
-}
-#else /* CONFIG_IS_ENABLED(DM_USB) */
 struct ehci_mx5_priv_data {
 	struct ehci_ctrl ctrl;
 	struct usb_ehci *ehci;
@@ -372,4 +326,3 @@ U_BOOT_DRIVER(usb_mx5) = {
 	.priv_auto	= sizeof(struct ehci_mx5_priv_data),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif /* !CONFIG_IS_ENABLED(DM_USB) */

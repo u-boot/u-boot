@@ -60,7 +60,6 @@
 
 /* SATA */
 
-#define CONFIG_SYS_SATA1			AHCI_BASE_ADDR1
 #ifndef SPL_NO_ENV
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -88,7 +87,6 @@
 	"kernelhdr_addr_sd=0x3000\0" \
 	"kernelhdr_size_sd=0x10\0" \
 	"console=ttyS0,115200\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	BOOTENV \
 	"boot_scripts=ls1028aqds_boot.scr\0" \
 	"boot_script_hdr=hdr_ls1028aqds_bs.out\0" \

@@ -13,7 +13,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
 
 /* Increase max size of compressed kernel */
-#define CONFIG_SYS_BOOTM_LEN		0x2000000     /* 32 MB */
 
 /******************************************************************************
  * (PRAM usage)

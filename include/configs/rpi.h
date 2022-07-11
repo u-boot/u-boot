@@ -32,13 +32,6 @@
  * the VC uses.
  */
 #define CONFIG_SYS_SDRAM_SIZE		SZ_128M
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + \
-					 CONFIG_SYS_SDRAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
-
-#ifdef CONFIG_ARM64
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-#endif
 
 /* Devices */
 /* LCD */
@@ -60,7 +53,6 @@
 #endif
 
 /* Console configuration */
-#define CONFIG_SYS_CBSIZE		1024
 
 /* Environment */
 

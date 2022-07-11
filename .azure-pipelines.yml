@@ -261,6 +261,9 @@ stages:
         evb_ast2500:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
+        evb_ast2600:
+          TEST_PY_BD: "evb-ast2600"
+          TEST_PY_ID: "--id qemu"
         vexpress_ca9x4:
           TEST_PY_BD: "vexpress_ca9x4"
           TEST_PY_ID: "--id qemu"
@@ -473,6 +476,12 @@ stages:
           BUILDMAN: "imx8"
         keystone2_keystone3:
           BUILDMAN: "k2 k3"
+        sandbox_asan:
+          BUILDMAN: "sandbox"
+          OVERRIDE: "-a ASAN"
+        sandbox_clang_asan:
+          BUILDMAN: "sandbox"
+          OVERRIDE: "-O clang-13 -a ASAN"
         samsung_socfpga:
           BUILDMAN: "samsung socfpga"
         sun4i:

@@ -24,17 +24,12 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Serial console */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
 
 /* Environment */
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -48,7 +43,6 @@
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0" \
 	"panel=HDMI\0" \
-	"autoload=no\0" \
 	"uImage=uImage-cm-fx6\0" \
 	"zImage=zImage-cm-fx6\0" \
 	"kernel=uImage-cm-fx6\0" \
@@ -59,8 +53,6 @@
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
 	"doboot=bootm ${kernel_addr_r}\0" \
 	"doloadfdt=false\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setboottypez=setenv kernel ${zImage};" \
 		"setenv doboot bootz ${kernel_addr_r} - ${fdt_addr_r};" \
 		"setenv doloadfdt true;\0" \
@@ -134,16 +126,11 @@
 	func(SATA, sata, 0)
 
 #include <config_distro_bootcmd.h>
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif
 
 /* NAND */
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 /* APBH DMA is required for NAND support */
-#endif
 
 /* Ethernet */
 #define CONFIG_FEC_MXC_PHYADDR		0
@@ -151,13 +138,6 @@
 /* USB */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
-
-/* SATA */
-#define CONFIG_LBA48
-#define CONFIG_DWC_AHSATA_PORT_ID	0
-#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 
 /* Boot */
 #define CONFIG_SYS_BOOTMAPSZ	        (8 << 20)

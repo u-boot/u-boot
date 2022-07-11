@@ -18,8 +18,6 @@
  * U-Boot into it.
  */
 
-#define CONFIG_ENV_MIN_ENTRIES		128
-
 /* Environment in MMC */
 /*
  * For SD - reserve 1 LBA for MBR + 1M for u-boot image. The MMC/eMMC
@@ -30,38 +28,10 @@
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
-/* PCIe support */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 /* Keep device tree and initrd in lower memory so the kernel can access them */
 #define RELOCATION_LIMITS_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
-
-/* SPL */
-
-/* Defines for SPL */
-#define CONFIG_SPL_SIZE			(140 << 10)
-#define CONFIG_SPL_MAX_SIZE		(CONFIG_SPL_SIZE - (CONFIG_SPL_TEXT_BASE - 0x40000000))
-
-#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + CONFIG_SPL_SIZE)
-#define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MALLOC_SIMPLE
-#endif
-
-#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
-#define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
-
-#if defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC) || defined(CONFIG_MVEBU_SPL_BOOT_DEVICE_SATA)
-/* SPL related MMC defines */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
-#endif
-#endif
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -70,8 +40,6 @@
 #include "mv-common.h"
 
 /* Include the common distro boot environment */
-#ifndef CONFIG_SPL_BUILD
-
 #ifdef CONFIG_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
 #else
@@ -147,7 +115,5 @@
 	LOAD_ADDRESS_ENV_SETTINGS \
 	"console=ttyS0,115200\0" \
 	BOOTENV
-
-#endif /* CONFIG_SPL_BUILD */
 
 #endif /* _CONFIG_CLEARFOG_H */

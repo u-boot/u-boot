@@ -26,7 +26,6 @@
 #define CONFIG_FEC_MXC_PHYADDR          0
 
 /* I2C Configs */
-#define CONFIG_SYS_SPD_BUS_NUM		0
 
 /*
  * We do have 128MB of memory on the Vybrid Tower board. Leave the last
@@ -129,14 +128,5 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
-
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-#ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_RANGE		(512 * 1024)
-#endif
 
 #endif

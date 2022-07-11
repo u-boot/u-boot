@@ -102,8 +102,10 @@ int misc_init_r(void)
 int last_stage_init(void)
 {
 #if defined(CONFIG_TARGET_KMCOGE5NE)
-	struct bfticu_iomap *base =
-		(struct bfticu_iomap *)CONFIG_SYS_BFTIC3_BASE;
+	/*
+	 * BFTIC3 on the local bus CS4
+	 */
+	struct bfticu_iomap *base = (struct bfticu_iomap *)0xB0000000;
 	u8 dip_switch = in_8((u8 *)&(base->mswitch)) & BFTICU_DIPSWITCH_MASK;
 
 	if (dip_switch != 0) {

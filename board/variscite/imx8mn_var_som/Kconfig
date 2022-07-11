@@ -12,6 +12,4 @@ config SYS_CONFIG_NAME
 config IMX_CONFIG
 	default "board/variscite/imx8mn_var_som/imximage-8mn-ddr4.cfg"
 
-source "board/freescale/common/Kconfig"
-
 endif

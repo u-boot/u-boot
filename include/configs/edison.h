@@ -10,10 +10,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_CBSIZE	2048
-#define CONFIG_SYS_MAXARGS	128
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_STACK_SIZE			(32 * 1024)
 
 #define CONFIG_SYS_MONITOR_LEN			(256 * 1024)

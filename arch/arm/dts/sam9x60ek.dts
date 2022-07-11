@@ -49,7 +49,7 @@
 				status = "okay";
 
 				nor_flash: sst26vf064@0 {
-					compatible = "spi-flash";
+					compatible = "jedec,spi-nor";
 					reg = <0>;
 					spi-max-frequency = <80000000>;
 					spi-rx-bus-width = <4>;
@@ -72,7 +72,7 @@
 					status = "okay";
 
 					eeprom@53 {
-						compatible = "atmel,24c32";
+						compatible = "atmel,24c02"; /* EEPROM is 2Kbits microchip 24aa025e48, an at24c02 with page size of 16 */
 						reg = <0x53>;
 						pagesize = <16>;
 					};

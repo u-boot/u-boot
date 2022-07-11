@@ -11,12 +11,12 @@
 		};
 
 		u-boot-spl2 {
-			offset = <0x1c>;
+			offset = <0x20>;
 			type = "u-boot-spl";
 		};
 
 		u-boot {
-			offset = <0x34>;
+			offset = <0x3c>;
 		};
 
 		section {

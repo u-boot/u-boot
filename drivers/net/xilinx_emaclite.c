@@ -22,6 +22,7 @@
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
+#include <eth_phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -564,14 +565,27 @@ static int emaclite_probe(struct udevice *dev)
 	struct xemaclite *emaclite = dev_get_priv(dev);
 	int ret;
 
-	emaclite->bus = mdio_alloc();
-	emaclite->bus->read = emaclite_miiphy_read;
-	emaclite->bus->write = emaclite_miiphy_write;
-	emaclite->bus->priv = emaclite;
+	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
+		emaclite->bus = eth_phy_get_mdio_bus(dev);
 
-	ret = mdio_register_seq(emaclite->bus, dev_seq(dev));
-	if (ret)
-		return ret;
+	if (!emaclite->bus) {
+		emaclite->bus = mdio_alloc();
+		emaclite->bus->read = emaclite_miiphy_read;
+		emaclite->bus->write = emaclite_miiphy_write;
+		emaclite->bus->priv = emaclite;
+
+		ret = mdio_register_seq(emaclite->bus, dev_seq(dev));
+		if (ret)
+			return ret;
+	}
+
+	if (IS_ENABLED(CONFIG_DM_ETH_PHY)) {
+		eth_phy_set_mdio_bus(dev, emaclite->bus);
+		emaclite->phyaddr = eth_phy_get_addr(dev);
+	}
+
+	printf("EMACLITE: %lx, phyaddr %d, %d/%d\n", (ulong)emaclite->regs,
+	       emaclite->phyaddr, emaclite->txpp, emaclite->rxpp);
 
 	return 0;
 }
@@ -606,19 +620,18 @@ static int emaclite_of_to_plat(struct udevice *dev)
 
 	emaclite->phyaddr = -1;
 
-	offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
-				      "phy-handle");
-	if (offset > 0)
-		emaclite->phyaddr = fdtdec_get_int(gd->fdt_blob, offset,
-						   "reg", -1);
+	if (!(IS_ENABLED(CONFIG_DM_ETH_PHY))) {
+		offset = fdtdec_lookup_phandle(gd->fdt_blob, dev_of_offset(dev),
+					       "phy-handle");
+		if (offset > 0)
+			emaclite->phyaddr = fdtdec_get_int(gd->fdt_blob,
+							   offset, "reg", -1);
+	}
 
 	emaclite->txpp = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"xlnx,tx-ping-pong", 0);
 	emaclite->rxpp = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					"xlnx,rx-ping-pong", 0);
-
-	printf("EMACLITE: %lx, phyaddr %d, %d/%d\n", (ulong)emaclite->regs,
-	       emaclite->phyaddr, emaclite->txpp, emaclite->rxpp);
 
 	return 0;
 }

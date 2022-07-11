@@ -19,15 +19,11 @@
 #endif
 #define CONFIG_MXC_GPT_HCLK
 
-#define CONFIG_SYS_BOOTM_LEN	0x1000000
-
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_CBSIZE	512
-#define CONFIG_SYS_MAXARGS	32
 
 /* MMC */
 

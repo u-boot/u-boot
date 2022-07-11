@@ -19,29 +19,15 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
 					  115200, 230400, 460800, 921600 }
 
-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
-
 /*
  * Other required minimal configurations
  */
-#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
-
-/* End of 16M scrubbed by training in bootrom */
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
 
 /* When runtime detection fails this is the default */
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
-
 /* USB ethernet */
-
-/*
- * SATA/SCSI/AHCI configuration
- */
-#define CONFIG_LBA48
-#define CONFIG_SYS_64BIT_LBA
 
 /*
  * PCI configuration

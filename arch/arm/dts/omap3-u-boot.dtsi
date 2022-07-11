@@ -78,4 +78,5 @@
 
 &i2c1 {
 	u-boot,dm-spl;
+	clock-frequency = <100000>;
 };

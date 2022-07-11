@@ -24,11 +24,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_SYS_SDRAM_SIZE		SZ_1G
 
-#define CONFIG_SYS_INIT_SP_ADDR		\
-	(CONFIG_SYS_SDRAM_BASE + 0x1000 - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_BOOTM_LEN		SZ_128M
-
 /*
  * UART configuration
  */
@@ -39,12 +34,6 @@
 /*
  * Ethernet PHY configuration
  */
-
-/*
- * USB 1.1 configuration
- */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 
 /*
  * Environment settings
@@ -100,7 +89,6 @@ setenv core_iccm_2 0x10; setenv core_dccm_2 0x10; \
 setenv core_iccm_3 0x6; setenv core_dccm_3 0x6;\0"
 
 /* Cli configuration */
-#define CONFIG_SYS_CBSIZE		SZ_2K
 
 /*
  * Callback configuration

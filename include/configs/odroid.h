@@ -24,9 +24,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
-					- GENERATED_GBL_DATA_SIZE)
-
 /* Partitions name */
 #define PARTS_BOOT		"boot"
 #define PARTS_ROOT		"platform"
@@ -146,14 +143,6 @@
 	"fdt_addr_r=0x40800000\0" \
 	"kernel_addr_r=0x41000000\0" \
 	BOOTENV
-
-/* GPT */
-
-/* Security subsystem - enable hw_rand() */
-#define CONFIG_EXYNOS_ACE_SHA
-
-/* USB */
-#define CONFIG_USB_EHCI_EXYNOS
 
 /*
  * Supported Odroid boards: X3, U3

@@ -9,7 +9,6 @@
 #include <asm/arch/base_addr_ac5.h>
 #include <linux/stringify.h>
 
-#define CONFIG_HUSH_INIT_VAR
 /* Eternal oscillator */
 #define CONFIG_SYS_TIMER_RATE	40000000
 
@@ -23,8 +22,6 @@
  * RTC which begin at address 0x20
  */
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
-
-#define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 
 /* Environment settings */
 
@@ -67,8 +64,6 @@
 	"fdt_addr=" __stringify(CONFIG_KM_FDT_ADDR) "\0" \
 	"load=tftpboot ${loadaddr} u-boot-with-nand-spl.sfp\0" \
 	"loadaddr=" __stringify(CONFIG_KM_KERNEL_ADDR) "\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"update=nand erase 0x0 0x00100000 && nand write ${loadaddr} 0x0 ${filesize}\0" \
 	"userload=ubi part nand.ubi &&" \
 		"ubi check rootfs$bootnum &&" \

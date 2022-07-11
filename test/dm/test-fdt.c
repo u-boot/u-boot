@@ -184,7 +184,7 @@ static int dm_test_alias_highest_id(struct unit_test_state *uts)
 	int ret;
 
 	ret = dev_read_alias_highest_id("ethernet");
-	ut_asserteq(5, ret);
+	ut_asserteq(8, ret);
 
 	ret = dev_read_alias_highest_id("gpio");
 	ut_asserteq(3, ret);

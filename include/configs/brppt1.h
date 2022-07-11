@@ -16,7 +16,6 @@
 #include <linux/stringify.h>
 /* ------------------------------------------------------------------------- */
 /* memory */
-#define CONFIG_SYS_BOOTM_LEN		SZ_32M
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
@@ -29,16 +28,8 @@
  */
 
 #ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_SYS_SPL_ARGS_ADDR		0x80F80000
-
 /* RAW SD card / eMMC */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x80	/* address 0x10000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
 
-/* NAND */
-#ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x140000
-#endif /* CONFIG_MTD_RAW_NAND */
 #endif /* CONFIG_SPL_OS_BOOT */
 
 #ifdef CONFIG_MTD_RAW_NAND
@@ -47,8 +38,6 @@
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define NANDTGTS \
-"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 "cfgscr=mw ${dtbaddr} 0; nand read ${cfgaddr} cfgscr && source ${cfgaddr};" \
 " fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0" \
 "nandargs=setenv bootargs console=${console} ${optargs} ${optargs_rot} " \
@@ -107,11 +96,9 @@ MMCSPI_TGTS \
 
 #define LOAD_OFFSET(x)			0x8##x
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
 "verify=no\0" \
-"autoload=0\0" \
 "scraddr=" __stringify(LOAD_OFFSET(0000000)) "\0" \
 "cfgaddr=" __stringify(LOAD_OFFSET(0020000)) "\0" \
 "dtbaddr=" __stringify(LOAD_OFFSET(0040000)) "\0" \
@@ -131,7 +118,6 @@ NANDTGTS \
 "b_default=run b_deftgts; for target in ${b_tgts};"\
 " do echo \"### booting ${target} ###\"; run b_${target};" \
 " if test ${b_break} = 1; then; exit; fi; done\0"
-#endif /* !CONFIG_SPL_BUILD*/
 
 #ifdef CONFIG_MTD_RAW_NAND
 /*

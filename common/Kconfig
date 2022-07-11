@@ -83,14 +83,17 @@ config LOGLEVEL
 
 config SPL_LOGLEVEL
 	int
+	depends on SPL
 	default LOGLEVEL
 
 config TPL_LOGLEVEL
 	int
+	depends on TPL
 	default LOGLEVEL
 
 config VPL_LOGLEVEL
 	int "loglevel for VPL"
+	depends on VPL
 	default LOGLEVEL
 	help
 	  All Messages with a loglevel smaller than the console loglevel will
@@ -271,15 +274,6 @@ config LOG
 
 if LOG
 
-config VPL_LOG
-	bool "Enable logging support in VPL"
-	depends on LOG
-	help
-	  This enables support for logging of status and debug messages. These
-	  can be displayed on the console, recorded in a memory buffer, or
-	  discarded if not needed. Logging supports various categories and
-	  levels of severity.
-
 config LOG_MAX_LEVEL
 	int "Maximum log level to record"
 	default 6
@@ -365,7 +359,7 @@ config LOG_SYSLOG
 
 config SPL_LOG
 	bool "Enable logging support in SPL"
-	depends on LOG
+	depends on LOG && SPL
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or
@@ -408,7 +402,7 @@ endif
 
 config TPL_LOG
 	bool "Enable logging support in TPL"
-	depends on LOG
+	depends on LOG && TPL
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or
@@ -451,7 +445,7 @@ endif
 
 config VPL_LOG
 	bool "Enable logging support in VPL"
-	depends on LOG
+	depends on LOG && VPL
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or
@@ -658,6 +652,18 @@ config MISC_INIT_R
 	default y if ARCH_OMAP2PLUS && !AM33XX
 	help
 	  Enabling this option calls 'misc_init_r' function
+
+config SYS_MALLOC_BOOTPARAMS
+	bool "Malloc a buffer to use for bootparams"
+	help
+	  In some cases rather than using a known location to store the
+	  bi_boot_params portion of gd we need to allocate it from our malloc pool.
+
+config SYS_BOOTPARAMS_LEN
+	hex "Size of the bootparam buffer to malloc in bytes"
+	depends on SYS_MALLOC_BOOTPARAMS
+	default 0x20000 if MIPS || RCAR_GEN3
+	default 0x10000
 
 config ID_EEPROM
 	bool "Enable I2C connected system identifier EEPROM"

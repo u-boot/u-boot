@@ -19,7 +19,6 @@
 #define V_OSCK				25000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#ifndef CONFIG_SPL_BUILD
 #define MMCARGS \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw rootwait\0" \
@@ -32,8 +31,6 @@
 		"bootm ${loadaddr}\0"
 
 #define NANDARGS \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandroot=ubi0:rootfs rw\0" \
 	"nandrootfstype=ubifs\0" \
 	"nandargs=setenv bootargs console=${console} " \
@@ -55,9 +52,6 @@
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	MMCARGS \
 	NANDARGS
-#endif /* CONFIG_SPL_BUILD */
-
-#define CONFIG_SYS_AUTOLOAD		"no"
 
 /* Serial console configuration */
 
@@ -86,9 +80,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x500000
-#endif
 
 /* GPIO pin + bank to pin ID mapping */
 #define GPIO_PIN(_bank, _pin)		((_bank << 5) + _pin)
@@ -98,7 +89,6 @@
 
 /* EEPROM */
 
-#ifndef CONFIG_SPL_BUILD
 /*
  * Enable PCA9555 at I2C0-0x26.
  * First select the I2C0 bus with "i2c dev 0", then use "pca953x" command.
@@ -106,6 +96,5 @@
 #define CONFIG_PCA953X
 #define CONFIG_SYS_I2C_PCA953X_ADDR	0x26
 #define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x26, 16} }
-#endif /* CONFIG_SPL_BUILD */
 
 #endif	/* __CONFIG_CM_T335_H */

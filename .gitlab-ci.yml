@@ -272,6 +272,12 @@ evb-ast2500 test.py:
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
+evb-ast2600 test.py:
+  variables:
+    TEST_PY_BD: "evb-ast2600"
+    TEST_PY_ID: "--id qemu"
+  <<: *buildman_and_testpy_dfn
+
 sandbox_flattree test.py:
   variables:
     TEST_PY_BD: "sandbox_flattree"

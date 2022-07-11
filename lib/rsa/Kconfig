@@ -18,6 +18,7 @@ if RSA
 
 config SPL_RSA
 	bool "Use RSA Library within SPL"
+	depends on SPL
 
 config SPL_RSA_VERIFY
 	bool

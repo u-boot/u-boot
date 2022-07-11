@@ -54,6 +54,9 @@ static fsl_ddr_cfg_regs_t __maybe_unused ddr_cfg_regs = {
 
 	.ddr_cdr1		= 0x80040000,
 	.ddr_cdr2		= 0x0000bc01,
+
+	/* Erratum A-009942, set optimal CPO value */
+	.debug[28]		= 0x00700040,
 };
 
 int fsl_initdram(void)
@@ -66,10 +69,16 @@ int fsl_initdram(void)
 		dram_size = 0x80000000;
 		ddr_cfg_regs.cs[1].bnds = 0;
 		ddr_cfg_regs.cs[1].config = 0;
-		ddr_cfg_regs.cs[1].config_2 = 0;
 		break;
 	case GPPORCR1_MEM_4GB_CS0_1:
 		dram_size = 0x100000000ULL;
+		break;
+	case GPPORCR1_MEM_8GB_CS0_1:
+		dram_size = 0x200000000ULL;
+		ddr_cfg_regs.cs[0].bnds = 0x000000ff;
+		ddr_cfg_regs.cs[0].config = 0x80044403;
+		ddr_cfg_regs.cs[1].bnds = 0x010001ff;
+		ddr_cfg_regs.cs[1].config = 0x80044403;
 		break;
 	case GPPORCR1_MEM_512MB_CS0:
 		dram_size = 0x20000000;
@@ -80,7 +89,6 @@ int fsl_initdram(void)
 	case GPPORCR1_MEM_4GB_CS0_2:
 		dram_size = 0x100000000ULL;
 		fallthrough; /* for now */
-	case GPPORCR1_MEM_8GB_CS0_1:
 	case GPPORCR1_MEM_8GB_CS0_1_2_3:
 		dram_size = 0x200000000ULL;
 		fallthrough; /* for now */

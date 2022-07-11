@@ -293,33 +293,6 @@ board_init_r():
 
 	SPL-specific notes:
 	- stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined and
-		CONFIG_SPL_STACK_R_ADDR points into SDRAM
-	- preloader_console_init() can be called here - typically this is
-		done by selecting CONFIG_SPL_BOARD_INIT and then supplying a
-		spl_board_init() function containing this call
-	- loads U-Boot or (in falcon mode) Linux
-
-
-Configuration Options:
-----------------------
-
-Configuration depends on the combination of board and CPU type; all
-such information is kept in a configuration file
-"include/configs/<board_name>.h".
-
-Example: For a TQM823L module, all configuration settings are in
-"include/configs/TQM823L.h".
-
-
-Many of the options are named exactly as the corresponding Linux
-kernel configuration options. The intention is to make it easier to
-build a config tool - later.
-
-- ARM Platform Bus Type(CCI):
-		CoreLink Cache Coherent Interconnect (CCI) is ARM BUS which
-		provides full cache coherency between two clusters of multi-core
-		CPUs and I/O coherency for devices and I/O masters
-
 		CONFIG_SYS_FSL_HAS_CCI400
 
 		Defined For SoC that has cache coherent interconnect
@@ -398,10 +371,6 @@ The following options need to be configured:
 		In this mode, a single differential clock is used to supply
 		clocks to the sysclock, ddrclock and usbclock.
 
-		CONFIG_SYS_CPC_REINIT_F
-		This CONFIG is defined when the CPC is configured as SRAM at the
-		time of U-Boot entry and is required to be re-initialized.
-
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
@@ -414,10 +383,6 @@ The following options need to be configured:
 
 		CONFIG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
-
-		CONFIG_SYS_FSL_DDR_EMU
-		Specify emulator support for DDR. Some DDR features such as
-		deskew training are not available.
 
 		CONFIG_SYS_FSL_DDRC_GEN1
 		Freescale DDR1 controller.
@@ -493,12 +458,6 @@ The following options need to be configured:
 		Defines the SEC controller register space as Little Endian
 
 - MIPS CPU options:
-		CONFIG_SYS_INIT_SP_OFFSET
-
-		Offset relative to CONFIG_SYS_SDRAM_BASE for initial stack
-		pointer. This is needed for the temporary stack before
-		relocation.
-
 		CONFIG_XWAY_SWAP_BYTES
 
 		Enable compilation of tools/xway-swap-bytes needed for Lantiq
@@ -697,18 +656,6 @@ The following options need to be configured:
 		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 
-- LBA48 Support
-		CONFIG_LBA48
-
-		Set this to enable support for disks larger than 137GB
-		Also look at CONFIG_SYS_64BIT_LBA.
-		Whithout these , LBA48 support uses 32bit variables and will 'only'
-		support disks up to 2.1TB.
-
-		CONFIG_SYS_64BIT_LBA:
-			When enabled, makes the IDE subsystem use 64bit sector addresses.
-			Default is 32bit.
-
 - NETWORK Support (PCI):
 		CONFIG_E1000_SPI
 		Utility code for direct access to the SPI bus on Intel 8257x.
@@ -826,9 +773,6 @@ The following options need to be configured:
 		Supported are USB Keyboards and USB Floppy drives
 		(TEAC FD-05PUB).
 
-		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
-		txfilltuning field in the EHCI controller on reset.
-
 		CONFIG_USB_DWC2_REG_ADDR the physical CPU address of the DWC2
 		HW module registers.
 
@@ -902,13 +846,6 @@ The following options need to be configured:
 		the appropriate value in Hz.
 
 - MMC Support:
-		The MMC controller on the Intel PXA is supported. To
-		enable this define CONFIG_MMC. The MMC can be
-		accessed from the boot prompt by mapping the device
-		to physical memory similar to flash. Command line is
-		enabled with CONFIG_CMD_MMC. The MMC driver also works with
-		the FAT fs. This is enabled with CONFIG_CMD_FAT.
-
 		CONFIG_SH_MMCIF
 		Support for Renesas on-chip MMCIF controller
 
@@ -1354,11 +1291,6 @@ The following options need to be configured:
 
 		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
 
-		CONFIG_SYS_SPD_BUS_NUM
-
-		If defined, then this indicates the I2C bus number for DDR SPD.
-		If not defined, then U-Boot assumes that SPD is on I2C bus 0.
-
 		CONFIG_SYS_RTC_BUS_NUM
 
 		If defined, then this indicates the I2C bus number for the RTC.
@@ -1397,10 +1329,6 @@ The following options need to be configured:
 
 		Enables support for FPGA family.
 		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
-
-		CONFIG_FPGA_COUNT
-
-		Specify the number of FPGA devices to support.
 
 		CONFIG_SYS_FPGA_PROG_FEEDBACK
 
@@ -1570,20 +1498,6 @@ The following options need to be configured:
 		overwriting the architecture dependent default
 		settings.
 
-- Frame Buffer Address:
-		CONFIG_FB_ADDR
-
-		Define CONFIG_FB_ADDR if you want to use specific
-		address for frame buffer.  This is typically the case
-		when using a graphics controller has separate video
-		memory.  U-Boot will then place the frame buffer at
-		the given address instead of dynamically reserving it
-		in system RAM by calling lcd_setmem(), which grabs
-		the memory for the frame buffer depending on the
-		configured panel size.
-
-		Please see board_init_f function.
-
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
 		CONFIG_UPDATE_TFTP_CNT_MAX
@@ -1658,36 +1572,6 @@ The following options need to be configured:
 		CONFIG_SPL
 		Enable building of SPL globally.
 
-		CONFIG_SPL_MAX_FOOTPRINT
-		Maximum size in memory allocated to the SPL, BSS included.
-		When defined, the linker checks that the actual memory
-		used by SPL from _start to __bss_end does not exceed it.
-		CONFIG_SPL_MAX_FOOTPRINT and CONFIG_SPL_BSS_MAX_SIZE
-		must not be both defined at the same time.
-
-		CONFIG_SPL_MAX_SIZE
-		Maximum size of the SPL image (text, data, rodata, and
-		linker lists sections), BSS excluded.
-		When defined, the linker checks that the actual size does
-		not exceed it.
-
-		CONFIG_SPL_RELOC_TEXT_BASE
-		Address to relocate to.  If unspecified, this is equal to
-		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).
-
-		CONFIG_SPL_BSS_START_ADDR
-		Link address for the BSS within the SPL binary.
-
-		CONFIG_SPL_BSS_MAX_SIZE
-		Maximum size in memory allocated to the SPL BSS.
-		When defined, the linker checks that the actual memory used
-		by SPL from __bss_start to __bss_end does not exceed it.
-		CONFIG_SPL_MAX_FOOTPRINT and CONFIG_SPL_BSS_MAX_SIZE
-		must not be both defined at the same time.
-
-		CONFIG_SPL_STACK
-		Adress of the start of the stack SPL will use
-
 		CONFIG_SPL_PANIC_ON_RAW_IMAGE
 		When defined, SPL will panic() if the image it has
 		loaded does not have a signature.
@@ -1698,43 +1582,9 @@ The following options need to be configured:
 		consider that a completely unreadable NAND block is bad,
 		and thus should be skipped silently.
 
-		CONFIG_SPL_RELOC_STACK
-		Adress of the start of the stack SPL will use after
-		relocation.  If unspecified, this is equal to
-		CONFIG_SPL_STACK.
-
-		CONFIG_SYS_SPL_MALLOC_START
-		Starting address of the malloc pool used in SPL.
-		When this option is set the full malloc is used in SPL and
-		it is set up by spl_init() and before that, the simple malloc()
-		can be used if CONFIG_SYS_MALLOC_F is defined.
-
-		CONFIG_SYS_SPL_MALLOC_SIZE
-		The size of the malloc pool used in SPL.
-
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
 		about the running system.
-
-		CONFIG_SPL_INIT_MINIMAL
-		Arch init code should be built for a very small image
-
-		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
-		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS
-		Sector and number of sectors to load kernel argument
-		parameters from when MMC is being used in raw mode
-		(for falcon mode)
-
-		CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
-		Filename to read to load U-Boot when reading from filesystem
-
-		CONFIG_SPL_FS_LOAD_KERNEL_NAME
-		Filename to read to load kernel uImage when reading
-		from filesystem (for Falcon mode)
-
-		CONFIG_SPL_FS_LOAD_ARGS_NAME
-		Filename to read to load kernel argument parameters
-		when reading from filesystem (for Falcon mode)
 
 		CONFIG_SPL_MPC83XX_WAIT_FOR_NAND
 		Set this for NAND SPL on PPC mpc83xx targets, so that
@@ -1742,20 +1592,9 @@ The following options need to be configured:
 		continuing (the hardware starts execution after just
 		loading the first page rather than the full 4K).
 
-		CONFIG_SPL_SKIP_RELOCATE
-		Avoid SPL relocation
-
 		CONFIG_SPL_UBI
 		Support for a lightweight UBI (fastmap) scanner and
 		loader
-
-		CONFIG_SPL_NAND_RAW_ONLY
-		Support to boot only raw u-boot.bin images. Use this only
-		if you need to save space.
-
-		CONFIG_SPL_COMMON_INIT_DDR
-		Set for common ddr init with serial presence detect in
-		SPL binary.
 
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
@@ -1781,34 +1620,11 @@ The following options need to be configured:
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
 
-		CONFIG_SPL_PAD_TO
-		Image offset to which the SPL should be padded before appending
-		the SPL payload. By default, this is defined as
-		CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
-		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
-		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
-
-		CONFIG_SPL_TARGET
-		Final target image containing SPL and payload.  Some SPLs
-		use an arch-specific makefile fragment instead, for
-		example if more than one image needs to be produced.
-
 		CONFIG_SPL_FIT_PRINT
 		Printing information about a FIT image adds quite a bit of
 		code to SPL. So this is normally disabled in SPL. Use this
 		option to re-enable it. This will affect the output of the
 		bootm command when booting a FIT image.
-
-- TPL framework
-		CONFIG_TPL
-		Enable building of TPL globally.
-
-		CONFIG_TPL_PAD_TO
-		Image offset to which the TPL should be padded before appending
-		the TPL payload. By default, this is defined as
-		CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
-		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
-		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
 
 - Interrupt support (PPC):
 
@@ -1852,16 +1668,6 @@ Configuration Settings:
 
 - CONFIG_SYS_PROMPT:	This is what U-Boot prints on the console to
 		prompt for user input.
-
-- CONFIG_SYS_CBSIZE:	Buffer size for input from the Console
-
-- CONFIG_SYS_PBSIZE:	Buffer size for Console output
-
-- CONFIG_SYS_MAXARGS:	max. Number of arguments accepted for monitor commands
-
-- CONFIG_SYS_BARGSIZE: Buffer size for Boot Arguments which are passed to
-		the application (usually a Linux kernel) when it is
-		booted
 
 - CONFIG_SYS_BAUDRATE_TABLE:
 		List of legal baudrate settings for this board.
@@ -1909,7 +1715,7 @@ Configuration Settings:
 - CONFIG_SYS_MALLOC_SIMPLE
 		Provides a simple and small malloc() and calloc() for those
 		boards which do not use the full malloc in SPL (which is
-		enabled with CONFIG_SYS_SPL_MALLOC_START).
+		enabled with CONFIG_SYS_SPL_MALLOC).
 
 - CONFIG_SYS_NONCACHED_MEMORY:
 		Size of non-cached memory area. This area of memory will be
@@ -1930,12 +1736,6 @@ Configuration Settings:
 
 		Non-cached memory is only supported on 32-bit ARM at present.
 
-- CONFIG_SYS_BOOTM_LEN:
-		Normally compressed uImages are limited to an
-		uncompressed size of 8 MBytes. If this is not enough,
-		you can define CONFIG_SYS_BOOTM_LEN in your board config file
-		to adjust this setting to your needs.
-
 - CONFIG_SYS_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of
 		the Linux kernel; all data that must be processed by
@@ -1947,11 +1747,6 @@ Configuration Settings:
 		variable "bootm_mapsize" will override the value of
 		CONFIG_SYS_BOOTMAPSZ.  If CONFIG_SYS_BOOTMAPSZ is undefined,
 		then the value in "bootm_size" will be used instead.
-
-- CONFIG_SYS_BOOT_RAMDISK_HIGH:
-		Enable initrd_high functionality.  If defined then the
-		initrd_high feature is enabled and the bootm ramdisk subcommand
-		is enabled.
 
 - CONFIG_SYS_BOOT_GET_CMDLINE:
 		Enables allocating and saving kernel cmdline in space between
@@ -2032,14 +1827,6 @@ Configuration Settings:
 		since such flash programming errors usually are detected earlier
 		while unprotecting/erasing/programming. Please only enable
 		this option if you really know what you are doing.
-
-- CONFIG_ENV_MAX_ENTRIES
-
-	Maximum number of entries in the hash table that is used
-	internally to store the environment settings. The default
-	setting is supposed to be generous and should work in most
-	cases. This setting can be used to tune behaviour; see
-	lib/hashtable.c for details.
 
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
 - CONFIG_ENV_FLAGS_LIST_STATIC
@@ -2186,10 +1973,6 @@ Low Level (hardware related) configuration options:
 		used in assembly code, so it must not contain typecasts or
 		integer size suffixes (e.g. "ULL").
 
-- CONFIG_SYS_CCSR_DO_NOT_RELOCATE:
-		If this macro is defined, then CONFIG_SYS_CCSRBAR_PHYS will be
-		forced to a value that ensures that CCSR is not relocated.
-
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're
 		doing! (11-4) [MPC8xx systems only]
@@ -2206,24 +1989,6 @@ Low Level (hardware related) configuration options:
 
 		U-Boot uses the following memory types:
 		- MPC8xx: IMMR (internal memory of the CPU)
-
-- CONFIG_SYS_GBL_DATA_OFFSET:
-
-		Offset of the initial data structure in the memory
-		area defined by CONFIG_SYS_INIT_RAM_ADDR. Usually
-		CONFIG_SYS_GBL_DATA_OFFSET is chosen such that the initial
-		data is located at the end of the available space
-		(sometimes written as (CONFIG_SYS_INIT_RAM_SIZE -
-		GENERATED_GBL_DATA_SIZE), and the initial stack is just
-		below that area (growing from (CONFIG_SYS_INIT_RAM_ADDR +
-		CONFIG_SYS_GBL_DATA_OFFSET) downward.
-
-	Note:
-		On the MPC824X (or other systems that use the data
-		cache for initial memory) the address chosen for
-		CONFIG_SYS_INIT_RAM_ADDR is basically arbitrary - it must
-		point to an otherwise UNUSED address space between
-		the top of RAM and the start of the PCI space.
 
 - CONFIG_SYS_SCCR:	System Clock and reset Control Register (15-27)
 
@@ -2278,12 +2043,6 @@ Low Level (hardware related) configuration options:
 		one, specify here. Note that the value must resolve
 		to something your driver can deal with.
 
-- CONFIG_SYS_DDR_RAW_TIMING
-		Get DDR timing information from other than SPD. Common with
-		soldered DDR chips onboard without SPD. DDR raw timing
-		parameters are extracted from datasheet and hard-coded into
-		header files or board specific files.
-
 - CONFIG_FSL_DDR_INTERACTIVE
 		Enable interactive DDR debugging. See doc/README.fsl-ddr.
 
@@ -2292,10 +2051,6 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_FSL_DDR_BIST
 		Enable built-in memory test for Freescale DDR controllers.
-
-- CONFIG_SYS_83XX_DDR_USES_CS0
-		Only for 83xx systems. If specified, then DDR should
-		be configured using CS0 and CS1 instead of CS2 and CS3.
 
 - CONFIG_RMII
 		Enable RMII mode for all FECs.
@@ -2341,11 +2096,6 @@ Low Level (hardware related) configuration options:
 		that will end up in the TPL (as opposed to the SPL or U-Boot
 		proper). Code that needs stage-specific behavior should check
 		this.
-
-- CONFIG_SYS_MPC85XX_NO_RESETVEC
-		Only for 85xx systems. If this variable is specified, the section
-		.resetvec is not kept and the section .bootpg is placed in the
-		previous 4k of the .text section.
 
 - CONFIG_ARCH_MAP_SYSMEM
 		Generally U-Boot (and in particular the md command) uses
@@ -2578,6 +2328,7 @@ rarpboot- boot image via network using RARP/TFTP protocol
 diskboot- boot from IDE devicebootd   - boot default, i.e., run 'bootcmd'
 loads	- load S-Record file over serial line
 loadb	- load binary file over serial line (kermit mode)
+loadm   - load binary blob from source address to destination address
 md	- memory display
 mm	- memory modify (auto-incrementing)
 nm	- memory modify (constant address)

@@ -4,6 +4,9 @@ menu "M68000 architecture"
 config SYS_ARCH
 	default "m68k"
 
+config NEEDS_MANUAL_RELOC
+	def_bool y
+
 # processor family
 config MCF520x
 	select OF_CONTROL
@@ -48,12 +51,6 @@ config MCF537x
 	bool
 
 config MCF5441x
-	select OF_CONTROL
-	select DM
-        select DM_SERIAL
-	bool
-
-config MCF5227x
 	select OF_CONTROL
 	select DM
         select DM_SERIAL

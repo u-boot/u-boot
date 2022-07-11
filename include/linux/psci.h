@@ -11,6 +11,8 @@
 #ifndef _UAPI_LINUX_PSCI_H
 #define _UAPI_LINUX_PSCI_H
 
+#include <linux/arm-smccc.h>
+
 /*
  * PSCI v0.1 interface
  *
@@ -114,6 +116,18 @@
 #define PSCI_RET_NOT_PRESENT			-7
 #define PSCI_RET_DISABLED			-8
 #define PSCI_RET_INVALID_ADDRESS		-9
+
+/**
+ * struct psci_plat_data - PSCI driver platform data
+ * @method: Selected invocation conduit
+ */
+struct psci_plat_data {
+	void (*invoke_fn)(unsigned long arg0, unsigned long arg1,
+			  unsigned long arg2, unsigned long arg3,
+			  unsigned long arg4, unsigned long arg5,
+			  unsigned long arg6, unsigned long arg7,
+			  struct arm_smccc_res *res);
+};
 
 #ifdef CONFIG_ARM_PSCI_FW
 unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,

@@ -871,7 +871,7 @@ int fsl_secboot_validate(uintptr_t haddr, char *arg_hash_str,
 	int ret, i, hash_cmd = 0;
 	u32 srk_hash[8];
 
-	if (arg_hash_str != NULL) {
+	if (strlen(arg_hash_str) != 0) {
 		const char *cp = arg_hash_str;
 		int i = 0;
 

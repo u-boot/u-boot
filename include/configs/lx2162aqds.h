@@ -9,21 +9,9 @@
 #include "lx2160a_common.h"
 
 /* USB */
-#undef CONFIG_USB_MAX_CONTROLLER_COUNT
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 
 /* RTC */
 #define CONFIG_SYS_RTC_BUS_NUM		0
-
-/*
- * MMC
- */
-#ifdef CONFIG_MMC
-#ifndef __ASSEMBLY__
-u8 qixis_esdhc_detect_quirk(void);
-#endif
-#define CONFIG_ESDHC_DETECT_QUIRK  qixis_esdhc_detect_quirk()
-#endif
 
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_NXID

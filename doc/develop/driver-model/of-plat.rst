@@ -707,9 +707,9 @@ Link errors / undefined reference
 Sometimes dtoc does not find the problem for you, but something is wrong and
 you get a link error, e.g.::
 
-   :(.u_boot_list_2_udevice_2_spl_test5+0x0): undefined reference to
+   :(__u_boot_list_2_udevice_2_spl_test5+0x0): undefined reference to
       `_u_boot_list_2_driver_2_sandbox_spl_test'
-   /usr/bin/ld: dts/dt-uclass.o:(.u_boot_list_2_uclass_2_misc+0x8):
+   /usr/bin/ld: dts/dt-uclass.o:(__u_boot_list_2_uclass_2_misc+0x8):
         undefined reference to `_u_boot_list_2_uclass_driver_2_misc'
 
 The first one indicates that the device cannot find its driver. This means that

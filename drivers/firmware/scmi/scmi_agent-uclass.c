@@ -109,30 +109,56 @@ static int scmi_bind_protocols(struct udevice *dev)
 	return ret;
 }
 
+static struct udevice *find_scmi_transport_device(struct udevice *dev)
+{
+	struct udevice *parent = dev;
+
+	do {
+		parent = dev_get_parent(parent);
+	} while (parent && device_get_uclass_id(parent) != UCLASS_SCMI_AGENT);
+
+	if (!parent)
+		dev_err(dev, "Invalid SCMI device, agent not found\n");
+
+	return parent;
+}
+
 static const struct scmi_agent_ops *transport_dev_ops(struct udevice *dev)
 {
 	return (const struct scmi_agent_ops *)dev->driver->ops;
 }
 
-int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg)
+int devm_scmi_of_get_channel(struct udevice *dev, struct scmi_channel **channel)
+{
+	struct udevice *parent;
+
+	parent = find_scmi_transport_device(dev);
+	if (!parent)
+		return -ENODEV;
+
+	if (transport_dev_ops(parent)->of_get_channel)
+		return transport_dev_ops(parent)->of_get_channel(dev, channel);
+
+	/* Drivers without a get_channel operator don't need a channel ref */
+	*channel = NULL;
+
+	return 0;
+}
+
+int devm_scmi_process_msg(struct udevice *dev, struct scmi_channel *channel,
+			  struct scmi_msg *msg)
 {
 	const struct scmi_agent_ops *ops;
-	struct udevice *parent = dev;
+	struct udevice *parent;
 
-	/* Find related SCMI agent device */
-	do {
-		parent = dev_get_parent(parent);
-	} while (parent && device_get_uclass_id(parent) != UCLASS_SCMI_AGENT);
-
-	if (!parent) {
-		dev_err(dev, "Invalid SCMI device, agent not found\n");
+	parent = find_scmi_transport_device(dev);
+	if (!parent)
 		return -ENODEV;
-	}
 
 	ops = transport_dev_ops(parent);
 
 	if (ops->process_msg)
-		return ops->process_msg(parent, msg);
+		return ops->process_msg(parent, channel, msg);
 
 	return -EPROTONOSUPPORT;
 }

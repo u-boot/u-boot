@@ -22,7 +22,6 @@
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
-#define CONFIG_ENABLE_36BIT_PHYS	1
 
 /*
  * sysclk for MPC85xx
@@ -103,8 +102,7 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address	*/
 #define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size used area in RAM*/
 
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_MONITOR_LEN		(384 * 1024)	/* Reserve 384KiB for Mon */
 
@@ -120,15 +118,11 @@
 #define CONFIG_SYS_LIME_BASE		0xc8000000
 #define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/
 
-#define CONFIG_SYS_SPD_BUS_NUM 0
-
 /*
  * General PCI
  * Memory space is mapped 1-1.
  */
 
-/* PCI is clocked by the external source at 33 MHz */
-#define CONFIG_PCI_CLK_FREQ	33000000
 #define CONFIG_SYS_PCI1_MEM_BASE	0x80000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M			*/
@@ -227,12 +221,5 @@
 	""
 
 /* pass open firmware flat tree */
-
-/* USB support */
-#define CONFIG_USB_OHCI_NEW		1
-#define CONFIG_PCI_OHCI			1
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
-#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"ohci_pci"
-#define CONFIG_SYS_OHCI_SWAP_REG_ACCESS	1
 
 #endif	/* __CONFIG_H */

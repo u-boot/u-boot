@@ -33,6 +33,7 @@ Shell commands
    cmd/bootz
    cmd/cbsysinfo
    cmd/conitrace
+   cmd/dm
    cmd/echo
    cmd/env
    cmd/event
@@ -44,6 +45,7 @@ Shell commands
    cmd/fatload
    cmd/for
    cmd/load
+   cmd/loadm
    cmd/loady
    cmd/mbr
    cmd/md

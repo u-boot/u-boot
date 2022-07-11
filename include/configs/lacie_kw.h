@@ -22,18 +22,6 @@
 #endif
 
 /*
- * SATA Driver configuration
- */
-
-#ifdef CONFIG_SATA
-#define CONFIG_SYS_64BIT_LBA
-#define CONFIG_LBA48
-#if defined(CONFIG_NETSPACE_MAX_V2) || defined(CONFIG_D2NET_V2) || \
-	defined(CONFIG_NET2BIG_V2)
-#endif
-#endif /* CONFIG_SATA */
-
-/*
  * Enable GPI0 support
  */
 
@@ -69,7 +57,6 @@
 	"stderr=serial\0"					\
 	"bootfile=uImage\0"					\
 	"loadaddr=0x800000\0"					\
-	"autoload=no\0"						\
 	"netconsole="						\
 		"set stdin $stdin,nc; "				\
 		"set stdout $stdout,nc; "			\

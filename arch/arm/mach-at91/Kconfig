@@ -327,6 +327,13 @@ config AT91_EFLASH
 	  Enable the driver for the embedded flash used in the Atmel
 	  AT91SAM9XE devices.
 
+config EFLASH_PROTSECTORS
+	int "Number of flash sectors to protect from erasing"
+	depends on AT91_EFLASH
+	help
+	  If non-zero, this will be the number of sectors of the flash to disallow
+	  U-Boot to ease, starting from the beginning of flash.
+
 config AT91_GPIO_PULLUP
 	bool "Keep pullups on peripheral pins"
 	depends on CPU_ARM926EJS
@@ -369,9 +376,5 @@ source "board/ronetix/pm9g45/Kconfig"
 source "board/siemens/corvus/Kconfig"
 source "board/siemens/taurus/Kconfig"
 source "board/siemens/smartweb/Kconfig"
-
-config SPL_LDSCRIPT
-	default "arch/arm/mach-at91/arm926ejs/u-boot-spl.lds" if CPU_ARM926EJS
-	default "arch/arm/mach-at91/armv7/u-boot-spl.lds" if CPU_V7A
 
 endif

@@ -83,6 +83,12 @@ struct cpld_data {
 #define CPLD_FXS_LED	0x0F
 #define CPLD_SYS_RST	0x00
 
+void board_reset(void)
+{
+	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	out_8(&cpld_data->system_rst, 1);
+}
+
 void board_cpld_init(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
@@ -154,7 +160,9 @@ int board_early_init_f(void)
 	clrbits_be32(&gur->sdhcdcr, SDHCDCR_CD_INV);
 
 	clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SD_DATA);
+#if defined(CONFIG_TARGET_P1020RDB_PD) || defined(CONFIG_TARGET_P1020RDB_PC)
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_TDM_ENA);
+#endif
 
 	board_gpio_init();
 	board_cpld_init();
@@ -178,7 +186,11 @@ int checkboard(void)
 	int bus_num = CONFIG_SYS_SPD_BUS_NUM;
 
 	/* FIXME: This should just use the model from the device tree or similar */
-	printf("Board: %s CPLD: V%d.%d PCBA: V%d.0\n", BOARD_NAME,
+#ifdef BOARD_NAME
+	printf("Board: %s ", BOARD_NAME);
+#endif
+
+	printf("CPLD: V%d.%d PCBA: V%d.0\n",
 		in_8(&cpld_data->cpld_rev_major) & 0x0F,
 		in_8(&cpld_data->cpld_rev_minor) & 0x0F,
 		in_8(&cpld_data->pcba_rev) & 0x0F);
@@ -216,8 +228,11 @@ int checkboard(void)
 	val = (in & io_config) | (out & (~io_config));
 
 	puts("rom_loc: ");
-	if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD) {
+	if (0) {
+#ifdef __SW_BOOT_SD
+	} else if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD) {
 		puts("sd");
+#endif
 #ifdef __SW_BOOT_SD2
 	} else if ((val & (~__SW_BOOT_MASK)) == __SW_BOOT_SD2) {
 		puts("sd");

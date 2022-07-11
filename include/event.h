@@ -144,7 +144,16 @@ int event_register(const char *id, enum event_t type, event_handler_t func,
 /** event_show_spy_list( - Show a list of event spies */
 void event_show_spy_list(void);
 
-#if CONFIG_IS_ENABLED(EVENT)
+/**
+ * event_manual_reloc() - Relocate event handler pointers
+ *
+ * Relocate event handler pointers for all static event spies. It is called
+ * during the generic board init sequence, after relocation.
+ *
+ * Return: 0 if OK
+ */
+int event_manual_reloc(void);
+
 /**
  * event_notify() - notify spies about an event
  *
@@ -159,6 +168,7 @@ void event_show_spy_list(void);
  */
 int event_notify(enum event_t type, void *data, int size);
 
+#if CONFIG_IS_ENABLED(EVENT)
 /**
  * event_notify_null() - notify spies about an event
  *
@@ -169,11 +179,6 @@ int event_notify(enum event_t type, void *data, int size);
  */
 int event_notify_null(enum event_t type);
 #else
-static inline int event_notify(enum event_t type, void *data, int size)
-{
-	return 0;
-}
-
 static inline int event_notify_null(enum event_t type)
 {
 	return 0;

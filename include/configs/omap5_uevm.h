@@ -40,9 +40,6 @@
 #define CONFIG_SYS_I2C_TCA642X_BUS_NUM 4
 #define CONFIG_SYS_I2C_TCA642X_ADDR 0x22
 
-/* USB UHH support options */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-
 /* Enabled commands */
 
 /* USB Networking options */

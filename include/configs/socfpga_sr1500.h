@@ -18,11 +18,6 @@
 /* Enable SPI NOR flash reset, needed for SPI booting */
 #define CONFIG_SPI_N25Q256A_RESET
 
-/*
- * Bootcounter
- */
-#define CONFIG_SYS_BOOTCOUNT_BE
-
 /* Environment setting for SPI flash */
 
 /* The rest of the configuration is shared */

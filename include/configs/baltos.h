@@ -24,20 +24,17 @@
 #define V_SCLK				(V_OSCK)
 
 /* FIT support */
-#define CONFIG_SYS_BOOTM_LEN         SZ_64M
 
 #ifdef CONFIG_MTD_RAW_NAND
 
 #define NANDARGS \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"${mtdparts} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=5\0" \
-	"nandrootfstype=ubifs rootwait=1\0" \
+	"nandrootfstype=ubifs rootwait\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"setenv loadaddr 0x84000000; " \
@@ -52,7 +49,6 @@
 #define NANDARGS ""
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"boot_fdt=try\0" \
@@ -183,7 +179,6 @@
 	"findfdt=setenv fdtfile am335x-baltos.dtb\0" \
 	NANDARGS
 	/*DFUARGS*/
-#endif
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */

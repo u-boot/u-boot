@@ -8,9 +8,11 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include <getopt.h>
 #include <setjmp.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -26,7 +28,9 @@
 #include <linux/compiler_attributes.h>
 #include <linux/types.h>
 
+#include <asm/fuzzing_engine.h>
 #include <asm/getopt.h>
+#include <asm/main.h>
 #include <asm/sections.h>
 #include <asm/state.h>
 #include <os.h>
@@ -49,6 +53,18 @@ ssize_t os_read(int fd, void *buf, size_t count)
 ssize_t os_write(int fd, const void *buf, size_t count)
 {
 	return write(fd, buf, count);
+}
+
+int os_printf(const char *fmt, ...)
+{
+	va_list args;
+	int i;
+
+	va_start(args, fmt);
+	i = vfprintf(stdout, fmt, args);
+	va_end(args);
+
+	return i;
 }
 
 off_t os_lseek(int fd, off_t offset, int whence)
@@ -1001,3 +1017,76 @@ void os_relaunch(char *argv[])
 	execv(argv[0], argv);
 	os_exit(1);
 }
+
+
+#ifdef CONFIG_FUZZ
+static void *fuzzer_thread(void * ptr)
+{
+	char cmd[64];
+	char *argv[5] = {"./u-boot", "-T", "-c", cmd, NULL};
+	const char *fuzz_test;
+
+	/* Find which test to run from an environment variable. */
+	fuzz_test = getenv("UBOOT_SB_FUZZ_TEST");
+	if (!fuzz_test)
+		os_abort();
+
+	snprintf(cmd, sizeof(cmd), "fuzz %s", fuzz_test);
+
+	sandbox_main(4, argv);
+	os_abort();
+	return NULL;
+}
+
+static bool fuzzer_initialized = false;
+static pthread_mutex_t fuzzer_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t fuzzer_cond = PTHREAD_COND_INITIALIZER;
+static const uint8_t *fuzzer_data;
+static size_t fuzzer_size;
+
+int sandbox_fuzzing_engine_get_input(const uint8_t **data, size_t *size)
+{
+	if (!fuzzer_initialized)
+		return -ENOSYS;
+
+	/* Tell the main thread we need new inputs then wait for them. */
+	pthread_mutex_lock(&fuzzer_mutex);
+	pthread_cond_signal(&fuzzer_cond);
+	pthread_cond_wait(&fuzzer_cond, &fuzzer_mutex);
+	*data = fuzzer_data;
+	*size = fuzzer_size;
+	pthread_mutex_unlock(&fuzzer_mutex);
+	return 0;
+}
+
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+{
+	static pthread_t tid;
+
+	pthread_mutex_lock(&fuzzer_mutex);
+
+	/* Initialize the sandbox on another thread. */
+	if (!fuzzer_initialized) {
+		fuzzer_initialized = true;
+		if (pthread_create(&tid, NULL, fuzzer_thread, NULL))
+			os_abort();
+		pthread_cond_wait(&fuzzer_cond, &fuzzer_mutex);
+	}
+
+	/* Hand over the input. */
+	fuzzer_data = data;
+	fuzzer_size = size;
+	pthread_cond_signal(&fuzzer_cond);
+
+	/* Wait for the inputs to be finished with. */
+	pthread_cond_wait(&fuzzer_cond, &fuzzer_mutex);
+	pthread_mutex_unlock(&fuzzer_mutex);
+
+	return 0;
+}
+#else
+int main(int argc, char *argv[])
+{
+	return sandbox_main(argc, argv);
+}
+#endif

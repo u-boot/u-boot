@@ -50,7 +50,7 @@ SECTIONS
 
 		/* U-Boot lists and device tree */
 		. = ALIGN(8);
-		*(SORT(.u_boot_list*));
+		*(SORT(__u_boot_list*));
 		. = ALIGN(8);
 		*(.dtb*);
 	}
@@ -63,7 +63,7 @@ SECTIONS
 		*(.rela.data*)
 		*(.rela.got)
 		*(.rela.stab)
-                *(.rela.u_boot_list*)
+                *(.rela__u_boot_list*)
 	}
 
 	. = ALIGN(4096);

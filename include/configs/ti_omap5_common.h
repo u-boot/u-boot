@@ -19,19 +19,6 @@
 /* Use General purpose timer 1 */
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 
-/*
- * For the DDR timing information we can either dynamically determine
- * the timings to use or use pre-determined timings (based on using the
- * dynamic method.  Default to the static timing infomation.
- */
-#define CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
-#ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
-#define CONFIG_SYS_AUTOMATIC_SDRAM_DETECTION
-#define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
-#endif
-
-#define CONFIG_PALMAS_POWER
-
 #include <linux/stringify.h>
 
 #include <asm/arch/cpu.h>
@@ -304,8 +291,5 @@
  * downloaded into internal RAM at address 0x40300000.
  */
 #endif
-
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
-					 (128 << 20))
 
 #endif /* __CONFIG_TI_OMAP5_COMMON_H */

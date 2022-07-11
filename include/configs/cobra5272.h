@@ -85,15 +85,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
 
-#ifdef CONFIG_MCFFEC
-#	define CONFIG_SYS_DISCOVER_PHY
-/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
-#	ifndef CONFIG_SYS_DISCOVER_PHY
-#		define FECDUPLEX	FULL
-#		define FECSPEED		_100BASET
-#	endif			/* CONFIG_SYS_DISCOVER_PHY */
-#endif
-
 /*
  *-----------------------------------------------------------------------------
  * Define user parameters that have to be customized most likely
@@ -157,7 +148,6 @@ enter a valid image address in flash */
  * ---
  */
 
-#define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_SYS_ENET_BD_BASE	0x780000
 
 /*-----------------------------------------------------------------------
@@ -165,8 +155,6 @@ enter a valid image address in flash */
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000	/* Size of used area in internal SRAM	*/
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -190,7 +178,6 @@ enter a valid image address in flash */
 #define CONFIG_SYS_FLASH_BASE		0xffe00000
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
-#define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 
 /*
  * For booting Linux, the board info and command line data

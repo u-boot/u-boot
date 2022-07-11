@@ -11,10 +11,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_TRATS
-
-#define CONFIG_TIZEN			/* TIZEN lib */
-
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	0x10502000
@@ -24,9 +20,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
-
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
-					- GENERATED_GBL_DATA_SIZE)
 
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
@@ -130,12 +123,8 @@
 	"fdtaddr=40800000\0" \
 
 /* Falcon mode definitions */
-#define CONFIG_SYS_SPL_ARGS_ADDR        CONFIG_SYS_SDRAM_BASE + 0x100
 
 /* GPT */
-
-/* Security subsystem - enable hw_rand() */
-#define CONFIG_EXYNOS_ACE_SHA
 
 /* Common misc for Samsung */
 #define CONFIG_MISC_COMMON
@@ -160,8 +149,6 @@
 #define LCD_BPP			LCD_COLOR16
 
 /* LCD */
-#define CONFIG_FB_ADDR		0x52504000
-#define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

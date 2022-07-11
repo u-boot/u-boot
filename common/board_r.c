@@ -457,7 +457,7 @@ static int initr_env(void)
 	return 0;
 }
 
-#ifdef CONFIG_SYS_BOOTPARAMS_LEN
+#ifdef CONFIG_SYS_MALLOC_BOOTPARAMS
 static int initr_malloc_bootparams(void)
 {
 	gd->bd->bi_boot_params = (ulong)malloc(CONFIG_SYS_BOOTPARAMS_LEN);
@@ -468,18 +468,6 @@ static int initr_malloc_bootparams(void)
 	return 0;
 }
 #endif
-
-#ifdef CONFIG_CMD_NET
-static int initr_ethaddr(void)
-{
-	struct bd_info *bd = gd->bd;
-
-	/* kept around for legacy kernels only ... ignore the next section */
-	eth_env_get_enetaddr("ethaddr", bd->bi_enetaddr);
-
-	return 0;
-}
-#endif /* CONFIG_CMD_NET */
 
 #if defined(CONFIG_LED_STATUS)
 static int initr_status_led(void)
@@ -612,6 +600,9 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 #endif
 	initr_reloc_global_data,
+#if CONFIG_IS_ENABLED(NEEDS_MANUAL_RELOC) && CONFIG_IS_ENABLED(EVENT)
+	event_manual_reloc,
+#endif
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 	initr_unlock_ram_in_cache,
 #endif
@@ -713,7 +704,7 @@ static init_fnc_t init_sequence_r[] = {
 	initr_pvblock,
 #endif
 	initr_env,
-#ifdef CONFIG_SYS_BOOTPARAMS_LEN
+#ifdef CONFIG_SYS_MALLOC_BOOTPARAMS
 	initr_malloc_bootparams,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
@@ -756,9 +747,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_status_led,
 #endif
 	/* PPC has a udelay(20) here dating from 2002. Why? */
-#ifdef CONFIG_CMD_NET
-	initr_ethaddr,
-#endif
 #if defined(CONFIG_GPIO_HOG)
 	gpio_hog_probe_all,
 #endif

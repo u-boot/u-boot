@@ -10,11 +10,7 @@
 
 #include <configs/exynos7420-common.h>
 
-#define CONFIG_ESPRESSO7420
-
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SPL_STACK		CONFIG_IRAM_END
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_IRAM_END
 
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */

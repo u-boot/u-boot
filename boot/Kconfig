@@ -555,8 +555,12 @@ config CHROMEOS_VBOOT
 	  distinguishing between booting Chrome OS in a basic way (developer
 	  mode) and a full boot.
 
+config SYS_RAMBOOT
+	bool
+
 config RAMBOOT_PBL
 	bool "Freescale PBL(pre-boot loader) image format support"
+	select SYS_RAMBOOT if PPC
 	help
 	  Some SoCs use PBL to load RCW and/or pre-initialization instructions.
 	  For more details refer to doc/README.pblimage
@@ -575,6 +579,19 @@ config SPIFLASH
 
 endchoice
 
+config FSL_FIXED_MMC_LOCATION
+	bool "PBL MMC is at a fixed location"
+	depends on SDCARD && !RAMBOOT_PBL
+
+config ESDHC_HC_BLK_ADDR
+	def_bool y
+	depends on FSL_FIXED_MMC_LOCATION && (ARCH_BSC9131 || ARCH_BSC9132 || ARCH_P1010)
+	help
+	  In High Capacity SD Cards (> 2 GBytes), the 32-bit source address and
+	  code length of these soc specify the memory address in block address
+	  format. Block length is fixed to 512 bytes as per the SD High
+	  Capacity specification.
+
 config SYS_FSL_PBL_PBI
 	string "PBI(pre-boot instructions) commands for the PBL image"
 	depends on RAMBOOT_PBL
@@ -588,6 +605,14 @@ config SYS_FSL_PBL_RCW
 	help
 	  Enables addition of RCW (Power on reset configuration) in built image.
 	  Please refer doc/README.pblimage for more details.
+
+config SYS_BOOT_RAMDISK_HIGH
+	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ
+	depends on !(NIOS2 || SANDBOX || SH || XTENSA)
+	def_bool y
+	help
+	  Enable initrd_high functionality.  If defined then the initrd_high
+	  feature is enabled and the boot* ramdisk subcommand is enabled.
 
 endmenu		# Boot images
 
@@ -613,7 +638,7 @@ config BOOTSTAGE
 
 config SPL_BOOTSTAGE
 	bool "Boot timing and reported in SPL"
-	depends on BOOTSTAGE
+	depends on BOOTSTAGE && SPL
 	help
 	  Enable recording of boot time in SPL. To make this visible to U-Boot
 	  proper, enable BOOTSTAGE_STASH as well. This will stash the timing
@@ -622,7 +647,7 @@ config SPL_BOOTSTAGE
 
 config TPL_BOOTSTAGE
 	bool "Boot timing and reported in TPL"
-	depends on BOOTSTAGE
+	depends on BOOTSTAGE && TPL
 	help
 	  Enable recording of boot time in SPL. To make this visible to U-Boot
 	  proper, enable BOOTSTAGE_STASH as well. This will stash the timing

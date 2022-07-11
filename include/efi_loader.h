@@ -591,6 +591,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 void efi_save_gd(void);
 /* Call this to relocate the runtime section to an address space */
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
+/* Call this to get image parameters */
+void efi_get_image_parameters(void **img_addr, size_t *img_size);
 /* Add a new object to the object list. */
 void efi_add_handle(efi_handle_t obj);
 /* Create handle */

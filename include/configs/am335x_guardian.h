@@ -12,8 +12,6 @@
 
 #include <configs/ti_am335x_common.h>
 
-#define CONFIG_SYS_BOOTM_LEN		(16 << 20)
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -29,7 +27,7 @@
 	"ramdisk_addr_r=0x88080000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(UBIFS, ubifs, 0)
+	func(UBIFS, ubifs, 0, UBI, rootfs)
 
 #define AM335XX_BOARD_FDTFILE "fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"
 
@@ -52,9 +50,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
 	GUARDIAN_DEFAULT_PROD_ENV \
-	"autoload=no\0" \
 	"backlight_brightness=50\0" \
-	"bootubivol=rootfs\0" \
 	"distro_bootcmd=" \
 		"setenv rootflags \"bulk_read,chk_data_crc\"; " \
 		"setenv ethact usb_ether; " \
@@ -93,9 +89,6 @@
 #define CONFIG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
 #define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
-
-/* Bootcount using the RTC block */
-#define CONFIG_SYS_BOOTCOUNT_LE
 
 #ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_NAND_ECCPOS  {   2,   3,   4,   5,   6,   7,   8,   9, \

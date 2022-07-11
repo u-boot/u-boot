@@ -11,3 +11,18 @@ config SYS_CONFIG_NAME
 
 source "board/st/common/Kconfig"
 endif
+
+if TARGET_ST_STM32MP13x
+
+config SYS_BOARD
+	default "stm32mp1"
+
+config SYS_VENDOR
+	default "st"
+
+config SYS_CONFIG_NAME
+	default "stm32mp13_st_common"
+
+source "board/st/common/Kconfig"
+
+endif

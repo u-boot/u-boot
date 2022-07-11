@@ -20,12 +20,8 @@
 #define PHYS_SDRAM_2_SIZE		0x5ea4ffff
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
-#ifndef CONFIG_SPL_BUILD
 #include <config_distro_bootcmd.h>
-#endif
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
@@ -42,9 +38,5 @@
 	"scriptaddr=0x90000000\0"\
 	"pxefile_addr_r=0x90100000\0"\
 	BOOTENV
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_MAXARGS		64
 
 #endif

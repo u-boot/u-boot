@@ -8,20 +8,7 @@
 
 #include <linux/sizes.h>
 
-#ifdef CONFIG_SPL
-
-#define CONFIG_SPL_MAX_SIZE		0x00100000
-#define CONFIG_SPL_BSS_START_ADDR	0x84000000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
-#define CONFIG_SYS_SPL_MALLOC_START	0x84100000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
-
-#endif
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_2M)
-
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
 
@@ -32,7 +19,6 @@
 
 /* Environment options */
 
-#ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
 	func(QEMU, qemu, na) \
 	func(VIRTIO, virtio, 0) \
@@ -61,6 +47,5 @@
 	"pxefile_addr_r=0x8c200000\0" \
 	"ramdisk_addr_r=0x8c300000\0" \
 	BOOTENV
-#endif
 
 #endif /* __CONFIG_H */

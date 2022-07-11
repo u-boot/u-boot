@@ -288,6 +288,8 @@ binman_sym_extern(ulong, u_boot_any, image_pos);
 binman_sym_extern(ulong, u_boot_any, size);
 binman_sym_extern(ulong, u_boot_spl, image_pos);
 binman_sym_extern(ulong, u_boot_spl, size);
+binman_sym_extern(ulong, u_boot_vpl, image_pos);
+binman_sym_extern(ulong, u_boot_vpl, size);
 
 /**
  * spl_get_image_pos() - get the image position of the next phase
@@ -376,6 +378,22 @@ int spl_load_imx_container(struct spl_image_info *spl_image,
 /* SPL common functions */
 void preloader_console_init(void);
 u32 spl_boot_device(void);
+
+/**
+ * spl_spi_boot_bus() - Lookup function for the SPI boot bus source.
+ *
+ * This function returns the SF bus to load from.
+ * If not overridden, it is weakly defined in common/spl/spl_spi.c.
+ */
+u32 spl_spi_boot_bus(void);
+
+/**
+ * spl_spi_boot_cs() - Lookup function for the SPI boot CS source.
+ *
+ * This function returns the SF CS to load from.
+ * If not overridden, it is weakly defined in common/spl/spl_spi.c.
+ */
+u32 spl_spi_boot_cs(void);
 
 /**
  * spl_mmc_boot_mode() - Lookup function for the mode of an MMC boot source.

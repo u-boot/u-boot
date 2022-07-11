@@ -15,6 +15,7 @@ from patman import command
 
 from io import StringIO
 
+buffer_outputs = True
 use_concurrent = True
 try:
     from concurrencytest.concurrencytest import ConcurrentTestSuite
@@ -102,49 +103,85 @@ def capture_sys_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
-def report_result(toolname:str, test_name: str, result: unittest.TestResult):
-    """Report the results from a suite of tests
+class FullTextTestResult(unittest.TextTestResult):
+    """A test result class that can print extended text results to a stream
+
+    This is meant to be used by a TestRunner as a result class. Like
+    TextTestResult, this prints out the names of tests as they are run,
+    errors as they occur, and a summary of the results at the end of the
+    test run. Beyond those, this prints information about skipped tests,
+    expected failures and unexpected successes.
 
     Args:
-        toolname: Name of the tool that ran the tests
-        test_name: Name of test that was run, or None for all
-        result: A unittest.TestResult object containing the results
+        stream: A file-like object to write results to
+        descriptions (bool): True to print descriptions with test names
+        verbosity (int): Detail of printed output per test as they run
+            Test stdout and stderr always get printed when buffering
+            them is disabled by the test runner. In addition to that,
+            0: Print nothing
+            1: Print a dot per test
+            2: Print test names
+            3: Print test names, and buffered outputs for failing tests
     """
-    # Remove errors which just indicate a missing test. Since Python v3.5 If an
-    # ImportError or AttributeError occurs while traversing name then a
-    # synthetic test that raises that error when run will be returned. These
-    # errors are included in the errors accumulated by result.errors.
-    if test_name:
-        errors = []
+    def __init__(self, stream, descriptions, verbosity):
+        self.verbosity = verbosity
+        super().__init__(stream, descriptions, verbosity)
 
-        for test, err in result.errors:
-            if ("has no attribute '%s'" % test_name) not in err:
-                errors.append((test, err))
-            result.testsRun -= 1
-        result.errors = errors
+    def printErrors(self):
+        "Called by TestRunner after test run to summarize the tests"
+        # The parent class doesn't keep unexpected successes in the same
+        # format as the rest. Adapt it to what printErrorList expects.
+        unexpected_successes = [
+            (test, 'Test was expected to fail, but succeeded.\n')
+            for test in self.unexpectedSuccesses
+        ]
 
-    print(result)
-    for test, err in result.errors:
-        print(test.id(), err)
-    for test, err in result.failures:
-        print(err, result.failures)
-    if result.skipped:
-        print('%d %s test%s SKIPPED:' % (len(result.skipped), toolname,
-            's' if len(result.skipped) > 1 else ''))
-        for skip_info in result.skipped:
-            print('%s: %s' % (skip_info[0], skip_info[1]))
-    if result.errors or result.failures:
-        print('%s tests FAILED' % toolname)
-        return 1
-    return 0
+        super().printErrors()  # FAIL and ERROR
+        self.printErrorList('SKIP', self.skipped)
+        self.printErrorList('XFAIL', self.expectedFailures)
+        self.printErrorList('XPASS', unexpected_successes)
+
+    def addError(self, test, err):
+        """Called when an error has occurred."""
+        super().addError(test, err)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addFailure(self, test, err):
+        """Called when a test has failed."""
+        super().addFailure(test, err)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addSubTest(self, test, subtest, err):
+        """Called at the end of a subtest."""
+        super().addSubTest(test, subtest, err)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addSuccess(self, test):
+        """Called when a test has completed successfully"""
+        super().addSuccess(test)
+        # Don't print stdout/stderr for successful tests
+        self._mirrorOutput = False
+
+    def addSkip(self, test, reason):
+        """Called when a test is skipped."""
+        # Add empty line to keep spacing consistent with other results
+        if not reason.endswith('\n'):
+            reason += '\n'
+        super().addSkip(test, reason)
+        self._mirrorOutput &= self.verbosity >= 3
+
+    def addExpectedFailure(self, test, err):
+        """Called when an expected failure/error occurred."""
+        super().addExpectedFailure(test, err)
+        self._mirrorOutput &= self.verbosity >= 3
 
 
-def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
+def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
                     test_name, toolpath, class_and_module_list):
     """Run a series of test suites and collect the results
 
     Args:
-        result: A unittest.TestResult object to add the results to
+        toolname: Name of the tool that ran the tests
         debug: True to enable debugging, which shows a full stack trace on error
         verbosity: Verbosity level to use (0-4)
         test_preserve_dirs: True to preserve the input directory used by tests
@@ -158,11 +195,6 @@ def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
         class_and_module_list: List of test classes (type class) and module
            names (type str) to run
     """
-    for module in class_and_module_list:
-        if isinstance(module, str) and (not test_name or test_name == module):
-            suite = doctest.DocTestSuite(module)
-            suite.run(result)
-
     sys.argv = [sys.argv[0]]
     if debug:
         sys.argv.append('-D')
@@ -174,6 +206,22 @@ def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
+    runner = unittest.TextTestRunner(
+        stream=sys.stdout,
+        verbosity=(1 if verbosity is None else verbosity),
+        buffer=buffer_outputs,
+        resultclass=FullTextTestResult,
+    )
+
+    if use_concurrent and processes != 1:
+        suite = ConcurrentTestSuite(suite,
+                fork_for_tests(processes or multiprocessing.cpu_count(),
+                               buffer=buffer_outputs))
+
+    for module in class_and_module_list:
+        if isinstance(module, str) and (not test_name or test_name == module):
+            suite.addTests(doctest.DocTestSuite(module))
+
     for module in class_and_module_list:
         if isinstance(module, str):
             continue
@@ -184,15 +232,17 @@ def run_test_suites(result, debug, verbosity, test_preserve_dirs, processes,
                 preserve_outdirs=test_preserve_dirs and test_name is not None,
                 toolpath=toolpath, verbosity=verbosity)
         if test_name:
-            try:
+            # Since Python v3.5 If an ImportError or AttributeError occurs
+            # while traversing a name then a synthetic test that raises that
+            # error when run will be returned. Check that the requested test
+            # exists, otherwise these errors are included in the results.
+            if test_name in loader.getTestCaseNames(module):
                 suite.addTests(loader.loadTestsFromName(test_name, module))
-            except AttributeError:
-                continue
         else:
             suite.addTests(loader.loadTestsFromTestCase(module))
-    if use_concurrent and processes != 1:
-        concurrent_suite = ConcurrentTestSuite(suite,
-                fork_for_tests(processes or multiprocessing.cpu_count()))
-        concurrent_suite.run(result)
-    else:
-        suite.run(result)
+
+    print(f" Running {toolname} tests ".center(70, "="))
+    result = runner.run(suite)
+    print()
+
+    return result

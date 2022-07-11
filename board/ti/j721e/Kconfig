@@ -75,9 +75,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
        default "j721e_evm"
 
-config SPL_LDSCRIPT
-	default "arch/arm/mach-omap2/u-boot-spl.lds"
-
 source "board/ti/common/Kconfig"
 
 endif
@@ -107,9 +104,6 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
        default "j721e_evm"
-
-config SPL_LDSCRIPT
-	default "arch/arm/mach-omap2/u-boot-spl.lds"
 
 source "board/ti/common/Kconfig"
 

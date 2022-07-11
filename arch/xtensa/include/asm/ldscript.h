@@ -41,6 +41,11 @@
 	LONG(_##_sym_##_##_sec_##_end);					\
 	LONG(LOADADDR(.##_sym_##.##_sec_));
 
+#define RELOCATE_USER1(_sec_)						\
+	LONG(_##_sec_##_start);						\
+	LONG(_##_sec_##_end);						\
+	LONG(LOADADDR(_sec_));
+
 #define SECTION_VECTOR(_sym_, _sec_, _vma_, _lma_)			\
 .##_sym_##.##_sec_ _vma_ : _lma_					\
 {									\
@@ -100,11 +105,11 @@
 	}
 
 #define SECTION_u_boot_list(_vma_, _lma_)				\
-	.u_boot_list _vma_ : _lma_					\
+	__u_boot_list _vma_ : _lma_					\
 	{								\
-		_u_boot_list_start = ABSOLUTE(.);			\
-		KEEP(*(SORT(.u_boot_list*)));				\
-		_u_boot_list_end = ABSOLUTE(.);				\
+		___u_boot_list_start = ABSOLUTE(.);			\
+		KEEP(*(SORT(__u_boot_list*)));				\
+		___u_boot_list_end = ABSOLUTE(.);			\
 	}
 
 #define SECTION_data(_vma_, _lma_)					\

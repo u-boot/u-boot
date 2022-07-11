@@ -28,7 +28,7 @@ config ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 
 config SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	bool "Asymmetric public-key crypto algorithm subtype within SPL"
-	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE && SPL
 	help
 	  This option provides support for asymmetric public key type handling in the SPL.
 	  If signature generation and/or verification are to be used,
@@ -48,7 +48,7 @@ config RSA_PUBLIC_KEY_PARSER
 
 config SPL_RSA_PUBLIC_KEY_PARSER
 	bool "RSA public key parser within SPL"
-	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE && SPL
 	select SPL_ASN1_DECODER
 	select ASN1_COMPILER
 	select SPL_OID_REGISTRY

@@ -137,7 +137,8 @@ void arch_lmb_reserve(struct lmb *lmb)
 
 	if (size < bootm_size) {
 		ulong base = bootmap_base + size;
-		printf("WARNING: adjusting available memory to %lx\n", size);
+		printf("WARNING: adjusting available memory from 0x%lx to 0x%llx\n",
+		       size, (unsigned long long)bootm_size);
 		lmb_reserve(lmb, base, bootm_size - size);
 	}
 

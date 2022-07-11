@@ -24,8 +24,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ		SZ_256M
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_16M
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
@@ -42,17 +40,7 @@
 
 /* Extra Commands */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	1024	/* Global data structures */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - \
-					 CONFIG_SYS_MALLOC_LEN - \
-					 CONFIG_SYS_GBL_DATA_SIZE)
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-
 /* USB Configs */
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 
 /* NET Configs */
 

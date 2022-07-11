@@ -19,8 +19,6 @@
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 #ifdef CONFIG_IMX_BOOTAUX
-/* Set to QSPI2 B flash at default */
-#define CONFIG_SYS_AUXCORE_BOOTDATA 0x78000000
 
 #define UPDATE_M4_ENV \
 	"m4image=m4_qspi.bin\0" \
@@ -35,7 +33,7 @@
 				"sf write ${loadaddr} 0x0 ${filesize}; " \
 			"fi; " \
 		"fi\0" \
-	"m4boot=sf probe 1:0; bootaux "__stringify(CONFIG_SYS_AUXCORE_BOOTDATA)"\0"
+	"m4boot=sf probe 1:0; bootaux 0x78000000\0"
 #else
 #define UPDATE_M4_ENV ""
 #endif
@@ -116,11 +114,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
 /* MMC Configuration */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC4_BASE_ADDR
 
@@ -129,23 +122,15 @@
 #define CONFIG_FEC_MXC_PHYADDR          0x1
 
 #ifdef CONFIG_CMD_USB
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS   0
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #endif
 
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCI_SCAN_SHOW
-#define CONFIG_PCIE_IMX
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(2, 0)
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(2, 1)
 #endif
 
-#ifndef CONFIG_SPL_BUILD
-#ifdef CONFIG_DM_VIDEO
 #define MXS_LCDIF_BASE MX6SX_LCDIF1_BASE_ADDR
-#endif
-#endif
 
 #endif				/* __CONFIG_H */

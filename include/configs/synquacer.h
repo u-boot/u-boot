@@ -22,7 +22,6 @@
 /*
  * Boot info
  */
-#define CONFIG_SYS_INIT_SP_ADDR		(0xe0000000)	/* stack of init proccess */
 
 /*
  * Hardware drivers support
@@ -39,10 +38,6 @@
 /* Support MTD */
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
-
-#define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_MAXARGS		128
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 
@@ -65,7 +60,6 @@
 		 0xf0, 0xa3, 0x83, 0x87, 0xe6, 0x30)
 
 /* Distro boot settings */
-#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_CMD_USB
 #define BOOT_TARGET_DEVICE_USB(func)	func(USB, usb, 0)
 #else
@@ -97,9 +91,6 @@
 	BOOT_TARGET_DEVICE_NVME(func)	\
 
 #include <config_distro_bootcmd.h>
-#else /* CONFIG_SPL_BUILD */
-#define BOOTENV
-#endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS		\
 	"fdt_addr_r=0x9fe00000\0"		\

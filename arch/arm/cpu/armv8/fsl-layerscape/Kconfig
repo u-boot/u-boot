@@ -26,6 +26,7 @@ config ARCH_LS1012A
 config ARCH_LS1028A
 	bool
 	select ARMV8_SET_SMPEN
+	select ESBC_HDR_LS if CHAIN_OF_TRUST
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select GICV3
@@ -138,6 +139,7 @@ config ARCH_LS1088A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select ESBC_HDR_LS if CHAIN_OF_TRUST
 	select FSL_IFC
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
@@ -187,6 +189,7 @@ config ARCH_LS2080A
 	select ARM_ERRATA_828024
 	select ARM_ERRATA_829520
 	select ARM_ERRATA_833471
+	select ESBC_HDR_LS if CHAIN_OF_TRUST
 	select FSL_IFC
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
@@ -239,6 +242,7 @@ config ARCH_LS2080A
 config ARCH_LX2162A
 	bool
 	select ARMV8_SET_SMPEN
+	select ESBC_HDR_LS if CHAIN_OF_TRUST
 	select FSL_DDR_BIST
 	select FSL_DDR_INTERACTIVE
 	select FSL_LAYERSCAPE
@@ -277,6 +281,7 @@ config ARCH_LX2162A
 config ARCH_LX2160A
 	bool
 	select ARMV8_SET_SMPEN
+	select ESBC_HDR_LS if CHAIN_OF_TRUST
 	select FSL_DDR_BIST
 	select FSL_DDR_INTERACTIVE
 	select FSL_LAYERSCAPE
@@ -456,11 +461,6 @@ config EMC2305
 	 Enable the EMC2305 fan controller for configuration of fan
 	 speed.
 
-config NXP_ESBC
-	bool "NXP_ESBC"
-	help
-		Enable Freescale Secure Boot feature
-
 config QSPI_AHB_INIT
 	bool "Init the QSPI AHB bus"
 	help
@@ -510,6 +510,11 @@ config DP_DDR_CTRL
 	int
 	depends on SYS_FSL_HAS_DP_DDR
 	default 2 if ARCH_LS2080A
+
+config DP_DDR_DIMM_SLOTS_PER_CTLR
+	int
+	depends on SYS_FSL_HAS_DP_DDR
+	default 1 if ARCH_LS2080A
 
 config DP_DDR_NUM_CTRLS
 	int
@@ -700,9 +705,6 @@ config SYS_FSL_ERRATUM_A050382
 config SYS_FSL_HAS_RGMII
 	bool
 	depends on SYS_FSL_EC1 || SYS_FSL_EC2
-
-config SPL_LDSCRIPT
-	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
 
 config HAS_FSL_XHCI_USB
 	bool

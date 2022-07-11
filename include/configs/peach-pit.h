@@ -21,7 +21,6 @@
 #include <configs/exynos5-common.h>
 
 #define CONFIG_SYS_SDRAM_BASE	0x20000000
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_IRAM_TOP - 0x800)
 
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */

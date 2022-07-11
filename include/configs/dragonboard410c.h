@@ -18,15 +18,8 @@
 /* Note: 8 MiB (0x86000000 - 0x86800000) are reserved for tz/smem/hyp/rmtfs/rfsa */
 #define PHYS_SDRAM_1_SIZE		SZ_1G
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
-/* UART */
-
-/* Fixup - in init code we switch from device to host mode,
- * it has to be done after each HCD reset */
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-
+/* Environment */
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 1) \
@@ -35,47 +28,6 @@
 
 #include <config_distro_bootcmd.h>
 
-/* Does what recovery does */
-#define REFLASH(file, part) \
-"part start mmc 0 "#part" start && "\
-"part size mmc 0 "#part" size && "\
-"tftp $loadaddr "#file" && " \
-"mmc write $loadaddr $start $size && "
-
-#define CONFIG_ENV_REFLASH \
-"mmc dev 0 && "\
-"usb start && "\
-"dhcp && "\
-"tftp $loadaddr dragonboard/rescue/gpt_both0.bin && "\
-"mmc write $loadaddr 0 43 && " \
-"mmc rescan && "\
-REFLASH(dragonboard/rescue/NON-HLOS.bin, 1)\
-REFLASH(dragonboard/rescue/sbl1.mbn, 2)\
-REFLASH(dragonboard/rescue/rpm.mbn, 3)\
-REFLASH(dragonboard/rescue/tz.mbn, 4)\
-REFLASH(dragonboard/rescue/hyp.mbn, 5)\
-REFLASH(dragonboard/rescue/sec.dat, 6)\
-REFLASH(dragonboard/rescue/emmc_appsboot.mbn, 7)\
-REFLASH(dragonboard/u-boot.img, 8)\
-"usb stop &&"\
-"echo Reflash completed"
-
-/* Environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"reflash="CONFIG_ENV_REFLASH"\0"\
-	"loadaddr=0x81000000\0" \
-	"initrd_high=0xffffffffffffffff\0" \
-	"linux_image=Image\0" \
-	"kernel_addr_r=0x81000000\0"\
-	"fdtfile=qcom/apq8016-sbc.dtb\0" \
-	"fdt_addr_r=0x83000000\0"\
-	"ramdisk_addr_r=0x84000000\0"\
-	"scriptaddr=0x90000000\0"\
-	"pxefile_addr_r=0x90100000\0"\
-	BOOTENV
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
+#define CONFIG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif

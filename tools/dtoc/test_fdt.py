@@ -780,25 +780,17 @@ def RunTests(args):
     Args:
         args: List of positional args provided to fdt. This can hold a test
             name to execute (as in 'fdt -t testFdt', for example)
-    """
-    result = unittest.TestResult()
-    sys.argv = [sys.argv[0]]
-    test_name = args and args[0] or None
-    for module in (TestFdt, TestNode, TestProp, TestFdtUtil):
-        if test_name:
-            try:
-                suite = unittest.TestLoader().loadTestsFromName(test_name, module)
-            except AttributeError:
-                continue
-        else:
-            suite = unittest.TestLoader().loadTestsFromTestCase(module)
-        suite.run(result)
 
-    print(result)
-    for _, err in result.errors:
-        print(err)
-    for _, err in result.failures:
-        print(err)
+    Returns:
+        Return code, 0 on success
+    """
+    test_name = args and args[0] or None
+    result = test_util.run_test_suites(
+        'test_fdt', False, False, False, None, test_name, None,
+        [TestFdt, TestNode, TestProp, TestFdtUtil])
+
+    return (0 if result.wasSuccessful() else 1)
+
 
 if __name__ != '__main__':
     sys.exit(1)
@@ -816,6 +808,7 @@ parser.add_option('-T', '--test-coverage', action='store_true',
 
 # Run our meagre tests
 if options.test:
-    RunTests(args)
+    ret_code = RunTests(args)
+    sys.exit(ret_code)
 elif options.test_coverage:
     RunTestCoverage()

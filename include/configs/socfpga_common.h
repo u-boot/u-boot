@@ -14,18 +14,11 @@
 #if defined(CONFIG_TARGET_SOCFPGA_GEN5)
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	SOCFPGA_PHYS_OCRAM_SIZE
-#define CONFIG_SPL_PAD_TO		0x10000
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
-#define CONFIG_SPL_PAD_TO		0x40000
 /* SPL memory allocation configuration, this is for FAT implementation */
-#ifndef CONFIG_SYS_SPL_MALLOC_SIZE
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x10000
-#endif
 #define CONFIG_SYS_INIT_RAM_SIZE	(SOCFPGA_PHYS_OCRAM_SIZE - \
 					 CONFIG_SYS_SPL_MALLOC_SIZE)
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE)
 #endif
 
 /*
@@ -37,10 +30,6 @@
 #if ((CONFIG_SYS_BOOTCOUNT_ADDR > CONFIG_SYS_INIT_RAM_ADDR) &&	\
      (CONFIG_SYS_BOOTCOUNT_ADDR < (CONFIG_SYS_INIT_RAM_ADDR +	\
 				   CONFIG_SYS_INIT_RAM_SIZE)))
-#define CONFIG_SPL_STACK		CONFIG_SYS_BOOTCOUNT_ADDR
-#else
-#define CONFIG_SPL_STACK			\
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)
 #endif
 
 /*
@@ -48,42 +37,19 @@
  * phase of U-Boot, too. This prevents overwriting SPL data if stack/heap usage
  * in U-Boot pre-reloc is higher than in SPL.
  */
-#if defined(CONFIG_SPL_STACK_R_ADDR) && CONFIG_SPL_STACK_R_ADDR
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK_R_ADDR
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK
-#endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /*
  * U-Boot general configurations
  */
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 						/* Print buffer size */
-#define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 
 /*
  * Cache
  */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
-
-/*
- * Ethernet on SoC (EMAC)
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_DW_ALTDESCRIPTOR
-#endif
-
-/*
- * FPGA Driver
- */
-#ifdef CONFIG_CMD_FPGA
-#define CONFIG_FPGA_COUNT		1
-#endif
 
 /*
  * L4 OSC1 Timer 0
@@ -100,7 +66,6 @@
 /*
  * L4 Watchdog
  */
-#define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #define CONFIG_DW_WDT_CLOCK_KHZ		25000
 
 /*
@@ -162,16 +127,6 @@
  * 0xFFEz_zzzz ...... Malloc area (grows up to top)
  * 0xFFE3_FFFF ...... End of SRAM (top)
  */
-#ifndef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
-#endif
-
-/* SPL SDMMC boot support */
-#ifdef CONFIG_SPL_MMC
-#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
-#endif
-#endif
 
 /* SPL QSPI boot support */
 

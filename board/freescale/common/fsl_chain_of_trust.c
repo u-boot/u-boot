@@ -12,6 +12,7 @@
 #include <fsl_sfp.h>
 #include <log.h>
 #include <dm/root.h>
+#include <asm/fsl_secure_boot.h>
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_FRAMEWORK)
 #include <spl.h>
@@ -76,14 +77,14 @@ int fsl_setenv_chain_of_trust(void)
 
 	/* If Boot mode is Secure, set the environment variables
 	 * bootdelay = 0 (To disable Boot Prompt)
-	 * bootcmd = CONFIG_CHAIN_BOOT_CMD (Validate and execute Boot script)
+	 * bootcmd = CHAIN_BOOT_CMD (Validate and execute Boot script)
 	 */
 	env_set("bootdelay", "-2");
 
 #ifdef CONFIG_ARM
 	env_set("secureboot", "y");
 #else
-	env_set("bootcmd", CONFIG_CHAIN_BOOT_CMD);
+	env_set("bootcmd", CHAIN_BOOT_CMD);
 #endif
 
 	return 0;

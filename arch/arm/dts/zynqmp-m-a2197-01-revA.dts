@@ -247,9 +247,9 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			reg_vccint: tps53681@c0 { /* u69 */
+			reg_vccint: tps53681@60 { /* u69 - 0xc0 */
 				compatible = "ti,tps53681", "ti,tps53679";
-				reg = <0xc0>;
+				reg = <0x60>;
 			};
 			reg_vcc_pmc: tps544@7 { /* u80 */
 				compatible = "ti,tps544b25";

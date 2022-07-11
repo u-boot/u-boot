@@ -583,6 +583,8 @@ config ATMEL_HLCD
 
 source "drivers/video/ti/Kconfig"
 
+source "drivers/video/exynos/Kconfig"
+
 config LOGICORE_DP_TX
 	bool "Enable Logicore DP TX driver"
 	depends on DISPLAY

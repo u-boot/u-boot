@@ -13,5 +13,4 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "ls1046afrwy"
 
-source "board/freescale/common/Kconfig"
 endif

@@ -7,7 +7,7 @@
 #ifndef __FG_BATTERY_CELL_PARAMS_H_
 #define __FG_BATTERY_CELL_PARAMS_H_
 
-#if  defined(CONFIG_POWER_FG_MAX17042) && defined(CONFIG_TRATS)
+#if  defined(CONFIG_POWER_FG_MAX17042) && defined(CONFIG_TARGET_TRATS)
 
 /* Cell characteristics - Exynos4 TRATS development board */
 /* Shall be written to addr 0x80h */

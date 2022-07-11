@@ -37,13 +37,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs=console=ttyS0,115200\0" \
-	"mtdparts=mtdparts=orion_nand:0xa0000@0x0(uboot),"\
-	"0x010000@0xa0000(env),"\
-	"0x500000@0xc0000(uimage),"\
-	"0x1a40000@0x5c0000(rootfs)\0" \
-	"mtdids=nand0=orion_nand\0"\
-	"autostart=no\0"\
-	"autoload=no\0"
+	"autostart=no\0"
 
 /*
  * Ethernet Driver configuration

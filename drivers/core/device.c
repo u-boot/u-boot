@@ -284,8 +284,7 @@ int device_reparent(struct udevice *dev, struct udevice *new_parent)
 	assert(dev);
 	assert(new_parent);
 
-	list_for_each_entry_safe(pos, n, &dev->parent->child_head,
-				 sibling_node) {
+	device_foreach_child_safe(pos, n, dev->parent) {
 		if (pos->driver != dev->driver)
 			continue;
 
@@ -328,13 +327,8 @@ static void *alloc_priv(int size, uint flags)
 			 * within this range at the start. The driver can then
 			 * use normal flush-after-write, invalidate-before-read
 			 * procedures.
-			 *
-			 * TODO(sjg@chromium.org): Drop this microblaze
-			 * exception.
 			 */
-#ifndef CONFIG_MICROBLAZE
 			flush_dcache_range((ulong)priv, (ulong)priv + size);
-#endif
 		}
 	} else {
 		priv = calloc(1, size);
@@ -680,6 +674,71 @@ void *dev_get_parent_priv(const struct udevice *dev)
 	return dm_priv_to_rw(dev->parent_priv_);
 }
 
+void *dev_get_attach_ptr(const struct udevice *dev, enum dm_tag_t tag)
+{
+	switch (tag) {
+	case DM_TAG_PLAT:
+		return dev_get_plat(dev);
+	case DM_TAG_PARENT_PLAT:
+		return dev_get_parent_plat(dev);
+	case DM_TAG_UC_PLAT:
+		return dev_get_uclass_plat(dev);
+	case DM_TAG_PRIV:
+		return dev_get_priv(dev);
+	case DM_TAG_PARENT_PRIV:
+		return dev_get_parent_priv(dev);
+	case DM_TAG_UC_PRIV:
+		return dev_get_uclass_priv(dev);
+	default:
+		return NULL;
+	}
+}
+
+int dev_get_attach_size(const struct udevice *dev, enum dm_tag_t tag)
+{
+	const struct udevice *parent = dev_get_parent(dev);
+	const struct uclass *uc = dev->uclass;
+	const struct uclass_driver *uc_drv = uc->uc_drv;
+	const struct driver *parent_drv = NULL;
+	int size = 0;
+
+	if (parent)
+		parent_drv = parent->driver;
+
+	switch (tag) {
+	case DM_TAG_PLAT:
+		size = dev->driver->plat_auto;
+		break;
+	case DM_TAG_PARENT_PLAT:
+		if (parent) {
+			size = parent_drv->per_child_plat_auto;
+			if (!size)
+				size = parent->uclass->uc_drv->per_child_plat_auto;
+		}
+		break;
+	case DM_TAG_UC_PLAT:
+		size = uc_drv->per_device_plat_auto;
+		break;
+	case DM_TAG_PRIV:
+		size = dev->driver->priv_auto;
+		break;
+	case DM_TAG_PARENT_PRIV:
+		if (parent) {
+			size = parent_drv->per_child_auto;
+			if (!size)
+				size = parent->uclass->uc_drv->per_child_auto;
+		}
+		break;
+	case DM_TAG_UC_PRIV:
+		size = uc_drv->per_device_auto;
+		break;
+	default:
+		break;
+	}
+
+	return size;
+}
+
 static int device_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)
 {
@@ -729,7 +788,7 @@ int device_get_child(const struct udevice *parent, int index,
 {
 	struct udevice *dev;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (!index--)
 			return device_get_device_tail(dev, 0, devp);
 	}
@@ -742,7 +801,7 @@ int device_get_child_count(const struct udevice *parent)
 	struct udevice *dev;
 	int count = 0;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node)
+	device_foreach_child(dev, parent)
 		count++;
 
 	return count;
@@ -753,7 +812,7 @@ int device_get_decendent_count(const struct udevice *parent)
 	const struct udevice *dev;
 	int count = 1;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node)
+	device_foreach_child(dev, parent)
 		count += device_get_decendent_count(dev);
 
 	return count;
@@ -766,7 +825,7 @@ int device_find_child_by_seq(const struct udevice *parent, int seq,
 
 	*devp = NULL;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (dev->seq_ == seq) {
 			*devp = dev;
 			return 0;
@@ -795,7 +854,7 @@ int device_find_child_by_of_offset(const struct udevice *parent, int of_offset,
 
 	*devp = NULL;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (dev_of_offset(dev) == of_offset) {
 			*devp = dev;
 			return 0;
@@ -824,7 +883,7 @@ static struct udevice *_device_find_global_by_ofnode(struct udevice *parent,
 	if (ofnode_equal(dev_ofnode(parent), ofnode))
 		return parent;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		found = _device_find_global_by_ofnode(dev, ofnode);
 		if (found)
 			return found;
@@ -902,7 +961,7 @@ int device_find_first_inactive_child(const struct udevice *parent,
 	struct udevice *dev;
 
 	*devp = NULL;
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (!device_active(dev) &&
 		    device_get_uclass_id(dev) == uclass_id) {
 			*devp = dev;
@@ -920,7 +979,7 @@ int device_find_first_child_by_uclass(const struct udevice *parent,
 	struct udevice *dev;
 
 	*devp = NULL;
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (device_get_uclass_id(dev) == uclass_id) {
 			*devp = dev;
 			return 0;
@@ -937,7 +996,7 @@ int device_find_child_by_namelen(const struct udevice *parent, const char *name,
 
 	*devp = NULL;
 
-	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+	device_foreach_child(dev, parent) {
 		if (!strncmp(dev->name, name, len) &&
 		    strlen(dev->name) == len) {
 			*devp = dev;
@@ -1125,9 +1184,7 @@ bool device_is_compatible(const struct udevice *dev, const char *compat)
 
 bool of_machine_is_compatible(const char *compat)
 {
-	const void *fdt = gd->fdt_blob;
-
-	return !fdt_node_check_compatible(fdt, 0, compat);
+	return ofnode_device_is_compatible(ofnode_root(), compat);
 }
 
 int dev_disable_by_path(const char *path)

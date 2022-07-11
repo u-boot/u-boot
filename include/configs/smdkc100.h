@@ -11,14 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * High Level Configuration Options
- * (easy to change)
- */
-#define CONFIG_SAMSUNG		1	/* in a SAMSUNG core */
-#define CONFIG_S5P		1	/* which is in a S5P Family */
-#define CONFIG_S5PC100		1	/* which is in a S5PC100 */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 /* input clock of PLL: SMDKC100 has 12MHz input clock */
@@ -31,9 +23,6 @@
 /*
  * select serial console configuration
  */
-
-/* PWM */
-#define CONFIG_PWM			1
 
 #define COMMON_BOOT	"console=ttySAC0,115200n8" \
 				" mem=128M " \
@@ -77,7 +66,6 @@
 		" console=ttySAC0,115200n8 mem=128M" \
 		" initrd=0x33000000,8M ramdisk=8192\0" \
 	"rootfstype=cramfs\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"meminfo=mem=128M\0" \
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=5\0" \
@@ -87,7 +75,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 
 /* SMDKC100 has 1 banks of DRAM, we use only one in U-Boot */
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* SDRAM Bank #1 */
@@ -99,25 +86,11 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
 
-#if !defined(CONFIG_NAND_SPL) && (CONFIG_SYS_TEXT_BASE >= 0xc0000000)
-#define CONFIG_ENABLE_MMU
-#endif
-
-#ifdef CONFIG_ENABLE_MMU
-#define CONFIG_SYS_MAPPED_RAM_BASE	0xc0000000
-#else
-#define CONFIG_SYS_MAPPED_RAM_BASE	CONFIG_SYS_SDRAM_BASE
-#endif
-
 /*-----------------------------------------------------------------------
  * Boot configuration
  */
 
-#define CONFIG_USE_ONENAND_BOARD_INIT
-#define CONFIG_SAMSUNG_ONENAND		1
 #define CONFIG_SYS_ONENAND_BASE		0xE7100000
-
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
 /*
  * Ethernet Contoller driver

@@ -15,16 +15,10 @@
 #include <linux/sizes.h>
 
 /* SPL */
-#define CONFIG_SPL_STACK		0x20000
-
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x44000000
 
 #define CONFIG_SYS_SPI_KERNEL_OFFS	SZ_1M
 #define CONFIG_SYS_SPI_ARGS_OFFS	SZ_512K
 #define CONFIG_SYS_SPI_ARGS_SIZE	SZ_32K
-
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	(SZ_512K / 0x200)
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(SZ_32K / 0x200)
 
 /* Memory configuration */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */

@@ -93,11 +93,6 @@ int testdram(void)
 
 #ifdef CONFIG_IDE
 #include <ata.h>
-int ide_preinit(void)
-{
-	return (0);
-}
-
 void ide_set_reset(int idereset)
 {
 	atac_t *ata = (atac_t *) CONFIG_SYS_ATA_BASE_ADDR;

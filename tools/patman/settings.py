@@ -246,8 +246,10 @@ def _UpdateDefaults(main_parser, config):
 
     # Collect the defaults from each parser
     defaults = {}
+    parser_defaults = []
     for parser in parsers:
         pdefs = parser.parse_known_args()[0]
+        parser_defaults.append(pdefs)
         defaults.update(vars(pdefs))
 
     # Go through the settings and collect defaults
@@ -264,8 +266,11 @@ def _UpdateDefaults(main_parser, config):
         else:
             print("WARNING: Unknown setting %s" % name)
 
-    # Set all the defaults (this propagates through all subparsers)
+    # Set all the defaults and manually propagate them to subparsers
     main_parser.set_defaults(**defaults)
+    for parser, pdefs in zip(parsers, parser_defaults):
+        parser.set_defaults(**{ k: v for k, v in defaults.items()
+                                    if k in pdefs })
 
 def _ReadAliasFile(fname):
     """Read in the U-Boot git alias file if it exists.

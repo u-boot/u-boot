@@ -207,6 +207,17 @@ F:	drivers/pinctrl/broadcom/
 F:	configs/rpi_*
 T:	git https://source.denx.de/u-boot/custodians/u-boot-arm.git
 
+ARM BROADCOM BCMBCA
+M:	Anand Gore <anand.gore@broadcom.com>
+M:	William Zhang <william.zhang@broadcom.com>
+M:	Kursad Oney <kursad.oney@broadcom.com>
+M:	Joel Peshkin <joel.peshkin@broadcom.com>
+S:	Maintained
+F:	arch/arm/mach-bcmbca/
+F:	board/broadcom/bcmbca/
+F:	configs/bcm947622_defconfig
+F:	include/configs/bcm947622.h
+
 ARM BROADCOM BCMSTB
 M:	Thomas Fitzsimmons <fitzsim@fitzsim.org>
 S:	Maintained
@@ -269,6 +280,19 @@ F:	arch/arm/cpu/armv8/hisilicon
 F:	arch/arm/include/asm/arch-hi6220/
 F:	arch/arm/include/asm/arch-hi3660/
 
+ARM HPE GXP ARCHITECTURE
+M:	Jean-Marie Verdun <verdun@hpe.com>
+M:	Nick Hawkins <nick.hawkins@hpe.com>
+S:	Maintained
+F:	arch/arm/dts/hpe-bmc*
+F:	arch/arm/dts/hpe-gxp*
+F:	arch/arm/mach-hpe/
+F:	board/hpe/
+F:	configs/gxp_defconfig
+F:	doc/device-tree-bindings/spi/hpe,gxp-spi.yaml
+F:	drivers/timer/gxp-timer.c
+F:	drivers/spi/gxp_spi.c
+
 ARM IPQ40XX
 M:	Robert Marko <robert.marko@sartura.hr>
 M:	Luka Kovacic <luka.kovacic@sartura.hr>
@@ -282,6 +306,11 @@ F:	drivers/phy/phy-qcom-ipq4019-usb.c
 F:	drivers/spi/spi-qup.c
 F:	drivers/net/mdio-ipq4019.c
 F:	drivers/rng/msm_rng.c
+
+ARM LAYERSCAPE SFP
+M:	Sean Anderson <sean.anderson@seco.com>
+S:	Maintained
+F:	drivers/misc/ls2_sfp.c
 
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
@@ -319,13 +348,6 @@ M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	drivers/serial/serial_mvebu_a3700.c
-
-ARM MARVELL PXA
-M:	Marek Vasut <marex@denx.de>
-S:	Maintained
-T:	git https://source.denx.de/u-boot/custodians/u-boot-pxa.git
-F:	arch/arm/cpu/pxa/
-F:	arch/arm/include/asm/arch-pxa/
 
 ARM MEDIATEK
 M:	Ryder Lee <ryder.lee@mediatek.com>
@@ -481,7 +503,7 @@ S:	Maintained
 F:	arch/arm/mach-stm32mp/
 F:	doc/board/st/
 F:	drivers/adc/stm32-adc*
-F:	drivers/clk/clk_stm32mp1.c
+F:	drivers/clk/stm32/
 F:	drivers/gpio/stm32_gpio.c
 F:	drivers/hwspinlock/stm32_hwspinlock.c
 F:	drivers/i2c/stm32f7_i2c.c
@@ -612,6 +634,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
 F:	drivers/net/xilinx_axi_mrmac.*
 F:	drivers/soc/soc_xilinx_versal.c
+F:	drivers/spi/cadence_ospi_versal.c
 F:	drivers/watchdog/xilinx_wwdt.c
 N:	(?<!uni)versal
 
@@ -976,6 +999,7 @@ F:	drivers/net/xilinx_emaclite.c
 F:	drivers/serial/serial_xuartlite.c
 F:	drivers/spi/xilinx_spi.c
 F:	drivers/sysreset/sysreset_gpio.c
+F:	drivers/timer/xilinx-timer.c
 F:	drivers/watchdog/xilinx_tb_wdt.c
 N:	xilinx
 
@@ -1092,6 +1116,13 @@ F:	drivers/nvme/
 F:	cmd/nvme.c
 F:	include/nvme.h
 F:	doc/develop/driver-model/nvme.rst
+
+NVMEM
+M:	Sean Anderson <seanga2@gmail.com>
+S:	Maintained
+F:	doc/api/nvmem.rst
+F:	drivers/misc/nvmem.c
+F:	include/nvmem.h
 
 NXP C45 TJA11XX PHY DRIVER
 M:	Radu Pirea <radu-nicolae.pirea@oss.nxp.com>
@@ -1243,6 +1274,11 @@ S:	Maintained
 F:	drivers/gpio/sl28cpld-gpio.c
 F:	drivers/misc/sl28cpld.c
 F:	drivers/watchdog/sl28cpld-wdt.c
+
+SMCCC TRNG
+M:	Etienne Carriere <etienne.carriere@linaro.org>
+S:	Maintained
+F:	drivers/rng/smccc_trng.c
 
 SPI
 M:	Jagan Teki <jagan@amarulasolutions.com>

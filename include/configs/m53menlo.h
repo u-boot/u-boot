@@ -24,18 +24,9 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
 #define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
 /*
  * U-Boot general configurations
  */
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
-#define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 
 /*
  * Serial Driver
@@ -60,9 +51,6 @@
 #define CONFIG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_MXC_NAND_HWECC
-
-/* Environment is in NAND */
-#define CONFIG_ENV_RANGE		(0x00080000) /* 512 KiB */
 #endif
 
 /*
@@ -92,15 +80,6 @@
 #endif
 
 /*
- * SATA
- */
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_DWC_AHSATA_PORT_ID	0
-#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_BASE_ADDR
-#define CONFIG_LBA48
-#endif
-
-/*
  * LCD
  */
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
@@ -117,9 +96,6 @@
 /*
  * NAND SPL
  */
-#define CONFIG_SPL_TARGET		"u-boot-with-nand-spl.imx"
-#define CONFIG_SPL_PAD_TO		0x8000
-#define CONFIG_SPL_STACK		0x70004000
 
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
 
@@ -136,8 +112,6 @@
 	"mmcpart=1\0"							\
 	"rootpath=/srv/\0"						\
 	"kernel_addr_r=0x72000000\0"					\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"netdev=eth0\0"							\
 	"splashsource=mmc_fs\0"						\
 	"splashfile=boot/usplash.bmp.gz\0"				\

@@ -17,7 +17,4 @@
 /* Undef unneeded configs */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 
-#undef CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_CBSIZE		1024
-
 #endif /* __CONFIG_VERSAL_MINI_H */

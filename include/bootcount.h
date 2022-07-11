@@ -72,14 +72,6 @@ ulong bootcount_load(void);
 
 #if defined(CONFIG_SPL_BOOTCOUNT_LIMIT) || defined(CONFIG_TPL_BOOTCOUNT_LIMIT) || defined(CONFIG_BOOTCOUNT_LIMIT)
 
-#if !defined(CONFIG_SYS_BOOTCOUNT_LE) && !defined(CONFIG_SYS_BOOTCOUNT_BE)
-# if __BYTE_ORDER == __LITTLE_ENDIAN
-#  define CONFIG_SYS_BOOTCOUNT_LE
-# else
-#  define CONFIG_SYS_BOOTCOUNT_BE
-# endif
-#endif
-
 #ifdef CONFIG_SYS_BOOTCOUNT_LE
 static inline void raw_bootcount_store(volatile u32 *addr, u32 data)
 {

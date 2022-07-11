@@ -29,7 +29,6 @@
 #define CONFIG_I2C_MVTWSI_BASE1		MVEBU_TWSI1_BASE
 
 /* USB/EHCI configuration */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* Environment in SPI NOR flash */
 
@@ -39,12 +38,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
-
-/* SATA support */
-#define CONFIG_LBA48
-
-/* FPGA programming support */
-#define CONFIG_FPGA_STRATIX_V
 
 /*
  * Bootcounter
@@ -73,17 +66,6 @@
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_MAX_SIZE		((128 << 10) - (CONFIG_SPL_TEXT_BASE - 0x40000000))
-
-#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + (128 << 10))
-#define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MALLOC_SIMPLE
-#endif
-
-#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
-#define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
 #define CONFIG_SYS_SDRAM_SIZE		SZ_2G

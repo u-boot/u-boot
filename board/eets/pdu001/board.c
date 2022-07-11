@@ -273,7 +273,7 @@ void board_debug_uart_init(void)
 	setup_early_clocks();
 
 	/* done by pin controller driver if not debugging */
-	enable_uart_pin_mux(CONFIG_DEBUG_UART_BASE);
+	enable_uart_pin_mux(CONFIG_VAL(DEBUG_UART_BASE));
 }
 #endif
 

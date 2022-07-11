@@ -32,10 +32,6 @@
 #define CONFIG_SYS_NAND_ECCSIZE         512
 #define CONFIG_SYS_NAND_ECCBYTES        3
 #define CONFIG_SYS_ENV_SECT_SIZE        SZ_128K
-/* NAND: SPL falcon mode configs */
-#if defined(CONFIG_SPL_OS_BOOT)
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x2a0000
-#endif /* CONFIG_SPL_OS_BOOT */
 #endif /* CONFIG_MTD_RAW_NAND */
 
 #define BOOTENV_DEV_LEGACY_MMC(devtypeu, devtypel, instance) \
@@ -60,7 +56,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(LEGACY_MMC, legacy_mmc, 0) \
-	func(UBIFS, ubifs, 0) \
+	func(UBIFS, ubifs, 0, rootfs, rootfs) \
 	func(NAND, nand, 0)
 
 #else /* !CONFIG_MTD_RAW_NAND */
@@ -80,16 +76,12 @@
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"fdt_high=0xffffffff\0" \
 	"console=ttyO0,115200n8\0" \
 	"bootdir=/boot\0" \
 	"bootenv=uEnv.txt\0" \
 	"bootfile=zImage\0" \
 	"bootpart=0:2\0" \
-	"bootubivol=rootfs\0" \
-	"bootubipart=rootfs\0" \
 	"optargs=\0" \
 	"nandroot=ubi0:rootfs ubi.mtd=rootfs rw noinitrd\0" \
 	"nandrootfstype=ubifs rootwait\0" \

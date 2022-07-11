@@ -260,9 +260,9 @@
 				reg = <0x45>;
 				shunt-resistor = <5000>;
 			};
-			tps53681@c0 { /* u53 - FIXME name - don't know what it does - also vcc_io_soc */
+			tps53681@60 { /* u53 - 0xc0 - FIXME name - don't know what it does - also vcc_io_soc */
 				compatible = "ti,tps53681", "ti,tps53679";
-				reg = <0xc0>;
+				reg = <0x60>;
 			};
 		};
 		i2c@3 { /* fmc1 via JA2G */

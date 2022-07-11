@@ -23,12 +23,6 @@
 #endif /* CONFIG_KW88F6281 */
 
 #include <asm/arch/soc.h>
-#define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
-#define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
-#define CONFIG_KIRKWOOD_PCIE_INIT       /* Enable PCIE Port0 for kernel */
-
-/* Kirkwood has 2k of Security SRAM, use it for SP */
-#define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
 
 #define CONFIG_I2C_MVTWSI_BASE0	KW_TWSI_BASE
 #define MV_UART_CONSOLE_BASE	KW_UART0_BASE
@@ -52,8 +46,6 @@
 #define __io
 /* Data, registers and alternate blocks are at the same offset */
 /* Each 8-bit ATA register is aligned to a 4-bytes address */
-/* Controller supports 48-bits LBA addressing */
-#define CONFIG_LBA48
 /* CONFIG_IDE requires some #defines for ATA registers */
 /* ATA registers base is at SATA controller base */
 #endif /* CONFIG_IDE */

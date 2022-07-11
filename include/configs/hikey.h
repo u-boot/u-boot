@@ -15,8 +15,6 @@
 
 #define CONFIG_POWER_HI6553
 
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 /* Physical Memory Map */
 
 /* CONFIG_SYS_TEXT_BASE needs to align with where ATF loads bl33.bin */
@@ -29,8 +27,6 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
-
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			0xf6801000
@@ -60,9 +56,5 @@
 				BOOTENV
 
 /* Preserve environment on eMMC */
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #endif /* __HIKEY_H */

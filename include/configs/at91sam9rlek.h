@@ -22,15 +22,13 @@
 
 /* LCD */
 #define LCD_BPP				LCD_COLOR8
-/* Let board_init_f handle the framebuffer allocation */
-#undef CONFIG_FB_ADDR
 
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
 #define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(ATMEL_BASE_SRAM + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
+#define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

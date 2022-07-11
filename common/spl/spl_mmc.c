@@ -229,7 +229,7 @@ static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 {
 	int ret;
 
-#if defined(CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR)
+#if CONFIG_VAL(SYS_MMCSD_RAW_MODE_ARGS_SECTOR)
 	unsigned long count;
 
 	count = blk_dread(mmc_get_blk_desc(mmc),

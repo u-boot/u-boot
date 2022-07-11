@@ -1135,7 +1135,7 @@ constrained systems.
 To enable driver model in SPL, define CONFIG_SPL_DM. You might want to
 consider the following option also. See the main README for more details.
 
-   - CONFIG_SYS_MALLOC_SIMPLE
+   - CONFIG_SPL_SYS_MALLOC_SIMPLE
    - CONFIG_DM_WARN
    - CONFIG_DM_DEVICE_REMOVE
    - CONFIG_DM_STDIO

@@ -10,10 +10,9 @@
 
 #include "rcar-gen2-common.h"
 
-#define CONFIG_SYS_INIT_SP_ADDR		0x4f000000
 #define STACK_AREA_SIZE			0x00100000
 #define LOW_LEVEL_MERAM_STACK \
-		(CONFIG_SYS_INIT_SP_ADDR + STACK_AREA_SIZE - 4)
+		(SYS_INIT_SP_ADDR + STACK_AREA_SIZE - 4)
 
 /* MEMORY */
 #define RCAR_GEN2_SDRAM_BASE		0x40000000
@@ -34,7 +33,5 @@
 	"bootm_size=0x10000000\0"
 
 /* SPL support */
-#define CONFIG_SPL_STACK		0xe6340000
-#define CONFIG_SPL_MAX_SIZE		0x4000
 
 #endif	/* __KOELSCH_H */

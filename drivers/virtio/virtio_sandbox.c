@@ -160,8 +160,8 @@ static int virtio_sandbox_probe(struct udevice *udev)
 	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(udev);
 
 	/* fake some information for testing */
-	priv->device_features = VIRTIO_F_VERSION_1;
-	uc_priv->device = VIRTIO_ID_BLOCK;
+	priv->device_features = BIT_ULL(VIRTIO_F_VERSION_1);
+	uc_priv->device = VIRTIO_ID_RNG;
 	uc_priv->vendor = ('u' << 24) | ('b' << 16) | ('o' << 8) | 't';
 
 	return 0;

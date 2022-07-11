@@ -10,18 +10,64 @@
 #include <asm-offsets.h>
 #include <config.h>
 
+#if defined(CONFIG_STATIC_RELA)
+#define SYM_ADDR(reg, reg_add, symbol)	\
+	mfs	r20, rpc; \
+	addik	r20, r20, _GLOBAL_OFFSET_TABLE_ + 8; \
+	lwi	reg, r20, symbol@GOT; \
+	addk	reg, reg reg_add;
+#else
+#define SYM_ADDR(reg, reg_add, symbol)	\
+	addi	reg, reg_add, symbol
+#endif
+
 	.text
 	.global _start
 _start:
 	mts	rmsr, r0	/* disable cache */
+	mfs	r20, rpc
+	addi	r20, r20, -4
 
-	addi	r8, r0, _end
-	mts	rslr, r8
+	mts	rslr, r0
+	mts	rshr, r20
 
 #if defined(CONFIG_SPL_BUILD)
-	addi	r1, r0, CONFIG_SPL_STACK_ADDR
+	addi	r1, r0, CONFIG_SPL_STACK
 #else
-	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
+	add	r1, r0, r20
+#if defined(CONFIG_STATIC_RELA)
+	bri	1f
+
+	/* Force alignment for easier ASM code below */
+#define ALIGNMENT_ADDR	0x20
+	.align	4
+uboot_dyn_start:
+	.word	__rel_dyn_start
+
+uboot_dyn_end:
+	.word	__rel_dyn_end
+
+uboot_sym_start:
+	.word	__dyn_sym_start
+1:
+
+	addi	r5, r20, 0
+	add	r6, r0, r0
+
+	lwi	r7, r20, ALIGNMENT_ADDR
+	addi	r7, r7, -CONFIG_SYS_TEXT_BASE
+	add	r7, r7, r5
+	lwi	r8, r20, ALIGNMENT_ADDR + 0x4
+	addi	r8, r8, -CONFIG_SYS_TEXT_BASE
+	add	r8, r8, r5
+	lwi	r9, r20, ALIGNMENT_ADDR + 0x8
+	addi	r9, r9, -CONFIG_SYS_TEXT_BASE
+	add	r9, r9, r5
+	addi	r10, r0, CONFIG_SYS_TEXT_BASE
+
+	brlid	r15, mb_fix_rela
+	nop
+#endif
 #endif
 
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
@@ -29,7 +75,7 @@ _start:
 	/* Call board_init_f_alloc_reserve with the current stack pointer as
 	 * parameter. */
 	add	r5, r0, r1
-	bralid	r15, board_init_f_alloc_reserve
+	brlid	r15, board_init_f_alloc_reserve
 	nop
 
 	/* board_init_f_alloc_reserve returns a pointer to the allocated area
@@ -41,20 +87,25 @@ _start:
 	/* Call board_init_f_init_reserve with the address returned by
 	 * board_init_f_alloc_reserve as parameter. */
 	add	r5, r0, r3
-	bralid	r15, board_init_f_init_reserve
+	brlid	r15, board_init_f_init_reserve
 	nop
 
 #if !defined(CONFIG_SPL_BUILD)
 	/* Setup vectors with pre-relocation symbols */
 	or	r5, r0, r0
-	bralid	r15, __setup_exceptions
+	brlid	r15, __setup_exceptions
 	nop
 #endif
 
+	/*
+	 * Initialize global data cpuinfo with default values (cache
+	 * size, cache line size, etc).
+	 */
+	brlid	r15, microblaze_early_cpuinfo_init
+	nop
+
 	/* Flush cache before enable cache */
-	addik	r5, r0, 0
-	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
-	bralid	r15, flush_cache
+	brlid	r15, flush_cache_all
 	nop
 
 	/* enable instruction and data cache */
@@ -64,8 +115,8 @@ _start:
 
 clear_bss:
 	/* clear BSS segments */
-	addi	r5, r0, __bss_start
-	addi	r4, r0, __bss_end
+	SYM_ADDR(r5, r0, __bss_start)
+	SYM_ADDR(r4, r0, __bss_end)
 	cmp	r6, r5, r4
 	beqi	r6, 3f
 2:
@@ -75,14 +126,14 @@ clear_bss:
 	bnei    r6, 2b
 3:	/* jumping to board_init */
 #ifdef CONFIG_DEBUG_UART
-	bralid	r15, debug_uart_init
+	brlid	r15, debug_uart_init
 	nop
 #endif
 #ifndef CONFIG_SPL_BUILD
 	or	r5, r0, r0	/* flags - empty */
-	brai	board_init_f
+	bri	board_init_f
 #else
-	brai	board_init_r
+	bri	board_init_r
 #endif
 1:	bri	1b
 
@@ -141,7 +192,8 @@ __setup_exceptions:
 	swi	r2, r4, 0x0	/* reset address - imm opcode */
 	swi	r3, r4, 0x4	/* reset address - brai opcode */
 
-	addik	r6, r0, CONFIG_SYS_TEXT_BASE
+	SYM_ADDR(r6, r0, _start)
+	/* Intentionally keep reset vector back to origin u-boot location */
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x2
@@ -154,7 +206,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x8	/* user vector exception - imm opcode */
 	swi	r3, r4, 0xC	/* user vector exception - brai opcode */
 
-	addik	r6, r5, _exception_handler
+	SYM_ADDR(r6, r5, _exception_handler)
 	sw	r6, r1, r0
 	/*
 	 * BIG ENDIAN memory map for user exception
@@ -187,7 +239,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x10	/* interrupt - imm opcode */
 	swi	r3, r4, 0x14	/* interrupt - brai opcode */
 
-	addik	r6, r5, _interrupt_handler
+	SYM_ADDR(r6, r5, _interrupt_handler)
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x12
@@ -199,7 +251,7 @@ __setup_exceptions:
 	swi	r2, r4, 0x20	/* hardware exception - imm opcode */
 	swi	r3, r4, 0x24	/* hardware exception - brai opcode */
 
-	addik	r6, r5, _hw_exception_handler
+	SYM_ADDR(r6, r5, _hw_exception_handler)
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
 	rsubi	r8, r10, 0x22
@@ -221,39 +273,6 @@ __setup_exceptions:
 	.end	__setup_exceptions
 
 /*
- * Read 16bit little endian
- */
-	.text
-	.global	in16
-	.ent	in16
-	.align	2
-in16:	lhu	r3, r0, r5
-	bslli	r4, r3, 8
-	bsrli	r3, r3, 8
-	andi	r4, r4, 0xffff
-	or	r3, r3, r4
-	rtsd	r15, 8
-	sext16	r3, r3
-	.end	in16
-
-/*
- * Write 16bit little endian
- * first parameter(r5) - address, second(r6) - short value
- */
-	.text
-	.global	out16
-	.ent	out16
-	.align	2
-out16:	bslli	r3, r6, 8
-	bsrli	r6, r6, 8
-	andi	r3, r3, 0xffff
-	or	r3, r3, r6
-	sh	r3, r0, r5
-	rtsd	r15, 8
-	or	r0, r0, r0
-	.end	out16
-
-/*
  * Relocate u-boot
  */
 	.text
@@ -267,31 +286,54 @@ relocate_code:
 	 * r7 - reloc_addr
 	 */
 	addi	r1, r5, 0 /* Start to use new SP */
+	mts	rshr, r1
 	addi	r31, r6, 0 /* Start to use new GD */
 
-	add	r23, r0, r7 /* Move reloc addr to r23 */
 	/* Relocate text and data - r12 temp value */
-	addi	r21, r0, _start
-	addi	r22, r0, _end - 4 /* Include BSS too */
+	SYM_ADDR(r21, r0, _start)
+	SYM_ADDR(r22, r0, _end) /* Include BSS too */
+	addi	r22, r22, -4
 
 	rsub	r6, r21, r22
 	or	r5, r0, r0
 1:	lw	r12, r21, r5 /* Load u-boot data */
-	sw	r12, r23, r5 /* Write zero to loc */
+	sw	r12, r7, r5 /* Write zero to loc */
 	cmp	r12, r5, r6 /* Check if we have reach the end */
 	bneid	r12, 1b
 	addi	r5, r5, 4 /* Increment to next loc - relocate code */
 
 	/* R23 points to the base address. */
-	add	r23, r0, r7 /* Move reloc addr to r23 */
-	addi	r24, r0, CONFIG_SYS_TEXT_BASE /* Get reloc offset */
-	rsub	r23, r24, r23 /* keep - this is already here gd->reloc_off */
+	rsub	r23, r21, r7 /* keep - this is already here gd->reloc_off */
 
 	/* Setup vectors with post-relocation symbols */
 	add	r5, r0, r23 /* load gd->reloc_off to r5 */
-	bralid	r15, __setup_exceptions
+	brlid	r15, __setup_exceptions
 	nop
 
+#if defined(CONFIG_STATIC_RELA)
+	/* reloc_offset is current location */
+	SYM_ADDR(r10, r0, _start)
+
+	/* r5 new address where I should copy code */
+	add	r5, r0, r7 /* Move reloc addr to r5 */
+
+	/* Verbose message */
+	addi	r6, r0, 0
+
+	SYM_ADDR(r7, r0, __rel_dyn_start)
+	rsub	r7, r10, r7
+	add	r7, r7, r5
+	SYM_ADDR(r8, r0, __rel_dyn_end)
+	rsub	r8, r10, r8
+	add	r8, r8, r5
+	SYM_ADDR(r9, r0, __dyn_sym_start)
+	rsub	r9, r10, r9
+	add	r9, r9, r5
+	brlid	r15, mb_fix_rela
+	nop
+
+	/* end of code which does relocation */
+#else
 	/* Check if GOT exist */
 	addik	r21, r23, _got_start
 	addik	r22, r23, _got_end
@@ -309,21 +351,15 @@ relocate_code:
 	cmpu	r12, r21, r22 /* Check if this cross boundary */
 	bneid	r12, 3b
 	addik	r21. r21, 4
-
-	/* Update pointer to GOT */
-	mfs	r20, rpc
-	addik	r20, r20, _GLOBAL_OFFSET_TABLE_ + 8
-	addk	r20, r20, r23
+#endif
 
 	/* Flush caches to ensure consistency */
-	addik	r5, r0, 0
-	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
-	bralid	r15, flush_cache
+	brlid	r15, flush_cache_all
 	nop
 
 2:	addi	r5, r31, 0 /* gd is initialized in board_r.c */
-	addi	r6, r0, CONFIG_SYS_TEXT_BASE
-	addi	r12, r23, board_init_r
+	SYM_ADDR(r6, r0, _start)
+	SYM_ADDR(r12, r23, board_init_r)
 	bra	r12 /* Jump to relocated code */
 
 	.end	relocate_code

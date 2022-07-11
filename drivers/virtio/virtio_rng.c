@@ -41,6 +41,9 @@ static int virtio_rng_read(struct udevice *dev, void *data, size_t len)
 		while (!virtqueue_get_buf(priv->rng_vq, &rsize))
 			;
 
+		if (rsize > sg.length)
+			return -EIO;
+
 		memcpy(ptr, buf, rsize);
 		len -= rsize;
 		ptr += rsize;

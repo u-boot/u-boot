@@ -194,7 +194,7 @@ LDPPFLAGS += \
 
 # Turn various CONFIG symbols into IMAGE symbols for easy reuse of
 # the scripts between SPL, TPL and VPL.
-ifneq ($(CONFIG_$(SPL_TPL_)MAX_SIZE),)
+ifneq ($(CONFIG_$(SPL_TPL_)MAX_SIZE),0x0)
 LDPPFLAGS += -DIMAGE_MAX_SIZE=$(CONFIG_$(SPL_TPL_)MAX_SIZE)
 endif
 ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)
@@ -253,7 +253,7 @@ endif
 
 INPUTS-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).sym
 
-ifdef CONFIG_SAMSUNG
+ifneq ($(CONFIG_ARCH_EXYNOS)$(CONFIG_ARCH_S5PC1XX),)
 INPUTS-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
@@ -367,8 +367,8 @@ $(platdata-hdr) $(u-boot-spl-platdata_c) &: $(obj)/$(SPL_BIN).dtb
 	@rm -f $(u-boot-spl-all-platdata_c) $(u-boot-spl-all-platdata)
 	$(call if_changed,dtoc)
 
-ifdef CONFIG_SAMSUNG
-ifdef CONFIG_VAR_SIZE_SPL
+ifneq ($(CONFIG_ARCH_EXYNOS)$(CONFIG_ARCH_S5PC1XX),)
+ifeq ($(CONFIG_EXYNOS5420),y)
 VAR_SIZE_PARAM = --vs
 else
 VAR_SIZE_PARAM =

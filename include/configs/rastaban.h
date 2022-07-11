@@ -37,13 +37,6 @@
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 
-#define CONFIG_FACTORYSET
-
-/* Define own nand partitions */
-#define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
-
-#ifndef CONFIG_SPL_BUILD
-
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"hostname=rastaban\0" \
@@ -55,8 +48,4 @@
 	CONFIG_ENV_SETTINGS_V2 \
 	CONFIG_ENV_SETTINGS_NAND_V2
 
-#ifndef CONFIG_RESTORE_FLASH
-/* set to negative value for no autoboot */
-#endif
-#endif	/* CONFIG_SPL_BUILD */
 #endif	/* ! __CONFIG_RASTABAN_H */

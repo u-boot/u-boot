@@ -22,7 +22,6 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_SYS_SPD_BUS_NUM		0
 #define SPD_EEPROM_ADDRESS		0x54
 
 /* POST memory regions test */
@@ -174,7 +173,6 @@
 					{1, {I2C_NULL_HOP}                 }, \
 				}
 
-#define CONFIG_LAYERSCAPE_NS_ACCESS
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 
 #define CONFIG_HWCONFIG
@@ -187,14 +185,7 @@
 
 #define CONFIG_LS102XA_STREAM_ID
 
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
 #define CONFIG_SYS_MONITOR_LEN		0x100000     /* 1Mbyte */
-
-#define CONFIG_SYS_BOOTCOUNT_BE
 
 /*
  * Environment
@@ -258,7 +249,6 @@
 	"ethrotate=no\0"						\
 	""
 
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Increase map for Linux */
 
 #endif

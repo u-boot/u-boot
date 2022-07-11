@@ -48,6 +48,35 @@ config FLASH_CFI_DRIVER
 	  option. Visit <http://www.amd.com/products/nvd/overview/cfi.html>
 	  for more information on CFI.
 
+choice
+	prompt "Data-width of the flash device"
+	depends on FLASH_CFI_DRIVER
+	default SYS_FLASH_CFI_WIDTH_8BIT
+
+config SYS_FLASH_CFI_WIDTH_8BIT
+	bool "Data-width of the device is 8-bit"
+
+config SYS_FLASH_CFI_WIDTH_16BIT
+	bool "Data-width of the device is 16-bit"
+
+config SYS_FLASH_CFI_WIDTH_32BIT
+	bool "Data-width of the device is 32-bit"
+
+config SYS_FLASH_CFI_WIDTH_64BIT
+	bool "Data-width of the device is 64-bit"
+
+endchoice
+
+config SYS_FLASH_CFI_WIDTH
+	hex
+	depends on FLASH_CFI_DRIVER
+	default 0x1 if SYS_FLASH_CFI_WIDTH_8BIT
+	default 0x2 if SYS_FLASH_CFI_WIDTH_16BIT
+	default 0x4 if SYS_FLASH_CFI_WIDTH_32BIT
+	default 0x8 if SYS_FLASH_CFI_WIDTH_64BIT
+	help
+	  This must be kept in sync with the table in include/flash.h
+
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
 	depends on DM_MTD
@@ -66,6 +95,10 @@ config CFI_FLASH_USE_WEAK_ACCESSORS
 	help
 	  Enable this option to allow for the flash_{read,write}{8,16,32,64}
 	  functions to be overridden by the platform.
+
+config SYS_CFI_FLASH_STATUS_POLL
+	bool "Poll status on AMD flash chips"
+	depends on FLASH_CFI_DRIVER
 
 config SYS_FLASH_USE_BUFFER_WRITE
 	bool "Enable buffered writes to flash"
@@ -134,6 +167,9 @@ config STM32_FLASH
 	help
 	 This is the driver of embedded flash for some STMicroelectronics
 	 STM32 MCU.
+
+config SAMSUNG_ONENAND
+	bool "Samsung OneNAND driver support"
 
 config USE_SYS_MAX_FLASH_BANKS
 	bool "Enable Max number of Flash memory banks"

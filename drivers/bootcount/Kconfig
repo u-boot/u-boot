@@ -237,4 +237,15 @@ config SYS_BOOTCOUNT_MAGIC
 	help
 	  Set the magic value used for the boot counter.
 
+choice
+	prompt "Endianness of bootcount accessors"
+	default SYS_BOOTCOUNT_LE
+
+config SYS_BOOTCOUNT_LE
+	bool "Little endian accessors"
+
+config SYS_BOOTCOUNT_BE
+	bool "Big endian accessors"
+
+endchoice
 endif

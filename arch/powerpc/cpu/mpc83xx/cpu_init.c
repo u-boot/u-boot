@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm-offsets.h>
 #include <mpc83xx.h>
+#include <system-constants.h>
 #include <ioports.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -138,7 +139,7 @@ void cpu_init_f (volatile immap_t * im)
 		0;
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+	gd = (gd_t *)SYS_INIT_SP_ADDR;
 
 	/* global data region was cleared in start.S */
 
@@ -249,19 +250,6 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_GPIO2_PRELIM
 	im->gpio[1].dat = CONFIG_SYS_GPIO2_DAT;
 	im->gpio[1].dir = CONFIG_SYS_GPIO2_DIR;
-#endif
-#if defined(CONFIG_USB_EHCI_FSL) && defined(CONFIG_ARCH_MPC831X)
-	uint32_t temp;
-	struct usb_ehci *ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
-
-	/* Configure interface. */
-	setbits_be32(&ehci->control, REFSEL_16MHZ | UTMI_PHY_EN);
-
-	/* Wait for clock to stabilize */
-	do {
-		temp = __raw_readl(&ehci->control);
-		udelay(1000);
-	} while (!(temp & PHY_CLK_VALID));
 #endif
 }
 

@@ -76,6 +76,7 @@ config ARMV8_SEC_FIRMWARE_SUPPORT
 
 config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
 	bool "Enable ARMv8 secure monitor firmware framework support for SPL"
+	depends on SPL
 	select SPL_FIT
 	select SPL_OF_LIBFDT
 	help
@@ -83,6 +84,7 @@ config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
 
 config SPL_RECOVER_DATA_SECTION
 	bool "save/restore SPL data section"
+	depends on SPL
 	help
 	  Say Y here to save SPL data section for cold boot, and restore
 	  at warm boot in SPL phase.
@@ -184,5 +186,20 @@ config ARMV8_EA_EL3_FIRST
 	help
 	  Exception handling at all exception levels for External Abort and
 	  SError interrupt exception are taken in EL3.
+
+menuconfig ARMV8_CRYPTO
+	bool "ARM64 Accelerated Cryptographic Algorithms"
+
+if ARMV8_CRYPTO
+
+config ARMV8_CE_SHA1
+	bool "SHA-1 digest algorithm (ARMv8 Crypto Extensions)"
+	default y if SHA1
+
+config ARMV8_CE_SHA256
+	bool "SHA-256 digest algorithm (ARMv8 Crypto Extensions)"
+	default y if SHA256
+
+endif
 
 endif

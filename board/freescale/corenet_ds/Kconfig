@@ -9,8 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "P3041DS"
 
-source "board/freescale/common/Kconfig"
-
 endif
 
 if TARGET_P4080DS
@@ -24,8 +22,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "P4080DS"
 
-source "board/freescale/common/Kconfig"
-
 endif
 
 if TARGET_P5040DS
@@ -38,7 +34,5 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "P5040DS"
-
-source "board/freescale/common/Kconfig"
 
 endif

@@ -24,11 +24,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
 /* Environment organization */
 #define ENV_MMC \
 	"mmcdev=0\0" \
@@ -42,8 +37,6 @@
 	"mmcboot=run mmcloadfit;run mmcargs;bootm ${loadaddr}\0"
 
 #define ENV_NAND \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"nandroot=ubi0:root ubi.mtd=rootfs\0" \
 	"nandrootfstype=ubifs\0" \
 	"nandargs=setenv bootargs root=${nandroot} " \

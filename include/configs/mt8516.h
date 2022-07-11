@@ -18,11 +18,6 @@
 #define CONFIG_SYS_NS16550_COM1		0x11005000
 #define CONFIG_SYS_NS16550_CLK		26000000
 
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + SZ_2M - \
-						 GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 /* Environment settings */
 #include <config_distro_bootcmd.h>
 

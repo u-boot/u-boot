@@ -10,10 +10,6 @@
 
 #include <configs/exynos4-common.h>
 
-/* High Level Configuration Options */
-#define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
-#define CONFIG_ORIGEN			1	/* working with ORIGEN*/
-
 /* ORIGEN has 4 bank of DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
@@ -47,9 +43,5 @@
 
 #define RESERVE_BLOCK_SIZE		(512)
 #define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
-
-#define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
-
-#define CONFIG_SYS_INIT_SP_ADDR		0x02040000
 
 #endif	/* __CONFIG_H */

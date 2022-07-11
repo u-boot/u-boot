@@ -22,10 +22,5 @@
 	"bootcmd=source $prevbl_initrd_start_addr:bootscript\0"
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_BOOTM_LEN	SZ_64M
-
-/* Monitor Command Prompt */
-#define CONFIG_SYS_CBSIZE	512
-#define CONFIG_SYS_MAXARGS	64
 
 #endif

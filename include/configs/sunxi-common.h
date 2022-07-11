@@ -15,10 +15,6 @@
 #include <asm/arch/cpu.h>
 #include <linux/stringify.h>
 
-#ifdef CONFIG_ARM64
-#define CONFIG_SYS_BOOTM_LEN		(32 << 20)
-#endif
-
 /* Serial & console */
 #define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
@@ -49,19 +45,14 @@
 #ifdef CONFIG_MACH_SUN9I
 #define SDRAM_OFFSET(x) 0x2##x
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
-#define CONFIG_SPL_BSS_START_ADDR	0x2ff80000
 #elif defined(CONFIG_MACH_SUNIV)
 #define SDRAM_OFFSET(x) 0x8##x
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
-#define CONFIG_SPL_BSS_START_ADDR	0x81f80000
 #else
 #define SDRAM_OFFSET(x) 0x4##x
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 /* V3s do not have enough memory to place code at 0x4a000000 */
-#define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
 #endif
-
-#define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
 
 /*
  * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
@@ -77,17 +68,8 @@
 /* FIXME: this may be larger on some SoCs */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
 
-#define CONFIG_SYS_INIT_SP_OFFSET \
-	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_ADDR \
-	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
 #define PHYS_SDRAM_0			CONFIG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
-
-#ifdef CONFIG_AHCI
-#define CONFIG_SYS_64BIT_LBA
-#endif
 
 #ifdef CONFIG_NAND_SUNXI
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
@@ -102,8 +84,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE	1024	/* Print Buffer Size */
 
 /* standalone support */
 #define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR
@@ -117,7 +97,6 @@
  * autoconf.mk.
  */
 #if CONFIG_SUNXI_SRAM_ADDRESS == 0x10000
-#define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
 #ifdef CONFIG_ARM64
 /* end of SRAM A2 for now, as SRAM A1 is pretty tight for an ARM64 build */
 #define LOW_LEVEL_SRAM_STACK		0x00054000
@@ -126,32 +105,16 @@
 #endif /* !CONFIG_ARM64 */
 #elif CONFIG_SUNXI_SRAM_ADDRESS == 0x20000
 #ifdef CONFIG_MACH_SUN50I_H616
-#define CONFIG_SPL_MAX_SIZE		0xbfa0		/* 48 KiB */
 #define LOW_LEVEL_SRAM_STACK		0x58000
 #else
-#define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
 /* end of SRAM A2 on H6 for now */
 #define LOW_LEVEL_SRAM_STACK		0x00118000
 #endif
 #else
-#define CONFIG_SPL_MAX_SIZE		0x5fa0		/* 24KB on sun4i/sun7i */
 #define LOW_LEVEL_SRAM_STACK		0x00008000	/* End of sram */
 #endif
 
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
-
-#ifndef CONFIG_MACH_SUN50I_H616
-#define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
-#endif
-
 /* Ethernet support */
-
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_OHCI_NEW
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
-#endif
-
-#ifndef CONFIG_SPL_BUILD
 
 #ifdef CONFIG_ARM64
 /*
@@ -345,20 +308,6 @@
 	"stderr=serial\0"
 #endif
 
-#ifdef CONFIG_MTDIDS_DEFAULT
-#define SUNXI_MTDIDS_DEFAULT \
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"
-#else
-#define SUNXI_MTDIDS_DEFAULT
-#endif
-
-#ifdef CONFIG_MTDPARTS_DEFAULT
-#define SUNXI_MTDPARTS_DEFAULT \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
-#else
-#define SUNXI_MTDPARTS_DEFAULT
-#endif
-
 #define PARTS_DEFAULT \
 	"name=loader1,start=8k,size=32k,uuid=${uuid_gpt_loader1};" \
 	"name=loader2,size=984k,uuid=${uuid_gpt_loader2};" \
@@ -390,16 +339,10 @@
 	DFU_ALT_INFO_RAM \
 	"fdtfile=" FDTFILE "\0" \
 	"console=ttyS0,115200\0" \
-	SUNXI_MTDIDS_DEFAULT \
-	SUNXI_MTDPARTS_DEFAULT \
 	"uuid_gpt_esp=" UUID_GPT_ESP "\0" \
 	"uuid_gpt_system=" UUID_GPT_SYSTEM "\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
 	BOOTCMD_SUNXI_COMPAT \
 	BOOTENV
-
-#else /* ifndef CONFIG_SPL_BUILD */
-#define CONFIG_EXTRA_ENV_SETTINGS
-#endif
 
 #endif /* _SUNXI_COMMON_CONFIG_H */

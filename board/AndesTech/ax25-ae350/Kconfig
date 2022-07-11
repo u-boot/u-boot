@@ -27,6 +27,10 @@ config SPL_TEXT_BASE
 config SPL_OPENSBI_LOAD_ADDR
 	default 0x01000000
 
+config SYS_FDT_BASE
+	hex
+	default 0x800f0000 if OF_SEPARATE
+
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select RISCV_NDS

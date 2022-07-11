@@ -19,12 +19,6 @@
 #define FDT_MODULE			"apalis-v1.2"
 #define FDT_MODULE_V1_0			"apalis"
 
-/* PCI host support */
-#undef CONFIG_PCI_SCAN_SHOW
-
-/* PCI networking support */
-#define CONFIG_E1000_NO_NVM
-
 /*
  * Custom Distro Boot configuration:
  * 1. 8bit SD port (MMC1)
@@ -88,18 +82,6 @@
 		"load ${interface} ${drive}:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
 	"vidargs=fbcon=map:1\0"
-
-/* Increase console I/O buffer size */
-#undef CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_CBSIZE		1024
-
-/* Increase arguments buffer size */
-#undef CONFIG_SYS_BARGSIZE
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
-/* Increase maximum number of arguments */
-#undef CONFIG_SYS_MAXARGS
-#define CONFIG_SYS_MAXARGS		32
 
 #include "tegra-common-post.h"
 

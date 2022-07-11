@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
- * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
+ * Vipin Kumar, STMicroelectronics, vipin.kumar@st.com.
  */
 
 #ifndef _DW_ETH_H
@@ -85,10 +85,8 @@ struct eth_dma_regs {
 
 #define DW_DMA_BASE_OFFSET	(0x1000)
 
-/* Default DMA Burst length */
-#ifndef CONFIG_DW_GMAC_DEFAULT_DMA_PBL
-#define CONFIG_DW_GMAC_DEFAULT_DMA_PBL 8
-#endif
+/* DMA Burst length */
+#define GMAC_DEFAULT_DMA_PBL	8
 
 /* Bus mode register definitions */
 #define FIXEDBURST		(1 << 16)
@@ -96,7 +94,7 @@ struct eth_dma_regs {
 #define PRIORXTX_31		(2 << 14)
 #define PRIORXTX_21		(1 << 14)
 #define PRIORXTX_11		(0 << 14)
-#define DMA_PBL			(CONFIG_DW_GMAC_DEFAULT_DMA_PBL<<8)
+#define DMA_PBL			(GMAC_DEFAULT_DMA_PBL << 8)
 #define RXHIGHPRIO		(1 << 1)
 #define DMAMAC_SRST		(1 << 0)
 

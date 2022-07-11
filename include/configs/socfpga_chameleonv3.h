@@ -7,8 +7,6 @@
 
 #include <asm/arch/base_addr_a10.h>
 
-#define CONFIG_SYS_BOOTM_LEN	(32 * 1024 * 1024)
-
 /*
  * U-Boot general configurations
  */
@@ -34,9 +32,6 @@
  */
 /* reload value when timer count to zero */
 #define TIMER_LOAD_VAL			0xFFFFFFFF
-
-/* SPL memory allocation configuration, this is for FAT implementation */
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00015000
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

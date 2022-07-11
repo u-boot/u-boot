@@ -239,6 +239,10 @@ config E1000
 
 	  <http://support.intel.com/support/network/adapter/pro100/21397.htm>
 
+config E1000_NO_NVM
+	bool "Intel PRO/1000 has no NVMEM / EEPROM"
+	depends on E1000
+
 config E1000_SPI_GENERIC
 	bool "Allow access to the Intel 8257x SPI bus"
 	depends on E1000
@@ -308,6 +312,7 @@ config ETH_DESIGNWARE_MESON8B
 config ETH_DESIGNWARE_SOCFPGA
 	select REGMAP
 	select SYSCON
+	select DW_ALTDESCRIPTOR
 	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
 	depends on DM_ETH && ETH_DESIGNWARE
 	help
@@ -321,6 +326,10 @@ config ETH_DESIGNWARE_S700
 	help
 	  This provides glue layer to use Synopsys Designware Ethernet MAC
 	  present on Actions S700 SoC.
+
+config DW_ALTDESCRIPTOR
+	bool "Designware Ethernet MAC uses alternate (enhanced) descriptors"
+	depends on ETH_DESIGNWARE
 
 config ETHOC
 	bool "OpenCores 10/100 Mbps Ethernet MAC"
@@ -391,19 +400,27 @@ config FTGMAC100
 	  offers high-priority transmit queue for QoS and CoS
 	  applications.
 
+config SYS_DISCOVER_PHY
+	bool
 
 config MCFFEC
 	bool "ColdFire Ethernet Support"
 	depends on DM_ETH
 	select PHYLIB
+	select SYS_DISCOVER_PHY
 	help
 	  This driver supports the network interface units in the
 	  ColdFire family.
+
+config SYS_UNIFY_CACHE
+	depends on MCFFEC
+	bool "Invalidate icache during ethernet operations"
 
 config FSLDMAFEC
         bool "ColdFire DMA Ethernet Support"
 	depends on DM_ETH
 	select PHYLIB
+	select SYS_DISCOVER_PHY
 	help
 	  This driver supports the network interface units in the
 	  ColdFire family.
@@ -719,6 +736,7 @@ config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
 	select MII
+	select SYS_DISCOVER_PHY
 	help
 	  This driver implements support for the Fast Ethernet Controller
 	  on MPC8XX

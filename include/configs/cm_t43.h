@@ -56,7 +56,6 @@
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x81200000\0" \
 	"bootm_size=0x8000000\0" \
-	"autoload=no\0" \
 	"console=ttyO0,115200n8\0" \
 	"fdtfile=am437x-sb-som-t43.dtb\0" \
 	"kernel=zImage-cm-t43\0" \
@@ -76,7 +75,6 @@
 		"bootz ${loadaddr} - ${fdtaddr}\0"
 
 /* SPL defines. */
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + (128 << 20))
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 /* EEPROM */

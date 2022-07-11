@@ -11,8 +11,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_TIZEN			/* TIZEN lib */
-
 /* Keep L2 Cache Disabled */
 
 /* Universal has 2 banks of DRAM */
@@ -20,9 +18,6 @@
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
-
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
-					- GENERATED_GBL_DATA_SIZE)
 
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
 
@@ -80,7 +75,6 @@
 	"verify=n\0" \
 	"rootfstype=ext4\0" \
 	"console=console=ttySAC1,115200n8\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT \
 	"mbrparts=" MBRPARTS_DEFAULT \
 	"meminfo=crashkernel=32M@0x50000000\0" \
 	"nfsroot=/nfsroot/arm\0" \
@@ -93,11 +87,7 @@
 	"mmcrootpart=3\0" \
 	"opts=always_resume=1"
 
-#define CONFIG_USE_ONENAND_BOARD_INIT
-#define CONFIG_SAMSUNG_ONENAND
 #define CONFIG_SYS_ONENAND_BASE		0x0C000000
-
-#define CONFIG_USB_GADGET_DWC2_OTG_PHY
 
 #ifndef	__ASSEMBLY__
 void universal_spi_scl(int bit);

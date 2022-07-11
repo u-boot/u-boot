@@ -143,9 +143,6 @@ config SPL_LIBGENERIC_SUPPORT
 config TPL_LDSCRIPT
 	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
 
-config TPL_MAX_SIZE
-        default 188416
-
 config TPL_STACK
         default 0xff8effff
 

@@ -10,11 +10,7 @@
 #include <asm/asm.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
-
-#ifndef CONFIG_SYS_INIT_SP_ADDR
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + \
-				CONFIG_SYS_INIT_SP_OFFSET)
-#endif
+#include <system-constants.h>
 
 #ifdef CONFIG_32BIT
 # define STATUS_SET	0
@@ -44,7 +40,7 @@
 
 	.macro setup_stack_gd
 	li	t0, -16
-	PTR_LI	t1, CONFIG_SYS_INIT_SP_ADDR
+	PTR_LI	t1, SYS_INIT_SP_ADDR
 	and	sp, t1, t0		# force 16 byte alignment
 	PTR_SUBU \
 		sp, sp, GD_SIZE		# reserve space for gd

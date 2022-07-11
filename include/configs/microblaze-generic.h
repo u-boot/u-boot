@@ -11,16 +11,10 @@
 /* Microblaze is microblaze_0 */
 #define XILINX_FSL_NUMBER	3
 
-#define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024)
-
 /* uart */
 /* The following table includes the supported baudrates */
 # define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
-
-/* Stack location before relocation */
-#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_TEXT_BASE - \
-					 CONFIG_SYS_MALLOC_F_LEN)
 
 #ifdef CONFIG_CFI_FLASH
 /* ?empty sector */
@@ -29,15 +23,6 @@
 /* max number of sectors on one chip */
 # define CONFIG_SYS_MAX_FLASH_SECT	2048
 #endif
-
-#ifndef XILINX_DCACHE_BYTE_SIZE
-#define XILINX_DCACHE_BYTE_SIZE	32768
-#endif
-
-/* size of console buffer */
-#define	CONFIG_SYS_CBSIZE	512
-/* max number of command args */
-#define	CONFIG_SYS_MAXARGS	15
 
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 
@@ -120,28 +105,10 @@
 
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
 
-/* for booting directly linux */
-#define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_TEXT_BASE + \
-					0x40000)
-
-#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_TEXT_BASE + \
-					 0x1000000)
-
 /* SP location before relocation, must use scratch RAM */
 /* BRAM start */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 /* BRAM size - will be generated */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x100000
-
-# define CONFIG_SPL_STACK_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE)
-
-/* Just for sure that there is a space for stack */
-#define CONFIG_SPL_STACK_SIZE		0x100
-
-#define CONFIG_SPL_MAX_FOOTPRINT	(CONFIG_SYS_INIT_RAM_SIZE - \
-					 CONFIG_SYS_INIT_RAM_ADDR - \
-					 CONFIG_SYS_MALLOC_F_LEN - \
-					 CONFIG_SPL_STACK_SIZE)
 
 #endif	/* __CONFIG_H */

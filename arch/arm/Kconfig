@@ -330,20 +330,6 @@ config CPU_V7R
 	select SYS_ARM_MPU
 	select SYS_CACHE_SHIFT_6
 
-config CPU_PXA
-	bool
-	select SYS_CACHE_SHIFT_5
-	imply SYS_ARM_MMU
-
-config CPU_PXA27X
-	bool
-	select CPU_PXA
-
-config CPU_SA1100
-	bool
-	select SYS_CACHE_SHIFT_5
-	imply SYS_ARM_MMU
-
 config SYS_CPU
 	default "arm720t" if CPU_ARM720T
 	default "arm920t" if CPU_ARM920T
@@ -354,8 +340,6 @@ config SYS_CPU
 	default "armv7" if CPU_V7A
 	default "armv7" if CPU_V7R
 	default "armv7m" if CPU_V7M
-	default "pxa" if CPU_PXA
-	default "sa1100" if CPU_SA1100
 	default "armv8" if ARM64
 
 config SYS_ARM_ARCH
@@ -369,14 +353,11 @@ config SYS_ARM_ARCH
 	default 7 if CPU_V7A
 	default 7 if CPU_V7M
 	default 7 if CPU_V7R
-	default 5 if CPU_PXA
-	default 4 if CPU_SA1100
 	default 8 if ARM64
 
 choice
 	prompt "Select the ARM data write cache policy"
-	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || \
-					      CPU_PXA || RZA1
+	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || RZA1
 	default SYS_ARM_CACHE_WRITEBACK
 
 config SYS_ARM_CACHE_WRITEBACK
@@ -609,6 +590,9 @@ config ARM64_SUPPORT_AARCH32
 	help
 	  This ARM64 system supports AArch32 execution state.
 
+config S5P
+	def_bool y if ARCH_EXYNOS || ARCH_S5PC1XX
+
 choice
 	prompt "Target select"
 	default TARGET_HIKEY
@@ -717,6 +701,11 @@ config ARCH_BCMSTB
 	help
 	  This enables support for Broadcom ARM-based set-top box
 	  chipsets, including the 7445 family of chips.
+
+config ARCH_BCMBCA
+	bool "Broadcom broadband chip family"
+	select DM
+	select OF_CONTROL
 
 config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
@@ -991,11 +980,6 @@ config ARCH_MX6
 	imply SYS_THUMB_BUILD
 	imply SPL_SEPARATE_BSS
 
-if ARCH_MX6
-config SPL_LDSCRIPT
-	default "arch/arm/mach-omap2/u-boot-spl.lds"
-endif
-
 config ARCH_MX5
 	bool "Freescale MX5"
 	select BOARD_EARLY_INIT_F
@@ -1116,7 +1100,6 @@ config ARCH_SOCFPGA
 	select SPL_DM_SERIAL
 	select SPL_LIBCOMMON_SUPPORT
 	select SPL_LIBGENERIC_SUPPORT
-	select SPL_NAND_SUPPORT if SPL_NAND_DENALI
 	select SPL_OF_CONTROL
 	select SPL_SEPARATE_BSS if TARGET_SOCFPGA_SOC64
 	select SPL_SERIAL
@@ -1346,6 +1329,12 @@ config ARCH_VEXPRESS64
 	select FLASH_CFI_DRIVER if MTD
 	select ENV_IS_IN_FLASH if MTD
 	imply DISTRO_DEFAULTS
+
+config TARGET_CORSTONE1000
+	bool "Support Corstone1000 Platform"
+	select ARM64
+	select PL01X_SERIAL
+	select DM
 
 config TARGET_TOTAL_COMPUTE
 	bool "Support Total Compute Platform"
@@ -1923,7 +1912,7 @@ config ARCH_STM32
 	imply CMD_DM
 
 config ARCH_STI
-	bool "Support STMicrolectronics SoCs"
+	bool "Support STMicroelectronics SoCs"
 	select BLK
 	select CPU_V7A
 	select DM
@@ -1951,7 +1940,6 @@ config ARCH_STM32MP
 	select OF_SYSTEM_SETUP
 	select PINCTRL
 	select REGMAP
-	select SUPPORT_SPL
 	select SYSCON
 	select SYSRESET
 	select SYS_THUMB_BUILD
@@ -2085,6 +2073,12 @@ config TARGET_XENGUEST_ARM64
 	select SSCANF
 	imply OF_HAS_PRIOR_STAGE
 
+config ARCH_GXP
+	bool "Support HPE GXP SoCs"
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 endchoice
 
 config SUPPORT_PASSING_ATAGS
@@ -2187,11 +2181,15 @@ source "arch/arm/mach-at91/Kconfig"
 
 source "arch/arm/mach-bcm283x/Kconfig"
 
+source "arch/arm/mach-bcmbca/Kconfig"
+
 source "arch/arm/mach-bcmstb/Kconfig"
 
 source "arch/arm/mach-davinci/Kconfig"
 
 source "arch/arm/mach-exynos/Kconfig"
+
+source "arch/arm/mach-hpe/gxp/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
 
@@ -2294,7 +2292,7 @@ source "arch/arm/mach-nexell/Kconfig"
 source "arch/arm/mach-npcm/Kconfig"
 
 source "board/armltd/total_compute/Kconfig"
-
+source "board/armltd/corstone1000/Kconfig"
 source "board/bosch/shc/Kconfig"
 source "board/bosch/guardian/Kconfig"
 source "board/Marvell/octeontx/Kconfig"
@@ -2334,6 +2332,7 @@ source "board/hisilicon/poplar/Kconfig"
 source "board/isee/igep003x/Kconfig"
 source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
+source "board/siemens/common/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
 source "board/st/stv0991/Kconfig"
@@ -2348,8 +2347,3 @@ source "board/xen/xenguest_arm64/Kconfig"
 source "arch/arm/Kconfig.debug"
 
 endmenu
-
-config SPL_LDSCRIPT
-	default "arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds" if (ARCH_MX23 || ARCH_MX28) && !SPL_FRAMEWORK
-	default "arch/arm/cpu/arm1136/u-boot-spl.lds" if CPU_ARM1136
-	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64

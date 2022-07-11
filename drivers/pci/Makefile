@@ -20,7 +20,6 @@ obj-$(CONFIG_PCIE_IMX) += pcie_imx.o
 obj-$(CONFIG_PCI_MVEBU) += pci_mvebu.o
 obj-$(CONFIG_PCI_RCAR_GEN2) += pci-rcar-gen2.o
 obj-$(CONFIG_PCI_RCAR_GEN3) += pci-rcar-gen3.o
-obj-$(CONFIG_SH4_PCI) += pci_sh4.o
 obj-$(CONFIG_SH7751_PCI) +=pci_sh7751.o
 obj-$(CONFIG_SH7780_PCI) +=pci_sh7780.o
 obj-$(CONFIG_PCI_TEGRA) += pci_tegra.o

@@ -71,6 +71,23 @@ config SYS_PROMPT_HUSH_PS2
 	  printed when the command interpreter needs more input
 	  to complete a command. Usually "> ".
 
+config SYS_MAXARGS
+	int "Maximum number arguments accepted by commands"
+	default 16
+
+config SYS_CBSIZE
+	int "Console input buffer size"
+	default 2048 if ARCH_TEGRA || ARCH_VERSAL || ARCH_ZYNQ || ARCH_ZYNQMP || \
+		RCAR_GEN3 || TARGET_SOCFPGA_SOC64
+	default 512 if ARCH_MX5 || ARCH_MX6 || ARCH_MX7 || FSL_LSCH2 || \
+		FSL_LSCH3 || X86
+	default 256 if M68K || PPC
+	default 1024
+
+config SYS_PBSIZE
+	int "Buffer size for console output"
+	default 1044
+
 config SYS_XTRACE
 	bool "Command execution tracer"
 	depends on CMDLINE
@@ -317,6 +334,16 @@ config BOOTM_VXWORKS
 	default y
 	help
 	  Support booting VxWorks images via the bootm command.
+
+config SYS_BOOTM_LEN
+	hex "Maximum size of a decompresed OS image"
+	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ
+	default 0x4000000 if PPC || ARM64
+	default 0x1000000 if X86 || ARCH_MX6 || ARCH_MX7
+	default 0x800000
+	help
+	  This is the maximum size of the buffer that is used to decompress the OS
+	  image in to, if passing a compressed image to bootm/booti/bootz.
 
 config CMD_BOOTEFI
 	bool "bootefi"
@@ -1143,6 +1170,11 @@ config CMD_LOADB
 	help
 	  Load a binary file over serial line.
 
+config CMD_LOADM
+	bool "loadm"
+	help
+	  Load a binary over memory mapped.
+
 config CMD_LOADS
 	bool "loads"
 	default y
@@ -1275,6 +1307,10 @@ config CMD_ONENAND
 	  various useful features. This command allows reading, writing,
 	  and erasing blocks. It allso provides a way to show and change
 	  bad blocks, and test the device.
+
+config USE_ONENAND_BOARD_INIT
+	bool "Call onenand_board_init() in the onenand command"
+	depends on CMD_ONENAND
 
 config CMD_OSD
 	bool "osd"
@@ -1714,6 +1750,15 @@ config NFS_TIMEOUT
 	  Timeout in milliseconds used in NFS protocol.  If you encounter
 	  "ERROR: Cannot umount" in nfs command, try longer timeout such as
 	  10000.
+
+config SYS_DISABLE_AUTOLOAD
+	bool "Disable automatically loading files over the network"
+	depends on CMD_BOOTP || CMD_DHCP || CMD_NFS || CMD_RARP
+	help
+	  Typically, commands such as "dhcp" will attempt to automatically
+	  load a file from the network, once the initial network configuration
+	  is complete.  Enable this option to disable this behavior and instead
+	  require files to be loaded over the network by subsequent commands.
 
 config CMD_MII
 	bool "mii"
@@ -2552,6 +2597,7 @@ config CMD_UBIFS
 	depends on CMD_UBI
 	default y if CMD_UBI
 	select LZO
+	select GZIP
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
 

@@ -15,8 +15,19 @@ PLATFORM_LIBS += $(shell $(SDL_CONFIG) --libs)
 PLATFORM_CPPFLAGS += $(shell $(SDL_CONFIG) --cflags)
 endif
 
+SANITIZERS :=
+ifdef CONFIG_ASAN
+SANITIZERS	+= -fsanitize=address
+endif
+ifdef CONFIG_FUZZ
+SANITIZERS	+= -fsanitize=fuzzer
+endif
+KBUILD_CFLAGS	+= $(SANITIZERS)
+
 cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds $(u-boot-init) \
-	$(KBUILD_LDFLAGS:%=-Wl,%)$(LTO_FINAL_LDFLAGS) \
+	$(KBUILD_LDFLAGS:%=-Wl,%) \
+	$(SANITIZERS) \
+	$(LTO_FINAL_LDFLAGS) \
 	-Wl,--whole-archive \
 		$(u-boot-main) \
 		$(u-boot-keep-syms-lto) \
@@ -24,7 +35,9 @@ cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds $(u-boot-init) \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map
 
 cmd_u-boot-spl = (cd $(obj) && $(CC) -o $(SPL_BIN) -Wl,-T u-boot-spl.lds \
-	$(KBUILD_LDFLAGS:%=-Wl,%) $(LTO_FINAL_LDFLAGS) \
+	$(KBUILD_LDFLAGS:%=-Wl,%) \
+	$(SANITIZERS) \
+	$(LTO_FINAL_LDFLAGS) \
 	$(patsubst $(obj)/%,%,$(u-boot-spl-init)) \
 	-Wl,--whole-archive \
 		$(patsubst $(obj)/%,%,$(u-boot-spl-main)) \
@@ -44,13 +57,13 @@ EFI_TARGET := --target=efi-app-ia32
 else ifeq ($(HOST_ARCH),$(HOST_ARCH_AARCH64))
 EFI_LDS := ${SRCDIR}/../../../arch/arm/lib/elf_aarch64_efi.lds
 OBJCOPYFLAGS += -j .text -j .secure_text -j .secure_data -j .rodata -j .data \
-		-j .u_boot_list -j .rela.dyn -j .got -j .got.plt \
+		-j __u_boot_list -j .rela.dyn -j .got -j .got.plt \
 		-j .binman_sym_table -j .text_rest \
 		-j .efi_runtime -j .efi_runtime_rel
 else ifeq ($(HOST_ARCH),$(HOST_ARCH_ARM))
 EFI_LDS := ${SRCDIR}/../../../arch/arm/lib/elf_arm_efi.lds
 OBJCOPYFLAGS += -j .text -j .secure_text -j .secure_data -j .rodata -j .hash \
-		-j .data -j .got -j .got.plt -j .u_boot_list -j .rel.dyn \
+		-j .data -j .got -j .got.plt -j __u_boot_list -j .rel.dyn \
 		-j .binman_sym_table -j .text_rest \
 		-j .efi_runtime -j .efi_runtime_rel
 else ifeq ($(HOST_ARCH),$(HOST_ARCH_RISCV32))

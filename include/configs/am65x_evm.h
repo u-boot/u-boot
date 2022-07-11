@@ -17,41 +17,6 @@
 /* DDR Configuration */
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
-/* SPL Loader Configuration */
-#ifdef CONFIG_TARGET_AM654_A53_EVM
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE + SZ_4M)
-#else
-/*
- * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
- * possible (to allow the build to go through), as this directly affects
- * our memory footprint. The less we use for BSS the more we have available
- * for everything else.
- */
-#define CONFIG_SPL_BSS_MAX_SIZE		0xc00
-/*
- * Link BSS to be within SPL in a dedicated region located near the top of
- * the MCU SRAM, this way making it available also before relocation. Note
- * that we are not using the actual top of the MCU SRAM as there is a memory
- * location filled in by the boot ROM that we want to read out without any
- * interference from the C context.
- */
-#define CONFIG_SPL_BSS_START_ADDR	(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX -\
-					 CONFIG_SPL_BSS_MAX_SIZE)
-/* Set the stack right below the SPL BSS section */
-#define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
-/* Configure R5 SPL post-relocation malloc pool in DDR */
-#define CONFIG_SYS_SPL_MALLOC_START	0x84000000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M
-#endif
-
-#ifdef CONFIG_SYS_K3_SPL_ATF
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"tispl.bin"
-#endif
-
-#define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
-
-#define CONFIG_SYS_BOOTM_LEN		SZ_64M
-
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \
 	"name=rootfs,start=0,size=-,uuid=${uuid_gpt_rootfs}\0"
@@ -98,14 +63,6 @@
 		"0 /lib/firmware/am65x-mcu-r5f0_0-fw "			\
 		"1 /lib/firmware/am65x-mcu-r5f0_1-fw "
 
-#ifdef CONFIG_TARGET_AM654_A53_EVM
-#define EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD				\
-	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"				\
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"
-#else
-#define EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD
-#endif
-
 #define EXTRA_ENV_AM65X_BOARD_SETTINGS_UBI				\
 	"init_ubi=run args_all args_ubi; sf probe; "			\
 		"ubi part ospi.rootfs; ubifsmount ubi:rootfs;\0"	\
@@ -137,13 +94,10 @@
 	DEFAULT_FIT_TI_ARGS						\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC				\
-	EXTRA_ENV_AM65X_BOARD_SETTINGS_MTD				\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_UBI				\
 	EXTRA_ENV_RPROC_SETTINGS					\
 	EXTRA_ENV_DFUARGS						\
 	BOOTENV
-
-#define CONFIG_SYS_USB_FAT_BOOT_PARTITION 1
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

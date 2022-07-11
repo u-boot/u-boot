@@ -8,21 +8,10 @@
 
 #include "ls1043a_common.h"
 
-#define CONFIG_LAYERSCAPE_NS_ACCESS
-
 /* Physical Memory Map */
 
-#define CONFIG_SYS_SPD_BUS_NUM		0
-
 #ifndef CONFIG_SPL
-#define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-#endif
-
-#ifdef CONFIG_SD_BOOT
-#define CONFIG_SYS_SPL_ARGS_ADDR	0x90000000
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x500
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	30
 #endif
 
 /*
@@ -101,7 +90,6 @@
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_SPL_PAD_TO		0x20000		/* block aligned */
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(1024 << 10)
 #endif
 

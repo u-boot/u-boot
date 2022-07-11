@@ -33,11 +33,6 @@
 #include <bootm.h>
 #include <image.h>
 
-#ifndef CONFIG_SYS_BOOTM_LEN
-/* use 8MByte as default max gunzip size */
-#define CONFIG_SYS_BOOTM_LEN	0x800000
-#endif
-
 #define MAX_CMDLINE_SIZE	SZ_4K
 
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
@@ -369,10 +364,12 @@ static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
  *
  * @comp_type:		Compression type being used (IH_COMP_...)
  * @uncomp_size:	Number of bytes uncompressed
+ * @buf_size:		Number of bytes the decompresion buffer was
  * @ret:		errno error code received from compression library
  * Return: Appropriate BOOTM_ERR_ error code
  */
-static int handle_decomp_error(int comp_type, size_t uncomp_size, int ret)
+static int handle_decomp_error(int comp_type, size_t uncomp_size,
+			       size_t buf_size, int ret)
 {
 	const char *name = genimg_get_comp_name(comp_type);
 
@@ -380,7 +377,7 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size, int ret)
 	if (ret == -ENOSYS)
 		return BOOTM_ERR_UNIMPLEMENTED;
 
-	if (uncomp_size >= CONFIG_SYS_BOOTM_LEN)
+	if (uncomp_size >= buf_size)
 		printf("Image too large: increase CONFIG_SYS_BOOTM_LEN\n");
 	else
 		printf("%s: uncompress error %d\n", name, ret);
@@ -420,7 +417,8 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 			   load_buf, image_buf, image_len,
 			   CONFIG_SYS_BOOTM_LEN, &load_end);
 	if (err) {
-		err = handle_decomp_error(os.comp, load_end - load, err);
+		err = handle_decomp_error(os.comp, load_end - load,
+					  CONFIG_SYS_BOOTM_LEN, err);
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
@@ -498,7 +496,8 @@ ulong bootm_disable_interrupts(void)
 }
 
 #define CONSOLE_ARG		"console="
-#define CONSOLE_ARG_SIZE	sizeof(CONSOLE_ARG)
+#define NULL_CONSOLE		(CONSOLE_ARG "ttynull")
+#define CONSOLE_ARG_SIZE	sizeof(NULL_CONSOLE)
 
 /**
  * fixup_silent_linux() - Handle silencing the linux boot if required
@@ -550,21 +549,22 @@ static int fixup_silent_linux(char *buf, int maxlen)
 			char *end = strchr(start, ' ');
 			int start_bytes;
 
-			start_bytes = start - cmdline + CONSOLE_ARG_SIZE - 1;
+			start_bytes = start - cmdline;
 			strncpy(buf, cmdline, start_bytes);
+			strncpy(buf + start_bytes, NULL_CONSOLE, CONSOLE_ARG_SIZE);
 			if (end)
-				strcpy(buf + start_bytes, end);
+				strcpy(buf + start_bytes + CONSOLE_ARG_SIZE - 1, end);
 			else
-				buf[start_bytes] = '\0';
+				buf[start_bytes + CONSOLE_ARG_SIZE] = '\0';
 		} else {
-			sprintf(buf, "%s %s", cmdline, CONSOLE_ARG);
+			sprintf(buf, "%s %s", cmdline, NULL_CONSOLE);
 		}
 		if (buf + strlen(buf) >= cmdline)
 			return -ENOSPC;
 	} else {
-		if (maxlen < sizeof(CONSOLE_ARG))
+		if (maxlen < CONSOLE_ARG_SIZE)
 			return -ENOSPC;
-		strcpy(buf, CONSOLE_ARG);
+		strcpy(buf, NULL_CONSOLE);
 	}
 	debug("after silent fix-up: %s\n", buf);
 
@@ -1004,7 +1004,7 @@ static int bootm_host_load_image(const void *fit, int req_image_type,
 	ulong data, len;
 	bootm_headers_t images;
 	int noffset;
-	ulong load_end;
+	ulong load_end, buf_size;
 	uint8_t image_type;
 	uint8_t imape_comp;
 	void *load_buf;
@@ -1030,14 +1030,14 @@ static int bootm_host_load_image(const void *fit, int req_image_type,
 	}
 
 	/* Allow the image to expand by a factor of 4, should be safe */
-	load_buf = malloc((1 << 20) + len * 4);
+	buf_size = (1 << 20) + len * 4;
+	load_buf = malloc(buf_size);
 	ret = image_decomp(imape_comp, 0, data, image_type, load_buf,
-			   (void *)data, len, CONFIG_SYS_BOOTM_LEN,
-			   &load_end);
+			   (void *)data, len, buf_size, &load_end);
 	free(load_buf);
 
 	if (ret) {
-		ret = handle_decomp_error(imape_comp, load_end - 0, ret);
+		ret = handle_decomp_error(imape_comp, load_end - 0, buf_size, ret);
 		if (ret != BOOTM_ERR_UNIMPLEMENTED)
 			return ret;
 	}

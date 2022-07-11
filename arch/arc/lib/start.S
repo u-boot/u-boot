@@ -7,6 +7,7 @@
 #include <config.h>
 #include <linux/linkage.h>
 #include <asm/arcregs.h>
+#include <system-constants.h>
 
 ENTRY(_start)
 	/* Setup interrupt vector base that matches "__text_start" */
@@ -86,7 +87,7 @@ ENTRY(_start)
 #endif
 
 	/* Establish C runtime stack and frame */
-	mov	%sp, CONFIG_SYS_INIT_SP_ADDR
+	mov	%sp, SYS_INIT_SP_ADDR
 	mov	%fp, %sp
 
 	/* Allocate reserved area from current top of stack */

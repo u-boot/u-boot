@@ -404,24 +404,11 @@ static void init_ddr3param(struct ddr3_spd_cb *spd_cb,
 static int ddr3_read_spd(ddr3_spd_eeprom_t *spd_params)
 {
 	int ret;
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	int old_bus;
-
-	i2c_init(CONFIG_SYS_DAVINCI_I2C_SPEED, CONFIG_SYS_DAVINCI_I2C_SLAVE);
-
-	old_bus = i2c_get_bus_num();
-	i2c_set_bus_num(1);
-
-	ret = i2c_read(0x53, 0, 1, (unsigned char *)spd_params, 256);
-
-	i2c_set_bus_num(old_bus);
-#else
 	struct udevice *dev;
 
 	ret = i2c_get_chip_for_busnum(1, 0x53, 1, &dev);
 	if (!ret)
 		ret = dm_i2c_read(dev, 0, (unsigned char *)spd_params, 256);
-#endif
 	if (ret) {
 		printf("Cannot read DIMM params\n");
 		return 1;

@@ -93,6 +93,11 @@ config USB_GADGET_DWC2_OTG
 
 if USB_GADGET_DWC2_OTG
 
+config USB_GADGET_DWC2_OTG_PHY
+	bool "DesignWare USB2.0 HS OTG PHY"
+	help
+	  Enable the DesignWare USB2.0 HS OTG physical device interface.
+
 config USB_GADGET_DWC2_OTG_PHY_BUS_WIDTH_8
 	bool "DesignWare USB2.0 HS OTG controller 8-bit PHY bus width"
 	help

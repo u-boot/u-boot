@@ -6,8 +6,9 @@
 
 #include <config.h>
 #include <linux/linkage.h>
+#include <system-constants.h>
 
 ENTRY(lowlevel_init)
-	ldr	sp, = CONFIG_SYS_INIT_SP_ADDR
+	ldr	sp, = SYS_INIT_SP_ADDR
 	b	uniphier_cache_disable
 ENDPROC(lowlevel_init)

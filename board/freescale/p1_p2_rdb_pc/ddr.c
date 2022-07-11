@@ -227,7 +227,7 @@ phys_size_t fixed_sdram(void)
 		.ddr_sdram_mode_2 = CONFIG_SYS_DDR_MODE_2,
 		.ddr_sdram_md_cntl = CONFIG_SYS_DDR_MODE_CONTROL,
 		.ddr_sdram_interval = CONFIG_SYS_DDR_INTERVAL,
-		.ddr_data_init = CONFIG_SYS_DDR_DATA_INIT,
+		.ddr_data_init = 0xdeadbeef, /* Poison value */
 		.ddr_sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CTRL,
 		.ddr_init_addr = CONFIG_SYS_DDR_INIT_ADDR,
 		.ddr_init_ext_addr = CONFIG_SYS_DDR_INIT_EXT_ADDR,

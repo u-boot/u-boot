@@ -15,7 +15,7 @@ config SPL_DM
 	  Enable driver model in SPL. You will need to provide a
 	  suitable malloc() implementation. If you are not using the
 	  full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
-	  consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
+	  consider using CONFIG_SPL_SYS_MALLOC_SIMPLE. In that case you
 	  must provide CONFIG_SPL_SYS_MALLOC_F_LEN to set the size.
 	  In most cases driver model will only allocate a few uclasses
 	  and devices in SPL, so 1KB should be enable. See
@@ -28,7 +28,7 @@ config TPL_DM
 	  Enable driver model in TPL. You will need to provide a
 	  suitable malloc() implementation. If you are not using the
 	  full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
-	  consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
+	  consider using CONFIG_TPL_SYS_MALLOC_SIMPLE. In that case you
 	  must provide CONFIG_SPL_SYS_MALLOC_F_LEN to set the size.
 	  In most cases driver model will only allocate a few uclasses
 	  and devices in SPL, so 1KB should be enough. See
@@ -43,7 +43,7 @@ config VPL_DM
 	  Enable driver model in VPL. You will need to provide a
 	  suitable malloc() implementation. If you are not using the
 	  full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
-	  consider using CONFIG_SYS_MALLOC_SIMPLE.
+	  consider using CONFIG_SPL_SYS_MALLOC_SIMPLE.
 
 config DM_WARN
 	bool "Enable warnings in driver model"
@@ -75,6 +75,27 @@ config DM_DEBUG
 	help
 	  Say Y here if you want to compile in debug messages in DM core.
 
+config DM_STATS
+	bool "Collect and show driver model stats"
+	depends on DM
+	default y if SANDBOX
+	help
+	  Enable this to collect and display memory statistics about driver
+	  model. This can help to figure out where all the memory is going and
+	  to find optimisations.
+
+	  To display the memory stats, use the 'dm mem' command.
+
+config SPL_DM_STATS
+	bool "Collect and show driver model stats in SPL"
+	depends on DM_SPL
+	help
+	  Enable this to collect and display memory statistics about driver
+	  model. This can help to figure out where all the memory is going and
+	  to find optimisations.
+
+	  The stats are displayed just before SPL boots to the next phase.
+
 config DM_DEVICE_REMOVE
 	bool "Support device removal"
 	depends on DM
@@ -89,8 +110,7 @@ config DM_DEVICE_REMOVE
 
 config DM_EVENT
 	bool "Support events with driver model"
-	depends on DM
-	imply EVENT
+	depends on DM && EVENT
 	default y if SANDBOX
 	help
 	  This enables support for generating events related to driver model
@@ -225,7 +245,7 @@ config SPL_SYSCON
 
 config TPL_SYSCON
 	bool "Support system controllers in TPL"
-	depends on SPL_REGMAP
+	depends on TPL_REGMAP
 	help
 	  Many SoCs have a number of system controllers which are dealt with
 	  as a group by a single driver. Some common functionality is provided

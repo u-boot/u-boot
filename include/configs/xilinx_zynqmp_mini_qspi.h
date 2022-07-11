@@ -12,6 +12,4 @@
 
 #include <configs/xilinx_zynqmp_mini.h>
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_TEXT_BASE + 0x20000)
-
 #endif /* __CONFIG_ZYNQMP_MINI_QSPI_H */
