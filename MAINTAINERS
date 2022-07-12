@@ -827,6 +827,7 @@ F:	test/dm/efi_media.c
 
 EFI PAYLOAD
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
 F:	doc/api/efi.rst
