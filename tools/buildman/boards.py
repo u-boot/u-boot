@@ -371,7 +371,6 @@ class MaintainersDatabase:
 class Boards:
     """Manage a list of boards."""
     def __init__(self):
-        # Use a simple list here, sinc OrderedDict requires Python 2.7
         self._boards = []
 
     def add_board(self, brd):
