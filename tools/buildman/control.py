@@ -176,9 +176,6 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         print()
         return 0
 
-    if options.incremental:
-        print(col.build(col.RED,
-                        'Warning: -I has been removed. See documentation'))
     if not options.output_dir:
         if options.work_in_output:
             sys.exit(col.build(col.RED, '-w requires that you specify -o'))

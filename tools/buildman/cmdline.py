@@ -59,9 +59,6 @@ def ParseArgs():
     parser.add_option('-i', '--in-tree', dest='in_tree',
           action='store_true', default=False,
           help='Build in the source tree instead of a separate directory')
-    # -I will be removed after April 2021
-    parser.add_option('-I', '--incremental', action='store_true',
-          default=False, help='Deprecated, does nothing. See -m')
     parser.add_option('-j', '--jobs', dest='jobs', type='int',
           default=None, help='Number of jobs to run at once (passed to make)')
     parser.add_option('-k', '--keep-outputs', action='store_true',
