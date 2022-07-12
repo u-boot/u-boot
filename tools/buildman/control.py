@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import sys
 
-from buildman import board
+from buildman import boards
 from buildman import bsettings
 from buildman import cfgutil
 from buildman import toolchain
@@ -197,7 +197,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             if status != 0:
                 sys.exit("Failed to generate boards.cfg")
 
-        brds = board.Boards()
+        brds = boards.Boards()
         brds.read_boards(board_file)
 
     exclude = []

@@ -10,6 +10,7 @@ import time
 import unittest
 
 from buildman import board
+from buildman import boards
 from buildman import bsettings
 from buildman import builder
 from buildman import cfgutil
@@ -131,7 +132,7 @@ class TestBuild(unittest.TestCase):
             self.commits.append(comm)
 
         # Set up boards to build
-        self.brds = board.Boards()
+        self.brds = boards.Boards()
         for brd in BOARDS:
             self.brds.add_board(board.Board(*brd))
         self.brds.select_boards([])

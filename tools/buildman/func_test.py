@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 from buildman import board
+from buildman import boards
 from buildman import bsettings
 from buildman import cmdline
 from buildman import control
@@ -187,7 +188,7 @@ class TestFunctional(unittest.TestCase):
         self.setupToolchains()
         self._toolchains.Add('arm-gcc', test=False)
         self._toolchains.Add('powerpc-gcc', test=False)
-        self._boards = board.Boards()
+        self._boards = boards.Boards()
         for brd in BOARDS:
             self._boards.add_board(board.Board(*brd))
 
@@ -442,7 +443,7 @@ class TestFunctional(unittest.TestCase):
 
     def testNoBoards(self):
         """Test that buildman aborts when there are no boards"""
-        self._boards = board.Boards()
+        self._boards = boards.Boards()
         with self.assertRaises(SystemExit):
             self._RunControl()
 
@@ -580,7 +581,7 @@ class TestFunctional(unittest.TestCase):
 
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
-        board_list = board.Boards()
+        board_list = boards.Boards()
         board_list.add_board(board.Board(*BOARDS[0]))
         self._RunControl('-o', self._output_dir, '-w', clean_dir=False,
                          brds=board_list)
@@ -599,14 +600,14 @@ class TestFunctional(unittest.TestCase):
         self.assertFalse(
             os.path.exists(os.path.join(self._output_dir, 'u-boot')))
 
-        board_list = board.Boards()
+        board_list = boards.Boards()
         board_list.add_board(board.Board(*BOARDS[0]))
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-b', self._test_branch, '-o', self._output_dir,
                              '-w', clean_dir=False, brds=board_list)
         self.assertIn("single commit", str(e.exception))
 
-        board_list = board.Boards()
+        board_list = boards.Boards()
         board_list.add_board(board.Board(*BOARDS[0]))
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-w', clean_dir=False)
