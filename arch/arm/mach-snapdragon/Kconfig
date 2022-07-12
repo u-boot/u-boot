@@ -69,11 +69,22 @@ config TARGET_STARQLTECHN
 	select SDM845
 	select DM_ETH if NET
 
+config TARGET_QCS404EVB
+	bool "Qualcomm Technologies, Inc. QCS404 EVB"
+	select LINUX_KERNEL_IMAGE_HEADER
+	help
+	  Support for Qualcomm Technologies, Inc. QCS404 evaluation board.
+	  Features:
+	  - Qualcomm Snapdragon QCS404 SoC
+	  - 1GiB RAM
+	  - 8GiB eMMC, uSD slot
+
 endchoice
 
 source "board/qualcomm/dragonboard410c/Kconfig"
 source "board/qualcomm/dragonboard820c/Kconfig"
 source "board/qualcomm/dragonboard845c/Kconfig"
 source "board/samsung/starqltechn/Kconfig"
+source "board/qualcomm/qcs404-evb/Kconfig"
 
 endif

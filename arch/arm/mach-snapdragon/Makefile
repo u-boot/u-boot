@@ -17,3 +17,5 @@ obj-y += pinctrl-apq8016.o
 obj-y += pinctrl-apq8096.o
 obj-y += pinctrl-qcs404.o
 obj-$(CONFIG_SDM845) += pinctrl-sdm845.o
+obj-$(CONFIG_TARGET_QCS404EVB) += clock-qcs404.o
+obj-$(CONFIG_TARGET_QCS404EVB) += sysmap-qcs404.o

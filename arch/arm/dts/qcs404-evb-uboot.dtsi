@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * U-Boot addition to handle QCS404 EVB pre-relocation devices
+ *
+ * (C) Copyright 2022 Sumit Garg <sumit.garg@linaro.org>
+ */
+
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+
+		pinctrl_north@1300000 {
+			u-boot,dm-pre-reloc;
+		};
+
+		clock-controller@1800000 {
+			u-boot,dm-pre-reloc;
+		};
+
+		serial@78b1000 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
