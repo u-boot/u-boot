@@ -8,8 +8,8 @@ Management Summary
 
 * Development happens in Release Cycles of 3 months.
 
-* The first 2 weeks are called Merge Window, which is followed by a
-  Stabilization Period.
+* The first 3 weeks of the cycle are referred to as the Merge Window, which is
+  followed by a Stabilization Period.
 
 * Patches with new code get only accepted while the Merge Window is open.
 
@@ -27,7 +27,7 @@ U-Boot development takes place in `Release Cycles
 <https://www.denx.de/wiki/U-Boot/ReleaseCycle>`_.  A Release Cycle lasts
 normally for three months.
 
-The first two weeks of each Release Cycle are called *Merge Window*.
+The first three weeks of each Release Cycle are called *Merge Window*.
 
 It is followed by a *Stabilization Period*.
 
@@ -36,8 +36,9 @@ The end of a Release Cycle is marked by the release of a new U-Boot version.
 Merge Window
 ------------
 
-The Merge Window is the period when new patches get submitted
-(and hopefully accepted) for inclusion into U-Boot mainline.
+The Merge Window is the period when new patches get submitted (and hopefully
+accepted) for inclusion into U-Boot mainline. This period lasts for 21 days (3
+weeks) and ends with the release of ``"-rc1"``.
 
 This is the only time when new code (like support for new processors or new
 boards, or other new features or reorganization of code) is accepted.
