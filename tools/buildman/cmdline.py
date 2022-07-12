@@ -89,6 +89,8 @@ def ParseArgs():
           default=False, help="Use full toolchain path in CROSS_COMPILE")
     parser.add_option('-P', '--per-board-out-dir', action='store_true',
           default=False, help="Use an O= (output) directory per board rather than per thread")
+    parser.add_option('-R', '--regen-board-list', action='store_true',
+          help='Force regeneration of the list of boards, like the old boards.cfg file')
     parser.add_option('-s', '--summary', action='store_true',
           default=False, help='Show a build summary')
     parser.add_option('-S', '--show-sizes', action='store_true',
