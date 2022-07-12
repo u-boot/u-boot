@@ -213,6 +213,8 @@ class Builder:
             threading is not being used
         _terminated: Thread was terminated due to an error
         _restarting_config: True if 'Restart config' is detected in output
+        _ide: Produce output suitable for an Integrated Development Environment,
+            i.e. dont emit progress information and put errors/warnings on stderr
     """
     class Outcome:
         """Records a build outcome for a single make invocation
@@ -325,6 +327,7 @@ class Builder:
         self.config_filenames = BASE_CONFIG_FILENAMES
         self.work_in_output = work_in_output
         self.adjust_cfg = adjust_cfg
+        self._ide = False
 
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
@@ -382,7 +385,7 @@ class Builder:
                           show_detail=False, show_bloat=False,
                           list_error_boards=False, show_config=False,
                           show_environment=False, filter_dtb_warnings=False,
-                          filter_migration_warnings=False):
+                          filter_migration_warnings=False, ide=False):
         """Setup display options for the builder.
 
         Args:
@@ -397,6 +400,8 @@ class Builder:
                 compiler
             filter_migration_warnings: Filter out any warnings about migrating
                 a board to driver model
+            ide: Create output that can be parsed by an IDE. There is no '+' prefix on
+                error lines and output on stderr stays on stderr.
         """
         self._show_errors = show_errors
         self._show_sizes = show_sizes
@@ -407,6 +412,7 @@ class Builder:
         self._show_environment = show_environment
         self._filter_dtb_warnings = filter_dtb_warnings
         self._filter_migration_warnings = filter_migration_warnings
+        self._ide = ide
 
     def _AddTimestamp(self):
         """Add a new timestamp to the list and record the build period.
@@ -535,8 +541,9 @@ class Builder:
             line += '%s  : ' % self._complete_delay
 
         line += target
-        terminal.print_clear()
-        tprint(line, newline=False, limit_to_line=True)
+        if not self._ide:
+            terminal.print_clear()
+            tprint(line, newline=False, limit_to_line=True)
 
     def _GetOutputDir(self, commit_upto):
         """Get the name of the output directory for a commit number
@@ -834,8 +841,9 @@ class Builder:
 
         Returns:
             Tuple:
-                Dict containing boards which passed building this commit.
-                    keyed by board.target
+                Dict containing boards which built this commit:
+                    key: board.target
+                    value: Builder.Outcome object
                 List containing a summary of error lines
                 Dict keyed by error line, containing a list of the Board
                     objects with that error
@@ -1369,8 +1377,14 @@ class Builder:
         better_warn, worse_warn = _CalcErrorDelta(self._base_warn_lines,
                 self._base_warn_line_boards, warn_lines, warn_line_boards, 'w')
 
+        # For the IDE mode, print out all the output
+        if self._ide:
+            outcome = board_dict[target]
+            for line in outcome.err_lines:
+                sys.stderr.write(line)
+
         # Display results by arch
-        if any((ok_boards, warn_boards, err_boards, unknown_boards, new_boards,
+        elif any((ok_boards, warn_boards, err_boards, unknown_boards, new_boards,
                 worse_err, better_err, worse_warn, better_warn)):
             arch_list = {}
             self.AddOutcome(board_selected, arch_list, ok_boards, '',
@@ -1746,7 +1760,8 @@ class Builder:
         self._PrepareWorkingSpace(min(self.num_threads, len(board_selected)),
                 commits is not None)
         self._PrepareOutputSpace()
-        tprint('\rStarting build...', newline=False)
+        if not self._ide:
+            tprint('\rStarting build...', newline=False)
         self.SetupBuild(board_selected, commits)
         self.ProcessResult(None)
         self.thread_exceptions = []
@@ -1773,24 +1788,25 @@ class Builder:
 
             # Wait until we have processed all output
             self.out_queue.join()
-        tprint()
+        if not self._ide:
+            tprint()
 
-        msg = 'Completed: %d total built' % self.count
-        if self.already_done:
-           msg += ' (%d previously' % self.already_done
-           if self.already_done != self.count:
-               msg += ', %d newly' % (self.count - self.already_done)
-           msg += ')'
-        duration = datetime.now() - self._start_time
-        if duration > timedelta(microseconds=1000000):
-            if duration.microseconds >= 500000:
-                duration = duration + timedelta(seconds=1)
-            duration = duration - timedelta(microseconds=duration.microseconds)
-            rate = float(self.count) / duration.total_seconds()
-            msg += ', duration %s, rate %1.2f' % (duration, rate)
-        tprint(msg)
-        if self.thread_exceptions:
-            tprint('Failed: %d thread exceptions' % len(self.thread_exceptions),
-                  colour=self.col.RED)
+            msg = 'Completed: %d total built' % self.count
+            if self.already_done:
+                msg += ' (%d previously' % self.already_done
+            if self.already_done != self.count:
+                msg += ', %d newly' % (self.count - self.already_done)
+            msg += ')'
+            duration = datetime.now() - self._start_time
+            if duration > timedelta(microseconds=1000000):
+                if duration.microseconds >= 500000:
+                    duration = duration + timedelta(seconds=1)
+                duration = duration - timedelta(microseconds=duration.microseconds)
+                rate = float(self.count) / duration.total_seconds()
+                msg += ', duration %s, rate %1.2f' % (duration, rate)
+            tprint(msg)
+            if self.thread_exceptions:
+                tprint('Failed: %d thread exceptions' % len(self.thread_exceptions),
+                    colour=self.col.RED)
 
         return (self.fail, self.warned, self.thread_exceptions)

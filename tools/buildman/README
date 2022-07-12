@@ -1092,6 +1092,21 @@ This will write the full build into /tmp/build including object files. You must
 specify the output directory with -o when using -w.
 
 
+Support for IDEs (Integrated Development Environments)
+======================================================
+
+Normally buildman summarises the output and shows information indicating the
+meaning of each line of output. For example a '+' symbol appears at the start of
+each error line. Also, buildman prints information about what it is about to do,
+along with a summary at the end.
+
+When using buildman from an IDE, it is helpful to drop this behaviour. Use the
+-I/--ide option for that. You might find -W helpful also so that warnings do
+not cause the build to fail:
+
+   buildman -o /tmp/build --board sandbox -wWI
+
+
 Changing the configuration
 ==========================
 

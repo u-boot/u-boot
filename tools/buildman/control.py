@@ -359,8 +359,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         else:
             commits = None
 
-        tprint(GetActionSummary(options.summary, commits, board_selected,
-                               options))
+        if not options.ide:
+            tprint(GetActionSummary(options.summary, commits, board_selected,
+                                    options))
 
         # We can't show function sizes without board details at present
         if options.show_bloat:
@@ -369,7 +370,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             options.show_errors, options.show_sizes, options.show_detail,
             options.show_bloat, options.list_error_boards, options.show_config,
             options.show_environment, options.filter_dtb_warnings,
-            options.filter_migration_warnings)
+            options.filter_migration_warnings, options.ide)
         if options.summary:
             builder.ShowSummary(commits, board_selected)
         else:
