@@ -44,6 +44,19 @@ config TARGET_DRAGONBOARD820C
 	  - 3GiB RAM
 	  - 32GiB UFS drive
 
+config TARGET_DRAGONBOARD845C
+	bool "96Boards Dragonboard 845C"
+	help
+	  Support for 96Boards Dragonboard 845C aka Robotics RB3 Development
+	  Platform. This board complies with 96Boards Open Platform
+	  Specifications. Features:
+	  - Qualcomm Snapdragon SDA845 SoC
+	  - 4GiB RAM
+	  - 64GiB UFS drive
+	select MISC_INIT_R
+	select SDM845
+	select DM_ETH if NET
+
 config TARGET_STARQLTECHN
 	bool "Samsung S9 SM-G9600(starqltechn)"
 	help
@@ -60,6 +73,7 @@ endchoice
 
 source "board/qualcomm/dragonboard410c/Kconfig"
 source "board/qualcomm/dragonboard820c/Kconfig"
+source "board/qualcomm/dragonboard845c/Kconfig"
 source "board/samsung/starqltechn/Kconfig"
 
 endif
