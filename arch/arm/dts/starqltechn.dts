@@ -48,7 +48,7 @@
 			status = "okay";
 		};
 
-		pinctrl@3900000 {
+		pinctrl_north@3900000 {
 			muic_i2c: muic_i2c {
 				pins = "GPIO_33", "GPIO_34";
 				drive-strength = <0x2>;
