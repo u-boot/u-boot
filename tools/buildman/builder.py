@@ -669,17 +669,15 @@ class Builder:
         """
         sym = {}
         for line in fd.readlines():
-            try:
-                if line.strip():
-                    size, type, name = line[:-1].split()
-            except:
-                tprint("Invalid line in file '%s': '%s'" % (fname, line[:-1]))
-                continue
-            if type in 'tTdDbB':
-                # function names begin with '.' on 64-bit powerpc
-                if '.' in name[1:]:
-                    name = 'static.' + name.split('.')[0]
-                sym[name] = sym.get(name, 0) + int(size, 16)
+            line = line.strip()
+            parts = line.split()
+            if line and len(parts) == 3:
+                    size, type, name = line.split()
+                    if type in 'tTdDbB':
+                        # function names begin with '.' on 64-bit powerpc
+                        if '.' in name[1:]:
+                            name = 'static.' + name.split('.')[0]
+                        sym[name] = sym.get(name, 0) + int(size, 16)
         return sym
 
     def _ProcessConfig(self, fname):
