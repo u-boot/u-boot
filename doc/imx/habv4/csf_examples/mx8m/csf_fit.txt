@@ -1,0 +1,36 @@
+[Header]
+  Version = 4.3
+  Hash Algorithm = sha256
+  Engine = CAAM
+  Engine Configuration = 0
+  Certificate Format = X509
+  Signature Format = CMS
+
+[Install SRK]
+  # FIXME: Adjust path here
+  File = "/path/to/cst-3.3.1/crts/SRK_1_2_3_4_table.bin"
+  Source index = 0
+
+[Install CSFK]
+  # FIXME: Adjust path here
+  File = "/path/to/cst-3.3.1/crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem"
+
+[Authenticate CSF]
+
+[Install Key]
+  Verification index = 0
+  Target Index = 2
+  # FIXME: Adjust path here
+  File = "/path/to/cst-3.3.1/crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem"
+
+[Authenticate Data]
+  Verification index = 2
+  # FIXME:
+  # Line 1 -- fitImage tree
+  # Line 2 -- U-Boot u-boot-nodtb.bin blob
+  # Line 3 -- ATF BL31 blob
+  # Line 4 -- DT blob
+  Blocks = 0x401fcdc0 0x57c00 0xffff "flash.bin", \
+           0x40200000 0x62c00 0xuuuu "flash.bin", \
+	   0x920000   0x00000 0xaaaa "flash.bin", \
+	   0x40200000 0x00000 0xdddd "flash.bin"
