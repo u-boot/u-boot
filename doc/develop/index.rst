@@ -12,6 +12,7 @@ General
    codingstyle
    designprinciples
    process
+   release_cycle
 
 Implementation
 --------------
