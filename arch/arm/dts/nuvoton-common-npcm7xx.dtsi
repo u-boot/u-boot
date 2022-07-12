@@ -559,6 +559,9 @@
 		#size-cells = <1>;
 		compatible = "nuvoton,npcm750-pinctrl", "syscon", "simple-mfd";
 		ranges = <0 0xf0010000 0x8000>;
+		reg = <0xf0010000 0x8000>;
+		syscon-gcr = <&gcr>;
+		syscon-rst = <&rst>;
 		gpio0: gpio@f0010000 {
 			gpio-controller;
 			#gpio-cells = <2>;

@@ -12,8 +12,8 @@
 	compatible = "nuvoton,npcm750-evb", "nuvoton,npcm750";
 
 	aliases {
-		ethernet2 = &gmac0;
-		ethernet3 = &gmac1;
+		eth0 = &emc0;
+		eth1 = &gmac0;
 		serial0 = &serial0;
 		serial1 = &serial1;
 		serial2 = &serial2;
@@ -34,11 +34,11 @@
 		i2c13 = &i2c13;
 		i2c14 = &i2c14;
 		i2c15 = &i2c15;
-		spi0 = &spi0;
-		spi1 = &spi1;
-		fiu0 = &fiu0;
-		fiu1 = &fiu3;
-		fiu2 = &fiux;
+		spi0 = &fiu0;
+		spi1 = &fiu3;
+		spi2 = &fiux;
+		spi3 = &spi0;
+		spi4 = &spi1;
 	};
 
 	chosen {
@@ -51,18 +51,20 @@
 	};
 };
 
-&gmac0 {
-	phy-mode = "rgmii-id";
+&udc0 {
 	status = "okay";
+	phys = <&usbphy1 0>;
 };
 
-&gmac1 {
+&gmac0 {
 	phy-mode = "rgmii-id";
+	snps,eee-force-disable;
 	status = "okay";
 };
 
 &ehci1 {
 	status = "okay";
+	phys = <&usbphy2 3>;
 };
 
 &fiu0 {
@@ -151,11 +153,19 @@
 	spix-mode;
 };
 
-&watchdog1 {
+&watchdog0 {
 	status = "okay";
 };
 
 &rng {
+	status = "okay";
+};
+
+&sha {
+	status = "okay";
+};
+
+&aes {
 	status = "okay";
 };
 
@@ -403,3 +413,34 @@
 			&pin255_input>;
 };
 
+&ehci1 {
+	status = "okay";
+	phys = <&usbphy2 3>;
+};
+
+&otp {
+	status = "okay";
+};
+
+&usbphy1 {
+	status = "okay";
+};
+
+&usbphy2 {
+	status = "okay";
+};
+
+&emc0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&r1_pins
+				&r1err_pins>;
+	fixed-link {
+			speed = <100>;
+			full-dulpex;
+	};
+};
+
+&sdhci0 {
+	status = "okay";
+};
