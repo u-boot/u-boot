@@ -133,8 +133,8 @@ class TestBuild(unittest.TestCase):
         # Set up boards to build
         self.brds = board.Boards()
         for brd in BOARDS:
-            self.brds.AddBoard(board.Board(*brd))
-        self.brds.SelectBoards([])
+            self.brds.add_board(board.Board(*brd))
+        self.brds.select_boards([])
 
         # Add some test settings
         bsettings.Setup(None)
@@ -203,7 +203,7 @@ class TestBuild(unittest.TestCase):
         build = builder.Builder(self.toolchains, self.base_dir, None, threads,
                                 2, checkout=False, show_unknown=False)
         build.do_make = self.Make
-        board_selected = self.brds.GetSelectedDict()
+        board_selected = self.brds.get_selected_dict()
 
         # Build the boards for the pre-defined commits and warnings/errors
         # associated with each. This calls our Make() to inject the fake output.
@@ -468,18 +468,18 @@ class TestBuild(unittest.TestCase):
 
     def testBoardSingle(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['sandbox']),
+        self.assertEqual(self.brds.select_boards(['sandbox']),
                          ({'all': ['board4'], 'sandbox': ['board4']}, []))
 
     def testBoardArch(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['arm']),
+        self.assertEqual(self.brds.select_boards(['arm']),
                          ({'all': ['board0', 'board1'],
                           'arm': ['board0', 'board1']}, []))
 
     def testBoardArchSingle(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['arm sandbox']),
+        self.assertEqual(self.brds.select_boards(['arm sandbox']),
                          ({'sandbox': ['board4'],
                           'all': ['board0', 'board1', 'board4'],
                           'arm': ['board0', 'board1']}, []))
@@ -487,20 +487,20 @@ class TestBuild(unittest.TestCase):
 
     def testBoardArchSingleMultiWord(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['arm', 'sandbox']),
+        self.assertEqual(self.brds.select_boards(['arm', 'sandbox']),
                          ({'sandbox': ['board4'],
                           'all': ['board0', 'board1', 'board4'],
                           'arm': ['board0', 'board1']}, []))
 
     def testBoardSingleAnd(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['Tester & arm']),
+        self.assertEqual(self.brds.select_boards(['Tester & arm']),
                          ({'Tester&arm': ['board0', 'board1'],
                            'all': ['board0', 'board1']}, []))
 
     def testBoardTwoAnd(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['Tester', '&', 'arm',
+        self.assertEqual(self.brds.select_boards(['Tester', '&', 'arm',
                                                    'Tester' '&', 'powerpc',
                                                    'sandbox']),
                          ({'sandbox': ['board4'],
@@ -511,19 +511,19 @@ class TestBuild(unittest.TestCase):
 
     def testBoardAll(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards([]),
+        self.assertEqual(self.brds.select_boards([]),
                          ({'all': ['board0', 'board1', 'board2', 'board3',
                                   'board4']}, []))
 
     def testBoardRegularExpression(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['T.*r&^Po']),
+        self.assertEqual(self.brds.select_boards(['T.*r&^Po']),
                          ({'all': ['board2', 'board3'],
                           'T.*r&^Po': ['board2', 'board3']}, []))
 
     def testBoardDuplicate(self):
         """Test single board selection"""
-        self.assertEqual(self.brds.SelectBoards(['sandbox sandbox',
+        self.assertEqual(self.brds.select_boards(['sandbox sandbox',
                                                    'sandbox']),
                          ({'all': ['board4'], 'sandbox': ['board4']}, []))
     def CheckDirs(self, build, dirname):

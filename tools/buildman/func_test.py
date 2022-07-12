@@ -189,7 +189,7 @@ class TestFunctional(unittest.TestCase):
         self._toolchains.Add('powerpc-gcc', test=False)
         self._boards = board.Boards()
         for brd in BOARDS:
-            self._boards.AddBoard(board.Board(*brd))
+            self._boards.add_board(board.Board(*brd))
 
         # Directories where the source been cloned
         self._clone_dirs = []
@@ -476,7 +476,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(ret_code, 100)
 
         for commit in range(self._commits):
-            for brd in self._boards.GetList():
+            for brd in self._boards.get_list():
                 if brd.arch != 'sandbox':
                   errfile = self._builder.GetErrFile(commit, brd.target)
                   fd = open(errfile)
@@ -581,7 +581,7 @@ class TestFunctional(unittest.TestCase):
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
         board_list = board.Boards()
-        board_list.AddBoard(board.Board(*BOARDS[0]))
+        board_list.add_board(board.Board(*BOARDS[0]))
         self._RunControl('-o', self._output_dir, '-w', clean_dir=False,
                          brds=board_list)
         self.assertTrue(
@@ -600,14 +600,14 @@ class TestFunctional(unittest.TestCase):
             os.path.exists(os.path.join(self._output_dir, 'u-boot')))
 
         board_list = board.Boards()
-        board_list.AddBoard(board.Board(*BOARDS[0]))
+        board_list.add_board(board.Board(*BOARDS[0]))
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-b', self._test_branch, '-o', self._output_dir,
                              '-w', clean_dir=False, brds=board_list)
         self.assertIn("single commit", str(e.exception))
 
         board_list = board.Boards()
-        board_list.AddBoard(board.Board(*BOARDS[0]))
+        board_list.add_board(board.Board(*BOARDS[0]))
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-w', clean_dir=False)
         self.assertIn("specify -o", str(e.exception))

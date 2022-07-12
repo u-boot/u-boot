@@ -16,7 +16,7 @@ class Expr:
         self._expr = expr
         self._re = re.compile(expr)
 
-    def Matches(self, props):
+    def matches(self, props):
         """Check if any of the properties match the regular expression.
 
         Args:
@@ -42,7 +42,7 @@ class Term:
         self._expr_list = []
         self._board_count = 0
 
-    def AddExpr(self, expr):
+    def add_expr(self, expr):
         """Add an Expr object to the list to check.
 
         Args:
@@ -55,7 +55,7 @@ class Term:
         """Return some sort of useful string describing the term"""
         return '&'.join([str(expr) for expr in self._expr_list])
 
-    def Matches(self, props):
+    def matches(self, props):
         """Check if any of the properties match this term
 
         Each of the expressions in the term is checked. All must match.
@@ -66,7 +66,7 @@ class Term:
            True if all of the expressions in the Term match, else False
         """
         for expr in self._expr_list:
-            if not expr.Matches(props):
+            if not expr.matches(props):
                 return False
         return True
 
@@ -103,7 +103,7 @@ class Boards:
         # Use a simple list here, sinc OrderedDict requires Python 2.7
         self._boards = []
 
-    def AddBoard(self, brd):
+    def add_board(self, brd):
         """Add a new board to the list.
 
         The board's target member must not already exist in the board list.
@@ -113,7 +113,7 @@ class Boards:
         """
         self._boards.append(brd)
 
-    def ReadBoards(self, fname):
+    def read_boards(self, fname):
         """Read a list of boards from a board file.
 
         Create a Board object for each and add it to our _boards list.
@@ -137,10 +137,10 @@ class Boards:
                     fields = fields[:8]
 
                 brd = Board(*fields)
-                self.AddBoard(brd)
+                self.add_board(brd)
 
 
-    def GetList(self):
+    def get_list(self):
         """Return a list of available boards.
 
         Returns:
@@ -148,7 +148,7 @@ class Boards:
         """
         return self._boards
 
-    def GetDict(self):
+    def get_dict(self):
         """Build a dictionary containing all the boards.
 
         Returns:
@@ -161,7 +161,7 @@ class Boards:
             board_dict[brd.target] = brd
         return board_dict
 
-    def GetSelectedDict(self):
+    def get_selected_dict(self):
         """Return a dictionary containing the selected boards
 
         Returns:
@@ -173,7 +173,7 @@ class Boards:
                 board_dict[brd.target] = brd
         return board_dict
 
-    def GetSelected(self):
+    def get_selected(self):
         """Return a list of selected boards
 
         Returns:
@@ -181,7 +181,7 @@ class Boards:
         """
         return [brd for brd in self._boards if brd.build_it]
 
-    def GetSelectedNames(self):
+    def get_selected_names(self):
         """Return a list of selected boards
 
         Returns:
@@ -189,7 +189,7 @@ class Boards:
         """
         return [brd.target for brd in self._boards if brd.build_it]
 
-    def _BuildTerms(self, args):
+    def _build_terms(self, args):
         """Convert command line arguments to a list of terms.
 
         This deals with parsing of the arguments. It handles the '&'
@@ -227,18 +227,18 @@ class Boards:
             if sym == '&':
                 oper = sym
             elif oper:
-                term.AddExpr(sym)
+                term.add_expr(sym)
                 oper = None
             else:
                 if term:
                     terms.append(term)
                 term = Term()
-                term.AddExpr(sym)
+                term.add_expr(sym)
         if term:
             terms.append(term)
         return terms
 
-    def SelectBoards(self, args, exclude=[], brds=None):
+    def select_boards(self, args, exclude=[], brds=None):
         """Mark boards selected based on args
 
         Normally either boards (an explicit list of boards) or args (a list of
@@ -262,7 +262,7 @@ class Boards:
         """
         result = OrderedDict()
         warnings = []
-        terms = self._BuildTerms(args)
+        terms = self._build_terms(args)
 
         result['all'] = []
         for term in terms:
@@ -279,7 +279,7 @@ class Boards:
             if terms:
                 match = False
                 for term in terms:
-                    if term.Matches(brd.props):
+                    if term.matches(brd.props):
                         matching_term = str(term)
                         build_it = True
                         break
@@ -292,7 +292,7 @@ class Boards:
 
             # Check that it is not specifically excluded
             for expr in exclude_list:
-                if expr.Matches(brd.props):
+                if expr.matches(brd.props):
                     build_it = False
                     break
 

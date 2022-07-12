@@ -100,7 +100,7 @@ def ShowToolchainPrefix(brds, toolchains):
     Return:
         None on success, string error message otherwise
     """
-    board_selected = brds.GetSelectedDict()
+    board_selected = brds.get_selected_dict()
     tc_set = set()
     for brd in board_selected.values():
         tc_set.add(toolchains.Select(brd.arch))
@@ -198,7 +198,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
                 sys.exit("Failed to generate boards.cfg")
 
         brds = board.Boards()
-        brds.ReadBoards(board_file)
+        brds.read_boards(board_file)
 
     exclude = []
     if options.exclude:
@@ -211,9 +211,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             requested_boards += b.split(',')
     else:
         requested_boards = None
-    why_selected, board_warnings = brds.SelectBoards(args, exclude,
-                                                     requested_boards)
-    selected = brds.GetSelected()
+    why_selected, board_warnings = brds.select_boards(args, exclude,
+                                                      requested_boards)
+    selected = brds.get_selected()
     if not len(selected):
         sys.exit(col.build(col.RED, 'No matching boards found'))
 
@@ -349,7 +349,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
         builder.in_tree = options.in_tree
 
         # Work out which boards to build
-        board_selected = brds.GetSelectedDict()
+        board_selected = brds.get_selected_dict()
 
         if series:
             commits = series.commits
