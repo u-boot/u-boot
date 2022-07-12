@@ -70,7 +70,7 @@ config GPIO_HOG
 
 config SPL_GPIO_HOG
 	bool "Enable GPIO hog support in SPL"
-	depends on SPL_GPIO_SUPPORT
+	depends on SPL_GPIO
 	help
 	  Enable gpio hog support in SPL
 	  The GPIO chip may contain GPIO hog definitions. GPIO hogging
