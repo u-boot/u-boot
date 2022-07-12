@@ -194,6 +194,9 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 
 #ifdef LOG_DEBUG
 #define _LOG_DEBUG	LOGL_FORCE_DEBUG
+#ifndef DEBUG
+#define DEBUG
+#endif
 #else
 #define _LOG_DEBUG	0
 #endif
