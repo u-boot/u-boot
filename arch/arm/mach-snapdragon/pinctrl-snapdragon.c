@@ -119,6 +119,7 @@ static const struct udevice_id msm_pinctrl_ids[] = {
 #ifdef CONFIG_SDM845
 	{ .compatible = "qcom,tlmm-sdm845", .data = (ulong)&sdm845_data },
 #endif
+	{ .compatible = "qcom,tlmm-qcs404", .data = (ulong)&qcs404_data },
 	{ }
 };
 

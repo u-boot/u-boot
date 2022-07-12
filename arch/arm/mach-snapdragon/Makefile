@@ -15,4 +15,5 @@ obj-y += dram.o
 obj-y += pinctrl-snapdragon.o
 obj-y += pinctrl-apq8016.o
 obj-y += pinctrl-apq8096.o
+obj-y += pinctrl-qcs404.o
 obj-$(CONFIG_SDM845) += pinctrl-sdm845.o
