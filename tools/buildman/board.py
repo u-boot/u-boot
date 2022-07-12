@@ -6,7 +6,7 @@
 
 class Board:
     """A particular board that we can build"""
-    def __init__(self, status, arch, cpu, soc, vendor, board_name, target, options):
+    def __init__(self, status, arch, cpu, soc, vendor, board_name, target, cfg_name):
         """Create a new board type.
 
         Args:
@@ -17,7 +17,7 @@ class Board:
             vendor: Name of vendor (e.g. armltd)
             board_name: Name of board (e.g. integrator)
             target: Target name (use make <target>_defconfig to configure)
-            options: board-specific options (e.g. integratorcp:CM1136)
+            cfg_name: Config name
         """
         self.target = target
         self.arch = arch
@@ -25,7 +25,7 @@ class Board:
         self.board_name = board_name
         self.vendor = vendor
         self.soc = soc
-        self.options = options
+        self.cfg_name = cfg_name
         self.props = [self.target, self.arch, self.cpu, self.board_name,
-                      self.vendor, self.soc, self.options]
+                      self.vendor, self.soc, self.cfg_name]
         self.build_it = False
