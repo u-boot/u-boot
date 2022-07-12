@@ -108,7 +108,7 @@ u-boot/             source directory
    boards: List of Board objects which have line in the error/warning output
    errline: The text of the error line
 """
-ErrLine = collections.namedtuple('ErrLine', 'char,boards,errline')
+ErrLine = collections.namedtuple('ErrLine', 'char,brds,errline')
 
 # Possible build outcomes
 OUTCOME_OK, OUTCOME_WARNING, OUTCOME_ERROR, OUTCOME_UNKNOWN = list(range(4))
@@ -1216,14 +1216,14 @@ class Builder:
                 List of boards with that error line, or [] if the user has not
                     requested such a list
             """
-            boards = []
+            brds = []
             board_set = set()
             if self._list_error_boards:
                 for brd in line_boards[line]:
                     if not brd in board_set:
-                        boards.append(brd)
+                        brds.append(brd)
                         board_set.add(brd)
-            return boards
+            return brds
 
         def _CalcErrorDelta(base_lines, base_line_boards, lines, line_boards,
                             char):
@@ -1326,8 +1326,7 @@ class Builder:
             if err_lines:
                 out_list = []
                 for line in err_lines:
-                    boards = ''
-                    names = [brd.target for brd in line.boards]
+                    names = [brd.target for brd in line.brds]
                     board_str = ' '.join(names) if names else ''
                     if board_str:
                         out = self.col.build(colour, line.char + '(')

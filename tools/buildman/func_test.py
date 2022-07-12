@@ -239,7 +239,7 @@ class TestFunctional(unittest.TestCase):
         sys.argv = [sys.argv[0]] + list(args)
         options, args = cmdline.ParseArgs()
         result = control.DoBuildman(options, args, toolchains=self._toolchains,
-                make_func=self._HandleMake, boards=brds or self._boards,
+                make_func=self._HandleMake, brds=brds or self._boards,
                 clean_dir=clean_dir,
                 test_thread_exceptions=test_thread_exceptions)
         self._builder = control.builder

@@ -87,7 +87,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options,
         for warning in board_warnings:
             print(col.build(col.YELLOW, warning))
 
-def ShowToolchainPrefix(boards, toolchains):
+def ShowToolchainPrefix(brds, toolchains):
     """Show information about a the tool chain used by one or more boards
 
     The function checks that all boards use the same toolchain, then prints
@@ -100,9 +100,9 @@ def ShowToolchainPrefix(boards, toolchains):
     Return:
         None on success, string error message otherwise
     """
-    boards = boards.GetSelectedDict()
+    board_selected = brds.GetSelectedDict()
     tc_set = set()
-    for brd in boards.values():
+    for brd in board_selected.values():
         tc_set.add(toolchains.Select(brd.arch))
     if len(tc_set) != 1:
         return 'Supplied boards must share one toolchain'
@@ -111,7 +111,7 @@ def ShowToolchainPrefix(boards, toolchains):
     print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
     return None
 
-def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
+def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
                clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
 
@@ -124,7 +124,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
                 to execute 'make'. If this is None, the normal function
                 will be used, which calls the 'make' tool with suitable
                 arguments. This setting is useful for tests.
-        board: Boards() object to use, containing a list of available
+        brds: Boards() object to use, containing a list of available
                 boards. If this is None it will be created and scanned.
         clean_dir: Used for tests only, indicates that the existing output_dir
             should be removed before starting the build
@@ -182,7 +182,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         options.output_dir = '..'
 
     # Work out what subset of the boards we are building
-    if not boards:
+    if not brds:
         if not os.path.exists(options.output_dir):
             os.makedirs(options.output_dir)
         board_file = os.path.join(options.output_dir, 'boards.cfg')
@@ -197,8 +197,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             if status != 0:
                 sys.exit("Failed to generate boards.cfg")
 
-        boards = board.Boards()
-        boards.ReadBoards(board_file)
+        brds = board.Boards()
+        brds.ReadBoards(board_file)
 
     exclude = []
     if options.exclude:
@@ -211,14 +211,14 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
             requested_boards += b.split(',')
     else:
         requested_boards = None
-    why_selected, board_warnings = boards.SelectBoards(args, exclude,
-                                                       requested_boards)
-    selected = boards.GetSelected()
+    why_selected, board_warnings = brds.SelectBoards(args, exclude,
+                                                     requested_boards)
+    selected = brds.GetSelected()
     if not len(selected):
         sys.exit(col.build(col.RED, 'No matching boards found'))
 
     if options.print_prefix:
-        err = ShowToolchainPrefix(boards, toolchains)
+        err = ShowToolchainPrefix(brds, toolchains)
         if err:
             sys.exit(col.build(col.RED, err))
         return 0
@@ -349,7 +349,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         builder.in_tree = options.in_tree
 
         # Work out which boards to build
-        board_selected = boards.GetSelectedDict()
+        board_selected = brds.GetSelectedDict()
 
         if series:
             commits = series.commits
