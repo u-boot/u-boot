@@ -476,12 +476,12 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(ret_code, 100)
 
         for commit in range(self._commits):
-            for board in self._boards.GetList():
-                if board.arch != 'sandbox':
-                  errfile = self._builder.GetErrFile(commit, board.target)
+            for brd in self._boards.GetList():
+                if brd.arch != 'sandbox':
+                  errfile = self._builder.GetErrFile(commit, brd.target)
                   fd = open(errfile)
                   self.assertEqual(fd.readlines(),
-                          ['No tool chain for %s\n' % board.arch])
+                          ['No tool chain for %s\n' % brd.arch])
                   fd.close()
 
     def testBranch(self):

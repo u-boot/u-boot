@@ -875,11 +875,11 @@ class Builder:
         config = {}
         environment = {}
 
-        for board in boards_selected.values():
-            outcome = self.GetBuildOutcome(commit_upto, board.target,
+        for brd in boards_selected.values():
+            outcome = self.GetBuildOutcome(commit_upto, brd.target,
                                            read_func_sizes, read_config,
                                            read_environment)
-            board_dict[board.target] = outcome
+            board_dict[brd.target] = outcome
             last_func = None
             last_was_warning = False
             for line in outcome.err_lines:
@@ -894,29 +894,29 @@ class Builder:
                         if is_warning or (last_was_warning and is_note):
                             if last_func:
                                 AddLine(warn_lines_summary, warn_lines_boards,
-                                        last_func, board)
+                                        last_func, brd)
                             AddLine(warn_lines_summary, warn_lines_boards,
-                                    line, board)
+                                    line, brd)
                         else:
                             if last_func:
                                 AddLine(err_lines_summary, err_lines_boards,
-                                        last_func, board)
+                                        last_func, brd)
                             AddLine(err_lines_summary, err_lines_boards,
-                                    line, board)
+                                    line, brd)
                         last_was_warning = is_warning
                         last_func = None
-            tconfig = Config(self.config_filenames, board.target)
+            tconfig = Config(self.config_filenames, brd.target)
             for fname in self.config_filenames:
                 if outcome.config:
                     for key, value in outcome.config[fname].items():
                         tconfig.Add(fname, key, value)
-            config[board.target] = tconfig
+            config[brd.target] = tconfig
 
-            tenvironment = Environment(board.target)
+            tenvironment = Environment(brd.target)
             if outcome.environment:
                 for key, value in outcome.environment.items():
                     tenvironment.Add(key, value)
-            environment[board.target] = tenvironment
+            environment[brd.target] = tenvironment
 
         return (board_dict, err_lines_summary, err_lines_boards,
                 warn_lines_summary, warn_lines_boards, config, environment)
@@ -971,9 +971,8 @@ class Builder:
                 board.target
         """
         self._base_board_dict = {}
-        for board in board_selected:
-            self._base_board_dict[board] = Builder.Outcome(0, [], [], {}, {},
-                                                           {})
+        for brd in board_selected:
+            self._base_board_dict[brd] = Builder.Outcome(0, [], [], {}, {}, {})
         self._base_err_lines = []
         self._base_warn_lines = []
         self._base_err_line_boards = {}
@@ -1220,10 +1219,10 @@ class Builder:
             boards = []
             board_set = set()
             if self._list_error_boards:
-                for board in line_boards[line]:
-                    if not board in board_set:
-                        boards.append(board)
-                        board_set.add(board)
+                for brd in line_boards[line]:
+                    if not brd in board_set:
+                        boards.append(brd)
+                        board_set.add(brd)
             return boards
 
         def _CalcErrorDelta(base_lines, base_line_boards, lines, line_boards,
@@ -1328,7 +1327,7 @@ class Builder:
                 out_list = []
                 for line in err_lines:
                     boards = ''
-                    names = [board.target for board in line.boards]
+                    names = [brd.target for brd in line.boards]
                     board_str = ' '.join(names) if names else ''
                     if board_str:
                         out = self.col.build(colour, line.char + '(')
@@ -1549,9 +1548,9 @@ class Builder:
 
         # Get a list of boards that did not get built, if needed
         not_built = []
-        for board in board_selected:
-            if not board in board_dict:
-                not_built.append(board)
+        for brd in board_selected:
+            if not brd in board_dict:
+                not_built.append(brd)
         if not_built:
             tprint("Boards not built (%d): %s" % (len(not_built),
                   ', '.join(not_built)))
@@ -1768,7 +1767,7 @@ class Builder:
         # Create jobs to build all commits for each board
         for brd in board_selected.values():
             job = builderthread.BuilderJob()
-            job.board = brd
+            job.brd = brd
             job.commits = commits
             job.keep_outputs = keep_outputs
             job.work_in_output = self.work_in_output

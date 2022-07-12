@@ -184,8 +184,8 @@ class TestBuild(unittest.TestCase):
         # TODO(sjg@chromium.org): If plus is '', we shouldn't need this
         expect += ' ' + col.build(expected_colour, plus)
         expect += '  '
-        for board in boards:
-            expect += col.build(expected_colour, ' %s' % board)
+        for brd in boards:
+            expect += col.build(expected_colour, ' %s' % brd)
         self.assertEqual(text, expect)
 
     def _SetupTest(self, echo_lines=False, threads=1, **kwdisplay_args):

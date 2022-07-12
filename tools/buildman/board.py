@@ -103,15 +103,15 @@ class Boards:
         # Use a simple list here, sinc OrderedDict requires Python 2.7
         self._boards = []
 
-    def AddBoard(self, board):
+    def AddBoard(self, brd):
         """Add a new board to the list.
 
         The board's target member must not already exist in the board list.
 
         Args:
-            board: board to add
+            brd: board to add
         """
-        self._boards.append(board)
+        self._boards.append(brd)
 
     def ReadBoards(self, fname):
         """Read a list of boards from a board file.
@@ -136,8 +136,8 @@ class Boards:
                 if len(fields) > 8:
                     fields = fields[:8]
 
-                board = Board(*fields)
-                self.AddBoard(board)
+                brd = Board(*fields)
+                self.AddBoard(brd)
 
 
     def GetList(self):
@@ -157,8 +157,8 @@ class Boards:
                 value is board
         """
         board_dict = OrderedDict()
-        for board in self._boards:
-            board_dict[board.target] = board
+        for brd in self._boards:
+            board_dict[brd.target] = brd
         return board_dict
 
     def GetSelectedDict(self):
@@ -168,9 +168,9 @@ class Boards:
             List of Board objects that are marked selected
         """
         board_dict = OrderedDict()
-        for board in self._boards:
-            if board.build_it:
-                board_dict[board.target] = board
+        for brd in self._boards:
+            if brd.build_it:
+                board_dict[brd.target] = brd
         return board_dict
 
     def GetSelected(self):
@@ -179,7 +179,7 @@ class Boards:
         Returns:
             List of Board objects that are marked selected
         """
-        return [board for board in self._boards if board.build_it]
+        return [brd for brd in self._boards if brd.build_it]
 
     def GetSelectedNames(self):
         """Return a list of selected boards
@@ -187,7 +187,7 @@ class Boards:
         Returns:
             List of board names that are marked selected
         """
-        return [board.target for board in self._boards if board.build_it]
+        return [brd.target for brd in self._boards if brd.build_it]
 
     def _BuildTerms(self, args):
         """Convert command line arguments to a list of terms.
@@ -273,34 +273,34 @@ class Boards:
             exclude_list.append(Expr(expr))
 
         found = []
-        for board in self._boards:
+        for brd in self._boards:
             matching_term = None
             build_it = False
             if terms:
                 match = False
                 for term in terms:
-                    if term.Matches(board.props):
+                    if term.Matches(brd.props):
                         matching_term = str(term)
                         build_it = True
                         break
             elif boards:
-                if board.target in boards:
+                if brd.target in boards:
                     build_it = True
-                    found.append(board.target)
+                    found.append(brd.target)
             else:
                 build_it = True
 
             # Check that it is not specifically excluded
             for expr in exclude_list:
-                if expr.Matches(board.props):
+                if expr.Matches(brd.props):
                     build_it = False
                     break
 
             if build_it:
-                board.build_it = True
+                brd.build_it = True
                 if matching_term:
-                    result[matching_term].append(board.target)
-                result['all'].append(board.target)
+                    result[matching_term].append(brd.target)
+                result['all'].append(brd.target)
 
         if boards:
             remaining = set(boards) - set(found)
