@@ -47,7 +47,7 @@
 			/* DEBUG UART */
 			qup_uart9: qup-uart9-default {
 				pins = "GPIO_4", "GPIO_5";
-				function = "gpio";
+				function = "qup9";
 			};
 		};
 
