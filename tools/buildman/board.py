@@ -116,7 +116,7 @@ class Boards:
     def ReadBoards(self, fname):
         """Read a list of boards from a board file.
 
-        Create a board object for each and add it to our _boards list.
+        Create a Board object for each and add it to our _boards list.
 
         Args:
             fname: Filename of boards.cfg file
@@ -238,21 +238,21 @@ class Boards:
             terms.append(term)
         return terms
 
-    def SelectBoards(self, args, exclude=[], boards=None):
+    def SelectBoards(self, args, exclude=[], brds=None):
         """Mark boards selected based on args
 
         Normally either boards (an explicit list of boards) or args (a list of
         terms to match against) is used. It is possible to specify both, in
         which case they are additive.
 
-        If boards and args are both empty, all boards are selected.
+        If brds and args are both empty, all boards are selected.
 
         Args:
             args: List of strings specifying boards to include, either named,
                   or by their target, architecture, cpu, vendor or soc. If
                   empty, all boards are selected.
             exclude: List of boards to exclude, regardless of 'args'
-            boards: List of boards to build
+            brds: List of boards to build
 
         Returns:
             Tuple
@@ -283,8 +283,8 @@ class Boards:
                         matching_term = str(term)
                         build_it = True
                         break
-            elif boards:
-                if brd.target in boards:
+            elif brds:
+                if brd.target in brds:
                     build_it = True
                     found.append(brd.target)
             else:
@@ -302,8 +302,8 @@ class Boards:
                     result[matching_term].append(brd.target)
                 result['all'].append(brd.target)
 
-        if boards:
-            remaining = set(boards) - set(found)
+        if brds:
+            remaining = set(brds) - set(found)
             if remaining:
                 warnings.append('Boards not found: %s\n' % ', '.join(remaining))
 
