@@ -150,6 +150,25 @@
 		filename = "flash.bin";
 		pad-byte = <0x00>;
 
+#ifdef CONFIG_FSPI_CONF_HEADER
+		fspi_conf_block {
+			filename = CONFIG_FSPI_CONF_FILE;
+			type = "blob-ext";
+			size = <0x1000>;
+		};
+
+		spl {
+			filename = "spl.bin";
+			offset = <0x1000>;
+			type = "blob-ext";
+		};
+
+		binman_uboot: uboot {
+			filename = "u-boot.itb";
+			offset = <0x58C00>;
+			type = "blob-ext";
+		};
+#else
 		spl {
 			filename = "spl.bin";
 			offset = <0x0>;
@@ -161,6 +180,7 @@
 			offset = <0x57c00>;
 			type = "blob-ext";
 		};
+#endif
 	};
 };
 
