@@ -1331,9 +1331,6 @@ scope for more though, e.g.:
 - 'hunting' for problems, perhaps by building a few boards for each arch, or
   checking commits for changed files and building only boards which use those
   files
-- using the same git repo for all threads instead of cloning it. Currently
-  it uses about 500MB per thread, so on a 64-thread machine this is 32GB for
-  the build.
 
 
 Credits
