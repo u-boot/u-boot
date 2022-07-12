@@ -140,7 +140,7 @@ stages:
       options: $(container_option)
     steps:
       - script: |
-          if [ `./tools/genboardscfg.py -f 2>&1 | wc -l` -ne 0 ]; then exit 1; fi
+          ./tools/buildman/buildman -R
 
   - job: tools_only
     displayName: 'Ensure host tools build'
