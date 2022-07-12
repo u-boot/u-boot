@@ -188,12 +188,12 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
         board_file = os.path.join(options.output_dir, 'boards.cfg')
 
         brds = boards.Boards()
-        brds.ensure_board_list(board_file,
-                               options.threads or multiprocessing.cpu_count(),
-                               force=options.regen_board_list,
-                               quiet=not options.verbose)
+        ok = brds.ensure_board_list(board_file,
+                                    options.threads or multiprocessing.cpu_count(),
+                                    force=options.regen_board_list,
+                                    quiet=not options.verbose)
         if options.regen_board_list:
-            return 0
+            return 0 if ok else 2
         brds.read_boards(board_file)
 
     exclude = []

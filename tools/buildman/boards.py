@@ -276,11 +276,13 @@ class MaintainersDatabase:
             value: tuple:
                 str: Board status (e.g. 'Active')
                 str: List of maintainers, separated by :
+        warnings (list of str): List of warnings due to missing status, etc.
     """
 
     def __init__(self):
         """Create an empty database."""
         self.database = {}
+        self.warnings = []
 
     def get_status(self, target):
         """Return the status of the given board.
@@ -296,7 +298,7 @@ class MaintainersDatabase:
             str: 'Active', 'Orphan' or '-'.
         """
         if not target in self.database:
-            print(f"WARNING: no status info for '{target}'", file=sys.stderr)
+            self.warnings.append(f"WARNING: no status info for '{target}'")
             return '-'
 
         tmp = self.database[target][0]
@@ -306,7 +308,7 @@ class MaintainersDatabase:
             return 'Active'
         if tmp.startswith('Orphan'):
             return 'Orphan'
-        print(f"WARNING: {tmp}: unknown status for '{target}'", file=sys.stderr)
+        self.warnings.append(f"WARNING: {tmp}: unknown status for '{target}'")
         return '-'
 
     def get_maintainers(self, target):
@@ -320,7 +322,7 @@ class MaintainersDatabase:
             maintainers, they are separated with colons.
         """
         if not target in self.database:
-            print(f"WARNING: no maintainers for '{target}'", file=sys.stderr)
+            self.warnings.append(f"WARNING: no maintainers for '{target}'")
             return ''
 
         return ':'.join(self.database[target][1])
@@ -677,6 +679,9 @@ class Boards:
 
         Args:
             params_list (list of dict): A list of the board parameters
+
+        Returns:
+            list of str: List of warnings collected due to missing status, etc.
         """
         database = MaintainersDatabase()
         for (dirpath, _, filenames) in os.walk('.'):
@@ -688,6 +693,7 @@ class Boards:
             params['status'] = database.get_status(target)
             params['maintainers'] = database.get_maintainers(target)
             params_list[i] = params
+        return database.warnings
 
     @classmethod
     def format_and_output(cls, params_list, output):
@@ -731,11 +737,17 @@ class Boards:
             jobs (int): The number of jobs to run simultaneously
             force (bool): Force to generate the output even if it is new
             quiet (bool): True to avoid printing a message if nothing needs doing
+
+        Returns:
+            bool: True if all is well, False if there were warnings
         """
         if not force and output_is_new(output):
             if not quiet:
                 print(f'{output} is up to date. Nothing to do.')
-            return
+            return True
         params_list = self.scan_defconfigs(jobs)
-        self.insert_maintainers_info(params_list)
+        warnings = self.insert_maintainers_info(params_list)
+        for warn in warnings:
+            print(warn, file=sys.stderr)
         self.format_and_output(params_list, output)
+        return not warnings
