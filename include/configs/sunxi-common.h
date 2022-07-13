@@ -88,7 +88,7 @@
 #endif /* !CONFIG_ARM64 */
 #elif CONFIG_SUNXI_SRAM_ADDRESS == 0x20000
 #ifdef CONFIG_MACH_SUN50I_H616
-#define LOW_LEVEL_SRAM_STACK		0x58000
+#define LOW_LEVEL_SRAM_STACK		0x52a00		/* below FEL buffers */
 #else
 /* end of SRAM A2 on H6 for now */
 #define LOW_LEVEL_SRAM_STACK		0x00118000
