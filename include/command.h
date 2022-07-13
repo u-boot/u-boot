@@ -258,6 +258,16 @@ int run_command(const char *cmd, int flag);
 int run_command_repeatable(const char *cmd, int flag);
 
 /**
+ * run_commandf() - Run a command created by a format string
+ *
+ * The command cannot be larger than 127 characters
+ *
+ * @fmt: printf() format string
+ * @...: Arguments to use (flag is always 0)
+ */
+int run_commandf(const char *fmt, ...);
+
+/**
  * Run a list of commands separated by ; or even \0
  *
  * Note that if 'len' is not -1, then the command does not need to be nul
