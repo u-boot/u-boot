@@ -75,7 +75,7 @@ static void _uart_zynq_serial_setbrg(struct uart_zynq *regs,
 	 * Find acceptable values for baud generation.
 	 */
 	for (bdiv = 4; bdiv < 255; bdiv++) {
-		bgen = clock / (baud * (bdiv + 1));
+		bgen = DIV_ROUND_CLOSEST(clock, baud * (bdiv + 1));
 		if (bgen < 2 || bgen > 65535)
 			continue;
 
