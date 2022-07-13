@@ -14,4 +14,9 @@
 
 #include <configs/stm32mp13_common.h>
 
+/* uart with on-board st-link */
+#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200, \
+					 230400, 460800, 921600, \
+					 1000000, 2000000, 4000000}
+
 #endif

@@ -39,3 +39,4 @@
 #define STM32MP_PKG_AD	0x8
 
 #endif /* _DT_BINDINGS_STM32_PINFUNC_H */
+
