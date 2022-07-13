@@ -137,9 +137,14 @@
 			};
 		};
 
-		spmi@200f000 {
+		spmi_bus: spmi@200f000 {
 			compatible = "qcom,spmi-pmic-arb";
-			reg = <0x200f800 0x200 0x2400000 0x400000 0x2c00000 0x400000>;
+			reg = <0x0200f000 0x001000>,
+			      <0x02400000 0x400000>,
+			      <0x02c00000 0x400000>,
+			      <0x03800000 0x200000>,
+			      <0x0200a000 0x002100>;
+			reg-names = "core", "chnls", "obsrvr", "intr", "cnfg";
 			#address-cells = <0x1>;
 			#size-cells = <0x1>;
 			pmic0: pm8916@0 {

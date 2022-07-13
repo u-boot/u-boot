@@ -93,11 +93,14 @@
 			clock-frequency = <200000000>;
 		 };
 
-		spmi@400f000 {
+		spmi_bus: spmi@400f000 {
 			compatible = "qcom,spmi-pmic-arb";
-			reg = <0x400f800 0x200>,
-			      <0x4400000 0x400000>,
-			      <0x4c00000 0x400000>;
+			reg = <0x0400f000 0x1000>,
+			      <0x04400000 0x800000>,
+			      <0x04c00000 0x800000>,
+			      <0x05800000 0x200000>,
+			      <0x0400a000 0x002100>;
+			reg-names = "core", "chnls", "obsrvr", "intr", "cnfg";
 			#address-cells = <0x1>;
 			#size-cells = <0x1>;
 
