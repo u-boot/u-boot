@@ -5,6 +5,12 @@
  * Aaron <leafy.myeh@allwinnertech.com>
  *
  * MMC driver for allwinner sunxi platform.
+ *
+ * This driver is used by the (ARM) SPL with the legacy MMC interface, and
+ * by U-Boot proper using the full DM interface. The actual hardware access
+ * code is common, and comes first in this file.
+ * The legacy MMC interface implementation comes next, followed by the
+ * proper DM_MMC implementation at the end.
  */
 
 #include <common.h>
@@ -39,48 +45,6 @@ struct sunxi_mmc_priv {
 	struct sunxi_mmc *reg;
 	struct mmc_config cfg;
 };
-
-#if !CONFIG_IS_ENABLED(DM_MMC)
-/* support 4 mmc hosts */
-struct sunxi_mmc_priv mmc_host[4];
-
-static int mmc_resource_init(int sdc_no)
-{
-	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
-	debug("init mmc %d resource\n", sdc_no);
-
-	switch (sdc_no) {
-	case 0:
-		priv->reg = (struct sunxi_mmc *)SUNXI_MMC0_BASE;
-		priv->mclkreg = &ccm->sd0_clk_cfg;
-		break;
-	case 1:
-		priv->reg = (struct sunxi_mmc *)SUNXI_MMC1_BASE;
-		priv->mclkreg = &ccm->sd1_clk_cfg;
-		break;
-#ifdef SUNXI_MMC2_BASE
-	case 2:
-		priv->reg = (struct sunxi_mmc *)SUNXI_MMC2_BASE;
-		priv->mclkreg = &ccm->sd2_clk_cfg;
-		break;
-#endif
-#ifdef SUNXI_MMC3_BASE
-	case 3:
-		priv->reg = (struct sunxi_mmc *)SUNXI_MMC3_BASE;
-		priv->mclkreg = &ccm->sd3_clk_cfg;
-		break;
-#endif
-	default:
-		printf("Wrong mmc number %d\n", sdc_no);
-		return -1;
-	}
-	priv->mmc_no = sdc_no;
-
-	return 0;
-}
-#endif
 
 /*
  * All A64 and later MMC controllers feature auto-calibration. This would
@@ -268,19 +232,6 @@ static int sunxi_mmc_set_ios_common(struct sunxi_mmc_priv *priv,
 
 	return 0;
 }
-
-#if !CONFIG_IS_ENABLED(DM_MMC)
-static int sunxi_mmc_core_init(struct mmc *mmc)
-{
-	struct sunxi_mmc_priv *priv = mmc->priv;
-
-	/* Reset controller */
-	writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
-	udelay(1000);
-
-	return 0;
-}
-#endif
 
 static int mmc_trans_data_by_cpu(struct sunxi_mmc_priv *priv, struct mmc *mmc,
 				 struct mmc_data *data)
@@ -486,7 +437,60 @@ out:
 	return error;
 }
 
+/* non-DM code here is used by the (ARM) SPL only */
+
 #if !CONFIG_IS_ENABLED(DM_MMC)
+/* support 4 mmc hosts */
+struct sunxi_mmc_priv mmc_host[4];
+
+static int mmc_resource_init(int sdc_no)
+{
+	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	debug("init mmc %d resource\n", sdc_no);
+
+	switch (sdc_no) {
+	case 0:
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC0_BASE;
+		priv->mclkreg = &ccm->sd0_clk_cfg;
+		break;
+	case 1:
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC1_BASE;
+		priv->mclkreg = &ccm->sd1_clk_cfg;
+		break;
+#ifdef SUNXI_MMC2_BASE
+	case 2:
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC2_BASE;
+		priv->mclkreg = &ccm->sd2_clk_cfg;
+		break;
+#endif
+#ifdef SUNXI_MMC3_BASE
+	case 3:
+		priv->reg = (struct sunxi_mmc *)SUNXI_MMC3_BASE;
+		priv->mclkreg = &ccm->sd3_clk_cfg;
+		break;
+#endif
+	default:
+		printf("Wrong mmc number %d\n", sdc_no);
+		return -1;
+	}
+	priv->mmc_no = sdc_no;
+
+	return 0;
+}
+
+static int sunxi_mmc_core_init(struct mmc *mmc)
+{
+	struct sunxi_mmc_priv *priv = mmc->priv;
+
+	/* Reset controller */
+	writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
+	udelay(1000);
+
+	return 0;
+}
+
 static int sunxi_mmc_set_ios_legacy(struct mmc *mmc)
 {
 	struct sunxi_mmc_priv *priv = mmc->priv;
@@ -562,7 +566,8 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	return mmc_create(cfg, priv);
 }
-#else
+
+#else /* CONFIG_DM_MMC code below, as used by U-Boot proper */
 
 static int sunxi_mmc_set_ios(struct udevice *dev)
 {
