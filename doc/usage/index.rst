@@ -43,6 +43,7 @@ Shell commands
    cmd/false
    cmd/fatinfo
    cmd/fatload
+   cmd/fdt
    cmd/for
    cmd/load
    cmd/loadm
