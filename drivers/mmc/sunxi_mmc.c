@@ -44,22 +44,10 @@ struct sunxi_mmc_priv {
 /* support 4 mmc hosts */
 struct sunxi_mmc_priv mmc_host[4];
 
-static int sunxi_mmc_getcd_gpio(int sdc_no)
-{
-	switch (sdc_no) {
-	case 0: return sunxi_name_to_gpio(CONFIG_MMC0_CD_PIN);
-	case 1: return sunxi_name_to_gpio(CONFIG_MMC1_CD_PIN);
-	case 2: return sunxi_name_to_gpio(CONFIG_MMC2_CD_PIN);
-	case 3: return sunxi_name_to_gpio(CONFIG_MMC3_CD_PIN);
-	}
-	return -EINVAL;
-}
-
 static int mmc_resource_init(int sdc_no)
 {
 	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	int cd_pin, ret = 0;
 
 	debug("init mmc %d resource\n", sdc_no);
 
@@ -90,16 +78,7 @@ static int mmc_resource_init(int sdc_no)
 	}
 	priv->mmc_no = sdc_no;
 
-	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
-	if (cd_pin >= 0) {
-		ret = gpio_request(cd_pin, "mmc_cd");
-		if (!ret) {
-			sunxi_gpio_set_pull(cd_pin, SUNXI_GPIO_PULL_UP);
-			ret = gpio_direction_input(cd_pin);
-		}
-	}
-
-	return ret;
+	return 0;
 }
 #endif
 
@@ -523,23 +502,11 @@ static int sunxi_mmc_send_cmd_legacy(struct mmc *mmc, struct mmc_cmd *cmd,
 	return sunxi_mmc_send_cmd_common(priv, mmc, cmd, data);
 }
 
-static int sunxi_mmc_getcd_legacy(struct mmc *mmc)
-{
-	struct sunxi_mmc_priv *priv = mmc->priv;
-	int cd_pin;
-
-	cd_pin = sunxi_mmc_getcd_gpio(priv->mmc_no);
-	if (cd_pin < 0)
-		return 1;
-
-	return !gpio_get_value(cd_pin);
-}
-
+/* .getcd is not needed by the SPL */
 static const struct mmc_ops sunxi_mmc_ops = {
 	.send_cmd	= sunxi_mmc_send_cmd_legacy,
 	.set_ios	= sunxi_mmc_set_ios_legacy,
 	.init		= sunxi_mmc_core_init,
-	.getcd		= sunxi_mmc_getcd_legacy,
 };
 
 struct mmc *sunxi_mmc_init(int sdc_no)
