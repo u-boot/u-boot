@@ -33,12 +33,6 @@ The following rules apply:
   original coding style may be kept to ease subsequent migration to newer
   versions of those sources.
 
-* Please note that U-Boot is implemented in C (and to some small parts in
-  Assembler); no C++ is used, so please do not use C++ style comments (//) in
-  your code.
-
-  * The sole exception here is for SPDX tags in some files (checkpatch.pl will warn you).
-
 * Please also stick to the following formatting rules:
 
   * Remove any trailing white space
