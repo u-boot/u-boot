@@ -132,16 +132,20 @@ Work flow of a Custodian
 The normal flow of work in the U-Boot development process will look
 like this:
 
-#. A developer submits a patch via e-mail to the u-boot-users mailing list.
-   U-Boot has adopted the `Linux kernel signoff policy <https://groups.google.com/g/fa.linux.kernel/c/TLJIJVA-I6o?pli=1>`_, so the submitter must
-   include a ``Signed-off-by:`` line.
+#. A developer submits a patch via e-mail to the u-boot mailing list.  In
+   U-Boot, we make use of the `Developer Certificate of Origin
+   <https://developercertificate.org/>`_ that is common in other projects such
+   as the Linux kernel.  Following this and adding a ``Signed-off-by:`` line
+   that contains the developer's name and email address is required.
 
-#. Everybody who can is invited to review and test the changes.  Reviews should
-   reply on the mailing list with ``Acked-by`` lines.
+#. Everybody who can is invited to review and test the changes.  Typically, we
+   follow the same guidelines as the Linux kernel for `Acked-by
+   <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#when-to-use-acked-by-cc-and-co-developed-by>`_
+   as well as `Reviewed-by
+   <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#using-reported-by-tested-by-reviewed-by-suggested-by-and-fixes>`_
+   and similar additional tags.
 
-#. The responsible custodian
-
-   #. inspects this patch, especially for:
+#. The responsible custodian inspects this patch, especially for:
 
    #. :doc:`codingstyle`
 
@@ -152,50 +156,42 @@ like this:
       * The patch does not introduce new problems, especially it does not break
         other boards or architectures
 
-   #. U-Boot Philosophy
+   #. U-Boot Philosophy, as documented in :doc:`designprinciples`.
 
-   #. Applies cleanly to the source tree
+   #. Applies cleanly to the source tree.  The custodian is expected to put in
+      a "best effort" if a patch does not apply cleanly, but can be made to apply
+      still.  It is up to the custodian to decide how recent of a commit the
+      patch must be against.  It is acceptable to request patches against the
+      last officially released version of U-Boot or newer.  Of course a
+      custodian can also accept patches against older code.  It can be
+      difficult to find the correct balance between putting too much work on
+      the custodian or too much work on an individual submitting a patch when
+      something does not apply cleanly.
 
    #. Passes :doc:`ci_testing` as this checks for new warnings and other issues.
 
-#. Notes:
+#. Note that in some cases more than one custodian may feel responsible for a
+   particular change.  To avoid duplicated efforts, the custodian who starts
+   processing the patch should follow up to the email saying they intend to
+   pick it up.
 
-  #. In some cases more than one custodian may be affected or feel responsible.
-     To avoid duplicated efforts, the custodian who starts processing the
-     patch should send a short ACK to the mailing list.
+#. Commits must show original author in the ``author`` field and include all of
+   the ``Signed-off-by``, ``Reviewed-by``, etc, tags that have been submitted.
 
-  #. We should create some tool to automatically do this.
+#. The final decision to accept or reject a patch comes down to the custodian
+   in question.
 
-  #. This is well documented in :doc:`designprinciples`.
+#. If accepted, the custodian adds the patch to their public git repository.
+   Ideally, they will also follow up on the mailing list with some notification
+   that it has been applied.  This is not always easy given different custodian
+   workflows and environments however.
 
-  #. The custodian decides themselves how recent the code must be.  It is
-     acceptable to request patches against the last officially released
-     version of U-Boot or newer.  Of course a custodian can also accept
-     patches against older code.
+#. Although a custodian is supposed to perform their own tests it is a
+   well-known and accepted fact that they needs help from other developers who
+   - for example - have access to the required hardware or other relevant
+   environments.  Custodians are expected to ask for assistance with testing
+   when required.
 
-  #. Commits should show original author in the ``author`` field and include all
-      sign off/ack lines.
-
-#. The custodian decides to accept or to reject the patch.
-
-#. If accepted, the custodian adds the patch to their public git repository and
-   notifies the mailing list. This note should include:
-
-   * a short description of the changes
-
-   * the list of the affected boards / architectures etc.
-
-   * suggested tests
-
-   Although the custodian is supposed to perform their own tests
-   it is a well-known and accepted fact that they needs help from
-   other developers who - for example - have access to the required
-   hardware or tool chains.
-   The custodian request help for tests and feedback from
-   specific maintainers and U-Boot users.
-
-#. Once tests are passed, some agreed time limit expires, the custodian
-   requests that the changes in their public git repository be merged into the
-   main tree. If necessary, the custodian may have to adapt their changes to
-   allow for a clean merge.
-   Todo: define a reasonable time limit. 3 weeks?
+#. Custodians are expected to submit a timely pull request of their git
+   repository to the main repository.  It is strongly encouraged that a CI run
+   has been completed prior to submission, but not required.
