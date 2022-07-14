@@ -10,6 +10,7 @@ General
    :maxdepth: 1
 
    codingstyle
+   designprinciples
 
 Implementation
 --------------
