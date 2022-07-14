@@ -46,21 +46,22 @@ Twilight Time
 -------------
 
 Usually patches do not get accepted as they are - the peer review that takes
-place will usually require changes and resubmits of the patches before they
+place will usually require changes and resubmissions of the patches before they
 are considered to be ripe for inclusion into mainline.
 
-Also, the review often happens not immediately after a patch was submitted,
+Also the review often happens not immediately after a patch was submitted,
 but only when somebody (usually the responsible custodian) finds time to do
 this.
 
-In the result, the final version of such patches gets submitted after the
+The result is that the final version of such patches gets submitted after the
 merge window has been closed.
 
 It is current practice in U-Boot that such patches are eligible to go into the
 upcoming release.
 
-In the result, the release of the ``"-rc1"`` version does not immediately follow
-the closing of the Merge Window.
+The result is that the release of the ``"-rc1"`` version and formal closing of
+the Merge Window does not preclude patches that were already posted from being
+merged for the upcoming release.
 
 Stabilization Period
 --------------------
@@ -75,13 +76,13 @@ Sometimes it is not clear if a patch contains a bug fix or not.
 For example, changes that remove dead code, unused macros etc. or
 that contain Coding Style fixes are not strict bug fixes.
 
-In such situations it is up to the responsible custodian to decide if he
-applies such patches even when the Merge Window is closed.
+In such situations it is up to the responsible custodian to decide if they
+apply such patches even when the Merge Window is closed.
 
 Exception: at the end of the Stabilization Period only strict bug
 fixes my be applied.
 
-Sometimes patches miss the the Merge Window slightly - say by few
+Sometimes patches miss the Merge Window slightly - say by a few
 hours or even a day. Patch acceptance is not as critical as a
 financial transaction, or such. So if there is such a slight delay,
 the custodian is free to turn a blind eye and accept it anyway. The
@@ -110,7 +111,7 @@ Custodians
 ----------
 
 The Custodians take responsibility for some area of the U-Boot code.  The
-in-tree ``MAINTAINERS`` files list who is reponsible for which areas.
+in-tree ``MAINTAINERS`` files list who is responsible for which areas.
 
 It is their responsibility to pick up patches from the mailing list
 that fall into their responsibility, and to process these.
@@ -155,7 +156,7 @@ like this:
 
    #. Applies cleanly to the source tree
 
-   #. passes a ``MAKEALL`` compile test without creating new warnings
+   #. Passes :doc:`ci_testing` as this checks for new warnings and other issues.
 
 #. Notes:
 
@@ -167,7 +168,7 @@ like this:
 
   #. This is well documented in :doc:`designprinciples`.
 
-  #. The custodian decides himself how recent the code must be.  It is
+  #. The custodian decides themselves how recent the code must be.  It is
      acceptable to request patches against the last officially released
      version of U-Boot or newer.  Of course a custodian can also accept
      patches against older code.
@@ -177,7 +178,7 @@ like this:
 
 #. The custodian decides to accept or to reject the patch.
 
-#. If accepted, the custodian adds the patch to his public git repository and
+#. If accepted, the custodian adds the patch to their public git repository and
    notifies the mailing list. This note should include:
 
    * a short description of the changes
@@ -186,15 +187,15 @@ like this:
 
    * suggested tests
 
-   Although the custodian is supposed to perform his own tests
-   it is a well-known and accepted fact that he needs help from
+   Although the custodian is supposed to perform their own tests
+   it is a well-known and accepted fact that they needs help from
    other developers who - for example - have access to the required
    hardware or tool chains.
    The custodian request help for tests and feedback from
    specific maintainers and U-Boot users.
 
 #. Once tests are passed, some agreed time limit expires, the custodian
-   requests that the changes in his public git repository be merged into the
-   main tree. If necessary, the custodian may have to adapt his changes to
+   requests that the changes in their public git repository be merged into the
+   main tree. If necessary, the custodian may have to adapt their changes to
    allow for a clean merge.
    Todo: define a reasonable time limit. 3 weeks?
