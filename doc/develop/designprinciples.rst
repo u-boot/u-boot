@@ -28,15 +28,15 @@ millions...
 
 A usable and useful configuration of U-Boot, including a basic
 interactive command interpreter, support for download over Ethernet
-and the capability to program the flash shall fit in no more than 128 !KiB.
+and the capability to program the flash shall fit in no more than 128 KiB.
 
 Keep it Fast
 ^^^^^^^^^^^^
 
 The end user is not interested in running U-Boot. In most embedded
-systems he is not even aware that U-Boot exists. The user wants to
+systems they are not even aware that U-Boot exists. The user wants to
 run some application code, and that as soon as possible after switching
-on his device.
+on their device.
 
 It is therefore essential that U-Boot is as fast as possible,
 especially that it loads and boots the operating system as fast as possible.
@@ -63,7 +63,7 @@ Keep it Simple
 ^^^^^^^^^^^^^^
 
 U-Boot is a boot loader, but it is also a tool used for board
-bring-up, for production testing, and for other activities
+bring-up, for production testing, and for other activities.
 
 Keep it Portable
 ^^^^^^^^^^^^^^^^
@@ -96,13 +96,13 @@ Keep it Configurable
 Section "Keep it Small" already explains about the size restrictions
 for U-Boot on one side. On the other side, U-Boot is a powerful tool
 with many, many extremely useful features. The maintainer or user of
-each board will have to decide which features are important to him and
-what shall be included with his specific board configuration to meet
-his current requirements and restrictions.
+each board will have to decide which features are important to them and
+what shall be included with their specific board configuration to meet
+their current requirements and restrictions.
 
 Please make sure that it is easy to add or remove features from a
 board configuration, so everybody can make the best use of U-Boot on
-his system.
+their system.
 
 If a feature is not included, it should not have any residual code
 bloating the build.
@@ -126,7 +126,7 @@ debug is all the more important to many of us.
 * All initialization steps shall print some "begin doing this" message before
   they actually start, and some "done" message when they complete. For example,
   RAM initialization and size detection may print a "RAM: " before they start,
-  and "256 MB\n" when done.  The purpose of this is that you can always see
+  and "256 MB\\n" when done.  The purpose of this is that you can always see
   which initialization step was running if there should be any problem.  This
   is important not only during software development, but also for the service
   people dealing with broken hardware in the field.
@@ -143,8 +143,8 @@ Please always keep in mind that there are at least three different
 groups of users for U-Boot, with completely different expectations
 and requirements:
 
-* The end user of an embedded device just wants to run some application; he
-  does not even want to know that U-Boot exists and only rarely interacts with
+* The end user of an embedded device just wants to run some application; they
+  do not even want to know that U-Boot exists and only rarely interacts with
   it (for example to perform a reset to factory default settings etc.)
 
 * System designers and engineers working on the development of the application
