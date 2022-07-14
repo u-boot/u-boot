@@ -81,6 +81,32 @@
 #define EndpointOutRequest \
 	((USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
 
+/* class requests from the USB 2.0 hub spec, table 11-15 */
+#define HUB_CLASS_REQ(dir, type, request) ((((dir) | (type)) << 8) | (request))
+/* GetBusState and SetHubDescriptor are optional, omitted */
+#define ClearHubFeature		HUB_CLASS_REQ(USB_DIR_OUT, USB_RT_HUB, \
+					      USB_REQ_CLEAR_FEATURE)
+#define ClearPortFeature	HUB_CLASS_REQ(USB_DIR_OUT, USB_RT_PORT, \
+					      USB_REQ_CLEAR_FEATURE)
+#define GetHubDescriptor	HUB_CLASS_REQ(USB_DIR_IN, USB_RT_HUB, \
+					      USB_REQ_GET_DESCRIPTOR)
+#define GetHubStatus		HUB_CLASS_REQ(USB_DIR_IN, USB_RT_HUB, \
+					      USB_REQ_GET_STATUS)
+#define GetPortStatus		HUB_CLASS_REQ(USB_DIR_IN, USB_RT_PORT, \
+					      USB_REQ_GET_STATUS)
+#define SetHubFeature		HUB_CLASS_REQ(USB_DIR_OUT, USB_RT_HUB, \
+					      USB_REQ_SET_FEATURE)
+#define SetPortFeature		HUB_CLASS_REQ(USB_DIR_OUT, USB_RT_PORT, \
+					      USB_REQ_SET_FEATURE)
+#define ClearTTBuffer		HUB_CLASS_REQ(USB_DIR_OUT, USB_RT_PORT, \
+					      HUB_CLEAR_TT_BUFFER)
+#define ResetTT			HUB_CLASS_REQ(USB_DIR_OUT, USB_RT_PORT, \
+					      HUB_RESET_TT)
+#define GetTTState		HUB_CLASS_REQ(USB_DIR_IN, USB_RT_PORT, \
+					      HUB_GET_TT_STATE)
+#define StopTT			HUB_CLASS_REQ(USB_DIR_OUT, USB_RT_PORT, \
+					      HUB_STOP_TT)
+
 /* Descriptor types */
 #define USB_DT_DEVICE        0x01
 #define USB_DT_CONFIG        0x02
@@ -289,10 +315,16 @@
 #define USB_SS_PORT_STAT_C_CONFIG_ERROR	0x0080
 
 /* wHubCharacteristics (masks) */
+#define HUB_CHAR_COMMON_OCPM        0x0000 /* All ports Over-Current reporting */
+#define HUB_CHAR_INDV_PORT_LPSM     0x0001 /* per-port power control */
+#define HUB_CHAR_NO_LPSM            0x0002 /* no power switching */
 #define HUB_CHAR_LPSM               0x0003
 #define HUB_CHAR_COMPOUND           0x0004
+#define HUB_CHAR_INDV_PORT_OCPM     0x0008 /* per-port Over-current reporting */
+#define HUB_CHAR_NO_OCPM            0x0010 /* No Over-current Protection support */
 #define HUB_CHAR_OCPM               0x0018
 #define HUB_CHAR_TTTT               0x0060 /* TT Think Time mask */
+#define HUB_CHAR_PORTIND            0x0080 /* per-port indicators (LEDs) */
 
 /*
  * Hub Status & Hub Change bit masks

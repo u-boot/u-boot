@@ -581,21 +581,22 @@ static int probe_usb_keyboard(struct usb_device *dev)
 
 	stdinname = env_get("stdin");
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
-	error = iomux_doenv(stdin, stdinname);
-	if (error)
-		return error;
+	if (strstr(stdinname, DEVNAME) != NULL) {
+		error = iomux_doenv(stdin, stdinname);
+		if (error)
+			return error;
+	}
 #else
 	/* Check if this is the standard input device. */
-	if (strcmp(stdinname, DEVNAME))
-		return 1;
+	if (!strcmp(stdinname, DEVNAME)) {
+		/* Reassign the console */
+		if (overwrite_console())
+			return 1;
 
-	/* Reassign the console */
-	if (overwrite_console())
-		return 1;
-
-	error = console_assign(stdin, DEVNAME);
-	if (error)
-		return error;
+		error = console_assign(stdin, DEVNAME);
+		if (error)
+			return error;
+	}
 #endif
 
 	return 0;
