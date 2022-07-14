@@ -802,6 +802,9 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
+/* template END node: */
+extern const struct efi_device_path END;
+
 /* Indicate supported runtime services */
 efi_status_t efi_init_runtime_supported(void);
 
