@@ -11,6 +11,7 @@ General
 
    codingstyle
    designprinciples
+   process
 
 Implementation
 --------------
