@@ -15,8 +15,6 @@
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
 
-#if defined(CONFIG_SPL_BUILD)
-
 /*
  * This uninitialized global variable would normal end up in the .bss section,
  * but the .bss is cleared between writing and reading this variable, so move
@@ -290,5 +288,3 @@ u32 spl_boot_device(void)
 
 	return bootmedia;
 }
-
-#endif /* CONFIG_SPL_BUILD */

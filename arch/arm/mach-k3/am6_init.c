@@ -26,7 +26,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPL_BUILD
 #ifdef CONFIG_K3_LOAD_SYSFW
 #ifdef CONFIG_TI_SECURE_DEVICE
 struct fwl_data main_cbass_fwls[] = {
@@ -359,7 +358,6 @@ u32 spl_boot_device(void)
 	else
 		return __get_backup_bootmedia(devstat);
 }
-#endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
 
