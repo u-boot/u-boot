@@ -622,15 +622,12 @@ static int zynq_qspi_set_speed(struct udevice *bus, uint speed)
 	uint32_t confr;
 	u8 baud_rate_val = 0;
 
-	if (speed > plat->frequency)
-		speed = plat->frequency;
+	if (!speed || speed > priv->max_hz)
+		speed = priv->max_hz;
 
 	/* Set the clock frequency */
 	confr = readl(&regs->cr);
-	if (speed == 0) {
-		/* Set baudrate x8, if the freq is 0 */
-		baud_rate_val = 0x2;
-	} else if (plat->speed_hz != speed) {
+	if (plat->speed_hz != speed) {
 		while ((baud_rate_val < ZYNQ_QSPI_CR_BAUD_MAX) &&
 		       ((plat->frequency /
 		       (2 << baud_rate_val)) > speed))
