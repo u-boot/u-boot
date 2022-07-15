@@ -30,6 +30,14 @@ endif
 
 # X509 SWRV default
 SWRV = $(CONFIG_K3_X509_SWRV)
+# On HS use SECDEV provided software revision or warn if not available
+ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
+ifneq ($(wildcard $(TI_SECURE_DEV_PKG)/keys/swrv.txt),)
+SWRV= $(shell cat $(TI_SECURE_DEV_PKG)/keys/swrv.txt)
+else
+$(warning "WARNING: Software revision file not found. Default may not work on HS hardware.")
+endif
+endif
 
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
