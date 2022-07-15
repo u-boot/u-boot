@@ -736,8 +736,50 @@ static int zynq_qspi_exec_op(struct spi_slave *slave,
 	return 0;
 }
 
+static int zynq_qspi_check_buswidth(struct spi_slave *slave, u8 width)
+{
+	u32 mode = slave->mode;
+
+	switch (width) {
+	case 1:
+		return 0;
+	case 2:
+		if (mode & SPI_RX_DUAL)
+			return 0;
+		break;
+	case 4:
+		if (mode & SPI_RX_QUAD)
+			return 0;
+		break;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+bool zynq_qspi_mem_exec_op(struct spi_slave *slave,
+			   const struct spi_mem_op *op)
+{
+	if (zynq_qspi_check_buswidth(slave, op->cmd.buswidth))
+		return false;
+
+	if (op->addr.nbytes &&
+	    zynq_qspi_check_buswidth(slave, op->addr.buswidth))
+		return false;
+
+	if (op->dummy.nbytes &&
+	    zynq_qspi_check_buswidth(slave, op->dummy.buswidth))
+		return false;
+
+	if (op->data.dir != SPI_MEM_NO_DATA &&
+	    zynq_qspi_check_buswidth(slave, op->data.buswidth))
+		return false;
+
+	return true;
+}
+
 static const struct spi_controller_mem_ops zynq_qspi_mem_ops = {
 	.exec_op = zynq_qspi_exec_op,
+	.supports_op = zynq_qspi_mem_exec_op,
 };
 
 static const struct dm_spi_ops zynq_qspi_ops = {
