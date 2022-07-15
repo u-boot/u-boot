@@ -94,6 +94,7 @@ struct zynq_qspi_priv {
 	u8 mode;
 	u8 fifo_depth;
 	u32 freq;		/* required frequency */
+	u32 max_hz;
 	const void *tx_buf;
 	void *rx_buf;
 	unsigned len;
@@ -172,6 +173,16 @@ static void zynq_qspi_init_hw(struct zynq_qspi_priv *priv)
 
 	/* Enable SPI */
 	writel(ZYNQ_QSPI_ENR_SPI_EN_MASK, &regs->enr);
+}
+
+static int zynq_qspi_child_pre_probe(struct udevice *bus)
+{
+	struct spi_slave *slave = dev_get_parent_priv(bus);
+	struct zynq_qspi_priv *priv = dev_get_priv(bus->parent);
+
+	priv->max_hz = slave->max_hz;
+
+	return 0;
 }
 
 static int zynq_qspi_probe(struct udevice *bus)
@@ -746,4 +757,5 @@ U_BOOT_DRIVER(zynq_qspi) = {
 	.plat_auto	= sizeof(struct zynq_qspi_plat),
 	.priv_auto	= sizeof(struct zynq_qspi_priv),
 	.probe  = zynq_qspi_probe,
+	.child_pre_probe = zynq_qspi_child_pre_probe,
 };
