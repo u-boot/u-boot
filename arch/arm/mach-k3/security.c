@@ -41,6 +41,9 @@ void ti_secure_image_post_process(void **p_image, size_t *p_size)
 	image_addr = (uintptr_t)*p_image;
 	image_size = *p_size;
 
+	if (!image_size || get_device_type() == K3_DEVICE_TYPE_GP)
+		return;
+
 	if (get_device_type() != K3_DEVICE_TYPE_HS_SE &&
 	    !ti_secure_cert_detected(*p_image)) {
 		printf("Warning: Did not detect image signing certificate. "
