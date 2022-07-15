@@ -30,10 +30,19 @@ static bool ti_secure_cert_detected(void *p_image)
 		((u8 *)p_image)[4] == 0x30 && ((u8 *)p_image)[5] == 0x82);
 }
 
+/* Primitive certificate length, assumes one 2-Octet sized SEQUENCE */
+static size_t ti_secure_cert_length(void *p_image)
+{
+	size_t seq_length = be16_to_cpu(readw_relaxed(p_image + 2));
+	/* Add 4 for the SEQUENCE tag length */
+	return seq_length + 4;
+}
+
 void ti_secure_image_post_process(void **p_image, size_t *p_size)
 {
 	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
 	struct ti_sci_proc_ops *proc_ops = &ti_sci->ops.proc_ops;
+	size_t cert_length;
 	u64 image_addr;
 	u32 image_size;
 	int ret;
@@ -41,8 +50,27 @@ void ti_secure_image_post_process(void **p_image, size_t *p_size)
 	image_addr = (uintptr_t)*p_image;
 	image_size = *p_size;
 
-	if (!image_size || get_device_type() == K3_DEVICE_TYPE_GP)
+	if (!image_size)
 		return;
+
+	if (get_device_type() == K3_DEVICE_TYPE_GP) {
+		if (ti_secure_cert_detected(*p_image)) {
+			printf("Warning: Detected image signing certificate on GP device. "
+			       "Skipping certificate to prevent boot failure. "
+			       "This will fail if the image was also encrypted\n");
+
+			cert_length = ti_secure_cert_length(*p_image);
+			if (cert_length > *p_size) {
+				printf("Invalid signing certificate size\n");
+				return;
+			}
+
+			*p_image += cert_length;
+			*p_size -= cert_length;
+		}
+
+		return;
+	}
 
 	if (get_device_type() != K3_DEVICE_TYPE_HS_SE &&
 	    !ti_secure_cert_detected(*p_image)) {
