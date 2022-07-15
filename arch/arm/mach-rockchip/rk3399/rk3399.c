@@ -180,8 +180,8 @@ const char *spl_decode_boot_device(u32 boot_device)
 		u32 boot_device;
 		const char *ofpath;
 	} spl_boot_devices_tbl[] = {
-		{ BOOT_DEVICE_MMC1, "/mmc@fe320000" },
-		{ BOOT_DEVICE_MMC2, "/mmc@fe330000" },
+		{ BOOT_DEVICE_MMC2, "/mmc@fe320000" },
+		{ BOOT_DEVICE_MMC1, "/mmc@fe330000" },
 		{ BOOT_DEVICE_SPI, "/spi@ff1d0000" },
 	};
 
