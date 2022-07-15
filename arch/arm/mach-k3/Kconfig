@@ -4,8 +4,8 @@ choice
 	prompt "Texas Instruments' K3 based SoC select"
 	optional
 
-config SOC_K3_AM6
-	bool "TI's K3 based AM6 SoC Family Support"
+config SOC_K3_AM654
+	bool "TI's K3 based AM654 SoC Family Support"
 
 config SOC_K3_J721E
 	bool "TI's K3 based J721E SoC Family Support"
@@ -26,7 +26,7 @@ config SYS_SOC
 
 config SYS_K3_NON_SECURE_MSRAM_SIZE
 	hex
-	default 0x80000 if SOC_K3_AM6
+	default 0x80000 if SOC_K3_AM654
 	default 0x100000 if SOC_K3_J721E || SOC_K3_J721S2
 	default 0x1c0000 if SOC_K3_AM642
 	default 0x3c000 if SOC_K3_AM625
@@ -38,7 +38,7 @@ config SYS_K3_NON_SECURE_MSRAM_SIZE
 
 config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 	hex
-	default 0x58000 if SOC_K3_AM6
+	default 0x58000 if SOC_K3_AM654
 	default 0xc0000 if SOC_K3_J721E || SOC_K3_J721S2
 	default 0x180000 if SOC_K3_AM642
 	default 0x38000 if SOC_K3_AM625
@@ -48,21 +48,21 @@ config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 
 config SYS_K3_MCU_SCRATCHPAD_BASE
 	hex
-	default 0x40280000 if SOC_K3_AM6
+	default 0x40280000 if SOC_K3_AM654
 	default 0x40280000 if SOC_K3_J721E || SOC_K3_J721S2
 	help
 	  Describes the base address of MCU Scratchpad RAM.
 
 config SYS_K3_MCU_SCRATCHPAD_SIZE
 	hex
-	default 0x200 if SOC_K3_AM6
+	default 0x200 if SOC_K3_AM654
 	default 0x200 if SOC_K3_J721E || SOC_K3_J721S2
 	help
 	  Describes the size of MCU Scratchpad RAM.
 
 config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	hex
-	default 0x41c7fbfc if SOC_K3_AM6
+	default 0x41c7fbfc if SOC_K3_AM654
 	default 0x41cffbfc if SOC_K3_J721E
 	default 0x41cfdbfc if SOC_K3_J721S2
 	default 0x701bebfc if SOC_K3_AM642

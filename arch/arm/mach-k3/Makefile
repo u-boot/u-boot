@@ -11,7 +11,7 @@ obj-$(CONFIG_CPU_V7R) += r5_mpu.o lowlevel_init.o
 obj-$(CONFIG_TI_SECURE_DEVICE) += security.o
 obj-$(CONFIG_ARM64) += cache.o
 ifeq ($(CONFIG_SPL_BUILD),y)
-obj-$(CONFIG_SOC_K3_AM6) += am6_init.o
+obj-$(CONFIG_SOC_K3_AM654) += am654_init.o
 obj-$(CONFIG_SOC_K3_J721E) += j721e_init.o
 obj-$(CONFIG_SOC_K3_J721S2) += j721s2_init.o
 obj-$(CONFIG_SOC_K3_AM642) += am642_init.o

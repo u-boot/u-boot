@@ -45,7 +45,7 @@ config MPC83XX_SDRAM
 
 config K3_AM654_DDRSS
 	bool "Enable AM654 DDRSS support"
-	depends on RAM && SOC_K3_AM6
+	depends on RAM && SOC_K3_AM654
 	help
 	  K3 based AM654 devices has DDR memory subsystem that comprises
 	  Synopys DDR controller, Synopsis DDR phy and wrapper logic to
