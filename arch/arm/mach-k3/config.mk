@@ -28,6 +28,9 @@ else
 KEY=$(patsubst "%",$(srctree)/%,$(CONFIG_SYS_K3_KEY))
 endif
 
+# X509 SWRV default
+SWRV = $(CONFIG_K3_X509_SWRV)
+
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
 ifdef CONFIG_CPU_V7R
@@ -42,7 +45,7 @@ image_check: $(obj)/u-boot-spl.bin FORCE
 
 tiboot3.bin: image_check FORCE
 	$(srctree)/tools/k3_gen_x509_cert.sh -c 16 -b $(obj)/u-boot-spl.bin \
-				-o $@ -l $(CONFIG_SPL_TEXT_BASE) -k $(KEY)
+				-o $@ -l $(CONFIG_SPL_TEXT_BASE) -r $(SWRV) -k $(KEY)
 
 INPUTS-y	+= tiboot3.bin
 endif

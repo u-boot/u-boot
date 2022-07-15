@@ -176,6 +176,12 @@ config K3_DM_FW
 	  bootloader, it makes RM and PM services not being available
 	  during R5 SPL execution time.
 
+config K3_X509_SWRV
+	int "SWRV for X509 certificate used for boot images"
+	default 1
+	help
+	  SWRV for X509 certificate used for boot images
+
 source "board/ti/am65x/Kconfig"
 source "board/ti/am64x/Kconfig"
 source "board/ti/am62x/Kconfig"
