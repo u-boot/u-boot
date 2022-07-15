@@ -187,7 +187,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 /* add board specific code here */
 int board_init(void)
 {
-	__maybe_unused int id_pfr1, ret, satapwr_pin, macpwr_pin;
+	__maybe_unused int id_pfr1, ret, macpwr_pin;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -225,20 +225,6 @@ int board_init(void)
 		return ret;
 
 	/* strcmp() would look better, but doesn't get optimised away. */
-	if (CONFIG_SATAPWR[0]) {
-		satapwr_pin = sunxi_name_to_gpio(CONFIG_SATAPWR);
-		if (satapwr_pin >= 0) {
-			gpio_request(satapwr_pin, "satapwr");
-			gpio_direction_output(satapwr_pin, 1);
-
-			/*
-			 * Give the attached SATA device time to power-up
-			 * to avoid link timeouts
-			 */
-			mdelay(500);
-		}
-	}
-
 	if (CONFIG_MACPWR[0]) {
 		macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
 		if (macpwr_pin >= 0) {

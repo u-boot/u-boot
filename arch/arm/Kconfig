@@ -1159,6 +1159,8 @@ config ARCH_SUNXI
 	imply CMD_GPT
 	imply CMD_UBI if MTD_RAW_NAND
 	imply DISTRO_DEFAULTS
+	imply DM_REGULATOR
+	imply DM_REGULATOR_FIXED
 	imply FAT_WRITE
 	imply FIT
 	imply OF_LIBFDT_OVERLAY
