@@ -41,7 +41,7 @@ The following rules apply:
 
     * The exception here is Python which requires 4 spaces instead.
 
-  * All source files need to be in "Unix" and not "DOS" or "Windows" formatted,
+  * All source files need to be in "Unix" and not "DOS" or "Windows" format,
     with respect to line ends.
 
   * Do not add more than 2 consecutive empty lines to source files
