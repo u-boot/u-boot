@@ -65,6 +65,10 @@ struct sfdp_parameter_header {
 #define SFDP_SECTOR_MAP_ID	0xff81	/* Sector Map Table */
 #define SFDP_SST_ID		0x01bf	/* Manufacturer specific Table */
 #define SFDP_PROFILE1_ID	0xff05	/* xSPI Profile 1.0 Table */
+#define SFDP_SCCR_MAP_ID	0xff87	/*
+					 * Status, Control and Configuration
+					 * Register Map.
+					 */
 
 #define SFDP_SIGNATURE		0x50444653U
 #define SFDP_JESD216_MAJOR	1
@@ -173,6 +177,9 @@ struct sfdp_header {
 #define PROFILE1_DWORD5_DUMMY_133MHZ		GENMASK(21, 17)
 #define PROFILE1_DWORD5_DUMMY_100MHZ		GENMASK(11, 7)
 #define PROFILE1_DUMMY_DEFAULT			20
+
+/* Status, Control and Configuration Register Map(SCCR) */
+#define SCCR_DWORD22_OCTAL_DTR_EN_VOLATILE      BIT(31)
 
 struct sfdp_bfpt {
 	u32	dwords[BFPT_DWORD_MAX];
@@ -1308,13 +1315,13 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 }
 
 /*
- * Check if a region of the flash is (completely) locked. See stm_lock() for
+ * Check if a region of the flash is (completely) unlocked. See stm_lock() for
  * more info.
  *
- * Returns 1 if entire region is locked, 0 if any portion is unlocked, and
+ * Returns 1 if entire region is unlocked, 0 if any portion is locked, and
  * negative on errors.
  */
-static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+static int stm_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	int status;
 
@@ -1322,7 +1329,7 @@ static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (status < 0)
 		return status;
 
-	return stm_is_locked_sr(nor, ofs, len, status);
+	return stm_is_unlocked_sr(nor, ofs, len, status);
 }
 #endif /* CONFIG_SPI_FLASH_STMICRO */
 
@@ -1555,16 +1562,16 @@ static int sst26_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 }
 
 /*
- * Returns EACCES (positive value) if region is locked, 0 if region is unlocked,
- * and negative on errors.
+ * Returns EACCES (positive value) if region is (partially) locked, 0 if region
+ * is completely unlocked, and negative on errors.
  */
-static int sst26_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
+static int sst26_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	/*
-	 * is_locked function is used for check before reading or erasing flash
-	 * region, so offset and length might be not 64k allighned, so adjust
-	 * them to be 64k allighned as sst26_lock_ctl works only with 64k
-	 * allighned regions.
+	 * is_unlocked function is used for check before reading or erasing
+	 * flash region, so offset and length might be not 64k aligned, so
+	 * adjust them to be 64k aligned as sst26_lock_ctl works only with 64k
+	 * aligned regions.
 	 */
 	ofs -= ofs & (SZ_64K - 1);
 	len = len & (SZ_64K - 1) ? (len & ~(SZ_64K - 1)) + SZ_64K : len;
@@ -2457,6 +2464,44 @@ out:
 }
 
 /**
+ * spi_nor_parse_sccr() - Parse the Status, Control and Configuration Register
+ *			  Map.
+ * @nor:		  pointer to a 'struct spi_nor'
+ * @sccr_header:	  pointer to the 'struct sfdp_parameter_header' describing
+ * 			  the SCCR Map table length and version.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int spi_nor_parse_sccr(struct spi_nor *nor,
+			      const struct sfdp_parameter_header *sccr_header)
+{
+	u32 *table, addr;
+	size_t len;
+	int ret, i;
+
+	len = sccr_header->length * sizeof(*table);
+	table = kmalloc(len, GFP_KERNEL);
+	if (!table)
+		return -ENOMEM;
+
+	addr = SFDP_PARAM_HEADER_PTP(sccr_header);
+	ret = spi_nor_read_sfdp(nor, addr, len, table);
+	if (ret)
+		goto out;
+
+	/* Fix endianness of the table DWORDs. */
+	for (i = 0; i < sccr_header->length; i++)
+		table[i] = le32_to_cpu(table[i]);
+
+	if (FIELD_GET(SCCR_DWORD22_OCTAL_DTR_EN_VOLATILE, table[22]))
+		nor->flags |= SNOR_F_IO_MODE_EN_VOLATILE;
+
+out:
+	kfree(table);
+	return ret;
+}
+
+/**
  * spi_nor_parse_sfdp() - parse the Serial Flash Discoverable Parameters.
  * @nor:		pointer to a 'struct spi_nor'
  * @params:		pointer to the 'struct spi_nor_flash_parameter' to be
@@ -2560,6 +2605,10 @@ static int spi_nor_parse_sfdp(struct spi_nor *nor,
 
 		case SFDP_PROFILE1_ID:
 			err = spi_nor_parse_profile1(nor, param_header, params);
+			break;
+
+		case SFDP_SCCR_MAP_ID:
+			err = spi_nor_parse_sccr(nor, param_header);
 			break;
 
 		default:
@@ -3526,6 +3575,84 @@ static struct spi_nor_fixups mt35xu512aba_fixups = {
 };
 #endif /* CONFIG_SPI_FLASH_MT35XU */
 
+#if CONFIG_IS_ENABLED(SPI_FLASH_MACRONIX)
+/**
+ * spi_nor_macronix_octal_dtr_enable() - Enable octal DTR on Macronix flashes.
+ * @nor:	pointer to a 'struct spi_nor'
+ *
+ * Set Macronix max dummy cycles 20 to allow the flash to run at fastest frequency.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int spi_nor_macronix_octal_dtr_enable(struct spi_nor *nor)
+{
+	struct spi_mem_op op;
+	int ret;
+	u8 buf;
+
+	ret = write_enable(nor);
+	if (ret)
+		return ret;
+
+	buf = SPINOR_REG_MXIC_DC_20;
+	op = (struct spi_mem_op)
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_CR2, 1),
+			   SPI_MEM_OP_ADDR(4, SPINOR_REG_MXIC_CR2_DC, 1),
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_DATA_OUT(1, &buf, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	ret = spi_nor_wait_till_ready(nor);
+	if (ret)
+		return ret;
+
+	nor->read_dummy = MXIC_MAX_DC;
+	ret = write_enable(nor);
+	if (ret)
+		return ret;
+
+	buf = SPINOR_REG_MXIC_OPI_DTR_EN;
+	op = (struct spi_mem_op)
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_CR2, 1),
+			   SPI_MEM_OP_ADDR(4, SPINOR_REG_MXIC_CR2_MODE, 1),
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_DATA_OUT(1, &buf, 1));
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret) {
+		dev_err(nor->dev, "Failed to enable octal DTR mode\n");
+		return ret;
+	}
+	nor->reg_proto = SNOR_PROTO_8_8_8_DTR;
+
+	return 0;
+}
+
+static void macronix_octal_default_init(struct spi_nor *nor)
+{
+	nor->octal_dtr_enable = spi_nor_macronix_octal_dtr_enable;
+}
+
+static void macronix_octal_post_sfdp_fixup(struct spi_nor *nor,
+					 struct spi_nor_flash_parameter *params)
+{
+	/*
+	 * Adding SNOR_HWCAPS_PP_8_8_8_DTR in hwcaps.mask when
+	 * SPI_NOR_OCTAL_DTR_READ flag exists.
+	 */
+	if (params->hwcaps.mask & SNOR_HWCAPS_READ_8_8_8_DTR)
+		params->hwcaps.mask |= SNOR_HWCAPS_PP_8_8_8_DTR;
+}
+
+static struct spi_nor_fixups macronix_octal_fixups = {
+	.default_init = macronix_octal_default_init,
+	.post_sfdp = macronix_octal_post_sfdp_fixup,
+};
+#endif /* CONFIG_SPI_FLASH_MACRONIX */
+
 /** spi_nor_octal_dtr_enable() - enable Octal DTR I/O if needed
  * @nor:                 pointer to a 'struct spi_nor'
  *
@@ -3540,6 +3667,9 @@ static int spi_nor_octal_dtr_enable(struct spi_nor *nor)
 
 	if (!(nor->read_proto == SNOR_PROTO_8_8_8_DTR &&
 	      nor->write_proto == SNOR_PROTO_8_8_8_DTR))
+		return 0;
+
+	if (!(nor->flags & SNOR_F_IO_MODE_EN_VOLATILE))
 		return 0;
 
 	ret = nor->octal_dtr_enable(nor);
@@ -3619,7 +3749,12 @@ static int spi_nor_soft_reset(struct spi_nor *nor)
 	enum spi_nor_cmd_ext ext;
 
 	ext = nor->cmd_ext_type;
-	nor->cmd_ext_type = SPI_NOR_EXT_REPEAT;
+	if (nor->cmd_ext_type == SPI_NOR_EXT_NONE) {
+		nor->cmd_ext_type = SPI_NOR_EXT_REPEAT;
+#if CONFIG_IS_ENABLED(SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT)
+		nor->cmd_ext_type = SPI_NOR_EXT_INVERT;
+#endif /* SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT */
+	}
 
 	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_SRSTEN, 0),
 			SPI_MEM_OP_NO_DUMMY,
@@ -3696,6 +3831,10 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 	if (!strcmp(nor->info->name, "mt35xu512aba"))
 		nor->fixups = &mt35xu512aba_fixups;
 #endif
+
+#if CONFIG_IS_ENABLED(SPI_FLASH_MACRONIX)
+	nor->fixups = &macronix_octal_fixups;
+#endif /* SPI_FLASH_MACRONIX */
 }
 
 int spi_nor_scan(struct spi_nor *nor)
@@ -3785,7 +3924,7 @@ int spi_nor_scan(struct spi_nor *nor)
 			info->flags & SPI_NOR_HAS_LOCK) {
 		nor->flash_lock = stm_lock;
 		nor->flash_unlock = stm_unlock;
-		nor->flash_is_locked = stm_is_locked;
+		nor->flash_is_unlocked = stm_is_unlocked;
 	}
 #endif
 
@@ -3797,7 +3936,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	if (info->flags & SPI_NOR_HAS_SST26LOCK) {
 		nor->flash_lock = sst26_lock;
 		nor->flash_unlock = sst26_unlock;
-		nor->flash_is_locked = sst26_is_locked;
+		nor->flash_is_unlocked = sst26_is_unlocked;
 	}
 #endif
 

@@ -97,6 +97,13 @@ config SPI_FLASH_SMART_HWCAPS
 	 can support a type of operation in a much more refined way compared
 	 to using flags like SPI_RX_DUAL, SPI_TX_QUAD, etc.
 
+config SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT
+	bool "Command extension type is INVERT for Software Reset on boot"
+	default n
+	help
+	 Because of SFDP information can not be get before boot.
+	 So define command extension type is INVERT when Software Reset on boot only.
+
 config SPI_FLASH_SOFT_RESET
 	bool "Software Reset support for SPI NOR flashes"
 	help
