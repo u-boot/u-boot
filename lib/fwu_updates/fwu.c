@@ -361,3 +361,30 @@ int fwu_clear_accept_image(efi_guid_t *img_type_id, u32 bank)
 	return fwu_clrset_image_accept(img_type_id, bank,
 				       IMAGE_ACCEPT_CLEAR);
 }
+
+/**
+ * fwu_plat_get_update_index() - Get the value of the update bank
+ * @update_idx: Bank number to which images are to be updated
+ *
+ * Get the value of the bank(partition) to which the update needs to be
+ * made.
+ *
+ * Note: This is a weak function and platforms can override this with
+ * their own implementation for selection of the update bank.
+ *
+ * Return: 0 if OK, -ve on error
+ *
+ */
+__weak int fwu_plat_get_update_index(uint *update_idx)
+{
+	int ret;
+	u32 active_idx;
+
+	ret = fwu_get_active_index(&active_idx);
+	if (ret < 0)
+		return -1;
+
+	*update_idx = (active_idx + 1) % CONFIG_FWU_NUM_BANKS;
+
+	return ret;
+}
