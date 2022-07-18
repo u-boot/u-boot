@@ -215,4 +215,33 @@ int fwu_accept_image(efi_guid_t *img_type_id, u32 bank);
  */
 int fwu_clear_accept_image(efi_guid_t *img_type_id, u32 bank);
 
+/**
+ * fwu_plat_get_alt_num() - Get the DFU Alt Num for the image from the platform
+ * @dev: FWU device
+ * @image_guid: Image GUID for which DFU alt number needs to be retrieved
+ * @alt_num: Pointer to the alt_num
+ *
+ * Get the DFU alt number from the platform for the image specified by the
+ * image GUID.
+ *
+ * Return: 0 if OK, -ve on error
+ *
+ */
+int fwu_plat_get_alt_num(struct udevice *dev, efi_guid_t *image_guid,
+			 u8 *alt_num);
+
+/**
+ * fwu_plat_get_update_index() - Get the value of the update bank
+ * @update_idx: Bank number to which images are to be updated
+ *
+ * Get the value of the bank(partition) to which the update needs to be
+ * made.
+ *
+ * Note: This is a weak function and platforms can override this with
+ * their own implementation for selection of the update bank.
+ *
+ * Return: 0 if OK, -ve on error
+ *
+ */
+int fwu_plat_get_update_index(uint *update_idx);
 #endif /* _FWU_H_ */
