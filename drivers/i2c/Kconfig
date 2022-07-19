@@ -447,6 +447,11 @@ config SYS_I2C_NEXELL
 	  have several I2C ports and all are provided, controlled by the
 	  device tree.
 
+config SYS_I2C_NPCM
+	bool "Nuvoton NPCM I2C driver"
+	help
+	  Support for Nuvoton I2C controller driver.
+
 config SYS_I2C_OCORES
 	bool "ocores I2C driver"
 	depends on DM_I2C
