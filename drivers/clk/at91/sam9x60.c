@@ -265,10 +265,10 @@ static const struct {
 	u8 id;
 	u8 cid;
 } sam9x60_systemck[] = {
-	{ .n = "ddrck",		.p = "mck_pres", .id = 2, .cid = ID_DDR, },
+	{ .n = "ddrck",		.p = "mck_div",  .id = 2, .cid = ID_DDR, },
 	{ .n = "pck0",		.p = "prog0",    .id = 8, .cid = ID_PCK0, },
 	{ .n = "pck1",		.p = "prog1",    .id = 9, .cid = ID_PCK1, },
-	{ .n = "qspick",	.p = "mck_pres", .id = 19, .cid = ID_QSPI, },
+	{ .n = "qspick",	.p = "mck_div",  .id = 19, .cid = ID_QSPI, },
 };
 
 /**
