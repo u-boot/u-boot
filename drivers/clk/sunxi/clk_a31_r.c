@@ -28,32 +28,9 @@ static struct ccu_reset a31_r_resets[] = {
 	[RST_APB0_I2C]		= RESET(0x0b0, BIT(6)),
 };
 
-static const struct ccu_desc a31_r_ccu_desc = {
+const struct ccu_desc a31_r_ccu_desc = {
 	.gates = a31_r_gates,
 	.resets = a31_r_resets,
-};
-
-static int a31_r_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(a31_r_resets));
-}
-
-static const struct udevice_id a31_r_clk_ids[] = {
-	{ .compatible = "allwinner,sun8i-a83t-r-ccu",
-	  .data = (ulong)&a31_r_ccu_desc },
-	{ .compatible = "allwinner,sun8i-h3-r-ccu",
-	  .data = (ulong)&a31_r_ccu_desc },
-	{ .compatible = "allwinner,sun50i-a64-r-ccu",
-	  .data = (ulong)&a31_r_ccu_desc },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_sun6i_a31_r) = {
-	.name		= "sun6i_a31_r_ccu",
-	.id		= UCLASS_CLK,
-	.of_match	= a31_r_clk_ids,
-	.priv_auto	= sizeof(struct ccu_priv),
-	.ops		= &sunxi_clk_ops,
-	.probe		= sunxi_clk_probe,
-	.bind		= a31_r_clk_bind,
+	.num_gates = ARRAY_SIZE(a31_r_gates),
+	.num_resets = ARRAY_SIZE(a31_r_resets),
 };

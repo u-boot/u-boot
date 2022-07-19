@@ -16,7 +16,6 @@
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
@@ -857,7 +856,7 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
-	printf("phy interface%d\n", pdata->phy_interface);
+	debug("phy interface %d\n", pdata->phy_interface);
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
