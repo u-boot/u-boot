@@ -3871,30 +3871,6 @@ ext_out:
 	return ret;
 }
 
-static int nand_setup_read_retry_micron(struct mtd_info *mtd, int retry_mode)
-{
-	struct nand_chip *chip = mtd_to_nand(mtd);
-	uint8_t feature[ONFI_SUBFEATURE_PARAM_LEN] = {retry_mode};
-
-	return chip->onfi_set_features(mtd, chip, ONFI_FEATURE_ADDR_READ_RETRY,
-			feature);
-}
-
-/*
- * Configure chip properties from Micron vendor-specific ONFI table
- */
-static void nand_onfi_detect_micron(struct nand_chip *chip,
-		struct nand_onfi_params *p)
-{
-	struct nand_onfi_vendor_micron *micron = (void *)p->vendor;
-
-	if (le16_to_cpu(p->vendor_revision) < 1)
-		return;
-
-	chip->read_retries = micron->read_retry_options;
-	chip->setup_read_retry = nand_setup_read_retry_micron;
-}
-
 /*
  * Check if the NAND chip is ONFI compliant, returns 1 if it is, 0 otherwise.
  */
@@ -3993,9 +3969,6 @@ static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip)
 	} else {
 		pr_warn("Could not retrieve ONFI ECC requirements\n");
 	}
-
-	if (p->jedec_id == NAND_MFR_MICRON)
-		nand_onfi_detect_micron(chip, p);
 
 	return 1;
 }
@@ -4272,10 +4245,8 @@ static void nand_decode_bbm_options(struct mtd_info *mtd,
 	 * Micron devices with 2KiB pages and on SLC Samsung, Hynix, Toshiba,
 	 * AMD/Spansion, and Macronix.  All others scan only the first page.
 	 */
-	if ((nand_is_slc(chip) &&
-	     (maf_id == NAND_MFR_AMD ||
-	      maf_id == NAND_MFR_MACRONIX)) ||
-	    (mtd->writesize == 2048 && maf_id == NAND_MFR_MICRON))
+	if (nand_is_slc(chip) &&
+	    (maf_id == NAND_MFR_AMD || maf_id == NAND_MFR_MACRONIX))
 		chip->bbt_options |= NAND_BBT_SCAN2NDPAGE;
 }
 
