@@ -3898,8 +3898,7 @@ static void nand_onfi_detect_micron(struct nand_chip *chip,
 /*
  * Check if the NAND chip is ONFI compliant, returns 1 if it is, 0 otherwise.
  */
-static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip,
-					int *busw)
+static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	struct nand_onfi_params *p = &chip->onfi_params;
 	char id[4];
@@ -3971,9 +3970,7 @@ static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->bits_per_cell = p->bits_per_cell;
 
 	if (onfi_feature(chip) & ONFI_FEATURE_16_BIT_BUS)
-		*busw = NAND_BUSWIDTH_16;
-	else
-		*busw = 0;
+		chip->options |= NAND_BUSWIDTH_16;
 
 	if (p->ecc_bits != 0xff) {
 		chip->ecc_strength_ds = p->ecc_bits;
@@ -4003,8 +4000,7 @@ static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip,
 	return 1;
 }
 #else
-static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip,
-					int *busw)
+static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	return 0;
 }
@@ -4013,8 +4009,7 @@ static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip,
 /*
  * Check if the NAND chip is JEDEC compliant, returns 1 if it is, 0 otherwise.
  */
-static int nand_flash_detect_jedec(struct mtd_info *mtd, struct nand_chip *chip,
-					int *busw)
+static int nand_flash_detect_jedec(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	struct nand_jedec_params *p = &chip->jedec_params;
 	struct jedec_ecc_info *ecc;
@@ -4076,9 +4071,7 @@ static int nand_flash_detect_jedec(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->bits_per_cell = p->bits_per_cell;
 
 	if (jedec_feature(chip) & JEDEC_FEATURE_16_BIT_BUS)
-		*busw = NAND_BUSWIDTH_16;
-	else
-		*busw = 0;
+		chip->options |= NAND_BUSWIDTH_16;
 
 	/* ECC info */
 	ecc = &p->ecc_info[0];
@@ -4168,7 +4161,7 @@ static int nand_get_bits_per_cell(u8 cellinfo)
  * manufacturer-specific "extended ID" decoding patterns.
  */
 static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
-				u8 id_data[8], int *busw)
+				u8 id_data[8])
 {
 	int extid, id_len;
 	/* The 3rd id byte holds MLC / multichip data */
@@ -4221,7 +4214,6 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
 		/* Calc blocksize */
 		mtd->erasesize = (128 * 1024) <<
 			(((extid >> 1) & 0x04) | (extid & 0x03));
-		*busw = 0;
 	} else if (id_len == 6 && id_data[0] == NAND_MFR_HYNIX &&
 			!nand_is_slc(chip)) {
 		unsigned int tmp;
@@ -4262,7 +4254,6 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
 			mtd->erasesize = 768 * 1024;
 		else
 			mtd->erasesize = (64 * 1024) << tmp;
-		*busw = 0;
 	} else {
 		/* Calc pagesize */
 		mtd->writesize = 1024 << (extid & 0x03);
@@ -4275,7 +4266,9 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
 		mtd->erasesize = (64 * 1024) << (extid & 0x03);
 		extid >>= 2;
 		/* Get buswidth information */
-		*busw = (extid & 0x01) ? NAND_BUSWIDTH_16 : 0;
+		/* Get buswidth information */
+		if (extid & 0x1)
+			chip->options |= NAND_BUSWIDTH_16;
 
 		/*
 		 * Toshiba 24nm raw SLC (i.e., not BENAND) have 32B OOB per
@@ -4301,15 +4294,13 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
  * the chip.
  */
 static void nand_decode_id(struct mtd_info *mtd, struct nand_chip *chip,
-				struct nand_flash_dev *type, u8 id_data[8],
-				int *busw)
+				struct nand_flash_dev *type, u8 id_data[8])
 {
 	int maf_id = id_data[0];
 
 	mtd->erasesize = type->erasesize;
 	mtd->writesize = type->pagesize;
 	mtd->oobsize = mtd->writesize / 32;
-	*busw = type->options & NAND_BUSWIDTH_16;
 
 	/* All legacy ID NAND are small-page, SLC */
 	chip->bits_per_cell = 1;
@@ -4371,7 +4362,7 @@ static inline bool is_full_id_nand(struct nand_flash_dev *type)
 }
 
 static bool find_full_id_nand(struct mtd_info *mtd, struct nand_chip *chip,
-		   struct nand_flash_dev *type, u8 *id_data, int *busw)
+		   struct nand_flash_dev *type, u8 *id_data)
 {
 	if (!strncmp((char *)type->id, (char *)id_data, type->id_len)) {
 		mtd->writesize = type->pagesize;
@@ -4385,8 +4376,6 @@ static bool find_full_id_nand(struct mtd_info *mtd, struct nand_chip *chip,
 		chip->ecc_step_ds = NAND_ECC_STEP(type);
 		chip->onfi_timing_mode_default =
 					type->onfi_timing_mode_default;
-
-		*busw = type->options & NAND_BUSWIDTH_16;
 
 		if (!mtd->name)
 			mtd->name = type->name;
@@ -4449,9 +4438,24 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	if (!type)
 		type = nand_flash_ids;
 
+	/*
+	 * Save the NAND_BUSWIDTH_16 flag before letting auto-detection logic
+	 * override it.
+	 * This is required to make sure initial NAND bus width set by the
+	 * NAND controller driver is coherent with the real NAND bus width
+	 * (extracted by auto-detection code).
+	 */
+	busw = chip->options & NAND_BUSWIDTH_16;
+
+	/*
+	 * The flag is only set (never cleared), reset it to its default value
+	 * before starting auto-detection.
+	 */
+	chip->options &= ~NAND_BUSWIDTH_16;
+
 	for (; type->name != NULL; type++) {
 		if (is_full_id_nand(type)) {
-			if (find_full_id_nand(mtd, chip, type, id_data, &busw))
+			if (find_full_id_nand(mtd, chip, type, id_data))
 				goto ident_done;
 		} else if (*dev_id == type->dev_id) {
 			break;
@@ -4461,11 +4465,11 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	chip->onfi_version = 0;
 	if (!type->name || !type->pagesize) {
 		/* Check if the chip is ONFI compliant */
-		if (nand_flash_detect_onfi(mtd, chip, &busw))
+		if (nand_flash_detect_onfi(mtd, chip))
 			goto ident_done;
 
 		/* Check if the chip is JEDEC compliant */
-		if (nand_flash_detect_jedec(mtd, chip, &busw))
+		if (nand_flash_detect_jedec(mtd, chip))
 			goto ident_done;
 	}
 
@@ -4479,10 +4483,11 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 
 	if (!type->pagesize) {
 		/* Decode parameters from extended ID */
-		nand_decode_ext_id(mtd, chip, id_data, &busw);
+		nand_decode_ext_id(mtd, chip, id_data);
 	} else {
-		nand_decode_id(mtd, chip, type, id_data, &busw);
+		nand_decode_id(mtd, chip, type, id_data);
 	}
+
 	/* Get chip options */
 	chip->options |= type->options;
 
