@@ -198,7 +198,9 @@ hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
 HOSTCFLAGS_mkexynosspl.o := -pedantic
 
 HOSTCFLAGS_kwboot.o += -pthread
-HOSTLDLIBS_kwboot += -pthread -ltinfo
+HOSTLDLIBS_kwboot += -pthread
+HOSTLDLIBS_kwboot += \
+	$(shell pkg-config --libs tinfo 2> /dev/null || echo "-ltinfo")
 
 ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
 hostprogs-$(CONFIG_X86) += ifdtool
