@@ -1374,4 +1374,7 @@ int nand_read_data_op(struct nand_chip *chip, void *buf, unsigned int len,
 int nand_write_data_op(struct nand_chip *chip, const void *buf,
 		       unsigned int len, bool force_8bit);
 
+/* Default extended ID decoding function */
+void nand_decode_ext_id(struct nand_chip *chip);
+
 #endif /* __LINUX_MTD_RAWNAND_H */

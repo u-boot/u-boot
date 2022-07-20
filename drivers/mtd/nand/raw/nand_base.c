@@ -4160,7 +4160,7 @@ static int nand_get_bits_per_cell(u8 cellinfo)
  * chip. The rest of the parameters must be decoded according to generic or
  * manufacturer-specific "extended ID" decoding patterns.
  */
-static void nand_decode_ext_id(struct nand_chip *chip)
+void nand_decode_ext_id(struct nand_chip *chip)
 {
 	struct mtd_info *mtd = &chip->mtd;
 	int extid, id_len;
@@ -4286,6 +4286,7 @@ static void nand_decode_ext_id(struct nand_chip *chip)
 
 	}
 }
+EXPORT_SYMBOL_GPL(nand_decode_ext_id);
 
 /*
  * Manufacturer detection. Only used when the NAND is not ONFI or JEDEC
