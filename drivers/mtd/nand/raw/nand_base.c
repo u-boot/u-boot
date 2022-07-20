@@ -4160,8 +4160,9 @@ static int nand_get_bits_per_cell(u8 cellinfo)
  * chip. The rest of the parameters must be decoded according to generic or
  * manufacturer-specific "extended ID" decoding patterns.
  */
-static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip)
+static void nand_decode_ext_id(struct nand_chip *chip)
 {
+	struct mtd_info *mtd = &chip->mtd;
 	int extid, id_len;
 	/* The 3rd id byte holds MLC / multichip data */
 	chip->bits_per_cell = nand_get_bits_per_cell(chip->id.data[2]);
@@ -4291,7 +4292,7 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip)
  * compliant and does not have a full-id or legacy-id entry in the nand_ids
  * table.
  */
-static void nand_manufacturer_detect(struct mtd_info *mtd, struct nand_chip *chip)
+static void nand_manufacturer_detect(struct nand_chip *chip)
 {
 	/*
 	 * Try manufacturer detection if available and use
@@ -4301,7 +4302,7 @@ static void nand_manufacturer_detect(struct mtd_info *mtd, struct nand_chip *chi
 	    chip->manufacturer.desc->ops->detect)
 		chip->manufacturer.desc->ops->detect(chip);
 	else
-		nand_decode_ext_id(mtd, chip);
+		nand_decode_ext_id(chip);
 }
 
 /*
@@ -4324,9 +4325,9 @@ static int nand_manufacturer_init(struct nand_chip *chip)
  * decodes a matching ID table entry and assigns the MTD size parameters for
  * the chip.
  */
-static void nand_decode_id(struct mtd_info *mtd, struct nand_chip *chip,
-				struct nand_flash_dev *type)
+static void nand_decode_id(struct nand_chip *chip, struct nand_flash_dev *type)
 {
+	struct mtd_info *mtd = &chip->mtd;
 	int maf_id = chip->id.data[0];
 
 	mtd->erasesize = type->erasesize;
@@ -4439,11 +4440,11 @@ static const struct nand_manufacturers *nand_get_manufacturer_desc(u8 id)
 /*
  * Get the flash and manufacturer id and lookup if the type is supported.
  */
-struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
-						  struct nand_chip *chip,
-						  int *maf_id, int *dev_id,
-						  struct nand_flash_dev *type)
+struct nand_flash_dev *nand_get_flash_type(struct nand_chip *chip, int *maf_id,
+					   int *dev_id,
+					   struct nand_flash_dev *type)
 {
+	struct mtd_info *mtd = &chip->mtd;
 	const struct nand_manufacturers *manufacturer_desc;
 	int busw, ret;
 	u8 *id_data = chip->id.data;
@@ -4539,9 +4540,9 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	chip->chipsize = (uint64_t)type->chipsize << 20;
 
 	if (!type->pagesize) {
-		nand_manufacturer_detect(mtd, chip);
+		nand_manufacturer_detect(chip);
 	} else {
-		nand_decode_id(mtd, chip, type);
+		nand_decode_id(chip, type);
 	}
 
 	/* Get chip options */
@@ -4729,7 +4730,7 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips,
 	nand_set_defaults(chip, chip->options & NAND_BUSWIDTH_16);
 
 	/* Read the flash type */
-	type = nand_get_flash_type(mtd, chip, &nand_maf_id,
+	type = nand_get_flash_type(chip, &nand_maf_id,
 				   &nand_dev_id, table);
 
 	if (IS_ERR(type)) {

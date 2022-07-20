@@ -29,8 +29,7 @@ struct nand_flash_dev;
 struct device_node;
 
 /* Get the flash and manufacturer id and lookup if the type is supported. */
-struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
-					   struct nand_chip *chip,
+struct nand_flash_dev *nand_get_flash_type(struct nand_chip *chip,
 					   int *maf_id, int *dev_id,
 					   struct nand_flash_dev *type);
 
