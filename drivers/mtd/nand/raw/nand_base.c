@@ -4200,7 +4200,6 @@ static int nand_manufacturer_init(struct nand_chip *chip)
 static void nand_decode_id(struct nand_chip *chip, struct nand_flash_dev *type)
 {
 	struct mtd_info *mtd = &chip->mtd;
-	int maf_id = chip->id.data[0];
 
 	mtd->erasesize = type->erasesize;
 	mtd->writesize = type->pagesize;
@@ -4208,19 +4207,6 @@ static void nand_decode_id(struct nand_chip *chip, struct nand_flash_dev *type)
 
 	/* All legacy ID NAND are small-page, SLC */
 	chip->bits_per_cell = 1;
-
-	/*
-	 * Check for Spansion/AMD ID + repeating 5th, 6th byte since
-	 * some Spansion chips have erasesize that conflicts with size
-	 * listed in nand_ids table.
-	 * Data sheet (5 byte ID): Spansion S30ML-P ORNAND (p.39)
-	 */
-	if (maf_id == NAND_MFR_AMD && chip->id.data[4] != 0x00 &&
-	    chip->id.data[5] == 0x00 && chip->id.data[6] == 0x00 &&
-	    chip->id.data[7] == 0x00 && mtd->writesize == 512) {
-		mtd->erasesize = 128 * 1024;
-		mtd->erasesize <<= ((chip->id.data[3] & 0x03) << 1);
-	}
 }
 
 /*
@@ -4245,8 +4231,7 @@ static void nand_decode_bbm_options(struct mtd_info *mtd,
 	 * Micron devices with 2KiB pages and on SLC Samsung, Hynix, Toshiba,
 	 * AMD/Spansion, and Macronix.  All others scan only the first page.
 	 */
-	if (nand_is_slc(chip) &&
-	    (maf_id == NAND_MFR_AMD || maf_id == NAND_MFR_MACRONIX))
+	if (nand_is_slc(chip) && maf_id == NAND_MFR_MACRONIX)
 		chip->bbt_options |= NAND_BBT_SCAN2NDPAGE;
 }
 
