@@ -4160,16 +4160,14 @@ static int nand_get_bits_per_cell(u8 cellinfo)
  * chip. The rest of the parameters must be decoded according to generic or
  * manufacturer-specific "extended ID" decoding patterns.
  */
-static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
-				u8 id_data[8])
+static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	int extid, id_len;
 	/* The 3rd id byte holds MLC / multichip data */
-	chip->bits_per_cell = nand_get_bits_per_cell(id_data[2]);
+	chip->bits_per_cell = nand_get_bits_per_cell(chip->id.data[2]);
 	/* The 4th id byte is the important one */
-	extid = id_data[3];
-
-	id_len = nand_id_len(id_data, 8);
+	extid = chip->id.data[3];
+	id_len = chip->id.len;
 
 	/*
 	 * Field definitions are in the following datasheets:
@@ -4180,8 +4178,8 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
 	 * Check for ID length, non-zero 6th byte, cell type, and Hynix/Samsung
 	 * ID to decide what to do.
 	 */
-	if (id_len == 6 && id_data[0] == NAND_MFR_SAMSUNG &&
-			!nand_is_slc(chip) && id_data[5] != 0x00) {
+	if (id_len == 6 && chip->id.data[0] == NAND_MFR_SAMSUNG &&
+	    !nand_is_slc(chip) && chip->id.data[5] != 0x00) {
 		/* Calc pagesize */
 		mtd->writesize = 2048 << (extid & 0x03);
 		extid >>= 2;
@@ -4214,7 +4212,7 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
 		/* Calc blocksize */
 		mtd->erasesize = (128 * 1024) <<
 			(((extid >> 1) & 0x04) | (extid & 0x03));
-	} else if (id_len == 6 && id_data[0] == NAND_MFR_HYNIX &&
+	} else if (id_len == 6 && chip->id.data[0] == NAND_MFR_HYNIX &&
 			!nand_is_slc(chip)) {
 		unsigned int tmp;
 
@@ -4278,10 +4276,10 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
 		 *                         110b -> 24nm
 		 * - ID byte 5, bit[7]:    1 -> BENAND, 0 -> raw SLC
 		 */
-		if (id_len >= 6 && id_data[0] == NAND_MFR_TOSHIBA &&
-				nand_is_slc(chip) &&
-				(id_data[5] & 0x7) == 0x6 /* 24nm */ &&
-				!(id_data[4] & 0x80) /* !BENAND */) {
+		if (id_len >= 6 && chip->id.data[0] == NAND_MFR_TOSHIBA &&
+		    nand_is_slc(chip) &&
+		    (chip->id.data[5] & 0x7) == 0x6 /* 24nm */ &&
+		    !(chip->id.data[4] & 0x80) /* !BENAND */) {
 			mtd->oobsize = 32 * mtd->writesize >> 9;
 		}
 
@@ -4294,9 +4292,9 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip,
  * the chip.
  */
 static void nand_decode_id(struct mtd_info *mtd, struct nand_chip *chip,
-				struct nand_flash_dev *type, u8 id_data[8])
+				struct nand_flash_dev *type)
 {
-	int maf_id = id_data[0];
+	int maf_id = chip->id.data[0];
 
 	mtd->erasesize = type->erasesize;
 	mtd->writesize = type->pagesize;
@@ -4311,11 +4309,11 @@ static void nand_decode_id(struct mtd_info *mtd, struct nand_chip *chip,
 	 * listed in nand_ids table.
 	 * Data sheet (5 byte ID): Spansion S30ML-P ORNAND (p.39)
 	 */
-	if (maf_id == NAND_MFR_AMD && id_data[4] != 0x00 && id_data[5] == 0x00
-			&& id_data[6] == 0x00 && id_data[7] == 0x00
-			&& mtd->writesize == 512) {
+	if (maf_id == NAND_MFR_AMD && chip->id.data[4] != 0x00 &&
+	    chip->id.data[5] == 0x00 && chip->id.data[6] == 0x00 &&
+	    chip->id.data[7] == 0x00 && mtd->writesize == 512) {
 		mtd->erasesize = 128 * 1024;
-		mtd->erasesize <<= ((id_data[3] & 0x03) << 1);
+		mtd->erasesize <<= ((chip->id.data[3] & 0x03) << 1);
 	}
 }
 
@@ -4325,9 +4323,9 @@ static void nand_decode_id(struct mtd_info *mtd, struct nand_chip *chip,
  * page size, cell-type information).
  */
 static void nand_decode_bbm_options(struct mtd_info *mtd,
-				    struct nand_chip *chip, u8 id_data[8])
+				    struct nand_chip *chip)
 {
-	int maf_id = id_data[0];
+	int maf_id = chip->id.data[0];
 
 	/* Set the bad block position */
 	if (mtd->writesize > 512 || (chip->options & NAND_BUSWIDTH_16))
@@ -4362,14 +4360,14 @@ static inline bool is_full_id_nand(struct nand_flash_dev *type)
 }
 
 static bool find_full_id_nand(struct mtd_info *mtd, struct nand_chip *chip,
-		   struct nand_flash_dev *type, u8 *id_data)
+		   struct nand_flash_dev *type)
 {
-	if (!strncmp((char *)type->id, (char *)id_data, type->id_len)) {
+	if (!strncmp((char *)type->id, (char *)chip->id.data, type->id_len)) {
 		mtd->writesize = type->pagesize;
 		mtd->erasesize = type->erasesize;
 		mtd->oobsize = type->oobsize;
 
-		chip->bits_per_cell = nand_get_bits_per_cell(id_data[2]);
+		chip->bits_per_cell = nand_get_bits_per_cell(chip->id.data[2]);
 		chip->chipsize = (uint64_t)type->chipsize << 20;
 		chip->options |= type->options;
 		chip->ecc_strength_ds = NAND_ECC_STRENGTH(type);
@@ -4395,7 +4393,7 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 {
 	int busw, ret;
 	int maf_idx;
-	u8 id_data[8];
+	u8 *id_data = chip->id.data;
 
 	/*
 	 * Reset the chip, required by some chips (e.g. Micron MT29FxGxxxxx)
@@ -4453,9 +4451,11 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	 */
 	chip->options &= ~NAND_BUSWIDTH_16;
 
+	chip->id.len = nand_id_len(id_data, ARRAY_SIZE(chip->id.data));
+
 	for (; type->name != NULL; type++) {
 		if (is_full_id_nand(type)) {
-			if (find_full_id_nand(mtd, chip, type, id_data))
+			if (find_full_id_nand(mtd, chip, type))
 				goto ident_done;
 		} else if (*dev_id == type->dev_id) {
 			break;
@@ -4483,9 +4483,9 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 
 	if (!type->pagesize) {
 		/* Decode parameters from extended ID */
-		nand_decode_ext_id(mtd, chip, id_data);
+		nand_decode_ext_id(mtd, chip);
 	} else {
-		nand_decode_id(mtd, chip, type, id_data);
+		nand_decode_id(mtd, chip, type);
 	}
 
 	/* Get chip options */
@@ -4523,7 +4523,7 @@ ident_done:
 		return ERR_PTR(-EINVAL);
 	}
 
-	nand_decode_bbm_options(mtd, chip, id_data);
+	nand_decode_bbm_options(mtd, chip);
 
 	/* Calculate the address shift from the page size */
 	chip->page_shift = ffs(mtd->writesize) - 1;

@@ -507,6 +507,19 @@ static inline void nand_hw_control_init(struct nand_hw_control *nfc)
 	init_waitqueue_head(&nfc->wq);
 }
 
+/* The maximum expected count of bytes in the NAND ID sequence */
+#define NAND_MAX_ID_LEN 8
+
+/**
+ * struct nand_id - NAND id structure
+ * @data: buffer containing the id bytes.
+ * @len: ID length.
+ */
+struct nand_id {
+	u8 data[NAND_MAX_ID_LEN];
+	int len;
+};
+
 /**
  * struct nand_ecc_step_info - ECC step information of ECC engine
  * @stepsize: data bytes per ECC step
@@ -888,6 +901,8 @@ nand_get_sdr_timings(const struct nand_data_interface *conf)
 
 struct nand_chip {
 	struct mtd_info mtd;
+	struct nand_id id;
+
 	void __iomem *IO_ADDR_R;
 	void __iomem *IO_ADDR_W;
 
