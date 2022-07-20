@@ -4287,6 +4287,39 @@ static void nand_decode_ext_id(struct mtd_info *mtd, struct nand_chip *chip)
 }
 
 /*
+ * Manufacturer detection. Only used when the NAND is not ONFI or JEDEC
+ * compliant and does not have a full-id or legacy-id entry in the nand_ids
+ * table.
+ */
+static void nand_manufacturer_detect(struct mtd_info *mtd, struct nand_chip *chip)
+{
+	/*
+	 * Try manufacturer detection if available and use
+	 * nand_decode_ext_id() otherwise.
+	 */
+	if (chip->manufacturer.desc && chip->manufacturer.desc->ops &&
+	    chip->manufacturer.desc->ops->detect)
+		chip->manufacturer.desc->ops->detect(chip);
+	else
+		nand_decode_ext_id(mtd, chip);
+}
+
+/*
+ * Manufacturer initialization. This function is called for all NANDs including
+ * ONFI and JEDEC compliant ones.
+ * Manufacturer drivers should put all their specific initialization code in
+ * their ->init() hook.
+ */
+static int nand_manufacturer_init(struct nand_chip *chip)
+{
+	if (!chip->manufacturer.desc || !chip->manufacturer.desc->ops ||
+	    !chip->manufacturer.desc->ops->init)
+		return 0;
+
+	return chip->manufacturer.desc->ops->init(chip);
+}
+
+/*
  * Old devices have chip data hardcoded in the device ID table. nand_decode_id
  * decodes a matching ID table entry and assigns the MTD size parameters for
  * the chip.
@@ -4383,6 +4416,26 @@ static bool find_full_id_nand(struct mtd_info *mtd, struct nand_chip *chip,
 	return false;
 }
 
+/**
+ * nand_get_manufacturer_desc - Get manufacturer information from the
+ *                              manufacturer ID
+ * @id: manufacturer ID
+ *
+ * Returns a nand_manufacturer_desc object if the manufacturer is defined
+ * in the NAND manufacturers database, NULL otherwise.
+ */
+static const struct nand_manufacturers *nand_get_manufacturer_desc(u8 id)
+{
+	int i;
+
+	for (i = 0; nand_manuf_ids[i].id != 0x0; i++) {
+		if (nand_manuf_ids[i].id == id)
+			return &nand_manuf_ids[i];
+	}
+
+	return NULL;
+}
+
 /*
  * Get the flash and manufacturer id and lookup if the type is supported.
  */
@@ -4391,8 +4444,8 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 						  int *maf_id, int *dev_id,
 						  struct nand_flash_dev *type)
 {
+	const struct nand_manufacturers *manufacturer_desc;
 	int busw, ret;
-	int maf_idx;
 	u8 *id_data = chip->id.data;
 
 	/*
@@ -4433,6 +4486,12 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 		return ERR_PTR(-ENODEV);
 	}
 
+	chip->id.len = nand_id_len(id_data, ARRAY_SIZE(chip->id.data));
+
+	/* Try to identify manufacturer */
+	manufacturer_desc = nand_get_manufacturer_desc(*maf_id);
+	chip->manufacturer.desc = manufacturer_desc;
+
 	if (!type)
 		type = nand_flash_ids;
 
@@ -4450,8 +4509,6 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	 * before starting auto-detection.
 	 */
 	chip->options &= ~NAND_BUSWIDTH_16;
-
-	chip->id.len = nand_id_len(id_data, ARRAY_SIZE(chip->id.data));
 
 	for (; type->name != NULL; type++) {
 		if (is_full_id_nand(type)) {
@@ -4482,8 +4539,7 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	chip->chipsize = (uint64_t)type->chipsize << 20;
 
 	if (!type->pagesize) {
-		/* Decode parameters from extended ID */
-		nand_decode_ext_id(mtd, chip);
+		nand_manufacturer_detect(mtd, chip);
 	} else {
 		nand_decode_id(mtd, chip, type);
 	}
@@ -4499,12 +4555,6 @@ struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 		chip->options &= ~NAND_SAMSUNG_LP_OPTIONS;
 ident_done:
 
-	/* Try to identify manufacturer */
-	for (maf_idx = 0; nand_manuf_ids[maf_idx].id != 0x0; maf_idx++) {
-		if (nand_manuf_ids[maf_idx].id == *maf_id)
-			break;
-	}
-
 	if (chip->options & NAND_BUSWIDTH_AUTO) {
 		WARN_ON(chip->options & NAND_BUSWIDTH_16);
 		chip->options |= busw;
@@ -4516,7 +4566,7 @@ ident_done:
 		 */
 		pr_info("device found, Manufacturer ID: 0x%02x, Chip ID: 0x%02x\n",
 			*maf_id, *dev_id);
-		pr_info("%s %s\n", nand_manuf_ids[maf_idx].name, mtd->name);
+		pr_info("%s %s\n", manufacturer_desc->name, mtd->name);
 		pr_warn("bus width %d instead %d bit\n",
 			   (chip->options & NAND_BUSWIDTH_16) ? 16 : 8,
 			   busw ? 16 : 8);
@@ -4549,28 +4599,30 @@ ident_done:
 	if (mtd->writesize > 512 && chip->cmdfunc == nand_command)
 		chip->cmdfunc = nand_command_lp;
 
+	ret = nand_manufacturer_init(chip);
+	if (ret)
+		return ERR_PTR(ret);
+
 	pr_info("device found, Manufacturer ID: 0x%02x, Chip ID: 0x%02x\n",
 		*maf_id, *dev_id);
 
 #ifdef CONFIG_SYS_NAND_ONFI_DETECTION
 	if (chip->onfi_version)
-		pr_info("%s %s\n", nand_manuf_ids[maf_idx].name,
-				chip->onfi_params.model);
+		pr_info("%s %s\n", manufacturer_desc->name,
+			chip->onfi_params.model);
 	else if (chip->jedec_version)
-		pr_info("%s %s\n", nand_manuf_ids[maf_idx].name,
-				chip->jedec_params.model);
+		pr_info("%s %s\n", manufacturer_desc->name,
+			chip->jedec_params.model);
 	else
-		pr_info("%s %s\n", nand_manuf_ids[maf_idx].name,
-				type->name);
+		pr_info("%s %s\n", manufacturer_desc->name, type->name);
 #else
 	if (chip->jedec_version)
-		pr_info("%s %s\n", nand_manuf_ids[maf_idx].name,
-				chip->jedec_params.model);
+		pr_info("%s %s\n", manufacturer_desc->name,
+			chip->jedec_params.model);
 	else
-		pr_info("%s %s\n", nand_manuf_ids[maf_idx].name,
-				type->name);
+		pr_info("%s %s\n", manufacturer_desc->name, type->name);
 
-	pr_info("%s %s\n", nand_manuf_ids[maf_idx].name,
+	pr_info("%s %s\n", manufacturer_desc->name,
 		type->name);
 #endif
 
