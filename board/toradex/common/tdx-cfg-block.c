@@ -145,6 +145,7 @@ const char * const toradex_modules[] = {
 	[65] = "Verdin iMX8M Plus QuadLite 1GB IT",
 	[66] = "Verdin iMX8M Plus Quad 8GB Wi-Fi / BT",
 	[67] = "Apalis iMX8 QuadMax 8GB Wi-Fi / BT IT",
+	[68] = "Verdin iMX8M Mini Quad 2GB WB IT No CAN",
 };
 
 const char * const toradex_carrier_boards[] = {
@@ -408,6 +409,7 @@ static int get_cfgblock_interactive(void)
 	char it = 'n';
 	char wb = 'n';
 	char mem8g = 'n';
+	char can = 'y';
 	int len = 0;
 	int ret = 0;
 
@@ -433,6 +435,13 @@ static int get_cfgblock_interactive(void)
 		sprintf(message, "Does your module have 8GB of RAM? [y/N] ");
 		len = cli_readline(message);
 		mem8g = console_buffer[0];
+	}
+#endif
+#if defined(CONFIG_TARGET_VERDIN_IMX8MM)
+	if (is_cpu_type(MXC_CPU_IMX8MM) && (wb == 'y' || wb == 'Y')) {
+		sprintf(message, "Does your module have CAN? [y/N] ");
+		len = cli_readline(message);
+		can = console_buffer[0];
 	}
 #endif
 #endif
@@ -522,7 +531,9 @@ static int get_cfgblock_interactive(void)
 		else
 			tdx_hw_tag.prodid = VERDIN_IMX8MMDL;
 	} else if (is_cpu_type(MXC_CPU_IMX8MM)) {
-		if (wb == 'y' || wb == 'Y')
+		if (can == 'n' || can == 'N')
+			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT_NO_CAN;
+		else if (wb == 'y' || wb == 'Y')
 			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT;
 		else
 			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_IT;
