@@ -381,8 +381,7 @@ int read_tdx_cfg_block(void)
 	}
 
 	/* Cap product id to avoid issues with a yet unknown one */
-	if (tdx_hw_tag.prodid >= (sizeof(toradex_modules) /
-				  sizeof(toradex_modules[0])))
+	if (tdx_hw_tag.prodid >= ARRAY_SIZE(toradex_modules))
 		tdx_hw_tag.prodid = 0;
 
 out:
@@ -822,8 +821,7 @@ static int get_cfgblock_carrier_interactive(void)
 
 	printf("Supported carrier boards:\n");
 	printf("CARRIER BOARD NAME\t\t [ID]\n");
-	for (int i = 0; i < sizeof(toradex_carrier_boards) /
-			    sizeof(toradex_carrier_boards[0]); i++)
+	for (int i = 0; i < ARRAY_SIZE(toradex_carrier_boards); i++)
 		if (toradex_carrier_boards[i])
 			printf("%s \t\t [%d]\n", toradex_carrier_boards[i], i);
 
