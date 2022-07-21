@@ -2,7 +2,7 @@
 /*
  * Copyright 2021-2022 Marek Vasut <marex@denx.de>
  */
-#include "imx8mm-verdin-u-boot.dtsi"
+#include "imx8mm-verdin-wifi-dev-u-boot.dtsi"
 
 / {
 	chosen {
