@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/ {
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				product = "eDPU";
+			};
+
+			baseboard {
+				product = "eDPU";
+			};
+
+			chassis {
+				product = "eDPU";
+			};
+		};
+	};
+};
+
+&spi0 {
+	u-boot,dm-pre-reloc;
+
+	spi-flash@0 {
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&sdhci0 {
+	u-boot,dm-pre-reloc;
+};
+
+&eth0 {
+	/* G.hn does not work without additional configuration */
+	status = "disabled";
+};
+
+&eth1 {
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
+};

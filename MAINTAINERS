@@ -247,14 +247,6 @@ F:	drivers/net/cortina_ni.h
 F:	drivers/net/phy/ca_phy.c
 F:	configs/cortina_presidio-asic-pnand_defconfig
 
-ARM/CZ.NIC TURRIS MOX SUPPORT
-M:	Marek Behun <marek.behun@nic.cz>
-S:	Maintained
-F:	arch/arm/dts/armada-3720-turris-mox.dts
-F:	board/CZ.NIC/
-F:	configs/turris_*_defconfig
-F:	include/configs/turris_*.h
-
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
 M:	Fabio Estevam <festevam@gmail.com>
@@ -377,6 +369,14 @@ F:	drivers/reset/reset-mediatek.c
 F:	tools/mtk_image.c
 F:	tools/mtk_image.h
 N:	mediatek
+
+ARM METHODE SUPPORT
+M:	Robert Marko <robert.marko@sartura.hr>
+S:	Maintained
+F:	arch/arm/dts/armada-3720-eDPU*
+F:	arch/arm/dts/armada-3720-uDPU*
+F:	configs/eDPU_defconfig
+F:	configs/uDPU_defconfig
 
 ARM MICROCHIP/ATMEL AT91
 M:	Eugen Hristev <eugen.hristev@microchip.com>
@@ -751,7 +751,7 @@ F:	net/eth_bootdevice.c
 F:	test/boot/
 
 BTRFS
-M:	Marek Behun <marek.behun@nic.cz>
+M:	Marek Behún <kabel@kernel.org>
 R:	Qu Wenruo <wqu@suse.com>
 L:	linux-btrfs@vger.kernel.org
 S:	Maintained
@@ -955,7 +955,7 @@ F:	drivers/i2c/
 
 KWBIMAGE / KWBOOT TOOLS
 M:	Pali Rohár <pali@kernel.org>
-M:	Marek Behún <marek.behun@nic.cz>
+M:	Marek Behún <kabel@kernel.org>
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git

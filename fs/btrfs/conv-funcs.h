@@ -2,7 +2,7 @@
 /*
  * Functions to convert BTRFS structures from disk to CPU endianness and back.
  *
- * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
+ * 2017 Marek Behún, CZ.NIC, kabel@kernel.org
  */
 
 #ifndef __BTRFS_CONV_FUNCS_H__

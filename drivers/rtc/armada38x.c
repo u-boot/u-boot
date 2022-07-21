@@ -2,7 +2,7 @@
 /*
  * RTC driver for the Armada 38x Marvell SoCs
  *
- * Copyright (C) 2021 Marek Behun <marek.behun@nic.cz>
+ * Copyright (C) 2021 Marek Behún <kabel@kernel.org>
  *
  * Based on Linux' driver by Gregory Clement and Marvell
  */

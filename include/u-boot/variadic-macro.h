@@ -2,7 +2,7 @@
 /*
  * Helper for work with variadic macros
  *
- * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
+ * 2017 Marek Behún, CZ.NIC, kabel@kernel.org
  */
 
 #ifndef __VARIADIC_MACRO_H__

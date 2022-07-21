@@ -61,14 +61,6 @@ enum cpu_attrib {
 	CPU_ATTR_DEV_CS3 = 0x37,
 };
 
-enum {
-	MVEBU_SOC_AXP,
-	MVEBU_SOC_A375,
-	MVEBU_SOC_A38X,
-	MVEBU_SOC_MSYS,
-	MVEBU_SOC_UNKNOWN,
-};
-
 #define MVEBU_SDRAM_SIZE_MAX	0xc0000000
 
 /*
@@ -140,7 +132,6 @@ unsigned int mvebu_sdram_bar(enum memory_bank bank);
 unsigned int mvebu_sdram_bs(enum memory_bank bank);
 void mvebu_sdram_size_adjust(enum memory_bank bank);
 int mvebu_mbus_probe(struct mbus_win windows[], int count);
-int mvebu_soc_family(void);
 u32 mvebu_get_nand_clock(void);
 
 void __noreturn return_to_bootrom(void);

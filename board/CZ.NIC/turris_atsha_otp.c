@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 Marek Behun <marek.behun@nic.cz>
+ * Copyright (C) 2017 Marek Behún <kabel@kernel.org>
  * Copyright (C) 2016 Tomas Hlavacek <tomas.hlavacek@nic.cz>
  */
 
 #include <env.h>
 #include <net.h>
+#include <dm/device.h>
 #include <dm/uclass.h>
 #include <atsha204a-i2c.h>
 
@@ -16,12 +17,14 @@
 #define TURRIS_ATSHA_OTP_MAC0		3
 #define TURRIS_ATSHA_OTP_MAC1		4
 
+extern U_BOOT_DRIVER(atsha204);
+
 static struct udevice *get_atsha204a_dev(void)
 {
 	/* Cannot be static because BSS does not have to be ready at this early stage */
 	struct udevice *dev;
 
-	if (uclass_get_device_by_name(UCLASS_MISC, "crypto@64", &dev)) {
+	if (uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(atsha204), &dev)) {
 		puts("Cannot find ATSHA204A on I2C bus!\n");
 		dev = NULL;
 	}

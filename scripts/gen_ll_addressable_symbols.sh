@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0+
-# Copyright (C) 2020 Marek Behún <marek.behun@nic.cz>
+# Copyright (C) 2020 Marek Behún <kabel@kernel.org>
 
 # Generate __ADDRESSABLE(symbol) for every linker list entry symbol, so that LTO
 # does not optimize these symbols away
