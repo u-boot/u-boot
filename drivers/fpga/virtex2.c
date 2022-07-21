@@ -41,10 +41,6 @@
 #define CONFIG_FPGA_DELAY()
 #endif
 
-#ifndef CONFIG_SYS_FPGA_PROG_FEEDBACK
-#define CONFIG_SYS_FPGA_PROG_FEEDBACK
-#endif
-
 /*
  * Check for errors during configuration by default
  */

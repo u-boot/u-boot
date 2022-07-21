@@ -131,7 +131,6 @@
  * it needs non-blocking CFI routines.
  */
 
-#define CONFIG_SYS_FPGA_PROG_FEEDBACK
 #define CONFIG_SYS_FPGA_WAIT		1000
 
 /* End of user parameters to be customized */

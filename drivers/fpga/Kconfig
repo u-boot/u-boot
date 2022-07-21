@@ -97,4 +97,11 @@ config SYS_FPGA_CHECK_CTRLC
 	help
 	  User can interrupt FPGA configuration by pressing CTRL+C.
 
+config SYS_FPGA_PROG_FEEDBACK
+	bool "Progress output during FPGA configuration"
+	depends on FPGA
+	default y if FPGA_VIRTEX2
+	help
+	  Enable printing of hash marks during FPGA configuration.
+
 endmenu
