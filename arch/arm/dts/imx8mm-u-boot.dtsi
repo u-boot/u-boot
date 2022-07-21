@@ -200,3 +200,13 @@
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
 };
+
+&spba1 {
+	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+};
+
+&spba2 {
+	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+};

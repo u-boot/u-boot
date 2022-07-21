@@ -8,6 +8,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/linux-event-codes.h>
 #include <dt-bindings/leds/common.h>
+#include <dt-bindings/phy/phy-imx8-pcie.h>
 
 #include "imx8mm.dtsi"
 
@@ -179,6 +180,12 @@
 		};
 	};
 
+	pcie0_refclk: pcie0-refclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
 	reg_3p3v: regulator-3p3v {
 		compatible = "regulator-fixed";
 		regulator-name = "3P3V";
@@ -255,6 +262,10 @@
 	};
 };
 
+&disp_blk_ctrl {
+	status = "disabled";
+};
+
 &ecspi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_spi1>;
@@ -282,6 +293,37 @@
 	};
 };
 
+&gpio1 {
+	gpio-line-names = "uart1_rs422#", "", "", "uart1_rs485#",
+		"", "uart1_rs232#", "dig1_in", "dig1_out",
+		"", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "";
+};
+
+&gpio4 {
+	gpio-line-names = "", "", "", "",
+		"", "", "uart3_rs232#", "uart3_rs422#",
+		"uart3_rs485#", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "",
+		"", "", "", "uart4_rs485#", "", "sim1det#", "sim2det#", "";
+};
+
+&gpio5 {
+	gpio-line-names = "", "", "", "dig2_out", "dig2_in", "sim2sel", "", "",
+		"", "", "uart4_rs232#", "", "", "uart4_rs422#", "", "",
+		"", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "";
+};
+
+&gpu_2d {
+	status = "disabled";
+};
+
+&gpu_3d {
+	status = "disabled";
+};
+
 &i2c1 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
@@ -296,8 +338,6 @@
 		interrupts = <16 IRQ_TYPE_EDGE_FALLING>;
 		interrupt-controller;
 		#interrupt-cells = <1>;
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		adc {
 			compatible = "gw,gsc-adc";
@@ -577,6 +617,7 @@
 		pinctrl-0 = <&pinctrl_ksz>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <18 IRQ_TYPE_EDGE_FALLING>;
+		phy-mode = "rgmii-id";
 
 		ports {
 			#address-cells = <1>;
@@ -586,32 +627,24 @@
 				reg = <0>;
 				label = "lan1";
 				local-mac-address = [00 00 00 00 00 00];
-				phy-handle = <&sw_phy0>;
-				phy-mode = "internal";
 			};
 
 			lan2: port@1 {
 				reg = <1>;
 				label = "lan2";
 				local-mac-address = [00 00 00 00 00 00];
-				phy-handle = <&sw_phy1>;
-				phy-mode = "internal";
 			};
 
 			lan3: port@2 {
 				reg = <2>;
 				label = "lan3";
 				local-mac-address = [00 00 00 00 00 00];
-				phy-handle = <&sw_phy2>;
-				phy-mode = "internal";
 			};
 
 			lan4: port@3 {
 				reg = <3>;
 				label = "lan4";
 				local-mac-address = [00 00 00 00 00 00];
-				phy-handle = <&sw_phy3>;
-				phy-mode = "internal";
 			};
 
 			port@5 {
@@ -623,34 +656,6 @@
 				fixed-link {
 					speed = <1000>;
 					full-duplex;
-				};
-			};
-		};
-
-		mdios {
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			mdio@0 {
-				reg = <0>;
-				compatible = "microchip,ksz-mdio";
-				#address-cells = <1>;
-				#size-cells = <0>;
-
-				sw_phy0: ethernet-phy@0 {
-					reg = <0x0>;
-				};
-
-				sw_phy1: ethernet-phy@1 {
-					reg = <0x1>;
-				};
-
-				sw_phy2: ethernet-phy@2 {
-					reg = <0x2>;
-				};
-
-				sw_phy3: ethernet-phy@3 {
-					reg = <0x3>;
 				};
 			};
 		};
@@ -669,6 +674,41 @@
 	status = "okay";
 };
 
+&pcie_phy {
+	fsl,refclk-pad-mode = <IMX8_PCIE_REFCLK_PAD_INPUT>;
+	fsl,clkreq-unsupported;
+	clocks = <&pcie0_refclk>;
+	clock-names = "ref";
+	status = "okay";
+};
+
+&pcie0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pcie0>;
+	reset-gpio = <&gpio5 2 GPIO_ACTIVE_LOW>;
+	clocks = <&clk IMX8MM_CLK_PCIE1_ROOT>, <&clk IMX8MM_CLK_PCIE1_AUX>,
+		 <&pcie0_refclk>;
+	clock-names = "pcie", "pcie_aux", "pcie_bus";
+	assigned-clocks = <&clk IMX8MM_CLK_PCIE1_AUX>,
+			  <&clk IMX8MM_CLK_PCIE1_CTRL>;
+	assigned-clock-rates = <10000000>, <250000000>;
+	assigned-clock-parents = <&clk IMX8MM_SYS_PLL2_50M>,
+				 <&clk IMX8MM_SYS_PLL2_250M>;
+	status = "okay";
+};
+
+&pgc_gpu {
+	status = "disabled";
+};
+
+&pgc_gpumix {
+	status = "disabled";
+};
+
+&pgc_mipi {
+	status = "disabled";
+};
+
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1>, <&pinctrl_uart1_gpio>;
@@ -677,6 +717,7 @@
 	dtr-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
 	dsr-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
 	dcd-gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
+	uart-has-rtscts;
 	status = "okay";
 };
 
@@ -692,6 +733,7 @@
 	pinctrl-0 = <&pinctrl_uart3>, <&pinctrl_uart3_gpio>;
 	cts-gpios = <&gpio4 10 GPIO_ACTIVE_LOW>;
 	rts-gpios = <&gpio4 9 GPIO_ACTIVE_LOW>;
+	uart-has-rtscts;
 	status = "okay";
 };
 
@@ -700,6 +742,7 @@
 	pinctrl-0 = <&pinctrl_uart4>, <&pinctrl_uart4_gpio>;
 	cts-gpios = <&gpio5 11 GPIO_ACTIVE_LOW>;
 	rts-gpios = <&gpio5 12 GPIO_ACTIVE_LOW>;
+	uart-has-rtscts;
 	status = "okay";
 };
 
@@ -830,6 +873,13 @@
 		fsl,pins = <
 			MX8MM_IOMUXC_SAI1_TXD6_GPIO4_IO18	0x41
 			MX8MM_IOMUXC_SAI1_TXD7_GPIO4_IO19	0x41 /* RST# */
+		>;
+	};
+
+	pinctrl_pcie0: pciegrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI3_TXFS_GPIO4_IO31	0x40000041 /* WDIS# */
+			MX8MM_IOMUXC_SAI3_MCLK_GPIO5_IO2	0x41
 		>;
 	};
 
