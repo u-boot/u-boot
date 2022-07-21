@@ -91,4 +91,10 @@ config FPGA_ZYNQPL
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Xilinx Zynq devices.
 
+config SYS_FPGA_CHECK_CTRLC
+	bool "Allow Control-C to interrupt FPGA configuration"
+	depends on FPGA
+	help
+	  User can interrupt FPGA configuration by pressing CTRL+C.
+
 endmenu

@@ -46,13 +46,6 @@
 #endif
 
 /*
- * Don't allow config cycle to be interrupted
- */
-#ifndef CONFIG_SYS_FPGA_CHECK_CTRLC
-#undef CONFIG_SYS_FPGA_CHECK_CTRLC
-#endif
-
-/*
  * Check for errors during configuration by default
  */
 #ifndef CONFIG_SYS_FPGA_CHECK_ERROR

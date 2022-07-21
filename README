@@ -1346,9 +1346,6 @@ The following options need to be configured:
 		If defined, a function that provides delays in the FPGA
 		configuration driver.
 
-		CONFIG_SYS_FPGA_CHECK_CTRLC
-		Allow Control-C to interrupt FPGA configuration
-
 		CONFIG_SYS_FPGA_CHECK_ERROR
 
 		Check for configuration errors during FPGA bitfile
