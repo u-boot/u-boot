@@ -238,23 +238,23 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	}
 
 	/* It is clear that FRU was captured and structures were filled */
-	strncpy(desc->manufacturer, (char *)fru_data.brd.manufacturer_name,
+	strlcpy(desc->manufacturer, (char *)fru_data.brd.manufacturer_name,
 		sizeof(desc->manufacturer));
-	strncpy(desc->uuid, (char *)fru_data.brd.uuid,
+	strlcpy(desc->uuid, (char *)fru_data.brd.uuid,
 		sizeof(desc->uuid));
-	strncpy(desc->name, (char *)fru_data.brd.product_name,
+	strlcpy(desc->name, (char *)fru_data.brd.product_name,
 		sizeof(desc->name));
 	for (i = 0; i < sizeof(desc->name); i++) {
 		if (desc->name[i] == ' ')
 			desc->name[i] = '\0';
 	}
-	strncpy(desc->revision, (char *)fru_data.brd.rev,
+	strlcpy(desc->revision, (char *)fru_data.brd.rev,
 		sizeof(desc->revision));
 	for (i = 0; i < sizeof(desc->revision); i++) {
 		if (desc->revision[i] == ' ')
 			desc->revision[i] = '\0';
 	}
-	strncpy(desc->serial, (char *)fru_data.brd.serial_number,
+	strlcpy(desc->serial, (char *)fru_data.brd.serial_number,
 		sizeof(desc->serial));
 
 	while (id < EEPROM_HDR_NO_OF_MAC_ADDR) {
