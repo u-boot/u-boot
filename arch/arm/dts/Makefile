@@ -802,7 +802,7 @@ endif
 
 ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
 dtb-y += \
-	imx6-apalis.dtb \
+	imx6q-apalis-eval.dtb \
 	imx6q-bosch-acc.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-cubox-i.dtb \
@@ -894,7 +894,7 @@ dtb-$(CONFIG_MX6ULL) += \
 	imx6ulz-14x14-evk.dtb
 
 dtb-$(CONFIG_ARCH_MX6) += \
-	imx6-apalis.dtb \
+	imx6q-apalis-eval.dtb \
 	imx6-colibri.dtb
 
 dtb-$(CONFIG_O4_IMX_NANO) += \
