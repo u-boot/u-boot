@@ -6,7 +6,7 @@
  */
 
 /dts-v1/;
-#include "vf.dtsi"
+#include "vf610.dtsi"
 #include "vf610-pinfunc.h"
 
 / {
