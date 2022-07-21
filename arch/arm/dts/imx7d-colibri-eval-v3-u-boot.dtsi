@@ -1,7 +1,13 @@
-// SPDX-License-Identifier: GPL-2.0+ OR MIT
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 /*
- * Copyright 2020 Toradex
+ * Copyright 2020-2022 Toradex
  */
+
+&{/aliases} {
+	/* SDHCI instance order: eMMC, SD/MMC */
+	mmc0 = &usdhc3;
+	mmc1 = &usdhc1;
+};
 
 &lcdif {
 	status = "okay";
