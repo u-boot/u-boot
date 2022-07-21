@@ -23,6 +23,7 @@
 #include <soc.h>
 #include <linux/ctype.h>
 #include <linux/kernel.h>
+#include <uuid.h>
 
 #include "fru.h"
 
@@ -86,6 +87,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 #define EEPROM_HDR_SERIAL_LEN		20
 #define EEPROM_HDR_NO_OF_MAC_ADDR	4
 #define EEPROM_HDR_ETH_ALEN		ETH_ALEN
+#define EEPROM_HDR_UUID_LEN		16
 
 struct xilinx_board_description {
 	u32 header;
@@ -94,6 +96,7 @@ struct xilinx_board_description {
 	char revision[EEPROM_HDR_REV_LEN + 1];
 	char serial[EEPROM_HDR_SERIAL_LEN + 1];
 	u8 mac_addr[EEPROM_HDR_NO_OF_MAC_ADDR][EEPROM_HDR_ETH_ALEN + 1];
+	char uuid[EEPROM_HDR_UUID_LEN + 1];
 };
 
 static int highest_id = -1;
@@ -237,6 +240,8 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	/* It is clear that FRU was captured and structures were filled */
 	strncpy(desc->manufacturer, (char *)fru_data.brd.manufacturer_name,
 		sizeof(desc->manufacturer));
+	strncpy(desc->uuid, (char *)fru_data.brd.uuid,
+		sizeof(desc->uuid));
 	strncpy(desc->name, (char *)fru_data.brd.product_name,
 		sizeof(desc->name));
 	for (i = 0; i < sizeof(desc->name); i++) {
@@ -451,6 +456,19 @@ int board_late_init_xilinx(void)
 			if (desc->serial[0])
 				ret |= env_set_by_index("serial", id,
 							desc->serial);
+
+			if (desc->uuid[0]) {
+				char uuid[UUID_STR_LEN + 1];
+				char *t = desc->uuid;
+
+				memset(uuid, 0, UUID_STR_LEN + 1);
+
+				sprintf(uuid, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+					t[0], t[1], t[2], t[3], t[4], t[5],
+					t[6], t[7], t[8], t[9], t[10], t[11],
+					t[12], t[13], t[14], t[15]);
+				ret |= env_set_by_index("uuid", id, uuid);
+			}
 
 			if (!CONFIG_IS_ENABLED(NET))
 				continue;
