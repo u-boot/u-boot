@@ -11,17 +11,6 @@
 #include <command.h>
 #include <asm/cache.h>
 
-#if defined(CONFIG_TARGET_APALIS_IMX6) || \
-	defined(CONFIG_TARGET_APALIS_IMX8) || \
-	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
-	defined(CONFIG_TARGET_COLIBRI_IMX8X) || \
-	defined(CONFIG_TARGET_VERDIN_IMX8MM) || \
-	defined(CONFIG_TARGET_VERDIN_IMX8MN) || \
-	defined(CONFIG_TARGET_VERDIN_IMX8MP)
-#include <asm/arch/sys_proto.h>
-#else
-#define is_cpu_type(cpu) (0)
-#endif
 #include <cli.h>
 #include <console.h>
 #include <env.h>
@@ -76,76 +65,78 @@ bool valid_cfgblock_carrier;
 struct toradex_hw tdx_car_hw_tag;
 #endif
 
-const char * const toradex_modules[] = {
-	 [0] = "UNKNOWN MODULE",
-	 [1] = "Colibri PXA270 312MHz",
-	 [2] = "Colibri PXA270 520MHz",
-	 [3] = "Colibri PXA320 806MHz",
-	 [4] = "Colibri PXA300 208MHz",
-	 [5] = "Colibri PXA310 624MHz",
-	 [6] = "Colibri PXA320 806MHz IT",
-	 [7] = "Colibri PXA300 208MHz XT",
-	 [8] = "Colibri PXA270 312MHz",
-	 [9] = "Colibri PXA270 520MHz",
-	[10] = "Colibri VF50 128MB",
-	[11] = "Colibri VF61 256MB",
-	[12] = "Colibri VF61 256MB IT",
-	[13] = "Colibri VF50 128MB IT",
-	[14] = "Colibri iMX6 Solo 256MB",
-	[15] = "Colibri iMX6 DualLite 512MB",
-	[16] = "Colibri iMX6 Solo 256MB IT",
-	[17] = "Colibri iMX6 DualLite 512MB IT",
-	[18] = "UNKNOWN MODULE",
-	[19] = "UNKNOWN MODULE",
-	[20] = "Colibri T20 256MB",
-	[21] = "Colibri T20 512MB",
-	[22] = "Colibri T20 512MB IT",
-	[23] = "Colibri T30 1GB",
-	[24] = "Colibri T20 256MB IT",
-	[25] = "Apalis T30 2GB",
-	[26] = "Apalis T30 1GB",
-	[27] = "Apalis iMX6 Quad 1GB",
-	[28] = "Apalis iMX6 Quad 2GB IT",
-	[29] = "Apalis iMX6 Dual 512MB",
-	[30] = "Colibri T30 1GB IT",
-	[31] = "Apalis T30 1GB IT",
-	[32] = "Colibri iMX7 Solo 256MB",
-	[33] = "Colibri iMX7 Dual 512MB",
-	[34] = "Apalis TK1 2GB",
-	[35] = "Apalis iMX6 Dual 1GB IT",
-	[36] = "Colibri iMX6ULL 256MB",
-	[37] = "Apalis iMX8 QuadMax 4GB Wi-Fi / BT IT",
-	[38] = "Colibri iMX8 QuadXPlus 2GB Wi-Fi / BT IT",
-	[39] = "Colibri iMX7 Dual 1GB (eMMC)",
-	[40] = "Colibri iMX6ULL 512MB Wi-Fi / BT IT",
-	[41] = "Colibri iMX7 Dual 512MB EPDC",
-	[42] = "Apalis TK1 4GB",
-	[43] = "Colibri T20 512MB IT SETEK",
-	[44] = "Colibri iMX6ULL 512MB IT",
-	[45] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth",
-	[46] = "Apalis iMX8 QuadXPlus 2GB Wi-Fi / BT IT",
-	[47] = "Apalis iMX8 QuadMax 4GB IT",
-	[48] = "Apalis iMX8 QuadPlus 2GB Wi-Fi / BT",
-	[49] = "Apalis iMX8 QuadPlus 2GB",
-	[50] = "Colibri iMX8 QuadXPlus 2GB IT",
-	[51] = "Colibri iMX8 DualX 1GB Wi-Fi / Bluetooth",
-	[52] = "Colibri iMX8 DualX 1GB",
-	[53] = "Apalis iMX8 QuadXPlus 2GB ECC IT",
-	[54] = "Apalis iMX8 DualXPlus 1GB",
-	[55] = "Verdin iMX8M Mini Quad 2GB Wi-Fi / BT IT",
-	[56] = "Verdin iMX8M Nano Quad 1GB Wi-Fi / BT",
-	[57] = "Verdin iMX8M Mini DualLite 1GB",
-	[58] = "Verdin iMX8M Plus Quad 4GB Wi-Fi / BT IT",
-	[59] = "Verdin iMX8M Mini Quad 2GB IT",
-	[60] = "Verdin iMX8M Mini DualLite 1GB WB IT",
-	[61] = "Verdin iMX8M Plus Quad 2GB",
-	[62] = "Colibri iMX6ULL 1GB IT (eMMC)",
-	[63] = "Verdin iMX8M Plus Quad 4GB IT",
-	[64] = "Verdin iMX8M Plus Quad 2GB Wi-Fi / BT IT",
-	[65] = "Verdin iMX8M Plus QuadLite 1GB IT",
-	[66] = "Verdin iMX8M Plus Quad 8GB Wi-Fi / BT",
-	[67] = "Apalis iMX8 QuadMax 8GB Wi-Fi / BT IT",
-	[68] = "Verdin iMX8M Mini Quad 2GB WB IT No CAN",
+#define TARGET_IS_ENABLED(x) IS_ENABLED(CONFIG_TARGET_ ## x)
+
+const struct toradex_som toradex_modules[] = {
+	 [0] = { "UNKNOWN MODULE",                           0                                  },
+	 [1] = { "Colibri PXA270 312MHz",                    0                                  },
+	 [2] = { "Colibri PXA270 520MHz",                    0                                  },
+	 [3] = { "Colibri PXA320 806MHz",                    0                                  },
+	 [4] = { "Colibri PXA300 208MHz",                    0                                  },
+	 [5] = { "Colibri PXA310 624MHz",                    0                                  },
+	 [6] = { "Colibri PXA320 806MHz IT",                 0                                  },
+	 [7] = { "Colibri PXA300 208MHz XT",                 0                                  },
+	 [8] = { "Colibri PXA270 312MHz",                    0                                  },
+	 [9] = { "Colibri PXA270 520MHz",                    0                                  },
+	[10] = { "Colibri VF50 128MB",                       TARGET_IS_ENABLED(COLIBRI_VF)      },
+	[11] = { "Colibri VF61 256MB",                       TARGET_IS_ENABLED(COLIBRI_VF)      },
+	[12] = { "Colibri VF61 256MB IT",                    TARGET_IS_ENABLED(COLIBRI_VF)      },
+	[13] = { "Colibri VF50 128MB IT",                    TARGET_IS_ENABLED(COLIBRI_VF)      },
+	[14] = { "Colibri iMX6 Solo 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	[15] = { "Colibri iMX6 DualLite 512MB",              TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	[16] = { "Colibri iMX6 Solo 256MB IT",               TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	[17] = { "Colibri iMX6 DualLite 512MB IT",           TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	[18] = { "UNKNOWN MODULE",                           0                                  },
+	[19] = { "UNKNOWN MODULE",                           0                                  },
+	[20] = { "Colibri T20 256MB",                        TARGET_IS_ENABLED(COLIBRI_T20)     },
+	[21] = { "Colibri T20 512MB",                        TARGET_IS_ENABLED(COLIBRI_T20)     },
+	[22] = { "Colibri T20 512MB IT",                     TARGET_IS_ENABLED(COLIBRI_T20)     },
+	[23] = { "Colibri T30 1GB",                          TARGET_IS_ENABLED(COLIBRI_T30)     },
+	[24] = { "Colibri T20 256MB IT",                     TARGET_IS_ENABLED(COLIBRI_T20)     },
+	[25] = { "Apalis T30 2GB",                           TARGET_IS_ENABLED(APALIS_T30)      },
+	[26] = { "Apalis T30 1GB",                           TARGET_IS_ENABLED(APALIS_T30)      },
+	[27] = { "Apalis iMX6 Quad 1GB",                     TARGET_IS_ENABLED(APALIS_IMX6)     },
+	[28] = { "Apalis iMX6 Quad 2GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
+	[29] = { "Apalis iMX6 Dual 512MB",                   TARGET_IS_ENABLED(APALIS_IMX6)     },
+	[30] = { "Colibri T30 1GB IT",                       TARGET_IS_ENABLED(COLIBRI_T30)     },
+	[31] = { "Apalis T30 1GB IT",                        TARGET_IS_ENABLED(APALIS_T30)      },
+	[32] = { "Colibri iMX7 Solo 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	[33] = { "Colibri iMX7 Dual 512MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	[34] = { "Apalis TK1 2GB",                           TARGET_IS_ENABLED(APALIS_TK1)      },
+	[35] = { "Apalis iMX6 Dual 1GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
+	[36] = { "Colibri iMX6ULL 256MB",                    TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	[37] = { "Apalis iMX8 QuadMax 4GB Wi-Fi / BT IT",    TARGET_IS_ENABLED(APALIS_IMX8)     },
+	[38] = { "Colibri iMX8 QuadXPlus 2GB Wi-Fi / BT IT", TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	[39] = { "Colibri iMX7 Dual 1GB (eMMC)",             TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	[40] = { "Colibri iMX6ULL 512MB Wi-Fi / BT IT",      TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	[41] = { "Colibri iMX7 Dual 512MB EPDC",             TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	[42] = { "Apalis TK1 4GB",                           TARGET_IS_ENABLED(APALIS_TK1)      },
+	[43] = { "Colibri T20 512MB IT SETEK",               TARGET_IS_ENABLED(COLIBRI_T20)     },
+	[44] = { "Colibri iMX6ULL 512MB IT",                 TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	[45] = { "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth",  TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	[46] = { "Apalis iMX8 QuadXPlus 2GB Wi-Fi / BT IT",  0                                  },
+	[47] = { "Apalis iMX8 QuadMax 4GB IT",               TARGET_IS_ENABLED(APALIS_IMX8)     },
+	[48] = { "Apalis iMX8 QuadPlus 2GB Wi-Fi / BT",      TARGET_IS_ENABLED(APALIS_IMX8)     },
+	[49] = { "Apalis iMX8 QuadPlus 2GB",                 TARGET_IS_ENABLED(APALIS_IMX8)     },
+	[50] = { "Colibri iMX8 QuadXPlus 2GB IT",            TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	[51] = { "Colibri iMX8 DualX 1GB Wi-Fi / Bluetooth", TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	[52] = { "Colibri iMX8 DualX 1GB",                   TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	[53] = { "Apalis iMX8 QuadXPlus 2GB ECC IT",         0                                  },
+	[54] = { "Apalis iMX8 DualXPlus 1GB",                TARGET_IS_ENABLED(APALIS_IMX8)     },
+	[55] = { "Verdin iMX8M Mini Quad 2GB Wi-Fi / BT IT", TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	[56] = { "Verdin iMX8M Nano Quad 1GB Wi-Fi / BT",    0                                  },
+	[57] = { "Verdin iMX8M Mini DualLite 1GB",           TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	[58] = { "Verdin iMX8M Plus Quad 4GB Wi-Fi / BT IT", TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	[59] = { "Verdin iMX8M Mini Quad 2GB IT",            TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	[60] = { "Verdin iMX8M Mini DualLite 1GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	[61] = { "Verdin iMX8M Plus Quad 2GB",               TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	[62] = { "Colibri iMX6ULL 1GB IT (eMMC)",            TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	[63] = { "Verdin iMX8M Plus Quad 4GB IT",            TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	[64] = { "Verdin iMX8M Plus Quad 2GB Wi-Fi / BT IT", TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	[65] = { "Verdin iMX8M Plus QuadLite 1GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	[66] = { "Verdin iMX8M Plus Quad 8GB Wi-Fi / BT",    TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	[67] = { "Apalis iMX8 QuadMax 8GB Wi-Fi / BT IT",    TARGET_IS_ENABLED(APALIS_IMX8)     },
+	[68] = { "Verdin iMX8M Mini Quad 2GB WB IT No CAN",  TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
 };
 
 const char * const toradex_carrier_boards[] = {
@@ -404,204 +395,28 @@ static int parse_assembly_string(char *string_to_parse, u16 *assembly)
 static int get_cfgblock_interactive(void)
 {
 	char message[CONFIG_SYS_CBSIZE];
-	char *soc;
-	char it = 'n';
-	char wb = 'n';
-	char mem8g = 'n';
-	char can = 'y';
 	int len = 0;
 	int ret = 0;
+	unsigned int prodid;
+	int i;
 
-	/* Unknown module by default */
-	tdx_hw_tag.prodid = 0;
+	printf("Enabled modules:\n");
+	for (i = 0; i < ARRAY_SIZE(toradex_modules); i++) {
+		if (toradex_modules[i].is_enabled)
+			printf(" %04d %s\n", i, toradex_modules[i].name);
+	}
 
-	sprintf(message, "Is the module an IT version? [y/N] ");
-
+	sprintf(message, "Enter the module ID: ");
 	len = cli_readline(message);
-	it = console_buffer[0];
 
-#if defined(CONFIG_TARGET_APALIS_IMX8) || \
-		defined(CONFIG_TARGET_COLIBRI_IMX6ULL) || \
-		defined(CONFIG_TARGET_COLIBRI_IMX8X) || \
-		defined(CONFIG_TARGET_VERDIN_IMX8MM) || \
-		defined(CONFIG_TARGET_VERDIN_IMX8MP)
-	sprintf(message, "Does the module have Wi-Fi / Bluetooth? [y/N] ");
-	len = cli_readline(message);
-	wb = console_buffer[0];
-
-#if defined(CONFIG_TARGET_APALIS_IMX8)
-	if ((wb == 'y' || wb == 'Y') && (it == 'y' || it == 'Y')) {
-		sprintf(message, "Does your module have 8GB of RAM? [y/N] ");
-		len = cli_readline(message);
-		mem8g = console_buffer[0];
-	}
-#endif
-#if defined(CONFIG_TARGET_VERDIN_IMX8MM)
-	if (is_cpu_type(MXC_CPU_IMX8MM) && (wb == 'y' || wb == 'Y')) {
-		sprintf(message, "Does your module have CAN? [y/N] ");
-		len = cli_readline(message);
-		can = console_buffer[0];
-	}
-#endif
-#endif
-
-	soc = env_get("soc");
-	if (!strcmp("mx6", soc)) {
-#ifdef CONFIG_TARGET_APALIS_IMX6
-		if (it == 'y' || it == 'Y') {
-			if (is_cpu_type(MXC_CPU_MX6Q))
-				tdx_hw_tag.prodid = APALIS_IMX6Q_IT;
-			else
-				tdx_hw_tag.prodid = APALIS_IMX6D_IT;
-		} else {
-			if (is_cpu_type(MXC_CPU_MX6Q))
-				tdx_hw_tag.prodid = APALIS_IMX6Q;
-			else
-				tdx_hw_tag.prodid = APALIS_IMX6D;
-		}
-#elif CONFIG_TARGET_COLIBRI_IMX6
-		if (it == 'y' || it == 'Y') {
-			if (is_cpu_type(MXC_CPU_MX6DL))
-				tdx_hw_tag.prodid = COLIBRI_IMX6DL_IT;
-			else if (is_cpu_type(MXC_CPU_MX6SOLO))
-				tdx_hw_tag.prodid = COLIBRI_IMX6S_IT;
-		} else {
-			if (is_cpu_type(MXC_CPU_MX6DL))
-				tdx_hw_tag.prodid = COLIBRI_IMX6DL;
-			else if (is_cpu_type(MXC_CPU_MX6SOLO))
-				tdx_hw_tag.prodid = COLIBRI_IMX6S;
-		}
-#elif CONFIG_TARGET_COLIBRI_IMX6ULL
-		if (it == 'y' || it == 'Y') {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT_IT;
-			else
-				if (gd->ram_size == 0x20000000)
-					tdx_hw_tag.prodid = COLIBRI_IMX6ULL_IT;
-				else
-					tdx_hw_tag.prodid = COLIBRI_IMX6ULL_IT_EMMC;
-		} else {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT;
-			else
-				tdx_hw_tag.prodid = COLIBRI_IMX6ULL;
-		}
-#endif
-	} else if (!strcmp("imx7d", soc))
-		if (gd->ram_size == 0x20000000)
-			tdx_hw_tag.prodid = COLIBRI_IMX7D;
-		else
-			tdx_hw_tag.prodid = COLIBRI_IMX7D_EMMC;
-	else if (!strcmp("imx7s", soc))
-		tdx_hw_tag.prodid = COLIBRI_IMX7S;
-	else if (is_cpu_type(MXC_CPU_IMX8QM)) {
-		if (it == 'y' || it == 'Y') {
-			if (wb == 'y' || wb == 'Y') {
-				if (mem8g == 'y' || mem8g == 'Y')
-					tdx_hw_tag.prodid = APALIS_IMX8QM_8GB_WIFI_BT_IT;
-				else
-					tdx_hw_tag.prodid = APALIS_IMX8QM_WIFI_BT_IT;
-			}
-			else
-				tdx_hw_tag.prodid = APALIS_IMX8QM_IT;
-		} else {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = APALIS_IMX8QP_WIFI_BT;
-			else
-				tdx_hw_tag.prodid = APALIS_IMX8QP;
-		}
-	} else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
-#ifdef CONFIG_TARGET_COLIBRI_IMX8X
-		if (it == 'y' || it == 'Y') {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
-			else
-				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_IT;
-		} else {
-			if (wb == 'y' || wb == 'Y')
-				tdx_hw_tag.prodid = COLIBRI_IMX8DX_WIFI_BT;
-			else
-				tdx_hw_tag.prodid = COLIBRI_IMX8DX;
-		}
-#endif
-	} else if (is_cpu_type(MXC_CPU_IMX8MMDL)) {
-		if (wb == 'y' || wb == 'Y')
-			tdx_hw_tag.prodid = VERDIN_IMX8MMDL_WIFI_BT_IT;
-		else
-			tdx_hw_tag.prodid = VERDIN_IMX8MMDL;
-	} else if (is_cpu_type(MXC_CPU_IMX8MM)) {
-		if (can == 'n' || can == 'N')
-			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT_NO_CAN;
-		else if (wb == 'y' || wb == 'Y')
-			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_WIFI_BT_IT;
-		else
-			tdx_hw_tag.prodid = VERDIN_IMX8MMQ_IT;
-	} else if (is_cpu_type(MXC_CPU_IMX8MN)) {
-		tdx_hw_tag.prodid = VERDIN_IMX8MNQ_WIFI_BT;
-	} else if (is_cpu_type(MXC_CPU_IMX8MPL)) {
-		tdx_hw_tag.prodid = VERDIN_IMX8MPQL_IT;
-	} else if (is_cpu_type(MXC_CPU_IMX8MP)) {
-		if (wb == 'y' || wb == 'Y')
-			if (gd->ram_size == 0x80000000)
-				tdx_hw_tag.prodid = VERDIN_IMX8MPQ_2GB_WIFI_BT_IT;
-			else if (gd->ram_size == 0x200000000)
-				tdx_hw_tag.prodid = VERDIN_IMX8MPQ_8GB_WIFI_BT;
-			else
-				tdx_hw_tag.prodid = VERDIN_IMX8MPQ_WIFI_BT_IT;
-		else
-			if (it == 'y' || it == 'Y')
-				tdx_hw_tag.prodid = VERDIN_IMX8MPQ_IT;
-			else
-				tdx_hw_tag.prodid = VERDIN_IMX8MPQ;
-	} else if (!strcmp("tegra20", soc)) {
-		if (it == 'y' || it == 'Y')
-			if (gd->ram_size == 0x10000000)
-				tdx_hw_tag.prodid = COLIBRI_T20_256MB_IT;
-			else
-				tdx_hw_tag.prodid = COLIBRI_T20_512MB_IT;
-		else
-			if (gd->ram_size == 0x10000000)
-				tdx_hw_tag.prodid = COLIBRI_T20_256MB;
-			else
-				tdx_hw_tag.prodid = COLIBRI_T20_512MB;
-	}
-#if defined(CONFIG_TARGET_APALIS_T30) || defined(CONFIG_TARGET_COLIBRI_T30)
-	else if (!strcmp("tegra30", soc)) {
-#ifdef CONFIG_TARGET_APALIS_T30
-		if (it == 'y' || it == 'Y')
-			tdx_hw_tag.prodid = APALIS_T30_IT;
-		else
-			if (gd->ram_size == 0x40000000)
-				tdx_hw_tag.prodid = APALIS_T30_1GB;
-			else
-				tdx_hw_tag.prodid = APALIS_T30_2GB;
-#else
-		if (it == 'y' || it == 'Y')
-			tdx_hw_tag.prodid = COLIBRI_T30_IT;
-		else
-			tdx_hw_tag.prodid = COLIBRI_T30;
-#endif
-	}
-#endif /* CONFIG_TARGET_APALIS_T30 || CONFIG_TARGET_COLIBRI_T30 */
-	else if (!strcmp("tegra124", soc)) {
-		tdx_hw_tag.prodid = APALIS_TK1_2GB;
-	} else if (!strcmp("vf500", soc)) {
-		if (it == 'y' || it == 'Y')
-			tdx_hw_tag.prodid = COLIBRI_VF50_IT;
-		else
-			tdx_hw_tag.prodid = COLIBRI_VF50;
-	} else if (!strcmp("vf610", soc)) {
-		if (it == 'y' || it == 'Y')
-			tdx_hw_tag.prodid = COLIBRI_VF61_IT;
-		else
-			tdx_hw_tag.prodid = COLIBRI_VF61;
-	}
-
-	if (!tdx_hw_tag.prodid) {
-		printf("Module type not detectable due to unknown SoC\n");
+	prodid = dectoul(console_buffer, NULL);
+	if (prodid >= ARRAY_SIZE(toradex_modules) || !toradex_modules[prodid].is_enabled) {
+		printf("Parsing module id failed\n");
 		return -1;
 	}
+	tdx_hw_tag.prodid = prodid;
 
+	len = 0;
 	while (len < 4) {
 		sprintf(message, "Enter the module version (e.g. V1.1B or V1.1#26): V");
 		len = cli_readline(message);

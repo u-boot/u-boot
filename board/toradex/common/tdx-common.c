@@ -116,7 +116,7 @@ int show_board_info(void)
 		env_set("serial#", tdx_serial_str);
 
 		printf("Model: Toradex %s %s, Serial# %s\n",
-		       toradex_modules[tdx_hw_tag.prodid],
+		       toradex_modules[tdx_hw_tag.prodid].name,
 		       tdx_board_rev_str,
 		       tdx_serial_str);
 #ifdef CONFIG_TDX_CFG_BLOCK_EXTRA

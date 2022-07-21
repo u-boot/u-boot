@@ -20,6 +20,11 @@ struct toradex_eth_addr {
 	u32 nic:24;
 } __attribute__((__packed__));
 
+struct toradex_som {
+	const char *name;
+	int is_enabled;
+};
+
 enum {
 	COLIBRI_PXA270_V1_312MHZ = 1,
 	COLIBRI_PXA270_V1_520MHZ,
@@ -101,7 +106,7 @@ enum {
 	VERDIN_DSI_TO_LVDS_ADAPTER = 159,
 };
 
-extern const char * const toradex_modules[];
+extern const struct toradex_som toradex_modules[];
 extern const char * const toradex_carrier_boards[];
 extern bool valid_cfgblock;
 extern struct toradex_hw tdx_hw_tag;
