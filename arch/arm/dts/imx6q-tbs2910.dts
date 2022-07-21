@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR MIT
 //
-// Copyright 2014-2019 Soeren Moch <smoch@web.de>
+// Copyright 2014 Soeren Moch <smoch@web.de>
 
 /dts-v1/;
 
@@ -20,7 +20,7 @@
 		mmc0 = &usdhc2;
 		mmc1 = &usdhc3;
 		mmc2 = &usdhc4;
-		usb0 = &usbotg;
+		/delete-property/ mmc3;
 	};
 
 	memory@10000000 {
@@ -106,7 +106,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
 	phy-mode = "rgmii-id";
-	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
 	phy-handle = <&phy>;
 	status = "okay";
 
@@ -117,6 +116,8 @@
 		phy: ethernet-phy@4 {
 			reg = <4>;
 			qca,clk-out-frequency = <125000000>;
+			reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
+			reset-assert-us = <10000>;
 		};
 	};
 };
@@ -158,7 +159,7 @@
 	pinctrl-0 = <&pinctrl_i2c3>;
 	status = "okay";
 
-	rtc: ds1307@68 {
+	rtc: rtc@68 {
 		compatible = "dallas,ds1307";
 		reg = <0x68>;
 	};

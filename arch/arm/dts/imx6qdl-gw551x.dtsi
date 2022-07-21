@@ -57,8 +57,8 @@
 		led0 = &led0;
 		nand = &gpmi;
 		ssi0 = &ssi1;
-		usb0 = &usbotg;
-		usb1 = &usbh1;
+		usb0 = &usbh1;
+		usb1 = &usbotg;
 	};
 
 	chosen {
@@ -67,8 +67,6 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		user-pb {
 			label = "user_pb";
@@ -536,7 +534,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbotg>;
 	disable-over-current;
-	dr_mode = "otg";
 	status = "okay";
 };
 

@@ -1,6 +1,16 @@
-// SPDX-License-Identifier: GPL-2.0+
-//
-// Copyright (C) 2020 TQ-Systems GmbH
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2013 Sascha Hauer, Pengutronix
+ *
+ * Copyright 2013-2021 TQ-Systems GmbH
+ * Author: Markus Niebel <Markus.Niebel@tq-group.com>
+ */
+
+&ecspi5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi5_mba6x>;
+	cs-gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
+};
 
 &ethphy {
 	rxdv-skew-ps = <180>;
@@ -15,4 +25,20 @@
 	txd0-skew-ps = <360>;
 	txc-skew-ps = <1860>;
 	rxc-skew-ps = <1860>;
+};
+
+&sata {
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_ecspi5_mba6x: ecspi5grp-mba6x {
+		fsl,pins = <
+			/* HYS, SPEED = MED, 100k up, DSE = 011, SRE_FAST */
+			MX6QDL_PAD_SD1_DAT0__ECSPI5_MISO 0x1b099
+			MX6QDL_PAD_SD1_CMD__ECSPI5_MOSI 0xb099
+			MX6QDL_PAD_SD1_CLK__ECSPI5_SCLK 0xb099
+			MX6QDL_PAD_SD1_DAT1__GPIO1_IO17 0xb099 /* eCSPI5 SS0 */
+		>;
+	};
 };
