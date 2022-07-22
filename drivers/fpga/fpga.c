@@ -252,7 +252,8 @@ int fpga_loads(int devnum, const void *buf, size_t size,
 /*
  * Generic multiplexing code
  */
-int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
+int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype,
+	      int flags)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
 	const fpga_desc *desc = fpga_validate(devnum, buf, bsize,
@@ -263,7 +264,7 @@ int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
 		case fpga_xilinx:
 #if defined(CONFIG_FPGA_XILINX)
 			ret_val = xilinx_load(desc->devdesc, buf, bsize,
-					      bstype, 0);
+					      bstype, flags);
 #else
 			fpga_no_sup((char *)__func__, "Xilinx devices");
 #endif

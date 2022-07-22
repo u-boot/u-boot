@@ -581,6 +581,8 @@ static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
 {
 	const char *compatible;
 	int ret;
+	int devnum = 0;
+	int flags = 0;
 
 	debug("FPGA bitstream at: %x, size: %x\n",
 	      (u32)fpga_image->load_addr, fpga_image->size);
@@ -591,8 +593,8 @@ static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
 	else if (strcmp(compatible, "u-boot,fpga-legacy"))
 		printf("Ignoring compatible = %s property\n", compatible);
 
-	ret = fpga_load(0, (void *)fpga_image->load_addr, fpga_image->size,
-			BIT_FULL);
+	ret = fpga_load(devnum, (void *)fpga_image->load_addr,
+			fpga_image->size, BIT_FULL, flags);
 	if (ret) {
 		printf("%s: Cannot load the image to the FPGA\n", __func__);
 		return ret;

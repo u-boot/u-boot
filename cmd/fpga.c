@@ -178,7 +178,7 @@ static int do_fpga_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret)
 		return ret;
 
-	return fpga_load(dev, (void *)fpga_data, data_size, BIT_FULL);
+	return fpga_load(dev, (void *)fpga_data, data_size, BIT_FULL, 0);
 }
 
 static int do_fpga_loadb(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -209,7 +209,7 @@ static int do_fpga_loadp(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret)
 		return ret;
 
-	return fpga_load(dev, (void *)fpga_data, data_size, BIT_PARTIAL);
+	return fpga_load(dev, (void *)fpga_data, data_size, BIT_PARTIAL, 0);
 }
 #endif
 
@@ -315,7 +315,7 @@ static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
 			data_size = image_get_data_size(hdr);
 		}
 		return fpga_load(dev, (void *)data, data_size,
-				  BIT_FULL);
+				  BIT_FULL, 0);
 	}
 #endif
 #if defined(CONFIG_FIT)
@@ -355,7 +355,7 @@ static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 		}
 
-		return fpga_load(dev, fit_data, data_size, BIT_FULL);
+		return fpga_load(dev, fit_data, data_size, BIT_FULL, 0);
 	}
 #endif
 	default:

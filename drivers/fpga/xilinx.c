@@ -135,7 +135,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 	dataptr += 4;
 	printf("  bytes in bitstream = %d\n", swapsize);
 
-	return fpga_load(devnum, dataptr, swapsize, bstype);
+	return fpga_load(devnum, dataptr, swapsize, bstype, 0);
 }
 
 int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize,
