@@ -25,6 +25,10 @@
 
 extern struct xilinx_fpga_op zynqmp_op;
 
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+#define ZYNQMP_FPGA_FLAGS	(FPGA_LEGACY | FPGA_XILINX_ZYNQMP_DDRAUTH)
+#else
 #define ZYNQMP_FPGA_FLAGS	(FPGA_LEGACY)
+#endif
 
 #endif /* _ZYNQMPPL_H_ */

@@ -184,7 +184,10 @@ the '/images' node should have the following layout:
     Mandatory for types: "firmware", and "kernel".
   - compatible : compatible method for loading image.
     Mandatory for types: "fpga", and images that do not specify a load address.
-    To use the generic fpga loading routine, use "u-boot,fpga-legacy".
+    Supported compatible methods:
+    "u-boot,fpga-legacy" - the generic fpga loading routine.
+    "u-boot,zynqmp-fpga-ddrauth" - signed non-encrypted FPGA bitstream for
+    Xilinx Zynq UltraScale+ (ZymqMP) device.
 
   Optional nodes:
   - hash-1 : Each hash sub-node represents separate hash or checksum
