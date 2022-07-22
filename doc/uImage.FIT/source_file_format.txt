@@ -188,6 +188,8 @@ the '/images' node should have the following layout:
     "u-boot,fpga-legacy" - the generic fpga loading routine.
     "u-boot,zynqmp-fpga-ddrauth" - signed non-encrypted FPGA bitstream for
     Xilinx Zynq UltraScale+ (ZymqMP) device.
+    "u-boot,zynqmp-fpga-enc" - encrypted FPGA bitstream for Xilinx Zynq
+    UltraScale+ (ZynqMP) device.
 
   Optional nodes:
   - hash-1 : Each hash sub-node represents separate hash or checksum

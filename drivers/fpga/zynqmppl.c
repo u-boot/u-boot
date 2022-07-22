@@ -257,6 +257,11 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		info.authflag = ZYNQMP_FPGA_AUTH_DDR;
 		info.encflag = FPGA_NO_ENC_OR_NO_AUTH;
 		return desc->operations->loads(desc, buf, bsize, &info);
+	case FPGA_XILINX_ZYNQMP_ENC:
+		/* Encryption using device key */
+		info.authflag = FPGA_NO_ENC_OR_NO_AUTH;
+		info.encflag = FPGA_ENC_DEV_KEY;
+		return desc->operations->loads(desc, buf, bsize, &info);
 #endif
 	default:
 		printf("Unsupported bitstream type %d\n", flags);
@@ -360,6 +365,9 @@ static int __maybe_unused zynqmp_str2flag(xilinx_desc *desc, const char *str)
 #if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 	if (!strncmp(str, "u-boot,zynqmp-fpga-ddrauth", 26))
 		return FPGA_XILINX_ZYNQMP_DDRAUTH;
+
+	if (!strncmp(str, "u-boot,zynqmp-fpga-enc", 22))
+		return FPGA_XILINX_ZYNQMP_ENC;
 #endif
 	return 0;
 }

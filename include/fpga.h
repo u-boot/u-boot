@@ -20,6 +20,7 @@
 /* device numbers must be non-negative */
 #define FPGA_INVALID_DEVICE	-1
 
+#define FPGA_ENC_DEV_KEY	0
 #define FPGA_ENC_USR_KEY	1
 #define FPGA_NO_ENC_OR_NO_AUTH	2
 

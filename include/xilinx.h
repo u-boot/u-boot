@@ -40,6 +40,7 @@ typedef enum {			/* typedef xilinx_family */
 /* FPGA bitstream supported types */
 #define FPGA_LEGACY			BIT(0)
 #define FPGA_XILINX_ZYNQMP_DDRAUTH	BIT(1)
+#define FPGA_XILINX_ZYNQMP_ENC		BIT(2)
 
 typedef struct {		/* typedef xilinx_desc */
 	xilinx_family family;	/* part type */
