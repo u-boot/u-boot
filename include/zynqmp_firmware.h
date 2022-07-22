@@ -490,4 +490,9 @@ enum zynqmp_pm_request_ack {
 /* PM API versions */
 #define PM_API_VERSION_2		2
 
+struct zynqmp_ipi_msg {
+	size_t len;
+	u32 *buf;
+};
+
 #endif /* _ZYNQMP_FIRMWARE_H_ */
