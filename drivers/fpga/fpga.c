@@ -357,3 +357,29 @@ int fpga_info(int devnum)
 
 	return fpga_dev_info(devnum);
 }
+
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+int fpga_compatible2flag(int devnum, const char *compatible)
+{
+	const fpga_desc * const desc = fpga_get_desc(devnum);
+
+	if (!desc)
+		return 0;
+
+	switch (desc->devtype) {
+#if defined(CONFIG_FPGA_XILINX)
+	case fpga_xilinx:
+	{
+		xilinx_desc *xdesc = (xilinx_desc *)desc->devdesc;
+
+		if (xdesc->operations && xdesc->operations->str2flag)
+			return xdesc->operations->str2flag(xdesc, compatible);
+	}
+#endif
+	default:
+		break;
+	}
+
+	return 0;
+}
+#endif
