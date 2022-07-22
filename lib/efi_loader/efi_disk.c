@@ -46,7 +46,6 @@ struct efi_disk_obj {
 	struct efi_device_path *dp;
 	unsigned int part;
 	struct efi_simple_file_system_protocol *volume;
-	struct udevice *dev; /* TODO: move it to efi_object */
 };
 
 /**
@@ -124,16 +123,16 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 		return EFI_BAD_BUFFER_SIZE;
 
 	if (CONFIG_IS_ENABLED(PARTITIONS) &&
-	    device_get_uclass_id(diskobj->dev) == UCLASS_PARTITION) {
+	    device_get_uclass_id(diskobj->header.dev) == UCLASS_PARTITION) {
 		if (direction == EFI_DISK_READ)
-			n = dev_read(diskobj->dev, lba, blocks, buffer);
+			n = dev_read(diskobj->header.dev, lba, blocks, buffer);
 		else
-			n = dev_write(diskobj->dev, lba, blocks, buffer);
+			n = dev_write(diskobj->header.dev, lba, blocks, buffer);
 	} else {
 		/* dev is a block device (UCLASS_BLK) */
 		struct blk_desc *desc;
 
-		desc = dev_get_uclass_plat(diskobj->dev);
+		desc = dev_get_uclass_plat(diskobj->header.dev);
 		if (direction == EFI_DISK_READ)
 			n = blk_dread(desc, lba, blocks, buffer);
 		else
@@ -552,8 +551,7 @@ static int efi_disk_create_raw(struct udevice *dev)
 
 		return -1;
 	}
-	disk->dev = dev;
-	if (dev_tag_set_ptr(dev, DM_TAG_EFI, &disk->header)) {
+	if (efi_link_dev(&disk->header, dev)) {
 		efi_free_pool(disk->dp);
 		efi_delete_handle(&disk->header);
 
@@ -609,8 +607,7 @@ static int efi_disk_create_part(struct udevice *dev)
 		log_err("Adding partition for %s failed\n", dev->name);
 		return -1;
 	}
-	disk->dev = dev;
-	if (dev_tag_set_ptr(dev, DM_TAG_EFI, &disk->header)) {
+	if (efi_link_dev(&disk->header, dev)) {
 		efi_free_pool(disk->dp);
 		efi_delete_handle(&disk->header);
 
