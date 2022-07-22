@@ -48,12 +48,14 @@ typedef struct {		/* typedef xilinx_desc */
 } xilinx_desc;			/* end, typedef xilinx_desc */
 
 struct xilinx_fpga_op {
-	int (*load)(xilinx_desc *, const void *, size_t, bitstream_type);
-	int (*loadfs)(xilinx_desc *, const void *, size_t, fpga_fs_info *);
+	int (*load)(xilinx_desc *desc, const void *buf, size_t bsize,
+		    bitstream_type bstype);
+	int (*loadfs)(xilinx_desc *desc, const void *buf, size_t bsize,
+		      fpga_fs_info *fpga_fsinfo);
 	int (*loads)(xilinx_desc *desc, const void *buf, size_t bsize,
 		     struct fpga_secure_info *fpga_sec_info);
-	int (*dump)(xilinx_desc *, const void *, size_t);
-	int (*info)(xilinx_desc *);
+	int (*dump)(xilinx_desc *desc, const void *buf, size_t bsize);
+	int (*info)(xilinx_desc *desc);
 };
 
 /* Generic Xilinx Functions
