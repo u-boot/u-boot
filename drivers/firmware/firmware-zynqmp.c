@@ -70,11 +70,20 @@ int zynqmp_pmufw_config_close(void)
 
 int zynqmp_pmufw_node(u32 id)
 {
+	static bool skip_config;
+	int ret;
+
+	if (skip_config)
+		return 0;
+
 	/* Record power domain id */
 	xpm_configobject[NODE_ID_LOCATION] = id;
 
-	zynqmp_pmufw_load_config_object(xpm_configobject,
-					sizeof(xpm_configobject));
+	ret = zynqmp_pmufw_load_config_object(xpm_configobject,
+					      sizeof(xpm_configobject));
+
+	if (ret && id == NODE_APU_0)
+		skip_config = true;
 
 	return 0;
 }
@@ -283,6 +292,9 @@ static int zynqmp_power_probe(struct udevice *dev)
 	printf("PMUFW:\tv%d.%d\n",
 	       ret >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
 	       ret & ZYNQMP_PM_VERSION_MINOR_MASK);
+
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP))
+		zynqmp_pmufw_node(NODE_APU_0);
 
 	return 0;
 };
