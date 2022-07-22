@@ -275,13 +275,14 @@ void spl_board_init(void)
 		rk3399_force_power_on_reset();
 #endif
 
-#if defined(SPL_DM_REGULATOR)
-	/*
-	 * Turning the eMMC and SPI back on (if disabled via the Qseven
-	 * BIOS_ENABLE) signal is done through a always-on regulator).
-	 */
-	if (regulators_enable_boot_on(false))
-		debug("%s: Cannot enable boot on regulator\n", __func__);
-#endif
+	if (IS_ENABLED(CONFIG_SPL_DM_REGULATOR)) {
+		/*
+		 * Turning the eMMC and SPI back on (if disabled via the Qseven
+		 * BIOS_ENABLE) signal is done through a always-on regulator).
+		 */
+		if (regulators_enable_boot_on(false))
+			debug("%s: Cannot enable boot on regulator\n",
+			      __func__);
+	}
 }
 #endif
