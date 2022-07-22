@@ -227,7 +227,7 @@ int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
  * @cfg_obj: Pointer to the configuration object
  * @size:    Size of @cfg_obj in bytes
  */
-void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
+int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 {
 	int err;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
@@ -241,12 +241,12 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 				0, ret_payload);
 	if (err == XST_PM_NO_ACCESS) {
 		printf("PMUFW no permission to change config object\n");
-		return;
+		return -EACCES;
 	}
 
 	if (err == XST_PM_ALREADY_CONFIGURED) {
 		debug("PMUFW Node is already configured\n");
-		return;
+		return -ENODEV;
 	}
 
 	if (err)
@@ -257,6 +257,8 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 
 	if ((err || ret_payload[0]) && IS_ENABLED(CONFIG_SPL_BUILD))
 		panic("PMUFW config object loading failed in EL3\n");
+
+	return 0;
 }
 
 static int zynqmp_power_probe(struct udevice *dev)
