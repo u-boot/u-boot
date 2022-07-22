@@ -151,7 +151,7 @@ int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		return FPGA_FAIL;
 	}
 
-	return desc->operations->load(desc, buf, bsize, bstype);
+	return desc->operations->load(desc, buf, bsize, bstype, flags);
 }
 
 #if defined(CONFIG_CMD_FPGA_LOADFS)

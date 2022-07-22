@@ -27,7 +27,7 @@ static ulong versal_align_dma_buffer(ulong *buf, u32 len)
 }
 
 static int versal_load(xilinx_desc *desc, const void *buf, size_t bsize,
-		       bitstream_type bstype)
+		       bitstream_type bstype, int flags)
 {
 	ulong bin_buf;
 	int ret;

@@ -200,7 +200,7 @@ static int zynqmp_validate_bitstream(xilinx_desc *desc, const void *buf,
 }
 
 static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
-		     bitstream_type bstype)
+		     bitstream_type bstype, int flags)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u32, bsizeptr, 1);
 	u32 swap = 0;
