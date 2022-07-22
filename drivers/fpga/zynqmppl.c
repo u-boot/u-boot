@@ -304,10 +304,19 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 	return ret;
 }
 
+static int __maybe_unused zynqmp_str2flag(xilinx_desc *desc, const char *str)
+{
+	if (!strncmp(str, "u-boot,fpga-legacy", 18))
+		return FPGA_LEGACY;
+
+	return 0;
+}
+
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
+	.info = zynqmp_pcap_info,
 #if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 	.loads = zynqmp_loads,
+	.str2flag = zynqmp_str2flag,
 #endif
-	.info = zynqmp_pcap_info,
 };
