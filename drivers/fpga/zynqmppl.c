@@ -199,6 +199,28 @@ static int zynqmp_validate_bitstream(xilinx_desc *desc, const void *buf,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+static int zynqmp_check_compatible(xilinx_desc *desc, int flags)
+{
+	/* If no flags set, the image is legacy */
+	if (!flags)
+		return 0;
+
+	/* For legacy bitstream images no need for other methods exist */
+	if ((flags & desc->flags) && flags == FPGA_LEGACY)
+		return 0;
+
+	/*
+	 * Other images are handled in secure callback loads(). Check
+	 * callback existence besides image type support.
+	 */
+	if (desc->operations->loads && (flags & desc->flags))
+		return 0;
+
+	return FPGA_FAIL;
+}
+#endif
+
 static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		     bitstream_type bstype, int flags)
 {
@@ -209,6 +231,18 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	u32 buf_lo, buf_hi;
 	u32 bsize_req = (u32)bsize;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+	ret = zynqmp_check_compatible(desc, flags);
+	if (ret) {
+		if (ret != -ENODATA) {
+			puts("Missing loads() operation or unsupported bitstream type\n");
+			return FPGA_FAIL;
+		}
+		/* If flags is not set, the image treats as legacy */
+		flags = FPGA_LEGACY;
+	}
+#endif
 
 	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("WARN: PMUFW v1.0 or less is detected\n");
