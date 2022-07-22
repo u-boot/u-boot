@@ -207,38 +207,33 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	ulong bin_buf;
 	int ret;
 	u32 buf_lo, buf_hi;
+	u32 bsize_req = (u32)bsize;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
-	bool xilfpga_old = false;
 
 	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("WARN: PMUFW v1.0 or less is detected\n");
 		puts("WARN: Not all bitstream formats are supported\n");
 		puts("WARN: Please upgrade PMUFW\n");
-		xilfpga_old = true;
 		if (zynqmp_validate_bitstream(desc, buf, bsize, bsize, &swap))
 			return FPGA_FAIL;
 		bsizeptr = (u32 *)&bsize;
 		flush_dcache_range((ulong)bsizeptr,
 				   (ulong)bsizeptr + sizeof(size_t));
+		bsize_req = (u32)(uintptr_t)bsizeptr;
 		bstype |= BIT(ZYNQMP_FPGA_BIT_NS);
+	} else {
+		bstype = 0;
 	}
 
 	bin_buf = zynqmp_align_dma_buffer((u32 *)buf, bsize, swap);
 
-	debug("%s called!\n", __func__);
 	flush_dcache_range(bin_buf, bin_buf + bsize);
 
 	buf_lo = (u32)bin_buf;
 	buf_hi = upper_32_bits(bin_buf);
 
-	if (xilfpga_old)
-		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
-					buf_hi, (u32)(uintptr_t)bsizeptr,
-					bstype, ret_payload);
-	else
-		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
-					buf_hi, (u32)bsize, 0, ret_payload);
-
+	ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo, buf_hi,
+				bsize_req, bstype, ret_payload);
 	if (ret)
 		printf("PL FPGA LOAD failed with err: 0x%08x\n", ret);
 
