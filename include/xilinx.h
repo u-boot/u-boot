@@ -68,7 +68,7 @@ struct xilinx_fpga_op {
 /* Generic Xilinx Functions
  *********************************************************************/
 int xilinx_load(xilinx_desc *desc, const void *image, size_t size,
-		bitstream_type bstype);
+		bitstream_type bstype, int flags);
 int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize);
 int xilinx_info(xilinx_desc *desc);
 int xilinx_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
