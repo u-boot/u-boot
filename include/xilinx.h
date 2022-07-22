@@ -37,6 +37,9 @@ typedef enum {			/* typedef xilinx_family */
 	max_xilinx_type		/* insert all new types before this */
 } xilinx_family;		/* end, typedef xilinx_family */
 
+/* FPGA bitstream supported types */
+#define FPGA_LEGACY			BIT(0)
+
 typedef struct {		/* typedef xilinx_desc */
 	xilinx_family family;	/* part type */
 	xilinx_iface iface;	/* interface type */
@@ -45,6 +48,7 @@ typedef struct {		/* typedef xilinx_desc */
 	int cookie;		/* implementation specific cookie */
 	struct xilinx_fpga_op *operations; /* operations */
 	char *name;		/* device name in bitstream */
+	int flags;		/* compatible flags */
 } xilinx_desc;			/* end, typedef xilinx_desc */
 
 struct xilinx_fpga_op {

@@ -25,7 +25,6 @@
 
 extern struct xilinx_fpga_op zynqmp_op;
 
-#define XILINX_ZYNQMP_DESC \
-{ xilinx_zynqmp, csu_dma, 1, &zynqmp_op, 0, &zynqmp_op }
+#define ZYNQMP_FPGA_FLAGS	(FPGA_LEGACY)
 
 #endif /* _ZYNQMPPL_H_ */
