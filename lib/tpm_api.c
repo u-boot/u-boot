@@ -269,7 +269,7 @@ u32 tpm_get_random(struct udevice *dev, void *data, u32 count)
 	if (tpm_is_v1(dev))
 		return tpm1_get_random(dev, data, count);
 	else if (tpm_is_v2(dev))
-		return -ENOSYS; /* not implemented yet */
-	else
-		return -ENOSYS;
+		return tpm2_get_random(dev, data, count);
+
+	return -ENOSYS;
 }

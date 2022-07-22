@@ -74,4 +74,13 @@ config RNG_SMCCC_TRNG
 	  Enable random number generator for platforms that support Arm
 	  SMCCC TRNG interface.
 
+config TPM_RNG
+	bool "Enable random number generator on TPM device"
+	depends on TPM
+	default y
+	help
+	  The TPM device has an inbuilt random number generator
+	  functionality. Enable random number generator on TPM
+	  devices.
+
 endif
