@@ -220,7 +220,7 @@ int fpga_fsload(int devnum, const void *buf, size_t size,
 }
 #endif
 
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 int fpga_loads(int devnum, const void *buf, size_t size,
 	       struct fpga_secure_info *fpga_sec_info)
 {
