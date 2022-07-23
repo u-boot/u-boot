@@ -174,10 +174,6 @@
 
 /* Timeout values in ticks */
 
-/* 255 0x40000 sectors + first or last sector may have 4 erase regions = 259 */
-#define CONFIG_SYS_MAX_FLASH_SECT	259		/* Max sectors */
-#define FLASH_MAX_SECTOR_SIZE		0x00040000	/* 256 KB sectors */
-
 /* Room required on the stack for the environment data */
 
 /*

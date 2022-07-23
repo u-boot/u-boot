@@ -34,7 +34,6 @@
  * Miscellaneous configurable options
  */
 #define PHYS_FLASH_SIZE			0x01000000	/* 16MB */
-#define CONFIG_SYS_MAX_FLASH_SECT	64
 #define CONFIG_SYS_MONITOR_LEN		0x00100000
 
 #endif /* __CONFIG_H */

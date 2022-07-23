@@ -55,7 +55,6 @@
 
 /* max number of sectors on one chip */
 #define CONFIG_FLASH_SECTOR_SIZE	(0x10000*2)
-#define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
 

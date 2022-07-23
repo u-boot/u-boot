@@ -31,7 +31,6 @@
 /* NOR flash */
 #ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_FLASH_BASE		0x10000000
-#define CONFIG_SYS_MAX_FLASH_SECT	131
 #endif
 
 /* SDRAM */

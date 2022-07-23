@@ -124,7 +124,6 @@
 
 #define CONFIG_SYS_FLASH_BANKS_LIST \
 	{CONFIG_SYS_FLASH_BASE_PHYS + 0x800000, CONFIG_SYS_FLASH_BASE_PHYS}
-#define CONFIG_SYS_MAX_FLASH_SECT	128		/* sectors per device */
 
 #define CONFIG_HWCONFIG			/* enable hwconfig */
 

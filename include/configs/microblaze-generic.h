@@ -16,13 +16,6 @@
 # define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
-#ifdef CONFIG_CFI_FLASH
-/* ?empty sector */
-/* max number of memory banks */
-/* max number of sectors on one chip */
-# define CONFIG_SYS_MAX_FLASH_SECT	2048
-#endif
-
 #define	CONFIG_HOSTNAME		"microblaze-generic"
 
 /* architecture dependent code */

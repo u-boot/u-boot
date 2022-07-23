@@ -99,7 +99,6 @@
 #ifdef CONFIG_SYS_FLASH_CFI
 #	define CONFIG_FLASH_SPANSION_S29WS_N	1
 #	define CONFIG_SYS_FLASH_SIZE		0x1000000	/* Max size that the board might have */
-#	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
 #endif
 
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE

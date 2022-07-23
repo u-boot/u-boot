@@ -137,7 +137,6 @@ extern unsigned long get_sdram_size(void);
 /* NOR Flash on IFC */
 
 #define CONFIG_SYS_FLASH_BASE		0xee000000
-#define CONFIG_SYS_MAX_FLASH_SECT	256	/* 32M */
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_FLASH_BASE)

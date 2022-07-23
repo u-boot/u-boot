@@ -47,7 +47,6 @@
 #else
 # define CONFIG_SYS_FLASH_BASE		0xbe000000
 #endif
-#define CONFIG_SYS_MAX_FLASH_SECT	128
 
 /*
  * Environment

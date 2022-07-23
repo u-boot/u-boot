@@ -93,7 +93,6 @@
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE)
-#define CONFIG_SYS_MAX_FLASH_SECT	2048	/* max number of sectors on one chip */
 
 #define FLASH_SST6401B		0x200
 #define SST_ID_xF6401B		0x236D236D

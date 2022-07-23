@@ -88,7 +88,6 @@
 /* FLASH and environment organization */
 
 /* **** PISMO SUPPORT *** */
-#define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors */
 						/* on one chip */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 

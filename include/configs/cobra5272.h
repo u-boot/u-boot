@@ -187,11 +187,6 @@ enter a valid image address in flash */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
- * FLASH organization
- */
-#define CONFIG_SYS_MAX_FLASH_SECT	11	/* max number of sectors on one chip	*/
-
-/*-----------------------------------------------------------------------
  * Cache Configuration
  */
 

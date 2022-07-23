@@ -149,7 +149,6 @@
 /* NOR flash, if populated */
 #define PHYS_FLASH_1			0x10000000
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
-#define CONFIG_SYS_MAX_FLASH_SECT	256
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

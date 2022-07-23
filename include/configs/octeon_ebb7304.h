@@ -9,11 +9,6 @@
 
 #include "octeon_common.h"
 
-/*
- * CFI flash
- */
-#define CONFIG_SYS_MAX_FLASH_SECT	256
-
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 #endif /* __CONFIG_H__ */

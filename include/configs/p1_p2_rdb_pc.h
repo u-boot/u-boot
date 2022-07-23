@@ -176,10 +176,8 @@
  * Local Bus Definitions
  */
 #if defined(CONFIG_TARGET_P1020RDB_PD)
-#define CONFIG_SYS_MAX_FLASH_SECT	512	/* 64M */
 #define CONFIG_SYS_FLASH_BASE		0xec000000
 #else
-#define CONFIG_SYS_MAX_FLASH_SECT	128	/* 16M */
 #define CONFIG_SYS_FLASH_BASE		0xef000000
 #endif
 

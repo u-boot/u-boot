@@ -1728,9 +1728,6 @@ Configuration Settings:
 		Enables allocating and saving a kernel copy of the bd_info in
 		space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
-- CONFIG_SYS_MAX_FLASH_SECT:
-		Max number of sectors on a Flash chip
-
 - CONFIG_SYS_FLASH_PROTECTION
 		If defined, hardware flash sectors protection is used
 		instead of U-Boot software protection.
