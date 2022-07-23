@@ -413,11 +413,6 @@ The following options need to be configured:
 		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.
 
-		CONFIG_SYS_FSL_DDR_INTLV_256B
-		DDR controller interleaving on 256-byte. This is a special
-		interleaving mode, handled by Dickens for Freescale layerscape
-		SoCs with ARM core.
-
 		CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
 		Number of controllers used as main memory.
 

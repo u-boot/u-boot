@@ -182,6 +182,13 @@ config SYS_DDR_RAW_TIMING
 	  timing parameters are extracted from datasheet and hard-coded into
 	  header files or board specific files.
 
+config SYS_FSL_DDR_INTLV_256B
+	bool "Enforce 256-byte interleave"
+	help
+	  DDR controller interleaving on 256-byte. This is a special
+	  interleaving mode, handled by Dickens for Freescale layerscape SoCs
+	  with ARM core.
+
 endif
 
 menu "PowerPC / M68K initial memory controller definitions (FLASH, SDRAM, etc)"
