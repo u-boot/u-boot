@@ -1747,19 +1747,6 @@ Configuration Settings:
 		If defined, hardware flash sectors protection is used
 		instead of U-Boot software protection.
 
-- CONFIG_SYS_DIRECT_FLASH_TFTP:
-
-		Enable TFTP transfers directly to flash memory;
-		without this option such a download has to be
-		performed in two steps: (1) download to RAM, and (2)
-		copy from RAM to flash.
-
-		The two-step approach is usually more reliable, since
-		you can check if the download worked before you erase
-		the flash, but in some situations (when system RAM is
-		too limited to allow for a temporary copy of the
-		downloaded image) this option may be very useful.
-
 - CONFIG_SYS_FLASH_CFI:
 		Define if the flash driver uses extra elements in the
 		common flash structure for storing flash geometry.

@@ -53,8 +53,6 @@
 /* Timeout for Flash clear lock bit operations (in ms) */
 #define CONFIG_SYS_FLASH_UNLOCK_TOUT	(3 * 1000)
 
-#undef  CONFIG_SYS_DIRECT_FLASH_TFTP
-
 /* GPIO / PFC */
 #define CONFIG_SH_GPIO_PFC
 
