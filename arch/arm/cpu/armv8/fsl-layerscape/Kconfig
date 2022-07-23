@@ -323,6 +323,11 @@ config ARCH_LX2160A
 config FSL_LSCH2
 	bool
 	select SKIP_LOWLEVEL_INIT
+	select SYS_FSL_CCSR_GUR_BE
+	select SYS_FSL_CCSR_SCFG_BE
+	select SYS_FSL_ESDHC_BE
+	select SYS_FSL_IFC_BE
+	select SYS_FSL_PEX_LUT_BE
 	select SYS_FSL_HAS_CCI400
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
@@ -330,9 +335,38 @@ config FSL_LSCH2
 
 config FSL_LSCH3
 	select ARCH_MISC_INIT
+	select SYS_FSL_CCSR_GUR_LE
+	select SYS_FSL_CCSR_SCFG_LE
+	select SYS_FSL_ESDHC_LE
+	select SYS_FSL_IFC_LE
+	select SYS_FSL_PEX_LUT_LE
 	bool
 
 config NXP_LSCH3_2
+	bool
+
+config SYS_FSL_CCSR_GUR_BE
+	bool
+
+config SYS_FSL_CCSR_SCFG_BE
+	bool
+
+config SYS_FSL_PEX_LUT_BE
+	bool
+
+config SYS_FSL_CCSR_GUR_LE
+	bool
+
+config SYS_FSL_CCSR_SCFG_LE
+	bool
+
+config SYS_FSL_ESDHC_LE
+	bool
+
+config SYS_FSL_IFC_LE
+	bool
+
+config SYS_FSL_PEX_LUT_LE
 	bool
 
 menu "Layerscape architecture"

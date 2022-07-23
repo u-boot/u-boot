@@ -79,8 +79,6 @@
 #define CONFIG_MAX_MEM_MAPPED			((phys_size_t)2 << 30)
 #endif
 
-#define CONFIG_SYS_FSL_IFC_BE
-#define CONFIG_SYS_FSL_ESDHC_BE
 #define CONFIG_SYS_FSL_WDOG_BE
 #define CONFIG_SYS_FSL_DSPI_BE
 

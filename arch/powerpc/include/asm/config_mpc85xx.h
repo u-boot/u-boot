@@ -16,9 +16,6 @@
 
 #include <fsl_ddrc_version.h>
 
-/* IP endianness */
-#define CONFIG_SYS_FSL_IFC_BE
-
 #if defined(CONFIG_ARCH_MPC8548)
 #define CONFIG_SYS_FSL_SRIO_MAX_PORTS	1
 #define CONFIG_SYS_FSL_SRIO_OB_WIN_NUM	9
