@@ -532,11 +532,10 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		}
 
 		initrd_addr_str = env_get("ramdisk_addr_r");
-		strcpy(initrd_filesize, simple_xtoa(size));
-
-		strncpy(initrd_str, initrd_addr_str, 18);
-		strcat(initrd_str, ":");
-		strncat(initrd_str, initrd_filesize, 9);
+		size = snprintf(initrd_str, sizeof(initrd_str), "%s:%lx",
+				initrd_addr_str, size);
+		if (size >= sizeof(initrd_str))
+			return 1;
 	}
 
 	if (get_relfile_envaddr(ctx, label->kernel, "kernel_addr_r",

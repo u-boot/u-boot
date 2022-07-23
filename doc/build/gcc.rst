@@ -30,7 +30,7 @@ Depending on the build targets further packages maybe needed
       pkg-config python3 python3-asteval python3-coverage \
       python3-pkg-resources python3-pycryptodome python3-pyelftools \
       python3-pytest python3-sphinxcontrib.apidoc python3-sphinx-rtd-theme \
-      python3-subunit python3-testtools python3-virtualenv swig
+      python3-subunit python3-testtools python3-virtualenv swig uuid-dev
 
 SUSE based
 ~~~~~~~~~~
