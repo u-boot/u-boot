@@ -62,9 +62,6 @@
 #define CONFIG_SYS_CPU_CLK		(CONFIG_SYS_CLK * 3)
 #define CONFIG_SYS_SDRAM_SIZE		32		/* SDRAM size in MB */
 
-#define CONFIG_SYS_CORE_SRAM_SIZE	0x8000
-#define CONFIG_SYS_CORE_SRAM		0x80000000
-
 /*
  * Define baudrate for UART1 (console output, tftp, ...)
  * default value of CONFIG_BAUDRATE for Sentec board: 19200 baud
@@ -208,7 +205,6 @@
 /* FLASH organization */
 
 #define CONFIG_SYS_FLASH_SIZE		0x2000000
-#define CONFIG_SYS_FLASH_CFI_NONBLOCK	1
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \

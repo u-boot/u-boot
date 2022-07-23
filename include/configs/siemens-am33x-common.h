@@ -370,9 +370,6 @@
 							/* CS0 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
 							   devices */
-#if !defined(CONFIG_SPI_BOOT)
-#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#endif
 #endif
 
 #endif	/* ! __CONFIG_SIEMENS_AM33X_COMMON_H */

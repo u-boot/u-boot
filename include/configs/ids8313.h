@@ -123,17 +123,10 @@
 #define CONFIG_SYS_MRAM_BASE		0xE2000000
 #define CONFIG_SYS_MRAM_SIZE		0x20000	/* 128 Kb */
 
-#define CONFIG_SYS_OR_TIMING_MRAM
-
-
 /*
  * CPLD setup
  */
 #define CONFIG_SYS_CPLD_BASE		0xE3000000
-#define CONFIG_SYS_CPLD_SIZE		0x8000
-
-#define CONFIG_SYS_OR_TIMING_MRAM
-
 
 /*
  * HW-Watchdog

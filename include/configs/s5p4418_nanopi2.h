@@ -18,11 +18,10 @@
 /*-----------------------------------------------------------------------
  *  System memory Configuration
  */
-#define CONFIG_SYS_MEM_SIZE		0x40000000
 #define CONFIG_SYS_SDRAM_BASE		0x71000000
 
 /*
- * "(CONFIG_SYS_MEM_SIZE - CONFIG_SYS_RESERVE_MEM_SIZE)" has been used in
+ * "(0x40000000 - CONFIG_SYS_RESERVE_MEM_SIZE)" has been used in
  * u-boot nanopi2-v2016.01.
  * This is not working anymore because boot_fdt_add_mem_rsv_regions() in
  * common/image-fdt.c has been extended:

@@ -143,13 +143,6 @@ enter a valid image address in flash */
 #define CONFIG_SYS_SCR			0x0003
 #define CONFIG_SYS_SPR			0xffff
 
-/* ---
- * Ethernet settings
- * ---
- */
-
-#define CONFIG_SYS_ENET_BD_BASE	0x780000
-
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in internal SRAM)
  */

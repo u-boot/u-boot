@@ -152,6 +152,4 @@
 
 #define CONFIG_SYS_FLASH_SIZE		0x4000000
 
-#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-
 #endif /* __CONFIG_H */
