@@ -44,13 +44,9 @@
 #define FLASH_SECTOR_SIZE	(256 * 1024)	/* 256 KB sectors */
 
 /* Timeout for Flash erase operations (in ms) */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(3 * 1000)
 /* Timeout for Flash write operations (in ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(3 * 1000)
 /* Timeout for Flash set sector lock bit operations (in ms) */
-#define CONFIG_SYS_FLASH_LOCK_TOUT		(3 * 1000)
 /* Timeout for Flash clear lock bit operations (in ms) */
-#define CONFIG_SYS_FLASH_UNLOCK_TOUT	(3 * 1000)
 
 /* GPIO / PFC */
 #define CONFIG_SH_GPIO_PFC

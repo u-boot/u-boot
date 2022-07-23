@@ -173,8 +173,6 @@
 #define CONFIG_SYS_FLASH_BASE1		V2M_NOR1
 
 /* Timeout values in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
 
 /* 255 0x40000 sectors + first or last sector may have 4 erase regions = 259 */
 #define CONFIG_SYS_MAX_FLASH_SECT	259		/* Max sectors */

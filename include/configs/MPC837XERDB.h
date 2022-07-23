@@ -144,9 +144,6 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* max sectors per device */
 
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
 /*
  * NAND Flash on the Local Bus
  */

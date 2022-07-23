@@ -1731,18 +1731,6 @@ Configuration Settings:
 - CONFIG_SYS_MAX_FLASH_SECT:
 		Max number of sectors on a Flash chip
 
-- CONFIG_SYS_FLASH_ERASE_TOUT:
-		Timeout for Flash erase operations (in ms)
-
-- CONFIG_SYS_FLASH_WRITE_TOUT:
-		Timeout for Flash write operations (in ms)
-
-- CONFIG_SYS_FLASH_LOCK_TOUT
-		Timeout for Flash set sector lock bit operation (in ms)
-
-- CONFIG_SYS_FLASH_UNLOCK_TOUT
-		Timeout for Flash clear lock bits operation (in ms)
-
 - CONFIG_SYS_FLASH_PROTECTION
 		If defined, hardware flash sectors protection is used
 		instead of U-Boot software protection.

@@ -92,7 +92,6 @@
  * FLASH organization
  */
 #define CONFIG_SYS_MAX_FLASH_SECT	11	/* max number of sectors on one chip */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	1000
 
 #define CONFIG_SYS_FLASH_SIZE		0x200000
 

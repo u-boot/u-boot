@@ -157,6 +157,18 @@ config FLASH_PIC32
 	  This enables access to Microchip PIC32 internal non-CFI flash
 	  chips through PIC32 Non-Volatile-Memory Controller.
 
+config SYS_FLASH_ERASE_TOUT
+	int "Timeout in ms for performing an erase operation on the flash"
+	depends on FLASH_PIC32
+	help
+	  Timeout for Flash erase operations (in ms)
+
+config SYS_FLASH_WRITE_TOUT
+	int "Timeout in ms for performing a write operation on the flash"
+	depends on FLASH_PIC32
+	help
+	  Timeout for Flash write operations (in ms)
+
 config RENESAS_RPC_HF
 	bool "Renesas RCar Gen3 RPC HyperFlash driver"
 	depends on RCAR_GEN3 && DM_MTD

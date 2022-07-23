@@ -37,7 +37,6 @@
 #define CONFIG_SYS_SDRAM_SIZE		0x1000000
 #define CONFIG_SYS_FLASH_BASE		0xffc00000
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
-#define CONFIG_SYS_FLASH_ERASE_TOUT	1000
 
 /* amcore design has flash data bytes wired swapped */
 #define CONFIG_SYS_WRITE_SWAPPED_DATA

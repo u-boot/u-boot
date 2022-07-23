@@ -89,8 +89,6 @@
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_LBC_FLASH_BASE /* start of FLASH	*/
 
 #define CONFIG_SYS_MAX_FLASH_SECT	256		/* sectors per device	*/
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms)	*/
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms)	*/
 
 #define CONFIG_SYS_LBC_LCRR		0x00030004    /* LB clock ratio reg	*/
 #define CONFIG_SYS_LBC_LBCR		0x00000000    /* LB config reg		*/
