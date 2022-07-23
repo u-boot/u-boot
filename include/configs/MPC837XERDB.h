@@ -69,7 +69,7 @@
 /*
  * Manually set up DDR parameters
  */
-#define CONFIG_SYS_DDR_SIZE		256		/* MB */
+#define CONFIG_SYS_SDRAM_SIZE		0x10000000 /* 256 MiB */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000000f
 #define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
 					| CSCONFIG_ODT_WR_ONLY_CURRENT \

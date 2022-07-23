@@ -41,7 +41,7 @@
  * Manually set up DDR parameters,
  * as this board has not the SPD connected to I2C.
  */
-#define CONFIG_SYS_DDR_SIZE		256		/* MB */
+#define CONFIG_SYS_SDRAM_SIZE		0x10000000 /* 256 MiB */
 #define CONFIG_SYS_DDR_CONFIG		(CSCONFIG_EN |\
 					 0x00010000 |\
 					 CSCONFIG_ROW_BIT_13 |\
