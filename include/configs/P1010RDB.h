@@ -162,7 +162,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NOR_FTIM3	0x0
 
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
-#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
 
 /* CFI for NOR Flash */

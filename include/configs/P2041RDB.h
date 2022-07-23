@@ -120,7 +120,6 @@
 #define PIXIS_LBMAP_SHIFT	4
 #define PIXIS_LBMAP_ALTBANK	0x40
 
-#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
 /* Nand Flash */

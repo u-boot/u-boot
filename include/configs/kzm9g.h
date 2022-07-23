@@ -39,7 +39,6 @@
 #define CONFIG_STANDALONE_LOAD_ADDR	0x41000000
 
 /* FLASH */
-#undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define FLASH_SECTOR_SIZE	(256 * 1024)	/* 256 KB sectors */
 
 /* Timeout for Flash erase operations (in ms) */

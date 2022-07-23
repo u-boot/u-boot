@@ -1752,12 +1752,6 @@ Configuration Settings:
 		s29ws-n MirrorBit flash has non-standard addresses for buffered
 		write commands.
 
-- CONFIG_SYS_FLASH_QUIET_TEST
-		If this option is defined, the common CFI flash doesn't
-		print it's warning upon not recognized FLASH banks. This
-		is useful, if some of the configured banks are only
-		optionally available.
-
 - CONFIG_FLASH_SHOW_PROGRESS
 		If defined (must be an integer), print out countdown
 		digits and dots.  Recommended value: 45 (9..1) for 80

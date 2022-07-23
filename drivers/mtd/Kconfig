@@ -132,6 +132,14 @@ config SYS_FLASH_CFI
 	  Define if the flash driver uses extra elements in the
 	  common flash structure for storing flash geometry.
 
+config SYS_FLASH_QUIET_TEST
+	bool "Disable printing a warning about not recognizing some flash banks"
+	depends on FLASH_CFI_DRIVER
+	help
+	  If this option is enabled, the common CFI flash doesn't print it's
+	  warning upon not recognized FLASH banks. This is useful, if some of
+	  the configured banks are only optionally available.
+
 config SYS_FLASH_CHECKSUM
 	bool "Compute and print flash CRC if 'flashchecksum' is set in the environment"
 	depends on MTD_NOR_FLASH
