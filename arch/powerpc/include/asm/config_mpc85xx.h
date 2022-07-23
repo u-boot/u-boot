@@ -74,7 +74,6 @@
 #define CONFIG_SYS_FSL_SRIO_MSG_UNIT_NUM	2
 
 #elif defined(CONFIG_ARCH_P2041) /* also supports P2040 */
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
 #define CONFIG_SYS_NUM_FMAN		1
 #define CONFIG_SYS_NUM_FM1_DTSEC	5
@@ -91,7 +90,6 @@
 #define CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY 0xf0000000
 
 #elif defined(CONFIG_ARCH_P3041)
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
 #define CONFIG_SYS_NUM_FMAN		1
 #define CONFIG_SYS_NUM_FM1_DTSEC	5
@@ -108,7 +106,6 @@
 #define CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY 0xf0000000
 
 #elif defined(CONFIG_ARCH_P4080) /* also supports P4040 */
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	4
 #define CONFIG_SYS_NUM_FMAN		2
 #define CONFIG_SYS_NUM_FM1_DTSEC	4
@@ -126,7 +123,6 @@
 #define CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY 0xff000000
 
 #elif defined(CONFIG_ARCH_P5040)
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	3
 #define CONFIG_SYS_NUM_FMAN		2
 #define CONFIG_SYS_NUM_FM1_DTSEC	5
@@ -160,7 +156,6 @@
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.2"
 
 #elif defined(CONFIG_ARCH_T4240)
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #ifdef CONFIG_ARCH_T4240
@@ -196,7 +191,6 @@
 #define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
 
 #elif defined(CONFIG_ARCH_B4860) || defined(CONFIG_ARCH_B4420)
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #define CONFIG_SYS_FSL_SRDS_1
 #define CONFIG_SYS_FSL_SRDS_2
@@ -231,7 +225,6 @@
 #endif
 
 #elif defined(CONFIG_ARCH_T1040) || defined(CONFIG_ARCH_T1042)
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
@@ -256,7 +249,6 @@
 #define QE_NUM_OF_SNUM			28
 
 #elif defined(CONFIG_ARCH_T1024)
-#define CONFIG_FSL_CORENET	     /* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
 #define CONFIG_SYS_FSL_QMAN_V3	 /* QMAN version 3 */
 #define CONFIG_SYS_FSL_NUM_CC_PLL	2
@@ -281,7 +273,6 @@
 #define QE_NUM_OF_SNUM			28
 
 #elif defined(CONFIG_ARCH_T2080)
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	2
 #define CONFIG_SYS_FSL_QMAN_V3

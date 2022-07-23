@@ -133,7 +133,6 @@
 #define KM_I2C_DEBLOCK_SDA	21
 
 /* High Level Configuration Options */
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 
 #define CONFIG_RESET_VECTOR_ADDRESS	0xebfffffc
 
