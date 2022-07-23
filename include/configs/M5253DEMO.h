@@ -105,7 +105,6 @@
  * 0x30 is block erase in SST
  */
 #	define CONFIG_SYS_FLASH_SIZE		0x800000
-#	define CONFIG_FLASH_CFI_LEGACY
 #else
 #	define CONFIG_SYS_SST_SECT		2048
 #	define CONFIG_SYS_SST_SECTSZ		0x1000
