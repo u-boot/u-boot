@@ -44,20 +44,20 @@ static int dm_test_wdt_base(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_wdt_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
-static int dm_test_wdt_gpio(struct unit_test_state *uts)
+static int dm_test_wdt_gpio_toggle(struct unit_test_state *uts)
 {
 	/*
 	 * The sandbox wdt gpio is "connected" to gpio bank a, offset
 	 * 7. Use the sandbox back door to verify that the gpio-wdt
-	 * driver behaves as expected.
+	 * driver behaves as expected when using the 'toggle' algorithm.
 	 */
 	struct udevice *wdt, *gpio;
 	const u64 timeout = 42;
 	const int offset = 7;
 	int val;
 
-	ut_assertok(uclass_get_device_by_driver(UCLASS_WDT,
-						DM_DRIVER_GET(wdt_gpio), &wdt));
+	ut_assertok(uclass_get_device_by_name(UCLASS_WDT,
+					      "wdt-gpio-toggle", &wdt));
 	ut_assertnonnull(wdt);
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_GPIO, "base-gpios", &gpio));
@@ -74,7 +74,39 @@ static int dm_test_wdt_gpio(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_wdt_gpio, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_wdt_gpio_toggle, UT_TESTF_SCAN_FDT);
+
+static int dm_test_wdt_gpio_level(struct unit_test_state *uts)
+{
+	/*
+	 * The sandbox wdt gpio is "connected" to gpio bank a, offset
+	 * 7. Use the sandbox back door to verify that the gpio-wdt
+	 * driver behaves as expected when using the 'level' algorithm.
+	 */
+	struct udevice *wdt, *gpio;
+	const u64 timeout = 42;
+	const int offset = 7;
+	int val;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_WDT,
+					      "wdt-gpio-level", &wdt));
+	ut_assertnonnull(wdt);
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_GPIO, "base-gpios", &gpio));
+	ut_assertnonnull(gpio);
+	ut_assertok(wdt_start(wdt, timeout, 0));
+
+	val = sandbox_gpio_get_value(gpio, offset);
+	ut_assertok(wdt_reset(wdt));
+	ut_asserteq(val, sandbox_gpio_get_value(gpio, offset));
+	ut_assertok(wdt_reset(wdt));
+	ut_asserteq(val, sandbox_gpio_get_value(gpio, offset));
+
+	ut_asserteq(-ENOSYS, wdt_stop(wdt));
+
+	return 0;
+}
+DM_TEST(dm_test_wdt_gpio_level, UT_TESTF_SCAN_FDT);
 
 static int dm_test_wdt_watchdog_reset(struct unit_test_state *uts)
 {
@@ -86,8 +118,8 @@ static int dm_test_wdt_watchdog_reset(struct unit_test_state *uts)
 	uint reset_count;
 	int val;
 
-	ut_assertok(uclass_get_device_by_driver(UCLASS_WDT,
-						DM_DRIVER_GET(wdt_gpio), &gpio_wdt));
+	ut_assertok(uclass_get_device_by_name(UCLASS_WDT,
+					      "wdt-gpio-toggle", &gpio_wdt));
 	ut_assertnonnull(gpio_wdt);
 	ut_assertok(uclass_get_device_by_driver(UCLASS_WDT,
 						DM_DRIVER_GET(wdt_sandbox), &sandbox_wdt));
