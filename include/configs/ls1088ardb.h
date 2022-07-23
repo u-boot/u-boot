@@ -202,8 +202,6 @@
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM		0
 
-#define CONFIG_FSL_MEMAC
-
 #ifndef SPL_NO_ENV
 /* Initial environment variables */
 #ifdef CONFIG_TFABOOT

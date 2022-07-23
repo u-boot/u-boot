@@ -239,8 +239,6 @@
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 
-#define CONFIG_FSL_MEMAC
-
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #ifdef CONFIG_NXP_ESBC
@@ -385,7 +383,6 @@
 #endif
 
 #if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_FSL_MEMAC
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C
 #define SGMII_CARD_PORT2_PHY_ADDR 0x1d
 #define SGMII_CARD_PORT3_PHY_ADDR 0x1E

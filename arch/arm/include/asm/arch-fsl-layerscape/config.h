@@ -40,16 +40,12 @@
 #define CONFIG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
 
-#define CONFIG_SYS_MEMAC_LITTLE_ENDIAN
-
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			0x06000000
 #define GICR_BASE			0x06100000
 
 /* SMMU Defintions */
 #define SMMU_BASE			0x05000000 /* GR0 Base */
-
-/* DCFG - GUR */
 
 /* Cache Coherent Interconnect */
 #define CCI_MN_BASE			0x04000000
@@ -134,8 +130,6 @@
 #define CONFIG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
 
-#define CONFIG_SYS_MEMAC_LITTLE_ENDIAN
-
 /* DCFG - GUR */
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC	1
 #define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000 /* initial RAM */
@@ -164,8 +158,6 @@
 /* DDR */
 #define CONFIG_SYS_DDR_BLOCK1_SIZE		((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED			CONFIG_SYS_DDR_BLOCK1_SIZE
-
-#define CONFIG_SYS_MEMAC_LITTLE_ENDIAN
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE				0x06000000
@@ -213,8 +205,6 @@
 /* DDR */
 #define CONFIG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
-
-#define CONFIG_SYS_MEMAC_LITTLE_ENDIAN
 
 /* SEC */
 #define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1

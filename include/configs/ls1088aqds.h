@@ -297,8 +297,6 @@
 #endif
 #endif
 
-#define CONFIG_FSL_MEMAC
-
 #define COMMON_ENV \
 	"kernelheader_addr_r=0x80200000\0"	\
 	"fdtheader_addr_r=0x80100000\0"		\
@@ -467,7 +465,6 @@
 #endif
 
 #ifdef CONFIG_FSL_MC_ENET
-#define CONFIG_FSL_MEMAC
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C

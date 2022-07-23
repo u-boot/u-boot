@@ -11,7 +11,6 @@ obj-y += tgec.o
 obj-y += tgec_phy.o
 
 # Soc have FMAN v3 with mEMAC
-obj-$(CONFIG_SYS_FMAN_V3) += memac_phy.o
 obj-$(CONFIG_SYS_FMAN_V3) += memac.o
 
 # SoC specific SERDES support

@@ -375,6 +375,7 @@ config SYS_QE_FMAN_FW_LENGTH
 
 config SYS_FMAN_V3
 	bool
+	select FSL_MEMAC
 	help
 	  SoC has FMan v3 with mEMAC
 

@@ -10,8 +10,6 @@
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>
 
-#define CONFIG_FSL_MEMAC
-
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 
 /* DDR */

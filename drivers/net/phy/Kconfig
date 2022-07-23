@@ -345,6 +345,13 @@ config PHY_NCSI
 
 endif #PHYLIB
 
+config FSL_MEMAC
+	bool "NXP mEMAC PHY support"
+
+config SYS_MEMAC_LITTLE_ENDIAN
+	bool "mEMAC is access in little endian mode"
+	depends on FSL_MEMAC || FSL_LS_MDIO
+
 config PHY_RESET_DELAY
 	int "Extra delay after reset before MII register access"
 	default 0
