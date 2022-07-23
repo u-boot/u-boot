@@ -132,6 +132,13 @@ config SYS_FLASH_CFI
 	  Define if the flash driver uses extra elements in the
 	  common flash structure for storing flash geometry.
 
+config SYS_FLASH_CHECKSUM
+	bool "Compute and print flash CRC if 'flashchecksum' is set in the environment"
+	depends on MTD_NOR_FLASH
+	help
+	  If the variable flashchecksum is set in the environment, perform a CRC
+	  of the flash and print the value to console.
+
 config ALTERA_QSPI
 	bool "Altera Generic Quad SPI Controller"
 	depends on DM_MTD
