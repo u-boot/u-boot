@@ -12,7 +12,6 @@
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>
-#include <flash.h>
 #include <init.h>
 #include <net.h>
 #include <malloc.h>

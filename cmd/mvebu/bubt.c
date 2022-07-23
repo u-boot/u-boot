@@ -8,7 +8,6 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
-#include <flash.h>
 #include <image.h>
 #include <net.h>
 #include <vsprintf.h>

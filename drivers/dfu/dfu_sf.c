@@ -4,7 +4,6 @@
  */
 
 #include <common.h>
-#include <flash.h>
 #include <malloc.h>
 #include <errno.h>
 #include <div64.h>

@@ -25,7 +25,6 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
 #ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
 #include <mtd/cfi_flash.h>
-extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 /*
  * The user interface starts numbering for Flash banks with 1

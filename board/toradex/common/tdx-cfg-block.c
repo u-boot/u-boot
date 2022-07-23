@@ -14,7 +14,9 @@
 #include <cli.h>
 #include <console.h>
 #include <env.h>
+#ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_NOR
 #include <flash.h>
+#endif
 #include <malloc.h>
 #include <mmc.h>
 #include <nand.h>

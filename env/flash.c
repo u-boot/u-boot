@@ -13,7 +13,6 @@
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>
-#include <flash.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <linux/stddef.h>
@@ -26,6 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SPL_BUILD
 # if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_FLASH)
+#  include <flash.h>
 #  define CMD_SAVEENV
 # elif defined(CONFIG_ENV_ADDR_REDUND)
 #  error CONFIG_ENV_ADDR_REDUND must have CONFIG_CMD_SAVEENV & CONFIG_CMD_FLASH

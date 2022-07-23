@@ -6,7 +6,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <flash.h>
 #include <fsl_validate.h>
 #include <fsl_secboot_err.h>
 #include <fsl_sfp.h>
@@ -79,6 +78,8 @@ static u32 check_ie(struct fsl_secboot_img_priv *img)
  * address
  */
 #if defined(CONFIG_MPC85xx)
+#include <flash.h>
+
 int get_csf_base_addr(u32 *csf_addr, u32 *flash_base_addr)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);

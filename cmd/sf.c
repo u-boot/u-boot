@@ -9,7 +9,6 @@
 #include <command.h>
 #include <div64.h>
 #include <dm.h>
-#include <flash.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>

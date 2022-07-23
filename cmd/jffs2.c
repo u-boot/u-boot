@@ -73,7 +73,9 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
+#if defined(CONFIG_CMD_FLASH)
 #include <flash.h>
+#endif
 #include <image.h>
 #include <malloc.h>
 #include <jffs2/jffs2.h>
@@ -156,7 +158,6 @@ static int mtd_device_validate(u8 type, u8 num, u32 *size)
 	if (type == MTD_DEV_TYPE_NOR) {
 #if defined(CONFIG_CMD_FLASH)
 		if (num < CONFIG_SYS_MAX_FLASH_BANKS) {
-			extern flash_info_t flash_info[];
 			*size = flash_info[num].size;
 
 			return 0;
@@ -260,8 +261,6 @@ static inline u32 get_part_sector_size_nand(struct mtdids *id)
 static inline u32 get_part_sector_size_nor(struct mtdids *id, struct part_info *part)
 {
 #if defined(CONFIG_CMD_FLASH)
-	extern flash_info_t flash_info[];
-
 	u32 end_phys, start_phys, sector_size = 0, size = 0;
 	int i;
 	flash_info_t *flash;
