@@ -33,7 +33,6 @@
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
 #define CONFIG_SYS_FLASH_SECT_SIZE      (128 * 1024)
 #define CONFIG_SYS_MAX_FLASH_SECT 256   /* max number of sectors on one chip */
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #endif
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2

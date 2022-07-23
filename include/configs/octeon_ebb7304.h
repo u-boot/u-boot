@@ -13,7 +13,6 @@
  * CFI flash
  */
 #define CONFIG_SYS_MAX_FLASH_SECT	256
-#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 

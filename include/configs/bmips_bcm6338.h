@@ -21,6 +21,5 @@
 #endif
 
 #define CONFIG_SYS_FLASH_BASE			0xbfc00000
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 
 #endif /* __CONFIG_BMIPS_BCM6338_H */

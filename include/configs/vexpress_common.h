@@ -189,7 +189,6 @@
  */
 
 /* Store environment at top of flash */
-#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE0, \
 					  CONFIG_SYS_FLASH_BASE1 }
 

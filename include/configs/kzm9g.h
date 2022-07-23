@@ -41,7 +41,6 @@
 
 /* FLASH */
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define FLASH_SECTOR_SIZE	(256 * 1024)	/* 256 KB sectors */
 
 /* Timeout for Flash erase operations (in ms) */

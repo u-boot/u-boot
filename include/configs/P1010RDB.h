@@ -208,7 +208,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
 /* CFI for NOR Flash */
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* NAND Flash on IFC */
 #define CONFIG_SYS_NAND_BASE		0xff800000

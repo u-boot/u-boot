@@ -27,7 +27,6 @@
 
 /* NOR 16-bit mode */
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_FLASH_VERIFY
 
 /* NOR Flash MTD */

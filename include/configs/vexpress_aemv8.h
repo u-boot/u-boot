@@ -272,7 +272,6 @@
 /* Store environment at top of flash */
 #endif
 
-#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000
 
 #endif /* __VEXPRESS_AEMV8_H */

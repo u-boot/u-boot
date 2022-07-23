@@ -141,8 +141,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		8 /* max FLASH size is 32M */
 
-#define CONFIG_SYS_FLASH_EMPTY_INFO		/* display empty sectors */
-
 
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* max sectors per device */
 

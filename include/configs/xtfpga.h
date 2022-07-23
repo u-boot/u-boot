@@ -190,6 +190,5 @@
  */
 
 /* print 'E' for empty sector on flinfo */
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 
 #endif /* __CONFIG_H */
