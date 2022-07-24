@@ -10,7 +10,7 @@
 #include <linux/mtd/rawnand.h>
 #include <linux/sizes.h>
 
-#define LP_OPTIONS NAND_SAMSUNG_LP_OPTIONS
+#define LP_OPTIONS 0
 #define LP_OPTIONS16 (LP_OPTIONS | NAND_BUSWIDTH_16)
 
 #define SP_OPTIONS NAND_NEED_READRDY
@@ -24,16 +24,6 @@
  * extended chip ID.
  */
 struct nand_flash_dev nand_flash_ids[] = {
-#ifdef CONFIG_MTD_NAND_MUSEUM_IDS
-	LEGACY_ID_NAND("NAND 1MiB 5V 8-bit",	0x6e, 1, SZ_4K, SP_OPTIONS),
-	LEGACY_ID_NAND("NAND 2MiB 5V 8-bit",	0x64, 2, SZ_4K, SP_OPTIONS),
-	LEGACY_ID_NAND("NAND 1MiB 3,3V 8-bit",	0xe8, 1, SZ_4K, SP_OPTIONS),
-	LEGACY_ID_NAND("NAND 1MiB 3,3V 8-bit",	0xec, 1, SZ_4K, SP_OPTIONS),
-	LEGACY_ID_NAND("NAND 2MiB 3,3V 8-bit",	0xea, 2, SZ_4K, SP_OPTIONS),
-	LEGACY_ID_NAND("NAND 4MiB 3,3V 8-bit",	0xd5, 4, SZ_8K, SP_OPTIONS),
-
-	LEGACY_ID_NAND("NAND 8MiB 3,3V 8-bit",	0xe6, 8, SZ_8K, SP_OPTIONS),
-#endif
 	/*
 	 * Some incompatible NAND chips share device ID's and so must be
 	 * listed by full ID. We list them first so that we can easily identify
@@ -188,16 +178,16 @@ struct nand_flash_dev nand_flash_ids[] = {
 
 /* Manufacturer IDs */
 struct nand_manufacturers nand_manuf_ids[] = {
-	{NAND_MFR_TOSHIBA, "Toshiba"},
-	{NAND_MFR_SAMSUNG, "Samsung"},
+	{NAND_MFR_TOSHIBA, "Toshiba", &toshiba_nand_manuf_ops},
+	{NAND_MFR_SAMSUNG, "Samsung", &samsung_nand_manuf_ops},
 	{NAND_MFR_FUJITSU, "Fujitsu"},
 	{NAND_MFR_NATIONAL, "National"},
 	{NAND_MFR_RENESAS, "Renesas"},
 	{NAND_MFR_STMICRO, "ST Micro"},
-	{NAND_MFR_HYNIX, "Hynix"},
-	{NAND_MFR_MICRON, "Micron"},
-	{NAND_MFR_AMD, "AMD/Spansion"},
-	{NAND_MFR_MACRONIX, "Macronix"},
+	{NAND_MFR_HYNIX, "Hynix", &hynix_nand_manuf_ops},
+	{NAND_MFR_MICRON, "Micron", &micron_nand_manuf_ops},
+	{NAND_MFR_AMD, "AMD/Spansion", &amd_nand_manuf_ops},
+	{NAND_MFR_MACRONIX, "Macronix", &macronix_nand_manuf_ops},
 	{NAND_MFR_EON, "Eon"},
 	{NAND_MFR_SANDISK, "SanDisk"},
 	{NAND_MFR_INTEL, "Intel"},
