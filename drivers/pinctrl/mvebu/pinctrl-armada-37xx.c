@@ -193,14 +193,14 @@ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 		       "mii", "mii_err"),
 };
 
-const struct armada_37xx_pin_data armada_37xx_pin_nb = {
+static const struct armada_37xx_pin_data armada_37xx_pin_nb = {
 	.nr_pins = 36,
 	.name = "GPIO1",
 	.groups = armada_37xx_nb_groups,
 	.ngroups = ARRAY_SIZE(armada_37xx_nb_groups),
 };
 
-const struct armada_37xx_pin_data armada_37xx_pin_sb = {
+static const struct armada_37xx_pin_data armada_37xx_pin_sb = {
 	.nr_pins = 30,
 	.name = "GPIO2",
 	.groups = armada_37xx_sb_groups,
@@ -558,7 +558,7 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 	return 0;
 }
 
-const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
+static const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
 	.get_groups_count = armada_37xx_pmx_get_groups_count,
 	.get_group_name = armada_37xx_pmx_get_group_name,
 	.get_functions_count = armada_37xx_pmx_get_funcs_count,
@@ -567,7 +567,7 @@ const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
 	.set_state = pinctrl_generic_set_state,
 };
 
-int armada_37xx_pinctrl_probe(struct udevice *dev)
+static int armada_37xx_pinctrl_probe(struct udevice *dev)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 	const struct armada_37xx_pin_data *pin_data;
