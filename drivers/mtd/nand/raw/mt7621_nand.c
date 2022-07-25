@@ -1186,8 +1186,7 @@ int mt7621_nfc_spl_post_init(struct mt7621_nfc *nfc)
 	int nand_maf_id, nand_dev_id;
 	int ret;
 
-	ret = nand_get_flash_type(nand, &nand_maf_id,
-				  &nand_dev_id, NULL);
+	ret = nand_detect(nand, &nand_maf_id, &nand_dev_id, NULL);
 
 	if (ret)
 		return ret;

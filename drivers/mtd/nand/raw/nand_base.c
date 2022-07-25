@@ -4276,8 +4276,8 @@ static const struct nand_manufacturer *nand_get_manufacturer_desc(u8 id)
 /*
  * Get the flash and manufacturer id and lookup if the type is supported.
  */
-int nand_get_flash_type(struct nand_chip *chip, int *maf_id,
-			int *dev_id, struct nand_flash_dev *type)
+int nand_detect(struct nand_chip *chip, int *maf_id,
+		int *dev_id, struct nand_flash_dev *type)
 {
 	struct mtd_info *mtd = &chip->mtd;
 	const struct nand_manufacturer *manufacturer_desc;
@@ -4461,7 +4461,7 @@ ident_done:
 		mtd->erasesize >> 10, mtd->writesize, mtd->oobsize);
 	return 0;
 }
-EXPORT_SYMBOL(nand_get_flash_type);
+EXPORT_SYMBOL(nand_detect);
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 
@@ -4558,8 +4558,7 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips,
 	nand_set_defaults(chip, chip->options & NAND_BUSWIDTH_16);
 
 	/* Read the flash type */
-	ret = nand_get_flash_type(chip, &nand_maf_id,
-				   &nand_dev_id, table);
+	ret = nand_detect(chip, &nand_maf_id, &nand_dev_id, table);
 
 	if (ret) {
 		if (!(chip->options & NAND_SCAN_SILENT_NODEV))
@@ -4591,7 +4590,7 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips,
 	for (i = 1; i < maxchips; i++) {
 		u8 id[2];
 
-		/* See comment in nand_get_flash_type for reset */
+		/* See comment in nand_detect for reset */
 		nand_reset(chip, i);
 
 		chip->select_chip(mtd, i);

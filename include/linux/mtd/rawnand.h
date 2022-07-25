@@ -29,8 +29,8 @@ struct nand_flash_dev;
 struct device_node;
 
 /* Get the flash and manufacturer id and lookup if the type is supported. */
-int nand_get_flash_type(struct nand_chip *chip, int *maf_id, int *dev_id,
-			struct nand_flash_dev *type);
+int nand_detect(struct nand_chip *chip, int *maf_id, int *dev_id,
+		struct nand_flash_dev *type);
 
 /* Scan and identify a NAND device */
 int nand_scan(struct mtd_info *mtd, int max_chips);

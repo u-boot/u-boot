@@ -83,7 +83,7 @@ static int mxs_flash_full_ident(struct mtd_info *mtd)
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	int ret;
 
-	ret = nand_get_flash_type(mtd, chip, &nand_maf_id, &nand_dev_id, NULL);
+	ret = nand_detect(chip, &nand_maf_id, &nand_dev_id, NULL);
 
 	if (ret) {
 		chip->select_chip(mtd, -1);
