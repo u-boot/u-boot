@@ -95,8 +95,6 @@ struct armada_37xx_pinctrl {
 	const struct armada_37xx_pin_data	*data;
 	struct udevice			*dev;
 	struct pinctrl_dev		*pctl_dev;
-	struct armada_37xx_pin_group	*groups;
-	unsigned int			ngroups;
 	struct armada_37xx_pmx_func	*funcs;
 	unsigned int			nfuncs;
 };
@@ -235,7 +233,7 @@ static int armada_37xx_pmx_get_groups_count(struct udevice *dev)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 
-	return info->ngroups;
+	return info->data->ngroups;
 }
 
 static const char *armada_37xx_pmx_dummy_name = "_dummy";
@@ -245,10 +243,10 @@ static const char *armada_37xx_pmx_get_group_name(struct udevice *dev,
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 
-	if (!info->groups[selector].name)
+	if (!info->data->groups[selector].name)
 		return armada_37xx_pmx_dummy_name;
 
-	return info->groups[selector].name;
+	return info->data->groups[selector].name;
 }
 
 static int armada_37xx_pmx_get_funcs_count(struct udevice *dev)
@@ -295,7 +293,7 @@ static int armada_37xx_pmx_group_set(struct udevice *dev,
 				     unsigned func_selector)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
-	struct armada_37xx_pin_group *grp = &info->groups[group_selector];
+	struct armada_37xx_pin_group *grp = &info->data->groups[group_selector];
 	const char *name = info->funcs[func_selector].name;
 
 	return armada_37xx_pmx_set_by_name(dev, name, grp);
@@ -350,8 +348,8 @@ static int armada_37xx_fill_group(struct armada_37xx_pinctrl *info)
 {
 	int n, num = 0, funcsize = info->data->nr_pins;
 
-	for (n = 0; n < info->ngroups; n++) {
-		struct armada_37xx_pin_group *grp = &info->groups[n];
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
 		int f;
 
 		for (f = 0; (f < NB_FUNCS) && grp->funcs[f]; f++) {
@@ -402,8 +400,8 @@ static int armada_37xx_fill_func(struct armada_37xx_pinctrl *info)
 
 		groups = funcs[n].groups;
 
-		for (g = 0; g < info->ngroups; g++) {
-			struct armada_37xx_pin_group *gp = &info->groups[g];
+		for (g = 0; g < info->data->ngroups; g++) {
+			struct armada_37xx_pin_group *gp = &info->data->groups[g];
 			int f;
 
 			for (f = 0; (f < NB_FUNCS) && gp->funcs[f]; f++) {
@@ -583,9 +581,6 @@ int armada_37xx_pinctrl_probe(struct udevice *dev)
 		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
-
-	info->groups = pin_data->groups;
-	info->ngroups = pin_data->ngroups;
 
 	/*
 	 * we allocate functions for number of pins and hope there are
