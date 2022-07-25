@@ -1,5 +1,12 @@
 if ARCH_MVEBU
 
+config PINCTRL_ARMADA_38X
+	depends on ARMADA_38X && PINCTRL_FULL
+	bool "Armada 38x pin control driver"
+	help
+	   Support pin multiplexing and pin configuration control on
+	   Marvell's Armada-38x SoC.
+
 config PINCTRL_ARMADA_37XX
 	depends on ARMADA_3700 && PINCTRL_FULL
 	bool "Armada 37xx pin control driver"
