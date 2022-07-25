@@ -280,12 +280,13 @@ static const char *armada_37xx_pmx_get_func_name(struct udevice *dev,
 
 static int armada_37xx_pmx_set_by_name(struct udevice *dev,
 				       const char *name,
-				       struct armada_37xx_pin_group *grp)
+				       struct armada_37xx_pin_group *grp,
+				       bool warn_on_change)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 	unsigned int reg = SELECTION;
 	unsigned int mask = grp->reg_mask;
-	int func, val;
+	int func, val, old_func;
 
 	dev_dbg(info->dev, "enable function %s group %s\n",
 		name, grp->name);
@@ -296,6 +297,18 @@ static int armada_37xx_pmx_set_by_name(struct udevice *dev,
 		return func;
 
 	val = grp->val[func];
+
+	if (warn_on_change && val != (readl(info->base + reg) & mask)) {
+		for (old_func = 0; (old_func < NB_FUNCS) && grp->funcs[old_func]; old_func++) {
+			if (grp->val[old_func] == val)
+				break;
+		}
+		dev_warn(info->dev, "Warning: Changing MPPs %u-%u function from %s to %s...\n",
+			 grp->start_pin, grp->start_pin + grp->npins - 1,
+			 ((old_func < NB_FUNCS && grp->funcs[old_func]) ?
+			  grp->funcs[old_func] : "unknown"),
+			 name);
+	}
 
 	clrsetbits_le32(info->base + reg, mask, val);
 
@@ -310,7 +323,34 @@ static int armada_37xx_pmx_group_set(struct udevice *dev,
 	struct armada_37xx_pin_group *grp = &info->data->groups[group_selector];
 	const char *name = info->funcs[func_selector].name;
 
-	return armada_37xx_pmx_set_by_name(dev, name, grp);
+	return armada_37xx_pmx_set_by_name(dev, name, grp, false);
+}
+
+static int armada_37xx_pmx_gpio_request_enable(struct udevice *dev, unsigned int selector)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+	int ret = -ENOTSUPP;
+	int n;
+
+	/* Find all groups where is requested selector pin and set each group to gpio function */
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
+
+		if ((selector >= grp->start_pin && selector < grp->start_pin + grp->npins) ||
+		    (selector >= grp->extra_pin && selector < grp->extra_pin + grp->extra_npins)) {
+			ret = armada_37xx_pmx_set_by_name(dev, "gpio", grp, true);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return ret;
+}
+
+static int armada_37xx_pmx_gpio_disable_free(struct udevice *dev, unsigned int selector)
+{
+	/* nothing to do */
+	return 0;
 }
 
 /**
@@ -520,6 +560,8 @@ static int armada_37xx_gpio_probe(struct udevice *dev)
 }
 
 static const struct dm_gpio_ops armada_37xx_gpio_ops = {
+	.request = pinctrl_gpio_request,
+	.rfree = pinctrl_gpio_free,
 	.set_value = armada_37xx_gpio_set,
 	.get_value = armada_37xx_gpio_get,
 	.get_function = armada_37xx_gpio_get_direction,
@@ -578,6 +620,8 @@ static const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
 	.get_functions_count = armada_37xx_pmx_get_funcs_count,
 	.get_function_name = armada_37xx_pmx_get_func_name,
 	.pinmux_group_set = armada_37xx_pmx_group_set,
+	.gpio_request_enable = armada_37xx_pmx_gpio_request_enable,
+	.gpio_disable_free = armada_37xx_pmx_gpio_disable_free,
 	.set_state = pinctrl_generic_set_state,
 };
 
