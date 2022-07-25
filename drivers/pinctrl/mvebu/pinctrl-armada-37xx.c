@@ -353,6 +353,81 @@ static int armada_37xx_pmx_gpio_disable_free(struct udevice *dev, unsigned int s
 	return 0;
 }
 
+static int armada_37xx_pmx_get_pins_count(struct udevice *dev)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+
+	return info->data->nr_pins;
+}
+
+static const char *armada_37xx_pmx_get_pin_name(struct udevice *dev, unsigned int selector)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+	static char buf[sizeof("MPPx_XX")];
+
+	sprintf(buf, "MPP%c_%u", info->data->name[4], selector);
+	return buf;
+}
+
+static int armada_37xx_pmx_get_pin_muxing(struct udevice *dev, unsigned int selector,
+					  char *buf, int size)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+	int n;
+
+	/*
+	 * First check if selected pin is in some extra pin group.
+	 * Function in extra pin group is active only when it is not gpio.
+	 */
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
+
+		if (selector >= grp->extra_pin && selector < grp->extra_pin + grp->extra_npins) {
+			unsigned int reg = SELECTION;
+			unsigned int mask = grp->reg_mask;
+			int f, val;
+
+			val = (readl(info->base + reg) & mask);
+
+			for (f = 0; f < NB_FUNCS && grp->funcs[f]; f++) {
+				if (grp->val[f] == val) {
+					if (strcmp(grp->funcs[f], "gpio") != 0) {
+						strlcpy(buf, grp->funcs[f], size);
+						return 0;
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	/* If pin is not active in some extra pin group then check regular groups. */
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
+
+		if (selector >= grp->start_pin && selector < grp->start_pin + grp->npins) {
+			unsigned int reg = SELECTION;
+			unsigned int mask = grp->reg_mask;
+			int f, val;
+
+			val = (readl(info->base + reg) & mask);
+
+			for (f = 0; f < NB_FUNCS && grp->funcs[f]; f++) {
+				if (grp->val[f] == val) {
+					strlcpy(buf, grp->funcs[f], size);
+					return 0;
+				}
+			}
+
+			strlcpy(buf, "unknown", size);
+			return 0;
+		}
+	}
+
+	strlcpy(buf, "unknown", size);
+	return 0;
+}
+
 /**
  * armada_37xx_add_function() - Add a new function to the list
  * @funcs: array of function to add the new one
@@ -615,6 +690,9 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 }
 
 static const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
+	.get_pins_count = armada_37xx_pmx_get_pins_count,
+	.get_pin_name = armada_37xx_pmx_get_pin_name,
+	.get_pin_muxing = armada_37xx_pmx_get_pin_muxing,
 	.get_groups_count = armada_37xx_pmx_get_groups_count,
 	.get_group_name = armada_37xx_pmx_get_group_name,
 	.get_functions_count = armada_37xx_pmx_get_funcs_count,
