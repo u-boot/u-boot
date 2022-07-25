@@ -92,7 +92,7 @@ static int mvebu_gpio_probe(struct udevice *dev)
 	struct mvebu_gpio_priv *priv = dev_get_priv(dev);
 
 	priv->regs = dev_read_addr_ptr(dev);
-	uc_priv->gpio_count = MVEBU_GPIOS_PER_BANK;
+	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios", MVEBU_GPIOS_PER_BANK);
 	priv->name[0] = 'A' + dev_seq(dev);
 	uc_priv->bank_name = priv->name;
 
