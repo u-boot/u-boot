@@ -491,6 +491,8 @@ enum pin_config_param {
  * Return: 0 on success, or negative error code on failure
  */
 int pinctrl_generic_set_state(struct udevice *pctldev, struct udevice *config);
+int pinctrl_generic_set_state_prefix(struct udevice *pctldev, struct udevice *config,
+				     const char *prefix);
 #else
 static inline int pinctrl_generic_set_state(struct udevice *pctldev,
 					    struct udevice *config)
