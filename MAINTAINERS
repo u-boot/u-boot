@@ -1209,7 +1209,7 @@ F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
 
 POWERPC MPC85XX
-M:	Priyanka Jain <priyanka.jain@nxp.com>
+M:	Marek Behún <kabel@kernel.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
