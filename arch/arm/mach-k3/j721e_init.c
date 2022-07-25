@@ -24,9 +24,7 @@
 #include <mmc.h>
 #include <remoteproc.h>
 
-#ifdef CONFIG_SPL_BUILD
 #ifdef CONFIG_K3_LOAD_SYSFW
-#ifdef CONFIG_TI_SECURE_DEVICE
 struct fwl_data cbass_hc_cfg0_fwls[] = {
 	{ "PCIE0_CFG", 2560, 8 },
 	{ "PCIE1_CFG", 2561, 8 },
@@ -63,7 +61,6 @@ struct fwl_data cbass_hc_cfg0_fwls[] = {
 }, wkup_cbass0_fwls[] = {
 	{ "WKUP_CTRL_MMR0", 131, 16 },
 };
-#endif
 #endif
 
 static void ctrl_mmr_unlock(void)
@@ -255,7 +252,6 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	/* Disable ROM configured firewalls right after loading sysfw */
-#ifdef CONFIG_TI_SECURE_DEVICE
 	remove_fwl_configs(cbass_hc_cfg0_fwls, ARRAY_SIZE(cbass_hc_cfg0_fwls));
 	remove_fwl_configs(cbass_hc0_fwls, ARRAY_SIZE(cbass_hc0_fwls));
 	remove_fwl_configs(cbass_rc_cfg0_fwls, ARRAY_SIZE(cbass_rc_cfg0_fwls));
@@ -263,7 +259,6 @@ void board_init_f(ulong dummy)
 	remove_fwl_configs(infra_cbass0_fwls, ARRAY_SIZE(infra_cbass0_fwls));
 	remove_fwl_configs(mcu_cbass0_fwls, ARRAY_SIZE(mcu_cbass0_fwls));
 	remove_fwl_configs(wkup_cbass0_fwls, ARRAY_SIZE(wkup_cbass0_fwls));
-#endif
 #else
 	/* Prepare console output */
 	preloader_console_init();
@@ -384,7 +379,6 @@ u32 spl_boot_device(void)
 	else
 		return __get_backup_bootmedia(main_devstat);
 }
-#endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
 

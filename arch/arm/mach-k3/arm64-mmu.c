@@ -13,7 +13,7 @@
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 
-#ifdef CONFIG_SOC_K3_AM6
+#ifdef CONFIG_SOC_K3_AM654
 /* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
 #define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 5)
 
@@ -64,7 +64,7 @@ struct mm_region am654_mem_map[NR_MMU_REGIONS] = {
 };
 
 struct mm_region *mem_map = am654_mem_map;
-#endif /* CONFIG_SOC_K3_AM6 */
+#endif /* CONFIG_SOC_K3_AM654 */
 
 #ifdef CONFIG_SOC_K3_J721E
 
@@ -222,7 +222,7 @@ struct mm_region *mem_map = j721s2_mem_map;
 
 #endif /* CONFIG_SOC_K3_J721S2 */
 
-#if (CONFIG_IS_ENABLED(SOC_K3_AM642) || CONFIG_IS_ENABLED(SOC_K3_AM625))
+#if defined(CONFIG_SOC_K3_AM642) || defined(CONFIG_SOC_K3_AM625)
 /* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
 #define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 3)
 

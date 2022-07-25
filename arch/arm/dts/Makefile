@@ -505,6 +505,7 @@ dtb-$(CONFIG_TARGET_TEN64) += fsl-ls1088a-ten64.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
 dtb-$(CONFIG_TARGET_STARQLTECHN) += starqltechn.dtb
+dtb-$(CONFIG_TARGET_QCS404EVB) += qcs404-evb.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
 
@@ -1193,7 +1194,7 @@ dtb-$(CONFIG_STM32MP15x) += \
 	stm32mp15xx-dhcor-avenger96.dtb \
 	stm32mp15xx-dhcor-drc-compact.dtb
 
-dtb-$(CONFIG_SOC_K3_AM6) += \
+dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am654-base-board.dtb \
 	k3-am654-r5-base-board.dtb \
 	k3-am65-iot2050-spl.dtb \

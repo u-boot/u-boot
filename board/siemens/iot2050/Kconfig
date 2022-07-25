@@ -9,7 +9,7 @@
 config TARGET_IOT2050_A53
 	bool "IOT2050 running on A53"
 	select ARM64
-	select SOC_K3_AM6
+	select SOC_K3_AM654
 	select BOARD_LATE_INIT
 	select SYS_DISABLE_DCACHE_OPS
 	select BINMAN

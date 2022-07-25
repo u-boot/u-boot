@@ -22,8 +22,6 @@
 #include <mmc.h>
 #include <remoteproc.h>
 
-#ifdef CONFIG_SPL_BUILD
-
 static void ctrl_mmr_unlock(void)
 {
 	/* Unlock all WKUP_CTRL_MMR0 module registers */
@@ -255,7 +253,6 @@ u32 spl_boot_device(void)
 	else
 		return __get_backup_bootmedia(main_devstat);
 }
-#endif
 
 #define J721S2_DEV_MCU_RTI0			295
 #define J721S2_DEV_MCU_RTI1			296

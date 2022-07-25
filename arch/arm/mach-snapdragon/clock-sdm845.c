@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <dt-bindings/clock/qcom,gcc-sdm845.h>
 #include "clock-snapdragon.h"
 
 #define F(f, s, h, m, n) { (f), (s), (2 * (h) - 1), (m), (n) }
@@ -84,7 +85,7 @@ ulong msm_set_rate(struct clk *clk, ulong rate)
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
 
 	switch (clk->id) {
-	case 0x58: /*UART2*/
+	case GCC_QUPV3_WRAP1_S1_CLK: /*UART2*/
 		return clk_init_uart(priv, rate);
 	default:
 		return 0;

@@ -26,9 +26,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPL_BUILD
 #ifdef CONFIG_K3_LOAD_SYSFW
-#ifdef CONFIG_TI_SECURE_DEVICE
 struct fwl_data main_cbass_fwls[] = {
 	{ "MMCSD1_CFG", 2057, 1 },
 	{ "MMCSD0_CFG", 2058, 1 },
@@ -44,7 +42,6 @@ struct fwl_data main_cbass_fwls[] = {
 	{ "MCU_FSS0_S0", 1036, 8 },
 	{ "MCU_CPSW0", 1220, 1 },
 };
-#endif
 #endif
 
 static void ctrl_mmr_unlock(void)
@@ -238,10 +235,8 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	/* Disable ROM configured firewalls right after loading sysfw */
-#ifdef CONFIG_TI_SECURE_DEVICE
 	remove_fwl_configs(main_cbass_fwls, ARRAY_SIZE(main_cbass_fwls));
 	remove_fwl_configs(mcu_cbass_fwls, ARRAY_SIZE(mcu_cbass_fwls));
-#endif
 #else
 	/* Prepare console output */
 	preloader_console_init();
@@ -359,7 +354,6 @@ u32 spl_boot_device(void)
 	else
 		return __get_backup_bootmedia(devstat);
 }
-#endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
 

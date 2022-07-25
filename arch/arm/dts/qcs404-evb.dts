@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Qualcomm QCS404 based evaluation board device tree source
+ *
+ * (C) Copyright 2022 Sumit Garg <sumit.garg@linaro.org>
+ */
+
+/dts-v1/;
+
+#include "skeleton64.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
+#include <dt-bindings/clock/qcom,gcc-qcs404.h>
+
+/ {
+	model = "Qualcomm Technologies, Inc. QCS404 EVB";
+	compatible = "qcom,qcs404-evb", "qcom,qcs404";
+	#address-cells = <0x2>;
+	#size-cells = <0x2>;
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		serial0 = &debug_uart;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0 0x80000000 0 0x40000000>;
+	};
+
+	soc {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		ranges = <0x0 0x0 0x0 0xffffffff>;
+		compatible = "simple-bus";
+
+		pinctrl_north@1300000 {
+			compatible = "qcom,tlmm-qcs404";
+			reg = <0x1300000 0x200000>;
+
+			blsp1_uart2: uart {
+				pins = "GPIO_17", "GPIO_18";
+				function = "blsp_uart2";
+			};
+		};
+
+		gcc: clock-controller@1800000 {
+			compatible = "qcom,gcc-qcs404";
+			reg = <0x1800000 0x80000>;
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+		};
+
+		debug_uart: serial@78b1000 {
+			compatible = "qcom,msm-uartdm-v1.4";
+			reg = <0x78b1000 0x200>;
+			clock = <&gcc GCC_BLSP1_UART2_APPS_CLK>,
+				<&gcc GCC_BLSP1_AHB_CLK>;
+			bit-rate = <0xFF>;
+			pinctrl-names = "uart";
+			pinctrl-0 = <&blsp1_uart2>;
+		};
+
+		sdhci@7804000 {
+			compatible = "qcom,sdhci-msm-v5";
+			reg = <0x7804000 0x1000 0x7805000 0x1000>;
+			clock = <&gcc GCC_SDCC1_APPS_CLK>,
+				<&gcc GCC_SDCC1_AHB_CLK>;
+			bus-width = <0x8>;
+			index = <0x0>;
+			non-removable;
+			mmc-ddr-1_8v;
+			mmc-hs400-1_8v;
+		};
+	};
+};
+
+#include "qcs404-evb-uboot.dtsi"

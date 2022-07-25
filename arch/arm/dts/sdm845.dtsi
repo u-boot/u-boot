@@ -8,6 +8,7 @@
 
 /dts-v1/;
 
+#include <dt-bindings/clock/qcom,gcc-sdm845.h>
 #include "skeleton64.dtsi"
 
 / {
@@ -18,7 +19,6 @@
 		compatible = "simple-bus";
 
 		gcc: clock-controller@100000 {
-			u-boot,dm-pre-reloc;
 			compatible = "qcom,gcc-sdm845";
 			reg = <0x100000 0x1f0000>;
 			#clock-cells = <1>;
@@ -27,7 +27,6 @@
 		};
 
 		gpio_north: gpio_north@3900000 {
-			u-boot,dm-pre-reloc;
 			#gpio-cells = <2>;
 			compatible = "qcom,sdm845-pinctrl";
 			reg = <0x3900000 0x400000>;
@@ -38,7 +37,6 @@
 		};
 
 		tlmm_north: pinctrl_north@3900000 {
-			u-boot,dm-pre-reloc;
 			compatible = "qcom,tlmm-sdm845";
 			reg = <0x3900000 0x400000>;
 			gpio-count = <150>;
@@ -49,7 +47,7 @@
 			/* DEBUG UART */
 			qup_uart9: qup-uart9-default {
 				pins = "GPIO_4", "GPIO_5";
-				function = "gpio";
+				function = "qup9";
 			};
 		};
 
@@ -58,7 +56,7 @@
 			reg = <0xa84000 0x4000>;
 			reg-names = "se_phys";
 			clock-names = "se-clk";
-			clocks = <&gcc 0x58>;
+			clocks = <&gcc GCC_QUPV3_WRAP1_S1_CLK>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&qup_uart9>;
 			qcom,wrapper-core = <0x8a>;
