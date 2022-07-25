@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/pinctrl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <errno.h>
@@ -99,6 +100,10 @@ static int mvebu_gpio_probe(struct udevice *dev)
 }
 
 static const struct dm_gpio_ops mvebu_gpio_ops = {
+#if CONFIG_IS_ENABLED(PINCTRL_ARMADA_38X)
+	.request		= pinctrl_gpio_request,
+	.rfree			= pinctrl_gpio_free,
+#endif
 	.direction_input	= mvebu_gpio_direction_input,
 	.direction_output	= mvebu_gpio_direction_output,
 	.get_function		= mvebu_gpio_get_function,
