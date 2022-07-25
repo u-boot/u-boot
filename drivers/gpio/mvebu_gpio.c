@@ -23,7 +23,7 @@ struct mvebu_gpio_regs {
 
 struct mvebu_gpio_priv {
 	struct mvebu_gpio_regs *regs;
-	char name[2];
+	char name[sizeof("mvebuX_")];
 };
 
 static int mvebu_gpio_direction_input(struct udevice *dev, unsigned int gpio)
@@ -93,7 +93,7 @@ static int mvebu_gpio_probe(struct udevice *dev)
 
 	priv->regs = dev_read_addr_ptr(dev);
 	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios", MVEBU_GPIOS_PER_BANK);
-	priv->name[0] = 'A' + dev_seq(dev);
+	sprintf(priv->name, "mvebu%d_", dev_seq(dev));
 	uc_priv->bank_name = priv->name;
 
 	return 0;
