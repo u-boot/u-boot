@@ -65,7 +65,6 @@ DECLARE_GLOBAL_DATA_PTR;
  *		belonging to the group
  * @npins:	Number of pins included in the second optional range
  * @funcs:	A list of pinmux functions that can be selected for this group.
- * @pins:	List of the pins included in the group
  */
 struct armada_37xx_pin_group {
 	const char	*name;
@@ -76,7 +75,6 @@ struct armada_37xx_pin_group {
 	unsigned int	extra_pin;
 	unsigned int	extra_npins;
 	const char	*funcs[NB_FUNCS];
-	unsigned int	*pins;
 };
 
 struct armada_37xx_pin_data {
@@ -354,19 +352,7 @@ static int armada_37xx_fill_group(struct armada_37xx_pinctrl *info)
 
 	for (n = 0; n < info->ngroups; n++) {
 		struct armada_37xx_pin_group *grp = &info->groups[n];
-		int i, j, f;
-
-		grp->pins = devm_kzalloc(info->dev,
-					 (grp->npins + grp->extra_npins) *
-					 sizeof(*grp->pins), GFP_KERNEL);
-		if (!grp->pins)
-			return -ENOMEM;
-
-		for (i = 0; i < grp->npins; i++)
-			grp->pins[i] = grp->start_pin + i;
-
-		for (j = 0; j < grp->extra_npins; j++)
-			grp->pins[i+j] = grp->extra_pin + j;
+		int f;
 
 		for (f = 0; (f < NB_FUNCS) && grp->funcs[f]; f++) {
 			int ret;
