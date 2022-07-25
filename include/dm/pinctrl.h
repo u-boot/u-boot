@@ -611,10 +611,11 @@ int pinctrl_get_pin_name(struct udevice *dev, int selector, char *buf,
  * pinctrl_gpio_request() - Request a single pin to be used as GPIO
  * @dev:	GPIO peripheral device
  * @offset:	GPIO pin offset from the GPIO controller
+ * @label:	GPIO label
  *
  * Return: 0 on success, or negative error code on failure
  */
-int pinctrl_gpio_request(struct udevice *dev, unsigned offset);
+int pinctrl_gpio_request(struct udevice *dev, unsigned offset, const char *label);
 
 /**
  * pinctrl_gpio_free() - Free a single pin used as GPIO

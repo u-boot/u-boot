@@ -133,7 +133,7 @@ static int rcar_gpio_get_function(struct udevice *dev, unsigned offset)
 static int rcar_gpio_request(struct udevice *dev, unsigned offset,
 			     const char *label)
 {
-	return pinctrl_gpio_request(dev, offset);
+	return pinctrl_gpio_request(dev, offset, label);
 }
 
 static int rcar_gpio_free(struct udevice *dev, unsigned offset)
