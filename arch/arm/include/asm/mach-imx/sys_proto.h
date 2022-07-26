@@ -246,4 +246,6 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 void enable_ca7_smp(void);
 #endif
 
+enum boot_device get_boot_device(void);
+
 #endif
