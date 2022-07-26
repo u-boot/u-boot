@@ -1,0 +1,16 @@
+if ARCH_IMX9
+
+config IMX9
+	bool
+	select HAS_CAAM
+	select ROM_UNIFIED_SECTIONS
+
+config IMX93
+	bool
+	select IMX9
+	select ARMV8_SPL_EXCEPTION_VECTORS
+
+config SYS_SOC
+	default "imx9"
+
+endif

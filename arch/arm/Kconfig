@@ -908,6 +908,15 @@ config ARCH_IMX8ULP
 	imply CMD_DM
 	imply DM_EVENT
 
+config ARCH_IMX9
+	bool "NXP i.MX9 platform"
+	select ARM64
+	select DM
+	select MACH_IMX
+	select SUPPORT_SPL
+	imply CMD_DM
+	imply DM_EVENT
+
 config ARCH_IMXRT
 	bool "NXP i.MXRT platform"
 	select CPU_V7M
@@ -2227,6 +2236,8 @@ source "arch/arm/mach-imx/imx8/Kconfig"
 source "arch/arm/mach-imx/imx8m/Kconfig"
 
 source "arch/arm/mach-imx/imx8ulp/Kconfig"
+
+source "arch/arm/mach-imx/imx9/Kconfig"
 
 source "arch/arm/mach-imx/imxrt/Kconfig"
 

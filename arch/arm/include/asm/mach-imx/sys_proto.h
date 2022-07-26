@@ -31,6 +31,7 @@ struct bd_info;
 #define is_mx7() (is_soc_type(MXC_SOC_MX7))
 #define is_imx8m() (is_soc_type(MXC_SOC_IMX8M))
 #define is_imx8() (is_soc_type(MXC_SOC_IMX8))
+#define is_imx9() (is_soc_type(MXC_SOC_IMX9))
 #define is_imxrt() (is_soc_type(MXC_SOC_IMXRT))
 
 #define is_mx6dqp() (is_cpu_type(MXC_CPU_MX6QP) || is_cpu_type(MXC_CPU_MX6DP))
@@ -80,6 +81,8 @@ struct bd_info;
 #define is_imx8mpul() (is_cpu_type(MXC_CPU_IMX8MPUL))
 
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
+
+#define is_imx93() (is_cpu_type(MXC_CPU_IMX93))
 
 #define is_imxrt1020() (is_cpu_type(MXC_CPU_IMXRT1020))
 #define is_imxrt1050() (is_cpu_type(MXC_CPU_IMXRT1050))
