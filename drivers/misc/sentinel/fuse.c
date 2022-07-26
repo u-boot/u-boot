@@ -31,6 +31,9 @@ struct s400_map_entry {
 	u32 s400_index;
 };
 
+#if defined(CONFIG_IMX8ULP)
+#define FSB_OTP_SHADOW	0x800
+
 struct fsb_map_entry fsb_mapping_table[] = {
 	{ 3, 8 },
 	{ 4, 8 },
@@ -65,6 +68,31 @@ struct s400_map_entry s400_api_mapping_table[] = {
 	{ 23, 1, 4, 2 }, /* OTFAD */
 	{ 25, 8 }, /* Test config2 */
 };
+#elif defined(CONFIG_ARCH_IMX9)
+#define FSB_OTP_SHADOW	0x8000
+
+struct fsb_map_entry fsb_mapping_table[] = {
+	{ 0, 8 },
+	{ 1, 8 },
+	{ 2, 8 },
+	{ -1, 8 },
+	{ 4, 8 },
+	{ 5, 8 },
+	{ 6, 8 }, /* UID */
+	{ -1, 8 },
+	{ 8, 8 },
+	{ 9, 8 },
+	{ 10, 8 },
+};
+
+struct s400_map_entry s400_api_mapping_table[] = {
+	{ 3, 11 }, /* 24 .. 34 */
+	{ 7, 8 },
+	{ 16, 11 }, /* 128 .. 143 */
+	{ 22, 8 },
+	{ 23, 8 },
+};
+#endif
 
 static s32 map_fsb_fuse_index(u32 bank, u32 word, bool *redundancy)
 {
@@ -128,7 +156,7 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 
 	word_index = map_fsb_fuse_index(bank, word, &redundancy);
 	if (word_index >= 0) {
-		*val = readl((ulong)FSB_BASE_ADDR + 0x800 + (word_index << 2));
+		*val = readl((ulong)FSB_BASE_ADDR + FSB_OTP_SHADOW + (word_index << 2));
 		if (redundancy)
 			*val = (*val >> ((word % 2) * 16)) & 0xFFFF;
 
