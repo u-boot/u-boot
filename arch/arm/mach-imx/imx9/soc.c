@@ -128,3 +128,22 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+int timer_init(void)
+{
+#ifdef CONFIG_SPL_BUILD
+	struct sctr_regs *sctr = (struct sctr_regs *)SYSCNT_CTRL_BASE_ADDR;
+	unsigned long freq = readl(&sctr->cntfid0);
+
+	/* Update with accurate clock frequency */
+	asm volatile("msr cntfrq_el0, %0" : : "r" (freq) : "memory");
+
+	clrsetbits_le32(&sctr->cntcr, SC_CNTCR_FREQ0 | SC_CNTCR_FREQ1,
+			SC_CNTCR_FREQ0 | SC_CNTCR_ENABLE | SC_CNTCR_HDBG);
+#endif
+
+	gd->arch.tbl = 0;
+	gd->arch.tbu = 0;
+
+	return 0;
+}
