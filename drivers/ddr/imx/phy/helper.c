@@ -12,7 +12,6 @@
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/ddr.h>
-#include <asm/arch/lpddr4_define.h>
 #include <asm/sections.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -46,43 +45,46 @@ void ddr_load_train_firmware(enum fw_type type)
 	dmem_start = imem_start + IMEM_LEN;
 
 	pr_from32 = imem_start;
-	pr_to32 = DDR_TRAIN_CODE_BASE_ADDR + 4 * IMEM_OFFSET_ADDR;
+	pr_to32 = IMEM_OFFSET_ADDR;
 	for (i = 0x0; i < IMEM_LEN; ) {
 		tmp32 = readl(pr_from32);
-		writew(tmp32 & 0x0000ffff, pr_to32);
-		pr_to32 += 4;
-		writew((tmp32 >> 16) & 0x0000ffff, pr_to32);
-		pr_to32 += 4;
+		writew(tmp32 & 0x0000ffff, DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32));
+		pr_to32 += 1;
+		writew((tmp32 >> 16) & 0x0000ffff,
+		       DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32));
+		pr_to32 += 1;
 		pr_from32 += 4;
 		i += 4;
 	}
 
 	pr_from32 = dmem_start;
-	pr_to32 = DDR_TRAIN_CODE_BASE_ADDR + 4 * DMEM_OFFSET_ADDR;
+	pr_to32 = DMEM_OFFSET_ADDR;
 	for (i = 0x0; i < DMEM_LEN; ) {
 		tmp32 = readl(pr_from32);
-		writew(tmp32 & 0x0000ffff, pr_to32);
-		pr_to32 += 4;
-		writew((tmp32 >> 16) & 0x0000ffff, pr_to32);
-		pr_to32 += 4;
+		writew(tmp32 & 0x0000ffff, DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32));
+		pr_to32 += 1;
+		writew((tmp32 >> 16) & 0x0000ffff,
+		       DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32));
+		pr_to32 += 1;
 		pr_from32 += 4;
 		i += 4;
 	}
 
 	debug("check ddr_pmu_train_imem code\n");
 	pr_from32 = imem_start;
-	pr_to32 = DDR_TRAIN_CODE_BASE_ADDR + 4 * IMEM_OFFSET_ADDR;
+	pr_to32 = IMEM_OFFSET_ADDR;
 	for (i = 0x0; i < IMEM_LEN; ) {
-		tmp32 = (readw(pr_to32) & 0x0000ffff);
-		pr_to32 += 4;
-		tmp32 += ((readw(pr_to32) & 0x0000ffff) << 16);
+		tmp32 = (readw(DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32)) & 0x0000ffff);
+		pr_to32 += 1;
+		tmp32 += ((readw(DDR_TRAIN_CODE_BASE_ADDR +
+			  ddrphy_addr_remap(pr_to32)) & 0x0000ffff) << 16);
 
 		if (tmp32 != readl(pr_from32)) {
 			debug("%lx %lx\n", pr_from32, pr_to32);
 			error++;
 		}
 		pr_from32 += 4;
-		pr_to32 += 4;
+		pr_to32 += 1;
 		i += 4;
 	}
 	if (error)
@@ -92,17 +94,18 @@ void ddr_load_train_firmware(enum fw_type type)
 
 	debug("check ddr4_pmu_train_dmem code\n");
 	pr_from32 = dmem_start;
-	pr_to32 = DDR_TRAIN_CODE_BASE_ADDR + 4 * DMEM_OFFSET_ADDR;
+	pr_to32 = DMEM_OFFSET_ADDR;
 	for (i = 0x0; i < DMEM_LEN;) {
-		tmp32 = (readw(pr_to32) & 0x0000ffff);
-		pr_to32 += 4;
-		tmp32 += ((readw(pr_to32) & 0x0000ffff) << 16);
+		tmp32 = (readw(DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32)) & 0x0000ffff);
+		pr_to32 += 1;
+		tmp32 += ((readw(DDR_TRAIN_CODE_BASE_ADDR +
+			  ddrphy_addr_remap(pr_to32)) & 0x0000ffff) << 16);
 		if (tmp32 != readl(pr_from32)) {
 			debug("%lx %lx\n", pr_from32, pr_to32);
 			error++;
 		}
 		pr_from32 += 4;
-		pr_to32 += 4;
+		pr_to32 += 1;
 		i += 4;
 	}
 

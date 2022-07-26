@@ -5,6 +5,6 @@
 #
 
 ifdef CONFIG_SPL_BUILD
-obj-$(CONFIG_IMX8M_DRAM) += ddr_init.o
+obj-$(CONFIG_IMX9_DRAM) += ddr_init.o
 obj-y += ../phy/
 endif

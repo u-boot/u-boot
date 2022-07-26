@@ -7,7 +7,6 @@
 #include <log.h>
 #include <linux/kernel.h>
 #include <asm/arch/ddr.h>
-#include <asm/arch/lpddr4_define.h>
 #include <asm/arch/sys_proto.h>
 
 int ddr_cfg_phy(struct dram_timing_info *dram_timing)
