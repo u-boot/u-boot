@@ -315,7 +315,7 @@ bool trdc_mbc_enabled(ulong trdc_base)
 int release_rdc(u8 xrdc)
 {
 	ulong s_mu_base = 0x47520000UL;
-	struct imx8ulp_s400_msg msg;
+	struct sentinel_msg msg;
 	int ret;
 	u32 rdc_id;
 

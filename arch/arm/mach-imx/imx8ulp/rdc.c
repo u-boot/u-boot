@@ -184,7 +184,7 @@ int xrdc_config_pdac(u32 bridge, u32 index, u32 dom, u32 perm)
 int release_rdc(enum rdc_type type)
 {
 	ulong s_mu_base = 0x27020000UL;
-	struct imx8ulp_s400_msg msg;
+	struct sentinel_msg msg;
 	int ret;
 	u32 rdc_id = (type == RDC_XRDC) ? 0x78 : 0x74;
 

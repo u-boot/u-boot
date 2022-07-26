@@ -26,7 +26,7 @@
 
 #define S400_MAX_MSG          255U
 
-struct imx8ulp_s400_msg {
+struct sentinel_msg {
 	u8 version;
 	u8 size;
 	u8 command;

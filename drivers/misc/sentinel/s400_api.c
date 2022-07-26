@@ -17,8 +17,8 @@ DECLARE_GLOBAL_DATA_PTR;
 int ahab_release_rdc(u8 core_id, u8 xrdc, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -62,8 +62,8 @@ int ahab_release_rdc(u8 core_id, u8 xrdc, u32 *response)
 int ahab_auth_oem_ctnr(ulong ctnr_addr, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -92,8 +92,8 @@ int ahab_auth_oem_ctnr(ulong ctnr_addr, u32 *response)
 int ahab_release_container(u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -120,8 +120,8 @@ int ahab_release_container(u32 *response)
 int ahab_verify_image(u32 img_id, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -149,8 +149,8 @@ int ahab_verify_image(u32 img_id, u32 *response)
 int ahab_forward_lifecycle(u16 life_cycle, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -178,8 +178,8 @@ int ahab_forward_lifecycle(u16 life_cycle, u32 *response)
 int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -226,8 +226,8 @@ int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respo
 int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -259,8 +259,8 @@ int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
 int ahab_release_caam(u32 core_did, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -329,8 +329,8 @@ int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
 int ahab_dump_buffer(u32 *buffer, u32 buffer_length)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret, i = 0;
 
 	if (!dev) {
@@ -363,8 +363,8 @@ int ahab_dump_buffer(u32 *buffer, u32 buffer_length)
 int ahab_get_info(struct sentinel_get_info_data *info, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
@@ -394,8 +394,8 @@ int ahab_get_info(struct sentinel_get_info_data *info, u32 *response)
 int ahab_get_fw_status(u32 *status, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {
