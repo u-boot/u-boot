@@ -32,7 +32,7 @@ struct imx8ulp_s400_msg {
 	u32 data[(S400_MAX_MSG - 1U)];
 };
 
-int ahab_release_rdc(u8 core_id, bool xrdc, u32 *response);
+int ahab_release_rdc(u8 core_id, u8 xrdc, u32 *response);
 int ahab_auth_oem_ctnr(ulong ctnr_addr, u32 *response);
 int ahab_release_container(u32 *response);
 int ahab_verify_image(u32 img_id, u32 *response);
