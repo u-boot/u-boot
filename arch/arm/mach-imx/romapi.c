@@ -67,7 +67,7 @@ enum boot_device get_boot_device(void)
 		boot_dev = QSPI_BOOT;
 		break;
 	case BT_DEV_TYPE_USB:
-		boot_dev = USB_BOOT;
+		boot_dev = boot_instance + USB_BOOT;
 		break;
 	default:
 		break;
