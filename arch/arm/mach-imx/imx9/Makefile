@@ -3,4 +3,4 @@
 # Copyright 2022 NXP
 
 obj-y += lowlevel_init.o
-obj-y += soc.o clock.o clock_root.o
+obj-y += soc.o clock.o clock_root.o trdc.o

@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/trdc.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/syscounter.h>
 #include <asm/armv8/mmu.h>
@@ -204,6 +205,8 @@ int arch_cpu_init(void)
 		init_wdog();
 
 		clock_init();
+
+		trdc_early_init();
 	}
 
 	return 0;
