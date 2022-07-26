@@ -83,6 +83,7 @@ config SPL_MAX_SIZE
 	default 0x7000 if RCAR_GEN3
 	default 0x5fa0 if SUNXI_SRAM_ADDRESS = 0x0
 	default 0x10000 if ASPEED_AST2600
+	default 0x27000 if IMX8MM && SPL_TEXT_BASE = 0x7E1000
 	default 0x0
 	help
 	  Maximum size of the SPL image (text, data, rodata, and linker lists
