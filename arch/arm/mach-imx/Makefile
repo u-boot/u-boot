@@ -242,5 +242,6 @@ obj-$(CONFIG_IMX8M) += imx8m/
 obj-$(CONFIG_ARCH_IMX8) += imx8/
 obj-$(CONFIG_ARCH_IMXRT) += imxrt/
 
+obj-$(CONFIG_IMX8MN)$(CONFIG_IMX8MP)$(CONFIG_IMX8ULP) += imx_romapi.o
 obj-$(CONFIG_SPL_BOOTROM_SUPPORT) += spl_imx_romapi.o
 obj-$(CONFIG_IMX8_ROMAPI) += romapi.o

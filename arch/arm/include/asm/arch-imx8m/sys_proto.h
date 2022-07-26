@@ -7,6 +7,7 @@
 #define __ARCH_NMX8M_SYS_PROTO_H
 
 #include <asm/mach-imx/sys_proto.h>
+#include <asm/arch/imx-regs.h>
 
 void set_wdog_reset(struct wdog_regs *wdog);
 void enable_tzc380(void);
