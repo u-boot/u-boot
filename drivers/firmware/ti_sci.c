@@ -212,6 +212,19 @@ static int ti_sci_get_response(struct ti_sci_info *info,
 }
 
 /**
+ * ti_sci_is_response_ack() - Generic ACK/NACK message checkup
+ * @r:	pointer to response buffer
+ *
+ * Return: true if the response was an ACK, else returns false.
+ */
+static bool ti_sci_is_response_ack(void *r)
+{
+	struct ti_sci_msg_hdr *hdr = r;
+
+	return hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK ? true : false;
+}
+
+/**
  * ti_sci_do_xfer() - Do one transfer
  * @info:	Pointer to SCI entity information
  * @xfer:	Transfer to initiate and wait for response
@@ -249,8 +262,13 @@ static int ti_sci_do_xfer(struct ti_sci_info *info,
 	}
 
 	/* Get response if requested */
-	if (xfer->rx_len)
+	if (xfer->rx_len) {
 		ret = ti_sci_get_response(info, xfer, &info->chan_rx);
+		if (!ti_sci_is_response_ack(xfer->tx_message.buf)) {
+			dev_err(info->dev, "Message not acknowledged");
+			ret = -ENODEV;
+		}
+	}
 
 	return ret;
 }
@@ -305,19 +323,6 @@ static int ti_sci_cmd_get_revision(struct ti_sci_handle *handle)
 }
 
 /**
- * ti_sci_is_response_ack() - Generic ACK/NACK message checkup
- * @r:	pointer to response buffer
- *
- * Return: true if the response was an ACK, else returns false.
- */
-static bool ti_sci_is_response_ack(void *r)
-{
-	struct ti_sci_msg_hdr *hdr = r;
-
-	return hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK ? true : false;
-}
-
-/**
  * cmd_set_board_config_using_msg() - Common command to send board configuration
  *                                    message
  * @handle:	pointer to TI SCI handle
@@ -357,11 +362,6 @@ static int cmd_set_board_config_using_msg(const struct ti_sci_handle *handle,
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		return ret;
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -515,11 +515,6 @@ static int ti_sci_set_device_state(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	if (state == MSG_DEVICE_SW_STATE_AUTO_OFF)
 		ti_sci_delete_exclusive_dev(info, id);
 	else if (flags & MSG_FLAG_DEVICE_EXCLUSIVE)
@@ -615,8 +610,6 @@ static int ti_sci_get_device_state(const struct ti_sci_handle *handle,
 		return ret;
 
 	resp = (struct ti_sci_msg_resp_get_device_state *)xfer->tx_message.buf;
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	if (clcnt)
 		*clcnt = resp->context_loss_count;
@@ -900,11 +893,6 @@ static int ti_sci_cmd_set_device_resets(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	return ret;
 }
 
@@ -968,11 +956,6 @@ static int ti_sci_set_clock_state(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	return ret;
 }
 
@@ -1023,9 +1006,6 @@ static int ti_sci_cmd_get_clock_state(const struct ti_sci_handle *handle,
 		return ret;
 
 	resp = (struct ti_sci_msg_resp_get_clock_state *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	if (programmed_state)
 		*programmed_state = resp->programmed_state;
@@ -1236,11 +1216,6 @@ static int ti_sci_cmd_clk_set_parent(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	return ret;
 }
 
@@ -1285,12 +1260,7 @@ static int ti_sci_cmd_clk_get_parent(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_resp_get_clock_parent *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*parent_id = resp->parent_id;
+	*parent_id = resp->parent_id;
 
 	return ret;
 }
@@ -1340,10 +1310,7 @@ static int ti_sci_cmd_clk_get_num_parents(const struct ti_sci_handle *handle,
 	resp = (struct ti_sci_msg_resp_get_clock_num_parents *)
 							xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*num_parents = resp->num_parents;
+	*num_parents = resp->num_parents;
 
 	return ret;
 }
@@ -1404,10 +1371,7 @@ static int ti_sci_cmd_clk_get_match_freq(const struct ti_sci_handle *handle,
 
 	resp = (struct ti_sci_msg_resp_query_clock_freq *)xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*match_freq = resp->freq_hz;
+	*match_freq = resp->freq_hz;
 
 	return ret;
 }
@@ -1464,11 +1428,6 @@ static int ti_sci_cmd_clk_set_freq(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	return ret;
 }
 
@@ -1515,10 +1474,7 @@ static int ti_sci_cmd_clk_get_freq(const struct ti_sci_handle *handle,
 
 	resp = (struct ti_sci_msg_resp_get_clock_freq *)xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*freq = resp->freq_hz;
+	*freq = resp->freq_hz;
 
 	return ret;
 }
@@ -1556,11 +1512,6 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		return ret;
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -1613,9 +1564,7 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 		goto fail;
 
 	resp = (struct ti_sci_msg_resp_get_resource_range *)xfer->tx_message.buf;
-	if (!ti_sci_is_response_ack(resp)) {
-		ret = -ENODEV;
-	} else if (!resp->range_start && !resp->range_num) {
+	if (!resp->range_start && !resp->range_num) {
 		ret = -ENODEV;
 	} else {
 		*range_start = resp->range_start;
@@ -1735,9 +1684,6 @@ static int ti_sci_cmd_query_msmc(const struct ti_sci_handle *handle,
 
 	resp = (struct ti_sci_msg_resp_query_msmc *)xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	*msmc_start = ((u64)resp->msmc_start_high << TISCI_ADDR_HIGH_SHIFT) |
 			resp->msmc_start_low;
 	*msmc_end = ((u64)resp->msmc_end_high << TISCI_ADDR_HIGH_SHIFT) |
@@ -1782,11 +1728,6 @@ static int ti_sci_cmd_proc_request(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-
 	return ret;
 }
 
@@ -1825,11 +1766,6 @@ static int ti_sci_cmd_proc_release(const struct ti_sci_handle *handle,
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		return ret;
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -1873,11 +1809,6 @@ static int ti_sci_cmd_proc_handover(const struct ti_sci_handle *handle,
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		return ret;
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -1928,11 +1859,6 @@ static int ti_sci_cmd_set_proc_boot_cfg(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-
 	return ret;
 }
 
@@ -1977,11 +1903,6 @@ static int ti_sci_cmd_set_proc_boot_ctrl(const struct ti_sci_handle *handle,
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		return ret;
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -2031,9 +1952,6 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 
 	resp = (struct ti_sci_msg_resp_proc_auth_boot_image *)xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	*image_addr = (resp->image_addr_low & TISCI_ADDR_LOW_MASK) |
 			(((u64)resp->image_addr_high <<
 			  TISCI_ADDR_HIGH_SHIFT) & TISCI_ADDR_HIGH_MASK);
@@ -2082,8 +2000,6 @@ static int ti_sci_cmd_get_proc_boot_status(const struct ti_sci_handle *handle,
 	resp = (struct ti_sci_msg_resp_get_proc_boot_status *)
 							xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 	*bv = (resp->bootvector_low & TISCI_ADDR_LOW_MASK) |
 			(((u64)resp->bootvector_high  <<
 			  TISCI_ADDR_HIGH_SHIFT) & TISCI_ADDR_HIGH_MASK);
@@ -2288,10 +2204,6 @@ static int ti_sci_cmd_ring_config(const struct ti_sci_handle *handle,
 	if (ret)
 		goto fail;
 
-	resp = (struct ti_sci_msg_rm_ring_cfg_resp *)xfer->tx_message.buf;
-
-	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
-
 fail:
 	dev_dbg(info->dev, "RM_RA:config ring %u ret:%d\n", index, ret);
 	return ret;
@@ -2327,9 +2239,6 @@ static int ti_sci_cmd_rm_psil_pair(const struct ti_sci_handle *handle,
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		goto fail;
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
 
 fail:
 	dev_dbg(info->dev, "RM_PSIL: nav: %u link pair %u->%u ret:%u\n",
@@ -2367,9 +2276,6 @@ static int ti_sci_cmd_rm_psil_unpair(const struct ti_sci_handle *handle,
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		goto fail;
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
 
 fail:
 	dev_dbg(info->dev, "RM_PSIL: link unpair %u->%u ret:%u\n",
@@ -2426,10 +2332,6 @@ static int ti_sci_cmd_rm_udmap_tx_ch_cfg(
 	if (ret)
 		goto fail;
 
-	resp =
-	      (struct ti_sci_msg_rm_udmap_tx_ch_cfg_resp *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -EINVAL;
-
 fail:
 	dev_dbg(info->dev, "TX_CH_CFG: chn %u ret:%u\n", params->index, ret);
 	return ret;
@@ -2480,10 +2382,6 @@ static int ti_sci_cmd_rm_udmap_rx_ch_cfg(
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
 		goto fail;
-
-	resp =
-	      (struct ti_sci_msg_rm_udmap_rx_ch_cfg_resp *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -EINVAL;
 
 fail:
 	dev_dbg(info->dev, "RX_CH_CFG: chn %u ret:%d\n", params->index, ret);
@@ -2542,10 +2440,6 @@ static int ti_sci_cmd_rm_udmap_rx_flow_cfg(
 	if (ret)
 		goto fail;
 
-	resp =
-	       (struct ti_sci_msg_rm_udmap_flow_cfg_resp *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -EINVAL;
-
 fail:
 	dev_dbg(info->dev, "RX_FL_CFG: %u ret:%d\n", params->flow_index, ret);
 	return ret;
@@ -2596,11 +2490,6 @@ static int ti_sci_cmd_set_fwl_region(const struct ti_sci_handle *handle,
 	if (ret)
 		return ret;
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
-
 	return 0;
 }
 
@@ -2644,9 +2533,6 @@ static int ti_sci_cmd_get_fwl_region(const struct ti_sci_handle *handle,
 		return ret;
 
 	resp = (struct ti_sci_msg_fwl_get_firewall_region_resp *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	region->fwl_id = resp->fwl_id;
 	region->region = resp->region;
@@ -2701,9 +2587,6 @@ static int ti_sci_cmd_change_fwl_owner(const struct ti_sci_handle *handle,
 		return ret;
 
 	resp = (struct ti_sci_msg_fwl_change_owner_info_resp *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	owner->fwl_id = resp->fwl_id;
 	owner->region = resp->region;
