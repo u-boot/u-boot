@@ -5,3 +5,7 @@
 obj-y += lowlevel_init.o
 obj-y += soc.o clock.o clock_root.o trdc.o
 obj-$(CONFIG_AHAB_BOOT) += ahab.o
+
+#ifndef CONFIG_SPL_BUILD
+obj-y += imx_bootaux.o
+#endif

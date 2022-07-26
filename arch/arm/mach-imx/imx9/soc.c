@@ -132,6 +132,14 @@ static struct mm_region imx93_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_OUTER_SHARE
 	}, {
+		/* TCM */
+		.virt = 0x201c0000UL,
+		.phys = 0x201c0000UL,
+		.size = 0x80000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
 		/* OCRAM */
 		.virt = 0x20480000UL,
 		.phys = 0x20480000UL,
@@ -380,7 +388,7 @@ void soc_power_init(void)
 	disable_isolation();
 }
 
-static bool m33_is_rom_kicked(void)
+bool m33_is_rom_kicked(void)
 {
 	struct blk_ctrl_s_aonmix_regs *s_regs =
 			(struct blk_ctrl_s_aonmix_regs *)BLK_CTRL_S_ANOMIX_BASE_ADDR;
