@@ -90,7 +90,7 @@ struct arch_global_data {
 	struct udevice *scu_dev;
 #endif
 
-#ifdef CONFIG_ARCH_IMX8ULP
+#ifdef CONFIG_IMX_SENTINEL
 	struct udevice *s400_dev;
 #endif
 

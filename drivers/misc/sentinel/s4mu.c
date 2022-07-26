@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright 2020 NXP
+ * Copyright 2020-2022 NXP
  */
 
 #include <common.h>
@@ -9,7 +9,7 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
-#include <asm/arch/s400_api.h>
+#include <asm/mach-imx/s400_api.h>
 #include <asm/arch/imx-regs.h>
 #include <linux/iopoll.h>
 #include <misc.h>

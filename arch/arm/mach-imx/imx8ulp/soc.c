@@ -14,8 +14,8 @@
 #include <event.h>
 #include <spl.h>
 #include <asm/arch/rdc.h>
-#include <asm/arch/s400_api.h>
-#include <asm/arch/mu_hal.h>
+#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/mu_hal.h>
 #include <cpu_func.h>
 #include <asm/setup.h>
 #include <dm.h>

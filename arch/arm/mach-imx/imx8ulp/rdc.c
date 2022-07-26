@@ -8,8 +8,8 @@
 #include <asm/types.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/mu_hal.h>
-#include <asm/arch/s400_api.h>
+#include <asm/mach-imx/mu_hal.h>
+#include <asm/mach-imx/s400_api.h>
 #include <asm/arch/rdc.h>
 #include <div64.h>
 

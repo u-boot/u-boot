@@ -9,7 +9,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm.h>
-#include <asm/arch/s400_api.h>
+#include <asm/mach-imx/s400_api.h>
 #include <misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -275,8 +275,8 @@ int ahab_release_caam(u32 core_did, u32 *response)
 int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
 {
 	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct imx8ulp_s400_msg);
-	struct imx8ulp_s400_msg msg;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
 	int ret;
 
 	if (!dev) {

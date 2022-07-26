@@ -10,7 +10,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/imx-regs.h>
 #include <env.h>
-#include <asm/arch/s400_api.h>
+#include <asm/mach-imx/s400_api.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;

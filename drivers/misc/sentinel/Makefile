@@ -1,3 +1,3 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-obj-$(CONFIG_CMD_FUSE) += fuse.o
+obj-y += s400_api.o s4mu.o

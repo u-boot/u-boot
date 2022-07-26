@@ -19,7 +19,7 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/rdc.h>
 #include <asm/arch/upower.h>
-#include <asm/arch/s400_api.h>
+#include <asm/mach-imx/s400_api.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
