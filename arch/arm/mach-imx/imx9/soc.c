@@ -34,6 +34,45 @@ u32 get_cpu_rev(void)
 	return (MXC_CPU_IMX93 << 12) | CHIP_REV_1_0;
 }
 
+#define UNLOCK_WORD 0xD928C520 /* unlock word */
+#define REFRESH_WORD 0xB480A602 /* refresh word */
+
+static void disable_wdog(void __iomem *wdog_base)
+{
+	u32 val_cs = readl(wdog_base + 0x00);
+
+	if (!(val_cs & 0x80))
+		return;
+
+	/* default is 32bits cmd */
+	writel(REFRESH_WORD, (wdog_base + 0x04)); /* Refresh the CNT */
+
+	if (!(val_cs & 0x800)) {
+		writel(UNLOCK_WORD, (wdog_base + 0x04));
+		while (!(readl(wdog_base + 0x00) & 0x800))
+			;
+	}
+	writel(0x0, (wdog_base + 0x0C)); /* Set WIN to 0 */
+	writel(0x400, (wdog_base + 0x08)); /* Set timeout to default 0x400 */
+	writel(0x2120, (wdog_base + 0x00)); /* Disable it and set update */
+
+	while (!(readl(wdog_base + 0x00) & 0x400))
+		;
+}
+
+void init_wdog(void)
+{
+	u32 src_val;
+
+	disable_wdog((void __iomem *)WDG3_BASE_ADDR);
+	disable_wdog((void __iomem *)WDG4_BASE_ADDR);
+	disable_wdog((void __iomem *)WDG5_BASE_ADDR);
+
+	src_val = readl(0x54460018); /* reset mask */
+	src_val &= ~0x1c;
+	writel(src_val, 0x54460018);
+}
+
 static struct mm_region imx93_mem_map[] = {
 	{
 		/* ROM */
@@ -123,8 +162,12 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 
 int arch_cpu_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		/* Disable wdog */
+		init_wdog();
+
 		clock_init();
+	}
 
 	return 0;
 }
