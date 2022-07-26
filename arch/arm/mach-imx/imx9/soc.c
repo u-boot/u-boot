@@ -123,5 +123,8 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 
 int arch_cpu_init(void)
 {
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		clock_init();
+
 	return 0;
 }
