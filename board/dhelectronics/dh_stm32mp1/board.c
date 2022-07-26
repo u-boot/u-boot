@@ -42,6 +42,7 @@
 #include <usb/dwc2_udc.h>
 #include <watchdog.h>
 #include <dm/ofnode.h>
+#include "../common/dh_common.h"
 #include "../../st/common/stpmic1.h"
 
 /* SYSCFG registers */
@@ -84,36 +85,17 @@
 #define KS_CIDER	0xC0
 #define CIDER_ID	0x8870
 
-int setup_mac_address(void)
+static bool dh_stm32_mac_is_in_ks8851(void)
 {
-	unsigned char enetaddr[6];
-	bool skip_eth0 = false;
-	bool skip_eth1 = false;
-	struct udevice *dev;
-	int ret;
 	ofnode node;
-
-	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
-	if (ret)	/* ethaddr is already set */
-		skip_eth0 = true;
+	u32 reg, cider, ccr;
 
 	node = ofnode_path("ethernet1");
-	if (!ofnode_valid(node)) {
-		/* ethernet1 is not present in the system */
-		skip_eth1 = true;
-		goto out_set_ethaddr;
-	}
+	if (!ofnode_valid(node))
+		return false;
 
-	ret = eth_env_get_enetaddr("eth1addr", enetaddr);
-	if (ret) {
-		/* eth1addr is already set */
-		skip_eth1 = true;
-		goto out_set_ethaddr;
-	}
-
-	ret = ofnode_device_is_compatible(node, "micrel,ks8851-mll");
-	if (ret)
-		goto out_set_ethaddr;
+	if (ofnode_device_is_compatible(node, "micrel,ks8851-mll"))
+		return false;
 
 	/*
 	 * KS8851 with EEPROM may use custom MAC from EEPROM, read
@@ -121,55 +103,61 @@ int setup_mac_address(void)
 	 * is present. If EEPROM is present, it must contain valid
 	 * MAC address.
 	 */
-	u32 reg, cider, ccr;
 	reg = ofnode_get_addr(node);
 	if (!reg)
-		goto out_set_ethaddr;
+		return false;
 
 	writew(KS_BE0 | KS_BE1 | KS_CIDER, reg + 2);
 	cider = readw(reg);
-	if ((cider & 0xfff0) != CIDER_ID) {
-		skip_eth1 = true;
-		goto out_set_ethaddr;
-	}
+	if ((cider & 0xfff0) != CIDER_ID)
+		return true;
 
 	writew(KS_BE0 | KS_BE1 | KS_CCR, reg + 2);
 	ccr = readw(reg);
-	if (ccr & KS_CCR_EEPROM) {
-		skip_eth1 = true;
-		goto out_set_ethaddr;
-	}
+	if (ccr & KS_CCR_EEPROM)
+		return true;
 
-out_set_ethaddr:
-	if (skip_eth0 && skip_eth1)
+	return false;
+}
+
+static int dh_stm32_setup_ethaddr(void)
+{
+	unsigned char enetaddr[6];
+
+	if (dh_mac_is_in_env("ethaddr"))
 		return 0;
 
-	node = ofnode_path("eeprom0");
-	if (!ofnode_valid(node)) {
-		printf("%s: No eeprom0 path offset\n", __func__);
-		return -ENOENT;
-	}
+	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0"))
+		return eth_env_set_enetaddr("ethaddr", enetaddr);
 
-	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, node, &dev);
-	if (ret) {
-		printf("Cannot find EEPROM!\n");
-		return ret;
-	}
+	return -ENXIO;
+}
 
-	ret = i2c_eeprom_read(dev, 0xfa, enetaddr, 0x6);
-	if (ret) {
-		printf("Error reading configuration EEPROM!\n");
-		return ret;
-	}
+static int dh_stm32_setup_eth1addr(void)
+{
+	unsigned char enetaddr[6];
 
-	if (is_valid_ethaddr(enetaddr)) {
-		if (!skip_eth0)
-			eth_env_set_enetaddr("ethaddr", enetaddr);
+	if (dh_mac_is_in_env("eth1addr"))
+		return 0;
 
+	if (dh_stm32_mac_is_in_ks8851())
+		return 0;
+
+	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0")) {
 		enetaddr[5]++;
-		if (!skip_eth1)
-			eth_env_set_enetaddr("eth1addr", enetaddr);
+		return eth_env_set_enetaddr("eth1addr", enetaddr);
 	}
+
+	return -ENXIO;
+}
+
+int setup_mac_address(void)
+{
+	if (dh_stm32_setup_ethaddr())
+		log_err("%s: Unable to setup ethaddr!\n", __func__);
+
+	if (dh_stm32_setup_eth1addr())
+		log_err("%s: Unable to setup eth1addr!\n", __func__);
 
 	return 0;
 }
