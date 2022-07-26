@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <binman_sym.h>
 #include <log.h>
 #include <spl.h>
 #include <asm/global_data.h>
@@ -24,15 +25,30 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DMEM_OFFSET_ADDR 0x00054000
 #define DDR_TRAIN_CODE_BASE_ADDR IP2APB_DDRPHY_IPS_BASE_ADDR(0)
 
+binman_sym_declare(ulong, ddr_1d_imem_fw, image_pos);
+binman_sym_declare(ulong, ddr_1d_imem_fw, size);
+
+binman_sym_declare(ulong, ddr_1d_dmem_fw, image_pos);
+binman_sym_declare(ulong, ddr_1d_dmem_fw, size);
+
+#if !IS_ENABLED(CONFIG_IMX8M_DDR3L)
+binman_sym_declare(ulong, ddr_2d_imem_fw, image_pos);
+binman_sym_declare(ulong, ddr_2d_imem_fw, size);
+
+binman_sym_declare(ulong, ddr_2d_dmem_fw, image_pos);
+binman_sym_declare(ulong, ddr_2d_dmem_fw, size);
+#endif
+
 /* We need PHY iMEM PHY is 32KB padded */
 void ddr_load_train_firmware(enum fw_type type)
 {
 	u32 tmp32, i;
 	u32 error = 0;
 	unsigned long pr_to32, pr_from32;
-	unsigned long fw_offset = type ? IMEM_2D_OFFSET : 0;
+	uint32_t fw_offset = type ? IMEM_2D_OFFSET : 0;
 	unsigned long imem_start = (unsigned long)&_end + fw_offset;
 	unsigned long dmem_start;
+	unsigned long imem_len = IMEM_LEN, dmem_len = DMEM_LEN;
 
 #ifdef CONFIG_SPL_OF_CONTROL
 	if (gd->fdt_blob && !fdt_check_header(gd->fdt_blob)) {
@@ -42,11 +58,30 @@ void ddr_load_train_firmware(enum fw_type type)
 	}
 #endif
 
-	dmem_start = imem_start + IMEM_LEN;
+	dmem_start = imem_start + imem_len;
+
+	if (BINMAN_SYMS_OK) {
+		switch (type) {
+		case FW_1D_IMAGE:
+			imem_start = binman_sym(ulong, ddr_1d_imem_fw, image_pos);
+			imem_len = binman_sym(ulong, ddr_1d_imem_fw, size);
+			dmem_start = binman_sym(ulong, ddr_1d_dmem_fw, image_pos);
+			dmem_len = binman_sym(ulong, ddr_1d_dmem_fw, size);
+			break;
+		case FW_2D_IMAGE:
+#if !IS_ENABLED(CONFIG_IMX8M_DDR3L)
+			imem_start = binman_sym(ulong, ddr_2d_imem_fw, image_pos);
+			imem_len = binman_sym(ulong, ddr_2d_imem_fw, size);
+			dmem_start = binman_sym(ulong, ddr_2d_dmem_fw, image_pos);
+			dmem_len = binman_sym(ulong, ddr_2d_dmem_fw, size);
+#endif
+			break;
+		}
+	}
 
 	pr_from32 = imem_start;
 	pr_to32 = IMEM_OFFSET_ADDR;
-	for (i = 0x0; i < IMEM_LEN; ) {
+	for (i = 0x0; i < imem_len; ) {
 		tmp32 = readl(pr_from32);
 		writew(tmp32 & 0x0000ffff, DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32));
 		pr_to32 += 1;
@@ -59,7 +94,7 @@ void ddr_load_train_firmware(enum fw_type type)
 
 	pr_from32 = dmem_start;
 	pr_to32 = DMEM_OFFSET_ADDR;
-	for (i = 0x0; i < DMEM_LEN; ) {
+	for (i = 0x0; i < dmem_len; ) {
 		tmp32 = readl(pr_from32);
 		writew(tmp32 & 0x0000ffff, DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32));
 		pr_to32 += 1;
@@ -73,7 +108,7 @@ void ddr_load_train_firmware(enum fw_type type)
 	debug("check ddr_pmu_train_imem code\n");
 	pr_from32 = imem_start;
 	pr_to32 = IMEM_OFFSET_ADDR;
-	for (i = 0x0; i < IMEM_LEN; ) {
+	for (i = 0x0; i < imem_len; ) {
 		tmp32 = (readw(DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32)) & 0x0000ffff);
 		pr_to32 += 1;
 		tmp32 += ((readw(DDR_TRAIN_CODE_BASE_ADDR +
@@ -95,7 +130,7 @@ void ddr_load_train_firmware(enum fw_type type)
 	debug("check ddr4_pmu_train_dmem code\n");
 	pr_from32 = dmem_start;
 	pr_to32 = DMEM_OFFSET_ADDR;
-	for (i = 0x0; i < DMEM_LEN;) {
+	for (i = 0x0; i < dmem_len;) {
 		tmp32 = (readw(DDR_TRAIN_CODE_BASE_ADDR + ddrphy_addr_remap(pr_to32)) & 0x0000ffff);
 		pr_to32 += 1;
 		tmp32 += ((readw(DDR_TRAIN_CODE_BASE_ADDR +
