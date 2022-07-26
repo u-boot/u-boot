@@ -12,6 +12,10 @@ config IMXRT1050
 	bool
 	select IMXRT
 
+config IMXRT1170
+	bool
+	select IMXRT
+
 config SYS_SOC
 	default "imxrt"
 
@@ -27,9 +31,14 @@ config TARGET_IMXRT1050_EVK
 	bool "Support imxrt1050 EVK board"
 	select IMXRT1050
 
+config TARGET_IMXRT1170_EVK
+	bool "Support imxrt1170 EVK board"
+	select IMXRT1170
+
 endchoice
 
 source "board/freescale/imxrt1020-evk/Kconfig"
 source "board/freescale/imxrt1050-evk/Kconfig"
+source "board/freescale/imxrt1170-evk/Kconfig"
 
 endif
