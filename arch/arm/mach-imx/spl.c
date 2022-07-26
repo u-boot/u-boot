@@ -177,7 +177,7 @@ u32 spl_boot_device(void)
 	case QSPI_BOOT:
 		return BOOT_DEVICE_NOR;
 	case USB_BOOT:
-		return BOOT_DEVICE_USB;
+		return BOOT_DEVICE_BOARD;
 	default:
 		return BOOT_DEVICE_NONE;
 	}
