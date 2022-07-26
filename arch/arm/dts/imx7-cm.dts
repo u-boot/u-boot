@@ -93,7 +93,7 @@
 	};
 };
 
-&qspi1 {
+&qspi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_qspi1_1>;
 	status = "okay";

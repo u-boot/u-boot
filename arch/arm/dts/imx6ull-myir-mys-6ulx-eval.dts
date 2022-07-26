@@ -7,7 +7,6 @@
 /dts-v1/;
 #include "imx6ull.dtsi"
 #include "imx6ull-myir-mys-6ulx.dtsi"
-#include "imx6ull-mys-6ulx-u-boot.dtsi"
 
 / {
 	model = "MYiR i.MX6ULL MYS-6ULX Single Board Computer with NAND";
@@ -15,5 +14,6 @@
 };
 
 &gpmi {
+	fsl,use-minimum-ecc;
 	status = "okay";
 };

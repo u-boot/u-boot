@@ -3,7 +3,9 @@ M:	Marcel Ziswiler <marcel.ziswiler@toradex.com>
 W:	http://developer.toradex.com/software/linux/linux-software
 W:      https://www.toradex.com/community
 S:	Maintained
+F:	arch/arm/dts/imx6q-apalis-eval.dts
+F:	arch/arm/dts/imx6q-apalis-eval-u-boot.dtsi
+F:	arch/arm/dts/imx6qdl-apalis.dtsi
 F:	board/toradex/apalis_imx6/
-F:	include/configs/apalis_imx6.h
 F:	configs/apalis_imx6_defconfig
-F:	arch/arm/dts/imx6-apalis.dts
+F:	include/configs/apalis_imx6.h

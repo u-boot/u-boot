@@ -115,10 +115,11 @@ int show_board_info(void)
 
 		env_set("serial#", tdx_serial_str);
 
-		printf("Model: Toradex %s %s, Serial# %s\n",
-		       toradex_modules[tdx_hw_tag.prodid],
-		       tdx_board_rev_str,
-		       tdx_serial_str);
+		printf("Model: Toradex %04d %s %s\n",
+		       tdx_hw_tag.prodid,
+		       toradex_modules[tdx_hw_tag.prodid].name,
+		       tdx_board_rev_str);
+		printf("Serial#: %s\n", tdx_serial_str);
 #ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
 		if (read_tdx_cfg_block_carrier()) {
 			printf("MISSING TORADEX CARRIER CONFIG BLOCKS\n");
@@ -151,8 +152,8 @@ int show_board_info(void)
 	if (!eth_env_get_enetaddr("ethaddr", ethaddr))
 		eth_env_set_enetaddr("ethaddr", (u8 *)&tdx_eth_addr);
 
-#ifdef CONFIG_TDX_CFG_BLOCK_2ND_ETHADDR
-	if (!eth_env_get_enetaddr("eth1addr", ethaddr)) {
+	if (IS_ENABLED(CONFIG_TDX_CFG_BLOCK_2ND_ETHADDR) &&
+	    !eth_env_get_enetaddr("eth1addr", ethaddr)) {
 		/*
 		 * Secondary MAC address is allocated from block
 		 * 0x100000 higher then the first MAC address
@@ -161,7 +162,6 @@ int show_board_info(void)
 		ethaddr[3] += 0x10;
 		eth_env_set_enetaddr("eth1addr", ethaddr);
 	}
-#endif
 
 	return 0;
 }

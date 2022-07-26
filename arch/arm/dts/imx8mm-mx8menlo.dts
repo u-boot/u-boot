@@ -3,7 +3,9 @@
  * Copyright 2021-2022 Marek Vasut <marex@denx.de>
  */
 
-#include "imx8mm-verdin.dts"
+/dts-v1/;
+
+#include "imx8mm-verdin.dtsi"
 
 / {
 	model = "MENLO MX8MM EMBEDDED DEVICE";
@@ -37,6 +39,13 @@
 		pinctrl-0 = <&pinctrl_beeper>;
 		gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
 	};
+
+	/* Fixed clock dedicated to SPI CAN on carrier board */
+	clk_xtal20: clk-xtal20 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <20000000>;
+	};
 };
 
 &ecspi1 {
@@ -50,13 +59,11 @@
 	/* CAN controller on the baseboard */
 	canfd: can@0 {
 		compatible = "microchip,mcp2518fd";
-		clocks = <&clk20m>;
-		gpio-controller;
+		clocks = <&clk_xtal20>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <8 IRQ_TYPE_EDGE_FALLING>;
 		reg = <0>;
 		spi-max-frequency = <2000000>;
-		status = "okay";
 	};
 
 };
@@ -64,7 +71,20 @@
 &ecspi2 {
 	pinctrl-0 = <&pinctrl_ecspi2 &pinctrl_gpio1>;
 	cs-gpios = <&gpio5 13 GPIO_ACTIVE_LOW>, <&gpio3 4 GPIO_ACTIVE_LOW>;
-	status = "disabled";
+	status = "okay";
+
+	spidev@0 {
+		compatible = "menlo,m53cpld";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+
+	spidev@1 {
+		compatible = "menlo,m53cpld";
+		reg = <1>;
+		spi-max-frequency = <25000000>;
+	};
+
 };
 
 &ethphy0 {
@@ -158,30 +178,20 @@
 	status = "okay";
 };
 
-&i2c1 {
-	/* IMX8MM ERRATA e7805 -- I2C is limited to 384 kHz due to SoC bug */
-	clock-frequency = <100000>;
-};
-
-&i2c2 {
-	/* IMX8MM ERRATA e7805 -- I2C is limited to 384 kHz due to SoC bug */
-	clock-frequency = <100000>;
+&hwmon {
+	status = "okay";
 };
 
 &i2c3 {
-	/* IMX8MM ERRATA e7805 -- I2C is limited to 384 kHz due to SoC bug */
-	clock-frequency = <100000>;
 	status = "okay";
 };
 
 &i2c4 {
-	/* IMX8MM ERRATA e7805 -- I2C is limited to 384 kHz due to SoC bug */
-	clock-frequency = <100000>;
+	/* None of this is present on the SoM. */
 	/delete-node/ bridge@2c;
-	/delete-node/ hwmon@40;
 	/delete-node/ hdmi@48;
 	/delete-node/ touch@4a;
-	/delete-node/ hwmontemp@4f;
+	/delete-node/ sensor@4f;
 	/delete-node/ eeprom@50;
 	/delete-node/ eeprom@57;
 };
@@ -299,7 +309,6 @@
 };
 
 &uart2 {
-	uart-has-rtscts;
 	status = "okay";
 };
 
@@ -311,7 +320,7 @@
 };
 
 &usbotg1 {
-	dr_mode = "gadget";
+	dr_mode = "peripheral";
 	status = "okay";
 };
 

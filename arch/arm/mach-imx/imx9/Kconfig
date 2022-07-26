@@ -1,0 +1,34 @@
+if ARCH_IMX9
+
+config AHAB_BOOT
+    bool "Support i.MX9 AHAB features"
+    help
+    This option enables the support for AHAB secure boot.
+
+config IMX9
+	bool
+	select HAS_CAAM
+	select ROM_UNIFIED_SECTIONS
+
+config IMX93
+	bool
+	select IMX9
+	select ARMV8_SPL_EXCEPTION_VECTORS
+
+config SYS_SOC
+	default "imx9"
+
+choice
+	prompt  "NXP i.MX9 board select"
+	optional
+
+config TARGET_IMX93_11X11_EVK
+	bool "imx93_11x11_evk"
+	select IMX93
+
+endchoice
+
+source "board/freescale/imx93_evk/Kconfig"
+
+endif
+

@@ -259,7 +259,7 @@ F:	arch/arm/cpu/arm926ejs/mx*/
 F:	arch/arm/cpu/armv7/vf610/
 F:	arch/arm/dts/*imx*
 F:	arch/arm/mach-imx/
-F:	arch/arm/include/asm/arch-imx/
+F:	arch/arm/include/asm/arch-imx*/
 F:	arch/arm/include/asm/arch-mx*/
 F:	arch/arm/include/asm/arch-vf610/
 F:	arch/arm/include/asm/mach-imx/

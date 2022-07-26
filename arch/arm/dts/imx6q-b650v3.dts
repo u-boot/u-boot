@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Copyright 2015 Timesys Corporation.
  * Copyright 2015 General Electric Company
@@ -66,13 +65,6 @@
 	};
 };
 
-&clks {
-	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
-			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>;
-	assigned-clock-parents = <&clks IMX6QDL_CLK_PLL3_USB_OTG>,
-				 <&clks IMX6QDL_CLK_PLL3_USB_OTG>;
-};
-
 &ldb {
 	status = "okay";
 
@@ -92,7 +84,12 @@
 };
 
 &pca9539 {
-	P07 {
+	gpio-line-names = "AMB_P_INT1#", "AMB_P_INT2#", "BT_EN", "WLAN_EN",
+			  "", "SM_D_ACT", "DP1_RST#", "",
+			  "WD15S_EN", "WD15S_DIS#", "", "",
+			  "", "", "", "";
+
+	P07-hog {
 		gpio-hog;
 		gpios = <7 0>;
 		output-low;
@@ -157,5 +154,3 @@
 		};
 	};
 };
-
-#include "imx6q-bx50v3-uboot.dtsi"

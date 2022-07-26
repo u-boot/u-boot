@@ -130,27 +130,27 @@
 			filename = "u-boot-spl.bin";
 		};
 
-		1d-imem {
+		ddr-1d-imem-fw {
 			filename = "ddr4_imem_1d.bin";
-			size = <0x8000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 
-		1d_dmem {
+		ddr-1d-dmem-fw {
 			filename = "ddr4_dmem_1d.bin";
-			size = <0x4000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 
-		2d_imem {
+		ddr-2d-imem-fw {
 			filename = "ddr4_imem_2d.bin";
-			size = <0x8000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 
-		2d_dmem {
+		ddr-2d-dmem-fw {
 			filename = "ddr4_dmem_2d.bin";
-			size = <0x4000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 	};

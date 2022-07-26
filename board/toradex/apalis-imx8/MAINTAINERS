@@ -2,8 +2,8 @@ Apalis iMX8
 M:	Marcel Ziswiler <marcel.ziswiler@toradex.com>
 W:	http://developer.toradex.com/software/linux/linux-software
 S:	Maintained
-F:	arch/arm/dts/fsl-imx8-apalis.dts
-F:	arch/arm/dts/fsl-imx8-apalis-u-boot.dtsi
+F:	arch/arm/dts/fsl-imx8qm-apalis.dts
+F:	arch/arm/dts/fsl-imx8qm-apalis-u-boot.dtsi
 F:	board/toradex/apalis-imx8/
 F:	configs/apalis-imx8_defconfig
 F:	doc/board/toradex/apalis-imx8.rst

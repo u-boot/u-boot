@@ -5,6 +5,7 @@
 
 /dts-v1/;
 
+#include <dt-bindings/phy/phy-imx8-pcie.h>
 #include <dt-bindings/usb/pd.h>
 #include "imx8mm.dtsi"
 
@@ -30,6 +31,23 @@
 		};
 	};
 
+	pcie0_refclk: pcie0-refclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
+	reg_pcie0: regulator-pcie {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pcie0_reg>;
+		regulator-name = "MPCIE_3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
 	reg_usdhc2_vmmc: regulator-usdhc2 {
 		compatible = "regulator-fixed";
 		pinctrl-names = "default";
@@ -42,9 +60,8 @@
 	};
 
 	backlight: backlight {
-		status = "disabled";
 		compatible = "pwm-backlight";
-		pwms = <&pwm1 0 5000000>;
+		pwms = <&pwm1 0 5000000 0>;
 		brightness-levels = <0 255>;
 		num-interpolated-steps = <255>;
 		default-brightness-level = <250>;
@@ -125,6 +142,13 @@
 			reg = <0>;
 			reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
 			reset-assert-us = <10000>;
+			qca,disable-smarteee;
+			vddio-supply = <&vddio>;
+
+			vddio: vddio-regulator {
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
 		};
 	};
 };
@@ -135,120 +159,115 @@
 	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
 
-	pmic: pca9450@25 {
-		reg = <0x25>;
-		compatible = "nxp,pca9450a";
-		/* PMIC PCA9450 PMIC_nINT GPIO1_IO3 */
+	pmic@4b {
+		compatible = "rohm,bd71847";
+		reg = <0x4b>;
+		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pmic>;
-		gpio_intr = <&gpio1 3 GPIO_ACTIVE_LOW>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+		rohm,reset-snvs-powered;
+
+		#clock-cells = <0>;
+		clocks = <&osc_32k 0>;
+		clock-output-names = "clk-32k-out";
 
 		regulators {
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			pca9450,pmic-buck2-uses-i2c-dvs;
-			/* Run/Standby voltage */
-			pca9450,pmic-buck2-dvs-voltage = <950000>, <850000>;
-
-			buck1_reg: regulator@0 {
-				reg = <0>;
-				regulator-compatible = "buck1";
-				regulator-min-microvolt = <600000>;
-				regulator-max-microvolt = <2187500>;
+			buck1_reg: BUCK1 {
+				regulator-name = "buck1";
+				regulator-min-microvolt = <700000>;
+				regulator-max-microvolt = <1300000>;
 				regulator-boot-on;
 				regulator-always-on;
-				regulator-ramp-delay = <3125>;
+				regulator-ramp-delay = <1250>;
 			};
 
-			buck2_reg: regulator@1 {
-				reg = <1>;
-				regulator-compatible = "buck2";
-				regulator-min-microvolt = <600000>;
-				regulator-max-microvolt = <2187500>;
+			buck2_reg: BUCK2 {
+				regulator-name = "buck2";
+				regulator-min-microvolt = <700000>;
+				regulator-max-microvolt = <1300000>;
 				regulator-boot-on;
 				regulator-always-on;
-				regulator-ramp-delay = <3125>;
+				regulator-ramp-delay = <1250>;
+				rohm,dvs-run-voltage = <1000000>;
+				rohm,dvs-idle-voltage = <900000>;
 			};
 
-			buck3_reg: regulator@2 {
-				reg = <2>;
-				regulator-compatible = "buck3";
-				regulator-min-microvolt = <600000>;
-				regulator-max-microvolt = <2187500>;
+			buck3_reg: BUCK3 {
+				// BUCK5 in datasheet
+				regulator-name = "buck3";
+				regulator-min-microvolt = <700000>;
+				regulator-max-microvolt = <1350000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			buck4_reg: regulator@3 {
-				reg = <3>;
-				regulator-compatible = "buck4";
-				regulator-min-microvolt = <600000>;
-				regulator-max-microvolt = <3400000>;
+			buck4_reg: BUCK4 {
+				// BUCK6 in datasheet
+				regulator-name = "buck4";
+				regulator-min-microvolt = <3000000>;
+				regulator-max-microvolt = <3300000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			buck5_reg: regulator@4 {
-				reg = <4>;
-				regulator-compatible = "buck5";
-				regulator-min-microvolt = <600000>;
-				regulator-max-microvolt = <3400000>;
+			buck5_reg: BUCK5 {
+				// BUCK7 in datasheet
+				regulator-name = "buck5";
+				regulator-min-microvolt = <1605000>;
+				regulator-max-microvolt = <1995000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			buck6_reg: regulator@5 {
-				reg = <5>;
-				regulator-compatible = "buck6";
-				regulator-min-microvolt = <600000>;
-				regulator-max-microvolt = <3400000>;
+			buck6_reg: BUCK6 {
+				// BUCK8 in datasheet
+				regulator-name = "buck6";
+				regulator-min-microvolt = <800000>;
+				regulator-max-microvolt = <1400000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			ldo1_reg: regulator@6 {
-				reg = <6>;
-				regulator-compatible = "ldo1";
+			ldo1_reg: LDO1 {
+				regulator-name = "ldo1";
 				regulator-min-microvolt = <1600000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			ldo2_reg: regulator@7 {
-				reg = <7>;
-				regulator-compatible = "ldo2";
+			ldo2_reg: LDO2 {
+				regulator-name = "ldo2";
 				regulator-min-microvolt = <800000>;
-				regulator-max-microvolt = <1150000>;
+				regulator-max-microvolt = <900000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
-			ldo3_reg: regulator@8 {
-				reg = <8>;
-				regulator-compatible = "ldo3";
-				regulator-min-microvolt = <800000>;
-				regulator-max-microvolt = <3300000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-
-			ldo4_reg: regulator@9 {
-				reg = <9>;
-				regulator-compatible = "ldo4";
-				regulator-min-microvolt = <800000>;
-				regulator-max-microvolt = <3300000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-
-			ldo5_reg: regulator@10 {
-				reg = <10>;
-				regulator-compatible = "ldo5";
+			ldo3_reg: LDO3 {
+				regulator-name = "ldo3";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
+				regulator-boot-on;
+				regulator-always-on;
 			};
 
+			ldo4_reg: LDO4 {
+				regulator-name = "ldo4";
+				regulator-min-microvolt = <900000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+
+			ldo6_reg: LDO6 {
+				regulator-name = "ldo6";
+				regulator-min-microvolt = <900000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
 		};
 	};
 };
@@ -303,6 +322,30 @@
 	};
 };
 
+&pcie_phy {
+	fsl,refclk-pad-mode = <IMX8_PCIE_REFCLK_PAD_INPUT>;
+	fsl,tx-deemph-gen1 = <0x2d>;
+	fsl,tx-deemph-gen2 = <0xf>;
+	clocks = <&pcie0_refclk>;
+	status = "okay";
+};
+
+&pcie0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pcie0>;
+	reset-gpio = <&gpio4 21 GPIO_ACTIVE_LOW>;
+	clocks = <&clk IMX8MM_CLK_PCIE1_ROOT>, <&clk IMX8MM_CLK_PCIE1_AUX>,
+		 <&pcie0_refclk>;
+	clock-names = "pcie", "pcie_aux", "pcie_bus";
+	assigned-clocks = <&clk IMX8MM_CLK_PCIE1_AUX>,
+			  <&clk IMX8MM_CLK_PCIE1_CTRL>;
+	assigned-clock-rates = <10000000>, <250000000>;
+	assigned-clock-parents = <&clk IMX8MM_SYS_PLL2_50M>,
+				 <&clk IMX8MM_SYS_PLL2_250M>;
+	vpcie-supply = <&reg_pcie0>;
+	status = "okay";
+};
+
 &sai3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sai3>;
@@ -328,6 +371,7 @@
 	srp-disable;
 	adp-disable;
 	usb-role-switch;
+	disable-over-current;
 	samsung,picophy-pre-emp-curr-control = <3>;
 	samsung,picophy-dc-vol-level-adjust = <7>;
 	status = "okay";
@@ -362,7 +406,7 @@
 &pwm1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_backlight>;
-	status = "disabled";
+	status = "okay";
 };
 
 &iomuxc {
@@ -422,6 +466,19 @@
 		fsl,pins = <
 			MX8MM_IOMUXC_I2C3_SCL_I2C3_SCL			0x400001c3
 			MX8MM_IOMUXC_I2C3_SDA_I2C3_SDA			0x400001c3
+		>;
+	};
+
+	pinctrl_pcie0: pcie0grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_I2C4_SCL_PCIE1_CLKREQ_B    0x61
+			MX8MM_IOMUXC_SAI2_RXFS_GPIO4_IO21       0x41
+		>;
+	};
+
+	pinctrl_pcie0_reg: pcie0reggrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO05_GPIO1_IO5       0x41
 		>;
 	};
 

@@ -86,7 +86,7 @@ int power_init_board(void)
 	int ret;
 
 	if (IS_ENABLED(CONFIG_SPL_DM_PMIC_PCA9450)) {
-		ret = pmic_get("pmic", &dev);
+		ret = pmic_get("pmic@25", &dev);
 		if (ret == -ENODEV) {
 			puts("No pmic found\n");
 			return ret;

@@ -92,6 +92,8 @@ machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 machine-$(CONFIG_ARCH_ZYNQMP)		+= zynqmp
 machine-$(CONFIG_ARCH_ZYNQMP_R5)	+= zynqmp-r5
 
+machine-$(CONFIG_MACH_IMX)		+= imx
+
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 
 PLATFORM_CPPFLAGS += $(patsubst %,-I$(srctree)/%include,$(machdirs))
@@ -109,16 +111,6 @@ endif
 libs-y += arch/arm/cpu/$(CPU)/
 libs-y += arch/arm/cpu/
 libs-y += arch/arm/lib/
-
-ifeq ($(CONFIG_SPL_BUILD),y)
-ifneq (,$(CONFIG_MX23)$(CONFIG_MX28)$(filter $(SOC), mx25 mx5 mx6 mx7 mx35 imx8m imx8 imx8ulp imxrt))
-libs-y += arch/arm/mach-imx/
-endif
-else
-ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx7 mx7ulp mx31 mx35 mxs imx8m imx8 imx8ulp imxrt vf610))
-libs-y += arch/arm/mach-imx/
-endif
-endif
 
 ifneq (,$(filter $(SOC), kirkwood))
 libs-y += arch/arm/mach-mvebu/

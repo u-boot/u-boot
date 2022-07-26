@@ -729,8 +729,7 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-cubieboard4.dtb \
 	sun9i-a80-cx-a99.dtb
 
-dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
-	vf610-colibri.dtb \
+dtb-$(CONFIG_VF610) += vf610-colibri-eval-v3.dtb \
 	vf610-twr.dtb \
 	vf610-pcm052.dtb \
 	vf610-bk4r1.dtb
@@ -803,7 +802,7 @@ endif
 
 ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
 dtb-y += \
-	imx6-apalis.dtb \
+	imx6q-apalis-eval.dtb \
 	imx6q-bosch-acc.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-cubox-i.dtb \
@@ -885,8 +884,8 @@ dtb-$(CONFIG_MX6UL) += \
 
 dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
-	imx6ull-colibri.dtb \
-	imx6ull-colibri-emmc.dtb \
+	imx6ull-colibri-emmc-eval-v3.dtb \
+	imx6ull-colibri-eval-v3.dtb \
 	imx6ull-myir-mys-6ulx-eval.dtb \
 	imx6ull-seeed-npi-imx6ull-dev-board.dtb \
 	imx6ull-phytec-segin-ff-rdk-emmc.dtb \
@@ -895,8 +894,8 @@ dtb-$(CONFIG_MX6ULL) += \
 	imx6ulz-14x14-evk.dtb
 
 dtb-$(CONFIG_ARCH_MX6) += \
-	imx6-apalis.dtb \
-	imx6-colibri.dtb
+	imx6q-apalis-eval.dtb \
+	imx6dl-colibri-eval-v3.dtb
 
 dtb-$(CONFIG_O4_IMX_NANO) += \
 	o4-imx-nano.dtb
@@ -907,8 +906,8 @@ dtb-$(CONFIG_EV_IMX280_NANO_X_MB) += \
 dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \
 	imx7-cm.dtb \
-	imx7-colibri-emmc.dtb \
-	imx7-colibri-rawnand.dtb \
+	imx7d-colibri-emmc-eval-v3.dtb \
+	imx7d-colibri-eval-v3.dtb \
 	imx7s-warp.dtb \
 	imx7d-meerkat96.dtb \
 	imx7d-pico-pi.dtb \
@@ -949,7 +948,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-venice-gw7901.dtb \
 	imx8mm-venice-gw7902.dtb \
 	imx8mm-venice-gw7903.dtb \
-	imx8mm-verdin.dtb \
+	imx8mm-verdin-wifi-dev.dtb \
 	phycore-imx8mm.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
@@ -969,9 +968,12 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-phyboard-pollux-rdk.dtb \
 	imx8mp-venice.dtb \
 	imx8mp-venice-gw74xx.dtb \
-	imx8mp-verdin.dtb \
+	imx8mp-verdin-wifi-dev.dtb \
 	imx8mq-pico-pi.dtb \
 	imx8mq-kontron-pitx-imx8m.dtb
+
+dtb-$(CONFIG_ARCH_IMX9) += \
+	imx93-11x11-evk.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb

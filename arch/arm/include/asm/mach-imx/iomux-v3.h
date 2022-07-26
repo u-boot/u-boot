@@ -86,7 +86,16 @@ typedef u64 iomux_v3_cfg_t;
 #define IOMUX_CONFIG_LPSR       0x20
 #define MUX_MODE_LPSR           ((iomux_v3_cfg_t)IOMUX_CONFIG_LPSR << \
 				MUX_MODE_SHIFT)
-#ifdef CONFIG_IMX8M
+#ifdef CONFIG_IMX93
+#define PAD_CTL_FSEL2		(0x2 << 7)
+#define PAD_CTL_FSEL3		(0x3 << 7)
+#define PAD_CTL_PUE		(0x1 << 9)
+#define PAD_CTL_PDE		(0x1 << 10)
+#define PAD_CTL_ODE		(0x1 << 11)
+#define PAD_CTL_HYS		(0x1 << 12)
+#define PAD_CTL_DSE(x)		(((x) << 1) & 0x7f)
+
+#elif defined(CONFIG_IMX8M)
 #define PAD_CTL_FSEL0		(0x0 << 3)
 #define PAD_CTL_FSEL1		(0x1 << 3)
 #define PAD_CTL_FSEL2		(0x2 << 3)

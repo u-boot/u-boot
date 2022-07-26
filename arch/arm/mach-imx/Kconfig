@@ -164,9 +164,14 @@ config DDRMC_VF610_CALIBRATION
 	  shall perform it on a new PCB and then use those values to program
 	  the ddrmc_cr_setting on relevant board file.
 
+config IMX8_ROMAPI
+	def_bool y
+	depends on IMX8MN || IMX8MP || IMX8ULP || IMX9
+
 config SPL_IMX_ROMAPI_LOADADDR
 	hex "Default load address to load image through ROM API"
-	depends on IMX8MN || IMX8MP || IMX8ULP
+	depends on IMX8_ROMAPI || SPL_BOOTROM_SUPPORT
+	default 0
 
 config IMX_DCD_ADDR
 	hex "DCD Blocks location on the image"

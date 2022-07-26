@@ -4,7 +4,9 @@
  *
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  */
+
 #include <dt-bindings/gpio/gpio.h>
+
 / {
 	aliases {
 		backlight = &backlight;
@@ -293,7 +295,7 @@
 	pinctrl-0 = <&pinctrl_usbh>;
 	vbus-supply = <&reg_usb_h1_vbus>;
 	clocks = <&clks IMX6QDL_CLK_CKO>;
-	status = "okay";
+	status = "disabled";
 };
 
 &usbotg {

@@ -8,7 +8,7 @@
 &fec1 {
 	phy-reset-gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <1>;
-	phy-reset-post-delay = <1>;
+	phy-reset-post-delay = <300>;
 };
 
 &pinctrl_fec1 {
@@ -20,9 +20,5 @@
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@69/regulators} {
-	u-boot,dm-spl;
-};
-
-&pinctrl_pmic {
 	u-boot,dm-spl;
 };

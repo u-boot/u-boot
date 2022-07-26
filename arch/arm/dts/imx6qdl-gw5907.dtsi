@@ -13,8 +13,8 @@
 		led0 = &led0;
 		led1 = &led1;
 		nand = &gpmi;
-		usb0 = &usbotg;
-		usb1 = &usbh1;
+		usb0 = &usbh1;
+		usb1 = &usbotg;
 	};
 
 	chosen {
@@ -23,8 +23,6 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		user-pb {
 			label = "user_pb";
@@ -131,8 +129,6 @@
 	pinctrl-0 = <&pinctrl_enet>;
 	phy-mode = "rgmii-id";
 	phy-reset-gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
-	phy-reset-duration = <10>;
-	phy-reset-post-delay = <300>;
 	status = "okay";
 };
 
@@ -380,7 +376,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbotg>;
 	disable-over-current;
-	dr_mode = "otg";
 	status = "okay";
 };
 

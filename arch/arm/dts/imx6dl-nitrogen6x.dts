@@ -1,11 +1,11 @@
-// SPDX-License-Identifier: GPL-2.0+
-//
-// Copyright 2013-2019 Boundary Devices, Inc.
-// Copyright 2012 Freescale Semiconductor, Inc.
-// Copyright 2011 Linaro Ltd.
+// SPDX-License-Identifier: GPL-2.0 OR X11
+/*
+ * Copyright 2013 Boundary Devices, Inc.
+ * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+ */
 
 /dts-v1/;
-
 #include "imx6dl.dtsi"
 #include "imx6qdl-nitrogen6x.dtsi"
 
