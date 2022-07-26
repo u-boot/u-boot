@@ -1774,11 +1774,11 @@ static int eqos_remove_resources_tegra186(struct udevice *dev)
 
 static int eqos_remove_resources_stm32(struct udevice *dev)
 {
-#ifdef CONFIG_CLK
 	struct eqos_priv *eqos = dev_get_priv(dev);
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
+#ifdef CONFIG_CLK
 	clk_free(&eqos->clk_tx);
 	clk_free(&eqos->clk_rx);
 	clk_free(&eqos->clk_master_bus);
