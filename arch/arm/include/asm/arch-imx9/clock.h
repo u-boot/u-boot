@@ -217,6 +217,8 @@ void dram_pll_init(ulong pll_val);
 void dram_enable_bypass(ulong clk_val);
 void dram_disable_bypass(void);
 
+int configure_intpll(enum ccm_clk_src pll, u32 freq);
+
 int ccm_clk_src_on(enum ccm_clk_src oscpll, bool enable);
 int ccm_clk_src_auto(enum ccm_clk_src oscpll, bool enable);
 int ccm_clk_src_lpm(enum ccm_clk_src oscpll, bool enable);
@@ -238,5 +240,5 @@ int ccm_shared_gpr_tz_access(u32 gpr, bool non_secure, bool user_mode, bool lock
 void enable_usboh3_clk(unsigned char enable);
 int set_clk_enet(enum enet_freq type);
 int set_clk_eqos(enum enet_freq type);
-
+void set_arm_clk(ulong freq);
 #endif
