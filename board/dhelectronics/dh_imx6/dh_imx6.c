@@ -36,6 +36,9 @@
 #include <linux/delay.h>
 #include <usb/ehci-ci.h>
 
+#include "../common/dh_common.h"
+#include "../common/dh_imx.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
@@ -82,46 +85,24 @@ int board_usb_phy_mode(int port)
 }
 #endif
 
-static int setup_dhcom_mac_from_fuse(void)
+int dh_setup_mac_address(void)
 {
-	struct udevice *dev;
-	ofnode eeprom;
 	unsigned char enetaddr[6];
-	int ret;
 
-	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
-	if (ret)	/* ethaddr is already set */
+	if (dh_mac_is_in_env("ethaddr"))
 		return 0;
 
-	imx_get_mac_from_fuse(0, enetaddr);
+	if (!dh_imx_get_mac_from_fuse(enetaddr))
+		goto out;
 
-	if (is_valid_ethaddr(enetaddr)) {
-		eth_env_set_enetaddr("ethaddr", enetaddr);
-		return 0;
-	}
+	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0"))
+		goto out;
 
-	eeprom = ofnode_get_aliases_node("eeprom0");
-	if (!ofnode_valid(eeprom)) {
-		printf("Can't find eeprom0 alias!\n");
-		return -ENODEV;
-	}
+	printf("%s: Unable to get MAC address!\n", __func__);
+	return -ENXIO;
 
-	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, eeprom, &dev);
-	if (ret) {
-		printf("Cannot find EEPROM!\n");
-		return ret;
-	}
-
-	ret = i2c_eeprom_read(dev, 0xfa, enetaddr, 0x6);
-	if (ret) {
-		printf("Error reading configuration EEPROM!\n");
-		return ret;
-	}
-
-	if (is_valid_ethaddr(enetaddr))
-		eth_env_set_enetaddr("ethaddr", enetaddr);
-
-	return 0;
+out:
+	return eth_env_set_enetaddr("ethaddr", enetaddr);
 }
 
 int board_early_init_f(void)
@@ -188,7 +169,7 @@ int board_late_init(void)
 	u32 hw_code;
 	char buf[16];
 
-	setup_dhcom_mac_from_fuse();
+	dh_setup_mac_address();
 
 	hw_code = board_get_hwcode();
 
