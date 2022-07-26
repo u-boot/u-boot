@@ -170,7 +170,8 @@ config IMX8_ROMAPI
 
 config SPL_IMX_ROMAPI_LOADADDR
 	hex "Default load address to load image through ROM API"
-	depends on IMX8_ROMAPI
+	depends on IMX8_ROMAPI || SPL_BOOTROM_SUPPORT
+	default 0
 
 config IMX_DCD_ADDR
 	hex "DCD Blocks location on the image"

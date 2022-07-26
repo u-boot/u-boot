@@ -146,7 +146,6 @@ struct rproc_att {
 	u32 size; /* size of reg range */
 };
 
-#if defined(CONFIG_IMX8_ROMAPI)
 struct rom_api {
 	u16 ver;
 	u16 tag;
@@ -181,8 +180,6 @@ extern struct rom_api *g_rom_api;
 
 u32 rom_api_download_image(u8 *dest, u32 offset, u32 size);
 u32 rom_api_query_boot_infor(u32 info_type, u32 *info);
-
-#endif
 
 /* For i.MX ULP */
 #define BT0CFG_LPBOOT_MASK	0x1
