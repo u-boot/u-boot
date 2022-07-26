@@ -26,6 +26,7 @@
 #endif
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
+#include <u-boot/sha512.h>
 
 #if defined(CONFIG_ARMADA_8K)
 #define MAIN_HDR_MAGIC		0xB105B002
@@ -566,8 +567,10 @@ static int check_image_header(void)
 	int image_num;
 	u8 hash_160_output[SHA1_SUM_LEN];
 	u8 hash_256_output[SHA256_SUM_LEN];
+	u8 hash_512_output[SHA512_SUM_LEN];
 	sha1_context hash1_text;
 	sha256_context hash256_text;
+	sha512_context hash512_text;
 	u8 *hash_output;
 	u32 hash_algorithm_id;
 	u32 image_size_to_hash;
@@ -636,6 +639,12 @@ static int check_image_header(void)
 			sha256_update(&hash256_text, buff, image_size_to_hash);
 			sha256_finish(&hash256_text, hash_256_output);
 			hash_output = hash_256_output;
+			break;
+		case SHA512_SUM_LEN:
+			sha512_starts(&hash512_text);
+			sha512_update(&hash512_text, buff, image_size_to_hash);
+			sha512_finish(&hash512_text, hash_512_output);
+			hash_output = hash_512_output;
 			break;
 		default:
 			printf("Error: Unsupported hash_algorithm_id = %d\n",
