@@ -134,8 +134,11 @@ static struct ti_sci_xfer *ti_sci_setup_one_xfer(struct ti_sci_info *info,
 	if (rx_message_size > info->desc->max_msg_size ||
 	    tx_message_size > info->desc->max_msg_size ||
 	    (rx_message_size > 0 && rx_message_size < sizeof(*hdr)) ||
-	    tx_message_size < sizeof(*hdr))
+	    tx_message_size < sizeof(*hdr)) {
+		dev_err(info->dev, "TI-SCI message transfer size not sane\n");
 		return ERR_PTR(-ERANGE);
+	}
+
 
 	info->seq = ~info->seq;
 	xfer->tx_message.buf = buf;
@@ -282,7 +285,6 @@ static int ti_sci_cmd_get_revision(struct ti_sci_handle *handle)
 				     sizeof(*rev_info));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -346,7 +348,6 @@ static int cmd_set_board_config_using_msg(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.boardcfgp_high = (addr >> 32) & 0xffffffff;
@@ -505,7 +506,6 @@ static int ti_sci_set_device_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
@@ -558,7 +558,6 @@ static int ti_sci_set_device_state_no_wait(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), 0);
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
@@ -607,7 +606,6 @@ static int ti_sci_get_device_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
@@ -893,7 +891,6 @@ static int ti_sci_cmd_set_device_resets(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
@@ -961,7 +958,6 @@ static int ti_sci_set_clock_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1017,7 +1013,6 @@ static int ti_sci_cmd_get_clock_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1231,7 +1226,6 @@ static int ti_sci_cmd_clk_set_parent(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1282,7 +1276,6 @@ static int ti_sci_cmd_clk_get_parent(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1335,7 +1328,6 @@ static int ti_sci_cmd_clk_get_num_parents(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1398,7 +1390,6 @@ static int ti_sci_cmd_clk_get_match_freq(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1461,7 +1452,6 @@ static int ti_sci_cmd_clk_set_freq(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1514,7 +1504,6 @@ static int ti_sci_cmd_clk_get_freq(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1560,7 +1549,6 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.domain = 0;
@@ -1613,7 +1601,6 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -1739,7 +1726,6 @@ static int ti_sci_cmd_query_msmc(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -1788,7 +1774,6 @@ static int ti_sci_cmd_proc_request(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -1833,7 +1818,6 @@ static int ti_sci_cmd_proc_release(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -1881,7 +1865,6 @@ static int ti_sci_cmd_proc_handover(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -1932,7 +1915,6 @@ static int ti_sci_cmd_set_proc_boot_cfg(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -1986,7 +1968,6 @@ static int ti_sci_cmd_set_proc_boot_ctrl(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -2038,7 +2019,6 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.cert_addr_low = *image_addr & TISCI_ADDR_LOW_MASK;
@@ -2091,7 +2071,6 @@ static int ti_sci_cmd_get_proc_boot_status(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -2179,7 +2158,6 @@ ti_sci_proc_wait_boot_status_no_wait(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), 0);
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -2294,7 +2272,6 @@ static int ti_sci_cmd_ring_config(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RM_RA:Message config failed(%d)\n", ret);
 		return ret;
 	}
 	req.valid_params = valid_params;
@@ -2341,7 +2318,6 @@ static int ti_sci_cmd_rm_psil_pair(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RM_PSIL:Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.nav_id = nav_id;
@@ -2382,7 +2358,6 @@ static int ti_sci_cmd_rm_psil_unpair(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RM_PSIL:Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.nav_id = nav_id;
@@ -2424,7 +2399,6 @@ static int ti_sci_cmd_rm_udmap_tx_ch_cfg(
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message TX_CH_CFG alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.valid_params = params->valid_params;
@@ -2483,7 +2457,6 @@ static int ti_sci_cmd_rm_udmap_rx_ch_cfg(
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message RX_CH_CFG alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -2539,8 +2512,6 @@ static int ti_sci_cmd_rm_udmap_rx_flow_cfg(
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RX_FL_CFG: Message alloc failed(%d)\n",
-			ret);
 		return ret;
 	}
 
@@ -2608,7 +2579,6 @@ static int ti_sci_cmd_set_fwl_region(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -2662,7 +2632,6 @@ static int ti_sci_cmd_get_fwl_region(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -2720,7 +2689,6 @@ static int ti_sci_cmd_change_fwl_owner(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
