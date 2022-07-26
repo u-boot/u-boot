@@ -29,6 +29,43 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct rom_api *g_rom_api = (struct rom_api *)0x1980;
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+__weak int board_mmc_get_env_dev(int devno)
+{
+	return devno; }
+
+int mmc_get_env_dev(void)
+{
+	volatile gd_t *pgd = gd;
+	int ret;
+	u32 boot;
+	u16 boot_type;
+	u8 boot_instance;
+
+	ret = g_rom_api->query_boot_infor(QUERY_BT_DEV, &boot,
+					  ((uintptr_t)&boot) ^ QUERY_BT_DEV);
+	set_gd(pgd);
+
+	if (ret != ROM_API_OKAY) {
+		puts("ROMAPI: failure at query_boot_info\n");
+		return CONFIG_SYS_MMC_ENV_DEV;
+	}
+
+	boot_type = boot >> 16;
+	boot_instance = (boot >> 8) & 0xff;
+
+	debug("boot_type %d, instance %d\n", boot_type, boot_instance);
+
+	/* If not boot from sd/mmc, use default value */
+	if (boot_type != BOOT_TYPE_SD && boot_type != BOOT_TYPE_MMC)
+		return env_get_ulong("mmcdev", 10, CONFIG_SYS_MMC_ENV_DEV);
+
+	return board_mmc_get_env_dev(boot_instance);
+}
+#endif
+
 u32 get_cpu_rev(void)
 {
 	return (MXC_CPU_IMX93 << 12) | CHIP_REV_1_0;
