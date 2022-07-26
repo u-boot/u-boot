@@ -92,6 +92,15 @@ static int eqos_set_tx_clk_speed_imx(struct udevice *dev)
 	return 0;
 }
 
+static int eqos_get_enetaddr_imx(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+
+	imx_get_mac_from_fuse(dev_seq(dev), pdata->enetaddr);
+
+	return 0;
+}
+
 static struct eqos_ops eqos_imx_ops = {
 	.eqos_inval_desc = eqos_inval_desc_generic,
 	.eqos_flush_desc = eqos_flush_desc_generic,
@@ -106,7 +115,8 @@ static struct eqos_ops eqos_imx_ops = {
 	.eqos_calibrate_pads = eqos_null_ops,
 	.eqos_disable_calibration = eqos_null_ops,
 	.eqos_set_tx_clk_speed = eqos_set_tx_clk_speed_imx,
-	.eqos_get_tick_clk_rate = eqos_get_tick_clk_rate_imx
+	.eqos_get_enetaddr = eqos_get_enetaddr_imx,
+	.eqos_get_tick_clk_rate = eqos_get_tick_clk_rate_imx,
 };
 
 struct eqos_config __maybe_unused eqos_imx_config = {

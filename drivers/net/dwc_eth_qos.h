@@ -240,6 +240,7 @@ struct eqos_ops {
 	int (*eqos_calibrate_pads)(struct udevice *dev);
 	int (*eqos_disable_calibration)(struct udevice *dev);
 	int (*eqos_set_tx_clk_speed)(struct udevice *dev);
+	int (*eqos_get_enetaddr)(struct udevice *dev);
 	ulong (*eqos_get_tick_clk_rate)(struct udevice *dev);
 };
 

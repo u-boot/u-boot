@@ -712,10 +712,13 @@ static int eqos_write_hwaddr(struct udevice *dev)
 static int eqos_read_rom_hwaddr(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct eqos_priv *eqos = dev_get_priv(dev);
+	int ret;
 
-#ifdef CONFIG_ARCH_IMX8M
-	imx_get_mac_from_fuse(dev_seq(dev), pdata->enetaddr);
-#endif
+	ret = eqos->config->ops->eqos_get_enetaddr(dev);
+	if (ret < 0)
+		return ret;
+
 	return !is_valid_ethaddr(pdata->enetaddr);
 }
 
