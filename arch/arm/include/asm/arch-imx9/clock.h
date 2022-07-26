@@ -213,6 +213,9 @@ void init_clk_usdhc(u32 index);
 int enable_i2c_clk(unsigned char enable, u32 i2c_num);
 u32 imx_get_i2cclk(u32 i2c_num);
 u32 mxc_get_clock(enum mxc_clock clk);
+void dram_pll_init(ulong pll_val);
+void dram_enable_bypass(ulong clk_val);
+void dram_disable_bypass(void);
 
 int ccm_clk_src_on(enum ccm_clk_src oscpll, bool enable);
 int ccm_clk_src_auto(enum ccm_clk_src oscpll, bool enable);

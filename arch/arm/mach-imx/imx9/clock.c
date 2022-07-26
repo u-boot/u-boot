@@ -626,6 +626,47 @@ void enable_usboh3_clk(unsigned char enable)
 	}
 }
 
+#ifdef CONFIG_SPL_BUILD
+void dram_pll_init(ulong pll_val)
+{
+	configure_fracpll(DRAM_PLL_CLK, pll_val);
+}
+
+void dram_enable_bypass(ulong clk_val)
+{
+	switch (clk_val) {
+	case MHZ(400):
+		ccm_clk_root_cfg(DRAM_ALT_CLK_ROOT, SYS_PLL_PFD1, 2);
+		break;
+	case MHZ(333):
+		ccm_clk_root_cfg(DRAM_ALT_CLK_ROOT, SYS_PLL_PFD0, 3);
+		break;
+	case MHZ(200):
+		ccm_clk_root_cfg(DRAM_ALT_CLK_ROOT, SYS_PLL_PFD1, 4);
+		break;
+	case MHZ(100):
+		ccm_clk_root_cfg(DRAM_ALT_CLK_ROOT, SYS_PLL_PFD1, 8);
+		break;
+	default:
+		printf("No matched freq table %lu\n", clk_val);
+		return;
+	}
+
+	/* Set DRAM APB to 133Mhz */
+	ccm_clk_root_cfg(DRAM_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
+	/* Switch from DRAM  clock root from PLL to CCM */
+	ccm_shared_gpr_set(SHARED_GPR_DRAM_CLK, SHARED_GPR_DRAM_CLK_SEL_CCM);
+}
+
+void dram_disable_bypass(void)
+{
+	/* Set DRAM APB to 133Mhz */
+	ccm_clk_root_cfg(DRAM_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
+	/* Switch from DRAM  clock root from CCM to PLL */
+	ccm_shared_gpr_set(SHARED_GPR_DRAM_CLK, SHARED_GPR_DRAM_CLK_SEL_PLL);
+}
+#endif
+
 int clock_init(void)
 {
 	int i;
