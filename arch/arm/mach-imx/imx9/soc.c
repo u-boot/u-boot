@@ -13,6 +13,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/ccm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/trdc.h>
 #include <asm/mach-imx/boot_mode.h>
@@ -377,4 +378,54 @@ void soc_power_init(void)
 	mix_power_init(MIX_PD_MLMIX);
 
 	disable_isolation();
+}
+
+static bool m33_is_rom_kicked(void)
+{
+	struct blk_ctrl_s_aonmix_regs *s_regs =
+			(struct blk_ctrl_s_aonmix_regs *)BLK_CTRL_S_ANOMIX_BASE_ADDR;
+
+	if (!(readl(&s_regs->m33_cfg) & BIT(2)))
+		return true;
+
+	return false;
+}
+
+int m33_prepare(void)
+{
+	struct src_mix_slice_regs *mix_regs =
+		(struct src_mix_slice_regs *)(ulong)(SRC_IPS_BASE_ADDR + 0x400 * (SRC_MIX_CM33 + 1));
+	struct src_general_regs *global_regs =
+		(struct src_general_regs *)(ulong)SRC_GLOBAL_RBASE;
+	struct blk_ctrl_s_aonmix_regs *s_regs =
+			(struct blk_ctrl_s_aonmix_regs *)BLK_CTRL_S_ANOMIX_BASE_ADDR;
+	u32 val;
+
+	if (m33_is_rom_kicked())
+		return -EPERM;
+
+	/* Release reset of M33 */
+	setbits_le32(&global_regs->scr, BIT(0));
+
+	/* Check the reset released in M33 MIX func stat */
+	val = readl(&mix_regs->func_stat);
+	while (!(val & SRC_MIX_SLICE_FUNC_STAT_RST_STAT))
+		val = readl(&mix_regs->func_stat);
+
+	/* Release Sentinel TROUT */
+	ahab_release_m33_trout();
+
+	/* Mask WDOG1 IRQ from A55, we use it for M33 reset */
+	setbits_le32(&s_regs->ca55_irq_mask[1], BIT(6));
+
+	/* Turn on WDOG1 clock */
+	ccm_lpcg_on(CCGR_WDG1, 1);
+
+	/* Set sentinel LP handshake for M33 reset */
+	setbits_le32(&s_regs->lp_handshake[0], BIT(6));
+
+	/* Clear M33 TCM for ECC */
+	memset((void *)(ulong)0x201e0000, 0, 0x40000);
+
+	return 0;
 }
