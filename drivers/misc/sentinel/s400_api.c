@@ -359,3 +359,64 @@ int ahab_dump_buffer(u32 *buffer, u32 buffer_length)
 
 	return i;
 }
+
+int ahab_get_info(struct sentinel_get_info_data *info, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct imx8ulp_s400_msg);
+	struct imx8ulp_s400_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 4;
+	msg.command = AHAB_GET_INFO_CID;
+	msg.data[0] = upper_32_bits((ulong)info);
+	msg.data[1] = lower_32_bits((ulong)info);
+	msg.data[2] = sizeof(struct sentinel_get_info_data);
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x\n",
+		       __func__, ret, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	return ret;
+}
+
+int ahab_get_fw_status(u32 *status, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct imx8ulp_s400_msg);
+	struct imx8ulp_s400_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 1;
+	msg.command = AHAB_GET_FW_STATUS_CID;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x\n",
+		       __func__, ret, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	*status = msg.data[1] & 0xF;
+
+	return ret;
+}
