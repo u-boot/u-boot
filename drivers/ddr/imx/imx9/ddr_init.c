@@ -112,6 +112,10 @@ int ddr_init(struct dram_timing_info *dram_timing)
 	ddrc_config(dram_timing->ddrc_cfg, dram_timing->ddrc_cfg_num);
 	debug("DDRINFO: ddrc config done\n");
 
+#ifdef CONFIG_IMX9_DRAM_PM_COUNTER
+	writel(0x200000, REG_DDR_DEBUG_19);
+#endif
+
 	check_dfi_init_complete();
 
 	regval = readl(REG_DDR_SDRAM_CFG);
