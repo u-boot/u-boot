@@ -976,7 +976,7 @@ struct nand_chip {
 	void *priv;
 
 	struct {
-		const struct nand_manufacturers *desc;
+		const struct nand_manufacturer *desc;
 		void *priv;
 	} manufacturer;
 };
@@ -1124,19 +1124,19 @@ struct nand_flash_dev {
 };
 
 /**
- * struct nand_manufacturers - NAND Flash Manufacturer ID Structure
+ * struct nand_manufacturer - NAND Flash Manufacturer ID Structure
  * @name:	Manufacturer name
  * @id:		manufacturer ID code of device.
  * @ops:	manufacturer operations
 */
-struct nand_manufacturers {
+struct nand_manufacturer {
 	int id;
 	char *name;
 	const struct nand_manufacturer_ops *ops;
 };
 
 extern struct nand_flash_dev nand_flash_ids[];
-extern struct nand_manufacturers nand_manuf_ids[];
+extern struct nand_manufacturer nand_manuf_ids[];
 
 extern const struct nand_manufacturer_ops toshiba_nand_manuf_ops;
 extern const struct nand_manufacturer_ops samsung_nand_manuf_ops;

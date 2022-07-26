@@ -4261,7 +4261,7 @@ static bool find_full_id_nand(struct mtd_info *mtd, struct nand_chip *chip,
  * Returns a nand_manufacturer_desc object if the manufacturer is defined
  * in the NAND manufacturers database, NULL otherwise.
  */
-static const struct nand_manufacturers *nand_get_manufacturer_desc(u8 id)
+static const struct nand_manufacturer *nand_get_manufacturer_desc(u8 id)
 {
 	int i;
 
@@ -4281,7 +4281,7 @@ struct nand_flash_dev *nand_get_flash_type(struct nand_chip *chip, int *maf_id,
 					   struct nand_flash_dev *type)
 {
 	struct mtd_info *mtd = &chip->mtd;
-	const struct nand_manufacturers *manufacturer_desc;
+	const struct nand_manufacturer *manufacturer_desc;
 	int busw, ret;
 	u8 *id_data = chip->id.data;
 
