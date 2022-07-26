@@ -916,6 +916,7 @@ config ARCH_IMX9
 	select DM
 	select MACH_IMX
 	select SUPPORT_SPL
+	select GPIO_EXTRA_HEADER
 	select MISC
 	select IMX_SENTINEL
 	imply CMD_DM
