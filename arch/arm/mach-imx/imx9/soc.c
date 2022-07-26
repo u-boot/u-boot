@@ -27,6 +27,7 @@
 #include <asm/setup.h>
 #include <asm/bootm.h>
 #include <asm/arch-imx/cpu.h>
+#include <asm/mach-imx/s400_api.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -67,9 +68,18 @@ int mmc_get_env_dev(void)
 }
 #endif
 
+static void set_cpu_info(struct sentinel_get_info_data *info)
+{
+	gd->arch.soc_rev = info->soc;
+	gd->arch.lifecycle = info->lc;
+	memcpy((void *)&gd->arch.uid, &info->uid, 4 * sizeof(u32));
+}
+
 u32 get_cpu_rev(void)
 {
-	return (MXC_CPU_IMX93 << 12) | CHIP_REV_1_0;
+	u32 rev = (gd->arch.soc_rev >> 24) - 0xa0;
+
+	return (MXC_CPU_IMX93 << 12) | (CHIP_REV_1_0 + rev);
 }
 
 #define UNLOCK_WORD 0xD928C520 /* unlock word */
@@ -198,6 +208,17 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 
+#if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
+void get_board_serial(struct tag_serialnr *serialnr)
+{
+	printf("UID: 0x%x 0x%x 0x%x 0x%x\n",
+	       gd->arch.uid[0], gd->arch.uid[1], gd->arch.uid[2], gd->arch.uid[3]);
+
+	serialnr->low = gd->arch.uid[0];
+	serialnr->high = gd->arch.uid[3];
+}
+#endif
+
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
@@ -211,6 +232,32 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+int imx9_probe_mu(void *ctx, struct event *event)
+{
+	struct udevice *devp;
+	int node, ret;
+	u32 res;
+	struct sentinel_get_info_data info;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx93-mu-s4");
+
+	ret = uclass_get_device_by_of_offset(UCLASS_MISC, node, &devp);
+	if (ret)
+		return ret;
+
+	if (gd->flags & GD_FLG_RELOC)
+		return 0;
+
+	ret = ahab_get_info(&info, &res);
+	if (ret)
+		return ret;
+
+	set_cpu_info(&info);
+
+	return 0;
+}
+EVENT_SPY(EVT_DM_POST_INIT, imx9_probe_mu);
 
 int timer_init(void)
 {
