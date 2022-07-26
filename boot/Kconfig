@@ -210,8 +210,8 @@ config SPL_LOAD_FIT
 	  1. "loadables" images, other than FDTs, which do not have a "load"
 	     property will not be loaded. This limitation also applies to FPGA
 	     images with the correct "compatible" string.
-	  2. For FPGA images, only the "compatible" = "u-boot,fpga-legacy"
-	     loading method is supported.
+	  2. For FPGA images, the supported "compatible" list is in the
+	     doc/uImage.FIT/source_file_format.txt.
 	  3. FDTs are only loaded for images with an "os" property of "u-boot".
 	     "linux" images are also supported with Falcon boot mode.
 

@@ -371,7 +371,7 @@ static int zynq_validate_bitstream(xilinx_desc *desc, const void *buf,
 }
 
 static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize,
-		     bitstream_type bstype)
+		     bitstream_type bstype, int flags)
 {
 	unsigned long ts; /* Timestamp */
 	u32 isr_status, swap;

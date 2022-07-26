@@ -1330,10 +1330,6 @@ The following options need to be configured:
 		Enables support for FPGA family.
 		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
 
-		CONFIG_SYS_FPGA_PROG_FEEDBACK
-
-		Enable printing of hash marks during FPGA configuration.
-
 		CONFIG_SYS_FPGA_CHECK_BUSY
 
 		Enable checks on FPGA configuration interface busy
@@ -1345,9 +1341,6 @@ The following options need to be configured:
 
 		If defined, a function that provides delays in the FPGA
 		configuration driver.
-
-		CONFIG_SYS_FPGA_CHECK_CTRLC
-		Allow Control-C to interrupt FPGA configuration
 
 		CONFIG_SYS_FPGA_CHECK_ERROR
 

@@ -14,7 +14,4 @@
 
 extern struct xilinx_fpga_op versal_op;
 
-#define XILINX_VERSAL_DESC \
-{ xilinx_versal, csu_dma, 1, &versal_op, 0, &versal_op }
-
 #endif /* _VERSALPL_H_ */

@@ -25,7 +25,7 @@ def in_tree(response, name, uclass, drv, depth, last_child):
             return True
     return False
 
-
+@pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_bind')
 def test_bind_unbind_with_node(u_boot_console):
 
@@ -117,6 +117,7 @@ def get_next_line(tree, name):
             break
     return child_line
 
+@pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_bind')
 def test_bind_unbind_with_uclass(u_boot_console):
     #bind /bind-test

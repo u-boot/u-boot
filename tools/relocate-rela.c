@@ -16,8 +16,32 @@
 #include <string.h>
 #include "compiler.h"
 
+#ifndef EM_AARCH64
+#define EM_AARCH64		183
+#endif
+
 #ifndef R_AARCH64_RELATIVE
 #define R_AARCH64_RELATIVE	1027
+#endif
+
+#ifndef EM_MICROBLAZE
+#define EM_MICROBLAZE		189
+#endif
+
+#ifndef R_MICROBLAZE_NONE
+#define R_MICROBLAZE_NONE	0
+#endif
+
+#ifndef R_MICROBLAZE_32
+#define R_MICROBLAZE_32		1
+#endif
+
+#ifndef R_MICROBLAZE_REL
+#define R_MICROBLAZE_REL	16
+#endif
+
+#ifndef R_MICROBLAZE_GLOB_DAT
+#define R_MICROBLAZE_GLOB_DAT	18
 #endif
 
 static int ei_class;
@@ -43,10 +67,8 @@ static bool supported_rela(Elf64_Rela *rela)
 	uint32_t type = rela->r_info & mask;
 
 	switch (type) {
-#ifdef R_AARCH64_RELATIVE
 	case R_AARCH64_RELATIVE:
 		return true;
-#endif
 	default:
 		fprintf(stderr, "warning: unsupported relocation type %"
 				PRIu32 " at %" PRIx64 "\n",
@@ -60,7 +82,9 @@ static int decode_elf64(FILE *felf, char **argv)
 {
 	size_t size;
 	Elf64_Ehdr header;
-	uint64_t section_header_base, section_header_size, sh_offset, sh_size;
+	uint64_t section_header_base, section_header_size;
+	uint64_t sh_addr, sh_offset, sh_size;
+	Elf64_Half sh_index, sh_num;
 	Elf64_Shdr *sh_table; /* Elf symbol table */
 	int ret, i, machine;
 	char *sh_str;
@@ -76,7 +100,7 @@ static int decode_elf64(FILE *felf, char **argv)
 		return 25;
 	}
 
-	machine = header.e_machine;
+	machine = le16_to_cpu(header.e_machine);
 	debug("Machine\t%d\n", machine);
 
 	if (machine != EM_AARCH64) {
@@ -84,9 +108,10 @@ static int decode_elf64(FILE *felf, char **argv)
 		return 30;
 	}
 
-	text_base = header.e_entry;
-	section_header_base = header.e_shoff;
-	section_header_size = header.e_shentsize * header.e_shnum;
+	text_base = le64_to_cpu(header.e_entry);
+	section_header_base = le64_to_cpu(header.e_shoff);
+	section_header_size = le16_to_cpu(header.e_shentsize) *
+			      le16_to_cpu(header.e_shnum);
 
 	sh_table = malloc(section_header_size);
 	if (!sh_table) {
@@ -114,9 +139,9 @@ static int decode_elf64(FILE *felf, char **argv)
 		return 27;
 	}
 
-	sh_size = sh_table[header.e_shstrndx].sh_size;
-	debug("e_shstrndx\t0x%08x\n", header.e_shstrndx);
-	debug("sh_size\t\t0x%08lx\n", sh_size);
+	sh_index = le16_to_cpu(header.e_shstrndx);
+	sh_size = le64_to_cpu(sh_table[sh_index].sh_size);
+	debug("e_shstrndx %x, sh_size %lx\n", sh_index, sh_size);
 
 	sh_str = malloc(sh_size);
 	if (!sh_str) {
@@ -130,9 +155,8 @@ static int decode_elf64(FILE *felf, char **argv)
 	 * Specifies the byte offset from the beginning of the file
 	 * to the first byte in the section.
 	 */
-	sh_offset = sh_table[header.e_shstrndx].sh_offset;
-
-	debug("sh_offset\t0x%08x\n", header.e_shnum);
+	sh_offset = le64_to_cpu(sh_table[sh_index].sh_offset);
+	sh_num = le16_to_cpu(header.e_shnum);
 
 	ret = fseek(felf, sh_offset, SEEK_SET);
 	if (ret) {
@@ -153,18 +177,22 @@ static int decode_elf64(FILE *felf, char **argv)
 		return 30;
 	}
 
-	for (i = 0; i < header.e_shnum; i++) {
-		/* fprintf(stderr, "%s\n", sh_str + sh_table[i].sh_name); Debug only */
-		if (!strcmp(".rela.dyn", (sh_str + sh_table[i].sh_name))) {
+	for (i = 0; i < sh_num; i++) {
+		char *sh_name = sh_str + le32_to_cpu(sh_table[i].sh_name);
+
+		debug("%s\n", sh_name);
+
+		sh_addr = le64_to_cpu(sh_table[i].sh_addr);
+		sh_offset = le64_to_cpu(sh_table[i].sh_offset);
+		sh_size = le64_to_cpu(sh_table[i].sh_size);
+
+		if (!strcmp(".rela.dyn", sh_name)) {
 			debug("Found section\t\".rela_dyn\"\n");
-			debug(" at addr\t0x%08x\n",
-			      (unsigned int)sh_table[i].sh_addr);
-			debug(" at offset\t0x%08x\n",
-			      (unsigned int)sh_table[i].sh_offset);
-			debug(" of size\t0x%08x\n",
-			      (unsigned int)sh_table[i].sh_size);
-			rela_start = sh_table[i].sh_addr;
-			rela_end = rela_start + sh_table[i].sh_size;
+			debug(" at addr\t0x%08x\n", sh_addr);
+			debug(" at offset\t0x%08x\n", sh_offset);
+			debug(" of size\t0x%08x\n", sh_size);
+			rela_start = sh_addr;
+			rela_end = rela_start + sh_size;
 			break;
 		}
 	}
@@ -188,7 +216,9 @@ static int decode_elf32(FILE *felf, char **argv)
 {
 	size_t size;
 	Elf32_Ehdr header;
-	uint64_t section_header_base, section_header_size, sh_offset, sh_size;
+	uint64_t section_header_base, section_header_size;
+	uint32_t sh_addr, sh_offset, sh_size;
+	Elf32_Half sh_index, sh_num;
 	Elf32_Shdr *sh_table; /* Elf symbol table */
 	int ret, i, machine;
 	char *sh_str;
@@ -204,7 +234,7 @@ static int decode_elf32(FILE *felf, char **argv)
 		return 25;
 	}
 
-	machine = header.e_machine;
+	machine = le16_to_cpu(header.e_machine);
 	debug("Machine %d\n", machine);
 
 	if (machine != EM_MICROBLAZE) {
@@ -212,14 +242,10 @@ static int decode_elf32(FILE *felf, char **argv)
 		return 30;
 	}
 
-	text_base = header.e_entry;
-	section_header_base = header.e_shoff;
-
-	debug("Section header base %x\n", section_header_base);
-
-	section_header_size = header.e_shentsize * header.e_shnum;
-
-	debug("Section header size %d\n", section_header_size);
+	text_base = le32_to_cpu(header.e_entry);
+	section_header_base = le32_to_cpu(header.e_shoff);
+	section_header_size = le16_to_cpu(header.e_shentsize) *
+			      le16_to_cpu(header.e_shnum);
 
 	sh_table = malloc(section_header_size);
 	if (!sh_table) {
@@ -247,8 +273,9 @@ static int decode_elf32(FILE *felf, char **argv)
 		return 27;
 	}
 
-	sh_size = sh_table[header.e_shstrndx].sh_size;
-	debug("e_shstrndx %x, sh_size %lx\n", header.e_shstrndx, sh_size);
+	sh_index = le16_to_cpu(header.e_shstrndx);
+	sh_size = le32_to_cpu(sh_table[sh_index].sh_size);
+	debug("e_shstrndx %x, sh_size %lx\n", sh_index, sh_size);
 
 	sh_str = malloc(sh_size);
 	if (!sh_str) {
@@ -262,9 +289,8 @@ static int decode_elf32(FILE *felf, char **argv)
 	 * Specifies the byte offset from the beginning of the file
 	 * to the first byte in the section.
 	 */
-	sh_offset = sh_table[header.e_shstrndx].sh_offset;
-
-	debug("sh_offset %x\n", header.e_shnum);
+	sh_offset = le32_to_cpu(sh_table[sh_index].sh_offset);
+	sh_num = le16_to_cpu(header.e_shnum);
 
 	ret = fseek(felf, sh_offset, SEEK_SET);
 	if (ret) {
@@ -277,7 +303,7 @@ static int decode_elf32(FILE *felf, char **argv)
 
 	size = fread(sh_str, 1, sh_size, felf);
 	if (size != sh_size) {
-		fprintf(stderr, "%s: Can't read section: %lx/%lx\n",
+		fprintf(stderr, "%s: Can't read section: %lx/%x\n",
 			argv[0], size, sh_size);
 		free(sh_str);
 		free(sh_table);
@@ -285,22 +311,29 @@ static int decode_elf32(FILE *felf, char **argv)
 		return 30;
 	}
 
-	for (i = 0; i < header.e_shnum; i++) {
-		debug("%s\n", sh_str + sh_table[i].sh_name);
-		if (!strcmp(".rela.dyn", (sh_str + sh_table[i].sh_name))) {
+	for (i = 0; i < sh_num; i++) {
+		char *sh_name = sh_str + le32_to_cpu(sh_table[i].sh_name);
+
+		debug("%s\n", sh_name);
+
+		sh_addr = le64_to_cpu(sh_table[i].sh_addr);
+		sh_offset = le64_to_cpu(sh_table[i].sh_offset);
+		sh_size = le64_to_cpu(sh_table[i].sh_size);
+
+		if (!strcmp(".rela.dyn", sh_name)) {
 			debug("Found section\t\".rela_dyn\"\n");
-			debug(" at addr\t0x%08x\n", (unsigned int)sh_table[i].sh_addr);
-			debug(" at offset\t0x%08x\n", (unsigned int)sh_table[i].sh_offset);
-			debug(" of size\t0x%08x\n", (unsigned int)sh_table[i].sh_size);
-			rela_start = sh_table[i].sh_addr;
-			rela_end = rela_start + sh_table[i].sh_size;
+			debug(" at addr\t0x%08x\n", sh_addr);
+			debug(" at offset\t0x%08x\n", sh_offset);
+			debug(" of size\t0x%08x\n", sh_size);
+			rela_start = sh_addr;
+			rela_end = rela_start + sh_size;
 		}
-		if (!strcmp(".dynsym", (sh_str + sh_table[i].sh_name))) {
+		if (!strcmp(".dynsym", sh_name)) {
 			debug("Found section\t\".dynsym\"\n");
-			debug(" at addr\t0x%08x\n", (unsigned int)sh_table[i].sh_addr);
-			debug(" at offset\t0x%08x\n", (unsigned int)sh_table[i].sh_offset);
-			debug(" of size\t0x%08x\n", (unsigned int)sh_table[i].sh_size);
-			dyn_start = sh_table[i].sh_addr;
+			debug(" at addr\t0x%08x\n", sh_addr);
+			debug(" at offset\t0x%08x\n", sh_offset);
+			debug(" of size\t0x%08x\n", sh_size);
+			dyn_start = sh_addr;
 		}
 	}
 
@@ -386,9 +419,9 @@ static int rela_elf64(char **argv, FILE *f)
 			return 4;
 		}
 
-		swrela.r_offset = cpu_to_le64(rela.r_offset);
-		swrela.r_info = cpu_to_le64(rela.r_info);
-		swrela.r_addend = cpu_to_le64(rela.r_addend);
+		swrela.r_offset = le64_to_cpu(rela.r_offset);
+		swrela.r_info = le64_to_cpu(rela.r_info);
+		swrela.r_addend = le64_to_cpu(rela.r_addend);
 
 		if (!supported_rela(&swrela))
 			continue;
@@ -487,9 +520,9 @@ static int rela_elf32(char **argv, FILE *f)
 		      PRIu32 " r_addend:\t%" PRIx32 "\n",
 		      rela.r_offset, rela.r_info, rela.r_addend);
 
-		swrela.r_offset = cpu_to_le32(rela.r_offset);
-		swrela.r_info = cpu_to_le32(rela.r_info);
-		swrela.r_addend = cpu_to_le32(rela.r_addend);
+		swrela.r_offset = le32_to_cpu(rela.r_offset);
+		swrela.r_info = le32_to_cpu(rela.r_info);
+		swrela.r_addend = le32_to_cpu(rela.r_addend);
 
 		debug("SWRela:\toffset:\t%" PRIx32 " r_info:\t%"
 		      PRIu32 " r_addend:\t%" PRIx32 "\n",

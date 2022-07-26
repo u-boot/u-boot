@@ -435,8 +435,6 @@ enum pm_gem_config_type {
 #define PMUFW_V1_0	((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
 #define PMIO_NODE_ID_BASE		0x1410801B
 
-#define PMIO_NODE_ID_BASE		0x1410801B
-
 /*
  * Return payload size
  * Not every firmware call expects the same amount of return bytes, however the
@@ -449,7 +447,7 @@ enum pm_gem_config_type {
 unsigned int zynqmp_firmware_version(void);
 int zynqmp_pmufw_node(u32 id);
 int zynqmp_pmufw_config_close(void);
-void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
+int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
 int xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 		      u32 arg3, u32 *ret_payload);
 int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value);
@@ -491,5 +489,10 @@ enum zynqmp_pm_request_ack {
 #define FIRMWARE_VERSION_MASK		GENMASK(15, 0)
 /* PM API versions */
 #define PM_API_VERSION_2		2
+
+struct zynqmp_ipi_msg {
+	size_t len;
+	u32 *buf;
+};
 
 #endif /* _ZYNQMP_FIRMWARE_H_ */

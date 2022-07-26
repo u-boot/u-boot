@@ -107,7 +107,7 @@ config SPL_PAD_TO
 config SPL_HAS_BSS_LINKER_SECTION
 	depends on SPL_FRAMEWORK
 	bool "Use a specific address for the BSS via the linker script"
-	default y if ARCH_SUNXI || ARCH_MX6 || ARCH_OMAP2PLUS || MIPS || RISCV
+	default y if ARCH_SUNXI || ARCH_MX6 || ARCH_OMAP2PLUS || MIPS || RISCV || ARCH_ZYNQMP
 
 config SPL_BSS_START_ADDR
 	hex "Link address for the BSS within the SPL binary"
@@ -118,6 +118,7 @@ config SPL_BSS_START_ADDR
 	default 0x81f80000 if ARCH_SUNXI && MACH_SUNIV
 	default 0x4ff80000 if ARCH_SUNXI && !(MACH_SUN9I || MACH_SUNIV)
 	default 0x2ff80000 if ARCH_SUNXI && MACH_SUN9I
+	default 0x1000 if ARCH_ZYNQMP
 
 choice
 	prompt "Enforce SPL BSS limit"
