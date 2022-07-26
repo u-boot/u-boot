@@ -55,5 +55,6 @@ int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response);
 int ahab_dump_buffer(u32 *buffer, u32 buffer_length);
 int ahab_get_info(struct sentinel_get_info_data *info, u32 *response);
 int ahab_get_fw_status(u32 *status, u32 *response);
+int ahab_release_m33_trout(void);
 
 #endif
