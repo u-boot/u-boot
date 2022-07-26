@@ -870,11 +870,11 @@ int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	dst = find_bubt_dev(dst_dev_name);
 	if (!dst) {
 		printf("Error: Unknown destination \"%s\"\n", dst_dev_name);
-		return -EINVAL;
+		return 1;
 	}
 
 	if (!bubt_is_dev_active(dst))
-		return -ENODEV;
+		return 1;
 
 	/* Figure out the source device */
 	src = find_bubt_dev(src_dev_name);
@@ -891,15 +891,15 @@ int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	image_size = bubt_read_file(src);
 	if (!image_size)
-		return -EIO;
+		return 1;
 
 	err = bubt_verify(dst);
 	if (err)
-		return err;
+		return 1;
 
 	err = bubt_write_file(dst, image_size);
 	if (err)
-		return err;
+		return 1;
 
 	return 0;
 }
