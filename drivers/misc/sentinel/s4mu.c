@@ -219,6 +219,7 @@ static struct misc_ops imx8ulp_mu_ops = {
 
 static const struct udevice_id imx8ulp_mu_ids[] = {
 	{ .compatible = "fsl,imx8ulp-mu" },
+	{ .compatible = "fsl,imx93-mu-s4" },
 	{ }
 };
 
