@@ -28,6 +28,7 @@
 #include <asm/bootm.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/mach-imx/s400_api.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -276,4 +277,104 @@ int timer_init(void)
 	gd->arch.tbu = 0;
 
 	return 0;
+}
+
+static int mix_power_init(enum mix_power_domain pd)
+{
+	enum src_mix_slice_id mix_id;
+	enum src_mem_slice_id mem_id;
+	struct src_mix_slice_regs *mix_regs;
+	struct src_mem_slice_regs *mem_regs;
+	struct src_general_regs *global_regs;
+	u32 scr, val;
+
+	switch (pd) {
+	case MIX_PD_MEDIAMIX:
+		mix_id = SRC_MIX_MEDIA;
+		mem_id = SRC_MEM_MEDIA;
+		scr = BIT(5);
+
+		/* Enable S400 handshake */
+		struct blk_ctrl_s_aonmix_regs *s_regs =
+			(struct blk_ctrl_s_aonmix_regs *)BLK_CTRL_S_ANOMIX_BASE_ADDR;
+
+		setbits_le32(&s_regs->lp_handshake[0], BIT(13));
+		break;
+	case MIX_PD_MLMIX:
+		mix_id = SRC_MIX_ML;
+		mem_id = SRC_MEM_ML;
+		scr = BIT(4);
+		break;
+	case MIX_PD_DDRMIX:
+		mix_id = SRC_MIX_DDRMIX;
+		mem_id = SRC_MEM_DDRMIX;
+		scr = BIT(6);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	mix_regs = (struct src_mix_slice_regs *)(ulong)(SRC_IPS_BASE_ADDR + 0x400 * (mix_id + 1));
+	mem_regs =
+		(struct src_mem_slice_regs *)(ulong)(SRC_IPS_BASE_ADDR + 0x3800 + 0x400 * mem_id);
+	global_regs = (struct src_general_regs *)(ulong)SRC_GLOBAL_RBASE;
+
+	/* Allow NS to set it */
+	setbits_le32(&mix_regs->authen_ctrl, BIT(9));
+
+	clrsetbits_le32(&mix_regs->psw_ack_ctrl[0], BIT(28), BIT(29));
+
+	/* mix reset will be held until boot core write this bit to 1 */
+	setbits_le32(&global_regs->scr, scr);
+
+	/* Enable mem in Low power auto sequence */
+	setbits_le32(&mem_regs->mem_ctrl, BIT(2));
+
+	/* Set the power down state */
+	val = readl(&mix_regs->func_stat);
+	if (val & SRC_MIX_SLICE_FUNC_STAT_PSW_STAT) {
+		/* The mix is default power off, power down it to make PDN_SFT bit
+		 *  aligned with FUNC STAT
+		 */
+		setbits_le32(&mix_regs->slice_sw_ctrl, BIT(31));
+		val = readl(&mix_regs->func_stat);
+
+		/* Since PSW_STAT is 1, can't be used for power off status (SW_CTRL BIT31 set)) */
+		/* Check the MEM STAT change to ensure SSAR is completed */
+		while (!(val & SRC_MIX_SLICE_FUNC_STAT_MEM_STAT))
+			val = readl(&mix_regs->func_stat);
+
+		/* wait few ipg clock cycles to ensure FSM done and power off status is correct */
+		/* About 5 cycles at 24Mhz, 1us is enough  */
+		udelay(1);
+	} else {
+		/*  The mix is default power on, Do mix power cycle */
+		setbits_le32(&mix_regs->slice_sw_ctrl, BIT(31));
+		val = readl(&mix_regs->func_stat);
+		while (!(val & SRC_MIX_SLICE_FUNC_STAT_PSW_STAT))
+			val = readl(&mix_regs->func_stat);
+	}
+
+	/* power on */
+	clrbits_le32(&mix_regs->slice_sw_ctrl, BIT(31));
+	val = readl(&mix_regs->func_stat);
+	while (val & SRC_MIX_SLICE_FUNC_STAT_ISO_STAT)
+		val = readl(&mix_regs->func_stat);
+
+	return 0;
+}
+
+void disable_isolation(void)
+{
+	struct src_general_regs *global_regs = (struct src_general_regs *)(ulong)SRC_GLOBAL_RBASE;
+	/* clear isolation for usbphy, dsi, csi*/
+	writel(0x0, &global_regs->sp_iso_ctrl);
+}
+
+void soc_power_init(void)
+{
+	mix_power_init(MIX_PD_MEDIAMIX);
+	mix_power_init(MIX_PD_MLMIX);
+
+	disable_isolation();
 }

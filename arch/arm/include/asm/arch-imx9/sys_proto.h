@@ -8,4 +8,5 @@
 
 #include <asm/mach-imx/sys_proto.h>
 
+void soc_power_init(void);
 #endif
