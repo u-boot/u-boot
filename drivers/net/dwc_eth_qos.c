@@ -719,6 +719,24 @@ static int eqos_read_rom_hwaddr(struct udevice *dev)
 	return !is_valid_ethaddr(pdata->enetaddr);
 }
 
+static int eqos_get_phy_addr(struct eqos_priv *priv, struct udevice *dev)
+{
+	struct ofnode_phandle_args phandle_args;
+	int reg;
+
+	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+				       &phandle_args)) {
+		debug("Failed to find phy-handle");
+		return -ENODEV;
+	}
+
+	priv->phy_of_node = phandle_args.node;
+
+	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
+
+	return reg;
+}
+
 static int eqos_start(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
@@ -767,9 +785,7 @@ static int eqos_start(struct udevice *dev)
 	 */
 	if (!eqos->phy) {
 		int addr = -1;
-#ifdef CONFIG_DM_ETH_PHY
-		addr = eth_phy_get_addr(dev);
-#endif
+		addr = eqos_get_phy_addr(eqos, dev);
 #ifdef DWC_NET_PHYADDR
 		addr = DWC_NET_PHYADDR;
 #endif
@@ -788,6 +804,7 @@ static int eqos_start(struct udevice *dev)
 			}
 		}
 
+		eqos->phy->node = eqos->phy_of_node;
 		ret = phy_config(eqos->phy);
 		if (ret < 0) {
 			pr_err("phy_config() failed: %d", ret);
