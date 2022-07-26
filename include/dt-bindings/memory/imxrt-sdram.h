@@ -82,6 +82,7 @@
 
 #define MEM_WIDTH_8BITS		0x0
 #define MEM_WIDTH_16BITS	0x1
+#define MEM_WIDTH_32BITS	0x2
 
 #define BL_1			0x0
 #define BL_2			0x1
