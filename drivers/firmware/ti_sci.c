@@ -287,10 +287,8 @@ static int ti_sci_cmd_get_revision(struct ti_sci_handle *handle)
 	}
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox communication fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	rev_info = (struct ti_sci_msg_resp_version *)xfer->tx_message.buf;
 
@@ -356,10 +354,8 @@ static int cmd_set_board_config_using_msg(const struct ti_sci_handle *handle,
 	req.boardcfg_size = size;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -516,10 +512,8 @@ static int ti_sci_set_device_state(const struct ti_sci_handle *handle,
 	req.state = state;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -572,7 +566,7 @@ static int ti_sci_set_device_state_no_wait(const struct ti_sci_handle *handle,
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
 
 	return ret;
 }
@@ -619,10 +613,8 @@ static int ti_sci_get_device_state(const struct ti_sci_handle *handle,
 	req.id = id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_device_state *)xfer->tx_message.buf;
 	if (!ti_sci_is_response_ack(resp))
@@ -908,10 +900,8 @@ static int ti_sci_cmd_set_device_resets(const struct ti_sci_handle *handle,
 	req.resets = reset_state;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -979,10 +969,8 @@ static int ti_sci_set_clock_state(const struct ti_sci_handle *handle,
 	req.request_state = state;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -1036,10 +1024,8 @@ static int ti_sci_cmd_get_clock_state(const struct ti_sci_handle *handle,
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_clock_state *)xfer->tx_message.buf;
 
@@ -1253,10 +1239,8 @@ static int ti_sci_cmd_clk_set_parent(const struct ti_sci_handle *handle,
 	req.parent_id = parent_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -1305,10 +1289,8 @@ static int ti_sci_cmd_clk_get_parent(const struct ti_sci_handle *handle,
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_clock_parent *)xfer->tx_message.buf;
 
@@ -1360,10 +1342,8 @@ static int ti_sci_cmd_clk_get_num_parents(const struct ti_sci_handle *handle,
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_clock_num_parents *)
 							xfer->tx_message.buf;
@@ -1428,10 +1408,8 @@ static int ti_sci_cmd_clk_get_match_freq(const struct ti_sci_handle *handle,
 	req.max_freq_hz = max_freq;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_query_clock_freq *)xfer->tx_message.buf;
 
@@ -1493,10 +1471,8 @@ static int ti_sci_cmd_clk_set_freq(const struct ti_sci_handle *handle,
 	req.max_freq_hz = max_freq;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -1545,10 +1521,8 @@ static int ti_sci_cmd_clk_get_freq(const struct ti_sci_handle *handle,
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_clock_freq *)xfer->tx_message.buf;
 
@@ -1592,10 +1566,8 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
 	req.domain = 0;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -1650,10 +1622,8 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 	req.subtype = subtype & MSG_RM_RESOURCE_SUBTYPE_MASK;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_resource_range *)xfer->tx_message.buf;
 	if (!ti_sci_is_response_ack(resp)) {
@@ -1774,10 +1744,8 @@ static int ti_sci_cmd_query_msmc(const struct ti_sci_handle *handle,
 	}
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_query_msmc *)xfer->tx_message.buf;
 
@@ -1826,10 +1794,8 @@ static int ti_sci_cmd_proc_request(const struct ti_sci_handle *handle,
 	req.processor_id = proc_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -1873,10 +1839,8 @@ static int ti_sci_cmd_proc_release(const struct ti_sci_handle *handle,
 	req.processor_id = proc_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -1924,10 +1888,8 @@ static int ti_sci_cmd_proc_handover(const struct ti_sci_handle *handle,
 	req.host_id = host_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -1981,10 +1943,8 @@ static int ti_sci_cmd_set_proc_boot_cfg(const struct ti_sci_handle *handle,
 	req.config_flags_clear = config_flags_clear;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -2034,10 +1994,8 @@ static int ti_sci_cmd_set_proc_boot_ctrl(const struct ti_sci_handle *handle,
 	req.control_flags_clear = control_flags_clear;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -2088,10 +2046,8 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 				TISCI_ADDR_HIGH_SHIFT;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_proc_auth_boot_image *)xfer->tx_message.buf;
 
@@ -2141,10 +2097,8 @@ static int ti_sci_cmd_get_proc_boot_status(const struct ti_sci_handle *handle,
 	req.processor_id = proc_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_proc_boot_status *)
 							xfer->tx_message.buf;
@@ -2240,7 +2194,7 @@ ti_sci_proc_wait_boot_status_no_wait(const struct ti_sci_handle *handle,
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
 
 	return ret;
 }
@@ -2354,10 +2308,8 @@ static int ti_sci_cmd_ring_config(const struct ti_sci_handle *handle,
 	req.order_id = order_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RM_RA:Mbox config send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp = (struct ti_sci_msg_rm_ring_cfg_resp *)xfer->tx_message.buf;
 
@@ -2397,10 +2349,8 @@ static int ti_sci_cmd_rm_psil_pair(const struct ti_sci_handle *handle,
 	req.dst_thread = dst_thread;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RM_PSIL:Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
@@ -2440,10 +2390,8 @@ static int ti_sci_cmd_rm_psil_unpair(const struct ti_sci_handle *handle,
 	req.dst_thread = dst_thread;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RM_PSIL:Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
@@ -2501,10 +2449,8 @@ static int ti_sci_cmd_rm_udmap_tx_ch_cfg(
 	req.extended_ch_type = params->extended_ch_type;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send TX_CH_CFG fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp =
 	      (struct ti_sci_msg_rm_udmap_tx_ch_cfg_resp *)xfer->tx_message.buf;
@@ -2559,10 +2505,8 @@ static int ti_sci_cmd_rm_udmap_rx_ch_cfg(
 	req.rx_ignore_long = params->rx_ignore_long;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send RX_CH_CFG fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp =
 	      (struct ti_sci_msg_rm_udmap_rx_ch_cfg_resp *)xfer->tx_message.buf;
@@ -2624,10 +2568,8 @@ static int ti_sci_cmd_rm_udmap_rx_flow_cfg(
 	req.rx_ps_location = params->rx_ps_location;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RX_FL_CFG: Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp =
 	       (struct ti_sci_msg_rm_udmap_flow_cfg_resp *)xfer->tx_message.buf;
@@ -2681,10 +2623,8 @@ static int ti_sci_cmd_set_fwl_region(const struct ti_sci_handle *handle,
 	req.end_address = region->end_address;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
 
@@ -2731,10 +2671,8 @@ static int ti_sci_cmd_get_fwl_region(const struct ti_sci_handle *handle,
 	req.n_permission_regs = region->n_permission_regs;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_fwl_get_firewall_region_resp *)xfer->tx_message.buf;
 
@@ -2791,10 +2729,8 @@ static int ti_sci_cmd_change_fwl_owner(const struct ti_sci_handle *handle,
 	req.owner_index = owner->owner_index;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_fwl_change_owner_info_resp *)xfer->tx_message.buf;
 
