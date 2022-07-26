@@ -1,5 +1,10 @@
 if ARCH_IMX9
 
+config AHAB_BOOT
+    bool "Support i.MX9 AHAB features"
+    help
+    This option enables the support for AHAB secure boot.
+
 config IMX9
 	bool
 	select HAS_CAAM

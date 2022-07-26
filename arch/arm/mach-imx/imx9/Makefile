@@ -4,3 +4,4 @@
 
 obj-y += lowlevel_init.o
 obj-y += soc.o clock.o clock_root.o trdc.o
+obj-$(CONFIG_AHAB_BOOT) += ahab.o
