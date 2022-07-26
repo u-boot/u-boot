@@ -63,26 +63,26 @@
 
 		ddr-1d-imem-fw {
 			filename = "lpddr4_pmu_train_1d_imem_202006.bin";
-			size = <0x8000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 
 		ddr-1d-dmem-fw {
 			filename = "lpddr4_pmu_train_1d_dmem_202006.bin";
-			size = <0x4000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 
 		ddr-2d-imem-fw {
 			filename = "lpddr4_pmu_train_2d_imem_202006.bin";
-			size = <0x8000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 
 		ddr-2d-dmem-fw {
 			filename = "lpddr4_pmu_train_2d_dmem_202006.bin";
-			size = <0x4000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 	};
 

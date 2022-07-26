@@ -157,26 +157,26 @@
 
 		ddr-1d-imem-fw {
 			filename = "ddr4_imem_1d_201810.bin";
-			size = <0x8000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 
 		ddr-1d-dmem-fw {
 			filename = "ddr4_dmem_1d_201810.bin";
-			size = <0x4000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 
 		ddr-2d-imem-fw {
 			filename = "ddr4_imem_2d_201810.bin";
-			size = <0x8000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 
 		ddr-2d-dmem-fw {
 			filename = "ddr4_dmem_2d_201810.bin";
-			size = <0x4000>;
 			type = "blob-ext";
+			align-end = <4>;
 		};
 	};
 
