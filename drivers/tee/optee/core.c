@@ -642,7 +642,6 @@ static int optee_probe(struct udevice *dev)
 {
 	struct optee_pdata *pdata = dev_get_plat(dev);
 	u32 sec_caps;
-	struct udevice *child;
 	int ret;
 
 	if (!is_optee_api(pdata->invoke_fn)) {
@@ -673,7 +672,7 @@ static int optee_probe(struct udevice *dev)
 	 * only bind the drivers associated to the supported OP-TEE TA
 	 */
 	if (IS_ENABLED(CONFIG_RNG_OPTEE)) {
-		ret = device_bind_driver(dev, "optee-rng", "optee-rng", &child);
+		ret = device_bind_driver(dev, "optee-rng", "optee-rng", NULL);
 		if (ret)
 			return ret;
 	}
