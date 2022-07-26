@@ -7,6 +7,7 @@
 #define __ASM_ARCH_IMX9_REGS_H__
 
 #define ARCH_MXC
+#define FEC_QUIRK_ENET_MAC
 
 #define IOMUXC_BASE_ADDR	0x443C0000UL
 #define CCM_BASE_ADDR		0x44450000UL
@@ -38,6 +39,12 @@
 #define SRC_MIX_SLICE_FUNC_STAT_RST_STAT BIT(2)
 #define SRC_MIX_SLICE_FUNC_STAT_ISO_STAT BIT(4)
 #define SRC_MIX_SLICE_FUNC_STAT_MEM_STAT BIT(12)
+
+#define BCTRL_GPR_ENET_QOS_INTF_MODE_MASK        GENMASK(3, 1)
+#define BCTRL_GPR_ENET_QOS_INTF_SEL_MII          (0x0 << 1)
+#define BCTRL_GPR_ENET_QOS_INTF_SEL_RMII         (0x4 << 1)
+#define BCTRL_GPR_ENET_QOS_INTF_SEL_RGMII        (0x1 << 1)
+#define BCTRL_GPR_ENET_QOS_CLK_GEN_EN            (0x1 << 0)
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
