@@ -246,7 +246,7 @@
 			};
 
 			nand@d0000 {
-				compatible = "marvell,armada370-nand";
+				compatible = "marvell,armada370-nand-controller";
 				reg = <0xd0000 0x54>;
 				#address-cells = <1>;
 				#size-cells = <1>;
