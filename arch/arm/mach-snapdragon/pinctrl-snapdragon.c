@@ -116,9 +116,7 @@ static struct pinctrl_ops msm_pinctrl_ops = {
 static const struct udevice_id msm_pinctrl_ids[] = {
 	{ .compatible = "qcom,tlmm-apq8016", .data = (ulong)&apq8016_data },
 	{ .compatible = "qcom,tlmm-apq8096", .data = (ulong)&apq8096_data },
-#ifdef CONFIG_SDM845
 	{ .compatible = "qcom,tlmm-sdm845", .data = (ulong)&sdm845_data },
-#endif
 	{ .compatible = "qcom,tlmm-qcs404", .data = (ulong)&qcs404_data },
 	{ }
 };
