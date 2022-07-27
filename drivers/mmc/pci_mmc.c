@@ -86,6 +86,7 @@ static int pci_mmc_bind(struct udevice *dev)
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
 
+__maybe_unused
 static int pci_mmc_acpi_fill_ssdt(const struct udevice *dev,
 				  struct acpi_ctx *ctx)
 {
@@ -138,7 +139,9 @@ static int pci_mmc_acpi_fill_ssdt(const struct udevice *dev,
 }
 
 struct acpi_ops pci_mmc_acpi_ops = {
+#ifdef CONFIG_ACPIGEN
 	.fill_ssdt	= pci_mmc_acpi_fill_ssdt,
+#endif
 };
 
 static const struct udevice_id pci_mmc_match[] = {
