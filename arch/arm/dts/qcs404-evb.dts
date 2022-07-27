@@ -38,7 +38,7 @@
 		compatible = "simple-bus";
 
 		pinctrl_north@1300000 {
-			compatible = "qcom,tlmm-qcs404";
+			compatible = "qcom,qcs404-pinctrl";
 			reg = <0x1300000 0x200000>;
 
 			blsp1_uart2: uart {

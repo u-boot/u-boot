@@ -37,7 +37,7 @@
 		};
 
 		tlmm_north: pinctrl_north@3900000 {
-			compatible = "qcom,tlmm-sdm845";
+			compatible = "qcom,sdm845-pinctrl";
 			reg = <0x3900000 0x400000>;
 			gpio-count = <150>;
 			gpio-controller;
