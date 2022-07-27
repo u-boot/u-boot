@@ -39,6 +39,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #if defined(CONFIG_UT_ENV)
 	U_BOOT_CMD_MKENT(env, CONFIG_SYS_MAXARGS, 1, do_ut_env, "", ""),
 #endif
+#ifdef CONFIG_CMD_FDT
+	U_BOOT_CMD_MKENT(fdt, CONFIG_SYS_MAXARGS, 1, do_ut_fdt, "", ""),
+#endif
 #ifdef CONFIG_UT_OPTEE
 	U_BOOT_CMD_MKENT(optee, CONFIG_SYS_MAXARGS, 1, do_ut_optee, "", ""),
 #endif
@@ -130,6 +133,9 @@ static char ut_help_text[] =
 #endif
 #ifdef CONFIG_UT_ENV
 	"ut env [test-name]\n"
+#endif
+#ifdef CONFIG_CMD_FDT
+	"ut fdt [test-name] - test of the fdt command\n"
 #endif
 #ifdef CONFIG_UT_LIB
 	"ut lib [test-name] - test library functions\n"

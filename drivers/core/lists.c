@@ -223,10 +223,14 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 			  compat);
 
 		for (entry = driver; entry != driver + n_ents; entry++) {
+			if (drv) {
+				if (drv != entry)
+					continue;
+				if (!entry->of_match)
+					break;
+			}
 			ret = driver_check_compatible(entry->of_match, &id,
 						      compat);
-			if ((drv) && (drv == entry))
-				break;
 			if (!ret)
 				break;
 		}
@@ -241,9 +245,10 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 			}
 		}
 
-		log_debug("   - found match at '%s': '%s' matches '%s'\n",
-			  entry->name, entry->of_match->compatible,
-			  id->compatible);
+		if (entry->of_match)
+			log_debug("   - found match at '%s': '%s' matches '%s'\n",
+				  entry->name, entry->of_match->compatible,
+				  id->compatible);
 		ret = device_bind_with_driver_data(parent, entry, name,
 						   id->data, node, &dev);
 		if (ret == -ENODEV) {

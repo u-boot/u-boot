@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <addr_map.h>
+#include <mapmem.h>
 
 struct addrmap address_map[CONFIG_SYS_NUM_ADDR_MAP];
 
@@ -18,7 +19,7 @@ phys_addr_t addrmap_virt_to_phys(void * vaddr)
 		if (address_map[i].size == 0)
 			continue;
 
-		addr = (u64)((u32)vaddr);
+		addr = map_to_sysmem(vaddr);
 		base = (u64)(address_map[i].vaddr);
 		upper = (u64)(address_map[i].size) + base - 1;
 
@@ -48,7 +49,7 @@ void *addrmap_phys_to_virt(phys_addr_t paddr)
 
 			offset = address_map[i].paddr - address_map[i].vaddr;
 
-			return (void *)(unsigned long)(paddr - offset);
+			return map_sysmem(paddr - offset, 0);
 		}
 	}
 

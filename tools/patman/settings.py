@@ -23,6 +23,7 @@ _default_settings = {
     "u-boot": {},
     "linux": {
         "process_tags": "False",
+        "check_patch_use_tree": "True",
     },
     "gcc": {
         "process_tags": "False",
@@ -71,7 +72,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     >>> config = _ProjectConfigParser("linux")
     >>> config.readfp(StringIO(sample_config))
     >>> sorted((str(a), str(b)) for (a, b) in config.items("settings"))
-    [('am_hero', 'True'), ('process_tags', 'False')]
+    [('am_hero', 'True'), ('check_patch_use_tree', 'True'), ('process_tags', 'False')]
 
     # Check to make sure that settings works with unknown project.
     >>> config = _ProjectConfigParser("unknown")

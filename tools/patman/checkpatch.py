@@ -186,7 +186,7 @@ def check_patch_parse(checkpatch_output, verbose=False):
     return result
 
 
-def check_patch(fname, verbose=False, show_types=False):
+def check_patch(fname, verbose=False, show_types=False, use_tree=False):
     """Run checkpatch.pl on a file and parse the results.
 
     Args:
@@ -194,6 +194,7 @@ def check_patch(fname, verbose=False, show_types=False):
         verbose: True to print out every line of the checkpatch output as it is
             parsed
         show_types: Tell checkpatch to show the type (number) of each message
+        use_tree (bool): If False we'll pass '--no-tree' to checkpatch.
 
     Returns:
         namedtuple containing:
@@ -210,7 +211,9 @@ def check_patch(fname, verbose=False, show_types=False):
             stdout: Full output of checkpatch
     """
     chk = find_check_patch()
-    args = [chk, '--no-tree']
+    args = [chk]
+    if not use_tree:
+        args.append('--no-tree')
     if show_types:
         args.append('--show-types')
     output = command.output(*args, fname, raise_on_error=False)
@@ -236,13 +239,13 @@ def get_warning_msg(col, msg_type, fname, line, msg):
     line_str = '' if line is None else '%d' % line
     return '%s:%s: %s: %s\n' % (fname, line_str, msg_type, msg)
 
-def check_patches(verbose, args):
+def check_patches(verbose, args, use_tree):
     '''Run the checkpatch.pl script on each patch'''
     error_count, warning_count, check_count = 0, 0, 0
     col = terminal.Color()
 
     for fname in args:
-        result = check_patch(fname, verbose)
+        result = check_patch(fname, verbose, use_tree=use_tree)
         if not result.ok:
             error_count += result.errors
             warning_count += result.warnings
