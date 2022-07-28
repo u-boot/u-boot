@@ -22,6 +22,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <asm/gpio.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
@@ -60,6 +61,7 @@ struct mvebu_pcie {
 	struct resource mem;
 	void __iomem *iobase;
 	struct resource io;
+	struct gpio_desc reset_gpio;
 	u32 intregs;
 	u32 port;
 	u32 lane;
@@ -416,6 +418,14 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	struct udevice *ctlr = pci_get_controller(dev);
 	struct pci_controller *hose = dev_get_uclass_priv(ctlr);
 	u32 reg;
+	int ret;
+
+	/* Request for optional PERST# GPIO */
+	ret = gpio_request_by_name(dev, "reset-gpios", 0, &pcie->reset_gpio, GPIOD_IS_OUT);
+	if (ret && ret != -ENOENT) {
+		printf("%s: unable to request reset-gpios: %d\n", pcie->name, ret);
+		return ret;
+	}
 
 	/*
 	 * Change Class Code of PCI Bridge device to PCI Bridge (0x600400)
@@ -536,6 +546,10 @@ static int mvebu_pcie_probe(struct udevice *dev)
 		PCI_IO_RANGE_TYPE_32 | (PCI_IO_RANGE_TYPE_32 << 8);
 	pcie->cfgcache[(PCI_PREF_MEMORY_BASE - 0x10) / 4] =
 		PCI_PREF_RANGE_TYPE_64 | (PCI_PREF_RANGE_TYPE_64 << 16);
+
+	/* Release PERST# via GPIO when it was defined */
+	if (dm_gpio_is_valid(&pcie->reset_gpio))
+		dm_gpio_set_value(&pcie->reset_gpio, 0);
 
 	mvebu_pcie_wait_for_link(pcie);
 
