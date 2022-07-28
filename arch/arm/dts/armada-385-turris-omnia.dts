@@ -173,7 +173,14 @@
 			#size-cells = <0>;
 			reg = <0>;
 
-			/* STM32F0 command interface at address 0x2a */
+			/* MCU command i2c API */
+			mcu: mcu@2a {
+				compatible = "cznic,turris-omnia-mcu";
+				reg = <0x2a>;
+				gpio-controller;
+				#gpio-cells = <3>;
+			};
+
 			/* leds device (in STM32F0) at address 0x2b */
 
 			eeprom@54 {
