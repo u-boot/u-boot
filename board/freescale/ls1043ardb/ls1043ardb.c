@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  */
 
 #include <common.h>
@@ -272,6 +272,39 @@ void fdt_del_qe(void *blob)
 	}
 }
 
+/* Update the address of the Aquantia PHY on the MDIO bus for boards revision
+ * v7.0 and up. Also rename the PHY node to align with the address change.
+ */
+void fdt_fixup_phy_addr(void *blob)
+{
+	const char phy_path[] =
+		"/soc/fman@1a00000/mdio@fd000/ethernet-phy@1";
+	int ret, offset, new_addr = AQR113C_PHY_ADDR;
+	char new_name[] = "ethernet-phy@00";
+
+	if (CPLD_READ(pcba_ver) < 0x7)
+		return;
+
+	offset = fdt_path_offset(blob, phy_path);
+	if (offset < 0) {
+		printf("ethernet-phy@1 node not found in the dts\n");
+		return;
+	}
+
+	ret = fdt_setprop_u32(blob, offset, "reg", new_addr);
+	if (ret < 0) {
+		printf("Unable to set 'reg' for node ethernet-phy@1: %s\n",
+		       fdt_strerror(ret));
+		return;
+	}
+
+	sprintf(new_name, "ethernet-phy@%x", new_addr);
+	ret = fdt_set_name(blob, offset, new_name);
+	if (ret < 0)
+		printf("Unable to rename node ethernet-phy@1: %s\n",
+		       fdt_strerror(ret));
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u64 base[CONFIG_NR_DRAM_BANKS];
@@ -290,6 +323,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifndef CONFIG_DM_ETH
 	fdt_fixup_fman_ethernet(blob);
 #endif
+	fdt_fixup_phy_addr(blob);
 #endif
 
 	fdt_fixup_icid(blob);
@@ -312,6 +346,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
+
+#if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
+int board_fix_fdt(void *blob)
+{
+	fdt_fixup_phy_addr(blob);
+	return 0;
+}
+#endif
 
 u8 flash_read8(void *addr)
 {
