@@ -736,7 +736,8 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
 	buf = map_sysmem(kernel_addr_r, 0);
 	/* Try bootm for legacy and FIT format image */
-	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
+	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
+            IS_ENABLED(CONFIG_CMD_BOOTM))
 		do_bootm(ctx->cmdtp, 0, bootm_argc, bootm_argv);
 	/* Try booting an AArch64 Linux kernel image */
 	else if (IS_ENABLED(CONFIG_CMD_BOOTI))

@@ -148,9 +148,9 @@ int cmd_get_data_size(char *arg, int default_size);
 int do_bootd(struct cmd_tbl *cmdtp, int flag, int argc,
 	     char *const argv[]);
 #endif
-#ifdef CONFIG_CMD_BOOTM
 int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc,
 	     char *const argv[]);
+#ifdef CONFIG_CMD_BOOTM
 int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd);
 #else
 static inline int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
