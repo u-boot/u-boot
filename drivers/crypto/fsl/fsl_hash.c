@@ -131,25 +131,35 @@ static int caam_hash_update(void *hash_ctx, const void *buf,
 static int caam_hash_finish(void *hash_ctx, void *dest_buf,
 			    int size, enum caam_hash_algos caam_algo)
 {
-	uint32_t len = 0;
+	uint32_t len = 0, sg_entry_len;
 	struct sha_ctx *ctx = hash_ctx;
 	int i = 0, ret = 0;
+	caam_dma_addr_t addr;
 
 	if (size < driver_hash[caam_algo].digestsize) {
 		return -EINVAL;
 	}
 
-	for (i = 0; i < ctx->sg_num; i++)
-		len += (sec_in32(&ctx->sg_tbl[i].len_flag) &
-			SG_ENTRY_LENGTH_MASK);
-
+	flush_dcache_range((ulong)ctx->sg_tbl,
+			   (ulong)(ctx->sg_tbl) + (ctx->sg_num * sizeof(struct sg_entry)));
+	for (i = 0; i < ctx->sg_num; i++) {
+		sg_entry_len = (sec_in32(&ctx->sg_tbl[i].len_flag) &
+				SG_ENTRY_LENGTH_MASK);
+		len += sg_entry_len;
+#ifdef CONFIG_CAAM_64BIT
+		addr = sec_in32(&ctx->sg_tbl[i].addr_hi);
+		addr = (addr << 32) | sec_in32(&ctx->sg_tbl[i].addr_lo);
+#else
+		addr = sec_in32(&ctx->sg_tbl[i].addr_lo);
+#endif
+		flush_dcache_range(addr, addr + sg_entry_len);
+	}
 	inline_cnstr_jobdesc_hash(ctx->sha_desc, (uint8_t *)ctx->sg_tbl, len,
 				  ctx->hash,
 				  driver_hash[caam_algo].alg_type,
 				  driver_hash[caam_algo].digestsize,
 				  1);
 
-	flush_dcache_range((ulong)ctx->sg_tbl, (ulong)(ctx->sg_tbl) + len);
 	flush_dcache_range((ulong)ctx->sha_desc,
 			   (ulong)(ctx->sha_desc) + (sizeof(uint32_t) * MAX_CAAM_DESCSIZE));
 	flush_dcache_range((ulong)ctx->hash,
