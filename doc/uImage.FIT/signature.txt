@@ -382,6 +382,32 @@ verified later even if the FIT has been signed with other keys in the
 meantime.
 
 
+Details
+-------
+The signature node contains a property ('hashed-nodes') which lists all the
+nodes that the signature was made over.  The image is walked in order and each
+tag processed as follows:
+- DTB_BEGIN_NODE: The tag and the following name are included in the signature
+  if the node or its parent are present in 'hashed-nodes'
+- DTB_END_NODE: The tag is included in the signature if the node or its parent
+  are present in 'hashed-nodes'
+- DTB_PROPERTY: The tag, the length word, the offset in the string table, and
+  the data are all included if the current node is present in 'hashed-nodes'
+  and the property name is not 'data'.
+- DTB_END: The tag is always included in the signature.
+- DTB_NOP: The tag is included in the signature if the current node is present
+  in 'hashed-nodes'
+
+In addition, the signature contains a property 'hashed-strings' which contains
+the offset and length in the string table of the strings that are to be
+included in the signature (this is done last).
+
+IMPORTANT:  To verify the signature outside u-boot, it is vital to not only
+calculate the hash of the image and verify the signature with that, but also to
+calculate the hashes of the kernel, fdt, and ramdisk images and check those
+match the hash values in the corresponding 'hash*' subnodes.
+
+
 Verification
 ------------
 FITs are verified when loaded. After the configuration is selected a list

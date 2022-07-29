@@ -13,6 +13,7 @@ General
    designprinciples
    process
    release_cycle
+   system_configuration
 
 Implementation
 --------------
