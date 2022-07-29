@@ -166,27 +166,6 @@ Directory Hierarchy:
 Software Configuration:
 =======================
 
-Configuration is usually done using C preprocessor defines; the
-rationale behind that is to avoid dead code whenever possible.
-
-There are two classes of configuration variables:
-
-* Configuration _OPTIONS_:
-  These are selectable by the user and have names beginning with
-  "CONFIG_".
-
-* Configuration _SETTINGS_:
-  These depend on the hardware etc. and should not be meddled with if
-  you don't know what you're doing; they have names beginning with
-  "CONFIG_SYS_".
-
-Previously, all configuration was done by hand, which involved creating
-symbolic links and editing configuration files manually. More recently,
-U-Boot has added the Kbuild infrastructure used by the Linux kernel,
-allowing you to use the "make menuconfig" command to configure your
-build.
-
-
 Selection of Processor Architecture and Board Type:
 ---------------------------------------------------
 
