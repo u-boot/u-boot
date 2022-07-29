@@ -21,7 +21,7 @@ feature is typically called `distro boot` (see :doc:`distro`) because it is
 a way for distributions to boot on any hardware.
 
 Traditionally U-Boot has relied on scripts to implement this feature. See
-disto_boodcmd_ for details. This is done because U-Boot has no native support
+distro_bootcmd_ for details. This is done because U-Boot has no native support
 for scanning devices. While the scripts work remarkably well, they can be hard
 to understand and extend, and the feature does not include tests. They are also
 making it difficult to move away from ad-hoc CONFIGs, since they are implemented
@@ -52,7 +52,7 @@ BootLoaderSpec_ format. which looks something like this::
        initrd /initramfs-5.3.7-301.fc31.armv7hl.img
 
 As you can see it specifies a kernel, a ramdisk (initrd) and a directory from
-which to load devicetree files. The details are described in disto_boodcmd_.
+which to load devicetree files. The details are described in distro_bootcmd_.
 
 The bootflow is provided by the distro. It is not part of U-Boot. U-Boot's job
 is simply to interpret the file and carry out the instructions. This allows
@@ -669,7 +669,7 @@ Other ideas:
   not need to specify things like `pxefile_addr_r`
 
 
-.. _disto_boodcmd: https://github.com/u-boot/u-boot/blob/master/include/config_distro_bootcmd.h
+.. _distro_bootcmd: https://github.com/u-boot/u-boot/blob/master/include/config_distro_bootcmd.h
 .. _BootLoaderSpec: http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
 .. _distro_boot: https://github.com/u-boot/u-boot/blob/master/boot/distro.c
 .. _bootflow_h: https://github.com/u-boot/u-boot/blob/master/include/bootflow.h
