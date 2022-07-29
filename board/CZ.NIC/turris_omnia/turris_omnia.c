@@ -62,11 +62,25 @@ enum mcu_commands {
 	CMD_GET_STATUS_WORD	= 0x01,
 	CMD_GET_RESET		= 0x09,
 	CMD_WATCHDOG_STATE	= 0x0b,
+
+	/* available if STS_FEATURES_SUPPORTED bit set in status word */
+	CMD_GET_FEATURES	= 0x10,
 };
 
 enum status_word_bits {
+	STS_MCU_TYPE_MASK	= GENMASK(1, 0),
+	STS_MCU_TYPE_STM32	= 0,
+	STS_MCU_TYPE_GD32	= 1,
+	STS_MCU_TYPE_MKL	= 2,
+	STS_MCU_TYPE_UNKN	= 3,
+	STS_FEATURES_SUPPORTED	= BIT(2),
 	CARD_DET_STSBIT		= 0x0010,
 	MSATA_IND_STSBIT	= 0x0020,
+};
+
+/* CMD_GET_FEATURES */
+enum features_e {
+	FEAT_PERIPH_MCU		= BIT(0),
 };
 
 /*
@@ -369,6 +383,36 @@ static int omnia_get_ram_size_gb(void)
 	}
 
 	return ram_size;
+}
+
+static const char * const omnia_get_mcu_type(void)
+{
+	static const char * const mcu_types[] = {
+		[STS_MCU_TYPE_STM32] = "STM32",
+		[STS_MCU_TYPE_GD32]  = "GD32",
+		[STS_MCU_TYPE_MKL]   = "MKL",
+		[STS_MCU_TYPE_UNKN]  = "unknown",
+	};
+	static const char * const mcu_types_with_perip_resets[] = {
+		[STS_MCU_TYPE_STM32] = "STM32 (with peripheral resets)",
+		[STS_MCU_TYPE_GD32]  = "GD32 (with peripheral resets)",
+		[STS_MCU_TYPE_MKL]   = "MKL (with peripheral resets)",
+		[STS_MCU_TYPE_UNKN]  = "unknown (with peripheral resets)",
+	};
+	u16 stsword, features;
+	int ret;
+
+	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
+	if (ret)
+		return "unknown";
+
+	if (stsword & STS_FEATURES_SUPPORTED) {
+		ret = omnia_mcu_read(CMD_GET_FEATURES, &features, sizeof(features));
+		if (ret == 0 && (features & FEAT_PERIPH_MCU))
+			return mcu_types_with_perip_resets[stsword & STS_MCU_TYPE_MASK];
+	}
+
+	return mcu_types[stsword & STS_MCU_TYPE_MASK];
 }
 
 /*
@@ -688,6 +732,7 @@ int show_board_info(void)
 
 	err = turris_atsha_otp_get_serial_number(&version_num, &serial_num);
 	printf("Model: Turris Omnia\n");
+	printf("  MCU type: %s\n", omnia_get_mcu_type());
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
 		printf("  Serial Number: unknown\n");
