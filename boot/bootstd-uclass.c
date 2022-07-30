@@ -133,12 +133,7 @@ int dm_scan_other(bool pre_reloc_only)
 		return 0;
 
 	for (i = 0; i < n_ents; i++, drv++) {
-		/*
-		 * Disable EFI Manager for now as no one uses it so it is
-		 * confusing
-		 */
-		if (drv->id == UCLASS_BOOTMETH &&
-		    strcmp("efi_mgr_bootmeth", drv->name)) {
+		if (drv->id == UCLASS_BOOTMETH) {
 			const char *name = drv->name;
 
 			if (!strncmp("bootmeth_", name, 9))

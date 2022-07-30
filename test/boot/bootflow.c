@@ -324,34 +324,26 @@ BOOTSTD_TEST(bootflow_iter, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 /* Check using the system bootdev */
 static int bootflow_system(struct unit_test_state *uts)
 {
-	struct udevice *bootstd, *dev;
+	struct udevice *dev;
 
-	/* Add the EFI bootmgr driver */
-	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
-	ut_assertok(device_bind_driver(bootstd, "bootmeth_efi_mgr", "bootmgr",
-				       &dev));
-	ut_assertok(device_probe(dev));
+	ut_assertok(uclass_get_device_by_name(UCLASS_BOOTMETH, "efi_mgr",
+					      &dev));
 	sandbox_set_fake_efi_mgr_dev(dev, true);
-
-	/* Add the system bootdev that it uses */
-	ut_assertok(device_bind_driver(bootstd, "system_bootdev",
-				       "system-bootdev", &dev));
-
-	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	/* We should get a single 'bootmgr' method right at the end */
 	bootstd_clear_glob();
 	console_record_reset_enable();
 	ut_assertok(run_command("bootflow scan -l", 0));
 	ut_assert_skip_to_line(
-		"  0  bootmgr      ready   (none)       0  <NULL>                    <NULL>");
+		"  0  efi_mgr      ready   (none)       0  <NULL>                    <NULL>");
 	ut_assert_skip_to_line("No more bootdevs");
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(6 bootflows, 6 valid)");
 	ut_assert_console_end();
 
 	return 0;
 }
-BOOTSTD_TEST(bootflow_system, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootflow_system, UT_TESTF_DM | UT_TESTF_SCAN_PDATA |
+	     UT_TESTF_SCAN_FDT);
 
 /* Check disabling a bootmethod if it requests it */
 static int bootflow_iter_disable(struct unit_test_state *uts)
