@@ -1114,13 +1114,13 @@ int ofnode_device_is_compatible(ofnode node, const char *compat);
  *
  * @node:	The node for whose property should be set
  * @propname:	The name of the property to set
- * @len:	The length of the new value of the property
  * @value:	The new value of the property (must be valid prior to calling
  *		the function)
+ * @len:	The length of the new value of the property
  * Return: 0 if successful, -ve on error
  */
-int ofnode_write_prop(ofnode node, const char *propname, int len,
-		      const void *value);
+int ofnode_write_prop(ofnode node, const char *propname, const void *value,
+		      int len);
 
 /**
  * ofnode_write_string() - Set a string property of a ofnode

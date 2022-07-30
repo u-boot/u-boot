@@ -576,8 +576,8 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	/* Non-existent in DTB */
 	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr(dev));
 	/* reg = 0x42, size = 0x100 */
-	ut_assertok(ofnode_write_prop(node, "reg", 8,
-				      "\x00\x00\x00\x42\x00\x00\x01\x00"));
+	ut_assertok(ofnode_write_prop(node, "reg",
+				      "\x00\x00\x00\x42\x00\x00\x01\x00", 8));
 	ut_asserteq(0x42, dev_read_addr(dev));
 
 	/* Test disabling devices */
