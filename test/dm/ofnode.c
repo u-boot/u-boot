@@ -549,9 +549,9 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	/* Test enabling devices */
 	node = ofnode_path("/usb@2");
 
-	ut_assert(!of_device_is_available(ofnode_to_np(node)));
-	ofnode_set_enabled(node, true);
-	ut_assert(of_device_is_available(ofnode_to_np(node)));
+	ut_assert(!ofnode_is_enabled(node));
+	ut_assertok(ofnode_set_enabled(node, true));
+	ut_asserteq(true, ofnode_is_enabled(node));
 
 	device_bind_driver_to_node(dm_root(), "usb_sandbox", "usb@2", node,
 				   &dev);
@@ -577,11 +577,11 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	device_remove(dev, DM_REMOVE_NORMAL);
 	device_unbind(dev);
 
-	ut_assert(of_device_is_available(ofnode_to_np(node)));
-	ofnode_set_enabled(node, false);
-	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+	ut_assert(ofnode_is_enabled(node));
+	ut_assertok(ofnode_set_enabled(node, false));
+	ut_assert(!ofnode_is_enabled(node));
 
 	return 0;
 }
 DM_TEST(dm_test_ofnode_livetree_writing,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_TREE);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);

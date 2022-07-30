@@ -45,6 +45,24 @@ static inline const struct device_node *ofnode_to_np(ofnode node)
 }
 
 /**
+ * ofnode_to_npw() - convert an ofnode to a writeable live DT node pointer
+ *
+ * This cannot be called if the reference contains an offset.
+ *
+ * @node: Reference containing struct device_node * (possibly invalid)
+ * Return: pointer to device node (can be NULL)
+ */
+static inline struct device_node *ofnode_to_npw(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (!of_live_active())
+		return NULL;
+#endif
+	/* Drop constant */
+	return (struct device_node *)node.np;
+}
+
+/**
  * ofnode_to_offset() - convert an ofnode to a flat DT offset
  *
  * This cannot be called if the reference contains a node pointer.

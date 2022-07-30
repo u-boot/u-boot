@@ -887,3 +887,46 @@ struct device_node *of_get_stdout(void)
 {
 	return of_stdout;
 }
+
+int of_write_prop(struct device_node *np, const char *propname, int len,
+		  const void *value)
+{
+	struct property *pp;
+	struct property *pp_last = NULL;
+	struct property *new;
+
+	if (!np)
+		return -EINVAL;
+
+	for (pp = np->properties; pp; pp = pp->next) {
+		if (strcmp(pp->name, propname) == 0) {
+			/* Property exists -> change value */
+			pp->value = (void *)value;
+			pp->length = len;
+			return 0;
+		}
+		pp_last = pp;
+	}
+
+	if (!pp_last)
+		return -ENOENT;
+
+	/* Property does not exist -> append new property */
+	new = malloc(sizeof(struct property));
+	if (!new)
+		return -ENOMEM;
+
+	new->name = strdup(propname);
+	if (!new->name) {
+		free(new);
+		return -ENOMEM;
+	}
+
+	new->value = (void *)value;
+	new->length = len;
+	new->next = NULL;
+
+	pp_last->next = new;
+
+	return 0;
+}

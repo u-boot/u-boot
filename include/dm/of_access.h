@@ -519,4 +519,16 @@ int of_alias_get_highest_id(const char *stem);
  */
 struct device_node *of_get_stdout(void);
 
+/**
+ * of_write_prop() - Write a property to the device tree
+ *
+ * @np:		device node to which the property value is to be written
+ * @propname:	name of the property to write
+ * @value:	value of the property
+ * @len:	length of the property in bytes
+ * Returns: 0 if OK, -ve on error
+ */
+int of_write_prop(struct device_node *np, const char *propname, int len,
+		  const void *value);
+
 #endif

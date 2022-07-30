@@ -1108,55 +1108,17 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 		      int len)
 {
-	const struct device_node *np = ofnode_to_np(node);
-	struct property *pp;
-	struct property *pp_last = NULL;
-	struct property *new;
-
-	if (!of_live_active())
-		return -ENOSYS;
-
-	if (!np)
-		return -EINVAL;
-
-	for (pp = np->properties; pp; pp = pp->next) {
-		if (strcmp(pp->name, propname) == 0) {
-			/* Property exists -> change value */
-			pp->value = (void *)value;
-			pp->length = len;
-			return 0;
-		}
-		pp_last = pp;
-	}
-
-	if (!pp_last)
-		return -ENOENT;
-
-	/* Property does not exist -> append new property */
-	new = malloc(sizeof(struct property));
-	if (!new)
-		return -ENOMEM;
-
-	new->name = strdup(propname);
-	if (!new->name) {
-		free(new);
-		return -ENOMEM;
-	}
-
-	new->value = (void *)value;
-	new->length = len;
-	new->next = NULL;
-
-	pp_last->next = new;
+	if (of_live_active())
+		return of_write_prop(ofnode_to_npw(node), propname, len, value);
+	else
+		return fdt_setprop((void *)gd->fdt_blob, ofnode_to_offset(node),
+				   propname, value, len);
 
 	return 0;
 }
 
 int ofnode_write_string(ofnode node, const char *propname, const char *value)
 {
-	if (!of_live_active())
-		return -ENOSYS;
-
 	assert(ofnode_valid(node));
 
 	debug("%s: %s = %s", __func__, propname, value);
@@ -1166,9 +1128,6 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value)
 
 int ofnode_set_enabled(ofnode node, bool value)
 {
-	if (!of_live_active())
-		return -ENOSYS;
-
 	assert(ofnode_valid(node));
 
 	if (value)
