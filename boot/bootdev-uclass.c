@@ -604,14 +604,14 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 		log_debug("Expected %d bootdevs, found %d using aliases\n",
 			  count, upto);
 
-	count = build_order(bootstd, order, upto);
-	if (count < 0) {
+	ret = build_order(bootstd, order, upto);
+	if (ret < 0) {
 		free(order);
-		return log_msg_ret("build", count);
+		return log_msg_ret("build", ret);
 	}
 
+	iter->num_devs = ret;
 	iter->dev_order = order;
-	iter->num_devs = count;
 	iter->cur_dev = 0;
 
 	dev = *order;
