@@ -408,6 +408,18 @@ config BOOTMETH_VBE
 	  supports selection of various firmware components, seleciton of an OS to
 	  boot as well as updating these using fwupd.
 
+if BOOTMETH_VBE
+
+config BOOTMETH_VBE_SIMPLE
+	bool "Bootdev support for VBE 'simple' method"
+	default y
+	help
+	  Enables support for VBE 'simple' boot. This allows updating a single
+	  firmware image in boot media such as MMC. It does not support any sort
+	  of rollback, recovery or A/B boot.
+
+endif # BOOTMETH_VBE
+
 config BOOTMETH_SANDBOX
 	def_bool y
 	depends on SANDBOX
