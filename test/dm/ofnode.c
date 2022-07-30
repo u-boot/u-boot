@@ -546,13 +546,7 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	struct udevice *dev;
 	ofnode node;
 
-	if (!of_live_active()) {
-		printf("Live tree not active; ignore test\n");
-		return 0;
-	}
-
 	/* Test enabling devices */
-
 	node = ofnode_path("/usb@2");
 
 	ut_assert(!of_device_is_available(ofnode_to_np(node)));
@@ -564,7 +558,6 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	ut_assertok(uclass_find_device_by_seq(UCLASS_USB, 2, &dev));
 
 	/* Test string property setting */
-
 	ut_assert(device_is_compatible(dev, "sandbox,usb"));
 	ofnode_write_string(node, "compatible", "gdsys,super-usb");
 	ut_assert(device_is_compatible(dev, "gdsys,super-usb"));
@@ -581,7 +574,6 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	ut_asserteq(0x42, dev_read_addr(dev));
 
 	/* Test disabling devices */
-
 	device_remove(dev, DM_REMOVE_NORMAL);
 	device_unbind(dev);
 
@@ -591,4 +583,5 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_livetree_writing, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_livetree_writing,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_TREE);
