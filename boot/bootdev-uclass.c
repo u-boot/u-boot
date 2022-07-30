@@ -36,7 +36,6 @@ enum {
 
 int bootdev_add_bootflow(struct bootflow *bflow)
 {
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
 	struct bootstd_priv *std;
 	struct bootflow *new;
 	int ret;
@@ -52,7 +51,11 @@ int bootdev_add_bootflow(struct bootflow *bflow)
 	memcpy(new, bflow, sizeof(*bflow));
 
 	list_add_tail(&new->glob_node, &std->glob_head);
-	list_add_tail(&new->bm_node, &ucp->bootflow_head);
+	if (bflow->dev) {
+		struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
+
+		list_add_tail(&new->bm_node, &ucp->bootflow_head);
+	}
 
 	return 0;
 }
