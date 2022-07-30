@@ -20,6 +20,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int bootmeth_get_state_desc(struct udevice *dev, char *buf, int maxsize)
+{
+	const struct bootmeth_ops *ops = bootmeth_get_ops(dev);
+
+	if (!ops->get_state_desc)
+		return -ENOSYS;
+
+	return ops->get_state_desc(dev, buf, maxsize);
+}
+
 int bootmeth_check(struct udevice *dev, struct bootflow_iter *iter)
 {
 	const struct bootmeth_ops *ops = bootmeth_get_ops(dev);

@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#include <bootmeth.h>
 #include <bootstd.h>
+#include <dm.h>
 #include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
@@ -120,3 +122,19 @@ static int bootmeth_env(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootmeth_env, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check the get_state_desc() method */
+static int bootmeth_state(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	char buf[50];
+
+	ut_assertok(uclass_first_device(UCLASS_BOOTMETH, &dev));
+	ut_assertnonnull(dev);
+
+	ut_assertok(bootmeth_get_state_desc(dev, buf, sizeof(buf)));
+	ut_asserteq_str("OK", buf);
+
+	return 0;
+}
+BOOTSTD_TEST(bootmeth_state, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
