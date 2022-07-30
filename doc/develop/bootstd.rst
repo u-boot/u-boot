@@ -32,6 +32,7 @@ way to boot with U-Boot. The feature is extensible to different Operating
 Systems (such as Chromium OS) and devices (beyond just block and network
 devices). It supports EFI boot and EFI bootmgr too.
 
+Finally, standard boot supports the operation of :doc:`vbe`.
 
 Bootflow
 --------
