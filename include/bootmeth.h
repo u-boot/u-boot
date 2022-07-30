@@ -209,10 +209,12 @@ int bootmeth_boot(struct udevice *dev, struct bootflow *bflow);
  * ordering there, then all bootmethods are added
  *
  * @iter: Iterator to update with the order
+ * @include_global: true to add the global bootmeths, in which case they appear
+ * first
  * Return: 0 if OK, -ENOENT if no bootdevs, -ENOMEM if out of memory, other -ve
  *	on other error
  */
-int bootmeth_setup_iter_order(struct bootflow_iter *iter);
+int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global);
 
 /**
  * bootmeth_set_order() - Set the bootmeth order
