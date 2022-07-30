@@ -23,9 +23,11 @@ static int bootmeth_cmd_list(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("    0    0  syslinux            Syslinux boot from a block device");
 	ut_assert_nextline("    1    1  efi                 EFI boot from an .efi file");
-	ut_assert_nextline(" glob    2  firmware0           VBE simple");
+	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
+		ut_assert_nextline(" glob    2  firmware0           VBE simple");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(3 bootmeths)");
+	ut_assert_nextline(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
+		 "(3 bootmeths)" : "(2 bootmeths)");
 	ut_assert_console_end();
 
 	return 0;
@@ -57,9 +59,11 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("    0    0  syslinux            Syslinux boot from a block device");
 	ut_assert_nextline("    -    1  efi                 EFI boot from an .efi file");
-	ut_assert_nextline(" glob    2  firmware0           VBE simple");
+	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
+		ut_assert_nextline(" glob    2  firmware0           VBE simple");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(3 bootmeths)");
+	ut_assert_nextline(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
+		 "(3 bootmeths)" : "(2 bootmeths)");
 	ut_assert_console_end();
 
 	/* Check the -a flag with the reverse order */
@@ -70,9 +74,11 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("    1    0  syslinux            Syslinux boot from a block device");
 	ut_assert_nextline("    0    1  efi                 EFI boot from an .efi file");
-	ut_assert_nextline(" glob    2  firmware0           VBE simple");
+	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
+		ut_assert_nextline(" glob    2  firmware0           VBE simple");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("(3 bootmeths)");
+	ut_assert_nextline(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
+		 "(3 bootmeths)" : "(2 bootmeths)");
 	ut_assert_console_end();
 
 	/* Now reset the order to empty, which should show all of them again */
@@ -80,7 +86,8 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_assert_console_end();
 	ut_assertnull(env_get("bootmeths"));
 	ut_assertok(run_command("bootmeth list", 0));
-	ut_assert_skip_to_line("(3 bootmeths)");
+	ut_assert_skip_to_line(IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) ?
+		 "(3 bootmeths)" : "(2 bootmeths)");
 
 	/* Try reverse order */
 	ut_assertok(run_command("bootmeth order \"efi syslinux\"", 0));
@@ -97,6 +104,9 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* Try with global bootmeths */
+	if (!IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
+		return 0;
+
 	ut_assertok(run_command("bootmeth order \"efi firmware0\"", 0));
 	ut_assert_console_end();
 	ut_assertok(run_command("bootmeth list", 0));

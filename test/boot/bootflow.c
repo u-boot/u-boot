@@ -12,7 +12,9 @@
 #include <bootmeth.h>
 #include <bootstd.h>
 #include <dm.h>
+#ifdef CONFIG_SANDBOX
 #include <asm/test.h>
+#endif
 #include <dm/lists.h>
 #include <test/suites.h>
 #include <test/ut.h>
@@ -321,6 +323,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_iter, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
+#if defined(CONFIG_SANDBOX) && defined(CONFIG_BOOTMETH_GLOBAL)
 /* Check using the system bootdev */
 static int bootflow_system(struct unit_test_state *uts)
 {
@@ -344,6 +347,7 @@ static int bootflow_system(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_system, UT_TESTF_DM | UT_TESTF_SCAN_PDATA |
 	     UT_TESTF_SCAN_FDT);
+#endif
 
 /* Check disabling a bootmethod if it requests it */
 static int bootflow_iter_disable(struct unit_test_state *uts)
@@ -388,6 +392,9 @@ BOOTSTD_TEST(bootflow_iter_disable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 /* Check 'bootflow scan' with a bootmeth ordering including a global bootmeth */
 static int bootflow_scan_glob_bootmeth(struct unit_test_state *uts)
 {
+	if (!IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
+		return 0;
+
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	/*
