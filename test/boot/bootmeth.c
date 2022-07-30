@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Test for bootdev functions. All start with 'bootdev'
+ * Test for bootdev functions. All start with 'bootmeth'
  *
  * Copyright 2021 Google LLC
  * Written by Simon Glass <sjg@chromium.org>
