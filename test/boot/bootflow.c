@@ -12,7 +12,6 @@
 #include <bootstd.h>
 #include <dm.h>
 #include <asm/test.h>
-#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <test/suites.h>
 #include <test/ut.h>
@@ -337,7 +336,7 @@ static int bootflow_system(struct unit_test_state *uts)
 	ut_assert_skip_to_line(
 		"  0  efi_mgr      ready   (none)       0  <NULL>                    <NULL>");
 	ut_assert_skip_to_line("No more bootdevs");
-	ut_assert_skip_to_line("(6 bootflows, 6 valid)");
+	ut_assert_skip_to_line("(5 bootflows, 5 valid)");
 	ut_assert_console_end();
 
 	return 0;
@@ -357,10 +356,6 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind_driver(bootstd, "bootmeth_sandbox", "sandbox",
 				       &dev));
-
-	/* Add the system bootdev that it uses */
-	ut_assertok(device_bind_driver(bootstd, "system_bootdev",
-				       "system-bootdev", &dev));
 
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
