@@ -9,6 +9,7 @@
 #include <common.h>
 #include <bootdev.h>
 #include <bootflow.h>
+#include <bootmeth.h>
 #include <bootstd.h>
 #include <dm.h>
 #include <asm/test.h>
@@ -90,7 +91,7 @@ static int bootflow_cmd_glob(struct unit_test_state *uts)
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	console_record_reset_enable();
-	ut_assertok(run_command("bootflow scan -l", 0));
+	ut_assertok(run_command("bootflow scan -lG", 0));
 	ut_assert_nextline("Scanning for bootflows in all bootdevs");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
@@ -122,7 +123,7 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	console_record_reset_enable();
-	ut_assertok(run_command("bootflow scan -ale", 0));
+	ut_assertok(run_command("bootflow scan -aleG", 0));
 	ut_assert_nextline("Scanning for bootflows in all bootdevs");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
@@ -233,7 +234,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 
 	/* The first device is mmc2.bootdev which has no media */
 	ut_asserteq(-EPROTONOSUPPORT,
-		    bootflow_scan_first(&iter, BOOTFLOWF_ALL, &bflow));
+		    bootflow_scan_first(&iter, BOOTFLOWF_ALL | BOOTFLOWF_SKIP_GLOBAL, &bflow));
 	ut_asserteq(2, iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);
@@ -242,7 +243,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(0, bflow.err);
 
 	/*
-	 * This shows MEDIA even though there is none, since int
+	 * This shows MEDIA even though there is none, since in
 	 * bootdev_find_in_blk() we call part_get_info() which returns
 	 * -EPROTONOSUPPORT. Ideally it would return -EEOPNOTSUPP and we would
 	 * know.
@@ -383,6 +384,44 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_iter_disable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check 'bootflow scan' with a bootmeth ordering including a global bootmeth */
+static int bootflow_scan_glob_bootmeth(struct unit_test_state *uts)
+{
+	ut_assertok(bootstd_test_drop_bootdev_order(uts));
+
+	/*
+	 * Make sure that the -G flag makes the scan fail, since this is not
+	 * supported when an ordering is provided
+	 */
+	console_record_reset_enable();
+	ut_assertok(bootmeth_set_order("efi firmware0"));
+	ut_assertok(run_command("bootflow scan -lG", 0));
+	ut_assert_nextline("Scanning for bootflows in all bootdevs");
+	ut_assert_nextline(
+		"Seq  Method       State   Uclass    Part  Name                      Filename");
+	ut_assert_nextlinen("---");
+	ut_assert_nextlinen("---");
+	ut_assert_nextline("(0 bootflows, 0 valid)");
+	ut_assert_console_end();
+
+	ut_assertok(run_command("bootflow scan -l", 0));
+	ut_assert_nextline("Scanning for bootflows in all bootdevs");
+	ut_assert_nextline(
+		"Seq  Method       State   Uclass    Part  Name                      Filename");
+	ut_assert_nextlinen("---");
+	ut_assert_nextline("Scanning global bootmeth 'firmware0':");
+	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
+	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
+	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
+	ut_assert_nextline("No more bootdevs");
+	ut_assert_nextlinen("---");
+	ut_assert_nextline("(0 bootflows, 0 valid)");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_scan_glob_bootmeth, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
 /* Check 'bootflow boot' to boot a selected bootflow */
 static int bootflow_cmd_boot(struct unit_test_state *uts)

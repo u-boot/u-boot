@@ -12,6 +12,19 @@
 
 	chosen {
 		stdout-path = "/serial";
+
+		fwupd {
+			compatible = "simple-bus";
+			firmware {
+				compatible = "fwupd,vbe-simple";
+				cur-version = "1.2.3";
+				bootloader-version = "2022.01";
+				storage = "mmc1";
+				area-start = <0x0>;
+				area-size = <0x1000000>;
+				skip-offset = <0x8000>;
+			};
+		};
 	};
 
 	audio: audio-codec {
