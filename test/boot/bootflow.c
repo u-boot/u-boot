@@ -16,6 +16,22 @@
 #include <test/ut.h>
 #include "bootstd_common.h"
 
+static int inject_response(struct unit_test_state *uts)
+{
+	/*
+	 * The image being booted presents a menu of options:
+	 *
+	 * Fedora-Workstation-armhfp-31-1.9 Boot Options.
+	 * 1:   Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
+	 * Enter choice:
+	 *
+	 * Provide input for this, to avoid waiting two seconds for a timeout.
+	 */
+	ut_asserteq(2, console_in_puts("1\n"));
+
+	return 0;
+}
+
 /* Check 'bootflow scan/list' commands */
 static int bootflow_cmd(struct unit_test_state *uts)
 {
@@ -188,6 +204,7 @@ BOOTSTD_TEST(bootflow_cmd_info, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 static int bootflow_scan_boot(struct unit_test_state *uts)
 {
 	console_record_reset_enable();
+	ut_assertok(inject_response(uts));
 	ut_assertok(run_command("bootflow scan -b", 0));
 	ut_assert_nextline(
 		"** Booting bootflow 'mmc1.bootdev.part_1' with syslinux");
@@ -351,6 +368,8 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	bootstd_clear_glob();
+	console_record_reset_enable();
+	ut_assertok(inject_response(uts));
 	ut_assertok(run_command("bootflow scan -lb", 0));
 
 	/* Try to boot the bootmgr flow, which will fail */
@@ -358,6 +377,7 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
 	ut_asserteq(3, iter.num_methods);
 	ut_asserteq_str("sandbox", iter.method->name);
+	ut_assertok(inject_response(uts));
 	ut_asserteq(-ENOTSUPP, bootflow_run_boot(&iter, &bflow));
 
 	ut_assert_skip_to_line("Boot method 'sandbox' failed and will not be retried");
@@ -382,6 +402,8 @@ static int bootflow_cmd_boot(struct unit_test_state *uts)
 	ut_assert_console_end();
 	ut_assertok(run_command("bootflow select 0", 0));
 	ut_assert_console_end();
+
+	ut_assertok(inject_response(uts));
 	ut_asserteq(1, run_command("bootflow boot", 0));
 	ut_assert_nextline(
 		"** Booting bootflow 'mmc1.bootdev.part_1' with syslinux");
