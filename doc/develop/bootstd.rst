@@ -90,6 +90,12 @@ bootflows.
 Note: it is possible to have a bootmeth that uses a partition or a whole device
 directly, but it is more common to use a filesystem.
 
+Note that some bootmeths are 'global', meaning that they select the bootdev
+themselves. Examples include VBE and EFI boot manager. In this case, they
+provide a `read_bootflow()` method which checks whatever bootdevs it likes, then
+returns the bootflow, if found. Some of these bootmeths may be very slow, if
+they scan a lot of devices.
+
 
 Boot process
 ------------
@@ -112,6 +118,9 @@ the following command::
 
 which scans for available bootflows, optionally listing each find it finds (-l)
 and trying to boot it (-b).
+
+When global bootmeths are available, these are typically checked before the
+above bootdev scanning.
 
 
 Controlling ordering
@@ -270,18 +279,8 @@ Standard boot requires a single instance of the bootstd device to make things
 work. This includes global information about the state of standard boot. See
 `struct bootstd_priv` for this structure, accessed with `bootstd_get_priv()`.
 
-Within the devicetree, if you add bootmeth devices or a system bootdev, they
-should be children of the bootstd device. See `arch/sandbox/dts/test.dts` for
-an example of this.
-
-
-The system bootdev
-------------------
-
-Some bootmeths don't operate on individual bootdevs, but on the whole system.
-For example, the EFI boot manager does its own device scanning and does not
-make use of the bootdev devices. Such bootmeths can make use of the system
-bootdev, typically considered last, after everything else has been tried.
+Within the devicetree, if you add bootmeth devices, they should be children of
+the bootstd device. See `arch/sandbox/dts/test.dts` for an example of this.
 
 
 .. _`Automatic Devices`:
@@ -292,12 +291,11 @@ Automatic devices
 It is possible to define all the required devices in the devicetree manually,
 but it is not necessary. The bootstd uclass includes a `dm_scan_other()`
 function which creates the bootstd device if not found. If no bootmeth devices
-are found at all, it creates one for each available bootmeth driver as well as a
-system bootdev.
+are found at all, it creates one for each available bootmeth driver.
 
 If your devicetree has any bootmeth device it must have all of them that you
-want to use, as well as the system bootdev if needed, since no bootmeth devices
-will be created automatically in that case.
+want to use, since no bootmeth devices will be created automatically in that
+case.
 
 
 Using devicetree
@@ -348,6 +346,7 @@ Bootmeth drivers are provided for:
    - distro boot from a disk (syslinux)
    - distro boot from a network (PXE)
    - EFI boot using bootefi
+   - VBE
    - EFI boot using boot manager
 
 
@@ -434,18 +433,23 @@ case, the iterator ends up with a `dev_order` array containing the bootdevs that
 are going to be used, with `num_devs` set to the number of bootdevs and
 `cur_dev` starting at 0.
 
-Next, the ordering of bootdevs is determined, by `bootmeth_setup_iter_order()`.
+Next, the ordering of bootmeths is determined, by `bootmeth_setup_iter_order()`.
 By default the ordering is again by sequence number, i.e. the `/aliases` node,
 or failing that the order in the devicetree. But the `bootmeth order` command
 or `bootmeths` environment variable can be used to set up an ordering. If that
 has been done, the ordering is in `struct bootstd_priv`, so that ordering is
 simply copied into the iterator. Either way, the `method_order` array it set up,
-along with `num_methods`. Then `cur_method` is set to 0.
+along with `num_methods`.
+
+Note that global bootmeths are always put at the end of the ordering. If any are
+present, `cur_method` is set to the first one, so that global bootmeths are done
+first. Once all have been used, these bootmeths are dropped from the iteration.
+When there are no global bootmeths, `cur_method` is set to 0.
 
 At this point the iterator is ready to use, with the first bootdev and bootmeth
-selected. All the other fields are 0. This means that the current partition is
-0, which is taken to mean the whole device, since partition numbers start at 1.
-It also means that `max_part` is 0, i.e. the maximum partition number we know
+selected. Most of the other fields are 0. This means that the current partition
+is 0, which is taken to mean the whole device, since partition numbers start at
+1. It also means that `max_part` is 0, i.e. the maximum partition number we know
 about is 0, meaning that, as far as we know, there is no partition table on this
 bootdev.
 
@@ -455,6 +459,10 @@ either returns 0 (if it got something) or an error if not (more on that later).
 If the `BOOTFLOWF_ALL` iterator flag is set, even errors are returned as
 incomplete bootflows, but normally an error results in moving onto the next
 iteration.
+
+Note that `bootflow_check()` handles global bootmeths explicitly, but calling
+`bootmeth_get_bootflow()` on each one. The `doing_global` flag indicates when
+the iterator is in that state.
 
 The `bootflow_scan_next()` function handles moving onto the next iteration and
 checking it. In fact it sits in a loop doing that repeatedly until it finds
@@ -474,9 +482,10 @@ the least-sigificant digit on the right, counting like this:
    0           0          2
    0           1          0
    0           1          1
-   0           1          1
+   0           1          2
    1           0          0
    1           0          1
+   ...
    ========    =======    =======
 
 The maximum value for `method` is `num_methods - 1` so when it exceeds that, it
@@ -487,6 +496,31 @@ higher value - see `bootdev_find_in_blk()` for that, described later. If that
 exceeds its maximum, then the next bootdev is used. In this way, iter_incr()
 works its way through all possibilities, moving forward one each time it is
 called.
+
+Note that global bootmeths introduce a subtlety into the above description.
+When `doing_global` is true, the iteration takes place only among the bootmeths,
+i.e. the last column above. The global bootmeths are at the end of the list.
+Assuming that they are entries 3 and 4 in the list, the iteration then looks
+like this:
+
+   ========    =======    =======   =======================================
+   bootdev     part       method    notes
+   ========    =======    =======   =======================================
+   .           .          3         doing_global = true, method_count = 5
+   .           .          4
+   0           0          0         doing_global = false, method_count = 3
+   0           0          1
+   0           0          2
+   0           1          0
+   0           1          1
+   0           1          2
+   1           0          0
+   1           0          1
+   ...
+   ========    =======    =======   =======================================
+
+The changeover of the value of `doing_global` from true to false is handled in
+`iter_incr()` as well.
 
 There is no expectation that iteration will actually finish. Quite often a
 valid bootflow is found early on. With `bootflow scan -b`, that causes the
@@ -517,17 +551,19 @@ method `bootdev_get_bootflow()` to ask the bootdev to return a bootflow. It
 passes the iterator to the bootdev method, so that function knows what we are
 talking about. At first, the bootflow is set up in the state `BOOTFLOWST_BASE`,
 with just the `method` and `dev` intiialised. But the bootdev may fill in more,
-e.g. updating the state, depending on what it finds.
+e.g. updating the state, depending on what it finds. For global bootmeths the
+`bootmeth_get_bootflow()` function is called instead of
+`bootdev_get_bootflow()`.
 
-Based on what the bootdev responds with, `bootflow_check()` either
+Based on what the bootdev or bootmeth responds with, `bootflow_check()` either
 returns a valid bootflow, or a partial one with an error. A partial bootflow
 is one that has some fields set up, but did not reach the `BOOTFLOWST_READY`
 state. As noted before, if the `BOOTFLOWF_ALL` iterator flag is set, then all
 bootflows are returned, even partial ones. This can help with debugging.
 
 So at this point you can see that total control over whether a bootflow can
-be generated from a particular iteration, or not, rests with the bootdev.
-Each one can adopt its own approach.
+be generated from a particular iteration, or not, rests with the bootdev (or
+global bootmeth). Each one can adopt its own approach.
 
 Going down a level, what does the bootdev do in its `get_bootflow()` method?
 Let us consider the MMC bootdev. In that case the call to

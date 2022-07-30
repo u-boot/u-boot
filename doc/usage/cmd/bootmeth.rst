@@ -31,7 +31,9 @@ scanning bootdevs, each bootmeth is tried in turn to see if it can find a valid
 bootflow. You can use this command to adjust the order or even to omit some
 boomeths.
 
-The argument is a quoted list of bootmeths to use, by name.
+The argument is a quoted list of bootmeths to use, by name. If global bootmeths
+are included, they must be at the end, otherwise the scanning mechanism will not
+work correctly.
 
 
 bootmeth list
@@ -47,14 +49,15 @@ Order  Seq  Name                Description
     1    1  efi                 EFI boot from an .efi file
     2    2  pxe                 PXE boot from a network device
     3    3  sandbox             Sandbox boot for testing
-    4    4  efi_mgr             EFI bootmgr flow
+ glob    4  efi_mgr             EFI bootmgr flow
 =====  ===  ==================  =================================
 
 The fields are as follows:
 
 Order:
     The order in which these bootmeths are invoked for each bootdev. If this
-    shows as a hyphen, then the bootmeth is not in the current ordering.
+    shows as a hyphen, then the bootmeth is not in the current ordering. If it
+    shows as 'glob', then this is a global bootmeth and should be at the end.
 
 Seq:
     The sequence number of the bootmeth, i.e. the normal ordering if none is set
