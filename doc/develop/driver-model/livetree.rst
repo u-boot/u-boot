@@ -225,6 +225,23 @@ freed. Then the tree can be scanned for these 'separately allocated' nodes and
 properties before freeing the memory block.
 
 
+Multiple livetrees
+------------------
+
+The livetree implementation was originally designed for use with the control
+FDT. This means that the FDT fix-ups (ft_board_setup() and the like, must use
+a flat tree.
+
+It would be helpful to use livetree for fixups, since adding a lot of nodes and
+properties would involve less memory copying and be more efficient. As a step
+towards this, an `oftree` type has been introduced. It is normally set to
+oftree_default() but can be set to other values. Eventually this should allow
+the use of FDT fixups using the ofnode interface, instead of the low-level
+libfdt one.
+
+See dm_test_ofnode_root() for some examples.
+
+
 Internal implementation
 -----------------------
 

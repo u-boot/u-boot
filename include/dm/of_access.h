@@ -197,6 +197,11 @@ struct device_node *of_get_parent(const struct device_node *np);
 /**
  * of_find_node_opts_by_path() - Find a node matching a full OF path
  *
+ * Note that alias processing is only available on the control FDT (gd->of_root).
+ * For other trees it is skipped, so any attempt to obtain an alias will result
+ * in returning NULL.
+ *
+ * @root: Root node of the tree to use. If this is NULL, then gd->of_root is used
  * @path: Either the full path to match, or if the path does not start with
  *	'/', the name of a property of the /aliases node (an alias). In the
  *	case of an alias, the node matching the alias' value will be returned.
@@ -210,12 +215,13 @@ struct device_node *of_get_parent(const struct device_node *np);
  *
  * Return: a node pointer or NULL if not found
  */
-struct device_node *of_find_node_opts_by_path(const char *path,
+struct device_node *of_find_node_opts_by_path(struct device_node *root,
+					      const char *path,
 					      const char **opts);
 
 static inline struct device_node *of_find_node_by_path(const char *path)
 {
-	return of_find_node_opts_by_path(path, NULL);
+	return of_find_node_opts_by_path(NULL, path, NULL);
 }
 
 /**

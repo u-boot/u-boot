@@ -343,24 +343,30 @@ static struct device_node *__of_find_node_by_path(struct device_node *parent,
 #define for_each_property_of_node(dn, pp) \
 	for (pp = dn->properties; pp != NULL; pp = pp->next)
 
-struct device_node *of_find_node_opts_by_path(const char *path,
+struct device_node *of_find_node_opts_by_path(struct device_node *root,
+					      const char *path,
 					      const char **opts)
 {
 	struct device_node *np = NULL;
 	struct property *pp;
 	const char *separator = strchr(path, ':');
 
+	if (!root)
+		root = gd->of_root;
 	if (opts)
 		*opts = separator ? separator + 1 : NULL;
 
 	if (strcmp(path, "/") == 0)
-		return of_node_get(gd->of_root);
+		return of_node_get(root);
 
 	/* The path could begin with an alias */
 	if (*path != '/') {
 		int len;
 		const char *p = separator;
 
+		/* Only allow alias processing on the control FDT */
+		if (root != gd->of_root)
+			return NULL;
 		if (!p)
 			p = strchrnul(path, '/');
 		len = p - path;
@@ -383,7 +389,7 @@ struct device_node *of_find_node_opts_by_path(const char *path,
 
 	/* Step down the tree matching path components */
 	if (!np)
-		np = of_node_get(gd->of_root);
+		np = of_node_get(root);
 	while (np && *path == '/') {
 		struct device_node *tmp = np;
 
@@ -791,7 +797,7 @@ int of_alias_scan(void)
 
 		name = of_get_property(of_chosen, "stdout-path", NULL);
 		if (name)
-			of_stdout = of_find_node_opts_by_path(name,
+			of_stdout = of_find_node_opts_by_path(NULL, name,
 							&of_stdout_options);
 	}
 

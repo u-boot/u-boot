@@ -177,6 +177,23 @@ static inline ofnode ofnode_root(void)
 }
 
 /**
+ * oftree_default() - Returns the default device tree (U-Boot's control FDT)
+ *
+ * Returns: reference to the control FDT
+ */
+static inline oftree oftree_default(void)
+{
+	oftree tree;
+
+	if (of_live_active())
+		tree.np = gd_of_root();
+	else
+		tree.fdt = (void *)gd->fdt_blob;
+
+	return tree;
+}
+
+/**
  * ofnode_name_eq() - Check if the node name is equivalent to a given name
  *                    ignoring the unit address
  *
@@ -640,10 +657,21 @@ int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
 /**
  * ofnode_path() - find a node by full path
  *
+ * This uses the control FDT.
+ *
  * @path: Full path to node, e.g. "/bus/spi@1"
  * Return: reference to the node found. Use ofnode_valid() to check if it exists
  */
 ofnode ofnode_path(const char *path);
+
+/**
+ * ofnode_path_root() - find a node by full path from a root node
+ *
+ * @tree: Device tree to use
+ * @path: Full path to node, e.g. "/bus/spi@1"
+ * Return: reference to the node found. Use ofnode_valid() to check if it exists
+ */
+ofnode ofnode_path_root(oftree tree, const char *path);
 
 /**
  * ofnode_read_chosen_prop() - get the value of a chosen property

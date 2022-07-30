@@ -552,6 +552,17 @@ ofnode ofnode_path(const char *path)
 		return offset_to_ofnode(fdt_path_offset(gd->fdt_blob, path));
 }
 
+ofnode ofnode_path_root(oftree tree, const char *path)
+{
+	if (of_live_active())
+		return np_to_ofnode(of_find_node_opts_by_path(tree.np, path,
+							      NULL));
+	else if (*path != '/' && tree.fdt != gd->fdt_blob)
+		return ofnode_null();  /* Aliases only on control FDT */
+	else
+		return offset_to_ofnode(fdt_path_offset(tree.fdt, path));
+}
+
 const void *ofnode_read_chosen_prop(const char *propname, int *sizep)
 {
 	ofnode chosen_node;

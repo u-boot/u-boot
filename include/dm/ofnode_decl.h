@@ -68,5 +68,18 @@ struct ofprop {
 	};
 };
 
+/**
+ * union oftree_union - reference to a tree of device tree nodes
+ *
+ * One or other of the members is used, depending on of_live_active()
+ *
+ * @np: Pointer to roott device node, used for live tree
+ * @fdt: Pointer to the flat device tree, used for flat tree
+ */
+typedef union oftree_union {
+	struct device_node *np;
+	void *fdt;
+} oftree;
+
 #endif
 
