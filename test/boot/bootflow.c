@@ -11,6 +11,8 @@
 #include <bootflow.h>
 #include <bootstd.h>
 #include <dm.h>
+#include <asm/test.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <test/suites.h>
 #include <test/ut.h>
@@ -328,6 +330,8 @@ static int bootflow_system(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind_driver(bootstd, "bootmeth_efi_mgr", "bootmgr",
 				       &dev));
+	ut_assertok(device_probe(dev));
+	sandbox_set_fake_efi_mgr_dev(dev, true);
 
 	/* Add the system bootdev that it uses */
 	ut_assertok(device_bind_driver(bootstd, "system_bootdev",
