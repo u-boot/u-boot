@@ -4,8 +4,12 @@
 #include <dm.h>
 #include <log.h>
 #include <of_live.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/of_extra.h>
+#include <dm/root.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -536,3 +540,55 @@ static int dm_test_ofnode_root(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_root, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ofnode node;
+
+	if (!of_live_active()) {
+		printf("Live tree not active; ignore test\n");
+		return 0;
+	}
+
+	/* Test enabling devices */
+
+	node = ofnode_path("/usb@2");
+
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+	ofnode_set_enabled(node, true);
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+
+	device_bind_driver_to_node(dm_root(), "usb_sandbox", "usb@2", node,
+				   &dev);
+	ut_assertok(uclass_find_device_by_seq(UCLASS_USB, 2, &dev));
+
+	/* Test string property setting */
+
+	ut_assert(device_is_compatible(dev, "sandbox,usb"));
+	ofnode_write_string(node, "compatible", "gdsys,super-usb");
+	ut_assert(device_is_compatible(dev, "gdsys,super-usb"));
+	ofnode_write_string(node, "compatible", "sandbox,usb");
+	ut_assert(device_is_compatible(dev, "sandbox,usb"));
+
+	/* Test setting generic properties */
+
+	/* Non-existent in DTB */
+	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr(dev));
+	/* reg = 0x42, size = 0x100 */
+	ut_assertok(ofnode_write_prop(node, "reg", 8,
+				      "\x00\x00\x00\x42\x00\x00\x01\x00"));
+	ut_asserteq(0x42, dev_read_addr(dev));
+
+	/* Test disabling devices */
+
+	device_remove(dev, DM_REMOVE_NORMAL);
+	device_unbind(dev);
+
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+	ofnode_set_enabled(node, false);
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_livetree_writing, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
