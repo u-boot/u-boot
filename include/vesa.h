@@ -11,7 +11,7 @@
 #define _VESA_H
 
 /* these structs are for input from and output to OF */
-struct __packed vbe_screen_info {
+struct __packed vesa_screen_info {
 	u8 display_type;	/* 0=NONE, 1= analog, 2=digital */
 	u16 screen_width;
 	u16 screen_height;
@@ -22,7 +22,7 @@ struct __packed vbe_screen_info {
 	u8 edid_block_zero[128];
 };
 
-struct __packed vbe_screen_info_input {
+struct __packed vesa_screen_info_input {
 	u8 signature[4];
 	u16 size_reserved;
 	u8 monitor_number;
@@ -30,8 +30,11 @@ struct __packed vbe_screen_info_input {
 	u8 color_depth;
 };
 
-/* these structs only store the required a subset of the VBE-defined fields */
-struct __packed vbe_info {
+/*
+ * These structs only store the required subset of fields  in Vesa BIOS
+ * Extensions
+ */
+struct __packed vesa_bios_ext_info {
 	char signature[4];
 	u16 version;
 	u32 oem_string_ptr;
@@ -80,7 +83,7 @@ struct __packed vesa_mode_info {
 	u8 reserved[206];
 };
 
-struct vbe_mode_info {
+struct vesa_state {
 	u16 video_mode;
 	bool valid;
 	union {
@@ -89,7 +92,7 @@ struct vbe_mode_info {
 	};
 };
 
-struct vbe_ddc_info {
+struct vesa_ddc_info {
 	u8 port_number;	/* i.e. monitor number */
 	u8 edid_transfer_time;
 	u8 ddc_level;
@@ -101,13 +104,13 @@ struct vbe_ddc_info {
 #define VESA_SET_MODE		0x4f02
 #define VESA_GET_CUR_MODE	0x4f03
 
-extern struct vbe_mode_info mode_info;
+extern struct vesa_state mode_info;
 
 struct video_priv;
 struct video_uc_plat;
-int vbe_setup_video_priv(struct vesa_mode_info *vesa,
-			 struct video_priv *uc_priv,
-			 struct video_uc_plat *plat);
-int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void));
+int vesa_setup_video_priv(struct vesa_mode_info *vesa,
+			  struct video_priv *uc_priv,
+			  struct video_uc_plat *plat);
+int vesa_setup_video(struct udevice *dev, int (*int15_handler)(void));
 
 #endif

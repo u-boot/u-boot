@@ -36,14 +36,14 @@ typedef struct {
 	u8 LowMem[1536];
 } BE_VGAInfo;
 
-struct vbe_mode_info;
+struct vesa_state;
 
 int BootVideoCardBIOS(struct udevice *pcidev, BE_VGAInfo **pVGAInfo,
 		      int clean_up);
 
 /* Run a BIOS ROM natively (only supported on x86 machines) */
 void bios_run_on_x86(struct udevice *dev, unsigned long addr, int vesa_mode,
-		     struct vbe_mode_info *mode_info);
+		     struct vesa_state *mode_info);
 
 /**
  * bios_set_interrupt_handler() - Install an interrupt handler for the BIOS
@@ -61,6 +61,6 @@ int biosemu_setup(struct udevice *pcidev, BE_VGAInfo **pVGAInfo);
 
 int biosemu_run(struct udevice *dev, uchar *bios_rom, int bios_len,
 		BE_VGAInfo *vga_info, int clean_up, int vesa_mode,
-		struct vbe_mode_info *mode_info);
+		struct vesa_state *mode_info);
 
 #endif
