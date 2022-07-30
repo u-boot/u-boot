@@ -349,6 +349,13 @@ config BOOTSTD_BOOTCOMMAND
 	  standard boot does not support all of the features of distro boot
 	  yet.
 
+config BOOTMETH_GLOBAL
+	bool
+	help
+	  Add support for global bootmeths. This feature is used by VBE and
+	  EFI bootmgr, since they take full control over which bootdevs are
+	  selected to boot.
+
 config BOOTMETH_DISTRO
 	bool "Bootdev support for distro boot"
 	select PXE_UTILS

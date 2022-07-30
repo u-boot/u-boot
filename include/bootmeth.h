@@ -13,12 +13,23 @@ struct bootflow_iter;
 struct udevice;
 
 /**
+ * enum bootmeth_flags - Flags for bootmeths
+ *
+ * @BOOTMETHF_GLOBAL: bootmeth handles bootdev selection automatically
+ */
+enum bootmeth_flags {
+	BOOTMETHF_GLOBAL	= BIT(0),
+};
+
+/**
  * struct bootmeth_uc_plat - information the uclass keeps about each bootmeth
  *
  * @desc: A long description of the bootmeth
+ * @flags: Flags for this bootmeth (enum bootmeth_flags)
  */
 struct bootmeth_uc_plat {
 	const char *desc;
+	int flags;
 };
 
 /** struct bootmeth_ops - Operations for boot methods */
@@ -266,5 +277,17 @@ int bootmeth_alloc_file(struct bootflow *bflow, uint size_limit, uint align);
  */
 int bootmeth_common_read_file(struct udevice *dev, struct bootflow *bflow,
 			      const char *file_path, ulong addr, ulong *sizep);
+
+/**
+ * bootmeth_get_bootflow() - Get a bootflow from a global bootmeth
+ *
+ * Check the bootmeth for a bootflow which can be used. In this case the
+ * bootmeth handles all bootdev selection, etc.
+ *
+ * @dev: bootmeth device to read from
+ * @bflow: Bootflow information
+ * @return 0 on success, -ve if a bootflow could not be found or had an error
+ */
+int bootmeth_get_bootflow(struct udevice *dev, struct bootflow *bflow);
 
 #endif

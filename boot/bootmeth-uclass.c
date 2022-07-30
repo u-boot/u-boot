@@ -71,6 +71,20 @@ int bootmeth_read_file(struct udevice *dev, struct bootflow *bflow,
 	return ops->read_file(dev, bflow, file_path, addr, sizep);
 }
 
+int bootmeth_get_bootflow(struct udevice *dev, struct bootflow *bflow)
+{
+	const struct bootmeth_ops *ops = bootmeth_get_ops(dev);
+
+	if (!ops->read_bootflow)
+		return -ENOSYS;
+	memset(bflow, '\0', sizeof(*bflow));
+	bflow->dev = NULL;
+	bflow->method = dev;
+	bflow->state = BOOTFLOWST_BASE;
+
+	return ops->read_bootflow(dev, bflow);
+}
+
 /**
  * bootmeth_setup_iter_order() - Set up the ordering of bootmeths to scan
  *

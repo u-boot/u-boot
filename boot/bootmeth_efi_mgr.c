@@ -61,6 +61,7 @@ static int bootmeth_efi_mgr_bind(struct udevice *dev)
 	struct bootmeth_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	plat->desc = "EFI bootmgr flow";
+	plat->flags = BOOTMETHF_GLOBAL;
 
 	return 0;
 }
@@ -77,7 +78,7 @@ static const struct udevice_id efi_mgr_bootmeth_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(bootmeth_zefi_mgr) = {
+U_BOOT_DRIVER(bootmeth_efi_mgr) = {
 	.name		= "bootmeth_efi_mgr",
 	.id		= UCLASS_BOOTMETH,
 	.of_match	= efi_mgr_bootmeth_ids,
