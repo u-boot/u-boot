@@ -26,6 +26,7 @@ struct udevice;
  * @glob_head: Head for the global list of all bootflows across all bootdevs
  * @bootmeth_count: Number of bootmeth devices in @bootmeth_order
  * @bootmeth_order: List of bootmeth devices to use, in order, NULL-terminated
+ * @vbe_bootmeth: Currently selected VBE bootmeth, NULL if none
  */
 struct bootstd_priv {
 	const char **prefixes;
@@ -35,6 +36,7 @@ struct bootstd_priv {
 	struct list_head glob_head;
 	int bootmeth_count;
 	struct udevice **bootmeth_order;
+	struct udevice *vbe_bootmeth;
 };
 
 /**

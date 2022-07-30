@@ -398,6 +398,16 @@ config BOOTMETH_EFILOADER
 
 	  This provides a way to try out standard boot on an existing boot flow.
 
+config BOOTMETH_VBE
+	bool "Bootdev support for Verified Boot for Embedded"
+	depends on FIT
+	default y
+	select BOOTMETH_GLOBAL
+	help
+	  Enables support for VBE boot. This is a standard boot method which
+	  supports selection of various firmware components, seleciton of an OS to
+	  boot as well as updating these using fwupd.
+
 config BOOTMETH_SANDBOX
 	def_bool y
 	depends on SANDBOX
