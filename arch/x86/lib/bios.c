@@ -10,7 +10,7 @@
 #include <bios_emul.h>
 #include <irq_func.h>
 #include <log.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <linux/linkage.h>
 #include <asm/cache.h>
 #include <asm/processor.h>

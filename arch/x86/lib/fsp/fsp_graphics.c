@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <init.h>
 #include <log.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <acpi/acpi_table.h>
 #include <asm/fsp/fsp_support.h>

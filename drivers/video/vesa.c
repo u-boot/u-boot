@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <log.h>
 #include <pci.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/mtrr.h>
 

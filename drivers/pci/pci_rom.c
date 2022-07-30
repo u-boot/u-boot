@@ -34,7 +34,7 @@
 #include <malloc.h>
 #include <pci.h>
 #include <pci_rom.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <acpi/acpi_s3.h>
 #include <asm/global_data.h>

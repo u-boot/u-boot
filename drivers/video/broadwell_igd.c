@@ -11,7 +11,7 @@
 #include <dm.h>
 #include <init.h>
 #include <log.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/cpu.h>
 #include <asm/global_data.h>

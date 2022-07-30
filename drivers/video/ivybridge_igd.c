@@ -10,7 +10,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <pci_rom.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/global_data.h>
 #include <asm/intel_regs.h>

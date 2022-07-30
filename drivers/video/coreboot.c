@@ -6,7 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/cb_sysinfo.h>
 

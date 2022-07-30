@@ -7,8 +7,8 @@
  * Contributors:
  *     IBM Corporation - initial implementation
  *****************************************************************************/
-#ifndef _VBE_H
-#define _VBE_H
+#ifndef _VESA_H
+#define _VESA_H
 
 /* these structs are for input from and output to OF */
 struct __packed vbe_screen_info {

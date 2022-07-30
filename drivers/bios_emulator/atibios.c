@@ -51,7 +51,7 @@
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <linux/delay.h>
 #include "biosemui.h"
 
