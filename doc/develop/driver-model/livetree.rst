@@ -224,6 +224,32 @@ support is provided for adding those) that indicates that they should be
 freed. Then the tree can be scanned for these 'separately allocated' nodes and
 properties before freeing the memory block.
 
+The ofnode_write\_...() functions also support writing to the flat tree. Care
+should be taken however, since this can change the position of node names and
+properties in the flat tree, thus affecting the live tree. Generally this does
+not matter, since when we fire up the live tree we don't ever use the flat tree
+again. But in the case of tests, this can cause a problem.
+
+The sandbox tests typically run with OF_LIVE enabled but with the actual live
+tree either present or absent. This is to make sure that the flat tree functions
+work correctly even with OF_LIVE is enabled. But if a test modifies the flat
+device tree, then the live tree can become invalid. Any live tree tests that run
+after that point will use a corrupted tree, e.g. with an incorrect property name
+or worse. To deal with this we use a flag UT_TESTF_LIVE_OR_FLAT then ensures
+that tests which write to the flat tree are not run if OF_LIVE is enabled. Only
+the live tree version of the test is run, when OF_LIVE is enabled, with
+sandbox_flattree running the flat tree version.
+
+This is of course a work-around, even if a reasonable one. One solution to this
+problem would be to make a copy of the flat tree before the test and restore it
+afterwards, in the same memory location, so that the live tree pointers work
+again. Another would be to regenerate the live tree if a test modified the flat
+tree.
+
+Neither of these solutions is currently implemented, since the situation that
+causes the problem can only occur in sandbox tests, is somewhat esoteric and
+the UT_TESTF_LIVE_OR_FLAT flag deals with it in a reasonable way.
+
 
 Multiple livetrees
 ------------------
