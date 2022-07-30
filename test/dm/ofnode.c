@@ -585,3 +585,19 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_livetree_writing,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);
+
+static int dm_test_ofnode_u32(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	node = ofnode_path("/lcd");
+	ut_assert(ofnode_valid(node));
+	ut_asserteq(1366, ofnode_read_u32_default(node, "xres", 123));
+	ut_assertok(ofnode_write_u32(node, "xres", 1367));
+	ut_asserteq(1367, ofnode_read_u32_default(node, "xres", 123));
+	ut_assertok(ofnode_write_u32(node, "xres", 1366));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_u32,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);

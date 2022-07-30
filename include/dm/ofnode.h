@@ -1155,6 +1155,16 @@ int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 int ofnode_write_string(ofnode node, const char *propname, const char *value);
 
 /**
+ * ofnode_write_u32() - Set an integer property of an ofnode
+ *
+ * @node:	The node for whose string property should be set
+ * @propname:	The name of the string property to set
+ * @value:	The new value of the 32-bit integer property
+ * Return: 0 if successful, -ve on error
+ */
+int ofnode_write_u32(ofnode node, const char *propname, u32 value);
+
+/**
  * ofnode_set_enabled() - Enable or disable a device tree node given by its
  *			  ofnode
  *

@@ -1126,6 +1126,21 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value)
 	return ofnode_write_prop(node, propname, value, strlen(value) + 1);
 }
 
+int ofnode_write_u32(ofnode node, const char *propname, u32 value)
+{
+	fdt32_t *val;
+
+	assert(ofnode_valid(node));
+
+	log_debug("%s = %x", propname, value);
+	val = malloc(sizeof(*val));
+	if (!val)
+		return -ENOMEM;
+	*val = cpu_to_fdt32(value);
+
+	return ofnode_write_prop(node, propname, val, sizeof(value));
+}
+
 int ofnode_set_enabled(ofnode node, bool value)
 {
 	assert(ofnode_valid(node));
