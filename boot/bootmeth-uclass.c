@@ -114,6 +114,8 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter)
 		}
 		count = upto;
 	}
+	if (!count)
+		return log_msg_ret("count2", -ENOENT);
 
 	iter->method_order = order;
 	iter->num_methods = count;
