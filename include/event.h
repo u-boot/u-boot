@@ -10,6 +10,8 @@
 #ifndef __event_h
 #define __event_h
 
+#include <dm/ofnode_decl.h>
+
 /**
  * enum event_t - Types of events supported by U-Boot
  *
@@ -28,6 +30,9 @@ enum event_t {
 
 	/* Init hooks */
 	EVT_MISC_INIT_F,
+
+	/* Device tree fixups before booting */
+	EVT_FT_FIXUP,
 
 	EVT_COUNT
 };
@@ -50,6 +55,15 @@ union event_data {
 	struct event_dm {
 		struct udevice *dev;
 	} dm;
+
+	/**
+	 * struct event_ft_fixup - FDT fixup before booting
+	 *
+	 * @tree: tree to update
+	 */
+	struct event_ft_fixup {
+		oftree tree;
+	} ft_fixup;
 };
 
 /**
