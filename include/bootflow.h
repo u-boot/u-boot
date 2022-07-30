@@ -169,9 +169,9 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
  * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
  *
  * @dev:	Boot device to scan, NULL to work through all of them until it
- *	finds one that * can supply a bootflow
+ *	finds one that can supply a bootflow
  * @iter:	Place to store private info (inited by this call)
- * @flags:	Flags for bootdev (enum bootflow_flags_t)
+ * @flags:	Flags for iterator (enum bootflow_flags_t)
  * @bflow:	Place to put the bootflow if found
  * Return: 0 if found,  -ENODEV if no device, other -ve on other error
  *	(iteration can continue)
