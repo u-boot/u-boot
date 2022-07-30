@@ -1081,7 +1081,8 @@ int ofnode_device_is_compatible(ofnode node, const char *compat);
  * ofnode_write_prop() - Set a property of a ofnode
  *
  * Note that the value passed to the function is *not* allocated by the
- * function itself, but must be allocated by the caller if necessary.
+ * function itself, but must be allocated by the caller if necessary. However
+ * it does allocate memory for the property struct and name.
  *
  * @node:	The node for whose property should be set
  * @propname:	The name of the property to set

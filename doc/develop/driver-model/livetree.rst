@@ -211,9 +211,18 @@ using it in new code.
 Modifying the livetree
 ----------------------
 
-This is not currently supported. Once implemented it should provide a much
-more efficient implementation for modification of the device tree than using
-the flat tree.
+This is supported in a limited way, with ofnode_write_prop() and related
+functions.
+
+The unflattening algorithm results in a single block of memory being
+allocated for the whole tree. When writing new properties, these are
+allocated new memory outside that block. When the block is freed, the
+allocated properties remain. This can result in a memory leak.
+
+The solution to this leak would be to add a flag for properties (and nodes when
+support is provided for adding those) that indicates that they should be
+freed. Then the tree can be scanned for these 'separately allocated' nodes and
+properties before freeing the memory block.
 
 
 Internal implementation
@@ -281,6 +290,6 @@ Live tree support was introduced in U-Boot 2017.07. There is still quite a bit
 of work to do to flesh this out:
 
 - tests for all access functions
-- support for livetree modification
+- more support for livetree modification
 - addition of more access functions as needed
 - support for livetree in SPL and before relocation (if desired)
