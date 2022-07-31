@@ -16,6 +16,7 @@
 #include <console.h>
 #include <cpu.h>
 #include <cpu_func.h>
+#include <display_options.h>
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>

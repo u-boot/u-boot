@@ -13,6 +13,7 @@
 #include <api.h>
 #include <bootstage.h>
 #include <cpu_func.h>
+#include <display_options.h>
 #include <exports.h>
 #ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>

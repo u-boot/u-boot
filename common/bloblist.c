@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <bloblist.h>
+#include <display_options.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>

@@ -19,6 +19,7 @@
  * @size:	Size to print
  * @suffix	String to print after the size
  */
+#include <display_options.h>
 void print_size(uint64_t size, const char *suffix);
 
 /**

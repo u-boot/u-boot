@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <display_options.h>
 #include <dm.h>
 #include <i2c.h>
 #include <fsl_ddr_sdram.h>

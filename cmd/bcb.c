@@ -9,6 +9,7 @@
 #include <bcb.h>
 #include <command.h>
 #include <common.h>
+#include <display_options.h>
 #include <log.h>
 #include <part.h>
 #include <malloc.h>

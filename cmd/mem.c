@@ -16,6 +16,7 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
+#include <display_options.h>
 #ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
 #endif

@@ -8,6 +8,7 @@
 #include <blk.h>
 #include <command.h>
 #include <console.h>
+#include <display_options.h>
 #include <memalign.h>
 #include <mmc.h>
 #include <part.h>

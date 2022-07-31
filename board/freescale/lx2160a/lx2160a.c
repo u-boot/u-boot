@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <clock_legacy.h>
+#include <display_options.h>
 #include <dm.h>
 #include <init.h>
 #include <asm/global_data.h>

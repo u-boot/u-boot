@@ -9,6 +9,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <env.h>
+#include <display_options.h>
 #include <init.h>
 #include <lmb.h>
 #include <log.h>

@@ -9,6 +9,7 @@
 #include <config.h>
 #include <common.h>
 #include <cpu_func.h>
+#include <display_options.h>
 #include <dm.h>
 #include <log.h>
 #include <net.h>

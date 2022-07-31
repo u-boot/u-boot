@@ -18,6 +18,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <display_options.h>
 #include <net.h>
 #include <time.h>
 #include <vsprintf.h>
