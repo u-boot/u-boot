@@ -768,10 +768,14 @@ class TestFdtUtil(unittest.TestCase):
             tools.outdir= old_outdir
 
 
-def RunTestCoverage():
-    """Run the tests and check that we get 100% coverage"""
+def run_test_coverage(build_dir):
+    """Run the tests and check that we get 100% coverage
+
+    Args:
+        build_dir (str): Directory containing the build output
+    """
     test_util.run_test_coverage('tools/dtoc/test_fdt.py', None,
-            ['tools/patman/*.py', '*test_fdt.py'], options.build_dir)
+            ['tools/patman/*.py', '*test_fdt.py'], build_dir)
 
 
 def RunTests(args):
@@ -811,4 +815,4 @@ if options.test:
     ret_code = RunTests(args)
     sys.exit(ret_code)
 elif options.test_coverage:
-    RunTestCoverage()
+    run_test_coverage(options.build_dir)
