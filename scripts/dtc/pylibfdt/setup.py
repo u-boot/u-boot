@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
 
 """
 setup.py file for SWIG libfdt
 Copyright (C) 2017 Google, Inc.
 Written by Simon Glass <sjg@chromium.org>
 
-SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
+This script is modified from the upstream version, to fit in with the U-Boot
+build system.
 
 Files to be built into the extension are provided in SOURCES
 C flags to use are provided in CPPFLAGS
@@ -18,14 +20,29 @@ allows this script to be run stand-alone, e.g.:
     ./pylibfdt/setup.py install [--prefix=...]
 """
 
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
+from setuptools.command.build_py import build_py as _build_py
 import os
 import re
 import sys
 
+srcdir = os.path.dirname(__file__)
+
+with open(os.path.join(srcdir, "../README"), "r") as fh:
+    long_description = fh.read()
+
 # Decodes a Makefile assignment line into key and value (and plus for +=)
 RE_KEY_VALUE = re.compile('(?P<key>\w+) *(?P<plus>[+])?= *(?P<value>.*)$')
 
+def get_top_builddir():
+    if '--top-builddir' in sys.argv:
+        index = sys.argv.index('--top-builddir')
+        sys.argv.pop(index)
+        return sys.argv.pop(index)
+    else:
+        return os.path.join(srcdir, '..')
+
+top_builddir = get_top_builddir()
 
 def ParseMakefile(fname):
     """Parse a Makefile to obtain its variables.
@@ -86,7 +103,7 @@ def GetEnvFromMakefiles():
     makevars = ParseMakefile(os.path.join(basedir, 'libfdt', 'Makefile.libfdt'))
     files = makevars['LIBFDT_SRCS'].split()
     files = [os.path.join(basedir, 'libfdt', fname) for fname in files]
-    files.append('pylibfdt/libfdt.i')
+    files.append('libfdt.i')
     cflags = ['-I%s' % basedir, '-I%s/libfdt' % basedir]
     objdir = ''
     return swig_opts, version, files, cflags, objdir
@@ -107,17 +124,39 @@ if not all((swig_opts, version, files, cflags, objdir)):
 
 libfdt_module = Extension(
     '_libfdt',
-    sources = files,
-    extra_compile_args = cflags,
-    swig_opts = swig_opts,
+    sources=files,
+    include_dirs=[os.path.join(srcdir, 'libfdt')],
+    library_dirs=[os.path.join(top_builddir, 'libfdt')],
+    swig_opts=swig_opts,
 )
+
+class build_py(_build_py):
+    def run(self):
+        self.run_command("build_ext")
+        return super().run()
 
 setup(
     name='libfdt',
-    version= version,
-    author='Simon Glass <sjg@chromium.org>',
+    version=version,
+    cmdclass = {'build_py' : build_py},
+    author='Simon Glass',
+    author_email='sjg@chromium.org',
     description='Python binding for libfdt',
     ext_modules=[libfdt_module],
     package_dir={'': objdir},
-    py_modules=['pylibfdt/libfdt'],
+    py_modules=['libfdt'],
+
+    long_description=long_description,
+    long_description_content_type="text/plain",
+    url="https://git.kernel.org/pub/scm/utils/dtc/dtc.git",
+    license="BSD",
+    license_files=["GPL", "BSD-2-Clause"],
+
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+        "Operating System :: OS Independent",
+    ],
+
 )
