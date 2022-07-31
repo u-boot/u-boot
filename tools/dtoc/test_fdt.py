@@ -799,23 +799,27 @@ def run_tests(args, processes):
     return (0 if result.wasSuccessful() else 1)
 
 
-if __name__ != '__main__':
-    sys.exit(1)
+def main():
+    """Main program for this tool"""
+    parser = OptionParser()
+    parser.add_option('-B', '--build-dir', type='string', default='b',
+            help='Directory containing the build output')
+    parser.add_option('-P', '--processes', type=int,
+                      help='set number of processes to use for running tests')
+    parser.add_option('-t', '--test', action='store_true', dest='test',
+                      default=False, help='run tests')
+    parser.add_option('-T', '--test-coverage', action='store_true',
+                    default=False, help='run tests and check for 100% coverage')
+    (options, args) = parser.parse_args()
 
-parser = OptionParser()
-parser.add_option('-B', '--build-dir', type='string', default='b',
-        help='Directory containing the build output')
-parser.add_option('-P', '--processes', type=int,
-                  help='set number of processes to use for running tests')
-parser.add_option('-t', '--test', action='store_true', dest='test',
-                  default=False, help='run tests')
-parser.add_option('-T', '--test-coverage', action='store_true',
-                default=False, help='run tests and check for 100% coverage')
-(options, args) = parser.parse_args()
+    # Run our meagre tests
+    if options.test:
+        ret_code = run_tests(args, options.processes)
+        return ret_code
+    if options.test_coverage:
+        run_test_coverage(options.build_dir)
+    return 0
 
-# Run our meagre tests
-if options.test:
-    ret_code = run_tests(args, options.processes)
-    sys.exit(ret_code)
-elif options.test_coverage:
-    run_test_coverage(options.build_dir)
+if __name__ == '__main__':
+    sys.exit(main())
+sys.exit(1)
