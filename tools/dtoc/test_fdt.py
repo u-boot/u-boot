@@ -4,7 +4,7 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
-from optparse import OptionParser
+from argparse import ArgumentParser
 import glob
 import os
 import shutil
@@ -778,12 +778,11 @@ def run_test_coverage(build_dir):
             ['tools/patman/*.py', '*test_fdt.py'], build_dir)
 
 
-def run_tests(args, processes):
+def run_tests(names, processes):
     """Run all the test we have for the fdt model
 
     Args:
-        args (list or str): List of positional args provided. This can hold a
-            test name to execute (as in 'test_fdt -t testFdt', for example)
+        names (list of str): List of test names provided. Only the first is used
         processes (int): Number of processes to use (None means as many as there
             are CPUs on the system. This must be set to 1 when running under
             the python3-coverage tool
@@ -791,7 +790,7 @@ def run_tests(args, processes):
     Returns:
         int: Return code, 0 on success
     """
-    test_name = args[0] if args else None
+    test_name = names[0] if names else None
     result = test_util.run_test_suites(
         'test_fdt', False, False, False, processes, test_name, None,
         [TestFdt, TestNode, TestProp, TestFdtUtil])
@@ -801,23 +800,25 @@ def run_tests(args, processes):
 
 def main():
     """Main program for this tool"""
-    parser = OptionParser()
-    parser.add_option('-B', '--build-dir', type='string', default='b',
-            help='Directory containing the build output')
-    parser.add_option('-P', '--processes', type=int,
-                      help='set number of processes to use for running tests')
-    parser.add_option('-t', '--test', action='store_true', dest='test',
-                      default=False, help='run tests')
-    parser.add_option('-T', '--test-coverage', action='store_true',
-                    default=False, help='run tests and check for 100% coverage')
-    (options, args) = parser.parse_args()
+    parser = ArgumentParser()
+    parser.add_argument('-B', '--build-dir', type=str, default='b',
+                        help='Directory containing the build output')
+    parser.add_argument('-P', '--processes', type=int,
+                        help='set number of processes to use for running tests')
+    parser.add_argument('-t', '--test', action='store_true', dest='test',
+                        default=False, help='run tests')
+    parser.add_argument('-T', '--test-coverage', action='store_true',
+                        default=False,
+                        help='run tests and check for 100% coverage')
+    parser.add_argument('name', nargs='*')
+    args = parser.parse_args()
 
     # Run our meagre tests
-    if options.test:
-        ret_code = run_tests(args, options.processes)
+    if args.test:
+        ret_code = run_tests(args.name, args.processes)
         return ret_code
-    if options.test_coverage:
-        run_test_coverage(options.build_dir)
+    if args.test_coverage:
+        run_test_coverage(args.build_dir)
     return 0
 
 if __name__ == '__main__':
