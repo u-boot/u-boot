@@ -778,17 +778,20 @@ def run_test_coverage(build_dir):
             ['tools/patman/*.py', '*test_fdt.py'], build_dir)
 
 
-def RunTests(args):
+def run_tests(args, processes):
     """Run all the test we have for the fdt model
 
     Args:
-        args: List of positional args provided to fdt. This can hold a test
-            name to execute (as in 'fdt -t testFdt', for example)
+        args (list or str): List of positional args provided. This can hold a
+            test name to execute (as in 'test_fdt -t testFdt', for example)
+        processes (int): Number of processes to use (None means as many as there
+            are CPUs on the system. This must be set to 1 when running under
+            the python3-coverage tool
 
     Returns:
-        Return code, 0 on success
+        int: Return code, 0 on success
     """
-    test_name = args and args[0] or None
+    test_name = args[0] if args else None
     result = test_util.run_test_suites(
         'test_fdt', False, False, False, None, test_name, None,
         [TestFdt, TestNode, TestProp, TestFdtUtil])
@@ -812,7 +815,7 @@ parser.add_option('-T', '--test-coverage', action='store_true',
 
 # Run our meagre tests
 if options.test:
-    ret_code = RunTests(args)
+    ret_code = run_tests(args, options.processes)
     sys.exit(ret_code)
 elif options.test_coverage:
     run_test_coverage(options.build_dir)
