@@ -218,6 +218,7 @@ F:	arch/arm/mach-bcmbca/
 F:	board/broadcom/bcmbca/
 N:	bcmbca
 N:	bcm[9]?47622
+N:	bcm[9]?63148
 N:	bcm[9]?63178
 N:	bcm[9]?6756
 N:	bcm[9]?6846

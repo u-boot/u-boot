@@ -1182,6 +1182,8 @@ dtb-$(CONFIG_ARCH_BCMSTB) += bcm7xxx.dtb
 
 dtb-$(CONFIG_BCM47622) += \
 	bcm947622.dtb
+dtb-$(CONFIG_BCM63148) += \
+	bcm963148.dtb
 dtb-$(CONFIG_BCM63178) += \
 	bcm963178.dtb
 dtb-$(CONFIG_BCM6756) += \
