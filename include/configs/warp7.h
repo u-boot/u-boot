@@ -15,7 +15,6 @@
 
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
-#define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=boot raw 0x2 0x1000 mmcpart 1\0" \
