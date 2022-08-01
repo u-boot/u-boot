@@ -193,6 +193,7 @@ config ARCH_LS2080A
 	select FSL_IFC
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select SYS_FSL_OTHER_DDR_NUM_CTRLS
 	select GICV3
 	select SKIP_LOWLEVEL_INIT
 	select SYS_FSL_SRDS_1
