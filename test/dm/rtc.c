@@ -60,16 +60,27 @@ static int dm_test_rtc_set_get(struct unit_test_state *uts)
 {
 	struct rtc_time now, time, cmp;
 	struct udevice *dev, *emul;
-	long offset, old_offset, old_base_time;
+	long offset, check_offset, old_offset, old_base_time;
+	int i;
 
 	ut_assertok(uclass_get_device(UCLASS_RTC, 0, &dev));
-	ut_assertok(dm_rtc_get(dev, &now));
 
 	ut_assertok(i2c_emul_find(dev, &emul));
 	ut_assertnonnull(emul);
 
-	/* Tell the RTC to go into manual mode */
-	old_offset = sandbox_i2c_rtc_set_offset(emul, false, 0);
+	/* Get the offset, putting the RTC into manual mode */
+	i = 0;
+	do {
+		check_offset = sandbox_i2c_rtc_set_offset(emul, false, 0);
+		ut_assertok(dm_rtc_get(dev, &now));
+
+		/* Tell the RTC to go into manual mode */
+		old_offset = sandbox_i2c_rtc_set_offset(emul, false, 0);
+
+		/* If the times changed in that period, read it again */
+	} while (++i < 2 && check_offset != old_offset);
+	ut_asserteq(check_offset, old_offset);
+
 	old_base_time = sandbox_i2c_rtc_get_set_base_time(emul, -1);
 
 	memset(&time, '\0', sizeof(time));
@@ -127,7 +138,8 @@ static int dm_test_rtc_set_get(struct unit_test_state *uts)
 		ut_asserteq(now.tm_sec + 1, cmp.tm_sec);
 	}
 
-	old_offset = sandbox_i2c_rtc_set_offset(emul, true, 0);
+	/* return RTC to normal mode */
+	sandbox_i2c_rtc_set_offset(emul, true, 0);
 
 	return 0;
 }
