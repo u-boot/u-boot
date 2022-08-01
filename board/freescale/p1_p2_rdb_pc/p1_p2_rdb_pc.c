@@ -83,7 +83,7 @@ struct cpld_data {
 #define CPLD_FXS_LED	0x0F
 #define CPLD_SYS_RST	0x00
 
-void board_reset(void)
+void board_reset_last(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 	out_8(&cpld_data->system_rst, 1);
