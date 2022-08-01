@@ -267,7 +267,7 @@ enabled in relative defconfig file,
    config_reset_vector_address - 0xffc
 
 if device tree support is enabled in defconfig,
-1. use 'u-boot-with-dtb.bin' for nor boot.
+1. use 'u-boot.bin' for nor boot.
 2. use 'u-boot-with-spl-pbl.bin' for other boot.
 
 2-stage NAND/SPI/SD boot loader

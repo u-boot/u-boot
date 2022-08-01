@@ -997,10 +997,6 @@ ifeq ($(CONFIG_INIT_SP_RELATIVE)$(CONFIG_OF_SEPARATE),yy)
 INPUTS-y += init_sp_bss_offset_check
 endif
 
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-INPUTS-y += u-boot-with-dtb.bin
-endif
-
 ifeq ($(CONFIG_ARCH_ROCKCHIP)$(CONFIG_SPL),yy)
 # Binman image dependencies
 ifeq ($(CONFIG_ARM64),y)
@@ -1217,9 +1213,12 @@ else ifeq ($(CONFIG_OF_SEPARATE).$(CONFIG_OF_OMIT_DTB),y.)
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
+ifneq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
 u-boot.bin: u-boot-dtb.bin FORCE
 	$(call if_changed,copy)
-else
+endif
+
+else ifneq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
 u-boot.bin: u-boot-nodtb.bin FORCE
 	$(call if_changed,copy)
 endif
@@ -1432,11 +1431,7 @@ MKIMAGEFLAGS_u-boot-spl.kwb = -n $(KWD_CONFIG_FILE) \
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -A $(ARCH) -T pblimage
 
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-UBOOT_BIN := u-boot-with-dtb.bin
-else
 UBOOT_BIN := u-boot.bin
-endif
 
 MKIMAGEFLAGS_u-boot-lzma.img = -A $(ARCH) -T standalone -C lzma -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
@@ -1604,7 +1599,7 @@ u-boot-with-nand-spl.sfp: u-boot-spl-padx4.sfp u-boot.img FORCE
 endif
 
 ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-u-boot-with-dtb.bin: u-boot-nodtb.bin u-boot.dtb \
+u-boot.bin: u-boot-nodtb.bin u-boot.dtb \
 	$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR), u-boot-br.bin) FORCE
 	$(call if_changed,binman)
 
@@ -1670,11 +1665,7 @@ spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 ifeq ($(ARCH),arm)
 UBOOT_BINLOAD := u-boot.img
 else
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-UBOOT_BINLOAD := u-boot-with-dtb.bin
-else
 UBOOT_BINLOAD := u-boot.bin
-endif
 endif
 
 OBJCOPYFLAGS_u-boot-with-spl-pbl.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
