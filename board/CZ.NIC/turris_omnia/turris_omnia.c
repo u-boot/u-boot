@@ -974,11 +974,10 @@ static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
 	int parts;
 
 	parts = fdt_subnode_offset(blob, offset, "partitions");
-	if (parts < 0)
-		return false;
-
-	if (fdt_del_node(blob, parts) < 0)
-		return false;
+	if (parts >= 0) {
+		if (fdt_del_node(blob, parts) < 0)
+			return false;
+	}
 
 	parts = fdt_add_subnode(blob, offset, "partitions");
 	if (parts < 0)
