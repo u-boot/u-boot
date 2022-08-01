@@ -92,6 +92,7 @@ void board_reset(void)
 void board_cpld_init(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	u8 prev_wd_cfg = in_8(&cpld_data->wd_cfg);
 
 	out_8(&cpld_data->wd_cfg, CPLD_WD_CFG);
 	out_8(&cpld_data->status_led, CPLD_STATUS_LED);
@@ -111,6 +112,26 @@ void board_cpld_init(void)
 	 * and it has to be done in 100ms since the last start of reset.
 	 */
 	out_8(&cpld_data->system_rst, CPLD_SYS_RST);
+
+	/*
+	 * If watchdog timer was already set to non-disabled value then it means
+	 * that watchdog timer was already activated, has already expired and
+	 * caused CPU reset. If this happened then due to CPLD firmware bug,
+	 * writing to wd_cfg register has no effect and therefore it is not
+	 * possible to reactivate watchdog timer again. Also if CPU was reset
+	 * via watchdog then some peripherals like i2c do not work. Watchdog and
+	 * i2c start working again after CPU reset via non-watchdog method.
+	 *
+	 * So in case watchdog timer register in CPLD was already enabled then
+	 * disable it in CPLD and reset CPU which cause new boot. Watchdog timer
+	 * is disabled few lines above, after reading CPLD previous value.
+	 * This logic (disabling timer before reset) prevents reboot loop.
+	 */
+	if (prev_wd_cfg != CPLD_WD_CFG) {
+		eieio();
+		do_reset(NULL, 0, 0, NULL);
+		while (1); /* do_reset() does not occur immediately */
+	}
 }
 
 void board_gpio_init(void)
