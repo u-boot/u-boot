@@ -259,6 +259,7 @@ config ARCH_B4420
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
@@ -289,6 +290,7 @@ config ARCH_B4860
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
@@ -326,6 +328,7 @@ config ARCH_BSC9132
 	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v22
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
@@ -434,6 +437,7 @@ config ARCH_P1010
 	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v22
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC_E500_USE_DEBUG_TLB
@@ -515,6 +519,7 @@ config ARCH_P1023
 	select FSL_PCIE_RESET
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v22
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_ELBC
@@ -602,6 +607,7 @@ config ARCH_P2041
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS1
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v22
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_ELBC
@@ -631,6 +637,7 @@ config ARCH_P3041
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS1
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v22
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select FSL_ELBC
@@ -664,6 +671,7 @@ config ARCH_P4080
 	select SYS_FSL_ERRATUM_I2C_A004447
 	select SYS_FSL_ERRATUM_NMG_CPU_A011
 	select SYS_FSL_ERRATUM_SRIO_A004034
+	select SYS_FSL_PCIE_COMPAT_P4080_PCIE
 	select SYS_P4080_ERRATUM_CPU22
 	select SYS_P4080_ERRATUM_PCIE_A003
 	select SYS_P4080_ERRATUM_SERDES8
@@ -700,6 +708,7 @@ config ARCH_P5040
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS1
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
@@ -730,6 +739,7 @@ config ARCH_T1024
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
@@ -757,6 +767,7 @@ config ARCH_T1040
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
@@ -783,6 +794,7 @@ config ARCH_T1042
 	select SYS_FSL_HAS_DDR4
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_5
 	select FSL_IFC
@@ -811,6 +823,7 @@ config ARCH_T2080
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v30
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
@@ -843,6 +856,7 @@ config ARCH_T4240
 	select SYS_FSL_HAS_DDR3
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_QORIQ_CHASSIS2
+	select SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v30
 	select SYS_FSL_SEC_BE
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
@@ -1309,6 +1323,29 @@ config SYS_FSL_CPC
 
 config SYS_CACHE_STASHING
 	bool "Enable cache stashing"
+
+config SYS_FSL_PCIE_COMPAT_P4080_PCIE
+	bool
+
+config SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v22
+	bool
+
+config SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
+	bool
+
+config SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v30
+	bool
+
+config SYS_FSL_PCIE_COMPAT
+	string
+	depends on FSL_CORENET
+	default "fsl,p4080-pcie" if SYS_FSL_PCIE_COMPAT_P4080_PCIE
+	default "fsl,qoriq-pcie-v2.2" if SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v22
+	default "fsl,qoriq-pcie-v2.4" if SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v24
+	default "fsl,qoriq-pcie-v3.0" if SYS_FSL_PCIE_COMPAT_QORIQ_PCIE_v30
+	help
+	  Defines the string to utilize when trying to match PCIe device tree
+	  nodes for the given platform.
 
 config SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up"

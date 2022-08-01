@@ -300,11 +300,6 @@ The following options need to be configured:
 		system clock.  On most PQ3 devices this is 8, on newer QorIQ
 		devices it can be 16 or 32.  The ratio varies from SoC to Soc.
 
-		CONFIG_SYS_FSL_PCIE_COMPAT
-
-		Defines the string to utilize when trying to match PCIe device
-		tree nodes for the given platform.
-
 		CONFIG_SYS_FSL_ERRATUM_A004510
 
 		Enables a workaround for erratum A004510.  If set,
