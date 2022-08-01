@@ -216,8 +216,9 @@ M:	Joel Peshkin <joel.peshkin@broadcom.com>
 S:	Maintained
 F:	arch/arm/mach-bcmbca/
 F:	board/broadcom/bcmbca/
-F:	configs/bcm947622_defconfig
-F:	include/configs/bcm947622.h
+N:	bcmbca
+N:	bcm[9]?47622
+N:	bcm[9]?63178
 
 ARM BROADCOM BCMSTB
 M:	Thomas Fitzsimmons <fitzsim@fitzsim.org>

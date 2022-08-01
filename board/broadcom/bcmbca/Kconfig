@@ -15,3 +15,10 @@ config SYS_CONFIG_NAME
 	default "bcm947622"
 
 endif
+
+if TARGET_BCM963178
+
+config SYS_CONFIG_NAME
+	default "bcm963178"
+
+endif
