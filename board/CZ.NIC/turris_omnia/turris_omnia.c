@@ -32,8 +32,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define OMNIA_SPI_NOR_PATH		"/soc/spi@10600/spi-nor@0"
-
 #define OMNIA_I2C_BUS_NAME		"i2c@11000->i2cmux@70->i2c@0"
 
 #define OMNIA_I2C_MCU_CHIP_ADDR		0x2a
@@ -1030,14 +1028,22 @@ static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
 
 static void fixup_spi_nor_partitions(void *blob)
 {
-	struct mtd_info *mtd;
+	struct mtd_info *mtd = NULL;
+	char mtd_path[64];
 	int node;
 
-	mtd = get_mtd_device_nm(OMNIA_SPI_NOR_PATH);
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "jedec,spi-nor");
+	if (node < 0)
+		goto fail;
+
+	if (fdt_get_path(gd->fdt_blob, node, mtd_path, sizeof(mtd_path)) < 0)
+		goto fail;
+
+	mtd = get_mtd_device_nm(mtd_path);
 	if (IS_ERR_OR_NULL(mtd))
 		goto fail;
 
-	node = fdt_path_offset(blob, OMNIA_SPI_NOR_PATH);
+	node = fdt_node_offset_by_compatible(blob, -1, "jedec,spi-nor");
 	if (node < 0)
 		goto fail;
 
