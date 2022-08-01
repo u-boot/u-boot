@@ -83,6 +83,18 @@ struct cpld_data {
 #define CPLD_FXS_LED	0x0F
 #define CPLD_SYS_RST	0x00
 
+void board_reset_prepare(void)
+{
+	/*
+	 * During reset preparation, turn off external watchdog.
+	 * This ensures that external watchdog does not trigger
+	 * another reset or possible infinite reset loop.
+	 */
+	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	out_8(&cpld_data->wd_cfg, CPLD_WD_CFG);
+	in_8(&cpld_data->wd_cfg); /* Read back to sync write */
+}
+
 void board_reset_last(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);

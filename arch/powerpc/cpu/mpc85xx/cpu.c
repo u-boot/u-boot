@@ -44,6 +44,7 @@ __board_reset(void)
 {
 	/* Do nothing */
 }
+void board_reset_prepare(void) __attribute__((weak, alias("__board_reset")));
 void board_reset(void) __attribute__((weak, alias("__board_reset")));
 void board_reset_last(void) __attribute__((weak, alias("__board_reset")));
 
@@ -319,6 +320,9 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	mtspr(DBCR0,val);
 #else
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+
+	/* Call board-specific preparation for reset */
+	board_reset_prepare();
 
 	/* Attempt board-specific reset */
 	board_reset();
