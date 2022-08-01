@@ -330,21 +330,6 @@ The following options need to be configured:
 		This is the value to write into CCSR offset 0x18600
 		according to the A004510 workaround.
 
-		CONFIG_SYS_FSL_DSP_DDR_ADDR
-		This value denotes start offset of DDR memory which is
-		connected exclusively to the DSP cores.
-
-		CONFIG_SYS_FSL_DSP_M2_RAM_ADDR
-		This value denotes start offset of M2 memory
-		which is directly connected to the DSP core.
-
-		CONFIG_SYS_FSL_DSP_M3_RAM_ADDR
-		This value denotes start offset of M3 memory which is directly
-		connected to the DSP core.
-
-		CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT
-		This value denotes start offset of DSP CCSR space.
-
 		CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 		Single Source Clock is clocking mode present in some of FSL SoC's.
 		In this mode, a single differential clock is used to supply

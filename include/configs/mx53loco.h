@@ -15,7 +15,6 @@
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	2
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORT	1

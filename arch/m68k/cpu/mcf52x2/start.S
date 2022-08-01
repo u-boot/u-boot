@@ -303,10 +303,6 @@ clear_bss:
 	/* set parameters for board_init_r */
 	move.l	%a0,-(%sp)		/* dest_addr */
 	move.l	%d0,-(%sp)		/* gd */
-#if defined(DEBUG) && (CONFIG_SYS_TEXT_BASE != CONFIG_SYS_INT_FLASH_BASE) && \
-    defined(CONFIG_SYS_HALT_BEFOR_RAM_JUMP)
-	halt
-#endif
 	jsr	(%a1)
 
 /******************************************************************************/

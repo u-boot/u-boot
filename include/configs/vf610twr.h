@@ -21,7 +21,6 @@
 #endif
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	1
 
 #define CONFIG_FEC_MXC_PHYADDR          0
 

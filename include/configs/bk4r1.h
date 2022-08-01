@@ -55,13 +55,6 @@
 
 #define IMX_FEC1_BASE			ENET1_BASE_ADDR
 
-/* QSPI Configs*/
-#ifdef CONFIG_FSL_QSPI
-#define FSL_QSPI_FLASH_SIZE		(SZ_16M)
-#define FSL_QSPI_FLASH_NUM		2
-#define CONFIG_SYS_FSL_QSPI_LE
-#endif
-
 /* boot command, including the target-defined one if any */
 
 /* Extra env settings (including the target-defined ones if any) */
