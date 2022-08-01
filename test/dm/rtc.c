@@ -252,6 +252,7 @@ static int dm_test_rtc_reset(struct unit_test_state *uts)
 	struct rtc_time now;
 	struct udevice *dev, *emul;
 	long old_base_time, base_time;
+	int i;
 
 	ut_assertok(uclass_get_device(UCLASS_RTC, 0, &dev));
 	ut_assertok(dm_rtc_get(dev, &now));
@@ -259,19 +260,24 @@ static int dm_test_rtc_reset(struct unit_test_state *uts)
 	ut_assertok(i2c_emul_find(dev, &emul));
 	ut_assertnonnull(emul);
 
-	old_base_time = sandbox_i2c_rtc_get_set_base_time(emul, 0);
+	i = 0;
+	do {
+		old_base_time = sandbox_i2c_rtc_get_set_base_time(emul, 0);
 
-	ut_asserteq(0, sandbox_i2c_rtc_get_set_base_time(emul, -1));
+		ut_asserteq(0, sandbox_i2c_rtc_get_set_base_time(emul, -1));
 
-	/*
-	 * Resetting the RTC should put the base time back to normal. Allow for
-	 * a one-second adjustment in case the time flips over while this
-	 * test process is pre-empted, since reset_time() in i2c_rtc_emul.c
-	 * reads the time from the OS.
-	 */
-	ut_assertok(dm_rtc_reset(dev));
-	base_time = sandbox_i2c_rtc_get_set_base_time(emul, -1);
-	ut_assert(base_time - old_base_time <= 1);
+		ut_assertok(dm_rtc_reset(dev));
+		base_time = sandbox_i2c_rtc_get_set_base_time(emul, -1);
+
+		/*
+		 * Resetting the RTC should put the base time back to normal.
+		 * Allow for a one-timeadjustment in case the time flips over
+		 * while this test process is pre-empted (either by a second
+		 * or a daylight-saving change), since reset_time() in
+		 * i2c_rtc_emul.c reads the time from the OS.
+		 */
+	} while (++i < 2 && base_time != old_base_time);
+	ut_asserteq(old_base_time, base_time);
 
 	return 0;
 }
