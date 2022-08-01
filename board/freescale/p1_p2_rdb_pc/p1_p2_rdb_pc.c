@@ -97,6 +97,19 @@ void board_cpld_init(void)
 	out_8(&cpld_data->status_led, CPLD_STATUS_LED);
 	out_8(&cpld_data->fxo_led, CPLD_FXO_LED);
 	out_8(&cpld_data->fxs_led, CPLD_FXS_LED);
+
+	/*
+	 * CPLD's system reset register on P1/P2 RDB boards is not autocleared
+	 * after flipping it. If this register is set to one then CPLD triggers
+	 * reset of CPU in few ms.
+	 *
+	 * CPLD does not trigger reset of CPU for 100ms after the last reset.
+	 *
+	 * This means that trying to reset board via CPLD system reset register
+	 * cause reboot loop. To prevent this reboot loop, the only workaround
+	 * is to try to clear CPLD's system reset register as early as possible
+	 * and it has to be done in 100ms since the last start of reset.
+	 */
 	out_8(&cpld_data->system_rst, CPLD_SYS_RST);
 }
 

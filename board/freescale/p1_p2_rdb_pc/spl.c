@@ -31,6 +31,12 @@ void board_init_f(ulong bootflag)
 	u32 plat_ratio, bus_clk;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
+	/*
+	 * Call board_early_init_f() as early as possible as it workarounds
+	 * reboot loop due to broken CPLD state machine for reset line.
+	 */
+	board_early_init_f();
+
 	console_init_f();
 
 	/* Set pmuxcr to allow both i2c1 and i2c2 */
