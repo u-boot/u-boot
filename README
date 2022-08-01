@@ -351,10 +351,6 @@ The following options need to be configured:
 		clocks to the sysclock, ddrclock and usbclock.
 
 - Generic CPU options:
-		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
-
-		Defines the endianess of the CPU. Implementation of those
-		values is arch specific.
 
 		CONFIG_SYS_FSL_DDR
 		Freescale DDR driver in use. This type of DDR controller is
