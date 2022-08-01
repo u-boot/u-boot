@@ -1186,6 +1186,8 @@ dtb-$(CONFIG_BCM63178) += \
 	bcm963178.dtb
 dtb-$(CONFIG_BCM6846) += \
 	bcm96846.dtb
+dtb-$(CONFIG_BCM6878) += \
+	bcm96878.dtb
 
 dtb-$(CONFIG_ASPEED_AST2500) += ast2500-evb.dtb
 dtb-$(CONFIG_ASPEED_AST2600) += ast2600-evb.dtb
