@@ -12,6 +12,59 @@ config CMD_ERRATA
 	  This enables the 'errata' command which displays a list of errata
 	  work-arounds which are enabled for the current board.
 
+config FSL_PREPBL_ESDHC_BOOT_SECTOR
+	bool "Generate QorIQ pre-PBL eSDHC boot sector"
+	depends on MPC85xx
+	depends on SYS_EXTRA_OPTIONS = SDCARD
+	help
+	  With this option final image would have prepended QorIQ pre-PBL eSDHC
+	  boot sector suitable for SD card images. This boot sector instruct
+	  BootROM to configure L2 SRAM and eSDHC then load image from SD card
+	  into L2 SRAM and finally jump to image entry point.
+
+	  This is alternative to Freescale boot_format tool, but works only for
+	  SD card images and only for L2 SRAM booting. U-Boot images generated
+	  with this option should not passed to boot_format tool.
+
+	  For other configuration like booting from eSPI or configuring SDRAM
+	  please use Freescale boot_format tool without this option. See file
+	  doc/README.mpc85xx-sd-spi-boot
+
+config FSL_PREPBL_ESDHC_BOOT_SECTOR_START
+	int "QorIQ pre-PBL eSDHC boot sector start offset"
+	depends on FSL_PREPBL_ESDHC_BOOT_SECTOR
+	range 0 23
+	default 0
+	help
+	  QorIQ pre-PBL eSDHC boot sector may be located on one of the first
+	  24 SD card sectors. Select SD card sector on which final U-Boot
+	  image (with this boot sector) would be installed.
+
+	  By default first SD card sector (0) is used. But this may be changed
+	  to allow installing U-Boot image on some partition (with fixed start
+	  sector).
+
+	  Please note that any sector on SD card prior this boot sector must
+	  not contain ASCII "BOOT" bytes at sector offset 0x40.
+
+config FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA
+	int "Relative data sector for QorIQ pre-PBL eSDHC boot sector"
+	depends on FSL_PREPBL_ESDHC_BOOT_SECTOR
+	default 1
+	range 1 8388607
+	help
+	  Select data sector from the beginning of QorIQ pre-PBL eSDHC boot
+	  sector on which would be stored raw U-Boot image.
+
+	  By default is it second sector (1) which is the first available free
+	  sector (on the first sector is stored boot sector). It can be any
+	  sector number which offset in bytes can be expressed by 32-bit number.
+
+	  In case this final U-Boot image (with this boot sector) is put on
+	  the FAT32 partition into reserved boot area, this data sector needs
+	  to be at least 2 (third sector) because FAT32 use second sector for
+	  its data.
+
 choice
 	prompt "Target select"
 	optional

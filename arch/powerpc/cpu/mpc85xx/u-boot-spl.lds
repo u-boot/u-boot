@@ -12,6 +12,14 @@ OUTPUT_ARCH(powerpc)
 
 SECTIONS
 {
+/* Optional boot sector */
+#if defined(CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR)
+	.bootsect IMAGE_TEXT_BASE - CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA * 512 : {
+		KEEP(*(.bootsect))
+		. = CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA * 512;
+	}
+#endif
+
 	. = IMAGE_TEXT_BASE;
 	.text : {
 /* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
