@@ -390,11 +390,17 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 
 	for (test = tests; test < tests + count; test++) {
 		const char *test_name = test->name;
-		int ret;
+		int ret, i, old_fail_count;
 
 		if (!test_matches(prefix, test_name, select_name))
 			continue;
-		ret = ut_run_test_live_flat(uts, test, select_name);
+		old_fail_count = uts->fail_count;
+		for (i = 0; i < uts->runs_per_test; i++)
+			ret = ut_run_test_live_flat(uts, test, select_name);
+		if (uts->fail_count != old_fail_count) {
+			printf("Test %s failed %d times\n", select_name,
+			       uts->fail_count - old_fail_count);
+		}
 		found++;
 		if (ret == -EAGAIN)
 			continue;
@@ -408,7 +414,8 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 }
 
 int ut_run_list(const char *category, const char *prefix,
-		struct unit_test *tests, int count, const char *select_name)
+		struct unit_test *tests, int count, const char *select_name,
+		int runs_per_test)
 {
 	struct unit_test_state uts = { .fail_count = 0 };
 	bool has_dm_tests = false;
@@ -432,6 +439,7 @@ int ut_run_list(const char *category, const char *prefix,
 		printf("Running %d %s tests\n", count, category);
 
 	uts.of_root = gd_of_root();
+	uts.runs_per_test = runs_per_test;
 	ret = ut_run_tests(&uts, prefix, tests, count, select_name);
 
 	if (ret == -ENOENT)
