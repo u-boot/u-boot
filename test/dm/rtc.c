@@ -251,10 +251,15 @@ static int dm_test_rtc_reset(struct unit_test_state *uts)
 
 	ut_asserteq(0, sandbox_i2c_rtc_get_set_base_time(emul, -1));
 
-	/* Resetting the RTC should put he base time back to normal */
+	/*
+	 * Resetting the RTC should put the base time back to normal. Allow for
+	 * a one-second adjustment in case the time flips over while this
+	 * test process is pre-empted, since reset_time() in i2c_rtc_emul.c
+	 * reads the time from the OS.
+	 */
 	ut_assertok(dm_rtc_reset(dev));
 	base_time = sandbox_i2c_rtc_get_set_base_time(emul, -1);
-	ut_asserteq(old_base_time, base_time);
+	ut_assert(base_time - old_base_time <= 1);
 
 	return 0;
 }
