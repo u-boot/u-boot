@@ -137,48 +137,44 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 static int turris_omnia_mcu_set_value(struct udevice *dev, uint offset, int value)
 {
 	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
-	u8 val[2];
-	int ret;
-	u8 reg;
+	u8 val16[2];
+	u8 val32[4];
 
 	switch (offset) {
 	/* bank 0 */
-	case ilog2(STS_USB30_PWRON):
-		reg = CMD_GENERAL_CONTROL;
-		val[1] = CTL_USB30_PWRON;
-		break;
-	case ilog2(STS_USB31_PWRON):
-		reg = CMD_GENERAL_CONTROL;
-		val[1] = CTL_USB31_PWRON;
-		break;
-	case ilog2(STS_ENABLE_4V5):
-		reg = CMD_GENERAL_CONTROL;
-		val[1] = CTL_ENABLE_4V5;
-		break;
-	case ilog2(STS_BUTTON_MODE):
-		reg = CMD_GENERAL_CONTROL;
-		val[1] = CTL_BUTTON_MODE;
-		break;
+	case 0 ... 15:
+		switch (offset) {
+		case ilog2(STS_USB30_PWRON):
+			val16[1] = CTL_USB30_PWRON;
+			break;
+		case ilog2(STS_USB31_PWRON):
+			val16[1] = CTL_USB31_PWRON;
+			break;
+		case ilog2(STS_ENABLE_4V5):
+			val16[1] = CTL_ENABLE_4V5;
+			break;
+		case ilog2(STS_BUTTON_MODE):
+			val16[1] = CTL_BUTTON_MODE;
+			break;
+		default:
+			return -EINVAL;
+		}
+		val16[0] = value ? val16[1] : 0;
+		return dm_i2c_write(dev, CMD_GENERAL_CONTROL, val16, sizeof(val16));
 
 	/* bank 2 - supported only when FEAT_EXT_CMDS is set */
 	case (16 + 32 + 0) ... (16 + 32 + 15):
 		if (!(info->features & FEAT_EXT_CMDS))
 			return -EINVAL;
-		reg = CMD_EXT_CONTROL;
-		val[1] = BIT(offset - 16 - 32);
-		break;
+		val32[3] = BIT(offset - 16 - 32) >> 8;
+		val32[2] = BIT(offset - 16 - 32) & 0xff;
+		val32[1] = value ? val32[3] : 0;
+		val32[0] = value ? val32[2] : 0;
+		return dm_i2c_write(dev, CMD_EXT_CONTROL, val32, sizeof(val32));
 
 	default:
 		return -EINVAL;
 	}
-
-	val[0] = value ? val[1] : 0;
-
-	ret = dm_i2c_write(dev, reg, val, 2);
-	if (ret)
-		return ret;
-
-	return 0;
 }
 
 static int turris_omnia_mcu_direction_input(struct udevice *dev, uint offset)
