@@ -294,12 +294,6 @@ The following options need to be configured:
 		the "64" category of the Power ISA). This is necessary for ePAPR
 		compliance, among other possible reasons.
 
-		CONFIG_SYS_FSL_TBCLK_DIV
-
-		Defines the core time base clock divider ratio compared to the
-		system clock.  On most PQ3 devices this is 8, on newer QorIQ
-		devices it can be 16 or 32.  The ratio varies from SoC to Soc.
-
 		CONFIG_SYS_FSL_ERRATUM_A004510
 
 		Enables a workaround for erratum A004510.  If set,

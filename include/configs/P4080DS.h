@@ -7,7 +7,6 @@
  * P4080 DS board configuration file
  * Also supports P4040 DS
  */
-#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */

@@ -7,8 +7,6 @@
  * P3041 DS board configuration file
  *
  */
-#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
-
 #define CONFIG_SYS_DPAA_RMAN
 
 #define CONFIG_SYS_SRIO
