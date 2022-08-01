@@ -94,8 +94,6 @@
 #define EPU_EPCTR5		0x700060a14ULL
 #define EPU_EPGCR		0x700060000ULL
 
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
-
 #elif defined(CONFIG_ARCH_LS1088A)
 #define CONFIG_SYS_FSL_NUM_CC_PLLS		3
 #define CONFIG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1 }
@@ -129,7 +127,6 @@
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
 
 /* DCFG - GUR */
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC	1
 #define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE	0x00200000 /* 2M space */
 #define CONFIG_SYS_FSL_OCRAM_SIZE	0x00020000 /* Real size 128K */
@@ -164,8 +161,6 @@
 #define SMMU_BASE				0x05000000 /* GR0 Base */
 
 /* DCFG - GUR */
-
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 
 #elif defined(CONFIG_ARCH_LS1028A)
 #define CONFIG_SYS_FSL_NUM_CC_PLLS		3
@@ -204,7 +199,6 @@
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
 
 /* SEC */
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 
 /* DCFG - GUR */
 
@@ -258,12 +252,9 @@
 #define GIC_ADDR_BIT		31
 #define SCFG_GIC400_ALIGN	0x1570188
 
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
-
 #elif defined(CONFIG_ARCH_LS1012A)
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC           1
 #define CONFIG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
 
@@ -281,8 +272,6 @@
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE		0x01410000
 #define GICC_BASE		0x01420000
-
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 #else
 #error SoC not defined
 #endif
