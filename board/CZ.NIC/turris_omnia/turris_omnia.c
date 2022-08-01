@@ -979,6 +979,9 @@ static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
 			return false;
 	}
 
+	if (fdt_increase_size(blob, 512) < 0)
+		return false;
+
 	parts = fdt_add_subnode(blob, offset, "partitions");
 	if (parts < 0)
 		return false;
