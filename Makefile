@@ -1604,7 +1604,7 @@ u-boot-with-nand-spl.sfp: u-boot-spl-padx4.sfp u-boot.img FORCE
 endif
 
 ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-u-boot-with-dtb.bin: u-boot.bin u-boot.dtb \
+u-boot-with-dtb.bin: u-boot-nodtb.bin u-boot.dtb \
 	$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR), u-boot-br.bin) FORCE
 	$(call if_changed,binman)
 
