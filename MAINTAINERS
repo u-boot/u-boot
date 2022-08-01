@@ -219,6 +219,7 @@ F:	board/broadcom/bcmbca/
 N:	bcmbca
 N:	bcm[9]?47622
 N:	bcm[9]?63178
+N:	bcm[9]?6846
 
 ARM BROADCOM BCMSTB
 M:	Thomas Fitzsimmons <fitzsim@fitzsim.org>
