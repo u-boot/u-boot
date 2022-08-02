@@ -1,0 +1,24 @@
+#include <config.h>
+
+#ifdef CONFIG_ARMADA_32BIT
+
+/ {
+	soc {
+		u-boot,dm-pre-reloc;
+		internal-regs {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+#ifdef CONFIG_SPL_SPI
+&spi0 {
+	u-boot,dm-pre-reloc;
+};
+#endif
+
+#endif
