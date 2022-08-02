@@ -385,8 +385,6 @@ int get_scl(void);
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 
-#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
-
 /* Qman / Bman */
 /* RGMII (FM1@DTESC5) is local managemant interface */
 #define CONFIG_SYS_RGMII2_PHY_ADDR             0x11
