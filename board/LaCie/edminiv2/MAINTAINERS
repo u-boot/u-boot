@@ -1,6 +1,0 @@
-EDMINIV2 BOARD
-M:	Simon Guinot <simon.guinot@sequanux.org>
-S:	Maintained
-F:	board/LaCie/edminiv2/
-F:	include/configs/edminiv2.h
-F:	configs/edminiv2_defconfig
