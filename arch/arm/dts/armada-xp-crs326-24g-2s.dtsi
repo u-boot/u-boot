@@ -19,7 +19,6 @@
 
 /dts-v1/;
 #include "armada-xp-98dx3236.dtsi"
-#include "armada-xp-crs326-24g-2s-u-boot.dtsi"
 
 / {
 	model = "CRS326-24G-2S+";

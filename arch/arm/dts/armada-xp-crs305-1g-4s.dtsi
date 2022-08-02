@@ -19,7 +19,6 @@
 
 /dts-v1/;
 #include "armada-xp-98dx3236.dtsi"
-#include "armada-xp-crs305-1g-4s-u-boot.dtsi"
 
 / {
 	model = "CRS305-1G-4S+";
