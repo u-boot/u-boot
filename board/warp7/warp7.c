@@ -66,19 +66,6 @@ int power_init_board(void)
 }
 #endif
 
-int board_eth_init(struct bd_info *bis)
-{
-	int ret = 0;
-
-#ifdef CONFIG_USB_ETHER
-	ret = usb_eth_initialize(bis);
-	if (ret < 0)
-		printf("Error %d registering USB ether.\n", ret);
-#endif
-
-	return ret;
-}
-
 int board_init(void)
 {
 	/* address of boot parameters */
