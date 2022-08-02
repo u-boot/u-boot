@@ -432,7 +432,8 @@ KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
 		   -fno-builtin -ffreestanding $(CSTD_FLAG)
 KBUILD_CFLAGS	+= -fshort-wchar -fno-strict-aliasing
 KBUILD_AFLAGS   := -D__ASSEMBLY__
-KBUILD_LDFLAGS  :=
+KBUILD_LDFLAGS  := $(call ld-option, --no-warn-rwx-segments) \
+		   $(call ld-option, --no-warn-execstack)
 
 ifeq ($(cc-name),clang)
 ifneq ($(CROSS_COMPILE),)
