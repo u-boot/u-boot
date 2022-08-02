@@ -565,20 +565,6 @@ The following options need to be configured:
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
 
-		CONFIG_SMC91111
-		Support for SMSC's LAN91C111 chip
-
-			CONFIG_SMC91111_BASE
-			Define this to hold the physical address
-			of the device (I/O space)
-
-			CONFIG_SMC_USE_32_BIT
-			Define this if data bus is 32 bits
-
-			CONFIG_SMC_USE_IOFUNCS
-			Define this to use i/o functions instead of macros
-			(some hardware wont work with macros)
-
 			CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
 			Define this if you have more then 3 PHYs.
 

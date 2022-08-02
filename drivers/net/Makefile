@@ -79,7 +79,6 @@ obj-$(CONFIG_RTL8139) += rtl8139.o
 obj-$(CONFIG_RTL8169) += rtl8169.o
 obj-$(CONFIG_SH_ETHER) += sh_eth.o
 obj-$(CONFIG_SJA1105) += sja1105.o
-obj-$(CONFIG_SMC91111) += smc91111.o
 obj-$(CONFIG_SMC911X) += smc911x.o
 obj-$(CONFIG_SNI_AVE) += sni_ave.o
 obj-$(CONFIG_SNI_NETSEC) += sni_netsec.o
