@@ -7,7 +7,7 @@ config ETH
 	def_bool y
 
 config DM_ETH
-	bool "Enable Driver Model for Ethernet drivers"
+	bool
 	depends on DM
 	help
 	  Enable driver model for Ethernet.
@@ -18,7 +18,7 @@ config DM_ETH
 
 config DM_MDIO
 	bool "Enable Driver Model for MDIO devices"
-	depends on DM_ETH && PHYLIB
+	depends on PHYLIB
 	help
 	  Enable driver model for MDIO devices
 
@@ -43,7 +43,7 @@ config DM_MDIO_MUX
 
 config DM_DSA
 	bool "Enable Driver Model for DSA switches"
-	depends on DM_ETH && DM_MDIO
+	depends on DM_MDIO
 	depends on PHY_FIXED
 	help
 	  Enable driver model for DSA switches
@@ -94,7 +94,7 @@ config DSA_SANDBOX
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
-	default y if DM_ETH
+	select DM_ETH
 	help
 	  You must select Y to enable any network device support
 	  Generally if you have any networking support this is a given
@@ -112,7 +112,7 @@ config PHY_GIGE
 
 config AG7XXX
 	bool "Atheros AG7xxx Ethernet MAC support"
-	depends on DM_ETH && ARCH_ATH79
+	depends on ARCH_ATH79
 	select PHYLIB
 	help
 	  This driver supports the Atheros AG7xxx Ethernet MAC. This MAC is
@@ -121,7 +121,6 @@ config AG7XXX
 
 config ALTERA_TSE
 	bool "Altera Triple-Speed Ethernet MAC support"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  This driver supports the Altera Triple-Speed (TSE) Ethernet MAC.
@@ -154,7 +153,7 @@ config BCM_SF2_ETH_GMAC
 
 config BCM6348_ETH
 	bool "BCM6348 EMAC support"
-	depends on DM_ETH && ARCH_BMIPS
+	depends on ARCH_BMIPS
 	select DMA
 	select DMA_CHANNELS
 	select MII
@@ -164,7 +163,7 @@ config BCM6348_ETH
 
 config BCM6368_ETH
 	bool "BCM6368 EMAC support"
-	depends on DM_ETH && ARCH_BMIPS
+	depends on ARCH_BMIPS
 	select DMA
 	select MII
 	help
@@ -172,21 +171,19 @@ config BCM6368_ETH
 
 config BCMGENET
 	bool "BCMGENET V5 support"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  This driver supports the BCMGENET Ethernet MAC.
 
 config CORTINA_NI_ENET
 	bool "Cortina-Access Ethernet driver"
-	depends on DM_ETH && CORTINA_PLATFORM
+	depends on CORTINA_PLATFORM
 	help
 	  This driver supports the Cortina-Access Ethernet MAC for
 	  all supported CAxxxx SoCs.
 
 config CALXEDA_XGMAC
 	bool "Calxeda XGMAC support"
-	depends on DM_ETH
 	help
 	  This driver supports the XGMAC in Calxeda Highbank and Midway
 	  machines.
@@ -198,7 +195,6 @@ config DRIVER_DM9000
 
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  This driver supports the Synopsys Designware Ethernet QOS (Quality
@@ -273,7 +269,7 @@ config EEPRO100
 	  ethernet family of adapters.
 
 config ETH_SANDBOX
-	depends on DM_ETH && SANDBOX
+	depends on SANDBOX
 	default y
 	bool "Sandbox: Mocked Ethernet driver"
 	help
@@ -283,7 +279,7 @@ config ETH_SANDBOX
 	  This driver is particularly useful in the test/dm/eth.c tests
 
 config ETH_SANDBOX_RAW
-	depends on DM_ETH && SANDBOX
+	depends on SANDBOX
 	default y
 	bool "Sandbox: Bridge to Linux Raw Sockets"
 	help
@@ -303,7 +299,6 @@ config ETH_DESIGNWARE
 
 config ETH_DESIGNWARE_MESON8B
 	bool "Amlogic Meson8b and later glue driver for Synopsys Designware Ethernet MAC"
-	depends on DM_ETH
 	select ETH_DESIGNWARE
 	help
 	  This provides glue layer to use Synopsys Designware Ethernet MAC
@@ -314,7 +309,7 @@ config ETH_DESIGNWARE_SOCFPGA
 	select SYSCON
 	select DW_ALTDESCRIPTOR
 	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
-	depends on DM_ETH && ETH_DESIGNWARE
+	depends on ETH_DESIGNWARE
 	help
 	  The Altera SoCFPGA requires additional configuration of the
 	  Altera system manager to correctly interface with the PHY.
@@ -322,7 +317,7 @@ config ETH_DESIGNWARE_SOCFPGA
 
 config ETH_DESIGNWARE_S700
 	bool "Actins S700 glue driver for Synopsys Designware Ethernet MAC"
-	depends on DM_ETH && ETH_DESIGNWARE
+	depends on ETH_DESIGNWARE
 	help
 	  This provides glue layer to use Synopsys Designware Ethernet MAC
 	  present on Actions S700 SoC.
@@ -386,7 +381,6 @@ config FTMAC100
 
 config FTGMAC100
 	bool "Ftgmac100 Ethernet Support"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  This driver supports the Faraday's FTGMAC100 Gigabit SoC
@@ -414,7 +408,6 @@ config SYS_DISCOVER_PHY
 
 config MCFFEC
 	bool "ColdFire Ethernet Support"
-	depends on DM_ETH
 	select PHYLIB
 	select SYS_DISCOVER_PHY
 	help
@@ -427,7 +420,6 @@ config SYS_UNIFY_CACHE
 
 config FSLDMAFEC
         bool "ColdFire DMA Ethernet Support"
-	depends on DM_ETH
 	select PHYLIB
 	select SYS_DISCOVER_PHY
 	help
@@ -439,15 +431,6 @@ config KS8851_MLL
 	help
 	  The Microchip KS8851 parallel bus external ethernet interface chip.
 
-if KS8851_MLL
-if !DM_ETH
-config KS8851_MLL_BASEADDR
-	hex "Microchip KS8851-MLL Base Address"
-	help
-	  Define this to hold the physical address of the device (I/O space)
-endif #DM_ETH
-endif #KS8851_MLL
-
 config KSZ9477
 	bool "Microchip KSZ9477 I2C controller driver"
 	depends on DM_DSA && DM_I2C
@@ -458,7 +441,7 @@ config KSZ9477
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on ARCH_KIRKWOOD || ARCH_ORION5X
-	select PHYLIB if DM_ETH
+	select PHYLIB
 	help
 	  This driver supports the network interface units in the
 	  Marvell Orion5x and Kirkwood SoCs
@@ -563,7 +546,6 @@ config OCTEONTX2_CGX_INTF
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  This MAC is present in Intel Platform Controller Hub EG20T. It
@@ -624,24 +606,13 @@ config SJA1105
 config SMC911X
 	bool "SMSC LAN911x and LAN921x controller driver"
 
-if SMC911X
-
-if !DM_ETH
-config SMC911X_BASE
-	hex "SMC911X Base Address"
-	help
-	  Define this to hold the physical address
-	  of the device (I/O space)
-endif #DM_ETH
-
 config SMC911X_32_BIT
 	bool "Enable SMC911X 32-bit interface"
+	depends on SMC911X
 	help
 	  Define this if data bus is 32 bits. If your processor use a
 	  narrower 16 bit bus or cannot convert one 32 bit word to two 16 bit
 	  words, leave this to "n".
-
-endif #SMC911X
 
 config SUN7I_GMAC
 	bool "Enable Allwinner GMAC Ethernet support"
@@ -658,14 +629,12 @@ config SUN7I_GMAC_FORCE_TXERR
 
 config SUN4I_EMAC
 	bool "Allwinner Sun4i Ethernet MAC support"
-	depends on DM_ETH
 	select PHYLIB
 	help
 	  This driver supports the Allwinner based SUN4I Ethernet MAC.
 
 config SUN8I_EMAC
         bool "Allwinner Sun8i Ethernet MAC support"
-        depends on DM_ETH
         select PHYLIB
 	select PHY_GIGE
         help
@@ -687,7 +656,6 @@ config TULIP
 	  This driver supports DEC DC2114x Fast ethernet chips.
 
 config XILINX_AXIEMAC
-	depends on DM_ETH
 	select PHYLIB
 	select MII
 	bool "Xilinx AXI Ethernet"
@@ -695,7 +663,7 @@ config XILINX_AXIEMAC
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
 config XILINX_AXIMRMAC
-	depends on DM_ETH && ARCH_VERSAL
+	depends on ARCH_VERSAL
 	bool "Xilinx AXI MRMAC"
 	help
 	  MRMAC is a high performance, low latency, adaptable Ethernet
@@ -704,7 +672,6 @@ config XILINX_AXIMRMAC
 	  Versal designs.
 
 config XILINX_EMACLITE
-	depends on DM_ETH
 	select PHYLIB
 	select MII
 	bool "Xilinx Ethernetlite"
@@ -712,7 +679,6 @@ config XILINX_EMACLITE
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
 config ZYNQ_GEM
-	depends on DM_ETH
 	select PHYLIB
 	bool "Xilinx Ethernet GEM"
 	help
@@ -720,7 +686,7 @@ config ZYNQ_GEM
 
 config PIC32_ETH
 	bool "Microchip PIC32 Ethernet Support"
-	depends on DM_ETH && MACH_PIC32
+	depends on MACH_PIC32
 	select PHYLIB
 	help
 	  This driver implements 10/100 Mbps Ethernet and MAC layer for
@@ -728,14 +694,14 @@ config PIC32_ETH
 
 config GMAC_ROCKCHIP
 	bool "Rockchip Synopsys Designware Ethernet MAC"
-	depends on DM_ETH && ETH_DESIGNWARE
+	depends on ETH_DESIGNWARE
 	help
 	  This driver provides Rockchip SoCs network support based on the
 	  Synopsys Designware driver.
 
 config RENESAS_RAVB
 	bool "Renesas Ethernet AVB MAC"
-	depends on DM_ETH && RCAR_GEN3
+	depends on RCAR_GEN3
 	select PHYLIB
 	help
 	  This driver implements support for the Ethernet AVB block in
@@ -753,7 +719,7 @@ config MPC8XX_FEC
 
 config SNI_AVE
 	bool "Socionext AVE Ethernet support"
-	depends on DM_ETH && ARCH_UNIPHIER
+	depends on ARCH_UNIPHIER
 	select PHYLIB
 	select SYSCON
 	select REGMAP
@@ -763,7 +729,7 @@ config SNI_AVE
 
 config SNI_NETSEC
 	bool "Socionext NETSEC Ethernet support"
-	depends on DM_ETH && SYNQUACER_SPI
+	depends on SYNQUACER_SPI
 	select PHYLIB
 	help
 	  This driver implements support for the Socionext SynQuacer NETSEC
@@ -852,7 +818,6 @@ config TSEC_ENET
 
 config MEDIATEK_ETH
 	bool "MediaTek Ethernet GMAC Driver"
-	depends on DM_ETH
 	select PHYLIB
 	select DM_GPIO
 	select DM_RESET
@@ -862,7 +827,6 @@ config MEDIATEK_ETH
 
 config HIGMACV300_ETH
 	bool "HiSilicon Gigabit Ethernet Controller"
-	depends on DM_ETH
 	select DM_RESET
 	select PHYLIB
 	help
@@ -871,7 +835,7 @@ config HIGMACV300_ETH
 
 config FSL_ENETC
 	bool "NXP ENETC Ethernet controller"
-	depends on DM_ETH && DM_MDIO
+	depends on DM_MDIO
 	help
 	  This driver supports the NXP ENETC Ethernet controller found on some
 	  of the NXP SoCs.
