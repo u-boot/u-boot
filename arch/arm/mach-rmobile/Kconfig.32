@@ -83,9 +83,6 @@ config TARGET_LAGER
 	select SPL_USE_TINY_PRINTF
 	imply CMD_DM
 
-config TARGET_KZM9G
-	bool "KZM9D board"
-
 config TARGET_ALT
 	bool "Alt board"
 	select DM
@@ -157,7 +154,6 @@ source "board/renesas/blanche/Kconfig"
 source "board/renesas/gose/Kconfig"
 source "board/renesas/koelsch/Kconfig"
 source "board/renesas/lager/Kconfig"
-source "board/kmc/kzm9g/Kconfig"
 source "board/renesas/alt/Kconfig"
 source "board/renesas/silk/Kconfig"
 source "board/renesas/porter/Kconfig"
