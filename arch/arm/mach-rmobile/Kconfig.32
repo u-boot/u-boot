@@ -50,9 +50,6 @@ choice
 	prompt "Renesas ARM SoCs board select"
 	optional
 
-config TARGET_ARMADILLO_800EVA
-	bool "armadillo 800 eva board"
-
 config TARGET_BLANCHE
 	bool "Blanche board"
 	select DM
@@ -156,7 +153,6 @@ config QOS_PRI_GFX
 
 endchoice
 
-source "board/atmark-techno/armadillo-800eva/Kconfig"
 source "board/renesas/blanche/Kconfig"
 source "board/renesas/gose/Kconfig"
 source "board/renesas/koelsch/Kconfig"
