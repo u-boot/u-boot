@@ -68,7 +68,7 @@ struct lmb_region {
 struct lmb {
 	struct lmb_region memory;
 	struct lmb_region reserved;
-#if IS_ENABLED(CONFIG_LMB_MEMORY_REGIONS)
+#ifdef CONFIG_LMB_MEMORY_REGIONS
 	struct lmb_property memory_regions[CONFIG_LMB_MEMORY_REGIONS];
 	struct lmb_property reserved_regions[CONFIG_LMB_RESERVED_REGIONS];
 #endif
