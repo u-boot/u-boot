@@ -6,5 +6,4 @@
 
 obj-y += ls1021aqds.o
 obj-y += ddr.o
-obj-y += eth.o
 obj-$(CONFIG_ARMV7_PSCI) += psci.o

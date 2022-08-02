@@ -41,7 +41,6 @@ obj-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ID_EEPROM)	+= sys_eeprom.o
 endif
-obj-$(CONFIG_FSL_SGMII_RISER)	+= sgmii_riser.o
 ifndef CONFIG_RAMBOOT_PBL
 obj-$(CONFIG_FSL_FIXED_MMC_LOCATION)	+= sdhc_boot.o
 endif
