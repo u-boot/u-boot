@@ -12,8 +12,8 @@ Creating a crash dump voluntarily
 ---------------------------------
 
 For describing the analysis of a crash dump we need an example. U-Boot comes
-with a command 'exception' that comes in handy here. The command is enabled
-by::
+with a command :doc:`exception <../usage/cmd/exception>` that comes in handy
+here. The command is enabled by::
 
     CONFIG_CMD_EXCEPTION=y
 
