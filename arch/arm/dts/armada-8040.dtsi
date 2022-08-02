@@ -87,3 +87,6 @@
 		marvell,function = <3>;
 	};
 };
+
+spi0: &cp1_spi1 {
+};

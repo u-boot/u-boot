@@ -63,3 +63,6 @@
 		marvell,function = <3>;
 	};
 };
+
+spi0: &cp0_spi1 {
+};
