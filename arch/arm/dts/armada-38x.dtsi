@@ -35,7 +35,6 @@
 
 	soc {
 		compatible = "marvell,armada380-mbus", "simple-bus";
-		u-boot,dm-pre-reloc;
 		#address-cells = <2>;
 		#size-cells = <1>;
 		controller = <&mbusc>;
@@ -100,7 +99,6 @@
 
 		internal-regs {
 			compatible = "simple-bus";
-			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0 MBUS_ID(0xf0, 0x01) 0 0x100000>;

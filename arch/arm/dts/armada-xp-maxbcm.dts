@@ -151,7 +151,6 @@
 		internal-regs {
 			serial@12000 {
 				status = "okay";
-				u-boot,dm-pre-reloc;
 			};
 			serial@12100 {
 				status = "okay";
