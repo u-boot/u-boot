@@ -529,8 +529,10 @@ void do_board_detect(void)
 
 	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
 				  CONFIG_EEPROM_CHIP_ADDRESS);
-	if (rc)
+	if (rc) {
 		printf("ti_i2c_eeprom_init failed %d\n", rc);
+		ti_i2c_eeprom_am_set("BBONE-AI", "A");
+	};
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	rc = board_bootmode_has_emmc();
