@@ -203,6 +203,116 @@
 		"i2c mw 0x50 0x0f.2 41; " \
 		"\0" \
 
+#define BBAI_EEPROM_PROGRAMMING \
+	"eeprom_dump=i2c dev 0; " \
+		"i2c md 0x50 0x00.2 20; " \
+		"\0" \
+	"eeprom_blank=i2c dev 0; " \
+		"i2c mw 0x50 0x00.2 ff; " \
+		"i2c mw 0x50 0x01.2 ff; " \
+		"i2c mw 0x50 0x02.2 ff; " \
+		"i2c mw 0x50 0x03.2 ff; " \
+		"i2c mw 0x50 0x04.2 ff; " \
+		"i2c mw 0x50 0x05.2 ff; " \
+		"i2c mw 0x50 0x06.2 ff; " \
+		"i2c mw 0x50 0x07.2 ff; " \
+		"i2c mw 0x50 0x08.2 ff; " \
+		"i2c mw 0x50 0x09.2 ff; " \
+		"i2c mw 0x50 0x0a.2 ff; " \
+		"i2c mw 0x50 0x0b.2 ff; " \
+		"i2c mw 0x50 0x0c.2 ff; " \
+		"i2c mw 0x50 0x0d.2 ff; " \
+		"i2c mw 0x50 0x0e.2 ff; " \
+		"i2c mw 0x50 0x0f.2 ff; " \
+		"i2c mw 0x50 0x10.2 ff; " \
+		"i2c mw 0x50 0x11.2 ff; " \
+		"i2c mw 0x50 0x12.2 ff; " \
+		"i2c mw 0x50 0x13.2 ff; " \
+		"i2c mw 0x50 0x14.2 ff; " \
+		"i2c mw 0x50 0x15.2 ff; " \
+		"i2c mw 0x50 0x16.2 ff; " \
+		"i2c mw 0x50 0x17.2 ff; " \
+		"i2c mw 0x50 0x18.2 ff; " \
+		"i2c mw 0x50 0x19.2 ff; " \
+		"i2c mw 0x50 0x1a.2 ff; " \
+		"i2c mw 0x50 0x1b.2 ff; " \
+		"i2c mw 0x50 0x1c.2 ff; " \
+		"i2c mw 0x50 0x1d.2 ff; " \
+		"i2c mw 0x50 0x1e.2 ff; " \
+		"i2c mw 0x50 0x1f.2 ff; " \
+		"i2c md 0x50 0x00.2 20; " \
+		"\0" \
+	"eeprom_x15_c=i2c dev 0; " \
+		"i2c mw 0x50 0x00.2 aa; " \
+		"i2c mw 0x50 0x01.2 55; " \
+		"i2c mw 0x50 0x02.2 33; " \
+		"i2c mw 0x50 0x03.2 ee; " \
+		"i2c mw 0x50 0x04.2 42; " \
+		"i2c mw 0x50 0x05.2 42; " \
+		"i2c mw 0x50 0x06.2 52; " \
+		"i2c mw 0x50 0x07.2 44; " \
+		"i2c mw 0x50 0x08.2 58; " \
+		"i2c mw 0x50 0x09.2 31; " \
+		"i2c mw 0x50 0x0a.2 35; " \
+		"i2c mw 0x50 0x0b.2 5f; " \
+		"i2c mw 0x50 0x0c.2 43; " \
+		"i2c mw 0x50 0x0d.2 2e; " \
+		"i2c mw 0x50 0x0e.2 30; " \
+		"i2c mw 0x50 0x0f.2 30; " \
+		"i2c mw 0x50 0x10.2 79; " \
+		"i2c mw 0x50 0x11.2 79; " \
+		"i2c mw 0x50 0x12.2 77; " \
+		"i2c mw 0x50 0x13.2 77; " \
+		"i2c mw 0x50 0x14.2 50; " \
+		"i2c mw 0x50 0x15.2 58; " \
+		"i2c mw 0x50 0x16.2 31; " \
+		"i2c mw 0x50 0x17.2 35; " \
+		"i2c mw 0x50 0x18.2 6e; " \
+		"i2c mw 0x50 0x19.2 6e; " \
+		"i2c mw 0x50 0x1a.2 6e; " \
+		"i2c mw 0x50 0x1b.2 6e; " \
+		"i2c mw 0x50 0x1c.2 ff; " \
+		"i2c mw 0x50 0x1d.2 ff; " \
+		"i2c mw 0x50 0x1e.2 ff; " \
+		"i2c mw 0x50 0x1f.2 ff; " \
+		"i2c md 0x50 0x00.2 20; " \
+		"\0" \
+	"eeprom_bbai_a2=i2c dev 0; " \
+		"i2c mw 0x50 0x00.2 aa; " \
+		"i2c mw 0x50 0x01.2 55; " \
+		"i2c mw 0x50 0x02.2 33; " \
+		"i2c mw 0x50 0x03.2 ee; " \
+		"i2c mw 0x50 0x04.2 42; " \
+		"i2c mw 0x50 0x05.2 42; " \
+		"i2c mw 0x50 0x06.2 4F; " \
+		"i2c mw 0x50 0x07.2 4E; " \
+		"i2c mw 0x50 0x08.2 45; " \
+		"i2c mw 0x50 0x09.2 2D; " \
+		"i2c mw 0x50 0x0a.2 41; " \
+		"i2c mw 0x50 0x0b.2 49; " \
+		"i2c mw 0x50 0x0c.2 30; " \
+		"i2c mw 0x50 0x0d.2 30; " \
+		"i2c mw 0x50 0x0e.2 41; " \
+		"i2c mw 0x50 0x0f.2 32; " \
+		"i2c mw 0x50 0x10.2 57; " \
+		"i2c mw 0x50 0x11.2 57; " \
+		"i2c mw 0x50 0x12.2 59; " \
+		"i2c mw 0x50 0x13.2 59; " \
+		"i2c mw 0x50 0x14.2 53; " \
+		"i2c mw 0x50 0x15.2 42; " \
+		"i2c mw 0x50 0x16.2 41; " \
+		"i2c mw 0x50 0x17.2 49; " \
+		"i2c mw 0x50 0x18.2 30; " \
+		"i2c mw 0x50 0x19.2 30; " \
+		"i2c mw 0x50 0x1a.2 30; " \
+		"i2c mw 0x50 0x1b.2 30; " \
+		"i2c mw 0x50 0x1c.2 30; " \
+		"i2c mw 0x50 0x1d.2 30; " \
+		"i2c mw 0x50 0x1e.2 ff; " \
+		"i2c mw 0x50 0x1f.2 ff; " \
+		"i2c md 0x50 0x00.2 20; " \
+		"\0" \
+
 #define EEWIKI_BOOT \
 	"boot=${devtype} dev ${mmcdev}; " \
 		"if ${devtype} rescan; then " \
@@ -244,6 +354,44 @@
 						"gpio set 56; " \
 						"setenv oldroot /dev/mmcblk${mmcdev}p${mmcpart};" \
 						"echo Running uname_boot ...;" \
+						"run uname_boot;" \
+					"fi;" \
+				"fi;" \
+			"done;" \
+		"fi;\0" \
+
+#define BBAI_MMC_BOOT \
+	"mmc_boot=${devtype} dev ${mmcdev}; ${devtype} part; " \
+		"if ${devtype} rescan; then " \
+			"echo Scanning ${devtype} device ${mmcdev};" \
+			"setenv bootpart ${mmcdev}:1; " \
+			"echo Checking for: /uEnv.txt ...;" \
+			"if test -e ${devtype} ${bootpart} /uEnv.txt; then " \
+				"load ${devtype} ${bootpart} ${loadaddr} /uEnv.txt;" \
+				"env import -t ${loadaddr} ${filesize};" \
+				"echo Loaded environment from /uEnv.txt;" \
+				"echo Checking if uenvcmd is set ...;" \
+				"if test -n ${uenvcmd}; then " \
+					"echo Running uenvcmd ...;" \
+					"run uenvcmd;" \
+				"fi;" \
+			"fi; " \
+			"echo Checking for: /boot/uEnv.txt ...;" \
+			"for i in 1 2 3 4 5 6 7 ; do " \
+				"setenv mmcpart ${i};" \
+				"setenv bootpart ${mmcdev}:${mmcpart};" \
+				"if test -e ${devtype} ${bootpart} /boot/uEnv.txt; then " \
+					"load ${devtype} ${bootpart} ${loadaddr} /boot/uEnv.txt;" \
+					"env import -t ${loadaddr} ${filesize};" \
+					"echo Loaded environment from /boot/uEnv.txt;" \
+					"if test -n ${dtb}; then " \
+						"setenv fdtfile ${dtb};" \
+						"echo debug: [dtb=${fdtfile}] ...;" \
+					"fi;" \
+					"echo Checking if uname_r is set in /boot/uEnv.txt ...;" \
+					"if test -n ${uname_r}; then " \
+						"echo debug: [uname_r=${uname_r}] ...;" \
+						"setenv oldroot /dev/mmcblk${mmcdev}p${mmcpart};" \
 						"run uname_boot;" \
 					"fi;" \
 				"fi;" \
@@ -477,6 +625,155 @@
 				"echo debug: [${bootargs}] ... ;" \
 				"echo debug: [bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}] ... ;" \
 				"bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; " \
+			"else " \
+				"if test -n ${uenv_root}; then " \
+					"run args_uenv_root;" \
+					"echo debug: [${bootargs}] ... ;" \
+					"echo debug: [bootz ${loadaddr} - ${fdtaddr}] ... ;" \
+					"bootz ${loadaddr} - ${fdtaddr}; " \
+				"fi;" \
+				"run args_mmc_old;" \
+				"echo debug: [${bootargs}] ... ;" \
+				"echo debug: [bootz ${loadaddr} - ${fdtaddr}] ... ;" \
+				"bootz ${loadaddr} - ${fdtaddr}; " \
+			"fi;" \
+		"fi;\0" \
+
+#define BBAI_UNAME_BOOT \
+	"uname_boot="\
+		"setenv bootdir /boot; " \
+		"setenv bootfile vmlinuz-${uname_r}; " \
+		"if test -e ${devtype} ${bootpart} ${bootdir}/${bootfile}; then " \
+			"echo loading ${bootdir}/${bootfile} ...; "\
+			"run loadimage;" \
+			"setenv fdtdir /boot/dtbs/${uname_r}; " \
+			"if test -e ${devtype} ${bootpart} ${fdtdir}/${fdtfile}; then " \
+				"run loadfdt;" \
+			"else " \
+				"setenv fdtdir /usr/lib/linux-image-${uname_r}; " \
+				"if test -e ${devtype} ${bootpart} ${fdtdir}/${fdtfile}; then " \
+					"run loadfdt;" \
+				"else " \
+					"setenv fdtdir /lib/firmware/${uname_r}/device-tree; " \
+					"if test -e ${devtype} ${bootpart} ${fdtdir}/${fdtfile}; then " \
+						"run loadfdt;" \
+					"else " \
+						"setenv fdtdir /boot/dtb-${uname_r}; " \
+						"if test -e ${devtype} ${bootpart} ${fdtdir}/${fdtfile}; then " \
+							"run loadfdt;" \
+						"else " \
+							"setenv fdtdir /boot/dtbs; " \
+							"if test -e ${devtype} ${bootpart} ${fdtdir}/${fdtfile}; then " \
+								"run loadfdt;" \
+							"else " \
+								"setenv fdtdir /boot/dtb; " \
+								"if test -e ${devtype} ${bootpart} ${fdtdir}/${fdtfile}; then " \
+									"run loadfdt;" \
+								"else " \
+									"setenv fdtdir /boot; " \
+									"if test -e ${devtype} ${bootpart} ${fdtdir}/${fdtfile}; then " \
+										"run loadfdt;" \
+									"else " \
+										"echo; echo unable to find ${fdtfile} ...; echo booting legacy ...;"\
+										"run args_mmc;" \
+										"echo debug: [${bootargs}] ... ;" \
+										"echo debug: [bootz ${loadaddr}] ... ;" \
+										"bootz ${loadaddr}; " \
+									"fi;" \
+								"fi;" \
+							"fi;" \
+						"fi;" \
+					"fi;" \
+				"fi;" \
+			"fi; " \
+			"if test -n ${enable_uboot_overlays}; then " \
+				"setenv fdt_buffer 0x60000;" \
+				"if test -n ${uboot_fdt_buffer}; then " \
+					"setenv fdt_buffer ${uboot_fdt_buffer};" \
+				"fi;" \
+				"echo uboot_overlays: [fdt_buffer=${fdt_buffer}] ... ;" \
+				"if test -n ${uboot_overlay_addr0}; then " \
+					"if test -n ${disable_uboot_overlay_addr0}; then " \
+						"echo uboot_overlays: uboot loading of [${uboot_overlay_addr0}] disabled by /boot/uEnv.txt [disable_uboot_overlay_addr0=1]...;" \
+					"else " \
+						"setenv uboot_overlay ${uboot_overlay_addr0}; " \
+						"run virtualloadoverlay;" \
+					"fi;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_addr1}; then " \
+					"if test -n ${disable_uboot_overlay_addr1}; then " \
+						"echo uboot_overlays: uboot loading of [${uboot_overlay_addr1}] disabled by /boot/uEnv.txt [disable_uboot_overlay_addr1=1]...;" \
+					"else " \
+						"setenv uboot_overlay ${uboot_overlay_addr1}; " \
+						"run virtualloadoverlay;" \
+					"fi;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_addr2}; then " \
+					"if test -n ${disable_uboot_overlay_addr2}; then " \
+						"echo uboot_overlays: uboot loading of [${uboot_overlay_addr2}] disabled by /boot/uEnv.txt [disable_uboot_overlay_addr2=1]...;" \
+					"else " \
+						"setenv uboot_overlay ${uboot_overlay_addr2}; " \
+						"run virtualloadoverlay;" \
+					"fi;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_addr3}; then " \
+					"if test -n ${disable_uboot_overlay_addr3}; then " \
+						"echo uboot_overlays: uboot loading of [${uboot_overlay_addr3}] disabled by /boot/uEnv.txt [disable_uboot_overlay_addr3=1]...;" \
+					"else " \
+						"setenv uboot_overlay ${uboot_overlay_addr3}; " \
+						"run virtualloadoverlay;" \
+					"fi;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_addr4}; then " \
+					"setenv uboot_overlay ${uboot_overlay_addr4}; " \
+					"run virtualloadoverlay;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_addr5}; then " \
+					"setenv uboot_overlay ${uboot_overlay_addr5}; " \
+					"run virtualloadoverlay;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_addr6}; then " \
+					"setenv uboot_overlay ${uboot_overlay_addr6}; " \
+					"run virtualloadoverlay;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_addr7}; then " \
+					"setenv uboot_overlay ${uboot_overlay_addr7}; " \
+					"run virtualloadoverlay;" \
+				"fi;" \
+				"if test -n ${uboot_overlay_pru}; then " \
+					"setenv uboot_overlay ${uboot_overlay_pru}; " \
+					"run virtualloadoverlay;" \
+				"fi;" \
+			"else " \
+				"echo uboot_overlays: add [enable_uboot_overlays=1] to /boot/uEnv.txt to enable...;" \
+			"fi;" \
+			"setenv rdfile initrd.img-${uname_r}; " \
+			"if test -e ${devtype} ${bootpart} ${bootdir}/${rdfile}; then " \
+				"echo loading ${bootdir}/${rdfile} ...; "\
+				"run loadrd;" \
+				"if test -n ${netinstall_enable}; then " \
+					"run args_netinstall; run message;" \
+					"echo debug: [${bootargs}] ... ;" \
+					"echo debug: [bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}] ... ;" \
+					"bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; " \
+				"fi;" \
+				"if test -n ${uenv_root}; then " \
+					"run args_uenv_root;" \
+					"echo debug: [${bootargs}] ... ;" \
+					"echo debug: [bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}] ... ;" \
+					"bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; " \
+				"fi;" \
+				"if test -n ${uuid}; then " \
+					"run args_mmc_uuid;" \
+					"echo debug: [${bootargs}] ... ;" \
+					"echo debug: [bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}] ... ;" \
+					"bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; " \
+				"else " \
+					"run args_mmc_old;" \
+					"echo debug: [${bootargs}] ... ;" \
+					"echo debug: [bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}] ... ;" \
+					"bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; " \
+				"fi;" \
 			"else " \
 				"if test -n ${uenv_root}; then " \
 					"run args_uenv_root;" \
