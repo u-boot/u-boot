@@ -1213,12 +1213,12 @@ else ifeq ($(CONFIG_OF_SEPARATE).$(CONFIG_OF_OMIT_DTB),y.)
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
-ifneq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
+ifneq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR)$(CONFIG_OF_SEPARATE),yy)
 u-boot.bin: u-boot-dtb.bin FORCE
 	$(call if_changed,copy)
 endif
 
-else ifneq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
+else ifneq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR)$(CONFIG_OF_SEPARATE),yy)
 u-boot.bin: u-boot-nodtb.bin FORCE
 	$(call if_changed,copy)
 endif
@@ -1598,16 +1598,13 @@ u-boot-with-nand-spl.sfp: u-boot-spl-padx4.sfp u-boot.img FORCE
 
 endif
 
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-u-boot.bin: u-boot-nodtb.bin u-boot.dtb \
-	$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR), u-boot-br.bin) FORCE
+ifeq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR)$(CONFIG_OF_SEPARATE),yy)
+u-boot.bin: u-boot-nodtb.bin u-boot.dtb u-boot-br.bin FORCE
 	$(call if_changed,binman)
 
-ifeq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR),y)
 OBJCOPYFLAGS_u-boot-br.bin := -O binary -j .bootpg -j .resetvec
 u-boot-br.bin: u-boot FORCE
 	$(call if_changed,objcopy)
-endif
 endif
 
 quiet_cmd_ldr = LD      $@

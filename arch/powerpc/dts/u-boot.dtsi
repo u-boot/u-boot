@@ -5,6 +5,8 @@
 
 #include <config.h>
 
+#if defined(CONFIG_MPC85XX_HAVE_RESET_VECTOR) && defined(CONFIG_OF_SEPARATE)
+
 / {
 	binman {
 		filename = "u-boot.bin";
@@ -19,17 +21,15 @@
 		};
 
 		u-boot-dtb-with-ucode {
-#ifdef CONFIG_MPC85xx
 			align = <4>;
-#endif
 		};
-#ifdef CONFIG_MPC85XX_HAVE_RESET_VECTOR
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 		powerpc-mpc85xx-bootpg-resetvec {
 			offset = <(CONFIG_RESET_VECTOR_ADDRESS - 0xffc)>;
 		};
-#endif
 	};
 };
+
+#endif
