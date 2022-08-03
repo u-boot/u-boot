@@ -1,0 +1,25 @@
+&gpio0 {
+	u-boot,dm-pre-reloc;
+};
+
+&gpio1 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&spi1 {
+	u-boot,dm-pre-reloc;
+};
+
+&I2C0 {
+	u-boot,dm-pre-reloc;
+};
+
+&PCA22 {
+	u-boot,dm-pre-reloc;
+};
+
+#include "mvebu-u-boot.dtsi"
