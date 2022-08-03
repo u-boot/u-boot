@@ -134,7 +134,6 @@
 				compatible = "marvell,armada-xp-lcd";
 				reg = <0xe0000 0x10000>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
 
 				display-timings {
 					native-mode = <&timing0>;
