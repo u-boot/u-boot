@@ -794,34 +794,53 @@ fall afoul of this rule.
 Activation/probe
 ^^^^^^^^^^^^^^^^
 
-When a device needs to be used, U-Boot activates it, by first reading ofdata
-as above and then following these steps (see device_probe()):
+To save resources devices in U-Boot are probed lazily. U-Boot is a bootloader,
+not an operating system. Many devices are never used during an U-Boot run, and
+probing them takes time, requires memory, may add delays to the main loop, etc.
+
+The device should be probed by the uclass code or generic device code (e.g.
+device_find_global_by_ofnode()). Uclasses differ but two common use cases can be
+seen:
+
+   1. The uclass is asked to look up a specific device, such as SPI bus 0,
+      first chip select - in this case the returned device should be
+      activated.
+
+   2. The uclass is asked to perform a specific function on any device that
+      supports it, eg. reset the board using any sysreset that can be found -
+      for this case the core uclass code provides iterators that activate
+      each device before returning it, and the uclass typically implements a
+      walk function that iterates over all devices of the uclass and tries
+      to perform the requested function on each in turn until succesful.
+
+To activate a device U-Boot first reads ofdata as above and then follows these
+steps (see device_probe()):
 
    1. All parent devices are probed. It is not possible to activate a device
-   unless its predecessors (all the way up to the root device) are activated.
-   This means (for example) that an I2C driver will require that its bus
-   be activated.
+      unless its predecessors (all the way up to the root device) are activated.
+      This means (for example) that an I2C driver will require that its bus
+      be activated.
 
    2. The device's probe() method is called. This should do anything that
-   is required by the device to get it going. This could include checking
-   that the hardware is actually present, setting up clocks for the
-   hardware and setting up hardware registers to initial values. The code
-   in probe() can access:
+      is required by the device to get it going. This could include checking
+      that the hardware is actually present, setting up clocks for the
+      hardware and setting up hardware registers to initial values. The code
+      in probe() can access:
 
       - platform data in dev->plat (for configuration)
       - private data in dev->priv (for run-time state)
       - uclass data in dev->uclass_priv (for things the uclass stores
         about this device)
 
-   Note: If you don't use priv_auto then you will need to
-   allocate the priv space here yourself. The same applies also to
-   plat_auto. Remember to free them in the remove() method.
+      Note: If you don't use priv_auto then you will need to
+      allocate the priv space here yourself. The same applies also to
+      plat_auto. Remember to free them in the remove() method.
 
    3. The device is marked 'activated'
 
    4. The uclass's post_probe() method is called, if one exists. This may
-   cause the uclass to do some housekeeping to record the device as
-   activated and 'known' by the uclass.
+      cause the uclass to do some housekeeping to record the device as
+      activated and 'known' by the uclass.
 
 Running stage
 ^^^^^^^^^^^^^
