@@ -103,12 +103,13 @@ int atsha204a_wakeup(struct udevice *dev)
 	for (try = 1; try <= 10; ++try) {
 		debug("Try %i... ", try);
 
+		/*
+		 * The device ignores any levels or transitions on the SCL pin
+		 * when the device is idle, asleep or during waking up.
+		 * Don't check for error when waking up the device.
+		 */
 		memset(req, 0, 4);
-		res = atsha204a_send(dev, req, 4);
-		if (res) {
-			debug("failed on I2C send, trying again\n");
-			continue;
-		}
+		atsha204a_send(dev, req, 4);
 
 		udelay(ATSHA204A_TWLO_US + ATSHA204A_TWHI_US);
 
