@@ -102,6 +102,35 @@ static const struct qcom_reset_map gcc_qcom_resets[] = {
 };
 #endif
 
+#ifdef CONFIG_TARGET_QCS404EVB
+#include <dt-bindings/clock/qcom,gcc-qcs404.h>
+static const struct qcom_reset_map gcc_qcom_resets[] = {
+	[GCC_GENI_IR_BCR] = { 0x0F000 },
+	[GCC_CDSP_RESTART] = { 0x18000 },
+	[GCC_USB_HS_BCR] = { 0x41000 },
+	[GCC_USB2_HS_PHY_ONLY_BCR] = { 0x41034 },
+	[GCC_QUSB2_PHY_BCR] = { 0x4103c },
+	[GCC_USB_HS_PHY_CFG_AHB_BCR] = { 0x0000c, 1 },
+	[GCC_USB2A_PHY_BCR] = { 0x0000c, 0 },
+	[GCC_USB3_PHY_BCR] = { 0x39004 },
+	[GCC_USB_30_BCR] = { 0x39000 },
+	[GCC_USB3PHY_PHY_BCR] = { 0x39008 },
+	[GCC_PCIE_0_BCR] = { 0x3e000 },
+	[GCC_PCIE_0_PHY_BCR] = { 0x3e004 },
+	[GCC_PCIE_0_LINK_DOWN_BCR] = { 0x3e038 },
+	[GCC_PCIEPHY_0_PHY_BCR] = { 0x3e03c },
+	[GCC_PCIE_0_AXI_MASTER_STICKY_ARES] = { 0x3e040, 6},
+	[GCC_PCIE_0_AHB_ARES] = { 0x3e040, 5 },
+	[GCC_PCIE_0_AXI_SLAVE_ARES] = { 0x3e040, 4 },
+	[GCC_PCIE_0_AXI_MASTER_ARES] = { 0x3e040, 3 },
+	[GCC_PCIE_0_CORE_STICKY_ARES] = { 0x3e040, 2 },
+	[GCC_PCIE_0_SLEEP_ARES] = { 0x3e040, 1 },
+	[GCC_PCIE_0_PIPE_ARES] = { 0x3e040, 0 },
+	[GCC_EMAC_BCR] = { 0x4e000 },
+	[GCC_WDSP_RESTART] = {0x19000},
+};
+#endif
+
 static int qcom_reset_assert(struct reset_ctl *rst)
 {
 	struct qcom_reset_priv *priv = dev_get_priv(rst->dev);
@@ -141,6 +170,7 @@ static const struct reset_ops qcom_reset_ops = {
 
 static const struct udevice_id qcom_reset_ids[] = {
 	{ .compatible = "qcom,gcc-reset-ipq4019" },
+	{ .compatible = "qcom,gcc-reset-qcs404" },
 	{ }
 };
 
