@@ -12,7 +12,6 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
-#include <flash.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>

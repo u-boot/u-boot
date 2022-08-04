@@ -16,7 +16,9 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
+#ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
+#endif
 #include <hash.h>
 #include <log.h>
 #include <mapmem.h>

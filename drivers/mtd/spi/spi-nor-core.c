@@ -10,7 +10,6 @@
  */
 
 #include <common.h>
-#include <flash.h>
 #include <log.h>
 #include <watchdog.h>
 #include <dm.h>

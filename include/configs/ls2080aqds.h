@@ -64,14 +64,8 @@
 #define CONFIG_SYS_IFC_CCR	0x01000000
 
 #ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
-#define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE,\
 					 CONFIG_SYS_FLASH_BASE + 0x40000000}
 #endif
@@ -214,10 +208,6 @@
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
 #endif
 
-/* Debug Server firmware */
-#define CONFIG_SYS_DEBUG_SERVER_FW_IN_NOR
-#define CONFIG_SYS_DEBUG_SERVER_FW_ADDR	0x580D00000ULL
-
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
 
 /*
@@ -248,8 +238,6 @@
 /* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-
-#define CONFIG_FSL_MEMAC
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
@@ -395,7 +383,6 @@
 #endif
 
 #if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_FSL_MEMAC
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C
 #define SGMII_CARD_PORT2_PHY_ADDR 0x1d
 #define SGMII_CARD_PORT3_PHY_ADDR 0x1E

@@ -396,12 +396,6 @@ The following options need to be configured:
 		Board config to use DDR3L. It can be enabled for SoCs with
 		DDR3L controllers.
 
-		CONFIG_SYS_FSL_IFC_BE
-		Defines the IFC controller register space as Big Endian
-
-		CONFIG_SYS_FSL_IFC_LE
-		Defines the IFC controller register space as Little Endian
-
 		CONFIG_SYS_FSL_IFC_CLK_DIV
 		Defines divider of platform clock(clock input to IFC controller).
 
@@ -418,11 +412,6 @@ The following options need to be configured:
 		Physical address from the view of DDR controllers. It is the
 		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.
-
-		CONFIG_SYS_FSL_DDR_INTLV_256B
-		DDR controller interleaving on 256-byte. This is a special
-		interleaving mode, handled by Dickens for Freescale layerscape
-		SoCs with ARM core.
 
 		CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
 		Number of controllers used as main memory.
@@ -1728,37 +1717,9 @@ Configuration Settings:
 		Enables allocating and saving a kernel copy of the bd_info in
 		space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
-- CONFIG_SYS_MAX_FLASH_SECT:
-		Max number of sectors on a Flash chip
-
-- CONFIG_SYS_FLASH_ERASE_TOUT:
-		Timeout for Flash erase operations (in ms)
-
-- CONFIG_SYS_FLASH_WRITE_TOUT:
-		Timeout for Flash write operations (in ms)
-
-- CONFIG_SYS_FLASH_LOCK_TOUT
-		Timeout for Flash set sector lock bit operation (in ms)
-
-- CONFIG_SYS_FLASH_UNLOCK_TOUT
-		Timeout for Flash clear lock bits operation (in ms)
-
 - CONFIG_SYS_FLASH_PROTECTION
 		If defined, hardware flash sectors protection is used
 		instead of U-Boot software protection.
-
-- CONFIG_SYS_DIRECT_FLASH_TFTP:
-
-		Enable TFTP transfers directly to flash memory;
-		without this option such a download has to be
-		performed in two steps: (1) download to RAM, and (2)
-		copy from RAM to flash.
-
-		The two-step approach is usually more reliable, since
-		you can check if the download worked before you erase
-		the flash, but in some situations (when system RAM is
-		too limited to allow for a temporary copy of the
-		downloaded image) this option may be very useful.
 
 - CONFIG_SYS_FLASH_CFI:
 		Define if the flash driver uses extra elements in the
@@ -1779,12 +1740,6 @@ Configuration Settings:
 - CONFIG_FLASH_SPANSION_S29WS_N
 		s29ws-n MirrorBit flash has non-standard addresses for buffered
 		write commands.
-
-- CONFIG_SYS_FLASH_QUIET_TEST
-		If this option is defined, the common CFI flash doesn't
-		print it's warning upon not recognized FLASH banks. This
-		is useful, if some of the configured banks are only
-		optionally available.
 
 - CONFIG_FLASH_SHOW_PROGRESS
 		If defined (must be an integer), print out countdown

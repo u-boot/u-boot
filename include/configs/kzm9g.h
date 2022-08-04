@@ -19,7 +19,6 @@
 /* NOR Flash */
 #define KZM_FLASH_BASE	(0x00000000)
 #define CONFIG_SYS_FLASH_BASE		(KZM_FLASH_BASE)
-#define CONFIG_SYS_MAX_FLASH_SECT	(512)
 
 /* prompt */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
@@ -40,20 +39,12 @@
 #define CONFIG_STANDALONE_LOAD_ADDR	0x41000000
 
 /* FLASH */
-#undef  CONFIG_SYS_FLASH_QUIET_TEST
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define FLASH_SECTOR_SIZE	(256 * 1024)	/* 256 KB sectors */
 
 /* Timeout for Flash erase operations (in ms) */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(3 * 1000)
 /* Timeout for Flash write operations (in ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(3 * 1000)
 /* Timeout for Flash set sector lock bit operations (in ms) */
-#define CONFIG_SYS_FLASH_LOCK_TOUT		(3 * 1000)
 /* Timeout for Flash clear lock bit operations (in ms) */
-#define CONFIG_SYS_FLASH_UNLOCK_TOUT	(3 * 1000)
-
-#undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 
 /* GPIO / PFC */
 #define CONFIG_SH_GPIO_PFC

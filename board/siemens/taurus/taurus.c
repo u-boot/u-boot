@@ -15,7 +15,6 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
-#include <flash.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

@@ -357,6 +357,9 @@ config FEC_MXC
 config FMAN_ENET
 	bool "Freescale FMan ethernet support"
 	depends on ARM || PPC
+	select SYS_FMAN_V3 if ARCH_B4420 || ARCH_B4860 || ARCH_LS1043A || \
+		ARCH_LS1046A || ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || \
+		ARCH_T2080 || ARCH_T4240
 	help
 	  This driver support the Freescale FMan Ethernet controller
 
@@ -369,6 +372,12 @@ config SYS_QE_FMAN_FW_LENGTH
 	hex "FMAN QE Firmware length"
 	depends on FMAN_ENET || QE || U_QE
 	default 0x10000
+
+config SYS_FMAN_V3
+	bool
+	select FSL_MEMAC
+	help
+	  SoC has FMan v3 with mEMAC
 
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"

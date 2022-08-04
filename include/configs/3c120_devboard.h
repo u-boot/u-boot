@@ -19,7 +19,6 @@
 /*
  * CFI Flash
  */
-#define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /*
  * MEMORY ORGANIZATION

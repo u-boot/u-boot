@@ -133,7 +133,6 @@
 #define KM_I2C_DEBLOCK_SDA	21
 
 /* High Level Configuration Options */
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 
 #define CONFIG_RESET_VECTOR_ADDRESS	0xebfffffc
 
@@ -232,11 +231,7 @@
 #define CONFIG_SYS_CS0_FTIM3	CONFIG_SYS_NOR_FTIM3
 
 /* More NOR Flash params */
-#define CONFIG_SYS_FLASH_QUIET_TEST
 
-#define CONFIG_SYS_MAX_FLASH_SECT	512	/* sectors per device */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
 
 /* NAND Flash on IFC CS1*/

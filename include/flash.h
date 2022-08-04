@@ -7,10 +7,6 @@
 #ifndef _FLASH_H_
 #define _FLASH_H_
 
-#ifndef CONFIG_SYS_MAX_FLASH_SECT
-#define CONFIG_SYS_MAX_FLASH_SECT	512
-#endif
-
 /*-----------------------------------------------------------------------
  * FLASH Info: contains chip specific data, per FLASH bank
  */
@@ -91,6 +87,7 @@ int flash_sect_erase(ulong addr_first, ulong addr_last);
 int flash_sect_protect(int flag, ulong addr_first, ulong addr_last);
 int flash_sect_roundb(ulong *addr);
 unsigned long flash_sector_size(flash_info_t *info, flash_sect_t sect);
+void flash_cmd_reset(flash_info_t *info);
 void flash_set_verbose(uint v);
 
 /* common/flash.c */

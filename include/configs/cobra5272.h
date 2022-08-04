@@ -143,13 +143,6 @@ enter a valid image address in flash */
 #define CONFIG_SYS_SCR			0x0003
 #define CONFIG_SYS_SPR			0xffff
 
-/* ---
- * Ethernet settings
- * ---
- */
-
-#define CONFIG_SYS_ENET_BD_BASE	0x780000
-
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in internal SRAM)
  */
@@ -185,12 +178,6 @@ enter a valid image address in flash */
  * the maximum mapped by the Linux kernel during initialization ??
  */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-
-/*-----------------------------------------------------------------------
- * FLASH organization
- */
-#define CONFIG_SYS_MAX_FLASH_SECT	11	/* max number of sectors on one chip	*/
-#define CONFIG_SYS_FLASH_ERASE_TOUT	1000	/* flash timeout */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

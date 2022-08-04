@@ -15,7 +15,6 @@
 #include "siemens-am33x-common.h"
 /* NAND specific changes for etamin due to different page size */
 #undef CONFIG_SYS_NAND_ECCPOS
-#undef CONFIG_SYS_ENV_SECT_SIZE
 
 #define CONFIG_SYS_ENV_SECT_SIZE       (512 << 10)     /* 512 KiB */
 #define CONFIG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \

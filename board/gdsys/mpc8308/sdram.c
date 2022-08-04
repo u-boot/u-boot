@@ -34,7 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static long fixed_sdram(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 msize = CONFIG_SYS_DDR_SIZE * 1024 * 1024;
+	u32 msize = CONFIG_SYS_SDRAM_SIZE;
 	u32 msize_log2 = __ilog2(msize);
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,

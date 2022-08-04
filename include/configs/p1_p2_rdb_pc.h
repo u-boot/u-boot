@@ -176,10 +176,8 @@
  * Local Bus Definitions
  */
 #if defined(CONFIG_TARGET_P1020RDB_PD)
-#define CONFIG_SYS_MAX_FLASH_SECT	512	/* 64M */
 #define CONFIG_SYS_FLASH_BASE		0xec000000
 #else
-#define CONFIG_SYS_MAX_FLASH_SECT	128	/* 16M */
 #define CONFIG_SYS_FLASH_BASE		0xef000000
 #endif
 
@@ -195,14 +193,7 @@
 #define CONFIG_FLASH_OR_PRELIM	0xfc000ff7
 
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
-#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
-
-#undef CONFIG_SYS_FLASH_CHECKSUM
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC

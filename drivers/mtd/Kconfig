@@ -106,6 +106,10 @@ config SYS_FLASH_USE_BUFFER_WRITE
 	help
 	  Use buffered writes to flash.
 
+config SYS_FLASH_EMPTY_INFO
+	bool "Enable displaying empty sectors in flash info"
+	depends on FLASH_CFI_DRIVER
+
 config FLASH_CFI_MTD
 	bool "Enable CFI MTD driver"
 	depends on FLASH_CFI_DRIVER
@@ -128,6 +132,21 @@ config SYS_FLASH_CFI
 	  Define if the flash driver uses extra elements in the
 	  common flash structure for storing flash geometry.
 
+config SYS_FLASH_QUIET_TEST
+	bool "Disable printing a warning about not recognizing some flash banks"
+	depends on FLASH_CFI_DRIVER
+	help
+	  If this option is enabled, the common CFI flash doesn't print it's
+	  warning upon not recognized FLASH banks. This is useful, if some of
+	  the configured banks are only optionally available.
+
+config SYS_FLASH_CHECKSUM
+	bool "Compute and print flash CRC if 'flashchecksum' is set in the environment"
+	depends on MTD_NOR_FLASH
+	help
+	  If the variable flashchecksum is set in the environment, perform a CRC
+	  of the flash and print the value to console.
+
 config ALTERA_QSPI
 	bool "Altera Generic Quad SPI Controller"
 	depends on DM_MTD
@@ -137,14 +156,6 @@ config ALTERA_QSPI
 	  Altera Generic Quad SPI Controller. The controller converts SPI
 	  NOR flash to parallel flash interface. Please find details on the
 	  "Embedded Peripherals IP User Guide" of Altera.
-
-config FLASH_PIC32
-	bool "Microchip PIC32 Flash driver"
-	depends on MACH_PIC32 && DM_MTD
-	select USE_SYS_MAX_FLASH_BANKS
-	help
-	  This enables access to Microchip PIC32 internal non-CFI flash
-	  chips through PIC32 Non-Volatile-Memory Controller.
 
 config RENESAS_RPC_HF
 	bool "Renesas RCar Gen3 RPC HyperFlash driver"
@@ -167,6 +178,11 @@ config STM32_FLASH
 	help
 	 This is the driver of embedded flash for some STMicroelectronics
 	 STM32 MCU.
+
+config SYS_MAX_FLASH_SECT
+	int "Maximumm number of sectors on a flash chip"
+	depends on MTD_NOR_FLASH || FLASH_CFI_DRIVER
+	default 512
 
 config SAMSUNG_ONENAND
 	bool "Samsung OneNAND driver support"

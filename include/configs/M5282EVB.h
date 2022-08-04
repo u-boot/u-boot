@@ -95,8 +95,6 @@
 #ifdef CONFIG_SYS_FLASH_CFI
 
 #	define CONFIG_SYS_FLASH_SIZE		0x1000000	/* Max size that the board might have */
-#	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
-#	define CONFIG_SYS_FLASH_CHECKSUM
 #	define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 #endif
 

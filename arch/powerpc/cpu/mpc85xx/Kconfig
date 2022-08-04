@@ -154,6 +154,7 @@ config TARGET_P2041RDB
 	bool "Support P2041RDB"
 	select ARCH_P2041
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
+	select FSL_CORENET
 	select PHYS_64BIT
 	imply CMD_SATA
 	imply FSL_SATA
@@ -233,6 +234,7 @@ config TARGET_KMP204X
 config TARGET_KMCENT2
 	bool "Support kmcent2"
 	select VENDOR_KM
+	select FSL_CORENET
 
 endchoice
 
@@ -240,6 +242,7 @@ config ARCH_B4420
 	bool
 	select E500MC
 	select E6500
+	select FSL_CORENET
 	select FSL_LAW
 	select HETROGENOUS_CLUSTERS
 	select SYS_FSL_DDR_VER_47
@@ -268,6 +271,7 @@ config ARCH_B4860
 	bool
 	select E500MC
 	select E6500
+	select FSL_CORENET
 	select FSL_LAW
 	select HETROGENOUS_CLUSTERS
 	select SYS_FSL_DDR_VER_47
@@ -607,6 +611,7 @@ config ARCH_P3041
 	bool
 	select BACKSIDE_L2_CACHE
 	select E500MC
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_44
@@ -638,6 +643,7 @@ config ARCH_P4080
 	bool
 	select BACKSIDE_L2_CACHE
 	select E500MC
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_44
@@ -678,6 +684,7 @@ config ARCH_P5040
 	bool
 	select BACKSIDE_L2_CACHE
 	select E500MC
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_44
@@ -710,6 +717,7 @@ config ARCH_T1024
 	select BACKSIDE_L2_CACHE
 	select E500MC
 	select E5500
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -735,6 +743,7 @@ config ARCH_T1040
 	select BACKSIDE_L2_CACHE
 	select E500MC
 	select E5500
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -760,6 +769,7 @@ config ARCH_T1042
 	select BACKSIDE_L2_CACHE
 	select E500MC
 	select E5500
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_50
@@ -784,6 +794,7 @@ config ARCH_T2080
 	bool
 	select E500MC
 	select E6500
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_47
@@ -814,6 +825,7 @@ config ARCH_T4240
 	bool
 	select E500MC
 	select E6500
+	select FSL_CORENET
 	select FSL_LAW
 	select SYS_CACHE_SHIFT_6
 	select SYS_FSL_DDR_VER_47
@@ -1161,8 +1173,16 @@ config SYS_FSL_NUM_LAWS
 		Number of local access windows. This is fixed per SoC.
 		If not sure, do not change.
 
+config SYS_FSL_CORES_PER_CLUSTER
+	int
+	depends on SYS_FSL_QORIQ_CHASSIS2
+	default 4 if ARCH_B4860 || ARCH_T2080 || ARCH_T4240
+	default 2 if ARCH_B4420
+	default 1 if ARCH_T1024 || ARCH_T1040 || ARCH_T1042
+
 config SYS_FSL_THREADS_PER_CORE
 	int
+	depends on SYS_FSL_QORIQ_CHASSIS2
 	default 2 if E6500
 	default 1
 
@@ -1274,6 +1294,10 @@ config SYS_BOOK3E_HV
 	bool "Category E.HV is supported"
 	depends on BOOKE
 
+config FSL_CORENET
+	bool
+	select SYS_FSL_CPC
+
 config SYS_CPC_REINIT_F
 	bool
 	help
@@ -1281,7 +1305,7 @@ config SYS_CPC_REINIT_F
 	  required to be re-initialized.
 
 config SYS_FSL_CPC
-	bool "Corenet Platform Cache support"
+	bool
 
 config SYS_CACHE_STASHING
 	bool "Enable cache stashing"

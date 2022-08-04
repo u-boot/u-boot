@@ -14,7 +14,9 @@
 #include <efi_loader.h>
 #include <env.h>
 #include <exports.h>
+#ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
+#endif
 #include <image.h>
 #include <lmb.h>
 #include <mapmem.h>

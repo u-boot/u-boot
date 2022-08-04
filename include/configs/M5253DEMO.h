@@ -93,8 +93,6 @@
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE)
-#define CONFIG_SYS_MAX_FLASH_SECT	2048	/* max number of sectors on one chip */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	1000
 
 #define FLASH_SST6401B		0x200
 #define SST_ID_xF6401B		0x236D236D
@@ -106,11 +104,9 @@
  * 0x30 is block erase in SST
  */
 #	define CONFIG_SYS_FLASH_SIZE		0x800000
-#	define CONFIG_FLASH_CFI_LEGACY
 #else
 #	define CONFIG_SYS_SST_SECT		2048
 #	define CONFIG_SYS_SST_SECTSZ		0x1000
-#	define CONFIG_SYS_FLASH_WRITE_TOUT	500
 #endif
 
 /* Cache Configuration */
@@ -128,9 +124,6 @@
 					 CF_ACR_EN | CF_ACR_SM_ALL)
 #define CONFIG_SYS_CACHE_ICACR		(CF_CACR_CENB | CF_CACR_CEIB | \
 					 CF_CACR_DBWE)
-
-/* Port configuration */
-#define CONFIG_SYS_FECI2C		0xF0
 
 #define CONFIG_SYS_CS0_BASE		0xFF800000
 #define CONFIG_SYS_CS0_MASK		0x007F0021

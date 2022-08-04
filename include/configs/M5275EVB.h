@@ -91,8 +91,6 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_MAX_FLASH_SECT	11	/* max number of sectors on one chip */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	1000
 
 #define CONFIG_SYS_FLASH_SIZE		0x200000
 
@@ -123,10 +121,5 @@
 #define CONFIG_SYS_CS1_BASE		0x30000000
 #define CONFIG_SYS_CS1_CTRL		0x00001900
 #define CONFIG_SYS_CS1_MASK		0x00070001
-
-/*-----------------------------------------------------------------------
- * Port configuration
- */
-#define CONFIG_SYS_FECI2C		0x0FA0
 
 #endif	/* _M5275EVB_H */

@@ -56,7 +56,7 @@ int checkboard(void)
 int fixed_sdram(unsigned long config)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 msize = CONFIG_SYS_DDR_SIZE << 20;
+	u32 msize = CONFIG_SYS_SDRAM_SIZE;
 
 #ifndef CONFIG_SYS_RAMBOOT
 	u32 msize_log2 = __ilog2(msize);
@@ -109,7 +109,7 @@ int fixed_sdram(unsigned long config)
 
 static int setup_sdram(void)
 {
-	u32 msize = CONFIG_SYS_DDR_SIZE << 20;
+	u32 msize = CONFIG_SYS_SDRAM_SIZE;
 	long int size_01, size_02;
 
 	size_01 = fixed_sdram(CONFIG_SYS_DDR_CONFIG);

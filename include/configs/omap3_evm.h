@@ -31,7 +31,6 @@
                                          10, 11, 12, 13}
 #define CONFIG_SYS_NAND_ECCSIZE         512
 #define CONFIG_SYS_NAND_ECCBYTES        3
-#define CONFIG_SYS_ENV_SECT_SIZE        SZ_128K
 #endif /* CONFIG_MTD_RAW_NAND */
 
 #define BOOTENV_DEV_LEGACY_MMC(devtypeu, devtypel, instance) \

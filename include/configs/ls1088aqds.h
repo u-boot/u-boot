@@ -62,14 +62,8 @@
 #define CONFIG_SYS_IFC_CCR	0x01000000
 
 #ifndef SYS_NO_FLASH
-#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
-#define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE,\
 					 CONFIG_SYS_FLASH_BASE + 0x40000000}
 #endif
@@ -303,8 +297,6 @@
 #endif
 #endif
 
-#define CONFIG_FSL_MEMAC
-
 #define COMMON_ENV \
 	"kernelheader_addr_r=0x80200000\0"	\
 	"fdtheader_addr_r=0x80100000\0"		\
@@ -473,7 +465,6 @@
 #endif
 
 #ifdef CONFIG_FSL_MC_ENET
-#define CONFIG_FSL_MEMAC
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
 #define SGMII_CARD_PORT1_PHY_ADDR 0x1C

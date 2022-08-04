@@ -41,7 +41,7 @@
  * Manually set up DDR parameters,
  * as this board has not the SPD connected to I2C.
  */
-#define CONFIG_SYS_DDR_SIZE		256		/* MB */
+#define CONFIG_SYS_SDRAM_SIZE		0x10000000 /* 256 MiB */
 #define CONFIG_SYS_DDR_CONFIG		(CSCONFIG_EN |\
 					 0x00010000 |\
 					 CSCONFIG_ROW_BIT_13 |\
@@ -109,12 +109,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xFF800000
 #define CONFIG_SYS_FLASH_SIZE		8
 
-
-#define CONFIG_SYS_MAX_FLASH_SECT	128
-
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500
-
 /*
  * NAND FLASH setup
  */
@@ -129,17 +123,10 @@
 #define CONFIG_SYS_MRAM_BASE		0xE2000000
 #define CONFIG_SYS_MRAM_SIZE		0x20000	/* 128 Kb */
 
-#define CONFIG_SYS_OR_TIMING_MRAM
-
-
 /*
  * CPLD setup
  */
 #define CONFIG_SYS_CPLD_BASE		0xE3000000
-#define CONFIG_SYS_CPLD_SIZE		0x8000
-
-#define CONFIG_SYS_OR_TIMING_MRAM
-
 
 /*
  * HW-Watchdog

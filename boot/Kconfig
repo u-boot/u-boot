@@ -486,7 +486,7 @@ config SYS_TEXT_BASE
 config HAVE_SYS_MONITOR_BASE
 	bool
 	depends on ARC || MIPS || M68K || NIOS2 || PPC || XTENSA || X86 \
-		|| FLASH_PIC32 || ENV_IS_IN_FLASH || MTD_NOR_FLASH
+		|| ENV_IS_IN_FLASH || MTD_NOR_FLASH
 	depends on !EFI_APP
 	default y
 

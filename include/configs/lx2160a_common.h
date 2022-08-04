@@ -10,12 +10,9 @@
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>
 
-#define CONFIG_FSL_MEMAC
-
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 
 /* DDR */
-#define CONFIG_SYS_FSL_DDR_INTLV_256B	/* force 256 byte interleaving */
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE		0x80000000UL
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0

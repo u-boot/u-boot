@@ -261,18 +261,8 @@
 
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_SYS_FLASH_BASE		0x08000000
-/* 255 x 256KiB sectors + 4 x 64KiB sectors at the end = 259 */
-#define CONFIG_SYS_MAX_FLASH_SECT	259
-/* Store environment at top of flash in the same location as blank.img */
-/* in the Juno firmware. */
 #else
 #define CONFIG_SYS_FLASH_BASE		(V2M_PA_BASE + 0x0C000000)
-/* 256 x 256KiB sectors */
-#define CONFIG_SYS_MAX_FLASH_SECT	256
-/* Store environment at top of flash */
 #endif
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
-#define FLASH_MAX_SECTOR_SIZE		0x00040000
 
 #endif /* __VEXPRESS_AEMV8_H */

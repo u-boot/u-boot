@@ -61,14 +61,8 @@
 					FTIM2_NOR_TWP(0xb))
 #define CONFIG_SYS_NOR_FTIM3		0
 
-#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
 
-#define CONFIG_SYS_MAX_FLASH_SECT	512	/* sectors per device */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE_PHYS }
 
 #define CONFIG_SYS_WRITE_SWAPPED_DATA

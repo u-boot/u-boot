@@ -17,21 +17,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SYS_DEBUG
-static void hexdump(unsigned char *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++) {
-		if ((i % 16) == 0)
-			printf("%s%08x: ", i ? "\n" : "",
-							(unsigned int)&buf[i]);
-		printf("%02x ", buf[i]);
-	}
-	printf("\n");
-}
-#endif
-
 #ifdef CONFIG_SH_SDRAM_OFFSET
 #define GET_INITRD_START(initrd, linux) (initrd - linux + CONFIG_SH_SDRAM_OFFSET)
 #else

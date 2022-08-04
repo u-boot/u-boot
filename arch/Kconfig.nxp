@@ -227,6 +227,12 @@ config VOL_MONITOR_ISL68233_SET
 
 endif
 
+config SYS_FSL_ESDHC_BE
+	bool
+
+config SYS_FSL_IFC_BE
+	bool
+
 config FSL_QIXIS
 	bool "Enable QIXIS support"
 	depends on PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
