@@ -168,6 +168,31 @@
 				maximum-speed = "high-speed";
 			};
 		};
+
+		spmi@200f000 {
+			compatible = "qcom,spmi-pmic-arb";
+			reg = <0x200f000 0x1000
+			       0x2400000 0x400000
+			       0x2c00000 0x400000>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+
+			pms405_0: pms405@0 {
+				compatible = "qcom,spmi-pmic";
+				reg = <0x0 0x1>;
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+
+				pms405_gpios: pms405_gpios@c000 {
+					compatible = "qcom,pms405-gpio";
+					reg = <0xc000 0x400>;
+					gpio-controller;
+					gpio-count = <12>;
+					#gpio-cells = <2>;
+					gpio-bank-name="pmic";
+				};
+			};
+		};
 	};
 };
 
