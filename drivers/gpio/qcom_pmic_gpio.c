@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Qualcomm pm8916 pmic gpio driver - part of Qualcomm PM8916 PMIC
+ * Qualcomm generic pmic gpio driver
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  */
@@ -19,7 +19,7 @@
 
 /* Register maps */
 
-/* Type and subtype are shared for all pm8916 peripherals */
+/* Type and subtype are shared for all PMIC peripherals */
 #define REG_TYPE               0x4
 #define REG_SUBTYPE            0x5
 
@@ -47,14 +47,14 @@
 #define REG_EN_CTL             0x46
 #define REG_EN_CTL_ENABLE      (1 << 7)
 
-struct pm8916_gpio_bank {
+struct qcom_gpio_bank {
 	uint32_t pid; /* Peripheral ID on SPMI bus */
 };
 
-static int pm8916_gpio_set_direction(struct udevice *dev, unsigned offset,
-				     bool input, int value)
+static int qcom_gpio_set_direction(struct udevice *dev, unsigned offset,
+				   bool input, int value)
 {
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
+	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
 	int ret;
 
@@ -101,20 +101,20 @@ static int pm8916_gpio_set_direction(struct udevice *dev, unsigned offset,
 			       REG_EN_CTL_ENABLE);
 }
 
-static int pm8916_gpio_direction_input(struct udevice *dev, unsigned offset)
+static int qcom_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
-	return pm8916_gpio_set_direction(dev, offset, true, 0);
+	return qcom_gpio_set_direction(dev, offset, true, 0);
 }
 
-static int pm8916_gpio_direction_output(struct udevice *dev, unsigned offset,
-					int value)
+static int qcom_gpio_direction_output(struct udevice *dev, unsigned offset,
+				      int value)
 {
-	return pm8916_gpio_set_direction(dev, offset, false, value);
+	return qcom_gpio_set_direction(dev, offset, false, value);
 }
 
-static int pm8916_gpio_get_function(struct udevice *dev, unsigned offset)
+static int qcom_gpio_get_function(struct udevice *dev, unsigned offset)
 {
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
+	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
 	int reg;
 
@@ -134,9 +134,9 @@ static int pm8916_gpio_get_function(struct udevice *dev, unsigned offset)
 	}
 }
 
-static int pm8916_gpio_get_value(struct udevice *dev, unsigned offset)
+static int qcom_gpio_get_value(struct udevice *dev, unsigned offset)
 {
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
+	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
 	int reg;
 
@@ -147,10 +147,10 @@ static int pm8916_gpio_get_value(struct udevice *dev, unsigned offset)
 	return !!(reg & REG_STATUS_VAL_MASK);
 }
 
-static int pm8916_gpio_set_value(struct udevice *dev, unsigned offset,
-				 int value)
+static int qcom_gpio_set_value(struct udevice *dev, unsigned offset,
+			       int value)
 {
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
+	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
 
 	/* Set the output value of the gpio */
@@ -158,17 +158,17 @@ static int pm8916_gpio_set_value(struct udevice *dev, unsigned offset,
 			       REG_CTL_OUTPUT_MASK, !!value);
 }
 
-static const struct dm_gpio_ops pm8916_gpio_ops = {
-	.direction_input	= pm8916_gpio_direction_input,
-	.direction_output	= pm8916_gpio_direction_output,
-	.get_value		= pm8916_gpio_get_value,
-	.set_value		= pm8916_gpio_set_value,
-	.get_function		= pm8916_gpio_get_function,
+static const struct dm_gpio_ops qcom_gpio_ops = {
+	.direction_input	= qcom_gpio_direction_input,
+	.direction_output	= qcom_gpio_direction_output,
+	.get_value		= qcom_gpio_get_value,
+	.set_value		= qcom_gpio_set_value,
+	.get_function		= qcom_gpio_get_function,
 };
 
-static int pm8916_gpio_probe(struct udevice *dev)
+static int qcom_gpio_probe(struct udevice *dev)
 {
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
+	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	int reg;
 
 	priv->pid = dev_read_addr(dev);
@@ -187,33 +187,33 @@ static int pm8916_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pm8916_gpio_of_to_plat(struct udevice *dev)
+static int qcom_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->gpio_count = dev_read_u32_default(dev, "gpio-count", 0);
 	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
 	if (uc_priv->bank_name == NULL)
-		uc_priv->bank_name = "pm8916";
+		uc_priv->bank_name = "qcom_pmic";
 
 	return 0;
 }
 
-static const struct udevice_id pm8916_gpio_ids[] = {
+static const struct udevice_id qcom_gpio_ids[] = {
 	{ .compatible = "qcom,pm8916-gpio" },
 	{ .compatible = "qcom,pm8994-gpio" },	/* 22 GPIO's */
 	{ .compatible = "qcom,pm8998-gpio" },
 	{ }
 };
 
-U_BOOT_DRIVER(gpio_pm8916) = {
-	.name	= "gpio_pm8916",
+U_BOOT_DRIVER(qcom_pmic_gpio) = {
+	.name	= "qcom_pmic_gpio",
 	.id	= UCLASS_GPIO,
-	.of_match = pm8916_gpio_ids,
-	.of_to_plat = pm8916_gpio_of_to_plat,
-	.probe	= pm8916_gpio_probe,
-	.ops	= &pm8916_gpio_ops,
-	.priv_auto	= sizeof(struct pm8916_gpio_bank),
+	.of_match = qcom_gpio_ids,
+	.of_to_plat = qcom_gpio_of_to_plat,
+	.probe	= qcom_gpio_probe,
+	.ops	= &qcom_gpio_ops,
+	.priv_auto	= sizeof(struct qcom_gpio_bank),
 };
 
 
@@ -222,14 +222,14 @@ U_BOOT_DRIVER(gpio_pm8916) = {
 #define KPDPWR_ON_INT_BIT                     0
 #define RESIN_ON_INT_BIT                      1
 
-static int pm8941_pwrkey_get_function(struct udevice *dev, unsigned offset)
+static int qcom_pwrkey_get_function(struct udevice *dev, unsigned offset)
 {
 	return GPIOF_INPUT;
 }
 
-static int pm8941_pwrkey_get_value(struct udevice *dev, unsigned offset)
+static int qcom_pwrkey_get_value(struct udevice *dev, unsigned offset)
 {
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
+	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 
 	int reg = pmic_reg_read(dev->parent, priv->pid + PON_INT_RT_STS);
 
@@ -247,14 +247,14 @@ static int pm8941_pwrkey_get_value(struct udevice *dev, unsigned offset)
 	}
 }
 
-static const struct dm_gpio_ops pm8941_pwrkey_ops = {
-	.get_value		= pm8941_pwrkey_get_value,
-	.get_function		= pm8941_pwrkey_get_function,
+static const struct dm_gpio_ops qcom_pwrkey_ops = {
+	.get_value		= qcom_pwrkey_get_value,
+	.get_function		= qcom_pwrkey_get_function,
 };
 
-static int pm8941_pwrkey_probe(struct udevice *dev)
+static int qcom_pwrkey_probe(struct udevice *dev)
 {
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
+	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	int reg;
 
 	priv->pid = dev_read_addr(dev);
@@ -273,31 +273,31 @@ static int pm8941_pwrkey_probe(struct udevice *dev)
 	return 0;
 }
 
-static int pm8941_pwrkey_of_to_plat(struct udevice *dev)
+static int qcom_pwrkey_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->gpio_count = 2;
 	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
 	if (uc_priv->bank_name == NULL)
-		uc_priv->bank_name = "pm8916_key";
+		uc_priv->bank_name = "pwkey_qcom";
 
 	return 0;
 }
 
-static const struct udevice_id pm8941_pwrkey_ids[] = {
+static const struct udevice_id qcom_pwrkey_ids[] = {
 	{ .compatible = "qcom,pm8916-pwrkey" },
 	{ .compatible = "qcom,pm8994-pwrkey" },
 	{ .compatible = "qcom,pm8998-pwrkey" },
 	{ }
 };
 
-U_BOOT_DRIVER(pwrkey_pm89xx) = {
-	.name	= "pwrkey_pm89xx",
+U_BOOT_DRIVER(pwrkey_qcom) = {
+	.name	= "pwrkey_qcom",
 	.id	= UCLASS_GPIO,
-	.of_match = pm8941_pwrkey_ids,
-	.of_to_plat = pm8941_pwrkey_of_to_plat,
-	.probe	= pm8941_pwrkey_probe,
-	.ops	= &pm8941_pwrkey_ops,
-	.priv_auto	= sizeof(struct pm8916_gpio_bank),
+	.of_match = qcom_pwrkey_ids,
+	.of_to_plat = qcom_pwrkey_of_to_plat,
+	.probe	= qcom_pwrkey_probe,
+	.ops	= &qcom_pwrkey_ops,
+	.priv_auto	= sizeof(struct qcom_gpio_bank),
 };
