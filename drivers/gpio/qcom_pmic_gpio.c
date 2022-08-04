@@ -23,6 +23,15 @@
 #define REG_TYPE               0x4
 #define REG_SUBTYPE            0x5
 
+/* GPIO peripheral type and subtype out_values */
+#define REG_TYPE_VAL		0x10
+#define REG_SUBTYPE_GPIO_4CH	0x1
+#define REG_SUBTYPE_GPIOC_4CH	0x5
+#define REG_SUBTYPE_GPIO_8CH	0x9
+#define REG_SUBTYPE_GPIOC_8CH	0xd
+#define REG_SUBTYPE_GPIO_LV	0x10
+#define REG_SUBTYPE_GPIO_MV	0x11
+
 #define REG_STATUS             0x08
 #define REG_STATUS_VAL_MASK    0x1
 
@@ -33,12 +42,20 @@
 #define REG_CTL_MODE_INOUT      0x20
 #define REG_CTL_MODE_OUTPUT     0x10
 #define REG_CTL_OUTPUT_MASK     0x0F
+#define REG_CTL_LV_MV_MODE_MASK		0x3
+#define REG_CTL_LV_MV_MODE_INPUT	0x0
+#define REG_CTL_LV_MV_MODE_INOUT	0x2
+#define REG_CTL_LV_MV_MODE_OUTPUT	0x1
 
 #define REG_DIG_VIN_CTL        0x41
 #define REG_DIG_VIN_VIN0       0
 
 #define REG_DIG_PULL_CTL       0x42
 #define REG_DIG_PULL_NO_PU     0x5
+
+#define REG_LV_MV_OUTPUT_CTL	0x44
+#define REG_LV_MV_OUTPUT_CTL_MASK	0x80
+#define REG_LV_MV_OUTPUT_CTL_SHIFT	7
 
 #define REG_DIG_OUT_CTL        0x45
 #define REG_DIG_OUT_CTL_CMOS   (0x0 << 4)
@@ -49,6 +66,7 @@
 
 struct qcom_gpio_bank {
 	uint32_t pid; /* Peripheral ID on SPMI bus */
+	bool     lv_mv_type; /* If subtype is GPIO_LV(0x10) or GPIO_MV(0x11) */
 };
 
 static int qcom_gpio_set_direction(struct udevice *dev, unsigned offset,
@@ -56,6 +74,7 @@ static int qcom_gpio_set_direction(struct udevice *dev, unsigned offset,
 {
 	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
+	uint32_t reg_ctl_val;
 	int ret;
 
 	/* Disable the GPIO */
@@ -64,15 +83,30 @@ static int qcom_gpio_set_direction(struct udevice *dev, unsigned offset,
 	if (ret < 0)
 		return ret;
 
-	/* Select the mode */
-	if (input)
-		ret = pmic_reg_write(dev->parent, gpio_base + REG_CTL,
-				     REG_CTL_MODE_INPUT);
-	else
-		ret = pmic_reg_write(dev->parent, gpio_base + REG_CTL,
-				     REG_CTL_MODE_INOUT | (value ? 1 : 0));
+	/* Select the mode and output */
+	if (priv->lv_mv_type) {
+		if (input)
+			reg_ctl_val = REG_CTL_LV_MV_MODE_INPUT;
+		else
+			reg_ctl_val = REG_CTL_LV_MV_MODE_INOUT;
+	} else {
+		if (input)
+			reg_ctl_val = REG_CTL_MODE_INPUT;
+		else
+			reg_ctl_val = REG_CTL_MODE_INOUT | !!value;
+	}
+
+	ret = pmic_reg_write(dev->parent, gpio_base + REG_CTL, reg_ctl_val);
 	if (ret < 0)
 		return ret;
+
+	if (priv->lv_mv_type && !input) {
+		ret = pmic_reg_write(dev->parent,
+				     gpio_base + REG_LV_MV_OUTPUT_CTL,
+				     !!value << REG_LV_MV_OUTPUT_CTL_SHIFT);
+		if (ret < 0)
+			return ret;
+	}
 
 	/* Set the right pull (no pull) */
 	ret = pmic_reg_write(dev->parent, gpio_base + REG_DIG_PULL_CTL,
@@ -118,19 +152,30 @@ static int qcom_gpio_get_function(struct udevice *dev, unsigned offset)
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
 	int reg;
 
-	/* Set the output value of the gpio */
 	reg = pmic_reg_read(dev->parent, gpio_base + REG_CTL);
 	if (reg < 0)
 		return reg;
 
-	switch (reg & REG_CTL_MODE_MASK) {
-	case REG_CTL_MODE_INPUT:
-		return GPIOF_INPUT;
-	case REG_CTL_MODE_INOUT: /* Fallthrough */
-	case REG_CTL_MODE_OUTPUT:
-		return GPIOF_OUTPUT;
-	default:
-		return GPIOF_UNKNOWN;
+	if (priv->lv_mv_type) {
+		switch (reg & REG_CTL_LV_MV_MODE_MASK) {
+		case REG_CTL_LV_MV_MODE_INPUT:
+			return GPIOF_INPUT;
+		case REG_CTL_LV_MV_MODE_INOUT: /* Fallthrough */
+		case REG_CTL_LV_MV_MODE_OUTPUT:
+			return GPIOF_OUTPUT;
+		default:
+			return GPIOF_UNKNOWN;
+		}
+	} else {
+		switch (reg & REG_CTL_MODE_MASK) {
+		case REG_CTL_MODE_INPUT:
+			return GPIOF_INPUT;
+		case REG_CTL_MODE_INOUT: /* Fallthrough */
+		case REG_CTL_MODE_OUTPUT:
+			return GPIOF_OUTPUT;
+		default:
+			return GPIOF_UNKNOWN;
+		}
 	}
 }
 
@@ -154,8 +199,14 @@ static int qcom_gpio_set_value(struct udevice *dev, unsigned offset,
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
 
 	/* Set the output value of the gpio */
-	return pmic_clrsetbits(dev->parent, gpio_base + REG_CTL,
-			       REG_CTL_OUTPUT_MASK, !!value);
+	if (priv->lv_mv_type)
+		return pmic_clrsetbits(dev->parent,
+				       gpio_base + REG_LV_MV_OUTPUT_CTL,
+				       REG_LV_MV_OUTPUT_CTL_MASK,
+				       !!value << REG_LV_MV_OUTPUT_CTL_SHIFT);
+	else
+		return pmic_clrsetbits(dev->parent, gpio_base + REG_CTL,
+				       REG_CTL_OUTPUT_MASK, !!value);
 }
 
 static const struct dm_gpio_ops qcom_gpio_ops = {
@@ -177,12 +228,16 @@ static int qcom_gpio_probe(struct udevice *dev)
 
 	/* Do a sanity check */
 	reg = pmic_reg_read(dev->parent, priv->pid + REG_TYPE);
-	if (reg != 0x10)
+	if (reg != REG_TYPE_VAL)
 		return log_msg_ret("bad type", -ENXIO);
 
 	reg = pmic_reg_read(dev->parent, priv->pid + REG_SUBTYPE);
-	if (reg != 0x5 && reg != 0x1)
+	if (reg != REG_SUBTYPE_GPIO_4CH && reg != REG_SUBTYPE_GPIOC_4CH &&
+	    reg != REG_SUBTYPE_GPIO_LV && reg != REG_SUBTYPE_GPIO_MV)
 		return log_msg_ret("bad subtype", -ENXIO);
+
+	priv->lv_mv_type = reg == REG_SUBTYPE_GPIO_LV ||
+			   reg == REG_SUBTYPE_GPIO_MV;
 
 	return 0;
 }
@@ -203,6 +258,7 @@ static const struct udevice_id qcom_gpio_ids[] = {
 	{ .compatible = "qcom,pm8916-gpio" },
 	{ .compatible = "qcom,pm8994-gpio" },	/* 22 GPIO's */
 	{ .compatible = "qcom,pm8998-gpio" },
+	{ .compatible = "qcom,pms405-gpio" },
 	{ }
 };
 
