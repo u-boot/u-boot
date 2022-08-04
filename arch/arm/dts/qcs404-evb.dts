@@ -54,6 +54,12 @@
 			#size-cells = <0x0>;
 		};
 
+		reset: gcc-reset@1800000 {
+			compatible = "qcom,gcc-reset-qcs404";
+			reg = <0x1800000 0x80000>;
+			#reset-cells = <1>;
+		};
+
 		debug_uart: serial@78b1000 {
 			compatible = "qcom,msm-uartdm-v1.4";
 			reg = <0x78b1000 0x200>;
