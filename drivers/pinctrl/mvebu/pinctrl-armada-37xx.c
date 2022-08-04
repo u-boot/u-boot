@@ -406,7 +406,17 @@ static int armada_37xx_pmx_get_pin_muxing(struct udevice *dev, unsigned int sele
 
 			for (f = 0; f < NB_FUNCS && grp->funcs[f]; f++) {
 				if (grp->val[f] == val) {
-					strlcpy(buf, grp->funcs[f], size);
+					/*
+					 * In more cases group name consist of
+					 * function name followed by function
+					 * number. So if function name is just
+					 * prefix of group name, show group name.
+					 */
+					if (strncmp(grp->name, grp->funcs[f],
+						    strlen(grp->funcs[f])) == 0)
+						strlcpy(buf, grp->name, size);
+					else
+						strlcpy(buf, grp->funcs[f], size);
 					return 0;
 				}
 			}
