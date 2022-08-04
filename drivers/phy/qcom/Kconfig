@@ -1,0 +1,13 @@
+config MSM8916_USB_PHY
+	bool "Qualcomm MSM8916 USB PHY support"
+	depends on PHY
+	help
+          Support the USB PHY in msm8916
+
+	  This PHY is found on qualcomm dragonboard410c development board.
+
+config PHY_QCOM_IPQ4019_USB
+	tristate "Qualcomm IPQ4019 USB PHY driver"
+	depends on PHY && ARCH_IPQ40XX
+	help
+	  Support for the USB PHY-s on Qualcomm IPQ40xx SoC-s.
