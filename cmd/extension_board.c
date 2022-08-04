@@ -111,6 +111,7 @@ static int do_extension_apply(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_USAGE;
 
 	if (strcmp(argv[1], "all") == 0) {
+		ret = CMD_RET_FAILURE;
 		list_for_each_entry(extension, &extension_list, list) {
 			ret = extension_apply(extension);
 			if (ret != CMD_RET_SUCCESS)

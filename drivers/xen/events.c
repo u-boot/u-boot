@@ -23,7 +23,9 @@
 #include <xen/events.h>
 #include <xen/hvm.h>
 
+#if CONFIG_IS_ENABLED(XEN_SERIAL)
 extern u32 console_evtchn;
+#endif /* CONFIG_IS_ENABLED(XEN_SERIAL) */
 
 #define NR_EVS 1024
 
@@ -51,8 +53,11 @@ void unbind_all_ports(void)
 	struct vcpu_info *vcpu_info = &s->vcpu_info[cpu];
 
 	for (i = 0; i < NR_EVS; i++) {
+#if CONFIG_IS_ENABLED(XEN_SERIAL)
 		if (i == console_evtchn)
 			continue;
+#endif /* CONFIG_IS_ENABLED(XEN_SERIAL) */
+
 		if (test_and_clear_bit(i, bound_ports)) {
 			printf("port %d still bound!\n", i);
 			unbind_evtchn(i);

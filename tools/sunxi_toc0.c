@@ -34,6 +34,12 @@
 #define pr_warn(fmt, args...)	fprintf(stderr, pr_fmt(fmt), "warning", ##args)
 #define pr_info(fmt, args...)	fprintf(stderr, pr_fmt(fmt), "info", ##args)
 
+#if defined(LIBRESSL_VERSION_NUMBER)
+#define RSA_get0_n(key) (key)->n
+#define RSA_get0_e(key) (key)->e
+#define RSA_get0_d(key) (key)->d
+#endif
+
 struct __packed toc0_key_item {
 	__le32  vendor_id;
 	__le32  key0_n_len;

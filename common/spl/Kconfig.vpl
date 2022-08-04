@@ -166,7 +166,7 @@ config VPL_SERIAL
 	select VPL_PRINTF
 	select VPL_STRTO
 	help
-	  Enable support for serial in VPL. See SPL_SERIAL_SUPPORT for
+	  Enable support for serial in VPL. See SPL_SERIAL for
 	  details.
 
 config VPL_SIZE_LIMIT
