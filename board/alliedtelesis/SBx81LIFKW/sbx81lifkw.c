@@ -17,7 +17,8 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
-#include <asm/arch/gpio.h>
+#include <asm-generic/gpio.h>
+#include <dm.h>
 
 /* Note: GPIO differences between specific boards
  *
@@ -36,8 +37,6 @@
 #define SBX81LIFKW_OE_HIGH	~(BIT(0) | BIT(1) | BIT(7))
 #define SBX81LIFKW_OE_VAL_LOW	 (BIT(31) | BIT(30) | BIT(28) | BIT(27))
 #define SBX81LIFKW_OE_VAL_HIGH	 (BIT(0) | BIT(1))
-
-#define MV88E6097_RESET		27
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -143,11 +142,23 @@ void reset_phy(void)
 #ifdef CONFIG_MV88E61XX_SWITCH
 int mv88e61xx_hw_reset(struct phy_device *phydev)
 {
+	struct gpio_desc desc;
+	int ret;
+
+	ret = dm_gpio_lookup_name("mvebu0_27", &desc);
+	if (ret)
+		return ret;
+
+	ret = dm_gpio_request(&desc, "linkstreet_rst");
+	if (ret)
+		return ret;
+
 	/* Ensure the 88e6097 gets at least 10ms Reset
 	 */
-	kw_gpio_set_value(MV88E6097_RESET, 0);
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+	dm_gpio_set_value(&desc, 0);
 	mdelay(20);
-	kw_gpio_set_value(MV88E6097_RESET, 1);
+	dm_gpio_set_value(&desc, 1);
 	mdelay(20);
 
 	phydev->advertising = ADVERTISED_10baseT_Half | ADVERTISED_10baseT_Full;
