@@ -13,7 +13,7 @@
 #include <linux/io.h>
 #include <miiphy.h>
 #include <netdev.h>
-#include <status_led.h>
+#include <led.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
@@ -40,41 +40,6 @@
 #define MV88E6097_RESET		27
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct led {
-	u32 reg;
-	u32 value;
-	u32 mask;
-};
-
-struct led amber_solid = {
-	MVEBU_GPIO0_BASE,
-	BIT(10),
-	BIT(18) | BIT(10)
-};
-
-struct led green_solid = {
-	MVEBU_GPIO0_BASE,
-	BIT(18) | BIT(10),
-	BIT(18) | BIT(10)
-};
-
-struct led amber_flash = {
-	MVEBU_GPIO0_BASE,
-	0,
-	BIT(18) | BIT(10)
-};
-
-struct led green_flash = {
-	MVEBU_GPIO0_BASE,
-	BIT(18),
-	BIT(18) | BIT(10)
-};
-
-static void status_led_set(struct led *led)
-{
-	clrsetbits_le32(led->reg, led->mask, led->value);
-}
 
 int board_early_init_f(void)
 {
@@ -165,8 +130,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
-	status_led_set(&amber_solid);
-
 	return 0;
 }
 
@@ -196,7 +159,16 @@ int mv88e61xx_hw_reset(struct phy_device *phydev)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	status_led_set(&green_flash);
+	struct udevice *dev;
+	int ret;
+
+	ret = led_get_by_label("status:ledp", &dev);
+	if (!ret)
+		led_set_state(dev, LEDST_ON);
+
+	ret = led_get_by_label("status:ledn", &dev);
+	if (!ret)
+		led_set_state(dev, LEDST_OFF);
 
 	return 0;
 }
