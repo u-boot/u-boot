@@ -58,7 +58,7 @@ SECTIONS
 	__ex_table : { *(__ex_table) }
 	__stop___ex_table = .;
 
-	. = ALIGN(8);
+	. = ALIGN(4);
 	__init_begin = .;
 	__init_end = .;
 	_end = .;
