@@ -13,24 +13,38 @@
 
 static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	size_t n = 0x40;
+	size_t n;
+	u8 buf[64];
+	int devnum;
 	struct udevice *dev;
-	void *buf;
 	int ret = CMD_RET_SUCCESS;
 
-	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
+	switch (argc) {
+	case 1:
+		devnum = 0;
+		n = 0x40;
+		break;
+	case 2:
+		devnum = hextoul(argv[1], NULL);
+		n = 0x40;
+		break;
+	case 3:
+		devnum = hextoul(argv[1], NULL);
+		n = hextoul(argv[2], NULL);
+		break;
+	default:
+		return CMD_RET_USAGE;
+	}
+
+	if (uclass_get_device_by_seq(UCLASS_RNG, devnum, &dev) || !dev) {
 		printf("No RNG device\n");
 		return CMD_RET_FAILURE;
 	}
 
-	if (argc >= 2)
-		n = hextoul(argv[1], NULL);
+	if (!n)
+		return 0;
 
-	buf = malloc(n);
-	if (!buf) {
-		printf("Out of memory\n");
-		return CMD_RET_FAILURE;
-	}
+	n = min(n, sizeof(buf));
 
 	if (dm_rng_read(dev, buf, n)) {
 		printf("Reading RNG failed\n");
@@ -39,19 +53,17 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, buf, n);
 	}
 
-	free(buf);
-
 	return ret;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
 static char rng_help_text[] =
-	"[n]\n"
-	"  - print n random bytes\n";
+	"[dev [n]]\n"
+	"  - print n random bytes(max 64) read from dev\n";
 #endif
 
 U_BOOT_CMD(
-	rng, 2, 0, do_rng,
+	rng, 3, 0, do_rng,
 	"print bytes from the hardware random number generator",
 	rng_help_text
 );
