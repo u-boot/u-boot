@@ -6,7 +6,6 @@
 # (C) Copyright 2008
 # Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
 
-obj-y	:= timer.o
 obj-y	+= cpu.o
 obj-y	+= ddrc.o
 obj-y	+= slcr.o
