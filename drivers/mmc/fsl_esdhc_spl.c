@@ -9,6 +9,10 @@
 #include <mmc.h>
 #include <malloc.h>
 
+#ifndef CONFIG_SYS_MMC_U_BOOT_OFFS
+extern uchar mmc_u_boot_offs[];
+#endif
+
 /*
  * The environment variables are written to just after the u-boot image
  * on SDCard, so we must read the MBR to get the start address and code
@@ -149,7 +153,11 @@ again:
 		val = *(tmp_buf + blk_off + ESDHC_BOOT_IMAGE_ADDR + i);
 		offset = (offset << 8) + val;
 	}
+#ifndef CONFIG_SYS_MMC_U_BOOT_OFFS
+	offset += (ulong)&mmc_u_boot_offs - CONFIG_SPL_TEXT_BASE;
+#else
 	offset += CONFIG_SYS_MMC_U_BOOT_OFFS;
+#endif
 #endif
 	/*
 	* Load U-Boot image from mmc into RAM
