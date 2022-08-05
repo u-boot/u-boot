@@ -232,12 +232,8 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p2571.dtb \
 	tegra210-p3450-0000.dtb
 
+ifdef CONFIG_ARMADA_32BIT
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
-	armada-3720-db.dtb			\
-	armada-3720-espressobin.dtb		\
-	armada-3720-turris-mox.dtb		\
-	armada-3720-eDPU.dtb			\
-	armada-3720-uDPU.dtb			\
 	armada-375-db.dtb			\
 	armada-385-atl-x530.dtb			\
 	armada-385-atl-x530DP.dtb		\
@@ -247,12 +243,6 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-388-gp.dtb			\
 	armada-388-helios4.dtb			\
 	armada-38x-controlcenterdc.dtb		\
-	armada-7040-db-nand.dtb			\
-	armada-7040-db.dtb			\
-	armada-8040-clearfog-gt-8k.dtb		\
-	armada-8040-db.dtb			\
-	armada-8040-mcbin.dtb			\
-	armada-8040-puzzle-m801.dtb		\
 	armada-xp-crs305-1g-4s.dtb		\
 	armada-xp-crs305-1g-4s-bit.dtb		\
 	armada-xp-crs326-24g-2s.dtb		\
@@ -263,7 +253,20 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
-	armada-xp-theadorable.dtb		\
+	armada-xp-theadorable.dtb
+else
+dtb-$(CONFIG_ARCH_MVEBU) +=			\
+	armada-3720-db.dtb			\
+	armada-3720-espressobin.dtb		\
+	armada-3720-turris-mox.dtb		\
+	armada-3720-eDPU.dtb			\
+	armada-3720-uDPU.dtb			\
+	armada-7040-db-nand.dtb			\
+	armada-7040-db.dtb			\
+	armada-8040-clearfog-gt-8k.dtb		\
+	armada-8040-db.dtb			\
+	armada-8040-mcbin.dtb			\
+	armada-8040-puzzle-m801.dtb		\
 	cn9130-db-A.dtb				\
 	cn9130-db-B.dtb				\
 	cn9131-db-A.dtb				\
@@ -272,6 +275,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	cn9132-db-B.dtb				\
 	cn9130-crb-A.dtb			\
 	cn9130-crb-B.dtb
+endif
 
 dtb-$(CONFIG_ARCH_SYNQUACER) += synquacer-sc2a11-developerbox.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
