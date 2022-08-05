@@ -99,7 +99,6 @@ Kconfig.  Each field of boards.cfg was converted as follows:
  Vendor      ->  CONFIG_SYS_VENDOR defined by Kconfig
  Board       ->  CONFIG_SYS_BOARD defined by Kconfig
  Target      ->  File name of defconfig (configs/<target>_defconfig)
- Options     ->  CONFIG_SYS_EXTRA_OPTIONS defined by Kconfig
  Maintainers ->  "M:" entry of MAINTAINERS
 
 
@@ -139,12 +138,6 @@ When removing an obsolete board, the following steps are generally needed:
 
 TODO
 ----
-
-- The option field of boards.cfg, which was used for the pre-Kconfig
-  configuration, moved to CONFIG_SYS_EXTRA_OPTIONS verbatim now.
-  Board maintainers are expected to implement proper Kconfig options
-  and switch over to them.  Eventually CONFIG_SYS_EXTRA_OPTIONS will go away.
-  CONFIG_SYS_EXTRA_OPTIONS should not be used for new boards.
 
 - In the pre-Kconfig, a single board had multiple entries in the boards.cfg
   file with differences in the option fields.  The corresponding defconfig

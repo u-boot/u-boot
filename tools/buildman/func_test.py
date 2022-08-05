@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 from buildman import board
+from buildman import boards
 from buildman import bsettings
 from buildman import cmdline
 from buildman import control
@@ -35,7 +36,7 @@ chromeos_daisy=VBOOT=${chroot}/build/daisy/usr ${vboot}
 chromeos_peach=VBOOT=${chroot}/build/peach_pit/usr ${vboot}
 '''
 
-boards = [
+BOARDS = [
     ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 1', 'board0',  ''],
     ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 2', 'board1', ''],
     ['Active', 'powerpc', 'powerpc', '', 'Tester', 'PowerPC board 1', 'board2', ''],
@@ -187,14 +188,14 @@ class TestFunctional(unittest.TestCase):
         self.setupToolchains()
         self._toolchains.Add('arm-gcc', test=False)
         self._toolchains.Add('powerpc-gcc', test=False)
-        self._boards = board.Boards()
-        for brd in boards:
-            self._boards.AddBoard(board.Board(*brd))
+        self._boards = boards.Boards()
+        for brd in BOARDS:
+            self._boards.add_board(board.Board(*brd))
 
         # Directories where the source been cloned
         self._clone_dirs = []
         self._commits = len(commit_shortlog.splitlines()) + 1
-        self._total_builds = self._commits * len(boards)
+        self._total_builds = self._commits * len(BOARDS)
 
         # Number of calls to make
         self._make_calls = 0
@@ -220,13 +221,13 @@ class TestFunctional(unittest.TestCase):
         return command.run_pipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
-    def _RunControl(self, *args, boards=None, clean_dir=False,
+    def _RunControl(self, *args, brds=None, clean_dir=False,
                     test_thread_exceptions=False):
         """Run buildman
 
         Args:
             args: List of arguments to pass
-            boards:
+            brds: Boards object
             clean_dir: Used for tests only, indicates that the existing output_dir
                 should be removed before starting the build
             test_thread_exceptions: Uses for tests only, True to make the threads
@@ -239,7 +240,7 @@ class TestFunctional(unittest.TestCase):
         sys.argv = [sys.argv[0]] + list(args)
         options, args = cmdline.ParseArgs()
         result = control.DoBuildman(options, args, toolchains=self._toolchains,
-                make_func=self._HandleMake, boards=boards or self._boards,
+                make_func=self._HandleMake, brds=brds or self._boards,
                 clean_dir=clean_dir,
                 test_thread_exceptions=test_thread_exceptions)
         self._builder = control.builder
@@ -442,7 +443,7 @@ class TestFunctional(unittest.TestCase):
 
     def testNoBoards(self):
         """Test that buildman aborts when there are no boards"""
-        self._boards = board.Boards()
+        self._boards = boards.Boards()
         with self.assertRaises(SystemExit):
             self._RunControl()
 
@@ -451,7 +452,7 @@ class TestFunctional(unittest.TestCase):
         self.setupToolchains();
         self._RunControl('-o', self._output_dir)
         lines = terminal.get_print_test_lines()
-        self.assertIn('Building current source for %d boards' % len(boards),
+        self.assertIn('Building current source for %d boards' % len(BOARDS),
                       lines[0].text)
 
     def testBadBranch(self):
@@ -467,7 +468,7 @@ class TestFunctional(unittest.TestCase):
 
         # Buildman always builds the upstream commit as well
         self.assertIn('Building %d commits for %d boards' %
-                (self._commits, len(boards)), lines[0].text)
+                (self._commits, len(BOARDS)), lines[0].text)
         self.assertEqual(self._builder.count, self._total_builds)
 
         # Only sandbox should succeed, the others don't have toolchains
@@ -476,12 +477,12 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(ret_code, 100)
 
         for commit in range(self._commits):
-            for board in self._boards.GetList():
-                if board.arch != 'sandbox':
-                  errfile = self._builder.GetErrFile(commit, board.target)
+            for brd in self._boards.get_list():
+                if brd.arch != 'sandbox':
+                  errfile = self._builder.GetErrFile(commit, brd.target)
                   fd = open(errfile)
                   self.assertEqual(fd.readlines(),
-                          ['No tool chain for %s\n' % board.arch])
+                          ['No tool chain for %s\n' % brd.arch])
                   fd.close()
 
     def testBranch(self):
@@ -493,17 +494,17 @@ class TestFunctional(unittest.TestCase):
     def testCount(self):
         """Test building a specific number of commitst"""
         self._RunControl('-b', TEST_BRANCH, '-c2', '-o', self._output_dir)
-        self.assertEqual(self._builder.count, 2 * len(boards))
+        self.assertEqual(self._builder.count, 2 * len(BOARDS))
         self.assertEqual(self._builder.fail, 0)
         # Each board has a config, and then one make per commit
-        self.assertEqual(self._make_calls, len(boards) * (1 + 2))
+        self.assertEqual(self._make_calls, len(BOARDS) * (1 + 2))
 
     def testIncremental(self):
         """Test building a branch twice - the second time should do nothing"""
         self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir)
 
         # Each board has a mrproper, config, and then one make per commit
-        self.assertEqual(self._make_calls, len(boards) * (self._commits + 1))
+        self.assertEqual(self._make_calls, len(BOARDS) * (self._commits + 1))
         self._make_calls = 0
         self._RunControl('-b', TEST_BRANCH, '-o', self._output_dir, clean_dir=False)
         self.assertEqual(self._make_calls, 0)
@@ -516,19 +517,19 @@ class TestFunctional(unittest.TestCase):
         self._make_calls = 0
         self._RunControl('-b', TEST_BRANCH, '-f', '-o', self._output_dir, clean_dir=False)
         # Each board has a config and one make per commit
-        self.assertEqual(self._make_calls, len(boards) * (self._commits + 1))
+        self.assertEqual(self._make_calls, len(BOARDS) * (self._commits + 1))
 
     def testForceReconfigure(self):
         """The -f flag should force a rebuild"""
         self._RunControl('-b', TEST_BRANCH, '-C', '-o', self._output_dir)
         # Each commit has a config and make
-        self.assertEqual(self._make_calls, len(boards) * self._commits * 2)
+        self.assertEqual(self._make_calls, len(BOARDS) * self._commits * 2)
 
     def testMrproper(self):
         """The -f flag should force a rebuild"""
         self._RunControl('-b', TEST_BRANCH, '-m', '-o', self._output_dir)
         # Each board has a mkproper, config and then one make per commit
-        self.assertEqual(self._make_calls, len(boards) * (self._commits + 2))
+        self.assertEqual(self._make_calls, len(BOARDS) * (self._commits + 2))
 
     def testErrors(self):
         """Test handling of build errors"""
@@ -580,10 +581,10 @@ class TestFunctional(unittest.TestCase):
 
     def testWorkInOutput(self):
         """Test the -w option which should write directly to the output dir"""
-        board_list = board.Boards()
-        board_list.AddBoard(board.Board(*boards[0]))
+        board_list = boards.Boards()
+        board_list.add_board(board.Board(*BOARDS[0]))
         self._RunControl('-o', self._output_dir, '-w', clean_dir=False,
-                         boards=board_list)
+                         brds=board_list)
         self.assertTrue(
             os.path.exists(os.path.join(self._output_dir, 'u-boot')))
         self.assertTrue(
@@ -599,15 +600,15 @@ class TestFunctional(unittest.TestCase):
         self.assertFalse(
             os.path.exists(os.path.join(self._output_dir, 'u-boot')))
 
-        board_list = board.Boards()
-        board_list.AddBoard(board.Board(*boards[0]))
+        board_list = boards.Boards()
+        board_list.add_board(board.Board(*BOARDS[0]))
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-b', self._test_branch, '-o', self._output_dir,
-                             '-w', clean_dir=False, boards=board_list)
+                             '-w', clean_dir=False, brds=board_list)
         self.assertIn("single commit", str(e.exception))
 
-        board_list = board.Boards()
-        board_list.AddBoard(board.Board(*boards[0]))
+        board_list = boards.Boards()
+        board_list.add_board(board.Board(*BOARDS[0]))
         with self.assertRaises(SystemExit) as e:
             self._RunControl('-w', clean_dir=False)
         self.assertIn("specify -o", str(e.exception))

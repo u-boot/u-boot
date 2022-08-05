@@ -201,7 +201,6 @@ tools_dtoc_test_fdt 6.88
 tools_dtoc_test_src_scan 9.43
 tools_efivar 6.71
 tools_endian-swap 9.29
-tools_genboardscfg 7.95
 tools_microcode-tool 7.25
 tools_moveconfig 8.34
 tools_patman___init__ 0.00

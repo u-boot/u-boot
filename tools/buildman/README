@@ -128,10 +128,10 @@ Selecting which boards to build
 ===============================
 
 Buildman lets you build all boards, or a subset. Specify the subset by passing
-command-line arguments that list the desired board name, architecture name,
-SOC name, or anything else in the boards.cfg file. Multiple arguments are
-allowed. Each argument will be interpreted as a regular expression, so
-behaviour is a superset of exact or substring matching. Examples are:
+command-line arguments that list the desired build target, architecture,
+CPU, board name, vendor, SoC or options. Multiple arguments are allowed. Each
+argument will be interpreted as a regular expression, so behaviour is a superset
+of exact or substring matching. Examples are:
 
 * 'tegra20'      All boards with a Tegra20 SoC
 * 'tegra'        All boards with any Tegra Soc (Tegra20, Tegra30, Tegra114...)
@@ -1054,7 +1054,6 @@ between one commit and the next.
 For example:
 
 $ buildman -b squash brppt1 -sU
-boards.cfg is up to date. Nothing to do.
 Summary of 2 commits for 3 boards (3 threads, 3 jobs per thread)
 01: Migrate bootlimit to Kconfig
 02: Squashed commit of the following:
@@ -1090,6 +1089,21 @@ the -w option, for example:
 
 This will write the full build into /tmp/build including object files. You must
 specify the output directory with -o when using -w.
+
+
+Support for IDEs (Integrated Development Environments)
+======================================================
+
+Normally buildman summarises the output and shows information indicating the
+meaning of each line of output. For example a '+' symbol appears at the start of
+each error line. Also, buildman prints information about what it is about to do,
+along with a summary at the end.
+
+When using buildman from an IDE, it is helpful to drop this behaviour. Use the
+-I/--ide option for that. You might find -W helpful also so that warnings do
+not cause the build to fail:
+
+   buildman -o /tmp/build --board sandbox -wWI
 
 
 Changing the configuration
@@ -1294,6 +1308,19 @@ Some options you might like are:
         break anything. But note this does not check bisectability!
 
 
+Using boards.cfg
+================
+
+This file is no-longer needed by buildman but it is still generated in the
+working directory. This helps avoid a delay on every build, since scanning all
+the Kconfig files takes a few seconds. Use the -R flag to force regeneration
+of the file - in that case buildman exits after writing the file. with exit code
+2 if there was an error in the maintainer files.
+
+You should use 'buildman -nv <criteria>' instead of greoing the boards.cfg file,
+since it may be dropped altogether in future.
+
+
 TODO
 ====
 
@@ -1304,9 +1331,6 @@ scope for more though, e.g.:
 - 'hunting' for problems, perhaps by building a few boards for each arch, or
   checking commits for changed files and building only boards which use those
   files
-- using the same git repo for all threads instead of cloning it. Currently
-  it uses about 500MB per thread, so on a 64-thread machine this is 32GB for
-  the build.
 
 
 Credits
