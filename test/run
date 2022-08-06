@@ -14,27 +14,46 @@ run_test() {
 }
 
 # Select test attributes
+ut_mark_expr=test_ut
 if [ "$1" = "quick" ]; then
 	mark_expr="not slow"
+	ut_mark_expr="test_ut and not slow"
 	skip=--skip-net-tests
 fi
 
 [ "$1" == "tools" ] && tools_only=y
 
+if [ "$1" = "parallel" ]; then
+	if ! echo 'import xdist' | python3 2>/dev/null; then
+		echo "Please install python3-pytest-xdist - see doc/develop/py_testing.rst"
+		exit 1
+	fi
+	jobs="$(($(nproc) > 16 ? 16 : $(nproc)))"
+	para="-n${jobs} -q"
+	prompt="Building and..."
+	skip=--skip-net-tests
+	mark_expr="not slow and not bootstd and not spi_flash"
+	ut_mark_expr="test_ut and not slow and not bootstd and not spi_flash"
+	echo "Note: test log is garbled with parallel tests"
+fi
+
 failures=0
 
 if [ -z "$tools_only" ]; then
 	# Run all tests that the standard sandbox build can support
-	run_test "sandbox" ./test/py/test.py --bd sandbox --build \
+	echo "${prompt}"
+	run_test "sandbox" ./test/py/test.py --bd sandbox --build ${para} \
 		-k "${mark_expr}"
 fi
 
 # Run tests which require sandbox_spl
-run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
+echo "${prompt}"
+run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build ${para} \
 		-k 'test_ofplatdata or test_handoff or test_spl'
 
 # Run the sane tests with sandbox_noinst (i.e. without OF_PLATDATA_INST)
-run_test "sandbox_spl" ./test/py/test.py --bd sandbox_noinst --build \
+echo "${prompt}"
+run_test "sandbox_spl" ./test/py/test.py --bd sandbox_noinst --build ${para} \
 		-k 'test_ofplatdata or test_handoff or test_spl'
 
 if [ -z "$tools_only" ]; then
@@ -42,8 +61,9 @@ if [ -z "$tools_only" ]; then
 	# build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
 	# check that functionality is the same. The standard sandbox build (above) uses
 	# CONFIG_OF_LIVE.
+	echo "${prompt}"
 	run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree \
-		--build -k test_ut
+		${para} --build -k "${ut_mark_expr}"
 fi
 
 # Set up a path to dtc (device-tree compiler) and libfdt.py, a library it
@@ -64,10 +84,14 @@ run_test "dtoc" ./tools/dtoc/dtoc -t
 # This needs you to set up Python test coverage tools.
 # To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 #   $ sudo apt-get install python-pytest python-coverage
-export PATH=$PATH:${TOOLS_DIR}
-run_test "binman code coverage" ./tools/binman/binman test -T
-run_test "dtoc code coverage" ./tools/dtoc/dtoc -T
-run_test "fdt code coverage" ./tools/dtoc/test_fdt -T
+
+# Code-coverage tests cannot run in parallel, so skip them in that case
+if [ -z "${para}" ]; then
+	export PATH=$PATH:${TOOLS_DIR}
+	run_test "binman code coverage" ./tools/binman/binman test -T
+	run_test "dtoc code coverage" ./tools/dtoc/dtoc -T
+	run_test "fdt code coverage" ./tools/dtoc/test_fdt -T
+fi
 
 if [ $failures == 0 ]; then
 	echo "Tests passed!"
