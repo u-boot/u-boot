@@ -245,9 +245,13 @@ hostprogs-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
 HOSTCFLAGS_asn1_compiler.o = -idirafter $(srctree)/include
 
 HOSTCFLAGS_mkeficapsule.o += \
-	$(shell pkg-config --cflags gnutls uuid 2> /dev/null || echo "")
+	$(shell pkg-config --cflags gnutls 2> /dev/null || echo "")
+HOSTCFLAGS_mkeficapsule.o += \
+	$(shell pkg-config --cflags uuid 2> /dev/null || echo "")
 HOSTLDLIBS_mkeficapsule += \
-	$(shell pkg-config --libs gnutls uuid 2> /dev/null || echo "-lgnutls -luuid")
+	$(shell pkg-config --libs gnutls 2> /dev/null || echo "-lgnutls")
+HOSTLDLIBS_mkeficapsule += \
+	$(shell pkg-config --libs uuid 2> /dev/null || echo "-luuid")
 hostprogs-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
 
 # We build some files with extra pedantic flags to try to minimize things
