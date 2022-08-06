@@ -13,6 +13,9 @@ These tests rely on a 4 MB disk image, which is automatically created by
 the test.
 """
 
+# Mark all tests here as slow
+pytestmark = pytest.mark.slow
+
 class GptTestDiskImage(object):
     """Disk Image used by the GPT tests."""
 
