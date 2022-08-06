@@ -10,6 +10,7 @@ output of a fixed data block with known good hashes.
 This test doesn't run the sandbox. It only checks the host tool 'mkimage'
 """
 
+import os
 import pytest
 import u_boot_utils as util
 
@@ -93,7 +94,9 @@ def test_mkimage_hashes(u_boot_console):
     cons = u_boot_console
     mkimage = cons.config.build_dir + '/tools/mkimage'
     datadir = cons.config.source_dir + '/test/py/tests/vboot/'
-    tempdir = cons.config.result_dir
+    tempdir = os.path.join(cons.config.result_dir, 'hashes')
+    os.makedirs(tempdir, exist_ok=True)
+
     fit_file = f'{tempdir}/test.fit'
     dtc('sandbox-kernel.dts')
 
