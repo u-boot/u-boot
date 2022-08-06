@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# (C) Copyright 2022 Broadcom Ltd
+#
+
+if BCM63146
+
+config TARGET_BCM963146
+	bool "Broadcom 63146 Reference Board"
+	depends on ARCH_BCMBCA
+
+config SYS_SOC
+	default "bcm63146"
+
+source "board/broadcom/bcmbca/Kconfig"
+
+endif

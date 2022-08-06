@@ -20,6 +20,13 @@ config BCM63138
 	select DM_SERIAL
 	select BCM6345_SERIAL
 
+config BCM63146
+	bool "Support for Broadcom 63146 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select PL01X_SERIAL
+
 config BCM63148
 	bool "Support for Broadcom 63148 Family"
 	select SYS_ARCH_TIMER
@@ -57,6 +64,7 @@ config BCM6878
 
 source "arch/arm/mach-bcmbca/bcm47622/Kconfig"
 source "arch/arm/mach-bcmbca/bcm63138/Kconfig"
+source "arch/arm/mach-bcmbca/bcm63146/Kconfig"
 source "arch/arm/mach-bcmbca/bcm63148/Kconfig"
 source "arch/arm/mach-bcmbca/bcm63178/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6756/Kconfig"
