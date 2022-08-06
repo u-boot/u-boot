@@ -68,6 +68,7 @@ def test_pinmux_dev(u_boot_console):
 def test_pinmux_status(u_boot_console):
     """Test that 'pinmux status' displays selected pincontroller's pin
     muxing descriptions."""
+    u_boot_console.run_command('pinmux dev pinctrl')
     output = u_boot_console.run_command('pinmux status')
 
     assert (not 'pinctrl-gpio:' in output)
