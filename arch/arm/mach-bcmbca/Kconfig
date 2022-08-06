@@ -12,6 +12,13 @@ config BCM47622
 	select DM_SERIAL
 	select PL01X_SERIAL
 
+config BCM4908
+	bool "Support for Broadcom 4908 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select BCM6345_SERIAL
+
 config BCM4912
 	bool "Support for Broadcom 4912 Family"
 	select ARM64
@@ -77,6 +84,7 @@ config BCM6878
 	select PL01X_SERIAL
 
 source "arch/arm/mach-bcmbca/bcm47622/Kconfig"
+source "arch/arm/mach-bcmbca/bcm4908/Kconfig"
 source "arch/arm/mach-bcmbca/bcm4912/Kconfig"
 source "arch/arm/mach-bcmbca/bcm63138/Kconfig"
 source "arch/arm/mach-bcmbca/bcm63146/Kconfig"
