@@ -15,9 +15,11 @@
 import atexit
 import configparser
 import errno
+import filelock
 import io
 import os
 import os.path
+from pathlib import Path
 import pytest
 import re
 from _pytest.runner import runtestprotocol
@@ -26,6 +28,8 @@ import sys
 # Globals: The HTML log file, and the connection to the U-Boot console.
 log = None
 console = None
+
+TEST_PY_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def mkdir_p(path):
     """Create a directory path.
@@ -111,6 +115,18 @@ def run_build(config, source_dir, build_dir, board_type, log):
         runner.close()
         log.status_pass('OK')
 
+def pytest_xdist_setupnodes(config, specs):
+    """Clear out any 'done' file from a previous build"""
+    global build_done_file
+    build_dir = config.getoption('build_dir')
+    board_type = config.getoption('board_type')
+    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
+    if not build_dir:
+        build_dir = source_dir + '/build-' + board_type
+    build_done_file = Path(build_dir) / 'build.done'
+    if build_done_file.exists():
+        os.remove(build_done_file)
+
 def pytest_configure(config):
     """pytest hook: Perform custom initialization at startup time.
 
@@ -145,8 +161,7 @@ def pytest_configure(config):
     global console
     global ubconfig
 
-    test_py_dir = os.path.dirname(os.path.abspath(__file__))
-    source_dir = os.path.dirname(os.path.dirname(test_py_dir))
+    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
 
     board_type = config.getoption('board_type')
     board_type_filename = board_type.replace('-', '_')
@@ -177,7 +192,13 @@ def pytest_configure(config):
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')
 
     if config.getoption('build'):
-        run_build(config, source_dir, build_dir, board_type, log)
+        worker_id = os.environ.get("PYTEST_XDIST_WORKER")
+        with filelock.FileLock(os.path.join(build_dir, 'build.lock')):
+            build_done_file = Path(build_dir) / 'build.done'
+            if (not worker_id or worker_id == 'master' or
+                not build_done_file.exists()):
+                run_build(config, source_dir, build_dir, board_type, log)
+                build_done_file.touch()
 
     class ArbitraryAttributeContainer(object):
         pass
@@ -209,7 +230,7 @@ def pytest_configure(config):
     else:
         parse_config('include/autoconf.mk')
 
-    ubconfig.test_py_dir = test_py_dir
+    ubconfig.test_py_dir = TEST_PY_DIR
     ubconfig.source_dir = source_dir
     ubconfig.build_dir = build_dir
     ubconfig.result_dir = result_dir
