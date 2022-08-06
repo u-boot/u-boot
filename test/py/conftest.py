@@ -76,6 +76,41 @@ def pytest_addoption(parser):
         help='Run sandbox under gdbserver. The argument is the channel '+
         'over which gdbserver should communicate, e.g. localhost:1234')
 
+def run_build(config, source_dir, build_dir, board_type, log):
+    """run_build: Build U-Boot
+
+    Args:
+        config: The pytest configuration.
+        soruce_dir (str): Directory containing source code
+        build_dir (str): Directory to build in
+        board_type (str): board_type parameter (e.g. 'sandbox')
+        log (Logfile): Log file to use
+    """
+    if config.getoption('buildman'):
+        if build_dir != source_dir:
+            dest_args = ['-o', build_dir, '-w']
+        else:
+            dest_args = ['-i']
+        cmds = (['buildman', '--board', board_type] + dest_args,)
+        name = 'buildman'
+    else:
+        if build_dir != source_dir:
+            o_opt = 'O=%s' % build_dir
+        else:
+            o_opt = ''
+        cmds = (
+            ['make', o_opt, '-s', board_type + '_defconfig'],
+            ['make', o_opt, '-s', '-j{}'.format(os.cpu_count())],
+        )
+        name = 'make'
+
+    with log.section(name):
+        runner = log.get_runner(name, sys.stdout)
+        for cmd in cmds:
+            runner.run(cmd, cwd=source_dir)
+        runner.close()
+        log.status_pass('OK')
+
 def pytest_configure(config):
     """pytest hook: Perform custom initialization at startup time.
 
@@ -142,30 +177,7 @@ def pytest_configure(config):
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')
 
     if config.getoption('build'):
-        if config.getoption('buildman'):
-            if build_dir != source_dir:
-                dest_args = ['-o', build_dir, '-w']
-            else:
-                dest_args = ['-i']
-            cmds = (['buildman', '--board', board_type] + dest_args,)
-            name = 'buildman'
-        else:
-            if build_dir != source_dir:
-                o_opt = 'O=%s' % build_dir
-            else:
-                o_opt = ''
-            cmds = (
-                ['make', o_opt, '-s', board_type + '_defconfig'],
-                ['make', o_opt, '-s', '-j{}'.format(os.cpu_count())],
-            )
-            name = 'make'
-
-        with log.section(name):
-            runner = log.get_runner(name, sys.stdout)
-            for cmd in cmds:
-                runner.run(cmd, cwd=source_dir)
-            runner.close()
-            log.status_pass('OK')
+        run_build(config, source_dir, build_dir, board_type, log)
 
     class ArbitraryAttributeContainer(object):
         pass
