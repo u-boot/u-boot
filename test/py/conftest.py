@@ -521,6 +521,22 @@ def setup_requiredtool(item):
         if not tool_is_in_path(tool):
             pytest.skip('tool "%s" not in $PATH' % tool)
 
+def setup_singlethread(item):
+    """Process any 'singlethread' marker for a test.
+
+    Skip this test if running in parallel.
+
+    Args:
+        item: The pytest test item.
+
+    Returns:
+        Nothing.
+    """
+    for single in item.iter_markers('singlethread'):
+        worker_id = os.environ.get("PYTEST_XDIST_WORKER")
+        if worker_id and worker_id != 'master':
+            pytest.skip('must run single-threaded')
+
 def start_test_section(item):
     anchors[item.name] = log.start_section(item.name)
 
@@ -541,6 +557,7 @@ def pytest_runtest_setup(item):
     setup_boardspec(item)
     setup_buildconfigspec(item)
     setup_requiredtool(item)
+    setup_singlethread(item)
 
 def pytest_runtest_protocol(item, nextitem):
     """pytest hook: Called to execute a test.
