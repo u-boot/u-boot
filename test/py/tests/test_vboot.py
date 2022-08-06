@@ -42,7 +42,7 @@ import vboot_evil
 
 # Only run the full suite on a few combinations, since it doesn't add any more
 # test coverage.
-TESTDATA = [
+TESTDATA_IN = [
     ['sha1-basic', 'sha1', '', None, False, True, False, False],
     ['sha1-pad', 'sha1', '', '-E -p 0x10000', False, False, False, False],
     ['sha1-pss', 'sha1', '-pss', None, False, False, False, False],
@@ -59,6 +59,10 @@ TESTDATA = [
     ['sha256-global-sign', 'sha256', '', '', False, False, False, True],
     ['sha256-global-sign-pss', 'sha256', '-pss', '', False, False, False, True],
 ]
+
+# Mark all but the first test as slow, so they are not run with '-k not slow'
+TESTDATA = [TESTDATA_IN[0]]
+TESTDATA += [pytest.param(*v, marks=pytest.mark.slow) for v in TESTDATA_IN[1:]]
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit_signature')
