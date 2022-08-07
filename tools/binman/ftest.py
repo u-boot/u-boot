@@ -5453,7 +5453,16 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             err)
 
     def checkFitSplitElf(self, **kwargs):
-        """Test an split-elf FIT with a missing ELF file"""
+        """Test an split-elf FIT with a missing ELF file
+
+        Args:
+            kwargs (dict of str): Arguments to pass to _DoTestFile()
+
+        Returns:
+            tuple:
+                str: stdout result
+                str: stderr result
+        """
         entry_args = {
             'of-list': 'test-fdt1 test-fdt2',
             'default-dt': 'test-fdt2',
@@ -5464,23 +5473,32 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         with test_util.capture_sys_output() as (stdout, stderr):
             self._DoTestFile(
                 '226_fit_split_elf.dts', entry_args=entry_args,
-                extra_indirs=[test_subdir], **kwargs)
-        err = stderr.getvalue()
-        return err
+                extra_indirs=[test_subdir], verbosity=3, **kwargs)
+            out = stdout.getvalue()
+            err = stderr.getvalue()
+        return out, err
 
     def testFitSplitElfMissing(self):
         """Test an split-elf FIT with a missing ELF file"""
-        err = self.checkFitSplitElf(allow_missing=True)
+        out, err = self.checkFitSplitElf(allow_missing=True)
         self.assertRegex(
             err,
             "Image '.*' is missing external blobs and is non-functional: .*")
+        self.assertNotRegex(out, '.*Faked blob.*')
+        fname = tools.get_output_filename('binman-fake/missing.elf')
+        self.assertFalse(os.path.exists(fname))
 
     def testFitSplitElfFaked(self):
         """Test an split-elf FIT with faked ELF file"""
-        err = self.checkFitSplitElf(allow_missing=True, allow_fake_blobs=True)
+        out, err = self.checkFitSplitElf(allow_missing=True, allow_fake_blobs=True)
         self.assertRegex(
             err,
             "Image '.*' is missing external blobs and is non-functional: .*")
+        self.assertRegex(
+            out,
+            "Entry '/binman/fit/images/@tee-SEQ/tee-os': Faked blob '.*binman-fake/missing.elf")
+        fname = tools.get_output_filename('binman-fake/missing.elf')
+        self.assertTrue(os.path.exists(fname))
 
     def testPreLoad(self):
         """Test an image with a pre-load header"""

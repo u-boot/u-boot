@@ -9,6 +9,7 @@ import importlib
 import os
 import pathlib
 import sys
+import time
 
 from binman import bintool
 from binman import comp_util
@@ -82,7 +83,10 @@ class Entry(object):
         missing_bintools: List of missing bintools for this entry
         update_hash: True if this entry's "hash" subnode should be
             updated with a hash of the entry contents
+        fake_fname: Fake filename, if one was created, else None
     """
+    fake_dir = None
+
     def __init__(self, section, etype, node, name_prefix=''):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
@@ -116,6 +120,7 @@ class Entry(object):
         self.bintools = {}
         self.missing_bintools = []
         self.update_hash = True
+        self.fake_fname = None
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -1014,12 +1019,14 @@ features to produce new behaviours.
                 bool: True if the blob was faked, False if not
         """
         if self.allow_fake and not pathlib.Path(fname).is_file():
-            outfname = tools.get_output_filename(os.path.basename(fname))
-            with open(outfname, "wb") as out:
-                out.truncate(size)
+            if not self.fake_fname:
+                outfname = os.path.join(self.fake_dir, os.path.basename(fname))
+                with open(outfname, "wb") as out:
+                    out.truncate(size)
+                tout.info(f"Entry '{self._node.path}': Faked blob '{outfname}'")
+                self.fake_fname = outfname
             self.faked = True
-            tout.info(f"Entry '{self._node.path}': Faked file '{outfname}'")
-            return outfname, True
+            return self.fake_fname, True
         return fname, False
 
     def CheckFakedBlobs(self, faked_blobs_list):
@@ -1169,3 +1176,11 @@ features to produce new behaviours.
         fname = tools.get_output_filename(f'{prefix}.{uniq}')
         tools.write_file(fname, data)
         return data, fname, uniq
+
+    @classmethod
+    def create_fake_dir(cls):
+        """Create the directory for fake files"""
+        cls.fake_dir = tools.get_output_filename('binman-fake')
+        if not os.path.exists(cls.fake_dir):
+            os.mkdir(cls.fake_dir)
+        tout.notice(f"Fake-blob dir is '{cls.fake_dir}'")

@@ -16,8 +16,9 @@ from patman import tools
 
 from binman import bintool
 from binman import cbfs_util
-from binman import elf
 from patman import command
+from binman import elf
+from binman import entry
 from patman import tout
 
 # These are imported if needed since they import libfdt
@@ -717,6 +718,13 @@ def Binman(args):
             bintool.Bintool.set_missing_list(
                 args.force_missing_bintools.split(',') if
                 args.force_missing_bintools else None)
+
+            # Create the directory here instead of Entry.check_fake_fname()
+            # since that is called from a threaded context so different threads
+            # may race to create the directory
+            if args.fake_ext_blobs:
+                entry.Entry.create_fake_dir()
+
             for image in images.values():
                 invalid |= ProcessImage(image, args.update_fdt, args.map,
                                        allow_missing=args.allow_missing,
