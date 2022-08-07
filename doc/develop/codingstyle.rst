@@ -248,5 +248,5 @@ will be much faster (10-100x or more) if they can directly call run_command()
 and ut_check_console_line() instead of using Python to send commands over a
 pipe to U-Boot.
 
-Tests run all supported CI systems (gitlab, travis, azure) using scripts in the
-root of the U-Boot tree.
+Tests run all supported CI systems (GitLab, Azure) using scripts in the root of
+the U-Boot tree.
