@@ -33,7 +33,7 @@ int cmd_ubifs_mount(char *vol_name)
 
 	ret = uboot_ubifs_mount(vol_name);
 	if (ret)
-		return -1;
+		return CMD_RET_FAILURE;
 
 	ubifs_mounted = 1;
 
@@ -62,7 +62,7 @@ int cmd_ubifs_umount(void)
 {
 	if (ubifs_initialized == 0) {
 		printf("No UBIFS volume mounted!\n");
-		return -1;
+		return CMD_RET_FAILURE;
 	}
 
 	uboot_ubifs_umount();
@@ -89,7 +89,7 @@ static int do_ubifs_ls(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (!ubifs_mounted) {
 		printf("UBIFS not mounted, use ubifsmount to mount volume first!\n");
-		return -1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (argc == 2)
@@ -116,7 +116,7 @@ static int do_ubifs_load(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (!ubifs_mounted) {
 		printf("UBIFS not mounted, use ubifs mount to mount volume first!\n");
-		return -1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (argc < 3)
