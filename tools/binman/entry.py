@@ -750,6 +750,11 @@ features to produce new behaviours.
                 first_line = lines[0]
                 rest = [line[4:] for line in lines[1:]]
                 hdr = 'Entry: %s: %s' % (name.replace('_', '-'), first_line)
+
+                # Create a reference for use by rST docs
+                ref_name = f'etype_{module.__name__[6:]}'.lower()
+                print('.. _%s:' % ref_name)
+                print()
                 print(hdr)
                 print('-' * len(hdr))
                 print('\n'.join(rest))
