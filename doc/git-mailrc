@@ -111,7 +111,6 @@ alias x86            uboot, sjg, bmeng
 alias dm             uboot, sjg
 alias cfi            uboot, stroese
 alias dfu            uboot, lukma
-alias efi            uboot, agraf
 alias eth            uboot, jhersh
 alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
