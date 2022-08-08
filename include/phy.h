@@ -412,6 +412,8 @@ static inline bool phy_interface_is_sgmii(struct phy_device *phydev)
 		phydev->interface <= PHY_INTERFACE_MODE_QSGMII;
 }
 
+bool phy_interface_is_ncsi(void);
+
 /* PHY UIDs for various PHYs that are referenced in external code */
 #define PHY_UID_CS4340		0x13e51002
 #define PHY_UID_CS4223		0x03e57003

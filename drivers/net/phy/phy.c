@@ -1026,7 +1026,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #endif
 
 #ifdef CONFIG_PHY_NCSI
-	if (!phydev)
+	if (!phydev && interface == PHY_INTERFACE_MODE_NCSI)
 		phydev = phy_device_create(bus, 0, PHY_NCSI_ID, false);
 #endif
 
@@ -1274,4 +1274,11 @@ int phy_clear_bits_mmd(struct phy_device *phydev, int devad, u32 regnum, u16 val
 		return ret;
 
 	return 0;
+}
+
+bool phy_interface_is_ncsi(void)
+{
+	struct eth_pdata *pdata = dev_get_plat(eth_get_dev());
+
+	return pdata->phy_interface == PHY_INTERFACE_MODE_NCSI;
 }
