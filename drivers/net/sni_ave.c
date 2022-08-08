@@ -483,7 +483,10 @@ static int ave_start(struct udevice *dev)
 	priv->rx_siz = (PKTSIZE_ALIGN - priv->rx_off);
 
 	val = 0;
-	if (priv->phy_mode != PHY_INTERFACE_MODE_RGMII)
+	if (priv->phy_mode != PHY_INTERFACE_MODE_RGMII &&
+	    priv->phy_mode != PHY_INTERFACE_MODE_RGMII_ID &&
+	    priv->phy_mode != PHY_INTERFACE_MODE_RGMII_RXID &&
+	    priv->phy_mode != PHY_INTERFACE_MODE_RGMII_TXID)
 		val |= AVE_CFGR_MII;
 	writel(val, priv->iobase + AVE_CFGR);
 
@@ -639,6 +642,9 @@ static int ave_pro4_get_pinmode(struct ave_private *priv)
 		break;
 	case PHY_INTERFACE_MODE_MII:
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
 		break;
 	default:
 		return -EINVAL;
@@ -693,6 +699,9 @@ static int ave_ld20_get_pinmode(struct ave_private *priv)
 		val  = SG_ETPINMODE_RMII(0);
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
 		break;
 	default:
 		return -EINVAL;
@@ -720,6 +729,9 @@ static int ave_pxs3_get_pinmode(struct ave_private *priv)
 		val = SG_ETPINMODE_RMII(priv->regmap_arg);
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
 		break;
 	default:
 		return -EINVAL;

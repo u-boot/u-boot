@@ -34,6 +34,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <eth_phy.h>
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -46,7 +47,6 @@
 #include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <eth_phy.h>
 #ifdef CONFIG_ARCH_IMX8M
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/sys_proto.h>
@@ -789,9 +789,6 @@ static int eqos_start(struct udevice *dev)
 	if (!eqos->phy) {
 		int addr = -1;
 		addr = eqos_get_phy_addr(eqos, dev);
-#ifdef DWC_NET_PHYADDR
-		addr = DWC_NET_PHYADDR;
-#endif
 		eqos->phy = phy_connect(eqos->mii, addr, dev,
 					eqos->config->interface(dev));
 		if (!eqos->phy) {
@@ -1399,8 +1396,6 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	if (ret)
 		return -EINVAL;
 
-	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
-
 	ret = clk_get_by_name(dev, "stmmaceth", &eqos->clk_master_bus);
 	if (ret) {
 		pr_err("clk_get_by_name(master_bus) failed: %d", ret);
@@ -1503,6 +1498,8 @@ static int eqos_probe(struct udevice *dev)
 	eqos->dma_regs = (void *)(eqos->regs + EQOS_DMA_REGS_BASE);
 	eqos->tegra186_regs = (void *)(eqos->regs + EQOS_TEGRA186_REGS_BASE);
 
+	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+
 	ret = eqos_probe_resources_core(dev);
 	if (ret < 0) {
 		pr_err("eqos_probe_resources_core() failed: %d", ret);
@@ -1574,7 +1571,7 @@ static int eqos_remove(struct udevice *dev)
 	eqos->config->ops->eqos_stop_clks(dev);
 	eqos->config->ops->eqos_remove_resources(dev);
 
-	eqos_probe_resources_core(dev);
+	eqos_remove_resources_core(dev);
 
 	debug("%s: OK\n", __func__);
 	return 0;
@@ -1609,6 +1606,7 @@ static struct eqos_ops eqos_tegra186_ops = {
 	.eqos_calibrate_pads = eqos_calibrate_pads_tegra186,
 	.eqos_disable_calibration = eqos_disable_calibration_tegra186,
 	.eqos_set_tx_clk_speed = eqos_set_tx_clk_speed_tegra186,
+	.eqos_get_enetaddr = eqos_null_ops,
 	.eqos_get_tick_clk_rate = eqos_get_tick_clk_rate_tegra186
 };
 
@@ -1637,6 +1635,7 @@ static struct eqos_ops eqos_stm32_ops = {
 	.eqos_calibrate_pads = eqos_null_ops,
 	.eqos_disable_calibration = eqos_null_ops,
 	.eqos_set_tx_clk_speed = eqos_null_ops,
+	.eqos_get_enetaddr = eqos_null_ops,
 	.eqos_get_tick_clk_rate = eqos_get_tick_clk_rate_stm32
 };
 

@@ -666,10 +666,10 @@ static int dm9000_recv(struct udevice *dev, int flags, uchar **packetp)
 	int ret;
 
 	ret = dm9000_recv_common(db, data);
-	if (ret)
+	if (ret > 0)
 		*packetp = (void *)data;
 
-	return ret ? ret : -EAGAIN;
+	return ret >= 0 ? ret : -EAGAIN;
 }
 
 static int dm9000_write_hwaddr(struct udevice *dev)

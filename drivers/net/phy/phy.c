@@ -984,10 +984,10 @@ struct phy_device *fixed_phy_create(ofnode node)
 	}
 
 	phydev = phy_device_create(NULL, 0, PHY_FIXED_ID, false);
-	if (phydev)
+	if (phydev) {
 		phydev->node = subnode;
-
-	phydev->interface = ofnode_read_phy_mode(node);
+		phydev->interface = ofnode_read_phy_mode(node);
+	}
 
 	return phydev;
 }
@@ -1100,4 +1100,178 @@ int phy_modify(struct phy_device *phydev, int devad, int regnum, u16 mask,
 		return ret;
 
 	return phy_write(phydev, devad, regnum, (ret & ~mask) | set);
+}
+
+/**
+ * phy_read - Convenience function for reading a given PHY register
+ * @phydev: the phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: register number to read
+ * @return: value for success or negative errno for failure
+ */
+int phy_read(struct phy_device *phydev, int devad, int regnum)
+{
+	struct mii_dev *bus = phydev->bus;
+
+	if (!bus || !bus->read) {
+		debug("%s: No bus configured\n", __func__);
+		return -1;
+	}
+
+	return bus->read(bus, phydev->addr, devad, regnum);
+}
+
+/**
+ * phy_write - Convenience function for writing a given PHY register
+ * @phydev: the phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: register number to write
+ * @val: value to write to @regnum
+ * @return: 0 for success or negative errno for failure
+ */
+int phy_write(struct phy_device *phydev, int devad, int regnum, u16 val)
+{
+	struct mii_dev *bus = phydev->bus;
+
+	if (!bus || !bus->write) {
+		debug("%s: No bus configured\n", __func__);
+		return -1;
+	}
+
+	return bus->write(bus, phydev->addr, devad, regnum, val);
+}
+
+/**
+ * phy_mmd_start_indirect - Convenience function for writing MMD registers
+ * @phydev: the phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: register number to write
+ * @return: None
+ */
+void phy_mmd_start_indirect(struct phy_device *phydev, int devad, int regnum)
+{
+	/* Write the desired MMD Devad */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_CTRL, devad);
+
+	/* Write the desired MMD register address */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA, regnum);
+
+	/* Select the Function : DATA with no post increment */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_CTRL,
+		  (devad | MII_MMD_CTRL_NOINCR));
+}
+
+/**
+ * phy_read_mmd - Convenience function for reading a register
+ * from an MMD on a given PHY.
+ * @phydev: The phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: The register on the MMD to read
+ * @return: Value for success or negative errno for failure
+ */
+int phy_read_mmd(struct phy_device *phydev, int devad, int regnum)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (regnum > (u16)~0 || devad > 32)
+		return -EINVAL;
+
+	/* driver-specific access */
+	if (drv->read_mmd)
+		return drv->read_mmd(phydev, devad, regnum);
+
+	/* direct C45 / C22 access */
+	if ((drv->features & PHY_10G_FEATURES) == PHY_10G_FEATURES ||
+	    devad == MDIO_DEVAD_NONE || !devad)
+		return phy_read(phydev, devad, regnum);
+
+	/* indirect C22 access */
+	phy_mmd_start_indirect(phydev, devad, regnum);
+
+	/* Read the content of the MMD's selected register */
+	return phy_read(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA);
+}
+
+/**
+ * phy_write_mmd - Convenience function for writing a register
+ * on an MMD on a given PHY.
+ * @phydev: The phy_device struct
+ * @devad: The MMD to read from
+ * @regnum: The register on the MMD to read
+ * @val: value to write to @regnum
+ * @return: 0 for success or negative errno for failure
+ */
+int phy_write_mmd(struct phy_device *phydev, int devad, int regnum, u16 val)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (regnum > (u16)~0 || devad > 32)
+		return -EINVAL;
+
+	/* driver-specific access */
+	if (drv->write_mmd)
+		return drv->write_mmd(phydev, devad, regnum, val);
+
+	/* direct C45 / C22 access */
+	if ((drv->features & PHY_10G_FEATURES) == PHY_10G_FEATURES ||
+	    devad == MDIO_DEVAD_NONE || !devad)
+		return phy_write(phydev, devad, regnum, val);
+
+	/* indirect C22 access */
+	phy_mmd_start_indirect(phydev, devad, regnum);
+
+	/* Write the data into MMD's selected register */
+	return phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA, val);
+}
+
+/**
+ * phy_set_bits_mmd - Convenience function for setting bits in a register
+ * on MMD
+ * @phydev: the phy_device struct
+ * @devad: the MMD containing register to modify
+ * @regnum: register number to modify
+ * @val: bits to set
+ * @return: 0 for success or negative errno for failure
+ */
+int phy_set_bits_mmd(struct phy_device *phydev, int devad, u32 regnum, u16 val)
+{
+	int value, ret;
+
+	value = phy_read_mmd(phydev, devad, regnum);
+	if (value < 0)
+		return value;
+
+	value |= val;
+
+	ret = phy_write_mmd(phydev, devad, regnum, value);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+/**
+ * phy_clear_bits_mmd - Convenience function for clearing bits in a register
+ * on MMD
+ * @phydev: the phy_device struct
+ * @devad: the MMD containing register to modify
+ * @regnum: register number to modify
+ * @val: bits to clear
+ * @return: 0 for success or negative errno for failure
+ */
+int phy_clear_bits_mmd(struct phy_device *phydev, int devad, u32 regnum, u16 val)
+{
+	int value, ret;
+
+	value = phy_read_mmd(phydev, devad, regnum);
+	if (value < 0)
+		return value;
+
+	value &= ~val;
+
+	ret = phy_write_mmd(phydev, devad, regnum, value);
+	if (ret < 0)
+		return ret;
+
+	return 0;
 }
