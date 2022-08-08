@@ -188,7 +188,7 @@ static int ftgmac100_phy_adjust_link(struct ftgmac100_data *priv)
 	struct phy_device *phydev = priv->phydev;
 	u32 maccr;
 
-	if (!phydev->link) {
+	if (!phydev->link && priv->phy_mode != PHY_INTERFACE_MODE_NCSI) {
 		dev_err(phydev->dev, "No link\n");
 		return -EREMOTEIO;
 	}
@@ -228,7 +228,8 @@ static int ftgmac100_phy_init(struct udevice *dev)
 	if (!phydev)
 		return -ENODEV;
 
-	phydev->supported &= PHY_GBIT_FEATURES;
+	if (priv->phy_mode != PHY_INTERFACE_MODE_NCSI)
+		phydev->supported &= PHY_GBIT_FEATURES;
 	if (priv->max_speed) {
 		ret = phy_set_supported(phydev, priv->max_speed);
 		if (ret)
@@ -308,7 +309,8 @@ static void ftgmac100_stop(struct udevice *dev)
 
 	writel(0, &ftgmac100->maccr);
 
-	phy_shutdown(priv->phydev);
+	if (priv->phy_mode != PHY_INTERFACE_MODE_NCSI)
+		phy_shutdown(priv->phydev);
 }
 
 static int ftgmac100_start(struct udevice *dev)
@@ -580,6 +582,9 @@ static int ftgmac100_probe(struct udevice *dev)
 	priv->max_speed = pdata->max_speed;
 	priv->phy_addr = 0;
 
+	if (dev_read_bool(dev, "use-ncsi"))
+		priv->phy_mode = PHY_INTERFACE_MODE_NCSI;
+
 #ifdef CONFIG_PHY_ADDR
 	priv->phy_addr = CONFIG_PHY_ADDR;
 #endif
@@ -592,7 +597,8 @@ static int ftgmac100_probe(struct udevice *dev)
 	 * If DM MDIO is enabled, the MDIO bus will be initialized later in
 	 * dm_eth_phy_connect
 	 */
-	if (!IS_ENABLED(CONFIG_DM_MDIO)) {
+	if (priv->phy_mode != PHY_INTERFACE_MODE_NCSI &&
+	    !IS_ENABLED(CONFIG_DM_MDIO)) {
 		ret = ftgmac100_mdio_init(dev);
 		if (ret) {
 			dev_err(dev, "Failed to initialize mdiobus: %d\n", ret);
