@@ -66,7 +66,7 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	if (ret)
 		ret = fit_image_get_load(spl_image->fdt_addr, uboot_node, &uboot_entry);
 
-	/* Prepare obensbi_info object */
+	/* Prepare opensbi_info object */
 	opensbi_info.magic = FW_DYNAMIC_INFO_MAGIC_VALUE;
 	opensbi_info.version = FW_DYNAMIC_INFO_VERSION;
 	opensbi_info.next_addr = uboot_entry;
