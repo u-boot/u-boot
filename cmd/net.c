@@ -16,6 +16,7 @@
 #include <net.h>
 #include <net/udp.h>
 #include <net/sntp.h>
+#include <net/ncsi.h>
 
 static int netboot_common(enum proto_t, struct cmd_tbl *, int, char * const []);
 
@@ -566,3 +567,24 @@ U_BOOT_CMD(
 	"list - list available devices\n"
 );
 #endif // CONFIG_DM_ETH
+
+#if defined(CONFIG_CMD_NCSI)
+static int do_ncsi(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (!phy_interface_is_ncsi() || !ncsi_active()) {
+		printf("Device not configured for NC-SI\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (net_loop(NCSI) < 0)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(
+	ncsi,	1,	1,	do_ncsi,
+	"Configure attached NIC via NC-SI",
+	""
+);
+#endif  /* CONFIG_CMD_NCSI */
