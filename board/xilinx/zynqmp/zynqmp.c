@@ -661,13 +661,13 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		bootseq = mmc_get_env_dev();
 		if (!multiboot)
 			snprintf(buf, DFU_ALT_BUF_LEN,
-				 "mmc %d:1=boot.bin fat %d 1;"
+				 "mmc %d=boot.bin fat %d 1;"
 				 "%s fat %d 1",
 				 bootseq, bootseq,
 				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
 		else
 			snprintf(buf, DFU_ALT_BUF_LEN,
-				 "mmc %d:1=boot%04d.bin fat %d 1;"
+				 "mmc %d=boot%04d.bin fat %d 1;"
 				 "%s fat %d 1",
 				 bootseq, multiboot, bootseq,
 				 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);

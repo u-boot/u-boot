@@ -176,7 +176,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 	case ZYNQ_BM_SD:
 		snprintf(buf, DFU_ALT_BUF_LEN,
-			 "mmc 0:1=boot.bin fat 0 1;"
+			 "mmc 0=boot.bin fat 0 1;"
 			 "%s fat 0 1", CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 		break;
 	case ZYNQ_BM_QSPI:
