@@ -77,7 +77,7 @@ static int do_efi_capsule_update(struct cmd_tbl *cmdtp, int flag,
 
 	ret = EFI_CALL(RT->update_capsule(&capsule, 1, 0));
 	if (ret) {
-		printf("Cannot handle a capsule at %p", capsule);
+		printf("Cannot handle a capsule at %p\n", capsule);
 		return CMD_RET_FAILURE;
 	}
 
