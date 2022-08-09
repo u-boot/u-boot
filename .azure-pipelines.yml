@@ -517,9 +517,7 @@ stages:
         non_fsl_ppc:
           BUILDMAN: "powerpc -x freescale"
         mpc85xx_freescale:
-          BUILDMAN: "mpc85xx&freescale -x t208xrdb -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x bsc91*"
-        t208xrdb_corenet_ds:
-          BUILDMAN: "t208xrdb corenet_ds"
+          BUILDMAN: "mpc85xx&freescale -x t102* -x p1_p2_rdb_pc -x p1010rdb -x bsc91*"
         fsl_ppc:
           BUILDMAN: "mpc83xx&freescale"
         t102x:

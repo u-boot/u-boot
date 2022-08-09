@@ -61,7 +61,7 @@ Following steps describe it in detail.
 Board specific configuration file specifications:
 ------------------------------------------------
 1. Configuration files rcw.cfg and pbi.cfg must present in the
-board/freescale/corenet_ds/, rcw.cfg is for RCW, pbi.cfg is for
+board/freescale/<BOARD>/ directory, rcw.cfg is for RCW, pbi.cfg is for
 PBI instructions. File name must not be changed since they are used
 in Makefile.
 2. These files can have empty lines and lines starting with "#" as first
