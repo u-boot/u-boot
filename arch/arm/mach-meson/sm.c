@@ -82,10 +82,7 @@ ssize_t meson_sm_write_efuse(uintptr_t offset, void *buffer, size_t size)
 
 	smc_call(&regs);
 
-	if (regs.regs[0] == 0)
-		return -1;
-
-	return 0;
+	return regs.regs[0];
 }
 
 #define SM_CHIP_ID_LENGTH	119
@@ -222,7 +219,7 @@ static int do_efuse_read(struct cmd_tbl *cmdtp, int flag, int argc,
         address = simple_strtoul(argv[3], NULL, 0);
 
 	ret = meson_sm_read_efuse(offset, (void *)address, size);
-	if (ret)
+	if (ret != size)
 		return CMD_RET_FAILURE;
 
 	return CMD_RET_SUCCESS;
@@ -243,7 +240,7 @@ static int do_efuse_write(struct cmd_tbl *cmdtp, int flag, int argc,
         address = simple_strtoul(argv[3], NULL, 0);
 
 	ret = meson_sm_write_efuse(offset, (void *)address, size);
-	if (ret)
+	if (ret != size)
 		return CMD_RET_FAILURE;
 
 	return CMD_RET_SUCCESS;
