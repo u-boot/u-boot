@@ -1,6 +1,6 @@
 variables:
   windows_vm: windows-2019
-  ubuntu_vm: ubuntu-18.04
+  ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-10.15
   ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220302-15Mar2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
