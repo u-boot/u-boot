@@ -99,16 +99,6 @@ struct armada_37xx_pinctrl {
 	unsigned int			nfuncs;
 };
 
-#define PIN_GRP(_name, _start, _nr, _mask, _func1, _func2)	\
-	{					\
-		.name = _name,			\
-		.start_pin = _start,		\
-		.npins = _nr,			\
-		.reg_mask = _mask,		\
-		.val = {0, _mask},		\
-		.funcs = {_func1, _func2}	\
-	}
-
 #define PIN_GRP_GPIO_0(_name, _start, _nr)	\
 	{					\
 		.name = _name,			\
@@ -200,9 +190,11 @@ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 	PIN_GRP_GPIO("pcie1", 3, 1, BIT(5), "pcie"), /* this actually controls "pcie1_reset" */
 	PIN_GRP_GPIO("pcie1_clkreq", 4, 1, BIT(9), "pcie"),
 	PIN_GRP_GPIO("pcie1_wakeup", 5, 1, BIT(10), "pcie"),
-	PIN_GRP_GPIO("ptp", 20, 3, BIT(11) | BIT(12) | BIT(13), "ptp"),
-	PIN_GRP("ptp_clk", 21, 1, BIT(6), "ptp", "mii"),
-	PIN_GRP("ptp_trig", 22, 1, BIT(7), "ptp", "mii"),
+	PIN_GRP_GPIO("ptp", 20, 1, BIT(11), "ptp"),
+	PIN_GRP_GPIO_3("ptp_clk", 21, 1, BIT(6) | BIT(12), 0, BIT(6), BIT(12),
+		       "ptp", "mii"),
+	PIN_GRP_GPIO_3("ptp_trig", 22, 1, BIT(7) | BIT(13), 0, BIT(7), BIT(13),
+		       "ptp", "mii"),
 	PIN_GRP_GPIO_3("mii_col", 23, 1, BIT(8) | BIT(14), 0, BIT(8), BIT(14),
 		       "mii", "mii_err"),
 };
@@ -414,7 +406,17 @@ static int armada_37xx_pmx_get_pin_muxing(struct udevice *dev, unsigned int sele
 
 			for (f = 0; f < NB_FUNCS && grp->funcs[f]; f++) {
 				if (grp->val[f] == val) {
-					strlcpy(buf, grp->funcs[f], size);
+					/*
+					 * In more cases group name consist of
+					 * function name followed by function
+					 * number. So if function name is just
+					 * prefix of group name, show group name.
+					 */
+					if (strncmp(grp->name, grp->funcs[f],
+						    strlen(grp->funcs[f])) == 0)
+						strlcpy(buf, grp->name, size);
+					else
+						strlcpy(buf, grp->funcs[f], size);
 					return 0;
 				}
 			}

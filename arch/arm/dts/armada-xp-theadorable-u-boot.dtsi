@@ -1,6 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0
-
-&watchdog {
+&lcd0 {
 	u-boot,dm-pre-reloc;
 };
 

@@ -271,6 +271,13 @@ u32 spl_boot_device(void)
 	}
 }
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+	if (spl_boot_list[0] != BOOT_DEVICE_BOOTROM)
+		spl_boot_list[1] = BOOT_DEVICE_BOOTROM;
+}
+
 #else
 
 u32 spl_boot_device(void)

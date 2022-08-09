@@ -13,11 +13,12 @@
 #include <linux/io.h>
 #include <miiphy.h>
 #include <netdev.h>
-#include <status_led.h>
+#include <led.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
-#include <asm/arch/gpio.h>
+#include <asm-generic/gpio.h>
+#include <dm.h>
 
 /* Note: GPIO differences between specific boards
  *
@@ -37,44 +38,7 @@
 #define SBX81LIFKW_OE_VAL_LOW	 (BIT(31) | BIT(30) | BIT(28) | BIT(27))
 #define SBX81LIFKW_OE_VAL_HIGH	 (BIT(0) | BIT(1))
 
-#define MV88E6097_RESET		27
-
 DECLARE_GLOBAL_DATA_PTR;
-
-struct led {
-	u32 reg;
-	u32 value;
-	u32 mask;
-};
-
-struct led amber_solid = {
-	MVEBU_GPIO0_BASE,
-	BIT(10),
-	BIT(18) | BIT(10)
-};
-
-struct led green_solid = {
-	MVEBU_GPIO0_BASE,
-	BIT(18) | BIT(10),
-	BIT(18) | BIT(10)
-};
-
-struct led amber_flash = {
-	MVEBU_GPIO0_BASE,
-	0,
-	BIT(18) | BIT(10)
-};
-
-struct led green_flash = {
-	MVEBU_GPIO0_BASE,
-	BIT(18),
-	BIT(18) | BIT(10)
-};
-
-static void status_led_set(struct led *led)
-{
-	clrsetbits_le32(led->reg, led->mask, led->value);
-}
 
 int board_early_init_f(void)
 {
@@ -165,8 +129,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
-	status_led_set(&amber_solid);
-
 	return 0;
 }
 
@@ -180,11 +142,23 @@ void reset_phy(void)
 #ifdef CONFIG_MV88E61XX_SWITCH
 int mv88e61xx_hw_reset(struct phy_device *phydev)
 {
+	struct gpio_desc desc;
+	int ret;
+
+	ret = dm_gpio_lookup_name("mvebu0_27", &desc);
+	if (ret)
+		return ret;
+
+	ret = dm_gpio_request(&desc, "linkstreet_rst");
+	if (ret)
+		return ret;
+
 	/* Ensure the 88e6097 gets at least 10ms Reset
 	 */
-	kw_gpio_set_value(MV88E6097_RESET, 0);
+	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+	dm_gpio_set_value(&desc, 0);
 	mdelay(20);
-	kw_gpio_set_value(MV88E6097_RESET, 1);
+	dm_gpio_set_value(&desc, 1);
 	mdelay(20);
 
 	phydev->advertising = ADVERTISED_10baseT_Half | ADVERTISED_10baseT_Full;
@@ -196,7 +170,16 @@ int mv88e61xx_hw_reset(struct phy_device *phydev)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	status_led_set(&green_flash);
+	struct udevice *dev;
+	int ret;
+
+	ret = led_get_by_label("status:ledp", &dev);
+	if (!ret)
+		led_set_state(dev, LEDST_ON);
+
+	ret = led_get_by_label("status:ledn", &dev);
+	if (!ret)
+		led_set_state(dev, LEDST_OFF);
 
 	return 0;
 }

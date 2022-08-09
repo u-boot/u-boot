@@ -37,11 +37,7 @@
 
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 &spi0 {
-	u-boot,dm-pre-reloc;
-
 	flash@0 {
-		u-boot,dm-pre-reloc;
-
 		partitions {
 			partition@0 {
 				reg = <0x0 CONFIG_ENV_OFFSET>;
@@ -56,6 +52,4 @@
 };
 #endif
 
-&uart0 {
-	u-boot,dm-pre-reloc;
-};
+#include "mvebu-u-boot.dtsi"

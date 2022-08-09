@@ -71,12 +71,10 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&spi0_pins>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
 				#address-cells = <1>;
 				#size-cells = <0>;
 
 				spi-flash@0 {
-					u-boot,dm-pre-reloc;
 					#address-cells = <1>;
 					#size-cells = <1>;
 					compatible = "st,m25p128", "jedec,spi-nor";
@@ -132,7 +130,6 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&uart0_pins>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
 			};
 
 			/* GE1 CON15 */

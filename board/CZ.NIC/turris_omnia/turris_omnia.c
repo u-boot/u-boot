@@ -19,9 +19,11 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <dm/uclass.h>
+#include <dt-bindings/gpio/gpio.h>
 #include <fdt_support.h>
 #include <time.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <u-boot/crc.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
@@ -29,8 +31,6 @@
 #include "../turris_atsha_otp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define OMNIA_SPI_NOR_PATH		"/soc/spi@10600/spi-nor@0"
 
 #define OMNIA_I2C_BUS_NAME		"i2c@11000->i2cmux@70->i2c@0"
 
@@ -62,11 +62,38 @@ enum mcu_commands {
 	CMD_GET_STATUS_WORD	= 0x01,
 	CMD_GET_RESET		= 0x09,
 	CMD_WATCHDOG_STATE	= 0x0b,
+
+	/* available if STS_FEATURES_SUPPORTED bit set in status word */
+	CMD_GET_FEATURES	= 0x10,
+
+	/* available if EXT_CMD bit set in features */
+	CMD_EXT_CONTROL		= 0x12,
 };
 
 enum status_word_bits {
+	STS_MCU_TYPE_MASK	= GENMASK(1, 0),
+	STS_MCU_TYPE_STM32	= 0,
+	STS_MCU_TYPE_GD32	= 1,
+	STS_MCU_TYPE_MKL	= 2,
+	STS_MCU_TYPE_UNKN	= 3,
+	STS_FEATURES_SUPPORTED	= BIT(2),
 	CARD_DET_STSBIT		= 0x0010,
 	MSATA_IND_STSBIT	= 0x0020,
+};
+
+/* CMD_GET_FEATURES */
+enum features_e {
+	FEAT_PERIPH_MCU		= BIT(0),
+	FEAT_EXT_CMDS		= BIT(1),
+};
+
+/* CMD_EXT_CONTROL */
+enum ext_ctl_e {
+	EXT_CTL_nRES_LAN	= BIT(1),
+	EXT_CTL_nRES_PHY	= BIT(2),
+	EXT_CTL_nPERST0		= BIT(3),
+	EXT_CTL_nPERST1		= BIT(4),
+	EXT_CTL_nPERST2		= BIT(5),
 };
 
 /*
@@ -371,6 +398,36 @@ static int omnia_get_ram_size_gb(void)
 	return ram_size;
 }
 
+static const char * const omnia_get_mcu_type(void)
+{
+	static const char * const mcu_types[] = {
+		[STS_MCU_TYPE_STM32] = "STM32",
+		[STS_MCU_TYPE_GD32]  = "GD32",
+		[STS_MCU_TYPE_MKL]   = "MKL",
+		[STS_MCU_TYPE_UNKN]  = "unknown",
+	};
+	static const char * const mcu_types_with_perip_resets[] = {
+		[STS_MCU_TYPE_STM32] = "STM32 (with peripheral resets)",
+		[STS_MCU_TYPE_GD32]  = "GD32 (with peripheral resets)",
+		[STS_MCU_TYPE_MKL]   = "MKL (with peripheral resets)",
+		[STS_MCU_TYPE_UNKN]  = "unknown (with peripheral resets)",
+	};
+	u16 stsword, features;
+	int ret;
+
+	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
+	if (ret)
+		return "unknown";
+
+	if (stsword & STS_FEATURES_SUPPORTED) {
+		ret = omnia_mcu_read(CMD_GET_FEATURES, &features, sizeof(features));
+		if (ret == 0 && (features & FEAT_PERIPH_MCU))
+			return mcu_types_with_perip_resets[stsword & STS_MCU_TYPE_MASK];
+	}
+
+	return mcu_types[stsword & STS_MCU_TYPE_MASK];
+}
+
 /*
  * Define the DDR layout / topology here in the board file. This will
  * be used by the DDR3 init code in the SPL U-Boot version to configure
@@ -499,6 +556,90 @@ static void handle_reset_button(void)
 	}
 }
 
+static void initialize_switch(void)
+{
+	u32 val, val04, val08, val10, val14;
+	u16 ctrl[2];
+	int err;
+
+	printf("Initializing LAN eth switch... ");
+
+	/* Change RGMII pins to GPIO mode */
+
+	val = val04 = readl(MVEBU_MPP_BASE + 0x04);
+	val &= ~GENMASK(19, 16); /* MPP[12] := GPIO */
+	val &= ~GENMASK(23, 20); /* MPP[13] := GPIO */
+	val &= ~GENMASK(27, 24); /* MPP[14] := GPIO */
+	val &= ~GENMASK(31, 28); /* MPP[15] := GPIO */
+	writel(val, MVEBU_MPP_BASE + 0x04);
+
+	val = val08 = readl(MVEBU_MPP_BASE + 0x08);
+	val &= ~GENMASK(3, 0);   /* MPP[16] := GPIO */
+	val &= ~GENMASK(23, 20); /* MPP[21] := GPIO */
+	writel(val, MVEBU_MPP_BASE + 0x08);
+
+	val = val10 = readl(MVEBU_MPP_BASE + 0x10);
+	val &= ~GENMASK(27, 24); /* MPP[38] := GPIO */
+	val &= ~GENMASK(31, 28); /* MPP[39] := GPIO */
+	writel(val, MVEBU_MPP_BASE + 0x10);
+
+	val = val14 = readl(MVEBU_MPP_BASE + 0x14);
+	val &= ~GENMASK(3, 0);   /* MPP[40] := GPIO */
+	val &= ~GENMASK(7, 4);   /* MPP[41] := GPIO */
+	writel(val, MVEBU_MPP_BASE + 0x14);
+
+	/* Set initial values for switch reset strapping pins */
+
+	val = readl(MVEBU_GPIO0_BASE + 0x00);
+	val |= BIT(12);		/* GPIO[12] := 1 */
+	val |= BIT(13);		/* GPIO[13] := 1 */
+	val |= BIT(14);		/* GPIO[14] := 1 */
+	val |= BIT(15);		/* GPIO[15] := 1 */
+	val &= ~BIT(16);	/* GPIO[16] := 0 */
+	val |= BIT(21);		/* GPIO[21] := 1 */
+	writel(val, MVEBU_GPIO0_BASE + 0x00);
+
+	val = readl(MVEBU_GPIO1_BASE + 0x00);
+	val |= BIT(6);		/* GPIO[38] := 1 */
+	val |= BIT(7);		/* GPIO[39] := 1 */
+	val |= BIT(8);		/* GPIO[40] := 1 */
+	val &= ~BIT(9);		/* GPIO[41] := 0 */
+	writel(val, MVEBU_GPIO1_BASE + 0x00);
+
+	val = readl(MVEBU_GPIO0_BASE + 0x04);
+	val &= ~BIT(12);	/* GPIO[12] := Out Enable */
+	val &= ~BIT(13);	/* GPIO[13] := Out Enable */
+	val &= ~BIT(14);	/* GPIO[14] := Out Enable */
+	val &= ~BIT(15);	/* GPIO[15] := Out Enable */
+	val &= ~BIT(16);	/* GPIO[16] := Out Enable */
+	val &= ~BIT(21);	/* GPIO[21] := Out Enable */
+	writel(val, MVEBU_GPIO0_BASE + 0x04);
+
+	val = readl(MVEBU_GPIO1_BASE + 0x04);
+	val &= ~BIT(6);		/* GPIO[38] := Out Enable */
+	val &= ~BIT(7);		/* GPIO[39] := Out Enable */
+	val &= ~BIT(8);		/* GPIO[40] := Out Enable */
+	val &= ~BIT(9);		/* GPIO[41] := Out Enable */
+	writel(val, MVEBU_GPIO1_BASE + 0x04);
+
+	/* Release switch reset */
+
+	ctrl[0] = EXT_CTL_nRES_LAN;
+	ctrl[1] = EXT_CTL_nRES_LAN;
+	err = omnia_mcu_write(CMD_EXT_CONTROL, ctrl, sizeof(ctrl));
+
+	mdelay(10);
+
+	/* Change RGMII pins back to RGMII mode */
+
+	writel(val04, MVEBU_MPP_BASE + 0x04);
+	writel(val08, MVEBU_MPP_BASE + 0x08);
+	writel(val10, MVEBU_MPP_BASE + 0x10);
+	writel(val14, MVEBU_MPP_BASE + 0x14);
+
+	puts(err ? "failed\n" : "done\n");
+}
+
 int board_early_init_f(void)
 {
 	/* Configure MPP */
@@ -528,6 +669,9 @@ int board_early_init_f(void)
 
 void spl_board_init(void)
 {
+	u16 val;
+	int ret;
+
 	/*
 	 * If booting from UART, disable MCU watchdog in SPL, since uploading
 	 * U-Boot proper can take too much time and trigger it. Instead enable
@@ -536,6 +680,19 @@ void spl_board_init(void)
 	if (get_boot_device() == BOOT_DEVICE_UART) {
 		enable_a385_watchdog(10);
 		disable_mcu_watchdog();
+	}
+
+	/*
+	 * When MCU controls peripheral resets then release LAN eth switch from
+	 * the reset and initialize it. When MCU does not control peripheral
+	 * resets then LAN eth switch is initialized automatically by bootstrap
+	 * pins when A385 is released from the reset.
+	 */
+	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &val, sizeof(val));
+	if (ret == 0 && (val & STS_FEATURES_SUPPORTED)) {
+		ret = omnia_mcu_read(CMD_GET_FEATURES, &val, sizeof(val));
+		if (ret == 0 && (val & FEAT_PERIPH_MCU))
+			initialize_switch();
 	}
 }
 
@@ -645,11 +802,109 @@ static void fixup_wwan_port_nodes(void *blob)
 	disable_pcie_node(blob, 2);
 }
 
+static int insert_mcu_gpio_prop(void *blob, int node, const char *prop,
+				unsigned int phandle, u32 bank, u32 gpio,
+				u32 flags)
+{
+	fdt32_t val[4] = { cpu_to_fdt32(phandle), cpu_to_fdt32(bank),
+			   cpu_to_fdt32(gpio), cpu_to_fdt32(flags) };
+	return fdt_setprop(blob, node, prop, &val, sizeof(val));
+}
+
+static int fixup_mcu_gpio_in_pcie_nodes(void *blob)
+{
+	unsigned int mcu_phandle;
+	int port, gpio;
+	int pcie_node;
+	int port_node;
+	int ret;
+
+	ret = fdt_increase_size(blob, 128);
+	if (ret < 0) {
+		printf("Cannot increase FDT size!\n");
+		return ret;
+	}
+
+	mcu_phandle = fdt_create_phandle_by_compatible(blob, "cznic,turris-omnia-mcu");
+	if (!mcu_phandle)
+		return -FDT_ERR_NOPHANDLES;
+
+	fdt_for_each_node_by_compatible(pcie_node, blob, -1, "marvell,armada-370-pcie") {
+		if (!fdtdec_get_is_enabled(blob, pcie_node))
+			continue;
+
+		fdt_for_each_subnode(port_node, blob, pcie_node) {
+			if (!fdtdec_get_is_enabled(blob, port_node))
+				continue;
+
+			port = fdtdec_get_int(blob, port_node, "marvell,pcie-port", -1);
+
+			if (port == 0)
+				gpio = ilog2(EXT_CTL_nPERST0);
+			else if (port == 1)
+				gpio = ilog2(EXT_CTL_nPERST1);
+			else if (port == 2)
+				gpio = ilog2(EXT_CTL_nPERST2);
+			else
+				continue;
+
+			/* insert: reset-gpios = <&mcu 2 gpio GPIO_ACTIVE_LOW>; */
+			ret = insert_mcu_gpio_prop(blob, port_node, "reset-gpios",
+						   mcu_phandle, 2, gpio, GPIO_ACTIVE_LOW);
+			if (ret < 0)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int fixup_mcu_gpio_in_eth_wan_node(void *blob)
+{
+	unsigned int mcu_phandle;
+	int eth_wan_node;
+	int ret;
+
+	ret = fdt_increase_size(blob, 64);
+	if (ret < 0) {
+		printf("Cannot increase FDT size!\n");
+		return ret;
+	}
+
+	eth_wan_node = fdt_path_offset(blob, "ethernet2");
+	if (eth_wan_node < 0)
+		return eth_wan_node;
+
+	mcu_phandle = fdt_create_phandle_by_compatible(blob, "cznic,turris-omnia-mcu");
+	if (!mcu_phandle)
+		return -FDT_ERR_NOPHANDLES;
+
+	/* insert: phy-reset-gpios = <&mcu 2 gpio GPIO_ACTIVE_LOW>; */
+	ret = insert_mcu_gpio_prop(blob, eth_wan_node, "phy-reset-gpios",
+				   mcu_phandle, 2, ilog2(EXT_CTL_nRES_PHY), GPIO_ACTIVE_LOW);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 #endif
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
+	u16 val;
+	int ret;
+
+	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &val, sizeof(val));
+	if (ret == 0 && (val & STS_FEATURES_SUPPORTED)) {
+		ret = omnia_mcu_read(CMD_GET_FEATURES, &val, sizeof(val));
+		if (ret == 0 && (val & FEAT_PERIPH_MCU)) {
+			fixup_mcu_gpio_in_pcie_nodes(blob);
+			fixup_mcu_gpio_in_eth_wan_node(blob);
+		}
+	}
+
 	fixup_msata_port_nodes(blob);
 	fixup_wwan_port_nodes(blob);
 
@@ -688,6 +943,7 @@ int show_board_info(void)
 
 	err = turris_atsha_otp_get_serial_number(&version_num, &serial_num);
 	printf("Model: Turris Omnia\n");
+	printf("  MCU type: %s\n", omnia_get_mcu_type());
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
 		printf("  Serial Number: unknown\n");
@@ -716,10 +972,12 @@ static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
 	int parts;
 
 	parts = fdt_subnode_offset(blob, offset, "partitions");
-	if (parts < 0)
-		return false;
+	if (parts >= 0) {
+		if (fdt_del_node(blob, parts) < 0)
+			return false;
+	}
 
-	if (fdt_del_node(blob, parts) < 0)
+	if (fdt_increase_size(blob, 512) < 0)
 		return false;
 
 	parts = fdt_add_subnode(blob, offset, "partitions");
@@ -770,14 +1028,22 @@ static bool fixup_mtd_partitions(void *blob, int offset, struct mtd_info *mtd)
 
 static void fixup_spi_nor_partitions(void *blob)
 {
-	struct mtd_info *mtd;
+	struct mtd_info *mtd = NULL;
+	char mtd_path[64];
 	int node;
 
-	mtd = get_mtd_device_nm(OMNIA_SPI_NOR_PATH);
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "jedec,spi-nor");
+	if (node < 0)
+		goto fail;
+
+	if (fdt_get_path(gd->fdt_blob, node, mtd_path, sizeof(mtd_path)) < 0)
+		goto fail;
+
+	mtd = get_mtd_device_nm(mtd_path);
 	if (IS_ERR_OR_NULL(mtd))
 		goto fail;
 
-	node = fdt_path_offset(blob, OMNIA_SPI_NOR_PATH);
+	node = fdt_node_offset_by_compatible(blob, -1, "jedec,spi-nor");
 	if (node < 0)
 		goto fail;
 
@@ -795,6 +1061,19 @@ fail:
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	int node;
+
+	/*
+	 * U-Boot's FDT blob contains phy-reset-gpios in ethernet2
+	 * node when MCU controls all peripherals resets.
+	 * Fixup MCU GPIO nodes in PCIe and eth wan nodes in this case.
+	 */
+	node = fdt_path_offset(gd->fdt_blob, "ethernet2");
+	if (node >= 0 && fdt_getprop(gd->fdt_blob, node, "phy-reset-gpios", NULL)) {
+		fixup_mcu_gpio_in_pcie_nodes(blob);
+		fixup_mcu_gpio_in_eth_wan_node(blob);
+	}
+
 	fixup_spi_nor_partitions(blob);
 	fixup_msata_port_nodes(blob);
 	fixup_wwan_port_nodes(blob);

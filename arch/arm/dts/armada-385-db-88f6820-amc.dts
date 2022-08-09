@@ -53,7 +53,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins>;
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
 
 
@@ -114,10 +113,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi1_pins>;
 	status = "okay";
-	u-boot,dm-pre-reloc;
 
 	spi-flash@0 {
-		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "jedec,spi-nor";

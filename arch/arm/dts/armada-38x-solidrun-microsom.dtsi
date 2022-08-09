@@ -96,7 +96,6 @@
 	pinctrl-0 = <&uart0_pins>;
 	pinctrl-names = "default";
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
 
 &i2c0 {
