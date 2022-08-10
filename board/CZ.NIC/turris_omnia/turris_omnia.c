@@ -21,6 +21,7 @@
 #include <dm/uclass.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <fdt_support.h>
+#include <hexdump.h>
 #include <time.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -61,7 +62,9 @@ DECLARE_GLOBAL_DATA_PTR;
 enum mcu_commands {
 	CMD_GET_STATUS_WORD	= 0x01,
 	CMD_GET_RESET		= 0x09,
+	CMD_GET_FW_VERSION_APP	= 0x0a,
 	CMD_WATCHDOG_STATE	= 0x0b,
+	CMD_GET_FW_VERSION_BOOT	= 0x0e,
 
 	/* available if STS_FEATURES_SUPPORTED bit set in status word */
 	CMD_GET_FEATURES	= 0x10,
@@ -416,6 +419,38 @@ static const char * const omnia_get_mcu_type(void)
 	}
 
 	return mcu_types[stsword & STS_MCU_TYPE_MASK];
+}
+
+static const char * const omnia_get_mcu_version(void)
+{
+	static char version[82];
+	u8 version_app[20];
+	u8 version_boot[20];
+	int ret;
+
+	ret = omnia_mcu_read(CMD_GET_FW_VERSION_APP, &version_app, sizeof(version_app));
+	if (ret)
+		return "unknown";
+
+	ret = omnia_mcu_read(CMD_GET_FW_VERSION_BOOT, &version_boot, sizeof(version_boot));
+	if (ret)
+		return "unknown";
+
+	/*
+	 * If git commits of MCU bootloader and MCU application are same then
+	 * show version only once. If they are different then show both commits.
+	 */
+	if (!memcmp(version_app, version_boot, 20)) {
+		bin2hex(version, version_app, 20);
+		version[40] = '\0';
+	} else {
+		bin2hex(version, version_boot, 20);
+		version[40] = '/';
+		bin2hex(version + 41, version_app, 20);
+		version[81] = '\0';
+	}
+
+	return version;
 }
 
 /*
@@ -934,6 +969,7 @@ int show_board_info(void)
 	err = turris_atsha_otp_get_serial_number(&version_num, &serial_num);
 	printf("Model: Turris Omnia\n");
 	printf("  MCU type: %s\n", omnia_get_mcu_type());
+	printf("  MCU version: %s\n", omnia_get_mcu_version());
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
 		printf("  Serial Number: unknown\n");
