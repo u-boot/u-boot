@@ -33,16 +33,6 @@ struct mbus_dram_target_info {
 	} cs[4];
 };
 
-struct mvebu_mbus_state {
-	void __iomem *mbuswins_base;
-	void __iomem *sdramwins_base;
-	struct dentry *debugfs_root;
-	struct dentry *debugfs_sdram;
-	struct dentry *debugfs_devs;
-	const struct mvebu_mbus_soc_data *soc;
-	int hw_io_coherency;
-};
-
 /* Flags for PCI/PCIe address decoding regions */
 #define MVEBU_MBUS_PCI_IO  0x1
 #define MVEBU_MBUS_PCI_MEM 0x2
@@ -67,7 +57,6 @@ int mvebu_mbus_add_window_remap_by_id(unsigned int target,
 int mvebu_mbus_add_window_by_id(unsigned int target, unsigned int attribute,
 				phys_addr_t base, size_t size);
 int mvebu_mbus_del_window(phys_addr_t base, size_t size);
-int mbus_dt_setup_win(struct mvebu_mbus_state *mbus,
-		      u32 base, u32 size, u8 target, u8 attr);
+int mbus_dt_setup_win(u32 base, u32 size, u8 target, u8 attr);
 
 #endif /* __LINUX_MBUS_H */
