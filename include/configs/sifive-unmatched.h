@@ -51,6 +51,4 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTENV
 
-#define CONFIG_SYS_EEPROM_BUS_NUM		0
-
 #endif /* __SIFIVE_UNMATCHED_H */

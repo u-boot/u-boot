@@ -17,10 +17,6 @@
 #define I2C_EMC2305_CMD		0x40
 #define I2C_EMC2305_PWM		0x80
 
-/* EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_NXID
-#define CONFIG_SYS_EEPROM_BUS_NUM	           0
-
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	EXTRA_ENV_SETTINGS			\

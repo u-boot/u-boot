@@ -235,10 +235,6 @@
 #define CONFIG_RTC_DS3231               1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
 
-/* EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_NXID
-#define CONFIG_SYS_EEPROM_BUS_NUM	0
-
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #ifdef CONFIG_NXP_ESBC

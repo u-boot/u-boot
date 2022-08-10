@@ -59,8 +59,6 @@
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
 
 /* EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_NXID
-#define CONFIG_SYS_EEPROM_BUS_NUM		0
 #define I2C_RETIMER_ADDR			0x18
 
 /* I2C bus multiplexer */

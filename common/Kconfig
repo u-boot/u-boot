@@ -671,6 +671,27 @@ config ID_EEPROM
 	  A number of different systems and vendors enable a vendor-specified
 	  EEPROM that contains various identifying features.
 
+config SYS_EEPROM_BUS_NUM
+	int "I2C bus number of the system identifier EEPROM"
+	depends on ID_EEPROM
+	default 0
+
+choice
+	prompt "EEPROM starts with 'CCID' or 'NXID'"
+	depends on ID_EEPROM && (PPC || ARCH_LS1021A || FSL_LAYERSCAPE)
+	default SYS_I2C_EEPROM_NXID
+	help
+	  Specify if the Freescale / NXP ID EEPROM starts with 'CCID' or 'NXID'
+	  ASCII literal string.
+
+config SYS_I2C_EEPROM_CCID
+	bool "EEPROM starts with 'CCID'"
+
+config SYS_I2C_EEPROM_NXID
+	bool "EEPROM starts with 'NXID'"
+
+endchoice
+
 config PCI_INIT_R
 	bool "Enumerate PCI buses during init"
 	depends on PCI
