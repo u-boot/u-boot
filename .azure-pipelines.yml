@@ -514,18 +514,8 @@ stages:
           BUILDMAN: "m68k"
         mips:
           BUILDMAN: "mips"
-        non_fsl_ppc:
-          BUILDMAN: "powerpc -x freescale"
-        mpc85xx_freescale:
-          BUILDMAN: "mpc85xx&freescale -x t102* -x p1_p2_rdb_pc -x p1010rdb -x bsc91*"
-        fsl_ppc:
-          BUILDMAN: "mpc83xx&freescale"
-        t102x:
-          BUILDMAN: "t102*"
-        p1_p2_rdb_pc:
-          BUILDMAN: "p1_p2_rdb_pc"
-        p1010rdb_bsc91:
-          BUILDMAN: "p1010rdb bsc91"
+        powerpc:
+          BUILDMAN: "powerpc"
         siemens:
           BUILDMAN: "siemens"
         tegra:
