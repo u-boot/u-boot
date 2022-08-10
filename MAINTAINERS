@@ -1313,7 +1313,7 @@ F:	drivers/spmi/
 F:	include/spmi/
 
 SQUASHFS
-M:	Joao Marcos Costa <joaomarcos.costa@bootlin.com>
+M:	Joao Marcos Costa <jmcosta944@gmail.com>
 R:	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 R:	Miquel Raynal <miquel.raynal@bootlin.com>
 S:	Maintained

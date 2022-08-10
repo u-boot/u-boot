@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <clock_legacy.h>
+#include <display_options.h>
 #include <env.h>
 #include <i2c.h>
 #include <init.h>

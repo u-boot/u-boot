@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <clock_legacy.h>
+#include <display_options.h>
 #include <env.h>
 #include <init.h>
 #include <malloc.h>

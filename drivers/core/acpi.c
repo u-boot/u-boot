@@ -9,6 +9,7 @@
 #define LOG_CATEOGRY	LOGC_ACPI
 
 #include <common.h>
+#include <display_options.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

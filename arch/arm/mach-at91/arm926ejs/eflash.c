@@ -43,6 +43,7 @@
  * do a read-modify-write for partially programmed pages
  */
 #include <common.h>
+#include <display_options.h>
 #include <flash.h>
 #include <log.h>
 #include <asm/io.h>

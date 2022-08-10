@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <display_options.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

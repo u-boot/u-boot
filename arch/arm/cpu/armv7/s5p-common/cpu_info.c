@@ -4,6 +4,7 @@
  * Minkyu Kang <mk7.kang@samsung.com>
  */
 #include <common.h>
+#include <display_options.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <asm/global_data.h>

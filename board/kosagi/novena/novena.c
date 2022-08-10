@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <display_options.h>
 #include <dm.h>
 #include <eeprom.h>
 #include <init.h>

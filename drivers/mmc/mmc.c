@@ -831,6 +831,9 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 		return 0;
 	}
 
+	if (!send_status)
+		return 0;
+
 	/* Finally wait until the card is ready or indicates a failure
 	 * to switch. It doesn't hurt to use CMD13 here even if send_status
 	 * is false, because by now (after 'timeout_ms' ms) the bus should be

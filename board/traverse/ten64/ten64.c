@@ -5,6 +5,7 @@
  * Copyright 2019-2021 Traverse Technologies
  */
 #include <common.h>
+#include <display_options.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <i2c.h>

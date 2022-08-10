@@ -80,7 +80,7 @@ int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn)
 		}
 
 		if (block_header & LZ4F_BLOCKUNCOMPRESSED_FLAG) {
-			size_t size = min((ptrdiff_t)block_size, end - out);
+			size_t size = min((ptrdiff_t)block_size, (ptrdiff_t)(end - out));
 			memcpy(out, in, size);
 			out += size;
 			if (size < block_size) {

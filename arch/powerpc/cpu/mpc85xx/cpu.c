@@ -12,6 +12,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <clock_legacy.h>
+#include <display_options.h>
 #include <init.h>
 #include <irq_func.h>
 #include <log.h>

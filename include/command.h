@@ -229,10 +229,10 @@ enum command_ret_t {
  *			is left unchanged.
  * @param ticks		If ticks is not null, this function set it to the
  *			number of ticks the command took to complete.
- * Return: 0 if the command succeeded, 1 if it failed
+ * Return: 0 if command succeeded, else non-zero (CMD_RET_...)
  */
-int cmd_process(int flag, int argc, char *const argv[], int *repeatable,
-		unsigned long *ticks);
+enum command_ret_t cmd_process(int flag, int argc, char *const argv[],
+			       int *repeatable, unsigned long *ticks);
 
 void fixup_cmdtable(struct cmd_tbl *cmdtp, int size);
 

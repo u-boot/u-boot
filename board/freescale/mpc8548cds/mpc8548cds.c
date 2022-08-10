@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <display_options.h>
 #include <init.h>
 #include <net.h>
 #include <pci.h>
