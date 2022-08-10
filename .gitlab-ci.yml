@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://source.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:focal-20220302-15Mar2022
+image: trini/u-boot-gitlab-ci-runner:jammy-20220801-09Aug2022
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -199,6 +199,7 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
   script:
     - git config --global user.name "GitLab CI Runner";
       git config --global user.email trini@konsulko.com;
+      git config --global --add safe.directory "${CI_PROJECT_DIR}";
       export USER=gitlab;
       virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
@@ -206,8 +207,10 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
+      set +e;
       ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w
         --board sandbox_spl;
+      set -e;
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
       ./tools/dtoc/dtoc -t;
@@ -224,14 +227,17 @@ Run tests for Nokia RX-51 (aka N900):
 Run pylint:
   stage: testsuites
   script:
+    - git config --global --add safe.directory "${CI_PROJECT_DIR}"
     - pip install -r test/py/requirements.txt
     - pip install asteval pylint==2.12.2 pyopenssl
     - export PATH=${PATH}:~/.local/bin
     - echo "[MASTER]" >> .pylintrc
     - echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
+    - set +e
     - ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w
         --board sandbox_spl
+    - set -e
     - pylint --version
     - export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
     - make pylint_err
