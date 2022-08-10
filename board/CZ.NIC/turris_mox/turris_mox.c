@@ -821,6 +821,11 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 						 "sgmii");
 			if (res < 0)
 				return res;
+
+			res = fdt_setprop_string(blob, node, "label",
+						 "sfp");
+			if (res < 0)
+				return res;
 		}
 
 		res = fdt_status_okay_by_compatible(blob, "cznic,moxtet-gpio");
