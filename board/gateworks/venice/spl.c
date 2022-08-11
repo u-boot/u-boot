@@ -268,7 +268,7 @@ void board_init_f(ulong dummy)
 			break;
 		mdelay(1);
 	}
-	dram_sz = eeprom_init(0);
+	dram_sz = venice_eeprom_init(0);
 
 	/* PMIC */
 	power_init_board();
