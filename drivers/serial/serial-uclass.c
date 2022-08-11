@@ -327,6 +327,16 @@ void serial_puts(const char *str)
 		_serial_puts(gd->cur_serial_dev, str);
 }
 
+#ifdef CONFIG_CONSOLE_FLUSH_SUPPORT
+void serial_flush(void)
+{
+	if (!gd->cur_serial_dev)
+		return;
+
+	_serial_flush(gd->cur_serial_dev);
+}
+#endif
+
 int serial_getc(void)
 {
 	if (!gd->cur_serial_dev)
