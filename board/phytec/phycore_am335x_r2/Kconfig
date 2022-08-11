@@ -1,4 +1,4 @@
-if TARGET_PHYCORE_AM335X_R2
+if TARGET_PCM051 || TARGET_PHYCORE_AM335X_R2
 
 config SYS_BOARD
 	default "phycore_am335x_r2"

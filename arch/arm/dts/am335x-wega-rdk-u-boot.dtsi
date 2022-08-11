@@ -16,6 +16,18 @@
 
 	ocp {
 		u-boot,dm-pre-reloc;
+
+		l4_wkup@44c00000 {
+			u-boot,dm-pre-reloc;
+
+			segment@200000 {
+				u-boot,dm-pre-reloc;
+
+				target-module@9000 {
+					u-boot,dm-pre-reloc;
+				};
+			};
+		};
 	};
 };
 
