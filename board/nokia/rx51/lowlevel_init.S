@@ -6,20 +6,14 @@
 
 #include <config.h>
 
-relocaddr:		/* address of this relocaddr section after coping */
-	.word .		/* address of section (calculated at compile time) */
-
-startaddr:		/* address of u-boot after copying */
-	.word CONFIG_SYS_TEXT_BASE
+kernoffs:		/* offset of kernel image from this address */
+	.word KERNEL_OFFSET - (. - CONFIG_SYS_TEXT_BASE)
 
 kernaddr:		/* address of kernel after copying */
 	.word KERNEL_ADDRESS
 
 kernsize:		/* maximal size of kernel image */
 	.word KERNEL_MAXSIZE
-
-kernoffs:		/* offset of kernel image in loaded u-boot */
-	.word KERNEL_OFFSET
 
 imagesize:		/* maximal size of image */
 	.word IMAGE_MAXSIZE
@@ -53,16 +47,9 @@ save_boot_params:
  */
 
 copy_kernel_start:
-	adr	r0, relocaddr	/* r0 - address of section relocaddr */
-	ldr	r1, relocaddr	/* r1 - address of relocaddr after relocation */
-
-	/* r4 - calculated offset */
-	sub	r4, r0, r1
-
 	/* r0 - start of kernel before */
-	ldr	r0, startaddr
-	add	r0, r0, r4
-	ldr	r1, kernoffs
+	adr	r0, kernoffs	/* r0 - current address of kernoffs section */
+	ldr	r1, kernoffs	/* r1 - offset of kernel image from kernoffs section */
 	add	r0, r0, r1
 
 	/* r3 - start of kernel after */
