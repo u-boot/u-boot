@@ -20,6 +20,7 @@
 struct venice_board_info som_info;
 struct venice_board_info base_info;
 char venice_model[32];
+char venice_baseboard_model[32];
 u32 venice_serial;
 
 /* return a mac address from EEPROM info */
@@ -321,6 +322,7 @@ int eeprom_init(int quiet)
 			base_info.model[3], /* baseboard */
 			base_info.model[4], base_info.model[5], /* subload of baseboard */
 			som_info.model[4], som_info.model[5]); /* last 2digits of SOM */
+		strlcpy(venice_baseboard_model, base_info.model, sizeof(venice_baseboard_model));
 
 		/* baseboard revision */
 		rev_pcb = get_pcb_rev(base_info.model);
@@ -355,6 +357,11 @@ void board_gsc_info(void)
 const char *eeprom_get_model(void)
 {
 	return venice_model;
+}
+
+const char *eeprom_get_baseboard_model(void)
+{
+	return venice_baseboard_model;
 }
 
 u32 eeprom_get_serial(void)
