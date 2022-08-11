@@ -55,16 +55,13 @@ save_boot_params:
 copy_kernel_start:
 	adr	r0, relocaddr	/* r0 - address of section relocaddr */
 	ldr	r1, relocaddr	/* r1 - address of relocaddr after relocation */
-	cmp	r0, r1
 
 	/* r4 - calculated offset */
-	subhi	r4, r0, r1
-	sublo	r4, r1, r0
+	sub	r4, r0, r1
 
 	/* r0 - start of kernel before */
 	ldr	r0, startaddr
-	addhi	r0, r0, r4
-	sublo	r0, r0, r4
+	add	r0, r0, r4
 	ldr	r1, kernoffs
 	add	r0, r0, r1
 
