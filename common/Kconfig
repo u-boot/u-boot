@@ -186,6 +186,12 @@ config PRE_CON_BUF_ADDR
 	  We should consider removing this option and allocating the memory
 	  in board_init_f_init_reserve() instead.
 
+config CONSOLE_FLUSH_SUPPORT
+	bool "Enable console flush support"
+	default y
+	help
+	  This enables compilation of flush() function for console flush support.
+
 config CONSOLE_MUX
 	bool "Enable console multiplexing"
 	default y if DM_VIDEO || VIDEO || LCD
