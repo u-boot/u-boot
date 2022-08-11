@@ -32,6 +32,7 @@ static int do_go(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	addr = hextoul(argv[1], NULL);
 
 	printf ("## Starting application at 0x%08lX ...\n", addr);
+	flush();
 
 	/*
 	 * pass address parameter as argv[0] (aka command name),

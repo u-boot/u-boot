@@ -303,6 +303,7 @@ static void do_bootvx_fdt(bootm_headers_t *images)
 #else
 	printf("## Starting vxWorks at 0x%08lx\n", (ulong)images->ep);
 #endif
+	flush();
 
 	boot_jump_vxworks(images);
 
