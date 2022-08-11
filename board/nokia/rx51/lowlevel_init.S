@@ -72,7 +72,8 @@ copy_kernel_start:
 
 	/* remove header in target kernel */
 	mov	r5, #0
-	str	r5, [r3]
+	str	r5, [r3]	/* remove 4 bytes header of kernel uImage */
+	str	r5, [r3, #36]	/* remove 4 bytes header of kernel zImage */
 
 	/* check for valid kernel uImage */
 	ldr	r4, [r0]	/* r4 - 4 bytes header of kernel */
@@ -93,6 +94,8 @@ copy_kernel_loop:
 	bhi	copy_kernel_loop
 
 copy_kernel_end:
+
+	/* remove header in source kernel image */
 	mov	r5, #0
 	str	r5, [r0]	/* remove 4 bytes header of kernel uImage */
 	str	r5, [r0, #36]	/* remove 4 bytes header of kernel zImage */
