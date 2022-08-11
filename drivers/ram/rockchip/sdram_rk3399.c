@@ -2552,8 +2552,8 @@ static int lpddr4_set_rate(struct dram_info *dram,
 			       dfs_cfgs_lpddr4[ctl_fn].base.ddr_freq);
 
 		if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG))
-			printf("%s: change freq to %d mhz %d, %d\n", __func__,
-			       dfs_cfgs_lpddr4[ctl_fn].base.ddr_freq,
+			printf("%s: change freq to %dMHz %d, %d\n", __func__,
+			       dfs_cfgs_lpddr4[ctl_fn].base.ddr_freq / MHz,
 			       ctl_fn, phy_fn);
 	}
 
