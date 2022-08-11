@@ -476,6 +476,7 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 			printf("## Switch baudrate to %d bps and press ENTER ...\n",
 			       baudrate);
 			udelay(50000);
+			flush();
 		}
 
 		gd->baudrate = baudrate;
