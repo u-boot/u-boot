@@ -167,7 +167,7 @@ tools_binman_etype_x86_reset16_tpl -15.71
 tools_binman_etype_x86_start16 -15.71
 tools_binman_etype_x86_start16_spl -15.71
 tools_binman_etype_x86_start16_tpl -15.71
-tools_binman_fdt_test 3.23
+tools_binman_fdt_test 10.00
 tools_binman_fip_util 9.85
 tools_binman_fip_util_test 10.00
 tools_binman_fmap_util 6.88

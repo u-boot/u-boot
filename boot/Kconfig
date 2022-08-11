@@ -294,6 +294,12 @@ endif # SPL
 
 endif # FIT
 
+config PXE_UTILS
+	bool
+	select MENU
+	help
+	  Utilities for parsing PXE file formats.
+
 config BOOTSTD
 	bool "Standard boot support"
 	default y
@@ -345,7 +351,7 @@ config BOOTSTD_BOOTCOMMAND
 
 config BOOTMETH_DISTRO
 	bool "Bootdev support for distro boot"
-	depends on CMD_PXE
+	select PXE_UTILS
 	default y
 	help
 	  Enables support for distro boot using bootdevs. This makes the
