@@ -3005,7 +3005,9 @@ static int sdram_init(struct dram_info *dram,
 	params->base.stride = calculate_stride(params);
 	dram_all_config(dram, params);
 
-	dram->ops->set_rate_index(dram, params);
+	ret = dram->ops->set_rate_index(dram, params);
+	if (ret)
+		return ret;
 
 	debug("Finish SDRAM initialization...\n");
 	return 0;
