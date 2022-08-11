@@ -107,6 +107,7 @@ config TARGET_OMAP3_LOGIC
 
 config TARGET_NOKIA_RX51
 	bool "Nokia RX51"
+	select POSITION_INDEPENDENT
 
 config TARGET_TAO3530
 	bool "TAO3530"
