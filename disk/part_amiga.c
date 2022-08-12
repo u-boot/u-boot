@@ -11,8 +11,6 @@
 #include "part_amiga.h"
 #include <part.h>
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
-
 #undef AMIGA_DEBUG
 
 #ifdef AMIGA_DEBUG
@@ -387,5 +385,3 @@ U_BOOT_PART_TYPE(amiga) = {
 	.print		= part_print_amiga,
 	.test		= part_test_amiga,
 };
-
-#endif
