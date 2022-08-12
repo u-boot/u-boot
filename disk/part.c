@@ -135,7 +135,6 @@ void dev_print (struct blk_desc *dev_desc)
 			dev_desc->revision,
 			dev_desc->product);
 		break;
-	case IF_TYPE_SD:
 	case IF_TYPE_MMC:
 	case IF_TYPE_USB:
 	case IF_TYPE_NVME:
@@ -772,7 +771,6 @@ void part_set_generic_name(const struct blk_desc *dev_desc,
 		devtype = "usbd";
 		break;
 	case IF_TYPE_MMC:
-	case IF_TYPE_SD:
 		devtype = "mmcsd";
 		break;
 	default:
