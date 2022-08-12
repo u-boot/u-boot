@@ -90,21 +90,21 @@ struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum)
 struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
 {
 	enum uclass_id uclass_id;
-	enum if_type if_type;
+	enum if_type type;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
 
-	if_type = if_typename_to_iftype(if_typename);
-	if (if_type == IF_TYPE_UNKNOWN) {
+	type = if_typename_to_iftype(if_typename);
+	if (type == IF_TYPE_UNKNOWN) {
 		debug("%s: Unknown interface type '%s'\n", __func__,
 		      if_typename);
 		return NULL;
 	}
-	uclass_id = if_type_to_uclass_id(if_type);
+	uclass_id = if_type_to_uclass_id(type);
 	if (uclass_id == UCLASS_INVALID) {
 		debug("%s: Unknown uclass for interface type'\n",
-		      if_typename_str[if_type]);
+		      if_typename_str[type]);
 		return NULL;
 	}
 
@@ -115,7 +115,7 @@ struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
 		struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 		debug("%s: if_type=%d, devnum=%d: %s, %d, %d\n", __func__,
-		      if_type, devnum, dev->name, desc->if_type, desc->devnum);
+		      type, devnum, dev->name, desc->if_type, desc->devnum);
 		if (desc->devnum != devnum)
 			continue;
 
