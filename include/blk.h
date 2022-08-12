@@ -21,6 +21,11 @@ typedef ulong lbaint_t;
 
 struct udevice;
 
+static inline bool blk_enabled(void)
+{
+	return CONFIG_IS_ENABLED(BLK) || IS_ENABLED(CONFIG_HAVE_BLOCK_DEVICE);
+}
+
 /* Interface types: */
 enum if_type {
 	IF_TYPE_UNKNOWN = 0,

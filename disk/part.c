@@ -54,12 +54,13 @@ static struct part_driver *part_driver_lookup_type(struct blk_desc *dev_desc)
 	return NULL;
 }
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	struct blk_desc *dev_desc;
 	int ret;
 
+	if (!blk_enabled())
+		return NULL;
 	dev_desc = blk_get_devnum_by_typename(ifname, dev);
 	if (!dev_desc) {
 		debug("%s: No device for iface '%s', dev %d\n", __func__,
@@ -78,21 +79,11 @@ static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 
 struct blk_desc *blk_get_dev(const char *ifname, int dev)
 {
+	if (!blk_enabled())
+		return NULL;
+
 	return get_dev_hwpart(ifname, dev, 0);
 }
-#else
-struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
-{
-	return NULL;
-}
-
-struct blk_desc *blk_get_dev(const char *ifname, int dev)
-{
-	return NULL;
-}
-#endif
-
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -228,9 +219,6 @@ void dev_print (struct blk_desc *dev_desc)
 		puts ("            Capacity: not available\n");
 	}
 }
-#endif
-
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 void part_init(struct blk_desc *dev_desc)
 {
@@ -325,38 +313,36 @@ void part_print(struct blk_desc *dev_desc)
 		drv->print(dev_desc);
 }
 
-#endif /* CONFIG_HAVE_BLOCK_DEVICE */
-
 int part_get_info(struct blk_desc *dev_desc, int part,
 		       struct disk_partition *info)
 {
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 	struct part_driver *drv;
 
+	if (blk_enabled()) {
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-	/* The common case is no UUID support */
-	info->uuid[0] = 0;
+		/* The common case is no UUID support */
+		info->uuid[0] = 0;
 #endif
 #ifdef CONFIG_PARTITION_TYPE_GUID
-	info->type_guid[0] = 0;
+		info->type_guid[0] = 0;
 #endif
 
-	drv = part_driver_lookup_type(dev_desc);
-	if (!drv) {
-		debug("## Unknown partition table type %x\n",
-		      dev_desc->part_type);
-		return -EPROTONOSUPPORT;
+		drv = part_driver_lookup_type(dev_desc);
+		if (!drv) {
+			debug("## Unknown partition table type %x\n",
+			      dev_desc->part_type);
+			return -EPROTONOSUPPORT;
+		}
+		if (!drv->get_info) {
+			PRINTF("## Driver %s does not have the get_info() method\n",
+			       drv->name);
+			return -ENOSYS;
+		}
+		if (drv->get_info(dev_desc, part, info) == 0) {
+			PRINTF("## Valid %s partition found ##\n", drv->name);
+			return 0;
+		}
 	}
-	if (!drv->get_info) {
-		PRINTF("## Driver %s does not have the get_info() method\n",
-		       drv->name);
-		return -ENOSYS;
-	}
-	if (drv->get_info(dev_desc, part, info) == 0) {
-		PRINTF("## Valid %s partition found ##\n", drv->name);
-		return 0;
-	}
-#endif /* CONFIG_HAVE_BLOCK_DEVICE */
 
 	return -ENOENT;
 }
@@ -424,15 +410,15 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 		goto cleanup;
 	}
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
-	/*
-	 * Updates the partition table for the specified hw partition.
-	 * Always should be done, otherwise hw partition 0 will return stale
-	 * data after displaying a non-zero hw partition.
-	 */
-	if ((*dev_desc)->if_type == IF_TYPE_MMC)
-		part_init(*dev_desc);
-#endif
+	if (blk_enabled()) {
+		/*
+		 * Updates the partition table for the specified hw partition.
+		 * Always should be done, otherwise hw partition 0 will return
+		 * stale data after displaying a non-zero hw partition.
+		 */
+		if ((*dev_desc)->if_type == IF_TYPE_MMC)
+			part_init(*dev_desc);
+	}
 
 cleanup:
 	free(dup_str);
