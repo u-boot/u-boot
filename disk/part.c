@@ -150,9 +150,6 @@ void dev_print (struct blk_desc *dev_desc)
 	case IF_TYPE_VIRTIO:
 		printf("%s VirtIO Block Device\n", dev_desc->vendor);
 		break;
-	case IF_TYPE_DOC:
-		puts("device type DOC\n");
-		return;
 	case IF_TYPE_UNKNOWN:
 		puts("device type unknown\n");
 		return;
@@ -265,9 +262,6 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 		break;
 	case IF_TYPE_USB:
 		puts ("USB");
-		break;
-	case IF_TYPE_DOC:
-		puts ("DOC");
 		break;
 	case IF_TYPE_MMC:
 		puts ("MMC");
@@ -781,9 +775,6 @@ void part_set_generic_name(const struct blk_desc *dev_desc,
 		break;
 	case IF_TYPE_USB:
 		devtype = "usbd";
-		break;
-	case IF_TYPE_DOC:
-		devtype = "docd";
 		break;
 	case IF_TYPE_MMC:
 	case IF_TYPE_SD:
