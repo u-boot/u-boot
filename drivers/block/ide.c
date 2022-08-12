@@ -525,8 +525,8 @@ static void ide_ident(struct blk_desc *dev_desc)
 {
 	unsigned char c;
 	hd_driveid_t iop;
-
 #ifdef CONFIG_ATAPI
+	bool is_atapi = false;
 	int retries = 0;
 #endif
 	int device;
@@ -550,7 +550,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 		    (ide_inb(device, ATA_CYL_LOW) == 0x14) &&
 		    (ide_inb(device, ATA_CYL_HIGH) == 0xEB)) {
 			/* ATAPI Signature found */
-			dev_desc->if_type = IF_TYPE_ATAPI;
+			is_atapi = true;
 			/*
 			 * Start Ident Command
 			 */
@@ -623,7 +623,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 		dev_desc->removable = 0;
 
 #ifdef CONFIG_ATAPI
-	if (dev_desc->if_type == IF_TYPE_ATAPI) {
+	if (is_atapi) {
 		atapi_inquiry(dev_desc);
 		return;
 	}
