@@ -128,7 +128,6 @@ void dev_print (struct blk_desc *dev_desc)
 			dev_desc->product,
 			dev_desc->revision);
 		break;
-	case IF_TYPE_ATAPI:
 	case IF_TYPE_IDE:
 	case IF_TYPE_SATA:
 		printf ("Model: %s Firm: %s Ser#: %s\n",
@@ -256,9 +255,6 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 		break;
 	case IF_TYPE_SCSI:
 		puts ("SCSI");
-		break;
-	case IF_TYPE_ATAPI:
-		puts ("ATAPI");
 		break;
 	case IF_TYPE_USB:
 		puts ("USB");
@@ -767,7 +763,6 @@ void part_set_generic_name(const struct blk_desc *dev_desc,
 	switch (dev_desc->if_type) {
 	case IF_TYPE_IDE:
 	case IF_TYPE_SATA:
-	case IF_TYPE_ATAPI:
 		devtype = "hd";
 		break;
 	case IF_TYPE_SCSI:
