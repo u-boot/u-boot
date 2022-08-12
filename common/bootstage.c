@@ -147,15 +147,9 @@ ulong bootstage_add_record(enum bootstage_id id, const char *name,
 	return mark;
 }
 
-
-ulong bootstage_mark(enum bootstage_id id)
+ulong bootstage_error_name(enum bootstage_id id, const char *name)
 {
-	return bootstage_add_record(id, NULL, 0, timer_get_boot_us());
-}
-
-ulong bootstage_error(enum bootstage_id id)
-{
-	return bootstage_add_record(id, NULL, BOOTSTAGEF_ERROR,
+	return bootstage_add_record(id, name, BOOTSTAGEF_ERROR,
 				    timer_get_boot_us());
 }
 
