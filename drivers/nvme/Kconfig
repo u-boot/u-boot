@@ -4,7 +4,7 @@
 
 config NVME
 	bool "NVM Express device support"
-	select HAVE_BLOCK_DEVICE
+	select SPL_LEGACY_BLOCK
 	help
 	  This option enables support for NVM Express devices.
 	  It supports basic functions of NVMe (read/write).

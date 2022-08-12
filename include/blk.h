@@ -23,7 +23,7 @@ struct udevice;
 
 static inline bool blk_enabled(void)
 {
-	return CONFIG_IS_ENABLED(BLK) || IS_ENABLED(CONFIG_HAVE_BLOCK_DEVICE);
+	return CONFIG_IS_ENABLED(BLK) || IS_ENABLED(CONFIG_SPL_LEGACY_BLOCK);
 }
 
 /* Interface types: */

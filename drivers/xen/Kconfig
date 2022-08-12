@@ -2,7 +2,7 @@ config PVBLOCK
 	bool "Xen para-virtualized block device"
 	depends on DM
 	select BLK
-	select HAVE_BLOCK_DEVICE
+	select SPL_LEGACY_BLOCK
 	help
 	  This driver implements the front-end of the Xen virtual
 	  block device driver. It communicates with a back-end driver

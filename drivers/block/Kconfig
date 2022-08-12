@@ -11,7 +11,7 @@ config BLK
 	  be partitioned into several areas, called 'partitions' in U-Boot.
 	  A filesystem can be placed in each partition.
 
-config HAVE_BLOCK_DEVICE
+config SPL_LEGACY_BLOCK
 	bool "Enable Legacy Block Device"
 	help
 	  Some devices require block support whether or not DM is enabled
@@ -109,7 +109,7 @@ endif  # EFI_MEDIA
 
 config IDE
 	bool "Support IDE controllers"
-	select HAVE_BLOCK_DEVICE
+	select SPL_LEGACY_BLOCK
 	help
 	  Enables support for IDE (Integrated Drive Electronics) hard drives.
 	  This allows access to raw blocks and filesystems on an IDE drive
@@ -222,7 +222,7 @@ endif  # IDE
 
 config LBA48
 	bool "Enable LBA support for disks larger than 137GB"
-	depends on HAVE_BLOCK_DEVICE
+	depends on SPL_LEGACY_BLOCK
 	help
 	  Set this to enable support for disks larger than 137GB.
 	  Also look at CONFIG_SYS_64BIT_LBA.  Without both of these, LBA48
@@ -231,7 +231,7 @@ config LBA48
 
 config SYS_64BIT_LBA
 	bool "Enable 64bit number of blocks on a block device"
-	depends on HAVE_BLOCK_DEVICE
+	depends on SPL_LEGACY_BLOCK
 	help
 	  Make the block subsystem use 64bit sector addresses, rather than the
 	  default of 32bit.

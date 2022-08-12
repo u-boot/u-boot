@@ -27,8 +27,7 @@ int part_create_block_devices(struct udevice *blk_dev)
 	struct udevice *dev;
 	int ret;
 
-	if (!CONFIG_IS_ENABLED(PARTITIONS) ||
-	    !CONFIG_IS_ENABLED(HAVE_BLOCK_DEVICE))
+	if (!CONFIG_IS_ENABLED(PARTITIONS) || !blk_enabled())
 		return 0;
 
 	if (device_get_uclass_id(blk_dev) != UCLASS_BLK)

@@ -10,8 +10,8 @@ ifdef CONFIG_$(SPL_TPL_)BLK
 obj-$(CONFIG_$(SPL_TPL_)PARTITIONS)  += disk-uclass.o
 endif
 
-# Must have BLK or HAVE_BLOCK_DEVICE to support partitions
-ifneq ($(CONFIG_$(SPL_TPL_)BLK),$(CONFIG_HAVE_BLOCK_DEVICE),)
+# Must have BLK or SPL_LEGACY_BLOCK to support partitions
+ifneq ($(CONFIG_$(SPL_TPL_)BLK),$(CONFIG_SPL_LEGACY_BLOCK),)
 obj-$(CONFIG_$(SPL_TPL_)MAC_PARTITION)   += part_mac.o
 obj-$(CONFIG_$(SPL_TPL_)DOS_PARTITION)   += part_dos.o
 obj-$(CONFIG_$(SPL_TPL_)ISO_PARTITION)   += part_iso.o
