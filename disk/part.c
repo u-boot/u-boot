@@ -111,7 +111,7 @@ static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by,
 	return bc_quot * mul_by + ((bc_rem * mul_by) >> right_shift);
 }
 
-void dev_print (struct blk_desc *dev_desc)
+void dev_print(struct blk_desc *dev_desc)
 {
 	lba512_t lba512; /* number of blocks if 512bytes block size */
 
@@ -147,6 +147,9 @@ void dev_print (struct blk_desc *dev_desc)
 		break;
 	case UCLASS_VIRTIO:
 		printf("%s VirtIO Block Device\n", dev_desc->vendor);
+		break;
+	case UCLASS_EFI_MEDIA:
+		printf("EFI media Block Device %d\n", dev_desc->devnum);
 		break;
 	case UCLASS_INVALID:
 		puts("device type unknown\n");
