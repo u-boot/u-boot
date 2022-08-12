@@ -12,7 +12,7 @@
 #include <blk.h>
 #include <command.h>
 
-int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
+int blk_common_cmd(int argc, char *const argv[], enum uclass_id if_type,
 		   int *cur_devnump)
 {
 	const char *if_name = blk_get_if_type_name(if_type);
