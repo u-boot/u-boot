@@ -10,7 +10,7 @@
 #include <bios_emul.h>
 #include <irq_func.h>
 #include <log.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <linux/linkage.h>
 #include <asm/cache.h>
 #include <asm/processor.h>
@@ -190,7 +190,7 @@ static void setup_realmode_idt(void)
 }
 
 #ifdef CONFIG_FRAMEBUFFER_SET_VESA_MODE
-static u8 vbe_get_mode_info(struct vbe_mode_info *mi)
+static u8 vbe_get_mode_info(struct vesa_state *mi)
 {
 	u16 buffer_seg;
 	u16 buffer_adr;
@@ -204,13 +204,13 @@ static u8 vbe_get_mode_info(struct vbe_mode_info *mi)
 
 	realmode_interrupt(0x10, VESA_GET_MODE_INFO, 0x0000, mi->video_mode,
 			   0x0000, buffer_seg, buffer_adr);
-	memcpy(mi->mode_info_block, buffer, sizeof(struct vbe_mode_info));
+	memcpy(mi->mode_info_block, buffer, sizeof(struct vesa_state));
 	mi->valid = true;
 
 	return 0;
 }
 
-static u8 vbe_set_mode(struct vbe_mode_info *mi)
+static u8 vbe_set_mode(struct vesa_state *mi)
 {
 	int video_mode = mi->video_mode;
 
@@ -225,7 +225,7 @@ static u8 vbe_set_mode(struct vbe_mode_info *mi)
 	return 0;
 }
 
-static void vbe_set_graphics(int vesa_mode, struct vbe_mode_info *mode_info)
+static void vbe_set_graphics(int vesa_mode, struct vesa_state *mode_info)
 {
 	unsigned char *framebuffer;
 
@@ -249,7 +249,7 @@ static void vbe_set_graphics(int vesa_mode, struct vbe_mode_info *mode_info)
 #endif /* CONFIG_FRAMEBUFFER_SET_VESA_MODE */
 
 void bios_run_on_x86(struct udevice *dev, unsigned long addr, int vesa_mode,
-		     struct vbe_mode_info *mode_info)
+		     struct vesa_state *mode_info)
 {
 	pci_dev_t pcidev = dm_pci_get_bdf(dev);
 	u32 num_dev;

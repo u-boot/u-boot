@@ -51,7 +51,7 @@
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <linux/delay.h>
 #include "biosemui.h"
 
@@ -83,13 +83,13 @@ static const void *bios_ptr(const void *buf, BE_VGAInfo *vga_info,
 }
 
 static int atibios_debug_mode(BE_VGAInfo *vga_info, RMREGS *regs,
-			      int vesa_mode, struct vbe_mode_info *mode_info)
+			      int vesa_mode, struct vesa_state *mode_info)
 {
 	void *buffer = (void *)(M.mem_base + vbe_offset);
 	u16 buffer_seg = (((unsigned long)vbe_offset) >> 4) & 0xff00;
 	u16 buffer_adr = ((unsigned long)vbe_offset) & 0xffff;
 	struct vesa_mode_info *vm;
-	struct vbe_info *info;
+	struct vesa_bios_ext_info *info;
 	const u16 *modes_bios, *ptr;
 	u16 *modes;
 	int size;
@@ -140,7 +140,7 @@ static int atibios_debug_mode(BE_VGAInfo *vga_info, RMREGS *regs,
 		int attr;
 
 		debug("Mode %x: ", mode);
-		memset(buffer, '\0', sizeof(struct vbe_mode_info));
+		memset(buffer, '\0', sizeof(struct vesa_state));
 		regs->e.eax = VESA_GET_MODE_INFO;
 		regs->e.ebx = 0;
 		regs->e.ecx = mode;
@@ -174,7 +174,7 @@ static int atibios_debug_mode(BE_VGAInfo *vga_info, RMREGS *regs,
 }
 
 static int atibios_set_vesa_mode(RMREGS *regs, int vesa_mode,
-				 struct vbe_mode_info *mode_info)
+				 struct vesa_state *mode_info)
 {
 	void *buffer = (void *)(M.mem_base + vbe_offset);
 	u16 buffer_seg = (((unsigned long)vbe_offset) >> 4) & 0xff00;
@@ -192,7 +192,7 @@ static int atibios_set_vesa_mode(RMREGS *regs, int vesa_mode,
 		return -ENOSYS;
 	}
 
-	memset(buffer, '\0', sizeof(struct vbe_mode_info));
+	memset(buffer, '\0', sizeof(struct vesa_state));
 	debug("VBE: Geting info for VESA mode %#04x\n", vesa_mode);
 	regs->e.eax = VESA_GET_MODE_INFO;
 	regs->e.ecx = vesa_mode;
@@ -231,7 +231,7 @@ at this stage the controller has its I/O and memory space enabled and
 that all other controllers are in a disabled state.
 ****************************************************************************/
 static void PCI_doBIOSPOST(struct udevice *pcidev, BE_VGAInfo *vga_info,
-			   int vesa_mode, struct vbe_mode_info *mode_info)
+			   int vesa_mode, struct vesa_state *mode_info)
 {
 	RMREGS regs;
 	RMSREGS sregs;
@@ -416,7 +416,7 @@ image we can extract over the PCI bus.
 ****************************************************************************/
 static int PCI_postController(struct udevice *pcidev, uchar *bios_rom,
 			      int bios_len, BE_VGAInfo *vga_info,
-			      int vesa_mode, struct vbe_mode_info *mode_info)
+			      int vesa_mode, struct vesa_state *mode_info)
 {
 	u32 bios_image_len;
 	uchar *mapped_bios;
@@ -496,7 +496,7 @@ void biosemu_set_interrupt_handler(int intnum, int (*int_func)(void))
 
 int biosemu_run(struct udevice *pcidev, uchar *bios_rom, int bios_len,
 		BE_VGAInfo *vga_info, int clean_up, int vesa_mode,
-		struct vbe_mode_info *mode_info)
+		struct vesa_state *mode_info)
 {
 	/*Post all the display controller BIOS'es*/
 	if (!PCI_postController(pcidev, bios_rom, bios_len, vga_info,

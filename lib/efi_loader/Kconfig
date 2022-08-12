@@ -37,6 +37,7 @@ if EFI_LOADER
 config CMD_BOOTEFI_BOOTMGR
 	bool "UEFI Boot Manager"
 	default y
+	select BOOTMETH_GLOBAL if BOOTSTD
 	help
 	  Select this option if you want to select the UEFI binary to be booted
 	  via UEFI variables Boot####, BootOrder, and BootNext. This enables the

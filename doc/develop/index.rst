@@ -39,6 +39,7 @@ Implementation
    smbios
    spl
    uefi/index
+   vbe
    version
 
 Debugging

@@ -349,6 +349,13 @@ config BOOTSTD_BOOTCOMMAND
 	  standard boot does not support all of the features of distro boot
 	  yet.
 
+config BOOTMETH_GLOBAL
+	bool
+	help
+	  Add support for global bootmeths. This feature is used by VBE and
+	  EFI bootmgr, since they take full control over which bootdevs are
+	  selected to boot.
+
 config BOOTMETH_DISTRO
 	bool "Bootdev support for distro boot"
 	select PXE_UTILS
@@ -390,6 +397,28 @@ config BOOTMETH_EFILOADER
 	     riscv64   - RISC-V 64-bit
 
 	  This provides a way to try out standard boot on an existing boot flow.
+
+config BOOTMETH_VBE
+	bool "Bootdev support for Verified Boot for Embedded"
+	depends on FIT
+	default y
+	select BOOTMETH_GLOBAL
+	help
+	  Enables support for VBE boot. This is a standard boot method which
+	  supports selection of various firmware components, seleciton of an OS to
+	  boot as well as updating these using fwupd.
+
+if BOOTMETH_VBE
+
+config BOOTMETH_VBE_SIMPLE
+	bool "Bootdev support for VBE 'simple' method"
+	default y
+	help
+	  Enables support for VBE 'simple' boot. This allows updating a single
+	  firmware image in boot media such as MMC. It does not support any sort
+	  of rollback, recovery or A/B boot.
+
+endif # BOOTMETH_VBE
 
 config BOOTMETH_SANDBOX
 	def_bool y

@@ -21,6 +21,7 @@
 #include <linux/libfdt.h>
 #include <mapmem.h>
 #include <asm/io.h>
+#include <dm/ofnode.h>
 #include <tee/optee.h>
 
 #ifndef CONFIG_SYS_FDT_PAD
@@ -665,6 +666,16 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		if (fdt_ret) {
 			printf("ERROR: system-specific fdt fixup failed: %s\n",
 			       fdt_strerror(fdt_ret));
+			goto err;
+		}
+	}
+	if (CONFIG_IS_ENABLED(EVENT)) {
+		struct event_ft_fixup fixup;
+
+		fixup.tree = oftree_default();
+		ret = event_notify(EVT_FT_FIXUP, &fixup, sizeof(fixup));
+		if (ret) {
+			printf("ERROR: fdt fixup event failed: %d\n", ret);
 			goto err;
 		}
 	}

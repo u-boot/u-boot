@@ -77,12 +77,14 @@ struct bootflow {
  * @BOOTFLOWF_SHOW: Show each bootdev before scanning it
  * @BOOTFLOWF_ALL: Return bootflows with errors as well
  * @BOOTFLOWF_SINGLE_DEV: Just scan one bootmeth
+ * @BOOTFLOWF_SKIP_GLOBAL: Don't scan global bootmeths
  */
 enum bootflow_flags_t {
 	BOOTFLOWF_FIXED		= 1 << 0,
 	BOOTFLOWF_SHOW		= 1 << 1,
 	BOOTFLOWF_ALL		= 1 << 2,
 	BOOTFLOWF_SINGLE_DEV	= 1 << 3,
+	BOOTFLOWF_SKIP_GLOBAL	= 1 << 4,
 };
 
 /**
@@ -102,8 +104,10 @@ enum bootflow_flags_t {
  * updated to a larger value, no less than the number of available partitions.
  * This ensures that iteration works through all partitions on the bootdev.
  *
- * @flags: Flags to use (see enum bootflow_flags_t)
- * @dev: Current bootdev
+ * @flags: Flags to use (see enum bootflow_flags_t). If BOOTFLOWF_GLOBAL_FIRST is
+ *	enabled then the global bootmeths are being scanned, otherwise we have
+ *	moved onto the bootdevs
+ * @dev: Current bootdev, NULL if none
  * @part: Current partition number (0 for whole device)
  * @method: Current bootmeth
  * @max_part: Maximum hardware partition number in @dev, 0 if there is no
@@ -117,7 +121,11 @@ enum bootflow_flags_t {
  *	with the first one on the list
  * @num_methods: Number of bootmeth devices in @method_order
  * @cur_method: Current method number, an index into @method_order
- * @method_order: List of bootmeth devices to use, in order
+ * @first_glob_method: First global method, if any, else -1
+ * @method_order: List of bootmeth devices to use, in order. The normal methods
+ *	appear first, then the global ones, if any
+ * @doing_global: true if we are iterating through the global bootmeths (which
+ *	happens before the normal ones)
  */
 struct bootflow_iter {
 	int flags;
@@ -131,7 +139,9 @@ struct bootflow_iter {
 	struct udevice **dev_order;
 	int num_methods;
 	int cur_method;
+	int first_glob_method;
 	struct udevice **method_order;
+	bool doing_global;
 };
 
 /**
@@ -169,9 +179,9 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
  * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
  *
  * @dev:	Boot device to scan, NULL to work through all of them until it
- *	finds one that * can supply a bootflow
+ *	finds one that can supply a bootflow
  * @iter:	Place to store private info (inited by this call)
- * @flags:	Flags for bootdev (enum bootflow_flags_t)
+ * @flags:	Flags for iterator (enum bootflow_flags_t)
  * @bflow:	Place to put the bootflow if found
  * Return: 0 if found,  -ENODEV if no device, other -ve on other error
  *	(iteration can continue)

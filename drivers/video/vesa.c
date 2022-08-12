@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <log.h>
 #include <pci.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/mtrr.h>
 
@@ -17,7 +17,7 @@ static int vesa_video_probe(struct udevice *dev)
 	ulong fbbase;
 	int ret;
 
-	ret = vbe_setup_video(dev, NULL);
+	ret = vesa_setup_video(dev, NULL);
 	if (ret)
 		return log_ret(ret);
 

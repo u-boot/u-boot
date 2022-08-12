@@ -552,6 +552,17 @@ ofnode ofnode_path(const char *path)
 		return offset_to_ofnode(fdt_path_offset(gd->fdt_blob, path));
 }
 
+ofnode ofnode_path_root(oftree tree, const char *path)
+{
+	if (of_live_active())
+		return np_to_ofnode(of_find_node_opts_by_path(tree.np, path,
+							      NULL));
+	else if (*path != '/' && tree.fdt != gd->fdt_blob)
+		return ofnode_null();  /* Aliases only on control FDT */
+	else
+		return offset_to_ofnode(fdt_path_offset(tree.fdt, path));
+}
+
 const void *ofnode_read_chosen_prop(const char *propname, int *sizep)
 {
 	ofnode chosen_node;
@@ -1094,70 +1105,44 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 	}
 }
 
-int ofnode_write_prop(ofnode node, const char *propname, int len,
-		      const void *value)
+int ofnode_write_prop(ofnode node, const char *propname, const void *value,
+		      int len)
 {
-	const struct device_node *np = ofnode_to_np(node);
-	struct property *pp;
-	struct property *pp_last = NULL;
-	struct property *new;
-
-	if (!of_live_active())
-		return -ENOSYS;
-
-	if (!np)
-		return -EINVAL;
-
-	for (pp = np->properties; pp; pp = pp->next) {
-		if (strcmp(pp->name, propname) == 0) {
-			/* Property exists -> change value */
-			pp->value = (void *)value;
-			pp->length = len;
-			return 0;
-		}
-		pp_last = pp;
-	}
-
-	if (!pp_last)
-		return -ENOENT;
-
-	/* Property does not exist -> append new property */
-	new = malloc(sizeof(struct property));
-	if (!new)
-		return -ENOMEM;
-
-	new->name = strdup(propname);
-	if (!new->name) {
-		free(new);
-		return -ENOMEM;
-	}
-
-	new->value = (void *)value;
-	new->length = len;
-	new->next = NULL;
-
-	pp_last->next = new;
+	if (of_live_active())
+		return of_write_prop(ofnode_to_npw(node), propname, len, value);
+	else
+		return fdt_setprop((void *)gd->fdt_blob, ofnode_to_offset(node),
+				   propname, value, len);
 
 	return 0;
 }
 
 int ofnode_write_string(ofnode node, const char *propname, const char *value)
 {
-	if (!of_live_active())
-		return -ENOSYS;
-
 	assert(ofnode_valid(node));
 
 	debug("%s: %s = %s", __func__, propname, value);
 
-	return ofnode_write_prop(node, propname, strlen(value) + 1, value);
+	return ofnode_write_prop(node, propname, value, strlen(value) + 1);
+}
+
+int ofnode_write_u32(ofnode node, const char *propname, u32 value)
+{
+	fdt32_t *val;
+
+	assert(ofnode_valid(node));
+
+	log_debug("%s = %x", propname, value);
+	val = malloc(sizeof(*val));
+	if (!val)
+		return -ENOMEM;
+	*val = cpu_to_fdt32(value);
+
+	return ofnode_write_prop(node, propname, val, sizeof(value));
 }
 
 int ofnode_set_enabled(ofnode node, bool value)
 {
-	if (!of_live_active())
-		return -ENOSYS;
-
 	assert(ofnode_valid(node));
 
 	if (value)

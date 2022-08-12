@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <efi_api.h>
 #include <log.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 
 struct pixel {
@@ -149,7 +149,7 @@ static int efi_video_probe(struct udevice *dev)
 	if (ret)
 		goto err;
 
-	ret = vbe_setup_video_priv(vesa, uc_priv, plat);
+	ret = vesa_setup_video_priv(vesa, uc_priv, plat);
 	if (ret)
 		goto err;
 

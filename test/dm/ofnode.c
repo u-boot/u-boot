@@ -3,8 +3,13 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <of_live.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/of_extra.h>
+#include <dm/root.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -469,3 +474,130 @@ static int dm_test_ofnode_get_phy(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_phy, 0);
+
+/**
+ * make_ofnode_fdt() - Create an FDT for testing with ofnode
+ *
+ * The size is set to the minimum needed
+ *
+ * @uts: Test state
+ * @fdt: Place to write FDT
+ * @size: Maximum size of space for fdt
+ */
+static int make_ofnode_fdt(struct unit_test_state *uts, void *fdt, int size)
+{
+	ut_assertok(fdt_create(fdt, size));
+	ut_assertok(fdt_finish_reservemap(fdt));
+	ut_assert(fdt_begin_node(fdt, "") >= 0);
+
+	ut_assert(fdt_begin_node(fdt, "aliases") >= 0);
+	ut_assertok(fdt_property_string(fdt, "mmc0", "/new-mmc"));
+	ut_assertok(fdt_end_node(fdt));
+
+	ut_assert(fdt_begin_node(fdt, "new-mmc") >= 0);
+	ut_assertok(fdt_end_node(fdt));
+
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_finish(fdt));
+
+	return 0;
+}
+
+static int dm_test_ofnode_root(struct unit_test_state *uts)
+{
+	struct device_node *root = NULL;
+	char fdt[256];
+	oftree tree;
+	ofnode node;
+
+	/* Check that aliases work on the control FDT */
+	node = ofnode_get_aliases_node("ethernet3");
+	ut_assert(ofnode_valid(node));
+	ut_asserteq_str("sbe5", ofnode_get_name(node));
+
+	ut_assertok(make_ofnode_fdt(uts, fdt, sizeof(fdt)));
+	if (of_live_active()) {
+		ut_assertok(unflatten_device_tree(fdt, &root));
+		tree.np = root;
+	} else {
+		tree.fdt = fdt;
+	}
+
+	/* Make sure they don't work on this new tree */
+	node = ofnode_path_root(tree, "mmc0");
+	ut_assert(!ofnode_valid(node));
+
+	/* It should appear in the new tree */
+	node = ofnode_path_root(tree, "/new-mmc");
+	ut_assert(ofnode_valid(node));
+
+	/* ...and not in the control FDT */
+	node = ofnode_path_root(oftree_default(), "/new-mmc");
+	ut_assert(!ofnode_valid(node));
+
+	free(root);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_root, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ofnode node;
+
+	/* Test enabling devices */
+	node = ofnode_path("/usb@2");
+
+	ut_assert(!ofnode_is_enabled(node));
+	ut_assertok(ofnode_set_enabled(node, true));
+	ut_asserteq(true, ofnode_is_enabled(node));
+
+	device_bind_driver_to_node(dm_root(), "usb_sandbox", "usb@2", node,
+				   &dev);
+	ut_assertok(uclass_find_device_by_seq(UCLASS_USB, 2, &dev));
+
+	/* Test string property setting */
+	ut_assert(device_is_compatible(dev, "sandbox,usb"));
+	ofnode_write_string(node, "compatible", "gdsys,super-usb");
+	ut_assert(device_is_compatible(dev, "gdsys,super-usb"));
+	ofnode_write_string(node, "compatible", "sandbox,usb");
+	ut_assert(device_is_compatible(dev, "sandbox,usb"));
+
+	/* Test setting generic properties */
+
+	/* Non-existent in DTB */
+	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr(dev));
+	/* reg = 0x42, size = 0x100 */
+	ut_assertok(ofnode_write_prop(node, "reg",
+				      "\x00\x00\x00\x42\x00\x00\x01\x00", 8));
+	ut_asserteq(0x42, dev_read_addr(dev));
+
+	/* Test disabling devices */
+	device_remove(dev, DM_REMOVE_NORMAL);
+	device_unbind(dev);
+
+	ut_assert(ofnode_is_enabled(node));
+	ut_assertok(ofnode_set_enabled(node, false));
+	ut_assert(!ofnode_is_enabled(node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_livetree_writing,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);
+
+static int dm_test_ofnode_u32(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	node = ofnode_path("/lcd");
+	ut_assert(ofnode_valid(node));
+	ut_asserteq(1366, ofnode_read_u32_default(node, "xres", 123));
+	ut_assertok(ofnode_write_u32(node, "xres", 1367));
+	ut_asserteq(1367, ofnode_read_u32_default(node, "xres", 123));
+	ut_assertok(ofnode_write_u32(node, "xres", 1366));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_u32,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);

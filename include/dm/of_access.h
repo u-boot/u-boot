@@ -197,6 +197,11 @@ struct device_node *of_get_parent(const struct device_node *np);
 /**
  * of_find_node_opts_by_path() - Find a node matching a full OF path
  *
+ * Note that alias processing is only available on the control FDT (gd->of_root).
+ * For other trees it is skipped, so any attempt to obtain an alias will result
+ * in returning NULL.
+ *
+ * @root: Root node of the tree to use. If this is NULL, then gd->of_root is used
  * @path: Either the full path to match, or if the path does not start with
  *	'/', the name of a property of the /aliases node (an alias). In the
  *	case of an alias, the node matching the alias' value will be returned.
@@ -210,12 +215,13 @@ struct device_node *of_get_parent(const struct device_node *np);
  *
  * Return: a node pointer or NULL if not found
  */
-struct device_node *of_find_node_opts_by_path(const char *path,
+struct device_node *of_find_node_opts_by_path(struct device_node *root,
+					      const char *path,
 					      const char **opts);
 
 static inline struct device_node *of_find_node_by_path(const char *path)
 {
-	return of_find_node_opts_by_path(path, NULL);
+	return of_find_node_opts_by_path(NULL, path, NULL);
 }
 
 /**
@@ -512,5 +518,17 @@ int of_alias_get_highest_id(const char *stem);
  * Return: node referred to by stdout-path alias, or NULL if none
  */
 struct device_node *of_get_stdout(void);
+
+/**
+ * of_write_prop() - Write a property to the device tree
+ *
+ * @np:		device node to which the property value is to be written
+ * @propname:	name of the property to write
+ * @value:	value of the property
+ * @len:	length of the property in bytes
+ * Returns: 0 if OK, -ve on error
+ */
+int of_write_prop(struct device_node *np, const char *propname, int len,
+		  const void *value);
 
 #endif

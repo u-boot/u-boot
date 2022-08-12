@@ -13,18 +13,47 @@ struct bootflow_iter;
 struct udevice;
 
 /**
+ * enum bootmeth_flags - Flags for bootmeths
+ *
+ * @BOOTMETHF_GLOBAL: bootmeth handles bootdev selection automatically
+ */
+enum bootmeth_flags {
+	BOOTMETHF_GLOBAL	= BIT(0),
+};
+
+/**
  * struct bootmeth_uc_plat - information the uclass keeps about each bootmeth
  *
  * @desc: A long description of the bootmeth
+ * @flags: Flags for this bootmeth (enum bootmeth_flags)
  */
 struct bootmeth_uc_plat {
 	const char *desc;
+	int flags;
 };
 
 /** struct bootmeth_ops - Operations for boot methods */
 struct bootmeth_ops {
 	/**
-	 * check_supported() - check if a bootmeth supports this bootflow
+	 * get_state_desc() - get detailed state information
+	 *
+	 * Prodecues a textual description of the state of the bootmeth. This
+	 * can include newline characters if it extends to multiple lines. It
+	 * must be a nul-terminated string.
+	 *
+	 * This may involve reading state from the system, e.g. some data in
+	 * the firmware area.
+	 *
+	 * @dev:	Bootmethod device to check
+	 * @buf:	Buffer to place the info in (terminator must fit)
+	 * @maxsize:	Size of buffer
+	 * Returns: 0 if OK, -ENOSPC is buffer is too small, other -ve error if
+	 * something else went wrong
+	 */
+	int (*get_state_desc)(struct udevice *dev, char *buf, int maxsize);
+
+	/**
+	 * check_supported() - check if a bootmeth supports this bootdev
 	 *
 	 * This is optional. If not provided, the bootdev is assumed to be
 	 * supported
@@ -90,6 +119,24 @@ struct bootmeth_ops {
 };
 
 #define bootmeth_get_ops(dev)  ((struct bootmeth_ops *)(dev)->driver->ops)
+
+/**
+ * bootmeth_get_state_desc() - get detailed state information
+ *
+ * Prodecues a textual description of the state of the bootmeth. This
+ * can include newline characters if it extends to multiple lines. It
+ * must be a nul-terminated string.
+ *
+ * This may involve reading state from the system, e.g. some data in
+ * the firmware area.
+ *
+ * @dev:	Bootmethod device to check
+ * @buf:	Buffer to place the info in (terminator must fit)
+ * @maxsize:	Size of buffer
+ * Returns: 0 if OK, -ENOSPC is buffer is too small, other -ve error if
+ * something else went wrong
+ */
+int bootmeth_get_state_desc(struct udevice *dev, char *buf, int maxsize);
 
 /**
  * bootmeth_check() - check if a bootmeth supports this bootflow
@@ -162,10 +209,12 @@ int bootmeth_boot(struct udevice *dev, struct bootflow *bflow);
  * ordering there, then all bootmethods are added
  *
  * @iter: Iterator to update with the order
+ * @include_global: true to add the global bootmeths, in which case they appear
+ * first
  * Return: 0 if OK, -ENOENT if no bootdevs, -ENOMEM if out of memory, other -ve
  *	on other error
  */
-int bootmeth_setup_iter_order(struct bootflow_iter *iter);
+int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global);
 
 /**
  * bootmeth_set_order() - Set the bootmeth order
@@ -230,5 +279,17 @@ int bootmeth_alloc_file(struct bootflow *bflow, uint size_limit, uint align);
  */
 int bootmeth_common_read_file(struct udevice *dev, struct bootflow *bflow,
 			      const char *file_path, ulong addr, ulong *sizep);
+
+/**
+ * bootmeth_get_bootflow() - Get a bootflow from a global bootmeth
+ *
+ * Check the bootmeth for a bootflow which can be used. In this case the
+ * bootmeth handles all bootdev selection, etc.
+ *
+ * @dev: bootmeth device to read from
+ * @bflow: Bootflow information
+ * @return 0 on success, -ve if a bootflow could not be found or had an error
+ */
+int bootmeth_get_bootflow(struct udevice *dev, struct bootflow *bflow);
 
 #endif
