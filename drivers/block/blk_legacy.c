@@ -70,7 +70,6 @@ static int get_desc(struct blk_driver *drv, int devnum, struct blk_desc **descp)
 	return drv->get_dev(devnum, descp);
 }
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 int blk_list_part(enum if_type if_type)
 {
 	struct blk_driver *drv;
@@ -174,7 +173,6 @@ int blk_show_device(enum if_type if_type, int devnum)
 
 	return 0;
 }
-#endif /* CONFIG_HAVE_BLOCK_DEVICE */
 
 struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum)
 {
