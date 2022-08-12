@@ -1,6 +1,5 @@
 config SCSI
 	bool "Support SCSI controllers"
-	select SPL_LEGACY_BLOCK
 	help
 	  This enables support for SCSI (Small Computer System Interface),
 	  a parallel interface widely used with storage peripherals such as

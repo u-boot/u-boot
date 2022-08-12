@@ -13,8 +13,14 @@ config BLK
 
 config SPL_LEGACY_BLOCK
 	bool "Enable Legacy Block Device"
+	depends on SPL && !DM_SPL
+	default y if SPL_MMC || SPL_USB_STORAGE || SCSI || NVME || IDE
+	default y if SPL_AHCI_PCI
 	help
-	  Some devices require block support whether or not DM is enabled
+	  Some devices require block support whether or not DM is enabled. This
+	  is only supported in SPL. With this, the blk uclass is not used, but
+	  instead a legacy implementation of block devices is used, with all
+	  devices consisting of 'struct blk_desc' records.
 
 config SPL_BLK
 	bool "Support block devices in SPL"
@@ -109,7 +115,6 @@ endif  # EFI_MEDIA
 
 config IDE
 	bool "Support IDE controllers"
-	select SPL_LEGACY_BLOCK
 	help
 	  Enables support for IDE (Integrated Drive Electronics) hard drives.
 	  This allows access to raw blocks and filesystems on an IDE drive
@@ -222,7 +227,6 @@ endif  # IDE
 
 config LBA48
 	bool "Enable LBA support for disks larger than 137GB"
-	depends on SPL_LEGACY_BLOCK
 	help
 	  Set this to enable support for disks larger than 137GB.
 	  Also look at CONFIG_SYS_64BIT_LBA.  Without both of these, LBA48
@@ -231,7 +235,6 @@ config LBA48
 
 config SYS_64BIT_LBA
 	bool "Enable 64bit number of blocks on a block device"
-	depends on SPL_LEGACY_BLOCK
 	help
 	  Make the block subsystem use 64bit sector addresses, rather than the
 	  default of 32bit.

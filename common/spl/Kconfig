@@ -792,7 +792,6 @@ config SPL_DM_MAILBOX
 config SPL_MMC
 	bool "Support MMC"
 	depends on MMC
-	select SPL_LEGACY_BLOCK
 	help
 	  Enable support for MMC (Multimedia Card) within SPL. This enables
 	  the MMC protocol implementation and allows any enabled drivers to
@@ -1318,7 +1317,6 @@ config SPL_THERMAL
 
 config SPL_USB_HOST
 	bool "Support USB host drivers"
-	select SPL_LEGACY_BLOCK
 	help
 	  Enable access to USB (Universal Serial Bus) host devices so that
 	  SPL can load U-Boot from a connected USB peripheral, such as a USB
