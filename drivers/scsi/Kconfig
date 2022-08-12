@@ -10,7 +10,6 @@ config SCSI
 
 config DM_SCSI
 	bool "Support SCSI controllers with driver model"
-	depends on BLK
 	help
 	  This option enables the SCSI (Small Computer System Interface) uclass
 	  which supports SCSI and SATA HDDs. For every device configuration

@@ -1026,7 +1026,6 @@ config ARCH_NPCM
 config ARCH_APPLE
 	bool "Apple SoCs"
 	select ARM64
-	select BLK
 	select CLK
 	select CMD_USB
 	select DM
