@@ -1092,7 +1092,6 @@ config CMD_PWM
 config CMD_GPT
 	bool "GPT (GUID Partition Table) command"
 	select EFI_PARTITION
-	select HAVE_BLOCK_DEVICE
 	select PARTITION_UUIDS
 	imply RANDOM_UUID
 	help
@@ -1211,7 +1210,6 @@ config CMD_LSBLK
 config CMD_MBR
 	bool "MBR (Master Boot Record) command"
 	select DOS_PARTITION
-	select HAVE_BLOCK_DEVICE
 	help
 	  Enable the 'mbr' command to ready and write MBR (Master Boot Record)
 	  style partition tables.
@@ -1343,7 +1341,6 @@ config CMD_OSD
 config CMD_PART
 	bool "part"
 	depends on PARTITIONS
-	select HAVE_BLOCK_DEVICE
 	select PARTITION_UUIDS
 	help
 	  Read and display information about the partition table on
@@ -1474,7 +1471,6 @@ config CMD_UNIVERSE
 config CMD_USB
 	bool "usb"
 	depends on USB_HOST
-	select HAVE_BLOCK_DEVICE
 	help
 	  USB support.
 
@@ -1514,7 +1510,6 @@ config CMD_PVBLOCK
 config CMD_VIRTIO
 	bool "virtio"
 	depends on VIRTIO
-	depends on HAVE_BLOCK_DEVICE
 	default y if VIRTIO
 	help
 	  VirtIO block device support
