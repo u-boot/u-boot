@@ -1,5 +1,5 @@
 config BLK
-	bool "Support block devices"
+	bool # "Support block devices"
 	depends on DM
 	default y if MMC || USB || SCSI || NVME || IDE || AHCI || SATA
 	default y if EFI_MEDIA || VIRTIO_BLK || PVBLOCK
@@ -12,7 +12,7 @@ config BLK
 	  A filesystem can be placed in each partition.
 
 config SPL_LEGACY_BLOCK
-	bool "Enable Legacy Block Device"
+	bool # "Enable Legacy Block Device"
 	depends on SPL && !DM_SPL
 	default y if SPL_MMC || SPL_USB_STORAGE || SCSI || NVME || IDE
 	default y if SPL_AHCI_PCI
