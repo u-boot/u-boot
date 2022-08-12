@@ -17,18 +17,21 @@
 #include <dm/uclass-internal.h>
 #include <linux/err.h>
 
-static const char *if_typename_str[IF_TYPE_COUNT] = {
-	[IF_TYPE_IDE]		= "ide",
-	[IF_TYPE_SCSI]		= "scsi",
-	[IF_TYPE_USB]		= "usb",
-	[IF_TYPE_MMC]		= "mmc",
-	[IF_TYPE_SATA]		= "sata",
-	[IF_TYPE_HOST]		= "host",
-	[IF_TYPE_NVME]		= "nvme",
-	[IF_TYPE_EFI_MEDIA]	= "efi",
-	[IF_TYPE_EFI_LOADER]	= "efiloader",
-	[IF_TYPE_VIRTIO]	= "virtio",
-	[IF_TYPE_PVBLOCK]	= "pvblock",
+static struct {
+	enum uclass_id id;
+	const char *name;
+} if_typename_str[] = {
+	{ IF_TYPE_IDE, "ide" },
+	{ IF_TYPE_SCSI, "scsi" },
+	{ IF_TYPE_USB, "usb" },
+	{ IF_TYPE_MMC,  "mmc" },
+	{ IF_TYPE_SCSI, "sata" },
+	{ IF_TYPE_HOST, "host" },
+	{ IF_TYPE_NVME, "nvme" },
+	{ IF_TYPE_EFI_MEDIA, "efi" },
+	{ IF_TYPE_EFI_LOADER, "efiloader" },
+	{ IF_TYPE_VIRTIO, "virtio" },
+	{ IF_TYPE_PVBLOCK, "pvblock" },
 };
 
 static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
@@ -49,10 +52,9 @@ static enum if_type if_typename_to_iftype(const char *if_typename)
 {
 	int i;
 
-	for (i = 0; i < IF_TYPE_COUNT; i++) {
-		if (if_typename_str[i] &&
-		    !strcmp(if_typename, if_typename_str[i]))
-			return i;
+	for (i = 0; i < ARRAY_SIZE(if_typename_str); i++) {
+		if (!strcmp(if_typename, if_typename_str[i].name))
+			return if_typename_str[i].id;
 	}
 
 	return IF_TYPE_UNKNOWN;
@@ -65,7 +67,14 @@ static enum uclass_id if_type_to_uclass_id(enum if_type if_type)
 
 const char *blk_get_if_type_name(enum if_type if_type)
 {
-	return if_typename_str[if_type];
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(if_typename_str); i++) {
+		if ((int)if_typename_str[i].id == if_type)
+			return if_typename_str[i].name;
+	}
+
+	return "(none)";
 }
 
 struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum)
@@ -104,7 +113,7 @@ struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
 	uclass_id = if_type_to_uclass_id(type);
 	if (uclass_id == UCLASS_INVALID) {
 		debug("%s: Unknown uclass for interface type'\n",
-		      if_typename_str[type]);
+		      blk_get_if_type_name(type));
 		return NULL;
 	}
 
