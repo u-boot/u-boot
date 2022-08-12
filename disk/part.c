@@ -121,34 +121,34 @@ void dev_print (struct blk_desc *dev_desc)
 	}
 
 	switch (dev_desc->if_type) {
-	case IF_TYPE_SCSI:
+	case UCLASS_SCSI:
 		printf ("(%d:%d) Vendor: %s Prod.: %s Rev: %s\n",
 			dev_desc->target,dev_desc->lun,
 			dev_desc->vendor,
 			dev_desc->product,
 			dev_desc->revision);
 		break;
-	case IF_TYPE_IDE:
-	case IF_TYPE_SATA:
+	case UCLASS_IDE:
+	case UCLASS_AHCI:
 		printf ("Model: %s Firm: %s Ser#: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
 			dev_desc->product);
 		break;
-	case IF_TYPE_MMC:
-	case IF_TYPE_USB:
-	case IF_TYPE_NVME:
-	case IF_TYPE_PVBLOCK:
-	case IF_TYPE_HOST:
+	case UCLASS_MMC:
+	case UCLASS_USB:
+	case UCLASS_NVME:
+	case UCLASS_PVBLOCK:
+	case UCLASS_ROOT:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
 			dev_desc->product);
 		break;
-	case IF_TYPE_VIRTIO:
+	case UCLASS_VIRTIO:
 		printf("%s VirtIO Block Device\n", dev_desc->vendor);
 		break;
-	case IF_TYPE_UNKNOWN:
+	case UCLASS_INVALID:
 		puts("device type unknown\n");
 		return;
 	default:
@@ -246,34 +246,34 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 	CONFIG_IS_ENABLED(EFI_PARTITION)
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
-	case IF_TYPE_IDE:
+	case UCLASS_IDE:
 		puts ("IDE");
 		break;
-	case IF_TYPE_SATA:
+	case UCLASS_AHCI:
 		puts ("SATA");
 		break;
-	case IF_TYPE_SCSI:
+	case UCLASS_SCSI:
 		puts ("SCSI");
 		break;
-	case IF_TYPE_USB:
+	case UCLASS_USB:
 		puts ("USB");
 		break;
-	case IF_TYPE_MMC:
+	case UCLASS_MMC:
 		puts ("MMC");
 		break;
-	case IF_TYPE_HOST:
+	case UCLASS_ROOT:
 		puts ("HOST");
 		break;
-	case IF_TYPE_NVME:
+	case UCLASS_NVME:
 		puts ("NVMe");
 		break;
-	case IF_TYPE_PVBLOCK:
+	case UCLASS_PVBLOCK:
 		puts("PV BLOCK");
 		break;
-	case IF_TYPE_VIRTIO:
+	case UCLASS_VIRTIO:
 		puts("VirtIO");
 		break;
-	case IF_TYPE_EFI_MEDIA:
+	case UCLASS_EFI_MEDIA:
 		puts("EFI");
 		break;
 	default:
@@ -405,7 +405,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 		 * Always should be done, otherwise hw partition 0 will return
 		 * stale data after displaying a non-zero hw partition.
 		 */
-		if ((*dev_desc)->if_type == IF_TYPE_MMC)
+		if ((*dev_desc)->if_type == UCLASS_MMC)
 			part_init(*dev_desc);
 	}
 
@@ -760,17 +760,17 @@ void part_set_generic_name(const struct blk_desc *dev_desc,
 	char *devtype;
 
 	switch (dev_desc->if_type) {
-	case IF_TYPE_IDE:
-	case IF_TYPE_SATA:
+	case UCLASS_IDE:
+	case UCLASS_AHCI:
 		devtype = "hd";
 		break;
-	case IF_TYPE_SCSI:
+	case UCLASS_SCSI:
 		devtype = "sd";
 		break;
-	case IF_TYPE_USB:
+	case UCLASS_USB:
 		devtype = "usbd";
 		break;
-	case IF_TYPE_MMC:
+	case UCLASS_MMC:
 		devtype = "mmcsd";
 		break;
 	default:

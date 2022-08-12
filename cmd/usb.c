@@ -719,7 +719,7 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (strncmp(argv[1], "stor", 4) == 0)
 		return usb_stor_info();
 
-	return blk_common_cmd(argc, argv, IF_TYPE_USB, &usb_stor_curr_dev);
+	return blk_common_cmd(argc, argv, UCLASS_USB, &usb_stor_curr_dev);
 #else
 	return CMD_RET_USAGE;
 #endif /* CONFIG_USB_STORAGE */

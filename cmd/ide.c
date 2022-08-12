@@ -37,7 +37,7 @@ int do_ide(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 	}
 
-	return blk_common_cmd(argc, argv, IF_TYPE_IDE, &curr_device);
+	return blk_common_cmd(argc, argv, UCLASS_IDE, &curr_device);
 }
 
 int do_diskboot(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

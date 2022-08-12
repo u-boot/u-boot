@@ -94,7 +94,7 @@ static int efi_media_bind(struct udevice *dev)
 	struct udevice *blk;
 	int ret;
 
-	ret = blk_create_devicef(dev, "efi_block", "blk", IF_TYPE_EFI_MEDIA,
+	ret = blk_create_devicef(dev, "efi_block", "blk", UCLASS_EFI_MEDIA,
 				 dev_seq(dev), plat->blkio->media->block_size,
 				 plat->blkio->media->last_block, &blk);
 	if (ret) {

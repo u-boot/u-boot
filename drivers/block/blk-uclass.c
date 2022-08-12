@@ -21,31 +21,17 @@ static struct {
 	enum uclass_id id;
 	const char *name;
 } if_typename_str[] = {
-	{ IF_TYPE_IDE, "ide" },
-	{ IF_TYPE_SCSI, "scsi" },
-	{ IF_TYPE_USB, "usb" },
-	{ IF_TYPE_MMC,  "mmc" },
-	{ IF_TYPE_SCSI, "sata" },
-	{ IF_TYPE_HOST, "host" },
-	{ IF_TYPE_NVME, "nvme" },
-	{ IF_TYPE_EFI_MEDIA, "efi" },
-	{ IF_TYPE_EFI_LOADER, "efiloader" },
-	{ IF_TYPE_VIRTIO, "virtio" },
-	{ IF_TYPE_PVBLOCK, "pvblock" },
-};
-
-static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
-	[IF_TYPE_IDE]		= UCLASS_IDE,
-	[IF_TYPE_SCSI]		= UCLASS_SCSI,
-	[IF_TYPE_USB]		= UCLASS_MASS_STORAGE,
-	[IF_TYPE_MMC]		= UCLASS_MMC,
-	[IF_TYPE_SATA]		= UCLASS_AHCI,
-	[IF_TYPE_HOST]		= UCLASS_ROOT,
-	[IF_TYPE_NVME]		= UCLASS_NVME,
-	[IF_TYPE_EFI_MEDIA]	= UCLASS_EFI_MEDIA,
-	[IF_TYPE_EFI_LOADER]	= UCLASS_EFI_LOADER,
-	[IF_TYPE_VIRTIO]	= UCLASS_VIRTIO,
-	[IF_TYPE_PVBLOCK]	= UCLASS_PVBLOCK,
+	{ UCLASS_IDE, "ide" },
+	{ UCLASS_SCSI, "scsi" },
+	{ UCLASS_USB, "usb" },
+	{ UCLASS_MMC,  "mmc" },
+	{ UCLASS_AHCI, "sata" },
+	{ UCLASS_ROOT, "host" },
+	{ UCLASS_NVME, "nvme" },
+	{ UCLASS_EFI_MEDIA, "efi" },
+	{ UCLASS_EFI_LOADER, "efiloader" },
+	{ UCLASS_VIRTIO, "virtio" },
+	{ UCLASS_PVBLOCK, "pvblock" },
 };
 
 static enum if_type if_typename_to_iftype(const char *if_typename)
@@ -57,12 +43,32 @@ static enum if_type if_typename_to_iftype(const char *if_typename)
 			return if_typename_str[i].id;
 	}
 
-	return IF_TYPE_UNKNOWN;
+	return UCLASS_INVALID;
 }
 
 static enum uclass_id if_type_to_uclass_id(enum if_type if_type)
 {
-	return if_type_uclass_id[if_type];
+	/*
+	 * This strange adjustment is used because we use UCLASS_MASS_STORAGE
+	 * for USB storage devices, so need to return this as the uclass to
+	 * use for USB. In fact USB_UCLASS is for USB controllers, not
+	 * peripherals.
+	 *
+	 * The name of the UCLASS_MASS_STORAGE uclass driver is
+	 * "usb_mass_storage", but we want to use "usb" in things like the
+	 * 'part list' command and when showing interfaces.
+	 *
+	 * So for now we have this one-way conversion.
+	 *
+	 * The fix for this is possibly to:
+	 *    - rename UCLASS_MASS_STORAGE name to "usb"
+	 *    - rename UCLASS_USB name to "usb_ctlr"
+	 *    - use UCLASS_MASS_STORAGE instead of UCLASS_USB in if_typename_str
+	 */
+	if (if_type == UCLASS_USB)
+		return UCLASS_MASS_STORAGE;
+
+	return if_type;
 }
 
 const char *blk_get_if_type_name(enum if_type if_type)
@@ -70,7 +76,7 @@ const char *blk_get_if_type_name(enum if_type if_type)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(if_typename_str); i++) {
-		if ((int)if_typename_str[i].id == if_type)
+		if (if_typename_str[i].id == if_type)
 			return if_typename_str[i].name;
 	}
 
@@ -105,7 +111,7 @@ struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
 	int ret;
 
 	type = if_typename_to_iftype(if_typename);
-	if (type == IF_TYPE_UNKNOWN) {
+	if (type == UCLASS_INVALID) {
 		debug("%s: Unknown interface type '%s'\n", __func__,
 		      if_typename);
 		return NULL;

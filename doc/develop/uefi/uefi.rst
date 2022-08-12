@@ -748,7 +748,7 @@ UEFI block IO driver
 The UEFI block IO driver supports devices exposing the EFI_BLOCK_IO_PROTOCOL.
 
 When connected it creates a new U-Boot block IO device with interface type
-IF_TYPE_EFI_LOADER, adds child controllers mapping the partitions, and installs
+UCLASS_EFI_LOADER, adds child controllers mapping the partitions, and installs
 the EFI_SIMPLE_FILE_SYSTEM_PROTOCOL on these. This can be used together with the
 software iPXE to boot from iSCSI network drives [4].
 

@@ -28,7 +28,7 @@ static int do_nvme(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (strncmp(argv[1], "deta", 4) == 0) {
 			struct udevice *udev;
 
-			ret = blk_get_device(IF_TYPE_NVME, nvme_curr_dev,
+			ret = blk_get_device(UCLASS_NVME, nvme_curr_dev,
 					     &udev);
 			if (ret < 0)
 				return CMD_RET_FAILURE;
@@ -39,7 +39,7 @@ static int do_nvme(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	}
 
-	return blk_common_cmd(argc, argv, IF_TYPE_NVME, &nvme_curr_dev);
+	return blk_common_cmd(argc, argv, UCLASS_NVME, &nvme_curr_dev);
 }
 
 U_BOOT_CMD(

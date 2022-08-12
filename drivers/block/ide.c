@@ -537,7 +537,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 	/* Select device
 	 */
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
-	dev_desc->if_type = IF_TYPE_IDE;
+	dev_desc->if_type = UCLASS_IDE;
 #ifdef CONFIG_ATAPI
 
 	retries = 0;
@@ -752,7 +752,7 @@ void ide_init(void)
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		ide_dev_desc[i].if_type = IF_TYPE_IDE;
+		ide_dev_desc[i].if_type = UCLASS_IDE;
 		ide_dev_desc[i].devnum = i;
 		ide_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
 		ide_dev_desc[i].blksz = 0;
@@ -1110,7 +1110,7 @@ static int ide_probe(struct udevice *udev)
 			if (!blksz)
 				continue;
 			ret = blk_create_devicef(udev, "ide_blk", name,
-						 IF_TYPE_IDE, i,
+						 UCLASS_IDE, i,
 						 blksz, size, &blk_dev);
 			if (ret)
 				return ret;
@@ -1144,7 +1144,7 @@ UCLASS_DRIVER(ide) = {
 #else
 U_BOOT_LEGACY_BLK(ide) = {
 	.if_typename	= "ide",
-	.if_type	= IF_TYPE_IDE,
+	.if_type	= UCLASS_IDE,
 	.max_devs	= CONFIG_SYS_IDE_MAXDEVICE,
 	.desc		= ide_dev_desc,
 };

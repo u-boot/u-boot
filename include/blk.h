@@ -7,6 +7,7 @@
 #ifndef BLK_H
 #define BLK_H
 
+#include <dm/uclass-id.h>
 #include <efi.h>
 
 #ifdef CONFIG_SYS_64BIT_LBA
@@ -27,22 +28,7 @@ static inline bool blk_enabled(void)
 }
 
 /* Interface types: */
-enum if_type {
-	IF_TYPE_UNKNOWN = 0,
-	IF_TYPE_IDE,
-	IF_TYPE_SCSI,
-	IF_TYPE_USB,
-	IF_TYPE_MMC,
-	IF_TYPE_SATA,
-	IF_TYPE_HOST,
-	IF_TYPE_NVME,
-	IF_TYPE_EFI_LOADER,
-	IF_TYPE_PVBLOCK,
-	IF_TYPE_VIRTIO,
-	IF_TYPE_EFI_MEDIA,
-
-	IF_TYPE_COUNT,			/* Number of interface types */
-};
+#define if_type uclass_id
 
 #define BLK_VEN_SIZE		40
 #define BLK_PRD_SIZE		20
