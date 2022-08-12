@@ -54,17 +54,22 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 	return 0;
 }
 
+#define ANDES_HW_DTB_ADDRESS	0xF2000000
 void *board_fdt_blob_setup(int *err)
 {
 	*err = 0;
-#if defined(CONFIG_OF_BOARD)
-	return (void *)(ulong)gd->arch.firmware_fdt_addr;
-#elif defined(CONFIG_OF_SEPARATE)
-	return (void *)CONFIG_SYS_FDT_BASE;
-#else
+
+	if (IS_ENABLED(CONFIG_OF_SEPARATE) || IS_ENABLED(CONFIG_OF_BOARD)) {
+		if (gd->arch.firmware_fdt_addr)
+			return (void *)(ulong)gd->arch.firmware_fdt_addr;
+	}
+
+	if (fdt_magic(CONFIG_SYS_FDT_BASE) == FDT_MAGIC)
+		return (void *)CONFIG_SYS_FDT_BASE;
+	return (void *)ANDES_HW_DTB_ADDRESS;
+
 	*err = -EINVAL;
 	return NULL;
-#endif
 }
 
 int smc_init(void)

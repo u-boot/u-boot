@@ -1488,6 +1488,14 @@ config SPL_OPENSBI_LOAD_ADDR
 	help
 	  Load address of the OpenSBI binary.
 
+config SPL_OPENSBI_SCRATCH_OPTIONS
+	hex "Scratch options passed to OpenSBI"
+	default 0x1
+	depends on SPL_OPENSBI
+	help
+	  Options passed to fw_dynamic, for example SBI_SCRATCH_NO_BOOT_PRINTS or
+	  SBI_SCRATCH_DEBUG_PRINTS.
+
 config SPL_TARGET
 	string "Addtional build targets for 'make'"
 	default "spl/u-boot-spl.srec" if RCAR_GEN2
