@@ -31,10 +31,6 @@ ulong cpu_init_f(void)
 	return 0;
 }
 
-#ifndef CONFIG_SYS_FSL_TBCLK_DIV
-#define CONFIG_SYS_FSL_TBCLK_DIV 8
-#endif
-
 void udelay(unsigned long usec)
 {
 	u32 ticks_per_usec = gd->bus_clk / (CONFIG_SYS_FSL_TBCLK_DIV * 1000000);

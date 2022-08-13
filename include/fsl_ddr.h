@@ -14,11 +14,6 @@
 
 struct cmd_tbl;
 
-#ifndef CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
-/* All controllers are for main memory */
-#define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	CONFIG_SYS_NUM_DDR_CTLRS
-#endif
-
 #ifdef CONFIG_SYS_FSL_DDR_LE
 #define ddr_in32(a)	in_le32(a)
 #define ddr_out32(a, v)	out_le32(a, v)

@@ -282,8 +282,14 @@ config EHCI_HCD_INIT_AFTER_RESET
 config USB_EHCI_FSL
 	bool  "Support for FSL on-chip EHCI USB controller"
 	select EHCI_HCD_INIT_AFTER_RESET
+	select SYS_FSL_USB_INTERNAL_UTMI_PHY if MPC85xx && \
+		!(ARCH_B4860 || ARCH_B4420 || ARCH_P4080 || ARCH_P1020 || ARCH_P2020)
 	---help---
 	  Enables support for the on-chip EHCI controller on FSL chips.
+
+config SYS_FSL_USB_INTERNAL_UTMI_PHY
+	bool
+	depends on USB_EHCI_FSL
 
 config USB_EHCI_TXFIFO_THRESH
 	hex

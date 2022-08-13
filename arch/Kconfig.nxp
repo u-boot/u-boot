@@ -227,6 +227,12 @@ config VOL_MONITOR_ISL68233_SET
 
 endif
 
+config SYS_FSL_NUM_CC_PLLS
+	int "Number of clock control PLLs"
+	depends on MPC85xx || FSL_LSCH2 || FSL_LSCH3 || ARCH_LS1021A || ARCH_LS1028A
+	default 2 if ARCH_LS1021A || ARCH_LS1028A || FSL_LSCH2
+	default 6 if FSL_LSCH3 || MPC85xx
+
 config SYS_FSL_ESDHC_BE
 	bool
 

@@ -844,6 +844,10 @@ config SYS_DPAA_QBMAN
 	help
 	  QBman fixups to allow deep sleep in DPAA 1 SOCs
 
+config SYS_FSL_QMAN_V3
+	bool # QMAN version 3
+	depends on SYS_DPAA_QBMAN
+
 config TSEC_ENET
 	select PHYLIB
 	bool "Enable Three-Speed Ethernet Controller"

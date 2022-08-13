@@ -79,13 +79,9 @@
 #define CONFIG_MAX_MEM_MAPPED			((phys_size_t)2 << 30)
 #endif
 
-#define CONFIG_SYS_FSL_WDOG_BE
-#define CONFIG_SYS_FSL_DSPI_BE
-
 #define DCU_LAYER_MAX_NUM			16
 
 #ifdef CONFIG_ARCH_LS1021A
-#define CONFIG_SYS_FSL_MAX_NUM_OF_SEC		1
 #else
 #error SoC not defined
 #endif

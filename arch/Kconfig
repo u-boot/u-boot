@@ -53,6 +53,8 @@ config ARC
 	select SUPPORT_OF_CONTROL
 	select SYS_CACHE_SHIFT_7
 	select TIMER
+	select SYS_BIG_ENDIAN if CPU_BIG_ENDIAN
+	select SYS_LITTLE_ENDIAN if !CPU_BIG_ENDIAN
 
 config ARM
 	bool "ARM architecture"

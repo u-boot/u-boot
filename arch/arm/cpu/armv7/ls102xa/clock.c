@@ -13,10 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_SYS_FSL_NUM_CC_PLLS
-#define CONFIG_SYS_FSL_NUM_CC_PLLS      2
-#endif
-
 void get_sys_info(struct sys_info *sys_info)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);

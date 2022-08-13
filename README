@@ -294,17 +294,6 @@ The following options need to be configured:
 		the "64" category of the Power ISA). This is necessary for ePAPR
 		compliance, among other possible reasons.
 
-		CONFIG_SYS_FSL_TBCLK_DIV
-
-		Defines the core time base clock divider ratio compared to the
-		system clock.  On most PQ3 devices this is 8, on newer QorIQ
-		devices it can be 16 or 32.  The ratio varies from SoC to Soc.
-
-		CONFIG_SYS_FSL_PCIE_COMPAT
-
-		Defines the string to utilize when trying to match PCIe device
-		tree nodes for the given platform.
-
 		CONFIG_SYS_FSL_ERRATUM_A004510
 
 		Enables a workaround for erratum A004510.  If set,
@@ -330,31 +319,12 @@ The following options need to be configured:
 		This is the value to write into CCSR offset 0x18600
 		according to the A004510 workaround.
 
-		CONFIG_SYS_FSL_DSP_DDR_ADDR
-		This value denotes start offset of DDR memory which is
-		connected exclusively to the DSP cores.
-
-		CONFIG_SYS_FSL_DSP_M2_RAM_ADDR
-		This value denotes start offset of M2 memory
-		which is directly connected to the DSP core.
-
-		CONFIG_SYS_FSL_DSP_M3_RAM_ADDR
-		This value denotes start offset of M3 memory which is directly
-		connected to the DSP core.
-
-		CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT
-		This value denotes start offset of DSP CCSR space.
-
 		CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 		Single Source Clock is clocking mode present in some of FSL SoC's.
 		In this mode, a single differential clock is used to supply
 		clocks to the sysclock, ddrclock and usbclock.
 
 - Generic CPU options:
-		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
-
-		Defines the endianess of the CPU. Implementation of those
-		values is arch specific.
 
 		CONFIG_SYS_FSL_DDR
 		Freescale DDR driver in use. This type of DDR controller is
@@ -363,67 +333,16 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
 
-		CONFIG_SYS_FSL_DDRC_GEN1
-		Freescale DDR1 controller.
-
-		CONFIG_SYS_FSL_DDRC_GEN2
-		Freescale DDR2 controller.
-
-		CONFIG_SYS_FSL_DDRC_GEN3
-		Freescale DDR3 controller.
-
-		CONFIG_SYS_FSL_DDRC_GEN4
-		Freescale DDR4 controller.
-
-		CONFIG_SYS_FSL_DDRC_ARM_GEN3
-		Freescale DDR3 controller for ARM-based SoCs.
-
-		CONFIG_SYS_FSL_DDR1
-		Board config to use DDR1. It can be enabled for SoCs with
-		Freescale DDR1 or DDR2 controllers, depending on the board
-		implemetation.
-
-		CONFIG_SYS_FSL_DDR2
-		Board config to use DDR2. It can be enabled for SoCs with
-		Freescale DDR2 or DDR3 controllers, depending on the board
-		implementation.
-
-		CONFIG_SYS_FSL_DDR3
-		Board config to use DDR3. It can be enabled for SoCs with
-		Freescale DDR3 or DDR3L controllers.
-
-		CONFIG_SYS_FSL_DDR3L
-		Board config to use DDR3L. It can be enabled for SoCs with
-		DDR3L controllers.
-
 		CONFIG_SYS_FSL_IFC_CLK_DIV
 		Defines divider of platform clock(clock input to IFC controller).
 
 		CONFIG_SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to eLBC controller).
 
-		CONFIG_SYS_FSL_DDR_BE
-		Defines the DDR controller register space as Big Endian
-
-		CONFIG_SYS_FSL_DDR_LE
-		Defines the DDR controller register space as Little Endian
-
 		CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY
 		Physical address from the view of DDR controllers. It is the
 		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.
-
-		CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
-		Number of controllers used as main memory.
-
-		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
-		Number of controllers used for other than main memory.
-
-		CONFIG_SYS_FSL_SEC_BE
-		Defines the SEC controller register space as Big Endian
-
-		CONFIG_SYS_FSL_SEC_LE
-		Defines the SEC controller register space as Little Endian
 
 - MIPS CPU options:
 		CONFIG_XWAY_SWAP_BYTES
@@ -645,20 +564,6 @@ The following options need to be configured:
 
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
-
-		CONFIG_SMC91111
-		Support for SMSC's LAN91C111 chip
-
-			CONFIG_SMC91111_BASE
-			Define this to hold the physical address
-			of the device (I/O space)
-
-			CONFIG_SMC_USE_32_BIT
-			Define this if data bus is 32 bits
-
-			CONFIG_SMC_USE_IOFUNCS
-			Define this to use i/o functions instead of macros
-			(some hardware wont work with macros)
 
 			CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
 			Define this if you have more then 3 PHYs.

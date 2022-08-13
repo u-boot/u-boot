@@ -334,9 +334,6 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 /*
  * Get timebase clock frequency
  */
-#ifndef CONFIG_SYS_FSL_TBCLK_DIV
-#define CONFIG_SYS_FSL_TBCLK_DIV 8
-#endif
 __weak unsigned long get_tbclk(void)
 {
 	unsigned long tbclk_div = CONFIG_SYS_FSL_TBCLK_DIV;

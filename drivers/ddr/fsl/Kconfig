@@ -40,6 +40,9 @@ config FSL_DDR_SYNC_REFRESH
 config FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	bool
 
+config SYS_FSL_OTHER_DDR_NUM_CTRLS
+	bool
+
 menu "Freescale DDR controllers"
 	depends on SYS_FSL_DDR
 
@@ -62,6 +65,10 @@ config CHIP_SELECTS_PER_CTRL
 config DIMM_SLOTS_PER_CTLR
 	int "Number of DIMM slots per controller"
 	default 1
+
+config SYS_FSL_DDR_MAIN_NUM_CTRLS
+	int "Number of controllers used as main memory"
+	default SYS_NUM_DDR_CTLRS
 
 config SYS_FSL_DDR_VER
 	int

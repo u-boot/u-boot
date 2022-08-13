@@ -8,8 +8,6 @@
 #ifndef _CONFIG_EB_CPU5282_H_
 #define _CONFIG_EB_CPU5282_H_
 
-#undef CONFIG_SYS_HALT_BEFOR_RAM_JUMP
-
 /*----------------------------------------------------------------------*
  * High Level Configuration Options (easy to change)                    *
  *----------------------------------------------------------------------*/

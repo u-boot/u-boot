@@ -18,7 +18,6 @@
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
-#define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 
 /* Watchdog */
 

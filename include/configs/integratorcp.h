@@ -19,14 +19,6 @@
 /* Integrator CP-specific configuration */
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer 1 is clocked at 1Mhz */
 
-/*
- * Hardware drivers
- */
-#define CONFIG_SMC91111
-#define CONFIG_SMC_USE_32_BIT
-#define CONFIG_SMC91111_BASE    0xC8000000
-#undef CONFIG_SMC91111_EXT_PHY
-
 #define CONFIG_SERVERIP 192.168.1.100
 #define CONFIG_IPADDR 192.168.1.104
 
