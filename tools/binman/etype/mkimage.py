@@ -16,6 +16,8 @@ class Entry_mkimage(Entry):
 
     Properties / Entry arguments:
         - args: Arguments to pass
+        - data-to-imagename: Indicates that the -d data should be passed in as
+          the image name also (-n)
 
     The data passed to mkimage via the -d flag is collected from subnodes of the
     mkimage node, e.g.::
@@ -59,6 +61,20 @@ class Entry_mkimage(Entry):
             };
         };
 
+    If you need to pass the input data in with the -n argument as well, then use
+    the 'data-to-imagename' property::
+
+        mkimage {
+            args = "-T imximage";
+            data-to-imagename;
+
+            u-boot-spl {
+            };
+        };
+
+    That will pass the data to mkimage both as the data file (with -d) and as
+    the image name (with -n). In both cases, a filename is passed as the
+    argument, with the actual data being in that file.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
@@ -68,6 +84,8 @@ class Entry_mkimage(Entry):
     def ReadNode(self):
         super().ReadNode()
         self._args = fdt_util.GetArgs(self._node, 'args')
+        self._data_to_imagename = fdt_util.GetBool(self._node,
+                                                   'data-to-imagename')
         self.ReadEntries()
 
     def ReadEntries(self):
@@ -79,13 +97,18 @@ class Entry_mkimage(Entry):
 
     def ObtainContents(self):
         # Use a non-zero size for any fake files to keep mkimage happy
+        # Note that testMkimageImagename() relies on this 'mkimage' parameter
         data, input_fname, uniq = self.collect_contents_to_file(
             self._mkimage_entries.values(), 'mkimage', 1024)
         if data is None:
             return False
         output_fname = tools.get_output_filename('mkimage-out.%s' % uniq)
-        if self.mkimage.run_cmd('-d', input_fname, *self._args,
-                                output_fname) is not None:
+
+        args = ['-d', input_fname]
+        if self._data_to_imagename:
+            args += ['-n', input_fname]
+        args += self._args + [output_fname]
+        if self.mkimage.run_cmd(*args) is not None:
             self.SetContents(tools.read_file(output_fname))
         else:
             # Bintool is missing; just use the input data as the output

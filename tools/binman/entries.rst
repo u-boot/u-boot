@@ -1167,6 +1167,8 @@ Entry: mkimage: Binary produced by mkimage
 
 Properties / Entry arguments:
     - args: Arguments to pass
+    - data-to-imagename: Indicates that the -d data should be passed in as
+      the image name also (-n)
 
 The data passed to mkimage via the -d flag is collected from subnodes of the
 mkimage node, e.g.::
@@ -1207,6 +1209,19 @@ this example which also produces four arguments::
         };
     };
 
+If you need to pass the input data in with the -n argument as well, then use
+the 'data-to-imagename' property::
+
+    mkimage {
+        args = "-T imximage";
+        data-to-imagename';
+
+        u-boot-spl {
+        };
+    };
+
+That will pass the data to mkimage both as the data file (with -d) and as
+the image name (with -n).
 
 
 

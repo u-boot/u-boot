@@ -5722,6 +5722,23 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Node '/section': Replacing sections is not implemented yet",
             str(exc.exception))
 
+    def testMkimageImagename(self):
+        """Test using mkimage with -n holding the data too"""
+        data = self._DoReadFile('235_mkimage_name.dts')
+
+        # Check that the data appears in the file somewhere
+        self.assertIn(U_BOOT_SPL_DATA, data)
+
+        # Get struct image_header -> ih_name
+        name = data[0x20:0x40]
+
+        # Build the filename that we expect to be placed in there, by virtue of
+        # the -n paraameter
+        expect = os.path.join(tools.get_output_dir(), 'mkimage.mkimage')
+
+        # Check that the image name is set to the temporary filename used
+        self.assertEqual(expect.encode('utf-8')[:0x20], name)
+
 
 if __name__ == "__main__":
     unittest.main()
