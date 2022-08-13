@@ -84,6 +84,8 @@ class Entry(object):
         update_hash: True if this entry's "hash" subnode should be
             updated with a hash of the entry contents
         fake_fname: Fake filename, if one was created, else None
+        required_props (dict of str): Properties which must be present. This can
+            be added to by subclasses
     """
     fake_dir = None
 
@@ -121,6 +123,7 @@ class Entry(object):
         self.missing_bintools = []
         self.update_hash = True
         self.fake_fname = None
+        self.required_props = []
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -238,6 +241,7 @@ class Entry(object):
 
         This reads all the fields we recognise from the node, ready for use.
         """
+        self.ensure_props()
         if 'pos' in self._node.props:
             self.Raise("Please use 'offset' instead of 'pos'")
         if 'expand-size' in self._node.props:
@@ -1184,3 +1188,19 @@ features to produce new behaviours.
         if not os.path.exists(cls.fake_dir):
             os.mkdir(cls.fake_dir)
         tout.notice(f"Fake-blob dir is '{cls.fake_dir}'")
+
+    def ensure_props(self):
+        """Raise an exception if properties are missing
+
+        Args:
+            prop_list (list of str): List of properties to check for
+
+        Raises:
+            ValueError: Any property is missing
+        """
+        not_present = []
+        for prop in self.required_props:
+            if not prop in self._node.props:
+                not_present.append(prop)
+        if not_present:
+            self.Raise(f"'{self.etype}' entry is missing properties: {' '.join(not_present)}")

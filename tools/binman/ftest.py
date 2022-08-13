@@ -1693,7 +1693,7 @@ class TestFunctional(unittest.TestCase):
         """Test for an fill entry type with no size"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('070_fill_no_size.dts')
-        self.assertIn("'fill' entry must have a size property",
+        self.assertIn("'fill' entry is missing properties: size",
                       str(e.exception))
 
     def _HandleGbbCommand(self, pipe_list):
