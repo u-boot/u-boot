@@ -5739,6 +5739,40 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         # Check that the image name is set to the temporary filename used
         self.assertEqual(expect.encode('utf-8')[:0x20], name)
 
+    def testMkimageImage(self):
+        """Test using mkimage with -n holding the data too"""
+        data = self._DoReadFile('236_mkimage_image.dts')
+
+        # Check that the data appears in the file somewhere
+        self.assertIn(U_BOOT_SPL_DATA, data)
+
+        # Get struct image_header -> ih_name
+        name = data[0x20:0x40]
+
+        # Build the filename that we expect to be placed in there, by virtue of
+        # the -n paraameter
+        expect = os.path.join(tools.get_output_dir(), 'mkimage-n.mkimage')
+
+        # Check that the image name is set to the temporary filename used
+        self.assertEqual(expect.encode('utf-8')[:0x20], name)
+
+        # Check the corect data is in the imagename file
+        self.assertEqual(U_BOOT_DATA, tools.read_file(expect))
+
+    def testMkimageImageNoContent(self):
+        """Test using mkimage with -n and no data"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('237_mkimage_image_no_content.dts')
+        self.assertIn('Could not complete processing of contents',
+                      str(exc.exception))
+
+    def testMkimageImageBad(self):
+        """Test using mkimage with imagename node and data-to-imagename"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('238_mkimage_image_bad.dts')
+        self.assertIn('Cannot use both imagename node and data-to-imagename',
+                      str(exc.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
