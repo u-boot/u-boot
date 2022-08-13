@@ -15,11 +15,10 @@ class Entry_mkimage(Entry):
     """Binary produced by mkimage
 
     Properties / Entry arguments:
-        - datafile: Filename for -d argument
-        - args: Other arguments to pass
+        - args: Arguments to pass
 
-    The data passed to mkimage is collected from subnodes of the mkimage node,
-    e.g.::
+    The data passed to mkimage via the -d flag is collected from subnodes of the
+    mkimage node, e.g.::
 
         mkimage {
             args = "-n test -T imximage";
@@ -28,9 +27,27 @@ class Entry_mkimage(Entry):
             };
         };
 
-    This calls mkimage to create an imximage with u-boot-spl.bin as the input
-    file. The output from mkimage then becomes part of the image produced by
-    binman.
+    This calls mkimage to create an imximage with `u-boot-spl.bin` as the data
+    file, with mkimage being called like this::
+
+        mkimage -d <data_file> -n test -T imximage <output_file>
+
+    The output from mkimage then becomes part of the image produced by
+    binman. If you need to put multiple things in the data file, you can use
+    a section, or just multiple subnodes like this::
+
+        mkimage {
+            args = "-n test -T imximage";
+
+            u-boot-spl {
+            };
+
+            u-boot-tpl {
+            };
+        };
+
+    Note that binman places the contents (here SPL and TPL) into a single file
+    and passes that to mkimage using the -d option.
 
     To use CONFIG options in the arguments, use a string list instead, as in
     this example which also produces four arguments::
