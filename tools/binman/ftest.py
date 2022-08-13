@@ -5773,6 +5773,20 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn('Cannot use both imagename node and data-to-imagename',
                       str(exc.exception))
 
+    def testCollectionOther(self):
+        """Test a collection where the data comes from another section"""
+        data = self._DoReadFile('239_collection_other.dts')
+        self.assertEqual(U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA +
+                         tools.get_bytes(0xff, 2) + U_BOOT_NODTB_DATA +
+                         tools.get_bytes(0xfe, 3) + U_BOOT_DTB_DATA,
+                         data)
+
+    def testMkimageCollection(self):
+        """Test using a collection referring to an entry in a mkimage entry"""
+        data = self._DoReadFile('240_mkimage_coll.dts')
+        expect = U_BOOT_SPL_DATA + U_BOOT_DATA
+        self.assertEqual(expect, data[:len(expect)])
+
 
 if __name__ == "__main__":
     unittest.main()

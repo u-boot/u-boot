@@ -148,6 +148,13 @@ class Entry_mkimage(Entry):
 
         return True
 
+    def GetEntries(self):
+        # Make a copy so we don't change the original
+        entries = OrderedDict(self._mkimage_entries)
+        if self._imagename:
+            entries['imagename'] = self._imagename
+        return entries
+
     def SetAllowMissing(self, allow_missing):
         """Set whether a section allows missing external blobs
 

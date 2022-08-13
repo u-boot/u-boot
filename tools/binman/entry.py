@@ -679,6 +679,7 @@ class Entry(object):
         self.WriteMapLine(fd, indent, self.name, self.offset, self.size,
                           self.image_pos)
 
+    # pylint: disable=assignment-from-none
     def GetEntries(self):
         """Return a list of entries contained by this entry
 
@@ -686,6 +687,28 @@ class Entry(object):
             List of entries, or None if none. A normal entry has no entries
                 within it so will return None
         """
+        return None
+
+    def FindEntryByNode(self, find_node):
+        """Find a node in an entry, searching all subentries
+
+        This does a recursive search.
+
+        Args:
+            find_node (fdt.Node): Node to find
+
+        Returns:
+            Entry: entry, if found, else None
+        """
+        entries = self.GetEntries()
+        if entries:
+            for entry in entries.values():
+                if entry._node == find_node:
+                    return entry
+                found = entry.FindEntryByNode(find_node)
+                if found:
+                    return found
+
         return None
 
     def GetArg(self, name, datatype=str):

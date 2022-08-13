@@ -506,10 +506,10 @@ class Entry_section(Entry):
         node = self._node.GetFdt().LookupPhandle(phandle)
         if not node:
             source_entry.Raise("Cannot find node for phandle %d" % phandle)
-        for entry in self._entries.values():
-            if entry._node == node:
-                return entry.GetData(required)
-        source_entry.Raise("Cannot find entry for node '%s'" % node.name)
+        entry = self.FindEntryByNode(node)
+        if not entry:
+            source_entry.Raise("Cannot find entry for node '%s'" % node.name)
+        return entry.GetData(required)
 
     def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
         """Look up a symbol in an ELF file
