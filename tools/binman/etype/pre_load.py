@@ -37,7 +37,8 @@ class Entry_pre_load(Entry_collection):
     """Pre load image header
 
     Properties / Entry arguments:
-        - pre-load-key-path: Path of the directory that store key (provided by the environment variable PRE_LOAD_KEY_PATH)
+        - pre-load-key-path: Path of the directory that store key (provided by
+          the environment variable PRE_LOAD_KEY_PATH)
         - content: List of phandles to entries to sign
         - algo-name: Hash and signature algo to use for the signature
         - padding-name: Name of the padding (pkcs-1.5 or pss)
