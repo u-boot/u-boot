@@ -139,6 +139,10 @@ like this:
    as the Linux kernel.  Following this and adding a ``Signed-off-by:`` line
    that contains the developer's name and email address is required.
 
+   * Please note that when importing code from other projects you must say
+     where it comes from, and what revision you are importing. You must not
+     however copy ``Signed-off-by`` or other tags.
+
 #. Everybody who can is invited to review and test the changes.  Typically, we
    follow the same guidelines as the Linux kernel for `Acked-by
    <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#when-to-use-acked-by-cc-and-co-developed-by>`_

@@ -375,6 +375,7 @@ enum efi_object_type {
  * @protocols:	linked list with the protocol interfaces installed on this
  *		handle
  * @type:	image type if the handle relates to an image
+ * @dev:	pointer to the DM device which is associated with this EFI handle
  *
  * UEFI offers a flexible and expandable object model. The objects in the UEFI
  * API are devices, drivers, and loaded images. struct efi_object is our storage
@@ -392,6 +393,7 @@ struct efi_object {
 	/* The list of protocols */
 	struct list_head protocols;
 	enum efi_object_type type;
+	struct udevice *dev;
 };
 
 enum efi_image_auth_status {
@@ -689,6 +691,8 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
 /* get len, string (used in u-boot crypto from a guid */
 const char *guid_to_sha_str(const efi_guid_t *guid);
 int algo_to_len(const char *algo);
+
+int efi_link_dev(efi_handle_t handle, struct udevice *dev);
 
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages

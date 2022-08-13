@@ -42,7 +42,7 @@ the devicetree description of the image.
 Binman is designed primarily for use with U-Boot and associated binaries such
 as ARM Trusted Firmware, but it is suitable for use with other projects, such
 as Zephyr. Binman also provides facilities useful in Chromium OS, such as CBFS,
-vblocks and and the like.
+vblocks and the like.
 
 Binman provides a way to process binaries before they are included, by adding a
 Python plug-in.
@@ -118,6 +118,10 @@ flash.
 For U-Boot, binman should not be used to create ad-hoc images in place of
 FIT.
 
+Note that binman can itself create a FIT. This helps to move mkimage
+invocations out of the Makefile and into binman image descriptions. It also
+helps by removing the need for ad-hoc tools like `make_fit_atf.py`.
+
 
 Relationship to mkimage
 -----------------------
@@ -139,6 +143,9 @@ type for the images in mkimage, but this would not add functionality. It
 seems better to use the mkimage tool to generate binaries and avoid blurring
 the boundaries between building input files (mkimage) and packaging then
 into a final image (binman).
+
+Note that binman can itself invoke mkimage. This helps to move mkimage
+invocations out of the Makefile and into binman image descriptions.
 
 
 Using binman
@@ -170,6 +177,164 @@ This simplifies the U-Boot Makefile somewhat, since various pieces of logic
 can be replaced by a call to binman.
 
 
+Invoking binman within U-Boot
+-----------------------------
+
+Within U-Boot, binman is invoked by the build system, i.e. when you type 'make'
+or use buildman to build U-Boot. There is no need to run binman independently
+during development. Everything happens automatically and is set up for your
+SoC or board so that binman produced the right things.
+
+The general policy is that the Makefile builds all the binaries in INPUTS-y
+(the 'inputs' rule), then binman is run to produce the final images (the 'all'
+rule).
+
+There should be only one invocation of binman in Makefile, the very last step
+that pulls everything together. At present there are some arch-specific
+invocations as well, but these should be dropped when those architectures are
+converted to use binman properly.
+
+As above, the term 'binary' is used for something in INPUTS-y and 'image' is
+used for the things that binman creates. So the binaries are inputs to the
+image(s) and it is the image that is actually loaded on the board.
+
+Again, at present, there are a number of things created in Makefile which should
+be done by binman (when we get around to it), like `u-boot-ivt.img`,
+`lpc32xx-spl.img`, `u-boot-with-nand-spl.imx`, `u-boot-spl-padx4.sfp` and
+`u-boot-mtk.bin`, just to pick on a few. When completed this will remove about
+400 lines from `Makefile`.
+
+Since binman is invoked only once, it must of course create all the images that
+are needed, in that one invocation. It does this by working through the image
+descriptions one by one, collecting the input binaries, processing them as
+needed and producing the final images.
+
+The same binaries may be used by multiple images. For example binman may be used
+to produce an SD-card image and a SPI-flash image. In this case the binaries
+going into the process are the same, but binman produces slightly different
+images in each case.
+
+For some SoCs, U-Boot is not the only project that produces the necessary
+binaries. For example, ARM Trusted Firmware (ATF) is a project that produces
+binaries which must be incorporate, such as `bl31.elf` or `bl31.bin`. For this
+to work you must have built ATF before you build U-Boot and you must tell U-Boot
+where to find the bl31 image, using the BL31 environment variable.
+
+How do you know how to incorporate ATF? It is handled by the atf-bl31 entry type
+(etype). An etype is an implementation of reading a binary into binman, in this
+case the `bl31.bin` file. When you build U-Boot but do not set the BL31
+environment variable, binman provides a help message, which comes from
+`missing-blob-help`::
+
+    See the documentation for your board. You may need to build ARM Trusted
+    Firmware and build with BL31=/path/to/bl31.bin
+
+The mechanism by which binman is advised of this is also in the Makefile. See
+the `-a atf-bl31-path=${BL31}` piece in `cmd_binman`. This tells binman to
+set the EntryArg `atf-bl31-path` to the value of the `BL31` environment
+variable. Within binman, this EntryArg is picked up by the `Entry_atf_bl31`
+etype. An EntryArg is simply an argument to the entry. The `atf-bl31-path`
+name is documented in :ref:`etype_atf_bl31`.
+
+
+Invoking binman outside U-Boot
+------------------------------
+
+While binman is invoked from within the U-Boot build system, it is also possible
+to invoke it separately. This is typically used in a production build system,
+where signing is completed (with real keys) and any missing binaries are
+provided.
+
+For example, for build testing there is no need to provide a real signature,
+nor is there any need to provide a real ATF BL31 binary (for example). These can
+be added later by invoking binman again, providing all the required inputs
+from the first time, plus any that were missing or placeholders.
+
+So in practice binman is often used twice:
+
+- once within the U-Boot build system, for development and testing
+- again outside U-Boot to assembly and final production images
+
+While the same input binaries are used in each case, you will of course you will
+need to create your own binman command line, similar to that in `cmd_binman` in
+the Makefile. You may find the -I and --toolpath options useful. The
+device tree file is provided to binman in binary form, so there is no need to
+have access to the original `.dts` sources.
+
+
+Assembling the image description
+--------------------------------
+
+Since binman uses the device tree for its image description, you can use the
+same files that describe your board's hardware to describe how the image is
+assembled. Typically the images description is in a common file used by all
+boards with a particular SoC (e.g. `imx8mp-u-boot.dtsi`).
+
+Where a particular boards needs to make changes, it can override properties in
+the SoC file, just as it would for any other device tree property. It can also
+add a image that is specific to the board.
+
+Another way to control the image description to make use of CONFIG options in
+the description. For example, if the start offset of a particular entry varies
+by board, you can add a Kconfig for that and reference it in the description::
+
+    u-boot-spl {
+    };
+
+    fit {
+        offset = <CONFIG_SPL_PAD_TO>;
+        ...
+    };
+
+The SoC can provide a default value but boards can override that as needed and
+binman will take care of it.
+
+It is even possible to control which entries appear in the image, by using the
+C preprocessor::
+
+    #ifdef CONFIG_HAVE_MRC
+        intel-mrc {
+                offset = <CONFIG_X86_MRC_ADDR>;
+        };
+    #endif
+
+Only boards which enable `HAVE_MRC` will include this entry.
+
+Obviously a similar approach can be used to control which images are produced,
+with a Kconfig option to enable a SPI image, for example. However there is
+generally no harm in producing an image that is not used. If a board uses MMC
+but not SPI, but the SoC supports booting from both, then both images can be
+produced, with only on or other being used by particular boards. This can help
+reduce the need for having multiple defconfig targets for a board where the
+only difference is the boot media, enabling / disabling secure boot, etc.
+
+Of course you can use the device tree itself to pass any board-specific
+information that is needed by U-Boot at runtime (see binman_syms_ for how to
+make binman insert these values directly into executables like SPL).
+
+There is one more way this can be done: with individual .dtsi files for each
+image supported by the SoC. Then the board `.dts` file can include the ones it
+wants. This is not recommended, since it is likely to be difficult to maintain
+and harder to understand the relationship between the different boards.
+
+
+Producing images for multiple boards
+------------------------------------
+
+When invoked within U-Boot, binman only builds a single set of images, for
+the chosen board. This is set by the `CONFIG_DEFAULT_DEVICE_TREE` option.
+
+However, U-Boot generally builds all the device tree files associated with an
+SoC. These are written to the (e.g. for ARM) `arch/arm/dts` directory. Each of
+these contains the full binman description for that board. Often the best
+approach is to build a single image that includes all these device tree binaries
+and allow SPL to select the correct one on boot.
+
+However, it is also possible to build separate images for each board, simply by
+invoking binman multiple times, once for each device tree file, using a
+different output directory. This will produce one set of images for each board.
+
+
 Example use of binman for x86
 -----------------------------
 
@@ -188,19 +353,25 @@ the configuration of the Intel-format descriptor.
 Installing binman
 -----------------
 
-First install prerequisites, e.g::
+First install prerequisites, e.g:
+
+.. code-block:: bash
 
     sudo apt-get install python-pyelftools python3-pyelftools lzma-alone \
         liblz4-tool
 
 You can run binman directly if you put it on your PATH. But if you want to
-install into your `~/.local` Python directory, use::
+install into your `~/.local` Python directory, use:
+
+.. code-block:: bash
 
     pip install tools/patman tools/dtoc tools/binman
 
 Note that binman makes use of libraries from patman and dtoc, which is why these
 need to be installed. Also you need `libfdt` and `pylibfdt` which can be
-installed like this::
+installed like this:
+
+.. code-block:: bash
 
    git clone git://git.kernel.org/pub/scm/utils/dtc/dtc.git
    cd dtc
@@ -209,7 +380,9 @@ installed like this::
 
 This installs the `libfdt.so` library into `~/lib` so you can use
 `LD_LIBRARY_PATH=~/lib` when running binman. If you want to install it in the
-system-library directory, replace the last line with::
+system-library directory, replace the last line with:
+
+.. code-block:: bash
 
    make NO_PYTHON=1 PREFIX=/ install
 
@@ -218,14 +391,20 @@ Running binman
 
 Type::
 
+.. code-block: bash
+
+   make NO_PYTHON=1 PREFIX=/ install
     binman build -b <board_name>
 
 to build an image for a board. The board name is the same name used when
 configuring U-Boot (e.g. for sandbox_defconfig the board name is 'sandbox').
 Binman assumes that the input files for the build are in ../b/<board_name>.
 
-Or you can specify this explicitly::
+Or you can specify this explicitly:
 
+.. code-block:: bash
+
+   make NO_PYTHON=1 PREFIX=/ install
     binman build -I <build_path>
 
 where <build_path> is the build directory containing the output of the U-Boot
@@ -254,6 +433,7 @@ file, typically <soc>-u-boot.dtsi, where <soc> is your CONFIG_SYS_SOC value.
 You can use other, more specific CONFIG options - see 'Automatic .dtsi
 inclusion' below.
 
+.. _binman_syms:
 
 Access to binman entry offsets at run time (symbols)
 ----------------------------------------------------
@@ -264,13 +444,17 @@ is useful to be able to find the location of U-Boot so that it can be executed
 when SPL is finished.
 
 Binman allows you to declare symbols in the SPL image which are filled in
-with their correct values during the build. For example::
+with their correct values during the build. For example:
+
+.. code-block:: c
 
     binman_sym_declare(ulong, u_boot_any, image_pos);
 
 declares a ulong value which will be assigned to the image-pos of any U-Boot
 image (u-boot.bin, u-boot.img, u-boot-nodtb.bin) that is present in the image.
-You can access this value with something like::
+You can access this value with something like:
+
+.. code-block:: c
 
     ulong u_boot_offset = binman_sym(ulong, u_boot_any, image_pos);
 

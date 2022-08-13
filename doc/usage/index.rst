@@ -45,6 +45,7 @@ Shell commands
    cmd/fatload
    cmd/fdt
    cmd/for
+   cmd/gpio
    cmd/load
    cmd/loadm
    cmd/loady

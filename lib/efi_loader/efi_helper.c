@@ -158,3 +158,16 @@ int algo_to_len(const char *algo)
 
 	return 0;
 }
+
+/** efi_link_dev - link the efi_handle_t and udevice
+ *
+ * @handle:	efi handle to associate with udevice
+ * @dev:	udevice to associate with efi handle
+ *
+ * Return:	0 on success, negative on failure
+ */
+int efi_link_dev(efi_handle_t handle, struct udevice *dev)
+{
+	handle->dev = dev;
+	return dev_tag_set_ptr(dev, DM_TAG_EFI, handle);
+}
