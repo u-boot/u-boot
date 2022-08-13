@@ -81,8 +81,7 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
     print(coverage)
     if coverage != '100%':
         print(stdout)
-        print("Type 'python3-coverage html' to get a report in "
-              'htmlcov/index.html')
+        print("To get a report in 'htmlcov/index.html', type: python3-coverage html")
         print('Coverage error: %s, but should be 100%%' % coverage)
         ok = False
     if not ok:
