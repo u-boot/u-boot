@@ -5712,14 +5712,15 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIsNotNone(path)
         self.assertEqual(expected_fdtmap, fdtmap)
 
-    @unittest.expectedFailure
     def testReplaceSectionSimple(self):
         """Test replacing a simple section with arbitrary data"""
         new_data = b'w' * len(COMPRESS_DATA + U_BOOT_DATA)
-        data, expected_fdtmap, _ = self._RunReplaceCmd(
-            'section', new_data,
-            dts='234_replace_section_simple.dts')
-        self.assertEqual(new_data, data)
+        with self.assertRaises(ValueError) as exc:
+            self._RunReplaceCmd('section', new_data,
+                                dts='234_replace_section_simple.dts')
+        self.assertIn(
+            "Node '/section': Replacing sections is not implemented yet",
+            str(exc.exception))
 
 
 if __name__ == "__main__":
