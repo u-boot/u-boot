@@ -45,10 +45,20 @@ class Entry_mkimage(Entry):
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
-        self._args = fdt_util.GetArgs(self._node, 'args')
         self._mkimage_entries = OrderedDict()
         self.align_default = None
+
+    def ReadNode(self):
+        super().ReadNode()
+        self._args = fdt_util.GetArgs(self._node, 'args')
         self.ReadEntries()
+
+    def ReadEntries(self):
+        """Read the subnodes to find out what should go in this image"""
+        for node in self._node.subnodes:
+            entry = Entry.Create(self, node)
+            entry.ReadNode()
+            self._mkimage_entries[entry.name] = entry
 
     def ObtainContents(self):
         # Use a non-zero size for any fake files to keep mkimage happy
@@ -66,13 +76,6 @@ class Entry_mkimage(Entry):
             self.SetContents(data)
 
         return True
-
-    def ReadEntries(self):
-        """Read the subnodes to find out what should go in this image"""
-        for node in self._node.subnodes:
-            entry = Entry.Create(self, node)
-            entry.ReadNode()
-            self._mkimage_entries[entry.name] = entry
 
     def SetAllowMissing(self, allow_missing):
         """Set whether a section allows missing external blobs
