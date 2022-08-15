@@ -413,7 +413,7 @@ static int stm32_i2c_check_end_of_message(struct stm32_i2c_priv *i2c_priv)
 		setbits_le32(&regs->icr, STM32_I2C_ICR_STOPCF);
 
 		/* Clear control register 2 */
-		setbits_le32(&regs->cr2, STM32_I2C_CR2_RESET_MASK);
+		clrbits_le32(&regs->cr2, STM32_I2C_CR2_RESET_MASK);
 	}
 
 	return ret;
