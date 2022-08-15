@@ -732,7 +732,6 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr, struct udevice *dev)
 	nand->bbt_md = &bbt_mirror_descr;
 
 	/* set up nand options */
-	nand->options = NAND_NO_SUBPAGE_WRITE;
 	nand->bbt_options = NAND_BBT_USE_FLASH;
 
 	nand->controller = &elbc_ctrl->controller;
