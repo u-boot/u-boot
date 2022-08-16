@@ -137,13 +137,7 @@ int parse_mc_firmware_fit_image(u64 mc_fw_addr,
 				size_t *raw_image_size)
 {
 	int format;
-	void *fit_hdr;
-	int node_offset;
-	const void *data;
-	size_t size;
-	const char *uname = "firmware";
-
-	fit_hdr = (void *)mc_fw_addr;
+	void *fit_hdr = (void *)mc_fw_addr;
 
 	/* Check if Image is in FIT format */
 	format = genimg_get_format(fit_hdr);
@@ -158,26 +152,8 @@ int parse_mc_firmware_fit_image(u64 mc_fw_addr,
 		return -EINVAL;
 	}
 
-	node_offset = fit_image_get_node(fit_hdr, uname);
-
-	if (node_offset < 0) {
-		printf("fsl-mc: ERR: Bad firmware image (missing subimage)\n");
-		return -ENOENT;
-	}
-
-	/* Verify MC firmware image */
-	if (!(fit_image_verify(fit_hdr, node_offset))) {
-		printf("fsl-mc: ERR: Bad firmware image (bad CRC)\n");
-		return -EINVAL;
-	}
-
-	/* Get address and size of raw image */
-	fit_image_get_data(fit_hdr, node_offset, &data, &size);
-
-	*raw_image_addr = data;
-	*raw_image_size = size;
-
-	return 0;
+	return fit_get_data_node(fit_hdr, "firmware", raw_image_addr,
+				 raw_image_size);
 }
 #endif
 
