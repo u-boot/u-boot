@@ -142,9 +142,6 @@ static int do_zynqmp_aes(struct cmd_tbl *cmdtp, int flag, int argc,
 	aes->keysrc = hextoul(argv[6], NULL);
 	aes->dstaddr = hextoul(argv[7], NULL);
 
-	flush_dcache_range((ulong)aes, (ulong)(aes) +
-			   roundup(sizeof(struct aes), ARCH_DMA_MINALIGN));
-
 	if (aes->srcaddr && aes->ivaddr && aes->dstaddr) {
 		flush_dcache_range(aes->srcaddr,
 				   (aes->srcaddr +
@@ -168,6 +165,9 @@ static int do_zynqmp_aes(struct cmd_tbl *cmdtp, int flag, int argc,
 					    roundup(KEY_PTR_LEN,
 						    ARCH_DMA_MINALIGN)));
 	}
+
+	flush_dcache_range((ulong)aes, (ulong)(aes) +
+			   roundup(sizeof(struct aes), ARCH_DMA_MINALIGN));
 
 	ret = xilinx_pm_request(PM_SECURE_AES, upper_32_bits((ulong)aes),
 				lower_32_bits((ulong)aes), 0, 0, ret_payload);
