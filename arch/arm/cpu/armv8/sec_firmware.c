@@ -36,9 +36,6 @@ phys_addr_t sec_firmware_addr;
 #ifndef SEC_FIRMWARE_FIT_IMAGE
 #define SEC_FIRMWARE_FIT_IMAGE		"firmware"
 #endif
-#ifndef SEC_FIRMWARE_FIT_CNF_NAME
-#define SEC_FIRMWARE_FIT_CNF_NAME	"config-1"
-#endif
 #ifndef SEC_FIRMWARE_TARGET_EL
 #define SEC_FIRMWARE_TARGET_EL		2
 #endif
@@ -47,15 +44,12 @@ static int sec_firmware_get_data(const void *sec_firmware_img,
 				const void **data, size_t *size)
 {
 	int conf_node_off, fw_node_off;
-	char *conf_node_name = NULL;
 	char *desc;
 	int ret;
 
-	conf_node_name = SEC_FIRMWARE_FIT_CNF_NAME;
-
-	conf_node_off = fit_conf_get_node(sec_firmware_img, conf_node_name);
+	conf_node_off = fit_conf_get_node(sec_firmware_img, NULL);
 	if (conf_node_off < 0) {
-		printf("SEC Firmware: %s: no such config\n", conf_node_name);
+		puts("SEC Firmware: no config\n");
 		return -ENOENT;
 	}
 
@@ -124,18 +118,15 @@ static int sec_firmware_check_copy_loadable(const void *sec_firmware_img,
 {
 	phys_addr_t sec_firmware_loadable_addr = 0;
 	int conf_node_off, ld_node_off, images;
-	char *conf_node_name = NULL;
 	const void *data;
 	size_t size;
 	ulong load;
 	const char *name, *str, *type;
 	int len;
 
-	conf_node_name = SEC_FIRMWARE_FIT_CNF_NAME;
-
-	conf_node_off = fit_conf_get_node(sec_firmware_img, conf_node_name);
+	conf_node_off = fit_conf_get_node(sec_firmware_img, NULL);
 	if (conf_node_off < 0) {
-		printf("SEC Firmware: %s: no such config\n", conf_node_name);
+		puts("SEC Firmware: no config\n");
 		return -ENOENT;
 	}
 
