@@ -43,43 +43,8 @@ phys_addr_t sec_firmware_addr;
 static int sec_firmware_get_data(const void *sec_firmware_img,
 				const void **data, size_t *size)
 {
-	int conf_node_off, fw_node_off;
-	char *desc;
-	int ret;
-
-	conf_node_off = fit_conf_get_node(sec_firmware_img, NULL);
-	if (conf_node_off < 0) {
-		puts("SEC Firmware: no config\n");
-		return -ENOENT;
-	}
-
-	fw_node_off = fit_conf_get_prop_node(sec_firmware_img, conf_node_off,
-			SEC_FIRMWARE_FIT_IMAGE);
-	if (fw_node_off < 0) {
-		printf("SEC Firmware: No '%s' in config\n",
-		       SEC_FIRMWARE_FIT_IMAGE);
-		return -ENOLINK;
-	}
-
-	/* Verify secure firmware image */
-	if (!(fit_image_verify(sec_firmware_img, fw_node_off))) {
-		printf("SEC Firmware: Bad firmware image (bad CRC)\n");
-		return -EINVAL;
-	}
-
-	if (fit_image_get_data(sec_firmware_img, fw_node_off, data, size)) {
-		printf("SEC Firmware: Can't get %s subimage data/size",
-		       SEC_FIRMWARE_FIT_IMAGE);
-		return -ENOENT;
-	}
-
-	ret = fit_get_desc(sec_firmware_img, fw_node_off, &desc);
-	if (ret)
-		printf("SEC Firmware: Can't get description\n");
-	else
-		printf("%s\n", desc);
-
-	return ret;
+	return fit_get_data_conf_prop(sec_firmware_img, SEC_FIRMWARE_FIT_IMAGE,
+				      data, size);
 }
 
 /*
