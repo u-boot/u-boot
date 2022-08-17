@@ -11,12 +11,7 @@
 #include <bootstage.h>
 #include <command.h>
 #include <env.h>
-#include <env_internal.h>
 #include <init.h>
-#include <net.h>
-#include <malloc.h>
-#include <netdev.h>
-#include <miiphy.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/soc.h>
