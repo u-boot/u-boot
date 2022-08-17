@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2019, 2021 NXP
+ * Copyright 2019, 2021-2022 NXP
  */
 
 #include <common.h>
@@ -34,7 +34,7 @@
 #include <fsl_qe.h>
 #endif
 #include <fsl_validate.h>
-
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -530,6 +530,15 @@ int board_init(void)
 #if defined(CONFIG_SPL_BUILD)
 void spl_board_init(void)
 {
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize caam_jr: %d\n", ret);
+	}
+
 	ls102xa_smmu_stream_id_init();
 }
 #endif
