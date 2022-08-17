@@ -20,6 +20,7 @@ config BUTTON_ADC
 config BUTTON_GPIO
 	bool "Button gpio"
 	depends on BUTTON
+	depends on DM_GPIO
 	help
 	  Enable support for buttons which are connected to GPIO lines. These
 	  GPIOs may be on the SoC or some other device which provides GPIOs.
