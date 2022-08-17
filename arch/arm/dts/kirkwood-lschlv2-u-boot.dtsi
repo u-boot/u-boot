@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+&hdd_power {
+	/delete-property/ regulator-always-on;
+};
+
+&usb_power {
+	/delete-property/ regulator-always-on;
+};
