@@ -22,21 +22,13 @@
 /*
  * Default environment variables
  */
-
-#if defined(CONFIG_LSXHL)
-#define CONFIG_FDTFILE "kirkwood-lsxhl.dtb"
-#elif defined(CONFIG_LSCHLV2)
-#define CONFIG_FDTFILE "kirkwood-lschlv2.dtb"
-#else
-#error "Unsupported board"
-#endif
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootsource=legacy\0"						\
 	"hdpart=0:1\0"							\
 	"kernel_addr=0x00800000\0"					\
 	"ramdisk_addr=0x01000000\0"					\
 	"fdt_addr=0x00ff0000\0"						\
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"				\
 	"bootcmd_legacy=sata init "					\
 		"&& load sata ${hdpart} ${kernel_addr} /uImage.buffalo "\
 		"&& load sata ${hdpart} ${ramdisk_addr} /initrd.buffalo "\
@@ -44,7 +36,7 @@
 	"bootcmd_net=bootp ${kernel_addr} vmlinuz "			\
 		"&& tftpboot ${ramdisk_addr} initrd.img "		\
 		"&& setenv ramdisk_len ${filesize} "			\
-		"&& tftpboot ${fdt_addr} " CONFIG_FDTFILE " "		\
+		"&& tftpboot ${fdt_addr} ${fdtfile} "			\
 		"&& bootz ${kernel_addr} "				\
 			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
 	"bootcmd_hdd=sata init "					\
@@ -58,7 +50,7 @@
 		"&& load usb 0:1 ${kernel_addr} /vmlinuz "		\
 		"&& load usb 0:1 ${ramdisk_addr} /initrd.img "		\
 		"&& setenv ramdisk_len ${filesize} "			\
-		"&& load usb 0:1 ${fdt_addr} " CONFIG_FDTFILE " "	\
+		"&& load usb 0:1 ${fdt_addr} ${fdtfile} "		\
 		"&& bootz ${kernel_addr} "				\
 			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
 	"bootcmd_rescue=run config_nc_dhcp; run nc\0"			\
