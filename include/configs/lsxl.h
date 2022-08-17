@@ -62,9 +62,6 @@
 		"&& bootz ${kernel_addr} "				\
 			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
 	"bootcmd_rescue=run config_nc_dhcp; run nc\0"			\
-	"eraseenv=sf probe 0 "						\
-		"&& sf erase " __stringify(CONFIG_ENV_OFFSET)		\
-			" +" __stringify(CONFIG_ENV_SIZE) "\0"		\
 	"config_nc_dhcp=setenv autoload_old ${autoload}; "		\
 		"setenv autoload no "					\
 		"&& bootp "						\
