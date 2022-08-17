@@ -45,10 +45,6 @@
  * Additionally, the bootsource is set to 'rescue'.
  */
 
-#ifndef CONFIG_ENV_OVERWRITE
-# error "You need to set CONFIG_ENV_OVERWRITE"
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
