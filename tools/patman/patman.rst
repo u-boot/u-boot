@@ -3,7 +3,7 @@
 .. Simon Glass <sjg@chromium.org>
 .. v1, v2, 19-Oct-11
 .. revised v3 24-Nov-11
-.. revised v4 04-Jul-2020, with Patchwork integration
+.. revised v4 Independence Day 2020, with Patchwork integration
 
 Patman patch manager
 ====================
