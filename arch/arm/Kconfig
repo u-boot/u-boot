@@ -493,6 +493,11 @@ config SYS_L2_PL310
 	help
 	  Enable support for ARM PL310 L2 cache controller in U-Boot
 
+config SPL_SYS_L2_PL310
+	bool "ARM PL310 L2 cache controller in SPL"
+	help
+	  Enable support for ARM PL310 L2 cache controller in SPL
+
 config SYS_L2CACHE_OFF
 	bool "L2cache off"
 	help
