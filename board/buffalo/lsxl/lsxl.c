@@ -172,7 +172,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_MISC_INIT_R
 static void check_power_switch(void)
 {
 	if (kw_gpio_get_value(GPIO_POWER_SWITCH)) {
@@ -259,7 +258,6 @@ int misc_init_r(void)
 
 	return 0;
 }
-#endif
 
 #if CONFIG_IS_ENABLED(BOOTSTAGE)
 void show_boot_progress(int progress)
