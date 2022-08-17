@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <cpu_func.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
@@ -14,11 +15,13 @@
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
+#include <asm/system.h>
 #include <errno.h>
 #include <fuse.h>
 #include <fsl_esdhc_imx.h>
@@ -610,6 +613,20 @@ static void dhcom_spl_dram_init(void)
 	}
 }
 
+void dram_bank_mmu_setup(int bank)
+{
+	int i;
+
+	set_section_dcache(ROMCP_ARB_BASE_ADDR >> MMU_SECTION_SHIFT, DCACHE_DEFAULT_OPTION);
+	set_section_dcache(IRAM_BASE_ADDR >> MMU_SECTION_SHIFT, DCACHE_DEFAULT_OPTION);
+
+	for (i = MMDC0_ARB_BASE_ADDR >> MMU_SECTION_SHIFT;
+			i < ((MMDC0_ARB_BASE_ADDR >> MMU_SECTION_SHIFT) +
+			(SZ_1G >> MMU_SECTION_SHIFT));
+			i++)
+		set_section_dcache(i, DCACHE_DEFAULT_OPTION);
+}
+
 void board_init_f(ulong dummy)
 {
 	/* setup AIPS and disable watchdog */
@@ -636,9 +653,33 @@ void board_init_f(ulong dummy)
 	/* DDR3 initialization */
 	dhcom_spl_dram_init();
 
+	/* Set up early MMU tables at the beginning of DRAM and start d-cache */
+	gd->arch.tlb_addr = MMDC0_ARB_BASE_ADDR + SZ_32M;
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	enable_caches();
+
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
+}
+
+void spl_board_prepare_for_boot(void)
+{
+	/*
+	 * Flush and disable dcache. Without it, the following bootstage might fail randomly because
+	 * dirty cache lines may not have been written back to DRAM.
+	 *
+	 * If dcache_disable() would be omitted, the following scenario may occur:
+	 *
+	 * The SPL enables dcache and cachelines get populated with data. Then dcache gets disabled
+	 * in U-Boot proper, but still contains dirty data, i.e. the corresponding DRAM locations
+	 * have not yet been updated. When U-Boot reads these locations, it sees an (incorrect) old
+	 * state of the content.
+	 *
+	 * Furthermore, the DRAM contents have likely been modified by U-Boot while dcache was
+	 * disabled. Thus, U-Boot flushing dcache would corrupt DRAM with stale data.
+	 */
+	dcache_disable(); /* implies flush_dcache_all() */
 }
