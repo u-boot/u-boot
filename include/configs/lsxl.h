@@ -59,12 +59,4 @@
 		"setenv autoload_old\0"					\
 	"nc=setenv stdin nc; setenv stdout nc; setenv stderr nc\0"	\
 
-/*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE_PORTS		{0, 1} /* enable port 1 only */
-#define CONFIG_PHY_BASE_ADR		7
-#endif /* CONFIG_CMD_NET */
-
 #endif /* _CONFIG_LSXL_H */
