@@ -34,25 +34,22 @@
 		"&& load sata ${hdpart} ${ramdisk_addr} /initrd.buffalo "\
 		"&& bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"bootcmd_net=bootp ${kernel_addr} vmlinuz "			\
-		"&& tftpboot ${ramdisk_addr} initrd.img "		\
-		"&& setenv ramdisk_len ${filesize} "			\
 		"&& tftpboot ${fdt_addr} ${fdtfile} "			\
+		"&& tftpboot ${ramdisk_addr} initrd.img "		\
 		"&& bootz ${kernel_addr} "				\
-			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
+			"${ramdisk_addr}:${filesize} ${fdt_addr}\0"	\
 	"bootcmd_hdd=sata init "					\
 		"&& load sata ${hdpart} ${kernel_addr} /vmlinuz "	\
-		"&& load sata ${hdpart} ${ramdisk_addr} /initrd.img "	\
-		"&& setenv ramdisk_len ${filesize} "			\
 		"&& load sata ${hdpart} ${fdt_addr} /dtb "		\
+		"&& load sata ${hdpart} ${ramdisk_addr} /initrd.img "	\
 		"&& bootz ${kernel_addr} "				\
-			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
+			"${ramdisk_addr}:${filesize} ${fdt_addr}\0"	\
 	"bootcmd_usb=usb start "					\
 		"&& load usb 0:1 ${kernel_addr} /vmlinuz "		\
-		"&& load usb 0:1 ${ramdisk_addr} /initrd.img "		\
-		"&& setenv ramdisk_len ${filesize} "			\
 		"&& load usb 0:1 ${fdt_addr} ${fdtfile} "		\
+		"&& load usb 0:1 ${ramdisk_addr} /initrd.img "		\
 		"&& bootz ${kernel_addr} "				\
-			"${ramdisk_addr}:${ramdisk_len} ${fdt_addr}\0"	\
+			"${ramdisk_addr}:${filesize} ${fdt_addr}\0"	\
 	"bootcmd_rescue=run config_nc_dhcp; run nc\0"			\
 	"config_nc_dhcp=setenv autoload_old ${autoload}; "		\
 		"setenv autoload no "					\
