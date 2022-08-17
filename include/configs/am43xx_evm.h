@@ -29,7 +29,6 @@
 /* SPL defines. */
 
 /* Enabling L2 Cache */
-#define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	0x48242000
 
 /*

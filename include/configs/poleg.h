@@ -7,7 +7,6 @@
 #define __CONFIG_POLEG_H
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_L2_PL310		1
 #define CONFIG_SYS_PL310_BASE	0xF03FC000       /* L2 - Cache Regs Base (4k Space)*/
 #endif
 
