@@ -45,6 +45,7 @@ config TARGET_LSXL
 	bool "lsxl Board"
 	select FEROCEON_88FR131
 	select KW88F6281
+	select BOARD_EARLY_INIT_R
 	select MISC_INIT_R
 
 config TARGET_POGO_E02

@@ -42,6 +42,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static bool force_rescue_mode;
+
 int board_early_init_f(void)
 {
 	/*
@@ -247,14 +249,22 @@ static void check_push_button(void)
 	if (i >= 100)
 		erase_environment();
 	else if (i >= 10)
-		rescue_mode();
+		force_rescue_mode = true;
+}
+
+int board_early_init_r(void)
+{
+	check_push_button();
+
+	return 0;
 }
 
 int misc_init_r(void)
 {
 	check_power_switch();
 	check_enetaddr();
-	check_push_button();
+	if (force_rescue_mode)
+		rescue_mode();
 
 	return 0;
 }

@@ -57,17 +57,7 @@
 		"&& setenv ncip "					\
 		"&& setenv autoload ${autoload_old}; "			\
 		"setenv autoload_old\0"					\
-	"standard_env=setenv ipaddr; setenv netmask; setenv serverip; "	\
-		"setenv ncip; setenv gatewayip; setenv ethact; "	\
-		"setenv bootfile; setenv dnsip; "			\
-		"setenv bootsource legacy; run ser\0"			\
-	"restore_env=run standard_env; saveenv; reset\0"		\
-	"ser=setenv stdin serial; setenv stdout serial; "		\
-		"setenv stderr serial\0"				\
 	"nc=setenv stdin nc; setenv stdout nc; setenv stderr nc\0"	\
-	"stdin=serial\0"						\
-	"stdout=serial\0"						\
-	"stderr=serial\0"
 
 /*
  * Ethernet Driver configuration
