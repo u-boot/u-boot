@@ -236,6 +236,10 @@ variable. Within binman, this EntryArg is picked up by the `Entry_atf_bl31`
 etype. An EntryArg is simply an argument to the entry. The `atf-bl31-path`
 name is documented in :ref:`etype_atf_bl31`.
 
+Taking this a little further, when binman is used to create a FIT, it supports
+using an ELF file, e.g. `bl31.elf` and splitting it into separate pieces (with
+`fit,operation = "split-elf"`), each with its own load address.
+
 
 Invoking binman outside U-Boot
 ------------------------------
