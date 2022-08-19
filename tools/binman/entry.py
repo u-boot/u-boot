@@ -1191,7 +1191,7 @@ features to produce new behaviours.
         """
         algo = self.compress
         if algo != 'none':
-            algos = ['bzip2', 'gzip', 'lz4', 'lzma', 'lzo']
+            algos = ['bzip2', 'gzip', 'lz4', 'lzma', 'lzo', 'xz']
             if algo not in algos:
                 raise ValueError("Unknown algorithm '%s'" % algo)
             names = {'lzma': 'lzma_alone', 'lzo': 'lzop'}
