@@ -107,6 +107,8 @@ BASE_DTB_PROPS = ['offset', 'size', 'image-pos']
 # Extra properties expected to be in the device tree when allow-repack is used
 REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 
+# Supported compression bintools
+COMP_BINTOOLS = ['lz4', 'lzma_alone']
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -212,7 +214,9 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('tee.elf',
             tools.read_file(cls.ElfTestFile('elf_sections')))
 
-        cls.have_lz4 = comp_util.HAVE_LZ4
+        cls.comp_bintools = {}
+        for name in COMP_BINTOOLS:
+            cls.comp_bintools[name] = bintool.Bintool.create(name)
 
     @classmethod
     def tearDownClass(cls):
@@ -242,9 +246,13 @@ class TestFunctional(unittest.TestCase):
         cls.toolpath = toolpath
         cls.verbosity = verbosity
 
+    def _CheckBintool(self, bintool):
+        if not bintool.is_present():
+            self.skipTest('%s not available' % bintool.name)
+
     def _CheckLz4(self):
-        if not self.have_lz4:
-            self.skipTest('lz4 --no-frame-crc not available')
+        bintool = self.comp_bintools['lz4']
+        self._CheckBintool(bintool)
 
     def _CleanupOutputDir(self):
         """Remove the temporary output directory"""
@@ -1967,7 +1975,8 @@ class TestFunctional(unittest.TestCase):
             self._ResetDtbs()
 
     def _decompress(self, data):
-        return comp_util.decompress(data, 'lz4')
+        bintool = self.comp_bintools['lz4']
+        return bintool.decompress(data)
 
     def testCompress(self):
         """Test compression of blobs"""
@@ -2855,8 +2864,10 @@ class TestFunctional(unittest.TestCase):
 
     def testExtractCbfsRaw(self):
         """Test extracting CBFS compressed data without decompressing it"""
+        bintool = self.comp_bintools['lzma_alone']
+        self._CheckBintool(bintool)
         data = self._RunExtractCmd('section/cbfs/u-boot-dtb', decomp=False)
-        dtb = comp_util.decompress(data, 'lzma')
+        dtb = bintool.decompress(data)
         self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
 
     def testExtractBadEntry(self):
@@ -4427,14 +4438,15 @@ class TestFunctional(unittest.TestCase):
         rest = base[len(U_BOOT_DATA):]
 
         # Check compressed data
-        expect1 = comp_util.compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
+        bintool = self.comp_bintools['lz4']
+        expect1 = bintool.compress(COMPRESS_DATA + U_BOOT_DATA)
         data1 = rest[:len(expect1)]
         section1 = self._decompress(data1)
         self.assertEquals(expect1, data1)
         self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
         rest1 = rest[len(expect1):]
 
-        expect2 = comp_util.compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
+        expect2 = bintool.compress(COMPRESS_DATA + COMPRESS_DATA)
         data2 = rest1[:len(expect2)]
         section2 = self._decompress(data2)
         self.assertEquals(expect2, data2)
