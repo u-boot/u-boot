@@ -4807,6 +4807,8 @@ class TestFunctional(unittest.TestCase):
 
     def testUpdateFdtInElf(self):
         """Test that we can update the devicetree in an ELF file"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         infile = elf_fname = self.ElfTestFile('u_boot_binman_embed')
         outfile = os.path.join(self._indir, 'u-boot.out')
         begin_sym = 'dtb_embed_begin'
@@ -4858,6 +4860,8 @@ class TestFunctional(unittest.TestCase):
 
     def testUpdateFdtInElfNoSyms(self):
         """Test that missing symbols are detected with --update-fdt-in-elf"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         infile = elf_fname = self.ElfTestFile('u_boot_binman_embed')
         outfile = ''
         begin_sym = 'wrong_begin'
@@ -4871,6 +4875,8 @@ class TestFunctional(unittest.TestCase):
 
     def testUpdateFdtInElfTooSmall(self):
         """Test that an over-large dtb is detected with --update-fdt-in-elf"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         infile = elf_fname = self.ElfTestFile('u_boot_binman_embed_sm')
         outfile = os.path.join(self._indir, 'u-boot.out')
         begin_sym = 'dtb_embed_begin'
@@ -5344,6 +5350,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitSplitElf(self):
         """Test an image with an FIT with an split-elf operation"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         entry_args = {
             'of-list': 'test-fdt1 test-fdt2',
             'default-dt': 'test-fdt2',
@@ -5421,6 +5429,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitSplitElfBadElf(self):
         """Test a FIT split-elf operation with an invalid ELF file"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         TestFunctional._MakeInputFile('bad.elf', tools.get_bytes(100, 100))
         entry_args = {
             'of-list': 'test-fdt1 test-fdt2',
@@ -5440,6 +5450,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitSplitElfBadDirective(self):
         """Test a FIT split-elf invalid fit,xxx directive in an image node"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         err = self._check_bad_fit('227_fit_bad_dir.dts')
         self.assertIn(
             "Node '/binman/fit': subnode 'images/@atf-SEQ': Unknown directive 'fit,something'",
@@ -5447,6 +5459,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitSplitElfBadDirectiveConfig(self):
         """Test a FIT split-elf with invalid fit,xxx directive in config"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         err = self._check_bad_fit('228_fit_bad_dir_config.dts')
         self.assertEqual(
             "Node '/binman/fit': subnode 'configurations/@config-SEQ': Unknown directive 'fit,config'",
@@ -5480,6 +5494,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitSplitElfMissing(self):
         """Test an split-elf FIT with a missing ELF file"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         out, err = self.checkFitSplitElf(allow_missing=True)
         self.assertRegex(
             err,
@@ -5490,6 +5506,8 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitSplitElfFaked(self):
         """Test an split-elf FIT with faked ELF file"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         out, err = self.checkFitSplitElf(allow_missing=True, allow_fake_blobs=True)
         self.assertRegex(
             err,
