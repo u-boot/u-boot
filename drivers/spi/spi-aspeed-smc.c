@@ -26,7 +26,7 @@
 #include <spi.h>
 #include <spi-mem.h>
 
-#define ASPEED_SPI_MAX_CS       3
+#define ASPEED_SPI_MAX_CS       5
 
 #define CTRL_IO_SINGLE_DATA     0
 #define CTRL_IO_QUAD_DATA       BIT(30)
@@ -42,10 +42,10 @@ struct aspeed_spi_regs {
 	u32 ctrl;                       /* 0x04 CE Control */
 	u32 intr_ctrl;                  /* 0x08 Interrupt Control and Status */
 	u32 cmd_ctrl;                   /* 0x0c Command Control */
-	u32 ce_ctrl[ASPEED_SPI_MAX_CS]; /* 0x10 .. 0x18 CEx Control */
-	u32 _reserved0[5];              /* .. */
-	u32 segment_addr[ASPEED_SPI_MAX_CS]; /* 0x30 .. 0x38 Segment Address */
-	u32 _reserved1[5];		/* .. */
+	u32 ce_ctrl[ASPEED_SPI_MAX_CS]; /* 0x10 .. 0x20 CEx Control */
+	u32 _reserved0[3];              /* .. */
+	u32 segment_addr[ASPEED_SPI_MAX_CS]; /* 0x30 .. 0x40 Segment Address */
+	u32 _reserved1[3];		/* .. */
 	u32 soft_rst_cmd_ctrl;          /* 0x50 Auto Soft-Reset Command Control */
 	u32 _reserved2[11];             /* .. */
 	u32 dma_ctrl;                   /* 0x80 DMA Control/Status */
@@ -86,6 +86,8 @@ struct aspeed_spi_info {
 	u32 (*segment_reg)(u32 start, u32 end);
 };
 
+static const struct aspeed_spi_info ast2400_spi_info;
+
 static u32 aspeed_spi_get_io_mode(u32 bus_width)
 {
 	switch (bus_width) {
@@ -99,6 +101,56 @@ static u32 aspeed_spi_get_io_mode(u32 bus_width)
 		/* keep in default value */
 		return CTRL_IO_SINGLE_DATA;
 	}
+}
+
+static u32 ast2400_spi_segment_start(struct udevice *bus, u32 reg)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	u32 start_offset = ((reg >> 16) & 0xff) << 23;
+
+	if (start_offset == 0)
+		return (u32)plat->ahb_base;
+
+	return (u32)plat->ahb_base + start_offset;
+}
+
+static u32 ast2400_spi_segment_end(struct udevice *bus, u32 reg)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	u32 end_offset = ((reg >> 24) & 0xff) << 23;
+
+	/* Meaningless end_offset, set to physical ahb base. */
+	if (end_offset == 0)
+		return (u32)plat->ahb_base;
+
+	return (u32)plat->ahb_base + end_offset;
+}
+
+static u32 ast2400_spi_segment_reg(u32 start, u32 end)
+{
+	if (start == end)
+		return 0;
+
+	return ((((start) >> 23) & 0xff) << 16) | ((((end) >> 23) & 0xff) << 24);
+}
+
+static void ast2400_fmc_chip_set_4byte(struct udevice *bus, u32 cs)
+{
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	u32 reg_val;
+
+	reg_val = readl(&priv->regs->ctrl);
+	reg_val |= 0x1 << cs;
+	writel(reg_val, &priv->regs->ctrl);
+}
+
+static void ast2400_spi_chip_set_4byte(struct udevice *bus, u32 cs)
+{
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	struct aspeed_spi_flash *flash = &priv->flashes[cs];
+
+	flash->ce_ctrl_read |= BIT(13);
+	writel(flash->ce_ctrl_read, &priv->regs->ctrl);
 }
 
 static u32 ast2500_spi_segment_start(struct udevice *bus, u32 reg)
@@ -272,6 +324,9 @@ static int aspeed_spi_exec_op_user_mode(struct spi_slave *slave,
 		op->addr.buswidth, op->dummy.nbytes, op->dummy.buswidth,
 		op->data.nbytes, op->data.buswidth);
 
+	if (priv->info == &ast2400_spi_info)
+		ce_ctrl_reg = (u32)&priv->regs->ctrl;
+
 	/*
 	 * Set controller to 4-byte address mode
 	 * if flash is in 4-byte address mode.
@@ -404,8 +459,12 @@ static int aspeed_spi_ctrl_init(struct udevice *bus)
 
 	/* Enable write capability for all CS. */
 	reg_val = readl(&priv->regs->conf);
-	writel(reg_val | (GENMASK(plat->max_cs - 1, 0) << 16),
-	       &priv->regs->conf);
+	if (priv->info == &ast2400_spi_info) {
+		writel(reg_val | BIT(0), &priv->regs->conf);
+	} else {
+		writel(reg_val | (GENMASK(plat->max_cs - 1, 0) << 16),
+		       &priv->regs->conf);
+	}
 
 	memset(priv->flashes, 0x0,
 	       sizeof(struct aspeed_spi_flash) * ASPEED_SPI_MAX_CS);
@@ -414,6 +473,16 @@ static int aspeed_spi_ctrl_init(struct udevice *bus)
 	for (cs = 0; cs < priv->num_cs; cs++) {
 		priv->flashes[cs].ce_ctrl_user =
 				(CTRL_STOP_ACTIVE | CTRL_IO_MODE_USER);
+	}
+
+	/*
+	 * SPI1 on AST2400 only supports CS0.
+	 * It is unnecessary to configure segment address register.
+	 */
+	if (priv->info == &ast2400_spi_info) {
+		priv->flashes[cs].ahb_base = plat->ahb_base;
+		priv->flashes[cs].ahb_decoded_sz = 0x10000000;
+		return 0;
 	}
 
 	/* Assign basic AHB decoded size for each CS. */
@@ -432,6 +501,26 @@ static int aspeed_spi_ctrl_init(struct udevice *bus)
 
 	return ret;
 }
+
+static const struct aspeed_spi_info ast2400_fmc_info = {
+	.io_mode_mask = 0x70000000,
+	.max_bus_width = 2,
+	.min_decoded_sz = 0x800000,
+	.set_4byte = ast2400_fmc_chip_set_4byte,
+	.segment_start = ast2400_spi_segment_start,
+	.segment_end = ast2400_spi_segment_end,
+	.segment_reg = ast2400_spi_segment_reg,
+};
+
+static const struct aspeed_spi_info ast2400_spi_info = {
+	.io_mode_mask = 0x70000000,
+	.max_bus_width = 2,
+	.min_decoded_sz = 0x800000,
+	.set_4byte = ast2400_spi_chip_set_4byte,
+	.segment_start = ast2400_spi_segment_start,
+	.segment_end = ast2400_spi_segment_end,
+	.segment_reg = ast2400_spi_segment_reg,
+};
 
 static const struct aspeed_spi_info ast2500_fmc_info = {
 	.io_mode_mask = 0x70000000,
@@ -584,6 +673,8 @@ static const struct dm_spi_ops aspeed_spi_ops = {
 };
 
 static const struct udevice_id aspeed_spi_ids[] = {
+	{ .compatible = "aspeed,ast2400-fmc", .data = (ulong)&ast2400_fmc_info, },
+	{ .compatible = "aspeed,ast2400-spi", .data = (ulong)&ast2400_spi_info, },
 	{ .compatible = "aspeed,ast2500-fmc", .data = (ulong)&ast2500_fmc_info, },
 	{ .compatible = "aspeed,ast2500-spi", .data = (ulong)&ast2500_spi_info, },
 	{ .compatible = "aspeed,ast2600-fmc", .data = (ulong)&ast2600_fmc_info, },
