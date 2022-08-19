@@ -74,6 +74,7 @@ struct aspeed_spi_priv {
 	struct aspeed_spi_regs *regs;
 	struct aspeed_spi_info *info;
 	struct aspeed_spi_flash flashes[ASPEED_SPI_MAX_CS];
+	bool fixed_decoded_range;
 };
 
 struct aspeed_spi_info {
@@ -87,7 +88,15 @@ struct aspeed_spi_info {
 	int (*adjust_decoded_sz)(struct udevice *bus);
 };
 
+struct aspeed_spi_decoded_range {
+	u32 cs;
+	u32 ahb_base;
+	u32 sz;
+};
+
 static const struct aspeed_spi_info ast2400_spi_info;
+static const struct aspeed_spi_info ast2500_fmc_info;
+static const struct aspeed_spi_info ast2500_spi_info;
 static int aspeed_spi_decoded_range_config(struct udevice *bus);
 static int aspeed_spi_trim_decoded_size(struct udevice *bus);
 
@@ -618,6 +627,9 @@ static void aspeed_spi_decoded_base_calculate(struct udevice *bus)
 	struct aspeed_spi_priv *priv = dev_get_priv(bus);
 	u32 cs;
 
+	if (priv->fixed_decoded_range)
+		return;
+
 	priv->flashes[0].ahb_base = plat->ahb_base;
 
 	for (cs = 1; cs < plat->max_cs; cs++) {
@@ -654,7 +666,8 @@ static int aspeed_spi_decoded_range_config(struct udevice *bus)
 	int ret = 0;
 	struct aspeed_spi_priv *priv = dev_get_priv(bus);
 
-	if (priv->info->adjust_decoded_sz) {
+	if (priv->info->adjust_decoded_sz &&
+	    !priv->fixed_decoded_range) {
 		ret = priv->info->adjust_decoded_sz(bus);
 		if (ret != 0)
 			return ret;
@@ -664,6 +677,104 @@ static int aspeed_spi_decoded_range_config(struct udevice *bus)
 	aspeed_spi_decoded_range_set(bus);
 
 	return ret;
+}
+
+static int aspeed_spi_decoded_ranges_sanity(struct udevice *bus)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	u32 cs;
+	u32 total_sz = 0;
+
+	/* Check overall size. */
+	for (cs = 0; cs < plat->max_cs; cs++)
+		total_sz += priv->flashes[cs].ahb_decoded_sz;
+
+	if (total_sz > plat->ahb_sz) {
+		dev_err(bus, "invalid total size 0x%08x\n", total_sz);
+		return -EINVAL;
+	}
+
+	/* Check each decoded range size for AST2500. */
+	if (priv->info == &ast2500_fmc_info ||
+	    priv->info == &ast2500_spi_info) {
+		for (cs = 0; cs < plat->max_cs; cs++) {
+			if (priv->flashes[cs].ahb_decoded_sz <
+			    priv->info->min_decoded_sz) {
+				dev_err(bus, "insufficient decoded range.\n");
+				return -EINVAL;
+			}
+		}
+	}
+
+	/*
+	 * Check overlay. Here, we assume the deccded ranges and
+	 * address base	are monotonic increasing with CE#.
+	 */
+	for (cs = plat->max_cs - 1; cs > 0; cs--) {
+		if ((u32)priv->flashes[cs].ahb_base != 0 &&
+		    (u32)priv->flashes[cs].ahb_base <
+		    (u32)priv->flashes[cs - 1].ahb_base +
+		    priv->flashes[cs - 1].ahb_decoded_sz) {
+			dev_err(bus, "decoded range overlay 0x%08x 0x%08x\n",
+				(u32)priv->flashes[cs].ahb_base,
+				(u32)priv->flashes[cs - 1].ahb_base);
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int aspeed_spi_read_fixed_decoded_ranges(struct udevice *bus)
+{
+	int ret = 0;
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	const char *range_prop = "decoded-ranges";
+	struct aspeed_spi_decoded_range ranges[ASPEED_SPI_MAX_CS];
+	const struct property *prop;
+	u32 prop_sz;
+	u32 count;
+	u32 i;
+
+	priv->fixed_decoded_range = false;
+
+	prop = dev_read_prop(bus, range_prop, &prop_sz);
+	if (!prop)
+		return 0;
+
+	count = prop_sz / sizeof(struct aspeed_spi_decoded_range);
+	if (count > plat->max_cs || count < priv->num_cs) {
+		dev_err(bus, "invalid '%s' property %d %d\n",
+			range_prop, count, priv->num_cs);
+		return -EINVAL;
+	}
+
+	ret = dev_read_u32_array(bus, range_prop, (u32 *)ranges, count * 3);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < count; i++) {
+		priv->flashes[ranges[i].cs].ahb_base =
+				(void __iomem *)ranges[i].ahb_base;
+		priv->flashes[ranges[i].cs].ahb_decoded_sz =
+				ranges[i].sz;
+	}
+
+	for (i = 0; i < plat->max_cs; i++) {
+		dev_dbg(bus, "ahb_base: 0x%p, size: 0x%08x\n",
+			priv->flashes[i].ahb_base,
+			priv->flashes[i].ahb_decoded_sz);
+	}
+
+	ret = aspeed_spi_decoded_ranges_sanity(bus);
+	if (ret != 0)
+		return ret;
+
+	priv->fixed_decoded_range = true;
+
+	return 0;
 }
 
 /*
@@ -709,16 +820,23 @@ static int aspeed_spi_ctrl_init(struct udevice *bus)
 		return 0;
 	}
 
-	/* Assign basic AHB decoded size for each CS. */
-	for (cs = 0; cs < plat->max_cs; cs++) {
-		reg_val = readl(&priv->regs->segment_addr[cs]);
-		decoded_sz = priv->info->segment_end(bus, reg_val) -
-			     priv->info->segment_start(bus, reg_val);
 
-		if (decoded_sz < priv->info->min_decoded_sz)
-			decoded_sz = priv->info->min_decoded_sz;
+	ret = aspeed_spi_read_fixed_decoded_ranges(bus);
+	if (ret != 0)
+		return ret;
 
-		priv->flashes[cs].ahb_decoded_sz = decoded_sz;
+	if (!priv->fixed_decoded_range) {
+		/* Assign basic AHB decoded size for each CS. */
+		for (cs = 0; cs < plat->max_cs; cs++) {
+			reg_val = readl(&priv->regs->segment_addr[cs]);
+			decoded_sz = priv->info->segment_end(bus, reg_val) -
+				     priv->info->segment_start(bus, reg_val);
+
+			if (decoded_sz < priv->info->min_decoded_sz)
+				decoded_sz = priv->info->min_decoded_sz;
+
+			priv->flashes[cs].ahb_decoded_sz = decoded_sz;
+		}
 	}
 
 	ret = aspeed_spi_decoded_range_config(bus);
