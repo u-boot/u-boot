@@ -4427,15 +4427,17 @@ class TestFunctional(unittest.TestCase):
         rest = base[len(U_BOOT_DATA):]
 
         # Check compressed data
-        section1 = self._decompress(rest)
         expect1 = comp_util.compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
-        self.assertEquals(expect1, rest[:len(expect1)])
+        data1 = rest[:len(expect1)]
+        section1 = self._decompress(data1)
+        self.assertEquals(expect1, data1)
         self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
         rest1 = rest[len(expect1):]
 
-        section2 = self._decompress(rest1)
         expect2 = comp_util.compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
-        self.assertEquals(expect2, rest1[:len(expect2)])
+        data2 = rest1[:len(expect2)]
+        section2 = self._decompress(data2)
+        self.assertEquals(expect2, data2)
         self.assertEquals(COMPRESS_DATA + COMPRESS_DATA, section2)
         rest2 = rest1[len(expect2):]
 
