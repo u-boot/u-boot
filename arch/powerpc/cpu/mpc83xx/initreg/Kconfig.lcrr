@@ -1,6 +1,6 @@
 menu "LCRR - Clock Ratio Register register"
 
-if !ARCH_MPC8309 && !ARCH_MPC831X && !ARCH_MPC832X
+if !ARCH_MPC831X && !ARCH_MPC832X
 
 choice
 	prompt "DLL bypass"
