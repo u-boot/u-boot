@@ -1112,12 +1112,12 @@ features to produce new behaviours.
             indata: Data to compress
 
         Returns:
-            Compressed data (first word is the compressed size)
+            Compressed data
         """
         self.uncomp_data = indata
         if self.compress != 'none':
             self.uncomp_size = len(indata)
-        data = comp_util.compress(indata, self.compress, with_header=False)
+        data = comp_util.compress(indata, self.compress)
         return data
 
     def DecompressData(self, indata):
@@ -1129,7 +1129,7 @@ features to produce new behaviours.
         Returns:
             Decompressed data
         """
-        data = comp_util.decompress(indata, self.compress, with_header=False)
+        data = comp_util.decompress(indata, self.compress)
         if self.compress != 'none':
             self.uncomp_size = len(data)
         self.uncomp_data = data

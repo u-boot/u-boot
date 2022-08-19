@@ -241,9 +241,9 @@ class CbfsFile(object):
         """Handle decompressing data if necessary"""
         indata = self.data
         if self.compress == COMPRESS_LZ4:
-            data = comp_util.decompress(indata, 'lz4', with_header=False)
+            data = comp_util.decompress(indata, 'lz4')
         elif self.compress == COMPRESS_LZMA:
-            data = comp_util.decompress(indata, 'lzma', with_header=False)
+            data = comp_util.decompress(indata, 'lzma')
         else:
             data = indata
         self.memlen = len(data)
@@ -362,9 +362,9 @@ class CbfsFile(object):
         elif self.ftype == TYPE_RAW:
             orig_data = data
             if self.compress == COMPRESS_LZ4:
-                data = comp_util.compress(orig_data, 'lz4', with_header=False)
+                data = comp_util.compress(orig_data, 'lz4')
             elif self.compress == COMPRESS_LZMA:
-                data = comp_util.compress(orig_data, 'lzma', with_header=False)
+                data = comp_util.compress(orig_data, 'lzma')
             self.memlen = len(orig_data)
             self.data_len = len(data)
             attr = struct.pack(ATTR_COMPRESSION_FORMAT,

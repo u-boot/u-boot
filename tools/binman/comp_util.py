@@ -3,7 +3,6 @@
 #
 """Utilities to compress and decompress data"""
 
-import struct
 import tempfile
 
 from binman import bintool
@@ -16,7 +15,7 @@ LZMA_ALONE = bintool.Bintool.create('lzma_alone')
 HAVE_LZMA_ALONE = LZMA_ALONE.is_present()
 
 
-def compress(indata, algo, with_header=True):
+def compress(indata, algo):
     """Compress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -41,12 +40,9 @@ def compress(indata, algo, with_header=True):
         data = LZMA_ALONE.compress(indata)
     else:
         raise ValueError("Unknown algorithm '%s'" % algo)
-    if with_header:
-        hdr = struct.pack('<I', len(data))
-        data = hdr + data
     return data
 
-def decompress(indata, algo, with_header=True):
+def decompress(indata, algo):
     """Decompress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -64,9 +60,6 @@ def decompress(indata, algo, with_header=True):
     """
     if algo == 'none':
         return indata
-    if with_header:
-        data_len = struct.unpack('<I', indata[:4])[0]
-        indata = indata[4:4 + data_len]
     if algo == 'lz4':
         data = LZ4.decompress(indata)
     elif algo == 'lzma':

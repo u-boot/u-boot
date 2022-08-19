@@ -1967,7 +1967,7 @@ class TestFunctional(unittest.TestCase):
             self._ResetDtbs()
 
     def _decompress(self, data):
-        return comp_util.decompress(data, 'lz4', with_header=False)
+        return comp_util.decompress(data, 'lz4')
 
     def testCompress(self):
         """Test compression of blobs"""
@@ -2856,7 +2856,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractCbfsRaw(self):
         """Test extracting CBFS compressed data without decompressing it"""
         data = self._RunExtractCmd('section/cbfs/u-boot-dtb', decomp=False)
-        dtb = comp_util.decompress(data, 'lzma', with_header=False)
+        dtb = comp_util.decompress(data, 'lzma')
         self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
 
     def testExtractBadEntry(self):
@@ -4427,16 +4427,14 @@ class TestFunctional(unittest.TestCase):
         rest = base[len(U_BOOT_DATA):]
 
         # Check compressed data
-        expect1 = comp_util.compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4',
-                                     with_header=False)
+        expect1 = comp_util.compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
         data1 = rest[:len(expect1)]
         section1 = self._decompress(data1)
         self.assertEquals(expect1, data1)
         self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
         rest1 = rest[len(expect1):]
 
-        expect2 = comp_util.compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4',
-                                     with_header=False)
+        expect2 = comp_util.compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
         data2 = rest1[:len(expect2)]
         section2 = self._decompress(data2)
         self.assertEquals(expect2, data2)
@@ -5221,11 +5219,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testInvalidCompress(self):
         with self.assertRaises(ValueError) as e:
-            comp_util.compress(b'', 'invalid', with_header=False)
+            comp_util.compress(b'', 'invalid')
         self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
         with self.assertRaises(ValueError) as e:
-            comp_util.decompress(b'1234', 'invalid', with_header=False)
+            comp_util.decompress(b'1234', 'invalid')
         self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
     def testBintoolDocs(self):
