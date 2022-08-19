@@ -73,17 +73,25 @@ class Bintool:
         # interested in the type.
         module_name = btype.replace('-', '_')
         module = modules.get(module_name)
+        class_name = f'Bintool{module_name}'
 
         # Import the module if we have not already done so
         if not module:
             try:
                 module = importlib.import_module('binman.btool.' + module_name)
             except ImportError as exc:
-                return module_name, exc
+                try:
+                    # Deal with classes which must be renamed due to conflicts
+                    # with Python libraries
+                    class_name = f'Bintoolbtool_{module_name}'
+                    module = importlib.import_module('binman.btool.btool_' +
+                                                     module_name)
+                except ImportError:
+                    return module_name, exc
             modules[module_name] = module
 
         # Look up the expected class name
-        return getattr(module, 'Bintool%s' % module_name)
+        return getattr(module, class_name)
 
     @staticmethod
     def create(name):
