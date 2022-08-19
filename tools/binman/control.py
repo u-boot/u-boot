@@ -216,6 +216,7 @@ def ReadEntry(image_fname, entry_path, decomp=True):
     from binman.image import Image
 
     image = Image.FromFile(image_fname)
+    image.CollectBintools()
     entry = image.FindEntryPath(entry_path)
     return entry.ReadData(decomp)
 
@@ -252,6 +253,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
         List of EntryInfo records that were written
     """
     image = Image.FromFile(image_fname)
+    image.CollectBintools()
 
     if alt_format == 'list':
         ShowAltFormats(image)
@@ -371,6 +373,7 @@ def WriteEntry(image_fname, entry_path, data, do_compress=True,
     """
     tout.info("Write entry '%s', file '%s'" % (entry_path, image_fname))
     image = Image.FromFile(image_fname)
+    image.CollectBintools()
     entry = image.FindEntryPath(entry_path)
     WriteEntryToImage(image, entry, data, do_compress=do_compress,
                       allow_resize=allow_resize, write_map=write_map)
@@ -508,8 +511,8 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     # without changing the device-tree size, thus ensuring that our
     # entry offsets remain the same.
     for image in images.values():
-        image.CollectBintools()
         image.gen_entries()
+        image.CollectBintools()
         if update_fdt:
             image.AddMissingProperties(True)
         image.ProcessFdt(dtb)
