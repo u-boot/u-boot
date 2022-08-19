@@ -4422,6 +4422,15 @@ class TestFunctional(unittest.TestCase):
             }
         self.assertEqual(expected, props)
 
+    def testLz4Missing(self):
+        """Test that binman still produces an image if lz4 is missing"""
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('185_compress_section.dts',
+                             force_missing_bintools='lz4')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'main-section'.*missing bintools.*: lz4")
+
     def testCompressExtra(self):
         """Test compression of a section with no fixed size"""
         self._CheckLz4()

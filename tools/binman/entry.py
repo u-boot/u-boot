@@ -1118,7 +1118,11 @@ features to produce new behaviours.
         self.uncomp_data = indata
         if self.compress != 'none':
             self.uncomp_size = len(indata)
-            data = self.comp_bintool.compress(indata)
+            if self.comp_bintool.is_present():
+                data = self.comp_bintool.compress(indata)
+            else:
+                self.record_missing_bintool(self.comp_bintool)
+                data = tools.get_bytes(0, 1024)
         else:
             data = indata
         return data
@@ -1133,8 +1137,12 @@ features to produce new behaviours.
             Decompressed data
         """
         if self.compress != 'none':
-            data = self.comp_bintool.decompress(indata)
-            self.uncomp_size = len(data)
+            if self.comp_bintool.is_present():
+                data = self.comp_bintool.decompress(indata)
+                self.uncomp_size = len(data)
+            else:
+                self.record_missing_bintool(self.comp_bintool)
+                data = tools.get_bytes(0, 1024)
         else:
             data = indata
         self.uncomp_data = data
