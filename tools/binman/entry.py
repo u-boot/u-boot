@@ -12,7 +12,6 @@ import sys
 import time
 
 from binman import bintool
-from binman import comp_util
 from dtoc import fdt_util
 from patman import tools
 from patman.tools import to_hex, to_hex_size
@@ -83,6 +82,7 @@ class Entry(object):
         missing_bintools: List of missing bintools for this entry
         update_hash: True if this entry's "hash" subnode should be
             updated with a hash of the entry contents
+        comp_bintool: Bintools used for compress and decompress data
         fake_fname: Fake filename, if one was created, else None
         required_props (dict of str): Properties which must be present. This can
             be added to by subclasses
@@ -124,6 +124,7 @@ class Entry(object):
         self.update_hash = True
         self.fake_fname = None
         self.required_props = []
+        self.comp_bintool = None
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -1117,7 +1118,9 @@ features to produce new behaviours.
         self.uncomp_data = indata
         if self.compress != 'none':
             self.uncomp_size = len(indata)
-        data = comp_util.compress(indata, self.compress)
+            data = self.comp_bintool.compress(indata)
+        else:
+            data = indata
         return data
 
     def DecompressData(self, indata):
@@ -1129,9 +1132,11 @@ features to produce new behaviours.
         Returns:
             Decompressed data
         """
-        data = comp_util.decompress(indata, self.compress)
         if self.compress != 'none':
+            data = self.comp_bintool.decompress(indata)
             self.uncomp_size = len(data)
+        else:
+            data = indata
         self.uncomp_data = data
         return data
 
@@ -1172,8 +1177,18 @@ features to produce new behaviours.
 
         Args:
             btools (dict of Bintool):
+
+        Raise:
+            ValueError if compression algorithm is not supported
         """
-        pass
+        algo = self.compress
+        if algo != 'none':
+            algos = ['lz4', 'lzma']
+            if algo not in algos:
+                raise ValueError("Unknown algorithm '%s'" % algo)
+            names = {'lzma': 'lzma_alone'}
+            name = names.get(self.compress, self.compress)
+            self.comp_bintool = self.AddBintool(btools, name)
 
     @classmethod
     def AddBintool(self, tools, name):

@@ -23,7 +23,6 @@ import urllib.error
 from binman import bintool
 from binman import cbfs_util
 from binman import cmdline
-from binman import comp_util
 from binman import control
 from binman import elf
 from binman import elf_test
@@ -5229,15 +5228,6 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                 self._DoBinman(*args)
         self.assertIn('failed to fetch with all methods', stdout.getvalue())
 
-    def testInvalidCompress(self):
-        with self.assertRaises(ValueError) as e:
-            comp_util.compress(b'', 'invalid')
-        self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
-
-        with self.assertRaises(ValueError) as e:
-            comp_util.decompress(b'1234', 'invalid')
-        self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
-
     def testBintoolDocs(self):
         """Test for creation of bintool documentation"""
         with test_util.capture_sys_output() as (stdout, stderr):
@@ -5857,6 +5847,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         comp_data = rest[4:4 + comp_data_len]
         orig2 = self._decompress(comp_data)
         self.assertEqual(orig, orig2)
+
+    def testInvalidCompress(self):
+        """Test that invalid compress algorithm is detected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('237_compress_dtb_invalid.dts')
+        self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
 
 if __name__ == "__main__":
