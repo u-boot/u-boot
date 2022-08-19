@@ -107,7 +107,7 @@ BASE_DTB_PROPS = ['offset', 'size', 'image-pos']
 REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 
 # Supported compression bintools
-COMP_BINTOOLS = ['bzip2', 'gzip', 'lz4', 'lzma_alone', 'lzop', 'xz']
+COMP_BINTOOLS = ['bzip2', 'gzip', 'lz4', 'lzma_alone', 'lzop', 'xz', 'zstd']
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -5881,13 +5881,21 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testCompUtilPadding(self):
         """Test padding of compression algorithms"""
-        for bintool in self.comp_bintools.values():
+        # Skip zstd because it doesn't support padding
+        for bintool in [v for k,v in self.comp_bintools.items() if k != 'zstd']:
             self._CheckBintool(bintool)
             data = bintool.compress(COMPRESS_DATA)
             self.assertNotEqual(COMPRESS_DATA, data)
             data += tools.get_bytes(0, 64)
             orig = bintool.decompress(data)
             self.assertEquals(COMPRESS_DATA, orig)
+
+    def testCompressDtbZstd(self):
+        """Test that zstd compress of device-tree files failed"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('238_compress_dtb_zstd.dts')
+        self.assertIn("Node '/binman/u-boot-dtb': The zstd compression "
+                      "requires a length header", str(e.exception))
 
 
 if __name__ == "__main__":
