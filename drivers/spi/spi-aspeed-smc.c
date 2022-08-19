@@ -84,10 +84,12 @@ struct aspeed_spi_info {
 	u32 (*segment_start)(struct udevice *bus, u32 reg);
 	u32 (*segment_end)(struct udevice *bus, u32 reg);
 	u32 (*segment_reg)(u32 start, u32 end);
+	int (*adjust_decoded_sz)(struct udevice *bus);
 };
 
 static const struct aspeed_spi_info ast2400_spi_info;
 static int aspeed_spi_decoded_range_config(struct udevice *bus);
+static int aspeed_spi_trim_decoded_size(struct udevice *bus);
 
 static u32 aspeed_spi_get_io_mode(u32 bus_width)
 {
@@ -195,6 +197,53 @@ static void ast2500_spi_chip_set_4byte(struct udevice *bus, u32 cs)
 	writel(reg_val, &priv->regs->ctrl);
 }
 
+/*
+ * For AST2500, the minimum address decoded size for each CS
+ * is 8MB instead of zero. This address decoded size is
+ * mandatory for each CS no matter whether it will be used.
+ * This is a HW limitation.
+ */
+static int ast2500_adjust_decoded_size(struct udevice *bus)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	struct aspeed_spi_flash *flashes = &priv->flashes[0];
+	int ret;
+	int i;
+	int cs;
+	u32 pre_sz;
+	u32 lack_sz;
+
+	/* Assign min_decoded_sz to unused CS. */
+	for (cs = priv->num_cs; cs < plat->max_cs; cs++)
+		flashes[cs].ahb_decoded_sz = priv->info->min_decoded_sz;
+
+	/*
+	 * If commnad mode or normal mode is used, the start address of a
+	 * decoded range should be multiple of its related flash size.
+	 * Namely, the total decoded size from flash 0 to flash N should
+	 * be multiple of the size of flash (N + 1).
+	 */
+	for (cs = priv->num_cs - 1; cs >= 0; cs--) {
+		pre_sz = 0;
+		for (i = 0; i < cs; i++)
+			pre_sz += flashes[i].ahb_decoded_sz;
+
+		if (flashes[cs].ahb_decoded_sz != 0 &&
+		    (pre_sz % flashes[cs].ahb_decoded_sz) != 0) {
+			lack_sz = flashes[cs].ahb_decoded_sz -
+				  (pre_sz % flashes[cs].ahb_decoded_sz);
+			flashes[0].ahb_decoded_sz += lack_sz;
+		}
+	}
+
+	ret = aspeed_spi_trim_decoded_size(bus);
+	if (ret != 0)
+		return ret;
+
+	return 0;
+}
+
 static u32 ast2600_spi_segment_start(struct udevice *bus, u32 reg)
 {
 	struct aspeed_spi_plat *plat = dev_get_plat(bus);
@@ -234,6 +283,86 @@ static void ast2600_spi_chip_set_4byte(struct udevice *bus, u32 cs)
 	reg_val = readl(&priv->regs->ctrl);
 	reg_val |= 0x11 << cs;
 	writel(reg_val, &priv->regs->ctrl);
+}
+
+static int ast2600_adjust_decoded_size(struct udevice *bus)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	struct aspeed_spi_flash *flashes = &priv->flashes[0];
+	int ret;
+	int i;
+	int cs;
+	u32 pre_sz;
+	u32 lack_sz;
+
+	/* Close unused CS. */
+	for (cs = priv->num_cs; cs < plat->max_cs; cs++)
+		flashes[cs].ahb_decoded_sz = 0;
+
+	/*
+	 * If commnad mode or normal mode is used, the start address of a
+	 * decoded range should be multiple of its related flash size.
+	 * Namely, the total decoded size from flash 0 to flash N should
+	 * be multiple of the size of flash (N + 1).
+	 */
+	for (cs = priv->num_cs - 1; cs >= 0; cs--) {
+		pre_sz = 0;
+		for (i = 0; i < cs; i++)
+			pre_sz += flashes[i].ahb_decoded_sz;
+
+		if (flashes[cs].ahb_decoded_sz != 0 &&
+		    (pre_sz % flashes[cs].ahb_decoded_sz) != 0) {
+			lack_sz = flashes[cs].ahb_decoded_sz -
+				  (pre_sz % flashes[cs].ahb_decoded_sz);
+			flashes[0].ahb_decoded_sz += lack_sz;
+		}
+	}
+
+	ret = aspeed_spi_trim_decoded_size(bus);
+	if (ret != 0)
+		return ret;
+
+	return 0;
+}
+
+/*
+ * As the flash size grows up, we need to trim some decoded
+ * size if needed for the sake of conforming the maximum
+ * decoded size. We trim the decoded size from the largest
+ * CS in order to avoid affecting the default boot up sequence
+ * from CS0 where command mode or normal mode is used.
+ * Notice, if a CS decoded size is trimmed, command mode may
+ * not work perfectly on that CS.
+ */
+static int aspeed_spi_trim_decoded_size(struct udevice *bus)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(bus);
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	struct aspeed_spi_flash *flashes = &priv->flashes[0];
+	u32 total_sz;
+	int cs = plat->max_cs - 1;
+	u32 i;
+
+	do {
+		total_sz = 0;
+		for (i = 0; i < plat->max_cs; i++)
+			total_sz += flashes[i].ahb_decoded_sz;
+
+		if (flashes[cs].ahb_decoded_sz <= priv->info->min_decoded_sz)
+			cs--;
+
+		if (cs < 0)
+			return -ENOMEM;
+
+		if (total_sz > plat->ahb_sz) {
+			flashes[cs].ahb_decoded_sz -=
+					priv->info->min_decoded_sz;
+			total_sz -= priv->info->min_decoded_sz;
+		}
+	} while (total_sz > plat->ahb_sz);
+
+	return 0;
 }
 
 static int aspeed_spi_read_from_ahb(void __iomem *ahb_base, void *buf,
@@ -522,10 +651,19 @@ static void aspeed_spi_decoded_range_set(struct udevice *bus)
 
 static int aspeed_spi_decoded_range_config(struct udevice *bus)
 {
+	int ret = 0;
+	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+
+	if (priv->info->adjust_decoded_sz) {
+		ret = priv->info->adjust_decoded_sz(bus);
+		if (ret != 0)
+			return ret;
+	}
+
 	aspeed_spi_decoded_base_calculate(bus);
 	aspeed_spi_decoded_range_set(bus);
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -616,6 +754,7 @@ static const struct aspeed_spi_info ast2500_fmc_info = {
 	.segment_start = ast2500_spi_segment_start,
 	.segment_end = ast2500_spi_segment_end,
 	.segment_reg = ast2500_spi_segment_reg,
+	.adjust_decoded_sz = ast2500_adjust_decoded_size,
 };
 
 /*
@@ -630,6 +769,7 @@ static const struct aspeed_spi_info ast2500_spi_info = {
 	.segment_start = ast2500_spi_segment_start,
 	.segment_end = ast2500_spi_segment_end,
 	.segment_reg = ast2500_spi_segment_reg,
+	.adjust_decoded_sz = ast2500_adjust_decoded_size,
 };
 
 static const struct aspeed_spi_info ast2600_fmc_info = {
@@ -640,6 +780,7 @@ static const struct aspeed_spi_info ast2600_fmc_info = {
 	.segment_start = ast2600_spi_segment_start,
 	.segment_end = ast2600_spi_segment_end,
 	.segment_reg = ast2600_spi_segment_reg,
+	.adjust_decoded_sz = ast2600_adjust_decoded_size,
 };
 
 static const struct aspeed_spi_info ast2600_spi_info = {
@@ -650,6 +791,7 @@ static const struct aspeed_spi_info ast2600_spi_info = {
 	.segment_start = ast2600_spi_segment_start,
 	.segment_end = ast2600_spi_segment_end,
 	.segment_reg = ast2600_spi_segment_reg,
+	.adjust_decoded_sz = ast2600_adjust_decoded_size,
 };
 
 static int aspeed_spi_claim_bus(struct udevice *dev)
