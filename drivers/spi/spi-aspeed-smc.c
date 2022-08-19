@@ -60,6 +60,7 @@ struct aspeed_spi_plat {
 	u8 max_cs;
 	void __iomem *ahb_base; /* AHB address base for all flash devices. */
 	fdt_size_t ahb_sz; /* Overall AHB window size for all flash device. */
+	u32 hclk_rate; /* AHB clock rate */
 };
 
 struct aspeed_spi_flash {
@@ -67,6 +68,7 @@ struct aspeed_spi_flash {
 	u32 ahb_decoded_sz;
 	u32 ce_ctrl_user;
 	u32 ce_ctrl_read;
+	u32 max_freq;
 };
 
 struct aspeed_spi_priv {
@@ -81,11 +83,13 @@ struct aspeed_spi_info {
 	u32 io_mode_mask;
 	u32 max_bus_width;
 	u32 min_decoded_sz;
+	u32 clk_ctrl_mask;
 	void (*set_4byte)(struct udevice *bus, u32 cs);
 	u32 (*segment_start)(struct udevice *bus, u32 reg);
 	u32 (*segment_end)(struct udevice *bus, u32 reg);
 	u32 (*segment_reg)(u32 start, u32 end);
 	int (*adjust_decoded_sz)(struct udevice *bus);
+	u32 (*get_clk_setting)(struct udevice *dev, uint hz);
 };
 
 struct aspeed_spi_decoded_range {
@@ -163,6 +167,44 @@ static void ast2400_spi_chip_set_4byte(struct udevice *bus, u32 cs)
 
 	flash->ce_ctrl_read |= BIT(13);
 	writel(flash->ce_ctrl_read, &priv->regs->ctrl);
+}
+
+/* Transfer maximum clock frequency to register setting */
+static u32 ast2400_get_clk_setting(struct udevice *dev, uint max_hz)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(dev->parent);
+	struct aspeed_spi_priv *priv = dev_get_priv(dev->parent);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	u32 hclk_clk = plat->hclk_rate;
+	u32 hclk_div = 0x0000; /* default value */
+	u32 i;
+	bool found = false;
+	/* HCLK/1 ..	HCLK/16 */
+	u32 hclk_masks[] = {15, 7, 14, 6, 13, 5, 12, 4,
+			    11, 3, 10, 2, 9,  1, 8,  0};
+
+	/* FMC/SPIR10[11:8] */
+	for (i = 0; i < ARRAY_SIZE(hclk_masks); i++) {
+		if (hclk_clk / (i + 1) <= max_hz) {
+			found = true;
+			break;
+		}
+	}
+
+	if (found) {
+		hclk_div = hclk_masks[i] << 8;
+		priv->flashes[slave_plat->cs].max_freq = hclk_clk / (i + 1);
+	}
+
+	dev_dbg(dev, "found: %s, hclk: %d, max_clk: %d\n", found ? "yes" : "no",
+		hclk_clk, max_hz);
+
+	if (found) {
+		dev_dbg(dev, "h_div: %d (mask %x), speed: %d\n",
+			i + 1, hclk_masks[i], priv->flashes[slave_plat->cs].max_freq);
+	}
+
+	return hclk_div;
 }
 
 static u32 ast2500_spi_segment_start(struct udevice *bus, u32 reg)
@@ -253,6 +295,58 @@ static int ast2500_adjust_decoded_size(struct udevice *bus)
 	return 0;
 }
 
+static u32 ast2500_get_clk_setting(struct udevice *dev, uint max_hz)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(dev->parent);
+	struct aspeed_spi_priv *priv = dev_get_priv(dev->parent);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	u32 hclk_clk = plat->hclk_rate;
+	u32 hclk_div = 0x0000; /* default value */
+	u32 i;
+	bool found = false;
+	/* HCLK/1 ..	HCLK/16 */
+	u32 hclk_masks[] = {15, 7, 14, 6, 13, 5, 12, 4,
+			    11, 3, 10, 2, 9,  1, 8,  0};
+
+	/* FMC/SPIR10[11:8] */
+	for (i = 0; i < ARRAY_SIZE(hclk_masks); i++) {
+		if (hclk_clk / (i + 1) <= max_hz) {
+			found = true;
+			priv->flashes[slave_plat->cs].max_freq =
+							hclk_clk / (i + 1);
+			break;
+		}
+	}
+
+	if (found) {
+		hclk_div = hclk_masks[i] << 8;
+		goto end;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(hclk_masks); i++) {
+		if (hclk_clk / ((i + 1) * 4) <= max_hz) {
+			found = true;
+			priv->flashes[slave_plat->cs].max_freq =
+						hclk_clk / ((i + 1) * 4);
+			break;
+		}
+	}
+
+	if (found)
+		hclk_div = BIT(13) | (hclk_masks[i] << 8);
+
+end:
+	dev_dbg(dev, "found: %s, hclk: %d, max_clk: %d\n", found ? "yes" : "no",
+		hclk_clk, max_hz);
+
+	if (found) {
+		dev_dbg(dev, "h_div: %d (mask %x), speed: %d\n",
+			i + 1, hclk_masks[i], priv->flashes[slave_plat->cs].max_freq);
+	}
+
+	return hclk_div;
+}
+
 static u32 ast2600_spi_segment_start(struct udevice *bus, u32 reg)
 {
 	struct aspeed_spi_plat *plat = dev_get_plat(bus);
@@ -333,6 +427,51 @@ static int ast2600_adjust_decoded_size(struct udevice *bus)
 		return ret;
 
 	return 0;
+}
+
+static u32 ast2600_get_clk_setting(struct udevice *dev, uint max_hz)
+{
+	struct aspeed_spi_plat *plat = dev_get_plat(dev->parent);
+	struct aspeed_spi_priv *priv = dev_get_priv(dev->parent);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	u32 hclk_clk = plat->hclk_rate;
+	u32 hclk_div = 0x0400; /* default value */
+	u32 i, j;
+	bool found = false;
+	/* HCLK/1 ..	HCLK/16 */
+	u32 hclk_masks[] = {15, 7, 14, 6, 13, 5, 12, 4,
+			    11, 3, 10, 2, 9,  1, 8,  0};
+
+	/* FMC/SPIR10[27:24] */
+	for (j = 0; j < 0xf; j++) {
+		/* FMC/SPIR10[11:8] */
+		for (i = 0; i < ARRAY_SIZE(hclk_masks); i++) {
+			if (i == 0 && j == 0)
+				continue;
+
+			if (hclk_clk / (i + 1 + (j * 16)) <= max_hz) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found) {
+			hclk_div = ((j << 24) | hclk_masks[i] << 8);
+			priv->flashes[slave_plat->cs].max_freq =
+						hclk_clk / (i + 1 + j * 16);
+			break;
+		}
+	}
+
+	dev_dbg(dev, "found: %s, hclk: %d, max_clk: %d\n", found ? "yes" : "no",
+		hclk_clk, max_hz);
+
+	if (found) {
+		dev_dbg(dev, "base_clk: %d, h_div: %d (mask %x), speed: %d\n",
+			j, i + 1, hclk_masks[i], priv->flashes[slave_plat->cs].max_freq);
+	}
+
+	return hclk_div;
 }
 
 /*
@@ -531,7 +670,7 @@ static int aspeed_spi_dirmap_create(struct spi_mem_dirmap_desc *desc)
 	struct spi_mem_op op_tmpl = desc->info.op_tmpl;
 	u32 i;
 	u32 cs = slave_plat->cs;
-	u32 reg_val;
+	u32 cmd_io_conf;
 	u32 ce_ctrl_reg;
 
 	if (desc->info.op_tmpl.data.dir == SPI_MEM_DATA_OUT) {
@@ -564,15 +703,16 @@ static int aspeed_spi_dirmap_create(struct spi_mem_dirmap_desc *desc)
 			return ret;
 	}
 
-	reg_val = aspeed_spi_get_io_mode(op_tmpl.data.buswidth) |
-		  op_tmpl.cmd.opcode << 16 |
-		  ((op_tmpl.dummy.nbytes) & 0x3) << 6 |
-		  ((op_tmpl.dummy.nbytes) & 0x4) << 14 |
-		  CTRL_IO_MODE_CMD_READ;
+	cmd_io_conf = aspeed_spi_get_io_mode(op_tmpl.data.buswidth) |
+		      op_tmpl.cmd.opcode << 16 |
+		      ((op_tmpl.dummy.nbytes) & 0x3) << 6 |
+		      ((op_tmpl.dummy.nbytes) & 0x4) << 14 |
+		      CTRL_IO_MODE_CMD_READ;
 
-	writel(reg_val, ce_ctrl_reg);
+	priv->flashes[cs].ce_ctrl_read &= priv->info->clk_ctrl_mask;
+	priv->flashes[cs].ce_ctrl_read |= cmd_io_conf;
 
-	priv->flashes[cs].ce_ctrl_read = reg_val;
+	writel(priv->flashes[cs].ce_ctrl_read, ce_ctrl_reg);
 
 	dev_dbg(dev, "read bus width: %d ce_ctrl_val: 0x%08x\n",
 		op_tmpl.data.buswidth, priv->flashes[cs].ce_ctrl_read);
@@ -806,7 +946,8 @@ static int aspeed_spi_ctrl_init(struct udevice *bus)
 
 	/* Initial user mode. */
 	for (cs = 0; cs < priv->num_cs; cs++) {
-		priv->flashes[cs].ce_ctrl_user =
+		priv->flashes[cs].ce_ctrl_user &= priv->info->clk_ctrl_mask;
+		priv->flashes[cs].ce_ctrl_user |=
 				(CTRL_STOP_ACTIVE | CTRL_IO_MODE_USER);
 	}
 
@@ -848,31 +989,37 @@ static const struct aspeed_spi_info ast2400_fmc_info = {
 	.io_mode_mask = 0x70000000,
 	.max_bus_width = 2,
 	.min_decoded_sz = 0x800000,
+	.clk_ctrl_mask = 0x00002f00,
 	.set_4byte = ast2400_fmc_chip_set_4byte,
 	.segment_start = ast2400_spi_segment_start,
 	.segment_end = ast2400_spi_segment_end,
 	.segment_reg = ast2400_spi_segment_reg,
+	.get_clk_setting = ast2400_get_clk_setting,
 };
 
 static const struct aspeed_spi_info ast2400_spi_info = {
 	.io_mode_mask = 0x70000000,
 	.max_bus_width = 2,
 	.min_decoded_sz = 0x800000,
+	.clk_ctrl_mask = 0x00000f00,
 	.set_4byte = ast2400_spi_chip_set_4byte,
 	.segment_start = ast2400_spi_segment_start,
 	.segment_end = ast2400_spi_segment_end,
 	.segment_reg = ast2400_spi_segment_reg,
+	.get_clk_setting = ast2400_get_clk_setting,
 };
 
 static const struct aspeed_spi_info ast2500_fmc_info = {
 	.io_mode_mask = 0x70000000,
 	.max_bus_width = 2,
 	.min_decoded_sz = 0x800000,
+	.clk_ctrl_mask = 0x00002f00,
 	.set_4byte = ast2500_spi_chip_set_4byte,
 	.segment_start = ast2500_spi_segment_start,
 	.segment_end = ast2500_spi_segment_end,
 	.segment_reg = ast2500_spi_segment_reg,
 	.adjust_decoded_sz = ast2500_adjust_decoded_size,
+	.get_clk_setting = ast2500_get_clk_setting,
 };
 
 /*
@@ -883,41 +1030,58 @@ static const struct aspeed_spi_info ast2500_spi_info = {
 	.io_mode_mask = 0x70000000,
 	.max_bus_width = 2,
 	.min_decoded_sz = 0x800000,
+	.clk_ctrl_mask = 0x00002f00,
 	.set_4byte = ast2500_spi_chip_set_4byte,
 	.segment_start = ast2500_spi_segment_start,
 	.segment_end = ast2500_spi_segment_end,
 	.segment_reg = ast2500_spi_segment_reg,
 	.adjust_decoded_sz = ast2500_adjust_decoded_size,
+	.get_clk_setting = ast2500_get_clk_setting,
 };
 
 static const struct aspeed_spi_info ast2600_fmc_info = {
 	.io_mode_mask = 0xf0000000,
 	.max_bus_width = 4,
 	.min_decoded_sz = 0x200000,
+	.clk_ctrl_mask = 0x0f000f00,
 	.set_4byte = ast2600_spi_chip_set_4byte,
 	.segment_start = ast2600_spi_segment_start,
 	.segment_end = ast2600_spi_segment_end,
 	.segment_reg = ast2600_spi_segment_reg,
 	.adjust_decoded_sz = ast2600_adjust_decoded_size,
+	.get_clk_setting = ast2600_get_clk_setting,
 };
 
 static const struct aspeed_spi_info ast2600_spi_info = {
 	.io_mode_mask = 0xf0000000,
 	.max_bus_width = 4,
 	.min_decoded_sz = 0x200000,
+	.clk_ctrl_mask = 0x0f000f00,
 	.set_4byte = ast2600_spi_chip_set_4byte,
 	.segment_start = ast2600_spi_segment_start,
 	.segment_end = ast2600_spi_segment_end,
 	.segment_reg = ast2600_spi_segment_reg,
 	.adjust_decoded_sz = ast2600_adjust_decoded_size,
+	.get_clk_setting = ast2600_get_clk_setting,
 };
 
 static int aspeed_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	struct aspeed_spi_priv *priv = dev_get_priv(dev->parent);
+	struct aspeed_spi_flash *flash = &priv->flashes[slave_plat->cs];
+	u32 clk_setting;
 
 	dev_dbg(bus, "%s: claim bus CS%u\n", bus->name, slave_plat->cs);
+
+	if (flash->max_freq == 0) {
+		clk_setting = priv->info->get_clk_setting(dev, slave_plat->max_hz);
+		flash->ce_ctrl_user &= ~(priv->info->clk_ctrl_mask);
+		flash->ce_ctrl_user |= clk_setting;
+		flash->ce_ctrl_read &= ~(priv->info->clk_ctrl_mask);
+		flash->ce_ctrl_read |= clk_setting;
+	}
 
 	return 0;
 }
@@ -958,6 +1122,8 @@ static int apseed_spi_of_to_plat(struct udevice *bus)
 {
 	struct aspeed_spi_plat *plat = dev_get_plat(bus);
 	struct aspeed_spi_priv *priv = dev_get_priv(bus);
+	int ret;
+	struct clk hclk;
 
 	priv->regs = (void __iomem *)devfdt_get_addr_index(bus, 0);
 	if ((u32)priv->regs == FDT_ADDR_T_NONE) {
@@ -976,9 +1142,19 @@ static int apseed_spi_of_to_plat(struct udevice *bus)
 	if (plat->max_cs > ASPEED_SPI_MAX_CS)
 		return -EINVAL;
 
+	ret = clk_get_by_index(bus, 0, &hclk);
+	if (ret < 0) {
+		dev_err(bus, "%s could not get clock: %d\n", bus->name, ret);
+		return ret;
+	}
+
+	plat->hclk_rate = clk_get_rate(&hclk);
+	clk_free(&hclk);
+
 	dev_dbg(bus, "ctrl_base = 0x%x, ahb_base = 0x%p, size = 0x%lx\n",
 		(u32)priv->regs, plat->ahb_base, plat->ahb_sz);
-	dev_dbg(bus, "max_cs = %d\n", plat->max_cs);
+	dev_dbg(bus, "hclk = %dMHz, max_cs = %d\n",
+		plat->hclk_rate / 1000000, plat->max_cs);
 
 	return 0;
 }
