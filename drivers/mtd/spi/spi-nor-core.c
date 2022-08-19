@@ -246,9 +246,9 @@ static u8 spi_nor_get_cmd_ext(const struct spi_nor *nor,
  *			need to be initialized.
  * @proto:		the protocol from which the properties need to be set.
  */
-static void spi_nor_setup_op(const struct spi_nor *nor,
-			     struct spi_mem_op *op,
-			     const enum spi_nor_protocol proto)
+void spi_nor_setup_op(const struct spi_nor *nor,
+		      struct spi_mem_op *op,
+		      const enum spi_nor_protocol proto)
 {
 	u8 ext;
 
@@ -369,13 +369,29 @@ static ssize_t spi_nor_read_data(struct spi_nor *nor, loff_t from, size_t len,
 
 	while (remaining) {
 		op.data.nbytes = remaining < UINT_MAX ? remaining : UINT_MAX;
-		ret = spi_mem_adjust_op_size(nor->spi, &op);
-		if (ret)
-			return ret;
 
-		ret = spi_mem_exec_op(nor->spi, &op);
-		if (ret)
-			return ret;
+		if (CONFIG_IS_ENABLED(SPI_DIRMAP) && nor->dirmap.rdesc) {
+			/*
+			 * Record current operation information which may be used
+			 * when the address or data length exceeds address mapping.
+			 */
+			memcpy(&nor->dirmap.rdesc->info.op_tmpl, &op,
+			       sizeof(struct spi_mem_op));
+			ret = spi_mem_dirmap_read(nor->dirmap.rdesc,
+						  op.addr.val, op.data.nbytes,
+						  op.data.buf.in);
+			if (ret < 0)
+				return ret;
+			op.data.nbytes = ret;
+		} else {
+			ret = spi_mem_adjust_op_size(nor->spi, &op);
+			if (ret)
+				return ret;
+
+			ret = spi_mem_exec_op(nor->spi, &op);
+			if (ret)
+				return ret;
+		}
 
 		op.addr.val += op.data.nbytes;
 		remaining -= op.data.nbytes;
@@ -400,14 +416,21 @@ static ssize_t spi_nor_write_data(struct spi_nor *nor, loff_t to, size_t len,
 
 	spi_nor_setup_op(nor, &op, nor->write_proto);
 
-	ret = spi_mem_adjust_op_size(nor->spi, &op);
-	if (ret)
-		return ret;
-	op.data.nbytes = len < op.data.nbytes ? len : op.data.nbytes;
+	if (CONFIG_IS_ENABLED(SPI_DIRMAP) && nor->dirmap.wdesc) {
+		memcpy(&nor->dirmap.wdesc->info.op_tmpl, &op,
+		       sizeof(struct spi_mem_op));
+		op.data.nbytes = spi_mem_dirmap_write(nor->dirmap.wdesc, op.addr.val,
+						      op.data.nbytes, op.data.buf.out);
+	} else {
+		ret = spi_mem_adjust_op_size(nor->spi, &op);
+		if (ret)
+			return ret;
+		op.data.nbytes = len < op.data.nbytes ? len : op.data.nbytes;
 
-	ret = spi_mem_exec_op(nor->spi, &op);
-	if (ret)
-		return ret;
+		ret = spi_mem_exec_op(nor->spi, &op);
+		if (ret)
+			return ret;
+	}
 
 	return op.data.nbytes;
 }

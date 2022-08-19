@@ -11,6 +11,7 @@
 #include <linux/bitops.h>
 #include <linux/mtd/cfi.h>
 #include <linux/mtd/mtd.h>
+#include <spi-mem.h>
 
 /*
  * Manufacturer IDs
@@ -522,6 +523,7 @@ struct spi_flash {
  * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
  * @octal_dtr_enable:	[FLASH-SPECIFIC] enables SPI NOR octal DTR mode.
  * @ready:		[FLASH-SPECIFIC] check if the flash is ready
+ * @dirmap:		pointers to struct spi_mem_dirmap_desc for reads/writes.
  * @priv:		the private data
  */
 struct spi_nor {
@@ -572,6 +574,11 @@ struct spi_nor {
 	int (*octal_dtr_enable)(struct spi_nor *nor);
 	int (*ready)(struct spi_nor *nor);
 
+	struct {
+		struct spi_mem_dirmap_desc *rdesc;
+		struct spi_mem_dirmap_desc *wdesc;
+	} dirmap;
+
 	void *priv;
 	char mtd_name[MTD_NAME_SIZE(MTD_DEV_TYPE_NOR)];
 /* Compatibility for spi_flash, remove once sf layer is merged with mtd */
@@ -594,6 +601,17 @@ device_node *spi_nor_get_flash_node(struct spi_nor *nor)
 	return mtd_get_of_node(&nor->mtd);
 }
 #endif /* __UBOOT__ */
+
+/**
+ * spi_nor_setup_op() - Set up common properties of a spi-mem op.
+ * @nor:		pointer to a 'struct spi_nor'
+ * @op:			pointer to the 'struct spi_mem_op' whose properties
+ *			need to be initialized.
+ * @proto:		the protocol from which the properties need to be set.
+ */
+void spi_nor_setup_op(const struct spi_nor *nor,
+		      struct spi_mem_op *op,
+		      const enum spi_nor_protocol proto);
 
 /**
  * spi_nor_scan() - scan the SPI NOR
