@@ -1191,10 +1191,10 @@ features to produce new behaviours.
         """
         algo = self.compress
         if algo != 'none':
-            algos = ['bzip2', 'gzip', 'lz4', 'lzma']
+            algos = ['bzip2', 'gzip', 'lz4', 'lzma', 'lzo']
             if algo not in algos:
                 raise ValueError("Unknown algorithm '%s'" % algo)
-            names = {'lzma': 'lzma_alone'}
+            names = {'lzma': 'lzma_alone', 'lzo': 'lzop'}
             name = names.get(self.compress, self.compress)
             self.comp_bintool = self.AddBintool(btools, name)
 
