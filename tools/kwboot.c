@@ -84,7 +84,7 @@ static unsigned char kwboot_msg_debug[] = {
 #define KWBOOT_MSG_RSP_TIMEO	50 /* ms */
 
 /* Defines known to work on Armada XP */
-#define KWBOOT_MSG_RSP_TIMEO_AXP	1000 /* ms */
+#define KWBOOT_MSG_RSP_TIMEO_AXP	10 /* ms */
 
 /*
  * Xmodem Transfers
