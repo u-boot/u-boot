@@ -5807,6 +5807,45 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         expect = U_BOOT_SPL_DATA + U_BOOT_DATA
         self.assertEqual(expect, data[:len(expect)])
 
+    def testCompressDtbPrependInvalid(self):
+        """Test that invalid header is detected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('235_compress_dtb_prepend_invalid.dts')
+        self.assertIn("Node '/binman/u-boot-dtb': Invalid prepend in "
+                      "'u-boot-dtb': 'invalid'", str(e.exception))
+
+    def testCompressDtbPrependLength(self):
+        """Test that compress with length header works as expected"""
+        data = self._DoReadFileRealDtb('236_compress_dtb_prepend_length.dts')
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertIn('u-boot-dtb', entries)
+        u_boot_dtb = entries['u-boot-dtb']
+        self.assertIn('fdtmap', entries)
+        fdtmap = entries['fdtmap']
+
+        image_fname = tools.get_output_filename('image.bin')
+        orig = control.ReadEntry(image_fname, 'u-boot-dtb')
+        dtb = fdt.Fdt.FromData(orig)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'uncomp-size'])
+        expected = {
+            'u-boot:size': len(U_BOOT_DATA),
+            'u-boot-dtb:uncomp-size': len(orig),
+            'u-boot-dtb:size': u_boot_dtb.size,
+            'fdtmap:size': fdtmap.size,
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+        # Check implementation
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        rest = data[len(U_BOOT_DATA):]
+        comp_data_len = struct.unpack('<I', rest[:4])[0]
+        comp_data = rest[4:4 + comp_data_len]
+        orig2 = self._decompress(comp_data)
+        self.assertEqual(orig, orig2)
+
 
 if __name__ == "__main__":
     unittest.main()
