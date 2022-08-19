@@ -1967,7 +1967,7 @@ class TestFunctional(unittest.TestCase):
             self._ResetDtbs()
 
     def _decompress(self, data):
-        return comp_util.decompress(data, 'lz4')
+        return comp_util.decompress(data, 'lz4', with_header=False)
 
     def testCompress(self):
         """Test compression of blobs"""
@@ -4427,14 +4427,16 @@ class TestFunctional(unittest.TestCase):
         rest = base[len(U_BOOT_DATA):]
 
         # Check compressed data
-        expect1 = comp_util.compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4')
+        expect1 = comp_util.compress(COMPRESS_DATA + U_BOOT_DATA, 'lz4',
+                                     with_header=False)
         data1 = rest[:len(expect1)]
         section1 = self._decompress(data1)
         self.assertEquals(expect1, data1)
         self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
         rest1 = rest[len(expect1):]
 
-        expect2 = comp_util.compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4')
+        expect2 = comp_util.compress(COMPRESS_DATA + COMPRESS_DATA, 'lz4',
+                                     with_header=False)
         data2 = rest1[:len(expect2)]
         section2 = self._decompress(data2)
         self.assertEquals(expect2, data2)
@@ -5219,11 +5221,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testInvalidCompress(self):
         with self.assertRaises(ValueError) as e:
-            comp_util.compress(b'', 'invalid')
+            comp_util.compress(b'', 'invalid', with_header=False)
         self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
         with self.assertRaises(ValueError) as e:
-            comp_util.decompress(b'1234', 'invalid')
+            comp_util.decompress(b'1234', 'invalid', with_header=False)
         self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
     def testBintoolDocs(self):
