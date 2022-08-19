@@ -107,7 +107,7 @@ BASE_DTB_PROPS = ['offset', 'size', 'image-pos']
 REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 
 # Supported compression bintools
-COMP_BINTOOLS = ['lz4', 'lzma_alone']
+COMP_BINTOOLS = ['bzip2', 'lz4', 'lzma_alone']
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
