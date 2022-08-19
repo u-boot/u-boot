@@ -838,7 +838,7 @@ void board_nand_init(void)
 
 static int fsl_elbc_nand_probe(struct udevice *dev)
 {
-	return fsl_elbc_chip_init(0, (void *)dev_read_addr(dev), dev);
+	return fsl_elbc_chip_init(0, dev_read_addr_ptr(dev), dev);
 }
 
 static const struct udevice_id fsl_elbc_nand_dt_ids[] = {
