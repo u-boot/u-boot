@@ -1081,7 +1081,8 @@ features to produce new behaviours.
         Args:
             bintool (Bintool): Bintool that was missing
         """
-        self.missing_bintools.append(bintool)
+        if bintool not in self.missing_bintools:
+            self.missing_bintools.append(bintool)
 
     def check_missing_bintools(self, missing_list):
         """Check if any entries in this section have missing bintools
@@ -1091,7 +1092,10 @@ features to produce new behaviours.
         Args:
             missing_list: List of Bintool objects to be added to
         """
-        missing_list += self.missing_bintools
+        for bintool in self.missing_bintools:
+            if bintool not in missing_list:
+                missing_list.append(bintool)
+
 
     def GetHelpTags(self):
         """Get the tags use for missing-blob help
