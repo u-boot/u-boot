@@ -899,5 +899,6 @@ class Entry_section(Entry):
             entry.CheckAltFormats(alt_formats)
 
     def AddBintools(self, btools):
+        super().AddBintools(btools)
         for entry in self._entries.values():
             entry.AddBintools(btools)

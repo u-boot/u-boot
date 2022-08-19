@@ -144,4 +144,5 @@ class Entry_intel_ifwi(Entry_blob_ext):
                 entry.WriteSymbols(self)
 
     def AddBintools(self, btools):
+        super().AddBintools(btools)
         self.ifwitool = self.AddBintool(btools, 'ifwitool')
