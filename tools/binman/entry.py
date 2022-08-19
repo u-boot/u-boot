@@ -1120,6 +1120,21 @@ features to produce new behaviours.
         data = comp_util.compress(indata, self.compress)
         return data
 
+    def DecompressData(self, indata):
+        """Decompress data according to the entry's compression method
+
+        Args:
+            indata: Data to decompress
+
+        Returns:
+            Decompressed data
+        """
+        data = comp_util.decompress(indata, self.compress)
+        if self.compress != 'none':
+            self.uncomp_size = len(data)
+        self.uncomp_data = data
+        return data
+
     @classmethod
     def UseExpanded(cls, node, etype, new_etype):
         """Check whether to use an expanded entry type
