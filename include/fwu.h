@@ -14,6 +14,10 @@
 struct fwu_mdata;
 struct udevice;
 
+struct fwu_mdata_gpt_blk_priv {
+	struct udevice *blk_dev;
+};
+
 /**
  * @mdata_check: check the validity of the FWU metadata partitions
  * @get_mdata() - Get a FWU metadata copy
