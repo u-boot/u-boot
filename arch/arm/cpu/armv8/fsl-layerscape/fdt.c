@@ -671,7 +671,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 			       "clock-frequency", get_qman_freq(), 1);
 #endif
 
-#ifdef CONFIG_SYS_DPAA_FMAN
+#ifdef CONFIG_FMAN_ENET
 	fdt_fixup_fman_firmware(blob);
 #endif
 #ifdef CONFIG_FSL_PFE

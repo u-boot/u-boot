@@ -1444,7 +1444,6 @@ config FSL_VIA
 	bool
 
 source "board/emulation/qemu-ppce500/Kconfig"
-source "board/freescale/corenet_ds/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"

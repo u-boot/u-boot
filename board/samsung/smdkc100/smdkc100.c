@@ -69,12 +69,3 @@ int checkboard(void)
 	return 0;
 }
 #endif
-
-int board_eth_init(struct bd_info *bis)
-{
-	int rc = 0;
-#ifdef CONFIG_SMC911X
-	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
-#endif
-	return rc;
-}
