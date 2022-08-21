@@ -87,7 +87,7 @@ static char dm_help_text[] =
 	"dm drivers       Dump list of drivers with uclass and instances\n"
 	DM_MEM_HELP
 	"dm static        Dump list of drivers with static platform data\n"
-	"dn tree          Dump tree of driver model devices ('*' = activated)\n"
+	"dm tree          Dump tree of driver model devices ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass"
 	;
 #endif
