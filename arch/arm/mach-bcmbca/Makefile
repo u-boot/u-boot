@@ -14,4 +14,5 @@ obj-$(CONFIG_BCM63178) += bcm63178/
 obj-$(CONFIG_BCM6756) += bcm6756/
 obj-$(CONFIG_BCM6813) += bcm6813/
 obj-$(CONFIG_BCM6846) += bcm6846/
+obj-$(CONFIG_BCM6856) += bcm6856/
 obj-$(CONFIG_BCM6878) += bcm6878/
