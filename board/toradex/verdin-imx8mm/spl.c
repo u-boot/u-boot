@@ -56,6 +56,15 @@ void spl_dram_init(void)
 
 void spl_board_init(void)
 {
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
+
 	/* Serial download mode */
 	if (is_usb_boot()) {
 		puts("Back to ROM, SDP\n");
