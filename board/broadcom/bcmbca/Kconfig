@@ -51,6 +51,13 @@ config SYS_CONFIG_NAME
 
 endif
 
+if TARGET_BCM963158
+
+config SYS_CONFIG_NAME
+	default "bcm963158"
+
+endif
+
 if TARGET_BCM963178
 
 config SYS_CONFIG_NAME

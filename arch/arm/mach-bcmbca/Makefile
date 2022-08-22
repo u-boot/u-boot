@@ -9,6 +9,7 @@ obj-$(CONFIG_BCM4912) += bcm4912/
 obj-$(CONFIG_BCM63138) += bcm63138/
 obj-$(CONFIG_BCM63146) += bcm63146/
 obj-$(CONFIG_BCM63148) += bcm63148/
+obj-$(CONFIG_BCM63158) += bcm63158/
 obj-$(CONFIG_BCM63178) += bcm63178/
 obj-$(CONFIG_BCM6756) += bcm6756/
 obj-$(CONFIG_BCM6813) += bcm6813/
