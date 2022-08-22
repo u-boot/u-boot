@@ -93,6 +93,16 @@ config BCM6856
 	  Broadcom BCM6856 is a dual core Brahma-B53 ARMv8 based xPON Gateway
 	  SoC. This SoC family includes BCM6856, BCM6836 and BCM4910.
 
+config BCM6858
+	bool "Support for Broadcom 6858 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select BCM6345_SERIAL
+	help
+	  Broadcom BCM6858 is a quad core Brahma-B53 ARMv8 based xPON Gateway
+	  SoC. This SoC family includes BCM6858, BCM49508, BCM5504X and BCM6545.
+
 config BCM6878
 	bool "Support for Broadcom 6878 Family"
 	select SYS_ARCH_TIMER
@@ -112,6 +122,7 @@ source "arch/arm/mach-bcmbca/bcm6756/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6813/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6846/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6856/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6858/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6878/Kconfig"
 
 endif
