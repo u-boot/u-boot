@@ -34,14 +34,11 @@ DECLARE_GLOBAL_DATA_PTR;
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
 	switch (boot_dev_spl) {
-	case MMC1_BOOT:
+	case MMC1_BOOT: /* eMMC */
 		return BOOT_DEVICE_MMC1;
-	case SD2_BOOT:
+	case SD2_BOOT: /* SD card */
 	case MMC2_BOOT:
 		return BOOT_DEVICE_MMC2;
-	case SD3_BOOT:
-	case MMC3_BOOT:
-		return BOOT_DEVICE_MMC1;
 	case USB_BOOT:
 		return BOOT_DEVICE_BOARD;
 	default:
@@ -82,7 +79,6 @@ int board_fit_config_name_match(const char *name)
 	return 0;
 }
 #endif
-
 
 __weak void board_early_init(void)
 {
