@@ -130,7 +130,7 @@ config WDT_AT91
 
 config WDT_BCM6345
 	bool "BCM6345 watchdog timer support"
-	depends on WDT && (ARCH_BMIPS || ARCH_BCM68360 || \
+	depends on WDT && (ARCH_BMIPS || BCM6856 || \
 			   ARCH_BCM6858 || BCM63158 || \
 			   ARCH_BCM6753)
 	help

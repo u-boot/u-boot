@@ -110,7 +110,7 @@ config BCM2835_GPIO
 
 config BCM6345_GPIO
 	bool "BCM6345 GPIO driver"
-	depends on DM_GPIO && (ARCH_BMIPS || ARCH_BCM68360 || \
+	depends on DM_GPIO && (ARCH_BMIPS || BCM6856 || \
 			       ARCH_BCM6858 || BCM63158 || \
 			       ARCH_BCM6753)
 	help
