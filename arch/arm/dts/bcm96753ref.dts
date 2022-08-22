@@ -5,13 +5,13 @@
 
 /dts-v1/;
 
-#include "bcm6753.dtsi"
+#include "bcm6855.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
 
 / {
-	model = "Broadcom bcm6753ref";
-	compatible = "broadcom,bcm6753ref", "brcm,bcm6753";
+	model = "Broadcom BCM96753REF Reference Board";
+	compatible = "brcm,bcm96753ref", "brcm,bcm6855", "brcm,bcmbca";
 
 	aliases {
 		serial0 = &uart0;

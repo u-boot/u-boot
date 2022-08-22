@@ -678,13 +678,6 @@ config ARCH_BCM283X
 	imply CMD_DM
 	imply FAT_WRITE
 
-config ARCH_BCM6753
-	bool "Broadcom BCM6753 family"
-	select CPU_V7A
-	select DM
-	select OF_CONTROL
-	imply CMD_DM
-
 config ARCH_BCMSTB
 	bool "Broadcom BCM7XXX family"
 	select CPU_V7A
@@ -2318,7 +2311,6 @@ source "board/Marvell/octeontx2/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
-source "board/broadcom/bcm96753ref/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/eets/pdu001/Kconfig"
