@@ -1164,9 +1164,6 @@ dtb-$(CONFIG_ARCH_BCM283X) += \
 	bcm2837-rpi-cm3-io3.dtb \
 	bcm2711-rpi-4-b.dtb
 
-dtb-$(CONFIG_ARCH_BCM68360) += \
-	bcm968360bg.dtb
-
 dtb-$(CONFIG_ARCH_BCM6753) += \
 	bcm96753ref.dtb
 
@@ -1200,7 +1197,8 @@ dtb-$(CONFIG_BCM6813) += \
 dtb-$(CONFIG_BCM6846) += \
 	bcm96846.dtb
 dtb-$(CONFIG_BCM6856) += \
-	bcm96856.dtb
+	bcm96856.dtb \
+	bcm968360bg.dtb
 dtb-$(CONFIG_BCM6878) += \
 	bcm96878.dtb
 
