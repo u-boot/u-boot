@@ -768,6 +768,20 @@ config TPL_STACKPROTECTOR
 	bool "Stack Protector buffer overflow detection for TPL"
 	depends on STACKPROTECTOR && TPL
 
+config BOARD_RNG_SEED
+	bool "Provide /chosen/rng-seed property to the linux kernel"
+	help
+	  Selecting this option requires the board to define a
+	  board_rng_seed() function, which should return a buffer
+	  which will be used to populate the /chosen/rng-seed property
+	  in the device tree for the OS being booted.
+
+	  It is up to the board code (and more generally the whole
+	  BSP) where and how to store (or generate) such a seed, how
+	  to ensure a given seed is only used once, how to create a
+	  new seed for use on subsequent boots, and whether or not the
+	  kernel should account any entropy from the given seed.
+
 endmenu
 
 menu "Update support"
