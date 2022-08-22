@@ -8,8 +8,8 @@
 #include "bcm6858.dtsi"
 
 / {
-	model = "Broadcom bcm68580xref";
-	compatible = "broadcom,bcm68580xref", "brcm,bcm6858";
+	model = "Broadcom BCM968580xref Reference Board";
+	compatible = "brcm,bcm968580xref", "brcm,bcm6858", "brcm,bcmbca";
 
 	aliases {
 		serial0 = &uart0;

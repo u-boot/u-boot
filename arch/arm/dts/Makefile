@@ -1167,9 +1167,6 @@ dtb-$(CONFIG_ARCH_BCM283X) += \
 dtb-$(CONFIG_ARCH_BCM6753) += \
 	bcm96753ref.dtb
 
-dtb-$(CONFIG_ARCH_BCM6858) += \
-	bcm968580xref.dtb
-
 dtb-$(CONFIG_TARGET_BCMNS3) += ns3-board.dtb
 
 dtb-$(CONFIG_ARCH_BCMSTB) += bcm7xxx.dtb
@@ -1200,7 +1197,8 @@ dtb-$(CONFIG_BCM6856) += \
 	bcm96856.dtb \
 	bcm968360bg.dtb
 dtb-$(CONFIG_BCM6858) += \
-	bcm96858.dtb
+	bcm96858.dtb \
+	bcm968580xref.dtb
 dtb-$(CONFIG_BCM6878) += \
 	bcm96878.dtb
 
