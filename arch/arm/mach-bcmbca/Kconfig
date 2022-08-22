@@ -83,6 +83,16 @@ config BCM6846
 	select DM_SERIAL
 	select BCM6345_SERIAL
 
+config BCM6855
+	bool "Support for Broadcom 6855 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select PL01X_SERIAL
+	help
+	  Broadcom BCM6855 is a triple core Cortex A7 based xPON Gateway
+	  SoC. This SoC family includes BCM6855x, BCM68252 and BCM6753.
+
 config BCM6856
 	bool "Support for Broadcom 6856 Family"
 	select ARM64
@@ -121,6 +131,7 @@ source "arch/arm/mach-bcmbca/bcm63178/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6756/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6813/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6846/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6855/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6856/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6858/Kconfig"
 source "arch/arm/mach-bcmbca/bcm6878/Kconfig"
