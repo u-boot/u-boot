@@ -122,6 +122,8 @@ class TestElf(unittest.TestCase):
 
     def testOutsideFile(self):
         """Test a symbol which extends outside the entry area is detected"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         entry = FakeEntry(10)
         section = FakeSection()
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
@@ -147,6 +149,8 @@ class TestElf(unittest.TestCase):
         Only 32 and 64 bits are supported, since we need to store an offset
         into the image.
         """
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         entry = FakeEntry(10)
         section = FakeSection()
         elf_fname =self.ElfTestFile('u_boot_binman_syms_size')
@@ -161,6 +165,8 @@ class TestElf(unittest.TestCase):
         This should produce -1 values for all thress symbols, taking up the
         first 16 bytes of the image.
         """
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         entry = FakeEntry(28)
         section = FakeSection(sym_value=None)
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
@@ -172,6 +178,8 @@ class TestElf(unittest.TestCase):
 
     def testDebug(self):
         """Check that enabling debug in the elf module produced debug output"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         try:
             tout.init(tout.DEBUG)
             entry = FakeEntry(24)
@@ -281,6 +289,8 @@ class TestElf(unittest.TestCase):
 
     def test_read_segments_bad_data(self):
         """Test for read_loadable_segments() with an invalid ELF file"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         fname = self.ElfTestFile('embed_data')
         with self.assertRaises(ValueError) as e:
             elf.read_loadable_segments(tools.get_bytes(100, 100))
@@ -288,6 +298,8 @@ class TestElf(unittest.TestCase):
 
     def test_get_file_offset(self):
         """Test GetFileOffset() gives the correct file offset for a symbol"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         fname = self.ElfTestFile('embed_data')
         syms = elf.GetSymbols(fname, ['embed'])
         addr = syms['embed'].address
@@ -314,6 +326,8 @@ class TestElf(unittest.TestCase):
 
     def test_get_symbol_from_address(self):
         """Test GetSymbolFromAddress()"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
         fname = self.ElfTestFile('elf_sections')
         sym_name = 'calculate'
         syms = elf.GetSymbols(fname, [sym_name])

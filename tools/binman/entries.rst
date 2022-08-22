@@ -216,6 +216,9 @@ This is a blob containing a device tree. The contents of the blob are
 obtained from the list of available device-tree files, managed by the
 'state' module.
 
+Additional Properties / Entry arguments:
+    - prepend: Header type to use:
+        length: 32-bit length header
 
 
 .. _etype_blob_ext:
@@ -446,6 +449,9 @@ This allows reusing the contents of other entries. The contents of the
 listed entries are combined to form this entry. This serves as a useful
 base class for entry types which need to process data from elsewhere in
 the image, not necessarily child entries.
+
+The entries can generally be anywhere in the same image, even if they are in
+a different section from this entry.
 
 
 
@@ -1166,11 +1172,12 @@ Entry: mkimage: Binary produced by mkimage
 ------------------------------------------
 
 Properties / Entry arguments:
-    - datafile: Filename for -d argument
-    - args: Other arguments to pass
+    - args: Arguments to pass
+    - data-to-imagename: Indicates that the -d data should be passed in as
+      the image name also (-n)
 
-The data passed to mkimage is collected from subnodes of the mkimage node,
-e.g.::
+The data passed to mkimage via the -d flag is collected from subnodes of the
+mkimage node, e.g.::
 
     mkimage {
         args = "-n test -T imximage";
@@ -1179,9 +1186,24 @@ e.g.::
         };
     };
 
-This calls mkimage to create an imximage with u-boot-spl.bin as the input
-file. The output from mkimage then becomes part of the image produced by
-binman.
+This calls mkimage to create an imximage with `u-boot-spl.bin` as the data
+file, which mkimage being called like this::
+
+    mkimage -d <data_file> -n test -T imximage <output_file>
+
+The output from mkimage then becomes part of the image produced by
+binman. If you need to put mulitple things in the data file, you can use
+a section, or just multiple subnodes like this::
+
+    mkimage {
+        args = "-n test -T imximage";
+
+        u-boot-spl {
+        };
+
+        u-boot-tpl {
+        };
+    };
 
 To use CONFIG options in the arguments, use a string list instead, as in
 this example which also produces four arguments::
@@ -1193,7 +1215,38 @@ this example which also produces four arguments::
         };
     };
 
+If you need to pass the input data in with the -n argument as well, then use
+the 'data-to-imagename' property::
 
+    mkimage {
+        args = "-T imximage";
+        data-to-imagename';
+
+        u-boot-spl {
+        };
+    };
+
+That will pass the data to mkimage both as the data file (with -d) and as
+the image name (with -n).
+
+
+If need to pass different data in with -n, then use an imagename subnode::
+
+    mkimage {
+        args = "-T imximage";
+
+        imagename {
+            blob {
+                filename = "spl/u-boot-spl.cfgout"
+            };
+        };
+
+        u-boot-spl {
+        };
+    };
+
+This will pass in u-boot-spl as the input data and the .cfgout file as the
+-n data.
 
 
 .. _etype_opensbi:
@@ -1231,7 +1284,8 @@ Entry: pre-load: Pre load image header
 --------------------------------------
 
 Properties / Entry arguments:
-    - pre-load-key-path: Path of the directory that store key (provided by the environment variable PRE_LOAD_KEY_PATH)
+    - pre-load-key-path: Path of the directory that store key (provided by
+      the environment variable PRE_LOAD_KEY_PATH)
     - content: List of phandles to entries to sign
     - algo-name: Hash and signature algo to use for the signature
     - padding-name: Name of the padding (pkcs-1.5 or pss)

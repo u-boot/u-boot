@@ -81,8 +81,7 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
     print(coverage)
     if coverage != '100%':
         print(stdout)
-        print("Type 'python3-coverage html' to get a report in "
-              'htmlcov/index.html')
+        print("To get a report in 'htmlcov/index.html', type: python3-coverage html")
         print('Coverage error: %s, but should be 100%%' % coverage)
         ok = False
     if not ok:
@@ -209,14 +208,14 @@ def run_test_suites(toolname, debug, verbosity, test_preserve_dirs, processes,
     runner = unittest.TextTestRunner(
         stream=sys.stdout,
         verbosity=(1 if verbosity is None else verbosity),
-        buffer=buffer_outputs,
+        buffer=False if test_name else buffer_outputs,
         resultclass=FullTextTestResult,
     )
 
     if use_concurrent and processes != 1:
         suite = ConcurrentTestSuite(suite,
                 fork_for_tests(processes or multiprocessing.cpu_count(),
-                               buffer=buffer_outputs))
+                               buffer=False if test_name else buffer_outputs))
 
     for module in class_and_module_list:
         if isinstance(module, str) and (not test_name or test_name == module):

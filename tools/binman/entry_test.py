@@ -105,6 +105,15 @@ class TestEntry(unittest.TestCase):
         self.assertTrue(isinstance(ent, Entry_blob))
         self.assertEquals('missing', ent.etype)
 
+    def testDecompressData(self):
+        """Test the DecompressData() method of the base class"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        base.compress = 'lz4'
+        bintools = {}
+        base.comp_bintool = base.AddBintool(bintools, '_testing')
+        self.assertEquals(tools.get_bytes(0, 1024), base.CompressData(b'abc'))
+        self.assertEquals(tools.get_bytes(0, 1024), base.DecompressData(b'abc'))
+
 
 if __name__ == "__main__":
     unittest.main()

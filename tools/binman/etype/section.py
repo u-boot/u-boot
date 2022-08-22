@@ -13,7 +13,6 @@ import concurrent.futures
 import re
 import sys
 
-from binman import comp_util
 from binman.entry import Entry
 from binman import state
 from dtoc import fdt_util
@@ -506,10 +505,10 @@ class Entry_section(Entry):
         node = self._node.GetFdt().LookupPhandle(phandle)
         if not node:
             source_entry.Raise("Cannot find node for phandle %d" % phandle)
-        for entry in self._entries.values():
-            if entry._node == node:
-                return entry.GetData(required)
-        source_entry.Raise("Cannot find entry for node '%s'" % node.name)
+        entry = self.FindEntryByNode(node)
+        if not entry:
+            source_entry.Raise("Cannot find entry for node '%s'" % node.name)
+        return entry.GetData(required)
 
     def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
         """Look up a symbol in an ELF file
@@ -777,7 +776,7 @@ class Entry_section(Entry):
         data = parent_data[offset:offset + child.size]
         if decomp:
             indata = data
-            data = comp_util.decompress(indata, child.compress)
+            data = child.DecompressData(indata)
             if child.uncomp_size:
                 tout.info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
                             (child.GetPath(), len(indata), child.compress,
@@ -899,5 +898,6 @@ class Entry_section(Entry):
             entry.CheckAltFormats(alt_formats)
 
     def AddBintools(self, btools):
+        super().AddBintools(btools)
         for entry in self._entries.values():
             entry.AddBintools(btools)

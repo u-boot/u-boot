@@ -98,4 +98,5 @@ class Entry_vblock(Entry_collection):
         return self.ProcessContentsUpdate(data)
 
     def AddBintools(self, btools):
+        super().AddBintools(btools)
         self.futility = self.AddBintool(btools, 'futility')
