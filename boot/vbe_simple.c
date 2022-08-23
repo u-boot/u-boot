@@ -225,17 +225,16 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 {
 	oftree tree = event->data.ft_fixup.tree;
 	struct udevice *dev;
-	ofnode node;
-	int ret;
 
 	/*
 	 * Ideally we would have driver model support for fixups, but that does
 	 * not exist yet. It is a step too far to try to do this before VBE is
 	 * in place.
 	 */
-	for (ret = vbe_find_first_device(&dev); dev;
-	     ret = vbe_find_next_device(&dev)) {
+	for (vbe_find_first_device(&dev); dev; vbe_find_next_device(&dev)) {
 		struct simple_state state;
+		ofnode node;
+		int ret;
 
 		if (strcmp("vbe_simple", dev->driver->name))
 			continue;
