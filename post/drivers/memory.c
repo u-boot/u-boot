@@ -228,9 +228,8 @@ static int memory_post_dataline(unsigned long long * pmem)
 			hi = (temp64>>32) & 0xffffffff;
 			lo = temp64 & 0xffffffff;
 
-			post_log("Memory (data line) error at %08x, "
-				  "wrote %08x%08x, read %08x%08x !\n",
-					  pmem, pathi, patlo, hi, lo);
+			post_log("Memory (data line) error at %p, wrote %08x%08x, read %08x%08x !\n",
+				 pmem, pathi, patlo, hi, lo);
 			ret = -1;
 		}
 	}
@@ -259,9 +258,8 @@ static int memory_post_addrline(ulong *testaddr, ulong *base, ulong size)
 			}
 #endif
 			if(readback == *testaddr) {
-				post_log("Memory (address line) error at %08x<->%08x, "
-					"XOR value %08x !\n",
-					testaddr, target, xor);
+				post_log("Memory (address line) error at %p<->%p, XOR value %08lx !\n",
+					 testaddr, target, xor);
 				ret = -1;
 			}
 		}
@@ -287,9 +285,8 @@ static int memory_post_test1(unsigned long start,
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != val) {
-			post_log("Memory error at %08x, "
-				  "wrote %08x, read %08x !\n",
-					  mem + i, val, readback);
+			post_log("Memory error at %p, wrote %08lx, read %08lx !\n",
+				 mem + i, val, readback);
 
 			ret = -1;
 			break;
@@ -317,9 +314,8 @@ static int memory_post_test2(unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != (1 << (i % 32))) {
-			post_log("Memory error at %08x, "
-				  "wrote %08x, read %08x !\n",
-					  mem + i, 1 << (i % 32), readback);
+			post_log("Memory error at %p, wrote %08lx, read %08lx !\n",
+				 mem + i, 1UL << (i % 32), readback);
 
 			ret = -1;
 			break;
@@ -347,9 +343,8 @@ static int memory_post_test3(unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != i) {
-			post_log("Memory error at %08x, "
-				  "wrote %08x, read %08x !\n",
-					  mem + i, i, readback);
+			post_log("Memory error at %p, wrote %08lx, read %08lx !\n",
+				 mem + i, i, readback);
 
 			ret = -1;
 			break;
@@ -377,9 +372,8 @@ static int memory_post_test4(unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != ~i) {
-			post_log("Memory error at %08x, "
-				  "wrote %08x, read %08x !\n",
-					  mem + i, ~i, readback);
+			post_log("Memory error at %p, wrote %08lx, read %08lx !\n",
+				 mem + i, ~i, readback);
 
 			ret = -1;
 			break;
