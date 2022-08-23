@@ -17,6 +17,7 @@
 #include <linux/sizes.h>
 #include <linux/errno.h>
 #include <mmc.h>
+#include <sl-mx6ul-common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -339,26 +340,30 @@ void board_boot_order(u32 *spl_boot_list)
 
 	/*
 	 * The default boot fuse settings use the SD card (MMC1) as primary
-	 * boot device, but allow SPI NOR as a fallback boot device.
-	 * We can't detect the fallback case and spl_boot_device() will return
-	 * BOOT_DEVICE_MMC1 despite the actual boot device being SPI NOR.
-	 * Therefore we try to load U-Boot proper vom SPI NOR after loading
-	 * from MMC has failed.
+	 * boot device, but allow SPI NOR as a fallback boot device. There
+	 * is no proper way to detect if the fallback was used. Therefore
+	 * we read the ECSPI2_CONREG register and see if it differs from the
+	 * reset value 0x0. If that's the case we can assume that the BootROM
+	 * has successfully probed the SPI NOR.
 	 */
-	spl_boot_list[0] = bootdev;
-
 	switch (bootdev) {
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
-		spl_boot_list[1] = BOOT_DEVICE_SPI;
+		if (sl_mx6ul_is_spi_nor_boot()) {
+			spl_boot_list[0] = BOOT_DEVICE_SPI;
+			return;
+		}
 		break;
 	}
+
+	spl_boot_list[0] = bootdev;
 }
 
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-	setup_spi();
+	if (sl_mx6ul_is_spi_nor_boot())
+		setup_spi();
 
 	return 0;
 }
