@@ -9,10 +9,11 @@
 	binman {
 		pre-load {
 			content = <&image>;
-			 algo-name = "sha256,rsa2048";
-			 key-name = "tools/binman/test/225_dev.key";
+			 algo-name = "sha256,rsa4096";
+			 padding-name = "pkcs-1.5";
+			 key-name = "tools/binman/test/230_dev.key";
 			 header-size = <4096>;
-			 version = <0x11223344>;
+			 version = <1>;
 		};
 
 		image: blob-ext {
