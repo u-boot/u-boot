@@ -214,13 +214,17 @@
 			};
 			partition@2240000 {
 				label = "SHA256";
-				reg = <0x2240000 0x10000>; /* 256B but 64KB sector */
+				reg = <0x2240000 0x40000>; /* 256B but 256KB sector */
 				read-only;
 				lock;
 			};
-			partition@2250000 {
+			partition@2280000 {
+				label = "Secure OS Storage";
+				reg = <0x2280000 0x20000>; /* 128KB */
+			};
+			partition@22A0000 {
 				label = "User";
-				reg = <0x2250000 0x1db0000>; /* 29.5 MB */
+				reg = <0x22A0000 0x1db0000>; /* 29.5 MB */
 			};
 		};
 	};
