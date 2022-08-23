@@ -95,6 +95,22 @@ unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash)
 	}
 }
 
+const char *spl_board_loader_name(u32 boot_device)
+{
+	enum boot_source src = sl28_boot_source();
+
+	switch (src) {
+	case BOOT_SOURCE_SDHC:
+		return "SD card (Test mode)";
+	case BOOT_SOURCE_SPI:
+		return "Failsafe SPI flash";
+	case BOOT_SOURCE_I2C:
+		return "SPI flash";
+	case BOOT_SOURCE_MMC:
+		return "eMMC";
+	default:
+		return "(unknown)";
+	}
 }
 
 int board_early_init_f(void)
