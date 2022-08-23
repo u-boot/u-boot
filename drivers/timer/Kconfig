@@ -194,6 +194,12 @@ config OMAP_TIMER
 	help
 	  Select this to enable an timer for Omap devices.
 
+config ORION_TIMER
+	bool "Orion timer support"
+	depends on TIMER
+	help
+	  Select this to enable an timer for Orion devices.
+
 config RISCV_TIMER
 	bool "RISC-V timer support"
 	depends on TIMER && RISCV

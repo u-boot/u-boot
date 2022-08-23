@@ -144,9 +144,6 @@ struct kwgpio_registers {
 	u32 irq_level;
 };
 
-/* Needed for dynamic (board-specific) mbus configuration */
-extern struct mvebu_mbus_state mbus_state;
-
 /*
  * functions
  */

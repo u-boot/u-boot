@@ -47,12 +47,15 @@ ulong timer_get_boot_us(void)
 {
 	ulong count = timer_read_counter();
 
-#if CONFIG_SYS_TIMER_RATE == 1000000
-	return count;
-#elif CONFIG_SYS_TIMER_RATE > 1000000
-	return lldiv(count, CONFIG_SYS_TIMER_RATE / 1000000);
-#elif defined(CONFIG_SYS_TIMER_RATE)
-	return (unsigned long long)count * 1000000 / CONFIG_SYS_TIMER_RATE;
+#ifdef CONFIG_SYS_TIMER_RATE
+	const ulong timer_rate = CONFIG_SYS_TIMER_RATE;
+
+	if (timer_rate == 1000000)
+		return count;
+	else if (timer_rate > 1000000)
+		return lldiv(count, timer_rate / 1000000);
+	else
+		return (unsigned long long)count * 1000000 / timer_rate;
 #else
 	/* Assume the counter is in microseconds */
 	return count;

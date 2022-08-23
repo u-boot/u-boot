@@ -51,8 +51,10 @@
 #endif /* CONFIG_IDE */
 
 /* Use common timer */
+#ifndef CONFIG_TIMER
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 #define CONFIG_SYS_TIMER_COUNTER	(MVEBU_TIMER_BASE + 0x14)
 #define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_TCLK
+#endif
 
 #endif /* _KW_CONFIG_H */

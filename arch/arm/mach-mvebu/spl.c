@@ -299,6 +299,19 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 	hang();
 }
 
+/*
+ * SPI0 CS0 Flash is mapped to address range 0xD4000000 - 0xD7FFFFFF by BootROM.
+ * Proper U-Boot removes this direct mapping. So it is available only in SPL.
+ */
+#if defined(CONFIG_SPL_ENV_IS_IN_SPI_FLASH) && \
+    CONFIG_ENV_SPI_BUS == 0 && CONFIG_ENV_SPI_CS == 0 && \
+    CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE <= 64*1024*1024
+void *env_sf_get_env_addr(void)
+{
+	return (void *)0xD4000000 + CONFIG_ENV_OFFSET;
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
 	int ret;
