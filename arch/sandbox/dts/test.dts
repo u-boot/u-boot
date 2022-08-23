@@ -950,7 +950,7 @@
 	};
 
 	/* This is used for the fastboot tests */
-	mmc0 {
+	mmc0: mmc0 {
 		compatible = "sandbox,mmc";
 	};
 
@@ -1689,6 +1689,11 @@
 			reg = <0 0x10>;
 			compatible = "sandbox,regmap_test";
 		};
+	};
+
+	fwu-mdata {
+		compatible = "u-boot,fwu-mdata-gpt";
+		fwu-mdata-store = <&mmc0>;
 	};
 };
 

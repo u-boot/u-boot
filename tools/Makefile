@@ -74,7 +74,9 @@ mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
 hostprogs-y += dumpimage mkimage
 hostprogs-$(CONFIG_TOOLS_LIBCRYPTO) += fit_info fit_check_sign
 
-hostprogs-$(CONFIG_CMD_BOOTEFI_SELFTEST) += file2include
+ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST)$(CONFIG_FWU_MDATA_GPT_BLK),)
+hostprogs-y += file2include
+endif
 
 FIT_OBJS-y := fit_common.o fit_image.o image-host.o boot/image-fit.o
 FIT_SIG_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := image-sig-host.o boot/image-fit-sig.o
