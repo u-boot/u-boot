@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-# Grab our configured image.  The source for this is found at:
-# https://source.denx.de/u-boot/gitlab-ci-runner
+# Grab our configured image.  The source for this is found
+# in the u-boot tree at tools/docker/Dockerfile
 image: trini/u-boot-gitlab-ci-runner:jammy-20220801-09Aug2022
 
 # We run some tests in different order, to catch some failures quicker.
