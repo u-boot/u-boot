@@ -164,3 +164,13 @@ int init_addr_map(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_FWU_MULTI_BANK_UPDATE)
+void fwu_plat_get_bootidx(void *boot_idx)
+{
+	u32 *idx = boot_idx;
+
+	/* Dummy value */
+	*idx = 0;
+}
+#endif
