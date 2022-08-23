@@ -126,8 +126,28 @@ static void stop_recovery_watchdog(void)
 		wdt_stop(dev);
 }
 
+static void sl28_set_prompt(void)
+{
+	enum boot_source src = sl28_boot_source();
+
+	switch (src) {
+	case BOOT_SOURCE_SPI:
+		env_set("PS1", "[FAILSAFE] => ");
+		break;
+	case BOOT_SOURCE_SDHC:
+		env_set("PS1", "[SDHC] => ");
+		break;
+	default:
+		env_set("PS1", NULL);
+		break;
+	}
+}
+
 int fsl_board_late_init(void)
 {
+	if (IS_ENABLED(CONFIG_CMDLINE_PS_SUPPORT))
+		sl28_set_prompt();
+
 	/*
 	 * Usually, the after a board reset, the watchdog is enabled by
 	 * default. This is to supervise the bootloader boot-up. Therefore,
