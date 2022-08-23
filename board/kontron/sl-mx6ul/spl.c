@@ -22,8 +22,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
-	BOARD_TYPE_KTN_N631X = 1,
-	BOARD_TYPE_KTN_N641X,
+	BOARD_TYPE_KTN_SL_UL = 1,
+	BOARD_TYPE_KTN_SL_ULL,
 	BOARD_TYPE_MAX
 };
 
@@ -295,9 +295,9 @@ static void spl_dram_init(void)
 static int do_board_detect(void)
 {
 	if (is_mx6ul())
-		gd->board_type = BOARD_TYPE_KTN_N631X;
+		gd->board_type = BOARD_TYPE_KTN_SL_UL;
 	else if (is_mx6ull())
-		gd->board_type = BOARD_TYPE_KTN_N641X;
+		gd->board_type = BOARD_TYPE_KTN_SL_ULL;
 
 	printf("Kontron SL i.MX6UL%s (N6%s1x) module, %lu MB RAM detected\n",
 	       is_mx6ull() ? "L" : "", is_mx6ull() ? "4" : "3", gd->ram_size / SZ_1M);
@@ -370,12 +370,12 @@ int board_early_init_f(void)
 
 int board_fit_config_name_match(const char *name)
 {
-	if (gd->board_type == BOARD_TYPE_KTN_N631X && is_mx6ul() &&
-	    !strcmp(name, "imx6ul-kontron-n631x-s"))
+	if (gd->board_type == BOARD_TYPE_KTN_SL_UL && is_mx6ul() &&
+	    (!strcmp(name, "imx6ul-kontron-n631x-s") || !strcmp(name, "imx6ul-kontron-bl")))
 		return 0;
 
-	if (gd->board_type == BOARD_TYPE_KTN_N641X && is_mx6ull() &&
-	    !strcmp(name, "imx6ull-kontron-n641x-s"))
+	if (gd->board_type == BOARD_TYPE_KTN_SL_ULL && is_mx6ull() &&
+	    (!strcmp(name, "imx6ull-kontron-n641x-s") || !strcmp(name, "imx6ull-kontron-bl")))
 		return 0;
 
 	return -1;
