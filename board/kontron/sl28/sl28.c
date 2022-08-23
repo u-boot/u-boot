@@ -24,6 +24,8 @@
 #include <fdtdec.h>
 #include <miiphy.h>
 
+#include "sl28.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
@@ -58,6 +60,27 @@ int board_init(void)
 int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	enum boot_source src = sl28_boot_source();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	if (!CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
+		return ENVL_NOWHERE;
+
+	/* write and erase always operate on the environment */
+	if (op == ENVOP_SAVE || op == ENVOP_ERASE)
+		return ENVL_SPI_FLASH;
+
+	/* failsafe boot will always use the compiled-in default environment */
+	if (src == BOOT_SOURCE_SPI)
+		return ENVL_NOWHERE;
+
+	return ENVL_SPI_FLASH;
 }
 
 static int __sl28cpld_read(uint reg)
