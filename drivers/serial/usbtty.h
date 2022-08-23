@@ -13,8 +13,6 @@
 #include <usbdevice.h>
 #if defined(CONFIG_PPC)
 #include <usb/mpc8xx_udc.h>
-#elif defined(CONFIG_DW_UDC)
-#include <usb/designware_udc.h>
 #elif defined(CONFIG_CI_UDC)
 #include <usb/ci_udc.h>
 #endif
