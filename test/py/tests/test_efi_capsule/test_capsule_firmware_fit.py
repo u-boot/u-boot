@@ -13,7 +13,6 @@ import pytest
 from capsule_defs import *
 
 
-@pytest.mark.boardspec('sandbox64')
 @pytest.mark.boardspec('sandbox_flattree')
 @pytest.mark.buildconfigspec('efi_capsule_firmware_fit')
 @pytest.mark.buildconfigspec('efi_capsule_on_disk')
