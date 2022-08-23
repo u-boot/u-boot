@@ -869,6 +869,7 @@
 				iommus = <&smmu 0x860>;
 				snps,quirk-frame-length-adjustment = <0x20>;
 				snps,refclk_fladj;
+				clock-names = "ref";
 				snps,enable_guctl1_resume_quirk;
 				snps,enable_guctl1_ipd_quirk;
 				snps,xhci-stream-quirk;
@@ -900,6 +901,7 @@
 				iommus = <&smmu 0x861>;
 				snps,quirk-frame-length-adjustment = <0x20>;
 				snps,refclk_fladj;
+				clock-names = "ref";
 				snps,enable_guctl1_resume_quirk;
 				snps,enable_guctl1_ipd_quirk;
 				snps,xhci-stream-quirk;
