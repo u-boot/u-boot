@@ -13,6 +13,8 @@
 #include <vsprintf.h>
 #include <errno.h>
 #include <dm.h>
+#include <fuse.h>
+#include <mach/efuse.h>
 
 #include <spi_flash.h>
 #include <spi.h>
@@ -120,6 +122,17 @@ struct a38x_main_hdr_v1 {
 	u8  ext;                   /* 0x1E      */
 	u8  checksum;              /* 0x1F      */
 };
+
+/*
+ * Header for the optional headers, version 1 (Armada 370/XP/375/38x/39x)
+ */
+struct a38x_opt_hdr_v1 {
+	u8	headertype;
+	u8	headersz_msb;
+	u16	headersz_lsb;
+	u8	data[0];
+};
+#define A38X_OPT_HDR_V1_SECURE_TYPE	0x1
 
 struct a38x_boot_mode {
 	unsigned int id;
@@ -753,6 +766,38 @@ static int check_image_header(void)
 	printf("Image checksum...OK!\n");
 	return 0;
 }
+
+#if defined(CONFIG_ARMADA_38X)
+static int a38x_image_is_secure(const struct a38x_main_hdr_v1 *hdr)
+{
+	u32 image_size = a38x_header_size(hdr);
+	struct a38x_opt_hdr_v1 *ohdr;
+	u32 ohdr_size;
+
+	if (hdr->version != 1)
+		return 0;
+
+	if (!hdr->ext)
+		return 0;
+
+	ohdr = (struct a38x_opt_hdr_v1 *)(hdr + 1);
+	do {
+		if (ohdr->headertype == A38X_OPT_HDR_V1_SECURE_TYPE)
+			return 1;
+
+		ohdr_size = (ohdr->headersz_msb << 16) | le16_to_cpu(ohdr->headersz_lsb);
+
+		if (!*((u8 *)ohdr + ohdr_size - 4))
+			break;
+
+		ohdr = (struct a38x_opt_hdr_v1 *)((u8 *)ohdr + ohdr_size);
+		if ((u8 *)ohdr >= (u8 *)hdr + image_size)
+			break;
+	} while (1);
+
+	return 0;
+}
+#endif
 #else /* Not ARMADA? */
 static int check_image_header(void)
 {
@@ -761,20 +806,60 @@ static int check_image_header(void)
 }
 #endif
 
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
+static u64 fuse_read_u64(u32 bank)
+{
+	u32 val[2];
+	int ret;
+
+	ret = fuse_read(bank, 0, &val[0]);
+	if (ret < 0)
+		return -1;
+
+	ret = fuse_read(bank, 1, &val[1]);
+	if (ret < 0)
+		return -1;
+
+	return ((u64)val[1] << 32) | val[0];
+}
+#endif
+
+#if defined(CONFIG_ARMADA_3700)
+static inline u8 maj3(u8 val)
+{
+	/* return majority vote of 3 bits */
+	return ((val & 0x7) == 3 || (val & 0x7) > 4) ? 1 : 0;
+}
+#endif
+
 static int bubt_check_boot_mode(const struct bubt_dev *dst)
 {
 #if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
-	int mode;
+	int mode, secure_mode;
 #if defined(CONFIG_ARMADA_3700)
 	const struct tim_boot_flash_sign *boot_modes = tim_boot_flash_signs;
 	const struct common_tim_data *hdr =
 		(struct common_tim_data *)get_load_addr();
 	u32 id = hdr->boot_flash_sign;
+	int is_secure = hdr->trusted != 0;
+	u64 otp_secure_bits = fuse_read_u64(1);
+	int otp_secure_boot = ((maj3(otp_secure_bits >> 0) << 0) |
+			       (maj3(otp_secure_bits >> 4) << 1)) == 2;
+	unsigned int otp_boot_device = (maj3(otp_secure_bits >> 48) << 0) |
+				       (maj3(otp_secure_bits >> 52) << 1) |
+				       (maj3(otp_secure_bits >> 56) << 2) |
+				       (maj3(otp_secure_bits >> 60) << 3);
 #elif defined(CONFIG_ARMADA_32BIT)
 	const struct a38x_boot_mode *boot_modes = a38x_boot_modes;
 	const struct a38x_main_hdr_v1 *hdr =
 		(struct a38x_main_hdr_v1 *)get_load_addr();
 	u32 id = hdr->blockid;
+#if defined(CONFIG_ARMADA_38X)
+	int is_secure = a38x_image_is_secure(hdr);
+	u64 otp_secure_bits = fuse_read_u64(EFUSE_LINE_SECURE_BOOT);
+	int otp_secure_boot = otp_secure_bits & 0x1;
+	unsigned int otp_boot_device = (otp_secure_bits >> 8) & 0x7;
+#endif
 #endif
 
 	for (mode = 0; boot_modes[mode].name; mode++) {
@@ -787,15 +872,42 @@ static int bubt_check_boot_mode(const struct bubt_dev *dst)
 		return -ENOEXEC;
 	}
 
-	if (strcmp(boot_modes[mode].name, dst->name) == 0)
-		return 0;
+	if (strcmp(boot_modes[mode].name, dst->name) != 0) {
+		printf("Error: image meant to be booted from \"%s\", not \"%s\"!\n",
+		       boot_modes[mode].name, dst->name);
+		return -ENOEXEC;
+	}
 
-	printf("Error: image meant to be booted from \"%s\", not \"%s\"!\n",
-	       boot_modes[mode].name, dst->name);
-	return -ENOEXEC;
-#else
-	return 0;
+#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_3700)
+	if (otp_secure_bits == (u64)-1) {
+		printf("Error: cannot read OTP secure bits\n");
+		return -ENOEXEC;
+	} else {
+		if (otp_secure_boot && !is_secure) {
+			printf("Error: secure boot is enabled in OTP but image does not have secure boot header!\n");
+			return -ENOEXEC;
+		} else if (!otp_secure_boot && is_secure) {
+#if defined(CONFIG_ARMADA_3700)
+			/*
+			 * Armada 3700 BootROM rejects trusted image when secure boot is not enabled.
+			 * Armada 385 BootROM accepts image with secure boot header also when secure boot is not enabled.
+			 */
+			printf("Error: secure boot is disabled in OTP but image has secure boot header!\n");
+			return -ENOEXEC;
 #endif
+		} else if (otp_boot_device && otp_boot_device != id) {
+			for (secure_mode = 0; boot_modes[secure_mode].name; secure_mode++) {
+				if (boot_modes[secure_mode].id == otp_boot_device)
+					break;
+			}
+			printf("Error: boot source is set to \"%s\" in OTP but image is for \"%s\"!\n",
+			       boot_modes[secure_mode].name ?: "unknown", dst->name);
+			return -ENOEXEC;
+		}
+	}
+#endif
+#endif
+	return 0;
 }
 
 static int bubt_verify(const struct bubt_dev *dst)
