@@ -9,8 +9,6 @@
 #include "stm32mp15-ddr3-dhsom-2x2Gb-1066-binG.dtsi"
 #include "stm32mp15-ddr3-dhsom-2x4Gb-1066-binG.dtsi"
 
-/delete-node/ &ksz8851;
-
 / {
 	aliases {
 		i2c1 = &i2c2;
@@ -21,7 +19,6 @@
 		spi0 = &qspi;
 		usb0 = &usbotg_hs;
 		eeprom0 = &eeprom0;
-		ethernet1 = &ks8851;
 	};
 
 	config {
@@ -29,12 +26,6 @@
 		u-boot,error-led = "error";
 		dh,som-coding-gpios = <&gpiof 12 0>, <&gpiof 13 0>, <&gpiof 15 0>;
 		dh,ddr3-coding-gpios = <&gpioz 6 0>, <&gpioz 7 0>;
-	};
-
-	/* This is actually on FMC2, but we do not have bus driver for that */
-	ks8851: ks8851mll@64000000 {
-		compatible = "micrel,ks8851-mll";
-		reg = <0x64000000 0x20000>;
 	};
 };
 
@@ -74,11 +65,6 @@
 };
 
 &pinctrl {
-	/* These should bound to FMC2 bus driver, but we do not have one */
-	pinctrl-0 = <&fmc_pins_b &mco2_pins_a>;
-	pinctrl-1 = <&fmc_sleep_pins_b &mco2_sleep_pins_a>;
-	pinctrl-names = "default", "sleep";
-
 	mco2_pins_a: mco2-0 {
 		pins {
 			pinmux = <STM32_PINMUX('G', 2, AF1)>; /* MCO2 */
