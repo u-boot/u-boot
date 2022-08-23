@@ -688,9 +688,25 @@ static uint8_t image_checksum8(const void *start, size_t len)
 	return csum;
 }
 
+static uint32_t image_checksum32(const void *start, size_t len)
+{
+	u32 csum = 0;
+	const u32 *p = start;
+
+	while (len) {
+		csum += *p;
+		++p;
+		len -= sizeof(u32);
+	}
+
+	return csum;
+}
+
 static int check_image_header(void)
 {
 	u8 checksum;
+	u32 checksum32, exp_checksum32;
+	u32 offset, size;
 	const struct a38x_main_hdr_v1 *hdr =
 		(struct a38x_main_hdr_v1 *)get_load_addr();
 	const size_t image_size = a38x_header_size(hdr);
@@ -701,8 +717,36 @@ static int check_image_header(void)
 	checksum = image_checksum8(hdr, image_size);
 	checksum -= hdr->checksum;
 	if (checksum != hdr->checksum) {
-		printf("Error: Bad A38x image checksum. 0x%x != 0x%x\n",
+		printf("Error: Bad A38x image header checksum. 0x%x != 0x%x\n",
 		       checksum, hdr->checksum);
+		return -ENOEXEC;
+	}
+
+	offset = le32_to_cpu(hdr->srcaddr);
+	size = le32_to_cpu(hdr->blocksize);
+
+	if (hdr->blockid == 0x78) { /* SATA id */
+		if (offset < 1) {
+			printf("Error: Bad A38x image srcaddr.\n");
+			return -ENOEXEC;
+		}
+		offset -= 1;
+		offset *= 512;
+	}
+
+	if (hdr->blockid == 0xAE) /* SDIO id */
+		offset *= 512;
+
+	if (offset % 4 != 0 || size < 4 || size % 4 != 0) {
+		printf("Error: Bad A38x image blocksize.\n");
+		return -ENOEXEC;
+	}
+
+	checksum32 = image_checksum32((u8 *)hdr + offset, size - 4);
+	exp_checksum32 = *(u32 *)((u8 *)hdr + offset + size - 4);
+	if (checksum32 != exp_checksum32) {
+		printf("Error: Bad A38x image data checksum. 0x%08x != 0x%08x\n",
+		       checksum32, exp_checksum32);
 		return -ENOEXEC;
 	}
 
