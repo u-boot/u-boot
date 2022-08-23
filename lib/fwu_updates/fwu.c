@@ -551,6 +551,12 @@ static int fwu_boottime_checks(void *ctx, struct event *event)
 	struct udevice *dev;
 	u32 boot_idx, active_idx;
 
+	/* Don't have boot time checks on sandbox */
+	if (IS_ENABLED(CONFIG_SANDBOX)) {
+		boottime_check = 1;
+		return 0;
+	}
+
 	ret = fwu_get_dev_mdata(&dev, NULL);
 	if (ret)
 		return ret;
