@@ -207,7 +207,7 @@ int power_init_board(void)
 	int ret;
 
 
-	ret = pmic_get("rn5t567@33", &dev);
+	ret = pmic_get("pmic@33", &dev);
 	if (ret)
 		return ret;
 	ver = pmic_reg_read(dev, RN5T567_LSIVER);
@@ -241,7 +241,7 @@ void reset_cpu(void)
 {
 	struct udevice *dev;
 
-	pmic_get("rn5t567@33", &dev);
+	pmic_get("pmic@33", &dev);
 
 	/* Use PMIC to reset, set REPWRTIM to 0 and REPWRON to 1 */
 	pmic_reg_write(dev, RN5T567_REPCNT, 0x1);

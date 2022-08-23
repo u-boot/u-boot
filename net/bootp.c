@@ -59,7 +59,7 @@ ulong		bootp_start;
 ulong		bootp_timeout;
 char net_nis_domain[32] = {0,}; /* Our NIS domain */
 char net_hostname[32] = {0,}; /* Our hostname */
-char net_root_path[64] = {0,}; /* Our bootpath */
+char net_root_path[CONFIG_BOOTP_MAX_ROOT_PATH_LEN] = {0,}; /* Our bootpath */
 
 static ulong time_taken_max;
 

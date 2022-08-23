@@ -89,28 +89,9 @@ static struct ccu_reset a31_resets[] = {
 	[RST_APB2_UART5]	= RESET(0x2d8, BIT(21)),
 };
 
-static const struct ccu_desc a31_ccu_desc = {
+const struct ccu_desc a31_ccu_desc = {
 	.gates = a31_gates,
 	.resets = a31_resets,
-};
-
-static int a31_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(a31_resets));
-}
-
-static const struct udevice_id a31_clk_ids[] = {
-	{ .compatible = "allwinner,sun6i-a31-ccu",
-	  .data = (ulong)&a31_ccu_desc },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_sun6i_a31) = {
-	.name		= "sun6i_a31_ccu",
-	.id		= UCLASS_CLK,
-	.of_match	= a31_clk_ids,
-	.priv_auto	= sizeof(struct ccu_priv),
-	.ops		= &sunxi_clk_ops,
-	.probe		= sunxi_clk_probe,
-	.bind		= a31_clk_bind,
+	.num_gates = ARRAY_SIZE(a31_gates),
+	.num_resets = ARRAY_SIZE(a31_resets),
 };

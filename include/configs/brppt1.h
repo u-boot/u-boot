@@ -143,8 +143,4 @@ NANDTGTS \
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_MTD_RAW_NAND */
 
-#if defined(CONFIG_ENV_IS_IN_NAND)
-#define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#endif
-
 #endif	/* ! __CONFIG_BRPPT1_H__ */

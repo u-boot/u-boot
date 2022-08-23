@@ -28,7 +28,10 @@
 
 #include <common.h>
 #include <command.h>
+#include <display_options.h>
+#ifdef CONFIG_SYS_DIRECT_FLASH_NFS
 #include <flash.h>
+#endif
 #include <image.h>
 #include <log.h>
 #include <net.h>

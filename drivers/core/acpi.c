@@ -9,6 +9,7 @@
 #define LOG_CATEOGRY	LOGC_ACPI
 
 #include <common.h>
+#include <display_options.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
@@ -159,8 +160,8 @@ static int add_item(struct acpi_ctx *ctx, struct udevice *dev,
 		memcpy(item->buf, start, item->size);
 	}
 	item_count++;
-	log_debug("* %s: Added type %d, %p, size %x\n", dev->name, type, start,
-		  item->size);
+	log_debug("* %s: Added type %d, %p, size %x\n",
+		  dev ? dev->name : "other", type, start, item->size);
 
 	return 0;
 }

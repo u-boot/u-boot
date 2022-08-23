@@ -3,6 +3,7 @@ menu "i.MX8M DDR controllers"
 
 config IMX8M_DRAM
 	bool "imx8m dram"
+	select IMX_SNPS_DDR_PHY
 
 config IMX8M_LPDDR4
 	bool "imx8m lpddr4"

@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/freescale/imx8mm_evk/
 F:	include/configs/imx8mm_evk.h
 F:	configs/imx8mm_evk_defconfig
+F:  configs/imx8mm_evk_fspi_defconfig

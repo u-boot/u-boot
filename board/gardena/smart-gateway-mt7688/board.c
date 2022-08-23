@@ -7,7 +7,6 @@
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>
-#include <flash.h>
 #include <init.h>
 #include <led.h>
 #include <log.h>

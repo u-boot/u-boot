@@ -31,6 +31,7 @@ struct bd_info;
 #define is_mx7() (is_soc_type(MXC_SOC_MX7))
 #define is_imx8m() (is_soc_type(MXC_SOC_IMX8M))
 #define is_imx8() (is_soc_type(MXC_SOC_IMX8))
+#define is_imx9() (is_soc_type(MXC_SOC_IMX9))
 #define is_imxrt() (is_soc_type(MXC_SOC_IMXRT))
 
 #define is_mx6dqp() (is_cpu_type(MXC_CPU_MX6QP) || is_cpu_type(MXC_CPU_MX6DP))
@@ -80,6 +81,8 @@ struct bd_info;
 #define is_imx8mpul() (is_cpu_type(MXC_CPU_IMX8MPUL))
 
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
+
+#define is_imx93() (is_cpu_type(MXC_CPU_IMX93))
 
 #define is_imxrt1020() (is_cpu_type(MXC_CPU_IMXRT1020))
 #define is_imxrt1050() (is_cpu_type(MXC_CPU_IMXRT1050))
@@ -146,7 +149,6 @@ struct rproc_att {
 	u32 size; /* size of reg range */
 };
 
-#if defined(CONFIG_IMX8M) || defined(CONFIG_IMX8ULP)
 struct rom_api {
 	u16 ver;
 	u16 tag;
@@ -178,7 +180,13 @@ enum boot_dev_type_e {
 #define ROM_API_OKAY		0xF0
 
 extern struct rom_api *g_rom_api;
-#endif
+extern unsigned long rom_pointer[];
+
+ulong spl_romapi_raw_seekable_read(u32 offset, u32 size, void *buf);
+ulong spl_romapi_get_uboot_base(u32 image_offset, u32 rom_bt_dev);
+
+u32 rom_api_download_image(u8 *dest, u32 offset, u32 size);
+u32 rom_api_query_boot_infor(u32 info_type, u32 *info);
 
 /* For i.MX ULP */
 #define BT0CFG_LPBOOT_MASK	0x1
@@ -244,5 +252,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
 void enable_ca7_smp(void);
 #endif
+
+enum boot_device get_boot_device(void);
 
 #endif

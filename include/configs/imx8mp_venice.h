@@ -80,7 +80,4 @@
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			SZ_4G
 
-/* FEC */
-#define FEC_QUIRK_ENET_MAC
-
 #endif

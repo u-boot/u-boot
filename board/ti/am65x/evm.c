@@ -115,16 +115,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return ret;
 	}
 
-#if defined(CONFIG_TI_SECURE_DEVICE)
-	/* Make Crypto HW reserved for secure world use */
-	ret = fdt_disable_node(blob, "/bus@100000/crypto@4e00000");
-	if (ret < 0)
-		ret = fdt_disable_node(blob,
-				       "/interconnect@100000/crypto@4E00000");
-	if (ret)
-		printf("%s: disabling SA2UL failed %d\n", __func__, ret);
-#endif
-
 	return 0;
 }
 #endif

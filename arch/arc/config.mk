@@ -2,12 +2,6 @@
 #
 # Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
 
-ifndef CONFIG_CPU_BIG_ENDIAN
-CONFIG_SYS_LITTLE_ENDIAN = 1
-else
-CONFIG_SYS_BIG_ENDIAN = 1
-endif
-
 ifdef CONFIG_SYS_LITTLE_ENDIAN
 KBUILD_LDFLAGS += -EL
 PLATFORM_CPPFLAGS += -mlittle-endian

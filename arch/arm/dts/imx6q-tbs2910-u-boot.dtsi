@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-&aips1 {
+&{/soc/bus@2000000} { /* AIPS1 */
 	u-boot,dm-pre-reloc;
 };
 
@@ -8,7 +8,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&soc {
+&{/soc} {
 	u-boot,dm-pre-reloc;
 };
 

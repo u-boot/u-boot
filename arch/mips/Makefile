@@ -4,6 +4,11 @@ head-y := arch/mips/cpu/start.o
 
 ifeq ($(CONFIG_SPL_BUILD),y)
 head-$(CONFIG_ARCH_JZ47XX) := arch/mips/mach-jz47xx/start.o
+head-$(CONFIG_SOC_MT7621) := arch/mips/mach-mtmips/mt7621/spl/start.o
+endif
+
+ifeq ($(CONFIG_TPL_BUILD),y)
+head-$(CONFIG_SOC_MT7621) := arch/mips/mach-mtmips/mt7621/tpl/start.o
 endif
 
 libs-y += arch/mips/cpu/

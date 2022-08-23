@@ -14,6 +14,7 @@
 #include <dm/device_compat.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>
+#include <linux/usb/usb_urb_compat.h>
 #include <power/regulator.h>
 
 #include "r8a66597.h"
@@ -23,35 +24,6 @@
 #else
 #define R8A66597_DPRINT(...)
 #endif
-
-static inline struct usb_device *usb_dev_get_parent(struct usb_device *udev)
-{
-	struct udevice *parent = udev->dev->parent;
-
-	/*
-	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
-	 * to the parent udevice, not the actual udevice belonging to the
-	 * udev as the device is not instantiated yet.
-	 *
-	 * If dev is an usb-bus, then we are called from usb_scan_device() for
-	 * an usb-device plugged directly into the root port, return NULL.
-	 */
-	if (device_get_uclass_id(udev->dev) == UCLASS_USB)
-		return NULL;
-
-	/*
-	 * If these 2 are not the same we are being called from
-	 * usb_scan_device() and udev itself is the parent.
-	 */
-	if (dev_get_parent_priv(udev->dev) != udev)
-		return udev;
-
-	/* We are being called normally, use the parent pointer */
-	if (device_get_uclass_id(parent) == UCLASS_USB_HUB)
-		return dev_get_parent_priv(parent);
-
-	return NULL;
-}
 
 static void get_hub_data(struct usb_device *dev, u16 *hub_devnum, u16 *hubport)
 {

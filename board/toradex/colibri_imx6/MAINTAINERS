@@ -6,4 +6,6 @@ S:	Maintained
 F:	board/toradex/colibri_imx6/
 F:	include/configs/colibri_imx6.h
 F:	configs/colibri_imx6_defconfig
-F:	arch/arm/dts/imx6-colibri.dts
+F:	arch/arm/dts/imx6dl-colibri-eval-v3.dts
+F:	arch/arm/dts/imx6dl-colibri-eval-v3-u-boot.dtsi
+F:	arch/arm/dts/imx6qdl-colibri.dtsi

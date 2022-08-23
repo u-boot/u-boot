@@ -88,7 +88,6 @@
 		internal-regs {
 			serial@12000 {
 				status = "okay";
-				u-boot,dm-pre-reloc;
 			};
 
 			serial@12100 {
@@ -135,7 +134,6 @@
 				compatible = "marvell,armada-xp-lcd";
 				reg = <0xe0000 0x10000>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
 
 				display-timings {
 					native-mode = <&timing0>;
@@ -170,10 +168,8 @@
 
 &spi0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
 
 	spi-flash@0 {
-		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "n25q128a13", "jedec,spi-nor";

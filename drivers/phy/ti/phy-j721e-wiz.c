@@ -221,6 +221,44 @@ enum wiz_type {
 	AM64_WIZ_10G,
 };
 
+struct wiz_data {
+	enum wiz_type type;
+	const struct reg_field *pll0_refclk_mux_sel;
+	const struct reg_field *pll1_refclk_mux_sel;
+	const struct reg_field *refclk_dig_sel;
+	const struct reg_field *pma_cmn_refclk1_dig_div;
+	const struct wiz_clk_mux_sel *clk_mux_sel;
+	unsigned int clk_div_sel_num;
+};
+
+static const struct wiz_data j721e_16g_data = {
+	.type = J721E_WIZ_16G,
+	.pll0_refclk_mux_sel = &pll0_refclk_mux_sel,
+	.pll1_refclk_mux_sel = &pll1_refclk_mux_sel,
+	.refclk_dig_sel = &refclk_dig_sel_16g,
+	.pma_cmn_refclk1_dig_div = &pma_cmn_refclk1_dig_div,
+	.clk_mux_sel = clk_mux_sel_16g,
+	.clk_div_sel_num = WIZ_DIV_NUM_CLOCKS_16G,
+};
+
+static const struct wiz_data j721e_10g_data = {
+	.type = J721E_WIZ_10G,
+	.pll0_refclk_mux_sel = &pll0_refclk_mux_sel,
+	.pll1_refclk_mux_sel = &pll1_refclk_mux_sel,
+	.refclk_dig_sel = &refclk_dig_sel_10g,
+	.clk_mux_sel = clk_mux_sel_10g,
+	.clk_div_sel_num = WIZ_DIV_NUM_CLOCKS_10G,
+};
+
+static struct wiz_data am64_10g_data = {
+	.type = AM64_WIZ_10G,
+	.pll0_refclk_mux_sel = &pll0_refclk_mux_sel,
+	.pll1_refclk_mux_sel = &pll1_refclk_mux_sel,
+	.refclk_dig_sel = &refclk_dig_sel_10g,
+	.clk_mux_sel = clk_mux_sel_10g,
+	.clk_div_sel_num = WIZ_DIV_NUM_CLOCKS_10G,
+};
+
 #define WIZ_TYPEC_DIR_DEBOUNCE_MIN	100	/* ms */
 #define WIZ_TYPEC_DIR_DEBOUNCE_MAX	1000
 
@@ -253,6 +291,7 @@ struct wiz {
 	u32			lane_phy_type[WIZ_MAX_LANES];
 	struct clk		*input_clks[WIZ_MAX_INPUT_CLOCKS];
 	unsigned int		id;
+	const struct wiz_data	*data;
 };
 
 struct wiz_div_clk {
@@ -667,7 +706,7 @@ static int wiz_regfield_init(struct wiz *wiz)
 	struct regmap *regmap = wiz->regmap;
 	int num_lanes = wiz->num_lanes;
 	struct udevice *dev = wiz->dev;
-	enum wiz_type type;
+	const struct wiz_data *data = wiz->data;
 	int i;
 
 	wiz->por_en = devm_regmap_field_alloc(dev, regmap, por_en);
@@ -704,36 +743,31 @@ static int wiz_regfield_init(struct wiz *wiz)
 		return PTR_ERR(wiz->div_sel_field[CMN_REFCLK]);
 	}
 
-	wiz->div_sel_field[CMN_REFCLK1] =
-		devm_regmap_field_alloc(dev, regmap, pma_cmn_refclk1_dig_div);
-	if (IS_ERR(wiz->div_sel_field[CMN_REFCLK1])) {
-		dev_err(dev, "PMA_CMN_REFCLK1_DIG_DIV reg field init failed\n");
-		return PTR_ERR(wiz->div_sel_field[CMN_REFCLK1]);
+	if (data->pma_cmn_refclk1_dig_div) {
+		wiz->div_sel_field[CMN_REFCLK1] =
+			devm_regmap_field_alloc(dev, regmap, *data->pma_cmn_refclk1_dig_div);
+		if (IS_ERR(wiz->div_sel_field[CMN_REFCLK1])) {
+			dev_err(dev, "PMA_CMN_REFCLK1_DIG_DIV reg field init failed\n");
+			return PTR_ERR(wiz->div_sel_field[CMN_REFCLK1]);
+		}
 	}
 
 	wiz->mux_sel_field[PLL0_REFCLK] =
-		devm_regmap_field_alloc(dev, regmap, pll0_refclk_mux_sel);
+		devm_regmap_field_alloc(dev, regmap, *data->pll0_refclk_mux_sel);
 	if (IS_ERR(wiz->mux_sel_field[PLL0_REFCLK])) {
 		dev_err(dev, "PLL0_REFCLK_SEL reg field init failed\n");
 		return PTR_ERR(wiz->mux_sel_field[PLL0_REFCLK]);
 	}
 
 	wiz->mux_sel_field[PLL1_REFCLK] =
-		devm_regmap_field_alloc(dev, regmap, pll1_refclk_mux_sel);
+		devm_regmap_field_alloc(dev, regmap, *data->pll1_refclk_mux_sel);
 	if (IS_ERR(wiz->mux_sel_field[PLL1_REFCLK])) {
 		dev_err(dev, "PLL1_REFCLK_SEL reg field init failed\n");
 		return PTR_ERR(wiz->mux_sel_field[PLL1_REFCLK]);
 	}
 
-	type = dev_get_driver_data(dev);
-	if (type == J721E_WIZ_10G || type == AM64_WIZ_10G)
-		wiz->mux_sel_field[REFCLK_DIG] =
-			devm_regmap_field_alloc(dev, regmap,
-						refclk_dig_sel_10g);
-	else
-		wiz->mux_sel_field[REFCLK_DIG] =
-			devm_regmap_field_alloc(dev, regmap,
-						refclk_dig_sel_16g);
+	wiz->mux_sel_field[REFCLK_DIG] =
+		devm_regmap_field_alloc(dev, regmap, *data->refclk_dig_sel);
 	if (IS_ERR(wiz->mux_sel_field[REFCLK_DIG])) {
 		dev_err(dev, "REFCLK_DIG_SEL reg field init failed\n");
 		return PTR_ERR(wiz->mux_sel_field[REFCLK_DIG]);
@@ -1059,14 +1093,12 @@ static int j721e_wiz_probe(struct udevice *dev)
 	wiz->num_lanes = num_lanes;
 	wiz->dev = dev;
 	wiz->clk_div_sel = clk_div_sel;
-	wiz->type = dev_get_driver_data(dev);
-	if (wiz->type == J721E_WIZ_10G || wiz->type == AM64_WIZ_10G) {
-		wiz->clk_mux_sel = clk_mux_sel_10g;
-		wiz->clk_div_sel_num = WIZ_DIV_NUM_CLOCKS_10G;
-	} else {
-		wiz->clk_mux_sel = clk_mux_sel_16g;
-		wiz->clk_div_sel_num = WIZ_DIV_NUM_CLOCKS_16G;
-	}
+
+	wiz->data = (struct wiz_data *)dev_get_driver_data(dev);
+	wiz->type = wiz->data->type;
+
+	wiz->clk_mux_sel = (struct wiz_clk_mux_sel *)wiz->data->clk_mux_sel;
+	wiz->clk_div_sel_num = wiz->data->clk_div_sel_num;
 
 	rc = wiz_get_lane_phy_types(dev, wiz);
 	if (rc) {
@@ -1133,13 +1165,13 @@ static int j721e_wiz_remove(struct udevice *dev)
 
 static const struct udevice_id j721e_wiz_ids[] = {
 	{
-		.compatible = "ti,j721e-wiz-16g", .data = J721E_WIZ_16G,
+		.compatible = "ti,j721e-wiz-16g", .data = (ulong)&j721e_16g_data,
 	},
 	{
-		.compatible = "ti,j721e-wiz-10g", .data = J721E_WIZ_10G,
+		.compatible = "ti,j721e-wiz-10g", .data = (ulong)&j721e_10g_data,
 	},
 	{
-		.compatible = "ti,am64-wiz-10g", .data = AM64_WIZ_10G,
+		.compatible = "ti,am64-wiz-10g", .data = (ulong)&am64_10g_data,
 	},
 	{}
 };

@@ -137,7 +137,7 @@ def generate_atf_fit_dts_bl31(fit_file, bl31_file_name, tee_file_name, dtbs_file
     num_segments = len(segments)
 
     if tee_file_name:
-        tee_segments = unpack_elf(tee_file_name)
+        tee_segments = unpack_tee_file(tee_file_name)
         for index, entry, paddr, data in tee_segments:
             append_tee_node(fit_file, num_segments + index + 1, paddr, entry)
         num_segments = num_segments + len(tee_segments)
@@ -169,7 +169,7 @@ def generate_atf_binary(bl31_file_name):
 
 def generate_tee_binary(tee_file_name):
     if tee_file_name:
-        for index, entry, paddr, data in unpack_elf(tee_file_name):
+        for index, entry, paddr, data in unpack_tee_file(tee_file_name):
             file_name = 'tee_0x%08x.bin' % paddr
             with open(file_name, "wb") as atf:
                 atf.write(data)
@@ -194,6 +194,31 @@ def unpack_elf(filename):
                 segments.append((index, e_entry, p_paddr, p_data))
     return segments
 
+def unpack_tee_file(filename):
+    if filename.endswith('.elf'):
+        return unpack_elf(filename)
+    with open(filename, 'rb') as file:
+        bin = file.read()
+    segments = []
+    if bin[0:5] == b'OPTE\x01':
+        # OP-TEE v1 format (tee.bin)
+        init_sz, start_hi, start_lo, _, paged_sz = struct.unpack_from('<5I',
+                                                                      bin,
+                                                                      0x8)
+        if paged_sz != 0:
+            raise ValueError("OP-TEE paged mode not supported")
+        e_entry = (start_hi << 32) + start_lo
+        p_addr = e_entry
+        p_data = bin[0x1c:]
+        if len(p_data) != init_sz:
+            raise ValueError("Invalid file '%s': size mismatch "
+                             "(expected %d, have %d)" % (filename, init_sz,
+                                                         len(p_data)))
+        segments.append((0, e_entry, p_addr, p_data))
+    else:
+        raise ValueError("Unknown format for TEE file '%s'" % filename)
+    return segments
+
 def main():
     uboot_elf = "./u-boot"
     fit_its = sys.stdout
@@ -210,11 +235,13 @@ def main():
         logging.warning(' Please read Building section in doc/README.rockchip')
 
     if "TEE" in os.environ:
-        tee_elf = os.getenv("TEE")
+        tee_file = os.getenv("TEE")
+    elif os.path.isfile("./tee.bin"):
+        tee_file = "./tee.bin"
     elif os.path.isfile("./tee.elf"):
-        tee_elf = "./tee.elf"
+        tee_file = "./tee.elf"
     else:
-        tee_elf = ""
+        tee_file = ""
 
     opts, args = getopt.getopt(sys.argv[1:], "o:u:b:t:h")
     for opt, val in opts:
@@ -225,16 +252,16 @@ def main():
         elif opt == "-b":
             bl31_elf = val
         elif opt == "-t":
-            tee_elf = val
+            tee_file = val
         elif opt == "-h":
             print(__doc__)
             sys.exit(2)
 
     dtbs = args
 
-    generate_atf_fit_dts(fit_its, bl31_elf, tee_elf, uboot_elf, dtbs)
+    generate_atf_fit_dts(fit_its, bl31_elf, tee_file, uboot_elf, dtbs)
     generate_atf_binary(bl31_elf)
-    generate_tee_binary(tee_elf)
+    generate_tee_binary(tee_file)
 
 if __name__ == "__main__":
     main()

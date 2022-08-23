@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <debug_uart.h>
-#include <flash.h>
 #include <init.h>
 #include <net.h>
 #include <vsprintf.h>
@@ -140,7 +139,7 @@ static void at91sam9263ek_lcd_hw_init(void)
 #include <version.h>
 
 #ifdef CONFIG_MTD_NOR_FLASH
-extern flash_info_t flash_info[];
+#include <flash.h>
 #endif
 
 void lcd_show_board_info(void)

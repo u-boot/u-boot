@@ -75,10 +75,6 @@
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 
-/* QSPI */
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-
 /* PCIe */
 #define FSL_PCIE_COMPAT			"fsl,ls1021a-pcie"
 

@@ -6,7 +6,7 @@
 #ifndef _ASM_ARCH_SPL_H_
 #define _ASM_ARCH_SPL_H_
 
-#ifdef CONFIG_SOC_K3_AM6
+#ifdef CONFIG_SOC_K3_AM654
 #include "am6_spl.h"
 #endif
 

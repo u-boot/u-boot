@@ -133,6 +133,19 @@ An attached disk can be emulated in RISC-V virt machine by adding::
 
 You will have to run 'scsi scan' to use it.
 
+Running with KVM
+----------------
+
+Running with QEMU using KVM requires an S-mode U-Boot binary as created by
+qemu-riscv64_smode_defconfig.
+
+Provide the U-Boot S-mode ELF image as *-kernel* parameter and do not add a
+*-bios* parameter, e.g.
+
+.. code-block:: bash
+
+    qemu-system-riscv64 -accel kvm -nographic -machine virt -kernel u-boot
+
 Debug UART
 ----------
 

@@ -905,17 +905,16 @@ static void ast2600_sdrammc_update_size(struct dram_info *info)
 	info->info.size = hw_size;
 }
 
-#ifdef CONFIG_ASPEED_ECC
-static void ast2600_sdrammc_ecc_enable(struct dram_info *info)
+static void ast2600_sdrammc_ecc_enable(struct dram_info *info, u32 conf_size_mb)
 {
 	struct ast2600_sdrammc_regs *regs = info->regs;
 	size_t conf_size;
 	u32 reg;
 
-	conf_size = CONFIG_ASPEED_ECC_SIZE * SDRAM_SIZE_1MB;
+	conf_size = conf_size_mb * SDRAM_SIZE_1MB;
 	if (conf_size > info->info.size) {
 		printf("warning: ECC configured %dMB but actual size is %dMB\n",
-		       CONFIG_ASPEED_ECC_SIZE,
+		       conf_size,
 		       info->info.size / SDRAM_SIZE_1MB);
 		conf_size = info->info.size;
 	} else if (conf_size == 0) {
@@ -936,7 +935,6 @@ static void ast2600_sdrammc_ecc_enable(struct dram_info *info)
 	writel(BIT(31), &regs->intr_ctrl);
 	writel(0, &regs->intr_ctrl);
 }
-#endif
 
 static int ast2600_sdrammc_probe(struct udevice *dev)
 {
@@ -1003,9 +1001,12 @@ L_ast2600_sdramphy_train:
 	}
 #endif
 
-#ifdef CONFIG_ASPEED_ECC
-	ast2600_sdrammc_ecc_enable(priv);
-#endif
+	if (dev_read_bool(dev, "aspeed,ecc-enabled")) {
+		u32 ecc_size;
+
+		ecc_size = dev_read_u32_default(dev, "aspeed,ecc-size", 0);
+		ast2600_sdrammc_ecc_enable(priv, ecc_size);
+	}
 
 	writel(readl(&priv->scu->dram_hdshk) | SCU_DRAM_HDSHK_RDY,
 	       &priv->scu->dram_hdshk);

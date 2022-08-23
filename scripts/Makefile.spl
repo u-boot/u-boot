@@ -358,13 +358,14 @@ $(obj)/dts/dt-%.o: $(obj)/dts/dt-%.c $(platdata-hdr)
 	$(call if_changed,plat)
 
 # Don't use dts_dir here, since it forces running this expensive rule every time
-$(platdata-hdr) $(u-boot-spl-platdata_c) &: $(obj)/$(SPL_BIN).dtb
+$(platdata-hdr) $(u-boot-spl-platdata_c) &: $(obj)/$(SPL_BIN).dtb FORCE
 	@[ -d $(obj)/dts ] || mkdir -p $(obj)/dts
 	@# Remove old files since which ones we generate depends on the setting
 	@# of OF_PLATDATA_INST and this might change between builds. Leaving old
 	@# ones around is confusing and it is possible that switching the
 	@# setting again will use the old one instead of regenerating it.
-	@rm -f $(u-boot-spl-all-platdata_c) $(u-boot-spl-all-platdata)
+	@rm -f $(u-boot-spl-old-platdata_c) $(u-boot-spl-platdata_c) \
+		$(u-boot-spl-old-platdata)
 	$(call if_changed,dtoc)
 
 ifneq ($(CONFIG_ARCH_EXYNOS)$(CONFIG_ARCH_S5PC1XX),)

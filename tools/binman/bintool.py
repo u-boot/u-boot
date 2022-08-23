@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright 2022 Google LLC
+# Copyright (C) 2022 Weidmüller Interface GmbH & Co. KG
+# Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>
 #
 """Base class for all bintools
 
@@ -71,17 +73,25 @@ class Bintool:
         # interested in the type.
         module_name = btype.replace('-', '_')
         module = modules.get(module_name)
+        class_name = f'Bintool{module_name}'
 
         # Import the module if we have not already done so
         if not module:
             try:
                 module = importlib.import_module('binman.btool.' + module_name)
             except ImportError as exc:
-                return module_name, exc
+                try:
+                    # Deal with classes which must be renamed due to conflicts
+                    # with Python libraries
+                    class_name = f'Bintoolbtool_{module_name}'
+                    module = importlib.import_module('binman.btool.btool_' +
+                                                     module_name)
+                except ImportError:
+                    return module_name, exc
             modules[module_name] = module
 
         # Look up the expected class name
-        return getattr(module, 'Bintool%s' % module_name)
+        return getattr(module, class_name)
 
     @staticmethod
     def create(name):
@@ -464,3 +474,104 @@ binaries. It is fairly easy to create new bintools. Just add a new file to the
             str: Version string for this bintool
         """
         return 'unknown'
+
+class BintoolPacker(Bintool):
+    """Tool which compression / decompression entry contents
+
+    This is a bintools base class for compression / decompression packer
+
+    Properties:
+        name: Name of packer tool
+        compression: Compression type (COMPRESS_...), value of 'name' property
+            if none
+        compress_args: List of positional args provided to tool for compress,
+            ['--compress'] if none
+        decompress_args: List of positional args provided to tool for
+            decompress, ['--decompress'] if none
+        fetch_package: Name of the tool installed using the apt, value of 'name'
+            property if none
+        version_regex: Regular expressions to extract the version from tool
+            version output,  '(v[0-9.]+)' if none
+    """
+    def __init__(self, name, compression=None, compress_args=None,
+                 decompress_args=None, fetch_package=None,
+                 version_regex=r'(v[0-9.]+)'):
+        desc = '%s compression' % (compression if compression else name)
+        super().__init__(name, desc)
+        if compress_args is None:
+            compress_args = ['--compress']
+        self.compress_args = compress_args
+        if decompress_args is None:
+            decompress_args = ['--decompress']
+        self.decompress_args = decompress_args
+        if fetch_package is None:
+            fetch_package = name
+        self.fetch_package = fetch_package
+        self.version_regex = version_regex
+
+    def compress(self, indata):
+        """Compress data
+
+        Args:
+            indata (bytes): Data to compress
+
+        Returns:
+            bytes: Compressed data
+        """
+        with tempfile.NamedTemporaryFile(prefix='comp.tmp',
+                                         dir=tools.get_output_dir()) as tmp:
+            tools.write_file(tmp.name, indata)
+            args = self.compress_args + ['--stdout', tmp.name]
+            return self.run_cmd(*args, binary=True)
+
+    def decompress(self, indata):
+        """Decompress data
+
+        Args:
+            indata (bytes): Data to decompress
+
+        Returns:
+            bytes: Decompressed data
+        """
+        with tempfile.NamedTemporaryFile(prefix='decomp.tmp',
+                                         dir=tools.get_output_dir()) as inf:
+            tools.write_file(inf.name, indata)
+            args = self.decompress_args + ['--stdout', inf.name]
+            return self.run_cmd(*args, binary=True)
+
+    def fetch(self, method):
+        """Fetch handler
+
+        This installs the gzip package using the apt utility.
+
+        Args:
+            method (FETCH_...): Method to use
+
+        Returns:
+            True if the file was fetched and now installed, None if a method
+            other than FETCH_BIN was requested
+
+        Raises:
+            Valuerror: Fetching could not be completed
+        """
+        if method != FETCH_BIN:
+            return None
+        return self.apt_install(self.fetch_package)
+
+    def version(self):
+        """Version handler
+
+        Returns:
+            str: Version number
+        """
+        import re
+
+        result = self.run_cmd_result('-V')
+        out = result.stdout.strip()
+        if not out:
+            out = result.stderr.strip()
+        if not out:
+            return super().version()
+
+        m_version = re.search(self.version_regex, out)
+        return m_version.group(1) if m_version else out

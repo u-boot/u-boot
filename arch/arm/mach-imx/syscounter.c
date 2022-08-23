@@ -79,6 +79,7 @@ int timer_init(void)
 	gd->arch.tbl = 0;
 	gd->arch.tbu = 0;
 
+	gd->arch.timer_rate_hz = freq;
 	return 0;
 }
 #endif
@@ -98,6 +99,14 @@ unsigned long long get_ticks(void)
 ulong get_timer(ulong base)
 {
 	return tick_to_time(get_ticks()) - base;
+}
+
+ulong timer_get_boot_us(void)
+{
+	if (!gd->arch.timer_rate_hz)
+		timer_init();
+
+	return tick_to_time(get_ticks());
 }
 
 void __udelay(unsigned long usec)

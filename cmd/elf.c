@@ -14,7 +14,7 @@
 #include <net.h>
 #include <vxworks.h>
 #ifdef CONFIG_X86
-#include <vbe.h>
+#include <vesa.h>
 #include <asm/cache.h>
 #include <asm/e820.h>
 #include <linux/linkage.h>

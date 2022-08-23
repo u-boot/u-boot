@@ -64,30 +64,9 @@ static struct ccu_reset a10_resets[] = {
 	[RST_USB_PHY2]		= RESET(0x0cc, BIT(2)),
 };
 
-static const struct ccu_desc a10_ccu_desc = {
+const struct ccu_desc a10_ccu_desc = {
 	.gates = a10_gates,
 	.resets = a10_resets,
-};
-
-static int a10_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(a10_resets));
-}
-
-static const struct udevice_id a10_ccu_ids[] = {
-	{ .compatible = "allwinner,sun4i-a10-ccu",
-	  .data = (ulong)&a10_ccu_desc },
-	{ .compatible = "allwinner,sun7i-a20-ccu",
-	  .data = (ulong)&a10_ccu_desc },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_sun4i_a10) = {
-	.name		= "sun4i_a10_ccu",
-	.id		= UCLASS_CLK,
-	.of_match	= a10_ccu_ids,
-	.priv_auto	= sizeof(struct ccu_priv),
-	.ops		= &sunxi_clk_ops,
-	.probe		= sunxi_clk_probe,
-	.bind		= a10_clk_bind,
+	.num_gates = ARRAY_SIZE(a10_gates),
+	.num_resets = ARRAY_SIZE(a10_resets),
 };

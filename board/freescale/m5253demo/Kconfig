@@ -1,5 +1,9 @@
 if TARGET_M5253DEMO
 
+config FLASH_CFI_LEGACY
+	depends on SYS_FLASH_CFI
+	def_bool y
+
 config SYS_CPU
 	default "mcf52x2"
 

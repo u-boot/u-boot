@@ -198,7 +198,9 @@ hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
 HOSTCFLAGS_mkexynosspl.o := -pedantic
 
 HOSTCFLAGS_kwboot.o += -pthread
-HOSTLDLIBS_kwboot += -pthread -ltinfo
+HOSTLDLIBS_kwboot += -pthread
+HOSTLDLIBS_kwboot += \
+	$(shell pkg-config --libs tinfo 2> /dev/null || echo "-ltinfo")
 
 ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
 hostprogs-$(CONFIG_X86) += ifdtool
@@ -242,7 +244,14 @@ hostprogs-$(CONFIG_MIPS) += mips-relocs
 hostprogs-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
 HOSTCFLAGS_asn1_compiler.o = -idirafter $(srctree)/include
 
-HOSTLDLIBS_mkeficapsule += -lgnutls -luuid
+HOSTCFLAGS_mkeficapsule.o += \
+	$(shell pkg-config --cflags gnutls 2> /dev/null || echo "")
+HOSTCFLAGS_mkeficapsule.o += \
+	$(shell pkg-config --cflags uuid 2> /dev/null || echo "")
+HOSTLDLIBS_mkeficapsule += \
+	$(shell pkg-config --libs gnutls 2> /dev/null || echo "-lgnutls")
+HOSTLDLIBS_mkeficapsule += \
+	$(shell pkg-config --libs uuid 2> /dev/null || echo "-luuid")
 hostprogs-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
 
 # We build some files with extra pedantic flags to try to minimize things

@@ -130,18 +130,6 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 	 int line, const char *func, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 6, 7)));
 
-static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
-			   const char *file, int line, const char *func,
-			   const char *fmt, ...)
-		__attribute__ ((format (__printf__, 6, 7)));
-
-static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
-			   const char *file, int line, const char *func,
-			   const char *fmt, ...)
-{
-	return 0;
-}
-
 /**
  * _log_buffer - Internal function to print data buffer in hex and ascii form
  *
@@ -194,6 +182,9 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 
 #ifdef LOG_DEBUG
 #define _LOG_DEBUG	LOGL_FORCE_DEBUG
+#ifndef DEBUG
+#define DEBUG
+#endif
 #else
 #define _LOG_DEBUG	0
 #endif
@@ -236,12 +227,6 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 		print_buffer(_addr, _data, _width, _count, _linelen); \
 	})
 #endif
-
-#define log_nop(_cat, _level, _fmt, _args...) ({ \
-	int _l = _level; \
-	_log_nop((enum log_category_t)(_cat), _l, __FILE__, __LINE__, \
-		      __func__, pr_fmt(_fmt), ##_args); \
-})
 
 #ifdef DEBUG
 #define _DEBUG	1

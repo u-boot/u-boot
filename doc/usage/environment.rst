@@ -204,7 +204,9 @@ fdt_high
     to work it must reside in writable memory, have
     sufficient padding on the end of it for u-boot to
     add the information it needs into it, and the memory
-    must be accessible by the kernel.
+    must be accessible by the kernel. This usage is strongly discouraged
+    however as it also stops U-Boot from ensuring the device tree starting
+    address is properly aligned and a misaligned tree will cause OS failures.
 
 fdtcontroladdr
     if set this is the address of the control flattened
@@ -240,14 +242,21 @@ initrd_high
     memory. In this case U-Boot will NOT COPY the
     ramdisk at all. This may be useful to reduce the
     boot time on your system, but requires that this
-    feature is supported by your Linux kernel.
+    feature is supported by your Linux kernel. This usage however requires
+    that the user ensure that there will be no overlap with other parts of the
+    image such as the Linux kernel BSS. It should not be enabled by default
+    and only done as part of optimizing a deployment.
 
 ipaddr
     IP address; needed for tftpboot command
 
 loadaddr
     Default load address for commands like "bootp",
-    "rarpboot", "tftpboot", "loadb" or "diskboot"
+    "rarpboot", "tftpboot", "loadb" or "diskboot".  Note that the optimal
+    default values here will vary between architectures.  On 32bit ARM for
+    example, some offset from start of memory is used as the Linux kernel
+    zImage has a self decompressor and it's best if we stay out of where that
+    will be working.
 
 loads_echo
     see CONFIG_LOADS_ECHO
@@ -390,12 +399,61 @@ in U-Boot code.
 ================= ============== ================ ==============
 Image             File Name      RAM Address      Flash Location
 ================= ============== ================ ==============
-u-boot            u-boot         u-boot_addr_r    u-boot_addr
 Linux kernel      bootfile       kernel_addr_r    kernel_addr
 device tree blob  fdtfile        fdt_addr_r       fdt_addr
 ramdisk           ramdiskfile    ramdisk_addr_r   ramdisk_addr
 ================= ============== ================ ==============
 
+When setting the RAM addresses for `kernel_addr_r`, `fdt_addr_r` and
+`ramdisk_addr_r` there are several types of constraints to keep in mind. The
+one type of constraint is payload requirement. For example, a device tree MUST
+be loaded at an 8-byte aligned address as that is what the specification
+requires. In a similar manner, the operating system may define restrictions on
+where in memory space payloads can be. This is documented for example in Linux,
+with both the `Booting ARM Linux`_ and `Booting AArch64 Linux`_ documents.
+Finally, there are practical constraints. We do not know the size of a given
+payload a user will use but each payload must not overlap or it will corrupt
+the other payload. A similar problem can happen when a payload ends up being in
+the OS BSS area. For these reasons we need to ensure our default values here
+are both unlikely to lead to failure to boot and sufficiently explained so that
+they can be optimized for boot time or adjusted for smaller memory
+configurations.
+
+On different architectures we will have different constraints. It is important
+that we follow whatever documented requirements are available to best ensure
+forward compatibility. What follows are examples to highlight how to provide
+reasonable default values in different cases.
+
+Texas Instruments OMAP2PLUS (ARMv7) example
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+On these families of processors we are on a 32bit ARMv7 core.  As booting some
+form of Linux is our most common payload we will also keep in mind the
+documented requirements for booting that Linux provides.  These values are also
+known to be fine for booting a number of other operating systems (or their
+loaders).  In this example we define the following variables and values::
+
+    loadaddr=0x82000000
+    kernel_addr_r=${loadaddr}
+    fdt_addr_r=0x88000000
+    ramdisk_addr_r=0x88080000
+    bootm_size=0x10000000
+
+The first thing to keep in mind is that DRAM starts at 0x80000000. We set a
+32MiB buffer from the start of memory as our default load address and set
+``kernel_addr_r`` to that. This is because the Linux ``zImage`` decompressor
+will typically then be able to avoid doing a relocation itself. It also MUST be
+within the first 128MiB of memory. The next value is we set ``fdt_addr_r`` to
+be at 128MiB offset from the start of memory. This location is suggested by the
+kernel documentation and is exceedingly unlikely to be overwritten by the
+kernel itself given other architectural constraints.  We then allow for the
+device tree to be up to 512KiB in size before placing the ramdisk in memory. We
+then say that everything should be within the first 256MiB of memory so that
+U-Boot can relocate things as needed to ensure proper alignment. We pick 256MiB
+as our value here because we know there are very few platforms on in this
+family with less memory. It could be as high as 768MiB and still ensure that
+everything would be visible to the kernel, but again we go with what we assume
+is the safest assumption.
 
 Automatically updated variables
 -------------------------------
@@ -464,3 +522,6 @@ Implementation
 --------------
 
 See :doc:`../develop/environment` for internal development details.
+
+.. _`Booting ARM Linux`: https://www.kernel.org/doc/html/latest/arm/booting.html
+.. _`Booting AArch64 Linux`: https://www.kernel.org/doc/html/latest/arm64/booting.html

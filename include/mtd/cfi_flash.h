@@ -176,7 +176,6 @@ extern int cfi_flash_num_flash_banks;
 
 phys_addr_t cfi_flash_bank_addr(int i);
 unsigned long cfi_flash_bank_size(int i);
-void flash_cmd_reset(flash_info_t *info);
 
 #ifdef CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
 void flash_write8(u8 value, void *addr);

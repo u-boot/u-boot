@@ -165,21 +165,10 @@ struct ubifs_global_debug_info {
 		 dbg_snprintf_key(c, key, __tmp_key_buf, DBG_KEY_BUF_LEN));    \
 } while (0)
 #else
-#define ubifs_assert(expr) do {                                                \
-	if (unlikely(!(expr))) {                                               \
-		pr_debug("UBIFS assert failed in %s at %u\n",                  \
-		       __func__, __LINE__);                                    \
-		dump_stack();                                                  \
-	}                                                                      \
-} while (0)
 
-#define ubifs_assert_cmt_locked(c) do {                                        \
-	if (unlikely(down_write_trylock(&(c)->commit_sem))) {                  \
-		up_write(&(c)->commit_sem);                                    \
-		pr_debug("commit lock is not locked!\n");                      \
-		ubifs_assert(0);                                               \
-	}                                                                      \
-} while (0)
+#include <log.h>
+#define ubifs_assert(expr) assert(expr)
+#define ubifs_assert_cmt_locked(c) do { } while (0)
 
 #define ubifs_dbg_msg(type, fmt, ...) \
 	pr_debug("UBIFS DBG " type ": " fmt "\n",                              \

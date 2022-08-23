@@ -7,6 +7,8 @@
 
 from binman.entry import Entry
 from binman.etype.blob import Entry_blob
+from dtoc import fdt_util
+import struct
 
 # This is imported if needed
 state = None
@@ -17,6 +19,9 @@ class Entry_blob_dtb(Entry_blob):
     This is a blob containing a device tree. The contents of the blob are
     obtained from the list of available device-tree files, managed by the
     'state' module.
+
+    Additional attributes:
+        prepend: Header used (e.g. 'length')
     """
     def __init__(self, section, etype, node):
         # Put this here to allow entry-docs and help to work without libfdt
@@ -24,6 +29,14 @@ class Entry_blob_dtb(Entry_blob):
         from binman import state
 
         super().__init__(section, etype, node)
+        self.prepend = None
+
+    def ReadNode(self):
+        super().ReadNode()
+        self.prepend = fdt_util.GetString(self._node, 'prepend')
+        if self.prepend and self.prepend not in ['length']:
+            self.Raise("Invalid prepend in '%s': '%s'" %
+                       (self._node.name, self.prepend))
 
     def ObtainContents(self):
         """Get the device-tree from the list held by the 'state' module"""
@@ -34,6 +47,10 @@ class Entry_blob_dtb(Entry_blob):
     def ProcessContents(self):
         """Re-read the DTB contents so that we get any calculated properties"""
         _, indata = state.GetFdtContents(self.GetFdtEtype())
+
+        if self.compress == 'zstd' and self.prepend != 'length':
+            self.Raise('The zstd compression requires a length header')
+
         data = self.CompressData(indata)
         return self.ProcessContentsUpdate(data)
 
@@ -58,3 +75,17 @@ class Entry_blob_dtb(Entry_blob):
         # will still return the old contents
         state.UpdateFdtContents(self.GetFdtEtype(), data)
         return ok
+
+    def CompressData(self, indata):
+        data = super().CompressData(indata)
+        if self.prepend == 'length':
+            hdr = struct.pack('<I', len(data))
+            data = hdr + data
+        return data
+
+    def DecompressData(self, indata):
+        if self.prepend == 'length':
+            data_len = struct.unpack('<I', indata[:4])[0]
+            indata = indata[4:4 + data_len]
+        data = super().DecompressData(indata)
+        return data

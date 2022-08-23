@@ -286,7 +286,7 @@ static int do_ddr_test(struct cmd_tbl *cmdtp,
 
 	if ((argc == 4) && (strncmp(argv[1], "ecc_err", 8) == 0)) {
 		if (!is_ecc_enabled()) {
-			puts("ECC not enabled. Please Enable ECC any try again\n");
+			puts("ECC not enabled. Please Enable ECC and try again\n");
 			return CMD_RET_FAILURE;
 		}
 

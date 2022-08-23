@@ -210,8 +210,8 @@ config SPL_LOAD_FIT
 	  1. "loadables" images, other than FDTs, which do not have a "load"
 	     property will not be loaded. This limitation also applies to FPGA
 	     images with the correct "compatible" string.
-	  2. For FPGA images, only the "compatible" = "u-boot,fpga-legacy"
-	     loading method is supported.
+	  2. For FPGA images, the supported "compatible" list is in the
+	     doc/uImage.FIT/source_file_format.txt.
 	  3. FDTs are only loaded for images with an "os" property of "u-boot".
 	     "linux" images are also supported with Falcon boot mode.
 
@@ -294,6 +294,12 @@ endif # SPL
 
 endif # FIT
 
+config PXE_UTILS
+	bool
+	select MENU
+	help
+	  Utilities for parsing PXE file formats.
+
 config BOOTSTD
 	bool "Standard boot support"
 	default y
@@ -343,9 +349,16 @@ config BOOTSTD_BOOTCOMMAND
 	  standard boot does not support all of the features of distro boot
 	  yet.
 
+config BOOTMETH_GLOBAL
+	bool
+	help
+	  Add support for global bootmeths. This feature is used by VBE and
+	  EFI bootmgr, since they take full control over which bootdevs are
+	  selected to boot.
+
 config BOOTMETH_DISTRO
 	bool "Bootdev support for distro boot"
-	depends on CMD_PXE
+	select PXE_UTILS
 	default y
 	help
 	  Enables support for distro boot using bootdevs. This makes the
@@ -384,6 +397,28 @@ config BOOTMETH_EFILOADER
 	     riscv64   - RISC-V 64-bit
 
 	  This provides a way to try out standard boot on an existing boot flow.
+
+config BOOTMETH_VBE
+	bool "Bootdev support for Verified Boot for Embedded"
+	depends on FIT
+	default y
+	select BOOTMETH_GLOBAL
+	help
+	  Enables support for VBE boot. This is a standard boot method which
+	  supports selection of various firmware components, seleciton of an OS to
+	  boot as well as updating these using fwupd.
+
+if BOOTMETH_VBE
+
+config BOOTMETH_VBE_SIMPLE
+	bool "Bootdev support for VBE 'simple' method"
+	default y
+	help
+	  Enables support for VBE 'simple' boot. This allows updating a single
+	  firmware image in boot media such as MMC. It does not support any sort
+	  of rollback, recovery or A/B boot.
+
+endif # BOOTMETH_VBE
 
 config BOOTMETH_SANDBOX
 	def_bool y
@@ -452,19 +487,6 @@ config OF_STDOUT_VIA_ALIAS
 	  incorrect when used with device tree as this option does not
 	  exist / should not be used.
 
-config SYS_EXTRA_OPTIONS
-	string "Extra Options (DEPRECATED)"
-	help
-	  The old configuration infrastructure (= mkconfig + boards.cfg)
-	  provided the extra options field. If you have something like
-	  "HAS_BAR,BAZ=64", the optional options
-	    #define CONFIG_HAS
-	    #define CONFIG_BAZ	64
-	  will be defined in include/config.h.
-	  This option was prepared for the smooth migration from the old
-	  configuration to Kconfig. Since this option will be removed sometime,
-	  new boards should not use this option.
-
 config HAVE_SYS_TEXT_BASE
 	bool
 	depends on !NIOS2 && !XTENSA
@@ -486,7 +508,7 @@ config SYS_TEXT_BASE
 config HAVE_SYS_MONITOR_BASE
 	bool
 	depends on ARC || MIPS || M68K || NIOS2 || PPC || XTENSA || X86 \
-		|| FLASH_PIC32 || ENV_IS_IN_FLASH || MTD_NOR_FLASH
+		|| ENV_IS_IN_FLASH || MTD_NOR_FLASH
 	depends on !EFI_APP
 	default y
 

@@ -248,19 +248,7 @@ static void *unflatten_dt_node(const void *blob, void *mem, int *poffset,
 	return mem;
 }
 
-/**
- * unflatten_device_tree() - create tree of device_nodes from flat blob
- *
- * unflattens a device-tree, creating the
- * tree of struct device_node. It also fills the "name" and "type"
- * pointers of the nodes so the normal device-tree walking functions
- * can be used.
- * @blob: The blob to expand
- * @mynodes: The device_node tree created by the call
- * Return: 0 if OK, -ve on error
- */
-static int unflatten_device_tree(const void *blob,
-				 struct device_node **mynodes)
+int unflatten_device_tree(const void *blob, struct device_node **mynodes)
 {
 	unsigned long size;
 	int start;

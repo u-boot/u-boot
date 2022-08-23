@@ -39,27 +39,27 @@
 			filename = "u-boot-spl.bin";
 		};
 
-		1d-imem {
+		ddr-1d-imem-fw {
 			filename = "lpddr4_pmu_train_1d_imem.bin";
-			size = <0x8000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 
-		1d-dmem {
+		ddr-1d-dmem-fw {
 			filename = "lpddr4_pmu_train_1d_dmem.bin";
-			size = <0x4000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 
-		2d-imem {
+		ddr-2d-imem-fw {
 			filename = "lpddr4_pmu_train_2d_imem.bin";
-			size = <0x8000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 
-		2d-dmem {
+		ddr-2d-dmem-fw {
 			filename = "lpddr4_pmu_train_2d_dmem.bin";
-			size = <0x4000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 	};
@@ -150,6 +150,25 @@
 		filename = "flash.bin";
 		pad-byte = <0x00>;
 
+#ifdef CONFIG_FSPI_CONF_HEADER
+		fspi_conf_block {
+			filename = CONFIG_FSPI_CONF_FILE;
+			type = "blob-ext";
+			size = <0x1000>;
+		};
+
+		spl {
+			filename = "spl.bin";
+			offset = <0x1000>;
+			type = "blob-ext";
+		};
+
+		binman_uboot: uboot {
+			filename = "u-boot.itb";
+			offset = <0x58C00>;
+			type = "blob-ext";
+		};
+#else
 		spl {
 			filename = "spl.bin";
 			offset = <0x0>;
@@ -161,6 +180,7 @@
 			offset = <0x57c00>;
 			type = "blob-ext";
 		};
+#endif
 	};
 };
 
@@ -177,6 +197,16 @@
 };
 
 &osc_24m {
+	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+};
+
+&spba1 {
+	u-boot,dm-pre-reloc;
+	u-boot,dm-spl;
+};
+
+&spba2 {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
 };

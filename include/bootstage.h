@@ -268,11 +268,26 @@ ulong bootstage_add_record(enum bootstage_id id, const char *name,
 /**
  * Mark a time stamp for the current boot stage.
  */
-ulong bootstage_mark(enum bootstage_id id);
+#define bootstage_mark(id)	bootstage_mark_name(id, __func__)
+#define bootstage_error(id)	bootstage_error_name(id, __func__)
 
-ulong bootstage_error(enum bootstage_id id);
-
+/**
+ * bootstage_mark_name - record bootstage with passing id and name
+ * @id: Bootstage id to record this timestamp against
+ * @name: Textual name to display for this id in the report
+ *
+ * Return: recorded time stamp
+ */
 ulong bootstage_mark_name(enum bootstage_id id, const char *name);
+
+/**
+ * bootstage_error_name - record bootstage error with passing id and name
+ * @id: Bootstage id to record this timestamp against
+ * @name: Textual name to display for this id in the report
+ *
+ * Return: recorded time stamp
+ */
+ulong bootstage_error_name(enum bootstage_id id, const char *name);
 
 /**
  * Mark a time stamp in the given function and line number

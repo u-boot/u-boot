@@ -13,6 +13,7 @@
 #include <fs.h>
 #include <linux/types.h>
 #include <asm/byteorder.h>
+#include <linux/compat.h>
 #include <memalign.h>
 #include <stdlib.h>
 #include <string.h>
@@ -725,7 +726,8 @@ static int sqfs_read_inode_table(unsigned char **inode_table)
 		goto free_itb;
 	}
 
-	*inode_table = malloc(metablks_count * SQFS_METADATA_BLOCK_SIZE);
+	*inode_table = kcalloc(metablks_count, SQFS_METADATA_BLOCK_SIZE,
+			       GFP_KERNEL);
 	if (!*inode_table) {
 		ret = -ENOMEM;
 		printf("Error: failed to allocate squashfs inode_table of size %i, increasing CONFIG_SYS_MALLOC_LEN could help\n",

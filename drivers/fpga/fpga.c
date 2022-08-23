@@ -220,7 +220,7 @@ int fpga_fsload(int devnum, const void *buf, size_t size,
 }
 #endif
 
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 int fpga_loads(int devnum, const void *buf, size_t size,
 	       struct fpga_secure_info *fpga_sec_info)
 {
@@ -252,7 +252,8 @@ int fpga_loads(int devnum, const void *buf, size_t size,
 /*
  * Generic multiplexing code
  */
-int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
+int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype,
+	      int flags)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
 	const fpga_desc *desc = fpga_validate(devnum, buf, bsize,
@@ -263,7 +264,7 @@ int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
 		case fpga_xilinx:
 #if defined(CONFIG_FPGA_XILINX)
 			ret_val = xilinx_load(desc->devdesc, buf, bsize,
-					      bstype);
+					      bstype, flags);
 #else
 			fpga_no_sup((char *)__func__, "Xilinx devices");
 #endif
@@ -356,3 +357,29 @@ int fpga_info(int devnum)
 
 	return fpga_dev_info(devnum);
 }
+
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+int fpga_compatible2flag(int devnum, const char *compatible)
+{
+	const fpga_desc * const desc = fpga_get_desc(devnum);
+
+	if (!desc)
+		return 0;
+
+	switch (desc->devtype) {
+#if defined(CONFIG_FPGA_XILINX)
+	case fpga_xilinx:
+	{
+		xilinx_desc *xdesc = (xilinx_desc *)desc->devdesc;
+
+		if (xdesc->operations && xdesc->operations->str2flag)
+			return xdesc->operations->str2flag(xdesc, compatible);
+	}
+#endif
+	default:
+		break;
+	}
+
+	return 0;
+}
+#endif

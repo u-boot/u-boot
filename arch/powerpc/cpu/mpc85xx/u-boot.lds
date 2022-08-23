@@ -16,6 +16,14 @@ ENTRY(_start)
 
 SECTIONS
 {
+  /* Optional boot sector */
+#if defined(CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR) && !defined(CONFIG_SPL)
+  .bootsect CONFIG_SYS_TEXT_BASE - CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA * 512 : {
+    KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootsect))
+    . = CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA * 512;
+  }
+#endif
+
   /* Read-only sections, merged into text segment: */
   .text      :
   {

@@ -3,7 +3,7 @@
  * termios fuctions to support arbitrary baudrates (on Linux)
  *
  * Copyright (c) 2021 Pali Rohár <pali@kernel.org>
- * Copyright (c) 2021 Marek Behún <marek.behun@nic.cz>
+ * Copyright (c) 2021 Marek Behún <kabel@kernel.org>
  */
 
 #ifndef _TERMIOS_LINUX_H_

@@ -98,4 +98,63 @@ config TOOLS_MKEFICAPSULE
 	  optionally sign that file. If you want to enable UEFI capsule
 	  update feature on your target, you certainly need this.
 
+menuconfig FSPI_CONF_HEADER
+	bool "FlexSPI Header Configuration"
+	help
+	  FSPI Header Configuration
+
+config FSPI_CONF_FILE
+	string "FlexSPI Header File"
+	depends on FSPI_CONF_HEADER
+	help
+	  FlexSPI Header File name
+
+config READ_CLK_SOURCE
+	hex "Sampling Clock Source"
+	default 0x00
+	depends on FSPI_CONF_HEADER
+	help
+	  Sample Clock source for Flash, default is internal loopback clock
+
+config DEVICE_TYPE
+	hex "Flash Type"
+	default 0x01
+	depends on FSPI_CONF_HEADER
+	help
+	  Flash type: Serial NOR (0X01) and Serial NAND (0x02)
+
+config FLASH_PAD_TYPE
+	hex "Flash Pad Type"
+	default 0x01
+	depends on FSPI_CONF_HEADER
+	help
+	  Flash Pad type :
+	  Single Pad 0x01
+	  Dual Pads  0x02
+	  Quad Pad   0x04
+	  Octal Pad  0x08
+
+config SERIAL_CLK_FREQUENCY
+	hex "Serial Clock Frequency"
+	default 0x02
+	depends on FSPI_CONF_HEADER
+	help
+	  Chip specific frequency: other value 30MHz
+	  1-30MHz  2-50MHz 3-60MHz 4-75MHz 5-80MHz 6-100MHz 7-133MHz 8-166MHz
+
+config LUT_CUSTOM_SEQUENCE
+	hex "Enable Custom Look Up Table(LUT) Sequence"
+	default 0x00
+	depends on FSPI_CONF_HEADER
+	help
+	  0 - Use predefined LUT Sequence
+	  1 - Use LUT Sequence provided
+
+config LUT_SEQUENCE
+	string "Look Up Table Sequence"
+	default "0x0b, 0x04, 0x18, 0x08, 0x08, 0x30, 0x04, 0x24"
+	depends on FSPI_CONF_HEADER
+	help
+	  Look Up Table Sequence
+
 endmenu

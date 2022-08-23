@@ -90,7 +90,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	}
 	otg_data.regs_otg = ofnode_get_addr(node);
 
-#ifdef CONFIG_ROCKCHIP_RK3288
+#ifdef CONFIG_ROCKCHIP_USB2_PHY
 	int ret;
 	u32 phandle, offset;
 	ofnode phy_node;

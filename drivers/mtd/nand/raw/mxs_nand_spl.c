@@ -29,8 +29,20 @@ static void mxs_nand_command(struct mtd_info *mtd, unsigned int command,
 
 	/* Serially input address */
 	if (column != -1) {
+		/* Adjust columns for 16 bit buswidth */
+		if (chip->options & NAND_BUSWIDTH_16 &&
+				!nand_opcode_8bits(command))
+			column >>= 1;
 		chip->cmd_ctrl(mtd, column, NAND_ALE);
-		chip->cmd_ctrl(mtd, column >> 8, NAND_ALE);
+
+		/*
+		 * Assume LP NAND here, so use two bytes column address
+		 * but not for CMD_READID and CMD_PARAM, which require
+		 * only one byte column address
+		 */
+		if (command != NAND_CMD_READID &&
+			command != NAND_CMD_PARAM)
+			chip->cmd_ctrl(mtd, column >> 8, NAND_ALE);
 	}
 	if (page_addr != -1) {
 		chip->cmd_ctrl(mtd, page_addr, NAND_ALE);

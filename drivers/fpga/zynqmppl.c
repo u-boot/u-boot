@@ -9,6 +9,7 @@
 #include <common.h>
 #include <compiler.h>
 #include <cpu_func.h>
+#include <fpga.h>
 #include <log.h>
 #include <zynqmppl.h>
 #include <zynqmp_firmware.h>
@@ -199,53 +200,106 @@ static int zynqmp_validate_bitstream(xilinx_desc *desc, const void *buf,
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+static int zynqmp_check_compatible(xilinx_desc *desc, int flags)
+{
+	/*
+	 * If no flags set, the image may be legacy, but we need to
+	 * signal caller this situation with specific error code.
+	 */
+	if (!flags)
+		return -ENODATA;
+
+	/* For legacy bitstream images no need for other methods exist */
+	if ((flags & desc->flags) && flags == FPGA_LEGACY)
+		return 0;
+
+	/*
+	 * Other images are handled in secure callback loads(). Check
+	 * callback existence besides image type support.
+	 */
+	if (desc->operations->loads && (flags & desc->flags))
+		return 0;
+
+	return -ENODEV;
+}
+#endif
+
 static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
-		     bitstream_type bstype)
+		     bitstream_type bstype, int flags)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u32, bsizeptr, 1);
 	u32 swap = 0;
 	ulong bin_buf;
 	int ret;
 	u32 buf_lo, buf_hi;
+	u32 bsize_req = (u32)bsize;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
-	bool xilfpga_old = false;
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+	struct fpga_secure_info info = { 0 };
+
+	ret = zynqmp_check_compatible(desc, flags);
+	if (ret) {
+		if (ret != -ENODATA) {
+			puts("Missing loads() operation or unsupported bitstream type\n");
+			return FPGA_FAIL;
+		}
+		/* If flags is not set, the image treats as legacy */
+		flags = FPGA_LEGACY;
+	}
+
+	switch (flags) {
+	case FPGA_LEGACY:
+		break;	/* Handle the legacy image later in this function */
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+	case FPGA_XILINX_ZYNQMP_DDRAUTH:
+		/* DDR authentication */
+		info.authflag = ZYNQMP_FPGA_AUTH_DDR;
+		info.encflag = FPGA_NO_ENC_OR_NO_AUTH;
+		return desc->operations->loads(desc, buf, bsize, &info);
+	case FPGA_XILINX_ZYNQMP_ENC:
+		/* Encryption using device key */
+		info.authflag = FPGA_NO_ENC_OR_NO_AUTH;
+		info.encflag = FPGA_ENC_DEV_KEY;
+		return desc->operations->loads(desc, buf, bsize, &info);
+#endif
+	default:
+		printf("Unsupported bitstream type %d\n", flags);
+		return FPGA_FAIL;
+	}
+#endif
 
 	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
 		puts("WARN: PMUFW v1.0 or less is detected\n");
 		puts("WARN: Not all bitstream formats are supported\n");
 		puts("WARN: Please upgrade PMUFW\n");
-		xilfpga_old = true;
 		if (zynqmp_validate_bitstream(desc, buf, bsize, bsize, &swap))
 			return FPGA_FAIL;
 		bsizeptr = (u32 *)&bsize;
 		flush_dcache_range((ulong)bsizeptr,
 				   (ulong)bsizeptr + sizeof(size_t));
+		bsize_req = (u32)(uintptr_t)bsizeptr;
 		bstype |= BIT(ZYNQMP_FPGA_BIT_NS);
+	} else {
+		bstype = 0;
 	}
 
 	bin_buf = zynqmp_align_dma_buffer((u32 *)buf, bsize, swap);
 
-	debug("%s called!\n", __func__);
 	flush_dcache_range(bin_buf, bin_buf + bsize);
 
 	buf_lo = (u32)bin_buf;
 	buf_hi = upper_32_bits(bin_buf);
 
-	if (xilfpga_old)
-		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
-					buf_hi, (u32)(uintptr_t)bsizeptr,
-					bstype, ret_payload);
-	else
-		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
-					buf_hi, (u32)bsize, 0, ret_payload);
-
+	ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo, buf_hi,
+				bsize_req, bstype, ret_payload);
 	if (ret)
 		printf("PL FPGA LOAD failed with err: 0x%08x\n", ret);
 
 	return ret;
 }
 
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
 static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 			struct fpga_secure_info *fpga_sec_info)
 {
@@ -304,10 +358,25 @@ static int zynqmp_pcap_info(xilinx_desc *desc)
 	return ret;
 }
 
+static int __maybe_unused zynqmp_str2flag(xilinx_desc *desc, const char *str)
+{
+	if (!strncmp(str, "u-boot,fpga-legacy", 18))
+		return FPGA_LEGACY;
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+	if (!strncmp(str, "u-boot,zynqmp-fpga-ddrauth", 26))
+		return FPGA_XILINX_ZYNQMP_DDRAUTH;
+
+	if (!strncmp(str, "u-boot,zynqmp-fpga-enc", 22))
+		return FPGA_XILINX_ZYNQMP_ENC;
+#endif
+	return 0;
+}
+
 struct xilinx_fpga_op zynqmp_op = {
 	.load = zynqmp_load,
-#if defined(CONFIG_CMD_FPGA_LOAD_SECURE) && !defined(CONFIG_SPL_BUILD)
-	.loads = zynqmp_loads,
-#endif
 	.info = zynqmp_pcap_info,
+#if CONFIG_IS_ENABLED(FPGA_LOAD_SECURE)
+	.loads = zynqmp_loads,
+	.str2flag = zynqmp_str2flag,
+#endif
 };

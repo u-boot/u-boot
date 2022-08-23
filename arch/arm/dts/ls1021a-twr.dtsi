@@ -6,6 +6,7 @@
  */
 
 #include "ls1021a.dtsi"
+#include "ls1021a-twr-u-boot.dtsi"
 
 / {
 	model = "LS1021A TWR Board";

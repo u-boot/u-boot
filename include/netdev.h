@@ -42,7 +42,6 @@ int eepro100_initialize(struct bd_info *bis);
 int ep93xx_eth_initialize(u8 dev_num, int base_addr);
 int eth_3com_initialize (struct bd_info * bis);
 int ethoc_initialize(u8 dev_num, int base_addr);
-int fec_initialize (struct bd_info *bis);
 int fecmxc_initialize(struct bd_info *bis);
 int fecmxc_initialize_multi(struct bd_info *bis, int dev_id, int phy_id,
 			    uint32_t addr);

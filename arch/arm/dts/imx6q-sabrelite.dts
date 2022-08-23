@@ -5,7 +5,6 @@
 // Copyright 2011 Linaro Ltd.
 
 /dts-v1/;
-
 #include "imx6q.dtsi"
 #include "imx6qdl-sabrelite.dtsi"
 
@@ -16,4 +15,9 @@
 
 &sata {
 	status = "okay";
+};
+
+&ipu1_csi1_from_mipi_vc1 {
+	clock-lanes = <0>;
+	data-lanes = <1 2>;
 };

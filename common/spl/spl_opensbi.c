@@ -66,12 +66,12 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	if (ret)
 		ret = fit_image_get_load(spl_image->fdt_addr, uboot_node, &uboot_entry);
 
-	/* Prepare obensbi_info object */
+	/* Prepare opensbi_info object */
 	opensbi_info.magic = FW_DYNAMIC_INFO_MAGIC_VALUE;
 	opensbi_info.version = FW_DYNAMIC_INFO_VERSION;
 	opensbi_info.next_addr = uboot_entry;
 	opensbi_info.next_mode = FW_DYNAMIC_INFO_NEXT_MODE_S;
-	opensbi_info.options = SBI_SCRATCH_NO_BOOT_PRINTS;
+	opensbi_info.options = CONFIG_SPL_OPENSBI_SCRATCH_OPTIONS;
 	opensbi_info.boot_hart = gd->arch.boot_hart;
 
 	opensbi_entry = (void (*)(ulong, ulong, ulong))spl_image->entry_point;

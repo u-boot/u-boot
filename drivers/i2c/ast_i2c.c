@@ -77,7 +77,7 @@ static void ast_i2c_init_bus(struct udevice *dev)
 	/* Enable Master Mode. Assuming single-master */
 	writel(I2CD_MASTER_EN
 	       | I2CD_M_SDA_LOCK_EN
-	       | I2CD_MULTI_MASTER_DIS | I2CD_M_SCL_DRIVE_EN,
+	       | I2CD_MULTI_MASTER_DIS,
 	       &priv->regs->fcr);
 	/* Enable Interrupts */
 	writel(I2CD_INTR_TX_ACK

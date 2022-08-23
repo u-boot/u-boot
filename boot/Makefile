@@ -10,8 +10,7 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
 
-obj-$(CONFIG_CMD_PXE) += pxe_utils.o
-obj-$(CONFIG_CMD_SYSBOOT) += pxe_utils.o
+obj-$(CONFIG_PXE_UTILS) += pxe_utils.o
 
 endif
 
@@ -19,7 +18,7 @@ obj-y += image.o image-board.o
 obj-$(CONFIG_ANDROID_AB) += android_ab.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o image-android-dt.o
 
-obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootdev-uclass.o system_bootdev.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootdev-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootflow.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootmeth-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootstd-uclass.o
@@ -47,3 +46,6 @@ obj-$(CONFIG_CMD_ADTIMG) += image-android-dt.o
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_LOAD_FIT) += common_fit.o
 endif
+
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE) += vbe.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE_SIMPLE) += vbe_simple.o

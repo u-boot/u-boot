@@ -2,19 +2,12 @@
 /*
  * (C) Copyright 2015 Hans de Goede <hdegoede@redhat.com>
  *
- * Configuration settings for the Allwinner A80 (sun9i) CPU
+ * Placeholder wrapper to allow addressing Allwinner A80 (sun9i) CPU
+ * based devices separately. Please do not add anything in here.
  */
-
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * A80 specific configuration
- */
-
-/*
- * Include common sunxi configuration where most the settings are
- */
 #include <configs/sunxi-common.h>
 
 #endif /* __CONFIG_H */

@@ -80,18 +80,12 @@
  */
 #define CONFIG_SYS_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable	 */
 
-#define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH0		0xFE000000
 #define CONFIG_SYS_FLASH1		0xFC000000
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH1, CONFIG_SYS_FLASH0 }
 
 #define CONFIG_SYS_LBC_FLASH_BASE	CONFIG_SYS_FLASH1	/* Localbus flash start	*/
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_LBC_FLASH_BASE /* start of FLASH	*/
-
-#define CONFIG_SYS_MAX_FLASH_SECT	256		/* sectors per device	*/
-#undef	CONFIG_SYS_FLASH_CHECKSUM
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms)	*/
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms)	*/
 
 #define CONFIG_SYS_LBC_LCRR		0x00030004    /* LB clock ratio reg	*/
 #define CONFIG_SYS_LBC_LBCR		0x00000000    /* LB config reg		*/
@@ -109,7 +103,6 @@
 /* FPGA and NAND */
 #define CONFIG_SYS_FPGA_BASE		0xc0000000
 #define CONFIG_SYS_FPGA_SIZE		0x00100000	/* 1 MB		*/
-#define CONFIG_SYS_HMI_BASE		0xc0010000
 
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_FPGA_BASE + 0x70)
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

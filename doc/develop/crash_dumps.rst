@@ -12,8 +12,8 @@ Creating a crash dump voluntarily
 ---------------------------------
 
 For describing the analysis of a crash dump we need an example. U-Boot comes
-with a command 'exception' that comes in handy here. The command is enabled
-by::
+with a command :doc:`exception <../usage/cmd/exception>` that comes in handy
+here. The command is enabled by::
 
     CONFIG_CMD_EXCEPTION=y
 
@@ -122,3 +122,63 @@ If we want to dive deeper, we can disassemble the U-Boot binary::
 
 This example is based on the ARMv8 architecture but the same procedures can be
 used on other architectures as well.
+
+Crashs in UEFI binaries
+-----------------------
+
+If UEFI images are loaded when a crash occurs, their load addresses are
+displayed. If the process counter points to an address in a loaded UEFI
+binary, the relative process counter position is indicated. Here is an
+example executed on the U-Boot sandbox::
+
+    => load host 0:1 $kernel_addr_r buggy.efi
+    5632 bytes read in 0 ms
+    => bootefi $kernel_addr_r
+    Booting /buggy.efi
+    Buggy world!
+
+    Segmentation violation
+    pc = 0x19fc264c, pc_reloc = 0xffffaa4688b1664c
+
+    UEFI image [0x0000000019fc0000:0x0000000019fc6137] pc=0x264c '/buggy.efi'
+
+The crash occured in UEFI binary buggy.efi at relative position 0x264c.
+Disassembly may be used to find the actual source code location::
+
+    $ x86_64-linux-gnu-objdump -S -D buggy_efi.so
+
+    0000000000002640 <memset>:
+        2640:       f3 0f 1e fa             endbr64
+        2644:       48 89 f8                mov    %rdi,%rax
+        2647:       48 89 f9                mov    %rdi,%rcx
+        264a:       eb 0b                   jmp    2657 <memset+0x17>
+        264c:       40 88 31                mov    %sil,(%rcx)
+
+Architecture specific details
+-----------------------------
+
+ARMv8
+~~~~~
+
+On the ARM 64-bit architecture CONFIG_ARMV8_SPL_EXCEPTION_VECTORS controls
+if the exception vector tables are set up in the Secondary Program Loader (SPL).
+Without initialization of the tables crash dumps cannot be shown. The feature is
+disabled by default on most boards to reduce the size of the SPL.
+
+RISC-V
+~~~~~~
+
+On the RISC-V architecture CONFIG_SHOW_REGS=y has to be specified to show
+all registers in crash dumps.
+
+Sandbox
+~~~~~~~
+
+The sandbox U-Boot binary must be invoked with parameter *-S* to display crash
+dumps:
+
+.. code-block:: bash
+
+    ./u-boot -S -T
+
+Only with CONFIG_SANDBOX_CRASH_RESET=y the sandbox reboots after a crash.

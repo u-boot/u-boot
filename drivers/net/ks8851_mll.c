@@ -28,9 +28,6 @@
  * @extra_byte	: number of extra byte prepended rx pkt.
  */
 struct ks_net {
-#ifndef CONFIG_DM_ETH
-	struct eth_device	dev;
-#endif
 	phys_addr_t		iobase;
 	int			bus_width;
 	u16			sharedbus;
@@ -505,77 +502,6 @@ static void ks8851_mll_write_hwaddr_common(struct ks_net *ks, u8 enetaddr[6])
 	ks_wrreg16(ks, KS_MARL, addrl);
 }
 
-#ifndef CONFIG_DM_ETH
-static int ks8851_mll_init(struct eth_device *dev, struct bd_info *bd)
-{
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
-
-	return ks8851_mll_init_common(ks);
-}
-
-static void ks8851_mll_halt(struct eth_device *dev)
-{
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
-
-	ks8851_mll_halt_common(ks);
-}
-
-static int ks8851_mll_send(struct eth_device *dev, void *packet, int length)
-{
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
-
-	return ks8851_mll_send_common(ks, packet, length);
-}
-
-static int ks8851_mll_recv(struct eth_device *dev)
-{
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
-	int ret;
-
-	ret = ks8851_mll_recv_common(ks, net_rx_packets[0]);
-	if (ret)
-		net_process_received_packet(net_rx_packets[0], ret);
-
-	return ret;
-}
-
-static int ks8851_mll_write_hwaddr(struct eth_device *dev)
-{
-	struct ks_net *ks = container_of(dev, struct ks_net, dev);
-
-	ks8851_mll_write_hwaddr_common(ks, ks->dev.enetaddr);
-
-	return 0;
-}
-
-int ks8851_mll_initialize(u8 dev_num, int base_addr)
-{
-	struct ks_net *ks;
-
-	ks = calloc(1, sizeof(*ks));
-	if (!ks)
-		return -ENOMEM;
-
-	ks->iobase = base_addr;
-
-	/* Try to detect chip. Will fail if not present. */
-	if (ks8851_mll_detect_chip(ks)) {
-		free(ks);
-		return -1;
-	}
-
-	ks->dev.init = ks8851_mll_init;
-	ks->dev.halt = ks8851_mll_halt;
-	ks->dev.send = ks8851_mll_send;
-	ks->dev.recv = ks8851_mll_recv;
-	ks->dev.write_hwaddr = ks8851_mll_write_hwaddr;
-	sprintf(ks->dev.name, "%s-%hu", DRIVERNAME, dev_num);
-
-	eth_register(&ks->dev);
-
-	return 0;
-}
-#else	/* ifdef CONFIG_DM_ETH */
 static int ks8851_start(struct udevice *dev)
 {
 	struct ks_net *ks = dev_get_priv(dev);
@@ -703,4 +629,3 @@ U_BOOT_DRIVER(ks8851) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif

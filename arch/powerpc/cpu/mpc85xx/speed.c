@@ -20,10 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-
-#ifndef CONFIG_SYS_FSL_NUM_CC_PLLS
-#define CONFIG_SYS_FSL_NUM_CC_PLLS	6
-#endif
 /* --------------------------------------------------------------- */
 
 void get_sys_info(sys_info_t *sys_info)

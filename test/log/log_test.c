@@ -277,7 +277,7 @@ int do_log_test_helpers(struct unit_test_state *uts)
 	log_content("level %d\n", LOGL_DEBUG_CONTENT);
 	log_io("level %d\n", LOGL_DEBUG_IO);
 
-	for (i = LOGL_EMERG; i <= _LOG_MAX_LEVEL; i++)
+	for (i = LOGL_EMERG; i <= gd->default_log_level; i++)
 		ut_assert_nextline("%*s() level %d", CONFIG_LOGF_FUNC_PAD,
 				   __func__, i);
 	ut_assert_console_end();
@@ -381,7 +381,8 @@ int log_test_level_deny(struct unit_test_state *uts)
 	ut_assertok(console_record_reset_enable());
 	log_run();
 	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
-				       LOGL_WARNING + 1, _LOG_MAX_LEVEL);
+				       LOGL_WARNING + 1,
+				       min(gd->default_log_level, LOGL_INFO));
 
 	ut_assertok(log_remove_filter("console", filt1));
 	ut_assertok(log_remove_filter("console", filt2));
@@ -420,9 +421,11 @@ int log_test_dropped(struct unit_test_state *uts)
 	gd->log_drop_count = 0;
 
 	ut_assertok(console_record_reset_enable());
-	log_run();
 
-	ut_asserteq(gd->log_drop_count, 3 * (LOGL_COUNT - LOGL_FIRST - 1));
+	log_run();
+	ut_asserteq(2 * (LOGL_COUNT - LOGL_FIRST) +
+		    _LOG_MAX_LEVEL - LOGL_FIRST + 1,
+		    gd->log_drop_count);
 	check_log_entries_flags_levels(EXPECT_DEBUG, LOGL_FIRST, CONFIG_LOG_DEFAULT_LEVEL);
 
 	gd->flags |= GD_FLG_LOG_READY;

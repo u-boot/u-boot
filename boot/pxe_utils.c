@@ -532,11 +532,10 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		}
 
 		initrd_addr_str = env_get("ramdisk_addr_r");
-		strcpy(initrd_filesize, simple_xtoa(size));
-
-		strncpy(initrd_str, initrd_addr_str, 18);
-		strcat(initrd_str, ":");
-		strncat(initrd_str, initrd_filesize, 9);
+		size = snprintf(initrd_str, sizeof(initrd_str), "%s:%lx",
+				initrd_addr_str, size);
+		if (size >= sizeof(initrd_str))
+			return 1;
 	}
 
 	if (get_relfile_envaddr(ctx, label->kernel, "kernel_addr_r",
@@ -737,7 +736,8 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
 	buf = map_sysmem(kernel_addr_r, 0);
 	/* Try bootm for legacy and FIT format image */
-	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
+	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
+            IS_ENABLED(CONFIG_CMD_BOOTM))
 		do_bootm(ctx->cmdtp, 0, bootm_argc, bootm_argv);
 	/* Try booting an AArch64 Linux kernel image */
 	else if (IS_ENABLED(CONFIG_CMD_BOOTI))

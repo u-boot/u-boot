@@ -37,6 +37,7 @@ if EFI_LOADER
 config CMD_BOOTEFI_BOOTMGR
 	bool "UEFI Boot Manager"
 	default y
+	select BOOTMETH_GLOBAL if BOOTSTD
 	help
 	  Select this option if you want to select the UEFI binary to be booted
 	  via UEFI variables Boot####, BootOrder, and BootNext. This enables the
@@ -366,6 +367,7 @@ config EFI_SECURE_BOOT
 	select X509_CERTIFICATE_PARSER
 	select PKCS7_MESSAGE_PARSER
 	select PKCS7_VERIFY
+	select MSCODE_PARSER
 	select EFI_SIGNATURE_SUPPORT
 	help
 	  Select this option to enable EFI secure boot support.

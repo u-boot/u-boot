@@ -89,9 +89,9 @@
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
+#include <linux/usb/usb_urb_compat.h>
 #include <asm/io.h>
 #include "linux-compat.h"
-#include "usb-compat.h"
 #endif
 
 #include "musb_core.h"

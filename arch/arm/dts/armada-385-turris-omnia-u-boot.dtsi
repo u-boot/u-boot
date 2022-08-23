@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 Marek Behun <marek.behun@nic.cz>
+ * Copyright (C) 2017 Marek Behún <kabel@kernel.org>
  */
 
 / {
@@ -28,11 +28,8 @@
 		i2c@5 {
 			u-boot,dm-pre-reloc;
 
-			/* ATSHA204A at address 0x64 */
 			crypto@64 {
 				u-boot,dm-pre-reloc;
-				compatible = "atmel,atsha204a";
-				reg = <0x64>;
 			};
 		};
 	};
@@ -40,11 +37,7 @@
 
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 &spi0 {
-	u-boot,dm-pre-reloc;
-
-	spi-nor@0 {
-		u-boot,dm-pre-reloc;
-
+	flash@0 {
 		partitions {
 			partition@0 {
 				reg = <0x0 CONFIG_ENV_OFFSET>;
@@ -59,6 +52,4 @@
 };
 #endif
 
-&uart0 {
-	u-boot,dm-pre-reloc;
-};
+#include "mvebu-u-boot.dtsi"

@@ -11,6 +11,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <cpu_func.h>
+#include <display_options.h>
 #include <env.h>
 #include <fpga.h>
 #include <image.h>
@@ -537,6 +538,7 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
 /**
  * boot_ramdisk_high - relocate init ramdisk
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -630,6 +632,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 error:
 	return -1;
 }
+#endif
 
 int boot_get_setup(bootm_headers_t *images, u8 arch,
 		   ulong *setup_start, ulong *setup_len)
@@ -703,14 +706,14 @@ int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
 						 img_len, BIT_FULL);
 			if (err)
 				err = fpga_load(devnum, (const void *)img_data,
-						img_len, BIT_FULL);
+						img_len, BIT_FULL, 0);
 		} else {
 			name = "partial";
 			err = fpga_loadbitstream(devnum, (char *)img_data,
 						 img_len, BIT_PARTIAL);
 			if (err)
 				err = fpga_load(devnum, (const void *)img_data,
-						img_len, BIT_PARTIAL);
+						img_len, BIT_PARTIAL, 0);
 		}
 
 		if (err)
@@ -823,6 +826,7 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
@@ -932,6 +936,7 @@ int image_setup_linux(bootm_headers_t *images)
 
 	return 0;
 }
+#endif
 
 void genimg_print_size(uint32_t size)
 {

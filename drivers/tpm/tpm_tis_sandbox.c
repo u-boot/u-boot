@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <display_options.h>
 #include <dm.h>
 #include <tpm-v1.h>
 #include <asm/state.h>

@@ -82,7 +82,31 @@
 	u-boot,dm-pre-reloc;
 };
 
+&optee {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&scmi {
+	u-boot,dm-pre-reloc;
+};
+
+&scmi_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&scmi_reset {
+	u-boot,dm-pre-reloc;
+};
+
+&scmi_shm {
+	u-boot,dm-pre-reloc;
+};
+
+&scmi_sram {
 	u-boot,dm-pre-reloc;
 };
 

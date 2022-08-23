@@ -29,26 +29,21 @@ const efi_guid_t efi_system_partition_guid = PARTITION_SYSTEM_GUID;
  *
  * @header:	EFI object header
  * @ops:	EFI disk I/O protocol interface
- * @ifname:	interface name for block device
  * @dev_index:	device index of block device
  * @media:	block I/O media information
  * @dp:		device path to the block device
  * @part:	partition
  * @volume:	simple file system protocol of the partition
- * @offset:	offset into disk for simple partition
  * @dev:	associated DM device
  */
 struct efi_disk_obj {
 	struct efi_object header;
 	struct efi_block_io ops;
-	const char *ifname;
 	int dev_index;
 	struct efi_block_io_media media;
 	struct efi_device_path *dp;
 	unsigned int part;
 	struct efi_simple_file_system_protocol *volume;
-	lbaint_t offset;
-	struct udevice *dev; /* TODO: move it to efi_object */
 };
 
 /**
@@ -117,7 +112,6 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	diskobj = container_of(this, struct efi_disk_obj, ops);
 	blksz = diskobj->media.block_size;
 	blocks = buffer_size / blksz;
-	lba += diskobj->offset;
 
 	EFI_PRINT("blocks=%x lba=%llx blksz=%x dir=%d\n",
 		  blocks, lba, blksz, direction);
@@ -127,16 +121,16 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 		return EFI_BAD_BUFFER_SIZE;
 
 	if (CONFIG_IS_ENABLED(PARTITIONS) &&
-	    device_get_uclass_id(diskobj->dev) == UCLASS_PARTITION) {
+	    device_get_uclass_id(diskobj->header.dev) == UCLASS_PARTITION) {
 		if (direction == EFI_DISK_READ)
-			n = dev_read(diskobj->dev, lba, blocks, buffer);
+			n = dev_read(diskobj->header.dev, lba, blocks, buffer);
 		else
-			n = dev_write(diskobj->dev, lba, blocks, buffer);
+			n = dev_write(diskobj->header.dev, lba, blocks, buffer);
 	} else {
 		/* dev is a block device (UCLASS_BLK) */
 		struct blk_desc *desc;
 
-		desc = dev_get_uclass_plat(diskobj->dev);
+		desc = dev_get_uclass_plat(diskobj->header.dev);
 		if (direction == EFI_DISK_READ)
 			n = blk_dread(desc, lba, blocks, buffer);
 		else
@@ -383,7 +377,6 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
  *
  * @parent:		parent handle
  * @dp_parent:		parent device path
- * @if_typename:	interface name for block device
  * @desc:		internal block device
  * @dev_index:		device index for block device
  * @part_info:		partition info
@@ -394,7 +387,6 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
 static efi_status_t efi_disk_add_dev(
 				efi_handle_t parent,
 				struct efi_device_path *dp_parent,
-				const char *if_typename,
 				struct blk_desc *desc,
 				int dev_index,
 				struct disk_partition *part_info,
@@ -440,13 +432,11 @@ static efi_status_t efi_disk_add_dev(
 
 		diskobj->dp = efi_dp_append_node(dp_parent, node);
 		efi_free_pool(node);
-		diskobj->offset = part_info->start;
 		diskobj->media.last_block = part_info->size - 1;
 		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION)
 			guid = &efi_system_partition_guid;
 	} else {
 		diskobj->dp = efi_dp_from_part(desc, part);
-		diskobj->offset = 0;
 		diskobj->media.last_block = desc->lba - 1;
 	}
 	diskobj->part = part;
@@ -481,7 +471,6 @@ static efi_status_t efi_disk_add_dev(
 			return ret;
 	}
 	diskobj->ops = block_io_disk_template;
-	diskobj->ifname = if_typename;
 	diskobj->dev_index = dev_index;
 
 	/* Fill in EFI IO Media info (for read/write callbacks) */
@@ -501,12 +490,11 @@ static efi_status_t efi_disk_add_dev(
 		*disk = diskobj;
 
 	EFI_PRINT("BlockIO: part %u, present %d, logical %d, removable %d"
-		  ", offset " LBAF ", last_block %llu\n",
+		  ", last_block %llu\n",
 		  diskobj->part,
 		  diskobj->media.media_present,
 		  diskobj->media.logical_partition,
 		  diskobj->media.removable_media,
-		  diskobj->offset,
 		  diskobj->media.last_block);
 
 	/* Store first EFI system partition */
@@ -540,15 +528,13 @@ static int efi_disk_create_raw(struct udevice *dev)
 {
 	struct efi_disk_obj *disk;
 	struct blk_desc *desc;
-	const char *if_typename;
 	int diskid;
 	efi_status_t ret;
 
 	desc = dev_get_uclass_plat(dev);
-	if_typename = blk_get_if_type_name(desc->if_type);
 	diskid = desc->devnum;
 
-	ret = efi_disk_add_dev(NULL, NULL, if_typename, desc,
+	ret = efi_disk_add_dev(NULL, NULL, desc,
 			       diskid, NULL, 0, &disk);
 	if (ret != EFI_SUCCESS) {
 		if (ret == EFI_NOT_READY)
@@ -558,8 +544,7 @@ static int efi_disk_create_raw(struct udevice *dev)
 
 		return -1;
 	}
-	disk->dev = dev;
-	if (dev_tag_set_ptr(dev, DM_TAG_EFI, &disk->header)) {
+	if (efi_link_dev(&disk->header, dev)) {
 		efi_free_pool(disk->dp);
 		efi_delete_handle(&disk->header);
 
@@ -583,7 +568,6 @@ static int efi_disk_create_part(struct udevice *dev)
 {
 	efi_handle_t parent;
 	struct blk_desc *desc;
-	const char *if_typename;
 	struct disk_part *part_data;
 	struct disk_partition *info;
 	unsigned int part;
@@ -597,7 +581,6 @@ static int efi_disk_create_part(struct udevice *dev)
 		return -1;
 
 	desc = dev_get_uclass_plat(dev_get_parent(dev));
-	if_typename = blk_get_if_type_name(desc->if_type);
 	diskid = desc->devnum;
 
 	part_data = dev_get_uclass_plat(dev);
@@ -609,14 +592,13 @@ static int efi_disk_create_part(struct udevice *dev)
 		return -1;
 	dp_parent = (struct efi_device_path *)handler->protocol_interface;
 
-	ret = efi_disk_add_dev(parent, dp_parent, if_typename, desc, diskid,
+	ret = efi_disk_add_dev(parent, dp_parent, desc, diskid,
 			       info, part, &disk);
 	if (ret != EFI_SUCCESS) {
 		log_err("Adding partition for %s failed\n", dev->name);
 		return -1;
 	}
-	disk->dev = dev;
-	if (dev_tag_set_ptr(dev, DM_TAG_EFI, &disk->header)) {
+	if (efi_link_dev(&disk->header, dev)) {
 		efi_free_pool(disk->dp);
 		efi_delete_handle(&disk->header);
 

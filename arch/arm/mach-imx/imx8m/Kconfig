@@ -69,6 +69,7 @@ config TARGET_IMX8MM_EVK
 
 config TARGET_IMX8MM_ICORE_MX8MM
 	bool "Engicam i.Core MX8M Mini SOM"
+	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
@@ -107,6 +108,9 @@ config TARGET_KONTRON_MX8MM
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_IMX8MN_BSH_SMM_S2
 	bool "imx8mn-bsh-smm-s2"

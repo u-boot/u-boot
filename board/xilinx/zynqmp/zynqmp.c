@@ -48,7 +48,10 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(FPGA) && defined(CONFIG_FPGA_ZYNQMPPL)
-static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
+static xilinx_desc zynqmppl = {
+	xilinx_zynqmp, csu_dma, 1, &zynqmp_op, 0, &zynqmp_op, NULL,
+	ZYNQMP_FPGA_FLAGS
+};
 #endif
 
 int __maybe_unused psu_uboot_init(void)
@@ -253,6 +256,7 @@ int dram_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
 ulong board_get_usable_ram_top(ulong total_size)
 {
 	phys_size_t size;
@@ -277,6 +281,8 @@ ulong board_get_usable_ram_top(ulong total_size)
 
 	return reg + size;
 }
+#endif
+
 #else
 int dram_init_banksize(void)
 {

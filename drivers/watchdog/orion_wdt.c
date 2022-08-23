@@ -5,7 +5,7 @@
  *
  * Authors:	Tomas Hlavacek <tmshlvck@gmail.com>
  *		Sylver Bruneau <sylver.bruneau@googlemail.com>
- *		Marek Behun <marek.behun@nic.cz>
+ *		Marek Behún <kabel@kernel.org>
  *
  * This file is licensed under  the terms of the GNU General Public
  * License version 2. This program is licensed "as is" without any

@@ -105,6 +105,9 @@ def efi_boot_env(request, u_boot_config):
         # Sign already-signed image with another key
         check_call('cd %s; sbsign --key db1.key --cert db1.crt --output helloworld.efi.signed_2sigs helloworld.efi.signed'
                    % mnt_point, shell=True)
+        # Create a corrupted signed image
+        check_call('cd %s; sh %s/test/py/tests/test_efi_secboot/forge_image.sh helloworld.efi.signed helloworld_forged.efi.signed'
+                   % (mnt_point, u_boot_config.source_dir), shell=True)
         # Digest image
         check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
                    % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),

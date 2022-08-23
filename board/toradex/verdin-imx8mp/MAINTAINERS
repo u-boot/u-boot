@@ -1,6 +1,10 @@
 Verdin iMX8M Plus
-F:	arch/arm/dts/imx8mp-verdin.dts
-F:	arch/arm/dts/imx8mp-verdin-u-boot.dtsi
+F:	arch/arm/dts/imx8mp-verdin.dtsi
+F:	arch/arm/dts/imx8mp-verdin-dahlia.dtsi
+F:	arch/arm/dts/imx8mp-verdin-dev.dtsi
+F:	arch/arm/dts/imx8mp-verdin-wifi.dtsi
+F:	arch/arm/dts/imx8mp-verdin-wifi-dev.dts
+F:	arch/arm/dts/imx8mp-verdin-wifi-dev-u-boot.dtsi
 F:	board/toradex/verdin-imx8mp/
 F:	configs/verdin-imx8mp_defconfig
 F:	doc/board/toradex/verdin-imx8mp.rst

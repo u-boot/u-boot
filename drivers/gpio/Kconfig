@@ -70,7 +70,7 @@ config GPIO_HOG
 
 config SPL_GPIO_HOG
 	bool "Enable GPIO hog support in SPL"
-	depends on SPL_GPIO_SUPPORT
+	depends on SPL_GPIO
 	help
 	  Enable gpio hog support in SPL
 	  The GPIO chip may contain GPIO hog definitions. GPIO hogging
@@ -365,6 +365,7 @@ config SANDBOX_GPIO_COUNT
 config SUNXI_GPIO
 	bool "Allwinner GPIO driver"
 	depends on ARCH_SUNXI
+	select SPL_STRTO if SPL
 	help
 	  Support the GPIO device in Allwinner SoCs.
 
@@ -552,7 +553,7 @@ config MT7620_GPIO
 
 config MT7621_GPIO
 	bool "MediaTek MT7621 GPIO driver"
-	depends on DM_GPIO && SOC_MT7628
+	depends on DM_GPIO && (SOC_MT7621 || SOC_MT7628)
 	default y
 	help
 	  Say yes here to support MediaTek MT7621 compatible GPIOs.
@@ -596,5 +597,12 @@ config SLG7XL45106_I2C_GPO
 	   Support for slg7xl45106 i2c gpo expander. It is an i2c based
 	   8-bit gpo expander, all gpo lines are controlled by writing
 	   value into data register.
+
+config TURRIS_OMNIA_MCU
+	bool "Turris Omnia MCU GPIO driver"
+	depends on DM_GPIO
+	default y if TARGET_TURRIS_OMNIA
+	help
+	   Support for GPIOs on MCU connected to Turris Omnia via i2c.
 
 endif

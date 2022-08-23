@@ -3,6 +3,7 @@
 // Copyright 2018 Google, Inc.
 
 #include "nuvoton-common-npcm7xx.dtsi"
+#include "nuvoton-npcm7xx-u-boot.dtsi"
 
 / {
 	#address-cells = <1>;

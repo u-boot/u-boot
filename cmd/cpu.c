@@ -8,6 +8,7 @@
 #include <common.h>
 #include <command.h>
 #include <cpu.h>
+#include <display_options.h>
 #include <dm.h>
 #include <errno.h>
 

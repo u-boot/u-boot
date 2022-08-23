@@ -308,6 +308,10 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 
 #define EXT_CSD_HS_CTRL_REL	(1 << 0)	/* host controlled WR_REL_SET */
 
+#define EXT_CSD_BOOT_WP_B_SEC_WP_SEL	(0x80)	/* enable partition selector */
+#define EXT_CSD_BOOT_WP_B_PWR_WP_SEC_SEL (0x02)	/* partition selector to protect */
+#define EXT_CSD_BOOT_WP_B_PWR_WP_EN	(0x01)	/* power-on write-protect */
+
 #define EXT_CSD_WR_DATA_REL_USR		(1 << 0)	/* user data area WR_REL */
 #define EXT_CSD_WR_DATA_REL_GP(x)	(1 << ((x)+1))	/* GP part (x+1) WR_REL */
 
@@ -990,6 +994,18 @@ int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd);
  * Return:	0 for success
  */
 int mmc_boot_wp(struct mmc *mmc);
+
+/**
+ * mmc_boot_wp_single_partition() - set write protection to a boot partition.
+ *
+ * This function sets a single boot partition to protect and leave the
+ * other partition writable.
+ *
+ * @param mmc the mmc device.
+ * @param partition 0 - first boot partition, 1 - second boot partition.
+ * @return 0 for success
+ */
+int mmc_boot_wp_single_partition(struct mmc *mmc, int partition);
 
 static inline enum dma_data_direction mmc_get_dma_dir(struct mmc_data *data)
 {

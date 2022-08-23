@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 VERSION = 2022
-PATCHLEVEL = 07
+PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION = -rc5
+EXTRAVERSION = -rc3
 NAME =
 
 # *DOCUMENTATION*
@@ -432,7 +432,8 @@ KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
 		   -fno-builtin -ffreestanding $(CSTD_FLAG)
 KBUILD_CFLAGS	+= -fshort-wchar -fno-strict-aliasing
 KBUILD_AFLAGS   := -D__ASSEMBLY__
-KBUILD_LDFLAGS  :=
+KBUILD_LDFLAGS  := $(call ld-option, --no-warn-rwx-segments) \
+		   $(call ld-option, --no-warn-execstack)
 
 ifeq ($(cc-name),clang)
 ifneq ($(CROSS_COMPILE),)
@@ -676,6 +677,9 @@ endif # $(dot-config)
 ifdef CONFIG_CC_OPTIMIZE_FOR_DEBUG
 KBUILD_HOSTCFLAGS   := -Wall -Wstrict-prototypes -Og -g -fomit-frame-pointer \
 		$(HOST_LFS_CFLAGS) $(HOSTCFLAGS)
+# Avoid false positives -Wmaybe-uninitialized
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78394
+KBUILD_HOSTCFLAGS   += -Wno-maybe-uninitialized
 KBUILD_HOSTCXXFLAGS := -Og -g $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
 endif
 
@@ -696,7 +700,10 @@ KBUILD_CFLAGS	+= -O2
 endif
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_DEBUG
-KBUILD_CFLAGS	+= -Og
+KBUILD_CFLAGS	+= -Og -Wno-maybe-uninitialized
+# Avoid false positives -Wmaybe-uninitialized
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78394
+KBUILD_CFLAGS	+= -Wno-maybe-uninitialized
 endif
 
 LTO_CFLAGS :=
@@ -847,6 +854,7 @@ libs-y += drivers/usb/host/
 libs-y += drivers/usb/mtu3/
 libs-y += drivers/usb/musb/
 libs-y += drivers/usb/musb-new/
+libs-y += drivers/usb/isp1760/
 libs-y += drivers/usb/phy/
 libs-y += drivers/usb/ulpi/
 ifdef CONFIG_POST
@@ -1144,7 +1152,6 @@ ifneq ($(CONFIG_DM),y)
 endif
 	$(call deprecated,CONFIG_WDT,DM watchdog,v2019.10,\
 		$(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG))
-	$(call deprecated,CONFIG_DM_ETH,Ethernet drivers,v2020.07,$(CONFIG_NET))
 	$(call deprecated,CONFIG_DM_I2C,I2C drivers,v2022.04,$(CONFIG_SYS_I2C_LEGACY))
 	$(call deprecated,CONFIG_DM_KEYBOARD,Keyboard drivers,v2022.10,$(CONFIG_KEYBOARD))
 	@# CONFIG_SYS_TIMER_RATE has brackets in it for some boards which

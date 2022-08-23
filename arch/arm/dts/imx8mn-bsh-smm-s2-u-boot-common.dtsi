@@ -111,15 +111,15 @@
 			filename = "u-boot-spl.bin";
 		};
 
-		1d-imem {
+		ddr-1d-imem-fw {
 			filename = "ddr3_imem_1d.bin";
-			size = <0x8000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 
-		1d_dmem {
+		ddr-1d-dmem-fw {
 			filename = "ddr3_dmem_1d.bin";
-			size = <0x4000>;
+			align-end = <4>;
 			type = "blob-ext";
 		};
 	};

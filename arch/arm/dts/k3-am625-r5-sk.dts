@@ -79,6 +79,15 @@
 	ti,secure-host;
 };
 
+&cbass_mcu {
+	mcu_esm: esm@4100000 {
+		compatible = "ti,j721e-esm";
+		reg = <0x0 0x4100000 0x0 0x1000>;
+		ti,esm-pins = <0>, <1>, <2>, <85>;
+		u-boot,dm-spl;
+	};
+};
+
 &cbass_main {
 	sa3_secproxy: secproxy@44880000 {
 		u-boot,dm-spl;
@@ -94,6 +103,13 @@
 		compatible = "ti,am654-system-controller";
 		mboxes= <&secure_proxy_main 1>, <&secure_proxy_main 0>, <&sa3_secproxy 0>;
 		mbox-names = "tx", "rx", "boot_notify";
+		u-boot,dm-spl;
+	};
+
+	main_esm: esm@420000 {
+		compatible = "ti,j721e-esm";
+		reg = <0x0 0x420000 0x0 0x1000>;
+		ti,esm-pins = <160>, <161>, <162>, <163>, <177>, <178>;
 		u-boot,dm-spl;
 	};
 };

@@ -8,6 +8,7 @@
 #include <blk.h>
 #include <command.h>
 #include <console.h>
+#include <display_options.h>
 #include <memalign.h>
 #include <mmc.h>
 #include <part.h>
@@ -1048,6 +1049,7 @@ static int do_mmc_boot_wp(struct cmd_tbl *cmdtp, int flag,
 {
 	int err;
 	struct mmc *mmc;
+	int part;
 
 	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
@@ -1056,7 +1058,14 @@ static int do_mmc_boot_wp(struct cmd_tbl *cmdtp, int flag,
 		printf("It is not an eMMC device\n");
 		return CMD_RET_FAILURE;
 	}
-	err = mmc_boot_wp(mmc);
+
+	if (argc == 2) {
+		part = dectoul(argv[1], NULL);
+		err = mmc_boot_wp_single_partition(mmc, part);
+	} else {
+		err = mmc_boot_wp(mmc);
+	}
+
 	if (err)
 		return CMD_RET_FAILURE;
 	printf("boot areas protected\n");
@@ -1066,7 +1075,7 @@ static int do_mmc_boot_wp(struct cmd_tbl *cmdtp, int flag,
 static struct cmd_tbl cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(info, 1, 0, do_mmcinfo, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
-	U_BOOT_CMD_MKENT(wp, 1, 0, do_mmc_boot_wp, "", ""),
+	U_BOOT_CMD_MKENT(wp, 2, 0, do_mmc_boot_wp, "", ""),
 #if CONFIG_IS_ENABLED(MMC_WRITE)
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
@@ -1140,7 +1149,11 @@ U_BOOT_CMD(
 	"    [MMC_LEGACY, MMC_HS, SD_HS, MMC_HS_52, MMC_DDR_52, UHS_SDR12, UHS_SDR25,\n"
 	"    UHS_SDR50, UHS_DDR50, UHS_SDR104, MMC_HS_200, MMC_HS_400, MMC_HS_400_ES]\n"
 	"mmc list - lists available devices\n"
-	"mmc wp - power on write protect boot partitions\n"
+	"mmc wp [PART] - power on write protect boot partitions\n"
+	"  arguments:\n"
+	"   PART - [0|1]\n"
+	"       : 0 - first boot partition, 1 - second boot partition\n"
+	"         if not assigned, write protect all boot partitions\n"
 #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
 	"mmc hwpartition <USER> <GP> <MODE> - does hardware partitioning\n"
 	"  arguments (sizes in 512-byte blocks):\n"

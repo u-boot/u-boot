@@ -125,13 +125,6 @@ config TARGET_CHILIBOARD
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_CM_T335
-	bool "Support cm_t335"
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	imply CMD_DM
-
 config TARGET_DRACO
 	bool "Support draco"
 	select BOARD_LATE_INIT

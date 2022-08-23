@@ -13,6 +13,16 @@ config PHY_SUN4I_USB
 	  This driver controls the entire USB PHY block, both the USB OTG
 	  parts, as well as the 2 regular USB 2 host PHYs.
 
+config INITIAL_USB_SCAN_DELAY
+	int "Delay initial USB scan by x ms to allow builtin devices to init"
+	depends on PHY_SUN4I_USB
+	default 0
+	help
+	  Some boards have on board usb devices which need longer than
+	  the USB spec's 1 second to connect from board powerup. Set
+	  this option to a nonzero value to add an extra delay before
+	  the first USB bus scan.
+
 config PHY_SUN50I_USB3
 	bool "Allwinner sun50i USB3 PHY driver"
 	depends on ARCH_SUNXI

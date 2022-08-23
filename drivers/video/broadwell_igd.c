@@ -11,7 +11,7 @@
 #include <dm.h>
 #include <init.h>
 #include <log.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/cpu.h>
 #include <asm/global_data.h>
@@ -681,7 +681,7 @@ static int broadwell_igd_probe(struct udevice *dev)
 	debug("%s: is_broadwell=%d\n", __func__, is_broadwell);
 	ret = igd_pre_init(dev, is_broadwell);
 	if (!ret) {
-		ret = vbe_setup_video(dev, broadwell_igd_int15_handler);
+		ret = vesa_setup_video(dev, broadwell_igd_int15_handler);
 		if (ret)
 			debug("failed to run video BIOS: %d\n", ret);
 	}

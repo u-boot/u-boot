@@ -87,6 +87,7 @@
 &pwm1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
+	#pwm-cells = <2>;
 	status = "okay";
 };
 

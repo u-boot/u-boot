@@ -99,28 +99,9 @@ static struct ccu_reset r40_resets[] = {
 	[RST_BUS_UART7]		= RESET(0x2d8, BIT(23)),
 };
 
-static const struct ccu_desc r40_ccu_desc = {
+const struct ccu_desc r40_ccu_desc = {
 	.gates = r40_gates,
 	.resets = r40_resets,
-};
-
-static int r40_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(r40_resets));
-}
-
-static const struct udevice_id r40_clk_ids[] = {
-	{ .compatible = "allwinner,sun8i-r40-ccu",
-	  .data = (ulong)&r40_ccu_desc },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_sun8i_r40) = {
-	.name		= "sun8i_r40_ccu",
-	.id		= UCLASS_CLK,
-	.of_match	= r40_clk_ids,
-	.priv_auto	= sizeof(struct ccu_priv),
-	.ops		= &sunxi_clk_ops,
-	.probe		= sunxi_clk_probe,
-	.bind		= r40_clk_bind,
+	.num_gates = ARRAY_SIZE(r40_gates),
+	.num_resets = ARRAY_SIZE(r40_resets),
 };

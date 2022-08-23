@@ -11,6 +11,7 @@
 #include <linux/bitops.h>
 #include <linux/mtd/cfi.h>
 #include <linux/mtd/mtd.h>
+#include <spi-mem.h>
 
 /*
  * Manufacturer IDs
@@ -119,6 +120,16 @@
 /* Used for Macronix and Winbond flashes. */
 #define SPINOR_OP_EN4B		0xb7	/* Enter 4-byte mode */
 #define SPINOR_OP_EX4B		0xe9	/* Exit 4-byte mode */
+#define SPINOR_OP_EN4B			0xb7		/* Enter 4-byte mode */
+#define SPINOR_OP_EX4B			0xe9		/* Exit 4-byte mode */
+#define SPINOR_OP_RD_CR2		0x71		/* Read configuration register 2 */
+#define SPINOR_OP_WR_CR2		0x72		/* Write configuration register 2 */
+#define SPINOR_OP_MXIC_DTR_RD		0xee		/* Fast Read opcode in DTR mode */
+#define SPINOR_REG_MXIC_CR2_MODE	0x00000000	/* For setting octal DTR mode */
+#define SPINOR_REG_MXIC_OPI_DTR_EN	0x2		/* Enable Octal DTR */
+#define SPINOR_REG_MXIC_CR2_DC		0x00000300	/* For setting dummy cycles */
+#define SPINOR_REG_MXIC_DC_20		0x0		/* Setting dummy cycles to 20 */
+#define MXIC_MAX_DC			20		/* Maximum value of dummy cycles */
 
 /* Used for Spansion flashes only. */
 #define SPINOR_OP_BRWR		0x17	/* Bank register write */
@@ -280,6 +291,7 @@ enum spi_nor_option_flags {
 	SNOR_F_USE_CLSR		= BIT(5),
 	SNOR_F_BROKEN_RESET	= BIT(6),
 	SNOR_F_SOFT_RESET	= BIT(7),
+	SNOR_F_IO_MODE_EN_VOLATILE = BIT(8),
 };
 
 struct spi_nor;
@@ -506,11 +518,12 @@ struct spi_flash {
  *			spi-nor will send the erase opcode via write_reg()
  * @flash_lock:		[FLASH-SPECIFIC] lock a region of the SPI NOR
  * @flash_unlock:	[FLASH-SPECIFIC] unlock a region of the SPI NOR
- * @flash_is_locked:	[FLASH-SPECIFIC] check if a region of the SPI NOR is
- *			completely locked
+ * @flash_is_unlocked:	[FLASH-SPECIFIC] check if a region of the SPI NOR is
+ *			completely unlocked
  * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
  * @octal_dtr_enable:	[FLASH-SPECIFIC] enables SPI NOR octal DTR mode.
  * @ready:		[FLASH-SPECIFIC] check if the flash is ready
+ * @dirmap:		pointers to struct spi_mem_dirmap_desc for reads/writes.
  * @priv:		the private data
  */
 struct spi_nor {
@@ -556,10 +569,15 @@ struct spi_nor {
 
 	int (*flash_lock)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*flash_unlock)(struct spi_nor *nor, loff_t ofs, uint64_t len);
-	int (*flash_is_locked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
+	int (*flash_is_unlocked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*quad_enable)(struct spi_nor *nor);
 	int (*octal_dtr_enable)(struct spi_nor *nor);
 	int (*ready)(struct spi_nor *nor);
+
+	struct {
+		struct spi_mem_dirmap_desc *rdesc;
+		struct spi_mem_dirmap_desc *wdesc;
+	} dirmap;
 
 	void *priv;
 	char mtd_name[MTD_NAME_SIZE(MTD_DEV_TYPE_NOR)];
@@ -583,6 +601,17 @@ device_node *spi_nor_get_flash_node(struct spi_nor *nor)
 	return mtd_get_of_node(&nor->mtd);
 }
 #endif /* __UBOOT__ */
+
+/**
+ * spi_nor_setup_op() - Set up common properties of a spi-mem op.
+ * @nor:		pointer to a 'struct spi_nor'
+ * @op:			pointer to the 'struct spi_mem_op' whose properties
+ *			need to be initialized.
+ * @proto:		the protocol from which the properties need to be set.
+ */
+void spi_nor_setup_op(const struct spi_nor *nor,
+		      struct spi_mem_op *op,
+		      const enum spi_nor_protocol proto);
 
 /**
  * spi_nor_scan() - scan the SPI NOR

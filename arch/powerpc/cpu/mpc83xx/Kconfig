@@ -26,12 +26,6 @@ config TARGET_MPC837XERDB
 	select BOARD_EARLY_INIT_F
 	select SYS_83XX_DDR_USES_CS0
 
-config TARGET_IDS8313
-	bool "Support ids8313"
-	select ARCH_MPC8313
-	select DM
-	imply CMD_DM
-
 config TARGET_KMETER1
 	bool "Support kmeter1"
 	select VENDOR_KM
@@ -138,15 +132,6 @@ config ARCH_MPC8308
 	select MPC83XX_PCIE1_SUPPORT
 	select MPC83XX_SECOND_I2C
 
-config ARCH_MPC8309
-	bool
-	select ARCH_MPC830X
-	select MPC83XX_QUICC_ENGINE
-	select MPC83XX_PCI_SUPPORT
-	select MPC83XX_SECOND_I2C
-	select SYS_FSL_ERRATUM_ESDHC111
-	select FSL_ELBC
-
 config ARCH_MPC831X
 	bool
 	select MPC83XX_PCI_SUPPORT
@@ -212,7 +197,6 @@ config FSL_ELBC
 	bool
 
 source "board/freescale/mpc837xerdb/Kconfig"
-source "board/ids/ids8313/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 
 endmenu

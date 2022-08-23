@@ -8,7 +8,6 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
-#include <flash.h>
 #include <image.h>
 #include <net.h>
 #include <vsprintf.h>
@@ -26,6 +25,7 @@
 #endif
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
+#include <u-boot/sha512.h>
 
 #if defined(CONFIG_ARMADA_8K)
 #define MAIN_HDR_MAGIC		0xB105B002
@@ -56,6 +56,21 @@ struct mvebu_image_header {
 #define IMAGE_VERSION_3_6_0	0x030600
 #define IMAGE_VERSION_3_5_0	0x030500
 
+struct tim_boot_flash_sign {
+	unsigned int id;
+	const char *name;
+};
+
+struct tim_boot_flash_sign tim_boot_flash_signs[] = {
+	{ 0x454d4d08, "mmc"  },
+	{ 0x454d4d0b, "mmc"  },
+	{ 0x5350490a, "spi"  },
+	{ 0x5350491a, "nand" },
+	{ 0x55415223, "uart" },
+	{ 0x53415432, "sata" },
+	{},
+};
+
 struct common_tim_data {
 	u32	version;
 	u32	identifier;
@@ -83,7 +98,7 @@ struct mvebu_image_info {
 	u32	encrypt_start_offset;
 	u32	encrypt_size;
 };
-#endif
+#elif defined(CONFIG_ARMADA_32BIT)
 
 /* Structure of the main header, version 1 (Armada 370/XP/375/38x/39x) */
 struct a38x_main_hdr_v1 {
@@ -122,6 +137,8 @@ struct a38x_boot_mode a38x_boot_modes[] = {
 	{ 0xAE, "mmc"  },
 	{},
 };
+
+#endif
 
 struct bubt_dev {
 	char name[8];
@@ -438,11 +455,14 @@ static int is_usb_active(void)
 #ifdef CONFIG_CMD_NET
 static size_t tftp_read_file(const char *file_name)
 {
+	int ret;
+
 	/*
 	 * update global variable image_load_addr before tftp file from network
 	 */
 	image_load_addr = get_load_addr();
-	return net_loop(TFTPGET);
+	ret = net_loop(TFTPGET);
+	return ret > 0 ? ret : 0;
 }
 
 static int is_tftp_active(void)
@@ -546,8 +566,10 @@ static int check_image_header(void)
 	int image_num;
 	u8 hash_160_output[SHA1_SUM_LEN];
 	u8 hash_256_output[SHA256_SUM_LEN];
+	u8 hash_512_output[SHA512_SUM_LEN];
 	sha1_context hash1_text;
 	sha256_context hash256_text;
+	sha512_context hash512_text;
 	u8 *hash_output;
 	u32 hash_algorithm_id;
 	u32 image_size_to_hash;
@@ -617,6 +639,12 @@ static int check_image_header(void)
 			sha256_finish(&hash256_text, hash_256_output);
 			hash_output = hash_256_output;
 			break;
+		case SHA512_SUM_LEN:
+			sha512_starts(&hash512_text);
+			sha512_update(&hash512_text, buff, image_size_to_hash);
+			sha512_finish(&hash512_text, hash_512_output);
+			hash_output = hash_512_output;
+			break;
 		default:
 			printf("Error: Unsupported hash_algorithm_id = %d\n",
 			       hash_algorithm_id);
@@ -635,7 +663,7 @@ static int check_image_header(void)
 
 	return 0;
 }
-#elif defined(CONFIG_ARMADA_38X)
+#elif defined(CONFIG_ARMADA_32BIT)
 static size_t a38x_header_size(const struct a38x_main_hdr_v1 *h)
 {
 	if (h->version == 1)
@@ -691,34 +719,39 @@ static int check_image_header(void)
 
 static int bubt_check_boot_mode(const struct bubt_dev *dst)
 {
-	if (IS_ENABLED(CONFIG_ARMADA_38X)) {
-		int mode;
-		const struct a38x_main_hdr_v1 *hdr =
-			(struct a38x_main_hdr_v1 *)get_load_addr();
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
+	int mode;
+#if defined(CONFIG_ARMADA_3700)
+	const struct tim_boot_flash_sign *boot_modes = tim_boot_flash_signs;
+	const struct common_tim_data *hdr =
+		(struct common_tim_data *)get_load_addr();
+	u32 id = hdr->boot_flash_sign;
+#elif defined(CONFIG_ARMADA_32BIT)
+	const struct a38x_boot_mode *boot_modes = a38x_boot_modes;
+	const struct a38x_main_hdr_v1 *hdr =
+		(struct a38x_main_hdr_v1 *)get_load_addr();
+	u32 id = hdr->blockid;
+#endif
 
-		for (mode = 0; mode < ARRAY_SIZE(a38x_boot_modes); mode++) {
-			if (strcmp(a38x_boot_modes[mode].name, dst->name) == 0)
-				break;
-		}
-
-		if (a38x_boot_modes[mode].id == hdr->blockid)
-			return 0;
-
-		for (int i = 0; i < ARRAY_SIZE(a38x_boot_modes); i++) {
-			if (a38x_boot_modes[i].id == hdr->blockid) {
-				printf("Error: A38x image meant to be booted from "
-				       "\"%s\", not \"%s\"!\n",
-				       a38x_boot_modes[i].name, dst->name);
-				return -ENOEXEC;
-			}
-		}
-
-		printf("Error: unknown boot device in A38x image header: "
-		       "0x%x\n", hdr->blockid);
-		return -ENOEXEC;
-	} else {
-		return 0;
+	for (mode = 0; boot_modes[mode].name; mode++) {
+		if (boot_modes[mode].id == id)
+			break;
 	}
+
+	if (!boot_modes[mode].name) {
+		printf("Error: unknown boot device in image header: 0x%x\n", id);
+		return -ENOEXEC;
+	}
+
+	if (strcmp(boot_modes[mode].name, dst->name) == 0)
+		return 0;
+
+	printf("Error: image meant to be booted from \"%s\", not \"%s\"!\n",
+	       boot_modes[mode].name, dst->name);
+	return -ENOEXEC;
+#else
+	return 0;
+#endif
 }
 
 static int bubt_verify(const struct bubt_dev *dst)
@@ -836,11 +869,11 @@ int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	dst = find_bubt_dev(dst_dev_name);
 	if (!dst) {
 		printf("Error: Unknown destination \"%s\"\n", dst_dev_name);
-		return -EINVAL;
+		return 1;
 	}
 
 	if (!bubt_is_dev_active(dst))
-		return -ENODEV;
+		return 1;
 
 	/* Figure out the source device */
 	src = find_bubt_dev(src_dev_name);
@@ -857,15 +890,15 @@ int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	image_size = bubt_read_file(src);
 	if (!image_size)
-		return -EIO;
+		return 1;
 
 	err = bubt_verify(dst);
 	if (err)
-		return err;
+		return 1;
 
 	err = bubt_write_file(dst, image_size);
 	if (err)
-		return err;
+		return 1;
 
 	return 0;
 }

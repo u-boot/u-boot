@@ -22,6 +22,7 @@ xilinx_desc fpga = {
 	.family = xilinx_zynq,
 	.iface = devcfg,
 	.operations = &zynq_op,
+	.flags = FPGA_LEGACY,
 };
 #endif
 

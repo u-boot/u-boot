@@ -301,6 +301,7 @@ config PCI_MVEBU
 	depends on (ARCH_KIRKWOOD || ARCH_MVEBU)
 	select MISC
 	select DM_RESET
+	select DM_GPIO
 	help
 	  Say Y here if you want to enable PCIe controller support on
 	  Kirkwood and Armada 370/XP/375/38x SoCs.

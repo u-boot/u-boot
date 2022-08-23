@@ -55,3 +55,15 @@ obj-$(CONFIG_$(SPL_)PKCS7_VERIFY) += pkcs7_verify.o
 
 $(obj)/pkcs7_parser.o: $(obj)/pkcs7.asn1.h
 $(obj)/pkcs7.asn1.o: $(obj)/pkcs7.asn1.c $(obj)/pkcs7.asn1.h
+
+#
+# Signed PE binary-wrapped key handling
+#
+obj-$(CONFIG_$(SPL_)MSCODE_PARSER) += mscode.o
+
+mscode-y := \
+	mscode_parser.o \
+	mscode.asn1.o
+
+$(obj)/mscode_parser.o: $(obj)/mscode.asn1.h $(obj)/mscode.asn1.h
+$(obj)/mscode.asn1.o: $(obj)/mscode.asn1.c $(obj)/mscode.asn1.h

@@ -9,9 +9,9 @@ import importlib
 import os
 import pathlib
 import sys
+import time
 
 from binman import bintool
-from binman import comp_util
 from dtoc import fdt_util
 from patman import tools
 from patman.tools import to_hex, to_hex_size
@@ -82,7 +82,13 @@ class Entry(object):
         missing_bintools: List of missing bintools for this entry
         update_hash: True if this entry's "hash" subnode should be
             updated with a hash of the entry contents
+        comp_bintool: Bintools used for compress and decompress data
+        fake_fname: Fake filename, if one was created, else None
+        required_props (dict of str): Properties which must be present. This can
+            be added to by subclasses
     """
+    fake_dir = None
+
     def __init__(self, section, etype, node, name_prefix=''):
         # Put this here to allow entry-docs and help to work without libfdt
         global state
@@ -116,6 +122,9 @@ class Entry(object):
         self.bintools = {}
         self.missing_bintools = []
         self.update_hash = True
+        self.fake_fname = None
+        self.required_props = []
+        self.comp_bintool = None
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -233,6 +242,7 @@ class Entry(object):
 
         This reads all the fields we recognise from the node, ready for use.
         """
+        self.ensure_props()
         if 'pos' in self._node.props:
             self.Raise("Please use 'offset' instead of 'pos'")
         if 'expand-size' in self._node.props:
@@ -670,6 +680,7 @@ class Entry(object):
         self.WriteMapLine(fd, indent, self.name, self.offset, self.size,
                           self.image_pos)
 
+    # pylint: disable=assignment-from-none
     def GetEntries(self):
         """Return a list of entries contained by this entry
 
@@ -677,6 +688,28 @@ class Entry(object):
             List of entries, or None if none. A normal entry has no entries
                 within it so will return None
         """
+        return None
+
+    def FindEntryByNode(self, find_node):
+        """Find a node in an entry, searching all subentries
+
+        This does a recursive search.
+
+        Args:
+            find_node (fdt.Node): Node to find
+
+        Returns:
+            Entry: entry, if found, else None
+        """
+        entries = self.GetEntries()
+        if entries:
+            for entry in entries.values():
+                if entry._node == find_node:
+                    return entry
+                found = entry.FindEntryByNode(find_node)
+                if found:
+                    return found
+
         return None
 
     def GetArg(self, name, datatype=str):
@@ -750,6 +783,11 @@ features to produce new behaviours.
                 first_line = lines[0]
                 rest = [line[4:] for line in lines[1:]]
                 hdr = 'Entry: %s: %s' % (name.replace('_', '-'), first_line)
+
+                # Create a reference for use by rST docs
+                ref_name = f'etype_{module.__name__[6:]}'.lower()
+                print('.. _%s:' % ref_name)
+                print()
                 print(hdr)
                 print('-' * len(hdr))
                 print('\n'.join(rest))
@@ -1009,12 +1047,14 @@ features to produce new behaviours.
                 bool: True if the blob was faked, False if not
         """
         if self.allow_fake and not pathlib.Path(fname).is_file():
-            outfname = tools.get_output_filename(os.path.basename(fname))
-            with open(outfname, "wb") as out:
-                out.truncate(size)
+            if not self.fake_fname:
+                outfname = os.path.join(self.fake_dir, os.path.basename(fname))
+                with open(outfname, "wb") as out:
+                    out.truncate(size)
+                tout.info(f"Entry '{self._node.path}': Faked blob '{outfname}'")
+                self.fake_fname = outfname
             self.faked = True
-            tout.info(f"Entry '{self._node.path}': Faked file '{outfname}'")
-            return outfname, True
+            return self.fake_fname, True
         return fname, False
 
     def CheckFakedBlobs(self, faked_blobs_list):
@@ -1042,7 +1082,8 @@ features to produce new behaviours.
         Args:
             bintool (Bintool): Bintool that was missing
         """
-        self.missing_bintools.append(bintool)
+        if bintool not in self.missing_bintools:
+            self.missing_bintools.append(bintool)
 
     def check_missing_bintools(self, missing_list):
         """Check if any entries in this section have missing bintools
@@ -1052,7 +1093,10 @@ features to produce new behaviours.
         Args:
             missing_list: List of Bintool objects to be added to
         """
-        missing_list += self.missing_bintools
+        for bintool in self.missing_bintools:
+            if bintool not in missing_list:
+                missing_list.append(bintool)
+
 
     def GetHelpTags(self):
         """Get the tags use for missing-blob help
@@ -1069,12 +1113,39 @@ features to produce new behaviours.
             indata: Data to compress
 
         Returns:
-            Compressed data (first word is the compressed size)
+            Compressed data
         """
         self.uncomp_data = indata
         if self.compress != 'none':
             self.uncomp_size = len(indata)
-        data = comp_util.compress(indata, self.compress)
+            if self.comp_bintool.is_present():
+                data = self.comp_bintool.compress(indata)
+            else:
+                self.record_missing_bintool(self.comp_bintool)
+                data = tools.get_bytes(0, 1024)
+        else:
+            data = indata
+        return data
+
+    def DecompressData(self, indata):
+        """Decompress data according to the entry's compression method
+
+        Args:
+            indata: Data to decompress
+
+        Returns:
+            Decompressed data
+        """
+        if self.compress != 'none':
+            if self.comp_bintool.is_present():
+                data = self.comp_bintool.decompress(indata)
+                self.uncomp_size = len(data)
+            else:
+                self.record_missing_bintool(self.comp_bintool)
+                data = tools.get_bytes(0, 1024)
+        else:
+            data = indata
+        self.uncomp_data = data
         return data
 
     @classmethod
@@ -1114,8 +1185,18 @@ features to produce new behaviours.
 
         Args:
             btools (dict of Bintool):
+
+        Raise:
+            ValueError if compression algorithm is not supported
         """
-        pass
+        algo = self.compress
+        if algo != 'none':
+            algos = ['bzip2', 'gzip', 'lz4', 'lzma', 'lzo', 'xz', 'zstd']
+            if algo not in algos:
+                raise ValueError("Unknown algorithm '%s'" % algo)
+            names = {'lzma': 'lzma_alone', 'lzo': 'lzop'}
+            name = names.get(self.compress, self.compress)
+            self.comp_bintool = self.AddBintool(btools, name)
 
     @classmethod
     def AddBintool(self, tools, name):
@@ -1164,3 +1245,27 @@ features to produce new behaviours.
         fname = tools.get_output_filename(f'{prefix}.{uniq}')
         tools.write_file(fname, data)
         return data, fname, uniq
+
+    @classmethod
+    def create_fake_dir(cls):
+        """Create the directory for fake files"""
+        cls.fake_dir = tools.get_output_filename('binman-fake')
+        if not os.path.exists(cls.fake_dir):
+            os.mkdir(cls.fake_dir)
+        tout.notice(f"Fake-blob dir is '{cls.fake_dir}'")
+
+    def ensure_props(self):
+        """Raise an exception if properties are missing
+
+        Args:
+            prop_list (list of str): List of properties to check for
+
+        Raises:
+            ValueError: Any property is missing
+        """
+        not_present = []
+        for prop in self.required_props:
+            if not prop in self._node.props:
+                not_present.append(prop)
+        if not_present:
+            self.Raise(f"'{self.etype}' entry is missing properties: {' '.join(not_present)}")

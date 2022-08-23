@@ -31,7 +31,6 @@ static int image_info(unsigned long addr);
 #if defined(CONFIG_CMD_IMLS)
 #include <flash.h>
 #include <mtd/cfi_flash.h>
-extern flash_info_t flash_info[]; /* info for FLASH chips */
 #endif
 
 #if defined(CONFIG_CMD_IMLS) || defined(CONFIG_CMD_IMLS_NAND)

@@ -432,6 +432,7 @@ static uint16_t EFIAPI *efi_convert_device_path_to_text(
 		*(u8 **)&device_path += device_path->length;
 	}
 
+	*str = 0;
 	text = efi_str_to_u16(buffer);
 
 out:

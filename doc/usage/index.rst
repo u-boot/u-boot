@@ -43,7 +43,9 @@ Shell commands
    cmd/false
    cmd/fatinfo
    cmd/fatload
+   cmd/fdt
    cmd/for
+   cmd/gpio
    cmd/load
    cmd/loadm
    cmd/loady
@@ -55,6 +57,7 @@ Shell commands
    cmd/pstore
    cmd/qfw
    cmd/reset
+   cmd/rng
    cmd/sbi
    cmd/sf
    cmd/scp03

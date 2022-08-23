@@ -201,6 +201,44 @@ struct imx_header {
 	} header;
 };
 
+typedef struct {
+	uint8_t tag[4];
+	uint8_t version[4];
+	uint8_t reserved_1[4];
+	uint8_t read_sample;
+	uint8_t datahold;
+	uint8_t datasetup;
+	uint8_t coladdrwidth;
+	uint8_t devcfgenable;
+	uint8_t reserved_2[3];
+	uint8_t devmodeseq[4];
+	uint8_t devmodearg[4];
+	uint8_t cmd_enable;
+	uint8_t reserved_3[3];
+	uint8_t cmd_seq[16] ;
+	uint8_t cmd_arg[16];
+	uint8_t controllermisc[4];
+	uint8_t dev_type;
+	uint8_t sflash_pad;
+	uint8_t serial_clk;
+	uint8_t lut_custom ;
+	uint8_t reserved_4[8];
+	uint8_t sflashA1[4];
+	uint8_t sflashA2[4];
+	uint8_t sflashB1[4];
+	uint8_t sflashB2[4];
+	uint8_t cspadover[4];
+	uint8_t sclkpadover[4];
+	uint8_t datapadover[4];
+	uint8_t dqspadover[4];
+	uint8_t timeout[4];
+	uint8_t commandInt[4];
+	uint8_t datavalid[4];
+	uint8_t busyoffset[2];
+	uint8_t busybitpolarity[2];
+	uint8_t lut[256];
+} __attribute__((packed)) fspi_conf;
+
 typedef void (*set_dcd_val_t)(struct imx_header *imxhdr,
 					char *name, int lineno,
 					int fld, uint32_t value,

@@ -46,9 +46,6 @@
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1, }
 
-#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* TO for Flash Erase (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* TO for Flash Write (ms) */
-
 /* max number of memory banks */
 /*
  * There are 4 banks supported for this Controller,
@@ -58,7 +55,6 @@
 
 /* max number of sectors on one chip */
 #define CONFIG_FLASH_SECTOR_SIZE	(0x10000*2)
-#define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /* environments */
 

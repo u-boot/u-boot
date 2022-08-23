@@ -50,6 +50,7 @@ config DM_USB
 config SPL_DM_USB
 	bool "Enable driver model for USB host most in SPL"
 	depends on SPL_DM && DM_USB
+	default n if ARCH_MVEBU
 	default y
 
 config DM_USB_GADGET
@@ -67,6 +68,8 @@ config SPL_DM_USB_GADGET
 	  (Peripheral mode)
 
 source "drivers/usb/host/Kconfig"
+
+source "drivers/usb/isp1760/Kconfig"
 
 source "drivers/usb/cdns3/Kconfig"
 

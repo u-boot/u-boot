@@ -16,21 +16,16 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_FSL_DDR_INTLV_256B	/* force 256 byte interleaving */
-
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_SYS_DDR_BLOCK2_BASE	0x8080000000ULL
-#define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	2
 
 /*
  * SMP Definitinos
  */
 #define CPU_RELEASE_ADDR		secondary_boot_addr
-
-#define CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 
 /*
  * This is not an accurate number. It is used in start.S. The frequency

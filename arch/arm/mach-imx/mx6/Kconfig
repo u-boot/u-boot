@@ -640,11 +640,6 @@ config TARGET_WANDBOARD
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
-config TARGET_WARP
-	bool "WaRP"
-	depends on MX6SL
-	select BOARD_LATE_INIT
-
 config TARGET_BRPPT2
 	bool "brppt2"
 	depends on MX6QDL
@@ -724,7 +719,6 @@ source "board/k+p/kp_imx6q_tpc/Kconfig"
 source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
-source "board/warp/Kconfig"
 source "board/BuR/brppt2/Kconfig"
 source "board/out4/o4-imx6ull-nano/Kconfig"
 

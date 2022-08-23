@@ -145,7 +145,8 @@ enum mtk_switch {
 enum mtk_soc {
 	SOC_MT7623,
 	SOC_MT7629,
-	SOC_MT7622
+	SOC_MT7622,
+	SOC_MT7621
 };
 
 struct mtk_eth_priv {
@@ -159,8 +160,9 @@ struct mtk_eth_priv {
 
 	void __iomem *fe_base;
 	void __iomem *gmac_base;
-	void __iomem *ethsys_base;
 	void __iomem *sgmii_base;
+
+	struct regmap *ethsys_regmap;
 
 	struct mii_dev *mdio_bus;
 	int (*mii_read)(struct mtk_eth_priv *priv, u8 phy, u8 reg);
@@ -233,7 +235,12 @@ static void mtk_gmac_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr, u32 set)
 static void mtk_ethsys_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
 			   u32 set)
 {
-	clrsetbits_le32(priv->ethsys_base + reg, clr, set);
+	uint val;
+
+	regmap_read(priv->ethsys_regmap, reg, &val);
+	val &= ~clr;
+	val |= set;
+	regmap_write(priv->ethsys_regmap, reg, val);
 }
 
 /* Direct MDIO clause 22/45 access via SoC */
@@ -669,12 +676,18 @@ static int mt7530_pad_clk_setup(struct mtk_eth_priv *priv, int mode)
 static int mt7530_setup(struct mtk_eth_priv *priv)
 {
 	u16 phy_addr, phy_val;
-	u32 val;
+	u32 val, txdrv;
 	int i;
 
-	/* Select 250MHz clk for RGMII mode */
-	mtk_ethsys_rmw(priv, ETHSYS_CLKCFG0_REG,
-		       ETHSYS_TRGMII_CLK_SEL362_5, 0);
+	if (priv->soc != SOC_MT7621) {
+		/* Select 250MHz clk for RGMII mode */
+		mtk_ethsys_rmw(priv, ETHSYS_CLKCFG0_REG,
+			       ETHSYS_TRGMII_CLK_SEL362_5, 0);
+
+		txdrv = 8;
+	} else {
+		txdrv = 4;
+	}
 
 	/* Modify HWTRAP first to allow direct access to internal PHYs */
 	mt753x_reg_read(priv, HWTRAP_REG, &val);
@@ -732,7 +745,8 @@ static int mt7530_setup(struct mtk_eth_priv *priv)
 	/* Lower Tx Driving for TRGMII path */
 	for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
 		mt753x_reg_write(priv, MT7530_TRGMII_TD_ODT(i),
-				 (8 << TD_DM_DRVP_S) | (8 << TD_DM_DRVN_S));
+				 (txdrv << TD_DM_DRVP_S) |
+				 (txdrv << TD_DM_DRVN_S));
 
 	for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
 		mt753x_reg_rmw(priv, MT7530_TRGMII_RD(i), RD_TAP_M, 16);
@@ -1419,7 +1433,7 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 
 	priv->soc = dev_get_driver_data(dev);
 
-	pdata->iobase = dev_read_addr(dev);
+	pdata->iobase = (phys_addr_t)dev_remap_addr(dev);
 
 	/* get corresponding ethsys phandle */
 	ret = dev_read_phandle_with_args(dev, "mediatek,ethsys", NULL, 0, 0,
@@ -1427,15 +1441,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	regmap = syscon_node_to_regmap(args.node);
-	if (IS_ERR(regmap))
-		return PTR_ERR(regmap);
-
-	priv->ethsys_base = regmap_get_range(regmap, 0);
-	if (!priv->ethsys_base) {
-		dev_err(dev, "Unable to find ethsys\n");
-		return -ENODEV;
-	}
+	priv->ethsys_regmap = syscon_node_to_regmap(args.node);
+	if (IS_ERR(priv->ethsys_regmap))
+		return PTR_ERR(priv->ethsys_regmap);
 
 	/* Reset controllers */
 	ret = reset_get_by_name(dev, "fe", &priv->rst_fe);
@@ -1540,6 +1548,7 @@ static const struct udevice_id mtk_eth_ids[] = {
 	{ .compatible = "mediatek,mt7629-eth", .data = SOC_MT7629 },
 	{ .compatible = "mediatek,mt7623-eth", .data = SOC_MT7623 },
 	{ .compatible = "mediatek,mt7622-eth", .data = SOC_MT7622 },
+	{ .compatible = "mediatek,mt7621-eth", .data = SOC_MT7621 },
 	{}
 };
 

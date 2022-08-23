@@ -91,4 +91,31 @@ config FPGA_ZYNQPL
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Xilinx Zynq devices.
 
+config SYS_FPGA_CHECK_CTRLC
+	bool "Allow Control-C to interrupt FPGA configuration"
+	depends on FPGA
+	help
+	  User can interrupt FPGA configuration by pressing CTRL+C.
+
+config SYS_FPGA_PROG_FEEDBACK
+	bool "Progress output during FPGA configuration"
+	depends on FPGA
+	default y if FPGA_VIRTEX2
+	help
+	  Enable printing of hash marks during FPGA configuration.
+
+config FPGA_LOAD_SECURE
+	bool "Enable loading secure bitstreams"
+	depends on FPGA
+	help
+	  Enables the fpga loads() functions that are used to load secure
+	  (authenticated or encrypted or both) bitstreams on to FPGA.
+
+config SPL_FPGA_LOAD_SECURE
+	bool "Enable loading secure bitstreams for SPL"
+	depends on SPL_FPGA
+	help
+	  Enables the fpga loads() functions that are used to load secure
+	  (authenticated or encrypted or both) bitstreams on to FPGA.
+
 endmenu

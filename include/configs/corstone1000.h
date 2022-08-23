@@ -24,4 +24,10 @@
 
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
+#define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0)
+
+#include <config_distro_bootcmd.h>
+
+
 #endif

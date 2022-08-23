@@ -6,7 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <init.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/cb_sysinfo.h>
 
@@ -57,7 +57,7 @@ static int coreboot_video_probe(struct udevice *dev)
 		goto err;
 	}
 
-	ret = vbe_setup_video_priv(vesa, uc_priv, plat);
+	ret = vesa_setup_video_priv(vesa, uc_priv, plat);
 	if (ret) {
 		ret = log_msg_ret("setup", ret);
 		goto err;

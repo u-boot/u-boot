@@ -172,6 +172,11 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 					     spl_image->size,
 					     (void *)spl_image->load_addr);
 		}
+		if (IS_ENABLED(CONFIG_SPI_FLASH_SOFT_RESET)) {
+			err = spi_nor_remove(flash);
+			if (err)
+				return err;
+		}
 	}
 
 	return err;

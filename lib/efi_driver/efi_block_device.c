@@ -158,8 +158,7 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	 * FIXME: necessary because we won't do almost nothing in
 	 * efi_disk_create() when called from device_probe().
 	 */
-	ret = dev_tag_set_ptr(bdev, DM_TAG_EFI, handle);
-	if (ret)
+	if (efi_link_dev(handle, bdev))
 		/* FIXME: cleanup for bdev */
 		return ret;
 

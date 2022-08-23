@@ -10,7 +10,7 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <pci_rom.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <asm/global_data.h>
 #include <asm/intel_regs.h>
@@ -762,7 +762,7 @@ static int bd82x6x_video_probe(struct udevice *dev)
 	rev = gma_func0_init(dev);
 	if (rev < 0)
 		return rev;
-	ret = vbe_setup_video(dev, int15_handler);
+	ret = vesa_setup_video(dev, int15_handler);
 	if (ret)
 		return ret;
 

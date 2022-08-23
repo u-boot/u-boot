@@ -167,7 +167,7 @@ tools_binman_etype_x86_reset16_tpl -15.71
 tools_binman_etype_x86_start16 -15.71
 tools_binman_etype_x86_start16_spl -15.71
 tools_binman_etype_x86_start16_tpl -15.71
-tools_binman_fdt_test 3.23
+tools_binman_fdt_test 10.00
 tools_binman_fip_util 9.85
 tools_binman_fip_util_test 10.00
 tools_binman_fmap_util 6.88
@@ -201,7 +201,6 @@ tools_dtoc_test_fdt 6.88
 tools_dtoc_test_src_scan 9.43
 tools_efivar 6.71
 tools_endian-swap 9.29
-tools_genboardscfg 7.95
 tools_microcode-tool 7.25
 tools_moveconfig 8.34
 tools_patman___init__ 0.00

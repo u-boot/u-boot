@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <init.h>
 #include <log.h>
-#include <vbe.h>
+#include <vesa.h>
 #include <video.h>
 #include <acpi/acpi_table.h>
 #include <asm/fsp/fsp_support.h>
@@ -106,7 +106,7 @@ static int fsp_video_probe(struct udevice *dev)
 	vesa->phys_base_ptr = dm_pci_read_bar32(dev, 2);
 	gd->fb_base = vesa->phys_base_ptr;
 
-	ret = vbe_setup_video_priv(vesa, uc_priv, plat);
+	ret = vesa_setup_video_priv(vesa, uc_priv, plat);
 	if (ret)
 		goto err;
 

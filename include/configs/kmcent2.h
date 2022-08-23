@@ -133,7 +133,6 @@
 #define KM_I2C_DEBLOCK_SDA	21
 
 /* High Level Configuration Options */
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 
 #define CONFIG_RESET_VECTOR_ADDRESS	0xebfffffc
 
@@ -232,11 +231,7 @@
 #define CONFIG_SYS_CS0_FTIM3	CONFIG_SYS_NOR_FTIM3
 
 /* More NOR Flash params */
-#define CONFIG_SYS_FLASH_QUIET_TEST
 
-#define CONFIG_SYS_MAX_FLASH_SECT	512	/* sectors per device */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
 
 /* NAND Flash on IFC CS1*/
@@ -389,8 +384,6 @@ int get_scl(void);
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
-
-#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
 /* Qman / Bman */
 /* RGMII (FM1@DTESC5) is local managemant interface */

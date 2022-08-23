@@ -81,6 +81,12 @@ send.add_argument('--no-binary', action='store_true', dest='ignore_binary',
 send.add_argument('--no-check', action='store_false', dest='check_patch',
                   default=True,
                   help="Don't check for patch compliance")
+send.add_argument('--tree', dest='check_patch_use_tree', default=False,
+                  action='store_true',
+                  help=("Set `tree` to True. If `tree` is False then we'll "
+                  "pass '--no-tree' to checkpatch (default: tree=%(default)s)"))
+send.add_argument('--no-tree', dest='check_patch_use_tree',
+                  action='store_false', help="Set `tree` to False")
 send.add_argument('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliases")
 send.add_argument('--no-signoff', action='store_false', dest='add_signoff',
@@ -158,7 +164,8 @@ elif args.cmd == 'send':
 
     elif args.full_help:
         tools.print_full_help(
-            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                         'README.rst')
         )
 
     else:

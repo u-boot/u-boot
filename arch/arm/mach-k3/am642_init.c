@@ -23,7 +23,6 @@
 #include <mmc.h>
 #include <dm/root.h>
 
-#if defined(CONFIG_SPL_BUILD)
 #define MCU_CTRL_MMR0_BASE			0x04500000
 #define CTRLMMR_MCU_RST_CTRL			0x04518170
 
@@ -348,7 +347,6 @@ u32 spl_boot_device(void)
 	else
 		return __get_backup_bootmedia(devstat);
 }
-#endif
 
 #if defined(CONFIG_SYS_K3_SPL_ATF)
 

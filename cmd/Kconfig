@@ -184,6 +184,7 @@ config CMD_REGINFO
 config CMD_TLV_EEPROM
 	bool "tlv_eeprom"
 	depends on I2C_EEPROM
+	select CRC32
 	help
 	  Display and program the system EEPROM data block in ONIE Tlvinfo
 	  format. TLV stands for Type-Length-Value.
@@ -192,6 +193,7 @@ config SPL_CMD_TLV_EEPROM
 	bool "tlv_eeprom for SPL"
 	depends on SPL_I2C_EEPROM
 	select SPL_DRIVERS_MISC
+	select SPL_CRC32
 	help
 	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
 
@@ -327,6 +329,16 @@ config BOOTM_RTEMS
 	default y
 	help
 	  Support booting RTEMS images via the bootm command.
+
+config CMD_VBE
+	bool "vbe - Verified Boot for Embedded"
+	depends on BOOTMETH_VBE
+	default y
+	help
+	  Provides various subcommands related to VBE, such as listing the
+	  available methods, looking at the state and changing which method
+	  is used to boot. Updating the parameters is not currently
+	  supported.
 
 config BOOTM_VXWORKS
 	bool "Support booting VxWorks OS images"
@@ -1036,8 +1048,9 @@ config CMD_FPGA_LOADP
 	  a partial bitstream.
 
 config CMD_FPGA_LOAD_SECURE
-	bool "fpga loads - loads secure bitstreams (Xilinx only)"
+	bool "fpga loads - loads secure bitstreams"
 	depends on CMD_FPGA
+	select FPGA_LOAD_SECURE
 	help
 	  Enables the fpga loads command which is used to load secure
 	  (authenticated or encrypted or both) bitstreams on to FPGA.
@@ -1810,6 +1823,14 @@ config CMD_LINK_LOCAL
 	help
 	  Acquire a network IP address using the link-local protocol
 
+config CMD_NCSI
+	bool "ncsi"
+	depends on PHY_NCSI
+	help
+	  Manually configure the attached NIC via NC-SI.
+	  Normally this happens automatically before other network
+	  operations.
+
 endif
 
 config CMD_ETHSW
@@ -1822,7 +1843,7 @@ config CMD_ETHSW
 
 config CMD_PXE
 	bool "pxe"
-	select MENU
+	select PXE_UTILS
 	help
 	  Boot image via network using PXE protocol
 
@@ -1961,6 +1982,7 @@ config CMD_GETTIME
 config CMD_RNG
 	bool "rng command"
 	depends on DM_RNG
+	default y if SANDBOX
 	select HEXDUMP
 	help
 	  Print bytes from the hardware random number generator.
@@ -2003,7 +2025,7 @@ config CMD_SOUND
 
 config CMD_SYSBOOT
 	bool "sysboot"
-	select MENU
+	select PXE_UTILS
 	help
 	  Boot image via local extlinux.conf file
 

@@ -155,24 +155,28 @@
 			align-end = <4>;
 		};
 
-		blob_1: blob-ext@1 {
+		ddr-1d-imem-fw {
 			filename = "ddr4_imem_1d_201810.bin";
-			size = <0x8000>;
+			type = "blob-ext";
+			align-end = <4>;
 		};
 
-		blob_2: blob-ext@2 {
+		ddr-1d-dmem-fw {
 			filename = "ddr4_dmem_1d_201810.bin";
-			size = <0x4000>;
+			type = "blob-ext";
+			align-end = <4>;
 		};
 
-		blob_3: blob-ext@3 {
+		ddr-2d-imem-fw {
 			filename = "ddr4_imem_2d_201810.bin";
-			size = <0x8000>;
+			type = "blob-ext";
+			align-end = <4>;
 		};
 
-		blob_4: blob-ext@4 {
+		ddr-2d-dmem-fw {
 			filename = "ddr4_dmem_2d_201810.bin";
-			size = <0x4000>;
+			type = "blob-ext";
+			align-end = <4>;
 		};
 	};
 

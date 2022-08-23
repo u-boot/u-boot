@@ -90,30 +90,9 @@ static struct ccu_reset h3_resets[] = {
 	[RST_BUS_UART3]		= RESET(0x2d8, BIT(19)),
 };
 
-static const struct ccu_desc h3_ccu_desc = {
+const struct ccu_desc h3_ccu_desc = {
 	.gates = h3_gates,
 	.resets = h3_resets,
-};
-
-static int h3_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(h3_resets));
-}
-
-static const struct udevice_id h3_ccu_ids[] = {
-	{ .compatible = "allwinner,sun8i-h3-ccu",
-	  .data = (ulong)&h3_ccu_desc },
-	{ .compatible = "allwinner,sun50i-h5-ccu",
-	  .data = (ulong)&h3_ccu_desc },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_sun8i_h3) = {
-	.name		= "sun8i_h3_ccu",
-	.id		= UCLASS_CLK,
-	.of_match	= h3_ccu_ids,
-	.priv_auto	= sizeof(struct ccu_priv),
-	.ops		= &sunxi_clk_ops,
-	.probe		= sunxi_clk_probe,
-	.bind		= h3_clk_bind,
+	.num_gates = ARRAY_SIZE(h3_gates),
+	.num_resets = ARRAY_SIZE(h3_resets),
 };

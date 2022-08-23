@@ -46,6 +46,8 @@ enum {
 	UT_TESTF_CONSOLE_REC	= BIT(5),	/* needs console recording */
 	/* do extra driver model init and uninit */
 	UT_TESTF_DM		= BIT(6),
+	/* live or flat device tree, but not both in the same executable */
+	UT_TESTF_LIVE_OR_FLAT	= BIT(4),
 };
 
 /**

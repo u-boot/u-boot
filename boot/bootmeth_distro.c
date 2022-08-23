@@ -22,6 +22,19 @@
 #include <mmc.h>
 #include <pxe_utils.h>
 
+static int distro_get_state_desc(struct udevice *dev, char *buf, int maxsize)
+{
+	if (IS_ENABLED(CONFIG_SANDBOX)) {
+		int len;
+
+		len = snprintf(buf, maxsize, "OK");
+
+		return len + 1 < maxsize ? 0 : -ENOSPC;
+	}
+
+	return 0;
+}
+
 static int disto_getfile(struct pxe_context *ctx, const char *file_path,
 			 char *file_addr, ulong *sizep)
 {
@@ -123,6 +136,7 @@ static int distro_bootmeth_bind(struct udevice *dev)
 }
 
 static struct bootmeth_ops distro_bootmeth_ops = {
+	.get_state_desc	= distro_get_state_desc,
 	.check		= distro_check,
 	.read_bootflow	= distro_read_bootflow,
 	.read_file	= bootmeth_common_read_file,

@@ -13,8 +13,6 @@
 
 #include <mtd/cfi_flash.h>
 
-extern flash_info_t  flash_info[]; /* info for FLASH chips */
-
 /*-----------------------------------------------------------------------
  * Functions
  */

@@ -26,27 +26,6 @@ config ASPEED_BYPASS_SELFTEST
 	help
 	  Say Y here to bypass DRAM self test to speed up the boot time.
 
-config ASPEED_ECC
-	bool "ASPEED SDRAM ECC"
-	depends on ASPEED_RAM
-	depends on ASPEED_AST2600
-	help
-	  Enable SDRAM ECC function. This configures the SDRAM controller to
-	  perform error detection and correction, sacrificing 1/9th of the
-	  installed RAM to do so.
-
-
-config ASPEED_ECC_SIZE
-	int "ECC size: 0=driver auto-caluated"
-	depends on ASPEED_ECC
-	default 0
-	help
-	  SDRAM size with the error correcting code enabled. The unit is
-	  in Megabytes.  Noted that only the 8/9 of the configured size
-	  can be used by the system.  The remaining 1/9 will be used by
-	  the ECC engine.  If the size is set to 0, the sdram driver will
-	  calculate the SDRAM size and set the whole range be ECC enabled.
-
 choice
 	prompt "AST2600 DDR4 target date rate"
 	default ASPEED_DDR4_1600

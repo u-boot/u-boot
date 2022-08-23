@@ -69,7 +69,7 @@
 /*
  * Manually set up DDR parameters
  */
-#define CONFIG_SYS_DDR_SIZE		256		/* MB */
+#define CONFIG_SYS_SDRAM_SIZE		0x10000000 /* 256 MiB */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000000f
 #define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
 					| CSCONFIG_ODT_WR_ONLY_CURRENT \
@@ -140,15 +140,6 @@
  */
 #define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		8 /* max FLASH size is 32M */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO		/* display empty sectors */
-
-
-#define CONFIG_SYS_MAX_FLASH_SECT	256 /* max sectors per device */
-
-#undef	CONFIG_SYS_FLASH_CHECKSUM
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
 /*
  * NAND Flash on the Local Bus

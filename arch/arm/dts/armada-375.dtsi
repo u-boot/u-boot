@@ -103,7 +103,6 @@
 
 	soc {
 		compatible = "marvell,armada375-mbus", "simple-bus";
-		u-boot,dm-pre-reloc;
 		#address-cells = <2>;
 		#size-cells = <1>;
 		controller = <&mbusc>;
@@ -168,7 +167,6 @@
 
 		internal-regs {
 			compatible = "simple-bus";
-			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0 MBUS_ID(0xf0, 0x01) 0 0x100000>;
@@ -541,7 +539,7 @@
 			};
 
 			nand@d0000 {
-				compatible = "marvell,armada370-nand";
+				compatible = "marvell,armada370-nand-controller";
 				reg = <0xd0000 0x54>;
 				#address-cells = <1>;
 				#size-cells = <1>;

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <addr_map.h>
 #include <cpu_func.h>
 #include <cros_ec.h>
 #include <dm.h>
@@ -155,3 +156,11 @@ int board_late_init(void)
 	return 0;
 }
 #endif
+
+int init_addr_map(void)
+{
+	if (IS_ENABLED(CONFIG_ADDR_MAP))
+		addrmap_set_entry(0, 0, CONFIG_SYS_SDRAM_SIZE, 0);
+
+	return 0;
+}

@@ -41,7 +41,6 @@ obj-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ID_EEPROM)	+= sys_eeprom.o
 endif
-obj-$(CONFIG_FSL_SGMII_RISER)	+= sgmii_riser.o
 ifndef CONFIG_RAMBOOT_PBL
 obj-$(CONFIG_FSL_FIXED_MMC_LOCATION)	+= sdhc_boot.o
 endif
@@ -65,7 +64,7 @@ obj-$(CONFIG_ZM7300)		+= zm7300.o
 obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
 obj-$(CONFIG_DM_PMIC_PFUZE100)	+= pfuze.o
 obj-$(CONFIG_POWER_MC34VR500)	+= mc34vr500.o
-ifneq (,$(filter $(SOC), imx8ulp))
+ifneq (,$(filter $(SOC), imx8ulp imx9))
 obj-y				+= mmc.o
 endif
 

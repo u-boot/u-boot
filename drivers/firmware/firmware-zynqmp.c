@@ -70,11 +70,20 @@ int zynqmp_pmufw_config_close(void)
 
 int zynqmp_pmufw_node(u32 id)
 {
+	static bool skip_config;
+	int ret;
+
+	if (skip_config)
+		return 0;
+
 	/* Record power domain id */
 	xpm_configobject[NODE_ID_LOCATION] = id;
 
-	zynqmp_pmufw_load_config_object(xpm_configobject,
-					sizeof(xpm_configobject));
+	ret = zynqmp_pmufw_load_config_object(xpm_configobject,
+					      sizeof(xpm_configobject));
+
+	if (ret && id == NODE_APU_0)
+		skip_config = true;
 
 	return 0;
 }
@@ -227,7 +236,7 @@ int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
  * @cfg_obj: Pointer to the configuration object
  * @size:    Size of @cfg_obj in bytes
  */
-void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
+int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 {
 	int err;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
@@ -241,12 +250,12 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 				0, ret_payload);
 	if (err == XST_PM_NO_ACCESS) {
 		printf("PMUFW no permission to change config object\n");
-		return;
+		return -EACCES;
 	}
 
 	if (err == XST_PM_ALREADY_CONFIGURED) {
 		debug("PMUFW Node is already configured\n");
-		return;
+		return -ENODEV;
 	}
 
 	if (err)
@@ -257,6 +266,8 @@ void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 
 	if ((err || ret_payload[0]) && IS_ENABLED(CONFIG_SPL_BUILD))
 		panic("PMUFW config object loading failed in EL3\n");
+
+	return 0;
 }
 
 static int zynqmp_power_probe(struct udevice *dev)
@@ -281,6 +292,9 @@ static int zynqmp_power_probe(struct udevice *dev)
 	printf("PMUFW:\tv%d.%d\n",
 	       ret >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
 	       ret & ZYNQMP_PM_VERSION_MINOR_MASK);
+
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP))
+		zynqmp_pmufw_node(NODE_APU_0);
 
 	return 0;
 };

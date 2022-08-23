@@ -65,7 +65,6 @@ DECLARE_GLOBAL_DATA_PTR;
  *		belonging to the group
  * @npins:	Number of pins included in the second optional range
  * @funcs:	A list of pinmux functions that can be selected for this group.
- * @pins:	List of the pins included in the group
  */
 struct armada_37xx_pin_group {
 	const char	*name;
@@ -76,7 +75,6 @@ struct armada_37xx_pin_group {
 	unsigned int	extra_pin;
 	unsigned int	extra_npins;
 	const char	*funcs[NB_FUNCS];
-	unsigned int	*pins;
 };
 
 struct armada_37xx_pin_data {
@@ -97,20 +95,18 @@ struct armada_37xx_pinctrl {
 	const struct armada_37xx_pin_data	*data;
 	struct udevice			*dev;
 	struct pinctrl_dev		*pctl_dev;
-	struct armada_37xx_pin_group	*groups;
-	unsigned int			ngroups;
 	struct armada_37xx_pmx_func	*funcs;
 	unsigned int			nfuncs;
 };
 
-#define PIN_GRP(_name, _start, _nr, _mask, _func1, _func2)	\
+#define PIN_GRP_GPIO_0(_name, _start, _nr)	\
 	{					\
 		.name = _name,			\
 		.start_pin = _start,		\
 		.npins = _nr,			\
-		.reg_mask = _mask,		\
-		.val = {0, _mask},		\
-		.funcs = {_func1, _func2}	\
+		.reg_mask = 0,			\
+		.val = {0},			\
+		.funcs = {"gpio"}		\
 	}
 
 #define PIN_GRP_GPIO(_name, _start, _nr, _mask, _func1)	\
@@ -170,6 +166,7 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
 		       "pwm", "led"),
 	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
 	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
+	PIN_GRP_GPIO_0("gpio1_5", 5, 1),
 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
 	PIN_GRP_GPIO("i2c1", 0, 2, BIT(10), "i2c"),
 	PIN_GRP_GPIO("spi_cs1", 17, 1, BIT(12), "spi"),
@@ -186,25 +183,30 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
 static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 	PIN_GRP_GPIO("usb32_drvvbus0", 0, 1, BIT(0), "drvbus"),
 	PIN_GRP_GPIO("usb2_drvvbus1", 1, 1, BIT(1), "drvbus"),
+	PIN_GRP_GPIO_0("gpio2_2", 2, 1),
 	PIN_GRP_GPIO("sdio_sb", 24, 6, BIT(2), "sdio"),
 	PIN_GRP_GPIO("rgmii", 6, 12, BIT(3), "mii"),
 	PIN_GRP_GPIO("smi", 18, 2, BIT(4), "smi"),
-	PIN_GRP_GPIO("pcie1", 3, 3, BIT(5) | BIT(9) | BIT(10), "pcie"),
-	PIN_GRP_GPIO("ptp", 20, 3, BIT(11) | BIT(12) | BIT(13), "ptp"),
-	PIN_GRP("ptp_clk", 21, 1, BIT(6), "ptp", "mii"),
-	PIN_GRP("ptp_trig", 22, 1, BIT(7), "ptp", "mii"),
+	PIN_GRP_GPIO("pcie1", 3, 1, BIT(5), "pcie"), /* this actually controls "pcie1_reset" */
+	PIN_GRP_GPIO("pcie1_clkreq", 4, 1, BIT(9), "pcie"),
+	PIN_GRP_GPIO("pcie1_wakeup", 5, 1, BIT(10), "pcie"),
+	PIN_GRP_GPIO("ptp", 20, 1, BIT(11), "ptp"),
+	PIN_GRP_GPIO_3("ptp_clk", 21, 1, BIT(6) | BIT(12), 0, BIT(6), BIT(12),
+		       "ptp", "mii"),
+	PIN_GRP_GPIO_3("ptp_trig", 22, 1, BIT(7) | BIT(13), 0, BIT(7), BIT(13),
+		       "ptp", "mii"),
 	PIN_GRP_GPIO_3("mii_col", 23, 1, BIT(8) | BIT(14), 0, BIT(8), BIT(14),
 		       "mii", "mii_err"),
 };
 
-const struct armada_37xx_pin_data armada_37xx_pin_nb = {
+static const struct armada_37xx_pin_data armada_37xx_pin_nb = {
 	.nr_pins = 36,
 	.name = "GPIO1",
 	.groups = armada_37xx_nb_groups,
 	.ngroups = ARRAY_SIZE(armada_37xx_nb_groups),
 };
 
-const struct armada_37xx_pin_data armada_37xx_pin_sb = {
+static const struct armada_37xx_pin_data armada_37xx_pin_sb = {
 	.nr_pins = 30,
 	.name = "GPIO2",
 	.groups = armada_37xx_sb_groups,
@@ -237,7 +239,7 @@ static int armada_37xx_pmx_get_groups_count(struct udevice *dev)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 
-	return info->ngroups;
+	return info->data->ngroups;
 }
 
 static const char *armada_37xx_pmx_dummy_name = "_dummy";
@@ -247,10 +249,10 @@ static const char *armada_37xx_pmx_get_group_name(struct udevice *dev,
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 
-	if (!info->groups[selector].name)
+	if (!info->data->groups[selector].name)
 		return armada_37xx_pmx_dummy_name;
 
-	return info->groups[selector].name;
+	return info->data->groups[selector].name;
 }
 
 static int armada_37xx_pmx_get_funcs_count(struct udevice *dev)
@@ -270,12 +272,13 @@ static const char *armada_37xx_pmx_get_func_name(struct udevice *dev,
 
 static int armada_37xx_pmx_set_by_name(struct udevice *dev,
 				       const char *name,
-				       struct armada_37xx_pin_group *grp)
+				       struct armada_37xx_pin_group *grp,
+				       bool warn_on_change)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 	unsigned int reg = SELECTION;
 	unsigned int mask = grp->reg_mask;
-	int func, val;
+	int func, val, old_func;
 
 	dev_dbg(info->dev, "enable function %s group %s\n",
 		name, grp->name);
@@ -287,6 +290,18 @@ static int armada_37xx_pmx_set_by_name(struct udevice *dev,
 
 	val = grp->val[func];
 
+	if (warn_on_change && val != (readl(info->base + reg) & mask)) {
+		for (old_func = 0; (old_func < NB_FUNCS) && grp->funcs[old_func]; old_func++) {
+			if (grp->val[old_func] == val)
+				break;
+		}
+		dev_warn(info->dev, "Warning: Changing MPPs %u-%u function from %s to %s...\n",
+			 grp->start_pin, grp->start_pin + grp->npins - 1,
+			 ((old_func < NB_FUNCS && grp->funcs[old_func]) ?
+			  grp->funcs[old_func] : "unknown"),
+			 name);
+	}
+
 	clrsetbits_le32(info->base + reg, mask, val);
 
 	return 0;
@@ -297,10 +312,122 @@ static int armada_37xx_pmx_group_set(struct udevice *dev,
 				     unsigned func_selector)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
-	struct armada_37xx_pin_group *grp = &info->groups[group_selector];
+	struct armada_37xx_pin_group *grp = &info->data->groups[group_selector];
 	const char *name = info->funcs[func_selector].name;
 
-	return armada_37xx_pmx_set_by_name(dev, name, grp);
+	return armada_37xx_pmx_set_by_name(dev, name, grp, false);
+}
+
+static int armada_37xx_pmx_gpio_request_enable(struct udevice *dev, unsigned int selector)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+	int ret = -ENOTSUPP;
+	int n;
+
+	/* Find all groups where is requested selector pin and set each group to gpio function */
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
+
+		if ((selector >= grp->start_pin && selector < grp->start_pin + grp->npins) ||
+		    (selector >= grp->extra_pin && selector < grp->extra_pin + grp->extra_npins)) {
+			ret = armada_37xx_pmx_set_by_name(dev, "gpio", grp, true);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return ret;
+}
+
+static int armada_37xx_pmx_gpio_disable_free(struct udevice *dev, unsigned int selector)
+{
+	/* nothing to do */
+	return 0;
+}
+
+static int armada_37xx_pmx_get_pins_count(struct udevice *dev)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+
+	return info->data->nr_pins;
+}
+
+static const char *armada_37xx_pmx_get_pin_name(struct udevice *dev, unsigned int selector)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+	static char buf[sizeof("MPPx_XX")];
+
+	sprintf(buf, "MPP%c_%u", info->data->name[4], selector);
+	return buf;
+}
+
+static int armada_37xx_pmx_get_pin_muxing(struct udevice *dev, unsigned int selector,
+					  char *buf, int size)
+{
+	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
+	int n;
+
+	/*
+	 * First check if selected pin is in some extra pin group.
+	 * Function in extra pin group is active only when it is not gpio.
+	 */
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
+
+		if (selector >= grp->extra_pin && selector < grp->extra_pin + grp->extra_npins) {
+			unsigned int reg = SELECTION;
+			unsigned int mask = grp->reg_mask;
+			int f, val;
+
+			val = (readl(info->base + reg) & mask);
+
+			for (f = 0; f < NB_FUNCS && grp->funcs[f]; f++) {
+				if (grp->val[f] == val) {
+					if (strcmp(grp->funcs[f], "gpio") != 0) {
+						strlcpy(buf, grp->funcs[f], size);
+						return 0;
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	/* If pin is not active in some extra pin group then check regular groups. */
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
+
+		if (selector >= grp->start_pin && selector < grp->start_pin + grp->npins) {
+			unsigned int reg = SELECTION;
+			unsigned int mask = grp->reg_mask;
+			int f, val;
+
+			val = (readl(info->base + reg) & mask);
+
+			for (f = 0; f < NB_FUNCS && grp->funcs[f]; f++) {
+				if (grp->val[f] == val) {
+					/*
+					 * In more cases group name consist of
+					 * function name followed by function
+					 * number. So if function name is just
+					 * prefix of group name, show group name.
+					 */
+					if (strncmp(grp->name, grp->funcs[f],
+						    strlen(grp->funcs[f])) == 0)
+						strlcpy(buf, grp->name, size);
+					else
+						strlcpy(buf, grp->funcs[f], size);
+					return 0;
+				}
+			}
+
+			strlcpy(buf, "unknown", size);
+			return 0;
+		}
+	}
+
+	strlcpy(buf, "unknown", size);
+	return 0;
 }
 
 /**
@@ -352,21 +479,9 @@ static int armada_37xx_fill_group(struct armada_37xx_pinctrl *info)
 {
 	int n, num = 0, funcsize = info->data->nr_pins;
 
-	for (n = 0; n < info->ngroups; n++) {
-		struct armada_37xx_pin_group *grp = &info->groups[n];
-		int i, j, f;
-
-		grp->pins = devm_kzalloc(info->dev,
-					 (grp->npins + grp->extra_npins) *
-					 sizeof(*grp->pins), GFP_KERNEL);
-		if (!grp->pins)
-			return -ENOMEM;
-
-		for (i = 0; i < grp->npins; i++)
-			grp->pins[i] = grp->start_pin + i;
-
-		for (j = 0; j < grp->extra_npins; j++)
-			grp->pins[i+j] = grp->extra_pin + j;
+	for (n = 0; n < info->data->ngroups; n++) {
+		struct armada_37xx_pin_group *grp = &info->data->groups[n];
+		int f;
 
 		for (f = 0; (f < NB_FUNCS) && grp->funcs[f]; f++) {
 			int ret;
@@ -416,8 +531,8 @@ static int armada_37xx_fill_func(struct armada_37xx_pinctrl *info)
 
 		groups = funcs[n].groups;
 
-		for (g = 0; g < info->ngroups; g++) {
-			struct armada_37xx_pin_group *gp = &info->groups[g];
+		for (g = 0; g < info->data->ngroups; g++) {
+			struct armada_37xx_pin_group *gp = &info->data->groups[g];
 			int f;
 
 			for (f = 0; (f < NB_FUNCS) && gp->funcs[f]; f++) {
@@ -522,6 +637,8 @@ static int armada_37xx_gpio_probe(struct udevice *dev)
 }
 
 static const struct dm_gpio_ops armada_37xx_gpio_ops = {
+	.request = pinctrl_gpio_request,
+	.rfree = pinctrl_gpio_free,
 	.set_value = armada_37xx_gpio_set,
 	.get_value = armada_37xx_gpio_get,
 	.get_function = armada_37xx_gpio_get_direction,
@@ -574,16 +691,21 @@ static int armada_37xx_gpiochip_register(struct udevice *parent,
 	return 0;
 }
 
-const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
+static const struct pinctrl_ops armada_37xx_pinctrl_ops  = {
+	.get_pins_count = armada_37xx_pmx_get_pins_count,
+	.get_pin_name = armada_37xx_pmx_get_pin_name,
+	.get_pin_muxing = armada_37xx_pmx_get_pin_muxing,
 	.get_groups_count = armada_37xx_pmx_get_groups_count,
 	.get_group_name = armada_37xx_pmx_get_group_name,
 	.get_functions_count = armada_37xx_pmx_get_funcs_count,
 	.get_function_name = armada_37xx_pmx_get_func_name,
 	.pinmux_group_set = armada_37xx_pmx_group_set,
+	.gpio_request_enable = armada_37xx_pmx_gpio_request_enable,
+	.gpio_disable_free = armada_37xx_pmx_gpio_disable_free,
 	.set_state = pinctrl_generic_set_state,
 };
 
-int armada_37xx_pinctrl_probe(struct udevice *dev)
+static int armada_37xx_pinctrl_probe(struct udevice *dev)
 {
 	struct armada_37xx_pinctrl *info = dev_get_priv(dev);
 	const struct armada_37xx_pin_data *pin_data;
@@ -597,9 +719,6 @@ int armada_37xx_pinctrl_probe(struct udevice *dev)
 		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
-
-	info->groups = pin_data->groups;
-	info->ngroups = pin_data->ngroups;
 
 	/*
 	 * we allocate functions for number of pins and hope there are

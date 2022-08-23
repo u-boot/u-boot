@@ -25,7 +25,43 @@ DECLARE_GLOBAL_DATA_PTR;
 
 __weak int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
-	return 0;
+	switch (boot_dev_spl) {
+#if defined(CONFIG_MX7)
+	case SD1_BOOT:
+	case MMC1_BOOT:
+	case SD2_BOOT:
+	case MMC2_BOOT:
+	case SD3_BOOT:
+	case MMC3_BOOT:
+		return BOOT_DEVICE_MMC1;
+#elif defined(CONFIG_IMX8)
+	case MMC1_BOOT:
+		return BOOT_DEVICE_MMC1;
+	case SD2_BOOT:
+		return BOOT_DEVICE_MMC2_2;
+	case SD3_BOOT:
+		return BOOT_DEVICE_MMC1;
+	case FLEXSPI_BOOT:
+		return BOOT_DEVICE_SPI;
+#elif defined(CONFIG_IMX8M)
+	case SD1_BOOT:
+	case MMC1_BOOT:
+		return BOOT_DEVICE_MMC1;
+	case SD2_BOOT:
+	case MMC2_BOOT:
+		return BOOT_DEVICE_MMC2;
+#endif
+	case NAND_BOOT:
+		return BOOT_DEVICE_NAND;
+	case SPI_NOR_BOOT:
+		return BOOT_DEVICE_SPI;
+	case QSPI_BOOT:
+		return BOOT_DEVICE_NOR;
+	case USB_BOOT:
+		return BOOT_DEVICE_BOARD;
+	default:
+		return BOOT_DEVICE_NONE;
+	}
 }
 
 #if defined(CONFIG_MX6)
@@ -111,7 +147,7 @@ u32 spl_boot_device(void)
 	return BOOT_DEVICE_NONE;
 }
 
-#elif defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || defined(CONFIG_IMX8)
+#elif defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || defined(CONFIG_IMX8) || defined(CONFIG_IMX9)
 /* Translate iMX7/i.MX8M boot device to the SPL boot device enumeration */
 u32 spl_boot_device(void)
 {
@@ -140,47 +176,7 @@ u32 spl_boot_device(void)
 
 	enum boot_device boot_device_spl = get_boot_device();
 
-	if (IS_ENABLED(CONFIG_IMX8MM) || IS_ENABLED(CONFIG_IMX8MN) ||
-	    IS_ENABLED(CONFIG_IMX8MP))
-		return spl_board_boot_device(boot_device_spl);
-
-	switch (boot_device_spl) {
-#if defined(CONFIG_MX7)
-	case SD1_BOOT:
-	case MMC1_BOOT:
-	case SD2_BOOT:
-	case MMC2_BOOT:
-	case SD3_BOOT:
-	case MMC3_BOOT:
-		return BOOT_DEVICE_MMC1;
-#elif defined(CONFIG_IMX8)
-	case MMC1_BOOT:
-		return BOOT_DEVICE_MMC1;
-	case SD2_BOOT:
-		return BOOT_DEVICE_MMC2_2;
-	case SD3_BOOT:
-		return BOOT_DEVICE_MMC1;
-	case FLEXSPI_BOOT:
-		return BOOT_DEVICE_SPI;
-#elif defined(CONFIG_IMX8M)
-	case SD1_BOOT:
-	case MMC1_BOOT:
-		return BOOT_DEVICE_MMC1;
-	case SD2_BOOT:
-	case MMC2_BOOT:
-		return BOOT_DEVICE_MMC2;
-#endif
-	case NAND_BOOT:
-		return BOOT_DEVICE_NAND;
-	case SPI_NOR_BOOT:
-		return BOOT_DEVICE_SPI;
-	case QSPI_BOOT:
-		return BOOT_DEVICE_NOR;
-	case USB_BOOT:
-		return BOOT_DEVICE_USB;
-	default:
-		return BOOT_DEVICE_NONE;
-	}
+	return spl_board_boot_device(boot_device_spl);
 }
 #endif /* CONFIG_MX7 || CONFIG_IMX8M || CONFIG_IMX8 */
 

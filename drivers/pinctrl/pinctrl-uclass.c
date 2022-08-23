@@ -222,9 +222,10 @@ pinctrl_gpio_get_pinctrl_and_offset(struct udevice *dev, unsigned offset,
  *
  * @dev: GPIO peripheral device
  * @offset: the GPIO pin offset from the GPIO controller
+ * @label: the GPIO pin label
  * @return: 0 on success, or negative error code on failure
  */
-int pinctrl_gpio_request(struct udevice *dev, unsigned offset)
+int pinctrl_gpio_request(struct udevice *dev, unsigned offset, const char *label)
 {
 	const struct pinctrl_ops *ops;
 	struct udevice *pctldev;

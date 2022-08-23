@@ -13,7 +13,9 @@ SECTIONS
 
 	. = ALIGN(4);
 	.text : {
+		__text_start = .;
 		*(.text*)
+		__text_end = .;
 	} > .spl_mem
 
 	. = ALIGN(4);
@@ -36,6 +38,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	__image_copy_end = .;
+	__image_copy_len = __image_copy_end - __text_start;
 
 	_image_binary_end = .;
 

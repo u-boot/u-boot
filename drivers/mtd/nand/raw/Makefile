@@ -14,7 +14,9 @@ obj-$(CONFIG_SPL_NAND_DENALI) += denali_spl.o
 obj-$(CONFIG_SPL_NAND_SIMPLE) += nand_spl_simple.o
 obj-$(CONFIG_SPL_NAND_LOAD) += nand_spl_load.o
 obj-$(CONFIG_SPL_NAND_ECC) += nand_ecc.o
-obj-$(CONFIG_SPL_NAND_BASE) += nand_base.o
+obj-$(CONFIG_SPL_NAND_BASE) += nand_base.o nand_amd.o nand_hynix.o \
+				nand_macronix.o nand_micron.o \
+				nand_samsung.o nand_toshiba.o
 obj-$(CONFIG_SPL_NAND_IDENT) += nand_ids.o nand_timings.o
 obj-$(CONFIG_TPL_NAND_INIT) += nand.o
 ifeq ($(CONFIG_SPL_ENV_SUPPORT),y)
@@ -31,6 +33,12 @@ obj-y += nand_ids.o
 obj-y += nand_util.o
 obj-y += nand_ecc.o
 obj-y += nand_base.o
+obj-y += nand_amd.o
+obj-y += nand_hynix.o
+obj-y += nand_macronix.o
+obj-y += nand_micron.o
+obj-y += nand_samsung.o
+obj-y += nand_toshiba.o
 obj-y += nand_timings.o
 
 endif # not spl
@@ -72,6 +80,7 @@ obj-$(CONFIG_NAND_ZYNQ) += zynq_nand.o
 obj-$(CONFIG_NAND_STM32_FMC2) += stm32_fmc2_nand.o
 obj-$(CONFIG_CORTINA_NAND) += cortina_nand.o
 obj-$(CONFIG_ROCKCHIP_NAND) += rockchip_nfc.o
+obj-$(CONFIG_NAND_MT7621) += mt7621_nand.o
 
 else  # minimal SPL drivers
 
@@ -80,5 +89,6 @@ obj-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_spl.o
 obj-$(CONFIG_NAND_MXC) += mxc_nand_spl.o
 obj-$(CONFIG_NAND_MXS) += mxs_nand_spl.o mxs_nand.o
 obj-$(CONFIG_NAND_SUNXI) += sunxi_nand_spl.o
+obj-$(CONFIG_NAND_MT7621) += mt7621_nand_spl.o mt7621_nand.o
 
 endif # drivers

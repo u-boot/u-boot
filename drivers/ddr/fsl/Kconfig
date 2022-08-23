@@ -40,6 +40,9 @@ config FSL_DDR_SYNC_REFRESH
 config FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	bool
 
+config SYS_FSL_OTHER_DDR_NUM_CTRLS
+	bool
+
 menu "Freescale DDR controllers"
 	depends on SYS_FSL_DDR
 
@@ -62,6 +65,10 @@ config CHIP_SELECTS_PER_CTRL
 config DIMM_SLOTS_PER_CTLR
 	int "Number of DIMM slots per controller"
 	default 1
+
+config SYS_FSL_DDR_MAIN_NUM_CTRLS
+	int "Number of controllers used as main memory"
+	default SYS_NUM_DDR_CTLRS
 
 config SYS_FSL_DDR_VER
 	int
@@ -181,6 +188,13 @@ config SYS_DDR_RAW_TIMING
 	  This is common with soldered DDR chips onboard without SPD. DDR raw
 	  timing parameters are extracted from datasheet and hard-coded into
 	  header files or board specific files.
+
+config SYS_FSL_DDR_INTLV_256B
+	bool "Enforce 256-byte interleave"
+	help
+	  DDR controller interleaving on 256-byte. This is a special
+	  interleaving mode, handled by Dickens for Freescale layerscape SoCs
+	  with ARM core.
 
 endif
 

@@ -69,9 +69,6 @@
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MAX_FLASH_SECT	35
-#define CONFIG_SYS_FLASH_ERASE_TOUT	120000
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500
 
 /*
  * For booting Linux, the board info and command line data

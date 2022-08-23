@@ -63,10 +63,10 @@
 &ecspi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
-	cs-gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+	cs-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
 	status = "okay";
 
-	spi-flash@0 {
+	flash@0 {
 		compatible = "mxicy,mx25r1635f", "jedec,spi-nor";
 		spi-max-frequency = <80000000>;
 		reg = <0>;
@@ -154,7 +154,7 @@
 			reg_vdd_snvs: LDO2 {
 				regulator-name = "ldo2";
 				regulator-min-microvolt = <800000>;
-				regulator-max-microvolt = <800000>;
+				regulator-max-microvolt = <900000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};

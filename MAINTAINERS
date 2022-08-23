@@ -121,6 +121,7 @@ F:	arch/arm/include/asm/arch-m1/
 F:	arch/arm/mach-apple/
 F:	configs/apple_m1_defconfig
 F:	drivers/iommu/apple_dart.c
+F:	drivers/nvme/nvme_apple.c
 F:	drivers/pinctrl/pinctrl-apple.c
 F:	drivers/watchdog/apple_wdt.c
 F:	include/configs/apple.h
@@ -142,7 +143,7 @@ F:	arch/arm/mach-socfpga/
 F:	drivers/sysreset/sysreset_socfpga*
 
 ARM AMLOGIC SOC SUPPORT
-M:	Neil Armstrong <narmstrong@baylibre.com>
+M:	Neil Armstrong <neil.armstrong@linaro.org>
 S:	Maintained
 L:	u-boot-amlogic@groups.io
 T:	git https://source.denx.de/u-boot/custodians/u-boot-amlogic.git
@@ -160,6 +161,7 @@ F:	drivers/spi/meson_spifc.c
 F:	drivers/pinctrl/meson/
 F:	drivers/power/domain/meson-gx-pwrc-vpu.c
 F:	drivers/video/meson/
+F:	drivers/watchdog/meson_gxbb_wdt.c
 F:	include/configs/meson64.h
 F:	include/configs/meson64_android.h
 F:	doc/board/amlogic/
@@ -246,14 +248,6 @@ F:	drivers/net/cortina_ni.h
 F:	drivers/net/phy/ca_phy.c
 F:	configs/cortina_presidio-asic-pnand_defconfig
 
-ARM/CZ.NIC TURRIS MOX SUPPORT
-M:	Marek Behun <marek.behun@nic.cz>
-S:	Maintained
-F:	arch/arm/dts/armada-3720-turris-mox.dts
-F:	board/CZ.NIC/
-F:	configs/turris_*_defconfig
-F:	include/configs/turris_*.h
-
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
 M:	Fabio Estevam <festevam@gmail.com>
@@ -265,7 +259,7 @@ F:	arch/arm/cpu/arm926ejs/mx*/
 F:	arch/arm/cpu/armv7/vf610/
 F:	arch/arm/dts/*imx*
 F:	arch/arm/mach-imx/
-F:	arch/arm/include/asm/arch-imx/
+F:	arch/arm/include/asm/arch-imx*/
 F:	arch/arm/include/asm/arch-mx*/
 F:	arch/arm/include/asm/arch-vf610/
 F:	arch/arm/include/asm/mach-imx/
@@ -376,6 +370,14 @@ F:	drivers/reset/reset-mediatek.c
 F:	tools/mtk_image.c
 F:	tools/mtk_image.h
 N:	mediatek
+
+ARM METHODE SUPPORT
+M:	Robert Marko <robert.marko@sartura.hr>
+S:	Maintained
+F:	arch/arm/dts/armada-3720-eDPU*
+F:	arch/arm/dts/armada-3720-uDPU*
+F:	configs/eDPU_defconfig
+F:	configs/uDPU_defconfig
 
 ARM MICROCHIP/ATMEL AT91
 M:	Eugen Hristev <eugen.hristev@microchip.com>
@@ -722,6 +724,13 @@ S:	Maintained
 F:	drivers/pci/pcie_phytium.c
 F:	arch/arm/dts/phytium-durian.dts
 
+ASPEED FMC SPI DRIVER
+M:	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>
+M:	Cédric Le Goater <clg@kaod.org>
+R:	Aspeed BMC SW team <BMC-SW@aspeedtech.com>
+S:	Maintained
+F:	drivers/spi/spi-aspeed.c
+
 BINMAN
 M:	Simon Glass <sjg@chromium.org>
 M:	Alper Nebi Yasak <alpernebiyasak@gmail.com>
@@ -750,7 +759,7 @@ F:	net/eth_bootdevice.c
 F:	test/boot/
 
 BTRFS
-M:	Marek Behun <marek.behun@nic.cz>
+M:	Marek Behún <kabel@kernel.org>
 R:	Qu Wenruo <wqu@suse.com>
 L:	linux-btrfs@vger.kernel.org
 S:	Maintained
@@ -826,6 +835,7 @@ F:	test/dm/efi_media.c
 
 EFI PAYLOAD
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
 F:	doc/api/efi.rst
@@ -953,7 +963,7 @@ F:	drivers/i2c/
 
 KWBIMAGE / KWBOOT TOOLS
 M:	Pali Rohár <pali@kernel.org>
-M:	Marek Behún <marek.behun@nic.cz>
+M:	Marek Behún <kabel@kernel.org>
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
@@ -1030,15 +1040,23 @@ R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
 S:	Maintained
 F:	arch/mips/mach-mtmips/
 F:	arch/mips/dts/mt7620.dtsi
+F:	arch/mips/dts/mt7621.dtsi
 F:	arch/mips/dts/mt7620-u-boot.dtsi
+F:	arch/mips/dts/mt7621-u-boot.dtsi
 F:	include/configs/mt7620.h
+F:	include/configs/mt7621.h
 F:	include/dt-bindings/clock/mt7620-clk.h
+F:	include/dt-bindings/clock/mt7621-clk.h
 F:	include/dt-bindings/clock/mt7628-clk.h
 F:	include/dt-bindings/reset/mt7620-reset.h
+F:	include/dt-bindings/reset/mt7621-reset.h
 F:	include/dt-bindings/reset/mt7628-reset.h
 F:	drivers/clk/mtmips/
 F:	drivers/pinctrl/mtmips/
 F:	drivers/gpio/mt7620_gpio.c
+F:	drivers/mtd/nand/raw/mt7621_nand.c
+F:	drivers/mtd/nand/raw/mt7621_nand.h
+F:	drivers/mtd/nand/raw/mt7621_nand_spl.c
 F:	drivers/net/mt7620-eth.c
 F:	drivers/phy/mt7620-usb-phy.c
 F:	drivers/reset/reset-mtmips.c
@@ -1087,8 +1105,9 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
 
 NAND FLASH
-#M:	Scott Wood <oss@buserror.net>
-S:	Orphaned (Since 2018-07)
+M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
+M:	Michael Trimarchi <michael@amarulasolutions.com>
+S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
 F:	drivers/mtd/nand/raw/
 
@@ -1197,7 +1216,7 @@ F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
 
 POWERPC MPC85XX
-M:	Priyanka Jain <priyanka.jain@nxp.com>
+M:	Marek Behún <kabel@kernel.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
@@ -1301,7 +1320,7 @@ F:	drivers/spmi/
 F:	include/spmi/
 
 SQUASHFS
-M:	Joao Marcos Costa <joaomarcos.costa@bootlin.com>
+M:	Joao Marcos Costa <jmcosta944@gmail.com>
 R:	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 R:	Miquel Raynal <miquel.raynal@bootlin.com>
 S:	Maintained
@@ -1352,6 +1371,7 @@ F:	arch/arm/mach-k3/config_secure.mk
 F:	configs/am335x_hs_evm_defconfig
 F:	configs/am335x_hs_evm_uart_defconfig
 F:	configs/am43xx_hs_evm_defconfig
+F:	configs/am43xx_hs_evm_qspi_defconfig
 F:	configs/am57xx_hs_evm_defconfig
 F:	configs/am57xx_hs_evm_usb_defconfig
 F:	configs/dra7xx_hs_evm_defconfig
@@ -1486,5 +1506,6 @@ F:	*/
 CAAM
 M:	Gaurav Jain <gaurav.jain@nxp.com>
 S:	Maintained
+F:	arch/arm/dts/ls1021a-twr-u-boot.dtsi
 F:	drivers/crypto/fsl/
 F:	include/fsl_sec.h

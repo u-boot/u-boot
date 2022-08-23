@@ -2,7 +2,7 @@
 /*
  * Marvell Armada 37xx SoC Peripheral clocks
  *
- * Marek Behun <marek.behun@nic.cz>
+ * Marek Behún <kabel@kernel.org>
  *
  * Based on Linux driver by:
  *   Gregory CLEMENT <gregory.clement@free-electrons.com>

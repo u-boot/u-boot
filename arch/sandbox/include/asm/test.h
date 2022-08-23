@@ -304,4 +304,15 @@ int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty);
  */
 int sandbox_sdl_set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp);
 
+/**
+ * sandbox_set_fake_efi_mgr_dev() - Control EFI bootmgr producing valid bootflow
+ *
+ * This is only used for testing.
+ *
+ * @dev: efi_mgr bootmeth device
+ * @fake_dev: true to produce a valid bootflow when requested, false to produce
+ * an error
+ */
+void sandbox_set_fake_efi_mgr_dev(struct udevice *dev, bool fake_dev);
+
 #endif

@@ -8,8 +8,6 @@
 #ifndef _CONFIG_EB_CPU5282_H_
 #define _CONFIG_EB_CPU5282_H_
 
-#undef CONFIG_SYS_HALT_BEFOR_RAM_JUMP
-
 /*----------------------------------------------------------------------*
  * High Level Configuration Options (easy to change)                    *
  *----------------------------------------------------------------------*/
@@ -93,9 +91,6 @@
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 #define	CONFIG_SYS_INT_FLASH_BASE	0xF0000000
 #define CONFIG_SYS_INT_FLASH_ENABLE	0x21
-
-#define	CONFIG_SYS_MAX_FLASH_SECT	128
-#define	CONFIG_SYS_FLASH_ERASE_TOUT	10000000
 
 #define CONFIG_SYS_FLASH_SIZE		16*1024*1024
 

@@ -78,7 +78,6 @@
 			 */
 			serial@12000 {
 				status = "okay";
-				u-boot,dm-pre-reloc;
 			};
 
 			/* Connected to a Microchip PIC16F883 for power control */

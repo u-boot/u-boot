@@ -16,22 +16,6 @@
 
 #include "armada-388.dtsi"
 
-&gpio0 {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio1 {
-	u-boot,dm-pre-reloc;
-};
-
-&uart0 {
-	u-boot,dm-pre-reloc;
-};
-
-&uart1 {
-	u-boot,dm-pre-reloc;
-};
-
 / {
 	model = "Controlcenter Digital Compact";
 	compatible = "marvell,a385-db", "marvell,armada388",
@@ -75,7 +59,6 @@
 			I2C0: i2c@11000 {
 				status = "okay";
 				clock-frequency = <1000000>;
-				u-boot,dm-pre-reloc;
 				PCA21: pca9698@21 {
 					compatible = "nxp,pca9698";
 					reg = <0x21>;
@@ -84,7 +67,6 @@
 				};
 				PCA22: pca9698@22 {
 					compatible = "nxp,pca9698";
-					u-boot,dm-pre-reloc;
 					reg = <0x22>;
 					#gpio-cells = <2>;
 					gpio-controller;
@@ -569,7 +551,6 @@
 
 &spi1 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
 	spi-flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -583,6 +564,5 @@
 		compatible = "n25q128a11", "jedec,spi-nor";
 		reg = <1>; /* Chip select 1 */
 		spi-max-frequency = <108000000>;
-		u-boot,dm-pre-reloc;
 	};
 };

@@ -179,6 +179,7 @@ obj-$(CONFIG_CMD_FS_UUID) += fs_uuid.o
 obj-$(CONFIG_CMD_USB_MASS_STORAGE) += usb_mass_storage.o
 obj-$(CONFIG_CMD_USB_SDP) += usb_gadget_sdp.o
 obj-$(CONFIG_CMD_THOR_DOWNLOAD) += thordown.o
+obj-$(CONFIG_CMD_VBE) += vbe.o
 obj-$(CONFIG_CMD_XIMG) += ximg.o
 obj-$(CONFIG_CMD_YAFFS2) += yaffs2.o
 obj-$(CONFIG_CMD_SPL) += spl.o

@@ -69,8 +69,8 @@ static void show_bootflow(int index, struct bootflow *bflow, bool errors)
 {
 	printf("%3x  %-11s  %-6s  %-9.9s %4x  %-25.25s %s\n", index,
 	       bflow->method->name, bootflow_state_get_name(bflow->state),
-	       dev_get_uclass_name(dev_get_parent(bflow->dev)), bflow->part,
-	       bflow->name, bflow->fname);
+	       bflow->dev ? dev_get_uclass_name(dev_get_parent(bflow->dev)) :
+	       "(none)", bflow->part, bflow->name, bflow->fname);
 	if (errors)
 		report_bootflow_err(bflow, bflow->err);
 }
@@ -95,7 +95,8 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct bootflow_iter iter;
 	struct udevice *dev;
 	struct bootflow bflow;
-	bool all = false, boot = false, errors = false, list = false;
+	bool all = false, boot = false, errors = false, no_global = false;
+	bool list = false;
 	int num_valid = 0;
 	bool has_args;
 	int ret, i;
@@ -112,6 +113,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 			all = strchr(argv[1], 'a');
 			boot = strchr(argv[1], 'b');
 			errors = strchr(argv[1], 'e');
+			no_global = strchr(argv[1], 'G');
 			list = strchr(argv[1], 'l');
 			argc--;
 			argv++;
@@ -137,6 +139,8 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 		flags |= BOOTFLOWF_SHOW;
 	if (all)
 		flags |= BOOTFLOWF_ALL;
+	if (no_global)
+		flags |= BOOTFLOWF_SKIP_GLOBAL;
 
 	/*
 	 * If we have a device, just scan for bootflows attached to that device
@@ -383,7 +387,7 @@ static int do_bootflow_boot(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_SYS_LONGHELP
 static char bootflow_help_text[] =
 #ifdef CONFIG_CMD_BOOTFLOW_FULL
-	"scan [-abel] [bdev]   - scan for valid bootflows (-l list, -a all, -e errors, -b boot)\n"
+	"scan [-abeGl] [bdev]  - scan for valid bootflows (-l list, -a all, -e errors, -b boot, -G no global)\n"
 	"bootflow list [-e]             - list scanned bootflows (-e errors)\n"
 	"bootflow select [<num>|<name>] - select a bootflow\n"
 	"bootflow info [-d]             - show info on current bootflow (-d dump bootflow)\n"

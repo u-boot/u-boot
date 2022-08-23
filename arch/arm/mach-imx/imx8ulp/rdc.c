@@ -8,8 +8,8 @@
 #include <asm/types.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/mu_hal.h>
-#include <asm/arch/s400_api.h>
+#include <asm/mach-imx/mu_hal.h>
+#include <asm/mach-imx/s400_api.h>
 #include <asm/arch/rdc.h>
 #include <div64.h>
 
@@ -184,7 +184,7 @@ int xrdc_config_pdac(u32 bridge, u32 index, u32 dom, u32 perm)
 int release_rdc(enum rdc_type type)
 {
 	ulong s_mu_base = 0x27020000UL;
-	struct imx8ulp_s400_msg msg;
+	struct sentinel_msg msg;
 	int ret;
 	u32 rdc_id = (type == RDC_XRDC) ? 0x78 : 0x74;
 

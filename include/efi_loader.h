@@ -375,6 +375,7 @@ enum efi_object_type {
  * @protocols:	linked list with the protocol interfaces installed on this
  *		handle
  * @type:	image type if the handle relates to an image
+ * @dev:	pointer to the DM device which is associated with this EFI handle
  *
  * UEFI offers a flexible and expandable object model. The objects in the UEFI
  * API are devices, drivers, and loaded images. struct efi_object is our storage
@@ -392,6 +393,7 @@ struct efi_object {
 	/* The list of protocols */
 	struct list_head protocols;
 	enum efi_object_type type;
+	struct udevice *dev;
 };
 
 enum efi_image_auth_status {
@@ -690,6 +692,8 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
 const char *guid_to_sha_str(const efi_guid_t *guid);
 int algo_to_len(const char *algo);
 
+int efi_link_dev(efi_handle_t handle, struct udevice *dev);
+
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages
  *
@@ -801,6 +805,9 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
+
+/* template END node: */
+extern const struct efi_device_path END;
 
 /* Indicate supported runtime services */
 efi_status_t efi_init_runtime_supported(void);
@@ -933,6 +940,8 @@ struct efi_signature_store {
 struct x509_certificate;
 struct pkcs7_message;
 
+bool efi_hash_regions(struct image_region *regs, int count,
+		      void **hash, const char *hash_algo, int *len);
 bool efi_signature_lookup_digest(struct efi_image_regions *regs,
 				 struct efi_signature_store *db,
 				 bool dbx);

@@ -77,28 +77,9 @@ static const struct ccu_reset a64_resets[] = {
 	[RST_BUS_UART4]		= RESET(0x2d8, BIT(20)),
 };
 
-static const struct ccu_desc a64_ccu_desc = {
+const struct ccu_desc a64_ccu_desc = {
 	.gates = a64_gates,
 	.resets = a64_resets,
-};
-
-static int a64_clk_bind(struct udevice *dev)
-{
-	return sunxi_reset_bind(dev, ARRAY_SIZE(a64_resets));
-}
-
-static const struct udevice_id a64_ccu_ids[] = {
-	{ .compatible = "allwinner,sun50i-a64-ccu",
-	  .data = (ulong)&a64_ccu_desc },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_sun50i_a64) = {
-	.name		= "sun50i_a64_ccu",
-	.id		= UCLASS_CLK,
-	.of_match	= a64_ccu_ids,
-	.priv_auto	= sizeof(struct ccu_priv),
-	.ops		= &sunxi_clk_ops,
-	.probe		= sunxi_clk_probe,
-	.bind		= a64_clk_bind,
+	.num_gates = ARRAY_SIZE(a64_gates),
+	.num_resets = ARRAY_SIZE(a64_resets),
 };

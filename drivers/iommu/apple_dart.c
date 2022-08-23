@@ -24,6 +24,12 @@
 #define  DART_TTBR_VALID	BIT(31)
 #define  DART_TTBR_SHIFT	12
 
+#define DART_T8110_TCR(sid)	(0x1000 + 4 * (sid))
+#define  DART_T8110_TCR_BYPASS_DAPF		BIT(2)
+#define  DART_T8110_TCR_BYPASS_DART		BIT(1)
+#define  DART_T8110_TCR_TRANSLATE_ENABLE	BIT(0)
+#define DART_T8110_TTBR(sid)	(0x1400 + 4 * (sid))
+
 static int apple_dart_probe(struct udevice *dev)
 {
 	void *base;
@@ -34,7 +40,16 @@ static int apple_dart_probe(struct udevice *dev)
 		return -EINVAL;
 
 	u32 params2 = readl(base + DART_PARAMS2);
-	if (params2 & DART_PARAMS2_BYPASS_SUPPORT) {
+	if (!(params2 & DART_PARAMS2_BYPASS_SUPPORT))
+		return 0;
+
+	if (device_is_compatible(dev, "apple,t8112-dart")) {
+		for (sid = 0; sid < 256; sid++) {
+			writel(DART_T8110_TCR_BYPASS_DART | DART_T8110_TCR_BYPASS_DAPF,
+			       base + DART_T8110_TCR(sid));
+			writel(0, base + DART_T8110_TTBR(sid));
+		}
+	} else {
 		for (sid = 0; sid < 16; sid++) {
 			writel(DART_TCR_BYPASS_DART | DART_TCR_BYPASS_DAPF,
 			       base + DART_TCR(sid));
@@ -49,6 +64,7 @@ static int apple_dart_probe(struct udevice *dev)
 static const struct udevice_id apple_dart_ids[] = {
 	{ .compatible = "apple,t8103-dart" },
 	{ .compatible = "apple,t6000-dart" },
+	{ .compatible = "apple,t8112-dart" },
 	{ /* sentinel */ }
 };
 

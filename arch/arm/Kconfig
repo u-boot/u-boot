@@ -810,7 +810,6 @@ config ARCH_KEYSTONE
 	select CMD_POWEROFF
 	select CPU_V7A
 	select DDR_SPD
-	select GPIO_EXTRA_HEADER
 	select SUPPORT_SPL
 	select SYS_ARCH_TIMER
 	select SYS_THUMB_BUILD
@@ -906,6 +905,20 @@ config ARCH_IMX8ULP
 	select OF_CONTROL
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
+	select MISC
+	select IMX_SENTINEL
+	imply CMD_DM
+	imply DM_EVENT
+
+config ARCH_IMX9
+	bool "NXP i.MX9 platform"
+	select ARM64
+	select DM
+	select MACH_IMX
+	select SUPPORT_SPL
+	select GPIO_EXTRA_HEADER
+	select MISC
+	select IMX_SENTINEL
 	imply CMD_DM
 	imply DM_EVENT
 
@@ -2113,6 +2126,7 @@ config SERIAL_TAG
 
 config STATIC_MACH_TYPE
 	bool "Statically define the Machine ID number"
+	default y if TARGET_DS109 || TARGET_NOKIA_RX51 || TARGET_DS414 || DEFAULT_DEVICE_TREE = "sun7i-a20-icnova-swac"
 	help
 	  When booting via ATAGs, enable this option if we know the correct
 	  machine ID number to use at compile time.  Some systems will be
@@ -2121,6 +2135,10 @@ config STATIC_MACH_TYPE
 config MACH_TYPE
 	int "Machine ID number"
 	depends on STATIC_MACH_TYPE
+	default 527 if TARGET_DS109
+	default 1955 if TARGET_NOKIA_RX51
+	default 3036 if TARGET_DS414
+	default 4283 if DEFAULT_DEVICE_TREE = "sun7i-a20-icnova-swac"
 	help
 	  When booting via ATAGs, the machine type must be passed as a number.
 	  For the full list see https://www.arm.linux.org.uk/developer/machines
@@ -2149,21 +2167,6 @@ config TI_SECURE_DEVICE
 	  build system (to create signed boot images that can be
 	  authenticated) and the code. See the doc/README.ti-secure
 	  file for further details.
-
-if AM43XX || AM33XX || OMAP54XX || ARCH_KEYSTONE
-config ISW_ENTRY_ADDR
-	hex "Address in memory or XIP address of bootloader entry point"
-	default 0x402F4000 if AM43XX
-	default 0x402F0400 if AM33XX
-	default 0x40301350 if OMAP54XX
-	help
-	  After any reset, the boot ROM searches the boot media for a valid
-	  boot image. For non-XIP devices, the ROM then copies the image into
-	  internal memory. For all boot modes, after the ROM processes the
-	  boot image it eventually computes the entry point address depending
-	  on the device type (secure/non-secure), boot media (xip/non-xip) and
-	  image headers.
-endif
 
 config SYS_KWD_CONFIG
 	string "kwbimage config file path"
@@ -2228,6 +2231,8 @@ source "arch/arm/mach-imx/imx8/Kconfig"
 source "arch/arm/mach-imx/imx8m/Kconfig"
 
 source "arch/arm/mach-imx/imx8ulp/Kconfig"
+
+source "arch/arm/mach-imx/imx9/Kconfig"
 
 source "arch/arm/mach-imx/imxrt/Kconfig"
 

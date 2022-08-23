@@ -232,11 +232,8 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p2571.dtb \
 	tegra210-p3450-0000.dtb
 
+ifdef CONFIG_ARMADA_32BIT
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
-	armada-3720-db.dtb			\
-	armada-3720-espressobin.dtb		\
-	armada-3720-turris-mox.dtb		\
-	armada-3720-uDPU.dtb			\
 	armada-375-db.dtb			\
 	armada-385-atl-x530.dtb			\
 	armada-385-atl-x530DP.dtb		\
@@ -246,12 +243,6 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-388-gp.dtb			\
 	armada-388-helios4.dtb			\
 	armada-38x-controlcenterdc.dtb		\
-	armada-7040-db-nand.dtb			\
-	armada-7040-db.dtb			\
-	armada-8040-clearfog-gt-8k.dtb		\
-	armada-8040-db.dtb			\
-	armada-8040-mcbin.dtb			\
-	armada-8040-puzzle-m801.dtb		\
 	armada-xp-crs305-1g-4s.dtb		\
 	armada-xp-crs305-1g-4s-bit.dtb		\
 	armada-xp-crs326-24g-2s.dtb		\
@@ -262,7 +253,20 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
-	armada-xp-theadorable.dtb		\
+	armada-xp-theadorable.dtb
+else
+dtb-$(CONFIG_ARCH_MVEBU) +=			\
+	armada-3720-db.dtb			\
+	armada-3720-espressobin.dtb		\
+	armada-3720-turris-mox.dtb		\
+	armada-3720-eDPU.dtb			\
+	armada-3720-uDPU.dtb			\
+	armada-7040-db-nand.dtb			\
+	armada-7040-db.dtb			\
+	armada-8040-clearfog-gt-8k.dtb		\
+	armada-8040-db.dtb			\
+	armada-8040-mcbin.dtb			\
+	armada-8040-puzzle-m801.dtb		\
 	cn9130-db-A.dtb				\
 	cn9130-db-B.dtb				\
 	cn9131-db-A.dtb				\
@@ -271,6 +275,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	cn9132-db-B.dtb				\
 	cn9130-crb-A.dtb			\
 	cn9130-crb-B.dtb
+endif
 
 dtb-$(CONFIG_ARCH_SYNQUACER) += synquacer-sc2a11-developerbox.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
@@ -420,6 +425,8 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_agilex_socdk.dtb			\
 	socfpga_arria5_secu1.dtb			\
 	socfpga_arria5_socdk.dtb			\
+	socfpga_arria10_chameleonv3_270_3.dtb		\
+	socfpga_arria10_chameleonv3_480_2.dtb		\
 	socfpga_arria10_socdk_sdmmc.dtb			\
 	socfpga_cyclone5_mcvevk.dtb			\
 	socfpga_cyclone5_is1.dtb			\
@@ -502,6 +509,7 @@ dtb-$(CONFIG_TARGET_TEN64) += fsl-ls1088a-ten64.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
 dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
 dtb-$(CONFIG_TARGET_STARQLTECHN) += starqltechn.dtb
+dtb-$(CONFIG_TARGET_QCS404EVB) += qcs404-evb.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
 
@@ -541,7 +549,8 @@ dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-olinuxino-lime.dtb \
 	sun4i-a10-pcduino.dtb \
 	sun4i-a10-pcduino2.dtb \
-	sun4i-a10-pov-protab2-ips9.dtb
+	sun4i-a10-pov-protab2-ips9.dtb \
+	sun4i-a10-topwise-a721.dtb
 dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a10s-auxtek-t003.dtb \
 	sun5i-a10s-auxtek-t004.dtb \
@@ -724,8 +733,7 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-cubieboard4.dtb \
 	sun9i-a80-cx-a99.dtb
 
-dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
-	vf610-colibri.dtb \
+dtb-$(CONFIG_VF610) += vf610-colibri-eval-v3.dtb \
 	vf610-twr.dtb \
 	vf610-pcm052.dtb \
 	vf610-bk4r1.dtb
@@ -798,7 +806,7 @@ endif
 
 ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
 dtb-y += \
-	imx6-apalis.dtb \
+	imx6q-apalis-eval.dtb \
 	imx6q-bosch-acc.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-cubox-i.dtb \
@@ -880,8 +888,8 @@ dtb-$(CONFIG_MX6UL) += \
 
 dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
-	imx6ull-colibri.dtb \
-	imx6ull-colibri-emmc.dtb \
+	imx6ull-colibri-emmc-eval-v3.dtb \
+	imx6ull-colibri-eval-v3.dtb \
 	imx6ull-myir-mys-6ulx-eval.dtb \
 	imx6ull-seeed-npi-imx6ull-dev-board.dtb \
 	imx6ull-phytec-segin-ff-rdk-emmc.dtb \
@@ -890,8 +898,8 @@ dtb-$(CONFIG_MX6ULL) += \
 	imx6ulz-14x14-evk.dtb
 
 dtb-$(CONFIG_ARCH_MX6) += \
-	imx6-apalis.dtb \
-	imx6-colibri.dtb
+	imx6q-apalis-eval.dtb \
+	imx6dl-colibri-eval-v3.dtb
 
 dtb-$(CONFIG_O4_IMX_NANO) += \
 	o4-imx-nano.dtb
@@ -902,8 +910,8 @@ dtb-$(CONFIG_EV_IMX280_NANO_X_MB) += \
 dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \
 	imx7-cm.dtb \
-	imx7-colibri-emmc.dtb \
-	imx7-colibri-rawnand.dtb \
+	imx7d-colibri-emmc-eval-v3.dtb \
+	imx7d-colibri-eval-v3.dtb \
 	imx7s-warp.dtb \
 	imx7d-meerkat96.dtb \
 	imx7d-pico-pi.dtb \
@@ -944,7 +952,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-venice-gw7901.dtb \
 	imx8mm-venice-gw7902.dtb \
 	imx8mm-venice-gw7903.dtb \
-	imx8mm-verdin.dtb \
+	imx8mm-verdin-wifi-dev.dtb \
 	phycore-imx8mm.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
@@ -964,9 +972,12 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-phyboard-pollux-rdk.dtb \
 	imx8mp-venice.dtb \
 	imx8mp-venice-gw74xx.dtb \
-	imx8mp-verdin.dtb \
+	imx8mp-verdin-wifi-dev.dtb \
 	imx8mq-pico-pi.dtb \
 	imx8mq-kontron-pitx-imx8m.dtb
+
+dtb-$(CONFIG_ARCH_IMX9) += \
+	imx93-11x11-evk.dtb
 
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb
@@ -1171,13 +1182,17 @@ dtb-$(CONFIG_STM32MP13x) += \
 
 dtb-$(CONFIG_STM32MP15x) += \
 	stm32mp157a-dk1.dtb \
+	stm32mp157a-dk1-scmi.dtb \
 	stm32mp157a-icore-stm32mp1-ctouch2.dtb \
 	stm32mp157a-icore-stm32mp1-edimm2.2.dtb \
 	stm32mp157a-microgea-stm32mp1-microdev2.0.dtb \
 	stm32mp157a-microgea-stm32mp1-microdev2.0-of7.dtb \
 	stm32mp157c-dk2.dtb \
+	stm32mp157c-dk2-scmi.dtb \
 	stm32mp157c-ed1.dtb \
+	stm32mp157c-ed1-scmi.dtb \
 	stm32mp157c-ev1.dtb \
+	stm32mp157c-ev1-scmi.dtb \
 	stm32mp157c-odyssey.dtb \
 	stm32mp15xx-dhcom-drc02.dtb \
 	stm32mp15xx-dhcom-pdk2.dtb \
@@ -1185,7 +1200,7 @@ dtb-$(CONFIG_STM32MP15x) += \
 	stm32mp15xx-dhcor-avenger96.dtb \
 	stm32mp15xx-dhcor-drc-compact.dtb
 
-dtb-$(CONFIG_SOC_K3_AM6) += \
+dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am654-base-board.dtb \
 	k3-am654-r5-base-board.dtb \
 	k3-am65-iot2050-spl.dtb \

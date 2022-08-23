@@ -266,7 +266,7 @@ config MT76X8_USB_PHY
 config PHY_MTK_TPHY
 	bool "MediaTek T-PHY Driver"
 	depends on PHY
-	depends on ARCH_MEDIATEK
+	depends on ARCH_MEDIATEK || SOC_MT7621
 	help
 	  MediaTek T-PHY driver supports usb2.0, usb3.0 ports, PCIe and
 	  SATA, and meanwhile supports two version T-PHY which have

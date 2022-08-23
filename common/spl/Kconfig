@@ -83,6 +83,7 @@ config SPL_MAX_SIZE
 	default 0x7000 if RCAR_GEN3
 	default 0x5fa0 if SUNXI_SRAM_ADDRESS = 0x0
 	default 0x10000 if ASPEED_AST2600
+	default 0x27000 if IMX8MM && SPL_TEXT_BASE = 0x7E1000
 	default 0x0
 	help
 	  Maximum size of the SPL image (text, data, rodata, and linker lists
@@ -107,7 +108,7 @@ config SPL_PAD_TO
 config SPL_HAS_BSS_LINKER_SECTION
 	depends on SPL_FRAMEWORK
 	bool "Use a specific address for the BSS via the linker script"
-	default y if ARCH_SUNXI || ARCH_MX6 || ARCH_OMAP2PLUS || MIPS || RISCV
+	default y if ARCH_SUNXI || ARCH_MX6 || ARCH_OMAP2PLUS || MIPS || RISCV || ARCH_ZYNQMP
 
 config SPL_BSS_START_ADDR
 	hex "Link address for the BSS within the SPL binary"
@@ -118,6 +119,7 @@ config SPL_BSS_START_ADDR
 	default 0x81f80000 if ARCH_SUNXI && MACH_SUNIV
 	default 0x4ff80000 if ARCH_SUNXI && !(MACH_SUN9I || MACH_SUNIV)
 	default 0x2ff80000 if ARCH_SUNXI && MACH_SUN9I
+	default 0x1000 if ARCH_ZYNQMP
 
 choice
 	prompt "Enforce SPL BSS limit"
@@ -256,7 +258,9 @@ config SPL_LDSCRIPT
 
 config SPL_TEXT_BASE
 	hex "SPL Text Base"
-	default ISW_ENTRY_ADDR if AM43XX || AM33XX || OMAP54XX || ARCH_KEYSTONE
+	default 0x402F4000 if AM43XX
+	default 0x402F0400 if AM33XX
+	default 0x40301350 if OMAP54XX
 	default 0x10060 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN9I
 	default 0x20060 if SUN50I_GEN_H6
 	default 0x00060 if ARCH_SUNXI
@@ -294,6 +298,7 @@ config SPL_BOOTCOUNT_LIMIT
 
 config SPL_RAW_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of RAW images"
+	default n if ARCH_MVEBU
 	default n if (ARCH_MX6 && (SPL_MMC || SPL_SATA))
 	default y
 	depends on !TI_SECURE_DEVICE
@@ -304,6 +309,7 @@ config SPL_RAW_IMAGE_SUPPORT
 
 config SPL_LEGACY_IMAGE_FORMAT
 	bool "Support SPL loading and booting of Legacy images"
+	default n if ARCH_MVEBU
 	default y if !SPL_LOAD_FIT
 	depends on !TI_SECURE_DEVICE
 	help
@@ -562,7 +568,7 @@ config SPL_FIT_IMAGE_TINY
 	bool "Remove functionality from SPL FIT loading to reduce size"
 	depends on SPL_FIT
 	default y if MACH_SUN50I || MACH_SUN50I_H5 || SUN50I_GEN_H6
-	default y if ARCH_IMX8M
+	default y if ARCH_IMX8M || ARCH_IMX9
 	help
 	  Enable this to reduce the size of the FIT image loading code
 	  in SPL, if space for the SPL binary is very tight.
@@ -884,7 +890,7 @@ config SPL_NAND_SIMPLE
 	  expose the cmd_ctrl() interface.
 
 config SPL_NAND_BASE
-	depends on SPL_NAND_DRIVERS
+	depends on SPL_NAND_SUPPORT
 	bool "Use Base NAND Driver"
 	help
 	  Include nand_base.c in the SPL.
@@ -1481,6 +1487,14 @@ config SPL_OPENSBI_LOAD_ADDR
 	depends on SPL_OPENSBI
 	help
 	  Load address of the OpenSBI binary.
+
+config SPL_OPENSBI_SCRATCH_OPTIONS
+	hex "Scratch options passed to OpenSBI"
+	default 0x1
+	depends on SPL_OPENSBI
+	help
+	  Options passed to fw_dynamic, for example SBI_SCRATCH_NO_BOOT_PRINTS or
+	  SBI_SCRATCH_DEBUG_PRINTS.
 
 config SPL_TARGET
 	string "Addtional build targets for 'make'"

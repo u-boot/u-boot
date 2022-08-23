@@ -360,6 +360,7 @@ source lib/crypt/Kconfig
 config TPM
 	bool "Trusted Platform Module (TPM) Support"
 	depends on DM
+	imply DM_RNG
 	help
 	  This enables support for TPMs which can be used to provide security
 	  features for your board. The TPM can be connected via LPC or I2C
@@ -742,6 +743,16 @@ config OF_LIBFDT_OVERLAY
 	default y if ARCH_OMAP2PLUS || ARCH_KEYSTONE
 	help
 	  This enables the FDT library (libfdt) overlay support.
+
+config SYS_FDT_PAD
+	hex "Maximum size of the FDT memory area passeed to the OS"
+	depends on OF_LIBFDT
+	default 0x13000 if FMAN_ENET || QE || U_QE
+	default 0x3000
+	help
+	  During OS boot, we allocate a region of memory within the bootmap
+	  for the FDT. This is the size that we will expand the FDT that we
+	  are using will be extended to be, in bytes.
 
 config SPL_OF_LIBFDT
 	bool "Enable the FDT library for SPL"

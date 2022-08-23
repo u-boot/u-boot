@@ -167,18 +167,9 @@
 		"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
 
 /* FLASH and environment organization */
-#define PHYS_FLASH_SIZE			0x04000000	/* 64MB */
 #define CONFIG_SYS_FLASH_SIZE		0x04000000
-#define CONFIG_SYS_FLASH_BASE0		V2M_NOR0
-#define CONFIG_SYS_FLASH_BASE1		V2M_NOR1
 
 /* Timeout values in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
-
-/* 255 0x40000 sectors + first or last sector may have 4 erase regions = 259 */
-#define CONFIG_SYS_MAX_FLASH_SECT	259		/* Max sectors */
-#define FLASH_MAX_SECTOR_SIZE		0x00040000	/* 256 KB sectors */
 
 /* Room required on the stack for the environment data */
 
@@ -189,8 +180,6 @@
  */
 
 /* Store environment at top of flash */
-#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE0, \
-					  CONFIG_SYS_FLASH_BASE1 }
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ V2M_NOR0, V2M_NOR1 }
 
 #endif /* VEXPRESS_COMMON_H */

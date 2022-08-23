@@ -15,8 +15,6 @@
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
 
-#if defined(CONFIG_SPL_BUILD)
-
 /*
  * This uninitialized global variable would normal end up in the .bss section,
  * but the .bss is cleared between writing and reading this variable, so move
@@ -62,6 +60,15 @@ static void ctrl_mmr_unlock(void)
 	/* Unlock PADCFG_CTRL_MMR padconf registers */
 	mmr_unlock(PADCFG_MMR0_BASE, 1);
 	mmr_unlock(PADCFG_MMR1_BASE, 1);
+}
+
+static __maybe_unused void enable_mcu_esm_reset(void)
+{
+	/* Set CTRLMMR_MCU_RST_CTRL:MCU_ESM_ERROR_RST_EN_Z  to '0' (low active) */
+	u32 stat = readl(CTRLMMR_MCU_RST_CTRL);
+
+	stat &= RST_CTRL_ESM_ERROR_RST_EN_Z_MASK;
+	writel(stat, CTRLMMR_MCU_RST_CTRL);
 }
 
 void board_init_f(ulong dummy)
@@ -141,6 +148,20 @@ void board_init_f(ulong dummy)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+	if (IS_ENABLED(CONFIG_ESM_K3)) {
+		/* Probe/configure ESM0 */
+		ret = uclass_get_device_by_name(UCLASS_MISC, "esm@420000", &dev);
+		if (ret)
+			printf("esm main init failed: %d\n", ret);
+
+		/* Probe/configure MCUESM */
+		ret = uclass_get_device_by_name(UCLASS_MISC, "esm@4100000", &dev);
+		if (ret)
+			printf("esm mcu init failed: %d\n", ret);
+
+		enable_mcu_esm_reset();
+	}
 
 #if defined(CONFIG_K3_AM64_DDRSS)
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
@@ -267,5 +288,3 @@ u32 spl_boot_device(void)
 
 	return bootmedia;
 }
-
-#endif /* CONFIG_SPL_BUILD */

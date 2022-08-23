@@ -52,7 +52,9 @@ void mvebu_pinctl_emmc_set_mux(struct udevice *dev, u32 pin, u32 func)
 				     EMMC_PHY_CTRL_SDPHY_EN);
 		}
 	} else if (!fdt_node_check_compatible(blob, node,
-					"marvell,armada-8k-cpm-pinctrl")) {
+					"marvell,armada-8k-cpm-pinctrl") ||
+		   !fdt_node_check_compatible(blob, node,
+					"marvell,armada-7k-pinctrl")) {
 		if ((pin == CP110_EMMC_CLK_PIN_ID) &&
 		    (func == CP110_EMMC_CLK_FUNC)) {
 			clrbits_le32(priv->base_reg + CP_EMMC_PHY_CTRL_REG,

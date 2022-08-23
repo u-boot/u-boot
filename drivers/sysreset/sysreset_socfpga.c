@@ -40,7 +40,7 @@ static int socfpga_sysreset_probe(struct udevice *dev)
 {
 	struct socfpga_sysreset_data *data = dev_get_priv(dev);
 
-	data->rstmgr_base = dev_read_addr_ptr(dev);
+	data->rstmgr_base = dev_read_addr_ptr(dev_get_parent(dev));
 	return 0;
 }
 

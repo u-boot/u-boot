@@ -126,6 +126,21 @@ int run_command_list(const char *cmd, int len, int flag)
 	return rcode;
 }
 
+int run_commandf(const char *fmt, ...)
+{
+	va_list args;
+	char cmd[128];
+	int i, ret;
+
+	va_start(args, fmt);
+	i = vsnprintf(cmd, sizeof(cmd), fmt, args);
+	va_end(args);
+
+	ret = run_command(cmd, 0);
+
+	return ret;
+}
+
 /****************************************************************************/
 
 #if defined(CONFIG_CMD_RUN)

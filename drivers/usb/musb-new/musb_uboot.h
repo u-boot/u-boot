@@ -8,8 +8,8 @@
 #define __MUSB_UBOOT_H__
 
 #include <usb.h>
+#include <linux/usb/usb_urb_compat.h>
 #include "linux-compat.h"
-#include "usb-compat.h"
 #include "musb_core.h"
 
 struct musb_host_data {

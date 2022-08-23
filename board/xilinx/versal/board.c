@@ -27,7 +27,10 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_FPGA_VERSALPL)
-static xilinx_desc versalpl = XILINX_VERSAL_DESC;
+static xilinx_desc versalpl = {
+	xilinx_versal, csu_dma, 1, &versal_op, 0, &versal_op, NULL,
+	FPGA_LEGACY
+};
 #endif
 
 int board_init(void)

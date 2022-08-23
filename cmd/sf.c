@@ -7,9 +7,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <display_options.h>
 #include <div64.h>
 #include <dm.h>
-#include <flash.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -294,6 +294,12 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
 		return 1;
 	}
 
+	if (strncmp(argv[0], "read", 4) != 0 && flash->flash_is_unlocked &&
+	    !flash->flash_is_unlocked(flash, offset, len)) {
+		printf("ERROR: flash area is locked\n");
+		return 1;
+	}
+
 	buf = map_physmem(addr, len, MAP_WRBACK);
 	if (!buf && addr) {
 		puts("Failed to map physical memory\n");
@@ -347,6 +353,12 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	if (offset + size > flash->size) {
 		printf("ERROR: attempting %s past flash size (%#x)\n",
 		       argv[0], flash->size);
+		return 1;
+	}
+
+	if (flash->flash_is_unlocked &&
+	    !flash->flash_is_unlocked(flash, offset, len)) {
+		printf("ERROR: flash area is locked\n");
 		return 1;
 	}
 

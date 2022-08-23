@@ -7,6 +7,7 @@
 #include <common.h>
 #include <console.h>
 #include <debug_uart.h>
+#include <display_options.h>
 #include <dm.h>
 #include <env.h>
 #include <stdarg.h>

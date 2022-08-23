@@ -199,13 +199,11 @@ static void boot_prep_linux(bootm_headers_t *images)
 {
 	char *commandline = env_get("bootargs");
 
-	if (CONFIG_IS_ENABLED(OF_LIBFDT) && images->ft_len) {
-#ifdef CONFIG_OF_LIBFDT
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && CONFIG_IS_ENABLED(LMB) && images->ft_len) {
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
 			panic("FDT creation failed!");
 		}
-#endif
 	} else if (BOOTM_ENABLE_TAGS) {
 		debug("using: ATAGS\n");
 		setup_start_tag(gd->bd);

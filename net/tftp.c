@@ -7,6 +7,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <display_options.h>
 #include <efi_loader.h>
 #include <env.h>
 #include <image.h>
@@ -17,9 +18,6 @@
 #include <asm/global_data.h>
 #include <net/tftp.h>
 #include "bootp.h"
-#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
-#include <flash.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -158,47 +156,24 @@ static inline int store_block(int block, uchar *src, unsigned int len)
 			tftp_block_size;
 	ulong newsize = offset + len;
 	ulong store_addr = tftp_load_addr + offset;
-#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
-	int i, rc = 0;
-
-	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
-		/* start address in flash? */
-		if (flash_info[i].flash_id == FLASH_UNKNOWN)
-			continue;
-		if (store_addr >= flash_info[i].start[0]) {
-			rc = 1;
-			break;
-		}
-	}
-
-	if (rc) { /* Flash is destination for this packet */
-		rc = flash_write((char *)src, store_addr, len);
-		if (rc) {
-			flash_perror(rc);
-			return rc;
-		}
-	} else
-#endif /* CONFIG_SYS_DIRECT_FLASH_TFTP */
-	{
-		void *ptr;
+	void *ptr;
 
 #ifdef CONFIG_LMB
-		ulong end_addr = tftp_load_addr + tftp_load_size;
+	ulong end_addr = tftp_load_addr + tftp_load_size;
 
-		if (!end_addr)
-			end_addr = ULONG_MAX;
+	if (!end_addr)
+		end_addr = ULONG_MAX;
 
-		if (store_addr < tftp_load_addr ||
-		    store_addr + len > end_addr) {
-			puts("\nTFTP error: ");
-			puts("trying to overwrite reserved memory...\n");
-			return -1;
-		}
-#endif
-		ptr = map_sysmem(store_addr, len);
-		memcpy(ptr, src, len);
-		unmap_sysmem(ptr);
+	if (store_addr < tftp_load_addr ||
+	    store_addr + len > end_addr) {
+		puts("\nTFTP error: ");
+		puts("trying to overwrite reserved memory...\n");
+		return -1;
 	}
+#endif
+	ptr = map_sysmem(store_addr, len);
+	memcpy(ptr, src, len);
+	unmap_sysmem(ptr);
 
 	if (net_boot_file_size < newsize)
 		net_boot_file_size = newsize;

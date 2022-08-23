@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <mapmem.h>
 #include <part.h>
 
 int do_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
@@ -45,7 +46,7 @@ int do_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 1;
 	}
 
-	addr = (void *)hextoul(argv[3], NULL);
+	addr = map_sysmem(hextoul(argv[3], NULL), 0);
 	blk = hextoul(argv[4], NULL);
 	cnt = hextoul(argv[5], NULL);
 

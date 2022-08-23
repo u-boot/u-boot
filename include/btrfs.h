@@ -2,7 +2,7 @@
 /*
  * BTRFS filesystem implementation for U-Boot
  *
- * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
+ * 2017 Marek Behún, CZ.NIC, kabel@kernel.org
  */
 
 #ifndef __U_BOOT_BTRFS_H__

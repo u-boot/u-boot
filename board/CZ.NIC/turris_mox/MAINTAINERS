@@ -1,6 +1,8 @@
-TURRIS OMNIA BOARD
-M:	Marek Behún <marek.behun@nic.cz>
+TURRIS MOX BOARD
+M:	Marek Behún <kabel@kernel.org>
+M:	Pali Rohár <pali@kernel.org>
 S:	Maintained
+F:	arch/arm/dts/armada-3720-turris-mox*.dts*
 F:	board/CZ.NIC/turris_mox/
 F:	include/configs/turris_mox.h
 F:	configs/turris_mox_defconfig

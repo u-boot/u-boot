@@ -182,7 +182,7 @@ int checkboard(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	u8 in, out, io_config, val;
+	u8 in, out, invert, io_config, val;
 	int bus_num = CONFIG_SYS_SPD_BUS_NUM;
 
 	/* FIXME: This should just use the model from the device tree or similar */
@@ -210,6 +210,7 @@ int checkboard(void)
 
 	if (dm_i2c_read(dev, 0, &in, 1) < 0 ||
 	    dm_i2c_read(dev, 1, &out, 1) < 0 ||
+	    dm_i2c_read(dev, 2, &invert, 1) < 0 ||
 	    dm_i2c_read(dev, 3, &io_config, 1) < 0) {
 		printf("Error reading i2c boot information!\n");
 		return 0; /* Don't want to hang() on this error */
@@ -219,13 +220,14 @@ int checkboard(void)
 
 	if (i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 0, 1, &in, 1) < 0 ||
 	    i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 1, 1, &out, 1) < 0 ||
+	    i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 2, 1, &invert, 1) < 0 ||
 	    i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 3, 1, &io_config, 1) < 0) {
 		printf("Error reading i2c boot information!\n");
 		return 0; /* Don't want to hang() on this error */
 	}
 	#endif
 
-	val = (in & io_config) | (out & (~io_config));
+	val = ((in ^ invert) & io_config) | (out & (~io_config));
 
 	puts("rom_loc: ");
 	if (0) {

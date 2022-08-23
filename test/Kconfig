@@ -20,7 +20,7 @@ config SPL_UNIT_TEST
 config UT_LIB
 	bool "Unit tests for library functions"
 	depends on UNIT_TEST
-	default y
+	default y if !SANDBOX_VPL
 	help
 	  Enables the 'ut lib' command which tests library functions like
 	  memcat(), memcyp(), memmove() and ASN1 compiler/decoder.
@@ -99,5 +99,6 @@ config UT_UNICODE
 
 source "test/dm/Kconfig"
 source "test/env/Kconfig"
+source "test/lib/Kconfig"
 source "test/optee/Kconfig"
 source "test/overlay/Kconfig"

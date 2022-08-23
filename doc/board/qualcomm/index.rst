@@ -8,3 +8,4 @@ Qualcomm
 
    dragonboard410c
    sdm845
+   qcs404

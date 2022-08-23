@@ -200,8 +200,8 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 			do {
 				result = *addr;
 
-				/* check timeout */
-				if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
+				/* check timeout, 1000ms */
+				if (get_timer(start) > 1000) {
 					MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 					chip1 = TMO;
 					break;
@@ -289,8 +289,8 @@ static int write_word(flash_info_t *info, ulong dest, ulong data)
 	do {
 		result = *addr;
 
-		/* check timeout */
-		if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
+		/* check timeout, 1000ms */
+		if (get_timer(start) > 1000) {
 			chip1 = ERR | TMO;
 			break;
 		}

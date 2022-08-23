@@ -30,8 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[];	/* FLASH chips info */
-
 void local_bus_init (void);
 ulong flash_get_size (ulong base, int banknum);
 

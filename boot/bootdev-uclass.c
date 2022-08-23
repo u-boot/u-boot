@@ -36,7 +36,6 @@ enum {
 
 int bootdev_add_bootflow(struct bootflow *bflow)
 {
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
 	struct bootstd_priv *std;
 	struct bootflow *new;
 	int ret;
@@ -52,7 +51,11 @@ int bootdev_add_bootflow(struct bootflow *bflow)
 	memcpy(new, bflow, sizeof(*bflow));
 
 	list_add_tail(&new->glob_node, &std->glob_head);
-	list_add_tail(&new->bm_node, &ucp->bootflow_head);
+	if (bflow->dev) {
+		struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
+
+		list_add_tail(&new->bm_node, &ucp->bootflow_head);
+	}
 
 	return 0;
 }
@@ -604,14 +607,14 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 		log_debug("Expected %d bootdevs, found %d using aliases\n",
 			  count, upto);
 
-	count = build_order(bootstd, order, upto);
-	if (count < 0) {
+	ret = build_order(bootstd, order, upto);
+	if (ret < 0) {
 		free(order);
-		return log_msg_ret("build", count);
+		return log_msg_ret("build", ret);
 	}
 
+	iter->num_devs = ret;
 	iter->dev_order = order;
-	iter->num_devs = count;
 	iter->cur_dev = 0;
 
 	dev = *order;

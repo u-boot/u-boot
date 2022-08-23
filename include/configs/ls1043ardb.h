@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2015 Freescale Semiconductor
+ * Copyright 2022 NXP
  */
 
 #ifndef __LS1043ARDB_H__
@@ -42,11 +43,6 @@
 #define CONFIG_SYS_NOR_FTIM3		0
 #define CONFIG_SYS_IFC_CCR		0x01000000
 
-#define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
-#define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE_PHYS }
 
 #define CONFIG_SYS_WRITE_SWAPPED_DATA
@@ -211,7 +207,9 @@
 #define QSGMII_PORT3_PHY_ADDR		0x6
 #define QSGMII_PORT4_PHY_ADDR		0x7
 
-#define FM1_10GEC1_PHY_ADDR		0x1
+/* The AQR PHY model and MDIO address differ between board revisions */
+#define FM1_10GEC1_PHY_ADDR		0x1 /* AQR105 on boards up to v6.0 */
+#define AQR113C_PHY_ADDR		0x8 /* AQR113C on boards v7.0 and up */
 #endif
 #endif
 

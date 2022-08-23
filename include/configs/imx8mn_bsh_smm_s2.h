@@ -16,6 +16,7 @@
 #define NANDARGS \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
+		"mtdparts=${mtdparts} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
 	"nandroot=ubi0:root rw ubi.mtd=nandrootfs\0" \

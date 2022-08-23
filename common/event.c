@@ -35,6 +35,9 @@ const char *const type_name[] = {
 
 	/* init hooks */
 	"misc_init_f",
+
+	/* fdt hooks */
+	"ft_fixup",
 };
 
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");

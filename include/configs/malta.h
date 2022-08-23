@@ -30,7 +30,7 @@
 #else
 # define CONFIG_SYS_SDRAM_BASE		0x80000000
 #endif
-#define CONFIG_SYS_MEM_SIZE		(256 * 1024 * 1024)
+#define CONFIG_SYS_SDRAM_SIZE		0x10000000	/* 256 MiB */
 
 #define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 
@@ -47,7 +47,6 @@
 #else
 # define CONFIG_SYS_FLASH_BASE		0xbe000000
 #endif
-#define CONFIG_SYS_MAX_FLASH_SECT	128
 
 /*
  * Environment

@@ -175,6 +175,13 @@ config WDT_MAX6370
 	help
 	  Select this to enable max6370 watchdog timer.
 
+config WDT_MESON_GXBB
+	bool "Amlogic watchdog timer support"
+	depends on WDT
+	help
+	  Select this to enable Meson watchdog timer,
+	  which can be found on some Amlogic platforms.
+
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
@@ -191,7 +198,7 @@ config WDT_MT7620
 
 config WDT_MT7621
 	bool "MediaTek MT7621 watchdog timer support"
-	depends on WDT && SOC_MT7628
+	depends on WDT && (SOC_MT7621 || SOC_MT7628)
 	help
 	  Select this to enable Ralink / Mediatek watchdog timer,
 	  which can be found on some MediaTek chips.
@@ -213,14 +220,13 @@ config WDT_NPCM
 	  It performs full SoC reset.
 
 config WDT_OCTEONTX
-	bool "OcteonTX core watchdog support"
-	depends on WDT && (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	bool "Octeon core watchdog support"
+	depends on WDT && (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	default y
 	imply WATCHDOG
 	help
-	  This enables OcteonTX watchdog driver, which can be
-	  found on OcteonTX/TX2 chipsets and inline with driver model.
-	  Only supports watchdog reset.
+	  This enables the Octeon watchdog driver, which can be found on
+	  various Octeon parts such as Octeon II/III and OcteonTX/TX2.
 
 config WDT_OMAP3
 	bool "TI OMAP watchdog timer support"

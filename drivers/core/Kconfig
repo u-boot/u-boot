@@ -18,7 +18,7 @@ config SPL_DM
 	  consider using CONFIG_SPL_SYS_MALLOC_SIMPLE. In that case you
 	  must provide CONFIG_SPL_SYS_MALLOC_F_LEN to set the size.
 	  In most cases driver model will only allocate a few uclasses
-	  and devices in SPL, so 1KB should be enable. See
+	  and devices in SPL, so 1KB should be enough. See
 	  CONFIG_SPL_SYS_MALLOC_F_LEN for more details on how to enable it.
 
 config TPL_DM

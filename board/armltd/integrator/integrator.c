@@ -179,9 +179,6 @@ extern void dram_query(void);
 int board_eth_init(struct bd_info *bis)
 {
 	int rc = 0;
-#ifdef CONFIG_SMC91111
-	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
-#endif
 	return rc;
 }
 #endif

@@ -166,27 +166,6 @@ Directory Hierarchy:
 Software Configuration:
 =======================
 
-Configuration is usually done using C preprocessor defines; the
-rationale behind that is to avoid dead code whenever possible.
-
-There are two classes of configuration variables:
-
-* Configuration _OPTIONS_:
-  These are selectable by the user and have names beginning with
-  "CONFIG_".
-
-* Configuration _SETTINGS_:
-  These depend on the hardware etc. and should not be meddled with if
-  you don't know what you're doing; they have names beginning with
-  "CONFIG_SYS_".
-
-Previously, all configuration was done by hand, which involved creating
-symbolic links and editing configuration files manually. More recently,
-U-Boot has added the Kbuild infrastructure used by the Linux kernel,
-allowing you to use the "make menuconfig" command to configure your
-build.
-
-
 Selection of Processor Architecture and Board Type:
 ---------------------------------------------------
 
@@ -315,17 +294,6 @@ The following options need to be configured:
 		the "64" category of the Power ISA). This is necessary for ePAPR
 		compliance, among other possible reasons.
 
-		CONFIG_SYS_FSL_TBCLK_DIV
-
-		Defines the core time base clock divider ratio compared to the
-		system clock.  On most PQ3 devices this is 8, on newer QorIQ
-		devices it can be 16 or 32.  The ratio varies from SoC to Soc.
-
-		CONFIG_SYS_FSL_PCIE_COMPAT
-
-		Defines the string to utilize when trying to match PCIe device
-		tree nodes for the given platform.
-
 		CONFIG_SYS_FSL_ERRATUM_A004510
 
 		Enables a workaround for erratum A004510.  If set,
@@ -351,31 +319,12 @@ The following options need to be configured:
 		This is the value to write into CCSR offset 0x18600
 		according to the A004510 workaround.
 
-		CONFIG_SYS_FSL_DSP_DDR_ADDR
-		This value denotes start offset of DDR memory which is
-		connected exclusively to the DSP cores.
-
-		CONFIG_SYS_FSL_DSP_M2_RAM_ADDR
-		This value denotes start offset of M2 memory
-		which is directly connected to the DSP core.
-
-		CONFIG_SYS_FSL_DSP_M3_RAM_ADDR
-		This value denotes start offset of M3 memory which is directly
-		connected to the DSP core.
-
-		CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT
-		This value denotes start offset of DSP CCSR space.
-
 		CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 		Single Source Clock is clocking mode present in some of FSL SoC's.
 		In this mode, a single differential clock is used to supply
 		clocks to the sysclock, ddrclock and usbclock.
 
 - Generic CPU options:
-		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
-
-		Defines the endianess of the CPU. Implementation of those
-		values is arch specific.
 
 		CONFIG_SYS_FSL_DDR
 		Freescale DDR driver in use. This type of DDR controller is
@@ -384,78 +333,16 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
 
-		CONFIG_SYS_FSL_DDRC_GEN1
-		Freescale DDR1 controller.
-
-		CONFIG_SYS_FSL_DDRC_GEN2
-		Freescale DDR2 controller.
-
-		CONFIG_SYS_FSL_DDRC_GEN3
-		Freescale DDR3 controller.
-
-		CONFIG_SYS_FSL_DDRC_GEN4
-		Freescale DDR4 controller.
-
-		CONFIG_SYS_FSL_DDRC_ARM_GEN3
-		Freescale DDR3 controller for ARM-based SoCs.
-
-		CONFIG_SYS_FSL_DDR1
-		Board config to use DDR1. It can be enabled for SoCs with
-		Freescale DDR1 or DDR2 controllers, depending on the board
-		implemetation.
-
-		CONFIG_SYS_FSL_DDR2
-		Board config to use DDR2. It can be enabled for SoCs with
-		Freescale DDR2 or DDR3 controllers, depending on the board
-		implementation.
-
-		CONFIG_SYS_FSL_DDR3
-		Board config to use DDR3. It can be enabled for SoCs with
-		Freescale DDR3 or DDR3L controllers.
-
-		CONFIG_SYS_FSL_DDR3L
-		Board config to use DDR3L. It can be enabled for SoCs with
-		DDR3L controllers.
-
-		CONFIG_SYS_FSL_IFC_BE
-		Defines the IFC controller register space as Big Endian
-
-		CONFIG_SYS_FSL_IFC_LE
-		Defines the IFC controller register space as Little Endian
-
 		CONFIG_SYS_FSL_IFC_CLK_DIV
 		Defines divider of platform clock(clock input to IFC controller).
 
 		CONFIG_SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to eLBC controller).
 
-		CONFIG_SYS_FSL_DDR_BE
-		Defines the DDR controller register space as Big Endian
-
-		CONFIG_SYS_FSL_DDR_LE
-		Defines the DDR controller register space as Little Endian
-
 		CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY
 		Physical address from the view of DDR controllers. It is the
 		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.
-
-		CONFIG_SYS_FSL_DDR_INTLV_256B
-		DDR controller interleaving on 256-byte. This is a special
-		interleaving mode, handled by Dickens for Freescale layerscape
-		SoCs with ARM core.
-
-		CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
-		Number of controllers used as main memory.
-
-		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
-		Number of controllers used for other than main memory.
-
-		CONFIG_SYS_FSL_SEC_BE
-		Defines the SEC controller register space as Big Endian
-
-		CONFIG_SYS_FSL_SEC_LE
-		Defines the SEC controller register space as Little Endian
 
 - MIPS CPU options:
 		CONFIG_XWAY_SWAP_BYTES
@@ -677,20 +564,6 @@ The following options need to be configured:
 
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
-
-		CONFIG_SMC91111
-		Support for SMSC's LAN91C111 chip
-
-			CONFIG_SMC91111_BASE
-			Define this to hold the physical address
-			of the device (I/O space)
-
-			CONFIG_SMC_USE_32_BIT
-			Define this if data bus is 32 bits
-
-			CONFIG_SMC_USE_IOFUNCS
-			Define this to use i/o functions instead of macros
-			(some hardware wont work with macros)
 
 			CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
 			Define this if you have more then 3 PHYs.
@@ -1330,10 +1203,6 @@ The following options need to be configured:
 		Enables support for FPGA family.
 		(SPARTAN2, SPARTAN3, VIRTEX2, CYCLONE2, ACEX1K, ACEX)
 
-		CONFIG_SYS_FPGA_PROG_FEEDBACK
-
-		Enable printing of hash marks during FPGA configuration.
-
 		CONFIG_SYS_FPGA_CHECK_BUSY
 
 		Enable checks on FPGA configuration interface busy
@@ -1345,9 +1214,6 @@ The following options need to be configured:
 
 		If defined, a function that provides delays in the FPGA
 		configuration driver.
-
-		CONFIG_SYS_FPGA_CHECK_CTRLC
-		Allow Control-C to interrupt FPGA configuration
 
 		CONFIG_SYS_FPGA_CHECK_ERROR
 
@@ -1756,37 +1622,9 @@ Configuration Settings:
 		Enables allocating and saving a kernel copy of the bd_info in
 		space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
-- CONFIG_SYS_MAX_FLASH_SECT:
-		Max number of sectors on a Flash chip
-
-- CONFIG_SYS_FLASH_ERASE_TOUT:
-		Timeout for Flash erase operations (in ms)
-
-- CONFIG_SYS_FLASH_WRITE_TOUT:
-		Timeout for Flash write operations (in ms)
-
-- CONFIG_SYS_FLASH_LOCK_TOUT
-		Timeout for Flash set sector lock bit operation (in ms)
-
-- CONFIG_SYS_FLASH_UNLOCK_TOUT
-		Timeout for Flash clear lock bits operation (in ms)
-
 - CONFIG_SYS_FLASH_PROTECTION
 		If defined, hardware flash sectors protection is used
 		instead of U-Boot software protection.
-
-- CONFIG_SYS_DIRECT_FLASH_TFTP:
-
-		Enable TFTP transfers directly to flash memory;
-		without this option such a download has to be
-		performed in two steps: (1) download to RAM, and (2)
-		copy from RAM to flash.
-
-		The two-step approach is usually more reliable, since
-		you can check if the download worked before you erase
-		the flash, but in some situations (when system RAM is
-		too limited to allow for a temporary copy of the
-		downloaded image) this option may be very useful.
 
 - CONFIG_SYS_FLASH_CFI:
 		Define if the flash driver uses extra elements in the
@@ -1807,12 +1645,6 @@ Configuration Settings:
 - CONFIG_FLASH_SPANSION_S29WS_N
 		s29ws-n MirrorBit flash has non-standard addresses for buffered
 		write commands.
-
-- CONFIG_SYS_FLASH_QUIET_TEST
-		If this option is defined, the common CFI flash doesn't
-		print it's warning upon not recognized FLASH banks. This
-		is useful, if some of the configured banks are only
-		optionally available.
 
 - CONFIG_FLASH_SHOW_PROGRESS
 		If defined (must be an integer), print out countdown

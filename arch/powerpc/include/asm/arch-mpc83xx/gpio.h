@@ -8,8 +8,7 @@
  */
 #if defined(CONFIG_ARCH_MPC8313) || defined(CONFIG_ARCH_MPC8308)
 #define MPC83XX_GPIO_CTRLRS 1
-#elif defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_ARCH_MPC837X) || \
-	defined(CONFIG_ARCH_MPC8309)
+#elif defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_ARCH_MPC837X)
 #define MPC83XX_GPIO_CTRLRS 2
 #else
 #define MPC83XX_GPIO_CTRLRS 0
