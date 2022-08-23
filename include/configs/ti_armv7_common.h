@@ -747,6 +747,10 @@
 			"else " \
 				"echo uboot_overlays: add [enable_uboot_overlays=1] to /boot/uEnv.txt to enable...;" \
 			"fi;" \
+			"if test -n ${uboot_detected_capes}; then " \
+				"echo uboot_overlays: [uboot_detected_capes=${uboot_detected_capes_addr0}${uboot_detected_capes_addr1}${uboot_detected_capes_addr2}${uboot_detected_capes_addr3}] ... ;" \
+				"setenv uboot_detected_capes uboot_detected_capes=${uboot_detected_capes_addr0}${uboot_detected_capes_addr1}${uboot_detected_capes_addr2}${uboot_detected_capes_addr3}; " \
+			"fi;" \
 			"setenv rdfile initrd.img-${uname_r}; " \
 			"if test -e ${devtype} ${bootpart} ${bootdir}/${rdfile}; then " \
 				"echo loading ${bootdir}/${rdfile} ...; "\
