@@ -2,6 +2,8 @@
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
+ *
+ * ARM Cortext A9 global timer driver
  */
 
 #include <common.h>
@@ -13,13 +15,13 @@
 #include <asm/io.h>
 #include <asm/arch-armv7/globaltimer.h>
 
-struct sti_timer_priv {
+struct arm_global_timer_priv {
 	struct globaltimer *global_timer;
 };
 
-static u64 sti_timer_get_count(struct udevice *dev)
+static u64 arm_global_timer_get_count(struct udevice *dev)
 {
-	struct sti_timer_priv *priv = dev_get_priv(dev);
+	struct arm_global_timer_priv *priv = dev_get_priv(dev);
 	struct globaltimer *global_timer = priv->global_timer;
 	u32 low, high;
 	u64 timer;
@@ -37,10 +39,10 @@ static u64 sti_timer_get_count(struct udevice *dev)
 	return (u64)((timer << 32) | low);
 }
 
-static int sti_timer_probe(struct udevice *dev)
+static int arm_global_timer_probe(struct udevice *dev)
 {
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct sti_timer_priv *priv = dev_get_priv(dev);
+	struct arm_global_timer_priv *priv = dev_get_priv(dev);
 	struct clk clk;
 	int err;
 	ulong ret;
@@ -66,20 +68,20 @@ static int sti_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct timer_ops sti_timer_ops = {
-	.get_count = sti_timer_get_count,
+static const struct timer_ops arm_global_timer_ops = {
+	.get_count = arm_global_timer_get_count,
 };
 
-static const struct udevice_id sti_timer_ids[] = {
+static const struct udevice_id arm_global_timer_ids[] = {
 	{ .compatible = "arm,cortex-a9-global-timer" },
 	{}
 };
 
-U_BOOT_DRIVER(sti_timer) = {
-	.name = "sti_timer",
+U_BOOT_DRIVER(arm_global_timer) = {
+	.name = "arm_global_timer",
 	.id = UCLASS_TIMER,
-	.of_match = sti_timer_ids,
-	.priv_auto	= sizeof(struct sti_timer_priv),
-	.probe = sti_timer_probe,
-	.ops = &sti_timer_ops,
+	.of_match = arm_global_timer_ids,
+	.priv_auto	= sizeof(struct arm_global_timer_priv),
+	.probe = arm_global_timer_probe,
+	.ops = &arm_global_timer_ops,
 };
