@@ -39,11 +39,6 @@ static iomux_v3_cfg_t const i2c1_pads[] = {
 	IMX8MM_PAD_I2C1_SDA_I2C1_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL) | MUX_MODE_SION
 };
 
-static iomux_v3_cfg_t const i2c2_pads[] = {
-	IMX8MM_PAD_I2C2_SCL_I2C2_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL) | MUX_MODE_SION,
-	IMX8MM_PAD_I2C2_SDA_I2C2_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL) | MUX_MODE_SION
-};
-
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
 	switch (boot_dev_spl) {
@@ -109,40 +104,26 @@ static void spl_dram_init(void)
 		size = 1;
 	}
 
-	printf("Kontron SL i.MX8MM (N801X) module, %u GB RAM detected\n", size);
+	gd->ram_size = size;
 	writel(size, M4_BOOTROM_BASE_ADDR);
-}
-
-static int i2c_detect(u8 bus, u16 addr)
-{
-	struct udevice *udev;
-	int ret;
-
-	/*
-	 * Try to probe the touch controller to check if an LVDS panel is
-	 * connected.
-	 */
-	ret = i2c_get_chip_for_busnum(bus, addr, 0, &udev);
-	if (ret == 0)
-		return 0;
-
-	return 1;
 }
 
 int do_board_detect(void)
 {
+	gd->board_type = BOARD_TYPE_KTN_N801X;
+	printf("Kontron SL i.MX8MM (N801X) module, %u GB RAM detected\n",
+	       (unsigned int)gd->ram_size);
+
 	/*
 	 * Check the I2C PMIC to detect the deprecated SoM with DA9063.
 	 */
 	imx_iomux_v3_setup_multiple_pads(i2c1_pads, ARRAY_SIZE(i2c1_pads));
 
-	if (i2c_detect(0, 0x58) == 0) {
+	if (i2c_get_chip_for_busnum(0, 0x58, 0, &udev) == 0) {
 		printf("### ATTENTION: DEPRECATED SOM REVISION (N8010 Rev0) DETECTED! ###\n");
 		printf("###  THIS HW IS NOT SUPPORTED AND BOOTING WILL PROBABLY FAIL  ###\n");
 		printf("###             PLEASE UPGRADE TO LATEST MODULE               ###\n");
 	}
-
-	gd->board_type = BOARD_TYPE_KTN_N801X;
 
 	return 0;
 }
