@@ -1121,46 +1121,6 @@ struct dram_cfg_param ddr_fsp1_cfg[] = {
 	{ 0xd0000, 0x1 },
 };
 
-/* P2 message block paremeter for training firmware */
-struct dram_cfg_param ddr_fsp2_cfg[] = {
-	{ 0xd0000, 0x0 },
-	{ 0x54002, 0x102 },
-	{ 0x54003, 0x64 },
-	{ 0x54004, 0x2 },
-	{ 0x54005, 0x2228 },
-	{ 0x54006, 0x11 },
-	{ 0x54008, 0x121f },
-	{ 0x54009, 0xc8 },
-	{ 0x5400b, 0x2 },
-	{ 0x5400d, 0x100 },
-	{ 0x54012, 0x310 },
-	{ 0x54019, 0x84 },
-	{ 0x5401a, 0x31 },
-	{ 0x5401b, 0x4d66 },
-	{ 0x5401c, 0x4d00 },
-	{ 0x5401e, 0x16 },
-	{ 0x5401f, 0x84 },
-	{ 0x54020, 0x31 },
-	{ 0x54021, 0x4d66 },
-	{ 0x54022, 0x4d00 },
-	{ 0x54024, 0x16 },
-	{ 0x5402b, 0x1000 },
-	{ 0x5402c, 0x3 },
-	{ 0x54032, 0x8400 },
-	{ 0x54033, 0x3100 },
-	{ 0x54034, 0x6600 },
-	{ 0x54035, 0x4d },
-	{ 0x54036, 0x4d },
-	{ 0x54037, 0x1600 },
-	{ 0x54038, 0x8400 },
-	{ 0x54039, 0x3100 },
-	{ 0x5403a, 0x6600 },
-	{ 0x5403b, 0x4d },
-	{ 0x5403c, 0x4d },
-	{ 0x5403d, 0x1600 },
-	{ 0xd0000, 0x1 },
-};
-
 /* P0 2D message block paremeter for training firmware */
 struct dram_cfg_param ddr_fsp0_2d_cfg[] = {
 	{ 0xd0000, 0x0 },
@@ -1813,13 +1773,6 @@ struct dram_fsp_msg ddr_dram_fsp_msg[] = {
 		.fsp_cfg_num = ARRAY_SIZE(ddr_fsp1_cfg),
 	},
 	{
-		/* P2 100mts 1D */
-		.drate = 100,
-		.fw_type = FW_1D_IMAGE,
-		.fsp_cfg = ddr_fsp2_cfg,
-		.fsp_cfg_num = ARRAY_SIZE(ddr_fsp2_cfg),
-	 },
-	{
 		/* P0 3000mts 2D */
 		.drate = 3000,
 		.fw_type = FW_2D_IMAGE,
@@ -1840,5 +1793,5 @@ struct dram_timing_info dram_timing = {
 	.ddrphy_trained_csr_num = ARRAY_SIZE(ddr_ddrphy_trained_csr),
 	.ddrphy_pie = ddr_phy_pie,
 	.ddrphy_pie_num = ARRAY_SIZE(ddr_phy_pie),
-	.fsp_table = { 3000, 400, 100, },
+	.fsp_table = { 3000, 400, },
 };

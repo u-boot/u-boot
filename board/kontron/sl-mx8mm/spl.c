@@ -95,8 +95,6 @@ static void spl_dram_init(void)
 		dram_timing.fsp_msg[1].fsp_cfg[22].val = 0x1;
 		dram_timing.fsp_msg[2].fsp_cfg[10].val = 0x110;
 		dram_timing.fsp_msg[2].fsp_cfg[22].val = 0x1;
-		dram_timing.fsp_msg[3].fsp_cfg[10].val = 0x110;
-		dram_timing.fsp_msg[3].fsp_cfg[22].val = 0x1;
 
 		if (!ddr_init(&dram_timing)) {
 			if (check_ram_available(SZ_2G))
