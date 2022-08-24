@@ -238,25 +238,3 @@ void board_init_f(ulong dummy)
 
 	board_init_r(NULL, 0);
 }
-
-void board_boot_order(u32 *spl_boot_list)
-{
-	u32 bootdev = spl_boot_device();
-
-	/*
-	 * The default boot fuse settings use the SD card (MMC2) as primary
-	 * boot device, but allow SPI NOR as a fallback boot device.
-	 * We can't detect the fallback case and spl_boot_device() will return
-	 * BOOT_DEVICE_MMC2 despite the actual boot device being SPI NOR.
-	 * Therefore we try to load U-Boot proper vom SPI NOR after loading
-	 * from MMC has failed.
-	 */
-	spl_boot_list[0] = bootdev;
-
-	switch (bootdev) {
-	case BOOT_DEVICE_MMC1:
-	case BOOT_DEVICE_MMC2:
-		spl_boot_list[1] = BOOT_DEVICE_SPI;
-		break;
-	}
-}
