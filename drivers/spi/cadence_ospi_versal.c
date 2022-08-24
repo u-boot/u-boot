@@ -128,7 +128,7 @@ int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_plat *plat)
 }
 
 #if defined(CONFIG_DM_GPIO)
-int cadence_spi_versal_flash_reset(struct udevice *dev)
+int cadence_qspi_versal_flash_reset(struct udevice *dev)
 {
 	struct gpio_desc gpio;
 	u32 reset_gpio;
@@ -169,7 +169,7 @@ int cadence_spi_versal_flash_reset(struct udevice *dev)
 	return 0;
 }
 #else
-int cadence_spi_versal_flash_reset(struct udevice *dev)
+int cadence_qspi_versal_flash_reset(struct udevice *dev)
 {
 	/* CRP WPROT */
 	writel(0, WPROT_CRP);
