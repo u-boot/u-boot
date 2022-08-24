@@ -150,7 +150,8 @@ int do_board_detect(void)
 int board_fit_config_name_match(const char *name)
 {
 	if (gd->board_type == BOARD_TYPE_KTN_N801X && is_imx8mm() &&
-	    !strncmp(name, "imx8mm-kontron-n801x-s", 22))
+	    (!strcmp(name, "imx8mm-kontron-n801x-s") ||
+	     !strcmp(name, "imx8mm-kontron-bl")))
 		return 0;
 
 	return -1;
