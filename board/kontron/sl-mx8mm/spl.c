@@ -29,14 +29,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	BOARD_TYPE_KTN_N801X,
-	BOARD_TYPE_KTN_N801X_LVDS,
 	BOARD_TYPE_MAX
 };
 
-#define GPIO_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
 #define I2C_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE)
-
-#define TOUCH_RESET_GPIO	IMX_GPIO_NR(3, 23)
 
 static iomux_v3_cfg_t const i2c1_pads[] = {
 	IMX8MM_PAD_I2C1_SCL_I2C1_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL) | MUX_MODE_SION,
@@ -46,10 +42,6 @@ static iomux_v3_cfg_t const i2c1_pads[] = {
 static iomux_v3_cfg_t const i2c2_pads[] = {
 	IMX8MM_PAD_I2C2_SCL_I2C2_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL) | MUX_MODE_SION,
 	IMX8MM_PAD_I2C2_SDA_I2C2_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL) | MUX_MODE_SION
-};
-
-static iomux_v3_cfg_t const touch_gpio[] = {
-	IMX8MM_PAD_SAI5_RXD2_GPIO3_IO23 | MUX_PAD_CTRL(GPIO_PAD_CTRL)
 };
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
@@ -123,20 +115,6 @@ static void spl_dram_init(void)
 	writel(size, M4_BOOTROM_BASE_ADDR);
 }
 
-static void touch_reset(void)
-{
-	/*
-	 * Toggle the reset of the touch panel.
-	 */
-	imx_iomux_v3_setup_multiple_pads(touch_gpio, ARRAY_SIZE(touch_gpio));
-
-	gpio_request(TOUCH_RESET_GPIO, "touch_reset");
-	gpio_direction_output(TOUCH_RESET_GPIO, 0);
-	mdelay(20);
-	gpio_direction_output(TOUCH_RESET_GPIO, 1);
-	mdelay(20);
-}
-
 static int i2c_detect(u8 bus, u16 addr)
 {
 	struct udevice *udev;
@@ -155,19 +133,6 @@ static int i2c_detect(u8 bus, u16 addr)
 
 int do_board_detect(void)
 {
-	bool lvds = false;
-
-	/*
-	 * Check the I2C touch controller to detect a LVDS panel.
-	 */
-	imx_iomux_v3_setup_multiple_pads(i2c2_pads, ARRAY_SIZE(i2c2_pads));
-	touch_reset();
-
-	if (i2c_detect(1, 0x5d) == 0) {
-		printf("Touch controller detected, assuming LVDS panel...\n");
-		lvds = true;
-	}
-
 	/*
 	 * Check the I2C PMIC to detect the deprecated SoM with DA9063.
 	 */
@@ -175,24 +140,17 @@ int do_board_detect(void)
 
 	if (i2c_detect(0, 0x58) == 0) {
 		printf("### ATTENTION: DEPRECATED SOM REVISION (N8010 Rev0) DETECTED! ###\n");
-		printf("###  THIS HW IS NOT SUPPRTED AND BOOTING WILL PROBABLY FAIL   ###\n");
+		printf("###  THIS HW IS NOT SUPPORTED AND BOOTING WILL PROBABLY FAIL  ###\n");
 		printf("###             PLEASE UPGRADE TO LATEST MODULE               ###\n");
 	}
 
-	if (lvds)
-		gd->board_type = BOARD_TYPE_KTN_N801X_LVDS;
-	else
-		gd->board_type = BOARD_TYPE_KTN_N801X;
+	gd->board_type = BOARD_TYPE_KTN_N801X;
 
 	return 0;
 }
 
 int board_fit_config_name_match(const char *name)
 {
-	if (gd->board_type == BOARD_TYPE_KTN_N801X_LVDS && is_imx8mm() &&
-	    !strncmp(name, "imx8mm-kontron-n801x-s-lvds", 27))
-		return 0;
-
 	if (gd->board_type == BOARD_TYPE_KTN_N801X && is_imx8mm() &&
 	    !strncmp(name, "imx8mm-kontron-n801x-s", 22))
 		return 0;
