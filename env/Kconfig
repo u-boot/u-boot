@@ -570,6 +570,7 @@ config ENV_OFFSET_REDUND
 	hex "Redundant environment offset"
 	depends on (ENV_IS_IN_EEPROM || ENV_IS_IN_MMC || ENV_IS_IN_NAND || \
 		    ENV_IS_IN_SPI_FLASH) && SYS_REDUNDAND_ENVIRONMENT
+	default 0x10C0000 if MICROBLAZE
 	default 0
 	help
 	  Offset from the start of the device (or partition) of the redundant
