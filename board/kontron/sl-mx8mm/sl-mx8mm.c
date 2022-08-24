@@ -121,6 +121,12 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	env_set("som_type", "sl");
+	return 0;
+}
+
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	enum boot_device boot_dev = get_boot_device();
