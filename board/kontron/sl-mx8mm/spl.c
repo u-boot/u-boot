@@ -89,10 +89,10 @@ static void spl_dram_init(void)
 		dram_timing.ddrc_cfg[2].val = 0xa1080020;
 		dram_timing.ddrc_cfg[37].val = 0x1f;
 
-		dram_timing.fsp_msg[0].fsp_cfg[9].val = 0x110;
-		dram_timing.fsp_msg[0].fsp_cfg[21].val = 0x1;
-		dram_timing.fsp_msg[1].fsp_cfg[10].val = 0x110;
-		dram_timing.fsp_msg[1].fsp_cfg[22].val = 0x1;
+		dram_timing.fsp_msg[0].fsp_cfg[8].val = 0x110;
+		dram_timing.fsp_msg[0].fsp_cfg[20].val = 0x1;
+		dram_timing.fsp_msg[1].fsp_cfg[9].val = 0x110;
+		dram_timing.fsp_msg[1].fsp_cfg[21].val = 0x1;
 		dram_timing.fsp_msg[2].fsp_cfg[10].val = 0x110;
 		dram_timing.fsp_msg[2].fsp_cfg[22].val = 0x1;
 
