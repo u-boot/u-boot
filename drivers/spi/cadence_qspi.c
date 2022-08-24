@@ -59,12 +59,17 @@ static int cadence_spi_write_speed(struct udevice *bus, uint hz)
 static int cadence_spi_read_id(struct cadence_spi_plat *plat, u8 len,
 			       u8 *idcode)
 {
+	int err;
 	struct spi_mem_op op = SPI_MEM_OP(SPI_MEM_OP_CMD(0x9F, 1),
 					  SPI_MEM_OP_NO_ADDR,
 					  SPI_MEM_OP_NO_DUMMY,
 					  SPI_MEM_OP_DATA_IN(len, idcode, 1));
 
-	return cadence_qspi_apb_command_read(plat, &op);
+	err = cadence_qspi_apb_command_read_setup(plat, &op);
+	if (!err)
+		err = cadence_qspi_apb_command_read(plat, &op);
+
+	return err;
 }
 
 /* Calibration sequence to determine the read data capture delay register */
