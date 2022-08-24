@@ -732,7 +732,6 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr, struct udevice *dev)
 	nand->bbt_md = &bbt_mirror_descr;
 
 	/* set up nand options */
-	nand->options = NAND_NO_SUBPAGE_WRITE;
 	nand->bbt_options = NAND_BBT_USE_FLASH;
 
 	nand->controller = &elbc_ctrl->controller;
@@ -839,7 +838,7 @@ void board_nand_init(void)
 
 static int fsl_elbc_nand_probe(struct udevice *dev)
 {
-	return fsl_elbc_chip_init(0, (void *)dev_read_addr(dev), dev);
+	return fsl_elbc_chip_init(0, dev_read_addr_ptr(dev), dev);
 }
 
 static const struct udevice_id fsl_elbc_nand_dt_ids[] = {

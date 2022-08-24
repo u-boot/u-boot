@@ -1184,13 +1184,12 @@ int mt7621_nfc_spl_post_init(struct mt7621_nfc *nfc)
 {
 	struct nand_chip *nand = &nfc->nand;
 	int nand_maf_id, nand_dev_id;
-	struct nand_flash_dev *type;
+	int ret;
 
-	type = nand_get_flash_type(nand, &nand_maf_id,
-				   &nand_dev_id, NULL);
+	ret = nand_detect(nand, &nand_maf_id, &nand_dev_id, NULL);
 
-	if (IS_ERR(type))
-		return PTR_ERR(type);
+	if (ret)
+		return ret;
 
 	nand->numchips = 1;
 	nand->mtd.size = nand->chipsize;
