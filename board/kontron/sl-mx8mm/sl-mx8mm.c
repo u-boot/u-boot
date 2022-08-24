@@ -126,8 +126,11 @@ int board_late_init(void)
 	if (!fdt_node_check_compatible(gd->fdt_blob, 0, "kontron,imx8mm-n802x-som") ||
 	    !fdt_node_check_compatible(gd->fdt_blob, 0, "kontron,imx8mm-osm-s")) {
 		env_set("som_type", "osm-s");
-	else
+		env_set("touch_rst_gpio", "111");
+	} else {
 		env_set("som_type", "sl");
+		env_set("touch_rst_gpio", "87");
+	}
 
 	return 0;
 }

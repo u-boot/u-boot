@@ -4,3 +4,11 @@
  */
 
 #include "imx8mm-kontron-bl-common-u-boot.dtsi"
+
+&iomuxc {
+	pinctrl_touch: touchgrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_SAI1_TXD3_GPIO4_IO15	0x19 /* Touch Reset */
+		>;
+	};
+};
