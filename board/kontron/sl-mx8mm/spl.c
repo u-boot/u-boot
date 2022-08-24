@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	BOARD_TYPE_KTN_N801X,
+	BOARD_TYPE_KTN_N802X,
 	BOARD_TYPE_MAX
 };
 
@@ -110,9 +111,22 @@ static void spl_dram_init(void)
 
 int do_board_detect(void)
 {
-	gd->board_type = BOARD_TYPE_KTN_N801X;
-	printf("Kontron SL i.MX8MM (N801X) module, %u GB RAM detected\n",
-	       (unsigned int)gd->ram_size);
+	struct udevice *udev;
+
+	/*
+	 * Check for the RTC on the OSM module.
+	 */
+	imx_iomux_v3_setup_multiple_pads(i2c1_pads, ARRAY_SIZE(i2c1_pads));
+
+	if (i2c_get_chip_for_busnum(0, 0x52, 0, &udev) == 0) {
+		gd->board_type = BOARD_TYPE_KTN_N802X;
+		printf("Kontron OSM-S i.MX8MM (N802X) module, %u GB RAM detected\n",
+		       (unsigned int)gd->ram_size);
+	} else {
+		gd->board_type = BOARD_TYPE_KTN_N801X;
+		printf("Kontron SL i.MX8MM (N801X) module, %u GB RAM detected\n",
+		       (unsigned int)gd->ram_size);
+	}
 
 	/*
 	 * Check the I2C PMIC to detect the deprecated SoM with DA9063.
@@ -133,6 +147,11 @@ int board_fit_config_name_match(const char *name)
 	if (gd->board_type == BOARD_TYPE_KTN_N801X && is_imx8mm() &&
 	    (!strcmp(name, "imx8mm-kontron-n801x-s") ||
 	     !strcmp(name, "imx8mm-kontron-bl")))
+		return 0;
+
+	if (gd->board_type == BOARD_TYPE_KTN_N802X && is_imx8mm() &&
+	    (!strcmp(name, "imx8mm-kontron-n802x-s") ||
+	     !strcmp(name, "imx8mm-kontron-bl-osm-s")))
 		return 0;
 
 	return -1;

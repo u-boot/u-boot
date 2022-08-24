@@ -123,7 +123,12 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	env_set("som_type", "sl");
+	if (!fdt_node_check_compatible(gd->fdt_blob, 0, "kontron,imx8mm-n802x-som") ||
+	    !fdt_node_check_compatible(gd->fdt_blob, 0, "kontron,imx8mm-osm-s")) {
+		env_set("som_type", "osm-s");
+	else
+		env_set("som_type", "sl");
+
 	return 0;
 }
 
