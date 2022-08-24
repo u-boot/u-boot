@@ -17,6 +17,7 @@
 #include <linux/bug.h>
 #include <linux/errno.h>
 #include <spi.h>
+#include <spi-mem.h>
 #include <wait_bit.h>
 
 #define RPC_CMNCR		0x0000	/* R/W */
@@ -168,10 +169,6 @@ struct rpc_spi_priv {
 	fdt_addr_t	regs;
 	fdt_addr_t	extr;
 	struct clk	clk;
-
-	u8		cmdcopy[8];
-	u32		cmdlen;
-	bool		cmdstarted;
 };
 
 static int rpc_spi_wait_sslf(struct udevice *dev)
@@ -258,72 +255,84 @@ static int rpc_spi_release_bus(struct udevice *dev)
 	return 0;
 }
 
-static int rpc_spi_xfer(struct udevice *dev, unsigned int bitlen,
-			const void *dout, void *din, unsigned long flags)
+static int rpc_spi_mem_exec_op(struct spi_slave *spi,
+			       const struct spi_mem_op *op)
 {
-	struct udevice *bus = dev->parent;
+	struct udevice *bus = spi->dev->parent;
 	struct rpc_spi_priv *priv = dev_get_priv(bus);
-	u32 wlen = dout ? (bitlen / 8) : 0;
-	u32 rlen = din ? (bitlen / 8) : 0;
-	u32 wloop = DIV_ROUND_UP(wlen, 4);
-	u32 smenr, smcr, offset;
+	const void *dout = op->data.buf.out ? op->data.buf.out : NULL;
+	void *din = op->data.buf.in ? op->data.buf.in : NULL;
 	int ret = 0;
-
-	if (!priv->cmdstarted) {
-		if (!wlen || rlen)
-			BUG();
-
-		memcpy(priv->cmdcopy, dout, wlen);
-		priv->cmdlen = wlen;
-
-		/* Command transfer start */
-		priv->cmdstarted = true;
-		if (!(flags & SPI_XFER_END))
-			return 0;
-	}
-
-	offset = (priv->cmdcopy[1] << 16) | (priv->cmdcopy[2] << 8) |
-		 (priv->cmdcopy[3] << 0);
+	u32 offset = 0;
+	u32 smenr, smcr;
 
 	smenr = 0;
+	offset = op->addr.val;
 
-	if (wlen || (!rlen && !wlen) || flags == SPI_XFER_ONCE) {
-		if (wlen && flags == SPI_XFER_END)
-			smenr = RPC_SMENR_SPIDE(0xf);
+	switch (op->data.dir) {
+	case SPI_MEM_DATA_IN:
+		rpc_spi_claim_bus(spi->dev, false);
 
-		rpc_spi_claim_bus(dev, true);
+		writel(0, priv->regs + RPC_DRCMR);
+		writel(RPC_DRCMR_CMD(op->cmd.opcode), priv->regs + RPC_DRCMR);
+		smenr |= RPC_DRENR_CDE;
+
+		writel(0, priv->regs + RPC_DREAR);
+		if (op->addr.nbytes == 4) {
+			writel(RPC_DREAR_EAV(offset >> 25) | RPC_DREAR_EAC(1),
+			       priv->regs + RPC_DREAR);
+			smenr |= RPC_DRENR_ADE(0xF);
+		} else if (op->addr.nbytes == 3) {
+			smenr |= RPC_DRENR_ADE(0x7);
+		} else {
+			smenr |= RPC_DRENR_ADE(0);
+		}
+
+		writel(0, priv->regs + RPC_DRDMCR);
+		if (op->dummy.nbytes) {
+			writel(8 * op->dummy.nbytes - 1, priv->regs + RPC_DRDMCR);
+			smenr |= RPC_DRENR_DME;
+		}
+
+		writel(0, priv->regs + RPC_DROPR);
+		writel(smenr, priv->regs + RPC_DRENR);
+
+		memcpy_fromio(din, (void *)(priv->extr + offset), op->data.nbytes);
+
+		rpc_spi_release_bus(spi->dev);
+		break;
+	case SPI_MEM_DATA_OUT:
+	case SPI_MEM_NO_DATA:
+		rpc_spi_claim_bus(spi->dev, true);
 
 		writel(0, priv->regs + RPC_SMCR);
+		writel(0, priv->regs + RPC_SMCMR);
+		writel(RPC_SMCMR_CMD(op->cmd.opcode), priv->regs + RPC_SMCMR);
+		smenr |= RPC_SMENR_CDE;
 
-		if (priv->cmdlen >= 1) {	/* Command(1) */
-			writel(RPC_SMCMR_CMD(priv->cmdcopy[0]),
-			       priv->regs + RPC_SMCMR);
-			smenr |= RPC_SMENR_CDE;
-		} else {
-			writel(0, priv->regs + RPC_SMCMR);
-		}
+		writel(0, priv->regs + RPC_SMADR);
+		if (op->addr.nbytes == 4)
+			smenr |= RPC_SMENR_ADE(0xF);
+		else if (op->addr.nbytes == 3)
+			smenr |= RPC_SMENR_ADE(0x7);
+		else
+			smenr |= RPC_SMENR_ADE(0);
+		writel(offset, priv->regs + RPC_SMADR);
 
-		if (priv->cmdlen >= 4) {	/* Address(3) */
-			writel(offset, priv->regs + RPC_SMADR);
-			smenr |= RPC_SMENR_ADE(7);
-		} else {
-			writel(0, priv->regs + RPC_SMADR);
-		}
-
-		if (priv->cmdlen >= 5) {	/* Dummy(n) */
-			writel(8 * (priv->cmdlen - 4) - 1,
-			       priv->regs + RPC_SMDMCR);
+		writel(0, priv->regs + RPC_SMDMCR);
+		if (op->dummy.nbytes) {
+			writel(8 * op->dummy.nbytes - 1, priv->regs + RPC_SMDMCR);
 			smenr |= RPC_SMENR_DME;
-		} else {
-			writel(0, priv->regs + RPC_SMDMCR);
 		}
 
 		writel(0, priv->regs + RPC_SMOPR);
-
 		writel(0, priv->regs + RPC_SMDRENR);
 
-		if (wlen && flags == SPI_XFER_END) {
+		if (dout && op->data.nbytes) {
 			u32 *datout = (u32 *)dout;
+			u32 wloop = DIV_ROUND_UP(op->data.nbytes, 4);
+
+			smenr |= RPC_SMENR_SPIDE(0xF);
 
 			while (wloop--) {
 				smcr = RPC_SMCR_SPIWE | RPC_SMCR_SPIE;
@@ -332,56 +341,27 @@ static int rpc_spi_xfer(struct udevice *dev, unsigned int bitlen,
 				writel(smenr, priv->regs + RPC_SMENR);
 				writel(*datout, priv->regs + RPC_SMWDR0);
 				writel(smcr, priv->regs + RPC_SMCR);
-				ret = rpc_spi_wait_tend(dev);
-				if (ret)
-					goto err;
+				ret = rpc_spi_wait_tend(spi->dev);
+				if (ret) {
+					rpc_spi_release_bus(spi->dev);
+					return ret;
+				}
 				datout++;
-				smenr = RPC_SMENR_SPIDE(0xf);
+				smenr &= (~RPC_SMENR_CDE & ~RPC_SMENR_ADE(0xF));
 			}
 
-			ret = rpc_spi_wait_sslf(dev);
-
+			ret = rpc_spi_wait_sslf(spi->dev);
 		} else {
 			writel(smenr, priv->regs + RPC_SMENR);
 			writel(RPC_SMCR_SPIE, priv->regs + RPC_SMCR);
-			ret = rpc_spi_wait_tend(dev);
-		}
-	} else {	/* Read data only, using DRx ext access */
-		rpc_spi_claim_bus(dev, false);
-
-		if (priv->cmdlen >= 1) {	/* Command(1) */
-			writel(RPC_DRCMR_CMD(priv->cmdcopy[0]),
-			       priv->regs + RPC_DRCMR);
-			smenr |= RPC_DRENR_CDE;
-		} else {
-			writel(0, priv->regs + RPC_DRCMR);
+			ret = rpc_spi_wait_tend(spi->dev);
 		}
 
-		if (priv->cmdlen >= 4)		/* Address(3) */
-			smenr |= RPC_DRENR_ADE(7);
-
-		if (priv->cmdlen >= 5) {	/* Dummy(n) */
-			writel(8 * (priv->cmdlen - 4) - 1,
-			       priv->regs + RPC_DRDMCR);
-			smenr |= RPC_DRENR_DME;
-		} else {
-			writel(0, priv->regs + RPC_DRDMCR);
-		}
-
-		writel(0, priv->regs + RPC_DROPR);
-
-		writel(smenr, priv->regs + RPC_DRENR);
-
-		if (rlen)
-			memcpy_fromio(din, (void *)(priv->extr + offset), rlen);
-		else
-			readl(priv->extr);	/* Dummy read */
+		rpc_spi_release_bus(spi->dev);
+		break;
+	default:
+		break;
 	}
-
-err:
-	priv->cmdstarted = false;
-
-	rpc_spi_release_bus(dev);
 
 	return ret;
 }
@@ -397,6 +377,10 @@ static int rpc_spi_set_mode(struct udevice *bus, uint mode)
 	/* This is a SPI NOR controller, do nothing. */
 	return 0;
 }
+
+static const struct spi_controller_mem_ops rpc_spi_mem_ops = {
+	.exec_op	= rpc_spi_mem_exec_op
+};
 
 static int rpc_spi_bind(struct udevice *parent)
 {
@@ -461,9 +445,9 @@ static int rpc_spi_of_to_plat(struct udevice *bus)
 }
 
 static const struct dm_spi_ops rpc_spi_ops = {
-	.xfer		= rpc_spi_xfer,
 	.set_speed	= rpc_spi_set_speed,
 	.set_mode	= rpc_spi_set_mode,
+	.mem_ops        = &rpc_spi_mem_ops
 };
 
 static const struct udevice_id rpc_spi_ids[] = {
