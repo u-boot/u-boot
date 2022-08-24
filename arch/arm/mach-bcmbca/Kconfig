@@ -29,7 +29,7 @@ config BCM4912
 config BCM63138
 	bool "Support for Broadcom 63138 Family"
 	select TIMER
-	select STI_TIMER
+	select ARM_GLOBAL_TIMER
 	select CPU_V7A
 	select DM_SERIAL
 	select BCM6345_SERIAL
