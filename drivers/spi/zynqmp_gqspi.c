@@ -434,8 +434,7 @@ static int zynqmp_qspi_set_mode(struct udevice *bus, uint mode)
 	debug("%s\n", __func__);
 	/* Set the SPI Clock phase and polarities */
 	confr = readl(&regs->confr);
-	confr &= ~(GQSPI_CONFIG_CPHA_MASK |
-		   GQSPI_CONFIG_CPOL_MASK);
+	confr &= ~(GQSPI_CONFIG_CPHA_MASK | GQSPI_CONFIG_CPOL_MASK);
 
 	if (mode & SPI_CPHA)
 		confr |= GQSPI_CONFIG_CPHA_MASK;
@@ -579,8 +578,7 @@ static int zynqmp_qspi_genfifo_fill_tx(struct zynqmp_qspi_priv *priv)
 
 	gen_fifo_cmd = zynqmp_qspi_bus_select(priv);
 	gen_fifo_cmd |= zynqmp_qspi_genfifo_mode(priv->op->data.buswidth);
-	gen_fifo_cmd |= GQSPI_GFIFO_TX |
-			GQSPI_GFIFO_DATA_XFR_MASK;
+	gen_fifo_cmd |= GQSPI_GFIFO_TX | GQSPI_GFIFO_DATA_XFR_MASK;
 
 	while (priv->len) {
 		len = zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
@@ -589,11 +587,9 @@ static int zynqmp_qspi_genfifo_fill_tx(struct zynqmp_qspi_priv *priv)
 		debug("GFIFO_CMD_TX:0x%x\n", gen_fifo_cmd);
 
 		if (gen_fifo_cmd & GQSPI_GFIFO_EXP_MASK)
-			ret = zynqmp_qspi_fill_tx_fifo(priv,
-						       1 << len);
+			ret = zynqmp_qspi_fill_tx_fifo(priv, 1 << len);
 		else
-			ret = zynqmp_qspi_fill_tx_fifo(priv,
-						       len);
+			ret = zynqmp_qspi_fill_tx_fifo(priv, len);
 
 		if (ret)
 			return ret;
@@ -726,8 +722,7 @@ static int zynqmp_qspi_genfifo_fill_rx(struct zynqmp_qspi_priv *priv)
 
 	gen_fifo_cmd = zynqmp_qspi_bus_select(priv);
 	gen_fifo_cmd |= zynqmp_qspi_genfifo_mode(priv->op->data.buswidth);
-	gen_fifo_cmd |= GQSPI_GFIFO_RX |
-			GQSPI_GFIFO_DATA_XFR_MASK;
+	gen_fifo_cmd |= GQSPI_GFIFO_RX | GQSPI_GFIFO_DATA_XFR_MASK;
 
 	/*
 	 * Check if receive buffer is aligned to 4 byte and length
@@ -742,8 +737,7 @@ static int zynqmp_qspi_genfifo_fill_rx(struct zynqmp_qspi_priv *priv)
 			return zynqmp_qspi_start_dma(priv, gen_fifo_cmd, buf);
 	}
 
-	ALLOC_CACHE_ALIGN_BUFFER(u8, tmp, roundup(priv->len,
-						  GQSPI_DMA_ALIGN));
+	ALLOC_CACHE_ALIGN_BUFFER(u8, tmp, roundup(priv->len, GQSPI_DMA_ALIGN));
 	buf = (u32 *)tmp;
 	return zynqmp_qspi_start_dma(priv, gen_fifo_cmd, buf);
 }
