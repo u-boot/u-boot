@@ -14,7 +14,7 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define PHYS_SDRAM_1_SIZE		0x3E000000
 
-#define CONFIG_SYS_HZ_CLOCK		1000000000	/* 1 GHz */
+#define CONFIG_SYS_HZ_CLOCK		750000000	/* 750 MHz */
 
 /* Environment */
 
