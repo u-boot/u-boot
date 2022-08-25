@@ -17,5 +17,6 @@ def test_event_dump(u_boot_console):
     expect = '''.*Event type            Id                              Source location
 --------------------  ------------------------------  ------------------------------
 EVT_FT_FIXUP          bootmeth_vbe_simple_ft_fixup    .*boot/vbe_simple.c:.*
+EVT_MAIN_LOOP         fwu_boottime_checks             .*lib/fwu_updates/fwu.c:.*
 EVT_MISC_INIT_F       sandbox_misc_init_f             .*arch/sandbox/cpu/start.c:'''
     assert re.match(expect, out, re.MULTILINE) is not None
