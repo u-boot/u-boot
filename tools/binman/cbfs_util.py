@@ -20,7 +20,7 @@ import io
 import struct
 import sys
 
-from binman import comp_util
+from binman import bintool
 from binman import elf
 from patman import command
 from patman import tools
@@ -236,14 +236,18 @@ class CbfsFile(object):
         self.data_len = len(data)
         self.erase_byte = None
         self.size = None
+        if self.compress == COMPRESS_LZ4:
+            self.comp_bintool = bintool.Bintool.create('lz4')
+        elif self.compress == COMPRESS_LZMA:
+            self.comp_bintool = bintool.Bintool.create('lzma_alone')
+        else:
+            self.comp_bintool = None
 
     def decompress(self):
         """Handle decompressing data if necessary"""
         indata = self.data
-        if self.compress == COMPRESS_LZ4:
-            data = comp_util.decompress(indata, 'lz4', with_header=False)
-        elif self.compress == COMPRESS_LZMA:
-            data = comp_util.decompress(indata, 'lzma', with_header=False)
+        if self.comp_bintool:
+            data = self.comp_bintool.decompress(indata)
         else:
             data = indata
         self.memlen = len(data)
@@ -361,10 +365,8 @@ class CbfsFile(object):
             data = elf_data.data
         elif self.ftype == TYPE_RAW:
             orig_data = data
-            if self.compress == COMPRESS_LZ4:
-                data = comp_util.compress(orig_data, 'lz4', with_header=False)
-            elif self.compress == COMPRESS_LZMA:
-                data = comp_util.compress(orig_data, 'lzma', with_header=False)
+            if self.comp_bintool:
+                data = self.comp_bintool.compress(orig_data)
             self.memlen = len(orig_data)
             self.data_len = len(data)
             attr = struct.pack(ATTR_COMPRESSION_FORMAT,

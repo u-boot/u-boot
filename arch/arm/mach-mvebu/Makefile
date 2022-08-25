@@ -15,7 +15,10 @@ ifdef CONFIG_ARCH_KIRKWOOD
 obj-y	= dram.o
 obj-y	+= gpio.o
 obj-y	+= mbus.o
+
+ifndef CONFIG_TIMER
 obj-y	+= timer.o
+endif
 
 else # CONFIG_ARCH_KIRKWOOD
 

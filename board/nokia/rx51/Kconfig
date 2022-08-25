@@ -1,5 +1,8 @@
 if TARGET_NOKIA_RX51
 
+config NR_DRAM_BANKS
+	default 2
+
 config SYS_BOARD
 	default "rx51"
 
@@ -8,5 +11,8 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "nokia_rx51"
+
+config SYS_PROMPT
+	default "Nokia RX-51 # "
 
 endif

@@ -143,7 +143,7 @@ F:	arch/arm/mach-socfpga/
 F:	drivers/sysreset/sysreset_socfpga*
 
 ARM AMLOGIC SOC SUPPORT
-M:	Neil Armstrong <narmstrong@baylibre.com>
+M:	Neil Armstrong <neil.armstrong@linaro.org>
 S:	Maintained
 L:	u-boot-amlogic@groups.io
 T:	git https://source.denx.de/u-boot/custodians/u-boot-amlogic.git

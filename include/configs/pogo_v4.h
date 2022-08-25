@@ -21,15 +21,53 @@
  */
 #include "mv-common.h"
 
-/*
- * Default environment variables
- */
+/* Include the common distro boot environment */
+#ifndef CONFIG_SPL_BUILD
+
+#ifdef CONFIG_MMC
+#define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
+#else
+#define BOOT_TARGET_DEVICES_MMC(func)
+#endif
+
+#ifdef CONFIG_SATA
+#define BOOT_TARGET_DEVICES_SATA(func) func(SATA, sata, 0)
+#else
+#define BOOT_TARGET_DEVICES_SATA(func)
+#endif
+
+#ifdef CONFIG_USB_STORAGE
+#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
+#else
+#define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_USB(func) \
+	BOOT_TARGET_DEVICES_SATA(func) \
+	func(DHCP, dhcp, na)
+
+#define KERNEL_ADDR_R	__stringify(0x800000)
+#define FDT_ADDR_R	__stringify(0x2c00000)
+#define RAMDISK_ADDR_R	__stringify(0x01100000)
+#define SCRIPT_ADDR_R	__stringify(0x200000)
+
+#define LOAD_ADDRESS_ENV_SETTINGS \
+	"kernel_addr_r=" KERNEL_ADDR_R "\0" \
+	"fdt_addr_r=" FDT_ADDR_R "\0" \
+	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
+	"scriptaddr=" SCRIPT_ADDR_R "\0"
+
+#include <config_distro_bootcmd.h>
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"dtb_file=/boot/dts/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-	"bootargs_console=console=ttyS0,115200\0" \
-	"bootcmd_usb=usb start; load usb 0:1 0x00800000 /boot/uImage; " \
-	"load usb 0:1 0x01100000 /boot/uInitrd; " \
-	"load usb 0:1 0x2c00000 $dtb_file\0"
+	LOAD_ADDRESS_ENV_SETTINGS \
+	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	"console=ttyS0,115200\0" \
+	BOOTENV
+#endif /* CONFIG_SPL_BUILD */
 
 /*
  * Ethernet Driver configuration

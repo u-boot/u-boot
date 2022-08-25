@@ -285,14 +285,6 @@
 #define TSEC1_PHYIDX			0
 #define TSEC2_PHYIDX			0
 #define TSEC3_PHYIDX			0
-
-#define CONFIG_FSL_SGMII_RISER		1
-#define SGMII_RISER_PHY_OFFSET		0x1b
-
-#ifdef CONFIG_FSL_SGMII_RISER
-#define CONFIG_SYS_TBIPA_VALUE		8
-#endif
-
 #endif
 
 #define CONFIG_PEN_ADDR_BIG_ENDIAN

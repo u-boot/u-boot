@@ -122,9 +122,6 @@ struct sar_freq_modes {
 	u32 d_clk;
 };
 
-/* Needed for dynamic (board-specific) mbus configuration */
-extern struct mvebu_mbus_state mbus_state;
-
 /*
  * functions
  */

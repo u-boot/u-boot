@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:focal-20220302-15Mar2022
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20220801-09Aug2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -170,13 +170,11 @@ stages:
       vmImage: $(ubuntu_vm)
     steps:
       - script: |
-          cat << EOF > build.sh
-          set -ex
-          cd ${WORK_DIR}
-          EOF
-          cat << "EOF" >> build.sh
+          cat << "EOF" > build.sh
+          cd $(work_dir)
           git config --global user.name "Azure Pipelines"
           git config --global user.email bmeng.cn@gmail.com
+          git config --global --add safe.directory $(work_dir)
           export USER=azure
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
@@ -185,6 +183,7 @@ stages:
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
           ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w --board sandbox_spl
+          set -ex
           ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test
           ./tools/buildman/buildman -t
           ./tools/dtoc/dtoc -t
@@ -217,7 +216,7 @@ stages:
       options: $(container_option)
     steps:
       - script: |
-          cd ${WORK_DIR}
+          git config --global --add safe.directory $(work_dir)
           export USER=azure
           pip install -r test/py/requirements.txt
           pip install asteval pylint==2.12.2 pyopenssl
@@ -226,6 +225,7 @@ stages:
           echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
           ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w --board sandbox_spl
+          set -ex
           pylint --version
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           make pylint_err
@@ -514,20 +514,8 @@ stages:
           BUILDMAN: "m68k"
         mips:
           BUILDMAN: "mips"
-        non_fsl_ppc:
-          BUILDMAN: "powerpc -x freescale"
-        mpc85xx_freescale:
-          BUILDMAN: "mpc85xx&freescale -x t208xrdb -x t102* -x p1_p2_rdb_pc -x p1010rdb -x corenet_ds -x bsc91*"
-        t208xrdb_corenet_ds:
-          BUILDMAN: "t208xrdb corenet_ds"
-        fsl_ppc:
-          BUILDMAN: "mpc83xx&freescale"
-        t102x:
-          BUILDMAN: "t102*"
-        p1_p2_rdb_pc:
-          BUILDMAN: "p1_p2_rdb_pc"
-        p1010rdb_bsc91:
-          BUILDMAN: "p1010rdb bsc91"
+        powerpc:
+          BUILDMAN: "powerpc"
         siemens:
           BUILDMAN: "siemens"
         tegra:

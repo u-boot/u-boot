@@ -88,7 +88,10 @@ EOF
 }
 
 parse_key() {
-	sed '/\ \ \ \ /s/://g' key.txt | awk  '!/\ \ \ \ / {printf("\n%s\n", $0)}; /\ \ \ \ / {printf("%s", $0)}' | sed 's/\ \ \ \ //g' | awk "/$1:/{getline; print}"
+	sed '/    /s/://g' key.txt | \
+            awk  '!/    / {printf("\n%s\n", $0)}; /    / {printf("%s", $0)}' | \
+            sed 's/    //g' | \
+            awk "/$1:/{getline; print}"
 }
 
 gen_degen_key() {

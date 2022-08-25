@@ -50,8 +50,7 @@ Current Status
 
 * U-Boot v2022.07 was released on Mon 11 July 2022.
 
-* The Merge Window for the next release (v2022.10) is **open** until -rc1
-  release on Mon 25 July 2022.
+* The Merge Window for the next release (v2022.10) is **closed**.
 
 * Release "v2022.10" is scheduled for 03 Oct 2022.
 
@@ -67,7 +66,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2022.10-rc2 was released on Mon 08 August 2022.
 
-.. * U-Boot v2022.10-rc3 was released on Mon 22 August 2022.
+* U-Boot v2022.10-rc3 was released on Mon 22 August 2022.
 
 .. * U-Boot v2022.10-rc4 was released on Mon 05 September 2022.
 

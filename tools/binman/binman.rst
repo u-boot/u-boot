@@ -1684,8 +1684,6 @@ Some ideas:
 - Figure out how to make Fdt support changing the node order, so that
   Node.AddSubnode() can support adding a node before another, existing node.
   Perhaps it should completely regenerate the flat tree?
-- Put faked files into a separate subdir and remove them on start-up, to avoid
-  seeing them as 'real' files on a subsequent run
 
 --
 Simon Glass <sjg@chromium.org>

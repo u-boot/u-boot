@@ -21,6 +21,9 @@ class Entry_collection(Entry):
     listed entries are combined to form this entry. This serves as a useful
     base class for entry types which need to process data from elsewhere in
     the image, not necessarily child entries.
+
+    The entries can generally be anywhere in the same image, even if they are in
+    a different section from this entry.
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)

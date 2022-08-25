@@ -31,8 +31,8 @@ generated if no valid address could be loaded from the environment variable
 'ethaddr' and a DHCP request is sent. After a successful DHCP response is
 received, the network settings are configured and the ncip is unset. Thus
 all netconsole packets are broadcasted and you can use the netconsole to
-access board from any host within the network segment. To determine the IP
-address assigned to the board, you either have to sniff the traffic or
+access the board from any host within the network segment. To determine the
+IP address assigned to the board, you either have to sniff the traffic or
 check the logs/leases of your DHCP server.
 
 The resuce mode is selected by holding the push button for at least one
@@ -42,41 +42,43 @@ the resuce mode is enabled, thus providing a visual feedback.
 Pressing the same button for at least 10 seconds on power-up will erase the
 environment and reset the board. In this case the visual indication will
 be:
-- blinking blue, for about one second
-- solid amber, for about nine seconds
-- blinking amber, until you release the button
+- blue, for about one second
+- amber, for about nine seconds
+- red, until you release the button
 
 This ensures, that you still can recover a device with a broken
 environment by first erasing the environment and then entering the rescue
 mode.
 
 Once the rescue mode is started, use the ncb binary from the tools/
-directory to access your board. There is a helper script named
-'restore_env' to save your changes. It unsets all the network variables
-which were set by the rescue mode, saves your changes and then resets the
-board.
+directory to access your board.
 
 The common use case for this is setting a MAC address. Let us assume you
-have an empty environment, the board comes up with the amber LED blinking.
+have an empty environment, the board comes up with the amber LED turned on.
 Then you enter the rescue mode, connect to the board with the ncb tool and
 use the following commands to set your MAC address:
 
-  setenv ethaddr 00:00:00:00:00:00
-  run restore_env
+  setenv -f ethaddr 00:00:00:00:00:00
+  saveenv
+  reset
 
 Of course you need to replace the 00:00:00:00:00:00 with your valid MAC
 address, which can be found on a sticker on the bottom of your box.
 
+You cannot store the network console setting in the environment. On reset
+it is automatically restored to serial. Therefore, you have to use the
+push-button to enter resuce mode again.
+
 
 Status LED
 ----------
-blinking blue
+blue
   Bootloader is running normally.
 
-blinking amber
+amber
   No ethaddr set. Use the `Rescue Mode` to set one.
 
-blinking red
+red
   Something bad happend during loading the operating system.
 
 The default behavior of the linux kernel is to turn on the blue LED. So if

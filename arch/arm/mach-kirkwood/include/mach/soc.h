@@ -62,6 +62,8 @@
 #define MVCPU_WIN_ENABLE	KWCPU_WIN_ENABLE
 #define MVCPU_WIN_DISABLE	KWCPU_WIN_DISABLE
 
+#define CONFIG_SAR_REG		(KW_MPP_BASE + 0x0030)
+
 #if defined (CONFIG_KW88F6281)
 #include <asm/arch/kw88f6281.h>
 #elif defined (CONFIG_KW88F6192)

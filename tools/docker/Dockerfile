@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:focal-20220302
+FROM ubuntu:jammy-20220801
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Add LLVM repository
 RUN apt-get update && apt-get install -y gnupg2 wget xz-utils && rm -rf /var/lib/apt/lists/*
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main | tee /etc/apt/sources.list.d/llvm.list
+RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-13 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Manually install the kernel.org "Crosstool" based toolchains for gcc-11.1.0
 RUN wget -O - https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/11.1.0/x86_64-gcc-11.1.0-nolibc-aarch64-linux.tar.xz | tar -C /opt -xJ
@@ -116,16 +116,6 @@ RUN apt-get update && apt-get install -y \
 
 # Make kernels readable for libguestfs tools to work correctly
 RUN chmod +r /boot/vmlinu*
-
-# Manually install a new enough version of sbsigntools (must be v0.9.4 or later)
-RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git /tmp/sbsigntools && \
-	cd /tmp/sbsigntools && \
-	git checkout -b latest v0.9.4 && \
-	./autogen.sh && \
-	./configure && \
-	make && \
-	make install && \
-	rm -rf /tmp/sbsigntools
 
 # Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit
 RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \

@@ -47,7 +47,6 @@ obj-$(CONFIG_GMAC_ROCKCHIP) += gmac_rockchip.o
 obj-$(CONFIG_HIGMACV300_ETH) += higmacv300.o
 obj-$(CONFIG_KS8851_MLL) += ks8851_mll.o
 obj-$(CONFIG_KSZ9477) += ksz9477.o
-obj-$(CONFIG_LPC32XX_ETH) += lpc32xx_eth.o
 obj-$(CONFIG_MACB) += macb.o
 obj-$(CONFIG_MCFFEC) += mcffec.o mcfmii.o
 obj-$(CONFIG_MDIO_IPQ4019) += mdio-ipq4019.o

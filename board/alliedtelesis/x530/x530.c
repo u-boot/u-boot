@@ -109,7 +109,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	/* window for NVS */
-	mbus_dt_setup_win(&mbus_state, CONFIG_NVS_LOCATION, CONFIG_NVS_SIZE,
+	mbus_dt_setup_win(CONFIG_NVS_LOCATION, CONFIG_NVS_SIZE,
 			  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_DEV_CS1);
 
 	/* DEV_READYn is not needed for NVS, ignore it when accessing CS1 */

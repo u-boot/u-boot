@@ -10,10 +10,8 @@ F:	include/configs/tuxx1.h
 F:	configs/kmopti2_defconfig
 F:	configs/kmsupx5_defconfig
 F:	configs/kmtepr2_defconfig
-F:	configs/kmtegr1_defconfig
 F:	configs/tuge1_defconfig
 F:	configs/tuxx1_defconfig
-F:	arch/powerpc/dts/km8309-uboot.dtsi
 F:	arch/powerpc/dts/km8321-uboot.dtsi
 F:	arch/powerpc/dts/km8321.dtsi
 F:	arch/powerpc/dts/km836x-uboot.dtsi
@@ -25,7 +23,6 @@ F:	arch/powerpc/dts/kmeter1.dts
 F:	arch/powerpc/dts/kmopti2.dts
 F:	arch/powerpc/dts/kmsupc5.dts
 F:	arch/powerpc/dts/kmsupm5.dts
-F:	arch/powerpc/dts/kmtegr1.dts
 F:	arch/powerpc/dts/kmtepr2.dts
 F:	arch/powerpc/dts/kmtuge1.dts
 F:	arch/powerpc/dts/kmtuxa1.dts

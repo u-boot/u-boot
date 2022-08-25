@@ -32,8 +32,6 @@ struct arch_global_data {
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
-# elif defined(CONFIG_ARCH_MPC8309)
-	u32 usbdr_clk;
 # endif
 # if defined(CONFIG_ARCH_MPC834X)
 	u32 usbmph_clk;

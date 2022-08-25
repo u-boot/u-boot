@@ -88,62 +88,6 @@ int onenand_board_init(struct mtd_info *mtd)
 	return 1;
 }
 
-#if defined(CONFIG_CMD_NET)
-static void reset_net_chip(int gpio)
-{
-	if (!gpio_request(gpio, "eth nrst")) {
-		gpio_direction_output(gpio, 1);
-		udelay(1);
-		gpio_set_value(gpio, 0);
-		udelay(40);
-		gpio_set_value(gpio, 1);
-		mdelay(10);
-	}
-}
-
-/*
- * Routine: setup_net_chip
- * Description: Setting up the configuration GPMC registers specific to the
- *		Ethernet hardware.
- */
-static void setup_net_chip(void)
-{
-	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
-	static const u32 gpmc_lan_config[] = {
-		NET_LAN9221_GPMC_CONFIG1,
-		NET_LAN9221_GPMC_CONFIG2,
-		NET_LAN9221_GPMC_CONFIG3,
-		NET_LAN9221_GPMC_CONFIG4,
-		NET_LAN9221_GPMC_CONFIG5,
-		NET_LAN9221_GPMC_CONFIG6,
-	};
-
-	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5],
-			CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
-
-	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
-	writew(readw(&ctrl_base->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);
-	/* Enable off mode for NOE in PADCONF_GPMC_NADV_ALE register */
-	writew(readw(&ctrl_base->gpmc_noe) | 0x0E00, &ctrl_base->gpmc_noe);
-	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
-	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
-		&ctrl_base->gpmc_nadv_ale);
-
-	reset_net_chip(64);
-}
-
-int board_eth_init(struct bd_info *bis)
-{
-#ifdef CONFIG_SMC911X
-	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
-#else
-	return 0;
-#endif
-}
-#else
-static inline void setup_net_chip(void) {}
-#endif
-
 #ifdef CONFIG_OF_BOARD_SETUP
 static int ft_enable_by_compatible(void *blob, char *compat, int enable)
 {
@@ -233,8 +177,6 @@ int misc_init_r(void)
 		writel(readl(OMAP34XX_CTRL_WKUP_CTRL) |
 					 OMAP34XX_CTRL_WKUP_CTRL_GPIO_IO_PWRDNZ,
 					 OMAP34XX_CTRL_WKUP_CTRL);
-
-	setup_net_chip();
 
 	omap_die_id_display();
 
