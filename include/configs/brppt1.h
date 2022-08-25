@@ -53,7 +53,6 @@
 #ifdef CONFIG_ENV_IS_IN_MMC
 #define MMCTGTS \
 MMC_TGTS \
-"cfgscr=mw ${dtbaddr} 0;" \
 " mmc dev 1; mmc read ${cfgaddr} 200 80; source ${cfgaddr};" \
 " fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0"
 #else
