@@ -388,8 +388,6 @@ dtb-$(CONFIG_AM33XX) += \
 	am335x-boneblack-wireless.dtb \
 	am335x-boneblue.dtb \
 	am335x-brppt1-mmc.dtb \
-	am335x-brppt1-nand.dtb \
-	am335x-brppt1-spi.dtb \
 	am335x-brxre1.dtb \
 	am335x-brsmarc1.dtb \
 	am335x-draco.dtb \
