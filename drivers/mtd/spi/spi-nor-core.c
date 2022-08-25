@@ -3392,15 +3392,15 @@ static int spi_nor_cypress_octal_dtr_enable(struct spi_nor *nor)
 	return 0;
 }
 
-static int s28hs512t_erase_non_uniform(struct spi_nor *nor, loff_t addr)
+static int s28hx_t_erase_non_uniform(struct spi_nor *nor, loff_t addr)
 {
 	/* Factory default configuration: 32 x 4 KiB sectors at bottom. */
 	return spansion_erase_non_uniform(nor, addr, SPINOR_OP_S28_SE_4K,
 					  0, SZ_128K);
 }
 
-static int s28hs512t_setup(struct spi_nor *nor, const struct flash_info *info,
-			   const struct spi_nor_flash_parameter *params)
+static int s28hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
+			 const struct spi_nor_flash_parameter *params)
 {
 	struct spi_mem_op op;
 	u8 buf;
@@ -3427,19 +3427,19 @@ static int s28hs512t_setup(struct spi_nor *nor, const struct flash_info *info,
 		return ret;
 
 	if (!(buf & SPINOR_REG_CYPRESS_CFR3V_UNISECT))
-		nor->erase = s28hs512t_erase_non_uniform;
+		nor->erase = s28hx_t_erase_non_uniform;
 
 	return spi_nor_default_setup(nor, info, params);
 }
 
-static void s28hs512t_default_init(struct spi_nor *nor)
+static void s28hx_t_default_init(struct spi_nor *nor)
 {
 	nor->octal_dtr_enable = spi_nor_cypress_octal_dtr_enable;
-	nor->setup = s28hs512t_setup;
+	nor->setup = s28hx_t_setup;
 }
 
-static void s28hs512t_post_sfdp_fixup(struct spi_nor *nor,
-				      struct spi_nor_flash_parameter *params)
+static void s28hx_t_post_sfdp_fixup(struct spi_nor *nor,
+				    struct spi_nor_flash_parameter *params)
 {
 	/*
 	 * On older versions of the flash the xSPI Profile 1.0 table has the
@@ -3469,10 +3469,10 @@ static void s28hs512t_post_sfdp_fixup(struct spi_nor *nor,
 	params->rdsr_addr_nbytes = 4;
 }
 
-static int s28hs512t_post_bfpt_fixup(struct spi_nor *nor,
-				     const struct sfdp_parameter_header *bfpt_header,
-				     const struct sfdp_bfpt *bfpt,
-				     struct spi_nor_flash_parameter *params)
+static int s28hx_t_post_bfpt_fixup(struct spi_nor *nor,
+				   const struct sfdp_parameter_header *bfpt_header,
+				   const struct sfdp_bfpt *bfpt,
+				   struct spi_nor_flash_parameter *params)
 {
 	struct spi_mem_op op;
 	u8 buf;
@@ -3509,10 +3509,10 @@ static int s28hs512t_post_bfpt_fixup(struct spi_nor *nor,
 	return 0;
 }
 
-static struct spi_nor_fixups s28hs512t_fixups = {
-	.default_init = s28hs512t_default_init,
-	.post_sfdp = s28hs512t_post_sfdp_fixup,
-	.post_bfpt = s28hs512t_post_bfpt_fixup,
+static struct spi_nor_fixups s28hx_t_fixups = {
+	.default_init = s28hx_t_default_init,
+	.post_sfdp = s28hx_t_post_sfdp_fixup,
+	.post_bfpt = s28hx_t_post_bfpt_fixup,
 };
 #endif /* CONFIG_SPI_FLASH_S28HS512T */
 
@@ -3847,7 +3847,7 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 
 #ifdef CONFIG_SPI_FLASH_S28HS512T
 	if (!strcmp(nor->info->name, "s28hs512t"))
-		nor->fixups = &s28hs512t_fixups;
+		nor->fixups = &s28hx_t_fixups;
 #endif
 
 #ifdef CONFIG_SPI_FLASH_MT35XU
