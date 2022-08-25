@@ -3333,7 +3333,7 @@ static struct spi_nor_fixups s25fl256l_fixups = {
 };
 #endif
 
-#ifdef CONFIG_SPI_FLASH_S28HS512T
+#ifdef CONFIG_SPI_FLASH_S28HX_T
 /**
  * spi_nor_cypress_octal_dtr_enable() - Enable octal DTR on Cypress flashes.
  * @nor:		pointer to a 'struct spi_nor'
@@ -3514,7 +3514,7 @@ static struct spi_nor_fixups s28hx_t_fixups = {
 	.post_sfdp = s28hx_t_post_sfdp_fixup,
 	.post_bfpt = s28hx_t_post_bfpt_fixup,
 };
-#endif /* CONFIG_SPI_FLASH_S28HS512T */
+#endif /* CONFIG_SPI_FLASH_S28HX_T */
 
 #ifdef CONFIG_SPI_FLASH_MT35XU
 static int spi_nor_micron_octal_dtr_enable(struct spi_nor *nor)
@@ -3845,7 +3845,7 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 		nor->fixups = &s25fl256l_fixups;
 #endif
 
-#ifdef CONFIG_SPI_FLASH_S28HS512T
+#ifdef CONFIG_SPI_FLASH_S28HX_T
 	if (!strcmp(nor->info->name, "s28hs512t"))
 		nor->fixups = &s28hx_t_fixups;
 #endif
