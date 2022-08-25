@@ -3835,6 +3835,13 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 			nor->fixups = &s25hx_t_fixups;
 			break;
 
+#ifdef CONFIG_SPI_FLASH_S28HX_T
+		case 0x5a: /* S28HL (Octal, 3.3V) */
+		case 0x5b: /* S28HS (Octal, 1.8V) */
+			nor->fixups = &s28hx_t_fixups;
+			break;
+#endif
+
 		default:
 			break;
 		}
@@ -3843,11 +3850,6 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 	if (CONFIG_IS_ENABLED(SPI_FLASH_BAR) &&
 	    !strcmp(nor->info->name, "s25fl256l"))
 		nor->fixups = &s25fl256l_fixups;
-#endif
-
-#ifdef CONFIG_SPI_FLASH_S28HX_T
-	if (!strcmp(nor->info->name, "s28hs512t"))
-		nor->fixups = &s28hx_t_fixups;
 #endif
 
 #ifdef CONFIG_SPI_FLASH_MT35XU
