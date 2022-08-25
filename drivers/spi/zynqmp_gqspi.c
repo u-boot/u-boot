@@ -22,6 +22,7 @@
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/err.h>
+#include <linux/sizes.h>
 #include <zynqmp_firmware.h>
 
 #define GQSPI_GFIFO_STRT_MODE_MASK	BIT(29)
@@ -666,38 +667,53 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 	u32 addr;
 	u32 size;
 	u32 actuallen = priv->len;
+	u32 totallen = priv->len;
 	int ret = 0;
 	struct zynqmp_qspi_dma_regs *dma_regs = priv->dma_regs;
 
-	writel((unsigned long)buf, &dma_regs->dmadst);
-	writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
-	writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
-	addr = (unsigned long)buf;
-	size = roundup(priv->len, GQSPI_DMA_ALIGN);
-	flush_dcache_range(addr, addr + size);
+	while (totallen) {
+		if (totallen >= SZ_512M)
+			priv->len = SZ_256M;
+		else
+			priv->len = totallen;
 
-	while (priv->len) {
-		zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
-		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+		totallen -= priv->len; /* Save remaining bytes length to read */
+		actuallen = priv->len; /* Actual number of bytes reading */
 
-		debug("GFIFO_CMD_RX:0x%x\n", gen_fifo_cmd);
+		writel((unsigned long)buf, &dma_regs->dmadst);
+		writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
+		writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
+		addr = (unsigned long)buf;
+		size = roundup(priv->len, GQSPI_DMA_ALIGN);
+		flush_dcache_range(addr, addr + size);
+
+		while (priv->len) {
+			zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
+			zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
+
+			debug("GFIFO_CMD_RX:0x%x\n", gen_fifo_cmd);
+		}
+
+		ret = wait_for_bit_le32(&dma_regs->dmaisr,
+					GQSPI_DMA_DST_I_STS_DONE, 1,
+					GQSPI_TIMEOUT, 1);
+		if (ret) {
+			printf("DMA Timeout:0x%x\n", readl(&dma_regs->dmaisr));
+			return -ETIMEDOUT;
+		}
+
+		writel(GQSPI_DMA_DST_I_STS_DONE, &dma_regs->dmaisr);
+
+		debug("buf:0x%lx, rxbuf:0x%lx, *buf:0x%x len: 0x%x\n",
+		      (unsigned long)buf, (unsigned long)priv->rx_buf, *buf,
+		      actuallen);
+
+		if (buf != priv->rx_buf)
+			memcpy(priv->rx_buf, buf, actuallen);
+
+		buf = (u32 *)((u8 *)buf + actuallen);
+		priv->rx_buf = (u8 *)priv->rx_buf + actuallen;
 	}
-
-	ret = wait_for_bit_le32(&dma_regs->dmaisr, GQSPI_DMA_DST_I_STS_DONE,
-				1, GQSPI_TIMEOUT, 1);
-	if (ret) {
-		printf("DMA Timeout:0x%x\n", readl(&dma_regs->dmaisr));
-		return -ETIMEDOUT;
-	}
-
-	writel(GQSPI_DMA_DST_I_STS_DONE, &dma_regs->dmaisr);
-
-	debug("buf:0x%lx, rxbuf:0x%lx, *buf:0x%x len: 0x%x\n",
-	      (unsigned long)buf, (unsigned long)priv->rx_buf, *buf,
-	      actuallen);
-
-	if (buf != priv->rx_buf)
-		memcpy(priv->rx_buf, buf, actuallen);
 
 	return 0;
 }
