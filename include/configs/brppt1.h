@@ -29,18 +29,16 @@
 
 #define MMC_TGTS \
 "t30args#0=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
-	"b_mode=${b_mode} root=/dev/mmcblk0p2 rootfstype=ext4\0" \
+	"b_mode=${b_mode} root=${root_dev} rootfstype=ext4 rootwait\0" \
 "b_t30lgcy#0=" \
-	"load ${loaddev}:2 ${loadaddr} /boot/PPTImage.md5 && " \
 	"load ${loaddev}:2 ${loadaddr} /boot/zImage && " \
-	"load ${loaddev}:2 ${dtbaddr} /boot/am335x-ppt30.dtb || " \
-	"load ${loaddev}:1 ${dtbaddr} am335x-ppt30-legacy.dtb; "\
+	"run load_dtb && " \
 	"run t30args#0; run cfgscr; bootz ${loadaddr} - ${dtbaddr}\0" \
 "t30args#1=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
 	"b_mode=${b_mode}\0" \
 "b_t30lgcy#1=" \
 	"load ${loaddev}:1 ${loadaddr} zImage && " \
-	"load ${loaddev}:1 ${dtbaddr} am335x-ppt30.dtb && " \
+	"load ${loaddev}:1 ${dtbaddr} am335x-brppt30.dtb && " \
 	"load ${loaddev}:1 ${ramaddr} rootfsPPT30.uboot && " \
 	"run t30args#1; run cfgscr; bootz ${loadaddr} ${ramaddr} ${dtbaddr}\0" \
 "b_mmc0=load ${loaddev}:1 ${scraddr} bootscr.img && source ${scraddr}\0" \
@@ -48,11 +46,19 @@
 "b_tgts_std=mmc0 mmc1 t30lgcy#0 t30lgcy#1 usb0 net\0" \
 "b_tgts_rcy=t30lgcy#1 usb0 net\0" \
 "b_tgts_pme=net usb0 mmc0 mmc1\0" \
-"loaddev=mmc 1\0"
+"loaddev=mmc 1\0" \
+"root_dev=/dev/mmcblk0p2\0" \
+"load_dtb=load ${loaddev}:2 ${dtbaddr} /boot/am335x-brppt30.dtb; " \
+	 "if test $? -eq 0; then " \
+	     "setenv root_dev /dev/mmcblk1p2; " \
+	 "else; " \
+	     "load ${loaddev}:1 ${dtbaddr} am335x-brppt30-legacy.dtb; " \
+	 "fi;\0"
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 #define MMCTGTS \
 MMC_TGTS \
+"cfgscr=mw ${cfgaddr} 0;" \
 " mmc dev 1; mmc read ${cfgaddr} 200 80; source ${cfgaddr};" \
 " fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0"
 #else
