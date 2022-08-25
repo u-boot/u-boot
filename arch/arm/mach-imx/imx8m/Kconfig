@@ -269,6 +269,14 @@ config TARGET_IMX8MP_RSB3720A1_6G
 	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+
+config TARGET_LIBREM5
+	bool "Purism Librem5 Phone"
+	select BINMAN
+	select IMX8MQ
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 endchoice
 
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
@@ -290,6 +298,7 @@ source "board/kontron/sl-mx8mm/Kconfig"
 source "board/menlo/mx8menlo/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
+source "board/purism/librem5/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
