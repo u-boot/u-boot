@@ -322,7 +322,7 @@ look like this::
 
 The `sf-bootdev` driver can implement a way to read from the SPI flash, using
 the offset and size provided, and return that bootflow file back to the caller.
-When distro boot wants to read the kernel it calls disto_getfile() which must
+When distro boot wants to read the kernel it calls distro_getfile() which must
 provide a way to read from the SPI flash. See `distro_boot()` at distro_boot_
 for more details.
 
