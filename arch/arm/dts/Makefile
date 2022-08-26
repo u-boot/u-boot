@@ -974,6 +974,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mq-phanbell.dtb \
 	imx8mp-dhcom-pdk2.dtb \
 	imx8mp-evk.dtb \
+	imx8mp-icore-mx8mp-edimm2.2.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
 	imx8mp-venice.dtb \
 	imx8mp-venice-gw74xx.dtb \
