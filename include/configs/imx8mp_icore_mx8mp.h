@@ -1,10 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2019 NXP
+ * Copyright (c) 2020 Engicam srl
+ * Copyright (c) 2022 Amarula Solutions(India)
  */
 
-#ifndef __IMX8MP_EVK_H
-#define __IMX8MP_EVK_H
+#ifndef __IMX8MP_ICORE_MX8MP_H
+#define __IMX8MP_ICORE_MX8MP_H
 
 #include <linux/sizes.h>
 #include <linux/stringify.h>
@@ -16,7 +17,6 @@
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
 
-
 #define CONFIG_POWER_PCA9450
 
 #endif
@@ -24,13 +24,15 @@
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          1
 
+#define DWC_NET_PHYADDR			1
+
 #define PHY_ANEG_TIMEOUT 20000
 
 #endif
 
 #define BOOT_TARGET_DEVICES(func) \
-       func(MMC, mmc, 1) \
-       func(MMC, mmc, 2)
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2)
 
 #include <config_distro_bootcmd.h>
 
@@ -54,10 +56,9 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x80000
 
-
 /* Totally 2GB DDR */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000
 
-#endif
+#endif /* __IMX8MP_ICORE_MX8MP_H */
