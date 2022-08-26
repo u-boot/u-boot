@@ -47,6 +47,14 @@ static struct pll_vote_clk gpll0_vote_clk = {
 	.vote_bit = BIT(0),
 };
 
+static const struct bcr_regs usb30_master_regs = {
+	.cfg_rcgr = USB30_MASTER_CFG_RCGR,
+	.cmd_rcgr = USB30_MASTER_CMD_RCGR,
+	.M = USB30_MASTER_M,
+	.N = USB30_MASTER_N,
+	.D = USB30_MASTER_D,
+};
+
 ulong msm_set_rate(struct clk *clk, ulong rate)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
@@ -70,6 +78,38 @@ ulong msm_set_rate(struct clk *clk, ulong rate)
 		break;
 	case GCC_SDCC1_AHB_CLK:
 		clk_enable_cbc(priv->base + SDCC_AHB_CBCR(1));
+		break;
+	default:
+		return 0;
+	}
+
+	return 0;
+}
+
+int msm_enable(struct clk *clk)
+{
+	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
+
+	switch (clk->id) {
+	case GCC_USB30_MASTER_CLK:
+		clk_enable_cbc(priv->base + USB30_MASTER_CBCR);
+		clk_rcg_set_rate_mnd(priv->base, &usb30_master_regs, 4, 0, 0,
+				     CFG_CLK_SRC_GPLL0);
+		break;
+	case GCC_SYS_NOC_USB3_CLK:
+		clk_enable_cbc(priv->base + SYS_NOC_USB3_CBCR);
+		break;
+	case GCC_USB30_SLEEP_CLK:
+		clk_enable_cbc(priv->base + USB30_SLEEP_CBCR);
+		break;
+	case GCC_USB30_MOCK_UTMI_CLK:
+		clk_enable_cbc(priv->base + USB30_MOCK_UTMI_CBCR);
+		break;
+	case GCC_USB_HS_PHY_CFG_AHB_CLK:
+		clk_enable_cbc(priv->base + USB_HS_PHY_CFG_AHB_CBCR);
+		break;
+	case GCC_USB2A_PHY_SLEEP_CLK:
+		clk_enable_cbc(priv->base + USB_HS_PHY_CFG_AHB_CBCR);
 		break;
 	default:
 		return 0;

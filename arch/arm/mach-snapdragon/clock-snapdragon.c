@@ -20,6 +20,7 @@
 #define CBCR_BRANCH_OFF_BIT     BIT(31)
 
 extern ulong msm_set_rate(struct clk *clk, ulong rate);
+extern int msm_enable(struct clk *clk);
 
 /* Enable clock controlled by CBC soft macro */
 void clk_enable_cbc(phys_addr_t cbcr)
@@ -126,8 +127,14 @@ static ulong msm_clk_set_rate(struct clk *clk, ulong rate)
 	return msm_set_rate(clk, rate);
 }
 
+static int msm_clk_enable(struct clk *clk)
+{
+	return msm_enable(clk);
+}
+
 static struct clk_ops msm_clk_ops = {
 	.set_rate = msm_clk_set_rate,
+	.enable = msm_clk_enable,
 };
 
 static const struct udevice_id msm_clk_ids[] = {

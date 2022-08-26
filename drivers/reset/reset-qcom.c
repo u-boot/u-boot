@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2020 Sartura Ltd.
+ * Copyright (c) 2022 Linaro Ltd.
  *
  * Author: Robert Marko <robert.marko@sartura.hr>
+ *         Sumit Garg <sumit.garg@linaro.org>
  *
  * Based on Linux driver
  */
@@ -10,12 +12,11 @@
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
-#include <dt-bindings/reset/qcom,ipq4019-reset.h>
 #include <reset-uclass.h>
 #include <linux/bitops.h>
 #include <malloc.h>
 
-struct ipq4019_reset_priv {
+struct qcom_reset_priv {
 	phys_addr_t base;
 };
 
@@ -24,7 +25,9 @@ struct qcom_reset_map {
 	u8 bit;
 };
 
-static const struct qcom_reset_map gcc_ipq4019_resets[] = {
+#ifdef CONFIG_ARCH_IPQ40XX
+#include <dt-bindings/reset/qcom,ipq4019-reset.h>
+static const struct qcom_reset_map gcc_qcom_resets[] = {
 	[WIFI0_CPU_INIT_RESET] = { 0x1f008, 5 },
 	[WIFI0_RADIO_SRIF_RESET] = { 0x1f008, 4 },
 	[WIFI0_RADIO_WARM_RESET] = { 0x1f008, 3 },
@@ -97,11 +100,41 @@ static const struct qcom_reset_map gcc_ipq4019_resets[] = {
 	[GCC_MPM_BCR] = {0x24000, 0},
 	[GCC_SPDM_BCR] = {0x25000, 0},
 };
+#endif
 
-static int ipq4019_reset_assert(struct reset_ctl *rst)
+#ifdef CONFIG_TARGET_QCS404EVB
+#include <dt-bindings/clock/qcom,gcc-qcs404.h>
+static const struct qcom_reset_map gcc_qcom_resets[] = {
+	[GCC_GENI_IR_BCR] = { 0x0F000 },
+	[GCC_CDSP_RESTART] = { 0x18000 },
+	[GCC_USB_HS_BCR] = { 0x41000 },
+	[GCC_USB2_HS_PHY_ONLY_BCR] = { 0x41034 },
+	[GCC_QUSB2_PHY_BCR] = { 0x4103c },
+	[GCC_USB_HS_PHY_CFG_AHB_BCR] = { 0x0000c, 1 },
+	[GCC_USB2A_PHY_BCR] = { 0x0000c, 0 },
+	[GCC_USB3_PHY_BCR] = { 0x39004 },
+	[GCC_USB_30_BCR] = { 0x39000 },
+	[GCC_USB3PHY_PHY_BCR] = { 0x39008 },
+	[GCC_PCIE_0_BCR] = { 0x3e000 },
+	[GCC_PCIE_0_PHY_BCR] = { 0x3e004 },
+	[GCC_PCIE_0_LINK_DOWN_BCR] = { 0x3e038 },
+	[GCC_PCIEPHY_0_PHY_BCR] = { 0x3e03c },
+	[GCC_PCIE_0_AXI_MASTER_STICKY_ARES] = { 0x3e040, 6},
+	[GCC_PCIE_0_AHB_ARES] = { 0x3e040, 5 },
+	[GCC_PCIE_0_AXI_SLAVE_ARES] = { 0x3e040, 4 },
+	[GCC_PCIE_0_AXI_MASTER_ARES] = { 0x3e040, 3 },
+	[GCC_PCIE_0_CORE_STICKY_ARES] = { 0x3e040, 2 },
+	[GCC_PCIE_0_SLEEP_ARES] = { 0x3e040, 1 },
+	[GCC_PCIE_0_PIPE_ARES] = { 0x3e040, 0 },
+	[GCC_EMAC_BCR] = { 0x4e000 },
+	[GCC_WDSP_RESTART] = {0x19000},
+};
+#endif
+
+static int qcom_reset_assert(struct reset_ctl *rst)
 {
-	struct ipq4019_reset_priv *priv = dev_get_priv(rst->dev);
-	const struct qcom_reset_map *reset_map = gcc_ipq4019_resets;
+	struct qcom_reset_priv *priv = dev_get_priv(rst->dev);
+	const struct qcom_reset_map *reset_map = gcc_qcom_resets;
 	const struct qcom_reset_map *map;
 	u32 value;
 
@@ -114,10 +147,10 @@ static int ipq4019_reset_assert(struct reset_ctl *rst)
 	return 0;
 }
 
-static int ipq4019_reset_deassert(struct reset_ctl *rst)
+static int qcom_reset_deassert(struct reset_ctl *rst)
 {
-	struct ipq4019_reset_priv *priv = dev_get_priv(rst->dev);
-	const struct qcom_reset_map *reset_map = gcc_ipq4019_resets;
+	struct qcom_reset_priv *priv = dev_get_priv(rst->dev);
+	const struct qcom_reset_map *reset_map = gcc_qcom_resets;
 	const struct qcom_reset_map *map;
 	u32 value;
 
@@ -130,19 +163,20 @@ static int ipq4019_reset_deassert(struct reset_ctl *rst)
 	return 0;
 }
 
-static const struct reset_ops ipq4019_reset_ops = {
-	.rst_assert = ipq4019_reset_assert,
-	.rst_deassert = ipq4019_reset_deassert,
+static const struct reset_ops qcom_reset_ops = {
+	.rst_assert = qcom_reset_assert,
+	.rst_deassert = qcom_reset_deassert,
 };
 
-static const struct udevice_id ipq4019_reset_ids[] = {
+static const struct udevice_id qcom_reset_ids[] = {
 	{ .compatible = "qcom,gcc-reset-ipq4019" },
+	{ .compatible = "qcom,gcc-reset-qcs404" },
 	{ }
 };
 
-static int ipq4019_reset_probe(struct udevice *dev)
+static int qcom_reset_probe(struct udevice *dev)
 {
-	struct ipq4019_reset_priv *priv = dev_get_priv(dev);
+	struct qcom_reset_priv *priv = dev_get_priv(dev);
 
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
@@ -151,11 +185,11 @@ static int ipq4019_reset_probe(struct udevice *dev)
 	return 0;
 }
 
-U_BOOT_DRIVER(ipq4019_reset) = {
-	.name = "ipq4019_reset",
+U_BOOT_DRIVER(qcom_reset) = {
+	.name = "qcom_reset",
 	.id = UCLASS_RESET,
-	.of_match = ipq4019_reset_ids,
-	.ops = &ipq4019_reset_ops,
-	.probe = ipq4019_reset_probe,
-	.priv_auto	= sizeof(struct ipq4019_reset_priv),
+	.of_match = qcom_reset_ids,
+	.ops = &qcom_reset_ops,
+	.probe = qcom_reset_probe,
+	.priv_auto = sizeof(struct qcom_reset_priv),
 };

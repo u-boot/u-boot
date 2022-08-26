@@ -143,12 +143,6 @@ config STI_USB_PHY
 	  used by USB2 and USB3 Host controllers available on
 	  STiH407 SoC families.
 
-config PHY_QCOM_IPQ4019_USB
-	tristate "Qualcomm IPQ4019 USB PHY driver"
-	depends on PHY && ARCH_IPQ40XX
-	help
-	  Support for the USB PHY-s on Qualcomm IPQ40xx SoC-s.
-
 config PHY_RCAR_GEN2
 	tristate "Renesas R-Car Gen2 USB PHY"
 	depends on PHY && RCAR_GEN2
@@ -220,14 +214,6 @@ config MESON_AXG_MIPI_PCIE_ANALOG_PHY
 	  This is the generic phy driver for the Amlogic Meson AXG
 	  MIPI PCIe Analog PHY.
 
-config MSM8916_USB_PHY
-	bool "Qualcomm MSM8916 USB PHY support"
-	depends on PHY
-	help
-          Support the USB PHY in msm8916
-
-	  This PHY is found on qualcomm dragonboard410c development board.
-
 config OMAP_USB2_PHY
 	bool "Support OMAP's USB2 PHY"
 	depends on PHY
@@ -298,5 +284,6 @@ config PHY_XILINX_ZYNQMP
 source "drivers/phy/rockchip/Kconfig"
 source "drivers/phy/cadence/Kconfig"
 source "drivers/phy/ti/Kconfig"
+source "drivers/phy/qcom/Kconfig"
 
 endmenu

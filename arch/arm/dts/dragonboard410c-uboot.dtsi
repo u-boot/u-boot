@@ -14,7 +14,7 @@
 	soc {
 		u-boot,dm-pre-reloc;
 
-		qcom,tlmm@1000000 {
+		pinctrl@1000000 {
 			u-boot,dm-pre-reloc;
 
 			uart {

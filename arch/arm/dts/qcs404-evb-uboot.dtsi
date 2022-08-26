@@ -22,3 +22,9 @@
 		};
 	};
 };
+
+&pms405_gpios {
+	usb_vbus_boost_pin {
+		gpios = <&pms405_gpios 2 0>;
+	};
+};

@@ -38,7 +38,7 @@
 		compatible = "simple-bus";
 
 		pinctrl_north@1300000 {
-			compatible = "qcom,tlmm-qcs404";
+			compatible = "qcom,qcs404-pinctrl";
 			reg = <0x1300000 0x200000>;
 
 			blsp1_uart2: uart {
@@ -52,6 +52,13 @@
 			reg = <0x1800000 0x80000>;
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
+			#clock-cells = <1>;
+		};
+
+		reset: gcc-reset@1800000 {
+			compatible = "qcom,gcc-reset-qcs404";
+			reg = <0x1800000 0x80000>;
+			#reset-cells = <1>;
 		};
 
 		debug_uart: serial@78b1000 {
@@ -74,6 +81,117 @@
 			non-removable;
 			mmc-ddr-1_8v;
 			mmc-hs400-1_8v;
+		};
+
+		usb3_phy: phy@78000 {
+			compatible = "qcom,usb-ss-28nm-phy";
+			#phy-cells = <0>;
+			reg = <0x78000 0x400>;
+			clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>,
+				 <&gcc GCC_USB3_PHY_PIPE_CLK>;
+			clock-names = "ahb", "pipe";
+			resets = <&reset GCC_USB3_PHY_BCR>,
+				 <&reset GCC_USB3PHY_PHY_BCR>;
+			reset-names = "com", "phy";
+		};
+
+		usb2_phy_prim: phy@7a000 {
+			compatible = "qcom,usb-hs-28nm-femtophy";
+			#phy-cells = <0>;
+			reg = <0x7a000 0x200>;
+			clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>,
+				 <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
+			clock-names = "ahb", "sleep";
+			resets = <&reset GCC_USB_HS_PHY_CFG_AHB_BCR>,
+				 <&reset GCC_USB2A_PHY_BCR>;
+			reset-names = "phy", "por";
+		};
+
+		usb2_phy_sec: phy@7c000 {
+			compatible = "qcom,usb-hs-28nm-femtophy";
+			#phy-cells = <0>;
+			reg = <0x7c000 0x200>;
+			clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>,
+				 <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
+			clock-names = "ahb", "sleep";
+			resets = <&reset GCC_QUSB2_PHY_BCR>,
+				 <&reset GCC_USB2_HS_PHY_ONLY_BCR>;
+			reset-names = "phy", "por";
+		};
+
+		usb3: usb@7678800 {
+			compatible = "qcom,dwc3";
+			reg = <0x7678800 0x400>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+			clocks = <&gcc GCC_USB30_MASTER_CLK>,
+				 <&gcc GCC_SYS_NOC_USB3_CLK>,
+				 <&gcc GCC_USB30_SLEEP_CLK>,
+				 <&gcc GCC_USB30_MOCK_UTMI_CLK>;
+			clock-names = "core", "iface", "sleep", "mock_utmi";
+
+			dwc3@7580000 {
+				compatible = "snps,dwc3";
+				reg = <0x7580000 0xcd00>;
+				phys = <&usb2_phy_prim>, <&usb3_phy>;
+				phy-names = "usb2-phy", "usb3-phy";
+				dr_mode = "host";
+				snps,has-lpm-erratum;
+				snps,hird-threshold = /bits/ 8 <0x10>;
+				snps,usb3_lpm_capable;
+				maximum-speed = "super-speed";
+			};
+		};
+
+		usb2: usb@79b8800 {
+			compatible = "qcom,dwc3";
+			reg = <0x79b8800 0x400>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+			clocks = <&gcc GCC_USB_HS_SYSTEM_CLK>,
+				 <&gcc GCC_PCNOC_USB2_CLK>,
+				 <&gcc GCC_USB_HS_INACTIVITY_TIMERS_CLK>,
+				 <&gcc GCC_USB20_MOCK_UTMI_CLK>;
+			clock-names = "core", "iface", "sleep", "mock_utmi";
+
+			dwc3@78c0000 {
+				compatible = "snps,dwc3";
+				reg = <0x78c0000 0xcc00>;
+				phys = <&usb2_phy_sec>;
+				phy-names = "usb2-phy";
+				dr_mode = "peripheral";
+				snps,has-lpm-erratum;
+				snps,hird-threshold = /bits/ 8 <0x10>;
+				snps,usb3_lpm_capable;
+				maximum-speed = "high-speed";
+			};
+		};
+
+		spmi@200f000 {
+			compatible = "qcom,spmi-pmic-arb";
+			reg = <0x200f000 0x1000
+			       0x2400000 0x400000
+			       0x2c00000 0x400000>;
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+
+			pms405_0: pms405@0 {
+				compatible = "qcom,spmi-pmic";
+				reg = <0x0 0x1>;
+				#address-cells = <0x1>;
+				#size-cells = <0x1>;
+
+				pms405_gpios: pms405_gpios@c000 {
+					compatible = "qcom,pms405-gpio";
+					reg = <0xc000 0x400>;
+					gpio-controller;
+					gpio-count = <12>;
+					#gpio-cells = <2>;
+					gpio-bank-name="pmic";
+				};
+			};
 		};
 	};
 };
