@@ -963,19 +963,15 @@ int board_late_init(void)
 
 int show_board_info(void)
 {
-	u32 version_num, serial_num;
+	char serial[17];
 	int err;
 
-	err = turris_atsha_otp_get_serial_number(&version_num, &serial_num);
+	err = turris_atsha_otp_get_serial_number(serial);
 	printf("Model: Turris Omnia\n");
 	printf("  MCU type: %s\n", omnia_get_mcu_type());
 	printf("  MCU version: %s\n", omnia_get_mcu_version());
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
-	if (err)
-		printf("  Serial Number: unknown\n");
-	else
-		printf("  Serial Number: %08X%08X\n", be32_to_cpu(version_num),
-		       be32_to_cpu(serial_num));
+	printf("  Serial Number: %s\n", !err ? serial : "unknown");
 
 	return 0;
 }
@@ -983,6 +979,7 @@ int show_board_info(void)
 int misc_init_r(void)
 {
 	turris_atsha_otp_init_mac_addresses(1);
+	turris_atsha_otp_init_serial_number();
 	return 0;
 }
 
