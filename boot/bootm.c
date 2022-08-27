@@ -1024,10 +1024,8 @@ static int bootm_host_load_image(const void *fit, int req_image_type,
 		return -EINVAL;
 	}
 
-	if (fit_image_get_comp(fit, noffset, &image_comp)) {
-		puts("Can't get image compression!\n");
-		return -EINVAL;
-	}
+	if (fit_image_get_comp(fit, noffset, &image_comp))
+		image_comp = IH_COMP_NONE;
 
 	/* Allow the image to expand by a factor of 4, should be safe */
 	buf_size = (1 << 20) + len * 4;
