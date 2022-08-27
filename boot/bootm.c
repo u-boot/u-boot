@@ -305,9 +305,9 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	/* check if FDT overlaps OS image */
 	if (images.ft_addr &&
 	    (((ulong)images.ft_addr >= start &&
-	      (ulong)images.ft_addr <= start + size) ||
+	      (ulong)images.ft_addr < start + size) ||
 	     ((ulong)images.ft_addr + images.ft_len >= start &&
-	      (ulong)images.ft_addr + images.ft_len <= start + size))) {
+	      (ulong)images.ft_addr + images.ft_len < start + size))) {
 		printf("ERROR: FDT image overlaps OS image (OS=0x%lx..0x%lx)\n",
 		       start, start + size);
 		return 1;
