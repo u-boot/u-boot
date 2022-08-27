@@ -27,9 +27,8 @@
 #define IO_TIMEOUT		30
 #define MAX_PRP_POOL		512
 
-static int nvme_wait_ready(struct nvme_dev *dev, bool enabled)
+static int nvme_wait_csts(struct nvme_dev *dev, u32 mask, u32 val)
 {
-	u32 bit = enabled ? NVME_CSTS_RDY : 0;
 	int timeout;
 	ulong start;
 
@@ -38,7 +37,7 @@ static int nvme_wait_ready(struct nvme_dev *dev, bool enabled)
 
 	start = get_timer(0);
 	while (get_timer(start) < timeout) {
-		if ((readl(&dev->bar->csts) & NVME_CSTS_RDY) == bit)
+		if ((readl(&dev->bar->csts) & mask) == val)
 			return 0;
 	}
 
@@ -295,7 +294,7 @@ static int nvme_enable_ctrl(struct nvme_dev *dev)
 	dev->ctrl_config |= NVME_CC_ENABLE;
 	writel(dev->ctrl_config, &dev->bar->cc);
 
-	return nvme_wait_ready(dev, true);
+	return nvme_wait_csts(dev, NVME_CSTS_RDY, NVME_CSTS_RDY);
 }
 
 static int nvme_disable_ctrl(struct nvme_dev *dev)
@@ -304,7 +303,16 @@ static int nvme_disable_ctrl(struct nvme_dev *dev)
 	dev->ctrl_config &= ~NVME_CC_ENABLE;
 	writel(dev->ctrl_config, &dev->bar->cc);
 
-	return nvme_wait_ready(dev, false);
+	return nvme_wait_csts(dev, NVME_CSTS_RDY, 0);
+}
+
+static int nvme_shutdown_ctrl(struct nvme_dev *dev)
+{
+	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
+	dev->ctrl_config |= NVME_CC_SHN_NORMAL;
+	writel(dev->ctrl_config, &dev->bar->cc);
+
+	return nvme_wait_csts(dev, NVME_CSTS_SHST_MASK, NVME_CSTS_SHST_CMPLT);
 }
 
 static void nvme_free_queue(struct nvme_queue *nvmeq)
@@ -904,6 +912,13 @@ free_nvme:
 int nvme_shutdown(struct udevice *udev)
 {
 	struct nvme_dev *ndev = dev_get_priv(udev);
+	int ret;
+
+	ret = nvme_shutdown_ctrl(ndev);
+	if (ret < 0) {
+		printf("Error: %s: Shutdown timed out!\n", udev->name);
+		return ret;
+	}
 
 	return nvme_disable_ctrl(ndev);
 }
