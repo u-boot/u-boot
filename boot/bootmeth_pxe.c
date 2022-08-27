@@ -23,8 +23,8 @@
 #include <net.h>
 #include <pxe_utils.h>
 
-static int disto_pxe_getfile(struct pxe_context *ctx, const char *file_path,
-			     char *file_addr, ulong *sizep)
+static int distro_pxe_getfile(struct pxe_context *ctx, const char *file_path,
+			      char *file_addr, ulong *sizep)
 {
 	struct distro_info *info = ctx->userdata;
 	ulong addr;
@@ -142,7 +142,7 @@ static int distro_pxe_boot(struct udevice *dev, struct bootflow *bflow)
 	info.dev = dev;
 	info.bflow = bflow;
 	info.cmdtp = &cmdtp;
-	ret = pxe_setup_ctx(ctx, &cmdtp, disto_pxe_getfile, &info, false,
+	ret = pxe_setup_ctx(ctx, &cmdtp, distro_pxe_getfile, &info, false,
 			    bflow->subdir);
 	if (ret)
 		return log_msg_ret("ctx", -EINVAL);

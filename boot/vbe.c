@@ -40,7 +40,7 @@ int vbe_find_next_device(struct udevice **devp)
 int vbe_find_first_device(struct udevice **devp)
 {
 	uclass_find_first_device(UCLASS_BOOTMETH, devp);
-	if (*devp && is_vbe(*devp))
+	if (!*devp || is_vbe(*devp))
 		return 0;
 
 	return vbe_find_next_device(devp);

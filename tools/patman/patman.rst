@@ -3,7 +3,7 @@
 .. Simon Glass <sjg@chromium.org>
 .. v1, v2, 19-Oct-11
 .. revised v3 24-Nov-11
-.. revised v4 04-Jul-2020, with Patchwork integration
+.. revised v4 Independence Day 2020, with Patchwork integration
 
 Patman patch manager
 ====================
@@ -11,21 +11,15 @@ Patman patch manager
 This tool is a Python script which:
 
 - Creates patch directly from your branch
-
 - Cleans them up by removing unwanted tags
-
 - Inserts a cover letter with change lists
-
 - Runs the patches through checkpatch.pl and its own checks
-
 - Optionally emails them out to selected people
 
 It also has some Patchwork features:
 
 - shows review tags from Patchwork so you can update your local patches
-
 - pulls these down into a new branch on request
-
 - lists comments received on a series
 
 It is intended to automate patch creation and make it a less
@@ -53,15 +47,12 @@ This tool requires a certain way of working:
 
 - Maintain a number of branches, one for each patch series you are
   working on
-
 - Add tags into the commits within each branch to indicate where the
   series should be sent, cover letter, version, etc. Most of these are
   normally in the top commit so it is easy to change them with 'git
   commit --amend'
-
 - Each branch tracks the upstream branch, so that this script can
   automatically determine the number of commits in it (optional)
-
 - Check out a branch, and run this script to create and send out your
   patches. Weeks later, change the patches and repeat, knowing that you
   will get a consistent result each time.
@@ -623,41 +614,35 @@ and it will create and send the version 2 series.
 General points
 --------------
 
-1. When you change back to the us-cmd branch days or weeks later all your
+#. When you change back to the us-cmd branch days or weeks later all your
    information is still there, safely stored in the commits. You don't need
    to remember what version you are up to, who you sent the last lot of patches
    to, or anything about the change logs.
-
-2. If you put tags in the subject, patman will Cc the maintainers
+#. If you put tags in the subject, patman will Cc the maintainers
    automatically in many cases.
-
-3. If you want to keep the commits from each series you sent so that you can
+#. If you want to keep the commits from each series you sent so that you can
    compare change and see what you did, you can either create a new branch for
    each version, or just tag the branch before you start changing it:
 
-.. code-block:: bash
+   .. code-block:: bash
 
         git tag sent/us-cmd-rfc
         # ...later...
         git tag sent/us-cmd-v2
 
-4. If you want to modify the patches a little before sending, you can do
+#. If you want to modify the patches a little before sending, you can do
    this in your editor, but be careful!
-
-5. If you want to run git send-email yourself, use the -n flag which will
+#. If you want to run git send-email yourself, use the -n flag which will
    print out the command line patman would have used.
-
-6. It is a good idea to add the change log info as you change the commit,
+#. It is a good idea to add the change log info as you change the commit,
    not later when you can't remember which patch you changed. You can always
    go back and change or remove logs from commits.
-
-7. Some mailing lists have size limits and when we add binary contents to
+#. Some mailing lists have size limits and when we add binary contents to
    our patches it's easy to exceed the size limits. Use "--no-binary" to
    generate patches without any binary contents. You are supposed to include
    a link to a git repository in your "Commit-notes", "Series-notes" or
    "Cover-letter" for maintainers to fetch the original commit.
-
-8. Patches will have no changelog entries for revisions where they did not
+#. Patches will have no changelog entries for revisions where they did not
    change. For clarity, if there are no changes for this patch in the most
    recent revision of the series, a note will be added. For example, a patch
    with the following tags in the commit::
@@ -669,15 +654,15 @@ General points
         Series-changes: 4
         - Another change
 
-would have a changelog of:::
+   would have a changelog of:::
 
-    (no changes since v4)
+        (no changes since v4)
 
-    Changes in v4:
-    - Another change
+        Changes in v4:
+        - Another change
 
-    Changes in v2:
-    - Some change
+        Changes in v2:
+        - Some change
 
 
 Other thoughts

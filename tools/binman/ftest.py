@@ -5351,16 +5351,6 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Node '/binman/u-boot': Please use 'extend-size' instead of 'expand-size'",
             str(e.exception))
 
-    def testMkimageMissingBlob(self):
-        """Test using mkimage to build an image"""
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('229_mkimage_missing.dts', allow_missing=True,
-                             allow_fake_blobs=True)
-        err = stderr.getvalue()
-        self.assertRegex(
-            err,
-            "Image '.*' has faked external blobs and is non-functional: .*")
-
     def testFitSplitElf(self):
         """Test an image with an FIT with an split-elf operation"""
         if not elf.ELF_TOOLS:
@@ -5461,24 +5451,6 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Node '/binman/fit': subnode 'images/@atf-SEQ': Failed to read ELF file: Magic number does not match",
             str(exc.exception))
 
-    def testFitSplitElfBadDirective(self):
-        """Test a FIT split-elf invalid fit,xxx directive in an image node"""
-        if not elf.ELF_TOOLS:
-            self.skipTest('Python elftools not available')
-        err = self._check_bad_fit('227_fit_bad_dir.dts')
-        self.assertIn(
-            "Node '/binman/fit': subnode 'images/@atf-SEQ': Unknown directive 'fit,something'",
-            err)
-
-    def testFitSplitElfBadDirectiveConfig(self):
-        """Test a FIT split-elf with invalid fit,xxx directive in config"""
-        if not elf.ELF_TOOLS:
-            self.skipTest('Python elftools not available')
-        err = self._check_bad_fit('228_fit_bad_dir_config.dts')
-        self.assertEqual(
-            "Node '/binman/fit': subnode 'configurations/@config-SEQ': Unknown directive 'fit,config'",
-            err)
-
     def checkFitSplitElf(self, **kwargs):
         """Test an split-elf FIT with a missing ELF file
 
@@ -5504,6 +5476,25 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             out = stdout.getvalue()
             err = stderr.getvalue()
         return out, err
+
+    def testFitSplitElfBadDirective(self):
+        """Test a FIT split-elf invalid fit,xxx directive in an image node"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        err = self._check_bad_fit('227_fit_bad_dir.dts')
+        self.assertIn(
+            "Node '/binman/fit': subnode 'images/@atf-SEQ': Unknown directive 'fit,something'",
+            err)
+
+    def testFitSplitElfBadDirectiveConfig(self):
+        """Test a FIT split-elf with invalid fit,xxx directive in config"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        err = self._check_bad_fit('228_fit_bad_dir_config.dts')
+        self.assertEqual(
+            "Node '/binman/fit': subnode 'configurations/@config-SEQ': Unknown directive 'fit,config'",
+            err)
+
 
     def testFitSplitElfMissing(self):
         """Test an split-elf FIT with a missing ELF file"""
@@ -5531,31 +5522,41 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         fname = tools.get_output_filename('binman-fake/missing.elf')
         self.assertTrue(os.path.exists(fname))
 
+    def testMkimageMissingBlob(self):
+        """Test using mkimage to build an image"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('229_mkimage_missing.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: .*")
+
     def testPreLoad(self):
         """Test an image with a pre-load header"""
         entry_args = {
             'pre-load-key-path': '.',
         }
-        data, _, _, _ = self._DoReadFileDtb('225_pre_load.dts',
+        data, _, _, _ = self._DoReadFileDtb('230_pre_load.dts',
                                             entry_args=entry_args)
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
-        data = self._DoReadFile('225_pre_load.dts')
+        data = self._DoReadFile('230_pre_load.dts')
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
     def testPreLoadPkcs(self):
         """Test an image with a pre-load header with padding pkcs"""
-        data = self._DoReadFile('226_pre_load_pkcs.dts')
+        data = self._DoReadFile('231_pre_load_pkcs.dts')
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
     def testPreLoadPss(self):
         """Test an image with a pre-load header with padding pss"""
-        data = self._DoReadFile('227_pre_load_pss.dts')
+        data = self._DoReadFile('232_pre_load_pss.dts')
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
@@ -5563,22 +5564,22 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testPreLoadInvalidPadding(self):
         """Test an image with a pre-load header with an invalid padding"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('228_pre_load_invalid_padding.dts')
+            data = self._DoReadFile('233_pre_load_invalid_padding.dts')
 
     def testPreLoadInvalidSha(self):
         """Test an image with a pre-load header with an invalid hash"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('229_pre_load_invalid_sha.dts')
+            data = self._DoReadFile('234_pre_load_invalid_sha.dts')
 
     def testPreLoadInvalidAlgo(self):
         """Test an image with a pre-load header with an invalid algo"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('230_pre_load_invalid_algo.dts')
+            data = self._DoReadFile('235_pre_load_invalid_algo.dts')
 
     def testPreLoadInvalidKey(self):
         """Test an image with a pre-load header with an invalid key"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('231_pre_load_invalid_key.dts')
+            data = self._DoReadFile('236_pre_load_invalid_key.dts')
 
     def _CheckSafeUniqueNames(self, *images):
         """Check all entries of given images for unsafe unique names"""
@@ -5593,7 +5594,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testSafeUniqueNames(self):
         """Test entry unique names are safe in single image configuration"""
-        data = self._DoReadFileRealDtb('230_unique_names.dts')
+        data = self._DoReadFileRealDtb('237_unique_names.dts')
 
         orig_image = control.images['image']
         image_fname = tools.get_output_filename('image.bin')
@@ -5603,7 +5604,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testSafeUniqueNamesMulti(self):
         """Test entry unique names are safe with multiple images"""
-        data = self._DoReadFileRealDtb('231_unique_names_multi.dts')
+        data = self._DoReadFileRealDtb('238_unique_names_multi.dts')
 
         orig_image = control.images['image']
         image_fname = tools.get_output_filename('image.bin')
@@ -5613,7 +5614,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testReplaceCmdWithBintool(self):
         """Test replacing an entry that needs a bintool to pack"""
-        data = self._DoReadFileRealDtb('232_replace_with_bintool.dts')
+        data = self._DoReadFileRealDtb('239_replace_with_bintool.dts')
         expected = U_BOOT_DATA + b'aa'
         self.assertEqual(expected, data[:len(expected)])
 
@@ -5632,7 +5633,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testReplaceCmdOtherWithBintool(self):
         """Test replacing an entry when another needs a bintool to pack"""
-        data = self._DoReadFileRealDtb('232_replace_with_bintool.dts')
+        data = self._DoReadFileRealDtb('239_replace_with_bintool.dts')
         expected = U_BOOT_DATA + b'aa'
         self.assertEqual(expected, data[:len(expected)])
 
@@ -5672,7 +5673,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testExtractFit(self):
         """Test extracting a FIT section"""
-        self._DoReadFileRealDtb('233_fit_extract_replace.dts')
+        self._DoReadFileRealDtb('240_fit_extract_replace.dts')
         image_fname = tools.get_output_filename('image.bin')
 
         fit_data = control.ReadEntry(image_fname, 'fit')
@@ -5691,7 +5692,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testExtractFitSubentries(self):
         """Test extracting FIT section subentries"""
-        self._DoReadFileRealDtb('233_fit_extract_replace.dts')
+        self._DoReadFileRealDtb('240_fit_extract_replace.dts')
         image_fname = tools.get_output_filename('image.bin')
 
         for entry_path, expected in [
@@ -5710,7 +5711,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         new_data = b'x' * len(U_BOOT_DATA)
         data, expected_fdtmap, _ = self._RunReplaceCmd(
             'fit/kernel/u-boot', new_data,
-            dts='233_fit_extract_replace.dts')
+            dts='240_fit_extract_replace.dts')
         self.assertEqual(new_data, data)
 
         path, fdtmap = state.GetFdtContents('fdtmap')
@@ -5722,7 +5723,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         new_data = b'ub' * len(U_BOOT_NODTB_DATA)
         data, expected_fdtmap, _ = self._RunReplaceCmd(
             'fit/fdt-1/u-boot-nodtb', new_data,
-            dts='233_fit_extract_replace.dts')
+            dts='240_fit_extract_replace.dts')
         self.assertEqual(new_data, data)
 
         # Will be repacked, so fdtmap must change
@@ -5736,7 +5737,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         expected = new_data.ljust(len(U_BOOT_NODTB_DATA), b'\0')
         data, expected_fdtmap, _ = self._RunReplaceCmd(
             'fit/fdt-1/u-boot-nodtb', new_data,
-            dts='233_fit_extract_replace.dts')
+            dts='240_fit_extract_replace.dts')
         self.assertEqual(expected, data)
 
         path, fdtmap = state.GetFdtContents('fdtmap')
@@ -5748,14 +5749,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         new_data = b'w' * len(COMPRESS_DATA + U_BOOT_DATA)
         with self.assertRaises(ValueError) as exc:
             self._RunReplaceCmd('section', new_data,
-                                dts='234_replace_section_simple.dts')
+                                dts='241_replace_section_simple.dts')
         self.assertIn(
             "Node '/section': Replacing sections is not implemented yet",
             str(exc.exception))
 
     def testMkimageImagename(self):
         """Test using mkimage with -n holding the data too"""
-        data = self._DoReadFile('235_mkimage_name.dts')
+        data = self._DoReadFile('242_mkimage_name.dts')
 
         # Check that the data appears in the file somewhere
         self.assertIn(U_BOOT_SPL_DATA, data)
@@ -5772,7 +5773,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testMkimageImage(self):
         """Test using mkimage with -n holding the data too"""
-        data = self._DoReadFile('236_mkimage_image.dts')
+        data = self._DoReadFile('243_mkimage_image.dts')
 
         # Check that the data appears in the file somewhere
         self.assertIn(U_BOOT_SPL_DATA, data)
@@ -5793,20 +5794,20 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testMkimageImageNoContent(self):
         """Test using mkimage with -n and no data"""
         with self.assertRaises(ValueError) as exc:
-            self._DoReadFile('237_mkimage_image_no_content.dts')
+            self._DoReadFile('244_mkimage_image_no_content.dts')
         self.assertIn('Could not complete processing of contents',
                       str(exc.exception))
 
     def testMkimageImageBad(self):
         """Test using mkimage with imagename node and data-to-imagename"""
         with self.assertRaises(ValueError) as exc:
-            self._DoReadFile('238_mkimage_image_bad.dts')
+            self._DoReadFile('245_mkimage_image_bad.dts')
         self.assertIn('Cannot use both imagename node and data-to-imagename',
                       str(exc.exception))
 
     def testCollectionOther(self):
         """Test a collection where the data comes from another section"""
-        data = self._DoReadFile('239_collection_other.dts')
+        data = self._DoReadFile('246_collection_other.dts')
         self.assertEqual(U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA +
                          tools.get_bytes(0xff, 2) + U_BOOT_NODTB_DATA +
                          tools.get_bytes(0xfe, 3) + U_BOOT_DTB_DATA,
@@ -5814,20 +5815,20 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testMkimageCollection(self):
         """Test using a collection referring to an entry in a mkimage entry"""
-        data = self._DoReadFile('240_mkimage_coll.dts')
+        data = self._DoReadFile('247_mkimage_coll.dts')
         expect = U_BOOT_SPL_DATA + U_BOOT_DATA
         self.assertEqual(expect, data[:len(expect)])
 
     def testCompressDtbPrependInvalid(self):
         """Test that invalid header is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('235_compress_dtb_prepend_invalid.dts')
+            self._DoReadFileDtb('248_compress_dtb_prepend_invalid.dts')
         self.assertIn("Node '/binman/u-boot-dtb': Invalid prepend in "
                       "'u-boot-dtb': 'invalid'", str(e.exception))
 
     def testCompressDtbPrependLength(self):
         """Test that compress with length header works as expected"""
-        data = self._DoReadFileRealDtb('236_compress_dtb_prepend_length.dts')
+        data = self._DoReadFileRealDtb('249_compress_dtb_prepend_length.dts')
         image = control.images['image']
         entries = image.GetEntries()
         self.assertIn('u-boot-dtb', entries)
@@ -5860,7 +5861,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testInvalidCompress(self):
         """Test that invalid compress algorithm is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('237_compress_dtb_invalid.dts')
+            self._DoTestFile('250_compress_dtb_invalid.dts')
         self.assertIn("Unknown algorithm 'invalid'", str(e.exception))
 
     def testCompUtilCompressions(self):
@@ -5893,7 +5894,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testCompressDtbZstd(self):
         """Test that zstd compress of device-tree files failed"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('238_compress_dtb_zstd.dts')
+            self._DoTestFile('251_compress_dtb_zstd.dts')
         self.assertIn("Node '/binman/u-boot-dtb': The zstd compression "
                       "requires a length header", str(e.exception))
 

@@ -236,6 +236,10 @@ variable. Within binman, this EntryArg is picked up by the `Entry_atf_bl31`
 etype. An EntryArg is simply an argument to the entry. The `atf-bl31-path`
 name is documented in :ref:`etype_atf_bl31`.
 
+Taking this a little further, when binman is used to create a FIT, it supports
+using an ELF file, e.g. `bl31.elf` and splitting it into separate pieces (with
+`fit,operation = "split-elf"`), each with its own load address.
+
 
 Invoking binman outside U-Boot
 ------------------------------
@@ -852,6 +856,55 @@ allow-repack:
 
     Adding this property causes the original offset and size values in the
     image description to be stored in the FDT and fdtmap.
+
+
+Image dependencies
+------------------
+
+Binman does not currently support images that depend on each other. For example,
+if one image creates `fred.bin` and then the next uses this `fred.bin` to
+produce a final `image.bin`, then the behaviour is undefined. It may work, or it
+may produce an error about `fred.bin` being missing, or it may use a version of
+`fred.bin` from a previous run.
+
+Often this can be handled by incorporating the dependency into the second
+image. For example, instead of::
+
+    binman {
+        multiple-images;
+
+        fred {
+            u-boot {
+            };
+            fill {
+                size = <0x100>;
+            };
+        };
+
+        image {
+            blob {
+                filename = "fred.bin";
+            };
+            u-boot-spl {
+            };
+        };
+
+you can do this::
+
+    binman {
+        image {
+            fred {
+                type = "section";
+                u-boot {
+                };
+                fill {
+                    size = <0x100>;
+                };
+            };
+            u-boot-spl {
+            };
+        };
+
 
 
 Hashing Entries
@@ -1684,6 +1737,7 @@ Some ideas:
 - Figure out how to make Fdt support changing the node order, so that
   Node.AddSubnode() can support adding a node before another, existing node.
   Perhaps it should completely regenerate the flat tree?
+- Support images which depend on each other
 
 --
 Simon Glass <sjg@chromium.org>

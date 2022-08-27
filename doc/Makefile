@@ -58,6 +58,7 @@ quiet_cmd_sphinx = SPHINX  $@ --> file://$(abspath $(BUILDDIR)/$3/$4)
 	$(SPHINXBUILD) \
 	-j$(shell nproc) \
 	-b $2 \
+	-j auto \
 	-c $(abspath $(srctree)/$(src)) \
 	-d $(abspath $(BUILDDIR)/.doctrees/$3) \
 	-D version=$(KERNELVERSION) -D release=$(KERNELRELEASE) \
