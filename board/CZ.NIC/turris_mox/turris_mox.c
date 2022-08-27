@@ -440,8 +440,9 @@ static void handle_reset_button(void)
 	env_set_default_vars(1, (char * const *)vars, 0);
 
 	if (read_reset_button()) {
-		const char * const vars[2] = {
+		const char * const vars[3] = {
 			"bootcmd",
+			"bootdelay",
 			"distro_bootcmd",
 		};
 
@@ -449,7 +450,7 @@ static void handle_reset_button(void)
 		 * Set the above envs to their default values, in case the user
 		 * managed to break them.
 		 */
-		env_set_default_vars(2, (char * const *)vars, 0);
+		env_set_default_vars(3, (char * const *)vars, 0);
 
 		/* Ensure bootcmd_rescue is used by distroboot */
 		env_set("boot_targets", "rescue");
