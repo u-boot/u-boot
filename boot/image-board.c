@@ -347,8 +347,8 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 			else
 				default_addr = image_load_addr;
 
-			if (fit_parse_conf(select, default_addr,
-					   &rd_addr, &fit_uname_config)) {
+			if (fit_parse_conf(select, default_addr, &rd_addr,
+					   &fit_uname_config)) {
 				debug("*  ramdisk: config '%s' from image at 0x%08lx\n",
 				      fit_uname_config, rd_addr);
 				done_select = true;
@@ -362,82 +362,80 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 		}
 	}
 	if (!done_select) {
-				rd_addr = hextoul(select, NULL);
-				debug("*  ramdisk: cmdline image address = 0x%08lx\n",
-				      rd_addr);
+		rd_addr = hextoul(select, NULL);
+		debug("*  ramdisk: cmdline image address = 0x%08lx\n", rd_addr);
 	}
-		if (CONFIG_IS_ENABLED(FIT) && !select) {
-			/* use FIT configuration provided in first bootm
-			 * command argument. If the property is not defined,
-			 * quit silently (with -ENOPKG)
-			 */
-			rd_addr = map_to_sysmem(images->fit_hdr_os);
-			rd_noffset = fit_get_node_from_config(images,
-							      FIT_RAMDISK_PROP,
-							      rd_addr);
-			if (rd_noffset == -ENOENT)
-				return -ENOPKG;
-			else if (rd_noffset < 0)
-				return rd_noffset;
-		}
-
-		/*
-		 * Check if there is an initrd image at the
-		 * address provided in the second bootm argument
-		 * check image type, for FIT images get FIT node.
+	if (CONFIG_IS_ENABLED(FIT) && !select) {
+		/* use FIT configuration provided in first bootm
+		 * command argument. If the property is not defined,
+		 * quit silently (with -ENOPKG)
 		 */
-		buf = map_sysmem(rd_addr, 0);
-		switch (genimg_get_format(buf)) {
-		case IMAGE_FORMAT_LEGACY:
-			if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
-				const image_header_t *rd_hdr;
+		rd_addr = map_to_sysmem(images->fit_hdr_os);
+		rd_noffset = fit_get_node_from_config(images, FIT_RAMDISK_PROP,
+						      rd_addr);
+		if (rd_noffset == -ENOENT)
+			return -ENOPKG;
+		else if (rd_noffset < 0)
+			return rd_noffset;
+	}
 
-				printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
-				       rd_addr);
+	/*
+	 * Check if there is an initrd image at the
+	 * address provided in the second bootm argument
+	 * check image type, for FIT images get FIT node.
+	 */
+	buf = map_sysmem(rd_addr, 0);
+	switch (genimg_get_format(buf)) {
+	case IMAGE_FORMAT_LEGACY:
+		if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
+			const image_header_t *rd_hdr;
 
-				bootstage_mark(BOOTSTAGE_ID_CHECK_RAMDISK);
-				rd_hdr = image_get_ramdisk(rd_addr, arch,
-							   images->verify);
+			printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
+			       rd_addr);
 
-				if (!rd_hdr)
-					return -ENOENT;
+			bootstage_mark(BOOTSTAGE_ID_CHECK_RAMDISK);
+			rd_hdr = image_get_ramdisk(rd_addr, arch,
+						   images->verify);
 
-				*rd_datap = image_get_data(rd_hdr);
-				*rd_lenp = image_get_data_size(rd_hdr);
-				done = true;
-			}
-			break;
-		case IMAGE_FORMAT_FIT:
-			if (CONFIG_IS_ENABLED(FIT)) {
-				rd_noffset = fit_image_load(images, rd_addr,
-					&fit_uname_ramdisk, &fit_uname_config,
-					arch, IH_TYPE_RAMDISK,
-					BOOTSTAGE_ID_FIT_RD_START,
-					FIT_LOAD_OPTIONAL_NON_ZERO,
-					rd_datap, rd_lenp);
-				if (rd_noffset < 0)
-					return rd_noffset;
+			if (!rd_hdr)
+				return -ENOENT;
 
-				images->fit_hdr_rd = map_sysmem(rd_addr, 0);
-				images->fit_uname_rd = fit_uname_ramdisk;
-				images->fit_noffset_rd = rd_noffset;
-				done = true;
-			}
-			break;
-		case IMAGE_FORMAT_ANDROID:
-			if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
-				void *ptr = map_sysmem(images->os.start, 0);
-				int ret;
-
-				ret = android_image_get_ramdisk(ptr, rd_datap,
-								rd_lenp);
-				unmap_sysmem(ptr);
-				if (ret)
-					return ret;
-				done = true;
-			}
-			break;
+			*rd_datap = image_get_data(rd_hdr);
+			*rd_lenp = image_get_data_size(rd_hdr);
+			done = true;
 		}
+		break;
+	case IMAGE_FORMAT_FIT:
+		if (CONFIG_IS_ENABLED(FIT)) {
+			rd_noffset = fit_image_load(images, rd_addr,
+						    &fit_uname_ramdisk,
+						    &fit_uname_config,
+						    arch, IH_TYPE_RAMDISK,
+						    BOOTSTAGE_ID_FIT_RD_START,
+						    FIT_LOAD_OPTIONAL_NON_ZERO,
+						    rd_datap, rd_lenp);
+			if (rd_noffset < 0)
+				return rd_noffset;
+
+			images->fit_hdr_rd = map_sysmem(rd_addr, 0);
+			images->fit_uname_rd = fit_uname_ramdisk;
+			images->fit_noffset_rd = rd_noffset;
+			done = true;
+		}
+		break;
+	case IMAGE_FORMAT_ANDROID:
+		if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
+			void *ptr = map_sysmem(images->os.start, 0);
+			int ret;
+
+			ret = android_image_get_ramdisk(ptr, rd_datap, rd_lenp);
+			unmap_sysmem(ptr);
+			if (ret)
+				return ret;
+			done = true;
+		}
+		break;
+	}
 
 	if (!done) {
 		if (IS_ENABLED(CONFIG_SUPPORT_RAW_INITRD)) {
