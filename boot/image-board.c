@@ -314,7 +314,7 @@ int genimg_has_config(bootm_headers_t *images)
  * select_ramdisk() - Select and locate the ramdisk to use
  *
  * @images: pointer to the bootm images structure
- * @select: name of ramdisk to select, or NULL for any
+ * @select: name of ramdisk to select, or hex address, NULL for any
  * @arch: expected ramdisk architecture
  * @rd_datap: pointer to a ulong variable, will hold ramdisk pointer
  * @rd_lenp: pointer to a ulong variable, will hold ramdisk length
@@ -324,6 +324,7 @@ int genimg_has_config(bootm_headers_t *images)
 static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 			  ulong *rd_datap, ulong *rd_lenp)
 {
+	bool done = false;
 	ulong rd_addr;
 	char *buf;
 
@@ -401,6 +402,7 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 
 			*rd_datap = image_get_data(rd_hdr);
 			*rd_lenp = image_get_data_size(rd_hdr);
+			done = true;
 			break;
 		}
 #endif
@@ -419,6 +421,7 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 			images->fit_hdr_rd = map_sysmem(rd_addr, 0);
 			images->fit_uname_rd = fit_uname_ramdisk;
 			images->fit_noffset_rd = rd_noffset;
+			done = true;
 			break;
 #endif
 		case IMAGE_FORMAT_ANDROID:
@@ -431,24 +434,29 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 				unmap_sysmem(ptr);
 				if (ret)
 					return ret;
-				break;
+				done = true;
 			}
-			fallthrough;
-		default:
-			if (IS_ENABLED(CONFIG_SUPPORT_RAW_INITRD)) {
-				char *end = NULL;
+			break;
+		}
 
-				if (select)
-					end = strchr(select, ':');
-				if (end) {
-					*rd_lenp = hextoul(++end, NULL);
-					*rd_datap = rd_addr;
-					break;
-				}
+	if (!done) {
+		if (IS_ENABLED(CONFIG_SUPPORT_RAW_INITRD)) {
+			char *end = NULL;
+
+			if (select)
+				end = strchr(select, ':');
+			if (end) {
+				*rd_lenp = hextoul(++end, NULL);
+				*rd_datap = rd_addr;
+				done = true;
 			}
+		}
+
+		if (!done) {
 			puts("Wrong Ramdisk Image Format\n");
 			return -EINVAL;
 		}
+	}
 
 	return 0;
 }
