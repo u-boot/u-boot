@@ -466,7 +466,7 @@ static void __iomem *virtio_pci_map_capability(struct udevice *udev,
 	unsigned long mask =
 			PCI_REGION_TYPE | PCI_REGION_SYS_MEMORY | PCI_REGION_RO;
 	unsigned long flags = PCI_REGION_MEM;
-	u8 *p = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0 + cap->bar, cap->offset,
+	u8 *p = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0 + 4 * cap->bar, cap->offset,
 			       cap->length, mask, flags);
 
 	return (void __iomem *)p;
