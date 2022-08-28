@@ -324,12 +324,13 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 {
 	const char *fit_uname_config;
 	const char *fit_uname_ramdisk;
+	bool done_select = !select;
 	bool done = false;
 	int rd_noffset;
 	ulong rd_addr;
 	char *buf;
 
-#if CONFIG_IS_ENABLED(FIT)
+	if (CONFIG_IS_ENABLED(FIT)) {
 		fit_uname_config = images->fit_uname_cfg;
 		fit_uname_ramdisk = NULL;
 
@@ -350,21 +351,21 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 					   &rd_addr, &fit_uname_config)) {
 				debug("*  ramdisk: config '%s' from image at 0x%08lx\n",
 				      fit_uname_config, rd_addr);
+				done_select = true;
 			} else if (fit_parse_subimage(select, default_addr,
 						      &rd_addr,
 						      &fit_uname_ramdisk)) {
 				debug("*  ramdisk: subimage '%s' from image at 0x%08lx\n",
 				      fit_uname_ramdisk, rd_addr);
-			} else
-#endif
-			{
+				done_select = true;
+			}
+		}
+	}
+	if (!done_select) {
 				rd_addr = hextoul(select, NULL);
 				debug("*  ramdisk: cmdline image address = 0x%08lx\n",
 				      rd_addr);
-			}
-#if CONFIG_IS_ENABLED(FIT)
-		}
-#endif
+	}
 		if (CONFIG_IS_ENABLED(FIT) && !select) {
 			/* use FIT configuration provided in first bootm
 			 * command argument. If the property is not defined,
