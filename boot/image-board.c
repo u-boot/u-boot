@@ -421,12 +421,19 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 			images->fit_noffset_rd = rd_noffset;
 			break;
 #endif
-#ifdef CONFIG_ANDROID_BOOT_IMAGE
 		case IMAGE_FORMAT_ANDROID:
-			android_image_get_ramdisk((void *)images->os.start,
-						  rd_datap, rd_lenp);
-			break;
-#endif
+			if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
+				void *ptr = map_sysmem(images->os.start, 0);
+				int ret;
+
+				ret = android_image_get_ramdisk(ptr, rd_datap,
+								rd_lenp);
+				unmap_sysmem(ptr);
+				if (ret)
+					return ret;
+				break;
+			}
+			fallthrough;
 		default:
 			if (IS_ENABLED(CONFIG_SUPPORT_RAW_INITRD)) {
 				char *end = NULL;
