@@ -24,7 +24,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 /**
  * image_get_ramdisk - get and verify ramdisk image
  * @rd_addr: ramdisk image start address
@@ -83,7 +82,6 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, u8 arch,
 
 	return rd_hdr;
 }
-#endif
 
 /*****************************************************************************/
 /* Shared dual-format routines */
@@ -386,26 +384,25 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 		 */
 		buf = map_sysmem(rd_addr, 0);
 		switch (genimg_get_format(buf)) {
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-		case IMAGE_FORMAT_LEGACY: {
-			const image_header_t *rd_hdr;
+		case IMAGE_FORMAT_LEGACY:
+			if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
+				const image_header_t *rd_hdr;
 
-			printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
-			       rd_addr);
+				printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
+				       rd_addr);
 
-			bootstage_mark(BOOTSTAGE_ID_CHECK_RAMDISK);
-			rd_hdr = image_get_ramdisk(rd_addr, arch,
-						   images->verify);
+				bootstage_mark(BOOTSTAGE_ID_CHECK_RAMDISK);
+				rd_hdr = image_get_ramdisk(rd_addr, arch,
+							   images->verify);
 
-			if (!rd_hdr)
-				return -ENOENT;
+				if (!rd_hdr)
+					return -ENOENT;
 
-			*rd_datap = image_get_data(rd_hdr);
-			*rd_lenp = image_get_data_size(rd_hdr);
-			done = true;
+				*rd_datap = image_get_data(rd_hdr);
+				*rd_lenp = image_get_data_size(rd_hdr);
+				done = true;
+			}
 			break;
-		}
-#endif
 #if CONFIG_IS_ENABLED(FIT)
 		case IMAGE_FORMAT_FIT:
 			rd_noffset = fit_image_load(images,
