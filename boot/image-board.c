@@ -322,14 +322,16 @@ int genimg_has_config(bootm_headers_t *images)
 static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 			  ulong *rd_datap, ulong *rd_lenp)
 {
+	const char *fit_uname_config;
+	const char *fit_uname_ramdisk;
 	bool done = false;
+	int rd_noffset;
 	ulong rd_addr;
 	char *buf;
 
 #if CONFIG_IS_ENABLED(FIT)
-		const char *fit_uname_config = images->fit_uname_cfg;
-		const char *fit_uname_ramdisk = NULL;
-		int rd_noffset;
+		fit_uname_config = images->fit_uname_cfg;
+		fit_uname_ramdisk = NULL;
 
 		if (select) {
 			ulong default_addr;
@@ -403,24 +405,23 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 				done = true;
 			}
 			break;
-#if CONFIG_IS_ENABLED(FIT)
 		case IMAGE_FORMAT_FIT:
-			rd_noffset = fit_image_load(images,
-						    rd_addr, &fit_uname_ramdisk,
-						    &fit_uname_config, arch,
-						    IH_TYPE_RAMDISK,
-						    BOOTSTAGE_ID_FIT_RD_START,
-						    FIT_LOAD_OPTIONAL_NON_ZERO,
-						    rd_datap, rd_lenp);
-			if (rd_noffset < 0)
-				return rd_noffset;
+			if (CONFIG_IS_ENABLED(FIT)) {
+				rd_noffset = fit_image_load(images, rd_addr,
+					&fit_uname_ramdisk, &fit_uname_config,
+					arch, IH_TYPE_RAMDISK,
+					BOOTSTAGE_ID_FIT_RD_START,
+					FIT_LOAD_OPTIONAL_NON_ZERO,
+					rd_datap, rd_lenp);
+				if (rd_noffset < 0)
+					return rd_noffset;
 
-			images->fit_hdr_rd = map_sysmem(rd_addr, 0);
-			images->fit_uname_rd = fit_uname_ramdisk;
-			images->fit_noffset_rd = rd_noffset;
-			done = true;
+				images->fit_hdr_rd = map_sysmem(rd_addr, 0);
+				images->fit_uname_rd = fit_uname_ramdisk;
+				images->fit_noffset_rd = rd_noffset;
+				done = true;
+			}
 			break;
-#endif
 		case IMAGE_FORMAT_ANDROID:
 			if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
 				void *ptr = map_sysmem(images->os.start, 0);
