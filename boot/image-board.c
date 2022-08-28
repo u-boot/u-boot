@@ -16,6 +16,7 @@
 #include <fpga.h>
 #include <image.h>
 #include <init.h>
+#include <log.h>
 #include <mapmem.h>
 #include <rtc.h>
 #include <watchdog.h>
@@ -172,29 +173,29 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 	if (to == from)
 		return;
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	if (to > from) {
-		from += len;
-		to += len;
-	}
-	while (len > 0) {
-		size_t tail = (len > chunksz) ? chunksz : len;
-
-		WATCHDOG_RESET();
+	if (IS_ENABLED(CONFIG_HW_WATCHDOG) || IS_ENABLED(CONFIG_WATCHDOG)) {
 		if (to > from) {
-			to -= tail;
-			from -= tail;
+			from += len;
+			to += len;
 		}
-		memmove(to, from, tail);
-		if (to < from) {
-			to += tail;
-			from += tail;
+		while (len > 0) {
+			size_t tail = (len > chunksz) ? chunksz : len;
+
+			WATCHDOG_RESET();
+			if (to > from) {
+				to -= tail;
+				from -= tail;
+			}
+			memmove(to, from, tail);
+			if (to < from) {
+				to += tail;
+				from += tail;
+			}
+			len -= tail;
 		}
-		len -= tail;
+	} else {
+		memmove(to, from, len);
 	}
-#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-	memmove(to, from, len);
-#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 }
 
 /**
@@ -551,7 +552,6 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
-#if defined(CONFIG_LMB)
 /**
  * boot_ramdisk_high - relocate init ramdisk
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -645,7 +645,6 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 error:
 	return -1;
 }
-#endif
 
 int boot_get_setup(bootm_headers_t *images, u8 arch,
 		   ulong *setup_start, ulong *setup_len)
@@ -839,15 +838,13 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
 	return 0;
 }
 
-#if defined(CONFIG_LMB)
-#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @cmd_start: pointer to a ulong variable, will hold cmdline start
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
  *
- * boot_get_cmdline() allocates space for kernel command line below
+ * This allocates space for kernel command line below
  * BOOTMAPSZ + env_get_bootm_low() address. If "bootargs" U-Boot environment
  * variable is present its contents is copied to allocated kernel
  * command line.
@@ -858,10 +855,19 @@ int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
  */
 int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 {
+	int barg;
 	char *cmdline;
 	char *s;
 
-	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CONFIG_SYS_BARGSIZE, 0xf,
+	/*
+	 * Help the compiler detect that this function is only called when
+	 * CONFIG_SYS_BOOT_GET_CMDLINE is enabled
+	 */
+	if (!IS_ENABLED(CONFIG_SYS_BOOT_GET_CMDLINE))
+		return 0;
+
+	barg = IF_ENABLED_INT(CONFIG_SYS_BOOT_GET_CMDLINE, CONFIG_SYS_BARGSIZE);
+	cmdline = (char *)(ulong)lmb_alloc_base(lmb, barg, 0xf,
 				env_get_bootm_mapsize() + env_get_bootm_low());
 	if (!cmdline)
 		return -1;
@@ -907,22 +913,22 @@ int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
 
 	debug("## kernel board info at 0x%08lx\n", (ulong)*kbd);
 
-#if defined(DEBUG)
-	if (IS_ENABLED(CONFIG_CMD_BDI))
+	if (_DEBUG && IS_ENABLED(CONFIG_CMD_BDI))
 		do_bdinfo(NULL, 0, 0, NULL);
-#endif
 
 	return 0;
 }
-#endif
 
 int image_setup_linux(bootm_headers_t *images)
 {
 	ulong of_size = images->ft_len;
 	char **of_flat_tree = &images->ft_addr;
-	struct lmb *lmb = &images->lmb;
+	struct lmb *lmb = images_lmb(images);
 	int ret;
 
+	/* This function cannot be called without lmb support */
+	if (!CONFIG_IS_ENABLED(LMB))
+		return -EFAULT;
 	if (CONFIG_IS_ENABLED(OF_LIBFDT))
 		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
 
@@ -949,7 +955,6 @@ int image_setup_linux(bootm_headers_t *images)
 
 	return 0;
 }
-#endif
 
 void genimg_print_size(uint32_t size)
 {
