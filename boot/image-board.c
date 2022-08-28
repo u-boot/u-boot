@@ -363,7 +363,9 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 				      rd_addr);
 			}
 #if CONFIG_IS_ENABLED(FIT)
-		} else {
+		}
+#endif
+		if (CONFIG_IS_ENABLED(FIT) && !select) {
 			/* use FIT configuration provided in first bootm
 			 * command argument. If the property is not defined,
 			 * quit silently (with -ENOPKG)
@@ -377,7 +379,6 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 			else if (rd_noffset < 0)
 				return rd_noffset;
 		}
-#endif
 
 		/*
 		 * Check if there is an initrd image at the
