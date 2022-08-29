@@ -16,8 +16,15 @@
 #include <vsprintf.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <display_options.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+void bdinfo_print_size(const char *name, uint64_t size)
+{
+	printf("%-12s= ", name);
+	print_size(size, "\n");
+}
 
 void bdinfo_print_num_l(const char *name, ulong value)
 {
