@@ -129,30 +129,87 @@ patch, these should leave no doubt if they were just comments and the
 patch will be accepted anyway, or if the patch should be
 reworked/resubmitted, or if it was rejected.
 
+Review Process, Git Tags
+------------------------
+
+There are a number of *git tags* that are used to document the origin and the
+processing of patches on their way into the mainline U-Boot code. The following
+is an attempt to document how these are usually handled in the U-Boot project.
+
+In general, we try to follow the established procedures from other projects,
+especially the Linux kernel, but there may be smaller differences. For
+reference, see the Linux kernel's `Submitting patches
+<https://www.kernel.org/doc/html/latest/process/submitting-patches.html>`_
+document.
+
+.. _dco:
+
+* Signed-off-by: the *Signed-off-by:* is a line at the end of the commit
+  message by which the signer certifies that they were involved in the development
+  of the patch and that they accept the `Developer Certificate of Origin
+  <https://developercertificate.org/>`_. Following this and adding a
+  ``Signed-off-by:`` line that contains the developer's name and email address
+  is required.
+
+   * Please note that in U-Boot, we do not add a ``Signed-off-by`` tag if we
+     just pass on a patch without any changes.
+
+   * Please note that when importing code from other projects you must say
+     where it comes from, and what revision you are importing. You must not
+     however copy ``Signed-off-by`` or other tags.
+
+* Everybody who can is invited to review and test the changes. Typically, we
+  follow the same guidelines as the Linux kernel for `Acked-by
+  <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#when-to-use-acked-by-cc-and-co-developed-by>`_
+  as well as `Reviewed-by
+  <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#using-reported-by-tested-by-reviewed-by-suggested-by-and-fixes>`_
+  and similar additional tags.
+
+* Reviewed-by: The patch has been reviewed and found acceptible according to
+  the `Reveiwer's statement of oversight
+  <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#reviewer-s-statement-of-oversight>`_.
+  A *Reviewed-by:* tag is a statement of opinion that the patch is an
+  appropriate modification of the code without any remaining serious technical
+  issues. Any interested reviewer (who has done the work) can offer a
+  *Reviewed-by:* tag for a patch.
+
+* Acked-by: If a person was not directly involved in the preparation or
+  handling of a patch but wishes to signify and record their approval of it
+  then they can arrange to have an *Acked-by:* line added to the patch's
+  changelog.
+
+* Tested-by: A *Tested-by:* tag indicates that the patch has been successfully
+  tested (in some environment) by the person named. Andrew Morton: "I think
+  it's very useful information to have. For a start, it tells you who has the
+  hardware and knows how to build a kernel. So if you're making a change to a
+  driver and want it tested, you can troll the file's changelog looking for
+  people who might be able to help."
+
+* Reported-by: If this patch fixes a problem reported by somebody else,
+  consider adding a *Reported-by:* tag to credit the reporter for their
+  contribution. Please note that this tag should not be added without the
+  reporter's permission, especially if the problem was not reported in a public
+  forum.
+
+* Cc: If a person should have the opportunity to comment on a patch, you may
+  optionally add a *Cc:* tag to the patch. Git tools (git send-email) will then
+  automatically arrange that they receives a copy of the patch when you submit it
+  to the mainling list. This is the only tag which might be added without an
+  explicit action by the person it names. This tag documents that potentially
+  interested parties have been included in the discussion.
+  For example, when your change affects a specific board or driver, then makes
+  a lot of sense to put the respective maintainer of this code on Cc:
+
 Work flow of a Custodian
 ------------------------
 
 The normal flow of work in the U-Boot development process will look
 like this:
 
-#. A developer submits a patch via e-mail to the u-boot mailing list.  In
-   U-Boot, we make use of the `Developer Certificate of Origin
-   <https://developercertificate.org/>`_ that is common in other projects such
-   as the Linux kernel.  Following this and adding a ``Signed-off-by:`` line
-   that contains the developer's name and email address is required.
-
-   * Please note that when importing code from other projects you must say
-     where it comes from, and what revision you are importing. You must not
-     however copy ``Signed-off-by`` or other tags.
-
-#. Everybody who can is invited to review and test the changes.  Typically, we
-   follow the same guidelines as the Linux kernel for `Acked-by
-   <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#when-to-use-acked-by-cc-and-co-developed-by>`_
-   as well as `Reviewed-by
-   <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#using-reported-by-tested-by-reviewed-by-suggested-by-and-fixes>`_
-   and similar additional tags.
-
 #. The responsible custodian inspects this patch, especially for:
+
+   #. The commit message is useful, descriptive and makes correct and
+      appropraite usage of required *git tags*.
 
    #. :doc:`codingstyle`
 

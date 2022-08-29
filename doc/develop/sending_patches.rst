@@ -11,7 +11,7 @@ to oversee the consequences of a specific change to all architectures.
 Discussing concepts early can help you to avoid spending effort on code which,
 when submitted as a patch, might be rejected and/or will need lots of rework
 because it does not fit for some reason. Early peer review is an important
-resource - use it.
+resource - use it. Being familiar with the :doc:`process` is also important.
 
 A good introduction how to prepare for submitting patches can be found in the
 LWN article `How to Get Your Change Into the Linux Kernel
@@ -53,7 +53,7 @@ General Patch Submission Rules
   done in separate patches marked as ``cosmetic``. This separation of functional
   and cosmetic changes greatly facilitates the review process.
 
-* Some comments on running ``checkpatch.pl``:
+* Some comments on running :doc:`checkpatch.pl <checkpatch>`:
 
    * Checkpatch is a tool that can help you find some style problems, but is
      imperfect, and the things it complains about are of varying importance.
@@ -134,7 +134,8 @@ Attributing Code, Copyrights, Signing
 -------------------------------------
 
 * Sign your changes, i. e. add a *Signed-off-by:* line to the message body.
-  This can be automated by using ``git commit -s``.
+  This can be automated by using ``git commit -s``. Please see the
+  :ref:`Developer Certificate of Origin <dco>` section for more details here.
 
 * If you change or add *significant* parts to a file, then please make sure to
   add your copyright to that file, for example like this::
@@ -221,7 +222,8 @@ log messages.
   description.
 
 * End your log message with S.O.B. (Signed-off-by) line. This is done
-  automatically when you use ``git commit -s``.
+  automatically when you use ``git commit -s``. Please see the
+  :ref:`Developer Certificate of Origin <dco>` section for more details here.
 
 * Keep EVERY line under 72 characters. That is, your message should be
   line-wrapped with line-feeds. However, don't get carried away and wrap it too
@@ -301,34 +303,28 @@ Notes
 
 1. U-Boot is Free Software that can redistributed and/or modified under the
    terms of the `GNU General Public License
-   <http://www.fsf.org/licensing/licenses/gpl.html>`_ (GPL). Currently (July
-   2009) version 2 of the GPL applies. Please see :download:`Licensing
+   <http://www.fsf.org/licensing/licenses/gpl.html>`_ (GPL). Currently (August
+   2022) version 2 of the GPL applies. Please see :download:`Licensing
    <../../Licenses/README>` for details. To allow that later versions of U-Boot
    may be released under a later version of the GPL, all new code that gets
    added to U-Boot shall use a "GPL-2.0+" SPDX-License-Identifier.
 
 2. All code must follow the :doc:`codingstyle` requirements.
 
-3. Before sending the patch, you *must* run the ``MAKEALL`` script on your
-   patched source tree and make sure that no errors or warnings are reported
-   for any of the boards. Well, at least not any more warnings than without
-   your patch. It is *strongly* recommended to verify that out-of-tree
-   building (with ``-O`` _make_ option resp. ``BUILD_DIR`` environment
-   variable) is still working. For example, run ``BUILD_DIR=/tmp/u-boot-build ./MAKEALL``.
-   Please also run ``MAKEALL`` for *at least one other architecture* than the one
-   you made your modifications in.
+3. Before sending the patch, you *must* run some form of local testing.
+   Submitting a patch that does not build or function correct is a mistake. For
+   non-trivial patches, either building a number of platforms locally or making
+   use of :doc:`ci_testing` is strongly encouraged in order to avoid problems
+   that can be found when attempting to merge the patch.
 
 4. If you modify existing code, make sure that your new code does not add to
    the memory footprint of the code. Remember: Small is beautiful! When adding
-   new features, these should compile conditionally only (using the
-   configuration system resp. #ifdef), and the resulting code with the new
-   feature disabled must not need more memory than the old code without your
-   modification.
+   new features follow the guidelines laid out in :doc:`system_configuration`.
 
 Patch Tracking
 --------------
 
-Like some other project U-Boot uses `Patchwork <http://patchwork.ozlabs.org/>`_
+Like some other projects, U-Boot uses `Patchwork <http://patchwork.ozlabs.org/>`_
 to track the state of patches. This is one of the reasons why it is mandatory
 to submit all patches to the U-Boot mailing list - only then they will be
 picked up by patchwork.
@@ -337,6 +333,13 @@ At http://patchwork.ozlabs.org/project/uboot/list/ you can find the list of
 open U-Boot patches. By using the "Filters" link (Note: requires JavaScript)
 you can also select other views, for example, to include old patches that have,
 for example, already been applied or rejected.
+
+Note that Patchwork automatically tracks and collects a number of git tags from
+follow-up mails, so it is usually better to apply a patch through the Patchwork
+commandline interface than just manually applying it from a posting on the
+mailing list (in which case you have to do all the tracking and adding of git
+tags yourself). This also obviates the need of a developer to resubmit a patch
+only in order to collect these tags.
 
 A Custodian has additional privileges and can:
 
@@ -369,15 +372,13 @@ A Custodian has additional privileges and can:
 Patchwork work-flow
 ^^^^^^^^^^^^^^^^^^^
 
-At the moment we are in the process of defining our work-flow with
-Patchwork, so I try to summarize what the states and state changes
-mean; most of this information is based on this `mail thread
-<http://old.nabble.com/patchwork-states-and-workflow-td19579954.html>`_.
+The following are a "rule of thumb" as to how the states are used in patchwork
+today. Not all states are used by all custodians.
 
 * New: Patch has been submitted to the list, and none of the maintainers has
   changed it's state since.
 
-* Under Review:
+* Under Review: A custodian is reviewing the patch currently.
 
 * Accepted: When a patch has been applied to a custodian repository that gets
   used for pulling from into upstream, they are put into "accepted" state.
@@ -387,29 +388,27 @@ mean; most of this information is based on this `mail thread
 * RFC: The patch is not intended to be applied to any of the mainline
   repositories, but merely for discussing or testing some idea or new feature.
 
-* Not Applicable: The patch does not apply cleanly against the current U-Boot
-  repository, most probably because it was made against a much older version of
-  U-Boot, or because the submitter's mailer mangled it (for example by
-  converting TABs into SPACEs, or by breaking long lines).
+* Not Applicable: The patch either was not intended to be applied, as it was
+  a debugging or discussion aide that patchwork picked up, or was cross-posted
+  to our list but intended for another project entirely.
 
 * Changes Requested: The patch looks mostly OK, but requires some rework before
   it will be accepted for mainline.
 
-* Awaiting Upstream:
+* Awaiting Upstream: A custodian may have applied this to the ``next`` branch
+  and has not merged yet to master, or has queued the patch up to be submitted
+  to be merged, but has not yet.
 
 * Superseeded: Patches are marked as 'superseeded' when the poster submits a
   new version of these patches.
 
 * Deferred: Deferred usually means the patch depends on something else that
   isn't upstream, such as patches that only apply against some specific other
-  repository.
+  repository. This is also used when a patch has been in patchwork for over a
+  year and it is unlikely to be applied as-is.
 
 * Archived: Archiving puts the patch away somewhere where it doesn't appear in
   the normal pages and needs extra effort to get to.
-
-We also can put patches in a "bundle". I don't know yet if that has any deeper
-sense but to mark them to be handled together, like a patch series that
-logically belongs together.
 
 Apply patches
 ^^^^^^^^^^^^^
@@ -453,61 +452,3 @@ pwparser
 ^^^^^^^^
 
 See http://www.mail-archive.com/patchwork@lists.ozlabs.org/msg00057.html
-
-Review Process, Git Tags
-------------------------
-
-There are a number of *git tags* that are used to document the origin
-and the processing of patches on their way into the mainline U-Boot
-code. The following is an attempt to document how these are usually
-handled in the U-Boot project. In general, we try to follow the
-established procedures from other projects, especially the Linux
-kernel, but there may be smaller differences. For reference, see
-the Linux kernel's `Submitting patches <https://www.kernel.org/doc/html/latest/process/submitting-patches.html>`_ document.
-
-* Signed-off-by: the *Signed-off-by:* is a line at the end of the commit
-  message by which the signer certifies that he was involved in the development
-  of the patch and that he accepts the `Developer Certificate of Origin
-  <https://developercertificate.org/>`_. In U-Boot, we typically do not add a
-  *Signed-off-by:* if we just pass on a patch without any changes.
-
-* Reviewed-by: The patch has been reviewed and found acceptible according to
-  the `Reveiwer's statement of oversight
-  <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#reviewer-s-statement-of-oversight>`_.
-  A *Reviewed-by:* tag is a statement of opinion that the patch is an
-  appropriate modification of the code without any remaining serious technical
-  issues. Any interested reviewer (who has done the work) can offer a
-  *Reviewed-by:* tag for a patch.
-
-* Acked-by: If a person was not directly involved in the preparation or
-  handling of a patch but wishes to signify and record their approval of it
-  then they can arrange to have an *Acked-by:* line added to the patch's
-  changelog.
-
-* Tested-by: A *Tested-by:* tag indicates that the patch has been successfully
-  tested (in some environment) by the person named. Andrew Morton: "I think
-  it's very useful information to have. For a start, it tells you who has the
-  hardware and knows how to build a kernel. So if you're making a change to a
-  driver and want it tested, you can troll the file's changelog looking for
-  people who might be able to help."
-
-* Reported-by: If this patch fixes a problem reported by somebody else,
-  consider adding a *Reported-by:* tag to credit the reporter for their
-  contribution. Please note that this tag should not be added without the
-  reporter's permission, especially if the problem was not reported in a public
-  forum.
-
-* Cc: If a person should have the opportunity to comment on a patch, you may
-  optionally add a *Cc:* tag to the patch. Git tools (git send-email) will then
-  automatically arrange that he receives a copy of the patch when you submit it
-  to the mainling list. This is the only tag which might be added without an
-  explicit action by the person it names. This tag documents that potentially
-  interested parties have been included in the discussion.
-  For example, when your change affects a specific board or driver, then makes
-  a lot of sense to put the respective maintainer of this code on Cc:
-
-Note that Patchwork automatically tracks and collects such git tags
-from follow-up mails, so it is usually better to apply a patch through
-the Patchwork commandline interface than just manually applying it
-from a posting on the mailing list (in which case you have to do all
-the tracking and adding of git tags yourself).
