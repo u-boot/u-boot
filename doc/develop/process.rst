@@ -108,6 +108,8 @@ Differences to the Linux Development Process
   In U-Boot, ``"-rc1"`` will only be released after all (or at least most of
   the) patches that were submitted during the merge window have been applied.
 
+.. _custodians:
+
 Custodians
 ----------
 
