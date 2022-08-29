@@ -61,6 +61,13 @@ Configuration
 
 The command is only available if CONFIG_CMD_LOADB=y.
 
+Initial timeout in seconds while waiting for transfer is configured by
+config option CMD_LOADXY_TIMEOUT or by env variable $loadxy_timeout.
+Setting it to 0 means infinite timeout.
+
+Transfer can be cancelled by pressing 3 times <CTRL+C> after two seconds
+of inactivity on terminal.
+
 Return value
 ------------
 
