@@ -97,8 +97,10 @@ static int microblaze_cpu_get_desc(const struct udevice *dev, char *buf,
 	ret = snprintf(buf, size,
 		       "MicroBlaze @ %uMHz, Rev: %s, FPGA family: %s",
 		       cpu_freq_mhz, cpu_ver, fpga_family);
+	if (ret < 0)
+		return ret;
 
-	return 0;
+	return (ret >= size) ? -ENOSPC : 0;
 }
 
 static int microblaze_cpu_get_info(const struct udevice *dev,
