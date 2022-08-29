@@ -97,10 +97,4 @@
 
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
 
-/* SP location before relocation, must use scratch RAM */
-/* BRAM start */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x0
-/* BRAM size - will be generated */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x100000
-
 #endif	/* __CONFIG_H */
