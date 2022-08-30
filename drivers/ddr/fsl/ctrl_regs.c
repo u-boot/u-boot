@@ -214,7 +214,7 @@ static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 		odt_rd_cfg = popts->cs_local_opts[i].odt_rd_cfg;
 		odt_wr_cfg = popts->cs_local_opts[i].odt_wr_cfg;
 #ifdef CONFIG_SYS_FSL_DDR4
-		ba_bits_cs_n = dimm_params[dimm_number].bank_addr_bits;
+		ba_bits_cs_n = dimm_params[dimm_number].bank_addr_bits - 2;
 		bg_bits_cs_n = dimm_params[dimm_number].bank_group_bits;
 #else
 		n_banks_per_sdram_device
