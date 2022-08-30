@@ -269,9 +269,7 @@ static int memory_post_addrline(ulong *testaddr, ulong *base, ulong size)
 	return ret;
 }
 
-static int memory_post_test1(unsigned long start,
-			      unsigned long size,
-			      unsigned long val)
+static int memory_post_test1(phys_addr_t start, phys_size_t size, unsigned long val)
 {
 	unsigned long i;
 	ulong *mem = (ulong *) start;
@@ -301,7 +299,7 @@ static int memory_post_test1(unsigned long start,
 	return ret;
 }
 
-static int memory_post_test2(unsigned long start, unsigned long size)
+static int memory_post_test2(phys_addr_t start, phys_size_t size)
 {
 	unsigned long i;
 	ulong *mem = (ulong *) start;
@@ -331,7 +329,7 @@ static int memory_post_test2(unsigned long start, unsigned long size)
 	return ret;
 }
 
-static int memory_post_test3(unsigned long start, unsigned long size)
+static int memory_post_test3(phys_addr_t start, phys_size_t size)
 {
 	unsigned long i;
 	ulong *mem = (ulong *) start;
@@ -361,7 +359,7 @@ static int memory_post_test3(unsigned long start, unsigned long size)
 	return ret;
 }
 
-static int memory_post_test4(unsigned long start, unsigned long size)
+static int memory_post_test4(phys_addr_t start, phys_size_t size)
 {
 	unsigned long i;
 	ulong *mem = (ulong *) start;
@@ -391,7 +389,7 @@ static int memory_post_test4(unsigned long start, unsigned long size)
 	return ret;
 }
 
-static int memory_post_test_lines(unsigned long start, unsigned long size)
+static int memory_post_test_lines(phys_addr_t start, phys_size_t size)
 {
 	int ret = 0;
 
@@ -409,7 +407,7 @@ static int memory_post_test_lines(unsigned long start, unsigned long size)
 	return ret;
 }
 
-static int memory_post_test_patterns(unsigned long start, unsigned long size)
+static int memory_post_test_patterns(phys_addr_t start, phys_size_t size)
 {
 	int ret = 0;
 
@@ -437,7 +435,7 @@ static int memory_post_test_patterns(unsigned long start, unsigned long size)
 	return ret;
 }
 
-static int memory_post_test_regions(unsigned long start, unsigned long size)
+static int memory_post_test_regions(phys_addr_t start, phys_size_t size)
 {
 	unsigned long i;
 	int ret = 0;
@@ -454,7 +452,7 @@ static int memory_post_test_regions(unsigned long start, unsigned long size)
 	return ret;
 }
 
-static int memory_post_tests(unsigned long start, unsigned long size)
+static int memory_post_tests(phys_addr_t start, phys_size_t size)
 {
 	int ret = 0;
 
@@ -469,7 +467,8 @@ static int memory_post_tests(unsigned long start, unsigned long size)
  * !! this is only valid, if you have contiguous memory banks !!
  */
 __attribute__((weak))
-int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+int arch_memory_test_prepare(phys_addr_t *vstart, phys_size_t *size,
+			     phys_addr_t *phys_offset)
 {
 	struct bd_info *bd = gd->bd;
 
@@ -485,13 +484,15 @@ int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 }
 
 __attribute__((weak))
-int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+int arch_memory_test_advance(phys_addr_t *vstart, phys_size_t *size,
+			     phys_addr_t *phys_offset)
 {
 	return 1;
 }
 
 __attribute__((weak))
-int arch_memory_test_cleanup(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+int arch_memory_test_cleanup(phys_addr_t *vstart, phys_size_t *size,
+			     phys_addr_t *phys_offset)
 {
 	return 0;
 }
@@ -505,8 +506,8 @@ void arch_memory_failure_handle(void)
 int memory_regions_post_test(int flags)
 {
 	int ret = 0;
-	phys_addr_t phys_offset = 0;
-	u32 memsize, vstart;
+	phys_addr_t phys_offset = 0, vstart;
+	phys_size_t memsize;
 
 	arch_memory_test_prepare(&vstart, &memsize, &phys_offset);
 
@@ -520,8 +521,8 @@ int memory_regions_post_test(int flags)
 int memory_post_test(int flags)
 {
 	int ret = 0;
-	phys_addr_t phys_offset = 0;
-	u32 memsize, vstart;
+	phys_addr_t phys_offset = 0, vstart;
+	phys_size_t memsize;
 
 	arch_memory_test_prepare(&vstart, &memsize, &phys_offset);
 

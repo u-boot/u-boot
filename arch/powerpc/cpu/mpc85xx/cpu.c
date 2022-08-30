@@ -610,7 +610,8 @@ static int reset_tlb(phys_addr_t p_addr, u32 size, phys_addr_t *phys_offset)
  * for 32_bit system, the maximum testable memory is limited to
  * CONFIG_MAX_MEM_MAPPED
  */
-int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+int arch_memory_test_advance(phys_addr_t *vstart, phys_size_t *size,
+			     phys_addr_t *phys_offset)
 {
 	phys_addr_t test_cap, p_addr;
 	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
@@ -639,7 +640,8 @@ int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 }
 
 /* initialization for testing area */
-int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+int arch_memory_test_prepare(phys_addr_t *vstart, phys_size_t *size,
+			     phys_addr_t *phys_offset)
 {
 	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
 
@@ -664,7 +666,8 @@ int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 }
 
 /* invalid TLBs for DDR and remap as normal after testing */
-int arch_memory_test_cleanup(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+int arch_memory_test_cleanup(phys_addr_t *vstart, phys_size_t *size,
+			     phys_addr_t *phys_offset)
 {
 	unsigned long epn;
 	u32 tsize, valid, ptr;

@@ -499,7 +499,8 @@ void post_word_store(ulong value)
 	out_le32(addr, value);
 }
 
-int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+int arch_memory_test_prepare(phys_addr_t *vstart, phys_size_t *size,
+			     phys_addr_t *phys_offset)
 {
 	*vstart = CONFIG_SYS_SDRAM_BASE;
 
