@@ -916,7 +916,7 @@ int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize)
 		snprintf(str + len, buffsize - len, ": %d [%c]%s%s",
 			 ret,
 			 used ? 'x' : ' ',
-			 used ? " " : "",
+			 label ? " " : "",
 			 label ? label : "");
 		break;
 	}
