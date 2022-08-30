@@ -45,6 +45,31 @@ gpio status
 
 Display the status of one or multiple GPIOs. By default only claimed GPIOs
 are displayed.
+gpio status command output fields are::
+
+    <name>: <function>: <value> [x] <label>
+
+*function* can take the following values:
+
+output
+    pin configured in gpio output, *value* indicates the pin's level
+
+input
+    pin configured in gpio input, *value* indicates the pin's level
+
+func
+    pin configured in alternate function, followed by *label*
+    which shows pinmuxing label.
+
+unused
+    pin not configured
+
+*[x]* or *[ ]* indicate respectively if the gpio is used or not.
+
+*label* shows the gpio label.
+
+Parameters
+----------
 
 -a
     Display GPIOs irrespective of being claimed.
@@ -76,6 +101,23 @@ Switch the status of a GPIO::
     gpio: pin a5 (gpio 133) value is 0
     => echo $myvar
     0
+
+Show the GPIO status::
+
+    => gpio status
+    Bank GPIOA:
+    GPIOA1: func rgmii-0
+    GPIOA2: func rgmii-0
+    GPIOA7: func rgmii-0
+    GPIOA10: output: 0 [x] hdmi-transmitter@39.reset-gpios
+    GPIOA13: output: 1 [x] red.gpios
+
+    Bank GPIOB:
+    GPIOB0: func rgmii-0
+    GPIOB1: func rgmii-0
+    GPIOB2: func uart4-0
+    GPIOB7: input: 0 [x] mmc@58005000.cd-gpios
+    GPIOB11: func rgmii-0
 
 Configuration
 -------------
