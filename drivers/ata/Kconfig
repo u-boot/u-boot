@@ -48,7 +48,7 @@ config SPL_AHCI_PCI
 	bool "Support for PCI-based AHCI controller for SPL"
 	depends on SPL
 	depends on SPL_PCI
-	depends on SPL_SATA_SUPPORT && DM_SCSI
+	depends on SPL_SATA && DM_SCSI
 
 config DWC_AHCI
 	bool "Enable Synopsys DWC AHCI driver support"

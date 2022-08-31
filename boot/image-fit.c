@@ -477,7 +477,7 @@ void fit_print_contents(const void *fit)
 void fit_image_print(const void *fit, int image_noffset, const char *p)
 {
 	char *desc;
-	uint8_t type, arch, os, comp;
+	uint8_t type, arch, os, comp = IH_COMP_NONE;
 	size_t size;
 	ulong load, entry;
 	const void *data;
@@ -794,7 +794,6 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
 	data = fdt_getprop(fit, noffset, FIT_COMP_PROP, &len);
 	if (data == NULL) {
 		fit_get_debug(fit, noffset, FIT_COMP_PROP, len);
-		*comp = -1;
 		return -1;
 	}
 
