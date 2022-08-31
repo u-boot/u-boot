@@ -658,4 +658,17 @@ u32 tpm2_disable_platform_hierarchy(struct udevice *dev);
 u32 tpm2_submit_command(struct udevice *dev, const u8 *sendbuf,
 			u8 *recvbuf, size_t *recv_size);
 
+/**
+ * tpm_cr50_report_state() - Report the Cr50 internal state
+ *
+ * @dev:	TPM device
+ * @vendor_cmd:	Vendor command number to send
+ * @vendor_subcmd: Vendor sub-command number to send
+ * @recvbuf:	Buffer to save the response to
+ * @recv_size:	Pointer to the size of the response buffer
+ * Return: result of the operation
+ */
+u32 tpm2_report_state(struct udevice *dev, uint vendor_cmd, uint vendor_subcmd,
+		      u8 *recvbuf, size_t *recv_size);
+
 #endif /* __TPM_V2_H */
