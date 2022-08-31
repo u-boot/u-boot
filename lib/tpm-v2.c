@@ -157,6 +157,8 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 	};
 	int ret;
 
+	if (!digest)
+		return -EINVAL;
 	/*
 	 * Fill the command structure starting from the first buffer:
 	 *     - the digest
