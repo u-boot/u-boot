@@ -760,3 +760,20 @@ efi_status_t efi_disk_init(void)
 
 	return EFI_SUCCESS;
 }
+
+/**
+ * efi_disks_register() - ensure all block devices are available in UEFI
+ *
+ * The function probes all block devices. As we store UEFI variables on the
+ * EFI system partition this function has to be called before enabling
+ * variable services.
+ */
+efi_status_t efi_disks_register(void)
+{
+	struct udevice *dev;
+
+	uclass_foreach_dev_probe(UCLASS_BLK, dev) {
+	}
+
+	return EFI_SUCCESS;
+}

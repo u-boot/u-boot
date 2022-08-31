@@ -531,8 +531,10 @@ void efi_carve_out_dt_rsv(void *fdt);
 void efi_try_purge_kaslr_seed(void *fdt);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
-/* Called by efi_init_obj_list() to initialize efi_disks */
+/* Called by efi_init_early() to add block devices when probed */
 efi_status_t efi_disk_init(void);
+/* Called by efi_init_obj_list() to proble all block devices */
+efi_status_t efi_disks_register(void);
 /* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
 efi_status_t efi_rng_register(void);
 /* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */
