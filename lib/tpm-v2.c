@@ -704,3 +704,24 @@ u32 tpm2_report_state(struct udevice *dev, uint vendor_cmd, uint vendor_subcmd,
 
 	return 0;
 }
+
+u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
+			  uint vendor_subcmd)
+{
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		/* header 10 bytes */
+		tpm_u16(TPM2_ST_NO_SESSIONS),		/* TAG */
+		tpm_u32(10 + 2),			/* Length */
+		tpm_u32(vendor_cmd),	/* Command code */
+
+		tpm_u16(vendor_subcmd),
+	};
+	int ret;
+
+	ret = tpm_sendrecv_command(dev, command_v2, NULL, NULL);
+	log_debug("ret=%s, %x\n", dev->name, ret);
+	if (ret)
+		return ret;
+
+	return 0;
+}
