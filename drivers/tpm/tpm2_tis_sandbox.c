@@ -795,6 +795,16 @@ static int sandbox_tpm2_get_desc(struct udevice *dev, char *buf, int size)
 	return snprintf(buf, size, "Sandbox TPM2.x");
 }
 
+static int sandbox_tpm2_report_state(struct udevice *dev, char *buf, int size)
+{
+	struct sandbox_tpm2 *priv = dev_get_priv(dev);
+
+	if (size < 40)
+		return -ENOSPC;
+
+	return snprintf(buf, size, "init_done=%d", priv->init_done);
+}
+
 static int sandbox_tpm2_open(struct udevice *dev)
 {
 	struct sandbox_tpm2 *tpm = dev_get_priv(dev);
@@ -834,6 +844,7 @@ static const struct tpm_ops sandbox_tpm2_ops = {
 	.open		= sandbox_tpm2_open,
 	.close		= sandbox_tpm2_close,
 	.get_desc	= sandbox_tpm2_get_desc,
+	.report_state	= sandbox_tpm2_report_state,
 	.xfer		= sandbox_tpm2_xfer,
 };
 

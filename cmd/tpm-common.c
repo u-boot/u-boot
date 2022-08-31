@@ -333,6 +333,26 @@ int do_tpm_info(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
+int do_tpm_report_state(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	struct udevice *dev;
+	char buf[80];
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
+	rc = tpm_report_state(dev, buf, sizeof(buf));
+	if (rc < 0) {
+		printf("Couldn't get TPM state (%d)\n", rc);
+		return CMD_RET_FAILURE;
+	}
+	printf("%s\n", buf);
+
+	return 0;
+}
+
 int do_tpm_init(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct udevice *dev;
