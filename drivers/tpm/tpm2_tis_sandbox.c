@@ -366,8 +366,10 @@ static int sandbox_tpm2_check_readyness(struct udevice *dev, int command)
 
 		break;
 	default:
-		if (!tpm->tests_done)
-			return TPM2_RC_NEEDS_TEST;
+		/* Skip this, since the startup may have happened in SPL
+		 * if (!tpm->tests_done)
+		 *    return TPM2_RC_NEEDS_TEST;
+		 */
 
 		break;
 	}
