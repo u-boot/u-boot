@@ -215,6 +215,8 @@ out:
  * @msg_len:	Message length
  * @hash:	Pointer to the expected hash
  * @hash_len:	Length of the hash
+ *
+ * Return:	0 if padding is correct, non-zero otherwise
  */
 int padding_pss_verify(struct image_sign_info *info,
 		       const uint8_t *msg, int msg_len,
@@ -233,6 +235,9 @@ int padding_pss_verify(struct image_sign_info *info,
 	int ret, i, leftmost_bits = 1;
 	uint8_t leftmost_mask;
 	struct checksum_algo *checksum = info->checksum;
+
+	if (db_len <= 0)
+		return -EINVAL;
 
 	/* first, allocate everything */
 	db_mask = malloc(db_len);
