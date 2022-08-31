@@ -75,7 +75,7 @@ SECTIONS
 		*(.__efi_runtime_rel_stop)
 	}
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	.image_copy_end :
 	{
 		*(.__image_copy_end)
@@ -114,7 +114,7 @@ SECTIONS
 
 	.bss __bss_base (OVERLAY) : {
 		*(.bss*)
-		 . = ALIGN(4);
+		 . = ALIGN(8);
 		 __bss_limit = .;
 	}
 
