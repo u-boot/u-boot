@@ -29,24 +29,66 @@ static struct efi_system_table *systable;
 static struct efi_boot_services *boottime;
 static struct efi_simple_text_output_protocol *con_out;
 
+/*
+ * Print an unsigned 32bit value as decimal number to an u16 string
+ *
+ * @value:	value to be printed
+ * @buf:	pointer to buffer address
+ *		on return position of terminating zero word
+ */
+static void uint2dec(u32 value, u16 **buf)
+{
+	u16 *pos = *buf;
+	int i;
+	u16 c;
+	u64 f;
+
+	/*
+	 * Increment by .5 and multiply with
+	 * (2 << 60) / 1,000,000,000 = 0x44B82FA0.9B5A52CC
+	 * to move the first digit to bit 60-63.
+	 */
+	f = 0x225C17D0;
+	f += (0x9B5A52DULL * value) >> 28;
+	f += 0x44B82FA0ULL * value;
+
+	for (i = 0; i < 10; ++i) {
+		/* Write current digit */
+		c = f >> 60;
+		if (c || pos != *buf)
+			*pos++ = c + '0';
+		/* Eliminate current digit */
+		f &= 0xfffffffffffffff;
+		/* Get next digit */
+		f *= 0xaULL;
+	}
+	if (pos == *buf)
+		*pos++ = '0';
+	*pos = 0;
+	*buf = pos;
+}
+
 /**
  * print_uefi_revision() - print UEFI revision number
  */
 static void print_uefi_revision(void)
 {
-	u16 rev[] = u"0.0.0";
+	u16 rev[13] = {0};
+	u16 *buf = rev;
+	u16 digit;
 
-	rev[0] = (systable->hdr.revision >> 16) + '0';
-	rev[4] = systable->hdr.revision & 0xffff;
-	for (; rev[4] >= 10;) {
-		rev[4] -= 10;
-		++rev[2];
+	uint2dec(systable->hdr.revision >> 16, &buf);
+	*buf++ = '.';
+	uint2dec(systable->hdr.revision & 0xffff, &buf);
+
+	/* Minor revision is only to be shown if non-zero */
+	digit = *--buf;
+	if (digit == '0') {
+		*buf = 0;
+	} else {
+		*buf++ = '.';
+		*buf = digit;
 	}
-	/* Third digit is only to be shown if non-zero */
-	if (rev[4])
-		rev[4] += '0';
-	else
-		rev[3] = 0;
 
 	con_out->output_string(con_out, u"Running on UEFI ");
 	con_out->output_string(con_out, rev);
