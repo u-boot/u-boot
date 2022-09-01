@@ -18,11 +18,11 @@ class Bintoolmkimage(bintool.Bintool):
     Support is provided for fetching this on Debian-like systems, using apt.
     """
     def __init__(self, name):
-        super().__init__(name, 'Generate image for U-Boot')
+        super().__init__(name, 'Generate image for U-Boot', r'mkimage version (.*)')
 
     # pylint: disable=R0913
     def run(self, reset_timestamp=False, output_fname=None, external=False,
-            pad=None, version=False):
+            pad=None):
         """Run mkimage
 
         Args:
@@ -44,8 +44,6 @@ class Bintoolmkimage(bintool.Bintool):
             args.append('-t')
         if output_fname:
             args += ['-F', output_fname]
-        if version:
-            args.append('-V')
         return self.run_cmd(*args)
 
     def fetch(self, method):
@@ -66,15 +64,3 @@ class Bintoolmkimage(bintool.Bintool):
         if method != bintool.FETCH_BIN:
             return None
         return self.apt_install('u-boot-tools')
-
-    def version(self):
-        """Version handler for mkimage
-
-        Returns:
-            str: Version string for mkimage
-        """
-        out = self.run(version=True).strip()
-        if not out:
-            return super().version()
-        m_version = re.match(r'mkimage version (.*)', out)
-        return m_version.group(1) if m_version else out
