@@ -9,6 +9,8 @@
 #include <common.h>
 #include <dm.h>
 #include <asm/global_data.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
@@ -26,6 +28,25 @@ DECLARE_GLOBAL_DATA_PTR;
 struct atmel_pio4_plat {
 	struct atmel_pio4_port *reg_base;
 	unsigned int slew_rate_support;
+};
+
+/*
+ * Table keeping track of the pinctrl driver's slew rate support and the
+ * corresponding index into the struct udevice_id of the gpio_atmel_pio4 GPIO
+ * driver. This has been done in order to align the DT of U-Boot with the DT of
+ * Linux. In Linux, a phandle from a '-gpio' DT property is linked to the
+ * pinctrl driver, unlike U-Boot which redirects this phandle to a corresponding
+ * UCLASS_GPIO driver. Thus, in order to link the two, a hook to the bind method
+ * of the pinctrl driver in U-Boot has been added. This bind method will attach
+ * the GPIO driver to the pinctrl DT node using this table.
+ * @slew_rate_support	 pinctrl driver's slew rate support
+ * @gdidx		 index into the GPIO driver's struct udevide_id
+ *			 (needed in order to properly bind with driver_data)
+ */
+
+struct atmel_pinctrl_data {
+	unsigned int slew_rate_support;
+	int gdidx;
 };
 
 static const struct pinconf_param conf_params[] = {
@@ -181,24 +202,57 @@ const struct pinctrl_ops atmel_pinctrl_ops  = {
 static int atmel_pinctrl_probe(struct udevice *dev)
 {
 	struct atmel_pio4_plat *plat = dev_get_plat(dev);
-	ulong priv = dev_get_driver_data(dev);
+	struct atmel_pinctrl_data *priv = (struct atmel_pinctrl_data *)dev_get_driver_data(dev);
 	fdt_addr_t addr_base;
 
-	dev = dev_get_parent(dev);
 	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	plat->reg_base = (struct atmel_pio4_port *)addr_base;
-	plat->slew_rate_support = priv;
+	plat->slew_rate_support = priv->slew_rate_support;
 
 	return 0;
 }
 
+static int atmel_pinctrl_bind(struct udevice *dev)
+{
+	struct udevice *g;
+	struct driver *drv;
+	ofnode node = dev_ofnode(dev);
+	struct atmel_pinctrl_data *priv = (struct atmel_pinctrl_data *)dev_get_driver_data(dev);
+
+	if (!CONFIG_IS_ENABLED(ATMEL_PIO4))
+		return 0;
+
+	/* Obtain a handle to the GPIO driver */
+	drv = lists_driver_lookup_name("gpio_atmel_pio4");
+	if (!drv)
+		return -ENOENT;
+
+	/*
+	 * Bind the GPIO driver to the pinctrl DT node, together
+	 * with its corresponding driver_data.
+	 */
+	return device_bind_with_driver_data(dev, drv, drv->name,
+					    drv->of_match[priv->gdidx].data,
+					    node, &g);
+}
+
+static const struct atmel_pinctrl_data atmel_sama5d2_pinctrl_data = {
+	.gdidx = 0,
+};
+
+static const struct atmel_pinctrl_data microchip_sama7g5_pinctrl_data = {
+	.slew_rate_support = 1,
+	.gdidx = 1,
+};
+
 static const struct udevice_id atmel_pinctrl_match[] = {
-	{ .compatible = "atmel,sama5d2-pinctrl" },
+	{ .compatible = "atmel,sama5d2-pinctrl",
+	  .data = (ulong)&atmel_sama5d2_pinctrl_data, },
 	{ .compatible = "microchip,sama7g5-pinctrl",
-	  .data = (ulong)1, },
+	  .data = (ulong)&microchip_sama7g5_pinctrl_data, },
 	{}
 };
 
@@ -206,6 +260,7 @@ U_BOOT_DRIVER(atmel_pinctrl) = {
 	.name = "pinctrl_atmel_pio4",
 	.id = UCLASS_PINCTRL,
 	.of_match = atmel_pinctrl_match,
+	.bind = atmel_pinctrl_bind,
 	.probe = atmel_pinctrl_probe,
 	.plat_auto	= sizeof(struct atmel_pio4_plat),
 	.ops = &atmel_pinctrl_ops,
