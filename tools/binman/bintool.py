@@ -53,9 +53,10 @@ class Bintool:
     # List of bintools to regard as missing
     missing_list = []
 
-    def __init__(self, name, desc):
+    def __init__(self, name, desc, version_regex=None):
         self.name = name
         self.desc = desc
+        self.version_regex = version_regex
 
     @staticmethod
     def find_bintool_class(btype):
@@ -464,16 +465,27 @@ binaries. It is fairly easy to create new bintools. Just add a new file to the
         print(f"No method to fetch bintool '{self.name}'")
         return False
 
-    # pylint: disable=R0201
     def version(self):
         """Version handler for a bintool
-
-        This should be implemented by the base class
 
         Returns:
             str: Version string for this bintool
         """
-        return 'unknown'
+        if self.version_regex is None:
+            return 'unknown'
+
+        import re
+
+        result = self.run_cmd_result('-V')
+        out = result.stdout.strip()
+        if not out:
+            out = result.stderr.strip()
+        if not out:
+            return 'unknown'
+
+        m_version = re.search(self.version_regex, out)
+        return m_version.group(1) if m_version else out
+
 
 class BintoolPacker(Bintool):
     """Tool which compression / decompression entry contents
@@ -497,7 +509,7 @@ class BintoolPacker(Bintool):
                  decompress_args=None, fetch_package=None,
                  version_regex=r'(v[0-9.]+)'):
         desc = '%s compression' % (compression if compression else name)
-        super().__init__(name, desc)
+        super().__init__(name, desc, version_regex)
         if compress_args is None:
             compress_args = ['--compress']
         self.compress_args = compress_args
@@ -507,7 +519,6 @@ class BintoolPacker(Bintool):
         if fetch_package is None:
             fetch_package = name
         self.fetch_package = fetch_package
-        self.version_regex = version_regex
 
     def compress(self, indata):
         """Compress data
@@ -557,21 +568,3 @@ class BintoolPacker(Bintool):
         if method != FETCH_BIN:
             return None
         return self.apt_install(self.fetch_package)
-
-    def version(self):
-        """Version handler
-
-        Returns:
-            str: Version number
-        """
-        import re
-
-        result = self.run_cmd_result('-V')
-        out = result.stdout.strip()
-        if not out:
-            out = result.stderr.strip()
-        if not out:
-            return super().version()
-
-        m_version = re.search(self.version_regex, out)
-        return m_version.group(1) if m_version else out
