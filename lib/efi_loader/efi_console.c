@@ -987,6 +987,7 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
 	efi_cin_check();
 
 	if (!key_available) {
+		memset(key_data, 0, sizeof(struct efi_key_data));
 		ret = EFI_NOT_READY;
 		goto out;
 	}
