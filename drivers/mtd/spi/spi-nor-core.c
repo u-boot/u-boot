@@ -2238,10 +2238,12 @@ static int spi_nor_parse_bfpt(struct spi_nor *nor,
 	case BFPT_DWORD1_ADDRESS_BYTES_3_ONLY:
 	case BFPT_DWORD1_ADDRESS_BYTES_3_OR_4:
 		nor->addr_width = 3;
+		nor->addr_mode_nbytes = 3;
 		break;
 
 	case BFPT_DWORD1_ADDRESS_BYTES_4_ONLY:
 		nor->addr_width = 4;
+		nor->addr_mode_nbytes = 4;
 		break;
 
 	default:
