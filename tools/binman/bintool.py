@@ -53,10 +53,11 @@ class Bintool:
     # List of bintools to regard as missing
     missing_list = []
 
-    def __init__(self, name, desc, version_regex=None):
+    def __init__(self, name, desc, version_regex=None, version_args='-V'):
         self.name = name
         self.desc = desc
         self.version_regex = version_regex
+        self.version_args = version_args
 
     @staticmethod
     def find_bintool_class(btype):
@@ -476,7 +477,7 @@ binaries. It is fairly easy to create new bintools. Just add a new file to the
 
         import re
 
-        result = self.run_cmd_result('-V')
+        result = self.run_cmd_result(self.version_args)
         out = result.stdout.strip()
         if not out:
             out = result.stderr.strip()
@@ -507,9 +508,9 @@ class BintoolPacker(Bintool):
     """
     def __init__(self, name, compression=None, compress_args=None,
                  decompress_args=None, fetch_package=None,
-                 version_regex=r'(v[0-9.]+)'):
+                 version_regex=r'(v[0-9.]+)', version_args='-V'):
         desc = '%s compression' % (compression if compression else name)
-        super().__init__(name, desc, version_regex)
+        super().__init__(name, desc, version_regex, version_args)
         if compress_args is None:
             compress_args = ['--compress']
         self.compress_args = compress_args
