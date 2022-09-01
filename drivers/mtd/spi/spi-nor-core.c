@@ -161,6 +161,7 @@ struct sfdp_header {
 #define BFPT_DWORD15_QER_SR2_BIT1		(0x5UL << 20) /* Spansion */
 
 #define BFPT_DWORD16_SOFT_RST			BIT(12)
+#define BFPT_DWORD16_EX4B_PWRCYC		BIT(21)
 
 #define BFPT_DWORD18_CMD_EXT_MASK		GENMASK(30, 29)
 #define BFPT_DWORD18_CMD_EXT_REP		(0x0UL << 29) /* Repeat */
@@ -3276,10 +3277,24 @@ static int s25hx_t_post_bfpt_fixup(struct spi_nor *nor,
 	nor->erase_opcode = SPINOR_OP_SE_4B;
 	nor->mtd.erasesize = nor->info->sector_size;
 
-	ret = set_4byte(nor, nor->info, 1);
-	if (ret)
-		return ret;
-	nor->addr_width = 4;
+	/*
+	 * The default address mode in multi-die package parts (>1Gb) may be
+	 * 3- or 4-byte, depending on model number. BootROM code in some SoCs
+	 * use 3-byte mode for backward compatibility and should switch to
+	 * 4-byte mode after BootROM phase. Since registers in the 2nd die are
+	 * mapped within 32-bit address space, we need to make sure the flash is
+	 * in 4-byte address mode. The default address mode can be distinguished
+	 * by BFPT 16th DWORD. Power cycle exits 4-byte address mode if default
+	 * is 3-byte address mode.
+	 */
+	if (params->size > SZ_128M) {
+		if (bfpt->dwords[BFPT_DWORD(16)] & BFPT_DWORD16_EX4B_PWRCYC) {
+			ret = set_4byte(nor, nor->info, 1);
+			if (ret)
+				return ret;
+		}
+		nor->addr_mode_nbytes = 4;
+	}
 
 	/*
 	 * The page_size is set to 512B from BFPT, but it actually depends on
