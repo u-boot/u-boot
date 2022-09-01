@@ -83,7 +83,7 @@
 		sdmmc0: sdio-host@a0000000 {
 			bus-width = <8>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_sdmmc0_cmd_dat_default &pinctrl_sdmmc0_ck_cd_default>;
+			pinctrl-0 = <&pinctrl_sdmmc0_default>;
 			status = "okay";
 			u-boot,dm-pre-reloc;
 		};
@@ -91,7 +91,7 @@
 		sdmmc1: sdio-host@b0000000 {
 			bus-width = <4>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_sdmmc1_cmd_dat_default &pinctrl_sdmmc1_ck_cd_default>;
+			pinctrl-0 = <&pinctrl_sdmmc1_default>;
 			status = "okay"; /* conflict with qspi0 */
 			u-boot,dm-pre-reloc;
 		};
@@ -129,7 +129,7 @@
 				u-boot,dm-pre-reloc;
 			};
 
-			pioA: gpio@fc038000 {
+			pioA: pinctrl@fc038000 {
 				pinctrl {
 					pinctrl_lcd_base: pinctrl_lcd_base {
 						pinmux = <PIN_PC5__LCDVSYNC>,
@@ -166,43 +166,47 @@
 						bias-disable;
 					};
 
-					pinctrl_sdmmc0_cmd_dat_default: sdmmc0_cmd_dat_default {
-						pinmux = <PIN_PA1__SDMMC0_CMD>,
-							 <PIN_PA2__SDMMC0_DAT0>,
-							 <PIN_PA3__SDMMC0_DAT1>,
-							 <PIN_PA4__SDMMC0_DAT2>,
-							 <PIN_PA5__SDMMC0_DAT3>,
-							 <PIN_PA6__SDMMC0_DAT4>,
-							 <PIN_PA7__SDMMC0_DAT5>,
-							 <PIN_PA8__SDMMC0_DAT6>,
-							 <PIN_PA9__SDMMC0_DAT7>;
-						bias-pull-up;
-						u-boot,dm-pre-reloc;
+					pinctrl_sdmmc0_default: sdmmc0_default {
+						cmd_dat {
+							pinmux = <PIN_PA1__SDMMC0_CMD>,
+								 <PIN_PA2__SDMMC0_DAT0>,
+								 <PIN_PA3__SDMMC0_DAT1>,
+								 <PIN_PA4__SDMMC0_DAT2>,
+								 <PIN_PA5__SDMMC0_DAT3>,
+								 <PIN_PA6__SDMMC0_DAT4>,
+								 <PIN_PA7__SDMMC0_DAT5>,
+								 <PIN_PA8__SDMMC0_DAT6>,
+								 <PIN_PA9__SDMMC0_DAT7>;
+							bias-pull-up;
+							u-boot,dm-pre-reloc;
+						};
+
+						ck_cd {
+							pinmux = <PIN_PA0__SDMMC0_CK>,
+								 <PIN_PA10__SDMMC0_RSTN>,
+								 <PIN_PA13__SDMMC0_CD>;
+							bias-disable;
+							u-boot,dm-pre-reloc;
+						};
 					};
 
-					pinctrl_sdmmc0_ck_cd_default: sdmmc0_ck_cd_default {
-						pinmux = <PIN_PA0__SDMMC0_CK>,
-							 <PIN_PA10__SDMMC0_RSTN>,
-							 <PIN_PA13__SDMMC0_CD>;
-						bias-disable;
-						u-boot,dm-pre-reloc;
-					};
+					pinctrl_sdmmc1_default: sdmmc1_default {
+						cmd_dat {
+							pinmux = <PIN_PA28__SDMMC1_CMD>,
+								 <PIN_PA18__SDMMC1_DAT0>,
+								 <PIN_PA19__SDMMC1_DAT1>,
+								 <PIN_PA20__SDMMC1_DAT2>,
+								 <PIN_PA21__SDMMC1_DAT3>;
+							bias-pull-up;
+							u-boot,dm-pre-reloc;
+						};
 
-					pinctrl_sdmmc1_cmd_dat_default: sdmmc1_cmd_dat_default {
-						pinmux = <PIN_PA28__SDMMC1_CMD>,
-							 <PIN_PA18__SDMMC1_DAT0>,
-							 <PIN_PA19__SDMMC1_DAT1>,
-							 <PIN_PA20__SDMMC1_DAT2>,
-							 <PIN_PA21__SDMMC1_DAT3>;
-						bias-pull-up;
-						u-boot,dm-pre-reloc;
-					};
-
-					pinctrl_sdmmc1_ck_cd_default: sdmmc1_ck_cd_default {
-						pinmux = <PIN_PA22__SDMMC1_CK>,
-							 <PIN_PA30__SDMMC1_CD>;
-						bias-disable;
-						u-boot,dm-pre-reloc;
+						ck_cd {
+							pinmux = <PIN_PA22__SDMMC1_CK>,
+								 <PIN_PA30__SDMMC1_CD>;
+							bias-disable;
+							u-boot,dm-pre-reloc;
+						};
 					};
 
 					pinctrl_uart1_default: uart1_default {

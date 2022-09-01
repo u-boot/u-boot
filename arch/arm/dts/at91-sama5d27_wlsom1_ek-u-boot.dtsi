@@ -37,11 +37,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pinctrl_sdmmc0_cmd_dat_default {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_sdmmc0_ck_cd_default {
+&pinctrl_sdmmc0_default {
 	u-boot,dm-pre-reloc;
 };
 

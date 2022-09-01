@@ -34,7 +34,7 @@
 		sdmmc0: sdio-host@a0000000 {
 			bus-width = <4>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_sdmmc0_cmd_dat_default &pinctrl_sdmmc0_ck_cd_default>;
+			pinctrl-0 = <&pinctrl_sdmmc0_default>;
 			status = "okay";
 		};
 
@@ -78,44 +78,44 @@
 				status = "okay";
 			};
 
-			pioA: gpio@fc038000 {
-				pinctrl {
-					pinctrl_lcd_base: pinctrl_lcd_base {
-						pinmux = <PIN_PC30__LCDVSYNC>,
-							 <PIN_PC31__LCDHSYNC>,
-							 <PIN_PD1__LCDDEN>,
-							 <PIN_PD0__LCDPCK>;
-						bias-disable;
-					};
+			pioA: pinctrl@fc038000 {
+				pinctrl_lcd_base: pinctrl_lcd_base {
+					pinmux = <PIN_PC30__LCDVSYNC>,
+						 <PIN_PC31__LCDHSYNC>,
+						 <PIN_PD1__LCDDEN>,
+						 <PIN_PD0__LCDPCK>;
+					bias-disable;
+				};
 
-					pinctrl_lcd_pwm: pinctrl_lcd_pwm {
-						pinmux = <PIN_PC28__LCDPWM>;
-						bias-disable;
-					};
+				pinctrl_lcd_pwm: pinctrl_lcd_pwm {
+					pinmux = <PIN_PC28__LCDPWM>;
+					bias-disable;
+				};
 
-					pinctrl_lcd_rgb666: pinctrl_lcd_rgb666 {
-						pinmux = <PIN_PC10__LCDDAT2>,
-							 <PIN_PC11__LCDDAT3>,
-							 <PIN_PC12__LCDDAT4>,
-							 <PIN_PC13__LCDDAT5>,
-							 <PIN_PC14__LCDDAT6>,
-							 <PIN_PC15__LCDDAT7>,
-							 <PIN_PC16__LCDDAT10>,
-							 <PIN_PC17__LCDDAT11>,
-							 <PIN_PC18__LCDDAT12>,
-							 <PIN_PC19__LCDDAT13>,
-							 <PIN_PC20__LCDDAT14>,
-							 <PIN_PC21__LCDDAT15>,
-							 <PIN_PC22__LCDDAT18>,
-							 <PIN_PC23__LCDDAT19>,
-							 <PIN_PC24__LCDDAT20>,
-							 <PIN_PC25__LCDDAT21>,
-							 <PIN_PC26__LCDDAT22>,
-							 <PIN_PC27__LCDDAT23>;
-						bias-disable;
-					};
+				pinctrl_lcd_rgb666: pinctrl_lcd_rgb666 {
+					pinmux = <PIN_PC10__LCDDAT2>,
+						 <PIN_PC11__LCDDAT3>,
+						 <PIN_PC12__LCDDAT4>,
+						 <PIN_PC13__LCDDAT5>,
+						 <PIN_PC14__LCDDAT6>,
+						 <PIN_PC15__LCDDAT7>,
+						 <PIN_PC16__LCDDAT10>,
+						 <PIN_PC17__LCDDAT11>,
+						 <PIN_PC18__LCDDAT12>,
+						 <PIN_PC19__LCDDAT13>,
+						 <PIN_PC20__LCDDAT14>,
+						 <PIN_PC21__LCDDAT15>,
+						 <PIN_PC22__LCDDAT18>,
+						 <PIN_PC23__LCDDAT19>,
+						 <PIN_PC24__LCDDAT20>,
+						 <PIN_PC25__LCDDAT21>,
+						 <PIN_PC26__LCDDAT22>,
+						 <PIN_PC27__LCDDAT23>;
+					bias-disable;
+				};
 
-					pinctrl_sdmmc0_cmd_dat_default: sdmmc0_cmd_dat_default {
+				pinctrl_sdmmc0_default: sdmmc0_default {
+					cmd_data {
 						pinmux = <PIN_PA1__SDMMC0_CMD>,
 							 <PIN_PA2__SDMMC0_DAT0>,
 							 <PIN_PA3__SDMMC0_DAT1>,
@@ -124,24 +124,24 @@
 						bias-disable;
 					};
 
-					pinctrl_sdmmc0_ck_cd_default: sdmmc0_ck_cd_default {
+					ck_cd_vddsel {
 						pinmux = <PIN_PA0__SDMMC0_CK>,
 							 <PIN_PA11__SDMMC0_VDDSEL>,
 							 <PIN_PA12__SDMMC0_WP>,
 							 <PIN_PA13__SDMMC0_CD>;
 						bias-disable;
 					};
+				};
 
-					pinctrl_uart0_default: uart0_default {
-						pinmux = <PIN_PB26__URXD0>,
-							 <PIN_PB27__UTXD0>;
-						bias-disable;
-					};
+				pinctrl_uart0_default: uart0_default {
+					pinmux = <PIN_PB26__URXD0>,
+						 <PIN_PB27__UTXD0>;
+					bias-disable;
+				};
 
-					pinctrl_onewire_tm_default: onewire_tm_default {
-						pinmux = <PIN_PC9__GPIO>;
-						bias-pull-up;
-					};
+				pinctrl_onewire_tm_default: onewire_tm_default {
+					pinmux = <PIN_PC9__GPIO>;
+					bias-pull-up;
 				};
 			};
 		};
