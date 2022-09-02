@@ -145,6 +145,8 @@ static void gpt_capsule_update_setup(void)
 	struct disk_partition info;
 	struct blk_desc *desc = NULL;
 
+	rockchip_capsule_update_board_setup();
+
 	ret = get_mmc_desc(&desc);
 	if (ret) {
 		log_err("Unable to get mmc desc\n");
