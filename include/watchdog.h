@@ -35,42 +35,6 @@ int init_func_watchdog_reset(void);
 #endif
 
 /*
- * Hardware watchdog
- */
-#ifdef CONFIG_HW_WATCHDOG
-	extern void hw_watchdog_reset(void);
-
-	#define WATCHDOG_RESET hw_watchdog_reset
-#else
-	/*
-	 * Maybe a software watchdog?
-	 */
-	#if defined(CONFIG_WATCHDOG)
-		/* Don't require the watchdog to be enabled in SPL */
-		#if defined(CONFIG_SPL_BUILD) &&		\
-			!defined(CONFIG_SPL_WATCHDOG)
-			#define WATCHDOG_RESET() { \
-				cyclic_run(); \
-			}
-		#else
-			extern void watchdog_reset(void);
-
-			#define WATCHDOG_RESET() { \
-				watchdog_reset(); \
-				cyclic_run(); \
-			}
-		#endif
-	#else
-		/*
-		 * No hardware or software watchdog.
-		 */
-		#define WATCHDOG_RESET() { \
-			cyclic_run(); \
-			}
-	#endif /* CONFIG_WATCHDOG */
-#endif /* CONFIG_HW_WATCHDOG */
-
-/*
  * Prototypes from $(CPU)/cpu.c.
  */
 
