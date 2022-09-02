@@ -10,7 +10,6 @@
 #ifndef _WATCHDOG_H_
 #define _WATCHDOG_H_
 
-#if !defined(__ASSEMBLY__)
 #include <cyclic.h>
 
 /*
@@ -20,7 +19,6 @@
  * and the legacy arch/<arch>/board.c code.
  */
 int init_func_watchdog_reset(void);
-#endif
 
 #if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
 #define INIT_FUNC_WATCHDOG_INIT	init_func_watchdog_init,
@@ -38,11 +36,11 @@ int init_func_watchdog_reset(void);
  * Prototypes from $(CPU)/cpu.c.
  */
 
-#if (defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)) && !defined(__ASSEMBLY__)
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	void hw_watchdog_init(void);
 #endif
 
-#if defined(CONFIG_MPC85xx) && !defined(__ASSEMBLY__)
+#if defined(CONFIG_MPC85xx)
 	void init_85xx_watchdog(void);
 #endif
 #endif /* _WATCHDOG_H_ */
