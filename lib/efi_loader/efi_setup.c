@@ -246,6 +246,14 @@ efi_status_t efi_init_obj_list(void)
 	/* Set up console modes */
 	efi_setup_console_size();
 
+	/*
+	 * Probe block devices to find the ESP.
+	 * efi_disks_register() must be called before efi_init_variables().
+	 */
+	ret = efi_disks_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	/* Initialize variable services */
 	ret = efi_init_variables();
 	if (ret != EFI_SUCCESS)

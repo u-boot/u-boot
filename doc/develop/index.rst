@@ -11,6 +11,7 @@ General
 
    codingstyle
    designprinciples
+   patman
    process
    release_cycle
    system_configuration
