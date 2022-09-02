@@ -11,6 +11,8 @@
 #define _WATCHDOG_H_
 
 #if !defined(__ASSEMBLY__)
+#include <cyclic.h>
+
 /*
  * Reset the watchdog timer, always returns 0
  *
@@ -60,11 +62,16 @@ int init_func_watchdog_reset(void);
 			/* Don't require the watchdog to be enabled in SPL */
 			#if defined(CONFIG_SPL_BUILD) &&		\
 				!defined(CONFIG_SPL_WATCHDOG)
-				#define WATCHDOG_RESET() {}
+				#define WATCHDOG_RESET() { \
+					cyclic_run(); \
+				}
 			#else
 				extern void watchdog_reset(void);
 
-				#define WATCHDOG_RESET watchdog_reset
+				#define WATCHDOG_RESET() { \
+					watchdog_reset(); \
+					cyclic_run(); \
+				}
 			#endif
 		#endif
 	#else
@@ -74,10 +81,20 @@ int init_func_watchdog_reset(void);
 		#if defined(__ASSEMBLY__)
 			#define WATCHDOG_RESET /*XXX DO_NOT_DEL_THIS_COMMENT*/
 		#else
-			#define WATCHDOG_RESET() {}
+			#define WATCHDOG_RESET() { \
+				cyclic_run(); \
+			}
 		#endif /* __ASSEMBLY__ */
 	#endif /* CONFIG_WATCHDOG && !__ASSEMBLY__ */
 #endif /* CONFIG_HW_WATCHDOG */
+
+#if !defined(__ASSEMBLY__)
+/* Currently only needed for fs/cramfs/uncompress.c */
+static inline void watchdog_reset_func(void)
+{
+	WATCHDOG_RESET();
+}
+#endif
 
 /*
  * Prototypes from $(CPU)/cpu.c.
