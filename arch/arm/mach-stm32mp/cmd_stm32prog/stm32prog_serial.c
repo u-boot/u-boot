@@ -247,7 +247,7 @@ static int stm32prog_serial_getc_err(void)
 		err = ops->getc(down_serial_dev);
 		if (err == -EAGAIN) {
 			ctrlc();
-			WATCHDOG_RESET();
+			schedule();
 		}
 	} while ((err == -EAGAIN) && (!had_ctrlc()));
 
@@ -276,7 +276,7 @@ static bool stm32prog_serial_get_buffer(u8 *buffer, u32 *count)
 			*count -= 1;
 		} else if (err == -EAGAIN) {
 			ctrlc();
-			WATCHDOG_RESET();
+			schedule();
 			if (get_timer(start) > TIMEOUT_SERIAL_BUFFER) {
 				err = -ETIMEDOUT;
 				break;
@@ -852,7 +852,7 @@ bool stm32prog_serial_loop(struct stm32prog_data *data)
 			stm32prog_serial_result(ACK_BYTE);
 			cmd_func[counter](data);
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	/* clean device */

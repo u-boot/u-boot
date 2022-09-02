@@ -114,14 +114,14 @@ static int init_func_watchdog_init(void)
 	hw_watchdog_init();
 	puts("       Watchdog enabled\n");
 # endif
-	WATCHDOG_RESET();
+	schedule();
 
 	return 0;
 }
 
 int init_func_watchdog_reset(void)
 {
-	WATCHDOG_RESET();
+	schedule();
 
 	return 0;
 }

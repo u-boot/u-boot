@@ -420,7 +420,7 @@ static int pmecc_err_location(struct mtd_info *mtd)
 	while (--timeout) {
 		if (pmecc_readl(host->pmerrloc, elisr) & PMERRLOC_CALC_DONE)
 			break;
-		WATCHDOG_RESET();
+		schedule();
 		udelay(1);
 	}
 
@@ -558,7 +558,7 @@ static int atmel_nand_pmecc_read_page(struct mtd_info *mtd,
 	while (--timeout) {
 		if (!(pmecc_readl(host->pmecc, sr) & PMECC_SR_BUSY))
 			break;
-		WATCHDOG_RESET();
+		schedule();
 		udelay(1);
 	}
 
@@ -598,7 +598,7 @@ static int atmel_nand_pmecc_write_page(struct mtd_info *mtd,
 	while (--timeout) {
 		if (!(pmecc_readl(host->pmecc, sr) & PMECC_SR_BUSY))
 			break;
-		WATCHDOG_RESET();
+		schedule();
 		udelay(1);
 	}
 

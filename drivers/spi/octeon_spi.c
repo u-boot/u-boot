@@ -126,7 +126,7 @@ static void octeon_spi_wait_ready(struct udevice *dev)
 
 	do {
 		mpi_sts = readq(base + MPI_STS);
-		WATCHDOG_RESET();
+		schedule();
 	} while (mpi_sts & MPI_STS_BUSY);
 
 	debug("%s(%s)\n", __func__, dev->name);

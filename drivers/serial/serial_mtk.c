@@ -141,7 +141,7 @@ static int _mtk_serial_putc(struct mtk_serial_priv *priv, const char ch)
 	writel(ch, &priv->regs->thr);
 
 	if (ch == '\n')
-		WATCHDOG_RESET();
+		schedule();
 
 	return 0;
 }
@@ -295,7 +295,7 @@ DECLARE_GLOBAL_DATA_PTR;
 		do { \
 			err = _mtk_serial_getc(&mtk_hsuart##port); \
 			if (err == -EAGAIN) \
-				WATCHDOG_RESET(); \
+				schedule(); \
 		} while (err == -EAGAIN); \
 		return err >= 0 ? err : 0; \
 	} \

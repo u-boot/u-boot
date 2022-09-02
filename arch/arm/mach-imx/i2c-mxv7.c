@@ -46,7 +46,7 @@ int force_idle_bus(void *priv)
 		scl = gpio_get_value(p->scl.gp);
 		if ((sda & scl) == 1)
 			break;
-		WATCHDOG_RESET();
+		schedule();
 		elapsed = get_timer(start_time);
 		if (elapsed > (CONFIG_SYS_HZ / 5)) {	/* .2 seconds */
 			ret = -EBUSY;

@@ -27,7 +27,7 @@ static int dm_test_cyclic_running(struct unit_test_state *uts)
 					 NULL));
 
 	/* Execute all registered cyclic functions */
-	WATCHDOG_RESET();
+	schedule();
 	ut_asserteq(true, cyclic_active);
 
 	return 0;

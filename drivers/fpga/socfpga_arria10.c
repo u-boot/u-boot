@@ -383,7 +383,7 @@ static int fpgamgr_program_poll_cd(void)
 			printf("nstatus == 0 while waiting for condone\n");
 			return -EPERM;
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	if (i == FPGA_TIMEOUT_CNT)
@@ -534,7 +534,7 @@ static void get_rbf_image_info(struct rbf_info *rbf, u16 *buffer)
 		rbf->section = unknown;
 		break;
 
-		WATCHDOG_RESET();
+		schedule();
 	}
 }
 
@@ -635,7 +635,7 @@ static int first_loading_rbf_to_buffer(struct udevice *dev,
 				break;
 			}
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	if (!fpga_node_name) {
@@ -879,7 +879,7 @@ int socfpga_loadfs(fpga_fs_info *fpga_fsinfo, const void *buf, size_t bsize,
 
 		total_sizeof_image += buffer_sizebytes_ori;
 
-		WATCHDOG_RESET();
+		schedule();
 	}
 	wait_for_fifo_empty();
 

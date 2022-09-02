@@ -200,7 +200,7 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 				while (l > 0) {
 					tail = (l > CHUNKSZ) ? CHUNKSZ : l;
-					WATCHDOG_RESET();
+					schedule();
 					memmove(to, from, tail);
 					to += tail;
 					from += tail;

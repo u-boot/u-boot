@@ -70,7 +70,7 @@ static int pl01x_getc(struct pl01x_regs *regs)
 
 static int pl01x_tstc(struct pl01x_regs *regs)
 {
-	WATCHDOG_RESET();
+	schedule();
 	return !(readl(&regs->fr) & UART_PL01x_FR_RXFE);
 }
 
@@ -227,7 +227,7 @@ static int pl01x_serial_getc(void)
 		int ch = pl01x_getc(base_regs);
 
 		if (ch == -EAGAIN) {
-			WATCHDOG_RESET();
+			schedule();
 			continue;
 		}
 
@@ -247,9 +247,9 @@ static void pl01x_serial_setbrg(void)
 	 * crap in console
 	 */
 	while (!(readl(&base_regs->fr) & UART_PL01x_FR_TXFE))
-		WATCHDOG_RESET();
+		schedule();
 	while (readl(&base_regs->fr) & UART_PL01x_FR_BUSY)
-		WATCHDOG_RESET();
+		schedule();
 	pl01x_serial_init_baud(gd->baudrate);
 }
 

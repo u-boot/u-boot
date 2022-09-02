@@ -445,7 +445,7 @@ static int stm32_sdmmc2_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	u32 cmdat = data ? SDMMC_CMD_CMDTRANS : 0;
 	int ret, retry = 3;
 
-	WATCHDOG_RESET();
+	schedule();
 
 retry_cmd:
 	ctx.data_length = 0;

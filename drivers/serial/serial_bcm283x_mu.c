@@ -114,7 +114,7 @@ static int bcm283x_mu_serial_pending(struct udevice *dev, bool input)
 	lsr = readl(&regs->lsr);
 
 	if (input) {
-		WATCHDOG_RESET();
+		schedule();
 		return (lsr & BCM283X_MU_LSR_RX_READY) ? 1 : 0;
 	} else {
 		return (lsr & BCM283X_MU_LSR_TX_IDLE) ? 0 : 1;

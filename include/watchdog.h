@@ -88,14 +88,6 @@ int init_func_watchdog_reset(void);
 	#endif /* CONFIG_WATCHDOG && !__ASSEMBLY__ */
 #endif /* CONFIG_HW_WATCHDOG */
 
-#if !defined(__ASSEMBLY__)
-/* Currently only needed for fs/cramfs/uncompress.c */
-static inline void watchdog_reset_func(void)
-{
-	WATCHDOG_RESET();
-}
-#endif
-
 /*
  * Prototypes from $(CPU)/cpu.c.
  */

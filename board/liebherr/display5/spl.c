@@ -329,7 +329,7 @@ void board_init_f(ulong dummy)
 	/* Initialize and reset WDT in SPL */
 #ifdef CONFIG_SPL_WATCHDOG
 	hw_watchdog_init();
-	WATCHDOG_RESET();
+	schedule();
 #endif
 
 	/* load/boot image from boot device */

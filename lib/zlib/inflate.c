@@ -25,7 +25,7 @@ int ZEXPORT inflateReset(z_streamp strm)
     state->hold = 0;
     state->bits = 0;
     state->lencode = state->distcode = state->next = state->codes;
-    WATCHDOG_RESET();
+    schedule();
     Tracev((stderr, "inflate: reset\n"));
     return Z_OK;
 }
@@ -543,7 +543,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
             strm->adler = state->check = adler32(0L, Z_NULL, 0);
             state->mode = TYPE;
         case TYPE:
-	    WATCHDOG_RESET();
+	    schedule();
             if (flush == Z_BLOCK) goto inf_leave;
         case TYPEDO:
             if (state->last) {
@@ -721,7 +721,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
             Tracev((stderr, "inflate:       codes ok\n"));
             state->mode = LEN;
         case LEN:
-	    WATCHDOG_RESET();
+	    schedule();
             if (have >= 6 && left >= 258) {
                 RESTORE();
                 inflate_fast(strm, out);
@@ -933,7 +933,7 @@ int ZEXPORT inflateEnd(z_streamp strm)
         return Z_STREAM_ERROR;
     state = (struct inflate_state FAR *)strm->state;
     if (state->window != Z_NULL) {
-	WATCHDOG_RESET();
+	schedule();
 	ZFREE(strm, state->window);
     }
     ZFREE(strm, strm->state);

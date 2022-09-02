@@ -595,7 +595,7 @@ static void nand_wait_status_ready(struct mtd_info *mtd, unsigned long timeo)
 
 		if (status & NAND_STATUS_READY)
 			break;
-		WATCHDOG_RESET();
+		schedule();
 	}
 };
 
@@ -2342,7 +2342,7 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 	while (1) {
 		unsigned int ecc_failures = mtd->ecc_stats.failed;
 
-		WATCHDOG_RESET();
+		schedule();
 		bytes = min(mtd->writesize - col, readlen);
 		aligned = (bytes == mtd->writesize);
 
@@ -2695,7 +2695,7 @@ static int nand_do_read_oob(struct mtd_info *mtd, loff_t from,
 	page = realpage & chip->pagemask;
 
 	while (1) {
-		WATCHDOG_RESET();
+		schedule();
 
 		if (ops->mode == MTD_OPS_RAW)
 			ret = chip->ecc.read_oob_raw(mtd, chip, page);
@@ -3263,7 +3263,7 @@ static int nand_do_write_ops(struct mtd_info *mtd, loff_t to,
 		else
 			use_bufpoi = 0;
 
-		WATCHDOG_RESET();
+		schedule();
 		/* Partial page write?, or need to use bounce buffer */
 		if (use_bufpoi) {
 			pr_debug("%s: using write bounce buffer for buf@%p\n",
@@ -3556,7 +3556,7 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 	instr->state = MTD_ERASING;
 
 	while (len) {
-		WATCHDOG_RESET();
+		schedule();
 
 		/* Check if we have a bad block, we do not erase bad blocks! */
 		if (!instr->scrub && nand_block_checkbad(mtd, ((loff_t) page) <<

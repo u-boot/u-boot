@@ -103,7 +103,7 @@ static int atmel_serial_getc(void)
 	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
 
 	while (!(readl(&usart->csr) & USART3_BIT(RXRDY)))
-		 WATCHDOG_RESET();
+		 schedule();
 	return readl(&usart->rhr);
 }
 

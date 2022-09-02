@@ -958,7 +958,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 	addr_known = true;
 
 	while (len) {
-		WATCHDOG_RESET();
+		schedule();
 		if (!IS_ENABLED(CONFIG_SPL_BUILD) && ctrlc()) {
 			addr_known = false;
 			ret = -EINTR;
@@ -1721,7 +1721,7 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 	for (i = 0; i < len; ) {
 		ssize_t written;
 		loff_t addr = to + i;
-		WATCHDOG_RESET();
+		schedule();
 
 		/*
 		 * If page_size is a power of two, the offset can be quickly

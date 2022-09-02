@@ -231,7 +231,7 @@ static int do_usb_mass_storage(struct cmd_tbl *cmdtp, int flag,
 			goto cleanup_register;
 		}
 
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 cleanup_register:

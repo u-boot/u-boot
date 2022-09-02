@@ -1023,7 +1023,7 @@ static void octeontx_mmc_cleanup_dma(struct mmc *mmc,
 		start = get_timer(0);
 		do {
 			rsp_sts.u = read_csr(mmc, MIO_EMM_RSP_STS());
-			WATCHDOG_RESET();
+			schedule();
 		} while (get_timer(start) < 100 &&
 			 (rsp_sts.s.dma_val || rsp_sts.s.dma_pend));
 	} while (retries-- >= 0 && rsp_sts.s.dma_pend);
@@ -1107,7 +1107,7 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
 		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
 			break;
 		}
-		WATCHDOG_RESET();
+		schedule();
 		timed_out = (get_timer(start_time) > timeout);
 	} while (!timed_out);
 
@@ -1219,7 +1219,7 @@ static int octeontx_mmc_read_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 				}
 				return blkcnt - count;
 			}
-			WATCHDOG_RESET();
+			schedule();
 		} while (--count);
 	}
 #ifdef DEBUG
@@ -1253,7 +1253,7 @@ static int octeontx_mmc_poll_ready(struct mmc *mmc, ulong timeout)
 		} else if (cmd.response[0] & R1_READY_FOR_DATA) {
 			return 0;
 		}
-		WATCHDOG_RESET();
+		schedule();
 	} while (get_timer(start) < timeout);
 
 	if (not_ready)
@@ -1328,7 +1328,7 @@ static ulong octeontx_mmc_write_blocks(struct mmc *mmc, struct mmc_cmd *cmd,
 				       read_csr(mmc, MIO_EMM_DMA()));
 				return blkcnt - count;
 			}
-			WATCHDOG_RESET();
+			schedule();
 		} while (--count);
 	}
 
@@ -1491,7 +1491,7 @@ static int octeontx_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	start = get_timer(0);
 	do {
 		rsp_sts.u = read_csr(mmc, MIO_EMM_RSP_STS());
-		WATCHDOG_RESET();
+		schedule();
 	} while (!rsp_sts.s.cmd_done && !rsp_sts.s.rsp_timeout &&
 		 (get_timer(start) < timeout + 10));
 	octeontx_mmc_print_rsp_errors(mmc, rsp_sts);

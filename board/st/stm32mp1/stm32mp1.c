@@ -289,7 +289,7 @@ static void __maybe_unused led_error_blink(u32 nb_blink)
 			for (i = 0; i < 2 * nb_blink; i++) {
 				led_set_state(led, LEDST_TOGGLE);
 				mdelay(125);
-				WATCHDOG_RESET();
+				schedule();
 			}
 			led_set_state(led, LEDST_ON);
 		}
