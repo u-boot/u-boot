@@ -18,6 +18,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void hw_watchdog_reset(void);
+
 struct list_head *cyclic_get_list(void)
 {
 	return &gd->cyclic->cyclic_list;
@@ -94,6 +96,20 @@ void cyclic_run(void)
 		}
 	}
 	gd->cyclic->cyclic_running = false;
+}
+
+void schedule(void)
+{
+	/* The HW watchdog is not integrated into the cyclic IF (yet) */
+	if (IS_ENABLED(CONFIG_HW_WATCHDOG))
+		hw_watchdog_reset();
+
+	/*
+	 * schedule() might get called very early before the cyclic IF is
+	 * ready. Make sure to only call cyclic_run() when it's initalized.
+	 */
+	if (gd && gd->cyclic && gd->cyclic->cyclic_ready)
+		cyclic_run();
 }
 
 int cyclic_uninit(void)
