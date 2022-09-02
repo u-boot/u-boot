@@ -5921,6 +5921,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn('Could not complete processing of contents',
                       str(exc.exception))
 
+    def testMkimageFilename(self):
+        """Test using mkimage to build a binary with a filename"""
+        retcode = self._DoTestFile('254_mkimage_filename.dts')
+        self.assertEqual(0, retcode)
+        fname = tools.get_output_filename('mkimage-test.bin')
+        self.assertTrue(os.path.exists(fname))
+
 
 if __name__ == "__main__":
     unittest.main()
