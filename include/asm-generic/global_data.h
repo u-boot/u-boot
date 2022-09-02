@@ -20,6 +20,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <cyclic.h>
 #include <event_internal.h>
 #include <fdtdec.h>
 #include <membuff.h>
@@ -473,6 +474,12 @@ struct global_data {
 	 * @event_state: Points to the current state of events
 	 */
 	struct event_state event_state;
+#endif
+#ifdef CONFIG_CYCLIC
+	/**
+	 * @cyclic: cyclic driver data
+	 */
+	struct cyclic_drv *cyclic;
 #endif
 	/**
 	 * @dmtag_list: List of DM tags
