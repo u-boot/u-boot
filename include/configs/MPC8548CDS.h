@@ -255,9 +255,6 @@
 #define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 #endif
 
-/* EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_CCID
-
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.

@@ -78,10 +78,6 @@
 #define RTC
 #define CONFIG_SYS_I2C_RTC_ADDR		0x51  /* Channel 3*/
 
-/* EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_NXID
-#define CONFIG_SYS_EEPROM_BUS_NUM		0
-
 /* Qixis */
 #define CONFIG_SYS_I2C_FPGA_ADDR		0x66
 

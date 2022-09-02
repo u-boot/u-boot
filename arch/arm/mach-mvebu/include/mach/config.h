@@ -25,8 +25,6 @@
 #define MV88F78X60 /* for the DDR training bin_hdr code */
 #endif
 
-#define CONFIG_SYS_L2_PL310
-
 #define MV_UART_CONSOLE_BASE		MVEBU_UART0_BASE
 
 /* Needed for SPI NOR booting in SPL */

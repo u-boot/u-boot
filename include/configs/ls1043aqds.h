@@ -37,10 +37,6 @@
 
 /* SATA */
 
-/* EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_NXID
-#define CONFIG_SYS_EEPROM_BUS_NUM		0
-
 #define CONFIG_SYS_SATA				AHCI_BASE_ADDR
 
 /*

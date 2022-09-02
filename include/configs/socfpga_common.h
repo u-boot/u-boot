@@ -48,7 +48,6 @@
 /*
  * Cache
  */
-#define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
 
 /*
