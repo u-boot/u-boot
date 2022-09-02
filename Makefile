@@ -1011,7 +1011,7 @@ endif
 else
 ifeq ($(CONFIG_SPL),y)
 # Generate these inputs for binman which will create the output files
-INPUTS-y += idbloader.img u-boot.img
+INPUTS-y += u-boot.img
 endif
 endif
 endif

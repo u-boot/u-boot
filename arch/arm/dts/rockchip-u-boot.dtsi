@@ -17,8 +17,17 @@
 		filename = "u-boot-rockchip.bin";
 		pad-byte = <0xff>;
 
-		blob {
+		mkimage {
 			filename = "idbloader.img";
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+#ifdef CONFIG_TPL
+			multiple-data-files;
+
+			u-boot-tpl {
+			};
+#endif
+			u-boot-spl {
+			};
 		};
 
 		u-boot-img {
