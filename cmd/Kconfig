@@ -2511,6 +2511,22 @@ config CMD_CBSYSINFO
 	  memory by coreboot before jumping to U-Boot. It can be useful for
 	  debugging the beaaviour of coreboot or U-Boot.
 
+config CMD_CYCLIC
+	bool "cyclic - Show information about cyclic functions"
+	depends on CYCLIC
+	default y
+	help
+	  This enables the 'cyclic' command which provides information about
+	  cyclic execution functions. This infrastructure allows registering
+	  functions to be executed cyclically, e.g. every 100ms. These commands
+	  are supported:
+
+	    cyclic list - list cyclic functions
+	    cyclic cyclic demo <cycletime_ms> <delay_us> - register cyclic
+		demo function
+
+	  See doc/develop/cyclic.rst for more details.
+
 config CMD_DIAG
 	bool "diag - Board diagnostics"
 	help

@@ -56,6 +56,7 @@ obj-$(CONFIG_CMD_DIAG) += diag.o
 endif
 obj-$(CONFIG_CMD_ADTIMG) += adtimg.o
 obj-$(CONFIG_CMD_ABOOTIMG) += abootimg.o
+obj-$(CONFIG_CMD_CYCLIC) += cyclic.o
 obj-$(CONFIG_CMD_EVENT) += event.o
 obj-$(CONFIG_CMD_EXTENSION) += extension_board.o
 obj-$(CONFIG_CMD_ECHO) += echo.o

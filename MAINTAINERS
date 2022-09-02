@@ -798,6 +798,7 @@ F:	doc/arch/m68k.rst
 CYCLIC
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
+F:	cmd/cyclic.c
 F:	common/cyclic.c
 F:	include/cyclic.h
 
