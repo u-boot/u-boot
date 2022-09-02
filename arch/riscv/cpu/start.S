@@ -122,7 +122,7 @@ call_board_init_f_0:
 call_harts_early_init:
 	jal	harts_early_init
 
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
 	/*
 	 * Pick hart to initialize global data and run U-Boot. The other harts
 	 * wait for initialization to complete.
@@ -152,7 +152,7 @@ call_harts_early_init:
 	/* save the boot hart id to global_data */
 	SREG	tp, GD_BOOT_HART(gp)
 
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
 	la	t0, available_harts_lock
 	amoswap.w.rl zero, zero, 0(t0)
 

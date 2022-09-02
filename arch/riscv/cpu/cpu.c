@@ -19,7 +19,7 @@
  * The variables here must be stored in the data section since they are used
  * before the bss section is available.
  */
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
 u32 hart_lottery __section(".data") = 0;
 
 /*

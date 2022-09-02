@@ -269,6 +269,13 @@ config XIP
 	  from a NOR flash memory without copying the code to ram.
 	  Say yes here if U-Boot boots from flash directly.
 
+config SPL_XIP
+	bool "Enable XIP mode for SPL"
+	help
+	  If SPL starts in read-only memory (XIP for example) then we shouldn't
+	  rely on lock variables (for example hart_lottery and available_harts_lock),
+	  this affects only SPL, other stages should proceed as non-XIP.
+
 config SHOW_REGS
 	bool "Show registers on unhandled exception"
 
