@@ -2225,7 +2225,8 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
 	       lpc32xx-* bl31.c bl31.elf bl31_*.bin image.map tispl.bin* \
 	       idbloader.img flash.bin flash.log defconfig keep-syms-lto.c \
 	       mkimage-out.spl.mkimage mkimage.spl.mkimage imx-boot.map \
-	       itb.fit.fit itb.fit.itb itb.map spl.map
+	       itb.fit.fit itb.fit.itb itb.map spl.map mkimage-out.rom.mkimage \
+	       mkimage.rom.mkimage rom.map simple-bin.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
