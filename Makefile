@@ -1001,17 +1001,12 @@ ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
 INPUTS-y += u-boot-with-dtb.bin
 endif
 
-ifeq ($(CONFIG_ARCH_ROCKCHIP),y)
-# On ARM64 this target is produced by binman so we don't need this dep
+ifeq ($(CONFIG_ARCH_ROCKCHIP)$(CONFIG_SPL),yy)
+# Binman image dependencies
 ifeq ($(CONFIG_ARM64),y)
-ifeq ($(CONFIG_SPL),y)
 INPUTS-y += u-boot.itb
-endif
 else
-ifeq ($(CONFIG_SPL),y)
-# Generate these inputs for binman which will create the output files
 INPUTS-y += u-boot.img
-endif
 endif
 endif
 
