@@ -13,6 +13,7 @@
 #include <api.h>
 #include <bootstage.h>
 #include <cpu_func.h>
+#include <cyclic.h>
 #include <display_options.h>
 #include <exports.h>
 #ifdef CONFIG_MTD_NOR_FLASH
@@ -611,6 +612,7 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
+	cyclic_init,
 	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
 #if defined(CONFIG_CONSOLE_RECORD)
