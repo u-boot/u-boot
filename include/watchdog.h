@@ -38,54 +38,36 @@ int init_func_watchdog_reset(void);
  * Hardware watchdog
  */
 #ifdef CONFIG_HW_WATCHDOG
-	#if defined(__ASSEMBLY__)
-		#define WATCHDOG_RESET bl hw_watchdog_reset
-	#else
-		extern void hw_watchdog_reset(void);
+	extern void hw_watchdog_reset(void);
 
-		#define WATCHDOG_RESET hw_watchdog_reset
-	#endif /* __ASSEMBLY__ */
+	#define WATCHDOG_RESET hw_watchdog_reset
 #else
 	/*
 	 * Maybe a software watchdog?
 	 */
 	#if defined(CONFIG_WATCHDOG)
-		#if defined(__ASSEMBLY__)
-			/* Don't require the watchdog to be enabled in SPL */
-			#if defined(CONFIG_SPL_BUILD) &&		\
-				!defined(CONFIG_SPL_WATCHDOG)
-				#define WATCHDOG_RESET /*XXX DO_NOT_DEL_THIS_COMMENT*/
-			#else
-				#define WATCHDOG_RESET bl watchdog_reset
-			#endif
+		/* Don't require the watchdog to be enabled in SPL */
+		#if defined(CONFIG_SPL_BUILD) &&		\
+			!defined(CONFIG_SPL_WATCHDOG)
+			#define WATCHDOG_RESET() { \
+				cyclic_run(); \
+			}
 		#else
-			/* Don't require the watchdog to be enabled in SPL */
-			#if defined(CONFIG_SPL_BUILD) &&		\
-				!defined(CONFIG_SPL_WATCHDOG)
-				#define WATCHDOG_RESET() { \
-					cyclic_run(); \
-				}
-			#else
-				extern void watchdog_reset(void);
+			extern void watchdog_reset(void);
 
-				#define WATCHDOG_RESET() { \
-					watchdog_reset(); \
-					cyclic_run(); \
-				}
-			#endif
+			#define WATCHDOG_RESET() { \
+				watchdog_reset(); \
+				cyclic_run(); \
+			}
 		#endif
 	#else
 		/*
 		 * No hardware or software watchdog.
 		 */
-		#if defined(__ASSEMBLY__)
-			#define WATCHDOG_RESET /*XXX DO_NOT_DEL_THIS_COMMENT*/
-		#else
-			#define WATCHDOG_RESET() { \
-				cyclic_run(); \
+		#define WATCHDOG_RESET() { \
+			cyclic_run(); \
 			}
-		#endif /* __ASSEMBLY__ */
-	#endif /* CONFIG_WATCHDOG && !__ASSEMBLY__ */
+	#endif /* CONFIG_WATCHDOG */
 #endif /* CONFIG_HW_WATCHDOG */
 
 /*
