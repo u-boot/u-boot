@@ -1005,8 +1005,7 @@ ifeq ($(CONFIG_ARCH_ROCKCHIP),y)
 # On ARM64 this target is produced by binman so we don't need this dep
 ifeq ($(CONFIG_ARM64),y)
 ifeq ($(CONFIG_SPL),y)
-# TODO: Get binman to generate this too
-INPUTS-y += u-boot-rockchip.bin
+INPUTS-y += u-boot.itb
 endif
 else
 ifeq ($(CONFIG_SPL),y)
@@ -1498,29 +1497,6 @@ OBJCOPYFLAGS_u-boot-with-spl.bin = -I binary -O binary \
 u-boot-with-spl.bin: $(SPL_IMAGE) $(SPL_PAYLOAD) FORCE
 	$(call if_changed,pad_cat)
 
-ifeq ($(CONFIG_ARCH_ROCKCHIP),y)
-
-# TPL + SPL
-ifeq ($(CONFIG_SPL)$(CONFIG_TPL),yy)
-MKIMAGEFLAGS_u-boot-tpl-rockchip.bin = -n $(CONFIG_SYS_SOC) -T rksd
-tpl/u-boot-tpl-rockchip.bin: tpl/u-boot-tpl.bin FORCE
-	$(call if_changed,mkimage)
-idbloader.img: tpl/u-boot-tpl-rockchip.bin spl/u-boot-spl.bin FORCE
-	$(call if_changed,cat)
-else
-MKIMAGEFLAGS_idbloader.img = -n $(CONFIG_SYS_SOC) -T rksd
-idbloader.img: spl/u-boot-spl.bin FORCE
-	$(call if_changed,mkimage)
-endif
-
-ifeq ($(CONFIG_ARM64),y)
-OBJCOPYFLAGS_u-boot-rockchip.bin = -I binary -O binary \
-	--pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
-u-boot-rockchip.bin: idbloader.img u-boot.itb FORCE
-	$(call if_changed,pad_cat)
-endif # CONFIG_ARM64
-
-endif # CONFIG_ARCH_ROCKCHIP
 
 ifeq ($(CONFIG_ARCH_LPC32XX)$(CONFIG_SPL),yy)
 MKIMAGEFLAGS_lpc32xx-spl.img = -T lpc32xximage -a $(CONFIG_SPL_TEXT_BASE)

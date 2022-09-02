@@ -30,7 +30,12 @@
 			};
 		};
 
+#ifdef CONFIG_ARM64
+		blob {
+			filename = "u-boot.itb";
+#else
 		u-boot-img {
+#endif
 			offset = <CONFIG_SPL_PAD_TO>;
 		};
 	};
