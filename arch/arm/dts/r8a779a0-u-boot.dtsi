@@ -10,7 +10,7 @@
 / {
 	soc {
 		rpc: spi@ee200000 {
-			compatible = "renesas,rpc-r8a779a0", "renesas,rcar-gen3-rpc";
+			compatible = "renesas,r8a779a0-rpc-if", "renesas,rcar-gen3-rpc-if";
 			reg = <0 0xee200000 0 0x200>, <0 0x08000000 0 0x04000000>;
 			clocks = <&cpg CPG_MOD 629>;
 			bank-width = <2>;
