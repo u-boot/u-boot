@@ -140,15 +140,17 @@ u32 tpm_write_lock(struct udevice *dev, u32 index)
 }
 
 u32 tpm_pcr_extend(struct udevice *dev, u32 index, const void *in_digest,
-		   void *out_digest)
+		   uint size, void *out_digest, const char *name)
 {
-	if (tpm_is_v1(dev))
+	if (tpm_is_v1(dev)) {
 		return tpm1_extend(dev, index, in_digest, out_digest);
-	else if (tpm_is_v2(dev))
+	} else if (tpm_is_v2(dev)) {
 		return tpm2_pcr_extend(dev, index, TPM2_ALG_SHA256, in_digest,
 				       TPM2_DIGEST_LEN);
-	else
+		/* @name is ignored as we do not support the TPM log here */
+	} else {
 		return -ENOSYS;
+	}
 }
 
 u32 tpm_pcr_read(struct udevice *dev, u32 index, void *data, size_t count)

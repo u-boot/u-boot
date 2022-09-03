@@ -120,6 +120,16 @@ struct tpm_ops {
 	int (*get_desc)(struct udevice *dev, char *buf, int size);
 
 	/**
+	 * report_state() - Collect information about the current TPM state
+	 *
+	 * @dev:	Device to check
+	 * @buf:	Buffer to put the string
+	 * @size:	Maximum size of buffer
+	 * Return: return code of the operation (0 = success)
+	 */
+	int (*report_state)(struct udevice *dev, char *buf, int size);
+
+	/**
 	 * send() - send data to the TPM
 	 *
 	 * @dev:	Device to talk to
@@ -233,6 +243,16 @@ u32 tpm_clear_and_reenable(struct udevice *dev);
  * Return: length of string, or -ENOSPC it no space
  */
 int tpm_get_desc(struct udevice *dev, char *buf, int size);
+
+/**
+ * tpm_report_state() - Collect information about the current TPM state
+ *
+ * @dev:	Device to check
+ * @buf:	Buffer to put the string
+ * @size:	Maximum size of buffer
+ * Return: return code of the operation (0 = success)
+ */
+int tpm_report_state(struct udevice *dev, char *buf, int size);
 
 /**
  * tpm_xfer() - send data to the TPM and get response

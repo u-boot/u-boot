@@ -81,14 +81,16 @@ u32 tpm_nv_write_value(struct udevice *dev, u32 index, const void *data,
  *
  * @param dev		TPM device
  * @param index		index of the PCR
- * @param in_digest	160-bit value representing the event to be
+ * @param in_digest	160/256-bit value representing the event to be
  *			recorded
- * @param out_digest	160-bit PCR value after execution of the
+ * @param size		size of digest in bytes
+ * @param out_digest	160/256-bit PCR value after execution of the
  *			command
+ * @param name		digest source, used for log output
  * Return: return code of the operation
  */
 u32 tpm_pcr_extend(struct udevice *dev, u32 index, const void *in_digest,
-		   void *out_digest);
+		   uint size, void *out_digest, const char *name);
 
 /**
  * Issue a TPM_PCRRead command.

@@ -13,11 +13,13 @@
 #include <irq.h>
 #include <log.h>
 #include <spl.h>
+#include <tpm-common.h>
 #include <tpm-v2.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <asm/unaligned.h>
 #include <linux/delay.h>
 #include <dm/acpi.h>
 
@@ -37,6 +39,50 @@ enum {
 	CR50_MAX_BUF_SIZE = 63,
 };
 
+/*
+ * Operations specific to the Cr50 TPM used on Chromium OS and Android devices
+ *
+ * FIXME: below is not enough to differentiate between vendors commands
+ * of numerous devices. However, the current tpm2 APIs aren't very amenable
+ * to extending generically because the marshaling code is assuming all
+ * knowledge of all commands.
+ */
+#define TPM2_CC_VENDOR_BIT_MASK			0x20000000
+
+#define TPM2_CR50_VENDOR_COMMAND		(TPM2_CC_VENDOR_BIT_MASK | 0)
+#define TPM2_CR50_SUB_CMD_IMMEDIATE_RESET	19
+#define TPM2_CR50_SUB_CMD_NVMEM_ENABLE_COMMITS	21
+#define TPM2_CR50_SUB_CMD_REPORT_TPM_STATE	23
+#define TPM2_CR50_SUB_CMD_TURN_UPDATE_ON	24
+#define TPM2_CR50_SUB_CMD_GET_REC_BTN		29
+#define TPM2_CR50_SUB_CMD_TPM_MODE		40
+#define TPM2_CR50_SUB_CMD_GET_BOOT_MODE		52
+#define TPM2_CR50_SUB_CMD_RESET_EC		53
+
+/* Cr50 vendor-specific error codes. */
+#define VENDOR_RC_ERR              0x00000500
+enum cr50_vendor_rc {
+	VENDOR_RC_INTERNAL_ERROR	= (VENDOR_RC_ERR | 6),
+	VENDOR_RC_NO_SUCH_SUBCOMMAND	= (VENDOR_RC_ERR | 8),
+	VENDOR_RC_NO_SUCH_COMMAND	= (VENDOR_RC_ERR | 127),
+};
+
+enum cr50_tpm_mode {
+	/*
+	 * Default state: TPM is enabled, and may be set to either
+	 * TPM_MODE_ENABLED or TPM_MODE_DISABLED.
+	 */
+	TPM_MODE_ENABLED_TENTATIVE = 0,
+
+	/* TPM is enabled, and mode may not be changed. */
+	TPM_MODE_ENABLED = 1,
+
+	/* TPM is disabled, and mode may not be changed. */
+	TPM_MODE_DISABLED = 2,
+
+	TPM_MODE_INVALID,
+};
+
 /**
  * struct cr50_priv - Private driver data
  *
@@ -52,6 +98,41 @@ struct cr50_priv {
 	int locality;
 	uint vendor;
 	bool use_irq;
+};
+
+/*
+ * The below structure represents the body of the response to the 'report tpm
+ * state' vendor command.
+ *
+ * It is transferred over the wire, so it needs to be serialized/deserialized,
+ * and it is likely to change, so its contents must be versioned.
+ */
+#define TPM_STATE_VERSION	1
+struct tpm_vendor_state {
+	u32 version;
+	/*
+	 * The following three fields are set by the TPM in case of an assert.
+	 * There is no other processing than setting the source code line
+	 * number, error code and the first 4 characters of the function name.
+	 *
+	 * We don't expect this happening, but it is included in the report
+	 * just in case.
+	 */
+	u32 fail_line;	/* s_failLIne */
+	u32 fail_code;	/* s_failCode */
+	char func_name[4];	/* s_failFunction, limited to 4 chars */
+
+	/*
+	 * The following two fields are the current time filtered value of the
+	 * 'failed tries' TPM counter, and the maximum allowed value of the
+	 * counter.
+	 *
+	 * failed_tries == max_tries is the definition of the TPM lockout
+	 * condition.
+	 */
+	u32 failed_tries;	/* gp.failedTries */
+	u32 max_tries;	/* gp.maxTries */
+	/* The below fields are present in version 2 and above */
 };
 
 /* Wait for interrupt to indicate TPM is ready */
@@ -573,6 +654,87 @@ static int cr50_i2c_get_desc(struct udevice *dev, char *buf, int size)
 	return len;
 }
 
+static int stringify_state(char *buf, int len, char *str, size_t max_size)
+{
+	struct tpm_vendor_state state;
+	size_t text_size = 0;
+
+	state.version = get_unaligned_be32(buf +
+		offsetof(struct tpm_vendor_state, version));
+	state.fail_line = get_unaligned_be32(buf +
+		offsetof(struct tpm_vendor_state, fail_line));
+	state.fail_code = get_unaligned_be32(buf +
+		offsetof(struct tpm_vendor_state, fail_code));
+	memcpy(state.func_name,
+	       buf + offsetof(struct tpm_vendor_state, func_name),
+	       sizeof(state.func_name));
+	state.failed_tries = get_unaligned_be32(buf +
+		offsetof(struct tpm_vendor_state, failed_tries));
+	state.max_tries = get_unaligned_be32(buf +
+		offsetof(struct tpm_vendor_state, max_tries));
+
+	text_size += snprintf(str + text_size, max_size - text_size,
+			      "v=%d", state.version);
+	if (text_size >= max_size)
+		return -ENOSPC;
+
+	if (state.version > TPM_STATE_VERSION)
+		text_size += snprintf(str + text_size,
+				      max_size - text_size,
+				      " not fully supported\n");
+	if (text_size >= max_size)
+		return -ENOSPC;
+
+	if (state.version == 0)
+		return -EINVAL;	/* This should never happen */
+
+	text_size += snprintf(str + text_size,
+			      max_size - text_size,
+			      " failed_tries=%d max_tries=%d\n",
+			      state.failed_tries, state.max_tries);
+	if (text_size >= max_size)
+		return -ENOSPC;
+
+	if (state.fail_line) {
+		/* make sure function name is zero terminated. */
+		char func_name[sizeof(state.func_name) + 1];
+
+		memcpy(func_name, state.func_name, sizeof(state.func_name));
+		func_name[sizeof(state.func_name)] = '\0';
+
+		text_size += snprintf(str + text_size,
+				      max_size - text_size,
+				      "tpm failed: f %s line %d code %d",
+				      func_name,
+				      state.fail_line,
+				      state.fail_code);
+		if (text_size >= max_size)
+			return -ENOSPC;
+	}
+
+	return 0;
+}
+
+static int cr50_i2c_report_state(struct udevice *dev, char *str, int str_max)
+{
+	char buf[50];
+	size_t buf_size = sizeof(buf);
+	int ret;
+
+	ret = tpm2_report_state(dev, TPM2_CR50_VENDOR_COMMAND,
+				TPM2_CR50_SUB_CMD_REPORT_TPM_STATE,
+				buf, &buf_size);
+	if (ret)
+		return ret;
+
+	/* TPM responded as expected */
+	ret = stringify_state(buf, buf_size, str, str_max);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int cr50_i2c_open(struct udevice *dev)
 {
 	char buf[80];
@@ -730,6 +892,7 @@ struct acpi_ops cr50_acpi_ops = {
 static const struct tpm_ops cr50_i2c_ops = {
 	.open		= cr50_i2c_open,
 	.get_desc	= cr50_i2c_get_desc,
+	.report_state	= cr50_i2c_report_state,
 	.send		= cr50_i2c_send,
 	.recv		= cr50_i2c_recv,
 	.cleanup	= cr50_i2c_cleanup,
