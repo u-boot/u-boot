@@ -643,6 +643,13 @@ export CFLAGS_EFI	# Compiler flags to add when building EFI app
 export CFLAGS_NON_EFI	# Compiler flags to remove when building EFI app
 export EFI_TARGET	# binutils target if EFI is natively supported
 
+export LTO_ENABLE
+
+# This is y if LTO is enabled for this build. See NO_LTO=1 to disable LTO
+ifeq ($(NO_LTO),)
+LTO_ENABLE=$(if $(CONFIG_LTO),y)
+endif
+
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
@@ -708,16 +715,16 @@ endif
 LTO_CFLAGS :=
 LTO_FINAL_LDFLAGS :=
 export LTO_CFLAGS LTO_FINAL_LDFLAGS
-ifdef CONFIG_LTO
+ifeq ($(LTO_ENABLE),y)
 	ifeq ($(cc-name),clang)
-		LTO_CFLAGS		+= -flto
+		LTO_CFLAGS		+= -DLTO_ENABLE -flto
 		LTO_FINAL_LDFLAGS	+= -flto
 
 		AR			= $(shell $(CC) -print-prog-name=llvm-ar)
 		NM			= $(shell $(CC) -print-prog-name=llvm-nm)
 	else
 		NPROC			:= $(shell nproc 2>/dev/null || echo 1)
-		LTO_CFLAGS		+= -flto=$(NPROC)
+		LTO_CFLAGS		+= -DLTO_ENABLE -flto=$(NPROC)
 		LTO_FINAL_LDFLAGS	+= -fuse-linker-plugin -flto=$(NPROC)
 
 		# use plugin aware tools
@@ -1765,7 +1772,7 @@ ARCH_POSTLINK := $(wildcard $(srctree)/arch/$(ARCH)/Makefile.postlink)
 
 # Generate linker list symbols references to force compiler to not optimize
 # them away when compiling with LTO
-ifdef CONFIG_LTO
+ifeq ($(LTO_ENABLE),y)
 u-boot-keep-syms-lto := keep-syms-lto.o
 u-boot-keep-syms-lto_c := $(patsubst %.o,%.c,$(u-boot-keep-syms-lto))
 
@@ -1787,7 +1794,7 @@ endif
 
 # Rule to link u-boot
 # May be overridden by arch/$(ARCH)/config.mk
-ifdef CONFIG_LTO
+ifeq ($(LTO_ENABLE),y)
 quiet_cmd_u-boot__ ?= LTO     $@
       cmd_u-boot__ ?=								\
 		$(CC) -nostdlib -nostartfiles					\

@@ -102,6 +102,7 @@ obj-$(CONFIG_CMD_MFSL) += mfsl.o
 obj-$(CONFIG_CMD_MII) += mii.o
 obj-$(CONFIG_CMD_MISC) += misc.o
 obj-$(CONFIG_CMD_MDIO) += mdio.o
+obj-$(CONFIG_CMD_PAUSE) += pause.o
 obj-$(CONFIG_CMD_SLEEP) += sleep.o
 obj-$(CONFIG_CMD_MMC) += mmc.o
 obj-$(CONFIG_CMD_OPTEE_RPMB) += optee_rpmb.o

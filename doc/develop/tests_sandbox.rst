@@ -119,6 +119,30 @@ You can easily use gdb on these tests, without needing --gdbserver::
 You can then single-step and look at variables as needed.
 
 
+Running tests multiple times
+----------------------------
+
+Some tests can have race conditions which are hard to detect on a single
+one. It is possible to run each individual test multiple times, before moving
+to the next test, with the '-r' flag.
+
+This is most useful when running a single test, since running all tests
+multiple times can take a while.
+
+For example::
+
+   => ut dm -r1000 dm_test_rtc_set_get
+   ...
+   Test: dm_test_rtc_set_get: rtc.c (flat tree)
+   Test: dm_test_rtc_set_get: rtc.c
+   test/dm/rtc.c:257, dm_test_rtc_reset(): old_base_time == base_time: Expected 0x62e7453c (1659323708), got 0x62e7453d (1659323709)
+   Test: dm_test_rtc_set_get: rtc.c (flat tree)
+   Test: dm_test_rtc_set_get: rtc.c
+   Test: dm_test_rtc_set_get: rtc.c (flat tree)
+   ...
+   Test dm_test_rtc_reset failed 3 times
+
+
 Running sandbox_spl tests directly
 ----------------------------------
 

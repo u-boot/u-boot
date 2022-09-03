@@ -1971,6 +1971,12 @@ config CMD_GETTIME
 	  milliseconds. See also the 'bootstage' command which provides more
 	  flexibility for boot timing.
 
+config CMD_PAUSE
+	bool "pause command"
+	help
+	  Delay execution waiting for any user input.
+	  Useful to allow the user to read a failure log.
+
 config CMD_RNG
 	bool "rng command"
 	depends on DM_RNG

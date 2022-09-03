@@ -89,7 +89,7 @@ void spl_board_init(void)
 		int ret;
 
 		ret = ut_run_list("spl", NULL, tests, count,
-				  state->select_unittests);
+				  state->select_unittests, 1);
 		/* continue execution into U-Boot */
 	}
 }

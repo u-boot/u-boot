@@ -29,13 +29,14 @@ DECLARE_GLOBAL_DATA_PTR;
  *	"fdt_pre_reloc"), or NULL to run all
  * Return: 0 if all tests passed, 1 if not
  */
-static int dm_test_run(const char *test_name)
+static int dm_test_run(const char *test_name, int runs_per_text)
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(dm_test);
 	const int n_ents = UNIT_TEST_SUITE_COUNT(dm_test);
 	int ret;
 
-	ret = ut_run_list("driver model", "dm_test_", tests, n_ents, test_name);
+	ret = ut_run_list("driver model", "dm_test_", tests, n_ents, test_name,
+			  runs_per_text);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
@@ -43,9 +44,15 @@ static int dm_test_run(const char *test_name)
 int do_ut_dm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const char *test_name = NULL;
+	int runs_per_text = 1;
 
+	if (argc > 1 && !strncmp("-r", argv[1], 2)) {
+		runs_per_text = dectoul(argv[1] + 2, NULL);
+		argv++;
+		argc++;
+	}
 	if (argc > 1)
 		test_name = argv[1];
 
-	return dm_test_run(test_name);
+	return dm_test_run(test_name, runs_per_text);
 }

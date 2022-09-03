@@ -243,6 +243,9 @@ stages:
         sandbox_clang:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-O clang-13"
+        sandbox_nolto:
+          TEST_PY_BD: "sandbox"
+          BUILD_ENV: "NO_LTO=1"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
@@ -354,6 +357,7 @@ stages:
           export TEST_PY_ID="${TEST_PY_ID}"
           export TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}"
           export OVERRIDE="${OVERRIDE}"
+          export BUILD_ENV="${BUILD_ENV}"
           EOF
           cat << "EOF" >> test.sh
           # the below corresponds to .gitlab-ci.yml "before_script"

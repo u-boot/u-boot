@@ -18,10 +18,17 @@ int cmd_ut_category(const char *name, const char *prefix,
 		    struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[])
 {
+	int runs_per_text = 1;
 	int ret;
 
+	if (argc > 1 && !strncmp("-r", argv[1], 2)) {
+		runs_per_text = dectoul(argv[1] + 2, NULL);
+		argv++;
+		argc++;
+	}
+
 	ret = ut_run_list(name, prefix, tests, n_ents,
-			  argc > 1 ? argv[1] : NULL);
+			  argc > 1 ? argv[1] : NULL, runs_per_text);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
@@ -168,7 +175,8 @@ static char ut_help_text[] =
 #ifdef CONFIG_CMD_LOADM
 	"ut loadm [test-name]- test of parameters and load memory blob\n"
 #endif
-	;
+	"All commands accept an optional [-r<runs>] flag before [test-name], to\n"
+	"run each test multiple times (<runs> is in decimal)";
 #endif /* CONFIG_SYS_LONGHELP */
 
 U_BOOT_CMD(
