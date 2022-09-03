@@ -469,6 +469,11 @@ config CMD_XIMG
 	help
 	  Extract a part of a multi-image.
 
+config CMD_XXD
+	bool "xxd"
+	help
+	  Print file as hexdump to standard output
+
 config CMD_SPL
 	bool "spl export - Export boot information for Falcon boot"
 	depends on SPL

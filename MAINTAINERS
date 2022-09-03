@@ -1519,6 +1519,13 @@ M:	Max Filippov <jcmvbkbc@gmail.com>
 S:	Maintained
 F:	arch/xtensa/
 
+XXD
+M:	Roger Knecht <rknecht@pm.me>
+S:	Maintained
+F:	cmd/xxd.c
+F:	doc/usage/cmd/xxd.rst
+F:	test/py/tests/test_xxd/
+
 THE REST
 M:	Tom Rini <trini@konsulko.com>
 L:	u-boot@lists.denx.de

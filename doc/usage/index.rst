@@ -72,6 +72,7 @@ Shell commands
    cmd/true
    cmd/ums
    cmd/wdt
+   cmd/xxd
 
 Booting OS
 ----------
