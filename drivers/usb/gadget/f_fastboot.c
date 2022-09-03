@@ -119,6 +119,7 @@ static struct usb_descriptor_header *fb_fs_function[] = {
 	(struct usb_descriptor_header *)&interface_desc,
 	(struct usb_descriptor_header *)&fs_ep_in,
 	(struct usb_descriptor_header *)&fs_ep_out,
+	NULL,
 };
 
 static struct usb_descriptor_header *fb_hs_function[] = {
