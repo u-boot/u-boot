@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <efi_api.h>
+#include <host_arch.h>
 
 /*
  * Entry point of the EFI application.
@@ -33,10 +34,16 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 	asm volatile (".word 0xe7f7defb\n");
 #elif defined(CONFIG_RISCV)
 	asm volatile (".word 0xffffffff\n");
-#elif defined(CONFIG_SANDBOX)
-	asm volatile (".word 0xffffffff\n");
 #elif defined(CONFIG_X86)
 	asm volatile (".word 0xffff\n");
+#elif defined(CONFIG_SANDBOX)
+#if (HOST_ARCH == HOST_ARCH_ARM || HOST_ARCH == HOST_ARCH_AARCH64)
+	asm volatile (".word 0xe7f7defb\n");
+#elif (HOST_ARCH == HOST_ARCH_RISCV32 || HOST_ARCH == HOST_ARCH_RISCV64)
+	asm volatile (".word 0xffffffff\n");
+#elif (HOST_ARCH == HOST_ARCH_X86 || HOST_ARCH == HOST_ARCH_X86_64)
+	asm volatile (".word 0xffff\n");
+#endif
 #endif
 	con_out->output_string(con_out, u"Exception not triggered.\n");
 	return EFI_ABORTED;

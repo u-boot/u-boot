@@ -190,13 +190,14 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		struct efi_device_path_nvme *ndp =
 			(struct efi_device_path_nvme *)dp;
 		u32 ns_id;
-		int i;
 
 		memcpy(&ns_id, &ndp->ns_id, sizeof(ns_id));
 		s += sprintf(s, "NVMe(0x%x,", ns_id);
-		for (i = 0; i < sizeof(ndp->eui64); ++i)
+
+		/* Display byte 7 first, byte 0 last */
+		for (int i = 0; i < 8; ++i)
 			s += sprintf(s, "%s%02x", i ? "-" : "",
-				     ndp->eui64[i]);
+				     ndp->eui64[i ^ 7]);
 		s += sprintf(s, ")");
 
 		break;

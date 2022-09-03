@@ -1053,6 +1053,13 @@ extern u8 num_image_type_guids;
 efi_status_t efi_esrt_register(void);
 
 /**
+ * efi_ecpt_register() - Install the ECPT system table.
+ *
+ * Return: status code
+ */
+efi_status_t efi_ecpt_register(void);
+
+/**
  * efi_esrt_populate() - Populates the ESRT entries from the FMP instances
  * present in the system.
  * If an ESRT already exists, the old ESRT is replaced in the system table.
