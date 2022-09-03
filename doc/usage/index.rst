@@ -31,6 +31,7 @@ Shell commands
    cmd/bootmeth
    cmd/button
    cmd/bootz
+   cmd/cat
    cmd/cbsysinfo
    cmd/cls
    cmd/conitrace
