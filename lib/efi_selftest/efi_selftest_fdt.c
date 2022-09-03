@@ -144,23 +144,6 @@ static char *get_property(const u16 *property, const u16 *node)
 	return NULL;
 }
 
-/**
- * efi_st_get_config_table() - get configuration table
- *
- * @guid:	GUID of the configuration table
- * Return:	pointer to configuration table or NULL
- */
-static void *efi_st_get_config_table(const efi_guid_t *guid)
-{
-	size_t i;
-
-	for (i = 0; i < systab.nr_tables; i++) {
-		if (!guidcmp(guid, &systemtab->tables[i].guid))
-			return systemtab->tables[i].table;
-	}
-	return NULL;
-}
-
 /*
  * Setup unit test.
  *
