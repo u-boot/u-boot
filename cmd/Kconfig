@@ -1719,7 +1719,7 @@ config CMD_TFTPBOOT
 	bool "tftpboot"
 	default y
 	help
-	  tftpboot - boot image via network using TFTP protocol
+	  tftpboot - load file via network using TFTP protocol
 
 config CMD_TFTPPUT
 	bool "tftp put"
