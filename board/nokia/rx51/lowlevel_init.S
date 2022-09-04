@@ -46,7 +46,6 @@ save_boot_params:
  * (CONFIG_SYS_TEXT_BASE).
  */
 
-copy_kernel_start:
 	/* r0 - start of kernel before */
 	adr	r0, kernoffs	/* r0 - current address of kernoffs section */
 	ldr	r1, kernoffs	/* r1 - offset of kernel image from kernoffs section */
