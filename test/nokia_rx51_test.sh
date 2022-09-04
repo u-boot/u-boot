@@ -36,7 +36,7 @@ echo
 
 # First compile u-boot.bin binary for Nokia RX-51 board
 make nokia_rx51_config
-make -j4 u-boot.bin ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-
+make -j4 u-boot.bin CROSS_COMPILE=arm-linux-gnueabi-
 
 # And then do all stuff in temporary directory
 mkdir -p nokia_rx51_tmp
