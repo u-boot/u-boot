@@ -180,7 +180,7 @@ EOF
 
 # Generate bootmenu for OneNAND booting
 cat > bootmenu_nand << EOF
-setenv bootmenu_0 'uImage-2.6.28-omap1 from OneNAND=mtd read initfs \${kernaddr}; setenv bootargs; setenv setup_omap_atag 1; bootm \${kernaddr}';
+setenv bootmenu_0 'uImage-2.6.28-omap1 from OneNAND=setenv bootargs; setenv setup_omap_atag 1; mtd read initfs \${kernaddr} && bootm \${kernaddr}';
 setenv bootmenu_1;
 setenv bootmenu_delay 1;
 setenv bootdelay 1;
