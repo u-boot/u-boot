@@ -129,7 +129,7 @@ cat > ubi.ini << EOF
 mode=ubi
 image=ubifs.img
 vol_id=0
-vol_size=160MiB
+vol_size=230MiB # 1870 LEBs
 vol_type=dynamic
 vol_name=rootfs
 vol_alignment=1
