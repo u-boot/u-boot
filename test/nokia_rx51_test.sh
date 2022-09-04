@@ -178,7 +178,7 @@ setenv bootdelay 1;
 EOF
 ./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_emmc2 -d bootmenu_emmc2 bootmenu_emmc2.scr
 
-# Generate bootmenu for OneNAND booting
+# Generate bootmenu for OneNAND booting (uImage)
 cat > bootmenu_nand << EOF
 setenv bootmenu_0 'uImage-2.6.28-omap1 from OneNAND=setenv bootargs; setenv setup_omap_atag 1; mtd read initfs \${kernaddr} && bootm \${kernaddr}';
 setenv bootmenu_1;
@@ -221,7 +221,7 @@ mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_em
 mcopy zImage-2.6.28-omap1 ::/zImage-2.6.28-omap1 -i emmc_emmc2.img
 mcopy bootmenu_emmc2.scr ::/bootmenu.scr -i emmc_emmc2.img
 
-# Generate FAT32 eMMC image for OneNAND booting
+# Generate FAT32 eMMC image for OneNAND booting (uImage)
 truncate -s 50MiB emmc_nand.img
 mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_nand.img
 mcopy bootmenu_nand.scr ::/bootmenu.scr -i emmc_nand.img
