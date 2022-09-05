@@ -238,6 +238,18 @@ static void _serial_puts(struct udevice *dev, const char *str)
 	} while (*str);
 }
 
+#ifdef CONFIG_CONSOLE_FLUSH_SUPPORT
+static void _serial_flush(struct udevice *dev)
+{
+	struct dm_serial_ops *ops = serial_get_ops(dev);
+
+	if (!ops->pending)
+		return;
+	while (ops->pending(dev, false) > 0)
+		;
+}
+#endif
+
 static int __serial_getc(struct udevice *dev)
 {
 	struct dm_serial_ops *ops = serial_get_ops(dev);
@@ -398,6 +410,13 @@ static void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 	_serial_puts(sdev->priv, str);
 }
 
+#ifdef CONFIG_CONSOLE_FLUSH_SUPPORT
+static void serial_stub_flush(struct stdio_dev *sdev)
+{
+	_serial_flush(sdev->priv);
+}
+#endif
+
 static int serial_stub_getc(struct stdio_dev *sdev)
 {
 	return _serial_getc(sdev->priv);
@@ -520,6 +539,7 @@ static int serial_post_probe(struct udevice *dev)
 	sdev.priv = dev;
 	sdev.putc = serial_stub_putc;
 	sdev.puts = serial_stub_puts;
+	STDIO_DEV_ASSIGN_FLUSH(&sdev, serial_stub_flush);
 	sdev.getc = serial_stub_getc;
 	sdev.tstc = serial_stub_tstc;
 
