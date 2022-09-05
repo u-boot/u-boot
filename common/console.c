@@ -797,6 +797,9 @@ void flush(void)
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
 		fflush(stdout);
+	} else {
+		/* Send directly to the handler */
+		serial_flush();
 	}
 }
 #endif
