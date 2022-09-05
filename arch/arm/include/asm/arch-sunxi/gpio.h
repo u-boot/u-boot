@@ -32,13 +32,6 @@
 #define SUNXI_GPIO_I	8
 
 /*
- * This defines the number of GPIO banks for the _main_ GPIO controller.
- * You should fix up the padding in struct sunxi_gpio_reg below if you
- * change this.
- */
-#define SUNXI_GPIO_BANKS 9
-
-/*
  * sun6i/sun8i and later SoCs have an additional GPIO controller (R_PIO)
  * at a different register offset.
  *
@@ -55,32 +48,11 @@
 #define SUNXI_GPIO_M	12
 #define SUNXI_GPIO_N	13
 
-struct sunxi_gpio {
-	u32 cfg[4];
-	u32 dat;
-	u32 drv[2];
-	u32 pull[2];
-};
-
-/* gpio interrupt control */
-struct sunxi_gpio_int {
-	u32 cfg[3];
-	u32 ctl;
-	u32 sta;
-	u32 deb;		/* interrupt debounce */
-};
-
-struct sunxi_gpio_reg {
-	struct sunxi_gpio gpio_bank[SUNXI_GPIO_BANKS];
-	u8 res[0xbc];
-	struct sunxi_gpio_int gpio_int;
-};
-
 #define SUN50I_H6_GPIO_POW_MOD_SEL	0x340
 #define SUN50I_H6_GPIO_POW_MOD_VAL	0x348
 
-/* GPIO bank sizes */
 #define SUNXI_GPIOS_PER_BANK	32
+#define SUNXI_PINCTRL_BANK_SIZE 0x24
 
 #define SUNXI_GPIO_NEXT(__gpio) \
 	((__gpio##_START) + SUNXI_GPIOS_PER_BANK)
@@ -200,19 +172,19 @@ enum sunxi_gpio_number {
 #define SUNXI_GPIO_AXP0_GPIO_COUNT	6
 
 struct sunxi_gpio_plat {
-	struct sunxi_gpio	*regs;
+	void			*regs;
 	char			bank_name[3];
 };
 
 /* prototypes for the non-DM GPIO/pinctrl functions, used in the SPL */
-void sunxi_gpio_set_cfgbank(struct sunxi_gpio *pio, int bank_offset, u32 val);
+void sunxi_gpio_set_cfgbank(void *bank_base, int pin_offset, u32 val);
 void sunxi_gpio_set_cfgpin(u32 pin, u32 val);
-int sunxi_gpio_get_cfgbank(struct sunxi_gpio *pio, int bank_offset);
+int sunxi_gpio_get_cfgbank(void *bank_base, int pin_offset);
 int sunxi_gpio_get_cfgpin(u32 pin);
 void sunxi_gpio_set_drv(u32 pin, u32 val);
-void sunxi_gpio_set_drv_bank(struct sunxi_gpio *pio, u32 bank_offset, u32 val);
+void sunxi_gpio_set_drv_bank(void *bank_base, u32 pin_offset, u32 val);
 void sunxi_gpio_set_pull(u32 pin, u32 val);
-void sunxi_gpio_set_pull_bank(struct sunxi_gpio *pio, int bank_offset, u32 val);
+void sunxi_gpio_set_pull_bank(void *bank_base, int pin_offset, u32 val);
 int sunxi_name_to_gpio(const char *name);
 
 #if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO

@@ -35,7 +35,7 @@ struct sunxi_pinctrl_desc {
 };
 
 struct sunxi_pinctrl_plat {
-	struct sunxi_gpio __iomem *base;
+	void __iomem *base;
 };
 
 static int sunxi_pinctrl_get_pins_count(struct udevice *dev)
@@ -86,8 +86,8 @@ static int sunxi_pinctrl_pinmux_set(struct udevice *dev, uint pin_selector,
 	      sunxi_pinctrl_get_function_name(dev, func_selector),
 	      desc->functions[func_selector].mux);
 
-	sunxi_gpio_set_cfgbank(plat->base + bank, pin,
-			       desc->functions[func_selector].mux);
+	sunxi_gpio_set_cfgbank(plat->base + bank * SUNXI_PINCTRL_BANK_SIZE,
+			       pin, desc->functions[func_selector].mux);
 
 	return 0;
 }
@@ -102,7 +102,7 @@ static const struct pinconf_param sunxi_pinctrl_pinconf_params[] = {
 static int sunxi_pinctrl_pinconf_set_pull(struct sunxi_pinctrl_plat *plat,
 					  uint bank, uint pin, uint bias)
 {
-	struct sunxi_gpio *regs = &plat->base[bank];
+	void *regs = plat->base + bank * SUNXI_PINCTRL_BANK_SIZE;
 
 	sunxi_gpio_set_pull_bank(regs, pin, bias);
 
@@ -112,7 +112,7 @@ static int sunxi_pinctrl_pinconf_set_pull(struct sunxi_pinctrl_plat *plat,
 static int sunxi_pinctrl_pinconf_set_drive(struct sunxi_pinctrl_plat *plat,
 					   uint bank, uint pin, uint drive)
 {
-	struct sunxi_gpio *regs = &plat->base[bank];
+	void *regs = plat->base + bank * SUNXI_PINCTRL_BANK_SIZE;
 
 	if (drive < 10 || drive > 40)
 		return -EINVAL;
@@ -148,7 +148,7 @@ static int sunxi_pinctrl_get_pin_muxing(struct udevice *dev, uint pin_selector,
 	struct sunxi_pinctrl_plat *plat = dev_get_plat(dev);
 	int bank = pin_selector / SUNXI_GPIOS_PER_BANK;
 	int pin	 = pin_selector % SUNXI_GPIOS_PER_BANK;
-	int mux  = sunxi_gpio_get_cfgbank(plat->base + bank, pin);
+	int mux  = sunxi_gpio_get_cfgbank(plat->base + bank * SUNXI_PINCTRL_BANK_SIZE, pin);
 
 	switch (mux) {
 	case SUNXI_GPIO_INPUT:
@@ -206,7 +206,7 @@ static int sunxi_pinctrl_bind(struct udevice *dev)
 		if (!gpio_plat)
 			return -ENOMEM;
 
-		gpio_plat->regs = plat->base + i;
+		gpio_plat->regs = plat->base + i * SUNXI_PINCTRL_BANK_SIZE;
 		gpio_plat->bank_name[0] = 'P';
 		gpio_plat->bank_name[1] = 'A' + desc->first_bank + i;
 		gpio_plat->bank_name[2] = '\0';
