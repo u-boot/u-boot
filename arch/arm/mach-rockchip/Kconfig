@@ -425,12 +425,10 @@ config SPL_MMC
 
 config ROCKCHIP_SPI_IMAGE
 	bool "Build a SPI image for rockchip"
-	depends on HAS_ROM
 	help
 	  Some Rockchip SoCs support booting from SPI flash. Enable this
-	  option to produce a 4MB SPI-flash image (called u-boot.rom)
-	  containing U-Boot. The image is built by binman. U-Boot sits near
-	  the start of the image.
+	  option to produce a SPI-flash image containing U-Boot. The image
+	  is built by binman. U-Boot sits near the start of the image.
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	default SYS_TEXT_BASE

@@ -8,6 +8,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/grf_rk3308.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/gpio.h>
 #include <debug_uart.h>
@@ -141,6 +142,11 @@ enum {
  */
 
 #define GPIO0_A4	4
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/mmc@ff490000",
+	[BROM_BOOTSOURCE_SD] = "/mmc@ff480000",
+};
 
 int rk_board_init(void)
 {

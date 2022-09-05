@@ -17,13 +17,57 @@
 		filename = "u-boot-rockchip.bin";
 		pad-byte = <0xff>;
 
-		blob {
+		mkimage {
 			filename = "idbloader.img";
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+#ifdef CONFIG_TPL
+			multiple-data-files;
+
+			u-boot-tpl {
+			};
+#endif
+			u-boot-spl {
+			};
 		};
 
+#ifdef CONFIG_ARM64
+		blob {
+			filename = "u-boot.itb";
+#else
 		u-boot-img {
+#endif
 			offset = <CONFIG_SPL_PAD_TO>;
 		};
 	};
+
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+	simple-bin-spi {
+		filename = "u-boot-rockchip-spi.bin";
+		pad-byte = <0xff>;
+
+		mkimage {
+			filename = "idbloader-spi.img";
+			args = "-n", CONFIG_SYS_SOC, "-T", "rkspi";
+#ifdef CONFIG_TPL
+			multiple-data-files;
+
+			u-boot-tpl {
+			};
+#endif
+			u-boot-spl {
+			};
+		};
+
+#ifdef CONFIG_ARM64
+		blob {
+			filename = "u-boot.itb";
+#else
+		u-boot-img {
+#endif
+			/* Sync with u-boot,spl-payload-offset if present */
+			offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
+		};
+	};
+#endif
 };
 #endif

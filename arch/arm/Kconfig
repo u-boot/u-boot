@@ -1974,7 +1974,7 @@ config ARCH_STM32MP
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
 	select BLK
-	select BINMAN if SPL_OPTEE || (SPL && !ARM64)
+	select BINMAN if SPL_OPTEE || SPL
 	select DM
 	select DM_GPIO
 	select DM_I2C
