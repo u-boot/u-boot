@@ -585,8 +585,33 @@ bool __maybe_unused __weak board_detection(void)
 	return false;
 }
 
+bool __maybe_unused __weak soc_detection(void)
+{
+	return false;
+}
+
+char * __maybe_unused __weak soc_name_decode(void)
+{
+	return NULL;
+}
+
 int embedded_dtb_select(void)
 {
+	if (soc_detection()) {
+		char *soc_local_name;
+
+		soc_local_name = soc_name_decode();
+		if (soc_local_name) {
+			board_name = soc_local_name;
+			printf("Detected SOC name: %s\n", board_name);
+
+			/* Time to change DTB on fly */
+			/* Both ways should work here */
+			/* fdtdec_resetup(&rescan); */
+			return fdtdec_setup();
+		}
+	}
+
 	if (board_detection()) {
 		char *board_local_name;
 
