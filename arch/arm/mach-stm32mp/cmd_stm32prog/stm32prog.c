@@ -1342,10 +1342,22 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct stm32prog_part_t *part;
 	struct dfu_entity *dfu;
 	int alt_nb;
+	u32 otp_size = 0;
 
 	alt_nb = 1; /* number of virtual = CMD*/
-	if (IS_ENABLED(CONFIG_CMD_STM32PROG_OTP))
-		alt_nb++; /* OTP*/
+
+	if (IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
+		/* OTP_SIZE_SMC = 0 if SMC is not supported */
+		otp_size = OTP_SIZE_SMC;
+		/* check if PTA BSEC is supported */
+		ret = optee_ta_open(data);
+		log_debug("optee_ta_open(PTA_NVMEM) result %d\n", ret);
+		if (!ret && data->tee)
+			otp_size = OTP_SIZE_TA;
+		if (otp_size)
+			alt_nb++; /* OTP*/
+	}
+
 	if (CONFIG_IS_ENABLED(DM_PMIC))
 		alt_nb++; /* PMIC NVMEM*/
 
@@ -1363,6 +1375,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	puts("DFU alt info setting: ");
 	if (data->part_nb) {
 		alt_id = 0;
+		ret = 0;
 		for (phase = 1;
 		     (phase <= PHASE_LAST_USER) &&
 		     (alt_id < alt_nb) && !ret;
@@ -1396,12 +1409,8 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	if (!ret)
 		ret = stm32prog_alt_add_virt(dfu, "virtual", PHASE_CMD, CMD_SIZE);
 
-	if (!ret && IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
-		ret = optee_ta_open(data);
-		log_debug("optee_ta result %d\n", ret);
-		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP,
-					     data->tee ? OTP_SIZE_TA : OTP_SIZE_SMC);
-	}
+	if (!ret && IS_ENABLED(CONFIG_CMD_STM32PROG_OTP) && otp_size)
+		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP, otp_size);
 
 	if (!ret && CONFIG_IS_ENABLED(DM_PMIC))
 		ret = stm32prog_alt_add_virt(dfu, "PMIC", PHASE_PMIC, PMIC_SIZE);
