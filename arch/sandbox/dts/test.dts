@@ -1694,6 +1694,10 @@
 			compatible = "sandbox,regmap_test";
 		};
 	};
+
+	thermal {
+		compatible = "sandbox,thermal";
+	};
 };
 
 #include "sandbox_pmic.dtsi"
