@@ -44,7 +44,9 @@ __board_reset(void)
 {
 	/* Do nothing */
 }
+void board_reset_prepare(void) __attribute__((weak, alias("__board_reset")));
 void board_reset(void) __attribute__((weak, alias("__board_reset")));
+void board_reset_last(void) __attribute__((weak, alias("__board_reset")));
 
 int checkcpu (void)
 {
@@ -319,12 +321,18 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #else
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
+	/* Call board-specific preparation for reset */
+	board_reset_prepare();
+
 	/* Attempt board-specific reset */
 	board_reset();
 
 	/* Next try asserting HRESET_REQ */
 	out_be32(&gur->rstcr, 0x2);
 	udelay(100);
+
+	/* Attempt last-stage board-specific reset */
+	board_reset_last();
 #endif
 
 	return 1;

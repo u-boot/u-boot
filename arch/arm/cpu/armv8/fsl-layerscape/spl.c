@@ -67,11 +67,24 @@ void spl_board_init(void)
 #endif
 }
 
+void tzpc_init(void)
+{
+	/*
+	 * Mark the whole OCRAM as non-secure, otherwise DMA devices cannot
+	 * access it. This is for example necessary for MMC boot.
+	 */
+#ifdef TZPCR0SIZE_BASE
+	out_le32(TZPCR0SIZE_BASE, 0);
+#endif
+}
+
 void board_init_f(ulong dummy)
 {
 	int ret;
 
 	icache_enable();
+	tzpc_init();
+
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
 	if (IS_ENABLED(CONFIG_DEBUG_UART))

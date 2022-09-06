@@ -37,8 +37,6 @@
 /* serial port */
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
-#define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
-
 /* SPL */
 
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
