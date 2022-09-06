@@ -1454,6 +1454,12 @@ config DEFAULT_SPI_MODE
 	depends on CMD_SPI
 	default 0
 
+config CMD_TEMPERATURE
+	bool "temperature - display the temperature from thermal sensors"
+	depends on DM_THERMAL
+	help
+	  Provides a way to list thermal sensors and to get their readings.
+
 config CMD_TSI148
 	bool "tsi148 - Command to access tsi148 device"
 	help
