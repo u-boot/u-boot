@@ -235,13 +235,13 @@
 		};
 
 		qspi: spi@e000d000 {
-			clock-names = "ref_clk", "pclk";
-			clocks = <&clkc 10>, <&clkc 43>;
 			compatible = "xlnx,zynq-qspi-1.0";
-			status = "disabled";
+			reg = <0xe000d000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <0 19 4>;
-			reg = <0xe000d000 0x1000>;
+			clocks = <&clkc 10>, <&clkc 43>;
+			clock-names = "ref_clk", "pclk";
+			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -378,9 +378,9 @@
 
 		devcfg: devcfg@f8007000 {
 			compatible = "xlnx,zynq-devcfg-1.0";
+			reg = <0xf8007000 0x100>;
 			interrupt-parent = <&intc>;
 			interrupts = <0 8 4>;
-			reg = <0xf8007000 0x100>;
 			clocks = <&clkc 12>, <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
 			clock-names = "ref_clk", "fclk0", "fclk1", "fclk2", "fclk3";
 			syscon = <&slcr>;
