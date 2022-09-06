@@ -455,6 +455,48 @@ int generic_phy_power_off_bulk(struct phy_bulk *bulk)
 	return ret;
 }
 
+int generic_setup_phy(struct udevice *dev, struct phy *phy, int index)
+{
+	int ret = 0;
+
+	if (!phy)
+		return 0;
+
+	ret = generic_phy_get_by_index(dev, index, phy);
+	if (ret) {
+		if (ret != -ENOENT)
+			return ret;
+	} else {
+		ret = generic_phy_init(phy);
+		if (ret)
+			return ret;
+
+		ret = generic_phy_power_on(phy);
+		if (ret)
+			ret = generic_phy_exit(phy);
+	}
+
+	return ret;
+}
+
+int generic_shutdown_phy(struct phy *phy)
+{
+	int ret = 0;
+
+	if (!phy)
+		return 0;
+
+	if (generic_phy_valid(phy)) {
+		ret = generic_phy_power_off(phy);
+		if (ret)
+			return ret;
+
+		ret = generic_phy_exit(phy);
+	}
+
+	return ret;
+}
+
 UCLASS_DRIVER(phy) = {
 	.id		= UCLASS_PHY,
 	.name		= "phy",
