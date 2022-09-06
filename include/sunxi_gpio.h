@@ -12,7 +12,17 @@
 #define _SUNXI_GPIO_H
 
 #include <linux/types.h>
-#include <asm/arch/cpu.h>
+
+#if defined(CONFIG_MACH_SUN9I)
+#define SUNXI_PIO_BASE		0x06000800
+#define SUNXI_R_PIO_BASE	0x08002c00
+#elif defined(CONFIG_SUN50I_GEN_H6)
+#define SUNXI_PIO_BASE		0x0300b000
+#define SUNXI_R_PIO_BASE	0x07022000
+#else
+#define SUNXI_PIO_BASE		0x01c20800
+#define SUNXI_R_PIO_BASE	0x01f02c00
+#endif
 
 /*
  * sunxi has 9 banks of gpio, they are:
