@@ -23,6 +23,13 @@
 	};
 };
 
+/* Let U-Boot be the firmware layer that controls the watchdog. */
+#ifdef CONFIG_MACH_SUN8I_R528
+&wdt {
+	status = "okay";
+};
+#endif
+
 &binman {
 	u-boot-sunxi-with-spl {
 		filename = "u-boot-sunxi-with-spl.bin";

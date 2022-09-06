@@ -126,6 +126,7 @@ config PINCTRL_SUN50I_H616_R
 
 config PINCTRL_SUN20I_D1
 	bool "Support for the Allwinner D1/R528 PIO"
+	default MACH_SUN8I_R528
 	select PINCTRL_SUNXI
 
 endif

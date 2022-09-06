@@ -89,6 +89,7 @@ config CLK_SUN8I_H3
 
 config CLK_SUN20I_D1
 	bool "Clock driver for Allwinner D1"
+	default MACH_SUN8I_R528
 	help
 	  This enables common clock driver support for platforms based
 	  on Allwinner D1 SoC.

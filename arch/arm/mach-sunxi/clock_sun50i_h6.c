@@ -41,7 +41,9 @@ void clock_init_safe(void)
 			CCM_CPU_AXI_DEFAULT_FACTORS);
 
 	writel(CCM_PSI_AHB1_AHB2_DEFAULT, &ccm->psi_ahb1_ahb2_cfg);
+#ifdef CCM_AHB3_DEFAULT
 	writel(CCM_AHB3_DEFAULT, &ccm->ahb3_cfg);
+#endif
 	writel(CCM_APB1_DEFAULT, &ccm->apb1_cfg);
 
 	/*

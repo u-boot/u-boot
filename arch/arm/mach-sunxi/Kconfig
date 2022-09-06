@@ -346,6 +346,15 @@ config MACH_SUN8I_R40
 	select SUNXI_DRAM_DW_32BIT
 	imply SPL_SYS_I2C_LEGACY
 
+config MACH_SUN8I_R528
+	bool "sun8i (Allwinner R528)"
+	select CPU_V7A
+	select SUNXI_GEN_NCAT2
+	select SUNXI_NEW_PINCTRL
+	select MMC_SUNXI_HAS_NEW_MODE
+	select SUPPORT_SPL
+	select DRAM_SUN20I_D1
+
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3/V3s/S3/S3L)"
 	select CPU_V7A
@@ -656,6 +665,7 @@ config SYS_CLK_FREQ
 	default 1008000000 if MACH_SUN9I
 	default 888000000 if MACH_SUN50I_H6
 	default 1008000000 if MACH_SUN50I_H616
+	default 1008000000 if MACH_SUN8I_R528
 
 config SYS_CONFIG_NAME
 	default "suniv" if MACH_SUNIV
@@ -664,6 +674,7 @@ config SYS_CONFIG_NAME
 	default "sun6i" if MACH_SUN6I
 	default "sun7i" if MACH_SUN7I
 	default "sun8i" if MACH_SUN8I
+	default "sun8i" if MACH_SUN8I_R528
 	default "sun9i" if MACH_SUN9I
 	default "sun50i" if MACH_SUN50I
 	default "sun50i" if MACH_SUN50I_H6
