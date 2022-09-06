@@ -18,6 +18,104 @@
 #include <asm/gpio.h>
 #include <dt-bindings/gpio/gpio.h>
 
+/*
+ * =======================================================================
+ * Low level GPIO/pin controller access functions, to be shared by non-DM
+ * SPL code and the DM pinctrl/GPIO drivers.
+ * The functions ending in "bank" take a base pointer to a GPIO bank, and
+ * the pin offset is relative to that bank.
+ * The functions without "bank" in their name take a linear GPIO number,
+ * covering all ports, and starting at 0 for PortA.
+ * =======================================================================
+ */
+
+#define BANK_TO_GPIO(bank)	(((bank) < SUNXI_GPIO_L) ? \
+	&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank] : \
+	&((struct sunxi_gpio_reg *)SUNXI_R_PIO_BASE)->gpio_bank[(bank) - SUNXI_GPIO_L])
+
+#define GPIO_BANK(pin)		((pin) >> 5)
+#define GPIO_NUM(pin)		((pin) & 0x1f)
+
+#define GPIO_CFG_INDEX(pin)	(((pin) & 0x1f) >> 3)
+#define GPIO_CFG_OFFSET(pin)	((((pin) & 0x1f) & 0x7) << 2)
+
+#define GPIO_DRV_INDEX(pin)	(((pin) & 0x1f) >> 4)
+#define GPIO_DRV_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
+
+#define GPIO_PULL_INDEX(pin)	(((pin) & 0x1f) >> 4)
+#define GPIO_PULL_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
+
+void sunxi_gpio_set_cfgbank(struct sunxi_gpio *pio, int bank_offset, u32 val)
+{
+	u32 index = GPIO_CFG_INDEX(bank_offset);
+	u32 offset = GPIO_CFG_OFFSET(bank_offset);
+
+	clrsetbits_le32(&pio->cfg[index], 0xf << offset, val << offset);
+}
+
+void sunxi_gpio_set_cfgpin(u32 pin, u32 val)
+{
+	u32 bank = GPIO_BANK(pin);
+	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
+
+	sunxi_gpio_set_cfgbank(pio, pin, val);
+}
+
+int sunxi_gpio_get_cfgbank(struct sunxi_gpio *pio, int bank_offset)
+{
+	u32 index = GPIO_CFG_INDEX(bank_offset);
+	u32 offset = GPIO_CFG_OFFSET(bank_offset);
+	u32 cfg;
+
+	cfg = readl(&pio->cfg[index]);
+	cfg >>= offset;
+
+	return cfg & 0xf;
+}
+
+int sunxi_gpio_get_cfgpin(u32 pin)
+{
+	u32 bank = GPIO_BANK(pin);
+	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
+
+	return sunxi_gpio_get_cfgbank(pio, pin);
+}
+
+void sunxi_gpio_set_drv(u32 pin, u32 val)
+{
+	u32 bank = GPIO_BANK(pin);
+	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
+
+	sunxi_gpio_set_drv_bank(pio, pin, val);
+}
+
+void sunxi_gpio_set_drv_bank(struct sunxi_gpio *pio, u32 bank_offset, u32 val)
+{
+	u32 index = GPIO_DRV_INDEX(bank_offset);
+	u32 offset = GPIO_DRV_OFFSET(bank_offset);
+
+	clrsetbits_le32(&pio->drv[index], 0x3 << offset, val << offset);
+}
+
+void sunxi_gpio_set_pull(u32 pin, u32 val)
+{
+	u32 bank = GPIO_BANK(pin);
+	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
+
+	sunxi_gpio_set_pull_bank(pio, pin, val);
+}
+
+void sunxi_gpio_set_pull_bank(struct sunxi_gpio *pio, int bank_offset, u32 val)
+{
+	u32 index = GPIO_PULL_INDEX(bank_offset);
+	u32 offset = GPIO_PULL_OFFSET(bank_offset);
+
+	clrsetbits_le32(&pio->pull[index], 0x3 << offset, val << offset);
+}
+
+
+/* =========== Non-DM code, used by the SPL. ============ */
+
 #if !CONFIG_IS_ENABLED(DM_GPIO)
 static int sunxi_gpio_output(u32 pin, u32 val)
 {
@@ -106,7 +204,9 @@ int sunxi_name_to_gpio(const char *name)
 		return -1;
 	return group * 32 + pin;
 }
-#endif /* DM_GPIO */
+#endif /* !DM_GPIO */
+
+/* =========== DM code, used by U-Boot proper. ============ */
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 /* TODO(sjg@chromium.org): Remove this function and use device tree */

@@ -3,6 +3,9 @@
  * (C) Copyright 2007-2012
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
+ *
+ * Definitions that are shared between the Allwinner pinctrl and GPIO drivers,
+ * also used by some non-DM SPL code directly.
  */
 
 #ifndef _SUNXI_GPIO_H
@@ -75,22 +78,6 @@ struct sunxi_gpio_reg {
 
 #define SUN50I_H6_GPIO_POW_MOD_SEL	0x340
 #define SUN50I_H6_GPIO_POW_MOD_VAL	0x348
-
-#define BANK_TO_GPIO(bank)	(((bank) < SUNXI_GPIO_L) ? \
-	&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank] : \
-	&((struct sunxi_gpio_reg *)SUNXI_R_PIO_BASE)->gpio_bank[(bank) - SUNXI_GPIO_L])
-
-#define GPIO_BANK(pin)		((pin) >> 5)
-#define GPIO_NUM(pin)		((pin) & 0x1f)
-
-#define GPIO_CFG_INDEX(pin)	(((pin) & 0x1f) >> 3)
-#define GPIO_CFG_OFFSET(pin)	((((pin) & 0x1f) & 0x7) << 2)
-
-#define GPIO_DRV_INDEX(pin)	(((pin) & 0x1f) >> 4)
-#define GPIO_DRV_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
-
-#define GPIO_PULL_INDEX(pin)	(((pin) & 0x1f) >> 4)
-#define GPIO_PULL_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
 
 /* GPIO bank sizes */
 #define SUNXI_GPIOS_PER_BANK	32
@@ -217,6 +204,7 @@ struct sunxi_gpio_plat {
 	char			bank_name[3];
 };
 
+/* prototypes for the non-DM GPIO/pinctrl functions, used in the SPL */
 void sunxi_gpio_set_cfgbank(struct sunxi_gpio *pio, int bank_offset, u32 val);
 void sunxi_gpio_set_cfgpin(u32 pin, u32 val);
 int sunxi_gpio_get_cfgbank(struct sunxi_gpio *pio, int bank_offset);

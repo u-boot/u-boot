@@ -10,7 +10,6 @@ obj-y	+= board.o
 obj-y	+= clock.o
 obj-y	+= cpu_info.o
 obj-y	+= dram_helpers.o
-obj-y	+= pinmux.o
 obj-$(CONFIG_SUN6I_PRCM)	+= prcm.o
 obj-$(CONFIG_AXP_PMIC_BUS)	+= pmic_bus.o
 obj-$(CONFIG_MACH_SUNIV)	+= clock_sun6i.o
