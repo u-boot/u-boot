@@ -103,53 +103,53 @@ static const struct __prci_clock_ops sifive_fu740_prci_pcieaux_clk_ops = {
 
 /* List of clock controls provided by the PRCI */
 struct __prci_clock __prci_init_clocks_fu740[] = {
-	[PRCI_CLK_COREPLL] = {
+	[FU740_PRCI_CLK_COREPLL] = {
 		.name = "corepll",
 		.parent_name = "hfclk",
 		.ops = &sifive_fu740_prci_wrpll_clk_ops,
 		.pwd = &__prci_corepll_data,
 	},
-	[PRCI_CLK_DDRPLL] = {
+	[FU740_PRCI_CLK_DDRPLL] = {
 		.name = "ddrpll",
 		.parent_name = "hfclk",
 		.ops = &sifive_fu740_prci_wrpll_clk_ops,
 		.pwd = &__prci_ddrpll_data,
 	},
-	[PRCI_CLK_GEMGXLPLL] = {
+	[FU740_PRCI_CLK_GEMGXLPLL] = {
 		.name = "gemgxlpll",
 		.parent_name = "hfclk",
 		.ops = &sifive_fu740_prci_wrpll_clk_ops,
 		.pwd = &__prci_gemgxlpll_data,
 	},
-	[PRCI_CLK_DVFSCOREPLL] = {
+	[FU740_PRCI_CLK_DVFSCOREPLL] = {
 		.name = "dvfscorepll",
 		.parent_name = "hfclk",
 		.ops = &sifive_fu740_prci_wrpll_clk_ops,
 		.pwd = &__prci_dvfscorepll_data,
 	},
-	[PRCI_CLK_HFPCLKPLL] = {
+	[FU740_PRCI_CLK_HFPCLKPLL] = {
 		.name = "hfpclkpll",
 		.parent_name = "hfclk",
 		.ops = &sifive_fu740_prci_wrpll_clk_ops,
 		.pwd = &__prci_hfpclkpll_data,
 	},
-	[PRCI_CLK_CLTXPLL] = {
+	[FU740_PRCI_CLK_CLTXPLL] = {
 		.name = "cltxpll",
 		.parent_name = "hfclk",
 		.ops = &sifive_fu740_prci_wrpll_clk_ops,
 		.pwd = &__prci_cltxpll_data,
 	},
-	[PRCI_CLK_TLCLK] = {
+	[FU740_PRCI_CLK_TLCLK] = {
 		.name = "tlclk",
 		.parent_name = "corepll",
 		.ops = &sifive_fu740_prci_tlclksel_clk_ops,
 	},
-	[PRCI_CLK_PCLK] = {
+	[FU740_PRCI_CLK_PCLK] = {
 		.name = "pclk",
 		.parent_name = "hfpclkpll",
 		.ops = &sifive_fu740_prci_hfpclkplldiv_clk_ops,
 	},
-	[PRCI_CLK_PCIEAUX] {
+	[FU740_PRCI_CLK_PCIE_AUX] {
 		.name = "pcieaux",
 		.parent_name = "",
 		.ops = &sifive_fu740_prci_pcieaux_clk_ops,

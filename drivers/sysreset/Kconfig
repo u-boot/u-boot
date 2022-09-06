@@ -113,6 +113,7 @@ config SYSRESET_PSCI
 config SYSRESET_SBI
 	bool "Enable support for SBI System Reset"
 	depends on RISCV_SMODE && SBI_V02
+	default y
 	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
 	help
 	  Enable system reset and poweroff via the SBI system reset extension.
