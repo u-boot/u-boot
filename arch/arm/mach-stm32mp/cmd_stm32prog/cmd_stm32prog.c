@@ -61,7 +61,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	dev = (int)dectoul(argv[2], NULL);
 
-	addr = STM32_DDR_BASE;
+	addr = CONFIG_SYS_LOAD_ADDR;
 	size = 0;
 	if (argc > 3) {
 		addr = hextoul(argv[3], NULL);

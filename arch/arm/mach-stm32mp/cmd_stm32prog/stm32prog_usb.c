@@ -90,7 +90,7 @@ static int stm32prog_cmd_read(u64 offset, void *buf, long *len)
 	}
 	phase = stm32prog_data->phase;
 	if (phase == PHASE_FLASHLAYOUT)
-		destination = STM32_DDR_BASE;
+		destination = CONFIG_SYS_LOAD_ADDR;
 	dfu_offset = stm32prog_data->offset;
 
 	/* mandatory header, size = PHASE_MIN_SIZE */

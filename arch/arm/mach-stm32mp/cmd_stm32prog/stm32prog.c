@@ -1388,7 +1388,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 		char buf[ALT_BUF_LEN];
 
 		sprintf(buf, "@FlashLayout/0x%02x/1*256Ke ram %x 40000",
-			PHASE_FLASHLAYOUT, STM32_DDR_BASE);
+			PHASE_FLASHLAYOUT, CONFIG_SYS_LOAD_ADDR);
 		ret = dfu_alt_add(dfu, "ram", NULL, buf);
 		log_debug("dfu_alt_add(ram, NULL,%s) result %d\n", buf, ret);
 	}
@@ -1699,15 +1699,15 @@ static void stm32prog_end_phase(struct stm32prog_data *data, u64 offset)
 {
 	if (data->phase == PHASE_FLASHLAYOUT) {
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
-		if (genimg_get_format((void *)STM32_DDR_BASE) == IMAGE_FORMAT_LEGACY) {
-			data->script = STM32_DDR_BASE;
+		if (genimg_get_format((void *)CONFIG_SYS_LOAD_ADDR) == IMAGE_FORMAT_LEGACY) {
+			data->script = CONFIG_SYS_LOAD_ADDR;
 			data->phase = PHASE_END;
 			log_notice("U-Boot script received\n");
 			return;
 		}
 #endif
 		log_notice("\nFlashLayout received, size = %lld\n", offset);
-		if (parse_flash_layout(data, STM32_DDR_BASE, offset))
+		if (parse_flash_layout(data, CONFIG_SYS_LOAD_ADDR, offset))
 			stm32prog_err("Layout: invalid FlashLayout");
 		return;
 	}

@@ -462,7 +462,7 @@ static void get_phase_command(struct stm32prog_data *data)
 		length = strlen(err_msg);
 	}
 	if (phase == PHASE_FLASHLAYOUT)
-		destination = STM32_DDR_BASE;
+		destination = CONFIG_SYS_LOAD_ADDR;
 
 	stm32prog_serial_putc(length + 5);           /* Total length */
 	stm32prog_serial_putc(phase & 0xFF);         /* partition ID */
