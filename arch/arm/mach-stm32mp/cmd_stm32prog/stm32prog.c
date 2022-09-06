@@ -1884,6 +1884,10 @@ static void stm32prog_devices_init(struct stm32prog_data *data)
 	if (ret)
 		goto error;
 
+	/* empty flashlayout */
+	if (!data->dev_nb)
+		return;
+
 	/* initialize the selected device */
 	for (i = 0; i < data->dev_nb; i++) {
 		ret = init_device(data, &data->dev[i]);
