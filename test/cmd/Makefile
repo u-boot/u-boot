@@ -16,3 +16,4 @@ obj-$(CONFIG_CMD_MEM_SEARCH) += mem_search.o
 obj-$(CONFIG_CMD_PINMUX) += pinmux.o
 obj-$(CONFIG_CMD_PWM) += pwm.o
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
+obj-$(CONFIG_CMD_TEMPERATURE) += temperature.o
