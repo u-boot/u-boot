@@ -295,9 +295,5 @@ int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 int ehci_deregister(struct udevice *dev);
 extern struct dm_usb_ops ehci_usb_ops;
 
-/* EHCI PHY functions */
-int ehci_setup_phy(struct udevice *dev, struct phy *phy, int index);
-int ehci_shutdown_phy(struct udevice *dev, struct phy *phy);
-
 #include <linux/bitops.h>
 #endif /* USB_EHCI_H */
