@@ -126,21 +126,21 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		char *bootm_argv[5] = {
 			"bootm", boot_addr_start, "-", dtb_addr, NULL
 		};
-		u32 uimage = data->uimage;
-		u32 dtb = data->dtb;
-		u32 initrd = data->initrd;
+		const void *uimage = (void *)data->uimage;
+		const void *dtb = (void *)data->dtb;
+		const void *initrd = (void *)data->initrd;
 
 		if (!dtb)
 			bootm_argv[3] = env_get("fdtcontroladdr");
 		else
 			snprintf(dtb_addr, sizeof(dtb_addr) - 1,
-				 "0x%x", dtb);
+				 "0x%p", dtb);
 
 		snprintf(boot_addr_start, sizeof(boot_addr_start) - 1,
-			 "0x%x", uimage);
+			 "0x%p", uimage);
 
 		if (initrd) {
-			snprintf(initrd_addr, sizeof(initrd_addr) - 1, "0x%x:0x%x",
+			snprintf(initrd_addr, sizeof(initrd_addr) - 1, "0x%p:0x%zx",
 				 initrd, data->initrd_size);
 			bootm_argv[2] = initrd_addr;
 		}
@@ -148,7 +148,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Booting kernel at %s %s %s...\n\n\n",
 		       boot_addr_start, bootm_argv[2], bootm_argv[3]);
 		/* Try bootm for legacy and FIT format image */
-		if (genimg_get_format((void *)uimage) != IMAGE_FORMAT_INVALID)
+		if (genimg_get_format(uimage) != IMAGE_FORMAT_INVALID)
 			do_bootm(cmdtp, 0, 4, bootm_argv);
 		else if (CONFIG_IS_ENABLED(CMD_BOOTZ))
 			do_bootz(cmdtp, 0, 4, bootm_argv);

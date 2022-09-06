@@ -154,7 +154,7 @@ struct stm32prog_data {
 	u32			offset;
 	char			error[255];
 	struct stm32prog_part_t	*cur_part;
-	u32			*otp_part;
+	void			*otp_part;
 	u8			pmic_part[PMIC_SIZE];
 
 	/* SERIAL information */
@@ -165,12 +165,12 @@ struct stm32prog_data {
 	u8	read_phase;
 
 	/* bootm information */
-	u32	uimage;
-	u32	dtb;
-	u32	initrd;
-	u32	initrd_size;
+	uintptr_t	uimage;
+	uintptr_t	dtb;
+	uintptr_t	initrd;
+	size_t		initrd_size;
 
-	u32	script;
+	uintptr_t	script;
 
 	/* OPTEE PTA NVMEM */
 	struct udevice *tee;
@@ -209,7 +209,7 @@ char *stm32prog_get_error(struct stm32prog_data *data);
 	}
 
 /* Main function */
-int stm32prog_init(struct stm32prog_data *data, ulong addr, ulong size);
+int stm32prog_init(struct stm32prog_data *data, uintptr_t addr, ulong size);
 void stm32prog_clean(struct stm32prog_data *data);
 
 #ifdef CONFIG_CMD_STM32PROG_SERIAL

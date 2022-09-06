@@ -322,7 +322,7 @@ void stm32prog_header_check(uintptr_t raw_header, struct image_header_s *header)
 	header->image_length = 0x0;
 }
 
-static u32 stm32prog_header_checksum(u32 addr, struct image_header_s *header)
+static u32 stm32prog_header_checksum(uintptr_t addr, struct image_header_s *header)
 {
 	u32 i, checksum;
 	u8 *payload;
@@ -398,7 +398,7 @@ static int parse_name(struct stm32prog_data *data,
 	if (strlen(p) < sizeof(part->name)) {
 		strcpy(part->name, p);
 	} else {
-		stm32prog_err("Layout line %d: partition name too long [%d]: %s",
+		stm32prog_err("Layout line %d: partition name too long [%zd]: %s",
 			      i, strlen(p), p);
 		result = -EINVAL;
 	}
@@ -537,7 +537,7 @@ int (* const parse[COL_NB_STM32])(struct stm32prog_data *data, int i, char *p,
 };
 
 static int parse_flash_layout(struct stm32prog_data *data,
-			      ulong addr,
+			      uintptr_t addr,
 			      ulong size)
 {
 	int column = 0, part_nb = 0, ret;
@@ -1440,7 +1440,7 @@ int stm32prog_otp_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
 	if (offset + *size > otp_size)
 		*size = otp_size - offset;
 
-	memcpy((void *)((u32)data->otp_part + offset), buffer, *size);
+	memcpy((void *)((uintptr_t)data->otp_part + offset), buffer, *size);
 
 	return 0;
 }
@@ -1479,7 +1479,7 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 						 data->otp_part, OTP_SIZE_TA);
 		else if (IS_ENABLED(CONFIG_ARM_SMCCC))
 			result = stm32_smc_exec(STM32_SMC_BSEC, STM32_SMC_READ_ALL,
-						(u32)data->otp_part, 0);
+						(unsigned long)data->otp_part, 0);
 		if (result)
 			goto end_otp_read;
 	}
@@ -1491,7 +1491,7 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 
 	if (offset + *size > otp_size)
 		*size = otp_size - offset;
-	memcpy(buffer, (void *)((u32)data->otp_part + offset), *size);
+	memcpy(buffer, (void *)((uintptr_t)data->otp_part + offset), *size);
 
 end_otp_read:
 	log_debug("%s: result %i\n", __func__, result);
@@ -1521,7 +1521,7 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 					 data->otp_part, OTP_SIZE_TA);
 	} else if (IS_ENABLED(CONFIG_ARM_SMCCC)) {
 		arm_smccc_smc(STM32_SMC_BSEC, STM32_SMC_WRITE_ALL,
-			      (u32)data->otp_part, 0, 0, 0, 0, 0, &res);
+			      (uintptr_t)data->otp_part, 0, 0, 0, 0, 0, &res);
 
 		if (!res.a0) {
 			switch (res.a1) {
@@ -1951,7 +1951,7 @@ int stm32prog_dfu_init(struct stm32prog_data *data)
 	return dfu_init_entities(data);
 }
 
-int stm32prog_init(struct stm32prog_data *data, ulong addr, ulong size)
+int stm32prog_init(struct stm32prog_data *data, uintptr_t addr, ulong size)
 {
 	memset(data, 0x0, sizeof(*data));
 	data->read_phase = PHASE_RESET;
