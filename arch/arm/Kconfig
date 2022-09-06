@@ -1135,7 +1135,6 @@ config ARCH_SUNXI
 	select DM_MMC if MMC
 	select DM_SCSI if SCSI
 	select DM_SERIAL
-	select GPIO_EXTRA_HEADER
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select OF_SEPARATE

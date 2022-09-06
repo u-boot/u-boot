@@ -27,6 +27,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/mmc.h>
 #include <linux/delay.h>
+#include <sunxi_gpio.h>
 
 #ifndef CCM_MMC_CTRL_MODE_SEL_NEW
 #define CCM_MMC_CTRL_MODE_SEL_NEW	0

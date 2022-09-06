@@ -38,6 +38,7 @@
 #include <asm/armv7.h>
 #endif
 #include <asm/gpio.h>
+#include <sunxi_gpio.h>
 #include <asm/io.h>
 #include <u-boot/crc.h>
 #include <env_internal.h>

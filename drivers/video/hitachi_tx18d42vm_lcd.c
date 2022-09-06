@@ -10,6 +10,7 @@
 #include <linux/delay.h>
 
 #include <asm/gpio.h>
+#include <sunxi_gpio.h>
 #include <errno.h>
 
 /*

@@ -7,6 +7,7 @@
 #include <dm/pinctrl.h>
 #include <errno.h>
 #include <malloc.h>
+#include <sunxi_gpio.h>
 
 #include <asm/gpio.h>
 

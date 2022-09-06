@@ -17,6 +17,7 @@
 #include <i2c.h>
 #include <serial.h>
 #include <spl.h>
+#include <sunxi_gpio.h>
 #include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

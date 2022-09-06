@@ -31,6 +31,7 @@
 #include <malloc.h>
 #include <video.h>
 #include <dm/uclass-internal.h>
+#include <sunxi_gpio.h>
 #include "../videomodes.h"
 #include "../anx9804.h"
 #include "../hitachi_tx18d42vm_lcd.h"
