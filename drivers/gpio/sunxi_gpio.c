@@ -81,6 +81,19 @@ int sunxi_gpio_get_cfgpin(u32 pin)
 	return sunxi_gpio_get_cfgbank(pio, pin);
 }
 
+static void sunxi_gpio_set_value_bank(struct sunxi_gpio *pio,
+				       int pin, bool set)
+{
+	u32 mask = 1U << pin;
+
+	clrsetbits_le32(&pio->dat, set ? 0 : mask, set ? mask : 0);
+}
+
+static int sunxi_gpio_get_value_bank(struct sunxi_gpio *pio, int pin)
+{
+	return !!(readl(&pio->dat) & (1U << pin));
+}
+
 void sunxi_gpio_set_drv(u32 pin, u32 val)
 {
 	u32 bank = GPIO_BANK(pin);
@@ -117,35 +130,20 @@ void sunxi_gpio_set_pull_bank(struct sunxi_gpio *pio, int bank_offset, u32 val)
 /* =========== Non-DM code, used by the SPL. ============ */
 
 #if !CONFIG_IS_ENABLED(DM_GPIO)
-static int sunxi_gpio_output(u32 pin, u32 val)
+static void sunxi_gpio_set_value(u32 pin, bool set)
 {
-	u32 dat;
 	u32 bank = GPIO_BANK(pin);
-	u32 num = GPIO_NUM(pin);
 	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
 
-	dat = readl(&pio->dat);
-	if (val)
-		dat |= 0x1 << num;
-	else
-		dat &= ~(0x1 << num);
-
-	writel(dat, &pio->dat);
-
-	return 0;
+	sunxi_gpio_set_value_bank(pio, GPIO_NUM(pin), set);
 }
 
-static int sunxi_gpio_input(u32 pin)
+static int sunxi_gpio_get_value(u32 pin)
 {
-	u32 dat;
 	u32 bank = GPIO_BANK(pin);
-	u32 num = GPIO_NUM(pin);
 	struct sunxi_gpio *pio = BANK_TO_GPIO(bank);
 
-	dat = readl(&pio->dat);
-	dat >>= num;
-
-	return dat & 0x1;
+	return sunxi_gpio_get_value_bank(pio, GPIO_NUM(pin));
 }
 
 int gpio_request(unsigned gpio, const char *label)
@@ -168,18 +166,21 @@ int gpio_direction_input(unsigned gpio)
 int gpio_direction_output(unsigned gpio, int value)
 {
 	sunxi_gpio_set_cfgpin(gpio, SUNXI_GPIO_OUTPUT);
+	sunxi_gpio_set_value(gpio, value);
 
-	return sunxi_gpio_output(gpio, value);
+	return 0;
 }
 
 int gpio_get_value(unsigned gpio)
 {
-	return sunxi_gpio_input(gpio);
+	return sunxi_gpio_get_value(gpio);
 }
 
 int gpio_set_value(unsigned gpio, int value)
 {
-	return sunxi_gpio_output(gpio, value);
+	sunxi_gpio_set_value(gpio, value);
+
+	return 0;
 }
 
 int sunxi_name_to_gpio(const char *name)
@@ -231,13 +232,8 @@ int sunxi_name_to_gpio(const char *name)
 static int sunxi_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct sunxi_gpio_plat *plat = dev_get_plat(dev);
-	u32 num = GPIO_NUM(offset);
-	unsigned dat;
 
-	dat = readl(&plat->regs->dat);
-	dat >>= num;
-
-	return dat & 0x1;
+	return sunxi_gpio_get_value_bank(plat->regs, offset);
 }
 
 static int sunxi_gpio_get_function(struct udevice *dev, unsigned offset)
@@ -275,9 +271,8 @@ static int sunxi_gpio_set_flags(struct udevice *dev, unsigned int offset,
 
 	if (flags & GPIOD_IS_OUT) {
 		u32 value = !!(flags & GPIOD_IS_OUT_ACTIVE);
-		u32 num = GPIO_NUM(offset);
 
-		clrsetbits_le32(&plat->regs->dat, 1 << num, value << num);
+		sunxi_gpio_set_value_bank(plat->regs, offset, value);
 		sunxi_gpio_set_cfgbank(plat->regs, offset, SUNXI_GPIO_OUTPUT);
 	} else if (flags & GPIOD_IS_IN) {
 		u32 pull = 0;
