@@ -62,7 +62,6 @@
 #define SUN50I_H6_GPIO_POW_MOD_VAL	0x348
 
 #define SUNXI_GPIOS_PER_BANK	32
-#define SUNXI_PINCTRL_BANK_SIZE 0x24
 
 #define SUNXI_GPIO_NEXT(__gpio) \
 	((__gpio##_START) + SUNXI_GPIOS_PER_BANK)
@@ -102,7 +101,6 @@ enum sunxi_gpio_number {
 /* GPIO pin function config */
 #define SUNXI_GPIO_INPUT	0
 #define SUNXI_GPIO_OUTPUT	1
-#define SUNXI_GPIO_DISABLE	7
 
 #define SUN8I_H3_GPA_UART0	2
 #define SUN8I_H3_GPA_UART2	2
@@ -170,6 +168,14 @@ enum sunxi_gpio_number {
 #define SUN50I_H616_GPL_R_TWI	3
 
 #define SUN9I_GPN_R_RSB		3
+
+#ifdef CONFIG_SUNXI_NEW_PINCTRL
+	#define SUNXI_PINCTRL_BANK_SIZE	0x30
+	#define SUNXI_GPIO_DISABLE	0xf
+#else
+	#define SUNXI_PINCTRL_BANK_SIZE	0x24
+	#define SUNXI_GPIO_DISABLE	0x7
+#endif
 
 /* GPIO pin pull-up/down config */
 #define SUNXI_GPIO_PULL_DISABLE	0

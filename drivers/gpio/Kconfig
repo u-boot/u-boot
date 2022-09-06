@@ -372,6 +372,13 @@ config SUNXI_GPIO
 	help
 	  Support the GPIO device in Allwinner SoCs.
 
+config SUNXI_NEW_PINCTRL
+	bool
+	depends on SUNXI_GPIO
+	---help---
+	The Allwinner D1 and other new SoCs use a different register map
+	for the GPIO block, which we need to know about in the SPL.
+
 config XILINX_GPIO
 	bool "Xilinx GPIO driver"
 	depends on DM_GPIO
