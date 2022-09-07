@@ -69,7 +69,7 @@ class Bintoolfutility(bintool.Bintool):
         https://chromium.googlesource.com/chromiumos/platform/vboot/+/refs/heads/main/_vboot_reference/README
     """
     def __init__(self, name):
-        super().__init__(name, 'Chromium OS firmware utility')
+        super().__init__(name, 'Chromium OS firmware utility', r'^(.*)$', 'version')
 
     def gbb_create(self, fname, sizes):
         """Create a new Google Binary Block
@@ -165,14 +165,3 @@ class Bintoolfutility(bintool.Bintool):
         fname, tmpdir = self.fetch_from_drive(
             '1hdsInzsE4aJbmBeJ663kYgjOQyW1I-E0')
         return fname, tmpdir
-
-    def version(self):
-        """Version handler for futility
-
-        Returns:
-            str: Version string for futility
-        """
-        out = self.run_cmd('version').strip()
-        if not out:
-            return super().version()
-        return out
