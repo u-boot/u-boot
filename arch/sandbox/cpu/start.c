@@ -205,21 +205,19 @@ SANDBOX_CMDLINE_OPT_SHORT(default_fdt, 'D', 0,
 static int sandbox_cmdline_cb_test_fdt(struct sandbox_state *state,
 				       const char *arg)
 {
-	const char *fmt = "/arch/sandbox/dts/test.dtb";
-	char *p;
+	char buf[256];
 	char *fname;
 	int len;
 
-	len = strlen(state->argv[0]) + strlen(fmt) + 1;
+	len = state_get_rel_filename("arch/sandbox/dts/test.dtb", buf,
+				     sizeof(buf));
+	if (len < 0)
+		return len;
+
 	fname = os_malloc(len);
 	if (!fname)
 		return -ENOMEM;
-	strcpy(fname, state->argv[0]);
-	p = strrchr(fname, '/');
-	if (!p)
-		p = fname + strlen(fname);
-	len -= p - fname;
-	snprintf(p, len, fmt);
+	strcpy(fname, buf);
 	state->fdt_fname = fname;
 
 	return 0;

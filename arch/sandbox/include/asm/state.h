@@ -266,6 +266,20 @@ void state_reset_for_test(struct sandbox_state *state);
 void state_show(struct sandbox_state *state);
 
 /**
+ * state_get_rel_filename() - Get a filename relative to the executable
+ *
+ * This uses argv[0] to obtain a filename path
+ *
+ * @rel_path: Relative path to build, e.g. "arch/sandbox/dts/test.dtb". Must not
+ * have a trailing /
+ * @buf: Buffer to use to return the filename
+ * @size: Size of buffer
+ * @return length of filename (including terminator), -ENOSPC if @size is too
+ * small
+ */
+int state_get_rel_filename(const char *rel_path, char *buf, int size);
+
+/**
  * Initialize the test system state
  */
 int state_init(void);

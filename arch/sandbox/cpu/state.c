@@ -396,6 +396,28 @@ bool autoboot_set_keyed(bool autoboot_keyed)
 	return old_val;
 }
 
+int state_get_rel_filename(const char *rel_path, char *buf, int size)
+{
+	struct sandbox_state *state = state_get_current();
+	int rel_len, prog_len;
+	char *p;
+	int len;
+
+	rel_len = strlen(rel_path);
+	p = strrchr(state->argv[0], '/');
+	prog_len = p ? p - state->argv[0] : 0;
+
+	/* allow space for a / and a terminator */
+	len = prog_len + 1 + rel_len + 1;
+	if (len > size)
+		return -ENOSPC;
+	strncpy(buf, state->argv[0], prog_len);
+	buf[prog_len] = '/';
+	strcpy(buf + prog_len + 1, rel_path);
+
+	return len;
+}
+
 int state_init(void)
 {
 	state = &main_state;
