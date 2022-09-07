@@ -27,13 +27,14 @@ struct ofnode_phandle_args {
 	uint32_t args[OF_MAX_PHANDLE_ARGS];
 };
 
+#if CONFIG_IS_ENABLED(OFNODE_MULTI_TREE)
 /**
  * oftree_reset() - reset the state of the oftree list
  *
  * Reset the oftree list so it can be started again. This should be called
  * once the control FDT is in place, but before the ofnode interface is used.
  */
-static inline void oftree_reset(void) {}
+void oftree_reset(void);
 
 /**
  * ofnode_to_fdt() - convert an ofnode to a flat DT pointer
@@ -43,16 +44,7 @@ static inline void oftree_reset(void) {}
  * @node: Reference containing offset (possibly invalid)
  * Return: DT offset (can be NULL)
  */
-static inline void *ofnode_to_fdt(ofnode node)
-{
-#ifdef OF_CHECKS
-	if (of_live_active())
-		return NULL;
-#endif
-
-	/* Use the control FDT by default */
-	return (void *)gd->fdt_blob;
-}
+__attribute_const__ void *ofnode_to_fdt(ofnode node);
 
 /**
  * ofnode_to_offset() - convert an ofnode to a flat DT offset
@@ -62,7 +54,40 @@ static inline void *ofnode_to_fdt(ofnode node)
  * @node: Reference containing offset (possibly invalid)
  * Return: DT offset (can be -1)
  */
-static inline int ofnode_to_offset(ofnode node)
+__attribute_const__ int ofnode_to_offset(ofnode node);
+
+/**
+ * oftree_from_fdt() - Returns an oftree from a flat device tree pointer
+ *
+ * @fdt: Device tree to use
+ *
+ * Returns: reference to the given node
+ */
+oftree oftree_from_fdt(void *fdt);
+
+/**
+ * noffset_to_ofnode() - convert a DT offset to an ofnode
+ *
+ * @other_node: Node in the same tree to use as a reference
+ * @of_offset: DT offset (either valid, or -1)
+ * Return: reference to the associated DT offset
+ */
+ofnode noffset_to_ofnode(ofnode other_node, int of_offset);
+
+#else /* !OFNODE_MULTI_TREE */
+static inline void oftree_reset(void) {}
+
+static inline void *ofnode_to_fdt(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (of_live_active())
+		return NULL;
+#endif
+	/* Use the control FDT by default */
+	return (void *)gd->fdt_blob;
+}
+
+static inline __attribute_const__ int ofnode_to_offset(ofnode node)
 {
 #ifdef OF_CHECKS
 	if (of_live_active())
@@ -70,6 +95,33 @@ static inline int ofnode_to_offset(ofnode node)
 #endif
 	return node.of_offset;
 }
+
+static inline oftree oftree_from_fdt(void *fdt)
+{
+	oftree tree;
+
+	/* we cannot access other trees without OFNODE_MULTI_TREE */
+	if (fdt == gd->fdt_blob)
+		tree.fdt = fdt;
+	else
+		tree.fdt = NULL;
+
+	return tree;
+}
+
+static inline ofnode noffset_to_ofnode(ofnode other_node, int of_offset)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node.np = NULL;
+	else
+		node.of_offset = of_offset;
+
+	return node;
+}
+
+#endif /* OFNODE_MULTI_TREE */
 
 /**
  * ofnode_to_np() - convert an ofnode to a live DT node pointer
@@ -89,29 +141,10 @@ static inline struct device_node *ofnode_to_np(ofnode node)
 }
 
 /**
- * noffset_to_ofnode() - convert a DT offset to an ofnode
- *
- * @other_node: Node in the same tree to use as a reference
- * @of_offset: DT offset (either valid, or -1)
- * Return: reference to the associated DT offset
- */
-static inline ofnode noffset_to_ofnode(ofnode other_node, int of_offset)
-{
-	ofnode node;
-
-	if (of_live_active())
-		node.np = NULL;
-	else
-		node.of_offset = of_offset;
-
-	return node;
-}
-
-/**
  * ofnode_valid() - check if an ofnode is valid
  *
  * @node: Reference containing offset (possibly invalid)
- * Return: true if the reference contains a valid ofnode, false if it is NULL
+ * Return: true if the reference contains a valid ofnode, false if not
  */
 static inline bool ofnode_valid(ofnode node)
 {
@@ -312,22 +345,6 @@ static inline oftree oftree_from_np(struct device_node *root)
 	oftree tree;
 
 	tree.np = root;
-
-	return tree;
-}
-
-/**
- * oftree_from_fdt() - Returns an oftree from a flat device tree pointer
- *
- * @fdt: Device tree to use
- *
- * Returns: reference to the given node
- */
-static inline oftree oftree_from_fdt(void *fdt)
-{
-	oftree tree;
-
-	tree.fdt = fdt;
 
 	return tree;
 }

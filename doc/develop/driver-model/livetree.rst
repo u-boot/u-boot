@@ -250,11 +250,14 @@ a flat tree.
 It would be helpful to use livetree for fixups, since adding a lot of nodes and
 properties would involve less memory copying and be more efficient. As a step
 towards this, an `oftree` type has been introduced. It is normally set to
-oftree_default() but can be set to other values. Eventually this should allow
-the use of FDT fixups using the ofnode interface, instead of the low-level
-libfdt one.
+oftree_default() but can be set to other values using oftree_from_fdt().
+So long as OF_LIVE is disabled, it is possible to do fixups using the ofnode
+interface. The OF_LIVE support required addition of the flattening step at the
+end.
 
-See dm_test_ofnode_root() for some examples.
+See dm_test_ofnode_root() for some examples. The ofnode_path_root() function
+causes a flat device tree to be 'registered' such that it can be used by the
+ofnode interface.
 
 
 Internal implementation

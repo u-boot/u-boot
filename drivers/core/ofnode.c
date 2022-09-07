@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY	LOGC_DT
+
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -18,22 +20,182 @@
 #include <linux/ioport.h>
 #include <asm/global_data.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+#if CONFIG_IS_ENABLED(OFNODE_MULTI_TREE)
+static void *oftree_list[CONFIG_OFNODE_MULTI_TREE_MAX];
+static int oftree_count;
+
+void oftree_reset(void)
+{
+	if (gd->flags & GD_FLG_RELOC) {
+		oftree_count = 0;
+		oftree_list[oftree_count++] = (void *)gd->fdt_blob;
+	}
+}
+
+static int oftree_find(const void *fdt)
+{
+	int i;
+
+	for (i = 0; i < oftree_count; i++) {
+		if (fdt == oftree_list[i])
+			return i;
+	}
+
+	return -1;
+}
+
+static oftree oftree_ensure(void *fdt)
+{
+	oftree tree;
+	int i;
+
+	if (gd->flags & GD_FLG_RELOC) {
+		i = oftree_find(fdt);
+		if (i == -1) {
+			if (oftree_count == CONFIG_OFNODE_MULTI_TREE_MAX) {
+				log_warning("Too many registered device trees (max %d)\n",
+					    CONFIG_OFNODE_MULTI_TREE_MAX);
+				return oftree_null();
+			}
+
+			/* register the new tree */
+			i = oftree_count++;
+			oftree_list[i] = fdt;
+			log_debug("oftree: registered tree %d: %p\n", i, fdt);
+		}
+	} else {
+		if (fdt != gd->fdt_blob) {
+			log_debug("Cannot only access control FDT before relocation\n");
+			return oftree_null();
+		}
+	}
+
+	tree.fdt = fdt;
+
+	return tree;
+}
+
+void *ofnode_lookup_fdt(ofnode node)
+{
+	if (gd->flags & GD_FLG_RELOC) {
+		uint i = OFTREE_TREE_ID(node.of_offset);
+
+		if (i > oftree_count) {
+			log_debug("Invalid tree ID %x\n", i);
+			return NULL;
+		}
+
+		return oftree_list[i];
+	} else {
+		return (void *)gd->fdt_blob;
+	}
+}
+
+void *ofnode_to_fdt(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (of_live_active())
+		return NULL;
+#endif
+	if (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) && ofnode_valid(node))
+		return ofnode_lookup_fdt(node);
+
+	/* Use the control FDT by default */
+	return (void *)gd->fdt_blob;
+}
+
+/**
+ * ofnode_to_offset() - convert an ofnode to a flat DT offset
+ *
+ * This cannot be called if the reference contains a node pointer.
+ *
+ * @node: Reference containing offset (possibly invalid)
+ * Return: DT offset (can be -1)
+ */
+int ofnode_to_offset(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (of_live_active())
+		return -1;
+#endif
+	if (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) && node.of_offset >= 0)
+		return OFTREE_OFFSET(node.of_offset);
+
+	return node.of_offset;
+}
+
+oftree oftree_from_fdt(void *fdt)
+{
+	oftree tree;
+
+	if (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE))
+		return oftree_ensure(fdt);
+
+	tree.fdt = fdt;
+
+	return tree;
+}
+
+/**
+ * noffset_to_ofnode() - convert a DT offset to an ofnode
+ *
+ * @other_node: Node in the same tree to use as a reference
+ * @of_offset: DT offset (either valid, or -1)
+ * Return: reference to the associated DT offset
+ */
+ofnode noffset_to_ofnode(ofnode other_node, int of_offset)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node.np = NULL;
+	else if (!CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) || of_offset < 0 ||
+		 !ofnode_valid(other_node))
+		node.of_offset = of_offset;
+	else
+		node.of_offset = OFTREE_MAKE_NODE(other_node.of_offset,
+						  of_offset);
+
+	return node;
+}
+
+#else /* !OFNODE_MULTI_TREE */
+
+static inline int oftree_find(const void *fdt)
+{
+	return 0;
+}
+
+#endif /* OFNODE_MULTI_TREE */
+
 /**
  * ofnode_from_tree_offset() - get an ofnode from a tree offset (flat tree)
  *
- * Looks up the tree and returns an ofnode with the correct of_offset
+ * Looks up the tree and returns an ofnode with the correct of_offset (i.e.
+ * containing the tree ID).
  *
- * If @offset is < 0 then this returns an ofnode with that offset
+ * If @offset is < 0 then this returns an ofnode with that offset and no tree
+ * ID.
  *
  * @tree: tree to check
  * @offset: offset within that tree (can be < 0)
- * @return node for that offset
+ * @return node for that offset, with the correct ID
  */
 static ofnode ofnode_from_tree_offset(oftree tree, int offset)
 {
 	ofnode node;
 
-	node.of_offset = offset;
+	if (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) && offset >= 0) {
+		int tree_id = oftree_find(tree.fdt);
+
+		if (tree_id == -1)
+			return ofnode_null();
+		node.of_offset = OFTREE_NODE(tree_id, offset);
+	} else {
+		node.of_offset = offset;
+	}
 
 	return node;
 }
