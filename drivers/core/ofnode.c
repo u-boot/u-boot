@@ -356,7 +356,7 @@ const char *ofnode_get_name(ofnode node)
 	}
 
 	if (ofnode_is_np(node))
-		return strrchr(node.np->full_name, '/') + 1;
+		return node.np->name;
 
 	return fdt_get_name(gd->fdt_blob, ofnode_to_offset(node), NULL);
 }

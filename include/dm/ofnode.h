@@ -466,7 +466,7 @@ ofnode ofnode_get_parent(ofnode node);
  * ofnode_get_name() - get the name of a node
  *
  * @node: valid node to look up
- * Return: name of node
+ * Return: name of node (for the root node this is "")
  */
 const char *ofnode_get_name(ofnode node);
 
