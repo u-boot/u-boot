@@ -177,6 +177,20 @@ static inline ofnode ofnode_root(void)
 }
 
 /**
+ * ofprop_valid() - check if an ofprop is valid
+ *
+ * @prop: Pointer to ofprop to check
+ * Return: true if the reference contains a valid ofprop, false if not
+ */
+static inline bool ofprop_valid(struct ofprop *prop)
+{
+	if (of_live_active())
+		return prop->prop;
+	else
+		return prop->offset >= 0;
+}
+
+/**
  * oftree_default() - Returns the default device tree (U-Boot's control FDT)
  *
  * Returns: reference to the control FDT
@@ -820,6 +834,30 @@ int ofnode_first_property(ofnode node, struct ofprop *prop);
  * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
  */
 int ofnode_next_property(struct ofprop *prop);
+
+/**
+ * ofnode_for_each_prop() - iterate over all properties of a node
+ *
+ * @prop:	struct ofprop
+ * @node:	node (lvalue, ofnode)
+ *
+ * This is a wrapper around a for loop and is used like this::
+ *
+ *   ofnode node;
+ *   struct ofprop prop;
+ *
+ *   ofnode_for_each_prop(prop, node) {
+ *       ...use prop...
+ *   }
+ *
+ * Note that this is implemented as a macro and @prop is used as
+ * iterator in the loop. The parent variable can be a constant or even a
+ * literal.
+ */
+#define ofnode_for_each_prop(prop, node) \
+	for (ofnode_first_property(node, &prop); \
+	     ofprop_valid(&prop); \
+	     ofnode_next_property(&prop))
 
 /**
  * ofprop_get_property() - get a pointer to the value of a property

@@ -57,7 +57,7 @@ typedef union ofnode_union {
  *
  * @node: Pointer to device node
  * @offset: Pointer into flat device tree, used for flat tree.
- * @prop: Pointer to property, used for live treee.
+ * @prop: Pointer to property, used for live tree.
  */
 
 struct ofprop {

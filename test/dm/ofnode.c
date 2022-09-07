@@ -669,3 +669,27 @@ static int dm_test_ofnode_add_subnode(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_add_subnode, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_for_each_prop(struct unit_test_state *uts)
+{
+	ofnode node, subnode;
+	struct ofprop prop;
+	int count;
+
+	node = ofnode_path("/buttons");
+	count = 0;
+
+	/* we expect "compatible" for each node */
+	ofnode_for_each_prop(prop, node)
+		count++;
+	ut_asserteq(1, count);
+
+	/* there are two nodes, each with 2 properties */
+	ofnode_for_each_subnode(subnode, node)
+		ofnode_for_each_prop(prop, subnode)
+			count++;
+	ut_asserteq(5, count);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_for_each_prop, UT_TESTF_SCAN_FDT);
