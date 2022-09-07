@@ -60,9 +60,11 @@ union event_data {
 	 * struct event_ft_fixup - FDT fixup before booting
 	 *
 	 * @tree: tree to update
+	 * @images: images which are being booted
 	 */
 	struct event_ft_fixup {
 		oftree tree;
+		struct bootm_headers *images;
 	} ft_fixup;
 };
 

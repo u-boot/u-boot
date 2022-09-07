@@ -669,6 +669,7 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 		struct event_ft_fixup fixup;
 
 		fixup.tree = oftree_default();
+		fixup.images = images;
 		ret = event_notify(EVT_FT_FIXUP, &fixup, sizeof(fixup));
 		if (ret) {
 			printf("ERROR: fdt fixup event failed: %d\n", ret);
