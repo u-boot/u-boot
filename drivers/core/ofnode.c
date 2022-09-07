@@ -278,7 +278,7 @@ ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 	} else {
 		int ooffset = fdt_subnode_offset(ofnode_to_fdt(node),
 				ofnode_to_offset(node), subnode_name);
-		subnode = offset_to_ofnode(ooffset);
+		subnode = noffset_to_ofnode(node, ooffset);
 	}
 	debug("%s\n", ofnode_valid(subnode) ?
 	      ofnode_get_name(subnode) : "<none>");
@@ -330,7 +330,7 @@ ofnode ofnode_first_subnode(ofnode node)
 	if (ofnode_is_np(node))
 		return np_to_ofnode(node.np->child);
 
-	return offset_to_ofnode(
+	return noffset_to_ofnode(node,
 		fdt_first_subnode(ofnode_to_fdt(node), ofnode_to_offset(node)));
 }
 
@@ -340,7 +340,7 @@ ofnode ofnode_next_subnode(ofnode node)
 	if (ofnode_is_np(node))
 		return np_to_ofnode(node.np->sibling);
 
-	return offset_to_ofnode(
+	return noffset_to_ofnode(node,
 		fdt_next_subnode(ofnode_to_fdt(node), ofnode_to_offset(node)));
 }
 #endif /* !DM_INLINE_OFNODE */
@@ -1172,8 +1172,8 @@ ofnode ofnode_by_compatible(ofnode from, const char *compat)
 			(struct device_node *)ofnode_to_np(from), NULL,
 			compat));
 	} else {
-		return offset_to_ofnode(fdt_node_offset_by_compatible(
-					ofnode_to_fdt(from),
+		return noffset_to_ofnode(from,
+			fdt_node_offset_by_compatible(ofnode_to_fdt(from),
 					ofnode_to_offset(from), compat));
 	}
 }
@@ -1186,9 +1186,10 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 			(struct device_node *)ofnode_to_np(from), propname,
 			propval, proplen));
 	} else {
-		return offset_to_ofnode(fdt_node_offset_by_prop_value(
-				ofnode_to_fdt(from), ofnode_to_offset(from),
-				propname, propval, proplen));
+		return noffset_to_ofnode(from,
+			 fdt_node_offset_by_prop_value(ofnode_to_fdt(from),
+				ofnode_to_offset(from), propname, propval,
+				proplen));
 	}
 }
 
@@ -1342,7 +1343,7 @@ int ofnode_add_subnode(ofnode node, const char *name, ofnode *subnodep)
 		}
 		if (offset < 0)
 			return -EINVAL;
-		subnode = offset_to_ofnode(offset);
+		subnode = noffset_to_ofnode(node, offset);
 	}
 
 	*subnodep = subnode;

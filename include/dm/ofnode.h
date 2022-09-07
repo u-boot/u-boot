@@ -55,6 +55,23 @@ static inline void *ofnode_to_fdt(ofnode node)
 }
 
 /**
+ * ofnode_to_offset() - convert an ofnode to a flat DT offset
+ *
+ * This cannot be called if the reference contains a node pointer.
+ *
+ * @node: Reference containing offset (possibly invalid)
+ * Return: DT offset (can be -1)
+ */
+static inline int ofnode_to_offset(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (of_live_active())
+		return -1;
+#endif
+	return node.of_offset;
+}
+
+/**
  * ofnode_to_np() - convert an ofnode to a live DT node pointer
  *
  * This cannot be called if the reference contains an offset.
@@ -72,20 +89,22 @@ static inline struct device_node *ofnode_to_np(ofnode node)
 }
 
 /**
- * ofnode_to_offset() - convert an ofnode to a flat DT offset
+ * noffset_to_ofnode() - convert a DT offset to an ofnode
  *
- * This cannot be called if the reference contains a node pointer.
- *
- * @node: Reference containing offset (possibly invalid)
- * Return: DT offset (can be -1)
+ * @other_node: Node in the same tree to use as a reference
+ * @of_offset: DT offset (either valid, or -1)
+ * Return: reference to the associated DT offset
  */
-static inline int ofnode_to_offset(ofnode node)
+static inline ofnode noffset_to_ofnode(ofnode other_node, int of_offset)
 {
-#ifdef OF_CHECKS
+	ofnode node;
+
 	if (of_live_active())
-		return -1;
-#endif
-	return node.of_offset;
+		node.np = NULL;
+	else
+		node.of_offset = of_offset;
+
+	return node;
 }
 
 /**
@@ -1175,8 +1194,9 @@ ofnode ofnode_by_compatible(ofnode from, const char *compat);
  * Find the next node after @from that has a @propname with a value
  * @propval and a length @proplen.
  *
- * @from: ofnode to start from (use ofnode_null() to start at the
- * beginning)
+ * @from: ofnode to start from. Use ofnode_null() to start at the
+ * beginning, or the return value from oftree_root() to start at the first
+ * child of the root
  * @propname: property name to check
  * @propval: property value to search for
  * @proplen: length of the value in propval
