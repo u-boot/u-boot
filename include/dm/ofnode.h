@@ -36,6 +36,25 @@ struct ofnode_phandle_args {
 static inline void oftree_reset(void) {}
 
 /**
+ * ofnode_to_fdt() - convert an ofnode to a flat DT pointer
+ *
+ * This cannot be called if the reference contains a node pointer.
+ *
+ * @node: Reference containing offset (possibly invalid)
+ * Return: DT offset (can be NULL)
+ */
+static inline void *ofnode_to_fdt(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (of_live_active())
+		return NULL;
+#endif
+
+	/* Use the control FDT by default */
+	return (void *)gd->fdt_blob;
+}
+
+/**
  * ofnode_to_np() - convert an ofnode to a live DT node pointer
  *
  * This cannot be called if the reference contains an offset.
