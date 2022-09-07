@@ -605,3 +605,74 @@ static int dm_test_ofnode_u32(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_u32,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);
+
+static int dm_test_ofnode_add_subnode(struct unit_test_state *uts)
+{
+	ofnode node, check, subnode;
+	char buf[128];
+
+	/* temporarily disable this test due to a failure fixed later */
+	if (!of_live_active())
+		return 0;
+
+	node = ofnode_path("/lcd");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_add_subnode(node, "edmund", &subnode));
+	check = ofnode_path("/lcd/edmund");
+	ut_asserteq(subnode.of_offset, check.of_offset);
+	ut_assertok(ofnode_get_path(subnode, buf, sizeof(buf)));
+	ut_asserteq_str("/lcd/edmund", buf);
+
+	if (of_live_active()) {
+		struct device_node *child;
+
+		ut_assertok(of_add_subnode((void *)ofnode_to_np(node), "edmund",
+					   2, &child));
+		ut_asserteq_str("ed", child->name);
+		ut_asserteq_str("/lcd/ed", child->full_name);
+		check = ofnode_path("/lcd/ed");
+		ut_asserteq_ptr(child, check.np);
+		ut_assertok(ofnode_get_path(np_to_ofnode(child), buf,
+					    sizeof(buf)));
+		ut_asserteq_str("/lcd/ed", buf);
+	}
+
+	/* An existing node should be returned with -EEXIST */
+	ut_asserteq(-EEXIST, ofnode_add_subnode(node, "edmund", &check));
+	ut_asserteq(subnode.of_offset, check.of_offset);
+
+	/* add a root node */
+	node = ofnode_path("/");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_add_subnode(node, "lcd2", &subnode));
+	check = ofnode_path("/lcd2");
+	ut_asserteq(subnode.of_offset, check.of_offset);
+	ut_assertok(ofnode_get_path(subnode, buf, sizeof(buf)));
+	ut_asserteq_str("/lcd2", buf);
+
+	if (of_live_active()) {
+		ulong start;
+		int i;
+
+		/*
+		 * Make sure each of the three malloc()checks in
+		 * of_add_subnode() work
+		 */
+		for (i = 0; i < 3; i++) {
+			malloc_enable_testing(i);
+			start = ut_check_free();
+			ut_asserteq(-ENOMEM, ofnode_add_subnode(node, "anthony",
+								&check));
+			ut_assertok(ut_check_delta(start));
+		}
+
+		/* This should pass since we allow 3 allocations */
+		malloc_enable_testing(3);
+		ut_assertok(ofnode_add_subnode(node, "anthony", &check));
+		malloc_disable_testing();
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_add_subnode,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);

@@ -1300,6 +1300,19 @@ static inline const char *ofnode_conf_read_str(const char *prop_name)
 {
 	return NULL;
 }
+
 #endif /* CONFIG_DM */
+
+/**
+ * of_add_subnode() - add a new subnode to a node
+ *
+ * @parent:	parent node to add to
+ * @name:	name of subnode
+ * @nodep:	returns pointer to new subnode (valid if the function returns 0
+ *	or -EEXIST)
+ * Returns 0 if OK, -EEXIST if already exists, -ENOMEM if out of memory, other
+ * -ve on other error
+ */
+int ofnode_add_subnode(ofnode parent, const char *name, ofnode *nodep);
 
 #endif

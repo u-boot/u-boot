@@ -969,3 +969,66 @@ int of_write_prop(struct device_node *np, const char *propname, int len,
 
 	return 0;
 }
+
+int of_add_subnode(struct device_node *parent, const char *name, int len,
+		   struct device_node **childp)
+{
+	struct device_node *child, *new, *last_sibling = NULL;
+	char *new_name, *full_name;
+	int parent_fnl;
+
+	if (len == -1)
+		len = strlen(name);
+	__for_each_child_of_node(parent, child) {
+		/*
+		 * make sure we don't use a child called "trevor" when we are
+		 * searching for "trev".
+		 */
+		if (!strncmp(child->name, name, len) && strlen(name) == len) {
+			*childp = child;
+			return -EEXIST;
+		}
+		last_sibling = child;
+	}
+
+	/* Subnode does not exist -> append new subnode */
+	new = calloc(1, sizeof(struct device_node));
+	if (!new)
+		return -ENOMEM;
+
+	new_name = memdup(name, len + 1);
+	if (!new_name) {
+		free(new);
+		return -ENOMEM;
+	}
+	new_name[len] = '\0';
+
+	/*
+	 * if the parent is the root node (named "") we don't need to prepend
+	 * its full path
+	 */
+	parent_fnl = *parent->name ? strlen(parent->full_name) : 0;
+	full_name = calloc(1, parent_fnl + 1 + len + 1);
+	if (!full_name) {
+		free(new_name);
+		free(new);
+		return -ENOMEM;
+	}
+	new->name = new_name;	/* assign to constant pointer */
+
+	strcpy(full_name, parent->full_name); /* "" for root node */
+	full_name[parent_fnl] = '/';
+	strlcpy(&full_name[parent_fnl + 1], name, len + 1);
+	new->full_name = full_name;
+
+	/* Add as last sibling of the parent */
+	if (last_sibling)
+		last_sibling->sibling = new;
+	if (!parent->child)
+		parent->child = new;
+	new->parent = parent;
+
+	*childp = new;
+
+	return 0;
+}

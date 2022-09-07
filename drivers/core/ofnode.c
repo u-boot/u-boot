@@ -1289,3 +1289,38 @@ phy_interface_t ofnode_read_phy_mode(ofnode node)
 
 	return PHY_INTERFACE_MODE_NA;
 }
+
+int ofnode_add_subnode(ofnode node, const char *name, ofnode *subnodep)
+{
+	ofnode subnode;
+	int ret = 0;
+
+	assert(ofnode_valid(node));
+
+	if (ofnode_is_np(node)) {
+		struct device_node *np, *child;
+
+		np = (struct device_node *)ofnode_to_np(node);
+		ret = of_add_subnode(np, name, -1, &child);
+		if (ret && ret != -EEXIST)
+			return ret;
+		subnode = np_to_ofnode(child);
+	} else {
+		void *fdt = (void *)gd->fdt_blob;
+		int poffset = ofnode_to_offset(node);
+		int offset;
+
+		offset = fdt_add_subnode(fdt, poffset, name);
+		if (offset == -FDT_ERR_EXISTS) {
+			offset = fdt_subnode_offset(fdt, poffset, name);
+			ret = -EEXIST;
+		}
+		if (offset < 0)
+			return -EINVAL;
+		subnode = offset_to_ofnode(offset);
+	}
+
+	*subnodep = subnode;
+
+	return ret;	/* 0 or -EEXIST */
+}
