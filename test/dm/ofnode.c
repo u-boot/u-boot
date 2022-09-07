@@ -100,7 +100,21 @@ static int dm_test_ofnode_compatible(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_compatible, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_compatible,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* check ofnode_device_is_compatible() with the 'other' FDT */
+static int dm_test_ofnode_compatible_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode oroot = oftree_root(otree);
+
+	ut_assert(ofnode_valid(oroot));
+	ut_assert(ofnode_device_is_compatible(oroot, "sandbox-other"));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_compatible_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_get_by_phandle(struct unit_test_state *uts)
 {
@@ -134,32 +148,55 @@ static int dm_test_ofnode_get_by_phandle_ot(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_get_by_phandle_ot, UT_TESTF_OTHER_FDT);
 
-static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
+static int check_prop_values(struct unit_test_state *uts, ofnode start,
+			     const char *propname, const char *propval,
+			     int expect_count)
 {
-	const char propname[] = "compatible";
-	const char propval[] = "denx,u-boot-fdt-test";
+	int proplen = strlen(propval) + 1;
 	const char *str;
-	ofnode node = ofnode_null();
+	ofnode node;
+	int count;
 
 	/* Find first matching node, there should be at least one */
-	node = ofnode_by_prop_value(node, propname, propval, sizeof(propval));
+	node = ofnode_by_prop_value(start, propname, propval, proplen);
 	ut_assert(ofnode_valid(node));
 	str = ofnode_read_string(node, propname);
 	ut_assert(str && !strcmp(str, propval));
 
 	/* Find the rest of the matching nodes */
+	count = 1;
 	while (true) {
-		node = ofnode_by_prop_value(node, propname, propval,
-					    sizeof(propval));
+		node = ofnode_by_prop_value(node, propname, propval, proplen);
 		if (!ofnode_valid(node))
 			break;
 		str = ofnode_read_string(node, propname);
-		ut_assert(str && !strcmp(str, propval));
+		ut_asserteq_str(propval, str);
+		count++;
 	}
+	ut_asserteq(expect_count, count);
+
+	return 0;
+}
+
+static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
+{
+	ut_assertok(check_prop_values(uts, ofnode_null(), "compatible",
+				      "denx,u-boot-fdt-test", 11));
 
 	return 0;
 }
 DM_TEST(dm_test_ofnode_by_prop_value, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_by_prop_value_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+
+	ut_assertok(check_prop_values(uts, oftree_root(otree), "str-prop",
+				      "other", 2));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_by_prop_value_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 {
@@ -201,6 +238,25 @@ static int dm_test_ofnode_read(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_read, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_read_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	const char *val;
+	ofnode node;
+	int size;
+
+	node = oftree_path(otree, "/node/subnode");
+	ut_assert(ofnode_valid(node));
+
+	val = ofnode_read_prop(node, "str-prop", &size);
+	ut_assertnonnull(val);
+	ut_asserteq_str("other", val);
+	ut_asserteq(6, size);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_read_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_phandle(struct unit_test_state *uts)
 {
@@ -377,6 +433,27 @@ static int dm_test_ofnode_get_child_count(struct unit_test_state *uts)
 DM_TEST(dm_test_ofnode_get_child_count,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_get_child_count_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode node, child_node;
+	u32 val;
+
+	node = oftree_path(otree, "/node");
+	ut_assert(ofnode_valid(node));
+
+	val = ofnode_get_child_count(node);
+	ut_asserteq(2, val);
+
+	child_node = ofnode_first_subnode(node);
+	ut_assert(ofnode_valid(child_node));
+	val = ofnode_get_child_count(child_node);
+	ut_asserteq(0, val);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_child_count_ot, UT_TESTF_OTHER_FDT);
+
 static int dm_test_ofnode_is_enabled(struct unit_test_state *uts)
 {
 	ofnode root_node = ofnode_path("/");
@@ -388,6 +465,19 @@ static int dm_test_ofnode_is_enabled(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_is_enabled, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_is_enabled_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode root_node = oftree_root(otree);
+	ofnode node = oftree_path(otree, "/target");
+
+	ut_assert(ofnode_is_enabled(root_node));
+	ut_assert(!ofnode_is_enabled(node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_is_enabled_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_get_reg(struct unit_test_state *uts)
 {
@@ -425,29 +515,58 @@ static int dm_test_ofnode_get_reg(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_get_reg, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_get_reg_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode node = oftree_path(otree, "/target");
+	fdt_addr_t addr;
+
+	addr = ofnode_get_addr(node);
+	ut_asserteq(0x8000, addr);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_reg_ot, UT_TESTF_OTHER_FDT);
+
 static int dm_test_ofnode_get_path(struct unit_test_state *uts)
 {
 	const char *path = "/translation-test@8000/noxlatebus@3,300/dev@42";
 	char buf[64];
 	ofnode node;
-	int res;
 
 	node = ofnode_path(path);
 	ut_assert(ofnode_valid(node));
 
-	res = ofnode_get_path(node, buf, 64);
-	ut_asserteq(0, res);
+	ut_assertok(ofnode_get_path(node, buf, sizeof(buf)));
 	ut_asserteq_str(path, buf);
 
-	res = ofnode_get_path(node, buf, 32);
-	ut_asserteq(-ENOSPC, res);
+	ut_asserteq(-ENOSPC, ofnode_get_path(node, buf, 32));
 
-	res = ofnode_get_path(ofnode_root(), buf, 32);
+	ut_assertok(ofnode_get_path(ofnode_root(), buf, 32));
 	ut_asserteq_str("/", buf);
 
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_path, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_get_path_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	const char *path = "/node/subnode";
+	ofnode node = oftree_path(otree, path);
+	char buf[64];
+
+	ut_assert(ofnode_valid(node));
+
+	ut_assertok(ofnode_get_path(node, buf, sizeof(buf)));
+	ut_asserteq_str(path, buf);
+
+	ut_assertok(ofnode_get_path(oftree_root(otree), buf, 32));
+	ut_asserteq_str("/", buf);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_path_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_conf(struct unit_test_state *uts)
 {
@@ -608,12 +727,16 @@ DM_TEST(dm_test_ofnode_get_phy, 0);
  * @uts: Test state
  * @fdt: Place to write FDT
  * @size: Maximum size of space for fdt
+ * @id: id value to add to the tree ('id' property in root node)
  */
-static int make_ofnode_fdt(struct unit_test_state *uts, void *fdt, int size)
+static int make_ofnode_fdt(struct unit_test_state *uts, void *fdt, int size,
+			   int id)
 {
 	ut_assertok(fdt_create(fdt, size));
 	ut_assertok(fdt_finish_reservemap(fdt));
 	ut_assert(fdt_begin_node(fdt, "") >= 0);
+
+	ut_assertok(fdt_property_u32(fdt, "id", id));
 
 	ut_assert(fdt_begin_node(fdt, "aliases") >= 0);
 	ut_assertok(fdt_property_string(fdt, "mmc0", "/new-mmc"));
@@ -642,7 +765,7 @@ static int dm_test_ofnode_root(struct unit_test_state *uts)
 
 	ut_assert(!oftree_valid(oftree_null()));
 
-	ut_assertok(make_ofnode_fdt(uts, fdt, sizeof(fdt)));
+	ut_assertok(make_ofnode_fdt(uts, fdt, sizeof(fdt), 0));
 	ret = get_oftree(uts, fdt, &tree);
 
 	/* skip the rest of this test if multiple FDTs are not supported */
@@ -892,6 +1015,23 @@ static int dm_test_ofnode_by_compatible(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_by_compatible, UT_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_by_compatible_ot(struct unit_test_state *uts)
+{
+	const char *compat = "sandbox-other2";
+	oftree otree = get_other_oftree(uts);
+	ofnode node;
+	int count;
+
+	count = 0;
+	for (node = oftree_root(otree);
+	     node = ofnode_by_compatible(node, compat), ofnode_valid(node);)
+		count++;
+	ut_asserteq(2, count);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_by_compatible_ot, UT_TESTF_OTHER_FDT);
+
 static int dm_test_ofnode_find_subnode(struct unit_test_state *uts)
 {
 	ofnode node, subnode;
@@ -909,6 +1049,24 @@ static int dm_test_ofnode_find_subnode(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_find_subnode, UT_TESTF_SCAN_FDT);
 
+static int dm_test_ofnode_find_subnode_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode node, subnode;
+
+	node = oftree_path(otree, "/node");
+
+	subnode = ofnode_find_subnode(node, "subnode");
+	ut_assert(ofnode_valid(subnode));
+	ut_asserteq_str("subnode", ofnode_get_name(subnode));
+
+	subnode = ofnode_find_subnode(node, "btn");
+	ut_assert(!ofnode_valid(subnode));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_find_subnode_ot, UT_TESTF_OTHER_FDT);
+
 static int dm_test_ofnode_get_name(struct unit_test_state *uts)
 {
 	ofnode node;
@@ -921,3 +1079,40 @@ static int dm_test_ofnode_get_name(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_name, UT_TESTF_SCAN_FDT);
+
+/* try to access more FDTs than is supported */
+static int dm_test_ofnode_too_many(struct unit_test_state *uts)
+{
+	const int max_trees = CONFIG_IS_ENABLED(OFNODE_MULTI_TREE,
+					(CONFIG_OFNODE_MULTI_TREE_MAX), (1));
+	const int fdt_size = 256;
+	const int num_trees = max_trees + 1;
+	char fdt[num_trees][fdt_size];
+	int i;
+
+	for (i = 0; i < num_trees; i++) {
+		oftree tree;
+		int ret;
+
+		ut_assertok(make_ofnode_fdt(uts, fdt[i], fdt_size, i));
+		ret = get_oftree(uts, fdt[i], &tree);
+
+		/*
+		 * With flat tree we have the control FDT using one slot. Live
+		 * tree has no limit since it uses pointers, not integer tree
+		 * IDs
+		 */
+		if (of_live_active() || i < max_trees - 1) {
+			ut_assertok(ret);
+		} else {
+			/*
+			 * tree should be invalid when we try to register too
+			 * many trees
+			 */
+			ut_asserteq(-EOVERFLOW, ret);
+		}
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_too_many, UT_TESTF_SCAN_FDT);

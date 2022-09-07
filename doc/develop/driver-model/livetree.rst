@@ -321,10 +321,7 @@ Adding a new function for device-tree access involves the following steps:
 Future work
 -----------
 
-Live tree support was introduced in U-Boot 2017.07. There is still quite a bit
-of work to do to flesh this out:
+Live tree support was introduced in U-Boot 2017.07. Some possible enhancements
+are:
 
-- tests for all access functions
-- more support for livetree modification
-- addition of more access functions as needed
 - support for livetree in SPL and before relocation (if desired)
