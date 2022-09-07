@@ -9,13 +9,50 @@
 #include <cyclic.h>
 #include <dm.h>
 #include <event.h>
+#include <os.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * enum fdtchk_t - what to do with the device tree (gd->fdt_blob)
+ *
+ * This affects what happens with the device tree before and after a test
+ *
+ * @FDTCHK_NONE: Do nothing
+ * @FDTCHK_CHECKSUM: Take a checksum of the FDT before the test runs and
+ *	compare it afterwards to detect any changes
+ * @FDTCHK_COPY: Make a copy of the FDT and restore it afterwards
+ */
+enum fdtchk_t {
+	FDTCHK_NONE,
+	FDTCHK_CHECKSUM,
+	FDTCHK_COPY,
+};
+
+/**
+ * fdt_action() - get the required action for the FDT
+ *
+ * @return the action that should be taken for this build
+ */
+static enum fdtchk_t fdt_action(void)
+{
+	/* Do a copy for sandbox (but only the U-Boot build, not SPL) */
+	if (CONFIG_IS_ENABLED(SANDBOX))
+		return FDTCHK_COPY;
+
+	/* For sandbox SPL builds, do nothing */
+	if (IS_ENABLED(CONFIG_SANDBOX))
+		return FDTCHK_NONE;
+
+	/* For all other boards, do a checksum */
+	return FDTCHK_CHECKSUM;
+}
 
 /* This is valid when a test is running, NULL otherwise */
 static struct unit_test_state *cur_test_state;
@@ -46,6 +83,9 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 	uts->testdev = NULL;
 	uts->force_fail_alloc = false;
 	uts->skip_post_probe = false;
+	if (fdt_action() == FDTCHK_CHECKSUM)
+		uts->fdt_chksum = crc8(0, gd->fdt_blob,
+				       fdt_totalsize(gd->fdt_blob));
 	gd->dm_root = NULL;
 	malloc_disable_testing();
 	if (CONFIG_IS_ENABLED(UT_DM) && !CONFIG_IS_ENABLED(OF_PLATDATA))
@@ -63,6 +103,25 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 static int dm_test_post_run(struct unit_test_state *uts)
 {
 	int id;
+
+	if (gd->fdt_blob) {
+		switch (fdt_action()) {
+		case FDTCHK_COPY:
+			memcpy((void *)gd->fdt_blob, uts->fdt_copy, uts->fdt_size);
+			break;
+		case FDTCHK_CHECKSUM: {
+			uint chksum;
+
+			chksum = crc8(0, gd->fdt_blob, fdt_totalsize(gd->fdt_blob));
+
+			if (chksum != uts->fdt_chksum)
+				printf("Device tree changed: cannot run live tree tests\n");
+			break;
+		}
+		case FDTCHK_NONE:
+			break;
+		}
+	}
 
 	/*
 	 * With of-platdata-inst the uclasses are created at build time. If we
@@ -443,7 +502,22 @@ int ut_run_list(const char *category, const char *prefix,
 
 	uts.of_root = gd_of_root();
 	uts.runs_per_test = runs_per_test;
+	if (fdt_action() == FDTCHK_COPY && gd->fdt_blob) {
+		uts.fdt_size = fdt_totalsize(gd->fdt_blob);
+		uts.fdt_copy = os_malloc(uts.fdt_size);
+		if (!uts.fdt_copy) {
+			printf("Out of memory for device tree copy\n");
+			return -ENOMEM;
+		}
+		memcpy(uts.fdt_copy, gd->fdt_blob, uts.fdt_size);
+	}
 	ret = ut_run_tests(&uts, prefix, tests, count, select_name);
+
+	/* Best efforts only...ignore errors */
+	if (has_dm_tests)
+		dm_test_restore(uts.of_root);
+	if (IS_ENABLED(CONFIG_SANDBOX))
+		os_free(uts.fdt_copy);
 
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);

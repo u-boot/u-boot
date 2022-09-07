@@ -235,20 +235,9 @@ tree either present or absent. This is to make sure that the flat tree functions
 work correctly even with OF_LIVE is enabled. But if a test modifies the flat
 device tree, then the live tree can become invalid. Any live tree tests that run
 after that point will use a corrupted tree, e.g. with an incorrect property name
-or worse. To deal with this we use a flag UT_TESTF_LIVE_OR_FLAT then ensures
-that tests which write to the flat tree are not run if OF_LIVE is enabled. Only
-the live tree version of the test is run, when OF_LIVE is enabled, with
-sandbox_flattree running the flat tree version.
-
-This is of course a work-around, even if a reasonable one. One solution to this
-problem would be to make a copy of the flat tree before the test and restore it
-afterwards, in the same memory location, so that the live tree pointers work
-again. Another would be to regenerate the live tree if a test modified the flat
-tree.
-
-Neither of these solutions is currently implemented, since the situation that
-causes the problem can only occur in sandbox tests, is somewhat esoteric and
-the UT_TESTF_LIVE_OR_FLAT flag deals with it in a reasonable way.
+or worse. To deal with this we take a copy of the device tree and restore it
+after any test that modifies it. Note that this copy is not made on other
+boards, only sandbox.
 
 
 Multiple livetrees
