@@ -79,6 +79,10 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 {
 	bool of_live = uts->of_live;
 
+	if (of_live && (gd->flags & GD_FLG_FDT_CHANGED)) {
+		printf("Cannot run live tree test as device tree changed\n");
+		return -EFAULT;
+	}
 	uts->root = NULL;
 	uts->testdev = NULL;
 	uts->force_fail_alloc = false;
@@ -113,9 +117,17 @@ static int dm_test_post_run(struct unit_test_state *uts)
 			uint chksum;
 
 			chksum = crc8(0, gd->fdt_blob, fdt_totalsize(gd->fdt_blob));
-
-			if (chksum != uts->fdt_chksum)
+			if (chksum != uts->fdt_chksum) {
+				/*
+				 * We cannot run any more tests that need the
+				 * live tree, since its strings point into the
+				 * flat tree, which has changed. This likely
+				 * means that at least some of the pointers from
+				 * the live tree point to different things
+				 */
 				printf("Device tree changed: cannot run live tree tests\n");
+				gd->flags |= GD_FLG_FDT_CHANGED;
+			}
 			break;
 		}
 		case FDTCHK_NONE:
@@ -415,7 +427,8 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	 * or it is a core test.
 	 */
 	if (!(test->flags & UT_TESTF_LIVE_TREE) &&
-	    (!runs || ut_test_run_on_flattree(test))) {
+	    (!runs || ut_test_run_on_flattree(test)) &&
+	    !(gd->flags & GD_FLG_FDT_CHANGED)) {
 		uts->of_live = false;
 		ut_assertok(ut_run_test(uts, test, test->name));
 		runs++;
