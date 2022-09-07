@@ -1,4 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2022 Google LLC
+ *
+ * There are two types of tests in this file:
+ * - normal ones which act on the control FDT (gd->fdt_blob or gd->of_root)
+ * - 'other' ones which act on the 'other' FDT (other.dts)
+ *
+ * The 'other' ones have an _ot suffix.
+ *
+ * The latter are used to check behaviour with multiple device trees,
+ * particularly with flat tree, where a tree ID is included in ofnode as part of
+ * the node offset. These tests are typically just for making sure that the
+ * offset makes it to libfdt correctly and that the resulting return value is
+ * correctly turned into an ofnode. The 'other' tests do not fully check the
+ * behaviour of each ofnode function, since that is done by the normal ones.
+ */
 
 #include <common.h>
 #include <dm.h>
@@ -12,6 +28,28 @@
 #include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
+
+/**
+ * get_other_oftree() - Convert a flat tree into an oftree object
+ *
+ * @uts: Test state
+ * @return: oftree object for the 'other' FDT (see sandbox' other.dts)
+ */
+oftree get_other_oftree(struct unit_test_state *uts)
+{
+	oftree tree;
+
+	if (of_live_active())
+		tree = oftree_from_np(uts->of_other);
+	else
+		tree = oftree_from_fdt(uts->other_fdt);
+
+	/* An invalid tree may cause failure or crashes */
+	if (!oftree_valid(tree))
+		ut_reportf("test needs the UT_TESTF_OTHER_FDT flag");
+
+	return tree;
+}
 
 static int dm_test_ofnode_compatible(struct unit_test_state *uts)
 {
@@ -41,6 +79,20 @@ static int dm_test_ofnode_get_by_phandle(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_by_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_get_by_phandle_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode node;
+
+	ut_assert(ofnode_valid(oftree_get_by_phandle(oftree_default(), 1)));
+	node = oftree_get_by_phandle(otree, 1);
+	ut_assert(ofnode_valid(node));
+	ut_asserteq_str("target", ofnode_get_name(node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_by_phandle_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
 {
@@ -184,6 +236,34 @@ static int dm_test_ofnode_phandle(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_phandle_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	struct ofnode_phandle_args args;
+	ofnode node;
+	int ret;
+
+	node = oftree_path(otree, "/node");
+
+	/* Test ofnode_count_phandle_with_args with cell name */
+	ret = ofnode_count_phandle_with_args(node, "missing", "#gpio-cells", 0);
+	ut_asserteq(-ENOENT, ret);
+	ret = ofnode_count_phandle_with_args(node, "target", "#invalid", 0);
+	ut_asserteq(-EINVAL, ret);
+	ret = ofnode_count_phandle_with_args(node, "target", "#gpio-cells", 0);
+	ut_asserteq(1, ret);
+
+	ret = ofnode_parse_phandle_with_args(node, "target", "#gpio-cells", 0,
+					     0, &args);
+	ut_assertok(ret);
+	ut_asserteq(2, args.args_count);
+	ut_asserteq(3, args.args[0]);
+	ut_asserteq(4, args.args[1]);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_phandle_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 {

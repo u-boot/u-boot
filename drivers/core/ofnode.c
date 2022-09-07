@@ -599,9 +599,9 @@ ofnode oftree_get_by_phandle(oftree tree, uint phandle)
 	if (of_live_active())
 		node = np_to_ofnode(of_find_node_by_phandle(tree.np, phandle));
 	else
-		node.of_offset =
+		node = ofnode_from_tree_offset(tree,
 			fdt_node_offset_by_phandle(oftree_lookup_fdt(tree),
-						   phandle);
+						   phandle));
 
 	return node;
 }
