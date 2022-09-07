@@ -14,9 +14,9 @@ static int dm_test_ofnode_get_property_by_prop(struct unit_test_state *uts)
 	int res, len, count = 0;
 
 	node = ofnode_path("/cros-ec/flash");
-	for (res = ofnode_get_first_property(node, &prop);
+	for (res = ofnode_first_property(node, &prop);
 	     !res;
-	     res = ofnode_get_next_property(&prop)) {
+	     res = ofnode_next_property(&prop)) {
 		value = ofnode_get_property_by_prop(&prop, &propname, &len);
 		ut_assertnonnull(value);
 		switch (count) {

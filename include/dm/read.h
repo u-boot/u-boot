@@ -569,7 +569,7 @@ const void *dev_read_prop(const struct udevice *dev, const char *propname,
 int dev_read_first_prop(const struct udevice *dev, struct ofprop *prop);
 
 /**
- * ofnode_get_next_property() - get the reference of the next property
+ * ofnode_next_property() - get the reference of the next property
  *
  * Get reference to the next property of the node, it is used to iterate
  * and read all the property with dev_read_prop_by_prop().
@@ -1079,12 +1079,12 @@ static inline const void *dev_read_prop(const struct udevice *dev,
 
 static inline int dev_read_first_prop(const struct udevice *dev, struct ofprop *prop)
 {
-	return ofnode_get_first_property(dev_ofnode(dev), prop);
+	return ofnode_first_property(dev_ofnode(dev), prop);
 }
 
 static inline int dev_read_next_prop(struct ofprop *prop)
 {
-	return ofnode_get_next_property(prop);
+	return ofnode_next_property(prop);
 }
 
 static inline const void *dev_read_prop_by_prop(struct ofprop *prop,

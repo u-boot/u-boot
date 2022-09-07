@@ -799,7 +799,7 @@ int ofnode_decode_display_timing(ofnode node, int index,
 const void *ofnode_get_property(ofnode node, const char *propname, int *lenp);
 
 /**
- * ofnode_get_first_property()- get the reference of the first property
+ * ofnode_first_property()- get the reference of the first property
  *
  * Get reference to the first property of the node, it is used to iterate
  * and read all the property with ofnode_get_property_by_prop().
@@ -808,10 +808,10 @@ const void *ofnode_get_property(ofnode node, const char *propname, int *lenp);
  * @prop: place to put argument reference
  * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
  */
-int ofnode_get_first_property(ofnode node, struct ofprop *prop);
+int ofnode_first_property(ofnode node, struct ofprop *prop);
 
 /**
- * ofnode_get_next_property() - get the reference of the next property
+ * ofnode_next_property() - get the reference of the next property
  *
  * Get reference to the next property of the node, it is used to iterate
  * and read all the property with ofnode_get_property_by_prop().
@@ -819,7 +819,7 @@ int ofnode_get_first_property(ofnode node, struct ofprop *prop);
  * @prop: reference of current argument and place to put reference of next one
  * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
  */
-int ofnode_get_next_property(struct ofprop *prop);
+int ofnode_next_property(struct ofprop *prop);
 
 /**
  * ofnode_get_property_by_prop() - get a pointer to the value of a property
