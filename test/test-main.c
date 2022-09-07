@@ -343,8 +343,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	/* Run with the live tree if possible */
 	runs = 0;
 	if (CONFIG_IS_ENABLED(OF_LIVE)) {
-		if (!(test->flags &
-		    (UT_TESTF_FLAT_TREE | UT_TESTF_LIVE_OR_FLAT))) {
+		if (!(test->flags & UT_TESTF_FLAT_TREE)) {
 			uts->of_live = true;
 			ut_assertok(ut_run_test(uts, test, test->name));
 			runs++;
