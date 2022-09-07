@@ -822,7 +822,8 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr(dev));
 	/* reg = 0x42, size = 0x100 */
 	ut_assertok(ofnode_write_prop(node, "reg",
-				      "\x00\x00\x00\x42\x00\x00\x01\x00", 8));
+				      "\x00\x00\x00\x42\x00\x00\x01\x00", 8,
+				      false));
 	ut_asserteq(0x42, dev_read_addr(dev));
 
 	/* Test disabling devices */
@@ -837,6 +838,65 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_livetree_writing,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int check_write_prop(struct unit_test_state *uts, ofnode node)
+{
+	char prop[] = "middle-name";
+	char name[10];
+	int len;
+
+	strcpy(name, "cecil");
+	len = strlen(name) + 1;
+	ut_assertok(ofnode_write_prop(node, prop, name, len, false));
+	ut_asserteq_str(name, ofnode_read_string(node, prop));
+
+	/* change the underlying value, this should mess up the live tree */
+	strcpy(name, "tony");
+	if (of_live_active()) {
+		ut_asserteq_str(name, ofnode_read_string(node, prop));
+	} else {
+		ut_asserteq_str("cecil", ofnode_read_string(node, prop));
+	}
+
+	/* try again, this time copying the property */
+	strcpy(name, "mary");
+	ut_assertok(ofnode_write_prop(node, prop, name, len, true));
+	ut_asserteq_str(name, ofnode_read_string(node, prop));
+	strcpy(name, "leah");
+
+	/* both flattree and livetree behave the same */
+	ut_asserteq_str("mary", ofnode_read_string(node, prop));
+
+	return 0;
+}
+
+/* writing the tree with and without copying the property */
+static int dm_test_ofnode_write_copy(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	node = ofnode_path("/a-test");
+	ut_assertok(check_write_prop(uts, node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_write_copy, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_write_copy_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode node, check_node;
+
+	node = oftree_path(otree, "/node");
+	ut_assertok(check_write_prop(uts, node));
+
+	/* make sure the control FDT is not touched */
+	check_node = ofnode_path("/node");
+	ut_assertnull(ofnode_read_string(check_node, "middle-name"));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_write_copy_ot, UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_u32(struct unit_test_state *uts)
 {

@@ -325,3 +325,5 @@ Live tree support was introduced in U-Boot 2017.07. Some possible enhancements
 are:
 
 - support for livetree in SPL and before relocation (if desired)
+- freeing leaked memory caused by writing new nodes / property values to the
+  livetree (ofnode_write_prop())

@@ -1350,19 +1350,23 @@ int ofnode_device_is_compatible(ofnode node, const char *compat);
 /**
  * ofnode_write_prop() - Set a property of a ofnode
  *
- * Note that the value passed to the function is *not* allocated by the
- * function itself, but must be allocated by the caller if necessary. However
- * it does allocate memory for the property struct and name.
+ * Note that if @copy is false, the value passed to the function is *not*
+ * allocated by the function itself, but must be allocated by the caller if
+ * necessary. However it does allocate memory for the property struct and name.
  *
  * @node:	The node for whose property should be set
  * @propname:	The name of the property to set
  * @value:	The new value of the property (must be valid prior to calling
  *		the function)
  * @len:	The length of the new value of the property
+ * @copy: true to allocate memory for the value. This only has any effect with
+ *	live tree, since flat tree handles this automatically. It allows a
+ *	node's value to be written to the tree, without requiring that the
+ *	caller allocate it
  * Return: 0 if successful, -ve on error
  */
 int ofnode_write_prop(ofnode node, const char *propname, const void *value,
-		      int len);
+		      int len, bool copy);
 
 /**
  * ofnode_write_string() - Set a string property of a ofnode

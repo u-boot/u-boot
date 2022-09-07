@@ -1388,15 +1388,27 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 }
 
 int ofnode_write_prop(ofnode node, const char *propname, const void *value,
-		      int len)
+		      int len, bool copy)
 {
-	if (of_live_active())
-		return of_write_prop(ofnode_to_np(node), propname, len, value);
-	else
+	if (of_live_active()) {
+		void *newval;
+		int ret;
+
+		if (copy) {
+			newval = malloc(len);
+			if (!newval)
+				return log_ret(-ENOMEM);
+			memcpy(newval, value, len);
+			value = newval;
+		}
+		ret = of_write_prop(ofnode_to_np(node), propname, len, value);
+		if (ret && copy)
+			free(newval);
+		return ret;
+	} else {
 		return fdt_setprop(ofnode_to_fdt(node), ofnode_to_offset(node),
 				   propname, value, len);
-
-	return 0;
+	}
 }
 
 int ofnode_write_string(ofnode node, const char *propname, const char *value)
@@ -1405,7 +1417,8 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value)
 
 	debug("%s: %s = %s", __func__, propname, value);
 
-	return ofnode_write_prop(node, propname, value, strlen(value) + 1);
+	return ofnode_write_prop(node, propname, value, strlen(value) + 1,
+				 false);
 }
 
 int ofnode_write_u32(ofnode node, const char *propname, u32 value)
@@ -1420,7 +1433,7 @@ int ofnode_write_u32(ofnode node, const char *propname, u32 value)
 		return -ENOMEM;
 	*val = cpu_to_fdt32(value);
 
-	return ofnode_write_prop(node, propname, val, sizeof(value));
+	return ofnode_write_prop(node, propname, val, sizeof(value), false);
 }
 
 int ofnode_set_enabled(ofnode node, bool value)
