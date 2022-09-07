@@ -108,6 +108,9 @@ struct sandbox_state {
 	bool hwspinlock;		/* Hardware Spinlock status */
 	bool allow_memio;		/* Allow readl() etc. to work */
 
+	void *other_fdt_buf;		/* 'other' FDT blob used by tests */
+	int other_size;			/* size of other FDT blob */
+
 	/*
 	 * This struct is getting large.
 	 *
@@ -278,6 +281,19 @@ void state_show(struct sandbox_state *state);
  * small
  */
 int state_get_rel_filename(const char *rel_path, char *buf, int size);
+
+/**
+ * state_load_other_fdt() - load the 'other' FDT into a buffer
+ *
+ * This loads the other.dtb file into a buffer. This is typically used in tests.
+ *
+ * @bufp: Place to put allocated buffer pointer. The buffer is read using
+ * os_read_file() which calls os_malloc(), so does affect U-Boot's own malloc()
+ * space
+ * @sizep: Returns the size of the buffer
+ * @return 0 if OK, -ve on error
+ */
+int state_load_other_fdt(const char **bufp, int *sizep);
 
 /**
  * Initialize the test system state
