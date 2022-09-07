@@ -400,6 +400,30 @@ config DM_DEV_READ_INLINE
 	bool
 	default y if !OF_LIVE
 
+config OFNODE_MULTI_TREE
+	bool "Allow the ofnode interface to access any tree"
+	default y if EVENT && !DM_DEV_READ_INLINE && !DM_INLINE_OFNODE
+	help
+	  Normally U-Boot makes use of its control FDT, the one used to bind
+	  devices and provide options. In some cases, U-Boot must also process
+	  a separate FDT, e.g. one provided by the operating system, which
+	  needs additions to the /chosen node.
+
+	  This works fine with live tree (OF_LIVE), but with flat tree the
+	  offset provided in ofnode is only useful with the control FDT. This
+	  option adds a 'tree ID' to the offset, so that multiple trees can
+	  be used. Call oftree_from_fdt() to register a new tree.
+
+config OFNODE_MULTI_TREE_MAX
+	int "Maximum number of FDTs"
+	range 2 8
+	depends on OFNODE_MULTI_TREE
+	default 4
+	help
+	  Sets the maximum number of device trees which can be used with the
+	  ofnode interface when using flat trees (OF_LIVE). This is only
+	  available in U-Boot proper and only after relocation.
+
 config ACPIGEN
 	bool "Support ACPI table generation in driver model"
 	default y if SANDBOX || (GENERATE_ACPI_TABLE && !QEMU)
