@@ -1176,3 +1176,62 @@ static int dm_test_ofnode_too_many(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_too_many, UT_TESTF_SCAN_FDT);
+
+static int check_copy_props(struct unit_test_state *uts, ofnode src,
+			    ofnode dst)
+{
+	u32 reg[2], val;
+
+	ut_assertok(ofnode_copy_props(src, dst));
+
+	ut_assertok(ofnode_read_u32(dst, "ping-expect", &val));
+	ut_asserteq(3, val);
+
+	ut_asserteq_str("denx,u-boot-fdt-test",
+			ofnode_read_string(dst, "compatible"));
+
+	/* check that a property with the same name is overwritten */
+	ut_assertok(ofnode_read_u32_array(dst, "reg", reg, ARRAY_SIZE(reg)));
+	ut_asserteq(3, reg[0]);
+	ut_asserteq(1, reg[1]);
+
+	/* reset the compatible so the live tree does not change */
+	ut_assertok(ofnode_write_string(dst, "compatible", "nothing"));
+
+	return 0;
+}
+
+static int dm_test_ofnode_copy_props(struct unit_test_state *uts)
+{
+	ofnode src, dst;
+
+	/*
+	 * These nodes are chosen so that the src node is before the destination
+	 * node in the tree. This doesn't matter with livetree, but with
+	 * flattree any attempt to insert a property earlier in the tree will
+	 * mess up the offsets after it.
+	 */
+	src = ofnode_path("/b-test");
+	dst = ofnode_path("/some-bus");
+
+	ut_assertok(check_copy_props(uts, src, dst));
+
+	/* check a property that is in the destination already */
+	ut_asserteq_str("mux0", ofnode_read_string(dst, "mux-control-names"));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_copy_props, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_copy_props_ot(struct unit_test_state *uts)
+{
+	ofnode src, dst;
+	oftree otree = get_other_oftree(uts);
+
+	src = ofnode_path("/b-test");
+	dst = oftree_path(otree, "/node/subnode2");
+	ut_assertok(check_copy_props(uts, src, dst));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_copy_props_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);

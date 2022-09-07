@@ -1557,3 +1557,27 @@ int ofnode_add_subnode(ofnode node, const char *name, ofnode *subnodep)
 
 	return ret;	/* 0 or -EEXIST */
 }
+
+int ofnode_copy_props(ofnode src, ofnode dst)
+{
+	struct ofprop prop;
+
+	ofnode_for_each_prop(prop, src) {
+		const char *name;
+		const char *val;
+		int len, ret;
+
+		val = ofprop_get_property(&prop, &name, &len);
+		if (!val) {
+			log_debug("Cannot read prop (err=%d)\n", len);
+			return log_msg_ret("get", -EINVAL);
+		}
+		ret = ofnode_write_prop(dst, name, val, len, true);
+		if (ret) {
+			log_debug("Cannot write prop (err=%d)\n", ret);
+			return log_msg_ret("wr", -EINVAL);
+		}
+	}
+
+	return 0;
+}
