@@ -391,7 +391,7 @@ ofnode ofnode_get_by_phandle(uint phandle)
 	ofnode node;
 
 	if (of_live_active())
-		node = np_to_ofnode(of_find_node_by_phandle(phandle));
+		node = np_to_ofnode(of_find_node_by_phandle(NULL, phandle));
 	else
 		node.of_offset = fdt_node_offset_by_phandle(gd->fdt_blob,
 							    phandle);

@@ -501,6 +501,8 @@ int ofnode_get_path(ofnode node, char *buf, int buflen);
 /**
  * ofnode_get_by_phandle() - get ofnode from phandle
  *
+ * This uses the default (control) device tree
+ *
  * @phandle:	phandle to look up
  * Return: ofnode reference to the phandle
  */

@@ -258,11 +258,13 @@ struct device_node *of_find_node_by_prop_value(struct device_node *from,
 /**
  * of_find_node_by_phandle() - Find a node given a phandle
  *
+ * @root:	root node to start from (NULL for default device tree)
  * @handle:	phandle of the node to find
  *
  * Return: node pointer, or NULL if not found
  */
-struct device_node *of_find_node_by_phandle(phandle handle);
+struct device_node *of_find_node_by_phandle(struct device_node *root,
+					    phandle handle);
 
 /**
  * of_read_u8() - Find and read a 8-bit integer from a property

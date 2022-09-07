@@ -445,14 +445,15 @@ struct device_node *of_find_node_by_prop_value(struct device_node *from,
 	return np;
 }
 
-struct device_node *of_find_node_by_phandle(phandle handle)
+struct device_node *of_find_node_by_phandle(struct device_node *root,
+					    phandle handle)
 {
 	struct device_node *np;
 
 	if (!handle)
 		return NULL;
 
-	for_each_of_allnodes(np)
+	for_each_of_allnodes_from(root, np)
 		if (np->phandle == handle)
 			break;
 	(void)of_node_get(np);
@@ -697,7 +698,7 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 			 * below.
 			 */
 			if (cells_name || cur_index == index) {
-				node = of_find_node_by_phandle(phandle);
+				node = of_find_node_by_phandle(NULL, phandle);
 				if (!node) {
 					debug("%s: could not find phandle\n",
 					      np->full_name);
