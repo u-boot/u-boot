@@ -908,6 +908,8 @@ const void *ofnode_read_chosen_prop(const char *propname, int *sizep);
  * This looks for a property within the /chosen node and returns its value,
  * checking that it is a valid nul-terminated string
  *
+ * This only works with the control FDT.
+ *
  * @propname: Property name to look for
  * Return: string value if found, else NULL
  */
@@ -919,6 +921,8 @@ const char *ofnode_read_chosen_string(const char *propname);
  * This looks up a named property in the chosen node and uses that as a path to
  * look up a code.
  *
+ * This only works with the control FDT.
+ *
  * @propname: Property name to look for
  * Return: the referenced node if present, else ofnode_null()
  */
@@ -928,6 +932,8 @@ ofnode ofnode_get_chosen_node(const char *propname);
  * ofnode_read_aliases_prop() - get the value of a aliases property
  *
  * This looks for a property within the /aliases node and returns its value
+ *
+ * This only works with the control FDT.
  *
  * @propname: Property name to look for
  * @sizep: Returns size of property, or `FDT_ERR_...` error code if function
@@ -941,6 +947,8 @@ const void *ofnode_read_aliases_prop(const char *propname, int *sizep);
  *
  * This looks up a named property in the aliases node and uses that as a path to
  * look up a code.
+ *
+ * This only works with the control FDT.
  *
  * @propname: Property name to look for
  * Return: the referenced node if present, else ofnode_null()
@@ -1427,7 +1435,9 @@ phy_interface_t ofnode_read_phy_mode(ofnode mac_node);
  *
  * This reads a property from the /config node of the devicetree.
  *
- * See doc/config.txt for bindings
+ * This only works with the control FDT.
+ *
+ * See doc/device-tree-bindings/config.txt for bindings
  *
  * @prop_name:	property name to look up
  * Return: true, if it exists, false if not
@@ -1439,7 +1449,7 @@ bool ofnode_conf_read_bool(const char *prop_name);
  *
  * This reads a property from the /config node of the devicetree.
  *
- * See doc/config.txt for bindings
+ * See doc/device-tree-bindings/config.txt for bindings
  *
  * @prop_name: property name to look up
  * @default_val: default value to return if the property is not found
@@ -1452,7 +1462,9 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
  *
  * This reads a property from the /config node of the devicetree.
  *
- * See doc/config.txt for bindings
+ * This only works with the control FDT.
+ *
+ * See doc/device-tree-bindings/config.txt for bindings
  *
  * @prop_name: property name to look up
  * Return: string value, if found, or NULL if not
