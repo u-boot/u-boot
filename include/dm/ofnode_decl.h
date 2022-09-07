@@ -39,7 +39,7 @@
  *	is not a really a pointer to a node: it is an offset value. See above.
  */
 typedef union ofnode_union {
-	const struct device_node *np;
+	struct device_node *np;
 	long of_offset;
 } ofnode;
 

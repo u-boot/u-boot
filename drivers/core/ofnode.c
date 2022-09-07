@@ -268,7 +268,7 @@ ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 	debug("%s: %s: ", __func__, subnode_name);
 
 	if (ofnode_is_np(node)) {
-		const struct device_node *np = ofnode_to_np(node);
+		struct device_node *np = ofnode_to_np(node);
 
 		for (np = np->child; np; np = np->sibling) {
 			if (!strcmp(subnode_name, np->name))
@@ -1171,7 +1171,7 @@ int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 		      int len)
 {
 	if (of_live_active())
-		return of_write_prop(ofnode_to_npw(node), propname, len, value);
+		return of_write_prop(ofnode_to_np(node), propname, len, value);
 	else
 		return fdt_setprop((void *)gd->fdt_blob, ofnode_to_offset(node),
 				   propname, value, len);
