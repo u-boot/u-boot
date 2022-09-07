@@ -1014,6 +1014,76 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
 int fit_image_get_data_and_size(const void *fit, int noffset,
 				const void **data, size_t *size);
 
+/**
+ * fit_get_data_node() - Get verified image data for an image
+ * @fit: Pointer to the FIT format image header
+ * @image_uname: The name of the image node
+ * @data: A pointer which will be filled with the location of the image data
+ * @size: A pointer which will be filled with the size of the image data
+ *
+ * This function looks up the location and size of an image specified by its
+ * name. For example, if you had a FIT like::
+ *
+ *     images {
+ *         my-firmware {
+ *             ...
+ *	   };
+ *      };
+ *
+ * Then you could look up the data location and size of the my-firmware image
+ * by calling this function with @image_uname set to "my-firmware". This
+ * function also verifies the image data (if enabled) before returning. The
+ * image description is printed out on success. @data and @size will not be
+ * modified on faulure.
+ *
+ * Return:
+ * * 0 on success
+ * * -EINVAL if the image could not be verified
+ * * -ENOENT if there was a problem getting the data/size
+ * * Another negative error if there was a problem looking up the image node.
+ */
+int fit_get_data_node(const void *fit, const char *image_uname,
+		      const void **data, size_t *size);
+
+/**
+ * fit_get_data_conf_prop() - Get verified image data for a property in /conf
+ * @fit: Pointer to the FIT format image header
+ * @prop_name: The name of the property in /conf referencing the image
+ * @data: A pointer which will be filled with the location of the image data
+ * @size: A pointer which will be filled with the size of the image data
+ *
+ * This function looks up the location and size of an image specified by a
+ * property in /conf. For example, if you had a FIT like::
+ *
+ *     images {
+ *         my-firmware {
+ *             ...
+ *	   };
+ *      };
+ *
+ *      configurations {
+ *          default = "conf-1";
+ *          conf-1 {
+ *              some-firmware = "my-firmware";
+ *          };
+ *      };
+ *
+ * Then you could look up the data location and size of the my-firmware image
+ * by calling this function with @prop_name set to "some-firmware". This
+ * function also verifies the image data (if enabled) before returning. The
+ * image description is printed out on success. @data and @size will not be
+ * modified on faulure.
+ *
+ * Return:
+ * * 0 on success
+ * * -EINVAL if the image could not be verified
+ * * -ENOENT if there was a problem getting the data/size
+ * * Another negative error if there was a problem looking up the configuration
+ *   or image node.
+ */
+int fit_get_data_conf_prop(const void *fit, const char *prop_name,
+			   const void **data, size_t *size);
+
 int fit_image_hash_get_algo(const void *fit, int noffset, const char **algo);
 int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 				int *value_len);

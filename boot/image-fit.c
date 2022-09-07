@@ -1916,6 +1916,43 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 	return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
 }
 
+static int fit_get_data_tail(const void *fit, int noffset,
+			     const void **data, size_t *size)
+{
+	char *desc;
+
+	if (noffset < 0)
+		return noffset;
+
+	if (!fit_image_verify(fit, noffset))
+		return -EINVAL;
+
+	if (fit_image_get_data_and_size(fit, noffset, data, size))
+		return -ENOENT;
+
+	if (!fit_get_desc(fit, noffset, &desc))
+		printf("%s\n", desc);
+
+	return 0;
+}
+
+int fit_get_data_node(const void *fit, const char *image_uname,
+		      const void **data, size_t *size)
+{
+	int noffset = fit_image_get_node(fit, image_uname);
+
+	return fit_get_data_tail(fit, noffset, data, size);
+}
+
+int fit_get_data_conf_prop(const void *fit, const char *prop_name,
+			   const void **data, size_t *size)
+{
+	int noffset = fit_conf_get_node(fit, NULL);
+
+	noffset = fit_conf_get_prop_node(fit, noffset, prop_name);
+	return fit_get_data_tail(fit, noffset, data, size);
+}
+
 static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
 	fit_image_print(fit, rd_noffset, "   ");

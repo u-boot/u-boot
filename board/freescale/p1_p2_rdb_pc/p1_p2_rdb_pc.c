@@ -414,6 +414,24 @@ int board_eth_init(struct bd_info *bis)
 }
 #endif
 
+#if defined(CONFIG_OF_BOARD_SETUP) || defined(CONFIG_OF_BOARD_FIXUP)
+static void fix_max6370_watchdog(void *blob)
+{
+	int off = fdt_node_offset_by_compatible(blob, -1, "maxim,max6370");
+	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	u32 gpioval = in_be32(&pgpio->gpdat);
+
+	/*
+	 * Delete watchdog max6370 node in load_default mode (detected by
+	 * GPIO7 - LOAD_DEFAULT_N) because CPLD in load_default mode ignores
+	 * watchdog reset signal. CPLD in load_default mode does not reset
+	 * board when watchdog triggers reset signal.
+	 */
+	if (!(gpioval & BIT(31-7)) && off >= 0)
+		fdt_del_node(blob, off);
+}
+#endif
+
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -438,6 +456,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",
 			sizeof("okay"), 0);
 #endif
+
+	fix_max6370_watchdog(blob);
 
 #if defined(CONFIG_HAS_FSL_DR_USB)
 	fsl_fdt_fixup_dr_usb(blob, bd);
@@ -487,6 +507,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 #endif
 
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_OF_BOARD_FIXUP
+int board_fix_fdt(void *blob)
+{
+	fix_max6370_watchdog(blob);
 	return 0;
 }
 #endif
