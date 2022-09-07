@@ -174,6 +174,38 @@ static inline bool ofnode_equal(ofnode ref1, ofnode ref2)
 }
 
 /**
+ * oftree_valid() - check if an oftree is valid
+ *
+ * @tree: Reference containing oftree
+ * Return: true if the reference contains a valid oftree, false if node
+ */
+static inline bool oftree_valid(oftree tree)
+{
+	if (of_live_active())
+		return tree.np;
+	else
+		return tree.fdt;
+}
+
+/**
+ * oftree_null() - Obtain a null oftree
+ *
+ * This returns an oftree which points to no tree. It works both with the flat
+ * tree and livetree.
+ */
+static inline oftree oftree_null(void)
+{
+	oftree tree;
+
+	if (of_live_active())
+		tree.np = NULL;
+	else
+		tree.fdt = NULL;
+
+	return tree;
+}
+
+/**
  * ofnode_null() - Obtain a null ofnode
  *
  * This returns an ofnode which points to no node. It works both with the flat
@@ -230,6 +262,37 @@ static inline oftree oftree_default(void)
 		tree.np = gd_of_root();
 	else
 		tree.fdt = (void *)gd->fdt_blob;
+
+	return tree;
+}
+
+/**
+ * oftree_from_np() - Returns an oftree from a node pointer
+ *
+ * @root: Root node of the tree
+ * Returns: reference to the given node
+ */
+static inline oftree oftree_from_np(struct device_node *root)
+{
+	oftree tree;
+
+	tree.np = root;
+
+	return tree;
+}
+
+/**
+ * oftree_from_fdt() - Returns an oftree from a flat device tree pointer
+ *
+ * @fdt: Device tree to use
+ *
+ * Returns: reference to the given node
+ */
+static inline oftree oftree_from_fdt(void *fdt)
+{
+	oftree tree;
+
+	tree.fdt = fdt;
 
 	return tree;
 }
