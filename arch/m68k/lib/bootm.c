@@ -36,7 +36,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 }
 
 int do_bootm_linux(int flag, int argc, char *const argv[],
-		   bootm_headers_t *images)
+		   struct bootm_headers *images)
 {
 	int ret;
 	struct bd_info  *kbd;

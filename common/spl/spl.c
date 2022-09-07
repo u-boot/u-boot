@@ -260,7 +260,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 static int spl_load_fit_image(struct spl_image_info *spl_image,
 			      const struct image_header *header)
 {
-	bootm_headers_t images;
+	struct bootm_headers images;
 	const char *fit_uname_config = NULL;
 	uintptr_t fdt_hack;
 	const char *uname;

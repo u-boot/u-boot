@@ -290,7 +290,7 @@ typedef struct image_info {
  * Legacy and FIT format headers used by do_bootm() and do_bootm_<os>()
  * routines.
  */
-typedef struct bootm_headers {
+struct bootm_headers {
 	/*
 	 * Legacy os image header, if it is a multi component image
 	 * then boot_get_ramdisk() and get_fdt() will attempt to get
@@ -358,7 +358,7 @@ typedef struct bootm_headers {
 #if defined(CONFIG_LMB) && !defined(USE_HOSTCC)
 	struct lmb	lmb;		/* for memory mgmt */
 #endif
-} bootm_headers_t;
+};
 
 #ifdef CONFIG_LMB
 #define images_lmb(_images)	(&(_images)->lmb)
@@ -366,7 +366,7 @@ typedef struct bootm_headers {
 #define images_lmb(_images)	NULL
 #endif
 
-extern bootm_headers_t images;
+extern struct bootm_headers images;
 
 /*
  * Some systems (for example LWMON) have very short watchdog periods;
@@ -530,7 +530,7 @@ enum fit_load_op {
 	FIT_LOAD_REQUIRED,	/* Must be provided */
 };
 
-int boot_get_setup(bootm_headers_t *images, uint8_t arch, ulong *setup_start,
+int boot_get_setup(struct bootm_headers *images, uint8_t arch, ulong *setup_start,
 		   ulong *setup_len);
 
 /* Image format types, returned by _get_format() routine */
@@ -544,11 +544,11 @@ ulong genimg_get_kernel_addr_fit(char * const img_addr,
 			         const char **fit_uname_kernel);
 ulong genimg_get_kernel_addr(char * const img_addr);
 int genimg_get_format(const void *img_addr);
-int genimg_has_config(bootm_headers_t *images);
+int genimg_has_config(struct bootm_headers *images);
 
-int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
+int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
 		  uint8_t arch, const ulong *ld_start, ulong * const ld_len);
-int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
+int boot_get_ramdisk(int argc, char *const argv[], struct bootm_headers *images,
 		     uint8_t arch, ulong *rd_start, ulong *rd_end);
 
 /**
@@ -572,10 +572,10 @@ int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
  *     0, if only valid images or no images are found
  *     error code, if an error occurs during fit_image_load
  */
-int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
+int boot_get_loadable(int argc, char *const argv[], struct bootm_headers *images,
 		      uint8_t arch, const ulong *ld_start, ulong *const ld_len);
 
-int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
+int boot_get_setup_fit(struct bootm_headers *images, uint8_t arch,
 		       ulong *setup_start, ulong *setup_len);
 
 /**
@@ -599,9 +599,9 @@ int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
  *
  * Return: node offset of base image, or -ve error code on error
  */
-int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
-		   const char **fit_unamep, const char **fit_uname_configp,
-		   int arch, ulong *datap, ulong *lenp);
+int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
+		     const char **fit_unamep, const char **fit_uname_configp,
+		     int arch, ulong *datap, ulong *lenp);
 
 /**
  * fit_image_load() - load an image from a FIT
@@ -633,7 +633,7 @@ int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
  * @param lenp		Returns length of loaded image
  * Return: node offset of image, or -ve error code on error
  */
-int fit_image_load(bootm_headers_t *images, ulong addr,
+int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
@@ -677,11 +677,11 @@ int image_source_script(ulong addr, const char *fit_uname);
  * @param prop_name	Property name to look up (FIT_..._PROP)
  * @param addr		Address of FIT in memory
  */
-int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
-			ulong addr);
+int fit_get_node_from_config(struct bootm_headers *images,
+			     const char *prop_name, ulong addr);
 
 int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
-		 bootm_headers_t *images,
+		 struct bootm_headers *images,
 		 char **of_flat_tree, ulong *of_size);
 void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob);
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size);
@@ -871,7 +871,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
  * @lmb:	Points to logical memory block structure
  * Return: 0 if ok, <0 on failure
  */
-int image_setup_libfdt(bootm_headers_t *images, void *blob,
+int image_setup_libfdt(struct bootm_headers *images, void *blob,
 		       int of_size, struct lmb *lmb);
 
 /**
@@ -883,7 +883,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
  * @param images	Images information
  * Return: 0 if ok, <0 on failure
  */
-int image_setup_linux(bootm_headers_t *images);
+int image_setup_linux(struct bootm_headers *images);
 
 /**
  * bootz_setup() - Extract stat and size of a Linux xImage
