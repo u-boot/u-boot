@@ -11,6 +11,7 @@
 #include <event.h>
 #include <of_live.h>
 #include <os.h>
+#include <dm/ofnode.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
@@ -99,6 +100,7 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 
 	/* Determine whether to make the live tree available */
 	gd_set_of_root(of_live ? uts->of_root : NULL);
+	oftree_reset();
 	ut_assertok(dm_init(of_live));
 	uts->root = dm_root();
 

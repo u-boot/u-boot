@@ -28,6 +28,14 @@ struct ofnode_phandle_args {
 };
 
 /**
+ * oftree_reset() - reset the state of the oftree list
+ *
+ * Reset the oftree list so it can be started again. This should be called
+ * once the control FDT is in place, but before the ofnode interface is used.
+ */
+static inline void oftree_reset(void) {}
+
+/**
  * ofnode_to_np() - convert an ofnode to a live DT node pointer
  *
  * This cannot be called if the reference contains an offset.

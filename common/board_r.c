@@ -234,6 +234,8 @@ static int initr_dm(void)
 {
 	int ret;
 
+	oftree_reset();
+
 	/* Save the pre-reloc driver model and start a new one */
 	gd->dm_root_f = gd->dm_root;
 	gd->dm_root = NULL;
