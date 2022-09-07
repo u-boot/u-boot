@@ -546,10 +546,6 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	struct udevice *dev;
 	ofnode node;
 
-	/* temporarily disable this test due to a failure fixed later */
-	if (!of_live_active())
-		return 0;
-
 	/* Test enabling devices */
 	node = ofnode_path("/usb@2");
 
@@ -588,7 +584,7 @@ static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_livetree_writing,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_u32(struct unit_test_state *uts)
 {
@@ -603,17 +599,12 @@ static int dm_test_ofnode_u32(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_u32,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);
+DM_TEST(dm_test_ofnode_u32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_add_subnode(struct unit_test_state *uts)
 {
 	ofnode node, check, subnode;
 	char buf[128];
-
-	/* temporarily disable this test due to a failure fixed later */
-	if (!of_live_active())
-		return 0;
 
 	node = ofnode_path("/lcd");
 	ut_assert(ofnode_valid(node));
@@ -677,5 +668,4 @@ static int dm_test_ofnode_add_subnode(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_add_subnode,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_OR_FLAT);
+DM_TEST(dm_test_ofnode_add_subnode, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
