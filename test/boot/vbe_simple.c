@@ -96,7 +96,7 @@ static int vbe_simple_test_base(struct unit_test_state *uts)
 	fixup.tree.np = np;
 	ut_assertok(event_notify(EVT_FT_FIXUP, &fixup, sizeof(fixup)));
 
-	node = ofnode_path_root(fixup.tree, "/chosen/fwupd/firmware0");
+	node = oftree_path(fixup.tree, "/chosen/fwupd/firmware0");
 
 	version = ofnode_read_string(node, "cur-version");
 	ut_assertnonnull(version);

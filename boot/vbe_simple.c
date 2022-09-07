@@ -240,7 +240,7 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 			continue;
 
 		/* Check if there is a node to fix up */
-		node = ofnode_path_root(tree, "/chosen/fwupd");
+		node = oftree_path(tree, "/chosen/fwupd");
 		if (!ofnode_valid(node))
 			continue;
 		node = ofnode_find_subnode(node, dev->name);

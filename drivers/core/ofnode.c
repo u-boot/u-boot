@@ -18,6 +18,26 @@
 #include <linux/ioport.h>
 #include <asm/global_data.h>
 
+/**
+ * ofnode_from_tree_offset() - get an ofnode from a tree offset (flat tree)
+ *
+ * Looks up the tree and returns an ofnode with the correct of_offset
+ *
+ * If @offset is < 0 then this returns an ofnode with that offset
+ *
+ * @tree: tree to check
+ * @offset: offset within that tree (can be < 0)
+ * @return node for that offset
+ */
+static ofnode ofnode_from_tree_offset(oftree tree, int offset)
+{
+	ofnode node;
+
+	node.of_offset = offset;
+
+	return node;
+}
+
 bool ofnode_name_eq(ofnode node, const char *name)
 {
 	const char *node_name;
@@ -640,15 +660,27 @@ ofnode ofnode_path(const char *path)
 		return offset_to_ofnode(fdt_path_offset(gd->fdt_blob, path));
 }
 
-ofnode ofnode_path_root(oftree tree, const char *path)
+ofnode oftree_root(oftree tree)
 {
-	if (of_live_active())
+	if (of_live_active()) {
+		return np_to_ofnode(tree.np);
+	} else {
+		return ofnode_from_tree_offset(tree, 0);
+	}
+}
+
+ofnode oftree_path(oftree tree, const char *path)
+{
+	if (of_live_active()) {
 		return np_to_ofnode(of_find_node_opts_by_path(tree.np, path,
 							      NULL));
-	else if (*path != '/' && tree.fdt != gd->fdt_blob)
+	} else if (*path != '/' && tree.fdt != gd->fdt_blob) {
 		return ofnode_null();  /* Aliases only on control FDT */
-	else
-		return offset_to_ofnode(fdt_path_offset(tree.fdt, path));
+	} else {
+		int offset = fdt_path_offset(tree.fdt, path);
+
+		return ofnode_from_tree_offset(tree, offset);
+	}
 }
 
 const void *ofnode_read_chosen_prop(const char *propname, int *sizep)

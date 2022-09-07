@@ -532,15 +532,15 @@ static int dm_test_ofnode_root(struct unit_test_state *uts)
 	ut_assert(oftree_valid(tree));
 
 	/* Make sure they don't work on this new tree */
-	node = ofnode_path_root(tree, "mmc0");
+	node = oftree_path(tree, "mmc0");
 	ut_assert(!ofnode_valid(node));
 
 	/* It should appear in the new tree */
-	node = ofnode_path_root(tree, "/new-mmc");
+	node = oftree_path(tree, "/new-mmc");
 	ut_assert(ofnode_valid(node));
 
 	/* ...and not in the control FDT */
-	node = ofnode_path_root(oftree_default(), "/new-mmc");
+	node = oftree_path(oftree_default(), "/new-mmc");
 	ut_assert(!ofnode_valid(node));
 
 	free(root);
