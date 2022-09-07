@@ -103,6 +103,22 @@ static inline bool ofnode_valid(ofnode node)
 }
 
 /**
+ * oftree_lookup_fdt() - obtain the FDT pointer from an oftree
+ *
+ * This can only be called when flat tree is enabled
+ *
+ * @tree: Tree to look at
+ * @return FDT pointer from the tree
+ */
+static inline void *oftree_lookup_fdt(oftree tree)
+{
+	if (of_live_active())
+		return NULL;
+	else
+		return tree.fdt;
+}
+
+/**
  * offset_to_ofnode() - convert a DT offset to an ofnode
  *
  * @of_offset: DT offset (either valid, or -1)
@@ -593,6 +609,15 @@ int ofnode_get_path(ofnode node, char *buf, int buflen);
  * Return: ofnode reference to the phandle
  */
 ofnode ofnode_get_by_phandle(uint phandle);
+
+/**
+ * oftree_get_by_phandle() - get ofnode from phandle
+ *
+ * @tree:	tree to use
+ * @phandle:	phandle to look up
+ * Return: ofnode reference to the phandle
+ */
+ofnode oftree_get_by_phandle(oftree tree, uint phandle);
 
 /**
  * ofnode_read_size() - read the size of a property

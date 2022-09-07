@@ -36,6 +36,8 @@ static int dm_test_ofnode_get_by_phandle(struct unit_test_state *uts)
 	/* test unknown phandle */
 	ut_assert(!ofnode_valid(ofnode_get_by_phandle(0x1000000)));
 
+	ut_assert(ofnode_valid(oftree_get_by_phandle(oftree_default(), 1)));
+
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_by_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

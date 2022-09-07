@@ -410,6 +410,20 @@ ofnode ofnode_get_by_phandle(uint phandle)
 	return node;
 }
 
+ofnode oftree_get_by_phandle(oftree tree, uint phandle)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node = np_to_ofnode(of_find_node_by_phandle(tree.np, phandle));
+	else
+		node.of_offset =
+			fdt_node_offset_by_phandle(oftree_lookup_fdt(tree),
+						   phandle);
+
+	return node;
+}
+
 static fdt_addr_t __ofnode_get_addr_size_index(ofnode node, int index,
 					       fdt_size_t *size, bool translate)
 {
