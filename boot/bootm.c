@@ -399,7 +399,7 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size,
 #ifndef USE_HOSTCC
 static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 {
-	image_info_t os = images->os;
+	struct image_info os = images->os;
 	ulong load = os.load;
 	ulong load_end;
 	ulong blob_start = os.start;
