@@ -544,7 +544,7 @@ void env_import_fdt(void)
 	     res = ofnode_next_property(&prop)) {
 		const char *name, *val;
 
-		val = ofnode_get_property_by_prop(&prop, &name, NULL);
+		val = ofprop_get_property(&prop, &name, NULL);
 		env_set(name, val);
 	}
 }

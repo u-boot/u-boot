@@ -816,8 +816,8 @@ int ofnode_next_property(struct ofprop *prop)
 	return 0;
 }
 
-const void *ofnode_get_property_by_prop(const struct ofprop *prop,
-					const char **propname, int *lenp)
+const void *ofprop_get_property(const struct ofprop *prop,
+				const char **propname, int *lenp)
 {
 	if (ofnode_is_np(prop->node))
 		return of_get_property_by_prop(ofnode_to_np(prop->node),

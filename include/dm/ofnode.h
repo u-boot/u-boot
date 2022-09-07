@@ -802,7 +802,7 @@ const void *ofnode_get_property(ofnode node, const char *propname, int *lenp);
  * ofnode_first_property()- get the reference of the first property
  *
  * Get reference to the first property of the node, it is used to iterate
- * and read all the property with ofnode_get_property_by_prop().
+ * and read all the property with ofprop_get_property().
  *
  * @node: node to read
  * @prop: place to put argument reference
@@ -814,7 +814,7 @@ int ofnode_first_property(ofnode node, struct ofprop *prop);
  * ofnode_next_property() - get the reference of the next property
  *
  * Get reference to the next property of the node, it is used to iterate
- * and read all the property with ofnode_get_property_by_prop().
+ * and read all the property with ofprop_get_property().
  *
  * @prop: reference of current argument and place to put reference of next one
  * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
@@ -822,17 +822,17 @@ int ofnode_first_property(ofnode node, struct ofprop *prop);
 int ofnode_next_property(struct ofprop *prop);
 
 /**
- * ofnode_get_property_by_prop() - get a pointer to the value of a property
+ * ofprop_get_property() - get a pointer to the value of a property
  *
  * Get value for the property identified by the provided reference.
  *
  * @prop: reference on property
  * @propname: If non-NULL, place to property name on success,
- * @lenp: If non-NULL, place to put length on success
- * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
+ * @lenp: If non-NULL, place to put length on success, or error code on failure
+ * Return: pointer to property, or NULL if not found
  */
-const void *ofnode_get_property_by_prop(const struct ofprop *prop,
-					const char **propname, int *lenp);
+const void *ofprop_get_property(const struct ofprop *prop,
+				const char **propname, int *lenp);
 
 /**
  * ofnode_is_available() - check if a node is marked available

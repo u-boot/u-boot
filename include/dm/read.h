@@ -1091,7 +1091,7 @@ static inline const void *dev_read_prop_by_prop(struct ofprop *prop,
 						const char **propname,
 						int *lenp)
 {
-	return ofnode_get_property_by_prop(prop, propname, lenp);
+	return ofprop_get_property(prop, propname, lenp);
 }
 
 static inline int dev_read_alias_seq(const struct udevice *dev, int *devnump)
