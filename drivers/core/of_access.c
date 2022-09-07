@@ -471,8 +471,7 @@ struct device_node *of_find_node_by_phandle(struct device_node *root,
  * @len:	requested length of property value
  *
  * Return: the property value on success, -EINVAL if the property does not
- * exist, -ENODATA if property does not have a value, and -EOVERFLOW if the
- * property data isn't large enough.
+ * exist and -EOVERFLOW if the property data isn't large enough.
  */
 static void *of_find_property_value_of_size(const struct device_node *np,
 					    const char *propname, u32 len)
@@ -481,8 +480,6 @@ static void *of_find_property_value_of_size(const struct device_node *np,
 
 	if (!prop)
 		return ERR_PTR(-EINVAL);
-	if (!prop->value)
-		return ERR_PTR(-ENODATA);
 	if (len > prop->length)
 		return ERR_PTR(-EOVERFLOW);
 

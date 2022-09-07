@@ -373,12 +373,12 @@ const char *ofnode_read_string(ofnode node, const char *propname);
  * @propname:	name of the property to read
  * @out_values:	pointer to return value, modified only if return value is 0
  * @sz:		number of array elements to read
- * Return: 0 if OK, -ve on error
+ * Return: 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough
  *
  * Search for a property in a device node and read 32-bit value(s) from
- * it. Returns 0 on success, -EINVAL if the property does not exist,
- * -ENODATA if property does not have a value, and -EOVERFLOW if the
- * property data isn't large enough.
+ * it.
  *
  * The out_values is modified only if a valid u32 value can be decoded.
  */

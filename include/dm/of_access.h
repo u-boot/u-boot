@@ -327,8 +327,7 @@ int of_read_u32(const struct device_node *np, const char *propname, u32 *outp);
  * @outp:	pointer to return value, modified only if return value is 0.
  *
  * Return:
- *   0 on success, -EINVAL if the property does not exist,
- *   -ENODATA if property does not have a value, and -EOVERFLOW if the
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if the
  *   property data isn't large enough.
  */
 int of_read_u32_index(const struct device_node *np, const char *propname,
@@ -345,8 +344,7 @@ int of_read_u32_index(const struct device_node *np, const char *propname,
  * @outp:	pointer to return value, modified only if return value is 0.
  *
  * Return:
- *   0 on success, -EINVAL if the property does not exist,
- *   -ENODATA if property does not have a value, and -EOVERFLOW if the
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if the
  *   property data isn't large enough.
  */
 int of_read_u64(const struct device_node *np, const char *propname, u64 *outp);
@@ -362,8 +360,8 @@ int of_read_u64(const struct device_node *np, const char *propname, u64 *outp);
  * @out_values:	pointer to return value, modified only if return value is 0.
  * @sz:		number of array elements to read
  * Return:
- *   0 on success, -EINVAL if the property does not exist, -ENODATA
- *   if property does not have a value, and -EOVERFLOW is longer than sz.
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if
+ *   longer than sz.
  */
 int of_read_u32_array(const struct device_node *np, const char *propname,
 		      u32 *out_values, size_t sz);

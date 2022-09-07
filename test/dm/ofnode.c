@@ -320,6 +320,9 @@ static int dm_test_ofnode_get_path(struct unit_test_state *uts)
 	res = ofnode_get_path(node, buf, 32);
 	ut_asserteq(-ENOSPC, res);
 
+	res = ofnode_get_path(ofnode_root(), buf, 32);
+	ut_asserteq_str("/", buf);
+
 	return 0;
 }
 DM_TEST(dm_test_ofnode_get_path, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
@@ -589,6 +592,7 @@ DM_TEST(dm_test_ofnode_livetree_writing,
 static int dm_test_ofnode_u32(struct unit_test_state *uts)
 {
 	ofnode node;
+	u32 val;
 
 	node = ofnode_path("/lcd");
 	ut_assert(ofnode_valid(node));
@@ -597,9 +601,61 @@ static int dm_test_ofnode_u32(struct unit_test_state *uts)
 	ut_asserteq(1367, ofnode_read_u32_default(node, "xres", 123));
 	ut_assertok(ofnode_write_u32(node, "xres", 1366));
 
+	node = ofnode_path("/backlight");
+	ut_assertok(ofnode_read_u32_index(node, "brightness-levels", 0, &val));
+	ut_asserteq(0, val);
+	ut_assertok(ofnode_read_u32_index(node, "brightness-levels", 1, &val));
+	ut_asserteq(16, val);
+	ut_assertok(ofnode_read_u32_index(node, "brightness-levels", 8, &val));
+	ut_asserteq(255, val);
+	ut_asserteq(-EOVERFLOW,
+		    ofnode_read_u32_index(node, "brightness-levels", 9, &val));
+	ut_asserteq(-EINVAL, ofnode_read_u32_index(node, "missing", 0, &val));
+
 	return 0;
 }
 DM_TEST(dm_test_ofnode_u32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_u32_array(struct unit_test_state *uts)
+{
+	ofnode node;
+	u32 val[10];
+
+	node = ofnode_path("/a-test");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_read_u32_array(node, "int-value", val, 1));
+	ut_asserteq(-EINVAL, ofnode_read_u32_array(node, "missing", val, 1));
+	ut_asserteq(-EOVERFLOW, ofnode_read_u32_array(node, "bool-value", val,
+						      1));
+
+	memset(val, '\0', sizeof(val));
+	ut_assertok(ofnode_read_u32_array(node, "int-array", val + 1, 3));
+	ut_asserteq(0, val[0]);
+	ut_asserteq(5678, val[1]);
+	ut_asserteq(9123, val[2]);
+	ut_asserteq(4567, val[3]);
+	ut_asserteq(0, val[4]);
+	ut_asserteq(-EOVERFLOW, ofnode_read_u32_array(node, "int-array", val,
+						      4));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_u32_array, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_u64(struct unit_test_state *uts)
+{
+	ofnode node;
+	u64 val;
+
+	node = ofnode_path("/a-test");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_read_u64(node, "int64-value", &val));
+	ut_asserteq_64(0x1111222233334444, val);
+	ut_asserteq(-EINVAL, ofnode_read_u64(node, "missing", &val));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_u64, UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_add_subnode(struct unit_test_state *uts)
 {
@@ -693,3 +749,49 @@ static int dm_test_ofnode_for_each_prop(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_for_each_prop, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_by_compatible(struct unit_test_state *uts)
+{
+	const char *compat = "denx,u-boot-fdt-test";
+	ofnode node;
+	int count;
+
+	count = 0;
+	for (node = ofnode_null();
+	     node = ofnode_by_compatible(node, compat), ofnode_valid(node);)
+		count++;
+	ut_asserteq(11, count);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_by_compatible, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_find_subnode(struct unit_test_state *uts)
+{
+	ofnode node, subnode;
+
+	node = ofnode_path("/buttons");
+
+	subnode = ofnode_find_subnode(node, "btn1");
+	ut_assert(ofnode_valid(subnode));
+	ut_asserteq_str("btn1", ofnode_get_name(subnode));
+
+	subnode = ofnode_find_subnode(node, "btn");
+	ut_assert(!ofnode_valid(subnode));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_find_subnode, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_get_name(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	node = ofnode_path("/buttons");
+	ut_assert(ofnode_valid(node));
+	ut_asserteq_str("buttons", ofnode_get_name(node));
+	ut_asserteq_str("", ofnode_get_name(ofnode_root()));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_get_name, UT_TESTF_SCAN_FDT);
