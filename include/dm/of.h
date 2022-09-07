@@ -31,10 +31,21 @@ struct property {
 /**
  * struct device_node: Device tree node
  *
- * @name: Node name
+ * The top of this tree is typically gd->of_root which points to the root node.
+ *
+ * The head of the list of children for the root node (and any other node) is
+ * in @child, with @sibling providing a link to the next child.
+ *
+ * Each child has a pointer to its parent in @parent.
+ *
+ * A node may have properties in which case the head of the list of properties
+ * @properties pointers to the first one, with struct property->@next pointing
+ * to the next one.
+ *
+ * @name: Node name, "" for the root node
  * @type: Node type (value of device_type property) or "<NULL>" if none
  * @phandle: Phandle value of this none, or 0 if none
- * @full_name: Full path to node, e.g. "/bus@1/spi@1100"
+ * @full_name: Full path to node, e.g. "/bus@1/spi@1100" ("/" for the root node)
  * @properties: Pointer to head of list of properties, or NULL if none
  * @parent: Pointer to parent node, or NULL if this is the root node
  * @child: Pointer to head of child node list, or NULL if no children
