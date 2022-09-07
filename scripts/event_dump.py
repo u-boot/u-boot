@@ -17,8 +17,10 @@ sys.path.insert(1, os.path.join(our_path, '../tools'))
 from binman import elf
 from patman import tools
 
+# A typical symbol looks like this:
+#   _u_boot_list_2_evspy_info_2_EVT_MISC_INIT_F_3_sandbox_misc_init_f
 PREFIX = '_u_boot_list_2_evspy_info_2_'
-RE_EVTYPE = re.compile('%s(.*)' % PREFIX)
+RE_EVTYPE = re.compile('%s(.*)_3_.*' % PREFIX)
 
 def show_sym(fname, data, endian, evtype, sym):
     """Show information about an evspy entry
