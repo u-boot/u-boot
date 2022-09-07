@@ -873,14 +873,6 @@ const void *ofprop_get_property(const struct ofprop *prop,
 				const char **propname, int *lenp);
 
 /**
- * ofnode_is_available() - check if a node is marked available
- *
- * @node: node to check
- * Return: true if node's 'status' property is "okay" (or is missing)
- */
-bool ofnode_is_available(ofnode node);
-
-/**
  * ofnode_get_addr_size() - get address and size from a property
  *
  * This does no address translation. It simply reads an property that contains

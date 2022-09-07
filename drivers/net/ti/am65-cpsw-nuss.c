@@ -719,7 +719,7 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 
 		node_name = ofnode_get_name(node);
 
-		disabled = !ofnode_is_available(node);
+		disabled = !ofnode_is_enabled(node);
 
 		ret = ofnode_read_u32(node, "reg", &port_id);
 		if (ret) {

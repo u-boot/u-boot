@@ -766,7 +766,7 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	if (ofnode_valid(dev_ofnode(parent)))
 		pci_dev_find_ofnode(parent, bdf, &node);
 
-	if (ofnode_valid(node) && !ofnode_is_available(node)) {
+	if (ofnode_valid(node) && !ofnode_is_enabled(node)) {
 		debug("%s: Ignoring disabled device\n", __func__);
 		return log_msg_ret("dis", -EPERM);
 	}

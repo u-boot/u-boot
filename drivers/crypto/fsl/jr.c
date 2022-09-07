@@ -853,7 +853,7 @@ static int caam_jr_probe(struct udevice *dev)
 
 	/* Check for enabled job ring node */
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
-		if (!ofnode_is_available(node))
+		if (!ofnode_is_enabled(node))
 			continue;
 
 		jr_node = ofnode_read_u32_default(node, "reg", -1);

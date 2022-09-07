@@ -828,15 +828,6 @@ const void *ofprop_get_property(const struct ofprop *prop,
 					     propname, lenp);
 }
 
-bool ofnode_is_available(ofnode node)
-{
-	if (ofnode_is_np(node))
-		return of_device_is_available(ofnode_to_np(node));
-	else
-		return fdtdec_get_is_enabled(gd->fdt_blob,
-					     ofnode_to_offset(node));
-}
-
 fdt_addr_t ofnode_get_addr_size(ofnode node, const char *property,
 				fdt_size_t *sizep)
 {

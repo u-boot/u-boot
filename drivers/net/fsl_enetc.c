@@ -323,7 +323,7 @@ static int enetc_probe(struct udevice *dev)
 	struct enetc_priv *priv = dev_get_priv(dev);
 	int res;
 
-	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_available(dev_ofnode(dev))) {
+	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_enabled(dev_ofnode(dev))) {
 		enetc_dbg(dev, "interface disabled\n");
 		return -ENODEV;
 	}

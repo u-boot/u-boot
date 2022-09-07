@@ -1058,7 +1058,7 @@ ofnode get_next_memory_node(ofnode mem)
 {
 	do {
 		mem = ofnode_by_prop_value(mem, "device_type", "memory", 7);
-	} while (!ofnode_is_available(mem));
+	} while (!ofnode_is_enabled(mem));
 
 	return mem;
 }
