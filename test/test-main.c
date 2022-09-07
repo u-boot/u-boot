@@ -9,6 +9,7 @@
 #include <cyclic.h>
 #include <dm.h>
 #include <event.h>
+#include <of_live.h>
 #include <os.h>
 #include <dm/root.h>
 #include <dm/test.h>
@@ -314,6 +315,20 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	    (test->flags & UT_TESTF_SCAN_FDT))
 		ut_assertok(dm_extended_scan(false));
 
+	if (IS_ENABLED(CONFIG_SANDBOX) && (test->flags & UT_TESTF_OTHER_FDT)) {
+		/* make sure the other FDT is available */
+		ut_assertok(test_load_other_fdt(uts));
+
+		/*
+		 * create a new live tree with it for every test, in case a
+		 * test modifies the tree
+		 */
+		if (of_live_active()) {
+			ut_assertok(unflatten_device_tree(uts->other_fdt,
+							  &uts->of_other));
+		}
+	}
+
 	if (test->flags & UT_TESTF_CONSOLE_REC) {
 		int ret = console_record_reset_enable();
 
@@ -341,6 +356,9 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 		ut_assertok(dm_test_post_run(uts));
 	ut_assertok(cyclic_uninit());
 	ut_assertok(event_uninit());
+
+	free(uts->of_other);
+	uts->of_other = NULL;
 
 	return 0;
 }
@@ -412,6 +430,9 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 {
 	int runs;
 
+	if ((test->flags & UT_TESTF_OTHER_FDT) && !IS_ENABLED(CONFIG_SANDBOX))
+		return -EAGAIN;
+
 	/* Run with the live tree if possible */
 	runs = 0;
 	if (CONFIG_IS_ENABLED(OF_LIVE)) {
@@ -423,10 +444,20 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	}
 
 	/*
-	 * Run with the flat tree if we couldn't run it with live tree,
-	 * or it is a core test.
+	 * Run with the flat tree if:
+	 * - it is not marked for live tree only
+	 * - it doesn't require the 'other' FDT when OFNODE_MULTI_TREE_MAX is
+	 *   not enabled (since flat tree can only support a single FDT in that
+	 *   case
+	 * - we couldn't run it with live tree,
+	 * - it is a core test (dm tests except video)
+	 * - the FDT is still valid and has not been updated by an earlier test
+	 *   (for sandbox we handle this by copying the tree, but not for other
+	 *    boards)
 	 */
 	if (!(test->flags & UT_TESTF_LIVE_TREE) &&
+	    (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) ||
+	     !(test->flags & UT_TESTF_OTHER_FDT)) &&
 	    (!runs || ut_test_run_on_flattree(test)) &&
 	    !(gd->flags & GD_FLG_FDT_CHANGED)) {
 		uts->of_live = false;
@@ -529,8 +560,10 @@ int ut_run_list(const char *category, const char *prefix,
 	/* Best efforts only...ignore errors */
 	if (has_dm_tests)
 		dm_test_restore(uts.of_root);
-	if (IS_ENABLED(CONFIG_SANDBOX))
+	if (IS_ENABLED(CONFIG_SANDBOX)) {
 		os_free(uts.fdt_copy);
+		os_free(uts.other_fdt);
+	}
 
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);

@@ -25,6 +25,7 @@
  * @fdt_size: Size of the device-tree copy
  * @other_fdt: Buffer for the other FDT (UT_TESTF_OTHER_FDT)
  * @other_fdt_size: Size of the other FDT (UT_TESTF_OTHER_FDT)
+ * @of_other: Live tree for the other FDT
  * @runs_per_test: Number of times to run each test (typically 1)
  * @expect_str: Temporary string used to hold expected string value
  * @actual_str: Temporary string used to hold actual string value
@@ -43,6 +44,7 @@ struct unit_test_state {
 	uint fdt_size;
 	void *other_fdt;
 	int other_fdt_size;
+	struct device_node *of_other;
 	int runs_per_test;
 	char expect_str[512];
 	char actual_str[512];
@@ -58,6 +60,7 @@ enum {
 	UT_TESTF_CONSOLE_REC	= BIT(5),	/* needs console recording */
 	/* do extra driver model init and uninit */
 	UT_TESTF_DM		= BIT(6),
+	UT_TESTF_OTHER_FDT	= BIT(7),	/* read in other device tree */
 };
 
 /**
