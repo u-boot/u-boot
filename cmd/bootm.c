@@ -511,7 +511,7 @@ static int do_imls_nand(void)
 			continue;
 
 		for (off = 0; off < mtd->size; off += mtd->erasesize) {
-			const image_header_t *header;
+			const struct legacy_img_hdr *header;
 			int ret;
 
 			if (nand_block_isbad(mtd, off))
@@ -529,7 +529,7 @@ static int do_imls_nand(void)
 			switch (genimg_get_format(buffer)) {
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 			case IMAGE_FORMAT_LEGACY:
-				header = (const image_header_t *)buffer;
+				header = (const struct legacy_img_hdr *)buffer;
 
 				len = image_get_image_size(header);
 				nand_imls_legacyimage(mtd, nand_dev, off, len);

@@ -40,10 +40,10 @@ DECLARE_GLOBAL_DATA_PTR;
  *     pointer to a ramdisk image header, if image was found and valid
  *     otherwise, return NULL
  */
-static const image_header_t *image_get_ramdisk(ulong rd_addr, u8 arch,
-					       int verify)
+static const struct legacy_img_hdr *image_get_ramdisk(ulong rd_addr, u8 arch,
+						      int verify)
 {
-	const image_header_t *rd_hdr = (const image_header_t *)rd_addr;
+	const struct legacy_img_hdr *rd_hdr = (const struct legacy_img_hdr *)rd_addr;
 
 	if (!image_check_magic(rd_hdr)) {
 		puts("Bad Magic Number\n");
@@ -273,9 +273,9 @@ ulong genimg_get_kernel_addr(char * const img_addr)
 int genimg_get_format(const void *img_addr)
 {
 	if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
-		const image_header_t *hdr;
+		const struct legacy_img_hdr *hdr;
 
-		hdr = (const image_header_t *)img_addr;
+		hdr = (const struct legacy_img_hdr *)img_addr;
 		if (image_check_magic(hdr))
 			return IMAGE_FORMAT_LEGACY;
 	}
@@ -389,7 +389,7 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 	switch (genimg_get_format(buf)) {
 	case IMAGE_FORMAT_LEGACY:
 		if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
-			const image_header_t *rd_hdr;
+			const struct legacy_img_hdr *rd_hdr;
 
 			printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
 			       rd_addr);

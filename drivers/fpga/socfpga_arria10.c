@@ -555,14 +555,14 @@ static int first_loading_rbf_to_buffer(struct udevice *dev,
 	/* Load image header into buffer */
 	ret = request_firmware_into_buf(dev,
 					fpga_loadfs->fpga_fsinfo->filename,
-					buffer_p, sizeof(struct image_header),
+					buffer_p, sizeof(struct legacy_img_hdr),
 					0);
 	if (ret < 0) {
 		debug("FPGA: Failed to read image header from flash.\n");
 		return -ENOENT;
 	}
 
-	if (image_get_magic((struct image_header *)buffer_p) != FDT_MAGIC) {
+	if (image_get_magic((struct legacy_img_hdr *)buffer_p) != FDT_MAGIC) {
 		debug("FPGA: No FDT magic was found.\n");
 		return -EBADF;
 	}

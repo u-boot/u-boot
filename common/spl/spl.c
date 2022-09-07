@@ -227,7 +227,7 @@ __weak void spl_board_prepare_for_boot(void)
 	/* Nothing to do! */
 }
 
-__weak struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
+__weak struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
 	return map_sysmem(CONFIG_SYS_TEXT_BASE + offset, 0);
 }
@@ -258,7 +258,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 #if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 /* Parse and load full fitImage in SPL */
 static int spl_load_fit_image(struct spl_image_info *spl_image,
-			      const struct image_header *header)
+			      const struct legacy_img_hdr *header)
 {
 	struct bootm_headers images;
 	const char *fit_uname_config = NULL;
@@ -359,7 +359,7 @@ __weak int spl_parse_board_header(struct spl_image_info *spl_image,
 }
 
 __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
-				   const struct image_header *header)
+				   const struct legacy_img_hdr *header)
 {
 	/* LEGACY image not supported */
 	debug("Legacy boot image support not enabled, proceeding to other boot methods\n");
@@ -368,7 +368,7 @@ __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
 
 int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct spl_boot_device *bootdev,
-			   const struct image_header *header)
+			   const struct legacy_img_hdr *header)
 {
 #if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 	int ret = spl_load_fit_image(spl_image, header);

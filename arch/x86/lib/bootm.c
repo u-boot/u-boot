@@ -72,7 +72,7 @@ int arch_fixup_memory_node(void *blob)
 static int boot_prep_linux(struct bootm_headers *images)
 {
 	char *cmd_line_dest = NULL;
-	image_header_t *hdr;
+	struct legacy_img_hdr *hdr;
 	int is_zimage = 0;
 	void *data = NULL;
 	size_t len;

@@ -263,7 +263,7 @@ enum {
  * Legacy format image header,
  * all data in network byte order (aka natural aka bigendian).
  */
-typedef struct image_header {
+struct legacy_img_hdr {
 	uint32_t	ih_magic;	/* Image Header Magic Number	*/
 	uint32_t	ih_hcrc;	/* Image Header CRC Checksum	*/
 	uint32_t	ih_time;	/* Image Creation Timestamp	*/
@@ -276,7 +276,7 @@ typedef struct image_header {
 	uint8_t		ih_type;	/* Image Type			*/
 	uint8_t		ih_comp;	/* Compression Type		*/
 	uint8_t		ih_name[IH_NMLEN];	/* Image Name		*/
-} image_header_t;
+};
 
 struct image_info {
 	ulong		start, end;		/* start/end of blob */
@@ -296,8 +296,8 @@ struct bootm_headers {
 	 * then boot_get_ramdisk() and get_fdt() will attempt to get
 	 * data from second and third component accordingly.
 	 */
-	image_header_t	*legacy_hdr_os;		/* image header pointer */
-	image_header_t	legacy_hdr_os_copy;	/* header copy */
+	struct legacy_img_hdr	*legacy_hdr_os;		/* image header pointer */
+	struct legacy_img_hdr	legacy_hdr_os_copy;	/* header copy */
 	ulong		legacy_hdr_valid;
 
 	/*
@@ -696,11 +696,11 @@ int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd);
 /*******************************************************************/
 static inline uint32_t image_get_header_size(void)
 {
-	return (sizeof(image_header_t));
+	return sizeof(struct legacy_img_hdr);
 }
 
 #define image_get_hdr_l(f) \
-	static inline uint32_t image_get_##f(const image_header_t *hdr) \
+	static inline uint32_t image_get_##f(const struct legacy_img_hdr *hdr) \
 	{ \
 		return uimage_to_cpu(hdr->ih_##f); \
 	}
@@ -713,7 +713,7 @@ image_get_hdr_l(ep)		/* image_get_ep */
 image_get_hdr_l(dcrc)		/* image_get_dcrc */
 
 #define image_get_hdr_b(f) \
-	static inline uint8_t image_get_##f(const image_header_t *hdr) \
+	static inline uint8_t image_get_##f(const struct legacy_img_hdr *hdr) \
 	{ \
 		return hdr->ih_##f; \
 	}
@@ -722,12 +722,12 @@ image_get_hdr_b(arch)		/* image_get_arch */
 image_get_hdr_b(type)		/* image_get_type */
 image_get_hdr_b(comp)		/* image_get_comp */
 
-static inline char *image_get_name(const image_header_t *hdr)
+static inline char *image_get_name(const struct legacy_img_hdr *hdr)
 {
 	return (char *)hdr->ih_name;
 }
 
-static inline uint32_t image_get_data_size(const image_header_t *hdr)
+static inline uint32_t image_get_data_size(const struct legacy_img_hdr *hdr)
 {
 	return image_get_size(hdr);
 }
@@ -743,22 +743,23 @@ static inline uint32_t image_get_data_size(const image_header_t *hdr)
  * returns:
  *     image payload data start address
  */
-static inline ulong image_get_data(const image_header_t *hdr)
+static inline ulong image_get_data(const struct legacy_img_hdr *hdr)
 {
 	return ((ulong)hdr + image_get_header_size());
 }
 
-static inline uint32_t image_get_image_size(const image_header_t *hdr)
+static inline uint32_t image_get_image_size(const struct legacy_img_hdr *hdr)
 {
 	return (image_get_size(hdr) + image_get_header_size());
 }
-static inline ulong image_get_image_end(const image_header_t *hdr)
+
+static inline ulong image_get_image_end(const struct legacy_img_hdr *hdr)
 {
 	return ((ulong)hdr + image_get_image_size(hdr));
 }
 
 #define image_set_hdr_l(f) \
-	static inline void image_set_##f(image_header_t *hdr, uint32_t val) \
+	static inline void image_set_##f(struct legacy_img_hdr *hdr, uint32_t val) \
 	{ \
 		hdr->ih_##f = cpu_to_uimage(val); \
 	}
@@ -771,7 +772,7 @@ image_set_hdr_l(ep)		/* image_set_ep */
 image_set_hdr_l(dcrc)		/* image_set_dcrc */
 
 #define image_set_hdr_b(f) \
-	static inline void image_set_##f(image_header_t *hdr, uint8_t val) \
+	static inline void image_set_##f(struct legacy_img_hdr *hdr, uint8_t val) \
 	{ \
 		hdr->ih_##f = val; \
 	}
@@ -780,13 +781,13 @@ image_set_hdr_b(arch)		/* image_set_arch */
 image_set_hdr_b(type)		/* image_set_type */
 image_set_hdr_b(comp)		/* image_set_comp */
 
-static inline void image_set_name(image_header_t *hdr, const char *name)
+static inline void image_set_name(struct legacy_img_hdr *hdr, const char *name)
 {
 	strncpy(image_get_name(hdr), name, IH_NMLEN);
 }
 
-int image_check_hcrc(const image_header_t *hdr);
-int image_check_dcrc(const image_header_t *hdr);
+int image_check_hcrc(const struct legacy_img_hdr *hdr);
+int image_check_dcrc(const struct legacy_img_hdr *hdr);
 #ifndef USE_HOSTCC
 ulong env_get_bootm_low(void);
 phys_size_t env_get_bootm_size(void);
@@ -794,15 +795,17 @@ phys_size_t env_get_bootm_mapsize(void);
 #endif
 void memmove_wd(void *to, void *from, size_t len, ulong chunksz);
 
-static inline int image_check_magic(const image_header_t *hdr)
+static inline int image_check_magic(const struct legacy_img_hdr *hdr)
 {
 	return (image_get_magic(hdr) == IH_MAGIC);
 }
-static inline int image_check_type(const image_header_t *hdr, uint8_t type)
+
+static inline int image_check_type(const struct legacy_img_hdr *hdr, uint8_t type)
 {
 	return (image_get_type(hdr) == type);
 }
-static inline int image_check_arch(const image_header_t *hdr, uint8_t arch)
+
+static inline int image_check_arch(const struct legacy_img_hdr *hdr, uint8_t arch)
 {
 	/* Let's assume that sandbox can load any architecture */
 	if (!tools_build() && IS_ENABLED(CONFIG_SANDBOX))
@@ -810,19 +813,20 @@ static inline int image_check_arch(const image_header_t *hdr, uint8_t arch)
 	return (image_get_arch(hdr) == arch) ||
 		(image_get_arch(hdr) == IH_ARCH_ARM && arch == IH_ARCH_ARM64);
 }
-static inline int image_check_os(const image_header_t *hdr, uint8_t os)
+
+static inline int image_check_os(const struct legacy_img_hdr *hdr, uint8_t os)
 {
 	return (image_get_os(hdr) == os);
 }
 
-ulong image_multi_count(const image_header_t *hdr);
-void image_multi_getimg(const image_header_t *hdr, ulong idx,
+ulong image_multi_count(const struct legacy_img_hdr *hdr);
+void image_multi_getimg(const struct legacy_img_hdr *hdr, ulong idx,
 			ulong *data, ulong *len);
 
 void image_print_contents(const void *hdr);
 
 #ifndef USE_HOSTCC
-static inline int image_check_target_arch(const image_header_t *hdr)
+static inline int image_check_target_arch(const struct legacy_img_hdr *hdr)
 {
 #ifndef IH_ARCH_DEFAULT
 # error "please define IH_ARCH_DEFAULT in your arch asm/u-boot.h"

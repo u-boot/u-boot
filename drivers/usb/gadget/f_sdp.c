@@ -835,7 +835,7 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 
 			printf("Found header at 0x%08x\n", sdp_func->jmp_address);
 
-			image_header_t *header =
+			struct legacy_img_hdr *header =
 				sdp_ptr(sdp_func->jmp_address);
 #ifdef CONFIG_SPL_LOAD_FIT
 			if (image_get_magic(header) == FDT_MAGIC) {

@@ -427,10 +427,10 @@ static uint32_t crc32be_cal(const void *data, size_t length)
 
 static int mtk_image_verify_mt7621_header(const uint8_t *ptr, int print)
 {
-	const image_header_t *hdr = (const image_header_t *)ptr;
+	const struct legacy_img_hdr *hdr = (const struct legacy_img_hdr *)ptr;
 	struct mt7621_nand_header *nhdr;
 	uint32_t spl_size, crcval;
-	image_header_t header;
+	struct legacy_img_hdr header;
 	int ret;
 
 	spl_size = image_get_size(hdr);
@@ -490,7 +490,7 @@ static int mtk_image_verify_mt7621_header(const uint8_t *ptr, int print)
 static int mtk_image_verify_header(unsigned char *ptr, int image_size,
 				   struct image_tool_params *params)
 {
-	image_header_t *hdr = (image_header_t *)ptr;
+	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)ptr;
 	union lk_hdr *lk = (union lk_hdr *)ptr;
 
 	/* nothing to verify for LK image header */
@@ -512,7 +512,7 @@ static int mtk_image_verify_header(unsigned char *ptr, int image_size,
 
 static void mtk_image_print_header(const void *ptr)
 {
-	image_header_t *hdr = (image_header_t *)ptr;
+	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)ptr;
 	union lk_hdr *lk = (union lk_hdr *)ptr;
 
 	if (le32_to_cpu(lk->magic) == LK_PART_MAGIC) {
@@ -691,7 +691,7 @@ static void mtk_image_set_nand_header(void *ptr, off_t filesize,
 static void mtk_image_set_mt7621_header(void *ptr, off_t filesize,
 					uint32_t loadaddr)
 {
-	image_header_t *hdr = (image_header_t *)ptr;
+	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)ptr;
 	struct mt7621_stage1_header *shdr;
 	struct mt7621_nand_header *nhdr;
 	uint32_t datasize, crcval;

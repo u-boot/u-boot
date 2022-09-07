@@ -64,7 +64,7 @@ void board_boot_order(u32 *spl_boot_list)
 unsigned long spl_nor_get_uboot_base(void)
 {
 	const struct tpl_info *tpli;
-	const image_header_t *hdr;
+	const struct legacy_img_hdr *hdr;
 	u32 addr;
 
 	addr = FLASH_MMAP_BASE + TPL_INFO_OFFSET;
@@ -72,7 +72,7 @@ unsigned long spl_nor_get_uboot_base(void)
 
 	if (tpli->magic == TPL_INFO_MAGIC) {
 		addr = FLASH_MMAP_BASE + tpli->size;
-		hdr = (const image_header_t *)KSEG1ADDR(addr);
+		hdr = (const struct legacy_img_hdr *)KSEG1ADDR(addr);
 
 		if (image_get_magic(hdr) == IH_MAGIC) {
 			addr += sizeof(*hdr) + image_get_size(hdr);

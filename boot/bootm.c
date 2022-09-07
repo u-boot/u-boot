@@ -825,9 +825,9 @@ err:
  *     pointer to a legacy image header if valid image was found
  *     otherwise return NULL
  */
-static image_header_t *image_get_kernel(ulong img_addr, int verify)
+static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
 {
-	image_header_t *hdr = (image_header_t *)img_addr;
+	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)img_addr;
 
 	if (!image_check_magic(hdr)) {
 		puts("Bad Magic Number\n");
@@ -882,7 +882,7 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 				   ulong *os_data, ulong *os_len)
 {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-	image_header_t	*hdr;
+	struct legacy_img_hdr	*hdr;
 #endif
 	ulong		img_addr;
 	const void *buf;
@@ -940,7 +940,7 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * kernel decompression.
 		 */
 		memmove(&images->legacy_hdr_os_copy, hdr,
-			sizeof(image_header_t));
+			sizeof(struct legacy_img_hdr));
 
 		/* save pointer to image header */
 		images->legacy_hdr_os = hdr;

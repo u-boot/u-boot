@@ -116,7 +116,7 @@ static void mt7621_cache_init(void)
 
 void __noreturn tpl_main(void)
 {
-	const image_header_t *hdr = (const image_header_t *)__image_copy_end;
+	const struct legacy_img_hdr *hdr = (const struct legacy_img_hdr *)__image_copy_end;
 	image_entry_noargs_t image_entry;
 	u32 loadaddr, size;
 	uintptr_t data;
@@ -132,7 +132,7 @@ void __noreturn tpl_main(void)
 	image_entry = (image_entry_noargs_t)image_get_ep(hdr);
 
 	/* Load TPL image to L2 cache */
-	data = (uintptr_t)__image_copy_end + sizeof(struct image_header);
+	data = (uintptr_t)__image_copy_end + sizeof(struct legacy_img_hdr);
 	fill_lock_l2cache(data, loadaddr, size);
 
 	/* Jump to SPL */

@@ -30,7 +30,7 @@ void board_init_f(ulong dummy)
 	typedef void __noreturn (*image_entry_noargs_t)(void);
 	struct mmc *mmc;
 	unsigned long count;
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 	int ret;
 
 	/* Set global data pointer */
@@ -58,8 +58,8 @@ void board_init_f(ulong dummy)
 	if (ret)
 		hang();
 
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-					 sizeof(struct image_header));
+	header = (struct legacy_img_hdr *)(CONFIG_SYS_TEXT_BASE -
+					 sizeof(struct legacy_img_hdr));
 
 	count = blk_dread(mmc_get_blk_desc(mmc),
 			  CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,

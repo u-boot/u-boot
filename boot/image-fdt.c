@@ -37,9 +37,9 @@ static void fdt_error(const char *msg)
 }
 
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-static const image_header_t *image_get_fdt(ulong fdt_addr)
+static const struct legacy_img_hdr *image_get_fdt(ulong fdt_addr)
 {
-	const image_header_t *fdt_hdr = map_sysmem(fdt_addr, 0);
+	const struct legacy_img_hdr *fdt_hdr = map_sysmem(fdt_addr, 0);
 
 	image_print_contents(fdt_hdr);
 
@@ -358,7 +358,7 @@ static int select_fdt(struct bootm_headers *images, const char *select, u8 arch,
 	switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY: {
-			const image_header_t *fdt_hdr;
+			const struct legacy_img_hdr *fdt_hdr;
 			ulong load, load_end;
 			ulong image_start, image_data, image_end;
 

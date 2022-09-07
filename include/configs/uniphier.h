@@ -169,7 +169,7 @@
 
 /* only for SPL */
 
-/* subtract sizeof(struct image_header) */
+/* subtract sizeof(struct legacy_img_hdr) */
 #define CONFIG_SYS_UBOOT_BASE			(0x130000 - 0x40)
 
 #endif /* __CONFIG_UNIPHIER_H__ */
