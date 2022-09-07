@@ -621,8 +621,8 @@ static void dw_mipi_dsi_line_timer_config(struct dw_mipi_dsi *dsi,
 	htotal = timings->hactive.typ + timings->hfront_porch.typ +
 		 timings->hback_porch.typ + timings->hsync_len.typ;
 
-	hsa = timings->hback_porch.typ;
-	hbp = timings->hsync_len.typ;
+	hsa = timings->hsync_len.typ;
+	hbp = timings->hback_porch.typ;
 
 	/*
 	 * TODO dw drv improvements
@@ -644,9 +644,9 @@ static void dw_mipi_dsi_vertical_timing_config(struct dw_mipi_dsi *dsi,
 	u32 vactive, vsa, vfp, vbp;
 
 	vactive = timings->vactive.typ;
-	vsa =  timings->vback_porch.typ;
+	vsa =  timings->vsync_len.typ;
 	vfp =  timings->vfront_porch.typ;
-	vbp = timings->vsync_len.typ;
+	vbp = timings->vback_porch.typ;
 
 	dsi_write(dsi, DSI_VID_VACTIVE_LINES, vactive);
 	dsi_write(dsi, DSI_VID_VSA_LINES, vsa);
