@@ -448,7 +448,7 @@ int arch_cpu_init(void)
 	struct pl310_regs *const pl310 =
 		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
-	if (IS_ENABLED(CONFIG_ARMADA_38X)) {
+	if (!IS_ENABLED(CONFIG_ARMADA_XP)) {
 		/*
 		 * To fully release / unlock this area from cache, we need
 		 * to flush all caches and disable the L2 cache.
