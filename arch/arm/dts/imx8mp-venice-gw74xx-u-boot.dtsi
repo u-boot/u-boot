@@ -116,29 +116,29 @@
 		line-name = "m2_wdis#";
 	};
 
-	uart_rs485_hog {
+	rs485_en {
 		gpio-hog;
-		gpios = <31 GPIO_ACTIVE_LOW>;
+		gpios = <31 GPIO_ACTIVE_HIGH>;
 		output-low;
-		line-name = "uart_rs485";
+		line-name = "rs485_en";
 	};
 };
 
 &gpio5 {
 	u-boot,dm-spl;
 
-	uart_half_hog {
+	rs485_half {
 		gpio-hog;
-		gpios = <0 GPIO_ACTIVE_LOW>;
-		output-high;
-		line-name = "uart_half";
+		gpios = <0 GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "rs485_hd";
 	};
 
-	uart_term_hog {
+	rs485_term {
 		gpio-hog;
-		gpios = <1 GPIO_ACTIVE_LOW>;
+		gpios = <1 GPIO_ACTIVE_HIGH>;
 		output-low;
-		line-name = "uart_term";
+		line-name = "rs485_term";
 	};
 };
 
