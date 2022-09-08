@@ -445,19 +445,6 @@ static void setup_usb_phys(void)
  */
 int arch_cpu_init(void)
 {
-	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
-
-	if (!IS_ENABLED(CONFIG_ARMADA_XP)) {
-		/*
-		 * To fully release / unlock this area from cache, we need
-		 * to flush all caches and disable the L2 cache.
-		 */
-		icache_disable();
-		dcache_disable();
-		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-	}
-
 	/*
 	 * We need to call mvebu_mbus_probe() before calling
 	 * update_sdram_window_sizes() as it disables all previously
