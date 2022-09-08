@@ -288,9 +288,15 @@ int regulator_autoset(struct udevice *dev)
 	uc_pdata = dev_get_uclass_plat(dev);
 
 	ret = regulator_set_suspend_enable(dev, uc_pdata->suspend_on);
+	if (ret == -ENOSYS)
+		ret = 0;
+
 	if (!ret && uc_pdata->suspend_on) {
 		ret = regulator_set_suspend_value(dev, uc_pdata->suspend_uV);
-		if (!ret)
+		if (ret == -ENOSYS)
+			ret = 0;
+
+		if (ret)
 			return ret;
 	}
 
