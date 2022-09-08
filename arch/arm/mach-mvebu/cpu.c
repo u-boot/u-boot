@@ -663,7 +663,7 @@ void enable_caches(void)
 	 * ethernet driver (mvpp2). So lets keep the d-cache disabled
 	 * until this is solved.
 	 */
-	if (IS_ENABLED(CONFIG_ARMADA_375)) {
+	if (!IS_ENABLED(CONFIG_ARMADA_375)) {
 		/* Enable D-cache. I-cache is already enabled in start.S */
 		dcache_enable();
 	}
