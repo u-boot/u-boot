@@ -671,12 +671,20 @@ void enable_caches(void)
 
 void v7_outer_cache_enable(void)
 {
-	if (IS_ENABLED(CONFIG_ARMADA_XP)) {
-		struct pl310_regs *const pl310 =
-			(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
-		u32 u;
+	struct pl310_regs *const pl310 =
+		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
-		/* The L2 cache is already disabled at this point */
+	/* The L2 cache is already disabled at this point */
+
+	/*
+	 * For now L2 cache will be enabled only for Armada XP and Armada 38x.
+	 * It can be enabled also for other SoCs after testing that it works fine.
+	 */
+	if (!IS_ENABLED(CONFIG_ARMADA_XP) && !IS_ENABLED(CONFIG_ARMADA_38X))
+		return;
+
+	if (IS_ENABLED(CONFIG_ARMADA_XP)) {
+		u32 u;
 
 		/*
 		 * For Aurora cache in no outer mode, enable via the CP15
@@ -687,10 +695,10 @@ void v7_outer_cache_enable(void)
 		asm volatile("mcr p15, 1, %0, c15, c2, 0" : : "r" (u));
 
 		isb();
-
-		/* Enable the L2 cache */
-		setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 	}
+
+	/* Enable the L2 cache */
+	setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }
 
 void v7_outer_cache_disable(void)
