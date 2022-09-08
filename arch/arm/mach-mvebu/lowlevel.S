@@ -2,6 +2,7 @@
 
 #include <config.h>
 #include <linux/linkage.h>
+#include <asm/system.h>
 
 ENTRY(arch_very_early_init)
 #ifdef CONFIG_ARMADA_38X
@@ -12,7 +13,7 @@ ENTRY(arch_very_early_init)
 	 * still locked to cache.
 	 */
 	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, #1
+	bic	r0, #CR_M
 	mcr	p15, 0, r0, c1, c0, 0
 #endif
 
