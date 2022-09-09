@@ -94,7 +94,7 @@ long get_ram_size(long *base, long maxsize)
 
 phys_size_t __weak get_effective_memsize(void)
 {
-#ifndef CONFIG_VERY_BIG_RAM
+#ifndef CONFIG_MAX_MEM_MAPPED
 	return gd->ram_size;
 #else
 	/* limit stack to what we can reasonable map */
