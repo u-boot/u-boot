@@ -28,7 +28,8 @@
 
 #define CLK_PARENT_APMIXED		BIT(4)
 #define CLK_PARENT_TOPCKGEN		BIT(5)
-#define CLK_PARENT_MASK			GENMASK(5, 4)
+#define CLK_PARENT_INFRASYS		BIT(6)
+#define CLK_PARENT_MASK			GENMASK(6, 4)
 
 #define ETHSYS_HIFSYS_RST_CTRL_OFS	0x34
 
@@ -220,6 +221,7 @@ struct mtk_cg_priv {
 
 extern const struct clk_ops mtk_clk_apmixedsys_ops;
 extern const struct clk_ops mtk_clk_topckgen_ops;
+extern const struct clk_ops mtk_clk_infrasys_ops;
 extern const struct clk_ops mtk_clk_gate_ops;
 
 int mtk_common_clk_init(struct udevice *dev,
