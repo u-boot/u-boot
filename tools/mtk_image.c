@@ -480,6 +480,25 @@ static int mtk_image_vrec_header(struct image_tool_params *params,
 	return SHA256_SUM_LEN;
 }
 
+static int mtk_image_verify_gfh(struct gfh_header *gfh, uint32_t type, int print)
+{
+	if (strcmp(gfh->file_info.name, GFH_FILE_INFO_NAME))
+		return -1;
+
+	if (le32_to_cpu(gfh->file_info.flash_type) != type)
+		return -1;
+
+	if (print)
+		printf("Load Address: %08x\n",
+		       le32_to_cpu(gfh->file_info.load_addr) +
+		       le32_to_cpu(gfh->file_info.jump_offset));
+
+	if (print)
+		printf("Architecture: %s\n", is_arm64_image ? "ARM64" : "ARM");
+
+	return 0;
+}
+
 static int mtk_image_verify_gen_header(const uint8_t *ptr, int print)
 {
 	union gen_boot_header *gbh = (union gen_boot_header *)ptr;
@@ -542,21 +561,7 @@ static int mtk_image_verify_gen_header(const uint8_t *ptr, int print)
 
 	gfh = (struct gfh_header *)(ptr + gfh_offset);
 
-	if (strcmp(gfh->file_info.name, GFH_FILE_INFO_NAME))
-		return -1;
-
-	if (le32_to_cpu(gfh->file_info.flash_type) != GFH_FLASH_TYPE_GEN)
-		return -1;
-
-	if (print)
-		printf("Load Address: %08x\n",
-		       le32_to_cpu(gfh->file_info.load_addr) +
-		       le32_to_cpu(gfh->file_info.jump_offset));
-
-	if (print)
-		printf("Architecture: %s\n", is_arm64_image ? "ARM64" : "ARM");
-
-	return 0;
+	return mtk_image_verify_gfh(gfh, GFH_FLASH_TYPE_GEN, print);
 }
 
 static int mtk_image_verify_nand_header(const uint8_t *ptr, int print)
@@ -610,21 +615,7 @@ static int mtk_image_verify_nand_header(const uint8_t *ptr, int print)
 
 	gfh = (struct gfh_header *)(ptr + 2 * le16_to_cpu(nh->pagesize));
 
-	if (strcmp(gfh->file_info.name, GFH_FILE_INFO_NAME))
-		return -1;
-
-	if (le32_to_cpu(gfh->file_info.flash_type) != GFH_FLASH_TYPE_NAND)
-		return -1;
-
-	if (print)
-		printf("Load Address: %08x\n",
-		       le32_to_cpu(gfh->file_info.load_addr) +
-		       le32_to_cpu(gfh->file_info.jump_offset));
-
-	if (print)
-		printf("Architecture: %s\n", is_arm64_image ? "ARM64" : "ARM");
-
-	return 0;
+	return mtk_image_verify_gfh(gfh, GFH_FLASH_TYPE_NAND, print);
 }
 
 static uint32_t crc32be_cal(const void *data, size_t length)
