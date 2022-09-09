@@ -296,6 +296,7 @@ static ulong mtk_topckgen_get_factor_rate(struct clk *clk, u32 off)
 		rate = mtk_clk_find_parent_rate(clk, fdiv->parent, NULL);
 		break;
 
+	case CLK_PARENT_XTAL:
 	default:
 		rate = priv->tree->xtal_rate;
 	}
@@ -313,6 +314,9 @@ static ulong mtk_infrasys_get_factor_rate(struct clk *clk, u32 off)
 	case CLK_PARENT_TOPCKGEN:
 		rate = mtk_clk_find_parent_rate(clk, fdiv->parent,
 						priv->parent);
+		break;
+	case CLK_PARENT_XTAL:
+		rate = priv->tree->xtal_rate;
 		break;
 	default:
 		rate = mtk_clk_find_parent_rate(clk, fdiv->parent, NULL);
