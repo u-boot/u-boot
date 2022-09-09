@@ -15,6 +15,7 @@
 enum mkt_eth_capabilities {
 	MTK_TRGMII_BIT,
 	MTK_TRGMII_MT7621_CLK_BIT,
+	MTK_NETSYS_V2_BIT,
 
 	/* PATH BITS */
 	MTK_ETH_PATH_GMAC1_TRGMII_BIT,
@@ -22,6 +23,7 @@ enum mkt_eth_capabilities {
 
 #define MTK_TRGMII			BIT(MTK_TRGMII_BIT)
 #define MTK_TRGMII_MT7621_CLK		BIT(MTK_TRGMII_MT7621_CLK_BIT)
+#define MTK_NETSYS_V2			BIT(MTK_NETSYS_V2_BIT)
 
 /* Supported path present on SoCs */
 #define MTK_ETH_PATH_GMAC1_TRGMII	BIT(MTK_ETH_PATH_GMAC1_TRGMII_BIT)
@@ -35,7 +37,8 @@ enum mkt_eth_capabilities {
 #define MT7623_CAPS  (MTK_GMAC1_TRGMII)
 
 /* Frame Engine Register Bases */
-#define PDMA_BASE			0x0800
+#define PDMA_V1_BASE			0x0800
+#define PDMA_V2_BASE			0x6000
 #define GDMA1_BASE			0x0500
 #define GDMA2_BASE			0x1500
 #define GMAC_BASE			0x10000
@@ -74,6 +77,8 @@ enum mkt_eth_capabilities {
 #define SGMSYS_SPEED_2500		BIT(2)
 
 /* Frame Engine Registers */
+#define FE_GLO_MISC_REG			0x124
+#define PDMA_VER_V2			BIT(4)
 
 /* PDMA */
 #define TX_BASE_PTR_REG(n)		(0x000 + (n) * 0x10)
@@ -444,6 +449,17 @@ struct mtk_rx_dma {
 	unsigned int rxd4;
 } __packed __aligned(4);
 
+struct mtk_rx_dma_v2 {
+	unsigned int rxd1;
+	unsigned int rxd2;
+	unsigned int rxd3;
+	unsigned int rxd4;
+	unsigned int rxd5;
+	unsigned int rxd6;
+	unsigned int rxd7;
+	unsigned int rxd8;
+} __packed __aligned(4);
+
 struct mtk_tx_dma {
 	unsigned int txd1;
 	unsigned int txd2;
@@ -451,20 +467,41 @@ struct mtk_tx_dma {
 	unsigned int txd4;
 } __packed __aligned(4);
 
+struct mtk_tx_dma_v2 {
+	unsigned int txd1;
+	unsigned int txd2;
+	unsigned int txd3;
+	unsigned int txd4;
+	unsigned int txd5;
+	unsigned int txd6;
+	unsigned int txd7;
+	unsigned int txd8;
+} __packed __aligned(4);
+
 /* PDMA TXD fields */
 #define PDMA_TXD2_DDONE			BIT(31)
 #define PDMA_TXD2_LS0			BIT(30)
-#define PDMA_TXD2_SDL0_M		GENMASK(29, 16)
-#define PDMA_TXD2_SDL0_SET(_v)	FIELD_PREP(PDMA_TXD2_SDL0_M, (_v))
+#define PDMA_V1_TXD2_SDL0_M		GENMASK(29, 16)
+#define PDMA_V1_TXD2_SDL0_SET(_v)	FIELD_PREP(PDMA_V1_TXD2_SDL0_M, (_v))
+#define PDMA_V2_TXD2_SDL0_M		GENMASK(23, 8)
+#define PDMA_V2_TXD2_SDL0_SET(_v)	FIELD_PREP(PDMA_V2_TXD2_SDL0_M, (_v))
 
-#define PDMA_TXD4_FPORT_M		GENMASK(27, 25)
-#define PDMA_TXD4_FPORT_SET(_v)	FIELD_PREP(PDMA_TXD4_FPORT_M, (_v))
+#define PDMA_V1_TXD4_FPORT_M		GENMASK(27, 25)
+#define PDMA_V1_TXD4_FPORT_SET(_v)	FIELD_PREP(PDMA_V1_TXD4_FPORT_M, (_v))
+#define PDMA_V2_TXD4_FPORT_M		GENMASK(27, 24)
+#define PDMA_V2_TXD4_FPORT_SET(_v)	FIELD_PREP(PDMA_V2_TXD4_FPORT_M, (_v))
+
+#define PDMA_V2_TXD5_FPORT_M		GENMASK(19, 16)
+#define PDMA_V2_TXD5_FPORT_SET(_v)	FIELD_PREP(PDMA_V2_TXD5_FPORT_M, (_v))
 
 /* PDMA RXD fields */
 #define PDMA_RXD2_DDONE			BIT(31)
 #define PDMA_RXD2_LS0			BIT(30)
-#define PDMA_RXD2_PLEN0_M		GENMASK(29, 16)
-#define PDMA_RXD2_PLEN0_GET(_v)	FIELD_GET(PDMA_RXD2_PLEN0_M, (_v))
-#define PDMA_RXD2_PLEN0_SET(_v)	FIELD_PREP(PDMA_RXD2_PLEN0_M, (_v))
+#define PDMA_V1_RXD2_PLEN0_M		GENMASK(29, 16)
+#define PDMA_V1_RXD2_PLEN0_GET(_v)	FIELD_GET(PDMA_V1_RXD2_PLEN0_M, (_v))
+#define PDMA_V1_RXD2_PLEN0_SET(_v)	FIELD_PREP(PDMA_V1_RXD2_PLEN0_M, (_v))
+#define PDMA_V2_RXD2_PLEN0_M		GENMASK(23, 8)
+#define PDMA_V2_RXD2_PLEN0_GET(_v)	FIELD_GET(PDMA_V2_RXD2_PLEN0_M, (_v))
+#define PDMA_V2_RXD2_PLEN0_SET(_v)	FIELD_PREP(PDMA_V2_RXD2_PLEN0_M, (_v))
 
 #endif /* _MTK_ETH_H_ */

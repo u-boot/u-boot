@@ -76,10 +76,14 @@ enum mtk_switch {
  * @caps			Flags shown the extra capability for the SoC
  * @ana_rgc3:			The offset for register ANA_RGC3 related to
  *				sgmiisys syscon
+ * @pdma_base:			Register base of PDMA block
+ * @txd_size:			Tx DMA descriptor size.
+ * @rxd_size:			Rx DMA descriptor size.
  */
 struct mtk_soc_data {
 	u32 caps;
 	u32 ana_rgc3;
+	u32 pdma_base;
 	u32 txd_size;
 	u32 rxd_size;
 };
@@ -130,13 +134,13 @@ struct mtk_eth_priv {
 
 static void mtk_pdma_write(struct mtk_eth_priv *priv, u32 reg, u32 val)
 {
-	writel(val, priv->fe_base + PDMA_BASE + reg);
+	writel(val, priv->fe_base + priv->soc->pdma_base + reg);
 }
 
 static void mtk_pdma_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
 			 u32 set)
 {
-	clrsetbits_le32(priv->fe_base + PDMA_BASE + reg, clr, set);
+	clrsetbits_le32(priv->fe_base + priv->soc->pdma_base + reg, clr, set);
 }
 
 static void mtk_gdma_write(struct mtk_eth_priv *priv, int no, u32 reg,
@@ -1133,8 +1137,8 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 {
 	char *pkt_base = priv->pkt_pool;
-	struct mtk_tx_dma *txd;
-	struct mtk_rx_dma *rxd;
+	struct mtk_tx_dma_v2 *txd;
+	struct mtk_rx_dma_v2 *rxd;
 	int i;
 
 	mtk_pdma_rmw(priv, PDMA_GLO_CFG_REG, 0xffff0000, 0);
@@ -1155,7 +1159,11 @@ static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 
 		txd->txd1 = virt_to_phys(pkt_base);
 		txd->txd2 = PDMA_TXD2_DDONE | PDMA_TXD2_LS0;
-		txd->txd4 = PDMA_TXD4_FPORT_SET(priv->gmac_id + 1);
+
+		if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+			txd->txd5 = PDMA_V2_TXD5_FPORT_SET(priv->gmac_id + 1);
+		else
+			txd->txd4 = PDMA_V1_TXD4_FPORT_SET(priv->gmac_id + 1);
 
 		pkt_base += PKTSIZE_ALIGN;
 	}
@@ -1164,7 +1172,11 @@ static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 		rxd = priv->rx_ring_noc + i * priv->soc->rxd_size;
 
 		rxd->rxd1 = virt_to_phys(pkt_base);
-		rxd->rxd2 = PDMA_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
+
+		if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+			rxd->rxd2 = PDMA_V2_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
+		else
+			rxd->rxd2 = PDMA_V1_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
 
 		pkt_base += PKTSIZE_ALIGN;
 	}
@@ -1192,6 +1204,9 @@ static int mtk_eth_start(struct udevice *dev)
 	udelay(1000);
 	reset_deassert(&priv->rst_fe);
 	mdelay(10);
+
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		setbits_le32(priv->fe_base + FE_GLO_MISC_REG, PDMA_VER_V2);
 
 	/* Packets forward to PDMA */
 	mtk_gdma_write(priv, priv->gmac_id, GDMA_IG_CTRL_REG, GDMA_FWD_TO_CPU);
@@ -1227,7 +1242,7 @@ static void mtk_eth_stop(struct udevice *dev)
 		     TX_WB_DDONE | RX_DMA_EN | TX_DMA_EN, 0);
 	udelay(500);
 
-	wait_for_bit_le32(priv->fe_base + PDMA_BASE + PDMA_GLO_CFG_REG,
+	wait_for_bit_le32(priv->fe_base + priv->soc->pdma_base + PDMA_GLO_CFG_REG,
 			  RX_DMA_BUSY | TX_DMA_BUSY, 0, 5000, 0);
 }
 
@@ -1252,7 +1267,7 @@ static int mtk_eth_send(struct udevice *dev, void *packet, int length)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	u32 idx = priv->tx_cpu_owner_idx0;
-	struct mtk_tx_dma *txd;
+	struct mtk_tx_dma_v2 *txd;
 	void *pkt_base;
 
 	txd = priv->tx_ring_noc + idx * priv->soc->txd_size;
@@ -1267,7 +1282,10 @@ static int mtk_eth_send(struct udevice *dev, void *packet, int length)
 	flush_dcache_range((ulong)pkt_base, (ulong)pkt_base +
 			   roundup(length, ARCH_DMA_MINALIGN));
 
-	txd->txd2 = PDMA_TXD2_LS0 | PDMA_TXD2_SDL0_SET(length);
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		txd->txd2 = PDMA_TXD2_LS0 | PDMA_V2_TXD2_SDL0_SET(length);
+	else
+		txd->txd2 = PDMA_TXD2_LS0 | PDMA_V1_TXD2_SDL0_SET(length);
 
 	priv->tx_cpu_owner_idx0 = (priv->tx_cpu_owner_idx0 + 1) % NUM_TX_DESC;
 	mtk_pdma_write(priv, TX_CTX_IDX_REG(0), priv->tx_cpu_owner_idx0);
@@ -1279,7 +1297,7 @@ static int mtk_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	u32 idx = priv->rx_dma_owner_idx0;
-	struct mtk_rx_dma *rxd;
+	struct mtk_rx_dma_v2 *rxd;
 	uchar *pkt_base;
 	u32 length;
 
@@ -1290,7 +1308,10 @@ static int mtk_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 		return -EAGAIN;
 	}
 
-	length = PDMA_RXD2_PLEN0_GET(rxd->rxd2);
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		length = PDMA_V2_RXD2_PLEN0_GET(rxd->rxd2);
+	else
+		length = PDMA_V1_RXD2_PLEN0_GET(rxd->rxd2);
 
 	pkt_base = (void *)phys_to_virt(rxd->rxd1);
 	invalidate_dcache_range((ulong)pkt_base, (ulong)pkt_base +
@@ -1306,11 +1327,14 @@ static int mtk_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	u32 idx = priv->rx_dma_owner_idx0;
-	struct mtk_rx_dma *rxd;
+	struct mtk_rx_dma_v2 *rxd;
 
 	rxd = priv->rx_ring_noc + idx * priv->soc->rxd_size;
 
-	rxd->rxd2 = PDMA_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		rxd->rxd2 = PDMA_V2_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
+	else
+		rxd->rxd2 = PDMA_V1_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
 
 	mtk_pdma_write(priv, RX_CRX_IDX_REG(0), idx);
 	priv->rx_dma_owner_idx0 = (priv->rx_dma_owner_idx0 + 1) % NUM_RX_DESC;
@@ -1498,24 +1522,28 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 
 static const struct mtk_soc_data mt7629_data = {
 	.ana_rgc3 = 0x128,
+	.pdma_base = PDMA_V1_BASE,
 	.txd_size = sizeof(struct mtk_tx_dma),
 	.rxd_size = sizeof(struct mtk_rx_dma),
 };
 
 static const struct mtk_soc_data mt7623_data = {
 	.caps = MT7623_CAPS,
+	.pdma_base = PDMA_V1_BASE,
 	.txd_size = sizeof(struct mtk_tx_dma),
 	.rxd_size = sizeof(struct mtk_rx_dma),
 };
 
 static const struct mtk_soc_data mt7622_data = {
 	.ana_rgc3 = 0x2028,
+	.pdma_base = PDMA_V1_BASE,
 	.txd_size = sizeof(struct mtk_tx_dma),
 	.rxd_size = sizeof(struct mtk_rx_dma),
 };
 
 static const struct mtk_soc_data mt7621_data = {
 	.caps = MT7621_CAPS,
+	.pdma_base = PDMA_V1_BASE,
 	.txd_size = sizeof(struct mtk_tx_dma),
 	.rxd_size = sizeof(struct mtk_rx_dma),
 };
