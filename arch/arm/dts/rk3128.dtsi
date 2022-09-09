@@ -172,7 +172,7 @@
 			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
 			#dma-cells = <1>;
-			clocks = <&cru ACLK_DMAC2>;
+			clocks = <&cru ACLK_DMAC>;
 			clock-names = "apb_pclk";
 		};
 	};
@@ -530,8 +530,8 @@
 		pinctrl-0 = <&spi0_txd_mux0 &spi0_rxd_mux0 &spi0_clk_mux0 &spi0_cs0_mux0 &spi0_cs1_mux0>;
 		rockchip,spi-src-clk = <0>;
 		num-cs = <2>;
-		clocks =<&cru SCLK_SPI>, <&cru PCLK_SPI>;
-		clock-names = "spi","pclk_spi0";
+		clocks = <&cru SCLK_SPI0>, <&cru PCLK_SPI0>;
+		clock-names = "spiclk", "apb_pclk";
 		dmas = <&pdma 8>, <&pdma 9>;
 		#dma-cells = <2>;
 		dma-names = "tx", "rx";
