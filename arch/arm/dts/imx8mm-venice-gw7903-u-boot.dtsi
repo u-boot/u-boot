@@ -43,6 +43,20 @@
 		line-name = "dig2_out#";
 	};
 
+	dig2ctl {
+		gpio-hog;
+		output-low;
+		gpios = <2 GPIO_ACTIVE_HIGH>;
+		line-name = "dig2_ctl";
+	};
+
+	dig1ctl {
+		gpio-hog;
+		output-low;
+		gpios = <6 GPIO_ACTIVE_HIGH>;
+		line-name = "dig1_ctl";
+	};
+
 	dig1out {
 		gpio-hog;
 		output-high;
