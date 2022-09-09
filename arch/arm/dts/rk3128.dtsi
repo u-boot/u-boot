@@ -618,85 +618,85 @@
 			 */
 
 			emmc_clk: emmc-clk {
-				rockchip,pins = <2 7 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA7 2 &pcfg_pull_none>;
 			};
 
 			emmc_cmd: emmc-cmd {
-				rockchip,pins = <2 4 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA4 2 &pcfg_pull_none>;
 			};
 
 			emmc_pwren: emmc-pwren {
-				rockchip,pins = <2 5 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA5 2 &pcfg_pull_none>;
 			};
 
 			emmc_bus8: emmc-bus8 {
-				rockchip,pins = <1 24 RK_FUNC_2 &pcfg_pull_none>,
-						<1 25 RK_FUNC_2 &pcfg_pull_none>,
-						<1 26 RK_FUNC_2 &pcfg_pull_none>,
-						<1 27 RK_FUNC_2 &pcfg_pull_none>,
-						<1 28 RK_FUNC_2 &pcfg_pull_none>,
-						<1 29 RK_FUNC_2 &pcfg_pull_none>,
-						<1 30 RK_FUNC_2 &pcfg_pull_none>,
-						<1 31 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <1 RK_PD0 2 &pcfg_pull_none>,
+						<1 RK_PD1 2 &pcfg_pull_none>,
+						<1 RK_PD2 2 &pcfg_pull_none>,
+						<1 RK_PD3 2 &pcfg_pull_none>,
+						<1 RK_PD4 2 &pcfg_pull_none>,
+						<1 RK_PD5 2 &pcfg_pull_none>,
+						<1 RK_PD6 2 &pcfg_pull_none>,
+						<1 RK_PD7 2 &pcfg_pull_none>;
 			};
 		};
 
 		nandc{
 			nandc_ale:nandc-ale {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 
 			nandc_cle:nandc-cle {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 
 			nandc_wrn:nandc-wrn {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 
 			nandc_rdn:nandc-rdn {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 
 			nandc_rdy:nandc-rdy {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 
 			nandc_cs0:nandc-cs0 {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 
 			nandc_data: nandc-data {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 		};
 
 		uart0 {
 			uart0_xfer: uart0-xfer {
-				rockchip,pins = <0 16 RK_FUNC_1 &pcfg_pull_none>,
-						<0 17 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC0 1 &pcfg_pull_none>,
+						<0 RK_PC1 1 &pcfg_pull_none>;
 			};
 
 			uart0_cts: uart0-cts {
-				rockchip,pins = <0 18 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_none>;
 			};
 
 			uart0_rts: uart0-rts {
-				rockchip,pins = <0 19 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PC3 1 &pcfg_pull_none>;
 			};
 		};
 
 		uart1 {
 			uart1_xfer: uart1-xfer {
-				rockchip,pins = <2 22 RK_FUNC_1 &pcfg_pull_none>,
-						<2 23 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PC6 1 &pcfg_pull_none>,
+						<2 RK_PC7 1 &pcfg_pull_none>;
 			};
 		};
 
 		uart2 {
 			uart2_xfer: uart2-xfer {
-				rockchip,pins = <1 18 RK_FUNC_2 &pcfg_pull_none>,
-				<1 19 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <1 RK_PC2 2 &pcfg_pull_none>,
+						<1 RK_PC3 2 &pcfg_pull_none>;
 			};
 		};
 
@@ -727,75 +727,75 @@
 
 		pwm0 {
 			pwm0_pin: pwm0-pin {
-				rockchip,pins = <0 0 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PA0 2 &pcfg_pull_none>;
 			};
 		};
 
 		pwm1 {
 			pwm1_pin: pwm1-pin {
-				rockchip,pins = <0 1 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PA1 2 &pcfg_pull_none>;
 			};
 		};
 
 		pwm2 {
 			pwm2_pin: pwm2-pin {
-				rockchip,pins = <0 1 2 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PA1 2 &pcfg_pull_none>;
 			};
 		};
 
 		pwm3 {
 			pwm3_pin: pwm3-pin {
-				rockchip,pins = <0 27 1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PD3 1 &pcfg_pull_none>;
 			};
 		};
 
 		i2c0 {
 			i2c0_xfer: i2c0-xfer {
-				rockchip,pins = <0 0 RK_FUNC_1 &pcfg_pull_none>,
-						<0 1 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PA0 1 &pcfg_pull_none>,
+						<0 RK_PA1 1 &pcfg_pull_none>;
 			};
 		};
 
 		i2c1 {
 			i2c1_xfer: i2c1-xfer {
-				rockchip,pins = <0 2 RK_FUNC_1 &pcfg_pull_none>,
-						<0 3 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PA2 1 &pcfg_pull_none>,
+						<0 RK_PA3 1 &pcfg_pull_none>;
 			};
 		};
 
 		i2c2 {
 			i2c2_xfer: i2c2-xfer {
-				rockchip,pins = <2 20 3 &pcfg_pull_none>,
-						<2 21 3 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PC4 3 &pcfg_pull_none>,
+						<2 RK_PC5 3 &pcfg_pull_none>;
 			};
 		};
 
 		i2c3 {
 			i2c3_xfer: i2c3-xfer {
-				rockchip,pins = <0 6 RK_FUNC_1 &pcfg_pull_none>,
-						<0 7 RK_FUNC_1 &pcfg_pull_none>;
+				rockchip,pins = <0 RK_PA6 1 &pcfg_pull_none>,
+						<0 RK_PA7 1 &pcfg_pull_none>;
 			};
 		};
 
 		spi0 {
 			spi0_txd_mux0:spi0-txd-mux0 {
-				rockchip,pins = <2 4 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA4 2 &pcfg_pull_none>;
 			};
 
 			spi0_rxd_mux0:spi0-rxd-mux0 {
-				rockchip,pins = <2 4 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA4 2 &pcfg_pull_none>;
 			};
 
 			spi0_clk_mux0:spi0-clk-mux0 {
-				rockchip,pins = <2 4 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA4 2 &pcfg_pull_none>;
 			};
 
 			spi0_cs0_mux0:spi0-cs0-mux0 {
-				rockchip,pins = <2 4 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA4 2 &pcfg_pull_none>;
 			};
 
 			spi0_cs1_mux0:spi0-cs1-mux0 {
-				rockchip,pins = <2 4 RK_FUNC_2 &pcfg_pull_none>;
+				rockchip,pins = <2 RK_PA4 2 &pcfg_pull_none>;
 			};
 		};
 

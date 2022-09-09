@@ -82,13 +82,13 @@
 &pinctrl {
 	usb_otg {
 		otg_vbus_drv: host-vbus-drv {
-			rockchip,pins = <0 26 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <0 RK_PD2 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
 	usb_host {
 		host_vbus_drv: host-vbus-drv {
-			rockchip,pins = <2 23 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <2 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 };
