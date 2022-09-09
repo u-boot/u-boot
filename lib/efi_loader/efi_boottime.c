@@ -619,9 +619,14 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
  */
 void efi_delete_handle(efi_handle_t handle)
 {
-	if (!handle)
+	efi_status_t ret;
+
+	ret = efi_remove_all_protocols(handle);
+	if (ret == EFI_INVALID_PARAMETER) {
+		log_err("Can't remove invalid handle %p\n", handle);
 		return;
-	efi_remove_all_protocols(handle);
+	}
+
 	list_del(&handle->link);
 	free(handle);
 }

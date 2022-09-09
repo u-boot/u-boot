@@ -18,6 +18,9 @@
 #define EFI_ST_FAILURE 1
 #define EFI_ST_SUCCESS_STR u"SUCCESS"
 
+extern const struct efi_system_table *st_systable;
+extern const struct efi_boot_services *st_boottime;
+
 /**
  * efi_st_printf() - print a message
  *
@@ -129,6 +132,14 @@ u16 *efi_st_translate_code(u16 code);
  * Return:	0 if both buffers contain equivalent strings
  */
 int efi_st_strcmp_16_8(const u16 *buf1, const char *buf2);
+
+/**
+ * efi_st_get_config_table() - get configuration table
+ *
+ * @guid:	GUID of the configuration table
+ * Return:	pointer to configuration table or NULL
+ */
+void *efi_st_get_config_table(const efi_guid_t *guid);
 
 /**
  * efi_st_get_key() - reads an Unicode character from the input device
