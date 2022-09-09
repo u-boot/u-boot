@@ -286,6 +286,14 @@ config MTK_SNFI_SPI
 	  used to access SPI memory devices like SPI-NOR or SPI-NAND on
 	  platforms embedding this IP core, like MT7622/M7629.
 
+config MTK_SPIM
+	bool "Mediatek SPI-MEM master controller driver"
+	depends on SPI_MEM
+	help
+	  Enable MediaTek SPI-MEM master controller driver. This driver mainly
+	  supports SPI flashes. You can use single, dual or quad mode
+	  transmission on this controller.
+
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
 	select CLK_ARMADA_3720
