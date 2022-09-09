@@ -8,7 +8,6 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/clock/rk3128-cru.h>
-#include "skeleton.dtsi"
 
 / {
 	compatible = "rockchip,rk3128";
@@ -34,11 +33,6 @@
 		mmc1 = &sdmmc;
 	};
 
-	memory {
-		device_type = "memory";
-		reg = <0x60000000 0x40000000>;
-	};
-
 	arm-pmu {
 		compatible = "arm,cortex-a7-pmu";
 		interrupts = <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
@@ -52,10 +46,10 @@
 		#size-cells = <0>;
 		enable-method = "rockchip,rk3128-smp";
 
-		cpu0:cpu@0x000 {
+		cpu0: cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a7";
-			reg = <0x000>;
+			reg = <0x0>;
 			operating-points = <
 				/* KHz    uV */
 				 816000 1000000
@@ -65,22 +59,22 @@
 			clocks = <&cru ARMCLK>;
 		};
 
-		cpu1:cpu@0x001 {
+		cpu1: cpu@1 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a7";
-			reg = <0x001>;
+			reg = <0x1>;
 		};
 
-		cpu2:cpu@0x002 {
+		cpu2: cpu@2 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a7";
-			reg = <0x002>;
+			reg = <0x2>;
 		};
 
-		cpu3:cpu@0x003 {
+		cpu3: cpu@3 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a7";
-			reg = <0x003>;
+			reg = <0x3>;
 		};
 	};
 
@@ -165,7 +159,7 @@
 		interrupt-parent = <&gic>;
 		ranges;
 
-		pdma: pdma@20078000 {
+		pdma: dma-controller@20078000 {
 			compatible = "arm,pl330", "arm,primecell";
 			reg = <0x20078000 0x4000>;
 			arm,pl330-broken-no-flushp;//2
@@ -207,7 +201,7 @@
 		rockchip,broadcast = <1>;
 	};
 
-	watchdog: wdt@2004c000 {
+	watchdog: watchdog@2004c000 {
 		compatible = "rockchip,watch dog";
 		reg = <0x2004c000 0x100>;
 		clock-names = "pclk_wdt";
@@ -224,7 +218,7 @@
 		#reset-cells = <1>;
 	};
 
-	nandc: nandc@10500000 {
+	nandc: nand-controller@10500000 {
 		compatible = "rockchip,rk-nandc";
 		reg = <0x10500000 0x4000>;
 		interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
@@ -247,7 +241,7 @@
 		assigned-clock-rates = <594000000>;
 	};
 
-	uart0: serial0@20060000 {
+	uart0: serial@20060000 {
 		compatible = "rockchip,rk3128-uart", "snps,dw-apb-uart";
 		reg = <0x20060000 0x100>;
 		interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
@@ -262,7 +256,7 @@
 		#dma-cells = <2>;
 	};
 
-	uart1: serial1@20064000 {
+	uart1: serial@20064000 {
 		compatible = "rockchip,rk3128-uart", "snps,dw-apb-uart";
 		reg = <0x20064000 0x100>;
 		interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
@@ -277,7 +271,7 @@
 		#dma-cells = <2>;
 	};
 
-	uart2: serial2@20068000 {
+	uart2: serial@20068000 {
 		compatible = "rockchip,rk3128-uart", "snps,dw-apb-uart";
 		reg = <0x20068000 0x100>;
 		interrupts = <GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>;
@@ -304,7 +298,7 @@
 		status = "disabled";
 	};
 
-	pwm0: pwm0@20050000 {
+	pwm0: pwm@20050000 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050000 0x10>;
 		#pwm-cells = <3>;
@@ -314,7 +308,7 @@
 		clock-names = "pwm";
 	};
 
-	pwm1: pwm1@20050010 {
+	pwm1: pwm@20050010 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050010 0x10>;
 		#pwm-cells = <3>;
@@ -324,7 +318,7 @@
 		clock-names = "pwm";
 	};
 
-	pwm2: pwm2@20050020 {
+	pwm2: pwm@20050020 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050020 0x10>;
 		#pwm-cells = <3>;
@@ -334,7 +328,7 @@
 		clock-names = "pwm";
 	};
 
-	pwm3: pwm3@20050030 {
+	pwm3: pwm@20050030 {
 		compatible = "rockchip,rk3128-pwm", "rockchip,rk3288-pwm";
 		reg = <0x20050030 0x10>;
 		#pwm-cells = <3>;
@@ -430,7 +424,7 @@
 		status = "disabled";
 	};
 
-	sdmmc: dwmmc@10214000 {
+	sdmmc: mmc@10214000 {
 		compatible = "rockchip,rk312x-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x10214000 0x4000>;
 		max-frequency = <150000000>;
@@ -445,7 +439,7 @@
 		status = "disabled";
 	};
 
-	emmc: dwmmc@1021c000 {
+	emmc: mmc@1021c000 {
 		compatible = "rockchip,rk3128-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x1021c000 0x4000>;
 		max-frequency = <150000000>;
@@ -464,7 +458,7 @@
 		status = "disabled";
 	};
 
-	i2c0: i2c0@20072000 {
+	i2c0: i2c@20072000 {
 		compatible = "rockchip,rk3128-i2c", "rockchip,rk3288-i2c";
 		reg = <20072000 0x1000>;
 		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
@@ -476,7 +470,7 @@
 		pinctrl-0 = <&i2c0_xfer>;
 	};
 
-	i2c1: i2c1@20056000 {
+	i2c1: i2c@20056000 {
 		compatible = "rockchip,rk3128-i2c", "rockchip,rk3288-i2c";
 		reg = <0x20056000 0x1000>;
 		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
@@ -488,7 +482,7 @@
 		pinctrl-0 = <&i2c1_xfer>;
 	};
 
-	i2c2: i2c2@2005a000 {
+	i2c2: i2c@2005a000 {
 		compatible = "rockchip,rk3128-i2c", "rockchip,rk3288-i2c";
 		reg = <0x2005a000 0x1000>;
 		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
@@ -500,7 +494,7 @@
 		pinctrl-0 = <&i2c2_xfer>;
 	};
 
-	i2c3: i2c3@2005e000 {
+	i2c3: i2c@2005e000 {
 		compatible = "rockchip,rk3128-i2c", "rockchip,rk3288-i2c";
 		reg = <0x2005e000 0x1000>;
 		interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
@@ -546,7 +540,7 @@
 		#size-cells = <1>;
 		ranges;
 
-		gpio0: gpio0@2007c000 {
+		gpio0: gpio@2007c000 {
 			compatible = "rockchip,gpio-bank";
 			reg = <0x2007c000 0x100>;
 			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
@@ -557,7 +551,7 @@
 			#interrupt-cells = <2>;
 		};
 
-		gpio1: gpio1@20080000 {
+		gpio1: gpio@20080000 {
 			compatible = "rockchip,gpio-bank";
 			reg = <0x20080000 0x100>;
 			interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
@@ -568,7 +562,7 @@
 			#interrupt-cells = <2>;
 		};
 
-		gpio2: gpio2@20084000 {
+		gpio2: gpio@20084000 {
 			compatible = "rockchip,gpio-bank";
 			reg = <0x20084000 0x100>;
 			interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
@@ -579,7 +573,7 @@
 			#interrupt-cells = <2>;
 		};
 
-		gpio3: gpio2@20088000 {
+		gpio3: gpio@20088000 {
 			compatible = "rockchip,gpio-bank";
 			reg = <0x20088000 0x100>;
 			interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
