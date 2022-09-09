@@ -328,7 +328,7 @@ static int setup_dest_addr(void)
 	/*
 	 * Ram is setup, size stored in gd !!
 	 */
-	debug("Ram size: %08lX\n", (ulong)gd->ram_size);
+	debug("Ram size: %08llX\n", (unsigned long long)gd->ram_size);
 #if CONFIG_VAL(SYS_MEM_TOP_HIDE)
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
@@ -348,7 +348,7 @@ static int setup_dest_addr(void)
 	gd->ram_top = gd->ram_base + get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
-	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
+	debug("Ram top: %08llX\n", (unsigned long long)gd->ram_top);
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 	/*
 	 * We need to make sure the location we intend to put secondary core
