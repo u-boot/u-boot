@@ -10,6 +10,7 @@
 #define _MTK_ETH_H_
 
 #include <linux/bitops.h>
+#include <linux/bitfield.h>
 
 enum mkt_eth_capabilities {
 	MTK_TRGMII_BIT,
@@ -434,5 +435,36 @@ enum mkt_eth_capabilities {
 #define PHY_POWER_SAVING_S		8
 #define PHY_POWER_SAVING_M		0x300
 #define PHY_POWER_SAVING_TX		0x0
+
+/* PDMA descriptors */
+struct mtk_rx_dma {
+	unsigned int rxd1;
+	unsigned int rxd2;
+	unsigned int rxd3;
+	unsigned int rxd4;
+} __packed __aligned(4);
+
+struct mtk_tx_dma {
+	unsigned int txd1;
+	unsigned int txd2;
+	unsigned int txd3;
+	unsigned int txd4;
+} __packed __aligned(4);
+
+/* PDMA TXD fields */
+#define PDMA_TXD2_DDONE			BIT(31)
+#define PDMA_TXD2_LS0			BIT(30)
+#define PDMA_TXD2_SDL0_M		GENMASK(29, 16)
+#define PDMA_TXD2_SDL0_SET(_v)	FIELD_PREP(PDMA_TXD2_SDL0_M, (_v))
+
+#define PDMA_TXD4_FPORT_M		GENMASK(27, 25)
+#define PDMA_TXD4_FPORT_SET(_v)	FIELD_PREP(PDMA_TXD4_FPORT_M, (_v))
+
+/* PDMA RXD fields */
+#define PDMA_RXD2_DDONE			BIT(31)
+#define PDMA_RXD2_LS0			BIT(30)
+#define PDMA_RXD2_PLEN0_M		GENMASK(29, 16)
+#define PDMA_RXD2_PLEN0_GET(_v)	FIELD_GET(PDMA_RXD2_PLEN0_M, (_v))
+#define PDMA_RXD2_PLEN0_SET(_v)	FIELD_PREP(PDMA_RXD2_PLEN0_M, (_v))
 
 #endif /* _MTK_ETH_H_ */
