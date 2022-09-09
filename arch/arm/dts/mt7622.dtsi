@@ -175,6 +175,7 @@
 		status = "disabled";
 		assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>;
 		assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>;
+		mediatek,force-highspeed;
 	};
 
 	mmc0: mmc@11230000 {
