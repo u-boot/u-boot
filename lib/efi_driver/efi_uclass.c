@@ -71,6 +71,15 @@ static efi_status_t EFIAPI efi_uc_supported(
 	EFI_ENTRY("%p, %p, %ls", this, controller_handle,
 		  efi_dp_str(remaining_device_path));
 
+	/*
+	 * U-Boot internal devices install protocols interfaces without calling
+	 * ConnectController(). Hence we should not bind an extra driver.
+	 */
+	if (controller_handle->dev) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
 	ret = EFI_CALL(systab.boottime->open_protocol(
 			controller_handle, bp->ops->protocol,
 			&interface, this->driver_binding_handle,
