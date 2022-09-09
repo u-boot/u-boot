@@ -9,8 +9,31 @@
 #ifndef _MTK_ETH_H_
 #define _MTK_ETH_H_
 
-/* Frame Engine Register Bases */
 #include <linux/bitops.h>
+
+enum mkt_eth_capabilities {
+	MTK_TRGMII_BIT,
+	MTK_TRGMII_MT7621_CLK_BIT,
+
+	/* PATH BITS */
+	MTK_ETH_PATH_GMAC1_TRGMII_BIT,
+};
+
+#define MTK_TRGMII			BIT(MTK_TRGMII_BIT)
+#define MTK_TRGMII_MT7621_CLK		BIT(MTK_TRGMII_MT7621_CLK_BIT)
+
+/* Supported path present on SoCs */
+#define MTK_ETH_PATH_GMAC1_TRGMII	BIT(MTK_ETH_PATH_GMAC1_TRGMII_BIT)
+
+#define MTK_GMAC1_TRGMII	(MTK_ETH_PATH_GMAC1_TRGMII | MTK_TRGMII)
+
+#define MTK_HAS_CAPS(caps, _x)		(((caps) & (_x)) == (_x))
+
+#define MT7621_CAPS  (MTK_GMAC1_TRGMII | MTK_TRGMII_MT7621_CLK)
+
+#define MT7623_CAPS  (MTK_GMAC1_TRGMII)
+
+/* Frame Engine Register Bases */
 #define PDMA_BASE			0x0800
 #define GDMA1_BASE			0x0500
 #define GDMA2_BASE			0x1500
