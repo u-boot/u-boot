@@ -11,6 +11,11 @@
 #define CLK_XTAL			0
 #define MHZ				(1000 * 1000)
 
+/* flags in struct mtk_clk_tree */
+
+/* clk id == 0 doesn't mean it's xtal clk */
+#define CLK_BYPASS_XTAL			BIT(0)
+
 #define HAVE_RST_BAR			BIT(0)
 #define CLK_DOMAIN_SCPSYS		BIT(0)
 #define CLK_MUX_SETCLR_UPD		BIT(1)
@@ -197,6 +202,7 @@ struct mtk_clk_tree {
 	const struct mtk_fixed_clk *fclks;
 	const struct mtk_fixed_factor *fdivs;
 	const struct mtk_composite *muxes;
+	u32 flags;
 };
 
 struct mtk_clk_priv {

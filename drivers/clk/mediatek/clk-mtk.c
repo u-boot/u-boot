@@ -319,7 +319,9 @@ static ulong mtk_topckgen_get_mux_rate(struct clk *clk, u32 off)
 	index &= mux->mux_mask << mux->mux_shift;
 	index = index >> mux->mux_shift;
 
-	if (mux->parent[index])
+	if (mux->parent[index] > 0 ||
+	    (mux->parent[index] == CLK_XTAL &&
+	     priv->tree->flags & CLK_BYPASS_XTAL))
 		return mtk_clk_find_parent_rate(clk, mux->parent[index],
 						NULL);
 
