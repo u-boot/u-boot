@@ -33,6 +33,9 @@ static const struct brom_img_type {
 	}, {
 		.name = "snand",
 		.type = BRLYT_TYPE_SNAND
+	}, {
+		.name = "spim-nand",
+		.type = BRLYT_TYPE_SNAND
 	}
 };
 
@@ -54,7 +57,7 @@ static char lk_name[32] = "U-Boot";
 static uint32_t crc32tbl[256];
 
 /* NAND header selected by user */
-static const union nand_boot_header *hdr_nand;
+static const struct nand_header_type *hdr_nand;
 static uint32_t hdr_nand_size;
 
 /* GFH header + 2 * 4KB pages of NAND */
@@ -366,20 +369,26 @@ static int mtk_image_verify_nand_header(const uint8_t *ptr, int print)
 	if (ret < 0)
 		return ret;
 
-	bh = (struct brom_layout_header *)(ptr + info.page_size);
+	if (!ret) {
+		bh = (struct brom_layout_header *)(ptr + info.page_size);
 
-	if (strcmp(bh->name, BRLYT_NAME))
-		return -1;
+		if (strcmp(bh->name, BRLYT_NAME))
+			return -1;
 
-	if (le32_to_cpu(bh->magic) != BRLYT_MAGIC) {
-		return -1;
-	} else {
+		if (le32_to_cpu(bh->magic) != BRLYT_MAGIC)
+			return -1;
+
 		if (le32_to_cpu(bh->type) == BRLYT_TYPE_NAND)
 			bootmedia = "Parallel NAND";
 		else if (le32_to_cpu(bh->type) == BRLYT_TYPE_SNAND)
 			bootmedia = "Serial NAND (SNFI/AP)";
 		else
 			return -1;
+	} else {
+		if (info.snfi)
+			bootmedia = "Serial NAND (SNFI/HSM)";
+		else
+			bootmedia = "Serial NAND (SPIM)";
 	}
 
 	if (print) {
