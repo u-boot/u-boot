@@ -115,6 +115,7 @@ struct mtk_eth_priv {
 	int force_mode;
 	int speed;
 	int duplex;
+	bool pn_swap;
 
 	struct phy_device *phydev;
 	int phy_interface;
@@ -1057,6 +1058,12 @@ static void mtk_sgmii_init(struct mtk_eth_priv *priv)
 	/* SGMII force mode setting */
 	writel(SGMII_FORCE_MODE, priv->sgmii_base + SGMSYS_SGMII_MODE);
 
+	/* SGMII PN SWAP setting */
+	if (priv->pn_swap) {
+		setbits_le32(priv->sgmii_base + SGMSYS_QPHY_WRAP_CTRL,
+			     SGMII_PN_SWAP_TX_RX);
+	}
+
 	/* Release PHYA power down state */
 	clrsetbits_le32(priv->sgmii_base + SGMSYS_QPHY_PWR_STATE_CTRL,
 			SGMII_PHYA_PWD, 0);
@@ -1470,6 +1477,8 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 			dev_err(dev, "Unable to find sgmii\n");
 			return -ENODEV;
 		}
+
+		priv->pn_swap = ofnode_read_bool(args.node, "pn_swap");
 	}
 
 	/* check for switch first, otherwise phy will be used */
@@ -1520,6 +1529,22 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static const struct mtk_soc_data mt7986_data = {
+	.caps = MT7986_CAPS,
+	.ana_rgc3 = 0x128,
+	.pdma_base = PDMA_V2_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma_v2),
+	.rxd_size = sizeof(struct mtk_rx_dma_v2),
+};
+
+static const struct mtk_soc_data mt7981_data = {
+	.caps = MT7986_CAPS,
+	.ana_rgc3 = 0x128,
+	.pdma_base = PDMA_V2_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma_v2),
+	.rxd_size = sizeof(struct mtk_rx_dma_v2),
+};
+
 static const struct mtk_soc_data mt7629_data = {
 	.ana_rgc3 = 0x128,
 	.pdma_base = PDMA_V1_BASE,
@@ -1549,6 +1574,8 @@ static const struct mtk_soc_data mt7621_data = {
 };
 
 static const struct udevice_id mtk_eth_ids[] = {
+	{ .compatible = "mediatek,mt7986-eth", .data = (ulong)&mt7986_data },
+	{ .compatible = "mediatek,mt7981-eth", .data = (ulong)&mt7981_data },
 	{ .compatible = "mediatek,mt7629-eth", .data = (ulong)&mt7629_data },
 	{ .compatible = "mediatek,mt7623-eth", .data = (ulong)&mt7623_data },
 	{ .compatible = "mediatek,mt7622-eth", .data = (ulong)&mt7622_data },

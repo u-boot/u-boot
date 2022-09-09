@@ -36,6 +36,8 @@ enum mkt_eth_capabilities {
 
 #define MT7623_CAPS  (MTK_GMAC1_TRGMII)
 
+#define MT7986_CAPS  (MTK_NETSYS_V2)
+
 /* Frame Engine Register Bases */
 #define PDMA_V1_BASE			0x0800
 #define PDMA_V2_BASE			0x6000
@@ -71,6 +73,9 @@ enum mkt_eth_capabilities {
 
 #define SGMSYS_QPHY_PWR_STATE_CTRL	0xe8
 #define SGMII_PHYA_PWD			BIT(4)
+
+#define SGMSYS_QPHY_WRAP_CTRL		0xec
+#define SGMII_PN_SWAP_TX_RX		0x03
 
 #define SGMSYS_GEN2_SPEED		0x2028
 #define SGMSYS_GEN2_SPEED_V2		0x128
