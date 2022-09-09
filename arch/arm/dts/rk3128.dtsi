@@ -237,14 +237,7 @@
 		clock-names = "clk_nandc", "g_clk_nandc", "hclk_nandc";
 	};
 
-	dmc: dmc@20004000 {
-		u-boot,dm-pre-reloc;
-		compatible = "rockchip,rk3128-dmc", "syscon";
-		reg = <0x0 0x20004000 0x0 0x1000>;
-	};
-
 	cru: clock-controller@20000000 {
-		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3128-cru";
 		reg = <0x20000000 0x1000>;
 		rockchip,grf = <&grf>;
@@ -453,7 +446,6 @@
 	};
 
 	emmc: dwmmc@1021c000 {
-		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3128-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x1021c000 0x4000>;
 		max-frequency = <150000000>;
@@ -538,7 +530,6 @@
 	};
 
 	grf: syscon@20008000 {
-		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3128-grf", "syscon";
 		reg = <0x20008000 0x1000>;
 	};

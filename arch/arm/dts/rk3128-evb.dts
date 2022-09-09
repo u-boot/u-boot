@@ -37,6 +37,11 @@
 	};
 };
 
+&emmc {
+	fifo-mode;
+	status = "okay";
+};
+
 &i2c1 {
 	status = "okay";
 
@@ -71,11 +76,6 @@
 
 &usb_otg {
 	vbus-supply = <&vcc5v0_otg>;
-	status = "okay";
-};
-
-&emmc {
-	fifo-mode;
 	status = "okay";
 };
 
