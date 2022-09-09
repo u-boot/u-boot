@@ -42,7 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static u32 mx53_dram_size[2];
 
-ulong board_get_usable_ram_top(ulong total_size)
+phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	/*
 	 * WARNING: We must override get_effective_memsize() function here
