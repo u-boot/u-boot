@@ -171,10 +171,16 @@ static const struct mtk_pwm_soc mt7629_data = {
 	.pwm45_fixup = false,
 };
 
+static const struct mtk_pwm_soc mt7986_data = {
+	.num_pwms = 2,
+	.pwm45_fixup = false,
+};
+
 static const struct udevice_id mtk_pwm_ids[] = {
 	{ .compatible = "mediatek,mt7622-pwm", .data = (ulong)&mt7622_data },
 	{ .compatible = "mediatek,mt7623-pwm", .data = (ulong)&mt7623_data },
 	{ .compatible = "mediatek,mt7629-pwm", .data = (ulong)&mt7629_data },
+	{ .compatible = "mediatek,mt7986-pwm", .data = (ulong)&mt7986_data },
 	{ }
 };
 
