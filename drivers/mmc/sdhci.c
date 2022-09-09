@@ -211,7 +211,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	unsigned int stat = 0;
 	int ret = 0;
 	int trans_bytes = 0, is_aligned = 1;
-	u32 mask, flags, mode;
+	u32 mask, flags, mode = 0;
 	unsigned int time = 0;
 	int mmc_dev = mmc_get_blk_desc(mmc)->devnum;
 	ulong start = get_timer(0);
@@ -273,10 +273,12 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* Set Transfer mode regarding to data flag */
 	if (data) {
 		sdhci_writeb(host, 0xe, SDHCI_TIMEOUT_CONTROL);
-		mode = SDHCI_TRNS_BLK_CNT_EN;
+
+		if (!(host->quirks & SDHCI_QUIRK_SUPPORT_SINGLE))
+			mode = SDHCI_TRNS_BLK_CNT_EN;
 		trans_bytes = data->blocks * data->blocksize;
 		if (data->blocks > 1)
-			mode |= SDHCI_TRNS_MULTI;
+			mode |= SDHCI_TRNS_MULTI | SDHCI_TRNS_BLK_CNT_EN;
 
 		if (data->flags == MMC_DATA_READ)
 			mode |= SDHCI_TRNS_READ;
