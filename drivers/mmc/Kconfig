@@ -576,12 +576,12 @@ config MMC_SDHCI_IPROC
 	  If unsure, say N.
 
 config MMC_SDHCI_F_SDH30
-	bool "SDHCI support for Fujitsu Semiconductor F_SDH30"
+	bool "SDHCI support for Fujitsu Semiconductor/Socionext F_SDH30"
 	depends on BLK && DM_MMC
 	depends on MMC_SDHCI
 	help
 	  This selects the Secure Digital Host Controller Interface (SDHCI)
-	  Needed by some Fujitsu SoC for MMC / SD / SDIO support.
+	  Needed by some Fujitsu/Socionext SoC for MMC / SD / SDIO support.
 	  If you have a controller with this interface, say Y or M here.
 	  If unsure, say N.
 
