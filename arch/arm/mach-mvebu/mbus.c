@@ -469,7 +469,7 @@ int mbus_dt_setup_win(u32 base, u32 size, u8 target, u8 attr)
 	return 0;
 }
 
-int mvebu_mbus_probe(struct mbus_win windows[], int count)
+int mvebu_mbus_probe(const struct mbus_win windows[], int count)
 {
 	int win;
 	int ret;

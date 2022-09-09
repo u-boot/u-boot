@@ -52,7 +52,7 @@ unsigned int kw_winctrl_calcsize(unsigned int sizeval)
 	return (0x0000ffff & j);
 }
 
-static struct mbus_win windows[] = {
+static const struct mbus_win windows[] = {
 	/* Window 0: PCIE MEM address space */
 	{ KW_DEFADR_PCI_MEM, KW_DEFADR_PCI_MEM_SIZE,
 	  KWCPU_TARGET_PCIE, KWCPU_ATTR_PCIE_MEM },

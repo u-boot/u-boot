@@ -20,7 +20,7 @@
 #define DDR_BASE_CS_OFF(n)	(0x0000 + ((n) << 3))
 #define DDR_SIZE_CS_OFF(n)	(0x0004 + ((n) << 3))
 
-static struct mbus_win windows[] = {
+static const struct mbus_win windows[] = {
 	/* SPI */
 	{ MBUS_SPI_BASE, MBUS_SPI_SIZE,
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPIFLASH },
