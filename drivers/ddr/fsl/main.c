@@ -950,5 +950,9 @@ fsl_ddr_sdram_size(void)
 	/* Compute it once normally. */
 	total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 1);
 
+	/* Ensure that total_memory does not overflow on return */
+	if (total_memory > (phys_size_t)~0ULL)
+		total_memory = (phys_size_t)~0ULL;
+
 	return total_memory;
 }
