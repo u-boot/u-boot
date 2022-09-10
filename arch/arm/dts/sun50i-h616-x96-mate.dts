@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ or MIT)
 /*
- * Copyright (C) 2020 Arm Ltd.
+ * Copyright (C) 2021 Arm Ltd.
  */
 
 /dts-v1/;
@@ -9,14 +9,12 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
-#include <dt-bindings/leds/common.h>
 
 / {
-	model = "OrangePi Zero2";
-	compatible = "xunlong,orangepi-zero2", "allwinner,sun50i-h616";
+	model = "X96 Mate";
+	compatible = "hechuang,x96-mate", "allwinner,sun50i-h616";
 
 	aliases {
-		ethernet0 = &emac0;
 		serial0 = &uart0;
 	};
 
@@ -24,25 +22,8 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	leds {
-		compatible = "gpio-leds";
-
-		led-0 {
-			function = LED_FUNCTION_POWER;
-			color = <LED_COLOR_ID_RED>;
-			gpios = <&pio 2 12 GPIO_ACTIVE_HIGH>; /* PC12 */
-			default-state = "on";
-		};
-
-		led-1 {
-			function = LED_FUNCTION_STATUS;
-			color = <LED_COLOR_ID_GREEN>;
-			gpios = <&pio 2 13 GPIO_ACTIVE_HIGH>; /* PC13 */
-		};
-	};
-
 	reg_vcc5v: vcc5v {
-		/* board wide 5V supply directly from the USB-C socket */
+		/* board wide 5V supply directly from the DC input */
 		compatible = "regulator-fixed";
 		regulator-name = "vcc-5v";
 		regulator-min-microvolt = <5000000>;
@@ -51,28 +32,25 @@
 	};
 };
 
-&emac0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ext_rgmii_pins>;
-	phy-mode = "rgmii";
-	phy-handle = <&ext_rgmii_phy>;
-	phy-supply = <&reg_dcdce>;
-	allwinner,rx-delay-ps = <3100>;
-	allwinner,tx-delay-ps = <700>;
+&ir {
 	status = "okay";
-};
-
-&mdio0 {
-	ext_rgmii_phy: ethernet-phy@1 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <1>;
-	};
 };
 
 &mmc0 {
 	vmmc-supply = <&reg_dcdce>;
 	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>;	/* PF6 */
 	bus-width = <4>;
+	status = "okay";
+};
+
+&mmc2 {
+	vmmc-supply = <&reg_dcdce>;
+	vqmmc-supply = <&reg_bldo1>;
+	bus-width = <8>;
+	non-removable;
+	cap-mmc-hw-reset;
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
 	status = "okay";
 };
 
@@ -104,18 +82,20 @@
 				regulator-name = "vcc-sys";
 			};
 
-			reg_aldo2: aldo2 {	/* 3.3V on headers */
-				regulator-always-on;
+			/* Enabled by the Android BSP */
+			reg_aldo2: aldo2 {
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-name = "vcc3v3-ext";
+				status = "disabled";
 			};
 
-			reg_aldo3: aldo3 {	/* 3.3V on headers */
-				regulator-always-on;
+			/* Enabled by the Android BSP */
+			reg_aldo3: aldo3 {
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-name = "vcc3v3-ext2";
+				status = "disabled";
 			};
 
 			reg_bldo1: bldo1 {
@@ -125,8 +105,12 @@
 				regulator-name = "vcc1v8";
 			};
 
-			bldo2 {
-				/* unused */
+			/* Enabled by the Android BSP */
+			reg_bldo2: bldo2 {
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-name = "vcc1v8-2";
+				status = "disabled";
 			};
 
 			bldo3 {
@@ -138,7 +122,9 @@
 			};
 
 			cldo1 {
-				/* reserved */
+				regulator-min-microvolt = <2500000>;
+				regulator-max-microvolt = <2500000>;
+				regulator-name = "vcc2v5";
 			};
 
 			cldo2 {
@@ -165,8 +151,8 @@
 
 			reg_dcdcd: dcdcd {
 				regulator-always-on;
-				regulator-min-microvolt = <1500000>;
-				regulator-max-microvolt = <1500000>;
+				regulator-min-microvolt = <1360000>;
+				regulator-max-microvolt = <1360000>;
 				regulator-name = "vdd-dram";
 			};
 
@@ -181,28 +167,6 @@
 				/* unused */
 			};
 		};
-	};
-};
-
-&pio {
-	vcc-pc-supply = <&reg_aldo1>;
-	vcc-pf-supply = <&reg_aldo1>;
-	vcc-pg-supply = <&reg_bldo1>;
-	vcc-ph-supply = <&reg_aldo1>;
-	vcc-pi-supply = <&reg_aldo1>;
-};
-
-&spi0  {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&spi0_pins>, <&spi0_cs0_pin>;
-
-	flash@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "jedec,spi-nor";
-		reg = <0>;
-		spi-max-frequency = <40000000>;
 	};
 };
 
