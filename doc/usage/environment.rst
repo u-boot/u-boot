@@ -106,6 +106,27 @@ many cases the value in the default environment comes from a CONFIG option - see
 
 This is most-likely not complete:
 
+autostart
+    If set to "yes" (actually any string starting with 1, y, Y, t, or T) an
+    image loaded with one of the commands listed below will be automatically
+    started by internally invoking the bootm command.
+
+    * bootelf - Boot from an ELF image in memory
+    * bootp - boot image via network using BOOTP/TFTP protocol
+    * dhcp - boot image via network using DHCP/TFTP protocol
+    * diskboot - boot from ide device
+    * nboot - boot from NAND device
+    * nfs - boot image via network using NFS protocol
+    * rarpboot - boot image via network using RARP/TFTP protocol
+    * scsiboot - boot from SCSI device
+    * tftpboot - boot image via network using TFTP protocol
+    * usbboot - boot from USB device
+
+    If the environment variable autostart is not set to a value starting with
+    1, y, Y, t, or T, an image passed to the "bootm" command will be copied to
+    the load address (and eventually uncompressed), but NOT be started.
+    This can be used to load and uncompress arbitrary data.
+
 baudrate
     Used to set the baudrate of the UART - it defaults to CONFIG_BAUDRATE (which
     defaults to 115200).
@@ -173,19 +194,6 @@ autoload
     "bootp" and "dhcp" will just load perform a lookup of the
     configuration from the BOOTP server, but not try to
     load any image.
-
-autostart
-    if set to "yes", an image loaded using the "bootp", "dhcp",
-    "rarpboot", "tftpboot" or "diskboot" commands will
-    be automatically started (by internally calling
-    "bootm")
-
-    If unset, or set to "1"/"yes"/"true" (case insensitive, just the first
-    character is enough), a standalone image
-    passed to the "bootm" command will be copied to the load address
-    (and eventually uncompressed), but NOT be started.
-    This can be used to load and uncompress arbitrary
-    data.
 
 fdt_high
     if set this restricts the maximum address that the
