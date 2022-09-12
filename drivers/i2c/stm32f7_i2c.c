@@ -483,9 +483,9 @@ static int stm32_i2c_message_xfer(struct stm32_i2c_priv *i2c_priv,
 		}
 	}
 
-	/* End of transfer, send stop condition */
-	mask = STM32_I2C_CR2_STOP;
-	setbits_le32(&regs->cr2, mask);
+	/* End of transfer, send stop condition if appropriate */
+	if (!ret && !(status & (STM32_I2C_ISR_NACKF | STM32_I2C_ISR_ERRORS)))
+		setbits_le32(&regs->cr2, STM32_I2C_CR2_STOP);
 
 	return stm32_i2c_check_end_of_message(i2c_priv);
 }
