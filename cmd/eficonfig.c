@@ -82,6 +82,17 @@ struct eficonfig_file_entry_data {
 };
 
 /**
+ * struct eficonfig_boot_selection_data - structure to be used to select the boot option entry
+ *
+ * @boot_index:	index of the boot option
+ * @selected:		pointer to store the selected index in the BootOrder variable
+ */
+struct eficonfig_boot_selection_data {
+	u16 boot_index;
+	int *selected;
+};
+
+/**
  * eficonfig_print_msg() - print message
  *
  * display the message to the user, user proceeds the screen
@@ -1209,34 +1220,58 @@ static efi_status_t prepare_file_selection_entry(struct efimenu *efi_menu, char 
 {
 	u32 len;
 	efi_status_t ret;
-	u16 *file_name, *p;
+	u16 *file_name = NULL, *p;
 	efi_handle_t handle;
-	char devname[BOOTMENU_DEVICE_NAME_MAX] = {0};
+	char *devname;
+
+	devname = calloc(1, EFICONFIG_VOLUME_PATH_MAX + 1);
+	if (!devname)
+		return EFI_OUT_OF_RESOURCES;
 
 	/* get the device name only when the user already selected the file path */
 	handle = efi_dp_find_obj(file_info->dp_volume, NULL, NULL);
 	if (handle) {
-		ret = efi_disk_get_device_name(handle, devname, BOOTMENU_DEVICE_NAME_MAX);
+		ret = efi_disk_get_device_name(handle, devname, EFICONFIG_VOLUME_PATH_MAX);
 		if (ret != EFI_SUCCESS)
-			return ret;
+			goto out;
+	}
+
+	/*
+	 * If the preconfigured volume does not exist in the system, display the text
+	 * converted volume device path instead of U-Boot friendly name(e.g. "usb 0:1").
+	 */
+	if (!handle && file_info->dp_volume) {
+		u16 *dp_str;
+		char *q = devname;
+
+		dp_str = efi_dp_str(file_info->dp_volume);
+		if (dp_str)
+			utf16_utf8_strncpy(&q, dp_str, EFICONFIG_VOLUME_PATH_MAX);
+
+		efi_free_pool(dp_str);
 	}
 
 	/* append u'/' to devname, it is just for display purpose. */
 	if (file_info->current_path[0] != u'\0' && file_info->current_path[0] != u'/')
-		strlcat(devname, "/", BOOTMENU_DEVICE_NAME_MAX);
+		strlcat(devname, "/", EFICONFIG_VOLUME_PATH_MAX + 1);
 
 	len = strlen(devname);
 	len += utf16_utf8_strlen(file_info->current_path) + 1;
 	file_name = calloc(1, len * sizeof(u16));
-	if (!file_name)
-		return ret;
+	if (!file_name) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
 
 	p = file_name;
 	utf8_utf16_strcpy(&p, devname);
 	u16_strlcat(file_name, file_info->current_path, len);
 	ret = create_boot_option_entry(efi_menu, title, file_name,
 				       eficonfig_select_file_handler, file_info);
+out:
+	free(devname);
 	free(file_name);
+
 	return ret;
 }
 
@@ -1403,10 +1438,14 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 		if (ret != EFI_SUCCESS)
 			goto out;
 
-		if (!lo.label || (lo.label && u16_strlen(lo.label) >= EFICONFIG_DESCRIPTION_MAX)) {
+		if (!lo.label) {
 			ret = EFI_INVALID_PARAMETER;
 			goto out;
 		}
+		/* truncate the long label string */
+		if (u16_strlen(lo.label) >= EFICONFIG_DESCRIPTION_MAX)
+			lo.label[EFICONFIG_DESCRIPTION_MAX - 1] = u'\0';
+
 		u16_strcpy(bo->description, lo.label);
 
 		/* EFI image file path is a first instance */
@@ -1525,6 +1564,231 @@ out:
 }
 
 /**
+ * eficonfig_process_boot_selected() - handler to select boot option entry
+ *
+ * @data:	pointer to the data for each entry
+ * Return:	status code
+ */
+static efi_status_t eficonfig_process_boot_selected(void *data)
+{
+	struct eficonfig_boot_selection_data *info = data;
+
+	if (info)
+		*info->selected = info->boot_index;
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * search_bootorder() - search the boot option index in BootOrder
+ *
+ * @bootorder:	pointer to the BootOrder variable
+ * @num:	number of BootOrder entry
+ * @target:	target boot option index to search
+ * @index:	pointer to store the index of BootOrder variable
+ * Return:	true if exists, false otherwise
+ */
+static bool search_bootorder(u16 *bootorder, efi_uintn_t num, u32 target, u32 *index)
+{
+	u32 i;
+
+	for (i = 0; i < num; i++) {
+		if (target == bootorder[i]) {
+			if (index)
+				*index = i;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * eficonfig_add_boot_selection_entry() - add boot option menu entry
+ *
+ * @efi_menu:	pointer to store the efimenu structure
+ * @boot_index:	boot option index to be added
+ * @selected:	pointer to store the selected boot option index
+ * Return:	status code
+ */
+static efi_status_t eficonfig_add_boot_selection_entry(struct efimenu *efi_menu,
+						       unsigned int boot_index,
+						       unsigned int *selected)
+{
+	char *buf, *p;
+	efi_status_t ret;
+	efi_uintn_t size;
+	void *load_option;
+	struct efi_load_option lo;
+	u16 varname[] = u"Boot####";
+	struct eficonfig_boot_selection_data *info;
+
+	efi_create_indexed_name(varname, sizeof(varname), "Boot", boot_index);
+	load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
+	if (!load_option)
+		return EFI_SUCCESS;
+
+	ret = efi_deserialize_load_option(&lo, load_option, &size);
+	if (ret != EFI_SUCCESS) {
+		log_warning("Invalid load option for %ls\n", varname);
+		free(load_option);
+		return ret;
+	}
+
+	if (size >= sizeof(efi_guid_t) &&
+	    !guidcmp(lo.optional_data, &efi_guid_bootmenu_auto_generated)) {
+		/*
+		 * auto generated entry has GUID in optional_data,
+		 * skip auto generated entry because it will be generated
+		 * again even if it is edited or deleted.
+		 */
+		free(load_option);
+		return EFI_SUCCESS;
+	}
+
+	info = calloc(1, sizeof(struct eficonfig_boot_selection_data));
+	if (!info) {
+		free(load_option);
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	buf = calloc(1, utf16_utf8_strlen(lo.label) + 1);
+	if (!buf) {
+		free(load_option);
+		free(info);
+		return EFI_OUT_OF_RESOURCES;
+	}
+	p = buf;
+	utf16_utf8_strcpy(&p, lo.label);
+	info->boot_index = boot_index;
+	info->selected = selected;
+	ret = append_entry(efi_menu, buf, eficonfig_process_boot_selected, info);
+	if (ret != EFI_SUCCESS) {
+		free(load_option);
+		free(info);
+		return ret;
+	}
+	free(load_option);
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * eficonfig_show_boot_selection() - construct boot option menu entry
+ *
+ * @selected:	pointer to store the selected boot option index
+ * Return:	status code
+ */
+static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
+{
+	u32 i;
+	u16 *bootorder;
+	efi_status_t ret;
+	efi_uintn_t num, size;
+	struct efimenu *efi_menu;
+	struct list_head *pos, *n;
+	struct eficonfig_entry *entry;
+
+	efi_menu = calloc(1, sizeof(struct efimenu));
+	if (!efi_menu)
+		return EFI_OUT_OF_RESOURCES;
+
+	bootorder = efi_get_var(u"BootOrder", &efi_global_variable_guid, &size);
+
+	INIT_LIST_HEAD(&efi_menu->list);
+	num = size / sizeof(u16);
+	/* list the load option in the order of BootOrder variable */
+	for (i = 0; i < num; i++) {
+		ret = eficonfig_add_boot_selection_entry(efi_menu, bootorder[i], selected);
+		if (ret != EFI_SUCCESS)
+			goto out;
+
+		if (efi_menu->count >= EFICONFIG_ENTRY_NUM_MAX - 1)
+			break;
+	}
+
+	/* list the remaining load option not included in the BootOrder */
+	for (i = 0; i <= 0xFFFF; i++) {
+		/* If the index is included in the BootOrder, skip it */
+		if (search_bootorder(bootorder, num, i, NULL))
+			continue;
+
+		ret = eficonfig_add_boot_selection_entry(efi_menu, i, selected);
+		if (ret != EFI_SUCCESS)
+			goto out;
+
+		if (efi_menu->count >= EFICONFIG_ENTRY_NUM_MAX - 1)
+			break;
+	}
+
+	ret = append_quit_entry(efi_menu);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = eficonfig_process_common(efi_menu, "  ** Select Boot Option **");
+out:
+	list_for_each_safe(pos, n, &efi_menu->list) {
+		entry = list_entry(pos, struct eficonfig_entry, list);
+		free(entry->data);
+	}
+	eficonfig_destroy(efi_menu);
+
+	return ret;
+}
+
+/**
+ * eficonfig_process_edit_boot_option() - handler to edit boot option
+ *
+ * @data:	pointer to the data for each entry
+ * Return:	status code
+ */
+static efi_status_t eficonfig_process_edit_boot_option(void *data)
+{
+	efi_status_t ret;
+	efi_uintn_t size;
+	struct eficonfig_boot_option *bo = NULL;
+
+	while (1) {
+		unsigned int selected;
+		void *load_option;
+		u16 varname[] = u"Boot####";
+
+		ret = eficonfig_show_boot_selection(&selected);
+		if (ret != EFI_SUCCESS)
+			break;
+
+		bo = calloc(1, sizeof(struct eficonfig_boot_option));
+		if (!bo) {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto out;
+		}
+
+		bo->boot_index = selected;
+		efi_create_indexed_name(varname, sizeof(varname), "Boot", selected);
+		load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
+		if (!load_option) {
+			free(bo);
+			ret = EFI_NOT_FOUND;
+			goto out;
+		}
+
+		ret = eficonfig_edit_boot_option(varname, bo, load_option, size,
+						 "  ** Edit Boot Option ** ");
+
+		free(load_option);
+		free(bo);
+		if (ret != EFI_SUCCESS && ret != EFI_ABORTED)
+			break;
+	}
+out:
+	/* to stay the parent menu */
+	ret = (ret == EFI_ABORTED) ? EFI_NOT_READY : ret;
+
+	return ret;
+}
+
+/**
  * eficonfig_init() - do required initialization for eficonfig command
  *
  * Return:	status code
@@ -1553,6 +1817,7 @@ static efi_status_t eficonfig_init(void)
 
 static const struct eficonfig_item maintenance_menu_items[] = {
 	{"Add Boot Option", eficonfig_process_add_boot_option},
+	{"Edit Boot Option", eficonfig_process_edit_boot_option},
 	{"Quit", eficonfig_process_quit},
 };
 
