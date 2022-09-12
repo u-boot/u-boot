@@ -44,12 +44,14 @@ U_BOOT_DATA           = b'1234'
 U_BOOT_IMG_DATA       = b'img'
 U_BOOT_SPL_DATA       = b'56780123456789abcdefghijklm'
 U_BOOT_TPL_DATA       = b'tpl9876543210fedcbazywvuts'
+U_BOOT_VPL_DATA       = b'vpl76543210fedcbazywxyz_'
 BLOB_DATA             = b'89'
 ME_DATA               = b'0abcd'
 VGA_DATA              = b'vga'
 U_BOOT_DTB_DATA       = b'udtb'
 U_BOOT_SPL_DTB_DATA   = b'spldtb'
 U_BOOT_TPL_DTB_DATA   = b'tpldtb'
+U_BOOT_VPL_DTB_DATA   = b'vpldtb'
 X86_START16_DATA      = b'start16'
 X86_START16_SPL_DATA  = b'start16spl'
 X86_START16_TPL_DATA  = b'start16tpl'
@@ -60,6 +62,7 @@ PPC_MPC85XX_BR_DATA   = b'ppcmpc85xxbr'
 U_BOOT_NODTB_DATA     = b'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = b'splnodtb with microcode pointer somewhere in here'
 U_BOOT_TPL_NODTB_DATA = b'tplnodtb with microcode pointer somewhere in here'
+U_BOOT_VPL_NODTB_DATA = b'vplnodtb'
 U_BOOT_EXP_DATA       = U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA
 U_BOOT_SPL_EXP_DATA   = U_BOOT_SPL_NODTB_DATA + U_BOOT_SPL_DTB_DATA
 U_BOOT_TPL_EXP_DATA   = U_BOOT_TPL_NODTB_DATA + U_BOOT_TPL_DTB_DATA
@@ -140,6 +143,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot.img', U_BOOT_IMG_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl.bin', U_BOOT_SPL_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-tpl.bin', U_BOOT_TPL_DATA)
+        TestFunctional._MakeInputFile('vpl/u-boot-vpl.bin', U_BOOT_VPL_DATA)
         TestFunctional._MakeInputFile('blobfile', BLOB_DATA)
         TestFunctional._MakeInputFile('me.bin', ME_DATA)
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
@@ -165,6 +169,8 @@ class TestFunctional(unittest.TestCase):
                                       U_BOOT_SPL_NODTB_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-tpl-nodtb.bin',
                                       U_BOOT_TPL_NODTB_DATA)
+        TestFunctional._MakeInputFile('vpl/u-boot-vpl-nodtb.bin',
+                                      U_BOOT_VPL_NODTB_DATA)
         TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
         TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
@@ -296,6 +302,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-tpl.dtb', U_BOOT_TPL_DTB_DATA)
+        TestFunctional._MakeInputFile('vpl/u-boot-vpl.dtb', U_BOOT_VPL_DTB_DATA)
 
     def _RunBinman(self, *args, **kwargs):
         """Run binman using the command line
@@ -431,8 +438,8 @@ class TestFunctional(unittest.TestCase):
         shutil.rmtree(tmpdir)
         return data
 
-    def _GetDtbContentsForSplTpl(self, dtb_data, name):
-        """Create a version of the main DTB for SPL or SPL
+    def _GetDtbContentsForSpls(self, dtb_data, name):
+        """Create a version of the main DTB for SPL / TPL / VPL
 
         For testing we don't actually have different versions of the DTB. With
         U-Boot we normally run fdtgrep to remove unwanted nodes, but for tests
@@ -502,11 +509,11 @@ class TestFunctional(unittest.TestCase):
 
             # For testing purposes, make a copy of the DT for SPL and TPL. Add
             # a node indicating which it is, so aid verification.
-            for name in ['spl', 'tpl']:
+            for name in ['spl', 'tpl', 'vpl']:
                 dtb_fname = '%s/u-boot-%s.dtb' % (name, name)
                 outfile = os.path.join(self._indir, dtb_fname)
                 TestFunctional._MakeInputFile(dtb_fname,
-                        self._GetDtbContentsForSplTpl(dtb_data, name))
+                        self._GetDtbContentsForSpls(dtb_data, name))
 
         try:
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
@@ -610,6 +617,16 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as TPL
         """
         TestFunctional._MakeInputFile('tpl/u-boot-tpl',
+            tools.read_file(cls.ElfTestFile(src_fname)))
+
+    @classmethod
+    def _SetupVplElf(cls, src_fname='bss_data'):
+        """Set up an ELF file with a '_dt_ucode_base_size' symbol
+
+        Args:
+            Filename of ELF file to use as VPL
+        """
+        TestFunctional._MakeInputFile('vpl/u-boot-vpl',
             tools.read_file(cls.ElfTestFile(src_fname)))
 
     @classmethod
@@ -1907,21 +1924,24 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFileRealDtb('082_fdt_update_all.dts')
 
         base_expected = {
-            'section:image-pos': 0,
-            'u-boot-tpl-dtb:size': 513,
-            'u-boot-spl-dtb:size': 513,
-            'u-boot-spl-dtb:offset': 493,
-            'image-pos': 0,
-            'section/u-boot-dtb:image-pos': 0,
-            'u-boot-spl-dtb:image-pos': 493,
-            'section/u-boot-dtb:size': 493,
-            'u-boot-tpl-dtb:image-pos': 1006,
-            'section/u-boot-dtb:offset': 0,
-            'section:size': 493,
             'offset': 0,
+            'image-pos': 0,
+            'size': 2320,
             'section:offset': 0,
-            'u-boot-tpl-dtb:offset': 1006,
-            'size': 1519
+            'section:image-pos': 0,
+            'section:size': 565,
+            'section/u-boot-dtb:offset': 0,
+            'section/u-boot-dtb:image-pos': 0,
+            'section/u-boot-dtb:size': 565,
+            'u-boot-spl-dtb:offset': 565,
+            'u-boot-spl-dtb:image-pos': 565,
+            'u-boot-spl-dtb:size': 585,
+            'u-boot-tpl-dtb:offset': 1150,
+            'u-boot-tpl-dtb:image-pos': 1150,
+            'u-boot-tpl-dtb:size': 585,
+            'u-boot-vpl-dtb:image-pos': 1735,
+            'u-boot-vpl-dtb:offset': 1735,
+            'u-boot-vpl-dtb:size': 585,
         }
 
         # We expect three device-tree files in the output, one after the other.
@@ -1929,11 +1949,12 @@ class TestFunctional(unittest.TestCase):
         # and 'tpl' in the TPL tree, to make sure they are distinct from the
         # main U-Boot tree. All three should have the same postions and offset.
         start = 0
-        for item in ['', 'spl', 'tpl']:
+        self.maxDiff = None
+        for item in ['', 'spl', 'tpl', 'vpl']:
             dtb = fdt.Fdt.FromData(data[start:])
             dtb.Scan()
             props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS +
-                                      ['spl', 'tpl'])
+                                      ['spl', 'tpl', 'vpl'])
             expected = dict(base_expected)
             if item:
                 expected[item] = 0
@@ -1953,7 +1974,7 @@ class TestFunctional(unittest.TestCase):
             # over to the expected place.
             start = 0
             for fname in ['u-boot.dtb.out', 'spl/u-boot-spl.dtb.out',
-                          'tpl/u-boot-tpl.dtb.out']:
+                          'tpl/u-boot-tpl.dtb.out', 'vpl/u-boot-vpl.dtb.out']:
                 dtb = fdt.Fdt.FromData(data[start:])
                 size = dtb._fdt_obj.totalsize()
                 pathname = tools.get_output_filename(os.path.split(fname)[1])
@@ -1961,7 +1982,7 @@ class TestFunctional(unittest.TestCase):
                 name = os.path.split(fname)[0]
 
                 if name:
-                    orig_indata = self._GetDtbContentsForSplTpl(dtb_data, name)
+                    orig_indata = self._GetDtbContentsForSpls(dtb_data, name)
                 else:
                     orig_indata = dtb_data
                 self.assertNotEqual(outdata, orig_indata,
@@ -5927,6 +5948,52 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(0, retcode)
         fname = tools.get_output_filename('mkimage-test.bin')
         self.assertTrue(os.path.exists(fname))
+
+    def testVpl(self):
+        """Test that an image with VPL and its device tree can be created"""
+        # ELF file with a '__bss_size' symbol
+        self._SetupVplElf()
+        data = self._DoReadFile('255_u_boot_vpl.dts')
+        self.assertEqual(U_BOOT_VPL_DATA + U_BOOT_VPL_DTB_DATA, data)
+
+    def testVplNoDtb(self):
+        """Test that an image with vpl/u-boot-vpl-nodtb.bin can be created"""
+        self._SetupVplElf()
+        data = self._DoReadFile('256_u_boot_vpl_nodtb.dts')
+        self.assertEqual(U_BOOT_VPL_NODTB_DATA,
+                         data[:len(U_BOOT_VPL_NODTB_DATA)])
+
+    def testExpandedVpl(self):
+        """Test that an expanded entry type is selected for TPL when needed"""
+        self._SetupVplElf()
+
+        entry_args = {
+            'vpl-bss-pad': 'y',
+            'vpl-dtb': 'y',
+        }
+        self._DoReadFileDtb('257_fdt_incl_vpl.dts', use_expanded=True,
+                            entry_args=entry_args)
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(1, len(entries))
+
+        # We only have u-boot-vpl, which be expanded
+        self.assertIn('u-boot-vpl', entries)
+        entry = entries['u-boot-vpl']
+        self.assertEqual('u-boot-vpl-expanded', entry.etype)
+        subent = entry.GetEntries()
+        self.assertEqual(3, len(subent))
+        self.assertIn('u-boot-vpl-nodtb', subent)
+        self.assertIn('u-boot-vpl-bss-pad', subent)
+        self.assertIn('u-boot-vpl-dtb', subent)
+
+    def testVplBssPadMissing(self):
+        """Test that a missing symbol is detected"""
+        self._SetupVplElf('u_boot_ucode_ptr')
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('258_vpl_bss_pad.dts')
+        self.assertIn('Expected __bss_size symbol in vpl/u-boot-vpl',
+                      str(e.exception))
 
 
 if __name__ == "__main__":

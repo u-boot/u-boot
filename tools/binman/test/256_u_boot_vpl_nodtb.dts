@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
+
 /dts-v1/;
 
 / {
@@ -6,15 +7,7 @@
 	#size-cells = <1>;
 
 	binman {
-		section {
-			u-boot-dtb {
-			};
-		};
-		u-boot-spl-dtb {
-		};
-		u-boot-tpl-dtb {
-		};
-		u-boot-vpl-dtb {
+		u-boot-vpl-nodtb {
 		};
 	};
 };
