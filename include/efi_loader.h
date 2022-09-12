@@ -953,6 +953,22 @@ struct efi_signature_store {
 struct x509_certificate;
 struct pkcs7_message;
 
+/**
+ * struct eficonfig_media_boot_option - boot option for (removable) media device
+ *
+ * This structure is used to enumerate possible boot option
+ *
+ * @lo:		Serialized load option data
+ * @size:	Size of serialized load option data
+ * @exist:	Flag to indicate the load option already exists
+ *		in Non-volatile load option
+ */
+struct eficonfig_media_boot_option {
+	void *lo;
+	efi_uintn_t size;
+	bool exist;
+};
+
 bool efi_hash_regions(struct image_region *regs, int count,
 		      void **hash, const char *hash_algo, int *len);
 bool efi_signature_lookup_digest(struct efi_image_regions *regs,

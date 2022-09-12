@@ -246,6 +246,10 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	}
 
 	/* Set load options */
+	if (size >= sizeof(efi_guid_t) &&
+	    !guidcmp(lo.optional_data, &efi_guid_bootmenu_auto_generated))
+		size = 0;
+
 	if (size) {
 		*load_options = malloc(size);
 		if (!*load_options) {

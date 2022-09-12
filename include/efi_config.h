@@ -93,5 +93,6 @@ efi_status_t eficonfig_select_file_handler(void *data);
 efi_status_t eficonfig_get_unused_bootoption(u16 *buf,
 					     efi_uintn_t buf_size, u32 *index);
 efi_status_t eficonfig_append_bootorder(u16 index);
+efi_status_t eficonfig_generate_media_device_boot_option(void);
 
 #endif
