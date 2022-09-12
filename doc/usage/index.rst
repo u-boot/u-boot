@@ -35,6 +35,7 @@ Shell commands
    cmd/conitrace
    cmd/dm
    cmd/echo
+   cmd/eficonfig
    cmd/env
    cmd/event
    cmd/exception
