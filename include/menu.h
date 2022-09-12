@@ -48,6 +48,9 @@ enum bootmenu_key {
 	KEY_DOWN,
 	KEY_SELECT,
 	KEY_QUIT,
+	KEY_PLUS,
+	KEY_MINUS,
+	KEY_SPACE,
 };
 
 void bootmenu_autoboot_loop(struct bootmenu_data *menu,
