@@ -760,3 +760,53 @@ efi_status_t efi_disk_init(void)
 
 	return EFI_SUCCESS;
 }
+
+/**
+ * efi_disk_get_device_name() - get U-Boot device name associated with EFI handle
+ *
+ * @handle:	pointer to the EFI handle
+ * @buf:	pointer to the buffer to store the string
+ * @size:	size of buffer
+ * Return:	status code
+ */
+efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int size)
+{
+	int count;
+	int diskid;
+	enum uclass_id id;
+	unsigned int part;
+	struct udevice *dev;
+	struct blk_desc *desc;
+	const char *if_typename;
+	bool is_partition = false;
+	struct disk_part *part_data;
+
+	if (!handle || !buf || !size)
+		return EFI_INVALID_PARAMETER;
+
+	dev = handle->dev;
+	id = device_get_uclass_id(dev);
+	if (id == UCLASS_BLK) {
+		desc = dev_get_uclass_plat(dev);
+	} else if (id == UCLASS_PARTITION) {
+		desc = dev_get_uclass_plat(dev_get_parent(dev));
+		is_partition = true;
+	} else {
+		return EFI_INVALID_PARAMETER;
+	}
+	if_typename = blk_get_if_type_name(desc->if_type);
+	diskid = desc->devnum;
+
+	if (is_partition) {
+		part_data = dev_get_uclass_plat(dev);
+		part = part_data->partnum;
+		count = snprintf(buf, size, "%s %d:%d", if_typename, diskid, part);
+	} else {
+		count = snprintf(buf, size, "%s %d", if_typename, diskid);
+	}
+
+	if (count < 0 || (count + 1) > size)
+		return EFI_INVALID_PARAMETER;
+
+	return EFI_SUCCESS;
+}

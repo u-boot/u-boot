@@ -19,6 +19,9 @@
 static const struct efi_boot_services *bs;
 static const struct efi_runtime_services *rs;
 
+const efi_guid_t efi_guid_bootmenu_auto_generated =
+		EFICONFIG_AUTO_GENERATED_ENTRY_GUID;
+
 /*
  * bootmgr implements the logic of trying to find a payload to boot
  * based on the BootOrder + BootXXXX variables, and then loading it.
