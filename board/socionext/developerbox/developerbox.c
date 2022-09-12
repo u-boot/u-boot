@@ -160,11 +160,11 @@ int dram_init(void)
 		ri = DDR_REGION_INDEX(i);
 		mem_map[ri].phys = ent[i].base;
 		mem_map[ri].size = ent[i].size;
+		mem_map[ri].virt = mem_map[ri].phys;
 		if (i == 0)
 			continue;
 
 		mr = &mem_map[DDR_REGION_INDEX(0)];
-		mem_map[ri].virt = mr->virt + mr->size;
 		mem_map[ri].attrs = mr->attrs;
 	}
 
