@@ -2129,6 +2129,10 @@ static int do_eficonfig(struct cmd_tbl *cmdtp, int flag, int argc, char *const a
 	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
+	ret = eficonfig_generate_media_device_boot_option();
+	if (ret != EFI_SUCCESS && ret != EFI_NOT_FOUND)
+		return ret;
+
 	while (1) {
 		efi_menu = eficonfig_create_fixed_menu(maintenance_menu_items,
 						       ARRAY_SIZE(maintenance_menu_items));
