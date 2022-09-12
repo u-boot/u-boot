@@ -282,7 +282,7 @@ static int stm32_i2c_check_device_busy(struct stm32_i2c_priv *i2c_priv)
 }
 
 static void stm32_i2c_message_start(struct stm32_i2c_priv *i2c_priv,
-				    struct i2c_msg *msg, bool stop)
+				    struct i2c_msg *msg)
 {
 	struct stm32_i2c_regs *regs = i2c_priv->regs;
 	u32 cr2 = readl(&regs->cr2);
@@ -325,7 +325,7 @@ static void stm32_i2c_message_start(struct stm32_i2c_priv *i2c_priv,
  */
 
 static void stm32_i2c_handle_reload(struct stm32_i2c_priv *i2c_priv,
-				    struct i2c_msg *msg, bool stop)
+				    struct i2c_msg *msg)
 {
 	struct stm32_i2c_regs *regs = i2c_priv->regs;
 	u32 cr2 = readl(&regs->cr2);
@@ -431,7 +431,7 @@ static int stm32_i2c_message_xfer(struct stm32_i2c_priv *i2c_priv,
 	/* Add errors */
 	mask |= STM32_I2C_ISR_ERRORS;
 
-	stm32_i2c_message_start(i2c_priv, msg, stop);
+	stm32_i2c_message_start(i2c_priv, msg);
 
 	while (msg->len) {
 		/*
@@ -469,7 +469,7 @@ static int stm32_i2c_message_xfer(struct stm32_i2c_priv *i2c_priv,
 			mask = msg->flags & I2C_M_RD ? STM32_I2C_ISR_RXNE :
 			       STM32_I2C_ISR_TXIS | STM32_I2C_ISR_NACKF;
 
-			stm32_i2c_handle_reload(i2c_priv, msg, stop);
+			stm32_i2c_handle_reload(i2c_priv, msg);
 		} else if (!bytes_to_rw) {
 			/* Wait until TC flag is set */
 			mask = STM32_I2C_ISR_TC;
