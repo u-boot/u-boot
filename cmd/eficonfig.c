@@ -1789,6 +1789,76 @@ out:
 }
 
 /**
+ * delete_boot_option() - delete selected boot option
+ *
+ * @boot_index:	boot option index to delete
+ * Return:	status code
+ */
+static efi_status_t delete_boot_option(u16 boot_index)
+{
+	u16 *bootorder;
+	u16 varname[9];
+	efi_status_t ret;
+	unsigned int index;
+	efi_uintn_t num, size;
+
+	efi_create_indexed_name(varname, sizeof(varname),
+				"Boot", boot_index);
+	ret = efi_set_variable_int(varname, &efi_global_variable_guid,
+				   0, 0, NULL, false);
+	if (ret != EFI_SUCCESS) {
+		log_err("delete boot option(%ls) failed\n", varname);
+		return ret;
+	}
+
+	/* update BootOrder if necessary */
+	bootorder = efi_get_var(u"BootOrder", &efi_global_variable_guid, &size);
+	if (!bootorder)
+		return EFI_SUCCESS;
+
+	num = size / sizeof(u16);
+	if (!search_bootorder(bootorder, num, boot_index, &index))
+		return EFI_SUCCESS;
+
+	memmove(&bootorder[index], &bootorder[index + 1],
+		(num - index - 1) * sizeof(u16));
+	size -= sizeof(u16);
+	ret = efi_set_variable_int(u"BootOrder", &efi_global_variable_guid,
+				   EFI_VARIABLE_NON_VOLATILE |
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS,
+				   size, bootorder, false);
+
+	return ret;
+}
+
+/**
+ * eficonfig_process_delete_boot_option() - handler to delete boot option
+ *
+ * @data:	pointer to the data for each entry
+ * Return:	status code
+ */
+static efi_status_t eficonfig_process_delete_boot_option(void *data)
+{
+	efi_status_t ret;
+	unsigned int selected;
+
+	while (1) {
+		ret = eficonfig_show_boot_selection(&selected);
+		if (ret == EFI_SUCCESS)
+			ret = delete_boot_option(selected);
+
+		if (ret != EFI_SUCCESS)
+			break;
+	}
+
+	/* to stay the parent menu */
+	ret = (ret == EFI_ABORTED) ? EFI_NOT_READY : ret;
+
+	return ret;
+}
+
+/**
  * eficonfig_init() - do required initialization for eficonfig command
  *
  * Return:	status code
@@ -1818,6 +1888,7 @@ static efi_status_t eficonfig_init(void)
 static const struct eficonfig_item maintenance_menu_items[] = {
 	{"Add Boot Option", eficonfig_process_add_boot_option},
 	{"Edit Boot Option", eficonfig_process_edit_boot_option},
+	{"Delete Boot Option", eficonfig_process_delete_boot_option},
 	{"Quit", eficonfig_process_quit},
 };
 
