@@ -57,7 +57,6 @@ struct stm32_i2c_regs {
 #define STM32_I2C_CR1_PE			BIT(0)
 
 /* STM32 I2C control 2 */
-#define STM32_I2C_CR2_AUTOEND			BIT(25)
 #define STM32_I2C_CR2_RELOAD			BIT(24)
 #define STM32_I2C_CR2_NBYTES_MASK		GENMASK(23, 16)
 #define STM32_I2C_CR2_NBYTES(n)			((n & 0xff) << 16)
@@ -304,9 +303,8 @@ static void stm32_i2c_message_start(struct stm32_i2c_priv *i2c_priv,
 		cr2 |= STM32_I2C_CR2_SADD7(msg->addr);
 	}
 
-	/* Set nb bytes to transfer and reload or autoend bits */
-	cr2 &= ~(STM32_I2C_CR2_NBYTES_MASK | STM32_I2C_CR2_RELOAD |
-		 STM32_I2C_CR2_AUTOEND);
+	/* Set nb bytes to transfer and reload (if needed) */
+	cr2 &= ~(STM32_I2C_CR2_NBYTES_MASK | STM32_I2C_CR2_RELOAD);
 	if (msg->len > STM32_I2C_MAX_LEN) {
 		cr2 |= STM32_I2C_CR2_NBYTES(STM32_I2C_MAX_LEN);
 		cr2 |= STM32_I2C_CR2_RELOAD;
