@@ -43,7 +43,11 @@ static int simple_video_probe(struct udevice *dev)
 
 	uc_priv->xsize = fdtdec_get_uint(blob, node, "width", 0);
 	uc_priv->ysize = fdtdec_get_uint(blob, node, "height", 0);
-	uc_priv->rot = 0;
+	uc_priv->rot = fdtdec_get_uint(blob, node, "rot", 0);
+	if (uc_priv->rot > 3) {
+		log_debug("%s: invalid rot\n", __func__);
+		return log_msg_ret("rot", -EINVAL);
+	}
 
 	format = fdt_getprop(blob, node, "format", NULL);
 	debug("%s: %dx%d@%s\n", __func__, uc_priv->xsize, uc_priv->ysize, format);
