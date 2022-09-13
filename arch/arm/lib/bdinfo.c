@@ -9,8 +9,20 @@
 #include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
+#include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int arch_setup_bdinfo(void)
+{
+#ifdef CONFIG_MACH_TYPE
+	struct bd_info *bd = gd->bd;
+
+	bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
+#endif
+
+	return 0;
+}
 
 void arch_print_bdinfo(void)
 {

@@ -46,9 +46,6 @@
 #include <video.h>
 #include <watchdog.h>
 #include <asm/cache.h>
-#ifdef CONFIG_MACH_TYPE
-#include <asm/mach-types.h>
-#endif
 #if defined(CONFIG_MP) && defined(CONFIG_PPC)
 #include <asm/mp.h>
 #endif
@@ -623,10 +620,6 @@ int setup_bdinfo(void)
 		bd->bi_sramstart = CONFIG_SYS_SRAM_BASE; /* start of SRAM */
 		bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;  /* size  of SRAM */
 	}
-
-#ifdef CONFIG_MACH_TYPE
-	bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
-#endif
 
 	return arch_setup_bdinfo();
 }
