@@ -36,9 +36,7 @@
 #include <post.h>
 #include <relocate.h>
 #include <serial.h>
-#ifdef CONFIG_SPL
 #include <spl.h>
-#endif
 #include <status_led.h>
 #include <sysreset.h>
 #include <timer.h>
