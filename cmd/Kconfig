@@ -86,6 +86,7 @@ config SYS_CBSIZE
 
 config SYS_PBSIZE
 	int "Buffer size for console output"
+	default 1024 if ARCH_SUNXI
 	default 1044
 
 config SYS_XTRACE

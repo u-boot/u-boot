@@ -81,6 +81,7 @@ config SPL_MAX_SIZE
 	default 0x10000 if ARCH_MX6 && !MX6_OCRAM_256KB
 	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x10000
 	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x20000 && !MACH_SUN50I_H616
+	default 0xbfa0 if MACH_SUN50I_H616
 	default 0x7000 if RCAR_GEN3
 	default 0x5fa0 if SUNXI_SRAM_ADDRESS = 0x0
 	default 0x10000 if ASPEED_AST2600
@@ -353,6 +354,11 @@ config SPL_STACK
 	default 0x946bb8 if ARCH_MX7
 	default 0x93ffb8 if ARCH_MX6 && MX6_OCRAM_256KB
 	default 0x91ffb8 if ARCH_MX6 && !MX6_OCRAM_256KB
+	default 0x118000 if MACH_SUN50I_H6
+	default 0x58000 if MACH_SUN50I_H616
+	default 0x54000 if MACH_SUN50I || MACH_SUN50I_H5
+	default 0x18000 if MACH_SUN9I
+	default 0x8000 if ARCH_SUNXI
 	help
 	  Address of the start of the stack SPL will use before SDRAM is
 	  initialized.
