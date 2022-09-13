@@ -598,12 +598,15 @@ static int stm32_sdmmc2_set_ios(struct udevice *dev)
 	 * clk_div > 0 and NEGEDGE = 1 => command and data generated on
 	 * SDMMCCLK falling edge
 	 */
-	if (desired && ((sys_clock > desired) ||
+	if (desired && (sys_clock > desired || mmc->ddr_mode ||
 			IS_RISING_EDGE(plat->clk_reg_msk))) {
 		clk = DIV_ROUND_UP(sys_clock, 2 * desired);
 		if (clk > SDMMC_CLKCR_CLKDIV_MAX)
 			clk = SDMMC_CLKCR_CLKDIV_MAX;
 	}
+
+	if (mmc->ddr_mode)
+		clk |= SDMMC_CLKCR_DDR;
 
 	if (mmc->bus_width == 4)
 		clk |= SDMMC_CLKCR_WIDBUS_4;
