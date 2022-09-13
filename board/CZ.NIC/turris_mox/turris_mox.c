@@ -23,6 +23,7 @@
 #include <linux/string.h>
 #include <miiphy.h>
 #include <spi.h>
+#include <spi_flash.h>
 
 #include "mox_sp.h"
 
@@ -339,6 +340,51 @@ static int get_reset_gpio(struct gpio_desc *reset_gpio)
 	return 0;
 }
 
+/* Load default system DTB binary to $fdr_addr */
+static void load_spi_dtb(void)
+{
+	const char *const env_name[1] = { "fdt_addr" };
+	unsigned long size, offset;
+	struct udevice *spi_dev;
+	struct spi_flash *flash;
+	const char *addr_str;
+	unsigned long addr;
+	void *buf;
+
+	addr_str = env_get(env_name[0]);
+	if (!addr_str) {
+		env_set_default_vars(1, (char * const *)env_name, 0);
+		addr_str = env_get(env_name[0]);
+	}
+
+	if (!addr_str)
+		return;
+
+	addr = hextoul(addr_str, NULL);
+	if (!addr)
+		return;
+
+	spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS, &spi_dev);
+	flash = dev_get_uclass_priv(spi_dev);
+	if (!flash)
+		return;
+
+	/*
+	 * SPI NOR "dtb" partition offset & size hardcoded for now because the
+	 * mtd subsystem does not offer finding the partition yet and we do not
+	 * want to reimplement OF partition parser here.
+	 */
+	offset = 0x7f0000;
+	size = 0x10000;
+
+	buf = map_physmem(addr, size, MAP_WRBACK);
+	if (!buf)
+		return;
+
+	spi_flash_read(flash, offset, size, buf);
+	unmap_physmem(buf, size);
+}
+
 int misc_init_r(void)
 {
 	u8 mac[2][6];
@@ -357,6 +403,8 @@ int misc_init_r(void)
 		    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
 			eth_env_set_enetaddr_by_index("eth", i, mac[i]);
 	}
+
+	load_spi_dtb();
 
 	return 0;
 }
@@ -440,8 +488,9 @@ static void handle_reset_button(void)
 	env_set_default_vars(1, (char * const *)vars, 0);
 
 	if (read_reset_button()) {
-		const char * const vars[2] = {
+		const char * const vars[3] = {
 			"bootcmd",
+			"bootdelay",
 			"distro_bootcmd",
 		};
 
@@ -449,7 +498,7 @@ static void handle_reset_button(void)
 		 * Set the above envs to their default values, in case the user
 		 * managed to break them.
 		 */
-		env_set_default_vars(2, (char * const *)vars, 0);
+		env_set_default_vars(3, (char * const *)vars, 0);
 
 		/* Ensure bootcmd_rescue is used by distroboot */
 		env_set("boot_targets", "rescue");

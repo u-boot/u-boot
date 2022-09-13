@@ -86,7 +86,7 @@ static const struct udevice_id mvebu_reset_of_match[] = {
 	{ },
 };
 
-static struct reset_ops mvebu_reset_ops = {
+static const struct reset_ops mvebu_reset_ops = {
 	.of_xlate = mvebu_reset_of_xlate,
 	.request = mvebu_reset_request,
 	.rfree = mvebu_reset_free,

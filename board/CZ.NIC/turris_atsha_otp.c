@@ -93,13 +93,36 @@ int turris_atsha_otp_init_mac_addresses(int first_idx)
 	return 0;
 }
 
-int turris_atsha_otp_get_serial_number(u32 *version_num, u32 *serial_num)
+int turris_atsha_otp_init_serial_number(void)
+{
+	char serial[17];
+	int ret;
+
+	ret = turris_atsha_otp_get_serial_number(serial);
+	if (ret)
+		return ret;
+
+	if (!env_get("serial#"))
+		return -1;
+
+	return 0;
+}
+
+int turris_atsha_otp_get_serial_number(char serial[17])
 {
 	struct udevice *dev = get_atsha204a_dev();
+	u32 version_num, serial_num;
+	const char *serial_env;
 	int ret;
 
 	if (!dev)
 		return -1;
+
+	serial_env = env_get("serial#");
+	if (serial_env && strlen(serial_env) == 16) {
+		memcpy(serial, serial_env, 17);
+		return 0;
+	}
 
 	ret = atsha204a_wakeup(dev);
 	if (ret)
@@ -107,16 +130,20 @@ int turris_atsha_otp_get_serial_number(u32 *version_num, u32 *serial_num)
 
 	ret = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
 			     TURRIS_ATSHA_OTP_VERSION,
-			     (u8 *)version_num);
+			     (u8 *)&version_num);
 	if (ret)
 		return ret;
 
 	ret = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
 			     TURRIS_ATSHA_OTP_SERIAL,
-			     (u8 *)serial_num);
+			     (u8 *)&serial_num);
 	if (ret)
 		return ret;
 
 	atsha204a_sleep(dev);
+
+	sprintf(serial, "%08X%08X", be32_to_cpu(version_num), be32_to_cpu(serial_num));
+	env_set("serial#", serial);
+
 	return 0;
 }
