@@ -675,6 +675,8 @@ static int stm32_sdmmc2_of_to_plat(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	cfg->host_caps &= ~(UHS_CAPS | MMC_MODE_HS200 | MMC_MODE_HS400 | MMC_MODE_HS400_ES);
+
 	ret = clk_get_by_index(dev, 0, &plat->clk);
 	if (ret)
 		return ret;
