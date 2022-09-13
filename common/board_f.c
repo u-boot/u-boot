@@ -59,18 +59,7 @@
 #include <linux/errno.h>
 #include <linux/log2.h>
 
-/*
- * Pointer to initial global data area
- *
- * Here we initialize it if needed.
- */
-#ifdef XTRN_DECLARE_GLOBAL_DATA_PTR
-#undef	XTRN_DECLARE_GLOBAL_DATA_PTR
-#define XTRN_DECLARE_GLOBAL_DATA_PTR	/* empty = allocate here */
-DECLARE_GLOBAL_DATA_PTR = (gd_t *)(CONFIG_SYS_INIT_GD_ADDR);
-#else
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 /*
  * TODO(sjg@chromium.org): IMO this code should be

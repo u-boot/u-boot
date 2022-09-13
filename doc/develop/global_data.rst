@@ -36,6 +36,11 @@ On most architectures the global data pointer is stored in a register.
 
 The sandbox, x86_64, and Xtensa are notable exceptions.
 
+Current implementation uses a register for the GD pointer because this results
+in smaller code. However, using plain global data for the GD pointer would be
+possible too (and simpler, as it does not require the reservation of a specific
+register for it), but the resulting code is bigger.
+
 Clang for ARM does not support assigning a global register. When using Clang
 gd is defined as an inline function using assembly code. This adds a few bytes
 to the code size.
