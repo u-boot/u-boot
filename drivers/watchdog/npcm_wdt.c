@@ -75,6 +75,11 @@ static int npcm_wdt_reset(struct udevice *dev)
 	return 0;
 }
 
+static int npcm_wdt_expire_now(struct udevice *dev, ulong flags)
+{
+	return npcm_wdt_reset(dev);
+}
+
 static int npcm_wdt_of_to_plat(struct udevice *dev)
 {
 	struct npcm_wdt_priv *priv = dev_get_priv(dev);
@@ -87,6 +92,7 @@ static int npcm_wdt_of_to_plat(struct udevice *dev)
 }
 
 static const struct wdt_ops npcm_wdt_ops = {
+	.expire_now = npcm_wdt_expire_now,
 	.start = npcm_wdt_start,
 	.reset = npcm_wdt_reset,
 	.stop = npcm_wdt_stop,
