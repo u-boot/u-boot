@@ -134,6 +134,48 @@ struct spi_mem_op {
 		.dummy = __dummy,				\
 		.data = __data,					\
 	}
+/**
+ * struct spi_mem_dirmap_info - Direct mapping information
+ * @op_tmpl: operation template that should be used by the direct mapping when
+ *	     the memory device is accessed
+ * @offset: absolute offset this direct mapping is pointing to
+ * @length: length in byte of this direct mapping
+ *
+ * This information is used by the controller specific implementation to know
+ * the portion of memory that is directly mapped and the spi_mem_op that should
+ * be used to access the device.
+ * A direct mapping is only valid for one direction (read or write) and this
+ * direction is directly encoded in the ->op_tmpl.data.dir field.
+ */
+struct spi_mem_dirmap_info {
+	struct spi_mem_op op_tmpl;
+	u64 offset;
+	u64 length;
+};
+
+/**
+ * struct spi_mem_dirmap_desc - Direct mapping descriptor
+ * @mem: the SPI memory device this direct mapping is attached to
+ * @info: information passed at direct mapping creation time
+ * @nodirmap: set to 1 if the SPI controller does not implement
+ *            ->mem_ops->dirmap_create() or when this function returned an
+ *            error. If @nodirmap is true, all spi_mem_dirmap_{read,write}()
+ *            calls will use spi_mem_exec_op() to access the memory. This is a
+ *            degraded mode that allows spi_mem drivers to use the same code
+ *            no matter whether the controller supports direct mapping or not
+ * @priv: field pointing to controller specific data
+ *
+ * Common part of a direct mapping descriptor. This object is created by
+ * spi_mem_dirmap_create() and controller implementation of ->create_dirmap()
+ * can create/attach direct mapping resources to the descriptor in the ->priv
+ * field.
+ */
+struct spi_mem_dirmap_desc {
+	struct spi_slave *slave;
+	struct spi_mem_dirmap_info info;
+	unsigned int nodirmap;
+	void *priv;
+};
 
 #ifndef __UBOOT__
 /**
@@ -183,10 +225,32 @@ static inline void *spi_mem_get_drvdata(struct spi_mem *mem)
  *		    limitations)
  * @supports_op: check if an operation is supported by the controller
  * @exec_op: execute a SPI memory operation
+ * @dirmap_create: create a direct mapping descriptor that can later be used to
+ *		   access the memory device. This method is optional
+ * @dirmap_destroy: destroy a memory descriptor previous created by
+ *		    ->dirmap_create()
+ * @dirmap_read: read data from the memory device using the direct mapping
+ *		 created by ->dirmap_create(). The function can return less
+ *		 data than requested (for example when the request is crossing
+ *		 the currently mapped area), and the caller of
+ *		 spi_mem_dirmap_read() is responsible for calling it again in
+ *		 this case.
+ * @dirmap_write: write data to the memory device using the direct mapping
+ *		  created by ->dirmap_create(). The function can return less
+ *		  data than requested (for example when the request is crossing
+ *		  the currently mapped area), and the caller of
+ *		  spi_mem_dirmap_write() is responsible for calling it again in
+ *		  this case.
  *
  * This interface should be implemented by SPI controllers providing an
  * high-level interface to execute SPI memory operation, which is usually the
  * case for QSPI controllers.
+ *
+ * Note on ->dirmap_{read,write}(): drivers should avoid accessing the direct
+ * mapping from the CPU because doing that can stall the CPU waiting for the
+ * SPI mem transaction to finish, and this will make real-time maintainers
+ * unhappy and might make your system less reactive. Instead, drivers should
+ * use DMA to access this direct mapping.
  */
 struct spi_controller_mem_ops {
 	int (*adjust_op_size)(struct spi_slave *slave, struct spi_mem_op *op);
@@ -194,6 +258,12 @@ struct spi_controller_mem_ops {
 			    const struct spi_mem_op *op);
 	int (*exec_op)(struct spi_slave *slave,
 		       const struct spi_mem_op *op);
+	int (*dirmap_create)(struct spi_mem_dirmap_desc *desc);
+	void (*dirmap_destroy)(struct spi_mem_dirmap_desc *desc);
+	ssize_t (*dirmap_read)(struct spi_mem_dirmap_desc *desc,
+			       u64 offs, size_t len, void *buf);
+	ssize_t (*dirmap_write)(struct spi_mem_dirmap_desc *desc,
+				u64 offs, size_t len, const void *buf);
 };
 
 #ifndef __UBOOT__
@@ -259,6 +329,15 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op);
 
 bool spi_mem_default_supports_op(struct spi_slave *mem,
 				 const struct spi_mem_op *op);
+
+struct spi_mem_dirmap_desc *
+spi_mem_dirmap_create(struct spi_slave *mem,
+		      const struct spi_mem_dirmap_info *info);
+void spi_mem_dirmap_destroy(struct spi_mem_dirmap_desc *desc);
+ssize_t spi_mem_dirmap_read(struct spi_mem_dirmap_desc *desc,
+			    u64 offs, size_t len, void *buf);
+ssize_t spi_mem_dirmap_write(struct spi_mem_dirmap_desc *desc,
+			     u64 offs, size_t len, const void *buf);
 
 #ifndef __UBOOT__
 int spi_mem_driver_register_with_owner(struct spi_mem_driver *drv,
