@@ -9,7 +9,6 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <init.h>
-#include <image.h>
 #include <env_internal.h>
 #include <log.h>
 #include <malloc.h>
@@ -268,28 +267,6 @@ int dram_init(void)
 		return -EINVAL;
 
 	return 0;
-}
-
-ulong board_get_usable_ram_top(ulong total_size)
-{
-	phys_size_t size;
-	phys_addr_t reg;
-	struct lmb lmb;
-
-	if (!total_size)
-		return gd->ram_top;
-
-	/* found enough not-reserved memory to relocated U-Boot */
-	lmb_init(&lmb);
-	lmb_add(&lmb, gd->ram_base, gd->ram_size);
-	boot_fdt_add_mem_rsv_regions(&lmb, (void *)gd->fdt_blob);
-	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE);
-	reg = lmb_alloc(&lmb, size, MMU_SECTION_SIZE);
-
-	if (!reg)
-		reg = gd->ram_top - size;
-
-	return reg + size;
 }
 
 void reset_cpu(void)

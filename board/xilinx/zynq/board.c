@@ -168,8 +168,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
 
-	if (!CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT) &&
-	    env_get("dfu_alt_info"))
+	if (env_get("dfu_alt_info"))
 		return;
 
 	memset(buf, 0, sizeof(buf));
@@ -177,13 +176,14 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 	case ZYNQ_BM_SD:
 		snprintf(buf, DFU_ALT_BUF_LEN,
-			 "mmc 0:1=boot.bin fat 0 1;"
-			 "u-boot.img fat 0 1");
+			 "mmc 0=boot.bin fat 0 1;"
+			 "%s fat 0 1", CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 		break;
 	case ZYNQ_BM_QSPI:
 		snprintf(buf, DFU_ALT_BUF_LEN,
 			 "sf 0:0=boot.bin raw 0 0x1500000;"
-			 "u-boot.img raw 0x%x 0x500000",
+			 "%s raw 0x%x 0x500000",
+			 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
 			 CONFIG_SYS_SPI_U_BOOT_OFFS);
 		break;
 	default:

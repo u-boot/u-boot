@@ -67,3 +67,4 @@ CONFIG_ARM_DCC=y
 CONFIG_FAT_WRITE=y
 # CONFIG_GZIP is not set
 # CONFIG_EFI_LOADER is not set
+# CONFIG_LMB is not set

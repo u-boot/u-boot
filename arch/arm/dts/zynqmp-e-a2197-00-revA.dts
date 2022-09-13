@@ -155,8 +155,12 @@
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
 	is-internal-pcspma;
-	phy0: ethernet-phy@0 { /* u131 M88E1512 */
-		reg = <0>;
+	mdio: mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy0: ethernet-phy@0 { /* u131 M88E1512 */
+			reg = <0>;
+		};
 	};
 };
 
@@ -203,6 +207,18 @@
 &i2c0 { /* MIO 34-35 - can't stay here */
 	status = "okay";
 	clock-frequency = <400000>;
+
+	tca6416_u233: gpio@20 { /* u233 */
+		compatible = "ti,tca6416";
+		reg = <0x20>;
+		gpio-controller; /* interrupt not connected */
+		#gpio-cells = <2>;
+		gpio-line-names = "MAX6643_OT_B", "MAX6643_FANFAIL_B", "", "", /* 0 - 3 */
+				"PMBUS2_INA226_ALERT", "", "", "MAX6643_FULLSPD", /* 4 - 7 */
+				"FMCP1_FMC_PRSNT_M2C_B", "FMCP2_FMC_PRSNT_M2C_B", "FMCP1_FMCP_PRSNT_M2C_B", "FMCP2_FMCP_PRSNT_M2C_B", /* 10 - 13 */
+				"VCCINT_VRHOT_B", "8A34001_EXP_RST_B", "PMBUS_ALERT", "PMBUS1_INA226_ALERT"; /* 14 - 17 */
+	};
+
 	i2c-mux@74 { /* u33 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
