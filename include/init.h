@@ -104,6 +104,19 @@ phys_size_t get_effective_memsize(void);
 int testdram(void);
 
 /**
+ * arch_setup_dest_addr() - Fix up initial reloc address
+ *
+ * This is called in generic board init sequence in common/board_f.c at the end
+ * of the setup_dest_addr() initcall. Each architecture could provide this
+ * function to make adjustments to the initial reloc address.
+ *
+ * If an implementation is not provided, it will just be a nop stub.
+ *
+ * Return: 0 if OK
+ */
+int arch_setup_dest_addr(void);
+
+/**
  * arch_reserve_stacks() - Reserve all necessary stacks
  *
  * This is used in generic board init sequence in common/board_f.c. Each

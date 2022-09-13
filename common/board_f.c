@@ -46,9 +46,6 @@
 #include <video.h>
 #include <watchdog.h>
 #include <asm/cache.h>
-#if defined(CONFIG_MP) && defined(CONFIG_PPC)
-#include <asm/mp.h>
-#endif
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/sections.h>
@@ -343,6 +340,11 @@ __weak phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 	return gd->ram_top;
 }
 
+__weak int arch_setup_dest_addr(void)
+{
+	return 0;
+}
+
 static int setup_dest_addr(void)
 {
 	debug("Monitor len: %08lX\n", gd->mon_len);
@@ -370,17 +372,8 @@ static int setup_dest_addr(void)
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
 	debug("Ram top: %08llX\n", (unsigned long long)gd->ram_top);
-#if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
-	/*
-	 * We need to make sure the location we intend to put secondary core
-	 * boot code is reserved and not used by any part of u-boot
-	 */
-	if (gd->relocaddr > determine_mp_bootpg(NULL)) {
-		gd->relocaddr = determine_mp_bootpg(NULL);
-		debug("Reserving MP boot page to %08lx\n", gd->relocaddr);
-	}
-#endif
-	return 0;
+
+	return arch_setup_dest_addr();
 }
 
 #ifdef CONFIG_PRAM
