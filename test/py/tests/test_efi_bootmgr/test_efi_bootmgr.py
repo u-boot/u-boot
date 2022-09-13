@@ -7,6 +7,7 @@ import pytest
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_efidebug')
 @pytest.mark.buildconfigspec('cmd_bootefi_bootmgr')
+@pytest.mark.singlethread
 def test_efi_bootmgr(u_boot_console, efi_bootmgr_data):
     """ Unit test for UEFI bootmanager
     The efidebug command is used to set up UEFI load options.

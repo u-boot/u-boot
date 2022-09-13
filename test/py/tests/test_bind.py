@@ -119,6 +119,7 @@ def get_next_line(tree, name):
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_bind')
+@pytest.mark.singlethread
 def test_bind_unbind_with_uclass(u_boot_console):
     #bind /bind-test
     response = u_boot_console.run_command('bind  /bind-test simple_bus')
