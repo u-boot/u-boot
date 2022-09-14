@@ -548,4 +548,13 @@ void bootmenu_loop(struct bootmenu_data *menu,
 	/* ^C was pressed */
 	if (c == 0x3)
 		*key = KEY_QUIT;
+
+	if (c == '+')
+		*key = KEY_PLUS;
+
+	if (c == '-')
+		*key = KEY_MINUS;
+
+	if (c == ' ')
+		*key = KEY_SPACE;
 }

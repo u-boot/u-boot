@@ -64,6 +64,7 @@ obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 obj-$(CONFIG_CMD_EEPROM) += eeprom.o
 obj-$(CONFIG_EFI) += efi.o
 obj-$(CONFIG_CMD_EFIDEBUG) += efidebug.o
+obj-$(CONFIG_CMD_EFICONFIG) += eficonfig.o
 obj-$(CONFIG_CMD_ELF) += elf.o
 obj-$(CONFIG_CMD_EROFS) += erofs.o
 obj-$(CONFIG_HUSH_PARSER) += exit.o

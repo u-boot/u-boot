@@ -36,6 +36,7 @@ Shell commands
    cmd/cyclic
    cmd/dm
    cmd/echo
+   cmd/eficonfig
    cmd/env
    cmd/event
    cmd/exception

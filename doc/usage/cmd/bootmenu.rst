@@ -4,6 +4,15 @@
 bootmenu command
 ================
 
+Synopsis
+--------
+::
+
+    bootmenu [delay]
+
+Description
+-----------
+
 The "bootmenu" command uses U-Boot menu interfaces and provides
 a simple mechanism for creating menus with different boot items.
 The cursor keys "Up" and "Down" are used for navigation through
@@ -79,6 +88,55 @@ The above example will be rendered as below::
 The selected menu entry will be highlighted - it will have inverted
 background and text colors.
 
+UEFI boot variable enumeration
+''''''''''''''''''''''''''''''
+If enabled, the bootmenu command will automatically generate and add
+UEFI-related boot menu entries for the following items.
+
+ * possible bootable media with default file names
+ * user-defined UEFI boot options
+
+The bootmenu automatically enumerates the possible bootable
+media devices supporting EFI_SIMPLE_FILE_SYSTEM_PROTOCOL.
+This auto generated entry is named as "<interface> <devnum>:<part>" format.
+(e.g. "usb 0:1")
+
+The bootmenu displays the UEFI-related menu entries in order of "BootOrder".
+When the user selects the UEFI boot menu entry, the bootmenu sets
+the selected boot variable index to "BootNext" without non-volatile attribute,
+then call the uefi boot manager with the command "bootefi bootmgr".
+
+Example bootmenu is as below::
+
+    *** U-Boot Boot Menu ***
+
+       mmc 0:1
+       mmc 0:2
+       debian
+       nvme 0:1
+       ubuntu
+       nvme 0:2
+       usb 0:2
+       U-Boot console
+
+Default behavior when user exits from the bootmenu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+User can exit from bootmenu by selecting the last entry
+"U-Boot console"/"Quit" or ESC/CTRL+C key.
+
+When the CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE is disabled,
+user exits from the bootmenu and returns to the U-Boot console.
+
+When the CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE is enabled, user can not
+enter the U-Boot console. When the user exits from the bootmenu,
+the bootmenu invokes the following default behavior.
+
+ * if CONFIG_CMD_BOOTEFI_BOOTMGR is enabled, execute "bootefi bootmgr" command
+ * "bootefi bootmgr" fails or is not enabled, then execute "run bootcmd" command.
+
+Configuration
+-------------
+
 The "bootmenu" command is enabled by::
 
     CONFIG_CMD_BOOTMENU=y
@@ -88,3 +146,19 @@ To run the bootmenu at startup add these additional settings::
     CONFIG_AUTOBOOT_KEYED=y
     CONFIG_BOOTDELAY=30
     CONFIG_AUTOBOOT_MENU_SHOW=y
+
+UEFI boot variable enumeration is enabled by::
+
+    CONFIG_CMD_BOOTEFI_BOOTMGR=y
+
+To improve the product security, entering U-Boot console from bootmenu
+can be disabled by::
+
+    CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE=y
+
+To scan the discoverable devices connected to the buses such as
+USB and PCIe prior to bootmenu showing up, CONFIG_PREBOOT can be
+used to run the command before showing the bootmenu, i.e.::
+
+    CONFIG_USE_PREBOOT=y
+    CONFIG_PREBOOT="pci enum; usb start; scsi scan; nvme scan; virtio scan"

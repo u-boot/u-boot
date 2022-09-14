@@ -7,7 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <ansi.h>
-#include <efi_loader.h>
+#include <efi_config.h>
 #include <efi_variable.h>
 #include <env.h>
 #include <log.h>
@@ -220,7 +220,7 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 	return 1;
 }
 
-#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR))
+#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR)) && (CONFIG_IS_ENABLED(CMD_EFICONFIG))
 /**
  * prepare_uefi_bootorder_entry() - generate the uefi bootmenu entries
  *
@@ -340,11 +340,21 @@ static struct bootmenu_data *bootmenu_create(int delay)
 	if (ret < 0)
 		goto cleanup;
 
-#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR))
+#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR)) && (CONFIG_IS_ENABLED(CMD_EFICONFIG))
 	if (i < MAX_COUNT - 1) {
-			ret = prepare_uefi_bootorder_entry(menu, &iter, &i);
-			if (ret < 0 && ret != -ENOENT)
-				goto cleanup;
+		efi_status_t efi_ret;
+
+		/*
+		 * UEFI specification requires booting from removal media using
+		 * a architecture-specific default image name such as BOOTAA64.EFI.
+		 */
+		efi_ret = eficonfig_generate_media_device_boot_option();
+		if (efi_ret != EFI_SUCCESS && efi_ret != EFI_NOT_FOUND)
+			goto cleanup;
+
+		ret = prepare_uefi_bootorder_entry(menu, &iter, &i);
+		if (ret < 0 && ret != -ENOENT)
+			goto cleanup;
 	}
 #endif
 

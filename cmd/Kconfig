@@ -1928,6 +1928,13 @@ config CMD_EFIDEBUG
 	  particularly for managing boot parameters as  well as examining
 	  various EFI status for debugging.
 
+config CMD_EFICONFIG
+	bool "eficonfig - provide menu-driven uefi variables maintenance interface"
+	depends on CMD_BOOTEFI_BOOTMGR
+	help
+	  Enable the 'eficonfig' command which provides the menu-driven UEFI
+	  variable maintenance interface.
+
 config CMD_EXCEPTION
 	bool "exception - raise exception"
 	depends on ARM || RISCV || SANDBOX || X86
