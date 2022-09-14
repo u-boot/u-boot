@@ -172,7 +172,8 @@ static int power_init_board(void)
 
 	else if ((!strncmp(model, "GW7901", 6)) ||
 		 (!strncmp(model, "GW7902", 6)) ||
-		 (!strncmp(model, "GW7903", 6))) {
+		 (!strncmp(model, "GW7903", 6)) ||
+		 (!strncmp(model, "GW7904", 6))) {
 		if (!strncmp(model, "GW7902", 6))
 			ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		else
