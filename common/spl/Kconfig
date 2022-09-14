@@ -40,6 +40,7 @@ config SPL_SIZE_LIMIT
 	hex "Maximum size of SPL image"
 	default 0x11000 if ARCH_MX6 && !MX6_OCRAM_256KB
 	default 0x31000 if ARCH_MX6 && MX6_OCRAM_256KB
+	default 0x30000 if ARCH_MVEBU && ARMADA_32BIT
 	default 0x0
 	help
 	  Specifies the maximum length of the U-Boot SPL image.
