@@ -33,6 +33,7 @@ static int image_pre_load_sig_setup(struct image_sig_info *info)
 	const u32 *sig_size;
 	int key_len;
 	int node, ret = 0;
+	char *sig_info_path = NULL;
 
 	if (!info) {
 		log_err("ERROR: info is NULL for image pre-load sig check\n");
@@ -42,7 +43,11 @@ static int image_pre_load_sig_setup(struct image_sig_info *info)
 
 	memset(info, 0, sizeof(*info));
 
-	node = fdt_path_offset(gd_fdt_blob(), IMAGE_PRE_LOAD_PATH);
+	sig_info_path = env_get("pre_load_sig_info_path");
+	if (!sig_info_path)
+		sig_info_path = IMAGE_PRE_LOAD_PATH;
+
+	node = fdt_path_offset(gd_fdt_blob(), sig_info_path);
 	if (node < 0) {
 		log_info("INFO: no info for image pre-load sig check\n");
 		ret = 1;
