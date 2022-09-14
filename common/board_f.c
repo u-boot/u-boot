@@ -16,6 +16,7 @@
 #include <console.h>
 #include <cpu.h>
 #include <cpu_func.h>
+#include <cyclic.h>
 #include <display_options.h>
 #include <dm.h>
 #include <env.h>
@@ -828,6 +829,7 @@ static const init_fnc_t init_sequence_f[] = {
 	initf_malloc,
 	log_init,
 	initf_bootstage,	/* uses its own timer, so does not need DM */
+	cyclic_init,
 	event_init,
 #ifdef CONFIG_BLOBLIST
 	bloblist_init,

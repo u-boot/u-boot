@@ -33,6 +33,7 @@ Shell commands
    cmd/bootz
    cmd/cbsysinfo
    cmd/conitrace
+   cmd/cyclic
    cmd/dm
    cmd/echo
    cmd/env

@@ -545,6 +545,26 @@ config DISPLAY_BOARDINFO_LATE
 
 menu "Start-up hooks"
 
+config CYCLIC
+	bool "General-purpose cyclic execution mechanism"
+	help
+	  This enables a general-purpose cyclic execution infrastructure,
+	  to allow "small" (run-time wise) functions to be executed at
+	  a specified frequency. Things like LED blinking or watchdog
+	  triggering are examples for such tasks.
+
+if CYCLIC
+
+config CYCLIC_MAX_CPU_TIME_US
+	int "Sets the max allowed time for a cyclic function in us"
+	default 1000
+	help
+	  The max allowed time for a cyclic function in us. If a functions
+	  takes longer than this duration this function will get unregistered
+	  automatically.
+
+endif # CYCLIC
+
 config EVENT
 	bool "General-purpose event-handling mechanism"
 	default y if SANDBOX

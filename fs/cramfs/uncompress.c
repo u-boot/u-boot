@@ -62,7 +62,7 @@ int cramfs_uncompress_init (void)
 	stream.avail_in = 0;
 
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	stream.outcb = (cb_func) WATCHDOG_RESET;
+	stream.outcb = (cb_func)watchdog_reset_func;
 #else
 	stream.outcb = Z_NULL;
 #endif /* CONFIG_HW_WATCHDOG */
