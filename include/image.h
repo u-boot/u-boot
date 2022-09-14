@@ -360,6 +360,12 @@ typedef struct bootm_headers {
 #endif
 } bootm_headers_t;
 
+#ifdef CONFIG_LMB
+#define images_lmb(_images)	(&(_images)->lmb)
+#else
+#define images_lmb(_images)	NULL
+#endif
+
 extern bootm_headers_t images;
 
 /*
