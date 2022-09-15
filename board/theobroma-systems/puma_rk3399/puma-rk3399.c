@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <env_internal.h>
 #include <init.h>
 #include <log.h>
 #include <misc.h>
@@ -133,6 +134,42 @@ int mmc_get_env_dev(void)
 		return 0;
 
 	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
+#if !IS_ENABLED(CONFIG_ENV_IS_NOWHERE)
+#error Please enable CONFIG_ENV_IS_NOWHERE
+#endif
+
+enum env_location arch_env_get_location(enum env_operation op, int prio)
+{
+	const char *boot_device =
+		ofnode_read_chosen_string("u-boot,spl-boot-device");
+
+	if (prio > 0)
+		return ENVL_UNKNOWN;
+
+	if (!boot_device) {
+		debug("%s: /chosen/u-boot,spl-boot-device not set\n",
+		      __func__);
+		return ENVL_NOWHERE;
+	}
+
+	debug("%s: booted from %s\n", __func__, boot_device);
+
+	if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH) &&
+	    !strcmp(boot_device, "/spi@ff1d0000/flash@0"))
+		return ENVL_SPI_FLASH;
+
+	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC) &&
+	    (!strcmp(boot_device, "/mmc@fe320000") ||
+	     !strcmp(boot_device, "/mmc@fe330000")))
+		return ENVL_MMC;
+
+	printf("%s: No environment available: booted from %s but U-Boot "
+	       "config does not allow loading environment from it.",
+	       __func__, boot_device);
+
+	return ENVL_NOWHERE;
 }
 
 int misc_init_r(void)
