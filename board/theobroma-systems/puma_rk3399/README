@@ -51,13 +51,13 @@ The SPL image for SD-Card/eMMC is readily available in idbloader.img at the
 root of U-Boot after compilation.
 
 Creating an SPL image for SPI-NOR:
-  > tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader-spi.img
+  > tools/mkimage -n rk3399 -T rkspi -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin idbloader-spi.img
 
 Flash the image
 ===============
 
-Copy the SPL to offset 32k for SD/eMMC, offset 0 for NOR-Flash and the FIT
-image to offset 256k.
+Copy the SPL to offset 32k and the FIT image to offset 256k for SD/eMMC.
+Copy the SPL to offset 0 and the FIT image to offset 512k for NOR-Flash.
 
 SD-Card
 -------
@@ -98,4 +98,4 @@ help of the Rockchip loader binary.
   > ./rkdeveloptool db rkbin/rk3399_loader_spinor_v1.25.114.bin
   > ./rkdeveloptool ef
   > ./rkdeveloptool wl 0 ../idbloader-spi.img
-  > ./rkdeveloptool wl 512 ../u-boot.itb
+  > ./rkdeveloptool wl 1024 ../u-boot.itb
