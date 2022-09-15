@@ -26,6 +26,7 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{OFFSET(uart0_txd), (MODE(0) | PULLUDEN)},
 	{-1},
 };
+
 static struct module_pin_mux uart1_pin_mux[] = {
 	/* UART1_RTS as I2C2-SCL */
 	{OFFSET(uart1_rtsn), (MODE(3) | PULLUDEN | PULLUP_EN | RXACTIVE)},
@@ -37,7 +38,7 @@ static struct module_pin_mux uart1_pin_mux[] = {
 	{OFFSET(uart1_txd), (MODE(0) | PULLUDEN)},
 	{-1},
 };
-#ifdef CONFIG_MMC
+
 static struct module_pin_mux mmc1_pin_mux[] = {
 	{OFFSET(gpmc_ad7), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT7 */
 	{OFFSET(gpmc_ad6), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT6 */
@@ -54,7 +55,7 @@ static struct module_pin_mux mmc1_pin_mux[] = {
 	{OFFSET(gpmc_advn_ale), (MODE(7) | RXACTIVE | PULLUP_EN)},/* MMC1_CD */
 	{-1},
 };
-#endif
+
 static struct module_pin_mux i2c0_pin_mux[] = {
 	/* I2C_DATA */
 	{OFFSET(i2c0_sda), (MODE(0) | RXACTIVE | PULLUDEN | SLEWCTRL)},
@@ -118,26 +119,7 @@ static struct module_pin_mux mii2_pin_mux[] = {
 	{OFFSET(gpmc_be1n), (MODE(1) | RXACTIVE)},/* MII1_COL */
 	{-1},
 };
-#ifdef CONFIG_MTD_RAW_NAND
-static struct module_pin_mux nand_pin_mux[] = {
-	{OFFSET(gpmc_ad0), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD0 */
-	{OFFSET(gpmc_ad1), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD1 */
-	{OFFSET(gpmc_ad2), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD2 */
-	{OFFSET(gpmc_ad3), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD3 */
-	{OFFSET(gpmc_ad4), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD4 */
-	{OFFSET(gpmc_ad5), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD5 */
-	{OFFSET(gpmc_ad6), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD6 */
-	{OFFSET(gpmc_ad7), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* NAND AD7 */
-	{OFFSET(gpmc_clk), (MODE(2) | RXACTIVE | PULLUP_EN)},	/* NAND WAIT */
-	{OFFSET(gpmc_wpn), (MODE(7) | PULLUP_EN | RXACTIVE)},	/* NAND_WPN */
-	{OFFSET(gpmc_csn0), (MODE(0) | PULLUDEN)},	/* NAND_CS0 */
-	{OFFSET(gpmc_advn_ale), (MODE(0) | PULLUDEN)},	/* NAND_ADV_ALE */
-	{OFFSET(gpmc_oen_ren), (MODE(0) | PULLUDEN)},	/* NAND_OE */
-	{OFFSET(gpmc_wen), (MODE(0) | PULLUDEN)},	/* NAND_WEN */
-	{OFFSET(gpmc_be0n_cle), (MODE(0) | PULLUDEN)},	/* NAND_BE_CLE */
-	{-1},
-};
-#endif
+
 static struct module_pin_mux gpIOs[] = {
 	/* GPIO0_6  (SPI0_CS1) - 3v3_PWR_nEN (Display Power Supply) */
 	{OFFSET(spi0_cs1),  (MODE(7) | PULLUDEN | PULLUP_EN | RXACTIVE)},
@@ -180,14 +162,6 @@ static struct module_pin_mux gpIOs[] = {
 	{OFFSET(mcasp0_axr0),  (MODE(7) | PULLUDDIS) },
 	/* GPIO3_17 (MCASP0_AHCLKR) - ETH2_LEDY */
 	{OFFSET(mcasp0_ahclkr), (MODE(7) | PULLUDDIS) },
-#ifndef CONFIG_MTD_RAW_NAND
-	/* GPIO2_3 - NAND_OE */
-	{OFFSET(gpmc_oen_ren), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
-	/* GPIO2_4 - NAND_WEN */
-	{OFFSET(gpmc_wen), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
-	/* GPIO2_5 - NAND_BE_CLE */
-	{OFFSET(gpmc_be0n_cle), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
-#endif
 	{-1},
 };
 
@@ -222,7 +196,6 @@ static struct module_pin_mux lcd_pin_mux[] = {
 	{OFFSET(lcd_hsync), (MODE(0) | PULLUDDIS)},	/* LCD-HSync */
 	{OFFSET(lcd_ac_bias_en), (MODE(0) | PULLUDDIS)},/* LCD-DE */
 	{OFFSET(lcd_pclk), (MODE(0) | PULLUDDIS)},	/* LCD-CLK */
-
 	{-1},
 };
 
@@ -241,11 +214,7 @@ void enable_board_pin_mux(void)
 	configure_module_pin_mux(i2c0_pin_mux);
 	configure_module_pin_mux(mii1_pin_mux);
 	configure_module_pin_mux(mii2_pin_mux);
-#ifdef CONFIG_MTD_RAW_NAND
-	configure_module_pin_mux(nand_pin_mux);
-#elif defined(CONFIG_MMC)
 	configure_module_pin_mux(mmc1_pin_mux);
-#endif
 	configure_module_pin_mux(spi0_pin_mux);
 	configure_module_pin_mux(lcd_pin_mux);
 	configure_module_pin_mux(uart1_pin_mux);

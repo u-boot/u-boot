@@ -34,9 +34,20 @@ echo "========== Compiling U-Boot for Nokia RX-51 board =========="
 echo "============================================================"
 echo
 
-# First compile u-boot.bin binary for Nokia RX-51 board
+# First compile u-boot-ubifs.bin binary with UBI/UBIFS support for Nokia RX-51 board according to doc/board/nokia/rx51.rst
 make nokia_rx51_config
-make -j4 u-boot.bin ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-
+cat >> .config << EOF
+CONFIG_CMD_UBI=y
+CONFIG_CMD_UBIFS=y
+CONFIG_MTD_UBI_BEB_LIMIT=10
+EOF
+make olddefconfig
+make -j4 u-boot.bin CROSS_COMPILE=arm-linux-gnueabi-
+mv u-boot.bin u-boot-ubifs.bin
+
+# Then compile standard u-boot.bin binary for Nokia RX-51 board
+make nokia_rx51_config
+make -j4 u-boot.bin CROSS_COMPILE=arm-linux-gnueabi-
 
 # And then do all stuff in temporary directory
 mkdir -p nokia_rx51_tmp
@@ -44,6 +55,7 @@ cd nokia_rx51_tmp
 
 test -f mkimage || ln -s ../tools/mkimage .
 test -f u-boot.bin || ln -s ../u-boot.bin .
+test -f u-boot-ubifs.bin || ln -s ../u-boot-ubifs.bin .
 
 echo
 echo "=========================================================================="
@@ -99,6 +111,10 @@ echo "========== Generating images =========="
 echo "======================================="
 echo
 
+# Generate kernel image in zImage and uImage format from FIASCO format
+dd if=kernel_2.6.28/boot/zImage-2.6.28-20103103+0m5.fiasco of=zImage-2.6.28-omap1 skip=95 bs=1
+./mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage-2.6.28-omap1 -d zImage-2.6.28-omap1 uImage-2.6.28-omap1
+
 # Generate rootfs directory
 mkdir -p rootfs
 mkdir -p rootfs/dev/
@@ -123,20 +139,7 @@ echo
 EOF
 chmod +x rootfs/sbin/preinit
 
-# Generate ubi config file for ubi rootfs image
-cat > ubi.ini << EOF
-[rootfs]
-mode=ubi
-image=ubifs.img
-vol_id=0
-vol_size=160MiB
-vol_type=dynamic
-vol_name=rootfs
-vol_alignment=1
-vol_flags=autoresize
-EOF
-
-# Generate ubi rootfs image from rootfs directory
+# Generate ubifs image from rootfs directory
 # NOTE: Character device on host filesystem can be created only by root
 #       But we do not need it on host filesystem, just in ubifs image
 #       So run mknod and mkfs.ubifs commands under fakeroot program
@@ -149,7 +152,34 @@ fakeroot sh -c '
 	mknod rootfs/dev/console c 5 1;
 	/usr/sbin/mkfs.ubifs -m 2048 -e 129024 -c 2047 -r rootfs ubifs.img;
 '
+
+# Generate ubi image with rootfs on first volume
+cat > ubi.ini << EOF
+[rootfs]
+mode=ubi
+image=ubifs.img
+vol_id=0
+vol_size=230MiB # 1870 LEBs
+vol_type=dynamic
+vol_name=rootfs
+vol_alignment=1
+vol_flags=autoresize
+EOF
 /usr/sbin/ubinize -o ubi.img -p 128KiB -m 2048 -s 512 ubi.ini
+
+# Generate ubi image with rootfs on first volume and kernel in zImage format on second volume for UBI booting
+cp ubi.ini ubi_with_kernel.ini
+cat >> ubi_with_kernel.ini << EOF
+[kernel]
+mode=ubi
+image=zImage-2.6.28-omap1
+vol_id=1
+vol_size=2MiB
+vol_type=dynamic
+vol_name=kernel
+vol_alignment=1
+EOF
+/usr/sbin/ubinize -o ubi_with_kernel.img -p 128KiB -m 2048 -s 512 ubi_with_kernel.ini
 
 # Generate bootmenu for U-Boot serial console testing
 cat > bootmenu_uboot << EOF
@@ -178,14 +208,23 @@ setenv bootdelay 1;
 EOF
 ./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_emmc2 -d bootmenu_emmc2 bootmenu_emmc2.scr
 
-# Generate bootmenu for OneNAND booting
+# Generate bootmenu for OneNAND booting (uImage)
 cat > bootmenu_nand << EOF
-setenv bootmenu_0 'uImage-2.6.28-omap1 from OneNAND=mtd read initfs \${kernaddr}; setenv bootargs; setenv setup_omap_atag 1; bootm \${kernaddr}';
+setenv bootmenu_0 'uImage-2.6.28-omap1 from OneNAND=setenv bootargs; setenv setup_omap_atag 1; mtd read initfs \${kernaddr} && bootm \${kernaddr}';
 setenv bootmenu_1;
 setenv bootmenu_delay 1;
 setenv bootdelay 1;
 EOF
 ./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_nand -d bootmenu_nand bootmenu_nand.scr
+
+# Generate bootmenu for UBI booting (zImage)
+cat > bootmenu_ubi << EOF
+setenv bootmenu_0 'zImage-2.6.28-omap1 from UBI=setenv bootargs; setenv setup_omap_atag 1; ubi part rootfs && ubi read \${kernaddr} kernel && bootz \${kernaddr}';
+setenv bootmenu_1;
+setenv bootmenu_delay 1;
+setenv bootdelay 1;
+EOF
+./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_ubi -d bootmenu_ubi bootmenu_ubi.scr
 
 # Generate bootmenu for default booting
 cat > bootmenu_default << EOF
@@ -195,9 +234,7 @@ EOF
 ./mkimage -A arm -O linux -T script -C none -a 0 -e 0 -n bootmenu_default -d bootmenu_default bootmenu_default.scr
 
 # Generate combined image from u-boot and Maemo fiasco kernel
-dd if=kernel_2.6.28/boot/zImage-2.6.28-20103103+0m5.fiasco of=zImage-2.6.28-omap1 skip=95 bs=1
 ./u-boot-gen-combined u-boot.bin zImage-2.6.28-omap1 combined_zimage.bin
-./mkimage -A arm -O linux -T kernel -C none -a 80008000 -e 80008000 -n zImage-2.6.28-omap1 -d zImage-2.6.28-omap1 uImage-2.6.28-omap1
 ./u-boot-gen-combined u-boot.bin uImage-2.6.28-omap1 combined_uimage.bin
 
 # Generate combined hack image from u-boot and Maemo fiasco kernel (kernel starts at 2MB offset and qflasher puts 2kB header before supplied image)
@@ -221,10 +258,15 @@ mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_em
 mcopy zImage-2.6.28-omap1 ::/zImage-2.6.28-omap1 -i emmc_emmc2.img
 mcopy bootmenu_emmc2.scr ::/bootmenu.scr -i emmc_emmc2.img
 
-# Generate FAT32 eMMC image for OneNAND booting
+# Generate FAT32 eMMC image for OneNAND booting (uImage)
 truncate -s 50MiB emmc_nand.img
 mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_nand.img
 mcopy bootmenu_nand.scr ::/bootmenu.scr -i emmc_nand.img
+
+# Generate FAT32 eMMC image for UBI booting (zImage)
+truncate -s 50MiB emmc_ubi.img
+mformat -m 0xf8 -F -h 4 -s 16 -c 1 -t $((50*1024*1024/(4*16*512))) :: -i emmc_ubi.img
+mcopy bootmenu_ubi.scr ::/bootmenu.scr -i emmc_ubi.img
 
 # Generate FAT32 eMMC image for default booting
 truncate -s 50MiB emmc_default.img
@@ -250,6 +292,10 @@ rm -f mtd_emmc.img
 # This is hack to workaround this problem, tell qflasher that kernel area for u-boot is bigger and put big combined hacked image (u-boot + kernel with correct offset)
 rm -f mtd_nand.img
 ./qflasher -v -x xloader-qemu.bin -s secondary-qemu.bin -k combined_hack.bin -r ubi.img -m rx51 -p k=4094,i=2 -o mtd_nand.img
+
+# Generate MTD image for UBI booting from bootloader nolo images, u-boot image with UBI/UBIFS support and rootfs image with kernel volume
+rm -f mtd_ubi.img
+./qflasher -v -x xloader-qemu.bin -s secondary-qemu.bin -k u-boot-ubifs.bin -r ubi_with_kernel.img -m rx51 -o mtd_ubi.img
 
 echo
 echo "======================================================"
@@ -329,6 +375,18 @@ wait -n $sleep_pid $qemu_pid || true
 kill -9 $tail_pid $sleep_pid $qemu_pid 2>/dev/null || true
 wait || true
 
+# Run MTD image in qemu and wait for 300s if kernel from UBI is correctly booted
+rm -f qemu_ubi.log
+./qemu-system-arm -M n900 -mtdblock mtd_ubi.img -sd emmc_ubi.img -serial /dev/stdout -display none > qemu_ubi.log &
+qemu_pid=$!
+tail -F qemu_ubi.log &
+tail_pid=$!
+sleep 300 &
+sleep_pid=$!
+wait -n $sleep_pid $qemu_pid || true
+kill -9 $tail_pid $sleep_pid $qemu_pid 2>/dev/null || true
+wait || true
+
 echo
 echo "============================="
 echo "========== Results =========="
@@ -341,10 +399,11 @@ if grep -q 'Successfully booted' qemu_ram2.log; then echo "Kernel (zImage) was s
 if grep -q 'Successfully booted' qemu_emmc.log; then echo "Kernel (uImage) was successfully booted from eMMC"; else echo "Failed to boot kernel (uImage) from eMMC"; fi
 if grep -q 'Successfully booted' qemu_emmc2.log; then echo "Kernel (zImage) was successfully booted from eMMC"; else echo "Failed to boot kernel (zImage) from eMMC"; fi
 if grep -q 'Successfully booted' qemu_nand.log; then echo "Kernel (uImage) was successfully booted from OneNAND"; else echo "Failed to boot kernel (uImage) from OneNAND"; fi
+if grep -q 'Successfully booted' qemu_ubi.log; then echo "Kernel (zImage) was successfully booted from UBI"; else echo "Failed to boot kernel (zImage) from UBI"; fi
 
 echo
 
-if grep -q 'Successfully booted' qemu_uboot.log && grep -q 'Successfully booted' qemu_ram.log && grep -q 'Successfully booted' qemu_ram2.log && grep -q 'Successfully booted' qemu_emmc.log && grep -q 'Successfully booted' qemu_emmc2.log && grep -q 'Successfully booted' qemu_nand.log; then
+if grep -q 'Successfully booted' qemu_uboot.log && grep -q 'Successfully booted' qemu_ram.log && grep -q 'Successfully booted' qemu_ram2.log && grep -q 'Successfully booted' qemu_emmc.log && grep -q 'Successfully booted' qemu_emmc2.log && grep -q 'Successfully booted' qemu_nand.log && grep -q 'Successfully booted' qemu_ubi.log; then
 	echo "All tests passed"
 	exit 0
 else

@@ -46,7 +46,6 @@ save_boot_params:
  * (CONFIG_SYS_TEXT_BASE).
  */
 
-copy_kernel_start:
 	/* r0 - start of kernel before */
 	adr	r0, kernoffs	/* r0 - current address of kernoffs section */
 	ldr	r1, kernoffs	/* r1 - offset of kernel image from kernoffs section */
@@ -77,7 +76,7 @@ copy_kernel_start:
 	ldr	r4, [r0, #36]	/* r4 - 4 bytes header of kernel at offset 36 */
 	ldr	r5, z_magic	/* r5 - LINUX_ARM_ZIMAGE_MAGIC */
 	cmp	r4, r5
-	bne	copy_kernel_end	/* skip if invalid image */
+	bne	skip_copy	/* skip if invalid image */
 
 copy_kernel_loop:
 	ldmdb	r1!, {r3 - r10}
@@ -85,12 +84,12 @@ copy_kernel_loop:
 	cmp	r1, r0
 	bhi	copy_kernel_loop
 
-copy_kernel_end:
-
 	/* remove header in source kernel image */
 	mov	r5, #0
 	str	r5, [r0]	/* remove 4 bytes header of kernel uImage */
 	str	r5, [r0, #36]	/* remove 4 bytes header of kernel zImage */
+
+skip_copy:
 
 	/* Returns */
 	b	save_boot_params_ret

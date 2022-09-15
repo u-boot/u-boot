@@ -158,8 +158,7 @@ UBIFS support add following lines into file ``configs/nokia_rx51_defconfig``::
 
     CONFIG_CMD_UBI=y
     CONFIG_CMD_UBIFS=y
-    CONFIG_MTD_UBI_FASTMAP=y
-    CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT=1
+    CONFIG_MTD_UBI_BEB_LIMIT=10
 
 Run in QEMU
 -----------

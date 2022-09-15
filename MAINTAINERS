@@ -1389,8 +1389,12 @@ F:	configs/k2g_hs_evm_defconfig
 F:	configs/k2l_hs_evm_defconfig
 F:	configs/am65x_hs_evm_r5_defconfig
 F:	configs/am65x_hs_evm_a53_defconfig
-F:	configs/j721e_hs_evm_r5_defconfig
+F:	configs/j7200_hs_evm_a72_defconfig
+F:	configs/j7200_hs_evm_r5_defconfig
 F:	configs/j721e_hs_evm_a72_defconfig
+F:	configs/j721e_hs_evm_r5_defconfig
+F:	configs/j721s2_hs_evm_a72_defconfig
+F:	configs/j721s2_hs_evm_r5_defconfig
 
 TPM DRIVERS
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
