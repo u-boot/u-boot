@@ -19,6 +19,9 @@
 #define STM32_OTP_HASH_KEY_START	24
 #define STM32_OTP_HASH_KEY_SIZE		8
 
+#define BSEC_LOCK_ERROR			(-1)
+#define BSEC_LOCK_PERM			BIT(0)
+
 static int get_misc_dev(struct udevice **dev)
 {
 	int ret;
@@ -60,14 +63,14 @@ static int read_hash_otp(bool print, bool *locked, bool *closed)
 			val = ~0x0;
 		ret = misc_read(dev, STM32_BSEC_LOCK(word), &lock, 4);
 		if (ret != 4)
-			lock = -1;
+			lock = BSEC_LOCK_ERROR;
 		if (print)
-			printf("OTP HASH %i: %x lock : %d\n", word, val, lock);
+			printf("OTP HASH %i: %x lock : %x\n", word, val, lock);
 		if (val == ~0x0)
 			nb_invalid++;
 		else if (val == 0x0)
 			nb_zero++;
-		if (lock == 1)
+		if (lock & BSEC_LOCK_PERM)
 			nb_lock++;
 	}
 
@@ -77,13 +80,13 @@ static int read_hash_otp(bool print, bool *locked, bool *closed)
 		val = 0x0;
 	ret = misc_read(dev, STM32_BSEC_LOCK(word), &lock, 4);
 	if (ret != 4)
-		lock = -1;
+		lock = BSEC_LOCK_ERROR;
 
 	status = (val & STM32_OTP_CLOSE_MASK) == STM32_OTP_CLOSE_MASK;
 	if (closed)
 		*closed = status;
 	if (print)
-		printf("OTP %d: closed status: %d lock : %d\n", word, status, lock);
+		printf("OTP %d: closed status: %d lock : %x\n", word, status, lock);
 
 	status = (nb_lock == STM32_OTP_HASH_KEY_SIZE);
 	if (locked)
@@ -128,7 +131,7 @@ static int fuse_hash_value(u32 addr, bool print)
 			return ret;
 		}
 		/* on success, lock the OTP for HASH key */
-		val = 1;
+		val = BSEC_LOCK_PERM;
 		ret = misc_write(dev, STM32_BSEC_LOCK(word), &val, 4);
 		if (ret != 4) {
 			log_err("Lock OTP %i failed\n", word);
