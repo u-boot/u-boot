@@ -41,6 +41,7 @@ struct mm_region *mem_map = px30_mem_map;
 #define PMUGRF_BASE			0xff010000
 #define GRF_BASE			0xff140000
 #define CRU_BASE			0xff2b0000
+#define PMUCRU_BASE			0xff2bc000
 #define VIDEO_PHY_BASE			0xff2e0000
 #define SERVICE_CORE_ADDR		0xff508000
 #define DDR_FW_BASE			0xff534000
@@ -198,6 +199,21 @@ enum {
 	GPIO3A1_UART5_RX	= 4,
 };
 
+/* PMUGRF_GPIO0BL_IOMUX */
+enum {
+	GPIO0B3_SHIFT		= 6,
+	GPIO0B3_MASK		= 0x3 << GPIO0B3_SHIFT,
+	GPIO0B3_GPIO		= 0,
+	GPIO0B3_UART0_RX,
+	GPIO0B3_PMU_DEBUG1,
+
+	GPIO0B2_SHIFT		= 4,
+	GPIO0B2_MASK		= 0x3 << GPIO0B2_SHIFT,
+	GPIO0B2_GPIO		= 0,
+	GPIO0B2_UART0_TX,
+	GPIO0B2_PMU_DEBUG0,
+};
+
 /* PMUGRF_GPIO0CL_IOMUX */
 enum {
 	GPIO0C1_SHIFT		= 2,
@@ -276,12 +292,16 @@ int arch_cpu_init(void)
 void board_debug_uart_init(void)
 {
 #if defined(CONFIG_DEBUG_UART_BASE) && \
-	(CONFIG_DEBUG_UART_BASE == 0xff168000) && \
-	(CONFIG_DEBUG_UART_CHANNEL != 1)
+	(((CONFIG_DEBUG_UART_BASE == 0xff168000) && \
+	(CONFIG_DEBUG_UART_CHANNEL != 1)) || \
+	CONFIG_DEBUG_UART_BASE == 0xff030000)
 	static struct px30_pmugrf * const pmugrf = (void *)PMUGRF_BASE;
 #endif
 	static struct px30_grf * const grf = (void *)GRF_BASE;
 	static struct px30_cru * const cru = (void *)CRU_BASE;
+#if defined(CONFIG_DEBUG_UART_BASE) && CONFIG_DEBUG_UART_BASE == 0xff030000
+	static struct px30_pmucru * const pmucru = (void *)PMUCRU_BASE;
+#endif
 
 #if defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff158000)
 	/* uart_sel_clk default select 24MHz */
@@ -346,6 +366,19 @@ void board_debug_uart_init(void)
 		     GPIO3A2_MASK | GPIO3A1_MASK,
 		     GPIO3A2_UART5_TX << GPIO3A2_SHIFT |
 		     GPIO3A1_UART5_RX << GPIO3A1_SHIFT);
+#elif defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff030000)
+	/* uart_sel_clk default select 24MHz */
+	rk_clrsetreg(&pmucru->pmu_clksel_con[3],
+		     UART0_PLL_SEL_MASK | UART0_DIV_CON_MASK,
+		     UART0_PLL_SEL_24M << UART0_PLL_SEL_SHIFT | 0);
+	rk_clrsetreg(&pmucru->pmu_clksel_con[4],
+		     UART0_CLK_SEL_MASK,
+		     UART0_CLK_SEL_UART0 << UART0_CLK_SEL_SHIFT);
+
+	rk_clrsetreg(&pmugrf->gpio0bl_iomux,
+		     GPIO0B3_MASK | GPIO0B2_MASK,
+		     GPIO0B3_UART0_RX << GPIO0B3_SHIFT |
+		     GPIO0B2_UART0_TX << GPIO0B2_SHIFT);
 #else
 	/* GRF_IOFUNC_CON0 */
 	enum {
