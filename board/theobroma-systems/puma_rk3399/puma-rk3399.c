@@ -113,6 +113,28 @@ static int setup_boottargets(void)
 	return 0;
 }
 
+int mmc_get_env_dev(void)
+{
+	const char *boot_device =
+		ofnode_read_chosen_string("u-boot,spl-boot-device");
+
+	if (!boot_device) {
+		debug("%s: /chosen/u-boot,spl-boot-device not set\n",
+		      __func__);
+		return CONFIG_SYS_MMC_ENV_DEV;
+	}
+
+	debug("%s: booted from %s\n", __func__, boot_device);
+
+	if (!strcmp(boot_device, "/mmc@fe320000"))
+		return 1;
+
+	if (!strcmp(boot_device, "/mmc@fe330000"))
+		return 0;
+
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
 int misc_init_r(void)
 {
 	const u32 cpuid_offset = 0x7;
