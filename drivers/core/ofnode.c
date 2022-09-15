@@ -31,6 +31,68 @@ bool ofnode_name_eq(ofnode node, const char *name)
 	return (strlen(name) == len) && !strncmp(node_name, name, len);
 }
 
+int ofnode_read_u8(ofnode node, const char *propname, u8 *outp)
+{
+	const u8 *cell;
+	int len;
+
+	assert(ofnode_valid(node));
+	debug("%s: %s: ", __func__, propname);
+
+	if (ofnode_is_np(node))
+		return of_read_u8(ofnode_to_np(node), propname, outp);
+
+	cell = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node), propname,
+			   &len);
+	if (!cell || len < sizeof(*cell)) {
+		debug("(not found)\n");
+		return -EINVAL;
+	}
+	*outp = *cell;
+	debug("%#x (%d)\n", *outp, *outp);
+
+	return 0;
+}
+
+u8 ofnode_read_u8_default(ofnode node, const char *propname, u8 def)
+{
+	assert(ofnode_valid(node));
+	ofnode_read_u8(node, propname, &def);
+
+	return def;
+}
+
+int ofnode_read_u16(ofnode node, const char *propname, u16 *outp)
+{
+	const fdt16_t *cell;
+	int len;
+
+	assert(ofnode_valid(node));
+	debug("%s: %s: ", __func__, propname);
+
+	if (ofnode_is_np(node))
+		return of_read_u16(ofnode_to_np(node), propname, outp);
+
+	cell = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node), propname,
+			   &len);
+	if (!cell || len < sizeof(*cell)) {
+		debug("(not found)\n");
+		return -EINVAL;
+	}
+	*outp = be16_to_cpup(cell);
+	debug("%#x (%d)\n", *outp, *outp);
+
+	return 0;
+}
+
+u16 ofnode_read_u16_default(ofnode node, const char *propname, u16 def)
+{
+	assert(ofnode_valid(node));
+	ofnode_read_u16(node, propname, &def);
+
+	return def;
+}
+
 int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
 {
 	return ofnode_read_u32_index(node, propname, 0, outp);

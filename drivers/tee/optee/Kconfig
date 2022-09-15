@@ -37,6 +37,14 @@ config OPTEE_TA_SCP03
 	help
 	  Enables support for controlling (enabling, provisioning) the
 	  Secure Channel Protocol 03 operation in the OP-TEE SCP03 TA.
+
+config OPTEE_SERVICE_DISCOVERY
+	bool "OP-TEE service discovery"
+	default y
+	help
+	  This implements automated driver binding of OP-TEE service drivers by
+	  requesting OP-TEE firmware to enumerate its hosted services.
+
 endmenu
 
 endif

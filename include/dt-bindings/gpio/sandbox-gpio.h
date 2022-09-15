@@ -21,4 +21,7 @@
 /* Bit 18 express GPIO output is active */
 #define GPIO_OUT_ACTIVE		0x40000
 
+/* Bit 19 express GPIO set as alternate function */
+#define GPIO_AF			0x80000
+
 #endif

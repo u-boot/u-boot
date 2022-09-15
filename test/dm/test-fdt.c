@@ -815,6 +815,8 @@ DM_TEST(dm_test_first_child, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 static int dm_test_read_int(struct unit_test_state *uts)
 {
 	struct udevice *dev;
+	u8 val8;
+	u16 val16;
 	u32 val32;
 	s32 sval;
 	uint val;
@@ -822,6 +824,23 @@ static int dm_test_read_int(struct unit_test_state *uts)
 
 	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
 	ut_asserteq_str("a-test", dev->name);
+
+	ut_assertok(dev_read_u8(dev, "int8-value", &val8));
+	ut_asserteq(0x12, val8);
+
+	ut_asserteq(-EINVAL, dev_read_u8(dev, "missing", &val8));
+	ut_asserteq(6, dev_read_u8_default(dev, "missing", 6));
+
+	ut_asserteq(0x12, dev_read_u8_default(dev, "int8-value", 6));
+
+	ut_assertok(dev_read_u16(dev, "int16-value", &val16));
+	ut_asserteq(0x1234, val16);
+
+	ut_asserteq(-EINVAL, dev_read_u16(dev, "missing", &val16));
+	ut_asserteq(6, dev_read_u16_default(dev, "missing", 6));
+
+	ut_asserteq(0x1234, dev_read_u16_default(dev, "int16-value", 6));
+
 	ut_assertok(dev_read_u32(dev, "int-value", &val32));
 	ut_asserteq(1234, val32);
 

@@ -41,6 +41,7 @@ config RNG_NPCM
 config RNG_OPTEE
 	bool "OP-TEE based Random Number Generator support"
 	depends on DM_RNG && OPTEE
+	default y if OPTEE_SERVICE_DISCOVERY
 	help
 	  This driver provides support for the OP-TEE based Random Number
 	  Generator on ARM SoCs where hardware entropy sources are not

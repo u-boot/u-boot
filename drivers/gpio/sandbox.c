@@ -196,6 +196,8 @@ static int sb_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_OUTPUT;
 	if (get_gpio_flag(dev, offset, GPIOD_IS_IN))
 		return GPIOF_INPUT;
+	if (get_gpio_flag(dev, offset, GPIOD_IS_AF))
+		return GPIOF_FUNC;
 
 	return GPIOF_INPUT; /*GPIO is not configurated */
 }
@@ -218,6 +220,9 @@ static int sb_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 
 	if (args->args[1] & GPIO_OUT_ACTIVE)
 		desc->flags |= GPIOD_IS_OUT_ACTIVE;
+
+	if (args->args[1] & GPIO_AF)
+		desc->flags |= GPIOD_IS_AF;
 
 	return 0;
 }

@@ -72,7 +72,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	}
 
 	nprps = DIV_ROUND_UP(length, page_size);
-	num_pages = DIV_ROUND_UP(nprps, prps_per_page);
+	num_pages = DIV_ROUND_UP(nprps - 1, prps_per_page - 1);
 
 	if (nprps > dev->prp_entry_num) {
 		free(dev->prp_pool);
@@ -85,13 +85,13 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 			printf("Error: malloc prp_pool fail\n");
 			return -ENOMEM;
 		}
-		dev->prp_entry_num = prps_per_page * num_pages;
+		dev->prp_entry_num = num_pages * (prps_per_page - 1) + 1;
 	}
 
 	prp_pool = dev->prp_pool;
 	i = 0;
 	while (nprps) {
-		if (i == ((page_size >> 3) - 1)) {
+		if ((i == (prps_per_page - 1)) && nprps > 1) {
 			*(prp_pool + i) = cpu_to_le64((ulong)prp_pool +
 					page_size);
 			i = 0;
@@ -104,7 +104,7 @@ static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
 	*prp2 = (ulong)dev->prp_pool;
 
 	flush_dcache_range((ulong)dev->prp_pool, (ulong)dev->prp_pool +
-			   dev->prp_entry_num * sizeof(u64));
+			   num_pages * page_size);
 
 	return 0;
 }

@@ -1194,6 +1194,13 @@ config CMD_LOADS
 	help
 	  Load an S-Record file over serial line
 
+config CMD_LOADXY_TIMEOUT
+	int "loadxy_timeout"
+	range 0 2000
+	default 90
+	help
+	  Initial timeout for loadx and loady commands. Zero means infinity.
+
 config CMD_LSBLK
 	depends on BLK
 	bool "lsblk - list block drivers and devices"
