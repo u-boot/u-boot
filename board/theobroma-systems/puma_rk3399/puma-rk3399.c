@@ -77,18 +77,16 @@ static int setup_boottargets(void)
 	}
 
 	/*
-	 * Only run, if booting from mmc1 (i.e. /mmc@fe320000) and
-	 * only consider cases where the default boot-order first
-	 * tries to boot from mmc0 (eMMC) and then from mmc1
-	 * (i.e. external SD).
-	 *
-	 * In other words: the SD card will be moved to earlier in the
-	 * order, if U-Boot was also loaded from the SD-card.
+	 * Make the default boot medium between SD Card and eMMC, the one that
+	 * was used to load U-Boot proper. If SPI-NOR flash was used, keep
+	 * original default order.
 	 */
-	if (!strcmp(boot_device, "/mmc@fe320000")) {
+	if (strcmp(boot_device, "/spi@ff1d0000/flash@0")) {
+		bool sd_booted = !strcmp(boot_device, "/mmc@fe320000");
 		char *mmc0, *mmc1;
 
-		debug("%s: booted from SD-Card\n", __func__);
+		debug("%s: booted from %s\n", __func__,
+		      sd_booted ? "SD-Card" : "eMMC");
 		mmc0 = strstr(env, "mmc0");
 		mmc1 = strstr(env, "mmc1");
 
@@ -98,10 +96,13 @@ static int setup_boottargets(void)
 		}
 
 		/*
-		 * If mmc0 comes first in the boot order, we need to change
-		 * the strings to make mmc1 first.
+		 * If mmc0 comes first in the boot order and U-Boot proper was
+		 * loaded from mmc1, swap mmc0 and mmc1 in the list.
+		 * If mmc1 comes first in the boot order and U-Boot proper was
+		 * loaded from mmc0, swap mmc0 and mmc1 in the list.
 		 */
-		if (mmc0 < mmc1) {
+		if ((mmc0 < mmc1 && sd_booted) ||
+		    (mmc0 > mmc1 && !sd_booted)) {
 			mmc0[3] = '1';
 			mmc1[3] = '0';
 			debug("%s: set boot_targets to: %s\n", __func__, env);
