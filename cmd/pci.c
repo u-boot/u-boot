@@ -452,7 +452,6 @@ static const struct pci_flag_info {
 	{ PCI_REGION_PREFETCH, "prefetch" },
 	{ PCI_REGION_SYS_MEMORY, "sysmem" },
 	{ PCI_REGION_RO, "readonly" },
-	{ PCI_REGION_IO, "io" },
 };
 
 static void pci_show_regions(struct udevice *bus)
