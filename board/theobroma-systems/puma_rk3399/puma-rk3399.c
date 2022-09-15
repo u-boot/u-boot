@@ -136,19 +136,3 @@ int misc_init_r(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_SERIAL_TAG
-void get_board_serial(struct tag_serialnr *serialnr)
-{
-	char *serial_string;
-	u64 serial = 0;
-
-	serial_string = env_get("serial#");
-
-	if (serial_string)
-		serial = simple_strtoull(serial_string, NULL, 16);
-
-	serialnr->high = (u32)(serial >> 32);
-	serialnr->low = (u32)(serial & 0xffffffff);
-}
-#endif
