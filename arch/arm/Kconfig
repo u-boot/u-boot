@@ -627,6 +627,7 @@ config ARCH_KIRKWOOD
 	select BOARD_EARLY_INIT_F
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
+	select TIMER
 
 config ARCH_MVEBU
 	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
@@ -638,6 +639,8 @@ config ARCH_MVEBU
 	select GPIO_EXTRA_HEADER
 	select SPL_DM_SPI if SPL
 	select SPL_DM_SPI_FLASH if SPL
+	select SPL_TIMER if SPL
+	select TIMER
 	select OF_CONTROL
 	select OF_SEPARATE
 	select SPI
@@ -648,6 +651,7 @@ config ARCH_ORION5X
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 	select SPL_SEPARATE_BSS if SPL
+	select TIMER
 
 config TARGET_STV0991
 	bool "Support stv0991"
