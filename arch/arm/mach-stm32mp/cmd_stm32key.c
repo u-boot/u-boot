@@ -11,9 +11,14 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 
-/* Closed device : bit 6 of OPT0*/
+/*
+ * Closed device: OTP0
+ * STM32MP15x: bit 6 of OPT0
+ * STM32MP13x: 0b111111 = 0x3F for OTP_SECURED closed device
+ */
 #define STM32_OTP_CLOSE_ID		0
-#define STM32_OTP_CLOSE_MASK		BIT(6)
+#define STM32_OTP_STM32MP13x_CLOSE_MASK	0x3F
+#define STM32_OTP_STM32MP15x_CLOSE_MASK	BIT(6)
 
 /* PKH is the first element of the key list */
 #define STM32KEY_PKH 0
@@ -23,6 +28,21 @@ struct stm32key {
 	char *desc;
 	u8 start;
 	u8 size;
+};
+
+const struct stm32key stm32mp13_list[] = {
+	[STM32KEY_PKH] = {
+		.name = "PKHTH",
+		.desc = "Hash of the 8 ECC Public Keys Hashes Table (ECDSA is the authentication algorithm)",
+		.start = 24,
+		.size = 8,
+	},
+	{
+		.name = "EDMK",
+		.desc = "Encryption/Decryption Master Key",
+		.start = 92,
+		.size = 4,
+	}
 };
 
 const struct stm32key stm32mp15_list[] = {
@@ -39,12 +59,29 @@ static u8 stm32key_index;
 
 static u8 get_key_nb(void)
 {
-	return ARRAY_SIZE(stm32mp15_list);
+	if (IS_ENABLED(CONFIG_STM32MP13x))
+		return ARRAY_SIZE(stm32mp13_list);
+
+	if (IS_ENABLED(CONFIG_STM32MP15x))
+		return ARRAY_SIZE(stm32mp15_list);
 }
 
 static const struct stm32key *get_key(u8 index)
 {
-	return &stm32mp15_list[index];
+	if (IS_ENABLED(CONFIG_STM32MP13x))
+		return &stm32mp13_list[index];
+
+	if (IS_ENABLED(CONFIG_STM32MP15x))
+		return &stm32mp15_list[index];
+}
+
+static u32 get_otp_close_mask(void)
+{
+	if (IS_ENABLED(CONFIG_STM32MP13x))
+		return STM32_OTP_STM32MP13x_CLOSE_MASK;
+
+	if (IS_ENABLED(CONFIG_STM32MP15x))
+		return STM32_OTP_STM32MP15x_CLOSE_MASK;
 }
 
 #define BSEC_LOCK_ERROR			(-1)
@@ -123,7 +160,7 @@ static int read_key_otp(struct udevice *dev, const struct stm32key *key, bool pr
 static int read_close_status(struct udevice *dev, bool print, bool *closed)
 {
 	int word, ret, result;
-	u32 val, lock;
+	u32 val, lock, mask;
 	bool status;
 
 	result = 0;
@@ -140,7 +177,8 @@ static int read_close_status(struct udevice *dev, bool print, bool *closed)
 	if (ret != 4)
 		lock = BSEC_LOCK_ERROR;
 
-	status = (val & STM32_OTP_CLOSE_MASK) == STM32_OTP_CLOSE_MASK;
+	mask = get_otp_close_mask();
+	status = (val & mask) == mask;
 	if (closed)
 		*closed = status;
 	if (print)
@@ -371,7 +409,7 @@ static int do_stm32key_close(struct cmd_tbl *cmdtp, int flag, int argc, char *co
 	if (!yes && !confirm_prog())
 		return CMD_RET_FAILURE;
 
-	val = STM32_OTP_CLOSE_MASK;
+	val = get_otp_close_mask();
 	ret = misc_write(dev, STM32_BSEC_OTP(STM32_OTP_CLOSE_ID), &val, 4);
 	if (ret != 4) {
 		printf("Error: can't update OTP %d\n", STM32_OTP_CLOSE_ID);
