@@ -45,17 +45,12 @@ static void read_hash_value(u32 addr)
 	}
 }
 
-static int read_hash_otp(bool print, bool *locked, bool *closed)
+static int read_hash_otp(struct udevice *dev, bool print, bool *locked)
 {
-	struct udevice *dev;
 	int i, word, ret;
 	int nb_invalid = 0, nb_zero = 0, nb_lock = 0;
 	u32 val, lock;
 	bool status;
-
-	ret = get_misc_dev(&dev);
-	if (ret)
-		return ret;
 
 	for (i = 0, word = STM32_OTP_HASH_KEY_START; i < STM32_OTP_HASH_KEY_SIZE; i++, word++) {
 		ret = misc_read(dev, STM32_BSEC_OTP(word), &val, 4);
@@ -73,20 +68,6 @@ static int read_hash_otp(bool print, bool *locked, bool *closed)
 		if (lock & BSEC_LOCK_PERM)
 			nb_lock++;
 	}
-
-	word = STM32_OTP_CLOSE_ID;
-	ret = misc_read(dev, STM32_BSEC_OTP(word), &val, 4);
-	if (ret != 4)
-		val = 0x0;
-	ret = misc_read(dev, STM32_BSEC_LOCK(word), &lock, 4);
-	if (ret != 4)
-		lock = BSEC_LOCK_ERROR;
-
-	status = (val & STM32_OTP_CLOSE_MASK) == STM32_OTP_CLOSE_MASK;
-	if (closed)
-		*closed = status;
-	if (print)
-		printf("OTP %d: closed status: %d lock : %x\n", word, status, lock);
 
 	status = (nb_lock == STM32_OTP_HASH_KEY_SIZE);
 	if (locked)
@@ -108,15 +89,39 @@ static int read_hash_otp(bool print, bool *locked, bool *closed)
 	return 0;
 }
 
-static int fuse_hash_value(u32 addr, bool print)
+static int read_close_status(struct udevice *dev, bool print, bool *closed)
 {
-	struct udevice *dev;
+	int word, ret, result;
+	u32 val, lock;
+	bool status;
+
+	result = 0;
+	word = STM32_OTP_CLOSE_ID;
+	ret = misc_read(dev, STM32_BSEC_OTP(word), &val, 4);
+	if (ret < 0)
+		result = ret;
+	if (ret != 4)
+		val = 0x0;
+
+	ret = misc_read(dev, STM32_BSEC_LOCK(word), &lock, 4);
+	if (ret < 0)
+		result = ret;
+	if (ret != 4)
+		lock = BSEC_LOCK_ERROR;
+
+	status = (val & STM32_OTP_CLOSE_MASK) == STM32_OTP_CLOSE_MASK;
+	if (closed)
+		*closed = status;
+	if (print)
+		printf("OTP %d: closed status: %d lock : %x\n", word, status, lock);
+
+	return result;
+}
+
+static int fuse_hash_value(struct udevice *dev, u32 addr, bool print)
+{
 	u32 word, val;
 	int i, ret;
-
-	ret = get_misc_dev(&dev);
-	if (ret)
-		return ret;
 
 	for (i = 0, word = STM32_OTP_HASH_KEY_START;
 	     i < STM32_OTP_HASH_KEY_SIZE;
@@ -158,10 +163,20 @@ static int confirm_prog(void)
 
 static int do_stm32key_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct udevice *dev;
 	u32 addr;
+	int ret;
+
+	ret = get_misc_dev(&dev);
 
 	if (argc == 1) {
-		read_hash_otp(true, NULL, NULL);
+		if (ret)
+			return CMD_RET_FAILURE;
+		read_hash_otp(dev, true, NULL);
+		ret = read_close_status(dev, true, NULL);
+		if (ret)
+			return CMD_RET_FAILURE;
+
 		return CMD_RET_SUCCESS;
 	}
 
@@ -176,8 +191,10 @@ static int do_stm32key_read(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 
 static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct udevice *dev;
 	u32 addr;
-	bool yes = false, lock, closed;
+	int ret;
+	bool yes = false, lock;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -192,20 +209,23 @@ static int do_stm32key_fuse(struct cmd_tbl *cmdtp, int flag, int argc, char *con
 	if (!addr)
 		return CMD_RET_USAGE;
 
-	if (read_hash_otp(!yes, &lock, &closed) != -ENOENT) {
+	ret = get_misc_dev(&dev);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	if (read_hash_otp(dev, !yes, &lock) != -ENOENT) {
 		printf("Error: can't fuse again the OTP\n");
 		return CMD_RET_FAILURE;
 	}
-
-	if (lock || closed) {
-		printf("Error: invalid OTP configuration (lock=%d, closed=%d)\n", lock, closed);
+	if (lock) {
+		printf("Error: PKH is locked\n");
 		return CMD_RET_FAILURE;
 	}
 
 	if (!yes && !confirm_prog())
 		return CMD_RET_FAILURE;
 
-	if (fuse_hash_value(addr, !yes))
+	if (fuse_hash_value(dev, addr, !yes))
 		return CMD_RET_FAILURE;
 
 	printf("Hash key updated !\n");
@@ -227,26 +247,29 @@ static int do_stm32key_close(struct cmd_tbl *cmdtp, int flag, int argc, char *co
 		yes = true;
 	}
 
-	ret = read_hash_otp(!yes, &lock, &closed);
-	if (ret) {
-		if (ret == -ENOENT)
-			printf("Error: OTP not programmed!\n");
+	ret = get_misc_dev(&dev);
+	if (ret)
 		return CMD_RET_FAILURE;
-	}
+
+	if (read_close_status(dev, !yes, &closed))
+		return CMD_RET_FAILURE;
 
 	if (closed) {
 		printf("Error: already closed!\n");
 		return CMD_RET_FAILURE;
 	}
 
+	/* check PKH status before to close */
+	ret = read_hash_otp(dev, !yes, &lock);
+	if (ret) {
+		if (ret == -ENOENT)
+			printf("Error: OTP not programmed!\n");
+		return CMD_RET_FAILURE;
+	}
 	if (!lock)
 		printf("Warning: OTP not locked!\n");
 
 	if (!yes && !confirm_prog())
-		return CMD_RET_FAILURE;
-
-	ret = get_misc_dev(&dev);
-	if (ret)
 		return CMD_RET_FAILURE;
 
 	val = STM32_OTP_CLOSE_MASK;
