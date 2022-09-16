@@ -7,6 +7,7 @@
 #ifndef BLK_H
 #define BLK_H
 
+#include <dm/uclass-id.h>
 #include <efi.h>
 
 #ifdef CONFIG_SYS_64BIT_LBA
@@ -21,26 +22,10 @@ typedef ulong lbaint_t;
 
 struct udevice;
 
-/* Interface types: */
-enum if_type {
-	IF_TYPE_UNKNOWN = 0,
-	IF_TYPE_IDE,
-	IF_TYPE_SCSI,
-	IF_TYPE_ATAPI,
-	IF_TYPE_USB,
-	IF_TYPE_DOC,
-	IF_TYPE_MMC,
-	IF_TYPE_SD,
-	IF_TYPE_SATA,
-	IF_TYPE_HOST,
-	IF_TYPE_NVME,
-	IF_TYPE_EFI_LOADER,
-	IF_TYPE_PVBLOCK,
-	IF_TYPE_VIRTIO,
-	IF_TYPE_EFI_MEDIA,
-
-	IF_TYPE_COUNT,			/* Number of interface types */
-};
+static inline bool blk_enabled(void)
+{
+	return CONFIG_IS_ENABLED(BLK) || IS_ENABLED(CONFIG_SPL_LEGACY_BLOCK);
+}
 
 #define BLK_VEN_SIZE		40
 #define BLK_PRD_SIZE		20
@@ -69,7 +54,7 @@ struct blk_desc {
 	 * TODO: With driver model we should be able to use the parent
 	 * device's uclass instead.
 	 */
-	enum if_type	if_type;	/* type of the interface */
+	enum uclass_id	if_type;	/* type of the interface */
 	int		devnum;		/* device number */
 	unsigned char	part_type;	/* partition type */
 	unsigned char	target;		/* target SCSI ID */
@@ -294,7 +279,7 @@ unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
  * This function does not activate the device. The device will be returned
  * whether or not it is activated.
  *
- * @if_type:	Interface type (enum if_type_t)
+ * @if_type:	Interface type (enum uclass_id_t)
  * @devnum:	Device number (specific to each interface type)
  * @devp:	the device, if found
  * Return: 0 if found, -ENODEV if no device found, or other -ve error value
@@ -304,7 +289,7 @@ int blk_find_device(int if_type, int devnum, struct udevice **devp);
 /**
  * blk_get_device() - Find and probe a block device ready for use
  *
- * @if_type:	Interface type (enum if_type_t)
+ * @if_type:	Interface type (enum uclass_id_t)
  * @devnum:	Device number (specific to each interface type)
  * @devp:	the device, if found
  * Return: 0 if found, -ENODEV if no device found, or other -ve error value
@@ -342,7 +327,7 @@ int blk_next_device(struct udevice **devp);
  * @parent:	Parent of the new device
  * @drv_name:	Driver name to use for the block device
  * @name:	Name for the device
- * @if_type:	Interface type (enum if_type_t)
+ * @if_type:	Interface type (enum uclass_id_t)
  * @devnum:	Device number, specific to the interface type, or -1 to
  *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
@@ -359,7 +344,7 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
  * @parent:	Parent of the new device
  * @drv_name:	Driver name to use for the block device
  * @name:	Name for the device (parent name is prepended)
- * @if_type:	Interface type (enum if_type_t)
+ * @if_type:	Interface type (enum uclass_id_t)
  * @devnum:	Device number, specific to the interface type, or -1 to
  *		allocate the next available number
  * @blksz:	Block size of the device in bytes (typically 512)
@@ -402,7 +387,7 @@ int blk_unbind_all(int if_type);
  * Return: maximum device number found, or -ENODEV if none, or other -ve on
  * error
  */
-int blk_find_max_devnum(enum if_type if_type);
+int blk_find_max_devnum(enum uclass_id if_type);
 
 /**
  * blk_next_free_devnum() - get the next device number for an interface type
@@ -413,7 +398,7 @@ int blk_find_max_devnum(enum if_type if_type);
  * @if_type:	Interface type to scan
  * Return: next device number safe to use, or -ve on error
  */
-int blk_next_free_devnum(enum if_type if_type);
+int blk_next_free_devnum(enum uclass_id if_type);
 
 /**
  * blk_select_hwpart() - select a hardware partition
@@ -508,7 +493,7 @@ static inline ulong blk_derase(struct blk_desc *block_dev, lbaint_t start,
  */
 struct blk_driver {
 	const char *if_typename;
-	enum if_type if_type;
+	enum uclass_id if_type;
 	int max_devs;
 	struct blk_desc *desc;
 	/**
@@ -569,7 +554,7 @@ struct blk_driver *blk_driver_lookup_type(int if_type);
  * @devnum:	Device number
  * Return: point to block device descriptor, or NULL if not found
  */
-struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum);
+struct blk_desc *blk_get_devnum_by_type(enum uclass_id if_type, int devnum);
 
 /**
  * blk_get_devnum_by_type() - Get a block device by type name, and number
@@ -606,7 +591,7 @@ int blk_dselect_hwpart(struct blk_desc *desc, int hwpart);
  * @if_type:	Block device type
  * Return: 0 if OK, -ENODEV if there is none of that type
  */
-int blk_list_part(enum if_type if_type);
+int blk_list_part(enum uclass_id if_type);
 
 /**
  * blk_list_devices() - list the block devices of a given type
@@ -616,7 +601,7 @@ int blk_list_part(enum if_type if_type);
  *
  * @if_type:	Block device type
  */
-void blk_list_devices(enum if_type if_type);
+void blk_list_devices(enum uclass_id if_type);
 
 /**
  * blk_show_device() - show information about a given block device
@@ -627,7 +612,7 @@ void blk_list_devices(enum if_type if_type);
  * @devnum:	Device number
  * Return: 0 if OK, -ENODEV for invalid device number
  */
-int blk_show_device(enum if_type if_type, int devnum);
+int blk_show_device(enum uclass_id if_type, int devnum);
 
 /**
  * blk_print_device_num() - show information about a given block device
@@ -640,7 +625,7 @@ int blk_show_device(enum if_type if_type, int devnum);
  * Return: 0 if OK, -ENODEV for invalid device number, -ENOENT if the block
  * device is not connected
  */
-int blk_print_device_num(enum if_type if_type, int devnum);
+int blk_print_device_num(enum uclass_id if_type, int devnum);
 
 /**
  * blk_print_part_devnum() - print the partition information for a device
@@ -650,7 +635,7 @@ int blk_print_device_num(enum if_type if_type, int devnum);
  * Return: 0 if OK, -ENOENT if the block device is not connected, -ENOSYS if
  * the interface type is not supported, other -ve on other error
  */
-int blk_print_part_devnum(enum if_type if_type, int devnum);
+int blk_print_part_devnum(enum uclass_id if_type, int devnum);
 
 /**
  * blk_read_devnum() - read blocks from a device
@@ -661,7 +646,7 @@ int blk_print_part_devnum(enum if_type if_type, int devnum);
  * @buffer:	Address to write data to
  * Return: number of blocks read, or -ve error number on error
  */
-ulong blk_read_devnum(enum if_type if_type, int devnum, lbaint_t start,
+ulong blk_read_devnum(enum uclass_id if_type, int devnum, lbaint_t start,
 		      lbaint_t blkcnt, void *buffer);
 
 /**
@@ -673,7 +658,7 @@ ulong blk_read_devnum(enum if_type if_type, int devnum, lbaint_t start,
  * @buffer:	Address to read data from
  * Return: number of blocks written, or -ve error number on error
  */
-ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
+ulong blk_write_devnum(enum uclass_id if_type, int devnum, lbaint_t start,
 		       lbaint_t blkcnt, const void *buffer);
 
 /**
@@ -687,7 +672,7 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
  * @hwpart:	Partition number to select
  * Return: 0 if OK, -ve on error
  */
-int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
+int blk_select_hwpart_devnum(enum uclass_id if_type, int devnum, int hwpart);
 
 /**
  * blk_get_if_type_name() - Get the name of an interface type
@@ -695,7 +680,7 @@ int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart);
  * @if_type: Interface type to check
  * Return: name of interface, or NULL if none
  */
-const char *blk_get_if_type_name(enum if_type if_type);
+const char *blk_get_if_type_name(enum uclass_id if_type);
 
 /**
  * blk_common_cmd() - handle common commands with block devices
@@ -706,7 +691,7 @@ const char *blk_get_if_type_name(enum if_type if_type);
  * @cur_devnump: Current device number for this interface type
  * Return: 0 if OK, CMD_RET_ERROR on error
  */
-int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
+int blk_common_cmd(int argc, char *const argv[], enum uclass_id if_type,
 		   int *cur_devnump);
 
 enum blk_flag_t {

@@ -640,7 +640,7 @@ static int efi_disk_probe(void *ctx, struct event *event)
 	 * has already created an efi_disk at this moment.
 	 */
 	desc = dev_get_uclass_plat(dev);
-	if (desc->if_type != IF_TYPE_EFI_LOADER) {
+	if (desc->if_type != UCLASS_EFI_LOADER) {
 		ret = efi_disk_create_raw(dev);
 		if (ret)
 			return -1;
@@ -675,7 +675,7 @@ static int efi_disk_delete_raw(struct udevice *dev)
 		return -1;
 
 	desc = dev_get_uclass_plat(dev);
-	if (desc->if_type != IF_TYPE_EFI_LOADER) {
+	if (desc->if_type != UCLASS_EFI_LOADER) {
 		diskobj = container_of(handle, struct efi_disk_obj, header);
 		efi_free_pool(diskobj->dp);
 	}

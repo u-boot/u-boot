@@ -1823,7 +1823,7 @@ static int part_delete(struct stm32prog_data *data,
 		 * need to switch to associated hwpart 1 or 2
 		 */
 		if (part->part_id < 0)
-			if (blk_select_hwpart_devnum(IF_TYPE_MMC,
+			if (blk_select_hwpart_devnum(UCLASS_MMC,
 						     part->dev->dev_id,
 						     -part->part_id))
 				return -1;
@@ -1832,7 +1832,7 @@ static int part_delete(struct stm32prog_data *data,
 
 		/* return to user partition */
 		if (part->part_id < 0)
-			blk_select_hwpart_devnum(IF_TYPE_MMC,
+			blk_select_hwpart_devnum(UCLASS_MMC,
 						 part->dev->dev_id, 0);
 		if (blks != blks_size) {
 			ret = -1;

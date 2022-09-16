@@ -12,8 +12,6 @@
 #include <asm/unaligned.h>
 #include "part_iso.h"
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
-
 /* #define	ISO_PART_DEBUG */
 
 #ifdef	ISO_PART_DEBUG
@@ -241,4 +239,3 @@ U_BOOT_PART_TYPE(iso) = {
 	.print		= part_print_iso,
 	.test		= part_test_iso,
 };
-#endif

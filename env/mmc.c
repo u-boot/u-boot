@@ -143,7 +143,7 @@ static int mmc_set_env_part(struct mmc *mmc, uint part)
 	int dev = mmc_get_env_dev();
 	int ret = 0;
 
-	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part);
+	ret = blk_select_hwpart_devnum(UCLASS_MMC, dev, part);
 	if (ret)
 		puts("MMC partition switch failed\n");
 
@@ -179,7 +179,7 @@ static void fini_mmc_for_env(struct mmc *mmc)
 #ifdef CONFIG_SYS_MMC_ENV_PART
 	int dev = mmc_get_env_dev();
 
-	blk_select_hwpart_devnum(IF_TYPE_MMC, dev, env_mmc_orig_hwpart);
+	blk_select_hwpart_devnum(UCLASS_MMC, dev, env_mmc_orig_hwpart);
 #endif
 }
 

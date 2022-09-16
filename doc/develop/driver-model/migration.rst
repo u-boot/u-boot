@@ -57,7 +57,7 @@ In concert with maintainers migrating their block device usage to the
 appropriate DM driver, CONFIG_BLK needs to be set as well.  The final deadline
 here coincides with the final deadline for migration of the various block
 subsystems.  At this point we will be able to audit and correct the logic in
-Kconfig around using CONFIG_PARTITIONS and CONFIG_HAVE_BLOCK_DEVICE and make
+Kconfig around using CONFIG_PARTITIONS and CONFIG_SPL_LEGACY_BLOCK and make
 use of CONFIG_BLK / CONFIG_SPL_BLK as needed.
 
 CONFIG_DM_SPI / CONFIG_DM_SPI_FLASH

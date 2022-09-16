@@ -767,7 +767,7 @@ struct mmc *mmc_create(const struct mmc_config *cfg, void *priv);
 /**
  * mmc_bind() - Set up a new MMC device ready for probing
  *
- * A child block device is bound with the IF_TYPE_MMC interface type. This
+ * A child block device is bound with the UCLASS_MMC interface type. This
  * allows the device to be used with CONFIG_BLK
  *
  * @dev:	MMC device to set up

@@ -38,7 +38,7 @@ static efi_status_t __maybe_unused efi_set_blk_dev_to_system_partition(void)
 	char part_str[PART_STR_LEN];
 	int r;
 
-	if (!efi_system_partition.if_type) {
+	if (efi_system_partition.if_type == UCLASS_INVALID) {
 		log_err("No EFI system partition\n");
 		return EFI_DEVICE_ERROR;
 	}

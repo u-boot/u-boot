@@ -1076,7 +1076,7 @@ static int sata_mv_probe(struct udevice *dev)
 
 	for (i = 0; i < nr_ports; i++) {
 		ret = blk_create_devicef(dev, "sata_mv_blk", "blk",
-					 IF_TYPE_SATA, -1, 512, 0, &blk);
+					 UCLASS_AHCI, -1, 512, 0, &blk);
 		if (ret) {
 			debug("Can't create device\n");
 			continue;

@@ -59,7 +59,8 @@ obj-$(CONFIG_SPL_WATCHDOG) += watchdog/
 obj-$(CONFIG_SPL_USB_HOST) += usb/host/
 obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
 obj-$(CONFIG_SPL_SATA) += ata/ scsi/
-obj-$(CONFIG_HAVE_BLOCK_DEVICE) += block/
+obj-$(CONFIG_SPL_LEGACY_BLOCK) += block/
+obj-$(CONFIG_SPL_BLK) += block/
 obj-$(CONFIG_SPL_THERMAL) += thermal/
 
 endif

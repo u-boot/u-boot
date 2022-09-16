@@ -161,7 +161,7 @@ extern bool efi_st_keep_devices;
 
 /* EFI system partition */
 extern struct efi_system_partition {
-	enum if_type if_type;
+	enum uclass_id if_type;
 	int devnum;
 	u8 part;
 } efi_system_partition;

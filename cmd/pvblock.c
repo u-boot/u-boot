@@ -14,7 +14,7 @@ static int pvblock_curr_device;
 
 int do_pvblock(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	return blk_common_cmd(argc, argv, IF_TYPE_PVBLOCK,
+	return blk_common_cmd(argc, argv, UCLASS_PVBLOCK,
 			      &pvblock_curr_device);
 }
 

@@ -25,19 +25,19 @@ static int dm_test_blk_base(struct unit_test_state *uts)
 
 	/* Create two, one the parent of the other */
 	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
-				      IF_TYPE_HOST, 1, 512, 2, &blk1));
+				      UCLASS_ROOT, 1, 512, 2, &blk1));
 	ut_assertok(blk_create_device(blk1, "sandbox_host_blk", "test",
-				      IF_TYPE_HOST, 3, 512, 2, &blk3));
+				      UCLASS_ROOT, 3, 512, 2, &blk3));
 
 	/* Check we can find them */
-	ut_asserteq(-ENODEV, blk_get_device(IF_TYPE_HOST, 0, &dev));
-	ut_assertok(blk_get_device(IF_TYPE_HOST, 1, &dev));
+	ut_asserteq(-ENODEV, blk_get_device(UCLASS_ROOT, 0, &dev));
+	ut_assertok(blk_get_device(UCLASS_ROOT, 1, &dev));
 	ut_asserteq_ptr(blk1, dev);
-	ut_assertok(blk_get_device(IF_TYPE_HOST, 3, &dev));
+	ut_assertok(blk_get_device(UCLASS_ROOT, 3, &dev));
 	ut_asserteq_ptr(blk3, dev);
 
 	/* Check we can iterate */
-	ut_assertok(blk_first_device(IF_TYPE_HOST, &dev));
+	ut_assertok(blk_first_device(UCLASS_ROOT, &dev));
 	ut_asserteq_ptr(blk1, dev);
 	ut_assertok(blk_next_device(&dev));
 	ut_asserteq_ptr(blk3, dev);
@@ -79,7 +79,7 @@ static int dm_test_blk_usb(struct unit_test_state *uts)
 	ut_assertok(blk_get_device_by_str("usb", "0", &dev_desc));
 
 	/* The parent should be a block device */
-	ut_assertok(blk_get_device(IF_TYPE_USB, 0, &dev));
+	ut_assertok(blk_get_device(UCLASS_USB, 0, &dev));
 	ut_asserteq_ptr(usb_dev, dev_get_parent(dev));
 
 	/* Check we have one block device for each mass storage device */
@@ -101,14 +101,14 @@ static int dm_test_blk_find(struct unit_test_state *uts)
 	struct udevice *blk, *dev;
 
 	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
-				      IF_TYPE_HOST, 1, 512, 2, &blk));
-	ut_asserteq(-ENODEV, blk_find_device(IF_TYPE_HOST, 0, &dev));
-	ut_assertok(blk_find_device(IF_TYPE_HOST, 1, &dev));
+				      UCLASS_ROOT, 1, 512, 2, &blk));
+	ut_asserteq(-ENODEV, blk_find_device(UCLASS_ROOT, 0, &dev));
+	ut_assertok(blk_find_device(UCLASS_ROOT, 1, &dev));
 	ut_asserteq_ptr(blk, dev);
 	ut_asserteq(false, device_active(dev));
 
 	/* Now activate it */
-	ut_assertok(blk_get_device(IF_TYPE_HOST, 1, &dev));
+	ut_assertok(blk_get_device(UCLASS_ROOT, 1, &dev));
 	ut_asserteq_ptr(blk, dev);
 	ut_asserteq(true, device_active(dev));
 
@@ -134,7 +134,7 @@ static int dm_test_blk_devnum(struct unit_test_state *uts)
 
 		/* Check that the bblock device is attached */
 		ut_assertok(uclass_get_device_by_seq(UCLASS_MMC, i, &mmc_dev));
-		ut_assertok(blk_find_device(IF_TYPE_MMC, i, &dev));
+		ut_assertok(blk_find_device(UCLASS_MMC, i, &dev));
 		parent = dev_get_parent(dev);
 		ut_asserteq_ptr(parent, mmc_dev);
 		ut_asserteq(trailing_strtol(mmc_dev->name), i);
