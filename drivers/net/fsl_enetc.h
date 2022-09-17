@@ -158,7 +158,7 @@ struct enetc_priv {
 	struct bd_ring tx_bdr;
 	struct bd_ring rx_bdr;
 
-	int if_type;
+	int uclass_id;
 	struct mii_dev imdio;
 	struct phy_device *phy;
 };

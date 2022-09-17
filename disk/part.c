@@ -61,7 +61,7 @@ static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 
 	if (!blk_enabled())
 		return NULL;
-	dev_desc = blk_get_devnum_by_typename(ifname, dev);
+	dev_desc = blk_get_devnum_by_uclass_idname(ifname, dev);
 	if (!dev_desc) {
 		debug("%s: No device for iface '%s', dev %d\n", __func__,
 		      ifname, dev);
@@ -120,7 +120,7 @@ void dev_print(struct blk_desc *dev_desc)
 		return;
 	}
 
-	switch (dev_desc->if_type) {
+	switch (dev_desc->uclass_id) {
 	case UCLASS_SCSI:
 		printf ("(%d:%d) Vendor: %s Prod.: %s Rev: %s\n",
 			dev_desc->target,dev_desc->lun,
@@ -155,7 +155,7 @@ void dev_print(struct blk_desc *dev_desc)
 		puts("device type unknown\n");
 		return;
 	default:
-		printf("Unhandled device type: %i\n", dev_desc->if_type);
+		printf("Unhandled device type: %i\n", dev_desc->uclass_id);
 		return;
 	}
 	puts ("            Type: ");
@@ -225,7 +225,7 @@ void part_init(struct blk_desc *dev_desc)
 	const int n_ents = ll_entry_count(struct part_driver, part_driver);
 	struct part_driver *entry;
 
-	blkcache_invalidate(dev_desc->if_type, dev_desc->devnum);
+	blkcache_invalidate(dev_desc->uclass_id, dev_desc->devnum);
 
 	dev_desc->part_type = PART_TYPE_UNKNOWN;
 	for (entry = drv; entry != drv + n_ents; entry++) {
@@ -248,7 +248,7 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 	CONFIG_IS_ENABLED(AMIGA_PARTITION) || \
 	CONFIG_IS_ENABLED(EFI_PARTITION)
 	puts ("\nPartition Map for ");
-	switch (dev_desc->if_type) {
+	switch (dev_desc->uclass_id) {
 	case UCLASS_IDE:
 		puts ("IDE");
 		break;
@@ -408,7 +408,7 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 		 * Always should be done, otherwise hw partition 0 will return
 		 * stale data after displaying a non-zero hw partition.
 		 */
-		if ((*dev_desc)->if_type == UCLASS_MMC)
+		if ((*dev_desc)->uclass_id == UCLASS_MMC)
 			part_init(*dev_desc);
 	}
 
@@ -762,7 +762,7 @@ void part_set_generic_name(const struct blk_desc *dev_desc,
 {
 	char *devtype;
 
-	switch (dev_desc->if_type) {
+	switch (dev_desc->uclass_id) {
 	case UCLASS_IDE:
 	case UCLASS_AHCI:
 		devtype = "hd";

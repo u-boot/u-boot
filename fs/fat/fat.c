@@ -1145,7 +1145,7 @@ int file_fat_detectfs(void)
 	}
 
 	if (blk_enabled()) {
-		printf("Interface:  %s\n", blk_get_if_type_name(cur_dev->if_type));
+		printf("Interface:  %s\n", blk_get_uclass_name(cur_dev->uclass_id));
 		printf("  Device %d: ", cur_dev->devnum);
 		dev_print(cur_dev);
 	}

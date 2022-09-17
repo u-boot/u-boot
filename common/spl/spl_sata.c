@@ -71,7 +71,7 @@ static int spl_sata_load_image(struct spl_image_info *spl_image,
 
 	/* try to recognize storage devices immediately */
 	scsi_scan(false);
-	stor_dev = blk_get_devnum_by_type(UCLASS_SCSI, 0);
+	stor_dev = blk_get_devnum_by_uclass_id(UCLASS_SCSI, 0);
 	if (!stor_dev)
 		return -ENODEV;
 

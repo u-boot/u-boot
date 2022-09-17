@@ -498,13 +498,13 @@ static efi_status_t efi_disk_add_dev(
 		  diskobj->media.last_block);
 
 	/* Store first EFI system partition */
-	if (part && !efi_system_partition.if_type) {
+	if (part && !efi_system_partition.uclass_id) {
 		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION) {
-			efi_system_partition.if_type = desc->if_type;
+			efi_system_partition.uclass_id = desc->uclass_id;
 			efi_system_partition.devnum = desc->devnum;
 			efi_system_partition.part = part;
 			EFI_PRINT("EFI system partition: %s %x:%x\n",
-				  blk_get_if_type_name(desc->if_type),
+				  blk_get_uclass_name(desc->uclass_id),
 				  desc->devnum, part);
 		}
 	}
@@ -640,7 +640,7 @@ static int efi_disk_probe(void *ctx, struct event *event)
 	 * has already created an efi_disk at this moment.
 	 */
 	desc = dev_get_uclass_plat(dev);
-	if (desc->if_type != UCLASS_EFI_LOADER) {
+	if (desc->uclass_id != UCLASS_EFI_LOADER) {
 		ret = efi_disk_create_raw(dev);
 		if (ret)
 			return -1;
@@ -675,7 +675,7 @@ static int efi_disk_delete_raw(struct udevice *dev)
 		return -1;
 
 	desc = dev_get_uclass_plat(dev);
-	if (desc->if_type != UCLASS_EFI_LOADER) {
+	if (desc->uclass_id != UCLASS_EFI_LOADER) {
 		diskobj = container_of(handle, struct efi_disk_obj, header);
 		efi_free_pool(diskobj->dp);
 	}
@@ -794,7 +794,7 @@ efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int 
 	} else {
 		return EFI_INVALID_PARAMETER;
 	}
-	if_typename = blk_get_if_type_name(desc->if_type);
+	if_typename = blk_get_uclass_name(desc->uclass_id);
 	diskid = desc->devnum;
 
 	if (is_partition) {
