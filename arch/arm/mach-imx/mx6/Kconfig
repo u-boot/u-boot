@@ -466,6 +466,17 @@ config TARGET_MX6ULL_14X14_EVK
 	select DM_THERMAL
 	imply CMD_DM
 
+config TARGET_MX6ULZ_SMM_M2
+	bool "Support imx6ulz_smm_m2"
+	depends on MX6ULL
+	select DM
+	select DM_GPIO
+	select DM_I2C
+	select DM_SERIAL
+	select DM_MTD
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_MYS_6ULX
 	bool "MYiR MYS-6ULX"
 	depends on MX6ULL
@@ -680,6 +691,7 @@ source "board/ge/b1x5v2/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/armadeus/opos6uldev/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
+source "board/bsh/imx6ulz_smm_m2/Kconfig"
 source "board/bticino/mamoj/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/dhelectronics/dh_imx6/Kconfig"
