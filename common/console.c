@@ -480,7 +480,7 @@ int fgetc(int file)
 		 * Effectively poll for input wherever it may be available.
 		 */
 		for (;;) {
-			WATCHDOG_RESET();
+			schedule();
 			if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
 				/*
 				 * Upper layer may have already called tstc() so

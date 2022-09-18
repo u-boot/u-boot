@@ -134,7 +134,7 @@ static int octeon_pcie_console_read(struct udevice *dev,
 							cons_ptr->input_write_index,
 							cons_ptr->input_read_index))) {
 			mdelay(10);
-			WATCHDOG_RESET();
+			schedule();
 		}
 	}
 
@@ -210,7 +210,7 @@ static int octeon_pcie_console_write(struct udevice *dev,
 			if (flags & OCT_PCI_CON_FLAG_NONBLOCK)
 				goto done;
 
-			WATCHDOG_RESET();
+			schedule();
 			mdelay(10);	/* Delay if we are spinning */
 		} else {
 			bytes_written = -1;

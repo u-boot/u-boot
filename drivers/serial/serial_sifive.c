@@ -225,7 +225,7 @@ static inline void _debug_uart_putc(int ch)
 			(struct uart_sifive *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (_sifive_serial_putc(regs, ch) == -EAGAIN)
-		WATCHDOG_RESET();
+		schedule();
 }
 
 DEBUG_UART_FUNCS

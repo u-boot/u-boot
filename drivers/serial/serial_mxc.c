@@ -200,7 +200,7 @@ static void mxc_serial_setbrg(void)
 static int mxc_serial_getc(void)
 {
 	while (readl(&mxc_base->ts) & UTS_RXEMPTY)
-		WATCHDOG_RESET();
+		schedule();
 	return (readl(&mxc_base->rxd) & URXD_RX_DATA); /* mask out status from upper word */
 }
 
@@ -214,7 +214,7 @@ static void mxc_serial_putc(const char c)
 
 	/* wait for transmitter to be ready */
 	while (!(readl(&mxc_base->ts) & UTS_TXEMPTY))
-		WATCHDOG_RESET();
+		schedule();
 }
 
 /* Test whether a character is in the RX buffer */
@@ -384,7 +384,7 @@ static inline void _debug_uart_putc(int ch)
 	struct mxc_uart *base = (struct mxc_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (!(readl(&base->ts) & UTS_TXEMPTY))
-		WATCHDOG_RESET();
+		schedule();
 
 	writel(ch, &base->txd);
 }

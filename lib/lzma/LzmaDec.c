@@ -153,7 +153,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
   UInt32 range = p->range;
   UInt32 code = p->code;
 
-  WATCHDOG_RESET();
+  schedule();
 
   do
   {
@@ -177,7 +177,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
         state -= (state < 4) ? state : 3;
         symbol = 1;
 
-        WATCHDOG_RESET();
+        schedule();
 
         do { GET_BIT(prob + symbol, symbol) } while (symbol < 0x100);
       }
@@ -188,7 +188,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
         state -= (state < 10) ? 3 : 6;
         symbol = 1;
 
-        WATCHDOG_RESET();
+        schedule();
 
         do
         {
@@ -321,7 +321,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
               UInt32 mask = 1;
               unsigned i = 1;
 
-              WATCHDOG_RESET();
+              schedule();
 
               do
               {
@@ -335,7 +335,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
           {
             numDirectBits -= kNumAlignBits;
 
-            WATCHDOG_RESET();
+            schedule();
 
             do
             {
@@ -409,7 +409,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
           const Byte *lim = dest + curLen;
           dicPos += curLen;
 
-          WATCHDOG_RESET();
+          schedule();
 
           do
             *(dest) = (Byte)*(dest + src);
@@ -418,7 +418,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
         else
         {
 
-          WATCHDOG_RESET();
+          schedule();
 
           do
           {
@@ -433,7 +433,7 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
   }
   while (dicPos < limit && buf < bufLimit);
 
-  WATCHDOG_RESET();
+  schedule();
 
   NORMALIZE;
   p->buf = buf;

@@ -157,7 +157,7 @@ static inline int lan7x_wait_for_bit(struct usb_device *udev,
 		}
 
 		udelay(1);
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	debug("%s: Timeout (reg=0x%x mask=%08x wait_set=%i)\n", prefix, reg,
@@ -199,7 +199,7 @@ static inline int lan7x_mdio_wait_for_bit(struct usb_device *udev,
 		}
 
 		udelay(1);
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	debug("%s: Timeout (reg=0x%x mask=%08x wait_set=%i)\n", prefix, reg,

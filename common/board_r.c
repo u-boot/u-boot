@@ -341,7 +341,7 @@ static int initr_flash(void)
 	/*
 	 * Compute and print flash CRC if flashchecksum is set to 'y'
 	 *
-	 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
+	 * NOTE: Maybe we should add some schedule()? XXX
 	 */
 	if (env_get_yesno("flashchecksum") == 1) {
 		const uchar *flash_base = (const uchar *)CONFIG_SYS_FLASH_BASE;

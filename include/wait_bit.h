@@ -63,7 +63,7 @@ static inline int wait_for_bit_##sfx(const void *reg,			\
 		}							\
 									\
 		udelay(1);						\
-		WATCHDOG_RESET();					\
+		schedule();					\
 	}								\
 									\
 	debug("%s: Timeout (reg=%p mask=%x wait_set=%i)\n", __func__,	\

@@ -31,7 +31,7 @@ void cpu_init_f(immap_t __iomem *immr)
 	out_be32(&immr->im_siu_conf.sc_sypcr, CONFIG_SYS_SYPCR & ~SYPCR_SWE);
 #endif
 
-	WATCHDOG_RESET();
+	schedule();
 
 	/* SIUMCR - contains debug pin configuration (11-6) */
 	setbits_be32(&immr->im_siu_conf.sc_siumcr, CONFIG_SYS_SIUMCR);

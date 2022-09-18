@@ -279,7 +279,7 @@ static int memory_post_test1(unsigned long start,
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = val;
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
@@ -292,7 +292,7 @@ static int memory_post_test1(unsigned long start,
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	return ret;
@@ -308,7 +308,7 @@ static int memory_post_test2(unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = 1 << (i % 32);
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
@@ -321,7 +321,7 @@ static int memory_post_test2(unsigned long start, unsigned long size)
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	return ret;
@@ -337,7 +337,7 @@ static int memory_post_test3(unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = i;
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
@@ -350,7 +350,7 @@ static int memory_post_test3(unsigned long start, unsigned long size)
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	return ret;
@@ -366,7 +366,7 @@ static int memory_post_test4(unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = ~i;
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
@@ -379,7 +379,7 @@ static int memory_post_test4(unsigned long start, unsigned long size)
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 
 	return ret;
@@ -390,15 +390,15 @@ static int memory_post_test_lines(unsigned long start, unsigned long size)
 	int ret = 0;
 
 	ret = memory_post_dataline((unsigned long long *)start);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_addrline((ulong *)start, (ulong *)start,
 				size);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_addrline((ulong *)(start+size-8),
 				(ulong *)start, size);
-	WATCHDOG_RESET();
+	schedule();
 
 	return ret;
 }
@@ -408,25 +408,25 @@ static int memory_post_test_patterns(unsigned long start, unsigned long size)
 	int ret = 0;
 
 	ret = memory_post_test1(start, size, 0x00000000);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_test1(start, size, 0xffffffff);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_test1(start, size, 0x55555555);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_test1(start, size, 0xaaaaaaaa);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_test2(start, size);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_test3(start, size);
-	WATCHDOG_RESET();
+	schedule();
 	if (!ret)
 		ret = memory_post_test4(start, size);
-	WATCHDOG_RESET();
+	schedule();
 
 	return ret;
 }

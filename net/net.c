@@ -559,7 +559,7 @@ restart:
 	 *	someone sets `net_state' to a state that terminates.
 	 */
 	for (;;) {
-		WATCHDOG_RESET();
+		schedule();
 		if (arp_timeout_check() > 0)
 			time_start = get_timer(0);
 

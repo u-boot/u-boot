@@ -73,7 +73,7 @@ int ecc_post_test(int flags)
 	for (addr = (u64*)CONFIG_SYS_POST_ECC_START_ADDR, errbit=0;
 	     addr < (u64*)CONFIG_SYS_POST_ECC_STOP_ADDR; addr++, errbit++ ) {
 
-		WATCHDOG_RESET();
+		schedule();
 
 		ecc_clear(ddr);
 

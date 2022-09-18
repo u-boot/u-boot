@@ -446,7 +446,7 @@ static int usb_kbd_getc(struct stdio_dev *sdev)
 	data = usb_kbd_dev->privptr;
 
 	while (data->usb_in_pointer == data->usb_out_pointer) {
-		WATCHDOG_RESET();
+		schedule();
 		usb_kbd_poll_for_event(usb_kbd_dev);
 	}
 

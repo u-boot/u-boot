@@ -187,7 +187,7 @@ static int serial_mpc8xx_putc(struct udevice *dev, const char c)
 	setbits_be16(&rtx->txbd.cbd_sc, BD_SC_READY);
 
 	while (in_be16(&rtx->txbd.cbd_sc) & BD_SC_READY)
-		WATCHDOG_RESET();
+		schedule();
 
 	return 0;
 }
@@ -204,7 +204,7 @@ static int serial_mpc8xx_getc(struct udevice *dev)
 
 	/* Wait for character to show up. */
 	while (in_be16(&rtx->rxbd.cbd_sc) & BD_SC_EMPTY)
-		WATCHDOG_RESET();
+		schedule();
 
 	/* the characters are read one by one,
 	 * use the rxindex to know the next char to deliver

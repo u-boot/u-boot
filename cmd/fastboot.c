@@ -76,7 +76,7 @@ static int do_fastboot_usb(int argc, char *const argv[],
 			break;
 		if (ctrlc())
 			break;
-		WATCHDOG_RESET();
+		schedule();
 		usb_gadget_handle_interrupts(controller_index);
 	}
 

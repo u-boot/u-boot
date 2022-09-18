@@ -98,7 +98,7 @@ static int octeon_bootcmd_getc(struct udevice *dev)
 	}
 
 	while (!octeon_bootcmd_pending(dev, true)) {
-		WATCHDOG_RESET();
+		schedule();
 		/*
 		 * ToDo:
 		 * The original code calls octeon_board_poll() here. We may

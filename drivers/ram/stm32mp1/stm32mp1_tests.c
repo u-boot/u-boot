@@ -169,7 +169,7 @@ static int test_loop_end(u32 *loop, u32 nb_loop, u32 progress)
 		return 1;
 	}
 	printf("loop #%d\n", *loop);
-	WATCHDOG_RESET();
+	schedule();
 
 	return 0;
 }

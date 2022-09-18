@@ -711,7 +711,7 @@ int sdp_init(int controller_index)
 			return 1;
 		}
 
-		WATCHDOG_RESET();
+		schedule();
 		usb_gadget_handle_interrupts(controller_index);
 	}
 
@@ -927,7 +927,7 @@ int spl_sdp_handle(int controller_index, struct spl_image_info *spl_image,
 		if (flag == SDP_EXIT)
 			return 0;
 
-		WATCHDOG_RESET();
+		schedule();
 		usb_gadget_handle_interrupts(controller_index);
 
 #ifdef CONFIG_SPL_BUILD

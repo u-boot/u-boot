@@ -274,7 +274,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			while (!tstc()) {	/* while no incoming data */
 				if (get_ticks() >= etime)
 					return -2;	/* timed out */
-				WATCHDOG_RESET();
+				schedule();
 			}
 			first = 0;
 		}
@@ -595,7 +595,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 	for (;;) {
 		if (bootretry_tstc_timeout())
 			return -2;	/* timed out */
-		WATCHDOG_RESET();	/* Trigger watchdog, if needed */
+		schedule();	/* Trigger watchdog, if needed */
 
 		c = getchar();
 

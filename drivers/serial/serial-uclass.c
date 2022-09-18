@@ -246,7 +246,7 @@ static int __serial_getc(struct udevice *dev)
 	do {
 		err = ops->getc(dev);
 		if (err == -EAGAIN)
-			WATCHDOG_RESET();
+			schedule();
 	} while (err == -EAGAIN);
 
 	return err >= 0 ? err : 0;

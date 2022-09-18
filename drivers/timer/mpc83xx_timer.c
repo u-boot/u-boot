@@ -176,7 +176,7 @@ void timer_interrupt(struct pt_regs *regs)
 
 #if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
 	if (CONFIG_SYS_WATCHDOG_FREQ && (priv->timestamp % (CONFIG_SYS_WATCHDOG_FREQ)) == 0)
-		WATCHDOG_RESET();
+		schedule();
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 
 #ifdef CONFIG_LED_STATUS
@@ -189,7 +189,7 @@ void wait_ticks(ulong ticks)
 	ulong end = get_ticks() + ticks;
 
 	while (end > get_ticks())
-		WATCHDOG_RESET();
+		schedule();
 }
 
 static u64 mpc83xx_timer_get_count(struct udevice *dev)

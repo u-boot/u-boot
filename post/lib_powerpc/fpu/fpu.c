@@ -43,7 +43,7 @@ int fpu_post_test (int flags)
 
 	int ret = 0;
 
-	WATCHDOG_RESET ();
+	schedule();
 
 	if (!fpu)
 		fpu_enable ();
@@ -66,7 +66,7 @@ int fpu_post_test (int flags)
 	if (!fpu)
 		fpu_disable ();
 
-	WATCHDOG_RESET ();
+	schedule();
 
 	return ret;
 }

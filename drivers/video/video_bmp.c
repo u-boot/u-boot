@@ -329,7 +329,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 			byte_width = width;
 
 		for (i = 0; i < height; ++i) {
-			WATCHDOG_RESET();
+			schedule();
 			for (j = 0; j < width; j++) {
 				write_pix8(fb, bpix, eformat, palette, bmap);
 				bmap++;
@@ -342,7 +342,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 	case 16:
 		if (IS_ENABLED(CONFIG_BMP_16BPP)) {
 			for (i = 0; i < height; ++i) {
-				WATCHDOG_RESET();
+				schedule();
 				for (j = 0; j < width; j++) {
 					*fb++ = *bmap++;
 					*fb++ = *bmap++;

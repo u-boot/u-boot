@@ -181,7 +181,7 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 		while (len > 0) {
 			size_t tail = (len > chunksz) ? chunksz : len;
 
-			WATCHDOG_RESET();
+			schedule();
 			if (to > from) {
 				to -= tail;
 				from -= tail;

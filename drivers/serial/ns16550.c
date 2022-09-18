@@ -296,7 +296,7 @@ void ns16550_putc(struct ns16550 *com_port, char c)
 	 * in puts().
 	 */
 	if (c == '\n')
-		WATCHDOG_RESET();
+		schedule();
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS
@@ -307,7 +307,7 @@ char ns16550_getc(struct ns16550 *com_port)
 		extern void usbtty_poll(void);
 		usbtty_poll();
 #endif
-		WATCHDOG_RESET();
+		schedule();
 	}
 	return serial_in(&com_port->rbr);
 }
@@ -395,7 +395,7 @@ static int ns16550_serial_putc(struct udevice *dev, const char ch)
 	 * in puts().
 	 */
 	if (ch == '\n')
-		WATCHDOG_RESET();
+		schedule();
 
 	return 0;
 }

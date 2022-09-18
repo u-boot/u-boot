@@ -258,7 +258,7 @@ static int sw_hash_digest_wd(struct udevice *dev, enum HASH_ALGO algo,
 				return rc;
 
 			cur += chunk;
-			WATCHDOG_RESET();
+			schedule();
 		}
 	} else {
 		rc = sw_hash_update(dev, ctx, ibuf, ilen);

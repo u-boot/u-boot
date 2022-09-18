@@ -84,7 +84,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		 *   r9: 0
 		 */
 		debug("   Booting using OF flat tree...\n");
-		WATCHDOG_RESET ();
+		schedule();
 		(*kernel) ((struct bd_info *)of_flat_tree, 0, 0, EPAPR_MAGIC,
 			   env_get_bootm_mapsize(), 0, 0);
 		/* does not return */
@@ -108,7 +108,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		struct bd_info *kbd = images->kbd;
 
 		debug("   Booting using board info...\n");
-		WATCHDOG_RESET ();
+		schedule();
 		(*kernel) (kbd, initrd_start, initrd_end,
 			   cmd_start, cmd_end, 0, 0);
 		/* does not return */
@@ -319,7 +319,7 @@ void boot_jump_vxworks(bootm_headers_t *images)
 	 *	r9: 0
 	 *	TCR: WRC = 0, no watchdog timer reset will occur
 	 */
-	WATCHDOG_RESET();
+	schedule();
 
 	((void (*)(void *, ulong, ulong, ulong,
 		ulong, ulong, ulong))images->ep)(images->ft_addr,

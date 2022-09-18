@@ -300,7 +300,7 @@ static int do_mem_cmp(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		/* reset watchdog from time to time */
 		if ((ngood % (64 << 10)) == 0)
-			WATCHDOG_RESET();
+			schedule();
 	}
 	unmap_sysmem(buf1);
 	unmap_sysmem(buf2);
@@ -848,7 +848,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		}
 	}
 	addr[test_offset] = pattern;
-	WATCHDOG_RESET();
+	schedule();
 
 	/*
 	 * Check for addr bits stuck low or shorted.
@@ -890,7 +890,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	 * Fill memory with a known pattern.
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		WATCHDOG_RESET();
+		schedule();
 		addr[offset] = pattern;
 	}
 
@@ -898,7 +898,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	 * Check each location and invert it for the second pass.
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		WATCHDOG_RESET();
+		schedule();
 		temp = addr[offset];
 		if (temp != pattern) {
 			printf("\nFAILURE (read/write) @ 0x%.8lx:"
@@ -918,7 +918,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 	 * Check each location for the inverted pattern and zero it.
 	 */
 	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		WATCHDOG_RESET();
+		schedule();
 		anti_pattern = ~pattern;
 		temp = addr[offset];
 		if (temp != anti_pattern) {
@@ -972,7 +972,7 @@ static ulong test_bitflip_comparison(volatile unsigned long *bufa,
 	for (k = 0; k < max; k++) {
 		q = 0x00000001L << k;
 		for (j = 0; j < 8; j++) {
-			WATCHDOG_RESET();
+			schedule();
 			q = ~q;
 			p1 = (volatile unsigned long *)bufa;
 			p2 = (volatile unsigned long *)bufb;
@@ -1033,7 +1033,7 @@ static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 		pattern, "");
 
 	for (addr = buf, val = pattern; addr < end; addr++) {
-		WATCHDOG_RESET();
+		schedule();
 		*addr = val;
 		val += incr;
 	}
@@ -1041,7 +1041,7 @@ static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 	puts("Reading...");
 
 	for (addr = buf, val = pattern; addr < end; addr++) {
-		WATCHDOG_RESET();
+		schedule();
 		readback = *addr;
 		if (readback != val) {
 			ulong offset = addr - buf;

@@ -62,7 +62,7 @@ static void ide_reset(void)
 	/* the reset signal shall be asserted for et least 25 us */
 	udelay(25);
 
-	WATCHDOG_RESET();
+	schedule();
 
 	/* de-assert RESET signal */
 	ide_set_reset(0);
@@ -695,7 +695,7 @@ void ide_init(void)
 	unsigned char c;
 	int i, bus;
 
-	WATCHDOG_RESET();
+	schedule();
 
 	/* ATAPI Drives seems to need a proper IDE Reset */
 	ide_reset();
@@ -745,7 +745,7 @@ void ide_init(void)
 			puts("OK ");
 			ide_bus_ok[bus] = 1;
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	putc('\n');
@@ -775,7 +775,7 @@ void ide_init(void)
 		}
 #endif
 	}
-	WATCHDOG_RESET();
+	schedule();
 
 #ifdef CONFIG_BLK
 	struct udevice *dev;
