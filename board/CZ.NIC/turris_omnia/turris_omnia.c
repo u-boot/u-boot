@@ -654,7 +654,7 @@ static void initialize_switch(void)
 	ctrl[1] = EXT_CTL_nRES_LAN;
 	err = omnia_mcu_write(CMD_EXT_CONTROL, ctrl, sizeof(ctrl));
 
-	mdelay(10);
+	mdelay(50);
 
 	/* Change RGMII pins back to RGMII mode */
 
