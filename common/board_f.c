@@ -57,6 +57,7 @@
 #include <asm/sections.h>
 #include <dm/root.h>
 #include <linux/errno.h>
+#include <linux/log2.h>
 
 /*
  * Pointer to initial global data area
@@ -216,6 +217,36 @@ static int announce_dram_init(void)
 	return 0;
 }
 
+/*
+ * From input size calculate its nearest rounded unit scale (multiply of 2^10)
+ * and value in calculated unit scale multiplied by 10 (as fractional fixed
+ * point number with one decimal digit), which is human natural format,
+ * same what uses print_size() function for displaying. Mathematically it is:
+ * round_nearest(val * 2^scale) = size * 10; where: 10 <= val < 10240.
+ *
+ * For example for size=87654321 we calculate scale=20 and val=836 which means
+ * that input has natural human format 83.6 M (mega = 2^20).
+ */
+#define compute_size_scale_val(size, scale, val) do { \
+	scale = ilog2(size) / 10 * 10; \
+	val = (10 * size + ((1ULL << scale) >> 1)) >> scale; \
+	if (val == 10240) { val = 10; scale += 10; } \
+} while (0)
+
+/*
+ * Check if the sizes in their natural units written in decimal format with
+ * one fraction number are same.
+ */
+static int sizes_near(unsigned long long size1, unsigned long long size2)
+{
+	unsigned int size1_scale, size1_val, size2_scale, size2_val;
+
+	compute_size_scale_val(size1, size1_scale, size1_val);
+	compute_size_scale_val(size2, size2_scale, size2_val);
+
+	return size1_scale == size2_scale && size1_val == size2_val;
+}
+
 static int show_dram_config(void)
 {
 	unsigned long long size;
@@ -232,7 +263,11 @@ static int show_dram_config(void)
 	}
 	debug("\nDRAM:  ");
 
-	print_size(size, "");
+	print_size(gd->ram_size, "");
+	if (!sizes_near(gd->ram_size, size)) {
+		printf(" (effective ");
+		print_size(size, ")");
+	}
 	board_add_ram_info(0);
 	putc('\n');
 
