@@ -6,6 +6,12 @@ F:      include/configs/evb_rk3399.h
 F:      configs/evb-rk3399_defconfig
 F:      configs/firefly-rk3399_defconfig
 
+EAIDK-610
+M:      Andy Yan <andy.yan@rock-chips.com>
+S:      Maintained
+F:	configs/eaidk-610-rk3399_defconfig
+F:	arch/arm/dts/rk3399-eaidk-610-u-boot.dtsi
+
 KHADAS-EDGE
 M:	Nick Xie <nick@khadas.com>
 S:	Maintained
