@@ -6,7 +6,7 @@
 
 / {
 	chosen {
-		stdout-path = &uart2;
+		stdout-path = &uart1;
 	};
 
 	aliases {
@@ -19,20 +19,4 @@
 
 &i2c4 {
 	/delete-node/ codec@1a;
-};
-
-&pinctrl_uart1 {
-	/delete-property/ u-boot,dm-spl;
-};
-
-&pinctrl_uart2 {
-	u-boot,dm-spl;
-};
-
-&uart1 {
-	/delete-property/ u-boot,dm-spl;
-};
-
-&uart2 {
-	u-boot,dm-spl;
 };
