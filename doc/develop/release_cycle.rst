@@ -70,7 +70,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2022.10-rc4 was released on Mon 05 September 2022.
 
-.. * U-Boot v2022.10-rc5 was released on Mon 19 September 2022.
+* U-Boot v2022.10-rc5 was released on Mon 19 September 2022.
 
 Please note that the following dates are planned only and may be deviated from
 as needed.
