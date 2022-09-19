@@ -35,8 +35,8 @@ static int distro_get_state_desc(struct udevice *dev, char *buf, int maxsize)
 	return 0;
 }
 
-static int disto_getfile(struct pxe_context *ctx, const char *file_path,
-			 char *file_addr, ulong *sizep)
+static int distro_getfile(struct pxe_context *ctx, const char *file_path,
+			  char *file_addr, ulong *sizep)
 {
 	struct distro_info *info = ctx->userdata;
 	ulong addr;
@@ -113,7 +113,7 @@ static int distro_boot(struct udevice *dev, struct bootflow *bflow)
 	addr = map_to_sysmem(bflow->buf);
 	info.dev = dev;
 	info.bflow = bflow;
-	ret = pxe_setup_ctx(&ctx, &cmdtp, disto_getfile, &info, true,
+	ret = pxe_setup_ctx(&ctx, &cmdtp, distro_getfile, &info, true,
 			    bflow->subdir);
 	if (ret)
 		return log_msg_ret("ctx", -EINVAL);

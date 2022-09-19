@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <asm/ioctls.h>
 #include <asm/termbits.h>
 
 #if defined(BOTHER) && defined(TCGETS2)

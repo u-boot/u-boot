@@ -988,12 +988,14 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
 	efi_cin_check();
 
 	if (!key_available) {
+		memset(key_data, 0, sizeof(struct efi_key_data));
 		ret = EFI_NOT_READY;
 		goto out;
 	}
 	/*
 	 * CTRL+A - CTRL+Z have to be signaled as a - z.
 	 * SHIFT+CTRL+A - SHIFT+CTRL+Z have to be signaled as A - Z.
+	 * CTRL+\ - CTRL+_ have to be signaled as \ - _.
 	 */
 	switch (next_key.key.unicode_char) {
 	case 0x01 ... 0x07:
@@ -1006,6 +1008,9 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
 			next_key.key.unicode_char += 0x40;
 		else
 			next_key.key.unicode_char += 0x60;
+		break;
+	case 0x1c ... 0x1f:
+			next_key.key.unicode_char += 0x40;
 	}
 	*key_data = next_key;
 	key_available = false;

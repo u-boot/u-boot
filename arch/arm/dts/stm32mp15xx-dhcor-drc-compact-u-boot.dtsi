@@ -5,24 +5,15 @@
 
 #include "stm32mp15xx-dhcor-u-boot.dtsi"
 
-/delete-node/ &ksz8851;
-
 / {
 	aliases {
 		mmc0 = &sdmmc1;
 		mmc1 = &sdmmc2;
 		usb0 = &usbotg_hs;
-		ethernet1 = &ks8851;
 	};
 
 	config {
 		dh,board-coding-gpios = <&gpioh 9 0>, <&gpioh 8 0>, <&gpioh 3 0>;
-	};
-
-	/* This is actually on FMC2, but we do not have bus driver for that */
-	ks8851: ks8851mll@64000000 {
-		compatible = "micrel,ks8851-mll";
-		reg = <0x64000000 0x20000>;
 	};
 };
 
@@ -36,13 +27,6 @@
 			reset-deassert-us = <1000>;
 		};
 	};
-};
-
-&pinctrl {
-	/* These should bound to FMC2 bus driver, but we do not have one */
-	pinctrl-0 = <&fmc_pins_b>;
-	pinctrl-1 = <&fmc_sleep_pins_b>;
-	pinctrl-names = "default", "sleep";
 };
 
 &sdmmc1 {

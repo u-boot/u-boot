@@ -34,7 +34,7 @@
 #define pr_warn(fmt, args...)	fprintf(stderr, pr_fmt(fmt), "warning", ##args)
 #define pr_info(fmt, args...)	fprintf(stderr, pr_fmt(fmt), "info", ##args)
 
-#if defined(LIBRESSL_VERSION_NUMBER)
+#if defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3050000fL
 #define RSA_get0_n(key) (key)->n
 #define RSA_get0_e(key) (key)->e
 #define RSA_get0_d(key) (key)->d

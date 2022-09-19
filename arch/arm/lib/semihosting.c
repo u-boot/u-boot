@@ -32,12 +32,12 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
 {
 	register long result asm("r0");
 #if defined(CONFIG_ARM64)
-	asm volatile ("hlt #0xf000" : "=r" (result) : "0"(sysnum), "r"(addr));
+	asm volatile ("hlt #0xf000" : "=r" (result) : "0"(sysnum), "r"(addr) : "memory");
 #elif defined(CONFIG_CPU_V7M)
-	asm volatile ("bkpt #0xAB" : "=r" (result) : "0"(sysnum), "r"(addr));
+	asm volatile ("bkpt #0xAB" : "=r" (result) : "0"(sysnum), "r"(addr) : "memory");
 #else
 	/* Note - untested placeholder */
-	asm volatile ("svc #0x123456" : "=r" (result) : "0"(sysnum), "r"(addr));
+	asm volatile ("svc #0x123456" : "=r" (result) : "0"(sysnum), "r"(addr) : "memory");
 #endif
 	return result;
 }

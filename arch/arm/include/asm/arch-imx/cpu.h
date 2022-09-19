@@ -56,6 +56,7 @@
 
 #define MXC_CPU_IMXRT1020	0xB4 /* dummy ID */
 #define MXC_CPU_IMXRT1050	0xB6 /* dummy ID */
+#define MXC_CPU_IMXRT1170	0xBA /* dummy ID */
 
 #define MXC_CPU_MX7ULP		0xE1 /* Temporally hard code */
 #define MXC_CPU_VF610		0xF6 /* dummy ID */

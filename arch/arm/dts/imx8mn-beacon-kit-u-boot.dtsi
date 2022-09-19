@@ -106,6 +106,10 @@
 	u-boot,off-on-delay-us = <20000>;
 };
 
+&spba1 {
+	u-boot,dm-spl;
+};
+
 &uart2 {
 	u-boot,dm-spl;
 };

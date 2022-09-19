@@ -46,7 +46,7 @@ int do_fat_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
 int do_ext2load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /*
- * Tell the fs layer which block device an partition to use for future
+ * Tell the fs layer which block device and partition to use for future
  * commands. This also internally identifies the filesystem that is present
  * within the partition. The identification process may be limited to a
  * specific filesystem type by passing FS_* in the fstype parameter.

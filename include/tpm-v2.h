@@ -658,4 +658,34 @@ u32 tpm2_disable_platform_hierarchy(struct udevice *dev);
 u32 tpm2_submit_command(struct udevice *dev, const u8 *sendbuf,
 			u8 *recvbuf, size_t *recv_size);
 
+/**
+ * tpm_cr50_report_state() - Report the Cr50 internal state
+ *
+ * @dev:	TPM device
+ * @vendor_cmd:	Vendor command number to send
+ * @vendor_subcmd: Vendor sub-command number to send
+ * @recvbuf:	Buffer to save the response to
+ * @recv_size:	Pointer to the size of the response buffer
+ * Return: result of the operation
+ */
+u32 tpm2_report_state(struct udevice *dev, uint vendor_cmd, uint vendor_subcmd,
+		      u8 *recvbuf, size_t *recv_size);
+
+/**
+ * tpm2_enable_nvcommits() - Tell TPM to commit NV data immediately
+ *
+ * For Chromium OS verified boot, we may reboot or reset at different times,
+ * possibly leaving non-volatile data unwritten by the TPM.
+ *
+ * This vendor command is used to indicate that non-volatile data should be
+ * written to its store immediately.
+ *
+ * @dev		TPM device
+ * @vendor_cmd:	Vendor command number to send
+ * @vendor_subcmd: Vendor sub-command number to send
+ * Return: result of the operation
+ */
+u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
+			  uint vendor_subcmd);
+
 #endif /* __TPM_V2_H */

@@ -22,6 +22,8 @@
 
 #define ENETC_DRIVER_NAME	"enetc_eth"
 
+static int enetc_remove(struct udevice *dev);
+
 /*
  * sets the MAC address in IERB registers, this setting is persistent and
  * carried over to Linux.
@@ -319,6 +321,7 @@ static int enetc_config_phy(struct udevice *dev)
 static int enetc_probe(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
+	int res;
 
 	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_available(dev_ofnode(dev))) {
 		enetc_dbg(dev, "interface disabled\n");
@@ -350,7 +353,10 @@ static int enetc_probe(struct udevice *dev)
 
 	enetc_start_pcs(dev);
 
-	return enetc_config_phy(dev);
+	res = enetc_config_phy(dev);
+	if(res)
+		enetc_remove(dev);
+	return res;
 }
 
 /*

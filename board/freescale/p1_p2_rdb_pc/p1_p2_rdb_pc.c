@@ -83,7 +83,19 @@ struct cpld_data {
 #define CPLD_FXS_LED	0x0F
 #define CPLD_SYS_RST	0x00
 
-void board_reset(void)
+void board_reset_prepare(void)
+{
+	/*
+	 * During reset preparation, turn off external watchdog.
+	 * This ensures that external watchdog does not trigger
+	 * another reset or possible infinite reset loop.
+	 */
+	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	out_8(&cpld_data->wd_cfg, CPLD_WD_CFG);
+	in_8(&cpld_data->wd_cfg); /* Read back to sync write */
+}
+
+void board_reset_last(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 	out_8(&cpld_data->system_rst, 1);
@@ -92,12 +104,46 @@ void board_reset(void)
 void board_cpld_init(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	u8 prev_wd_cfg = in_8(&cpld_data->wd_cfg);
 
 	out_8(&cpld_data->wd_cfg, CPLD_WD_CFG);
 	out_8(&cpld_data->status_led, CPLD_STATUS_LED);
 	out_8(&cpld_data->fxo_led, CPLD_FXO_LED);
 	out_8(&cpld_data->fxs_led, CPLD_FXS_LED);
+
+	/*
+	 * CPLD's system reset register on P1/P2 RDB boards is not autocleared
+	 * after flipping it. If this register is set to one then CPLD triggers
+	 * reset of CPU in few ms.
+	 *
+	 * CPLD does not trigger reset of CPU for 100ms after the last reset.
+	 *
+	 * This means that trying to reset board via CPLD system reset register
+	 * cause reboot loop. To prevent this reboot loop, the only workaround
+	 * is to try to clear CPLD's system reset register as early as possible
+	 * and it has to be done in 100ms since the last start of reset.
+	 */
 	out_8(&cpld_data->system_rst, CPLD_SYS_RST);
+
+	/*
+	 * If watchdog timer was already set to non-disabled value then it means
+	 * that watchdog timer was already activated, has already expired and
+	 * caused CPU reset. If this happened then due to CPLD firmware bug,
+	 * writing to wd_cfg register has no effect and therefore it is not
+	 * possible to reactivate watchdog timer again. Also if CPU was reset
+	 * via watchdog then some peripherals like i2c do not work. Watchdog and
+	 * i2c start working again after CPU reset via non-watchdog method.
+	 *
+	 * So in case watchdog timer register in CPLD was already enabled then
+	 * disable it in CPLD and reset CPU which cause new boot. Watchdog timer
+	 * is disabled few lines above, after reading CPLD previous value.
+	 * This logic (disabling timer before reset) prevents reboot loop.
+	 */
+	if (prev_wd_cfg != CPLD_WD_CFG) {
+		eieio();
+		do_reset(NULL, 0, 0, NULL);
+		while (1); /* do_reset() does not occur immediately */
+	}
 }
 
 void board_gpio_init(void)
@@ -368,6 +414,24 @@ int board_eth_init(struct bd_info *bis)
 }
 #endif
 
+#if defined(CONFIG_OF_BOARD_SETUP) || defined(CONFIG_OF_BOARD_FIXUP)
+static void fix_max6370_watchdog(void *blob)
+{
+	int off = fdt_node_offset_by_compatible(blob, -1, "maxim,max6370");
+	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	u32 gpioval = in_be32(&pgpio->gpdat);
+
+	/*
+	 * Delete watchdog max6370 node in load_default mode (detected by
+	 * GPIO7 - LOAD_DEFAULT_N) because CPLD in load_default mode ignores
+	 * watchdog reset signal. CPLD in load_default mode does not reset
+	 * board when watchdog triggers reset signal.
+	 */
+	if (!(gpioval & BIT(31-7)) && off >= 0)
+		fdt_del_node(blob, off);
+}
+#endif
+
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -392,6 +456,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	do_fixup_by_compat(blob, "fsl,qe", "status", "okay",
 			sizeof("okay"), 0);
 #endif
+
+	fix_max6370_watchdog(blob);
 
 #if defined(CONFIG_HAS_FSL_DR_USB)
 	fsl_fdt_fixup_dr_usb(blob, bd);
@@ -441,6 +507,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	}
 #endif
 
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_OF_BOARD_FIXUP
+int board_fix_fdt(void *blob)
+{
+	fix_max6370_watchdog(blob);
 	return 0;
 }
 #endif

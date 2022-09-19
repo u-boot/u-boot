@@ -24,6 +24,9 @@
 #define __SW_NOR_BANK_MASK	0xfd
 #define __SW_NOR_BANK_UP	0x00
 #define __SW_NOR_BANK_LO	0x02
+#define __SW_BOOT_NOR_BANK_UP	0x5c /* (__SW_BOOT_NOR | __SW_NOR_BANK_UP) */
+#define __SW_BOOT_NOR_BANK_LO	0x5e /* (__SW_BOOT_NOR | __SW_NOR_BANK_LO) */
+#define __SW_BOOT_NOR_BANK_MASK	0x01 /* (__SW_BOOT_MASK & __SW_NOR_BANK_MASK) */
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
@@ -52,6 +55,9 @@
 #define __SW_NOR_BANK_MASK	0xfd
 #define __SW_NOR_BANK_UP	0x00
 #define __SW_NOR_BANK_LO	0x02
+#define __SW_BOOT_NOR_BANK_UP	0x64 /* (__SW_BOOT_NOR | __SW_NOR_BANK_UP) */
+#define __SW_BOOT_NOR_BANK_LO	0x66 /* (__SW_BOOT_NOR | __SW_NOR_BANK_LO) */
+#define __SW_BOOT_NOR_BANK_MASK	0x01 /* (__SW_BOOT_MASK & __SW_NOR_BANK_MASK) */
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 /*
  * Dynamic MTD Partition support with mtdparts
@@ -70,6 +76,9 @@
 #define __SW_NOR_BANK_MASK	0xfd
 #define __SW_NOR_BANK_UP	0x00
 #define __SW_NOR_BANK_LO	0x02
+#define __SW_BOOT_NOR_BANK_UP	0xc8 /* (__SW_BOOT_NOR | __SW_NOR_BANK_UP) */
+#define __SW_BOOT_NOR_BANK_LO	0xca /* (__SW_BOOT_NOR | __SW_NOR_BANK_LO) */
+#define __SW_BOOT_NOR_BANK_MASK	0x01 /* (__SW_BOOT_MASK & __SW_NOR_BANK_MASK) */
 #define CONFIG_SYS_L2_SIZE	(512 << 10)
 /*
  * Dynamic MTD Partition support with mtdparts
@@ -80,7 +89,11 @@
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_MMC_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MMC_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR
+#define CONFIG_SYS_MMC_U_BOOT_OFFS	(CONFIG_SPL_PAD_TO - CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA*512)
+#else
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
+#endif
 #elif defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		CONFIG_SYS_TEXT_BASE
@@ -465,10 +478,14 @@ __VSCFW_ADDR	\
 MAP_NOR_LO_CMD(map_lowernorbank) \
 MAP_NOR_UP_CMD(map_uppernorbank) \
 RST_NOR_CMD(norboot) \
+RST_NOR_LO_CMD(norlowerboot) \
+RST_NOR_UP_CMD(norupperboot) \
 RST_SPI_CMD(spiboot) \
 RST_SD_CMD(sdboot) \
+RST_SD2_CMD(sd2boot) \
 RST_NAND_CMD(nandboot) \
 RST_PCIE_CMD(pciboot) \
+RST_DEF_CMD(defboot) \
 ""
 
 #define CONFIG_USB_FAT_BOOT	\

@@ -288,5 +288,5 @@ enabled in relative defconfig file,
    CONFIG_RESET_VECTOR_ADDRESS - 0xffc
 
 If device tree support is enabled in defconfig,
-1. use 'u-boot-with-dtb.bin' for NOR boot.
+1. use 'u-boot.bin' for NOR boot.
 2. use 'u-boot-with-spl-pbl.bin' for other boot.

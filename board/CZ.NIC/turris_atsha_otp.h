@@ -4,6 +4,7 @@
 #define TURRIS_ATSHA_OTP_H
 
 int turris_atsha_otp_init_mac_addresses(int first_idx);
-int turris_atsha_otp_get_serial_number(u32 *version_num, u32 *serial_num);
+int turris_atsha_otp_init_serial_number(void);
+int turris_atsha_otp_get_serial_number(char serial[17]);
 
 #endif

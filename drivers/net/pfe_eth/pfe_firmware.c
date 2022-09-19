@@ -104,45 +104,7 @@ err:
 static int pfe_get_fw(const void **data,
 		      size_t *size, char *fw_name)
 {
-	int conf_node_off, fw_node_off;
-	char *conf_node_name = NULL;
-	char *desc;
-	int ret = 0;
-
-	conf_node_name = PFE_FIRMWARE_FIT_CNF_NAME;
-
-	conf_node_off = fit_conf_get_node(pfe_fit_addr, conf_node_name);
-	if (conf_node_off < 0) {
-		printf("PFE Firmware: %s: no such config\n", conf_node_name);
-		return -ENOENT;
-	}
-
-	fw_node_off = fit_conf_get_prop_node(pfe_fit_addr, conf_node_off,
-					     fw_name);
-	if (fw_node_off < 0) {
-		printf("PFE Firmware: No '%s' in config\n",
-		       fw_name);
-		return -ENOLINK;
-	}
-
-	if (!(fit_image_verify(pfe_fit_addr, fw_node_off))) {
-		printf("PFE Firmware: Bad firmware image (bad CRC)\n");
-		return -EINVAL;
-	}
-
-	if (fit_image_get_data(pfe_fit_addr, fw_node_off, data, size)) {
-		printf("PFE Firmware: Can't get %s subimage data/size",
-		       fw_name);
-		return -ENOENT;
-	}
-
-	ret = fit_get_desc(pfe_fit_addr, fw_node_off, &desc);
-	if (ret)
-		printf("PFE Firmware: Can't get description\n");
-	else
-		printf("%s\n", desc);
-
-	return ret;
+	return fit_get_data_conf_prop(pfe_fit_addr, fw_name, data, size);
 }
 
 /*

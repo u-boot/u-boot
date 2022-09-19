@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/memory/rk3368-dmc.h>
+#include "rockchip-u-boot.dtsi"
 
 / {
 	dmc: dmc@ff610000 {

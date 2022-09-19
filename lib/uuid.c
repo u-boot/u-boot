@@ -220,6 +220,10 @@ static const struct {
 		"TCG2 Final Events Table",
 		EFI_TCG2_FINAL_EVENTS_TABLE_GUID,
 	},
+	{
+		"EFI Conformance Profiles Table",
+		EFI_CONFORMANCE_PROFILES_TABLE_GUID,
+	},
 #ifdef CONFIG_EFI_RISCV_BOOT_PROTOCOL
 	{
 		"RISC-V Boot",

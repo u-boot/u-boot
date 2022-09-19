@@ -132,6 +132,8 @@ int board_late_init(void)
 		dev = mmc_dev->dev;
 		device_remove(dev, DM_REMOVE_NORMAL);
 		device_unbind(dev);
+		if (of_live_active())
+			ofnode_set_enabled(dev_ofnode(dev), false);
 	}
 
 	/* Ensure that 'env default -a' set correct value to $fdtfile */

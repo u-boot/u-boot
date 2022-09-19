@@ -49,6 +49,16 @@ int tpm_get_desc(struct udevice *dev, char *buf, int size)
 	return ops->get_desc(dev, buf, size);
 }
 
+int tpm_report_state(struct udevice *dev, char *buf, int size)
+{
+	struct tpm_ops *ops = tpm_get_ops(dev);
+
+	if (!ops->report_state)
+		return -ENOSYS;
+
+	return ops->report_state(dev, buf, size);
+}
+
 /* Returns max number of milliseconds to wait */
 static ulong tpm_tis_i2c_calc_ordinal_duration(struct tpm_chip_priv *priv,
 					       u32 ordinal)

@@ -600,6 +600,9 @@ static void pre_console_putc(const char c)
 {
 	char *buffer;
 
+	if (gd->precon_buf_idx < 0)
+		return;
+
 	buffer = map_sysmem(CONFIG_VAL(PRE_CON_BUF_ADDR), CONFIG_VAL(PRE_CON_BUF_SZ));
 
 	buffer[CIRC_BUF_IDX(gd->precon_buf_idx++)] = c;
@@ -609,13 +612,16 @@ static void pre_console_putc(const char c)
 
 static void pre_console_puts(const char *s)
 {
+	if (gd->precon_buf_idx < 0)
+		return;
+
 	while (*s)
 		pre_console_putc(*s++);
 }
 
 static void print_pre_console_buffer(int flushpoint)
 {
-	unsigned long in = 0, out = 0;
+	long in = 0, out = 0;
 	char buf_out[CONFIG_VAL(PRE_CON_BUF_SZ) + 1];
 	char *buf_in;
 
@@ -632,6 +638,7 @@ static void print_pre_console_buffer(int flushpoint)
 
 	buf_out[out] = 0;
 
+	gd->precon_buf_idx = -1;
 	switch (flushpoint) {
 	case PRE_CONSOLE_FLUSHPOINT1_SERIAL:
 		puts(buf_out);
@@ -640,6 +647,7 @@ static void print_pre_console_buffer(int flushpoint)
 		console_puts_select(stdout, false, buf_out);
 		break;
 	}
+	gd->precon_buf_idx = in;
 }
 #else
 static inline void pre_console_putc(const char c) {}

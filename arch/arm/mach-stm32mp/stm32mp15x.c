@@ -274,7 +274,6 @@ static void get_cpu_string_offsets(unsigned int *type, unsigned int *pkg,
 	u32 cpu_type = get_cpu_type();
 	u32 ct = cpu_type & ~(BIT(7) | BIT(0));
 	u32 cm = ((cpu_type & BIT(7)) >> 6) | (cpu_type & BIT(0));
-	u32 cp = get_cpu_package();
 
 	/* Bits 0 and 7 are the ACDF, 00:C 01:A 10:F 11:D */
 	switch (ct) {
@@ -293,17 +292,9 @@ static void get_cpu_string_offsets(unsigned int *type, unsigned int *pkg,
 	}
 
 	/* Package */
-	switch (cp) {
-	case STM32MP15_PKG_AA_LBGA448:
-	case STM32MP15_PKG_AB_LBGA354:
-	case STM32MP15_PKG_AC_TFBGA361:
-	case STM32MP15_PKG_AD_TFBGA257:
-		*pkg = cp;
-		break;
-	default:
-		*pkg = 0;
-		break;
-	}
+	*pkg = get_cpu_package();
+	if (*pkg > STM32MP15_PKG_AA_LBGA448)
+		*pkg = STM32MP15_PKG_UNKNOWN;
 
 	/* Revision */
 	switch (get_cpu_rev()) {

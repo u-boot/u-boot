@@ -226,6 +226,22 @@ enum efi_reset_type {
 	EFI_GUID(0x6dcbd5ed, 0xe82d, 0x4c44, 0xbd, 0xa1, \
 		 0x71, 0x94, 0x19, 0x9a, 0xd9, 0x2a)
 
+#define EFI_CONFORMANCE_PROFILES_TABLE_GUID \
+	EFI_GUID(0x36122546, 0xf7ef, 0x4c8f, 0xbd, 0x9b, \
+		 0xeb, 0x85, 0x25, 0xb5, 0x0c, 0x0b)
+
+#define EFI_CONFORMANCE_PROFILES_TABLE_VERSION 1
+
+#define EFI_CONFORMANCE_PROFILE_EBBR_2_0_GUID \
+	EFI_GUID(0xcce33c35, 0x74ac, 0x4087, 0xbc, 0xe7, \
+		 0x8b, 0x29, 0xb0, 0x2e, 0xeb, 0x27)
+
+struct efi_conformance_profiles_table {
+	u16 version;
+	u16 number_of_profiles;
+	efi_guid_t	conformance_profiles[];
+} __packed;
+
 struct efi_capsule_header {
 	efi_guid_t capsule_guid;
 	u32 header_size;

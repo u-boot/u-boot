@@ -322,7 +322,7 @@ static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
 	case IMAGE_FORMAT_FIT:
 	{
 		const void *fit_hdr = (const void *)fpga_data;
-		int noffset;
+		int err;
 		const void *fit_data;
 
 		if (!fit_uname) {
@@ -335,23 +335,11 @@ static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 		}
 
-		/* get fpga component image node offset */
-		noffset = fit_image_get_node(fit_hdr, fit_uname);
-		if (noffset < 0) {
-			printf("Can't find '%s' FIT subimage\n", fit_uname);
-			return CMD_RET_FAILURE;
-		}
-
-		/* verify integrity */
-		if (!fit_image_verify(fit_hdr, noffset)) {
-			puts("Bad Data Hash\n");
-			return CMD_RET_FAILURE;
-		}
-
-		/* get fpga subimage/external data address and length */
-		if (fit_image_get_data_and_size(fit_hdr, noffset,
-					       &fit_data, &data_size)) {
-			puts("Fpga subimage data not found\n");
+		err = fit_get_data_node(fit_hdr, fit_uname, &fit_data,
+					&data_size);
+		if (err) {
+			printf("Could not load '%s' subimage (err %d)\n",
+			       fit_uname, err);
 			return CMD_RET_FAILURE;
 		}
 

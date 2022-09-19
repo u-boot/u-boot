@@ -246,7 +246,7 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	/* SDRAM device parameters */
 	pdimm->n_row_addr = ((spd->addressing >> 3) & 0x7) + 12;
 	pdimm->n_col_addr = (spd->addressing & 0x7) + 9;
-	pdimm->bank_addr_bits = (spd->density_banks >> 4) & 0x3;
+	pdimm->bank_addr_bits = ((spd->density_banks >> 4) & 0x3) + 2;
 	pdimm->bank_group_bits = (spd->density_banks >> 6) & 0x3;
 
 	/*

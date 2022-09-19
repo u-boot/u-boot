@@ -477,7 +477,7 @@ void fit_print_contents(const void *fit)
 void fit_image_print(const void *fit, int image_noffset, const char *p)
 {
 	char *desc;
-	uint8_t type, arch, os, comp;
+	uint8_t type, arch, os, comp = IH_COMP_NONE;
 	size_t size;
 	ulong load, entry;
 	const void *data;
@@ -794,7 +794,6 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
 	data = fdt_getprop(fit, noffset, FIT_COMP_PROP, &len);
 	if (data == NULL) {
 		fit_get_debug(fit, noffset, FIT_COMP_PROP, len);
-		*comp = -1;
 		return -1;
 	}
 
@@ -1915,6 +1914,43 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 		const char *prop_name)
 {
 	return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
+}
+
+static int fit_get_data_tail(const void *fit, int noffset,
+			     const void **data, size_t *size)
+{
+	char *desc;
+
+	if (noffset < 0)
+		return noffset;
+
+	if (!fit_image_verify(fit, noffset))
+		return -EINVAL;
+
+	if (fit_image_get_data_and_size(fit, noffset, data, size))
+		return -ENOENT;
+
+	if (!fit_get_desc(fit, noffset, &desc))
+		printf("%s\n", desc);
+
+	return 0;
+}
+
+int fit_get_data_node(const void *fit, const char *image_uname,
+		      const void **data, size_t *size)
+{
+	int noffset = fit_image_get_node(fit, image_uname);
+
+	return fit_get_data_tail(fit, noffset, data, size);
+}
+
+int fit_get_data_conf_prop(const void *fit, const char *prop_name,
+			   const void **data, size_t *size)
+{
+	int noffset = fit_conf_get_node(fit, NULL);
+
+	noffset = fit_conf_get_prop_node(fit, noffset, prop_name);
+	return fit_get_data_tail(fit, noffset, data, size);
 }
 
 static int fit_image_select(const void *fit, int rd_noffset, int verify)

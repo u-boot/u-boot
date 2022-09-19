@@ -76,7 +76,7 @@ class Bintoollz4(bintool.Bintool):
         man lz4
     """
     def __init__(self, name):
-        super().__init__(name, 'lz4 compression')
+        super().__init__(name, 'lz4 compression', r'.* (v[0-9.]*),.*')
 
     def compress(self, indata):
         """Compress data with lz4
@@ -126,15 +126,3 @@ class Bintoollz4(bintool.Bintool):
         if method != bintool.FETCH_BIN:
             return None
         return self.apt_install('lz4')
-
-    def version(self):
-        """Version handler
-
-        Returns:
-            str: Version number of lz4
-        """
-        out = self.run_cmd('-V').strip()
-        if not out:
-            return super().version()
-        m_version = re.match(r'.* (v[0-9.]*),.*', out)
-        return m_version.group(1) if m_version else out

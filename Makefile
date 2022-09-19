@@ -3,7 +3,7 @@
 VERSION = 2022
 PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION = -rc5
 NAME =
 
 # *DOCUMENTATION*
@@ -1004,22 +1004,12 @@ ifeq ($(CONFIG_INIT_SP_RELATIVE)$(CONFIG_OF_SEPARATE),yy)
 INPUTS-y += init_sp_bss_offset_check
 endif
 
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-INPUTS-y += u-boot-with-dtb.bin
-endif
-
-ifeq ($(CONFIG_ARCH_ROCKCHIP),y)
-# On ARM64 this target is produced by binman so we don't need this dep
+ifeq ($(CONFIG_ARCH_ROCKCHIP)$(CONFIG_SPL),yy)
+# Binman image dependencies
 ifeq ($(CONFIG_ARM64),y)
-ifeq ($(CONFIG_SPL),y)
-# TODO: Get binman to generate this too
-INPUTS-y += u-boot-rockchip.bin
-endif
+INPUTS-y += u-boot.itb
 else
-ifeq ($(CONFIG_SPL),y)
-# Generate these inputs for binman which will create the output files
-INPUTS-y += idbloader.img u-boot.img
-endif
+INPUTS-y += u-boot.img
 endif
 endif
 
@@ -1230,9 +1220,12 @@ else ifeq ($(CONFIG_OF_SEPARATE).$(CONFIG_OF_OMIT_DTB),y.)
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
+ifneq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR)$(CONFIG_OF_SEPARATE),yy)
 u-boot.bin: u-boot-dtb.bin FORCE
 	$(call if_changed,copy)
-else
+endif
+
+else ifneq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR)$(CONFIG_OF_SEPARATE),yy)
 u-boot.bin: u-boot-nodtb.bin FORCE
 	$(call if_changed,copy)
 endif
@@ -1280,7 +1273,7 @@ spl/u-boot-spl.srec: spl/u-boot-spl FORCE
 
 OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
 		$(if $(CONFIG_X86_16BIT_INIT),-R .start16 -R .resetvec) \
-		$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR),$(if $(CONFIG_OF_EMBED),,-R .bootpg -R .resetvec))
+		$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR),$(if $(CONFIG_OF_SEPARATE),-R .bootpg -R .resetvec))
 
 binary_size_check: u-boot-nodtb.bin FORCE
 	@file_size=$(shell wc -c u-boot-nodtb.bin | awk '{print $$1}') ; \
@@ -1445,11 +1438,7 @@ MKIMAGEFLAGS_u-boot-spl.kwb = -n $(KWD_CONFIG_FILE) \
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -A $(ARCH) -T pblimage
 
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-UBOOT_BIN := u-boot-with-dtb.bin
-else
 UBOOT_BIN := u-boot.bin
-endif
 
 MKIMAGEFLAGS_u-boot-lzma.img = -A $(ARCH) -T standalone -C lzma -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
@@ -1505,29 +1494,6 @@ OBJCOPYFLAGS_u-boot-with-spl.bin = -I binary -O binary \
 u-boot-with-spl.bin: $(SPL_IMAGE) $(SPL_PAYLOAD) FORCE
 	$(call if_changed,pad_cat)
 
-ifeq ($(CONFIG_ARCH_ROCKCHIP),y)
-
-# TPL + SPL
-ifeq ($(CONFIG_SPL)$(CONFIG_TPL),yy)
-MKIMAGEFLAGS_u-boot-tpl-rockchip.bin = -n $(CONFIG_SYS_SOC) -T rksd
-tpl/u-boot-tpl-rockchip.bin: tpl/u-boot-tpl.bin FORCE
-	$(call if_changed,mkimage)
-idbloader.img: tpl/u-boot-tpl-rockchip.bin spl/u-boot-spl.bin FORCE
-	$(call if_changed,cat)
-else
-MKIMAGEFLAGS_idbloader.img = -n $(CONFIG_SYS_SOC) -T rksd
-idbloader.img: spl/u-boot-spl.bin FORCE
-	$(call if_changed,mkimage)
-endif
-
-ifeq ($(CONFIG_ARM64),y)
-OBJCOPYFLAGS_u-boot-rockchip.bin = -I binary -O binary \
-	--pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
-u-boot-rockchip.bin: idbloader.img u-boot.itb FORCE
-	$(call if_changed,pad_cat)
-endif # CONFIG_ARM64
-
-endif # CONFIG_ARCH_ROCKCHIP
 
 ifeq ($(CONFIG_ARCH_LPC32XX)$(CONFIG_SPL),yy)
 MKIMAGEFLAGS_lpc32xx-spl.img = -T lpc32xximage -a $(CONFIG_SPL_TEXT_BASE)
@@ -1639,16 +1605,13 @@ u-boot-with-nand-spl.sfp: u-boot-spl-padx4.sfp u-boot.img FORCE
 
 endif
 
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-u-boot-with-dtb.bin: u-boot.bin u-boot.dtb \
-	$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR), u-boot-br.bin) FORCE
+ifeq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR)$(CONFIG_OF_SEPARATE),yy)
+u-boot.bin: u-boot-nodtb.bin u-boot.dtb u-boot-br.bin FORCE
 	$(call if_changed,binman)
 
-ifeq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR),y)
 OBJCOPYFLAGS_u-boot-br.bin := -O binary -j .bootpg -j .resetvec
 u-boot-br.bin: u-boot FORCE
 	$(call if_changed,objcopy)
-endif
 endif
 
 quiet_cmd_ldr = LD      $@
@@ -1706,11 +1669,7 @@ spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 ifeq ($(ARCH),arm)
 UBOOT_BINLOAD := u-boot.img
 else
-ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
-UBOOT_BINLOAD := u-boot-with-dtb.bin
-else
 UBOOT_BINLOAD := u-boot.bin
-endif
 endif
 
 OBJCOPYFLAGS_u-boot-with-spl-pbl.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
@@ -2232,7 +2191,9 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
 	       lpc32xx-* bl31.c bl31.elf bl31_*.bin image.map tispl.bin* \
 	       idbloader.img flash.bin flash.log defconfig keep-syms-lto.c \
 	       mkimage-out.spl.mkimage mkimage.spl.mkimage imx-boot.map \
-	       itb.fit.fit itb.fit.itb itb.map spl.map
+	       itb.fit.fit itb.fit.itb itb.map spl.map mkimage-out.rom.mkimage \
+	       mkimage.rom.mkimage rom.map simple-bin.map simple-bin-spi.map \
+	       idbloader-spi.img
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \

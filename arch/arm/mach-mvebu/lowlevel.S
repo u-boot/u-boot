@@ -2,6 +2,8 @@
 
 #include <config.h>
 #include <linux/linkage.h>
+#include <asm/system.h>
+#include <asm/pl310.h>
 
 ENTRY(arch_very_early_init)
 #ifdef CONFIG_ARMADA_38X
@@ -10,10 +12,36 @@ ENTRY(arch_very_early_init)
 	 * register address on Armada 38x. Without this the SDRAM
 	 * located at >= 0x4000.0000 is also not accessible, as its
 	 * still locked to cache.
+	 *
+	 * So to fully release / unlock this area from cache, we need
+	 * to first flush all caches, then disable the MMU and
+	 * disable the L2 cache.
 	 */
+
+	/* Invalidate L1 I/D */
+	mov	r0, #0			@ set up for MCR
+	mcr	p15, 0, r0, c8, c7, 0	@ invalidate TLBs
+	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache
+	mcr	p15, 0, r0, c7, c5, 6	@ invalidate BP array
+	mcr	p15, 0, r0, c7, c10, 4	@ DSB
+	mcr	p15, 0, r0, c7, c5, 4	@ ISB
+
+	/* Disable MMU */
 	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, #1
+	bic	r0, #CR_M
 	mcr	p15, 0, r0, c1, c0, 0
+
+	/*
+	 * Disable L2 cache
+	 *
+	 * NOTE: Internal registers are still at address INTREG_BASE_ADDR_REG
+	 *       but CONFIG_SYS_PL310_BASE is already calculated from base
+	 *       address SOC_REGS_PHY_BASE.
+	 */
+	ldr	r1, =(CONFIG_SYS_PL310_BASE - SOC_REGS_PHY_BASE + INTREG_BASE_ADDR_REG)
+	ldr	r0, [r1, #L2X0_CTRL_OFF]
+	bic	r0, #L2X0_CTRL_EN
+	str	r0, [r1, #L2X0_CTRL_OFF]
 #endif
 
 	/* Move internal registers from INTREG_BASE_ADDR_REG to SOC_REGS_PHY_BASE */

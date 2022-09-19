@@ -3,6 +3,7 @@
  * Copyright 2021 Gateworks Corporation
  */
 
+#include <fdt_support.h>
 #include <init.h>
 #include <led.h>
 #include <miiphy.h>
@@ -169,26 +170,54 @@ int board_mmc_get_env_dev(int devno)
 	return devno;
 }
 
-int ft_board_setup(void *blob, struct bd_info *bd)
+int ft_board_setup(void *fdt, struct bd_info *bd)
 {
+	const char *base_model = eeprom_get_baseboard_model();
+	char pcbrev;
 	int off;
 
 	/* set board model dt prop */
-	fdt_setprop_string(blob, 0, "board", eeprom_get_model());
+	fdt_setprop_string(fdt, 0, "board", eeprom_get_model());
 
 	/* update temp thresholds */
-	off = fdt_path_offset(blob, "/thermal-zones/cpu-thermal/trips");
+	off = fdt_path_offset(fdt, "/thermal-zones/cpu-thermal/trips");
 	if (off >= 0) {
 		int minc, maxc, prop;
 
 		get_cpu_temp_grade(&minc, &maxc);
-		fdt_for_each_subnode(prop, blob, off) {
-			const char *type = fdt_getprop(blob, prop, "type", NULL);
+		fdt_for_each_subnode(prop, fdt, off) {
+			const char *type = fdt_getprop(fdt, prop, "type", NULL);
 
 			if (type && (!strcmp("critical", type)))
-				fdt_setprop_u32(blob, prop, "temperature", maxc * 1000);
+				fdt_setprop_u32(fdt, prop, "temperature", maxc * 1000);
 			else if (type && (!strcmp("passive", type)))
-				fdt_setprop_u32(blob, prop, "temperature", (maxc - 10) * 1000);
+				fdt_setprop_u32(fdt, prop, "temperature", (maxc - 10) * 1000);
+		}
+	}
+
+	if (!strncmp(base_model, "GW73", 4)) {
+		pcbrev = get_pcb_rev(base_model);
+
+		if (pcbrev > 'B') {
+			printf("adjusting dt for %s\n", base_model);
+
+			/*
+			 * revC replaced PCIe 5-port switch with 4-port
+			 * which changed ethernet1 PCIe GbE
+			 * from: pcie@0,0/pcie@1,0/pcie@2,4/pcie@6.0
+			 *   to: pcie@0,0/pcie@1,0/pcie@2,3/pcie@5.0
+			 */
+			off = fdt_path_offset(fdt, "ethernet1");
+			if (off > 0) {
+				u32 reg[5];
+
+				fdt_set_name(fdt, off, "pcie@5,0");
+				off = fdt_parent_offset(fdt, off);
+				fdt_set_name(fdt, off, "pcie@2,3");
+				memset(reg, 0, sizeof(reg));
+				reg[0] = cpu_to_fdt32(PCI_DEVFN(3, 0));
+				fdt_setprop(fdt, off, "reg", reg, sizeof(reg));
+			}
 		}
 	}
 

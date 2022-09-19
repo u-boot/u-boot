@@ -68,11 +68,21 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 				ret = sbi_get_impl_version(&vers);
 				if (ret < 0)
 					break;
-				if (impl_id == 1)
+				switch (impl_id) {
+				case 1: /* OpenSBI */
 					printf("%ld.%ld",
 					       vers >> 16, vers & 0xffff);
-				else
+					break;
+				case 3: /* KVM */
+					printf("%ld.%ld.%ld",
+					       vers >> 16,
+					       (vers >> 8) & 0xff,
+					       vers & 0xff);
+					break;
+				default:
 					printf("0x%lx", vers);
+					break;
+				}
 				break;
 			}
 		}

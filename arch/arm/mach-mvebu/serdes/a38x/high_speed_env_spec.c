@@ -105,7 +105,7 @@ struct serdes_unit_data {
 	u8 serdes_unit_num;
 };
 
-static struct serdes_unit_data serdes_type_to_unit_info[] = {
+static const struct serdes_unit_data serdes_type_to_unit_info[] = {
 	{PEX_UNIT_ID, 0,},
 	{PEX_UNIT_ID, 1,},
 	{PEX_UNIT_ID, 2,},

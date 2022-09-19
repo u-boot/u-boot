@@ -19,7 +19,7 @@ static uint64_t orion_timer_get_count(struct udevice *dev)
 {
 	struct orion_timer_priv *priv = dev_get_priv(dev);
 
-	return ~readl(priv->base + TIMER0_VAL);
+	return timer_conv_64(~readl(priv->base + TIMER0_VAL));
 }
 
 static int orion_timer_probe(struct udevice *dev)

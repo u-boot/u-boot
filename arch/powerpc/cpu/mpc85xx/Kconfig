@@ -15,7 +15,7 @@ config CMD_ERRATA
 config FSL_PREPBL_ESDHC_BOOT_SECTOR
 	bool "Generate QorIQ pre-PBL eSDHC boot sector"
 	depends on MPC85xx
-	depends on SYS_EXTRA_OPTIONS = SDCARD
+	depends on SDCARD
 	help
 	  With this option final image would have prepended QorIQ pre-PBL eSDHC
 	  boot sector suitable for SD card images. This boot sector instruct

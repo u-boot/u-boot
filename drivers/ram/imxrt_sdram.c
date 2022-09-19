@@ -87,12 +87,21 @@ struct imxrt_semc_regs {
 	u32 sts[16];
 };
 
+#if !defined(TARGET_IMXRT1170_EVK)
 #define SEMC_IOCR_MUX_A8_SHIFT		0
 #define SEMC_IOCR_MUX_CSX0_SHIFT	3
 #define SEMC_IOCR_MUX_CSX1_SHIFT	6
 #define SEMC_IOCR_MUX_CSX2_SHIFT	9
 #define SEMC_IOCR_MUX_CSX3_SHIFT	12
 #define SEMC_IOCR_MUX_RDY_SHIFT		15
+#else
+#define SEMC_IOCR_MUX_A8_SHIFT		0
+#define SEMC_IOCR_MUX_CSX0_SHIFT	4
+#define SEMC_IOCR_MUX_CSX1_SHIFT	8
+#define SEMC_IOCR_MUX_CSX2_SHIFT	12
+#define SEMC_IOCR_MUX_CSX3_SHIFT	16
+#define SEMC_IOCR_MUX_RDY_SHIFT		20
+#endif
 
 struct imxrt_sdram_mux {
 	u8 a8;

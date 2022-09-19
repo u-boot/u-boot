@@ -60,7 +60,7 @@
 
 };
 
-#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+#if defined(CONFIG_ROCKCHIP_SPI_IMAGE) && defined(CONFIG_HAS_ROM)
 &binman {
 	rom {
 		filename = "u-boot.rom";

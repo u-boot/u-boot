@@ -14,8 +14,8 @@
 #define EFI_ST_EXECUTE	2
 #define EFI_ST_TEARDOWN	4
 
-static const struct efi_system_table *systable;
-static const struct efi_boot_services *boottime;
+const struct efi_system_table *st_systable;
+const struct efi_boot_services *st_boottime;
 static const struct efi_runtime_services *runtime;
 static efi_handle_t handle;
 static u16 reset_message[] = u"Selftest completed";
@@ -41,7 +41,7 @@ void efi_st_exit_boot_services(void)
 	/* Do not detach devices in ExitBootServices. We need the console. */
 	efi_st_keep_devices = true;
 
-	ret = boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
+	ret = st_boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
 				       &desc_version);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
 		efi_st_error(
@@ -50,19 +50,19 @@ void efi_st_exit_boot_services(void)
 	}
 	/* Allocate extra space for newly allocated memory */
 	map_size += sizeof(struct efi_mem_desc);
-	ret = boottime->allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
+	ret = st_boottime->allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
 				      (void **)&memory_map);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("AllocatePool did not return EFI_SUCCESS\n");
 		return;
 	}
-	ret = boottime->get_memory_map(&map_size, memory_map, &map_key,
+	ret = st_boottime->get_memory_map(&map_size, memory_map, &map_key,
 				       &desc_size, &desc_version);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetMemoryMap did not return EFI_SUCCESS\n");
 		return;
 	}
-	ret = boottime->exit_boot_services(handle, map_key);
+	ret = st_boottime->exit_boot_services(handle, map_key);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("ExitBootServices did not return EFI_SUCCESS\n");
 		return;
@@ -84,7 +84,7 @@ static int setup(struct efi_unit_test *test, unsigned int *failures)
 	if (!test->setup)
 		return EFI_ST_SUCCESS;
 	efi_st_printc(EFI_LIGHTBLUE, "\nSetting up '%s'\n", test->name);
-	ret = test->setup(handle, systable);
+	ret = test->setup(handle, st_systable);
 	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("Setting up '%s' failed\n", test->name);
 		++*failures;
@@ -240,8 +240,8 @@ void efi_st_do_tests(const u16 *testname, unsigned int phase,
  * All tests use a driver model and are run in three phases:
  * setup, execute, teardown.
  *
- * A test may be setup and executed at boottime,
- * it may be setup at boottime and executed at runtime,
+ * A test may be setup and executed at st_boottime,
+ * it may be setup at st_boottime and executed at runtime,
  * or it may be setup and executed at runtime.
  *
  * After executing all tests the system is reset.
@@ -257,14 +257,14 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	struct efi_loaded_image *loaded_image;
 	efi_status_t ret;
 
-	systable = systab;
-	boottime = systable->boottime;
-	runtime = systable->runtime;
+	st_systable = systab;
+	st_boottime = st_systable->boottime;
+	runtime = st_systable->runtime;
 	handle = image_handle;
-	con_out = systable->con_out;
-	con_in = systable->con_in;
+	con_out = st_systable->con_out;
+	con_in = st_systable->con_in;
 
-	ret = boottime->handle_protocol(image_handle, &efi_guid_loaded_image,
+	ret = st_boottime->handle_protocol(image_handle, &efi_guid_loaded_image,
 					(void **)&loaded_image);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Cannot open loaded image protocol\n");
@@ -280,9 +280,9 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 			list_all_tests();
 			/*
 			 * TODO:
-			 * Once the Exit boottime service is correctly
+			 * Once the Exit st_boottime service is correctly
 			 * implemented we should call
-			 *   boottime->exit(image_handle, EFI_SUCCESS, 0, NULL);
+			 *   st_boottime->exit(image_handle, EFI_SUCCESS, 0, NULL);
 			 * here, cf.
 			 * https://lists.denx.de/pipermail/u-boot/2017-October/308720.html
 			 */
@@ -300,7 +300,7 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 					     efi_unit_test));
 
 	/* Allocate buffer for setup results */
-	ret = boottime->allocate_pool(EFI_RUNTIME_SERVICES_DATA, sizeof(int) *
+	ret = st_boottime->allocate_pool(EFI_RUNTIME_SERVICES_DATA, sizeof(int) *
 				      ll_entry_count(struct efi_unit_test,
 						     efi_unit_test),
 				      (void **)&setup_status);
@@ -309,7 +309,7 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 		return ret;
 	}
 
-	/* Execute boottime tests */
+	/* Execute st_boottime tests */
 	efi_st_do_tests(testname, EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
 			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
 			&failures);

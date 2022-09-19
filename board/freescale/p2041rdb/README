@@ -100,9 +100,6 @@ enabled in relative defconfig file,
 3. CONFIG_MPC85XX_HAVE_RESET_VECTOR if reset vector is located at
    CONFIG_RESET_VECTOR_ADDRESS - 0xffc
 
-If device tree support is enabled in defconfig, use 'u-boot-with-dtb.bin'
-instead of u-boot.bin for all boot.
-
 CPLD command
 ============
 The CPLD is used to control the power sequence and some serdes lane

@@ -76,7 +76,7 @@
 	};
 
 	binman {
-		filename = "u-boot-with-dtb.bin";
+		filename = "u-boot.bin";
 		skip-at-start = <CONFIG_SYS_TEXT_BASE>;
 		sort-by-offset;
 		pad-byte = <0xff>;

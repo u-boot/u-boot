@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GRF_BASE	0xff770000
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
-	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe330000",
+	[BROM_BOOTSOURCE_EMMC] = "/mmc@fe330000",
 	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff1d0000/flash@0",
 	[BROM_BOOTSOURCE_SD] = "/mmc@fe320000",
 };
@@ -180,9 +180,9 @@ const char *spl_decode_boot_device(u32 boot_device)
 		u32 boot_device;
 		const char *ofpath;
 	} spl_boot_devices_tbl[] = {
-		{ BOOT_DEVICE_MMC1, "/mmc@fe320000" },
-		{ BOOT_DEVICE_MMC2, "/sdhci@fe330000" },
-		{ BOOT_DEVICE_SPI, "/spi@ff1d0000" },
+		{ BOOT_DEVICE_MMC2, "/mmc@fe320000" },
+		{ BOOT_DEVICE_MMC1, "/mmc@fe330000" },
+		{ BOOT_DEVICE_SPI, "/spi@ff1d0000/flash@0" },
 	};
 
 	for (i = 0; i < ARRAY_SIZE(spl_boot_devices_tbl); ++i)

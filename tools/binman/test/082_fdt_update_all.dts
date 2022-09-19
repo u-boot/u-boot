@@ -14,5 +14,7 @@
 		};
 		u-boot-tpl-dtb {
 		};
+		u-boot-vpl-dtb {
+		};
 	};
 };

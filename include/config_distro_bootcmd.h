@@ -70,7 +70,7 @@
 #ifdef CONFIG_CMD_UBIFS
 #define BOOTENV_SHARED_UBIFS \
 	"ubifs_boot=" \
-		"if ubi part ${bootubipart} && " \
+		"if ubi part ${bootubipart} ${bootubioff} && " \
 			"ubifsmount ubi0:${bootubivol}; " \
 		"then " \
 			"devtype=ubi; " \
@@ -80,12 +80,14 @@
 			"run scan_dev_for_boot; " \
 			"ubifsumount; " \
 		"fi\0"
-#define BOOTENV_DEV_UBIFS(devtypeu, devtypel, instance, bootubipart, bootubivol) \
+#define BOOTENV_DEV_UBIFS_BOOTUBIOFF(off) #off /* type check, throw error when called with more args */
+#define BOOTENV_DEV_UBIFS(devtypeu, devtypel, instance, bootubipart, bootubivol, ...) \
 	"bootcmd_ubifs" #instance "=" \
 		"bootubipart=" #bootubipart "; " \
 		"bootubivol=" #bootubivol "; " \
+		"bootubioff=" BOOTENV_DEV_UBIFS_BOOTUBIOFF(__VA_ARGS__) "; " \
 		"run ubifs_boot\0"
-#define BOOTENV_DEV_NAME_UBIFS(devtypeu, devtypel, instance, bootubipart, bootubivol) \
+#define BOOTENV_DEV_NAME_UBIFS(devtypeu, devtypel, instance, ...) \
 	#devtypel #instance " "
 #else
 #define BOOTENV_SHARED_UBIFS
