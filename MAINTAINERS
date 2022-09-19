@@ -629,6 +629,13 @@ F:	arch/arm/mach-uniphier/
 F:	configs/uniphier_*_defconfig
 N:	uniphier
 
+ARM VERSAL NET
+M:	Michal Simek <michal.simek@amd.com>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
+F:	arch/arm/mach-versal-net/
+N:	(?<!uni)versal-net
+
 ARM VERSAL
 M:	Michal Simek <michal.simek@amd.com>
 S:	Maintained
