@@ -54,13 +54,6 @@ void spl_dram_init(void)
 void spl_board_init(void)
 {
 	arch_misc_init();
-
-	/* Serial download mode */
-	if (is_usb_boot()) {
-		puts("Back to ROM, SDP\n");
-		restore_boot_params();
-	}
-	puts("Normal Boot\n");
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
