@@ -23,10 +23,6 @@
 	EFI_GUID(0x20c5fba5, 0x0171, 0x457f, 0xb9, 0xcd, \
 		 0xf5, 0x12, 0x9c, 0xd0, 0x72, 0x28)
 
-/* Miscellaneous configurable options */
-
-/* Console I/O Buffer Size */
-
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
