@@ -21,3 +21,4 @@ obj-$(CONFIG_$(SPL_TPL_)CLK_IMX8MQ) += clk-imx8mq.o clk-pll14xx.o \
 
 obj-$(CONFIG_$(SPL_TPL_)CLK_IMXRT1020) += clk-imxrt1020.o
 obj-$(CONFIG_$(SPL_TPL_)CLK_IMXRT1050) += clk-imxrt1050.o
+obj-$(CONFIG_$(SPL_TPL_)CLK_IMXRT1170) += clk-imxrt1170.o

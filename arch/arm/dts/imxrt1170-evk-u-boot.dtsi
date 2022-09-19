@@ -1,0 +1,94 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) 2022
+ * Author(s): Jesse Taube <Mr.Bossman075@gmail.com>
+ * Giulio Benetti <giulio.benetti@benettiengineering.com>
+ */
+
+/ {
+	chosen {
+		u-boot,dm-spl;
+	};
+
+	clocks {
+		u-boot,dm-spl;
+	};
+
+	soc {
+		u-boot,dm-spl;
+	};
+};
+
+&osc {
+	u-boot,dm-spl;
+};
+
+&rcosc16M {
+	u-boot,dm-spl;
+};
+
+&osc32k {
+	u-boot,dm-spl;
+};
+
+&clks {
+	u-boot,dm-spl;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+};
+
+&gpt1 {
+	u-boot,dm-spl;
+};
+
+&lpuart1 { /* console */
+	u-boot,dm-spl;
+};
+
+&semc {
+	u-boot,dm-spl;
+
+	bank1: bank@0 {
+		u-boot,dm-spl;
+	};
+};
+
+&iomuxc {
+	u-boot,dm-spl;
+
+	imxrt1170-evk {
+		u-boot,dm-spl;
+		pinctrl_lpuart1: lpuart1grp {
+			u-boot,dm-spl;
+		};
+
+		pinctrl_usdhc0: usdhc0grp {
+			u-boot,dm-spl;
+		};
+		pinctrl_semc: semcgrp {
+			u-boot,dm-spl;
+		};
+	};
+};
+
+&usdhc1 {
+	u-boot,dm-spl;
+};

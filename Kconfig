@@ -299,7 +299,7 @@ config SYS_MALLOC_F_LEN
 	default 0x4000 if SANDBOX || RISCV || ARCH_APPLE || ROCKCHIP_RK3368 || \
 			  ROCKCHIP_RK3399
 	default 0x8000 if RCAR_GEN3
-	default 0x10000 if ARCH_IMX8 || (ARCH_IMX8M && !IMX8MQ)
+	default 0x10000 if ARCH_IMX8 || ARCH_IMX8M
 	default 0x2000
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
@@ -325,6 +325,7 @@ config SPL_SYS_MALLOC_F_LEN
 	depends on SYS_MALLOC_F && SPL
 	default 0 if !SPL_FRAMEWORK
 	default 0x2800 if RCAR_GEN3
+	default 0x2000 if IMX8MQ
 	default SYS_MALLOC_F_LEN
 	help
 	  In SPL memory is very limited on many platforms. Still,

@@ -34,14 +34,11 @@ DECLARE_GLOBAL_DATA_PTR;
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
 	switch (boot_dev_spl) {
-	case MMC1_BOOT:
+	case MMC1_BOOT: /* eMMC */
 		return BOOT_DEVICE_MMC1;
-	case SD2_BOOT:
+	case SD2_BOOT: /* SD card */
 	case MMC2_BOOT:
 		return BOOT_DEVICE_MMC2;
-	case SD3_BOOT:
-	case MMC3_BOOT:
-		return BOOT_DEVICE_MMC1;
 	case USB_BOOT:
 		return BOOT_DEVICE_BOARD;
 	default:
@@ -56,6 +53,15 @@ void spl_dram_init(void)
 
 void spl_board_init(void)
 {
+	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
+		if (ret)
+			printf("Failed to initialize %s: %d\n", dev->name, ret);
+	}
+
 	/* Serial download mode */
 	if (is_usb_boot()) {
 		puts("Back to ROM, SDP\n");
@@ -73,7 +79,6 @@ int board_fit_config_name_match(const char *name)
 	return 0;
 }
 #endif
-
 
 __weak void board_early_init(void)
 {
