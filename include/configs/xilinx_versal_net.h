@@ -12,8 +12,6 @@
 #ifndef __XILINX_VERSAL_NET_H
 #define __XILINX_VERSAL_NET_H
 
-#define CONFIG_REMAKE_ELF
-
 /* FIXME this is causing issue at least on IPP */
 /* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
 
@@ -21,25 +19,9 @@
 #define GICD_BASE	0xF9000000
 #define GICR_BASE	0xF9060000
 
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
-
 /* Serial setup */
-#define CONFIG_CPU_ARMV8
-
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
-
-/* BOOTP options */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_MAY_FAIL
-
-/* Monitor Command Prompt */
-/* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		2048
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_MAXARGS		64
 
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
@@ -62,14 +44,8 @@
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
-# define CONFIG_NET_MULTI
-# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-# define PHY_ANEG_TIMEOUT       20000
+# define PHY_ANEG_TIMEOUT	20000
 #endif
-
-#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
-
-#define CONFIG_CLOCKS
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_addr_r=0x40000000\0" \
@@ -77,6 +53,8 @@
 	"pxefile_addr_r=0x10000000\0" \
 	"kernel_addr_r=0x18000000\0" \
 	"kernel_size_r=0x10000000\0" \
+	"kernel_comp_addr_r=0x30000000\0" \
+	"kernel_comp_size=0x3C00000\0" \
 	"scriptaddr=0x20000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 	"script_size_f=0x80000\0"
