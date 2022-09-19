@@ -544,6 +544,16 @@ static int imx8m_check_clock(void *ctx, struct event *event)
 }
 EVENT_SPY(EVT_DM_POST_INIT, imx8m_check_clock);
 
+static void imx8m_setup_snvs(void)
+{
+	/* Enable SNVS clock */
+	clock_enable(CCGR_SNVS, 1);
+	/* Initialize glitch detect */
+	writel(SNVS_LPPGDR_INIT, SNVS_BASE_ADDR + SNVS_LPLVDR);
+	/* Clear interrupt status */
+	writel(0xffffffff, SNVS_BASE_ADDR + SNVS_LPSR);
+}
+
 int arch_cpu_init(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -593,6 +603,8 @@ int arch_cpu_init(void)
 		if (readl(&ocotp->ctrl) & 0x200)
 			writel(0x200, &ocotp->ctrl_clr);
 	}
+
+	imx8m_setup_snvs();
 
 	return 0;
 }
