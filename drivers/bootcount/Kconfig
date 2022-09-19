@@ -132,7 +132,7 @@ config DM_BOOTCOUNT_PMIC_PFUZE100
 	depends on DM_PMIC_PFUZE100
 	help
 	  Enable support for the bootcounter using PMIC PFUZE100 registers.
-	  This works only, if the PMIC is not connected.
+	  This works only, if the PMIC is not connected to a battery.
 
 config DM_BOOTCOUNT_SPI_FLASH
 	bool "Support SPI flash devices as a backing store for bootcount"
