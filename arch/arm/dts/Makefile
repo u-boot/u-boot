@@ -384,6 +384,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-emmc1.dtb \
 	xilinx-versal-virt.dtb
 dtb-$(CONFIG_ARCH_VERSAL_NET) += \
+	versal-net-mini.dtb \
 	xilinx-versal-net-virt.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
