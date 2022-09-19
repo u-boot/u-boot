@@ -80,6 +80,7 @@ const struct reset_ops zynqmp_reset_ops = {
 static const struct udevice_id zynqmp_reset_ids[] = {
 	{ .compatible = "xlnx,zynqmp-reset" },
 	{ .compatible = "xlnx,versal-reset" },
+	{ .compatible = "xlnx,versal-net-reset" },
 	{ }
 };
 
