@@ -308,7 +308,8 @@ void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 	debug("%s, req_hz:%d, clk_rate:%d, baudrateval:%d\n",
 	      __func__, reqhz, clk_rate, baudrateval);
 
-	if (!IS_ENABLED(CONFIG_ARCH_VERSAL)) {
+	if (!(IS_ENABLED(CONFIG_ARCH_VERSAL) ||
+	      IS_ENABLED(CONFIG_ARCH_VERSAL_NET))) {
 		if (reqhz <= GQSPI_FREQ_40MHZ) {
 			tapdlybypass = TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
 					TAP_DLY_BYPASS_LQSPI_RX_SHIFT;
