@@ -63,8 +63,8 @@ SECTIONS
 	__init_end = .;
 	_end = .;
 
-#ifndef KEEP_RESET_VECTOR
-#if defined(CONFIG_SD_BOOT) && !defined(CONFIG_SYS_MMC_U_BOOT_OFFS)
+#if CONFIG_IS_ENABLED(SYS_MPC85XX_NO_RESETVEC)
+#if defined(CONFIG_SDCARD) && !defined(CONFIG_SYS_MMC_U_BOOT_OFFS)
 	mmc_u_boot_offs = .;
 #endif
 #endif
@@ -101,7 +101,7 @@ SECTIONS
 	.resetvec IMAGE_TEXT_BASE + RESET_VECTOR_OFFSET : {
 		KEEP(*(.resetvec))
 	} = 0xffff
-#if defined(CONFIG_SD_BOOT) && !defined(CONFIG_SYS_MMC_U_BOOT_OFFS)
+#if defined(CONFIG_SDCARD) && !defined(CONFIG_SYS_MMC_U_BOOT_OFFS)
 	mmc_u_boot_offs = .;
 #endif
 #endif
