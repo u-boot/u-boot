@@ -19,6 +19,8 @@
 #include <asm/io.h>
 #include <asm/mach-types.h>
 
+extern void at91_pda_detect(void);
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void at91_prepare_cpu_var(void);
@@ -26,6 +28,8 @@ void at91_prepare_cpu_var(void);
 int board_late_init(void)
 {
 	at91_prepare_cpu_var();
+
+	at91_pda_detect();
 
 	return 0;
 }

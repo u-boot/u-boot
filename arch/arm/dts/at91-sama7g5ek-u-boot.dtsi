@@ -28,7 +28,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pinctrl {
+&pioA {
 	u-boot,dm-pre-reloc;
 };
 

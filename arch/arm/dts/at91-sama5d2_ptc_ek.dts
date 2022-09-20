@@ -94,7 +94,7 @@
 		sdmmc0: sdio-host@a0000000 {
 			bus-width = <8>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_sdmmc0_cmd_dat_default &pinctrl_sdmmc0_ck_cd_default>;
+			pinctrl-0 = <&pinctrl_sdmmc0_default>;
 			status = "okay";
 			u-boot,dm-pre-reloc;
 		};
@@ -102,7 +102,7 @@
 		sdmmc1: sdio-host@b0000000 {
 			bus-width = <4>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_sdmmc1_cmd_dat_default &pinctrl_sdmmc1_ck_cd_default>;
+			pinctrl-0 = <&pinctrl_sdmmc1_default>;
 			status = "disabled"; /* conflicts with nand and qspi0*/
 			u-boot,dm-pre-reloc;
 		};
@@ -137,34 +137,34 @@
 				};
 			};
 
-			pioA: gpio@fc038000 {
-				pinctrl {
-					pinctrl_i2c1_default: i2c1_default {
-						pinmux = <PIN_PC6__TWD1>,
-							 <PIN_PC7__TWCK1>;
-						bias-disable;
-					};
+			pioA: pinctrl@fc038000 {
+				pinctrl_i2c1_default: i2c1_default {
+					pinmux = <PIN_PC6__TWD1>,
+						 <PIN_PC7__TWCK1>;
+					bias-disable;
+				};
 
-					pinctrl_macb0_phy_irq: macb0_phy_irq {
-						pinmux = <PIN_PB24__GPIO>;
-						bias-disable;
-					};
+				pinctrl_macb0_phy_irq: macb0_phy_irq {
+					pinmux = <PIN_PB24__GPIO>;
+					bias-disable;
+				};
 
-					pinctrl_macb0_rmii: macb0_rmii {
-						pinmux = <PIN_PB14__GTXCK>,
-							 <PIN_PB15__GTXEN>,
-							 <PIN_PB16__GRXDV>,
-							 <PIN_PB17__GRXER>,
-							 <PIN_PB18__GRX0>,
-							 <PIN_PB19__GRX1>,
-							 <PIN_PB20__GTX0>,
-							 <PIN_PB21__GTX1>,
-							 <PIN_PB22__GMDC>,
-							 <PIN_PB23__GMDIO>;
-						bias-disable;
-					};
+				pinctrl_macb0_rmii: macb0_rmii {
+					pinmux = <PIN_PB14__GTXCK>,
+						 <PIN_PB15__GTXEN>,
+						 <PIN_PB16__GRXDV>,
+						 <PIN_PB17__GRXER>,
+						 <PIN_PB18__GRX0>,
+						 <PIN_PB19__GRX1>,
+						 <PIN_PB20__GTX0>,
+						 <PIN_PB21__GTX1>,
+						 <PIN_PB22__GMDC>,
+						 <PIN_PB23__GMDIO>;
+					bias-disable;
+				};
 
-					pinctrl_sdmmc0_cmd_dat_default: sdmmc0_cmd_dat_default {
+				pinctrl_sdmmc0_default: sdmmc0_default {
+					cmd_dat {
 						pinmux = <PIN_PA1__SDMMC0_CMD>,
 							 <PIN_PA2__SDMMC0_DAT0>,
 							 <PIN_PA3__SDMMC0_DAT1>,
@@ -178,7 +178,7 @@
 						u-boot,dm-pre-reloc;
 					};
 
-					pinctrl_sdmmc0_ck_cd_default: sdmmc0_ck_cd_default {
+					ck_cd {
 						pinmux = <PIN_PA0__SDMMC0_CK>,
 							 <PIN_PA10__SDMMC0_RSTN>,
 							 <PIN_PA11__SDMMC0_VDDSEL>,
@@ -186,8 +186,10 @@
 						bias-disable;
 						u-boot,dm-pre-reloc;
 					};
+				};
 
-					pinctrl_sdmmc1_cmd_dat_default: sdmmc1_cmd_dat_default {
+				pinctrl_sdmmc1_default: sdmmc1_default {
+					cmd_dat {
 						pinmux = <PIN_PA28__SDMMC1_CMD>,
 							 <PIN_PA18__SDMMC1_DAT0>,
 							 <PIN_PA19__SDMMC1_DAT1>,
@@ -197,34 +199,34 @@
 						u-boot,dm-pre-reloc;
 					};
 
-					pinctrl_sdmmc1_ck_cd_default: sdmmc1_ck_cd_default {
+					ck_cd {
 						pinmux = <PIN_PA22__SDMMC1_CK>,
 							 <PIN_PA30__SDMMC1_CD>;
 						bias-disable;
 						u-boot,dm-pre-reloc;
 					};
+				};
 
-					pinctrl_uart0_default: uart0_default {
-						pinmux = <PIN_PB26__URXD0>,
-							 <PIN_PB27__UTXD0>;
-						bias-disable;
-						u-boot,dm-pre-reloc;
-					};
+				pinctrl_uart0_default: uart0_default {
+					pinmux = <PIN_PB26__URXD0>,
+						 <PIN_PB27__UTXD0>;
+					bias-disable;
+					u-boot,dm-pre-reloc;
+				};
 
-					pinctrl_usb_default: usb_default {
-						pinmux = <PIN_PB12__GPIO>;
-						bias-disable;
-					};
+				pinctrl_usb_default: usb_default {
+					pinmux = <PIN_PB12__GPIO>;
+					bias-disable;
+				};
 
-					pinctrl_usba_vbus: usba_vbus {
-						pinmux = <PIN_PB11__GPIO>;
-						bias-disable;
-					};
+				pinctrl_usba_vbus: usba_vbus {
+					pinmux = <PIN_PB11__GPIO>;
+					bias-disable;
+				};
 
-					pinctrl_onewire_tm_default: onewire_tm_default {
-						pinmux = <PIN_PB31__GPIO>;
-						bias-pull-up;
-					};
+				pinctrl_onewire_tm_default: onewire_tm_default {
+					pinmux = <PIN_PB31__GPIO>;
+					bias-pull-up;
 				};
 			};
 		};

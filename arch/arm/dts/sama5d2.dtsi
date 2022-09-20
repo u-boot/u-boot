@@ -799,18 +799,13 @@
 				status = "disabled";
 			};
 
-			pioA: gpio@fc038000 {
-				compatible = "atmel,sama5d2-gpio";
+			pioA: pinctrl@fc038000 {
+				compatible = "atmel,sama5d2-pinctrl";
 				reg = <0xfc038000 0x600>;
 				clocks = <&pioA_clk>;
 				gpio-controller;
 				#gpio-cells = <2>;
 				u-boot,dm-pre-reloc;
-
-				pinctrl {
-					compatible = "atmel,sama5d2-pinctrl";
-					u-boot,dm-pre-reloc;
-				};
 			};
 		};
 	};
