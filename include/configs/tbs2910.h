@@ -61,10 +61,6 @@
 	"pxefile_addr_r=0x10100000\0" \
 	"ramdisk_addr_r=0x18080000\0" \
 	"scriptaddr=0x10000000\0" \
-	"set_con_serial=setenv stdout serial; " \
-			"setenv stderr serial\0" \
-	"set_con_hdmi=setenv stdout serial,vidconsole; " \
-			"setenv stderr serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0" \
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vidconsole\0"
