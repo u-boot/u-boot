@@ -1474,6 +1474,7 @@ endif
 
 u-boot-spl.kwb: u-boot.bin spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
+	$(BOARD_SIZE_CHECK)
 
 u-boot.sha1:	u-boot.bin
 		tools/ubsha1 u-boot.bin

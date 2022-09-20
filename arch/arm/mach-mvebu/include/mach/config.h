@@ -39,9 +39,4 @@
 #endif
 #endif
 
-/* Use common timer */
-#define CONFIG_SYS_TIMER_COUNTS_DOWN
-#define CONFIG_SYS_TIMER_COUNTER	(MVEBU_TIMER_BASE + 0x14)
-#define CONFIG_SYS_TIMER_RATE		25000000
-
 #endif /* __MVEBU_CONFIG_H */

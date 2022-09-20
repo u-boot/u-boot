@@ -233,8 +233,11 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p3450-0000.dtb
 
 ifdef CONFIG_ARMADA_32BIT
+ifdef CONFIG_ARMADA_375
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
-	armada-375-db.dtb			\
+	armada-375-db.dtb
+else
+dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-385-atl-x530.dtb			\
 	armada-385-atl-x530DP.dtb		\
 	armada-385-db-88f6820-amc.dtb		\
@@ -254,6 +257,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
 	armada-xp-theadorable.dtb
+endif
 else
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\
