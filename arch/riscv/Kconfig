@@ -276,6 +276,13 @@ config SPL_XIP
 	  rely on lock variables (for example hart_lottery and available_harts_lock),
 	  this affects only SPL, other stages should proceed as non-XIP.
 
+config AVAILABLE_HARTS
+	bool "Send IPI by available harts"
+	default y
+	help
+	  By default, IPI sending mechanism will depend on available_harts.
+	  If disable this, it will send IPI by CPUs node numbers of device tree.
+
 config SHOW_REGS
 	bool "Show registers on unhandled exception"
 
