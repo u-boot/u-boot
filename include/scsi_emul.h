@@ -18,6 +18,7 @@
  * @vendor: Vendor name
  * @product: Product name
  * @block_size: Block size of device in bytes (normally 512)
+ * @file_size: Size of the backing file for this emulator, in bytes
  *
  * @phase: Current SCSI phase
  * @buff_used: Number of bytes ready to transfer back to host
@@ -32,6 +33,7 @@ struct scsi_emul_info {
 	const char *vendor;
 	const char *product;
 	int block_size;
+	loff_t file_size;
 
 	/* state maintained by the emulator: */
 	enum scsi_cmd_phase phase;

@@ -49,7 +49,6 @@ struct sandbox_flash_priv {
 	bool error;
 	u32 tag;
 	int fd;
-	loff_t file_size;
 	struct umass_bbb_csw status;
 };
 
@@ -258,8 +257,8 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 		struct scsi_read_capacity_resp *resp = (void *)info->buff;
 		uint blocks;
 
-		if (priv->file_size)
-			blocks = priv->file_size / info->block_size - 1;
+		if (info->file_size)
+			blocks = info->file_size / info->block_size - 1;
 		else
 			blocks = 0;
 		resp->last_block_addr = cpu_to_be32(blocks);
@@ -395,7 +394,7 @@ static int sandbox_flash_probe(struct udevice *dev)
 
 	priv->fd = os_open(plat->pathname, OS_O_RDONLY);
 	if (priv->fd != -1) {
-		ret = os_get_filesize(plat->pathname, &priv->file_size);
+		ret = os_get_filesize(plat->pathname, &info->file_size);
 		if (ret)
 			return log_msg_ret("sz", ret);
 	}
