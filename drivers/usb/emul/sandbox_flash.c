@@ -180,97 +180,30 @@ static void setup_response(struct sandbox_flash_priv *priv)
 	csw->bCSWStatus = CSWSTATUS_GOOD;
 }
 
-/**
- * handle_read() - prepare for reading data from the backing file
- *
- * This seeks to the correct file position and sets info->buff_used to the
- * correct size.
- *
- * @priv: Private information
- * @lba: Start block to read from
- * @transfer_length: Number of blocks to read
- * @return 0 if OK, -EIO on failure
- */
-static int handle_read(struct sandbox_flash_priv *priv, ulong lba,
-		       ulong transfer_len)
-{
-	struct scsi_emul_info *info = &priv->eminfo;
-
-	debug("%s: lba=%lx, transfer_len=%lx\n", __func__, lba, transfer_len);
-	info->read_len = transfer_len;
-	if (priv->fd != -1) {
-		os_lseek(priv->fd, lba * info->block_size, OS_SEEK_SET);
-		info->buff_used = transfer_len * info->block_size;
-		return 0;
-	}
-
-	return -EIO;
-}
-
-static int handle_ufi_command(struct sandbox_flash_plat *plat,
-			      struct sandbox_flash_priv *priv, const void *buff,
+static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
 			      int len)
 {
 	struct scsi_emul_info *info = &priv->eminfo;
 	const struct scsi_cmd *req = buff;
+	int ret;
 
-	info->buff_used = 0;
-	switch (*req->cmd) {
-	case SCSI_INQUIRY: {
-		struct scsi_inquiry_resp *resp = (void *)info->buff;
-
-		info->alloc_len = req->cmd[4];
-		memset(resp, '\0', sizeof(*resp));
-		resp->data_format = 1;
-		resp->additional_len = 0x1f;
-		strncpy(resp->vendor, info->vendor, sizeof(resp->vendor));
-		strncpy(resp->product, info->product, sizeof(resp->product));
-		strncpy(resp->revision, "1.0", sizeof(resp->revision));
-		info->buff_used = sizeof(*resp);
+	ret = sb_scsi_emul_command(info, req, len);
+	if (!ret) {
 		setup_response(priv);
-		break;
-	}
-	case SCSI_TST_U_RDY:
+	} else if (ret == SCSI_EMUL_DO_READ && priv->fd != -1) {
+		os_lseek(priv->fd, info->seek_block * info->block_size,
+			 OS_SEEK_SET);
 		setup_response(priv);
-		break;
-	case SCSI_RD_CAPAC: {
-		struct scsi_read_capacity_resp *resp = (void *)info->buff;
-		uint blocks;
-
-		if (info->file_size)
-			blocks = info->file_size / info->block_size - 1;
-		else
-			blocks = 0;
-		resp->last_block_addr = cpu_to_be32(blocks);
-		resp->block_len = cpu_to_be32(info->block_size);
-		info->buff_used = sizeof(*resp);
-		setup_response(priv);
-		break;
-	}
-	case SCSI_READ10: {
-		struct scsi_read10_req *req = (void *)buff;
-
-		if (!handle_read(priv, be32_to_cpu(req->lba),
-				 be16_to_cpu(req->xfer_len)))
-			setup_response(priv);
-		else
-			setup_fail_response(priv);
-
-		break;
-	}
-	default:
-		debug("Command not supported: %x\n", req->cmd[0]);
-		return -EPROTONOSUPPORT;
+	} else {
+		setup_fail_response(priv);
 	}
 
-	info->phase = info->transfer_len ? SCSIPH_DATA : SCSIPH_STATUS;
 	return 0;
 }
 
 static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			      unsigned long pipe, void *buff, int len)
 {
-	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 	struct sandbox_flash_priv *priv = dev_get_priv(dev);
 	struct scsi_emul_info *info = &priv->eminfo;
 	int ep = usb_pipeendpoint(pipe);
@@ -294,7 +227,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 				goto err;
 			info->transfer_len = cbw->dCBWDataTransferLength;
 			priv->tag = cbw->dCBWTag;
-			return handle_ufi_command(plat, priv, cbw->CBWCDB,
+			return handle_ufi_command(priv, cbw->CBWCDB,
 						  cbw->bCDBLength);
 		case SCSIPH_DATA:
 			debug("data out\n");

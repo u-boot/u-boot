@@ -17,4 +17,5 @@ endif
 
 ifdef CONFIG_SCSI
 obj-$(CONFIG_SANDBOX) += sandbox_scsi.o
+obj-$(CONFIG_SANDBOX) += scsi_emul.o
 endif
