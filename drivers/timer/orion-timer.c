@@ -28,6 +28,11 @@ static bool early_init_done __section(".data") = false;
 /* Common functions for early (boot) and DM based timer */
 static void orion_timer_init(void *base, enum input_clock_type type)
 {
+	/* Only init the timer once */
+	if (early_init_done)
+		return;
+	early_init_done = true;
+
 	writel(~0, base + TIMER0_VAL);
 	writel(~0, base + TIMER0_RELOAD);
 
@@ -51,11 +56,6 @@ static uint64_t orion_timer_get_count(void *base)
 /* Early (e.g. bootstage etc) timer functions */
 static void notrace timer_early_init(void)
 {
-	/* Only init the timer once */
-	if (early_init_done)
-		return;
-	early_init_done = true;
-
 	if (IS_ENABLED(CONFIG_ARCH_MVEBU))
 		orion_timer_init((void *)MVEBU_TIMER_BASE, INPUT_CLOCK_25MHZ);
 	else
