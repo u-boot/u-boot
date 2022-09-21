@@ -43,7 +43,7 @@ enum {
  * @error:	true if there is an error condition
  * @alloc_len:	Allocation length from the last incoming command
  * @transfer_len: Transfer length from CBW header
- * @read_len:	Number of blocks of data left in the current read command
+ * @read_len:	Number of bytes of data left in the current read command
  * @tag:	Tag value from last command
  * @fd:		File descriptor of backing file
  * @file_size:	Size of file in bytes
@@ -92,7 +92,7 @@ struct __packed scsi_read10_req {
 	u8 lun_flags;
 	u32 lba;
 	u8 spare;
-	u16 transfer_len;
+	u16 xfer_len;
 	u8 spare2[3];
 };
 
@@ -282,7 +282,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 		struct scsi_read10_req *req = (void *)buff;
 
 		handle_read(priv, be32_to_cpu(req->lba),
-			    be16_to_cpu(req->transfer_len));
+			    be16_to_cpu(req->xfer_len));
 		break;
 	}
 	default:
