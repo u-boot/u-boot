@@ -206,8 +206,19 @@ static void setup_response(struct sandbox_flash_priv *priv)
 	csw->bCSWStatus = CSWSTATUS_GOOD;
 }
 
-static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
-			ulong transfer_len)
+/**
+ * handle_read() - prepare for reading data from the backing file
+ *
+ * This seeks to the correct file position and sets info->buff_used to the
+ * correct size.
+ *
+ * @priv: Private information
+ * @lba: Start block to read from
+ * @transfer_length: Number of blocks to read
+ * @return 0 if OK, -EIO on failure
+ */
+static int handle_read(struct sandbox_flash_priv *priv, ulong lba,
+		       ulong transfer_len)
 {
 	struct scsi_emul_info *info = &priv->eminfo;
 
@@ -216,10 +227,10 @@ static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
 	if (priv->fd != -1) {
 		os_lseek(priv->fd, lba * info->block_size, OS_SEEK_SET);
 		info->buff_used = transfer_len * info->block_size;
-		setup_response(priv);
-	} else {
-		setup_fail_response(priv);
+		return 0;
 	}
+
+	return -EIO;
 }
 
 static int handle_ufi_command(struct sandbox_flash_plat *plat,
@@ -265,8 +276,12 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 	case SCSI_READ10: {
 		struct scsi_read10_req *req = (void *)buff;
 
-		handle_read(priv, be32_to_cpu(req->lba),
-			    be16_to_cpu(req->xfer_len));
+		if (!handle_read(priv, be32_to_cpu(req->lba),
+				 be16_to_cpu(req->xfer_len)))
+			setup_response(priv);
+		else
+			setup_fail_response(priv);
+
 		break;
 	}
 	default:
