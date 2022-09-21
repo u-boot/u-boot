@@ -245,12 +245,8 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 		memset(resp, '\0', sizeof(*resp));
 		resp->data_format = 1;
 		resp->additional_len = 0x1f;
-		strncpy(resp->vendor,
-			plat->flash_strings[STRINGID_MANUFACTURER -  1].s,
-			sizeof(resp->vendor));
-		strncpy(resp->product,
-			plat->flash_strings[STRINGID_PRODUCT - 1].s,
-			sizeof(resp->product));
+		strncpy(resp->vendor, info->vendor, sizeof(resp->vendor));
+		strncpy(resp->product, info->product, sizeof(resp->product));
 		strncpy(resp->revision, "1.0", sizeof(resp->revision));
 		setup_response(priv, resp, sizeof(*resp));
 		break;
@@ -406,6 +402,8 @@ static int sandbox_flash_probe(struct udevice *dev)
 	info->buff = malloc(SANDBOX_FLASH_BUF_SIZE);
 	if (!info->buff)
 		return log_ret(-ENOMEM);
+	info->vendor = plat->flash_strings[STRINGID_MANUFACTURER -  1].s;
+	info->product = plat->flash_strings[STRINGID_PRODUCT - 1].s;
 
 	return 0;
 }

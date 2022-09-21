@@ -15,6 +15,9 @@
 /**
  * struct scsi_emul_info - information for emulating a SCSI device
  *
+ * @vendor: Vendor name
+ * @product: Product name
+ *
  * @phase: Current SCSI phase
  * @buff_used: Number of bytes ready to transfer back to host
  * @read_len: Number of bytes of data left in the current read command
@@ -25,6 +28,8 @@
 struct scsi_emul_info {
 	/* provided by the caller: */
 	void *buff;
+	const char *vendor;
+	const char *product;
 
 	/* state maintained by the emulator: */
 	enum scsi_cmd_phase phase;
