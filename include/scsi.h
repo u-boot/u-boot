@@ -201,6 +201,61 @@ enum scsi_cmd_phase {
 };
 
 /**
+ * struct scsi_inquiry_resp - holds a SCSI inquiry command
+ *
+ * @type; command type
+ * @flags; command flags
+ * @version; command version
+ * @data_format; data format
+ * @additional_len; additional data length
+ * @spare[3]; spare bytes
+ * @vendor[8]; vendor information
+ * @product[16]; production information
+ * @revision[4]; revision information
+ */
+struct scsi_inquiry_resp {
+	u8 type;
+	u8 flags;
+	u8 version;
+	u8 data_format;
+	u8 additional_len;
+	u8 spare[3];
+	char vendor[8];
+	char product[16];
+	char revision[4];
+};
+
+/**
+ * struct scsi_read_capacity_resp - holds the response to a read-capacity cmd
+ *
+ * @last_block_addr: Logical block address of last block
+ * @block_len: Length of each block in bytes
+ */
+struct scsi_read_capacity_resp {
+	u32 last_block_addr;
+	u32 block_len;
+};
+
+/**
+ * struct scsi_read10_req - holds a SCSI READ10 request
+ *
+ * @cmd; command type
+ * @lun_flags; LUN flags
+ * @lba; Logical block address to start reading from
+ * @spare; spare bytes
+ * @xfer_len: number of blocks to read
+ * @spare2: more spare bytes
+ */
+struct __packed scsi_read10_req {
+	u8 cmd;
+	u8 lun_flags;
+	u32 lba;
+	u8 spare;
+	u16 xfer_len;
+	u8 spare2[3];
+};
+
+/**
  * struct scsi_plat - stores information about SCSI controller
  *
  * @base: Controller base address
