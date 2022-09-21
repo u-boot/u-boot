@@ -100,7 +100,7 @@ int dram_init_banksize(void)
  * Push the variable into the .data section so that it
  * does not get cleared later.
  */
-unsigned long __section(".data") prior_stage_fdt_address;
+unsigned long __section(".data") prior_stage_fdt_address[2];
 
 #ifdef CONFIG_OF_BOARD
 
@@ -151,6 +151,23 @@ static phys_addr_t find_dtb_in_nor_flash(const char *partname)
 }
 #endif
 
+/*
+ * Filter for a valid DTB, as TF-A happens to provide a pointer to some
+ * data structure using the DTB format, which we cannot use.
+ * The address of the DTB cannot be 0, in fact this is the reserved value
+ * for x1 in the kernel boot protocol.
+ * And while the nt_fw_config.dtb used by TF-A is a valid DTB structure, it
+ * does not contain the typical nodes and properties, which we test for by
+ * probing for the mandatory /memory node.
+ */
+static bool is_valid_dtb(uintptr_t dtb_ptr)
+{
+	if (dtb_ptr == 0 || fdt_magic(dtb_ptr) != FDT_MAGIC)
+		return false;
+
+	return fdt_subnode_offset((void *)dtb_ptr, 0, "memory") >= 0;
+}
+
 void *board_fdt_blob_setup(int *err)
 {
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
@@ -172,10 +189,12 @@ void *board_fdt_blob_setup(int *err)
 	}
 #endif
 
-	if (fdt_magic(prior_stage_fdt_address) == FDT_MAGIC &&
-	    fdt_totalsize(prior_stage_fdt_address) > 0x100) {
+	if (is_valid_dtb(prior_stage_fdt_address[1])) {
 		*err = 0;
-		return (void *)prior_stage_fdt_address;
+		return (void *)prior_stage_fdt_address[1];
+	} else if (is_valid_dtb(prior_stage_fdt_address[0])) {
+		*err = 0;
+		return (void *)prior_stage_fdt_address[0];
 	}
 
 	if (fdt_magic(gd->fdt_blob) == FDT_MAGIC) {
