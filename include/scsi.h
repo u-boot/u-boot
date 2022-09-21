@@ -188,6 +188,19 @@ struct scsi_cmd {
 #define SCSI_WRITE_SAME	0x41		/* Write Same (O) */
 
 /**
+ * enum scsi_cmd_phase - current phase of the SCSI protocol
+ *
+ * @SCSIPH_START: Start phase
+ * @SCSIPH_DATA: Data phase
+ * @SCSIPH_STATUS: Status phase
+ */
+enum scsi_cmd_phase {
+	SCSIPH_START,
+	SCSIPH_DATA,
+	SCSIPH_STATUS,
+};
+
+/**
  * struct scsi_plat - stores information about SCSI controller
  *
  * @base: Controller base address

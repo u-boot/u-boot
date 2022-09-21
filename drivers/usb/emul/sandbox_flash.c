@@ -23,12 +23,6 @@ enum {
 	SANDBOX_FLASH_BLOCK_LEN		= 512,
 };
 
-enum cmd_phase {
-	PHASE_START,
-	PHASE_DATA,
-	PHASE_STATUS,
-};
-
 enum {
 	STRINGID_MANUFACTURER = 1,
 	STRINGID_PRODUCT,
@@ -56,7 +50,7 @@ struct sandbox_flash_priv {
 	int alloc_len;
 	int transfer_len;
 	int read_len;
-	enum cmd_phase phase;
+	enum scsi_cmd_phase phase;
 	u32 tag;
 	int fd;
 	loff_t file_size;
@@ -290,7 +284,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 		return -EPROTONOSUPPORT;
 	}
 
-	priv->phase = priv->transfer_len ? PHASE_DATA : PHASE_STATUS;
+	priv->phase = priv->transfer_len ? SCSIPH_DATA : SCSIPH_STATUS;
 	return 0;
 }
 
@@ -307,7 +301,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 	switch (ep) {
 	case SANDBOX_FLASH_EP_OUT:
 		switch (priv->phase) {
-		case PHASE_START:
+		case SCSIPH_START:
 			priv->alloc_len = 0;
 			priv->read_len = 0;
 			if (priv->error || len != UMASS_BBB_CBW_SIZE ||
@@ -322,7 +316,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			priv->tag = cbw->dCBWTag;
 			return handle_ufi_command(plat, priv, cbw->CBWCDB,
 						  cbw->bCDBLength);
-		case PHASE_DATA:
+		case SCSIPH_DATA:
 			debug("data out\n");
 			break;
 		default:
@@ -330,7 +324,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 		}
 	case SANDBOX_FLASH_EP_IN:
 		switch (priv->phase) {
-		case PHASE_DATA:
+		case SCSIPH_DATA:
 			debug("data in, len=%x, alloc_len=%x, priv->read_len=%x\n",
 			      len, priv->alloc_len, priv->read_len);
 			if (priv->read_len) {
@@ -344,22 +338,22 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 					return -EIO;
 				priv->read_len -= len / SANDBOX_FLASH_BLOCK_LEN;
 				if (!priv->read_len)
-					priv->phase = PHASE_STATUS;
+					priv->phase = SCSIPH_STATUS;
 			} else {
 				if (priv->alloc_len && len > priv->alloc_len)
 					len = priv->alloc_len;
 				if (len > sizeof(priv->buff))
 					len = sizeof(priv->buff);
 				memcpy(buff, priv->buff, len);
-				priv->phase = PHASE_STATUS;
+				priv->phase = SCSIPH_STATUS;
 			}
 			return len;
-		case PHASE_STATUS:
+		case SCSIPH_STATUS:
 			debug("status in, len=%x\n", len);
 			if (len > sizeof(priv->status))
 				len = sizeof(priv->status);
 			memcpy(buff, &priv->status, len);
-			priv->phase = PHASE_START;
+			priv->phase = SCSIPH_START;
 			return len;
 		default:
 			break;
