@@ -67,9 +67,6 @@
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			SZ_2G /* 2GB DDR */
 
-/* ENET */
-#define CONFIG_FEC_MXC_PHYADDR          7
-
 /* USB Configs */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 
