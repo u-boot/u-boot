@@ -181,14 +181,12 @@ static int sandbox_flash_control(struct udevice *dev, struct usb_device *udev,
 
 static void setup_fail_response(struct sandbox_flash_priv *priv)
 {
-	struct scsi_emul_info *info = &priv->eminfo;
 	struct umass_bbb_csw *csw = &priv->status;
 
 	csw->dCSWSignature = CSWSIGNATURE;
 	csw->dCSWTag = priv->tag;
 	csw->dCSWDataResidue = 0;
 	csw->bCSWStatus = CSWSTATUS_FAILED;
-	info->buff_used = 0;
 }
 
 /**
@@ -198,19 +196,14 @@ static void setup_fail_response(struct sandbox_flash_priv *priv)
  * @resp:	Response to send, or NULL if none
  * @size:	Size of response
  */
-static void setup_response(struct sandbox_flash_priv *priv, void *resp,
-			   int size)
+static void setup_response(struct sandbox_flash_priv *priv)
 {
-	struct scsi_emul_info *info = &priv->eminfo;
 	struct umass_bbb_csw *csw = &priv->status;
 
 	csw->dCSWSignature = CSWSIGNATURE;
 	csw->dCSWTag = priv->tag;
 	csw->dCSWDataResidue = 0;
 	csw->bCSWStatus = CSWSTATUS_GOOD;
-
-	assert(!resp || resp == info->buff);
-	info->buff_used = size;
 }
 
 static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
@@ -222,8 +215,8 @@ static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
 	info->read_len = transfer_len;
 	if (priv->fd != -1) {
 		os_lseek(priv->fd, lba * info->block_size, OS_SEEK_SET);
-		setup_response(priv, info->buff,
-			       transfer_len * info->block_size);
+		info->buff_used = transfer_len * info->block_size;
+		setup_response(priv);
 	} else {
 		setup_fail_response(priv);
 	}
@@ -236,6 +229,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 	struct scsi_emul_info *info = &priv->eminfo;
 	const struct scsi_cmd *req = buff;
 
+	info->buff_used = 0;
 	switch (*req->cmd) {
 	case SCSI_INQUIRY: {
 		struct scsi_inquiry_resp *resp = (void *)info->buff;
@@ -247,11 +241,12 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 		strncpy(resp->vendor, info->vendor, sizeof(resp->vendor));
 		strncpy(resp->product, info->product, sizeof(resp->product));
 		strncpy(resp->revision, "1.0", sizeof(resp->revision));
-		setup_response(priv, resp, sizeof(*resp));
+		info->buff_used = sizeof(*resp);
+		setup_response(priv);
 		break;
 	}
 	case SCSI_TST_U_RDY:
-		setup_response(priv, NULL, 0);
+		setup_response(priv);
 		break;
 	case SCSI_RD_CAPAC: {
 		struct scsi_read_capacity_resp *resp = (void *)info->buff;
@@ -263,7 +258,8 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 			blocks = 0;
 		resp->last_block_addr = cpu_to_be32(blocks);
 		resp->block_len = cpu_to_be32(info->block_size);
-		setup_response(priv, resp, sizeof(*resp));
+		info->buff_used = sizeof(*resp);
+		setup_response(priv);
 		break;
 	}
 	case SCSI_READ10: {
