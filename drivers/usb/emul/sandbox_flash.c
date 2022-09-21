@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <malloc.h>
 #include <os.h>
 #include <scsi.h>
 #include <scsi_emul.h>
@@ -22,6 +23,7 @@ enum {
 	SANDBOX_FLASH_EP_OUT		= 1,	/* endpoints */
 	SANDBOX_FLASH_EP_IN		= 2,
 	SANDBOX_FLASH_BLOCK_LEN		= 512,
+	SANDBOX_FLASH_BUF_SIZE		= 512,
 };
 
 enum {
@@ -41,7 +43,6 @@ enum {
  * @fd:		File descriptor of backing file
  * @file_size:	Size of file in bytes
  * @status_buff:	Data buffer for outgoing status
- * @buff:	Data buffer for outgoing data
  */
 struct sandbox_flash_priv {
 	struct scsi_emul_info eminfo;
@@ -50,7 +51,6 @@ struct sandbox_flash_priv {
 	int fd;
 	loff_t file_size;
 	struct umass_bbb_csw status;
-	u8 buff[512];
 };
 
 struct sandbox_flash_plat {
@@ -210,7 +210,7 @@ static void setup_response(struct sandbox_flash_priv *priv, void *resp,
 	csw->dCSWDataResidue = 0;
 	csw->bCSWStatus = CSWSTATUS_GOOD;
 
-	assert(!resp || resp == priv->buff);
+	assert(!resp || resp == info->buff);
 	info->buff_used = size;
 }
 
@@ -223,7 +223,7 @@ static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
 	info->read_len = transfer_len;
 	if (priv->fd != -1) {
 		os_lseek(priv->fd, lba * SANDBOX_FLASH_BLOCK_LEN, OS_SEEK_SET);
-		setup_response(priv, priv->buff,
+		setup_response(priv, info->buff,
 			       transfer_len * SANDBOX_FLASH_BLOCK_LEN);
 	} else {
 		setup_fail_response(priv);
@@ -239,7 +239,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 
 	switch (*req->cmd) {
 	case SCSI_INQUIRY: {
-		struct scsi_inquiry_resp *resp = (void *)priv->buff;
+		struct scsi_inquiry_resp *resp = (void *)info->buff;
 
 		info->alloc_len = req->cmd[4];
 		memset(resp, '\0', sizeof(*resp));
@@ -259,7 +259,7 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 		setup_response(priv, NULL, 0);
 		break;
 	case SCSI_RD_CAPAC: {
-		struct scsi_read_capacity_resp *resp = (void *)priv->buff;
+		struct scsi_read_capacity_resp *resp = (void *)info->buff;
 		uint blocks;
 
 		if (priv->file_size)
@@ -342,9 +342,9 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			} else {
 				if (info->alloc_len && len > info->alloc_len)
 					len = info->alloc_len;
-				if (len > sizeof(priv->buff))
-					len = sizeof(priv->buff);
-				memcpy(buff, priv->buff, len);
+				if (len > SANDBOX_FLASH_BUF_SIZE)
+					len = SANDBOX_FLASH_BUF_SIZE;
+				memcpy(buff, info->buff, len);
 				info->phase = SCSIPH_STATUS;
 			}
 			return len;
@@ -394,10 +394,28 @@ static int sandbox_flash_probe(struct udevice *dev)
 {
 	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 	struct sandbox_flash_priv *priv = dev_get_priv(dev);
+	struct scsi_emul_info *info = &priv->eminfo;
+	int ret;
 
 	priv->fd = os_open(plat->pathname, OS_O_RDONLY);
-	if (priv->fd != -1)
-		return os_get_filesize(plat->pathname, &priv->file_size);
+	if (priv->fd != -1) {
+		ret = os_get_filesize(plat->pathname, &priv->file_size);
+		if (ret)
+			return log_msg_ret("sz", ret);
+	}
+	info->buff = malloc(SANDBOX_FLASH_BUF_SIZE);
+	if (!info->buff)
+		return log_ret(-ENOMEM);
+
+	return 0;
+}
+
+static int sandbox_flash_remove(struct udevice *dev)
+{
+	struct sandbox_flash_priv *priv = dev_get_priv(dev);
+	struct scsi_emul_info *info = &priv->eminfo;
+
+	free(info->buff);
 
 	return 0;
 }
@@ -418,6 +436,7 @@ U_BOOT_DRIVER(usb_sandbox_flash) = {
 	.of_match = sandbox_usb_flash_ids,
 	.bind	= sandbox_flash_bind,
 	.probe	= sandbox_flash_probe,
+	.remove	= sandbox_flash_remove,
 	.of_to_plat = sandbox_flash_of_to_plat,
 	.ops	= &sandbox_usb_flash_ops,
 	.priv_auto	= sizeof(struct sandbox_flash_priv),

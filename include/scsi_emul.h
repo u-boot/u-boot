@@ -20,8 +20,13 @@
  * @read_len: Number of bytes of data left in the current read command
  * @alloc_len: Allocation length from the last incoming command
  * @transfer_len: Transfer length from CBW header
+ * @buff: Data buffer for outgoing data
  */
 struct scsi_emul_info {
+	/* provided by the caller: */
+	void *buff;
+
+	/* state maintained by the emulator: */
 	enum scsi_cmd_phase phase;
 	int buff_used;
 	int read_len;
