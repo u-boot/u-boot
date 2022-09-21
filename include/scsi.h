@@ -15,27 +15,47 @@
 
 struct udevice;
 
+/**
+ * struct scsi_cmd - information about a SCSI command to be processed
+ *
+ * @cmd: command
+ * @sense_buf: for request sense
+ * @status: SCSI Status
+ * @target: Target ID
+ * @lun: Target LUN
+ * @cmdlen: command len
+ * @datalen: Total data length
+ * @pdata: pointer to data
+ * @msgout: Messge out buffer (NOT USED)
+ * @msgin: Message in buffer
+ * @sensecmdlen: Sense command len
+ * @sensedatalen: Sense data len
+ * @sensecmd: Sense command
+ * @contr_stat: Controller Status
+ * @trans_bytes: tranfered bytes
+ * @priv: Private value
+ * @dma_dir: Direction of data structure
+ */
 struct scsi_cmd {
-	unsigned char		cmd[16];					/* command				   */
-	/* for request sense */
-	unsigned char		sense_buf[64]
+	unsigned char cmd[16];
+	unsigned char sense_buf[64]
 		__attribute__((aligned(ARCH_DMA_MINALIGN)));
-	unsigned char		status;						/* SCSI Status			 */
-	unsigned char		target;						/* Target ID				 */
-	unsigned char		lun;							/* Target LUN        */
-	unsigned char		cmdlen;						/* command len				*/
-	unsigned long		datalen;					/* Total data length	*/
-	unsigned char	*	pdata;						/* pointer to data		*/
-	unsigned char		msgout[12];				/* Messge out buffer (NOT USED) */
-	unsigned char		msgin[12];				/* Message in buffer	*/
-	unsigned char		sensecmdlen;			/* Sense command len	*/
-	unsigned long		sensedatalen;			/* Sense data len			*/
-	unsigned char		sensecmd[6];			/* Sense command			*/
-	unsigned long		contr_stat;				/* Controller Status	*/
-	unsigned long		trans_bytes;			/* tranfered bytes		*/
+	unsigned char status;
+	unsigned char target;
+	unsigned char lun;
+	unsigned char cmdlen;
+	unsigned long datalen;
+	unsigned char *pdata;
+	unsigned char msgout[12];
+	unsigned char msgin[12];
+	unsigned char sensecmdlen;
+	unsigned long sensedatalen;
+	unsigned char sensecmd[6];
+	unsigned long contr_stat;
+	unsigned long trans_bytes;
 
-	unsigned int		priv;
-	enum dma_data_direction	dma_dir;
+	unsigned int priv;
+	enum dma_data_direction dma_dir;
 };
 
 /*-----------------------------------------------------------
