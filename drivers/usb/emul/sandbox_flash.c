@@ -222,9 +222,9 @@ static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
 	debug("%s: lba=%lx, transfer_len=%lx\n", __func__, lba, transfer_len);
 	info->read_len = transfer_len;
 	if (priv->fd != -1) {
-		os_lseek(priv->fd, lba * SANDBOX_FLASH_BLOCK_LEN, OS_SEEK_SET);
+		os_lseek(priv->fd, lba * info->block_size, OS_SEEK_SET);
 		setup_response(priv, info->buff,
-			       transfer_len * SANDBOX_FLASH_BLOCK_LEN);
+			       transfer_len * info->block_size);
 	} else {
 		setup_fail_response(priv);
 	}
@@ -259,11 +259,11 @@ static int handle_ufi_command(struct sandbox_flash_plat *plat,
 		uint blocks;
 
 		if (priv->file_size)
-			blocks = priv->file_size / SANDBOX_FLASH_BLOCK_LEN - 1;
+			blocks = priv->file_size / info->block_size - 1;
 		else
 			blocks = 0;
 		resp->last_block_addr = cpu_to_be32(blocks);
-		resp->block_len = cpu_to_be32(SANDBOX_FLASH_BLOCK_LEN);
+		resp->block_len = cpu_to_be32(info->block_size);
 		setup_response(priv, resp, sizeof(*resp));
 		break;
 	}
@@ -332,7 +332,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 				bytes_read = os_read(priv->fd, buff, len);
 				if (bytes_read != len)
 					return -EIO;
-				info->read_len -= len / SANDBOX_FLASH_BLOCK_LEN;
+				info->read_len -= len / info->block_size;
 				if (!info->read_len)
 					info->phase = SCSIPH_STATUS;
 			} else {
@@ -404,6 +404,7 @@ static int sandbox_flash_probe(struct udevice *dev)
 		return log_ret(-ENOMEM);
 	info->vendor = plat->flash_strings[STRINGID_MANUFACTURER -  1].s;
 	info->product = plat->flash_strings[STRINGID_PRODUCT - 1].s;
+	info->block_size = SANDBOX_FLASH_BLOCK_LEN;
 
 	return 0;
 }
