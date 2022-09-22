@@ -890,7 +890,7 @@ static int dwc2_ep0_write(struct dwc2_udc *dev)
 static int dwc2_udc_get_status(struct dwc2_udc *dev,
 		struct usb_ctrlrequest *crq)
 {
-	u8 ep_num = crq->wIndex & 0x7F;
+	u8 ep_num = crq->wIndex & 0x3;
 	u16 g_status = 0;
 	u32 ep_ctrl;
 
@@ -1418,7 +1418,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 			break;
 
 		case USB_REQ_CLEAR_FEATURE:
-			ep_num = usb_ctrl->wIndex & 0x7f;
+			ep_num = usb_ctrl->wIndex & 0x3;
 
 			if (!dwc2_udc_clear_feature(&dev->ep[ep_num].ep))
 				return;
@@ -1426,7 +1426,7 @@ static void dwc2_ep0_setup(struct dwc2_udc *dev)
 			break;
 
 		case USB_REQ_SET_FEATURE:
-			ep_num = usb_ctrl->wIndex & 0x7f;
+			ep_num = usb_ctrl->wIndex & 0x3;
 
 			if (!dwc2_udc_set_feature(&dev->ep[ep_num].ep))
 				return;
