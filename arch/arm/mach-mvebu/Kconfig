@@ -348,6 +348,21 @@ config MVEBU_EFUSE_FAKE
 	  from a memory block.
 	  This is can be used for testing prog scripts.
 
+config MVEBU_EFUSE_VHV_GPIO
+	string "VHV_Enable GPIO name for eFuse programming"
+	depends on MVEBU_EFUSE && !ARMADA_3700
+	help
+	  The eFuse programing (burning) phase requires supplying 1.8V to the
+	  device on the VHV power pin, while for normal operation the VHV power
+	  rail must be left unconnected. See Marvell AN-389: ARMADA VHV Power
+	  document (Doc. No. MV-S302545-00 Rev. C, August 2, 2016) for details.
+	  .
+	  This specify VHV_Enable GPIO name used in U-Boot for enabling VHV power.
+
+config MVEBU_EFUSE_VHV_GPIO_ACTIVE_LOW
+	bool "VHV_Enable GPIO is Active Low"
+	depends on MVEBU_EFUSE_VHV_GPIO != ""
+
 config SECURED_MODE_IMAGE
 	bool "Build image for trusted boot"
 	default false
