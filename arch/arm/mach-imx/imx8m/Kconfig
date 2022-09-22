@@ -4,6 +4,7 @@ config IMX8M
 	bool
 	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
+	select ARMV8_CRYPTO
 
 config IMX8MQ
 	bool
