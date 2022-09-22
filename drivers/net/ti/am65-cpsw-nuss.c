@@ -552,7 +552,8 @@ static int am65_cpsw_mdio_init(struct udevice *dev)
 	cpsw_common->bus = cpsw_mdio_init(dev->name,
 					  cpsw_common->mdio_base,
 					  cpsw_common->bus_freq,
-					  clk_get_rate(&cpsw_common->fclk));
+					  clk_get_rate(&cpsw_common->fclk),
+					  false);
 	if (!cpsw_common->bus)
 		return -EFAULT;
 

@@ -23,6 +23,11 @@ struct cpsw_mdio_regs {
 #define CONTROL_FAULT_ENABLE	BIT(18)
 #define CONTROL_DIV_MASK	GENMASK(15, 0)
 
+#define MDIO_MAN_MDCLK_O        BIT(2)
+#define MDIO_MAN_OE             BIT(1)
+#define MDIO_MAN_PIN            BIT(0)
+#define MDIO_MANUALMODE         BIT(31)
+
 	u32	alive;
 	u32	link;
 	u32	linkintraw;
@@ -32,7 +37,9 @@ struct cpsw_mdio_regs {
 	u32	userintmasked;
 	u32	userintmaskset;
 	u32	userintmaskclr;
-	u32	__reserved_1[20];
+	u32	manualif;
+	u32	poll;
+	u32	__reserved_1[18];
 
 	struct {
 		u32		access;
@@ -51,6 +58,13 @@ struct cpsw_mdio_regs {
 #define PHY_REG_MASK		0x1f
 #define PHY_ID_MASK		0x1f
 
+#define MDIO_BITRANGE           0x8000
+#define C22_READ_PATTERN        0x6
+#define C22_WRITE_PATTERN       0x5
+#define C22_BITRANGE            0x8
+#define PHY_BITRANGE            0x10
+#define PHY_DATA_BITRANGE       0x8000
+
 /*
  * This timeout definition is a worst-case ultra defensive measure against
  * unexpected controller lock ups.  Ideally, we should never ever hit this
@@ -58,11 +72,238 @@ struct cpsw_mdio_regs {
  */
 #define CPSW_MDIO_TIMEOUT            100 /* msecs */
 
+enum cpsw_mdio_manual {
+	MDIO_PIN = 0,
+	MDIO_OE,
+	MDIO_MDCLK,
+};
+
 struct cpsw_mdio {
 	struct cpsw_mdio_regs *regs;
 	struct mii_dev *bus;
 	int div;
 };
+
+static void cpsw_mdio_disable(struct cpsw_mdio *mdio)
+{
+	u32 reg;
+	/* Disable MDIO state machine */
+	reg = readl(&mdio->regs->control);
+	reg &= ~CONTROL_ENABLE;
+
+	writel(reg, &mdio->regs->control);
+}
+
+static void cpsw_mdio_enable_manual_mode(struct cpsw_mdio *mdio)
+{
+	u32 reg;
+
+	/* set manual mode */
+	reg = readl(&mdio->regs->poll);
+	reg |= MDIO_MANUALMODE;
+
+	writel(reg, &mdio->regs->poll);
+}
+
+static void cpsw_mdio_sw_set_bit(struct cpsw_mdio *mdio,
+				 enum cpsw_mdio_manual bit)
+{
+	u32 reg;
+
+	reg = readl(&mdio->regs->manualif);
+
+	switch (bit) {
+	case MDIO_OE:
+		reg |= MDIO_MAN_OE;
+		writel(reg, &mdio->regs->manualif);
+		break;
+	case MDIO_PIN:
+		reg |= MDIO_MAN_PIN;
+		writel(reg, &mdio->regs->manualif);
+		break;
+	case MDIO_MDCLK:
+		reg |= MDIO_MAN_MDCLK_O;
+		writel(reg, &mdio->regs->manualif);
+		break;
+	default:
+		break;
+	};
+}
+
+static void cpsw_mdio_sw_clr_bit(struct cpsw_mdio *mdio,
+				 enum cpsw_mdio_manual bit)
+{
+	u32 reg;
+
+	reg = readl(&mdio->regs->manualif);
+
+	switch (bit) {
+	case MDIO_OE:
+		reg &= ~MDIO_MAN_OE;
+		writel(reg, &mdio->regs->manualif);
+		break;
+	case MDIO_PIN:
+		reg &= ~MDIO_MAN_PIN;
+		writel(reg, &mdio->regs->manualif);
+		break;
+	case MDIO_MDCLK:
+		reg = readl(&mdio->regs->manualif);
+		reg &= ~MDIO_MAN_MDCLK_O;
+		writel(reg, &mdio->regs->manualif);
+		break;
+	default:
+		break;
+	};
+}
+
+static int cpsw_mdio_test_man_bit(struct cpsw_mdio *mdio,
+				  enum cpsw_mdio_manual bit)
+{
+	u32 reg;
+
+	reg = readl(&mdio->regs->manualif);
+	return test_bit(bit, &reg);
+}
+
+static void cpsw_mdio_toggle_man_bit(struct cpsw_mdio *mdio,
+				     enum cpsw_mdio_manual bit)
+{
+	cpsw_mdio_sw_clr_bit(mdio, bit);
+	cpsw_mdio_sw_set_bit(mdio, bit);
+}
+
+static void cpsw_mdio_man_send_pattern(struct cpsw_mdio *mdio,
+				       u32 bitrange, u32 val)
+{
+	u32 i;
+
+	for (i = bitrange; i; i = i >> 1) {
+		if (i & val)
+			cpsw_mdio_sw_set_bit(mdio, MDIO_PIN);
+		else
+			cpsw_mdio_sw_clr_bit(mdio, MDIO_PIN);
+
+		cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+	}
+}
+
+static void cpsw_mdio_sw_preamble(struct cpsw_mdio *mdio)
+{
+	u32 i;
+
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_OE);
+
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_set_bit(mdio, MDIO_MDCLK);
+
+	for (i = 0; i < 32; i++) {
+		cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+		cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+		cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+		cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+	}
+}
+
+static int cpsw_mdio_sw_read(struct mii_dev *bus, int phy_id,
+			     int dev_addr, int phy_reg)
+{
+	struct cpsw_mdio *mdio = bus->priv;
+	u32 reg, i;
+	u8 ack;
+
+	if (phy_reg & ~PHY_REG_MASK || phy_id & ~PHY_ID_MASK)
+		return -EINVAL;
+
+	cpsw_mdio_disable(mdio);
+	cpsw_mdio_enable_manual_mode(mdio);
+	cpsw_mdio_sw_preamble(mdio);
+
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_set_bit(mdio, MDIO_OE);
+
+	/* Issue clause 22 MII read function {0,1,1,0} */
+	cpsw_mdio_man_send_pattern(mdio, C22_BITRANGE, C22_READ_PATTERN);
+
+	/* Send the device number MSB first */
+	cpsw_mdio_man_send_pattern(mdio, PHY_BITRANGE, phy_id);
+
+	/* Send the register number MSB first */
+	cpsw_mdio_man_send_pattern(mdio, PHY_BITRANGE, phy_reg);
+
+	/* Send turn around cycles */
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_OE);
+
+	cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+
+	ack = cpsw_mdio_test_man_bit(mdio, MDIO_PIN);
+	cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+
+	reg = 0;
+	if (ack == 0) {
+		for (i = MDIO_BITRANGE; i; i = i >> 1) {
+			if (cpsw_mdio_test_man_bit(mdio, MDIO_PIN))
+				reg |= i;
+
+			cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+		}
+	} else {
+		for (i = MDIO_BITRANGE; i; i = i >> 1)
+			cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+
+		reg = 0xFFFF;
+	}
+
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_set_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_set_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+
+	return reg;
+}
+
+static int cpsw_mdio_sw_write(struct mii_dev *bus, int phy_id,
+			      int dev_addr, int phy_reg, u16 phy_data)
+{
+	struct cpsw_mdio *mdio = bus->priv;
+
+	if ((phy_reg & ~PHY_REG_MASK) || (phy_id & ~PHY_ID_MASK))
+		return -EINVAL;
+
+	cpsw_mdio_disable(mdio);
+	cpsw_mdio_enable_manual_mode(mdio);
+	cpsw_mdio_sw_preamble(mdio);
+
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_set_bit(mdio, MDIO_OE);
+
+	/* Issue clause 22 MII write function {0,1,0,1} */
+	cpsw_mdio_man_send_pattern(mdio, C22_BITRANGE, C22_WRITE_PATTERN);
+
+	/* Send the device number MSB first */
+	cpsw_mdio_man_send_pattern(mdio, PHY_BITRANGE, phy_id);
+
+	/* Send the register number MSB first */
+	cpsw_mdio_man_send_pattern(mdio, PHY_BITRANGE, phy_reg);
+
+	/* set turn-around cycles */
+	cpsw_mdio_sw_set_bit(mdio, MDIO_PIN);
+	cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_PIN);
+	cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+
+	/* Send Register data MSB first */
+	cpsw_mdio_man_send_pattern(mdio, PHY_DATA_BITRANGE, phy_data);
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_OE);
+
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_sw_clr_bit(mdio, MDIO_MDCLK);
+	cpsw_mdio_toggle_man_bit(mdio, MDIO_MDCLK);
+
+	return 0;
+}
 
 /* wait until hardware is ready for another user access */
 static int cpsw_mdio_wait_for_user_access(struct cpsw_mdio *mdio)
@@ -130,7 +371,7 @@ u32 cpsw_mdio_get_alive(struct mii_dev *bus)
 }
 
 struct mii_dev *cpsw_mdio_init(const char *name, phys_addr_t mdio_base,
-			       u32 bus_freq, int fck_freq)
+			       u32 bus_freq, int fck_freq, bool manual_mode)
 {
 	struct cpsw_mdio *cpsw_mdio;
 	int ret;
@@ -172,8 +413,14 @@ struct mii_dev *cpsw_mdio_init(const char *name, phys_addr_t mdio_base,
 	 */
 	mdelay(1);
 
-	cpsw_mdio->bus->read = cpsw_mdio_read;
-	cpsw_mdio->bus->write = cpsw_mdio_write;
+	if (manual_mode) {
+		cpsw_mdio->bus->read = cpsw_mdio_sw_read;
+		cpsw_mdio->bus->write = cpsw_mdio_sw_write;
+	} else {
+		cpsw_mdio->bus->read = cpsw_mdio_read;
+		cpsw_mdio->bus->write = cpsw_mdio_write;
+	}
+
 	cpsw_mdio->bus->priv = cpsw_mdio;
 	snprintf(cpsw_mdio->bus->name, sizeof(cpsw_mdio->bus->name), name);
 

@@ -922,7 +922,8 @@ int _cpsw_register(struct cpsw_priv *priv)
 		idx = idx + 1;
 	}
 
-	priv->bus = cpsw_mdio_init(priv->dev->name, data->mdio_base, 0, 0);
+	priv->bus = cpsw_mdio_init(priv->dev->name, data->mdio_base, 0, 0,
+				   false);
 	if (!priv->bus)
 		return -EFAULT;
 
