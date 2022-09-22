@@ -363,20 +363,22 @@ void *dm_priv_to_rw(void *priv)
 
 static int dm_probe_devices(struct udevice *dev, bool pre_reloc_only)
 {
-	u32 mask = DM_FLAG_PROBE_AFTER_BIND;
-	u32 flags = dev_get_flags(dev);
+	ofnode node = dev_ofnode(dev);
 	struct udevice *child;
 	int ret;
 
-	if (pre_reloc_only)
-		mask |= DM_FLAG_PRE_RELOC;
+	if (pre_reloc_only &&
+	    (!ofnode_valid(node) || !ofnode_pre_reloc(node)) &&
+	    !(dev->driver->flags & DM_FLAG_PRE_RELOC))
+		goto probe_children;
 
-	if ((flags & mask) == mask) {
+	if (dev_get_flags(dev) & DM_FLAG_PROBE_AFTER_BIND) {
 		ret = device_probe(dev);
 		if (ret)
 			return ret;
 	}
 
+probe_children:
 	list_for_each_entry(child, &dev->child_head, sibling_node)
 		dm_probe_devices(child, pre_reloc_only);
 
