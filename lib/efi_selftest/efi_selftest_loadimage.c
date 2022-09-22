@@ -142,38 +142,39 @@ static struct efi_file_system_info *file_system_info =
 	&priv_file_system_info.info;
 
 /* Forward definitions of file and file system functions */
-static efi_status_t EFIAPI open_volume
+static efi_status_t EFIAPI efi_st_open_volume
 	(struct efi_simple_file_system_protocol *this,
 	 struct efi_file_handle **root);
 
-static efi_status_t EFIAPI open
+static efi_status_t EFIAPI efi_st_open
 	(struct efi_file_handle *this,
 	 struct efi_file_handle **new_handle,
 	 u16 *file_name, u64 open_mode, u64 attributes);
 
-static efi_status_t EFIAPI close(struct efi_file_handle *this);
+static efi_status_t EFIAPI efi_st_close(struct efi_file_handle *this);
 
-static efi_status_t EFIAPI delete(struct efi_file_handle *this);
+static efi_status_t EFIAPI efi_st_delete(struct efi_file_handle *this);
 
-static efi_status_t EFIAPI read
+static efi_status_t EFIAPI efi_st_read
 	(struct efi_file_handle *this, efi_uintn_t *buffer_size, void *buffer);
 
-static efi_status_t EFIAPI write
+static efi_status_t EFIAPI efi_st_write
 	(struct efi_file_handle *this, efi_uintn_t *buffer_size, void *buffer);
 
-static efi_status_t EFIAPI getpos(struct efi_file_handle *this, u64 *pos);
+static efi_status_t EFIAPI efi_st_getpos(struct efi_file_handle *this,
+					 u64 *pos);
 
-static efi_status_t EFIAPI setpos(struct efi_file_handle *this, u64 pos);
+static efi_status_t EFIAPI efi_st_setpos(struct efi_file_handle *this, u64 pos);
 
-static efi_status_t EFIAPI getinfo
+static efi_status_t EFIAPI efi_st_getinfo
 	(struct efi_file_handle *this, const efi_guid_t *info_type,
 	 efi_uintn_t *buffer_size, void *buffer);
 
-static efi_status_t EFIAPI setinfo
+static efi_status_t EFIAPI efi_st_setinfo
 	(struct efi_file_handle *this, const efi_guid_t *info_type,
 	 efi_uintn_t buffer_size, void *buffer);
 
-static efi_status_t EFIAPI flush(struct efi_file_handle *this);
+static efi_status_t EFIAPI efi_st_flush(struct efi_file_handle *this);
 
 /* Internal information about status of file system */
 static struct {
@@ -190,40 +191,40 @@ static struct {
 /* EFI_FILE_PROTOCOL for file */
 static struct efi_file_handle file = {
 	.rev = 0x00010000,
-	.open = open,
-	.close = close,
-	.delete = delete,
-	.read = read,
-	.write = write,
-	.getpos = getpos,
-	.setpos = setpos,
-	.getinfo = getinfo,
-	.setinfo = setinfo,
-	.flush = flush,
+	.open = efi_st_open,
+	.close = efi_st_close,
+	.delete = efi_st_delete,
+	.read = efi_st_read,
+	.write = efi_st_write,
+	.getpos = efi_st_getpos,
+	.setpos = efi_st_setpos,
+	.getinfo = efi_st_getinfo,
+	.setinfo = efi_st_setinfo,
+	.flush = efi_st_flush,
 };
 
 /* EFI_FILE_PROTOCOL for root directory */
 static struct efi_file_handle volume = {
 	.rev = 0x00010000,
-	.open = open,
-	.close = close,
-	.delete = delete,
-	.read = read,
-	.write = write,
-	.getpos = getpos,
-	.setpos = setpos,
-	.getinfo = getinfo,
-	.setinfo = setinfo,
-	.flush = flush,
+	.open = efi_st_open,
+	.close = efi_st_close,
+	.delete = efi_st_delete,
+	.read = efi_st_read,
+	.write = efi_st_write,
+	.getpos = efi_st_getpos,
+	.setpos = efi_st_setpos,
+	.getinfo = efi_st_getinfo,
+	.setinfo = efi_st_setinfo,
+	.flush = efi_st_flush,
 };
 
 /* EFI_SIMPLE_FILE_SYSTEM_PROTOCOL of the block device */
 struct efi_simple_file_system_protocol file_system = {
 	.rev = 0x00010000,
-	.open_volume = open_volume,
+	.open_volume = efi_st_open_volume,
 };
 
-static efi_status_t EFIAPI open_volume
+static efi_status_t EFIAPI efi_st_open_volume
 	(struct efi_simple_file_system_protocol *this,
 	 struct efi_file_handle **root)
 {
@@ -236,7 +237,7 @@ static efi_status_t EFIAPI open_volume
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI open
+static efi_status_t EFIAPI efi_st_open
 	(struct efi_file_handle *this,
 	 struct efi_file_handle **new_handle,
 	 u16 *file_name, u64 open_mode, u64 attributes)
@@ -251,7 +252,7 @@ static efi_status_t EFIAPI open
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI close(struct efi_file_handle *this)
+static efi_status_t EFIAPI efi_st_close(struct efi_file_handle *this)
 {
 	if (this == &file)
 		priv.file_open_count--;
@@ -263,7 +264,7 @@ static efi_status_t EFIAPI close(struct efi_file_handle *this)
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI delete(struct efi_file_handle *this)
+static efi_status_t EFIAPI efi_st_delete(struct efi_file_handle *this)
 {
 	if (this != &file)
 		return EFI_INVALID_PARAMETER;
@@ -271,7 +272,7 @@ static efi_status_t EFIAPI delete(struct efi_file_handle *this)
 	return EFI_UNSUPPORTED;
 }
 
-static efi_status_t EFIAPI read
+static efi_status_t EFIAPI efi_st_read
 	(struct efi_file_handle *this, efi_uintn_t *buffer_size, void *buffer)
 {
 	if (this != &file)
@@ -288,7 +289,7 @@ static efi_status_t EFIAPI read
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI write
+static efi_status_t EFIAPI efi_st_write
 	(struct efi_file_handle *this, efi_uintn_t *buffer_size, void *buffer)
 {
 	if (this != &file)
@@ -297,7 +298,7 @@ static efi_status_t EFIAPI write
 	return EFI_UNSUPPORTED;
 }
 
-static efi_status_t EFIAPI getpos(struct efi_file_handle *this, u64 *pos)
+static efi_status_t EFIAPI efi_st_getpos(struct efi_file_handle *this, u64 *pos)
 {
 	if (this != &file)
 		return EFI_INVALID_PARAMETER;
@@ -307,7 +308,7 @@ static efi_status_t EFIAPI getpos(struct efi_file_handle *this, u64 *pos)
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI setpos(struct efi_file_handle *this, u64 pos)
+static efi_status_t EFIAPI efi_st_setpos(struct efi_file_handle *this, u64 pos)
 {
 	if (this != &file)
 		return EFI_INVALID_PARAMETER;
@@ -317,7 +318,7 @@ static efi_status_t EFIAPI setpos(struct efi_file_handle *this, u64 pos)
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI getinfo
+static efi_status_t EFIAPI efi_st_getinfo
 	(struct efi_file_handle *this, const efi_guid_t *info_type,
 	 efi_uintn_t *buffer_size, void *buffer)
 {
@@ -348,7 +349,7 @@ static efi_status_t EFIAPI getinfo
 	return EFI_SUCCESS;
 }
 
-static efi_status_t EFIAPI setinfo
+static efi_status_t EFIAPI efi_st_setinfo
 	(struct efi_file_handle *this, const efi_guid_t *info_type,
 	 efi_uintn_t buffer_size, void *buffer)
 {
@@ -358,7 +359,7 @@ static efi_status_t EFIAPI setinfo
 	return EFI_UNSUPPORTED;
 }
 
-static efi_status_t EFIAPI flush(struct efi_file_handle *this)
+static efi_status_t EFIAPI efi_st_flush(struct efi_file_handle *this)
 {
 	if (this != &file)
 		return EFI_INVALID_PARAMETER;
