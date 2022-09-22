@@ -311,34 +311,11 @@ static int gpio_hog_probe(struct udevice *dev)
 	return 0;
 }
 
-int gpio_hog_probe_all(void)
-{
-	struct udevice *dev;
-	int ret;
-	int retval = 0;
-
-	for (uclass_first_device(UCLASS_NOP, &dev);
-	     dev;
-	     uclass_find_next_device(&dev)) {
-		if (dev->driver == DM_DRIVER_GET(gpio_hog)) {
-			ret = device_probe(dev);
-			if (ret) {
-				printf("Failed to probe device %s err: %d\n",
-				       dev->name, ret);
-				retval = ret;
-			}
-		}
-	}
-
-	return retval;
-}
-
 int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc)
 {
 	struct udevice *dev;
 
 	*desc = NULL;
-	gpio_hog_probe_all();
 	if (!uclass_get_device_by_name(UCLASS_NOP, name, &dev)) {
 		struct gpio_hog_priv *priv = dev_get_priv(dev);
 
@@ -1505,9 +1482,17 @@ static int gpio_post_bind(struct udevice *dev)
 								 &child);
 				if (ret)
 					return ret;
+
+				/*
+				 * Make sure gpio-hogs are probed after bind
+				 * since hogs can be essential to the hardware
+				 * system.
+				 */
+				dev_or_flags(child, DM_FLAG_PROBE_AFTER_BIND);
 			}
 		}
 	}
+
 	return 0;
 }
 

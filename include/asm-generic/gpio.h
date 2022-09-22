@@ -462,14 +462,6 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc);
 int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc);
 
 /**
- * gpio_hog_probe_all() - probe all gpio devices with
- * gpio-hog subnodes.
- *
- * @return:	Returns return value from device_probe()
- */
-int gpio_hog_probe_all(void);
-
-/**
  * gpio_lookup_name - Look up a GPIO name and return its details
  *
  * This is used to convert a named GPIO into a device, offset and GPIO

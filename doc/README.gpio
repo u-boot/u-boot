@@ -2,10 +2,8 @@
 GPIO hog (CONFIG_GPIO_HOG)
 --------
 
-All the GPIO hog are initialized in gpio_hog_probe_all() function called in
-board_r.c just before board_late_init() but you can also acces directly to
-the gpio with gpio_hog_lookup_name().
-
+All the GPIO hog are initialized using DM_FLAG_PROBE_AFTER_BIND DM flag
+after bind().
 
 Example, for the device tree:
 
