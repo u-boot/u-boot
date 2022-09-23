@@ -595,6 +595,7 @@ static void board_init_regulator_av96(void)
 
 	/* Adjust Buck3 per preconfigured PMIC voltage from NVM. */
 	regulator_set_value(rdev, uv);
+	regulator_set_enable(rdev, true);
 }
 
 static void board_init_regulator(void)

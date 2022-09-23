@@ -102,6 +102,10 @@
 	hnp-srp-disable;
 };
 
+&vdd {
+	/delete-property/ regulator-always-on;
+};
+
 &vdd_io {
 	u-boot,dm-spl;
 };
