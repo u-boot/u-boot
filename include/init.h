@@ -291,7 +291,7 @@ int show_board_info(void);
  *
  * @param total_size	Size of U-Boot (unused?)
  */
-ulong board_get_usable_ram_top(ulong total_size);
+phys_size_t board_get_usable_ram_top(phys_size_t total_size);
 
 int board_early_init_f(void);
 

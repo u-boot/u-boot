@@ -71,7 +71,7 @@ int dram_init_banksize(void)
  * the relocation address, and how far U-Boot is moved by relocation are
  * set in the global data structure.
  */
-ulong board_get_usable_ram_top(ulong total_size)
+phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	return qemu_get_low_memory_size();
 }

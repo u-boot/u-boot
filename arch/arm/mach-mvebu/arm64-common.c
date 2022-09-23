@@ -30,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #define USABLE_RAM_SIZE		0x80000000ULL
 
-ulong board_get_usable_ram_top(ulong total_size)
+phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	unsigned long top = CONFIG_SYS_SDRAM_BASE + min(gd->ram_size, USABLE_RAM_SIZE);
 

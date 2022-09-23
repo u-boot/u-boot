@@ -631,7 +631,7 @@ int embedded_dtb_select(void)
 #endif
 
 #if defined(CONFIG_LMB)
-ulong board_get_usable_ram_top(ulong total_size)
+phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	phys_size_t size;
 	phys_addr_t reg;

@@ -27,7 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * the relocation address, and how far U-Boot is moved by relocation are
  * set in the global data structure.
  */
-ulong board_get_usable_ram_top(ulong total_size)
+phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	struct efi_mem_desc *desc, *end;
 	struct efi_entry_memmap *map;

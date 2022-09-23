@@ -857,16 +857,31 @@ phys_size_t __fsl_ddr_sdram(fsl_ddr_info_t *pinfo)
 	debug("total_memory by %s = %llu\n", __func__, total_memory);
 
 #if !defined(CONFIG_PHYS_64BIT)
-	/* Check for 4G or more.  Bad. */
-	if ((first_ctrl == 0) && (total_memory >= (1ull << 32))) {
+	/*
+	 * Show warning about big DDR moodules. But avoid warning for 4 GB DDR
+	 * modules when U-Boot supports RAM of maximal size 4 GB - 1 byte.
+	 */
+	if ((first_ctrl == 0) && (total_memory - 1 > (phys_size_t)~0ULL)) {
 		puts("Detected ");
 		print_size(total_memory, " of memory\n");
-		printf("       This U-Boot only supports < 4G of DDR\n");
-		printf("       You could rebuild it with CONFIG_PHYS_64BIT\n");
-		printf("       "); /* re-align to match init_dram print */
-		total_memory = CONFIG_MAX_MEM_MAPPED;
+#ifndef CONFIG_SPL_BUILD
+		puts("       "); /* re-align to match init_dram print */
+#endif
+		puts("This U-Boot only supports <= ");
+		print_size((unsigned long long)((phys_size_t)~0ULL)+1, " of DDR\n");
+#ifndef CONFIG_SPL_BUILD
+		puts("       "); /* re-align to match init_dram print */
+#endif
+		puts("You could rebuild it with CONFIG_PHYS_64BIT\n");
+#ifndef CONFIG_SPL_BUILD
+		puts("       "); /* re-align to match init_dram print */
+#endif
 	}
 #endif
+
+	/* Ensure that total_memory does not overflow on return */
+	if (total_memory > (phys_size_t)~0ULL)
+		total_memory = (phys_size_t)~0ULL;
 
 	return total_memory;
 }
@@ -940,6 +955,10 @@ fsl_ddr_sdram_size(void)
 
 	/* Compute it once normally. */
 	total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 1);
+
+	/* Ensure that total_memory does not overflow on return */
+	if (total_memory > (phys_size_t)~0ULL)
+		total_memory = (phys_size_t)~0ULL;
 
 	return total_memory;
 }
