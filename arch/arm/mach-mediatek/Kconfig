@@ -40,6 +40,24 @@ config TARGET_MT7629
 	  including DDR3, crypto engine, 3x3 11n/ac Wi-Fi, Gigabit Ethernet,
 	  switch, USB3.0, PCIe, UART, SPI, I2C and PWM.
 
+config TARGET_MT7981
+	bool "MediaTek MT7981 SoC"
+	select ARM64
+	select CPU
+	help
+	  The MediaTek MT7981 is a ARM64-based SoC with a dual-core Cortex-A53.
+	  including UART, SPI, USB, NAND, SNFI, PWM, Gigabit Ethernet, I2C,
+          built-in Wi-Fi, and PCIe.
+
+config TARGET_MT7986
+	bool "MediaTek MT7986 SoC"
+	select ARM64
+	select CPU
+	help
+	  The MediaTek MT7986 is a ARM64-based SoC with a quad-core Cortex-A53.
+	  including UART, SPI, SPI flash, USB3.0, MMC, NAND, SNFI, PWM, PCIe,
+	  Gigabit Ethernet, I2C, built-in 4x4 Wi-Fi, and PCIe.
+
 config TARGET_MT8183
 	bool "MediaTek MT8183 SoC"
 	select ARM64
@@ -84,6 +102,8 @@ config SYS_BOARD
 	default "mt7622" if TARGET_MT7622
 	default "mt7623" if TARGET_MT7623
 	default "mt7629" if TARGET_MT7629
+	default "mt7981" if TARGET_MT7981
+	default "mt7986" if TARGET_MT7986
 	default "mt8183" if TARGET_MT8183
 	default "mt8512" if TARGET_MT8512
 	default "mt8516" if TARGET_MT8516
@@ -99,6 +119,8 @@ config SYS_CONFIG_NAME
 	default "mt7622" if TARGET_MT7622
 	default "mt7623" if TARGET_MT7623
 	default "mt7629" if TARGET_MT7629
+	default "mt7981" if TARGET_MT7981
+	default "mt7986" if TARGET_MT7986
 	default "mt8183" if TARGET_MT8183
 	default "mt8512" if TARGET_MT8512
 	default "mt8516" if TARGET_MT8516
@@ -113,6 +135,7 @@ config MTK_BROM_HEADER_INFO
 	string
 	default "media=nor" if TARGET_MT8518 || TARGET_MT8512 || TARGET_MT7629 || TARGET_MT7622
 	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8183
+	default "media=snand;nandinfo=2k+64" if TARGET_MT7981 || TARGET_MT7986
 	default "lk=1" if TARGET_MT7623
 
 endif

@@ -175,6 +175,7 @@
 		status = "disabled";
 		assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>;
 		assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>;
+		mediatek,force-highspeed;
 	};
 
 	mmc0: mmc@11230000 {
@@ -420,6 +421,30 @@
 			 <&pericfg CLK_PERI_PWM6_PD>;
 		clock-names = "top", "main", "pwm1", "pwm2", "pwm3", "pwm4",
 			      "pwm5", "pwm6";
+		status = "disabled";
+	};
+
+	soft_i2c: soft_i2c@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "i2c-gpio";
+		gpios = <&gpio 56 GPIO_ACTIVE_HIGH>, /* SDA */
+			<&gpio 55 GPIO_ACTIVE_HIGH>; /* CLK */
+		i2c-gpio,delay-us = <5>;
+		status = "disabled";
+	};
+
+	i2c1: i2c@11008000 {
+		compatible = "mediatek,mt7622-i2c";
+		reg = <0x11008000 0x90>,
+		      <0x11000180 0x80>;
+		interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_LOW>;
+		clock-div = <16>;
+		clocks = <&pericfg CLK_PERI_I2C1_PD>,
+			 <&pericfg CLK_PERI_AP_DMA_PD>;
+		clock-names = "main", "dma";
+		#address-cells = <1>;
+		#size-cells = <0>;
 		status = "disabled";
 	};
 

@@ -44,6 +44,7 @@ obj-$(CONFIG_MPC8XX_SPI) += mpc8xx_spi.o
 obj-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
 obj-$(CONFIG_MTK_SNFI_SPI) += mtk_snfi_spi.o
 obj-$(CONFIG_MTK_SNOR) += mtk_snor.o
+obj-$(CONFIG_MTK_SPIM) += mtk_spim.o
 obj-$(CONFIG_MT7620_SPI) += mt7620_spi.o
 obj-$(CONFIG_MT7621_SPI) += mt7621_spi.o
 obj-$(CONFIG_MSCC_BB_SPI) += mscc_bb_spi.o
