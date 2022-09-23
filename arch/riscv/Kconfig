@@ -144,6 +144,34 @@ config SPL_RISCV_SMODE
 
 endchoice
 
+config RISCV_ISA_F
+	bool "Single precision instructions"
+	help
+	  Adds "F" to the ISA subsets that the toolchain is allowed to emit
+	  when building U-Boot, which results in single precision floating point
+	  instructions in the U-Boot binary.
+
+config RISCV_ISA_D
+	bool "Double precision instructions"
+	help
+	  Adds "D" to the ISA subsets that the toolchain is allowed to emit
+	  when building U-Boot, which results in double precision floating point
+	  instructions in the U-Boot binary.
+
+config RISCV_ISA_ZICSR
+	bool "Control and status register instructions"
+	help
+	  Adds "ZICSR" to the ISA subsets that the toolchain is allowed to emit
+	  when building U-Boot, which results in control and status Register
+	  instructions in the U-Boot binary, since gcc 12.x and riscv spec 20191213.
+
+config RISCV_ISA_ZIFENCEI
+	bool "Instruction-fetch fence instructions"
+	help
+	  Adds "ZIFENCEI" to the ISA subsets that the toolchain is allowed to emit
+	  when building U-Boot, which results in instruction-fetch fence instructions
+	  in the U-Boot binary, since gcc 12.x and riscv spec 20191213.
+
 config RISCV_ISA_C
 	bool "Emit compressed instructions"
 	default y
