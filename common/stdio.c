@@ -87,6 +87,13 @@ static void stdio_serial_puts(struct stdio_dev *dev, const char *s)
 	serial_puts(s);
 }
 
+#ifdef CONFIG_CONSOLE_FLUSH_SUPPORT
+static void stdio_serial_flush(struct stdio_dev *dev)
+{
+	serial_flush();
+}
+#endif
+
 static int stdio_serial_getc(struct stdio_dev *dev)
 {
 	return serial_getc();
@@ -112,6 +119,7 @@ static void drv_system_init (void)
 	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 	dev.putc = stdio_serial_putc;
 	dev.puts = stdio_serial_puts;
+	STDIO_DEV_ASSIGN_FLUSH(&dev, stdio_serial_flush);
 	dev.getc = stdio_serial_getc;
 	dev.tstc = stdio_serial_tstc;
 	stdio_register (&dev);

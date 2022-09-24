@@ -669,6 +669,11 @@ void os_puts(const char *str)
 		os_putc(*str++);
 }
 
+void os_flush(void)
+{
+	fflush(stdout);
+}
+
 int os_write_ram_buf(const char *fname)
 {
 	struct sandbox_state *state = state_get_current();
