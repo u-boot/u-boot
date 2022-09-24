@@ -1851,10 +1851,11 @@ static int get_config(char *fname)
 {
 	FILE *fp;
 	int i = 0;
-	int rc;
+	int rc = 0;
 	char *line = NULL;
 	size_t linesize = 0;
-	char *devname;
+	size_t bufsize = linesize;
+	char *devname = NULL;
 
 	fp = fopen(fname, "r");
 	if (fp == NULL)
@@ -1865,10 +1866,16 @@ static int get_config(char *fname)
 		if (line[0] == '#')
 			continue;
 
-		rc = sscanf(line, "%ms %lli %lx %lx %lx",
-			    &devname,
-			    &DEVOFFSET(i),
-			    &ENVSIZE(i), &DEVESIZE(i), &ENVSECTORS(i));
+		if (!devname || linesize > bufsize) {
+			devname = realloc(devname, linesize);
+			if (devname)
+				bufsize = linesize;
+		}
+		if (devname)
+			rc = sscanf(line, "%s %lli %lx %lx %lx",
+						&devname,
+						&DEVOFFSET(i),
+						&ENVSIZE(i), &DEVESIZE(i), &ENVSECTORS(i));
 
 		if (rc < 3)
 			continue;
@@ -1881,7 +1888,8 @@ static int get_config(char *fname)
 
 		i++;
 	}
-	free(line);
+	if (line)
+		free(line);
 	fclose(fp);
 
 	have_redund_env = i - 1;
