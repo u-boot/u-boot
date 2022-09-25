@@ -665,7 +665,7 @@ static int pvblock_blk_bind(struct udevice *udev)
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int devnum;
 
-	desc->if_type = UCLASS_PVBLOCK;
+	desc->uclass_id = UCLASS_PVBLOCK;
 	/*
 	 * Initialize the devnum to -ENODEV. This is to make sure that
 	 * blk_next_free_devnum() works as expected, since the default

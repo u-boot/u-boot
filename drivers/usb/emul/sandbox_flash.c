@@ -7,8 +7,10 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <malloc.h>
 #include <os.h>
 #include <scsi.h>
+#include <scsi_emul.h>
 #include <usb.h>
 
 /*
@@ -21,12 +23,7 @@ enum {
 	SANDBOX_FLASH_EP_OUT		= 1,	/* endpoints */
 	SANDBOX_FLASH_EP_IN		= 2,
 	SANDBOX_FLASH_BLOCK_LEN		= 512,
-};
-
-enum cmd_phase {
-	PHASE_START,
-	PHASE_DATA,
-	PHASE_STATUS,
+	SANDBOX_FLASH_BUF_SIZE		= 512,
 };
 
 enum {
@@ -40,60 +37,24 @@ enum {
 /**
  * struct sandbox_flash_priv - private state for this driver
  *
+ * @eminfo:	emulator state
  * @error:	true if there is an error condition
- * @alloc_len:	Allocation length from the last incoming command
- * @transfer_len: Transfer length from CBW header
- * @read_len:	Number of blocks of data left in the current read command
  * @tag:	Tag value from last command
  * @fd:		File descriptor of backing file
  * @file_size:	Size of file in bytes
  * @status_buff:	Data buffer for outgoing status
- * @buff_used:	Number of bytes ready to transfer back to host
- * @buff:	Data buffer for outgoing data
  */
 struct sandbox_flash_priv {
+	struct scsi_emul_info eminfo;
 	bool error;
-	int alloc_len;
-	int transfer_len;
-	int read_len;
-	enum cmd_phase phase;
 	u32 tag;
 	int fd;
-	loff_t file_size;
 	struct umass_bbb_csw status;
-	int buff_used;
-	u8 buff[512];
 };
 
 struct sandbox_flash_plat {
 	const char *pathname;
 	struct usb_string flash_strings[STRINGID_COUNT];
-};
-
-struct scsi_inquiry_resp {
-	u8 type;
-	u8 flags;
-	u8 version;
-	u8 data_format;
-	u8 additional_len;
-	u8 spare[3];
-	char vendor[8];
-	char product[16];
-	char revision[4];
-};
-
-struct scsi_read_capacity_resp {
-	u32 last_block_addr;
-	u32 block_len;
-};
-
-struct __packed scsi_read10_req {
-	u8 cmd;
-	u8 lun_flags;
-	u32 lba;
-	u8 spare;
-	u16 transfer_len;
-	u8 spare2[3];
 };
 
 static struct usb_device_descriptor flash_device_desc = {
@@ -200,7 +161,6 @@ static void setup_fail_response(struct sandbox_flash_priv *priv)
 	csw->dCSWTag = priv->tag;
 	csw->dCSWDataResidue = 0;
 	csw->bCSWStatus = CSWSTATUS_FAILED;
-	priv->buff_used = 0;
 }
 
 /**
@@ -210,8 +170,7 @@ static void setup_fail_response(struct sandbox_flash_priv *priv)
  * @resp:	Response to send, or NULL if none
  * @size:	Size of response
  */
-static void setup_response(struct sandbox_flash_priv *priv, void *resp,
-			   int size)
+static void setup_response(struct sandbox_flash_priv *priv)
 {
 	struct umass_bbb_csw *csw = &priv->status;
 
@@ -219,97 +178,45 @@ static void setup_response(struct sandbox_flash_priv *priv, void *resp,
 	csw->dCSWTag = priv->tag;
 	csw->dCSWDataResidue = 0;
 	csw->bCSWStatus = CSWSTATUS_GOOD;
-
-	assert(!resp || resp == priv->buff);
-	priv->buff_used = size;
 }
 
-static void handle_read(struct sandbox_flash_priv *priv, ulong lba,
-			ulong transfer_len)
+static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
+			      int len)
 {
-	debug("%s: lba=%lx, transfer_len=%lx\n", __func__, lba, transfer_len);
-	priv->read_len = transfer_len;
-	if (priv->fd != -1) {
-		os_lseek(priv->fd, lba * SANDBOX_FLASH_BLOCK_LEN, OS_SEEK_SET);
-		setup_response(priv, priv->buff,
-			       transfer_len * SANDBOX_FLASH_BLOCK_LEN);
+	struct scsi_emul_info *info = &priv->eminfo;
+	const struct scsi_cmd *req = buff;
+	int ret;
+
+	ret = sb_scsi_emul_command(info, req, len);
+	if (!ret) {
+		setup_response(priv);
+	} else if (ret == SCSI_EMUL_DO_READ && priv->fd != -1) {
+		os_lseek(priv->fd, info->seek_block * info->block_size,
+			 OS_SEEK_SET);
+		setup_response(priv);
 	} else {
 		setup_fail_response(priv);
 	}
-}
 
-static int handle_ufi_command(struct sandbox_flash_plat *plat,
-			      struct sandbox_flash_priv *priv, const void *buff,
-			      int len)
-{
-	const struct scsi_cmd *req = buff;
-
-	switch (*req->cmd) {
-	case SCSI_INQUIRY: {
-		struct scsi_inquiry_resp *resp = (void *)priv->buff;
-
-		priv->alloc_len = req->cmd[4];
-		memset(resp, '\0', sizeof(*resp));
-		resp->data_format = 1;
-		resp->additional_len = 0x1f;
-		strncpy(resp->vendor,
-			plat->flash_strings[STRINGID_MANUFACTURER -  1].s,
-			sizeof(resp->vendor));
-		strncpy(resp->product,
-			plat->flash_strings[STRINGID_PRODUCT - 1].s,
-			sizeof(resp->product));
-		strncpy(resp->revision, "1.0", sizeof(resp->revision));
-		setup_response(priv, resp, sizeof(*resp));
-		break;
-	}
-	case SCSI_TST_U_RDY:
-		setup_response(priv, NULL, 0);
-		break;
-	case SCSI_RD_CAPAC: {
-		struct scsi_read_capacity_resp *resp = (void *)priv->buff;
-		uint blocks;
-
-		if (priv->file_size)
-			blocks = priv->file_size / SANDBOX_FLASH_BLOCK_LEN - 1;
-		else
-			blocks = 0;
-		resp->last_block_addr = cpu_to_be32(blocks);
-		resp->block_len = cpu_to_be32(SANDBOX_FLASH_BLOCK_LEN);
-		setup_response(priv, resp, sizeof(*resp));
-		break;
-	}
-	case SCSI_READ10: {
-		struct scsi_read10_req *req = (void *)buff;
-
-		handle_read(priv, be32_to_cpu(req->lba),
-			    be16_to_cpu(req->transfer_len));
-		break;
-	}
-	default:
-		debug("Command not supported: %x\n", req->cmd[0]);
-		return -EPROTONOSUPPORT;
-	}
-
-	priv->phase = priv->transfer_len ? PHASE_DATA : PHASE_STATUS;
 	return 0;
 }
 
 static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			      unsigned long pipe, void *buff, int len)
 {
-	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 	struct sandbox_flash_priv *priv = dev_get_priv(dev);
+	struct scsi_emul_info *info = &priv->eminfo;
 	int ep = usb_pipeendpoint(pipe);
 	struct umass_bbb_cbw *cbw = buff;
 
 	debug("%s: dev=%s, pipe=%lx, ep=%x, len=%x, phase=%d\n", __func__,
-	      dev->name, pipe, ep, len, priv->phase);
+	      dev->name, pipe, ep, len, info->phase);
 	switch (ep) {
 	case SANDBOX_FLASH_EP_OUT:
-		switch (priv->phase) {
-		case PHASE_START:
-			priv->alloc_len = 0;
-			priv->read_len = 0;
+		switch (info->phase) {
+		case SCSIPH_START:
+			info->alloc_len = 0;
+			info->read_len = 0;
 			if (priv->error || len != UMASS_BBB_CBW_SIZE ||
 			    cbw->dCBWSignature != CBWSIGNATURE)
 				goto err;
@@ -318,22 +225,22 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 				goto err;
 			if (cbw->bCDBLength < 1 || cbw->bCDBLength >= 0x10)
 				goto err;
-			priv->transfer_len = cbw->dCBWDataTransferLength;
+			info->transfer_len = cbw->dCBWDataTransferLength;
 			priv->tag = cbw->dCBWTag;
-			return handle_ufi_command(plat, priv, cbw->CBWCDB,
+			return handle_ufi_command(priv, cbw->CBWCDB,
 						  cbw->bCDBLength);
-		case PHASE_DATA:
+		case SCSIPH_DATA:
 			debug("data out\n");
 			break;
 		default:
 			break;
 		}
 	case SANDBOX_FLASH_EP_IN:
-		switch (priv->phase) {
-		case PHASE_DATA:
-			debug("data in, len=%x, alloc_len=%x, priv->read_len=%x\n",
-			      len, priv->alloc_len, priv->read_len);
-			if (priv->read_len) {
+		switch (info->phase) {
+		case SCSIPH_DATA:
+			debug("data in, len=%x, alloc_len=%x, info->read_len=%x\n",
+			      len, info->alloc_len, info->read_len);
+			if (info->read_len) {
 				ulong bytes_read;
 
 				if (priv->fd == -1)
@@ -342,24 +249,24 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 				bytes_read = os_read(priv->fd, buff, len);
 				if (bytes_read != len)
 					return -EIO;
-				priv->read_len -= len / SANDBOX_FLASH_BLOCK_LEN;
-				if (!priv->read_len)
-					priv->phase = PHASE_STATUS;
+				info->read_len -= len / info->block_size;
+				if (!info->read_len)
+					info->phase = SCSIPH_STATUS;
 			} else {
-				if (priv->alloc_len && len > priv->alloc_len)
-					len = priv->alloc_len;
-				if (len > sizeof(priv->buff))
-					len = sizeof(priv->buff);
-				memcpy(buff, priv->buff, len);
-				priv->phase = PHASE_STATUS;
+				if (info->alloc_len && len > info->alloc_len)
+					len = info->alloc_len;
+				if (len > SANDBOX_FLASH_BUF_SIZE)
+					len = SANDBOX_FLASH_BUF_SIZE;
+				memcpy(buff, info->buff, len);
+				info->phase = SCSIPH_STATUS;
 			}
 			return len;
-		case PHASE_STATUS:
+		case SCSIPH_STATUS:
 			debug("status in, len=%x\n", len);
 			if (len > sizeof(priv->status))
 				len = sizeof(priv->status);
 			memcpy(buff, &priv->status, len);
-			priv->phase = PHASE_START;
+			info->phase = SCSIPH_START;
 			return len;
 		default:
 			break;
@@ -400,10 +307,31 @@ static int sandbox_flash_probe(struct udevice *dev)
 {
 	struct sandbox_flash_plat *plat = dev_get_plat(dev);
 	struct sandbox_flash_priv *priv = dev_get_priv(dev);
+	struct scsi_emul_info *info = &priv->eminfo;
+	int ret;
 
 	priv->fd = os_open(plat->pathname, OS_O_RDONLY);
-	if (priv->fd != -1)
-		return os_get_filesize(plat->pathname, &priv->file_size);
+	if (priv->fd != -1) {
+		ret = os_get_filesize(plat->pathname, &info->file_size);
+		if (ret)
+			return log_msg_ret("sz", ret);
+	}
+	info->buff = malloc(SANDBOX_FLASH_BUF_SIZE);
+	if (!info->buff)
+		return log_ret(-ENOMEM);
+	info->vendor = plat->flash_strings[STRINGID_MANUFACTURER -  1].s;
+	info->product = plat->flash_strings[STRINGID_PRODUCT - 1].s;
+	info->block_size = SANDBOX_FLASH_BLOCK_LEN;
+
+	return 0;
+}
+
+static int sandbox_flash_remove(struct udevice *dev)
+{
+	struct sandbox_flash_priv *priv = dev_get_priv(dev);
+	struct scsi_emul_info *info = &priv->eminfo;
+
+	free(info->buff);
 
 	return 0;
 }
@@ -424,6 +352,7 @@ U_BOOT_DRIVER(usb_sandbox_flash) = {
 	.of_match = sandbox_usb_flash_ids,
 	.bind	= sandbox_flash_bind,
 	.probe	= sandbox_flash_probe,
+	.remove	= sandbox_flash_remove,
 	.of_to_plat = sandbox_flash_of_to_plat,
 	.ops	= &sandbox_usb_flash_ops,
 	.priv_auto	= sizeof(struct sandbox_flash_priv),

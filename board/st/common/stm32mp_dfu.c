@@ -37,7 +37,7 @@ static void board_get_alt_info_mmc(struct udevice *dev, char *buf)
 	if (!desc)
 		return;
 
-	name = blk_get_if_type_name(desc->if_type);
+	name = blk_get_uclass_name(desc->uclass_id);
 	devnum = desc->devnum;
 	len = strlen(buf);
 

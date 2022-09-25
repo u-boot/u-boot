@@ -1158,6 +1158,11 @@
 		backlight = <&backlight 0 100>;
 	};
 
+	scsi {
+		compatible = "sandbox,scsi";
+		sandbox,filepath = "scsi.img";
+	};
+
 	smem@0 {
 		compatible = "sandbox,smem";
 	};

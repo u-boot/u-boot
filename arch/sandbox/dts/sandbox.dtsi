@@ -245,6 +245,10 @@
 		compatible = "sandbox,sandbox-rng";
 	};
 
+	scsi {
+		compatible = "sandbox,scsi";
+	};
+
 	sound {
 		compatible = "sandbox,sound";
 		cpu {
