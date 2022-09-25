@@ -1777,10 +1777,9 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
 
 	bdf = dm_pci_get_bdf(pdev);
 
-	pci_get_bus(PCI_BUS(bdf), &bus);
-
-	if (!bus)
-		return -ENODEV;
+	ret = pci_get_bus(PCI_BUS(bdf), &bus);
+	if (ret)
+		return ret;
 
 	bdf += PCI_BDF(0, 0, vf_offset);
 
