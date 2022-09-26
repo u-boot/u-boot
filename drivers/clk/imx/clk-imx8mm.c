@@ -28,10 +28,10 @@ static const char *imx8mm_a53_sels[] = {"clock-osc-24m", "arm_pll_out", "sys_pll
 static const char *imx8mm_ahb_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_pll1_800m", "sys_pll1_400m",
 					"sys_pll2_125m", "sys_pll3_out", "audio_pll1_out", "video_pll1_out", };
 
+#ifndef CONFIG_SPL_BUILD
 static const char *imx8mm_enet_axi_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m", "sys_pll2_250m",
 					     "sys_pll2_200m", "audio_pll1_out", "video_pll1_out", "sys_pll3_out", };
 
-#ifndef CONFIG_SPL_BUILD
 static const char *imx8mm_enet_ref_sels[] = {"clock-osc-24m", "sys_pll2_125m", "sys_pll2_50m", "sys_pll2_100m",
 					     "sys_pll1_160m", "audio_pll1_out", "video_pll1_out", "clk_ext4", };
 
@@ -244,9 +244,6 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_IPG_ROOT,
 	       imx_clk_divider2("ipg_root", "ahb", base + 0x9080, 0, 1));
 
-	clk_dm(IMX8MM_CLK_ENET_AXI,
-	       imx8m_clk_composite("enet_axi", imx8mm_enet_axi_sels,
-				   base + 0x8880));
 	clk_dm(IMX8MM_CLK_NAND_USDHC_BUS,
 	       imx8m_clk_composite_critical("nand_usdhc_bus",
 					    imx8mm_nand_usdhc_sels,
@@ -322,6 +319,9 @@ static int imx8mm_clk_probe(struct udevice *dev)
 
 	/* clks not needed in SPL stage */
 #ifndef CONFIG_SPL_BUILD
+	clk_dm(IMX8MM_CLK_ENET_AXI,
+	       imx8m_clk_composite("enet_axi", imx8mm_enet_axi_sels,
+				   base + 0x8880));
 	clk_dm(IMX8MM_CLK_ENET_REF,
 	       imx8m_clk_composite("enet_ref", imx8mm_enet_ref_sels,
 	       base + 0xa980));
