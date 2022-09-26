@@ -121,7 +121,7 @@ struct xilinx_legacy_format {
 static void xilinx_eeprom_legacy_cleanup(char *eeprom, int size)
 {
 	int i;
-	char byte;
+	unsigned char byte;
 
 	for (i = 0; i < size; i++) {
 		byte = eeprom[i];
@@ -460,8 +460,8 @@ int board_late_init_xilinx(void)
 							desc->serial);
 
 			if (desc->uuid[0]) {
-				char uuid[UUID_STR_LEN + 1];
-				char *t = desc->uuid;
+				unsigned char uuid[UUID_STR_LEN + 1];
+				unsigned char *t = desc->uuid;
 
 				memset(uuid, 0, UUID_STR_LEN + 1);
 
