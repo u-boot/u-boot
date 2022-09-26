@@ -19,7 +19,6 @@
 	};
 };
 
-
 &ethernet0 {
 	phy-reset-gpios = <&gpioz 2 GPIO_ACTIVE_LOW>;
 
