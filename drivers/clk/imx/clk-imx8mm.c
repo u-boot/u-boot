@@ -95,6 +95,7 @@ static const char *imx8mm_usb_core_sels[] = {"clock-osc-24m", "sys_pll1_100m", "
 static const char *imx8mm_usb_phy_sels[] = {"clock-osc-24m", "sys_pll1_100m", "sys_pll1_40m", "sys_pll2_100m",
 					     "sys_pll2_200m", "clk_ext2", "clk_ext3", "audio_pll2_out", };
 
+#if CONFIG_IS_ENABLED(DM_SPI)
 static const char *imx8mm_ecspi1_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m", "sys_pll1_160m",
 					   "sys_pll1_800m", "sys_pll3_out", "sys_pll2_250m", "audio_pll2_out", };
 
@@ -103,6 +104,7 @@ static const char *imx8mm_ecspi2_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sy
 
 static const char *imx8mm_ecspi3_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m", "sys_pll1_160m",
 					   "sys_pll1_800m", "sys_pll3_out", "sys_pll2_250m", "audio_pll2_out", };
+#endif
 
 static int imx8mm_clk_probe(struct udevice *dev)
 {
@@ -277,19 +279,6 @@ static int imx8mm_clk_probe(struct udevice *dev)
 		imx8m_clk_composite("usb_core_ref", imx8mm_usb_core_sels, base + 0xb100));
 	clk_dm(IMX8MM_CLK_USB_PHY_REF,
 		imx8m_clk_composite("usb_phy_ref", imx8mm_usb_phy_sels, base + 0xb180));
-	clk_dm(IMX8MM_CLK_ECSPI1,
-	       imx8m_clk_composite("ecspi1", imx8mm_ecspi1_sels, base + 0xb280));
-	clk_dm(IMX8MM_CLK_ECSPI2,
-	       imx8m_clk_composite("ecspi2", imx8mm_ecspi2_sels, base + 0xb300));
-	clk_dm(IMX8MM_CLK_ECSPI3,
-	       imx8m_clk_composite("ecspi3", imx8mm_ecspi3_sels, base + 0xc180));
-
-	clk_dm(IMX8MM_CLK_ECSPI1_ROOT,
-	       imx_clk_gate4("ecspi1_root_clk", "ecspi1", base + 0x4070, 0));
-	clk_dm(IMX8MM_CLK_ECSPI2_ROOT,
-	       imx_clk_gate4("ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
-	clk_dm(IMX8MM_CLK_ECSPI3_ROOT,
-	       imx_clk_gate4("ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
 	clk_dm(IMX8MM_CLK_I2C1_ROOT,
 	       imx_clk_gate4("i2c1_root_clk", "i2c1", base + 0x4170, 0));
 	clk_dm(IMX8MM_CLK_I2C2_ROOT,
@@ -350,6 +339,22 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("pwm3_root_clk", "pwm3", base + 0x42a0, 0));
 	clk_dm(IMX8MM_CLK_PWM4_ROOT,
 	       imx_clk_gate4("pwm4_root_clk", "pwm4", base + 0x42b0, 0));
+#endif
+
+#if CONFIG_IS_ENABLED(DM_SPI)
+	clk_dm(IMX8MM_CLK_ECSPI1,
+	       imx8m_clk_composite("ecspi1", imx8mm_ecspi1_sels, base + 0xb280));
+	clk_dm(IMX8MM_CLK_ECSPI2,
+	       imx8m_clk_composite("ecspi2", imx8mm_ecspi2_sels, base + 0xb300));
+	clk_dm(IMX8MM_CLK_ECSPI3,
+	       imx8m_clk_composite("ecspi3", imx8mm_ecspi3_sels, base + 0xc180));
+
+	clk_dm(IMX8MM_CLK_ECSPI1_ROOT,
+	       imx_clk_gate4("ecspi1_root_clk", "ecspi1", base + 0x4070, 0));
+	clk_dm(IMX8MM_CLK_ECSPI2_ROOT,
+	       imx_clk_gate4("ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
+	clk_dm(IMX8MM_CLK_ECSPI3_ROOT,
+	       imx_clk_gate4("ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
 #endif
 
 	return 0;
