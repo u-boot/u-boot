@@ -167,7 +167,7 @@ int checkboard(void)
 
 	if (cfg_rcw_src == 0x25)
 		printf("vBank %d\n", CPLD_READ(vbank));
-	else if (cfg_rcw_src == 0x106)
+	else if ((cfg_rcw_src == 0x106) || (cfg_rcw_src == 0x118))
 		puts("NAND\n");
 	else
 		printf("Invalid setting of SW4\n");
@@ -347,10 +347,54 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 
+void nand_fixup(void)
+{
+	u32 csor = 0;
+
+	if (CPLD_READ(pcba_ver) < 0x7)
+		return;
+
+    /* Change NAND Flash PGS/SPRZ configuration */
+	csor = CONFIG_SYS_NAND_CSOR;
+	if ((csor & CSOR_NAND_PGS_MASK) == CSOR_NAND_PGS_2K)
+		csor = (csor & ~(CSOR_NAND_PGS_MASK)) | CSOR_NAND_PGS_4K;
+
+	if ((csor & CSOR_NAND_SPRZ_MASK) == CSOR_NAND_SPRZ_64)
+		csor = (csor & ~(CSOR_NAND_SPRZ_MASK)) | CSOR_NAND_SPRZ_224;
+
+	if (IS_ENABLED(CONFIG_TFABOOT)) {
+		u8 cfg_rcw_src1, cfg_rcw_src2;
+		u16 cfg_rcw_src;
+
+		cfg_rcw_src1 = CPLD_READ(cfg_rcw_src1);
+		cfg_rcw_src2 = CPLD_READ(cfg_rcw_src2);
+		cpld_rev_bit(&cfg_rcw_src1);
+		cfg_rcw_src = cfg_rcw_src1;
+		cfg_rcw_src = (cfg_rcw_src << 1) | cfg_rcw_src2;
+
+		if (cfg_rcw_src == 0x25)
+			set_ifc_csor(IFC_CS1, csor);
+		else if (cfg_rcw_src == 0x118)
+			set_ifc_csor(IFC_CS0, csor);
+		else
+			printf("Invalid setting\n");
+	} else {
+		if (IS_ENABLED(CONFIG_NAND_BOOT))
+			set_ifc_csor(IFC_CS0, csor);
+		else
+			set_ifc_csor(IFC_CS1, csor);
+	}
+}
+
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
+	/* nand driver fix up */
+	nand_fixup();
+
+	/* fdt fix up */
 	fdt_fixup_phy_addr(blob);
+
 	return 0;
 }
 #endif
