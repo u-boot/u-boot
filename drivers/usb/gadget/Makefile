@@ -42,6 +42,5 @@ else
 ifdef CONFIG_USB_DEVICE
 obj-y += core.o
 obj-y += ep0.o
-obj-$(CONFIG_DW_UDC) += designware_udc.o
 endif
 endif

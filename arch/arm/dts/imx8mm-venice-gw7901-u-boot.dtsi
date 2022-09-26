@@ -129,6 +129,57 @@
 	phy-reset-post-delay = <1>;
 };
 
+&switch {
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		lan1: port@0 {
+			phy-handle = <&sw_phy0>;
+		};
+
+		lan2: port@1 {
+			phy-handle = <&sw_phy1>;
+		};
+
+		lan3: port@2 {
+			phy-handle = <&sw_phy2>;
+		};
+
+		lan4: port@3 {
+			phy-handle = <&sw_phy3>;
+		};
+	};
+
+	mdios {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		mdio@0 {
+			reg = <0>;
+			compatible = "microchip,ksz-mdio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			sw_phy0: ethernet-phy@0 {
+				reg = <0x0>;
+			};
+
+			sw_phy1: ethernet-phy@1 {
+				reg = <0x1>;
+			};
+
+			sw_phy2: ethernet-phy@2 {
+				reg = <0x2>;
+			};
+
+			sw_phy3: ethernet-phy@3 {
+				reg = <0x3>;
+			};
+		};
+	};
+};
+
 &pinctrl_fec1 {
 	u-boot,dm-spl;
 };

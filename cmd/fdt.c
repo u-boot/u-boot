@@ -48,11 +48,27 @@ void set_working_fdt_addr(ulong addr)
 /*
  * Get a value from the fdt and format it to be set in the environment
  */
-static int fdt_value_env_set(const void *nodep, int len, const char *var)
+static int fdt_value_env_set(const void *nodep, int len,
+			     const char *var, int index)
 {
-	if (is_printable_string(nodep, len))
-		env_set(var, (void *)nodep);
-	else if (len == 4) {
+	if (is_printable_string(nodep, len)) {
+		const char *nodec = (const char *)nodep;
+		int i;
+
+		/*
+		 * Iterate over all members in stringlist and find the one at
+		 * offset $index. If no such index exists, indicate failure.
+		 */
+		for (i = 0; i < len; i += strlen(nodec) + 1) {
+			if (index-- > 0)
+				continue;
+
+			env_set(var, nodec + i);
+			return 0;
+		}
+
+		return 1;
+	} else if (len == 4) {
 		char buf[11];
 
 		sprintf(buf, "0x%08X", fdt32_to_cpu(*(fdt32_t *)nodep));
@@ -426,10 +442,14 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				return 0;
 			} else if (nodep && len > 0) {
 				if (subcmd[0] == 'v') {
+					int index = 0;
 					int ret;
 
+					if (argc == 7)
+						index = simple_strtoul(argv[6], NULL, 10);
+
 					ret = fdt_value_env_set(nodep, len,
-								var);
+								var, index);
 					if (ret != 0)
 						return ret;
 				} else if (subcmd[0] == 'a') {
@@ -1085,7 +1105,9 @@ static char fdt_help_text[] =
 	"fdt resize [<extrasize>]            - Resize fdt to size + padding to 4k addr + some optional <extrasize> if needed\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
-	"fdt get value <var> <path> <prop>   - Get <property> and store in <var>\n"
+	"fdt get value <var> <path> <prop> [<index>] - Get <property> and store in <var>\n"
+	"                                      In case of stringlist property, use optional <index>\n"
+	"                                      to select string within the stringlist. Default is 0.\n"
 	"fdt get name <var> <path> <index>   - Get name of node <index> and store in <var>\n"
 	"fdt get addr <var> <path> <prop>    - Get start address of <property> and store in <var>\n"
 	"fdt get size <var> <path> [<prop>]  - Get size of [<property>] or num nodes and store in <var>\n"

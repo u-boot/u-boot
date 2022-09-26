@@ -48,7 +48,7 @@ config DM_USB
 	  automatically probed when found on the bus.
 
 config SPL_DM_USB
-	bool "Enable driver model for USB host most in SPL"
+	bool "Enable driver model for USB host mode in SPL"
 	depends on SPL_DM && DM_USB
 	default n if ARCH_MVEBU
 	default y

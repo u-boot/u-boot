@@ -27,8 +27,10 @@ struct arch_global_data {
 #if CONFIG_IS_ENABLED(SMP)
 	struct ipi_data ipi[CONFIG_NR_CPUS];
 #endif
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
+#ifdef CONFIG_AVAILABLE_HARTS
 	ulong available_harts;
+#endif
 #endif
 };
 

@@ -45,10 +45,12 @@ static int send_ipi_many(struct ipi_data *ipi, int wait)
 			continue;
 		}
 
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
+#ifdef CONFIG_AVAILABLE_HARTS
 		/* skip if hart is not available */
 		if (!(gd->arch.available_harts & (1 << reg)))
 			continue;
+#endif
 #endif
 
 		gd->arch.ipi[reg].addr = ipi->addr;
