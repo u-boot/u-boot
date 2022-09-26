@@ -547,7 +547,7 @@ static int board_get_regulator_buck3_nvm_uv_av96(int *uv)
 	if (!prop || !len)
 		return -ENODEV;
 
-	if (!strstr(prop, "avenger96"))
+	if (!strstr(prop, "avenger96") && !strstr(prop, "dhcor-testbench"))
 		return -EINVAL;
 
 	/* Read out STPMIC1 NVM and determine default Buck3 voltage. */
@@ -564,18 +564,32 @@ static int board_get_regulator_buck3_nvm_uv_av96(int *uv)
 	bucks_vout >>= STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_OFFSET(3);
 	bucks_vout &= STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_MASK;
 
-	/*
-	 * Avenger96 board comes in multiple regulator configurations:
-	 * - rev.100 or rev.200 have Buck3 preconfigured to 3V3 operation on
-	 *   boot and contains extra Enpirion EP53A8LQI DCDC converter which
-	 *   supplies the IO. Reduce Buck3 voltage to 2V9 to not waste power.
-	 * - rev.200L have Buck3 preconfigured to 1V8 operation and have no
-	 *   Enpirion EP53A8LQI DCDC anymore, the IO is supplied from Buck3.
-	 */
-	if (bucks_vout == STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_3V3)
-		*uv = 2900000;
-	else
-		*uv = 1800000;
+	if (strstr(prop, "avenger96")) {
+		/*
+		 * Avenger96 board comes in multiple regulator configurations:
+		 * - rev.100 or rev.200 have Buck3 preconfigured to
+		 *   3V3 operation on boot and contains extra Enpirion
+		 *   EP53A8LQI DCDC converter which supplies the IO.
+		 *   Reduce Buck3 voltage to 2V9 to not waste power.
+		 * - rev.200L have Buck3 preconfigured to 1V8 operation
+		 *   and have no Enpirion EP53A8LQI DCDC anymore, the
+		 *   IO is supplied from Buck3.
+		 */
+		if (bucks_vout == STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_3V3)
+			*uv = 2900000;
+		else
+			*uv = 1800000;
+	} else {
+		/* Testbench always respects Buck3 NVM settings */
+		if (bucks_vout == STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_3V3)
+			*uv = 3300000;
+		else if (bucks_vout == STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_3V0)
+			*uv = 3000000;
+		else if (bucks_vout == STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_1V8)
+			*uv = 1800000;
+		else	/* STPMIC_NVM_BUCKS_VOUT_SHR_BUCK_1V2 */
+			*uv = 1200000;
+	}
 
 	return 0;
 }
