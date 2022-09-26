@@ -643,8 +643,10 @@ __secure void psci_system_suspend(u32 __always_unused function_id,
 	/* disable GIC distributor */
 	writel(0, GIC400_ARB_BASE_ADDR + GIC_DIST_OFFSET);
 
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++) {
 		gpc_mask[i] = readl(GPC_IPS_BASE_ADDR + GPC_IMR1_CORE0 + i * 4);
+		writel(~0, GPC_IPS_BASE_ADDR + GPC_IMR1_CORE0 + i * 4);
+	}
 
 	/*
 	 * enable the RBC bypass counter here
@@ -668,7 +670,7 @@ __secure void psci_system_suspend(u32 __always_unused function_id,
 		writel(gpc_mask[i], GPC_IPS_BASE_ADDR + GPC_IMR1_CORE0 + i * 4);
 
 	/*
-	 * now delay for a short while (3usec)
+	 * now delay for a short while (~3usec)
 	 * ARM is at 1GHz at this point
 	 * so a short loop should be enough.
 	 * this delay is required to ensure that
@@ -677,7 +679,8 @@ __secure void psci_system_suspend(u32 __always_unused function_id,
 	 * or in case an interrupt arrives just
 	 * as ARM is about to assert DSM_request.
 	 */
-	imx_udelay(3);
+	for (i = 0; i < 2000; i++)
+		asm volatile("");
 
 	/* save resume entry and sp in CPU0 GPR registers */
 	asm volatile("mov %0, sp" : "=r" (val));
