@@ -1229,6 +1229,7 @@ int timer_init(void)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(SYSRESET)
 __efi_runtime_data u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
 
 void __efi_runtime reset_cpu(void)
@@ -1248,6 +1249,7 @@ void __efi_runtime reset_cpu(void)
 	scfg_out32(rstcr, val);
 #endif
 }
+#endif
 
 #if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_PSCI_RESET)
 
