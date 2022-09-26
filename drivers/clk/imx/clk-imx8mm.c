@@ -86,8 +86,10 @@ static const char *imx8mm_wdog_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_
 static const char *imx8mm_usdhc3_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll1_800m", "sys_pll2_500m",
 					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_clk", "sys_pll1_100m", };
 
+#if CONFIG_IS_ENABLED(NXP_FSPI)
 static const char *imx8mm_qspi_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll2_333m", "sys_pll2_500m",
 					   "audio_pll2_out", "sys_pll1_266m", "sys_pll3_out", "sys_pll1_100m", };
+#endif
 
 static const char *imx8mm_usb_core_sels[] = {"clock-osc-24m", "sys_pll1_100m", "sys_pll1_40m", "sys_pll2_100m",
 					     "sys_pll2_200m", "clk_ext2", "clk_ext3", "audio_pll2_out", };
@@ -273,8 +275,6 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_USDHC3,
 	       imx8m_clk_composite("usdhc3", imx8mm_usdhc3_sels,
 				   base + 0xbc80));
-	clk_dm(IMX8MM_CLK_QSPI,
-	       imx8m_clk_composite("qspi", imx8mm_qspi_sels, base + 0xab80));
 	clk_dm(IMX8MM_CLK_USB_CORE_REF,
 		imx8m_clk_composite("usb_core_ref", imx8mm_usb_core_sels, base + 0xb100));
 	clk_dm(IMX8MM_CLK_USB_PHY_REF,
@@ -301,8 +301,6 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("wdog3_root_clk", "wdog", base + 0x4550, 0));
 	clk_dm(IMX8MM_CLK_USDHC3_ROOT,
 	       imx_clk_gate4("usdhc3_root_clk", "usdhc3", base + 0x45e0, 0));
-	clk_dm(IMX8MM_CLK_QSPI_ROOT,
-	       imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
 	clk_dm(IMX8MM_CLK_USB1_CTRL_ROOT,
 		imx_clk_gate4("usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
 
@@ -355,6 +353,13 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
 	clk_dm(IMX8MM_CLK_ECSPI3_ROOT,
 	       imx_clk_gate4("ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
+#endif
+
+#if CONFIG_IS_ENABLED(NXP_FSPI)
+	clk_dm(IMX8MM_CLK_QSPI,
+	       imx8m_clk_composite("qspi", imx8mm_qspi_sels, base + 0xab80));
+	clk_dm(IMX8MM_CLK_QSPI_ROOT,
+	       imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
 #endif
 
 	return 0;
