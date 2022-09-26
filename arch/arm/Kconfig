@@ -1251,6 +1251,18 @@ config ARCH_VERSAL
 	imply BOARD_LATE_INIT
 	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 
+config ARCH_VERSAL_NET
+	bool "Support Xilinx Keystone Platform"
+	select ARM64
+	select CLK
+	select DM
+	select DM_ETH if NET
+	select DM_MMC if MMC
+	select DM_SERIAL
+	select OF_CONTROL
+	imply BOARD_LATE_INIT
+	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7A
@@ -2299,6 +2311,8 @@ source "arch/arm/mach-zynq/Kconfig"
 source "arch/arm/mach-zynqmp/Kconfig"
 
 source "arch/arm/mach-versal/Kconfig"
+
+source "arch/arm/mach-versal-net/Kconfig"
 
 source "arch/arm/mach-zynqmp-r5/Kconfig"
 

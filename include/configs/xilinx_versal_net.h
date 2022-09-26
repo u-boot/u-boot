@@ -1,36 +1,50 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Configuration for Xilinx Versal
- * (C) Copyright 2016 - 2018 Xilinx, Inc.
- * Michal Simek <michal.simek@xilinx.com>
+ * Configuration for Xilinx Versal NET
+ * Copyright (C) 2016 - 2022, Xilinx, Inc.
+ * Copyright (C) 2022, Advanced Micro Devices, Inc.
+ *
+ * Michal Simek <michal.simek@amd.com>
  *
  * Based on Configuration for Xilinx ZynqMP
  */
 
-#ifndef __XILINX_VERSAL_H
-#define __XILINX_VERSAL_H
+#ifndef __XILINX_VERSAL_NET_H
+#define __XILINX_VERSAL_NET_H
+
+/* FIXME this is causing issue at least on IPP */
+/* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE	0xF9000000
-#define GICR_BASE	0xF9080000
+#define GICR_BASE	0xF9060000
 
 /* Serial setup */
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
-/* GUID for capsule updatable firmware image */
-#define XILINX_BOOT_IMAGE_GUID \
-	EFI_GUID(0x20c5fba5, 0x0171, 0x457f, 0xb9, 0xcd, \
-		 0xf5, 0x12, 0x9c, 0xd0, 0x72, 0x28)
-
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define CONFIG_THOR_RESET_OFF
+#define DFU_ALT_INFO_RAM \
+	"dfu_ram_info=" \
+	"setenv dfu_alt_info " \
+	"Image ram 80000 $kernel_size_r\\\\;" \
+	"system.dtb ram $fdt_addr_r $fdt_size_r\0" \
+	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
+	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
+
+#define DFU_ALT_INFO  \
+		DFU_ALT_INFO_RAM
+#endif
+
+#if !defined(DFU_ALT_INFO)
+# define DFU_ALT_INFO
 #endif
 
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
-# define PHY_ANEG_TIMEOUT       20000
+# define PHY_ANEG_TIMEOUT	20000
 #endif
 
 #define ENV_MEM_LAYOUT_SETTINGS \
@@ -63,7 +77,7 @@
 # define BOOT_TARGET_DEVICES_DHCP(func)
 #endif
 
-#if defined(CONFIG_ZYNQMP_GQSPI) || defined(CONFIG_CADENCE_OSPI_VERSAL)
+#if defined(CONFIG_ZYNQMP_GQSPI) || defined(CONFIG_CADENCE_OSPI_VERSAL_NET)
 # define BOOT_TARGET_DEVICES_XSPI(func)	func(XSPI, xspi, 0)
 #else
 # define BOOT_TARGET_DEVICES_XSPI(func)
@@ -87,40 +101,23 @@
 #define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
 	"jtag "
 
-#define BOOT_TARGET_DEVICES_USB_DFU(func) \
-	func(USB_DFU, usb_dfu, 0) func(USB_DFU, usb_dfu, 1)
+#define BOOT_TARGET_DEVICES_DFU_USB(func)  func(DFU_USB, dfu_usb, 0)
 
-#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
-	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
-	"$scriptaddr $script_size_f && " \
-	"dfu " #instance " ram " #instance " 60 && " \
-	"echo DFU" #instance ": Trying to boot script at ${scriptaddr} && " \
+#define BOOTENV_DEV_DFU_USB(devtypeu, devtypel, instance) \
+	"bootcmd_dfu_usb=setenv dfu_alt_info boot.scr ram $scriptaddr " \
+	"$script_size_f; dfu 0 ram 0 && " \
+	"echo DFU: Trying to boot script at ${scriptaddr} && " \
 	"source ${scriptaddr}; " \
-	"echo DFU" #instance ": SCRIPT FAILED: continuing...;\0"
+	"echo DFU: SCRIPT FAILED: continuing...;\0"
 
-#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
-	""
-
-#define BOOT_TARGET_DEVICES_USB_THOR(func) \
-	func(USB_THOR, usb_thor, 0) func(USB_THOR, usb_thor, 1)
-
-#define BOOTENV_DEV_USB_THOR(devtypeu, devtypel, instance) \
-	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
-	"$scriptaddr $script_size_f && " \
-	"thordown " #instance " ram " #instance " && " \
-	"echo THOR" #instance ": Trying to boot script at ${scriptaddr} && " \
-	"source ${scriptaddr}; " \
-	"echo THOR" #instance ": SCRIPT FAILED: continuing...;\0"
-
-#define BOOTENV_DEV_NAME_USB_THOR(devtypeu, devtypel, instance) \
+#define BOOTENV_DEV_NAME_DFU_USB(devtypeu, devtypel, instance) \
 	""
 
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_XSPI(func) \
-	BOOT_TARGET_DEVICES_USB_DFU(func) \
-	BOOT_TARGET_DEVICES_USB_THOR(func) \
+	BOOT_TARGET_DEVICES_DFU_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
 
@@ -130,7 +127,8 @@
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
-	BOOTENV
+	BOOTENV \
+	DFU_ALT_INFO
 #endif
 
-#endif /* __XILINX_VERSAL_H */
+#endif /* __XILINX_VERSAL_NET_H */
