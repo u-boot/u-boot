@@ -16,6 +16,8 @@ enum commands_e {
 
 	/* available if FEAT_EXT_CMDS bit is set in features */
 	CMD_GET_EXT_STATUS_DWORD            = 0x11,
+
+	/* available if FEAT_EXT_CMDS and FEAT_PERIPH_MCU bits are set in featurs */
 	CMD_EXT_CONTROL                     = 0x12,
 	CMD_GET_EXT_CONTROL_STATUS          = 0x13,
 };
@@ -54,6 +56,7 @@ enum ctl_byte_e {
 
 /* CMD_GET_FEATURES */
 enum features_e {
+	FEAT_PERIPH_MCU         = BIT(0),
 	FEAT_EXT_CMDS           = BIT(1),
 };
 
@@ -84,9 +87,11 @@ static int turris_omnia_mcu_get_function(struct udevice *dev, uint offset)
 			return -EINVAL;
 		return GPIOF_INPUT;
 
-	/* bank 2 - supported only when FEAT_EXT_CMDS is set */
+	/* bank 2 - supported only when FEAT_EXT_CMDS and FEAT_PERIPH_MCU is set */
 	case (16 + 32 + 0) ... (16 + 32 + 15):
 		if (!(info->features & FEAT_EXT_CMDS))
+			return -EINVAL;
+		if (!(info->features & FEAT_PERIPH_MCU))
 			return -EINVAL;
 		return GPIOF_OUTPUT;
 
@@ -120,9 +125,11 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 		return ((((u32)val32[3] << 24) | ((u32)val32[2] << 16) |
 			 ((u32)val32[1] << 8) | val32[0]) >> (offset - 16)) & 0x1;
 
-	/* bank 2 - supported only when FEAT_EXT_CMDS is set */
+	/* bank 2 - supported only when FEAT_EXT_CMDS and FEAT_PERIPH_MCU is set */
 	case (16 + 32 + 0) ... (16 + 32 + 15):
 		if (!(info->features & FEAT_EXT_CMDS))
+			return -EINVAL;
+		if (!(info->features & FEAT_PERIPH_MCU))
 			return -EINVAL;
 		ret = dm_i2c_read(dev, CMD_GET_EXT_CONTROL_STATUS, val16, 2);
 		if (ret)
@@ -162,9 +169,11 @@ static int turris_omnia_mcu_set_value(struct udevice *dev, uint offset, int valu
 		val16[0] = value ? val16[1] : 0;
 		return dm_i2c_write(dev, CMD_GENERAL_CONTROL, val16, sizeof(val16));
 
-	/* bank 2 - supported only when FEAT_EXT_CMDS is set */
+	/* bank 2 - supported only when FEAT_EXT_CMDS and FEAT_PERIPH_MCU is set */
 	case (16 + 32 + 0) ... (16 + 32 + 15):
 		if (!(info->features & FEAT_EXT_CMDS))
+			return -EINVAL;
+		if (!(info->features & FEAT_PERIPH_MCU))
 			return -EINVAL;
 		val32[3] = BIT(offset - 16 - 32) >> 8;
 		val32[2] = BIT(offset - 16 - 32) & 0xff;
@@ -282,8 +291,10 @@ static int turris_omnia_mcu_probe(struct udevice *dev)
 
 	uc_priv->bank_name = "mcu_";
 
-	if (info->features & FEAT_EXT_CMDS)
+	if ((info->features & FEAT_EXT_CMDS) && (info->features & FEAT_PERIPH_MCU))
 		uc_priv->gpio_count = 16 + 32 + 16;
+	else if (info->features & FEAT_EXT_CMDS)
+		uc_priv->gpio_count = 16 + 32;
 	else
 		uc_priv->gpio_count = 16;
 
