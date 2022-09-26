@@ -66,6 +66,7 @@ static const char *imx8mm_i2c3_sels[] = {"clock-osc-24m", "sys_pll1_160m", "sys_
 static const char *imx8mm_i2c4_sels[] = {"clock-osc-24m", "sys_pll1_160m", "sys_pll2_50m", "sys_pll3_out", "audio_pll1_out",
 					 "video_pll1_out", "audio_pll2_out", "sys_pll1_133m", };
 
+#ifndef CONFIG_SPL_BUILD
 static const char *imx8mm_pwm1_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m", "sys_pll1_40m",
 					 "sys_pll3_out", "clk_ext1", "sys_pll1_80m", "video_pll1_out", };
 
@@ -77,6 +78,7 @@ static const char *imx8mm_pwm3_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_
 
 static const char *imx8mm_pwm4_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m", "sys_pll1_40m",
 					 "sys_pll3_out", "clk_ext2", "sys_pll1_80m", "video_pll1_out", };
+#endif
 
 static const char *imx8mm_wdog_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_pll1_160m", "vpu_pll_out",
 					 "sys_pll2_125m", "sys_pll3_out", "sys_pll1_80m", "sys_pll2_166m", };
@@ -267,14 +269,6 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite("i2c3", imx8mm_i2c3_sels, base + 0xae00));
 	clk_dm(IMX8MM_CLK_I2C4,
 	       imx8m_clk_composite("i2c4", imx8mm_i2c4_sels, base + 0xae80));
-	clk_dm(IMX8MM_CLK_PWM1,
-	       imx8m_clk_composite("pwm1", imx8mm_pwm1_sels, base + 0xb380));
-	clk_dm(IMX8MM_CLK_PWM2,
-	       imx8m_clk_composite("pwm2", imx8mm_pwm2_sels, base + 0xb400));
-	clk_dm(IMX8MM_CLK_PWM3,
-	       imx8m_clk_composite("pwm3", imx8mm_pwm3_sels, base + 0xb480));
-	clk_dm(IMX8MM_CLK_PWM4,
-	       imx8m_clk_composite("pwm4", imx8mm_pwm4_sels, base + 0xb500));
 	clk_dm(IMX8MM_CLK_WDOG,
 	       imx8m_clk_composite("wdog", imx8mm_wdog_sels, base + 0xb900));
 	clk_dm(IMX8MM_CLK_USDHC3,
@@ -309,14 +303,6 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("i2c4_root_clk", "i2c4", base + 0x41a0, 0));
 	clk_dm(IMX8MM_CLK_OCOTP_ROOT,
 	       imx_clk_gate4("ocotp_root_clk", "ipg_root", base + 0x4220, 0));
-	clk_dm(IMX8MM_CLK_PWM1_ROOT,
-	       imx_clk_gate4("pwm1_root_clk", "pwm1", base + 0x4280, 0));
-	clk_dm(IMX8MM_CLK_PWM2_ROOT,
-	       imx_clk_gate4("pwm2_root_clk", "pwm2", base + 0x4290, 0));
-	clk_dm(IMX8MM_CLK_PWM3_ROOT,
-	       imx_clk_gate4("pwm3_root_clk", "pwm3", base + 0x42a0, 0));
-	clk_dm(IMX8MM_CLK_PWM4_ROOT,
-	       imx_clk_gate4("pwm4_root_clk", "pwm4", base + 0x42b0, 0));
 	clk_dm(IMX8MM_CLK_USDHC1_ROOT,
 	       imx_clk_gate4("usdhc1_root_clk", "usdhc1", base + 0x4510, 0));
 	clk_dm(IMX8MM_CLK_USDHC2_ROOT,
@@ -348,6 +334,22 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_ENET1_ROOT,
 	       imx_clk_gate4("enet1_root_clk", "enet_axi",
 	       base + 0x40a0, 0));
+	clk_dm(IMX8MM_CLK_PWM1,
+	       imx8m_clk_composite("pwm1", imx8mm_pwm1_sels, base + 0xb380));
+	clk_dm(IMX8MM_CLK_PWM2,
+	       imx8m_clk_composite("pwm2", imx8mm_pwm2_sels, base + 0xb400));
+	clk_dm(IMX8MM_CLK_PWM3,
+	       imx8m_clk_composite("pwm3", imx8mm_pwm3_sels, base + 0xb480));
+	clk_dm(IMX8MM_CLK_PWM4,
+	       imx8m_clk_composite("pwm4", imx8mm_pwm4_sels, base + 0xb500));
+	clk_dm(IMX8MM_CLK_PWM1_ROOT,
+	       imx_clk_gate4("pwm1_root_clk", "pwm1", base + 0x4280, 0));
+	clk_dm(IMX8MM_CLK_PWM2_ROOT,
+	       imx_clk_gate4("pwm2_root_clk", "pwm2", base + 0x4290, 0));
+	clk_dm(IMX8MM_CLK_PWM3_ROOT,
+	       imx_clk_gate4("pwm3_root_clk", "pwm3", base + 0x42a0, 0));
+	clk_dm(IMX8MM_CLK_PWM4_ROOT,
+	       imx_clk_gate4("pwm4_root_clk", "pwm4", base + 0x42b0, 0));
 #endif
 
 	return 0;
