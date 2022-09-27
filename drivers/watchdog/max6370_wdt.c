@@ -72,7 +72,7 @@ static int max6370_wdt_reset(struct udevice *dev)
 
 	if (dm_gpio_is_valid(&wdt->gpio_wdi)) {
 		dm_gpio_set_value(&wdt->gpio_wdi, 1);
-		udelay(1);
+		__udelay(1);
 		dm_gpio_set_value(&wdt->gpio_wdi, 0);
 	} else {
 		val = readb(wdt->reg);
