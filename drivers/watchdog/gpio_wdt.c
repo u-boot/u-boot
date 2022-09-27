@@ -31,7 +31,7 @@ static int gpio_wdt_reset(struct udevice *dev)
 	case HW_ALGO_LEVEL:
 		/* Pulse */
 		dm_gpio_set_value(&priv->gpio, 1);
-		udelay(1);
+		__udelay(1);
 		dm_gpio_set_value(&priv->gpio, 0);
 		break;
 	}
