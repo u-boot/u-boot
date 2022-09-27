@@ -115,6 +115,7 @@ static int passwd_abort_crypt(uint64_t etime)
 				presskey_len++;
 			}
 		}
+		udelay(10000);
 	} while (never_timeout || get_ticks() <= etime);
 
 	return abort;
@@ -206,6 +207,7 @@ static int passwd_abort_sha256(uint64_t etime)
 			if (slow_equals(sha, sha_env, SHA256_SUM_LEN))
 				abort = 1;
 		}
+		udelay(10000);
 	} while (!abort && get_ticks() <= etime);
 
 	free(presskey);
@@ -293,6 +295,7 @@ static int passwd_abort_key(uint64_t etime)
 				abort = 1;
 			}
 		}
+		udelay(10000);
 	} while (!abort && get_ticks() <= etime);
 
 	return abort;
