@@ -19,8 +19,16 @@ config ARCH_NPCM7xx
 	  General support for NPCM7xx BMC (Poleg).
 	  Nuvoton NPCM7xx BMC is based on the Cortex A9.
 
+config ARCH_NPCM8XX
+	bool "Support Nuvoton NPCM8xx SoC"
+	select ARM64
+	help
+	  General support for NPCM8xx BMC (Arbel).
+	  Nuvoton NPCM8xx BMC is based on the Cortex A35.
+
 endchoice
 
 source "arch/arm/mach-npcm/npcm7xx/Kconfig"
+source "arch/arm/mach-npcm/npcm8xx/Kconfig"
 
 endif

@@ -1,0 +1,136 @@
+// SPDX-License-Identifier: GPL-2.0
+
+#include <dt-bindings/reset/nuvoton,npcm8xx-reset.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	interrupt-parent = <&gic>;
+
+	/* external reference clock */
+	clk_refclk: clk-refclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
+		clock-output-names = "refclk";
+	};
+
+	ahb {
+		rstc: reset-controller@f0801000 {
+			compatible = "nuvoton,npcm845-reset", "syscon",
+				"simple-mfd";
+			reg = <0x0 0xf0801000 0x0 0xC4>;
+			rstc1: reset-controller1 {
+				compatible = "syscon-reset";
+				#reset-cells = <1>;
+				regmap = <&rstc>;
+				offset = <NPCM8XX_RESET_IPSRST1>;
+				mask = <0xFFFFFFFF>;
+			};
+			rstc2: reset-controller2 {
+				compatible = "syscon-reset";
+				#reset-cells = <1>;
+				regmap = <&rstc>;
+				offset = <NPCM8XX_RESET_IPSRST2>;
+				mask = <0xFFFFFFFF>;
+			};
+			rstc3: reset-controller3 {
+				compatible = "syscon-reset";
+				#reset-cells = <1>;
+				regmap = <&rstc>;
+				offset = <NPCM8XX_RESET_IPSRST3>;
+				mask = <0xFFFFFFFF>;
+			};
+			rstc4: reset-controller4 {
+				compatible = "syscon-reset";
+				#reset-cells = <1>;
+				regmap = <&rstc>;
+				offset = <NPCM8XX_RESET_IPSRST4>;
+				mask = <0xFFFFFFFF>;
+			};
+		};
+
+		clk: clock-controller@f0801000 {
+			compatible = "nuvoton,npcm845-clk", "syscon";
+			#clock-cells = <1>;
+			clock-controller;
+			reg = <0x0 0xf0801000 0x0 0x1000>;
+			clock-names = "refclk";
+			clocks = <&clk_refclk>;
+		};
+
+		apb {
+			serial0: serial@0 {
+				compatible = "nuvoton,npcm845-uart";
+				reg = <0x0 0x1000>;
+				clocks = <&clk NPCM8XX_CLK_UART>, <&clk NPCM8XX_CLK_PLL2DIV2>;
+				clock-frequency = <24000000>;
+				status = "disabled";
+			};
+
+			gpio0: gpio0@10000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x10000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio0";
+			};
+
+			gpio1: gpio1@11000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x11000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio1";
+			};
+
+			gpio2: gpio2@12000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x12000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio2";
+			};
+
+			gpio3: gpio3@13000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x13000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio3";
+			};
+
+			gpio4: gpio4@14000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x14000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio4";
+			};
+
+			gpio5: gpio5@15000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x15000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio5";
+			};
+
+			gpio6: gpio6@16000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x16000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio6";
+			};
+
+			gpio7: gpio7@17000 {
+				compatible = "nuvoton,npcm-gpio";
+				reg = <0x17000 0xB0>;
+				#gpio-cells = <2>;
+				gpio-controller;
+				gpio-bank-name = "gpio7";
+			};
+		};
+	};
+};
