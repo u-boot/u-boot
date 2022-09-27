@@ -369,45 +369,43 @@ int blk_dselect_hwpart(struct blk_desc *desc, int hwpart)
 	return blk_select_hwpart(desc->bdev, hwpart);
 }
 
-int blk_first_device(int uclass_id, struct udevice **devp)
+static int _blk_next_device(int uclass_id, struct udevice **devp)
 {
 	struct blk_desc *desc;
-	int ret;
+	int ret = 0;
 
-	ret = uclass_find_first_device(UCLASS_BLK, devp);
+	for (; *devp; uclass_find_next_device(devp)) {
+		desc = dev_get_uclass_plat(*devp);
+		if (desc->uclass_id == uclass_id) {
+			ret = device_probe(*devp);
+			if (!ret)
+				return 0;
+		}
+	}
+
 	if (ret)
 		return ret;
-	if (!*devp)
-		return -ENODEV;
-	do {
-		desc = dev_get_uclass_plat(*devp);
-		if (desc->uclass_id == uclass_id)
-			return 0;
-		ret = uclass_find_next_device(devp);
-		if (ret)
-			return ret;
-	} while (*devp);
 
 	return -ENODEV;
+}
+
+int blk_first_device(int uclass_id, struct udevice **devp)
+{
+	uclass_find_first_device(UCLASS_BLK, devp);
+
+	return _blk_next_device(uclass_id, devp);
 }
 
 int blk_next_device(struct udevice **devp)
 {
 	struct blk_desc *desc;
-	int ret, uclass_id;
+	int uclass_id;
 
 	desc = dev_get_uclass_plat(*devp);
 	uclass_id = desc->uclass_id;
-	do {
-		ret = uclass_find_next_device(devp);
-		if (ret)
-			return ret;
-		if (!*devp)
-			return -ENODEV;
-		desc = dev_get_uclass_plat(*devp);
-		if (desc->uclass_id == uclass_id)
-			return 0;
-	} while (1);
+	uclass_find_next_device(devp);
+
+	return _blk_next_device(uclass_id, devp);
 }
 
 int blk_find_device(int uclass_id, int devnum, struct udevice **devp)
