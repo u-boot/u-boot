@@ -14,14 +14,13 @@
 #include <console.h>
 #include <malloc.h>
 #include <asm/global_data.h>
-#include <asm/io.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <fdtdec.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/io.h>
 #include <linux/kernel.h>
-#include <asm/io.h>
 #include <eth_phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -615,8 +614,8 @@ static int emaclite_of_to_plat(struct udevice *dev)
 	int offset = 0;
 
 	pdata->iobase = dev_read_addr(dev);
-	emaclite->regs = (struct emaclite_regs *)ioremap_nocache(pdata->iobase,
-								 0x10000);
+	emaclite->regs = (struct emaclite_regs *)ioremap(pdata->iobase,
+							 0x10000);
 
 	emaclite->phyaddr = -1;
 
