@@ -132,15 +132,15 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 			return ret;
 		}
 
-		ret = clk_get_by_name(dev, "gpmi_apb_bch", &gpmi_clk);
+		ret = clk_get_by_name(dev, "gpmi_bch_apb", &gpmi_clk);
 		if (ret < 0) {
-			debug("Can't get gpmi_apb_bch clk: %d\n", ret);
+			debug("Can't get gpmi_bch_apb clk: %d\n", ret);
 			return ret;
 		}
 
 		ret = clk_enable(&gpmi_clk);
 		if (ret < 0) {
-			debug("Can't enable gpmi_apb_bch clk: %d\n", ret);
+			debug("Can't enable gpmi_bch_apb clk: %d\n", ret);
 			return ret;
 		}
 	}
