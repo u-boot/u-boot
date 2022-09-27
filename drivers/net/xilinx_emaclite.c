@@ -112,12 +112,12 @@ static void xemaclite_alignedread(u32 *srcptr, void *destptr, u32 bytecount)
 	/* Word aligned buffer, no correction needed. */
 	to32ptr = (u32 *) destptr;
 	while (bytecount > 3) {
-		*to32ptr++ = *from32ptr++;
+		*to32ptr++ = __raw_readl(from32ptr++);
 		bytecount -= 4;
 	}
 	to8ptr = (u8 *) to32ptr;
 
-	alignbuffer = *from32ptr++;
+	alignbuffer = __raw_readl(from32ptr++);
 	from8ptr = (u8 *) &alignbuffer;
 
 	for (i = 0; i < bytecount; i++)
@@ -135,8 +135,7 @@ static void xemaclite_alignedwrite(void *srcptr, u32 *destptr, u32 bytecount)
 
 	from32ptr = (u32 *) srcptr;
 	while (bytecount > 3) {
-
-		*to32ptr++ = *from32ptr++;
+		__raw_writel(*from32ptr++, to32ptr++);
 		bytecount -= 4;
 	}
 
@@ -147,7 +146,7 @@ static void xemaclite_alignedwrite(void *srcptr, u32 *destptr, u32 bytecount)
 	for (i = 0; i < bytecount; i++)
 		*to8ptr++ = *from8ptr++;
 
-	*to32ptr++ = alignbuffer;
+	__raw_writel(alignbuffer, to32ptr++);
 }
 
 static int wait_for_bit(const char *func, u32 *reg, const u32 mask,
