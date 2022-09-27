@@ -143,19 +143,6 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 			debug("Can't enable gpmi_apb_bch clk: %d\n", ret);
 			return ret;
 		}
-
-		/* this clock is used for apbh_dma, since the apbh dma does not support DM,
-		  * we optionally enable it here
-		  */
-		ret = clk_get_by_name(dev, "gpmi_apbh_dma", &gpmi_clk);
-		if (ret < 0) {
-			debug("Can't get gpmi_apbh_dma clk: %d\n", ret);
-		} else {
-			ret = clk_enable(&gpmi_clk);
-			if (ret < 0) {
-				debug("Can't enable gpmi_apbh_dma clk: %d\n", ret);
-			}
-		}
 	}
 
 	return mxs_nand_init_ctrl(info);
