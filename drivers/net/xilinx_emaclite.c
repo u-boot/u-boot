@@ -517,6 +517,8 @@ try_again:
 		length = ntohs(ip->ip_len);
 		length += ETHER_HDR_SIZE + ETH_FCS_LEN;
 		debug("IP Packet %x\n", length);
+		if (length > PKTSIZE)
+			length = PKTSIZE;
 		break;
 	default:
 		debug("Other Packet\n");
@@ -525,7 +527,7 @@ try_again:
 	}
 
 	/* Read the rest of the packet which is longer then first read */
-	if (length != first_read)
+	if (length > first_read)
 		xemaclite_alignedread(addr + first_read,
 				      etherrxbuff + first_read,
 				      length - first_read);
