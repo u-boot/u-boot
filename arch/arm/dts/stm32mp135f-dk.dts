@@ -31,8 +31,8 @@
 		#size-cells = <1>;
 		ranges;
 
-		optee@de000000 {
-			reg = <0xde000000 0x2000000>;
+		optee@dd000000 {
+			reg = <0xdd000000 0x3000000>;
 			no-map;
 		};
 	};

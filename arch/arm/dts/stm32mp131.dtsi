@@ -27,21 +27,8 @@
 		interrupt-parent = <&intc>;
 	};
 
-	scmi_sram: sram@2ffff000 {
-		compatible = "mmio-sram";
-		reg = <0x2ffff000 0x1000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges = <0 0x2ffff000 0x1000>;
-
-		scmi_shm: scmi_shm@0 {
-			compatible = "arm,scmi-shmem";
-			reg = <0 0x80>;
-		};
-	};
-
 	firmware {
-		optee: optee {
+		optee {
 			method = "smc";
 			compatible = "linaro,optee-tz";
 		};
@@ -150,6 +137,19 @@
 		#size-cells = <1>;
 		interrupt-parent = <&intc>;
 		ranges;
+
+		scmi_sram: sram@2ffff000 {
+			compatible = "mmio-sram";
+			reg = <0x2ffff000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0x2ffff000 0x1000>;
+
+			scmi_shm: scmi-sram@0 {
+				compatible = "arm,scmi-shmem";
+				reg = <0 0x80>;
+			};
+		};
 
 		uart4: serial@40010000 {
 			compatible = "st,stm32h7-uart";

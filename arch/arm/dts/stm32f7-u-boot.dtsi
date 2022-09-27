@@ -119,7 +119,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&timer5 {
+&timers5 {
 	u-boot,dm-pre-reloc;
 };
 
