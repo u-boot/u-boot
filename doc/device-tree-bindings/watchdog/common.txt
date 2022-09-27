@@ -6,7 +6,8 @@ Optional properties:
                 be used instead.
 - hw_margin_ms : Period used to reset the watchdog in ms
                  If this period is not defined, the default value is 1000.
-- u-boot,noautostart : Specify that this watchdog should not autostart
-                       When the config option WATCHDOG_AUTOSTART is set, all enabled
-                       watchdogs are started. This property allows specifying that this
-                       watchdog should NOT be started.
+- u-boot,noautostart :
+- u-boot,autostart : These (mutually exclusive) boolean properties can be used to control
+                     whether the watchdog is automatically started when probed. If neither
+                     are present, the behaviour is determined by the config option
+                     WATCHDOG_AUTOSTART.

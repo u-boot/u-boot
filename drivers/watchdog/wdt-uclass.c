@@ -37,8 +37,8 @@ struct wdt_priv {
 	ulong next_reset;
 	/* Whether watchdog_start() has been called on the device. */
 	bool running;
-	/* No autostart */
-	bool noautostart;
+	/* autostart */
+	bool autostart;
 
 	struct cyclic_info *cyclic;
 };
@@ -72,7 +72,7 @@ static void init_watchdog_dev(struct udevice *dev)
 			       dev->name);
 	}
 
-	if (!IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART) || priv->noautostart) {
+	if (!priv->autostart) {
 		printf("WDT:   Not starting %s\n", dev->name);
 		return;
 	}
@@ -267,19 +267,22 @@ static int wdt_pre_probe(struct udevice *dev)
 	 * indicated by a hw_margin_ms property.
 	 */
 	ulong reset_period = 1000;
-	bool noautostart = false;
+	bool autostart = IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART);
 	struct wdt_priv *priv;
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		timeout = dev_read_u32_default(dev, "timeout-sec", timeout);
 		reset_period = dev_read_u32_default(dev, "hw_margin_ms",
 						    4 * reset_period) / 4;
-		noautostart = dev_read_bool(dev, "u-boot,noautostart");
+		if (dev_read_bool(dev, "u-boot,noautostart"))
+			autostart = false;
+		else if (dev_read_bool(dev, "u-boot,autostart"))
+			autostart = true;
 	}
 	priv = dev_get_uclass_priv(dev);
 	priv->timeout = timeout;
 	priv->reset_period = reset_period;
-	priv->noautostart = noautostart;
+	priv->autostart = autostart;
 	/*
 	 * Pretend this device was last reset "long" ago so the first
 	 * watchdog_reset will actually call its ->reset method.
