@@ -243,8 +243,6 @@ int fdt_increase_size(void *fdt, int add_len);
 
 int fdt_delete_disabled_nodes(void *blob);
 
-int fdt_fixup_nor_flash_size(void *blob);
-
 struct node_info;
 #if defined(CONFIG_FDT_FIXUP_PARTITIONS)
 void fdt_fixup_mtdparts(void *fdt, const struct node_info *node_info,
