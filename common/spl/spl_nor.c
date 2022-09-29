@@ -111,10 +111,14 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 
 	/* Legacy image handling */
 	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT)) {
+		struct legacy_img_hdr hdr;
+
 		load.bl_len = 1;
 		load.read = spl_nor_load_read;
+		spl_nor_load_read(&load, spl_nor_get_uboot_base(), sizeof(hdr), &hdr);
 		return spl_load_legacy_img(spl_image, bootdev, &load,
-					   spl_nor_get_uboot_base());
+					   spl_nor_get_uboot_base(),
+					   &hdr);
 	}
 
 	return 0;

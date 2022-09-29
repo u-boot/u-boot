@@ -119,7 +119,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.bl_len = 1;
 		load.read = spl_nand_legacy_read;
 
-		return spl_load_legacy_img(spl_image, bootdev, &load, offset);
+		return spl_load_legacy_img(spl_image, bootdev, &load, offset, header);
 	} else {
 		err = spl_parse_image_header(spl_image, bootdev, header);
 		if (err)

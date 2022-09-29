@@ -353,7 +353,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
  * spl_load_legacy_img() - Loads a legacy image from a device.
  * @spl_image:	Image description to set up
  * @load:	Structure containing the information required to load data.
- * @header:	Pointer to image header (including appended image)
+ * @offset:	Pointer to image
+ * @hdr:	Pointer to image header
  *
  * Reads an legacy image from the device. Loads u-boot image to
  * specified load address.
@@ -361,7 +362,9 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
  */
 int spl_load_legacy_img(struct spl_image_info *spl_image,
 			struct spl_boot_device *bootdev,
-			struct spl_load_info *load, ulong header);
+			struct spl_load_info *load, ulong offset,
+			struct legacy_img_hdr *hdr);
+
 
 /**
  * spl_load_imx_container() - Loads a imx container image from a device.
