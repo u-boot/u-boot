@@ -230,6 +230,9 @@ efi_status_t efi_initrd_register(void)
  */
 void efi_initrd_deregister(void)
 {
+	if (!efi_initrd_handle)
+		return;
+
 	efi_delete_handle(efi_initrd_handle);
 	efi_initrd_handle = NULL;
 }
