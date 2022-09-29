@@ -328,7 +328,7 @@ static int zynq_phy_init(struct udevice *dev)
 
 	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
 				   priv->interface);
-	if (!priv->phydev)
+	if (IS_ERR_OR_NULL(priv->phydev))
 		return -ENODEV;
 
 	if (priv->max_speed) {

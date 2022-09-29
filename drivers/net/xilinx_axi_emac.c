@@ -11,6 +11,7 @@
 #include <cpu_func.h>
 #include <display_options.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <log.h>
 #include <net.h>
 #include <malloc.h>
@@ -317,6 +318,10 @@ static int axiemac_phy_init(struct udevice *dev)
 
 	/* Interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
+	if (IS_ERR_OR_NULL(phydev)) {
+		dev_err(dev, "phy_connect() failed\n");
+		return -ENODEV;
+	}
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
