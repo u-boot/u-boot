@@ -399,7 +399,7 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 	range = &map->ranges[range_num];
 
 	offset <<= map->reg_offset_shift;
-	if (offset + val_len > range->size) {
+	if (offset + val_len > range->size || offset + val_len < offset) {
 		debug("%s: offset/size combination invalid\n", __func__);
 		return -ERANGE;
 	}
@@ -538,7 +538,7 @@ int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 	range = &map->ranges[range_num];
 
 	offset <<= map->reg_offset_shift;
-	if (offset + val_len > range->size) {
+	if (offset + val_len > range->size || offset + val_len < offset) {
 		debug("%s: offset/size combination invalid\n", __func__);
 		return -ERANGE;
 	}
