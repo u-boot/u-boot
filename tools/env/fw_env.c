@@ -192,10 +192,13 @@ static int ubi_get_volnum_by_name(int devnum, const char *volname)
 			     &tmp_devnum, &volnum);
 		if (ret == 2 && devnum == tmp_devnum) {
 			if (ubi_check_volume_sysfs_name(dirent->d_name,
-							volname) == 0)
+							volname) == 0) {
+				closedir(sysfs_ubi);
 				return volnum;
+			}
 		}
 	}
+	closedir(sysfs_ubi);
 
 	return -1;
 }

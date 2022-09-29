@@ -444,6 +444,16 @@ int __maybe_unused ti_i2c_eeprom_am6_get(int bus_addr, int dev_addr,
 	if (rc)
 		return rc;
 
+	/*
+	 * Handle case of bad 2 byte eeproms that responds to 1 byte addressing
+	 * but gets stuck in const addressing when read requests are performed
+	 * on offsets. We re-read the board ID to ensure we have sane data back
+	 */
+	rc = ti_i2c_eeprom_get(bus_addr, dev_addr, TI_EEPROM_HEADER_MAGIC,
+			       sizeof(board_id), (uint8_t *)&board_id);
+	if (rc)
+		return rc;
+
 	if (board_id.header.id != TI_AM6_EEPROM_RECORD_BOARD_ID) {
 		pr_err("%s: Invalid board ID record!\n", __func__);
 		return -EINVAL;

@@ -7,6 +7,6 @@
 save_boot_params:
 
 	adr	x8, prior_stage_fdt_address
-	str	x0, [x8]
+	stp	x0, x1, [x8]
 
 	b	save_boot_params_ret
