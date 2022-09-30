@@ -96,7 +96,7 @@ static int setup_channel(struct udevice *dev, struct scmi_mbox_channel *chan)
 static int scmi_mbox_get_channel(struct udevice *dev,
 				 struct scmi_channel **channel)
 {
-	struct scmi_mbox_channel *base_chan = dev_get_plat(dev->parent);
+	struct scmi_mbox_channel *base_chan = dev_get_plat(dev);
 	struct scmi_mbox_channel *chan;
 	int ret;
 
