@@ -61,7 +61,7 @@ struct arasan_sdhci_plat {
 struct arasan_sdhci_priv {
 	struct sdhci_host *host;
 	struct arasan_sdhci_clk_data clk_data;
-	u8 deviceid;
+	u32 node_id;
 	u8 bank;
 	u8 no_1p8;
 	struct reset_ctl_bulk resets;
@@ -250,7 +250,6 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	struct sdhci_host *host;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
-	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 
 	dev_dbg(mmc->dev, "%s\n", __func__);
 
@@ -262,7 +261,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	mdelay(1);
 
-	arasan_zynqmp_dll_reset(host, node_id);
+	arasan_zynqmp_dll_reset(host, priv->node_id);
 
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
@@ -308,7 +307,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	}
 
 	udelay(1);
-	arasan_zynqmp_dll_reset(host, node_id);
+	arasan_zynqmp_dll_reset(host, priv->node_id);
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
@@ -334,7 +333,6 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
-	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
 	int ret;
@@ -374,14 +372,14 @@ static int sdhci_zynqmp_sdcardclk_set_phase(struct sdhci_host *host,
 	tap_delay &= SDHCI_ARASAN_OTAPDLY_SEL_MASK;
 
 	/* Set the Clock Phase */
-	ret = arasan_zynqmp_set_out_tapdelay(node_id, tap_delay);
+	ret = arasan_zynqmp_set_out_tapdelay(priv->node_id, tap_delay);
 	if (ret) {
 		dev_err(dev, "Error setting output Tap Delay\n");
 		return ret;
 	}
 
 	/* Release DLL Reset */
-	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_RELEASE);
+	ret = zynqmp_dll_reset(priv->node_id, PM_DLL_RESET_RELEASE);
 	if (ret) {
 		dev_err(dev, "dll_reset release failed with err: %d\n", ret);
 		return ret;
@@ -405,7 +403,6 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
 	struct arasan_sdhci_priv *priv = dev_get_priv(mmc->dev);
-	u8 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	u8 tap_delay, tap_max = 0;
 	int timing = mode2timing[mmc->selected_mode];
 	int ret;
@@ -419,7 +416,7 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 		return 0;
 
 	/* Assert DLL Reset */
-	ret = zynqmp_dll_reset(node_id, PM_DLL_RESET_ASSERT);
+	ret = zynqmp_dll_reset(priv->node_id, PM_DLL_RESET_ASSERT);
 	if (ret) {
 		dev_err(dev, "dll_reset assert failed with err: %d\n", ret);
 		return ret;
@@ -451,7 +448,7 @@ static int sdhci_zynqmp_sampleclk_set_phase(struct sdhci_host *host,
 	/* Limit input tap_delay value to 8 bits */
 	tap_delay &= SDHCI_ARASAN_ITAPDLY_SEL_MASK;
 
-	ret = arasan_zynqmp_set_in_tapdelay(node_id, tap_delay);
+	ret = arasan_zynqmp_set_in_tapdelay(priv->node_id, tap_delay);
 	if (ret) {
 		dev_err(dev, "Error setting Input Tap Delay\n");
 		return ret;
@@ -717,14 +714,14 @@ static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 					   struct udevice *dev)
 {
 	int ret;
-	u32 node_id = priv->deviceid ? NODE_SD_1 : NODE_SD_0;
 	struct clk clk;
 	unsigned long clock, mhz;
 
-	ret = xilinx_pm_request(PM_REQUEST_NODE, node_id, ZYNQMP_PM_CAPABILITY_ACCESS,
-				ZYNQMP_PM_MAX_QOS, ZYNQMP_PM_REQUEST_ACK_NO, NULL);
+	ret = xilinx_pm_request(PM_REQUEST_NODE, priv->node_id,
+				ZYNQMP_PM_CAPABILITY_ACCESS, ZYNQMP_PM_MAX_QOS,
+				ZYNQMP_PM_REQUEST_ACK_NO, NULL);
 	if (ret) {
-		dev_err(dev, "Request node failed for %d\n", node_id);
+		dev_err(dev, "Request node failed for %d\n", priv->node_id);
 		return ret;
 	}
 
@@ -743,13 +740,13 @@ static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 		return ret;
 	}
 
-	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_FIXED, 0);
+	ret = zynqmp_pm_set_sd_config(priv->node_id, SD_CONFIG_FIXED, 0);
 	if (ret) {
 		dev_err(dev, "SD_CONFIG_FIXED failed\n");
 		return ret;
 	}
 
-	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_EMMC_SEL,
+	ret = zynqmp_pm_set_sd_config(priv->node_id, SD_CONFIG_EMMC_SEL,
 				      dev_read_bool(dev, "non-removable"));
 	if (ret) {
 		dev_err(dev, "SD_CONFIG_EMMC_SEL failed\n");
@@ -779,13 +776,13 @@ static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 	else
 		mhz = 25;
 
-	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_BASECLK, mhz);
+	ret = zynqmp_pm_set_sd_config(priv->node_id, SD_CONFIG_BASECLK, mhz);
 	if (ret) {
 		dev_err(dev, "SD_CONFIG_BASECLK failed\n");
 		return ret;
 	}
 
-	ret = zynqmp_pm_set_sd_config(node_id, SD_CONFIG_8BIT,
+	ret = zynqmp_pm_set_sd_config(priv->node_id, SD_CONFIG_8BIT,
 				      (dev_read_u32_default(dev, "bus-width", 1) == 8));
 	if (ret) {
 		dev_err(dev, "SD_CONFIG_8BIT failed\n");
@@ -900,6 +897,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 static int arasan_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(dev);
+	u32 pm_info[2];
 
 	priv->host = calloc(1, sizeof(struct sdhci_host));
 	if (!priv->host)
@@ -916,9 +914,12 @@ static int arasan_sdhci_of_to_plat(struct udevice *dev)
 	if (IS_ERR(priv->host->ioaddr))
 		return PTR_ERR(priv->host->ioaddr);
 
-	priv->deviceid = dev_read_u32_default(dev, "xlnx,device_id", -1);
 	priv->bank = dev_read_u32_default(dev, "xlnx,mio-bank", 0);
 	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");
+
+	priv->node_id = 0;
+	if (!dev_read_u32_array(dev, "power-domains", pm_info, ARRAY_SIZE(pm_info)))
+		priv->node_id = pm_info[1];
 
 	return 0;
 }
