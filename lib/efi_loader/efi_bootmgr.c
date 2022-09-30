@@ -74,6 +74,85 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 	return full_path;
 }
 
+static efi_status_t __try_load(efi_handle_t *fs_handles, efi_uintn_t num,
+			       struct efi_device_path *fp,
+			       efi_handle_t *handle, bool removable)
+{
+	struct efi_handler *handler;
+	struct efi_device_path *dp;
+	int i;
+	efi_status_t ret;
+
+	for (i = 0; i < num; i++) {
+		if (removable && !efi_disk_is_removable(fs_handles[i]))
+			continue;
+		if (!removable && efi_disk_is_removable(fs_handles[i]))
+			continue;
+
+		ret = efi_search_protocol(fs_handles[i], &efi_guid_device_path,
+					  &handler);
+		if (ret != EFI_SUCCESS)
+			/* unlikely */
+			continue;
+
+		dp = handler->protocol_interface;
+		if (!dp)
+			/* unlikely */
+			continue;
+
+		dp = efi_dp_append(dp, fp);
+		if (!dp)
+			/* unlikely */
+			continue;
+
+		ret = EFI_CALL(efi_load_image(true, efi_root, dp, NULL, 0,
+					      handle));
+		efi_free_pool(dp);
+		if (ret == EFI_SUCCESS)
+			return ret;
+	}
+
+	return EFI_NOT_FOUND;
+}
+
+/**
+ * try_load_from_short_path
+ * @fp:		file path
+ * @handle:	pointer to handle for newly installed image
+ *
+ * Return:	status code
+ */
+static efi_status_t try_load_from_short_path(struct efi_device_path *fp,
+					     efi_handle_t *handle)
+{
+	efi_handle_t *fs_handles;
+	efi_uintn_t num;
+	efi_status_t ret;
+
+	ret = EFI_CALL(efi_locate_handle_buffer(
+					BY_PROTOCOL,
+					&efi_simple_file_system_protocol_guid,
+					NULL,
+					&num, &fs_handles));
+	if (ret != EFI_SUCCESS)
+		return ret;
+	if (!num)
+		return EFI_NOT_FOUND;
+
+	/* removable media first */
+	ret = __try_load(fs_handles, num, fp, handle, true);
+	if (ret == EFI_SUCCESS)
+		goto out;
+
+	/* fixed media */
+	ret = __try_load(fs_handles, num, fp, handle, false);
+	if (ret == EFI_SUCCESS)
+		goto out;
+
+out:
+	return ret;
+}
+
 /**
  * try_load_from_file_path() - try to load a file
  *

@@ -547,10 +547,6 @@ efi_status_t efi_tcg2_do_initial_measurement(void);
 efi_status_t tcg2_measure_pe_image(void *efi, u64 efi_size,
 				   struct efi_loaded_image_obj *handle,
 				   struct efi_loaded_image *loaded_image_info);
-/* Create handles and protocols for the partitions of a block device */
-int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
-			       const char *if_typename, int diskid,
-			       const char *pdevname);
 /* Called by bootefi to make GOP (graphical) interface available */
 efi_status_t efi_gop_register(void);
 /* Called by bootefi to make the network interface available */

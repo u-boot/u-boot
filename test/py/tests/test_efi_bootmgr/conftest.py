@@ -38,3 +38,28 @@ def efi_bootmgr_data(u_boot_config):
                shell=True)
 
     return image_path
+
+@pytest.fixture(scope='session')
+def efi_bootmgr_data2(u_boot_config):
+    """Set up a file system without a partition table to be used
+       in UEFI bootmanager tests
+
+    Args:
+        u_boot_config -- U-boot configuration.
+
+    Return:
+        A path to disk image to be used for testing
+    """
+    mnt_point = u_boot_config.persistent_data_dir + '/test_efi_bootmgr'
+    image_path = u_boot_config.persistent_data_dir + '/efi_bootmgr_data2.img'
+
+    shutil.rmtree(mnt_point, ignore_errors=True)
+    os.mkdir(mnt_point, mode = 0o755)
+
+    shutil.copyfile(u_boot_config.build_dir + '/lib/efi_loader/helloworld.efi',
+                    mnt_point + '/helloworld.efi')
+
+    check_call(f'virt-make-fs --size=+1M --type=vfat {mnt_point} {image_path}',
+               shell=True)
+
+    return image_path

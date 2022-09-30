@@ -41,3 +41,26 @@ def test_efi_bootmgr(u_boot_console, efi_bootmgr_data):
 
     u_boot_console.run_command(cmd = 'efidebug boot rm 0001')
     u_boot_console.run_command(cmd = 'efidebug boot rm 0002')
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_efidebug')
+@pytest.mark.buildconfigspec('cmd_bootefi_bootmgr')
+def test_efi_bootmgr_short(u_boot_console, efi_bootmgr_data2):
+    """ Unit test for UEFI bootmanager with a short-form path
+    In this test case,
+    - File system has no partition table
+    - UEFI load option has a short-form path starting with a file device path
+
+    Args:
+        u_boot_console -- U-Boot console
+        efi_bootmgr_data2 -- Path to the disk image used for testing.
+    """
+    u_boot_console.run_command(cmd = f'host bind 0 {efi_bootmgr_data2}')
+
+    u_boot_console.run_command(cmd = 'efidebug boot add ' \
+        '-b 0001 TEST2 host 0:0 helloworld.efi')
+    u_boot_console.run_command(cmd = 'efidebug boot next 0001')
+    response = u_boot_console.run_command(cmd = 'bootefi bootmgr')
+    assert 'Hello, world!' in response
+
+    u_boot_console.run_command(cmd = 'efidebug boot rm 0001')
