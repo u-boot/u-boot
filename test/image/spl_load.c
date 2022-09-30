@@ -49,7 +49,7 @@ int board_fit_config_name_match(const char *name)
 	return 0;
 }
 
-struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
+struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
 	return map_sysmem(0x100000, 0);
 }
@@ -57,7 +57,7 @@ struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
 static int spl_test_load(struct unit_test_state *uts)
 {
 	struct spl_image_info image;
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 	struct text_ctx text_ctx;
 	struct spl_load_info load;
 	char fname[256];

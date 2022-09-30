@@ -119,6 +119,11 @@ int ut_check_console_end(struct unit_test_state *uts);
  */
 int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 
+/* Report a failure, with printf() string */
+#define ut_reportf(fmt, args...)					\
+	ut_failf(uts, __FILE__, __LINE__, __func__, "report",		\
+		 fmt, ##args)
+
 /* Assert that a condition is non-zero */
 #define ut_assert(cond)							\
 	if (!(cond)) {							\

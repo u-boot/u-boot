@@ -845,7 +845,7 @@ copy_file (int ifd, const char *datafile, int pad)
 	if (params.xflag) {
 		unsigned char *p = NULL;
 		/*
-		 * XIP: do not append the image_header_t at the
+		 * XIP: do not append the struct legacy_img_hdr at the
 		 * beginning of the file, but consume the space
 		 * reserved for it.
 		 */

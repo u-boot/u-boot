@@ -60,7 +60,7 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 		       const char *filename)
 {
 	int err;
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 
 	err = spl_register_fat_device(block_dev, partition);
 	if (err)
@@ -68,7 +68,7 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
-	err = file_fat_read(filename, header, sizeof(struct image_header));
+	err = file_fat_read(filename, header, sizeof(struct legacy_img_hdr));
 	if (err <= 0)
 		goto end;
 
@@ -78,7 +78,7 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 		if (err <= 0)
 			goto end;
 		err = spl_parse_image_header(spl_image, bootdev,
-				(struct image_header *)CONFIG_SYS_LOAD_ADDR);
+				(struct legacy_img_hdr *)CONFIG_SYS_LOAD_ADDR);
 		if (err == -EAGAIN)
 			return err;
 		if (err == 0)

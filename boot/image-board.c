@@ -40,10 +40,10 @@ DECLARE_GLOBAL_DATA_PTR;
  *     pointer to a ramdisk image header, if image was found and valid
  *     otherwise, return NULL
  */
-static const image_header_t *image_get_ramdisk(ulong rd_addr, u8 arch,
-					       int verify)
+static const struct legacy_img_hdr *image_get_ramdisk(ulong rd_addr, u8 arch,
+						      int verify)
 {
-	const image_header_t *rd_hdr = (const image_header_t *)rd_addr;
+	const struct legacy_img_hdr *rd_hdr = (const struct legacy_img_hdr *)rd_addr;
 
 	if (!image_check_magic(rd_hdr)) {
 		puts("Bad Magic Number\n");
@@ -273,9 +273,9 @@ ulong genimg_get_kernel_addr(char * const img_addr)
 int genimg_get_format(const void *img_addr)
 {
 	if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
-		const image_header_t *hdr;
+		const struct legacy_img_hdr *hdr;
 
-		hdr = (const image_header_t *)img_addr;
+		hdr = (const struct legacy_img_hdr *)img_addr;
 		if (image_check_magic(hdr))
 			return IMAGE_FORMAT_LEGACY;
 	}
@@ -301,7 +301,7 @@ int genimg_get_format(const void *img_addr)
  *     0, no FIT support or no configuration found
  *     1, configuration found
  */
-int genimg_has_config(bootm_headers_t *images)
+int genimg_has_config(struct bootm_headers *images)
 {
 	if (CONFIG_IS_ENABLED(FIT) && images->fit_uname_cfg)
 		return 1;
@@ -320,7 +320,7 @@ int genimg_has_config(bootm_headers_t *images)
  * Return: 0 if OK, -ENOPKG if no ramdisk (but an error should not be reported),
  *	other -ve value on other error
  */
-static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
+static int select_ramdisk(struct bootm_headers *images, const char *select, u8 arch,
 			  ulong *rd_datap, ulong *rd_lenp)
 {
 	const char *fit_uname_config;
@@ -389,7 +389,7 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
 	switch (genimg_get_format(buf)) {
 	case IMAGE_FORMAT_LEGACY:
 		if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
-			const image_header_t *rd_hdr;
+			const struct legacy_img_hdr *rd_hdr;
 
 			printf("## Loading init Ramdisk from Legacy Image at %08lx ...\n",
 			       rd_addr);
@@ -482,7 +482,7 @@ static int select_ramdisk(bootm_headers_t *images, const char *select, u8 arch,
  *     1, if ramdisk image is found but corrupted, or invalid
  *     rd_start and rd_end are set to 0 if no ramdisk exists
  */
-int boot_get_ramdisk(int argc, char *const argv[], bootm_headers_t *images,
+int boot_get_ramdisk(int argc, char *const argv[], struct bootm_headers *images,
 		     u8 arch, ulong *rd_start, ulong *rd_end)
 {
 	ulong rd_data, rd_len;
@@ -646,7 +646,7 @@ error:
 	return -1;
 }
 
-int boot_get_setup(bootm_headers_t *images, u8 arch,
+int boot_get_setup(struct bootm_headers *images, u8 arch,
 		   ulong *setup_start, ulong *setup_len)
 {
 	if (!CONFIG_IS_ENABLED(FIT))
@@ -655,7 +655,7 @@ int boot_get_setup(bootm_headers_t *images, u8 arch,
 	return boot_get_setup_fit(images, arch, setup_start, setup_len);
 }
 
-int boot_get_fpga(int argc, char *const argv[], bootm_headers_t *images,
+int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
 		  u8 arch, const ulong *ld_start, ulong * const ld_len)
 {
 	ulong tmp_img_addr, img_data, img_len;
@@ -758,7 +758,7 @@ static void fit_loadable_process(u8 img_type,
 			fit_loadable_handler->handler(img_data, img_len);
 }
 
-int boot_get_loadable(int argc, char *const argv[], bootm_headers_t *images,
+int boot_get_loadable(int argc, char *const argv[], struct bootm_headers *images,
 		      u8 arch, const ulong *ld_start, ulong * const ld_len)
 {
 	/*
@@ -919,7 +919,7 @@ int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
 	return 0;
 }
 
-int image_setup_linux(bootm_headers_t *images)
+int image_setup_linux(struct bootm_headers *images)
 {
 	ulong of_size = images->ft_len;
 	char **of_flat_tree = &images->ft_addr;

@@ -253,7 +253,7 @@ static inline void dev_bic_flags(struct udevice *dev, u32 bic)
  * @dev:	device to check
  * Return: reference of the device's DT node
  */
-static inline ofnode dev_ofnode(const struct udevice *dev)
+static inline __attribute_const__ ofnode dev_ofnode(const struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_REAL)
 	return dev->node_;
@@ -273,7 +273,7 @@ static inline ofnode dev_ofnode(const struct udevice *dev)
 #define dev_get_dma_offset(_dev)		0
 #endif
 
-static inline int dev_of_offset(const struct udevice *dev)
+static inline __attribute_const__ int dev_of_offset(const struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_REAL)
 	return ofnode_to_offset(dev_ofnode(dev));
@@ -282,7 +282,7 @@ static inline int dev_of_offset(const struct udevice *dev)
 #endif
 }
 
-static inline bool dev_has_ofnode(const struct udevice *dev)
+static inline __attribute_const__ bool dev_has_ofnode(const struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_REAL)
 	return ofnode_valid(dev_ofnode(dev));

@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define NIOS_MAGIC 0x534f494e /* enable command line and initrd passing */
 
 int do_bootm_linux(int flag, int argc, char *const argv[],
-		   bootm_headers_t *images)
+		   struct bootm_headers *images)
 {
 	void (*kernel)(int, int, int, char *) = (void *)images->ep;
 	char *commandline = env_get("bootargs");

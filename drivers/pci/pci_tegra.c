@@ -531,7 +531,7 @@ static int tegra_pcie_parse_dt(struct udevice *dev, enum tegra_pci_id id,
 
 		lanes |= num_lanes << (index << 3);
 
-		if (!ofnode_is_available(subnode))
+		if (!ofnode_is_enabled(subnode))
 			continue;
 
 		port = malloc(sizeof(*port));

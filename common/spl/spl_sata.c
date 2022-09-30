@@ -30,7 +30,7 @@ static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
 		struct spl_boot_device *bootdev,
 		struct blk_desc *stor_dev, unsigned long sector)
 {
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 	unsigned long count;
 	u32 image_size_sectors;
 	u32 image_offset_sectors;

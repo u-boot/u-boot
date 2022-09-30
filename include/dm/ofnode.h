@@ -27,40 +27,24 @@ struct ofnode_phandle_args {
 	uint32_t args[OF_MAX_PHANDLE_ARGS];
 };
 
+#if CONFIG_IS_ENABLED(OFNODE_MULTI_TREE)
 /**
- * ofnode_to_np() - convert an ofnode to a live DT node pointer
+ * oftree_reset() - reset the state of the oftree list
  *
- * This cannot be called if the reference contains an offset.
- *
- * @node: Reference containing struct device_node * (possibly invalid)
- * Return: pointer to device node (can be NULL)
+ * Reset the oftree list so it can be started again. This should be called
+ * once the control FDT is in place, but before the ofnode interface is used.
  */
-static inline const struct device_node *ofnode_to_np(ofnode node)
-{
-#ifdef OF_CHECKS
-	if (!of_live_active())
-		return NULL;
-#endif
-	return node.np;
-}
+void oftree_reset(void);
 
 /**
- * ofnode_to_npw() - convert an ofnode to a writeable live DT node pointer
+ * ofnode_to_fdt() - convert an ofnode to a flat DT pointer
  *
- * This cannot be called if the reference contains an offset.
+ * This cannot be called if the reference contains a node pointer.
  *
- * @node: Reference containing struct device_node * (possibly invalid)
- * Return: pointer to device node (can be NULL)
+ * @node: Reference containing offset (possibly invalid)
+ * Return: DT offset (can be NULL)
  */
-static inline struct device_node *ofnode_to_npw(ofnode node)
-{
-#ifdef OF_CHECKS
-	if (!of_live_active())
-		return NULL;
-#endif
-	/* Drop constant */
-	return (struct device_node *)node.np;
-}
+__attribute_const__ void *ofnode_to_fdt(ofnode node);
 
 /**
  * ofnode_to_offset() - convert an ofnode to a flat DT offset
@@ -70,7 +54,40 @@ static inline struct device_node *ofnode_to_npw(ofnode node)
  * @node: Reference containing offset (possibly invalid)
  * Return: DT offset (can be -1)
  */
-static inline int ofnode_to_offset(ofnode node)
+__attribute_const__ int ofnode_to_offset(ofnode node);
+
+/**
+ * oftree_from_fdt() - Returns an oftree from a flat device tree pointer
+ *
+ * @fdt: Device tree to use
+ *
+ * Returns: reference to the given node
+ */
+oftree oftree_from_fdt(void *fdt);
+
+/**
+ * noffset_to_ofnode() - convert a DT offset to an ofnode
+ *
+ * @other_node: Node in the same tree to use as a reference
+ * @of_offset: DT offset (either valid, or -1)
+ * Return: reference to the associated DT offset
+ */
+ofnode noffset_to_ofnode(ofnode other_node, int of_offset);
+
+#else /* !OFNODE_MULTI_TREE */
+static inline void oftree_reset(void) {}
+
+static inline void *ofnode_to_fdt(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (of_live_active())
+		return NULL;
+#endif
+	/* Use the control FDT by default */
+	return (void *)gd->fdt_blob;
+}
+
+static inline __attribute_const__ int ofnode_to_offset(ofnode node)
 {
 #ifdef OF_CHECKS
 	if (of_live_active())
@@ -79,11 +96,55 @@ static inline int ofnode_to_offset(ofnode node)
 	return node.of_offset;
 }
 
+static inline oftree oftree_from_fdt(void *fdt)
+{
+	oftree tree;
+
+	/* we cannot access other trees without OFNODE_MULTI_TREE */
+	if (fdt == gd->fdt_blob)
+		tree.fdt = fdt;
+	else
+		tree.fdt = NULL;
+
+	return tree;
+}
+
+static inline ofnode noffset_to_ofnode(ofnode other_node, int of_offset)
+{
+	ofnode node;
+
+	if (of_live_active())
+		node.np = NULL;
+	else
+		node.of_offset = of_offset;
+
+	return node;
+}
+
+#endif /* OFNODE_MULTI_TREE */
+
+/**
+ * ofnode_to_np() - convert an ofnode to a live DT node pointer
+ *
+ * This cannot be called if the reference contains an offset.
+ *
+ * @node: Reference containing struct device_node * (possibly invalid)
+ * Return: pointer to device node (can be NULL)
+ */
+static inline struct device_node *ofnode_to_np(ofnode node)
+{
+#ifdef OF_CHECKS
+	if (!of_live_active())
+		return NULL;
+#endif
+	return node.np;
+}
+
 /**
  * ofnode_valid() - check if an ofnode is valid
  *
  * @node: Reference containing offset (possibly invalid)
- * Return: true if the reference contains a valid ofnode, false if it is NULL
+ * Return: true if the reference contains a valid ofnode, false if not
  */
 static inline bool ofnode_valid(ofnode node)
 {
@@ -91,6 +152,22 @@ static inline bool ofnode_valid(ofnode node)
 		return node.np != NULL;
 	else
 		return node.of_offset >= 0;
+}
+
+/**
+ * oftree_lookup_fdt() - obtain the FDT pointer from an oftree
+ *
+ * This can only be called when flat tree is enabled
+ *
+ * @tree: Tree to look at
+ * @return FDT pointer from the tree
+ */
+static inline void *oftree_lookup_fdt(oftree tree)
+{
+	if (of_live_active())
+		return NULL;
+	else
+		return tree.fdt;
 }
 
 /**
@@ -117,7 +194,7 @@ static inline ofnode offset_to_ofnode(int of_offset)
  * @np: Live node pointer (can be NULL)
  * Return: reference to the associated node pointer
  */
-static inline ofnode np_to_ofnode(const struct device_node *np)
+static inline ofnode np_to_ofnode(struct device_node *np)
 {
 	ofnode node;
 
@@ -165,6 +242,38 @@ static inline bool ofnode_equal(ofnode ref1, ofnode ref2)
 }
 
 /**
+ * oftree_valid() - check if an oftree is valid
+ *
+ * @tree: Reference containing oftree
+ * Return: true if the reference contains a valid oftree, false if node
+ */
+static inline bool oftree_valid(oftree tree)
+{
+	if (of_live_active())
+		return tree.np;
+	else
+		return tree.fdt;
+}
+
+/**
+ * oftree_null() - Obtain a null oftree
+ *
+ * This returns an oftree which points to no tree. It works both with the flat
+ * tree and livetree.
+ */
+static inline oftree oftree_null(void)
+{
+	oftree tree;
+
+	if (of_live_active())
+		tree.np = NULL;
+	else
+		tree.fdt = NULL;
+
+	return tree;
+}
+
+/**
  * ofnode_null() - Obtain a null ofnode
  *
  * This returns an ofnode which points to no node. It works both with the flat
@@ -195,6 +304,20 @@ static inline ofnode ofnode_root(void)
 }
 
 /**
+ * ofprop_valid() - check if an ofprop is valid
+ *
+ * @prop: Pointer to ofprop to check
+ * Return: true if the reference contains a valid ofprop, false if not
+ */
+static inline bool ofprop_valid(struct ofprop *prop)
+{
+	if (of_live_active())
+		return prop->prop;
+	else
+		return prop->offset >= 0;
+}
+
+/**
  * oftree_default() - Returns the default device tree (U-Boot's control FDT)
  *
  * Returns: reference to the control FDT
@@ -207,6 +330,21 @@ static inline oftree oftree_default(void)
 		tree.np = gd_of_root();
 	else
 		tree.fdt = (void *)gd->fdt_blob;
+
+	return tree;
+}
+
+/**
+ * oftree_from_np() - Returns an oftree from a node pointer
+ *
+ * @root: Root node of the tree
+ * Returns: reference to the given node
+ */
+static inline oftree oftree_from_np(struct device_node *root)
+{
+	oftree tree;
+
+	tree.np = root;
 
 	return tree;
 }
@@ -377,12 +515,12 @@ const char *ofnode_read_string(ofnode node, const char *propname);
  * @propname:	name of the property to read
  * @out_values:	pointer to return value, modified only if return value is 0
  * @sz:		number of array elements to read
- * Return: 0 if OK, -ve on error
+ * Return: 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough
  *
  * Search for a property in a device node and read 32-bit value(s) from
- * it. Returns 0 on success, -EINVAL if the property does not exist,
- * -ENODATA if property does not have a value, and -EOVERFLOW if the
- * property data isn't large enough.
+ * it.
  *
  * The out_values is modified only if a valid u32 value can be decoded.
  */
@@ -484,7 +622,7 @@ ofnode ofnode_get_parent(ofnode node);
  * ofnode_get_name() - get the name of a node
  *
  * @node: valid node to look up
- * Return: name of node
+ * Return: name of node (for the root node this is "")
  */
 const char *ofnode_get_name(ofnode node);
 
@@ -501,10 +639,21 @@ int ofnode_get_path(ofnode node, char *buf, int buflen);
 /**
  * ofnode_get_by_phandle() - get ofnode from phandle
  *
+ * This uses the default (control) device tree
+ *
  * @phandle:	phandle to look up
  * Return: ofnode reference to the phandle
  */
 ofnode ofnode_get_by_phandle(uint phandle);
+
+/**
+ * oftree_get_by_phandle() - get ofnode from phandle
+ *
+ * @tree:	tree to use
+ * @phandle:	phandle to look up
+ * Return: ofnode reference to the phandle
+ */
+ofnode oftree_get_by_phandle(oftree tree, uint phandle);
 
 /**
  * ofnode_read_size() - read the size of a property
@@ -723,18 +872,28 @@ int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
 ofnode ofnode_path(const char *path);
 
 /**
- * ofnode_path_root() - find a node by full path from a root node
+ * oftree_path() - find a node by full path from a root node
  *
  * @tree: Device tree to use
  * @path: Full path to node, e.g. "/bus/spi@1"
  * Return: reference to the node found. Use ofnode_valid() to check if it exists
  */
-ofnode ofnode_path_root(oftree tree, const char *path);
+ofnode oftree_path(oftree tree, const char *path);
+
+/**
+ * oftree_root() - get the root node of a tree
+ *
+ * @tree: Device tree to use
+ * Return: reference to the root node
+ */
+ofnode oftree_root(oftree tree);
 
 /**
  * ofnode_read_chosen_prop() - get the value of a chosen property
  *
- * This looks for a property within the /chosen node and returns its value
+ * This looks for a property within the /chosen node and returns its value.
+ *
+ * This only works with the control FDT.
  *
  * @propname: Property name to look for
  * @sizep: Returns size of property, or  `FDT_ERR_...` error code if function
@@ -749,6 +908,8 @@ const void *ofnode_read_chosen_prop(const char *propname, int *sizep);
  * This looks for a property within the /chosen node and returns its value,
  * checking that it is a valid nul-terminated string
  *
+ * This only works with the control FDT.
+ *
  * @propname: Property name to look for
  * Return: string value if found, else NULL
  */
@@ -760,6 +921,8 @@ const char *ofnode_read_chosen_string(const char *propname);
  * This looks up a named property in the chosen node and uses that as a path to
  * look up a code.
  *
+ * This only works with the control FDT.
+ *
  * @propname: Property name to look for
  * Return: the referenced node if present, else ofnode_null()
  */
@@ -769,6 +932,8 @@ ofnode ofnode_get_chosen_node(const char *propname);
  * ofnode_read_aliases_prop() - get the value of a aliases property
  *
  * This looks for a property within the /aliases node and returns its value
+ *
+ * This only works with the control FDT.
  *
  * @propname: Property name to look for
  * @sizep: Returns size of property, or `FDT_ERR_...` error code if function
@@ -782,6 +947,8 @@ const void *ofnode_read_aliases_prop(const char *propname, int *sizep);
  *
  * This looks up a named property in the aliases node and uses that as a path to
  * look up a code.
+ *
+ * This only works with the control FDT.
  *
  * @propname: Property name to look for
  * Return: the referenced node if present, else ofnode_null()
@@ -815,48 +982,64 @@ int ofnode_decode_display_timing(ofnode node, int index,
 const void *ofnode_get_property(ofnode node, const char *propname, int *lenp);
 
 /**
- * ofnode_get_first_property()- get the reference of the first property
+ * ofnode_first_property()- get the reference of the first property
  *
  * Get reference to the first property of the node, it is used to iterate
- * and read all the property with ofnode_get_property_by_prop().
+ * and read all the property with ofprop_get_property().
  *
  * @node: node to read
  * @prop: place to put argument reference
  * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
  */
-int ofnode_get_first_property(ofnode node, struct ofprop *prop);
+int ofnode_first_property(ofnode node, struct ofprop *prop);
 
 /**
- * ofnode_get_next_property() - get the reference of the next property
+ * ofnode_next_property() - get the reference of the next property
  *
  * Get reference to the next property of the node, it is used to iterate
- * and read all the property with ofnode_get_property_by_prop().
+ * and read all the property with ofprop_get_property().
  *
  * @prop: reference of current argument and place to put reference of next one
  * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
  */
-int ofnode_get_next_property(struct ofprop *prop);
+int ofnode_next_property(struct ofprop *prop);
 
 /**
- * ofnode_get_property_by_prop() - get a pointer to the value of a property
+ * ofnode_for_each_prop() - iterate over all properties of a node
+ *
+ * @prop:	struct ofprop
+ * @node:	node (lvalue, ofnode)
+ *
+ * This is a wrapper around a for loop and is used like this::
+ *
+ *   ofnode node;
+ *   struct ofprop prop;
+ *
+ *   ofnode_for_each_prop(prop, node) {
+ *       ...use prop...
+ *   }
+ *
+ * Note that this is implemented as a macro and @prop is used as
+ * iterator in the loop. The parent variable can be a constant or even a
+ * literal.
+ */
+#define ofnode_for_each_prop(prop, node) \
+	for (ofnode_first_property(node, &prop); \
+	     ofprop_valid(&prop); \
+	     ofnode_next_property(&prop))
+
+/**
+ * ofprop_get_property() - get a pointer to the value of a property
  *
  * Get value for the property identified by the provided reference.
  *
  * @prop: reference on property
  * @propname: If non-NULL, place to property name on success,
- * @lenp: If non-NULL, place to put length on success
- * Return: 0 if OK, -ve on error. -FDT_ERR_NOTFOUND if not found
+ * @lenp: If non-NULL, place to put length on success, or error code on failure
+ * Return: pointer to property, or NULL if not found
  */
-const void *ofnode_get_property_by_prop(const struct ofprop *prop,
-					const char **propname, int *lenp);
-
-/**
- * ofnode_is_available() - check if a node is marked available
- *
- * @node: node to check
- * Return: true if node's 'status' property is "okay" (or is missing)
- */
-bool ofnode_is_available(ofnode node);
+const void *ofprop_get_property(const struct ofprop *prop,
+				const char **propname, int *lenp);
 
 /**
  * ofnode_get_addr_size() - get address and size from a property
@@ -1046,8 +1229,9 @@ ofnode ofnode_by_compatible(ofnode from, const char *compat);
  * Find the next node after @from that has a @propname with a value
  * @propval and a length @proplen.
  *
- * @from: ofnode to start from (use ofnode_null() to start at the
- * beginning)
+ * @from: ofnode to start from. Use ofnode_null() to start at the
+ * beginning, or the return value from oftree_root() to start at the first
+ * child of the root
  * @propname: property name to check
  * @propval: property value to search for
  * @proplen: length of the value in propval
@@ -1166,19 +1350,23 @@ int ofnode_device_is_compatible(ofnode node, const char *compat);
 /**
  * ofnode_write_prop() - Set a property of a ofnode
  *
- * Note that the value passed to the function is *not* allocated by the
- * function itself, but must be allocated by the caller if necessary. However
- * it does allocate memory for the property struct and name.
+ * Note that if @copy is false, the value passed to the function is *not*
+ * allocated by the function itself, but must be allocated by the caller if
+ * necessary. However it does allocate memory for the property struct and name.
  *
  * @node:	The node for whose property should be set
  * @propname:	The name of the property to set
  * @value:	The new value of the property (must be valid prior to calling
  *		the function)
  * @len:	The length of the new value of the property
+ * @copy: true to allocate memory for the value. This only has any effect with
+ *	live tree, since flat tree handles this automatically. It allows a
+ *	node's value to be written to the tree, without requiring that the
+ *	caller allocate it
  * Return: 0 if successful, -ve on error
  */
 int ofnode_write_prop(ofnode node, const char *propname, const void *value,
-		      int len);
+		      int len, bool copy);
 
 /**
  * ofnode_write_string() - Set a string property of a ofnode
@@ -1251,7 +1439,9 @@ phy_interface_t ofnode_read_phy_mode(ofnode mac_node);
  *
  * This reads a property from the /config node of the devicetree.
  *
- * See doc/config.txt for bindings
+ * This only works with the control FDT.
+ *
+ * See doc/device-tree-bindings/config.txt for bindings
  *
  * @prop_name:	property name to look up
  * Return: true, if it exists, false if not
@@ -1263,7 +1453,7 @@ bool ofnode_conf_read_bool(const char *prop_name);
  *
  * This reads a property from the /config node of the devicetree.
  *
- * See doc/config.txt for bindings
+ * See doc/device-tree-bindings/config.txt for bindings
  *
  * @prop_name: property name to look up
  * @default_val: default value to return if the property is not found
@@ -1276,7 +1466,9 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
  *
  * This reads a property from the /config node of the devicetree.
  *
- * See doc/config.txt for bindings
+ * This only works with the control FDT.
+ *
+ * See doc/device-tree-bindings/config.txt for bindings
  *
  * @prop_name: property name to look up
  * Return: string value, if found, or NULL if not
@@ -1298,6 +1490,35 @@ static inline const char *ofnode_conf_read_str(const char *prop_name)
 {
 	return NULL;
 }
+
 #endif /* CONFIG_DM */
+
+/**
+ * of_add_subnode() - add a new subnode to a node
+ *
+ * @parent:	parent node to add to
+ * @name:	name of subnode
+ * @nodep:	returns pointer to new subnode (valid if the function returns 0
+ *	or -EEXIST)
+ * Returns 0 if OK, -EEXIST if already exists, -ENOMEM if out of memory, other
+ * -ve on other error
+ */
+int ofnode_add_subnode(ofnode parent, const char *name, ofnode *nodep);
+
+/**
+ * ofnode_copy_props() - copy all properties from one node to another
+ *
+ * Makes a copy of all properties from the source note in the destination node.
+ * Existing properties in the destination node remain unchanged, except that
+ * any with the same name are overwritten, including changing the size of the
+ * property.
+ *
+ * For livetree, properties are copied / allocated, so the source tree does not
+ * need to be present afterwards.
+ *
+ * @src: Source node to read properties from
+ * @dst: Destination node to write properties too
+ */
+int ofnode_copy_props(ofnode src, ofnode dst);
 
 #endif

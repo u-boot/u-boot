@@ -63,7 +63,7 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 			     ulong *os_data, ulong *os_len)
 {
 	u32 kernel_addr = android_image_get_kernel_addr(hdr);
-	const struct image_header *ihdr = (const struct image_header *)
+	const struct legacy_img_hdr *ihdr = (const struct legacy_img_hdr *)
 		((uintptr_t)hdr + hdr->page_size);
 
 	/*
@@ -159,8 +159,8 @@ ulong android_image_get_kcomp(const struct andr_img_hdr *hdr)
 {
 	const void *p = (void *)((uintptr_t)hdr + hdr->page_size);
 
-	if (image_get_magic((image_header_t *)p) == IH_MAGIC)
-		return image_get_comp((image_header_t *)p);
+	if (image_get_magic((struct legacy_img_hdr *)p) == IH_MAGIC)
+		return image_get_comp((struct legacy_img_hdr *)p);
 	else if (get_unaligned_le32(p) == LZ4F_MAGIC)
 		return IH_COMP_LZ4;
 	else

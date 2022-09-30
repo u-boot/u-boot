@@ -134,7 +134,7 @@ static struct bp_tag *setup_fdt_tag(struct bp_tag *params, void *fdt_start)
  * Boot Linux.
  */
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], struct bootm_headers *images)
 {
 	struct bp_tag *params, *params_start;
 	ulong initrd_start, initrd_end;

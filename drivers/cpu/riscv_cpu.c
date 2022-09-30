@@ -77,7 +77,7 @@ static int riscv_cpu_get_count(const struct udevice *dev)
 		const char *device_type;
 
 		/* skip if hart is marked as not available in the device tree */
-		if (!ofnode_is_available(node))
+		if (!ofnode_is_enabled(node))
 			continue;
 
 		device_type = ofnode_read_string(node, "device_type");

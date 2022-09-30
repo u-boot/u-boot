@@ -21,6 +21,8 @@ DECLARE_GLOBAL_DATA_PTR;
 fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 {
 #if CONFIG_IS_ENABLED(OF_REAL)
+	int offset = dev_of_offset(dev);
+	int parent = dev_of_offset(dev->parent);
 	fdt_addr_t addr;
 
 	if (CONFIG_IS_ENABLED(OF_TRANSLATE)) {
@@ -28,21 +30,19 @@ fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 		int len = 0;
 		int na, ns;
 
-		na = fdt_address_cells(gd->fdt_blob,
-				       dev_of_offset(dev->parent));
+		na = fdt_address_cells(gd->fdt_blob, parent);
 		if (na < 1) {
 			debug("bad #address-cells\n");
 			return FDT_ADDR_T_NONE;
 		}
 
-		ns = fdt_size_cells(gd->fdt_blob, dev_of_offset(dev->parent));
+		ns = fdt_size_cells(gd->fdt_blob, parent);
 		if (ns < 0) {
 			debug("bad #size-cells\n");
 			return FDT_ADDR_T_NONE;
 		}
 
-		reg = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "reg",
-				  &len);
+		reg = fdt_getprop(gd->fdt_blob, offset, "reg", &len);
 		if (!reg || (len <= (index * sizeof(fdt32_t) * (na + ns)))) {
 			debug("Req index out of range\n");
 			return FDT_ADDR_T_NONE;
@@ -56,7 +56,7 @@ fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 			 * bus setups.
 			 */
 			addr = fdt_translate_address((void *)gd->fdt_blob,
-						     dev_of_offset(dev), reg);
+						     offset, reg);
 		} else {
 			/* Non translatable if #size-cells == 0 */
 			addr = fdt_read_number(reg, na);
@@ -66,9 +66,9 @@ fdt_addr_t devfdt_get_addr_index(const struct udevice *dev, int index)
 		 * Use the "simple" translate function for less complex
 		 * bus setups.
 		 */
-		addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
-				dev_of_offset(dev->parent), dev_of_offset(dev),
-				"reg", index, NULL, false);
+		addr = fdtdec_get_addr_size_auto_parent(gd->fdt_blob, parent,
+							offset, "reg", index,
+							NULL, false);
 		if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
 			if (device_get_uclass_id(dev->parent) ==
 			    UCLASS_SIMPLE_BUS)

@@ -9,13 +9,52 @@
 #include <cyclic.h>
 #include <dm.h>
 #include <event.h>
+#include <of_live.h>
+#include <os.h>
+#include <dm/ofnode.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
+#include <u-boot/crc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * enum fdtchk_t - what to do with the device tree (gd->fdt_blob)
+ *
+ * This affects what happens with the device tree before and after a test
+ *
+ * @FDTCHK_NONE: Do nothing
+ * @FDTCHK_CHECKSUM: Take a checksum of the FDT before the test runs and
+ *	compare it afterwards to detect any changes
+ * @FDTCHK_COPY: Make a copy of the FDT and restore it afterwards
+ */
+enum fdtchk_t {
+	FDTCHK_NONE,
+	FDTCHK_CHECKSUM,
+	FDTCHK_COPY,
+};
+
+/**
+ * fdt_action() - get the required action for the FDT
+ *
+ * @return the action that should be taken for this build
+ */
+static enum fdtchk_t fdt_action(void)
+{
+	/* Do a copy for sandbox (but only the U-Boot build, not SPL) */
+	if (CONFIG_IS_ENABLED(SANDBOX))
+		return FDTCHK_COPY;
+
+	/* For sandbox SPL builds, do nothing */
+	if (IS_ENABLED(CONFIG_SANDBOX))
+		return FDTCHK_NONE;
+
+	/* For all other boards, do a checksum */
+	return FDTCHK_CHECKSUM;
+}
 
 /* This is valid when a test is running, NULL otherwise */
 static struct unit_test_state *cur_test_state;
@@ -42,17 +81,26 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 {
 	bool of_live = uts->of_live;
 
+	if (of_live && (gd->flags & GD_FLG_FDT_CHANGED)) {
+		printf("Cannot run live tree test as device tree changed\n");
+		return -EFAULT;
+	}
 	uts->root = NULL;
 	uts->testdev = NULL;
 	uts->force_fail_alloc = false;
 	uts->skip_post_probe = false;
+	if (fdt_action() == FDTCHK_CHECKSUM)
+		uts->fdt_chksum = crc8(0, gd->fdt_blob,
+				       fdt_totalsize(gd->fdt_blob));
 	gd->dm_root = NULL;
+	malloc_disable_testing();
 	if (CONFIG_IS_ENABLED(UT_DM) && !CONFIG_IS_ENABLED(OF_PLATDATA))
 		memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
 	arch_reset_for_test();
 
 	/* Determine whether to make the live tree available */
 	gd_set_of_root(of_live ? uts->of_root : NULL);
+	oftree_reset();
 	ut_assertok(dm_init(of_live));
 	uts->root = dm_root();
 
@@ -62,6 +110,33 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 static int dm_test_post_run(struct unit_test_state *uts)
 {
 	int id;
+
+	if (gd->fdt_blob) {
+		switch (fdt_action()) {
+		case FDTCHK_COPY:
+			memcpy((void *)gd->fdt_blob, uts->fdt_copy, uts->fdt_size);
+			break;
+		case FDTCHK_CHECKSUM: {
+			uint chksum;
+
+			chksum = crc8(0, gd->fdt_blob, fdt_totalsize(gd->fdt_blob));
+			if (chksum != uts->fdt_chksum) {
+				/*
+				 * We cannot run any more tests that need the
+				 * live tree, since its strings point into the
+				 * flat tree, which has changed. This likely
+				 * means that at least some of the pointers from
+				 * the live tree point to different things
+				 */
+				printf("Device tree changed: cannot run live tree tests\n");
+				gd->flags |= GD_FLG_FDT_CHANGED;
+			}
+			break;
+		}
+		case FDTCHK_NONE:
+			break;
+		}
+	}
 
 	/*
 	 * With of-platdata-inst the uclasses are created at build time. If we
@@ -242,6 +317,20 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	    (test->flags & UT_TESTF_SCAN_FDT))
 		ut_assertok(dm_extended_scan(false));
 
+	if (IS_ENABLED(CONFIG_SANDBOX) && (test->flags & UT_TESTF_OTHER_FDT)) {
+		/* make sure the other FDT is available */
+		ut_assertok(test_load_other_fdt(uts));
+
+		/*
+		 * create a new live tree with it for every test, in case a
+		 * test modifies the tree
+		 */
+		if (of_live_active()) {
+			ut_assertok(unflatten_device_tree(uts->other_fdt,
+							  &uts->of_other));
+		}
+	}
+
 	if (test->flags & UT_TESTF_CONSOLE_REC) {
 		int ret = console_record_reset_enable();
 
@@ -269,6 +358,9 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 		ut_assertok(dm_test_post_run(uts));
 	ut_assertok(cyclic_uninit());
 	ut_assertok(event_uninit());
+
+	free(uts->of_other);
+	uts->of_other = NULL;
 
 	return 0;
 }
@@ -340,11 +432,13 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 {
 	int runs;
 
+	if ((test->flags & UT_TESTF_OTHER_FDT) && !IS_ENABLED(CONFIG_SANDBOX))
+		return -EAGAIN;
+
 	/* Run with the live tree if possible */
 	runs = 0;
 	if (CONFIG_IS_ENABLED(OF_LIVE)) {
-		if (!(test->flags &
-		    (UT_TESTF_FLAT_TREE | UT_TESTF_LIVE_OR_FLAT))) {
+		if (!(test->flags & UT_TESTF_FLAT_TREE)) {
 			uts->of_live = true;
 			ut_assertok(ut_run_test(uts, test, test->name));
 			runs++;
@@ -352,11 +446,22 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	}
 
 	/*
-	 * Run with the flat tree if we couldn't run it with live tree,
-	 * or it is a core test.
+	 * Run with the flat tree if:
+	 * - it is not marked for live tree only
+	 * - it doesn't require the 'other' FDT when OFNODE_MULTI_TREE_MAX is
+	 *   not enabled (since flat tree can only support a single FDT in that
+	 *   case
+	 * - we couldn't run it with live tree,
+	 * - it is a core test (dm tests except video)
+	 * - the FDT is still valid and has not been updated by an earlier test
+	 *   (for sandbox we handle this by copying the tree, but not for other
+	 *    boards)
 	 */
 	if (!(test->flags & UT_TESTF_LIVE_TREE) &&
-	    (!runs || ut_test_run_on_flattree(test))) {
+	    (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) ||
+	     !(test->flags & UT_TESTF_OTHER_FDT)) &&
+	    (!runs || ut_test_run_on_flattree(test)) &&
+	    !(gd->flags & GD_FLG_FDT_CHANGED)) {
 		uts->of_live = false;
 		ut_assertok(ut_run_test(uts, test, test->name));
 		runs++;
@@ -443,7 +548,24 @@ int ut_run_list(const char *category, const char *prefix,
 
 	uts.of_root = gd_of_root();
 	uts.runs_per_test = runs_per_test;
+	if (fdt_action() == FDTCHK_COPY && gd->fdt_blob) {
+		uts.fdt_size = fdt_totalsize(gd->fdt_blob);
+		uts.fdt_copy = os_malloc(uts.fdt_size);
+		if (!uts.fdt_copy) {
+			printf("Out of memory for device tree copy\n");
+			return -ENOMEM;
+		}
+		memcpy(uts.fdt_copy, gd->fdt_blob, uts.fdt_size);
+	}
 	ret = ut_run_tests(&uts, prefix, tests, count, select_name);
+
+	/* Best efforts only...ignore errors */
+	if (has_dm_tests)
+		dm_test_restore(uts.of_root);
+	if (IS_ENABLED(CONFIG_SANDBOX)) {
+		os_free(uts.fdt_copy);
+		os_free(uts.other_fdt);
+	}
 
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);

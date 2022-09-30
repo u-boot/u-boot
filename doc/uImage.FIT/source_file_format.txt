@@ -23,7 +23,7 @@ in the system memory and passed to bootm as a arguments. Some of them may be
 missing: FDT is not present for legacy platforms, ramdisk is always optional.
 Additionally, old uImage format has been extended to support multi sub-images
 but the support is limited by simple format of the legacy uImage structure.
-Single binary header 'struct image_header' is not flexible enough to cover all
+Single binary header 'struct legacy_img_hdr' is not flexible enough to cover all
 possible scenarios.
 
 All those factors combined clearly show that there is a need for new, more

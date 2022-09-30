@@ -46,7 +46,7 @@ int image_source_script(ulong addr, const char *fit_uname)
 {
 	ulong		len;
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
-	const image_header_t *hdr;
+	const struct legacy_img_hdr *hdr;
 #endif
 	u32		*data;
 	int		verify;

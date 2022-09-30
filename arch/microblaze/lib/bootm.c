@@ -37,7 +37,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
 }
 
-static void boot_jump_linux(bootm_headers_t *images, int flag)
+static void boot_jump_linux(struct bootm_headers *images, int flag)
 {
 	void (*thekernel)(char *cmdline, ulong rd, ulong dt);
 	ulong dt = (ulong)images->ft_addr;
@@ -71,7 +71,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	}
 }
 
-static void boot_prep_linux(bootm_headers_t *images)
+static void boot_prep_linux(struct bootm_headers *images)
 {
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && CONFIG_IS_ENABLED(LMB) && images->ft_len) {
 		debug("using: FDT\n");
@@ -83,7 +83,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 }
 
 int do_bootm_linux(int flag, int argc, char *const argv[],
-		   bootm_headers_t *images)
+		   struct bootm_headers *images)
 {
 	images->cmdline_start = (ulong)env_get("bootargs");
 

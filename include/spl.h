@@ -17,7 +17,7 @@
 #include <mmc.h>
 
 struct blk_desc;
-struct image_header;
+struct legacy_img_hdr;
 
 /* Value in r0 indicates we booted from U-Boot */
 #define UBOOT_NOT_LOADED_FROM_SPL	0x13578642
@@ -29,7 +29,7 @@ struct image_header;
 #define MMCSD_MODE_EMMCBOOT	3
 
 struct blk_desc;
-struct image_header;
+struct legacy_img_hdr;
 struct spl_boot_device;
 
 /*
@@ -476,7 +476,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image);
  */
 int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct spl_boot_device *bootdev,
-			   const struct image_header *header);
+			   const struct legacy_img_hdr *header);
 
 void spl_board_prepare_for_linux(void);
 
@@ -865,7 +865,7 @@ void spl_perform_fixups(struct spl_image_info *spl_image);
  * Returns memory area which can be populated by partial image data,
  * ie. uImage or fitImage header.
  */
-struct image_header *spl_get_load_buffer(ssize_t offset, size_t size);
+struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size);
 
 void spl_save_restore_data(void);
 #endif

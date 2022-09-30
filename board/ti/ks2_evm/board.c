@@ -64,9 +64,9 @@ int dram_init(void)
 	return 0;
 }
 
-struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
+struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
-	return (struct image_header *)(CONFIG_SYS_TEXT_BASE);
+	return (struct legacy_img_hdr *)(CONFIG_SYS_TEXT_BASE);
 }
 
 int board_init(void)

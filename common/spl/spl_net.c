@@ -28,7 +28,7 @@ static ulong spl_net_load_read(struct spl_load_info *load, ulong sector,
 static int spl_net_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
-	struct image_header *header = (struct image_header *)image_load_addr;
+	struct legacy_img_hdr *header = (struct legacy_img_hdr *)image_load_addr;
 	int rv;
 
 	env_init();

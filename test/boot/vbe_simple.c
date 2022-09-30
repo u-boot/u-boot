@@ -74,29 +74,25 @@ static int vbe_simple_test_base(struct unit_test_state *uts)
 	node_ofs = fdt_add_subnode(fdt_buf, node_ofs, "firmware0");
 	ut_assert(node_ofs > 0);
 
-	/*
-	 * This can only work on the live tree, since the ofnode interface for
-	 * flat tree assumes that ofnode points to the control FDT
-	 */
-	ut_assertok(unflatten_device_tree(fdt_buf, &np));
+	if (of_live_active()) {
+		ut_assertok(unflatten_device_tree(fdt_buf, &np));
+		fixup.tree = oftree_from_np(np);
+	} else {
+		fixup.tree = oftree_from_fdt(fdt_buf);
+	}
 
 	/*
 	 * It would be better to call image_setup_libfdt() here, but that
 	 * function does not allow passing an ofnode. We can pass fdt_buf but
-	 * when it comes to send the evenr, it creates an ofnode that uses the
+	 * when it comes to send the event, it creates an ofnode that uses the
 	 * control FDT, since it has no way of accessing the live tree created
 	 * here.
 	 *
-	 * Two fix this we need:
-	 * - image_setup_libfdt() is updated to use ofnode
-	 * - ofnode updated to support access to an FDT other than the control
-	 *   FDT. This is partially implemented with live tree, but not with
-	 *   flat tree
+	 * Two fix this we need image_setup_libfdt() is updated to use ofnode
 	 */
-	fixup.tree.np = np;
 	ut_assertok(event_notify(EVT_FT_FIXUP, &fixup, sizeof(fixup)));
 
-	node = ofnode_path_root(fixup.tree, "/chosen/fwupd/firmware0");
+	node = oftree_path(fixup.tree, "/chosen/fwupd/firmware0");
 
 	version = ofnode_read_string(node, "cur-version");
 	ut_assertnonnull(version);
@@ -111,5 +107,4 @@ static int vbe_simple_test_base(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(vbe_simple_test_base, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_LIVE_TREE);
+BOOTSTD_TEST(vbe_simple_test_base, UT_TESTF_DM | UT_TESTF_SCAN_FDT);

@@ -25,7 +25,7 @@ int __weak bootz_setup(ulong image, ulong *start, ulong *end)
  * zImage booting support
  */
 static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[], bootm_headers_t *images)
+		       char *const argv[], struct bootm_headers *images)
 {
 	int ret;
 	ulong zi_start, zi_end;

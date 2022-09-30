@@ -589,7 +589,7 @@ static ulong get_image_ivt_offset(ulong img_addr)
 	switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
-		return (image_get_image_size((image_header_t *)img_addr)
+		return (image_get_image_size((struct legacy_img_hdr *)img_addr)
 			+ 0x1000 - 1)  & ~(0x1000 - 1);
 #endif
 #if CONFIG_IS_ENABLED(FIT)

@@ -26,7 +26,7 @@
 static int spi_load_image_os(struct spl_image_info *spl_image,
 			     struct spl_boot_device *bootdev,
 			     struct spi_flash *flash,
-			     struct image_header *header)
+			     struct legacy_img_hdr *header)
 {
 	int err;
 
@@ -92,7 +92,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	int err = 0;
 	unsigned int payload_offs;
 	struct spi_flash *flash;
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 	unsigned int sf_bus = spl_spi_boot_bus();
 	unsigned int sf_cs = spl_spi_boot_cs();
 
@@ -139,7 +139,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			if (err)
 				return err;
 			err = spl_parse_image_header(spl_image, bootdev,
-					(struct image_header *)CONFIG_SYS_LOAD_ADDR);
+					(struct legacy_img_hdr *)CONFIG_SYS_LOAD_ADDR);
 		} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 			   image_get_magic(header) == FDT_MAGIC) {
 			struct spl_load_info load;

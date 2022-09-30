@@ -27,7 +27,7 @@ static int send_ipi_many(struct ipi_data *ipi, int wait)
 
 	ofnode_for_each_subnode(node, cpus) {
 		/* skip if hart is marked as not available in the device tree */
-		if (!ofnode_is_available(node))
+		if (!ofnode_is_enabled(node))
 			continue;
 
 		/* read hart ID of CPU */

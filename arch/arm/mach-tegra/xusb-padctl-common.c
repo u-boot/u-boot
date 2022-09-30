@@ -282,7 +282,7 @@ int tegra_xusb_process_nodes(ofnode nodes[], unsigned int count,
 	debug("%s: count=%d\n", __func__, count);
 	for (i = 0; i < count; i++) {
 		debug("%s: i=%d, node=%p\n", __func__, i, nodes[i].np);
-		if (!ofnode_is_available(nodes[i]))
+		if (!ofnode_is_enabled(nodes[i]))
 			continue;
 
 		padctl.socdata = socdata;

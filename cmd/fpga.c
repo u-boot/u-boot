@@ -288,7 +288,7 @@ static int do_fpga_loadmk(struct cmd_tbl *cmdtp, int flag, int argc,
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 	{
-		image_header_t *hdr = (image_header_t *)fpga_data;
+		struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)fpga_data;
 		ulong data;
 		u8 comp;
 

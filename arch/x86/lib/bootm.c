@@ -69,10 +69,10 @@ int arch_fixup_memory_node(void *blob)
 #endif
 
 /* Subcommand: PREP */
-static int boot_prep_linux(bootm_headers_t *images)
+static int boot_prep_linux(struct bootm_headers *images)
 {
 	char *cmd_line_dest = NULL;
-	image_header_t *hdr;
+	struct legacy_img_hdr *hdr;
 	int is_zimage = 0;
 	void *data = NULL;
 	size_t len;
@@ -201,7 +201,7 @@ int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
 }
 
 /* Subcommand: GO */
-static int boot_jump_linux(bootm_headers_t *images)
+static int boot_jump_linux(struct bootm_headers *images)
 {
 	debug("## Transferring control to Linux (at address %08lx, kernel %08lx) ...\n",
 	      images->ep, images->os.load);
@@ -211,7 +211,7 @@ static int boot_jump_linux(bootm_headers_t *images)
 }
 
 int do_bootm_linux(int flag, int argc, char *const argv[],
-		   bootm_headers_t *images)
+		   struct bootm_headers *images)
 {
 	/* No need for those on x86 */
 	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)

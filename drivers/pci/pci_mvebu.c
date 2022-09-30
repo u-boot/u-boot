@@ -740,7 +740,7 @@ static int mvebu_pcie_bind(struct udevice *parent)
 
 	/* First phase: Fill mvebu_pcie struct for each port */
 	ofnode_for_each_subnode(subnode, dev_ofnode(parent)) {
-		if (!ofnode_is_available(subnode))
+		if (!ofnode_is_enabled(subnode))
 			continue;
 
 		pcie = calloc(1, sizeof(*pcie));

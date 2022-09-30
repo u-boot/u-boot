@@ -577,7 +577,7 @@ config EVENT
 	help
 	  This enables sending and processing of events, to allow interested
 	  parties to be alerted when something happens. This is an attempt to
-	  step the flow of weak functions, hooks, functions in board_f.c
+	  stem the flow of weak functions, hooks, functions in board_f.c
 	  and board_r.c and the Kconfig options below.
 
 	  See doc/develop/event.rst for more information.
