@@ -4,6 +4,9 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-y += fpga.o
+obj-$(CONFIG_DM_FPGA) += fpga-uclass.o
+obj-$(CONFIG_SANDBOX_FPGA) += sandbox.o
+
 obj-$(CONFIG_FPGA_SPARTAN2) += spartan2.o
 obj-$(CONFIG_FPGA_SPARTAN3) += spartan3.o
 obj-$(CONFIG_FPGA_VERSALPL) += versalpl.o

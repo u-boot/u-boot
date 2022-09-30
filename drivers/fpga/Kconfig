@@ -118,4 +118,23 @@ config SPL_FPGA_LOAD_SECURE
 	  Enables the fpga loads() functions that are used to load secure
 	  (authenticated or encrypted or both) bitstreams on to FPGA.
 
+config DM_FPGA
+	bool "Enable Driver Model for FPGA drivers"
+	depends on DM
+	select FPGA
+	help
+	  Enable driver model for Field-Programmable Gate Array (FPGA) devices.
+	  The devices cover a wide range of applications and are configured at
+	  runtime by loading a bitstream into the FPGA device.
+	  Loading a bitstream from any kind of storage is the main task of the
+	  FPGA drivers.
+	  For now this uclass has no methods yet.
+
+config SANDBOX_FPGA
+	bool "Enable sandbox FPGA driver"
+	depends on SANDBOX && DM_FPGA
+	help
+	  This is a driver model based FPGA driver for sandbox.
+	  Currently it is a stub only, as there are no usable uclass methods yet.
+
 endmenu

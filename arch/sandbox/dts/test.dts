@@ -652,6 +652,10 @@
 		};
 	};
 
+	fpga {
+		compatible = "sandbox,fpga";
+	};
+
 	pinctrl-gpio {
 		compatible = "sandbox,pinctrl-gpio";
 
