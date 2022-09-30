@@ -111,7 +111,7 @@ static const u8 mode2timing[] = {
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
 };
 
-static inline int arasan_zynqmp_set_in_tapdelay(u8 node_id, u32 itap_delay)
+static inline int arasan_zynqmp_set_in_tapdelay(u32 node_id, u32 itap_delay)
 {
 	int ret;
 
@@ -155,7 +155,7 @@ static inline int arasan_zynqmp_set_in_tapdelay(u8 node_id, u32 itap_delay)
 		if (ret)
 			return ret;
 	} else {
-		return xilinx_pm_request(PM_IOCTL, (u32)node_id,
+		return xilinx_pm_request(PM_IOCTL, node_id,
 					 IOCTL_SET_SD_TAPDELAY,
 					 PM_TAPDELAY_INPUT, itap_delay, NULL);
 	}
@@ -163,7 +163,7 @@ static inline int arasan_zynqmp_set_in_tapdelay(u8 node_id, u32 itap_delay)
 	return 0;
 }
 
-static inline int arasan_zynqmp_set_out_tapdelay(u8 node_id, u32 otap_delay)
+static inline int arasan_zynqmp_set_out_tapdelay(u32 node_id, u32 otap_delay)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
 		if (node_id == NODE_SD_0)
@@ -174,13 +174,13 @@ static inline int arasan_zynqmp_set_out_tapdelay(u8 node_id, u32 otap_delay)
 		return zynqmp_mmio_write(SD_OTAP_DLY, SD1_OTAPDLYSEL_MASK,
 					 (otap_delay << 16));
 	} else {
-		return xilinx_pm_request(PM_IOCTL, (u32)node_id,
+		return xilinx_pm_request(PM_IOCTL, node_id,
 					 IOCTL_SET_SD_TAPDELAY,
 					 PM_TAPDELAY_OUTPUT, otap_delay, NULL);
 	}
 }
 
-static inline int zynqmp_dll_reset(u8 node_id, u32 type)
+static inline int zynqmp_dll_reset(u32 node_id, u32 type)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
 		if (node_id == NODE_SD_0)
@@ -192,12 +192,12 @@ static inline int zynqmp_dll_reset(u8 node_id, u32 type)
 					 type == PM_DLL_RESET_ASSERT ?
 					 SD1_DLL_RST : 0);
 	} else {
-		return xilinx_pm_request(PM_IOCTL, (u32)node_id,
+		return xilinx_pm_request(PM_IOCTL, node_id,
 					 IOCTL_SD_DLL_RESET, type, 0, NULL);
 	}
 }
 
-static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u8 node_id)
+static int arasan_zynqmp_dll_reset(struct sdhci_host *host, u32 node_id)
 {
 	struct mmc *mmc = (struct mmc *)host->mmc;
 	struct udevice *dev = mmc->dev;
