@@ -15,5 +15,7 @@ obj-$(CONFIG_CMD_LOADM) += loadm.o
 obj-$(CONFIG_CMD_MEM_SEARCH) += mem_search.o
 obj-$(CONFIG_CMD_PINMUX) += pinmux.o
 obj-$(CONFIG_CMD_PWM) += pwm.o
+ifdef CONFIG_SANDBOX
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
+endif
 obj-$(CONFIG_CMD_TEMPERATURE) += temperature.o
