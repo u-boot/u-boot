@@ -91,15 +91,13 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 static int dm_gpio_lookup_label(const char *name,
 				struct gpio_dev_priv *uc_priv, ulong *offset)
 {
-	int len;
 	int i;
 
 	*offset = -1;
-	len = strlen(name);
 	for (i = 0; i < uc_priv->gpio_count; i++) {
 		if (!uc_priv->name[i])
 			continue;
-		if (!strncmp(name, uc_priv->name[i], len)) {
+		if (!strcmp(name, uc_priv->name[i])) {
 			*offset = i;
 			return 0;
 		}
