@@ -25,7 +25,7 @@
 struct efi_driver_ops {
 	const efi_guid_t *protocol;
 	const efi_guid_t *child_protocol;
-	int (*bind)(efi_handle_t handle, void *interface);
+	efi_status_t (*bind)(efi_handle_t handle, void *interface);
 };
 
 /*

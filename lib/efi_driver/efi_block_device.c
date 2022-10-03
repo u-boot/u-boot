@@ -112,12 +112,13 @@ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
  *
  * @handle:	handle
  * @interface:	block io protocol
- * Return:	0 = success
+ * Return:	status code
  */
-static int efi_bl_bind(efi_handle_t handle, void *interface)
+static efi_status_t efi_bl_bind(efi_handle_t handle, void *interface)
 {
-	struct udevice *bdev, *parent = dm_root();
-	int ret, devnum;
+	struct udevice *bdev = NULL, *parent = dm_root();
+	efi_status_t ret;
+	int devnum;
 	char *name;
 	struct efi_object *obj = efi_search_obj(handle);
 	struct efi_block_io *io = interface;
@@ -125,28 +126,28 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 
 	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, io);
 
-	if (!obj)
-		return -ENOENT;
+	if (!obj || !interface)
+		return EFI_INVALID_PARAMETER;
 
 	devnum = blk_find_max_devnum(UCLASS_EFI_LOADER);
 	if (devnum == -ENODEV)
 		devnum = 0;
 	else if (devnum < 0)
-		return devnum;
+		return EFI_OUT_OF_RESOURCES;
 
 	name = calloc(1, 18); /* strlen("efiblk#2147483648") + 1 */
 	if (!name)
-		return -ENOMEM;
+		return EFI_OUT_OF_RESOURCES;
 	sprintf(name, "efiblk#%d", devnum);
 
 	/* Create driver model udevice for the EFI block io device */
-	ret = blk_create_device(parent, "efi_blk", name, UCLASS_EFI_LOADER,
-				devnum, io->media->block_size,
-				(lbaint_t)io->media->last_block, &bdev);
-	if (ret)
-		return ret;
-	if (!bdev)
-		return -ENOENT;
+	if (blk_create_device(parent, "efi_blk", name, UCLASS_EFI_LOADER,
+			      devnum, io->media->block_size,
+			      (lbaint_t)io->media->last_block, &bdev)) {
+		ret = EFI_OUT_OF_RESOURCES;
+		free(name);
+		goto err;
+	}
 	/* Set the DM_FLAG_NAME_ALLOCED flag to avoid a memory leak */
 	device_set_name_alloced(bdev);
 
@@ -154,20 +155,25 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	plat->handle = handle;
 	plat->io = interface;
 
-	/*
-	 * FIXME: necessary because we won't do almost nothing in
-	 * efi_disk_create() when called from device_probe().
-	 */
-	if (efi_link_dev(handle, bdev))
-		/* FIXME: cleanup for bdev */
-		return ret;
+	if (efi_link_dev(handle, bdev)) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto err;
+	}
 
-	ret = device_probe(bdev);
-	if (ret)
-		return ret;
+	if (device_probe(bdev)) {
+		ret = EFI_DEVICE_ERROR;
+		goto err;
+	}
 	EFI_PRINT("%s: block device '%s' created\n", __func__, bdev->name);
 
-	return 0;
+	return EFI_SUCCESS;
+
+err:
+	efi_unlink_dev(handle);
+	if (bdev)
+		device_unbind(bdev);
+
+	return ret;
 }
 
 /* Block device driver operators */
