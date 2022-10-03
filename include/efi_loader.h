@@ -708,6 +708,7 @@ const char *guid_to_sha_str(const efi_guid_t *guid);
 int algo_to_len(const char *algo);
 
 int efi_link_dev(efi_handle_t handle, struct udevice *dev);
+int efi_unlink_dev(efi_handle_t handle);
 
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages

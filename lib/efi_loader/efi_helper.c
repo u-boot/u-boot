@@ -171,3 +171,22 @@ int efi_link_dev(efi_handle_t handle, struct udevice *dev)
 	handle->dev = dev;
 	return dev_tag_set_ptr(dev, DM_TAG_EFI, handle);
 }
+
+/**
+ * efi_unlink_dev() - unlink udevice and handle
+ *
+ * @handle:	EFI handle to unlink
+ *
+ * Return:	0 on success, negative on failure
+ */
+int efi_unlink_dev(efi_handle_t handle)
+{
+	int ret;
+
+	ret = dev_tag_del(handle->dev, DM_TAG_EFI);
+	if (ret)
+		return ret;
+	handle->dev = NULL;
+
+	return 0;
+}
