@@ -13,7 +13,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
-#include <dm/of_extra.h>
 #include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -24,6 +23,8 @@
 #include <serial.h>
 #include <asm/global_data.h>
 #include <asm/sections.h>
+#include <dm/ofnode.h>
+#include <dm/of_extra.h>
 #include <linux/ctype.h>
 #include <linux/lzo.h>
 #include <linux/ioport.h>
@@ -1058,7 +1059,7 @@ ofnode get_next_memory_node(ofnode mem)
 {
 	do {
 		mem = ofnode_by_prop_value(mem, "device_type", "memory", 7);
-	} while (!ofnode_is_available(mem));
+	} while (!ofnode_is_enabled(mem));
 
 	return mem;
 }
@@ -1668,6 +1669,8 @@ int fdtdec_setup(void)
 	ret = fdtdec_prepare_fdt();
 	if (!ret)
 		ret = fdtdec_board_setup(gd->fdt_blob);
+	oftree_reset();
+
 	return ret;
 }
 

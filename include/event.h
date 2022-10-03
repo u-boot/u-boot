@@ -60,9 +60,11 @@ union event_data {
 	 * struct event_ft_fixup - FDT fixup before booting
 	 *
 	 * @tree: tree to update
+	 * @images: images which are being booted
 	 */
 	struct event_ft_fixup {
 		oftree tree;
+		struct bootm_headers *images;
 	} ft_fixup;
 };
 
@@ -143,8 +145,8 @@ static inline const char *event_spy_id(struct evspy_info *spy)
  * vbe_simple.c - so for now, make it global.
  */
 #define EVENT_SPY(_type, _func) \
-	__used ll_entry_declare(struct evspy_info, _type, evspy_info) = \
-	_ESPY_REC(_type, _func)
+	__used ll_entry_declare(struct evspy_info, _type ## _3_ ## _func, \
+		evspy_info) = _ESPY_REC(_type, _func)
 
 /**
  * event_register - register a new spy

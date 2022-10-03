@@ -350,10 +350,8 @@ static const struct atmel_pioctrl_data microchip_sama7g5_pioctrl_data = {
 
 static const struct udevice_id atmel_pio4_ids[] = {
 	{
-		.compatible = "atmel,sama5d2-gpio",
 		.data = (ulong)&atmel_sama5d2_pioctrl_data,
 	}, {
-		.compatible = "microchip,sama7g5-gpio",
 		.data = (ulong)&microchip_sama7g5_pioctrl_data,
 	},
 	{}

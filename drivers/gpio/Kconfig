@@ -303,14 +303,14 @@ config CMD_PCA953X
 	  legacy GPIO interface. Several subcommands are provided which mirror
 	  the standard 'gpio' command. It should use that instead.
 
-config PM8916_GPIO
-	bool "Qualcomm PM8916 PMIC GPIO/keypad driver"
-	depends on DM_GPIO && PMIC_PM8916
+config QCOM_PMIC_GPIO
+	bool "Qualcomm generic PMIC GPIO/keypad driver"
+	depends on DM_GPIO && PMIC_QCOM
 	help
 	  Support for GPIO pins and power/reset buttons found on
-	  Qualcomm PM8916 PMIC.
+	  Qualcomm SoCs PMIC.
 	  Default name for GPIO bank is "pm8916".
-	  Power and reset buttons are placed in "pm8916_key" bank and
+	  Power and reset buttons are placed in "pwkey_qcom" bank and
           have gpio numbers 0 and 1 respectively.
 
 config PCF8575_GPIO

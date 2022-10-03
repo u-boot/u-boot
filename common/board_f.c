@@ -16,6 +16,7 @@
 #include <console.h>
 #include <cpu.h>
 #include <cpu_func.h>
+#include <cyclic.h>
 #include <display_options.h>
 #include <dm.h>
 #include <env.h>
@@ -56,6 +57,7 @@
 #include <asm/sections.h>
 #include <dm/root.h>
 #include <linux/errno.h>
+#include <linux/log2.h>
 
 /*
  * Pointer to initial global data area
@@ -113,14 +115,14 @@ static int init_func_watchdog_init(void)
 	hw_watchdog_init();
 	puts("       Watchdog enabled\n");
 # endif
-	WATCHDOG_RESET();
+	schedule();
 
 	return 0;
 }
 
 int init_func_watchdog_reset(void)
 {
-	WATCHDOG_RESET();
+	schedule();
 
 	return 0;
 }
@@ -215,6 +217,36 @@ static int announce_dram_init(void)
 	return 0;
 }
 
+/*
+ * From input size calculate its nearest rounded unit scale (multiply of 2^10)
+ * and value in calculated unit scale multiplied by 10 (as fractional fixed
+ * point number with one decimal digit), which is human natural format,
+ * same what uses print_size() function for displaying. Mathematically it is:
+ * round_nearest(val * 2^scale) = size * 10; where: 10 <= val < 10240.
+ *
+ * For example for size=87654321 we calculate scale=20 and val=836 which means
+ * that input has natural human format 83.6 M (mega = 2^20).
+ */
+#define compute_size_scale_val(size, scale, val) do { \
+	scale = ilog2(size) / 10 * 10; \
+	val = (10 * size + ((1ULL << scale) >> 1)) >> scale; \
+	if (val == 10240) { val = 10; scale += 10; } \
+} while (0)
+
+/*
+ * Check if the sizes in their natural units written in decimal format with
+ * one fraction number are same.
+ */
+static int sizes_near(unsigned long long size1, unsigned long long size2)
+{
+	unsigned int size1_scale, size1_val, size2_scale, size2_val;
+
+	compute_size_scale_val(size1, size1_scale, size1_val);
+	compute_size_scale_val(size2, size2_scale, size2_val);
+
+	return size1_scale == size2_scale && size1_val == size2_val;
+}
+
 static int show_dram_config(void)
 {
 	unsigned long long size;
@@ -231,7 +263,11 @@ static int show_dram_config(void)
 	}
 	debug("\nDRAM:  ");
 
-	print_size(size, "");
+	print_size(gd->ram_size, "");
+	if (!sizes_near(gd->ram_size, size)) {
+		printf(" (effective ");
+		print_size(size, ")");
+	}
 	board_add_ram_info(0);
 	putc('\n');
 
@@ -304,7 +340,7 @@ __weak int mach_cpu_init(void)
 }
 
 /* Get the top of usable RAM */
-__weak ulong board_get_usable_ram_top(ulong total_size)
+__weak phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 #if defined(CONFIG_SYS_SDRAM_BASE) && CONFIG_SYS_SDRAM_BASE > 0
 	/*
@@ -327,7 +363,7 @@ static int setup_dest_addr(void)
 	/*
 	 * Ram is setup, size stored in gd !!
 	 */
-	debug("Ram size: %08lX\n", (ulong)gd->ram_size);
+	debug("Ram size: %08llX\n", (unsigned long long)gd->ram_size);
 #if CONFIG_VAL(SYS_MEM_TOP_HIDE)
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
@@ -347,7 +383,7 @@ static int setup_dest_addr(void)
 	gd->ram_top = gd->ram_base + get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
-	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
+	debug("Ram top: %08llX\n", (unsigned long long)gd->ram_top);
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 	/*
 	 * We need to make sure the location we intend to put secondary core
@@ -828,6 +864,7 @@ static const init_fnc_t init_sequence_f[] = {
 	initf_malloc,
 	log_init,
 	initf_bootstage,	/* uses its own timer, so does not need DM */
+	cyclic_init,
 	event_init,
 #ifdef CONFIG_BLOBLIST
 	bloblist_init,

@@ -44,7 +44,7 @@ int bootretry_tstc_timeout(void)
 	while (!tstc()) {	/* while no incoming data */
 		if (retry_time >= 0 && get_ticks() > endtime)
 			return -ETIMEDOUT;
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	return 0;

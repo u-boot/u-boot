@@ -31,17 +31,46 @@
  * this increases code size slightly due to the subtraction. Since it offers no
  * real benefit, the approach described here seems best.
  *
- * For now these points use constant types, since we don't allow writing
- * the DT.
+ * Where multiple trees are in use, this works without any trouble with live
+ * tree, except for aliases, such as ofnode_path("mmc0"), which only work on the
+ * control FDT. When the flat tree is in use, the trees are registered and a
+ * 'tree ID' is encoded into the top bits of @of_offset - see immediately below
+ * for the associated macro definitions. Note that 64-bit machines use the same
+ * encoding, even though there is more space available. This is partly because
+ * the FDT format contains 32-bit values for things like the string-table
+ * offset, therefore 64-bit offsets cannot be supported anyway.
+ *
+ * For the multiple-tree case, an invalid offset (i.e. with of_offset < 0) is
+ * still invalid. It does not contain a tree ID. So there is no way of knowing
+ * which tree produced the invalid offset.
  *
  * @np: Pointer to device node, used for live tree
  * @of_offset: Pointer into flat device tree, used for flat tree. Note that this
  *	is not a really a pointer to a node: it is an offset value. See above.
  */
 typedef union ofnode_union {
-	const struct device_node *np;
+	struct device_node *np;
 	long of_offset;
 } ofnode;
+
+/* shift for the tree ID within of_offset */
+#define OF_TREE_SHIFT 28
+
+/* mask to obtain the device tree offset from of_offset */
+#define OF_TREE_MASK ((1 << OF_TREE_SHIFT) - 1)
+
+/* encode a tree ID and node offset into an of_offset value */
+#define OFTREE_NODE(tree_id, offs)	((tree_id) << OF_TREE_SHIFT | (offs))
+
+/* decode the node offset from an of_offset value */
+#define OFTREE_OFFSET(of_offs)		((of_offs) & OF_TREE_MASK)
+
+/* decode the tree ID from an of_offset value */
+#define OFTREE_TREE_ID(of_offs)		((of_offs) >> OF_TREE_SHIFT)
+
+/* encode a node offset in the tree given by another node's of_offset value */
+#define OFTREE_MAKE_NODE(other_of_offset, offs)	\
+		(((offs) & OF_TREE_MASK) | ((other_of_offset) & ~OF_TREE_MASK))
 
 /**
  * struct ofprop - reference to a property of a device tree node
@@ -57,7 +86,7 @@ typedef union ofnode_union {
  *
  * @node: Pointer to device node
  * @offset: Pointer into flat device tree, used for flat tree.
- * @prop: Pointer to property, used for live treee.
+ * @prop: Pointer to property, used for live tree.
  */
 
 struct ofprop {

@@ -40,7 +40,7 @@ static int do_virtio(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_SUCCESS;
 	}
 
-	return blk_common_cmd(argc, argv, IF_TYPE_VIRTIO, &virtio_curr_dev);
+	return blk_common_cmd(argc, argv, UCLASS_VIRTIO, &virtio_curr_dev);
 }
 
 U_BOOT_CMD(

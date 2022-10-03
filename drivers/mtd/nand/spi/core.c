@@ -579,7 +579,7 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 #endif
 
 	nanddev_io_for_each_page(nand, from, ops, &iter) {
-		WATCHDOG_RESET();
+		schedule();
 		ret = spinand_select_target(spinand, iter.req.pos.target);
 		if (ret)
 			break;
@@ -631,7 +631,7 @@ static int spinand_mtd_write(struct mtd_info *mtd, loff_t to,
 #endif
 
 	nanddev_io_for_each_page(nand, to, ops, &iter) {
-		WATCHDOG_RESET();
+		schedule();
 		ret = spinand_select_target(spinand, iter.req.pos.target);
 		if (ret)
 			break;

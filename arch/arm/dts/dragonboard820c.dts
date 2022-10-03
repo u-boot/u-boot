@@ -64,8 +64,8 @@
 			reg = <0x300000 0x90000>;
 		};
 
-		pinctrl: qcom,tlmm@1010000 {
-			compatible = "qcom,tlmm-apq8096";
+		pinctrl: pinctrl@1010000 {
+			compatible = "qcom,msm8996-pinctrl";
 			reg = <0x1010000 0x400000>;
 
 			blsp8_uart: uart {

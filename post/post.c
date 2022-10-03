@@ -245,7 +245,7 @@ static int post_run_single(struct post_test *test,
 {
 	if ((flags & test_flags & POST_ALWAYS) &&
 		(flags & test_flags & POST_MEM)) {
-		WATCHDOG_RESET();
+		schedule();
 
 		if (!(flags & POST_REBOOT)) {
 			if ((test_flags & POST_REBOOT) &&
@@ -350,7 +350,7 @@ int post_run(char *name, int flags)
 		}
 
 		if (i < post_list_size) {
-			WATCHDOG_RESET();
+			schedule();
 			return post_run_single(post_list + i,
 						test_flags[i],
 						flags, i);

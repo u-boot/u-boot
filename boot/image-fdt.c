@@ -37,9 +37,9 @@ static void fdt_error(const char *msg)
 }
 
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-static const image_header_t *image_get_fdt(ulong fdt_addr)
+static const struct legacy_img_hdr *image_get_fdt(ulong fdt_addr)
 {
-	const image_header_t *fdt_hdr = map_sysmem(fdt_addr, 0);
+	const struct legacy_img_hdr *fdt_hdr = map_sysmem(fdt_addr, 0);
 
 	image_print_contents(fdt_hdr);
 
@@ -291,7 +291,7 @@ error:
  *	other -ve value on other error
  */
 
-static int select_fdt(bootm_headers_t *images, const char *select, u8 arch,
+static int select_fdt(struct bootm_headers *images, const char *select, u8 arch,
 		      ulong *fdt_addrp)
 {
 	const char *buf;
@@ -358,7 +358,7 @@ static int select_fdt(bootm_headers_t *images, const char *select, u8 arch,
 	switch (genimg_get_format(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY: {
-			const image_header_t *fdt_hdr;
+			const struct legacy_img_hdr *fdt_hdr;
 			ulong load, load_end;
 			ulong image_start, image_data, image_end;
 
@@ -470,7 +470,7 @@ static int select_fdt(bootm_headers_t *images, const char *select, u8 arch,
  *     of_flat_tree and of_size are set to 0 if no fdt exists
  */
 int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
-		 bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
+		 struct bootm_headers *images, char **of_flat_tree, ulong *of_size)
 {
 	ulong		img_addr;
 	ulong		fdt_addr;
@@ -602,7 +602,7 @@ __weak int arch_fixup_fdt(void *blob)
 	return 0;
 }
 
-int image_setup_libfdt(bootm_headers_t *images, void *blob,
+int image_setup_libfdt(struct bootm_headers *images, void *blob,
 		       int of_size, struct lmb *lmb)
 {
 	ulong *initrd_start = &images->initrd_start;
@@ -669,6 +669,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		struct event_ft_fixup fixup;
 
 		fixup.tree = oftree_default();
+		fixup.images = images;
 		ret = event_notify(EVT_FT_FIXUP, &fixup, sizeof(fixup));
 		if (ret) {
 			printf("ERROR: fdt fixup event failed: %d\n", ret);

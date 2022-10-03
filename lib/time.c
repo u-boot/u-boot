@@ -198,7 +198,7 @@ void udelay(unsigned long usec)
 	ulong kv;
 
 	do {
-		WATCHDOG_RESET();
+		schedule();
 		kv = usec > CONFIG_WD_PERIOD ? CONFIG_WD_PERIOD : usec;
 		__udelay(kv);
 		usec -= kv;

@@ -669,6 +669,11 @@ void os_puts(const char *str)
 		os_putc(*str++);
 }
 
+void os_flush(void)
+{
+	fflush(stdout);
+}
+
 int os_write_ram_buf(const char *fname)
 {
 	struct sandbox_state *state = state_get_current();
@@ -1012,8 +1017,24 @@ void *os_find_text_base(void)
 	return base;
 }
 
+/**
+ * os_unblock_signals() - unblock all signals
+ *
+ * If we are relaunching the sandbox in a signal handler, we have to unblock
+ * the respective signal before calling execv(). See signal(7) man-page.
+ */
+static void os_unblock_signals(void)
+{
+	sigset_t sigs;
+
+	sigfillset(&sigs);
+	sigprocmask(SIG_UNBLOCK, &sigs, NULL);
+}
+
 void os_relaunch(char *argv[])
 {
+	os_unblock_signals();
+
 	execv(argv[0], argv);
 	os_exit(1);
 }

@@ -1092,7 +1092,6 @@ config CMD_PWM
 config CMD_GPT
 	bool "GPT (GUID Partition Table) command"
 	select EFI_PARTITION
-	select HAVE_BLOCK_DEVICE
 	select PARTITION_UUIDS
 	imply RANDOM_UUID
 	help
@@ -1194,6 +1193,13 @@ config CMD_LOADS
 	help
 	  Load an S-Record file over serial line
 
+config CMD_LOADXY_TIMEOUT
+	int "loadxy_timeout"
+	range 0 2000
+	default 90
+	help
+	  Initial timeout for loadx and loady commands. Zero means infinity.
+
 config CMD_LSBLK
 	depends on BLK
 	bool "lsblk - list block drivers and devices"
@@ -1204,7 +1210,6 @@ config CMD_LSBLK
 config CMD_MBR
 	bool "MBR (Master Boot Record) command"
 	select DOS_PARTITION
-	select HAVE_BLOCK_DEVICE
 	help
 	  Enable the 'mbr' command to ready and write MBR (Master Boot Record)
 	  style partition tables.
@@ -1336,7 +1341,6 @@ config CMD_OSD
 config CMD_PART
 	bool "part"
 	depends on PARTITIONS
-	select HAVE_BLOCK_DEVICE
 	select PARTITION_UUIDS
 	help
 	  Read and display information about the partition table on
@@ -1467,7 +1471,6 @@ config CMD_UNIVERSE
 config CMD_USB
 	bool "usb"
 	depends on USB_HOST
-	select HAVE_BLOCK_DEVICE
 	help
 	  USB support.
 
@@ -1507,7 +1510,6 @@ config CMD_PVBLOCK
 config CMD_VIRTIO
 	bool "virtio"
 	depends on VIRTIO
-	depends on HAVE_BLOCK_DEVICE
 	default y if VIRTIO
 	help
 	  VirtIO block device support
@@ -1928,6 +1930,13 @@ config CMD_EFIDEBUG
 	  particularly for managing boot parameters as  well as examining
 	  various EFI status for debugging.
 
+config CMD_EFICONFIG
+	bool "eficonfig - provide menu-driven uefi variables maintenance interface"
+	depends on CMD_BOOTEFI_BOOTMGR
+	help
+	  Enable the 'eficonfig' command which provides the menu-driven UEFI
+	  variable maintenance interface.
+
 config CMD_EXCEPTION
 	bool "exception - raise exception"
 	depends on ARM || RISCV || SANDBOX || X86
@@ -1970,6 +1979,12 @@ config CMD_GETTIME
 	  U-Boot started running. This shows the time in seconds and
 	  milliseconds. See also the 'bootstage' command which provides more
 	  flexibility for boot timing.
+
+config CMD_PAUSE
+	bool "pause command"
+	help
+	  Delay execution waiting for any user input.
+	  Useful to allow the user to read a failure log.
 
 config CMD_RNG
 	bool "rng command"
@@ -2504,6 +2519,22 @@ config CMD_CBSYSINFO
 	  This provides information about the coreboot sysinfo table stored in
 	  memory by coreboot before jumping to U-Boot. It can be useful for
 	  debugging the beaaviour of coreboot or U-Boot.
+
+config CMD_CYCLIC
+	bool "cyclic - Show information about cyclic functions"
+	depends on CYCLIC
+	default y
+	help
+	  This enables the 'cyclic' command which provides information about
+	  cyclic execution functions. This infrastructure allows registering
+	  functions to be executed cyclically, e.g. every 100ms. These commands
+	  are supported:
+
+	    cyclic list - list cyclic functions
+	    cyclic cyclic demo <cycletime_ms> <delay_us> - register cyclic
+		demo function
+
+	  See doc/develop/cyclic.rst for more details.
 
 config CMD_DIAG
 	bool "diag - Board diagnostics"

@@ -27,8 +27,7 @@ int part_create_block_devices(struct udevice *blk_dev)
 	struct udevice *dev;
 	int ret;
 
-	if (!CONFIG_IS_ENABLED(PARTITIONS) ||
-	    !CONFIG_IS_ENABLED(HAVE_BLOCK_DEVICE))
+	if (!CONFIG_IS_ENABLED(PARTITIONS) || !blk_enabled())
 		return 0;
 
 	if (device_get_uclass_id(blk_dev) != UCLASS_BLK)
@@ -192,12 +191,12 @@ unsigned long dev_read(struct udevice *dev, lbaint_t start,
 		start_in_disk += part->gpt_part_info.start;
 	}
 
-	if (blkcache_read(block_dev->if_type, block_dev->devnum,
+	if (blkcache_read(block_dev->uclass_id, block_dev->devnum,
 			  start_in_disk, blkcnt, block_dev->blksz, buffer))
 		return blkcnt;
 	blks_read = ops->read(dev, start, blkcnt, buffer);
 	if (blks_read == blkcnt)
-		blkcache_fill(block_dev->if_type, block_dev->devnum,
+		blkcache_fill(block_dev->uclass_id, block_dev->devnum,
 			      start_in_disk, blkcnt, block_dev->blksz, buffer);
 
 	return blks_read;
@@ -217,7 +216,7 @@ unsigned long dev_write(struct udevice *dev, lbaint_t start,
 	if (!ops->write)
 		return -ENOSYS;
 
-	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
+	blkcache_invalidate(block_dev->uclass_id, block_dev->devnum);
 
 	return ops->write(dev, start, blkcnt, buffer);
 }
@@ -236,7 +235,7 @@ unsigned long dev_erase(struct udevice *dev, lbaint_t start,
 	if (!ops->erase)
 		return -ENOSYS;
 
-	blkcache_invalidate(block_dev->if_type, block_dev->devnum);
+	blkcache_invalidate(block_dev->uclass_id, block_dev->devnum);
 
 	return ops->erase(dev, start, blkcnt);
 }

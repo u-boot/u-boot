@@ -84,6 +84,7 @@ obj-y += malloc_simple.o
 endif
 endif
 
+obj-$(CONFIG_CYCLIC) += cyclic.o
 obj-$(CONFIG_$(SPL_TPL_)EVENT) += event.o
 
 obj-$(CONFIG_$(SPL_TPL_)HASH) += hash.o

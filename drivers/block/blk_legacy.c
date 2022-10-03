@@ -9,14 +9,14 @@
 #include <part.h>
 #include <linux/err.h>
 
-struct blk_driver *blk_driver_lookup_type(int if_type)
+struct blk_driver *blk_driver_lookup_type(int uclass_id)
 {
 	struct blk_driver *drv = ll_entry_start(struct blk_driver, blk_driver);
 	const int n_ents = ll_entry_count(struct blk_driver, blk_driver);
 	struct blk_driver *entry;
 
 	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (if_type == entry->if_type)
+		if (uclass_id == entry->uclass_id)
 			return entry;
 	}
 
@@ -24,14 +24,14 @@ struct blk_driver *blk_driver_lookup_type(int if_type)
 	return NULL;
 }
 
-static struct blk_driver *blk_driver_lookup_typename(const char *if_typename)
+static struct blk_driver *blk_driver_lookup_typename(const char *uclass_idname)
 {
 	struct blk_driver *drv = ll_entry_start(struct blk_driver, blk_driver);
 	const int n_ents = ll_entry_count(struct blk_driver, blk_driver);
 	struct blk_driver *entry;
 
 	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (!strcmp(if_typename, entry->if_typename))
+		if (!strcmp(uclass_idname, entry->uclass_idname))
 			return entry;
 	}
 
@@ -39,11 +39,11 @@ static struct blk_driver *blk_driver_lookup_typename(const char *if_typename)
 	return NULL;
 }
 
-const char *blk_get_if_type_name(enum if_type if_type)
+const char *blk_get_uclass_name(enum uclass_id uclass_id)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 
-	return drv ? drv->if_typename : NULL;
+	return drv ? drv->uclass_idname : NULL;
 }
 
 /**
@@ -70,15 +70,14 @@ static int get_desc(struct blk_driver *drv, int devnum, struct blk_desc **descp)
 	return drv->get_dev(devnum, descp);
 }
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
-int blk_list_part(enum if_type if_type)
+int blk_list_part(enum uclass_id uclass_id)
 {
 	struct blk_driver *drv;
 	struct blk_desc *desc;
 	int devnum, ok;
 	bool first = true;
 
-	drv = blk_driver_lookup_type(if_type);
+	drv = blk_driver_lookup_type(uclass_id);
 	if (!drv)
 		return -ENOSYS;
 	for (ok = 0, devnum = 0; devnum < drv->max_devs; ++devnum) {
@@ -98,9 +97,9 @@ int blk_list_part(enum if_type if_type)
 	return 0;
 }
 
-int blk_print_part_devnum(enum if_type if_type, int devnum)
+int blk_print_part_devnum(enum uclass_id uclass_id, int devnum)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 	int ret;
 
@@ -116,9 +115,9 @@ int blk_print_part_devnum(enum if_type if_type, int devnum)
 	return 0;
 }
 
-void blk_list_devices(enum if_type if_type)
+void blk_list_devices(enum uclass_id uclass_id)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 	int i;
 
@@ -134,9 +133,9 @@ void blk_list_devices(enum if_type if_type)
 	}
 }
 
-int blk_print_device_num(enum if_type if_type, int devnum)
+int blk_print_device_num(enum uclass_id uclass_id, int devnum)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 	int ret;
 
@@ -145,15 +144,15 @@ int blk_print_device_num(enum if_type if_type, int devnum)
 	ret = get_desc(drv, devnum, &desc);
 	if (ret)
 		return ret;
-	printf("\n%s device %d: ", drv->if_typename, devnum);
+	printf("\n%s device %d: ", drv->uclass_idname, devnum);
 	dev_print(desc);
 
 	return 0;
 }
 
-int blk_show_device(enum if_type if_type, int devnum)
+int blk_show_device(enum uclass_id uclass_id, int devnum)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 	int ret;
 
@@ -174,11 +173,10 @@ int blk_show_device(enum if_type if_type, int devnum)
 
 	return 0;
 }
-#endif /* CONFIG_HAVE_BLOCK_DEVICE */
 
-struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum)
+struct blk_desc *blk_get_devnum_by_uclass_id(enum uclass_id uclass_id, int devnum)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 
 	if (!drv)
@@ -192,7 +190,7 @@ struct blk_desc *blk_get_devnum_by_type(enum if_type if_type, int devnum)
 
 int blk_dselect_hwpart(struct blk_desc *desc, int hwpart)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(desc->if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(desc->uclass_id);
 
 	if (!drv)
 		return -ENOSYS;
@@ -202,9 +200,9 @@ int blk_dselect_hwpart(struct blk_desc *desc, int hwpart)
 	return 0;
 }
 
-struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
+struct blk_desc *blk_get_devnum_by_uclass_idname(const char *uclass_idname, int devnum)
 {
-	struct blk_driver *drv = blk_driver_lookup_typename(if_typename);
+	struct blk_driver *drv = blk_driver_lookup_typename(uclass_idname);
 	struct blk_desc *desc;
 
 	if (!drv)
@@ -216,10 +214,10 @@ struct blk_desc *blk_get_devnum_by_typename(const char *if_typename, int devnum)
 	return desc;
 }
 
-ulong blk_read_devnum(enum if_type if_type, int devnum, lbaint_t start,
+ulong blk_read_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
 		      lbaint_t blkcnt, void *buffer)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 	ulong n;
 	int ret;
@@ -236,10 +234,10 @@ ulong blk_read_devnum(enum if_type if_type, int devnum, lbaint_t start,
 	return n;
 }
 
-ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
+ulong blk_write_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
 		       lbaint_t blkcnt, const void *buffer)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 	int ret;
 
@@ -251,9 +249,9 @@ ulong blk_write_devnum(enum if_type if_type, int devnum, lbaint_t start,
 	return desc->block_write(desc, start, blkcnt, buffer);
 }
 
-int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart)
+int blk_select_hwpart_devnum(enum uclass_id uclass_id, int devnum, int hwpart)
 {
-	struct blk_driver *drv = blk_driver_lookup_type(if_type);
+	struct blk_driver *drv = blk_driver_lookup_type(uclass_id);
 	struct blk_desc *desc;
 	int ret;
 

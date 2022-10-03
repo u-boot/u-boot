@@ -119,6 +119,11 @@ int ut_check_console_end(struct unit_test_state *uts);
  */
 int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 
+/* Report a failure, with printf() string */
+#define ut_reportf(fmt, args...)					\
+	ut_failf(uts, __FILE__, __LINE__, __func__, "report",		\
+		 fmt, ##args)
+
 /* Assert that a condition is non-zero */
 #define ut_assert(cond)							\
 	if (!(cond)) {							\
@@ -403,9 +408,10 @@ void test_set_state(struct unit_test_state *uts);
  * @count: Number of tests to run
  * @select_name: Name of a single test to run (from the list provided). If NULL
  *	then all tests are run
+ * @runs_per_test: Number of times to run each test (typically 1)
  * Return: 0 if all tests passed, -1 if any failed
  */
 int ut_run_list(const char *name, const char *prefix, struct unit_test *tests,
-		int count, const char *select_name);
+		int count, const char *select_name, int runs_per_test);
 
 #endif

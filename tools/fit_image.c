@@ -22,7 +22,7 @@
 #include <version.h>
 #include <u-boot/crc.h>
 
-static image_header_t header;
+static struct legacy_img_hdr header;
 
 static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 			     const char *tmpfile)
@@ -915,7 +915,7 @@ static int fit_check_params(struct image_tool_params *params)
 U_BOOT_IMAGE_TYPE(
 	fitimage,
 	"FIT Image support",
-	sizeof(image_header_t),
+	sizeof(struct legacy_img_hdr),
 	(void *)&header,
 	fit_check_params,
 	fit_verify_header,

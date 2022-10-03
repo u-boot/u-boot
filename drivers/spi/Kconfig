@@ -40,6 +40,16 @@ config SPI_MEM
 	  This extension is meant to simplify interaction with SPI memories
 	  by providing an high-level interface to send memory-like commands.
 
+config SPI_DIRMAP
+	bool "SPI direct mapping"
+	depends on SPI_MEM
+	help
+	  Enable the SPI direct mapping API. Most modern SPI controllers can
+	  directly map a SPI memory (or a portion of the SPI memory) in the CPU
+	  address space. Most of the time this brings significant performance
+	  improvements as it automates the whole process of sending SPI memory
+	  operations every time a new region is accessed.
+
 if DM_SPI
 
 config ALTERA_SPI
@@ -138,7 +148,7 @@ config CQSPI_REF_CLK
 
 config CADENCE_OSPI_VERSAL
 	bool "Configure Versal OSPI"
-	depends on ARCH_VERSAL && CADENCE_QSPI
+	depends on (ARCH_VERSAL || ARCH_VERSAL_NET) && CADENCE_QSPI
 	imply DM_GPIO
 	help
 	  This option is used to enable Versal OSPI DMA operations which
@@ -276,6 +286,14 @@ config MTK_SNFI_SPI
 	  used to access SPI memory devices like SPI-NOR or SPI-NAND on
 	  platforms embedding this IP core, like MT7622/M7629.
 
+config MTK_SPIM
+	bool "Mediatek SPI-MEM master controller driver"
+	depends on SPI_MEM
+	help
+	  Enable MediaTek SPI-MEM master controller driver. This driver mainly
+	  supports SPI flashes. You can use single, dual or quad mode
+	  transmission on this controller.
+
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
 	select CLK_ARMADA_3720
@@ -400,6 +418,14 @@ config SANDBOX_SPI
 			sandbox,filename = "spi.bin";
 		};
 	  };
+
+config SPI_ASPEED_SMC
+	bool "ASPEED SPI flash controller driver"
+	depends on DM_SPI && SPI_MEM
+	default n
+	help
+	  Enable ASPEED SPI flash controller driver for AST2500
+	  and AST2600 SoCs.
 
 config SPI_SIFIVE
 	bool "SiFive SPI driver"

@@ -58,16 +58,22 @@
 #endif
 
 /*
- * We only support cores that support at least Thumb-1 and thus we use
- * 'bx lr'
+ * Use 'bx lr' everywhere except ARMv4 (without 'T') where only 'mov pc, lr'
+ * works
  */
 	.irp	c,,eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,hs,lo
 	.macro	ret\c, reg
+
+	/* ARMv4- don't know bx lr but the assembler fails to see that */
+#ifdef __ARM_ARCH_4__
+	mov\c	pc, \reg
+#else
 	.ifeqs	"\reg", "lr"
 	bx\c	\reg
 	.else
 	mov\c	pc, \reg
 	.endif
+#endif
 	.endm
 	.endr
 

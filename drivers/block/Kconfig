@@ -1,7 +1,8 @@
 config BLK
-	bool "Support block devices"
+	bool # "Support block devices"
 	depends on DM
-	default y if DM_MMC || DM_USB
+	default y if MMC || USB || SCSI || NVME || IDE || AHCI || SATA
+	default y if EFI_MEDIA || VIRTIO_BLK || PVBLOCK
 	help
 	  Enable support for block devices, such as SCSI, MMC and USB
 	  flash sticks. These provide a block-level interface which permits
@@ -10,10 +11,16 @@ config BLK
 	  be partitioned into several areas, called 'partitions' in U-Boot.
 	  A filesystem can be placed in each partition.
 
-config HAVE_BLOCK_DEVICE
-	bool "Enable Legacy Block Device"
+config SPL_LEGACY_BLOCK
+	bool # "Enable Legacy Block Device"
+	depends on SPL && !DM_SPL
+	default y if SPL_MMC || SPL_USB_STORAGE || SCSI || NVME || IDE
+	default y if SPL_AHCI_PCI
 	help
-	  Some devices require block support whether or not DM is enabled
+	  Some devices require block support whether or not DM is enabled. This
+	  is only supported in SPL. With this, the blk uclass is not used, but
+	  instead a legacy implementation of block devices is used, with all
+	  devices consisting of 'struct blk_desc' records.
 
 config SPL_BLK
 	bool "Support block devices in SPL"
@@ -108,7 +115,6 @@ endif  # EFI_MEDIA
 
 config IDE
 	bool "Support IDE controllers"
-	select HAVE_BLOCK_DEVICE
 	help
 	  Enables support for IDE (Integrated Drive Electronics) hard drives.
 	  This allows access to raw blocks and filesystems on an IDE drive
@@ -221,7 +227,6 @@ endif  # IDE
 
 config LBA48
 	bool "Enable LBA support for disks larger than 137GB"
-	depends on HAVE_BLOCK_DEVICE
 	help
 	  Set this to enable support for disks larger than 137GB.
 	  Also look at CONFIG_SYS_64BIT_LBA.  Without both of these, LBA48
@@ -230,7 +235,6 @@ config LBA48
 
 config SYS_64BIT_LBA
 	bool "Enable 64bit number of blocks on a block device"
-	depends on HAVE_BLOCK_DEVICE
 	help
 	  Make the block subsystem use 64bit sector addresses, rather than the
 	  default of 32bit.

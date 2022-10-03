@@ -62,7 +62,7 @@ static void ide_reset(void)
 	/* the reset signal shall be asserted for et least 25 us */
 	udelay(25);
 
-	WATCHDOG_RESET();
+	schedule();
 
 	/* de-assert RESET signal */
 	ide_set_reset(0);
@@ -525,8 +525,8 @@ static void ide_ident(struct blk_desc *dev_desc)
 {
 	unsigned char c;
 	hd_driveid_t iop;
-
 #ifdef CONFIG_ATAPI
+	bool is_atapi = false;
 	int retries = 0;
 #endif
 	int device;
@@ -537,7 +537,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 	/* Select device
 	 */
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
-	dev_desc->if_type = IF_TYPE_IDE;
+	dev_desc->uclass_id = UCLASS_IDE;
 #ifdef CONFIG_ATAPI
 
 	retries = 0;
@@ -550,7 +550,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 		    (ide_inb(device, ATA_CYL_LOW) == 0x14) &&
 		    (ide_inb(device, ATA_CYL_HIGH) == 0xEB)) {
 			/* ATAPI Signature found */
-			dev_desc->if_type = IF_TYPE_ATAPI;
+			is_atapi = true;
 			/*
 			 * Start Ident Command
 			 */
@@ -623,7 +623,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 		dev_desc->removable = 0;
 
 #ifdef CONFIG_ATAPI
-	if (dev_desc->if_type == IF_TYPE_ATAPI) {
+	if (is_atapi) {
 		atapi_inquiry(dev_desc);
 		return;
 	}
@@ -695,7 +695,7 @@ void ide_init(void)
 	unsigned char c;
 	int i, bus;
 
-	WATCHDOG_RESET();
+	schedule();
 
 	/* ATAPI Drives seems to need a proper IDE Reset */
 	ide_reset();
@@ -745,14 +745,14 @@ void ide_init(void)
 			puts("OK ");
 			ide_bus_ok[bus] = 1;
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	putc('\n');
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		ide_dev_desc[i].if_type = IF_TYPE_IDE;
+		ide_dev_desc[i].uclass_id = UCLASS_IDE;
 		ide_dev_desc[i].devnum = i;
 		ide_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
 		ide_dev_desc[i].blksz = 0;
@@ -775,7 +775,7 @@ void ide_init(void)
 		}
 #endif
 	}
-	WATCHDOG_RESET();
+	schedule();
 
 #ifdef CONFIG_BLK
 	struct udevice *dev;
@@ -1110,7 +1110,7 @@ static int ide_probe(struct udevice *udev)
 			if (!blksz)
 				continue;
 			ret = blk_create_devicef(udev, "ide_blk", name,
-						 IF_TYPE_IDE, i,
+						 UCLASS_IDE, i,
 						 blksz, size, &blk_dev);
 			if (ret)
 				return ret;
@@ -1143,8 +1143,8 @@ UCLASS_DRIVER(ide) = {
 };
 #else
 U_BOOT_LEGACY_BLK(ide) = {
-	.if_typename	= "ide",
-	.if_type	= IF_TYPE_IDE,
+	.uclass_idname	= "ide",
+	.uclass_id	= UCLASS_IDE,
 	.max_devs	= CONFIG_SYS_IDE_MAXDEVICE,
 	.desc		= ide_dev_desc,
 };

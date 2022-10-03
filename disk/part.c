@@ -54,13 +54,14 @@ static struct part_driver *part_driver_lookup_type(struct blk_desc *dev_desc)
 	return NULL;
 }
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	struct blk_desc *dev_desc;
 	int ret;
 
-	dev_desc = blk_get_devnum_by_typename(ifname, dev);
+	if (!blk_enabled())
+		return NULL;
+	dev_desc = blk_get_devnum_by_uclass_idname(ifname, dev);
 	if (!dev_desc) {
 		debug("%s: No device for iface '%s', dev %d\n", __func__,
 		      ifname, dev);
@@ -78,21 +79,11 @@ static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 
 struct blk_desc *blk_get_dev(const char *ifname, int dev)
 {
+	if (!blk_enabled())
+		return NULL;
+
 	return get_dev_hwpart(ifname, dev, 0);
 }
-#else
-struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
-{
-	return NULL;
-}
-
-struct blk_desc *blk_get_dev(const char *ifname, int dev)
-{
-	return NULL;
-}
-#endif
-
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -120,7 +111,7 @@ static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by,
 	return bc_quot * mul_by + ((bc_rem * mul_by) >> right_shift);
 }
 
-void dev_print (struct blk_desc *dev_desc)
+void dev_print(struct blk_desc *dev_desc)
 {
 	lba512_t lba512; /* number of blocks if 512bytes block size */
 
@@ -129,44 +120,42 @@ void dev_print (struct blk_desc *dev_desc)
 		return;
 	}
 
-	switch (dev_desc->if_type) {
-	case IF_TYPE_SCSI:
+	switch (dev_desc->uclass_id) {
+	case UCLASS_SCSI:
 		printf ("(%d:%d) Vendor: %s Prod.: %s Rev: %s\n",
 			dev_desc->target,dev_desc->lun,
 			dev_desc->vendor,
 			dev_desc->product,
 			dev_desc->revision);
 		break;
-	case IF_TYPE_ATAPI:
-	case IF_TYPE_IDE:
-	case IF_TYPE_SATA:
+	case UCLASS_IDE:
+	case UCLASS_AHCI:
 		printf ("Model: %s Firm: %s Ser#: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
 			dev_desc->product);
 		break;
-	case IF_TYPE_SD:
-	case IF_TYPE_MMC:
-	case IF_TYPE_USB:
-	case IF_TYPE_NVME:
-	case IF_TYPE_PVBLOCK:
-	case IF_TYPE_HOST:
+	case UCLASS_MMC:
+	case UCLASS_USB:
+	case UCLASS_NVME:
+	case UCLASS_PVBLOCK:
+	case UCLASS_ROOT:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
 			dev_desc->product);
 		break;
-	case IF_TYPE_VIRTIO:
+	case UCLASS_VIRTIO:
 		printf("%s VirtIO Block Device\n", dev_desc->vendor);
 		break;
-	case IF_TYPE_DOC:
-		puts("device type DOC\n");
-		return;
-	case IF_TYPE_UNKNOWN:
+	case UCLASS_EFI_MEDIA:
+		printf("EFI media Block Device %d\n", dev_desc->devnum);
+		break;
+	case UCLASS_INVALID:
 		puts("device type unknown\n");
 		return;
 	default:
-		printf("Unhandled device type: %i\n", dev_desc->if_type);
+		printf("Unhandled device type: %i\n", dev_desc->uclass_id);
 		return;
 	}
 	puts ("            Type: ");
@@ -228,9 +217,6 @@ void dev_print (struct blk_desc *dev_desc)
 		puts ("            Capacity: not available\n");
 	}
 }
-#endif
-
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 void part_init(struct blk_desc *dev_desc)
 {
@@ -239,7 +225,7 @@ void part_init(struct blk_desc *dev_desc)
 	const int n_ents = ll_entry_count(struct part_driver, part_driver);
 	struct part_driver *entry;
 
-	blkcache_invalidate(dev_desc->if_type, dev_desc->devnum);
+	blkcache_invalidate(dev_desc->uclass_id, dev_desc->devnum);
 
 	dev_desc->part_type = PART_TYPE_UNKNOWN;
 	for (entry = drv; entry != drv + n_ents; entry++) {
@@ -262,41 +248,35 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 	CONFIG_IS_ENABLED(AMIGA_PARTITION) || \
 	CONFIG_IS_ENABLED(EFI_PARTITION)
 	puts ("\nPartition Map for ");
-	switch (dev_desc->if_type) {
-	case IF_TYPE_IDE:
+	switch (dev_desc->uclass_id) {
+	case UCLASS_IDE:
 		puts ("IDE");
 		break;
-	case IF_TYPE_SATA:
+	case UCLASS_AHCI:
 		puts ("SATA");
 		break;
-	case IF_TYPE_SCSI:
+	case UCLASS_SCSI:
 		puts ("SCSI");
 		break;
-	case IF_TYPE_ATAPI:
-		puts ("ATAPI");
-		break;
-	case IF_TYPE_USB:
+	case UCLASS_USB:
 		puts ("USB");
 		break;
-	case IF_TYPE_DOC:
-		puts ("DOC");
-		break;
-	case IF_TYPE_MMC:
+	case UCLASS_MMC:
 		puts ("MMC");
 		break;
-	case IF_TYPE_HOST:
+	case UCLASS_ROOT:
 		puts ("HOST");
 		break;
-	case IF_TYPE_NVME:
+	case UCLASS_NVME:
 		puts ("NVMe");
 		break;
-	case IF_TYPE_PVBLOCK:
+	case UCLASS_PVBLOCK:
 		puts("PV BLOCK");
 		break;
-	case IF_TYPE_VIRTIO:
+	case UCLASS_VIRTIO:
 		puts("VirtIO");
 		break;
-	case IF_TYPE_EFI_MEDIA:
+	case UCLASS_EFI_MEDIA:
 		puts("EFI");
 		break;
 	default:
@@ -325,38 +305,36 @@ void part_print(struct blk_desc *dev_desc)
 		drv->print(dev_desc);
 }
 
-#endif /* CONFIG_HAVE_BLOCK_DEVICE */
-
 int part_get_info(struct blk_desc *dev_desc, int part,
 		       struct disk_partition *info)
 {
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
 	struct part_driver *drv;
 
+	if (blk_enabled()) {
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-	/* The common case is no UUID support */
-	info->uuid[0] = 0;
+		/* The common case is no UUID support */
+		info->uuid[0] = 0;
 #endif
 #ifdef CONFIG_PARTITION_TYPE_GUID
-	info->type_guid[0] = 0;
+		info->type_guid[0] = 0;
 #endif
 
-	drv = part_driver_lookup_type(dev_desc);
-	if (!drv) {
-		debug("## Unknown partition table type %x\n",
-		      dev_desc->part_type);
-		return -EPROTONOSUPPORT;
+		drv = part_driver_lookup_type(dev_desc);
+		if (!drv) {
+			debug("## Unknown partition table type %x\n",
+			      dev_desc->part_type);
+			return -EPROTONOSUPPORT;
+		}
+		if (!drv->get_info) {
+			PRINTF("## Driver %s does not have the get_info() method\n",
+			       drv->name);
+			return -ENOSYS;
+		}
+		if (drv->get_info(dev_desc, part, info) == 0) {
+			PRINTF("## Valid %s partition found ##\n", drv->name);
+			return 0;
+		}
 	}
-	if (!drv->get_info) {
-		PRINTF("## Driver %s does not have the get_info() method\n",
-		       drv->name);
-		return -ENOSYS;
-	}
-	if (drv->get_info(dev_desc, part, info) == 0) {
-		PRINTF("## Valid %s partition found ##\n", drv->name);
-		return 0;
-	}
-#endif /* CONFIG_HAVE_BLOCK_DEVICE */
 
 	return -ENOENT;
 }
@@ -424,15 +402,15 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 		goto cleanup;
 	}
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
-	/*
-	 * Updates the partition table for the specified hw partition.
-	 * Always should be done, otherwise hw partition 0 will return stale
-	 * data after displaying a non-zero hw partition.
-	 */
-	if ((*dev_desc)->if_type == IF_TYPE_MMC)
-		part_init(*dev_desc);
-#endif
+	if (blk_enabled()) {
+		/*
+		 * Updates the partition table for the specified hw partition.
+		 * Always should be done, otherwise hw partition 0 will return
+		 * stale data after displaying a non-zero hw partition.
+		 */
+		if ((*dev_desc)->uclass_id == UCLASS_MMC)
+			part_init(*dev_desc);
+	}
 
 cleanup:
 	free(dup_str);
@@ -784,23 +762,18 @@ void part_set_generic_name(const struct blk_desc *dev_desc,
 {
 	char *devtype;
 
-	switch (dev_desc->if_type) {
-	case IF_TYPE_IDE:
-	case IF_TYPE_SATA:
-	case IF_TYPE_ATAPI:
+	switch (dev_desc->uclass_id) {
+	case UCLASS_IDE:
+	case UCLASS_AHCI:
 		devtype = "hd";
 		break;
-	case IF_TYPE_SCSI:
+	case UCLASS_SCSI:
 		devtype = "sd";
 		break;
-	case IF_TYPE_USB:
+	case UCLASS_USB:
 		devtype = "usbd";
 		break;
-	case IF_TYPE_DOC:
-		devtype = "docd";
-		break;
-	case IF_TYPE_MMC:
-	case IF_TYPE_SD:
+	case UCLASS_MMC:
 		devtype = "mmcsd";
 		break;
 	default:

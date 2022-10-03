@@ -322,7 +322,7 @@ void stm32prog_header_check(uintptr_t raw_header, struct image_header_s *header)
 	header->image_length = 0x0;
 }
 
-static u32 stm32prog_header_checksum(u32 addr, struct image_header_s *header)
+static u32 stm32prog_header_checksum(uintptr_t addr, struct image_header_s *header)
 {
 	u32 i, checksum;
 	u8 *payload;
@@ -398,7 +398,7 @@ static int parse_name(struct stm32prog_data *data,
 	if (strlen(p) < sizeof(part->name)) {
 		strcpy(part->name, p);
 	} else {
-		stm32prog_err("Layout line %d: partition name too long [%d]: %s",
+		stm32prog_err("Layout line %d: partition name too long [%zd]: %s",
 			      i, strlen(p), p);
 		result = -EINVAL;
 	}
@@ -537,7 +537,7 @@ int (* const parse[COL_NB_STM32])(struct stm32prog_data *data, int i, char *p,
 };
 
 static int parse_flash_layout(struct stm32prog_data *data,
-			      ulong addr,
+			      uintptr_t addr,
 			      ulong size)
 {
 	int column = 0, part_nb = 0, ret;
@@ -1090,7 +1090,6 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 	if (!buf)
 		return -ENOMEM;
 
-	puts("partitions : ");
 	/* initialize the selected device */
 	for (i = 0; i < data->dev_nb; i++) {
 		/* create gpt partition support only for full update on MMC */
@@ -1098,6 +1097,7 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 		    !data->dev[i].full_update)
 			continue;
 
+		printf("partitions on mmc%d: ", data->dev[i].dev_id);
 		offset = 0;
 		rootfs_found = false;
 		memset(buf, 0, buflen);
@@ -1197,8 +1197,8 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 		sprintf(buf, "part list mmc %d", data->dev[i].dev_id);
 		run_command(buf, 0);
 #endif
+		puts("done\n");
 	}
-	puts("done\n");
 
 #ifdef DEBUG
 	run_command("mtd list", 0);
@@ -1342,10 +1342,22 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	struct stm32prog_part_t *part;
 	struct dfu_entity *dfu;
 	int alt_nb;
+	u32 otp_size = 0;
 
 	alt_nb = 1; /* number of virtual = CMD*/
-	if (IS_ENABLED(CONFIG_CMD_STM32PROG_OTP))
-		alt_nb++; /* OTP*/
+
+	if (IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
+		/* OTP_SIZE_SMC = 0 if SMC is not supported */
+		otp_size = OTP_SIZE_SMC;
+		/* check if PTA BSEC is supported */
+		ret = optee_ta_open(data);
+		log_debug("optee_ta_open(PTA_NVMEM) result %d\n", ret);
+		if (!ret && data->tee)
+			otp_size = OTP_SIZE_TA;
+		if (otp_size)
+			alt_nb++; /* OTP*/
+	}
+
 	if (CONFIG_IS_ENABLED(DM_PMIC))
 		alt_nb++; /* PMIC NVMEM*/
 
@@ -1363,6 +1375,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	puts("DFU alt info setting: ");
 	if (data->part_nb) {
 		alt_id = 0;
+		ret = 0;
 		for (phase = 1;
 		     (phase <= PHASE_LAST_USER) &&
 		     (alt_id < alt_nb) && !ret;
@@ -1388,7 +1401,7 @@ static int dfu_init_entities(struct stm32prog_data *data)
 		char buf[ALT_BUF_LEN];
 
 		sprintf(buf, "@FlashLayout/0x%02x/1*256Ke ram %x 40000",
-			PHASE_FLASHLAYOUT, STM32_DDR_BASE);
+			PHASE_FLASHLAYOUT, CONFIG_SYS_LOAD_ADDR);
 		ret = dfu_alt_add(dfu, "ram", NULL, buf);
 		log_debug("dfu_alt_add(ram, NULL,%s) result %d\n", buf, ret);
 	}
@@ -1396,12 +1409,8 @@ static int dfu_init_entities(struct stm32prog_data *data)
 	if (!ret)
 		ret = stm32prog_alt_add_virt(dfu, "virtual", PHASE_CMD, CMD_SIZE);
 
-	if (!ret && IS_ENABLED(CONFIG_CMD_STM32PROG_OTP)) {
-		ret = optee_ta_open(data);
-		log_debug("optee_ta result %d\n", ret);
-		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP,
-					     data->tee ? OTP_SIZE_TA : OTP_SIZE_SMC);
-	}
+	if (!ret && IS_ENABLED(CONFIG_CMD_STM32PROG_OTP) && otp_size)
+		ret = stm32prog_alt_add_virt(dfu, "OTP", PHASE_OTP, otp_size);
 
 	if (!ret && CONFIG_IS_ENABLED(DM_PMIC))
 		ret = stm32prog_alt_add_virt(dfu, "PMIC", PHASE_PMIC, PMIC_SIZE);
@@ -1440,7 +1449,7 @@ int stm32prog_otp_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
 	if (offset + *size > otp_size)
 		*size = otp_size - offset;
 
-	memcpy((void *)((u32)data->otp_part + offset), buffer, *size);
+	memcpy((void *)((uintptr_t)data->otp_part + offset), buffer, *size);
 
 	return 0;
 }
@@ -1479,7 +1488,7 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 						 data->otp_part, OTP_SIZE_TA);
 		else if (IS_ENABLED(CONFIG_ARM_SMCCC))
 			result = stm32_smc_exec(STM32_SMC_BSEC, STM32_SMC_READ_ALL,
-						(u32)data->otp_part, 0);
+						(unsigned long)data->otp_part, 0);
 		if (result)
 			goto end_otp_read;
 	}
@@ -1491,7 +1500,7 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 
 	if (offset + *size > otp_size)
 		*size = otp_size - offset;
-	memcpy(buffer, (void *)((u32)data->otp_part + offset), *size);
+	memcpy(buffer, (void *)((uintptr_t)data->otp_part + offset), *size);
 
 end_otp_read:
 	log_debug("%s: result %i\n", __func__, result);
@@ -1521,7 +1530,7 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 					 data->otp_part, OTP_SIZE_TA);
 	} else if (IS_ENABLED(CONFIG_ARM_SMCCC)) {
 		arm_smccc_smc(STM32_SMC_BSEC, STM32_SMC_WRITE_ALL,
-			      (u32)data->otp_part, 0, 0, 0, 0, 0, &res);
+			      (uintptr_t)data->otp_part, 0, 0, 0, 0, 0, &res);
 
 		if (!res.a0) {
 			switch (res.a1) {
@@ -1699,15 +1708,15 @@ static void stm32prog_end_phase(struct stm32prog_data *data, u64 offset)
 {
 	if (data->phase == PHASE_FLASHLAYOUT) {
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
-		if (genimg_get_format((void *)STM32_DDR_BASE) == IMAGE_FORMAT_LEGACY) {
-			data->script = STM32_DDR_BASE;
+		if (genimg_get_format((void *)CONFIG_SYS_LOAD_ADDR) == IMAGE_FORMAT_LEGACY) {
+			data->script = CONFIG_SYS_LOAD_ADDR;
 			data->phase = PHASE_END;
 			log_notice("U-Boot script received\n");
 			return;
 		}
 #endif
 		log_notice("\nFlashLayout received, size = %lld\n", offset);
-		if (parse_flash_layout(data, STM32_DDR_BASE, offset))
+		if (parse_flash_layout(data, CONFIG_SYS_LOAD_ADDR, offset))
 			stm32prog_err("Layout: invalid FlashLayout");
 		return;
 	}
@@ -1823,7 +1832,7 @@ static int part_delete(struct stm32prog_data *data,
 		 * need to switch to associated hwpart 1 or 2
 		 */
 		if (part->part_id < 0)
-			if (blk_select_hwpart_devnum(IF_TYPE_MMC,
+			if (blk_select_hwpart_devnum(UCLASS_MMC,
 						     part->dev->dev_id,
 						     -part->part_id))
 				return -1;
@@ -1832,7 +1841,7 @@ static int part_delete(struct stm32prog_data *data,
 
 		/* return to user partition */
 		if (part->part_id < 0)
-			blk_select_hwpart_devnum(IF_TYPE_MMC,
+			blk_select_hwpart_devnum(UCLASS_MMC,
 						 part->dev->dev_id, 0);
 		if (blks != blks_size) {
 			ret = -1;
@@ -1883,6 +1892,10 @@ static void stm32prog_devices_init(struct stm32prog_data *data)
 	ret = treat_partition_list(data);
 	if (ret)
 		goto error;
+
+	/* empty flashlayout */
+	if (!data->dev_nb)
+		return;
 
 	/* initialize the selected device */
 	for (i = 0; i < data->dev_nb; i++) {
@@ -1947,7 +1960,7 @@ int stm32prog_dfu_init(struct stm32prog_data *data)
 	return dfu_init_entities(data);
 }
 
-int stm32prog_init(struct stm32prog_data *data, ulong addr, ulong size)
+int stm32prog_init(struct stm32prog_data *data, uintptr_t addr, ulong size)
 {
 	memset(data, 0x0, sizeof(*data));
 	data->read_phase = PHASE_RESET;

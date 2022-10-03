@@ -722,7 +722,7 @@ static int rx51_kp_getc(struct udevice *dev)
 {
 	keybuf_head %= KEYBUF_SIZE;
 	while (!rx51_kp_tstc(dev))
-		WATCHDOG_RESET();
+		schedule();
 	return keybuf[keybuf_head++];
 }
 

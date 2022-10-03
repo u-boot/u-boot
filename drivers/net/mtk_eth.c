@@ -65,95 +65,34 @@
 	(DP_DISCARD << MC_DP_S) | \
 	(DP_DISCARD << UN_DP_S))
 
-struct pdma_rxd_info1 {
-	u32 PDP0;
-};
-
-struct pdma_rxd_info2 {
-	u32 PLEN1 : 14;
-	u32 LS1 : 1;
-	u32 UN_USED : 1;
-	u32 PLEN0 : 14;
-	u32 LS0 : 1;
-	u32 DDONE : 1;
-};
-
-struct pdma_rxd_info3 {
-	u32 PDP1;
-};
-
-struct pdma_rxd_info4 {
-	u32 FOE_ENTRY : 14;
-	u32 CRSN : 5;
-	u32 SP : 3;
-	u32 L4F : 1;
-	u32 L4VLD : 1;
-	u32 TACK : 1;
-	u32 IP4F : 1;
-	u32 IP4 : 1;
-	u32 IP6 : 1;
-	u32 UN_USED : 4;
-};
-
-struct pdma_rxdesc {
-	struct pdma_rxd_info1 rxd_info1;
-	struct pdma_rxd_info2 rxd_info2;
-	struct pdma_rxd_info3 rxd_info3;
-	struct pdma_rxd_info4 rxd_info4;
-};
-
-struct pdma_txd_info1 {
-	u32 SDP0;
-};
-
-struct pdma_txd_info2 {
-	u32 SDL1 : 14;
-	u32 LS1 : 1;
-	u32 BURST : 1;
-	u32 SDL0 : 14;
-	u32 LS0 : 1;
-	u32 DDONE : 1;
-};
-
-struct pdma_txd_info3 {
-	u32 SDP1;
-};
-
-struct pdma_txd_info4 {
-	u32 VLAN_TAG : 16;
-	u32 INS : 1;
-	u32 RESV : 2;
-	u32 UDF : 6;
-	u32 FPORT : 3;
-	u32 TSO : 1;
-	u32 TUI_CO : 3;
-};
-
-struct pdma_txdesc {
-	struct pdma_txd_info1 txd_info1;
-	struct pdma_txd_info2 txd_info2;
-	struct pdma_txd_info3 txd_info3;
-	struct pdma_txd_info4 txd_info4;
-};
-
 enum mtk_switch {
 	SW_NONE,
 	SW_MT7530,
 	SW_MT7531
 };
 
-enum mtk_soc {
-	SOC_MT7623,
-	SOC_MT7629,
-	SOC_MT7622,
-	SOC_MT7621
+/* struct mtk_soc_data -	This is the structure holding all differences
+ *				among various plaforms
+ * @caps			Flags shown the extra capability for the SoC
+ * @ana_rgc3:			The offset for register ANA_RGC3 related to
+ *				sgmiisys syscon
+ * @pdma_base:			Register base of PDMA block
+ * @txd_size:			Tx DMA descriptor size.
+ * @rxd_size:			Rx DMA descriptor size.
+ */
+struct mtk_soc_data {
+	u32 caps;
+	u32 ana_rgc3;
+	u32 pdma_base;
+	u32 txd_size;
+	u32 rxd_size;
 };
 
 struct mtk_eth_priv {
 	char pkt_pool[TOTAL_PKT_BUF_SIZE] __aligned(ARCH_DMA_MINALIGN);
 
-	struct pdma_txdesc *tx_ring_noc;
-	struct pdma_rxdesc *rx_ring_noc;
+	void *tx_ring_noc;
+	void *rx_ring_noc;
 
 	int rx_dma_owner_idx0;
 	int tx_cpu_owner_idx0;
@@ -171,11 +110,12 @@ struct mtk_eth_priv {
 	int (*mmd_write)(struct mtk_eth_priv *priv, u8 addr, u8 devad, u16 reg,
 			 u16 val);
 
-	enum mtk_soc soc;
+	const struct mtk_soc_data *soc;
 	int gmac_id;
 	int force_mode;
 	int speed;
 	int duplex;
+	bool pn_swap;
 
 	struct phy_device *phydev;
 	int phy_interface;
@@ -195,13 +135,13 @@ struct mtk_eth_priv {
 
 static void mtk_pdma_write(struct mtk_eth_priv *priv, u32 reg, u32 val)
 {
-	writel(val, priv->fe_base + PDMA_BASE + reg);
+	writel(val, priv->fe_base + priv->soc->pdma_base + reg);
 }
 
 static void mtk_pdma_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
 			 u32 set)
 {
-	clrsetbits_le32(priv->fe_base + PDMA_BASE + reg, clr, set);
+	clrsetbits_le32(priv->fe_base + priv->soc->pdma_base + reg, clr, set);
 }
 
 static void mtk_gdma_write(struct mtk_eth_priv *priv, int no, u32 reg,
@@ -679,7 +619,7 @@ static int mt7530_setup(struct mtk_eth_priv *priv)
 	u32 val, txdrv;
 	int i;
 
-	if (priv->soc != SOC_MT7621) {
+	if (!MTK_HAS_CAPS(priv->soc->caps, MTK_TRGMII_MT7621_CLK)) {
 		/* Select 250MHz clk for RGMII mode */
 		mtk_ethsys_rmw(priv, ETHSYS_CLKCFG0_REG,
 			       ETHSYS_TRGMII_CLK_SEL362_5, 0);
@@ -1108,9 +1048,8 @@ static int mtk_phy_probe(struct udevice *dev)
 static void mtk_sgmii_init(struct mtk_eth_priv *priv)
 {
 	/* Set SGMII GEN2 speed(2.5G) */
-	clrsetbits_le32(priv->sgmii_base + ((priv->soc == SOC_MT7622) ?
-			SGMSYS_GEN2_SPEED : SGMSYS_GEN2_SPEED_V2),
-			SGMSYS_SPEED_2500, SGMSYS_SPEED_2500);
+	setbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
+		     SGMSYS_SPEED_2500);
 
 	/* Disable SGMII AN */
 	clrsetbits_le32(priv->sgmii_base + SGMSYS_PCS_CONTROL_1,
@@ -1118,6 +1057,12 @@ static void mtk_sgmii_init(struct mtk_eth_priv *priv)
 
 	/* SGMII force mode setting */
 	writel(SGMII_FORCE_MODE, priv->sgmii_base + SGMSYS_SGMII_MODE);
+
+	/* SGMII PN SWAP setting */
+	if (priv->pn_swap) {
+		setbits_le32(priv->sgmii_base + SGMSYS_QPHY_WRAP_CTRL,
+			     SGMII_PN_SWAP_TX_RX);
+	}
 
 	/* Release PHYA power down state */
 	clrsetbits_le32(priv->sgmii_base + SGMSYS_QPHY_PWR_STATE_CTRL,
@@ -1182,7 +1127,8 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		mtk_gmac_write(priv, GMAC_PORT_MCR(priv->gmac_id), mcr);
 	}
 
-	if (priv->soc == SOC_MT7623) {
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_GMAC1_TRGMII) &&
+	    !MTK_HAS_CAPS(priv->soc->caps, MTK_TRGMII_MT7621_CLK)) {
 		/* Lower Tx Driving for TRGMII path */
 		for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
 			mtk_gmac_write(priv, GMAC_TRGMII_TD_ODT(i),
@@ -1198,14 +1144,16 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 {
 	char *pkt_base = priv->pkt_pool;
+	struct mtk_tx_dma_v2 *txd;
+	struct mtk_rx_dma_v2 *rxd;
 	int i;
 
 	mtk_pdma_rmw(priv, PDMA_GLO_CFG_REG, 0xffff0000, 0);
 	udelay(500);
 
-	memset(priv->tx_ring_noc, 0, NUM_TX_DESC * sizeof(struct pdma_txdesc));
-	memset(priv->rx_ring_noc, 0, NUM_RX_DESC * sizeof(struct pdma_rxdesc));
-	memset(priv->pkt_pool, 0, TOTAL_PKT_BUF_SIZE);
+	memset(priv->tx_ring_noc, 0, NUM_TX_DESC * priv->soc->txd_size);
+	memset(priv->rx_ring_noc, 0, NUM_RX_DESC * priv->soc->rxd_size);
+	memset(priv->pkt_pool, 0xff, TOTAL_PKT_BUF_SIZE);
 
 	flush_dcache_range((ulong)pkt_base,
 			   (ulong)(pkt_base + TOTAL_PKT_BUF_SIZE));
@@ -1214,17 +1162,29 @@ static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 	priv->tx_cpu_owner_idx0 = 0;
 
 	for (i = 0; i < NUM_TX_DESC; i++) {
-		priv->tx_ring_noc[i].txd_info2.LS0 = 1;
-		priv->tx_ring_noc[i].txd_info2.DDONE = 1;
-		priv->tx_ring_noc[i].txd_info4.FPORT = priv->gmac_id + 1;
+		txd = priv->tx_ring_noc + i * priv->soc->txd_size;
 
-		priv->tx_ring_noc[i].txd_info1.SDP0 = virt_to_phys(pkt_base);
+		txd->txd1 = virt_to_phys(pkt_base);
+		txd->txd2 = PDMA_TXD2_DDONE | PDMA_TXD2_LS0;
+
+		if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+			txd->txd5 = PDMA_V2_TXD5_FPORT_SET(priv->gmac_id + 1);
+		else
+			txd->txd4 = PDMA_V1_TXD4_FPORT_SET(priv->gmac_id + 1);
+
 		pkt_base += PKTSIZE_ALIGN;
 	}
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
-		priv->rx_ring_noc[i].rxd_info2.PLEN0 = PKTSIZE_ALIGN;
-		priv->rx_ring_noc[i].rxd_info1.PDP0 = virt_to_phys(pkt_base);
+		rxd = priv->rx_ring_noc + i * priv->soc->rxd_size;
+
+		rxd->rxd1 = virt_to_phys(pkt_base);
+
+		if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+			rxd->rxd2 = PDMA_V2_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
+		else
+			rxd->rxd2 = PDMA_V1_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
+
 		pkt_base += PKTSIZE_ALIGN;
 	}
 
@@ -1251,6 +1211,9 @@ static int mtk_eth_start(struct udevice *dev)
 	udelay(1000);
 	reset_deassert(&priv->rst_fe);
 	mdelay(10);
+
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		setbits_le32(priv->fe_base + FE_GLO_MISC_REG, PDMA_VER_V2);
 
 	/* Packets forward to PDMA */
 	mtk_gdma_write(priv, priv->gmac_id, GDMA_IG_CTRL_REG, GDMA_FWD_TO_CPU);
@@ -1286,7 +1249,7 @@ static void mtk_eth_stop(struct udevice *dev)
 		     TX_WB_DDONE | RX_DMA_EN | TX_DMA_EN, 0);
 	udelay(500);
 
-	wait_for_bit_le32(priv->fe_base + PDMA_BASE + PDMA_GLO_CFG_REG,
+	wait_for_bit_le32(priv->fe_base + priv->soc->pdma_base + PDMA_GLO_CFG_REG,
 			  RX_DMA_BUSY | TX_DMA_BUSY, 0, 5000, 0);
 }
 
@@ -1311,20 +1274,25 @@ static int mtk_eth_send(struct udevice *dev, void *packet, int length)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	u32 idx = priv->tx_cpu_owner_idx0;
+	struct mtk_tx_dma_v2 *txd;
 	void *pkt_base;
 
-	if (!priv->tx_ring_noc[idx].txd_info2.DDONE) {
+	txd = priv->tx_ring_noc + idx * priv->soc->txd_size;
+
+	if (!(txd->txd2 & PDMA_TXD2_DDONE)) {
 		debug("mtk-eth: TX DMA descriptor ring is full\n");
 		return -EPERM;
 	}
 
-	pkt_base = (void *)phys_to_virt(priv->tx_ring_noc[idx].txd_info1.SDP0);
+	pkt_base = (void *)phys_to_virt(txd->txd1);
 	memcpy(pkt_base, packet, length);
 	flush_dcache_range((ulong)pkt_base, (ulong)pkt_base +
 			   roundup(length, ARCH_DMA_MINALIGN));
 
-	priv->tx_ring_noc[idx].txd_info2.SDL0 = length;
-	priv->tx_ring_noc[idx].txd_info2.DDONE = 0;
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		txd->txd2 = PDMA_TXD2_LS0 | PDMA_V2_TXD2_SDL0_SET(length);
+	else
+		txd->txd2 = PDMA_TXD2_LS0 | PDMA_V1_TXD2_SDL0_SET(length);
 
 	priv->tx_cpu_owner_idx0 = (priv->tx_cpu_owner_idx0 + 1) % NUM_TX_DESC;
 	mtk_pdma_write(priv, TX_CTX_IDX_REG(0), priv->tx_cpu_owner_idx0);
@@ -1336,16 +1304,23 @@ static int mtk_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	u32 idx = priv->rx_dma_owner_idx0;
+	struct mtk_rx_dma_v2 *rxd;
 	uchar *pkt_base;
 	u32 length;
 
-	if (!priv->rx_ring_noc[idx].rxd_info2.DDONE) {
+	rxd = priv->rx_ring_noc + idx * priv->soc->rxd_size;
+
+	if (!(rxd->rxd2 & PDMA_RXD2_DDONE)) {
 		debug("mtk-eth: RX DMA descriptor ring is empty\n");
 		return -EAGAIN;
 	}
 
-	length = priv->rx_ring_noc[idx].rxd_info2.PLEN0;
-	pkt_base = (void *)phys_to_virt(priv->rx_ring_noc[idx].rxd_info1.PDP0);
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		length = PDMA_V2_RXD2_PLEN0_GET(rxd->rxd2);
+	else
+		length = PDMA_V1_RXD2_PLEN0_GET(rxd->rxd2);
+
+	pkt_base = (void *)phys_to_virt(rxd->rxd1);
 	invalidate_dcache_range((ulong)pkt_base, (ulong)pkt_base +
 				roundup(length, ARCH_DMA_MINALIGN));
 
@@ -1359,10 +1334,14 @@ static int mtk_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
 	u32 idx = priv->rx_dma_owner_idx0;
+	struct mtk_rx_dma_v2 *rxd;
 
-	priv->rx_ring_noc[idx].rxd_info2.DDONE = 0;
-	priv->rx_ring_noc[idx].rxd_info2.LS0 = 0;
-	priv->rx_ring_noc[idx].rxd_info2.PLEN0 = PKTSIZE_ALIGN;
+	rxd = priv->rx_ring_noc + idx * priv->soc->rxd_size;
+
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2))
+		rxd->rxd2 = PDMA_V2_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
+	else
+		rxd->rxd2 = PDMA_V1_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
 
 	mtk_pdma_write(priv, RX_CRX_IDX_REG(0), idx);
 	priv->rx_dma_owner_idx0 = (priv->rx_dma_owner_idx0 + 1) % NUM_RX_DESC;
@@ -1389,11 +1368,11 @@ static int mtk_eth_probe(struct udevice *dev)
 		return ret;
 
 	/* Prepare for tx/rx rings */
-	priv->tx_ring_noc = (struct pdma_txdesc *)
-		noncached_alloc(sizeof(struct pdma_txdesc) * NUM_TX_DESC,
+	priv->tx_ring_noc = (void *)
+		noncached_alloc(priv->soc->txd_size * NUM_TX_DESC,
 				ARCH_DMA_MINALIGN);
-	priv->rx_ring_noc = (struct pdma_rxdesc *)
-		noncached_alloc(sizeof(struct pdma_rxdesc) * NUM_RX_DESC,
+	priv->rx_ring_noc = (void *)
+		noncached_alloc(priv->soc->rxd_size * NUM_RX_DESC,
 				ARCH_DMA_MINALIGN);
 
 	/* Set MAC mode */
@@ -1431,7 +1410,11 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	ofnode subnode;
 	int ret;
 
-	priv->soc = dev_get_driver_data(dev);
+	priv->soc = (const struct mtk_soc_data *)dev_get_driver_data(dev);
+	if (!priv->soc) {
+		dev_err(dev, "missing soc compatible data\n");
+		return -EINVAL;
+	}
 
 	pdata->iobase = (phys_addr_t)dev_remap_addr(dev);
 
@@ -1494,6 +1477,8 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 			dev_err(dev, "Unable to find sgmii\n");
 			return -ENODEV;
 		}
+
+		priv->pn_swap = ofnode_read_bool(args.node, "pn_swap");
 	}
 
 	/* check for switch first, otherwise phy will be used */
@@ -1544,11 +1529,57 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static const struct mtk_soc_data mt7986_data = {
+	.caps = MT7986_CAPS,
+	.ana_rgc3 = 0x128,
+	.pdma_base = PDMA_V2_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma_v2),
+	.rxd_size = sizeof(struct mtk_rx_dma_v2),
+};
+
+static const struct mtk_soc_data mt7981_data = {
+	.caps = MT7986_CAPS,
+	.ana_rgc3 = 0x128,
+	.pdma_base = PDMA_V2_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma_v2),
+	.rxd_size = sizeof(struct mtk_rx_dma_v2),
+};
+
+static const struct mtk_soc_data mt7629_data = {
+	.ana_rgc3 = 0x128,
+	.pdma_base = PDMA_V1_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma),
+	.rxd_size = sizeof(struct mtk_rx_dma),
+};
+
+static const struct mtk_soc_data mt7623_data = {
+	.caps = MT7623_CAPS,
+	.pdma_base = PDMA_V1_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma),
+	.rxd_size = sizeof(struct mtk_rx_dma),
+};
+
+static const struct mtk_soc_data mt7622_data = {
+	.ana_rgc3 = 0x2028,
+	.pdma_base = PDMA_V1_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma),
+	.rxd_size = sizeof(struct mtk_rx_dma),
+};
+
+static const struct mtk_soc_data mt7621_data = {
+	.caps = MT7621_CAPS,
+	.pdma_base = PDMA_V1_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma),
+	.rxd_size = sizeof(struct mtk_rx_dma),
+};
+
 static const struct udevice_id mtk_eth_ids[] = {
-	{ .compatible = "mediatek,mt7629-eth", .data = SOC_MT7629 },
-	{ .compatible = "mediatek,mt7623-eth", .data = SOC_MT7623 },
-	{ .compatible = "mediatek,mt7622-eth", .data = SOC_MT7622 },
-	{ .compatible = "mediatek,mt7621-eth", .data = SOC_MT7621 },
+	{ .compatible = "mediatek,mt7986-eth", .data = (ulong)&mt7986_data },
+	{ .compatible = "mediatek,mt7981-eth", .data = (ulong)&mt7981_data },
+	{ .compatible = "mediatek,mt7629-eth", .data = (ulong)&mt7629_data },
+	{ .compatible = "mediatek,mt7623-eth", .data = (ulong)&mt7623_data },
+	{ .compatible = "mediatek,mt7622-eth", .data = (ulong)&mt7622_data },
+	{ .compatible = "mediatek,mt7621-eth", .data = (ulong)&mt7621_data },
 	{}
 };
 

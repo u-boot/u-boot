@@ -146,7 +146,6 @@ config SANDBOX
 	select DM_SPI
 	select DM_SPI_FLASH
 	select GZIP_COMPRESSED
-	select HAVE_BLOCK_DEVICE
 	select LZO
 	select OF_BOARD_SETUP
 	select PCI_ENDPOINT
@@ -167,7 +166,6 @@ config SANDBOX
 	imply CMD_IO
 	imply CMD_IOTRACE
 	imply CMD_LZMADEC
-	imply CMD_SATA
 	imply CMD_SF
 	imply CMD_SF_TEST
 	imply CRC32_VERIFY

@@ -116,6 +116,11 @@ int __weak bootz_setup(ulong image, ulong *start, ulong *end)
 {
 	 return 1;
 }
+
+int __weak booti_setup(ulong image, ulong *relocated_addr, ulong *size, bool force_reloc)
+{
+	 return 1;
+}
 #endif
 
 /* Weak default function for arch/board-specific fixups to the spl_image_info */
@@ -222,7 +227,7 @@ __weak void spl_board_prepare_for_boot(void)
 	/* Nothing to do! */
 }
 
-__weak struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
+__weak struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
 	return map_sysmem(CONFIG_SYS_TEXT_BASE + offset, 0);
 }
@@ -253,9 +258,9 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 #if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 /* Parse and load full fitImage in SPL */
 static int spl_load_fit_image(struct spl_image_info *spl_image,
-			      const struct image_header *header)
+			      const struct legacy_img_hdr *header)
 {
-	bootm_headers_t images;
+	struct bootm_headers images;
 	const char *fit_uname_config = NULL;
 	uintptr_t fdt_hack;
 	const char *uname;
@@ -354,7 +359,7 @@ __weak int spl_parse_board_header(struct spl_image_info *spl_image,
 }
 
 __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
-				   const struct image_header *header)
+				   const struct legacy_img_hdr *header)
 {
 	/* LEGACY image not supported */
 	debug("Legacy boot image support not enabled, proceeding to other boot methods\n");
@@ -363,7 +368,7 @@ __weak int spl_parse_legacy_header(struct spl_image_info *spl_image,
 
 int spl_parse_image_header(struct spl_image_info *spl_image,
 			   const struct spl_boot_device *bootdev,
-			   const struct image_header *header)
+			   const struct legacy_img_hdr *header)
 {
 #if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 	int ret = spl_load_fit_image(spl_image, header);
@@ -391,6 +396,21 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 #endif
 
 #if CONFIG_IS_ENABLED(OS_BOOT)
+#if defined(CMD_BOOTI)
+		ulong start, size;
+
+		if (!booti_setup((ulong)header, &start, &size, 0)) {
+			spl_image->name = "Linux";
+			spl_image->os = IH_OS_LINUX;
+			spl_image->load_addr = start;
+			spl_image->entry_point = start;
+			spl_image->size = size;
+			debug(SPL_TPL_PROMPT
+			      "payload Image, load addr: 0x%lx size: %d\n",
+			      spl_image->load_addr, spl_image->size);
+			return 0;
+		}
+#elif defined(CMD_BOOTZ)
 		ulong start, end;
 
 		if (!bootz_setup((ulong)header, &start, &end)) {
@@ -404,6 +424,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			      spl_image->load_addr, spl_image->size);
 			return 0;
 		}
+#endif
 #endif
 
 		if (!spl_parse_board_header(spl_image, bootdev, (const void *)header, sizeof(*header)))

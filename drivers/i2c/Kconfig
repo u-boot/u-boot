@@ -261,6 +261,15 @@ config SYS_I2C_MESON
 	  internal buffer holding up to 8 bytes for transfers and supports
 	  both 7-bit and 10-bit addresses.
 
+config SYS_I2C_MTK
+	bool "MediaTek I2C driver"
+	help
+	  This selects the MediaTek Integrated Inter Circuit bus driver.
+	  The I2C bus adapter is the base for some other I2C client,
+	  eg: touch, sensors.
+	  If you want to use MediaTek I2C interface, say Y here.
+	  If unsure, say N.
+
 config SYS_I2C_MICROCHIP
 	bool "Microchip I2C driver"
 	help

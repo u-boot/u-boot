@@ -16,8 +16,15 @@
 #include <vsprintf.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <display_options.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+void bdinfo_print_size(const char *name, uint64_t size)
+{
+	printf("%-12s= ", name);
+	print_size(size, "\n");
+}
 
 void bdinfo_print_num_l(const char *name, ulong value)
 {
@@ -123,7 +130,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	bdinfo_print_num_l("multi_dtb_fit", (ulong)gd->multi_dtb_fit);
 #endif
-	if (gd->fdt_blob) {
+	if (IS_ENABLED(CONFIG_LMB) && gd->fdt_blob) {
 		struct lmb lmb;
 
 		lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);

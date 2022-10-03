@@ -383,7 +383,7 @@ static int fpgamgr_program_poll_cd(void)
 			printf("nstatus == 0 while waiting for condone\n");
 			return -EPERM;
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	if (i == FPGA_TIMEOUT_CNT)
@@ -534,7 +534,7 @@ static void get_rbf_image_info(struct rbf_info *rbf, u16 *buffer)
 		rbf->section = unknown;
 		break;
 
-		WATCHDOG_RESET();
+		schedule();
 	}
 }
 
@@ -555,14 +555,14 @@ static int first_loading_rbf_to_buffer(struct udevice *dev,
 	/* Load image header into buffer */
 	ret = request_firmware_into_buf(dev,
 					fpga_loadfs->fpga_fsinfo->filename,
-					buffer_p, sizeof(struct image_header),
+					buffer_p, sizeof(struct legacy_img_hdr),
 					0);
 	if (ret < 0) {
 		debug("FPGA: Failed to read image header from flash.\n");
 		return -ENOENT;
 	}
 
-	if (image_get_magic((struct image_header *)buffer_p) != FDT_MAGIC) {
+	if (image_get_magic((struct legacy_img_hdr *)buffer_p) != FDT_MAGIC) {
 		debug("FPGA: No FDT magic was found.\n");
 		return -EBADF;
 	}
@@ -635,7 +635,7 @@ static int first_loading_rbf_to_buffer(struct udevice *dev,
 				break;
 			}
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	if (!fpga_node_name) {
@@ -879,7 +879,7 @@ int socfpga_loadfs(fpga_fs_info *fpga_fsinfo, const void *buf, size_t bsize,
 
 		total_sizeof_image += buffer_sizebytes_ori;
 
-		WATCHDOG_RESET();
+		schedule();
 	}
 	wait_for_fifo_empty();
 

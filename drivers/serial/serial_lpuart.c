@@ -169,7 +169,7 @@ static int _lpuart_serial_getc(struct lpuart_serial_plat *plat)
 {
 	struct lpuart_fsl *base = plat->reg;
 	while (!(__raw_readb(&base->us1) & (US1_RDRF | US1_OR)))
-		WATCHDOG_RESET();
+		schedule();
 
 	barrier();
 
@@ -182,7 +182,7 @@ static void _lpuart_serial_putc(struct lpuart_serial_plat *plat,
 	struct lpuart_fsl *base = plat->reg;
 
 	while (!(__raw_readb(&base->us1) & US1_TDRE))
-		WATCHDOG_RESET();
+		schedule();
 
 	__raw_writeb(c, &base->ud);
 }
@@ -330,7 +330,7 @@ static int _lpuart32_serial_getc(struct lpuart_serial_plat *plat)
 	lpuart_read32(plat->flags, &base->stat, &stat);
 	while ((stat & STAT_RDRF) == 0) {
 		lpuart_write32(plat->flags, &base->stat, STAT_FLAGS);
-		WATCHDOG_RESET();
+		schedule();
 		lpuart_read32(plat->flags, &base->stat, &stat);
 	}
 
@@ -358,7 +358,7 @@ static void _lpuart32_serial_putc(struct lpuart_serial_plat *plat,
 		if ((stat & STAT_TDRE))
 			break;
 
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	lpuart_write32(plat->flags, &base->data, c);

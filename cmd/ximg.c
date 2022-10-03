@@ -42,7 +42,7 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	int		part = 0;
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	ulong		count;
-	image_header_t	*hdr = NULL;
+	struct legacy_img_hdr	*hdr = NULL;
 #endif
 #if defined(CONFIG_FIT)
 	const char	*uname = NULL;
@@ -78,7 +78,7 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		printf("## Copying part %d from legacy image "
 			"at %08lx ...\n", part, addr);
 
-		hdr = (image_header_t *)addr;
+		hdr = (struct legacy_img_hdr *)addr;
 		if (!image_check_magic(hdr)) {
 			printf("Bad Magic Number\n");
 			return 1;
@@ -197,7 +197,7 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 				while (l > 0) {
 					tail = (l > CHUNKSZ) ? CHUNKSZ : l;
-					WATCHDOG_RESET();
+					schedule();
 					memmove(to, from, tail);
 					to += tail;
 					from += tail;

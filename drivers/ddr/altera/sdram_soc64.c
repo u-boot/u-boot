@@ -161,7 +161,7 @@ void sdram_init_ecc_bits(struct bd_info *bd)
 			sdram_clear_mem(start_addr, size_init);
 			size -= size_init;
 			start_addr += size_init;
-			WATCHDOG_RESET();
+			schedule();
 		}
 
 		bank++;

@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <ansi.h>
 #include <common.h>
 #include <charset.h>
 #include <malloc.h>
@@ -1322,4 +1323,73 @@ efi_status_t efi_console_register(void)
 out_of_memory:
 	printf("ERROR: Out of memory\n");
 	return r;
+}
+
+/**
+ * efi_console_get_u16_string() - get user input string
+ *
+ * @cin:		protocol interface to EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @buf:		buffer to store user input string in UTF16
+ * @count:		number of u16 string including NULL terminator that buf has
+ * @filter_func:	callback to filter user input
+ * @row:		row number to locate user input form
+ * @col:		column number to locate user input form
+ * Return:		status code
+ */
+efi_status_t efi_console_get_u16_string(struct efi_simple_text_input_protocol *cin,
+					u16 *buf, efi_uintn_t count,
+					efi_console_filter_func filter_func,
+					int row, int col)
+{
+	efi_status_t ret;
+	efi_uintn_t len = 0;
+	struct efi_input_key key;
+
+	printf(ANSI_CURSOR_POSITION
+	       ANSI_CLEAR_LINE_TO_END
+	       ANSI_CURSOR_SHOW, row, col);
+
+	ret = EFI_CALL(cin->reset(cin, false));
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	for (;;) {
+		do {
+			ret = EFI_CALL(cin->read_key_stroke(cin, &key));
+			mdelay(10);
+		} while (ret == EFI_NOT_READY);
+
+		if (key.unicode_char == u'\b') {
+			if (len > 0)
+				buf[--len] = u'\0';
+
+			printf(ANSI_CURSOR_POSITION
+			       "%ls"
+			       ANSI_CLEAR_LINE_TO_END, row, col, buf);
+			continue;
+		} else if (key.unicode_char == u'\r') {
+			buf[len] = u'\0';
+			return EFI_SUCCESS;
+		} else if (key.unicode_char == 0x3 || key.scan_code == 23) {
+			return EFI_ABORTED;
+		} else if (key.unicode_char < 0x20) {
+			/* ignore control codes other than Ctrl+C, '\r' and '\b' */
+			continue;
+		} else if (key.scan_code != 0) {
+			/* only accept single ESC press for cancel */
+			continue;
+		}
+
+		if (filter_func) {
+			if (filter_func(&key) != EFI_SUCCESS)
+				continue;
+		}
+
+		if (len >= (count - 1))
+			continue;
+
+		buf[len] = key.unicode_char;
+		len++;
+		printf(ANSI_CURSOR_POSITION "%ls", row, col, buf);
+	}
 }

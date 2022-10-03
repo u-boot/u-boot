@@ -33,7 +33,7 @@ struct cmd_tbl;
  * not return.
  */
 typedef int boot_os_fn(int flag, int argc, char *const argv[],
-			bootm_headers_t *images);
+			struct bootm_headers *images);
 
 extern boot_os_fn do_bootm_linux;
 extern boot_os_fn do_bootm_vxworks;
@@ -47,7 +47,7 @@ int bootm_host_load_images(const void *fit, int cfg_noffset);
 #endif
 
 int boot_selected_os(int argc, char *const argv[], int state,
-		     bootm_headers_t *images, boot_os_fn *boot_fn);
+		     struct bootm_headers *images, boot_os_fn *boot_fn);
 
 ulong bootm_disable_interrupts(void);
 
@@ -56,7 +56,7 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		      ulong size);
 
 int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[], int states, bootm_headers_t *images,
+		    char *const argv[], int states, struct bootm_headers *images,
 		    int boot_progress);
 
 void arch_preboot_os(void);

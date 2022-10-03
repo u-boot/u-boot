@@ -27,7 +27,7 @@ static int spl_smh_load_image(struct spl_image_info *spl_image,
 	const char *filename = CONFIG_SPL_FS_LOAD_PAYLOAD_NAME;
 	int ret;
 	long fd, len;
-	struct image_header *header =
+	struct legacy_img_hdr *header =
 		spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 	fd = smh_open(filename, MODE_READ | MODE_BINARY);
@@ -43,7 +43,7 @@ static int spl_smh_load_image(struct spl_image_info *spl_image,
 	}
 	len = ret;
 
-	ret = smh_read_full(fd, header, sizeof(struct image_header));
+	ret = smh_read_full(fd, header, sizeof(struct legacy_img_hdr));
 	if (ret) {
 		log_debug("could not read image header: %d\n", ret);
 		goto out;

@@ -362,6 +362,11 @@ void serial_setbrg(void);
 void serial_putc(const char ch);
 void serial_putc_raw(const char ch);
 void serial_puts(const char *str);
+#if defined(CONFIG_CONSOLE_FLUSH_SUPPORT) && CONFIG_IS_ENABLED(DM_SERIAL)
+void serial_flush(void);
+#else
+static inline void serial_flush(void) {}
+#endif
 int serial_getc(void);
 int serial_tstc(void);
 

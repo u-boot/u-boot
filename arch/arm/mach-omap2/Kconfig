@@ -96,6 +96,7 @@ config TI816X
 config AM43XX
 	bool "AM43XX SoC"
 	select SPECIFY_CONSOLE_INDEX
+	select SYS_L2_PL310 if !SYS_L2CACHE_OFF
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	imply SPL_DM

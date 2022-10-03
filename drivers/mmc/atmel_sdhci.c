@@ -52,6 +52,17 @@ struct atmel_sdhci_plat {
 	struct mmc mmc;
 };
 
+static int atmel_sdhci_deferred_probe(struct sdhci_host *host)
+{
+	struct udevice *dev = host->mmc->dev;
+
+	return sdhci_probe(dev);
+}
+
+static const struct sdhci_ops atmel_sdhci_ops = {
+	.deferred_probe	= atmel_sdhci_deferred_probe,
+};
+
 static int atmel_sdhci_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
@@ -104,6 +115,7 @@ static int atmel_sdhci_probe(struct udevice *dev)
 		return ret;
 
 	host->mmc->priv = host;
+	host->ops = &atmel_sdhci_ops;
 	upriv->mmc = host->mmc;
 
 	clk_free(&clk);

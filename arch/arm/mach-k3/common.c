@@ -493,7 +493,7 @@ bool soc_is_j7200(void)
 }
 
 #ifdef CONFIG_ARM64
-void board_prep_linux(bootm_headers_t *images)
+void board_prep_linux(struct bootm_headers *images)
 {
 	debug("Linux kernel Image start = 0x%lx end = 0x%lx\n",
 	      images->os.start, images->os.end);

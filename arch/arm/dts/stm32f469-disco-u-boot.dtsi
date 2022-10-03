@@ -28,9 +28,6 @@
 
 	soc {
 		u-boot,dm-pre-reloc;
-		pin-controller {
-			u-boot,dm-pre-reloc;
-		};
 
 		fmc: fmc@A0000000 {
 			compatible = "st,stm32-fmc";
@@ -138,6 +135,8 @@
 };
 
 &pinctrl {
+	u-boot,dm-pre-reloc;
+
 	fmc_pins_d32: fmc_d32@0 {
 		u-boot,dm-pre-reloc;
 		pins
@@ -256,6 +255,6 @@
 	u-boot,dm-pre-reloc;
 };
 
-&timer5 {
+&timers5 {
 	u-boot,dm-pre-reloc;
 };

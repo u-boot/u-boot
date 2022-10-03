@@ -50,7 +50,7 @@ static int do_scsi(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	}
 
-	return blk_common_cmd(argc, argv, IF_TYPE_SCSI, &scsi_curr_dev);
+	return blk_common_cmd(argc, argv, UCLASS_SCSI, &scsi_curr_dev);
 }
 
 U_BOOT_CMD(

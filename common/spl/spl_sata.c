@@ -30,7 +30,7 @@ static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
 		struct spl_boot_device *bootdev,
 		struct blk_desc *stor_dev, unsigned long sector)
 {
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 	unsigned long count;
 	u32 image_size_sectors;
 	u32 image_offset_sectors;
@@ -71,7 +71,7 @@ static int spl_sata_load_image(struct spl_image_info *spl_image,
 
 	/* try to recognize storage devices immediately */
 	scsi_scan(false);
-	stor_dev = blk_get_devnum_by_type(IF_TYPE_SCSI, 0);
+	stor_dev = blk_get_devnum_by_uclass_id(UCLASS_SCSI, 0);
 	if (!stor_dev)
 		return -ENODEV;
 

@@ -235,20 +235,9 @@ tree either present or absent. This is to make sure that the flat tree functions
 work correctly even with OF_LIVE is enabled. But if a test modifies the flat
 device tree, then the live tree can become invalid. Any live tree tests that run
 after that point will use a corrupted tree, e.g. with an incorrect property name
-or worse. To deal with this we use a flag UT_TESTF_LIVE_OR_FLAT then ensures
-that tests which write to the flat tree are not run if OF_LIVE is enabled. Only
-the live tree version of the test is run, when OF_LIVE is enabled, with
-sandbox_flattree running the flat tree version.
-
-This is of course a work-around, even if a reasonable one. One solution to this
-problem would be to make a copy of the flat tree before the test and restore it
-afterwards, in the same memory location, so that the live tree pointers work
-again. Another would be to regenerate the live tree if a test modified the flat
-tree.
-
-Neither of these solutions is currently implemented, since the situation that
-causes the problem can only occur in sandbox tests, is somewhat esoteric and
-the UT_TESTF_LIVE_OR_FLAT flag deals with it in a reasonable way.
+or worse. To deal with this we take a copy of the device tree and restore it
+after any test that modifies it. Note that this copy is not made on other
+boards, only sandbox.
 
 
 Multiple livetrees
@@ -261,11 +250,14 @@ a flat tree.
 It would be helpful to use livetree for fixups, since adding a lot of nodes and
 properties would involve less memory copying and be more efficient. As a step
 towards this, an `oftree` type has been introduced. It is normally set to
-oftree_default() but can be set to other values. Eventually this should allow
-the use of FDT fixups using the ofnode interface, instead of the low-level
-libfdt one.
+oftree_default() but can be set to other values using oftree_from_fdt().
+So long as OF_LIVE is disabled, it is possible to do fixups using the ofnode
+interface. The OF_LIVE support required addition of the flattening step at the
+end.
 
-See dm_test_ofnode_root() for some examples.
+See dm_test_ofnode_root() for some examples. The ofnode_path_root() function
+causes a flat device tree to be 'registered' such that it can be used by the
+ofnode interface.
 
 
 Internal implementation
@@ -329,10 +321,9 @@ Adding a new function for device-tree access involves the following steps:
 Future work
 -----------
 
-Live tree support was introduced in U-Boot 2017.07. There is still quite a bit
-of work to do to flesh this out:
+Live tree support was introduced in U-Boot 2017.07. Some possible enhancements
+are:
 
-- tests for all access functions
-- more support for livetree modification
-- addition of more access functions as needed
 - support for livetree in SPL and before relocation (if desired)
+- freeing leaked memory caused by writing new nodes / property values to the
+  livetree (ofnode_write_prop())

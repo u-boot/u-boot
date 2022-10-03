@@ -281,7 +281,7 @@ efi_status_t efi_install_fdt(void *fdt)
 		return EFI_SUCCESS;
 	}
 #else
-	bootm_headers_t img = { 0 };
+	struct bootm_headers img = { 0 };
 	efi_status_t ret;
 
 	if (fdt == EFI_FDT_USE_INTERNAL) {

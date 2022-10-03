@@ -75,14 +75,14 @@ static int virtio_blk_bind(struct udevice *dev)
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	int devnum;
 
-	desc->if_type = IF_TYPE_VIRTIO;
+	desc->uclass_id = UCLASS_VIRTIO;
 	/*
 	 * Initialize the devnum to -ENODEV. This is to make sure that
 	 * blk_next_free_devnum() works as expected, since the default
 	 * value 0 is a valid devnum.
 	 */
 	desc->devnum = -ENODEV;
-	devnum = blk_next_free_devnum(IF_TYPE_VIRTIO);
+	devnum = blk_next_free_devnum(UCLASS_VIRTIO);
 	if (devnum < 0)
 		return devnum;
 	desc->devnum = devnum;

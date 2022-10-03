@@ -290,7 +290,7 @@ struct mmc *find_mmc_device(int dev_num)
 	struct udevice *dev, *mmc_dev;
 	int ret;
 
-	ret = blk_find_device(IF_TYPE_MMC, dev_num, &dev);
+	ret = blk_find_device(UCLASS_MMC, dev_num, &dev);
 
 	if (ret) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
@@ -308,12 +308,12 @@ struct mmc *find_mmc_device(int dev_num)
 
 int get_mmc_num(void)
 {
-	return max((blk_find_max_devnum(IF_TYPE_MMC) + 1), 0);
+	return max((blk_find_max_devnum(UCLASS_MMC) + 1), 0);
 }
 
 int mmc_get_next_devnum(void)
 {
-	return blk_find_max_devnum(IF_TYPE_MMC);
+	return blk_find_max_devnum(UCLASS_MMC);
 }
 
 int mmc_get_blk(struct udevice *dev, struct udevice **blkp)
@@ -411,8 +411,8 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	/* Use the fixed index with aliases node's index */
 	debug("%s: alias devnum=%d\n", __func__, dev_seq(dev));
 
-	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC,
-			dev_seq(dev), 512, 0, &bdev);
+	ret = blk_create_devicef(dev, "mmc_blk", "blk", UCLASS_MMC,
+				 dev_seq(dev), 512, 0, &bdev);
 	if (ret) {
 		debug("Cannot create block device\n");
 		return ret;
@@ -472,7 +472,7 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 
 	ret = mmc_switch_part(mmc, hwpart);
 	if (!ret)
-		blkcache_invalidate(desc->if_type, desc->devnum);
+		blkcache_invalidate(desc->uclass_id, desc->devnum);
 
 	return ret;
 }

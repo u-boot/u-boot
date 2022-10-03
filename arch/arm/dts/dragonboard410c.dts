@@ -60,9 +60,13 @@
 			reg = <0x60000 0x8000>;
 		};
 
-		pinctrl: qcom,tlmm@1000000 {
-			compatible = "qcom,tlmm-apq8016";
+		soc_gpios: pinctrl@1000000 {
+			compatible = "qcom,msm8916-pinctrl";
 			reg = <0x1000000 0x400000>;
+			gpio-controller;
+			gpio-count = <122>;
+			gpio-bank-name="soc";
+			#gpio-cells = <2>;
 
 			blsp1_uart: uart {
 				function = "blsp1_uart";
@@ -84,15 +88,6 @@
 			clock = <&clkc 4>;
 			pinctrl-names = "uart";
 			pinctrl-0 = <&blsp1_uart>;
-		};
-
-		soc_gpios: pinctrl@1000000 {
-			compatible = "qcom,apq8016-pinctrl";
-			reg = <0x1000000 0x300000>;
-			gpio-controller;
-			gpio-count = <122>;
-			gpio-bank-name="soc";
-			#gpio-cells = <2>;
 		};
 
 		ehci@78d9000 {

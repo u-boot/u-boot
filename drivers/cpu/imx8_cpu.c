@@ -144,7 +144,7 @@ static int cpu_imx_get_count(const struct udevice *dev)
 	ofnode_for_each_subnode(node, dev_ofnode(dev->parent)) {
 		const char *device_type;
 
-		if (!ofnode_is_available(node))
+		if (!ofnode_is_enabled(node))
 			continue;
 
 		device_type = ofnode_read_string(node, "device_type");

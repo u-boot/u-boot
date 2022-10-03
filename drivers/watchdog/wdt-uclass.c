@@ -6,6 +6,7 @@
 #define LOG_CATEGORY UCLASS_WDT
 
 #include <common.h>
+#include <cyclic.h>
 #include <dm.h>
 #include <errno.h>
 #include <hang.h>
@@ -38,7 +39,24 @@ struct wdt_priv {
 	bool running;
 	/* No autostart */
 	bool noautostart;
+
+	struct cyclic_info *cyclic;
 };
+
+static void wdt_cyclic(void *ctx)
+{
+	struct udevice *dev = ctx;
+	struct wdt_priv *priv;
+
+	if (!device_active(dev))
+		return;
+
+	priv = dev_get_uclass_priv(dev);
+	if (!priv->running)
+		return;
+
+	wdt_reset(dev);
+}
 
 static void init_watchdog_dev(struct udevice *dev)
 {
@@ -64,9 +82,6 @@ static void init_watchdog_dev(struct udevice *dev)
 		printf("WDT:   Failed to start %s\n", dev->name);
 		return;
 	}
-
-	printf("WDT:   Started %s with%s servicing (%ds timeout)\n", dev->name,
-	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", priv->timeout);
 }
 
 int initr_watchdog(void)
@@ -105,8 +120,29 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	ret = ops->start(dev, timeout_ms, flags);
 	if (ret == 0) {
 		struct wdt_priv *priv = dev_get_uclass_priv(dev);
+		char str[16];
 
 		priv->running = true;
+
+		memset(str, 0, 16);
+		if (IS_ENABLED(CONFIG_WATCHDOG)) {
+			/* Register the watchdog driver as a cyclic function */
+			priv->cyclic = cyclic_register(wdt_cyclic,
+						       priv->reset_period * 1000,
+						       dev->name, dev);
+			if (!priv->cyclic) {
+				printf("cyclic_register for %s failed\n",
+				       dev->name);
+				return -ENODEV;
+			} else {
+				snprintf(str, 16, "every %ldms",
+					 priv->reset_period);
+			}
+		}
+
+		printf("WDT:   Started %s with%s servicing %s (%ds timeout)\n",
+		       dev->name, IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out",
+		       str, priv->timeout);
 	}
 
 	return ret;
@@ -194,37 +230,10 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
  */
 void watchdog_reset(void)
 {
-	struct wdt_priv *priv;
-	struct udevice *dev;
-	struct uclass *uc;
-	ulong now;
-
-	/* Exit if GD is not ready or watchdog is not initialized yet */
-	if (!gd || !(gd->flags & GD_FLG_WDT_READY))
-		return;
-
-	if (uclass_get(UCLASS_WDT, &uc))
-		return;
-
 	/*
-	 * All devices bound to the wdt uclass should have been probed
-	 * in initr_watchdog(). But just in case something went wrong,
-	 * check device_active() before accessing the uclass private
-	 * data.
+	 * Empty function for now. The actual WDT handling is now done in
+	 * the cyclic function instead.
 	 */
-	uclass_foreach_dev(dev, uc) {
-		if (!device_active(dev))
-			continue;
-		priv = dev_get_uclass_priv(dev);
-		if (!priv->running)
-			continue;
-		/* Do not reset the watchdog too often */
-		now = get_timer(0);
-		if (time_after_eq(now, priv->next_reset)) {
-			priv->next_reset = now + priv->reset_period;
-			wdt_reset(dev);
-		}
-	}
 }
 #endif
 

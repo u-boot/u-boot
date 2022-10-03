@@ -247,7 +247,7 @@ static int stm32prog_serial_getc_err(void)
 		err = ops->getc(down_serial_dev);
 		if (err == -EAGAIN) {
 			ctrlc();
-			WATCHDOG_RESET();
+			schedule();
 		}
 	} while ((err == -EAGAIN) && (!had_ctrlc()));
 
@@ -276,7 +276,7 @@ static bool stm32prog_serial_get_buffer(u8 *buffer, u32 *count)
 			*count -= 1;
 		} else if (err == -EAGAIN) {
 			ctrlc();
-			WATCHDOG_RESET();
+			schedule();
 			if (get_timer(start) > TIMEOUT_SERIAL_BUFFER) {
 				err = -ETIMEDOUT;
 				break;
@@ -300,7 +300,7 @@ static void stm32prog_serial_putc(u8 w_byte)
 }
 
 /* Helper function ************************************************/
-static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
+static u8 stm32prog_start(struct stm32prog_data *data, uintptr_t address)
 {
 	u8 ret = 0;
 	struct dfu_entity *dfu_entity;
@@ -353,7 +353,7 @@ static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
 	} else {
 		void (*entry)(void) = (void *)address;
 
-		printf("## Starting application at 0x%x ...\n", address);
+		printf("## Starting application at 0x%p ...\n", (void *)address);
 		(*entry)();
 		printf("## Application terminated\n");
 		ret = -ENOEXEC;
@@ -368,9 +368,9 @@ static u8 stm32prog_start(struct stm32prog_data *data, u32 address)
  * @tmp_xor:		Current xor value to update
  * Return: The address area
  */
-static u32 get_address(u8 *tmp_xor)
+static uintptr_t get_address(u8 *tmp_xor)
 {
-	u32 address = 0x0;
+	uintptr_t address = 0x0;
 	u8 data;
 
 	data = stm32prog_serial_getc();
@@ -462,7 +462,7 @@ static void get_phase_command(struct stm32prog_data *data)
 		length = strlen(err_msg);
 	}
 	if (phase == PHASE_FLASHLAYOUT)
-		destination = STM32_DDR_BASE;
+		destination = CONFIG_SYS_LOAD_ADDR;
 
 	stm32prog_serial_putc(length + 5);           /* Total length */
 	stm32prog_serial_putc(phase & 0xFF);         /* partition ID */
@@ -487,7 +487,7 @@ static void get_phase_command(struct stm32prog_data *data)
  */
 static void read_memory_command(struct stm32prog_data *data)
 {
-	u32 address = 0x0;
+	uintptr_t address = 0x0;
 	u8 rcv_data = 0x0, tmp_xor = 0x0;
 	u32 counter = 0x0;
 
@@ -532,7 +532,7 @@ static void read_memory_command(struct stm32prog_data *data)
  */
 static void start_command(struct stm32prog_data *data)
 {
-	u32 address = 0;
+	uintptr_t address = 0;
 	u8 tmp_xor = 0x0;
 	u8 ret, rcv_data;
 
@@ -546,8 +546,7 @@ static void start_command(struct stm32prog_data *data)
 		return;
 	}
 	/* validate partition */
-	ret = stm32prog_start(data,
-			      address);
+	ret = stm32prog_start(data, address);
 
 	if (ret)
 		stm32prog_serial_result(ABORT_BYTE);
@@ -852,7 +851,7 @@ bool stm32prog_serial_loop(struct stm32prog_data *data)
 			stm32prog_serial_result(ACK_BYTE);
 			cmd_func[counter](data);
 		}
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	/* clean device */

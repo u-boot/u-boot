@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * Image booting support
  */
 static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[], bootm_headers_t *images)
+		       char *const argv[], struct bootm_headers *images)
 {
 	int ret;
 	ulong ld;

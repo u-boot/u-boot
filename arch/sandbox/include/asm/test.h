@@ -11,6 +11,8 @@
 #include <video.h>
 #include <pci_ids.h>
 
+struct unit_test_state;
+
 /* The sandbox driver always permits an I2C device with this address */
 #define SANDBOX_I2C_TEST_ADDR		0x59
 
@@ -314,5 +316,22 @@ int sandbox_sdl_set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp);
  * an error
  */
 void sandbox_set_fake_efi_mgr_dev(struct udevice *dev, bool fake_dev);
+
+/**
+ * sandbox_load_other_fdt() - load the 'other' FDT into the test state
+ *
+ * This copies the other.dtb file into the test state, so that a fresh version
+ * can be used for a test that is about to run.
+ *
+ * If @uts->other_fdt is NULL, as it is when first set up, this allocates a
+ * buffer for the other FDT and sets @uts->other_fdt_size to its size.
+ *
+ * In any case, the other FDT is copied from the sandbox state into
+ * @uts->other_fdt ready for use.
+ *
+ * @uts: Unit test state
+ * @return 0 if OK, -ve on error
+ */
+int sandbox_load_other_fdt(void **fdtp, int *sizep);
 
 #endif

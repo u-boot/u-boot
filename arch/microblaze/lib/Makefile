@@ -4,4 +4,5 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_CMD_BDI) += bdinfo.o
 obj-y	+= muldi3.o

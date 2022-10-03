@@ -20,6 +20,13 @@
  * @testdev: Test device
  * @force_fail_alloc: Force all memory allocs to fail
  * @skip_post_probe: Skip uclass post-probe processing
+ * @fdt_chksum: crc8 of the device tree contents
+ * @fdt_copy: Copy of the device tree
+ * @fdt_size: Size of the device-tree copy
+ * @other_fdt: Buffer for the other FDT (UT_TESTF_OTHER_FDT)
+ * @other_fdt_size: Size of the other FDT (UT_TESTF_OTHER_FDT)
+ * @of_other: Live tree for the other FDT
+ * @runs_per_test: Number of times to run each test (typically 1)
  * @expect_str: Temporary string used to hold expected string value
  * @actual_str: Temporary string used to hold actual string value
  */
@@ -32,6 +39,13 @@ struct unit_test_state {
 	struct udevice *testdev;
 	int force_fail_alloc;
 	int skip_post_probe;
+	uint fdt_chksum;
+	void *fdt_copy;
+	uint fdt_size;
+	void *other_fdt;
+	int other_fdt_size;
+	struct device_node *of_other;
+	int runs_per_test;
 	char expect_str[512];
 	char actual_str[512];
 };
@@ -46,8 +60,7 @@ enum {
 	UT_TESTF_CONSOLE_REC	= BIT(5),	/* needs console recording */
 	/* do extra driver model init and uninit */
 	UT_TESTF_DM		= BIT(6),
-	/* live or flat device tree, but not both in the same executable */
-	UT_TESTF_LIVE_OR_FLAT	= BIT(4),
+	UT_TESTF_OTHER_FDT	= BIT(7),	/* read in other device tree */
 };
 
 /**
@@ -126,13 +139,24 @@ enum {
  */
 struct udevice *testbus_get_clear_removed(void);
 
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
+#include <asm/test.h>
+#endif
+
 static inline void arch_reset_for_test(void)
 {
 #ifdef CONFIG_SANDBOX
-#include <asm/state.h>
-
 	state_reset_for_test(state_get_current());
 #endif
+}
+static inline int test_load_other_fdt(struct unit_test_state *uts)
+{
+	int ret = 0;
+#ifdef CONFIG_SANDBOX
+	ret = sandbox_load_other_fdt(&uts->other_fdt, &uts->other_fdt_size);
+#endif
+	return ret;
 }
 
 #endif /* __TEST_TEST_H */

@@ -202,7 +202,7 @@ static int mtk_snfi_exec_op(struct spi_slave *slave,
 	int addr_sh;
 	int ret;
 
-	WATCHDOG_RESET();
+	schedule();
 
 	ret = mtk_snfi_mac_reset(priv);
 	if (ret)

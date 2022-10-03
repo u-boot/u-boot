@@ -16,9 +16,9 @@
 #define LZMA_LEN	(1 << 20)
 
 int spl_parse_legacy_header(struct spl_image_info *spl_image,
-			    const struct image_header *header)
+			    const struct legacy_img_hdr *header)
 {
-	u32 header_size = sizeof(struct image_header);
+	u32 header_size = sizeof(struct legacy_img_hdr);
 
 	/* check uImage header CRC */
 	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK) &&
@@ -67,7 +67,7 @@ int spl_parse_legacy_header(struct spl_image_info *spl_image,
  * following switch/case statement in spl_load_legacy_img() away due to
  * Dead Code Elimination.
  */
-static inline int spl_image_get_comp(const struct image_header *hdr)
+static inline int spl_image_get_comp(const struct legacy_img_hdr *hdr)
 {
 	if (IS_ENABLED(CONFIG_SPL_LZMA))
 		return image_get_comp(hdr);
@@ -81,7 +81,7 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 {
 	__maybe_unused SizeT lzma_len;
 	__maybe_unused void *src;
-	struct image_header hdr;
+	struct legacy_img_hdr hdr;
 	ulong dataptr;
 	int ret;
 

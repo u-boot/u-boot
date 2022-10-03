@@ -351,10 +351,6 @@ extern unsigned long get_sdram_size(void);
 
 /* I2C EEPROM */
 #if defined(CONFIG_TARGET_P1010RDB_PB)
-#ifdef CONFIG_ID_EEPROM
-#define CONFIG_SYS_I2C_EEPROM_NXID
-#endif
-#define CONFIG_SYS_EEPROM_BUS_NUM	0
 #define MAX_NUM_PORTS			9 /* for 128Bytes EEPROM */
 #endif
 /* enable read and write access to EEPROM */

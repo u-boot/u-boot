@@ -129,74 +129,78 @@
 		};
 
 		fmc: flash-controller@1e620000 {
-			reg = < 0x1e620000 0xc4
-				0x20000000 0x10000000 >;
+			reg = <0x1e620000 0xc4>, <0x20000000 0x10000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "aspeed,ast2600-fmc";
 			status = "disabled";
-			interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&scu ASPEED_CLK_AHB>;
 			num-cs = <3>;
+
 			flash@0 {
-				reg = < 0 >;
+				reg = <0>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};
+
 			flash@1 {
-				reg = < 1 >;
+				reg = <1>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};
+
 			flash@2 {
-				reg = < 2 >;
+				reg = <2>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};
 		};
 
 		spi1: flash-controller@1e630000 {
-			reg = < 0x1e630000 0xc4
-				0x30000000 0x08000000 >;
+			reg = <0x1e630000 0xc4>, <0x30000000 0x10000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "aspeed,ast2600-spi";
 			clocks = <&scu ASPEED_CLK_AHB>;
 			num-cs = <2>;
 			status = "disabled";
+
 			flash@0 {
-				reg = < 0 >;
+				reg = <0>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};
+
 			flash@1 {
-				reg = < 1 >;
+				reg = <1>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};
 		};
 
 		spi2: flash-controller@1e631000 {
-			reg = < 0x1e631000 0xc4
-				0x50000000 0x08000000 >;
+			reg = <0x1e631000 0xc4>, <0x50000000 0x10000000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "aspeed,ast2600-spi";
 			clocks = <&scu ASPEED_CLK_AHB>;
 			num-cs = <3>;
 			status = "disabled";
+
 			flash@0 {
-				reg = < 0 >;
+				reg = <0>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};
+
 			flash@1 {
-				reg = < 1 >;
+				reg = <1>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};
+
 			flash@2 {
-				reg = < 2 >;
+				reg = <2>;
 				compatible = "jedec,spi-nor";
 				status = "disabled";
 			};

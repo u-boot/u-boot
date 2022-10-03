@@ -4,8 +4,6 @@
 
 config NVME
 	bool "NVM Express device support"
-	depends on BLK
-	select HAVE_BLOCK_DEVICE
 	help
 	  This option enables support for NVM Express devices.
 	  It supports basic functions of NVMe (read/write).

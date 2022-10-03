@@ -844,7 +844,7 @@ static int hsdk_go_run(u32 cpu_start_reg)
 	return 0;
 }
 
-int board_prep_linux(bootm_headers_t *images)
+int board_prep_linux(struct bootm_headers *images)
 {
 	int ret, ofst;
 	char mask[15];

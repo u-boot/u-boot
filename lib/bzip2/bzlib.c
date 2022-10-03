@@ -844,7 +844,7 @@ int BZ_API(BZ2_bzDecompress) ( bz_stream *strm )
 
    while (True) {
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	WATCHDOG_RESET();
+	schedule();
 #endif
       if (s->state == BZ_X_IDLE) return BZ_SEQUENCE_ERROR;
       if (s->state == BZ_X_OUTPUT) {

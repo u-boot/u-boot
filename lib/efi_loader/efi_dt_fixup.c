@@ -145,7 +145,7 @@ efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
 	efi_status_t ret;
 	size_t required_size;
 	size_t total_size;
-	bootm_headers_t img = { 0 };
+	struct bootm_headers img = { 0 };
 
 	EFI_ENTRY("%p, %p, %p, %d", this, dtb, buffer_size, flags);
 

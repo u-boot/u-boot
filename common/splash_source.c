@@ -327,17 +327,17 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 	int external_splash_addr;
 	int external_splash_size;
 	bool is_splash_external = false;
-	struct image_header *img_header;
+	struct legacy_img_hdr *img_header;
 	const u32 *fit_header;
 	u32 fit_size;
-	const size_t header_size = sizeof(struct image_header);
+	const size_t header_size = sizeof(struct legacy_img_hdr);
 
 	/* Read in image header */
 	res = splash_storage_read_raw(location, bmp_load_addr, header_size);
 	if (res < 0)
 		return res;
 
-	img_header = (struct image_header *)bmp_load_addr;
+	img_header = (struct legacy_img_hdr *)bmp_load_addr;
 	if (image_get_magic(img_header) != FDT_MAGIC) {
 		printf("Could not find FDT magic\n");
 		return -EINVAL;

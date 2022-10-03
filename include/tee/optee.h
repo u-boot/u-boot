@@ -30,7 +30,7 @@ struct optee_header {
 };
 
 static inline uint32_t
-optee_image_get_entry_point(const struct image_header *hdr)
+optee_image_get_entry_point(const struct legacy_img_hdr *hdr)
 {
 	struct optee_header *optee_hdr = (struct optee_header *)(hdr + 1);
 
@@ -38,7 +38,7 @@ optee_image_get_entry_point(const struct image_header *hdr)
 }
 
 static inline uint32_t
-optee_image_get_load_addr(const struct image_header *hdr)
+optee_image_get_load_addr(const struct legacy_img_hdr *hdr)
 {
 	return optee_image_get_entry_point(hdr) - sizeof(struct optee_header);
 }

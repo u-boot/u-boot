@@ -15,9 +15,11 @@
 import atexit
 import configparser
 import errno
+import filelock
 import io
 import os
 import os.path
+from pathlib import Path
 import pytest
 import re
 from _pytest.runner import runtestprotocol
@@ -26,6 +28,8 @@ import sys
 # Globals: The HTML log file, and the connection to the U-Boot console.
 log = None
 console = None
+
+TEST_PY_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def mkdir_p(path):
     """Create a directory path.
@@ -76,6 +80,53 @@ def pytest_addoption(parser):
         help='Run sandbox under gdbserver. The argument is the channel '+
         'over which gdbserver should communicate, e.g. localhost:1234')
 
+def run_build(config, source_dir, build_dir, board_type, log):
+    """run_build: Build U-Boot
+
+    Args:
+        config: The pytest configuration.
+        soruce_dir (str): Directory containing source code
+        build_dir (str): Directory to build in
+        board_type (str): board_type parameter (e.g. 'sandbox')
+        log (Logfile): Log file to use
+    """
+    if config.getoption('buildman'):
+        if build_dir != source_dir:
+            dest_args = ['-o', build_dir, '-w']
+        else:
+            dest_args = ['-i']
+        cmds = (['buildman', '--board', board_type] + dest_args,)
+        name = 'buildman'
+    else:
+        if build_dir != source_dir:
+            o_opt = 'O=%s' % build_dir
+        else:
+            o_opt = ''
+        cmds = (
+            ['make', o_opt, '-s', board_type + '_defconfig'],
+            ['make', o_opt, '-s', '-j{}'.format(os.cpu_count())],
+        )
+        name = 'make'
+
+    with log.section(name):
+        runner = log.get_runner(name, sys.stdout)
+        for cmd in cmds:
+            runner.run(cmd, cwd=source_dir)
+        runner.close()
+        log.status_pass('OK')
+
+def pytest_xdist_setupnodes(config, specs):
+    """Clear out any 'done' file from a previous build"""
+    global build_done_file
+    build_dir = config.getoption('build_dir')
+    board_type = config.getoption('board_type')
+    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
+    if not build_dir:
+        build_dir = source_dir + '/build-' + board_type
+    build_done_file = Path(build_dir) / 'build.done'
+    if build_done_file.exists():
+        os.remove(build_done_file)
+
 def pytest_configure(config):
     """pytest hook: Perform custom initialization at startup time.
 
@@ -110,8 +161,7 @@ def pytest_configure(config):
     global console
     global ubconfig
 
-    test_py_dir = os.path.dirname(os.path.abspath(__file__))
-    source_dir = os.path.dirname(os.path.dirname(test_py_dir))
+    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
 
     board_type = config.getoption('board_type')
     board_type_filename = board_type.replace('-', '_')
@@ -142,30 +192,13 @@ def pytest_configure(config):
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')
 
     if config.getoption('build'):
-        if config.getoption('buildman'):
-            if build_dir != source_dir:
-                dest_args = ['-o', build_dir, '-w']
-            else:
-                dest_args = ['-i']
-            cmds = (['buildman', '--board', board_type] + dest_args,)
-            name = 'buildman'
-        else:
-            if build_dir != source_dir:
-                o_opt = 'O=%s' % build_dir
-            else:
-                o_opt = ''
-            cmds = (
-                ['make', o_opt, '-s', board_type + '_defconfig'],
-                ['make', o_opt, '-s', '-j{}'.format(os.cpu_count())],
-            )
-            name = 'make'
-
-        with log.section(name):
-            runner = log.get_runner(name, sys.stdout)
-            for cmd in cmds:
-                runner.run(cmd, cwd=source_dir)
-            runner.close()
-            log.status_pass('OK')
+        worker_id = os.environ.get("PYTEST_XDIST_WORKER")
+        with filelock.FileLock(os.path.join(build_dir, 'build.lock')):
+            build_done_file = Path(build_dir) / 'build.done'
+            if (not worker_id or worker_id == 'master' or
+                not build_done_file.exists()):
+                run_build(config, source_dir, build_dir, board_type, log)
+                build_done_file.touch()
 
     class ArbitraryAttributeContainer(object):
         pass
@@ -197,7 +230,7 @@ def pytest_configure(config):
     else:
         parse_config('include/autoconf.mk')
 
-    ubconfig.test_py_dir = test_py_dir
+    ubconfig.test_py_dir = TEST_PY_DIR
     ubconfig.source_dir = source_dir
     ubconfig.build_dir = build_dir
     ubconfig.result_dir = result_dir
@@ -521,6 +554,22 @@ def setup_requiredtool(item):
         if not tool_is_in_path(tool):
             pytest.skip('tool "%s" not in $PATH' % tool)
 
+def setup_singlethread(item):
+    """Process any 'singlethread' marker for a test.
+
+    Skip this test if running in parallel.
+
+    Args:
+        item: The pytest test item.
+
+    Returns:
+        Nothing.
+    """
+    for single in item.iter_markers('singlethread'):
+        worker_id = os.environ.get("PYTEST_XDIST_WORKER")
+        if worker_id and worker_id != 'master':
+            pytest.skip('must run single-threaded')
+
 def start_test_section(item):
     anchors[item.name] = log.start_section(item.name)
 
@@ -541,6 +590,7 @@ def pytest_runtest_setup(item):
     setup_boardspec(item)
     setup_buildconfigspec(item)
     setup_requiredtool(item)
+    setup_singlethread(item)
 
 def pytest_runtest_protocol(item, nextitem):
     """pytest hook: Called to execute a test.

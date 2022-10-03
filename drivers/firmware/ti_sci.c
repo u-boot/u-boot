@@ -134,8 +134,11 @@ static struct ti_sci_xfer *ti_sci_setup_one_xfer(struct ti_sci_info *info,
 	if (rx_message_size > info->desc->max_msg_size ||
 	    tx_message_size > info->desc->max_msg_size ||
 	    (rx_message_size > 0 && rx_message_size < sizeof(*hdr)) ||
-	    tx_message_size < sizeof(*hdr))
+	    tx_message_size < sizeof(*hdr)) {
+		dev_err(info->dev, "TI-SCI message transfer size not sane\n");
 		return ERR_PTR(-ERANGE);
+	}
+
 
 	info->seq = ~info->seq;
 	xfer->tx_message.buf = buf;
@@ -161,7 +164,7 @@ static struct ti_sci_xfer *ti_sci_setup_one_xfer(struct ti_sci_info *info,
  *	   return corresponding error, else if all goes well,
  *	   return 0.
  */
-static inline int ti_sci_get_response(struct ti_sci_info *info,
+static int ti_sci_get_response(struct ti_sci_info *info,
 				      struct ti_sci_xfer *xfer,
 				      struct mbox_chan *chan)
 {
@@ -209,13 +212,26 @@ static inline int ti_sci_get_response(struct ti_sci_info *info,
 }
 
 /**
+ * ti_sci_is_response_ack() - Generic ACK/NACK message checkup
+ * @r:	pointer to response buffer
+ *
+ * Return: true if the response was an ACK, else returns false.
+ */
+static bool ti_sci_is_response_ack(void *r)
+{
+	struct ti_sci_msg_hdr *hdr = r;
+
+	return hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK ? true : false;
+}
+
+/**
  * ti_sci_do_xfer() - Do one transfer
  * @info:	Pointer to SCI entity information
  * @xfer:	Transfer to initiate and wait for response
  *
  * Return: 0 if all went fine, else return appropriate error.
  */
-static inline int ti_sci_do_xfer(struct ti_sci_info *info,
+static int ti_sci_do_xfer(struct ti_sci_info *info,
 				 struct ti_sci_xfer *xfer)
 {
 	struct k3_sec_proxy_msg *msg = &xfer->tx_message;
@@ -246,8 +262,13 @@ static inline int ti_sci_do_xfer(struct ti_sci_info *info,
 	}
 
 	/* Get response if requested */
-	if (xfer->rx_len)
+	if (xfer->rx_len) {
 		ret = ti_sci_get_response(info, xfer, &info->chan_rx);
+		if (!ti_sci_is_response_ack(xfer->tx_message.buf)) {
+			dev_err(info->dev, "Message not acknowledged");
+			ret = -ENODEV;
+		}
+	}
 
 	return ret;
 }
@@ -282,15 +303,12 @@ static int ti_sci_cmd_get_revision(struct ti_sci_handle *handle)
 				     sizeof(*rev_info));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox communication fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	rev_info = (struct ti_sci_msg_resp_version *)xfer->tx_message.buf;
 
@@ -302,19 +320,6 @@ static int ti_sci_cmd_get_revision(struct ti_sci_handle *handle)
 		sizeof(ver->firmware_description));
 
 	return 0;
-}
-
-/**
- * ti_sci_is_response_ack() - Generic ACK/NACK message checkup
- * @r:	pointer to response buffer
- *
- * Return: true if the response was an ACK, else returns false.
- */
-static inline bool ti_sci_is_response_ack(void *r)
-{
-	struct ti_sci_msg_hdr *hdr = r;
-
-	return hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK ? true : false;
 }
 
 /**
@@ -348,7 +353,6 @@ static int cmd_set_board_config_using_msg(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.boardcfgp_high = (addr >> 32) & 0xffffffff;
@@ -356,15 +360,8 @@ static int cmd_set_board_config_using_msg(const struct ti_sci_handle *handle,
 	req.boardcfg_size = size;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -509,22 +506,14 @@ static int ti_sci_set_device_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
 	req.state = state;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	if (state == MSG_DEVICE_SW_STATE_AUTO_OFF)
 		ti_sci_delete_exclusive_dev(info, id);
@@ -564,7 +553,6 @@ static int ti_sci_set_device_state_no_wait(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), 0);
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
@@ -572,7 +560,7 @@ static int ti_sci_set_device_state_no_wait(const struct ti_sci_handle *handle,
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
 
 	return ret;
 }
@@ -613,20 +601,15 @@ static int ti_sci_get_device_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_device_state *)xfer->tx_message.buf;
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	if (clcnt)
 		*clcnt = resp->context_loss_count;
@@ -901,22 +884,14 @@ static int ti_sci_cmd_set_device_resets(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.id = id;
 	req.resets = reset_state;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -971,7 +946,6 @@ static int ti_sci_set_clock_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -979,15 +953,8 @@ static int ti_sci_set_clock_state(const struct ti_sci_handle *handle,
 	req.request_state = state;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -1029,22 +996,16 @@ static int ti_sci_cmd_get_clock_state(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_clock_state *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	if (programmed_state)
 		*programmed_state = resp->programmed_state;
@@ -1245,7 +1206,6 @@ static int ti_sci_cmd_clk_set_parent(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1253,15 +1213,8 @@ static int ti_sci_cmd_clk_set_parent(const struct ti_sci_handle *handle,
 	req.parent_id = parent_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -1298,24 +1251,16 @@ static int ti_sci_cmd_clk_get_parent(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
-	resp = (struct ti_sci_msg_resp_get_clock_parent *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*parent_id = resp->parent_id;
+	*parent_id = resp->parent_id;
 
 	return ret;
 }
@@ -1353,25 +1298,19 @@ static int ti_sci_cmd_clk_get_num_parents(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_clock_num_parents *)
 							xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*num_parents = resp->num_parents;
+	*num_parents = resp->num_parents;
 
 	return ret;
 }
@@ -1418,7 +1357,6 @@ static int ti_sci_cmd_clk_get_match_freq(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1428,17 +1366,12 @@ static int ti_sci_cmd_clk_get_match_freq(const struct ti_sci_handle *handle,
 	req.max_freq_hz = max_freq;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_query_clock_freq *)xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*match_freq = resp->freq_hz;
+	*match_freq = resp->freq_hz;
 
 	return ret;
 }
@@ -1483,7 +1416,6 @@ static int ti_sci_cmd_clk_set_freq(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
@@ -1493,15 +1425,8 @@ static int ti_sci_cmd_clk_set_freq(const struct ti_sci_handle *handle,
 	req.max_freq_hz = max_freq;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -1538,24 +1463,18 @@ static int ti_sci_cmd_clk_get_freq(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.dev_id = dev_id;
 	req.clk_id = clk_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_clock_freq *)xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
-	else
-		*freq = resp->freq_hz;
+	*freq = resp->freq_hz;
 
 	return ret;
 }
@@ -1586,21 +1505,13 @@ static int ti_sci_cmd_core_reboot(const struct ti_sci_handle *handle)
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.domain = 0;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return ret;
 }
@@ -1641,7 +1552,6 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -1650,15 +1560,11 @@ static int ti_sci_get_resource_range(const struct ti_sci_handle *handle,
 	req.subtype = subtype & MSG_RM_RESOURCE_SUBTYPE_MASK;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_resource_range *)xfer->tx_message.buf;
-	if (!ti_sci_is_response_ack(resp)) {
-		ret = -ENODEV;
-	} else if (!resp->range_start && !resp->range_num) {
+	if (!resp->range_start && !resp->range_num) {
 		ret = -ENODEV;
 	} else {
 		*range_start = resp->range_start;
@@ -1769,20 +1675,14 @@ static int ti_sci_cmd_query_msmc(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_query_msmc *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	*msmc_start = ((u64)resp->msmc_start_high << TISCI_ADDR_HIGH_SHIFT) |
 			resp->msmc_start_low;
@@ -1820,21 +1720,13 @@ static int ti_sci_cmd_proc_request(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -1867,21 +1759,13 @@ static int ti_sci_cmd_proc_release(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -1917,22 +1801,14 @@ static int ti_sci_cmd_proc_handover(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
 	req.host_id = host_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -1970,7 +1846,6 @@ static int ti_sci_cmd_set_proc_boot_cfg(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -1981,15 +1856,8 @@ static int ti_sci_cmd_set_proc_boot_cfg(const struct ti_sci_handle *handle,
 	req.config_flags_clear = config_flags_clear;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -2026,7 +1894,6 @@ static int ti_sci_cmd_set_proc_boot_ctrl(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -2034,15 +1901,8 @@ static int ti_sci_cmd_set_proc_boot_ctrl(const struct ti_sci_handle *handle,
 	req.control_flags_clear = control_flags_clear;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
 
 	return ret;
 }
@@ -2080,7 +1940,6 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.cert_addr_low = *image_addr & TISCI_ADDR_LOW_MASK;
@@ -2088,15 +1947,10 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 				TISCI_ADDR_HIGH_SHIFT;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_proc_auth_boot_image *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	*image_addr = (resp->image_addr_low & TISCI_ADDR_LOW_MASK) |
 			(((u64)resp->image_addr_high <<
@@ -2135,22 +1989,17 @@ static int ti_sci_cmd_get_proc_boot_status(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_resp_get_proc_boot_status *)
 							xfer->tx_message.buf;
 
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 	*bv = (resp->bootvector_low & TISCI_ADDR_LOW_MASK) |
 			(((u64)resp->bootvector_high  <<
 			  TISCI_ADDR_HIGH_SHIFT) & TISCI_ADDR_HIGH_MASK);
@@ -2225,7 +2074,6 @@ ti_sci_proc_wait_boot_status_no_wait(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), 0);
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.processor_id = proc_id;
@@ -2240,7 +2088,7 @@ ti_sci_proc_wait_boot_status_no_wait(const struct ti_sci_handle *handle,
 
 	ret = ti_sci_do_xfer(info, xfer);
 	if (ret)
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
 
 	return ret;
 }
@@ -2340,7 +2188,6 @@ static int ti_sci_cmd_ring_config(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RM_RA:Message config failed(%d)\n", ret);
 		return ret;
 	}
 	req.valid_params = valid_params;
@@ -2354,14 +2201,8 @@ static int ti_sci_cmd_ring_config(const struct ti_sci_handle *handle,
 	req.order_id = order_id;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RM_RA:Mbox config send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
-
-	resp = (struct ti_sci_msg_rm_ring_cfg_resp *)xfer->tx_message.buf;
-
-	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
 
 fail:
 	dev_dbg(info->dev, "RM_RA:config ring %u ret:%d\n", index, ret);
@@ -2389,7 +2230,6 @@ static int ti_sci_cmd_rm_psil_pair(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RM_PSIL:Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.nav_id = nav_id;
@@ -2397,13 +2237,8 @@ static int ti_sci_cmd_rm_psil_pair(const struct ti_sci_handle *handle,
 	req.dst_thread = dst_thread;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RM_PSIL:Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
 
 fail:
 	dev_dbg(info->dev, "RM_PSIL: nav: %u link pair %u->%u ret:%u\n",
@@ -2432,7 +2267,6 @@ static int ti_sci_cmd_rm_psil_unpair(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RM_PSIL:Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.nav_id = nav_id;
@@ -2440,13 +2274,8 @@ static int ti_sci_cmd_rm_psil_unpair(const struct ti_sci_handle *handle,
 	req.dst_thread = dst_thread;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RM_PSIL:Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -ENODEV;
 
 fail:
 	dev_dbg(info->dev, "RM_PSIL: link unpair %u->%u ret:%u\n",
@@ -2476,7 +2305,6 @@ static int ti_sci_cmd_rm_udmap_tx_ch_cfg(
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message TX_CH_CFG alloc failed(%d)\n", ret);
 		return ret;
 	}
 	req.valid_params = params->valid_params;
@@ -2501,14 +2329,8 @@ static int ti_sci_cmd_rm_udmap_tx_ch_cfg(
 	req.extended_ch_type = params->extended_ch_type;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send TX_CH_CFG fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
-
-	resp =
-	      (struct ti_sci_msg_rm_udmap_tx_ch_cfg_resp *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -EINVAL;
 
 fail:
 	dev_dbg(info->dev, "TX_CH_CFG: chn %u ret:%u\n", params->index, ret);
@@ -2537,7 +2359,6 @@ static int ti_sci_cmd_rm_udmap_rx_ch_cfg(
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message RX_CH_CFG alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -2559,14 +2380,8 @@ static int ti_sci_cmd_rm_udmap_rx_ch_cfg(
 	req.rx_ignore_long = params->rx_ignore_long;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send RX_CH_CFG fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
-
-	resp =
-	      (struct ti_sci_msg_rm_udmap_rx_ch_cfg_resp *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -EINVAL;
 
 fail:
 	dev_dbg(info->dev, "RX_CH_CFG: chn %u ret:%d\n", params->index, ret);
@@ -2595,8 +2410,6 @@ static int ti_sci_cmd_rm_udmap_rx_flow_cfg(
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "RX_FL_CFG: Message alloc failed(%d)\n",
-			ret);
 		return ret;
 	}
 
@@ -2624,14 +2437,8 @@ static int ti_sci_cmd_rm_udmap_rx_flow_cfg(
 	req.rx_ps_location = params->rx_ps_location;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "RX_FL_CFG: Mbox send fail %d\n", ret);
+	if (ret)
 		goto fail;
-	}
-
-	resp =
-	       (struct ti_sci_msg_rm_udmap_flow_cfg_resp *)xfer->tx_message.buf;
-	ret = ti_sci_is_response_ack(resp) ? 0 : -EINVAL;
 
 fail:
 	dev_dbg(info->dev, "RX_FL_CFG: %u ret:%d\n", params->flow_index, ret);
@@ -2666,7 +2473,6 @@ static int ti_sci_cmd_set_fwl_region(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -2681,15 +2487,8 @@ static int ti_sci_cmd_set_fwl_region(const struct ti_sci_handle *handle,
 	req.end_address = region->end_address;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
-
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -2722,7 +2521,6 @@ static int ti_sci_cmd_get_fwl_region(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -2731,15 +2529,10 @@ static int ti_sci_cmd_get_fwl_region(const struct ti_sci_handle *handle,
 	req.n_permission_regs = region->n_permission_regs;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_fwl_get_firewall_region_resp *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	region->fwl_id = resp->fwl_id;
 	region->region = resp->region;
@@ -2782,7 +2575,6 @@ static int ti_sci_cmd_change_fwl_owner(const struct ti_sci_handle *handle,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
-		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
 
@@ -2791,15 +2583,10 @@ static int ti_sci_cmd_change_fwl_owner(const struct ti_sci_handle *handle,
 	req.owner_index = owner->owner_index;
 
 	ret = ti_sci_do_xfer(info, xfer);
-	if (ret) {
-		dev_err(info->dev, "Mbox send fail %d\n", ret);
+	if (ret)
 		return ret;
-	}
 
 	resp = (struct ti_sci_msg_fwl_change_owner_info_resp *)xfer->tx_message.buf;
-
-	if (!ti_sci_is_response_ack(resp))
-		return -ENODEV;
 
 	owner->fwl_id = resp->fwl_id;
 	owner->region = resp->region;

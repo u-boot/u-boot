@@ -318,7 +318,7 @@ err_mmap:
 static int generate_ivt_for_fit(int fd, int fit_offset, uint32_t ep,
 				uint32_t *fit_load_addr)
 {
-	image_header_t image_header;
+	struct legacy_img_hdr image_header;
 	int ret;
 
 	uint32_t fit_size, load_addr;
@@ -330,8 +330,8 @@ static int generate_ivt_for_fit(int fd, int fit_offset, uint32_t ep,
 		exit(EXIT_FAILURE);
 	}
 
-	if (read(fd, (char *)&image_header, sizeof(image_header_t)) !=
-	    sizeof(image_header_t)) {
+	if (read(fd, (char *)&image_header, sizeof(struct legacy_img_hdr)) !=
+	    sizeof(struct legacy_img_hdr)) {
 		fprintf(stderr, "generate_ivt_for_fit read failed: %s\n",
 			strerror(errno));
 		exit(EXIT_FAILURE);
@@ -600,7 +600,7 @@ void build_image(int ofd)
 			close(sld_fd);
 
 			file_off = sld_header_off;
-			file_off += sbuf.st_size + sizeof(image_header_t);
+			file_off += sbuf.st_size + sizeof(struct legacy_img_hdr);
 		}
 	}
 

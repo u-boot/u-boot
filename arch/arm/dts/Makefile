@@ -233,8 +233,11 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra210-p3450-0000.dtb
 
 ifdef CONFIG_ARMADA_32BIT
+ifdef CONFIG_ARMADA_375
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
-	armada-375-db.dtb			\
+	armada-375-db.dtb
+else
+dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-385-atl-x530.dtb			\
 	armada-385-atl-x530DP.dtb		\
 	armada-385-db-88f6820-amc.dtb		\
@@ -254,6 +257,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
 	armada-xp-theadorable.dtb
+endif
 else
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\
@@ -379,6 +383,9 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-emmc0.dtb \
 	versal-mini-emmc1.dtb \
 	xilinx-versal-virt.dtb
+dtb-$(CONFIG_ARCH_VERSAL_NET) += \
+	versal-net-mini.dtb \
+	xilinx-versal-net-virt.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += \
@@ -388,8 +395,6 @@ dtb-$(CONFIG_AM33XX) += \
 	am335x-boneblack-wireless.dtb \
 	am335x-boneblue.dtb \
 	am335x-brppt1-mmc.dtb \
-	am335x-brppt1-nand.dtb \
-	am335x-brppt1-spi.dtb \
 	am335x-brxre1.dtb \
 	am335x-brsmarc1.dtb \
 	am335x-draco.dtb \
@@ -1233,6 +1238,15 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7622-bananapi-bpi-r64.dtb \
 	mt7623n-bananapi-bpi-r2.dtb \
 	mt7629-rfb.dtb \
+	mt7981-rfb.dtb \
+	mt7981-emmc-rfb.dtb \
+	mt7981-sd-rfb.dtb \
+	mt7986a-rfb.dtb \
+	mt7986b-rfb.dtb \
+	mt7986a-sd-rfb.dtb \
+	mt7986b-sd-rfb.dtb \
+	mt7986a-emmc-rfb.dtb \
+	mt7986b-emmc-rfb.dtb \
 	mt8183-pumpkin.dtb \
 	mt8512-bm1-emmc.dtb \
 	mt8516-pumpkin.dtb \

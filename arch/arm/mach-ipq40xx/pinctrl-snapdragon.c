@@ -14,6 +14,8 @@
 #include <dm.h>
 #include <errno.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
 #include "pinctrl-snapdragon.h"
@@ -110,6 +112,32 @@ static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 	return 0;
 }
 
+static int msm_pinctrl_bind(struct udevice *dev)
+{
+	ofnode node = dev_ofnode(dev);
+	const char *name;
+	int ret;
+
+	ofnode_get_property(node, "gpio-controller", &ret);
+	if (ret < 0)
+		return 0;
+
+	/* Get the name of gpio node */
+	name = ofnode_get_name(node);
+	if (!name)
+		return -EINVAL;
+
+	/* Bind gpio node */
+	ret = device_bind_driver_to_node(dev, "gpio_msm",
+					 name, node, NULL);
+	if (ret)
+		return ret;
+
+	dev_dbg(dev, "bind %s\n", name);
+
+	return 0;
+}
+
 static struct pinctrl_ops msm_pinctrl_ops = {
 	.get_pins_count = msm_get_pins_count,
 	.get_pin_name = msm_get_pin_name,
@@ -123,7 +151,7 @@ static struct pinctrl_ops msm_pinctrl_ops = {
 };
 
 static const struct udevice_id msm_pinctrl_ids[] = {
-	{ .compatible = "qcom,tlmm-ipq4019", .data = (ulong)&ipq4019_data },
+	{ .compatible = "qcom,ipq4019-pinctrl", .data = (ulong)&ipq4019_data },
 	{ }
 };
 
@@ -134,4 +162,5 @@ U_BOOT_DRIVER(pinctrl_snapdraon) = {
 	.priv_auto	= sizeof(struct msm_pinctrl_priv),
 	.ops		= &msm_pinctrl_ops,
 	.probe		= msm_pinctrl_probe,
+	.bind		= msm_pinctrl_bind,
 };

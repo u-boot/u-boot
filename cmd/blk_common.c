@@ -12,10 +12,10 @@
 #include <blk.h>
 #include <command.h>
 
-int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
+int blk_common_cmd(int argc, char *const argv[], enum uclass_id uclass_id,
 		   int *cur_devnump)
 {
-	const char *if_name = blk_get_if_type_name(if_type);
+	const char *if_name = blk_get_uclass_name(uclass_id);
 
 	switch (argc) {
 	case 0:
@@ -23,16 +23,16 @@ int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 		return CMD_RET_USAGE;
 	case 2:
 		if (strncmp(argv[1], "inf", 3) == 0) {
-			blk_list_devices(if_type);
+			blk_list_devices(uclass_id);
 			return 0;
 		} else if (strncmp(argv[1], "dev", 3) == 0) {
-			if (blk_print_device_num(if_type, *cur_devnump)) {
+			if (blk_print_device_num(uclass_id, *cur_devnump)) {
 				printf("\nno %s devices available\n", if_name);
 				return CMD_RET_FAILURE;
 			}
 			return 0;
 		} else if (strncmp(argv[1], "part", 4) == 0) {
-			if (blk_list_part(if_type))
+			if (blk_list_part(uclass_id))
 				printf("\nno %s partition table available\n",
 				       if_name);
 			return 0;
@@ -42,7 +42,7 @@ int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 		if (strncmp(argv[1], "dev", 3) == 0) {
 			int dev = (int)dectoul(argv[2], NULL);
 
-			if (!blk_show_device(if_type, dev)) {
+			if (!blk_show_device(uclass_id, dev)) {
 				*cur_devnump = dev;
 				printf("... is now current device\n");
 			} else {
@@ -52,7 +52,7 @@ int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 		} else if (strncmp(argv[1], "part", 4) == 0) {
 			int dev = (int)dectoul(argv[2], NULL);
 
-			if (blk_print_part_devnum(if_type, dev)) {
+			if (blk_print_part_devnum(uclass_id, dev)) {
 				printf("\n%s device %d not available\n",
 				       if_name, dev);
 				return CMD_RET_FAILURE;
@@ -71,7 +71,7 @@ int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 			printf("\n%s read: device %d block # "LBAFU", count %lu ... ",
 			       if_name, *cur_devnump, blk, cnt);
 
-			n = blk_read_devnum(if_type, *cur_devnump, blk, cnt,
+			n = blk_read_devnum(uclass_id, *cur_devnump, blk, cnt,
 					    (ulong *)addr);
 
 			printf("%ld blocks read: %s\n", n,
@@ -86,7 +86,7 @@ int blk_common_cmd(int argc, char *const argv[], enum if_type if_type,
 			printf("\n%s write: device %d block # "LBAFU", count %lu ... ",
 			       if_name, *cur_devnump, blk, cnt);
 
-			n = blk_write_devnum(if_type, *cur_devnump, blk, cnt,
+			n = blk_write_devnum(uclass_id, *cur_devnump, blk, cnt,
 					     (ulong *)addr);
 
 			printf("%ld blocks written: %s\n", n,

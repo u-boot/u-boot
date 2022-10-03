@@ -28,8 +28,12 @@ run. Type this::
 
     make tcheck
 
+You can also run a selection tests in parallel with::
+
+    make pcheck
+
 All of the above use the test/run script with a paremeter to select which tests
-are run.
+are run. See :doc:`py_testing` for more information.
 
 
 Sandbox

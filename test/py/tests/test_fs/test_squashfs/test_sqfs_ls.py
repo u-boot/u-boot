@@ -105,6 +105,7 @@ def sqfs_run_all_ls_tests(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_squashfs')
 @pytest.mark.buildconfigspec('fs_squashfs')
 @pytest.mark.requiredtool('mksquashfs')
+@pytest.mark.singlethread
 def test_sqfs_ls(u_boot_console):
     """ Executes the sqfsls test suite.
 

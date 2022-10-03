@@ -1078,7 +1078,7 @@ static int device_get_phy_addr(struct fec_priv *priv, struct udevice *dev)
 		return ret;
 	}
 
-	if (!ofnode_is_available(phandle_args.node))
+	if (!ofnode_is_enabled(phandle_args.node))
 		return -ENOENT;
 
 	priv->phy_of_node = phandle_args.node;

@@ -579,7 +579,7 @@ static int acm_stdio_getc(struct stdio_dev *dev)
 
 	/* Wait for a character to arrive. */
 	while (!acm_stdio_tstc(dev))
-		WATCHDOG_RESET();
+		schedule();
 
 	buf_pop(&f_acm->rx_buf, &c, 1);
 
@@ -639,7 +639,7 @@ static int acm_stdio_start(struct stdio_dev *dev)
 		if (ctrlc())
 			return -ECANCELED;
 
-		WATCHDOG_RESET();
+		schedule();
 	}
 
 	return 0;

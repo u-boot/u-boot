@@ -665,14 +665,14 @@ static int pvblock_blk_bind(struct udevice *udev)
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
 	int devnum;
 
-	desc->if_type = IF_TYPE_PVBLOCK;
+	desc->uclass_id = UCLASS_PVBLOCK;
 	/*
 	 * Initialize the devnum to -ENODEV. This is to make sure that
 	 * blk_next_free_devnum() works as expected, since the default
 	 * value 0 is a valid devnum.
 	 */
 	desc->devnum = -ENODEV;
-	devnum = blk_next_free_devnum(IF_TYPE_PVBLOCK);
+	devnum = blk_next_free_devnum(UCLASS_PVBLOCK);
 	if (devnum < 0)
 		return devnum;
 	desc->devnum = devnum;
@@ -804,7 +804,7 @@ static void print_pvblock_devices(void)
 	const char *class_name;
 
 	class_name = uclass_get_name(UCLASS_PVBLOCK);
-	for (blk_first_device(IF_TYPE_PVBLOCK, &udev); udev;
+	for (blk_first_device(UCLASS_PVBLOCK, &udev); udev;
 	     blk_next_device(&udev), first = false) {
 		struct blk_desc *desc = dev_get_uclass_plat(udev);
 

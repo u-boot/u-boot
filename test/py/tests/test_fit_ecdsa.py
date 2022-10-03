@@ -10,6 +10,7 @@ signature is then extracted, and verified against pyCryptodome.
 This test doesn't run the sandbox. It only checks the host tool 'mkimage'
 """
 
+import os
 import pytest
 import u_boot_utils as util
 from Cryptodome.Hash import SHA256
@@ -84,7 +85,8 @@ def test_fit_ecdsa(u_boot_console):
     cons = u_boot_console
     mkimage = cons.config.build_dir + '/tools/mkimage'
     datadir = cons.config.source_dir + '/test/py/tests/vboot/'
-    tempdir = cons.config.result_dir
+    tempdir = os.path.join(cons.config.result_dir, 'ecdsa')
+    os.makedirs(tempdir, exist_ok=True)
     key_file = f'{tempdir}/ecdsa-test-key.pem'
     fit_file = f'{tempdir}/test.fit'
     dtc('sandbox-kernel.dts')

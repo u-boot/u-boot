@@ -107,20 +107,6 @@
 				status = "okay";
 			};
 
-			mdio {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				phy0: ethernet-phy@0 {
-					reg = <0>;
-				};
-			};
-
-			ethernet@70000 {
-				status = "okay";
-				phy = <&phy0>;
-				phy-mode = "sgmii";
-			};
-
 			usb@50000 {
 				status = "okay";
 			};
@@ -166,6 +152,18 @@
 	clock-frequency = <100000>;
 };
 
+&mdio {
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
+&eth0 {
+	status = "okay";
+	phy = <&phy0>;
+	phy-mode = "sgmii";
+};
+
 &spi0 {
 	status = "okay";
 
@@ -197,7 +195,6 @@
 		spi-max-frequency = <27777777>;
 	};
 };
-
 
 &pciec {
 	status = "okay";

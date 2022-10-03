@@ -25,8 +25,6 @@
 #define MV88F78X60 /* for the DDR training bin_hdr code */
 #endif
 
-#define CONFIG_SYS_L2_PL310
-
 #define MV_UART_CONSOLE_BASE		MVEBU_UART0_BASE
 
 /* Needed for SPI NOR booting in SPL */
@@ -40,10 +38,5 @@
 #define CONFIG_I2C_MVTWSI
 #endif
 #endif
-
-/* Use common timer */
-#define CONFIG_SYS_TIMER_COUNTS_DOWN
-#define CONFIG_SYS_TIMER_COUNTER	(MVEBU_TIMER_BASE + 0x14)
-#define CONFIG_SYS_TIMER_RATE		25000000
 
 #endif /* __MVEBU_CONFIG_H */

@@ -20,7 +20,7 @@
 static int mmc_load_legacy(struct spl_image_info *spl_image,
 			   struct spl_boot_device *bootdev,
 			   struct mmc *mmc,
-			   ulong sector, struct image_header *header)
+			   ulong sector, struct legacy_img_hdr *header)
 {
 	u32 image_offset_sectors;
 	u32 image_size_sectors;
@@ -83,7 +83,7 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 			      struct mmc *mmc, unsigned long sector)
 {
 	unsigned long count;
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 	struct blk_desc *bd = mmc_get_blk_desc(mmc);
 	int ret = 0;
 

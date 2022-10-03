@@ -72,8 +72,13 @@ static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
 #define getcmd_getch()		getchar()
 #define getcmd_cbeep()		getcmd_putch('\a')
 
+#ifdef CONFIG_SPL_BUILD
+#define HIST_MAX		3
+#define HIST_SIZE		32
+#else
 #define HIST_MAX		20
 #define HIST_SIZE		CONFIG_SYS_CBSIZE
+#endif
 
 static int hist_max;
 static int hist_add_idx;
@@ -269,7 +274,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			while (!tstc()) {	/* while no incoming data */
 				if (get_ticks() >= etime)
 					return -2;	/* timed out */
-				WATCHDOG_RESET();
+				schedule();
 			}
 			first = 0;
 		}
@@ -590,7 +595,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 	for (;;) {
 		if (bootretry_tstc_timeout())
 			return -2;	/* timed out */
-		WATCHDOG_RESET();	/* Trigger watchdog, if needed */
+		schedule();	/* Trigger watchdog, if needed */
 
 		c = getchar();
 

@@ -79,7 +79,7 @@ int __sata_initialize(void)
 
 	for (i = 0; i < CONFIG_SYS_SATA_MAX_DEVICE; i++) {
 		memset(&sata_dev_desc[i], 0, sizeof(struct blk_desc));
-		sata_dev_desc[i].if_type = IF_TYPE_SATA;
+		sata_dev_desc[i].uclass_id = UCLASS_AHCI;
 		sata_dev_desc[i].devnum = i;
 		sata_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
 		sata_dev_desc[i].type = DEV_TYPE_HARDDISK;

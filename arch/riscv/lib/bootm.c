@@ -62,7 +62,7 @@ static void announce_and_cleanup(int fake)
 	cleanup_before_linux();
 }
 
-static void boot_prep_linux(bootm_headers_t *images)
+static void boot_prep_linux(struct bootm_headers *images)
 {
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && CONFIG_IS_ENABLED(LMB) && images->ft_len) {
 		debug("using: FDT\n");
@@ -76,7 +76,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 	}
 }
 
-static void boot_jump_linux(bootm_headers_t *images, int flag)
+static void boot_jump_linux(struct bootm_headers *images, int flag)
 {
 	void (*kernel)(ulong hart, void *dtb);
 	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
@@ -107,7 +107,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 }
 
 int do_bootm_linux(int flag, int argc, char *const argv[],
-		   bootm_headers_t *images)
+		   struct bootm_headers *images)
 {
 	/* No need for those on RISC-V */
 	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
@@ -129,7 +129,7 @@ int do_bootm_linux(int flag, int argc, char *const argv[],
 }
 
 int do_bootm_vxworks(int flag, int argc, char *const argv[],
-		     bootm_headers_t *images)
+		     struct bootm_headers *images)
 {
 	return do_bootm_linux(flag, argc, argv, images);
 }

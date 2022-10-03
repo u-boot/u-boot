@@ -116,20 +116,12 @@ static int msm_gpio_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id msm_gpio_ids[] = {
-	{ .compatible = "qcom,msm8916-pinctrl" },
-	{ .compatible = "qcom,apq8016-pinctrl" },
-	{ .compatible = "qcom,ipq4019-pinctrl" },
-	{ .compatible = "qcom,sdm845-pinctrl" },
-	{ }
-};
-
 U_BOOT_DRIVER(gpio_msm) = {
 	.name	= "gpio_msm",
 	.id	= UCLASS_GPIO,
-	.of_match = msm_gpio_ids,
 	.of_to_plat = msm_gpio_of_to_plat,
 	.probe	= msm_gpio_probe,
 	.ops	= &gpio_msm_ops,
+	.flags	= DM_UC_FLAG_SEQ_ALIAS,
 	.priv_auto	= sizeof(struct msm_gpio_bank),
 };

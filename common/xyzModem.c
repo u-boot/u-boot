@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <u-boot/crc.h>
 #include <watchdog.h>
+#include <env.h>
 
 /* Assumption - run xyzModem protocol over the console port */
 
@@ -50,6 +51,8 @@ static struct
   int len, mode, total_retries;
   int total_SOH, total_STX, total_CAN;
   bool crc_mode, at_eof, tx_ack;
+  bool first_xmodem_packet;
+  ulong initial_time, timeout;
   unsigned long file_length, read_length;
 } xyz;
 
@@ -65,7 +68,7 @@ CYGACC_COMM_IF_GETC_TIMEOUT (char chan, char *c)
 {
 
   ulong now = get_timer(0);
-  WATCHDOG_RESET();
+  schedule();
   while (!tstc ())
     {
       if (get_timer(now) > xyzModem_CHAR_TIMEOUT)
@@ -409,6 +412,19 @@ xyzModem_get_hdr (void)
   return 0;
 }
 
+static
+ulong
+xyzModem_get_initial_timeout (void)
+{
+  /* timeout is in seconds, non-positive timeout value is infinity */
+#if CONFIG_IS_ENABLED(ENV_SUPPORT)
+  const char *timeout_str = env_get("loadxy_timeout");
+  if (timeout_str)
+    return 1000 * simple_strtol(timeout_str, NULL, 10);
+#endif
+  return 1000 * CONFIG_CMD_LOADXY_TIMEOUT;
+}
+
 int
 xyzModem_stream_open (connection_info_t * info, int *err)
 {
@@ -439,18 +455,28 @@ xyzModem_stream_open (connection_info_t * info, int *err)
   xyz.total_CAN = 0;
   xyz.read_length = 0;
   xyz.file_length = 0;
+  xyz.first_xmodem_packet = false;
+  xyz.initial_time = get_timer(0);
+  xyz.timeout = xyzModem_get_initial_timeout();
 
   CYGACC_COMM_IF_PUTC (*xyz.__chan, (xyz.crc_mode ? 'C' : NAK));
 
   if (xyz.mode == xyzModem_xmodem)
     {
       /* X-modem doesn't have an information header - exit here */
+      xyz.first_xmodem_packet = true;
       xyz.next_blk = 1;
       return 0;
     }
 
-  while (retries-- > 0)
+  while (!(xyz.timeout && get_timer(xyz.initial_time) > xyz.timeout))
     {
+      if (--retries <= 0)
+        {
+          retries = xyzModem_MAX_RETRIES;
+          crc_retries = xyzModem_MAX_RETRIES_WITH_CRC;
+          xyz.crc_mode = true;
+        }
       stat = xyzModem_get_hdr ();
       if (stat == 0)
 	{
@@ -503,9 +529,19 @@ xyzModem_stream_read (char *buf, int size, int *err)
 	  retries = xyzModem_MAX_RETRIES;
 	  while (retries-- > 0)
 	    {
+	      if (xyz.first_xmodem_packet && xyz.timeout &&
+		  get_timer(xyz.initial_time) > xyz.timeout)
+		{
+		  *err = xyzModem_timeout;
+		  xyz.len = -1;
+		  return total;
+		}
+
 	      stat = xyzModem_get_hdr ();
 	      if (stat == 0)
 		{
+		  if (xyz.mode == xyzModem_xmodem && xyz.first_xmodem_packet)
+		    xyz.first_xmodem_packet = false;
 		  if (xyz.blk == xyz.next_blk)
 		    {
 		      xyz.tx_ack = true;
@@ -583,7 +619,7 @@ xyzModem_stream_read (char *buf, int size, int *err)
 	      xyz.total_retries++;
 	      ZM_DEBUG (zm_dprintf ("NAK (%d)\n", __LINE__));
 	    }
-	  if (stat < 0)
+	  if (stat < 0 && (!xyz.first_xmodem_packet || stat != xyzModem_timeout))
 	    {
 	      *err = stat;
 	      xyz.len = -1;

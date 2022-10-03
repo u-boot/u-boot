@@ -33,8 +33,10 @@ Shell commands
    cmd/bootz
    cmd/cbsysinfo
    cmd/conitrace
+   cmd/cyclic
    cmd/dm
    cmd/echo
+   cmd/eficonfig
    cmd/env
    cmd/event
    cmd/exception
@@ -52,6 +54,7 @@ Shell commands
    cmd/mbr
    cmd/md
    cmd/mmc
+   cmd/pause
    cmd/pinmux
    cmd/printenv
    cmd/pstore

@@ -28,8 +28,6 @@
 #include <linux/ctype.h>
 #include <u-boot/crc.h>
 
-#ifdef CONFIG_HAVE_BLOCK_DEVICE
-
 /* GUID for basic data partitons */
 #if CONFIG_IS_ENABLED(EFI_PARTITION)
 static const efi_guid_t partition_basic_data_guid = PARTITION_BASIC_DATA_GUID;
@@ -1204,4 +1202,3 @@ U_BOOT_PART_TYPE(a_efi) = {
 	.print		= part_print_ptr(part_print_efi),
 	.test		= part_test_efi,
 };
-#endif /* CONFIG_HAVE_BLOCK_DEVICE */

@@ -98,7 +98,7 @@ int host_dev_bind(int devnum, char *filename, bool removable)
 	int ret, fd;
 
 	/* Remove and unbind the old device, if any */
-	ret = blk_get_device(IF_TYPE_HOST, devnum, &dev);
+	ret = blk_get_device(UCLASS_ROOT, devnum, &dev);
 	if (ret == 0) {
 		ret = device_remove(dev, DM_REMOVE_NORMAL);
 		if (ret)
@@ -135,7 +135,7 @@ int host_dev_bind(int devnum, char *filename, bool removable)
 		}
 	}
 	ret = blk_create_device(gd->dm_root, "sandbox_host_blk", str,
-				IF_TYPE_HOST, devnum, 512,
+				UCLASS_ROOT, devnum, 512,
 				os_lseek(fd, 0, OS_SEEK_END) / 512, &dev);
 	if (ret)
 		goto err_file;
@@ -150,7 +150,7 @@ int host_dev_bind(int devnum, char *filename, bool removable)
 		goto err_file;
 	}
 
-	desc = blk_get_devnum_by_type(IF_TYPE_HOST, devnum);
+	desc = blk_get_devnum_by_uclass_id(UCLASS_ROOT, devnum);
 	desc->removable = removable;
 	snprintf(desc->vendor, BLK_VEN_SIZE, "U-Boot");
 	snprintf(desc->product, BLK_PRD_SIZE, "hostfile");
@@ -192,7 +192,7 @@ int host_dev_bind(int dev, char *filename, bool removable)
 	}
 
 	struct blk_desc *blk_dev = &host_dev->blk_dev;
-	blk_dev->if_type = IF_TYPE_HOST;
+	blk_dev->uclass_id = UCLASS_ROOT;
 	blk_dev->priv = host_dev;
 	blk_dev->blksz = 512;
 	blk_dev->lba = os_lseek(host_dev->fd, 0, OS_SEEK_END) / blk_dev->blksz;
@@ -216,7 +216,7 @@ int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 	struct udevice *dev;
 	int ret;
 
-	ret = blk_get_device(IF_TYPE_HOST, devnum, &dev);
+	ret = blk_get_device(UCLASS_ROOT, devnum, &dev);
 	if (ret)
 		return ret;
 	*blk_devp = dev_get_uclass_plat(dev);
@@ -262,8 +262,8 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
 };
 #else
 U_BOOT_LEGACY_BLK(sandbox_host) = {
-	.if_typename	= "host",
-	.if_type	= IF_TYPE_HOST,
+	.uclass_idname	= "host",
+	.uclass_id	= UCLASS_ROOT,
 	.max_devs	= SANDBOX_HOST_MAX_DEVICES,
 	.get_dev	= host_get_dev_err,
 };

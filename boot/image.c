@@ -220,11 +220,11 @@ static const struct table_info table_info[IH_COUNT] = {
 /*****************************************************************************/
 /* Legacy format routines */
 /*****************************************************************************/
-int image_check_hcrc(const image_header_t *hdr)
+int image_check_hcrc(const struct legacy_img_hdr *hdr)
 {
 	ulong hcrc;
 	ulong len = image_get_header_size();
-	image_header_t header;
+	struct legacy_img_hdr header;
 
 	/* Copy header so we can blank CRC field for re-calculation */
 	memmove(&header, (char *)hdr, image_get_header_size());
@@ -235,7 +235,7 @@ int image_check_hcrc(const image_header_t *hdr)
 	return (hcrc == image_get_hcrc(hdr));
 }
 
-int image_check_dcrc(const image_header_t *hdr)
+int image_check_dcrc(const struct legacy_img_hdr *hdr)
 {
 	ulong data = image_get_data(hdr);
 	ulong len = image_get_data_size(hdr);
@@ -257,7 +257,7 @@ int image_check_dcrc(const image_header_t *hdr)
  * returns:
  *     number of components
  */
-ulong image_multi_count(const image_header_t *hdr)
+ulong image_multi_count(const struct legacy_img_hdr *hdr)
 {
 	ulong i, count = 0;
 	uint32_t *size;
@@ -290,7 +290,7 @@ ulong image_multi_count(const image_header_t *hdr)
  *     data address and size of the component, if idx is valid
  *     0 in data and len, if idx is out of range
  */
-void image_multi_getimg(const image_header_t *hdr, ulong idx,
+void image_multi_getimg(const struct legacy_img_hdr *hdr, ulong idx,
 			ulong *data, ulong *len)
 {
 	int i;
@@ -326,7 +326,7 @@ void image_multi_getimg(const image_header_t *hdr, ulong idx,
 	}
 }
 
-static void image_print_type(const image_header_t *hdr)
+static void image_print_type(const struct legacy_img_hdr *hdr)
 {
 	const char __maybe_unused *os, *arch, *type, *comp;
 
@@ -352,7 +352,7 @@ static void image_print_type(const image_header_t *hdr)
  */
 void image_print_contents(const void *ptr)
 {
-	const image_header_t *hdr = (const image_header_t *)ptr;
+	const struct legacy_img_hdr *hdr = (const struct legacy_img_hdr *)ptr;
 	const char __maybe_unused *p;
 
 	p = IMAGE_INDENT_STRING;

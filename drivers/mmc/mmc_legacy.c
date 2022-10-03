@@ -132,7 +132,7 @@ static struct mmc mmc_static = {
 	.dsr_imp		= 0,
 	.dsr			= 0xffffffff,
 	.block_dev = {
-		.if_type	= IF_TYPE_MMC,
+		.uclass_id	= UCLASS_MMC,
 		.removable	= 1,
 		.devnum		= 0,
 		.block_read	= mmc_bread,
@@ -194,7 +194,7 @@ struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
 	mmc->dsr = 0xffffffff;
 	/* Setup the universal parts of the block interface just once */
 	bdesc = mmc_get_blk_desc(mmc);
-	bdesc->if_type = IF_TYPE_MMC;
+	bdesc->uclass_id = UCLASS_MMC;
 	bdesc->removable = 1;
 	bdesc->devnum = mmc_get_next_devnum();
 	bdesc->block_read = mmc_bread;
@@ -253,8 +253,8 @@ static int mmc_get_dev(int dev, struct blk_desc **descp)
 }
 
 U_BOOT_LEGACY_BLK(mmc) = {
-	.if_typename	= "mmc",
-	.if_type	= IF_TYPE_MMC,
+	.uclass_idname	= "mmc",
+	.uclass_id	= UCLASS_MMC,
 	.max_devs	= -1,
 	.get_dev	= mmc_get_dev,
 	.select_hwpart	= mmc_select_hwpartp,

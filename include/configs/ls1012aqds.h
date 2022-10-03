@@ -49,10 +49,6 @@
 #define RTC
 #define CONFIG_SYS_I2C_RTC_ADDR         0x51  /* Channel 3*/
 
-/* EEPROM */
-#define CONFIG_SYS_I2C_EEPROM_NXID
-#define CONFIG_SYS_EEPROM_BUS_NUM    0
-
 
 /* Voltage monitor on channel 2*/
 #define I2C_VOL_MONITOR_ADDR           0x40

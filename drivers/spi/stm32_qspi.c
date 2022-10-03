@@ -172,7 +172,7 @@ static int _stm32_qspi_wait_cmd(struct stm32_qspi_priv *priv,
 static void _stm32_qspi_read_fifo(u8 *val, void __iomem *addr)
 {
 	*val = readb(addr);
-	WATCHDOG_RESET();
+	schedule();
 }
 
 static void _stm32_qspi_write_fifo(u8 *val, void __iomem *addr)

@@ -51,6 +51,7 @@ def test_gpio_exit_statuses(u_boot_console):
 def test_gpio_read(u_boot_console):
     """Test that gpio read correctly sets the variable to the value of a gpio pin."""
 
+    u_boot_console.run_command('gpio clear 0')
     response = u_boot_console.run_command('gpio read var 0; echo val:$var,rc:$?')
     expected_response = 'val:0,rc:0'
     assert(expected_response in response)

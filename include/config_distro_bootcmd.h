@@ -162,11 +162,13 @@
 	"scan_dev_for_efi="                                               \
 		"setenv efi_fdtfile ${fdtfile}; "                         \
 		BOOTENV_EFI_SET_FDTFILE_FALLBACK                          \
+		BOOTENV_RUN_EXTENSION_INIT                                \
 		"for prefix in ${efi_dtb_prefixes}; do "                  \
 			"if test -e ${devtype} "                          \
 					"${devnum}:${distro_bootpart} "   \
 					"${prefix}${efi_fdtfile}; then "  \
 				"run load_efi_dtb; "                      \
+				BOOTENV_RUN_EXTENSION_APPLY               \
 			"fi;"                                             \
 		"done;"                                                   \
 		"run boot_efi_bootmgr;"                                   \
@@ -418,6 +420,34 @@
 	BOOT_TARGET_DEVICES_references_PXE_without_CONFIG_CMD_DHCP_or_PXE
 #endif
 
+#if defined(CONFIG_CMD_EXTENSION)
+#define BOOTENV_RUN_EXTENSION_INIT "run extension_init; "
+#define BOOTENV_RUN_EXTENSION_APPLY "run extension_apply; "
+#define BOOTENV_SET_EXTENSION_NEED_INIT \
+	"extension_need_init=; " \
+	"setenv extension_overlay_addr ${fdtoverlay_addr_r}; "
+#define BOOTENV_SHARED_EXTENSION \
+	"extension_init=" \
+		"echo Extension init...; " \
+		"if ${extension_need_init}; then " \
+			"extension_need_init=false; " \
+			"extension scan; " \
+		"fi\0" \
+	\
+	"extension_overlay_cmd=" \
+		"load ${devtype} ${devnum}:${distro_bootpart} " \
+			"${extension_overlay_addr} ${prefix}${extension_overlay_name}\0" \
+	"extension_apply=" \
+		"if fdt addr -q ${fdt_addr_r}; then " \
+			"extension apply all; " \
+		"fi\0"
+#else
+#define BOOTENV_RUN_EXTENSION_INIT
+#define BOOTENV_RUN_EXTENSION_APPLY
+#define BOOTENV_SET_EXTENSION_NEED_INIT
+#define BOOTENV_SHARED_EXTENSION
+#endif
+
 #define BOOTENV_DEV_NAME(devtypeu, devtypel, instance, ...) \
 	BOOTENV_DEV_NAME_##devtypeu(devtypeu, devtypel, instance, ## __VA_ARGS__)
 #define BOOTENV_BOOT_TARGETS \
@@ -437,6 +467,7 @@
 	BOOTENV_SHARED_UBIFS \
 	BOOTENV_SHARED_EFI \
 	BOOTENV_SHARED_VIRTIO \
+	BOOTENV_SHARED_EXTENSION \
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
 	"boot_script_dhcp=boot.scr.uimg\0" \
@@ -501,6 +532,7 @@
 		BOOTENV_SET_NVME_NEED_INIT                                \
 		BOOTENV_SET_IDE_NEED_INIT                                 \
 		BOOTENV_SET_VIRTIO_NEED_INIT                              \
+		BOOTENV_SET_EXTENSION_NEED_INIT                           \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"

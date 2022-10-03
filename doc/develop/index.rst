@@ -28,6 +28,7 @@ Implementation
    ci_testing
    commands
    config_binding
+   cyclic
    devicetree/index
    distro
    driver-model/index

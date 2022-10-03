@@ -128,7 +128,7 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	if (!obj)
 		return -ENOENT;
 
-	devnum = blk_find_max_devnum(IF_TYPE_EFI_LOADER);
+	devnum = blk_find_max_devnum(UCLASS_EFI_LOADER);
 	if (devnum == -ENODEV)
 		devnum = 0;
 	else if (devnum < 0)
@@ -140,7 +140,7 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	sprintf(name, "efiblk#%d", devnum);
 
 	/* Create driver model udevice for the EFI block io device */
-	ret = blk_create_device(parent, "efi_blk", name, IF_TYPE_EFI_LOADER,
+	ret = blk_create_device(parent, "efi_blk", name, UCLASS_EFI_LOADER,
 				devnum, io->media->block_size,
 				(lbaint_t)io->media->last_block, &bdev);
 	if (ret)

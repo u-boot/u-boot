@@ -540,7 +540,7 @@ config PLATFORM_ELFENTRY
 
 config STACK_SIZE
 	hex "Define max stack size that can be used by U-Boot"
-	default 0x4000000 if ARCH_VERSAL || ARCH_ZYNQMP
+	default 0x4000000 if ARCH_VERSAL_NET || ARCH_VERSAL || ARCH_ZYNQMP
 	default 0x200000 if MICROBLAZE
 	default 0x1000000
 	help

@@ -5,6 +5,9 @@
 ifdef CONFIG_HUSH_PARSER
 obj-$(CONFIG_CONSOLE_RECORD) += test_echo.o
 endif
+ifdef CONFIG_CONSOLE_RECORD
+obj-$(CONFIG_CMD_PAUSE) += test_pause.o
+endif
 obj-y += mem.o
 obj-$(CONFIG_CMD_ADDRMAP) += addrmap.o
 obj-$(CONFIG_CMD_FDT) += fdt.o

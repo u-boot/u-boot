@@ -159,6 +159,14 @@
 		};
 
 	};
+
+	i2c1_pins_default: i2c1-default {
+		mux {
+			function = "i2c";
+			groups = "i2c1_0";
+		};
+	};
+
 };
 
 &snfi {
@@ -241,4 +249,14 @@
 
 &u3phy {
        status = "okay";
+};
+
+&soft_i2c {
+	status = "disabled";
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins_default>;
+	status = "okay";
 };

@@ -833,7 +833,7 @@ void efi_timer_check(void)
 		efi_signal_event(evt);
 	}
 	efi_process_event_queue();
-	WATCHDOG_RESET();
+	schedule();
 }
 
 /**
@@ -2198,7 +2198,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 
 	/* Give the payload some time to boot */
 	efi_set_watchdog(0);
-	WATCHDOG_RESET();
+	schedule();
 out:
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 		if (ret != EFI_SUCCESS)
@@ -2458,6 +2458,35 @@ static efi_status_t EFIAPI efi_protocols_per_handle(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+efi_status_t efi_locate_handle_buffer_int(enum efi_locate_search_type search_type,
+					  const efi_guid_t *protocol, void *search_key,
+					  efi_uintn_t *no_handles, efi_handle_t **buffer)
+{
+	efi_status_t r;
+	efi_uintn_t buffer_size = 0;
+
+	if (!no_handles || !buffer) {
+		r = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	*no_handles = 0;
+	*buffer = NULL;
+	r = efi_locate_handle(search_type, protocol, search_key, &buffer_size,
+			      *buffer);
+	if (r != EFI_BUFFER_TOO_SMALL)
+		goto out;
+	r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
+			      (void **)buffer);
+	if (r != EFI_SUCCESS)
+		goto out;
+	r = efi_locate_handle(search_type, protocol, search_key, &buffer_size,
+			      *buffer);
+	if (r == EFI_SUCCESS)
+		*no_handles = buffer_size / sizeof(efi_handle_t);
+out:
+	return r;
+}
+
 /**
  * efi_locate_handle_buffer() - locate handles implementing a protocol
  * @search_type: selection criterion
@@ -2479,30 +2508,13 @@ efi_status_t EFIAPI efi_locate_handle_buffer(
 			efi_uintn_t *no_handles, efi_handle_t **buffer)
 {
 	efi_status_t r;
-	efi_uintn_t buffer_size = 0;
 
 	EFI_ENTRY("%d, %pUs, %p, %p, %p", search_type, protocol, search_key,
 		  no_handles, buffer);
 
-	if (!no_handles || !buffer) {
-		r = EFI_INVALID_PARAMETER;
-		goto out;
-	}
-	*no_handles = 0;
-	*buffer = NULL;
-	r = efi_locate_handle(search_type, protocol, search_key, &buffer_size,
-			      *buffer);
-	if (r != EFI_BUFFER_TOO_SMALL)
-		goto out;
-	r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
-			      (void **)buffer);
-	if (r != EFI_SUCCESS)
-		goto out;
-	r = efi_locate_handle(search_type, protocol, search_key, &buffer_size,
-			      *buffer);
-	if (r == EFI_SUCCESS)
-		*no_handles = buffer_size / sizeof(efi_handle_t);
-out:
+	r = efi_locate_handle_buffer_int(search_type, protocol, search_key,
+					 no_handles, buffer);
+
 	return EFI_EXIT(r);
 }
 

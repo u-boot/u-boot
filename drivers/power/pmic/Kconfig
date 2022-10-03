@@ -216,10 +216,10 @@ config PMIC_MAX8997
 	- MUIC
 	- Others
 
-config PMIC_PM8916
-	bool "Enable Driver Model for Qualcomm PM8916 PMIC"
+config PMIC_QCOM
+	bool "Enable Driver Model for Qualcomm generic PMIC"
 	---help---
-	The PM8916 is a PMIC connected to one (or several) processors
+	The Qcom PMIC is connected to one (or several) processors
 	with SPMI bus. It has 2 slaves with several peripherals:
 	- 18x LDO
 	- 4x GPIO
@@ -229,7 +229,7 @@ config PMIC_PM8916
 	- Vibrator drivers
 	- Others
 
-	Driver binding info: doc/device-tree-bindings/pmic/pm8916.txt
+	Driver binding info: doc/device-tree-bindings/pmic/qcom,spmi-pmic.txt
 
 config PMIC_RK8XX
 	bool "Enable support for Rockchip PMIC RK8XX"

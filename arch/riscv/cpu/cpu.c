@@ -19,14 +19,16 @@
  * The variables here must be stored in the data section since they are used
  * before the bss section is available.
  */
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
 u32 hart_lottery __section(".data") = 0;
 
+#ifdef CONFIG_AVAILABLE_HARTS
 /*
  * The main hart running U-Boot has acquired available_harts_lock until it has
  * finished initialization of global data.
  */
 u32 available_harts_lock = 1;
+#endif
 #endif
 
 static inline bool supports_extension(char ext)

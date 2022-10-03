@@ -122,7 +122,7 @@ call_board_init_f_0:
 call_harts_early_init:
 	jal	harts_early_init
 
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
 	/*
 	 * Pick hart to initialize global data and run U-Boot. The other harts
 	 * wait for initialization to complete.
@@ -152,22 +152,24 @@ call_harts_early_init:
 	/* save the boot hart id to global_data */
 	SREG	tp, GD_BOOT_HART(gp)
 
-#ifndef CONFIG_XIP
+#if !CONFIG_IS_ENABLED(XIP)
+#ifdef CONFIG_AVAILABLE_HARTS
 	la	t0, available_harts_lock
 	amoswap.w.rl zero, zero, 0(t0)
+#endif
 
 wait_for_gd_init:
-	la	t0, available_harts_lock
-	li	t1, 1
-1:	amoswap.w.aq t1, t1, 0(t0)
-	bnez	t1, 1b
-
 	/*
 	 * Set the global data pointer only when gd_t has been initialized.
 	 * This was already set by arch_setup_gd on the boot hart, but all other
 	 * harts' global data pointers gets set here.
 	 */
 	mv	gp, s0
+#ifdef CONFIG_AVAILABLE_HARTS
+	la	t0, available_harts_lock
+	li	t1, 1
+1:	amoswap.w.aq t1, t1, 0(t0)
+	bnez	t1, 1b
 
 	/* register available harts in the available_harts mask */
 	li	t1, 1
@@ -177,6 +179,7 @@ wait_for_gd_init:
 	SREG	t2, GD_AVAILABLE_HARTS(gp)
 
 	amoswap.w.rl zero, zero, 0(t0)
+#endif
 
 	/*
 	 * Continue on hart lottery winner, others branch to

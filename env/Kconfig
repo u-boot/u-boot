@@ -558,7 +558,7 @@ config ENV_OFFSET
 	default 0xF0000 if ARCH_SUNXI
 	default 0xE0000 if ARCH_ZYNQ
 	default 0x1E00000 if ARCH_ZYNQMP
-	default 0x7F40000 if ARCH_VERSAL
+	default 0x7F40000 if ARCH_VERSAL || ARCH_VERSAL_NET
 	default 0 if ARC
 	default 0x140000 if ARCH_AT91
 	default 0x260000 if ARCH_OMAP2PLUS
@@ -570,6 +570,7 @@ config ENV_OFFSET_REDUND
 	hex "Redundant environment offset"
 	depends on (ENV_IS_IN_EEPROM || ENV_IS_IN_MMC || ENV_IS_IN_NAND || \
 		    ENV_IS_IN_SPI_FLASH) && SYS_REDUNDAND_ENVIRONMENT
+	default 0x10C0000 if MICROBLAZE
 	default 0
 	help
 	  Offset from the start of the device (or partition) of the redundant
@@ -582,7 +583,7 @@ config ENV_SIZE
 	default 0x10000 if ARCH_SUNXI
 	default 0x8000 if ARCH_ROCKCHIP && ENV_IS_IN_MMC
 	default 0x2000 if ARCH_ROCKCHIP && ENV_IS_IN_SPI_FLASH
-	default 0x8000 if ARCH_ZYNQMP || ARCH_VERSAL
+	default 0x8000 if ARCH_ZYNQMP || ARCH_VERSAL || ARCH_VERSAL_NET
 	default 0x4000 if ARC
 	default 0x1f000
 	help
@@ -592,7 +593,7 @@ config ENV_SECT_SIZE
 	hex "Environment Sector-Size"
 	depends on ENV_IS_IN_FLASH || ENV_IS_IN_SPI_FLASH
 	default 0x2000 if ARCH_ROCKCHIP
-	default 0x40000 if ARCH_ZYNQMP || ARCH_VERSAL
+	default 0x40000 if ARCH_ZYNQMP || ARCH_VERSAL || ARCH_VERSAL_NET
 	default 0x20000 if ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
 	default 0x20000 if MICROBLAZE && ENV_IS_IN_SPI_FLASH
 	default 0x10000 if ARCH_SUNXI && ENV_IS_IN_SPI_FLASH

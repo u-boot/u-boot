@@ -292,11 +292,6 @@
 #if defined(CONFIG_TARGET_T1042RDB_PI)	|| \
 	defined(CONFIG_TARGET_T1040D4RDB)	|| \
 	defined(CONFIG_TARGET_T1042D4RDB)
-/* LDI/DVI Encoder for display */
-#define CONFIG_SYS_I2C_LDI_ADDR		0x38
-#define CONFIG_SYS_I2C_DVI_ADDR		0x75
-#define CONFIG_SYS_I2C_DVI_BUS_NUM	0
-
 /*
  * RTC configuration
  */

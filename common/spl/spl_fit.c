@@ -10,7 +10,7 @@
 #include <gzip.h>
 #include <image.h>
 #include <log.h>
-#include <malloc.h>
+#include <memalign.h>
 #include <mapmem.h>
 #include <spl.h>
 #include <sysinfo.h>
@@ -429,7 +429,9 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 				 * depending on how the overlay is stored, so
 				 * don't fail yet if the allocation failed.
 				 */
-				tmpbuffer = malloc(CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ);
+				size_t size = CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ;
+
+				tmpbuffer = malloc_cache_aligned(size);
 				if (!tmpbuffer)
 					debug("%s: unable to allocate space for overlays\n",
 					      __func__);
@@ -537,7 +539,7 @@ static void *spl_get_fit_load_buffer(size_t size)
 {
 	void *buf;
 
-	buf = malloc(size);
+	buf = malloc_cache_aligned(size);
 	if (!buf) {
 		pr_err("Could not get FIT buffer of %lu bytes\n", (ulong)size);
 		pr_err("\tcheck CONFIG_SYS_SPL_MALLOC_SIZE\n");

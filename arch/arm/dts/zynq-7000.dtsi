@@ -192,6 +192,17 @@
 			reg = <0xf8006000 0x1000>;
 		};
 
+		ocm: sram@fffc0000 {
+			compatible = "mmio-sram";
+			reg = <0xfffc0000 0x10000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0xfffc0000 0x10000>;
+			ocm-sram@0 {
+				reg = <0x0 0x10000>;
+			};
+		};
+
 		uart0: serial@e0000000 {
 			compatible = "xlnx,xuartps", "cdns,uart-r1p8";
 			status = "disabled";
@@ -235,19 +246,19 @@
 		};
 
 		qspi: spi@e000d000 {
-			clock-names = "ref_clk", "pclk";
-			clocks = <&clkc 10>, <&clkc 43>;
 			compatible = "xlnx,zynq-qspi-1.0";
-			status = "disabled";
+			reg = <0xe000d000 0x1000>;
 			interrupt-parent = <&intc>;
 			interrupts = <0 19 4>;
-			reg = <0xe000d000 0x1000>;
+			clocks = <&clkc 10>, <&clkc 43>;
+			clock-names = "ref_clk", "pclk";
+			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
 
 		gem0: ethernet@e000b000 {
-			compatible = "cdns,zynq-gem", "cdns,gem";
+			compatible = "xlnx,zynq-gem", "cdns,zynq-gem", "cdns,gem";
 			reg = <0xe000b000 0x1000>;
 			status = "disabled";
 			interrupts = <0 22 4>;
@@ -258,7 +269,7 @@
 		};
 
 		gem1: ethernet@e000c000 {
-			compatible = "cdns,zynq-gem", "cdns,gem";
+			compatible = "xlnx,zynq-gem", "cdns,zynq-gem", "cdns,gem";
 			reg = <0xe000c000 0x1000>;
 			status = "disabled";
 			interrupts = <0 45 4>;
@@ -378,9 +389,9 @@
 
 		devcfg: devcfg@f8007000 {
 			compatible = "xlnx,zynq-devcfg-1.0";
+			reg = <0xf8007000 0x100>;
 			interrupt-parent = <&intc>;
 			interrupts = <0 8 4>;
-			reg = <0xf8007000 0x100>;
 			clocks = <&clkc 12>, <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
 			clock-names = "ref_clk", "fclk0", "fclk1", "fclk2", "fclk3";
 			syscon = <&slcr>;
@@ -416,6 +427,7 @@
 		};
 
 		scutimer: timer@f8f00600 {
+			u-boot,dm-pre-reloc;
 			interrupt-parent = <&intc>;
 			interrupts = <1 13 0x301>;
 			compatible = "arm,cortex-a9-twd-timer";

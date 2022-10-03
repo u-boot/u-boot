@@ -38,13 +38,13 @@ static efi_status_t __maybe_unused efi_set_blk_dev_to_system_partition(void)
 	char part_str[PART_STR_LEN];
 	int r;
 
-	if (!efi_system_partition.if_type) {
+	if (efi_system_partition.uclass_id == UCLASS_INVALID) {
 		log_err("No EFI system partition\n");
 		return EFI_DEVICE_ERROR;
 	}
 	snprintf(part_str, PART_STR_LEN, "%x:%x",
 		 efi_system_partition.devnum, efi_system_partition.part);
-	r = fs_set_blk_dev(blk_get_if_type_name(efi_system_partition.if_type),
+	r = fs_set_blk_dev(blk_get_uclass_name(efi_system_partition.uclass_id),
 			   part_str, FS_TYPE_ANY);
 	if (r) {
 		log_err("Cannot read EFI system partition\n");

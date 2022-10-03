@@ -187,8 +187,8 @@
 			reg = <0xe0008000 0x20>;
 		};
 
-		pinctrl: pinctrl@e0014000 {
-			compatible = "microchip,sama7g5-gpio";
+		pioA: pinctrl@e0014000 {
+			compatible = "microchip,sama7g5-pinctrl";
 			reg = <0xe0014000 0x800>;
 			interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>,
@@ -196,14 +196,10 @@
 				<GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&pmc PMC_TYPE_PERIPHERAL 11>;
-
-			pioA: pinctrl_default {
-				interrupt-controller;
-				#interrupt-cells = <2>;
-				gpio-controller;
-				#gpio-cells = <2>;
-				compatible = "microchip,sama7g5-pinctrl";
-			};
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			gpio-controller;
+			#gpio-cells = <2>;
 		};
 
 		pmc: pmc@e0018000 {

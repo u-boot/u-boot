@@ -5782,7 +5782,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         # Check that the data appears in the file somewhere
         self.assertIn(U_BOOT_SPL_DATA, data)
 
-        # Get struct image_header -> ih_name
+        # Get struct legacy_img_hdr -> ih_name
         name = data[0x20:0x40]
 
         # Build the filename that we expect to be placed in there, by virtue of
@@ -5799,7 +5799,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         # Check that the data appears in the file somewhere
         self.assertIn(U_BOOT_SPL_DATA, data)
 
-        # Get struct image_header -> ih_name
+        # Get struct legacy_img_hdr -> ih_name
         name = data[0x20:0x40]
 
         # Build the filename that we expect to be placed in there, by virtue of

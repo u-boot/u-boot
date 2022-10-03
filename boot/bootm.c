@@ -41,10 +41,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-bootm_headers_t images;		/* pointers to os/initrd/fdt images */
+struct bootm_headers images;		/* pointers to os/initrd/fdt images */
 
 static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
-				   char *const argv[], bootm_headers_t *images,
+				   char *const argv[], struct bootm_headers *images,
 				   ulong *os_data, ulong *os_len);
 
 __weak void board_quiesce_devices(void)
@@ -52,7 +52,7 @@ __weak void board_quiesce_devices(void)
 }
 
 #ifdef CONFIG_LMB
-static void boot_start_lmb(bootm_headers_t *images)
+static void boot_start_lmb(struct bootm_headers *images)
 {
 	ulong		mem_start;
 	phys_size_t	mem_size;
@@ -65,7 +65,7 @@ static void boot_start_lmb(bootm_headers_t *images)
 }
 #else
 #define lmb_reserve(lmb, base, size)
-static inline void boot_start_lmb(bootm_headers_t *images) { }
+static inline void boot_start_lmb(struct bootm_headers *images) { }
 #endif
 
 static int bootm_start(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -397,9 +397,9 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size,
 #endif
 
 #ifndef USE_HOSTCC
-static int bootm_load_os(bootm_headers_t *images, int boot_progress)
+static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 {
-	image_info_t os = images->os;
+	struct image_info os = images->os;
 	ulong load = os.load;
 	ulong load_end;
 	ulong blob_start = os.start;
@@ -688,7 +688,7 @@ int bootm_process_cmdline_env(int flags)
  *	unless the image type is standalone.
  */
 int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[], int states, bootm_headers_t *images,
+		    char *const argv[], int states, struct bootm_headers *images,
 		    int boot_progress)
 {
 	boot_os_fn *boot_fn;
@@ -825,9 +825,9 @@ err:
  *     pointer to a legacy image header if valid image was found
  *     otherwise return NULL
  */
-static image_header_t *image_get_kernel(ulong img_addr, int verify)
+static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
 {
-	image_header_t *hdr = (image_header_t *)img_addr;
+	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)img_addr;
 
 	if (!image_check_magic(hdr)) {
 		puts("Bad Magic Number\n");
@@ -878,11 +878,11 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
  *     address and length, otherwise NULL
  */
 static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
-				   char *const argv[], bootm_headers_t *images,
+				   char *const argv[], struct bootm_headers *images,
 				   ulong *os_data, ulong *os_len)
 {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-	image_header_t	*hdr;
+	struct legacy_img_hdr	*hdr;
 #endif
 	ulong		img_addr;
 	const void *buf;
@@ -940,7 +940,7 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * kernel decompression.
 		 */
 		memmove(&images->legacy_hdr_os_copy, hdr,
-			sizeof(image_header_t));
+			sizeof(struct legacy_img_hdr));
 
 		/* save pointer to image header */
 		images->legacy_hdr_os = hdr;
@@ -1002,7 +1002,7 @@ static int bootm_host_load_image(const void *fit, int req_image_type,
 {
 	const char *fit_uname_config = NULL;
 	ulong data, len;
-	bootm_headers_t images;
+	struct bootm_headers images;
 	int noffset;
 	ulong load_end, buf_size;
 	uint8_t image_type;

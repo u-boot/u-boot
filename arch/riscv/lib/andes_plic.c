@@ -71,7 +71,7 @@ int riscv_init_ipi(void)
 			continue;
 
 		/* skip if hart is marked as not available */
-		if (!ofnode_is_available(node))
+		if (!ofnode_is_enabled(node))
 			continue;
 
 		/* read hart ID of CPU */

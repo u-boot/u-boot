@@ -22,7 +22,7 @@
 #include <u-boot/crc.h>
 #include <imximage.h>
 
-static image_header_t header;
+static struct legacy_img_hdr header;
 
 static int image_check_image_types(uint8_t type)
 {
@@ -46,15 +46,15 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	uint32_t len;
 	const unsigned char *data;
 	uint32_t checksum;
-	image_header_t header;
-	image_header_t *hdr = &header;
+	struct legacy_img_hdr header;
+	struct legacy_img_hdr *hdr = &header;
 
 	/*
 	 * create copy of header so that we can blank out the
 	 * checksum field for checking - this can't be done
 	 * on the PROT_READ mapped data.
 	 */
-	memcpy(hdr, ptr, sizeof(image_header_t));
+	memcpy(hdr, ptr, sizeof(struct legacy_img_hdr));
 
 	if (be32_to_cpu(hdr->ih_magic) != IH_MAGIC) {
 		debug("%s: Bad Magic Number: \"%s\" is no valid image\n",
@@ -63,7 +63,7 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	}
 
 	data = (const unsigned char *)hdr;
-	len  = sizeof(image_header_t);
+	len  = sizeof(struct legacy_img_hdr);
 
 	checksum = be32_to_cpu(hdr->ih_hcrc);
 	hdr->ih_hcrc = cpu_to_be32(0);	/* clear for re-calculation */
@@ -74,8 +74,8 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 		return -FDT_ERR_BADSTATE;
 	}
 
-	data = (const unsigned char *)ptr + sizeof(image_header_t);
-	len  = image_size - sizeof(image_header_t) ;
+	data = (const unsigned char *)ptr + sizeof(struct legacy_img_hdr);
+	len  = image_size - sizeof(struct legacy_img_hdr);
 
 	checksum = be32_to_cpu(hdr->ih_dcrc);
 	if (crc32(0, data, len) != checksum) {
@@ -94,13 +94,12 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	uint32_t imagesize;
 	uint32_t ep;
 	uint32_t addr;
-
-	image_header_t * hdr = (image_header_t *)ptr;
+	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)ptr;
 
 	checksum = crc32(0,
 			(const unsigned char *)(ptr +
-				sizeof(image_header_t)),
-			sbuf->st_size - sizeof(image_header_t));
+				sizeof(struct legacy_img_hdr)),
+			sbuf->st_size - sizeof(struct legacy_img_hdr));
 
 	time = imagetool_get_source_date(params->cmdname, sbuf->st_mtime);
 	ep = params->ep;
@@ -108,11 +107,11 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	if (params->type == IH_TYPE_FIRMWARE_IVT)
 		/* Add size of CSF minus IVT */
-		imagesize = sbuf->st_size - sizeof(image_header_t)
+		imagesize = sbuf->st_size - sizeof(struct legacy_img_hdr)
 			    + 0x2060 - sizeof(flash_header_v2_t);
 
 	else
-		imagesize = sbuf->st_size - sizeof(image_header_t);
+		imagesize = sbuf->st_size - sizeof(struct legacy_img_hdr);
 
 	if (params->os == IH_OS_TEE) {
 		addr = optee_image_get_load_addr(hdr);
@@ -134,14 +133,14 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	image_set_name(hdr, params->imagename);
 
 	checksum = crc32(0, (const unsigned char *)hdr,
-				sizeof(image_header_t));
+				sizeof(struct legacy_img_hdr));
 
 	image_set_hcrc(hdr, checksum);
 }
 
 static int image_extract_subimage(void *ptr, struct image_tool_params *params)
 {
-	const image_header_t *hdr = (const image_header_t *)ptr;
+	const struct legacy_img_hdr *hdr = (const struct legacy_img_hdr *)ptr;
 	ulong file_data;
 	ulong file_len;
 
@@ -175,7 +174,7 @@ static int image_extract_subimage(void *ptr, struct image_tool_params *params)
 U_BOOT_IMAGE_TYPE(
 	defimage,
 	"Default Image support",
-	sizeof(image_header_t),
+	sizeof(struct legacy_img_hdr),
 	(void *)&header,
 	image_check_params,
 	image_verify_header,

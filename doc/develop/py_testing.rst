@@ -121,31 +121,36 @@ more options.
 Running tests in parallel
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Note: This does not fully work yet and is documented only so you can try to
-fix the problems.
+Note: Not all tests can run in parallel at present, so the usual approach is
+to just run those that can.
 
 First install support for parallel tests::
 
+    sudo apt install python3-pytest-xdist
+
+or:::
+
     pip3 install pytest-xdist
 
-Then build sandbox in a suitable build directory. It is not possible to use
-the --build flag with xdist.
+Then run the tests in parallel using the -n flag::
 
-Finally, run the tests in parallel using the -n flag::
+    test/py/test.py -B sandbox --build --build-dir /tmp/b/sandbox -q -k \
+        'not slow and not bootstd and not spi_flash' -n16
 
-    # build sandbox first, in a suitable build directory. It is not possible
-    # to use the --build flag with -n
-    test/py/test.py -B sandbox --build-dir /tmp/b/sandbox -q -k 'not slow' -n32
+You can also use `make pcheck` to run all tests in parallel. This uses a maximum
+of 16 threads, since the setup time is significant and there are under 1000
+tests.
 
-At least the following non-slow tests are known to fail:
+Note that the `test-log.html` output does not work correctly at present with
+parallel testing. All the threads write to it at once, so it is garbled.
 
-- test_fit_ecdsa
-- test_bind_unbind_with_uclass
-- ut_dm_spi_flash
-- test_gpt_rename_partition
-- test_gpt_swap_partitions
-- test_pinmux_status
-- test_sqfs_load
+Note that the `tools/` tests still run each tool's tests once after the other,
+although within that, they do run in parallel. So for example, the buildman
+tests run in parallel, then the binman tests run in parallel. There would be a
+significant advantage to running them all in parallel together, but that would
+require a large amount of refactoring, e.g. with more use of pytest fixtures.
+The code-coverage tests are omitted since they cannot run in parallel due to a
+Python limitation.
 
 
 Testing under a debugger

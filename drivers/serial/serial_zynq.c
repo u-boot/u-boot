@@ -307,7 +307,7 @@ static inline void _debug_uart_putc(int ch)
 	struct uart_zynq *regs = (struct uart_zynq *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	while (_uart_zynq_serial_putc(regs, ch) == -EAGAIN)
-		WATCHDOG_RESET();
+		schedule();
 }
 
 DEBUG_UART_FUNCS

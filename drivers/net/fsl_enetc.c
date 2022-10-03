@@ -146,7 +146,7 @@ static int enetc_init_sgmii(struct udevice *dev)
 	if (!enetc_has_imdio(dev))
 		return 0;
 
-	if (priv->if_type == PHY_INTERFACE_MODE_2500BASEX)
+	if (priv->uclass_id == PHY_INTERFACE_MODE_2500BASEX)
 		is2500 = true;
 
 	/*
@@ -221,7 +221,7 @@ static void enetc_setup_mac_iface(struct udevice *dev,
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 if_mode;
 
-	switch (priv->if_type) {
+	switch (priv->uclass_id) {
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_RGMII_RXID:
@@ -278,14 +278,14 @@ static void enetc_start_pcs(struct udevice *dev)
 		return;
 	}
 
-	priv->if_type = dev_read_phy_mode(dev);
-	if (priv->if_type == PHY_INTERFACE_MODE_NA) {
+	priv->uclass_id = dev_read_phy_mode(dev);
+	if (priv->uclass_id == PHY_INTERFACE_MODE_NA) {
 		enetc_dbg(dev,
 			  "phy-mode property not found, defaulting to SGMII\n");
-		priv->if_type = PHY_INTERFACE_MODE_SGMII;
+		priv->uclass_id = PHY_INTERFACE_MODE_SGMII;
 	}
 
-	switch (priv->if_type) {
+	switch (priv->uclass_id) {
 	case PHY_INTERFACE_MODE_SGMII:
 	case PHY_INTERFACE_MODE_2500BASEX:
 		enetc_init_sgmii(dev);
@@ -323,7 +323,7 @@ static int enetc_probe(struct udevice *dev)
 	struct enetc_priv *priv = dev_get_priv(dev);
 	int res;
 
-	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_available(dev_ofnode(dev))) {
+	if (ofnode_valid(dev_ofnode(dev)) && !ofnode_is_enabled(dev_ofnode(dev))) {
 		enetc_dbg(dev, "interface disabled\n");
 		return -ENODEV;
 	}

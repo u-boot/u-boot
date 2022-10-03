@@ -65,7 +65,7 @@ static int scmi_bind_protocols(struct udevice *dev)
 		struct driver *drv = NULL;
 		u32 protocol_id;
 
-		if (!ofnode_is_available(node))
+		if (!ofnode_is_enabled(node))
 			continue;
 
 		if (ofnode_read_u32(node, "reg", &protocol_id))

@@ -156,13 +156,12 @@ config RESET_IMX7
 	help
 	  Support for reset controller on i.MX7/8 SoCs.
 
-config RESET_IPQ419
-	bool "Reset driver for Qualcomm IPQ40xx SoCs"
-	depends on DM_RESET && ARCH_IPQ40XX
+config RESET_QCOM
+	bool "Reset driver for Qualcomm SoCs"
+	depends on DM_RESET && (ARCH_SNAPDRAGON || ARCH_IPQ40XX)
 	default y
 	help
-	  Support for reset controller on Qualcomm
-	  IPQ40xx SoCs.
+	  Support for reset controller on Qualcomm SoCs.
 
 config RESET_SIFIVE
 	bool "Reset Driver for SiFive SoC's"

@@ -78,7 +78,7 @@ struct mtd_info * __weak nand_get_mtd(void)
 
 static int spl_nand_load_element(struct spl_image_info *spl_image,
 				 struct spl_boot_device *bootdev,
-				 int offset, struct image_header *header)
+				 int offset, struct legacy_img_hdr *header)
 {
 	struct mtd_info *mtd = nand_get_mtd();
 	int bl_len = mtd ? mtd->writesize : 1;
@@ -133,7 +133,7 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {
 	int err;
-	struct image_header *header;
+	struct legacy_img_hdr *header;
 	int *src __attribute__((unused));
 	int *dst __attribute__((unused));
 

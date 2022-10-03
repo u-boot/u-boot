@@ -425,7 +425,7 @@ static size_t usb_read_file(const char *file_name)
 	}
 
 	/* Try to recognize storage devices immediately */
-	blk_first_device(IF_TYPE_USB, &dev);
+	blk_first_device(UCLASS_USB, &dev);
 	if (!dev) {
 		printf("Error: USB storage device not found\n");
 		return 0;

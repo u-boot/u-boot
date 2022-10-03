@@ -296,6 +296,14 @@ void os_putc(int ch);
 void os_puts(const char *str);
 
 /**
+ * os_flush() - flush controlling OS terminal
+ *
+ * This bypasses the U-Boot console support and flushes directly the OS
+ * stdout file descriptor.
+ */
+void os_flush(void);
+
+/**
  * os_write_ram_buf() - write the sandbox RAM buffer to a existing file
  *
  * @fname:	filename to write memory to (simple binary format)

@@ -309,7 +309,7 @@ void sha384_csum_wd(const unsigned char *input, unsigned int ilen,
 			chunk = chunk_sz;
 		sha384_update(&ctx, curr, chunk);
 		curr += chunk;
-		WATCHDOG_RESET();
+		schedule();
 	}
 #else
 	sha384_update(&ctx, input, ilen);
@@ -372,7 +372,7 @@ void sha512_csum_wd(const unsigned char *input, unsigned int ilen,
 			chunk = chunk_sz;
 		sha512_update(&ctx, curr, chunk);
 		curr += chunk;
-		WATCHDOG_RESET();
+		schedule();
 	}
 #else
 	sha512_update(&ctx, input, ilen);

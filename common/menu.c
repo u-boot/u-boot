@@ -435,7 +435,7 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 		printf("Hit any key to stop autoboot: %d ", menu->delay);
 		for (i = 0; i < 100; ++i) {
 			if (!tstc()) {
-				WATCHDOG_RESET();
+				schedule();
 				mdelay(10);
 				continue;
 			}
@@ -483,7 +483,7 @@ void bootmenu_loop(struct bootmenu_data *menu,
 		if (tstc()) {
 			c = getchar();
 		} else {
-			WATCHDOG_RESET();
+			schedule();
 			mdelay(10);
 			if (tstc())
 				c = getchar();
@@ -492,7 +492,7 @@ void bootmenu_loop(struct bootmenu_data *menu,
 		}
 	} else {
 		while (!tstc()) {
-			WATCHDOG_RESET();
+			schedule();
 			mdelay(10);
 		}
 		c = getchar();
@@ -548,4 +548,13 @@ void bootmenu_loop(struct bootmenu_data *menu,
 	/* ^C was pressed */
 	if (c == 0x3)
 		*key = KEY_QUIT;
+
+	if (c == '+')
+		*key = KEY_PLUS;
+
+	if (c == '-')
+		*key = KEY_MINUS;
+
+	if (c == ' ')
+		*key = KEY_SPACE;
 }

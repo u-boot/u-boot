@@ -377,7 +377,7 @@ ENTRY(__gnu_thumb1_case_sqi)
 	lsls	r1, r1, #1
 	add	lr, lr, r1
 	pop	{r1}
-	bx	lr
+	ret	lr
 ENDPROC(__gnu_thumb1_case_sqi)
 .popsection
 
@@ -391,7 +391,7 @@ ENTRY(__gnu_thumb1_case_uqi)
 	lsls	r1, r1, #1
 	add	lr, lr, r1
 	pop	{r1}
-	bx	lr
+	ret	lr
 ENDPROC(__gnu_thumb1_case_uqi)
 .popsection
 
@@ -406,7 +406,7 @@ ENTRY(__gnu_thumb1_case_shi)
 	lsls	r1, r1, #1
 	add	lr, lr, r1
 	pop	{r0, r1}
-	bx	lr
+	ret	lr
 ENDPROC(__gnu_thumb1_case_shi)
 .popsection
 
@@ -421,7 +421,7 @@ ENTRY(__gnu_thumb1_case_uhi)
 	lsls	r1, r1, #1
 	add	lr, lr, r1
 	pop	{r0, r1}
-	bx	lr
+	ret	lr
 ENDPROC(__gnu_thumb1_case_uhi)
 .popsection
 #endif

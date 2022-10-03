@@ -52,10 +52,12 @@ int set_cpu_clk_info(void)
 			return ret;
 
 		rate = clk_get_rate(&clk) / 1000000;
-		if (i)
+		if (i) {
 			gd->bd->bi_ddr_freq = rate;
-		else
+		} else {
 			gd->bd->bi_arm_freq = rate;
+			gd->cpu_clk = clk_get_rate(&clk);
+		}
 
 		clk_free(&clk);
 	}

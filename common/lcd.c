@@ -294,9 +294,9 @@ void lcd_logo_plot(int x, int y)
 	      BMP_LOGO_WIDTH, BMP_LOGO_HEIGHT, BMP_LOGO_COLORS);
 
 	if (bpix < 12) {
-		WATCHDOG_RESET();
+		schedule();
 		lcd_logo_set_cmap();
-		WATCHDOG_RESET();
+		schedule();
 
 		for (i = 0; i < BMP_LOGO_HEIGHT; ++i) {
 			memcpy(fb, bmap, BMP_LOGO_WIDTH);
@@ -320,7 +320,7 @@ void lcd_logo_plot(int x, int y)
 		}
 	}
 
-	WATCHDOG_RESET();
+	schedule();
 	lcd_sync();
 }
 #else
@@ -459,7 +459,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			byte_width = width * 2;
 
 		for (i = 0; i < height; ++i) {
-			WATCHDOG_RESET();
+			schedule();
 			for (j = 0; j < width; j++) {
 				if (bpix != 16) {
 					fb_put_byte(&fb, &bmap);
@@ -488,7 +488,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #if defined(CONFIG_BMP_16BPP)
 	case 16:
 		for (i = 0; i < height; ++i) {
-			WATCHDOG_RESET();
+			schedule();
 			for (j = 0; j < width; j++)
 				fb_put_word(&fb, &bmap);
 

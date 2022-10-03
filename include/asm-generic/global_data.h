@@ -20,6 +20,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <cyclic.h>
 #include <event_internal.h>
 #include <fdtdec.h>
 #include <membuff.h>
@@ -478,6 +479,12 @@ struct global_data {
 	 */
 	struct event_state event_state;
 #endif
+#ifdef CONFIG_CYCLIC
+	/**
+	 * @cyclic: cyclic driver data
+	 */
+	struct cyclic_drv *cyclic;
+#endif
 	/**
 	 * @dmtag_list: List of DM tags
 	 */
@@ -639,6 +646,10 @@ enum gd_flags {
 	 * @GD_FLG_SMP_READY: SMP initialization is complete
 	 */
 	GD_FLG_SMP_READY = 0x80000,
+	/**
+	 * @GD_FLG_FDT_CHANGED: Device tree change has been detected by tests
+	 */
+	GD_FLG_FDT_CHANGED = 0x100000,
 };
 
 #endif /* __ASSEMBLY__ */

@@ -73,6 +73,12 @@ config ARC_TIMER
 	  usually at least one of them exists. Either of them is supported
 	  in U-Boot.
 
+config ARM_TWD_TIMER
+	bool "ARM timer watchdog (TWD) timer support"
+	depends on TIMER && CLK
+	help
+	  Select this to enable support for the ARM global timer watchdog timer.
+
 config AST_TIMER
 	bool "Aspeed ast2400/ast2500 timer support"
 	depends on TIMER
@@ -197,8 +203,11 @@ config OMAP_TIMER
 config ORION_TIMER
 	bool "Orion timer support"
 	depends on TIMER
+	default y if ARCH_KIRKWOOD || (ARCH_MVEBU && ARMADA_32BIT)
+	select TIMER_EARLY if ARCH_MVEBU
 	help
-	  Select this to enable an timer for Orion devices.
+	  Select this to enable an timer for Orion and Armada devices
+	  like Armada XP etc.
 
 config RISCV_TIMER
 	bool "RISC-V timer support"

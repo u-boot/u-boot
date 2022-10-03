@@ -114,7 +114,7 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 #endif
 
 #if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_FIT)
-void board_prep_linux(bootm_headers_t *images)
+void board_prep_linux(struct bootm_headers *images)
 {
 	if (!images->fit_uname_cfg) {
 		if (IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH) &&

@@ -258,11 +258,45 @@ struct device_node *of_find_node_by_prop_value(struct device_node *from,
 /**
  * of_find_node_by_phandle() - Find a node given a phandle
  *
+ * @root:	root node to start from (NULL for default device tree)
  * @handle:	phandle of the node to find
  *
  * Return: node pointer, or NULL if not found
  */
-struct device_node *of_find_node_by_phandle(phandle handle);
+struct device_node *of_find_node_by_phandle(struct device_node *root,
+					    phandle handle);
+
+/**
+ * of_read_u8() - Find and read a 8-bit integer from a property
+ *
+ * Search for a property in a device node and read a 8-bit value from
+ * it.
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @outp:	pointer to return value, modified only if return value is 0.
+ *
+ * Return: 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough.
+ */
+int of_read_u8(const struct device_node *np, const char *propname, u8 *outp);
+
+/**
+ * of_read_u16() - Find and read a 16-bit integer from a property
+ *
+ * Search for a property in a device node and read a 16-bit value from
+ * it.
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @outp:	pointer to return value, modified only if return value is 0.
+ *
+ * Return: 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough.
+ */
+int of_read_u16(const struct device_node *np, const char *propname, u16 *outp);
 
 /**
  * of_read_u32() - Find and read a 32-bit integer from a property
@@ -293,8 +327,7 @@ int of_read_u32(const struct device_node *np, const char *propname, u32 *outp);
  * @outp:	pointer to return value, modified only if return value is 0.
  *
  * Return:
- *   0 on success, -EINVAL if the property does not exist,
- *   -ENODATA if property does not have a value, and -EOVERFLOW if the
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if the
  *   property data isn't large enough.
  */
 int of_read_u32_index(const struct device_node *np, const char *propname,
@@ -311,8 +344,7 @@ int of_read_u32_index(const struct device_node *np, const char *propname,
  * @outp:	pointer to return value, modified only if return value is 0.
  *
  * Return:
- *   0 on success, -EINVAL if the property does not exist,
- *   -ENODATA if property does not have a value, and -EOVERFLOW if the
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if the
  *   property data isn't large enough.
  */
 int of_read_u64(const struct device_node *np, const char *propname, u64 *outp);
@@ -328,8 +360,8 @@ int of_read_u64(const struct device_node *np, const char *propname, u64 *outp);
  * @out_values:	pointer to return value, modified only if return value is 0.
  * @sz:		number of array elements to read
  * Return:
- *   0 on success, -EINVAL if the property does not exist, -ENODATA
- *   if property does not have a value, and -EOVERFLOW is longer than sz.
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if
+ *   longer than sz.
  */
 int of_read_u32_array(const struct device_node *np, const char *propname,
 		      u32 *out_values, size_t sz);
@@ -530,5 +562,20 @@ struct device_node *of_get_stdout(void);
  */
 int of_write_prop(struct device_node *np, const char *propname, int len,
 		  const void *value);
+
+/**
+ * of_add_subnode() - add a new subnode to a node
+ *
+ * @node:	parent node to add to
+ * @name:	name of subnode
+ * @len:	length of name (so the caller does not need to nul-terminate a
+ *	partial string), or -1 for strlen(@name)
+ * @subnodep:	returns pointer to new subnode (valid if the function returns 0
+ *	or -EEXIST)
+ * Returns 0 if OK, -EEXIST if already exists, -ENOMEM if out of memory, other
+ * -ve on other error
+ */
+int of_add_subnode(struct device_node *node, const char *name, int len,
+		   struct device_node **subnodep);
 
 #endif

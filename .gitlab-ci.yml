@@ -33,6 +33,7 @@ stages:
   script:
     # If we've been asked to use clang only do one configuration.
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
+    - echo BUILD_ENV ${BUILD_ENV}
     - tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e
         --board ${TEST_PY_BD} ${OVERRIDE}
     - cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/
@@ -252,6 +253,12 @@ sandbox with clang test.py:
   variables:
     TEST_PY_BD: "sandbox"
     OVERRIDE: "-O clang-13"
+  <<: *buildman_and_testpy_dfn
+
+sandbox without LTO test.py:
+  variables:
+    TEST_PY_BD: "sandbox"
+    BUILD_ENV: "NO_LTO=1"
   <<: *buildman_and_testpy_dfn
 
 sandbox_spl test.py:
