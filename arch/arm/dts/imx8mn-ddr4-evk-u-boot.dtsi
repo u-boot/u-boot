@@ -26,6 +26,10 @@
 	u-boot,dm-spl;
 };
 
+&spba1 {
+	u-boot,dm-spl;
+};
+
 &clk {
 	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
