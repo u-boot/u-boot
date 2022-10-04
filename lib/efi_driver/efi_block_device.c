@@ -174,11 +174,14 @@ err:
 /**
  * efi_bl_bind() - bind to a block io protocol
  *
+ * @this:	driver binding protocol
  * @handle:	handle
  * @interface:	block io protocol
  * Return:	status code
  */
-static efi_status_t efi_bl_bind(efi_handle_t handle, void *interface)
+static efi_status_t efi_bl_bind(
+			struct efi_driver_binding_extended_protocol *this,
+			efi_handle_t handle, void *interface)
 {
 	efi_status_t ret = EFI_SUCCESS;
 	struct efi_object *obj = efi_search_obj(handle);

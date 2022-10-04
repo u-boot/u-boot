@@ -11,6 +11,19 @@
 #include <efi_loader.h>
 
 /**
+ * struct efi_driver_binding_extended_protocol - extended driver binding protocol
+ *
+ * This structure adds internal fields to the driver binding protocol.
+ *
+ * @bp:		driver binding protocol
+ * @ops:	operations supported by the driver
+ */
+struct efi_driver_binding_extended_protocol {
+	struct efi_driver_binding_protocol bp;
+	const struct efi_driver_ops *ops;
+};
+
+/**
  * struct efi_driver_ops - operations support by an EFI driver
  *
  * @protocol:		The GUID of the protocol which is consumed by the
@@ -25,20 +38,8 @@
 struct efi_driver_ops {
 	const efi_guid_t *protocol;
 	const efi_guid_t *child_protocol;
-	efi_status_t (*bind)(efi_handle_t handle, void *interface);
-};
-
-/**
- * struct efi_driver_binding_extended_protocol - extended driver binding protocol
- *
- * This structure adds internal fields to the driver binding protocol.
- *
- * @bp:		driver binding protocol
- * @ops:	operations supported by the driver
- */
-struct efi_driver_binding_extended_protocol {
-	struct efi_driver_binding_protocol bp;
-	const struct efi_driver_ops *ops;
+	efi_status_t (*bind)(struct efi_driver_binding_extended_protocol *this,
+			     efi_handle_t handle, void *interface);
 };
 
 #endif /* _EFI_DRIVER_H */

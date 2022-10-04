@@ -146,7 +146,7 @@ static efi_status_t EFIAPI efi_uc_start(
 	ret = check_node_type(controller_handle);
 	if (ret != EFI_SUCCESS)
 		goto err;
-	ret = bp->ops->bind(controller_handle, interface);
+	ret = bp->ops->bind(bp, controller_handle, interface);
 	if (ret == EFI_SUCCESS)
 		goto out;
 
