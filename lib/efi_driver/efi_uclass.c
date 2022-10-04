@@ -246,7 +246,7 @@ static efi_status_t EFIAPI efi_uc_stop(
 				goto out;
 		}
 	}
-	ret = EFI_CALL(systab.boottime->free_pool(entry_buffer));
+	ret = efi_free_pool(entry_buffer);
 	if (ret != EFI_SUCCESS)
 		log_err("Cannot free EFI memory pool\n");
 
