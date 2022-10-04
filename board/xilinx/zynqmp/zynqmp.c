@@ -607,7 +607,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 void set_dfu_alt_info(char *interface, char *devstr)
 {
-	u8 multiboot;
+	int multiboot;
 	int bootseq = 0;
 
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
