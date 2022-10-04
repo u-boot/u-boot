@@ -285,7 +285,7 @@ static int soc_xilinx_zynqmp_get_family(struct udevice *dev, char *buf, int size
 	return snprintf(buf, size, "%s", priv->family);
 }
 
-int soc_xilinx_zynqmp_get_machine(struct udevice *dev, char *buf, int size)
+static int soc_xilinx_zynqmp_get_machine(struct udevice *dev, char *buf, int size)
 {
 	struct soc_xilinx_zynqmp_priv *priv = dev_get_priv(dev);
 	const char *machine = priv->machine;
