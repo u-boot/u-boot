@@ -3,7 +3,7 @@
  * (C) Copyright 2021 Rockchip Electronics Co., Ltd
  */
 
-#include "rk3568-u-boot.dtsi"
+#include "rk356x-u-boot.dtsi"
 
 / {
 	chosen {
