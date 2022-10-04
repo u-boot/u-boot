@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <init.h>
 #include <soc.h>
 
 int print_cpuinfo(void)
