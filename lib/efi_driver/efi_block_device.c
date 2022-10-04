@@ -114,20 +114,15 @@ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
  * @interface:	block io protocol
  * Return:	status code
  */
-static efi_status_t efi_bl_bind(efi_handle_t handle, void *interface)
+static efi_status_t
+efi_bl_create_block_device(efi_handle_t handle, void *interface)
 {
 	struct udevice *bdev = NULL, *parent = dm_root();
 	efi_status_t ret;
 	int devnum;
 	char *name;
-	struct efi_object *obj = efi_search_obj(handle);
 	struct efi_block_io *io = interface;
 	struct efi_blk_plat *plat;
-
-	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, io);
-
-	if (!obj || !interface)
-		return EFI_INVALID_PARAMETER;
 
 	devnum = blk_find_max_devnum(UCLASS_EFI_LOADER);
 	if (devnum == -ENODEV)
@@ -172,6 +167,29 @@ err:
 	efi_unlink_dev(handle);
 	if (bdev)
 		device_unbind(bdev);
+
+	return ret;
+}
+
+/**
+ * efi_bl_bind() - bind to a block io protocol
+ *
+ * @handle:	handle
+ * @interface:	block io protocol
+ * Return:	status code
+ */
+static efi_status_t efi_bl_bind(efi_handle_t handle, void *interface)
+{
+	efi_status_t ret = EFI_SUCCESS;
+	struct efi_object *obj = efi_search_obj(handle);
+
+	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, interface);
+
+	if (!obj || !interface)
+		return EFI_INVALID_PARAMETER;
+
+	if (!handle->dev)
+		ret = efi_bl_create_block_device(handle, interface);
 
 	return ret;
 }
