@@ -56,8 +56,11 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 	long mvendorid, marchid, mimpid;
 
 	ret = sbi_get_spec_version();
-	if (ret >= 0)
-		printf("SBI %ld.%ld", ret >> 24, ret & 0xffffff);
+	if (ret < 0) {
+		printf("No SBI 0.2+\n");
+		return CMD_RET_FAILURE;
+	}
+	printf("SBI %ld.%ld", ret >> 24, ret & 0xffffff);
 	impl_id = sbi_get_impl_id();
 	if (impl_id >= 0) {
 		for (i = 0; i < ARRAY_SIZE(implementations); ++i) {
