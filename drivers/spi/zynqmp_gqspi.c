@@ -294,7 +294,7 @@ static void zynqmp_qspi_chipselect(struct zynqmp_qspi_priv *priv, int is_on)
 	zynqmp_qspi_fill_gen_fifo(priv, gqspi_fifo_reg);
 }
 
-void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
+static void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 {
 	struct zynqmp_qspi_plat *plat = dev_get_plat(bus);
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
