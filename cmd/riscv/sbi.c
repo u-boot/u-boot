@@ -74,6 +74,7 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 					       vers >> 16, vers & 0xffff);
 					break;
 				case 3: /* KVM */
+				case 4: /* RustSBI */
 					printf("%ld.%ld.%ld",
 					       vers >> 16,
 					       (vers >> 8) & 0xff,
