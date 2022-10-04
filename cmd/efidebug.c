@@ -8,6 +8,7 @@
 #include <charset.h>
 #include <common.h>
 #include <command.h>
+#include <dm/device.h>
 #include <efi_dt_fixup.h>
 #include <efi_load_initrd.h>
 #include <efi_loader.h>
@@ -344,78 +345,10 @@ static int do_efi_capsule(struct cmd_tbl *cmdtp, int flag,
 }
 #endif /* CONFIG_EFI_HAVE_CAPSULE_SUPPORT */
 
-/**
- * efi_get_device_path_text() - get device path text
- *
- * Return the text representation of the device path of a handle.
- *
- * @handle:	handle of UEFI device
- * Return:
- * Pointer to the device path text or NULL.
- * The caller is responsible for calling FreePool().
- */
-static u16 *efi_get_device_path_text(efi_handle_t handle)
-{
-	struct efi_handler *handler;
-	efi_status_t ret;
-
-	ret = efi_search_protocol(handle, &efi_guid_device_path, &handler);
-	if (ret == EFI_SUCCESS && handler->protocol_interface) {
-		struct efi_device_path *dp = handler->protocol_interface;
-
-		return efi_dp_str(dp);
-	} else {
-		return NULL;
-	}
-}
-
 #define EFI_HANDLE_WIDTH ((int)sizeof(efi_handle_t) * 2)
 
 static const char spc[] = "                ";
 static const char sep[] = "================";
-
-/**
- * do_efi_show_devices() - show UEFI devices
- *
- * @cmdtp:	Command table
- * @flag:	Command flag
- * @argc:	Number of arguments
- * @argv:	Argument array
- * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
- *
- * Implement efidebug "devices" sub-command.
- * Show all UEFI devices and their information.
- */
-static int do_efi_show_devices(struct cmd_tbl *cmdtp, int flag,
-			       int argc, char *const argv[])
-{
-	efi_handle_t *handles;
-	efi_uintn_t num, i;
-	u16 *dev_path_text;
-	efi_status_t ret;
-
-	ret = EFI_CALL(efi_locate_handle_buffer(ALL_HANDLES, NULL, NULL,
-						&num, &handles));
-	if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
-
-	if (!num)
-		return CMD_RET_SUCCESS;
-
-	printf("Device%.*s Device Path\n", EFI_HANDLE_WIDTH - 6, spc);
-	printf("%.*s ====================\n", EFI_HANDLE_WIDTH, sep);
-	for (i = 0; i < num; i++) {
-		dev_path_text = efi_get_device_path_text(handles[i]);
-		if (dev_path_text) {
-			printf("%p %ls\n", handles[i], dev_path_text);
-			efi_free_pool(dev_path_text);
-		}
-	}
-
-	efi_free_pool(handles);
-
-	return CMD_RET_SUCCESS;
-}
 
 /**
  * efi_get_driver_handle_info() - get information of UEFI driver
@@ -535,26 +468,25 @@ static int do_efi_show_handles(struct cmd_tbl *cmdtp, int flag,
 	if (!num)
 		return CMD_RET_SUCCESS;
 
-	printf("Handle%.*s Protocols\n", EFI_HANDLE_WIDTH - 6, spc);
-	printf("%.*s ====================\n", EFI_HANDLE_WIDTH, sep);
 	for (i = 0; i < num; i++) {
-		printf("%p", handles[i]);
+		struct efi_handler *handler;
+
+		printf("\n%p", handles[i]);
+		if (handles[i]->dev)
+			printf(" (%s)", handles[i]->dev->name);
+		printf("\n");
+		/* Print device path */
+		ret = efi_search_protocol(handles[i], &efi_guid_device_path,
+					  &handler);
+		if (ret == EFI_SUCCESS)
+			printf("  %pD\n", handler->protocol_interface);
 		ret = EFI_CALL(BS->protocols_per_handle(handles[i], &guid,
 							&count));
-		if (ret || !count) {
-			putc('\n');
-			continue;
-		}
-
+		/* Print other protocols */
 		for (j = 0; j < count; j++) {
-			if (j)
-				printf(", ");
-			else
-				putc(' ');
-
-			printf("%pUs", guid[j]);
+			if (guidcmp(guid[j], &efi_guid_device_path))
+				printf("  %pUs\n", guid[j]);
 		}
-		putc('\n');
 	}
 
 	efi_free_pool(handles);
@@ -1535,8 +1467,6 @@ static struct cmd_tbl cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(capsule, CONFIG_SYS_MAXARGS, 1, do_efi_capsule,
 			 "", ""),
 #endif
-	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
-			 "", ""),
 	U_BOOT_CMD_MKENT(drivers, CONFIG_SYS_MAXARGS, 1, do_efi_show_drivers,
 			 "", ""),
 	U_BOOT_CMD_MKENT(dh, CONFIG_SYS_MAXARGS, 1, do_efi_show_handles,
@@ -1626,8 +1556,6 @@ static char efidebug_help_text[] =
 #endif
 	"\n"
 #endif
-	"efidebug devices\n"
-	"  - show UEFI devices\n"
 	"efidebug drivers\n"
 	"  - show UEFI drivers\n"
 	"efidebug dh\n"
