@@ -37,11 +37,11 @@
 #include <dm/root.h>
 #include <dm/tag.h>
 
-/*
- * EFI attributes of the udevice handled by this driver.
+/**
+ * struct efi_blk_plat - attributes of a block device
  *
- * handle	handle of the controller on which this driver is installed
- * io		block io protocol proxied by this driver
+ * @handle:	handle of the controller on which this driver is installed
+ * @io:		block io protocol proxied by this driver
  */
 struct efi_blk_plat {
 	efi_handle_t		handle;
@@ -49,7 +49,7 @@ struct efi_blk_plat {
 };
 
 /**
- * Read from block device
+ * efi_bl_read() - read from block device
  *
  * @dev:	device
  * @blknr:	first block to be read
@@ -78,7 +78,7 @@ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 }
 
 /**
- * Write to block device
+ * efi_bl_write() - write to block device
  *
  * @dev:	device
  * @blknr:	first block to be write
@@ -108,7 +108,7 @@ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 }
 
 /**
- * Create a block device for a handle
+ * efi_bl_create_block_device() - create a block device for a handle
  *
  * @handle:	handle
  * @interface:	block io protocol
@@ -202,9 +202,9 @@ static const struct blk_ops efi_blk_ops = {
 
 /* Identify as block device driver */
 U_BOOT_DRIVER(efi_blk) = {
-	.name			= "efi_blk",
-	.id			= UCLASS_BLK,
-	.ops			= &efi_blk_ops,
+	.name		= "efi_blk",
+	.id		= UCLASS_BLK,
+	.ops		= &efi_blk_ops,
 	.plat_auto	= sizeof(struct efi_blk_plat),
 };
 
