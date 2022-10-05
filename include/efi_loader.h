@@ -1014,9 +1014,10 @@ struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
-/* commonly used helper function */
+/* commonly used helper functions */
 u16 *efi_create_indexed_name(u16 *buffer, size_t buffer_size, const char *name,
 			     unsigned int index);
+efi_string_t efi_convert_string(const char *str);
 
 extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;
