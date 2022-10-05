@@ -9,7 +9,7 @@
 #define _SUNXI_PRCM_H
 
 /* prcm regs definition */
-#if defined(CONFIG_SUN50I_GEN_H6)
+#if defined(CONFIG_SUN50I_GEN_H6) || defined(CONFIG_SUNXI_GEN_NCAT2)
 #include <asm/arch/prcm_sun50i.h>
 #else
 #include <asm/arch/prcm_sun6i.h>

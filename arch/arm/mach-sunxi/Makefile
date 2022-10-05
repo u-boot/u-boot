@@ -25,6 +25,7 @@ obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
 endif
 obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o gtbus_sun9i.o
 obj-$(CONFIG_SUN50I_GEN_H6)	+= clock_sun50i_h6.o
+obj-$(CONFIG_SUNXI_GEN_NCAT2)	+= clock_sun50i_h6.o
 ifndef CONFIG_ARM64
 obj-y	+= timer.o
 endif

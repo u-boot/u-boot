@@ -18,8 +18,11 @@ void clock_init_safe(void)
 		setbits_le32(&prcm->res_cal_ctrl, 2);
 	}
 
-	clrbits_le32(&prcm->res_cal_ctrl, 1);
-	setbits_le32(&prcm->res_cal_ctrl, 1);
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
+	    IS_ENABLED(CONFIG_MACH_SUN50I_H6)) {
+		clrbits_le32(&prcm->res_cal_ctrl, 1);
+		setbits_le32(&prcm->res_cal_ctrl, 1);
+	}
 
 	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6)) {
 		/* set key field for ldo enable */
