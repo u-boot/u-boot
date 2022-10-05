@@ -185,6 +185,8 @@ config MACH_SUNIV
 	select CPU_ARM926EJS
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+	select SKIP_LOWLEVEL_INIT_ONLY
+	select SPL_SKIP_LOWLEVEL_INIT_ONLY
 
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
