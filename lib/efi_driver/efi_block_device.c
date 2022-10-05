@@ -197,6 +197,17 @@ static efi_status_t efi_bl_bind(
 	return ret;
 }
 
+/**
+ * efi_bl_init() - initialize block device driver
+ *
+ * @this:	extended driver binding protocol
+ */
+static efi_status_t
+efi_bl_init(struct efi_driver_binding_extended_protocol *this)
+{
+	return EFI_SUCCESS;
+}
+
 /* Block device driver operators */
 static const struct blk_ops efi_blk_ops = {
 	.read	= efi_bl_read,
@@ -215,6 +226,7 @@ U_BOOT_DRIVER(efi_blk) = {
 static const struct efi_driver_ops driver_ops = {
 	.protocol	= &efi_block_io_guid,
 	.child_protocol = &efi_block_io_guid,
+	.init		= efi_bl_init,
 	.bind		= efi_bl_bind,
 };
 

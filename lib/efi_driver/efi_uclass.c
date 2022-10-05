@@ -284,7 +284,7 @@ static efi_status_t efi_add_driver(struct driver *drv)
 	bp->bp.start = efi_uc_start;
 	bp->bp.stop = efi_uc_stop;
 	bp->bp.version = 0xffffffff;
-	bp->ops = drv->ops;
+	bp->ops = ops;
 
 	ret = efi_create_handle(&bp->bp.driver_binding_handle);
 	if (ret != EFI_SUCCESS) {
@@ -294,12 +294,19 @@ static efi_status_t efi_add_driver(struct driver *drv)
 	bp->bp.image_handle = bp->bp.driver_binding_handle;
 	ret = efi_add_protocol(bp->bp.driver_binding_handle,
 			       &efi_guid_driver_binding_protocol, bp);
-	if (ret != EFI_SUCCESS) {
-		efi_delete_handle(bp->bp.driver_binding_handle);
-		free(bp);
-		goto out;
+	if (ret != EFI_SUCCESS)
+		goto err;
+	if (ops->init) {
+		ret = ops->init(bp);
+		if (ret != EFI_SUCCESS)
+			goto err;
 	}
 out:
+	return ret;
+
+err:
+	efi_delete_handle(bp->bp.driver_binding_handle);
+	free(bp);
 	return ret;
 }
 
