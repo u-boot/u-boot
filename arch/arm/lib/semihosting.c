@@ -20,6 +20,12 @@
 #define SYSFLEN		0x0C
 #define SYSERRNO	0x13
 
+/*
+ * Macro to force the compiler to *populate* memory (for an array or struct)
+ * before passing the pointer to an inline assembly call.
+ */
+#define USE_PTR(ptr) *(const char (*)[]) (ptr)
+
 #if defined(CONFIG_ARM64)
 	#define SMH_TRAP "hlt #0xf000"
 #elif defined(CONFIG_CPU_V7M)
@@ -37,9 +43,17 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
 {
 	register long result asm("r0");
 
+	/*
+	 * We need a memory clobber (aka compiler barrier) for two reasons:
+	 * - The compiler needs to populate any data structures pointed to
+	 *   by "addr" *before* the trap instruction is called.
+	 * - At least the SYSREAD function puts the result into memory pointed
+	 *   to by "addr", so the compiler must not use a cached version of
+	 *   the previous content, after the call has finished.
+	 */
 	asm volatile (SMH_TRAP
 		      : "=r" (result)
-		      : "0"(sysnum), "r"(addr)
+		      : "0"(sysnum), "r"(USE_PTR(addr))
 		      : "memory");
 
 	return result;
