@@ -39,9 +39,10 @@
 /*
  * Call the handler
  */
-static noinline long smh_trap(unsigned int sysnum, void *addr)
+static long smh_trap(unsigned int sysnum, void *addr)
 {
 	register long result asm("r0");
+	register void *_addr asm("r1") = addr;
 
 	/*
 	 * We need a memory clobber (aka compiler barrier) for two reasons:
@@ -53,7 +54,7 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
 	 */
 	asm volatile (SMH_TRAP
 		      : "=r" (result)
-		      : "0"(sysnum), "r"(USE_PTR(addr))
+		      : "0"(sysnum), "r"(USE_PTR(_addr))
 		      : "memory");
 
 	return result;
