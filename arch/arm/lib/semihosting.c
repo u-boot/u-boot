@@ -4,11 +4,6 @@
  * Copyright 2014 Broadcom Corporation
  */
 
-/*
- * This code has been tested on arm64/aarch64 fastmodel only.  An untested
- * placeholder exists for armv7 architectures, but since they are commonly
- * available in silicon now, fastmodel usage makes less sense for them.
- */
 #include <common.h>
 #include <log.h>
 #include <semihosting.h>
@@ -25,20 +20,28 @@
 #define SYSFLEN		0x0C
 #define SYSERRNO	0x13
 
+#if defined(CONFIG_ARM64)
+	#define SMH_TRAP "hlt #0xf000"
+#elif defined(CONFIG_CPU_V7M)
+	#define SMH_TRAP "bkpt #0xAB"
+#elif defined(CONFIG_SYS_THUMB_BUILD)
+	#define SMH_TRAP "svc #0xab"
+#else
+	#define SMH_TRAP "svc #0x123456"
+#endif
+
 /*
  * Call the handler
  */
 static noinline long smh_trap(unsigned int sysnum, void *addr)
 {
 	register long result asm("r0");
-#if defined(CONFIG_ARM64)
-	asm volatile ("hlt #0xf000" : "=r" (result) : "0"(sysnum), "r"(addr) : "memory");
-#elif defined(CONFIG_CPU_V7M)
-	asm volatile ("bkpt #0xAB" : "=r" (result) : "0"(sysnum), "r"(addr) : "memory");
-#else
-	/* Note - untested placeholder */
-	asm volatile ("svc #0x123456" : "=r" (result) : "0"(sysnum), "r"(addr) : "memory");
-#endif
+
+	asm volatile (SMH_TRAP
+		      : "=r" (result)
+		      : "0"(sysnum), "r"(addr)
+		      : "memory");
+
 	return result;
 }
 
