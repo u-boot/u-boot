@@ -652,17 +652,18 @@ static int do_video_puts(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 	struct udevice *dev;
-	const char *s;
+	int ret;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
 	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
 		return CMD_RET_FAILURE;
-	for (s = argv[1]; *s; s++)
-		vidconsole_put_char(dev, *s);
+	ret = vidconsole_put_string(dev, argv[1]);
+	if (!ret)
+		ret = video_sync(dev->parent, false);
 
-	return video_sync(dev->parent, false);
+	return ret ? CMD_RET_FAILURE : 0;
 }
 
 U_BOOT_CMD(
