@@ -421,6 +421,17 @@ static int show_splash(struct udevice *dev)
 	return 0;
 }
 
+int video_default_font_height(struct udevice *dev)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+
+	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE))
+		return IF_ENABLED_INT(CONFIG_CONSOLE_TRUETYPE,
+				      CONFIG_CONSOLE_TRUETYPE_SIZE);
+
+	return vc_priv->y_charsize;
+}
+
 /* Set up the display ready for use */
 static int video_post_probe(struct udevice *dev)
 {

@@ -286,6 +286,15 @@ void video_set_flush_dcache(struct udevice *dev, bool flush);
  */
 void video_set_default_colors(struct udevice *dev, bool invert);
 
+/**
+ * video_default_font_height() - Get the default font height
+ *
+ * @dev:	video device
+ * Returns: Default font height in pixels, which depends on which console driver
+ * is in use
+ */
+int video_default_font_height(struct udevice *dev);
+
 #ifdef CONFIG_VIDEO_COPY
 /**
  * vidconsole_sync_copy() - Sync back to the copy framebuffer
