@@ -715,6 +715,16 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 	return 0;
 }
 
+const char *vidconsole_get_font(struct udevice *dev, uint *sizep)
+{
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_metrics *met = priv->cur_met;
+
+	*sizep = met->font_size;
+
+	return met->font_name;
+}
+
 static int console_truetype_probe(struct udevice *dev)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);

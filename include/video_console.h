@@ -247,6 +247,15 @@ void vidconsole_list_fonts(void);
  */
 int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
 
+/**
+ * vidconsole_get_font() - get the current font name and size
+ *
+ * @dev: vidconsole device
+ * @sizep: Place to put the font size (nominal height in pixels)
+ * Returns: Current font name
+ */
+const char *vidconsole_get_font(struct udevice *dev, uint *sizep);
+
 #ifdef CONFIG_VIDEO_COPY
 /**
  * vidconsole_sync_copy() - Sync back to the copy framebuffer

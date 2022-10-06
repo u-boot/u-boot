@@ -48,6 +48,7 @@ Shell commands
    cmd/fatinfo
    cmd/fatload
    cmd/fdt
+   cmd/font
    cmd/for
    cmd/gpio
    cmd/load
