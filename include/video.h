@@ -224,6 +224,17 @@ int video_sync(struct udevice *vid, bool force);
 void video_sync_all(void);
 
 /**
+ * video_bmp_get_info() - Get information about a bitmap image
+ *
+ * @bmp_image: Pointer to BMP image to check
+ * @widthp: Returns width in pixels
+ * @heightp: Returns height in pixels
+ * @bpixp: Returns log2 of bits per pixel
+ */
+void video_bmp_get_info(void *bmp_image, ulong *widthp, ulong *heightp,
+			uint *bpixp);
+
+/**
  * video_bmp_display() - Display a BMP file
  *
  * @dev:	Device to display the bitmap on
