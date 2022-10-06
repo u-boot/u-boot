@@ -624,9 +624,24 @@ static int vidconsole_add_metrics(struct udevice *dev, const char *font_name,
 	return priv->num_metrics++;
 }
 
-static int console_truetype_probe(struct udevice *dev)
+static void select_metrics(struct udevice *dev, struct console_tt_metrics *met)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct udevice *vid_dev = dev_get_parent(dev);
+	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
+
+	priv->cur_met = met;
+	vc_priv->x_charsize = met->font_size;
+	vc_priv->y_charsize = met->font_size;
+	vc_priv->xstart_frac = VID_TO_POS(2);
+	vc_priv->cols = vid_priv->xsize / met->font_size;
+	vc_priv->rows = vid_priv->ysize / met->font_size;
+	vc_priv->tab_width_frac = VID_TO_POS(met->font_size) * 8 / 2;
+}
+
+static int console_truetype_probe(struct udevice *dev)
+{
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct udevice *vid_dev = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
@@ -650,12 +665,7 @@ static int console_truetype_probe(struct udevice *dev)
 		return log_msg_ret("add", ret);
 	priv->cur_met = &priv->metrics[ret];
 
-	vc_priv->x_charsize = font_size;
-	vc_priv->y_charsize = font_size;
-	vc_priv->xstart_frac = VID_TO_POS(2);
-	vc_priv->cols = vid_priv->xsize / font_size;
-	vc_priv->rows = vid_priv->ysize / font_size;
-	vc_priv->tab_width_frac = VID_TO_POS(font_size) * 8 / 2;
+	select_metrics(dev, &priv->metrics[ret]);
 
 	debug("%s: ready\n", __func__);
 
