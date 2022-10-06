@@ -812,7 +812,6 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 	char *endp;
 	u16 var_name16[9];
 	efi_guid_t guid;
-	size_t label_len, label_len16;
 	u16 *label;
 	struct efi_device_path *file_path = NULL;
 	struct efi_device_path *fp_free = NULL;
@@ -859,13 +858,10 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 						"Boot", id);
 
 			/* label */
-			label_len = strlen(argv[2]);
-			label_len16 = utf8_utf16_strnlen(argv[2], label_len);
-			label = malloc((label_len16 + 1) * sizeof(u16));
+			label = efi_convert_string(argv[2]);
 			if (!label)
 				return CMD_RET_FAILURE;
 			lo.label = label; /* label will be changed below */
-			utf8_utf16_strncpy(&label, argv[2], label_len);
 
 			/* file path */
 			ret = efi_dp_from_name(argv[3], argv[4], argv[5],
