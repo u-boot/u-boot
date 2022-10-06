@@ -2161,6 +2161,18 @@ config CMD_UUID
 	  The two commands are very similar except for the endianness of the
 	  output.
 
+config CMD_VIDCONSOLE
+	bool "lcdputs and setcurs"
+	depends on DM_VIDEO
+	default y
+	help
+	  Enabling this will provide 'setcurs' and 'lcdputs' commands which
+	  support cursor positioning and drawing strings on the video
+	  console (framebuffer).
+
+	  The name 'lcdputs' is a bit of a misnomer, but so named because the
+	  video device is often an LCD.
+
 endmenu
 
 source "cmd/ti/Kconfig"

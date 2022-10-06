@@ -85,14 +85,6 @@ config BACKLIGHT_GPIO
 	  it understands the standard device tree
 	  (leds/backlight/gpio-backlight.txt)
 
-config CMD_VIDCONSOLE
-	bool "Enable vidconsole commands lcdputs and setcurs"
-	depends on DM_VIDEO
-	default y
-	help
-	  Enabling this will provide 'setcurs' and 'lcdputs' commands which
-	  support cursor positioning and drawing strings on video framebuffer.
-
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
 	depends on DM_VIDEO

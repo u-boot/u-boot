@@ -617,7 +617,6 @@ int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
 }
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_VIDCONSOLE)
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
@@ -629,52 +628,3 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 	y = min_t(short, row * priv->y_charsize, vid_priv->ysize - 1);
 	vidconsole_set_cursor_pos(dev, x, y);
 }
-
-static int do_video_setcursor(struct cmd_tbl *cmdtp, int flag, int argc,
-			      char *const argv[])
-{
-	unsigned int col, row;
-	struct udevice *dev;
-
-	if (argc != 3)
-		return CMD_RET_USAGE;
-
-	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
-		return CMD_RET_FAILURE;
-	col = dectoul(argv[1], NULL);
-	row = dectoul(argv[2], NULL);
-	vidconsole_position_cursor(dev, col, row);
-
-	return 0;
-}
-
-static int do_video_puts(struct cmd_tbl *cmdtp, int flag, int argc,
-			 char *const argv[])
-{
-	struct udevice *dev;
-	int ret;
-
-	if (argc != 2)
-		return CMD_RET_USAGE;
-
-	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
-		return CMD_RET_FAILURE;
-	ret = vidconsole_put_string(dev, argv[1]);
-	if (!ret)
-		ret = video_sync(dev->parent, false);
-
-	return ret ? CMD_RET_FAILURE : 0;
-}
-
-U_BOOT_CMD(
-	setcurs, 3,	1,	do_video_setcursor,
-	"set cursor position within screen",
-	"    <col> <row> in character"
-);
-
-U_BOOT_CMD(
-	lcdputs, 2,	1,	do_video_puts,
-	"print string on video framebuffer",
-	"    <string>"
-);
-#endif /* CONFIG_IS_ENABLED(CMD_VIDCONSOLE) */
