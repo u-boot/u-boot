@@ -319,4 +319,11 @@ static inline int video_sync_copy_all(struct udevice *dev)
  */
 bool video_is_active(void);
 
+/**
+ * video_get_u_boot_logo() - Get a pointer to the U-Boot logo
+ *
+ * Returns: Pointer to logo
+ */
+void *video_get_u_boot_logo(void);
+
 #endif

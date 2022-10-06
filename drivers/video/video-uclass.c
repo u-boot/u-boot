@@ -406,6 +406,11 @@ int video_sync_copy_all(struct udevice *dev)
 
 SPLASH_DECL(u_boot_logo);
 
+void *video_get_u_boot_logo(void)
+{
+	return SPLASH_START(u_boot_logo);
+}
+
 static int show_splash(struct udevice *dev)
 {
 	u8 *data = SPLASH_START(u_boot_logo);
