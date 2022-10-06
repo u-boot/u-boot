@@ -100,6 +100,7 @@ struct pos_info {
  * the font size changes. There is one of these for each font / size combination
  * that is being used
  *
+ * @font_name:	Name of the font
  * @font_size:	Vertical font size in pixels
  * @font_data:	Pointer to TrueType font file contents
  * @font:	TrueType font information for the current font
@@ -112,6 +113,7 @@ struct pos_info {
  *		of the correct size.
  */
 struct console_tt_metrics {
+	const char *font_name;
 	int font_size;
 	const u8 *font_data;
 	stbtt_fontinfo font;
@@ -562,11 +564,11 @@ static inline bool font_valid(struct font_info *tab)
 /**
  * console_truetype_find_font() - Find a suitable font
  *
- * This searched for the first available font.
+ * This searches for the first available font.
  *
- * Return: pointer to the font, or NULL if none is found
+ * Return: pointer to the font-table entry, or NULL if none is found
  */
-static u8 *console_truetype_find_font(void)
+static struct font_info *console_truetype_find_font(void)
 {
 	struct font_info *tab;
 
@@ -575,7 +577,7 @@ static u8 *console_truetype_find_font(void)
 			debug("%s: Font '%s', at %p, size %lx\n", __func__,
 			      tab->name, tab->begin,
 			      (ulong)(tab->end - tab->begin));
-			return tab->begin;
+			return tab;
 		}
 	}
 
@@ -592,8 +594,8 @@ static u8 *console_truetype_find_font(void)
  * @return 0 if OK, -EPERM if stbtt failed, -E2BIG if the the metrics table is
  *	full
  */
-static int vidconsole_add_metrics(struct udevice *dev, const void *font_data,
-				  uint font_size)
+static int vidconsole_add_metrics(struct udevice *dev, const char *font_name,
+				  uint font_size, const void *font_data)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met;
@@ -604,6 +606,7 @@ static int vidconsole_add_metrics(struct udevice *dev, const void *font_data,
 		return log_msg_ret("num", -E2BIG);
 
 	met = &priv->metrics[priv->num_metrics];
+	met->font_name = font_name;
 	met->font_size = font_size;
 	met->font_data = font_data;
 
@@ -627,7 +630,7 @@ static int console_truetype_probe(struct udevice *dev)
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct udevice *vid_dev = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
-	void *font_data;
+	struct font_info *tab;
 	uint font_size;
 	int ret;
 
@@ -636,13 +639,13 @@ static int console_truetype_probe(struct udevice *dev)
 		font_size = vid_priv->font_size;
 	else
 		font_size = CONFIG_CONSOLE_TRUETYPE_SIZE;
-	font_data = console_truetype_find_font();
-	if (!font_data) {
+	tab = console_truetype_find_font();
+	if (!tab) {
 		debug("%s: Could not find any fonts\n", __func__);
 		return -EBFONT;
 	}
 
-	ret = vidconsole_add_metrics(dev, font_data, font_size);
+	ret = vidconsole_add_metrics(dev, tab->name, font_size, tab->begin);
 	if (ret < 0)
 		return log_msg_ret("add", ret);
 	priv->cur_met = &priv->metrics[ret];
