@@ -492,7 +492,7 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 	efi_handle_t mem_handle = NULL, handle;
 	struct efi_device_path *file_path = NULL;
 	struct efi_device_path *msg_path;
-	efi_status_t ret;
+	efi_status_t ret, ret2;
 	u16 *load_options;
 
 	if (!bootefi_device_path || !bootefi_image_path) {
@@ -509,12 +509,9 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 		 * Make sure that device for device_path exist
 		 * in load_image(). Otherwise, shell and grub will fail.
 		 */
-		ret = efi_create_handle(&mem_handle);
-		if (ret != EFI_SUCCESS)
-			goto out;
-
-		ret = efi_add_protocol(mem_handle, &efi_guid_device_path,
-				       file_path);
+		ret = efi_install_multiple_protocol_interfaces(&mem_handle,
+							       &efi_guid_device_path,
+							       file_path, NULL);
 		if (ret != EFI_SUCCESS)
 			goto out;
 		msg_path = file_path;
@@ -542,9 +539,11 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 	ret = do_bootefi_exec(handle, load_options);
 
 out:
-	efi_delete_handle(mem_handle);
+	ret2 = efi_uninstall_multiple_protocol_interfaces(mem_handle,
+							  &efi_guid_device_path,
+							  file_path, NULL);
 	efi_free_pool(file_path);
-	return ret;
+	return (ret != EFI_SUCCESS) ? ret : ret2;
 }
 
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
