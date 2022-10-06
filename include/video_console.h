@@ -219,6 +219,18 @@ int vidconsole_put_string(struct udevice *dev, const char *str);
 void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
 
+/**
+ * vidconsole_set_cursor_pos() - set cursor position
+ *
+ * The cursor is set to the new position and the start-of-line information is
+ * updated to the same position, so that a newline will return to @x
+ *
+ * @dev:	video console device to update
+ * @x:		x position from left in pixels
+ * @y:		y position from top in pixels
+ */
+void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y);
+
 #ifdef CONFIG_VIDEO_COPY
 /**
  * vidconsole_sync_copy() - Sync back to the copy framebuffer

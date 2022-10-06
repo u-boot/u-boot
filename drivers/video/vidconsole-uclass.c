@@ -122,6 +122,15 @@ static char *parsenum(char *s, int *num)
 	return end;
 }
 
+void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+
+	priv->xcur_frac = VID_TO_POS(x);
+	priv->xstart_frac = priv->xcur_frac;
+	priv->ycur = y;
+}
+
 /**
  * set_cursor_position() - set cursor position
  *
@@ -614,12 +623,11 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	struct udevice *vid_dev = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
+	short x, y;
 
-	col *= priv->x_charsize;
-	row *= priv->y_charsize;
-	priv->xcur_frac = VID_TO_POS(min_t(short, col, vid_priv->xsize - 1));
-	priv->xstart_frac = priv->xcur_frac;
-	priv->ycur = min_t(short, row, vid_priv->ysize - 1);
+	x = min_t(short, col * priv->x_charsize, vid_priv->xsize - 1);
+	y = min_t(short, row * priv->y_charsize, vid_priv->ysize - 1);
+	vidconsole_set_cursor_pos(dev, x, y);
 }
 
 static int do_video_setcursor(struct cmd_tbl *cmdtp, int flag, int argc,
