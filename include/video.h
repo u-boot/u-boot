@@ -131,6 +131,41 @@ struct video_ops {
 
 #define video_get_ops(dev)        ((struct video_ops *)(dev)->driver->ops)
 
+/** enum colour_idx - the 16 colors supported by consoles */
+enum colour_idx {
+	VID_BLACK = 0,
+	VID_RED,
+	VID_GREEN,
+	VID_BROWN,
+	VID_BLUE,
+	VID_MAGENTA,
+	VID_CYAN,
+	VID_LIGHT_GRAY,
+	VID_GRAY,
+	VID_LIGHT_RED,
+	VID_LIGHT_GREEN,
+	VID_YELLOW,
+	VID_LIGHT_BLUE,
+	VID_LIGHT_MAGENTA,
+	VID_LIGHT_CYAN,
+	VID_WHITE,
+
+	VID_COLOUR_COUNT
+};
+
+/**
+ * video_index_to_colour() - convert a color code to a pixel's internal
+ * representation
+ *
+ * The caller has to guarantee that the color index is less than
+ * VID_COLOR_COUNT.
+ *
+ * @priv	private data of the console device
+ * @idx		color index
+ * Return:	color value
+ */
+u32 video_index_to_colour(struct video_priv *priv, unsigned int idx);
+
 /**
  * video_reserve() - Reserve frame-buffer memory for video devices
  *
