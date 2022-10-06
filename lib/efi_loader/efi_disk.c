@@ -415,6 +415,11 @@ static efi_status_t efi_disk_add_dev(
 		struct efi_handler *handler;
 		void *protocol_interface;
 
+		if (!node) {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto error;
+		}
+
 		/* Parent must expose EFI_BLOCK_IO_PROTOCOL */
 		ret = efi_search_protocol(parent, &efi_block_io_guid, &handler);
 		if (ret != EFI_SUCCESS)
