@@ -185,12 +185,21 @@ u32 video_index_to_colour(struct video_priv *priv, unsigned int idx);
 int video_reserve(ulong *addrp);
 
 /**
- * video_clear() - Clear a device's frame buffer to background color.
+ * video_clear() - Clear a device's frame buffer to background colour.
  *
  * @dev:	Device to clear
- * Return: 0
+ * Return: 0 on success
  */
 int video_clear(struct udevice *dev);
+
+/**
+ * video_fill() - Fill a device's frame buffer to a colour.
+ *
+ * @dev:	Device to fill
+ * @colour:	Colour to use, in the frame buffer's format
+ * Return: 0 on success
+ */
+int video_fill(struct udevice *dev, u32 colour);
 
 /**
  * video_sync() - Sync a device's frame buffer with its hardware

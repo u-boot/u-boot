@@ -126,7 +126,7 @@ int video_reserve(ulong *addrp)
 	return 0;
 }
 
-int video_clear(struct udevice *dev)
+int video_fill(struct udevice *dev, u32 colour)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	int ret;
@@ -138,7 +138,7 @@ int video_clear(struct udevice *dev)
 			u16 *end = priv->fb + priv->fb_size;
 
 			while (ppix < end)
-				*ppix++ = priv->colour_bg;
+				*ppix++ = colour;
 			break;
 		}
 	case VIDEO_BPP32:
@@ -147,11 +147,11 @@ int video_clear(struct udevice *dev)
 			u32 *end = priv->fb + priv->fb_size;
 
 			while (ppix < end)
-				*ppix++ = priv->colour_bg;
+				*ppix++ = colour;
 			break;
 		}
 	default:
-		memset(priv->fb, priv->colour_bg, priv->fb_size);
+		memset(priv->fb, colour, priv->fb_size);
 		break;
 	}
 	ret = video_sync_copy(dev, priv->fb, priv->fb + priv->fb_size);
@@ -159,6 +159,18 @@ int video_clear(struct udevice *dev)
 		return ret;
 
 	return video_sync(dev, false);
+}
+
+int video_clear(struct udevice *dev)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	ret = video_fill(dev, priv->colour_bg);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
 static const struct vid_rgb colours[VID_COLOUR_COUNT] = {
