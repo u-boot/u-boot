@@ -200,10 +200,6 @@ static efi_status_t __efi_init_early(void)
 
 	/* Initialize EFI driver uclass */
 	ret = efi_driver_init();
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	ret = efi_disk_init();
 out:
 	return ret;
 }

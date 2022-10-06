@@ -205,6 +205,22 @@ static efi_status_t efi_bl_bind(
 static efi_status_t
 efi_bl_init(struct efi_driver_binding_extended_protocol *this)
 {
+	int ret;
+
+	ret = event_register("efi_disk add", EVT_DM_POST_PROBE,
+			     efi_disk_probe, this);
+	if (ret) {
+		log_err("Event registration for efi_disk add failed\n");
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	ret = event_register("efi_disk del", EVT_DM_PRE_REMOVE,
+			     efi_disk_remove, this);
+	if (ret) {
+		log_err("Event registration for efi_disk del failed\n");
+		return EFI_OUT_OF_RESOURCES;
+	}
+
 	return EFI_SUCCESS;
 }
 

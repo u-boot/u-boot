@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <event.h>
 #include <log.h>
 #include <part_efi.h>
 #include <efi_api.h>
@@ -544,8 +545,6 @@ void efi_carve_out_dt_rsv(void *fdt);
 void efi_try_purge_kaslr_seed(void *fdt);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
-/* Called by efi_init_early() to add block devices when probed */
-efi_status_t efi_disk_init(void);
 /* Called by efi_init_obj_list() to proble all block devices */
 efi_status_t efi_disks_register(void);
 /* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
@@ -749,6 +748,10 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
 
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
+/* Called when a block device is added */
+int efi_disk_probe(void *ctx, struct event *event);
+/* Called when a block device is removed */
+int efi_disk_remove(void *ctx, struct event *event);
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
