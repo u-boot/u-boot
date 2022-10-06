@@ -10,8 +10,8 @@
 
 #include <efi_selftest.h>
 
-static struct efi_event *event_notify;
-static struct efi_event *event_wait;
+static struct efi_event *efi_st_event_notify;
+static struct efi_event *efi_st_event_wait;
 static unsigned int notification_count;
 static struct efi_boot_services *boottime;
 
@@ -49,13 +49,14 @@ static int setup(const efi_handle_t handle,
 	ret = boottime->create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL,
 				     TPL_CALLBACK, notify,
 				     (void *)&notification_count,
-				     &event_notify);
+				     &efi_st_event_notify);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("could not create event\n");
 		return EFI_ST_FAILURE;
 	}
 	ret = boottime->create_event(EVT_TIMER | EVT_NOTIFY_WAIT,
-				     TPL_NOTIFY, notify, NULL, &event_wait);
+				     TPL_NOTIFY, notify, NULL,
+				     &efi_st_event_wait);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("could not create event\n");
 		return EFI_ST_FAILURE;
@@ -74,17 +75,17 @@ static int teardown(void)
 {
 	efi_status_t ret;
 
-	if (event_notify) {
-		ret = boottime->close_event(event_notify);
-		event_notify = NULL;
+	if (efi_st_event_notify) {
+		ret = boottime->close_event(efi_st_event_notify);
+		efi_st_event_notify = NULL;
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("could not close event\n");
 			return EFI_ST_FAILURE;
 		}
 	}
-	if (event_wait) {
-		ret = boottime->close_event(event_wait);
-		event_wait = NULL;
+	if (efi_st_event_wait) {
+		ret = boottime->close_event(efi_st_event_wait);
+		efi_st_event_wait = NULL;
 		if (ret != EFI_SUCCESS) {
 			efi_st_error("could not close event\n");
 			return EFI_ST_FAILURE;
@@ -116,24 +117,26 @@ static int execute(void)
 
 	/* Set 10 ms timer */
 	notification_count = 0;
-	ret = boottime->set_timer(event_notify, EFI_TIMER_PERIODIC, 100000);
+	ret = boottime->set_timer(efi_st_event_notify, EFI_TIMER_PERIODIC,
+				  100000);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not set timer\n");
 		return EFI_ST_FAILURE;
 	}
 	/* Set 100 ms timer */
-	ret = boottime->set_timer(event_wait, EFI_TIMER_RELATIVE, 1000000);
+	ret = boottime->set_timer(efi_st_event_wait, EFI_TIMER_RELATIVE,
+				  1000000);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not set timer\n");
 		return EFI_ST_FAILURE;
 	}
 	index = 5;
-	ret = boottime->wait_for_event(1, &event_wait, &index);
+	ret = boottime->wait_for_event(1, &efi_st_event_wait, &index);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not wait for event\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = boottime->check_event(event_wait);
+	ret = boottime->check_event(efi_st_event_wait);
 	if (ret != EFI_NOT_READY) {
 		efi_st_error("Signaled state was not cleared.\n");
 		efi_st_printf("ret = %u\n", (unsigned int)ret);
@@ -150,7 +153,7 @@ static int execute(void)
 		efi_st_error("Incorrect timing of events\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = boottime->set_timer(event_notify, EFI_TIMER_STOP, 0);
+	ret = boottime->set_timer(efi_st_event_notify, EFI_TIMER_STOP, 0);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not cancel timer\n");
 		return EFI_ST_FAILURE;
@@ -163,19 +166,21 @@ static int execute(void)
 	}
 	/* Set 10 ms timer */
 	notification_count = 0;
-	ret = boottime->set_timer(event_notify, EFI_TIMER_PERIODIC, 100000);
+	ret = boottime->set_timer(efi_st_event_notify, EFI_TIMER_PERIODIC,
+				  100000);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not set timer\n");
 		return EFI_ST_FAILURE;
 	}
 	/* Set 100 ms timer */
-	ret = boottime->set_timer(event_wait, EFI_TIMER_RELATIVE, 1000000);
+	ret = boottime->set_timer(efi_st_event_wait, EFI_TIMER_RELATIVE,
+				  1000000);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not set timer\n");
 		return EFI_ST_FAILURE;
 	}
 	do {
-		ret = boottime->check_event(event_wait);
+		ret = boottime->check_event(efi_st_event_wait);
 	} while (ret == EFI_NOT_READY);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not check event\n");
@@ -189,14 +194,14 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	/* Set 1 ms timer */
-	ret = boottime->set_timer(event_wait, EFI_TIMER_RELATIVE, 1000);
+	ret = boottime->set_timer(efi_st_event_wait, EFI_TIMER_RELATIVE, 1000);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not set timer\n");
 		return EFI_ST_FAILURE;
 	}
 	/* Restore the old TPL level */
 	boottime->restore_tpl(TPL_APPLICATION);
-	ret = boottime->wait_for_event(1, &event_wait, &index);
+	ret = boottime->wait_for_event(1, &efi_st_event_wait, &index);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not wait for event\n");
 		return EFI_ST_FAILURE;
@@ -208,7 +213,7 @@ static int execute(void)
 		efi_st_error("Queued timer event did not fire\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = boottime->set_timer(event_wait, EFI_TIMER_STOP, 0);
+	ret = boottime->set_timer(efi_st_event_wait, EFI_TIMER_STOP, 0);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not cancel timer\n");
 		return EFI_ST_FAILURE;
