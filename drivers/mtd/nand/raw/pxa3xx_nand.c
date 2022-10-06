@@ -330,87 +330,42 @@ static struct nand_bbt_descr bbt_mirror_descr = {
 };
 #endif
 
-static struct nand_ecclayout ecc_layout_2KB_bch4bit = {
-	.eccbytes = 32,
-	.eccpos = {
-		32, 33, 34, 35, 36, 37, 38, 39,
-		40, 41, 42, 43, 44, 45, 46, 47,
-		48, 49, 50, 51, 52, 53, 54, 55,
-		56, 57, 58, 59, 60, 61, 62, 63},
-	.oobfree = { {2, 30} }
+struct marvell_hw_ecc_layout {
+	int			page_size;
+	int			strength;
+	unsigned int		ecc_size;
+	unsigned int		nfullchunks;
+	unsigned int		chunk_size;
+	unsigned int		spare_size;
+	unsigned int		last_chunk_size;
+	unsigned int		last_spare_size;
 };
 
-static struct nand_ecclayout ecc_layout_2KB_bch8bit = {
-	.eccbytes = 64,
-	.eccpos = {
-		32, 33, 34, 35, 36, 37, 38, 39,
-		40, 41, 42, 43, 44, 45, 46, 47,
-		48, 49, 50, 51, 52, 53, 54, 55,
-		56, 57, 58, 59, 60, 61, 62, 63,
-		64, 65, 66, 67, 68, 69, 70, 71,
-		72, 73, 74, 75, 76, 77, 78, 79,
-		80, 81, 82, 83, 84, 85, 86, 87,
-		88, 89, 90, 91, 92, 93, 94, 95},
-	.oobfree = { {1, 4}, {6, 26} }
+static const struct marvell_hw_ecc_layout nfc_layouts[] = {
+	/* page_size strength ecc_size nfullchunks chunk_size spare_size last_chunk last_spare */
+	{     512,	1,	 8,	    1,	       512,	   8,	      0,	 0	},
+	{    2048,	1,	24,	    1,	      2048,	  40,	      0,	 0	},
+
+	{    2048,	4,	32,	    1,	      2048,	  32,	      0,	 0	},
+	{    2048,	8,	32,	    1,	      1024,	   0,	   1024,	32	},
+	{    2048,     12,	32,	    2,	       704,	   0,	    640,	 0	},
+	{    2048,     16,	32,	    4,	       512,	   0,	      0,	32	},
+	{    4096,	4,	32,	    2,	      2048,	  32,	      0,	 0	},
+	{    4096,	8,	32,	    4,	      1024,	   0,	      0,	64	},
+	{    4096,     12,	32,	    5,	       704,	   0,	    576,	32	},
+	{    4096,     16,	32,	    8,	       512,	   0,	      0,	32	},
+
+	{    8192,	4,	32,	    4,	      2048,	  32,	      0,	 0	},
+	{    8192,	8,	32,	    8,	      1024,	   0,	      0,       160	},
+	{    8192,     12,	32,	   11,	       704,	   0,	    448,	64	},
+	{    8192,     16,	32,	   16,	       512,	   0,	      0,	32	},
+	{ },
 };
 
-static struct nand_ecclayout ecc_layout_4KB_bch4bit = {
-	.eccbytes = 64,
-	.eccpos = {
-		32,  33,  34,  35,  36,  37,  38,  39,
-		40,  41,  42,  43,  44,  45,  46,  47,
-		48,  49,  50,  51,  52,  53,  54,  55,
-		56,  57,  58,  59,  60,  61,  62,  63,
-		96,  97,  98,  99,  100, 101, 102, 103,
-		104, 105, 106, 107, 108, 109, 110, 111,
-		112, 113, 114, 115, 116, 117, 118, 119,
-		120, 121, 122, 123, 124, 125, 126, 127},
-	/* Bootrom looks in bytes 0 & 5 for bad blocks */
-	.oobfree = { {6, 26}, { 64, 32} }
-};
-
-static struct nand_ecclayout ecc_layout_8KB_bch4bit = {
-	.eccbytes = 128,
-	.eccpos = {
-		32,  33,  34,  35,  36,  37,  38,  39,
-		40,  41,  42,  43,  44,  45,  46,  47,
-		48,  49,  50,  51,  52,  53,  54,  55,
-		56,  57,  58,  59,  60,  61,  62,  63,
-
-		96,  97,  98,  99,  100, 101, 102, 103,
-		104, 105, 106, 107, 108, 109, 110, 111,
-		112, 113, 114, 115, 116, 117, 118, 119,
-		120, 121, 122, 123, 124, 125, 126, 127,
-
-		160, 161, 162, 163, 164, 165, 166, 167,
-		168, 169, 170, 171, 172, 173, 174, 175,
-		176, 177, 178, 179, 180, 181, 182, 183,
-		184, 185, 186, 187, 188, 189, 190, 191,
-
-		224, 225, 226, 227, 228, 229, 230, 231,
-		232, 233, 234, 235, 236, 237, 238, 239,
-		240, 241, 242, 243, 244, 245, 246, 247,
-		248, 249, 250, 251, 252, 253, 254, 255},
-
-	/* Bootrom looks in bytes 0 & 5 for bad blocks */
-	.oobfree = { {1, 4}, {6, 26}, { 64, 32}, {128, 32}, {192, 32} }
-};
-
-static struct nand_ecclayout ecc_layout_4KB_bch8bit = {
-	.eccbytes = 128,
-	.eccpos = {
-		32,  33,  34,  35,  36,  37,  38,  39,
-		40,  41,  42,  43,  44,  45,  46,  47,
-		48,  49,  50,  51,  52,  53,  54,  55,
-		56,  57,  58,  59,  60,  61,  62,  63},
+static struct nand_ecclayout ecc_layout_empty = {
+	.eccbytes = 0,
+	.eccpos = { },
 	.oobfree = { }
-};
-
-static struct nand_ecclayout ecc_layout_8KB_bch8bit = {
-	.eccbytes = 256,
-	.eccpos = {},
-	/* HW ECC handles all ECC data and all spare area is free for OOB */
-	.oobfree = {{0, 160} }
 };
 
 #define NDTR0_tCH(c)	(min((c), 7) << 19)
@@ -1549,113 +1504,47 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 			struct nand_ecc_ctrl *ecc,
 			int strength, int ecc_stepsize, int page_size)
 {
-	if (strength == 1 && ecc_stepsize == 512 && page_size == 2048) {
-		info->nfullchunks = 1;
-		info->ntotalchunks = 1;
-		info->chunk_size = 2048;
-		info->spare_size = 40;
-		info->ecc_size = 24;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = 512;
-		ecc->strength = 1;
+	int i = 0;
 
-	} else if (strength == 1 && ecc_stepsize == 512 && page_size == 512) {
-		info->nfullchunks = 1;
-		info->ntotalchunks = 1;
-		info->chunk_size = 512;
-		info->spare_size = 8;
-		info->ecc_size = 8;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = 512;
-		ecc->strength = 1;
+	/*  if ecc strength is 1 ecc algo is Hamming else bch */
+	info->ecc_bch = (strength == 1) ? 0 : 1;
 
-	/*
-	 * Required ECC: 4-bit correction per 512 bytes
-	 * Select: 16-bit correction per 2048 bytes
+	ecc->mode = NAND_ECC_HW;
+
+	/* ecc->layout is not in use for pxa driver (but shouldn't be NULL)*/
+	if (info->ecc_bch == 1)
+		ecc->layout = &ecc_layout_empty;
+
+	/* for bch actual ecc strength is 16 per chunk */
+	ecc->strength = (info->ecc_bch == 1) ? 16 : 1;
+
+	while (nfc_layouts[i].strength) {
+		if (strength == nfc_layouts[i].strength && page_size == nfc_layouts[i].page_size) {
+			info->nfullchunks = nfc_layouts[i].nfullchunks;
+			info->chunk_size = nfc_layouts[i].chunk_size;
+			info->spare_size = nfc_layouts[i].spare_size;
+			info->last_chunk_size = nfc_layouts[i].last_chunk_size;
+			info->last_spare_size = nfc_layouts[i].last_spare_size;
+			info->ntotalchunks = (info->last_spare_size || info->last_chunk_size) ?
+					info->nfullchunks + 1 : info->nfullchunks;
+			info->ecc_size = nfc_layouts[i].ecc_size;
+			break;
+		}
+		++i;
+	}
+
+	/* for bch the ecc is calculated per chunk size and for Hamming it is 512 */
+	ecc->size = (info->ecc_bch) ? info->chunk_size : 512;
+
+	/* nand_scan_tail func perform  validity tests for ECC strength, and it
+	 * assumes that all chunks are with same size. in our case when ecc is 12
+	 * the chunk size is 704 but the last chunk is with different size so
+	 * we cheat it nand_scan_tail validity tests by set info->ecc_size value to 512
 	 */
-	} else if (strength == 4 && ecc_stepsize == 512 && page_size == 2048) {
-		info->ecc_bch = 1;
-		info->nfullchunks = 1;
-		info->ntotalchunks = 1;
-		info->chunk_size = 2048;
-		info->spare_size = 32;
-		info->ecc_size = 32;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = info->chunk_size;
-		ecc->layout = &ecc_layout_2KB_bch4bit;
-		ecc->strength = 16;
+	if (strength == 12)
+		ecc->size = 512;
 
-	} else if (strength == 4 && ecc_stepsize == 512 && page_size == 4096) {
-		info->ecc_bch = 1;
-		info->nfullchunks = 2;
-		info->ntotalchunks = 2;
-		info->chunk_size = 2048;
-		info->spare_size = 32;
-		info->ecc_size = 32;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = info->chunk_size;
-		ecc->layout = &ecc_layout_4KB_bch4bit;
-		ecc->strength = 16;
-
-	} else if (strength == 4 && ecc_stepsize == 512 && page_size == 8192) {
-		info->ecc_bch = 1;
-		info->nfullchunks = 4;
-		info->ntotalchunks = 4;
-		info->chunk_size = 2048;
-		info->spare_size = 32;
-		info->ecc_size = 32;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = info->chunk_size;
-		ecc->layout = &ecc_layout_8KB_bch4bit;
-		ecc->strength = 16;
-
-	/*
-	 * Required ECC: 8-bit correction per 512 bytes
-	 * Select: 16-bit correction per 1024 bytes
-	 */
-	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 2048) {
-		info->ecc_bch = 1;
-		info->nfullchunks = 1;
-		info->ntotalchunks = 2;
-		info->chunk_size = 1024;
-		info->spare_size = 0;
-		info->last_chunk_size = 1024;
-		info->last_spare_size = 32;
-		info->ecc_size = 32;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = info->chunk_size;
-		ecc->layout = &ecc_layout_2KB_bch8bit;
-		ecc->strength = 16;
-
-	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 4096) {
-		info->ecc_bch = 1;
-		info->nfullchunks = 4;
-		info->ntotalchunks = 5;
-		info->chunk_size = 1024;
-		info->spare_size = 0;
-		info->last_chunk_size = 0;
-		info->last_spare_size = 64;
-		info->ecc_size = 32;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = info->chunk_size;
-		ecc->layout = &ecc_layout_4KB_bch8bit;
-		ecc->strength = 16;
-
-	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 8192) {
-		info->ecc_bch = 1;
-		info->nfullchunks = 8;
-		info->ntotalchunks = 9;
-		info->chunk_size = 1024;
-		info->spare_size = 0;
-		info->last_chunk_size = 0;
-		info->last_spare_size = 160;
-		info->ecc_size = 32;
-		ecc->mode = NAND_ECC_HW;
-		ecc->size = info->chunk_size;
-		ecc->layout = &ecc_layout_8KB_bch8bit;
-		ecc->strength = 16;
-
-	} else {
+	if (ecc_stepsize != 512 || !(nfc_layouts[i].strength)) {
 		dev_err(info->controller.active->mtd.dev,
 			"ECC strength %d at page size %d is not supported\n",
 			strength, page_size);

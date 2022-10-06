@@ -1969,6 +1969,9 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 	uint32_t size;
 	uint8_t csum;
 
+	if (header_size > 192*1024)
+		return -FDT_ERR_BADSTRUCTURE;
+
 	if (header_size > image_size)
 		return -FDT_ERR_BADSTRUCTURE;
 

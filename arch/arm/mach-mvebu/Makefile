@@ -16,10 +16,6 @@ obj-y	= dram.o
 obj-y	+= gpio.o
 obj-y	+= mbus.o
 
-ifndef CONFIG_TIMER
-obj-y	+= timer.o
-endif
-
 else # CONFIG_ARCH_KIRKWOOD
 
 obj-y	= cpu.o
@@ -97,7 +93,6 @@ $(obj)/kwbimage.cfg: $(src)/kwbimage.cfg.in include/autoconf.mk \
 endif # CONFIG_SPL_BUILD
 obj-y	+= gpio.o
 obj-y	+= mbus.o
-obj-y	+= timer.o
 obj-$(CONFIG_SPL_BUILD) += spl.o
 obj-$(CONFIG_SPL_BUILD) += lowlevel_spl.o
 
