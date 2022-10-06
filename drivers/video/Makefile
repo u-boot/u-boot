@@ -15,7 +15,7 @@ obj-$(CONFIG_VIDEO_MIPI_DSI) += dsi-host-uclass.o
 obj-$(CONFIG_DM_VIDEO) += video-uclass.o vidconsole-uclass.o
 obj-$(CONFIG_DM_VIDEO) += video_bmp.o
 obj-$(CONFIG_PANEL) += panel-uclass.o
-obj-$(CONFIG_DM_PANEL_HX8238D) += hx8238d.o
+obj-$(CONFIG_PANEL_HX8238D) += hx8238d.o
 obj-$(CONFIG_SIMPLE_PANEL) += simple_panel.o
 
 obj-$(CONFIG_VIDEO_LOGO) += u_boot_logo.o

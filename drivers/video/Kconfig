@@ -163,16 +163,6 @@ config CONSOLE_TRUETYPE
 	  With this option you can adjust the text size and use a variety of
 	  fonts. Note that this is noticeably slower than with normal console.
 
-config DM_PANEL_HX8238D
-	bool "Enable Himax HX-8238D LCD driver"
-	depends on DM_VIDEO
-	help
-	  Support for HX-8238D LCD Panel
-	  The  HX8238-D is a single chip controller and driver LSI that
-	  integrates the power circuit.
-	  It can drive a maximum 960x240 dot graphics on a-TFT panel
-	  displays in 16M colors with dithering.
-
 config CONSOLE_TRUETYPE_SIZE
 	int "TrueType font size"
 	depends on CONSOLE_TRUETYPE
@@ -217,6 +207,16 @@ config SIMPLE_PANEL
 	help
 	  This turns on a simple panel driver that enables a compatible
 	  video panel.
+
+config PANEL_HX8238D
+	bool "Enable Himax HX-8238D LCD driver"
+	depends on PANEL
+	help
+	  Support for HX-8238D LCD Panel
+	  The  HX8238-D is a single chip controller and driver LSI that
+	  integrates the power circuit.
+	  It can drive a maximum 960x240 dot graphics on a-TFT panel
+	  displays in 16M colors with dithering.
 
 source "drivers/video/fonts/Kconfig"
 
