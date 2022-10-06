@@ -454,10 +454,12 @@ static efi_status_t efi_disk_add_dev(
 	 * in this case.
 	 */
 	handle = &diskobj->header;
-	ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-			&handle, &efi_guid_device_path, diskobj->dp,
-			&efi_block_io_guid, &diskobj->ops,
-			guid, NULL, NULL));
+	ret = efi_install_multiple_protocol_interfaces(&handle,
+						       &efi_guid_device_path,
+						       diskobj->dp,
+						       &efi_block_io_guid,
+						       &diskobj->ops, guid,
+						       NULL, NULL);
 	if (ret != EFI_SUCCESS)
 		goto error;
 

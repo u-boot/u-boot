@@ -1278,12 +1278,14 @@ efi_status_t efi_console_register(void)
 	struct efi_device_path *dp;
 
 	/* Install protocols on root node */
-	r = EFI_CALL(efi_install_multiple_protocol_interfaces
-		     (&efi_root,
-		      &efi_guid_text_output_protocol, &efi_con_out,
-		      &efi_guid_text_input_protocol, &efi_con_in,
-		      &efi_guid_text_input_ex_protocol, &efi_con_in_ex,
-		      NULL));
+	r = efi_install_multiple_protocol_interfaces(&efi_root,
+						     &efi_guid_text_output_protocol,
+						     &efi_con_out,
+						     &efi_guid_text_input_protocol,
+						     &efi_con_in,
+						     &efi_guid_text_input_ex_protocol,
+						     &efi_con_in_ex,
+						     NULL);
 
 	/* Create console node and install device path protocols */
 	if (CONFIG_IS_ENABLED(DM_SERIAL)) {

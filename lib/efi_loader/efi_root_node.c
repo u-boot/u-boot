@@ -49,38 +49,38 @@ efi_status_t efi_root_node_register(void)
 	dp->end.length = sizeof(struct efi_device_path);
 
 	/* Create root node and install protocols */
-	ret = EFI_CALL(efi_install_multiple_protocol_interfaces
-			(&efi_root,
-			 /* Device path protocol */
-			 &efi_guid_device_path, dp,
+	ret = efi_install_multiple_protocol_interfaces
+		(&efi_root,
+		 /* Device path protocol */
+		 &efi_guid_device_path, dp,
 #if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_TO_TEXT)
-			 /* Device path to text protocol */
-			 &efi_guid_device_path_to_text_protocol,
-			 (void *)&efi_device_path_to_text,
+		 /* Device path to text protocol */
+		 &efi_guid_device_path_to_text_protocol,
+		 &efi_device_path_to_text,
 #endif
-#ifdef CONFIG_EFI_DEVICE_PATH_UTIL
-			 /* Device path utilities protocol */
-			 &efi_guid_device_path_utilities_protocol,
-			 (void *)&efi_device_path_utilities,
+#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_UTIL)
+		 /* Device path utilities protocol */
+		 &efi_guid_device_path_utilities_protocol,
+		 &efi_device_path_utilities,
 #endif
-#ifdef CONFIG_EFI_DT_FIXUP
-			 /* Device-tree fix-up protocol */
-			 &efi_guid_dt_fixup_protocol,
-			 (void *)&efi_dt_fixup_prot,
+#if CONFIG_IS_ENABLED(EFI_DT_FIXUP)
+		 /* Device-tree fix-up protocol */
+		 &efi_guid_dt_fixup_protocol,
+		 &efi_dt_fixup_prot,
 #endif
 #if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
-			 &efi_guid_unicode_collation_protocol2,
-			 (void *)&efi_unicode_collation_protocol2,
+		 &efi_guid_unicode_collation_protocol2,
+		 &efi_unicode_collation_protocol2,
 #endif
 #if CONFIG_IS_ENABLED(EFI_LOADER_HII)
-			 /* HII string protocol */
-			 &efi_guid_hii_string_protocol,
-			 (void *)&efi_hii_string,
-			 /* HII database protocol */
-			 &efi_guid_hii_database_protocol,
-			 (void *)&efi_hii_database,
+		 /* HII string protocol */
+		 &efi_guid_hii_string_protocol,
+		 &efi_hii_string,
+		 /* HII database protocol */
+		 &efi_guid_hii_database_protocol,
+		 &efi_hii_database,
 #endif
-			 NULL));
+		 NULL);
 	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;
 	return ret;
 }
