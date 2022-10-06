@@ -231,6 +231,22 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
  */
 void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y);
 
+/**
+ * vidconsole_list_fonts() - List the available fonts
+ *
+ * This shows a list on the console
+ */
+void vidconsole_list_fonts(void);
+
+/**
+ * vidconsole_select_font() - Select a font to use
+ *
+ * @dev: vidconsole device
+ * @name: Font name
+ * @size: Size of the font (norminal pixel height) or 0 for default
+ */
+int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
+
 #ifdef CONFIG_VIDEO_COPY
 /**
  * vidconsole_sync_copy() - Sync back to the copy framebuffer

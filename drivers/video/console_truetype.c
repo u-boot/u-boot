@@ -584,6 +584,16 @@ static struct font_info *console_truetype_find_font(void)
 	return NULL;
 }
 
+void vidconsole_list_fonts(void)
+{
+	struct font_info *tab;
+
+	for (tab = font_table; tab->begin; tab++) {
+		if (abs(tab->begin - tab->end) > 4)
+			printf("%s\n", tab->name);
+	}
+}
+
 /**
  * vidconsole_add_metrics() - Add a new font/size combination
  *
@@ -624,6 +634,30 @@ static int vidconsole_add_metrics(struct udevice *dev, const char *font_name,
 	return priv->num_metrics++;
 }
 
+/**
+ * find_metrics() - Find the metrics for a given font and size
+ *
+ * @dev:	Video console device to update
+ * @name:	Name of font
+ * @size:	Size of the font (norminal pixel height)
+ * @return metrics, if found, else NULL
+ */
+static struct console_tt_metrics *find_metrics(struct udevice *dev,
+					       const char *name, uint size)
+{
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	int i;
+
+	for (i = 0; i < priv->num_metrics; i++) {
+		struct console_tt_metrics *met = &priv->metrics[i];
+
+		if (!strcmp(name, met->font_name) && met->font_size == size)
+			return met;
+	}
+
+	return NULL;
+}
+
 static void select_metrics(struct udevice *dev, struct console_tt_metrics *met)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
@@ -638,6 +672,47 @@ static void select_metrics(struct udevice *dev, struct console_tt_metrics *met)
 	vc_priv->cols = vid_priv->xsize / met->font_size;
 	vc_priv->rows = vid_priv->ysize / met->font_size;
 	vc_priv->tab_width_frac = VID_TO_POS(met->font_size) * 8 / 2;
+}
+
+int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
+{
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_metrics *met;
+	struct font_info *tab;
+
+	if (name || size) {
+		if (!size)
+			size = CONFIG_CONSOLE_TRUETYPE_SIZE;
+		if (!name)
+			name = priv->cur_met->font_name;
+
+		met = find_metrics(dev, name, size);
+		if (!met) {
+			for (tab = font_table; tab->begin; tab++) {
+				if (font_valid(tab) &&
+				    !strcmp(name, tab->name)) {
+					int ret;
+
+					ret = vidconsole_add_metrics(dev,
+						tab->name, size, tab->begin);
+					if (ret < 0)
+						return log_msg_ret("add", ret);
+
+					met = &priv->metrics[ret];
+					break;
+				}
+			}
+		}
+		if (!met)
+			return log_msg_ret("find", -ENOENT);
+	} else {
+		/* Use the default font */
+		met = priv->metrics;
+	}
+
+	select_metrics(dev, met);
+
+	return 0;
 }
 
 static int console_truetype_probe(struct udevice *dev)
