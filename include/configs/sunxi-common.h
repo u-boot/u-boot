@@ -165,17 +165,17 @@
 
 #elif (CONFIG_SUNXI_MINIMUM_DRAM_MB >= 32)
 /*
- * 32M RAM minus 1MB heap + 8MB for u-boot, stack, fb, etc.
- * 8M uncompressed kernel, 4M compressed kernel, 512K fdt,
- * 512K script, 512K pxe and the ramdisk at the end.
+ * 32M RAM minus 2.5MB for u-boot, heap, stack, etc.
+ * 16M uncompressed kernel, 7M compressed kernel, 128K fdt, 64K script,
+ * 128K DT overlay, 128K PXE and the ramdisk in the rest (max. 5MB)
  */
 #define BOOTM_SIZE        __stringify(0x1700000)
-#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(0500000))
-#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(0C00000))
-#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(0C50000))
-#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(0D00000))
-#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(0D50000))
-#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(0D60000))
+#define KERNEL_ADDR_R     __stringify(SDRAM_OFFSET(1000000))
+#define FDT_ADDR_R        __stringify(SDRAM_OFFSET(1d50000))
+#define SCRIPT_ADDR_R     __stringify(SDRAM_OFFSET(1d40000))
+#define PXEFILE_ADDR_R    __stringify(SDRAM_OFFSET(1d00000))
+#define FDTOVERLAY_ADDR_R __stringify(SDRAM_OFFSET(1d20000))
+#define RAMDISK_ADDR_R    __stringify(SDRAM_OFFSET(1800000))
 
 #else
 #error Need at least 32MB of DRAM. Please adjust load addresses.
