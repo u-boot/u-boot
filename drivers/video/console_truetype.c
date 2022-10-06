@@ -526,9 +526,18 @@ static struct font_info font_table[] = {
 	{} /* sentinel */
 };
 
-#define FONT_BEGIN(name)	__ttf_ ## name ## _begin
-#define FONT_END(name)		__ttf_ ## name ## _end
-#define FONT_IS_VALID(name)	(abs(FONT_END(name) - FONT_BEGIN) > 4)
+/**
+ * font_valid() - Check if a font-table entry is valid
+ *
+ * Depending on available files in the build system, fonts may end up being
+ * empty.
+ *
+ * @return true if the entry is valid
+ */
+static inline bool font_valid(struct font_info *tab)
+{
+	return abs(tab->begin - tab->end) > 4;
+}
 
 /**
  * console_truetype_find_font() - Find a suitable font
@@ -542,7 +551,7 @@ static u8 *console_truetype_find_font(void)
 	struct font_info *tab;
 
 	for (tab = font_table; tab->begin; tab++) {
-		if (abs(tab->begin - tab->end) > 4) {
+		if (font_valid(tab)) {
 			debug("%s: Font '%s', at %p, size %lx\n", __func__,
 			      tab->name, tab->begin,
 			      (ulong)(tab->end - tab->begin));
