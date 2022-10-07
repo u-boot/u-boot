@@ -786,7 +786,8 @@ efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int 
 	if (is_partition) {
 		part_data = dev_get_uclass_plat(dev);
 		part = part_data->partnum;
-		count = snprintf(buf, size, "%s %d:%d", if_typename, diskid, part);
+		count = snprintf(buf, size, "%s %d:%u", if_typename, diskid,
+				 part);
 	} else {
 		count = snprintf(buf, size, "%s %d", if_typename, diskid);
 	}
