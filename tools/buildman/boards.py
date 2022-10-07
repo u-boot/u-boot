@@ -263,6 +263,17 @@ class KconfigScanner:
         if params['arch'] == 'arm' and params['cpu'] == 'armv8':
             params['arch'] = 'aarch64'
 
+        # fix-up for riscv
+        if params['arch'] == 'riscv':
+            try:
+                value = self._conf.syms.get('ARCH_RV32I').str_value
+            except:
+                value = ''
+            if value == 'y':
+                params['arch'] = 'riscv32'
+            else:
+                params['arch'] = 'riscv64'
+
         return params
 
 
