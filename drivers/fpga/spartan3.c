@@ -9,15 +9,11 @@
  * on spartan2.c (Rich Ireland, rireland@enterasys.com).
  */
 
-#include <common.h>		/* core U-Boot definitions */
-#include <spartan3.h>		/* Spartan-II device family */
+#define LOG_CATEGORY UCLASS_FPGA
 
-/* Define FPGA_DEBUG to get debug printf's */
-#ifdef	FPGA_DEBUG
-#define PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
-#endif
+#include <common.h>		/* core U-Boot definitions */
+#include <log.h>
+#include <spartan3.h>		/* Spartan-II device family */
 
 #undef CONFIG_SYS_FPGA_CHECK_BUSY
 
@@ -51,12 +47,12 @@ static int spartan3_load(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	switch (desc->iface) {
 	case slave_serial:
-		PRINTF ("%s: Launching Slave Serial Load\n", __FUNCTION__);
+		log_debug("Launching Slave Serial Load\n");
 		ret_val = spartan3_ss_load(desc, buf, bsize);
 		break;
 
 	case slave_parallel:
-		PRINTF ("%s: Launching Slave Parallel Load\n", __FUNCTION__);
+		log_debug("Launching Slave Parallel Load\n");
 		ret_val = spartan3_sp_load(desc, buf, bsize);
 		break;
 
@@ -74,12 +70,12 @@ static int spartan3_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 
 	switch (desc->iface) {
 	case slave_serial:
-		PRINTF ("%s: Launching Slave Serial Dump\n", __FUNCTION__);
+		log_debug("Launching Slave Serial Dump\n");
 		ret_val = spartan3_ss_dump(desc, buf, bsize);
 		break;
 
 	case slave_parallel:
-		PRINTF ("%s: Launching Slave Parallel Dump\n", __FUNCTION__);
+		log_debug("Launching Slave Parallel Dump\n");
 		ret_val = spartan3_sp_dump(desc, buf, bsize);
 		break;
 
@@ -105,8 +101,7 @@ static int spartan3_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	xilinx_spartan3_slave_parallel_fns *fn = desc->iface_fns;
 
-	PRINTF ("%s: start with interface functions @ 0x%p\n",
-			__FUNCTION__, fn);
+	log_debug("start with interface functions @ 0x%p\n", fn);
 
 	if (fn) {
 		size_t bytecount = 0;
@@ -114,24 +109,24 @@ static int spartan3_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		int cookie = desc->cookie;	/* make a local copy */
 		unsigned long ts;		/* timestamp */
 
-		PRINTF ("%s: Function Table:\n"
-				"ptr:\t0x%p\n"
-				"struct: 0x%p\n"
-				"pre: 0x%p\n"
-				"pgm:\t0x%p\n"
-				"init:\t0x%p\n"
-				"err:\t0x%p\n"
-				"clk:\t0x%p\n"
-				"cs:\t0x%p\n"
-				"wr:\t0x%p\n"
-				"read data:\t0x%p\n"
-				"write data:\t0x%p\n"
-				"busy:\t0x%p\n"
-				"abort:\t0x%p\n"
-				"post:\t0x%p\n\n",
-				__FUNCTION__, &fn, fn, fn->pre, fn->pgm, fn->init, fn->err,
-				fn->clk, fn->cs, fn->wr, fn->rdata, fn->wdata, fn->busy,
-				fn->abort, fn->post);
+		log_debug("Function Table:\n"
+			  "ptr:\t0x%p\n"
+			  "struct: 0x%p\n"
+			  "pre: 0x%p\n"
+			  "pgm:\t0x%p\n"
+			  "init:\t0x%p\n"
+			  "err:\t0x%p\n"
+			  "clk:\t0x%p\n"
+			  "cs:\t0x%p\n"
+			  "wr:\t0x%p\n"
+			  "read data:\t0x%p\n"
+			  "write data:\t0x%p\n"
+			  "busy:\t0x%p\n"
+			  "abort:\t0x%p\n"
+			  "post:\t0x%p\n\n",
+			  &fn, fn, fn->pre, fn->pgm, fn->init, fn->err,
+			  fn->clk, fn->cs, fn->wr, fn->rdata, fn->wdata, fn->busy,
+			  fn->abort, fn->post);
 
 		/*
 		 * This code is designed to emulate the "Express Style"
@@ -309,8 +304,7 @@ static int spartan3_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 	int i;
 	unsigned char val;
 
-	PRINTF ("%s: start with interface functions @ 0x%p\n",
-			__FUNCTION__, fn);
+	log_debug("start with interface functions @ 0x%p\n", fn);
 
 	if (fn) {
 		size_t bytecount = 0;
@@ -318,16 +312,16 @@ static int spartan3_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		int cookie = desc->cookie;	/* make a local copy */
 		unsigned long ts;		/* timestamp */
 
-		PRINTF ("%s: Function Table:\n"
-				"ptr:\t0x%p\n"
-				"struct: 0x%p\n"
-				"pgm:\t0x%p\n"
-				"init:\t0x%p\n"
-				"clk:\t0x%p\n"
-				"wr:\t0x%p\n"
-				"done:\t0x%p\n\n",
-				__FUNCTION__, &fn, fn, fn->pgm, fn->init,
-				fn->clk, fn->wr, fn->done);
+		log_debug("Function Table:\n"
+			  "ptr:\t0x%p\n"
+			  "struct: 0x%p\n"
+			  "pgm:\t0x%p\n"
+			  "init:\t0x%p\n"
+			  "clk:\t0x%p\n"
+			  "wr:\t0x%p\n"
+			  "done:\t0x%p\n\n",
+			  &fn, fn, fn->pgm, fn->init,
+			  fn->clk, fn->wr, fn->done);
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		printf ("Loading FPGA Device %d...\n", cookie);
 #endif
