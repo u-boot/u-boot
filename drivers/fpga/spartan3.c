@@ -127,7 +127,7 @@ static int spartan3_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 				"read data:\t0x%p\n"
 				"write data:\t0x%p\n"
 				"busy:\t0x%p\n"
-				"abort:\t0x%p\n",
+				"abort:\t0x%p\n"
 				"post:\t0x%p\n\n",
 				__FUNCTION__, &fn, fn, fn->pre, fn->pgm, fn->init, fn->err,
 				fn->clk, fn->cs, fn->wr, fn->rdata, fn->wdata, fn->busy,
