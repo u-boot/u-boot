@@ -330,7 +330,7 @@ static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
 #endif
 
 		if ((*fn->done)(cookie) == FPGA_SUCCESS) {
-			PRINTF("%s:%d:done went active early, bytecount = %d\n",
+			PRINTF("%s:%d:done went active early, bytecount = %zu\n",
 			       __func__, __LINE__, bytecount);
 			break;
 		}
@@ -465,7 +465,7 @@ static int virtex2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 #endif
 
 			if ((*fn->done)(cookie) == FPGA_SUCCESS) {
-				PRINTF("%s:%d:done went active early, bytecount = %d\n",
+				PRINTF("%s:%d:done went active early, bytecount = %zu\n",
 				       __func__, __LINE__, bytecount);
 				break;
 			}
