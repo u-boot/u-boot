@@ -1993,7 +1993,7 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	if (ret != EFI_SUCCESS)
 		efi_free_pages(addr, pages);
 out:
-	EFI_CALL(efi_close_protocol(device, guid, efi_root, NULL));
+	efi_close_protocol(device, guid, efi_root, NULL);
 	if (ret == EFI_SUCCESS) {
 		*buffer = (void *)(uintptr_t)addr;
 		*size = buffer_size;
@@ -2290,6 +2290,49 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
  * @agent_handle:      handle of the driver
  * @controller_handle: handle of the controller
  *
+ * This is the function implementing the CloseProtocol service is for internal
+ * usage in U-Boot. For API usage wrapper efi_close_protocol_ext() is provided.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: status code
+ */
+efi_status_t efi_close_protocol(efi_handle_t handle, const efi_guid_t *protocol,
+				efi_handle_t agent_handle,
+				efi_handle_t controller_handle)
+{
+	struct efi_handler *handler;
+	struct efi_open_protocol_info_item *item;
+	struct efi_open_protocol_info_item *pos;
+	efi_status_t ret;
+
+	if (!efi_search_obj(agent_handle) ||
+	    (controller_handle && !efi_search_obj(controller_handle)))
+		return EFI_INVALID_PARAMETER;
+	ret = efi_search_protocol(handle, protocol, &handler);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = EFI_NOT_FOUND;
+	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
+		if (item->info.agent_handle == agent_handle &&
+		    item->info.controller_handle == controller_handle) {
+			efi_delete_open_info(item);
+			ret = EFI_SUCCESS;
+		}
+	}
+
+	return ret;
+}
+
+/**
+ * efi_close_protocol_ext() - close a protocol
+ * @handle:            handle on which the protocol shall be closed
+ * @protocol:          GUID of the protocol to close
+ * @agent_handle:      handle of the driver
+ * @controller_handle: handle of the controller
+ *
  * This function implements the CloseProtocol service.
  *
  * See the Unified Extensible Firmware Interface (UEFI) specification for
@@ -2297,38 +2340,20 @@ static efi_status_t EFIAPI efi_set_watchdog_timer(unsigned long timeout,
  *
  * Return: status code
  */
-efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
-				       const efi_guid_t *protocol,
-				       efi_handle_t agent_handle,
-				       efi_handle_t controller_handle)
+static efi_status_t EFIAPI
+efi_close_protocol_ext(efi_handle_t handle, const efi_guid_t *protocol,
+		       efi_handle_t agent_handle,
+		       efi_handle_t controller_handle)
 {
-	struct efi_handler *handler;
-	struct efi_open_protocol_info_item *item;
-	struct efi_open_protocol_info_item *pos;
-	efi_status_t r;
+	efi_status_t ret;
 
 	EFI_ENTRY("%p, %pUs, %p, %p", handle, protocol, agent_handle,
 		  controller_handle);
 
-	if (!efi_search_obj(agent_handle) ||
-	    (controller_handle && !efi_search_obj(controller_handle))) {
-		r = EFI_INVALID_PARAMETER;
-		goto out;
-	}
-	r = efi_search_protocol(handle, protocol, &handler);
-	if (r != EFI_SUCCESS)
-		goto out;
+	ret = efi_close_protocol(handle, protocol,
+				 agent_handle, controller_handle);
 
-	r = EFI_NOT_FOUND;
-	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
-		if (item->info.agent_handle == agent_handle &&
-		    item->info.controller_handle == controller_handle) {
-			efi_delete_open_info(item);
-			r = EFI_SUCCESS;
-		}
-	}
-out:
-	return EFI_EXIT(r);
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -3213,11 +3238,10 @@ close_next:
 				if (info->info.agent_handle !=
 				    (efi_handle_t)image_obj)
 					continue;
-				r = EFI_CALL(efi_close_protocol
-						(efiobj, &protocol->guid,
-						 info->info.agent_handle,
-						 info->info.controller_handle
-						));
+				r = efi_close_protocol(
+						efiobj, &protocol->guid,
+						info->info.agent_handle,
+						info->info.controller_handle);
 				if (r !=  EFI_SUCCESS)
 					ret = r;
 				/*
@@ -3481,9 +3505,9 @@ static efi_status_t efi_bind_controller(
 		r = EFI_CALL(binding_protocol->start(binding_protocol,
 						     controller_handle,
 						     remain_device_path));
-	EFI_CALL(efi_close_protocol(driver_image_handle,
-				    &efi_guid_driver_binding_protocol,
-				    driver_image_handle, NULL));
+	efi_close_protocol(driver_image_handle,
+			   &efi_guid_driver_binding_protocol,
+			   driver_image_handle, NULL);
 	return r;
 }
 
@@ -3834,9 +3858,9 @@ static efi_status_t EFIAPI efi_disconnect_controller(
 			goto out;
 		}
 	}
-	EFI_CALL(efi_close_protocol(driver_image_handle,
-				    &efi_guid_driver_binding_protocol,
-				    driver_image_handle, NULL));
+	efi_close_protocol(driver_image_handle,
+			   &efi_guid_driver_binding_protocol,
+			   driver_image_handle, NULL);
 	r = EFI_SUCCESS;
 out:
 	if (!child_handle)
@@ -3883,7 +3907,7 @@ static struct efi_boot_services efi_boot_services = {
 	.connect_controller = efi_connect_controller,
 	.disconnect_controller = efi_disconnect_controller,
 	.open_protocol = efi_open_protocol,
-	.close_protocol = efi_close_protocol,
+	.close_protocol = efi_close_protocol_ext,
 	.open_protocol_information = efi_open_protocol_information,
 	.protocols_per_handle = efi_protocols_per_handle,
 	.locate_handle_buffer = efi_locate_handle_buffer,

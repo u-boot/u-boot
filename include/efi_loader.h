@@ -661,11 +661,10 @@ efi_status_t EFIAPI efi_locate_handle_buffer(
 			enum efi_locate_search_type search_type,
 			const efi_guid_t *protocol, void *search_key,
 			efi_uintn_t *no_handles, efi_handle_t **buffer);
-/* Close an previously opened protocol interface */
-efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
-				       const efi_guid_t *protocol,
-				       efi_handle_t agent_handle,
-				       efi_handle_t controller_handle);
+/* Close a previously opened protocol interface */
+efi_status_t efi_close_protocol(efi_handle_t handle, const efi_guid_t *protocol,
+				efi_handle_t agent_handle,
+				efi_handle_t controller_handle);
 /* Open a protocol interface */
 efi_status_t EFIAPI efi_handle_protocol(efi_handle_t handle,
 					const efi_guid_t *protocol,
