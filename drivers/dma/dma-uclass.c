@@ -252,7 +252,7 @@ int dma_memcpy(void *dst, void *src, size_t len)
 	destination = dma_map_single(dst, len, DMA_FROM_DEVICE);
 	source = dma_map_single(src, len, DMA_TO_DEVICE);
 
-	ret = ops->transfer(dev, DMA_MEM_TO_MEM, dst, src, len);
+	ret = ops->transfer(dev, DMA_MEM_TO_MEM, destination, source, len);
 
 	/* Clean+Invalidate the areas after, so we can see DMA'd data */
 	dma_unmap_single(destination, len, DMA_FROM_DEVICE);

@@ -2305,7 +2305,7 @@ err_res_free:
 }
 
 static int udma_transfer(struct udevice *dev, int direction,
-			 void *dst, void *src, size_t len)
+			 dma_addr_t dst, dma_addr_t src, size_t len)
 {
 	struct udma_dev *ud = dev_get_priv(dev);
 	/* Channel0 is reserved for memcpy */
@@ -2326,7 +2326,7 @@ static int udma_transfer(struct udevice *dev, int direction,
 	if (ret)
 		return ret;
 
-	udma_prep_dma_memcpy(uc, (dma_addr_t)dst, (dma_addr_t)src, len);
+	udma_prep_dma_memcpy(uc, dst, src, len);
 	udma_start(uc);
 	udma_poll_completion(uc, &paddr);
 	udma_stop(uc);

@@ -132,8 +132,8 @@ struct dma_ops {
 	 * @len: Length of the data to be copied (number of bytes).
 	 * @return zero on success, or -ve error code.
 	 */
-	int (*transfer)(struct udevice *dev, int direction, void *dst,
-			void *src, size_t len);
+	int (*transfer)(struct udevice *dev, int direction, dma_addr_t dst,
+			dma_addr_t src, size_t len);
 };
 
 #endif /* _DMA_UCLASS_H */
