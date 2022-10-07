@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <event.h>
 #include <log.h>
 #include <part_efi.h>
 #include <efi_api.h>
@@ -544,8 +545,6 @@ void efi_carve_out_dt_rsv(void *fdt);
 void efi_try_purge_kaslr_seed(void *fdt);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
-/* Called by efi_init_early() to add block devices when probed */
-efi_status_t efi_disk_init(void);
 /* Called by efi_init_obj_list() to proble all block devices */
 efi_status_t efi_disks_register(void);
 /* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
@@ -655,8 +654,10 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
 /* Delete all protocols from a handle */
 efi_status_t efi_remove_all_protocols(const efi_handle_t handle);
 /* Install multiple protocol interfaces */
-efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
-				(efi_handle_t *handle, ...);
+efi_status_t EFIAPI
+efi_install_multiple_protocol_interfaces(efi_handle_t *handle, ...);
+efi_status_t EFIAPI
+efi_uninstall_multiple_protocol_interfaces(efi_handle_t handle, ...);
 /* Get handles that support a given protocol */
 efi_status_t EFIAPI efi_locate_handle_buffer(
 			enum efi_locate_search_type search_type,
@@ -708,6 +709,7 @@ const char *guid_to_sha_str(const efi_guid_t *guid);
 int algo_to_len(const char *algo);
 
 int efi_link_dev(efi_handle_t handle, struct udevice *dev);
+int efi_unlink_dev(efi_handle_t handle);
 
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages
@@ -748,6 +750,10 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
 
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
+/* Called when a block device is added */
+int efi_disk_probe(void *ctx, struct event *event);
+/* Called when a block device is removed */
+int efi_disk_remove(void *ctx, struct event *event);
 /* Called by board init to initialize the EFI memory map */
 int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
@@ -1014,9 +1020,10 @@ struct pkcs7_message *efi_parse_pkcs7_header(const void *buf,
 /* runtime implementation of memcpy() */
 void efi_memcpy_runtime(void *dest, const void *src, size_t n);
 
-/* commonly used helper function */
+/* commonly used helper functions */
 u16 *efi_create_indexed_name(u16 *buffer, size_t buffer_size, const char *name,
 			     unsigned int index);
+efi_string_t efi_convert_string(const char *str);
 
 extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;

@@ -415,6 +415,11 @@ static efi_status_t efi_disk_add_dev(
 		struct efi_handler *handler;
 		void *protocol_interface;
 
+		if (!node) {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto error;
+		}
+
 		/* Parent must expose EFI_BLOCK_IO_PROTOCOL */
 		ret = efi_search_protocol(parent, &efi_block_io_guid, &handler);
 		if (ret != EFI_SUCCESS)
@@ -449,10 +454,12 @@ static efi_status_t efi_disk_add_dev(
 	 * in this case.
 	 */
 	handle = &diskobj->header;
-	ret = EFI_CALL(efi_install_multiple_protocol_interfaces(
-			&handle, &efi_guid_device_path, diskobj->dp,
-			&efi_block_io_guid, &diskobj->ops,
-			guid, NULL, NULL));
+	ret = efi_install_multiple_protocol_interfaces(&handle,
+						       &efi_guid_device_path,
+						       diskobj->dp,
+						       &efi_block_io_guid,
+						       &diskobj->ops, guid,
+						       NULL, NULL);
 	if (ret != EFI_SUCCESS)
 		goto error;
 
@@ -620,7 +627,7 @@ static int efi_disk_create_part(struct udevice *dev)
  *
  * @return	0 on success, -1 otherwise
  */
-static int efi_disk_probe(void *ctx, struct event *event)
+int efi_disk_probe(void *ctx, struct event *event)
 {
 	struct udevice *dev;
 	enum uclass_id id;
@@ -724,7 +731,7 @@ static int efi_disk_delete_part(struct udevice *dev)
  *
  * @return	0 on success, -1 otherwise
  */
-static int efi_disk_remove(void *ctx, struct event *event)
+int efi_disk_remove(void *ctx, struct event *event)
 {
 	enum uclass_id id;
 	struct udevice *dev;
@@ -738,27 +745,6 @@ static int efi_disk_remove(void *ctx, struct event *event)
 		return efi_disk_delete_part(dev);
 	else
 		return 0;
-}
-
-efi_status_t efi_disk_init(void)
-{
-	int ret;
-
-	ret = event_register("efi_disk add", EVT_DM_POST_PROBE,
-			     efi_disk_probe, NULL);
-	if (ret) {
-		log_err("Event registration for efi_disk add failed\n");
-		return EFI_OUT_OF_RESOURCES;
-	}
-
-	ret = event_register("efi_disk del", EVT_DM_PRE_REMOVE,
-			     efi_disk_remove, NULL);
-	if (ret) {
-		log_err("Event registration for efi_disk del failed\n");
-		return EFI_OUT_OF_RESOURCES;
-	}
-
-	return EFI_SUCCESS;
 }
 
 /**

@@ -936,7 +936,8 @@ struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
 		dpsize = sizeof(struct efi_device_path_hard_drive_path);
 	buf = dp_alloc(dpsize);
 
-	dp_part_node(buf, desc, part);
+	if (buf)
+		dp_part_node(buf, desc, part);
 
 	return buf;
 }

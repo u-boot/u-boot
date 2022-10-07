@@ -2590,8 +2590,103 @@ found:
 }
 
 /**
+ * efi_install_multiple_protocol_interfaces_int() - Install multiple protocol
+ *                                              interfaces
+ * @handle: handle on which the protocol interfaces shall be installed
+ * @argptr: va_list of args
+ *
+ * Core functionality of efi_install_multiple_protocol_interfaces
+ * Must not be called directly
+ *
+ * Return: status code
+ */
+static efi_status_t EFIAPI
+efi_install_multiple_protocol_interfaces_int(efi_handle_t *handle,
+					     efi_va_list argptr)
+{
+	const efi_guid_t *protocol;
+	void *protocol_interface;
+	efi_handle_t old_handle;
+	efi_status_t ret = EFI_SUCCESS;
+	int i = 0;
+	efi_va_list argptr_copy;
+
+	if (!handle)
+		return EFI_INVALID_PARAMETER;
+
+	efi_va_copy(argptr_copy, argptr);
+	for (;;) {
+		protocol = efi_va_arg(argptr, efi_guid_t*);
+		if (!protocol)
+			break;
+		protocol_interface = efi_va_arg(argptr, void*);
+		/* Check that a device path has not been installed before */
+		if (!guidcmp(protocol, &efi_guid_device_path)) {
+			struct efi_device_path *dp = protocol_interface;
+
+			ret = EFI_CALL(efi_locate_device_path(protocol, &dp,
+							      &old_handle));
+			if (ret == EFI_SUCCESS &&
+			    dp->type == DEVICE_PATH_TYPE_END) {
+				EFI_PRINT("Path %pD already installed\n",
+					  protocol_interface);
+				ret = EFI_ALREADY_STARTED;
+				break;
+			}
+		}
+		ret = EFI_CALL(efi_install_protocol_interface(handle, protocol,
+							      EFI_NATIVE_INTERFACE,
+							      protocol_interface));
+		if (ret != EFI_SUCCESS)
+			break;
+		i++;
+	}
+	if (ret == EFI_SUCCESS)
+		goto out;
+
+	/* If an error occurred undo all changes. */
+	for (; i; --i) {
+		protocol = efi_va_arg(argptr_copy, efi_guid_t*);
+		protocol_interface = efi_va_arg(argptr_copy, void*);
+		EFI_CALL(efi_uninstall_protocol_interface(*handle, protocol,
+							  protocol_interface));
+	}
+
+out:
+	efi_va_end(argptr_copy);
+	return ret;
+
+}
+
+/**
  * efi_install_multiple_protocol_interfaces() - Install multiple protocol
  *                                              interfaces
+ * @handle: handle on which the protocol interfaces shall be installed
+ * @...:    NULL terminated argument list with pairs of protocol GUIDS and
+ *          interfaces
+ *
+ *
+ * This is the function for internal usage in U-Boot. For the API function
+ * implementing the InstallMultipleProtocol service see
+ * efi_install_multiple_protocol_interfaces_ext()
+ *
+ * Return: status code
+ */
+efi_status_t EFIAPI
+efi_install_multiple_protocol_interfaces(efi_handle_t *handle, ...)
+{
+	efi_status_t ret;
+	efi_va_list argptr;
+
+	efi_va_start(argptr, handle);
+	ret = efi_install_multiple_protocol_interfaces_int(handle, argptr);
+	efi_va_end(argptr);
+	return ret;
+}
+
+/**
+ * efi_install_multiple_protocol_interfaces_ext() - Install multiple protocol
+ *                                                  interfaces
  * @handle: handle on which the protocol interfaces shall be installed
  * @...:    NULL terminated argument list with pairs of protocol GUIDS and
  *          interfaces
@@ -2603,64 +2698,84 @@ found:
  *
  * Return: status code
  */
-efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
-				(efi_handle_t *handle, ...)
+static efi_status_t EFIAPI
+efi_install_multiple_protocol_interfaces_ext(efi_handle_t *handle, ...)
 {
 	EFI_ENTRY("%p", handle);
-
+	efi_status_t ret;
 	efi_va_list argptr;
-	const efi_guid_t *protocol;
-	void *protocol_interface;
-	efi_handle_t old_handle;
-	efi_status_t r = EFI_SUCCESS;
-	int i = 0;
-
-	if (!handle)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	efi_va_start(argptr, handle);
+	ret = efi_install_multiple_protocol_interfaces_int(handle, argptr);
+	efi_va_end(argptr);
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_uninstall_multiple_protocol_interfaces_int() - wrapper for uninstall
+ *                                                  multiple protocol
+ *                                                  interfaces
+ * @handle: handle from which the protocol interfaces shall be removed
+ * @argptr: va_list of args
+ *
+ * Core functionality of efi_uninstall_multiple_protocol_interfaces
+ * Must not be called directly
+ *
+ * Return: status code
+ */
+static efi_status_t EFIAPI
+efi_uninstall_multiple_protocol_interfaces_int(efi_handle_t handle,
+					       efi_va_list argptr)
+{
+	const efi_guid_t *protocol;
+	void *protocol_interface;
+	efi_status_t ret;
+	size_t i = 0;
+	efi_va_list argptr_copy;
+
+	if (!handle)
+		return EFI_INVALID_PARAMETER;
+
+	efi_va_copy(argptr_copy, argptr);
 	for (;;) {
 		protocol = efi_va_arg(argptr, efi_guid_t*);
 		if (!protocol)
 			break;
 		protocol_interface = efi_va_arg(argptr, void*);
-		/* Check that a device path has not been installed before */
-		if (!guidcmp(protocol, &efi_guid_device_path)) {
-			struct efi_device_path *dp = protocol_interface;
-
-			r = EFI_CALL(efi_locate_device_path(protocol, &dp,
-							    &old_handle));
-			if (r == EFI_SUCCESS &&
-			    dp->type == DEVICE_PATH_TYPE_END) {
-				EFI_PRINT("Path %pD already installed\n",
-					  protocol_interface);
-				r = EFI_ALREADY_STARTED;
-				break;
-			}
-		}
-		r = EFI_CALL(efi_install_protocol_interface(
-						handle, protocol,
-						EFI_NATIVE_INTERFACE,
-						protocol_interface));
-		if (r != EFI_SUCCESS)
+		ret = efi_uninstall_protocol(handle, protocol,
+					     protocol_interface);
+		if (ret != EFI_SUCCESS)
 			break;
 		i++;
 	}
-	efi_va_end(argptr);
-	if (r == EFI_SUCCESS)
-		return EFI_EXIT(r);
+	if (ret == EFI_SUCCESS) {
+		/* If the last protocol has been removed, delete the handle. */
+		if (list_empty(&handle->protocols)) {
+			list_del(&handle->link);
+			free(handle);
+		}
+		goto out;
+	}
 
 	/* If an error occurred undo all changes. */
-	efi_va_start(argptr, handle);
 	for (; i; --i) {
-		protocol = efi_va_arg(argptr, efi_guid_t*);
-		protocol_interface = efi_va_arg(argptr, void*);
-		EFI_CALL(efi_uninstall_protocol_interface(*handle, protocol,
-							  protocol_interface));
+		protocol = efi_va_arg(argptr_copy, efi_guid_t*);
+		protocol_interface = efi_va_arg(argptr_copy, void*);
+		EFI_CALL(efi_install_protocol_interface(&handle, protocol,
+							EFI_NATIVE_INTERFACE,
+							protocol_interface));
 	}
-	efi_va_end(argptr);
+	/*
+	 * If any errors are generated while the protocol interfaces are being
+	 * uninstalled, then the protocols uninstalled prior to the error will
+	 * be reinstalled using InstallProtocolInterface() and the status code
+	 * EFI_INVALID_PARAMETER is returned.
+	 */
+	ret = EFI_INVALID_PARAMETER;
 
-	return EFI_EXIT(r);
+out:
+	efi_va_end(argptr_copy);
+	return ret;
 }
 
 /**
@@ -2672,60 +2787,49 @@ efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
  *
  * This function implements the UninstallMultipleProtocolInterfaces service.
  *
+ * This is the function for internal usage in U-Boot. For the API function
+ * implementing the UninstallMultipleProtocolInterfaces service see
+ * efi_uninstall_multiple_protocol_interfaces_ext()
+ *
+ * Return: status code
+ */
+efi_status_t EFIAPI
+efi_uninstall_multiple_protocol_interfaces(efi_handle_t handle, ...)
+{
+	efi_status_t ret;
+	efi_va_list argptr;
+
+	efi_va_start(argptr, handle);
+	ret = efi_uninstall_multiple_protocol_interfaces_int(handle, argptr);
+	efi_va_end(argptr);
+	return ret;
+}
+
+/**
+ * efi_uninstall_multiple_protocol_interfaces_ext() - uninstall multiple protocol
+ *                                                    interfaces
+ * @handle: handle from which the protocol interfaces shall be removed
+ * @...:    NULL terminated argument list with pairs of protocol GUIDS and
+ *          interfaces
+ *
+ * This function implements the UninstallMultipleProtocolInterfaces service.
+ *
  * See the Unified Extensible Firmware Interface (UEFI) specification for
  * details.
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
-			efi_handle_t handle, ...)
+static efi_status_t EFIAPI
+efi_uninstall_multiple_protocol_interfaces_ext(efi_handle_t handle, ...)
 {
 	EFI_ENTRY("%p", handle);
-
+	efi_status_t ret;
 	efi_va_list argptr;
-	const efi_guid_t *protocol;
-	void *protocol_interface;
-	efi_status_t r = EFI_SUCCESS;
-	size_t i = 0;
-
-	if (!handle)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	efi_va_start(argptr, handle);
-	for (;;) {
-		protocol = efi_va_arg(argptr, efi_guid_t*);
-		if (!protocol)
-			break;
-		protocol_interface = efi_va_arg(argptr, void*);
-		r = efi_uninstall_protocol(handle, protocol,
-					   protocol_interface);
-		if (r != EFI_SUCCESS)
-			break;
-		i++;
-	}
+	ret = efi_uninstall_multiple_protocol_interfaces_int(handle, argptr);
 	efi_va_end(argptr);
-	if (r == EFI_SUCCESS) {
-		/* If the last protocol has been removed, delete the handle. */
-		if (list_empty(&handle->protocols)) {
-			list_del(&handle->link);
-			free(handle);
-		}
-		return EFI_EXIT(r);
-	}
-
-	/* If an error occurred undo all changes. */
-	efi_va_start(argptr, handle);
-	for (; i; --i) {
-		protocol = efi_va_arg(argptr, efi_guid_t*);
-		protocol_interface = efi_va_arg(argptr, void*);
-		EFI_CALL(efi_install_protocol_interface(&handle, protocol,
-							EFI_NATIVE_INTERFACE,
-							protocol_interface));
-	}
-	efi_va_end(argptr);
-
-	/* In case of an error always return EFI_INVALID_PARAMETER */
-	return EFI_EXIT(EFI_INVALID_PARAMETER);
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -3785,9 +3889,9 @@ static struct efi_boot_services efi_boot_services = {
 	.locate_handle_buffer = efi_locate_handle_buffer,
 	.locate_protocol = efi_locate_protocol,
 	.install_multiple_protocol_interfaces =
-			efi_install_multiple_protocol_interfaces,
+			efi_install_multiple_protocol_interfaces_ext,
 	.uninstall_multiple_protocol_interfaces =
-			efi_uninstall_multiple_protocol_interfaces,
+			efi_uninstall_multiple_protocol_interfaces_ext,
 	.calculate_crc32 = efi_calculate_crc32,
 	.copy_mem = efi_copy_mem,
 	.set_mem = efi_set_mem,

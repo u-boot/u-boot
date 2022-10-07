@@ -198,7 +198,8 @@ static efi_status_t __efi_init_early(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = efi_disk_init();
+	/* Initialize EFI driver uclass */
+	ret = efi_driver_init();
 out:
 	return ret;
 }
@@ -316,11 +317,6 @@ efi_status_t efi_init_obj_list(void)
 
 	/* Indicate supported runtime services */
 	ret = efi_init_runtime_supported();
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	/* Initialize EFI driver uclass */
-	ret = efi_driver_init();
 	if (ret != EFI_SUCCESS)
 		goto out;
 

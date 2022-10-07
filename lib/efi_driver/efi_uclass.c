@@ -11,7 +11,7 @@
  * The uclass provides the bind, start, and stop entry points for the driver
  * binding protocol.
  *
- * In bind() and stop() it checks if the controller implements the protocol
+ * In supported() and bind() it checks if the controller implements the protocol
  * supported by the EFI driver. In the start() function it calls the bind()
  * function of the EFI driver. In the stop() function it destroys the child
  * controllers.
@@ -144,18 +144,19 @@ static efi_status_t EFIAPI efi_uc_start(
 		goto out;
 	}
 	ret = check_node_type(controller_handle);
-	if (ret != EFI_SUCCESS) {
-		r = EFI_CALL(systab.boottime->close_protocol(
-				controller_handle, bp->ops->protocol,
-				this->driver_binding_handle,
-				controller_handle));
-		if (r != EFI_SUCCESS)
-			EFI_PRINT("Failure to close handle\n");
+	if (ret != EFI_SUCCESS)
+		goto err;
+	ret = bp->ops->bind(bp, controller_handle, interface);
+	if (ret == EFI_SUCCESS)
 		goto out;
-	}
 
-	/* TODO: driver specific stuff */
-	bp->ops->bind(controller_handle, interface);
+err:
+	r = EFI_CALL(systab.boottime->close_protocol(
+			controller_handle, bp->ops->protocol,
+			this->driver_binding_handle,
+			controller_handle));
+	if (r != EFI_SUCCESS)
+		EFI_PRINT("Failure to close handle\n");
 
 out:
 	return EFI_EXIT(ret);
@@ -245,7 +246,7 @@ static efi_status_t EFIAPI efi_uc_stop(
 				goto out;
 		}
 	}
-	ret = EFI_CALL(systab.boottime->free_pool(entry_buffer));
+	ret = efi_free_pool(entry_buffer);
 	if (ret != EFI_SUCCESS)
 		log_err("Cannot free EFI memory pool\n");
 
@@ -283,7 +284,7 @@ static efi_status_t efi_add_driver(struct driver *drv)
 	bp->bp.start = efi_uc_start;
 	bp->bp.stop = efi_uc_stop;
 	bp->bp.version = 0xffffffff;
-	bp->ops = drv->ops;
+	bp->ops = ops;
 
 	ret = efi_create_handle(&bp->bp.driver_binding_handle);
 	if (ret != EFI_SUCCESS) {
@@ -293,12 +294,19 @@ static efi_status_t efi_add_driver(struct driver *drv)
 	bp->bp.image_handle = bp->bp.driver_binding_handle;
 	ret = efi_add_protocol(bp->bp.driver_binding_handle,
 			       &efi_guid_driver_binding_protocol, bp);
-	if (ret != EFI_SUCCESS) {
-		efi_delete_handle(bp->bp.driver_binding_handle);
-		free(bp);
-		goto out;
+	if (ret != EFI_SUCCESS)
+		goto err;
+	if (ops->init) {
+		ret = ops->init(bp);
+		if (ret != EFI_SUCCESS)
+			goto err;
 	}
 out:
+	return ret;
+
+err:
+	efi_delete_handle(bp->bp.driver_binding_handle);
+	free(bp);
 	return ret;
 }
 

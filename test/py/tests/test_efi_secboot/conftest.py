@@ -2,17 +2,11 @@
 # Copyright (c) 2019, Linaro Limited
 # Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
 
-import os
-import os.path
-from subprocess import call, check_call, check_output, CalledProcessError
+""" Fixture for UEFI secure boot test """
+
+from subprocess import call, check_call, CalledProcessError
 import pytest
 from defs import *
-
-
-#
-# Fixture for UEFI secure boot test
-#
-
 
 @pytest.fixture(scope='session')
 def efi_boot_env(request, u_boot_config):
