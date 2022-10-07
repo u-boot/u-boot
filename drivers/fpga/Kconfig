@@ -27,6 +27,12 @@ config FPGA_STRATIX_V
 	help
 	  Say Y here to enable the Altera Stratix V FPGA specific driver.
 
+config FPGA_ACEX1K
+	bool "Enable Altera ACEX 1K driver"
+	depends on FPGA_ALTERA
+	help
+	  Say Y here to enable the Altera ACEX 1K FPGA specific driver.
+
 config FPGA_CYCLON2
 	bool "Enable Altera FPGA driver for Cyclone II"
 	depends on FPGA_ALTERA
@@ -70,6 +76,12 @@ config FPGA_VERSALPL
 	  Versal device. PDI is a new programmable device image format for
 	  Versal. The bitstream will only be generated as PDI for Versal
 	  platform.
+
+config FPGA_SPARTAN2
+	bool "Enable Spartan2 FPGA driver"
+	depends on FPGA_XILINX
+	help
+	  Enable Spartan2 FPGA driver.
 
 config FPGA_SPARTAN3
 	bool "Enable Spartan3 FPGA driver"
