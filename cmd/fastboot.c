@@ -83,9 +83,9 @@ static int do_fastboot_usb(int argc, char *const argv[],
 	ret = CMD_RET_SUCCESS;
 
 exit:
+	usb_gadget_release(controller_index);
 	g_dnl_unregister();
 	g_dnl_clear_detach();
-	usb_gadget_release(controller_index);
 
 	return ret;
 #else
