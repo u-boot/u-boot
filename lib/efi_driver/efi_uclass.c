@@ -225,9 +225,10 @@ static efi_status_t EFIAPI efi_uc_stop(
 			ret = disconnect_child(controller_handle,
 					       child_handle_buffer[i]);
 			if (ret != EFI_SUCCESS)
-				return ret;
+				goto out;
 		}
-		return EFI_SUCCESS;
+		ret = EFI_SUCCESS;
+			goto out;
 	}
 
 	/* Destroy all children */
