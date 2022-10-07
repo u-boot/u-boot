@@ -571,7 +571,8 @@ static int ks2_eth_probe(struct udevice *dev)
 		mdio_bus = cpsw_mdio_init("ethernet-mdio",
 					  priv->mdio_base,
 					  EMAC_MDIO_CLOCK_FREQ,
-					  EMAC_MDIO_BUS_FREQ);
+					  EMAC_MDIO_BUS_FREQ,
+					  false);
 		if (!mdio_bus) {
 			pr_err("MDIO alloc failed\n");
 			return -ENOMEM;

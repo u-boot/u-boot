@@ -503,6 +503,10 @@ void dcache_enable(void)
 		mmu_setup();
 	}
 
+	/* Set up page tables only once (it is done also by mmu_setup()) */
+	if (!gd->arch.tlb_fillptr)
+		setup_all_pgtables();
+
 	set_sctlr(get_sctlr() | CR_C);
 }
 

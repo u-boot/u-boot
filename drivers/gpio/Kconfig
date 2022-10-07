@@ -605,4 +605,10 @@ config TURRIS_OMNIA_MCU
 	help
 	   Support for GPIOs on MCU connected to Turris Omnia via i2c.
 
+config FTGPIO010
+	bool "Faraday Technology FTGPIO010 driver"
+	depends on DM_GPIO
+	help
+	   Support for GPIOs on Faraday Technology's FTGPIO010 controller.
+
 endif

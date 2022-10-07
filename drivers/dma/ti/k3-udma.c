@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <linux/bitops.h>
 #include <linux/dma-mapping.h>
+#include <linux/sizes.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

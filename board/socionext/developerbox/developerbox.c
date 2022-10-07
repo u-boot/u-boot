@@ -89,8 +89,6 @@ struct draminfo {
 	struct draminfo_entry	entry[3];
 };
 
-struct draminfo *synquacer_draminfo = (void *)SQ_DRAMINFO_BASE;
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define LOAD_OFFSET 0x100
@@ -137,42 +135,18 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 int dram_init(void)
 {
+	struct draminfo *synquacer_draminfo = (void *)SQ_DRAMINFO_BASE;
 	struct draminfo_entry *ent = synquacer_draminfo->entry;
-	struct mm_region *mr;
-	int i, ri;
 
-	if (synquacer_draminfo->nr_regions < 1) {
-		log_err("Failed to get correct DRAM information\n");
-		return -1;
-	}
-
-	/*
-	 * U-Boot RAM size must be under the first DRAM region so that it doesn't
-	 * access secure memory which is at the end of the first DRAM region.
-	 */
 	gd->ram_size = ent[0].size;
-
-	/* Update memory region maps */
-	for (i = 0; i < synquacer_draminfo->nr_regions; i++) {
-		if (i >= MAX_DDR_REGIONS)
-			break;
-
-		ri = DDR_REGION_INDEX(i);
-		mem_map[ri].phys = ent[i].base;
-		mem_map[ri].size = ent[i].size;
-		if (i == 0)
-			continue;
-
-		mr = &mem_map[DDR_REGION_INDEX(0)];
-		mem_map[ri].virt = mr->virt + mr->size;
-		mem_map[ri].attrs = mr->attrs;
-	}
+	gd->ram_base = ent[0].base;
 
 	return 0;
 }
 
 int dram_init_banksize(void)
 {
+	struct draminfo *synquacer_draminfo = (void *)SQ_DRAMINFO_BASE;
 	struct draminfo_entry *ent = synquacer_draminfo->entry;
 	int i;
 
@@ -185,6 +159,43 @@ int dram_init_banksize(void)
 	}
 
 	return 0;
+}
+
+void build_mem_map(void)
+{
+	struct draminfo *synquacer_draminfo = (void *)SQ_DRAMINFO_BASE;
+	struct draminfo_entry *ent = synquacer_draminfo->entry;
+	struct mm_region *mr;
+	int i, ri;
+
+	if (synquacer_draminfo->nr_regions < 1) {
+		log_err("Failed to get correct DRAM information\n");
+		return;
+	}
+
+	/* Update memory region maps */
+	for (i = 0; i < synquacer_draminfo->nr_regions; i++) {
+		if (i >= MAX_DDR_REGIONS)
+			break;
+
+		ri = DDR_REGION_INDEX(i);
+		mem_map[ri].phys = ent[i].base;
+		mem_map[ri].size = ent[i].size;
+		mem_map[ri].virt = mem_map[ri].phys;
+		if (i == 0)
+			continue;
+
+		mr = &mem_map[DDR_REGION_INDEX(0)];
+		mem_map[ri].attrs = mr->attrs;
+	}
+}
+
+void enable_caches(void)
+{
+	build_mem_map();
+
+	icache_enable();
+	dcache_enable();
 }
 
 int print_cpuinfo(void)
