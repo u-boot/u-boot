@@ -23,7 +23,6 @@
 #include <mmc.h>
 #include <dm/root.h>
 
-#define MCU_CTRL_MMR0_BASE			0x04500000
 #define CTRLMMR_MCU_RST_CTRL			0x04518170
 
 static void ctrl_mmr_unlock(void)
