@@ -606,5 +606,9 @@ int misc_init_r(void)
 			printf("Failed to probe am65_cpsw_nuss driver\n");
 	}
 
+	/* Default FIT boot on non-GP devices */
+	if (get_device_type() != K3_DEVICE_TYPE_GP)
+		env_set("boot_fit", "1");
+
 	return 0;
 }
