@@ -100,8 +100,6 @@
 /* USB Device Firmware Update support */
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
-#define CONFIG_USBNET_DEV_ADDR		"de:ad:be:af:00:01"
-
 /* Environment variable name to represent HAB enable state */
 #define HAB_ENABLED_ENVNAME		"hab_enabled"
 

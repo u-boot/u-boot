@@ -241,7 +241,7 @@ config USB_ETH_RNDIS
 
 endchoice
 
-config USBNET_DEVADDR
+config USBNET_DEV_ADDR
 	string "USB Gadget Ethernet device mac address"
 	default "de:ad:be:ef:00:01"
 	help

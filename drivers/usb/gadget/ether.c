@@ -2620,7 +2620,7 @@ static int usb_eth_probe(struct udevice *dev)
 	priv->netdev = dev;
 	l_priv = priv;
 
-	get_ether_addr(CONFIG_USBNET_DEVADDR, pdata->enetaddr);
+	get_ether_addr(CONFIG_USBNET_DEV_ADDR, pdata->enetaddr);
 	eth_env_set_enetaddr("usbnet_devaddr", pdata->enetaddr);
 
 	return 0;
