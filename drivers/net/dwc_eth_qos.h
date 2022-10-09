@@ -264,7 +264,8 @@ struct eqos_priv {
 	struct phy_device *phy;
 	ofnode phy_of_node;
 	u32 max_speed;
-	void *descs;
+	void *tx_descs;
+	void *rx_descs;
 	int tx_desc_idx, rx_desc_idx;
 	unsigned int desc_size;
 	void *tx_dma_buf;

@@ -75,9 +75,6 @@
  */
 static void *eqos_alloc_descs(struct eqos_priv *eqos, unsigned int num)
 {
-	eqos->desc_size = ALIGN(sizeof(struct eqos_desc),
-				(unsigned int)ARCH_DMA_MINALIGN);
-
 	return memalign(eqos->desc_size, num * eqos->desc_size);
 }
 
@@ -89,8 +86,8 @@ static void eqos_free_descs(void *descs)
 static struct eqos_desc *eqos_get_desc(struct eqos_priv *eqos,
 				       unsigned int num, bool rx)
 {
-	return eqos->descs +
-		((rx ? EQOS_DESCRIPTORS_TX : 0) + num) * eqos->desc_size;
+	return (rx ? eqos->rx_descs : eqos->tx_descs) +
+	       (num * eqos->desc_size);
 }
 
 void eqos_inval_desc_generic(void *desc)
@@ -1001,7 +998,8 @@ static int eqos_start(struct udevice *dev)
 
 	/* Set up descriptors */
 
-	memset(eqos->descs, 0, eqos->desc_size * EQOS_DESCRIPTORS_NUM);
+	memset(eqos->tx_descs, 0, eqos->desc_size * EQOS_DESCRIPTORS_TX);
+	memset(eqos->rx_descs, 0, eqos->desc_size * EQOS_DESCRIPTORS_RX);
 
 	for (i = 0; i < EQOS_DESCRIPTORS_TX; i++) {
 		struct eqos_desc *tx_desc = eqos_get_desc(eqos, i, false);
@@ -1234,11 +1232,21 @@ static int eqos_probe_resources_core(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
-	eqos->descs = eqos_alloc_descs(eqos, EQOS_DESCRIPTORS_NUM);
-	if (!eqos->descs) {
-		debug("%s: eqos_alloc_descs() failed\n", __func__);
+	eqos->desc_size = ALIGN(sizeof(struct eqos_desc),
+				(unsigned int)ARCH_DMA_MINALIGN);
+
+	eqos->tx_descs = eqos_alloc_descs(eqos, EQOS_DESCRIPTORS_TX);
+	if (!eqos->tx_descs) {
+		debug("%s: eqos_alloc_descs(tx) failed\n", __func__);
 		ret = -ENOMEM;
 		goto err;
+	}
+
+	eqos->rx_descs = eqos_alloc_descs(eqos, EQOS_DESCRIPTORS_RX);
+	if (!eqos->rx_descs) {
+		debug("%s: eqos_alloc_descs(rx) failed\n", __func__);
+		ret = -ENOMEM;
+		goto err_free_tx_descs;
 	}
 
 	eqos->tx_dma_buf = memalign(EQOS_BUFFER_ALIGN, EQOS_MAX_PACKET_SIZE);
@@ -1276,7 +1284,9 @@ err_free_rx_dma_buf:
 err_free_tx_dma_buf:
 	free(eqos->tx_dma_buf);
 err_free_descs:
-	eqos_free_descs(eqos->descs);
+	eqos_free_descs(eqos->rx_descs);
+err_free_tx_descs:
+	eqos_free_descs(eqos->tx_descs);
 err:
 
 	debug("%s: returns %d\n", __func__, ret);
@@ -1292,7 +1302,8 @@ static int eqos_remove_resources_core(struct udevice *dev)
 	free(eqos->rx_pkt);
 	free(eqos->rx_dma_buf);
 	free(eqos->tx_dma_buf);
-	eqos_free_descs(eqos->descs);
+	eqos_free_descs(eqos->rx_descs);
+	eqos_free_descs(eqos->tx_descs);
 
 	debug("%s: OK\n", __func__);
 	return 0;
