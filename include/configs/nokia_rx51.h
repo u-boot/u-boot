@@ -31,8 +31,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_UBI_SIZE			(512 << 10)
-
 /*
  * Hardware drivers
  */
