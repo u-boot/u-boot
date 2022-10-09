@@ -611,4 +611,10 @@ config FTGPIO010
 	help
 	   Support for GPIOs on Faraday Technology's FTGPIO010 controller.
 
+config ADP5585_GPIO
+	bool "ADP5585 GPIO driver"
+	depends on DM_GPIO && DM_I2C
+	help
+	  Support ADP5585 GPIO expander.
+
 endif
