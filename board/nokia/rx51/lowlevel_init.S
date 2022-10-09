@@ -7,7 +7,7 @@
 #include <config.h>
 
 kernoffs:		/* offset of kernel image from this address */
-	.word KERNEL_OFFSET - (. - CONFIG_SYS_TEXT_BASE)
+	.word . - CONFIG_SYS_TEXT_BASE - KERNEL_OFFSET
 
 kernaddr:		/* address of kernel after copying */
 	.word KERNEL_ADDRESS
@@ -49,7 +49,7 @@ save_boot_params:
 	/* r0 - start of kernel before */
 	adr	r0, kernoffs	/* r0 - current address of kernoffs section */
 	ldr	r1, kernoffs	/* r1 - offset of kernel image from kernoffs section */
-	add	r0, r0, r1
+	sub	r0, r0, r1
 
 	/* r3 - start of kernel after */
 	ldr	r3, kernaddr
