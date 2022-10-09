@@ -108,8 +108,6 @@ def main(argv):
     parser.add_argument('elf', type=str, help='ELF file to decode')
     parser.add_argument('-e', '--endian', type=str, default='auto',
                         help='Big-endian image')
-    parser.add_argument('-t', '--test', action='store_true',
-                        help='Big-endian image')
     args = parser.parse_args(argv)
     show_event_spy_list(args.elf, args.endian)
 
