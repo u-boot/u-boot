@@ -75,7 +75,7 @@
  */
 static void *eqos_alloc_descs(struct eqos_priv *eqos, unsigned int num)
 {
-	return memalign(eqos->desc_size, num * eqos->desc_size);
+	return memalign(ARCH_DMA_MINALIGN, num * eqos->desc_size);
 }
 
 static void eqos_free_descs(void *descs)
@@ -92,7 +92,7 @@ static struct eqos_desc *eqos_get_desc(struct eqos_priv *eqos,
 
 void eqos_inval_desc_generic(void *desc)
 {
-	unsigned long start = (unsigned long)desc;
+	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
 	unsigned long end = ALIGN(start + sizeof(struct eqos_desc),
 				  ARCH_DMA_MINALIGN);
 
@@ -101,7 +101,7 @@ void eqos_inval_desc_generic(void *desc)
 
 void eqos_flush_desc_generic(void *desc)
 {
-	unsigned long start = (unsigned long)desc;
+	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
 	unsigned long end = ALIGN(start + sizeof(struct eqos_desc),
 				  ARCH_DMA_MINALIGN);
 
@@ -1185,6 +1185,7 @@ static int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
 static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
+	u32 idx, idx_mask = eqos->desc_per_cacheline - 1;
 	uchar *packet_expected;
 	struct eqos_desc *rx_desc;
 
@@ -1200,24 +1201,30 @@ static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 	eqos->config->ops->eqos_inval_buffer(packet, length);
 
-	rx_desc = eqos_get_desc(eqos, eqos->rx_desc_idx, true);
-
-	rx_desc->des0 = 0;
-	mb();
-	eqos->config->ops->eqos_flush_desc(rx_desc);
-	eqos->config->ops->eqos_inval_buffer(packet, length);
-	rx_desc->des0 = (u32)(ulong)packet;
-	rx_desc->des1 = 0;
-	rx_desc->des2 = 0;
-	/*
-	 * Make sure that if HW sees the _OWN write below, it will see all the
-	 * writes to the rest of the descriptor too.
-	 */
-	mb();
-	rx_desc->des3 = EQOS_DESC3_OWN | EQOS_DESC3_BUF1V;
-	eqos->config->ops->eqos_flush_desc(rx_desc);
-
-	writel((ulong)rx_desc, &eqos->dma_regs->ch0_rxdesc_tail_pointer);
+	if ((eqos->rx_desc_idx & idx_mask) == idx_mask) {
+		for (idx = eqos->rx_desc_idx - idx_mask;
+		     idx <= eqos->rx_desc_idx;
+		     idx++) {
+			rx_desc = eqos_get_desc(eqos, idx, true);
+			rx_desc->des0 = 0;
+			mb();
+			eqos->config->ops->eqos_flush_desc(rx_desc);
+			eqos->config->ops->eqos_inval_buffer(packet, length);
+			rx_desc->des0 = (u32)(ulong)(eqos->rx_dma_buf +
+					     (idx * EQOS_MAX_PACKET_SIZE));
+			rx_desc->des1 = 0;
+			rx_desc->des2 = 0;
+			/*
+			 * Make sure that if HW sees the _OWN write below,
+			 * it will see all the writes to the rest of the
+			 * descriptor too.
+			 */
+			mb();
+			rx_desc->des3 = EQOS_DESC3_OWN | EQOS_DESC3_BUF1V;
+			eqos->config->ops->eqos_flush_desc(rx_desc);
+		}
+		writel((ulong)rx_desc, &eqos->dma_regs->ch0_rxdesc_tail_pointer);
+	}
 
 	eqos->rx_desc_idx++;
 	eqos->rx_desc_idx %= EQOS_DESCRIPTORS_RX;
@@ -1228,12 +1235,26 @@ static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 static int eqos_probe_resources_core(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
+	unsigned int desc_step;
 	int ret;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
-	eqos->desc_size = ALIGN(sizeof(struct eqos_desc),
-				(unsigned int)ARCH_DMA_MINALIGN);
+	/* Maximum distance between neighboring descriptors, in Bytes. */
+	desc_step = sizeof(struct eqos_desc) +
+		    EQOS_DMA_CH0_CONTROL_DSL_MASK * eqos->config->axi_bus_width;
+	if (desc_step < ARCH_DMA_MINALIGN) {
+		/*
+		 * The EQoS hardware implementation cannot place one descriptor
+		 * per cacheline, it is necessary to place multiple descriptors
+		 * per cacheline in memory and do cache management carefully.
+		 */
+		eqos->desc_size = BIT(fls(desc_step) - 1);
+	} else {
+		eqos->desc_size = ALIGN(sizeof(struct eqos_desc),
+					(unsigned int)ARCH_DMA_MINALIGN);
+	}
+	eqos->desc_per_cacheline = ARCH_DMA_MINALIGN / eqos->desc_size;
 
 	eqos->tx_descs = eqos_alloc_descs(eqos, EQOS_DESCRIPTORS_TX);
 	if (!eqos->tx_descs) {
