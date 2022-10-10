@@ -26,8 +26,8 @@ static int qemu_fwcfg_cmd_setup_kernel(void *load_addr, void *initrd_addr)
 	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_SIZE, 4, &kernel_size);
 
 	if (kernel_size == 0) {
-		printf("warning: no kernel available\n");
-		return -1;
+		printf("fatal: no kernel available\n");
+		return CMD_RET_FAILURE;
 	}
 
 	data_addr = load_addr;
