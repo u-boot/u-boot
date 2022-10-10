@@ -146,20 +146,27 @@ static int print_resetinfo(void)
 {
 	struct udevice *dev;
 	char status[256];
+	bool status_printed = false;
 	int ret;
 
-	ret = uclass_first_device_err(UCLASS_SYSRESET, &dev);
-	if (ret) {
-		debug("%s: No sysreset device found (error: %d)\n",
-		      __func__, ret);
-		/* Not all boards have sysreset drivers available during early
-		 * boot, so don't fail if one can't be found.
-		 */
-		return 0;
-	}
+	/* Not all boards have sysreset drivers available during early
+	 * boot, so don't fail if one can't be found.
+	 */
+	for (ret = uclass_first_device_check(UCLASS_SYSRESET, &dev); dev;
+			ret = uclass_next_device_check(&dev)) {
+		if (ret) {
+			debug("%s: %s sysreset device (error: %d)\n",
+			      __func__, dev->name, ret);
+			continue;
+		}
 
-	if (!sysreset_get_status(dev, status, sizeof(status)))
-		printf("%s", status);
+		if (!sysreset_get_status(dev, status, sizeof(status))) {
+			printf("%s%s", status_printed ? " " : "", status);
+			status_printed = true;
+		}
+	}
+	if (status_printed)
+		printf("\n");
 
 	return 0;
 }
