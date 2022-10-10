@@ -22,22 +22,27 @@
 
 struct mxs_nand_dt_data {
 	unsigned int max_ecc_strength_supported;
+	int max_chain_delay; /* See the async EDO mode */
 };
 
 static const struct mxs_nand_dt_data mxs_nand_imx6q_data = {
 	.max_ecc_strength_supported = 40,
+	.max_chain_delay = 12000,
 };
 
 static const struct mxs_nand_dt_data mxs_nand_imx6sx_data = {
 	.max_ecc_strength_supported = 62,
+	.max_chain_delay = 12000,
 };
 
 static const struct mxs_nand_dt_data mxs_nand_imx7d_data = {
 	.max_ecc_strength_supported = 62,
+	.max_chain_delay = 12000,
 };
 
 static const struct mxs_nand_dt_data mxs_nand_imx8qxp_data = {
 	.max_ecc_strength_supported = 62,
+	.max_chain_delay = 12000,
 };
 
 static const struct udevice_id mxs_nand_dt_ids[] = {
@@ -72,8 +77,10 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 	int ret;
 
 	data = (void *)dev_get_driver_data(dev);
-	if (data)
+	if (data) {
 		info->max_ecc_strength_supported = data->max_ecc_strength_supported;
+		info->max_chain_delay = data->max_chain_delay;
+	}
 
 	info->dev = dev;
 
@@ -92,69 +99,61 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 
 	info->use_minimum_ecc = dev_read_bool(dev, "fsl,use-minimum-ecc");
 
-	if (IS_ENABLED(CONFIG_CLK) && IS_ENABLED(CONFIG_IMX8)) {
+	if (IS_ENABLED(CONFIG_CLK) &&
+	    (IS_ENABLED(CONFIG_IMX8) || IS_ENABLED(CONFIG_IMX8M))) {
 		/* Assigned clock already set clock */
 		struct clk gpmi_clk;
 
-		ret = clk_get_by_name(dev, "gpmi_io", &gpmi_clk);
-		if (ret < 0) {
+		info->gpmi_clk = devm_clk_get(dev, "gpmi_io");
+
+		if (IS_ERR(info->gpmi_clk)) {
+			ret = PTR_ERR(info->gpmi_clk);
 			debug("Can't get gpmi io clk: %d\n", ret);
 			return ret;
 		}
 
-		ret = clk_enable(&gpmi_clk);
+		ret = clk_enable(info->gpmi_clk);
 		if (ret < 0) {
 			debug("Can't enable gpmi io clk: %d\n", ret);
 			return ret;
 		}
 
-		ret = clk_get_by_name(dev, "gpmi_apb", &gpmi_clk);
-		if (ret < 0) {
-			debug("Can't get gpmi_apb clk: %d\n", ret);
-			return ret;
-		}
+		if (IS_ENABLED(CONFIG_IMX8)) {
+			ret = clk_get_by_name(dev, "gpmi_apb", &gpmi_clk);
+			if (ret < 0) {
+				debug("Can't get gpmi_apb clk: %d\n", ret);
+				return ret;
+			}
 
-		ret = clk_enable(&gpmi_clk);
-		if (ret < 0) {
-			debug("Can't enable gpmi_apb clk: %d\n", ret);
-			return ret;
-		}
-
-		ret = clk_get_by_name(dev, "gpmi_bch", &gpmi_clk);
-		if (ret < 0) {
-			debug("Can't get gpmi_bch clk: %d\n", ret);
-			return ret;
-		}
-
-		ret = clk_enable(&gpmi_clk);
-		if (ret < 0) {
-			debug("Can't enable gpmi_bch clk: %d\n", ret);
-			return ret;
-		}
-
-		ret = clk_get_by_name(dev, "gpmi_apb_bch", &gpmi_clk);
-		if (ret < 0) {
-			debug("Can't get gpmi_apb_bch clk: %d\n", ret);
-			return ret;
-		}
-
-		ret = clk_enable(&gpmi_clk);
-		if (ret < 0) {
-			debug("Can't enable gpmi_apb_bch clk: %d\n", ret);
-			return ret;
-		}
-
-		/* this clock is used for apbh_dma, since the apbh dma does not support DM,
-		  * we optionally enable it here
-		  */
-		ret = clk_get_by_name(dev, "gpmi_apbh_dma", &gpmi_clk);
-		if (ret < 0) {
-			debug("Can't get gpmi_apbh_dma clk: %d\n", ret);
-		} else {
 			ret = clk_enable(&gpmi_clk);
 			if (ret < 0) {
-				debug("Can't enable gpmi_apbh_dma clk: %d\n", ret);
+				debug("Can't enable gpmi_apb clk: %d\n", ret);
+				return ret;
 			}
+
+			ret = clk_get_by_name(dev, "gpmi_bch", &gpmi_clk);
+			if (ret < 0) {
+				debug("Can't get gpmi_bch clk: %d\n", ret);
+				return ret;
+			}
+
+			ret = clk_enable(&gpmi_clk);
+			if (ret < 0) {
+				debug("Can't enable gpmi_bch clk: %d\n", ret);
+				return ret;
+			}
+		}
+
+		ret = clk_get_by_name(dev, "gpmi_bch_apb", &gpmi_clk);
+		if (ret < 0) {
+			debug("Can't get gpmi_bch_apb clk: %d\n", ret);
+			return ret;
+		}
+
+		ret = clk_enable(&gpmi_clk);
+		if (ret < 0) {
+			debug("Can't enable gpmi_bch_apb clk: %d\n", ret);
+			return ret;
 		}
 	}
 

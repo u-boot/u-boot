@@ -88,8 +88,9 @@ struct clk_bulk {
 	unsigned int count;
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(CLK)
 struct phandle_1_arg;
+
+#if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(CLK)
 /**
  * clk_get_by_phandle() - Get a clock by its phandle information (of-platadata)
  * @dev: Device containing the phandle
@@ -258,8 +259,22 @@ int clk_release_all(struct clk *clk, int count);
 void devm_clk_put(struct udevice *dev, struct clk *clk);
 
 #else
+
+static inline int clk_get_by_phandle(struct udevice *dev, const
+				     struct phandle_1_arg *cells,
+				     struct clk *clk)
+{
+	return -ENOSYS;
+}
+
 static inline int clk_get_by_index(struct udevice *dev, int index,
 				   struct clk *clk)
+{
+	return -ENOSYS;
+}
+
+static inline int clk_get_by_index_nodev(ofnode node, int index,
+					 struct clk *clk)
 {
 	return -ENOSYS;
 }
@@ -275,6 +290,17 @@ static inline int clk_get_by_name(struct udevice *dev, const char *name,
 	return -ENOSYS;
 }
 
+static inline struct clk *devm_clk_get(struct udevice *dev, const char *id)
+{
+	return ERR_PTR(-ENOSYS);
+}
+
+static inline struct clk *devm_clk_get_optional(struct udevice *dev,
+						const char *id)
+{
+	return ERR_PTR(-ENOSYS);
+}
+
 static inline int
 clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 {
@@ -284,6 +310,10 @@ clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 static inline int clk_release_all(struct clk *clk, int count)
 {
 	return -ENOSYS;
+}
+
+static inline void devm_clk_put(struct udevice *dev, struct clk *clk)
+{
 }
 #endif
 

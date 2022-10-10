@@ -15,6 +15,8 @@
 
 #include "clk.h"
 
+static u32 share_count_nand;
+
 static const char *pll_ref_sels[] = { "clock-osc-24m", "dummy", "dummy", "dummy", };
 static const char *dram_pll_bypass_sels[] = {"dram_pll", "dram_pll_ref_sel", };
 static const char *arm_pll_bypass_sels[] = {"arm_pll", "arm_pll_ref_sel", };
@@ -89,6 +91,10 @@ static const char *imx8mn_usdhc3_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sy
 
 static const char *imx8mn_qspi_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll2_333m", "sys_pll2_500m",
 					   "audio_pll2_out", "sys_pll1_266m", "sys_pll3_out", "sys_pll1_100m", };
+
+static const char * const imx8mn_nand_sels[] = {"osc_24m", "sys_pll2_500m", "audio_pll1_out",
+						"sys_pll1_400m", "audio_pll2_out", "sys_pll3_out",
+						"sys_pll2_250m", "video_pll1_out", };
 
 static const char * const imx8mn_usb_core_sels[] = {"clock-osc-24m", "sys_pll1_100m", "sys_pll1_40m",
 						"sys_pll2_100m", "sys_pll2_200m", "clk_ext2",
@@ -268,6 +274,8 @@ static int imx8mn_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MN_CLK_USDHC3,
 	       imx8m_clk_composite("usdhc3", imx8mn_usdhc3_sels,
 				   base + 0xbc80));
+	clk_dm(IMX8MN_CLK_NAND,
+	       imx8m_clk_composite("nand", imx8mn_nand_sels, base + 0xab00));
 	clk_dm(IMX8MN_CLK_QSPI,
 	       imx8m_clk_composite("qspi", imx8mn_qspi_sels, base + 0xab80));
 	clk_dm(IMX8MN_CLK_USB_CORE_REF,
@@ -299,6 +307,12 @@ static int imx8mn_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("usdhc3_root_clk", "usdhc3", base + 0x45e0, 0));
 	clk_dm(IMX8MN_CLK_QSPI_ROOT,
 	       imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
+	clk_dm(IMX8MN_CLK_NAND_ROOT,
+	       imx_clk_gate2_shared2("nand_root_clk", "nand", base + 0x4300, 0, &share_count_nand));
+	clk_dm(IMX8MN_CLK_NAND_USDHC_BUS_RAWNAND_CLK,
+	       imx_clk_gate2_shared2("nand_usdhc_rawnand_clk",
+				     "nand_usdhc_bus", base + 0x4300, 0,
+				     &share_count_nand));
 	clk_dm(IMX8MN_CLK_USB1_CTRL_ROOT,
 		imx_clk_gate4("usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
 
