@@ -342,6 +342,26 @@ int generic_phy_power_on_bulk(struct phy_bulk *bulk);
  */
 int generic_phy_power_off_bulk(struct phy_bulk *bulk);
 
+/**
+ * generic_setup_phy() - Get, initialize and power on phy.
+ *
+ * @dev:	The consumer device.
+ * @phy:	A pointer to the PHY port
+ * @index:	The index in the list of available PHYs
+ *
+ * Return: 0 if OK, or negative error code.
+ */
+int generic_setup_phy(struct udevice *dev, struct phy *phy, int index);
+
+/**
+ * generic_shutdown_phy() - Power off and de-initialize phy.
+ *
+ * @phy:	A pointer to the PHY port.
+ *
+ * Return: 0 if OK, or negative error code.
+ */
+int generic_shutdown_phy(struct phy *phy);
+
 #else /* CONFIG_PHY */
 
 static inline int generic_phy_init(struct phy *phy)
@@ -403,6 +423,16 @@ static inline int generic_phy_power_on_bulk(struct phy_bulk *bulk)
 }
 
 static inline int generic_phy_power_off_bulk(struct phy_bulk *bulk)
+{
+	return 0;
+}
+
+static inline int generic_setup_phy(struct udevice *dev, struct phy *phy, int index)
+{
+	return 0;
+}
+
+static inline int generic_shutdown_phy(struct phy *phy)
 {
 	return 0;
 }
