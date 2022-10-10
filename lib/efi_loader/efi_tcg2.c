@@ -2053,7 +2053,7 @@ tcg2_measure_gpt_data(struct udevice *dev,
 {
 	efi_status_t ret;
 	efi_handle_t handle;
-	struct efi_handler *dp_handler;
+	struct efi_handler *dp_handler, *io_handler;
 	struct efi_device_path *orig_device_path;
 	struct efi_device_path *device_path;
 	struct efi_device_path *dp;
@@ -2098,10 +2098,10 @@ tcg2_measure_gpt_data(struct udevice *dev,
 	if (ret != EFI_SUCCESS)
 		goto out1;
 
-	ret = EFI_CALL(efi_handle_protocol(handle,
-					   &efi_block_io_guid, (void **)&block_io));
+	ret = efi_search_protocol(handle, &efi_block_io_guid, &io_handler);
 	if (ret != EFI_SUCCESS)
 		goto out1;
+	block_io = io_handler->protocol_interface;
 
 	gpt_h = memalign(block_io->media->io_align, block_io->media->block_size);
 	if (!gpt_h) {
@@ -2164,12 +2164,8 @@ tcg2_measure_gpt_data(struct udevice *dev,
 	}
 
 	ret = tcg2_measure_event(dev, 5, EV_EFI_GPT_EVENT, event_size, (u8 *)event);
-	if (ret != EFI_SUCCESS)
-		goto out2;
 
 out2:
-	EFI_CALL(efi_close_protocol((efi_handle_t)block_io, &efi_block_io_guid,
-				    NULL, NULL));
 	free(gpt_h);
 	free(entry);
 	free(event);

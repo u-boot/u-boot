@@ -47,6 +47,7 @@ will be required. The following is an incomplete list:
 * coreutils
 * dosfstools
 * efitools
+* guestfs-tools
 * mount
 * mtools
 * sbsigntool
@@ -62,6 +63,24 @@ The test script supports either:
 - Executing an external "hook" scripts to flash a U-Boot binary onto a
   physical board, attach to the board's console stream, and reset the board.
   Further details are described later.
+
+The usage of command 'sudo' should be avoided in tests. To create disk images
+use command virt-make-fs which is provided by package guestfs-tools. This
+command creates a virtual machine with QEMU in which the disk image is
+generated.
+
+Command virt-make-fs needs read access to the current kernel. On Ubuntu only
+root has this privilege. You can add a script /etc/initramfs-tools/hooks/vmlinuz
+with the following content to overcome the problem:
+
+.. code-block:: bash
+
+    #!/bin/sh
+    echo "chmod a+r vmlinuz-*"
+    chmod a+r /boot/vmlinuz-*
+
+The script should be chmod 755. It will be invoked whenever the initial RAM file
+system is updated.
 
 Using `virtualenv` to provide requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

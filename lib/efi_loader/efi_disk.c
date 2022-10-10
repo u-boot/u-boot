@@ -395,7 +395,7 @@ static efi_status_t efi_disk_add_dev(
 {
 	struct efi_disk_obj *diskobj;
 	struct efi_object *handle;
-	const efi_guid_t *guid = NULL;
+	const efi_guid_t *esp_guid = NULL;
 	efi_status_t ret;
 
 	/* Don't add empty devices */
@@ -439,7 +439,7 @@ static efi_status_t efi_disk_add_dev(
 		efi_free_pool(node);
 		diskobj->media.last_block = part_info->size - 1;
 		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION)
-			guid = &efi_system_partition_guid;
+			esp_guid = &efi_system_partition_guid;
 	} else {
 		diskobj->dp = efi_dp_from_part(desc, part);
 		diskobj->media.last_block = desc->lba - 1;
@@ -454,12 +454,16 @@ static efi_status_t efi_disk_add_dev(
 	 * in this case.
 	 */
 	handle = &diskobj->header;
-	ret = efi_install_multiple_protocol_interfaces(&handle,
-						       &efi_guid_device_path,
-						       diskobj->dp,
-						       &efi_block_io_guid,
-						       &diskobj->ops, guid,
-						       NULL, NULL);
+	ret = efi_install_multiple_protocol_interfaces(
+					&handle,
+					&efi_guid_device_path, diskobj->dp,
+					&efi_block_io_guid, &diskobj->ops,
+					/*
+					 * esp_guid must be last entry as it
+					 * can be NULL. Its interface is NULL.
+					 */
+					esp_guid, NULL,
+					NULL);
 	if (ret != EFI_SUCCESS)
 		goto error;
 
@@ -786,7 +790,8 @@ efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int 
 	if (is_partition) {
 		part_data = dev_get_uclass_plat(dev);
 		part = part_data->partnum;
-		count = snprintf(buf, size, "%s %d:%d", if_typename, diskid, part);
+		count = snprintf(buf, size, "%s %d:%u", if_typename, diskid,
+				 part);
 	} else {
 		count = snprintf(buf, size, "%s %d", if_typename, diskid);
 	}

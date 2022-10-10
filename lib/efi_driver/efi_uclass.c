@@ -97,10 +97,9 @@ static efi_status_t EFIAPI efi_uc_supported(
 
 	ret = check_node_type(controller_handle);
 
-	r = EFI_CALL(systab.boottime->close_protocol(
-				controller_handle, bp->ops->protocol,
-				this->driver_binding_handle,
-				controller_handle));
+	r = efi_close_protocol(controller_handle, bp->ops->protocol,
+			       this->driver_binding_handle,
+			       controller_handle);
 	if (r != EFI_SUCCESS)
 		ret = EFI_UNSUPPORTED;
 out:
@@ -151,10 +150,9 @@ static efi_status_t EFIAPI efi_uc_start(
 		goto out;
 
 err:
-	r = EFI_CALL(systab.boottime->close_protocol(
-			controller_handle, bp->ops->protocol,
-			this->driver_binding_handle,
-			controller_handle));
+	r = efi_close_protocol(controller_handle, bp->ops->protocol,
+			       this->driver_binding_handle,
+			       controller_handle);
 	if (r != EFI_SUCCESS)
 		EFI_PRINT("Failure to close handle\n");
 
@@ -177,9 +175,8 @@ static efi_status_t disconnect_child(efi_handle_t controller_handle,
 	efi_guid_t *guid_controller = NULL;
 	efi_guid_t *guid_child_controller = NULL;
 
-	ret = EFI_CALL(systab.boottime->close_protocol(
-				controller_handle, guid_controller,
-				child_handle, child_handle));
+	ret = efi_close_protocol(controller_handle, guid_controller,
+				 child_handle, child_handle);
 	if (ret != EFI_SUCCESS) {
 		EFI_PRINT("Cannot close protocol\n");
 		return ret;
@@ -225,9 +222,10 @@ static efi_status_t EFIAPI efi_uc_stop(
 			ret = disconnect_child(controller_handle,
 					       child_handle_buffer[i]);
 			if (ret != EFI_SUCCESS)
-				return ret;
+				goto out;
 		}
-		return EFI_SUCCESS;
+		ret = EFI_SUCCESS;
+			goto out;
 	}
 
 	/* Destroy all children */
@@ -251,9 +249,9 @@ static efi_status_t EFIAPI efi_uc_stop(
 		log_err("Cannot free EFI memory pool\n");
 
 	/* Detach driver from controller */
-	ret = EFI_CALL(systab.boottime->close_protocol(
-			controller_handle, bp->ops->protocol,
-			this->driver_binding_handle, controller_handle));
+	ret = efi_close_protocol(controller_handle, bp->ops->protocol,
+				 this->driver_binding_handle,
+				 controller_handle);
 out:
 	return EFI_EXIT(ret);
 }

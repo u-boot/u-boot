@@ -32,6 +32,7 @@ Shell commands
    cmd/button
    cmd/bootz
    cmd/cbsysinfo
+   cmd/cls
    cmd/conitrace
    cmd/cyclic
    cmd/dm
