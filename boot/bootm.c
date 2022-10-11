@@ -790,7 +790,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Check for unsupported subcommand. */
 	if (ret) {
-		puts("subcommand not supported\n");
+		printf("subcommand failed (err=%d)\n", ret);
 		return ret;
 	}
 
