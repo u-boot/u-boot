@@ -17,6 +17,7 @@
 #include <u-boot/crc.h>
 #include "bootstd_common.h"
 
+/* tracks whether bootstd_setup_for_tests() has been run yet */
 bool vbe_setup_done;
 
 /* set up MMC for VBE tests */
@@ -26,6 +27,9 @@ int bootstd_setup_for_tests(void)
 	struct udevice *mmc;
 	struct blk_desc *desc;
 	int ret;
+
+	if (vbe_setup_done)
+		return 0;
 
 	/* Set up the version string */
 	ret = uclass_get_device(UCLASS_MMC, 1, &mmc);
@@ -46,6 +50,8 @@ int bootstd_setup_for_tests(void)
 	if (blk_dwrite(desc, NVDATA_START_BLK, 1, buf) != 1)
 		return log_msg_ret("wr2", -EIO);
 
+	vbe_setup_done = true;
+
 	return 0;
 }
 
@@ -65,17 +71,12 @@ int do_ut_bootstd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(bootstd_test);
 	const int n_ents = UNIT_TEST_SUITE_COUNT(bootstd_test);
+	int ret;
 
-	if (!vbe_setup_done) {
-		int ret;
-
-		ret = bootstd_setup_for_tests();
-		if (ret) {
-			printf("Failed to set up for bootstd tests (err=%d)\n",
-			       ret);
-			return CMD_RET_FAILURE;
-		}
-		vbe_setup_done = true;
+	ret = bootstd_setup_for_tests();
+	if (ret) {
+		printf("Failed to set up for bootstd tests (err=%d)\n", ret);
+		return CMD_RET_FAILURE;
 	}
 
 	return cmd_ut_category("bootstd", "bootstd_test_",
