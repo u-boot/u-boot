@@ -368,6 +368,17 @@ class MaintainersDatabase:
                                 targets.append(front)
                 elif tag == 'S:':
                     status = rest
+                elif tag == 'N:':
+                    # Just scan the configs directory since that's all we care
+                    # about
+                    for dirpath, _, fnames in os.walk('configs'):
+                        for fname in fnames:
+                            path = os.path.join(dirpath, fname)
+                            front, match, rear = path.partition('configs/')
+                            if not front and match:
+                                front, match, rear = rear.rpartition('_defconfig')
+                                if match and not rear:
+                                    targets.append(front)
                 elif line == '\n':
                     for target in targets:
                         self.database[target] = (status, maintainers)
