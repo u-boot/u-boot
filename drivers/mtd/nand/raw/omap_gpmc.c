@@ -8,7 +8,11 @@
 #include <log.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+
+#ifdef CONFIG_ARCH_OMAP2PLUS
 #include <asm/arch/mem.h>
+#endif
+
 #include <linux/mtd/omap_gpmc.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/rawnand.h>
@@ -16,6 +20,10 @@
 #include <linux/compiler.h>
 #include <nand.h>
 #include <linux/mtd/omap_elm.h>
+
+#ifndef GPMC_MAX_CS
+#define GPMC_MAX_CS	4
+#endif
 
 #define BADBLOCK_MARKER_LENGTH	2
 #define SECTOR_BYTES		512
