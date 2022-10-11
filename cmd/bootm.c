@@ -111,7 +111,7 @@ static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
 			    bootm_get_addr(argc, argv) + image_load_offset);
 #endif
 
-	return ret;
+	return ret ? CMD_RET_FAILURE : 0;
 }
 
 /*******************************************************************/
@@ -120,6 +120,8 @@ static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
 
 int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	int ret;
+
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated = 0;
 
@@ -152,7 +154,7 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
 
-	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
+	ret = do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_PRE_LOAD | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS |
 #ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
@@ -163,6 +165,8 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 #endif
 		BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
 		BOOTM_STATE_OS_GO, &images, 1);
+
+	return ret ? CMD_RET_FAILURE : 0;
 }
 
 int bootm_maybe_autostart(struct cmd_tbl *cmdtp, const char *cmd)
