@@ -7,17 +7,13 @@
  * Rich Ireland, Enterasys Networks, rireland@enterasys.com.
  */
 
+#define LOG_CATEGORY UCLASS_FPGA
+
 #include <common.h>		/* core U-Boot definitions */
 #include <console.h>
+#include <log.h>
 #include <ACEX1K.h>		/* ACEX device family */
 #include <linux/delay.h>
-
-/* Define FPGA_DEBUG to get debug printf's */
-#ifdef	FPGA_DEBUG
-#define PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
-#endif
 
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
@@ -44,7 +40,7 @@ int ACEX1K_load(Altera_desc *desc, const void *buf, size_t bsize)
 
 	switch (desc->iface) {
 	case passive_serial:
-		PRINTF ("%s: Launching Passive Serial Loader\n", __FUNCTION__);
+		log_debug("Launching Passive Serial Loader\n");
 		ret_val = ACEX1K_ps_load (desc, buf, bsize);
 		break;
 
@@ -64,7 +60,7 @@ int ACEX1K_dump(Altera_desc *desc, const void *buf, size_t bsize)
 
 	switch (desc->iface) {
 	case passive_serial:
-		PRINTF ("%s: Launching Passive Serial Dump\n", __FUNCTION__);
+		log_debug("Launching Passive Serial Dump\n");
 		ret_val = ACEX1K_ps_dump (desc, buf, bsize);
 		break;
 
@@ -93,8 +89,7 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 	Altera_ACEX1K_Passive_Serial_fns *fn = desc->iface_fns;
 	int i;
 
-	PRINTF ("%s: start with interface functions @ 0x%p\n",
-			__FUNCTION__, fn);
+	log_debug("start with interface functions @ 0x%p\n", fn);
 
 	if (fn) {
 		size_t bytecount = 0;
@@ -102,16 +97,16 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		int cookie = desc->cookie;	/* make a local copy */
 		unsigned long ts;		/* timestamp */
 
-		PRINTF ("%s: Function Table:\n"
-				"ptr:\t0x%p\n"
-				"struct: 0x%p\n"
-				"config:\t0x%p\n"
-				"status:\t0x%p\n"
-				"clk:\t0x%p\n"
-				"data:\t0x%p\n"
-				"done:\t0x%p\n\n",
-				__FUNCTION__, &fn, fn, fn->config, fn->status,
-				fn->clk, fn->data, fn->done);
+		log_debug("Function Table:\n"
+			  "ptr:\t0x%p\n"
+			  "struct: 0x%p\n"
+			  "config:\t0x%p\n"
+			  "status:\t0x%p\n"
+			  "clk:\t0x%p\n"
+			  "data:\t0x%p\n"
+			  "done:\t0x%p\n\n",
+			  &fn, fn, fn->config, fn->status,
+			  fn->clk, fn->data, fn->done);
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		printf ("Loading FPGA Device %d...", cookie);
 #endif

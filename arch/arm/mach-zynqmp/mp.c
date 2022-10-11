@@ -163,7 +163,7 @@ static int check_r5_mode(void)
 
 int cpu_disable(u32 nr)
 {
-	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
+	if (nr <= ZYNQMP_CORE_APU3) {
 		u32 val = readl(&crfapb_base->rst_fpd_apu);
 		val |= 1 << nr;
 		writel(val, &crfapb_base->rst_fpd_apu);
@@ -176,7 +176,7 @@ int cpu_disable(u32 nr)
 
 int cpu_status(u32 nr)
 {
-	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
+	if (nr <= ZYNQMP_CORE_APU3) {
 		u32 addr_low = readl(((u8 *)&apu_base->rvbar_addr0_l) + nr * 8);
 		u32 addr_high = readl(((u8 *)&apu_base->rvbar_addr0_h) +
 				      nr * 8);
@@ -252,7 +252,7 @@ void initialize_tcm(bool mode)
 
 int cpu_release(u32 nr, int argc, char *const argv[])
 {
-	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
+	if (nr <= ZYNQMP_CORE_APU3) {
 		u64 boot_addr = simple_strtoull(argv[0], NULL, 16);
 		/* HIGH */
 		writel((u32)(boot_addr >> 32),

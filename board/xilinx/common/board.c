@@ -121,7 +121,7 @@ struct xilinx_legacy_format {
 static void xilinx_eeprom_legacy_cleanup(char *eeprom, int size)
 {
 	int i;
-	char byte;
+	unsigned char byte;
 
 	for (i = 0; i < size; i++) {
 		byte = eeprom[i];
@@ -460,8 +460,8 @@ int board_late_init_xilinx(void)
 							desc->serial);
 
 			if (desc->uuid[0]) {
-				char uuid[UUID_STR_LEN + 1];
-				char *t = desc->uuid;
+				unsigned char uuid[UUID_STR_LEN + 1];
+				unsigned char *t = desc->uuid;
 
 				memset(uuid, 0, UUID_STR_LEN + 1);
 
@@ -476,9 +476,6 @@ int board_late_init_xilinx(void)
 				continue;
 
 			for (i = 0; i < EEPROM_HDR_NO_OF_MAC_ADDR; i++) {
-				if (!desc->mac_addr[i])
-					break;
-
 				if (is_valid_ethaddr((const u8 *)desc->mac_addr[i]))
 					ret |= eth_env_set_enetaddr_by_index("eth",
 							macid++, desc->mac_addr[i]);

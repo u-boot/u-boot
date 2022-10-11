@@ -56,7 +56,6 @@
 			reg = <0x0 0xff160000 0x0 0x1000>;
 			clock-names = "clk_xin", "clk_ahb";
 			clocks = <&clk_xin &clk_xin>;
-			xlnx,device_id = <0>;
 		};
 	};
 };

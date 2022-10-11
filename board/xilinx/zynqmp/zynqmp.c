@@ -145,6 +145,14 @@ int board_init(void)
 	char name[SOC_MAX_STR_SIZE];
 	int ret;
 #endif
+
+#if defined(CONFIG_SPL_BUILD)
+	/* Check *at build time* if the filename is an non-empty string */
+	if (sizeof(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE) > 1)
+		zynqmp_pmufw_load_config_object(zynqmp_pm_cfg_obj,
+						zynqmp_pm_cfg_obj_size);
+#endif
+
 #if defined(CONFIG_ZYNQMP_FIRMWARE)
 	struct udevice *dev;
 
@@ -154,10 +162,6 @@ int board_init(void)
 #endif
 
 #if defined(CONFIG_SPL_BUILD)
-	/* Check *at build time* if the filename is an non-empty string */
-	if (sizeof(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE) > 1)
-		zynqmp_pmufw_load_config_object(zynqmp_pm_cfg_obj,
-						zynqmp_pm_cfg_obj_size);
 	printf("Silicon version:\t%d\n", zynqmp_get_silicon_version());
 
 	/* the CSU disables the JTAG interface when secure boot is enabled */
@@ -607,7 +611,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 void set_dfu_alt_info(char *interface, char *devstr)
 {
-	u8 multiboot;
+	int multiboot;
 	int bootseq = 0;
 
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);

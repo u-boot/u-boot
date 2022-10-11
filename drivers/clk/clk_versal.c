@@ -602,7 +602,7 @@ static void versal_get_clock_info(void)
 	}
 }
 
-int versal_clock_setup(void)
+static int versal_clock_setup(void)
 {
 	int ret;
 

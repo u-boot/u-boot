@@ -44,7 +44,6 @@
 			reg = <0x0 0xf1040000 0x0 0x10000>;
 			clock-names = "clk_xin", "clk_ahb";
 			clocks = <&clk200 &clk200>;
-			xlnx,device_id = <0>;
 			no-1-8-v;
 			xlnx,mio-bank = <0>;
 		};

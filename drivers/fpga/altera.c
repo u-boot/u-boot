@@ -7,6 +7,8 @@
  * Rich Ireland, Enterasys Networks, rireland@enterasys.com.
  */
 
+#define LOG_CATEGORY UCLASS_FPGA
+
 /*
  *  Altera FPGA support
  */
@@ -15,9 +17,6 @@
 #include <ACEX1K.h>
 #include <log.h>
 #include <stratixII.h>
-
-/* Define FPGA_DEBUG to 1 to get debug printf's */
-#define FPGA_DEBUG	0
 
 static const struct altera_fpga {
 	enum altera_family	family;
@@ -106,8 +105,7 @@ int altera_load(Altera_desc *desc, const void *buf, size_t bsize)
 	if (!fpga)
 		return FPGA_FAIL;
 
-	debug_cond(FPGA_DEBUG, "%s: Launching the %s Loader...\n",
-		   __func__, fpga->name);
+	log_debug("Launching the %s Loader...\n", fpga->name);
 	if (fpga->load)
 		return fpga->load(desc, buf, bsize);
 	return 0;
@@ -120,8 +118,7 @@ int altera_dump(Altera_desc *desc, const void *buf, size_t bsize)
 	if (!fpga)
 		return FPGA_FAIL;
 
-	debug_cond(FPGA_DEBUG, "%s: Launching the %s Reader...\n",
-		   __func__, fpga->name);
+	log_debug("Launching the %s Reader...\n", fpga->name);
 	if (fpga->dump)
 		return fpga->dump(desc, buf, bsize);
 	return 0;

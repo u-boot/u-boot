@@ -940,6 +940,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-microblaze.git
 F:	drivers/fpga/
 F:	cmd/fpga.c
 F:	include/fpga.h
+F:	test/dm/fpga.c
 
 FLATTENED DEVICE TREE
 M:	Simon Glass <sjg@chromium.org>
