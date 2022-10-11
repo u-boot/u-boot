@@ -11,49 +11,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #include <u-boot/sha256.h>
 
-#define IMAGE_PRE_LOAD_SIG_MAGIC		0x55425348
-#define IMAGE_PRE_LOAD_SIG_OFFSET_MAGIC		0
-#define IMAGE_PRE_LOAD_SIG_OFFSET_IMG_LEN	4
-#define IMAGE_PRE_LOAD_SIG_OFFSET_SIG		8
-
-#define IMAGE_PRE_LOAD_PATH			"/image/pre-load/sig"
-#define IMAGE_PRE_LOAD_PROP_ALGO_NAME		"algo-name"
-#define IMAGE_PRE_LOAD_PROP_PADDING_NAME	"padding-name"
-#define IMAGE_PRE_LOAD_PROP_SIG_SIZE		"signature-size"
-#define IMAGE_PRE_LOAD_PROP_PUBLIC_KEY		"public-key"
-#define IMAGE_PRE_LOAD_PROP_MANDATORY		"mandatory"
-
-/*
- * Information in the device-tree about the signature in the header
- */
-struct image_sig_info {
-	char *algo_name;	/* Name of the algo (eg: sha256,rsa2048) */
-	char *padding_name;	/* Name of the padding */
-	u8 *key;		/* Public signature key */
-	int key_len;		/* Length of the public key */
-	u32 sig_size;		/* size of the signature (in the header) */
-	int mandatory;		/* Set if the signature is mandatory */
-
-	struct image_sign_info sig_info; /* Signature info */
-};
-
-/*
- * Header of the signature header
- */
-struct sig_header_s {
-	u32 magic;
-	u32 version;
-	u32 header_size;
-	u32 image_size;
-	u32 offset_img_sig;
-	u32 flags;
-	u32 reserved0;
-	u32 reserved1;
-	u8 sha256_img_sig[SHA256_SUM_LEN];
-};
-
-#define SIG_HEADER_LEN			(sizeof(struct sig_header_s))
-
 /*
  * Offset of the image
  *
@@ -76,6 +33,7 @@ static int image_pre_load_sig_setup(struct image_sig_info *info)
 	const u32 *sig_size;
 	int key_len;
 	int node, ret = 0;
+	char *sig_info_path = NULL;
 
 	if (!info) {
 		log_err("ERROR: info is NULL for image pre-load sig check\n");
@@ -85,7 +43,11 @@ static int image_pre_load_sig_setup(struct image_sig_info *info)
 
 	memset(info, 0, sizeof(*info));
 
-	node = fdt_path_offset(gd_fdt_blob(), IMAGE_PRE_LOAD_PATH);
+	sig_info_path = env_get("pre_load_sig_info_path");
+	if (!sig_info_path)
+		sig_info_path = IMAGE_PRE_LOAD_PATH;
+
+	node = fdt_path_offset(gd_fdt_blob(), sig_info_path);
 	if (node < 0) {
 		log_info("INFO: no info for image pre-load sig check\n");
 		ret = 1;

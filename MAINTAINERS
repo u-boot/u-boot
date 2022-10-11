@@ -786,6 +786,11 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/buildman/
 
+CAT
+M:	Roger Knecht <rknecht@pm.me>
+S:	Maintained
+F:	cmd/cat.c
+
 CFI FLASH
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
@@ -1513,6 +1518,13 @@ XTENSA
 M:	Max Filippov <jcmvbkbc@gmail.com>
 S:	Maintained
 F:	arch/xtensa/
+
+XXD
+M:	Roger Knecht <rknecht@pm.me>
+S:	Maintained
+F:	cmd/xxd.c
+F:	doc/usage/cmd/xxd.rst
+F:	test/py/tests/test_xxd/
 
 THE REST
 M:	Tom Rini <trini@konsulko.com>

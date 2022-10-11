@@ -443,6 +443,10 @@
 	sandbox_tee {
 		compatible = "sandbox,tee";
 	};
+
+	thermal {
+		compatible = "sandbox,thermal";
+	};
 };
 
 &cros_ec {

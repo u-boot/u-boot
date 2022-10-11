@@ -163,6 +163,13 @@ fdtoverlays <path> [...] - if this label is chosen, use tftp to retrieve the DT
                       and then applied in the load order to the fdt blob stored at the
                       address indicated in the fdt_addr_r environment variable.
 
+devicetree-overlay <path> [...] - if this label is chosen, use tftp to retrieve the DT
+                      overlay(s) at <path>. it will be temporarily stored at the
+                      address indicated in the fdtoverlay_addr_r environment variable,
+                      and then applied in the load order to the fdt blob stored at the
+                      address indicated in the fdt_addr_r environment variable.
+                      Alias for fdtoverlays.
+
 kaslrseed           - set this label to request random number from hwrng as kaslr seed.
 
 append <string>	    - use <string> as the kernel command line when booting this
@@ -177,6 +184,11 @@ fdt <path>	    - if this label is chosen, use tftp to retrieve the fdt blob
 		      at <path>. it will be stored at the address indicated in
 		      the fdt_addr_r environment variable, and that address will
 		      be passed to bootm.
+
+devicetree <path>   - if this label is chosen, use tftp to retrieve the fdt blob
+		      at <path>. it will be stored at the address indicated in
+		      the fdt_addr_r environment variable, and that address will
+		      be passed to bootm. Alias for fdt.
 
 fdtdir <path>	    - if this label is chosen, use tftp to retrieve a fdt blob
 		      relative to <path>. If the fdtfile environment variable

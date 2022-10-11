@@ -17,8 +17,6 @@
 #include <openssl/pem.h>
 #include <openssl/evp.h>
 
-#define IMAGE_PRE_LOAD_PATH                             "/image/pre-load/sig"
-
 /**
  * fit_set_hash_value - set hash value in requested has node
  * @fit: pointer to the FIT format image header

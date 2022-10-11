@@ -1388,10 +1388,10 @@ static int npcm7xx_gpio_reset_persist(struct udevice *dev, unsigned int banknum,
 	dev_dbg(dev, "set gpio persist, bank %d, enable %d\n", banknum, enable);
 
 	if (enable) {
-		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD0RCR, BIT(num) | CA9C_RESET, 0);
-		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD1RCR, BIT(num) | CA9C_RESET, 0);
-		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD2RCR, BIT(num) | CA9C_RESET, 0);
-		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_CORSTC, BIT(num) | CA9C_RESET, 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD0RCR, BIT(num), 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD1RCR, BIT(num), 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD2RCR, BIT(num), 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_CORSTC, BIT(num), 0);
 	} else {
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD0RCR, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD1RCR, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);

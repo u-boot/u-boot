@@ -380,6 +380,7 @@ err:
 
 /**
  * label_boot_fdtoverlay() - Loads fdt overlays specified in 'fdtoverlays'
+ * or 'devicetree-overlay'
  *
  * @ctx: PXE context
  * @label: Label to process
@@ -809,6 +810,7 @@ static const struct token keywords[] = {
 	{"devicetreedir", T_FDTDIR},
 	{"fdtdir", T_FDTDIR},
 	{"fdtoverlays", T_FDTOVERLAYS},
+	{"devicetree-overlay", T_FDTOVERLAYS},
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
 	{"background", T_BACKGROUND,},

@@ -1421,6 +1421,49 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name);
  */
 struct padding_algo *image_get_padding_algo(const char *name);
 
+#define IMAGE_PRE_LOAD_SIG_MAGIC		0x55425348
+#define IMAGE_PRE_LOAD_SIG_OFFSET_MAGIC		0
+#define IMAGE_PRE_LOAD_SIG_OFFSET_IMG_LEN	4
+#define IMAGE_PRE_LOAD_SIG_OFFSET_SIG		8
+
+#define IMAGE_PRE_LOAD_PATH			"/image/pre-load/sig"
+#define IMAGE_PRE_LOAD_PROP_ALGO_NAME		"algo-name"
+#define IMAGE_PRE_LOAD_PROP_PADDING_NAME	"padding-name"
+#define IMAGE_PRE_LOAD_PROP_SIG_SIZE		"signature-size"
+#define IMAGE_PRE_LOAD_PROP_PUBLIC_KEY		"public-key"
+#define IMAGE_PRE_LOAD_PROP_MANDATORY		"mandatory"
+
+/*
+ * Information in the device-tree about the signature in the header
+ */
+struct image_sig_info {
+	char *algo_name;	/* Name of the algo (eg: sha256,rsa2048) */
+	char *padding_name;	/* Name of the padding */
+	uint8_t *key;		/* Public signature key */
+	int key_len;		/* Length of the public key */
+	uint32_t sig_size;		/* size of the signature (in the header) */
+	int mandatory;		/* Set if the signature is mandatory */
+
+	struct image_sign_info sig_info; /* Signature info */
+};
+
+/*
+ * Header of the signature header
+ */
+struct sig_header_s {
+	uint32_t magic;
+	uint32_t version;
+	uint32_t header_size;
+	uint32_t image_size;
+	uint32_t offset_img_sig;
+	uint32_t flags;
+	uint32_t reserved0;
+	uint32_t reserved1;
+	uint8_t sha256_img_sig[SHA256_SUM_LEN];
+};
+
+#define SIG_HEADER_LEN			(sizeof(struct sig_header_s))
+
 /**
  * image_pre_load() - Manage pre load header
  *

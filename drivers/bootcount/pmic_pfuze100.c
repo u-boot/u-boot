@@ -5,7 +5,7 @@
  * Philip Oberfichtner <pro@denx.de>
  *
  * A bootcount driver using the registers MEMA - MEMD on the PFUZE100.
- * This works only, if the PMIC is not connected.
+ * This works only, if the PMIC is not connected to a battery.
  */
 
 #include <common.h>
