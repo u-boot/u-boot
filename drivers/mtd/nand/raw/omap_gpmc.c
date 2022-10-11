@@ -37,7 +37,6 @@ static u8  bch8_polynomial[] = {0xef, 0x51, 0x2e, 0x09, 0xed, 0x93, 0x9a, 0xc2,
 				0x97, 0x79, 0xe5, 0x24, 0xb5};
 #endif
 static uint8_t cs_next;
-static __maybe_unused struct nand_ecclayout omap_ecclayout;
 
 #if defined(CONFIG_NAND_OMAP_GPMC_WSCFG)
 static const int8_t wscfg[CONFIG_SYS_MAX_NAND_DEVICE] =
@@ -753,7 +752,7 @@ static void __maybe_unused omap_free_bch(struct mtd_info *mtd)
 static int omap_select_ecc_scheme(struct nand_chip *nand,
 	enum omap_ecc ecc_scheme, unsigned int pagesize, unsigned int oobsize) {
 	struct omap_nand_info	*info		= nand_get_controller_data(nand);
-	struct nand_ecclayout	*ecclayout	= &omap_ecclayout;
+	struct nand_ecclayout	*ecclayout	= nand->ecc.layout;
 	int eccsteps = pagesize / SECTOR_BYTES;
 	int i;
 
@@ -1046,7 +1045,9 @@ int board_nand_init(struct nand_chip *nand)
 	nand->cmd_ctrl	= omap_nand_hwcontrol;
 	nand->options	|= NAND_NO_PADDING | NAND_CACHEPRG;
 	nand->chip_delay = 100;
-	nand->ecc.layout = &omap_ecclayout;
+	nand->ecc.layout = kzalloc(sizeof(*nand->ecc.layout), GFP_KERNEL);
+	if (!nand->ecc.layout)
+		return -ENOMEM;
 
 	/* configure driver and controller based on NAND device bus-width */
 	gpmc_config = readl(&gpmc_cfg->cs[cs].config1);
