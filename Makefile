@@ -1023,7 +1023,7 @@ LDFLAGS_u-boot += $(LDFLAGS_FINAL)
 LDFLAGS_u-boot += $(call ld-option, --no-dynamic-linker)
 
 # ld.lld support
-LDFLAGS_u-boot += -z notext
+LDFLAGS_u-boot += -z notext $(call ld-option,--apply-dynamic-relocs)
 
 LDFLAGS_u-boot += --build-id=none
 

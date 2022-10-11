@@ -184,7 +184,7 @@ __weak struct bl_params *bl2_plat_get_bl31_params_v2(uintptr_t bl32_entry,
 
 static inline void raw_write_daif(unsigned int daif)
 {
-	__asm__ __volatile__("msr DAIF, %0\n\t" : : "r" (daif) : "memory");
+	__asm__ __volatile__("msr DAIF, %x0\n\t" : : "r" (daif) : "memory");
 }
 
 typedef void (*atf_entry_t)(struct bl31_params *params, void *plat_params);
