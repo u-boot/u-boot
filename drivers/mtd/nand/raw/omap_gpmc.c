@@ -438,14 +438,14 @@ static inline void omap_nand_read(struct mtd_info *mtd, uint8_t *buf, int len)
 static void omap_nand_read_prefetch(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	int ret;
-	uint32_t head, tail;
+	uintptr_t head, tail;
 	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	/*
 	 * If the destination buffer is unaligned, start with reading
 	 * the overlap byte-wise.
 	 */
-	head = ((uint32_t) buf) % 4;
+	head = ((uintptr_t)buf) % 4;
 	if (head) {
 		omap_nand_read(mtd, buf, head);
 		buf += head;
