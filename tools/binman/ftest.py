@@ -5995,6 +5995,15 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn('Expected __bss_size symbol in vpl/u-boot-vpl',
                       str(e.exception))
 
+    def testSymlink(self):
+        """Test that image files can be named"""
+        retcode = self._DoTestFile('259_symlink.dts', debug=True, map=True)
+        self.assertEqual(0, retcode)
+        image = control.images['test_image']
+        fname = tools.get_output_filename('test_image.bin')
+        sname = tools.get_output_filename('symlink_to_test.bin')
+        self.assertTrue(os.path.islink(sname))
+        self.assertEqual(os.readlink(sname), fname)
 
 if __name__ == "__main__":
     unittest.main()
