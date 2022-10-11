@@ -59,6 +59,9 @@ __attribute_const__ int ofnode_to_offset(ofnode node);
 /**
  * oftree_from_fdt() - Returns an oftree from a flat device tree pointer
  *
+ * If @fdt is not already registered in the list of current device trees, it is
+ * added to the list.
+ *
  * @fdt: Device tree to use
  *
  * Returns: reference to the given node

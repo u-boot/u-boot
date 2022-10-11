@@ -255,7 +255,7 @@ So long as OF_LIVE is disabled, it is possible to do fixups using the ofnode
 interface. The OF_LIVE support required addition of the flattening step at the
 end.
 
-See dm_test_ofnode_root() for some examples. The ofnode_path_root() function
+See dm_test_ofnode_root() for some examples. The oftree_from_fdt() function
 causes a flat device tree to be 'registered' such that it can be used by the
 ofnode interface.
 
