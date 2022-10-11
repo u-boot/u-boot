@@ -665,15 +665,18 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 			goto err;
 		}
 	}
-	if (CONFIG_IS_ENABLED(EVENT)) {
+	if (!of_live_active() && CONFIG_IS_ENABLED(EVENT)) {
 		struct event_ft_fixup fixup;
 
-		fixup.tree = oftree_default();
+		fixup.tree = oftree_from_fdt(blob);
 		fixup.images = images;
-		ret = event_notify(EVT_FT_FIXUP, &fixup, sizeof(fixup));
-		if (ret) {
-			printf("ERROR: fdt fixup event failed: %d\n", ret);
-			goto err;
+		if (oftree_valid(fixup.tree)) {
+			ret = event_notify(EVT_FT_FIXUP, &fixup, sizeof(fixup));
+			if (ret) {
+				printf("ERROR: fdt fixup event failed: %d\n",
+				       ret);
+				goto err;
+			}
 		}
 	}
 
