@@ -186,24 +186,25 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	/* If fdt_high is set use it to select the relocation address */
 	fdt_high = env_get("fdt_high");
 	if (fdt_high) {
-		void *desired_addr = (void *)hextoul(fdt_high, NULL);
+		ulong desired_addr = hextoul(fdt_high, NULL);
+		ulong addr;
 
-		if (((ulong) desired_addr) == ~0UL) {
+		if (desired_addr == ~0UL) {
 			/* All ones means use fdt in place */
 			of_start = fdt_blob;
-			lmb_reserve(lmb, (ulong)of_start, of_len);
+			lmb_reserve(lmb, map_to_sysmem(of_start), of_len);
 			disable_relocation = 1;
 		} else if (desired_addr) {
-			of_start =
-			    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
-							   (ulong)desired_addr);
+			addr = lmb_alloc_base(lmb, of_len, 0x1000,
+					      desired_addr);
+			of_start = map_sysmem(addr, of_len);
 			if (of_start == NULL) {
 				puts("Failed using fdt_high value for Device Tree");
 				goto error;
 			}
 		} else {
-			of_start =
-			    (void *)(ulong) lmb_alloc(lmb, of_len, 0x1000);
+			addr = lmb_alloc(lmb, of_len, 0x1000);
+			of_start = map_sysmem(addr, of_len);
 		}
 	} else {
 		mapsize = env_get_bootm_mapsize();
@@ -224,9 +225,8 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			 * At least part of this DRAM bank is usable, try
 			 * using it for LMB allocation.
 			 */
-			of_start =
-			    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
-							   start + usable);
+			of_start = map_sysmem((ulong)lmb_alloc_base(lmb,
+				    of_len, 0x1000, start + usable), of_len);
 			/* Allocation succeeded, use this block. */
 			if (of_start != NULL)
 				break;
