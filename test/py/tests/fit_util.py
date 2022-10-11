@@ -36,7 +36,7 @@ def make_its(cons, base_its, params, basename='test.its'):
         print(base_its % params, file=outf)
     return its
 
-def make_fit(cons, mkimage, base_its, params, basename='test.fit'):
+def make_fit(cons, mkimage, base_its, params, basename='test.fit', base_fdt=None):
     """Make a sample .fit file ready for loading
 
     This creates a .its script with the selected parameters and uses mkimage to
@@ -55,6 +55,9 @@ def make_fit(cons, mkimage, base_its, params, basename='test.fit'):
     fit = make_fname(cons, basename)
     its = make_its(cons, base_its, params)
     util.run_and_log(cons, [mkimage, '-f', its, fit])
+    if base_fdt:
+        with open(make_fname(cons, 'u-boot.dts'), 'w') as fd:
+            fd.write(base_fdt)
     return fit
 
 def make_kernel(cons, basename, text):
