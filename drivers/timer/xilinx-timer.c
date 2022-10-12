@@ -40,7 +40,7 @@ static u64 xilinx_timer_get_count(struct udevice *dev)
 
 	regmap_read(priv->regs, TIMER_COUNTER_OFFSET, &value);
 
-	return value;
+	return timer_conv_64(value);
 }
 
 static int xilinx_timer_probe(struct udevice *dev)
