@@ -152,6 +152,21 @@ config RISCV_ISA_C
 	  when building U-Boot, which results in compressed instructions in the
 	  U-Boot binary.
 
+config RISCV_ISA_F
+	bool "Standard extension for Single-Precision Floating Point"
+	default y
+	help
+	  Adds "F" to the ISA string passed to the compiler.
+
+config RISCV_ISA_D
+	bool "Standard extension for Double-Precision Floating Point"
+	depends on RISCV_ISA_F
+	default y
+	help
+	  Adds "D" to the ISA string passed to the compiler and changes the
+	  riscv32 ABI from ilp32 to ilp32d and the riscv64 ABI from lp64 to
+	  lp64d.
+
 config RISCV_ISA_A
 	def_bool y
 
