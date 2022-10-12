@@ -852,10 +852,7 @@ static int pvblock_probe(struct udevice *udev)
 	ret = uclass_get(UCLASS_BLK, &uc);
 	if (ret)
 		return ret;
-	uclass_foreach_dev_probe(UCLASS_BLK, udev) {
-		if (_ret)
-			return _ret;
-	};
+	uclass_foreach_dev_probe(UCLASS_BLK, udev);
 	return 0;
 }
 

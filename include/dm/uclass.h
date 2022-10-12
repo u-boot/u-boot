@@ -491,7 +491,7 @@ int uclass_id_count(enum uclass_id id);
  * are no more devices.
  */
 #define uclass_foreach_dev_probe(id, dev)	\
-	for (int _ret = uclass_first_device_err(id, &dev); !_ret && dev; \
-	     _ret = uclass_next_device_err(&dev))
+	for (uclass_first_device(id, &dev); dev; \
+	     uclass_next_device(&dev))
 
 #endif
