@@ -210,10 +210,9 @@ int dma_get_cfg(struct dma *dma, u32 cfg_id, void **cfg_data)
 int dma_get_device(u32 transfer_type, struct udevice **devp)
 {
 	struct udevice *dev;
-	int ret;
 
-	for (ret = uclass_first_device(UCLASS_DMA, &dev); dev && !ret;
-	     ret = uclass_next_device(&dev)) {
+	for (uclass_first_device(UCLASS_DMA, &dev); dev;
+	     uclass_next_device(&dev)) {
 		struct dma_dev_priv *uc_priv;
 
 		uc_priv = dev_get_uclass_priv(dev);
@@ -229,7 +228,7 @@ int dma_get_device(u32 transfer_type, struct udevice **devp)
 
 	*devp = dev;
 
-	return ret;
+	return 0;
 }
 
 int dma_memcpy(void *dst, void *src, size_t len)

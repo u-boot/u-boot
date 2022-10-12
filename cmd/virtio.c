@@ -23,18 +23,15 @@ static int do_virtio(struct cmd_tbl *cmdtp, int flag, int argc,
 		 * device_probe() for children (i.e. virtio devices)
 		 */
 		struct udevice *bus, *child;
-		int ret;
 
-		ret = uclass_first_device(UCLASS_VIRTIO, &bus);
-		if (ret)
+		uclass_first_device(UCLASS_VIRTIO, &bus);
+		if (!bus)
 			return CMD_RET_FAILURE;
 
 		while (bus) {
 			device_foreach_child_probe(child, bus)
 				;
-			ret = uclass_next_device(&bus);
-			if (ret)
-				break;
+			uclass_next_device(&bus);
 		}
 
 		return CMD_RET_SUCCESS;

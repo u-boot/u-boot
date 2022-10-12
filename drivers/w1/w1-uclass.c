@@ -36,15 +36,10 @@ int w1_bus_find_dev(const struct udevice *bus, u64 id, struct udevice
 {
 	struct udevice *dev;
 	u8 family = id & 0xff;
-	int ret;
 
-	for (ret = uclass_first_device(UCLASS_W1_EEPROM, &dev);
-		!ret && dev;
+	for (uclass_first_device(UCLASS_W1_EEPROM, &dev);
+		dev;
 		uclass_next_device(&dev)) {
-		if (ret || !dev) {
-			debug("cannot find w1 eeprom dev\n");
-			return -ENODEV;
-		}
 
 		if (dev_get_driver_data(dev) == family) {
 			*devp = dev;
