@@ -644,7 +644,7 @@ static int omap_hsmmc_execute_tuning(struct udevice *dev, uint opcode)
 	      ((mmc->selected_mode == UHS_SDR50) && (val & CAPA2_TSDR50))))
 		return 0;
 
-	ret = uclass_first_device(UCLASS_THERMAL, &thermal_dev);
+	ret = uclass_first_device_err(UCLASS_THERMAL, &thermal_dev);
 	if (ret) {
 		printf("Couldn't get thermal device for tuning\n");
 		return ret;

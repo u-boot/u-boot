@@ -124,7 +124,7 @@ static int dm_test_i2c_bytewise(struct unit_test_state *uts)
 	ut_asserteq_mem(buf, "\0\0\0\0\0", sizeof(buf));
 
 	/* Tell the EEPROM to only read/write one register at a time */
-	ut_assertok(uclass_first_device(UCLASS_I2C_EMUL, &eeprom));
+	ut_assertok(uclass_first_device_err(UCLASS_I2C_EMUL, &eeprom));
 	ut_assertnonnull(eeprom);
 	sandbox_i2c_eeprom_set_test_mode(eeprom, SIE_TEST_MODE_SINGLE_BYTE);
 
@@ -177,7 +177,7 @@ static int dm_test_i2c_offset(struct unit_test_state *uts)
 
 	/* Do a transfer so we can find the emulator */
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
-	ut_assertok(uclass_first_device(UCLASS_I2C_EMUL, &eeprom));
+	ut_assertok(uclass_first_device_err(UCLASS_I2C_EMUL, &eeprom));
 
 	/* Offset length 0 */
 	sandbox_i2c_eeprom_set_offset_len(eeprom, 0);
@@ -250,7 +250,7 @@ static int dm_test_i2c_addr_offset(struct unit_test_state *uts)
 
 	/* Do a transfer so we can find the emulator */
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
-	ut_assertok(uclass_first_device(UCLASS_I2C_EMUL, &eeprom));
+	ut_assertok(uclass_first_device_err(UCLASS_I2C_EMUL, &eeprom));
 
 	/* Offset length 0 */
 	sandbox_i2c_eeprom_set_offset_len(eeprom, 0);
@@ -315,7 +315,7 @@ static int dm_test_i2c_reg_clrset(struct unit_test_state *uts)
 
 	/* Do a transfer so we can find the emulator */
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
-	ut_assertok(uclass_first_device(UCLASS_I2C_EMUL, &eeprom));
+	ut_assertok(uclass_first_device_err(UCLASS_I2C_EMUL, &eeprom));
 
 	/* Dummy data for the test */
 	ut_assertok(dm_i2c_write(dev, 0, "\xff\x00\xff\x00\x10", 5));

@@ -28,7 +28,7 @@ static int dm_test_virtio_rng_check_len(struct unit_test_state *uts)
 	u8 buffer[16];
 
 	/* check probe success */
-	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
+	ut_assertok(uclass_first_device_err(UCLASS_VIRTIO, &bus));
 	ut_assertnonnull(bus);
 
 	/* check the child virtio-rng device is bound */

@@ -40,7 +40,7 @@ int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
 	struct udevice *cpu;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_CPU, &cpu);
+	ret = uclass_first_device_err(UCLASS_CPU, &cpu);
 	if (ret)
 		return log_msg_ret("cpu", ret);
 	ret = cpu_get_info(cpu, &info);

@@ -244,7 +244,7 @@ static int malidp_update_timings_from_edid(struct udevice *dev,
 	struct udevice *disp_dev;
 	int err;
 
-	err = uclass_first_device(UCLASS_DISPLAY, &disp_dev);
+	err = uclass_first_device_err(UCLASS_DISPLAY, &disp_dev);
 	if (err)
 		return err;
 

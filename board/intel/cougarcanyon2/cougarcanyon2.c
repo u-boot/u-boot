@@ -21,11 +21,9 @@ int board_early_init_f(void)
 	struct udevice *pch;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_PCH, &pch);
+	ret = uclass_first_device_err(UCLASS_PCH, &pch);
 	if (ret)
 		return ret;
-	if (!pch)
-		return -ENODEV;
 
 	/* Initialize LPC interface to turn on superio chipset decode range */
 	dm_pci_write_config16(pch, LPC_IO_DEC, COMA_DEC_RANGE | COMB_DEC_RANGE);

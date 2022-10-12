@@ -265,8 +265,8 @@ int arch_misc_init(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_MISC, &dev);
-	if (ret || !dev)
+	ret = uclass_first_device_err(UCLASS_MISC, &dev);
+	if (ret)
 		return ret;
 
 #if defined(CONFIG_DM_ETH) && defined(CONFIG_USB_ETHER)

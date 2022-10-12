@@ -169,28 +169,28 @@ static int dm_test_acpi_get_name(struct unit_test_state *uts)
 	ut_asserteq_str("GHIJ", name);
 
 	/* Test getting the name from acpi_device_get_name() */
-	ut_assertok(uclass_first_device(UCLASS_I2C, &i2c));
+	ut_assertok(uclass_first_device_err(UCLASS_I2C, &i2c));
 	ut_assertok(acpi_get_name(i2c, name));
 	ut_asserteq_str("I2C0", name);
 
-	ut_assertok(uclass_first_device(UCLASS_SPI, &spi));
+	ut_assertok(uclass_first_device_err(UCLASS_SPI, &spi));
 	ut_assertok(acpi_get_name(spi, name));
 	ut_asserteq_str("SPI0", name);
 
 	/* ACPI doesn't know about the timer */
-	ut_assertok(uclass_first_device(UCLASS_TIMER, &timer));
+	ut_assertok(uclass_first_device_err(UCLASS_TIMER, &timer));
 	ut_asserteq(-ENOENT, acpi_get_name(timer, name));
 
 	/* May as well test the rest of the cases */
-	ut_assertok(uclass_first_device(UCLASS_SOUND, &sound));
+	ut_assertok(uclass_first_device_err(UCLASS_SOUND, &sound));
 	ut_assertok(acpi_get_name(sound, name));
 	ut_asserteq_str("HDAS", name);
 
-	ut_assertok(uclass_first_device(UCLASS_PCI, &pci));
+	ut_assertok(uclass_first_device_err(UCLASS_PCI, &pci));
 	ut_assertok(acpi_get_name(pci, name));
 	ut_asserteq_str("PCI0", name);
 
-	ut_assertok(uclass_first_device(UCLASS_ROOT, &root));
+	ut_assertok(uclass_first_device_err(UCLASS_ROOT, &root));
 	ut_assertok(acpi_get_name(root, name));
 	ut_asserteq_str("\\_SB", name);
 
@@ -219,7 +219,7 @@ static int dm_test_acpi_create_dmar(struct unit_test_state *uts)
 	struct acpi_dmar dmar;
 	struct udevice *cpu;
 
-	ut_assertok(uclass_first_device(UCLASS_CPU, &cpu));
+	ut_assertok(uclass_first_device_err(UCLASS_CPU, &cpu));
 	ut_assertnonnull(cpu);
 	ut_assertok(acpi_create_dmar(&dmar, DMAR_INTR_REMAP));
 	ut_asserteq(DMAR_INTR_REMAP, dmar.flags);

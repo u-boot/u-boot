@@ -29,7 +29,7 @@ static struct udevice *find_fuzzing_engine(void)
 {
 	struct udevice *dev;
 
-	if (uclass_first_device(UCLASS_FUZZING_ENGINE, &dev))
+	if (uclass_first_device_err(UCLASS_FUZZING_ENGINE, &dev))
 		return NULL;
 
 	return dev;
