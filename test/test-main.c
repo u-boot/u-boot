@@ -165,16 +165,7 @@ static int dm_test_post_run(struct unit_test_state *uts)
 /* Ensure all the test devices are probed */
 static int do_autoprobe(struct unit_test_state *uts)
 {
-	struct udevice *dev;
-	int ret;
-
-	/* Scanning the uclass is enough to probe all the devices */
-	for (ret = uclass_first_device(UCLASS_TEST, &dev);
-	     dev;
-	     ret = uclass_next_device(&dev))
-		;
-
-	return ret;
+	return uclass_probe_all(UCLASS_TEST);
 }
 
 /*
