@@ -314,7 +314,6 @@ int stdio_init_tables(void)
 int stdio_add_devices(void)
 {
 	struct udevice *dev;
-	struct uclass *uc;
 	int ret;
 
 	if (IS_ENABLED(CONFIG_DM_KEYBOARD)) {
@@ -324,24 +323,18 @@ int stdio_add_devices(void)
 		 * have a list of input devices to start up in the stdin
 		 * environment variable. That work probably makes more sense
 		 * when stdio itself is converted to driver model.
-		 *
-		 * TODO(sjg@chromium.org): Convert changing
-		 * uclass_first_device() etc. to return the device even on
-		 * error. Then we could use that here.
 		 */
-		ret = uclass_get(UCLASS_KEYBOARD, &uc);
-		if (ret)
-			return ret;
 
 		/*
 		 * Don't report errors to the caller - assume that they are
 		 * non-fatal
 		 */
-		uclass_foreach_dev(dev, uc) {
-			ret = device_probe(dev);
+		for (ret = uclass_first_device_check(UCLASS_KEYBOARD, &dev);
+				dev;
+				ret = uclass_next_device_check(&dev)) {
 			if (ret)
-				printf("Failed to probe keyboard '%s'\n",
-				       dev->name);
+				printf("%s: Failed to probe keyboard '%s' (ret=%d)\n",
+				       __func__, dev->name, ret);
 		}
 	}
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
@@ -361,13 +354,14 @@ int stdio_add_devices(void)
 		int ret;
 
 		if (!IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV)) {
-			for (ret = uclass_first_device(UCLASS_VIDEO, &vdev);
-			     vdev;
-			     ret = uclass_next_device(&vdev))
-				;
-			if (ret)
-				printf("%s: Video device failed (ret=%d)\n",
-				       __func__, ret);
+			for (ret = uclass_first_device_check(UCLASS_VIDEO,
+							     &vdev);
+					vdev;
+					ret = uclass_next_device_check(&vdev)) {
+				if (ret)
+					printf("%s: Failed to probe video device '%s' (ret=%d)\n",
+					       __func__, vdev->name, ret);
+			}
 		}
 		if (IS_ENABLED(CONFIG_SPLASH_SCREEN) &&
 		    IS_ENABLED(CONFIG_CMD_BMP))
