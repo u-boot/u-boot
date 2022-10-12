@@ -561,7 +561,7 @@ static const char keymap[] = {
 	'q',  'o',  'p',  ',', '\b',    0,  'a',  's',
 	'w',  'd',  'f',  'g',  'h',  'j',  'k',  'l',
 	'e',  '.',    0,  '\r',   0,  'z',  'x',  'c',
-	'r',  'v',  'b',  'n',  'm',  ' ',  ' ',    0,
+	'r',  'v',  'b',  'n',  'm',  ' ',    0,    0,
 	't',    0,    0,    0,    0,    0,    0,    0,
 	'y',    0,    0,    0,    0,    0,    0,    0,
 	'u',    0,    0,    0,    0,    0,    0,    0,
@@ -690,6 +690,10 @@ static int rx51_kp_tstc(struct udevice *dev)
 		/* cut out modifier keys from the keystate */
 		mods = keys[4] >> 4;
 		keys[4] &= 0x0f;
+
+		/* space key is indicated by two different bits */
+		keys[3] |= (keys[3] & (1 << 6)) >> 1;
+		keys[3] &= ~(1 << 6);
 
 		for (c = 0; c < 8; c++) {
 

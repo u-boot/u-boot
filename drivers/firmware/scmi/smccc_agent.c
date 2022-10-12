@@ -83,7 +83,7 @@ static int setup_channel(struct udevice *dev, struct scmi_smccc_channel *chan)
 static int scmi_smccc_get_channel(struct udevice *dev,
 				  struct scmi_channel **channel)
 {
-	struct scmi_smccc_channel *base_chan = dev_get_plat(dev->parent);
+	struct scmi_smccc_channel *base_chan = dev_get_plat(dev);
 	struct scmi_smccc_channel *chan;
 	u32 func_id;
 	int ret;

@@ -137,7 +137,7 @@ int devm_scmi_of_get_channel(struct udevice *dev, struct scmi_channel **channel)
 		return -ENODEV;
 
 	if (transport_dev_ops(parent)->of_get_channel)
-		return transport_dev_ops(parent)->of_get_channel(dev, channel);
+		return transport_dev_ops(parent)->of_get_channel(parent, channel);
 
 	/* Drivers without a get_channel operator don't need a channel ref */
 	*channel = NULL;

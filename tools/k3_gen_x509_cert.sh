@@ -238,7 +238,7 @@ gen_cert() {
 	#echo "	IMAGE_SIZE = $BIN_SIZE"
 	#echo "	CERT_TYPE = $CERTTYPE"
 	#echo "	DEBUG_TYPE = $DEBUG_TYPE"
-	echo " SWRV = $SWRV"
+	#echo " SWRV = $SWRV"
 	sed -e "s/TEST_IMAGE_LENGTH/$BIN_SIZE/"	\
 		-e "s/TEST_IMAGE_SHA_VAL/$SHA_VAL/" \
 		-e "s/TEST_CERT_TYPE/$CERTTYPE/" \
