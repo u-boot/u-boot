@@ -164,7 +164,7 @@ void board_init_f(ulong dummy)
 		if (ret)
 			panic("DRAM 0 init failed: %d\n", ret);
 
-		ret = uclass_next_device(&dev);
+		ret = uclass_next_device_err(&dev);
 		if (ret)
 			panic("DRAM 1 init failed: %d\n", ret);
 	}
