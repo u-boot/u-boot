@@ -593,11 +593,9 @@ int blk_find_next(enum blk_flag_t flags, struct udevice **devp)
 
 int blk_first_device_err(enum blk_flag_t flags, struct udevice **devp)
 {
-	int ret;
-
-	for (ret = uclass_first_device_err(UCLASS_BLK, devp);
-	     !ret;
-	     ret = uclass_next_device_err(devp)) {
+	for (uclass_first_device(UCLASS_BLK, devp);
+	     *devp;
+	     uclass_next_device(devp)) {
 		if (!blk_flags_check(*devp, flags))
 			return 0;
 	}
@@ -607,11 +605,9 @@ int blk_first_device_err(enum blk_flag_t flags, struct udevice **devp)
 
 int blk_next_device_err(enum blk_flag_t flags, struct udevice **devp)
 {
-	int ret;
-
-	for (ret = uclass_next_device_err(devp);
-	     !ret;
-	     ret = uclass_next_device_err(devp)) {
+	for (uclass_next_device(devp);
+	     *devp;
+	     uclass_next_device(devp)) {
 		if (!blk_flags_check(*devp, flags))
 			return 0;
 	}
