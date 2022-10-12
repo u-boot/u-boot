@@ -333,17 +333,6 @@ int uclass_get_device_by_driver(enum uclass_id id, const struct driver *drv,
 int uclass_first_device(enum uclass_id id, struct udevice **devp);
 
 /**
- * uclass_first_device_err() - Get the first device in a uclass
- *
- * The device returned is probed if necessary, and ready for use
- *
- * @id: Uclass ID to look up
- * @devp: Returns pointer to the first device in that uclass, or NULL if none
- * Return: 0 if found, -ENODEV if not found, other -ve on error
- */
-int uclass_first_device_err(enum uclass_id id, struct udevice **devp);
-
-/**
  * uclass_next_device() - Get the next device in a uclass
  *
  * The device returned is probed if necessary, and ready for use
@@ -357,6 +346,17 @@ int uclass_first_device_err(enum uclass_id id, struct udevice **devp);
  * Return: 0 if OK (found or not found), other -ve on error
  */
 int uclass_next_device(struct udevice **devp);
+
+/**
+ * uclass_first_device_err() - Get the first device in a uclass
+ *
+ * The device returned is probed if necessary, and ready for use
+ *
+ * @id: Uclass ID to look up
+ * @devp: Returns pointer to the first device in that uclass, or NULL if none
+ * Return: 0 if found, -ENODEV if not found, other -ve on error
+ */
+int uclass_first_device_err(enum uclass_id id, struct udevice **devp);
 
 /**
  * uclass_next_device_err() - Get the next device in a uclass
