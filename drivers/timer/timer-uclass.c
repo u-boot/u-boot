@@ -32,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int notrace timer_get_count(struct udevice *dev, u64 *count)
 {
-	const struct timer_ops *ops = device_get_ops(dev);
+	struct timer_ops *ops = timer_get_ops(dev);
 
 	if (!ops->get_count)
 		return -ENOSYS;

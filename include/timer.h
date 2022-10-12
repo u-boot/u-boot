@@ -6,6 +6,8 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+#define timer_get_ops(dev)	((struct timer_ops *)(dev)->driver->ops)
+
 /**
  * dm_timer_init() - initialize a timer for time keeping. On success
  * initializes gd->timer so that lib/timer can use it for future
