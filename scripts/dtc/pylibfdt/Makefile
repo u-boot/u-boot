@@ -17,7 +17,7 @@ quiet_cmd_pymod = PYMOD   $@
       cmd_pymod = unset CROSS_COMPILE; unset CFLAGS; \
 		CC="$(HOSTCC)" LDSHARED="$(HOSTCC) -shared " \
 		LDFLAGS="$(HOSTLDFLAGS)" \
-		VERSION="u-boot-$(UBOOTVERSION)" \
+		VERSION="$(UBOOTVERSION)" \
 		CPPFLAGS="$(HOSTCFLAGS) -I$(LIBFDT_srcdir)" OBJDIR=$(obj) \
 		SOURCES="$(PYLIBFDT_srcs)" \
 		SWIG_OPTS="-I$(LIBFDT_srcdir) -I$(LIBFDT_srcdir)/.." \
