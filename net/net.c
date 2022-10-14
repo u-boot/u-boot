@@ -924,7 +924,11 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	int offset8, start, len, done = 0;
 	u16 ip_off = ntohs(ip->ip_off);
 
-	if (ip->ip_len < IP_MIN_FRAG_DATAGRAM_SIZE)
+	/*
+	 * Calling code already rejected <, but we don't have to deal
+	 * with an IP fragment with no payload.
+	 */
+	if (ntohs(ip->ip_len) <= IP_HDR_SIZE)
 		return NULL;
 
 	/* payload starts after IP header, this fragment is in there */
@@ -933,6 +937,10 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	thisfrag = payload + offset8;
 	start = offset8 * 8;
 	len = ntohs(ip->ip_len) - IP_HDR_SIZE;
+
+	/* All but last fragment must have a multiple-of-8 payload. */
+	if ((len & 7) && (ip_off & IP_FLAGS_MFRAG))
+		return NULL;
 
 	if (start + len > IP_MAXUDP) /* fragment extends too far */
 		return NULL;
