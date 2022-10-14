@@ -1226,7 +1226,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 		if ((ip->ip_hl_v & 0xf0) != 0x40)
 			return;
 		/* Can't deal with IP options (headers != 20 bytes) */
-		if ((ip->ip_hl_v & 0x0f) > 0x05)
+		if ((ip->ip_hl_v & 0x0f) != 0x05)
 			return;
 		/* Check the Checksum of the header */
 		if (!ip_checksum_ok((uchar *)ip, IP_HDR_SIZE)) {
