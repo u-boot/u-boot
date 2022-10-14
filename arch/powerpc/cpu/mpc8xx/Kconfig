@@ -11,6 +11,9 @@ choice
 config TARGET_MCR3000
 	bool "Support MCR3000 board from CSSI"
 
+config TARGET_CMPC885
+	bool "Support CMPC885 board from CSSI"
+
 endchoice
 
 choice
@@ -86,4 +89,5 @@ config SYS_DER
 
 source "board/cssi/mcr3000/Kconfig"
 
+source "board/cssi/cmpc885/Kconfig"
 endmenu
