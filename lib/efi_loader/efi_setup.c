@@ -331,7 +331,7 @@ efi_status_t efi_init_obj_list(void)
 		if (ret != EFI_SUCCESS)
 			goto out;
 	}
-#ifdef CONFIG_NET
+#ifdef CONFIG_NETDEVICES
 	ret = efi_net_register();
 	if (ret != EFI_SUCCESS)
 		goto out;

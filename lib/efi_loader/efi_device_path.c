@@ -613,7 +613,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		*vdp = ROOT;
 		return &vdp[1];
 	}
-#ifdef CONFIG_NET
+#ifdef CONFIG_NETDEVICES
 	case UCLASS_ETH: {
 		struct efi_device_path_mac_addr *dp =
 			dp_fill(buf, dev->parent);
@@ -1052,7 +1052,7 @@ struct efi_device_path *efi_dp_from_uart(void)
 	return buf;
 }
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_NETDEVICES
 struct efi_device_path *efi_dp_from_eth(void)
 {
 	void *buf, *start;
@@ -1169,7 +1169,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 		return EFI_INVALID_PARAMETER;
 
 	if (!strcmp(dev, "Net")) {
-#ifdef CONFIG_NET
+#ifdef CONFIG_NETDEVICES
 		if (device)
 			*device = efi_dp_from_eth();
 #endif
