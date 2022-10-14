@@ -547,6 +547,13 @@ config MPC8XXX_GPIO
 	  value setting, the open-drain feature, which can configure individual
 	  GPIOs to work as open-drain outputs, is supported.
 
+config MPC8XX_GPIO
+	bool "Freescale MPC8XX GPIO driver"
+	depends on DM_GPIO
+	help
+	  This driver supports parallel IO ports from MPC8XX CPUs.
+	  Each GPIO bank is identified by its own entry in the device tree.
+
 config MPC83XX_SPISEL_BOOT
 	bool "Freescale MPC83XX SPISEL_BOOT driver"
 	depends on DM_GPIO && ARCH_MPC830X

@@ -28,6 +28,7 @@ config MPC85xx
 
 config MPC8xx
 	bool "MPC8xx"
+	select CREATE_ARCH_SYMLINK
 	select BOARD_EARLY_INIT_F
 	imply CMD_REGINFO
 	imply WDT_MPC8xx
