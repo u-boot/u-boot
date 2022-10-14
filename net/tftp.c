@@ -710,42 +710,42 @@ static int tftp_init_load_addr(void)
 
 void tftp_start(enum proto_t protocol)
 {
-#if CONFIG_NET_TFTP_VARS
-	char *ep;             /* Environment pointer */
+	__maybe_unused char *ep;             /* Environment pointer */
+	if (IS_ENABLED(CONFIG_NET_TFTP_VARS)) {
 
-	/*
-	 * Allow the user to choose TFTP blocksize and timeout.
-	 * TFTP protocol has a minimal timeout of 1 second.
-	 */
+		/*
+		 * Allow the user to choose TFTP blocksize and timeout.
+		 * TFTP protocol has a minimal timeout of 1 second.
+		 */
 
-	ep = env_get("tftpblocksize");
-	if (ep != NULL)
-		tftp_block_size_option = simple_strtol(ep, NULL, 10);
+		ep = env_get("tftpblocksize");
+		if (ep != NULL)
+			tftp_block_size_option = simple_strtol(ep, NULL, 10);
 
-	ep = env_get("tftpwindowsize");
-	if (ep != NULL)
-		tftp_window_size_option = simple_strtol(ep, NULL, 10);
+		ep = env_get("tftpwindowsize");
+		if (ep != NULL)
+			tftp_window_size_option = simple_strtol(ep, NULL, 10);
 
-	ep = env_get("tftptimeout");
-	if (ep != NULL)
-		timeout_ms = simple_strtol(ep, NULL, 10);
+		ep = env_get("tftptimeout");
+		if (ep != NULL)
+			timeout_ms = simple_strtol(ep, NULL, 10);
 
-	if (timeout_ms < 1000) {
-		printf("TFTP timeout (%ld ms) too low, set min = 1000 ms\n",
-		       timeout_ms);
-		timeout_ms = 1000;
+		if (timeout_ms < 1000) {
+			printf("TFTP timeout (%ld ms) too low, set min = 1000 ms\n",
+			       timeout_ms);
+			timeout_ms = 1000;
+		}
+
+		ep = env_get("tftptimeoutcountmax");
+		if (ep != NULL)
+			tftp_timeout_count_max = simple_strtol(ep, NULL, 10);
+
+		if (tftp_timeout_count_max < 0) {
+			printf("TFTP timeout count max (%d ms) negative, set to 0\n",
+			       tftp_timeout_count_max);
+			tftp_timeout_count_max = 0;
+		}
 	}
-
-	ep = env_get("tftptimeoutcountmax");
-	if (ep != NULL)
-		tftp_timeout_count_max = simple_strtol(ep, NULL, 10);
-
-	if (tftp_timeout_count_max < 0) {
-		printf("TFTP timeout count max (%d ms) negative, set to 0\n",
-		       tftp_timeout_count_max);
-		tftp_timeout_count_max = 0;
-	}
-#endif
 
 	debug("TFTP blocksize = %i, TFTP windowsize = %d timeout = %ld ms\n",
 	      tftp_block_size_option, tftp_window_size_option, timeout_ms);
