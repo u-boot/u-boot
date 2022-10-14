@@ -350,6 +350,20 @@ config SPL_OF_TRANSLATE
 	  used for the address translation. This function is faster and
 	  smaller in size than fdt_translate_address().
 
+config TPL_OF_TRANSLATE
+	bool "Translate addresses using fdt_translate_address in TPL"
+	depends on TPL_DM && TPL_OF_CONTROL
+	help
+	  If this option is enabled, the reg property will be translated
+	  using the fdt_translate_address() function. This is necessary
+	  on some platforms (e.g. MVEBU) using complex "ranges"
+	  properties in many nodes. As this translation is not handled
+	  correctly in the default simple_bus_translate() function.
+
+	  If this option is not enabled, simple_bus_translate() will be
+	  used for the address translation. This function is faster and
+	  smaller in size than fdt_translate_address()
+
 config VPL_OF_TRANSLATE
 	bool "Translate addresses using fdt_translate_address in SPL"
 	depends on SPL_DM && VPL_OF_CONTROL
