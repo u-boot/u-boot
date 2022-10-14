@@ -708,9 +708,54 @@ static int tftp_init_load_addr(void)
 	return 0;
 }
 
+static int saved_tftp_block_size_option;
+static void sanitize_tftp_block_size_option(enum proto_t protocol)
+{
+	int cap, max_defrag;
+
+	switch (protocol) {
+	case TFTPGET:
+		max_defrag = config_opt_enabled(CONFIG_IP_DEFRAG, CONFIG_NET_MAXDEFRAG, 0);
+		if (max_defrag) {
+			/* Account for IP, UDP and TFTP headers. */
+			cap = max_defrag - (20 + 8 + 4);
+			/* RFC2348 sets a hard upper limit. */
+			cap = min(cap, 65464);
+			break;
+		}
+		/*
+		 * If not CONFIG_IP_DEFRAG, cap at the same value as
+		 * for tftp put, namely normal MTU minus protocol
+		 * overhead.
+		 */
+		fallthrough;
+	case TFTPPUT:
+	default:
+		/*
+		 * U-Boot does not support IP fragmentation on TX, so
+		 * this must be small enough that it fits normal MTU
+		 * (and small enough that it fits net_tx_packet which
+		 * has room for PKTSIZE_ALIGN bytes).
+		 */
+		cap = 1468;
+	}
+	if (tftp_block_size_option > cap) {
+		printf("Capping tftp block size option to %d (was %d)\n",
+		       cap, tftp_block_size_option);
+		saved_tftp_block_size_option = tftp_block_size_option;
+		tftp_block_size_option = cap;
+	}
+}
+
 void tftp_start(enum proto_t protocol)
 {
 	__maybe_unused char *ep;             /* Environment pointer */
+
+	if (saved_tftp_block_size_option) {
+		tftp_block_size_option = saved_tftp_block_size_option;
+		saved_tftp_block_size_option = 0;
+	}
+
 	if (IS_ENABLED(CONFIG_NET_TFTP_VARS)) {
 
 		/*
@@ -746,6 +791,8 @@ void tftp_start(enum proto_t protocol)
 			tftp_timeout_count_max = 0;
 		}
 	}
+
+	sanitize_tftp_block_size_option(protocol);
 
 	debug("TFTP blocksize = %i, TFTP windowsize = %d timeout = %ld ms\n",
 	      tftp_block_size_option, tftp_window_size_option, timeout_ms);
