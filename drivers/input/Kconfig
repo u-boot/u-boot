@@ -38,15 +38,6 @@ config TPL_DM_KEYBOARD
 	  includes methods to start/stop the device, check for available
 	  input and update LEDs if the keyboard has them.
 
-config KEYBOARD
-	bool "Enable legacy keyboard support (deprecated)"
-	help
-	  Enable this to enable a custom keyboard support.
-	  This simply calls drv_keyboard_init() which must be
-	  defined in your board-specific files. This option is deprecated
-	  and is only used by novena. For new boards, use driver model
-	  instead.
-
 config APPLE_SPI_KEYB
 	bool "Enable Apple SPI keyboard support"
 	depends on DM_KEYBOARD && DM_SPI

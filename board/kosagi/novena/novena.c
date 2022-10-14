@@ -48,67 +48,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * GPIO button
- */
-#ifdef CONFIG_KEYBOARD
-static struct input_config button_input;
-
-static int novena_gpio_button_read_keys(struct input_config *input)
-{
-	int key = KEY_ENTER;
-	if (gpio_get_value(NOVENA_BUTTON_GPIO))
-		return 0;
-	input_send_keycodes(&button_input, &key, 1);
-	return 1;
-}
-
-static int novena_gpio_button_getc(struct stdio_dev *dev)
-{
-	return input_getc(&button_input);
-}
-
-static int novena_gpio_button_tstc(struct stdio_dev *dev)
-{
-	return input_tstc(&button_input);
-}
-
-static int novena_gpio_button_init(struct stdio_dev *dev)
-{
-	gpio_direction_input(NOVENA_BUTTON_GPIO);
-	input_set_delays(&button_input, 250, 250);
-	return 0;
-}
-
-int drv_keyboard_init(void)
-{
-	int error;
-	struct stdio_dev dev = {
-		.name	= "button",
-		.flags	= DEV_FLAGS_INPUT,
-		.start	= novena_gpio_button_init,
-		.getc	= novena_gpio_button_getc,
-		.tstc	= novena_gpio_button_tstc,
-	};
-
-	gpio_request(NOVENA_BUTTON_GPIO, "button");
-
-	error = input_init(&button_input, 0);
-	if (error) {
-		debug("%s: Cannot set up input\n", __func__);
-		return -1;
-	}
-	input_add_tables(&button_input, false);
-	button_input.read_keys = novena_gpio_button_read_keys;
-
-	error = input_stdio_register(&dev);
-	if (error)
-		return error;
-
-	return 0;
-}
-#endif
-
 int board_early_init_f(void)
 {
 #if defined(CONFIG_VIDEO_IPUV3)

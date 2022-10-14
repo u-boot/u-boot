@@ -99,14 +99,6 @@ The I2C subsystem has supported the driver model since early 2015.
 Maintainers should submit patches switching over to using CONFIG_DM_I2C and
 other base driver model options in time for inclusion in the 2021.10 release.
 
-CONFIG_KEYBOARD
----------------
-Deadline: 2022.10
-
-This is a legacy option which has been replaced by driver model.
-Maintainers should submit patches switching over to using CONFIG_DM_KEYBOARD and
-other base driver model options in time for inclusion in the 2022.10 release.
-
 CONFIG_SYS_TIMER_RATE and CONFIG_SYS_TIMER_COUNTER
 --------------------------------------------------
 Deadline: 2023.01
