@@ -1040,8 +1040,8 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	if (!done)
 		return NULL;
 
-	localip->ip_len = htons(total_len);
 	*lenp = total_len + IP_HDR_SIZE;
+	localip->ip_len = htons(*lenp);
 	return localip;
 }
 
@@ -1289,7 +1289,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 			return;
 		}
 
-		if (ntohs(ip->udp_len) < UDP_HDR_SIZE || ntohs(ip->udp_len) > ntohs(ip->ip_len))
+		if (ntohs(ip->udp_len) < UDP_HDR_SIZE || ntohs(ip->udp_len) > len - IP_HDR_SIZE)
 			return;
 
 		debug_cond(DEBUG_DEV_PKT,
