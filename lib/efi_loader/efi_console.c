@@ -1359,9 +1359,7 @@ efi_status_t efi_console_get_u16_string(struct efi_simple_text_input_protocol *c
 	       ANSI_CLEAR_LINE_TO_END
 	       ANSI_CURSOR_SHOW, row, col);
 
-	ret = EFI_CALL(cin->reset(cin, false));
-	if (ret != EFI_SUCCESS)
-		return ret;
+	efi_cin_empty_buffer();
 
 	for (;;) {
 		do {
