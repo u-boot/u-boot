@@ -26,7 +26,6 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/system.h>
-#include <lcd.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <stdio_dev.h>

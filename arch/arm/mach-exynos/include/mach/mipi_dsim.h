@@ -11,7 +11,6 @@
 
 #include <linux/list.h>
 #include <linux/fb.h>
-#include <lcd.h>
 
 #define PANEL_NAME_SIZE		(32)
 

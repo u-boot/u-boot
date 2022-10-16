@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <lcd.h>
 #include <log.h>
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
@@ -282,24 +281,3 @@ int g_dnl_board_usb_cable_connected(void)
 #endif
 }
 #endif
-
-/*
- * LCD
- */
-
-#ifdef CONFIG_LCD
-int mipi_power(void)
-{
-#if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
-	struct pmic *p = pmic_get("MAX77686_PMIC");
-
-	/* LDO8 VMIPI_1.0V_AP */
-	max77686_set_ldo_mode(p, 8, OPMODE_ON);
-	/* LDO10 VMIPI_1.8V_AP */
-	max77686_set_ldo_mode(p, 10, OPMODE_ON);
-#endif
-
-	return 0;
-}
-
-#endif /* LCD */
