@@ -23,14 +23,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_DM_VIDEO
 enum {
 	/* Maximum LCD size we support */
 	LCD_MAX_WIDTH		= 1366,
 	LCD_MAX_HEIGHT		= 768,
 	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
 };
-#endif
 
 struct atmel_fb_priv {
 	struct display_timing timing;
@@ -51,43 +49,6 @@ struct atmel_fb_priv {
 
 #define lcdc_readl(mmio, reg)		__raw_readl((mmio)+(reg))
 #define lcdc_writel(mmio, reg, val)	__raw_writel((val), (mmio)+(reg))
-
-#ifndef CONFIG_DM_VIDEO
-ushort *configuration_get_cmap(void)
-{
-	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
-}
-
-#if defined(CONFIG_BMP_16BPP) && defined(CONFIG_ATMEL_LCD_BGR555)
-void fb_put_word(uchar **fb, uchar **from)
-{
-	*(*fb)++ = (((*from)[0] & 0x1f) << 2) | ((*from)[1] & 0x03);
-	*(*fb)++ = ((*from)[0] & 0xe0) | (((*from)[1] & 0x7c) >> 2);
-	*from += 2;
-}
-#endif
-
-void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
-{
-#if defined(CONFIG_ATMEL_LCD_BGR555)
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_LUT(regno),
-		    (red >> 3) | ((green & 0xf8) << 2) | ((blue & 0xf8) << 7));
-#else
-	lcdc_writel(panel_info.mmio, ATMEL_LCDC_LUT(regno),
-		    (blue >> 3) | ((green & 0xfc) << 3) | ((red & 0xf8) << 8));
-#endif
-}
-
-void lcd_set_cmap(struct bmp_image *bmp, unsigned colors)
-{
-	int i;
-
-	for (i = 0; i < colors; ++i) {
-		struct bmp_color_table_entry cte = bmp->color_table[i];
-		lcd_setcolreg(i, cte.red, cte.green, cte.blue);
-	}
-}
-#endif
 
 static void atmel_fb_init(ulong addr, struct display_timing *timing, int bpix,
 			  bool tft, bool cont_pol_low, ulong lcdbase)
@@ -183,41 +144,6 @@ static void atmel_fb_init(ulong addr, struct display_timing *timing, int bpix,
 		    (ATMEL_LCDC_GUARD_TIME << ATMEL_LCDC_GUARDT_OFFSET) | ATMEL_LCDC_PWR);
 }
 
-#ifndef CONFIG_DM_VIDEO
-void lcd_ctrl_init(void *lcdbase)
-{
-	struct display_timing timing;
-
-	timing.flags = 0;
-	if (!(panel_info.vl_sync & ATMEL_LCDC_INVLINE_INVERTED))
-		timing.flags |= DISPLAY_FLAGS_HSYNC_HIGH;
-	if (!(panel_info.vl_sync & ATMEL_LCDC_INVFRAME_INVERTED))
-		timing.flags |= DISPLAY_FLAGS_VSYNC_LOW;
-	timing.pixelclock.typ = panel_info.vl_clk;
-
-	timing.hactive.typ = panel_info.vl_col;
-	timing.hfront_porch.typ = panel_info.vl_right_margin;
-	timing.hback_porch.typ = panel_info.vl_left_margin;
-	timing.hsync_len.typ = panel_info.vl_hsync_len;
-
-	timing.vactive.typ = panel_info.vl_row;
-	timing.vfront_porch.typ = panel_info.vl_clk;
-	timing.vback_porch.typ = panel_info.vl_clk;
-	timing.vsync_len.typ = panel_info.vl_clk;
-
-	atmel_fb_init(panel_info.mmio, &timing, panel_info.vl_bpix,
-		      panel_info.vl_tft, panel_info.vl_cont_pol_low,
-		      (ulong)lcdbase);
-}
-
-ulong calc_fbsize(void)
-{
-	return ((panel_info.vl_col * panel_info.vl_row *
-		NBITS(panel_info.vl_bpix)) / 8) + PAGE_SIZE;
-}
-#endif
-
-#ifdef CONFIG_DM_VIDEO
 static int atmel_fb_lcd_probe(struct udevice *dev)
 {
 	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
@@ -284,4 +210,3 @@ U_BOOT_DRIVER(atmel_fb) = {
 	.plat_auto	= sizeof(struct atmel_lcd_plat),
 	.priv_auto	= sizeof(struct atmel_fb_priv),
 };
-#endif

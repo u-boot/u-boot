@@ -430,7 +430,7 @@ config VIDEO_LCD_ANX9804
 
 config ATMEL_LCD
 	bool "Atmel LCD panel support"
-	depends on LCD && ARCH_AT91
+	depends on DM_VIDEO && ARCH_AT91
 
 config ATMEL_LCD_BGR555
 	bool "Display in BGR555 mode"
@@ -585,6 +585,7 @@ config NXP_TDA19988
 
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
+	depends on DM_VIDEO
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
