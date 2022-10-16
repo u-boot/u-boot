@@ -815,14 +815,6 @@ The following options need to be configured:
 
 			320x240. Black & white.
 
-		CONFIG_LCD_ALIGNMENT
-
-		Normally the LCD is page-aligned (typically 4KB). If this is
-		defined then the LCD will be aligned to this value instead.
-		For ARM it is sometimes useful to use MMU_SECTION_SIZE
-		here, since it is cheaper to change data cache settings on
-		a per-section basis.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 

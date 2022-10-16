@@ -35,10 +35,6 @@
 #endif
 #endif
 
-#ifndef CONFIG_LCD_ALIGNMENT
-#define CONFIG_LCD_ALIGNMENT PAGE_SIZE
-#endif
-
 #if (LCD_BPP != LCD_COLOR8) && (LCD_BPP != LCD_COLOR16) && \
 	(LCD_BPP != LCD_COLOR32)
 #error Unsupported LCD BPP.
@@ -238,10 +234,6 @@ ulong lcd_setmem(ulong addr)
 		panel_info.vl_row, NBITS(panel_info.vl_bpix));
 
 	size = lcd_get_size(&line_length);
-
-	/* Round up to nearest full page, or MMU section if defined */
-	size = ALIGN(size, CONFIG_LCD_ALIGNMENT);
-	addr = ALIGN(addr - CONFIG_LCD_ALIGNMENT + 1, CONFIG_LCD_ALIGNMENT);
 
 	/* Allocate pages for the frame buffer. */
 	addr -= size;
