@@ -23,10 +23,6 @@
 #include <atmel_hlcdc.h>
 #include <linux/bug.h>
 
-#if defined(CONFIG_LCD_LOGO)
-#include <bmp_logo.h>
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_DM_VIDEO
@@ -50,15 +46,6 @@ void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 	       ((red << LCDC_BASECLUT_RCLUT_Pos) & LCDC_BASECLUT_RCLUT_Msk)
 	       | ((green << LCDC_BASECLUT_GCLUT_Pos) & LCDC_BASECLUT_GCLUT_Msk)
 	       | ((blue << LCDC_BASECLUT_BCLUT_Pos) & LCDC_BASECLUT_BCLUT_Msk));
-}
-
-ushort *configuration_get_cmap(void)
-{
-#if defined(CONFIG_LCD_LOGO)
-	return bmp_logo_palette;
-#else
-	return NULL;
-#endif
 }
 
 void lcd_ctrl_init(void *lcdbase)

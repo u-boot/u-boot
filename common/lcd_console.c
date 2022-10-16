@@ -12,9 +12,6 @@
 #include <log.h>
 #include <serial.h>
 #include <video_font.h>		/* Get font data, width and height */
-#if defined(CONFIG_LCD_LOGO)
-#include <bmp_logo.h>
-#endif
 
 static struct console_t cons;
 
@@ -125,12 +122,7 @@ static inline void console_newline(void)
 void console_calc_rowcol(struct console_t *pcons, u32 sizex, u32 sizey)
 {
 	pcons->cols = sizex / VIDEO_FONT_WIDTH;
-#if defined(CONFIG_LCD_LOGO)
-	pcons->rows = (pcons->lcdsizey - BMP_LOGO_HEIGHT);
-	pcons->rows /= VIDEO_FONT_HEIGHT;
-#else
 	pcons->rows = sizey / VIDEO_FONT_HEIGHT;
-#endif
 }
 
 void __weak lcd_init_console_rot(struct console_t *pcons)

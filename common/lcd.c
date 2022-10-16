@@ -27,14 +27,6 @@
 #include <asm/unaligned.h>
 #include <video_font.h>
 
-#ifdef CONFIG_LCD_LOGO
-#include <bmp_logo.h>
-#include <bmp_logo_data.h>
-#if (CONSOLE_COLOR_WHITE >= BMP_LOGO_OFFSET) && (LCD_BPP != LCD_COLOR16)
-#error Default Color Map overlaps with Logo Color Map
-#endif
-#endif
-
 #if (LCD_BPP != LCD_COLOR8) && (LCD_BPP != LCD_COLOR16) && \
 	(LCD_BPP != LCD_COLOR32)
 #error Unsupported LCD BPP.
@@ -178,11 +170,6 @@ void lcd_clear(void)
 	}
 
 	lcd_logo();
-#if defined(CONFIG_LCD_LOGO)
-	addr = (ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length;
-	lcd_init_console((void *)addr, panel_info.vl_col,
-			 panel_info.vl_row, panel_info.vl_rot);
-#endif
 	lcd_sync();
 }
 
@@ -260,60 +247,7 @@ int lcd_getbgcolor(void)
 	return lcd_color_bg;
 }
 
-#ifdef CONFIG_LCD_LOGO
-__weak void lcd_logo_set_cmap(void)
-{
-	int i;
-	ushort *cmap = configuration_get_cmap();
-
-	for (i = 0; i < ARRAY_SIZE(bmp_logo_palette); ++i)
-		*cmap++ = bmp_logo_palette[i];
-}
-
-void lcd_logo_plot(int x, int y)
-{
-	ushort i, j;
-	uchar *bmap = &bmp_logo_bitmap[0];
-	unsigned bpix = NBITS(panel_info.vl_bpix);
-	uchar *fb = (uchar *)(lcd_base + y * lcd_line_length + x * bpix / 8);
-	ushort *fb16;
-
-	debug("Logo: width %d  height %d  colors %d\n",
-	      BMP_LOGO_WIDTH, BMP_LOGO_HEIGHT, BMP_LOGO_COLORS);
-
-	if (bpix < 12) {
-		schedule();
-		lcd_logo_set_cmap();
-		schedule();
-
-		for (i = 0; i < BMP_LOGO_HEIGHT; ++i) {
-			memcpy(fb, bmap, BMP_LOGO_WIDTH);
-			bmap += BMP_LOGO_WIDTH;
-			fb += panel_info.vl_col;
-		}
-	}
-	else { /* true color mode */
-		u16 col16;
-		fb16 = (ushort *)fb;
-		for (i = 0; i < BMP_LOGO_HEIGHT; ++i) {
-			for (j = 0; j < BMP_LOGO_WIDTH; j++) {
-				col16 = bmp_logo_palette[(bmap[j]-16)];
-				fb16[j] =
-					((col16 & 0x000F) << 1) |
-					((col16 & 0x00F0) << 3) |
-					((col16 & 0x0F00) << 4);
-				}
-			bmap += BMP_LOGO_WIDTH;
-			fb16 += panel_info.vl_col;
-		}
-	}
-
-	schedule();
-	lcd_sync();
-}
-#else
 static inline void lcd_logo_plot(int x, int y) {}
-#endif /* CONFIG_LCD_LOGO */
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
