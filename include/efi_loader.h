@@ -570,7 +570,7 @@ efi_status_t efi_net_register(void);
 /* Called by bootefi to make the watchdog available */
 efi_status_t efi_watchdog_register(void);
 efi_status_t efi_initrd_register(void);
-void efi_initrd_deregister(void);
+efi_status_t efi_initrd_deregister(void);
 /* Called by bootefi to make SMBIOS tables available */
 /**
  * efi_acpi_register() - write out ACPI tables
