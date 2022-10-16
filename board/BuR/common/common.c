@@ -14,7 +14,6 @@
 #include <env.h>
 #include <fdtdec.h>
 #include <i2c.h>
-#include <lcd.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
 #include "bur_common.h"

@@ -69,20 +69,6 @@ static void pm9263_nand_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_LCD
-
-static void pm9263_lcd_hw_init(void)
-{
-	/* Power Control */
-	at91_set_pio_output(AT91_PIO_PORTA, 22, 1);
-	at91_set_pio_value(AT91_PIO_PORTA, 22, 0);	/* power down */
-
-	gd->fb_base = ATMEL_BASE_SRAM0;
-
-}
-
-#endif /* CONFIG_LCD */
-
 int board_early_init_f(void)
 {
 	return 0;
@@ -101,9 +87,6 @@ int board_init(void)
 #endif
 #ifdef CONFIG_USB_OHCI_NEW
 	at91_uhp_hw_init();
-#endif
-#ifdef CONFIG_LCD
-	pm9263_lcd_hw_init();
 #endif
 	return 0;
 }
