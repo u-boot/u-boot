@@ -16,7 +16,6 @@
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
-#include <lcd.h>
 #include <bmp_layout.h>
 #include <atmel_lcdc.h>
 #include <linux/delay.h>

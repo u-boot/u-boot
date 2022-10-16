@@ -20,7 +20,6 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 
-#include <lcd.h>
 #include <atmel_lcdc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -75,62 +74,6 @@ static void at91sam9rlek_nand_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_LCD
-vidinfo_t panel_info = {
-	.vl_col =		240,
-	.vl_row =		320,
-	.vl_clk =		4965000,
-	.vl_sync =		ATMEL_LCDC_INVLINE_INVERTED |
-				ATMEL_LCDC_INVFRAME_INVERTED,
-	.vl_bpix =		3,
-	.vl_tft =		1,
-	.vl_hsync_len =		5,
-	.vl_left_margin =	1,
-	.vl_right_margin =	33,
-	.vl_vsync_len =		1,
-	.vl_upper_margin =	1,
-	.vl_lower_margin =	0,
-	.mmio =			ATMEL_BASE_LCDC,
-};
-
-void lcd_enable(void)
-{
-	at91_set_gpio_value(AT91_PIN_PA30, 0);  /* power up */
-}
-
-void lcd_disable(void)
-{
-	at91_set_gpio_value(AT91_PIN_PA30, 1);  /* power down */
-}
-static void at91sam9rlek_lcd_hw_init(void)
-{
-	at91_set_B_periph(AT91_PIN_PC1, 0);	/* LCDPWR */
-	at91_set_A_periph(AT91_PIN_PC5, 0);	/* LCDHSYNC */
-	at91_set_A_periph(AT91_PIN_PC6, 0);	/* LCDDOTCK */
-	at91_set_A_periph(AT91_PIN_PC7, 0);	/* LCDDEN */
-	at91_set_A_periph(AT91_PIN_PC3, 0);	/* LCDCC */
-	at91_set_B_periph(AT91_PIN_PC9, 0);	/* LCDD3 */
-	at91_set_B_periph(AT91_PIN_PC10, 0);	/* LCDD4 */
-	at91_set_B_periph(AT91_PIN_PC11, 0);	/* LCDD5 */
-	at91_set_B_periph(AT91_PIN_PC12, 0);	/* LCDD6 */
-	at91_set_B_periph(AT91_PIN_PC13, 0);	/* LCDD7 */
-	at91_set_B_periph(AT91_PIN_PC15, 0);	/* LCDD11 */
-	at91_set_B_periph(AT91_PIN_PC16, 0);	/* LCDD12 */
-	at91_set_B_periph(AT91_PIN_PC17, 0);	/* LCDD13 */
-	at91_set_B_periph(AT91_PIN_PC18, 0);	/* LCDD14 */
-	at91_set_B_periph(AT91_PIN_PC19, 0);	/* LCDD15 */
-	at91_set_B_periph(AT91_PIN_PC20, 0);	/* LCDD18 */
-	at91_set_B_periph(AT91_PIN_PC21, 0);	/* LCDD19 */
-	at91_set_B_periph(AT91_PIN_PC22, 0);	/* LCDD20 */
-	at91_set_B_periph(AT91_PIN_PC23, 0);	/* LCDD21 */
-	at91_set_B_periph(AT91_PIN_PC24, 0);	/* LCDD22 */
-	at91_set_B_periph(AT91_PIN_PC25, 0);	/* LCDD23 */
-
-	at91_periph_clk_enable(ATMEL_ID_LCDC);
-}
-
-#endif
-
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
 {
@@ -154,9 +97,6 @@ int board_init(void)
 
 #ifdef CONFIG_CMD_NAND
 	at91sam9rlek_nand_hw_init();
-#endif
-#ifdef CONFIG_LCD
-	at91sam9rlek_lcd_hw_init();
 #endif
 	return 0;
 }

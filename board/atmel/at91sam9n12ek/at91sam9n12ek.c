@@ -17,7 +17,6 @@
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
 #include <debug_uart.h>
-#include <lcd.h>
 #include <atmel_hlcdc.h>
 #include <netdev.h>
 
@@ -76,35 +75,6 @@ static void at91sam9n12ek_nand_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_LCD
-vidinfo_t panel_info = {
-	.vl_col = 480,
-	.vl_row = 272,
-	.vl_clk = 9000000,
-	.vl_bpix = LCD_BPP,
-	.vl_sync = 0,
-	.vl_tft = 1,
-	.vl_hsync_len = 5,
-	.vl_left_margin = 8,
-	.vl_right_margin = 43,
-	.vl_vsync_len = 10,
-	.vl_upper_margin = 4,
-	.vl_lower_margin = 12,
-	.mmio = ATMEL_BASE_LCDC,
-};
-
-void lcd_enable(void)
-{
-	at91_set_pio_output(AT91_PIO_PORTC, 25, 0);	/* power up */
-}
-
-void lcd_disable(void)
-{
-	at91_set_pio_output(AT91_PIO_PORTC, 25, 1);	/* power down */
-}
-
-#endif /* CONFIG_LCD */
-
 #ifdef CONFIG_USB_ATMEL
 void at91sam9n12ek_usb_hw_init(void)
 {
@@ -133,10 +103,6 @@ int board_init(void)
 
 #ifdef CONFIG_NAND_ATMEL
 	at91sam9n12ek_nand_hw_init();
-#endif
-
-#ifdef CONFIG_LCD
-	at91_lcd_hw_init();
 #endif
 
 #ifdef CONFIG_USB_ATMEL

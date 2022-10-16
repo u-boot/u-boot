@@ -17,7 +17,6 @@
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <lcd.h>
 #include <video.h>
 #include <wait_bit.h>
 #include <atmel_hlcdc.h>
