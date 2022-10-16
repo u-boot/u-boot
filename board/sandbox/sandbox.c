@@ -129,7 +129,7 @@ int extension_board_scan(struct list_head *extension_list)
 		snprintf(extension->name, sizeof(extension->name), "extension board %d", i);
 		snprintf(extension->owner, sizeof(extension->owner), "sandbox");
 		snprintf(extension->version, sizeof(extension->version), "1.1");
-		snprintf(extension->other, sizeof(extension->other), "Fictionnal extension board");
+		snprintf(extension->other, sizeof(extension->other), "Fictional extension board");
 		list_add_tail(&extension->list, extension_list);
 	}
 
