@@ -946,10 +946,4 @@ config BMP_32BPP
 	help
 	  Support display of bitmaps file with 32-bit-per-pixel.
 
-config VIDEO_VCXK
-	bool "Enable VCXK video controller driver support"
-	help
-	  This enables VCXK driver which can be used with VC2K, VC4K
-	  and VC8K devices on various boards from BuS Elektronik GmbH.
-
 endmenu
