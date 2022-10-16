@@ -823,27 +823,6 @@ The following options need to be configured:
 		here, since it is cheaper to change data cache settings on
 		a per-section basis.
 
-
-		CONFIG_LCD_ROTATION
-
-		Sometimes, for example if the display is mounted in portrait
-		mode or even if it's mounted landscape but rotated by 180degree,
-		we need to rotate our content of the display relative to the
-		framebuffer, so that user can read the messages which are
-		printed out.
-		Once CONFIG_LCD_ROTATION is defined, the lcd_console will be
-		initialized with a given rotation from "vl_rot" out of
-		"vidinfo_t" which is provided by the board specific code.
-		The value for vl_rot is coded as following (matching to
-		fbcon=rotate:<n> linux-kernel commandline):
-		0 = no rotation respectively 0 degree
-		1 = 90 degree rotation
-		2 = 180 degree rotation
-		3 = 270 degree rotation
-
-		If CONFIG_LCD_ROTATION is not defined, the console will be
-		initialized with 0degree rotation.
-
 - MII/PHY support:
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
