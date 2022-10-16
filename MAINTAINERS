@@ -1466,8 +1466,6 @@ M:	Anatolij Gustschin <agust@denx.de>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-video.git
 F:	drivers/video/
-F:	common/lcd*.c
-F:	include/lcd*.h
 F:	include/video*.h
 
 VirtIO
