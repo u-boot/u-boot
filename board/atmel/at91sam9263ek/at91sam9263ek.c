@@ -134,51 +134,6 @@ static void at91sam9263ek_lcd_hw_init(void)
 	gd->fb_base = ATMEL_BASE_SRAM0;
 }
 
-#ifdef CONFIG_LCD_INFO
-#include <nand.h>
-#include <version.h>
-
-#ifdef CONFIG_MTD_NOR_FLASH
-#include <flash.h>
-#endif
-
-void lcd_show_board_info(void)
-{
-	ulong dram_size, nand_size;
-#ifdef CONFIG_MTD_NOR_FLASH
-	ulong flash_size;
-#endif
-	int i;
-	char temp[32];
-
-	lcd_printf ("%s\n", U_BOOT_VERSION);
-	lcd_printf ("(C) 2008 ATMEL Corp\n");
-	lcd_printf ("at91support@atmel.com\n");
-	lcd_printf ("%s CPU at %s MHz\n",
-		ATMEL_CPU_NAME,
-		strmhz(temp, get_cpu_clk_rate()));
-
-	dram_size = 0;
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		dram_size += gd->bd->bi_dram[i].size;
-	nand_size = 0;
-	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += get_nand_dev_by_index(i)->size;
-#ifdef CONFIG_MTD_NOR_FLASH
-	flash_size = 0;
-	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
-		flash_size += flash_info[i].size;
-#endif
-	lcd_printf ("  %ld MB SDRAM, %ld MB NAND",
-		dram_size >> 20,
-		nand_size >> 20 );
-#ifdef CONFIG_MTD_NOR_FLASH
-	lcd_printf (",\n  %ld MB NOR",
-		flash_size >> 20);
-#endif
-	lcd_puts ("\n");
-}
-#endif /* CONFIG_LCD_INFO */
 #endif
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT

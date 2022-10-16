@@ -524,11 +524,6 @@ static void lcd_logo(void)
 {
 	lcd_logo_plot(0, 0);
 
-#ifdef CONFIG_LCD_INFO
-	lcd_set_col(LCD_INFO_X / VIDEO_FONT_WIDTH);
-	lcd_set_row(LCD_INFO_Y / VIDEO_FONT_HEIGHT);
-	lcd_show_board_info();
-#endif /* CONFIG_LCD_INFO */
 }
 
 #ifdef CONFIG_SPLASHIMAGE_GUARD

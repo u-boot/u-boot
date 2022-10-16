@@ -144,14 +144,6 @@ void lcd_sync(void);
 #define LCD_COLOR16	4
 #define LCD_COLOR32	5
 
-#if defined(CONFIG_LCD_LOGO)
-#define LCD_INFO_X		(BMP_LOGO_WIDTH + 4 * VIDEO_FONT_WIDTH)
-#define LCD_INFO_Y		VIDEO_FONT_HEIGHT
-#else
-#define LCD_INFO_X		VIDEO_FONT_WIDTH
-#define LCD_INFO_Y		VIDEO_FONT_HEIGHT
-#endif
-
 /* Default to 8bpp if bit depth not specified */
 #ifndef LCD_BPP
 #define LCD_BPP			LCD_COLOR8
