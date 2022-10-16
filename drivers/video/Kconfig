@@ -736,10 +736,6 @@ config LCD_LOGO
 	bool "Show a logo on screen"
 	depends on LCD
 
-config LCD_INFO_BELOW_LOGO
-	bool "Show LCD info below the on-screen logo"
-	depends on LCD_INFO && LCD_LOGO
-
 config VIDEO_DW_HDMI
 	bool
 	help

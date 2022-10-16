@@ -144,10 +144,7 @@ void lcd_sync(void);
 #define LCD_COLOR16	4
 #define LCD_COLOR32	5
 
-#if defined(CONFIG_LCD_INFO_BELOW_LOGO)
-#define LCD_INFO_X		0
-#define LCD_INFO_Y		(BMP_LOGO_HEIGHT + VIDEO_FONT_HEIGHT)
-#elif defined(CONFIG_LCD_LOGO)
+#if defined(CONFIG_LCD_LOGO)
 #define LCD_INFO_X		(BMP_LOGO_WIDTH + 4 * VIDEO_FONT_WIDTH)
 #define LCD_INFO_Y		VIDEO_FONT_HEIGHT
 #else

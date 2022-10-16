@@ -125,7 +125,7 @@ static inline void console_newline(void)
 void console_calc_rowcol(struct console_t *pcons, u32 sizex, u32 sizey)
 {
 	pcons->cols = sizex / VIDEO_FONT_WIDTH;
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
+#if defined(CONFIG_LCD_LOGO)
 	pcons->rows = (pcons->lcdsizey - BMP_LOGO_HEIGHT);
 	pcons->rows /= VIDEO_FONT_HEIGHT;
 #else

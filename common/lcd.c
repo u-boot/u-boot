@@ -178,7 +178,7 @@ void lcd_clear(void)
 	}
 
 	lcd_logo();
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
+#if defined(CONFIG_LCD_LOGO)
 	addr = (ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length;
 	lcd_init_console((void *)addr, panel_info.vl_col,
 			 panel_info.vl_row, panel_info.vl_rot);
@@ -209,11 +209,7 @@ static int lcd_init(void *lcdbase)
 
 	/* Initialize the console */
 	lcd_set_col(0);
-#ifdef CONFIG_LCD_INFO_BELOW_LOGO
-	lcd_set_row(7 + BMP_LOGO_HEIGHT / VIDEO_FONT_HEIGHT);
-#else
 	lcd_set_row(1);	/* leave 1 blank line below logo */
-#endif
 
 	return 0;
 }

@@ -10,7 +10,7 @@
 #include <video_font.h> /* Get font width and height */
 
 /* lcd.h needs BMP_LOGO_HEIGHT to calculate CONSOLE_ROWS */
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
+#if defined(CONFIG_LCD_LOGO)
 #include <bmp_logo.h>
 #endif
 
