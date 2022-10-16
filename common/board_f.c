@@ -28,7 +28,6 @@
 #include <i2c.h>
 #include <init.h>
 #include <initcall.h>
-#include <lcd.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -409,22 +408,18 @@ __weak int arch_reserve_mmu(void)
 
 static int reserve_video(void)
 {
-#ifdef CONFIG_DM_VIDEO
-	ulong addr;
-	int ret;
+	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+		ulong addr;
+		int ret;
 
-	addr = gd->relocaddr;
-	ret = video_reserve(&addr);
-	if (ret)
-		return ret;
-	debug("Reserving %luk for video at: %08lx\n",
-	      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
-	gd->relocaddr = addr;
-#elif defined(CONFIG_LCD)
-	/* reserve memory for LCD display (always full pages) */
-	gd->relocaddr = lcd_setmem(gd->relocaddr);
-	gd->fb_base = gd->relocaddr;
-#endif
+		addr = gd->relocaddr;
+		ret = video_reserve(&addr);
+		if (ret)
+			return ret;
+		debug("Reserving %luk for video at: %08lx\n",
+		      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
+		gd->relocaddr = addr;
+	}
 
 	return 0;
 }

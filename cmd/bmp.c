@@ -14,7 +14,6 @@
 #include <dm.h>
 #include <gzip.h>
 #include <image.h>
-#include <lcd.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -223,9 +222,7 @@ static int bmp_info(ulong addr)
 
 int bmp_display(ulong addr, int x, int y)
 {
-#ifdef CONFIG_DM_VIDEO
 	struct udevice *dev;
-#endif
 	int ret;
 	struct bmp_image *bmp = map_sysmem(addr, 0);
 	void *bmp_alloc_addr = NULL;
@@ -241,7 +238,6 @@ int bmp_display(ulong addr, int x, int y)
 	}
 	addr = map_to_sysmem(bmp);
 
-#ifdef CONFIG_DM_VIDEO
 	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
 	if (!ret) {
 		bool align = false;
@@ -251,11 +247,6 @@ int bmp_display(ulong addr, int x, int y)
 
 		ret = video_bmp_display(dev, addr, x, y, align);
 	}
-#elif defined(CONFIG_LCD)
-	ret = lcd_display_bitmap(addr, x, y);
-#else
-# error bmp_display() requires CONFIG_LCD
-#endif
 
 	if (bmp_alloc_addr)
 		free(bmp_alloc_addr);
