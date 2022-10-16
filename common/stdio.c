@@ -366,9 +366,6 @@ int stdio_add_devices(void)
 		if (IS_ENABLED(CONFIG_SPLASH_SCREEN) &&
 		    IS_ENABLED(CONFIG_CMD_BMP))
 			splash_display();
-	} else {
-		if (IS_ENABLED(CONFIG_LCD))
-			drv_lcd_init();
 	}
 
 	drv_system_init();

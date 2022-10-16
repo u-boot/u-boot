@@ -68,7 +68,7 @@ struct global_data {
 	 * @mem_clk: memory clock rate in Hz
 	 */
 	unsigned long mem_clk;
-#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_DM_VIDEO)
 	/**
 	 * @fb_base: base address of frame buffer memory
 	 */
