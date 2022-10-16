@@ -254,74 +254,6 @@ void lcdbacklight_en(void)
 			   brightness != 0 ? 0x0A : 0x02, 0xFF);
 }
 
-#if IS_ENABLED(CONFIG_AM335X_LCD)
-static void splash_screen(void)
-{
-	struct udevice *video_dev;
-	struct udevice *console_dev;
-	struct video_priv *vid_priv;
-	struct mtd_info *mtd;
-	size_t len;
-	int ret;
-
-	struct mtd_device *mtd_dev;
-	struct part_info  *part;
-	u8 pnum;
-
-	ret = uclass_get_device(UCLASS_VIDEO, 0, &video_dev);
-	if (ret != 0) {
-		debug("video device not found\n");
-		goto exit;
-	}
-
-	vid_priv = dev_get_uclass_priv(video_dev);
-	mtdparts_init();
-
-	if (find_dev_and_part(SPLASH_SCREEN_NAND_PART, &mtd_dev, &pnum, &part))	{
-		debug("Could not find nand partition\n");
-		goto splash_screen_text;
-	}
-
-	mtd = get_nand_dev_by_index(mtd_dev->id->num);
-	if (!mtd) {
-		debug("MTD partition is not valid\n");
-		goto splash_screen_text;
-	}
-
-	len = SPLASH_SCREEN_BMP_FILE_SIZE;
-	ret = nand_read_skip_bad(mtd, part->offset, &len, NULL,
-				 SPLASH_SCREEN_BMP_FILE_SIZE,
-				 (u_char *)SPLASH_SCREEN_BMP_LOAD_ADDR);
-	if (ret != 0) {
-		debug("Reading NAND partition failed\n");
-		goto splash_screen_text;
-	}
-
-	ret = video_bmp_display(video_dev, SPLASH_SCREEN_BMP_LOAD_ADDR, 0, 0, false);
-	if (ret != 0) {
-		debug("No valid bmp image found!!\n");
-		goto splash_screen_text;
-	} else {
-		goto exit;
-	}
-
-splash_screen_text:
-	vid_priv->colour_fg = CONSOLE_COLOR_RED;
-	vid_priv->colour_bg = CONSOLE_COLOR_BLACK;
-
-	if (!uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &console_dev)) {
-		debug("Found console\n");
-		vidconsole_position_cursor(console_dev, 17, 7);
-		vidconsole_put_string(console_dev, SPLASH_SCREEN_TEXT);
-	} else {
-		debug("No console device found\n");
-	}
-
-exit:
-	return;
-}
-#endif /* CONFIG_AM335X_LCD */
-
 int board_late_init(void)
 {
 	int ret;
@@ -340,8 +272,6 @@ int board_late_init(void)
 		return 0;
 
 	lcdbacklight_en();
-	if (IS_ENABLED(CONFIG_AM335X_LCD))
-		splash_screen();
 
 	return 0;
 }

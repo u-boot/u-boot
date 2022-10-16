@@ -588,8 +588,6 @@ config ATMEL_HLCD
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
-source "drivers/video/ti/Kconfig"
-
 source "drivers/video/exynos/Kconfig"
 
 config LOGICORE_DP_TX
