@@ -30,7 +30,6 @@ obj-${CONFIG_VIDEO_TEGRA124} += tegra124/
 obj-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o
 obj-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
 obj-$(CONFIG_IHS_VIDEO_OUT) += ihs_video_out.o
-obj-$(CONFIG_LD9040) += ld9040.o
 obj-$(CONFIG_LG4573) += lg4573.o
 obj-$(CONFIG_LOGICORE_DP_TX) += logicore_dp_tx.o
 obj-$(CONFIG_NXP_TDA19988) += tda19988.o

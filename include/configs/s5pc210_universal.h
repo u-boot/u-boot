@@ -114,9 +114,4 @@ int universal_spi_read(void);
 /* LCD console */
 #define LCD_BPP			LCD_COLOR16
 
-/*
- * LCD Settings
- */
-#define CONFIG_LD9040
-
 #endif	/* __CONFIG_H */
