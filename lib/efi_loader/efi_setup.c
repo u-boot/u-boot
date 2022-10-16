@@ -326,11 +326,11 @@ efi_status_t efi_init_obj_list(void)
 			goto out;
 	}
 
-#if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
-	ret = efi_gop_register();
-	if (ret != EFI_SUCCESS)
-		goto out;
-#endif
+	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+		ret = efi_gop_register();
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
 #ifdef CONFIG_NET
 	ret = efi_net_register();
 	if (ret != EFI_SUCCESS)
