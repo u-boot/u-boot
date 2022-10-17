@@ -24,8 +24,8 @@ enum csu_cslx_access {
 };
 
 struct csu_ns_dev {
-	unsigned long ind;
-	uint32_t val;
+	u8 ind;
+	u8 val;
 };
 
 void enable_layerscape_ns_access(void);
