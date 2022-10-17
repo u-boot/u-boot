@@ -40,6 +40,12 @@ static struct splash_location default_splash_locations[] = {
 		.devpart = "0:1",
 	},
 	{
+		.name = "mmc_raw",
+		.storage = SPLASH_STORAGE_MMC,
+		.flags = SPLASH_STORAGE_RAW,
+		.devpart = "0:1",
+	},
+	{
 		.name = "usb_fs",
 		.storage = SPLASH_STORAGE_USB,
 		.flags = SPLASH_STORAGE_FS,
