@@ -46,7 +46,6 @@ enum {
 	TCM_SPLIT,
 };
 
-int zynq_board_read_rom_ethaddr(unsigned char *ethaddr);
 unsigned int zynqmp_get_silicon_version(void);
 
 int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value);

@@ -54,34 +54,6 @@ struct efi_capsule_update_info update_info = {
 u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
-#if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
-int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
-{
-	int ret = -EINVAL;
-	struct udevice *dev;
-	ofnode eeprom;
-
-	eeprom = ofnode_get_chosen_node("xlnx,eeprom");
-	if (!ofnode_valid(eeprom))
-		return -ENODEV;
-
-	debug("%s: Path to EEPROM %s\n", __func__,
-	      ofnode_read_chosen_string("xlnx,eeprom"));
-
-	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, eeprom, &dev);
-	if (ret)
-		return ret;
-
-	ret = dm_i2c_read(dev, CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET, ethaddr, 6);
-	if (ret)
-		debug("%s: I2C EEPROM MAC address read failed\n", __func__);
-	else
-		debug("%s: I2C EEPROM MAC %pM\n", __func__, ethaddr);
-
-	return ret;
-}
-#endif
-
 #define EEPROM_HEADER_MAGIC		0xdaaddeed
 #define EEPROM_HDR_MANUFACTURER_LEN	16
 #define EEPROM_HDR_NAME_LEN		16

@@ -662,21 +662,6 @@ static void zynq_gem_halt(struct udevice *dev)
 						ZYNQ_GEM_NWCTRL_TXEN_MASK, 0);
 }
 
-__weak int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
-{
-	return -ENOSYS;
-}
-
-static int zynq_gem_read_rom_mac(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_plat(dev);
-
-	if (!pdata)
-		return -ENOSYS;
-
-	return zynq_board_read_rom_ethaddr(pdata->enetaddr);
-}
-
 static int zynq_gem_miiphy_read(struct mii_dev *bus, int addr,
 				int devad, int reg)
 {
@@ -884,7 +869,6 @@ static const struct eth_ops zynq_gem_ops = {
 	.free_pkt		= zynq_gem_free_pkt,
 	.stop			= zynq_gem_halt,
 	.write_hwaddr		= zynq_gem_setup_mac,
-	.read_rom_hwaddr	= zynq_gem_read_rom_mac,
 };
 
 static int zynq_gem_of_to_plat(struct udevice *dev)
