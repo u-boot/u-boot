@@ -448,6 +448,7 @@ int splash_source_load(struct splash_location *locations, uint size)
 {
 	struct splash_location *splash_location;
 	char *env_splashimage_value;
+	char *devpart;
 	u32 bmp_load_addr;
 
 	env_splashimage_value = env_get("splashimage");
@@ -463,6 +464,10 @@ int splash_source_load(struct splash_location *locations, uint size)
 	splash_location = select_splash_location(locations, size);
 	if (!splash_location)
 		return -EINVAL;
+
+	devpart = env_get("splashdevpart");
+	if (devpart)
+		splash_location->devpart = devpart;
 
 	if (splash_location->flags == SPLASH_STORAGE_RAW)
 		return splash_load_raw(splash_location, bmp_load_addr);
