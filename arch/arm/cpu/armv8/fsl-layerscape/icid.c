@@ -46,6 +46,7 @@ void set_icids(void)
 #endif
 }
 
+#ifndef CONFIG_SPL_BUILD
 int fdt_set_iommu_prop(void *blob, int off, int smmu_ph, u32 *ids, int num_ids)
 {
 	int i, ret;
@@ -190,3 +191,4 @@ void fdt_fixup_icid(void *blob)
 	fdt_fixup_fman_icids(blob, smmu_ph);
 #endif
 }
+#endif
