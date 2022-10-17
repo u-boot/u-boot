@@ -25,7 +25,6 @@
 #include <linux/err.h>
 
 #define BS systab.boottime
-#define RT systab.runtime
 
 #ifdef CONFIG_EFI_HAVE_CAPSULE_SUPPORT
 /**
@@ -76,7 +75,7 @@ static int do_efi_capsule_update(struct cmd_tbl *cmdtp, int flag,
 		       capsule->capsule_image_size);
 	}
 
-	ret = EFI_CALL(RT->update_capsule(&capsule, 1, 0));
+	ret = EFI_CALL(efi_update_capsule(&capsule, 1, 0));
 	if (ret) {
 		printf("Cannot handle a capsule at %p\n", capsule);
 		return CMD_RET_FAILURE;
@@ -995,17 +994,16 @@ static void show_efi_boot_opt(u16 *varname16)
 	efi_status_t ret;
 
 	size = 0;
-	ret = EFI_CALL(efi_get_variable(varname16, &efi_global_variable_guid,
-					NULL, &size, NULL));
+	ret = efi_get_variable_int(varname16, &efi_global_variable_guid,
+				   NULL, &size, NULL, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		data = malloc(size);
 		if (!data) {
 			printf("ERROR: Out of memory\n");
 			return;
 		}
-		ret = EFI_CALL(efi_get_variable(varname16,
-						&efi_global_variable_guid,
-						NULL, &size, data));
+		ret = efi_get_variable_int(varname16, &efi_global_variable_guid,
+					   NULL, &size, data, NULL);
 		if (ret == EFI_SUCCESS)
 			show_efi_boot_opt_data(varname16, data, &size);
 		free(data);
@@ -1057,8 +1055,7 @@ static int do_efi_boot_dump(struct cmd_tbl *cmdtp, int flag,
 	var_name16[0] = 0;
 	for (;;) {
 		size = buf_size;
-		ret = EFI_CALL(efi_get_next_variable_name(&size, var_name16,
-							  &guid));
+		ret = efi_get_next_variable_name_int(&size, var_name16, &guid);
 		if (ret == EFI_NOT_FOUND)
 			break;
 		if (ret == EFI_BUFFER_TOO_SMALL) {
@@ -1069,9 +1066,8 @@ static int do_efi_boot_dump(struct cmd_tbl *cmdtp, int flag,
 				return CMD_RET_FAILURE;
 			}
 			var_name16 = p;
-			ret = EFI_CALL(efi_get_next_variable_name(&size,
-								  var_name16,
-								  &guid));
+			ret = efi_get_next_variable_name_int(&size, var_name16,
+							     &guid);
 		}
 		if (ret != EFI_SUCCESS) {
 			free(var_name16);
@@ -1114,8 +1110,8 @@ static int show_efi_boot_order(void)
 	efi_status_t ret;
 
 	size = 0;
-	ret = EFI_CALL(efi_get_variable(u"BootOrder", &efi_global_variable_guid,
-					NULL, &size, NULL));
+	ret = efi_get_variable_int(u"BootOrder", &efi_global_variable_guid,
+				   NULL, &size, NULL, NULL);
 	if (ret != EFI_BUFFER_TOO_SMALL) {
 		if (ret == EFI_NOT_FOUND) {
 			printf("BootOrder not defined\n");
@@ -1129,8 +1125,8 @@ static int show_efi_boot_order(void)
 		printf("ERROR: Out of memory\n");
 		return CMD_RET_FAILURE;
 	}
-	ret = EFI_CALL(efi_get_variable(u"BootOrder", &efi_global_variable_guid,
-					NULL, &size, bootorder));
+	ret = efi_get_variable_int(u"BootOrder", &efi_global_variable_guid,
+				   NULL, &size, bootorder, NULL);
 	if (ret != EFI_SUCCESS) {
 		ret = CMD_RET_FAILURE;
 		goto out;
@@ -1142,9 +1138,9 @@ static int show_efi_boot_order(void)
 					"Boot", bootorder[i]);
 
 		size = 0;
-		ret = EFI_CALL(efi_get_variable(var_name16,
-						&efi_global_variable_guid, NULL,
-						&size, NULL));
+		ret = efi_get_variable_int(var_name16,
+					   &efi_global_variable_guid, NULL,
+					   &size, NULL, NULL);
 		if (ret != EFI_BUFFER_TOO_SMALL) {
 			printf("%2d: %ls: (not defined)\n", i + 1, var_name16);
 			continue;
@@ -1155,9 +1151,9 @@ static int show_efi_boot_order(void)
 			ret = CMD_RET_FAILURE;
 			goto out;
 		}
-		ret = EFI_CALL(efi_get_variable(var_name16,
-						&efi_global_variable_guid, NULL,
-						&size, data));
+		ret = efi_get_variable_int(var_name16,
+					   &efi_global_variable_guid, NULL,
+					   &size, data, NULL);
 		if (ret != EFI_SUCCESS) {
 			free(data);
 			ret = CMD_RET_FAILURE;
@@ -1444,10 +1440,9 @@ static int do_efi_query_info(struct cmd_tbl *cmdtp, int flag,
 				EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
 	}
 
-	ret = EFI_CALL(efi_query_variable_info(attr,
-					       &max_variable_storage_size,
-					       &remain_variable_storage_size,
-					       &max_variable_size));
+	ret = efi_query_variable_info_int(attr, &max_variable_storage_size,
+					  &remain_variable_storage_size,
+					  &max_variable_size);
 	if (ret != EFI_SUCCESS) {
 		printf("Error: Cannot query UEFI variables, r = %lu\n",
 		       ret & ~EFI_ERROR_MASK);

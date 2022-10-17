@@ -130,6 +130,21 @@ void spi_release_bus(struct spi_slave *slave)
 	dm_spi_release_bus(slave->dev);
 }
 
+int spi_set_speed(struct spi_slave *slave, uint hz)
+{
+	struct dm_spi_ops *ops;
+	int ret;
+
+	ops = spi_get_ops(slave->dev->parent);
+	if (ops->set_speed)
+		ret = ops->set_speed(slave->dev->parent, hz);
+	else
+		ret = -EINVAL;
+	if (ret)
+		dev_err(slave->dev, "Cannot set speed (err=%d)\n", ret);
+	return ret;
+}
+
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	     const void *dout, void *din, unsigned long flags)
 {

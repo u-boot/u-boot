@@ -352,8 +352,10 @@ void spi_cs_deactivate(struct spi_slave *slave);
  * This sets a new speed to be applied for next spi_xfer().
  * @slave:	The SPI slave
  * @hz:		The transfer speed
+ *
+ * Returns:	0 on success, or a negative value on error.
  */
-void spi_set_speed(struct spi_slave *slave, uint hz);
+int spi_set_speed(struct spi_slave *slave, uint hz);
 
 /**
  * Write 8 bits, then read 8 bits.

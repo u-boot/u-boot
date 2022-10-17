@@ -462,6 +462,20 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
 
 /**
  * efi_cout_clear_screen() - clear screen
+ */
+static void efi_clear_screen(void)
+{
+	/*
+	 * The Linux console wants both a clear and a home command. The video
+	 * uclass does not support <ESC>[H without coordinates, yet.
+	 */
+	printf(ESC "[2J" ESC "[1;1H");
+	efi_con_mode.cursor_column = 0;
+	efi_con_mode.cursor_row = 0;
+}
+
+/**
+ * efi_cout_clear_screen() - clear screen
  *
  * This function implements the ClearScreen service of the simple text output
  * protocol. See the Unified Extensible Firmware Interface (UEFI) specification
@@ -475,13 +489,7 @@ static efi_status_t EFIAPI efi_cout_clear_screen(
 {
 	EFI_ENTRY("%p", this);
 
-	/*
-	 * The Linux console wants both a clear and a home command. The video
-	 * uclass does not support <ESC>[H without coordinates, yet.
-	 */
-	printf(ESC "[2J" ESC "[1;1H");
-	efi_con_mode.cursor_column = 0;
-	efi_con_mode.cursor_row = 0;
+	efi_clear_screen();
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -510,7 +518,7 @@ static efi_status_t EFIAPI efi_cout_set_mode(
 		return EFI_EXIT(EFI_UNSUPPORTED);
 
 	efi_con_mode.mode = mode_number;
-	EFI_CALL(efi_cout_clear_screen(this));
+	efi_clear_screen();
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -536,7 +544,7 @@ static efi_status_t EFIAPI efi_cout_reset(
 	efi_con_mode.attribute = 0x07;
 	printf(ESC "[0;37;40m");
 	/* Clear screen */
-	EFI_CALL(efi_cout_clear_screen(this));
+	efi_clear_screen();
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -1351,9 +1359,7 @@ efi_status_t efi_console_get_u16_string(struct efi_simple_text_input_protocol *c
 	       ANSI_CLEAR_LINE_TO_END
 	       ANSI_CURSOR_SHOW, row, col);
 
-	ret = EFI_CALL(cin->reset(cin, false));
-	if (ret != EFI_SUCCESS)
-		return ret;
+	efi_cin_empty_buffer();
 
 	for (;;) {
 		do {
