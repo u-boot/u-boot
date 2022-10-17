@@ -38,6 +38,7 @@ class Image(section.Entry_section):
             repacked later
         test_section_timeout: Use a zero timeout for section multi-threading
             (for testing)
+        symlink: Name of symlink to image
 
     Args:
         copy_to_orig: Copy offset/size to orig_offset/orig_size after reading
@@ -97,6 +98,7 @@ class Image(section.Entry_section):
         if filename:
             self._filename = filename
         self.allow_repack = fdt_util.GetBool(self._node, 'allow-repack')
+        self._symlink = fdt_util.GetString(self._node, 'symlink')
 
     @classmethod
     def FromFile(cls, fname):
@@ -180,6 +182,10 @@ class Image(section.Entry_section):
             data = self.GetPaddedData()
             fd.write(data)
         tout.info("Wrote %#x bytes" % len(data))
+        # Create symlink to file if symlink given
+        if self._symlink is not None:
+            sname = tools.get_output_filename(self._symlink)
+            os.symlink(fname, sname)
 
     def WriteMap(self):
         """Write a map of the image to a .map file

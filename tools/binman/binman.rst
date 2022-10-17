@@ -780,6 +780,9 @@ align-default:
     This means that each section must specify its own default alignment, if
     required.
 
+symlink:
+    Adds a symlink to the image with string given in the symlink property.
+
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 
