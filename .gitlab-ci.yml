@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: trini/u-boot-gitlab-ci-runner:jammy-20221003-07Oct2022
+image: trini/u-boot-gitlab-ci-runner:jammy-20221003-17Oct2022
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -92,7 +92,6 @@ build all 64bit ARM platforms:
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
-    - pip install pyelftools
     - ret=0;
       ./tools/buildman/buildman -o /tmp -P -E -W aarch64 || ret=$?;
       if [[ $ret -ne 0 ]]; then
