@@ -1877,7 +1877,7 @@ menu "Misc commands"
 
 config CMD_BMP
 	bool "Enable 'bmp' command"
-	depends on LCD || DM_VIDEO || VIDEO
+	depends on LCD || DM_VIDEO
 	help
 	  This provides a way to obtain information about a BMP-format image
 	  and to display it. BMP (which presumably stands for BitMaP) is a

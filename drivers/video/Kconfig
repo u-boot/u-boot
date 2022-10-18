@@ -700,15 +700,6 @@ config VIDEO_ZYNQMP_DPSUB
 
 source "drivers/video/nexell/Kconfig"
 
-config VIDEO
-	bool "Enable legacy video support"
-	depends on !DM_VIDEO
-	help
-	  Define this for video support, without using driver model. Some
-	  drivers use this because they are not yet converted to driver
-	  model. Video drivers typically provide a colour text console and
-	  cursor.
-
 config CONSOLE_SCROLL_LINES
 	int "Number of lines to scroll the console by"
 	depends on DM_VIDEO || LCD
