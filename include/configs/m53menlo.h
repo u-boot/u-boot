@@ -81,7 +81,7 @@
 /*
  * LCD
  */
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
+#define CONFIG_VIDEO_LOGO_MAX_SIZE	(2 << 20)
 
 /* LVDS display */
 #define CONFIG_SYS_LDB_CLOCK			33260000

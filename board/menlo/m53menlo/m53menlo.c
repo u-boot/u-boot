@@ -358,7 +358,7 @@ int board_late_init(void)
 		return 0;
 
 	addr = hextoul(s, NULL);
-	dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE);
+	dst = malloc(CONFIG_VIDEO_LOGO_MAX_SIZE);
 	if (!dst)
 		return -ENOMEM;
 
@@ -366,8 +366,8 @@ int board_late_init(void)
 	if (ret < 0)
 		goto splasherr;
 
-	len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
-	ret = gunzip(dst + 2, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE - 2,
+	len = CONFIG_VIDEO_LOGO_MAX_SIZE;
+	ret = gunzip(dst + 2, CONFIG_VIDEO_LOGO_MAX_SIZE - 2,
 		     (uchar *)addr, &len);
 	if (ret) {
 		printf("Error: no valid bmp or bmp.gz image at %lx\n", addr);

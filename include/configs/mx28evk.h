@@ -26,7 +26,7 @@
 
 /* Framebuffer support */
 #ifdef CONFIG_DM_VIDEO
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
+#define CONFIG_VIDEO_LOGO_MAX_SIZE	(512 << 10)
 #endif
 
 /* Extra Environment */

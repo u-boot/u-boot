@@ -925,6 +925,9 @@ config VIDEO_BMP_GZIP
 	  images, gzipped BMP images can be displayed via the
 	  splashscreen support or the bmp command.
 
+config VIDEO_LOGO_MAX_SIZE
+	bool "Maximum size of the bitmap logo in bytes"
+
 config VIDEO_BMP_RLE8
 	bool "Run length encoded BMP image (RLE8) support"
 	depends on DM_VIDEO

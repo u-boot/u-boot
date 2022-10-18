@@ -148,6 +148,6 @@
 #define LCD_BPP			LCD_COLOR16
 
 /* LCD */
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
+#define CONFIG_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */
