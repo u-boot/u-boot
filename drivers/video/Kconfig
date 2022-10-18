@@ -810,19 +810,6 @@ config SPLASH_SCREEN
 
 if SPLASH_SCREEN
 
-config SPLASHIMAGE_GUARD
-	bool "Support unaligned BMP images"
-	help
-	  If this option is set, then U-Boot will prevent the environment
-	  variable "splashimage" from being set to a problematic address
-	  (see doc/README.displaying-bmps).
-
-	  This option is useful for targets where, due to alignment
-	  restrictions, an improperly aligned BMP image will cause a data
-	  abort. If you think you will not have problems with unaligned
-	  accesses (for example because your toolchain prevents them)
-	  there is no need to set this option.
-
 config SPLASH_SCREEN_ALIGN
 	bool "Allow positioning the splash image anywhere on the display"
 	help
