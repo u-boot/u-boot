@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dma-uclass.h>
+#include <linux/dma-mapping.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
 
@@ -395,7 +396,7 @@ void qedma3_stop(u32 base, struct edma3_channel_config *cfg)
 }
 
 void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
-		      void *dst, void *src, size_t len, size_t s_len)
+		      dma_addr_t dst, dma_addr_t src, size_t len, size_t s_len)
 {
 	struct edma3_slot_config        slot;
 	struct edma3_channel_config     edma_channel;
@@ -483,12 +484,14 @@ void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 }
 
 void __edma3_fill(unsigned long edma3_base_addr, unsigned int edma_slot_num,
-		  void *dst, u8 val, size_t len)
+		  dma_addr_t dst, u8 val, size_t len)
 {
 	int xfer_len;
 	int max_xfer = EDMA_FILL_BUFFER_SIZE * 65535;
+	dma_addr_t source;
 
 	memset((void *)edma_fill_buffer, val, sizeof(edma_fill_buffer));
+	source = dma_map_single(edma_fill_buffer, len, DMA_TO_DEVICE);
 
 	while (len) {
 		xfer_len = len;
@@ -496,11 +499,13 @@ void __edma3_fill(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 			xfer_len = max_xfer;
 
 		__edma3_transfer(edma3_base_addr, edma_slot_num, dst,
-				 edma_fill_buffer, xfer_len,
+				 source, xfer_len,
 				 EDMA_FILL_BUFFER_SIZE);
 		len -= xfer_len;
 		dst += xfer_len;
 	}
+
+	dma_unmap_single(source, len, DMA_FROM_DEVICE);
 }
 
 #ifndef CONFIG_DMA
@@ -508,19 +513,33 @@ void __edma3_fill(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 void edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 		    void *dst, void *src, size_t len)
 {
-	__edma3_transfer(edma3_base_addr, edma_slot_num, dst, src, len, len);
+	/* Clean the areas, so no writeback into the RAM races with DMA */
+	dma_addr_t destination = dma_map_single(dst, len, DMA_FROM_DEVICE);
+	dma_addr_t source = dma_map_single(src, len, DMA_TO_DEVICE);
+
+	__edma3_transfer(edma3_base_addr, edma_slot_num, destination, source, len, len);
+
+	/* Clean+Invalidate the areas after, so we can see DMA'd data */
+	dma_unmap_single(destination, len, DMA_FROM_DEVICE);
+	dma_unmap_single(source, len, DMA_TO_DEVICE);
 }
 
 void edma3_fill(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 		void *dst, u8 val, size_t len)
 {
-	__edma3_fill(edma3_base_addr, edma_slot_num, dst, val, len);
+	/* Clean the area, so no writeback into the RAM races with DMA */
+	dma_addr_t destination = dma_map_single(dst, len, DMA_FROM_DEVICE);
+
+	__edma3_fill(edma3_base_addr, edma_slot_num, destination, val, len);
+
+	/* Clean+Invalidate the area after, so we can see DMA'd data */
+	dma_unmap_single(destination, len, DMA_FROM_DEVICE);
 }
 
 #else
 
-static int ti_edma3_transfer(struct udevice *dev, int direction, void *dst,
-			     void *src, size_t len)
+static int ti_edma3_transfer(struct udevice *dev, int direction,
+			     dma_addr_t dst, dma_addr_t src, size_t len)
 {
 	struct ti_edma3_priv *priv = dev_get_priv(dev);
 

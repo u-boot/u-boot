@@ -9,7 +9,7 @@
 #include <dt-bindings/phy/phy.h>
 #include <dt-bindings/net/ti-dp83867.h>
 #include "k3-am642.dtsi"
-#include "k3-am64-sk-lp4-1333MTs.dtsi"
+#include "k3-am64-sk-lp4-1600MTs.dtsi"
 #include "k3-am64-ddr.dtsi"
 
 / {

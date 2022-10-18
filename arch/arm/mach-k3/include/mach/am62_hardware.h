@@ -44,23 +44,6 @@
 /* Backup Bootmode USB Config macros */
 #define MAIN_DEVSTAT_BACKUP_USB_MODE_MASK	0x01
 
-/*
- * The CTRL_MMR0 memory space is divided into several equally-spaced
- * partitions, so defining the partition size allows us to determine
- * register addresses common to those partitions.
- */
-#define CTRL_MMR0_PARTITION_SIZE		0x4000
-
-/*
- * CTRL_MMR0, WKUP_CTRL_MMR0, and MCU_CTRL_MMR0 lock/kick-mechanism
- * shared register definitions. The same registers are also used for
- * PADCFG_MMR lock/kick-mechanism.
- */
-#define CTRLMMR_LOCK_KICK0			0x1008
-#define CTRLMMR_LOCK_KICK0_UNLOCK_VAL		0x68ef3490
-#define CTRLMMR_LOCK_KICK1			0x100c
-#define CTRLMMR_LOCK_KICK1_UNLOCK_VAL		0xd172bc5a
-
 #define MCU_CTRL_LFXOSC_CTRL			(MCU_CTRL_MMR0_BASE + 0x8038)
 #define MCU_CTRL_LFXOSC_TRIM			(MCU_CTRL_MMR0_BASE + 0x803c)
 #define MCU_CTRL_LFXOSC_32K_DISABLE_VAL		BIT(7)
