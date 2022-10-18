@@ -23,14 +23,8 @@
 #define BMODE_PME		12
 #define BMODE_DIAG		15
 
-#if CONFIG_IS_ENABLED(LCD) && !CONFIG_IS_ENABLED(DM_VIDEO)
-#include <lcd.h>
-#define LCD_SETCURSOR(x, y)	lcd_position_cursor(x, y)
-#define LCD_PUTS(x)		lcd_puts(x)
-#else
 #define LCD_SETCURSOR(x, y)
 #define LCD_PUTS(x)
-#endif /* CONFIG_LCD */
 
 static const char *bootmodeascii[16] = {
 	"BOOT",		"reserved",	"reserved",	"reserved",

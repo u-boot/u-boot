@@ -164,21 +164,12 @@ int board_late_init(void)
 	br_resetc_bmode();
 
 	/* setup othbootargs for bootvx-command (vxWorks bootline) */
-#ifdef CONFIG_LCD
-	snprintf(othbootargs, sizeof(othbootargs),
-		 "u=vxWorksFTP pw=vxWorks o=0x%08x;0x%08x;0x%08x;0x%08x",
-		 (u32)gd->fb_base - 0x20,
-		 (u32)env_get_ulong("vx_memtop", 16, gd->fb_base - 0x20),
-		 (u32)env_get_ulong("vx_romfsbase", 16, 0),
-		 (u32)env_get_ulong("vx_romfssize", 16, 0));
-#else
 	snprintf(othbootargs, sizeof(othbootargs),
 		 "u=vxWorksFTP pw=vxWorks o=0x%08x;0x%08x;0x%08x;0x%08x",
 		 (u32)gd->relocaddr,
 		 (u32)env_get_ulong("vx_memtop", 16, gd->relocaddr),
 		 (u32)env_get_ulong("vx_romfsbase", 16, 0),
 		 (u32)env_get_ulong("vx_romfssize", 16, 0));
-#endif
 	env_set("othbootargs", othbootargs);
 	/*
 	 * reset VBAR registers to its reset location, VxWorks 6.9.3.2 does
