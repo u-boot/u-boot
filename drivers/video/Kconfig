@@ -702,21 +702,13 @@ source "drivers/video/nexell/Kconfig"
 
 config CONSOLE_SCROLL_LINES
 	int "Number of lines to scroll the console by"
-	depends on DM_VIDEO || LCD
+	depends on DM_VIDEO
 	default 1
 	help
 	  When the console need to be scrolled, this is the number of
 	  lines to scroll by. It defaults to 1. Increasing this makes the
 	  console jump but can help speed up operation when scrolling
 	  is slow.
-
-config LCD
-	bool "Enable legacy LCD support"
-	help
-	  Define this to enable LCD support (for output to LCD display).
-	  You will also need to select an LCD driver using an additional
-	  CONFIG option. See the README for details. Drives which have been
-	  converted to driver model will instead used CONFIG_DM_VIDEO.
 
 config VIDEO_DW_HDMI
 	bool
@@ -920,19 +912,19 @@ config VIDEO_BMP_RLE8
 
 config BMP_16BPP
 	bool "16-bit-per-pixel BMP image support"
-	depends on DM_VIDEO || LCD
+	depends on DM_VIDEO
 	help
 	  Support display of bitmaps file with 16-bit-per-pixel
 
 config BMP_24BPP
 	bool "24-bit-per-pixel BMP image support"
-	depends on DM_VIDEO || LCD
+	depends on DM_VIDEO
 	help
 	  Support display of bitmaps file with 24-bit-per-pixel.
 
 config BMP_32BPP
 	bool "32-bit-per-pixel BMP image support"
-	depends on DM_VIDEO || LCD
+	depends on DM_VIDEO
 	help
 	  Support display of bitmaps file with 32-bit-per-pixel.
 
