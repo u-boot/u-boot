@@ -24,7 +24,7 @@
 #include <display_options.h>
 #include <env.h>
 #include <splash.h>
-#include <lcd.h>
+#include <video.h>
 
 static struct splash_location default_splash_locations[] = {
 	{
@@ -155,8 +155,7 @@ void splash_display_banner(void)
 
 /*
  * Common function to show a splash image if env("splashimage") is set.
- * Is used for both dm_video and lcd video stacks. For additional
- * details please refer to doc/README.splashprepare.
+ * For additional details please refer to doc/README.splashprepare.
  */
 #if defined(CONFIG_SPLASH_SCREEN) && defined(CONFIG_CMD_BMP)
 int splash_display(void)

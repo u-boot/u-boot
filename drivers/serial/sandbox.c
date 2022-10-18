@@ -12,7 +12,6 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
-#include <lcd.h>
 #include <os.h>
 #include <serial.h>
 #include <video.h>

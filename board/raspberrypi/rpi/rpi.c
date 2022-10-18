@@ -11,7 +11,6 @@
 #include <fdt_support.h>
 #include <fdt_simplefb.h>
 #include <init.h>
-#include <lcd.h>
 #include <memalign.h>
 #include <mmc.h>
 #include <asm/gpio.h>

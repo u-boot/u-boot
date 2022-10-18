@@ -12,7 +12,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
-#include <lcd.h>
 #include <net.h>
 #include <fdt_support.h>
 #include <video.h>

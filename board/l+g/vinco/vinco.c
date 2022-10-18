@@ -24,7 +24,6 @@
 #include <asm/arch/sama5d4.h>
 #include <atmel_hlcdc.h>
 #include <atmel_mci.h>
-#include <lcd.h>
 #include <mmc.h>
 #include <net.h>
 #include <netdev.h>
