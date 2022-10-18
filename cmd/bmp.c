@@ -259,9 +259,7 @@ int bmp_display(ulong addr, int x, int y)
 	if (!ret) {
 		bool align = false;
 
-		if (CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN) ||
-		    x == BMP_ALIGN_CENTER ||
-		    y == BMP_ALIGN_CENTER)
+		if (x == BMP_ALIGN_CENTER || y == BMP_ALIGN_CENTER)
 			align = true;
 
 		ret = video_bmp_display(dev, addr, x, y, align);

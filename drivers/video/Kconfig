@@ -838,9 +838,10 @@ config SPLASH_SCREEN
 	  image data before it is processed and sent to the frame buffer by
 	  U-Boot. Define your own version to use this feature.
 
+if SPLASH_SCREEN
+
 config SPLASHIMAGE_GUARD
 	bool "Support unaligned BMP images"
-	depends on SPLASH_SCREEN
 	help
 	  If this option is set, then U-Boot will prevent the environment
 	  variable "splashimage" from being set to a problematic address
@@ -854,7 +855,6 @@ config SPLASHIMAGE_GUARD
 
 config SPLASH_SCREEN_ALIGN
 	bool "Allow positioning the splash image anywhere on the display"
-	depends on SPLASH_SCREEN || CMD_BMP
 	help
 	  If this option is set the splash image can be freely positioned
 	  on the screen. Environment variable "splashpos" specifies the
@@ -876,7 +876,6 @@ config SPLASH_SCREEN_ALIGN
 
 config SPLASH_SOURCE
 	bool "Control the source of the splash image"
-	depends on SPLASH_SCREEN
 	help
 	  Use the splash_source.c library. This library provides facilities to
 	  declare board specific splash image locations, routines for loading
@@ -906,6 +905,8 @@ config SPLASH_SOURCE
 
 	  In case the environment variable "splashfile" is not defined the
 	  default name 'splash.bmp' will be used.
+
+endif # SPLASH_SCREEN
 
 config VIDEO_BMP_GZIP
 	bool "Gzip compressed BMP image support"
