@@ -14,11 +14,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000	/* main clock xtal */
 
 /* Misc CPU related */
-
-/* LCD */
-#define LCD_BPP				LCD_COLOR16
-#define LCD_OUTPUT_BPP			24
-
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
 

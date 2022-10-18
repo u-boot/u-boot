@@ -14,10 +14,6 @@
 #include <configs/bur_cfg_common.h>
 #include <configs/bur_am335x_common.h>
 #include <linux/stringify.h>
-/* ------------------------------------------------------------------------- */
-#define LCD_BPP				LCD_COLOR32
-
-/* memory */
 
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */

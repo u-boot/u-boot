@@ -16,13 +16,6 @@
 
 #include <asm/hardware.h>
 
-/*
- * Hardware drivers
- */
-
-/* LCD */
-#define LCD_BPP				LCD_COLOR8
-
 /* SDRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x04000000

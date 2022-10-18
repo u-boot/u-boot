@@ -124,13 +124,6 @@
 		 AT91_WDT_MR_WDDIS |				\
 		 AT91_WDT_MR_WDD(0xfff))
 
-/*
- * Hardware drivers
- */
-
-/* LCD */
-#define LCD_BPP				LCD_COLOR8
-
 /* SDRAM */
 #define PHYS_SDRAM				0x20000000
 #define PHYS_SDRAM_SIZE				0x04000000	/* 64 megs */

@@ -141,7 +141,4 @@
 #define KEY_VOL_DOWN_GPIO		EXYNOS4_GPIO_X21
 #endif /* __ASSEMBLY__ */
 
-/* LCD console */
-#define LCD_BPP			LCD_COLOR16
-
 #endif	/* __CONFIG_H */
