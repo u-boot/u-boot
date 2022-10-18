@@ -609,12 +609,11 @@ static int ipuv3_video_probe(struct udevice *dev)
 		return ret;
 
 #if defined(CONFIG_DISPLAY)
-	ret = uclass_first_device(UCLASS_DISPLAY, &disp_dev);
-	if (disp_dev) {
+	ret = uclass_first_device_err(UCLASS_DISPLAY, &disp_dev);
+	if (!ret)
 		ret = display_enable(disp_dev, 16, NULL);
-		if (ret < 0)
-			return ret;
-	}
+	if (ret < 0)
+		return ret;
 #endif
 	if (CONFIG_IS_ENABLED(PANEL)) {
 		struct udevice *panel_dev;

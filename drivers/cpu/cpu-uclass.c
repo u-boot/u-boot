@@ -20,25 +20,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int cpu_probe_all(void)
 {
-	struct udevice *cpu;
-	int ret;
+	int ret = uclass_probe_all(UCLASS_CPU);
 
-	ret = uclass_first_device(UCLASS_CPU, &cpu);
 	if (ret) {
-		debug("%s: No CPU found (err = %d)\n", __func__, ret);
-		return ret;
+		debug("%s: Error while probing CPUs (err = %d %s)\n",
+		      __func__, ret, errno_str(ret));
 	}
-
-	while (cpu) {
-		ret = uclass_next_device(&cpu);
-		if (ret) {
-			debug("%s: Error while probing CPU (err = %d)\n",
-			      __func__, ret);
-			return ret;
-		}
-	}
-
-	return 0;
+	return ret;
 }
 
 int cpu_is_current(struct udevice *cpu)

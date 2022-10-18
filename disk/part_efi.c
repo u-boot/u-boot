@@ -264,20 +264,19 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 
 	/* "part" argument must be at least 1 */
 	if (part < 1) {
-		printf("%s: Invalid Argument(s)\n", __func__);
-		return -1;
+		log_debug("Invalid Argument(s)\n");
+		return -EINVAL;
 	}
 
 	/* This function validates AND fills in the GPT header and PTE */
 	if (find_valid_gpt(dev_desc, gpt_head, &gpt_pte) != 1)
-		return -1;
+		return -EINVAL;
 
 	if (part > le32_to_cpu(gpt_head->num_partition_entries) ||
 	    !is_pte_valid(&gpt_pte[part - 1])) {
-		debug("%s: *** ERROR: Invalid partition number %d ***\n",
-			__func__, part);
+		log_debug("*** ERROR: Invalid partition number %d ***\n", part);
 		free(gpt_pte);
-		return -1;
+		return -EPERM;
 	}
 
 	/* The 'lbaint_t' casting may limit the maximum disk size to 2 TB */
@@ -300,8 +299,8 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 			info->type_guid, UUID_STR_FORMAT_GUID);
 #endif
 
-	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s\n", __func__,
-	      info->start, info->size, info->name);
+	log_debug("start 0x" LBAF ", size 0x" LBAF ", name %s\n", info->start,
+		  info->size, info->name);
 
 	/* Remember to free pte */
 	free(gpt_pte);

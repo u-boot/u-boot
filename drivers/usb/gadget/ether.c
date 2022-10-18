@@ -2636,18 +2636,17 @@ static const struct eth_ops usb_eth_ops = {
 
 int usb_ether_init(void)
 {
-	struct udevice *dev;
 	struct udevice *usb_dev;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_USB_GADGET_GENERIC, &usb_dev);
-	if (!usb_dev || ret) {
+	uclass_first_device(UCLASS_USB_GADGET_GENERIC, &usb_dev);
+	if (!usb_dev) {
 		pr_err("No USB device found\n");
-		return ret;
+		return -ENODEV;
 	}
 
-	ret = device_bind_driver(usb_dev, "usb_ether", "usb_ether", &dev);
-	if (!dev || ret) {
+	ret = device_bind_driver(usb_dev, "usb_ether", "usb_ether", NULL);
+	if (ret) {
 		pr_err("usb - not able to bind usb_ether device\n");
 		return ret;
 	}

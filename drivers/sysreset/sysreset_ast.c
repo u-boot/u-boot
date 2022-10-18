@@ -18,7 +18,7 @@ static int ast_sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
 	struct udevice *wdt;
 	u32 reset_mode;
-	int ret = uclass_first_device(UCLASS_WDT, &wdt);
+	int ret = uclass_first_device_err(UCLASS_WDT, &wdt);
 
 	if (ret)
 		return ret;

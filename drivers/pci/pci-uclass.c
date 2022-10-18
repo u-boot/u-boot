@@ -1217,7 +1217,7 @@ static int skip_to_next_device(struct udevice *bus, struct udevice **devp)
 	 * Scan through all the PCI controllers. On x86 there will only be one
 	 * but that is not necessarily true on other hardware.
 	 */
-	do {
+	while (bus) {
 		device_find_first_child(bus, &dev);
 		if (dev) {
 			*devp = dev;
@@ -1226,7 +1226,7 @@ static int skip_to_next_device(struct udevice *bus, struct udevice **devp)
 		ret = uclass_next_device(&bus);
 		if (ret)
 			return ret;
-	} while (bus);
+	}
 
 	return 0;
 }

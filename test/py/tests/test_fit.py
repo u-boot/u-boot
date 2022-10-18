@@ -7,6 +7,7 @@ import os
 import pytest
 import struct
 import u_boot_utils as util
+import fit_util
 
 # Define a base ITS which we can adjust using % and a dictionary
 base_its = '''
@@ -126,7 +127,6 @@ def test_fit(u_boot_console):
         Return:
             Temporary filename
         """
-
         return os.path.join(cons.config.build_dir, leaf)
 
     def filesize(fname):
@@ -149,67 +149,6 @@ def test_fit(u_boot_console):
         """
         with open(fname, 'rb') as fd:
             return fd.read()
-
-    def make_dtb():
-        """Make a sample .dts file and compile it to a .dtb
-
-        Returns:
-            Filename of .dtb file created
-        """
-        src = make_fname('u-boot.dts')
-        dtb = make_fname('u-boot.dtb')
-        with open(src, 'w') as fd:
-            fd.write(base_fdt)
-        util.run_and_log(cons, ['dtc', src, '-O', 'dtb', '-o', dtb])
-        return dtb
-
-    def make_its(params):
-        """Make a sample .its file with parameters embedded
-
-        Args:
-            params: Dictionary containing parameters to embed in the %() strings
-        Returns:
-            Filename of .its file created
-        """
-        its = make_fname('test.its')
-        with open(its, 'w') as fd:
-            print(base_its % params, file=fd)
-        return its
-
-    def make_fit(mkimage, params):
-        """Make a sample .fit file ready for loading
-
-        This creates a .its script with the selected parameters and uses mkimage to
-        turn this into a .fit image.
-
-        Args:
-            mkimage: Filename of 'mkimage' utility
-            params: Dictionary containing parameters to embed in the %() strings
-        Return:
-            Filename of .fit file created
-        """
-        fit = make_fname('test.fit')
-        its = make_its(params)
-        util.run_and_log(cons, [mkimage, '-f', its, fit])
-        with open(make_fname('u-boot.dts'), 'w') as fd:
-            fd.write(base_fdt)
-        return fit
-
-    def make_kernel(filename, text):
-        """Make a sample kernel with test data
-
-        Args:
-            filename: the name of the file you want to create
-        Returns:
-            Full path and filename of the kernel it created
-        """
-        fname = make_fname(filename)
-        data = ''
-        for i in range(100):
-            data += 'this %s %d is unlikely to boot\n' % (text, i)
-        with open(fname, 'w') as fd:
-            print(data, file=fd)
-        return fname
 
     def make_ramdisk(filename, text):
         """Make a sample ramdisk with test data
@@ -321,10 +260,10 @@ def test_fit(u_boot_console):
           - run code coverage to make sure we are testing all the code
         """
         # Set up invariant files
-        control_dtb = make_dtb()
-        kernel = make_kernel('test-kernel.bin', 'kernel')
+        control_dtb = fit_util.make_dtb(cons, base_fdt, 'u-boot')
+        kernel = fit_util.make_kernel(cons, 'test-kernel.bin', 'kernel')
         ramdisk = make_ramdisk('test-ramdisk.bin', 'ramdisk')
-        loadables1 = make_kernel('test-loadables1.bin', 'lenrek')
+        loadables1 = fit_util.make_kernel(cons, 'test-loadables1.bin', 'lenrek')
         loadables2 = make_ramdisk('test-loadables2.bin', 'ksidmar')
         kernel_out = make_fname('kernel-out.bin')
         fdt = make_fname('u-boot.dtb')
@@ -372,7 +311,7 @@ def test_fit(u_boot_console):
         }
 
         # Make a basic FIT and a script to load it
-        fit = make_fit(mkimage, params)
+        fit = fit_util.make_fit(cons, mkimage, base_its, params)
         params['fit'] = fit
         cmd = base_script % params
 
@@ -403,7 +342,7 @@ def test_fit(u_boot_console):
         # Now a kernel and an FDT
         with cons.log.section('Kernel + FDT load'):
             params['fdt_load'] = 'load = <%#x>;' % params['fdt_addr']
-            fit = make_fit(mkimage, params)
+            fit = fit_util.make_fit(cons, mkimage, base_its, params)
             cons.restart_uboot()
             output = cons.run_command_list(cmd.splitlines())
             check_equal(kernel, kernel_out, 'Kernel not loaded')
@@ -415,7 +354,7 @@ def test_fit(u_boot_console):
         with cons.log.section('Kernel + FDT + Ramdisk load'):
             params['ramdisk_config'] = 'ramdisk = "ramdisk-1";'
             params['ramdisk_load'] = 'load = <%#x>;' % params['ramdisk_addr']
-            fit = make_fit(mkimage, params)
+            fit = fit_util.make_fit(cons, mkimage, base_its, params)
             cons.restart_uboot()
             output = cons.run_command_list(cmd.splitlines())
             check_equal(ramdisk, ramdisk_out, 'Ramdisk not loaded')
@@ -427,7 +366,7 @@ def test_fit(u_boot_console):
                                          params['loadables1_addr'])
             params['loadables2_load'] = ('load = <%#x>;' %
                                          params['loadables2_addr'])
-            fit = make_fit(mkimage, params)
+            fit = fit_util.make_fit(cons, mkimage, base_its, params)
             cons.restart_uboot()
             output = cons.run_command_list(cmd.splitlines())
             check_equal(loadables1, loadables1_out,
@@ -441,7 +380,7 @@ def test_fit(u_boot_console):
             params['kernel'] = make_compressed(kernel)
             params['fdt'] = make_compressed(fdt)
             params['ramdisk'] = make_compressed(ramdisk)
-            fit = make_fit(mkimage, params)
+            fit = fit_util.make_fit(cons, mkimage, base_its, params)
             cons.restart_uboot()
             output = cons.run_command_list(cmd.splitlines())
             check_equal(kernel, kernel_out, 'Kernel not loaded')

@@ -30,7 +30,7 @@ static int fuzz_vring(const uint8_t *data, size_t size)
 		return 0;
 
 	/* check probe success */
-	if (uclass_first_device(UCLASS_VIRTIO, &bus) || !bus)
+	if (uclass_first_device_err(UCLASS_VIRTIO, &bus))
 		panic("Could not find virtio bus\n");
 
 	/* check the child virtio-rng device is bound */

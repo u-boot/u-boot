@@ -329,6 +329,8 @@ static int bootflow_system(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
+	if (!IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
+		return 0;
 	ut_assertok(uclass_get_device_by_name(UCLASS_BOOTMETH, "efi_mgr",
 					      &dev));
 	sandbox_set_fake_efi_mgr_dev(dev, true);

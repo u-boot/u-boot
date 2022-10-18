@@ -346,7 +346,7 @@ static int stm32_dsi_attach(struct udevice *dev)
 	struct display_timing timings;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_PANEL, &priv->panel);
+	ret = uclass_first_device_err(UCLASS_PANEL, &priv->panel);
 	if (ret) {
 		dev_err(dev, "panel device error %d\n", ret);
 		return ret;

@@ -7,3 +7,4 @@ obj-$(CONFIG_BOOTSTD) += bootdev.o bootstd_common.o bootflow.o bootmeth.o
 ifdef CONFIG_OF_LIVE
 obj-$(CONFIG_BOOTMETH_VBE_SIMPLE) += vbe_simple.o
 endif
+obj-$(CONFIG_BOOTMETH_VBE) += vbe_fixup.o

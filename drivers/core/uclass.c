@@ -586,19 +586,6 @@ int uclass_first_device(enum uclass_id id, struct udevice **devp)
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
-int uclass_first_device_err(enum uclass_id id, struct udevice **devp)
-{
-	int ret;
-
-	ret = uclass_first_device(id, devp);
-	if (ret)
-		return ret;
-	else if (!*devp)
-		return -ENODEV;
-
-	return 0;
-}
-
 int uclass_next_device(struct udevice **devp)
 {
 	struct udevice *dev = *devp;
@@ -611,11 +598,24 @@ int uclass_next_device(struct udevice **devp)
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
+int uclass_first_device_err(enum uclass_id id, struct udevice **devp)
+{
+	int ret;
+
+	ret = uclass_first_device_check(id, devp);
+	if (ret)
+		return ret;
+	else if (!*devp)
+		return -ENODEV;
+
+	return 0;
+}
+
 int uclass_next_device_err(struct udevice **devp)
 {
 	int ret;
 
-	ret = uclass_next_device(devp);
+	ret = uclass_next_device_check(devp);
 	if (ret)
 		return ret;
 	else if (!*devp)
@@ -799,20 +799,18 @@ int uclass_pre_remove_device(struct udevice *dev)
 int uclass_probe_all(enum uclass_id id)
 {
 	struct udevice *dev;
-	int ret;
+	int ret, err;
 
-	ret = uclass_first_device(id, &dev);
-	if (ret || !dev)
-		return ret;
+	err = uclass_first_device_check(id, &dev);
 
 	/* Scanning uclass to probe all devices */
 	while (dev) {
-		ret = uclass_next_device(&dev);
+		ret = uclass_next_device_check(&dev);
 		if (ret)
-			return ret;
+			err = ret;
 	}
 
-	return 0;
+	return err;
 }
 
 int uclass_id_count(enum uclass_id id)

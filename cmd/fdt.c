@@ -40,6 +40,7 @@ void set_working_fdt_addr(ulong addr)
 {
 	void *buf;
 
+	printf("Working FDT set to %lx\n", addr);
 	buf = map_sysmem(addr, 0);
 	working_fdt = buf;
 	env_set_hex("fdtaddr", addr);

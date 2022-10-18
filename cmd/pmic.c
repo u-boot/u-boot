@@ -51,25 +51,26 @@ static int do_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
 	struct udevice *dev;
-	int ret;
+	int ret, err = 0;
 
 	printf("| %-*.*s| %-*.*s| %s @ %s\n",
 	       LIMIT_DEV, LIMIT_DEV, "Name",
 	       LIMIT_PARENT, LIMIT_PARENT, "Parent name",
 	       "Parent uclass", "seq");
 
-	for (ret = uclass_first_device(UCLASS_PMIC, &dev); dev;
-	     ret = uclass_next_device(&dev)) {
+	for (ret = uclass_first_device_check(UCLASS_PMIC, &dev); dev;
+	     ret = uclass_next_device_check(&dev)) {
 		if (ret)
-			continue;
+			err = ret;
 
-		printf("| %-*.*s| %-*.*s| %s @ %d\n",
+		printf("| %-*.*s| %-*.*s| %s @ %d | status: %i\n",
 		       LIMIT_DEV, LIMIT_DEV, dev->name,
 		       LIMIT_PARENT, LIMIT_PARENT, dev->parent->name,
-		       dev_get_uclass_name(dev->parent), dev_seq(dev->parent));
+		       dev_get_uclass_name(dev->parent), dev_seq(dev->parent),
+		       ret);
 	}
 
-	if (ret)
+	if (err)
 		return CMD_RET_FAILURE;
 
 	return CMD_RET_SUCCESS;

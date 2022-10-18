@@ -195,7 +195,7 @@ void bootdev_list(bool probe)
 	printf("Seq  Probed  Status  Uclass    Name\n");
 	printf("---  ------  ------  --------  ------------------\n");
 	if (probe)
-		ret = uclass_first_device_err(UCLASS_BOOTDEV, &dev);
+		ret = uclass_first_device_check(UCLASS_BOOTDEV, &dev);
 	else
 		ret = uclass_find_first_device(UCLASS_BOOTDEV, &dev);
 	for (i = 0; dev; i++) {
@@ -204,7 +204,7 @@ void bootdev_list(bool probe)
 		       ret ? simple_itoa(ret) : "OK",
 		       dev_get_uclass_name(dev_get_parent(dev)), dev->name);
 		if (probe)
-			ret = uclass_next_device_err(&dev);
+			ret = uclass_next_device_check(&dev);
 		else
 			ret = uclass_find_next_device(&dev);
 	}

@@ -91,8 +91,10 @@ struct udevice *eth_get_dev(void)
 		eth_errno = uclass_get_device_by_seq(UCLASS_ETH, 0,
 						     &uc_priv->current);
 		if (eth_errno)
-			eth_errno = uclass_first_device(UCLASS_ETH,
-							&uc_priv->current);
+			eth_errno = uclass_first_device_err(UCLASS_ETH,
+							    &uc_priv->current);
+		if (eth_errno)
+			uc_priv->current = NULL;
 	}
 	return uc_priv->current;
 }

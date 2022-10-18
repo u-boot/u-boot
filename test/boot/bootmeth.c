@@ -156,7 +156,7 @@ static int bootmeth_state(struct unit_test_state *uts)
 	struct udevice *dev;
 	char buf[50];
 
-	ut_assertok(uclass_first_device(UCLASS_BOOTMETH, &dev));
+	ut_assertok(uclass_first_device_err(UCLASS_BOOTMETH, &dev));
 	ut_assertnonnull(dev);
 
 	ut_assertok(bootmeth_get_state_desc(dev, buf, sizeof(buf)));

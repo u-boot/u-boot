@@ -6,6 +6,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY LOGC_BOOT
+
 #include <common.h>
 #include <log.h>
 #include <memalign.h>
@@ -199,17 +201,17 @@ int vbe_simple_fixup_node(ofnode node, struct simple_state *state)
 
 	version = strdup(state->fw_version);
 	if (!version)
-		return log_msg_ret("ver", -ENOMEM);
+		return log_msg_ret("dup", -ENOMEM);
 
 	ret = ofnode_write_string(node, "cur-version", version);
 	if (ret)
 		return log_msg_ret("ver", ret);
 	ret = ofnode_write_u32(node, "cur-vernum", state->fw_vernum);
 	if (ret)
-		return log_msg_ret("ver", ret);
+		return log_msg_ret("num", ret);
 	ret = ofnode_write_string(node, "bootloader-version", version_string);
 	if (ret)
-		return log_msg_ret("fix", ret);
+		return log_msg_ret("bl", ret);
 
 	return 0;
 }
@@ -233,7 +235,7 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 	 */
 	for (vbe_find_first_device(&dev); dev; vbe_find_next_device(&dev)) {
 		struct simple_state state;
-		ofnode node;
+		ofnode node, subnode;
 		int ret;
 
 		if (strcmp("vbe_simple", dev->driver->name))
@@ -243,8 +245,8 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 		node = oftree_path(tree, "/chosen/fwupd");
 		if (!ofnode_valid(node))
 			continue;
-		node = ofnode_find_subnode(node, dev->name);
-		if (!ofnode_valid(node))
+		subnode = ofnode_find_subnode(node, dev->name);
+		if (!ofnode_valid(subnode))
 			continue;
 
 		log_debug("Fixing up: %s\n", dev->name);
@@ -255,7 +257,7 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 		if (ret)
 			return log_msg_ret("read", ret);
 
-		ret = vbe_simple_fixup_node(node, &state);
+		ret = vbe_simple_fixup_node(subnode, &state);
 		if (ret)
 			return log_msg_ret("fix", ret);
 	}

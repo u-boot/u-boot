@@ -392,10 +392,10 @@ DM_TEST(dm_test_fdt_offset,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
 
 /**
- * Test various error conditions with uclass_first_device() and
- * uclass_next_device()
+ * Test various error conditions with uclass_first_device(),
+ * uclass_next_device(), and uclass_probe_all()
  */
-static int dm_test_first_next_device(struct unit_test_state *uts)
+static int dm_test_first_next_device_probeall(struct unit_test_state *uts)
 {
 	struct dm_testprobe_pdata *pdata;
 	struct udevice *dev, *parent = NULL;
@@ -428,9 +428,20 @@ static int dm_test_first_next_device(struct unit_test_state *uts)
 	device_remove(parent, DM_REMOVE_NORMAL);
 	ut_asserteq(-ENOENT, uclass_first_device(UCLASS_TEST_PROBE, &dev));
 
+	/* Now that broken devices are set up test probe_all */
+	device_remove(parent, DM_REMOVE_NORMAL);
+	/* There are broken devices so an error should be returned */
+	ut_assert(uclass_probe_all(UCLASS_TEST_PROBE) < 0);
+	/* but non-error device should be probed nonetheless */
+	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 2, &dev));
+	ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
+	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 3, &dev));
+	ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
+
 	return 0;
 }
-DM_TEST(dm_test_first_next_device, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_first_next_device_probeall,
+	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test iteration through devices in a uclass */
 static int dm_test_uclass_foreach(struct unit_test_state *uts)
