@@ -1,5 +1,4 @@
 LS1028AQDS BOARD
-M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 M:	Tang Yuantian <andy.tang@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1028a/
@@ -9,7 +8,6 @@ F:	configs/ls1028aqds_tfa_defconfig
 F:	configs/ls1028aqds_tfa_lpuart_defconfig
 
 LS1028ARDB BOARD
-M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 M:	Tang Yuantian <andy.tang@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1028a/

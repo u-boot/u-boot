@@ -1,6 +1,5 @@
 LS1088ARDB BOARD
 M:	Ashish Kumar <Ashish.Kumar@nxp.com>
-M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1088a/
 F:	include/configs/ls1088ardb.h
@@ -11,7 +10,6 @@ F:	configs/ls1088ardb_tfa_SECURE_BOOT_defconfig
 
 LS1088AQDS BOARD
 M:	Ashish Kumar <Ashish.Kumar@nxp.com>
-M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1088a/
 F:	include/configs/ls1088aqds.h
