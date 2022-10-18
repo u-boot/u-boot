@@ -874,6 +874,15 @@ config SPLASH_SCREEN_ALIGN
 	  	=> vertically centered image
 	  	   at x = dspWidth - bmpWidth - 9
 
+config HIDE_LOGO_VERSION
+	bool "Hide the version information on the splash screen"
+	help
+	  Normally the U-Boot version string is shown on the display when the
+	  splash screen is enabled. This information is not otherwise visible
+	  since video starts up after U-Boot has displayed the initial banner.
+
+	  Enable this option to hide this information.
+
 config SPLASH_SOURCE
 	bool "Control the source of the splash image"
 	help

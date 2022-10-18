@@ -34,7 +34,6 @@
 #define CONFIG_USBD_HS
 
 /* Video */
-#define CONFIG_HIDE_LOGO_VERSION
 #define CONFIG_IMX_VIDEO_SKIP
 
 /* Memory */

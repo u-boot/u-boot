@@ -103,7 +103,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 
 /* Framebuffer */
-#define CONFIG_HIDE_LOGO_VERSION
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 

@@ -47,7 +47,6 @@
 /* Framebuffer and LCD */
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#define CONFIG_HIDE_LOGO_VERSION  /* Custom config to hide U-boot version */
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
