@@ -703,7 +703,7 @@ config VBT_ADDR
 
 config VIDEO_FSP
 	bool "Enable FSP framebuffer driver support"
-	depends on HAVE_VBT && DM_VIDEO
+	depends on HAVE_VBT && VIDEO
 	help
 	  Turn on this option to enable a framebuffer driver when U-Boot is
 	  using Video BIOS Table (VBT) image for FSP firmware to initialize

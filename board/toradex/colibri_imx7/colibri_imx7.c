@@ -101,7 +101,7 @@ static void setup_gpmi_nand(void)
 }
 #endif
 
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 static iomux_v3_cfg_t const backlight_pads[] = {
 	/* Backlight On */
 	MX7D_PAD_SD1_WP__GPIO5_IO1 | MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -134,7 +134,7 @@ static int setup_lcd(void)
  */
 void board_preboot_os(void)
 {
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 	gpio_direction_output(GPIO_PWM_A, 1);
 	gpio_direction_output(GPIO_BL_ON, 0);
 #endif
@@ -334,7 +334,7 @@ int board_fix_fdt(void *rw_fdt_blob)
 #if defined(CONFIG_BOARD_LATE_INIT)
 int board_late_init(void)
 {
-#if defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_VIDEO)
 	setup_lcd();
 #endif
 

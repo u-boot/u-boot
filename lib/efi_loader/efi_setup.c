@@ -326,7 +326,7 @@ efi_status_t efi_init_obj_list(void)
 			goto out;
 	}
 
-	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+	if (IS_ENABLED(CONFIG_VIDEO)) {
 		ret = efi_gop_register();
 		if (ret != EFI_SUCCESS)
 			goto out;

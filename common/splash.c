@@ -119,7 +119,7 @@ void splash_get_pos(int *x, int *y)
 }
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
-#if defined(CONFIG_DM_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
+#if defined(CONFIG_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
 
 #ifdef CONFIG_VIDEO_LOGO
 #include <bmp_logo.h>
@@ -151,7 +151,7 @@ void splash_display_banner(void)
 	vidconsole_put_string(dev, buf);
 	vidconsole_position_cursor(dev, 0, row);
 }
-#endif /* CONFIG_DM_VIDEO && !CONFIG_HIDE_LOGO_VERSION */
+#endif /* CONFIG_VIDEO && !CONFIG_HIDE_LOGO_VERSION */
 
 /*
  * Common function to show a splash image if env("splashimage") is set.
@@ -181,7 +181,7 @@ int splash_display(void)
 	if (x || y)
 		goto end;
 
-#if defined(CONFIG_DM_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
+#if defined(CONFIG_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
 	splash_display_banner();
 #endif
 end:

@@ -112,7 +112,7 @@ int board_init(void)
 	}
 
 	/* When sync with M33 is failed, use local driver to set for video */
-	if (sync != 0 && IS_ENABLED(CONFIG_DM_VIDEO)) {
+	if (sync != 0 && IS_ENABLED(CONFIG_VIDEO)) {
 		mipi_dsi_mux_panel();
 		mipi_dsi_panel_backlight();
 	}

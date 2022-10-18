@@ -94,7 +94,7 @@ config TARGET_AM335X_GUARDIAN
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
-	select DM_VIDEO
+	select VIDEO
 	select PANEL_HX8238D
 
 config TARGET_AM335X_SL50

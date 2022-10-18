@@ -1040,7 +1040,7 @@ config ARCH_APPLE
 	select DM_SERIAL
 	select DM_SPI
 	select DM_USB
-	select DM_VIDEO
+	select VIDEO
 	select IOMMU
 	select LINUX_KERNEL_IMAGE_HEADER
 	select OF_BOARD_SETUP

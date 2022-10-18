@@ -1877,7 +1877,7 @@ menu "Misc commands"
 
 config CMD_BMP
 	bool "Enable 'bmp' command"
-	depends on DM_VIDEO
+	depends on VIDEO
 	help
 	  This provides a way to obtain information about a BMP-format image
 	  and to display it. BMP (which presumably stands for BitMaP) is a
@@ -2163,7 +2163,7 @@ config CMD_UUID
 
 config CMD_VIDCONSOLE
 	bool "lcdputs and setcurs"
-	depends on DM_VIDEO
+	depends on VIDEO
 	default y
 	help
 	  Enabling this will provide 'setcurs' and 'lcdputs' commands which

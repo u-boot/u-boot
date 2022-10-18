@@ -408,7 +408,7 @@ __weak int arch_reserve_mmu(void)
 
 static int reserve_video(void)
 {
-	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+	if (IS_ENABLED(CONFIG_VIDEO)) {
 		ulong addr;
 		int ret;
 

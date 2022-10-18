@@ -41,7 +41,7 @@ void pin_mux_mmc(void)
 }
 #endif
 
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 /* this is a weak define that we are overriding */
 void pin_mux_display(void)
 {

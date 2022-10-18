@@ -251,7 +251,7 @@ config X86
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	imply DM_USB
-	imply DM_VIDEO
+	imply VIDEO
 	imply SYSRESET
 	imply SPL_SYSRESET
 	imply SYSRESET_X86

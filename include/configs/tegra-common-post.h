@@ -37,7 +37,7 @@
 #define STDIN_KBD_USB ""
 #endif
 
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 #define STDOUT_VIDEO ",vidconsole"
 #else
 #define STDOUT_VIDEO ""

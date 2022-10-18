@@ -32,7 +32,7 @@ static void rgb_leds_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 	at91_video_show_board_info();
 #endif
 	at91_pda_detect();

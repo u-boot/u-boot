@@ -67,7 +67,7 @@ static void setup_gpmi_nand(void)
 }
 #endif /* CONFIG_NAND_MXS */
 
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 static const iomux_v3_cfg_t backlight_pads[] = {
 	/* Backlight On */
 	MX6_PAD_JTAG_TMS__GPIO1_IO11		| MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -195,7 +195,7 @@ int board_late_init(void)
 	}
 #endif /* CONFIG_CMD_USB_SDP */
 
-#if defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_VIDEO)
 	setup_lcd();
 #endif
 

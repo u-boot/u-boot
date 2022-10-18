@@ -542,7 +542,7 @@ static int nx_display_probe(struct udevice *dev)
 
 	/*
 	 * set environment variable "fb_addr" (frame buffer address), required
-	 * for splash image, which is not set if CONFIG_DM_VIDEO is enabled).
+	 * for splash image, which is not set if CONFIG_VIDEO is enabled).
 	 */
 	sprintf(addr, "0x%x", dp->fb_addr);
 	debug("%s(): env_set(\"fb_addr\", %s) ...\n", __func__, addr);

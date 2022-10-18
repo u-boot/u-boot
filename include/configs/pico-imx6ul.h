@@ -102,9 +102,7 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-/* environment organization */
-
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #endif
 

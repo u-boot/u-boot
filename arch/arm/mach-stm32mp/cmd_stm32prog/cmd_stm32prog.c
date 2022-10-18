@@ -79,7 +79,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_DM_VIDEO))
+	if (IS_ENABLED(CONFIG_VIDEO))
 		enable_vidconsole();
 
 	data = (struct stm32prog_data *)malloc(sizeof(*data));

@@ -4,7 +4,7 @@
 
 menu "Graphics support"
 
-config DM_VIDEO
+config VIDEO
 	bool "Enable driver model support for LCD/video"
 	depends on DM
 	help
@@ -14,7 +14,7 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
-if DM_VIDEO
+if VIDEO
 
 config VIDEO_LOGO
 	bool "Show the U-Boot logo on the display"
@@ -891,6 +891,6 @@ config BMP_32BPP
 	help
 	  Support display of bitmaps file with 32-bit-per-pixel.
 
-endif # DM_VIDEO
+endif # VIDEO
 
 endmenu

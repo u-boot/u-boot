@@ -122,7 +122,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bdinfo_print_num_l("fdt_blob", (ulong)gd->fdt_blob);
 	bdinfo_print_num_l("new_fdt", (ulong)gd->new_fdt);
 	bdinfo_print_num_l("fdt_size", (ulong)gd->fdt_size);
-	if (IS_ENABLED(CONFIG_DM_VIDEO))
+	if (IS_ENABLED(CONFIG_VIDEO))
 		show_video_info();
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	bdinfo_print_num_l("multi_dtb_fit", (ulong)gd->multi_dtb_fit);

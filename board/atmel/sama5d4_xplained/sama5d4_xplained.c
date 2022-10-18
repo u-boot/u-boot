@@ -76,7 +76,7 @@ static void sama5d4_xplained_usb_hw_init(void)
 int board_late_init(void)
 {
 	at91_pda_detect();
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 	at91_video_show_board_info();
 #endif
 	return 0;

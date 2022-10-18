@@ -788,7 +788,7 @@ config VIDEO_SUNXI
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
 	depends on !SUN50I_GEN_H6
-	select DM_VIDEO
+	select VIDEO
 	select DISPLAY
 	imply VIDEO_DT_SIMPLEFB
 	default y
@@ -853,7 +853,7 @@ config VIDEO_LCD_MODE
 
 config VIDEO_LCD_DCLK_PHASE
 	int "LCD panel display clock phase"
-	depends on VIDEO_SUNXI || DM_VIDEO
+	depends on VIDEO_SUNXI || VIDEO
 	default 1
 	range 0 3
 	---help---
@@ -928,7 +928,7 @@ config SUNXI_DE2
 config VIDEO_DE2
 	bool "Display Engine 2 video driver"
 	depends on SUNXI_DE2
-	select DM_VIDEO
+	select VIDEO
 	select DISPLAY
 	select VIDEO_DW_HDMI
 	imply VIDEO_DT_SIMPLEFB
