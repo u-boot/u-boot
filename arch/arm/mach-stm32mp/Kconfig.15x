@@ -117,7 +117,7 @@ endif
 if DEBUG_UART
 
 config DEBUG_UART_BOARD_INIT
-	default y
+	default y if SPL
 
 # debug on UART4 by default
 config DEBUG_UART_BASE

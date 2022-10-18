@@ -103,7 +103,3 @@
 /delete-node/ &clk_lse;
 /delete-node/ &clk_lsi;
 /delete-node/ &clk_csi;
-/delete-node/ &reg11;
-/delete-node/ &reg18;
-/delete-node/ &usb33;
-/delete-node/ &pwr_regulators;

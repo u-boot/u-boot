@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * Copyright (C) 2020 Marek Vasut <marex@denx.de>
+ * Copyright (C) 2022 Marek Vasut <marex@denx.de>
  */
 
 #include "stm32mp15xx-dhcor-u-boot.dtsi"
@@ -13,8 +13,6 @@
 	};
 
 	config {
-		u-boot,boot-led = "led1";
-		u-boot,error-led = "led4";
 		dh,board-coding-gpios = <&gpiog 13 0>, <&gpiod 9 0>;
 	};
 };
@@ -99,12 +97,4 @@
 &usbotg_hs {
 	u-boot,force-b-session-valid;
 	hnp-srp-disable;
-};
-
-&vdd {
-	/delete-property/ regulator-always-on;
-};
-
-&vdd_io {
-	u-boot,dm-spl;
 };

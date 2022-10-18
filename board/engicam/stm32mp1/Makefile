@@ -8,3 +8,5 @@ obj-y += spl.o
 else
 obj-y += stm32mp1.o
 endif
+
+obj-$(CONFIG_DEBUG_UART_BOARD_INIT) += ../../st/stm32mp1/debug_uart.o
