@@ -221,16 +221,6 @@ static int bmp_info(ulong addr)
 	return(0);
 }
 
-/*
- * Subroutine:  bmp_display
- *
- * Description: Display bmp file located in memory
- *
- * Inputs:	addr		address of the bmp file
- *
- * Return:      None
- *
- */
 int bmp_display(ulong addr, int x, int y)
 {
 #ifdef CONFIG_DM_VIDEO

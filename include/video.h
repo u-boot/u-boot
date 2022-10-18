@@ -346,4 +346,13 @@ bool video_is_active(void);
  */
 void *video_get_u_boot_logo(void);
 
+/*
+ * bmp_display() - Display BMP (bitmap) data located in memory
+ *
+ * @addr: address of the bmp data
+ * @x: Position of bitmap from the left side, in pixels
+ * @y: Position of bitmap from the top, in pixels
+ */
+int bmp_display(ulong addr, int x, int y);
+
 #endif
