@@ -78,11 +78,6 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #endif
 
-/*
- * LCD
- */
-#define CONFIG_VIDEO_LOGO_MAX_SIZE	(2 << 20)
-
 /* LVDS display */
 #define CONFIG_SYS_LDB_CLOCK			33260000
 #define CONFIG_IMX_VIDEO_SKIP

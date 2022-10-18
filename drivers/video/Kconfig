@@ -926,7 +926,12 @@ config VIDEO_BMP_GZIP
 	  splashscreen support or the bmp command.
 
 config VIDEO_LOGO_MAX_SIZE
-	bool "Maximum size of the bitmap logo in bytes"
+	hex "Maximum size of the bitmap logo in bytes"
+	default 0x100000
+	help
+	  Sets the maximum uncompressed size of the logo. This is needed when
+	  decompressing a BMP file using the gzip algorithm, since it cannot
+	  read the size from the bitmap header.
 
 config VIDEO_BMP_RLE8
 	bool "Run length encoded BMP image (RLE8) support"
