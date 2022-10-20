@@ -245,6 +245,7 @@ static const struct sunxi_pinctrl_function suniv_f1c100s_pinctrl_functions[] = {
 #else
 	{ "uart0",	5 },	/* PE0-PE1 */
 #endif
+	{ "uart1",	5 },	/* PA0-PA3 */
 };
 
 static const struct sunxi_pinctrl_desc __maybe_unused suniv_f1c100s_pinctrl_desc = {
