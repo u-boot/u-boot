@@ -239,6 +239,12 @@ config ARM_GLOBAL_TIMER
 	  Select this to enable global timer found on ARM Cortex A9
 	  based devices.
 
+config SP804_TIMER
+	bool "ARM SP804 timer support"
+	depends on TIMER
+	help
+	  ARM SP804 dual timer IP support
+
 config STM32_TIMER
 	bool "STM32 timer support"
 	depends on TIMER
