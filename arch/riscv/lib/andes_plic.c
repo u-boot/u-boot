@@ -27,8 +27,8 @@
 /* claim register */
 #define CLAIM_REG(base, hart)	((ulong)(base) + 0x200004 + (hart) * 0x1000)
 
-#define ENABLE_HART_IPI         (0x80808080)
-#define SEND_IPI_TO_HART(hart)  (0x80 >> (hart))
+#define ENABLE_HART_IPI         (0x01010101)
+#define SEND_IPI_TO_HART(hart)  (0x1 << (hart))
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -36,8 +36,9 @@ static int enable_ipi(int hart)
 {
 	unsigned int en;
 
-	en = ENABLE_HART_IPI >> hart;
+	en = ENABLE_HART_IPI << hart;
 	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic, hart));
+	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic + 0x4, hart));
 
 	return 0;
 }

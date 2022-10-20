@@ -33,7 +33,7 @@ static int dm_test_k210_pll_calc_config(u32 rate, u32 rate_in,
 				error = DIV_ROUND_CLOSEST_ULL(f * inv_ratio,
 							      r * od);
 				/* The lower 16 bits are spurious */
-				error = abs((error - BIT(32))) >> 16;
+				error = abs64((error - BIT_ULL(32))) >> 16;
 				if (error < best_error) {
 					best->r = r;
 					best->f = f;

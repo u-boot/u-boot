@@ -846,7 +846,7 @@ again:
 
 		error = DIV_ROUND_CLOSEST_ULL(f * inv_ratio, r * od);
 		/* The lower 16 bits are spurious */
-		error = abs((error - BIT(32))) >> 16;
+		error = abs64((error - BIT_ULL(32))) >> 16;
 
 		if (error < best_error) {
 			best->r = r;
