@@ -4,6 +4,23 @@
 
 menu "Memory Controller drivers"
 
+config MEMORY
+	bool "Enable Driver Model for Memory Controller drivers"
+	depends on DM
+	help
+	  Enable driver model for Memory Controller devices.
+	  These devices provide Memory bus interface to various devices like
+	  SRAM, Ethernet adapters, FPGAs, etc.
+	  For now this uclass has no methods yet.
+
+config SANDBOX_MEMORY
+	bool "Enable Sandbox Memory Controller driver"
+	depends on SANDBOX && MEMORY
+	help
+	  This is a driver model based Memory Controller driver for sandbox.
+	  Currently it is a stub only, as there are no usable uclass methods
+	  yet.
+
 config STM32_FMC2_EBI
 	bool "Support for FMC2 External Bus Interface on STM32MP SoCs"
 	depends on ARCH_STM32MP
