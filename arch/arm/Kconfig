@@ -769,6 +769,8 @@ config ARCH_HIGHBANK
 	select AHCI
 	select DM_ETH
 	select PHYS_64BIT
+	select TIMER
+	select SP804_TIMER
 	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_INTEGRATOR
