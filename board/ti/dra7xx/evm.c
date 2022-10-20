@@ -13,7 +13,6 @@
 #include <env.h>
 #include <fdt_support.h>
 #include <fastboot.h>
-#include <image.h>
 #include <init.h>
 #include <spl.h>
 #include <net.h>
@@ -26,7 +25,6 @@
 #include <usb.h>
 #include <linux/usb/gadget.h>
 #include <asm/omap_common.h>
-#include <asm/omap_sec_common.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/dra7xx_iodelay.h>
 #include <asm/emif.h>
@@ -1062,19 +1060,4 @@ int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 	env_save();
 	return 0;
 }
-#endif
-
-#ifdef CONFIG_TI_SECURE_DEVICE
-void board_fit_image_post_process(const void *fit, int node, void **p_image,
-				  size_t *p_size)
-{
-	secure_boot_verify_image(p_image, p_size);
-}
-
-void board_tee_image_process(ulong tee_image, size_t tee_size)
-{
-	secure_tee_install((u32)tee_image);
-}
-
-U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_TEE, board_tee_image_process);
 #endif
