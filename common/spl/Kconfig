@@ -796,6 +796,13 @@ config SPL_DM_MAILBOX
 	  this option to build the drivers in drivers/mailbox as part of
 	  SPL build.
 
+config SPL_MEMORY
+	bool "Support Memory controller drivers"
+	help
+	  Enable support for Memory Controller drivers within SPL.
+	  These devices provide Memory bus interface to various devices like
+	  SRAM, Ethernet adapters, FPGAs, etc.
+
 config SPL_MMC
 	bool "Support MMC"
 	depends on MMC
