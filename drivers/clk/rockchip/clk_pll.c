@@ -31,7 +31,7 @@ static struct rockchip_pll_rate_table rockchip_auto_table;
 #define RK3036_PLLCON1_DSMPD_SHIFT		12
 #define RK3036_PLLCON2_FRAC_MASK		0xffffff
 #define RK3036_PLLCON2_FRAC_SHIFT		0
-#define RK3036_PLLCON1_PWRDOWN_SHIT		13
+#define RK3036_PLLCON1_PWRDOWN_SHIFT		13
 
 #define MHZ		1000000
 #define KHZ		1000
@@ -207,7 +207,7 @@ static int rk3036_pll_set_rate(struct rockchip_pll_clock *pll,
 
 	/* Power down */
 	rk_setreg(base + pll->con_offset + 0x4,
-		  1 << RK3036_PLLCON1_PWRDOWN_SHIT);
+		  1 << RK3036_PLLCON1_PWRDOWN_SHIFT);
 
 	rk_clrsetreg(base + pll->con_offset,
 		     (RK3036_PLLCON0_POSTDIV1_MASK |
@@ -231,7 +231,7 @@ static int rk3036_pll_set_rate(struct rockchip_pll_clock *pll,
 
 	/* Power Up */
 	rk_clrreg(base + pll->con_offset + 0x4,
-		  1 << RK3036_PLLCON1_PWRDOWN_SHIT);
+		  1 << RK3036_PLLCON1_PWRDOWN_SHIFT);
 
 	/* waiting for pll lock */
 	while (!(readl(base + pll->con_offset + 0x4) & (1 << pll->lock_shift)))

@@ -474,7 +474,7 @@ struct clk *clk_get_parent(struct clk *clk);
  *
  * Return: clock rate in Hz, or -ve error code.
  */
-long long clk_get_parent_rate(struct clk *clk);
+ulong clk_get_parent_rate(struct clk *clk);
 
 /**
  * clk_round_rate() - Adjust a rate to the exact rate a clock can provide
@@ -607,7 +607,7 @@ static inline struct clk *clk_get_parent(struct clk *clk)
 	return ERR_PTR(-ENOSYS);
 }
 
-static inline long long clk_get_parent_rate(struct clk *clk)
+static inline ulong clk_get_parent_rate(struct clk *clk)
 {
 	return -ENOSYS;
 }
