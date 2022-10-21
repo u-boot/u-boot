@@ -50,7 +50,6 @@ CONFIG_MTDPARTS_DEFAULT="mtdparts=onenand:128k(bootloader)ro,384k(config),256k(l
 CONFIG_ENV_OVERWRITE=y
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 # CONFIG_NET is not set
-CONFIG_DM=y
 # CONFIG_DM_WARN is not set
 # CONFIG_DM_DEVICE_REMOVE is not set
 # CONFIG_DM_SEQ_ALIAS is not set
