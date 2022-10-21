@@ -103,10 +103,17 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 	ut_asserteq_str("efi syslinux", env_get("bootmeths"));
 	ut_assert_console_end();
 
-	/* Try with global bootmeths */
-	if (!IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
-		return 0;
+	return 0;
+}
+BOOTSTD_TEST(bootmeth_cmd_order, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
+/* Check 'bootmeth order' command with global bootmeths */
+static int bootmeth_cmd_order_glob(struct unit_test_state *uts)
+{
+	if (!IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
+		return -EAGAIN;
+
+	console_record_reset_enable();
 	ut_assertok(run_command("bootmeth order \"efi firmware0\"", 0));
 	ut_assert_console_end();
 	ut_assertok(run_command("bootmeth list", 0));
@@ -122,7 +129,7 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootmeth_cmd_order, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootmeth_cmd_order_glob, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
 /* Check 'bootmeths' env var */
 static int bootmeth_env(struct unit_test_state *uts)

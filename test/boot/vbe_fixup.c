@@ -26,7 +26,7 @@ static int vbe_test_fixup(struct unit_test_state *uts)
 	 * flat tree, since device tree fix-ups do not yet support live tree.
 	 */
 	if (!working_fdt)
-		return 0;
+		return -EAGAIN;
 
 	tree = oftree_from_fdt(working_fdt);
 	ut_assert(oftree_valid(tree));
