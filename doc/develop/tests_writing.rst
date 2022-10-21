@@ -74,6 +74,33 @@ NOT rely on running with sandbox, but instead should function correctly on any
 board supported by U-Boot.
 
 
+Mixing Python and C
+-------------------
+
+The best of both worlds is sometimes to have a Python test set things up and
+perform some operations, with a 'checker' C unit test doing the checks
+afterwards. This can be achieved with these steps:
+
+- Add the `UT_TESTF_MANUAL` flag to the checker test so that the `ut` command
+  does not run it by default
+- Add a `_norun` suffix to the name so that pytest knows to skip it too
+
+In your Python test use the `-f` flag to the `ut` command to force the checker
+test to run it, e.g.::
+
+   # Do the Python part
+   host load ...
+   bootm ...
+
+   # Run the checker to make sure that everything worked
+   ut -f bootstd vbe_test_fixup_norun
+
+Note that apart from the `UT_TESTF_MANUAL` flag, the code in a 'manual' C test
+is just like any other C test. It still uses ut_assert...() and other such
+constructs, in this case to check that the expected things happened in the
+Python test.
+
+
 How slow are Python tests?
 --------------------------
 

@@ -28,6 +28,7 @@
  * @other_fdt_size: Size of the other FDT (UT_TESTF_OTHER_FDT)
  * @of_other: Live tree for the other FDT
  * @runs_per_test: Number of times to run each test (typically 1)
+ * @force_run: true to run tests marked with the UT_TESTF_MANUAL flag
  * @expect_str: Temporary string used to hold expected string value
  * @actual_str: Temporary string used to hold actual string value
  */
@@ -48,6 +49,7 @@ struct unit_test_state {
 	int other_fdt_size;
 	struct device_node *of_other;
 	int runs_per_test;
+	bool force_run;
 	char expect_str[512];
 	char actual_str[512];
 };
@@ -63,6 +65,12 @@ enum {
 	/* do extra driver model init and uninit */
 	UT_TESTF_DM		= BIT(6),
 	UT_TESTF_OTHER_FDT	= BIT(7),	/* read in other device tree */
+	/*
+	 * Only run if explicitly requested with 'ut -f <suite> <test>'. The
+	 * test name must end in "_norun" so that pytest detects this also,
+	 * since it cannot access the flags.
+	 */
+	UT_TESTF_MANUAL		= BIT(8),
 };
 
 /**
