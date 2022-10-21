@@ -228,6 +228,15 @@ static inline const char *spl_phase_prefix(enum u_boot_phase phase)
 # define SPL_TPL_PROMPT	""
 #endif
 
+/**
+ * enum spl_sandbox_flags - flags for sandbox's use of spl_image_info->flags
+ *
+ * @SPL_SANDBOXF_ARG_IS_FNAME: arg is the filename to jump to (default)
+ */
+enum spl_sandbox_flags {
+	SPL_SANDBOXF_ARG_IS_FNAME = 0,
+};
+
 struct spl_image_info {
 	const char *name;
 	u8 os;

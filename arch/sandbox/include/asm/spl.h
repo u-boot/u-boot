@@ -7,6 +7,9 @@
 #define __asm_spl_h
 
 enum {
+	BOOT_DEVICE_MMC1,
+	BOOT_DEVICE_MMC2,
+	BOOT_DEVICE_MMC2_2,
 	BOOT_DEVICE_BOARD,
 };
 

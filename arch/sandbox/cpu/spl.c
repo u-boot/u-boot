@@ -49,13 +49,13 @@ void board_init_f(ulong flag)
 	preloader_console_init();
 }
 
-u32 spl_boot_device(void)
+void board_boot_order(u32 *spl_boot_list)
 {
-	return BOOT_DEVICE_BOARD;
+	spl_boot_list[0] = BOOT_DEVICE_BOARD;
 }
 
-static int spl_board_load_image(struct spl_image_info *spl_image,
-				struct spl_boot_device *bootdev)
+static int spl_board_load_file(struct spl_image_info *spl_image,
+			       struct spl_boot_device *bootdev)
 {
 	char fname[256];
 	int ret;
@@ -74,10 +74,11 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	if (!spl_image->arg)
 		return log_msg_ret("exec", -ENOMEM);
 	strcpy(spl_image->arg, fname);
+	spl_image->flags = SPL_SANDBOXF_ARG_IS_FNAME;
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD("sandbox", 9, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("sandbox", 9, BOOT_DEVICE_BOARD, spl_board_load_file);
 
 void spl_board_init(void)
 {
@@ -96,13 +97,21 @@ void spl_board_init(void)
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
-	const char *fname = spl_image->arg;
+	switch (spl_image->flags) {
+	case SPL_SANDBOXF_ARG_IS_FNAME: {
+		const char *fname = spl_image->arg;
 
-	if (fname) {
-		os_fd_restore();
-		os_spl_to_uboot(fname);
-	} else {
-		printf("No filename provided for U-Boot\n");
+		if (fname) {
+			os_fd_restore();
+			os_spl_to_uboot(fname);
+		} else {
+			log_err("No filename provided for U-Boot\n");
+		}
+		break;
+	}
+	default:
+		log_err("Invalid flags\n");
+		break;
 	}
 	hang();
 }
