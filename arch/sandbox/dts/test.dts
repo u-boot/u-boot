@@ -1001,7 +1001,7 @@
 	};
 
 	/* This is used for the fastboot tests */
-	mmc0 {
+	mmc0: mmc0 {
 		compatible = "sandbox,mmc";
 	};
 
@@ -1739,6 +1739,11 @@
 
 	thermal {
 		compatible = "sandbox,thermal";
+	};
+
+	fwu-mdata {
+		compatible = "u-boot,fwu-mdata-gpt";
+		fwu-mdata-store = <&mmc0>;
 	};
 };
 
