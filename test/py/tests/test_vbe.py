@@ -85,7 +85,7 @@ bootm loados
 bootm prep
 fdt addr
 fdt print
-ut bootstd vbe_test_fixup
+ut bootstd -f vbe_test_fixup_norun
 '''
 
 @pytest.mark.boardspec('sandbox_flattree')
@@ -117,7 +117,4 @@ def test_vbe(u_boot_console):
     with cons.log.section('Kernel load'):
         output = cons.run_command_list(cmd.splitlines())
 
-    # This is a little wonky since there are two tests running in CI. The final
-    # one is the 'ut bootstd' command above
-    failures = [line for line in output if 'Failures' in line]
-    assert len(failures) >= 1 and 'Failures: 0' in failures[-1]
+    assert 'Failures: 0' in output[-1]
