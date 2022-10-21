@@ -62,24 +62,34 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 	 */
 	for (vbe_find_first_device(&dev); dev; vbe_find_next_device(&dev)) {
 		struct simple_state state;
-		ofnode node, subnode;
+		ofnode node, subnode, chosen;
 		int ret;
 
 		if (strcmp("vbe_simple", dev->driver->name))
 			continue;
 
-		/* Check if there is a node to fix up */
-		node = oftree_path(tree, "/chosen/fwupd");
-		if (!ofnode_valid(node))
+		/* Check if there is a node to fix up, adding if not */
+		chosen = oftree_path(tree, "/chosen");
+		if (!ofnode_valid(chosen))
 			continue;
-		subnode = ofnode_find_subnode(node, dev->name);
-		if (!ofnode_valid(subnode))
-			continue;
+		ret = ofnode_add_subnode(chosen, "fwupd", &node);
+		if (ret && ret != -EEXIST)
+			return log_msg_ret("fwu", ret);
 
-		log_debug("Fixing up: %s\n", dev->name);
+		ret = ofnode_add_subnode(node, dev->name, &subnode);
+		if (ret && ret != -EEXIST)
+			return log_msg_ret("dev", ret);
+
 		ret = device_probe(dev);
 		if (ret)
 			return log_msg_ret("probe", ret);
+
+		/* Copy over the vbe properties for fwupd */
+		log_debug("Fixing up: %s\n", dev->name);
+		ret = ofnode_copy_props(dev_ofnode(dev), subnode);
+		if (ret)
+			return log_msg_ret("cp", ret);
+
 		ret = vbe_simple_read_state(dev, &state);
 		if (ret)
 			return log_msg_ret("read", ret);

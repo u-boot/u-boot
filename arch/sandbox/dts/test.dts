@@ -78,6 +78,7 @@
 	};
 
 	bootstd {
+		u-boot,dm-vpl;
 		compatible = "u-boot,boot-std";
 
 		filename-prefixes = "/", "/boot/";
@@ -89,6 +90,19 @@
 
 		efi {
 			compatible = "u-boot,distro-efi";
+		};
+
+		firmware0 {
+			u-boot,dm-vpl;
+			compatible = "fwupd,vbe-simple";
+			storage = "mmc1";
+			skip-offset = <0x200>;
+			area-start = <0x400>;
+			area-size = <0x1000>;
+			state-offset = <0x400>;
+			state-size = <0x40>;
+			version-offset = <0x800>;
+			version-size = <0x100>;
 		};
 	};
 
@@ -1403,21 +1417,6 @@
 		chosen-test {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <9 1>;
-		};
-
-		fwupd {
-			compatible = "simple-bus";
-			firmware0 {
-				compatible = "fwupd,vbe-simple";
-				storage = "mmc1";
-				area-start = <0x400>;
-				area-size = <0x1000>;
-				skip-offset = <0x200>;
-				state-offset = <0x400>;
-				state-size = <0x40>;
-				version-offset = <0x800>;
-				version-size = <0x100>;
-			};
 		};
 	};
 

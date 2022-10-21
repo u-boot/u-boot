@@ -16,7 +16,12 @@
 #include <test/ut.h>
 #include "bootstd_common.h"
 
-/* Basic test of reading nvdata and updating a fwupd node in the device tree */
+/*
+ * Basic test of reading nvdata and updating a fwupd node in the device tree
+ *
+ * This sets up its own VBE info in the device, using bootstd_setup_for_tests()
+ * then does a VBE fixup and checks that everything is present.
+ */
 static int vbe_simple_test_base(struct unit_test_state *uts)
 {
 	const char *version, *bl_version;
