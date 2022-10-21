@@ -80,7 +80,7 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 		ret = device_probe(dev);
 		if (ret)
 			return log_msg_ret("probe", ret);
-		ret = simple_read_state(dev, &state);
+		ret = vbe_simple_read_state(dev, &state);
 		if (ret)
 			return log_msg_ret("read", ret);
 

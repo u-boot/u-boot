@@ -133,6 +133,36 @@ config VPL_I2C_SUPPORT
 	  Enable support for the I2C bus in VPL. Vee SPL_I2C_SUPPORT for
 	  details.
 
+config VPL_MMC
+	bool "Support MMC in VPL"
+	depends on VPL && MMC
+	default y if MMC
+	help
+	  Enable support for MMC (Multimedia Card) within VPL This enables
+	  the MMC protocol implementation and allows any enabled drivers to
+	  be used within VPL. MMC can be used with or without disk partition
+	  support depending on the application (SPL_LIBDISK_SUPPORT). Enable
+	  this option to build the drivers in drivers/mmc as part of an VPL
+	  build.
+
+config VPL_DM_MMC
+	bool "Enable MMC controllers using Driver Model in VPL"
+	depends on VPL_DM && DM_MMC
+	default y
+	help
+	  This enables the MultiMediaCard (MMC) uclass which supports MMC and
+	  Secure Digital I/O (SDIO) cards. Both removable (SD, micro-SD, etc.)
+	  and non-removable (e.g. eMMC chip) devices are supported. These
+	  appear as block devices in U-Boot and can support filesystems such
+	  as EXT4 and FAT.
+
+config VPL_MMC_WRITE
+	bool "MMC/SD/SDIO card support for write operations in VPL"
+	depends on VPL_MMC
+	default y
+	help
+	  Enable write access to MMC and SD Cards in VPL
+
 config VPL_PCH_SUPPORT
 	bool "Support PCH drivers"
 	default y if TPL_PCH_SUPPORT
