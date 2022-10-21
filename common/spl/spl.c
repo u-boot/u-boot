@@ -630,23 +630,6 @@ __weak void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[0] = spl_boot_device();
 }
 
-static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
-{
-	struct spl_image_loader *drv =
-		ll_entry_start(struct spl_image_loader, spl_image_loader);
-	const int n_ents =
-		ll_entry_count(struct spl_image_loader, spl_image_loader);
-	struct spl_image_loader *entry;
-
-	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (boot_device == entry->boot_device)
-			return entry;
-	}
-
-	/* Not found */
-	return NULL;
-}
-
 __weak int spl_check_board_image(struct spl_image_info *spl_image,
 				 const struct spl_boot_device *bootdev)
 {
@@ -693,6 +676,10 @@ static int spl_load_image(struct spl_image_info *spl_image,
 static int boot_from_devices(struct spl_image_info *spl_image,
 			     u32 spl_boot_list[], int count)
 {
+	struct spl_image_loader *drv =
+		ll_entry_start(struct spl_image_loader, spl_image_loader);
+	const int n_ents =
+		ll_entry_count(struct spl_image_loader, spl_image_loader);
 	int ret = -ENODEV;
 	int i;
 
@@ -702,20 +689,27 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 
 		if (CONFIG_IS_ENABLED(SHOW_ERRORS))
 			ret = -ENXIO;
-		loader = spl_ll_find_loader(bootdev);
-		if (!CONFIG_IS_ENABLED(SILENT_CONSOLE)) {
-			if (loader)
-				printf("Trying to boot from %s\n",
-				       spl_loader_name(loader));
-			else if (CONFIG_IS_ENABLED(SHOW_ERRORS))
-				printf(SPL_TPL_PROMPT
-				       "Unsupported Boot Device %d\n", bootdev);
-			else
-				puts(SPL_TPL_PROMPT "Unsupported Boot Device!\n");
-		}
-		if (loader && !spl_load_image(spl_image, loader)) {
-			spl_image->boot_device = bootdev;
-			return 0;
+		for (loader = drv; loader != drv + n_ents; loader++) {
+			if (bootdev != loader->boot_device)
+				continue;
+			if (!CONFIG_IS_ENABLED(SILENT_CONSOLE)) {
+				if (loader)
+					printf("Trying to boot from %s\n",
+					       spl_loader_name(loader));
+				else if (CONFIG_IS_ENABLED(SHOW_ERRORS)) {
+					printf(SPL_TPL_PROMPT
+					       "Unsupported Boot Device %d\n",
+					       bootdev);
+				} else {
+					puts(SPL_TPL_PROMPT
+					     "Unsupported Boot Device!\n");
+				}
+			}
+			if (loader &&
+				!spl_load_image(spl_image, loader)) {
+				spl_image->boot_device = bootdev;
+				return 0;
+			}
 		}
 	}
 
