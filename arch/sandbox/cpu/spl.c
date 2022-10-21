@@ -51,7 +51,8 @@ void board_init_f(ulong flag)
 
 void board_boot_order(u32 *spl_boot_list)
 {
-	spl_boot_list[0] = BOOT_DEVICE_BOARD;
+	spl_boot_list[0] = BOOT_DEVICE_VBE;
+	spl_boot_list[1] = BOOT_DEVICE_BOARD;
 }
 
 static int spl_board_load_file(struct spl_image_info *spl_image,

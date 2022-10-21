@@ -9,18 +9,19 @@
 #define LOG_CATEGORY LOGC_BOOT
 
 #include <common.h>
-#include <log.h>
-#include <memalign.h>
-#include <part.h>
+#include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
 #include <dm.h>
+#include <log.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <vbe.h>
 #include <version_string.h>
 #include <dm/device-internal.h>
 #include <dm/ofnode.h>
 #include <u-boot/crc.h>
+#include "vbe_simple.h"
 
 enum {
 	MAX_VERSION_LEN		= 256,
@@ -35,18 +36,6 @@ enum {
 	FWVER_FW_MASK		= 0xffff,
 
 	NVD_HDR_VER_CUR		= 1,	/* current version */
-};
-
-/** struct simple_priv - information read from the device tree */
-struct simple_priv {
-	u32 area_start;
-	u32 area_size;
-	u32 skip_offset;
-	u32 state_offset;
-	u32 state_size;
-	u32 version_offset;
-	u32 version_size;
-	const char *storage;
 };
 
 /** struct simple_state - state information read from media
@@ -183,15 +172,38 @@ static int vbe_simple_get_state_desc(struct udevice *dev, char *buf,
 
 static int vbe_simple_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
-	/* To be implemented */
+	int ret;
 
+	if (vbe_phase() == VBE_PHASE_FIRMWARE) {
+		ret = vbe_simple_read_bootflow_fw(dev, bflow);
+		if (ret)
+			return log_msg_ret("fw", ret);
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+static int vbe_simple_read_file(struct udevice *dev, struct bootflow *bflow,
+				const char *file_path, ulong addr, ulong *sizep)
+{
+	int ret;
+
+	if (vbe_phase() == VBE_PHASE_OS) {
+		ret = bootmeth_common_read_file(dev, bflow, file_path, addr,
+						sizep);
+		if (ret)
+			return log_msg_ret("os", ret);
+	}
+
+	/* To be implemented */
 	return -EINVAL;
 }
 
 static struct bootmeth_ops bootmeth_vbe_simple_ops = {
 	.get_state_desc	= vbe_simple_get_state_desc,
 	.read_bootflow	= vbe_simple_read_bootflow,
-	.read_file	= bootmeth_common_read_file,
+	.read_file	= vbe_simple_read_file,
 };
 
 int vbe_simple_fixup_node(ofnode node, struct simple_state *state)

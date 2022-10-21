@@ -49,3 +49,4 @@ endif
 
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE) += vbe.o vbe_request.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE_SIMPLE) += vbe_simple.o
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE_SIMPLE_FW) += vbe_simple_fw.o

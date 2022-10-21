@@ -36,7 +36,7 @@ static int handle_random_req(ofnode node, int default_size,
 	u32 size;
 	int ret;
 
-	if (!IS_ENABLED(CONFIG_DM_RNG))
+	if (!CONFIG_IS_ENABLED(DM_RNG))
 		return -ENOTSUPP;
 
 	if (ofnode_read_u32(node, "vbe,size", &size)) {

@@ -166,6 +166,8 @@ enum bootstage_id {
 	BOOTSTAGE_ID_NAND_FIT_READ_OK,
 
 	BOOTSTAGE_ID_FIT_LOADABLE_START = 160,	/* for Loadable Images */
+
+	BOOTSTAGE_ID_FIT_SPL_START = 170,	/* for SPL Images */
 	/*
 	 * These boot stages are new, higher level, and not directly related
 	 * to the old boot progress numbers. They are useful for recording
