@@ -123,9 +123,11 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
 	if (CONFIG_IS_ENABLED(PARTITIONS) &&
 	    device_get_uclass_id(diskobj->header.dev) == UCLASS_PARTITION) {
 		if (direction == EFI_DISK_READ)
-			n = dev_read(diskobj->header.dev, lba, blocks, buffer);
+			n = disk_blk_read(diskobj->header.dev, lba, blocks,
+					  buffer);
 		else
-			n = dev_write(diskobj->header.dev, lba, blocks, buffer);
+			n = disk_blk_write(diskobj->header.dev, lba, blocks,
+					   buffer);
 	} else {
 		/* dev is a block device (UCLASS_BLK) */
 		struct blk_desc *desc;

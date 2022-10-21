@@ -65,7 +65,7 @@ int part_create_block_devices(struct udevice *blk_dev)
 	return 0;
 }
 
-static ulong blk_part_read(struct udevice *dev, lbaint_t start,
+static ulong part_blk_read(struct udevice *dev, lbaint_t start,
 			   lbaint_t blkcnt, void *buffer)
 {
 	struct udevice *parent;
@@ -88,7 +88,7 @@ static ulong blk_part_read(struct udevice *dev, lbaint_t start,
 	return ops->read(parent, start, blkcnt, buffer);
 }
 
-static ulong blk_part_write(struct udevice *dev, lbaint_t start,
+static ulong part_blk_write(struct udevice *dev, lbaint_t start,
 			    lbaint_t blkcnt, const void *buffer)
 {
 	struct udevice *parent;
@@ -111,7 +111,7 @@ static ulong blk_part_write(struct udevice *dev, lbaint_t start,
 	return ops->write(parent, start, blkcnt, buffer);
 }
 
-static ulong blk_part_erase(struct udevice *dev, lbaint_t start,
+static ulong part_blk_erase(struct udevice *dev, lbaint_t start,
 			    lbaint_t blkcnt)
 {
 	struct udevice *parent;
@@ -135,9 +135,9 @@ static ulong blk_part_erase(struct udevice *dev, lbaint_t start,
 }
 
 static const struct blk_ops blk_part_ops = {
-	.read	= blk_part_read,
-	.write	= blk_part_write,
-	.erase	= blk_part_erase,
+	.read	= part_blk_read,
+	.write	= part_blk_write,
+	.erase	= part_blk_erase,
 };
 
 U_BOOT_DRIVER(blk_partition) = {
@@ -168,8 +168,8 @@ static struct blk_desc *dev_get_blk(struct udevice *dev)
 	return block_dev;
 }
 
-unsigned long dev_read(struct udevice *dev, lbaint_t start,
-		       lbaint_t blkcnt, void *buffer)
+unsigned long disk_blk_read(struct udevice *dev, lbaint_t start,
+			    lbaint_t blkcnt, void *buffer)
 {
 	struct blk_desc *block_dev;
 	const struct blk_ops *ops;
@@ -202,8 +202,8 @@ unsigned long dev_read(struct udevice *dev, lbaint_t start,
 	return blks_read;
 }
 
-unsigned long dev_write(struct udevice *dev, lbaint_t start,
-			lbaint_t blkcnt, const void *buffer)
+unsigned long disk_blk_write(struct udevice *dev, lbaint_t start,
+			     lbaint_t blkcnt, const void *buffer)
 {
 	struct blk_desc *block_dev;
 	const struct blk_ops *ops;
@@ -221,8 +221,8 @@ unsigned long dev_write(struct udevice *dev, lbaint_t start,
 	return ops->write(dev, start, blkcnt, buffer);
 }
 
-unsigned long dev_erase(struct udevice *dev, lbaint_t start,
-			lbaint_t blkcnt)
+unsigned long disk_blk_erase(struct udevice *dev, lbaint_t start,
+			     lbaint_t blkcnt)
 {
 	struct blk_desc *block_dev;
 	const struct blk_ops *ops;
