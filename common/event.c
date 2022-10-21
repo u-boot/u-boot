@@ -38,6 +38,9 @@ const char *const type_name[] = {
 
 	/* fdt hooks */
 	"ft_fixup",
+
+	/* main loop events */
+	"main_loop",
 };
 
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");
