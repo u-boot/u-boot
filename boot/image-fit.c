@@ -1686,49 +1686,6 @@ int fit_check_format(const void *fit, ulong size)
 	return 0;
 }
 
-/**
- * fit_conf_find_compat
- * @fit: pointer to the FIT format image header
- * @fdt: pointer to the device tree to compare against
- *
- * fit_conf_find_compat() attempts to find the configuration whose fdt is the
- * most compatible with the passed in device tree.
- *
- * Example:
- *
- * / o image-tree
- *   |-o images
- *   | |-o fdt-1
- *   | |-o fdt-2
- *   |
- *   |-o configurations
- *     |-o config-1
- *     | |-fdt = fdt-1
- *     |
- *     |-o config-2
- *       |-fdt = fdt-2
- *
- * / o U-Boot fdt
- *   |-compatible = "foo,bar", "bim,bam"
- *
- * / o kernel fdt1
- *   |-compatible = "foo,bar",
- *
- * / o kernel fdt2
- *   |-compatible = "bim,bam", "baz,biz"
- *
- * Configuration 1 would be picked because the first string in U-Boot's
- * compatible list, "foo,bar", matches a compatible string in the root of fdt1.
- * "bim,bam" in fdt2 matches the second string which isn't as good as fdt1.
- *
- * As an optimization, the compatible property from the FDT's root node can be
- * copied into the configuration node in the FIT image. This is required to
- * match configurations with compressed FDTs.
- *
- * returns:
- *     offset to the configuration to use if one was found
- *     -1 otherwise
- */
 int fit_conf_find_compat(const void *fit, const void *fdt)
 {
 	int ndepth = 0;
