@@ -691,9 +691,10 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
  *			name (e.g. "conf-1") or NULL to use the default. On
  *			exit points to the selected configuration name.
  * @param arch		Expected architecture (IH_ARCH_...)
- * @param image_type	Required image type (IH_TYPE_...). If this is
+ * @param image_ph_type	Required image type (IH_TYPE_...). If this is
  *			IH_TYPE_KERNEL then we allow IH_TYPE_KERNEL_NOLOAD
- *			also.
+ *			also. If a phase is required, this is included also,
+ *			see image_phase_and_type()
  * @param bootstage_id	ID of starting bootstage to use for progress updates.
  *			This will be added to the BOOTSTAGE_SUB values when
  *			calling bootstage_mark()
@@ -704,7 +705,7 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
  */
 int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
-		   int arch, int image_type, int bootstage_id,
+		   int arch, int image_ph_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
 
 /**
@@ -1349,14 +1350,15 @@ int fit_conf_get_prop_node_index(const void *fit, int noffset,
  * @fit:	FIT to check
  * @noffset:	Offset of conf@xxx node to check
  * @prop_name:	Property to read from the conf node
+ * @phase:	Image phase to use, IH_PHASE_NONE for any
  *
  * The conf- nodes contain references to other nodes, using properties
  * like 'kernel = "kernel"'. Given such a property name (e.g. "kernel"),
  * return the offset of the node referred to (e.g. offset of node
  * "/images/kernel".
  */
-int fit_conf_get_prop_node(const void *fit, int noffset,
-		const char *prop_name);
+int fit_conf_get_prop_node(const void *fit, int noffset, const char *prop_name,
+			   enum image_phase_t phase);
 
 int fit_check_ramdisk(const void *fit, int os_noffset,
 		uint8_t arch, int verify);

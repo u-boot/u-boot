@@ -802,6 +802,40 @@ int fit_image_get_comp(const void *fit, int noffset, uint8_t *comp)
 	return 0;
 }
 
+/**
+ * fit_image_get_phase() - get the phase for a configuration node
+ * @fit: pointer to the FIT format image header
+ * @offset: configuration-node offset
+ * @phasep: returns the phase
+ *
+ * Finds the phase property in a given configuration node. If the property is
+ * found, its (string) value is translated to the numeric id which is returned
+ * to the caller.
+ *
+ * Returns: 0 on success, -ENOENT if missing, -EINVAL for invalid value
+ */
+int fit_image_get_phase(const void *fit, int offset, enum image_phase_t *phasep)
+{
+	const void *data;
+	int len, ret;
+
+	/* Get phase name from property data */
+	data = fdt_getprop(fit, offset, FIT_PHASE_PROP, &len);
+	if (!data) {
+		fit_get_debug(fit, offset, FIT_PHASE_PROP, len);
+		*phasep = 0;
+		return -ENOENT;
+	}
+
+	/* Translate phase name to id */
+	ret = genimg_get_phase_id(data);
+	if (ret < 0)
+		return ret;
+	*phasep = ret;
+
+	return 0;
+}
+
 static int fit_image_get_address(const void *fit, int noffset, char *name,
 			  ulong *load)
 {
@@ -1867,10 +1901,37 @@ int fit_conf_get_prop_node_index(const void *fit, int noffset,
 	return fit_image_get_node(fit, uname);
 }
 
-int fit_conf_get_prop_node(const void *fit, int noffset,
-		const char *prop_name)
+int fit_conf_get_prop_node(const void *fit, int noffset, const char *prop_name,
+			   enum image_phase_t sel_phase)
 {
-	return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
+	int i, count;
+
+	if (sel_phase == IH_PHASE_NONE)
+		return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
+
+	count = fit_conf_get_prop_node_count(fit, noffset, prop_name);
+	if (count < 0)
+		return count;
+
+	/* check each image in the list */
+	for (i = 0; i < count; i++) {
+		enum image_phase_t phase;
+		int ret, node;
+
+		node = fit_conf_get_prop_node_index(fit, noffset, prop_name, i);
+		ret = fit_image_get_phase(fit, node, &phase);
+
+		/* if the image is for any phase, let's use it */
+		if (ret == -ENOENT)
+			return node;
+		else if (ret < 0)
+			return ret;
+
+		if (phase == sel_phase)
+			return node;
+	}
+
+	return -ENOENT;
 }
 
 static int fit_get_data_tail(const void *fit, int noffset,
@@ -1906,7 +1967,8 @@ int fit_get_data_conf_prop(const void *fit, const char *prop_name,
 {
 	int noffset = fit_conf_get_node(fit, NULL);
 
-	noffset = fit_conf_get_prop_node(fit, noffset, prop_name);
+	noffset = fit_conf_get_prop_node(fit, noffset, prop_name,
+					 IH_PHASE_NONE);
 	return fit_get_data_tail(fit, noffset, data, size);
 }
 
@@ -1944,7 +2006,8 @@ int fit_get_node_from_config(struct bootm_headers *images,
 		return -EINVAL;
 	}
 
-	noffset = fit_conf_get_prop_node(fit_hdr, cfg_noffset, prop_name);
+	noffset = fit_conf_get_prop_node(fit_hdr, cfg_noffset, prop_name,
+					 IH_PHASE_NONE);
 	if (noffset < 0) {
 		debug("*  %s: no '%s' in config\n", prop_name, prop_name);
 		return -ENOENT;
@@ -1990,9 +2053,10 @@ static const char *fit_get_image_type_property(int type)
 
 int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
-		   int arch, int image_type, int bootstage_id,
+		   int arch, int ph_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp)
 {
+	int image_type = image_ph_type(ph_type);
 	int cfg_noffset, noffset;
 	const char *fit_uname;
 	const char *fit_uname_config;
@@ -2038,8 +2102,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		if (IS_ENABLED(CONFIG_FIT_BEST_MATCH) && !fit_uname_config) {
 			cfg_noffset = fit_conf_find_compat(fit, gd_fdt_blob());
 		} else {
-			cfg_noffset = fit_conf_get_node(fit,
-							fit_uname_config);
+			cfg_noffset = fit_conf_get_node(fit, fit_uname_config);
 		}
 		if (cfg_noffset < 0) {
 			puts("Could not find configuration node\n");
@@ -2067,8 +2130,8 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 		bootstage_mark(BOOTSTAGE_ID_FIT_CONFIG);
 
-		noffset = fit_conf_get_prop_node(fit, cfg_noffset,
-						 prop_name);
+		noffset = fit_conf_get_prop_node(fit, cfg_noffset, prop_name,
+						 image_ph_phase(ph_type));
 		fit_uname = fit_get_name(fit, noffset, NULL);
 	}
 	if (noffset < 0) {
