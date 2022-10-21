@@ -36,6 +36,7 @@ struct wdog_regs {
 
 #define WDGCS_RCS                       BIT(10)
 #define WDGCS_ULK                       BIT(11)
+#define WDOG_CS_PRES                    BIT(12)
 #define WDGCS_CMD32EN                   BIT(13)
 #define WDGCS_FLG                       BIT(14)
 
@@ -89,7 +90,12 @@ void hw_watchdog_init(void)
 	writel(0, &wdog->win);
 
 	/* setting 1-kHz clock source, enable counter running, and clear interrupt */
-	writel((cmd32 | WDGCS_WDGE | WDGCS_WDGUPDATE | (WDG_LPO_CLK << 8) | WDGCS_FLG), &wdog->cs);
+	if (IS_ENABLED(CONFIG_ARCH_IMX9))
+		writel((cmd32 | WDGCS_WDGE | WDGCS_WDGUPDATE | (WDG_LPO_CLK << 8) |
+		       WDGCS_FLG | WDOG_CS_PRES), &wdog->cs);
+	else
+		writel((cmd32 | WDGCS_WDGE | WDGCS_WDGUPDATE | (WDG_LPO_CLK << 8) |
+		       WDGCS_FLG), &wdog->cs);
 
 	/* Wait WDOG reconfiguration */
 	while (!(readl(&wdog->cs) & WDGCS_RCS))
@@ -117,11 +123,14 @@ void reset_cpu(void)
 	while (!(readl(&wdog->cs) & WDGCS_ULK))
 		;
 
-	hw_watchdog_set_timeout(5); /* 5ms timeout */
+	hw_watchdog_set_timeout(5); /* 5ms timeout for general; 40ms timeout for imx93 */
 	writel(0, &wdog->win);
 
 	/* enable counter running */
-	writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8)), &wdog->cs);
+	if (IS_ENABLED(CONFIG_ARCH_IMX9))
+		writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8) | WDOG_CS_PRES), &wdog->cs);
+	else
+		writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8)), &wdog->cs);
 
 	/* Wait WDOG reconfiguration */
 	while (!(readl(&wdog->cs) & WDGCS_RCS))
