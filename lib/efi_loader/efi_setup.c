@@ -175,16 +175,15 @@ static efi_status_t efi_init_os_indications(void)
 }
 
 /**
- * __efi_init_early() - handle initialization at early stage
+ * efi_init_early() - handle initialization at early stage
  *
- * This function is called in efi_init_obj_list() only if
- * !CONFIG_EFI_SETUP_EARLY.
+ * expected to be called in board_init_r().
  *
  * Return:	status code
  */
-static efi_status_t __efi_init_early(void)
+int efi_init_early(void)
 {
-	efi_status_t ret = EFI_SUCCESS;
+	efi_status_t ret;
 
 	/* Allow unaligned memory access */
 	allow_unaligned();
@@ -200,29 +199,15 @@ static efi_status_t __efi_init_early(void)
 
 	/* Initialize EFI driver uclass */
 	ret = efi_driver_init();
-out:
-	return ret;
-}
+	if (ret != EFI_SUCCESS)
+		goto out;
 
-/**
- * efi_init_early() - handle initialization at early stage
- *
- * external version of __efi_init_early(); expected to be called in
- * board_init_r().
- *
- * Return:	status code
- */
-int efi_init_early(void)
-{
-	efi_status_t ret;
-
-	ret = __efi_init_early();
-	if (ret != EFI_SUCCESS) {
-		/* never re-init UEFI subsystem */
-		efi_obj_list_initialized = ret;
-		return -1;
-	}
 	return 0;
+out:
+	/* never re-init UEFI subsystem */
+	efi_obj_list_initialized = ret;
+
+	return -1;
 }
 
 /**
@@ -237,12 +222,6 @@ efi_status_t efi_init_obj_list(void)
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
 		return efi_obj_list_initialized;
-
-	if (!IS_ENABLED(CONFIG_EFI_SETUP_EARLY)) {
-		ret = __efi_init_early();
-		if (ret != EFI_SUCCESS)
-			goto out;
-	}
 
 	/* Set up console modes */
 	efi_setup_console_size();
