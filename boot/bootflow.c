@@ -339,6 +339,15 @@ int bootflow_scan_next(struct bootflow_iter *iter, struct bootflow *bflow)
 	} while (1);
 }
 
+void bootflow_init(struct bootflow *bflow, struct udevice *bootdev,
+		   struct udevice *meth)
+{
+	memset(bflow, '\0', sizeof(*bflow));
+	bflow->dev = bootdev;
+	bflow->method = meth;
+	bflow->state = BOOTFLOWST_BASE;
+}
+
 void bootflow_free(struct bootflow *bflow)
 {
 	free(bflow->name);

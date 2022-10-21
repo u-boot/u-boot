@@ -145,6 +145,18 @@ struct bootflow_iter {
 };
 
 /**
+ * bootflow_init() - Set up a bootflow struct
+ *
+ * The bootflow is zeroed and set to state BOOTFLOWST_BASE
+ *
+ * @bflow: Struct to set up
+ * @bootdev: Bootdev to use
+ * @meth: Bootmeth to use
+ */
+void bootflow_init(struct bootflow *bflow, struct udevice *bootdev,
+		   struct udevice *meth);
+
+/**
  * bootflow_iter_init() - Reset a bootflow iterator
  *
  * This sets everything to the starting point, ready for use.
