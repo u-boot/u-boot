@@ -978,3 +978,9 @@ config LMB_RESERVED_REGIONS
 	  memory blocks.
 
 endmenu
+
+menu "FWU Multi Bank Updates"
+
+source lib/fwu_updates/Kconfig
+
+endmenu

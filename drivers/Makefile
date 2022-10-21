@@ -85,6 +85,7 @@ obj-y += cache/
 obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
 obj-$(CONFIG_FASTBOOT) += fastboot/
+obj-$(CONFIG_FWU_MDATA) += fwu-mdata/
 obj-y += misc/
 obj-$(CONFIG_MMC) += mmc/
 obj-$(CONFIG_NVME) += nvme/
