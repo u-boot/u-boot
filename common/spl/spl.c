@@ -703,9 +703,7 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 		if (CONFIG_IS_ENABLED(SHOW_ERRORS))
 			ret = -ENXIO;
 		loader = spl_ll_find_loader(bootdev);
-		if (CONFIG_IS_ENABLED(SERIAL) &&
-		    CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT) &&
-		    !IS_ENABLED(CONFIG_SILENT_CONSOLE)) {
+		if (!IS_ENABLED(CONFIG_SILENT_CONSOLE)) {
 			if (loader)
 				printf("Trying to boot from %s\n",
 				       spl_loader_name(loader));
