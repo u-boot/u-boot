@@ -39,6 +39,7 @@ struct wdog_regs {
 #define WDOG_CS_PRES                    BIT(12)
 #define WDGCS_CMD32EN                   BIT(13)
 #define WDGCS_FLG                       BIT(14)
+#define WDGCS_INT			BIT(6)
 
 #define WDG_BUS_CLK                      (0x0)
 #define WDG_LPO_CLK                      (0x1)
@@ -92,7 +93,7 @@ void hw_watchdog_init(void)
 	/* setting 1-kHz clock source, enable counter running, and clear interrupt */
 	if (IS_ENABLED(CONFIG_ARCH_IMX9))
 		writel((cmd32 | WDGCS_WDGE | WDGCS_WDGUPDATE | (WDG_LPO_CLK << 8) |
-		       WDGCS_FLG | WDOG_CS_PRES), &wdog->cs);
+		       WDGCS_FLG | WDOG_CS_PRES | WDGCS_INT), &wdog->cs);
 	else
 		writel((cmd32 | WDGCS_WDGE | WDGCS_WDGUPDATE | (WDG_LPO_CLK << 8) |
 		       WDGCS_FLG), &wdog->cs);
@@ -128,7 +129,8 @@ void reset_cpu(void)
 
 	/* enable counter running */
 	if (IS_ENABLED(CONFIG_ARCH_IMX9))
-		writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8) | WDOG_CS_PRES), &wdog->cs);
+		writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8) | WDOG_CS_PRES |
+		       WDGCS_INT), &wdog->cs);
 	else
 		writel((cmd32 | WDGCS_WDGE | (WDG_LPO_CLK << 8)), &wdog->cs);
 
