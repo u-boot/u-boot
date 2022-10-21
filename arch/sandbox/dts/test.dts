@@ -37,6 +37,8 @@
 		i2c0 = "/i2c@0";
 		mmc0 = "/mmc0";
 		mmc1 = "/mmc1";
+		mmc2 = "/mmc2";
+		mmc3 = "/mmc3";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -92,6 +94,11 @@
 			compatible = "u-boot,distro-efi";
 		};
 
+		/*
+		 * This is used for the VBE OS-request tests. A FAT filesystem
+		 * created in a partition with the VBE information appearing
+		 * before the parititon starts
+		 */
 		firmware0 {
 			u-boot,dm-vpl;
 			compatible = "fwupd,vbe-simple";
@@ -102,6 +109,28 @@
 			state-offset = <0x400>;
 			state-size = <0x40>;
 			version-offset = <0x800>;
+			version-size = <0x100>;
+		};
+
+		/*
+		 * This is used for the VBE VPL tests. The MMC device holds the
+		 * binman image.bin file. The test progresses through each phase
+		 * of U-Boot, loading each in turn from MMC.
+		 *
+		 * Note that the test enables this node (and mmc3) before
+		 * running U-Boot
+		 */
+		firmware1 {
+			u-boot,dm-vpl;
+			status = "disabled";
+			compatible = "fwupd,vbe-simple";
+			storage = "mmc3";
+			skip-offset = <0x400000>;
+			area-start = <0>;
+			area-size = <0xe00000>;
+			state-offset = <0xdffc00>;
+			state-size = <0x40>;
+			version-offset = <0xdffe00>;
 			version-size = <0x100>;
 		};
 	};
@@ -974,6 +1003,14 @@
 	/* This is used for the fastboot tests */
 	mmc0 {
 		compatible = "sandbox,mmc";
+	};
+
+	/* This is used for VBE VPL tests */
+	mmc3 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "image.bin";
+		non-removable;
 	};
 
 	pch {
