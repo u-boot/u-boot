@@ -21,6 +21,9 @@
 		spi0 = &spi;
 	};
 
+	binman: binman {
+	};
+
 	memory {
 		reg = <0 CONFIG_SYS_SDRAM_SIZE>;
 	};
@@ -103,3 +106,7 @@
 #include "sandbox.dtsi"
 #include "cros-ec-keyboard.dtsi"
 #include "sandbox_pmic.dtsi"
+
+#ifdef CONFIG_SANDBOX_VPL
+#include "sandbox_vpl.dtsi"
+#endif

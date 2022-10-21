@@ -64,7 +64,7 @@
 		osd0 = "/osd";
 	};
 
-	binman {
+	binman: binman {
 	};
 
 	config {
@@ -1707,3 +1707,7 @@
 
 #include "sandbox_pmic.dtsi"
 #include "cros-ec-keyboard.dtsi"
+
+#ifdef CONFIG_SANDBOX_VPL
+#include "sandbox_vpl.dtsi"
+#endif
