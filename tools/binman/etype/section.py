@@ -550,7 +550,7 @@ class Entry_section(Entry):
                 for name in entries:
                     if name.startswith(root):
                         rest = name[len(root):]
-                        if rest in ['', '-img', '-nodtb']:
+                        if rest in ['', '-elf', '-img', '-nodtb']:
                             entry = entries[name]
         return entry, entry_name, prop_name
 

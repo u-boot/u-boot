@@ -656,7 +656,10 @@ class Entry(object):
           section: Section containing the entry
         """
         if self.auto_write_symbols:
-            elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage())
+            # Check if we are writing symbols into an ELF file
+            is_elf = self.GetDefaultFilename() == self.elf_fname
+            elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),
+                                      is_elf)
 
     def CheckEntries(self):
         """Check that the entry offsets are correct
