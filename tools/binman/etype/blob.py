@@ -31,8 +31,9 @@ class Entry_blob(Entry):
     the node (if enabled with -u) which provides the uncompressed size of the
     data.
     """
-    def __init__(self, section, etype, node):
-        super().__init__(section, etype, node)
+    def __init__(self, section, etype, node, auto_write_symbols=False):
+        super().__init__(section, etype, node,
+                         auto_write_symbols=auto_write_symbols)
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
 
     def ObtainContents(self, fake_size=0):

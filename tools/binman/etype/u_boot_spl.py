@@ -5,7 +5,6 @@
 # Entry-type module for spl/u-boot-spl.bin
 #
 
-from binman import elf
 from binman.entry import Entry
 from binman.etype.blob import Entry_blob
 
@@ -35,11 +34,9 @@ class Entry_u_boot_spl(Entry_blob):
     unless --no-expanded is used or the node has a 'no-expanded' property.
     """
     def __init__(self, section, etype, node):
-        super().__init__(section, etype, node)
+        super().__init__(section, etype, node, auto_write_symbols=True)
         self.elf_fname = 'spl/u-boot-spl'
+        self.auto_write_symbols = True
 
     def GetDefaultFilename(self):
         return 'spl/u-boot-spl.bin'
-
-    def WriteSymbols(self, section):
-        elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage())
