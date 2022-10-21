@@ -29,7 +29,7 @@ static const char *tool_name = "mkeficapsule";
 efi_guid_t efi_guid_fm_capsule = EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
 efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-static const char *opts_short = "g:i:I:v:p:c:m:dhAR";
+static const char *opts_short = "g:i:I:v:p:c:m:o:dhAR";
 
 enum {
 	CAPSULE_NORMAL_BLOB = 0,
@@ -47,6 +47,7 @@ static struct option options[] = {
 	{"dump-sig", no_argument, NULL, 'd'},
 	{"fw-accept", no_argument, NULL, 'A'},
 	{"fw-revert", no_argument, NULL, 'R'},
+	{"capoemflag", required_argument, NULL, 'o'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
@@ -65,6 +66,7 @@ static void print_usage(void)
 		"\t-d, --dump_sig              dump signature (*.p7)\n"
 		"\t-A, --fw-accept  firmware accept capsule, requires GUID, no image blob\n"
 		"\t-R, --fw-revert  firmware revert capsule, takes no GUID, no image blob\n"
+		"\t-o, --capoemflag Capsule OEM Flag, an integer between 0x0000 and 0xffff\n"
 		"\t-h, --help                  print a help message\n",
 		tool_name);
 }
@@ -387,6 +389,7 @@ static void free_sig_data(struct auth_context *ctx)
  * @mcount:	Monotonic count in authentication information
  * @private_file:	Path to a private key file
  * @cert_file:	Path to a certificate file
+ * @oemflags:  Capsule OEM Flags, bits 0-15
  *
  * This function actually does the job of creating an uefi capsule file.
  * All the arguments must be supplied.
@@ -399,7 +402,8 @@ static void free_sig_data(struct auth_context *ctx)
  */
 static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 			unsigned long index, unsigned long instance,
-			uint64_t mcount, char *privkey_file, char *cert_file)
+			uint64_t mcount, char *privkey_file, char *cert_file,
+			uint16_t oemflags)
 {
 	struct efi_capsule_header header;
 	struct efi_firmware_management_capsule_header capsule;
@@ -464,6 +468,8 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	header.header_size = sizeof(header);
 	/* TODO: The current implementation ignores flags */
 	header.flags = CAPSULE_FLAGS_PERSIST_ACROSS_RESET;
+	if (oemflags)
+		header.flags |= oemflags;
 	header.capsule_image_size = sizeof(header)
 					+ sizeof(capsule) + sizeof(uint64_t)
 					+ sizeof(image)
@@ -635,6 +641,7 @@ int main(int argc, char **argv)
 	unsigned char uuid_buf[16];
 	unsigned long index, instance;
 	uint64_t mcount;
+	unsigned long oemflags;
 	char *privkey_file, *cert_file;
 	int c, idx;
 
@@ -646,6 +653,7 @@ int main(int argc, char **argv)
 	cert_file = NULL;
 	dump_sig = 0;
 	capsule_type = CAPSULE_NORMAL_BLOB;
+	oemflags = 0;
 	for (;;) {
 		c = getopt_long(argc, argv, opts_short, options, &idx);
 		if (c == -1)
@@ -709,6 +717,14 @@ int main(int argc, char **argv)
 			}
 			capsule_type = CAPSULE_REVERT;
 			break;
+		case 'o':
+			oemflags = strtoul(optarg, NULL, 0);
+			if (oemflags > 0xffff) {
+				fprintf(stderr,
+					"oemflags must be between 0x0 and 0xffff\n");
+				exit(1);
+			}
+			break;
 		default:
 			print_usage();
 			exit(EXIT_SUCCESS);
@@ -736,7 +752,7 @@ int main(int argc, char **argv)
 		}
 	} else 	if (create_fwbin(argv[argc - 1], argv[argc - 2], guid,
 				 index, instance, mcount, privkey_file,
-				 cert_file) < 0) {
+				 cert_file, (uint16_t)oemflags) < 0) {
 		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);
 	}
