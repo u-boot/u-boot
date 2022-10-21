@@ -26,6 +26,15 @@ enum vbe_phase_t {
 };
 
 /**
+ * struct vbe_handoff - information about VBE progress
+ *
+ * @phases: Indicates which phases used the VBE bootmeth (1 << PHASE_...)
+ */
+struct vbe_handoff {
+	u8 phases;
+};
+
+/**
  * vbe_phase() - get current VBE phase
  *
  * Returns: Current VBE phase

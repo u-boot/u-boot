@@ -9,6 +9,7 @@
 #define LOG_CATEGORY LOGC_BOOT
 
 #include <common.h>
+#include <bloblist.h>
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
@@ -154,10 +155,16 @@ static int simple_load_from_image(struct spl_image_info *spl_image,
 	struct udevice *meth, *bdev;
 	struct simple_priv *priv;
 	struct bootflow bflow;
+	struct vbe_handoff *handoff;
 	int ret;
 
 	if (spl_phase() != PHASE_VPL && spl_phase() != PHASE_SPL)
 		return -ENOENT;
+
+	ret = bloblist_ensure_size(BLOBLISTT_VBE, sizeof(struct vbe_handoff),
+				   0, (void **)&handoff);
+	if (ret)
+		return log_msg_ret("ro", ret);
 
 	vbe_find_first_device(&meth);
 	if (!meth)
@@ -189,6 +196,9 @@ static int simple_load_from_image(struct spl_image_info *spl_image,
 
 	/* this is not used from now on, so free it */
 	bootflow_free(&bflow);
+
+	/* Record that VBE was used in this phase */
+	handoff->phases |= 1 << spl_phase();
 
 	return 0;
 }

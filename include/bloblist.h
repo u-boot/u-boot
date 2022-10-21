@@ -112,6 +112,7 @@ enum bloblist_tag_t {
 	 */
 	BLOBLISTT_PROJECT_AREA = 0x8000,
 	BLOBLISTT_U_BOOT_SPL_HANDOFF = 0x8000, /* Hand-off info from SPL */
+	BLOBLISTT_VBE		= 0x8001,	/* VBE per-phase state */
 
 	/*
 	 * Vendor-specific tags are permitted here. Projects can be open source
