@@ -470,7 +470,7 @@ int state_uninit(void)
 	int err;
 
 	if (state->write_ram_buf || state->write_state)
-		log_info("Writing sandbox state\n");
+		log_debug("Writing sandbox state\n");
 	state = &main_state;
 
 	/* Finish the bloblist, so that it is correct before writing memory */
