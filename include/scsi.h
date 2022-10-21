@@ -255,6 +255,16 @@ struct __packed scsi_read10_req {
 	u8 spare2[3];
 };
 
+/** struct scsi_write10_req - data for the write10 command */
+struct __packed scsi_write10_req {
+	u8 cmd;
+	u8 lun_flags;
+	u32 lba;
+	u8 spare;
+	u16 xfer_len;
+	u8 spare2[3];
+};
+
 /**
  * struct scsi_plat - stores information about SCSI controller
  *

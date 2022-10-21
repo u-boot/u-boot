@@ -61,7 +61,24 @@ static int dm_test_usb_flash(struct unit_test_state *uts)
 	ut_asserteq(512, dev_desc->blksz);
 	memset(cmp, '\0', sizeof(cmp));
 	ut_asserteq(2, blk_read(blk, 0, 2, cmp));
-	ut_assertok(strcmp(cmp, "this is a test"));
+	ut_asserteq_str("this is a test", cmp);
+
+	strcpy(cmp, "another test");
+	ut_asserteq(1, blk_write(blk, 1, 1, cmp));
+
+	memset(cmp, '\0', sizeof(cmp));
+	ut_asserteq(2, blk_read(blk, 0, 2, cmp));
+	ut_asserteq_str("this is a test", cmp);
+	ut_asserteq_str("another test", cmp + 512);
+
+	memset(cmp, '\0', sizeof(cmp));
+	ut_asserteq(1, blk_write(blk, 1, 1, cmp));
+
+	memset(cmp, '\0', sizeof(cmp));
+	ut_asserteq(2, blk_read(blk, 0, 2, cmp));
+	ut_asserteq_str("this is a test", cmp);
+	ut_asserteq_str("", cmp + 512);
+
 	ut_assertok(usb_stop());
 
 	return 0;

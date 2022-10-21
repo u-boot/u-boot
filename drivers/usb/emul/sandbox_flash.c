@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY	UCLASS_USB
+
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -190,7 +192,8 @@ static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
 	ret = sb_scsi_emul_command(info, req, len);
 	if (!ret) {
 		setup_response(priv);
-	} else if (ret == SCSI_EMUL_DO_READ && priv->fd != -1) {
+	} else if ((ret == SCSI_EMUL_DO_READ || ret == SCSI_EMUL_DO_WRITE) &&
+		   priv->fd != -1) {
 		os_lseek(priv->fd, info->seek_block * info->block_size,
 			 OS_SEEK_SET);
 		setup_response(priv);
@@ -217,6 +220,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 		case SCSIPH_START:
 			info->alloc_len = 0;
 			info->read_len = 0;
+			info->write_len = 0;
 			if (priv->error || len != UMASS_BBB_CBW_SIZE ||
 			    cbw->dCBWSignature != CBWSIGNATURE)
 				goto err;
@@ -230,8 +234,31 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 			return handle_ufi_command(priv, cbw->CBWCDB,
 						  cbw->bCDBLength);
 		case SCSIPH_DATA:
-			debug("data out\n");
-			break;
+			log_debug("data out, len=%x, info->write_len=%x\n", len,
+				  info->write_len);
+			info->transfer_len = cbw->dCBWDataTransferLength;
+			priv->tag = cbw->dCBWTag;
+			if (!info->write_len)
+				return 0;
+			if (priv->fd != -1) {
+				ulong bytes_written;
+
+				bytes_written = os_write(priv->fd, buff, len);
+				log_debug("bytes_written=%lx", bytes_written);
+				if (bytes_written != len)
+					return -EIO;
+				info->write_len -= len / info->block_size;
+				if (!info->write_len)
+					info->phase = SCSIPH_STATUS;
+			} else {
+				if (info->alloc_len && len > info->alloc_len)
+					len = info->alloc_len;
+				if (len > SANDBOX_FLASH_BUF_SIZE)
+					len = SANDBOX_FLASH_BUF_SIZE;
+				memcpy(info->buff, buff, len);
+				info->phase = SCSIPH_STATUS;
+			}
+			return len;
 		default:
 			break;
 		}
@@ -310,7 +337,7 @@ static int sandbox_flash_probe(struct udevice *dev)
 	struct scsi_emul_info *info = &priv->eminfo;
 	int ret;
 
-	priv->fd = os_open(plat->pathname, OS_O_RDONLY);
+	priv->fd = os_open(plat->pathname, OS_O_RDWR);
 	if (priv->fd != -1) {
 		ret = os_get_filesize(plat->pathname, &info->file_size);
 		if (ret)
