@@ -232,9 +232,12 @@ static inline const char *spl_phase_prefix(enum u_boot_phase phase)
  * enum spl_sandbox_flags - flags for sandbox's use of spl_image_info->flags
  *
  * @SPL_SANDBOXF_ARG_IS_FNAME: arg is the filename to jump to (default)
+ * @SPL_SANDBOXF_ARG_IS_BUF: arg is the containing image to jump to, @offset is
+ *	the start offset within the image, @size is the size of the image
  */
 enum spl_sandbox_flags {
 	SPL_SANDBOXF_ARG_IS_FNAME = 0,
+	SPL_SANDBOXF_ARG_IS_BUF,
 };
 
 struct spl_image_info {
