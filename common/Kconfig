@@ -1065,6 +1065,13 @@ config SPL_IMAGE_SIGN_INFO
 	help
 	  Enable image_sign_info helper functions in SPL.
 
+config VPL_IMAGE_SIGN_INFO
+	bool
+	select SHA1
+	select SHA256
+	help
+	  Enable image_sign_info helper functions in SPL.
+
 endif
 
 config FDT_SIMPLEFB

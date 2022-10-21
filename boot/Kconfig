@@ -320,7 +320,6 @@ config VPL_FIT_FULL_CHECK
 config VPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within VPL"
 	depends on VPL_DM
-	depends on VPL_LOAD_FIT || VPL_LOAD_FIT_FULL
 	default y
 	select FIT_SIGNATURE
 	select VPL_FIT
