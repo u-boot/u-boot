@@ -23,7 +23,7 @@ config RAM_ROCKCHIP_DEBUG
 	  initialization, configurations and etc.
 
 config RAM_PX30_DDR4
-	bool "DDR3 support for Rockchip PX30"
+	bool "DDR4 support for Rockchip PX30"
 	depends on RAM_ROCKCHIP && ROCKCHIP_PX30
 	help
 	  This enables DDR4 sdram support instead of the default DDR3 support

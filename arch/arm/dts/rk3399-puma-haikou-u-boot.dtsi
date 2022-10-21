@@ -14,7 +14,7 @@
 
 / {
 	config {
-		u-boot,spl-payload-offset = <0x40000>; /* @ 256KB */
+		u-boot,spl-payload-offset = <0x80000>; /* @ 512KB */
 		u-boot,mmc-env-offset = <0x4000>;      /* @  16KB */
 		u-boot,efi-partition-entries-offset = <0x200000>; /* 2MB */
 		u-boot,boot-led = "module_led";
@@ -31,24 +31,6 @@
 		spi5 = &spi5;
 	};
 
-	/*
-	 * The Qseven BIOS_DISABLE signal on the RK3399-Q7 keeps the on-module
-	 * eMMC and SPI flash powered-down initially (in fact it keeps the
-	 * reset signal asserted).  Even though it is an enable signal, we
-	 * model this as a regulator.
-	 */
-	bios_enable: bios_enable {
-		compatible = "regulator-fixed";
-		u-boot,dm-pre-reloc;
-		regulator-name = "bios_enable";
-		enable-active-high;
-		gpio = <&gpio3 RK_PD5 GPIO_ACTIVE_LOW>;
-		regulator-always-on;
-		regulator-boot-on;
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-	};
-
 	vdd_log: vdd-log {
 		compatible = "pwm-regulator";
 		pwms = <&pwm2 0 25000 1>;
@@ -62,14 +44,69 @@
 	};
 };
 
+&binman {
+	simple-bin {
+		blob {
+			offset = <((CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR - 64) * 512)>;
+		};
+	};
+
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+	simple-bin-spi {
+		blob {
+			/* same as u-boot,spl-payload-offset */
+			offset = <0x80000>;
+		};
+	};
+#endif
+};
+
 &gpio1 {
 	u-boot,dm-pre-reloc;
 };
 
 &gpio3 {
 	u-boot,dm-pre-reloc;
+
+	/*
+	 * The Qseven BIOS_DISABLE signal on the RK3399-Q7 keeps the on-module
+	 * eMMC and SPI flash powered-down initially (in fact it keeps the
+	 * reset signal asserted). BIOS_DISABLE_OVERRIDE pin allows to re-enable
+	 * eMMC and SPI after the SPL has been booted from SD Card.
+	 */
+	bios_disable_override {
+		u-boot,dm-pre-reloc;
+		gpios = <RK_PD5 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "bios_disable_override";
+		gpio-hog;
+	};
+};
+
+&gpio4 {
+	u-boot,dm-pre-reloc;
 };
 
 &norflash {
+	u-boot,dm-pre-reloc;
+};
+
+&pcfg_pull_none {
+	u-boot,dm-pre-reloc;
+};
+
+&pcfg_pull_up {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc_bus4 {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc_cmd {
 	u-boot,dm-pre-reloc;
 };

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
+#include <env_internal.h>
 #include <init.h>
 #include <log.h>
 #include <misc.h>
@@ -77,18 +78,16 @@ static int setup_boottargets(void)
 	}
 
 	/*
-	 * Only run, if booting from mmc1 (i.e. /mmc@fe320000) and
-	 * only consider cases where the default boot-order first
-	 * tries to boot from mmc0 (eMMC) and then from mmc1
-	 * (i.e. external SD).
-	 *
-	 * In other words: the SD card will be moved to earlier in the
-	 * order, if U-Boot was also loaded from the SD-card.
+	 * Make the default boot medium between SD Card and eMMC, the one that
+	 * was used to load U-Boot proper. If SPI-NOR flash was used, keep
+	 * original default order.
 	 */
-	if (!strcmp(boot_device, "/mmc@fe320000")) {
+	if (strcmp(boot_device, "/spi@ff1d0000/flash@0")) {
+		bool sd_booted = !strcmp(boot_device, "/mmc@fe320000");
 		char *mmc0, *mmc1;
 
-		debug("%s: booted from SD-Card\n", __func__);
+		debug("%s: booted from %s\n", __func__,
+		      sd_booted ? "SD-Card" : "eMMC");
 		mmc0 = strstr(env, "mmc0");
 		mmc1 = strstr(env, "mmc1");
 
@@ -98,10 +97,13 @@ static int setup_boottargets(void)
 		}
 
 		/*
-		 * If mmc0 comes first in the boot order, we need to change
-		 * the strings to make mmc1 first.
+		 * If mmc0 comes first in the boot order and U-Boot proper was
+		 * loaded from mmc1, swap mmc0 and mmc1 in the list.
+		 * If mmc1 comes first in the boot order and U-Boot proper was
+		 * loaded from mmc0, swap mmc0 and mmc1 in the list.
 		 */
-		if (mmc0 < mmc1) {
+		if ((mmc0 < mmc1 && sd_booted) ||
+		    (mmc0 > mmc1 && !sd_booted)) {
 			mmc0[3] = '1';
 			mmc1[3] = '0';
 			debug("%s: set boot_targets to: %s\n", __func__, env);
@@ -110,6 +112,64 @@ static int setup_boottargets(void)
 	}
 
 	return 0;
+}
+
+int mmc_get_env_dev(void)
+{
+	const char *boot_device =
+		ofnode_read_chosen_string("u-boot,spl-boot-device");
+
+	if (!boot_device) {
+		debug("%s: /chosen/u-boot,spl-boot-device not set\n",
+		      __func__);
+		return CONFIG_SYS_MMC_ENV_DEV;
+	}
+
+	debug("%s: booted from %s\n", __func__, boot_device);
+
+	if (!strcmp(boot_device, "/mmc@fe320000"))
+		return 1;
+
+	if (!strcmp(boot_device, "/mmc@fe330000"))
+		return 0;
+
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
+#if !IS_ENABLED(CONFIG_ENV_IS_NOWHERE)
+#error Please enable CONFIG_ENV_IS_NOWHERE
+#endif
+
+enum env_location arch_env_get_location(enum env_operation op, int prio)
+{
+	const char *boot_device =
+		ofnode_read_chosen_string("u-boot,spl-boot-device");
+
+	if (prio > 0)
+		return ENVL_UNKNOWN;
+
+	if (!boot_device) {
+		debug("%s: /chosen/u-boot,spl-boot-device not set\n",
+		      __func__);
+		return ENVL_NOWHERE;
+	}
+
+	debug("%s: booted from %s\n", __func__, boot_device);
+
+	if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH) &&
+	    !strcmp(boot_device, "/spi@ff1d0000/flash@0"))
+		return ENVL_SPI_FLASH;
+
+	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC) &&
+	    (!strcmp(boot_device, "/mmc@fe320000") ||
+	     !strcmp(boot_device, "/mmc@fe330000")))
+		return ENVL_MMC;
+
+	printf("%s: No environment available: booted from %s but U-Boot "
+	       "config does not allow loading environment from it.",
+	       __func__, boot_device);
+
+	return ENVL_NOWHERE;
 }
 
 int misc_init_r(void)
@@ -136,19 +196,3 @@ int misc_init_r(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_SERIAL_TAG
-void get_board_serial(struct tag_serialnr *serialnr)
-{
-	char *serial_string;
-	u64 serial = 0;
-
-	serial_string = env_get("serial#");
-
-	if (serial_string)
-		serial = simple_strtoull(serial_string, NULL, 16);
-
-	serialnr->high = (u32)(serial >> 32);
-	serialnr->low = (u32)(serial & 0xffffffff);
-}
-#endif

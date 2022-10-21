@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
@@ -221,11 +222,16 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 			   "u-boot,spl-boot-device", boot_ofpath);
 }
 
-#if defined(SPL_GPIO)
 static void rk3399_force_power_on_reset(void)
 {
 	ofnode node;
 	struct gpio_desc sysreset_gpio;
+
+	if (!IS_ENABLED(CONFIG_SPL_GPIO)) {
+		debug("%s: trying to force a power-on reset but no GPIO "
+		      "support in SPL!\n", __func__);
+		return;
+	}
 
 	debug("%s: trying to force a power-on reset\n", __func__);
 
@@ -243,7 +249,6 @@ static void rk3399_force_power_on_reset(void)
 
 	dm_gpio_set_value(&sysreset_gpio, 1);
 }
-#endif
 
 void __weak led_setup(void)
 {
@@ -253,35 +258,37 @@ void spl_board_init(void)
 {
 	led_setup();
 
-#if defined(SPL_GPIO)
-	struct rockchip_cru *cru = rockchip_get_cru();
+	if (IS_ENABLED(CONFIG_SPL_GPIO)) {
+		struct rockchip_cru *cru = rockchip_get_cru();
 
-	/*
-	 * The RK3399 resets only 'almost all logic' (see also in the TRM
-	 * "3.9.4 Global software reset"), when issuing a software reset.
-	 * This may cause issues during boot-up for some configurations of
-	 * the application software stack.
-	 *
-	 * To work around this, we test whether the last reset reason was
-	 * a power-on reset and (if not) issue an overtemp-reset to reset
-	 * the entire module.
-	 *
-	 * While this was previously fixed by modifying the various places
-	 * that could generate a software reset (e.g. U-Boot's sysreset
-	 * driver, the ATF or Linux), we now have it here to ensure that
-	 * we no longer have to track this through the various components.
-	 */
-	if (cru->glb_rst_st != 0)
-		rk3399_force_power_on_reset();
-#endif
+		/*
+		 * The RK3399 resets only 'almost all logic' (see also in the
+		 * TRM "3.9.4 Global software reset"), when issuing a software
+		 * reset. This may cause issues during boot-up for some
+		 * configurations of the application software stack.
+		 *
+		 * To work around this, we test whether the last reset reason
+		 * was a power-on reset and (if not) issue an overtemp-reset to
+		 * reset the entire module.
+		 *
+		 * While this was previously fixed by modifying the various
+		 * places that could generate a software reset (e.g. U-Boot's
+		 * sysreset driver, the ATF or Linux), we now have it here to
+		 * ensure that we no longer have to track this through the
+		 * various components.
+		 */
+		if (cru->glb_rst_st != 0)
+			rk3399_force_power_on_reset();
+	}
 
-#if defined(SPL_DM_REGULATOR)
-	/*
-	 * Turning the eMMC and SPI back on (if disabled via the Qseven
-	 * BIOS_ENABLE) signal is done through a always-on regulator).
-	 */
-	if (regulators_enable_boot_on(false))
-		debug("%s: Cannot enable boot on regulator\n", __func__);
-#endif
+	if (IS_ENABLED(CONFIG_SPL_DM_REGULATOR)) {
+		/*
+		 * Turning the eMMC and SPI back on (if disabled via the Qseven
+		 * BIOS_ENABLE) signal is done through a always-on regulator).
+		 */
+		if (regulators_enable_boot_on(false))
+			debug("%s: Cannot enable boot on regulator\n",
+			      __func__);
+	}
 }
 #endif

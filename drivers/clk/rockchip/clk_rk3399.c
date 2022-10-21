@@ -856,7 +856,7 @@ static ulong rk3399_ddr_set_clk(struct rockchip_cru *cru,
 	switch (set_rate) {
 	case 50 * MHz:
 		dpll_cfg = (struct pll_div)
-		{.refdiv = 1, .fbdiv = 12, .postdiv1 = 3, .postdiv2 = 2};
+		{.refdiv = 2, .fbdiv = 75, .postdiv1 = 3, .postdiv2 = 6};
 		break;
 	case 200 * MHz:
 		dpll_cfg = (struct pll_div)

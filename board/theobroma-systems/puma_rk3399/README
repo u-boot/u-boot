@@ -44,26 +44,16 @@ Compile the U-Boot
   > cd ../u-boot
   > make CROSS_COMPILE=aarch64-linux-gnu- puma-rk3399_defconfig all
 
-Package the image
-=================
-
-The SPL image for SD-Card/eMMC is readily available in idbloader.img at the
-root of U-Boot after compilation.
-
-Creating an SPL image for SPI-NOR:
-  > tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader-spi.img
-
 Flash the image
 ===============
 
-Copy the SPL to offset 32k for SD/eMMC, offset 0 for NOR-Flash and the FIT
-image to offset 256k.
+Copy u-boot-rockchip.bin to offset 32k for SD/eMMC.
+Copy u-boot-rockchip-spi.bin to offset 0 for NOR-flash.
 
 SD-Card
 -------
 
-  > dd if=idbloader.img of=/dev/sdb seek=64
-  > dd if=u-boot.itb of=/dev/sdb seek=512
+  > dd if=u-boot-rockchip.bin of=/dev/sdb seek=64
 
 eMMC
 ----
@@ -79,8 +69,7 @@ help of the Rockchip loader binary.
   > ./tools/boot_merger RKBOOT/RK3399MINIALL.ini
   > cd ..
   > ./rkdeveloptool db rkbin/rk3399_loader_v1.25.126.bin
-  > ./rkdeveloptool wl 64 ../idbloader.img
-  > ./rkdeveloptool wl 512 ../u-boot.itb
+  > ./rkdeveloptool wl 64 ../u-boot-rockchip.bin
 
 NOR-Flash
 ---------
@@ -97,5 +86,4 @@ help of the Rockchip loader binary.
   > cd ..
   > ./rkdeveloptool db rkbin/rk3399_loader_spinor_v1.25.114.bin
   > ./rkdeveloptool ef
-  > ./rkdeveloptool wl 0 ../idbloader-spi.img
-  > ./rkdeveloptool wl 512 ../u-boot.itb
+  > ./rkdeveloptool wl 0 ../u-boot-rockchip-spi.bin

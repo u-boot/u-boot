@@ -137,12 +137,6 @@
 		};
 	};
 
-	edp {
-		edp_hpd: edp_hpd {
-			rockchip,pins = <7 11 RK_FUNC_2 &pcfg_pull_down>;
-		};
-	};
-
 	emmc {
 		/* Make sure eMMC is not in reset */
 		emmc_deassert_reset: emmc-deassert-reset {

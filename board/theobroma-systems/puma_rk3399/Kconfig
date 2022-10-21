@@ -15,9 +15,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 config ENV_SIZE
 	default 0x4000
 
-config ENV_OFFSET
-	default 0x3fc000 if ENV_IS_IN_SPI_FLASH
-
 choice
 	prompt "Theobroma Systems RK3399-Q7 DDR Option"
 	default TARGET_PUMA_RK3399_RAM_DDR3_1333
