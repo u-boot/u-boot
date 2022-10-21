@@ -286,10 +286,10 @@ struct spl_load_info {
  */
 binman_sym_extern(ulong, u_boot_any, image_pos);
 binman_sym_extern(ulong, u_boot_any, size);
-binman_sym_extern(ulong, u_boot_spl, image_pos);
-binman_sym_extern(ulong, u_boot_spl, size);
-binman_sym_extern(ulong, u_boot_vpl, image_pos);
-binman_sym_extern(ulong, u_boot_vpl, size);
+binman_sym_extern(ulong, u_boot_spl_any, image_pos);
+binman_sym_extern(ulong, u_boot_spl_any, size);
+binman_sym_extern(ulong, u_boot_vpl_any, image_pos);
+binman_sym_extern(ulong, u_boot_vpl_any, size);
 
 /**
  * spl_get_image_pos() - get the image position of the next phase

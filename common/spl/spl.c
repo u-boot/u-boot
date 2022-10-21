@@ -59,13 +59,13 @@ binman_sym_declare(ulong, u_boot_any, image_pos);
 binman_sym_declare(ulong, u_boot_any, size);
 
 #ifdef CONFIG_TPL
-binman_sym_declare(ulong, u_boot_spl, image_pos);
-binman_sym_declare(ulong, u_boot_spl, size);
+binman_sym_declare(ulong, u_boot_spl_any, image_pos);
+binman_sym_declare(ulong, u_boot_spl_any, size);
 #endif
 
 #ifdef CONFIG_VPL
-binman_sym_declare(ulong, u_boot_vpl, image_pos);
-binman_sym_declare(ulong, u_boot_vpl, size);
+binman_sym_declare(ulong, u_boot_vpl_any, image_pos);
+binman_sym_declare(ulong, u_boot_vpl_any, size);
 #endif
 
 #endif /* BINMAN_UBOOT_SYMBOLS */
@@ -164,10 +164,10 @@ ulong spl_get_image_pos(void)
 
 #ifdef CONFIG_VPL
 	if (spl_next_phase() == PHASE_VPL)
-		return binman_sym(ulong, u_boot_vpl, image_pos);
+		return binman_sym(ulong, u_boot_vpl_any, image_pos);
 #endif
 	return spl_next_phase() == PHASE_SPL ?
-		binman_sym(ulong, u_boot_spl, image_pos) :
+		binman_sym(ulong, u_boot_spl_any, image_pos) :
 		binman_sym(ulong, u_boot_any, image_pos);
 }
 
@@ -178,10 +178,10 @@ ulong spl_get_image_size(void)
 
 #ifdef CONFIG_VPL
 	if (spl_next_phase() == PHASE_VPL)
-		return binman_sym(ulong, u_boot_vpl, size);
+		return binman_sym(ulong, u_boot_vpl_any, size);
 #endif
 	return spl_next_phase() == PHASE_SPL ?
-		binman_sym(ulong, u_boot_spl, size) :
+		binman_sym(ulong, u_boot_spl_any, size) :
 		binman_sym(ulong, u_boot_any, size);
 }
 
