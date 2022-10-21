@@ -341,4 +341,16 @@ int fwu_plat_get_alt_num(struct udevice *dev, efi_guid_t *image_guid,
  *
  */
 int fwu_plat_get_update_index(uint *update_idx);
+
+/**
+ * fwu_plat_get_bootidx() - Get the value of the boot index
+ * @boot_idx: Boot index value
+ *
+ * Get the value of the bank(partition) from which the platform
+ * has booted. This value is passed to U-Boot from the earlier
+ * stage bootloader which loads and boots all the relevant
+ * firmware images
+ *
+ */
+void fwu_plat_get_bootidx(uint *boot_idx);
 #endif /* _FWU_H_ */
