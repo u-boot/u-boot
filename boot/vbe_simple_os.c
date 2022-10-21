@@ -18,7 +18,7 @@
 
 int vbe_simple_fixup_node(ofnode node, struct simple_state *state)
 {
-	char *version;
+	const char *version, *str;
 	int ret;
 
 	version = strdup(state->fw_version);
@@ -31,7 +31,12 @@ int vbe_simple_fixup_node(ofnode node, struct simple_state *state)
 	ret = ofnode_write_u32(node, "cur-vernum", state->fw_vernum);
 	if (ret)
 		return log_msg_ret("num", ret);
-	ret = ofnode_write_string(node, "bootloader-version", version_string);
+
+	/* Drop the 'U-Boot ' at the start */
+	str = version_string;
+	if (!strncmp("U-Boot ", str, 7))
+		str += 7;
+	ret = ofnode_write_string(node, "bootloader-version", str);
 	if (ret)
 		return log_msg_ret("bl", ret);
 

@@ -77,7 +77,7 @@ static int vbe_simple_test_base(struct unit_test_state *uts)
 
 	bl_version = ofnode_read_string(node, "bootloader-version");
 	ut_assertnonnull(bl_version);
-	ut_asserteq_str(version_string, bl_version);
+	ut_asserteq_str(version_string + 7, bl_version);
 
 	return 0;
 }
