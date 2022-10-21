@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Verified Boot for Embedded (VBE) device tree fixup functions
+ * Verified Boot for Embedded (VBE) OS request (device tree fixup) functions
  *
  * Copyright 2022 Google LLC
  * Written by Simon Glass <sjg@chromium.org>
