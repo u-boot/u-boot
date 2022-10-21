@@ -58,6 +58,7 @@ enum ih_category {
 	IH_COMP,
 	IH_OS,
 	IH_TYPE,
+	IH_PHASE,
 
 	IH_COUNT,
 };
@@ -184,8 +185,7 @@ enum {
  * New IDs *MUST* be appended at the end of the list and *NEVER*
  * inserted for backward compatibility.
  */
-
-enum {
+enum image_type_t {
 	IH_TYPE_INVALID		= 0,	/* Invalid Image		*/
 	IH_TYPE_STANDALONE,		/* Standalone Program		*/
 	IH_TYPE_KERNEL,			/* OS Kernel Image		*/
@@ -251,6 +251,59 @@ enum {
 
 	IH_COMP_COUNT,
 };
+
+/**
+ * Phases - images intended for particular U-Boot phases (SPL, etc.)
+ *
+ * @IH_PHASE_NONE: No phase information, can be loaded by any phase
+ * @IH_PHASE_U_BOOT: Only for U-Boot proper
+ * @IH_PHASE_SPL: Only for SPL
+ */
+enum image_phase_t {
+	IH_PHASE_NONE		= 0,
+	IH_PHASE_U_BOOT,
+	IH_PHASE_SPL,
+
+	IH_PHASE_COUNT,
+};
+
+#define IMAGE_PHASE_SHIFT	8
+#define IMAGE_PHASE_MASK	(0xff << IMAGE_PHASE_SHIFT)
+#define IMAGE_TYPE_MASK		0xff
+
+/**
+ * image_ph() - build a composite value combining and type
+ *
+ * @phase: Image phase value
+ * @type: Image type value
+ * Returns: Composite value containing both
+ */
+static inline int image_ph(enum image_phase_t phase, enum image_type_t type)
+{
+	return type | (phase << IMAGE_PHASE_SHIFT);
+}
+
+/**
+ * image_ph_phase() - obtain the phase from a composite phase/type value
+ *
+ * @image_ph_type: Composite value to convert
+ * Returns: Phase value taken from the composite value
+ */
+static inline int image_ph_phase(int image_ph_type)
+{
+	return (image_ph_type & IMAGE_PHASE_MASK) >> IMAGE_PHASE_SHIFT;
+}
+
+/**
+ * image_ph_type() - obtain the type from a composite phase/type value
+ *
+ * @image_ph_type: Composite value to convert
+ * Returns: Type value taken from the composite value
+ */
+static inline int image_ph_type(int image_ph_type)
+{
+	return image_ph_type & IMAGE_TYPE_MASK;
+}
 
 #define LZ4F_MAGIC	0x184D2204	/* LZ4 Magic Number		*/
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
@@ -436,6 +489,22 @@ const char *genimg_get_os_name(uint8_t os);
 const char *genimg_get_os_short_name(uint8_t comp);
 
 const char *genimg_get_arch_name(uint8_t arch);
+
+/**
+ * genimg_get_phase_name() - Get the friendly name for a phase
+ *
+ * @phase: Phase value to look up
+ * Returns: Friendly name for the phase (e.g. "U-Boot phase")
+ */
+const char *genimg_get_phase_name(enum image_phase_t phase);
+
+/**
+ * genimg_get_phase_id() - Convert a phase name to an ID
+ *
+ * @name: Name to convert (e.g. "u-boot")
+ * Returns: ID for that phase (e.g. IH_PHASE_U_BOOT)
+ */
+int genimg_get_phase_id(const char *name);
 
 /**
  * genimg_get_arch_short_name() - get the short name for an architecture
@@ -955,6 +1024,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_FPGA_PROP		"fpga"
 #define FIT_FIRMWARE_PROP	"firmware"
 #define FIT_STANDALONE_PROP	"standalone"
+#define FIT_PHASE_PROP		"phase"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
