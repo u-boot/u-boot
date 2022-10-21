@@ -9,7 +9,7 @@ config SYS_VENDOR
 config SYS_SOC
 	default "coreboot"
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x01110000
 
 config BOARD_SPECIFIC_OPTIONS # dummy

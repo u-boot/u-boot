@@ -19,7 +19,7 @@ config TARGET_ST_STM32MP13x
 
 endchoice
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0xC0000000
 
 config PRE_CON_BUF_ADDR

@@ -12,7 +12,7 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "qemu-x86"
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0xfff00000 if !SUPPORT_SPL
 	default 0x01110000 if SUPPORT_SPL
 

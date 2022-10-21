@@ -6,7 +6,7 @@ config SYS_ARCH
 config SYS_SOC
 	default "aspeed"
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x00000000
 
 choice

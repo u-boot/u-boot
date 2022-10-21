@@ -7,7 +7,7 @@
 #include <config.h>
 
 kernoffs:		/* offset of kernel image from this address */
-	.word . - CONFIG_SYS_TEXT_BASE - KERNEL_OFFSET
+	.word . - CONFIG_TEXT_BASE - KERNEL_OFFSET
 
 kernaddr:		/* address of kernel after copying */
 	.word KERNEL_ADDRESS
@@ -37,13 +37,13 @@ save_boot_params:
  *
  * Nokia X-Loader is loading secondary image to address 0x80400000.
  * NOLO is loading boot image to random place, so it doesn't really
- * matter what is set in CONFIG_SYS_TEXT_BASE. We have to detect
+ * matter what is set in CONFIG_TEXT_BASE. We have to detect
  * KERNEL_OFFSET from the current execution address and copy it to
  * absolute address KERNEL_ADDRESS.
  *
  * Note that U-Boot has to be compiled with CONFIG_POSITION_INDEPENDENT
  * because it is loaded at random address and not to the fixed address
- * (CONFIG_SYS_TEXT_BASE).
+ * (CONFIG_TEXT_BASE).
  */
 
 	/* r0 - start of kernel before */

@@ -38,7 +38,7 @@ dd if=csf_spl.bin of=flash.bin bs=1 seek=${spl_dd_offset} conv=notrunc
 # 3) Sign u-boot.itb
 
 # fitImage tree
-fit_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_SYS_TEXT_BASE=/ s@.*=@@p" .config) - $(sed -n "/CONFIG_FIT_EXTERNAL_OFFSET=/ s@.*=@@p" .config) - 0x200 - 0x40)) )
+fit_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_TEXT_BASE=/ s@.*=@@p" .config) - $(sed -n "/CONFIG_FIT_EXTERNAL_OFFSET=/ s@.*=@@p" .config) - 0x200 - 0x40)) )
 fit_block_offset=$(printf "0x%s" $(fdtget -t x u-boot.dtb /binman/imx-boot/uboot offset))
 fit_block_size=$(printf "0x%x" $(( ( ($(fdtdump u-boot.itb 2>/dev/null | sed -n "/^...totalsize:/ s@.*\(0x[0-9a-f]\+\).*@\1@p") + 0x1000 - 0x1 ) & ~(0x1000 - 0x1)) + 0x20 )) )
 sed -i "/Blocks = / s@.*@  Blocks = $fit_block_base $fit_block_offset $fit_block_size \"flash.bin\", \\\\@" csf_fit.tmp

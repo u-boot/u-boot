@@ -12,7 +12,7 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "minnowmax"
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0xfff00000
 
 config BOARD_SPECIFIC_OPTIONS # dummy

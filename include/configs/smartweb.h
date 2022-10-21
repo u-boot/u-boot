@@ -30,7 +30,7 @@
 #include <linux/sizes.h>
 
 /*
- * Warning: changing CONFIG_SYS_TEXT_BASE requires adapting the initial boot
+ * Warning: changing CONFIG_TEXT_BASE requires adapting the initial boot
  * program. Since the linker has to swallow that define, we must use a pure
  * hex number here!
  */
@@ -96,8 +96,8 @@
 
 #define CONFIG_SYS_NAND_ENABLE_PIN_SPL	(2*32 + 14)
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	SZ_512K
-#define	CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
+#define	CONFIG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
+#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
 
 #define CONFIG_SYS_NAND_SIZE		(SZ_256M)
 #define CONFIG_SYS_NAND_ECCSIZE		256

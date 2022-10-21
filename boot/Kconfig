@@ -487,14 +487,14 @@ config OF_STDOUT_VIA_ALIAS
 	  incorrect when used with device tree as this option does not
 	  exist / should not be used.
 
-config HAVE_SYS_TEXT_BASE
+config HAVE_TEXT_BASE
 	bool
 	depends on !NIOS2 && !XTENSA
 	depends on !EFI_APP
 	default y
 
-config SYS_TEXT_BASE
-	depends on HAVE_SYS_TEXT_BASE
+config TEXT_BASE
+	depends on HAVE_TEXT_BASE
 	default 0x0 if POSITION_INDEPENDENT
 	default 0x80800000 if ARCH_OMAP2PLUS || ARCH_K3
 	default 0x81700000 if MACH_SUNIV
@@ -515,10 +515,10 @@ config HAVE_SYS_MONITOR_BASE
 config SYS_MONITOR_BASE
 	depends on HAVE_SYS_MONITOR_BASE
 	hex "Physical start address of boot monitor code"
-	default SYS_TEXT_BASE
+	default TEXT_BASE
 	help
 	  The physical start address of boot monitor code (which is the same as
-	  CONFIG_SYS_TEXT_BASE when linking) and the same as CONFIG_SYS_FLASH_BASE
+	  CONFIG_TEXT_BASE when linking) and the same as CONFIG_SYS_FLASH_BASE
 	  when booting from flash.
 
 config SPL_SYS_MONITOR_BASE

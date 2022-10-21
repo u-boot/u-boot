@@ -127,8 +127,8 @@ static int display_text_info(void)
 	bss_start = (ulong)&__bss_start;
 	bss_end = (ulong)&__bss_end;
 
-#ifdef CONFIG_SYS_TEXT_BASE
-	text_base = CONFIG_SYS_TEXT_BASE;
+#ifdef CONFIG_TEXT_BASE
+	text_base = CONFIG_TEXT_BASE;
 #else
 	text_base = CONFIG_SYS_MONITOR_BASE;
 #endif
@@ -689,7 +689,7 @@ static int reloc_bloblist(void)
 static int setup_reloc(void)
 {
 	if (!(gd->flags & GD_FLG_SKIP_RELOC)) {
-#ifdef CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_TEXT_BASE
 #ifdef ARM
 		gd->reloc_off = gd->relocaddr - (unsigned long)__image_copy_start;
 #elif defined(CONFIG_MICROBLAZE)
@@ -699,9 +699,9 @@ static int setup_reloc(void)
 		 * On all ColdFire arch cpu, monitor code starts always
 		 * just after the default vector table location, so at 0x400
 		 */
-		gd->reloc_off = gd->relocaddr - (CONFIG_SYS_TEXT_BASE + 0x400);
+		gd->reloc_off = gd->relocaddr - (CONFIG_TEXT_BASE + 0x400);
 #elif !defined(CONFIG_SANDBOX)
-		gd->reloc_off = gd->relocaddr - CONFIG_SYS_TEXT_BASE;
+		gd->reloc_off = gd->relocaddr - CONFIG_TEXT_BASE;
 #endif
 #endif
 	}

@@ -87,8 +87,8 @@
 
 #ifdef CONFIG_SDCARD
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
-#define CONFIG_SYS_MMC_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MMC_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_MMC_U_BOOT_DST	CONFIG_TEXT_BASE
+#define CONFIG_SYS_MMC_U_BOOT_START	CONFIG_TEXT_BASE
 #ifdef CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(CONFIG_SPL_PAD_TO - CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA*512)
 #else
@@ -96,8 +96,8 @@
 #endif
 #elif defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE	(768 << 10)
-#define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_SPI_FLASH_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		CONFIG_TEXT_BASE
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_START	CONFIG_TEXT_BASE
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
 #elif defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
@@ -456,11 +456,11 @@
 "loadaddr=1000000\0"	\
 "bootfile=uImage\0"	\
 "tftpflash=tftpboot $loadaddr $uboot; "	\
-	"protect off " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; " \
-	"erase " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE) " $filesize; " \
-	"protect on " __stringify(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
-	"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE) " $filesize\0" \
+	"protect off " __stringify(CONFIG_TEXT_BASE) " +$filesize; " \
+	"erase " __stringify(CONFIG_TEXT_BASE) " +$filesize; "	\
+	"cp.b $loadaddr " __stringify(CONFIG_TEXT_BASE) " $filesize; " \
+	"protect on " __stringify(CONFIG_TEXT_BASE) " +$filesize; "	\
+	"cmp.b $loadaddr " __stringify(CONFIG_TEXT_BASE) " $filesize\0" \
 "hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"    \
 "consoledev=ttyS0\0"	\
 "ramdiskaddr=2000000\0"	\

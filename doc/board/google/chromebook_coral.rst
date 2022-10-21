@@ -250,7 +250,7 @@ boots. Be warned that SPL can take 30 seconds without this cache! This is a
 known issue with Intel SoCs with modern DRAM and apparently cannot be improved.
 The MRC caches are used to work around this.
 
-Once SPL is finished it loads U-Boot into SDRAM at CONFIG_SYS_TEXT_BASE, which
+Once SPL is finished it loads U-Boot into SDRAM at CONFIG_TEXT_BASE, which
 is normally 1110000. Note that CAR is still active.
 
 
@@ -355,7 +355,7 @@ Partial memory map
        f0000       CONFIG_ROM_TABLE_ADDR
       120000       BSS (defined in u-boot-spl.lds)
       200000       FSP-S (which is run after U-Boot is relocated)
-     1110000       CONFIG_SYS_TEXT_BASE
+     1110000       CONFIG_TEXT_BASE
 
 
 Speeding up SPL for development

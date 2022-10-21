@@ -5,7 +5,7 @@
  * The NSIH (first 512 Bytes of u-boot.bin) is necessary for the
  * 2nd-Bootloader to get information like load address of U-Boot.
  *
- * 0x400 must be added to CONFIG_SYS_TEXT_BASE to have the actual load and
+ * 0x400 must be added to CONFIG_TEXT_BASE to have the actual load and
  * start address because 2nd-Bootloader loads with an offset of 0x400
  * (NSIH + 0x200 bytes are not loaded into RAM).
  *
@@ -23,9 +23,9 @@
 	.word	(_end - _start) + 20 * 1024	/* 0x50: load size
 						 *       (bin + 20k for DTB) */
 	.space	0x4
-	.word	CONFIG_SYS_TEXT_BASE + 0x400	/* 0x58: load address */
+	.word	CONFIG_TEXT_BASE + 0x400	/* 0x58: load address */
 	.word	0x00000000
-	.word	CONFIG_SYS_TEXT_BASE + 0x400	/* 0x60: start address */
+	.word	CONFIG_TEXT_BASE + 0x400	/* 0x60: start address */
 	.space	0x198
 	.byte	'N'				/* 0x1FC: "NSIH" signature */
 	.byte	'S'

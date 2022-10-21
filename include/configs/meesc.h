@@ -21,7 +21,7 @@
 #include <asm/hardware.h>
 
 /*
- * Warning: changing CONFIG_SYS_TEXT_BASE requires
+ * Warning: changing CONFIG_TEXT_BASE requires
  * adapting the initial boot program.
  * Since the linker has to swallow that define, we must use a pure
  * hex number here!

@@ -254,7 +254,7 @@ uintptr_t spl_fit_images_get_entry(void *blob, int node)
 void spl_invoke_atf(struct spl_image_info *spl_image)
 {
 	uintptr_t  bl32_entry = 0;
-	uintptr_t  bl33_entry = CONFIG_SYS_TEXT_BASE;
+	uintptr_t  bl33_entry = CONFIG_TEXT_BASE;
 	void *blob = spl_image->fdt_addr;
 	uintptr_t platform_param = (uintptr_t)blob;
 	int node;

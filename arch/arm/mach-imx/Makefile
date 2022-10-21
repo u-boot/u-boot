@@ -126,7 +126,7 @@ DEPFILE_EXISTS := 0
 endif
 
 MKIMAGEFLAGS_u-boot.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
-	-T $(IMAGE_TYPE) -e $(CONFIG_SYS_TEXT_BASE)
+	-T $(IMAGE_TYPE) -e $(CONFIG_TEXT_BASE)
 u-boot.imx: MKIMAGEOUTPUT = u-boot.imx.log
 
 u-boot.imx: u-boot.bin u-boot.cfgout $(PLUGIN).bin FORCE
@@ -134,7 +134,7 @@ u-boot.imx: u-boot.bin u-boot.cfgout $(PLUGIN).bin FORCE
 
 ifeq ($(CONFIG_MULTI_DTB_FIT),y)
 MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
-	-T $(IMAGE_TYPE) -e $(CONFIG_SYS_TEXT_BASE)
+	-T $(IMAGE_TYPE) -e $(CONFIG_TEXT_BASE)
 u-boot-dtb.imx: MKIMAGEOUTPUT = u-boot-dtb.imx.log
 
 u-boot-dtb.imx: u-boot-fit-dtb.bin u-boot-dtb.cfgout $(PLUGIN).bin FORCE
@@ -143,7 +143,7 @@ ifeq ($(DEPFILE_EXISTS),0)
 endif
 else ifeq ($(CONFIG_OF_SEPARATE),y)
 MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
-	-T $(IMAGE_TYPE) -e $(CONFIG_SYS_TEXT_BASE)
+	-T $(IMAGE_TYPE) -e $(CONFIG_TEXT_BASE)
 u-boot-dtb.imx: MKIMAGEOUTPUT = u-boot-dtb.imx.log
 
 u-boot-dtb.imx: u-boot-dtb.bin u-boot-dtb.cfgout $(PLUGIN).bin FORCE
@@ -207,8 +207,8 @@ SPL: MKIMAGEOUTPUT = SPL.log
 SPL: spl/u-boot-spl.bin spl/u-boot-spl.cfgout $(PLUGIN).bin FORCE
 	$(call if_changed,mkimage)
 
-MKIMAGEFLAGS_u-boot.uim = -A arm -O U-Boot -a $(CONFIG_SYS_TEXT_BASE) \
-		-e $(CONFIG_SYS_TEXT_BASE) -C none -T firmware
+MKIMAGEFLAGS_u-boot.uim = -A arm -O U-Boot -a $(CONFIG_TEXT_BASE) \
+		-e $(CONFIG_TEXT_BASE) -C none -T firmware
 
 u-boot.uim: u-boot.bin FORCE
 	$(call if_changed,mkimage)

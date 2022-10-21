@@ -97,7 +97,7 @@ CONFIG_MONITOR_IS_IN_RAM must be defined. If it is defined the
 initial vector table and basic processor initialization will not
 be compiled in. The start address of U-Boot must be adjusted in
 the boards config header file (CONFIG_SYS_MONITOR_BASE) and Makefile
-(CONFIG_SYS_TEXT_BASE) to the load address.
+(CONFIG_TEXT_BASE) to the load address.
 
 ColdFire CPU specific options/settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -118,7 +118,7 @@ static int spl_fast_spi_load_image(struct spl_image_info *spl_image,
 
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;  /* We don't know SPL size */
 	spl_image->entry_point = spl_phase() == PHASE_TPL ?
-		CONFIG_SPL_TEXT_BASE : CONFIG_SYS_TEXT_BASE;
+		CONFIG_SPL_TEXT_BASE : CONFIG_TEXT_BASE;
 	spl_image->load_addr = spl_image->entry_point;
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";

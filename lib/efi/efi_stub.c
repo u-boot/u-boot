@@ -126,7 +126,7 @@ static void jump_to_uboot(ulong cs32, ulong addr, ulong info)
 
 	((func_t)addr)(0, 0, info);
 #else
-	cpu_call32(cs32, CONFIG_SYS_TEXT_BASE, info);
+	cpu_call32(cs32, CONFIG_TEXT_BASE, info);
 #endif
 }
 
@@ -184,8 +184,8 @@ static int get_codeseg32(void)
 		if ((desc & GDT_PRESENT) && (desc & GDT_NOTSYS) &&
 		    !(desc & GDT_LONG) && (desc & GDT_4KB) &&
 		    (desc & GDT_32BIT) && (desc & GDT_CODE) &&
-		    CONFIG_SYS_TEXT_BASE > base &&
-		    CONFIG_SYS_TEXT_BASE + CONFIG_SYS_MONITOR_LEN < limit
+		    CONFIG_TEXT_BASE > base &&
+		    CONFIG_TEXT_BASE + CONFIG_SYS_MONITOR_LEN < limit
 		) {
 			cs32 = i;
 			break;
@@ -360,7 +360,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 		       priv->memmap_desc, priv->memmap_size);
 	add_entry_addr(priv, EFIET_END, NULL, 0, 0, 0);
 
-	memcpy((void *)CONFIG_SYS_TEXT_BASE, _binary_u_boot_bin_start,
+	memcpy((void *)CONFIG_TEXT_BASE, _binary_u_boot_bin_start,
 	       (ulong)_binary_u_boot_bin_end -
 	       (ulong)_binary_u_boot_bin_start);
 
@@ -371,7 +371,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 	printhex8(priv->info->total_size);
 #endif
 	putc('\n');
-	jump_to_uboot(cs32, CONFIG_SYS_TEXT_BASE, (ulong)priv->info);
+	jump_to_uboot(cs32, CONFIG_TEXT_BASE, (ulong)priv->info);
 
 	return EFI_LOAD_ERROR;
 }

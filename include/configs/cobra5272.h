@@ -65,7 +65,7 @@
  *
  * Setting #if 0: u-boot will start from flash and relocate itself to RAM
  *
- * Please do not forget to modify the setting of CONFIG_SYS_TEXT_BASE
+ * Please do not forget to modify the setting of CONFIG_TEXT_BASE
  * in board/cobra5272/config.mk accordingly (#if 0: 0xffe00000; #if 1: 0x20000)
  *
  * ---

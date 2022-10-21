@@ -91,7 +91,7 @@ Flash map for samus / broadwell:
    :fffd8000:	TPL_TEXT_BASE
    :fffa0000:	X86_MRC_ADDR
    :fff90000:	VGA_BIOS_ADDR
-   :ffed0000:	SYS_TEXT_BASE
+   :ffed0000:	TEXT_BASE
    :ffea0000:	X86_REFCODE_ADDR
    :ffe70000:	SPL_TEXT_BASE
    :ffbf8000:	CONFIG_ENV_OFFSET (environemnt offset)

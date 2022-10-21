@@ -65,7 +65,7 @@ def main():
     arc_id              = 0x53
 
     # initial header values: place where preloader will store u-boot binary,
-    # should be equal to CONFIG_SYS_TEXT_BASE
+    # should be equal to CONFIG_TEXT_BASE
     image_copy_adr  = 0x81000000
 
     # initial constant header values, do not change these values

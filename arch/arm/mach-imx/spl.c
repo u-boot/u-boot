@@ -341,7 +341,7 @@ void *board_spl_fit_buffer_addr(ulong fit_size, int sectors, int bl_len)
 	if (bl_len < 512)
 		bl_len = 512;
 
-	return  (void *)((CONFIG_SYS_TEXT_BASE - fit_size - bl_len -
+	return  (void *)((CONFIG_TEXT_BASE - fit_size - bl_len -
 			align_len) & ~align_len);
 }
 #endif

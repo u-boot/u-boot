@@ -37,7 +37,7 @@ ENTRY(relocate_code)
 	 * correctly apply relocations, we need to know the linked value.
 	 *
 	 * Linked &__image_copy_start, which we know was at
-	 * CONFIG_SYS_TEXT_BASE, which is stored in _TEXT_BASE, as a non-
+	 * CONFIG_TEXT_BASE, which is stored in _TEXT_BASE, as a non-
 	 * relocated value, since it isn't a symbol reference.
 	 */
 	ldr	x1, _TEXT_BASE		/* x1 <- Linked &__image_copy_start */

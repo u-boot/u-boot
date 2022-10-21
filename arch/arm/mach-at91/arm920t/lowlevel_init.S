@@ -22,9 +22,9 @@
 _MTEXT_BASE:
 #undef START_FROM_MEM
 #ifdef START_FROM_MEM
-	.word	CONFIG_SYS_TEXT_BASE-PHYS_FLASH_1
+	.word	CONFIG_TEXT_BASE-PHYS_FLASH_1
 #else
-	.word	CONFIG_SYS_TEXT_BASE
+	.word	CONFIG_TEXT_BASE
 #endif
 
 .globl lowlevel_init

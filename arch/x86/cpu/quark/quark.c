@@ -49,7 +49,7 @@ static void quark_setup_mtrr(void)
 
 	/* variable range MTRR#0: ROM area */
 	mask = ~(CONFIG_SYS_MONITOR_LEN - 1);
-	base = CONFIG_SYS_TEXT_BASE & mask;
+	base = CONFIG_TEXT_BASE & mask;
 	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYBASE(MTRR_VAR_ROM),
 		       base | MTRR_TYPE_WRBACK);
 	msg_port_write(MSG_PORT_HOST_BRIDGE, MTRR_VAR_PHYMASK(MTRR_VAR_ROM),

@@ -55,7 +55,7 @@ def main():
     uboot_scrypt_file   = "u-boot-update.txt"
 
     # initial header values: place where preloader will store u-boot binary,
-    # should be equal to CONFIG_SYS_TEXT_BASE
+    # should be equal to CONFIG_TEXT_BASE
     image_copy_adr  = 0x81000000
 
     # initial constant header values, do not change these values

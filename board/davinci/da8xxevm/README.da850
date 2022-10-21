@@ -124,7 +124,7 @@ NOR Flash is XIP (execute-in-place), so no AIS (or SPL) is needed. The
 u-boot.bin is directy flashed, but CONFIT_DA850_LOWLEVEL must be set
 to initialize hardware that's normally done by SPL.
 
-For this case, CONFIG_SYS_TEXT_BASE=0x60000000 which is the address to
+For this case, CONFIG_TEXT_BASE=0x60000000 which is the address to
 which the bootloader jumps when powered on.
 
 Example:

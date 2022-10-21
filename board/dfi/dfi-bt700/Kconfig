@@ -11,7 +11,7 @@ config SYS_CONFIG_NAME
 	default "dfi-bt700" if TARGET_Q7X_151_DFI_BT700
 	default "theadorable-x86-dfi-bt700" if TARGET_THEADORABLE_X86_DFI_BT700
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0xfff00000
 
 config BOARD_SPECIFIC_OPTIONS # dummy

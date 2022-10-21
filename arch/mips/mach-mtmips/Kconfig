@@ -28,7 +28,7 @@ config SYS_ICACHE_LINE_SIZE
 config SYS_SCACHE_LINE_SIZE
 	default 32 if SOC_MT7621
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x9c000000 if !SPL && !SOC_MT7621
 	default 0x80200000 if SPL || SOC_MT7621
 

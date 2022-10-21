@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 DECLARE_BINMAN_MAGIC_SYM;
 
 #ifndef CONFIG_SYS_UBOOT_START
-#define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_UBOOT_START	CONFIG_TEXT_BASE
 #endif
 #ifndef CONFIG_SYS_MONITOR_LEN
 /* Unknown U-Boot size, let's assume it will not be more than 200 KB */
@@ -192,7 +192,7 @@ ulong spl_get_image_text_base(void)
 		return CONFIG_VPL_TEXT_BASE;
 #endif
 	return spl_next_phase() == PHASE_SPL ? CONFIG_SPL_TEXT_BASE :
-		CONFIG_SYS_TEXT_BASE;
+		CONFIG_TEXT_BASE;
 }
 
 /*
@@ -229,7 +229,7 @@ __weak void spl_board_prepare_for_boot(void)
 
 __weak struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
-	return map_sysmem(CONFIG_SYS_TEXT_BASE + offset, 0);
+	return map_sysmem(CONFIG_TEXT_BASE + offset, 0);
 }
 
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
@@ -249,7 +249,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 		spl_image->load_addr = u_boot_pos;
 	} else {
 		spl_image->entry_point = CONFIG_SYS_UBOOT_START;
-		spl_image->load_addr = CONFIG_SYS_TEXT_BASE;
+		spl_image->load_addr = CONFIG_TEXT_BASE;
 	}
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";

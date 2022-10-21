@@ -24,7 +24,7 @@
 
 /* Memory layout */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_UBOOT_BASE		CONFIG_TEXT_BASE
 /*
  * The board really has 256M. However, the VC (VideoCore co-processor) shares
  * the RAM, and uses a configurable portion at the top. We tell U-Boot that a

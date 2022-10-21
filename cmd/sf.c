@@ -558,7 +558,7 @@ static int do_spi_flash_test(int argc, char *const argv[])
 		return 1;
 	}
 
-	from = map_sysmem(CONFIG_SYS_TEXT_BASE, 0);
+	from = map_sysmem(CONFIG_TEXT_BASE, 0);
 	memcpy(buf, from, len);
 	ret = spi_flash_test(flash, buf, len, offset, vbuf);
 	free(vbuf);

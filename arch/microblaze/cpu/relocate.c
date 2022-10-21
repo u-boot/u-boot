@@ -19,7 +19,7 @@
  * @rela_start: rela section start
  * @rela_end: rela section end
  * @dyn_start: dynamic section start
- * @origin_addr: address where u-boot starts(doesn't need to be CONFIG_SYS_TEXT_BASE)
+ * @origin_addr: address where u-boot starts(doesn't need to be CONFIG_TEXT_BASE)
  */
 void mb_fix_rela(u32 reloc_addr, u32 verbose, u32 rela_start,
 		 u32 rela_end, u32 dyn_start, u32 origin_addr)
@@ -29,9 +29,9 @@ void mb_fix_rela(u32 reloc_addr, u32 verbose, u32 rela_start,
 	/*
 	 * Return in case u-boot.elf is used directly.
 	 * Skip it when u-boot.bin is loaded to different address than
-	 * CONFIG_SYS_TEXT_BASE. In this case relocation is necessary to run.
+	 * CONFIG_TEXT_BASE. In this case relocation is necessary to run.
 	 */
-	if (reloc_addr == CONFIG_SYS_TEXT_BASE) {
+	if (reloc_addr == CONFIG_TEXT_BASE) {
 		debug_cond(verbose,
 			   "Relocation address is the same - skip relocation\n");
 		return;

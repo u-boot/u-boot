@@ -9,7 +9,7 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "ci20"
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x80000000
 
 endif

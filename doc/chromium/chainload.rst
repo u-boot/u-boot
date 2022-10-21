@@ -140,7 +140,7 @@ bytes of U-Boot::
 
 
 The 'data' property of the FIT is set up to start at offset 0x100 bytes into
-the file. The change to CONFIG_SYS_TEXT_BASE is also an offset of 0x100 bytes
+the file. The change to CONFIG_TEXT_BASE is also an offset of 0x100 bytes
 from the load address. If this changes, you either need to modify U-Boot to be
 fully relocatable, or expect it to hang.
 
@@ -156,11 +156,11 @@ Open include/configs/rk3288_common.h
 
 Change::
 
-   #define CONFIG_SYS_TEXT_BASE		0x00100000
+   #define CONFIG_TEXT_BASE		0x00100000
 
 to::
 
-   #define CONFIG_SYS_TEXT_BASE		0x02000100
+   #define CONFIG_TEXT_BASE		0x02000100
 
 
 
@@ -254,4 +254,4 @@ it uses a fixed address to load the FIT and does not support load/exec
 addresses. This means that U-Boot must be able to boot from whatever
 address Depthcharge happens to use (it is the CONFIG_KERNEL_START setting
 in Depthcharge). In practice this means that the data in the kernel@1 FIT node
-(see above) must start at the same address as U-Boot's CONFIG_SYS_TEXT_BASE.
+(see above) must start at the same address as U-Boot's CONFIG_TEXT_BASE.

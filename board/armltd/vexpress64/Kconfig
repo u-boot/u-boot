@@ -54,9 +54,9 @@ config JUNO_DTB_PART
 	  device tree blob to configure U-Boot.
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
-	default SYS_TEXT_BASE
+	default TEXT_BASE
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x88000000 if TARGET_VEXPRESS64_BASE_FVP
 	default 0xe0000000 if TARGET_VEXPRESS64_JUNO
 	default 0x00001000 if TARGET_VEXPRESS64_BASER_FVP

@@ -431,7 +431,7 @@ config ROCKCHIP_SPI_IMAGE
 	  is built by binman. U-Boot sits near the start of the image.
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
-	default SYS_TEXT_BASE
+	default TEXT_BASE
 
 source "arch/arm/mach-rockchip/px30/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"

@@ -69,7 +69,7 @@
  * CONFIG_SYS_FLASH_BASE has the final address (core view)
  * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
  * CONFIG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
- * CONFIG_SYS_TEXT_BASE is linked to 0x30000000 for booting
+ * CONFIG_TEXT_BASE is linked to 0x30000000 for booting
  */
 
 #define CONFIG_SYS_FLASH_BASE			0x580000000ULL

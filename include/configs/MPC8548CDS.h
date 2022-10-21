@@ -367,15 +367,15 @@
 	"netdev=eth0\0"				\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot; "	\
-		"protect off " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		"protect off " __stringify(CONFIG_TEXT_BASE)	\
 			" +$filesize; "	\
-		"erase " __stringify(CONFIG_SYS_TEXT_BASE)		\
+		"erase " __stringify(CONFIG_TEXT_BASE)		\
 			" +$filesize; "	\
-		"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		"cp.b $loadaddr " __stringify(CONFIG_TEXT_BASE)	\
 			" $filesize; "	\
-		"protect on " __stringify(CONFIG_SYS_TEXT_BASE)		\
+		"protect on " __stringify(CONFIG_TEXT_BASE)		\
 			" +$filesize; "	\
-		"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		"cmp.b $loadaddr " __stringify(CONFIG_TEXT_BASE)	\
 			" $filesize\0"	\
 	"consoledev=ttyS1\0"			\
 	"ramdiskaddr=2000000\0"			\

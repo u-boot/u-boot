@@ -93,7 +93,7 @@ The OpenSBI source can be downloaded via:
 As OpenSBI will be loaded at 0x80000000 we have to adjust the U-Boot text base.
 Furthermore we have to enable building U-Boot for S-mode::
 
-    CONFIG_SYS_TEXT_BASE=0x80020000
+    CONFIG_TEXT_BASE=0x80020000
     CONFIG_RISCV_SMODE=y
 
 Both settings are contained in sipeed_maix_smode_defconfig so we can build
@@ -115,7 +115,7 @@ To build OpenSBI with U-Boot as a payload:
     FW_PAYLOAD_OFFSET=0x20000 \
     FW_PAYLOAD_PATH=<path to U-Boot>/u-boot-dtb.bin
 
-The value of FW_PAYLOAD_OFFSET must match CONFIG_SYS_TEXT_BASE - 0x80000000.
+The value of FW_PAYLOAD_OFFSET must match CONFIG_TEXT_BASE - 0x80000000.
 
 The file to flash is build/platform/kendryte/k210/firmware/fw_payload.bin.
 

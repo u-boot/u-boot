@@ -12,7 +12,7 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "chromebox_panther"
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0xfff00000
 
 # Panther actually uses haswell, not ivybridge, so this is just a placeholder

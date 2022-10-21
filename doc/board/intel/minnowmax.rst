@@ -56,7 +56,7 @@ Offset   Description         Controlling config
 500000   <spare>
 6ef000   Environment         CONFIG_ENV_OFFSET
 6f0000   MRC cache           CONFIG_ENABLE_MRC_CACHE
-700000   u-boot-dtb.bin      CONFIG_SYS_TEXT_BASE
+700000   u-boot-dtb.bin      CONFIG_TEXT_BASE
 7b0000   vga.bin             CONFIG_VGA_BIOS_ADDR
 7c0000   fsp.bin             CONFIG_FSP_ADDR
 7f8000   <spare>             (depends on size of fsp.bin)
