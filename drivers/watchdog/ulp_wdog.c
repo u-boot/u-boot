@@ -7,6 +7,8 @@
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <dm.h>
+#include <wdt.h>
 
 /*
  * MX7ULP WDOG Register Map
@@ -16,6 +18,11 @@ struct wdog_regs {
 	u32 cnt;
 	u32 toval;
 	u32 win;
+};
+
+struct ulp_wdt_priv {
+	struct wdog_regs *wdog;
+	u32 clk_rate;
 };
 
 #ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
@@ -46,6 +53,9 @@ struct wdog_regs {
 #define WDG_32KHZ_CLK                    (0x2)
 #define WDG_EXT_CLK                      (0x3)
 
+#define CLK_RATE_1KHZ			1000
+#define CLK_RATE_32KHZ			125
+
 void hw_watchdog_set_timeout(u16 val)
 {
 	/* setting timeout value */
@@ -54,10 +64,8 @@ void hw_watchdog_set_timeout(u16 val)
 	writel(val, &wdog->toval);
 }
 
-void hw_watchdog_reset(void)
+void ulp_watchdog_reset(struct wdog_regs *wdog)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
-
 	if (readl(&wdog->cs) & WDGCS_CMD32EN) {
 		writel(REFRESH_WORD, &wdog->cnt);
 	} else {
@@ -68,9 +76,8 @@ void hw_watchdog_reset(void)
 	}
 }
 
-void hw_watchdog_init(void)
+void ulp_watchdog_init(struct wdog_regs *wdog, u16 timeout)
 {
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
 	u32 cmd32 = 0;
 
 	if (readl(&wdog->cs) & WDGCS_CMD32EN) {
@@ -87,7 +94,7 @@ void hw_watchdog_init(void)
 	while (!(readl(&wdog->cs) & WDGCS_ULK))
 		;
 
-	hw_watchdog_set_timeout(CONFIG_WATCHDOG_TIMEOUT_MSECS);
+	hw_watchdog_set_timeout(timeout);
 	writel(0, &wdog->win);
 
 	/* setting 1-kHz clock source, enable counter running, and clear interrupt */
@@ -102,7 +109,21 @@ void hw_watchdog_init(void)
 	while (!(readl(&wdog->cs) & WDGCS_RCS))
 		;
 
-	hw_watchdog_reset();
+	ulp_watchdog_reset(wdog);
+}
+
+void hw_watchdog_reset(void)
+{
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
+
+	ulp_watchdog_reset(wdog);
+}
+
+void hw_watchdog_init(void)
+{
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE_ADDR;
+
+	ulp_watchdog_init(wdog, CONFIG_WATCHDOG_TIMEOUT_MSECS);
 }
 
 void reset_cpu(void)
@@ -142,3 +163,62 @@ void reset_cpu(void)
 
 	while (1);
 }
+
+static int ulp_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+{
+	struct ulp_wdt_priv *priv = dev_get_priv(dev);
+	u64 timeout = 0;
+
+	timeout = (timeout_ms * priv->clk_rate) / 1000;
+	if (timeout > U16_MAX)
+		return -EINVAL;
+
+	ulp_watchdog_init(priv->wdog, (u16)timeout);
+
+	return 0;
+}
+
+static int ulp_wdt_reset(struct udevice *dev)
+{
+	struct ulp_wdt_priv *priv = dev_get_priv(dev);
+
+	ulp_watchdog_reset(priv->wdog);
+
+	return 0;
+}
+
+static int ulp_wdt_probe(struct udevice *dev)
+{
+	struct ulp_wdt_priv *priv = dev_get_priv(dev);
+
+	priv->wdog = dev_read_addr_ptr(dev);
+	if (!priv->wdog)
+		return -EINVAL;
+
+	priv->clk_rate = (u32)dev_get_driver_data(dev);
+	if (!priv->clk_rate)
+		return -EINVAL;
+
+	return 0;
+}
+
+static const struct wdt_ops ulp_wdt_ops = {
+	.start = ulp_wdt_start,
+	.reset = ulp_wdt_reset,
+};
+
+static const struct udevice_id ulp_wdt_ids[] = {
+	{ .compatible = "fsl,imx7ulp-wdt", .data = CLK_RATE_1KHZ },
+	{ .compatible = "fsl,imx8ulp-wdt", .data = CLK_RATE_1KHZ },
+	{ .compatible = "fsl,imx93-wdt", .data = CLK_RATE_32KHZ },
+	{}
+};
+
+U_BOOT_DRIVER(ulp_wdt) = {
+	.name	= "ulp_wdt",
+	.id	= UCLASS_WDT,
+	.of_match	= ulp_wdt_ids,
+	.priv_auto	= sizeof(struct ulp_wdt_priv),
+	.probe		= ulp_wdt_probe,
+	.ops	= &ulp_wdt_ops,
+};
