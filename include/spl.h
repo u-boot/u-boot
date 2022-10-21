@@ -66,6 +66,8 @@ enum u_boot_phase {
 	PHASE_SPL,	/* Running in SPL */
 	PHASE_BOARD_F,	/* Running in U-Boot before relocation */
 	PHASE_BOARD_R,	/* Running in U-Boot after relocation */
+
+	PHASE_COUNT,
 };
 
 /**

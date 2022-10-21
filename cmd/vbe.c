@@ -7,9 +7,11 @@
  */
 
 #include <common.h>
+#include <bloblist.h>
 #include <bootmeth.h>
 #include <bootstd.h>
 #include <command.h>
+#include <spl.h>
 #include <vbe.h>
 
 static int do_vbe_list(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -74,14 +76,41 @@ static int do_vbe_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_vbe_state(struct cmd_tbl *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	struct vbe_handoff *handoff;
+	int i;
+
+	handoff = bloblist_find(BLOBLISTT_VBE, sizeof(struct vbe_handoff));
+	if (!handoff) {
+		printf("No VBE state\n");
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Phases:");
+	for (i = PHASE_NONE; i < PHASE_COUNT; i++) {
+		if (handoff->phases & (1 << i))
+			printf(" %s", spl_phase_name(i));
+
+	}
+	if (!handoff->phases)
+		printf(" (none)");
+	printf("\n");
+
+	return 0;
+}
+
 #ifdef CONFIG_SYS_LONGHELP
 static char vbe_help_text[] =
 	"list   - list VBE bootmeths\n"
 	"vbe select - select a VBE bootmeth by sequence or name\n"
-	"vbe info   - show information about a VBE bootmeth";
+	"vbe info   - show information about a VBE bootmeth\n"
+	"vbe state  - show VBE state";
 #endif
 
 U_BOOT_CMD_WITH_SUBCMDS(vbe, "Verified Boot for Embedded", vbe_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_vbe_list),
 	U_BOOT_SUBCMD_MKENT(select, 2, 1, do_vbe_select),
+	U_BOOT_SUBCMD_MKENT(state, 2, 1, do_vbe_state),
 	U_BOOT_SUBCMD_MKENT(info, 2, 1, do_vbe_info));
