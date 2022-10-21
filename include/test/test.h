@@ -13,6 +13,7 @@
  * struct unit_test_state - Entire state of test system
  *
  * @fail_count: Number of tests that failed
+ * @skip_count: Number of tests that were skipped
  * @start: Store the starting mallinfo when doing leak test
  * @of_live: true to use livetree if available, false to use flattree
  * @of_root: Record of the livetree root node (used for setting up tests)
@@ -32,6 +33,7 @@
  */
 struct unit_test_state {
 	int fail_count;
+	int skip_count;
 	struct mallinfo start;
 	struct device_node *of_root;
 	bool of_live;
