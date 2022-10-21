@@ -373,9 +373,6 @@ int stdio_add_devices(void)
 			drv_video_init();
 	}
 
-#if defined(CONFIG_KEYBOARD) && !defined(CONFIG_DM_KEYBOARD)
-	drv_keyboard_init();
-#endif
 	drv_system_init();
 	serial_stdio_init();
 #ifdef CONFIG_USB_TTY

@@ -3,7 +3,6 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-$(CONFIG_KEYBOARD) += input.o
 obj-$(CONFIG_$(SPL_TPL_)CROS_EC_KEYB) += cros_ec_keyb.o
 obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += key_matrix.o
 obj-$(CONFIG_$(SPL_TPL_)DM_KEYBOARD) += input.o keyboard-uclass.o

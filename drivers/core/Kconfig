@@ -1,7 +1,7 @@
 menu "Generic Driver Options"
 
 config DM
-	bool "Enable Driver Model"
+	def_bool y
 	help
 	  This config option enables Driver Model. This brings in the core
 	  support, including scanning of platform data on start-up. If
