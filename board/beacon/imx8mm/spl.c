@@ -44,11 +44,6 @@ static void spl_dram_init(void)
 	ddr_init(&dram_timing);
 }
 
-void spl_board_init(void)
-{
-	debug("Normal Boot\n");
-}
-
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
