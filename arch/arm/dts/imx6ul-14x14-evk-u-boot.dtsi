@@ -8,7 +8,7 @@
 	display0 = &lcdif;
 };
 
-&{/soc} {
+&soc {
 	u-boot,dm-pre-reloc;
 };
 
