@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 //
 // Copyright 2019 NXP
-// Author: Fabio Estevam <fabio.estevam@nxp.com>
 
 /dts-v1/;
 
 #include "imx7ulp.dtsi"
-#include "imx7ulp-com-u-boot.dtsi"
+#include <dt-bindings/input/input.h>
 
 / {
 	model = "Embedded Artists i.MX7ULP COM";
@@ -16,9 +15,9 @@
 		stdout-path = &lpuart4;
 	};
 
-	memory {
+	memory@60000000 {
 		device_type = "memory";
-		reg = <0x60000000 0x8000000>;
+		reg = <0x60000000 0x4000000>;
 	};
 };
 
@@ -37,11 +36,9 @@
 	status = "okay";
 };
 
-&usbphy1 {
-	fsl,tx-d-cal = <88>;
-};
-
 &usdhc0 {
+	assigned-clocks = <&pcc2 IMX7ULP_CLK_USDHC0>;
+	assigned-clock-parents = <&scg1 IMX7ULP_CLK_APLL_PFD1>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc0>;
 	non-removable;
@@ -51,19 +48,16 @@
 };
 
 &iomuxc1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_hog_1>;
-
-	pinctrl_hog_1: hoggrp-1 {
-		fsl,pins = <
-			IMX7ULP_PAD_PTC1__PTC1		0x20000
-		>;
-	};
-
 	pinctrl_lpuart4: lpuart4grp {
 		fsl,pins = <
 			IMX7ULP_PAD_PTC3__LPUART4_RX	0x3
 			IMX7ULP_PAD_PTC2__LPUART4_TX	0x3
+		>;
+	};
+
+	pinctrl_usbotg1_id: otg1idgrp {
+		fsl,pins = <
+			IMX7ULP_PAD_PTC13__USB0_ID	0x10003
 		>;
 	};
 
@@ -80,12 +74,6 @@
 			IMX7ULP_PAD_PTD9__SDHC0_D1	0x43
 			IMX7ULP_PAD_PTD10__SDHC0_D0	0x43
 			IMX7ULP_PAD_PTD11__SDHC0_DQS	0x42
-		>;
-	};
-
-	pinctrl_usbotg1_id: otg1idgrp {
-		fsl,pins = <
-			IMX7ULP_PAD_PTC13__USB0_ID	0x10003
 		>;
 	};
 };
