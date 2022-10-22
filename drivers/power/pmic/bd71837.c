@@ -63,10 +63,11 @@ static int bd71837_bind(struct udevice *dev)
 
 	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
 
-	children = pmic_bind_children(dev, regulators_node, pmic_children_info);
-	if (!children)
-		debug("%s: %s - no child found\n", __func__, dev->name);
-
+	if (CONFIG_IS_ENABLED(PMIC_CHILDREN)) {
+		children = pmic_bind_children(dev, regulators_node, pmic_children_info);
+		if (!children)
+			debug("%s: %s - no child found\n", __func__, dev->name);
+	}
 	/* Always return success for this device */
 	return 0;
 }
