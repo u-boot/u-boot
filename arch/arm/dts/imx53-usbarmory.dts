@@ -91,7 +91,6 @@
 &esdhc1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_esdhc1>;
-	broken-cd;
 	status = "okay";
 };
 
