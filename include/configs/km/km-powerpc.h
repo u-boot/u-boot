@@ -21,11 +21,8 @@
  * @CONFIG_KM_RESERVED_PRAM: reserved pram for special purpose
  * @CONFIG_KM_PHRAM: address for /var
  * @CONFIG_KM_PNVRAM: address for PNVRAM (for the application)
- * @CONFIG_KM_ROOTFSSIZE: address for rootfilesystem in RAM
  */
 
-/* size of rootfs in RAM */
-#define CONFIG_KM_ROOTFSSIZE	0x0
 /* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
  * is not valid yet, which is the case for when u-boot copies itself to RAM */
 #define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM)>>10)

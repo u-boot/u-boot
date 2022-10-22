@@ -51,9 +51,9 @@ echo "${prompt}"
 run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build ${para} \
 		-k 'test_ofplatdata or test_handoff or test_spl'
 
-# Run the sane tests with sandbox_noinst (i.e. without OF_PLATDATA_INST)
+# Run the same tests with sandbox_noinst (i.e. without OF_PLATDATA_INST)
 echo "${prompt}"
-run_test "sandbox_spl" ./test/py/test.py --bd sandbox_noinst --build ${para} \
+run_test "sandbox_noinst" ./test/py/test.py --bd sandbox_noinst --build ${para} \
 		-k 'test_ofplatdata or test_handoff or test_spl'
 
 if [ -z "$tools_only" ]; then

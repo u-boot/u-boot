@@ -119,7 +119,7 @@ int blkcache_init(void);
  * @param start - starting block number
  * @param blkcnt - number of blocks to read
  * @param blksz - size in bytes of each block
- * @param buf - buffer to contain cached data
+ * @param buffer - buffer to contain cached data
  *
  * Return: - 1 if block returned from cache, 0 otherwise.
  */
@@ -136,7 +136,7 @@ int blkcache_read(int iftype, int dev,
  * @param start - starting block number
  * @param blkcnt - number of blocks available
  * @param blksz - size in bytes of each block
- * @param buf - buffer containing data to cache
+ * @param buffer - buffer containing data to cache
  *
  */
 void blkcache_fill(int iftype, int dev,
@@ -250,7 +250,7 @@ struct blk_ops {
 	 * The MMC standard provides for two boot partitions (numbered 1 and 2),
 	 * rpmb (3), and up to 4 addition general-purpose partitions (4-7).
 	 *
-	 * @desc:	Block device to update
+	 * @dev:	Block device to update
 	 * @hwpart:	Hardware partition number to select. 0 means the raw
 	 *		device, 1 is the first partition, 2 is the second, etc.
 	 * @return 0 if OK, -ve on error
@@ -642,6 +642,7 @@ int blk_print_part_devnum(enum uclass_id uclass_id, int devnum);
  *
  * @uclass_id:	Block device type
  * @devnum:	Device number
+ * @start:	Start block number to read (0=first)
  * @blkcnt:	Number of blocks to read
  * @buffer:	Address to write data to
  * Return: number of blocks read, or -ve error number on error
@@ -654,6 +655,7 @@ ulong blk_read_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
  *
  * @uclass_id:	Block device type
  * @devnum:	Device number
+ * @start:	Start block number to write (0=first)
  * @blkcnt:	Number of blocks to write
  * @buffer:	Address to read data from
  * Return: number of blocks written, or -ve error number on error

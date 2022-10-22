@@ -26,8 +26,8 @@ static int qemu_fwcfg_cmd_setup_kernel(void *load_addr, void *initrd_addr)
 	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_SIZE, 4, &kernel_size);
 
 	if (kernel_size == 0) {
-		printf("warning: no kernel available\n");
-		return -1;
+		printf("fatal: no kernel available\n");
+		return CMD_RET_FAILURE;
 	}
 
 	data_addr = load_addr;
@@ -40,6 +40,7 @@ static int qemu_fwcfg_cmd_setup_kernel(void *load_addr, void *initrd_addr)
 	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_DATA,
 		       le32_to_cpu(kernel_size), data_addr);
 	data_addr += le32_to_cpu(kernel_size);
+	env_set_hex("filesize", le32_to_cpu(kernel_size));
 
 	data_addr = initrd_addr;
 	qfw_read_entry(qfw_dev, FW_CFG_INITRD_SIZE, 4, &initrd_size);
@@ -49,6 +50,7 @@ static int qemu_fwcfg_cmd_setup_kernel(void *load_addr, void *initrd_addr)
 		qfw_read_entry(qfw_dev, FW_CFG_INITRD_DATA,
 			       le32_to_cpu(initrd_size), data_addr);
 		data_addr += le32_to_cpu(initrd_size);
+		env_set_hex("filesize", le32_to_cpu(initrd_size));
 	}
 
 	qfw_read_entry(qfw_dev, FW_CFG_CMDLINE_SIZE, 4, &cmdline_size);

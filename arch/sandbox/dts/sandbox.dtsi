@@ -239,6 +239,7 @@
 
 	reset@1 {
 		compatible = "sandbox,reset";
+		u-boot,dm-pre-proper;
 	};
 
 	rng {

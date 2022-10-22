@@ -14,6 +14,7 @@
 #include <part.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <linux/err.h>
 
 enum bcb_cmd {
 	BCB_CMD_LOAD,
@@ -124,6 +125,16 @@ static int __bcb_load(int devnum, const char *partp)
 
 	desc = blk_get_devnum_by_uclass_id(UCLASS_MMC, devnum);
 	if (!desc) {
+		ret = -ENODEV;
+		goto err_read_fail;
+	}
+
+	/*
+	 * always select the USER mmc hwpart in case another
+	 * blk operation selected a different hwpart
+	 */
+	ret = blk_dselect_hwpart(desc, 0);
+	if (IS_ERR_VALUE(ret)) {
 		ret = -ENODEV;
 		goto err_read_fail;
 	}
