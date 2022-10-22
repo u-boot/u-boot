@@ -48,25 +48,25 @@
 
 	clocks {
 		ckil {
-			compatible = "fsl,imx-ckil", "fixed-clock";
+			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <32768>;
 		};
 
 		ckih1 {
-			compatible = "fsl,imx-ckih1", "fixed-clock";
+			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <0>;
 		};
 
 		ckih2 {
-			compatible = "fsl,imx-ckih2", "fixed-clock";
+			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <0>;
 		};
 
 		osc {
-			compatible = "fsl,imx-osc", "fixed-clock";
+			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <24000000>;
 		};
@@ -114,7 +114,7 @@
 		ports = <&ipu_di0>, <&ipu_di1>;
 	};
 
-	soc {
+	soc: soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "simple-bus";
@@ -171,14 +171,14 @@
 			};
 		};
 
-		bus@70000000 { /* AIPS1 */
+		aips1: bus@70000000 { /* AIPS1 */
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
 			reg = <0x70000000 0x10000000>;
 			ranges;
 
-			spba@70000000 {
+			spba-bus@70000000 {
 				compatible = "fsl,spba-bus", "simple-bus";
 				#address-cells = <1>;
 				#size-cells = <1>;
@@ -215,6 +215,8 @@
 					clocks = <&clks IMX5_CLK_UART3_IPG_GATE>,
 						 <&clks IMX5_CLK_UART3_PER_GATE>;
 					clock-names = "ipg", "per";
+					dmas = <&sdma 43 5 1>, <&sdma 44 5 2>;
+					dma-names = "rx", "tx";
 					status = "disabled";
 				};
 
@@ -426,6 +428,8 @@
 				clocks = <&clks IMX5_CLK_UART1_IPG_GATE>,
 					 <&clks IMX5_CLK_UART1_PER_GATE>;
 				clock-names = "ipg", "per";
+				dmas = <&sdma 18 4 1>, <&sdma 19 4 2>;
+				dma-names = "rx", "tx";
 				status = "disabled";
 			};
 
@@ -436,6 +440,8 @@
 				clocks = <&clks IMX5_CLK_UART2_IPG_GATE>,
 					 <&clks IMX5_CLK_UART2_PER_GATE>;
 				clock-names = "ipg", "per";
+				dmas = <&sdma 16 4 1>, <&sdma 17 4 2>;
+				dma-names = "rx", "tx";
 				status = "disabled";
 			};
 
@@ -454,7 +460,7 @@
 			};
 		};
 
-		bus@80000000 {	/* AIPS2 */
+		aips2: bus@80000000 {	/* AIPS2 */
 			compatible = "fsl,aips-bus", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -467,7 +473,7 @@
 			};
 
 			iim: efuse@83f98000 {
-				compatible = "fsl,imx51-iim", "fsl,imx27-iim";
+				compatible = "fsl,imx51-iim", "fsl,imx27-iim", "syscon";
 				reg = <0x83f98000 0x4000>;
 				interrupts = <69>;
 				clocks = <&clks IMX5_CLK_IIM_GATE>;
