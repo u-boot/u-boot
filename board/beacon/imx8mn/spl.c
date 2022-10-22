@@ -74,6 +74,38 @@ static iomux_v3_cfg_t const pwm_pads[] = {
 	IMX8MN_PAD_GPIO1_IO01__PWM1_OUT | MUX_PAD_CTRL(PWM1_PAD_CTRL),
 };
 
+static int power_init_board(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = pmic_get("pmic@4b", &dev);
+	if (ret == -ENODEV) {
+		puts("No pmic\n");
+		return 0;
+	}
+
+	if (ret != 0)
+		return ret;
+
+	/* decrease RESET key long push time from the default 10s to 10ms */
+	pmic_reg_write(dev, BD718XX_PWRONCONFIG1, 0x0);
+
+	/* unlock the PMIC regs */
+	pmic_reg_write(dev, BD718XX_REGLOCK, 0x1);
+
+	/* increase VDD_SOC to typical value 0.85v before first DRAM access */
+	pmic_reg_write(dev, BD718XX_BUCK1_VOLT_RUN, 0x0f);
+
+	/* increase VDD_DRAM to 0.975v for 3Ghz DDR */
+	pmic_reg_write(dev, BD718XX_1ST_NODVS_BUCK_VOLT, 0x83);
+
+	/* lock the PMIC regs */
+	pmic_reg_write(dev, BD718XX_REGLOCK, 0x11);
+
+	return 0;
+}
+
 int board_early_init_f(void)
 {
 	/* Claiming pwm pins prevents LCD flicker during startup*/
@@ -106,6 +138,9 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	enable_tzc380();
+
+	/* LPDDR4 at 1.6GHz requires a voltage adjustment on the PMIC */
+	power_init_board();
 
 	/* DDR initialization */
 	spl_dram_init();
