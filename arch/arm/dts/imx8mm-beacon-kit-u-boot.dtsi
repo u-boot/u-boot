@@ -13,6 +13,10 @@
 	};
 };
 
+&aips4 {
+	u-boot,dm-spl;
+};
+
 &reg_usdhc2_vmmc {
 	u-boot,off-on-delay-us = <20000>;
 };
@@ -77,12 +81,24 @@
 	u-boot,dm-spl;
 };
 
+&reg_usbotg1 {
+
+};
+
 &uart2 {
 	u-boot,dm-spl;
 };
 
+&usbmisc1 {
+	u-boot,dm-spl;
+};
+
 &usbotg1 {
-	dr_mode="host";
+	u-boot,dm-spl;
+};
+
+&usbphynop1 {
+	u-boot,dm-spl;
 };
 
 &usdhc2 {

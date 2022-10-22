@@ -34,6 +34,8 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	case SD3_BOOT:
 	case MMC3_BOOT:
 		return BOOT_DEVICE_MMC2;
+	case USB_BOOT:
+		return BOOT_DEVICE_BOARD;
 	default:
 		return BOOT_DEVICE_NONE;
 	}
