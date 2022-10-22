@@ -1,24 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2020 Compass Electronics Group, LLC
+ * Copyright 2022 Logic PD, Inc. dba Beacon EmbeddedWorks
  */
 
-/ {
-	binman: binman {
-		multiple-images;
-	};
-
-	wdt-reboot {
-		compatible = "wdt-reboot";
-		wdt = <&wdog1>;
-		u-boot,dm-spl;
-	};
-};
-
-&{/soc@0} {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
-};
+#include "imx8mn-u-boot.dtsi"
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@4b} {
 	u-boot,dm-spl;
@@ -26,27 +11,6 @@
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@4b/regulators} {
 	u-boot,dm-spl;
-};
-
-&aips1 {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-};
-
-&aips2 {
-	u-boot,dm-spl;
-};
-
-&aips3 {
-	u-boot,dm-spl;
-};
-
-&clk {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-	/delete-property/ assigned-clock-rates;
 };
 
 &gpio1 {
@@ -59,15 +23,6 @@
 
 &i2c1 {
 	u-boot,dm-spl;
-};
-
-&iomuxc {
-	u-boot,dm-spl;
-};
-
-&osc_24m {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
 };
 
 &pca6416_0 {
@@ -106,10 +61,6 @@
 	u-boot,off-on-delay-us = <20000>;
 };
 
-&spba1 {
-	u-boot,dm-spl;
-};
-
 &uart2 {
 	u-boot,dm-spl;
 };
@@ -132,133 +83,6 @@
 	mmc-hs400-enhanced-strobe;
 };
 
-&wdog1 {
-	u-boot,dm-spl;
-};
-
 &pinctrl_wdog {
 	u-boot,dm-spl;
-};
-
-&binman {
-	 u-boot-spl-ddr {
-		filename = "u-boot-spl-ddr.bin";
-		pad-byte = <0xff>;
-		align-size = <4>;
-		align = <4>;
-
-		u-boot-spl {
-			align-end = <4>;
-		};
-
-		ddr-1d-imem-fw {
-			filename = "lpddr4_pmu_train_1d_imem.bin";
-			type = "blob-ext";
-			align-end = <4>;
-		};
-
-		ddr-1d-dmem-fw {
-			filename = "lpddr4_pmu_train_1d_dmem.bin";
-			type = "blob-ext";
-			align-end = <4>;
-		};
-
-		ddr-2d-imem-fw {
-			filename = "lpddr4_pmu_train_2d_imem.bin";
-			type = "blob-ext";
-			align-end = <4>;
-		};
-
-		ddr-2d-dmem-fw {
-			filename = "lpddr4_pmu_train_2d_dmem.bin";
-			type = "blob-ext";
-			align-end = <4>;
-		};
-	};
-
-
-	spl {
-		filename = "spl.bin";
-
-		mkimage {
-			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x912000";
-
-			blob {
-				filename = "u-boot-spl-ddr.bin";
-			};
-		};
-	};
-
-	itb {
-		filename = "u-boot.itb";
-
-		fit {
-			description = "Configuration to load ATF before U-Boot";
-			#address-cells = <1>;
-			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
-
-			images {
-				uboot {
-					description = "U-Boot (64-bit)";
-					type = "standalone";
-					arch = "arm64";
-					compression = "none";
-					load = <CONFIG_SYS_TEXT_BASE>;
-
-					uboot_blob: blob-ext {
-						filename = "u-boot-nodtb.bin";
-					};
-				};
-
-				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					load = <0x960000>;
-					entry = <0x960000>;
-
-					atf_blob: blob-ext {
-						filename = "bl31.bin";
-					};
-				};
-
-				fdt {
-					description = "NAME";
-					type = "flat_dt";
-					compression = "none";
-
-					uboot_fdt_blob: blob-ext {
-						filename = "u-boot.dtb";
-					};
-				};
-			};
-
-			configurations {
-				default = "conf";
-
-				conf {
-					description = "NAME";
-					firmware = "uboot";
-					loadables = "atf";
-					fdt = "fdt";
-				};
-			};
-		};
-	};
-
-	imx-boot {
-		filename = "flash.bin";
-		pad-byte = <0x00>;
-
-		spl: blob-ext@1 {
-			offset = <0x0>;
-			filename = "spl.bin";
-		};
-
-		uboot: blob-ext@2 {
-			offset = <0x58000>;
-			filename = "u-boot.itb";
-		};
-	};
 };
