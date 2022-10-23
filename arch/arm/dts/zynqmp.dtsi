@@ -874,6 +874,7 @@
 				snps,enable_guctl1_resume_quirk;
 				snps,enable_guctl1_ipd_quirk;
 				snps,xhci-stream-quirk;
+				snps,resume-hs-terminations;
 				/* dma-coherent; */
 			};
 		};
@@ -905,6 +906,7 @@
 				snps,enable_guctl1_resume_quirk;
 				snps,enable_guctl1_ipd_quirk;
 				snps,xhci-stream-quirk;
+				snps,resume-hs-terminations;
 				/* dma-coherent; */
 			};
 		};
