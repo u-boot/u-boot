@@ -2,8 +2,8 @@
 /*
  * Cadence DDR Driver
  *
- * Copyright (C) 2012-2021 Cadence Design Systems, Inc.
- * Copyright (C) 2018-2021 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2012-2022 Cadence Design Systems, Inc.
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef lpddr4_obj_if_h
@@ -79,6 +79,8 @@ typedef struct lpddr4_obj_s {
 	u32 (*setrefreshrate)(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *fspnum, const u32 *tref, const u32 *tras_max);
 
 	u32 (*refreshperchipselect)(const lpddr4_privatedata *pd, const u32 trefinterval);
+
+	u32 (*deferredregverify)(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regvalues[], u16 regnum[], u16 regcount);
 } lpddr4_obj;
 
 extern lpddr4_obj *lpddr4_getinstance(void);

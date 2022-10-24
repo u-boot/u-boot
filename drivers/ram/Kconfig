@@ -86,6 +86,16 @@ config K3_AM64_DDRSS
 	  Enabling this config adds support for the DDR memory controller
 	  on AM642 family of SoCs.
 
+config K3_AM62A_DDRSS
+	bool "Enable AM62A DDRSS support"
+	help
+	  The AM62A DDR subsystem comprises of a DDR controller, DDR PHY and
+	  wrapper logic to integrate these blocks into once device. The DDR
+	  subsystem is used to provide an interface to external SDRAM devices
+	  which can be utilized for storing programs or any other data.
+	  Enabling this option adds support for the DDR memory controller for
+	  the AM62A family of SoCs.
+
 endchoice
 
 config IMXRT_SDRAM
