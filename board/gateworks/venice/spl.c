@@ -156,28 +156,28 @@ static int power_init_board(void)
 		/* Buck 1 DVS control through PMIC_STBY_REQ */
 		dm_i2c_reg_write(dev, PCA9450_BUCK1CTRL, 0x59);
 
-		/* Set DVS1 to 0.8v for suspend */
-		dm_i2c_reg_write(dev, PCA9450_BUCK1OUT_DVS1, 0x10);
+		/* Set DVS1 to 0.85v for suspend */
+		dm_i2c_reg_write(dev, PCA9450_BUCK1OUT_DVS1, 0x14);
 
-		/* increase VDD_DRAM to 0.95v for 3Ghz DDR */
-		dm_i2c_reg_write(dev, PCA9450_BUCK3OUT_DVS0, 0x1C);
+		/* increase VDD_SOC to 0.95V before first DRAM access */
+		dm_i2c_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x1C);
 
-		/* VDD_DRAM off in suspend: B1_ENMODE=10 */
-		dm_i2c_reg_write(dev, PCA9450_BUCK3CTRL, 0x4a);
-
-		/* set VDD_SNVS_0V8 from default 0.85V */
-		dm_i2c_reg_write(dev, PCA9450_LDO2CTRL, 0xC0);
+		/* Kernel uses OD/OD freq for SOC */
+		/* To avoid timing risk from SOC to ARM, increase VDD_ARM to OD voltage 0.95v */
+		dm_i2c_reg_write(dev, PCA9450_BUCK2OUT_DVS0, 0x1C);
 
 		/* set WDOG_B_CFG to cold reset */
 		dm_i2c_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
 	}
 
 	else if ((!strncmp(model, "GW7901", 6)) ||
-		 (!strncmp(model, "GW7902", 6))) {
-		if (!strncmp(model, "GW7901", 6))
-			ret = uclass_get_device_by_seq(UCLASS_I2C, 1, &bus);
-		else
+		 (!strncmp(model, "GW7902", 6)) ||
+		 (!strncmp(model, "GW7903", 6)) ||
+		 (!strncmp(model, "GW7904", 6))) {
+		if (!strncmp(model, "GW7902", 6))
 			ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
+		else
+			ret = uclass_get_device_by_seq(UCLASS_I2C, 1, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C2 probe: %d\n", ret);
 			return ret;
@@ -268,7 +268,7 @@ void board_init_f(ulong dummy)
 			break;
 		mdelay(1);
 	}
-	dram_sz = eeprom_init(0);
+	dram_sz = venice_eeprom_init(0);
 
 	/* PMIC */
 	power_init_board();

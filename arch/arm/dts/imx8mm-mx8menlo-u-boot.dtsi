@@ -6,7 +6,7 @@
 
 / {
 	chosen {
-		stdout-path = &uart2;
+		stdout-path = &uart1;
 	};
 
 	aliases {
@@ -17,22 +17,26 @@
 	};
 };
 
+&aips4 {
+	u-boot,dm-spl;
+};
+
 &i2c4 {
 	/delete-node/ codec@1a;
 };
 
-&pinctrl_uart1 {
-	/delete-property/ u-boot,dm-spl;
-};
-
-&pinctrl_uart2 {
+&reg_usb_otg1_vbus {
 	u-boot,dm-spl;
 };
 
-&uart1 {
-	/delete-property/ u-boot,dm-spl;
+&usbmisc1 {
+	u-boot,dm-spl;
 };
 
-&uart2 {
+&usbphynop1 {
+	u-boot,dm-spl;
+};
+
+&usbotg1 {
 	u-boot,dm-spl;
 };

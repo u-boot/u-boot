@@ -111,7 +111,7 @@ int board_phy_config(struct phy_device *phydev)
 
 int board_init(void)
 {
-	eeprom_init(1);
+	venice_eeprom_init(1);
 
 	if (IS_ENABLED(CONFIG_FEC_MXC))
 		setup_fec();

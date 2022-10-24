@@ -1280,3 +1280,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
+
+int board_mmc_get_env_dev(int devno)
+{
+	return devno;
+}

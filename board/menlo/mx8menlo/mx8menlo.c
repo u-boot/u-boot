@@ -14,5 +14,5 @@
 
 void board_early_init(void)
 {
-	init_uart_clk(1);
+	init_uart_clk(0);
 }

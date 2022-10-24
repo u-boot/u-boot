@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
 /*
  * Copyright (C) 2019 Kontron Electronics GmbH
  */
@@ -41,7 +41,6 @@
 	u-boot,dm-spl;
 };
 
-
 &i2c1 {
 	u-boot,dm-spl;
 	u-boot,dm-pre-reloc;
@@ -49,8 +48,17 @@
 
 &i2c2 {
 	status = "okay";
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c2>;
+};
+
+&iomuxc {
+	pinctrl_i2c2: i2c2grp {
+		fsl,pins = <
+			MX8MM_IOMUXC_I2C2_SCL_I2C2_SCL		0x400001c3
+			MX8MM_IOMUXC_I2C2_SDA_I2C2_SDA		0x400001c3
+		>;
+	};
 };
 
 &pinctrl_ecspi1 {
@@ -63,11 +71,6 @@
 
 &pinctrl_pmic {
 	u-boot,dm-spl;
-	fsl,pins = <
-		MX8MM_IOMUXC_GPIO1_IO00_GPIO1_IO0		0x141
-		/* Disable Pullup for SD_VSEL */
-		MX8MM_IOMUXC_GPIO1_IO04_GPIO1_IO4		0x41
-	>;
 };
 
 &pinctrl_uart3 {

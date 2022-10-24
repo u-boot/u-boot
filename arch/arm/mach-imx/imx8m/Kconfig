@@ -160,6 +160,20 @@ config TARGET_IMX8MP_DH_DHCOM_PDK2
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
 
+config TARGET_IMX8MP_ICORE_MX8MP
+	bool "Engicam i.Core MX8M Plus SOM"
+	select BINMAN
+	select IMX8MP
+	select IMX8M_LPDDR4
+	select SUPPORT_SPL
+	help
+	  i.Core MX8M Plus is an EDIMM SOM based on NXP i.MX8MP.
+
+	  i.Core MX8M Plus EDIMM2.2:
+	  * EDIMM2.2 is a Form Factor Capacitive Evaluation Board.
+	  * i.Core MX8M Plus needs to mount on top of EDIMM2.2 for
+	    creating complete i.Core MX8M Plus EDIMM2.2 Starter Kit.
+
 config TARGET_IMX8MP_EVK
 	bool "imx8mp LPDDR4 EVK board"
 	select BINMAN
@@ -287,6 +301,7 @@ source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
 source "board/data_modul/imx8mm_edm_sbc/Kconfig"
 source "board/dhelectronics/dh_imx8mp/Kconfig"
 source "board/engicam/imx8mm/Kconfig"
+source "board/engicam/imx8mp/Kconfig"
 source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"

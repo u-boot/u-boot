@@ -16,7 +16,6 @@
 		/delete-property/ serial7;
 		/delete-property/ spi2;
 		/delete-property/ spi3;
-		/delete-property/ spi4;
 	};
 };
 

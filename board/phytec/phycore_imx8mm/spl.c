@@ -42,16 +42,6 @@ static void spl_dram_init(void)
 	ddr_init(&dram_timing);
 }
 
-void spl_board_init(void)
-{
-	/* Serial download mode */
-	if (is_usb_boot()) {
-		puts("Back to ROM, SDP\n");
-		restore_boot_params();
-	}
-	puts("Normal Boot\n");
-}
-
 int board_fit_config_name_match(const char *name)
 {
 	return 0;

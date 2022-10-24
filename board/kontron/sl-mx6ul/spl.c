@@ -17,12 +17,13 @@
 #include <linux/sizes.h>
 #include <linux/errno.h>
 #include <mmc.h>
+#include <sl-mx6ul-common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
-	BOARD_TYPE_KTN_N631X = 1,
-	BOARD_TYPE_KTN_N641X,
+	BOARD_TYPE_KTN_SL_UL = 1,
+	BOARD_TYPE_KTN_SL_ULL,
 	BOARD_TYPE_MAX
 };
 
@@ -294,9 +295,9 @@ static void spl_dram_init(void)
 static int do_board_detect(void)
 {
 	if (is_mx6ul())
-		gd->board_type = BOARD_TYPE_KTN_N631X;
+		gd->board_type = BOARD_TYPE_KTN_SL_UL;
 	else if (is_mx6ull())
-		gd->board_type = BOARD_TYPE_KTN_N641X;
+		gd->board_type = BOARD_TYPE_KTN_SL_ULL;
 
 	printf("Kontron SL i.MX6UL%s (N6%s1x) module, %lu MB RAM detected\n",
 	       is_mx6ull() ? "L" : "", is_mx6ull() ? "4" : "3", gd->ram_size / SZ_1M);
@@ -339,38 +340,42 @@ void board_boot_order(u32 *spl_boot_list)
 
 	/*
 	 * The default boot fuse settings use the SD card (MMC1) as primary
-	 * boot device, but allow SPI NOR as a fallback boot device.
-	 * We can't detect the fallback case and spl_boot_device() will return
-	 * BOOT_DEVICE_MMC1 despite the actual boot device being SPI NOR.
-	 * Therefore we try to load U-Boot proper vom SPI NOR after loading
-	 * from MMC has failed.
+	 * boot device, but allow SPI NOR as a fallback boot device. There
+	 * is no proper way to detect if the fallback was used. Therefore
+	 * we read the ECSPI2_CONREG register and see if it differs from the
+	 * reset value 0x0. If that's the case we can assume that the BootROM
+	 * has successfully probed the SPI NOR.
 	 */
-	spl_boot_list[0] = bootdev;
-
 	switch (bootdev) {
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
-		spl_boot_list[1] = BOOT_DEVICE_SPI;
+		if (sl_mx6ul_is_spi_nor_boot()) {
+			spl_boot_list[0] = BOOT_DEVICE_SPI;
+			return;
+		}
 		break;
 	}
+
+	spl_boot_list[0] = bootdev;
 }
 
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-	setup_spi();
+	if (sl_mx6ul_is_spi_nor_boot())
+		setup_spi();
 
 	return 0;
 }
 
 int board_fit_config_name_match(const char *name)
 {
-	if (gd->board_type == BOARD_TYPE_KTN_N631X && is_mx6ul() &&
-	    !strcmp(name, "imx6ul-kontron-n631x-s"))
+	if (gd->board_type == BOARD_TYPE_KTN_SL_UL && is_mx6ul() &&
+	    (!strcmp(name, "imx6ul-kontron-n631x-s") || !strcmp(name, "imx6ul-kontron-bl")))
 		return 0;
 
-	if (gd->board_type == BOARD_TYPE_KTN_N641X && is_mx6ull() &&
-	    !strcmp(name, "imx6ull-kontron-n641x-s"))
+	if (gd->board_type == BOARD_TYPE_KTN_SL_ULL && is_mx6ull() &&
+	    (!strcmp(name, "imx6ull-kontron-n641x-s") || !strcmp(name, "imx6ull-kontron-bl")))
 		return 0;
 
 	return -1;

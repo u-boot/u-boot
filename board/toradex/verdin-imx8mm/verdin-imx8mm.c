@@ -125,6 +125,6 @@ int board_phys_sdram_size(phys_size_t *size)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	return 0;
+	return ft_common_board_setup(blob, bd);
 }
 #endif

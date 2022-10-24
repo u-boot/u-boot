@@ -10,6 +10,8 @@
 #include "imx53.dtsi"
 #include "imx53-pinfunc.h"
 
+#define IMX_PAD_SION	0x40000000
+
 / {
 	model = "K+P iMX53";
 	compatible = "kp,imx53-kp", "fsl,imx53";

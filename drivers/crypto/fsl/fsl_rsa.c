@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
 #include <asm/types.h>
@@ -36,11 +37,20 @@ int fsl_mod_exp(struct udevice *dev, const uint8_t *sig, uint32_t sig_len,
 
 	inline_cnstr_jobdesc_pkha_rsaexp(desc, &pkin, out, sig_len);
 
+	flush_dcache_range((ulong)sig, (ulong)sig + sig_len);
+	flush_dcache_range((ulong)prop->modulus, (ulong)(prop->modulus) + keylen);
+	flush_dcache_range((ulong)prop->public_exponent,
+			   (ulong)(prop->public_exponent) + prop->exp_len);
+	flush_dcache_range((ulong)desc, (ulong)desc + (sizeof(uint32_t) * MAX_CAAM_DESCSIZE));
+	flush_dcache_range((ulong)out, (ulong)out + sig_len);
+
 	ret = run_descriptor_jr(desc);
 	if (ret) {
 		debug("%s: RSA failed to verify: %d\n", __func__, ret);
 		return -EFAULT;
 	}
+
+	invalidate_dcache_range((ulong)out, (ulong)out + sig_len);
 
 	return 0;
 }

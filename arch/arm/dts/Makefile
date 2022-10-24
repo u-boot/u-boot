@@ -889,8 +889,8 @@ dtb-$(CONFIG_MX6UL) += \
 	imx6ul-phytec-segin-ff-rdk-nand.dtb \
 	imx6ul-pico-hobbit.dtb \
 	imx6ul-pico-pi.dtb \
-	imx6ul-kontron-n631x-s.dtb \
-	imx6ull-kontron-n641x-s.dtb
+	imx6ul-kontron-bl.dtb \
+	imx6ull-kontron-bl.dtb
 
 dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
@@ -949,8 +949,8 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-evk.dtb \
 	imx8mm-icore-mx8mm-ctouch2.dtb \
 	imx8mm-icore-mx8mm-edimm2.2.dtb \
-	imx8mm-kontron-n801x-s.dtb \
-	imx8mm-kontron-n801x-s-lvds.dtb \
+	imx8mm-kontron-bl.dtb \
+	imx8mm-kontron-bl-osm-s.dtb \
 	imx8mm-mx8menlo.dtb \
 	imx8mm-venice.dtb \
 	imx8mm-venice-gw71xx-0x.dtb \
@@ -959,6 +959,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-venice-gw7901.dtb \
 	imx8mm-venice-gw7902.dtb \
 	imx8mm-venice-gw7903.dtb \
+	imx8mm-venice-gw7904.dtb \
 	imx8mm-verdin-wifi-dev.dtb \
 	phycore-imx8mm.dtb \
 	imx8mn-bsh-smm-s2.dtb \
@@ -976,6 +977,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mq-phanbell.dtb \
 	imx8mp-dhcom-pdk2.dtb \
 	imx8mp-evk.dtb \
+	imx8mp-icore-mx8mp-edimm2.2.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
 	imx8mp-venice.dtb \
 	imx8mp-venice-gw74xx.dtb \

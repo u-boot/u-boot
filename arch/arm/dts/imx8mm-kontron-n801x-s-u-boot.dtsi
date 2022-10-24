@@ -1,6 +1,0 @@
-// SPDX-License-Identifier: GPL-2.0+
-/*
- * Copyright (C) 2019 Kontron Electronics GmbH
- */
-
-#include "imx8mm-kontron-n801x-u-boot.dtsi"

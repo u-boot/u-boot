@@ -49,14 +49,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"kernel_addr_r=0x82000000\0" \
-	"ramdisk_addr_r=0x88080000\0" \
-	"pxefile_addr_r=0x80100000\0" \
-	"scriptaddr=0x80100000\0" \
-	"bootdelay=3\0" \
-	"ethact=" CONFIG_ETHPRIME "\0" \
-	"hostname=" CONFIG_HOSTNAME "\0" \
-	BOOTENV
+#define CONFIG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif /* __KONTRON_MX6UL_CONFIG_H */

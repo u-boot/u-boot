@@ -1516,7 +1516,7 @@ tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin FORCE
 SPL: spl/u-boot-spl.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
-ifeq ($(CONFIG_ARCH_IMX8M)$(CONFIG_ARCH_IMX8), y)
+#ifeq ($(CONFIG_ARCH_IMX8M)$(CONFIG_ARCH_IMX8), y)
 ifeq ($(CONFIG_SPL_LOAD_IMX_CONTAINER), y)
 u-boot.cnt: u-boot.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
@@ -1532,7 +1532,7 @@ flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 endif
 endif
-endif
+#endif
 
 u-boot.uim: u-boot.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@

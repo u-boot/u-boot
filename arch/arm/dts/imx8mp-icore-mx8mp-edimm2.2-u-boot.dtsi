@@ -1,0 +1,149 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019 NXP
+ * Copyright (c) 2020 Amarula Solutons(India)
+ */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,dm-spl;
+};
+
+&pinctrl_uart2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2_gpio {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc2 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_usdhc3 {
+	u-boot,dm-spl;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&gpio4 {
+	u-boot,dm-spl;
+};
+
+&gpio5 {
+	u-boot,dm-spl;
+};
+
+&uart2 {
+	u-boot,dm-spl;
+};
+
+&crypto {
+	u-boot,dm-spl;
+};
+
+&sec_jr0 {
+	u-boot,dm-spl;
+};
+
+&sec_jr1 {
+	u-boot,dm-spl;
+};
+
+&sec_jr2 {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&i2c2 {
+	u-boot,dm-spl;
+};
+
+&i2c3 {
+	u-boot,dm-spl;
+};
+
+&i2c4 {
+	u-boot,dm-spl;
+};
+
+&i2c5 {
+	u-boot,dm-spl;
+};
+
+&i2c6 {
+	u-boot,dm-spl;
+};
+
+&usdhc1 {
+	u-boot,dm-spl;
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+	no-1-8-v;
+};
+
+&usdhc3 {
+	u-boot,dm-spl;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+};
+
+&wdog1 {
+	u-boot,dm-spl;
+};
+
+&eqos {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+};
+
+&ethphy0 {
+	reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
+	reset-delay-us = <15000>;
+	reset-post-delay-us = <100000>;
+};
+
+&fec {
+	phy-reset-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <15>;
+	phy-reset-post-delay = <100>;
+};

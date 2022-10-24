@@ -299,7 +299,7 @@ static int eeprom_info(bool verbose)
 	return 0;
 }
 
-int eeprom_init(int quiet)
+int venice_eeprom_init(int quiet)
 {
 	char rev_pcb;
 	int rev_bom;
