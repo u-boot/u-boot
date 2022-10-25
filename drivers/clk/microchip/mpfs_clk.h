@@ -27,10 +27,10 @@ int mpfs_clk_register_msspll(void __iomem *base, struct clk *parent);
  * mpfs_clk_register_periphs() - register peripheral clocks
  *
  * @base: base address of the mpfs system register.
- * @parent: a pointer to parent clock.
+ * @dev: udevice representing the clock controller.
  * Return: zero on success, or a negative error code.
  */
-int mpfs_clk_register_periphs(void __iomem *base, struct clk *parent);
+int mpfs_clk_register_periphs(void __iomem *base, struct udevice *dev);
 /**
  * divider_get_val() - get the clock divider value
  *
