@@ -36,11 +36,17 @@ void enable_ocotp_clk(unsigned char enable)
 
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {
-	/* 0 - 3 is valid i2c num */
-	if (i2c_num > 3)
+	u8 i2c_ccgr[6] = {
+			CCGR_I2C1, CCGR_I2C2, CCGR_I2C3, CCGR_I2C4,
+#if (IS_ENABLED(CONFIG_IMX8MP))
+			CCGR_I2C5_8MP, CCGR_I2C6_8MP
+#endif
+	};
+
+	if (i2c_num > ARRAY_SIZE(i2c_ccgr))
 		return -EINVAL;
 
-	clock_enable(CCGR_I2C1 + i2c_num, !!enable);
+	clock_enable(i2c_ccgr[i2c_num], !!enable);
 
 	return 0;
 }
