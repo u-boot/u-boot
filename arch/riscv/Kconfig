@@ -199,7 +199,7 @@ config SIFIVE_CACHE
 	help
 	  This enables the operations to configure SiFive cache
 
-config ANDES_PLIC
+config ANDES_PLICSW
 	bool
 	depends on RISCV_MMODE || SPL_RISCV_MMODE
 	select REGMAP
@@ -207,8 +207,8 @@ config ANDES_PLIC
 	select SPL_REGMAP if SPL
 	select SPL_SYSCON if SPL
 	help
-	  The Andes PLIC block holds memory-mapped claim and pending registers
-	  associated with software interrupt.
+	  The Andes PLICSW block holds memory-mapped claim and pending
+	  registers associated with software interrupt.
 
 config SMP
 	bool "Symmetric Multi-Processing"
