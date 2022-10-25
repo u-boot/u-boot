@@ -13,6 +13,13 @@ config MEMORY
 	  SRAM, Ethernet adapters, FPGAs, etc.
 	  For now this uclass has no methods yet.
 
+config ATMEL_EBI
+	bool "Support for Atmel EBI"
+	help
+	  Driver for Atmel EBI controller. This is a dummy
+	  driver. Doesn't provide an access to EBI controller. Select
+	  this option to enable the NAND flash controller driver
+
 config SANDBOX_MEMORY
 	bool "Enable Sandbox Memory Controller driver"
 	depends on SANDBOX && MEMORY
