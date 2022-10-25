@@ -413,6 +413,15 @@ F:	drivers/timer/atmel_tcb_timer.c
 F:	include/dt-bindings/mfd/atmel-flexcom.h
 F:	drivers/timer/mchp-pit64b-timer.c
 
+ARM MSC SM2S IMX8MP SOM
+M:	Martyn Welch <martyn.welch@collabora.com>
+M:	Ian Ray <ian.ray@ge.com>
+S:	Maintained
+F:	arch/arm/dts/imx8mp-msc-sm2s*
+F:	board/msc/sm2s_imx8mp/
+F:	configs/msc_sm2s_imx8mp_defconfig
+F:	include/configs/msc_sm2s_imx8mp.h
+
 ARM NEXELL S5P4418
 M:	Stefan Bosch <stefan_b@posteo.net>
 S:	Maintained
