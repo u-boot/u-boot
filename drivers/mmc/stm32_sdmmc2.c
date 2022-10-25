@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/iopoll.h>
+#include <power/regulator.h>
 #include <watchdog.h>
 
 struct stm32_sdmmc2_plat {
@@ -36,6 +37,9 @@ struct stm32_sdmmc2_plat {
 	struct gpio_desc cd_gpio;
 	u32 clk_reg_msk;
 	u32 pwr_reg_msk;
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	bool vqmmc_enabled;
+#endif
 };
 
 struct stm32_sdmmc2_ctx {
@@ -572,6 +576,15 @@ static void stm32_sdmmc2_pwron(struct stm32_sdmmc2_plat *plat)
 	       plat->base + SDMMC_POWER);
 
 	/* during the first 74 SDMMC_CK cycles the SDMMC is still disabled. */
+
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	if (plat->mmc.vqmmc_supply && !plat->vqmmc_enabled) {
+		if (regulator_set_enable_if_allowed(plat->mmc.vqmmc_supply, true))
+			dev_dbg(plat->mmc.dev, "failed to enable vqmmc-supply\n");
+		else
+			plat->vqmmc_enabled = true;
+	}
+#endif
 }
 
 #define IS_RISING_EDGE(reg) (reg & SDMMC_CLKCR_NEGEDGE ? 0 : 1)
@@ -598,12 +611,15 @@ static int stm32_sdmmc2_set_ios(struct udevice *dev)
 	 * clk_div > 0 and NEGEDGE = 1 => command and data generated on
 	 * SDMMCCLK falling edge
 	 */
-	if (desired && ((sys_clock > desired) ||
+	if (desired && (sys_clock > desired || mmc->ddr_mode ||
 			IS_RISING_EDGE(plat->clk_reg_msk))) {
 		clk = DIV_ROUND_UP(sys_clock, 2 * desired);
 		if (clk > SDMMC_CLKCR_CLKDIV_MAX)
 			clk = SDMMC_CLKCR_CLKDIV_MAX;
 	}
+
+	if (mmc->ddr_mode)
+		clk |= SDMMC_CLKCR_DDR;
 
 	if (mmc->bus_width == 4)
 		clk |= SDMMC_CLKCR_WIDBUS_4;
@@ -671,6 +687,8 @@ static int stm32_sdmmc2_of_to_plat(struct udevice *dev)
 	ret = mmc_of_parse(dev, cfg);
 	if (ret)
 		return ret;
+
+	cfg->host_caps &= ~(UHS_CAPS | MMC_MODE_HS200 | MMC_MODE_HS400 | MMC_MODE_HS400_ES);
 
 	ret = clk_get_by_index(dev, 0, &plat->clk);
 	if (ret)

@@ -168,7 +168,8 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 			if (data->flags == MMC_DATA_READ &&
 			    (mask & (DWMCI_INTMSK_RXDR | DWMCI_INTMSK_DTO))) {
 				dwmci_writel(host, DWMCI_RINTSTS,
-					     DWMCI_INTMSK_RXDR | DWMCI_INTMSK_DTO);
+					     mask & (DWMCI_INTMSK_RXDR |
+						     DWMCI_INTMSK_DTO));
 				while (size) {
 					ret = dwmci_fifo_ready(host,
 							DWMCI_FIFO_EMPTY,
