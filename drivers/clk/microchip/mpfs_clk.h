@@ -11,22 +11,18 @@
  * mpfs_clk_register_cfgs() - register configuration clocks
  *
  * @base: base address of the mpfs system register.
- * @clk_rate: the mpfs pll clock rate.
- * @parent_name: a pointer to parent clock name.
+ * @parent: a pointer to parent clock.
  * Return: zero on success, or a negative error code.
  */
-int mpfs_clk_register_cfgs(void __iomem *base, u32 clk_rate,
-			   const char *parent_name);
+int mpfs_clk_register_cfgs(void __iomem *base, struct clk *parent);
 /**
  * mpfs_clk_register_periphs() - register peripheral clocks
  *
  * @base: base address of the mpfs system register.
- * @clk_rate: the mpfs pll clock rate.
- * @parent_name: a pointer to parent clock name.
+ * @parent: a pointer to parent clock.
  * Return: zero on success, or a negative error code.
  */
-int mpfs_clk_register_periphs(void __iomem *base, u32 clk_rate,
-			      const char *parent_name);
+int mpfs_clk_register_periphs(void __iomem *base, struct clk *parent);
 /**
  * divider_get_val() - get the clock divider value
  *

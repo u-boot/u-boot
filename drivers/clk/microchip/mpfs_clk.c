@@ -11,34 +11,32 @@
 #include <dm/device.h>
 #include <dm/devres.h>
 #include <dm/uclass.h>
+#include <dt-bindings/clock/microchip-mpfs-clock.h>
 #include <linux/err.h>
 
 #include "mpfs_clk.h"
 
 static int mpfs_clk_probe(struct udevice *dev)
 {
-	int ret;
+	struct clk *parent_clk = dev_get_priv(dev);
+	struct clk clk_ahb = { .id = CLK_AHB };
 	void __iomem *base;
-	u32 clk_rate;
-	const char *parent_clk_name;
-	struct clk *clk = dev_get_priv(dev);
+	int ret;
 
 	base = dev_read_addr_ptr(dev);
 	if (!base)
 		return -EINVAL;
 
-	ret = clk_get_by_index(dev, 0, clk);
+	ret = clk_get_by_index(dev, 0, parent_clk);
 	if (ret)
 		return ret;
 
-	dev_read_u32(clk->dev, "clock-frequency", &clk_rate);
-	parent_clk_name = clk->dev->name;
-
-	ret = mpfs_clk_register_cfgs(base, clk_rate, parent_clk_name);
+	ret = mpfs_clk_register_cfgs(base, parent_clk);
 	if (ret)
 		return ret;
 
-	ret = mpfs_clk_register_periphs(base, clk_rate, "clk_ahb");
+	clk_request(dev, &clk_ahb);
+	ret = mpfs_clk_register_periphs(base, &clk_ahb);
 
 	return ret;
 }

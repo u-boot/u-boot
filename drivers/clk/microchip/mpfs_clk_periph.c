@@ -99,16 +99,9 @@ static int mpfs_periph_clk_disable(struct clk *hw)
 static ulong mpfs_periph_clk_recalc_rate(struct clk *hw)
 {
 	struct mpfs_periph_hw_clock *periph_hw = to_mpfs_periph_clk(hw);
-	void __iomem *base_addr = periph_hw->sys_base;
-	unsigned long rate;
-	u32 val;
 
-	val = readl(base_addr + REG_CLOCK_CONFIG_CR) >> CFG_AHB_SHIFT;
-	val &= clk_div_mask(CFG_WIDTH);
-	rate = periph_hw->prate / (1u << val);
-	hw->rate = rate;
+	return periph_hw->prate;
 
-	return rate;
 }
 
 #define CLK_PERIPH(_id, _name, _shift, _flags) {	\
@@ -150,8 +143,7 @@ static struct mpfs_periph_hw_clock mpfs_periph_clks[] = {
 	CLK_PERIPH(CLK_CFM, "clk_periph_cfm", 29, 0),
 };
 
-int mpfs_clk_register_periphs(void __iomem *base, u32 clk_rate,
-			      const char *parent_name)
+int mpfs_clk_register_periphs(void __iomem *base, struct clk *parent)
 {
 	int ret;
 	int i, id, num_clks;
@@ -162,9 +154,9 @@ int mpfs_clk_register_periphs(void __iomem *base, u32 clk_rate,
 	for (i = 0; i < num_clks; i++)  {
 		hw = &mpfs_periph_clks[i].hw;
 		mpfs_periph_clks[i].sys_base = base;
-		mpfs_periph_clks[i].prate = clk_rate;
+		mpfs_periph_clks[i].prate = clk_get_rate(parent);
 		name = mpfs_periph_clks[i].periph.name;
-		ret = clk_register(hw, MPFS_PERIPH_CLOCK, name, parent_name);
+		ret = clk_register(hw, MPFS_PERIPH_CLOCK, name, parent->dev->name);
 		if (ret)
 			ERR_PTR(ret);
 		id = mpfs_periph_clks[i].periph.id;
