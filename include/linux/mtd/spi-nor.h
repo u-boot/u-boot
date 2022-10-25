@@ -494,6 +494,10 @@ struct spi_flash {
  * @rdsr_dummy		dummy cycles needed for Read Status Register command.
  * @rdsr_addr_nbytes:	dummy address bytes needed for Read Status Register
  *			command.
+ * @addr_mode_nbytes:	number of address bytes of current address mode. Useful
+ *			when the flash operates with 4B opcodes but needs the
+ *			internal address mode for opcodes that don't have a 4B
+ *			opcode correspondent.
  * @bank_read_cmd:	Bank read cmd
  * @bank_write_cmd:	Bank write cmd
  * @bank_curr:		Current flash bank
@@ -540,6 +544,7 @@ struct spi_nor {
 	u8			program_opcode;
 	u8			rdsr_dummy;
 	u8			rdsr_addr_nbytes;
+	u8			addr_mode_nbytes;
 #ifdef CONFIG_SPI_FLASH_BAR
 	u8			bank_read_cmd;
 	u8			bank_write_cmd;
