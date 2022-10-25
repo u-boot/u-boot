@@ -16,6 +16,14 @@
  */
 int mpfs_clk_register_cfgs(void __iomem *base, struct clk *parent);
 /**
+ * mpfs_clk_register_msspll() - register the mss pll
+ *
+ * @base: base address of the mpfs system register.
+ * @parent: a pointer to parent clock.
+ * Return: zero on success, or a negative error code.
+ */
+int mpfs_clk_register_msspll(void __iomem *base, struct clk *parent);
+/**
  * mpfs_clk_register_periphs() - register peripheral clocks
  *
  * @base: base address of the mpfs system register.
