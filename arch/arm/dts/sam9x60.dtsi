@@ -69,6 +69,32 @@
 		#size-cells = <1>;
 		ranges;
 
+		ebi: ebi@10000000 {
+			compatible = "microchip,sam9x60-ebi";
+			#address-cells = <2>;
+			#size-cells = <1>;
+			atmel,smc = <&smc>;
+			microchip,sfr = <&sfr>;
+			reg = <0x10000000 0x60000000>;
+			ranges = <0x0 0x0 0x10000000 0x10000000
+				  0x1 0x0 0x20000000 0x10000000
+				  0x2 0x0 0x30000000 0x10000000
+				  0x3 0x0 0x40000000 0x10000000
+				  0x4 0x0 0x50000000 0x10000000
+				  0x5 0x0 0x60000000 0x10000000>;
+			clocks = <&pmc PMC_TYPE_CORE 11>;
+			status = "disabled";
+
+			nand_controller: nand-controller {
+				compatible = "microchip,sam9x60-nand-controller";
+				ecc-engine = <&pmecc>;
+				#address-cells = <2>;
+				#size-cells = <1>;
+				ranges;
+				status = "disabled";
+			};
+		};
+
 		sdhci0: sdhci-host@80000000 {
 			compatible = "microchip,sam9x60-sdhci";
 			reg = <0x80000000 0x300>;
@@ -117,6 +143,11 @@
 				clock-names = "hclk", "pclk";
 				clocks = <&pmc PMC_TYPE_PERIPHERAL 24>, <&pmc PMC_TYPE_PERIPHERAL 24>;
 				status = "disabled";
+			};
+
+			sfr: sfr@f8050000 {
+				compatible = "microchip,sam9x60-sfr", "syscon";
+				reg = <0xf8050000 0x100>;
 			};
 
 			dbgu: serial@fffff200 {
@@ -180,6 +211,17 @@
 							 (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)>;	/* PA20 DAT3 periph A with pullup */
 					};
 				};
+			};
+
+			pmecc: ecc-engine@ffffe000 {
+				compatible = "microchip,sam9x60-pmecc", "atmel,at91sam9g45-pmecc";
+				reg = <0xffffe000 0x300>,
+				      <0xffffe600 0x100>;
+			};
+
+			smc: smc@ffffea00 {
+				compatible = "microchip,sam9x60-smc", "atmel,at91sam9260-smc", "syscon";
+				reg = <0xffffea00 0x100>;
 			};
 
 			pioA: gpio@fffff400 {
