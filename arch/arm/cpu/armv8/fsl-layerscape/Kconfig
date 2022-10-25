@@ -63,7 +63,7 @@ config ARCH_LS1043A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
-	select FSL_IFC if TFABOOT || (!QSPI_BOOT && !SD_BOOT_QSPI)
+	select FSL_IFC if TFABOOT || (!QSPI_BOOT && !SD_BOOT_QSPI && !SD_BOOT)
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select GICV2
@@ -100,7 +100,7 @@ config ARCH_LS1043A
 config ARCH_LS1046A
 	bool
 	select ARMV8_SET_SMPEN
-	select FSL_IFC if TFABOOT || (!QSPI_BOOT && !SD_BOOT_QSPI)
+	select FSL_IFC if TFABOOT || (!QSPI_BOOT && !SD_BOOT_QSPI && !SD_BOOT)
 	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select GICV2
