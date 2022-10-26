@@ -224,7 +224,7 @@ static void mpfs_i2c_empty_rx(struct mpfs_i2c_bus *bus)
 		bus->msg_len--;
 	}
 
-	if (bus->msg_len == 0) {
+	if (bus->msg_len <= 1) {
 		ctrl = readl(bus->base + MPFS_I2C_CTRL);
 		ctrl &= ~CTRL_AA;
 		writel(ctrl, bus->base + MPFS_I2C_CTRL);
