@@ -39,6 +39,10 @@ int pmic_bind_children(struct udevice *pmic, ofnode parent,
 		node_name = ofnode_get_name(node);
 
 		debug("* Found child node: '%s'\n", node_name);
+		if (!ofnode_is_enabled(node)) {
+			debug("  - ignoring disabled device\n");
+			continue;
+		}
 
 		child = NULL;
 		for (info = child_info; info->prefix && info->driver; info++) {
