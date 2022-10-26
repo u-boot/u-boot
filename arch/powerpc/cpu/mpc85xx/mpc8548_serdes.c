@@ -45,7 +45,7 @@ void fsl_serdes_init(void)
 
 	if (srds1_cfg >= ARRAY_SIZE(serdes1_cfg_tbl)) {
 		printf("Invalid PORDEVSR[IO_SEL] = %d\n", srds1_cfg);
-		return ;
+		return;
 	}
 
 	for (lane = 0; lane < SRDS1_MAX_LANES; lane++) {

@@ -21,7 +21,7 @@ void fdt_portal(void *blob, const char *compat, const char *container,
 
 	off = fdt_node_offset_by_compatible(blob, -1, compat);
 	if (off < 0)
-		return ;
+		return;
 
 	off = fdt_parent_offset(blob, off);
 	/* if non-zero assume we have a container */
@@ -35,7 +35,7 @@ void fdt_portal(void *blob, const char *compat, const char *container,
 		range = fdt_getprop_w(blob, off, "ranges", &len);
 		if (range == NULL) {
 			printf("ERROR: container for %s has no ranges", compat);
-			return ;
+			return;
 		}
 
 		range[0] = 0;
@@ -61,13 +61,13 @@ void fdt_portal(void *blob, const char *compat, const char *container,
 		if (container && (memcmp(container, name, len))) {
 			printf("WARNING: container names didn't match %s %s\n",
 				container, name);
-			return ;
+			return;
 		}
 
 		memcpy(&buf, name, len);
 		len += sprintf(&buf[len], "@%llx", addr);
 		fdt_set_name(blob, off, buf);
-		return ;
+		return;
 	}
 
 	printf("ERROR: %s isn't in a container.  Not supported\n", compat);

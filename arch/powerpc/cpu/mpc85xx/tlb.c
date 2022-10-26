@@ -41,7 +41,7 @@ __weak void init_tlbs(void)
 			  tlb_table[i].mas7);
 	}
 
-	return ;
+	return;
 }
 
 #if !defined(CONFIG_NAND_SPL) && \

@@ -113,7 +113,7 @@ static void boot_jump_linux(struct bootm_headers *images)
 			   cmd_start, cmd_end, 0, 0);
 		/* does not return */
 	}
-	return ;
+	return;
 }
 
 void arch_lmb_reserve(struct lmb *lmb)
@@ -148,7 +148,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 	cpu_mp_lmb_reserve(lmb);
 #endif
 
-	return ;
+	return;
 }
 
 static void boot_prep_linux(struct bootm_headers *images)

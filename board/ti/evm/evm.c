@@ -234,7 +234,7 @@ static void reset_net_chip(void)
 	ret = gpio_request(rst_gpio, "");
 	if (ret < 0) {
 		printf("Unable to get GPIO %d\n", rst_gpio);
-		return ;
+		return;
 	}
 
 	/* Configure as output */
