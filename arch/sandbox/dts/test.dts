@@ -932,6 +932,10 @@
 		};
 	};
 
+	memory-controller {
+		compatible = "sandbox,memory";
+	};
+
 	misc-test {
 		#address-cells = <1>;
 		#size-cells = <1>;

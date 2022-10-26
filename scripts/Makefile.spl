@@ -114,6 +114,7 @@ libs-$(CONFIG_PARTITIONS) += disk/
 endif
 
 libs-y += drivers/
+libs-$(CONFIG_SPL_MEMORY) += drivers/memory/
 libs-$(CONFIG_SPL_USB_GADGET) += drivers/usb/dwc3/
 libs-$(CONFIG_SPL_USB_GADGET) += drivers/usb/cdns3/
 libs-y += dts/
