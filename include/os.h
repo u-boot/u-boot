@@ -109,6 +109,23 @@ int os_unlink(const char *pathname);
 void os_exit(int exit_code) __attribute__((noreturn));
 
 /**
+ * os_alarm() - access to the OS alarm() system call
+ */
+unsigned int os_alarm(unsigned int seconds);
+
+/**
+ * os_set_alarm_handler() - set handler for SIGALRM
+ *
+ * @handler:   The handler function. Pass NULL for SIG_DFL.
+ */
+void os_set_alarm_handler(void (*handler)(int));
+
+/**
+ * os_raise_sigalrm() - do raise(SIGALRM)
+ */
+void os_raise_sigalrm(void);
+
+/**
  * os_tty_raw() - put tty into raw mode to mimic serial console better
  *
  * @fd:		File descriptor of stdin (normally 0)

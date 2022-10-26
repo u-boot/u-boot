@@ -27,6 +27,12 @@
 		};
 	};
 
+	alarm_wdt: alarm-wdt {
+		compatible = "sandbox,alarm-wdt";
+		timeout-sec = <5>;
+		u-boot,autostart;
+	};
+
 	audio: audio-codec {
 		compatible = "sandbox,audio-codec";
 		#sound-dai-cells = <1>;

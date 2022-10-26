@@ -130,6 +130,23 @@ void os_exit(int exit_code)
 	exit(exit_code);
 }
 
+unsigned int os_alarm(unsigned int seconds)
+{
+	return alarm(seconds);
+}
+
+void os_set_alarm_handler(void (*handler)(int))
+{
+	if (!handler)
+		handler = SIG_DFL;
+	signal(SIGALRM, handler);
+}
+
+void os_raise_sigalrm(void)
+{
+	raise(SIGALRM);
+}
+
 int os_write_file(const char *fname, const void *buf, int size)
 {
 	int fd;

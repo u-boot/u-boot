@@ -39,6 +39,7 @@ struct cyclic_drv {
  * @run_cnt: Counter of executions occurances
  * @next_call: Next time in us, when the function shall be executed again
  * @list: List node
+ * @already_warned: Flag that we've warned about exceeding CPU time usage
  */
 struct cyclic_info {
 	void (*func)(void *ctx);
@@ -50,6 +51,7 @@ struct cyclic_info {
 	uint64_t run_cnt;
 	uint64_t next_call;
 	struct list_head list;
+	bool already_warned;
 };
 
 /** Function type for cyclic functions */
