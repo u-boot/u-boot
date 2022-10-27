@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (C) 2021 Microchip Technology Inc.
+ * Copyright (C) 2021-2022 Microchip Technology Inc.
  * Padmarao Begari <padmarao.begari@microchip.com>
  */
 
@@ -13,7 +13,8 @@
 
 / {
 	model = "Microchip PolarFire-SoC Icicle Kit";
-	compatible = "microchip,mpfs-icicle-kit", "microchip,mpfs";
+	compatible = "microchip,mpfs-icicle-reference-rtlv2210",
+		     "microchip,mpfs-icicle-kit", "microchip,mpfs";
 
 	aliases {
 		serial1 = &uart1;
@@ -28,69 +29,27 @@
 		timebase-frequency = <RTCCLK_FREQ>;
 	};
 
-	reserved-memory {
-		ranges;
-		#size-cells = <2>;
-		#address-cells = <2>;
-
-		fabricbuf0: fabricbuf@0 {
-			compatible = "shared-dma-pool";
-			reg = <0x0 0xae000000 0x0 0x2000000>;
-			label = "fabricbuf0-ddr-c";
-		};
-
-		fabricbuf1: fabricbuf@1 {
-			compatible = "shared-dma-pool";
-			reg = <0x0 0xc0000000 0x0 0x8000000>;
-			label = "fabricbuf1-ddr-nc";
-		};
-
-		fabricbuf2: fabricbuf@2 {
-			compatible = "shared-dma-pool";
-			reg = <0x0 0xd8000000 0x0 0x8000000>;
-			label = "fabricbuf2-ddr-nc-wcb";
-		};
-	};
-
-	udmabuf0 {
-		compatible = "ikwzm,u-dma-buf";
-		device-name = "udmabuf-ddr-c0";
-		minor-number = <0>;
-		size = <0x0 0x2000000>;
-		memory-region = <&fabricbuf0>;
-		sync-mode = <3>;
-	};
-
-	udmabuf1 {
-		compatible = "ikwzm,u-dma-buf";
-		device-name = "udmabuf-ddr-nc0";
-		minor-number = <1>;
-		size = <0x0 0x8000000>;
-		memory-region = <&fabricbuf1>;
-		sync-mode = <3>;
-	};
-
-	udmabuf2 {
-		compatible = "ikwzm,u-dma-buf";
-		device-name = "udmabuf-ddr-nc-wcb0";
-		minor-number = <2>;
-		size = <0x0 0x8000000>;
-		memory-region = <&fabricbuf2>;
-		sync-mode = <3>;
-	};
-
 	ddrc_cache_lo: memory@80000000 {
 		device_type = "memory";
-		reg = <0x0 0x80000000 0x0 0x2e000000>;
-		clocks = <&clkcfg CLK_DDRC>;
+		reg = <0x0 0x80000000 0x0 0x40000000>;
 		status = "okay";
 	};
 
-	ddrc_cache_hi: memory@1000000000 {
+	ddrc_cache_hi: memory@1040000000 {
 		device_type = "memory";
-		reg = <0x10 0x0 0x0 0x40000000>;
-		clocks = <&clkcfg CLK_DDRC>;
+		reg = <0x10 0x40000000 0x0 0x40000000>;
 		status = "okay";
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		hss_payload: region@BFC00000 {
+			reg = <0x0 0xBFC00000 0x0 0x400000>;
+			no-map;
+		};
 	};
 };
 
