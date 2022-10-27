@@ -19,6 +19,7 @@
 	aliases {
 		serial1 = &uart1;
 		ethernet0 = &mac1;
+		spi0 = &qspi;
 	};
 
 	chosen {
@@ -112,5 +113,20 @@
 	phy1: ethernet-phy@9 {
 		reg = <9>;
 		ti,fifo-depth = <0x1>;
+	};
+};
+
+&qspi {
+	status = "okay";
+	num-cs = <1>;
+
+	flash0: flash@0 {
+		compatible = "spi-nand";
+		reg = <0x0>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <20000000>;
+		spi-cpol;
+		spi-cpha;
 	};
 };
