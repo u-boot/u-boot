@@ -123,7 +123,7 @@ static int led_pwm_of_to_plat(struct udevice *dev)
 	priv->enabled =  !!def_brightness;
 
 	/*
-	 * No need to handle pwm iverted case (active_low)
+	 * No need to handle pwm inverted case (active_low)
 	 * because of pwm_set_invert function
 	 */
 	if (def_brightness < max_brightness)
