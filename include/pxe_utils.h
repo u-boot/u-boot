@@ -28,6 +28,7 @@
  * Create these with the 'label_create' function given below.
  *
  * name - the name of the menu as given on the 'menu label' line.
+ * kernel_label - the kernel label, including FIT config if present.
  * kernel - the path to the kernel file to use for this label.
  * append - kernel command line to use when booting this label
  * initrd - path to the initrd to use for this label.
@@ -40,6 +41,7 @@ struct pxe_label {
 	char num[4];
 	char *name;
 	char *menu;
+	char *kernel_label;
 	char *kernel;
 	char *config;
 	char *append;

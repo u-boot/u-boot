@@ -258,6 +258,7 @@ static struct pxe_label *label_create(void)
 static void label_destroy(struct pxe_label *label)
 {
 	free(label->name);
+	free(label->kernel_label);
 	free(label->kernel);
 	free(label->config);
 	free(label->append);
@@ -542,9 +543,11 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		kernel_addr = fit_addr;
 	}
 
-	if (label->initrd) {
+	/* For FIT, the label can be identical to kernel one */
+	if (label->initrd && !strcmp(label->kernel_label, label->initrd)) {
+		initrd_addr_str =  kernel_addr;
+	} else if (label->initrd) {
 		ulong size;
-
 		if (get_relfile_envaddr(ctx, label->initrd, "ramdisk_addr_r",
 					&size) < 0) {
 			printf("Skipping %s for failure retrieving initrd\n",
@@ -622,8 +625,11 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	 */
 	bootm_argv[3] = env_get("fdt_addr_r");
 
+	/* For FIT, the label can be identical to kernel one */
+	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
+		bootm_argv[3] = kernel_addr;
 	/* if fdt label is defined then get fdt from server */
-	if (bootm_argv[3]) {
+	} else if (bootm_argv[3]) {
 		char *fdtfile = NULL;
 		char *fdtfilefree = NULL;
 
@@ -1163,6 +1169,11 @@ static int parse_label_kernel(char **c, struct pxe_label *label)
 	err = parse_sliteral(c, &label->kernel);
 	if (err < 0)
 		return err;
+
+	/* copy the kernel label to compare with FDT / INITRD when FIT is used */
+	label->kernel_label = strdup(label->kernel);
+	if (!label->kernel_label)
+		return -ENOMEM;
 
 	s = strstr(label->kernel, "#");
 	if (!s)
