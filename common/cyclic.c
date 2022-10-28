@@ -22,18 +22,14 @@ void hw_watchdog_reset(void);
 
 struct hlist_head *cyclic_get_list(void)
 {
-	return &gd->cyclic->cyclic_list;
+	/* Silence "discards 'volatile' qualifier" warning. */
+	return (struct hlist_head *)&gd->cyclic_list;
 }
 
 struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
 				    const char *name, void *ctx)
 {
 	struct cyclic_info *cyclic;
-
-	if (!gd->cyclic) {
-		pr_debug("Cyclic IF not ready yet\n");
-		return NULL;
-	}
 
 	cyclic = calloc(1, sizeof(struct cyclic_info));
 	if (!cyclic) {
@@ -47,7 +43,7 @@ struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
 	cyclic->name = strdup(name);
 	cyclic->delay_us = delay_us;
 	cyclic->start_time_us = timer_get_us();
-	hlist_add_head(&cyclic->list, &gd->cyclic->cyclic_list);
+	hlist_add_head(&cyclic->list, cyclic_get_list());
 
 	return cyclic;
 }
@@ -71,7 +67,7 @@ void cyclic_run(void)
 		return;
 
 	gd->flags |= GD_FLG_CYCLIC_RUNNING;
-	hlist_for_each_entry_safe(cyclic, tmp, &gd->cyclic->cyclic_list, list) {
+	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list) {
 		/*
 		 * Check if this cyclic function needs to get called, e.g.
 		 * do not call the cyclic func too often
@@ -113,31 +109,17 @@ void schedule(void)
 	 * schedule() might get called very early before the cyclic IF is
 	 * ready. Make sure to only call cyclic_run() when it's initalized.
 	 */
-	if (gd && gd->cyclic)
+	if (gd)
 		cyclic_run();
 }
 
-int cyclic_uninit(void)
+int cyclic_unregister_all(void)
 {
 	struct cyclic_info *cyclic;
 	struct hlist_node *tmp;
 
-	hlist_for_each_entry_safe(cyclic, tmp, &gd->cyclic->cyclic_list, list)
+	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list)
 		cyclic_unregister(cyclic);
-
-	return 0;
-}
-
-int cyclic_init(void)
-{
-	int size = sizeof(struct cyclic_drv);
-
-	gd->cyclic = (struct cyclic_drv *)malloc(size);
-	if (!gd->cyclic)
-		return -ENOMEM;
-
-	memset(gd->cyclic, '\0', size);
-	INIT_HLIST_HEAD(&gd->cyclic->cyclic_list);
 
 	return 0;
 }

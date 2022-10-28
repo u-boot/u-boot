@@ -15,15 +15,6 @@
 #include <asm/types.h>
 
 /**
- * struct cyclic_drv - Cyclic driver internal data
- *
- * @cyclic_list: Cylic list node
- */
-struct cyclic_drv {
-	struct hlist_head cyclic_list;
-};
-
-/**
  * struct cyclic_info - Information about cyclic execution function
  *
  * @func: Function to call periodically
@@ -75,18 +66,11 @@ struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
 int cyclic_unregister(struct cyclic_info *cyclic);
 
 /**
- * cyclic_init() - Set up cyclic functions
- *
- * Init a list of cyclic functions, so that these can be added as needed
- */
-int cyclic_init(void);
-
-/**
- * cyclic_uninit() - Clean up cyclic functions
+ * cyclic_unregister_all() - Clean up cyclic functions
  *
  * This removes all cyclic functions
  */
-int cyclic_uninit(void);
+int cyclic_unregister_all(void);
 
 /**
  * cyclic_get_list() - Get cyclic list pointer
@@ -134,12 +118,7 @@ static inline void schedule(void)
 {
 }
 
-static inline int cyclic_init(void)
-{
-	return 0;
-}
-
-static inline int cyclic_uninit(void)
+static inline int cyclic_unregister_all(void)
 {
 	return 0;
 }

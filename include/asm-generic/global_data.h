@@ -481,9 +481,9 @@ struct global_data {
 #endif
 #ifdef CONFIG_CYCLIC
 	/**
-	 * @cyclic: cyclic driver data
+	 * @cyclic_list: list of registered cyclic functions
 	 */
-	struct cyclic_drv *cyclic;
+	struct hlist_head cyclic_list;
 #endif
 	/**
 	 * @dmtag_list: List of DM tags
