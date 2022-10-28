@@ -521,6 +521,27 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		return 1;
 	}
 
+	if (get_relfile_envaddr(ctx, label->kernel, "kernel_addr_r",
+				NULL) < 0) {
+		printf("Skipping %s for failure retrieving kernel\n",
+		       label->name);
+		return 1;
+	}
+
+	kernel_addr = env_get("kernel_addr_r");
+	/* for FIT, append the configuration identifier */
+	if (label->config) {
+		int len = strlen(kernel_addr) + strlen(label->config) + 1;
+
+		fit_addr = malloc(len);
+		if (!fit_addr) {
+			printf("malloc fail (FIT address)\n");
+			return 1;
+		}
+		snprintf(fit_addr, len, "%s%s", kernel_addr, label->config);
+		kernel_addr = fit_addr;
+	}
+
 	if (label->initrd) {
 		ulong size;
 
@@ -528,21 +549,14 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 					&size) < 0) {
 			printf("Skipping %s for failure retrieving initrd\n",
 			       label->name);
-			return 1;
+			goto cleanup;
 		}
 
 		initrd_addr_str = env_get("ramdisk_addr_r");
 		size = snprintf(initrd_str, sizeof(initrd_str), "%s:%lx",
 				initrd_addr_str, size);
 		if (size >= sizeof(initrd_str))
-			return 1;
-	}
-
-	if (get_relfile_envaddr(ctx, label->kernel, "kernel_addr_r",
-				NULL) < 0) {
-		printf("Skipping %s for failure retrieving kernel\n",
-		       label->name);
-		return 1;
+			goto cleanup;
 	}
 
 	if (label->ipappend & 0x1) {
@@ -572,7 +586,7 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 			       strlen(label->append ?: ""),
 			       strlen(ip_str), strlen(mac_str),
 			       sizeof(bootargs));
-			return 1;
+			goto cleanup;
 		}
 
 		if (label->append)
@@ -585,21 +599,6 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 					  sizeof(finalbootargs));
 		env_set("bootargs", finalbootargs);
 		printf("append: %s\n", finalbootargs);
-	}
-
-	kernel_addr = env_get("kernel_addr_r");
-
-	/* for FIT, append the configuration identifier */
-	if (label->config) {
-		int len = strlen(kernel_addr) + strlen(label->config) + 1;
-
-		fit_addr = malloc(len);
-		if (!fit_addr) {
-			printf("malloc fail (FIT address)\n");
-			return 1;
-		}
-		snprintf(fit_addr, len, "%s%s", kernel_addr, label->config);
-		kernel_addr = fit_addr;
 	}
 
 	/*
