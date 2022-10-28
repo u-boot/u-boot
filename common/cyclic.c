@@ -30,7 +30,7 @@ struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
 {
 	struct cyclic_info *cyclic;
 
-	if (!gd->cyclic->cyclic_ready) {
+	if (!gd->cyclic) {
 		pr_debug("Cyclic IF not ready yet\n");
 		return NULL;
 	}
@@ -112,7 +112,7 @@ void schedule(void)
 	 * schedule() might get called very early before the cyclic IF is
 	 * ready. Make sure to only call cyclic_run() when it's initalized.
 	 */
-	if (gd && gd->cyclic && gd->cyclic->cyclic_ready)
+	if (gd && gd->cyclic)
 		cyclic_run();
 }
 
@@ -122,7 +122,6 @@ int cyclic_uninit(void)
 
 	list_for_each_entry_safe(cyclic, tmp, &gd->cyclic->cyclic_list, list)
 		cyclic_unregister(cyclic);
-	gd->cyclic->cyclic_ready = false;
 
 	return 0;
 }
@@ -137,7 +136,6 @@ int cyclic_init(void)
 
 	memset(gd->cyclic, '\0', size);
 	INIT_LIST_HEAD(&gd->cyclic->cyclic_list);
-	gd->cyclic->cyclic_ready = true;
 
 	return 0;
 }

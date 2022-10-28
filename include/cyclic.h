@@ -18,11 +18,9 @@
  * struct cyclic_drv - Cyclic driver internal data
  *
  * @cyclic_list: Cylic list node
- * @cyclic_ready: Flag if cyclic infrastructure is ready
  */
 struct cyclic_drv {
 	struct list_head cyclic_list;
-	bool cyclic_ready;
 };
 
 /**
