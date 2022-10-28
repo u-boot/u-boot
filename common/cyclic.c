@@ -66,10 +66,10 @@ void cyclic_run(void)
 	uint64_t now, cpu_time;
 
 	/* Prevent recursion */
-	if (gd->cyclic->cyclic_running)
+	if (gd->flags & GD_FLG_CYCLIC_RUNNING)
 		return;
 
-	gd->cyclic->cyclic_running = true;
+	gd->flags |= GD_FLG_CYCLIC_RUNNING;
 	list_for_each_entry_safe(cyclic, tmp, &gd->cyclic->cyclic_list, list) {
 		/*
 		 * Check if this cyclic function needs to get called, e.g.
@@ -99,7 +99,7 @@ void cyclic_run(void)
 			}
 		}
 	}
-	gd->cyclic->cyclic_running = false;
+	gd->flags &= ~GD_FLG_CYCLIC_RUNNING;
 }
 
 void schedule(void)

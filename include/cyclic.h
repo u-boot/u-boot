@@ -19,12 +19,10 @@
  *
  * @cyclic_list: Cylic list node
  * @cyclic_ready: Flag if cyclic infrastructure is ready
- * @cyclic_running: Flag if cyclic infrastructure is running
  */
 struct cyclic_drv {
 	struct list_head cyclic_list;
 	bool cyclic_ready;
-	bool cyclic_running;
 };
 
 /**
