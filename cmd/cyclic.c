@@ -61,10 +61,11 @@ static int do_cyclic_demo(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_cyclic_list(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
-	struct cyclic_info *cyclic, *tmp;
+	struct cyclic_info *cyclic;
+	struct hlist_node *tmp;
 	u64 cnt, freq;
 
-	list_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list) {
+	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list) {
 		cnt = cyclic->run_cnt * 1000000ULL * 100ULL;
 		freq = lldiv(cnt, timer_get_us() - cyclic->start_time_us);
 		printf("function: %s, cpu-time: %lld us, frequency: %lld.%02d times/s\n",

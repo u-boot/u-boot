@@ -20,7 +20,7 @@
  * @cyclic_list: Cylic list node
  */
 struct cyclic_drv {
-	struct list_head cyclic_list;
+	struct hlist_head cyclic_list;
 };
 
 /**
@@ -46,7 +46,7 @@ struct cyclic_info {
 	uint64_t cpu_time_us;
 	uint64_t run_cnt;
 	uint64_t next_call;
-	struct list_head list;
+	struct hlist_node list;
 	bool already_warned;
 };
 
@@ -95,7 +95,7 @@ int cyclic_uninit(void);
  *
  * @return: pointer to cyclic_list
  */
-struct list_head *cyclic_get_list(void);
+struct hlist_head *cyclic_get_list(void);
 
 /**
  * cyclic_run() - Interate over all registered cyclic functions
