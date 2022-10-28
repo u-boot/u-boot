@@ -1179,11 +1179,10 @@ static int parse_label_kernel(char **c, struct pxe_label *label)
 	if (!s)
 		return 1;
 
-	label->config = malloc(strlen(s) + 1);
+	label->config = strdup(s);
 	if (!label->config)
 		return -ENOMEM;
 
-	strcpy(label->config, s);
 	*s = 0;
 
 	return 1;
