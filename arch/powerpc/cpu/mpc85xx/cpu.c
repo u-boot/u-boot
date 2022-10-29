@@ -98,7 +98,7 @@ int checkcpu (void)
 #if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 	if (SVR_SOC_VER(svr) == SVR_T4080) {
 		ccsr_rcpm_t *rcpm =
-			(void __iomem *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+			(void __iomem *)(CFG_SYS_FSL_CORENET_RCPM_ADDR);
 
 		setbits_be32(&gur->devdisr2, FSL_CORENET_DEVDISR2_DTSEC1_6 ||
 			     FSL_CORENET_DEVDISR2_DTSEC1_9);
@@ -540,16 +540,16 @@ static void dump_spd_ddr_reg(void)
 	for (i = 0; i < CONFIG_SYS_NUM_DDR_CTLRS; i++) {
 		switch (i) {
 		case 0:
-			ddr[i] = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+			ddr[i] = (void *)CFG_SYS_FSL_DDR_ADDR;
 			break;
-#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
+#if defined(CFG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
 		case 1:
-			ddr[i] = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+			ddr[i] = (void *)CFG_SYS_FSL_DDR2_ADDR;
 			break;
 #endif
-#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
+#if defined(CFG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
 		case 2:
-			ddr[i] = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+			ddr[i] = (void *)CFG_SYS_FSL_DDR3_ADDR;
 			break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 3)

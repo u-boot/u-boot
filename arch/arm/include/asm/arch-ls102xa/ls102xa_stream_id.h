@@ -29,30 +29,30 @@
 #define SET_SEC_JR_LIODN_ENTRY(jrnum, liodnA, liodnB) \
 	SET_LIODN_ENTRY_2("fsl,sec4.0-job-ring", liodnA, liodnB, \
 		offsetof(ccsr_sec_t, jrliodnr[jrnum].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrnum), \
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrnum), \
 	SET_LIODN_ENTRY_2("fsl,sec-v4.0-job-ring", liodnA, liodnB,\
 		offsetof(ccsr_sec_t, jrliodnr[jrnum].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrnum)
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrnum)
 
 /* This is a bit evil since we treat rtic param as both a string & hex value */
 #define SET_SEC_RTIC_LIODN_ENTRY(rtic, liodnA) \
 	SET_LIODN_ENTRY_1("fsl,sec4.0-rtic-memory", \
 		liodnA,	\
 		offsetof(ccsr_sec_t, rticliodnr[0x##rtic-0xa].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa)), \
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa)), \
 	SET_LIODN_ENTRY_1("fsl,sec-v4.0-rtic-memory", \
 		liodnA,	\
 		offsetof(ccsr_sec_t, rticliodnr[0x##rtic-0xa].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa))
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa))
 
 #define SET_SEC_DECO_LIODN_ENTRY(num, liodnA, liodnB) \
 	SET_LIODN_ENTRY_2(NULL, liodnA, liodnB, \
 		offsetof(ccsr_sec_t, decoliodnr[num].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, 0)
+		CFG_SYS_FSL_SEC_OFFSET, 0)
 
 struct liodn_id_table {
 	const char *compat;

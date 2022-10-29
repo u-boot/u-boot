@@ -18,7 +18,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 {
 	unsigned int i;
 	struct ccsr_ddr __iomem *ddr =
-		(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
+		(struct ccsr_ddr __iomem *)CFG_SYS_FSL_DDR_ADDR;
 
 	if (ctrl_num != 0) {
 		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
@@ -71,7 +71,7 @@ void
 ddr_enable_ecc(unsigned int dram_size)
 {
 	struct ccsr_ddr __iomem *ddr =
-		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
+		(struct ccsr_ddr __iomem *)(CFG_SYS_FSL_DDR_ADDR);
 
 	dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
 

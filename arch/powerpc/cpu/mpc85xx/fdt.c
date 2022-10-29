@@ -164,7 +164,7 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 static inline void ft_fixup_l3cache(void *blob, int off)
 {
 	u32 line_size, num_ways, size, num_sets;
-	cpc_corenet_t *cpc = (void *)CONFIG_SYS_FSL_CPC_ADDR;
+	cpc_corenet_t *cpc = (void *)CFG_SYS_FSL_CPC_ADDR;
 	u32 cfg0 = in_be32(&cpc->cpccfg0);
 
 	size = CPC_CFG0_SZ_K(cfg0) * 1024 * CONFIG_SYS_NUM_CPC;
@@ -299,7 +299,7 @@ static inline void ft_fixup_l2cache(void *blob)
 	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
 #else
 	struct ccsr_cluster_l2 *l2cache =
-		(struct ccsr_cluster_l2 __iomem *)(CONFIG_SYS_FSL_CLUSTER_1_L2);
+		(struct ccsr_cluster_l2 __iomem *)(CFG_SYS_FSL_CLUSTER_1_L2);
 	u32 l2cfg0 = in_be32(&l2cache->l2cfg0);
 #endif
 	u32 size, line_size, num_ways, num_sets;
@@ -466,11 +466,11 @@ static void ft_fixup_dpaa_clks(void *blob)
 
 	get_sys_info(&sysinfo);
 #ifdef CONFIG_SYS_DPAA_FMAN
-	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM1_OFFSET,
+	ft_fixup_clks(blob, "fsl,fman", CFG_SYS_FSL_FM1_OFFSET,
 			sysinfo.freq_fman[0]);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
-	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM2_OFFSET,
+	ft_fixup_clks(blob, "fsl,fman", CFG_SYS_FSL_FM2_OFFSET,
 			sysinfo.freq_fman[1]);
 #endif
 #endif
@@ -611,7 +611,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 	else {
 		ccsr_sec_t __iomem *sec;
 
-		sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+		sec = (void __iomem *)CFG_SYS_FSL_SEC_ADDR;
 		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
 	}
 #endif

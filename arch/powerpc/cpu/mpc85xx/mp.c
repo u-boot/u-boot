@@ -265,8 +265,8 @@ static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 	struct law_entry e;
 
 	gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
-	ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
-	rcpm = (void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+	ccm = (void *)(CFG_SYS_FSL_CORENET_CCM_ADDR);
+	rcpm = (void *)(CFG_SYS_FSL_CORENET_RCPM_ADDR);
 	pic = (void *)(CFG_SYS_MPC8xxx_PIC_ADDR);
 
 	whoami = in_be32(&pic->whoami);

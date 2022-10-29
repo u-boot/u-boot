@@ -96,11 +96,11 @@ static struct mm_region early_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_FSL_OCRAM_BASE, CONFIG_SYS_FSL_OCRAM_BASE,
+	{ CFG_SYS_FSL_OCRAM_BASE, CFG_SYS_FSL_OCRAM_BASE,
 	  SYS_FSL_OCRAM_SPACE_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE
 	},
-	{ CONFIG_SYS_FSL_QSPI_BASE1, CONFIG_SYS_FSL_QSPI_BASE1,
+	{ CFG_SYS_FSL_QSPI_BASE1, CFG_SYS_FSL_QSPI_BASE1,
 	  CONFIG_SYS_FSL_QSPI_SIZE1,
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE},
 #ifdef CONFIG_FSL_IFC
@@ -159,7 +159,7 @@ static struct mm_region early_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_FSL_OCRAM_BASE, CONFIG_SYS_FSL_OCRAM_BASE,
+	{ CFG_SYS_FSL_OCRAM_BASE, CFG_SYS_FSL_OCRAM_BASE,
 	  SYS_FSL_OCRAM_SPACE_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE
 	},
@@ -168,7 +168,7 @@ static struct mm_region early_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_FSL_QSPI_BASE, CONFIG_SYS_FSL_QSPI_BASE,
+	{ CFG_SYS_FSL_QSPI_BASE, CFG_SYS_FSL_QSPI_BASE,
 	  CONFIG_SYS_FSL_QSPI_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE
 	},
@@ -204,7 +204,7 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_FSL_OCRAM_BASE, CONFIG_SYS_FSL_OCRAM_BASE,
+	{ CFG_SYS_FSL_OCRAM_BASE, CFG_SYS_FSL_OCRAM_BASE,
 	  SYS_FSL_OCRAM_SPACE_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE
 	},
@@ -213,12 +213,12 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 	  PTE_BLOCK_OUTER_SHARE | PTE_BLOCK_NS
 	},
-	{ CONFIG_SYS_FSL_QSPI_BASE1, CONFIG_SYS_FSL_QSPI_BASE1,
+	{ CFG_SYS_FSL_QSPI_BASE1, CFG_SYS_FSL_QSPI_BASE1,
 	  CONFIG_SYS_FSL_QSPI_SIZE1,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_FSL_QSPI_BASE2, CONFIG_SYS_FSL_QSPI_BASE2,
+	{ CFG_SYS_FSL_QSPI_BASE2, CFG_SYS_FSL_QSPI_BASE2,
 	  CONFIG_SYS_FSL_QSPI_SIZE2,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -333,7 +333,7 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_FSL_OCRAM_BASE, CONFIG_SYS_FSL_OCRAM_BASE,
+	{ CFG_SYS_FSL_OCRAM_BASE, CFG_SYS_FSL_OCRAM_BASE,
 	  SYS_FSL_OCRAM_SPACE_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_NON_SHARE
 	},
@@ -342,7 +342,7 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_FSL_QSPI_BASE, CONFIG_SYS_FSL_QSPI_BASE,
+	{ CFG_SYS_FSL_QSPI_BASE, CFG_SYS_FSL_QSPI_BASE,
 	  CONFIG_SYS_FSL_QSPI_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -401,7 +401,7 @@ struct mm_region *mem_map = early_map;
 
 void cpu_name(char *name)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	unsigned int i, svr, ver;
 
 	svr = gur_in32(&gur->svr);
@@ -430,7 +430,7 @@ void cpu_name(char *name)
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 /*
  * To start MMU before DDR is available, we create MMU table in SRAM.
- * The base address of SRAM is CONFIG_SYS_FSL_OCRAM_BASE. We use three
+ * The base address of SRAM is CFG_SYS_FSL_OCRAM_BASE. We use three
  * levels of translation tables here to cover 40-bit address space.
  * We use 4KB granule size, with 40 bits physical address, T0SZ=24
  * Address above EARLY_PGTABLE_SIZE (0x5000) is free for other purpose.
@@ -443,7 +443,7 @@ static inline void early_mmu_setup(void)
 
 	/* global data is already setup, no allocation yet */
 	if (el == 3)
-		gd->arch.tlb_addr = CONFIG_SYS_FSL_OCRAM_BASE;
+		gd->arch.tlb_addr = CFG_SYS_FSL_OCRAM_BASE;
 	else
 		gd->arch.tlb_addr = CONFIG_SYS_DDR_SDRAM_BASE;
 	gd->arch.tlb_fillptr = gd->arch.tlb_addr;
@@ -466,7 +466,7 @@ static void fix_pcie_mmu_map(void)
 #ifdef CONFIG_ARCH_LS2080A
 	unsigned int i;
 	u32 svr, ver;
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 
 	svr = gur_in32(&gur->svr);
 	ver = SVR_SOC_VER(svr);
@@ -775,7 +775,7 @@ enum boot_src get_boot_src(void)
 #if defined(CONFIG_FSL_LSCH3)
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
 #elif defined(CONFIG_FSL_LSCH2)
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 #endif
 
 	if (current_el() == 2) {
@@ -863,7 +863,7 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 
 u32 initiator_type(u32 cluster, int init_id)
 {
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 idx = (cluster >> (init_id * 8)) & TP_CLUSTER_INIT_MASK;
 	u32 type = 0;
 
@@ -876,7 +876,7 @@ u32 initiator_type(u32 cluster, int init_id)
 
 u32 cpu_pos_mask(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	int i = 0;
 	u32 cluster, type, mask = 0;
 
@@ -897,7 +897,7 @@ u32 cpu_pos_mask(void)
 
 u32 cpu_mask(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	int i = 0, count = 0;
 	u32 cluster, type, mask = 0;
 
@@ -930,7 +930,7 @@ int cpu_numcores(void)
 int fsl_qoriq_core_to_cluster(unsigned int core)
 {
 	struct ccsr_gur __iomem *gur =
-		(void __iomem *)(CONFIG_SYS_FSL_GUTS_ADDR);
+		(void __iomem *)(CFG_SYS_FSL_GUTS_ADDR);
 	int i = 0, count = 0;
 	u32 cluster;
 
@@ -954,7 +954,7 @@ int fsl_qoriq_core_to_cluster(unsigned int core)
 u32 fsl_qoriq_core_to_type(unsigned int core)
 {
 	struct ccsr_gur __iomem *gur =
-		(void __iomem *)(CONFIG_SYS_FSL_GUTS_ADDR);
+		(void __iomem *)(CFG_SYS_FSL_GUTS_ADDR);
 	int i = 0, count = 0;
 	u32 cluster, type;
 
@@ -979,7 +979,7 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 #ifndef CONFIG_FSL_LSCH3
 uint get_svr(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 
 	return gur_in32(&gur->svr);
 }
@@ -988,7 +988,7 @@ uint get_svr(void)
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	struct sys_info sysinfo;
 	char buf[32];
 	unsigned int i, core;
@@ -1179,9 +1179,9 @@ int arch_early_init_r(void)
 
 int timer_init(void)
 {
-	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
+	u32 __iomem *cntcr = (u32 *)CFG_SYS_FSL_TIMER_ADDR;
 #ifdef CONFIG_FSL_LSCH3
-	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
+	u32 __iomem *cltbenr = (u32 *)CFG_SYS_FSL_PMU_CLTBENR;
 #endif
 #if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1088A) || \
 	defined(CONFIG_ARCH_LS1028A)
@@ -1230,7 +1230,7 @@ int timer_init(void)
 }
 
 #if !CONFIG_IS_ENABLED(SYSRESET)
-__efi_runtime_data u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
+__efi_runtime_data u32 __iomem *rstcr = (u32 *)CFG_SYS_FSL_RST_ADDR;
 
 void __efi_runtime reset_cpu(void)
 {

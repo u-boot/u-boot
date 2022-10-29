@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FSL_HW_NUM_LAWS CONFIG_SYS_FSL_NUM_LAWS
 
 #ifdef CONFIG_FSL_CORENET
-#define LAW_BASE (CONFIG_SYS_FSL_CORENET_CCM_ADDR)
+#define LAW_BASE (CFG_SYS_FSL_CORENET_CCM_ADDR)
 #define LAWAR_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawar)
 #define LAWBARH_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawbarh)
 #define LAWBARL_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawbarl)

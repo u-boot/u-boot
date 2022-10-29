@@ -167,7 +167,7 @@ unsigned long get_board_sys_clk(void)
 
 int misc_init_r(void)
 {
-	serdes_corenet_t *regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	serdes_corenet_t *regs = (void *)CFG_SYS_FSL_CORENET_SERDES_ADDR;
 	u32 actual[NUM_SRDS_BANKS];
 	unsigned int i;
 	u8 sw;

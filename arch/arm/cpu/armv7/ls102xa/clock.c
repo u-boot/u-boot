@@ -15,8 +15,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void get_sys_info(struct sys_info *sys_info)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-	struct ccsr_clk *clk = (void *)(CONFIG_SYS_FSL_LS1_CLK_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_clk *clk = (void *)(CFG_SYS_FSL_LS1_CLK_ADDR);
 	unsigned int cpu;
 	const u8 core_cplx_pll[6] = {
 		[0] = 0,	/* CC1 PPL / 1 */

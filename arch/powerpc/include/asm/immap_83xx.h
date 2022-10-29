@@ -862,7 +862,7 @@ struct ccsr_gpio {
 };
 
 #define CFG_SYS_MPC8xxx_DDR_OFFSET	(0x2000)
-#define CONFIG_SYS_FSL_DDR_ADDR \
+#define CFG_SYS_FSL_DDR_ADDR \
 			(CONFIG_SYS_IMMR + CFG_SYS_MPC8xxx_DDR_OFFSET)
 #define CFG_SYS_MPC83xx_DMA_OFFSET	(0x8000)
 #define CFG_SYS_MPC83xx_DMA_ADDR \

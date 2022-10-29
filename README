@@ -298,7 +298,7 @@ The following options need to be configured:
 
 		Enables a workaround for erratum A004510.  If set,
 		then CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV and
-		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY must be set.
+		CFG_SYS_FSL_CORENET_SNOOPVEC_COREONLY must be set.
 
 		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV
 		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2 (optional)
@@ -314,7 +314,7 @@ The following options need to be configured:
 		See Freescale App Note 4493 for more information about
 		this erratum.
 
-		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
+		CFG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
 		This is the value to write into CCSR offset 0x18600
 		according to the A004510 workaround.
@@ -330,7 +330,7 @@ The following options need to be configured:
 		Freescale DDR driver in use. This type of DDR controller is
 		found in mpc83xx, mpc85xx as well as some ARM core SoCs.
 
-		CONFIG_SYS_FSL_DDR_ADDR
+		CFG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
 
 		CONFIG_SYS_FSL_IFC_CLK_DIV
@@ -339,7 +339,7 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to eLBC controller).
 
-		CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY
+		CFG_SYS_FSL_DDR_SDRAM_BASE_PHY
 		Physical address from the view of DDR controllers. It is the
 		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.

@@ -28,7 +28,7 @@ uint32_t secmem_set_cmd(uint32_t sec_mem_cmd)
 {
 	uint32_t temp_reg;
 
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t *sec = (void *)CFG_SYS_FSL_SEC_ADDR;
 	uint32_t sm_vid = SM_VERSION(sec_in32(&sec->smvid));
 	uint32_t jr_id = 0;
 
@@ -58,7 +58,7 @@ int caam_page_alloc(uint8_t page_num, uint8_t partition_num)
 {
 	uint32_t temp_reg;
 
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t *sec = (void *)CFG_SYS_FSL_SEC_ADDR;
 	uint32_t sm_vid = SM_VERSION(sec_in32(&sec->smvid));
 	uint32_t jr_id = 0;
 
@@ -116,7 +116,7 @@ int caam_page_alloc(uint8_t page_num, uint8_t partition_num)
 int inline_cnstr_jobdesc_blob_dek(uint32_t *desc, const uint8_t *plain_txt,
 				       uint8_t *dek_blob, uint32_t in_sz)
 {
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t *sec = (void *)CFG_SYS_FSL_SEC_ADDR;
 	uint32_t sm_vid = SM_VERSION(sec_in32(&sec->smvid));
 	uint32_t jr_id = 0;
 

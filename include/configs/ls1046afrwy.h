@@ -73,7 +73,7 @@
 /*
  * Environment
  */
-#define CONFIG_SYS_FSL_QSPI_BASE	0x40000000
+#define CFG_SYS_FSL_QSPI_BASE	0x40000000
 
 #undef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \

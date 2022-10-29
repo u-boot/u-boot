@@ -14,7 +14,7 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORT	1
@@ -25,7 +25,7 @@
 #define CONFIG_POWER_FSL
 #define CONFIG_POWER_FSL_MC13892
 #define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
-#define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x8
+#define CFG_SYS_FSL_PMIC_I2C_ADDR	0x8
 
 /* Command definition */
 

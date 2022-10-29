@@ -16,7 +16,7 @@
 #define CONFIG_MXC_UART_BASE		MX6UL_UART7_BASE_ADDR
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* Miscellaneous configurable options */
 

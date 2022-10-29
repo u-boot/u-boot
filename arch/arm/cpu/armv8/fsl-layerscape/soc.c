@@ -80,7 +80,7 @@ int ls_gic_rd_tables_init(void *blob)
 
 bool soc_has_dp_ddr(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 svr = gur_in32(&gur->svr);
 
 	/* LS2085A, LS2088A, LS2048A has DP_DDR */
@@ -94,7 +94,7 @@ bool soc_has_dp_ddr(void)
 
 bool soc_has_aiop(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 svr = gur_in32(&gur->svr);
 
 	/* LS2085A has AIOP */
@@ -249,13 +249,13 @@ static void erratum_a008336(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008336
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_DCSR_DDR_ADDR
-	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
+#ifdef CFG_SYS_FSL_DCSR_DDR_ADDR
+	eddrtqcr1 = (void *)CFG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
 	if (fsl_ddr_get_version(0) == 0x50200)
 		out_le32(eddrtqcr1, 0x63b30002);
 #endif
-#ifdef CONFIG_SYS_FSL_DCSR_DDR2_ADDR
-	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
+#ifdef CFG_SYS_FSL_DCSR_DDR2_ADDR
+	eddrtqcr1 = (void *)CFG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
 	if (fsl_ddr_get_version(0) == 0x50200)
 		out_le32(eddrtqcr1, 0x63b30002);
 #endif
@@ -271,8 +271,8 @@ static void erratum_a008514(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008514
 	u32 *eddrtqcr1;
 
-#ifdef CONFIG_SYS_FSL_DCSR_DDR3_ADDR
-	eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
+#ifdef CFG_SYS_FSL_DCSR_DDR3_ADDR
+	eddrtqcr1 = (void *)CFG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
 	out_le32(eddrtqcr1, 0x63b20002);
 #endif
 #endif
@@ -412,7 +412,7 @@ void fsl_lsch3_early_init_f(void)
 /* Get VDD in the unit mV from voltage ID */
 int get_core_volt_from_fuse(void)
 {
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	int vdd;
 	u32 fusesr;
 	u8 vid;
@@ -462,7 +462,7 @@ int get_core_volt_from_fuse(void)
 static void erratum_a009660(void)
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009660
-	u32 *eddrtqcr1 = (void *)CONFIG_SYS_FSL_SCFG_ADDR + 0x20c;
+	u32 *eddrtqcr1 = (void *)CFG_SYS_FSL_SCFG_ADDR + 0x20c;
 	out_be32(eddrtqcr1, 0x63b20042);
 #endif
 }
@@ -473,7 +473,7 @@ static void erratum_a008850_early(void)
 	/* part 1 of 2 */
 	struct ccsr_cci400 __iomem *cci = (void *)(CONFIG_SYS_IMMR +
 						CONFIG_SYS_CCI400_OFFSET);
-	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+	struct ccsr_ddr __iomem *ddr = (void *)CFG_SYS_FSL_DDR_ADDR;
 
 	/* Skip if running at lower exception level */
 	if (current_el() < 3)
@@ -493,7 +493,7 @@ void erratum_a008850_post(void)
 	/* part 2 of 2 */
 	struct ccsr_cci400 __iomem *cci = (void *)(CONFIG_SYS_IMMR +
 						CONFIG_SYS_CCI400_OFFSET);
-	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+	struct ccsr_ddr __iomem *ddr = (void *)CFG_SYS_FSL_DDR_ADDR;
 	u32 tmp;
 
 	/* Skip if running at lower exception level */
@@ -526,21 +526,21 @@ void erratum_a010315(void)
 static void erratum_a010539(void)
 {
 #if defined(CONFIG_SYS_FSL_ERRATUM_A010539) && defined(CONFIG_QSPI_BOOT)
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 porsr1;
 
 	porsr1 = in_be32(&gur->porsr1);
 	porsr1 &= ~FSL_CHASSIS2_CCSR_PORSR1_RCW_MASK;
 	out_be32((void *)(CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_PORCR1),
 		 porsr1);
-	out_be32((void *)(CONFIG_SYS_FSL_SCFG_ADDR + 0x1a8), 0xffffffff);
+	out_be32((void *)(CFG_SYS_FSL_SCFG_ADDR + 0x1a8), 0xffffffff);
 #endif
 }
 
 /* Get VDD in the unit mV from voltage ID */
 int get_core_volt_from_fuse(void)
 {
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	int vdd;
 	u32 fusesr;
 	u8 vid;
@@ -588,7 +588,7 @@ static int setup_core_volt(u32 vdd)
 #ifdef CONFIG_SYS_FSL_DDR
 static void ddr_enable_0v9_volt(bool en)
 {
-	struct ccsr_ddr __iomem *ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+	struct ccsr_ddr __iomem *ddr = (void *)CFG_SYS_FSL_DDR_ADDR;
 	u32 tmp;
 
 	tmp = ddr_in32(&ddr->ddr_cdr1);
@@ -629,7 +629,7 @@ int setup_chip_volt(void)
 #ifdef CONFIG_FSL_PFE
 void init_pfe_scfg_dcfg_regs(void)
 {
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 ecccr2;
 
 	out_be32(&scfg->pfeasbcr,
@@ -653,7 +653,7 @@ void fsl_lsch2_early_init_f(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
 					CONFIG_SYS_CCI400_OFFSET);
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 #if defined(CONFIG_FSL_QSPI) && defined(CONFIG_TFABOOT)
 	enum boot_src src;
 #endif

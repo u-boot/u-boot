@@ -14,7 +14,7 @@
 #include "imx6_spl.h"
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* Framebuffer */
 #define CONFIG_IMX_HDMI

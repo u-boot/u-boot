@@ -21,7 +21,7 @@
 #define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
@@ -113,7 +113,7 @@
 
 /* Environment starts at 768k = 768 * 1024 = 786432 */
 
-#define CONFIG_SYS_FSL_USDHC_NUM		2
+#define CFG_SYS_FSL_USDHC_NUM		2
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)

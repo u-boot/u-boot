@@ -124,7 +124,7 @@ static int power_init(void)
 		return ret;
 	}
 
-	if (!i2c_probe(CONFIG_SYS_FSL_PMIC_I2C_ADDR)) {
+	if (!i2c_probe(CFG_SYS_FSL_PMIC_I2C_ADDR)) {
 		ret = pmic_init(I2C_0);
 		if (ret)
 			return ret;

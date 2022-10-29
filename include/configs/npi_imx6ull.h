@@ -13,13 +13,13 @@
 /* SPL options */
 #include "imx6_spl.h"
 
-#define CONFIG_SYS_FSL_USDHC_NUM	1
+#define CFG_SYS_FSL_USDHC_NUM	1
 
 /* Console configs */
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 #define CONFIG_NETMASK			255.255.255.0
 

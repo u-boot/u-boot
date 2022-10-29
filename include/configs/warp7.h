@@ -14,7 +14,7 @@
 #define PHYS_SDRAM_SIZE			SZ_512M
 
 /* MMC Config*/
-#define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
 
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=boot raw 0x2 0x1000 mmcpart 1\0" \
@@ -90,7 +90,7 @@
 
 /* environment organization */
 
-#define CONFIG_SYS_FSL_USDHC_NUM	1
+#define CFG_SYS_FSL_USDHC_NUM	1
 
 
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)

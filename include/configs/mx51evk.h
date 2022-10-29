@@ -34,7 +34,7 @@
 /*
  * MMC Configs
  * */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORT	1

@@ -125,7 +125,7 @@ qsgmii_loop:
 static void dtsec_init_phy(struct fm_eth *fm_eth)
 {
 #ifndef CONFIG_SYS_FMAN_V3
-	struct dtsec *regs = (struct dtsec *)CONFIG_SYS_FSL_FM1_DTSEC1_ADDR;
+	struct dtsec *regs = (struct dtsec *)CFG_SYS_FSL_FM1_DTSEC1_ADDR;
 
 	/* Assign a Physical address to the TBI */
 	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);

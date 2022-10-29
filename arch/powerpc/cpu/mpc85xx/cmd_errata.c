@@ -84,7 +84,7 @@ static void check_erratum_a4849(uint32_t svr)
 static void check_erratum_a4580(uint32_t svr)
 {
 	const serdes_corenet_t __iomem *srds_regs =
-		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+		(void *)CFG_SYS_FSL_CORENET_SERDES_ADDR;
 	unsigned int lane;
 
 	for (lane = 0; lane < SRDS_MAX_LANES; lane++) {

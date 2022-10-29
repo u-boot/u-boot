@@ -22,8 +22,8 @@
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configuration */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 /* NOR 16-bit mode */
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR

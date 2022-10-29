@@ -114,7 +114,7 @@ int get_csf_base_addr(u32 *csf_addr, u32 *flash_base_addr)
  */
 int get_csf_base_addr(u32 *csf_addr, u32 *flash_base_addr)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 csf_hdr_addr = in_be32(&gur->scratchrw[0]);
 
 	if (memcmp((u8 *)(uintptr_t)csf_hdr_addr,
@@ -130,7 +130,7 @@ int get_csf_base_addr(u32 *csf_addr, u32 *flash_base_addr)
 #if defined(CONFIG_ESBC_HDR_LS)
 static int get_ie_info_addr(uintptr_t *ie_addr)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	/* For LS-CH3, the address of IE Table is
 	 * stated in Scratch13 and scratch14 of DCFG.
 	 * Bootrom validates this table while validating uboot.

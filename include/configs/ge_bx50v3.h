@@ -100,7 +100,7 @@
 
 /* environment organization */
 
-#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_USDHC_NUM	3
 
 /* Framebuffer */
 #define CONFIG_IMX_HDMI

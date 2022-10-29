@@ -15,7 +15,7 @@
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
 /* MMC Configuration */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1,115200\0" \

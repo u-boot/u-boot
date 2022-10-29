@@ -34,16 +34,16 @@ u32 fsl_ddr_get_version(unsigned int ctrl_num)
 
 	switch (ctrl_num) {
 	case 0:
-		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+		ddr = (void *)CFG_SYS_FSL_DDR_ADDR;
 		break;
-#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
+#if defined(CFG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
 	case 1:
-		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+		ddr = (void *)CFG_SYS_FSL_DDR2_ADDR;
 		break;
 #endif
-#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
+#if defined(CFG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
 	case 2:
-		ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+		ddr = (void *)CFG_SYS_FSL_DDR3_ADDR;
 		break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 3)
@@ -181,7 +181,7 @@ u32 fsl_ddr_get_intl3r(void)
 void print_ddr_info(unsigned int start_ctrl)
 {
 	struct ccsr_ddr __iomem *ddr =
-		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
+		(struct ccsr_ddr __iomem *)(CFG_SYS_FSL_DDR_ADDR);
 
 #if	defined(CONFIG_E6500) && (CONFIG_SYS_NUM_DDR_CTLRS == 3)
 	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
@@ -195,14 +195,14 @@ void print_ddr_info(unsigned int start_ctrl)
 #if CONFIG_SYS_NUM_DDR_CTLRS >= 2
 	if ((!(sdram_cfg & SDRAM_CFG_MEM_EN)) ||
 	    (start_ctrl == 1)) {
-		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR2_ADDR;
+		ddr = (void __iomem *)CFG_SYS_FSL_DDR2_ADDR;
 		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_SYS_NUM_DDR_CTLRS >= 3
 	if ((!(sdram_cfg & SDRAM_CFG_MEM_EN)) ||
 	    (start_ctrl == 2)) {
-		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR3_ADDR;
+		ddr = (void __iomem *)CFG_SYS_FSL_DDR3_ADDR;
 		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
@@ -353,16 +353,16 @@ void fsl_ddr_sync_memctl_refresh(unsigned int first_ctrl,
 	for (i = first_ctrl; i <= last_ctrl; i++) {
 		switch (i) {
 		case 0:
-			ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+			ddr = (void *)CFG_SYS_FSL_DDR_ADDR;
 			break;
-#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
+#if defined(CFG_SYS_FSL_DDR2_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 1)
 		case 1:
-			ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+			ddr = (void *)CFG_SYS_FSL_DDR2_ADDR;
 			break;
 #endif
-#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
+#if defined(CFG_SYS_FSL_DDR3_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 2)
 		case 2:
-			ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+			ddr = (void *)CFG_SYS_FSL_DDR3_ADDR;
 			break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_SYS_NUM_DDR_CTLRS > 3)

@@ -79,9 +79,9 @@ static int srio_erratum_a004034(u8 port)
 	int idx, first, last;
 	u32 i;
 	unsigned long long end_tick;
-	struct ccsr_rio *srio_regs = (void *)CONFIG_SYS_FSL_SRIO_ADDR;
+	struct ccsr_rio *srio_regs = (void *)CFG_SYS_FSL_SRIO_ADDR;
 
-	srds_regs = (void *)(CONFIG_SYS_FSL_CORENET_SERDES_ADDR);
+	srds_regs = (void *)(CFG_SYS_FSL_CORENET_SERDES_ADDR);
 	conf_lane = (in_be32((void *)&srds_regs->srdspccr0)
 			>> (12 - port * 4)) & 0x3;
 	init_lane = (in_be32((void *)&srio_regs->lp_serial
@@ -291,7 +291,7 @@ void srio_init(void)
 #ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 void srio_boot_master(int port)
 {
-	struct ccsr_rio *srio = (void *)CONFIG_SYS_FSL_SRIO_ADDR;
+	struct ccsr_rio *srio = (void *)CFG_SYS_FSL_SRIO_ADDR;
 
 	/* set port accept-all */
 	out_be32((void *)&srio->impl.port[port - 1].ptaacr,
@@ -343,7 +343,7 @@ void srio_boot_master(int port)
 
 void srio_boot_master_release_slave(int port)
 {
-	struct ccsr_rio *srio = (void *)CONFIG_SYS_FSL_SRIO_ADDR;
+	struct ccsr_rio *srio = (void *)CFG_SYS_FSL_SRIO_ADDR;
 	u32 escsr;
 	debug("SRIOBOOT - MASTER: "
 			"Check the port status and release slave core ...\n");

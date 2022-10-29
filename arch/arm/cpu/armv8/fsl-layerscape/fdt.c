@@ -171,9 +171,9 @@ static void fdt_fixup_gic(void *blob)
 {
 	int offset, err;
 	u64 reg[8];
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	unsigned int val;
-	struct ccsr_scfg __iomem *scfg = (void *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg __iomem *scfg = (void *)CFG_SYS_FSL_SCFG_ADDR;
 	int align_64k = 0;
 
 	val = gur_in32(&gur->svr);
@@ -355,7 +355,7 @@ static int _fdt_fixup_pci_msi(void *blob, const char *name, int rev)
 
 static void fdt_fixup_msi(void *blob)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	unsigned int rev;
 
 	rev = gur_in32(&gur->svr);
@@ -620,7 +620,7 @@ void fdt_fixup_pfe_firmware(void *blob)
 
 void ft_cpu_setup(void *blob, struct bd_info *bd)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	unsigned int svr = gur_in32(&gur->svr);
 
 	/* delete crypto node if not on an E-processor */
@@ -635,7 +635,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 		fdt_fixup_kaslr(blob);
 #endif
 
-		sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+		sec = (void __iomem *)CFG_SYS_FSL_SEC_ADDR;
 		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
 	}
 #endif

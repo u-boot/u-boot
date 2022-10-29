@@ -25,8 +25,8 @@
 #define FEC_QUIRK_ENET_MAC
 
 /* USDHC */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd=run bootcmd ; reset\0"				\

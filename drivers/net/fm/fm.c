@@ -403,7 +403,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 		} else {
 			ret = spi_flash_read(ucode_flash,
 					     CONFIG_SYS_FMAN_FW_ADDR +
-					     CONFIG_SYS_FSL_QSPI_BASE,
+					     CFG_SYS_FSL_QSPI_BASE,
 					     CONFIG_SYS_QE_FMAN_FW_LENGTH,
 					     addr);
 			if (ret)

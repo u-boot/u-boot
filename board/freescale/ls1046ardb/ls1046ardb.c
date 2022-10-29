@@ -80,7 +80,7 @@ int checkboard(void)
 
 int board_init(void)
 {
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_NXP_ESBC
 	/*
@@ -146,7 +146,7 @@ int power_init_board(void)
 void config_board_mux(void)
 {
 #ifdef CONFIG_HAS_FSL_XHCI_USB
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 usb_pwrfault;
 
 	/* USB3 is not used, configure mux to IIC4_SCL/IIC4_SDA */

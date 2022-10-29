@@ -104,7 +104,7 @@
 /*
  * Environment
  */
-#define CONFIG_SYS_FSL_QSPI_BASE        0x40000000
+#define CFG_SYS_FSL_QSPI_BASE        0x40000000
 
 #define AQR105_IRQ_MASK			0x80000000
 /* FMan */

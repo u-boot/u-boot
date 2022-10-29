@@ -15,9 +15,9 @@
 
 /* NAND pin conflicts with usdhc2 */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_SYS_FSL_USDHC_NUM        1
+#define CFG_SYS_FSL_USDHC_NUM        1
 #else
-#define CONFIG_SYS_FSL_USDHC_NUM        2
+#define CFG_SYS_FSL_USDHC_NUM        2
 #endif
 
 #ifdef CONFIG_CMD_NET
@@ -35,7 +35,7 @@
 
 /* MMC Configs */
 
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* I2C configs */
 

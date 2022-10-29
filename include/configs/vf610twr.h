@@ -19,7 +19,7 @@
 /* Dynamic MTD partition support */
 #endif
 
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_FEC_MXC_PHYADDR          0
 

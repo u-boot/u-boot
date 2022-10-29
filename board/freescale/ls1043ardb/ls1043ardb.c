@@ -188,7 +188,7 @@ int checkboard(void)
 
 int board_init(void)
 {
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A010315
 	erratum_a010315();
@@ -230,7 +230,7 @@ int board_init(void)
 
 int config_board_mux(void)
 {
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 usb_pwrfault;
 
 	if (hwconfig("qe-hdlc")) {

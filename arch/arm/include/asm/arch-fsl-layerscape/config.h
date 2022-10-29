@@ -24,7 +24,7 @@
 #define SPL_TLB_SETBACK	0x1000000	/* 16MB under effective memory top */
 
 #ifdef CONFIG_ARCH_LS2080A
-#define CONFIG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1, 4, 4 }
+#define CFG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1, 4, 4 }
 #define	SRDS_MAX_LANES	8
 #define CONFIG_SYS_PAGE_SIZE		0x10000
 #ifndef L1_CACHE_BYTES
@@ -32,9 +32,9 @@
 #define L1_CACHE_BYTES		BIT(L1_CACHE_SHIFT)
 #endif
 
-#define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000 /* initial RAM */
+#define CFG_SYS_FSL_OCRAM_BASE	0x18000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE	0x00200000 /* 2M space */
-#define CONFIG_SYS_FSL_OCRAM_SIZE	0x00020000 /* Real size 128K */
+#define CFG_SYS_FSL_OCRAM_SIZE	0x00020000 /* Real size 128K */
 
 /* DDR */
 #define CONFIG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
@@ -95,7 +95,7 @@
 #define EPU_EPGCR		0x700060000ULL
 
 #elif defined(CONFIG_ARCH_LS1088A)
-#define CONFIG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1 }
+#define CFG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1 }
 #define CONFIG_SYS_PAGE_SIZE		0x10000
 
 #define	SRDS_MAX_LANES	4
@@ -126,9 +126,9 @@
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_DDR_BLOCK1_SIZE
 
 /* DCFG - GUR */
-#define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000 /* initial RAM */
+#define CFG_SYS_FSL_OCRAM_BASE	0x18000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE	0x00200000 /* 2M space */
-#define CONFIG_SYS_FSL_OCRAM_SIZE	0x00020000 /* Real size 128K */
+#define CFG_SYS_FSL_OCRAM_SIZE	0x00020000 /* Real size 128K */
 
 /* LX2160A/LX2162A Soc Support */
 #elif defined(CONFIG_ARCH_LX2160A) || defined(CONFIG_ARCH_LX2162A)
@@ -139,13 +139,13 @@
 #define L1_CACHE_SHIFT		6
 #define L1_CACHE_BYTES		BIT(L1_CACHE_SHIFT)
 #endif
-#define CONFIG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1, 1, 1, 4, 4, 4, 4 }
+#define CFG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1, 1, 1, 4, 4, 4, 4 }
 
 #define CONFIG_SYS_PAGE_SIZE			0x10000
 
-#define CONFIG_SYS_FSL_OCRAM_BASE		0x18000000 /* initial RAM */
+#define CFG_SYS_FSL_OCRAM_BASE		0x18000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE		0x00200000 /* 2M space */
-#define CONFIG_SYS_FSL_OCRAM_SIZE		0x00040000 /* Real size 256K */
+#define CFG_SYS_FSL_OCRAM_SIZE		0x00040000 /* Real size 256K */
 
 /* DDR */
 #define CONFIG_SYS_DDR_BLOCK1_SIZE		((phys_size_t)2 << 30)
@@ -161,7 +161,7 @@
 /* DCFG - GUR */
 
 #elif defined(CONFIG_ARCH_LS1028A)
-#define CONFIG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1 }
+#define CFG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1 }
 #define CONFIG_FSL_TZASC_400
 
 /* TZ Protection Controller Definitions */
@@ -180,9 +180,9 @@
 #define	SRDS_MAX_LANES	4
 #define	SRDS_BITS_PER_LANE	4
 
-#define CONFIG_SYS_FSL_OCRAM_BASE		0x18000000 /* initial RAM */
+#define CFG_SYS_FSL_OCRAM_BASE		0x18000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE		0x00200000 /* 2M */
-#define CONFIG_SYS_FSL_OCRAM_SIZE		0x00040000 /* Real size 256K */
+#define CFG_SYS_FSL_OCRAM_SIZE		0x00040000 /* Real size 256K */
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE				0x06000000
@@ -200,9 +200,9 @@
 /* DCFG - GUR */
 
 #elif defined(CONFIG_FSL_LSCH2)
-#define CONFIG_SYS_FSL_OCRAM_BASE		0x10000000 /* initial RAM */
+#define CFG_SYS_FSL_OCRAM_BASE		0x10000000 /* initial RAM */
 #define SYS_FSL_OCRAM_SPACE_SIZE		0x00200000 /* 2M space */
-#define CONFIG_SYS_FSL_OCRAM_SIZE		0x00020000 /* Real size 128K */
+#define CFG_SYS_FSL_OCRAM_SIZE		0x00020000 /* Real size 128K */
 
 #define DCSR_DCFG_SBEESR2			0x20140534
 #define DCSR_DCFG_MBEESR2			0x20140544

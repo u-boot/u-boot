@@ -48,8 +48,8 @@ void update_os_arch_secondary_cores(uint8_t os_arch)
 #ifdef CONFIG_FSL_LSCH3
 static void wake_secondary_core_n(int cluster, int core, int cluster_cores)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-	struct ccsr_reset __iomem *rst = (void *)(CONFIG_SYS_FSL_RST_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_reset __iomem *rst = (void *)(CFG_SYS_FSL_RST_ADDR);
 	u32 mpidr = 0;
 
 	mpidr = ((cluster << 8) | core);
@@ -73,13 +73,13 @@ static void wake_secondary_core_n(int cluster, int core, int cluster_cores)
 
 int fsl_layerscape_wake_seconday_cores(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 #ifdef CONFIG_FSL_LSCH3
-	struct ccsr_reset __iomem *rst = (void *)(CONFIG_SYS_FSL_RST_ADDR);
+	struct ccsr_reset __iomem *rst = (void *)(CFG_SYS_FSL_RST_ADDR);
 	u32 svr, ver, cluster, type;
 	int j = 0, cluster_cores = 0;
 #elif defined(CONFIG_FSL_LSCH2)
-	struct ccsr_scfg __iomem *scfg = (void *)(CONFIG_SYS_FSL_SCFG_ADDR);
+	struct ccsr_scfg __iomem *scfg = (void *)(CFG_SYS_FSL_SCFG_ADDR);
 #endif
 	u32 cores, cpu_up_mask = 1;
 	int i, timeout = 10;

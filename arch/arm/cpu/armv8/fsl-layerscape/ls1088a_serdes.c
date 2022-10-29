@@ -53,7 +53,7 @@ static struct serdes_config *serdes_cfg_tbl[] = {
 
 bool soc_has_mac1(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	unsigned int svr = gur_in32(&gur->svr);
 	unsigned int version = SVR_SOC_VER(svr);
 

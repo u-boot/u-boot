@@ -160,7 +160,7 @@ void disable_cpc_sram(void)
 {
 	int i;
 
-	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
+	cpc_corenet_t *cpc = (cpc_corenet_t *)CFG_SYS_FSL_CPC_ADDR;
 
 	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
 		if (in_be32(&cpc->cpcsrcr0) & CPC_SRCR0_SRAMEN) {
@@ -217,7 +217,7 @@ void enable_cpc(void)
 	char cpc_subarg[16];
 	bool have_hwconfig = false;
 	int cpc_args = 0;
-	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
+	cpc_corenet_t *cpc = (cpc_corenet_t *)CFG_SYS_FSL_CPC_ADDR;
 
 	/* Extract hwconfig from environment */
 	ret = env_get_f("hwconfig", buffer, sizeof(buffer));
@@ -271,7 +271,7 @@ void enable_cpc(void)
 static void invalidate_cpc(void)
 {
 	int i;
-	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
+	cpc_corenet_t *cpc = (cpc_corenet_t *)CFG_SYS_FSL_CPC_ADDR;
 
 	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
 		/* skip CPC when it used as all SRAM */
@@ -300,7 +300,7 @@ static void invalidate_cpc(void)
 static void corenet_tb_init(void)
 {
 	volatile ccsr_rcpm_t *rcpm =
-		(void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+		(void *)(CFG_SYS_FSL_CORENET_RCPM_ADDR);
 	volatile ccsr_pic_t *pic =
 		(void *)(CFG_SYS_MPC8xxx_PIC_ADDR);
 	u32 whoami = in_be32(&pic->whoami);
@@ -476,7 +476,7 @@ int enable_cluster_l2(void)
 	do {
 		int j, cluster_valid = 0;
 
-		l2cache = (void __iomem *)(CONFIG_SYS_FSL_CLUSTER_1_L2 + i * 0x40000);
+		l2cache = (void __iomem *)(CFG_SYS_FSL_CLUSTER_1_L2 + i * 0x40000);
 
 		cluster = in_be32(&gur->tp_cluster[i].lower);
 
@@ -518,7 +518,7 @@ int l2cache_init(void)
 #ifdef CONFIG_L2_CACHE
 	ccsr_l2cache_t *l2cache = (void __iomem *)CFG_SYS_MPC85xx_L2_ADDR;
 #elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
-	struct ccsr_cluster_l2 * l2cache = (void __iomem *)CONFIG_SYS_FSL_CLUSTER_1_L2;
+	struct ccsr_cluster_l2 * l2cache = (void __iomem *)CFG_SYS_FSL_CLUSTER_1_L2;
 #endif
 
 	puts ("L2:    ");
@@ -664,7 +664,7 @@ int cpu_init_r(void)
 	const char *spin;
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
-	ccsr_sec_t __iomem *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t __iomem *sec = (void *)CFG_SYS_FSL_SEC_ADDR;
 #endif
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)

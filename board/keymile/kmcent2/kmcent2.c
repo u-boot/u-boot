@@ -220,7 +220,7 @@ EVENT_SPY(EVT_MISC_INIT_F, kmcent2_misc_init_f);
 
 int misc_init_r(void)
 {
-	serdes_corenet_t *regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	serdes_corenet_t *regs = (void *)CFG_SYS_FSL_CORENET_SERDES_ADDR;
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_MPC85xx_SCFG;
 	ccsr_gur_t __iomem *gur = (ccsr_gur_t __iomem *)CFG_SYS_MPC85xx_GUTS_ADDR;
 

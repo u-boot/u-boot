@@ -33,7 +33,7 @@
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
 #endif
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_USDHC_NUM	2
 
 /* NAND stuff */
 #define CONFIG_SYS_NAND_BASE           0x40000000

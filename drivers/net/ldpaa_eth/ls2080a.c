@@ -37,7 +37,7 @@ u32 dpmac_to_devdisr[] = {
 
 static int is_device_disabled(int dpmac_id)
 {
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	u32 devdisr2 = in_le32(&gur->devdisr2);
 
 	return dpmac_to_devdisr[dpmac_id] & devdisr2;
@@ -45,14 +45,14 @@ static int is_device_disabled(int dpmac_id)
 
 void wriop_dpmac_disable(int dpmac_id)
 {
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 
 	setbits_le32(&gur->devdisr2, dpmac_to_devdisr[dpmac_id]);
 }
 
 void wriop_dpmac_enable(int dpmac_id)
 {
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 
 	clrbits_le32(&gur->devdisr2, dpmac_to_devdisr[dpmac_id]);
 }

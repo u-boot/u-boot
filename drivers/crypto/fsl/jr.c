@@ -33,8 +33,8 @@
 uint32_t sec_offset[CONFIG_SYS_FSL_MAX_NUM_OF_SEC] = {
 	0,
 #if defined(CONFIG_ARCH_C29X)
-	CONFIG_SYS_FSL_SEC_IDX_OFFSET,
-	2 * CONFIG_SYS_FSL_SEC_IDX_OFFSET
+	CFG_SYS_FSL_SEC_IDX_OFFSET,
+	2 * CFG_SYS_FSL_SEC_IDX_OFFSET
 #endif
 };
 
@@ -42,11 +42,11 @@ uint32_t sec_offset[CONFIG_SYS_FSL_MAX_NUM_OF_SEC] = {
 struct udevice *caam_dev;
 #else
 #define SEC_ADDR(idx)	\
-	(ulong)((CONFIG_SYS_FSL_SEC_ADDR + sec_offset[idx]))
+	(ulong)((CFG_SYS_FSL_SEC_ADDR + sec_offset[idx]))
 
 #define SEC_JR0_ADDR(idx)	\
 	(ulong)(SEC_ADDR(idx) +	\
-	 (CONFIG_SYS_FSL_JR0_OFFSET - CONFIG_SYS_FSL_SEC_OFFSET))
+	 (CFG_SYS_FSL_JR0_OFFSET - CFG_SYS_FSL_SEC_OFFSET))
 struct caam_regs caam_st;
 #endif
 

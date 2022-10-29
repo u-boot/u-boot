@@ -109,7 +109,7 @@ int serdes_get_bank_by_lane(int lane)
 int serdes_lane_enabled(int lane)
 {
 	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
-	serdes_corenet_t *regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	serdes_corenet_t *regs = (void *)CFG_SYS_FSL_CORENET_SERDES_ADDR;
 
 	int bank = lanes[lane].bank;
 	int word = lanes[lane].lpd / 32;
@@ -257,7 +257,7 @@ void serdes_reset_rx(enum srds_prtcl device)
 	if (unlikely((in_be32(&gur->rcwsr[5]) & 0x2000) == 0))
 		return;
 
-	regs = (typeof(regs))CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	regs = (typeof(regs))CFG_SYS_FSL_CORENET_SERDES_ADDR;
 	prtcl = (in_be32(&gur->rcwsr[4]) & FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
 
 	__serdes_reset_rx(regs, prtcl, device);
@@ -466,7 +466,7 @@ static void p4080_erratum_serdes_a005(serdes_corenet_t *regs, unsigned int cfg)
 static void wait_for_rstdone(unsigned int bank)
 {
 	serdes_corenet_t *srds_regs =
-		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+		(void *)CFG_SYS_FSL_CORENET_SERDES_ADDR;
 	unsigned long long end_tick;
 	u32 rstctl;
 
@@ -527,7 +527,7 @@ void fsl_serdes_init(void)
 	if (!(in_be32(&gur->rcwsr[5]) & FSL_CORENET_RCWSR5_SRDS_EN))
 		return;
 
-	srds_regs = (void *)(CONFIG_SYS_FSL_CORENET_SERDES_ADDR);
+	srds_regs = (void *)(CFG_SYS_FSL_CORENET_SERDES_ADDR);
 	cfg = (in_be32(&gur->rcwsr[4]) & FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
 	debug("Using SERDES configuration 0x%x, lane settings:\n", cfg);
 
@@ -601,7 +601,7 @@ void fsl_serdes_init(void)
 		serdes_prtcl_map |= 1 << SATA1 | 1 << SATA2;
 		break;
 	default:
-		srds2_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES2_ADDR;
+		srds2_regs = (void *)CFG_SYS_FSL_CORENET_SERDES2_ADDR;
 
 		/* We don't need bank 4, so power it down */
 		setbits_be32(&srds2_regs->bank[0].rstctl, SRDS_RSTCTL_SDPD);

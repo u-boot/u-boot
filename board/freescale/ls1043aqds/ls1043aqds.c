@@ -430,9 +430,9 @@ void board_retimer_init(void)
 
 int board_early_init_f(void)
 {
-	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
+	u32 __iomem *cntcr = (u32 *)CFG_SYS_FSL_TIMER_ADDR;
 #ifdef CONFIG_HAS_FSL_XHCI_USB
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 usb_pwrfault;
 #endif
 #ifdef CONFIG_LPUART
@@ -475,7 +475,7 @@ int board_early_init_f(void)
 bool is_warm_boot(void)
 {
 #define DCFG_CCSR_CRSTSR_WDRFR	(1 << 3)
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 
 	if (in_be32(&gur->crstsr) & DCFG_CCSR_CRSTSR_WDRFR)
 		return 1;
@@ -529,7 +529,7 @@ int board_init(void)
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 	board_retimer_init();
 
-#ifdef CONFIG_SYS_FSL_SERDES
+#ifdef CFG_SYS_FSL_SERDES
 	config_serdes_mux();
 #endif
 
@@ -596,6 +596,6 @@ u16 flash_read16(void *addr)
 #if defined(CONFIG_TFABOOT) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 void *env_sf_get_env_addr(void)
 {
-	return (void *)(CONFIG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET);
+	return (void *)(CFG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET);
 }
 #endif

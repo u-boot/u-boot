@@ -480,7 +480,7 @@ int board_eth_init(struct bd_info *bis)
 	size_t len;
 	struct mii_dev *bus;
 	const struct phy_config *phy_config;
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 srds_s1, srds_s2;
 
 	srds_s1 = in_le32(&gur->rcwsr[28]) &
@@ -493,14 +493,14 @@ int board_eth_init(struct bd_info *bis)
 
 	sprintf(srds, "%d_%d", srds_s1, srds_s2);
 
-	regs = (struct memac_mdio_controller *)CONFIG_SYS_FSL_WRIOP1_MDIO1;
+	regs = (struct memac_mdio_controller *)CFG_SYS_FSL_WRIOP1_MDIO1;
 	mdio_info.regs = regs;
 	mdio_info.name = DEFAULT_WRIOP_MDIO1_NAME;
 
 	/*Register the EMI 1*/
 	fm_memac_mdio_init(bis, &mdio_info);
 
-	regs = (struct memac_mdio_controller *)CONFIG_SYS_FSL_WRIOP1_MDIO2;
+	regs = (struct memac_mdio_controller *)CFG_SYS_FSL_WRIOP1_MDIO2;
 	mdio_info.regs = regs;
 	mdio_info.name = DEFAULT_WRIOP_MDIO2_NAME;
 
@@ -679,9 +679,9 @@ int fdt_get_ioslot_offset(void *fdt, struct mii_dev *mii_dev, int fpga_offset)
 	      priv->realbusnum, priv->ioslot);
 
 	if (priv->realbusnum == EMI1)
-		reg = CONFIG_SYS_FSL_WRIOP1_MDIO1;
+		reg = CFG_SYS_FSL_WRIOP1_MDIO1;
 	else
-		reg = CONFIG_SYS_FSL_WRIOP1_MDIO2;
+		reg = CFG_SYS_FSL_WRIOP1_MDIO2;
 
 	offset = fdt_node_offset_by_compat_reg(fdt, "fsl,fman-memac-mdio", reg);
 	if (offset < 0) {
@@ -946,7 +946,7 @@ static void get_str_protocol(u8 serdes_block, u32 protocol, char *str)
 
 int board_fit_config_name_match(const char *name)
 {
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 rcw_status = in_le32(&gur->rcwsr[28]);
 	char srds_s1_str[2], srds_s2_str[2];
 	u32 srds_s1, srds_s2;

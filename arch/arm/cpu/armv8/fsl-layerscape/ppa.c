@@ -253,7 +253,7 @@ int ppa_init(void)
 #endif
 
 #ifdef CONFIG_FSL_LSCH3
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	boot_loc_ptr_l = &gur->bootlocptrl;
 	boot_loc_ptr_h = &gur->bootlocptrh;
 
@@ -261,7 +261,7 @@ int ppa_init(void)
 	loadable_l = &gur->scratchrw[4];
 	loadable_h = &gur->scratchrw[5];
 #elif defined(CONFIG_FSL_LSCH2)
-	struct ccsr_scfg __iomem *scfg = (void *)(CONFIG_SYS_FSL_SCFG_ADDR);
+	struct ccsr_scfg __iomem *scfg = (void *)(CFG_SYS_FSL_SCFG_ADDR);
 	boot_loc_ptr_l = &scfg->scratchrw[1];
 	boot_loc_ptr_h = &scfg->scratchrw[0];
 

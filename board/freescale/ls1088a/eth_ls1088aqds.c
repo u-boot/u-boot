@@ -471,7 +471,7 @@ static int ls1088a_qds_mdio_init(char *realbusname, u8 muxval)
  */
 static void initialize_dpmac_to_slot(void)
 {
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	u32 serdes1_prtcl, cfg;
 
 	cfg = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
@@ -524,7 +524,7 @@ static void initialize_dpmac_to_slot(void)
 void ls1088a_handle_phy_interface_sgmii(int dpmac_id)
 {
 	struct mii_dev *bus;
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	u32 serdes1_prtcl, cfg;
 
 	cfg = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
@@ -576,7 +576,7 @@ void ls1088a_handle_phy_interface_sgmii(int dpmac_id)
 void ls1088a_handle_phy_interface_qsgmii(int dpmac_id)
 {
 	struct mii_dev *bus;
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	u32 serdes1_prtcl, cfg;
 
 	cfg = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
@@ -615,7 +615,7 @@ void ls1088a_handle_phy_interface_qsgmii(int dpmac_id)
 
 void ls1088a_handle_phy_interface_xsgmii(int i)
 {
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	u32 serdes1_prtcl, cfg;
 
 	cfg = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
@@ -639,7 +639,7 @@ void ls1088a_handle_phy_interface_xsgmii(int i)
 
 static void ls1088a_handle_phy_interface_rgmii(int dpmac_id)
 {
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	u32 serdes1_prtcl, cfg;
 	struct mii_dev *bus;
 
@@ -682,7 +682,7 @@ int board_eth_init(struct bd_info *bis)
 					sizeof(struct memac_mdio_info));
 	memac_mdio0_info->regs =
 		(struct memac_mdio_controller *)
-					CONFIG_SYS_FSL_WRIOP1_MDIO1;
+					CFG_SYS_FSL_WRIOP1_MDIO1;
 	memac_mdio0_info->name = DEFAULT_WRIOP_MDIO1_NAME;
 
 	/* Register the real MDIO1 bus */
@@ -807,7 +807,7 @@ static void get_str_protocol(u8 serdes_block, u32 protocol, char *str)
 
 int board_fit_config_name_match(const char *name)
 {
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	char expected_dts[100];
 	char srds_s1_str[2];
 	u32 srds_s1, cfg;

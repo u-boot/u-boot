@@ -30,6 +30,6 @@
 #define PHYS_SDRAM_SIZE			SZ_512M
 
 /* USDHC */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #endif /* __IMX8MN_BSH_SMM_S2PRO_H */

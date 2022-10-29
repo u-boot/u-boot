@@ -17,7 +17,7 @@
 #define CONFIG_MXC_UART_BASE UART2_BASE
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 /* bootz: zImage/initrd.img support */
 

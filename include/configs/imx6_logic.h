@@ -18,8 +18,8 @@
 #include "mx6_common.h"
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR      0
-#define CONFIG_SYS_FSL_USDHC_NUM       2
+#define CFG_SYS_FSL_ESDHC_ADDR      0
+#define CFG_SYS_FSL_USDHC_NUM       2
 
 
 /* Ethernet Configs */

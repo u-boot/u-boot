@@ -487,7 +487,7 @@ int board_mmc_init(struct bd_info *bis)
 	 * mmc0                    SOM MicroSD
 	 * mmc1                    Carrier board MicroSD
 	 */
-	for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
+	for (index = 0; index < CFG_SYS_FSL_USDHC_NUM; ++index) {
 		switch (index) {
 		case 0:
 			SETUP_IOMUX_PADS(usdhc3_pads);
@@ -504,7 +504,7 @@ int board_mmc_init(struct bd_info *bis)
 		default:
 			printf("Warning: you configured more USDHC controllers"
 			       "(%d) then supported by the board (%d)\n",
-			       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
+			       index + 1, CFG_SYS_FSL_USDHC_NUM);
 			return -EINVAL;
 		}
 

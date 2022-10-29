@@ -33,7 +33,7 @@ struct srio_liodn_id_table {
 	{ .id = { id_a }, .num_ids = 1, .portid = port, \
 	  .reg_offset[0] = offsetof(struct ccsr_rio, liodn) \
 		+ (port - 1) * 0x200 \
-		+ CONFIG_SYS_FSL_SRIO_ADDR, \
+		+ CFG_SYS_FSL_SRIO_ADDR, \
 	}
 
 struct liodn_id_table {
@@ -130,29 +130,29 @@ extern void fdt_fixup_liodn(void *blob);
 #define SET_QMAN_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,qman", liodn, \
 		offsetof(struct ccsr_qman, liodnr) + \
-		CONFIG_SYS_FSL_QMAN_OFFSET, \
-		CONFIG_SYS_FSL_QMAN_OFFSET)
+		CFG_SYS_FSL_QMAN_OFFSET, \
+		CFG_SYS_FSL_QMAN_OFFSET)
 
 #define SET_BMAN_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,bman", liodn, \
 		offsetof(struct ccsr_bman, liodnr) + \
-		CONFIG_SYS_FSL_BMAN_OFFSET, \
-		CONFIG_SYS_FSL_BMAN_OFFSET)
+		CFG_SYS_FSL_BMAN_OFFSET, \
+		CFG_SYS_FSL_BMAN_OFFSET)
 
 #define SET_PME_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,pme", liodn, offsetof(ccsr_pme_t, liodnr) + \
-		CONFIG_SYS_FSL_CORENET_PME_OFFSET, \
-		CONFIG_SYS_FSL_CORENET_PME_OFFSET)
+		CFG_SYS_FSL_CORENET_PME_OFFSET, \
+		CFG_SYS_FSL_CORENET_PME_OFFSET)
 
 #define SET_PMAN_LIODN(num, liodn) \
 	SET_LIODN_ENTRY_2("fsl,pman", liodn, 0, \
 		offsetof(struct ccsr_pman, ppa1) + \
-		CONFIG_SYS_FSL_CORENET_PMAN##num##_OFFSET, \
-		CONFIG_SYS_FSL_CORENET_PMAN##num##_OFFSET)
+		CFG_SYS_FSL_CORENET_PMAN##num##_OFFSET, \
+		CFG_SYS_FSL_CORENET_PMAN##num##_OFFSET)
 
 /* -1 from portID due to how immap has the registers */
 #define FM_PPID_RX_PORT_OFFSET(fmNum, portID) \
-	CONFIG_SYS_FSL_FM##fmNum##_OFFSET + \
+	CFG_SYS_FSL_FM##fmNum##_OFFSET + \
 	offsetof(struct ccsr_fman, fm_bmi_common.fmbm_ppid[portID - 1])
 
 #ifdef CONFIG_SYS_FMAN_V3
@@ -160,31 +160,31 @@ extern void fdt_fixup_liodn(void *blob);
 #define SET_FMAN_RX_1G_LIODN(fmNum, enetNum, liodn) \
 	SET_FMAN_LIODN_ENTRY("fsl,fman-v3-port-rx", "fsl,fman-port-1g-rx", \
 		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
-		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
+		CFG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
 
 /* enetNum is 0, 1, 2... so we + 16 for 10g to get to HW Port ID */
 #define SET_FMAN_RX_10G_LIODN(fmNum, enetNum, liodn) \
 	SET_FMAN_LIODN_ENTRY("fsl,fman-v3-port-rx", "fsl,fman-port-10g-rx", \
 		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
-		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET)
+		CFG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET)
 
 /* enetNum is 0, 1, 2... so we + 8 for type-2 10g to get to HW Port ID */
 #define SET_FMAN_RX_10G_TYPE2_LIODN(fmNum, enetNum, liodn) \
 	SET_FMAN_LIODN_ENTRY("fsl,fman-v3-port-rx", "fsl,fman-port-10g-rx", \
 		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
-		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
+		CFG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
 #else
 /* enetNum is 0, 1, 2... so we + 8 for 1g to get to HW Port ID */
 #define SET_FMAN_RX_1G_LIODN(fmNum, enetNum, liodn) \
 	SET_FMAN_LIODN_ENTRY("fsl,fman-v2-port-rx", "fsl,fman-port-1g-rx", \
 		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
-		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
+		CFG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET)
 
 /* enetNum is 0, 1, 2... so we + 16 for 10g to get to HW Port ID */
 #define SET_FMAN_RX_10G_LIODN(fmNum, enetNum, liodn) \
 	SET_FMAN_LIODN_ENTRY("fsl,fman-v2-port-rx", "fsl,fman-port-10g-rx", \
 		liodn, FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
-		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET)
+		CFG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET)
 #endif
 /*
  * handle both old and new versioned SEC properties:
@@ -193,44 +193,44 @@ extern void fdt_fixup_liodn(void *blob);
 #define SET_SEC_JR_LIODN_ENTRY(jrNum, liodnA, liodnB) \
 	SET_LIODN_ENTRY_2("fsl,sec4.0-job-ring", liodnA, liodnB,\
 		offsetof(ccsr_sec_t, jrliodnr[jrNum].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrNum), \
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrNum), \
 	SET_LIODN_ENTRY_2("fsl,sec-v4.0-job-ring", liodnA, liodnB,\
 		offsetof(ccsr_sec_t, jrliodnr[jrNum].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrNum)
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrNum)
 
 /* This is a bit evil since we treat rtic param as both a string & hex value */
 #define SET_SEC_RTIC_LIODN_ENTRY(rtic, liodnA) \
 	SET_LIODN_ENTRY_1("fsl,sec4.0-rtic-memory", \
 		liodnA,	\
 		offsetof(ccsr_sec_t, rticliodnr[0x##rtic-0xa].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa)), \
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa)), \
 	SET_LIODN_ENTRY_1("fsl,sec-v4.0-rtic-memory", \
 		liodnA,	\
 		offsetof(ccsr_sec_t, rticliodnr[0x##rtic-0xa].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa))
+		CFG_SYS_FSL_SEC_OFFSET, \
+		CFG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa))
 
 #define SET_SEC_DECO_LIODN_ENTRY(num, liodnA, liodnB) \
 	SET_LIODN_ENTRY_2(NULL, liodnA, liodnB, \
 		offsetof(ccsr_sec_t, decoliodnr[num].ls) + \
-		CONFIG_SYS_FSL_SEC_OFFSET, 0)
+		CFG_SYS_FSL_SEC_OFFSET, 0)
 
 #define SET_RAID_ENGINE_JQ_LIODN_ENTRY(jqNum, rNum, liodnA) \
 	SET_LIODN_ENTRY_1("fsl,raideng-v1.0-job-ring", \
 	liodnA, \
 	offsetof(struct ccsr_raide, jq[jqNum].ring[rNum].cfg1) + \
-	CONFIG_SYS_FSL_RAID_ENGINE_OFFSET, \
+	CFG_SYS_FSL_RAID_ENGINE_OFFSET, \
 	offsetof(struct ccsr_raide, jq[jqNum].ring[rNum].cfg0) + \
-	CONFIG_SYS_FSL_RAID_ENGINE_OFFSET)
+	CFG_SYS_FSL_RAID_ENGINE_OFFSET)
 
 #define SET_RMAN_LIODN(ibNum, liodn) \
 	SET_LIODN_ENTRY_1("fsl,rman-inbound-block", liodn, \
 		offsetof(struct ccsr_rman, mmitdr) + \
-		CONFIG_SYS_FSL_CORENET_RMAN_OFFSET, \
-		CONFIG_SYS_FSL_CORENET_RMAN_OFFSET + ibNum * 0x1000)
+		CFG_SYS_FSL_CORENET_RMAN_OFFSET, \
+		CFG_SYS_FSL_CORENET_RMAN_OFFSET + ibNum * 0x1000)
 
 extern struct liodn_id_table liodn_tbl[], liodn_bases[], sec_liodn_tbl[];
 extern struct liodn_id_table raide_liodn_tbl[];

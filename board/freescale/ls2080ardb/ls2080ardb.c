@@ -242,7 +242,7 @@ int config_board_mux(int ctrl_type)
 ulong *cs4340_get_fw_addr(void)
 {
 #ifdef CONFIG_TFABOOT
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 svr = gur_in32(&gur->svr);
 #endif
 	ulong cortina_fw_addr = CONFIG_CORTINA_FW_ADDR;
@@ -318,7 +318,7 @@ int misc_init_r(void)
 	char *env_hwconfig;
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
 	u32 val;
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 svr = gur_in32(&gur->svr);
 
 	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
