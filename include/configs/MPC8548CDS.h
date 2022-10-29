@@ -229,7 +229,6 @@
 #define CADMUS_BASE_ADDR_PHYS	CADMUS_BASE_ADDR
 #endif
 
-#define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 

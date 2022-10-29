@@ -245,7 +245,6 @@
 #endif
 #endif /* CONFIG_NAND_FSL_ELBC */
 
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0xf

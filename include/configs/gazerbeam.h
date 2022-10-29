@@ -30,7 +30,6 @@
 /*
  * Initial RAM Base Address Setup
  */
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 
