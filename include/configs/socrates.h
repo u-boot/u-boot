@@ -78,8 +78,6 @@
 /*
  * Flash on the LocalBus
  */
-#define CONFIG_SYS_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable	 */
-
 #define CONFIG_SYS_FLASH0		0xFE000000
 #define CONFIG_SYS_FLASH1		0xFC000000
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH1, CONFIG_SYS_FLASH0 }
@@ -108,7 +106,6 @@
 
 /* LIME GDC */
 #define CONFIG_SYS_LIME_BASE		0xc8000000
-#define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/
 
 /*
  * General PCI

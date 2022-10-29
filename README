@@ -762,11 +762,6 @@ The following options need to be configured:
 		entering dfuMANIFEST state. Host waits this timeout, before
 		sending again an USB request to the device.
 
-- Journaling Flash filesystem support:
-		CONFIG_SYS_JFFS2_FIRST_SECTOR,
-		CONFIG_SYS_JFFS2_FIRST_BANK, CONFIG_SYS_JFFS2_NUM_BANKS
-		Define these for a default partition on a NOR device
-
 - Keyboard Support:
 		See Kconfig help for available keyboard drivers.
 
@@ -1739,9 +1734,6 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SYS_OR_TIMING_SDRAM:
 		SDRAM timing
-
-- CONFIG_SYS_MAMR_PTA:
-		periodic timer for refresh
 
 - CONFIG_SYS_SRIO:
 		Chip has SRIO or not

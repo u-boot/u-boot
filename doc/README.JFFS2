@@ -21,16 +21,6 @@ Sorting is done while inserting into the fragment list, which is
 more or less a bubble sort. That algorithm is known to be O(n^2),
 thus you should really consider if you can avoid it!
 
-
-There only one way for JFFS2 to find the disk. It uses the flash_info
-structure to find the start of a JFFS2 disk (called partition in the code)
-and you can change where the partition is with two defines.
-
-CONFIG_SYS_JFFS2_FIRST_BANK
-	defined the first flash bank to use
-
-CONFIG_SYS_JFFS2_FIRST_SECTOR
-	defines the first sector to use
 ---
 
 TODO.

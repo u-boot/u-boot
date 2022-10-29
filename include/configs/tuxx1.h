@@ -31,8 +31,4 @@
 #include "km/km-mpc83xx.h"
 #include "km/km-mpc832x.h"
 
-#define CONFIG_SYS_MAMR		(MxMR_GPL_x4DIS | \
-				 0x0000c000 | \
-				 MxMR_WLFx_2X)
-
 #endif /* __CONFIG_H */
