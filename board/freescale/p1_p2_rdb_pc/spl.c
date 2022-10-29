@@ -29,7 +29,7 @@ phys_size_t get_effective_memsize(void)
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, bus_clk;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 
 	/*
 	 * Call board_early_init_f() as early as possible as it workarounds

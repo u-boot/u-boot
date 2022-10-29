@@ -80,7 +80,7 @@
 
 /* Definitions from C header file asm/immap_85xx.h */
 
-#define CONFIG_SYS_MPC85xx_L2_OFFSET		0x20000
+#define CFG_SYS_MPC85xx_L2_OFFSET		0x20000
 
 #define MPC85xx_L2CTL				0x000
 #define MPC85xx_L2CTL_L2E			0x80000000
@@ -127,13 +127,13 @@ bootsect:
 	.org 0x80 /* Start of configuration */
 	.Lconf_pair_start:
 
-	.long CONFIG_SYS_CCSRBAR_DEFAULT + CONFIG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2SRBAR0 /* Address: L2 memory-mapped SRAM base addr 0 */
+	.long CONFIG_SYS_CCSRBAR_DEFAULT + CFG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2SRBAR0 /* Address: L2 memory-mapped SRAM base addr 0 */
 	.long CONFIG_SYS_INIT_L2_ADDR
 
-	.long CONFIG_SYS_CCSRBAR_DEFAULT + CONFIG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2ERRDIS /* Address: L2 cache error disable */
+	.long CONFIG_SYS_CCSRBAR_DEFAULT + CFG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2ERRDIS /* Address: L2 cache error disable */
 	.long MPC85xx_L2ERRDIS_MBECC | MPC85xx_L2ERRDIS_SBECC
 
-	.long CONFIG_SYS_CCSRBAR_DEFAULT + CONFIG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2CTL /* Address: L2 configuration 0 */
+	.long CONFIG_SYS_CCSRBAR_DEFAULT + CFG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2CTL /* Address: L2 configuration 0 */
 	.long MPC85xx_L2CTL_L2E | MPC85xx_L2CTL_L2SRAM_ENTIRE
 
 	.long CONFIG_SYS_CCSRBAR_DEFAULT + ESDHCCTL /* Address: eSDHC DMA control */

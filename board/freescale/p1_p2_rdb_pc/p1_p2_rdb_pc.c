@@ -149,7 +149,7 @@ void board_cpld_init(void)
 void board_gpio_init(void)
 {
 #ifdef CONFIG_QE
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	par_io_t *par_io = (par_io_t *) &(gur->qe_par_io);
 
 	/* Enable VSC7385 switch */
@@ -159,7 +159,7 @@ void board_gpio_init(void)
 	setbits_be32(&par_io[GPIO_SLIC_PORT].cpdat, GPIO_SLIC_DATA);
 #else
 
-	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 
 	/*
 	 * GPIO10 DDR Reset, open drain
@@ -197,7 +197,7 @@ void board_gpio_init(void)
 
 int board_early_init_f(void)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SDHC_CD);
 #ifndef SDHC_WP_IS_GPIO
@@ -227,7 +227,7 @@ int board_early_init_f(void)
 int checkboard(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u8 in, out, invert, io_config, val;
 	int bus_num = CONFIG_SYS_SPD_BUS_NUM;
 
@@ -370,7 +370,7 @@ int board_eth_init(struct bd_info *bis)
 	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[4];
 	ccsr_gur_t *gur __attribute__((unused)) =
-		(void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+		(void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	int num = 0;
 
 #ifdef CONFIG_TSEC1
@@ -418,7 +418,7 @@ int board_eth_init(struct bd_info *bis)
 static void fix_max6370_watchdog(void *blob)
 {
 	int off = fdt_node_offset_by_compatible(blob, -1, "maxim,max6370");
-	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 	u32 gpioval = in_be32(&pgpio->gpdat);
 
 	/*

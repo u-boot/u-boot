@@ -222,7 +222,7 @@ static inline void ft_fixup_l2cache_compatible(void *blob, int off)
 /* return size in kilobytes */
 static inline u32 l2cache_size(void)
 {
-	volatile ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
+	volatile ccsr_l2cache_t *l2cache = (void *)CFG_SYS_MPC85xx_L2_ADDR;
 	volatile u32 l2siz_field = (l2cache->l2ctl >> 28) & 0x3;
 	u32 ver = SVR_SOC_VER(get_svr());
 
@@ -509,7 +509,7 @@ static void ft_fixup_qe_snum(void *blob)
 #if defined(CONFIG_ARCH_P4080)
 static void fdt_fixup_usb(void *fdt)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 rcwsr11 = in_be32(&gur->rcwsr[11]);
 	int off;
 
@@ -532,7 +532,7 @@ void fdt_fixup_dma3(void *blob)
 {
 	/* the 3rd DMA is not functional if SRIO2 is chosen */
 	int nodeoff;
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 #define CONFIG_SYS_ELO3_DMA3 (0xffe000000 + 0x102300)
 #if defined(CONFIG_ARCH_T2080)

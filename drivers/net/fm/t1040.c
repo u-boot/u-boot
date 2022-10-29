@@ -11,7 +11,7 @@
 
 phy_interface_t fman_port_enet_if(enum fm_port port)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 rcwsr13 = in_be32(&gur->rcwsr[13]);
 
 	/* handle RGMII first */

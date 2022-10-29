@@ -20,7 +20,7 @@ void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 	u32			pin_2bit_assign;
 	u32			pin_1bit_mask;
 	u32			tmp_val;
-	volatile ccsr_gur_t	*gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t	*gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	volatile par_io_t	*par_io = (volatile par_io_t *)
 						&(gur->qe_par_io);
 

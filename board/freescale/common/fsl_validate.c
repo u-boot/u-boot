@@ -83,7 +83,7 @@ static u32 check_ie(struct fsl_secboot_img_priv *img)
 
 int get_csf_base_addr(u32 *csf_addr, u32 *flash_base_addr)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 csf_hdr_addr = in_be32(&gur->scratchrw[0]);
 	u32 csf_flash_offset = csf_hdr_addr & ~(CONFIG_SYS_PBI_FLASH_BASE);
 	u32 flash_addr, addr;

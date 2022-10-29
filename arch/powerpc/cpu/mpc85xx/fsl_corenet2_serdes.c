@@ -122,7 +122,7 @@ int is_serdes_configured(enum srds_prtcl device)
 
 int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 {
-	const ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	const ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 cfg = in_be32(&gur->rcwsr[4]);
 	int i;
 
@@ -193,7 +193,7 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 		u8 serdes_prtcl_map[SERDES_PRCTL_COUNT])
 {
-	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 cfg;
 	int lane;
 

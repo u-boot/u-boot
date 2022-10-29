@@ -66,7 +66,7 @@ int checkboard(void)
 
 int board_early_init_f(void)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	/* board only uses the DDR_MCK0/1, so disable the DDR_MCK2/3 */
 	setbits_be32(&gur->ddrclkdr, 0x000f000f);
@@ -81,7 +81,7 @@ int board_early_init_f(void)
 
 void board_config_lanes_mux(void)
 {
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 	int srds_prtcl = (in_be32(&gur->rcwsr[4]) &
 				FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
 

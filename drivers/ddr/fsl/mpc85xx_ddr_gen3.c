@@ -33,7 +33,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	int timeout;
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
 	int timeout_save;
-	volatile ccsr_local_ecm_t *ecm = (void *)CONFIG_SYS_MPC85xx_ECM_ADDR;
+	volatile ccsr_local_ecm_t *ecm = (void *)CFG_SYS_MPC85xx_ECM_ADDR;
 	unsigned int csn_bnds_backup = 0, cs_sa, cs_ea, *csn_bnds_t;
 	int csn = -1;
 #endif

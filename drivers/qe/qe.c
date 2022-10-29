@@ -469,7 +469,7 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 #ifdef CONFIG_ARCH_LS1021A
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 #else
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #endif
 	if (!firmware) {
@@ -609,7 +609,7 @@ int u_qe_upload_firmware(const struct qe_firmware *firmware)
 #ifdef CONFIG_ARCH_LS1021A
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 #else
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #endif
 	if (!firmware) {
@@ -718,7 +718,7 @@ int u_qe_firmware_resume(const struct qe_firmware *firmware, qe_map_t *qe_immrr)
 	const u32 *code;
 #ifdef CONFIG_DEEP_SLEEP
 #ifdef CONFIG_PPC
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #else
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 #endif

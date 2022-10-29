@@ -59,7 +59,7 @@ int checkcpu (void)
 #if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || \
 	defined(CONFIG_STATIC_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
 	ccsr_gur_t __iomem *gur =
-		(void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+		(void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 
 	/*
@@ -124,7 +124,7 @@ int checkcpu (void)
 		puts("Unicore software on multiprocessor system!!\n"
 		     "To enable mutlticore build define CONFIG_MP\n");
 #endif
-		volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
+		volatile ccsr_pic_t *pic = (void *)(CFG_SYS_MPC8xxx_PIC_ADDR);
 		printf("CPU%d:  ", pic->whoami);
 	} else {
 		puts("CPU:   ");
@@ -319,7 +319,7 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	val |= 0x70000000;
 	mtspr(DBCR0,val);
 #else
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	/* Call board-specific preparation for reset */
 	board_reset_prepare();
@@ -436,7 +436,7 @@ int dram_init(void)
 
 #if defined(CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN)
 	{
-		ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+		ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 		unsigned int x = 10;
 		unsigned int i;
 

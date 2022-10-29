@@ -88,7 +88,7 @@ int i2c_multiplexer_select_vid_channel(u8 channel)
 
 int brd_mux_lane_to_slot(void)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 srds_prtcl_s1;
 
 	srds_prtcl_s1 = in_be32(&gur->rcwsr[4]) &

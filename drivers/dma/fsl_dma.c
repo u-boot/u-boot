@@ -24,9 +24,9 @@
 
 
 #if defined(CONFIG_MPC83xx)
-dma83xx_t *dma_base = (void *)(CONFIG_SYS_MPC83xx_DMA_ADDR);
+dma83xx_t *dma_base = (void *)(CFG_SYS_MPC83xx_DMA_ADDR);
 #elif defined(CONFIG_MPC85xx)
-ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
+ccsr_dma_t *dma_base = (void *)(CFG_SYS_MPC85xx_DMA_ADDR);
 #elif defined(CONFIG_MPC86xx)
 ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
 #else

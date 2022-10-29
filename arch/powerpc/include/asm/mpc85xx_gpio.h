@@ -20,7 +20,7 @@
 static inline void mpc85xx_gpio_set(unsigned int mask,
 		unsigned int dir, unsigned int val)
 {
-	ccsr_gpio_t *gpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t *gpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 
 	/* First mask off the unwanted parts of "dir" and "val" */
 	dir &= mask;
@@ -56,7 +56,7 @@ static inline void mpc85xx_gpio_set_high(unsigned int gpios)
 
 static inline unsigned int mpc85xx_gpio_get(unsigned int mask)
 {
-	ccsr_gpio_t *gpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t *gpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 
 	/* Read the requested values */
 	return in_be32(&gpio->gpdat) & mask;

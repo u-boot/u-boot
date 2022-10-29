@@ -108,7 +108,7 @@ int serdes_get_bank_by_lane(int lane)
 
 int serdes_lane_enabled(int lane)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	serdes_corenet_t *regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
 
 	int bank = lanes[lane].bank;
@@ -133,7 +133,7 @@ int serdes_lane_enabled(int lane)
 
 int is_serdes_configured(enum srds_prtcl device)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	/* Is serdes enabled at all? */
 	if (!(in_be32(&gur->rcwsr[5]) & FSL_CORENET_RCWSR5_SRDS_EN))
@@ -169,7 +169,7 @@ int serdes_get_first_lane(enum srds_prtcl device)
 	u32 prtcl;
 	const ccsr_gur_t *gur;
 
-	gur = (typeof(gur))CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	gur = (typeof(gur))CFG_SYS_MPC85xx_GUTS_ADDR;
 
 	/* Is serdes enabled at all? */
 	if (unlikely((in_be32(&gur->rcwsr[5]) & 0x2000) == 0))
@@ -251,7 +251,7 @@ void serdes_reset_rx(enum srds_prtcl device)
 	if (unlikely(device == NONE))
 		return;
 
-	gur = (typeof(gur))CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	gur = (typeof(gur))CFG_SYS_MPC85xx_GUTS_ADDR;
 
 	/* Is serdes enabled at all? */
 	if (unlikely((in_be32(&gur->rcwsr[5]) & 0x2000) == 0))
@@ -491,7 +491,7 @@ void soc_serdes_init(void) __attribute__((weak, alias("__soc_serdes_init")));
 
 void fsl_serdes_init(void)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	int cfg;
 	serdes_corenet_t *srds_regs;
 #ifdef CONFIG_ARCH_P5040

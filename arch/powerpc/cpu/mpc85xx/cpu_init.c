@@ -302,7 +302,7 @@ static void corenet_tb_init(void)
 	volatile ccsr_rcpm_t *rcpm =
 		(void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
 	volatile ccsr_pic_t *pic =
-		(void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
+		(void *)(CFG_SYS_MPC8xxx_PIC_ADDR);
 	u32 whoami = in_be32(&pic->whoami);
 
 	/* Enable the timebase register for this core */
@@ -313,7 +313,7 @@ static void corenet_tb_init(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007212
 void fsl_erratum_a007212_workaround(void)
 {
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 ddr_pll_ratio;
 	u32 __iomem *plldgdcr1 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c20);
 	u32 __iomem *plldadcr1 = (void *)(CONFIG_SYS_DCSRBAR + 0x21c28);
@@ -379,13 +379,13 @@ ulong cpu_init_f(void)
 {
 	extern void m8560_cpm_reset (void);
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #if defined(CONFIG_NXP_ESBC) && !defined(CONFIG_SYS_RAMBOOT)
 	struct law_entry law;
 #endif
 #ifdef CONFIG_ARCH_MPC8548
-	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+	ccsr_local_ecm_t *ecm = (void *)(CFG_SYS_MPC85xx_ECM_ADDR);
 	uint svr = get_svr();
 
 	/*
@@ -455,7 +455,7 @@ int enable_cluster_l2(void)
 {
 	int i = 0;
 	u32 cluster, svr = get_svr();
-	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	struct ccsr_cluster_l2 __iomem *l2cache;
 
 	/* only the L2 of first cluster should be enabled as expected on T4080,
@@ -516,7 +516,7 @@ int l2cache_init(void)
 {
 	__maybe_unused u32 svr = get_svr();
 #ifdef CONFIG_L2_CACHE
-	ccsr_l2cache_t *l2cache = (void __iomem *)CONFIG_SYS_MPC85xx_L2_ADDR;
+	ccsr_l2cache_t *l2cache = (void __iomem *)CFG_SYS_MPC85xx_L2_ADDR;
 #elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 	struct ccsr_cluster_l2 * l2cache = (void __iomem *)CONFIG_SYS_FSL_CLUSTER_1_L2;
 #endif
@@ -821,7 +821,7 @@ int cpu_init_r(void)
 #ifdef CONFIG_SYS_FSL_USB1_PHY_ENABLE
 	{
 		struct ccsr_usb_phy __iomem *usb_phy1 =
-			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
+			(void *)CFG_SYS_MPC85xx_USB1_PHY_ADDR;
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006261
 		if (has_erratum_a006261())
 			fsl_erratum_a006261_workaround(usb_phy1);
@@ -833,7 +833,7 @@ int cpu_init_r(void)
 #ifdef CONFIG_SYS_FSL_USB2_PHY_ENABLE
 	{
 		struct ccsr_usb_phy __iomem *usb_phy2 =
-			(void *)CONFIG_SYS_MPC85xx_USB2_PHY_ADDR;
+			(void *)CFG_SYS_MPC85xx_USB2_PHY_ADDR;
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006261
 		if (has_erratum_a006261())
 			fsl_erratum_a006261_workaround(usb_phy2);
@@ -859,7 +859,7 @@ int cpu_init_r(void)
 
 #if defined(CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE)
 		struct ccsr_usb_phy __iomem *usb_phy =
-			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
+			(void *)CFG_SYS_MPC85xx_USB1_PHY_ADDR;
 		setbits_be32(&usb_phy->pllprg[1],
 			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN |
 			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY1_CLK_EN |
@@ -928,11 +928,11 @@ int cpu_init_r(void)
 		fsl_sata_reg_t *reg;
 
 		/* first SATA controller */
-		reg = (void *)CONFIG_SYS_MPC85xx_SATA1_ADDR;
+		reg = (void *)CFG_SYS_MPC85xx_SATA1_ADDR;
 		clrbits_le32(&reg->hcontrol, HCONTROL_ENTERPRISE_EN);
 
 		/* second SATA controller */
-		reg = (void *)CONFIG_SYS_MPC85xx_SATA2_ADDR;
+		reg = (void *)CFG_SYS_MPC85xx_SATA2_ADDR;
 		clrbits_le32(&reg->hcontrol, HCONTROL_ENTERPRISE_EN);
 	}
 #endif

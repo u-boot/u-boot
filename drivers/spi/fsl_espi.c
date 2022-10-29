@@ -390,7 +390,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!fsl)
 		return NULL;
 
-	fsl->espi = (void *)(CONFIG_SYS_MPC85xx_ESPI_ADDR);
+	fsl->espi = (void *)(CFG_SYS_MPC85xx_ESPI_ADDR);
 	fsl->mode = mode;
 	fsl->max_transfer_length = ESPI_MAX_DATA_TRANSFER_LEN;
 	fsl->speed_hz = max_hz;

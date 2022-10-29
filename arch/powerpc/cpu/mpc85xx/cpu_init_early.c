@@ -85,10 +85,10 @@ void cpu_init_early_f(void *fdt)
 {
 	u32 mas0, mas1, mas2, mas3, mas7;
 #ifdef CONFIG_SYS_FSL_ERRATUM_P1010_A003549
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #ifdef CONFIG_A003399_NOR_WORKAROUND
-	ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
+	ccsr_l2cache_t *l2cache = (void *)CFG_SYS_MPC85xx_L2_ADDR;
 	u32  *dst, *src;
 	void (*setup_ifc_sram)(void);
 	int i;

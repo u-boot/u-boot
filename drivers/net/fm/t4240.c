@@ -35,7 +35,7 @@ u32 port_to_devdisr[] = {
 
 static int is_device_disabled(enum fm_port port)
 {
-	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 devdisr2 = in_be32(&gur->devdisr2);
 
 	return port_to_devdisr[port] & devdisr2;
@@ -43,21 +43,21 @@ static int is_device_disabled(enum fm_port port)
 
 void fman_disable_port(enum fm_port port)
 {
-	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	setbits_be32(&gur->devdisr2, port_to_devdisr[port]);
 }
 
 void fman_enable_port(enum fm_port port)
 {
-	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	clrbits_be32(&gur->devdisr2, port_to_devdisr[port]);
 }
 
 phy_interface_t fman_port_enet_if(enum fm_port port)
 {
-	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 rcwsr13 = in_be32(&gur->rcwsr[13]);
 
 	if (is_device_disabled(port))

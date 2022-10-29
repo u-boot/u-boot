@@ -18,15 +18,15 @@ struct srio_liodn_id_table {
 #define SET_SRIO_LIODN_1(port, idA) \
 	{ .id = { idA }, .num_ids = 1, .portid = port, \
 	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
-		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
 	}
 
 #define SET_SRIO_LIODN_2(port, idA, idB) \
 	{ .id = { idA, idB }, .num_ids = 2, .portid = port, \
 	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
-		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
 	  .reg_offset[1] = offsetof(ccsr_gur_t, rio##port##maintliodnr) \
-		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
 	}
 
 #define SET_SRIO_LIODN_BASE(port, id_a) \
@@ -90,42 +90,42 @@ extern void fdt_fixup_liodn(void *blob);
 
 #define SET_GUTS_LIODN(compat, liodn, name, compatoff) \
 	SET_LIODN_ENTRY_1(compat, liodn, \
-		offsetof(ccsr_gur_t, name) + CONFIG_SYS_MPC85xx_GUTS_OFFSET, \
+		offsetof(ccsr_gur_t, name) + CFG_SYS_MPC85xx_GUTS_OFFSET, \
 		compatoff)
 
 #define SET_USB_LIODN(usbNum, compat, liodn) \
 	SET_GUTS_LIODN(compat, liodn, usb##usbNum##liodnr,\
-		CONFIG_SYS_MPC85xx_USB##usbNum##_OFFSET)
+		CFG_SYS_MPC85xx_USB##usbNum##_OFFSET)
 
 #define SET_SATA_LIODN(sataNum, liodn) \
 	SET_GUTS_LIODN("fsl,pq-sata-v2", liodn, sata##sataNum##liodnr,\
-		CONFIG_SYS_MPC85xx_SATA##sataNum##_OFFSET)
+		CFG_SYS_MPC85xx_SATA##sataNum##_OFFSET)
 
 #define SET_PCI_LIODN(compat, pciNum, liodn) \
 	SET_GUTS_LIODN(compat, liodn, pex##pciNum##liodnr,\
-		CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
+		CFG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
 
 #define SET_PCI_LIODN_BASE(compat, pciNum, liodn) \
 	SET_LIODN_ENTRY_1(compat, liodn,\
-		offsetof(ccsr_pcix_t, liodn_base) + CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET,\
-		CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
+		offsetof(ccsr_pcix_t, liodn_base) + CFG_SYS_MPC85xx_PCIE##pciNum##_OFFSET,\
+		CFG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
 
 /* reg nodes for DMA start @ 0x300 */
 #define SET_DMA_LIODN(dmaNum, compat, liodn) \
 	SET_GUTS_LIODN(compat, liodn, dma##dmaNum##liodnr,\
-		CONFIG_SYS_MPC85xx_DMA##dmaNum##_OFFSET + 0x300)
+		CFG_SYS_MPC85xx_DMA##dmaNum##_OFFSET + 0x300)
 
 #define SET_SDHC_LIODN(sdhcNum, liodn) \
 	SET_GUTS_LIODN("fsl,esdhc", liodn, sdmmc##sdhcNum##liodnr,\
-		CONFIG_SYS_MPC85xx_ESDHC_OFFSET)
+		CFG_SYS_MPC85xx_ESDHC_OFFSET)
 
 #define SET_QE_LIODN(liodn) \
 	SET_GUTS_LIODN("fsl,qe", liodn, qeliodnr,\
-		CONFIG_SYS_MPC85xx_QE_OFFSET)
+		CFG_SYS_MPC85xx_QE_OFFSET)
 
 #define SET_TDM_LIODN(liodn) \
 	SET_GUTS_LIODN("fsl,tdm1.0", liodn, tdmliodnr,\
-		CONFIG_SYS_MPC85xx_TDM_OFFSET)
+		CFG_SYS_MPC85xx_TDM_OFFSET)
 
 #define SET_QMAN_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,qman", liodn, \

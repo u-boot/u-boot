@@ -301,7 +301,7 @@ void init_laws(void)
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
 	/* check RCW to get which port is used for boot */
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 	u32 bootloc = in_be32(&gur->rcwsr[6]);
 	/*
 	 * in SRIO or PCIE boot we need to set specail LAWs for
