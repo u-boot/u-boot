@@ -42,8 +42,6 @@
 
 /** Heap size for U-Boot */
 
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
-
 /** EMMC specific defines */
 
 #endif /* __OCTEONTX_COMMON_H__ */

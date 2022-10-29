@@ -19,8 +19,6 @@
 					"loadaddr=20080000\0"	\
 					"ethrotate=yes\0"
 
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
-
 #if defined(CONFIG_MMC_OCTEONTX)
 #define MMC_SUPPORTS_TUNING
 /** EMMC specific defines */
