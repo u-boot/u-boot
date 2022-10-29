@@ -104,7 +104,6 @@
  *  Config the L3 Cache as L3 SRAM
  */
 #define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
-#define CONFIG_SYS_L3_SIZE		(256 << 10)
 #define SPL_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
 
 #ifdef CONFIG_PHYS_64BIT
