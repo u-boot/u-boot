@@ -7,6 +7,10 @@
 
 %module libfdt
 
+%begin %{
+#define PY_SSIZE_T_CLEAN
+%}
+
 %include <stdint.i>
 
 %{

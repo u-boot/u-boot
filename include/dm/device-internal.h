@@ -184,8 +184,8 @@ int device_of_to_plat(struct udevice *dev);
 /**
  * device_probe() - Probe a device, activating it
  *
- * Activate a device so that it is ready for use. All its parents are probed
- * first.
+ * Activate a device (if not yet activated) so that it is ready for use.
+ * All its parents are probed first.
  *
  * @dev: Pointer to device to probe
  * Return: 0 if OK, -ve on error

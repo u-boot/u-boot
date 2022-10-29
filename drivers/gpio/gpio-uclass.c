@@ -59,11 +59,10 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 {
 	struct gpio_dev_priv *uc_priv;
 	struct udevice *dev;
-	int ret;
 
-	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
+	for (uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
-	     ret = uclass_next_device(&dev)) {
+	     uclass_next_device(&dev)) {
 		uc_priv = dev_get_uclass_priv(dev);
 		if (gpio >= uc_priv->gpio_base &&
 		    gpio < uc_priv->gpio_base + uc_priv->gpio_count) {
@@ -73,7 +72,7 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 	}
 
 	/* No such GPIO */
-	return ret ? ret : -ENOENT;
+	return -ENOENT;
 }
 
 #if CONFIG_IS_ENABLED(DM_GPIO_LOOKUP_LABEL)
@@ -91,15 +90,13 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 static int dm_gpio_lookup_label(const char *name,
 				struct gpio_dev_priv *uc_priv, ulong *offset)
 {
-	int len;
 	int i;
 
 	*offset = -1;
-	len = strlen(name);
 	for (i = 0; i < uc_priv->gpio_count; i++) {
 		if (!uc_priv->name[i])
 			continue;
-		if (!strncmp(name, uc_priv->name[i], len)) {
+		if (!strcmp(name, uc_priv->name[i])) {
 			*offset = i;
 			return 0;
 		}
@@ -121,12 +118,11 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 	struct udevice *dev;
 	ulong offset;
 	int numeric;
-	int ret;
 
 	numeric = isdigit(*name) ? dectoul(name, NULL) : -1;
-	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
+	for (uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
-	     ret = uclass_next_device(&dev)) {
+	     uclass_next_device(&dev)) {
 		int len;
 
 		uc_priv = dev_get_uclass_priv(dev);
@@ -154,7 +150,7 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc)
 	}
 
 	if (!dev)
-		return ret ? ret : -EINVAL;
+		return -EINVAL;
 
 	gpio_desc_init(desc, dev, offset);
 

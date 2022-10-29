@@ -957,7 +957,7 @@ int pci_bus_find_devfn(const struct udevice *bus, pci_dev_t find_devfn,
 /**
  * pci_find_first_device() - return the first available PCI device
  *
- * This function and pci_find_first_device() allow iteration through all
+ * This function and pci_find_next_device() allow iteration through all
  * available PCI devices on all buses. Assuming there are any, this will
  * return the first one.
  *

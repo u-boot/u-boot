@@ -22,6 +22,10 @@ success = $(if-success,$(1),y,n)
 # Return y if the compiler supports <flag>, n otherwise
 cc-option = $(success,$(CC) -Werror $(1) -E -x c /dev/null -o /dev/null)
 
+# $(cc-define,<macro>)
+# Return y if the compiler defines <macro>, n otherwise
+cc-define = $(success,$(CC) -dM -E -x c /dev/null | grep -q '^#define \<$(1)\>')
+
 # $(ld-option,<flag>)
 # Return y if the linker supports <flag>, n otherwise
 ld-option = $(success,$(LD) -v $(1))

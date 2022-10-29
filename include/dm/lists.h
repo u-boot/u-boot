@@ -73,6 +73,7 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
  * @drv_name:	Name of driver to attach to this parent
  * @dev_name:	Name of the new device thus created
  * @devp:	If non-NULL, returns the newly bound device
+ * Return: 0 if OK, -ve on error
  */
 int device_bind_driver(struct udevice *parent, const char *drv_name,
 		       const char *dev_name, struct udevice **devp);
@@ -88,6 +89,7 @@ int device_bind_driver(struct udevice *parent, const char *drv_name,
  * @dev_name:	Name of the new device thus created
  * @node:	Device tree node
  * @devp:	If non-NULL, returns the newly bound device
+ * Return: 0 if OK, -ve on error
  */
 int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
 			       const char *dev_name, ofnode node,

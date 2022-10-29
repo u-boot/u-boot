@@ -403,13 +403,12 @@ static int dm_test_first_next_device_probeall(struct unit_test_state *uts)
 	int ret;
 
 	/* There should be 4 devices */
-	for (ret = uclass_first_device(UCLASS_TEST_PROBE, &dev), count = 0;
+	for (uclass_first_device(UCLASS_TEST_PROBE, &dev), count = 0;
 	     dev;
-	     ret = uclass_next_device(&dev)) {
+	     uclass_next_device(&dev)) {
 		count++;
 		parent = dev_get_parent(dev);
 		}
-	ut_assertok(ret);
 	ut_asserteq(4, count);
 
 	/* Remove them and try again, with an error on the second one */
@@ -417,16 +416,30 @@ static int dm_test_first_next_device_probeall(struct unit_test_state *uts)
 	pdata = dev_get_plat(dev);
 	pdata->probe_err = -ENOMEM;
 	device_remove(parent, DM_REMOVE_NORMAL);
-	ut_assertok(uclass_first_device(UCLASS_TEST_PROBE, &dev));
-	ut_asserteq(-ENOMEM, uclass_next_device(&dev));
-	ut_asserteq_ptr(dev, NULL);
+	for (ret = uclass_first_device_check(UCLASS_TEST_PROBE, &dev),
+		count = 0;
+	     dev;
+	     ret = uclass_next_device_check(&dev)) {
+		if (!ret)
+			count++;
+		else
+			ut_asserteq(-ENOMEM, ret);
+		parent = dev_get_parent(dev);
+		}
+	ut_asserteq(3, count);
 
 	/* Now an error on the first one */
 	ut_assertok(uclass_get_device(UCLASS_TEST_PROBE, 0, &dev));
 	pdata = dev_get_plat(dev);
 	pdata->probe_err = -ENOENT;
 	device_remove(parent, DM_REMOVE_NORMAL);
-	ut_asserteq(-ENOENT, uclass_first_device(UCLASS_TEST_PROBE, &dev));
+	for (uclass_first_device(UCLASS_TEST_PROBE, &dev), count = 0;
+	     dev;
+	     uclass_next_device(&dev)) {
+		count++;
+		parent = dev_get_parent(dev);
+		}
+	ut_asserteq(2, count);
 
 	/* Now that broken devices are set up test probe_all */
 	device_remove(parent, DM_REMOVE_NORMAL);
