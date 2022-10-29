@@ -435,15 +435,6 @@ The following options need to be configured:
 		Define this variable to enable hw flow control in serial driver.
 		Current user of this option is drivers/serial/nsl16550.c driver
 
-- Serial Download Echo Mode:
-		CONFIG_LOADS_ECHO
-		If defined to 1, all characters received during a
-		serial download (using the "loads" command) are
-		echoed back. This might be needed by some terminal
-		emulations (like "cu"), but may as well just take
-		time on others. This setting #define's the initial
-		value of the "loads_echo" environment variable.
-
 - Removal of commands
 		If no commands are needed to boot, you can disable
 		CONFIG_CMDLINE to remove them. In this case, the command line
@@ -1454,9 +1445,6 @@ Configuration Settings:
 		gd->arch.secure_ram is used to track the location. In systems
 		the RAM base is not zero, or RAM is divided into banks,
 		this variable needs to be recalcuated to get the address.
-
-- CONFIG_SYS_LOADS_BAUD_CHANGE:
-		Enable temporary baudrate change while serial download
 
 - CONFIG_SYS_SDRAM_BASE:
 		Physical start address of SDRAM. _Must_ be 0 here.

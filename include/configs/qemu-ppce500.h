@@ -52,12 +52,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_RTC_PT7C4338
 
 /*
- * Environment
- */
-
-#define CONFIG_LOADS_ECHO		/* echo on for serial download */
-
-/*
  * Miscellaneous configurable options
  */
 

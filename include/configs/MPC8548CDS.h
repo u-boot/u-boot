@@ -330,13 +330,6 @@
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
- * Environment
- */
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
-
-/*
  * Miscellaneous configurable options
  */
 
