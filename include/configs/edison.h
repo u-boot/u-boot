@@ -14,7 +14,4 @@
 
 #define CONFIG_SYS_MONITOR_LEN			(256 * 1024)
 
-/* RTC */
-#define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0
-
 #endif

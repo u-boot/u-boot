@@ -22,7 +22,7 @@
 /* Set this to 1 to clear the CMOS RAM */
 #define CLEAR_CMOS		0
 
-#define RTC_PORT_MC146818	CONFIG_SYS_ISA_IO_BASE_ADDRESS + 0x70
+#define RTC_PORT_MC146818	0x70
 #define RTC_SECONDS		0x00
 #define RTC_SECONDS_ALARM	0x01
 #define RTC_MINUTES		0x02

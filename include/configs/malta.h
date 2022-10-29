@@ -13,8 +13,6 @@
 
 #define CONFIG_MEMSIZE_IN_BYTES
 
-#define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0
-
 /*
  * CPU Configuration
  */

@@ -19,12 +19,6 @@
 #define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
 
 /*-----------------------------------------------------------------------
- * Real Time Clock Configuration
- */
-#define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0
-#define CONFIG_SYS_ISA_IO      CONFIG_SYS_ISA_IO_BASE_ADDRESS
-
-/*-----------------------------------------------------------------------
  * Serial Configuration
  */
 #define CONFIG_SYS_NS16550_PORT_MAPPED
