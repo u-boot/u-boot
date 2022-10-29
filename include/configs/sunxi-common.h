@@ -78,8 +78,6 @@
 /* mmc config */
 #define CONFIG_MMC_SUNXI_SLOT		0
 
-#define CONFIG_SYS_MMC_MAX_DEVICE	4
-
 /*
  * Miscellaneous configurable options
  */

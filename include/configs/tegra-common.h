@@ -28,13 +28,6 @@
  */
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 
-/*
- * Common HW configuration.
- * If this varies between SoCs later, move to tegraNN-common.h
- * Note: This is number of devices, not max device ID.
- */
-#define CONFIG_SYS_MMC_MAX_DEVICE 4
-
 #ifdef CONFIG_ARM64
 #define FDTFILE "nvidia/" CONFIG_DEFAULT_DEVICE_TREE ".dtb"
 #else

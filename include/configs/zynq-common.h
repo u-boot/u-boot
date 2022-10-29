@@ -195,9 +195,6 @@
 
 /* Extend size of kernel image for uncompression */
 
-/* Boot FreeBSD/vxWorks from an ELF image */
-#define CONFIG_SYS_MMC_MAX_DEVICE	1
-
 /* Address in RAM where the parameters must be copied by SPL. */
 
 /* Not using MMC raw mode - just for compilation purpose */

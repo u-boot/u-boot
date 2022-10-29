@@ -21,9 +21,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ		SZ_256M
 
-/*MMC SD*/
-#define CONFIG_SYS_MMC_MAX_DEVICE	2
-
 /* NAND support */
 
 /*****************************************************************************/
