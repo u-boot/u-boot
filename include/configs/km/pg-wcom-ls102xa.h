@@ -155,7 +155,6 @@
 /*
  * I2C
  */
-#define CONFIG_SYS_I2C_INIT_BOARD
 
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_MAX_HOPS		1

@@ -176,10 +176,6 @@ int board_early_init_f(void)
 		return err;
 	}
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	board_i2c_init(gd->fdt_blob);
-#endif
-
 	return exynos_early_init_f();
 }
 #endif
