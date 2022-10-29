@@ -83,7 +83,6 @@
 /* Ethernet configuration part */
 
 /* NAND configuration part */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x0C000000
 
 #endif /* __CONFIG_H */

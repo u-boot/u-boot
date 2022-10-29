@@ -368,8 +368,6 @@
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
 							/* to access nand at */
 							/* CS0 */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
-							   devices */
 #endif
 
 #endif	/* ! __CONFIG_SIEMENS_AM33X_COMMON_H */

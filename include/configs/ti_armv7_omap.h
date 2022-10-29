@@ -19,7 +19,6 @@
 #ifndef CONFIG_SYS_NAND_BASE
 #define CONFIG_SYS_NAND_BASE		0x8000000
 #endif
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #endif
 
 /* Now for the remaining common defines */

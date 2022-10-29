@@ -20,7 +20,6 @@
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
 /* NAND */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0

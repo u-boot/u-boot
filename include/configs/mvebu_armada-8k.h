@@ -25,8 +25,6 @@
 
 /* When runtime detection fails this is the default */
 
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-
 /* USB ethernet */
 
 /*

@@ -73,7 +73,6 @@
 
 #ifdef CONFIG_NAND_SUNXI
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
-#define CONFIG_SYS_MAX_NAND_DEVICE 8
 #endif
 
 /* mmc config */

@@ -43,7 +43,6 @@
  * access CS0 at is 0x8000000.
  */
 #define CONFIG_SYS_NAND_BASE		0x8000000
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* NAND: SPL related configs */
 

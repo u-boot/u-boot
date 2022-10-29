@@ -42,7 +42,6 @@
  */
 
 /* driver configuration */
-#define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_MAX_NAND_CHIPS 1
 #define CONFIG_SYS_NAND_BASE MLC_NAND_BASE
 

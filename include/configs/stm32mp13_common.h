@@ -25,7 +25,6 @@
 #define CONFIG_SYS_MMC_MAX_DEVICE	2
 
 /* NAND support */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS

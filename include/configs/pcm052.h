@@ -14,8 +14,6 @@
 
 /* NAND support */
 
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-
 /* if no target-specific extra environment settings were defined by the
    target, define an empty one */
 #ifndef PCM052_EXTRA_ENV_SETTINGS

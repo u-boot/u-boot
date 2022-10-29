@@ -21,7 +21,6 @@
 #define MMC_SUPPORTS_TUNING
 
 /* NAND */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Serial SPL */
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL)

@@ -99,9 +99,6 @@ Configuration Options:
    CONFIG_CMD_NAND_TORTURE
       Enables the torture command (see description of this command below).
 
-   CONFIG_SYS_MAX_NAND_DEVICE
-      The maximum number of NAND devices you want to support.
-
    CONFIG_SYS_NAND_MAX_ECCPOS
       If specified, overrides the maximum number of ECC bytes
       supported.  Useful for reducing image size, especially with SPL.
