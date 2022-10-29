@@ -22,6 +22,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
+#include <linux/sizes.h>
 
 #define SPI_CFG0_REG				0x0000
 #define SPI_CFG1_REG				0x0004
