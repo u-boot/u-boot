@@ -7,8 +7,6 @@
 #ifndef __TEGRA_COMMON_POST_H
 #define __TEGRA_COMMON_POST_H
 
-#define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)	/* 1 MiB */
-
 #if CONFIG_IS_ENABLED(CMD_USB)
 # define BOOT_TARGET_USB(func) func(USB, usb, 0)
 #else

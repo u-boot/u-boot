@@ -438,6 +438,30 @@ config TPL_SKIP_LOWLEVEL_INIT_ONLY
 	  normal CP15 init (such as enabling the instruction cache) is still
 	  performed.
 
+config SYS_HAS_NONCACHED_MEMORY
+	bool "Enable reserving a non-cached memory area for drivers"
+	depends on (ARM || MIPS) && (RTL8169 || MEDIATEK_ETH)
+	help
+	  This is useful for drivers that would otherwise require a lot of
+	  explicit cache maintenance. For some drivers it's also impossible to
+	  properly maintain the cache. For example if the regions that need to
+	  be flushed are not a multiple of the cache-line size, *and* padding
+	  cannot be allocated between the regions to align them (i.e.  if the
+	  HW requires a contiguous array of regions, and the size of each
+	  region is not cache-aligned), then a flush of one region may result
+	  in overwriting data that hardware has written to another region in
+	  the same cache-line. This can happen for example in network drivers
+	  where descriptors for buffers are typically smaller than the CPU
+	  cache-line (e.g.  16 bytes vs. 32 or 64 bytes).
+
+config SYS_NONCACHED_MEMORY
+	hex "Size in bytes of the non-cached memory area"
+	depends on SYS_HAS_NONCACHED_MEMORY
+	default 0x100000
+	help
+	  Size of non-cached memory area. This area of memory will be typically
+	  located right below the malloc() area and mapped uncached in the MMU.
+
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"
 source "arch/m68k/Kconfig"

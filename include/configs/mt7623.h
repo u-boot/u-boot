@@ -13,8 +13,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
-
 /* Environment */
 
 /* Preloader -> Uboot */

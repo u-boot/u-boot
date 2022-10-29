@@ -9,11 +9,6 @@
 #ifndef __MT8518_H
 #define __MT8518_H
 
-#include <linux/sizes.h>
-
-#define CONFIG_SYS_NONCACHED_MEMORY		SZ_1M
-
-
 /* DRAM definition */
 #define CONFIG_SYS_SDRAM_BASE			0x40000000
 #define CONFIG_SYS_SDRAM_SIZE			0x20000000
