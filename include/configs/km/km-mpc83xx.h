@@ -26,7 +26,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xF0000000
 
 /* Reserve 768 kB for Mon */
-#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 
 /*
  * Initial RAM Base Address Setup

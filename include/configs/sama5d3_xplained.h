@@ -39,7 +39,6 @@
 /* SPL */
 
 /* size of u-boot.bin to load */
-#define CONFIG_SYS_MONITOR_LEN		(2 * SZ_512K)
 
 /* Falcon boot support on raw MMC */
 /* U-Boot proper stored by default at 0x200 (256 KiB) */

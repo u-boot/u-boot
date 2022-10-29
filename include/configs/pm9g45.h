@@ -43,8 +43,6 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SYS_MONITOR_LEN		0x80000
-
 #ifdef CONFIG_SD_BOOT
 #elif CONFIG_NAND_BOOT
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x80000

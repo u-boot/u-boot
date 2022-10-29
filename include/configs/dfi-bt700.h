@@ -12,8 +12,6 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-
 #ifndef CONFIG_INTERNAL_UART
 /* Use BayTrail internal HS UART which is memory-mapped */
 #undef  CONFIG_SYS_NS16550_PORT_MAPPED

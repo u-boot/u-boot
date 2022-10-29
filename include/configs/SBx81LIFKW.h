@@ -34,8 +34,6 @@
  * U-Boot bootcode configuration
  */
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for monitor */
-
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Mem map for Linux*/
 
 /* size in bytes reserved for initial data */

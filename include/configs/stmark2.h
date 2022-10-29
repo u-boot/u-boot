@@ -68,7 +68,6 @@
 #endif
 
 /* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
 /*
  * For booting Linux, the board info and command line data

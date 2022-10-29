@@ -132,7 +132,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x80400000
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
 #endif
-#define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
 #include <asm/arch/soc.h>
 

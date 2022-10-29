@@ -13,9 +13,6 @@
 #ifdef CONFIG_SPL
 
 /* MMC support */
-#if defined(CONFIG_SPL_MMC)
-#define CONFIG_SYS_MONITOR_LEN			409600	/* 400 KB */
-#endif
 
 #endif /* CONFIG_SPL */
 

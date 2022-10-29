@@ -10,7 +10,6 @@
 #define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
 /* Address of u-boot image in Flash */
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /*

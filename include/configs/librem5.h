@@ -15,8 +15,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-
 #ifdef CONFIG_SPL_BUILD
 
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */

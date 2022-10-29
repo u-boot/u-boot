@@ -50,9 +50,6 @@
  * size increases then increase this size in case of secure boot as
  * it uses raw U-Boot image instead of FIT image.
  */
-#define CONFIG_SYS_MONITOR_LEN		(0x100000 + CONFIG_U_BOOT_HDR_SIZE)
-#else
-#define CONFIG_SYS_MONITOR_LEN		0x100000
 #endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
 #endif
 

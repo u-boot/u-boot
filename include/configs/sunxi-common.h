@@ -87,8 +87,6 @@
 
 /* FLASH and environment organization */
 
-#define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
-
 /*
  * We cannot use expressions here, because expressions won't be evaluated in
  * autoconf.mk.

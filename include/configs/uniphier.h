@@ -35,8 +35,6 @@
 	BOOT_TARGET_DEVICE_UBIFS(func)	\
 	BOOT_TARGET_DEVICE_USB(func)
 
-#define CONFIG_SYS_MONITOR_LEN		0x00200000	/* 2MB */
-
 #if !defined(CONFIG_ARM64)
 /* Time clock 1MHz */
 #define CONFIG_SYS_TIMER_RATE			1000000

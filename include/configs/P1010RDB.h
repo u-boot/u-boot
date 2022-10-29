@@ -301,8 +301,6 @@ extern unsigned long get_sdram_size(void);
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
-
 /*
  * Config the L2 Cache as L2 SRAM
  */

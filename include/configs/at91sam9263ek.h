@@ -34,8 +34,6 @@
 #define PHYS_FLASH_1				0x10000000
 #define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
 
-#define CONFIG_SYS_MONITOR_LEN	(256 << 10)
-
 /* Address and size of Primary Environment Sector */
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\

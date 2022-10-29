@@ -74,7 +74,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)
-#define	CONFIG_SYS_MONITOR_LEN		(320 << 10)
 
 /* Environment Configuration */
 

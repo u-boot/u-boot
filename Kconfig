@@ -583,6 +583,17 @@ config SYS_SRAM_SIZE
 	default 0x10000 if TARGET_TRICORDER
 	default 0x0
 
+config SYS_MONITOR_LEN
+	int "Maximum size in bytes reserved for U-Boot in memory"
+	default 1048576 if X86
+	default 0
+	help
+	  Size of memory reserved for monitor code, used to determine
+	  _at_compile_time_ (!) if the environment is embedded within the
+	  U-Boot image, or in a separate flash sector, among other uses where
+	  we need to set a maximum size of the U-Boot binary itself that will
+	  be loaded.
+
 config MP
 	bool "Support for multiprocessor"
 	help

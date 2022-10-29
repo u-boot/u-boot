@@ -52,8 +52,6 @@
  */
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-
 /* SPL */
 
 #ifdef CONFIG_MTD_RAW_NAND

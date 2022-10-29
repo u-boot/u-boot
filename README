@@ -1452,12 +1452,6 @@ Configuration Settings:
 - CONFIG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
 
-- CONFIG_SYS_MONITOR_LEN:
-		Size of memory reserved for monitor code, used to
-		determine _at_compile_time_ (!) if the environment is
-		embedded within the U-Boot image, or in a separate
-		flash sector.
-
 - CONFIG_SYS_MALLOC_LEN:
 		Size of DRAM reserved for malloc() use.
 

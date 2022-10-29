@@ -7,8 +7,6 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * SZ_1K)
-
 /* GUID for capsule updatable firmware image */
 #define KONTRON_PITX_IMX8M_FIT_IMAGE_GUID \
 	EFI_GUID(0xc898e959, 0x5b1f, 0x4e6d, 0x88, 0xe0, \

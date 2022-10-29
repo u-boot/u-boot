@@ -177,8 +177,6 @@
 
 #define CONFIG_LS102XA_STREAM_ID
 
-#define CONFIG_SYS_MONITOR_LEN		0x100000     /* 1Mbyte */
-
 /*
  * Environment
  */

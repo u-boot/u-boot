@@ -11,8 +11,6 @@
 #include <asm/arch/imx-regs.h>
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_LEN				(1024 * 1024)
-
 #define CONFIG_SERIAL_LPUART_BASE	0x5a060000
 #define CONFIG_MALLOC_F_ADDR		0x00120000
 

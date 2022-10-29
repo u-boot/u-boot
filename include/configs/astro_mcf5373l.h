@@ -189,7 +189,6 @@
 #define CONFIG_SYS_FLASH_BASE		0x00000000
 
 /* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
 /*
  * For booting Linux, the board info and command line data

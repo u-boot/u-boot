@@ -84,8 +84,6 @@
  * FLASH and environment organization
  */
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
-
 /*-----------------------------------------------------------------------
  * Boot configuration
  */

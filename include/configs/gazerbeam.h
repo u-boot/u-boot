@@ -25,8 +25,6 @@
  * The reserved memory
  */
 
-#define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
-
 /*
  * Initial RAM Base Address Setup
  */

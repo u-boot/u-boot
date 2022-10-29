@@ -146,9 +146,6 @@ unsigned long long get_qixis_addr(void);
  * size increases then increase this size in case of secure boot as
  * it uses raw u-boot image instead of fit image.
  */
-#define CONFIG_SYS_MONITOR_LEN         (0x100000 + CONFIG_U_BOOT_HDR_SIZE)
-#else
-#define CONFIG_SYS_MONITOR_LEN         0x100000
 #endif /* ifdef CONFIG_NXP_ESBC */
 
 #endif

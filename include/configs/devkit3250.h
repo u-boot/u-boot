@@ -85,7 +85,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
 
 /* See common/spl/spl.c  spl_set_header_raw_uboot() */
-#define CONFIG_SYS_MONITOR_LEN		CONFIG_SYS_NAND_U_BOOT_SIZE
 
 /*
  * Include SoC specific configuration

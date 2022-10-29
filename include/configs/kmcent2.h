@@ -323,8 +323,6 @@
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MONITOR_LEN		0xc0000         /* 768k */
-
 /*
  * Serial Port - controlled on board with jumper J8
  * open - index 2
