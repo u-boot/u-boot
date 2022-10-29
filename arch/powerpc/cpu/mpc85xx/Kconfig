@@ -113,6 +113,7 @@ config TARGET_P1010RDB_PA
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -123,6 +124,7 @@ config TARGET_P1010RDB_PB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -132,6 +134,7 @@ config TARGET_P1020RDB_PC
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -141,6 +144,7 @@ config TARGET_P1020RDB_PD
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -150,6 +154,7 @@ config TARGET_P2020RDB
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P2020
+	select SYS_L2_SIZE_512KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply SATA_SIL
@@ -1276,6 +1281,17 @@ config SYS_ETVPE_CLK
 	int
 	default 1
 endif
+
+config SYS_L2_SIZE_256KB
+	bool
+
+config SYS_L2_SIZE_512KB
+	bool
+
+config SYS_L2_SIZE
+	int
+	default 262144 if SYS_L2_SIZE_256KB
+	default 524288 if SYS_L2_SIZE_512KB
 
 config BACKSIDE_L2_CACHE
 	bool
