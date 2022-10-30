@@ -431,12 +431,11 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
  *	the first call to this function. On exit, @uts->fail_count is
  *	incremented by the number of failures (0, one hopes)
  * @test: Test to run
- * @name: Name of test, possibly skipping a prefix that should not be displayed
  * Return: 0 if all tests passed, -EAGAIN if the test should be skipped, -1 if
  *	any failed
  */
 static int ut_run_test_live_flat(struct unit_test_state *uts,
-				 struct unit_test *test, const char *name)
+				 struct unit_test *test)
 {
 	int runs;
 
@@ -536,7 +535,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		}
 		old_fail_count = uts->fail_count;
 		for (i = 0; i < uts->runs_per_test; i++)
-			ret = ut_run_test_live_flat(uts, test, select_name);
+			ret = ut_run_test_live_flat(uts, test);
 		if (uts->fail_count != old_fail_count) {
 			printf("Test %s failed %d times\n", select_name,
 			       uts->fail_count - old_fail_count);
