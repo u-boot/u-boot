@@ -14,6 +14,9 @@
 static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[]);
 
+static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[]);
+
 int cmd_ut_category(const char *name, const char *prefix,
 		    struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[])
@@ -45,6 +48,7 @@ int cmd_ut_category(const char *name, const char *prefix,
 
 static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
+	U_BOOT_CMD_MKENT(info, 1, 1, do_ut_info, "", ""),
 #ifdef CONFIG_BOOTSTD
 	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
 			 "", ""),
@@ -119,6 +123,15 @@ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 	return any_fail;
 }
 
+static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
+{
+	printf("Test suites: %d\n", (int)ARRAY_SIZE(cmd_ut_sub));
+	printf("Total tests: %d\n", (int)UNIT_TEST_ALL_COUNT());
+
+	return 0;
+}
+
 static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct cmd_tbl *cp;
@@ -145,8 +158,9 @@ static char ut_help_text[] =
 	"   -f         Force 'manual' tests to run as well\n"
 	"   <suite>    Test suite to run, or all\n"
 	"\n"
-	"Suites:"
+	"\nOptions for <suite>:"
 	"\nall - execute all enabled tests"
+	"\ninfo - show info about tests"
 #ifdef CONFIG_CMD_ADDRMAP
 	"\naddrmap - very basic test of addrmap command"
 #endif

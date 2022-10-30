@@ -100,3 +100,9 @@ Run just a single test in a suite::
     => ut bloblist bloblist_test_grow
     Test: bloblist_test_grow: bloblist.c
     Failures: 0
+
+Show information about tests::
+
+    => ut info
+    Test suites: 21
+    Total tests: 642
