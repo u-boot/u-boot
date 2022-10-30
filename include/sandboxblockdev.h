@@ -10,9 +10,6 @@
 #define SANDBOX_HOST_MAX_DEVICES	4
 
 struct host_block_dev {
-#ifndef CONFIG_BLK
-	struct blk_desc blk_dev;
-#endif
 	char *filename;
 	int fd;
 };

@@ -18,37 +18,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_BLK
-static struct host_block_dev host_devices[SANDBOX_HOST_MAX_DEVICES];
-
-static struct host_block_dev *find_host_device(int dev)
-{
-	if (dev >= 0 && dev < SANDBOX_HOST_MAX_DEVICES)
-		return &host_devices[dev];
-
-	return NULL;
-}
-#endif
-
-#ifdef CONFIG_BLK
 static unsigned long host_block_read(struct udevice *dev,
 				     unsigned long start, lbaint_t blkcnt,
 				     void *buffer)
 {
 	struct host_block_dev *host_dev = dev_get_plat(dev);
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
-
-#else
-static unsigned long host_block_read(struct blk_desc *block_dev,
-				     unsigned long start, lbaint_t blkcnt,
-				     void *buffer)
-{
-	int dev = block_dev->devnum;
-	struct host_block_dev *host_dev = find_host_device(dev);
-
-	if (!host_dev)
-		return -1;
-#endif
 
 	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
 			-1) {
@@ -61,21 +36,12 @@ static unsigned long host_block_read(struct blk_desc *block_dev,
 	return -1;
 }
 
-#ifdef CONFIG_BLK
 static unsigned long host_block_write(struct udevice *dev,
 				      unsigned long start, lbaint_t blkcnt,
 				      const void *buffer)
 {
 	struct host_block_dev *host_dev = dev_get_plat(dev);
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
-#else
-static unsigned long host_block_write(struct blk_desc *block_dev,
-				      unsigned long start, lbaint_t blkcnt,
-				      const void *buffer)
-{
-	int dev = block_dev->devnum;
-	struct host_block_dev *host_dev = find_host_device(dev);
-#endif
 
 	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
 			-1) {
@@ -88,7 +54,6 @@ static unsigned long host_block_write(struct blk_desc *block_dev,
 	return -1;
 }
 
-#ifdef CONFIG_BLK
 int host_dev_bind(int devnum, char *filename, bool removable)
 {
 	struct host_block_dev *host_dev;
@@ -164,55 +129,9 @@ err:
 	free(str);
 	return ret;
 }
-#else
-int host_dev_bind(int dev, char *filename, bool removable)
-{
-	struct host_block_dev *host_dev = find_host_device(dev);
-
-	if (!host_dev)
-		return -1;
-	if (host_dev->blk_dev.priv) {
-		os_close(host_dev->fd);
-		host_dev->blk_dev.priv = NULL;
-	}
-	if (host_dev->filename)
-		free(host_dev->filename);
-	if (filename && *filename) {
-		host_dev->filename = strdup(filename);
-	} else {
-		host_dev->filename = NULL;
-		return 0;
-	}
-
-	host_dev->fd = os_open(host_dev->filename, OS_O_RDWR);
-	if (host_dev->fd == -1) {
-		printf("Failed to access host backing file '%s'\n",
-		       host_dev->filename);
-		return 1;
-	}
-
-	struct blk_desc *blk_dev = &host_dev->blk_dev;
-	blk_dev->uclass_id = UCLASS_ROOT;
-	blk_dev->priv = host_dev;
-	blk_dev->blksz = 512;
-	blk_dev->lba = os_lseek(host_dev->fd, 0, OS_SEEK_END) / blk_dev->blksz;
-	blk_dev->block_read = host_block_read;
-	blk_dev->block_write = host_block_write;
-	blk_dev->devnum = dev;
-	blk_dev->part_type = PART_TYPE_UNKNOWN;
-	blk_dev->removable = removable;
-	snprintf(blk_dev->vendor, BLK_VEN_SIZE, "U-Boot");
-	snprintf(blk_dev->product, BLK_PRD_SIZE, "hostfile");
-	snprintf(blk_dev->revision, BLK_REV_SIZE, "1.0");
-	part_init(blk_dev);
-
-	return 0;
-}
-#endif
 
 int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 {
-#ifdef CONFIG_BLK
 	struct udevice *dev;
 	int ret;
 
@@ -220,22 +139,9 @@ int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
 	if (ret)
 		return ret;
 	*blk_devp = dev_get_uclass_plat(dev);
-#else
-	struct host_block_dev *host_dev = find_host_device(devnum);
-
-	if (!host_dev)
-		return -ENODEV;
-
-	if (!host_dev->blk_dev.priv)
-		return -ENOENT;
-
-	*blk_devp = &host_dev->blk_dev;
-#endif
 
 	return 0;
 }
-
-#ifdef CONFIG_BLK
 
 int sandbox_host_unbind(struct udevice *dev)
 {
@@ -260,11 +166,3 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
 	.unbind		= sandbox_host_unbind,
 	.plat_auto	= sizeof(struct host_block_dev),
 };
-#else
-U_BOOT_LEGACY_BLK(sandbox_host) = {
-	.uclass_idname	= "host",
-	.uclass_id	= UCLASS_ROOT,
-	.max_devs	= SANDBOX_HOST_MAX_DEVICES,
-	.get_dev	= host_get_dev_err,
-};
-#endif
