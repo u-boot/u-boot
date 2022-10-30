@@ -8,10 +8,12 @@ Synopis
 
 ::
 
-    ut [-r<runs>] [-f] [<suite> [<test>]]
+    ut [-r<runs>] [-f] [-I<n>:<one_test>] [<suite> [<test>]]
 
        <runs>      Number of times to run each test
        -f          Force 'manual' tests to run as well
+       <n>         Run <one test> after <n> other tests have run
+       <one_test>  Name of the 'one' test to run
        <suite>     Test suite to run, or `all`
        <test>      Name of single test to run
 
@@ -34,6 +36,13 @@ use the `-r` flag.
 Manual tests are normally skipped by this command. Use `-f` to run them. See
 See :ref:`develop/tests_writing:mixing python and c` for more information on
 manual test.
+
+When running unit tests, some may have side effects which cause a subsequent
+test to break. This can sometimes be seen when using 'ut dm' or similar. To
+fix this, select the 'one' test which breaks. Then tell the 'ut' command to
+run this one test after a certain number of other tests have run. Using a
+binary search method with `-I` you can quickly figure one which test is causing
+the problem.
 
 Generally all tests in the suite are run. To run just a single test from the
 suite, provide the <test> argument.

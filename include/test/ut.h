@@ -410,10 +410,15 @@ void test_set_state(struct unit_test_state *uts);
  *	then all tests are run
  * @runs_per_test: Number of times to run each test (typically 1)
  * @force_run: Run tests that are marked as manual-only (UT_TESTF_MANUAL)
+ * @test_insert: String describing a test to run after n other tests run, in the
+ * format n:name where n is the number of tests to run before this one and
+ * name is the name of the test to run. This is used to find which test causes
+ * another test to fail. If the one test fails, testing stops immediately.
+ * Pass NULL to disable this
  * Return: 0 if all tests passed, -1 if any failed
  */
 int ut_run_list(const char *name, const char *prefix, struct unit_test *tests,
 		int count, const char *select_name, int runs_per_test,
-		bool force_run);
+		bool force_run, const char *test_insert);
 
 #endif
