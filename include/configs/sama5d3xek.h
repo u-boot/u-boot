@@ -25,9 +25,6 @@
  */
 #define ATMEL_PMC_UHP			(1 <<  6)
 
-/* board specific (not enough SRAM) */
-#define CONFIG_SAMA5D3_LCD_BASE		0x23E00000
-
 /* NOR flash */
 #ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_SYS_FLASH_BASE		0x10000000

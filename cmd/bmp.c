@@ -14,7 +14,6 @@
 #include <dm.h>
 #include <gzip.h>
 #include <image.h>
-#include <lcd.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -48,27 +47,24 @@ struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 	/*
 	 * Decompress bmp image
 	 */
-	len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
+	len = CONFIG_VIDEO_LOGO_MAX_SIZE;
 	/* allocate extra 3 bytes for 32-bit-aligned-address + 2 alignment */
-	dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE + 3);
-	if (dst == NULL) {
+	dst = malloc(CONFIG_VIDEO_LOGO_MAX_SIZE + 3);
+	if (!dst) {
 		puts("Error: malloc in gunzip failed!\n");
 		return NULL;
 	}
 
-	bmp = dst;
-
 	/* align to 32-bit-aligned-address + 2 */
-	bmp = (struct bmp_image *)((((uintptr_t)dst + 1) & ~3) + 2);
+	bmp = dst + 2;
 
-	if (gunzip(bmp, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE, map_sysmem(addr, 0),
-		   &len) != 0) {
+	if (gunzip(bmp, CONFIG_VIDEO_LOGO_MAX_SIZE, map_sysmem(addr, 0),
+		   &len)) {
 		free(dst);
 		return NULL;
 	}
-	if (len == CONFIG_SYS_VIDEO_LOGO_MAX_SIZE)
-		puts("Image could be truncated"
-				" (increase CONFIG_SYS_VIDEO_LOGO_MAX_SIZE)!\n");
+	if (len == CONFIG_VIDEO_LOGO_MAX_SIZE)
+		puts("Image could be truncated (increase CONFIG_VIDEO_LOGO_MAX_SIZE)!\n");
 
 	/*
 	 * Check for bmp mark 'BM'
@@ -224,21 +220,9 @@ static int bmp_info(ulong addr)
 	return(0);
 }
 
-/*
- * Subroutine:  bmp_display
- *
- * Description: Display bmp file located in memory
- *
- * Inputs:	addr		address of the bmp file
- *
- * Return:      None
- *
- */
 int bmp_display(ulong addr, int x, int y)
 {
-#ifdef CONFIG_DM_VIDEO
 	struct udevice *dev;
-#endif
 	int ret;
 	struct bmp_image *bmp = map_sysmem(addr, 0);
 	void *bmp_alloc_addr = NULL;
@@ -254,23 +238,15 @@ int bmp_display(ulong addr, int x, int y)
 	}
 	addr = map_to_sysmem(bmp);
 
-#ifdef CONFIG_DM_VIDEO
 	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
 	if (!ret) {
 		bool align = false;
 
-		if (CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN) ||
-		    x == BMP_ALIGN_CENTER ||
-		    y == BMP_ALIGN_CENTER)
+		if (x == BMP_ALIGN_CENTER || y == BMP_ALIGN_CENTER)
 			align = true;
 
 		ret = video_bmp_display(dev, addr, x, y, align);
 	}
-#elif defined(CONFIG_LCD)
-	ret = lcd_display_bitmap(addr, x, y);
-#else
-# error bmp_display() requires CONFIG_LCD
-#endif
 
 	if (bmp_alloc_addr)
 		free(bmp_alloc_addr);

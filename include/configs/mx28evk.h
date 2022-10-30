@@ -22,13 +22,6 @@
 #define	CONFIG_RTC_MXS
 #endif
 
-/* USB */
-
-/* Framebuffer support */
-#ifdef CONFIG_DM_VIDEO
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
-#endif
-
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"ubifs_file=filesystem.ubifs\0" \

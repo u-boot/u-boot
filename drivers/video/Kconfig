@@ -4,7 +4,7 @@
 
 menu "Graphics support"
 
-config DM_VIDEO
+config VIDEO
 	bool "Enable driver model support for LCD/video"
 	depends on DM
 	help
@@ -14,9 +14,10 @@ config DM_VIDEO
 	  option compiles in the video uclass and routes all LCD/video access
 	  through this.
 
+if VIDEO
+
 config VIDEO_LOGO
 	bool "Show the U-Boot logo on the display"
-	depends on DM_VIDEO
 	default y if !SPLASH_SCREEN
 	select VIDEO_BMP_RLE8
 	help
@@ -27,7 +28,6 @@ config VIDEO_LOGO
 
 config BACKLIGHT
 	bool "Enable panel backlight uclass support"
-	depends on DM_VIDEO
 	default y
 	help
 	  This provides backlight uclass driver that enables basic panel
@@ -35,7 +35,6 @@ config BACKLIGHT
 
 config VIDEO_PCI_DEFAULT_FB_SIZE
 	hex "Default framebuffer size to use if no drivers request it"
-	depends on DM_VIDEO
 	default 0x1000000 if X86 && PCI
 	default 0 if !(X86 && PCI)
 	help
@@ -54,7 +53,6 @@ config VIDEO_PCI_DEFAULT_FB_SIZE
 
 config VIDEO_COPY
 	bool "Enable copying the frame buffer to a hardware copy"
-	depends on DM_VIDEO
 	help
 	  On some machines (e.g. x86), reading from the frame buffer is very
 	  slow because it is uncached. To improve performance, this feature
@@ -85,17 +83,8 @@ config BACKLIGHT_GPIO
 	  it understands the standard device tree
 	  (leds/backlight/gpio-backlight.txt)
 
-config CMD_VIDCONSOLE
-	bool "Enable vidconsole commands lcdputs and setcurs"
-	depends on DM_VIDEO
-	default y
-	help
-	  Enabling this will provide 'setcurs' and 'lcdputs' commands which
-	  support cursor positioning and drawing strings on video framebuffer.
-
 config VIDEO_BPP8
 	bool "Support 8-bit-per-pixel displays"
-	depends on DM_VIDEO
 	default y
 	help
 	  Support drawing text and bitmaps onto a 8-bit-per-pixel display.
@@ -105,7 +94,6 @@ config VIDEO_BPP8
 
 config VIDEO_BPP16
 	bool "Support 16-bit-per-pixel displays"
-	depends on DM_VIDEO
 	default y
 	help
 	  Support drawing text and bitmaps onto a 16-bit-per-pixel display.
@@ -115,7 +103,6 @@ config VIDEO_BPP16
 
 config VIDEO_BPP32
 	bool "Support 32-bit-per-pixel displays"
-	depends on DM_VIDEO
 	default y
 	help
 	  Support drawing text and bitmaps onto a 32-bit-per-pixel display.
@@ -125,7 +112,6 @@ config VIDEO_BPP32
 
 config VIDEO_ANSI
 	bool "Support ANSI escape sequences in video console"
-	depends on DM_VIDEO
 	default y
 	help
 	  Enable ANSI escape sequence decoding for a more fully functional
@@ -133,7 +119,6 @@ config VIDEO_ANSI
 
 config VIDEO_MIPI_DSI
 	bool "Support MIPI DSI interface"
-	depends on DM_VIDEO
 	help
 	  Support MIPI DSI interface for driving a MIPI compatible device.
 	  The MIPI Display Serial Interface (MIPI DSI) defines a high-speed
@@ -141,8 +126,7 @@ config VIDEO_MIPI_DSI
 
 config CONSOLE_NORMAL
 	bool "Support a simple text console"
-	depends on DM_VIDEO
-	default y if DM_VIDEO
+	default y
 	help
 	  Support drawing text on the frame buffer console so that it can be
 	  used as a console. Rotation is not supported by this driver (see
@@ -151,7 +135,6 @@ config CONSOLE_NORMAL
 
 config CONSOLE_ROTATION
 	bool "Support rotated displays"
-	depends on DM_VIDEO
 	help
 	  Sometimes, for example if the display is mounted in portrait
 	  mode or even if it's mounted landscape but rotated by 180degree,
@@ -164,22 +147,11 @@ config CONSOLE_ROTATION
 
 config CONSOLE_TRUETYPE
 	bool "Support a console that uses TrueType fonts"
-	depends on DM_VIDEO
 	help
 	  TrueTrype fonts can provide outline-drawing capability rather than
 	  needing to provide a bitmap for each font and size that is needed.
 	  With this option you can adjust the text size and use a variety of
 	  fonts. Note that this is noticeably slower than with normal console.
-
-config DM_PANEL_HX8238D
-	bool "Enable Himax HX-8238D LCD driver"
-	depends on DM_VIDEO
-	help
-	  Support for HX-8238D LCD Panel
-	  The  HX8238-D is a single chip controller and driver LSI that
-	  integrates the power circuit.
-	  It can drive a maximum 960x240 dot graphics on a-TFT panel
-	  displays in 16M colors with dithering.
 
 config CONSOLE_TRUETYPE_SIZE
 	int "TrueType font size"
@@ -193,6 +165,21 @@ config CONSOLE_TRUETYPE_SIZE
 	  there is no standard display density. At present there is not a
 	  method to select the display's physical size, which would allow
 	  U-Boot to calculate the correct font size.
+
+config CONSOLE_TRUETYPE_MAX_METRICS
+	int "TrueType maximum number of font / size combinations"
+	depends on CONSOLE_TRUETYPE
+	default 10 if EXPO
+	default 1
+	help
+	  This sets the number of font / size combinations which can be used by
+	  the console. For simple console use a single font is enough. When
+	  boot menus are in use, this may need to be increased.
+
+	  Note that a separate entry is needed for each font size, even if the
+	  font itself is the same. This is because the entry caches various
+	  font metrics which are expensive to regenerate each time the font
+	  size changes.
 
 config SYS_WHITE_ON_BLACK
 	bool "Display console as white on a black background"
@@ -213,7 +200,6 @@ config NO_FB_CLEAR
 
 config PANEL
 	bool "Enable panel uclass support"
-	depends on DM_VIDEO
 	default y
 	help
 	  This provides panel uclass driver that enables basic panel support.
@@ -226,11 +212,20 @@ config SIMPLE_PANEL
 	  This turns on a simple panel driver that enables a compatible
 	  video panel.
 
+config PANEL_HX8238D
+	bool "Enable Himax HX-8238D LCD driver"
+	depends on PANEL
+	help
+	  Support for HX-8238D LCD Panel
+	  The  HX8238-D is a single chip controller and driver LSI that
+	  integrates the power circuit.
+	  It can drive a maximum 960x240 dot graphics on a-TFT panel
+	  displays in 16M colors with dithering.
+
 source "drivers/video/fonts/Kconfig"
 
 config VIDCONSOLE_AS_LCD
 	bool "Use 'vidconsole' when CONFIG_VIDCONSOLE_AS_NAME string is seen in stdout"
-	depends on DM_VIDEO
 	help
 	  This is a work-around for boards which have 'lcd' or 'vga' in their
 	  stdout environment variable, but have moved to use driver model for
@@ -423,7 +418,7 @@ config VIDEO_LCD_ANX9804
 
 config ATMEL_LCD
 	bool "Atmel LCD panel support"
-	depends on LCD && ARCH_AT91
+	depends on ARCH_AT91
 
 config ATMEL_LCD_BGR555
 	bool "Display in BGR555 mode"
@@ -440,7 +435,6 @@ config VIDEO_BCM2835
 
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
-	depends on DM_VIDEO
 	select VIDEO_MIPI_DSI
 	help
 	Say Y here if you want to enable support for Orise Technology
@@ -448,7 +442,6 @@ config VIDEO_LCD_ORISETECH_OTM8009A
 
 config VIDEO_LCD_RAYDIUM_RM68200
 	bool "RM68200 DSI LCD panel support"
-	depends on DM_VIDEO
 	select VIDEO_MIPI_DSI
 	help
 	Say Y here if you want to enable support for Raydium RM68200
@@ -484,7 +477,6 @@ config VIDEO_LCD_SSD2828_RESET
 
 config VIDEO_LCD_TDO_TL070WSH30
 	bool "TDO TL070WSH30 DSI LCD panel support"
-	depends on DM_VIDEO
 	select VIDEO_MIPI_DSI
 	help
 	Say Y here if you want to enable support for TDO TL070WSH30
@@ -581,8 +573,6 @@ config ATMEL_HLCD
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
-source "drivers/video/ti/Kconfig"
-
 source "drivers/video/exynos/Kconfig"
 
 config LOGICORE_DP_TX
@@ -624,7 +614,7 @@ source "drivers/video/rockchip/Kconfig"
 
 config VIDEO_ARM_MALIDP
 	bool "Enable Arm Mali Display Processor support"
-	depends on DM_VIDEO && OF_CONTROL
+	depends on OF_CONTROL
 	select VEXPRESS_CLK
 	help
 	  This enables support for Arm Ltd Mali Display Processors from
@@ -652,7 +642,6 @@ config VIDEO_TEGRA20
 
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
-	depends on DM_VIDEO
 	help
 	   Tegra124 supports many video output options including eDP and
 	   HDMI. At present only eDP is supported by U-Boot. This option
@@ -665,7 +654,6 @@ source "drivers/video/imx/Kconfig"
 
 config VIDEO_MXS
 	bool "Enable video support on i.MX28/i.MX6UL/i.MX7 SoCs"
-	depends on DM_VIDEO
 	help
 	  Enable framebuffer driver for i.MX28/i.MX6UL/i.MX7 processors
 
@@ -679,14 +667,14 @@ config VIDEO_NX
 
 config VIDEO_SEPS525
 	bool "Enable video support for Seps525"
-	depends on DM_VIDEO && DM_GPIO
+	depends on DM_GPIO
 	help
 	  Enable support for the Syncoam PM-OLED display driver (RGB 160x128).
 	  Currently driver is supporting only SPI interface.
 
 config VIDEO_ZYNQMP_DPSUB
 	bool "Enable video support for ZynqMP Display Port"
-	depends on DM_VIDEO && ZYNQMP_POWER_DOMAIN
+	depends on ZYNQMP_POWER_DOMAIN
 	help
 	  Enable support for Xilinx ZynqMP Display Port. Currently this file
 	  is used as placeholder for driver. The main reason is to record
@@ -694,44 +682,14 @@ config VIDEO_ZYNQMP_DPSUB
 
 source "drivers/video/nexell/Kconfig"
 
-config VIDEO
-	bool "Enable legacy video support"
-	depends on !DM_VIDEO
-	help
-	  Define this for video support, without using driver model. Some
-	  drivers use this because they are not yet converted to driver
-	  model. Video drivers typically provide a colour text console and
-	  cursor.
-
 config CONSOLE_SCROLL_LINES
 	int "Number of lines to scroll the console by"
-	depends on DM_VIDEO || LCD
 	default 1
 	help
 	  When the console need to be scrolled, this is the number of
 	  lines to scroll by. It defaults to 1. Increasing this makes the
 	  console jump but can help speed up operation when scrolling
 	  is slow.
-
-config LCD
-	bool "Enable legacy LCD support"
-	help
-	  Define this to enable LCD support (for output to LCD display).
-	  You will also need to select an LCD driver using an additional
-	  CONFIG option. See the README for details. Drives which have been
-	  converted to driver model will instead used CONFIG_DM_VIDEO.
-
-config LCD_INFO
-	bool "Show LCD info on-screen"
-	depends on LCD
-
-config LCD_LOGO
-	bool "Show a logo on screen"
-	depends on LCD
-
-config LCD_INFO_BELOW_LOGO
-	bool "Show LCD info below the on-screen logo"
-	depends on LCD_INFO && LCD_LOGO
 
 config VIDEO_DW_HDMI
 	bool
@@ -783,7 +741,6 @@ config VIDEO_DT_SIMPLEFB
 
 config VIDEO_MCDE_SIMPLE
 	bool "Simple driver for ST-Ericsson MCDE with preconfigured display"
-	depends on DM_VIDEO
 	help
 	  Enables a simple display driver for ST-Ericsson MCDE
 	  (Multichannel Display Engine), which reads the configuration from
@@ -831,23 +788,10 @@ config SPLASH_SCREEN
 	  image data before it is processed and sent to the frame buffer by
 	  U-Boot. Define your own version to use this feature.
 
-config SPLASHIMAGE_GUARD
-	bool "Support unaligned BMP images"
-	depends on SPLASH_SCREEN
-	help
-	  If this option is set, then U-Boot will prevent the environment
-	  variable "splashimage" from being set to a problematic address
-	  (see doc/README.displaying-bmps).
-
-	  This option is useful for targets where, due to alignment
-	  restrictions, an improperly aligned BMP image will cause a data
-	  abort. If you think you will not have problems with unaligned
-	  accesses (for example because your toolchain prevents them)
-	  there is no need to set this option.
+if SPLASH_SCREEN
 
 config SPLASH_SCREEN_ALIGN
 	bool "Allow positioning the splash image anywhere on the display"
-	depends on SPLASH_SCREEN || CMD_BMP
 	help
 	  If this option is set the splash image can be freely positioned
 	  on the screen. Environment variable "splashpos" specifies the
@@ -867,9 +811,17 @@ config SPLASH_SCREEN_ALIGN
 	  	=> vertically centered image
 	  	   at x = dspWidth - bmpWidth - 9
 
+config HIDE_LOGO_VERSION
+	bool "Hide the version information on the splash screen"
+	help
+	  Normally the U-Boot version string is shown on the display when the
+	  splash screen is enabled. This information is not otherwise visible
+	  since video starts up after U-Boot has displayed the initial banner.
+
+	  Enable this option to hide this information.
+
 config SPLASH_SOURCE
 	bool "Control the source of the splash image"
-	depends on SPLASH_SCREEN
 	help
 	  Use the splash_source.c library. This library provides facilities to
 	  declare board specific splash image locations, routines for loading
@@ -900,6 +852,8 @@ config SPLASH_SOURCE
 	  In case the environment variable "splashfile" is not defined the
 	  default name 'splash.bmp' will be used.
 
+endif # SPLASH_SCREEN
+
 config VIDEO_BMP_GZIP
 	bool "Gzip compressed BMP image support"
 	depends on CMD_BMP || SPLASH_SCREEN
@@ -908,35 +862,35 @@ config VIDEO_BMP_GZIP
 	  images, gzipped BMP images can be displayed via the
 	  splashscreen support or the bmp command.
 
+config VIDEO_LOGO_MAX_SIZE
+	hex "Maximum size of the bitmap logo in bytes"
+	default 0x100000
+	help
+	  Sets the maximum uncompressed size of the logo. This is needed when
+	  decompressing a BMP file using the gzip algorithm, since it cannot
+	  read the size from the bitmap header.
+
 config VIDEO_BMP_RLE8
 	bool "Run length encoded BMP image (RLE8) support"
-	depends on DM_VIDEO
 	help
 	  If this option is set, the 8-bit RLE compressed BMP images
 	  is supported.
 
 config BMP_16BPP
 	bool "16-bit-per-pixel BMP image support"
-	depends on DM_VIDEO || LCD
 	help
 	  Support display of bitmaps file with 16-bit-per-pixel
 
 config BMP_24BPP
 	bool "24-bit-per-pixel BMP image support"
-	depends on DM_VIDEO || LCD
 	help
 	  Support display of bitmaps file with 24-bit-per-pixel.
 
 config BMP_32BPP
 	bool "32-bit-per-pixel BMP image support"
-	depends on DM_VIDEO || LCD
 	help
 	  Support display of bitmaps file with 32-bit-per-pixel.
 
-config VIDEO_VCXK
-	bool "Enable VCXK video controller driver support"
-	help
-	  This enables VCXK driver which can be used with VC2K, VC4K
-	  and VC8K devices on various boards from BuS Elektronik GmbH.
+endif # VIDEO
 
 endmenu

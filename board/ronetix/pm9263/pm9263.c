@@ -69,115 +69,6 @@ static void pm9263_nand_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_LCD
-
-#ifdef CONFIG_LCD_IN_PSRAM
-
-#define PSRAM_CRE_PIN	AT91_PIO_PORTB, 29
-#define PSRAM_CTRL_REG	(PHYS_PSRAM + PHYS_PSRAM_SIZE - 2)
-
-/* Initialize the PSRAM memory */
-static int pm9263_lcd_hw_psram_init(void)
-{
-	unsigned long csa;
-	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC1;
-	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
-
-	/* Enable CS3  3.3v, no pull-ups */
-	csa = readl(&matrix->csa[1]) | AT91_MATRIX_CSA_DBPUC |
-		AT91_MATRIX_CSA_VDDIOMSEL_3_3V;
-
-	writel(csa, &matrix->csa[1]);
-
-	/* Configure SMC1 CS0 for PSRAM - 16-bit */
-	writel(AT91_SMC_SETUP_NWE(0) | AT91_SMC_SETUP_NCS_WR(0) |
-		AT91_SMC_SETUP_NRD(0) | AT91_SMC_SETUP_NCS_RD(0),
-		&smc->cs[0].setup);
-
-	writel(AT91_SMC_PULSE_NWE(7) | AT91_SMC_PULSE_NCS_WR(7) |
-		AT91_SMC_PULSE_NRD(2) | AT91_SMC_PULSE_NCS_RD(7),
-		&smc->cs[0].pulse);
-
-	writel(AT91_SMC_CYCLE_NWE(8) | AT91_SMC_CYCLE_NRD(8),
-		&smc->cs[0].cycle);
-
-	writel(AT91_SMC_MODE_DBW_16 | AT91_SMC_MODE_PMEN | AT91_SMC_MODE_PS_32,
-		&smc->cs[0].mode);
-
-	/* setup PB29 as output */
-	at91_set_pio_output(PSRAM_CRE_PIN, 1);
-
-	at91_set_pio_value(PSRAM_CRE_PIN, 0);	/* set PSRAM_CRE_PIN to '0' */
-
-	/* PSRAM: write BCR */
-	readw(PSRAM_CTRL_REG);
-	readw(PSRAM_CTRL_REG);
-	writew(1, PSRAM_CTRL_REG);	/* 0 - RCR,1 - BCR */
-	writew(0x9d4f, PSRAM_CTRL_REG);	/* write the BCR */
-
-	/* write RCR of the PSRAM */
-	readw(PSRAM_CTRL_REG);
-	readw(PSRAM_CTRL_REG);
-	writew(0, PSRAM_CTRL_REG);	/* 0 - RCR,1 - BCR */
-	/* set RCR; 0x10-async mode,0x90-page mode */
-	writew(0x90, PSRAM_CTRL_REG);
-
-	/*
-	 * test to see if the PSRAM is MT45W2M16A or MT45W2M16B
-	 * MT45W2M16B - CRE must be 0
-	 * MT45W2M16A - CRE must be 1
-	 */
-	writew(0x1234, PHYS_PSRAM);
-	writew(0x5678, PHYS_PSRAM + 2);
-
-	/* test if the chip is MT45W2M16B */
-	if ((readw(PHYS_PSRAM) != 0x1234) || (readw(PHYS_PSRAM+2) != 0x5678)) {
-		/* try with CRE=1 (MT45W2M16A) */
-		at91_set_pio_value(PSRAM_CRE_PIN, 1); /* set PSRAM_CRE_PIN to '1' */
-
-		/* write RCR of the PSRAM */
-		readw(PSRAM_CTRL_REG);
-		readw(PSRAM_CTRL_REG);
-		writew(0, PSRAM_CTRL_REG);	/* 0 - RCR,1 - BCR */
-		/* set RCR;0x10-async mode,0x90-page mode */
-		writew(0x90, PSRAM_CTRL_REG);
-
-
-		writew(0x1234, PHYS_PSRAM);
-		writew(0x5678, PHYS_PSRAM+2);
-		if ((readw(PHYS_PSRAM) != 0x1234)
-		  || (readw(PHYS_PSRAM + 2) != 0x5678))
-			return 1;
-
-	}
-
-	/* Bus matrix */
-	writel(AT91_MATRIX_PRA_M5(3), &matrix->pr[5].a);
-	writel(CONFIG_PSRAM_SCFG, &matrix->scfg[5]);
-
-	return 0;
-}
-#endif
-
-static void pm9263_lcd_hw_init(void)
-{
-	/* Power Control */
-	at91_set_pio_output(AT91_PIO_PORTA, 22, 1);
-	at91_set_pio_value(AT91_PIO_PORTA, 22, 0);	/* power down */
-
-#ifdef CONFIG_LCD_IN_PSRAM
-	/* initialize the PSRAM */
-	int stat = pm9263_lcd_hw_psram_init();
-
-	gd->fb_base = (stat == 0) ? PHYS_PSRAM : ATMEL_BASE_SRAM0;
-#else
-	gd->fb_base = ATMEL_BASE_SRAM0;
-#endif
-
-}
-
-#endif /* CONFIG_LCD */
-
 int board_early_init_f(void)
 {
 	return 0;
@@ -196,9 +87,6 @@ int board_init(void)
 #endif
 #ifdef CONFIG_USB_OHCI_NEW
 	at91_uhp_hw_init();
-#endif
-#ifdef CONFIG_LCD
-	pm9263_lcd_hw_init();
 #endif
 	return 0;
 }

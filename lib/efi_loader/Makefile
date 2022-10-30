@@ -66,7 +66,7 @@ obj-$(CONFIG_EFI_VARIABLES_PRESEED) += efi_var_seed.o
 endif
 obj-y += efi_watchdog.o
 obj-$(CONFIG_EFI_ESRT) += efi_esrt.o
-obj-$(CONFIG_DM_VIDEO) += efi_gop.o
+obj-$(CONFIG_VIDEO) += efi_gop.o
 obj-$(CONFIG_BLK) += efi_disk.o
 obj-$(CONFIG_NET) += efi_net.o
 obj-$(CONFIG_GENERATE_ACPI_TABLE) += efi_acpi.o

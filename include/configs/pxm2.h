@@ -18,11 +18,6 @@
 #define DDR_IOCTRL_VAL		0x18b
 #define DDR_PLL_FREQ		266
 
-#define BOARD_DFU_BUTTON_GPIO	59
-#define BOARD_LCD_POWER		111
-#define BOARD_BACK_LIGHT	112
-#define BOARD_TOUCH_POWER	57
-
 #define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"button_dfu0=59\0" \
 	"led0=117,0,1\0" \

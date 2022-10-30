@@ -80,7 +80,7 @@ CONFIG_DM_VIDEO
 Deadline: 2019.07
 
 The video subsystem has supported driver model since early 2016. Maintainers
-should submit patches switching over to using CONFIG_DM_VIDEO and other base
+should submit patches switching over to using CONFIG_VIDEO and other base
 driver model options in time for inclusion in the 2019.07 release.
 
 CONFIG_DM_ETH

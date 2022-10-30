@@ -49,6 +49,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_CMD_FDT
 	U_BOOT_CMD_MKENT(fdt, CONFIG_SYS_MAXARGS, 1, do_ut_fdt, "", ""),
 #endif
+#ifdef CONFIG_CONSOLE_TRUETYPE
+	U_BOOT_CMD_MKENT(font, CONFIG_SYS_MAXARGS, 1, do_ut_font, "", ""),
+#endif
 #ifdef CONFIG_UT_OPTEE
 	U_BOOT_CMD_MKENT(optee, CONFIG_SYS_MAXARGS, 1, do_ut_optee, "", ""),
 #endif
@@ -143,6 +146,9 @@ static char ut_help_text[] =
 #endif
 #ifdef CONFIG_CMD_FDT
 	"ut fdt [test-name] - test of the fdt command\n"
+#endif
+#ifdef CONFIG_CONSOLE_TRUETYPE
+	"ut font [test-name] - test of the font command\n"
 #endif
 #ifdef CONFIG_UT_LIB
 	"ut lib [test-name] - test library functions\n"

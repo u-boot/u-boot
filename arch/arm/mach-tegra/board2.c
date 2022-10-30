@@ -134,7 +134,7 @@ int board_init(void)
 #endif
 
 	/* Init is handled automatically in the driver-model case */
-#if defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_VIDEO)
 	pin_mux_display();
 #endif
 	/* boot param addr */
@@ -158,7 +158,7 @@ int board_init(void)
 	pin_mux_usb();
 #endif
 
-#if defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_VIDEO)
 	board_id = tegra_board_id();
 	err = tegra_lcd_pmic_init(board_id);
 	if (err) {

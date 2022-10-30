@@ -1877,7 +1877,7 @@ menu "Misc commands"
 
 config CMD_BMP
 	bool "Enable 'bmp' command"
-	depends on LCD || DM_VIDEO || VIDEO
+	depends on VIDEO
 	help
 	  This provides a way to obtain information about a BMP-format image
 	  and to display it. BMP (which presumably stands for BitMaP) is a
@@ -1939,7 +1939,7 @@ config CMD_CONITRACE
 
 config CMD_CLS
 	bool "Enable clear screen command 'cls'"
-	default y if LCD
+	default y if LCD || DM_VIDEO
 	help
 	  Enable the 'cls' command which clears the screen contents
 	  on video frame buffer.
@@ -2160,6 +2160,18 @@ config CMD_UUID
 
 	  The two commands are very similar except for the endianness of the
 	  output.
+
+config CMD_VIDCONSOLE
+	bool "lcdputs and setcurs"
+	depends on VIDEO
+	default y
+	help
+	  Enabling this will provide 'setcurs' and 'lcdputs' commands which
+	  support cursor positioning and drawing strings on the video
+	  console (framebuffer).
+
+	  The name 'lcdputs' is a bit of a misnomer, but so named because the
+	  video device is often an LCD.
 
 endmenu
 

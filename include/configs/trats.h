@@ -128,9 +128,6 @@
 /* Common misc for Samsung */
 #define CONFIG_MISC_COMMON
 
-/* Download menu - Samsung common */
-#define CONFIG_LCD_MENU
-
 /* Download menu - definitions for check keys */
 #ifndef __ASSEMBLY__
 
@@ -143,11 +140,5 @@
 #define KEY_VOL_UP_GPIO			EXYNOS4_GPIO_X20
 #define KEY_VOL_DOWN_GPIO		EXYNOS4_GPIO_X21
 #endif /* __ASSEMBLY__ */
-
-/* LCD console */
-#define LCD_BPP			LCD_COLOR16
-
-/* LCD */
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

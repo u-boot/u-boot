@@ -200,7 +200,7 @@ struct stdio_dev *stdio_get_by_name(const char *name)
 		if (strcmp(sdev->name, name) == 0)
 			return sdev;
 	}
-	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+	if (IS_ENABLED(CONFIG_VIDEO)) {
 		/*
 		 * We did not find a suitable stdio device. If there is a video
 		 * driver with a name starting with 'vidconsole', we can try
@@ -340,7 +340,7 @@ int stdio_add_devices(void)
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	i2c_init_all();
 #endif
-	if (IS_ENABLED(CONFIG_DM_VIDEO)) {
+	if (IS_ENABLED(CONFIG_VIDEO)) {
 		/*
 		 * If the console setting is not in environment variables then
 		 * console_init_r() will not be calling iomux_doenv() (which
@@ -366,11 +366,6 @@ int stdio_add_devices(void)
 		if (IS_ENABLED(CONFIG_SPLASH_SCREEN) &&
 		    IS_ENABLED(CONFIG_CMD_BMP))
 			splash_display();
-	} else {
-		if (IS_ENABLED(CONFIG_LCD))
-			drv_lcd_init();
-		if (IS_ENABLED(CONFIG_VIDEO_VCXK))
-			drv_video_init();
 	}
 
 	drv_system_init();

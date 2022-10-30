@@ -94,8 +94,8 @@ config TARGET_AM335X_GUARDIAN
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
-	select DM_VIDEO
-	select DM_PANEL_HX8238D
+	select VIDEO
+	select PANEL_HX8238D
 
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"

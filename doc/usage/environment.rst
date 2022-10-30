@@ -63,8 +63,8 @@ For example, for snapper9260 you would create a text file called
 Example::
 
     stdout=serial
-    #ifdef CONFIG_LCD
-    stdout+=,lcd
+    #ifdef CONFIG_VIDEO
+    stdout+=,vidconsole
     #endif
     bootcmd=
         /* U-Boot script for booting */

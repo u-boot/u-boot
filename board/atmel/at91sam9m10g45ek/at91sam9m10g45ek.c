@@ -18,7 +18,6 @@
 #include <asm/arch/at91_common.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
-#include <lcd.h>
 #include <linux/mtd/rawnand.h>
 #include <atmel_lcdc.h>
 #include <asm/mach-types.h>
@@ -149,105 +148,6 @@ static void at91sam9m10g45ek_usb_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_LCD
-
-vidinfo_t panel_info = {
-	.vl_col =		480,
-	.vl_row =		272,
-	.vl_clk =		9000000,
-	.vl_sync =		ATMEL_LCDC_INVLINE_NORMAL |
-				ATMEL_LCDC_INVFRAME_NORMAL,
-	.vl_bpix =		3,
-	.vl_tft =		1,
-	.vl_hsync_len =		45,
-	.vl_left_margin =	1,
-	.vl_right_margin =	1,
-	.vl_vsync_len =		1,
-	.vl_upper_margin =	40,
-	.vl_lower_margin =	1,
-	.mmio =			ATMEL_BASE_LCDC,
-};
-
-
-void lcd_enable(void)
-{
-	at91_set_A_periph(AT91_PIN_PE6, 1);	/* power up */
-}
-
-void lcd_disable(void)
-{
-	at91_set_A_periph(AT91_PIN_PE6, 0);	/* power down */
-}
-
-static void at91sam9m10g45ek_lcd_hw_init(void)
-{
-	at91_set_A_periph(AT91_PIN_PE0, 0);	/* LCDDPWR */
-	at91_set_A_periph(AT91_PIN_PE2, 0);	/* LCDCC */
-	at91_set_A_periph(AT91_PIN_PE3, 0);	/* LCDVSYNC */
-	at91_set_A_periph(AT91_PIN_PE4, 0);	/* LCDHSYNC */
-	at91_set_A_periph(AT91_PIN_PE5, 0);	/* LCDDOTCK */
-
-	at91_set_A_periph(AT91_PIN_PE7, 0);	/* LCDD0 */
-	at91_set_A_periph(AT91_PIN_PE8, 0);	/* LCDD1 */
-	at91_set_A_periph(AT91_PIN_PE9, 0);	/* LCDD2 */
-	at91_set_A_periph(AT91_PIN_PE10, 0);	/* LCDD3 */
-	at91_set_A_periph(AT91_PIN_PE11, 0);	/* LCDD4 */
-	at91_set_A_periph(AT91_PIN_PE12, 0);	/* LCDD5 */
-	at91_set_A_periph(AT91_PIN_PE13, 0);	/* LCDD6 */
-	at91_set_A_periph(AT91_PIN_PE14, 0);	/* LCDD7 */
-	at91_set_A_periph(AT91_PIN_PE15, 0);	/* LCDD8 */
-	at91_set_A_periph(AT91_PIN_PE16, 0);	/* LCDD9 */
-	at91_set_A_periph(AT91_PIN_PE17, 0);	/* LCDD10 */
-	at91_set_A_periph(AT91_PIN_PE18, 0);	/* LCDD11 */
-	at91_set_A_periph(AT91_PIN_PE19, 0);	/* LCDD12 */
-	at91_set_B_periph(AT91_PIN_PE20, 0);	/* LCDD13 */
-	at91_set_A_periph(AT91_PIN_PE21, 0);	/* LCDD14 */
-	at91_set_A_periph(AT91_PIN_PE22, 0);	/* LCDD15 */
-	at91_set_A_periph(AT91_PIN_PE23, 0);	/* LCDD16 */
-	at91_set_A_periph(AT91_PIN_PE24, 0);	/* LCDD17 */
-	at91_set_A_periph(AT91_PIN_PE25, 0);	/* LCDD18 */
-	at91_set_A_periph(AT91_PIN_PE26, 0);	/* LCDD19 */
-	at91_set_A_periph(AT91_PIN_PE27, 0);	/* LCDD20 */
-	at91_set_B_periph(AT91_PIN_PE28, 0);	/* LCDD21 */
-	at91_set_A_periph(AT91_PIN_PE29, 0);	/* LCDD22 */
-	at91_set_A_periph(AT91_PIN_PE30, 0);	/* LCDD23 */
-
-	at91_periph_clk_enable(ATMEL_ID_LCDC);
-
-	/* board specific(not enough SRAM) */
-	gd->fb_base = 0x73E00000;
-}
-
-#ifdef CONFIG_LCD_INFO
-#include <nand.h>
-#include <version.h>
-
-void lcd_show_board_info(void)
-{
-	ulong dram_size, nand_size;
-	int i;
-	char temp[32];
-
-	lcd_printf ("%s\n", U_BOOT_VERSION);
-	lcd_printf ("(C) 2008 ATMEL Corp\n");
-	lcd_printf ("at91support@atmel.com\n");
-	lcd_printf ("%s CPU at %s MHz\n",
-		ATMEL_CPU_NAME,
-		strmhz(temp, get_cpu_clk_rate()));
-
-	dram_size = 0;
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		dram_size += gd->bd->bi_dram[i].size;
-	nand_size = 0;
-	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += get_nand_dev_by_index(i)->size;
-	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
-		dram_size >> 20,
-		nand_size >> 20 );
-}
-#endif /* CONFIG_LCD_INFO */
-#endif
-
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
 {
@@ -275,9 +175,6 @@ int board_init(void)
 #endif
 #ifdef CONFIG_CMD_USB
 	at91sam9m10g45ek_usb_hw_init();
-#endif
-#ifdef CONFIG_LCD
-	at91sam9m10g45ek_lcd_hw_init();
 #endif
 	return 0;
 }

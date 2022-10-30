@@ -15,30 +15,6 @@ struct video_priv;
 #define VID_TO_PIXEL(x)	((x) / VID_FRAC_DIV)
 #define VID_TO_POS(x)	((x) * VID_FRAC_DIV)
 
-/*
- * The 16 colors supported by the console
- */
-enum color_idx {
-	VID_BLACK = 0,
-	VID_RED,
-	VID_GREEN,
-	VID_BROWN,
-	VID_BLUE,
-	VID_MAGENTA,
-	VID_CYAN,
-	VID_LIGHT_GRAY,
-	VID_GRAY,
-	VID_LIGHT_RED,
-	VID_LIGTH_GREEN,
-	VID_YELLOW,
-	VID_LIGHT_BLUE,
-	VID_LIGHT_MAGENTA,
-	VID_LIGHT_CYAN,
-	VID_WHITE,
-
-	VID_COLOR_COUNT
-};
-
 /**
  * struct vidconsole_priv - uclass-private data about a console device
  *
@@ -244,17 +220,41 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
 
 /**
- * vid_console_color() - convert a color code to a pixel's internal
- * representation
+ * vidconsole_set_cursor_pos() - set cursor position
  *
- * The caller has to guarantee that the color index is less than
- * VID_COLOR_COUNT.
+ * The cursor is set to the new position and the start-of-line information is
+ * updated to the same position, so that a newline will return to @x
  *
- * @priv	private data of the console device
- * @idx		color index
- * Return:	color value
+ * @dev:	video console device to update
+ * @x:		x position from left in pixels
+ * @y:		y position from top in pixels
  */
-u32 vid_console_color(struct video_priv *priv, unsigned int idx);
+void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y);
+
+/**
+ * vidconsole_list_fonts() - List the available fonts
+ *
+ * This shows a list on the console
+ */
+void vidconsole_list_fonts(void);
+
+/**
+ * vidconsole_select_font() - Select a font to use
+ *
+ * @dev: vidconsole device
+ * @name: Font name
+ * @size: Size of the font (norminal pixel height) or 0 for default
+ */
+int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
+
+/**
+ * vidconsole_get_font() - get the current font name and size
+ *
+ * @dev: vidconsole device
+ * @sizep: Place to put the font size (nominal height in pixels)
+ * Returns: Current font name
+ */
+const char *vidconsole_get_font(struct udevice *dev, uint *sizep);
 
 #ifdef CONFIG_VIDEO_COPY
 /**

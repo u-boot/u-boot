@@ -186,7 +186,7 @@ int board_late_init(void)
 	strcat(name, "ek.dtb");
 	env_set("dtb_name", name);
 #endif
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 	at91_video_show_board_info();
 #endif
 	return 0;

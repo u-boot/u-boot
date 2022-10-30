@@ -18,11 +18,6 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-/* Environment in eMMC, at the end of 2nd "boot sector" */
-
-/* Align LCD to 1MB boundary */
-#define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
-
 /* SPI */
 #define CONFIG_SPI_FLASH_SIZE          (4 << 20)
 

@@ -9,8 +9,4 @@
 
 #define HD_RESOLUTION	0
 
-#ifdef CONFIG_LCD
-void get_tizen_logo_info(vidinfo_t *vid);
-#endif
-
 #endif	/* _LIBTIZEN_H_ */

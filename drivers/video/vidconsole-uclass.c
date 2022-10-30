@@ -19,15 +19,6 @@
 #include <video_font.h>		/* Bitmap font for code page 437 */
 #include <linux/ctype.h>
 
-/*
- * Structure to describe a console color
- */
-struct vid_rgb {
-	u32 r;
-	u32 g;
-	u32 b;
-};
-
 /* By default we scroll by a single line */
 #ifndef CONFIG_CONSOLE_SCROLL_LINES
 #define CONFIG_CONSOLE_SCROLL_LINES 1
@@ -124,66 +115,20 @@ static void vidconsole_newline(struct udevice *dev)
 	}
 }
 
-static const struct vid_rgb colors[VID_COLOR_COUNT] = {
-	{ 0x00, 0x00, 0x00 },  /* black */
-	{ 0xc0, 0x00, 0x00 },  /* red */
-	{ 0x00, 0xc0, 0x00 },  /* green */
-	{ 0xc0, 0x60, 0x00 },  /* brown */
-	{ 0x00, 0x00, 0xc0 },  /* blue */
-	{ 0xc0, 0x00, 0xc0 },  /* magenta */
-	{ 0x00, 0xc0, 0xc0 },  /* cyan */
-	{ 0xc0, 0xc0, 0xc0 },  /* light gray */
-	{ 0x80, 0x80, 0x80 },  /* gray */
-	{ 0xff, 0x00, 0x00 },  /* bright red */
-	{ 0x00, 0xff, 0x00 },  /* bright green */
-	{ 0xff, 0xff, 0x00 },  /* yellow */
-	{ 0x00, 0x00, 0xff },  /* bright blue */
-	{ 0xff, 0x00, 0xff },  /* bright magenta */
-	{ 0x00, 0xff, 0xff },  /* bright cyan */
-	{ 0xff, 0xff, 0xff },  /* white */
-};
-
-u32 vid_console_color(struct video_priv *priv, unsigned int idx)
-{
-	switch (priv->bpix) {
-	case VIDEO_BPP16:
-		if (CONFIG_IS_ENABLED(VIDEO_BPP16)) {
-			return ((colors[idx].r >> 3) << 11) |
-			       ((colors[idx].g >> 2) <<  5) |
-			       ((colors[idx].b >> 3) <<  0);
-		}
-		break;
-	case VIDEO_BPP32:
-		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
-			if (priv->format == VIDEO_X2R10G10B10)
-				return (colors[idx].r << 22) |
-				       (colors[idx].g << 12) |
-				       (colors[idx].b <<  2);
-			else
-				return (colors[idx].r << 16) |
-				       (colors[idx].g <<  8) |
-				       (colors[idx].b <<  0);
-		}
-		break;
-	default:
-		break;
-	}
-
-	/*
-	 * For unknown bit arrangements just support
-	 * black and white.
-	 */
-	if (idx)
-		return 0xffffff; /* white */
-
-	return 0x000000; /* black */
-}
-
 static char *parsenum(char *s, int *num)
 {
 	char *end;
 	*num = simple_strtol(s, &end, 10);
 	return end;
+}
+
+void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+
+	priv->xcur_frac = VID_TO_POS(x);
+	priv->xstart_frac = priv->xcur_frac;
+	priv->ycur = y;
 }
 
 /**
@@ -441,28 +386,28 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 			case 1:
 				/* bold */
 				vid_priv->fg_col_idx |= 8;
-				vid_priv->colour_fg = vid_console_color(
+				vid_priv->colour_fg = video_index_to_colour(
 						vid_priv, vid_priv->fg_col_idx);
 				break;
 			case 7:
 				/* reverse video */
-				vid_priv->colour_fg = vid_console_color(
+				vid_priv->colour_fg = video_index_to_colour(
 						vid_priv, vid_priv->bg_col_idx);
-				vid_priv->colour_bg = vid_console_color(
+				vid_priv->colour_bg = video_index_to_colour(
 						vid_priv, vid_priv->fg_col_idx);
 				break;
 			case 30 ... 37:
 				/* foreground color */
 				vid_priv->fg_col_idx &= ~7;
 				vid_priv->fg_col_idx |= val - 30;
-				vid_priv->colour_fg = vid_console_color(
+				vid_priv->colour_fg = video_index_to_colour(
 						vid_priv, vid_priv->fg_col_idx);
 				break;
 			case 40 ... 47:
 				/* background color, also mask the bold bit */
 				vid_priv->bg_col_idx &= ~0xf;
 				vid_priv->bg_col_idx |= val - 40;
-				vid_priv->colour_bg = vid_console_color(
+				vid_priv->colour_bg = video_index_to_colour(
 						vid_priv, vid_priv->bg_col_idx);
 				break;
 			default:
@@ -672,64 +617,14 @@ int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
 }
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_VIDCONSOLE)
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	struct udevice *vid_dev = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
+	short x, y;
 
-	col *= priv->x_charsize;
-	row *= priv->y_charsize;
-	priv->xcur_frac = VID_TO_POS(min_t(short, col, vid_priv->xsize - 1));
-	priv->xstart_frac = priv->xcur_frac;
-	priv->ycur = min_t(short, row, vid_priv->ysize - 1);
+	x = min_t(short, col * priv->x_charsize, vid_priv->xsize - 1);
+	y = min_t(short, row * priv->y_charsize, vid_priv->ysize - 1);
+	vidconsole_set_cursor_pos(dev, x, y);
 }
-
-static int do_video_setcursor(struct cmd_tbl *cmdtp, int flag, int argc,
-			      char *const argv[])
-{
-	unsigned int col, row;
-	struct udevice *dev;
-
-	if (argc != 3)
-		return CMD_RET_USAGE;
-
-	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
-		return CMD_RET_FAILURE;
-	col = dectoul(argv[1], NULL);
-	row = dectoul(argv[2], NULL);
-	vidconsole_position_cursor(dev, col, row);
-
-	return 0;
-}
-
-static int do_video_puts(struct cmd_tbl *cmdtp, int flag, int argc,
-			 char *const argv[])
-{
-	struct udevice *dev;
-	const char *s;
-
-	if (argc != 2)
-		return CMD_RET_USAGE;
-
-	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
-		return CMD_RET_FAILURE;
-	for (s = argv[1]; *s; s++)
-		vidconsole_put_char(dev, *s);
-
-	return video_sync(dev->parent, false);
-}
-
-U_BOOT_CMD(
-	setcurs, 3,	1,	do_video_setcursor,
-	"set cursor position within screen",
-	"    <col> <row> in character"
-);
-
-U_BOOT_CMD(
-	lcdputs, 2,	1,	do_video_puts,
-	"print string on video framebuffer",
-	"    <string>"
-);
-#endif /* CONFIG_IS_ENABLED(CMD_VIDCONSOLE) */

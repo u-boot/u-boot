@@ -12,7 +12,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
-#include <lcd.h>
 #include <net.h>
 #include <fdt_support.h>
 #include <video.h>
@@ -1519,7 +1518,7 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 		/* display BMP if available */
 		if (cfg->bmp) {
 			if (get_relfile(ctx, cfg->bmp, image_load_addr, NULL)) {
-#if defined(CONFIG_DM_VIDEO)
+#if defined(CONFIG_VIDEO)
 				struct udevice *dev;
 
 				err = uclass_first_device_err(UCLASS_VIDEO, &dev);

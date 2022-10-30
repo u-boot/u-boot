@@ -26,7 +26,6 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/system.h>
-#include <lcd.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <stdio_dev.h>
@@ -261,10 +260,6 @@ int misc_init_r(void)
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
-#endif
-#ifdef CONFIG_LCD_MENU
-	keys_init();
-	check_boot_mode();
 #endif
 #ifdef CONFIG_CMD_BMP
 	if (panel_info.logo_on)

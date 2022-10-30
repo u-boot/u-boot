@@ -249,7 +249,7 @@ config TARGET_KOSAGI_NOVENA
 	select DM_MMC
 	select PCI
 	select DM_SCSI
-	select DM_VIDEO
+	select VIDEO
 	select OF_CONTROL
 	select SUPPORT_SPL
 	imply CMD_DM

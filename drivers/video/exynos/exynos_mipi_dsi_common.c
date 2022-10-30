@@ -7,7 +7,6 @@
  */
 
 #include <common.h>
-#include <lcd.h>
 #include <log.h>
 #include <linux/delay.h>
 #include <linux/err.h>

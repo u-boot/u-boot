@@ -24,12 +24,6 @@
 #define SILENT_CALLBACK
 #endif
 
-#ifdef CONFIG_SPLASHIMAGE_GUARD
-#define SPLASHIMAGE_CALLBACK "splashimage:splashimage,"
-#else
-#define SPLASHIMAGE_CALLBACK
-#endif
-
 #ifdef CONFIG_REGEX
 #define ENV_DOT_ESCAPE "\\"
 #else
@@ -74,7 +68,6 @@
 	BOOTSTD_CALLBACK \
 	"loadaddr:loadaddr," \
 	SILENT_CALLBACK \
-	SPLASHIMAGE_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \
 	"serial#:serialno," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC

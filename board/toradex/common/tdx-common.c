@@ -9,7 +9,7 @@
 #include <init.h>
 #include <linux/libfdt.h>
 
-#ifdef CONFIG_DM_VIDEO
+#ifdef CONFIG_VIDEO
 #include <bmp_logo.h>
 #include <dm.h>
 #include <splash.h>

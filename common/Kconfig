@@ -194,7 +194,7 @@ config CONSOLE_FLUSH_SUPPORT
 
 config CONSOLE_MUX
 	bool "Enable console multiplexing"
-	default y if DM_VIDEO || VIDEO || LCD
+	default y if VIDEO || VIDEO || LCD
 	help
 	  This allows multiple devices to be used for each console 'file'.
 	  For example, stdout can be set to go to serial and video.

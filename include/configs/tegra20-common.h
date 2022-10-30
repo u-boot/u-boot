@@ -54,11 +54,6 @@
 	"fdt_addr_r=0x03000000\0" \
 	"ramdisk_addr_r=0x03100000\0"
 
-/* Defines for SPL */
-
-/* Align LCD to 1MB boundary */
-#define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
-
 #ifdef CONFIG_TEGRA_LP0
 #define TEGRA_LP0_ADDR			0x1C406000
 #define TEGRA_LP0_SIZE			0x2000
