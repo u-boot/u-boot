@@ -147,8 +147,8 @@ void blkcache_fill(int iftype, int dev,
  * blkcache_invalidate() - discard the cache for a set of blocks
  * because of a write or device (re)initialization.
  *
- * @param iftype - uclass_id_x for type of device
- * @param dev - device index of particular type
+ * @iftype - UCLASS_ID_ for type of device, or -1 for any
+ * @dev - device index of particular type, if @iftype is not -1
  */
 void blkcache_invalidate(int iftype, int dev);
 
@@ -178,6 +178,9 @@ struct block_cache_stats {
  */
 void blkcache_stats(struct block_cache_stats *stats);
 
+/** blkcache_free() - free all memory allocated to the block cache */
+void blkcache_free(void);
+
 #else
 
 static inline int blkcache_read(int iftype, int dev,
@@ -192,6 +195,8 @@ static inline void blkcache_fill(int iftype, int dev,
 				 unsigned long blksz, void const *buffer) {}
 
 static inline void blkcache_invalidate(int iftype, int dev) {}
+
+static inline void blkcache_free(void) {}
 
 #endif
 

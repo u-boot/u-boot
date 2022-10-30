@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <console.h>
 #include <cyclic.h>
 #include <dm.h>
@@ -351,6 +352,8 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 
 	free(uts->of_other);
 	uts->of_other = NULL;
+
+	blkcache_free();
 
 	return 0;
 }
