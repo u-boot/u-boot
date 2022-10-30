@@ -110,6 +110,10 @@ void os_exit(int exit_code) __attribute__((noreturn));
 
 /**
  * os_alarm() - access to the OS alarm() system call
+ *
+ * @seconds: number of seconds before the signal is sent
+ * Returns: number of seconds remaining until any previously scheduled alarm was
+ * due to be delivered; 0 if there was no previously scheduled alarm
  */
 unsigned int os_alarm(unsigned int seconds);
 
