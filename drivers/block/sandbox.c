@@ -10,11 +10,11 @@
 #include <part.h>
 #include <os.h>
 #include <malloc.h>
-#include <sandboxblockdev.h>
+#include <sandbox_host.h>
 #include <asm/global_data.h>
 #include <dm/device_compat.h>
-#include <linux/errno.h>
 #include <dm/device-internal.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -22,136 +22,38 @@ static unsigned long host_block_read(struct udevice *dev,
 				     unsigned long start, lbaint_t blkcnt,
 				     void *buffer)
 {
-	struct host_block_dev *host_dev = dev_get_plat(dev);
-	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
+	struct udevice *host_dev = dev_get_parent(dev);
+	struct host_sb_plat *plat = dev_get_plat(host_dev);
 
-	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
-			-1) {
+	if (os_lseek(plat->fd, start * desc->blksz, OS_SEEK_SET) == -1) {
 		printf("ERROR: Invalid block %lx\n", start);
 		return -1;
 	}
-	ssize_t len = os_read(host_dev->fd, buffer, blkcnt * block_dev->blksz);
+	ssize_t len = os_read(plat->fd, buffer, blkcnt * desc->blksz);
 	if (len >= 0)
-		return len / block_dev->blksz;
-	return -1;
+		return len / desc->blksz;
+
+	return -EIO;
 }
 
 static unsigned long host_block_write(struct udevice *dev,
 				      unsigned long start, lbaint_t blkcnt,
 				      const void *buffer)
 {
-	struct host_block_dev *host_dev = dev_get_plat(dev);
-	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
+	struct udevice *host_dev = dev_get_parent(dev);
+	struct host_sb_plat *plat = dev_get_plat(host_dev);
 
-	if (os_lseek(host_dev->fd, start * block_dev->blksz, OS_SEEK_SET) ==
-			-1) {
+	if (os_lseek(plat->fd, start * desc->blksz, OS_SEEK_SET) == -1) {
 		printf("ERROR: Invalid block %lx\n", start);
 		return -1;
 	}
-	ssize_t len = os_write(host_dev->fd, buffer, blkcnt * block_dev->blksz);
+	ssize_t len = os_write(plat->fd, buffer, blkcnt * desc->blksz);
 	if (len >= 0)
-		return len / block_dev->blksz;
-	return -1;
-}
+		return len / desc->blksz;
 
-int host_dev_bind(int devnum, char *filename, bool removable)
-{
-	struct host_block_dev *host_dev;
-	struct udevice *dev;
-	struct blk_desc *desc;
-	char dev_name[20], *str, *fname;
-	int ret, fd;
-
-	/* Remove and unbind the old device, if any */
-	ret = blk_get_device(UCLASS_ROOT, devnum, &dev);
-	if (ret == 0) {
-		ret = device_remove(dev, DM_REMOVE_NORMAL);
-		if (ret)
-			return ret;
-		ret = device_unbind(dev);
-		if (ret)
-			return ret;
-	} else if (ret != -ENODEV) {
-		return ret;
-	}
-
-	if (!filename)
-		return 0;
-
-	snprintf(dev_name, sizeof(dev_name), "host%d", devnum);
-	str = strdup(dev_name);
-	if (!str)
-		return -ENOMEM;
-	fname = strdup(filename);
-	if (!fname) {
-		free(str);
-		return -ENOMEM;
-	}
-
-	fd = os_open(filename, OS_O_RDWR);
-	if (fd == -1) {
-		printf("Failed to access host backing file '%s', trying read-only\n",
-		       filename);
-		fd = os_open(filename, OS_O_RDONLY);
-		if (fd == -1) {
-			printf("- still failed\n");
-			ret = -ENOENT;
-			goto err;
-		}
-	}
-	ret = blk_create_device(gd->dm_root, "sandbox_host_blk", str,
-				UCLASS_ROOT, devnum, 512,
-				os_lseek(fd, 0, OS_SEEK_END) / 512, &dev);
-	if (ret)
-		goto err_file;
-
-	host_dev = dev_get_plat(dev);
-	host_dev->fd = fd;
-	host_dev->filename = fname;
-
-	ret = device_probe(dev);
-	if (ret) {
-		device_unbind(dev);
-		goto err_file;
-	}
-
-	desc = blk_get_devnum_by_uclass_id(UCLASS_ROOT, devnum);
-	desc->removable = removable;
-	snprintf(desc->vendor, BLK_VEN_SIZE, "U-Boot");
-	snprintf(desc->product, BLK_PRD_SIZE, "hostfile");
-	snprintf(desc->revision, BLK_REV_SIZE, "1.0");
-
-	return 0;
-err_file:
-	os_close(fd);
-err:
-	free(fname);
-	free(str);
-	return ret;
-}
-
-int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
-{
-	struct udevice *dev;
-	int ret;
-
-	ret = blk_get_device(UCLASS_ROOT, devnum, &dev);
-	if (ret)
-		return ret;
-	*blk_devp = dev_get_uclass_plat(dev);
-
-	return 0;
-}
-
-int sandbox_host_unbind(struct udevice *dev)
-{
-	struct host_block_dev *host_dev;
-
-	/* Data validity is checked in host_dev_bind() */
-	host_dev = dev_get_plat(dev);
-	os_close(host_dev->fd);
-
-	return 0;
+	return -EIO;
 }
 
 static const struct blk_ops sandbox_host_blk_ops = {
@@ -163,6 +65,4 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
 	.name		= "sandbox_host_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &sandbox_host_blk_ops,
-	.unbind		= sandbox_host_unbind,
-	.plat_auto	= sizeof(struct host_block_dev),
 };

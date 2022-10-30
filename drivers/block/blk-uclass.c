@@ -26,7 +26,7 @@ static struct {
 	{ UCLASS_USB, "usb" },
 	{ UCLASS_MMC,  "mmc" },
 	{ UCLASS_AHCI, "sata" },
-	{ UCLASS_ROOT, "host" },
+	{ UCLASS_HOST, "host" },
 	{ UCLASS_NVME, "nvme" },
 	{ UCLASS_EFI_MEDIA, "efi" },
 	{ UCLASS_EFI_LOADER, "efiloader" },

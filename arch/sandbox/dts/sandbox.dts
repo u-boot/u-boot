@@ -68,10 +68,6 @@
 		reg = <0x10002000 0x1000>;
 	};
 
-	host-fs {
-		compatible = "sandbox,bootdev-host";
-	};
-
 	i2c_0: i2c@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
