@@ -52,6 +52,7 @@ Shell commands
    cmd/for
    cmd/fwu_mdata
    cmd/gpio
+   cmd/host
    cmd/load
    cmd/loadm
    cmd/loady
