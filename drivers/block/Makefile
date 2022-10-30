@@ -12,7 +12,7 @@ endif
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_IDE) += ide.o
 endif
-obj-$(CONFIG_SANDBOX) += sandbox.o
+obj-$(CONFIG_SANDBOX) += sandbox.o host-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)BLOCK_CACHE) += blkcache.o
 
 obj-$(CONFIG_EFI_MEDIA) += efi-media-uclass.o
