@@ -140,59 +140,66 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 #ifdef CONFIG_SYS_LONGHELP
 static char ut_help_text[] =
-	"all - execute all enabled tests\n"
+	"[-r] [-f] [<suite>] - run unit tests\n"
+	"   -r<runs>   Number of times to run each test\n"
+	"   -f         Force 'manual' tests to run as well\n"
+	"   <suite>    Test suite to run, or all\n"
+	"\n"
+	"Suites:"
+	"\nall - execute all enabled tests"
+#ifdef CONFIG_CMD_ADDRMAP
+	"\naddrmap - very basic test of addrmap command"
+#endif
 #ifdef CONFIG_SANDBOX
-	"ut bloblist - Test bloblist implementation\n"
-	"ut compression - Test compressors and bootm decompression\n"
+	"\nbloblist - bloblist implementation"
 #endif
 #ifdef CONFIG_BOOTSTD
-	"ut bootstd - Test standard boot implementation\n"
+	"\nbootstd - standard boot implementation"
+#endif
+#ifdef CONFIG_SANDBOX
+	"\ncompression - compressors and bootm decompression"
 #endif
 #ifdef CONFIG_UT_DM
-	"ut dm [test-name]\n"
+	"\ndm - driver model"
 #endif
 #ifdef CONFIG_UT_ENV
-	"ut env [test-name]\n"
+	"\nenv - environment"
 #endif
 #ifdef CONFIG_CMD_FDT
-	"ut fdt [test-name] - test of the fdt command\n"
+	"\nfdt - fdt command"
 #endif
 #ifdef CONFIG_CONSOLE_TRUETYPE
-	"ut font [test-name] - test of the font command\n"
+	"\nut font - font command\n"
+#endif
+#ifdef CONFIG_CMD_LOADM
+	"\nloadm - loadm command parameters and loading memory blob"
 #endif
 #ifdef CONFIG_UT_LIB
-	"ut lib [test-name] - test library functions\n"
+	"\nlib - library functions"
 #endif
 #ifdef CONFIG_UT_LOG
-	"ut log [test-name] - test logging functions\n"
+	"\nlog - logging functions"
 #endif
-	"ut mem [test-name] - test memory-related commands\n"
+	"\nmem - memory-related commands"
 #ifdef CONFIG_UT_OPTEE
-	"ut optee [test-name]\n"
+	"\noptee - test OP-TEE"
 #endif
 #ifdef CONFIG_UT_OVERLAY
-	"ut overlay [test-name]\n"
+	"\noverlay - device tree overlays"
 #endif
-	"ut print [test-name]  - test printing\n"
-	"ut setexpr [test-name] - test setexpr command\n"
+	"\nprint  - printing things to the console"
+	"\nsetexpr - setexpr command"
 #ifdef CONFIG_SANDBOX
-	"ut str - Basic test of string functions\n"
+	"\nstr - basic test of string functions"
 #endif
 #ifdef CONFIG_UT_TIME
-	"ut time - Very basic test of time functions\n"
+	"\ntime - very basic test of time functions"
 #endif
 #if defined(CONFIG_UT_UNICODE) && \
 	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
-	"ut unicode [test-name] - test Unicode functions\n"
+	"\nunicode - Unicode functions"
 #endif
-#ifdef CONFIG_CMD_ADDRMAP
-	"ut addrmap - Very basic test of addrmap command\n"
-#endif
-#ifdef CONFIG_CMD_LOADM
-	"ut loadm [test-name]- test of parameters and load memory blob\n"
-#endif
-	"All commands accept an optional [-r<runs>] flag before [test-name], to\n"
-	"run each test multiple times (<runs> is in decimal)";
+	;
 #endif /* CONFIG_SYS_LONGHELP */
 
 U_BOOT_CMD(
