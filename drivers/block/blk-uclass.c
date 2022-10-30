@@ -508,24 +508,28 @@ ulong blk_derase(struct blk_desc *desc, lbaint_t start, lbaint_t blkcnt)
 	return blk_erase(desc->bdev, start, blkcnt);
 }
 
-int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
+int blk_find_from_parent(struct udevice *parent, struct udevice **devp)
 {
 	struct udevice *dev;
-	enum uclass_id id;
-	int ret;
 
-	device_find_first_child(parent, &dev);
-	if (!dev) {
+	if (device_find_first_child_by_uclass(parent, UCLASS_BLK, &dev)) {
 		debug("%s: No block device found for parent '%s'\n", __func__,
 		      parent->name);
 		return -ENODEV;
 	}
-	id = device_get_uclass_id(dev);
-	if (id != UCLASS_BLK) {
-		debug("%s: Incorrect uclass %s for block device '%s'\n",
-		      __func__, uclass_get_name(id), dev->name);
-		return -ENOTBLK;
-	}
+	*devp = dev;
+
+	return 0;
+}
+
+int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = blk_find_from_parent(parent, &dev);
+	if (ret)
+		return ret;
 	ret = device_probe(dev);
 	if (ret)
 		return ret;

@@ -160,7 +160,7 @@ static int dm_test_blk_get_from_parent(struct unit_test_state *uts)
 	ut_assertok(blk_get_from_parent(dev, &blk));
 
 	ut_assertok(uclass_get_device(UCLASS_I2C, 0, &dev));
-	ut_asserteq(-ENOTBLK, blk_get_from_parent(dev, &blk));
+	ut_asserteq(-ENODEV, blk_get_from_parent(dev, &blk));
 
 	ut_assertok(uclass_get_device(UCLASS_GPIO, 0, &dev));
 	ut_asserteq(-ENODEV, blk_get_from_parent(dev, &blk));

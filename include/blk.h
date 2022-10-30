@@ -454,9 +454,35 @@ int blk_next_free_devnum(enum uclass_id uclass_id);
 int blk_select_hwpart(struct udevice *dev, int hwpart);
 
 /**
+ * blk_find_from_parent() - find a block device by looking up its parent
+ *
+ * All block devices have a parent 'media' device which provides the block
+ * driver for the block device, ensuring that access to the underlying medium
+ * is available.
+ *
+ * The block device is not activated by this function. See
+ * blk_get_from_parent() for that.
+ *
+ * @parent: Media device
+ * @devp: Returns the associated block device, if any
+ * Returns: 0 if OK, -ENODEV if @parent is not a media device and has no
+ * UCLASS_BLK child
+ */
+int blk_find_from_parent(struct udevice *parent, struct udevice **devp);
+
+/**
  * blk_get_from_parent() - obtain a block device by looking up its parent
  *
- * All devices with
+ * All block devices have a parent 'media' device which provides the block
+ * driver for the block device, ensuring that access to the underlying medium
+ * is available.
+ *
+ * The block device is probed and ready for use.
+ *
+ * @parent: Media device
+ * @devp: Returns the associated block device, if any
+ * Returns: 0 if OK, -ENODEV if @parent is not a media device and has no
+ * UCLASS_BLK child
  */
 int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
 
