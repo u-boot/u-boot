@@ -16,10 +16,6 @@ Configuration options
 
 	CONFIG_SYS_USB_OHCI_SLOT_NAME: slot name
 
-	CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS: maximal number of ports of the
-				     root hub.
-
-
 Endianness issues
 ------------------
 

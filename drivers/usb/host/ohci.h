@@ -146,14 +146,6 @@ struct ohci_hcca {
 	u8		reserved_for_hc[116];
 } __attribute__((aligned(256)));
 
-
-/*
- * Maximum number of root hub ports.
- */
-#ifndef CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS
-#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
-#endif
-
 /*
  * This is the structure of the OHCI controller's memory mapped I/O
  * region.  This is Memory Mapped I/O.	You must use the ohci_readl() and
@@ -186,7 +178,7 @@ struct ohci_regs {
 		__u32	a;
 		__u32	b;
 		__u32	status;
-		__u32	portstatus[CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS];
+		__u32	portstatus[];
 	} roothub;
 } __attribute__((aligned(32)));
 

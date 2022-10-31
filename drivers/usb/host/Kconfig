@@ -365,11 +365,6 @@ config SYS_USB_OHCI_SLOT_NAME
 	string "Display name for the OHCI controller"
 	depends on USB_OHCI_NEW && !DM_USB
 
-config SYS_USB_OHCI_MAX_ROOT_PORTS
-	int "Maximal number of ports of the root hub"
-	depends on USB_OHCI_NEW
-	default 1 if ARCH_SUNXI
-
 config SYS_OHCI_SWAP_REG_ACCESS
 	bool "Perform byte swapping on OHCI controller register accesses"
 	depends on USB_OHCI_NEW
