@@ -289,7 +289,13 @@ def generate_ut_subtest(metafunc, fixture_name, sym_path):
         m = re_ut_test_list.search(l)
         if not m:
             continue
-        vals.append(m.group(1) + ' ' + m.group(2))
+        suite, name = m.groups()
+
+        # Tests marked with _norun should only be run manually using 'ut -f'
+        if name.endswith('_norun'):
+            continue
+
+        vals.append(f'{suite} {name}')
 
     ids = ['ut_' + s.replace(' ', '_') for s in vals]
     metafunc.parametrize(fixture_name, vals, ids=ids)

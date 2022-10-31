@@ -46,7 +46,7 @@ struct mm_region *mem_map = otx_mem_map;
 void mem_map_fill(void)
 {
 	int banks = OTX_MEM_MAP_USED;
-	u32 dram_start = CONFIG_SYS_TEXT_BASE;
+	u32 dram_start = CONFIG_TEXT_BASE;
 
 	if (otx_is_soc(CN83XX)) {
 		otx_mem_map[banks].virt = 0x8c0000000000UL;

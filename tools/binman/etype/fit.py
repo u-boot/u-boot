@@ -201,7 +201,7 @@ class Entry_fit(Entry_section):
                     os = "U-Boot";
                     arch = "arm64";
                     compression = "none";
-                    load = <CONFIG_SYS_TEXT_BASE>;
+                    load = <CONFIG_TEXT_BASE>;
                     u-boot-nodtb {
                     };
                 };

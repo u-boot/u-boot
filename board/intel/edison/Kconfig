@@ -15,7 +15,7 @@ config SYS_CONFIG_NAME
 config SYS_MALLOC_LEN
 	default 0x08000000
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x01101000
 
 config ROM_TABLE_ADDR

@@ -32,7 +32,7 @@ lowlevel_init:
 POS1:
 	adr	r5, POS1	/* r5 = POS1 run time */
 	ldr	r0, =POS1	/* r0 = POS1 compile */
-	sub	r5, r5, r0	/* r0 = CONFIG_SYS_TEXT_BASE-1 */
+	sub	r5, r5, r0	/* r0 = CONFIG_TEXT_BASE-1 */
 
 	/* memory control configuration 1 */
 	ldr	r0, =SMRDATA

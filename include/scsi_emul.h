@@ -41,13 +41,20 @@ struct scsi_emul_info {
 	enum scsi_cmd_phase phase;
 	int buff_used;
 	int read_len;
+	int write_len;
 	uint seek_pos;
 	int alloc_len;
 	uint transfer_len;
 };
 
-/* Indicates that a read is being started */
-#define SCSI_EMUL_DO_READ	1
+/**
+ * Return value from sb_scsi_emul_command() indicates that a read or write is
+ * being started
+ */
+enum {
+	SCSI_EMUL_DO_READ	= 1,
+	SCSI_EMUL_DO_WRITE	= 2,
+};
 
 /**
  * sb_scsi_emul_command() - Process a SCSI command
@@ -61,8 +68,9 @@ struct scsi_emul_info {
  * @info: Emulation information
  * @req: Request to process
  * @len: Length of request in bytes
- * @return SCSI_EMUL_DO_READ if a read has started, 0 if some other operation
- *	has started, -ve if there was an error
+ * @return SCSI_EMUL_DO_READ if a read has started, SCSI_EMUL_DO_WRITE if a
+ *	write has started, 0 if some other operation has started, -ve if there
+ *	was an error
  */
 int sb_scsi_emul_command(struct scsi_emul_info *info,
 			 const struct scsi_cmd *req, int len);

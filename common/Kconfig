@@ -113,6 +113,28 @@ config SILENT_CONSOLE
 	  GD_FLG_SILENT flag is set. Changing the environment variable later
 	  will update the flag.
 
+config SPL_SILENT_CONSOLE
+	bool "Use a silent console in SPL"
+	default y if SILENT_CONSOLE && !SANDBOX
+	help
+	  This selects a silent console in SPL. When enabled it drops some
+	  output messages. The GD_FLG_SILENT flag is not used in SPL so there
+	  is no run-time control of console messages in SPL.
+
+	  Future work may allow the SPL console to be silenced completely using
+	  this option.
+
+config TPL_SILENT_CONSOLE
+	bool "Use a silent console in TPL"
+	default y if SILENT_CONSOLE && !SANDBOX
+	help
+	  This selects a silent console in TPL. When enabled it drops some
+	  output messages. The GD_FLG_SILENT flag is not used in TPL so there
+	  is no run-time control of console messages in TPL.
+
+	  Future work may allow the TPL console to be silenced completely using
+	  this option.
+
 config SILENT_U_BOOT_ONLY
 	bool "Only silence the U-Boot console"
 	depends on SILENT_CONSOLE
@@ -1037,6 +1059,13 @@ config IMAGE_SIGN_INFO
 if IMAGE_SIGN_INFO
 
 config SPL_IMAGE_SIGN_INFO
+	bool
+	select SHA1
+	select SHA256
+	help
+	  Enable image_sign_info helper functions in SPL.
+
+config VPL_IMAGE_SIGN_INFO
 	bool
 	select SHA1
 	select SHA256

@@ -77,13 +77,13 @@
 
 	binman {
 		filename = "u-boot.bin";
-		skip-at-start = <CONFIG_SYS_TEXT_BASE>;
+		skip-at-start = <CONFIG_TEXT_BASE>;
 		sort-by-offset;
 		pad-byte = <0xff>;
 		size = <CONFIG_SYS_MONITOR_LEN>;
 
 		u-boot-with-ucode-ptr {
-			offset = <CONFIG_SYS_TEXT_BASE>;
+			offset = <CONFIG_TEXT_BASE>;
 			optional-ucode;
 		};
 

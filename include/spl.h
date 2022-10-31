@@ -66,6 +66,8 @@ enum u_boot_phase {
 	PHASE_SPL,	/* Running in SPL */
 	PHASE_BOARD_F,	/* Running in U-Boot before relocation */
 	PHASE_BOARD_R,	/* Running in U-Boot after relocation */
+
+	PHASE_COUNT,
 };
 
 /**
@@ -228,6 +230,18 @@ static inline const char *spl_phase_prefix(enum u_boot_phase phase)
 # define SPL_TPL_PROMPT	""
 #endif
 
+/**
+ * enum spl_sandbox_flags - flags for sandbox's use of spl_image_info->flags
+ *
+ * @SPL_SANDBOXF_ARG_IS_FNAME: arg is the filename to jump to (default)
+ * @SPL_SANDBOXF_ARG_IS_BUF: arg is the containing image to jump to, @offset is
+ *	the start offset within the image, @size is the size of the image
+ */
+enum spl_sandbox_flags {
+	SPL_SANDBOXF_ARG_IS_FNAME = 0,
+	SPL_SANDBOXF_ARG_IS_BUF,
+};
+
 struct spl_image_info {
 	const char *name;
 	u8 os;
@@ -286,10 +300,10 @@ struct spl_load_info {
  */
 binman_sym_extern(ulong, u_boot_any, image_pos);
 binman_sym_extern(ulong, u_boot_any, size);
-binman_sym_extern(ulong, u_boot_spl, image_pos);
-binman_sym_extern(ulong, u_boot_spl, size);
-binman_sym_extern(ulong, u_boot_vpl, image_pos);
-binman_sym_extern(ulong, u_boot_vpl, size);
+binman_sym_extern(ulong, u_boot_spl_any, image_pos);
+binman_sym_extern(ulong, u_boot_spl_any, size);
+binman_sym_extern(ulong, u_boot_vpl_any, image_pos);
+binman_sym_extern(ulong, u_boot_vpl_any, size);
 
 /**
  * spl_get_image_pos() - get the image position of the next phase
@@ -309,7 +323,7 @@ ulong spl_get_image_size(void);
  * spl_get_image_text_base() - get the text base of the next phase
  *
  * This returns the address that the next stage is linked to run at, i.e.
- * CONFIG_SPL_TEXT_BASE or CONFIG_SYS_TEXT_BASE
+ * CONFIG_SPL_TEXT_BASE or CONFIG_TEXT_BASE
  *
  * Return: text-base address
  */
@@ -457,7 +471,7 @@ void spl_set_bd(void);
  *
  * This sets up the given spl_image which the standard values obtained from
  * config options: CONFIG_SYS_MONITOR_LEN, CONFIG_SYS_UBOOT_START,
- * CONFIG_SYS_TEXT_BASE.
+ * CONFIG_TEXT_BASE.
  *
  * @spl_image: Image description to set up
  */

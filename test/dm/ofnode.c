@@ -753,10 +753,7 @@ static int make_ofnode_fdt(struct unit_test_state *uts, void *fdt, int size,
 
 static int dm_test_ofnode_root(struct unit_test_state *uts)
 {
-	char fdt[256];
-	oftree tree;
 	ofnode node;
-	int ret;
 
 	/* Check that aliases work on the control FDT */
 	node = ofnode_get_aliases_node("ethernet3");
@@ -765,14 +762,22 @@ static int dm_test_ofnode_root(struct unit_test_state *uts)
 
 	ut_assert(!oftree_valid(oftree_null()));
 
+	return 0;
+}
+DM_TEST(dm_test_ofnode_root, UT_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_root_mult(struct unit_test_state *uts)
+{
+	char fdt[256];
+	oftree tree;
+	ofnode node;
+
+	/* skip this test if multiple FDTs are not supported */
+	if (!IS_ENABLED(CONFIG_OFNODE_MULTI_TREE))
+		return -EAGAIN;
+
 	ut_assertok(make_ofnode_fdt(uts, fdt, sizeof(fdt), 0));
-	ret = get_oftree(uts, fdt, &tree);
-
-	/* skip the rest of this test if multiple FDTs are not supported */
-	if (ret == -EOVERFLOW)
-		return 0;
-
-	ut_assertok(ret);
+	ut_assertok(get_oftree(uts, fdt, &tree));
 	ut_assert(oftree_valid(tree));
 
 	/* Make sure they don't work on this new tree */
@@ -791,7 +796,7 @@ static int dm_test_ofnode_root(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_root, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_root_mult, UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 {

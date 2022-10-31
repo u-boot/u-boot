@@ -43,20 +43,42 @@ DM_TEST(dm_test_usb_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
  */
 static int dm_test_usb_flash(struct unit_test_state *uts)
 {
-	struct udevice *dev;
-	struct blk_desc *dev_desc;
+	struct blk_desc *dev_desc, *chk;
+	struct udevice *dev, *blk;
 	char cmp[1024];
 
 	state_set_skip_delays(true);
 	ut_assertok(usb_init());
 	ut_assertok(uclass_get_device(UCLASS_MASS_STORAGE, 0, &dev));
 	ut_assertok(blk_get_device_by_str("usb", "0", &dev_desc));
+	chk = blk_get_by_device(dev);
+	ut_asserteq_ptr(chk, dev_desc);
+
+	ut_assertok(device_find_first_child_by_uclass(dev, UCLASS_BLK, &blk));
+	ut_asserteq_ptr(chk, blk_get_by_device(dev));
 
 	/* Read a few blocks and look for the string we expect */
 	ut_asserteq(512, dev_desc->blksz);
 	memset(cmp, '\0', sizeof(cmp));
-	ut_asserteq(2, blk_dread(dev_desc, 0, 2, cmp));
-	ut_assertok(strcmp(cmp, "this is a test"));
+	ut_asserteq(2, blk_read(blk, 0, 2, cmp));
+	ut_asserteq_str("this is a test", cmp);
+
+	strcpy(cmp, "another test");
+	ut_asserteq(1, blk_write(blk, 1, 1, cmp));
+
+	memset(cmp, '\0', sizeof(cmp));
+	ut_asserteq(2, blk_read(blk, 0, 2, cmp));
+	ut_asserteq_str("this is a test", cmp);
+	ut_asserteq_str("another test", cmp + 512);
+
+	memset(cmp, '\0', sizeof(cmp));
+	ut_asserteq(1, blk_write(blk, 1, 1, cmp));
+
+	memset(cmp, '\0', sizeof(cmp));
+	ut_asserteq(2, blk_read(blk, 0, 2, cmp));
+	ut_asserteq_str("this is a test", cmp);
+	ut_asserteq_str("", cmp + 512);
+
 	ut_assertok(usb_stop());
 
 	return 0;

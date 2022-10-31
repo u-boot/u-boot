@@ -11,6 +11,43 @@
 #define __VBE_H
 
 /**
+ * enum vbe_phase_t - current phase of VBE
+ *
+ * VBE operates in two distinct phases. In VPL it has to choose which firmware
+ * to run (SPL, U-Boot, OP-TEE, etc.). It then carries on running until it gets
+ * to U-Boot, where it decides which OS to run
+ *
+ * @VBE_PHASE_FIRMWARE: Selecting the firmware to run
+ * @VBE_PHASE_OS: Selecting the Operating System to run
+ */
+enum vbe_phase_t {
+	VBE_PHASE_FIRMWARE,
+	VBE_PHASE_OS,
+};
+
+/**
+ * struct vbe_handoff - information about VBE progress
+ *
+ * @phases: Indicates which phases used the VBE bootmeth (1 << PHASE_...)
+ */
+struct vbe_handoff {
+	u8 phases;
+};
+
+/**
+ * vbe_phase() - get current VBE phase
+ *
+ * Returns: Current VBE phase
+ */
+static inline enum vbe_phase_t vbe_phase(void)
+{
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return VBE_PHASE_FIRMWARE;
+
+	return VBE_PHASE_OS;
+}
+
+/**
  * vbe_list() - List the VBE bootmeths
  *
  * This shows a list of the VBE bootmeth devices

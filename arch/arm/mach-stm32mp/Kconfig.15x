@@ -93,7 +93,7 @@ config SPL_STM32MP15_PWR
 		This config enables implementation of driver-model pmic and
 		regulator uclass features for access to STM32MP15x PWR in SPL.
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0xC0100000
 
 config PRE_CON_BUF_ADDR

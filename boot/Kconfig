@@ -292,6 +292,56 @@ config SPL_FIT_GENERATOR
 
 endif # SPL
 
+if VPL
+
+config VPL_FIT
+	bool "Support Flattened Image Tree within VPL"
+	depends on VPL
+	default y
+	select VPL_HASH
+	select VPL_OF_LIBFDT
+
+config VPL_FIT_PRINT
+	bool "Support FIT printing within VPL"
+	depends on VPL_FIT
+	default y
+	help
+	  Support printing the content of the fitImage in a verbose manner in VPL.
+
+config VPL_FIT_FULL_CHECK
+	bool "Do a full check of the FIT before using it"
+	default y
+	help
+	  Enable this do a full check of the FIT to make sure it is valid. This
+	  helps to protect against carefully crafted FITs which take advantage
+	  of bugs or omissions in the code. This includes a bad structure,
+	  multiple root nodes and the like.
+
+config VPL_FIT_SIGNATURE
+	bool "Enable signature verification of FIT firmware within VPL"
+	depends on VPL_DM
+	default y
+	select FIT_SIGNATURE
+	select VPL_FIT
+	select VPL_CRYPTO
+	select VPL_HASH
+	imply VPL_RSA
+	imply VPL_RSA_VERIFY
+	select VPL_IMAGE_SIGN_INFO
+	select VPL_FIT_FULL_CHECK
+
+config VPL_FIT_SIGNATURE_MAX_SIZE
+	hex "Max size of signed FIT structures in VPL"
+	depends on VPL_FIT_SIGNATURE
+	default 0x10000000
+	help
+	  This option sets a max size in bytes for verified FIT uImages.
+	  A sane value of 256MB protects corrupted DTB structures from overlapping
+	  device memory. Assure this size does not extend past expected storage
+	  space.
+
+endif # VPL
+
 endif # FIT
 
 config PXE_UTILS
@@ -333,6 +383,26 @@ config BOOTSTD_FULL
 	  - support for selecting the ordering of bootmeths ("bootmeth order")
 	  - support for selecting the ordering of bootdevs using the devicetree
 	    as well as the "boot_targets" environment variable
+
+config SPL_BOOTSTD
+	bool "Standard boot support in VPL"
+	depends on SPL && SPL_DM && SPL_OF_CONTROL && SPL_BLK
+	default y if VPL
+	help
+	  This enables standard boot in SPL. This is neeeded so that VBE
+	  (Verified Boot for Embedded) can be used, since it depends on standard
+	  boot. It is enabled by default since the main purpose of VPL is to
+	  handle the firmware part of VBE.
+
+config VPL_BOOTSTD
+	bool "Standard boot support in VPL"
+	depends on VPL && VPL_DM && VPL_OF_CONTROL && VPL_BLK
+	default y
+	help
+	  This enables standard boot in SPL. This is neeeded so that VBE
+	  (Verified Boot for Embedded) can be used, since it depends on standard
+	  boot. It is enabled by default since the main purpose of VPL is to
+	  handle the firmware part of VBE.
 
 if BOOTSTD
 
@@ -408,6 +478,24 @@ config BOOTMETH_VBE
 	  supports selection of various firmware components, seleciton of an OS to
 	  boot as well as updating these using fwupd.
 
+config SPL_BOOTMETH_VBE
+	bool "Bootdev support for Verified Boot for Embedded (SPL)"
+	depends on SPL && FIT
+	default y if VPL
+	help
+	  Enables support for VBE boot. This is a standard boot method which
+	  supports selection of various firmware components, seleciton of an OS to
+	  boot as well as updating these using fwupd.
+
+config VPL_BOOTMETH_VBE
+	bool "Bootdev support for Verified Boot for Embedded (VPL)"
+	depends on VPL && FIT
+	default y
+	help
+	  Enables support for VBE boot. This is a standard boot method which
+	  supports selection of various firmware components, seleciton of an OS to
+	  boot as well as updating these using fwupd.
+
 if BOOTMETH_VBE
 
 config BOOTMETH_VBE_SIMPLE
@@ -417,6 +505,54 @@ config BOOTMETH_VBE_SIMPLE
 	  Enables support for VBE 'simple' boot. This allows updating a single
 	  firmware image in boot media such as MMC. It does not support any sort
 	  of rollback, recovery or A/B boot.
+
+config BOOTMETH_VBE_SIMPLE_OS
+	bool "Bootdev support for VBE 'simple' method OS phase"
+	default y
+	help
+	  Enables support for the OS parts of VBE 'simple' boot. This includes
+	  fixing up the device tree with the required VBE information, ready
+	  for booting into the OS. This option is only enabled for U-Boot
+	  proper, since it is the phase where device tree fixups happen.
+
+config SPL_BOOTMETH_VBE_SIMPLE
+	bool "Bootdev support for VBE 'simple' method (SPL)"
+	depends on SPL
+	default y if VPL
+	help
+	  Enables support for VBE 'simple' boot. This allows updating a single
+	  firmware image in boot media such as MMC. It does not support any sort
+	  of rollback, recovery or A/B boot.
+
+config VPL_BOOTMETH_VBE_SIMPLE
+	bool "Bootdev support for VBE 'simple' method (VPL)"
+	depends on VPL
+	default y
+	help
+	  Enables support for VBE 'simple' boot. This allows updating a single
+	  firmware image in boot media such as MMC. It does not support any sort
+	  of rollback, recovery or A/B boot.
+
+config SPL_BOOTMETH_VBE_SIMPLE_FW
+	bool "Bootdev support for VBE 'simple' method firmware phase (SPL)"
+	depends on VPL
+	default y
+	help
+	  Enables support for the firmware parts of VBE 'simple' boot. This
+	  includes an SPL loader which locates the correct U-Boot to boot into.
+	  This option should really only be enabled for VPL, since it is the
+	  phase where the SPL + U-Boot decision should be made. But for now,
+	  SPL does its own FIT-configuration selection.
+
+config VPL_BOOTMETH_VBE_SIMPLE_FW
+	bool "Bootdev support for VBE 'simple' method firmware phase (VPL)"
+	depends on VPL
+	default y
+	help
+	  Enables support for the firmware parts of VBE 'simple' boot. This
+	  includes an SPL loader which locates the correct SPL to boot into.
+	  This option enabled for VPL, since it is the phase where the SPL
+	  decision is made.
 
 endif # BOOTMETH_VBE
 
@@ -487,14 +623,14 @@ config OF_STDOUT_VIA_ALIAS
 	  incorrect when used with device tree as this option does not
 	  exist / should not be used.
 
-config HAVE_SYS_TEXT_BASE
+config HAVE_TEXT_BASE
 	bool
 	depends on !NIOS2 && !XTENSA
 	depends on !EFI_APP
 	default y
 
-config SYS_TEXT_BASE
-	depends on HAVE_SYS_TEXT_BASE
+config TEXT_BASE
+	depends on HAVE_TEXT_BASE
 	default 0x0 if POSITION_INDEPENDENT
 	default 0x80800000 if ARCH_OMAP2PLUS || ARCH_K3
 	default 0x81700000 if MACH_SUNIV
@@ -515,10 +651,10 @@ config HAVE_SYS_MONITOR_BASE
 config SYS_MONITOR_BASE
 	depends on HAVE_SYS_MONITOR_BASE
 	hex "Physical start address of boot monitor code"
-	default SYS_TEXT_BASE
+	default TEXT_BASE
 	help
 	  The physical start address of boot monitor code (which is the same as
-	  CONFIG_SYS_TEXT_BASE when linking) and the same as CONFIG_SYS_FLASH_BASE
+	  CONFIG_TEXT_BASE when linking) and the same as CONFIG_SYS_FLASH_BASE
 	  when booting from flash.
 
 config SPL_SYS_MONITOR_BASE

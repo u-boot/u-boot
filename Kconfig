@@ -274,7 +274,7 @@ config HAS_CUSTOM_SYS_INIT_SP_ADDR
 config CUSTOM_SYS_INIT_SP_ADDR
 	hex "Static location for the initial stack pointer"
 	depends on HAS_CUSTOM_SYS_INIT_SP_ADDR
-	default SYS_TEXT_BASE if TFABOOT
+	default TEXT_BASE if TFABOOT
 
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"

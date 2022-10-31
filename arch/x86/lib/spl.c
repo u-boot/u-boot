@@ -66,7 +66,7 @@ static int x86_spl_init(void)
 	 * TODO(sjg@chromium.org): We use this area of RAM for the stack
 	 * and global_data in SPL. Once U-Boot starts up and releocates it
 	 * is not needed. We could make this a CONFIG option or perhaps
-	 * place it immediately below CONFIG_SYS_TEXT_BASE.
+	 * place it immediately below CONFIG_TEXT_BASE.
 	 */
 	__maybe_unused char *ptr = (char *)0x110000;
 #else
@@ -209,8 +209,8 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 				struct spl_boot_device *bootdev)
 {
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;
-	spl_image->entry_point = CONFIG_SYS_TEXT_BASE;
-	spl_image->load_addr = CONFIG_SYS_TEXT_BASE;
+	spl_image->entry_point = CONFIG_TEXT_BASE;
+	spl_image->load_addr = CONFIG_TEXT_BASE;
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 

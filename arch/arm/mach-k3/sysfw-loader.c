@@ -91,7 +91,7 @@ static void *sysfw_load_address;
 struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
 	if (sysfw_loaded)
-		return (struct legacy_img_hdr *)(CONFIG_SYS_TEXT_BASE + offset);
+		return (struct legacy_img_hdr *)(CONFIG_TEXT_BASE + offset);
 	else if (sysfw_load_address)
 		return sysfw_load_address;
 	else

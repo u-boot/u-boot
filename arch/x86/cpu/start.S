@@ -237,15 +237,15 @@ multiboot_header:
 	/* checksum */
 	.long	-0x1BADB002 - (1 << 16)
 	/* header addr */
-	.long	multiboot_header - _x86boot_start + CONFIG_SYS_TEXT_BASE
+	.long	multiboot_header - _x86boot_start + CONFIG_TEXT_BASE
 	/* load addr */
-	.long	CONFIG_SYS_TEXT_BASE
+	.long	CONFIG_TEXT_BASE
 	/* load end addr */
 	.long	0
 	/* bss end addr */
 	.long	0
 	/* entry addr */
-	.long	CONFIG_SYS_TEXT_BASE
+	.long	CONFIG_TEXT_BASE
 
 #ifdef CONFIG_X86_LOAD_FROM_32_BIT
 	/*

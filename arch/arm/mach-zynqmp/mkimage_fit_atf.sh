@@ -26,7 +26,7 @@ TEE_LOAD_ADDR_LOW=`printf 0x%x $((TEE_LOAD_ADDR & 0xffffffff))`
 TEE_LOAD_ADDR_HIGH=`printf 0x%x $((TEE_LOAD_ADDR >> 32))`
 
 if [ -z "$BL33_LOAD_ADDR" ];then
-	BL33_LOAD_ADDR=`awk '/CONFIG_SYS_TEXT_BASE/ { print $3 }' include/generated/autoconf.h`
+	BL33_LOAD_ADDR=`awk '/CONFIG_TEXT_BASE/ { print $3 }' include/generated/autoconf.h`
 fi
 BL33_LOAD_ADDR_LOW=`printf 0x%x $((BL33_LOAD_ADDR & 0xffffffff))`
 BL33_LOAD_ADDR_HIGH=`printf 0x%x $((BL33_LOAD_ADDR >> 32))`

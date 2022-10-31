@@ -36,7 +36,7 @@ static int dm_test_run(const char *test_name, int runs_per_text)
 	int ret;
 
 	ret = ut_run_list("driver model", "dm_test_", tests, n_ents, test_name,
-			  runs_per_text);
+			  runs_per_text, false);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }

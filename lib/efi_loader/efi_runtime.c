@@ -672,12 +672,12 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 	struct elf_rela *rel = (void*)&__efi_runtime_rel_start;
 #else
 	struct elf_rel *rel = (void*)&__efi_runtime_rel_start;
-	static ulong lastoff = CONFIG_SYS_TEXT_BASE;
+	static ulong lastoff = CONFIG_TEXT_BASE;
 #endif
 
 	debug("%s: Relocating to offset=%lx\n", __func__, offset);
 	for (; (ulong)rel < (ulong)&__efi_runtime_rel_stop; rel++) {
-		ulong base = CONFIG_SYS_TEXT_BASE;
+		ulong base = CONFIG_TEXT_BASE;
 		ulong *p;
 		ulong newaddr;
 
@@ -696,7 +696,7 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 		switch (rel->info & R_MASK) {
 		case R_RELATIVE:
 #ifdef IS_RELA
-		newaddr = rel->addend + offset - CONFIG_SYS_TEXT_BASE;
+		newaddr = rel->addend + offset - CONFIG_TEXT_BASE;
 #else
 		newaddr = *p - lastoff + offset;
 #endif
@@ -707,7 +707,7 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 			extern struct dyn_sym __dyn_sym_start[];
 			newaddr = __dyn_sym_start[symidx].addr + offset;
 #ifdef IS_RELA
-			newaddr -= CONFIG_SYS_TEXT_BASE;
+			newaddr -= CONFIG_TEXT_BASE;
 #endif
 			break;
 		}

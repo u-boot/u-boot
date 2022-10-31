@@ -162,10 +162,10 @@ int do_elf_reloc_fixups(void)
 	if (re_src == re_end)
 		panic("No relocation data");
 
-#ifdef CONFIG_SYS_TEXT_BASE
-	text_base = CONFIG_SYS_TEXT_BASE;
+#ifdef CONFIG_TEXT_BASE
+	text_base = CONFIG_TEXT_BASE;
 #else
-	panic("No CONFIG_SYS_TEXT_BASE");
+	panic("No CONFIG_TEXT_BASE");
 #endif
 #if CONFIG_IS_ENABLED(X86_64)
 	do_elf_reloc_fixups64(text_base, size, re_src, re_end);

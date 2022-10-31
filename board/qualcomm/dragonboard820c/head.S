@@ -20,7 +20,7 @@
 _arm64_header:
 	b _start
 	.word 0
-	.quad   CONFIG_SYS_TEXT_BASE-PHYS_SDRAM_1 /* Image load offset, LE */
+	.quad   CONFIG_TEXT_BASE-PHYS_SDRAM_1 /* Image load offset, LE */
 	.quad   0    /* Effective size of kernel image, little-endian */
 	.quad   0    /* kernel flags, little-endian */
 	.quad   0    /* reserved */

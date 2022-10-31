@@ -41,7 +41,7 @@ Boards which are not fixed to support relocation will be REMOVED!
 -----------------------------------------------------------------------------
 
 For boards which boot from spl, it is possible to save one copy
-if CONFIG_SYS_TEXT_BASE == relocation address! This prevents that uboot code
+if CONFIG_TEXT_BASE == relocation address! This prevents that uboot code
 is copied again in relocate_code().
 
 example for the tx25 board booting from NAND Flash:
@@ -58,7 +58,7 @@ e) there it copy u-boot to CONFIG_SYS_NAND_U_BOOT_DST and
 f) u-boot code steps through board_init_f() and calculates
    the relocation address and copy itself to it
 
-If CONFIG_SYS_TEXT_BASE == relocation address, the copying of u-boot
+If CONFIG_TEXT_BASE == relocation address, the copying of u-boot
 in f) could be saved.
 
 -----------------------------------------------------------------------------
@@ -68,10 +68,10 @@ TODO
 - fill in struct bd_info infos (check)
 - adapt all boards
 
-- maybe adapt CONFIG_SYS_TEXT_BASE (this must be checked from board maintainers)
+- maybe adapt CONFIG_TEXT_BASE (this must be checked from board maintainers)
   This *must* be done for boards, which boot from NOR flash
 
-  on other boards if CONFIG_SYS_TEXT_BASE = relocation baseaddr, this saves
+  on other boards if CONFIG_TEXT_BASE = relocation baseaddr, this saves
   one copying from u-boot code.
 
 - new function dram_init_banksize() is actual board specific. Maybe
@@ -91,7 +91,7 @@ Relocation with SPL (example for the tx25 booting from NAND Flash):
 
 - This u-boot does no RAM init, nor CPU register setup. Just look
   where it has to copy and relocate itself to this address. If
-  relocate address = CONFIG_SYS_TEXT_BASE (not the same, as the
+  relocate address = CONFIG_TEXT_BASE (not the same, as the
   CONFIG_SPL_TEXT_BASE from the spl code), then there is no need
   to copy, just go on with bss clear and jump to board_init_r.
 

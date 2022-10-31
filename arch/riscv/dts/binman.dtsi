@@ -27,7 +27,7 @@
 					os = "U-Boot";
 					arch = "riscv";
 					compression = "none";
-					load = <CONFIG_SYS_TEXT_BASE>;
+					load = <CONFIG_TEXT_BASE>;
 
 					uboot_blob: blob-ext {
 						filename = "u-boot-nodtb.bin";

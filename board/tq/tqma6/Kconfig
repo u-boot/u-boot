@@ -84,7 +84,7 @@ config WRU4
 
 endchoice
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x2fc00000 if TQMA6S
 	default 0x4fc00000 if TQMA6Q || TQMA6DL
 

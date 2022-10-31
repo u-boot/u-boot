@@ -313,12 +313,42 @@ struct udevice;
  */
 int part_create_block_devices(struct udevice *blk_dev);
 
-unsigned long dev_read(struct udevice *dev, lbaint_t start,
-		       lbaint_t blkcnt, void *buffer);
-unsigned long dev_write(struct udevice *dev, lbaint_t start,
-			lbaint_t blkcnt, const void *buffer);
-unsigned long dev_erase(struct udevice *dev, lbaint_t start,
-			lbaint_t blkcnt);
+/**
+ * disk_blk_read() - read blocks from a disk partition
+ *
+ * @dev:	Device to read from (UCLASS_PARTITION)
+ * @start:	Start block number to read in the partition (0=first)
+ * @blkcnt:	Number of blocks to read
+ * @buffer:	Destination buffer for data read
+ * Returns: number of blocks read, or -ve error number (see the
+ * IS_ERR_VALUE() macro
+ */
+ulong disk_blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+		    void *buffer);
+
+/**
+ * disk_blk_write() - write to a disk partition
+ *
+ * @dev:	Device to write to (UCLASS_PARTITION)
+ * @start:	Start block number to write in the partition (0=first)
+ * @blkcnt:	Number of blocks to write
+ * @buffer:	Source buffer for data to write
+ * Returns: number of blocks written, or -ve error number (see the
+ * IS_ERR_VALUE() macro
+ */
+ulong disk_blk_write(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+		     const void *buffer);
+
+/**
+ * disk_blk_erase() - erase a section of a disk partition
+ *
+ * @dev:	Device to (partially) erase (UCLASS_PARTITION)
+ * @start:	Start block number to erase in the partition (0=first)
+ * @blkcnt:	Number of blocks to erase
+ * Returns: number of blocks erased, or -ve error number (see the
+ * IS_ERR_VALUE() macro
+ */
+ulong disk_blk_erase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt);
 
 /*
  * We don't support printing partition information in SPL and only support

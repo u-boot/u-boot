@@ -369,7 +369,7 @@ static int initr_flash(void)
 
 #if defined(CONFIG_OXC) || defined(CONFIG_RMU)
 	/* flash mapped at end of memory map */
-	bd->bi_flashoffset = CONFIG_SYS_TEXT_BASE + flash_size;
+	bd->bi_flashoffset = CONFIG_TEXT_BASE + flash_size;
 #elif CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for monitor */
 #endif

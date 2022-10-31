@@ -357,6 +357,19 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 }
 
 /**
+ * skip_test() - Handle skipping a test
+ *
+ * @uts: Test state to update
+ * @return -EAGAIN (always)
+ */
+static int skip_test(struct unit_test_state *uts)
+{
+	uts->skip_count++;
+
+	return -EAGAIN;
+}
+
+/**
  * ut_run_test() - Run a single test
  *
  * This runs the test, handling any preparation and clean-up needed. It prints
@@ -386,11 +399,13 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
 
 	ret = test_pre_run(uts, test);
 	if (ret == -EAGAIN)
-		return -EAGAIN;
+		return skip_test(uts);
 	if (ret)
 		return ret;
 
-	test->func(uts);
+	ret = test->func(uts);
+	if (ret == -EAGAIN)
+		skip_test(uts);
 
 	ret = test_post_run(uts, test);
 	if (ret)
@@ -424,7 +439,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	int runs;
 
 	if ((test->flags & UT_TESTF_OTHER_FDT) && !IS_ENABLED(CONFIG_SANDBOX))
-		return -EAGAIN;
+		return skip_test(uts);
 
 	/* Run with the live tree if possible */
 	runs = 0;
@@ -493,6 +508,30 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 
 		if (!test_matches(prefix, test_name, select_name))
 			continue;
+
+		if (test->flags & UT_TESTF_MANUAL) {
+			int len;
+
+			/*
+			 * manual tests must have a name ending "_norun" as this
+			 * is how pytest knows to skip them. See
+			 * generate_ut_subtest() for this check.
+			 */
+			len = strlen(test_name);
+			if (len < 6 || strcmp(test_name + len - 6, "_norun")) {
+				printf("Test %s is manual so must have a name ending in _norun\n",
+				       test_name);
+				uts->fail_count++;
+				return -EBADF;
+			}
+			if (!uts->force_run) {
+				if (select_name) {
+					printf("Test %s skipped as it is manual (use -f to run it)\n",
+					       test_name);
+				}
+				continue;
+			}
+		}
 		old_fail_count = uts->fail_count;
 		for (i = 0; i < uts->runs_per_test; i++)
 			ret = ut_run_test_live_flat(uts, test, select_name);
@@ -514,7 +553,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 
 int ut_run_list(const char *category, const char *prefix,
 		struct unit_test *tests, int count, const char *select_name,
-		int runs_per_test)
+		int runs_per_test, bool force_run)
 {
 	struct unit_test_state uts = { .fail_count = 0 };
 	bool has_dm_tests = false;
@@ -548,6 +587,7 @@ int ut_run_list(const char *category, const char *prefix,
 		}
 		memcpy(uts.fdt_copy, gd->fdt_blob, uts.fdt_size);
 	}
+	uts.force_run = force_run;
 	ret = ut_run_tests(&uts, prefix, tests, count, select_name);
 
 	/* Best efforts only...ignore errors */
@@ -558,6 +598,8 @@ int ut_run_list(const char *category, const char *prefix,
 		os_free(uts.other_fdt);
 	}
 
+	if (uts.skip_count)
+		printf("Skipped: %d, ", uts.skip_count);
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);
 	else

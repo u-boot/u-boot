@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 DECLARE_BINMAN_MAGIC_SYM;
 
 #ifndef CONFIG_SYS_UBOOT_START
-#define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_UBOOT_START	CONFIG_TEXT_BASE
 #endif
 #ifndef CONFIG_SYS_MONITOR_LEN
 /* Unknown U-Boot size, let's assume it will not be more than 200 KB */
@@ -59,13 +59,13 @@ binman_sym_declare(ulong, u_boot_any, image_pos);
 binman_sym_declare(ulong, u_boot_any, size);
 
 #ifdef CONFIG_TPL
-binman_sym_declare(ulong, u_boot_spl, image_pos);
-binman_sym_declare(ulong, u_boot_spl, size);
+binman_sym_declare(ulong, u_boot_spl_any, image_pos);
+binman_sym_declare(ulong, u_boot_spl_any, size);
 #endif
 
 #ifdef CONFIG_VPL
-binman_sym_declare(ulong, u_boot_vpl, image_pos);
-binman_sym_declare(ulong, u_boot_vpl, size);
+binman_sym_declare(ulong, u_boot_vpl_any, image_pos);
+binman_sym_declare(ulong, u_boot_vpl_any, size);
 #endif
 
 #endif /* BINMAN_UBOOT_SYMBOLS */
@@ -164,10 +164,10 @@ ulong spl_get_image_pos(void)
 
 #ifdef CONFIG_VPL
 	if (spl_next_phase() == PHASE_VPL)
-		return binman_sym(ulong, u_boot_vpl, image_pos);
+		return binman_sym(ulong, u_boot_vpl_any, image_pos);
 #endif
 	return spl_next_phase() == PHASE_SPL ?
-		binman_sym(ulong, u_boot_spl, image_pos) :
+		binman_sym(ulong, u_boot_spl_any, image_pos) :
 		binman_sym(ulong, u_boot_any, image_pos);
 }
 
@@ -178,10 +178,10 @@ ulong spl_get_image_size(void)
 
 #ifdef CONFIG_VPL
 	if (spl_next_phase() == PHASE_VPL)
-		return binman_sym(ulong, u_boot_vpl, size);
+		return binman_sym(ulong, u_boot_vpl_any, size);
 #endif
 	return spl_next_phase() == PHASE_SPL ?
-		binman_sym(ulong, u_boot_spl, size) :
+		binman_sym(ulong, u_boot_spl_any, size) :
 		binman_sym(ulong, u_boot_any, size);
 }
 
@@ -192,7 +192,7 @@ ulong spl_get_image_text_base(void)
 		return CONFIG_VPL_TEXT_BASE;
 #endif
 	return spl_next_phase() == PHASE_SPL ? CONFIG_SPL_TEXT_BASE :
-		CONFIG_SYS_TEXT_BASE;
+		CONFIG_TEXT_BASE;
 }
 
 /*
@@ -229,7 +229,7 @@ __weak void spl_board_prepare_for_boot(void)
 
 __weak struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 {
-	return map_sysmem(CONFIG_SYS_TEXT_BASE + offset, 0);
+	return map_sysmem(CONFIG_TEXT_BASE + offset, 0);
 }
 
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
@@ -249,7 +249,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 		spl_image->load_addr = u_boot_pos;
 	} else {
 		spl_image->entry_point = CONFIG_SYS_UBOOT_START;
-		spl_image->load_addr = CONFIG_SYS_TEXT_BASE;
+		spl_image->load_addr = CONFIG_TEXT_BASE;
 	}
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
@@ -630,23 +630,6 @@ __weak void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[0] = spl_boot_device();
 }
 
-static struct spl_image_loader *spl_ll_find_loader(uint boot_device)
-{
-	struct spl_image_loader *drv =
-		ll_entry_start(struct spl_image_loader, spl_image_loader);
-	const int n_ents =
-		ll_entry_count(struct spl_image_loader, spl_image_loader);
-	struct spl_image_loader *entry;
-
-	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (boot_device == entry->boot_device)
-			return entry;
-	}
-
-	/* Not found */
-	return NULL;
-}
-
 __weak int spl_check_board_image(struct spl_image_info *spl_image,
 				 const struct spl_boot_device *bootdev)
 {
@@ -693,6 +676,10 @@ static int spl_load_image(struct spl_image_info *spl_image,
 static int boot_from_devices(struct spl_image_info *spl_image,
 			     u32 spl_boot_list[], int count)
 {
+	struct spl_image_loader *drv =
+		ll_entry_start(struct spl_image_loader, spl_image_loader);
+	const int n_ents =
+		ll_entry_count(struct spl_image_loader, spl_image_loader);
 	int ret = -ENODEV;
 	int i;
 
@@ -702,22 +689,27 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 
 		if (CONFIG_IS_ENABLED(SHOW_ERRORS))
 			ret = -ENXIO;
-		loader = spl_ll_find_loader(bootdev);
-		if (CONFIG_IS_ENABLED(SERIAL) &&
-		    CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT) &&
-		    !IS_ENABLED(CONFIG_SILENT_CONSOLE)) {
-			if (loader)
-				printf("Trying to boot from %s\n",
-				       spl_loader_name(loader));
-			else if (CONFIG_IS_ENABLED(SHOW_ERRORS))
-				printf(SPL_TPL_PROMPT
-				       "Unsupported Boot Device %d\n", bootdev);
-			else
-				puts(SPL_TPL_PROMPT "Unsupported Boot Device!\n");
-		}
-		if (loader && !spl_load_image(spl_image, loader)) {
-			spl_image->boot_device = bootdev;
-			return 0;
+		for (loader = drv; loader != drv + n_ents; loader++) {
+			if (bootdev != loader->boot_device)
+				continue;
+			if (!CONFIG_IS_ENABLED(SILENT_CONSOLE)) {
+				if (loader)
+					printf("Trying to boot from %s\n",
+					       spl_loader_name(loader));
+				else if (CONFIG_IS_ENABLED(SHOW_ERRORS)) {
+					printf(SPL_TPL_PROMPT
+					       "Unsupported Boot Device %d\n",
+					       bootdev);
+				} else {
+					puts(SPL_TPL_PROMPT
+					     "Unsupported Boot Device!\n");
+				}
+			}
+			if (loader &&
+				!spl_load_image(spl_image, loader)) {
+				spl_image->boot_device = bootdev;
+				return 0;
+			}
 		}
 	}
 

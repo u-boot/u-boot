@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Verified Boot for Embedded (VBE) device tree fixup functions
+ * Verified Boot for Embedded (VBE) OS request (device tree fixup) functions
  *
  * Copyright 2022 Google LLC
  * Written by Simon Glass <sjg@chromium.org>
@@ -36,7 +36,7 @@ static int handle_random_req(ofnode node, int default_size,
 	u32 size;
 	int ret;
 
-	if (!IS_ENABLED(CONFIG_DM_RNG))
+	if (!CONFIG_IS_ENABLED(DM_RNG))
 		return -ENOTSUPP;
 
 	if (ofnode_read_u32(node, "vbe,size", &size)) {
@@ -195,8 +195,8 @@ static int bootmeth_vbe_ft_fixup(void *ctx, struct event *event)
 		ret = vbe_process_request(dest, &result);
 		if (ret) {
 			result.errnum = ret;
-			log_err("Failed to process VBE request %s (err=%d)\n",
-				ofnode_get_name(dest), ret);
+			log_warning("Failed to process VBE request %s (err=%d)\n",
+				    ofnode_get_name(dest), ret);
 			if (*result.err_str) {
 				char *msg = strdup(result.err_str);
 

@@ -23,7 +23,7 @@
  */
 
 /*
- * Custom CONFIG_SYS_TEXT_BASE can be done in <board>.h
+ * Custom CONFIG_TEXT_BASE can be done in <board>.h
  */
 
 /* additions for new ARM relocation support */

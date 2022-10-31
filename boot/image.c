@@ -194,6 +194,13 @@ static const table_entry_t uimage_comp[] = {
 	{	-1,		"",		"",			},
 };
 
+static const table_entry_t uimage_phase[] = {
+	{	IH_PHASE_NONE,	"none",		"any",		},
+	{	IH_PHASE_U_BOOT, "u-boot",	"U-Boot phase",	},
+	{	IH_PHASE_SPL,	"spl",		"SPL Phase",	},
+	{	-1,		"",		"",		},
+};
+
 struct table_info {
 	const char *desc;
 	int count;
@@ -215,6 +222,7 @@ static const struct table_info table_info[IH_COUNT] = {
 	{ "compression", IH_COMP_COUNT, uimage_comp },
 	{ "operating system", IH_OS_COUNT, uimage_os },
 	{ "image type", IH_TYPE_COUNT, uimage_type },
+	{ "phase", IH_PHASE_COUNT, uimage_phase },
 };
 
 /*****************************************************************************/
@@ -656,6 +664,11 @@ const char *genimg_get_comp_name(uint8_t comp)
 					comp));
 }
 
+const char *genimg_get_phase_name(enum image_phase_t phase)
+{
+	return get_table_entry_name(uimage_phase, "Unknown Phase", phase);
+}
+
 static const char *genimg_get_short_name(const table_entry_t *table, int val)
 {
 	table = get_table_entry(table, val);
@@ -730,4 +743,9 @@ int genimg_get_type_id(const char *name)
 int genimg_get_comp_id(const char *name)
 {
 	return (get_table_entry_id(uimage_comp, "Compression", name));
+}
+
+int genimg_get_phase_id(const char *name)
+{
+	return get_table_entry_id(uimage_phase, "Phase", name);
 }

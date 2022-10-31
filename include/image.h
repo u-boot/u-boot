@@ -58,6 +58,7 @@ enum ih_category {
 	IH_COMP,
 	IH_OS,
 	IH_TYPE,
+	IH_PHASE,
 
 	IH_COUNT,
 };
@@ -184,8 +185,7 @@ enum {
  * New IDs *MUST* be appended at the end of the list and *NEVER*
  * inserted for backward compatibility.
  */
-
-enum {
+enum image_type_t {
 	IH_TYPE_INVALID		= 0,	/* Invalid Image		*/
 	IH_TYPE_STANDALONE,		/* Standalone Program		*/
 	IH_TYPE_KERNEL,			/* OS Kernel Image		*/
@@ -251,6 +251,59 @@ enum {
 
 	IH_COMP_COUNT,
 };
+
+/**
+ * Phases - images intended for particular U-Boot phases (SPL, etc.)
+ *
+ * @IH_PHASE_NONE: No phase information, can be loaded by any phase
+ * @IH_PHASE_U_BOOT: Only for U-Boot proper
+ * @IH_PHASE_SPL: Only for SPL
+ */
+enum image_phase_t {
+	IH_PHASE_NONE		= 0,
+	IH_PHASE_U_BOOT,
+	IH_PHASE_SPL,
+
+	IH_PHASE_COUNT,
+};
+
+#define IMAGE_PHASE_SHIFT	8
+#define IMAGE_PHASE_MASK	(0xff << IMAGE_PHASE_SHIFT)
+#define IMAGE_TYPE_MASK		0xff
+
+/**
+ * image_ph() - build a composite value combining and type
+ *
+ * @phase: Image phase value
+ * @type: Image type value
+ * Returns: Composite value containing both
+ */
+static inline int image_ph(enum image_phase_t phase, enum image_type_t type)
+{
+	return type | (phase << IMAGE_PHASE_SHIFT);
+}
+
+/**
+ * image_ph_phase() - obtain the phase from a composite phase/type value
+ *
+ * @image_ph_type: Composite value to convert
+ * Returns: Phase value taken from the composite value
+ */
+static inline int image_ph_phase(int image_ph_type)
+{
+	return (image_ph_type & IMAGE_PHASE_MASK) >> IMAGE_PHASE_SHIFT;
+}
+
+/**
+ * image_ph_type() - obtain the type from a composite phase/type value
+ *
+ * @image_ph_type: Composite value to convert
+ * Returns: Type value taken from the composite value
+ */
+static inline int image_ph_type(int image_ph_type)
+{
+	return image_ph_type & IMAGE_TYPE_MASK;
+}
 
 #define LZ4F_MAGIC	0x184D2204	/* LZ4 Magic Number		*/
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
@@ -438,6 +491,22 @@ const char *genimg_get_os_short_name(uint8_t comp);
 const char *genimg_get_arch_name(uint8_t arch);
 
 /**
+ * genimg_get_phase_name() - Get the friendly name for a phase
+ *
+ * @phase: Phase value to look up
+ * Returns: Friendly name for the phase (e.g. "U-Boot phase")
+ */
+const char *genimg_get_phase_name(enum image_phase_t phase);
+
+/**
+ * genimg_get_phase_id() - Convert a phase name to an ID
+ *
+ * @name: Name to convert (e.g. "u-boot")
+ * Returns: ID for that phase (e.g. IH_PHASE_U_BOOT)
+ */
+int genimg_get_phase_id(const char *name);
+
+/**
  * genimg_get_arch_short_name() - get the short name for an architecture
  *
  * @param arch	Architecture type (IH_ARCH_...)
@@ -622,9 +691,10 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
  *			name (e.g. "conf-1") or NULL to use the default. On
  *			exit points to the selected configuration name.
  * @param arch		Expected architecture (IH_ARCH_...)
- * @param image_type	Required image type (IH_TYPE_...). If this is
+ * @param image_ph_type	Required image type (IH_TYPE_...). If this is
  *			IH_TYPE_KERNEL then we allow IH_TYPE_KERNEL_NOLOAD
- *			also.
+ *			also. If a phase is required, this is included also,
+ *			see image_phase_and_type()
  * @param bootstage_id	ID of starting bootstage to use for progress updates.
  *			This will be added to the BOOTSTAGE_SUB values when
  *			calling bootstage_mark()
@@ -635,7 +705,7 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
  */
 int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
-		   int arch, int image_type, int bootstage_id,
+		   int arch, int image_ph_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
 
 /**
@@ -955,6 +1025,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_FPGA_PROP		"fpga"
 #define FIT_FIRMWARE_PROP	"firmware"
 #define FIT_STANDALONE_PROP	"standalone"
+#define FIT_PHASE_PROP		"phase"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
@@ -1206,6 +1277,47 @@ int fit_image_check_comp(const void *fit, int noffset, uint8_t comp);
  */
 int fit_check_format(const void *fit, ulong size);
 
+/**
+ * fit_conf_find_compat() - find most compatible configuration
+ * @fit: pointer to the FIT format image header
+ * @fdt: pointer to the device tree to compare against
+ *
+ * Attempts to find the configuration whose fdt is the most compatible with the
+ * passed in device tree
+ *
+ * Example::
+ *
+ *    / o image-tree
+ *      |-o images
+ *      | |-o fdt-1
+ *      | |-o fdt-2
+ *      |
+ *      |-o configurations
+ *        |-o config-1
+ *        | |-fdt = fdt-1
+ *        |
+ *        |-o config-2
+ *          |-fdt = fdt-2
+ *
+ *    / o U-Boot fdt
+ *      |-compatible = "foo,bar", "bim,bam"
+ *
+ *    / o kernel fdt1
+ *      |-compatible = "foo,bar",
+ *
+ *    / o kernel fdt2
+ *      |-compatible = "bim,bam", "baz,biz"
+ *
+ * Configuration 1 would be picked because the first string in U-Boot's
+ * compatible list, "foo,bar", matches a compatible string in the root of fdt1.
+ * "bim,bam" in fdt2 matches the second string which isn't as good as fdt1.
+ *
+ * As an optimization, the compatible property from the FDT's root node can be
+ * copied into the configuration node in the FIT image. This is required to
+ * match configurations with compressed FDTs.
+ *
+ * Returns: offset to the configuration to use if one was found, -1 otherwise
+ */
 int fit_conf_find_compat(const void *fit, const void *fdt);
 
 /**
@@ -1238,14 +1350,15 @@ int fit_conf_get_prop_node_index(const void *fit, int noffset,
  * @fit:	FIT to check
  * @noffset:	Offset of conf@xxx node to check
  * @prop_name:	Property to read from the conf node
+ * @phase:	Image phase to use, IH_PHASE_NONE for any
  *
  * The conf- nodes contain references to other nodes, using properties
  * like 'kernel = "kernel"'. Given such a property name (e.g. "kernel"),
  * return the offset of the node referred to (e.g. offset of node
  * "/images/kernel".
  */
-int fit_conf_get_prop_node(const void *fit, int noffset,
-		const char *prop_name);
+int fit_conf_get_prop_node(const void *fit, int noffset, const char *prop_name,
+			   enum image_phase_t phase);
 
 int fit_check_ramdisk(const void *fit, int os_noffset,
 		uint8_t arch, int verify);

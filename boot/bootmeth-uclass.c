@@ -77,10 +77,7 @@ int bootmeth_get_bootflow(struct udevice *dev, struct bootflow *bflow)
 
 	if (!ops->read_bootflow)
 		return -ENOSYS;
-	memset(bflow, '\0', sizeof(*bflow));
-	bflow->dev = NULL;
-	bflow->method = dev;
-	bflow->state = BOOTFLOWST_BASE;
+	bootflow_init(bflow, NULL, dev);
 
 	return ops->read_bootflow(dev, bflow);
 }

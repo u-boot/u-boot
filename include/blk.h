@@ -274,6 +274,43 @@ unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
 
 /**
+ * blk_read() - Read from a block device
+ *
+ * @dev: Device to read from
+ * @start: Start block for the read
+ * @blkcnt: Number of blocks to read
+ * @buf: Place to put the data
+ * @return number of blocks read (which may be less than @blkcnt),
+ * or -ve on error. This never returns 0 unless @blkcnt is 0
+ */
+long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+	      void *buffer);
+
+/**
+ * blk_write() - Write to a block device
+ *
+ * @dev: Device to write to
+ * @start: Start block for the write
+ * @blkcnt: Number of blocks to write
+ * @buf: Data to write
+ * @return number of blocks written (which may be less than @blkcnt),
+ * or -ve on error. This never returns 0 unless @blkcnt is 0
+ */
+long blk_write(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
+	       const void *buffer);
+
+/**
+ * blk_erase() - Erase part of a block device
+ *
+ * @dev: Device to erase
+ * @start: Start block for the erase
+ * @blkcnt: Number of blocks to erase
+ * @return number of blocks erased (which may be less than @blkcnt),
+ * or -ve on error. This never returns 0 unless @blkcnt is 0
+ */
+long blk_erase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt);
+
+/**
  * blk_find_device() - Find a block device
  *
  * This function does not activate the device. The device will be returned
@@ -428,7 +465,7 @@ const char *blk_get_devtype(struct udevice *dev);
 
 /**
  * blk_get_by_device() - Get the block device descriptor for the given device
- * @dev:	Instance of a storage device
+ * @dev:	Instance of a storage device (the parent of the block device)
  *
  * Return: With block device descriptor on success , NULL if there is no such
  *	   block device.

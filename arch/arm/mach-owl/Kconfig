@@ -14,7 +14,7 @@ config MACH_S700
 
 endchoice
 
-config SYS_TEXT_BASE
+config TEXT_BASE
         default 0x11000000
 
 config SYS_CONFIG_NAME

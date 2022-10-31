@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int checkboard (void)
 {
 	puts("Board: EB+CPU5282 (BuS Elektronik GmbH & Co. KG)\n");
-#if (CONFIG_SYS_TEXT_BASE ==  CONFIG_SYS_INT_FLASH_BASE)
+#if (CONFIG_TEXT_BASE ==  CONFIG_SYS_INT_FLASH_BASE)
 	puts("       Boot from Internal FLASH\n");
 #endif
 	return 0;

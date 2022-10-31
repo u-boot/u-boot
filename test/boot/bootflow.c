@@ -330,7 +330,7 @@ static int bootflow_system(struct unit_test_state *uts)
 	struct udevice *dev;
 
 	if (!IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
-		return 0;
+		return -EAGAIN;
 	ut_assertok(uclass_get_device_by_name(UCLASS_BOOTMETH, "efi_mgr",
 					      &dev));
 	sandbox_set_fake_efi_mgr_dev(dev, true);
@@ -395,7 +395,7 @@ BOOTSTD_TEST(bootflow_iter_disable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 static int bootflow_scan_glob_bootmeth(struct unit_test_state *uts)
 {
 	if (!IS_ENABLED(CONFIG_BOOTMETH_GLOBAL))
-		return 0;
+		return -EAGAIN;
 
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 

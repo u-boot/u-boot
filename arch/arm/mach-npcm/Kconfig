@@ -3,7 +3,7 @@ if ARCH_NPCM
 config SYS_ARCH
 	default "arm"
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x8000
 
 choice

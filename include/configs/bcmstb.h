@@ -65,7 +65,7 @@ extern phys_addr_t prior_stage_fdt_address;
  *	       :	[~500 KiB in size, stripped]
  *	 0xc000 0000	Top of RAM
  *
- * Setting gd->relocaddr to CONFIG_SYS_TEXT_BASE in dram_init_banksize
+ * Setting gd->relocaddr to CONFIG_TEXT_BASE in dram_init_banksize
  * prevents U-Boot from relocating itself when it is run as an ELF
  * program by the prior stage bootloader.
  *

@@ -50,7 +50,7 @@
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
 /* Set 1M boot space */
-#define CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR (CONFIG_SYS_TEXT_BASE & 0xfff00000)
+#define CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR (CONFIG_TEXT_BASE & 0xfff00000)
 #define CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS \
 		(0x300000000ull | CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR)
 #define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
@@ -421,7 +421,7 @@
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
-	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
+	"ubootaddr=" __stringify(CONFIG_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 	"protect off $ubootaddr +$filesize && "			\
 	"erase $ubootaddr +$filesize && "			\

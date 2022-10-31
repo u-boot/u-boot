@@ -440,10 +440,7 @@ int bootdev_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 
 	if (!ops->get_bootflow)
 		return -ENOSYS;
-	memset(bflow, '\0', sizeof(*bflow));
-	bflow->dev = dev;
-	bflow->method = iter->method;
-	bflow->state = BOOTFLOWST_BASE;
+	bootflow_init(bflow, dev, iter->method);
 
 	return ops->get_bootflow(dev, iter, bflow);
 }

@@ -79,7 +79,7 @@ code within it:
 
 The diagram below illustrate a signed U-Boot binary, DT blob and external
 ATF BL31 blob combined to form fitImage part of flash.bin container layout.
-The *load_address is derived from CONFIG_SYS_TEXT_BASE such that the U-Boot
+The *load_address is derived from CONFIG_TEXT_BASE such that the U-Boot
 binary *start is placed exactly at CONFIG_SPL_TEXT_BASE in DRAM, however the
 SPL moves the fitImage tree further to location:
  *load_address = CONFIG_SPL_TEXT_BASE - CONFIG_FIT_EXTERNAL_OFFSET (=12kiB) -
@@ -203,7 +203,7 @@ dd if=csf_spl.bin of=flash.bin bs=1 seek=${spl_dd_offset} conv=notrunc
 CSF "Blocks" line for csf_fit.txt can be generated as follows:
 ```
 # fitImage tree
-fit_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_SYS_TEXT_BASE=/ s@.*=@@p" .config) - $(sed -n "/CONFIG_FIT_EXTERNAL_OFFSET=/ s@.*=@@p" .config) - 0x200 - 0x40)) )
+fit_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_TEXT_BASE=/ s@.*=@@p" .config) - $(sed -n "/CONFIG_FIT_EXTERNAL_OFFSET=/ s@.*=@@p" .config) - 0x200 - 0x40)) )
 fit_block_offset=$(printf "0x%s" $(fdtget -t x u-boot.dtb /binman/imx-boot/uboot offset))
 fit_block_size=$(printf "0x%x" $(( ( $(fdtdump u-boot.itb 2>/dev/null | sed -n "/^...totalsize:/ s@.*\(0x[0-9a-f]\+\).*@\1@p") + 0x1000 - 0x1 ) & ~(0x1000 - 0x1) + 0x20 )) )
 sed -i "/Blocks = / s@.*@  Blocks = $fit_block_base $fit_block_offset $fit_block_size \"flash.bin\", \\\\@" csf_fit.tmp

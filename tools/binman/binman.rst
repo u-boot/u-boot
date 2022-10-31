@@ -766,11 +766,11 @@ end-at-4gb:
 skip-at-start:
     This property specifies the entry offset of the first entry.
 
-    For PowerPC mpc85xx based CPU, CONFIG_SYS_TEXT_BASE is the entry
+    For PowerPC mpc85xx based CPU, CONFIG_TEXT_BASE is the entry
     offset of the first entry. It can be 0xeff40000 or 0xfff40000 for
     nor flash boot, 0x201000 for sd boot etc.
 
-    'end-at-4gb' property is not applicable where CONFIG_SYS_TEXT_BASE +
+    'end-at-4gb' property is not applicable where CONFIG_TEXT_BASE +
     Image size != 4gb.
 
 align-default:

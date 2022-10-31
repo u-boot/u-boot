@@ -144,7 +144,7 @@ ENTRY(_main)
 	adr	r0, _main
 	ldr	r1, _start_ofs
 	add	r0, r1
-	ldr	r1, =CONFIG_SYS_TEXT_BASE
+	ldr	r1, =CONFIG_TEXT_BASE
 	sub	r1, r0
 	add	lr, r1
 #endif

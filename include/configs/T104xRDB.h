@@ -465,7 +465,7 @@
 	"usb2:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
-	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
+	"ubootaddr=" __stringify(CONFIG_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 	"protect off $ubootaddr +$filesize && "			\
 	"erase $ubootaddr +$filesize && "			\

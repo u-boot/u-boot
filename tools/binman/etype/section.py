@@ -510,6 +510,50 @@ class Entry_section(Entry):
             source_entry.Raise("Cannot find entry for node '%s'" % node.name)
         return entry.GetData(required)
 
+    def LookupEntry(self, entries, sym_name, msg):
+        """Look up the entry for an ENF  symbol
+
+        Args:
+            entries (dict): entries to search:
+                key: entry name
+                value: Entry object
+            sym_name: Symbol name in the ELF file to look up in the format
+                _binman_<entry>_prop_<property> where <entry> is the name of
+                the entry and <property> is the property to find (e.g.
+                _binman_u_boot_prop_offset). As a special case, you can append
+                _any to <entry> to have it search for any matching entry. E.g.
+                _binman_u_boot_any_prop_offset will match entries called u-boot,
+                u-boot-img and u-boot-nodtb)
+            msg: Message to display if an error occurs
+
+        Returns:
+            tuple:
+                Entry: entry object that was found
+                str: name used to search for entries (uses '-' instead of the
+                    '_' used by the symbol name)
+                str: property name the symbol refers to, e.g. 'image_pos'
+
+        Raises:
+            ValueError:the symbol name cannot be decoded, e.g. does not have
+                a '_binman_' prefix
+        """
+        m = re.match(r'^_binman_(\w+)_prop_(\w+)$', sym_name)
+        if not m:
+            raise ValueError("%s: Symbol '%s' has invalid format" %
+                             (msg, sym_name))
+        entry_name, prop_name = m.groups()
+        entry_name = entry_name.replace('_', '-')
+        entry = entries.get(entry_name)
+        if not entry:
+            if entry_name.endswith('-any'):
+                root = entry_name[:-4]
+                for name in entries:
+                    if name.startswith(root):
+                        rest = name[len(root):]
+                        if rest in ['', '-elf', '-img', '-nodtb']:
+                            entry = entries[name]
+        return entry, entry_name, prop_name
+
     def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
         """Look up a symbol in an ELF file
 
@@ -547,23 +591,9 @@ class Entry_section(Entry):
             ValueError if the symbol is invalid or not found, or references a
                 property which is not supported
         """
-        m = re.match(r'^_binman_(\w+)_prop_(\w+)$', sym_name)
-        if not m:
-            raise ValueError("%s: Symbol '%s' has invalid format" %
-                             (msg, sym_name))
-        entry_name, prop_name = m.groups()
-        entry_name = entry_name.replace('_', '-')
         if not entries:
             entries = self._entries
-        entry = entries.get(entry_name)
-        if not entry:
-            if entry_name.endswith('-any'):
-                root = entry_name[:-4]
-                for name in entries:
-                    if name.startswith(root):
-                        rest = name[len(root):]
-                        if rest in ['', '-img', '-nodtb']:
-                            entry = entries[name]
+        entry, entry_name, prop_name = self.LookupEntry(entries, sym_name, msg)
         if not entry:
             err = ("%s: Entry '%s' not found in list (%s)" %
                    (msg, entry_name, ','.join(entries.keys())))

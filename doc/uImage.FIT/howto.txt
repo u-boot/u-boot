@@ -70,6 +70,12 @@ The SPL also records to a DT all additional images (called loadables) which are
 loaded. The information about loadables locations is passed via the DT node with
 fit-images name.
 
+Finally, if there are multiple xPL phases (e.g. SPL, VPL), images can be marked
+as intended for a particular phase using the 'phase' property. For example, if
+fit_image_load() is called with image_ph(IH_PHASE_SPL, IH_TYPE_FIRMWARE), then
+only the image listed into the "firmware" property where phase is set to "spl"
+will be loaded.
+
 Loadables Example
 -----------------
 Consider the following case for an ARM64 platform where U-Boot runs in EL2

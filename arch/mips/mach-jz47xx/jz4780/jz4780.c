@@ -58,7 +58,7 @@ void board_init_f(ulong dummy)
 	if (ret)
 		hang();
 
-	header = (struct legacy_img_hdr *)(CONFIG_SYS_TEXT_BASE -
+	header = (struct legacy_img_hdr *)(CONFIG_TEXT_BASE -
 					 sizeof(struct legacy_img_hdr));
 
 	count = blk_dread(mmc_get_blk_desc(mmc),
@@ -68,7 +68,7 @@ void board_init_f(ulong dummy)
 		hang();
 
 	image_entry_noargs_t image_entry =
-		(image_entry_noargs_t)CONFIG_SYS_TEXT_BASE;
+		(image_entry_noargs_t)CONFIG_TEXT_BASE;
 
 	image_entry();
 

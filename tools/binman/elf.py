@@ -188,7 +188,29 @@ def GetSymbolAddress(fname, sym_name):
         return None
     return sym.address
 
-def LookupAndWriteSymbols(elf_fname, entry, section):
+def GetPackString(sym, msg):
+    """Get the struct.pack/unpack string to use with a given symbol
+
+    Args:
+        sym (Symbol): Symbol to check. Only the size member is checked
+        @msg (str): String which indicates the entry being processed, used for
+            errors
+
+    Returns:
+        str: struct string to use, .e.g. '<I'
+
+    Raises:
+        ValueError: Symbol has an unexpected size
+    """
+    if sym.size == 4:
+        return '<I'
+    elif sym.size == 8:
+        return '<Q'
+    else:
+        raise ValueError('%s has size %d: only 4 and 8 are supported' %
+                         (msg, sym.size))
+
+def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False):
     """Replace all symbols in an entry with their correct values
 
     The entry contents is updated so that values for referenced symbols will be
@@ -204,34 +226,52 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
     """
     fname = tools.get_input_filename(elf_fname)
     syms = GetSymbols(fname, ['image', 'binman'])
+    if is_elf:
+        if not ELF_TOOLS:
+            msg = ("Section '%s': entry '%s'" %
+                   (section.GetPath(), entry.GetPath()))
+            raise ValueError(f'{msg}: Cannot write symbols to an ELF file without Python elftools')
+        new_syms = {}
+        with open(fname, 'rb') as fd:
+            elf = ELFFile(fd)
+            for name, sym in syms.items():
+                offset = _GetFileOffset(elf, sym.address)
+                new_syms[name] = Symbol(sym.section, sym.address, sym.size,
+                                        sym.weak, offset)
+            syms = new_syms
+
     if not syms:
+        tout.debug('LookupAndWriteSymbols: no syms')
         return
     base = syms.get('__image_copy_start')
-    if not base:
+    if not base and not is_elf:
+        tout.debug('LookupAndWriteSymbols: no base')
         return
+    base_addr = 0 if is_elf else base.address
     for name, sym in syms.items():
         if name.startswith('_binman'):
             msg = ("Section '%s': Symbol '%s'\n   in entry '%s'" %
                    (section.GetPath(), name, entry.GetPath()))
-            offset = sym.address - base.address
-            if offset < 0 or offset + sym.size > entry.contents_size:
-                raise ValueError('%s has offset %x (size %x) but the contents '
-                                 'size is %x' % (entry.GetPath(), offset,
-                                                 sym.size, entry.contents_size))
-            if sym.size == 4:
-                pack_string = '<I'
-            elif sym.size == 8:
-                pack_string = '<Q'
+            if is_elf:
+                # For ELF files, use the file offset
+                offset = sym.offset
             else:
-                raise ValueError('%s has size %d: only 4 and 8 are supported' %
-                                 (msg, sym.size))
-
+                # For blobs use the offset of the symbol, calculated by
+                # subtracting the base address which by definition is at the
+                # start
+                offset = sym.address - base.address
+                if offset < 0 or offset + sym.size > entry.contents_size:
+                    raise ValueError('%s has offset %x (size %x) but the contents '
+                                     'size is %x' % (entry.GetPath(), offset,
+                                                     sym.size,
+                                                     entry.contents_size))
+            pack_string = GetPackString(sym, msg)
             if name == '_binman_sym_magic':
                 value = BINMAN_SYM_MAGIC_VALUE
             else:
                 # Look up the symbol in our entry tables.
                 value = section.GetImage().LookupImageSymbol(name, sym.weak,
-                                                             msg, base.address)
+                                                             msg, base_addr)
             if value is None:
                 value = -1
                 pack_string = pack_string.lower()
@@ -240,6 +280,28 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
                        (msg, name, offset, value, len(value_bytes)))
             entry.data = (entry.data[:offset] + value_bytes +
                         entry.data[offset + sym.size:])
+
+def GetSymbolValue(sym, data, msg):
+    """Get the value of a symbol
+
+    This can only be used on symbols with an integer value.
+
+    Args:
+        sym (Symbol): Symbol to check
+        data (butes): Data for the ELF file - the symbol data appears at offset
+            sym.offset
+        @msg (str): String which indicates the entry being processed, used for
+            errors
+
+    Returns:
+        int: Value of the symbol
+
+    Raises:
+        ValueError: Symbol has an unexpected size
+    """
+    pack_string = GetPackString(sym, msg)
+    value = struct.unpack(pack_string, data[sym.offset:sym.offset + sym.size])
+    return value[0]
 
 def MakeElf(elf_fname, text, data):
     """Make an elf file with the given data in a single section

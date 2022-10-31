@@ -1,6 +1,6 @@
 if ARCH_APPLE
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x00000000
 
 config SYS_CONFIG_NAME
@@ -16,6 +16,6 @@ config SYS_MALLOC_F_LEN
 	default 0x4000
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
-	default SYS_TEXT_BASE
+	default TEXT_BASE
 
 endif

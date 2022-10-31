@@ -93,7 +93,7 @@ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	depends on LINUX_KERNEL_IMAGE_HEADER
 	hex
 	help
-	  The value subtracted from CONFIG_SYS_TEXT_BASE to calculate the
+	  The value subtracted from CONFIG_TEXT_BASE to calculate the
 	  TEXT_OFFSET value written to the Linux kernel image header.
 
 config GICV2

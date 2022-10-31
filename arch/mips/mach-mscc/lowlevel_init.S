@@ -21,7 +21,7 @@ LEAF(lowlevel_init)
 
 	/* Modify ra/s0 such we return to physical NOR location */
 	li	t0, 0x0fffffff
-	li	t1, CONFIG_SYS_TEXT_BASE
+	li	t1, CONFIG_TEXT_BASE
 	and	s0, ra, t0
 	add	s0, s0, t1
 

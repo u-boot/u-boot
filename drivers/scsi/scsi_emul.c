@@ -62,6 +62,15 @@ int sb_scsi_emul_command(struct scsi_emul_info *info,
 		ret = SCSI_EMUL_DO_READ;
 		break;
 	}
+	case SCSI_WRITE10: {
+		const struct scsi_write10_req *write_req = (void *)req;
+
+		info->seek_block = be32_to_cpu(write_req->lba);
+		info->write_len = be16_to_cpu(write_req->xfer_len);
+		info->buff_used = info->write_len * info->block_size;
+		ret = SCSI_EMUL_DO_WRITE;
+		break;
+	}
 	default:
 		debug("Command not supported: %x\n", req->cmd[0]);
 		ret = -EPROTONOSUPPORT;

@@ -439,7 +439,7 @@ void board_init_f(ulong dummy)
 	 * in last boot.
 	 */
 	if (is_warm_boot()) {
-		second_uboot = (void (*)(void))CONFIG_SYS_TEXT_BASE;
+		second_uboot = (void (*)(void))CONFIG_TEXT_BASE;
 		second_uboot();
 	}
 

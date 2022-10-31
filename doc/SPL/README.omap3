@@ -36,17 +36,17 @@ Option 1 (SPL only):
 0x40200800 - 0x4020BBFF: Area for SPL text, data and rodata
 0x4020E000 - 0x4020FFFC: Area for the SPL stack.
 0x80000000 - 0x8007FFFF: Area for the SPL BSS.
-0x80100000: CONFIG_SYS_TEXT_BASE of U-Boot
+0x80100000: CONFIG_TEXT_BASE of U-Boot
 0x80208000 - 0x80307FFF: malloc() pool available to SPL.
 
 Option 2 (SPL or X-Loader):
 0x40200800 - 0x4020BBFF: Area for SPL text, data and rodata
 0x4020E000 - 0x4020FFFC: Area for the SPL stack.
-0x80008000: CONFIG_SYS_TEXT_BASE of U-Boot
+0x80008000: CONFIG_TEXT_BASE of U-Boot
 0x87000000 - 0x8707FFFF: Area for the SPL BSS.
 0x87080000 - 0x870FFFFF: malloc() pool available to SPL.
 
 For the areas that reside within DDR1 they must not be used prior to s_init()
-completing.  Note that CONFIG_SYS_TEXT_BASE must be clear of the areas that SPL
+completing.  Note that CONFIG_TEXT_BASE must be clear of the areas that SPL
 uses while running.  This is why we have two versions of the memory map that
 only vary in where the BSS and malloc pool reside.

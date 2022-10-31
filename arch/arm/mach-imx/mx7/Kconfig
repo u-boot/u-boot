@@ -16,7 +16,7 @@ config MX7D
 	select ROM_UNIFIED_SECTIONS
 	imply CMD_FUSE
 
-config SYS_TEXT_BASE
+config TEXT_BASE
 	default 0x87800000
 
 config SPL_TEXT_BASE

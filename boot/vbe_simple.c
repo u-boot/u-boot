@@ -9,55 +9,18 @@
 #define LOG_CATEGORY LOGC_BOOT
 
 #include <common.h>
-#include <log.h>
-#include <memalign.h>
-#include <part.h>
+#include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
 #include <dm.h>
+#include <log.h>
+#include <memalign.h>
 #include <mmc.h>
 #include <vbe.h>
-#include <version_string.h>
 #include <dm/device-internal.h>
 #include <dm/ofnode.h>
 #include <u-boot/crc.h>
-
-enum {
-	MAX_VERSION_LEN		= 256,
-
-	NVD_HDR_VER_SHIFT	= 0,
-	NVD_HDR_VER_MASK	= 0xf,
-	NVD_HDR_SIZE_SHIFT	= 4,
-	NVD_HDR_SIZE_MASK	= 0xf << NVD_HDR_SIZE_SHIFT,
-
-	/* Firmware key-version is in the top 16 bits of fw_ver */
-	FWVER_KEY_SHIFT		= 16,
-	FWVER_FW_MASK		= 0xffff,
-
-	NVD_HDR_VER_CUR		= 1,	/* current version */
-};
-
-/** struct simple_priv - information read from the device tree */
-struct simple_priv {
-	u32 area_start;
-	u32 area_size;
-	u32 skip_offset;
-	u32 state_offset;
-	u32 state_size;
-	u32 version_offset;
-	u32 version_size;
-	const char *storage;
-};
-
-/** struct simple_state - state information read from media
- *
- * @fw_version: Firmware version string
- * @fw_vernum: Firmware version number
- */
-struct simple_state {
-	char fw_version[MAX_VERSION_LEN];
-	u32 fw_vernum;
-};
+#include "vbe_simple.h"
 
 /** struct simple_nvdata - storage format for non-volatile data */
 struct simple_nvdata {
@@ -127,7 +90,7 @@ static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
 	return 0;
 }
 
-static int simple_read_state(struct udevice *dev, struct simple_state *state)
+int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
 	struct simple_priv *priv = dev_get_priv(dev);
@@ -168,7 +131,7 @@ static int vbe_simple_get_state_desc(struct udevice *dev, char *buf,
 	struct simple_state state;
 	int ret;
 
-	ret = simple_read_state(dev, &state);
+	ret = vbe_simple_read_state(dev, &state);
 	if (ret)
 		return log_msg_ret("read", ret);
 
@@ -183,88 +146,39 @@ static int vbe_simple_get_state_desc(struct udevice *dev, char *buf,
 
 static int vbe_simple_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
-	/* To be implemented */
+	int ret;
 
+	if (vbe_phase() == VBE_PHASE_FIRMWARE) {
+		ret = vbe_simple_read_bootflow_fw(dev, bflow);
+		if (ret)
+			return log_msg_ret("fw", ret);
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+static int vbe_simple_read_file(struct udevice *dev, struct bootflow *bflow,
+				const char *file_path, ulong addr, ulong *sizep)
+{
+	int ret;
+
+	if (vbe_phase() == VBE_PHASE_OS) {
+		ret = bootmeth_common_read_file(dev, bflow, file_path, addr,
+						sizep);
+		if (ret)
+			return log_msg_ret("os", ret);
+	}
+
+	/* To be implemented */
 	return -EINVAL;
 }
 
 static struct bootmeth_ops bootmeth_vbe_simple_ops = {
 	.get_state_desc	= vbe_simple_get_state_desc,
 	.read_bootflow	= vbe_simple_read_bootflow,
-	.read_file	= bootmeth_common_read_file,
+	.read_file	= vbe_simple_read_file,
 };
-
-int vbe_simple_fixup_node(ofnode node, struct simple_state *state)
-{
-	char *version;
-	int ret;
-
-	version = strdup(state->fw_version);
-	if (!version)
-		return log_msg_ret("dup", -ENOMEM);
-
-	ret = ofnode_write_string(node, "cur-version", version);
-	if (ret)
-		return log_msg_ret("ver", ret);
-	ret = ofnode_write_u32(node, "cur-vernum", state->fw_vernum);
-	if (ret)
-		return log_msg_ret("num", ret);
-	ret = ofnode_write_string(node, "bootloader-version", version_string);
-	if (ret)
-		return log_msg_ret("bl", ret);
-
-	return 0;
-}
-
-/**
- * bootmeth_vbe_simple_ft_fixup() - Write out all VBE simple data to the DT
- *
- * @ctx: Context for event
- * @event: Event to process
- * @return 0 if OK, -ve on error
- */
-static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
-{
-	oftree tree = event->data.ft_fixup.tree;
-	struct udevice *dev;
-
-	/*
-	 * Ideally we would have driver model support for fixups, but that does
-	 * not exist yet. It is a step too far to try to do this before VBE is
-	 * in place.
-	 */
-	for (vbe_find_first_device(&dev); dev; vbe_find_next_device(&dev)) {
-		struct simple_state state;
-		ofnode node, subnode;
-		int ret;
-
-		if (strcmp("vbe_simple", dev->driver->name))
-			continue;
-
-		/* Check if there is a node to fix up */
-		node = oftree_path(tree, "/chosen/fwupd");
-		if (!ofnode_valid(node))
-			continue;
-		subnode = ofnode_find_subnode(node, dev->name);
-		if (!ofnode_valid(subnode))
-			continue;
-
-		log_debug("Fixing up: %s\n", dev->name);
-		ret = device_probe(dev);
-		if (ret)
-			return log_msg_ret("probe", ret);
-		ret = simple_read_state(dev, &state);
-		if (ret)
-			return log_msg_ret("read", ret);
-
-		ret = vbe_simple_fixup_node(subnode, &state);
-		if (ret)
-			return log_msg_ret("fix", ret);
-	}
-
-	return 0;
-}
-EVENT_SPY(EVT_FT_FIXUP, bootmeth_vbe_simple_ft_fixup);
 
 static int bootmeth_vbe_simple_probe(struct udevice *dev)
 {

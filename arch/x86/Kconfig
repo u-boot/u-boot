@@ -924,8 +924,8 @@ config CACHE_QOS_SIZE_PER_BIT
 
 config X86_OFFSET_U_BOOT
 	hex "Offset of U-Boot in ROM image"
-	depends on HAVE_SYS_TEXT_BASE
-	default SYS_TEXT_BASE
+	depends on HAVE_TEXT_BASE
+	default TEXT_BASE
 
 config X86_OFFSET_SPL
 	hex "Offset of SPL in ROM image"

@@ -35,7 +35,7 @@ _start:
 
 .globl	_TEXT_BASE
 _TEXT_BASE:
-	.quad	CONFIG_SYS_TEXT_BASE
+	.quad	CONFIG_TEXT_BASE
 
 /*
  * These are defined in the linker script.

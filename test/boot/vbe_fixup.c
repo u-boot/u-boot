@@ -13,20 +13,17 @@
 #include <test/ut.h>
 #include "bootstd_common.h"
 
-/* Basic test of reading nvdata and updating a fwupd node in the device tree */
-static int vbe_test_fixup(struct unit_test_state *uts)
+/*
+ * Basic test of reading nvdata and updating a fwupd node in the device tree
+ * This test works when called from test_vbe.py and it must use the flat tree,
+ * since device tree fix-ups do not yet support live tree.
+ */
+static int vbe_test_fixup_norun(struct unit_test_state *uts)
 {
 	ofnode chosen, node;
 	const char *data;
 	oftree tree;
 	int size;
-
-	/*
-	 * This test works when called from test_vbe.py and it must use the
-	 * flat tree, since device tree fix-ups do not yet support live tree.
-	 */
-	if (!working_fdt)
-		return 0;
 
 	tree = oftree_from_fdt(working_fdt);
 	ut_assert(oftree_valid(tree));
@@ -55,5 +52,5 @@ static int vbe_test_fixup(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(vbe_test_fixup,
-	     UT_TESTF_DM | UT_TESTF_SCAN_FDT | UT_TESTF_FLAT_TREE);
+BOOTSTD_TEST(vbe_test_fixup_norun, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
+	     UT_TESTF_FLAT_TREE | UT_TESTF_MANUAL);

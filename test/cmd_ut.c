@@ -19,16 +19,26 @@ int cmd_ut_category(const char *name, const char *prefix,
 		    int argc, char *const argv[])
 {
 	int runs_per_text = 1;
+	bool force_run = false;
 	int ret;
 
-	if (argc > 1 && !strncmp("-r", argv[1], 2)) {
-		runs_per_text = dectoul(argv[1] + 2, NULL);
+	while (argc > 1 && *argv[1] == '-') {
+		const char *str = argv[1];
+
+		switch (str[1]) {
+		case 'r':
+			runs_per_text = dectoul(str + 2, NULL);
+			break;
+		case 'f':
+			force_run = true;
+			break;
+		}
 		argv++;
 		argc++;
 	}
 
 	ret = ut_run_list(name, prefix, tests, n_ents,
-			  argc > 1 ? argv[1] : NULL, runs_per_text);
+			  argc > 1 ? argv[1] : NULL, runs_per_text, force_run);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }

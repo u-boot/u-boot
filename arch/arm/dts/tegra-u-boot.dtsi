@@ -1,7 +1,7 @@
 #include <config.h>
 
 #ifdef CONFIG_SPL_TEXT_BASE
-#define U_BOOT_OFFSET (CONFIG_SYS_TEXT_BASE - CONFIG_SPL_TEXT_BASE)
+#define U_BOOT_OFFSET (CONFIG_TEXT_BASE - CONFIG_SPL_TEXT_BASE)
 #else
 #define U_BOOT_OFFSET 0
 #endif

@@ -363,7 +363,7 @@ __weak void sunxi_sram_init(void)
 static bool sunxi_valid_emmc_boot(struct mmc *mmc)
 {
 	struct blk_desc *bd = mmc_get_blk_desc(mmc);
-	uint32_t *buffer = (void *)(uintptr_t)CONFIG_SYS_TEXT_BASE;
+	u32 *buffer = (void *)(uintptr_t)CONFIG_TEXT_BASE;
 	struct boot_file_head *egon_head = (void *)buffer;
 	int bootpart = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 	uint32_t spl_size, emmc_checksum, chksum = 0;

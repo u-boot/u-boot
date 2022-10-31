@@ -256,15 +256,15 @@
 	"netdev=" CONFIG_NETDEV "\0"				\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\
 	"tftpflash=tftp $loadaddr $uboot;"				\
-		"protect off " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		"protect off " __stringify(CONFIG_TEXT_BASE)	\
 			" +$filesize; "	\
-		"erase " __stringify(CONFIG_SYS_TEXT_BASE)		\
+		"erase " __stringify(CONFIG_TEXT_BASE)		\
 			" +$filesize; "	\
-		"cp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		"cp.b $loadaddr " __stringify(CONFIG_TEXT_BASE)	\
 			" $filesize; "	\
-		"protect on " __stringify(CONFIG_SYS_TEXT_BASE)		\
+		"protect on " __stringify(CONFIG_TEXT_BASE)		\
 			" +$filesize; "	\
-		"cmp.b $loadaddr " __stringify(CONFIG_SYS_TEXT_BASE)	\
+		"cmp.b $loadaddr " __stringify(CONFIG_TEXT_BASE)	\
 			" $filesize\0"	\
 	"fdtaddr=780000\0"						\
 	"fdtfile=" CONFIG_FDTFILE "\0"					\

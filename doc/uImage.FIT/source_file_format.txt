@@ -190,6 +190,9 @@ the '/images' node should have the following layout:
     Xilinx Zynq UltraScale+ (ZymqMP) device.
     "u-boot,zynqmp-fpga-enc" - encrypted FPGA bitstream for Xilinx Zynq
     UltraScale+ (ZynqMP) device.
+  - phase : U-Boot phase for which the image is intended.
+    "spl" - image is an SPL image
+    "u-boot" - image is a U-Boot image
 
   Optional nodes:
   - hash-1 : Each hash sub-node represents separate hash or checksum

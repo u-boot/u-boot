@@ -95,6 +95,6 @@
 
 /* SPL part */
 
-#define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_UBOOT_BASE		CONFIG_TEXT_BASE
 
 #endif	/* __CONFIG_H */

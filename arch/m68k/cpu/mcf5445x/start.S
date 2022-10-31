@@ -26,10 +26,10 @@
 	rte;
 
 #if defined(CONFIG_SERIAL_BOOT)
-#define ASM_DRAMINIT	(asm_dram_init - CONFIG_SYS_TEXT_BASE + \
+#define ASM_DRAMINIT	(asm_dram_init - CONFIG_TEXT_BASE + \
 	CONFIG_SYS_INIT_RAM_ADDR)
-#define ASM_DRAMINIT_N	(asm_dram_init - CONFIG_SYS_TEXT_BASE)
-#define ASM_SBF_IMG_HDR	(asm_sbf_img_hdr - CONFIG_SYS_TEXT_BASE + \
+#define ASM_DRAMINIT_N	(asm_dram_init - CONFIG_TEXT_BASE)
+#define ASM_SBF_IMG_HDR	(asm_sbf_img_hdr - CONFIG_TEXT_BASE + \
 	CONFIG_SYS_INIT_RAM_ADDR)
 #endif
 
@@ -116,7 +116,7 @@ vector192_255:
 asm_sbf_img_hdr:
 	.long	0x00000000		/* checksum, not yet implemented */
 	.long	0x00040000		/* image length */
-	.long	CONFIG_SYS_TEXT_BASE	/* image to be relocated at */
+	.long	CONFIG_TEXT_BASE	/* image to be relocated at */
 
 asm_dram_init:
 	move.w	#0x2700,%sr		/* Mask off Interrupt */
@@ -271,7 +271,7 @@ asm_dspi_rd_loop2:
 	jsr	asm_dspi_rd_status
 
 	/* jump to memory and execute */
-	move.l	#(CONFIG_SYS_TEXT_BASE + 0x400), %a0
+	move.l	#(CONFIG_TEXT_BASE + 0x400), %a0
 	jmp	(%a0)
 
 asm_dspi_wr_status:
@@ -298,7 +298,7 @@ asm_dspi_rd_status:
 	/* copy 4 boot pages to dram as soon as possible */
 	/* each page is 996 bytes (1056 total with 60 ECC bytes */
 	move.l  #0x00000000, %a1	/* src */
-	move.l	#CONFIG_SYS_TEXT_BASE, %a2		/* dst */
+	move.l	#CONFIG_TEXT_BASE, %a2		/* dst */
 	move.l	#0x3E0, %d0		/* sz in long */
 
 asm_boot_nand_copy:
@@ -381,7 +381,7 @@ asm_nand_init:
 	move.l	#4, %d2			/* start at 4 */
 	move.l  #0xFC0FFF04, %a0	/* cmd2 */
 	move.l  #0xFC0FFF0C, %a1	/* rar */
-	move.l	#(CONFIG_SYS_TEXT_BASE + 0xF80), %a2
+	move.l	#(CONFIG_TEXT_BASE + 0xF80), %a2
 
 asm_nand_read:
 	move.l	#0x11000000, %d0	/* rar */
@@ -419,7 +419,7 @@ asm_nand_copy:
 	bgt	asm_nand_read
 
 	/* jump to memory and execute */
-	move.l	#(CONFIG_SYS_TEXT_BASE + 0x400), %a0
+	move.l	#(CONFIG_TEXT_BASE + 0x400), %a0
 	jmp	(%a0)
 
 #endif			/* CONFIG_SYS_NAND_BOOT */
