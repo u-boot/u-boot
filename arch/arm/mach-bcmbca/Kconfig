@@ -12,6 +12,128 @@ config BCM47622
 	select DM_SERIAL
 	select PL01X_SERIAL
 
-endif
+config BCM4908
+	bool "Support for Broadcom 4908 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select BCM6345_SERIAL
+
+config BCM4912
+	bool "Support for Broadcom 4912 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select PL01X_SERIAL
+
+config BCM63138
+	bool "Support for Broadcom 63138 Family"
+	select TIMER
+	select ARM_GLOBAL_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select BCM6345_SERIAL
+
+config BCM63146
+	bool "Support for Broadcom 63146 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select PL01X_SERIAL
+
+config BCM63148
+	bool "Support for Broadcom 63148 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select BCM6345_SERIAL
+
+config BCM63158
+	bool "Support for Broadcom 63158 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select PL01X_SERIAL
+
+config BCM63178
+	bool "Support for Broadcom 63178 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select PL01X_SERIAL
+
+config BCM6756
+	bool "Support for Broadcom 6756 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select PL01X_SERIAL
+
+config BCM6813
+	bool "Support for Broadcom 6813 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select PL01X_SERIAL
+
+config BCM6846
+	bool "Support for Broadcom 6846 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select BCM6345_SERIAL
+
+config BCM6855
+	bool "Support for Broadcom 6855 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select PL01X_SERIAL
+	help
+	  Broadcom BCM6855 is a triple core Cortex A7 based xPON Gateway
+	  SoC. This SoC family includes BCM6855x, BCM68252 and BCM6753.
+
+config BCM6856
+	bool "Support for Broadcom 6856 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select BCM6345_SERIAL
+	help
+	  Broadcom BCM6856 is a dual core Brahma-B53 ARMv8 based xPON Gateway
+	  SoC. This SoC family includes BCM6856, BCM6836 and BCM4910.
+
+config BCM6858
+	bool "Support for Broadcom 6858 Family"
+	select ARM64
+	select SYS_ARCH_TIMER
+	select DM_SERIAL
+	select BCM6345_SERIAL
+	help
+	  Broadcom BCM6858 is a quad core Brahma-B53 ARMv8 based xPON Gateway
+	  SoC. This SoC family includes BCM6858, BCM49508, BCM5504X and BCM6545.
+
+config BCM6878
+	bool "Support for Broadcom 6878 Family"
+	select SYS_ARCH_TIMER
+	select CPU_V7A
+	select DM_SERIAL
+	select PL01X_SERIAL
 
 source "arch/arm/mach-bcmbca/bcm47622/Kconfig"
+source "arch/arm/mach-bcmbca/bcm4908/Kconfig"
+source "arch/arm/mach-bcmbca/bcm4912/Kconfig"
+source "arch/arm/mach-bcmbca/bcm63138/Kconfig"
+source "arch/arm/mach-bcmbca/bcm63146/Kconfig"
+source "arch/arm/mach-bcmbca/bcm63148/Kconfig"
+source "arch/arm/mach-bcmbca/bcm63158/Kconfig"
+source "arch/arm/mach-bcmbca/bcm63178/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6756/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6813/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6846/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6855/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6856/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6858/Kconfig"
+source "arch/arm/mach-bcmbca/bcm6878/Kconfig"
+
+endif

@@ -230,12 +230,14 @@ config SANDBOX_TIMER
 	  Select this to enable an emulated timer for sandbox. It gets
 	  time from host os.
 
-config STI_TIMER
-	bool "STi timer support"
+config ARM_GLOBAL_TIMER
+	bool "ARM Cortex A9 global timer support"
 	depends on TIMER
+	depends on ARM
 	default y if ARCH_STI
 	help
-	  Select this to enable a timer for STi devices.
+	  Select this to enable global timer found on ARM Cortex A9
+	  based devices.
 
 config STM32_TIMER
 	bool "STM32 timer support"

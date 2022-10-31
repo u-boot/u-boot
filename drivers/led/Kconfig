@@ -30,14 +30,14 @@ config LED_BCM6358
 
 config LED_BCM6753
 	bool "LED Support for BCM6753"
-	depends on LED && ARCH_BCM6753
+	depends on LED && BCM6855
 	help
 	  This option enables support for LEDs connected to the BCM6753
 	  HW has blinking and fading capabilities and up to 32 LEDs can be controlled.
 
 config LED_BCM6858
 	bool "LED Support for BCM6858"
-	depends on LED && (ARCH_BCM68360 || ARCH_BCM6858 || ARCH_BCM63158)
+	depends on LED && (BCM6856 || BCM6858 || BCM63158)
 	help
 	  This option enables support for LEDs connected to the BCM6858
 	  HW has blinking capabilities and up to 32 LEDs can be controlled.
