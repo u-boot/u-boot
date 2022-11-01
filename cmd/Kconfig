@@ -162,6 +162,12 @@ config CMD_CPU
 	  internal name) and clock frequency. Other information may be
 	  available depending on the CPU driver.
 
+config CMD_FWU_METADATA
+	bool "fwu metadata read"
+	depends on FWU_MULTI_BANK_UPDATE
+	help
+	  Command to read the metadata and dump it's contents
+
 config CMD_LICENSE
 	bool "license"
 	select BUILD_BIN2C

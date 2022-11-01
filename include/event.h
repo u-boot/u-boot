@@ -34,6 +34,9 @@ enum event_t {
 	/* Device tree fixups before booting */
 	EVT_FT_FIXUP,
 
+	/* To be called once, before calling main_loop() */
+	EVT_MAIN_LOOP,
+
 	EVT_COUNT
 };
 

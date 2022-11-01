@@ -14,6 +14,11 @@
 		spi0 = &qspi;
 		usb0 = &usbotg_hs;
 	};
+
+	fwu-mdata {
+		compatible = "u-boot,fwu-mdata-gpt";
+		fwu-mdata-store = <&sdmmc1>;
+	};
 };
 
 &flash0 {
