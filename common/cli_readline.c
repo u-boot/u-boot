@@ -517,10 +517,8 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		}
 #endif
 		default:
-			if (ichar >= ' ' && ichar <= '~') {
-				cread_add_char(ichar, insert, &num, &eol_num,
-					       buf, *len);
-			}
+			cread_add_char(ichar, insert, &num, &eol_num, buf,
+				       *len);
 			break;
 		}
 	}
