@@ -1197,12 +1197,12 @@ int ofnode_read_eth_phy_id(ofnode node, u16 *vendor, u16 *device)
 	while (list < end) {
 		len = strlen(list);
 
-		if (len >= strlen("ethernet-phy-idVVVV,DDDD")) {
+		if (len >= strlen("ethernet-phy-idVVVV.DDDD")) {
 			char *s = strstr(list, "ethernet-phy-id");
 
 			/*
 			 * check if the string is something like
-			 * ethernet-phy-idVVVV,DDDD
+			 * ethernet-phy-idVVVV.DDDD
 			 */
 			if (s && s[19] == '.') {
 				s += strlen("ethernet-phy-id");
