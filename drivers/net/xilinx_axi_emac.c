@@ -342,6 +342,45 @@ static int axiemac_phy_init(struct udevice *dev)
 	return 0;
 }
 
+static int pcs_pma_startup(struct axidma_priv *priv)
+{
+	u32 rc, retry_cnt = 0;
+	u16 mii_reg;
+
+	rc = phyread(priv, priv->pcsaddr, MII_BMCR, &mii_reg);
+	if (rc)
+		goto failed_mdio;
+
+	if (!(mii_reg & BMCR_ANENABLE)) {
+		mii_reg |= BMCR_ANENABLE;
+		if (phywrite(priv, priv->pcsaddr, MII_BMCR, mii_reg))
+			goto failed_mdio;
+	}
+
+	/*
+	 * Check the internal PHY status and warn user if the link between it
+	 * and the external PHY is not obtained.
+	 */
+	debug("axiemac: waiting for link status of the PCS/PMA PHY");
+	while (retry_cnt * 10 < PHY_ANEG_TIMEOUT) {
+		rc = phyread(priv, priv->pcsaddr, MII_BMSR, &mii_reg);
+		if ((mii_reg & BMSR_LSTATUS) && mii_reg != 0xffff && !rc) {
+			debug(".Done\n");
+			return 0;
+		}
+		if ((retry_cnt++ % 10) == 0)
+			debug(".");
+		mdelay(10);
+	}
+	debug("\n");
+	printf("axiemac: Warning, PCS/PMA PHY@%d is not ready, link is down\n",
+	       priv->pcsaddr);
+	return 1;
+failed_mdio:
+	printf("axiemac: MDIO to the PCS/PMA PHY has failed\n");
+	return 1;
+}
+
 /* Setting axi emac and phy to proper setting */
 static int setup_phy(struct udevice *dev)
 {
@@ -372,6 +411,11 @@ static int setup_phy(struct udevice *dev)
 		printf("axiemac: could not initialize PHY %s\n",
 		       phydev->dev->name);
 		return 0;
+	}
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII ||
+	    priv->interface == PHY_INTERFACE_MODE_1000BASEX) {
+		if (pcs_pma_startup(priv))
+			return 0;
 	}
 	if (!phydev->link) {
 		printf("%s: No link.\n", phydev->dev->name);
