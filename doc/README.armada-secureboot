@@ -257,13 +257,13 @@ ARM architecture
 
 The creation of the boot image is done via the usual invocation of make (with a
 suitably set CROSS_COMPILE environment variable, of course). The resulting boot
-image u-boot-spl.kwb can then be tested, if so desired. The hdrparser from [5]
+image u-boot-with-spl.kwb can then be tested, if so desired. The hdrparser from [5]
 can be used for this purpose. To build the tool, invoke make in the
 'tools/marvell/doimage_mv' directory of [5], which builds a stand-alone
 hdrparser executable. A test can be conducted by calling hdrparser with the
 produced boot image and the following (mandatory) parameters:
 
-./hdrparser -k 0 -t u-boot-spl.kwb
+./hdrparser -k 0 -t u-boot-with-spl.kwb
 
 Here we assume that the CSK index is 0 and the boot image file resides in the
 same directory (adapt accordingly if needed). The tool should report that all

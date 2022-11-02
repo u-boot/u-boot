@@ -149,25 +149,25 @@ Tested values for \fIbaudrate\fP for Armada 38x include: 115200,
 
 .SH "EXAMPLES"
 
-Instruct BootROM to enter boot Xmodem boot mode, send \fIu-boot-spl.kwb\fP
+Instruct BootROM to enter boot Xmodem boot mode, send \fIu-boot-with-spl.kwb\fP
 kwbimage file via Xmodem on \fI/dev/ttyUSB0\fP at 115200 Bd and run terminal
 program:
 .IP
-.B kwboot -b u-boot-spl.kwb -t /dev/ttyUSB0
+.B kwboot -b u-boot-with-spl.kwb -t /dev/ttyUSB0
 
 .PP
 Instruct BootROM to enter boot Xmodem boot mode, send header of
-\fIu-boot-spl.kwb\fP kwbimage file via Xmodem at 115200 Bd, then instruct
+\fIu-boot-with-spl.kwb\fP kwbimage file via Xmodem at 115200 Bd, then instruct
 BootROM to change baudrate to 5200000 Bd, send data part of the kwbimage
 file via Xmodem at high speed and finally run terminal program:
 .IP
-.B kwboot -b u-boot-spl.kwb -B 5200000 -t /dev/ttyUSB0
+.B kwboot -b u-boot-with-spl.kwb -B 5200000 -t /dev/ttyUSB0
 
 .PP
-Only send \fIu-boot-spl.kwb\fP kwbimage file via Xmodem on \fI/dev/ttyUSB0\fP
+Only send \fIu-boot-with-spl.kwb\fP kwbimage file via Xmodem on \fI/dev/ttyUSB0\fP
 at 115200 Bd:
 .IP
-.B kwboot -D u-boot-spl.kwb /dev/ttyUSB0
+.B kwboot -D u-boot-with-spl.kwb /dev/ttyUSB0
 
 .PP
 Instruct BootROM to enter console debug mode and run terminal program on
