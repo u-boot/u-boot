@@ -320,6 +320,11 @@ config NPCM_FIU_SPI
 	  This enables support for the Flash Interface Unit SPI controller
 	  in master mode.
 
+config NPCM_PSPI
+	bool "PSPI driver for Nuvoton NPCM SoC"
+	help
+	  PSPI driver for NPCM SoC
+
 config NXP_FSPI
 	bool "NXP FlexSPI driver"
 	depends on SPI_MEM
