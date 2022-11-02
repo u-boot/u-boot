@@ -617,7 +617,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
-	cyclic_init,
 	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
 #if defined(CONFIG_CONSOLE_RECORD)

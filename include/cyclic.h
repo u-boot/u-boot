@@ -15,19 +15,6 @@
 #include <asm/types.h>
 
 /**
- * struct cyclic_drv - Cyclic driver internal data
- *
- * @cyclic_list: Cylic list node
- * @cyclic_ready: Flag if cyclic infrastructure is ready
- * @cyclic_running: Flag if cyclic infrastructure is running
- */
-struct cyclic_drv {
-	struct list_head cyclic_list;
-	bool cyclic_ready;
-	bool cyclic_running;
-};
-
-/**
  * struct cyclic_info - Information about cyclic execution function
  *
  * @func: Function to call periodically
@@ -50,7 +37,7 @@ struct cyclic_info {
 	uint64_t cpu_time_us;
 	uint64_t run_cnt;
 	uint64_t next_call;
-	struct list_head list;
+	struct hlist_node list;
 	bool already_warned;
 };
 
@@ -79,18 +66,11 @@ struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
 int cyclic_unregister(struct cyclic_info *cyclic);
 
 /**
- * cyclic_init() - Set up cyclic functions
- *
- * Init a list of cyclic functions, so that these can be added as needed
- */
-int cyclic_init(void);
-
-/**
- * cyclic_uninit() - Clean up cyclic functions
+ * cyclic_unregister_all() - Clean up cyclic functions
  *
  * This removes all cyclic functions
  */
-int cyclic_uninit(void);
+int cyclic_unregister_all(void);
 
 /**
  * cyclic_get_list() - Get cyclic list pointer
@@ -99,7 +79,7 @@ int cyclic_uninit(void);
  *
  * @return: pointer to cyclic_list
  */
-struct list_head *cyclic_get_list(void);
+struct hlist_head *cyclic_get_list(void);
 
 /**
  * cyclic_run() - Interate over all registered cyclic functions
@@ -138,12 +118,7 @@ static inline void schedule(void)
 {
 }
 
-static inline int cyclic_init(void)
-{
-	return 0;
-}
-
-static inline int cyclic_uninit(void)
+static inline int cyclic_unregister_all(void)
 {
 	return 0;
 }

@@ -839,7 +839,6 @@ static const init_fnc_t init_sequence_f[] = {
 	initf_malloc,
 	log_init,
 	initf_bootstage,	/* uses its own timer, so does not need DM */
-	cyclic_init,
 	event_init,
 #ifdef CONFIG_BLOBLIST
 	bloblist_init,
@@ -957,6 +956,16 @@ static const init_fnc_t init_sequence_f[] = {
 	do_elf_reloc_fixups,
 #endif
 	clear_bss,
+	/*
+	 * Deregister all cyclic functions before relocation, so that
+	 * gd->cyclic_list does not contain any references to pre-relocation
+	 * devices. Drivers will register their cyclic functions anew when the
+	 * devices are probed again.
+	 *
+	 * This should happen as late as possible so that the window where a
+	 * watchdog device is not serviced is as small as possible.
+	 */
+	cyclic_unregister_all,
 #if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX) && \
 		!CONFIG_IS_ENABLED(X86_64)
 	jump_to_copy,

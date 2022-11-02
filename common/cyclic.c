@@ -20,20 +20,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void hw_watchdog_reset(void);
 
-struct list_head *cyclic_get_list(void)
+struct hlist_head *cyclic_get_list(void)
 {
-	return &gd->cyclic->cyclic_list;
+	/* Silence "discards 'volatile' qualifier" warning. */
+	return (struct hlist_head *)&gd->cyclic_list;
 }
 
 struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
 				    const char *name, void *ctx)
 {
 	struct cyclic_info *cyclic;
-
-	if (!gd->cyclic->cyclic_ready) {
-		pr_debug("Cyclic IF not ready yet\n");
-		return NULL;
-	}
 
 	cyclic = calloc(1, sizeof(struct cyclic_info));
 	if (!cyclic) {
@@ -47,14 +43,14 @@ struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
 	cyclic->name = strdup(name);
 	cyclic->delay_us = delay_us;
 	cyclic->start_time_us = timer_get_us();
-	list_add_tail(&cyclic->list, &gd->cyclic->cyclic_list);
+	hlist_add_head(&cyclic->list, cyclic_get_list());
 
 	return cyclic;
 }
 
 int cyclic_unregister(struct cyclic_info *cyclic)
 {
-	list_del(&cyclic->list);
+	hlist_del(&cyclic->list);
 	free(cyclic);
 
 	return 0;
@@ -62,15 +58,16 @@ int cyclic_unregister(struct cyclic_info *cyclic)
 
 void cyclic_run(void)
 {
-	struct cyclic_info *cyclic, *tmp;
+	struct cyclic_info *cyclic;
+	struct hlist_node *tmp;
 	uint64_t now, cpu_time;
 
 	/* Prevent recursion */
-	if (gd->cyclic->cyclic_running)
+	if (gd->flags & GD_FLG_CYCLIC_RUNNING)
 		return;
 
-	gd->cyclic->cyclic_running = true;
-	list_for_each_entry_safe(cyclic, tmp, &gd->cyclic->cyclic_list, list) {
+	gd->flags |= GD_FLG_CYCLIC_RUNNING;
+	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list) {
 		/*
 		 * Check if this cyclic function needs to get called, e.g.
 		 * do not call the cyclic func too often
@@ -99,7 +96,7 @@ void cyclic_run(void)
 			}
 		}
 	}
-	gd->cyclic->cyclic_running = false;
+	gd->flags &= ~GD_FLG_CYCLIC_RUNNING;
 }
 
 void schedule(void)
@@ -112,32 +109,17 @@ void schedule(void)
 	 * schedule() might get called very early before the cyclic IF is
 	 * ready. Make sure to only call cyclic_run() when it's initalized.
 	 */
-	if (gd && gd->cyclic && gd->cyclic->cyclic_ready)
+	if (gd)
 		cyclic_run();
 }
 
-int cyclic_uninit(void)
+int cyclic_unregister_all(void)
 {
-	struct cyclic_info *cyclic, *tmp;
+	struct cyclic_info *cyclic;
+	struct hlist_node *tmp;
 
-	list_for_each_entry_safe(cyclic, tmp, &gd->cyclic->cyclic_list, list)
+	hlist_for_each_entry_safe(cyclic, tmp, cyclic_get_list(), list)
 		cyclic_unregister(cyclic);
-	gd->cyclic->cyclic_ready = false;
-
-	return 0;
-}
-
-int cyclic_init(void)
-{
-	int size = sizeof(struct cyclic_drv);
-
-	gd->cyclic = (struct cyclic_drv *)malloc(size);
-	if (!gd->cyclic)
-		return -ENOMEM;
-
-	memset(gd->cyclic, '\0', size);
-	INIT_LIST_HEAD(&gd->cyclic->cyclic_list);
-	gd->cyclic->cyclic_ready = true;
 
 	return 0;
 }
