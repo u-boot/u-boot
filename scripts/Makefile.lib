@@ -192,6 +192,8 @@ dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \
 		 -D__ASSEMBLY__                                          \
 		 -undef -D__DTS__
 
+export dtc_cpp_flags
+
 # Finds the multi-part object the current object will be linked into
 modname-multi = $(sort $(foreach m,$(multi-used),\
 		$(if $(filter $(subst $(obj)/,,$*.o), $($(m:.o=-objs)) $($(m:.o=-y))),$(m:.o=))))
@@ -315,6 +317,9 @@ ifeq ($(CONFIG_OF_LIBFDT_OVERLAY),y)
 DTC_FLAGS += -@
 endif
 
+quiet_cmd_embedcapsulekey = EMBEDCAPSULEKEY $@
+cmd_embedcapsulekey = $(srctree)/scripts/embed_capsule_key.sh $@
+
 quiet_cmd_dtc = DTC     $@
 # Modified for U-Boot
 # Bring in any U-Boot-specific include at the end of the file
@@ -333,6 +338,9 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 
 $(obj)/%.dtb: $(src)/%.dts FORCE
 	$(call if_changed_dep,dtc)
+ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),y)
+	$(call cmd,embedcapsulekey,$@)
+endif
 
 pre-tmp = $(subst $(comma),_,$(dot-target).pre.tmp)
 dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
