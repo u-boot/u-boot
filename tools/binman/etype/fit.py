@@ -8,6 +8,7 @@
 import libfdt
 
 from binman.entry import Entry, EntryArg
+from binman.etype.fdt_esl import Entry_fdt_esl
 from binman.etype.section import Entry_section
 from binman import elf
 from dtoc import fdt_util
@@ -20,6 +21,7 @@ OPERATIONS = {
     'gen-fdt-nodes': OP_GEN_FDT_NODES,
     'split-elf': OP_SPLIT_ELF,
     }
+esl_embed_done = False
 
 class Entry_fit(Entry_section):
 
@@ -363,6 +365,9 @@ class Entry_fit(Entry_section):
                 self._fdts = fdts.split()
         self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
                                                                   str)])[0]
+        self.embed_esl = fdt_util.GetBool(self._node, 'embed-esl')
+        if self.embed_esl:
+            self.esl = fdt_util.GetString(self._node, 'esl-file')
 
     def _get_operation(self, base_node, node):
         """Get the operation referenced by a subnode
@@ -434,6 +439,15 @@ class Entry_fit(Entry_section):
         Returns:
             bytes: Contents of the section
         """
+
+        global esl_embed_done
+
+        if self.embed_esl and not esl_embed_done:
+            for dtb in self._fdts:
+                Entry_fdt_esl.dtb_embed_esl(self, self.esl,
+                                            tools.get_input_filename(dtb + '.dtb'))
+                esl_embed_done = True
+
         data = self._build_input()
         uniq = self.GetUniqueName()
         input_fname = tools.get_output_filename(f'{uniq}.itb')
@@ -825,6 +839,8 @@ class Entry_fit(Entry_section):
     def AddBintools(self, btools):
         super().AddBintools(btools)
         self.mkimage = self.AddBintool(btools, 'mkimage')
+        if self.embed_esl:
+            self.fdt_add_pubkey = self.AddBintool(btools, 'fdt_add_pubkey')
 
     def CheckMissing(self, missing_list):
         # We must use our private entry list for this since generator nodes
