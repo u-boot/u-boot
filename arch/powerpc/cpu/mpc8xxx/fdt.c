@@ -128,7 +128,7 @@ void ft_srio_setup(void *blob)
 	/* search for srio node, if doesn't exist just return - nothing todo */
 	srio_off = fdt_node_offset_by_compatible(blob, -1, "fsl,srio");
 	if (srio_off < 0)
-		return ;
+		return;
 
 #ifdef CONFIG_SRIO1
 	if (is_serdes_configured(SRIO1))

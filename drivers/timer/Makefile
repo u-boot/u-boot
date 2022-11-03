@@ -23,6 +23,7 @@ obj-$(CONFIG_RENESAS_OSTM_TIMER) += ostm_timer.o
 obj-$(CONFIG_RISCV_TIMER) += riscv_timer.o
 obj-$(CONFIG_ROCKCHIP_TIMER) += rockchip_timer.o
 obj-$(CONFIG_SANDBOX_TIMER)	+= sandbox_timer.o
+obj-$(CONFIG_SP804_TIMER)	+= sp804_timer.o
 obj-$(CONFIG_$(SPL_)SIFIVE_CLINT) += sifive_clint_timer.o
 obj-$(CONFIG_ARM_GLOBAL_TIMER)	+= arm_global_timer.o
 obj-$(CONFIG_STM32_TIMER)	+= stm32_timer.o

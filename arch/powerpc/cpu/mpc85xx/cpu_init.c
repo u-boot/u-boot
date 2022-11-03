@@ -446,7 +446,7 @@ ulong cpu_init_f(void)
 /* Implement a dummy function for those platforms w/o SERDES */
 static void __fsl_serdes__init(void)
 {
-	return ;
+	return;
 }
 __attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
 

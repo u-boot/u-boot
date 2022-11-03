@@ -149,7 +149,7 @@ void fman_enet_init(void)
 		}
 	}
 
-	return ;
+	return;
 }
 
 void fm_disable_port(enum fm_port port)
@@ -233,7 +233,7 @@ static void
 __def_board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 				enum fm_port port, int offset)
 {
-	return ;
+	return;
 }
 
 void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,

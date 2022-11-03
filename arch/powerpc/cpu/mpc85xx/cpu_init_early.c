@@ -76,7 +76,7 @@ void setup_ifc(void)
 	ifc_out32(&(ifc_regs.gregs->csor_cs[0].csor), CONFIG_SYS_CSOR0);
 	ifc_out32(&(ifc_regs.gregs->amask_cs[0].amask), CONFIG_SYS_AMASK0);
 
-	return ;
+	return;
 }
 #endif
 

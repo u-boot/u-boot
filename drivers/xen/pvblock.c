@@ -818,8 +818,6 @@ static void print_pvblock_devices(void)
 void pvblock_init(void)
 {
 	struct driver_info info;
-	struct udevice *udev;
-	struct uclass *uc;
 	int ret;
 
 	/*
@@ -828,15 +826,12 @@ void pvblock_init(void)
 	 * virtual block devices.
 	 */
 	info.name = DRV_NAME;
-	ret = device_bind_by_name(gd->dm_root, false, &info, &udev);
+	ret = device_bind_by_name(gd->dm_root, false, &info, NULL);
 	if (ret < 0)
 		printf("Failed to bind " DRV_NAME ", ret: %d\n", ret);
 
 	/* Bootstrap virtual block devices class driver */
-	ret = uclass_get(UCLASS_PVBLOCK, &uc);
-	if (ret)
-		return;
-	uclass_foreach_dev_probe(UCLASS_PVBLOCK, udev);
+	uclass_probe_all(UCLASS_PVBLOCK);
 
 	print_pvblock_devices();
 }

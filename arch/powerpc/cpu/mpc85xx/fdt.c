@@ -271,13 +271,13 @@ static inline void ft_fixup_l2cache(void *blob)
 
 	if (ph == NULL) {
 		debug("no next-level-cache property\n");
-		return ;
+		return;
 	}
 
 	off = fdt_node_offset_by_phandle(blob, *ph);
 	if (off < 0) {
 		printf("%s: %s\n", __func__, fdt_strerror(off));
-		return ;
+		return;
 	}
 
 	ft_fixup_l2cache_compatible(blob, off);
@@ -373,7 +373,7 @@ next:
 		l3_off = fdt_node_offset_by_phandle(blob, l3_off);
 		if (l3_off < 0) {
 			printf("%s: %s\n", __func__, fdt_strerror(off));
-			return ;
+			return;
 		}
 		ft_fixup_l3cache(blob, l3_off);
 	}

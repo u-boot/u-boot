@@ -111,7 +111,7 @@ static void setup_fman_liodn_base(enum fsl_dpaa_dev dev,
 #endif
 	default:
 		printf("Error: Invalid device type to %s\n", __FUNCTION__);
-		return ;
+		return;
 	}
 
 	base = (liodn_bases[dev].id[0] << 16) | liodn_bases[dev].id[0];
@@ -232,7 +232,7 @@ static void fdt_fixup_srio_liodn(void *blob, struct srio_liodn_id_table *tbl)
 	/* search for srio node, if doesn't exist just return - nothing todo */
 	srio_off = fdt_node_offset_by_compatible(blob, -1, "fsl,srio");
 	if (srio_off < 0)
-		return ;
+		return;
 
 	for (i = 0; i < srio_liodn_tbl_sz; i++) {
 		int off, portid = tbl[i].portid;

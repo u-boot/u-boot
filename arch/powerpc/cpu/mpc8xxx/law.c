@@ -353,5 +353,5 @@ void init_laws(void)
 	}
 #endif
 
-	return ;
+	return;
 }

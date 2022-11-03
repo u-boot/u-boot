@@ -147,7 +147,7 @@ __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 	if (set_ddr_laws(base, size, law_memctl) < 0) {
 		printf("%s: ERROR (ctrl #%d, TRGT ID=%x)\n", __func__, ctrl_num,
 			law_memctl);
-		return ;
+		return;
 	}
 	debug("setup ddr law base = 0x%llx, size 0x%llx, TRGT_ID 0x%x\n",
 		base, size, law_memctl);
