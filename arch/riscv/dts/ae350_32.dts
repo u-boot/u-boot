@@ -146,8 +146,8 @@
 				&CPU3_intc 11 &CPU3_intc 9>;
 		};
 
-		plic1: interrupt-controller@e6400000 {
-			compatible = "riscv,plic1";
+		plicsw: interrupt-controller@e6400000 {
+			compatible = "andestech,plicsw";
 			#interrupt-cells = <1>;
 			interrupt-controller;
 			reg = <0xe6400000 0x400000>;
@@ -159,7 +159,7 @@
 		};
 
 		plmt0@e6000000 {
-			compatible = "riscv,plmt0";
+			compatible = "andestech,plmt0";
 			interrupts-extended = <&CPU0_intc 7
 				&CPU1_intc 7
 				&CPU2_intc 7

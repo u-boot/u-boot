@@ -37,8 +37,8 @@ static int enable_ipi(int hart)
 	unsigned int en;
 
 	en = ENABLE_HART_IPI << hart;
-	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic, hart));
-	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plic + 0x4, hart));
+	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plicsw, hart));
+	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plicsw + 0x4, hart));
 
 	return 0;
 }
@@ -46,14 +46,14 @@ static int enable_ipi(int hart)
 int riscv_init_ipi(void)
 {
 	int ret;
-	long *base = syscon_get_first_range(RISCV_SYSCON_PLIC);
+	long *base = syscon_get_first_range(RISCV_SYSCON_PLICSW);
 	ofnode node;
 	struct udevice *dev;
 	u32 reg;
 
 	if (IS_ERR(base))
 		return PTR_ERR(base);
-	gd->arch.plic = base;
+	gd->arch.plicsw = base;
 
 	ret = uclass_find_first_device(UCLASS_CPU, &dev);
 	if (ret)
@@ -88,7 +88,7 @@ int riscv_send_ipi(int hart)
 {
 	unsigned int ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
 
-	writel(ipi, (void __iomem *)PENDING_REG(gd->arch.plic,
+	writel(ipi, (void __iomem *)PENDING_REG(gd->arch.plicsw,
 				gd->arch.boot_hart));
 
 	return 0;
@@ -98,8 +98,8 @@ int riscv_clear_ipi(int hart)
 {
 	u32 source_id;
 
-	source_id = readl((void __iomem *)CLAIM_REG(gd->arch.plic, hart));
-	writel(source_id, (void __iomem *)CLAIM_REG(gd->arch.plic, hart));
+	source_id = readl((void __iomem *)CLAIM_REG(gd->arch.plicsw, hart));
+	writel(source_id, (void __iomem *)CLAIM_REG(gd->arch.plicsw, hart));
 
 	return 0;
 }
@@ -108,21 +108,21 @@ int riscv_get_ipi(int hart, int *pending)
 {
 	unsigned int ipi = (SEND_IPI_TO_HART(hart) << (8 * gd->arch.boot_hart));
 
-	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plic,
+	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plicsw,
 						     gd->arch.boot_hart));
 	*pending = !!(*pending & ipi);
 
 	return 0;
 }
 
-static const struct udevice_id andes_plic_ids[] = {
-	{ .compatible = "riscv,plic1", .data = RISCV_SYSCON_PLIC },
+static const struct udevice_id andes_plicsw_ids[] = {
+	{ .compatible = "andestech,plicsw", .data = RISCV_SYSCON_PLICSW },
 	{ }
 };
 
-U_BOOT_DRIVER(andes_plic) = {
-	.name		= "andes_plic",
+U_BOOT_DRIVER(andes_plicsw) = {
+	.name		= "andes_plicsw",
 	.id		= UCLASS_SYSCON,
-	.of_match	= andes_plic_ids,
+	.of_match	= andes_plicsw_ids,
 	.flags		= DM_FLAG_PRE_RELOC,
 };

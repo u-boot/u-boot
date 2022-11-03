@@ -236,6 +236,12 @@ config MESON_SPIFC
 	  This driver can be used to access the SPI NOR flash chips on
 	  Amlogic Meson SoCs.
 
+config MICROCHIP_COREQSPI
+	bool "Microchip FPGA QSPI Controller driver"
+	help
+	  Enable the QSPI driver for Microchip FPGA QSPI controllers.
+	  This driver can be used on Polarfire SoC.
+
 config MPC8XX_SPI
 	bool "MPC8XX SPI Driver"
 	depends on MPC8xx

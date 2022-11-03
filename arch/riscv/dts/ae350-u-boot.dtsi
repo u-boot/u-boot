@@ -36,7 +36,7 @@
 	soc {
 		u-boot,dm-spl;
 
-		plic1: interrupt-controller@e6400000 {
+		plicsw: interrupt-controller@e6400000 {
 			u-boot,dm-spl;
 		};
 
