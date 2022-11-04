@@ -3,8 +3,8 @@
  * Copyright 2022 Gateworks Corporation
  */
 
-#ifndef __IMX8MM_VENICE_H
-#define __IMX8MM_VENICE_H
+#ifndef __IMX8MN_VENICE_H
+#define __IMX8MN_VENICE_H
 
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
