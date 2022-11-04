@@ -8,9 +8,6 @@
 
 #include <linux/sizes.h>
 
-/* CPU */
-#define CONFIG_SYS_MIPS_TIMER_FREQ	160000000
-
 /* RAM */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 

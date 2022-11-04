@@ -14,6 +14,7 @@ choice
 
 config TARGET_MALTA
 	bool "Support malta"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select BOARD_EARLY_INIT_R
 	select DM
 	select DM_SERIAL
@@ -39,27 +40,22 @@ config TARGET_MALTA
 	select SWAP_IO_SPACE
 	imply CMD_DM
 
-config TARGET_VCT
-	bool "Support vct"
-	select ROM_EXCEPTION_VECTORS
-	select SUPPORTS_BIG_ENDIAN
-	select SUPPORTS_CPU_MIPS32_R1
-	select SUPPORTS_CPU_MIPS32_R2
-	select SYS_MIPS_CACHE_INIT_RAM_LOAD
-
 config ARCH_ATH79
 	bool "Support QCA/Atheros ath79"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select DM
 	select OF_CONTROL
 	imply CMD_DM
 
 config ARCH_MSCC
 	bool "Support MSCC VCore-III"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select OF_CONTROL
 	select DM
 
 config ARCH_BMIPS
 	bool "Support BMIPS SoCs"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select CLK
 	select CPU
 	select DM
@@ -70,6 +66,7 @@ config ARCH_BMIPS
 
 config ARCH_MTMIPS
 	bool "Support MediaTek MIPS platforms"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select CLK
 	imply CMD_DM
 	select DISPLAY_CPUINFO
@@ -96,6 +93,7 @@ config ARCH_MTMIPS
 config ARCH_JZ47XX
 	bool "Support Ingenic JZ47xx"
 	select SUPPORT_SPL
+	select HAS_FIXED_TIMER_FREQUENCY
 	select OF_CONTROL
 	select DM
 
@@ -124,12 +122,14 @@ config ARCH_OCTEON
 
 config MACH_PIC32
 	bool "Support Microchip PIC32"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select DM
 	select OF_CONTROL
 	imply CMD_DM
 
 config TARGET_BOSTON
 	bool "Support Boston"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select DM
 	imply DM_EVENT
 	select DM_SERIAL
@@ -151,6 +151,7 @@ config TARGET_BOSTON
 
 config TARGET_XILFPGA
 	bool "Support Imagination Xilfpga"
+	select HAS_FIXED_TIMER_FREQUENCY
 	select DM
 	select DM_ETH
 	select DM_GPIO
@@ -253,6 +254,12 @@ config ROM_EXCEPTION_VECTORS
 	  U-Boot booted from parallel NOR flash).
 	  Disable this, if the U-Boot image is booted from DRAM (e.g. by SPL).
 	  In that case the image size will be reduced by 0x500 bytes.
+
+config SYS_MIPS_TIMER_FREQ
+	int "Fixed MIPS CPU timer frequency in Hz"
+	depends on HAS_FIXED_TIMER_FREQUENCY
+	help
+	  Configures a fixed CPU timer frequency.
 
 config MIPS_CM_BASE
 	hex "MIPS CM GCR Base Address"
@@ -433,6 +440,9 @@ config SUPPORTS_CPU_MIPS64_R6
 	bool
 
 config SUPPORTS_CPU_MIPS64_OCTEON
+	bool
+
+config HAS_FIXED_TIMER_FREQUENCY
 	bool
 
 config CPU_CAVIUM_OCTEON

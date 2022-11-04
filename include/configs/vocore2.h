@@ -6,9 +6,6 @@
 #ifndef __VOCORE2_CONFIG_H__
 #define __VOCORE2_CONFIG_H__
 
-/* CPU */
-#define CONFIG_SYS_MIPS_TIMER_FREQ	290000000
-
 /* RAM */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 

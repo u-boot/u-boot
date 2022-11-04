@@ -18,8 +18,6 @@
 /*
  * CPU Configuration
  */
-#define CONFIG_SYS_MHZ			250	/* arbitrary value */
-#define CONFIG_SYS_MIPS_TIMER_FREQ	(CONFIG_SYS_MHZ * 1000000)
 
 /*
  * Memory map
