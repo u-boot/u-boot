@@ -13,10 +13,6 @@
 #define CONFIG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
-#ifdef CONFIG_SPL_BUILD
-/* For RAW image gives a error info not panic */
-#endif
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"fdt_addr_r=0x50200000\0" \
