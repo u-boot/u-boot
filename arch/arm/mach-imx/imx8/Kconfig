@@ -76,6 +76,7 @@ config TARGET_IMX8QM_MEK
 
 config TARGET_CONGA_QMX8
 	bool "Support congatec conga-QMX8 board"
+	select BINMAN
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select IMX8QM

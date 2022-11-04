@@ -12,6 +12,7 @@
 /memreserve/ 0x80000000 0x00020000;
 
 #include "fsl-imx8qm.dtsi"
+#include "imx8qm-u-boot.dtsi"
 
 / {
 	model = "Congatec QMX8 Qseven series";
