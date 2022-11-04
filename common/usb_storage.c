@@ -239,6 +239,7 @@ static int usb_stor_probe_device(struct usb_device *udev)
 			ret = device_unbind(dev);
 			if (ret)
 				return ret;
+			continue;
 		}
 
 		ret = blk_probe_or_unbind(dev);
