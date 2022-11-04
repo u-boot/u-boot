@@ -90,6 +90,7 @@ config TARGET_IMX8QM_ROM7720_A1
 
 config TARGET_IMX8QXP_MEK
 	bool "Support i.MX8QXP MEK board"
+	select BINMAN
 	select BOARD_LATE_INIT
 	select IMX8QXP
 	select FSL_CAAM
