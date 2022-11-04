@@ -68,6 +68,7 @@ config TARGET_GIEDI
 
 config TARGET_IMX8QM_MEK
 	bool "Support i.MX8QM MEK board"
+	select BINMAN
 	select BOARD_LATE_INIT
 	select IMX8QM
 	select FSL_CAAM
