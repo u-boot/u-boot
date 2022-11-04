@@ -76,8 +76,4 @@
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			SZ_4G
 
-/* FEC */
-#define CONFIG_FEC_MXC_PHYADDR          0
-#define FEC_QUIRK_ENET_MAC
-
 #endif
