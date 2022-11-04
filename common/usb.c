@@ -999,6 +999,17 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 		err = get_descriptor_len(dev, 64, 8);
 		if (err)
 			return err;
+
+		/*
+		 * Logitech Unifying Receiver 046d:c52b bcdDevice 12.10 seems
+		 * sensitive about the first Get Descriptor request. If there
+		 * are any other requests in the same microframe, the device
+		 * reports bogus data, first of the descriptor parts is not
+		 * sent to the host. Wait over one microframe duration here
+		 * (1mS for USB 1.x , 125uS for USB 2.0) to avoid triggering
+		 * the issue.
+		 */
+		mdelay(1);
 	}
 
 	dev->epmaxpacketin[0] = dev->descriptor.bMaxPacketSize0;
