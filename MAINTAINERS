@@ -855,7 +855,6 @@ F:	cmd/dfu.c
 F:	cmd/usb_*.c
 F:	common/dfu.c
 F:	common/update.c
-F:	common/usb_storage.c
 F:	doc/api/dfu.rst
 F:	doc/usage/dfu.rst
 F:	drivers/dfu/
@@ -1483,6 +1482,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-usb.git
 F:	drivers/usb/
 F:	common/usb.c
 F:	common/usb_kbd.c
+F:	common/usb_storage.c
 F:	include/usb.h
 
 USB xHCI
