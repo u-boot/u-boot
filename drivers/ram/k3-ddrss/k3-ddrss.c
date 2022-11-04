@@ -706,6 +706,7 @@ static const struct k3_ddrss_data j721s2_data = {
 };
 
 static const struct udevice_id k3_ddrss_ids[] = {
+	{.compatible = "ti,am62a-ddrss", .data = (ulong)&k3_data, },
 	{.compatible = "ti,am64-ddrss", .data = (ulong)&k3_data, },
 	{.compatible = "ti,j721e-ddrss", .data = (ulong)&k3_data, },
 	{.compatible = "ti,j721s2-ddrss", .data = (ulong)&j721s2_data, },
