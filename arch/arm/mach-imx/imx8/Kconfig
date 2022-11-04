@@ -62,6 +62,7 @@ config TARGET_DENEB
 
 config TARGET_GIEDI
 	bool "Support i.MX8QXP Capricorn Giedi board"
+	select BINMAN
 	select BOARD_LATE_INIT
 	select FACTORYSET
 	select IMX8QXP
