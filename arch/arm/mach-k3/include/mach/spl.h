@@ -26,4 +26,8 @@
 #include "am62_spl.h"
 #endif
 
+#ifdef CONFIG_SOC_K3_AM62A7
+#include "am62a_spl.h"
+#endif
+
 #endif /* _ASM_ARCH_SPL_H_ */
