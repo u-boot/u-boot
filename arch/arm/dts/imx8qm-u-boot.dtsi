@@ -10,6 +10,7 @@
 };
 
 &binman {
+#ifdef CONFIG_SPL
 	u-boot-spl-ddr {
 		align = <4>;
 		align-size = <4>;
@@ -33,6 +34,7 @@
 			};
 		};
 	};
+#endif
 
 	itb {
 		filename = "u-boot.itb";
