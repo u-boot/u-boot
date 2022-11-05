@@ -36,6 +36,7 @@ static inline bool supports_extension(char ext)
 #ifdef CONFIG_CPU
 	struct udevice *dev;
 	char desc[32];
+	int i;
 
 	uclass_find_first_device(UCLASS_CPU, &dev);
 	if (!dev) {
@@ -43,9 +44,16 @@ static inline bool supports_extension(char ext)
 		return false;
 	}
 	if (!cpu_get_desc(dev, desc, sizeof(desc))) {
-		/* skip the first 4 characters (rv32|rv64) */
-		if (strchr(desc + 4, ext))
-			return true;
+		/*
+		 * skip the first 4 characters (rv32|rv64) and
+		 * check until underscore
+		 */
+		for (i = 4; i < sizeof(desc); i++) {
+			if (desc[i] == '_' || desc[i] == '\0')
+				break;
+			if (desc[i] == ext)
+				return true;
+		}
 	}
 
 	return false;
