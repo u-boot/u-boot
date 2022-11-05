@@ -91,6 +91,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MVNETA_WIN_SIZE_MASK			(0xffff0000)
 #define MVNETA_BASE_ADDR_ENABLE                 0x2290
 #define      MVNETA_BASE_ADDR_ENABLE_BIT	0x1
+#define      MVNETA_AC5_CNM_DDR_TARGET		0x2
+#define      MVNETA_AC5_CNM_DDR_ATTR		0xb
 #define MVNETA_PORT_ACCESS_PROTECT              0x2294
 #define      MVNETA_PORT_ACCESS_PROTECT_WIN0_RW	0x3
 #define MVNETA_PORT_CONFIG                      0x2400
@@ -282,6 +284,8 @@ struct mvneta_port {
 	struct gpio_desc phy_reset_gpio;
 	struct gpio_desc sfp_tx_disable_gpio;
 #endif
+
+	uintptr_t dma_base;     /* base address for DMA address decoding */
 };
 
 /* The mvneta_tx_desc and mvneta_rx_desc structures describe the
@@ -1343,6 +1347,29 @@ static void mvneta_conf_mbus_windows(struct mvneta_port *pp)
 	mvreg_write(pp, MVNETA_BASE_ADDR_ENABLE, win_enable);
 }
 
+static void mvneta_conf_ac5_cnm_xbar_windows(struct mvneta_port *pp)
+{
+	int i;
+
+	/* Clear all windows */
+	for (i = 0; i < 6; i++) {
+		mvreg_write(pp, MVNETA_WIN_BASE(i), 0);
+		mvreg_write(pp, MVNETA_WIN_SIZE(i), 0);
+
+		if (i < 4)
+			mvreg_write(pp, MVNETA_WIN_REMAP(i), 0);
+	}
+
+	/*
+	 * Setup window #0 base 0x0 to target XBAR port 2 (AMB2), attribute 0xb, size 4GB
+	 * AMB2 address decoder remaps 0x0 to DDR 64 bit base address
+	 */
+	mvreg_write(pp, MVNETA_WIN_BASE(0),
+		    (MVNETA_AC5_CNM_DDR_ATTR << 8) | MVNETA_AC5_CNM_DDR_TARGET);
+	mvreg_write(pp, MVNETA_WIN_SIZE(0), 0xffff0000);
+	mvreg_write(pp, MVNETA_BASE_ADDR_ENABLE, 0x3e);
+}
+
 /* Power up the port */
 static int mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
 {
@@ -1525,7 +1552,7 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 		 * No cache invalidation needed here, since the rx_buffer's are
 		 * located in a uncached memory region
 		 */
-		*packetp = data;
+		*packetp = data + pp->dma_base;
 
 		/*
 		 * Only mark one descriptor as free
@@ -1544,6 +1571,10 @@ static int mvneta_probe(struct udevice *dev)
 	struct ofnode_phandle_args sfp_args;
 #endif
 	void *bd_space;
+	phys_addr_t cpu;
+	dma_addr_t bus;
+	u64 size;
+	int ret;
 
 	/*
 	 * Allocate buffer area for descs and rx_buffers. This is only
@@ -1577,8 +1608,17 @@ static int mvneta_probe(struct udevice *dev)
 	/* Configure MBUS address windows */
 	if (device_is_compatible(dev, "marvell,armada-3700-neta"))
 		mvneta_bypass_mbus_windows(pp);
+	else if (device_is_compatible(dev, "marvell,armada-ac5-neta"))
+		mvneta_conf_ac5_cnm_xbar_windows(pp);
 	else
 		mvneta_conf_mbus_windows(pp);
+
+	/* fetch dma ranges property */
+	ret = dev_get_dma_range(dev, &cpu, &bus, &size);
+	if (!ret)
+		pp->dma_base = cpu;
+	else
+		pp->dma_base = 0;
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	if (!dev_read_phandle_with_args(dev, "sfp", NULL, 0, 0, &sfp_args) &&
@@ -1620,6 +1660,7 @@ static const struct eth_ops mvneta_ops = {
 
 static const struct udevice_id mvneta_ids[] = {
 	{ .compatible = "marvell,armada-370-neta" },
+	{ .compatible = "marvell,armada-ac5-neta" },
 	{ .compatible = "marvell,armada-xp-neta" },
 	{ .compatible = "marvell,armada-3700-neta" },
 	{ }
