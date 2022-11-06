@@ -879,6 +879,7 @@ M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
+F:	arch/arm/lib/*_efi.*
 F:	doc/api/efi.rst
 F:	doc/develop/uefi/*
 F:	doc/mkeficapsule.1
