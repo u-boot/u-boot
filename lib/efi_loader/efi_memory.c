@@ -483,6 +483,8 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 			return EFI_OUT_OF_RESOURCES;
 		break;
 	case EFI_ALLOCATE_ADDRESS:
+		if (*memory & EFI_PAGE_MASK)
+			return EFI_NOT_FOUND;
 		/* Exact address, reserve it. The addr is already in *memory. */
 		ret = efi_check_allocated(*memory, false);
 		if (ret != EFI_SUCCESS)

@@ -11,7 +11,6 @@ config EFI_LOADER
 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB
 	depends on !EFI_STUB || !X86 || X86_64 || EFI_STUB_32BIT
 	depends on BLK
-	depends on DM_ETH || !NET
 	depends on !EFI_APP
 	default y if !ARM || SYS_CPU = armv7 || SYS_CPU = armv8
 	select CHARSET
@@ -41,10 +40,6 @@ config CMD_BOOTEFI_BOOTMGR
 	  Select this option if you want to select the UEFI binary to be booted
 	  via UEFI variables Boot####, BootOrder, and BootNext. This enables the
 	  'bootefi bootmgr' command.
-
-config EFI_SETUP_EARLY
-	bool
-	default y
 
 choice
 	prompt "Store for non-volatile UEFI variables"
@@ -161,7 +156,6 @@ config EFI_IGNORE_OSINDICATIONS
 config EFI_CAPSULE_ON_DISK_EARLY
 	bool "Initiate capsule-on-disk at U-Boot boottime"
 	depends on EFI_CAPSULE_ON_DISK
-	select EFI_SETUP_EARLY
 	help
 	  Normally, without this option enabled, capsules will be
 	  executed only at the first time of invoking one of efi command.

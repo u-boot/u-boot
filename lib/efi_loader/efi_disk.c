@@ -19,7 +19,9 @@
 #include <part.h>
 #include <malloc.h>
 
-struct efi_system_partition efi_system_partition;
+struct efi_system_partition efi_system_partition = {
+	.uclass_id = UCLASS_INVALID,
+};
 
 const efi_guid_t efi_block_io_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
 const efi_guid_t efi_system_partition_guid = PARTITION_SYSTEM_GUID;
@@ -511,7 +513,7 @@ static efi_status_t efi_disk_add_dev(
 		  diskobj->media.last_block);
 
 	/* Store first EFI system partition */
-	if (part && !efi_system_partition.uclass_id) {
+	if (part && efi_system_partition.uclass_id == UCLASS_INVALID) {
 		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION) {
 			efi_system_partition.uclass_id = desc->uclass_id;
 			efi_system_partition.devnum = desc->devnum;
