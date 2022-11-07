@@ -85,7 +85,6 @@ class Bintool:
                 try:
                     # Deal with classes which must be renamed due to conflicts
                     # with Python libraries
-                    class_name = f'Bintoolbtool_{module_name}'
                     module = importlib.import_module('binman.btool.btool_' +
                                                      module_name)
                 except ImportError:
@@ -137,6 +136,8 @@ class Bintool:
         names = [os.path.splitext(os.path.basename(fname))[0]
                  for fname in files]
         names = [name for name in names if name[0] != '_']
+        names = [name[6:] if name.startswith('btool_') else name
+                 for name in names]
         if include_testing:
             names.append('_testing')
         return sorted(names)
