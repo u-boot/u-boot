@@ -181,7 +181,7 @@
 				reg-io-width = <1>;
 				clocks = <&ap_syscon 3>;
 				status = "disabled";
-
+				clock-frequency = <200000000>;
 			};
 
 			watchdog: watchdog@610000 {

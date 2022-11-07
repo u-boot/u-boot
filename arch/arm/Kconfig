@@ -640,7 +640,7 @@ config ARCH_MVEBU
 	select SPL_DM_SPI if SPL
 	select SPL_DM_SPI_FLASH if SPL
 	select SPL_TIMER if SPL
-	select TIMER
+	select TIMER if !ARM64
 	select OF_CONTROL
 	select OF_SEPARATE
 	select SPI

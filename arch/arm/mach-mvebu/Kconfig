@@ -50,6 +50,10 @@ config ARMADA_8K
 	bool
 	select ARM64
 
+config ALLEYCAT_5
+	bool
+	select ARM64
+
 # Armada PLL frequency (used for NAND clock generation)
 config SYS_MVEBU_PLL_CLOCK
 	int
@@ -94,7 +98,7 @@ config CUSTOMER_BOARD_SUPPORT
 	bool
 
 choice
-	prompt "Armada XP/375/38x/3700/7K/8K board select"
+	prompt "Armada XP/375/38x/3700/7K/8K/Alleycat-5 board select"
 	optional
 
 config TARGET_CLEARFOG
@@ -145,6 +149,10 @@ config TARGET_MVEBU_ARMADA_8K
 	select ARMADA_8K
 	select BOARD_LATE_INIT
 	imply SCSI
+
+config TARGET_MVEBU_ALLEYCAT5
+	bool "Support AlleyCat 5 platforms"
+	select ALLEYCAT_5
 
 config TARGET_OCTEONTX2_CN913x
 	bool "Support CN913x platforms"
@@ -254,6 +262,7 @@ config SYS_BOARD
 	default "x530" if TARGET_X530
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
 	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
+	default "mvebu_alleycat-5" if TARGET_MVEBU_ALLEYCAT5
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
@@ -274,6 +283,7 @@ config SYS_CONFIG_NAME
 	default "x530" if TARGET_X530
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
 	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
+	default "mvebu_alleycat-5" if TARGET_MVEBU_ALLEYCAT5
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
@@ -293,6 +303,7 @@ config SYS_VENDOR
 	default "gdsys" if TARGET_CONTROLCENTERDC
 	default "alliedtelesis" if TARGET_X530
 	default "mikrotik" if TARGET_CRS3XX_98DX3236
+	default "Marvell" if TARGET_MVEBU_ALLEYCAT5
 
 config SYS_SOC
 	default "mvebu"

@@ -50,7 +50,7 @@
 	"ethmtu=1500\0eth1mtu=1500\0"				\
 	"update_uboot=sf probe; dhcp; "				\
 		"mw.b ${loadaddr} 0x0 0xd0000; "		\
-		"tftpboot ${loadaddr} u-boot-spl.kwb; "		\
+		"tftpboot ${loadaddr} u-boot-with-spl.kwb; "	\
 		"sf update ${loadaddr} 0x0 0xd0000\0"
 
 

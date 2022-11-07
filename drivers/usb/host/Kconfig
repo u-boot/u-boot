@@ -178,6 +178,7 @@ config USB_EHCI_MARVELL
 	depends on ARCH_MVEBU || ARCH_KIRKWOOD || ARCH_ORION5X
 	default y
 	select USB_EHCI_IS_TDI if !ARM64
+	select USB_EHCI_IS_TDI if ALLEYCAT_5
 	---help---
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
 

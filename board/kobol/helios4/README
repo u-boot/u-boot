@@ -7,12 +7,12 @@ $ make helios4_defconfig
 $ make
 
 The resulting image including the SPL binary with the
-full DDR setup is "u-boot-spl.kwb".
+full DDR setup is "u-boot-with-spl.kwb".
 
 Now all you need to do is copy this image on a SD card.
 For example with this command:
 
-$ sudo dd if=u-boot-spl.kwb of=/dev/sdX bs=512 seek=1
+$ sudo dd if=u-boot-with-spl.kwb of=/dev/sdX bs=512 seek=1
 
 Please use the correct device node for your setup instead
 of "/dev/sdX" here!
@@ -38,7 +38,7 @@ Set the SW1 DIP switches to UART boot (see above).
 
 Run the following command to initiate U-Boot download:
 
-  ./tools/kwboot -p -b u-boot-spl.kwb /dev/ttyUSBX
+  ./tools/kwboot -p -b u-boot-with-spl.kwb /dev/ttyUSBX
 
 Use the correct UART device node for /dev/ttyUSBX.
 

@@ -174,6 +174,10 @@ int a3700_dram_init_banksize(void);
 /* A3700 PCIe regions fixer for device tree */
 int a3700_fdt_fix_pcie_regions(void *blob);
 
+/* Alleycat5 dram functions */
+int alleycat5_dram_init(void);
+int alleycat5_dram_init_banksize(void);
+
 /*
  * get_ref_clk
  *

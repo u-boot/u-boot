@@ -1422,7 +1422,7 @@ KWD_CONFIG_FILE = $(shell \
 MKIMAGEFLAGS_u-boot.kwb = -n $(KWD_CONFIG_FILE) \
 	-T kwbimage -a $(CONFIG_TEXT_BASE) -e $(CONFIG_TEXT_BASE)
 
-MKIMAGEFLAGS_u-boot-spl.kwb = -n $(KWD_CONFIG_FILE) \
+MKIMAGEFLAGS_u-boot-with-spl.kwb = -n $(KWD_CONFIG_FILE) \
 	-T kwbimage -a $(CONFIG_TEXT_BASE) -e $(CONFIG_TEXT_BASE) \
 	$(if $(KEYDIR),-k $(KEYDIR))
 
@@ -1463,7 +1463,7 @@ u-boot.itb: u-boot-nodtb.bin \
 	$(BOARD_SIZE_CHECK)
 endif
 
-u-boot-spl.kwb: u-boot.bin spl/u-boot-spl.bin FORCE
+u-boot-with-spl.kwb: u-boot.bin spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 	$(BOARD_SIZE_CHECK)
 

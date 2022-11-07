@@ -448,7 +448,7 @@ config MVGBE
 
 config MVNETA
 	bool "Marvell Armada XP/385/3700 network interface support"
-	depends on ARMADA_XP || ARMADA_38X || ARMADA_3700
+	depends on ARMADA_XP || ARMADA_38X || ARMADA_3700 || ALLEYCAT_5
 	select PHYLIB
 	select DM_MDIO
 	help
