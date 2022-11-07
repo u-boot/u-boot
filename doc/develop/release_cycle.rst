@@ -61,9 +61,9 @@ Future Releases
 .. The following commented out dates are for when release candidates are
    planned to be tagged.
 
-.. For the next scheduled release, release candidates were made on::
+For the next scheduled release, release candidates were made on::
 
-.. * U-Boot v2023.01-rc1 was released on Mon 24 October 2022.
+* U-Boot v2023.01-rc1 was released on Mon 07 November 2022.
 
 .. * U-Boot v2023.01-rc2 was released on Mon 07 November 2022.
 
