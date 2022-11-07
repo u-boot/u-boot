@@ -67,9 +67,6 @@
 
 	imxrt1020-evk {
 		u-boot,dm-spl;
-		pinctrl_lpuart1: lpuart1grp {
-			u-boot,dm-spl;
-		};
 
 		pinctrl_semc: semcgrp {
 			u-boot,dm-spl;
@@ -79,6 +76,10 @@
 			u-boot,dm-spl;
 		};
 	};
+};
+
+&pinctrl_lpuart1 {
+	u-boot,dm-spl;
 };
 
 &usdhc1 {

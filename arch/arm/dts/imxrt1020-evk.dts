@@ -6,7 +6,6 @@
 
 /dts-v1/;
 #include "imxrt1020.dtsi"
-#include "imxrt1020-evk-u-boot.dtsi"
 #include "imxrt1020-pinfunc.h"
 
 / {
