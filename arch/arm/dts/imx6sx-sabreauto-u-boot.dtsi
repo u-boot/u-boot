@@ -14,3 +14,7 @@
 		compatible = "jedec,spi-nor";
 	};
 };
+
+&pinctrl_uart1 {
+	u-boot,dm-pre-reloc;
+};
