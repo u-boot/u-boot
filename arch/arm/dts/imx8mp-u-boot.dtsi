@@ -10,7 +10,7 @@
 	};
 };
 
-&{/soc@0} {
+&soc {
 	u-boot,dm-pre-reloc;
 	u-boot,dm-spl;
 };
