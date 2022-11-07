@@ -10,23 +10,23 @@
 
 };
 
-&{/soc@0} {
+&soc {
 	u-boot,dm-spl;
 };
 
-&{/soc@0/bus@30000000} {
+&aips1 {
 	u-boot,dm-spl;
 };
 
-&{/soc@0/bus@30400000} {
+&aips2 {
 	u-boot,dm-spl;
 };
 
-&{/soc@0/bus@30800000} {
+&aips3 {
 	u-boot,dm-spl;
 };
 
-&{/soc@0/bus@32c00000} {
+&aips4 {
 	u-boot,dm-spl;
 };
 
