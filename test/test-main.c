@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <console.h>
 #include <cyclic.h>
 #include <dm.h>
@@ -352,6 +353,8 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 	free(uts->of_other);
 	uts->of_other = NULL;
 
+	blkcache_free();
+
 	return 0;
 }
 
@@ -428,12 +431,11 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
  *	the first call to this function. On exit, @uts->fail_count is
  *	incremented by the number of failures (0, one hopes)
  * @test: Test to run
- * @name: Name of test, possibly skipping a prefix that should not be displayed
  * Return: 0 if all tests passed, -EAGAIN if the test should be skipped, -1 if
  *	any failed
  */
 static int ut_run_test_live_flat(struct unit_test_state *uts,
-				 struct unit_test *test, const char *name)
+				 struct unit_test *test)
 {
 	int runs;
 
@@ -496,12 +498,29 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
  */
 static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			struct unit_test *tests, int count,
-			const char *select_name)
+			const char *select_name, const char *test_insert)
 {
-	struct unit_test *test;
+	struct unit_test *test, *one;
 	int found = 0;
+	int pos = 0;
+	int upto;
 
-	for (test = tests; test < tests + count; test++) {
+	one = NULL;
+	if (test_insert) {
+		char *p;
+
+		pos = dectoul(test_insert, NULL);
+		p = strchr(test_insert, ':');
+		if (p)
+			p++;
+
+		for (test = tests; test < tests + count; test++) {
+			if (!strcmp(p, test->name))
+				one = test;
+		}
+	}
+
+	for (upto = 0, test = tests; test < tests + count; test++, upto++) {
 		const char *test_name = test->name;
 		int ret, i, old_fail_count;
 
@@ -532,8 +551,19 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			}
 		}
 		old_fail_count = uts->fail_count;
+
+		if (one && upto == pos) {
+			ret = ut_run_test_live_flat(uts, one);
+			if (uts->fail_count != old_fail_count) {
+				printf("Test %s failed %d times (position %d)\n",
+				       one->name,
+				       uts->fail_count - old_fail_count, pos);
+			}
+			return -EBADF;
+		}
+
 		for (i = 0; i < uts->runs_per_test; i++)
-			ret = ut_run_test_live_flat(uts, test, select_name);
+			ret = ut_run_test_live_flat(uts, test);
 		if (uts->fail_count != old_fail_count) {
 			printf("Test %s failed %d times\n", select_name,
 			       uts->fail_count - old_fail_count);
@@ -552,7 +582,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 
 int ut_run_list(const char *category, const char *prefix,
 		struct unit_test *tests, int count, const char *select_name,
-		int runs_per_test, bool force_run)
+		int runs_per_test, bool force_run, const char *test_insert)
 {
 	struct unit_test_state uts = { .fail_count = 0 };
 	bool has_dm_tests = false;
@@ -587,7 +617,8 @@ int ut_run_list(const char *category, const char *prefix,
 		memcpy(uts.fdt_copy, gd->fdt_blob, uts.fdt_size);
 	}
 	uts.force_run = force_run;
-	ret = ut_run_tests(&uts, prefix, tests, count, select_name);
+	ret = ut_run_tests(&uts, prefix, tests, count, select_name,
+			   test_insert);
 
 	/* Best efforts only...ignore errors */
 	if (has_dm_tests)

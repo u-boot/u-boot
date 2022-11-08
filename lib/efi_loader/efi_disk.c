@@ -555,7 +555,7 @@ static int efi_disk_create_raw(struct udevice *dev)
 		if (ret == EFI_NOT_READY)
 			log_notice("Disk %s not ready\n", dev->name);
 		else
-			log_err("Adding disk for %s failed\n", dev->name);
+			log_err("Adding disk for %s failed (err=%ld/%#lx)\n", dev->name, ret, ret);
 
 		return -1;
 	}

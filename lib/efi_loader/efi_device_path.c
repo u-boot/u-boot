@@ -17,7 +17,6 @@
 #include <nvme.h>
 #include <efi_loader.h>
 #include <part.h>
-#include <sandboxblockdev.h>
 #include <uuid.h>
 #include <asm-generic/unaligned.h>
 #include <linux/compat.h> /* U16_MAX */
@@ -556,7 +555,7 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 				sizeof(struct efi_device_path_nvme);
 #endif
 #ifdef CONFIG_SANDBOX
-		case UCLASS_ROOT:
+		case UCLASS_HOST:
 			 /*
 			  * Sandbox's host device will be represented
 			  * as vendor device with extra one byte for
@@ -633,7 +632,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 	case UCLASS_BLK:
 		switch (dev->parent->uclass->uc_drv->id) {
 #ifdef CONFIG_SANDBOX
-		case UCLASS_ROOT: {
+		case UCLASS_HOST: {
 			/* stop traversing parents at this point: */
 			struct efi_device_path_vendor *dp;
 			struct blk_desc *desc = dev_get_uclass_plat(dev);

@@ -150,8 +150,8 @@ void blkcache_invalidate(int iftype, int devnum)
 
 	list_for_each_safe(entry, n, &block_cache) {
 		node = (struct block_cache_node *)entry;
-		if ((node->iftype == iftype) &&
-		    (node->devnum == devnum)) {
+		if (iftype == -1 ||
+		    (node->iftype == iftype && node->devnum == devnum)) {
 			list_del(entry);
 			free(node->cache);
 			free(node);
@@ -162,18 +162,10 @@ void blkcache_invalidate(int iftype, int devnum)
 
 void blkcache_configure(unsigned blocks, unsigned entries)
 {
-	struct block_cache_node *node;
+	/* invalidate cache if there is a change */
 	if ((blocks != _stats.max_blocks_per_entry) ||
-	    (entries != _stats.max_entries)) {
-		/* invalidate cache */
-		while (!list_empty(&block_cache)) {
-			node = (struct block_cache_node *)block_cache.next;
-			list_del(&node->lh);
-			free(node->cache);
-			free(node);
-		}
-		_stats.entries = 0;
-	}
+	    (entries != _stats.max_entries))
+		blkcache_invalidate(-1, 0);
 
 	_stats.max_blocks_per_entry = blocks;
 	_stats.max_entries = entries;
@@ -187,4 +179,9 @@ void blkcache_stats(struct block_cache_stats *stats)
 	memcpy(stats, &_stats, sizeof(*stats));
 	_stats.hits = 0;
 	_stats.misses = 0;
+}
+
+void blkcache_free(void)
+{
+	blkcache_invalidate(-1, 0);
 }

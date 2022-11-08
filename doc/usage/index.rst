@@ -52,6 +52,7 @@ Shell commands
    cmd/for
    cmd/fwu_mdata
    cmd/gpio
+   cmd/host
    cmd/load
    cmd/loadm
    cmd/loady
@@ -74,6 +75,7 @@ Shell commands
    cmd/tftpput
    cmd/true
    cmd/ums
+   cmd/ut
    cmd/wdt
    cmd/xxd
 

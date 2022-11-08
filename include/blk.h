@@ -147,8 +147,8 @@ void blkcache_fill(int iftype, int dev,
  * blkcache_invalidate() - discard the cache for a set of blocks
  * because of a write or device (re)initialization.
  *
- * @param iftype - uclass_id_x for type of device
- * @param dev - device index of particular type
+ * @iftype - UCLASS_ID_ for type of device, or -1 for any
+ * @dev - device index of particular type, if @iftype is not -1
  */
 void blkcache_invalidate(int iftype, int dev);
 
@@ -178,6 +178,9 @@ struct block_cache_stats {
  */
 void blkcache_stats(struct block_cache_stats *stats);
 
+/** blkcache_free() - free all memory allocated to the block cache */
+void blkcache_free(void);
+
 #else
 
 static inline int blkcache_read(int iftype, int dev,
@@ -192,6 +195,8 @@ static inline void blkcache_fill(int iftype, int dev,
 				 unsigned long blksz, void const *buffer) {}
 
 static inline void blkcache_invalidate(int iftype, int dev) {}
+
+static inline void blkcache_free(void) {}
 
 #endif
 
@@ -449,9 +454,35 @@ int blk_next_free_devnum(enum uclass_id uclass_id);
 int blk_select_hwpart(struct udevice *dev, int hwpart);
 
 /**
+ * blk_find_from_parent() - find a block device by looking up its parent
+ *
+ * All block devices have a parent 'media' device which provides the block
+ * driver for the block device, ensuring that access to the underlying medium
+ * is available.
+ *
+ * The block device is not activated by this function. See
+ * blk_get_from_parent() for that.
+ *
+ * @parent: Media device
+ * @devp: Returns the associated block device, if any
+ * Returns: 0 if OK, -ENODEV if @parent is not a media device and has no
+ * UCLASS_BLK child
+ */
+int blk_find_from_parent(struct udevice *parent, struct udevice **devp);
+
+/**
  * blk_get_from_parent() - obtain a block device by looking up its parent
  *
- * All devices with
+ * All block devices have a parent 'media' device which provides the block
+ * driver for the block device, ensuring that access to the underlying medium
+ * is available.
+ *
+ * The block device is probed and ready for use.
+ *
+ * @parent: Media device
+ * @devp: Returns the associated block device, if any
+ * Returns: 0 if OK, -ENODEV if @parent is not a media device and has no
+ * UCLASS_BLK child
  */
 int blk_get_from_parent(struct udevice *parent, struct udevice **devp);
 

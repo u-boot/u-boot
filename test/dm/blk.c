@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <part.h>
+#include <sandbox_host.h>
 #include <usb.h>
 #include <asm/global_data.h>
 #include <asm/state.h>
@@ -21,26 +22,27 @@ extern char usb_started;
 /* Test that block devices can be created */
 static int dm_test_blk_base(struct unit_test_state *uts)
 {
-	struct udevice *blk1, *blk3, *dev;
+	struct udevice *blk0, *blk1, *dev0, *dev1, *dev, *chk0, *chk1;
 
 	/* Create two, one the parent of the other */
-	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
-				      UCLASS_ROOT, 1, 512, 2, &blk1));
-	ut_assertok(blk_create_device(blk1, "sandbox_host_blk", "test",
-				      UCLASS_ROOT, 3, 512, 2, &blk3));
+	ut_assertok(host_create_device("test0", false, &dev0));
+	ut_assertok(host_create_device("test1", false, &dev1));
 
 	/* Check we can find them */
-	ut_asserteq(-ENODEV, blk_get_device(UCLASS_ROOT, 0, &dev));
-	ut_assertok(blk_get_device(UCLASS_ROOT, 1, &dev));
-	ut_asserteq_ptr(blk1, dev);
-	ut_assertok(blk_get_device(UCLASS_ROOT, 3, &dev));
-	ut_asserteq_ptr(blk3, dev);
+	ut_assertok(blk_get_device(UCLASS_HOST, 0, &blk0));
+	ut_assertok(blk_get_from_parent(dev0, &chk0));
+	ut_asserteq_ptr(blk0, chk0);
+
+	ut_assertok(blk_get_device(UCLASS_HOST, 1, &blk1));
+	ut_assertok(blk_get_from_parent(dev1, &chk1));
+	ut_asserteq_ptr(blk1, chk1);
+	ut_asserteq(-ENODEV, blk_get_device(UCLASS_HOST, 2, &dev0));
 
 	/* Check we can iterate */
-	ut_assertok(blk_first_device(UCLASS_ROOT, &dev));
-	ut_asserteq_ptr(blk1, dev);
+	ut_assertok(blk_first_device(UCLASS_HOST, &dev));
+	ut_asserteq_ptr(blk0, dev);
 	ut_assertok(blk_next_device(&dev));
-	ut_asserteq_ptr(blk3, dev);
+	ut_asserteq_ptr(blk1, dev);
 
 	return 0;
 }
@@ -98,19 +100,20 @@ DM_TEST(dm_test_blk_usb, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 /* Test that we can find block devices without probing them */
 static int dm_test_blk_find(struct unit_test_state *uts)
 {
-	struct udevice *blk, *dev;
+	struct udevice *blk, *chk, *dev;
 
-	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
-				      UCLASS_ROOT, 1, 512, 2, &blk));
-	ut_asserteq(-ENODEV, blk_find_device(UCLASS_ROOT, 0, &dev));
-	ut_assertok(blk_find_device(UCLASS_ROOT, 1, &dev));
-	ut_asserteq_ptr(blk, dev);
+	ut_assertok(host_create_device("test0", false, &dev));
+
+	ut_assertok(blk_find_device(UCLASS_HOST, 0, &chk));
+	ut_assertok(device_find_first_child_by_uclass(dev, UCLASS_BLK, &blk));
+	ut_asserteq_ptr(chk, blk);
 	ut_asserteq(false, device_active(dev));
+	ut_asserteq(-ENODEV, blk_find_device(UCLASS_HOST, 1, &dev));
 
 	/* Now activate it */
-	ut_assertok(blk_get_device(UCLASS_ROOT, 1, &dev));
-	ut_asserteq_ptr(blk, dev);
-	ut_asserteq(true, device_active(dev));
+	ut_assertok(blk_get_device(UCLASS_HOST, 0, &blk));
+	ut_asserteq_ptr(chk, blk);
+	ut_asserteq(true, device_active(blk));
 
 	return 0;
 }
@@ -160,7 +163,7 @@ static int dm_test_blk_get_from_parent(struct unit_test_state *uts)
 	ut_assertok(blk_get_from_parent(dev, &blk));
 
 	ut_assertok(uclass_get_device(UCLASS_I2C, 0, &dev));
-	ut_asserteq(-ENOTBLK, blk_get_from_parent(dev, &blk));
+	ut_asserteq(-ENODEV, blk_get_from_parent(dev, &blk));
 
 	ut_assertok(uclass_get_device(UCLASS_GPIO, 0, &dev));
 	ut_asserteq(-ENODEV, blk_get_from_parent(dev, &blk));

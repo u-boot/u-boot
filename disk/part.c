@@ -139,7 +139,7 @@ void dev_print(struct blk_desc *dev_desc)
 	case UCLASS_USB:
 	case UCLASS_NVME:
 	case UCLASS_PVBLOCK:
-	case UCLASS_ROOT:
+	case UCLASS_HOST:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
@@ -264,7 +264,7 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 	case UCLASS_MMC:
 		puts ("MMC");
 		break;
-	case UCLASS_ROOT:
+	case UCLASS_HOST:
 		puts ("HOST");
 		break;
 	case UCLASS_NVME:

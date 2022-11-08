@@ -26,7 +26,7 @@ static struct {
 	{ UCLASS_USB, "usb" },
 	{ UCLASS_MMC,  "mmc" },
 	{ UCLASS_AHCI, "sata" },
-	{ UCLASS_ROOT, "host" },
+	{ UCLASS_HOST, "host" },
 	{ UCLASS_NVME, "nvme" },
 	{ UCLASS_EFI_MEDIA, "efi" },
 	{ UCLASS_EFI_LOADER, "efiloader" },
@@ -369,45 +369,43 @@ int blk_dselect_hwpart(struct blk_desc *desc, int hwpart)
 	return blk_select_hwpart(desc->bdev, hwpart);
 }
 
-int blk_first_device(int uclass_id, struct udevice **devp)
+static int _blk_next_device(int uclass_id, struct udevice **devp)
 {
 	struct blk_desc *desc;
-	int ret;
+	int ret = 0;
 
-	ret = uclass_find_first_device(UCLASS_BLK, devp);
+	for (; *devp; uclass_find_next_device(devp)) {
+		desc = dev_get_uclass_plat(*devp);
+		if (desc->uclass_id == uclass_id) {
+			ret = device_probe(*devp);
+			if (!ret)
+				return 0;
+		}
+	}
+
 	if (ret)
 		return ret;
-	if (!*devp)
-		return -ENODEV;
-	do {
-		desc = dev_get_uclass_plat(*devp);
-		if (desc->uclass_id == uclass_id)
-			return 0;
-		ret = uclass_find_next_device(devp);
-		if (ret)
-			return ret;
-	} while (*devp);
 
 	return -ENODEV;
+}
+
+int blk_first_device(int uclass_id, struct udevice **devp)
+{
+	uclass_find_first_device(UCLASS_BLK, devp);
+
+	return _blk_next_device(uclass_id, devp);
 }
 
 int blk_next_device(struct udevice **devp)
 {
 	struct blk_desc *desc;
-	int ret, uclass_id;
+	int uclass_id;
 
 	desc = dev_get_uclass_plat(*devp);
 	uclass_id = desc->uclass_id;
-	do {
-		ret = uclass_find_next_device(devp);
-		if (ret)
-			return ret;
-		if (!*devp)
-			return -ENODEV;
-		desc = dev_get_uclass_plat(*devp);
-		if (desc->uclass_id == uclass_id)
-			return 0;
-	} while (1);
+	uclass_find_next_device(devp);
+
+	return _blk_next_device(uclass_id, devp);
 }
 
 int blk_find_device(int uclass_id, int devnum, struct udevice **devp)
@@ -508,24 +506,28 @@ ulong blk_derase(struct blk_desc *desc, lbaint_t start, lbaint_t blkcnt)
 	return blk_erase(desc->bdev, start, blkcnt);
 }
 
-int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
+int blk_find_from_parent(struct udevice *parent, struct udevice **devp)
 {
 	struct udevice *dev;
-	enum uclass_id id;
-	int ret;
 
-	device_find_first_child(parent, &dev);
-	if (!dev) {
+	if (device_find_first_child_by_uclass(parent, UCLASS_BLK, &dev)) {
 		debug("%s: No block device found for parent '%s'\n", __func__,
 		      parent->name);
 		return -ENODEV;
 	}
-	id = device_get_uclass_id(dev);
-	if (id != UCLASS_BLK) {
-		debug("%s: Incorrect uclass %s for block device '%s'\n",
-		      __func__, uclass_get_name(id), dev->name);
-		return -ENOTBLK;
-	}
+	*devp = dev;
+
+	return 0;
+}
+
+int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = blk_find_from_parent(parent, &dev);
+	if (ret)
+		return ret;
 	ret = device_probe(dev);
 	if (ret)
 		return ret;

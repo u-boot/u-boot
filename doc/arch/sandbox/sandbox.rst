@@ -43,7 +43,7 @@ Note that standalone/API support is not available at present.
 Prerequisites
 -------------
 
-Install the dependencies noted in :doc:`../build/gcc`.
+Install the dependencies noted in :doc:`../../build/gcc`.
 
 
 Basic Operation
@@ -374,6 +374,7 @@ also use low-level SPI commands::
 This is issuing a READ_ID command and getting back 20 (ST Micro) part
 0x2015 (the M25P16).
 
+.. _sandbox_blk:
 
 Block Device Emulation
 ----------------------
@@ -400,6 +401,8 @@ or utilize the device described in test/py/make_test_disk.py::
    #!/usr/bin/python
    import make_test_disk
    make_test_disk.makeDisk()
+
+For more technical details, see :doc:`block_impl`.
 
 Writing Sandbox Drivers
 -----------------------
@@ -600,8 +603,8 @@ Testing
 U-Boot sandbox can be used to run various tests, mostly in the test/
 directory.
 
-See :doc:`../develop/tests_sandbox` for more information and
-:doc:`../develop/testing` for information about testing generally.
+See :doc:`../../develop/tests_sandbox` for more information and
+:doc:`../../develop/testing` for information about testing generally.
 
 
 Memory Map
