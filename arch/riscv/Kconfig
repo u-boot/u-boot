@@ -257,16 +257,16 @@ config SBI_V01
 	  deprecated in future once legacy M-mode software are no longer in use.
 
 config SBI_V02
-	bool "SBI v0.2 support"
+	bool "SBI v0.2 or later support"
 	depends on SBI
 	help
-	  This config allows kernel to use SBI v0.2 APIs. SBI v0.2 is more
-	  scalable and extendable to handle future needs for RISC-V supervisor
-	  interfaces. For example, with SBI v0.2 HSM extension, only a single
-	  hart need to boot and enter operating system. The booting hart can
-	  bring up secondary harts one by one afterwards.
+	  The SBI specification introduced the concept of extensions in version
+	  v0.2. With this configuration option U-Boot can detect and use SBI
+	  extensions. With the HSM extension introduced in SBI 0.2, only a
+	  single hart needs to boot and enter the operating system. The booting
+	  hart can bring up secondary harts one by one afterwards.
 
-	  Choose this option if OpenSBI v0.7 or above release is used together
+	  Choose this option if OpenSBI release v0.7 or above is used together
 	  with U-Boot.
 
 endchoice
