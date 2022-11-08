@@ -129,7 +129,7 @@ EXPORT_SYMBOL_GPL(nanddev_isreserved);
  *
  * Return: 0 in case of success, a negative error code otherwise.
  */
-int nanddev_erase(struct nand_device *nand, const struct nand_pos *pos)
+static int nanddev_erase(struct nand_device *nand, const struct nand_pos *pos)
 {
 	unsigned int entry;
 
@@ -147,7 +147,6 @@ int nanddev_erase(struct nand_device *nand, const struct nand_pos *pos)
 
 	return nand->ops->erase(nand, pos);
 }
-EXPORT_SYMBOL_GPL(nanddev_erase);
 
 /**
  * nanddev_mtd_erase() - Generic mtd->_erase() implementation for NAND devices
