@@ -20,3 +20,4 @@ ifdef CONFIG_SANDBOX
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
 endif
 obj-$(CONFIG_CMD_TEMPERATURE) += temperature.o
+obj-$(CONFIG_CMD_WGET) += wget.o
