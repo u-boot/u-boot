@@ -311,7 +311,7 @@ static int mxc_serial_putc(struct udevice *dev, const char ch)
 	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	struct mxc_uart *const uart = plat->reg;
 
-	if (readl(&uart->ts) & UTS_TXFULL)
+	if (!(readl(&uart->ts) & UTS_TXEMPTY))
 		return -EAGAIN;
 
 	writel(ch, &uart->txd);
