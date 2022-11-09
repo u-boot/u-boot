@@ -142,7 +142,11 @@ Sources:
 	Tree: https://github.com/OP-TEE/optee_os.git
 	Branch: master
 
-4. U-Boot:
+4. DM Firmware:
+	Tree: git://git.ti.com/processor-firmware/ti-linux-firmware.git
+	Branch: ti-linux-firmware
+
+5. U-Boot:
 	Tree: https://source.denx.de/u-boot/u-boot
 	Branch: master
 
@@ -152,7 +156,7 @@ Build procedure:
 
 .. code-block:: text
 
- $ make CROSS_COMPILE=arm-linux-gnueabihf-
+ $ make CROSS_COMPILE=arm-linux-gnueabihf- SOC=j721e
 
 2. ATF:
 
@@ -172,15 +176,15 @@ Build procedure:
 
 .. code-block:: text
 
- $ make CROSS_COMPILE=arm-linux-gnueabihf- j721e_evm_r5_defconfig O=/tmp/r5
- $ make CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
+ $ make CROSS_COMPILE=arm-linux-gnueabihf- j721e_evm_r5_defconfig O=build/r5
+ $ make CROSS_COMPILE=arm-linux-gnueabihf- O=build/r5
 
 * 4.2 A72:
 
 .. code-block:: text
 
- $ make CROSS_COMPILE=aarch64-linux-gnu- j721e_evm_a72_defconfig O=/tmp/a72
- $ make CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin DM=<path to DM firmware image> O=/tmp/a72
+ $ make CROSS_COMPILE=aarch64-linux-gnu- j721e_evm_a72_defconfig O=build/a72
+ $ make CROSS_COMPILE=aarch64-linux-gnu- ATF=<ATF dir>/build/k3/generic/release/bl31.bin TEE=<OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin DM=<DM firmware>/ti-dm/j721e/ipc_echo_testb_mcu1_0_release_strip.xer5f O=build/a72
 
 Target Images
 --------------
