@@ -24,6 +24,17 @@
 #define __STR(X) #X
 #define STR(X) __STR(X)
 
+#define ENV_MMC_INVALID_OFFSET ((s64)-1)
+
+/* Default ENV offset when not defined in Device Tree */
+#define ENV_MMC_OFFSET		CONFIG_ENV_OFFSET
+
+#if defined(CONFIG_ENV_OFFSET_REDUND)
+#define ENV_MMC_OFFSET_REDUND	CONFIG_ENV_OFFSET_REDUND
+#else
+#define ENV_MMC_OFFSET_REDUND	ENV_MMC_INVALID_OFFSET
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -94,12 +105,12 @@ static inline s64 mmc_offset(int copy)
 			return val;
 	}
 
-	defvalue = CONFIG_ENV_OFFSET;
+	defvalue = ENV_MMC_OFFSET;
 	propname = dt_prop.offset;
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 	if (copy) {
-		defvalue = CONFIG_ENV_OFFSET_REDUND;
+		defvalue = ENV_MMC_OFFSET_REDUND;
 		propname = dt_prop.offset_redund;
 	}
 #endif
@@ -108,11 +119,11 @@ static inline s64 mmc_offset(int copy)
 #else
 static inline s64 mmc_offset(int copy)
 {
-	s64 offset = CONFIG_ENV_OFFSET;
+	s64 offset = ENV_MMC_OFFSET;
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 	if (copy)
-		offset = CONFIG_ENV_OFFSET_REDUND;
+		offset = ENV_MMC_OFFSET_REDUND;
 #endif
 	return offset;
 }
@@ -121,6 +132,11 @@ static inline s64 mmc_offset(int copy)
 __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 {
 	s64 offset = mmc_offset(copy);
+
+	if (offset == ENV_MMC_INVALID_OFFSET) {
+		printf("Invalid ENV offset in MMC, copy=%d\n", copy);
+		return -ENOENT;
+	}
 
 	if (offset < 0)
 		offset += mmc->capacity;
