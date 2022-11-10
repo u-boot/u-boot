@@ -1144,6 +1144,11 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 			return NULL;
 		}
 
+		/*
+		 * UEFI specification requires pointers that are passed to
+		 * protocol member functions to be aligned.  So memcpy it
+		 * unconditionally
+		 */
 		filename = u16_strdup(fdp->str);
 		if (!filename)
 			return NULL;
