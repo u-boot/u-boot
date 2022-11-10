@@ -1461,6 +1461,10 @@ space-separated list of directories to search for binary blobs::
        odroid-c4/build/board/hardkernel/odroidc4/firmware \
        odroid-c4/build/scp_task" binman ...
 
+Note that binman fails with exit code 103 when there are missing blobs. If you
+wish binman to continue anyway, you can pass `-W` to binman.
+
+
 Code coverage
 -------------
 
@@ -1470,6 +1474,24 @@ implementations target 100% test coverage. Run 'binman test -T' to check this.
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu)::
 
    $ sudo apt-get install python-coverage python3-coverage python-pytest
+
+
+Exit status
+-----------
+
+Binman produces the following exit codes:
+
+0
+    Success
+
+1
+    Any sort of failure - see output for more details
+
+103
+    There are missing external blobs or bintools. This is only returned if
+    -M is passed to binman, otherwise missing blobs return an exit status of 1.
+    Note, if -W is passed as well as -M, then this is converted into a warning
+    and will return an exit status of 0 instead.
 
 
 Error messages

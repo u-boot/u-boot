@@ -114,7 +114,7 @@ controlled by a description in the board device tree.'''
     build_parser.add_argument('-m', '--map', action='store_true',
         default=False, help='Output a map file for each image')
     build_parser.add_argument('-M', '--allow-missing', action='store_true',
-        default=False, help='Allow external blobs to be missing')
+        default=False, help='Allow external blobs and bintools to be missing')
     build_parser.add_argument('-n', '--no-expanded', action='store_true',
             help="Don't use 'expanded' versions of entries where available; "
                  "normally 'u-boot' becomes 'u-boot-expanded', for example")
@@ -128,6 +128,9 @@ controlled by a description in the board device tree.'''
         default=False, help='Update the binman node with offset/size info')
     build_parser.add_argument('--update-fdt-in-elf', type=str,
         help='Update an ELF file with the output dtb: infile,outfile,begin_sym,end_sym')
+    build_parser.add_argument(
+        '-W', '--ignore-missing', action='store_true', default=False,
+        help='Return success even if there are missing blobs/bintools (requires -M)')
 
     subparsers.add_parser(
         'bintool-docs', help='Write out bintool documentation (see bintool.rst)')

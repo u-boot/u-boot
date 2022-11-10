@@ -340,7 +340,7 @@ class TestFunctional(unittest.TestCase):
                     use_expanded=False, verbosity=None, allow_missing=False,
                     allow_fake_blobs=False, extra_indirs=None, threads=None,
                     test_section_timeout=False, update_fdt_in_elf=None,
-                    force_missing_bintools=''):
+                    force_missing_bintools='', ignore_missing=False):
         """Run binman with a given test file
 
         Args:
@@ -403,6 +403,8 @@ class TestFunctional(unittest.TestCase):
                 args.append('-a%s=%s' % (arg, value))
         if allow_missing:
             args.append('-M')
+            if ignore_missing:
+                args.append('-W')
         if allow_fake_blobs:
             args.append('--fake-ext-blobs')
         if force_missing_bintools:
@@ -3725,9 +3727,22 @@ class TestFunctional(unittest.TestCase):
     def testExtblobMissingOk(self):
         """Test an image with an missing external blob that is allowed"""
         with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('158_blob_ext_missing.dts', allow_missing=True)
+            ret = self._DoTestFile('158_blob_ext_missing.dts',
+                                   allow_missing=True)
+        self.assertEqual(103, ret)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+        self.assertIn('Some images are invalid', err)
+
+    def testExtblobMissingOkFlag(self):
+        """Test an image with an missing external blob allowed with -W"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            ret = self._DoTestFile('158_blob_ext_missing.dts',
+                                   allow_missing=True, ignore_missing=True)
+        self.assertEqual(0, ret)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+        self.assertIn('Some images are invalid', err)
 
     def testExtblobMissingOkSect(self):
         """Test an image with an missing external blob that is allowed"""
