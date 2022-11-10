@@ -136,8 +136,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
 
     if options.full_help:
         tools.print_full_help(
-            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
-        )
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                         'README.rst'))
         return 0
 
     gitutil.setup()

@@ -249,7 +249,7 @@ class TestFunctional(unittest.TestCase):
     def testFullHelp(self):
         command.test_result = None
         result = self._RunBuildman('-H')
-        help_file = os.path.join(self._buildman_dir, 'README')
+        help_file = os.path.join(self._buildman_dir, 'README.rst')
         # Remove possible extraneous strings
         extra = '::::::::::::::\n' + help_file + '\n::::::::::::::\n'
         gothelp = result.stdout.replace(extra, '')
@@ -260,7 +260,7 @@ class TestFunctional(unittest.TestCase):
     def testHelp(self):
         command.test_result = None
         result = self._RunBuildman('-h')
-        help_file = os.path.join(self._buildman_dir, 'README')
+        help_file = os.path.join(self._buildman_dir, 'README.rst')
         self.assertTrue(len(result.stdout) > 1000)
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)
