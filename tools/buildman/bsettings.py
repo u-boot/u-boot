@@ -5,6 +5,7 @@ import configparser
 import os
 import io
 
+config_fname = None
 
 def Setup(fname=''):
     """Set up the buildman settings module by reading config files
