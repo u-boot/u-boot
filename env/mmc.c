@@ -120,6 +120,7 @@ static inline s64 mmc_offset(int copy)
 		err = mmc_offset_try_partition(str, copy, &val);
 		if (!err)
 			return val;
+		debug("env partition '%s' not found (%d)", str, err);
 	}
 
 	/* try the GPT partition with "U-Boot ENV" TYPE GUID */
