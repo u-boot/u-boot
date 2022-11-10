@@ -211,7 +211,7 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self._base_dir)
-        #shutil.rmtree(self._output_dir)
+        shutil.rmtree(self._output_dir)
 
     def setupToolchains(self):
         self._toolchains = toolchain.Toolchains()
