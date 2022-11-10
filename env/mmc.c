@@ -26,6 +26,12 @@
 
 #define ENV_MMC_INVALID_OFFSET ((s64)-1)
 
+#if defined(CONFIG_ENV_MMC_USE_DT)
+/* ENV offset is invalid when not defined in Device Tree */
+#define ENV_MMC_OFFSET		ENV_MMC_INVALID_OFFSET
+#define ENV_MMC_OFFSET_REDUND	ENV_MMC_INVALID_OFFSET
+
+#else
 /* Default ENV offset when not defined in Device Tree */
 #define ENV_MMC_OFFSET		CONFIG_ENV_OFFSET
 
@@ -33,6 +39,7 @@
 #define ENV_MMC_OFFSET_REDUND	CONFIG_ENV_OFFSET_REDUND
 #else
 #define ENV_MMC_OFFSET_REDUND	ENV_MMC_INVALID_OFFSET
+#endif
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
