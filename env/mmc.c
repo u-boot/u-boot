@@ -74,8 +74,18 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 		if (ret < 0)
 			return ret;
 
-		if (!strncmp((const char *)info.name, str, sizeof(info.name)))
+		if (str && !strncmp((const char *)info.name, str, sizeof(info.name)))
 			break;
+#ifdef CONFIG_PARTITION_TYPE_GUID
+		if (!str) {
+			const efi_guid_t env_guid = PARTITION_U_BOOT_ENVIRONMENT;
+			efi_guid_t type_guid;
+
+			uuid_str_to_bin(info.type_guid, type_guid.b, UUID_STR_FORMAT_GUID);
+			if (!memcmp(&env_guid, &type_guid, sizeof(efi_guid_t)))
+				break;
+		}
+#endif
 	}
 
 	/* round up to info.blksz */
@@ -108,6 +118,13 @@ static inline s64 mmc_offset(int copy)
 	if (str) {
 		/* try to place the environment at end of the partition */
 		err = mmc_offset_try_partition(str, copy, &val);
+		if (!err)
+			return val;
+	}
+
+	/* try the GPT partition with "U-Boot ENV" TYPE GUID */
+	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID)) {
+		err = mmc_offset_try_partition(NULL, copy, &val);
 		if (!err)
 			return val;
 	}
