@@ -199,6 +199,8 @@ Setting up
    arc = /opt/arc/arc_gnu_2021.03_prebuilt_elf32_le_linux_install/bin/arc-elf32-
 
    [toolchain-alias]
+   riscv = riscv32
+   sh = sh4
    x86: i386
    blackfin: bfin
    openrisc: or1k
