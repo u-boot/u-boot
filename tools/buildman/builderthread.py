@@ -288,10 +288,14 @@ class BuilderThread(threading.Thread):
                         args.append('cfg')
                     result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
+                    if (result.return_code == 2 and
+                        ('Some images are invalid' in result.stderr)):
+                        # This is handled later by the check for output in
+                        # stderr
+                        result.return_code = 0
                     if adjust_cfg:
                         errs = cfgutil.check_cfg_file(cfg_file, adjust_cfg)
                         if errs:
-                            print('errs', errs)
                             result.stderr += errs
                             result.return_code = 1
                 result.stderr = result.stderr.replace(src_dir + '/', '')
