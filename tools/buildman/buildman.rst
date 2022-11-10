@@ -195,6 +195,9 @@ Setting up
    arm: /opt/linaro/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
    aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 
+   [toolchain-prefix]
+   arc = /opt/arc/arc_gnu_2021.03_prebuilt_elf32_le_linux_install/bin/arc-elf32-
+
    [toolchain-alias]
    x86: i386
    blackfin: bfin
@@ -1280,7 +1283,7 @@ Thanks to Grant Grundler <grundler@chromium.org> for his ideas for improving
 the build speed by building all commits for a board instead of the other
 way around.
 
-.. _`Arc Toolchain`: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2016.09-release/arc_gnu_2016.09_prebuilt_uclibc_le_archs_linux_install.tar.gz
+.. _`Arc Toolchain`: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2021.03-release/arc_gnu_2021.03_prebuilt_elf32_le_linux_install.tar.gz
 .. _`Blackfin Toolchain`: http://sourceforge.net/projects/adi-toolchain/files/blackfin-toolchain-elf-gcc-4.5-2014R1_45-RC2.x86_64.tar.bz2
 .. _`Nios2 Toolchain`: http://sourcery.mentor.com/public/gnu_toolchain/nios2-linux-gnu/sourceryg++-2015.11-27-nios2-linux-gnu-i686-pc-linux-gnu.tar.bz2
 .. _`SH Toolchain`: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu/renesas-4.4-200-sh-linux-gnu-i686-pc-linux-gnu.tar.bz2
