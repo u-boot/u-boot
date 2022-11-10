@@ -21,9 +21,6 @@
 #include <errno.h>
 #include <dm/ofnode.h>
 
-#define __STR(X) #X
-#define STR(X) __STR(X)
-
 #define ENV_MMC_INVALID_OFFSET ((s64)-1)
 
 #if defined(CONFIG_ENV_MMC_USE_DT)
