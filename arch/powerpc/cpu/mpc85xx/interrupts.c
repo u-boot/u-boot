@@ -25,7 +25,7 @@
 
 void interrupt_init_cpu(unsigned *decrementer_count)
 {
-	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
+	ccsr_pic_t __iomem *pic = (void *)CFG_SYS_MPC8xxx_PIC_ADDR;
 
 #ifdef CONFIG_POST
 	/*

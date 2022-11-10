@@ -9,8 +9,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
 #define CONFIG_SYS_SPL_PTE_RAM_BASE    0x41580000
@@ -96,7 +94,7 @@
 
 #define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(1)
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR       0
+#define CFG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_ESDHC_ADDR       0
 
 #endif

@@ -29,7 +29,7 @@ phys_size_t get_effective_memsize(void)
 #define GPIO1_SD_SEL 0x00020000
 int board_mmc_getcd(struct mmc *mmc)
 {
-	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t __iomem *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 	u32 val = in_be32(&pgpio->gpdat);
 
 	/* GPIO1_14, 0: eMMC, 1: SD */
@@ -40,7 +40,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_getwp(struct mmc *mmc)
 {
-	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t __iomem *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 	u32 val = in_be32(&pgpio->gpdat);
 
 	val &= GPIO1_SD_SEL;
@@ -52,7 +52,7 @@ int board_mmc_getwp(struct mmc *mmc)
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, sys_clk, ccb_clk;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 
 	/* Memcpy existing GD at CONFIG_SPL_GD_ADDR */
 	memcpy((void *)CONFIG_SPL_GD_ADDR, (void *)gd, sizeof(gd_t));

@@ -27,7 +27,6 @@
 #define __SW_BOOT_NOR_BANK_UP	0x5c /* (__SW_BOOT_NOR | __SW_NOR_BANK_UP) */
 #define __SW_BOOT_NOR_BANK_LO	0x5e /* (__SW_BOOT_NOR | __SW_NOR_BANK_LO) */
 #define __SW_BOOT_NOR_BANK_MASK	0x01 /* (__SW_BOOT_MASK & __SW_NOR_BANK_MASK) */
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
 /*
@@ -58,7 +57,6 @@
 #define __SW_BOOT_NOR_BANK_UP	0x64 /* (__SW_BOOT_NOR | __SW_NOR_BANK_UP) */
 #define __SW_BOOT_NOR_BANK_LO	0x66 /* (__SW_BOOT_NOR | __SW_NOR_BANK_LO) */
 #define __SW_BOOT_NOR_BANK_MASK	0x01 /* (__SW_BOOT_MASK & __SW_NOR_BANK_MASK) */
-#define CONFIG_SYS_L2_SIZE	(256 << 10)
 /*
  * Dynamic MTD Partition support with mtdparts
  */
@@ -79,7 +77,6 @@
 #define __SW_BOOT_NOR_BANK_UP	0xc8 /* (__SW_BOOT_NOR | __SW_NOR_BANK_UP) */
 #define __SW_BOOT_NOR_BANK_LO	0xca /* (__SW_BOOT_NOR | __SW_NOR_BANK_LO) */
 #define __SW_BOOT_NOR_BANK_MASK	0x01 /* (__SW_BOOT_MASK & __SW_NOR_BANK_MASK) */
-#define CONFIG_SYS_L2_SIZE	(512 << 10)
 /*
  * Dynamic MTD Partition support with mtdparts
  */
@@ -218,7 +215,6 @@
 #endif
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #define CONFIG_SYS_NAND_BR_PRELIM (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 	| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
@@ -245,7 +241,6 @@
 #endif
 #endif /* CONFIG_NAND_FSL_ELBC */
 
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0xf
@@ -264,8 +259,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_LEN	(768 * 1024)
 
 #define CONFIG_SYS_CPLD_BASE	0xffa00000
 #ifdef CONFIG_PHYS_64BIT
@@ -419,15 +412,12 @@
 #endif
 #endif
 
-#define CONFIG_LOADS_ECHO		/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
-
 /*
  * USB
  */
 
 #ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	CFG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
 /*

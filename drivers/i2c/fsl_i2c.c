@@ -271,13 +271,6 @@ static void __i2c_init(const struct fsl_i2c_base *base, int speed, int
 	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
 	unsigned long long timeval;
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	/* Call board specific i2c bus reset routine before accessing the
-	 * environment, which might be in a chip on that bus. For details
-	 * about this problem see doc/I2C_Edge_Conditions.
-	 */
-	i2c_init_board();
-#endif
 	writeb(0, &base->cr);		/* stop I2C controller */
 	udelay(5);			/* let it shutdown in peace */
 	set_i2c_bus_speed(base, i2c_clk, speed);

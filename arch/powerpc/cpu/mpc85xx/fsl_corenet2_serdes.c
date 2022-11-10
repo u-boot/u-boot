@@ -21,10 +21,10 @@ static u8 serdes1_prtcl_map[SERDES_PRCTL_COUNT];
 #ifdef CONFIG_SYS_FSL_SRDS_2
 static u8 serdes2_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_3
+#ifdef CFG_SYS_FSL_SRDS_3
 static u8 serdes3_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_4
+#ifdef CFG_SYS_FSL_SRDS_4
 static u8 serdes4_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
 
@@ -104,13 +104,13 @@ int is_serdes_configured(enum srds_prtcl device)
 
 	ret |= serdes2_prtcl_map[device];
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_3
+#ifdef CFG_SYS_FSL_SRDS_3
 	if (!serdes3_prtcl_map[NONE])
 		fsl_serdes_init();
 
 	ret |= serdes3_prtcl_map[device];
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_4
+#ifdef CFG_SYS_FSL_SRDS_4
 	if (!serdes4_prtcl_map[NONE])
 		fsl_serdes_init();
 
@@ -122,7 +122,7 @@ int is_serdes_configured(enum srds_prtcl device)
 
 int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 {
-	const ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	const ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 cfg = in_be32(&gur->rcwsr[4]);
 	int i;
 
@@ -139,13 +139,13 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 		cfg >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
 		break;
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_3
+#ifdef CFG_SYS_FSL_SRDS_3
 	case FSL_SRDS_3:
 		cfg &= FSL_CORENET2_RCWSR4_SRDS3_PRTCL;
 		cfg >>= FSL_CORENET2_RCWSR4_SRDS3_PRTCL_SHIFT;
 		break;
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_4
+#ifdef CFG_SYS_FSL_SRDS_4
 	case FSL_SRDS_4:
 		cfg &= FSL_CORENET2_RCWSR4_SRDS4_PRTCL;
 		cfg >>= FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT;
@@ -193,7 +193,7 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 		u8 serdes_prtcl_map[SERDES_PRCTL_COUNT])
 {
-	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 cfg;
 	int lane;
 
@@ -351,28 +351,28 @@ void fsl_serdes_init(void)
 
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	serdes_init(FSL_SRDS_1,
-		    CONFIG_SYS_FSL_CORENET_SERDES_ADDR,
+		    CFG_SYS_FSL_CORENET_SERDES_ADDR,
 		    FSL_CORENET2_RCWSR4_SRDS1_PRTCL,
 		    FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT,
 		    serdes1_prtcl_map);
 #endif
 #ifdef CONFIG_SYS_FSL_SRDS_2
 	serdes_init(FSL_SRDS_2,
-		    CONFIG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_2 * 0x1000,
+		    CFG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_2 * 0x1000,
 		    FSL_CORENET2_RCWSR4_SRDS2_PRTCL,
 		    FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT,
 		    serdes2_prtcl_map);
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_3
+#ifdef CFG_SYS_FSL_SRDS_3
 	serdes_init(FSL_SRDS_3,
-		    CONFIG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_3 * 0x1000,
+		    CFG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_3 * 0x1000,
 		    FSL_CORENET2_RCWSR4_SRDS3_PRTCL,
 		    FSL_CORENET2_RCWSR4_SRDS3_PRTCL_SHIFT,
 		    serdes3_prtcl_map);
 #endif
-#ifdef CONFIG_SYS_FSL_SRDS_4
+#ifdef CFG_SYS_FSL_SRDS_4
 	serdes_init(FSL_SRDS_4,
-		    CONFIG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_4 * 0x1000,
+		    CFG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_4 * 0x1000,
 		    FSL_CORENET2_RCWSR4_SRDS4_PRTCL,
 		    FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT,
 		    serdes4_prtcl_map);

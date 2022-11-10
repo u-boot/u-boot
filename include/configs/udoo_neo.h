@@ -15,7 +15,7 @@
 #include "imx6_spl.h"
 
 /* MMC Configuration */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* Command definition */
 #define CONFIG_MXC_UART_BASE		UART1_BASE

@@ -539,10 +539,10 @@ int adjust_vdd(ulong vdd_override)
 {
 	int re_enable = disable_interrupts();
 #if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 #else
 	ccsr_gur_t __iomem *gur =
-		(void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+		(void __iomem *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 	u8 vid;
 	u32 fusesr;

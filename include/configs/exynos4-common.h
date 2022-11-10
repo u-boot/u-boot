@@ -21,8 +21,6 @@
 #define CONFIG_G_DNL_UMS_VENDOR_NUM 0x0525
 #define CONFIG_G_DNL_UMS_PRODUCT_NUM 0xA4A5
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
 /* Common environment variables */
 #define ENV_ITB \
 	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kerneladdr} " \

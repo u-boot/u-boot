@@ -952,11 +952,6 @@ int mmc_get_env_dev(void);
 /* Minimum partition switch timeout in units of 10-milliseconds */
 #define MMC_MIN_PART_SWITCH_TIME	30 /* 300 ms */
 
-/* Set block count limit because of 16 bit register limit on some hardware*/
-#ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT 65535
-#endif
-
 /**
  * mmc_get_blk_desc() - Get the block descriptor for an MMC device
  *

@@ -15,7 +15,6 @@
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 /* Enable NAND support */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR

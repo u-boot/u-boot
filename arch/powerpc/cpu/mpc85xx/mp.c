@@ -50,7 +50,7 @@ int hold_cores_in_reset(int verbose)
 
 int cpu_reset(u32 nr)
 {
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CFG_SYS_MPC8xxx_PIC_ADDR);
 	out_be32(&pic->pir, 1 << nr);
 	/* the dummy read works around an errata on early 85xx MP PICs */
 	(void)in_be32(&pic->pir);
@@ -87,7 +87,7 @@ int cpu_status(u32 nr)
 #ifdef CONFIG_FSL_CORENET
 int cpu_disable(u32 nr)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	setbits_be32(&gur->coredisrl, 1 << nr);
 
@@ -95,7 +95,7 @@ int cpu_disable(u32 nr)
 }
 
 int is_core_disabled(int nr) {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 coredisrl = in_be32(&gur->coredisrl);
 
 	return (coredisrl & (1 << nr));
@@ -103,7 +103,7 @@ int is_core_disabled(int nr) {
 #else
 int cpu_disable(u32 nr)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	switch (nr) {
 	case 0:
@@ -121,7 +121,7 @@ int cpu_disable(u32 nr)
 }
 
 int is_core_disabled(int nr) {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 devdisr = in_be32(&gur->devdisr);
 
 	switch (nr) {
@@ -264,10 +264,10 @@ static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 	u32 mask = cpu_mask();
 	struct law_entry e;
 
-	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
-	rcpm = (void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
-	pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
+	gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
+	ccm = (void *)(CFG_SYS_FSL_CORENET_CCM_ADDR);
+	rcpm = (void *)(CFG_SYS_FSL_CORENET_RCPM_ADDR);
+	pic = (void *)(CFG_SYS_MPC8xxx_PIC_ADDR);
 
 	whoami = in_be32(&pic->whoami);
 	cpu_up_mask = 1 << whoami;
@@ -336,9 +336,9 @@ static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 	u32 up, cpu_up_mask, whoami;
 	u32 *table = (u32 *)&__spin_table;
 	volatile u32 bpcr;
-	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
+	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_SYS_MPC85xx_ECM_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CFG_SYS_MPC8xxx_PIC_ADDR);
 	u32 devdisr;
 	int timeout = 10;
 

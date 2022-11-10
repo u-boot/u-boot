@@ -180,7 +180,7 @@ static struct csu_ns_dev ns_dev[] = {
 
 void set_devices_ns_access(unsigned long index, u16 val)
 {
-	u32 *base = (u32 *)CONFIG_SYS_FSL_CSU_ADDR;
+	u32 *base = (u32 *)CFG_SYS_FSL_CSU_ADDR;
 	u32 *reg;
 	uint32_t tmp;
 

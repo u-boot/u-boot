@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FSL_HW_NUM_LAWS CONFIG_SYS_FSL_NUM_LAWS
 
 #ifdef CONFIG_FSL_CORENET
-#define LAW_BASE (CONFIG_SYS_FSL_CORENET_CCM_ADDR)
+#define LAW_BASE (CFG_SYS_FSL_CORENET_CCM_ADDR)
 #define LAWAR_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawar)
 #define LAWBARH_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawbarh)
 #define LAWBARL_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawbarl)
@@ -301,7 +301,7 @@ void init_laws(void)
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
 	/* check RCW to get which port is used for boot */
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 	u32 bootloc = in_be32(&gur->rcwsr[6]);
 	/*
 	 * in SRIO or PCIE boot we need to set specail LAWs for

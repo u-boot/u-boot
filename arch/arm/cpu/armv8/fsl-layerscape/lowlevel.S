@@ -325,8 +325,8 @@ ENDPROC(fsl_ocram_init)
 
 ENTRY(fsl_clear_ocram)
 /* Clear OCRAM */
-	ldr	x0, =CONFIG_SYS_FSL_OCRAM_BASE
-	ldr	x1, =(CONFIG_SYS_FSL_OCRAM_BASE + CONFIG_SYS_FSL_OCRAM_SIZE)
+	ldr	x0, =CFG_SYS_FSL_OCRAM_BASE
+	ldr	x1, =(CFG_SYS_FSL_OCRAM_BASE + CFG_SYS_FSL_OCRAM_SIZE)
 	mov	x2, #0
 clear_loop:
 	str	x2, [x0]

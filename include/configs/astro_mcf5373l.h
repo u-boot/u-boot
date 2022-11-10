@@ -46,9 +46,6 @@
  */
 #ifdef CONFIG_RAM
 #define CONFIG_MONITOR_IS_IN_RAM
-#define ENABLE_JFFS	0
-#else
-#define ENABLE_JFFS	1
 #endif
 
 /* I2C */
@@ -192,7 +189,6 @@
 #define CONFIG_SYS_FLASH_BASE		0x00000000
 
 /* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
 /*
  * For booting Linux, the board info and command line data
@@ -209,14 +205,6 @@
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text*)
-
-#if ENABLE_JFFS
-/* JFFS Partition offset set */
-#define CONFIG_SYS_JFFS2_FIRST_BANK    0
-#define CONFIG_SYS_JFFS2_NUM_BANKS     1
-/* 512k reserved for u-boot */
-#define CONFIG_SYS_JFFS2_FIRST_SECTOR  0x40
-#endif
 
 /* Cache Configuration */
 

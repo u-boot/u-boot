@@ -81,9 +81,6 @@
 /*
  * SDMMC configurations
  */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	256
-#endif
 /*
  * Flash configurations
  */

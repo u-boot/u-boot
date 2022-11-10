@@ -76,7 +76,7 @@ static void set_fman_liodn(struct fman_liodn_id_table *tbl, int size)
 
 static void setup_sec_liodn_base(void)
 {
-	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+	ccsr_sec_t *sec = (void *)CFG_SYS_FSL_SEC_ADDR;
 	u32 base;
 
 	if (!IS_E_PROCESSOR(get_svr()))
@@ -101,12 +101,12 @@ static void setup_fman_liodn_base(enum fsl_dpaa_dev dev,
 
 	switch(dev) {
 	case FSL_HW_PORTAL_FMAN1:
-		fm = (void *)CONFIG_SYS_FSL_FM1_ADDR;
+		fm = (void *)CFG_SYS_FSL_FM1_ADDR;
 		break;
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
 	case FSL_HW_PORTAL_FMAN2:
-		fm = (void *)CONFIG_SYS_FSL_FM2_ADDR;
+		fm = (void *)CFG_SYS_FSL_FM2_ADDR;
 		break;
 #endif
 	default:
@@ -130,7 +130,7 @@ static void setup_fman_liodn_base(enum fsl_dpaa_dev dev,
 static void setup_pme_liodn_base(void)
 {
 #ifdef CONFIG_SYS_DPAA_PME
-	ccsr_pme_t *pme = (void *)CONFIG_SYS_FSL_CORENET_PME_ADDR;
+	ccsr_pme_t *pme = (void *)CFG_SYS_FSL_CORENET_PME_ADDR;
 	u32 base = (liodn_bases[FSL_HW_PORTAL_PME].id[0] << 16) |
 			liodn_bases[FSL_HW_PORTAL_PME].id[1];
 
@@ -141,7 +141,7 @@ static void setup_pme_liodn_base(void)
 #ifdef CONFIG_SYS_FSL_RAID_ENGINE
 static void setup_raide_liodn_base(void)
 {
-	struct ccsr_raide *raide = (void *)CONFIG_SYS_FSL_RAID_ENGINE_ADDR;
+	struct ccsr_raide *raide = (void *)CFG_SYS_FSL_RAID_ENGINE_ADDR;
 
 	/* setup raid engine liodn base for data/desc ; both set to 47 */
 	u32 base = (liodn_bases[FSL_HW_PORTAL_RAID_ENGINE].id[0] << 16) |
@@ -155,7 +155,7 @@ static void setup_raide_liodn_base(void)
 static void set_rman_liodn(struct liodn_id_table *tbl, int size)
 {
 	int i;
-	struct ccsr_rman *rman = (void *)CONFIG_SYS_FSL_CORENET_RMAN_ADDR;
+	struct ccsr_rman *rman = (void *)CFG_SYS_FSL_CORENET_RMAN_ADDR;
 
 	for (i = 0; i < size; i++) {
 		/* write the RMan block number */
@@ -168,7 +168,7 @@ static void set_rman_liodn(struct liodn_id_table *tbl, int size)
 static void setup_rman_liodn_base(struct liodn_id_table *tbl, int size)
 {
 	int i;
-	struct ccsr_rman *rman = (void *)CONFIG_SYS_FSL_CORENET_RMAN_ADDR;
+	struct ccsr_rman *rman = (void *)CFG_SYS_FSL_CORENET_RMAN_ADDR;
 	u32 base = liodn_bases[FSL_HW_PORTAL_RMAN].id[0];
 
 	out_be32(&rman->mmliodnbr, base);

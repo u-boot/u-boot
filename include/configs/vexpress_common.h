@@ -124,8 +124,6 @@
 #define CONFIG_SYS_SERIAL0		V2M_UART0
 #define CONFIG_SYS_SERIAL1		V2M_UART1
 
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	127
-
 /* Miscellaneous configurable options */
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 

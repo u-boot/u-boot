@@ -92,9 +92,9 @@
 
 /* MMC Config*/
 #ifdef CONFIG_FSL_USDHC
-#define CONFIG_SYS_FSL_ESDHC_ADDR       USDHC1_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR       USDHC1_BASE_ADDR
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_USDHC_NUM	2
 #endif
 
 /* USB Configs */

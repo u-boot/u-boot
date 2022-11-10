@@ -133,7 +133,7 @@ int pfe_eth_board_init(struct udevice *dev)
 	struct mii_dev *bus;
 	static const char *mdio_name;
 	struct pfe_mdio_info mac_mdio_info;
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	u8 data8;
 	struct pfe_eth_dev *priv = dev_get_priv(dev);
 

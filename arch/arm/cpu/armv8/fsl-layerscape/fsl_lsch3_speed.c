@@ -23,13 +23,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void get_sys_info(struct sys_info *sys_info)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	struct ccsr_clk_cluster_group __iomem *clk_grp[2] = {
-		(void *)(CONFIG_SYS_FSL_CH3_CLK_GRPA_ADDR),
-		(void *)(CONFIG_SYS_FSL_CH3_CLK_GRPB_ADDR)
+		(void *)(CFG_SYS_FSL_CH3_CLK_GRPA_ADDR),
+		(void *)(CFG_SYS_FSL_CH3_CLK_GRPB_ADDR)
 	};
 	struct ccsr_clk_ctrl __iomem *clk_ctrl =
-		(void *)(CONFIG_SYS_FSL_CH3_CLK_CTRL_ADDR);
+		(void *)(CFG_SYS_FSL_CH3_CLK_CTRL_ADDR);
 	unsigned int cpu;
 	const u8 core_cplx_pll[16] = {
 		[0] = 0,	/* CC1 PPL / 1 */
@@ -68,7 +68,7 @@ void get_sys_info(struct sys_info *sys_info)
 	uint freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	unsigned long sysclk = get_board_sys_clk();
-	int cc_group[12] = CONFIG_SYS_FSL_CLUSTER_CLOCKS;
+	int cc_group[12] = CFG_SYS_FSL_CLUSTER_CLOCKS;
 	u32 c_pll_sel, cplx_pll;
 	void *offset;
 

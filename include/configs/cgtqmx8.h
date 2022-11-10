@@ -12,8 +12,6 @@
 #include <asm/arch/imx-regs.h>
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_MONITOR_LEN				(1024 * 1024)
-
 #define CONFIG_SERIAL_LPUART_BASE	0x5a060000
 #define CONFIG_MALLOC_F_ADDR		0x00120000
 
@@ -22,7 +20,7 @@
 /* Flat Device Tree Definitions */
 
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5B010000
 #define USDHC2_BASE_ADDR		0x5B020000
 #define USDHC3_BASE_ADDR		0x5B030000
@@ -111,7 +109,7 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000

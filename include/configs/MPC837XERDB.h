@@ -126,12 +126,9 @@
  * The reserved memory
  */
 
-#define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
-
 /*
  * Initial RAM Base Address Setup
  */
-#define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 
@@ -217,16 +214,9 @@
 #endif
 #endif
 
-/*
- * Environment
- */
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
-
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC_PIN_MUX
-#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	CFG_SYS_MPC83xx_ESDHC_ADDR
 #endif
 
 /*

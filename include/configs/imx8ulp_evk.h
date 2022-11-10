@@ -9,7 +9,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #ifdef CONFIG_SPL_BUILD

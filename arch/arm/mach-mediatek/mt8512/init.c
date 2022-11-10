@@ -21,6 +21,7 @@
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <dt-bindings/clock/mt8512-clk.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

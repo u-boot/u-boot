@@ -14,9 +14,6 @@
 
 /* SPL config */
 #ifdef CONFIG_SPL_BUILD
-
-#define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
-
 #define CONFIG_MALLOC_F_ADDR		0x00120000
 
 #endif /* CONFIG_SPL_BUILD */

@@ -38,7 +38,7 @@ int checkboard(void)
 	puts("Board: LS1021AIOT\n");
 
 #ifndef CONFIG_QSPI_BOOT
-	struct ccsr_gur *dcfg = (struct ccsr_gur *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur *dcfg = (struct ccsr_gur *)CFG_SYS_FSL_GUTS_ADDR;
 	u32 cpldrev;
 
 	cpldrev = in_be32(&dcfg->gpporcr1);
@@ -51,7 +51,7 @@ int checkboard(void)
 
 void ddrmc_init(void)
 {
-	struct ccsr_ddr *ddr = (struct ccsr_ddr *)CONFIG_SYS_FSL_DDR_ADDR;
+	struct ccsr_ddr *ddr = (struct ccsr_ddr *)CFG_SYS_FSL_DDR_ADDR;
 	u32 temp_sdram_cfg, tmp;
 
 	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG);
@@ -111,7 +111,7 @@ int dram_init(void)
 
 int board_early_init_f(void)
 {
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
 	/* clear BD & FR bits for BE BD's and frame data */

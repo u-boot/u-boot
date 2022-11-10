@@ -11,7 +11,7 @@
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5B010000
 #define USDHC2_BASE_ADDR		0x5B020000
 #define USDHC3_BASE_ADDR		0x5B030000
@@ -106,7 +106,7 @@
  * USDHC3 is for SD on base board On DDR4 board, USDHC1 is mux for NAND,
  * USDHC2 is for SD, USDHC3 is for SD on base board
  */
-#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000

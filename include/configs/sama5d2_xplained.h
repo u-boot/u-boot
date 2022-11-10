@@ -13,6 +13,4 @@
 
 /* SPL */
 
-#define CONFIG_SYS_MONITOR_LEN		(512 << 10)
-
 #endif

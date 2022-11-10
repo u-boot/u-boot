@@ -10,8 +10,6 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_MONITOR_LEN		SZ_1M
-
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_MALLOC_F_ADDR		0x930000
 
@@ -33,8 +31,8 @@
 #define PHY_ANEG_TIMEOUT		20000
 
 /* USDHC */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd=setenv devpart 2 && run bootcmd ; reset\0"		\

@@ -33,7 +33,6 @@
 			"ramdisk_addr_r=0xC0438000\0"		\
 			BOOTENV
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_UBOOT_BASE		(CONFIG_SYS_FLASH_BASE + \
 					 CONFIG_SPL_PAD_TO)
 

@@ -27,7 +27,6 @@
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_NAND_DBW_8		1
 /* our ALE is AD21 */
@@ -39,8 +38,6 @@
 #endif
 
 /* SPL */
-
-#define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 
 #define CONFIG_SYS_MASTER_CLOCK		132096000
 #define CONFIG_SYS_AT91_PLLA		0x20c73f03

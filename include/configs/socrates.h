@@ -78,8 +78,6 @@
 /*
  * Flash on the LocalBus
  */
-#define CONFIG_SYS_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable	 */
-
 #define CONFIG_SYS_FLASH0		0xFE000000
 #define CONFIG_SYS_FLASH1		0xFC000000
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH1, CONFIG_SYS_FLASH0 }
@@ -92,24 +90,19 @@
 #define CONFIG_SYS_LBC_LSRT		0x20000000    /* LB sdram refresh timer	*/
 #define CONFIG_SYS_LBC_MRTPR		0x20000000    /* LB refresh timer presc.*/
 
-#define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address	*/
 #define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size used area in RAM*/
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_LEN		(384 * 1024)	/* Reserve 384KiB for Mon */
 
 /* FPGA and NAND */
 #define CONFIG_SYS_FPGA_BASE		0xc0000000
 #define CONFIG_SYS_FPGA_SIZE		0x00100000	/* 1 MB		*/
 
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_FPGA_BASE + 0x70)
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* LIME GDC */
 #define CONFIG_SYS_LIME_BASE		0xc8000000
-#define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/
 
 /*
  * General PCI
@@ -138,13 +131,6 @@
 #define TSEC3_FLAGS		TSEC_GIGABIT
 
 /* Options are: TSEC[0,1] */
-
-/*
- * Environment
- */
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 /*
  * Miscellaneous configurable options

@@ -92,7 +92,7 @@ int fm_standard_init(struct bd_info *bis)
 	int i;
 	struct ccsr_fman *reg;
 
-	reg = (void *)CONFIG_SYS_FSL_FM1_ADDR;
+	reg = (void *)CFG_SYS_FSL_FM1_ADDR;
 	if (fm_init_common(0, reg))
 		return 0;
 
@@ -102,7 +102,7 @@ int fm_standard_init(struct bd_info *bis)
 	}
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
-	reg = (void *)CONFIG_SYS_FSL_FM2_ADDR;
+	reg = (void *)CFG_SYS_FSL_FM2_ADDR;
 	if (fm_init_common(1, reg))
 		return 0;
 
@@ -247,7 +247,7 @@ int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	phys_addr_t paddr = CONFIG_SYS_CCSRBAR_PHYS + info->compat_offset;
 #ifndef CONFIG_SYS_FMAN_V3
 	u64 dtsec1_addr = (u64)CONFIG_SYS_CCSRBAR_PHYS +
-				CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET;
+				CFG_SYS_FSL_FM1_DTSEC1_OFFSET;
 #endif
 
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);

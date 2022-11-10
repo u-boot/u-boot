@@ -11,7 +11,6 @@
 #include <asm/arch/imx-regs.h>
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_SYS_MONITOR_LEN		SZ_512K
 #define CONFIG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
@@ -134,8 +133,8 @@
 
 /* USDHC */
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_FEC_MXC_PHYADDR		0
 

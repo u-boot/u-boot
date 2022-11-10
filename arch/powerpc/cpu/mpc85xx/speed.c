@@ -24,16 +24,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void get_sys_info(sys_info_t *sys_info)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_FSL_CORENET
-	volatile ccsr_clk_t *clk = (void *)(CONFIG_SYS_FSL_CORENET_CLK_ADDR);
+	volatile ccsr_clk_t *clk = (void *)(CFG_SYS_FSL_CORENET_CLK_ADDR);
 	unsigned int cpu;
 #ifdef CONFIG_HETROGENOUS_CLUSTERS
 	unsigned int dsp_cpu;
 	uint rcw_tmp1, rcw_tmp2;
 #endif
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
-	int cc_group[12] = CONFIG_SYS_FSL_CLUSTER_CLOCKS;
+	int cc_group[12] = CFG_SYS_FSL_CLUSTER_CLOCKS;
 #endif
 	__maybe_unused u32 svr;
 
@@ -575,7 +575,7 @@ int get_clocks(void)
 {
 	sys_info_t sys_info;
 #ifdef CONFIG_ARCH_MPC8544
-	volatile ccsr_gur_t *gur = (void *) CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	volatile ccsr_gur_t *gur = (void *) CFG_SYS_MPC85xx_GUTS_ADDR;
 #endif
 	get_sys_info (&sys_info);
 	gd->cpu_clk = sys_info.freq_processor[0];

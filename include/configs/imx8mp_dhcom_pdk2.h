@@ -10,8 +10,6 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_MONITOR_LEN		SZ_1M
-
 /* Link Definitions */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x200000
@@ -27,8 +25,8 @@
 #define FEC_QUIRK_ENET_MAC
 
 /* USDHC */
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd=run bootcmd ; reset\0"				\

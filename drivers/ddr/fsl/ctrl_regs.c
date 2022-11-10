@@ -2590,7 +2590,7 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 void erratum_a009942_check_cpo(void)
 {
 	struct ccsr_ddr __iomem *ddr =
-		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
+		(struct ccsr_ddr __iomem *)(CFG_SYS_FSL_DDR_ADDR);
 	u32 cpo, cpo_e, cpo_o, cpo_target, cpo_optimal;
 	u32 cpo_min = ddr_in32(&ddr->debug[9]) >> 24;
 	u32 cpo_max = cpo_min;

@@ -27,10 +27,6 @@
 	EFI_GUID(0xcf9ecfd4, 0x938b, 0x41c5, 0x85, 0x51, \
 		 0x1f, 0x88, 0x3a, 0xb7, 0xdc, 0x18)
 
-#ifdef CONFIG_NAND_ARASAN
-# define CONFIG_SYS_MAX_NAND_DEVICE	1
-#endif
-
 /* Miscellaneous configurable options */
 
 #if defined(CONFIG_ZYNQMP_USB)

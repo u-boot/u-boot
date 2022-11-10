@@ -238,7 +238,7 @@ void u_qe_init(void)
 
 	if (src == BOOT_SOURCE_QSPI_NOR)
 		addr = (void *)(CONFIG_SYS_QE_FW_ADDR +
-				CONFIG_SYS_FSL_QSPI_BASE);
+				CFG_SYS_FSL_QSPI_BASE);
 
 	if (src == BOOT_SOURCE_SD_MMC) {
 		int dev = CONFIG_SYS_MMC_ENV_DEV;
@@ -467,9 +467,9 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	const struct qe_header *hdr;
 #ifdef CONFIG_DEEP_SLEEP
 #ifdef CONFIG_ARCH_LS1021A
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 #else
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #endif
 	if (!firmware) {
@@ -607,9 +607,9 @@ int u_qe_upload_firmware(const struct qe_firmware *firmware)
 	const struct qe_header *hdr;
 #ifdef CONFIG_DEEP_SLEEP
 #ifdef CONFIG_ARCH_LS1021A
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 #else
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #endif
 	if (!firmware) {
@@ -718,9 +718,9 @@ int u_qe_firmware_resume(const struct qe_firmware *firmware, qe_map_t *qe_immrr)
 	const u32 *code;
 #ifdef CONFIG_DEEP_SLEEP
 #ifdef CONFIG_PPC
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #else
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 #endif
 #endif
 

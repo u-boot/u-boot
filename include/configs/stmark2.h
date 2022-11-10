@@ -34,10 +34,6 @@
 		"sf write ${loadaddr} 0x00800000 ${filesize}\0"	\
 	""
 
-/* Realtime clock */
-#define CONFIG_RTC_MCFRRTC
-#define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
-
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 
 /* Input, PCI, Flexbus, and VCO */
@@ -72,7 +68,6 @@
 #endif
 
 /* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
 /*
  * For booting Linux, the board info and command line data

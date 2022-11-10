@@ -27,11 +27,11 @@
 /* Link Definitions */
 
 /* Link Definitions */
-#define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
+#define CFG_SYS_FSL_QSPI_BASE	0x20000000
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
-#define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
+#define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_SYS_DDR_BLOCK2_BASE	0x8080000000ULL
 /*
@@ -146,9 +146,6 @@ unsigned long long get_qixis_addr(void);
  * size increases then increase this size in case of secure boot as
  * it uses raw u-boot image instead of fit image.
  */
-#define CONFIG_SYS_MONITOR_LEN         (0x100000 + CONFIG_U_BOOT_HDR_SIZE)
-#else
-#define CONFIG_SYS_MONITOR_LEN         0x100000
 #endif /* ifdef CONFIG_NXP_ESBC */
 
 #endif

@@ -15,7 +15,7 @@
 #define PHYS_SDRAM_SIZE		SZ_512M
 
 /* MMC Config*/
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \

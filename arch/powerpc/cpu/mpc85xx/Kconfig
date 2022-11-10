@@ -113,6 +113,7 @@ config TARGET_P1010RDB_PA
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -123,6 +124,7 @@ config TARGET_P1010RDB_PB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select SUPPORT_TPL
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -132,6 +134,7 @@ config TARGET_P1020RDB_PC
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -141,6 +144,7 @@ config TARGET_P1020RDB_PD
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P1020
+	select SYS_L2_SIZE_256KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply PANIC_HANG
@@ -150,6 +154,7 @@ config TARGET_P2020RDB
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select ARCH_P2020
+	select SYS_L2_SIZE_512KB
 	imply CMD_EEPROM
 	imply CMD_SATA
 	imply SATA_SIL
@@ -160,6 +165,7 @@ config TARGET_P2041RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select FSL_CORENET
 	select PHYS_64BIT
+	select SYS_L3_SIZE_1024KB
 	imply CMD_SATA
 	imply FSL_SATA
 
@@ -177,6 +183,7 @@ config TARGET_T1024RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	select FSL_DDR_INTERACTIVE
+	select SYS_L3_SIZE_256KB
 	imply CMD_EEPROM
 	imply PANIC_HANG
 
@@ -186,6 +193,7 @@ config TARGET_T1042RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select SYS_L3_SIZE_256KB
 
 config TARGET_T1042D4RDB
 	bool "Support T1042D4RDB"
@@ -193,6 +201,7 @@ config TARGET_T1042D4RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select SYS_L3_SIZE_256KB
 	imply PANIC_HANG
 
 config TARGET_T1042RDB_PI
@@ -201,6 +210,7 @@ config TARGET_T1042RDB_PI
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select SYS_L3_SIZE_256KB
 	imply PANIC_HANG
 
 config TARGET_T2080QDS
@@ -211,6 +221,7 @@ config TARGET_T2080QDS
 	select PHYS_64BIT
 	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	select FSL_DDR_INTERACTIVE
+	select SYS_L3_SIZE_512KB
 	imply CMD_SATA
 
 config TARGET_T2080RDB
@@ -219,6 +230,7 @@ config TARGET_T2080RDB
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
 	select PHYS_64BIT
+	select SYS_L3_SIZE_512KB
 	imply CMD_SATA
 	imply PANIC_HANG
 
@@ -228,6 +240,7 @@ config TARGET_T4240RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+	select SYS_L3_SIZE_512KB
 	imply CMD_SATA
 	imply PANIC_HANG
 
@@ -239,6 +252,7 @@ config TARGET_KMCENT2
 	bool "Support kmcent2"
 	select VENDOR_KM
 	select FSL_CORENET
+	select SYS_L3_SIZE_256KB
 
 endchoice
 
@@ -1277,8 +1291,34 @@ config SYS_ETVPE_CLK
 	default 1
 endif
 
+config SYS_L2_SIZE_256KB
+	bool
+
+config SYS_L2_SIZE_512KB
+	bool
+
+config SYS_L2_SIZE
+	int
+	default 262144 if SYS_L2_SIZE_256KB
+	default 524288 if SYS_L2_SIZE_512KB
+
 config BACKSIDE_L2_CACHE
 	bool
+
+config SYS_L3_SIZE_256KB
+	bool
+
+config SYS_L3_SIZE_512KB
+	bool
+
+config SYS_L3_SIZE_1024KB
+	bool
+
+config SYS_L3_SIZE
+	int
+	default 262144 if SYS_L3_SIZE_256KB
+	default 524288 if SYS_L3_SIZE_512KB
+	default 1048576 if SYS_L3_SIZE_512KB
 
 config SYS_PPC64
 	bool

@@ -15,8 +15,8 @@
 /* Machine config */
 
 /* MMC */
-#define CONFIG_SYS_FSL_USDHC_NUM	3
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
+#define CFG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* RAM */
 #define PHYS_SDRAM_1			MMDC0_ARB_BASE_ADDR
@@ -129,7 +129,6 @@
 
 /* NAND */
 #define CONFIG_SYS_NAND_BASE		0x40000000
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 /* APBH DMA is required for NAND support */
 
 /* Ethernet */

@@ -193,24 +193,6 @@
 #endif
 
 /*
- * Default to using SPI for environment, etc.
- * 0x000000 - 0x020000 : SPL (128KiB)
- * 0x020000 - 0x0A0000 : U-Boot (512KiB)
- * 0x0A0000 - 0x0BFFFF : First copy of U-Boot Environment (128KiB)
- * 0x0C0000 - 0x0DFFFF : Second copy of U-Boot Environment (128KiB)
- * 0x0E0000 - 0x442000 : Linux Kernel
- * 0x442000 - 0x800000 : Userland
- */
-#if defined(CONFIG_SPI_BOOT)
-/* SPL related */
-#elif defined(CONFIG_EMMC_BOOT)
-#define CONFIG_SYS_MMC_MAX_DEVICE	2
-#endif
-
-/* Network. */
-/* Enable Atheros phy driver */
-
-/*
  * NOR Size = 16 MiB
  * Number of Sectors/Blocks = 128
  * Sector Size = 128 KiB

@@ -622,7 +622,7 @@ int board_init(void)
 		int i;
 
 		cm_fx6_set_usdhc_iomux();
-		for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++)
+		for (i = 0; i < CFG_SYS_FSL_USDHC_NUM; i++)
 			enable_usdhc_clk(1, i);
 	}
 #endif

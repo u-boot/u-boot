@@ -84,7 +84,7 @@ static int do_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	hab_caam_clock_enable(1);
 
-	u32 out_jr_size = sec_in32(CONFIG_SYS_FSL_JR0_ADDR +
+	u32 out_jr_size = sec_in32(CFG_SYS_FSL_JR0_ADDR +
 				   FSL_CAAM_ORSR_JRa_OFFSET);
 	if (out_jr_size != FSL_CAAM_MAX_JR_SIZE)
 		sec_init();

@@ -59,8 +59,6 @@
 #else
 #define CONFIG_SYS_INIT_L3_ADDR_PHYS	CONFIG_SYS_INIT_L3_ADDR
 #endif
-#define CONFIG_SYS_L3_SIZE		(1024 << 10)
-#define CONFIG_SYS_INIT_L3_END (CONFIG_SYS_INIT_L3_ADDR + CONFIG_SYS_L3_SIZE)
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_DCSRBAR		0xf0000000
@@ -121,7 +119,6 @@
 #endif
 
 #define CONFIG_SYS_NAND_BASE_LIST     {CONFIG_SYS_NAND_BASE}
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* NAND flash config */
 #define CONFIG_SYS_NAND_BR_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
@@ -145,7 +142,6 @@
 
 /* define to use L1 as initial stack */
 #define CONFIG_L1_INIT_RAM
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0xf
@@ -162,8 +158,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -313,14 +307,8 @@
 #define CONFIG_SYS_TBIPA_VALUE	8
 #endif
 
-/*
- * Environment
- */
-#define CONFIG_LOADS_ECHO		/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
-
 #ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR       CFG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
 /*

@@ -27,7 +27,6 @@
  */
 
 /* NAND */
-#define CONFIG_SYS_MAX_NAND_DEVICE 1
 
 #define BBT_CUSTOM_SCAN
 #define BBT_CUSTOM_SCAN_PAGE 0

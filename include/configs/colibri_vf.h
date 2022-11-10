@@ -15,7 +15,6 @@
 #include <linux/sizes.h>
 
 /* NAND support */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #define CONFIG_IPADDR		192.168.10.2
 #define CONFIG_NETMASK		255.255.255.0

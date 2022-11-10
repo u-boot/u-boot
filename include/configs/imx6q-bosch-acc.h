@@ -94,17 +94,17 @@
 #include "imx6_spl.h"
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_FSL_USDHC_NUM 2
+#define CFG_SYS_FSL_USDHC_NUM 2
 
 #ifdef CONFIG_SYS_BOOT_EMMC
 
 /* Boot from eMMC */
-#define CONFIG_SYS_FSL_ESDHC_ADDR 1
+#define CFG_SYS_FSL_ESDHC_ADDR 1
 
 #else
 
 /* Boot from SD-card */
-#  define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#  define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #endif
 

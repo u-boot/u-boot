@@ -26,7 +26,7 @@
 phys_size_t fixed_sdram(void)
 {
 	struct ccsr_ddr __iomem *ddr =
-		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
+		(struct ccsr_ddr __iomem *)(CFG_SYS_FSL_DDR_ADDR);
 
 	/*
 	 * Disable memory controller.

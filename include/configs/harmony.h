@@ -24,7 +24,6 @@
 #endif
 
 /* NAND support */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 /* Environment in NAND (which is 512M), aligned to start of last sector */
 

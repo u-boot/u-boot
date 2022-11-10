@@ -18,9 +18,9 @@ DECLARE_GLOBAL_DATA_PTR;
 int get_clocks(void)
 {
 #ifdef CONFIG_FSL_ESDHC_IMX
-#if CONFIG_SYS_FSL_ESDHC_ADDR == USDHC0_RBASE
+#if CFG_SYS_FSL_ESDHC_ADDR == USDHC0_RBASE
 	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-#elif CONFIG_SYS_FSL_ESDHC_ADDR == USDHC1_RBASE
+#elif CFG_SYS_FSL_ESDHC_ADDR == USDHC1_RBASE
 	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 #endif
 #endif

@@ -12,7 +12,6 @@
 #include <asm/arch/imx-regs.h>
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 /* GUIDs for capsule updatable firmware images */
@@ -41,10 +40,6 @@
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_FEC_MXC_PHYADDR          4
-
-#ifdef CONFIG_DWC_ETH_QOS
-#define CONFIG_SYS_NONCACHED_MEMORY     (1 * SZ_1M)     /* 1M */
-#endif
 
 #define PHY_ANEG_TIMEOUT 20000
 
@@ -155,8 +150,8 @@
 
 #define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #ifdef CONFIG_FSL_FSPI
 #define FSL_FSPI_FLASH_SIZE		SZ_32M
@@ -171,7 +166,6 @@
 #ifdef CONFIG_NAND_MXS
 
 /* NAND stuff */
-#define CONFIG_SYS_MAX_NAND_DEVICE     1
 #define CONFIG_SYS_NAND_BASE           0x20000000
 #endif /* CONFIG_NAND_MXS */
 

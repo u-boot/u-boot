@@ -89,8 +89,8 @@
 /* Environment organization */
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
-#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
+#define CFG_SYS_FSL_USDHC_NUM	3
 
 #define CONFIG_IOMUX_LPSR
 

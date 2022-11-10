@@ -25,12 +25,9 @@
  * The reserved memory
  */
 
-#define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
-
 /*
  * Initial RAM Base Address Setup
  */
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 
@@ -42,13 +39,6 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
-
-/*
- * Environment
- */
-
-#define CONFIG_LOADS_ECHO		/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
  * Miscellaneous configurable options

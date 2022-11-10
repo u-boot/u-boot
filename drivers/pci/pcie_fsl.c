@@ -463,7 +463,7 @@ static int fsl_pcie_init_port(struct fsl_pcie *pcie)
 	if (!fsl_pcie_link_up(pcie)) {
 		serdes_corenet_t *srds_regs;
 
-		srds_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+		srds_regs = (void *)CFG_SYS_FSL_CORENET_SERDES_ADDR;
 		val_32 = in_be32(&srds_regs->srdspccr0);
 
 		if ((val_32 >> 28) == 3) {

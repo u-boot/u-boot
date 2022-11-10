@@ -298,7 +298,7 @@ The following options need to be configured:
 
 		Enables a workaround for erratum A004510.  If set,
 		then CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV and
-		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY must be set.
+		CFG_SYS_FSL_CORENET_SNOOPVEC_COREONLY must be set.
 
 		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV
 		CONFIG_SYS_FSL_ERRATUM_A004510_SVR_REV2 (optional)
@@ -314,7 +314,7 @@ The following options need to be configured:
 		See Freescale App Note 4493 for more information about
 		this erratum.
 
-		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
+		CFG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
 		This is the value to write into CCSR offset 0x18600
 		according to the A004510 workaround.
@@ -330,7 +330,7 @@ The following options need to be configured:
 		Freescale DDR driver in use. This type of DDR controller is
 		found in mpc83xx, mpc85xx as well as some ARM core SoCs.
 
-		CONFIG_SYS_FSL_DDR_ADDR
+		CFG_SYS_FSL_DDR_ADDR
 		Freescale DDR memory-mapped register base.
 
 		CONFIG_SYS_FSL_IFC_CLK_DIV
@@ -339,7 +339,7 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_LBC_CLK_DIV
 		Defines divider of platform clock(clock input to eLBC controller).
 
-		CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY
+		CFG_SYS_FSL_DDR_SDRAM_BASE_PHY
 		Physical address from the view of DDR controllers. It is the
 		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.
@@ -434,15 +434,6 @@ The following options need to be configured:
 
 		Define this variable to enable hw flow control in serial driver.
 		Current user of this option is drivers/serial/nsl16550.c driver
-
-- Serial Download Echo Mode:
-		CONFIG_LOADS_ECHO
-		If defined to 1, all characters received during a
-		serial download (using the "loads" command) are
-		echoed back. This might be needed by some terminal
-		emulations (like "cu"), but may as well just take
-		time on others. This setting #define's the initial
-		value of the "loads_echo" environment variable.
 
 - Removal of commands
 		If no commands are needed to boot, you can disable
@@ -762,11 +753,6 @@ The following options need to be configured:
 		entering dfuMANIFEST state. Host waits this timeout, before
 		sending again an USB request to the device.
 
-- Journaling Flash filesystem support:
-		CONFIG_SYS_JFFS2_FIRST_SECTOR,
-		CONFIG_SYS_JFFS2_FIRST_BANK, CONFIG_SYS_JFFS2_NUM_BANKS
-		Define these for a default partition on a NOR device
-
 - Keyboard Support:
 		See Kconfig help for available keyboard drivers.
 
@@ -1051,17 +1037,6 @@ The following options need to be configured:
 
 		You should define these to the GPIO value as given directly to
 		the generic GPIO functions.
-
-		CONFIG_SYS_I2C_INIT_BOARD
-
-		When a board is reset during an i2c bus transfer
-		chips might think that the current transfer is still
-		in progress. On some boards it is possible to access
-		the i2c SCLK line directly, either by using the
-		processor pin as a GPIO or by having a second pin
-		connected to the bus. If this option is defined a
-		custom i2c_init_board() routine in boards/xxx/board.c
-		is run early in the boot sequence.
 
 		CONFIG_I2C_MULTI_BUS
 
@@ -1471,20 +1446,11 @@ Configuration Settings:
 		the RAM base is not zero, or RAM is divided into banks,
 		this variable needs to be recalcuated to get the address.
 
-- CONFIG_SYS_LOADS_BAUD_CHANGE:
-		Enable temporary baudrate change while serial download
-
 - CONFIG_SYS_SDRAM_BASE:
 		Physical start address of SDRAM. _Must_ be 0 here.
 
 - CONFIG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
-
-- CONFIG_SYS_MONITOR_LEN:
-		Size of memory reserved for monitor code, used to
-		determine _at_compile_time_ (!) if the environment is
-		embedded within the U-Boot image, or in a separate
-		flash sector.
 
 - CONFIG_SYS_MALLOC_LEN:
 		Size of DRAM reserved for malloc() use.
@@ -1506,25 +1472,6 @@ Configuration Settings:
 		Provides a simple and small malloc() and calloc() for those
 		boards which do not use the full malloc in SPL (which is
 		enabled with CONFIG_SYS_SPL_MALLOC).
-
-- CONFIG_SYS_NONCACHED_MEMORY:
-		Size of non-cached memory area. This area of memory will be
-		typically located right below the malloc() area and mapped
-		uncached in the MMU. This is useful for drivers that would
-		otherwise require a lot of explicit cache maintenance. For
-		some drivers it's also impossible to properly maintain the
-		cache. For example if the regions that need to be flushed
-		are not a multiple of the cache-line size, *and* padding
-		cannot be allocated between the regions to align them (i.e.
-		if the HW requires a contiguous array of regions, and the
-		size of each region is not cache-aligned), then a flush of
-		one region may result in overwriting data that hardware has
-		written to another region in the same cache-line. This can
-		happen for example in network drivers where descriptors for
-		buffers are typically smaller than the CPU cache-line (e.g.
-		16 bytes vs. 32 or 64 bytes).
-
-		Non-cached memory is only supported on 32-bit ARM at present.
 
 - CONFIG_SYS_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of
@@ -1750,9 +1697,6 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SYS_OR_TIMING_SDRAM:
 		SDRAM timing
-
-- CONFIG_SYS_MAMR_PTA:
-		periodic timer for refresh
 
 - CONFIG_SYS_SRIO:
 		Chip has SRIO or not

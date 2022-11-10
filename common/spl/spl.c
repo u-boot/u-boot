@@ -46,10 +46,6 @@ DECLARE_BINMAN_MAGIC_SYM;
 #ifndef CONFIG_SYS_UBOOT_START
 #define CONFIG_SYS_UBOOT_START	CONFIG_TEXT_BASE
 #endif
-#ifndef CONFIG_SYS_MONITOR_LEN
-/* Unknown U-Boot size, let's assume it will not be more than 200 KB */
-#define CONFIG_SYS_MONITOR_LEN	(200 * 1024)
-#endif
 
 u32 *boot_params_ptr = NULL;
 
@@ -232,11 +228,17 @@ __weak struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 	return map_sysmem(CONFIG_TEXT_BASE + offset, 0);
 }
 
+#ifdef CONFIG_SPL_RAW_IMAGE_SUPPORT
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 {
 	ulong u_boot_pos = spl_get_image_pos();
 
+#if CONFIG_SYS_MONITOR_LEN != 0
 	spl_image->size = CONFIG_SYS_MONITOR_LEN;
+#else
+	/* Unknown U-Boot size, let's assume it will not be more than 200 KB */
+	spl_image->size = 200 * 1024;
+#endif
 
 	/*
 	 * Binman error cases: address of the end of the previous region or the
@@ -254,6 +256,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 }
+#endif
 
 #if CONFIG_IS_ENABLED(LOAD_FIT_FULL)
 /* Parse and load full fitImage in SPL */

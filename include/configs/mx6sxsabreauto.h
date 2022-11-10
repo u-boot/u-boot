@@ -83,10 +83,9 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* MMC Configuration */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
 
 /* NAND stuff */
-#define CONFIG_SYS_MAX_NAND_DEVICE     1
 #define CONFIG_SYS_NAND_BASE           0x40000000
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
@@ -101,6 +100,6 @@
 #define CONFIG_MXC_USB_FLAGS   0
 #endif
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_USDHC_NUM	2
 
 #endif				/* __CONFIG_H */

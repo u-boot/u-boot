@@ -51,18 +51,18 @@ enum fm_eth_type {
  */
 #ifdef CONFIG_SYS_FMAN_V3
 #ifdef CONFIG_TARGET_LS1046AFRWY
-#define CONFIG_SYS_FM1_DTSEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xfd000)
+#define CONFIG_SYS_FM1_DTSEC_MDIO_ADDR	(CFG_SYS_FSL_FM1_ADDR + 0xfd000)
 #else
-#define CONFIG_SYS_FM1_DTSEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xfc000)
+#define CONFIG_SYS_FM1_DTSEC_MDIO_ADDR	(CFG_SYS_FSL_FM1_ADDR + 0xfc000)
 #endif
-#define CONFIG_SYS_FM1_TGEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xfd000)
+#define CONFIG_SYS_FM1_TGEC_MDIO_ADDR	(CFG_SYS_FSL_FM1_ADDR + 0xfd000)
 #if (CONFIG_SYS_NUM_FMAN == 2)
-#define CONFIG_SYS_FM2_DTSEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM2_ADDR + 0xfc000)
-#define CONFIG_SYS_FM2_TGEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM2_ADDR + 0xfd000)
+#define CONFIG_SYS_FM2_DTSEC_MDIO_ADDR	(CFG_SYS_FSL_FM2_ADDR + 0xfc000)
+#define CONFIG_SYS_FM2_TGEC_MDIO_ADDR	(CFG_SYS_FSL_FM2_ADDR + 0xfd000)
 #endif
 #else
-#define CONFIG_SYS_FM1_DTSEC1_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xe1120)
-#define CONFIG_SYS_FM1_TGEC_MDIO_ADDR	(CONFIG_SYS_FSL_FM1_ADDR + 0xf1000)
+#define CONFIG_SYS_FM1_DTSEC1_MDIO_ADDR	(CFG_SYS_FSL_FM1_ADDR + 0xe1120)
+#define CONFIG_SYS_FM1_TGEC_MDIO_ADDR	(CFG_SYS_FSL_FM1_ADDR + 0xf1000)
 #endif
 
 #define DEFAULT_FM_MDIO_NAME "FSL_MDIO0"
@@ -84,7 +84,7 @@ enum fm_eth_type {
 	.port		= FM##idx##_DTSEC##n,				\
 	.rx_port_id	= RX_PORT_1G_BASE + n - 1,			\
 	.tx_port_id	= TX_PORT_1G_BASE + n - 1,			\
-	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+	.compat_offset	= CFG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, memac[n-1]),\
 }
 
@@ -98,7 +98,7 @@ enum fm_eth_type {
 	.port		= FM##idx##_10GEC##n,				\
 	.rx_port_id	= RX_PORT_10G_BASE2 + n - 1,			\
 	.tx_port_id	= TX_PORT_10G_BASE2 + n - 1,			\
-	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+	.compat_offset	= CFG_SYS_FSL_FM##idx##_OFFSET +		\
 				 offsetof(struct ccsr_fman, memac[n-1]),\
 }
 #else
@@ -112,7 +112,7 @@ enum fm_eth_type {
 	.port		= FM##idx##_10GEC##n,				\
 	.rx_port_id	= RX_PORT_10G_BASE + n - 1,			\
 	.tx_port_id	= TX_PORT_10G_BASE + n - 1,			\
-	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+	.compat_offset	= CFG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, memac[n-1+8]),\
 }
 #else
@@ -125,7 +125,7 @@ enum fm_eth_type {
 	.port		= FM##idx##_10GEC##n,				\
 	.rx_port_id	= RX_PORT_10G_BASE + n - 1,			\
 	.tx_port_id	= TX_PORT_10G_BASE + n - 1,			\
-	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+	.compat_offset	= CFG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, memac[n-1+8]),\
 }
 #endif
@@ -141,7 +141,7 @@ enum fm_eth_type {
 	.port		= FM##idx##_10GEC##n,				\
 	.rx_port_id	= RX_PORT_10G_BASE2 + n - 3,			\
 	.tx_port_id	= TX_PORT_10G_BASE2 + n - 3,			\
-	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+	.compat_offset	= CFG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, memac[n-1-2]),\
 }
 #endif
@@ -156,7 +156,7 @@ enum fm_eth_type {
 	.port		= FM##idx##_DTSEC##n,				\
 	.rx_port_id	= RX_PORT_1G_BASE + n - 1,			\
 	.tx_port_id	= TX_PORT_1G_BASE + n - 1,			\
-	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+	.compat_offset	= CFG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, mac_1g[n-1]),\
 }
 
@@ -169,7 +169,7 @@ enum fm_eth_type {
 	.port		= FM##idx##_10GEC##n,				\
 	.rx_port_id	= RX_PORT_10G_BASE + n - 1,			\
 	.tx_port_id	= TX_PORT_10G_BASE + n - 1,			\
-	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+	.compat_offset	= CFG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, mac_10g[n-1]),\
 }
 #endif

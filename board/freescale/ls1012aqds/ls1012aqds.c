@@ -213,7 +213,7 @@ static void fdt_fsl_fixup_of_pfe(void *blob)
 	struct pfe_prop_val prop_val;
 	void *l_blob = blob;
 
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 	unsigned int srds_s1 = in_be32(&gur->rcwsr[4]) &
 		FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;
 	srds_s1 >>= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT;

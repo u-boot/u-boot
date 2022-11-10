@@ -50,11 +50,6 @@
 #define CONFIG_SYS_SDRAM_BASE		MEMADDR(0x00000000)
 
 /* Lx60 can only map 128kb memory (instead of 256kb) when running under OCD */
-#ifdef CONFIG_XTFPGA_LX60
-# define CONFIG_SYS_MONITOR_LEN		0x00020000	/* 128KB */
-#else
-# define CONFIG_SYS_MONITOR_LEN		0x00040000	/* 256KB */
-#endif
 
 /* Memory test is destructive so default must not overlap vectors or U-Boot*/
 

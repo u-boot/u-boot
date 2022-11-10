@@ -146,7 +146,7 @@ int board_setup_core_volt(u32 vdd)
 void config_board_mux(void)
 {
 #ifdef CONFIG_HAS_FSL_XHCI_USB
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 usb_pwrfault;
 	/*
 	 * USB2 is used, configure mux to USB2_DRVVBUS/USB2_PWRFAULT

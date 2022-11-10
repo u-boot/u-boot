@@ -202,7 +202,6 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #if defined(CONFIG_TARGET_P1010RDB_PA)
 /* NAND Flash Timing Params */
@@ -297,13 +296,10 @@ extern unsigned long get_sdram_size(void);
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x00004000 /* End of used area in RAM */
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 
 /*
  * Config the L2 Cache as L2 SRAM
@@ -312,18 +308,15 @@ extern unsigned long get_sdram_size(void);
 #if defined(CONFIG_SDCARD) || defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_INIT_L2_ADDR		0xD0000000
 #define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
-#define CONFIG_SYS_L2_SIZE		(256 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 #elif defined(CONFIG_MTD_RAW_NAND)
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SYS_INIT_L2_ADDR		0xD0000000
 #define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
-#define CONFIG_SYS_L2_SIZE		(256 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 #else
 #define CONFIG_SYS_INIT_L2_ADDR		0xD0000000
 #define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
-#define CONFIG_SYS_L2_SIZE		(256 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 #endif
 #endif
@@ -399,7 +392,7 @@ extern unsigned long get_sdram_size(void);
 #endif	/* CONFIG_TSEC_ENET */
 
 #ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	CFG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
 /*
@@ -410,9 +403,6 @@ extern unsigned long get_sdram_size(void);
 #define SPL_ENV_ADDR		(CONFIG_SYS_INIT_L2_ADDR + (160 << 10))
 #endif
 #endif
-
-#define CONFIG_LOADS_ECHO		/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI_HCD) \
 		 || defined(CONFIG_FSL_SATA)

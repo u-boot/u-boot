@@ -39,6 +39,5 @@
 				BOOTENV
 
 /* TODO: Remove this once the SD clock is fixed */
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	1024
 
 #endif /* __HIKEY_H */

@@ -21,7 +21,7 @@
 
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */
 
-#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_USDHC_NUM	3
 
 #ifdef CONFIG_CMD_PCI
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)

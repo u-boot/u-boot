@@ -70,8 +70,6 @@
 #define CONFIG_SYS_SDRAM_EMOD		0x80010000
 #define CONFIG_SYS_SDRAM_MODE		0x00CD0000
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

@@ -46,16 +46,8 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-
 /* RTC */
 #define CONFIG_RTC_PT7C4338
-
-/*
- * Environment
- */
-
-#define CONFIG_LOADS_ECHO		/* echo on for serial download */
 
 /*
  * Miscellaneous configurable options

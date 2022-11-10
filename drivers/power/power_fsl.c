@@ -47,7 +47,7 @@ int pmic_init(unsigned char bus)
 	p->hw.spi.prepare_tx = pmic_spi_prepare_tx;
 #elif defined(CONFIG_POWER_I2C)
 	p->interface = PMIC_I2C;
-	p->hw.i2c.addr = CONFIG_SYS_FSL_PMIC_I2C_ADDR;
+	p->hw.i2c.addr = CFG_SYS_FSL_PMIC_I2C_ADDR;
 	p->hw.i2c.tx_num = FSL_PMIC_I2C_LENGTH;
 #else
 #error "You must select CONFIG_POWER_SPI or CONFIG_POWER_I2C"

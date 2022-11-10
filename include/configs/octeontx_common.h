@@ -42,12 +42,6 @@
 
 /** Heap size for U-Boot */
 
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
-
 /** EMMC specific defines */
-
-#if defined(CONFIG_NAND_OCTEONTX)
-#define CONFIG_SYS_MAX_NAND_DEVICE 8
-#endif
 
 #endif /* __OCTEONTX_COMMON_H__ */

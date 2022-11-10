@@ -539,7 +539,7 @@ int board_mmc_init(struct bd_info *bis)
 	 * mmc0                    Soldered on board eMMC device
 	 * mmc1                    MicroSD card
 	 */
-	for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
+	for (index = 0; index < CFG_SYS_FSL_USDHC_NUM; ++index) {
 		switch (index) {
 		case 0:
 			SETUP_IOMUX_PADS(usdhc3_pads);
@@ -554,7 +554,7 @@ int board_mmc_init(struct bd_info *bis)
 			break;
 		default:
 			printf("Warning: More USDHC controllers (%d) than supported (%d)\n",
-			       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
+			       index + 1, CFG_SYS_FSL_USDHC_NUM);
 			return -EINVAL;
 		}
 

@@ -51,7 +51,7 @@ static inline void pfe_gemac_disable(void *gemac_base)
 
 static inline void pfe_gemac_set_speed(void *gemac_base, u32 speed)
 {
-	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 ecr = readl(gemac_base + EMAC_ECNTRL_REG) & ~EMAC_ECNTRL_SPEED;
 	u32 rcr = readl(gemac_base + EMAC_RCNTRL_REG) & ~EMAC_RCNTRL_RMII_10T;
 	u32 rgmii_pcr = in_be32(&scfg->rgmiipcr) &

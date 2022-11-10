@@ -20,7 +20,7 @@
 
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
-#define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
+#define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_SYS_DDR_BLOCK2_BASE	0x2080000000ULL
 
@@ -32,14 +32,12 @@
 /* generic timer */
 
 /* early heap for SPL DM */
-#define CONFIG_MALLOC_F_ADDR		CONFIG_SYS_FSL_OCRAM_BASE
+#define CONFIG_MALLOC_F_ADDR		CFG_SYS_FSL_OCRAM_BASE
 
 /* serial port */
 #define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
 /* SPL */
-
-#define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
 
 /* GUID for capsule updatable firmware image */
 #define KONTRON_SL28_FIT_IMAGE_GUID \

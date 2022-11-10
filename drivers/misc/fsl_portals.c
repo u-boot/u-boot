@@ -28,7 +28,7 @@ void setup_qbman_portals(void)
 				CONFIG_SYS_BMAN_SWP_ISDR_REG;
 	void __iomem *qpaddr = (void *)CONFIG_SYS_QMAN_CINH_BASE +
 				CONFIG_SYS_QMAN_SWP_ISDR_REG;
-	struct ccsr_qman *qman = (void *)CONFIG_SYS_FSL_QMAN_ADDR;
+	struct ccsr_qman *qman = (void *)CFG_SYS_FSL_QMAN_ADDR;
 
 	/* Set the Qman initiator BAR to match the LAW (for DQRR stashing) */
 #ifdef CONFIG_PHYS_64BIT
@@ -159,7 +159,7 @@ static int fdt_qportal(void *blob, int off, int id, char *name,
 			if (!strncmp(name, "pme", 3)) {
 				u32 pme_rev1, pme_rev2;
 				ccsr_pme_t *pme_regs =
-					(void *)CONFIG_SYS_FSL_CORENET_PME_ADDR;
+					(void *)CFG_SYS_FSL_CORENET_PME_ADDR;
 
 				pme_rev1 = in_be32(&pme_regs->pm_ip_rev_1);
 				pme_rev2 = in_be32(&pme_regs->pm_ip_rev_2);
@@ -190,7 +190,7 @@ void fdt_fixup_qportals(void *blob)
 	int off, err;
 	unsigned int maj, min;
 	unsigned int ip_cfg;
-	struct ccsr_qman *qman = (void *)CONFIG_SYS_FSL_QMAN_ADDR;
+	struct ccsr_qman *qman = (void *)CFG_SYS_FSL_QMAN_ADDR;
 	u32 rev_1 = in_be32(&qman->ip_rev_1);
 	u32 rev_2 = in_be32(&qman->ip_rev_2);
 	char compat[64];
@@ -302,7 +302,7 @@ void fdt_fixup_bportals(void *blob)
 	int off, err;
 	unsigned int maj, min;
 	unsigned int ip_cfg;
-	struct ccsr_bman *bman = (void *)CONFIG_SYS_FSL_BMAN_ADDR;
+	struct ccsr_bman *bman = (void *)CFG_SYS_FSL_BMAN_ADDR;
 	u32 rev_1 = in_be32(&bman->ip_rev_1);
 	u32 rev_2 = in_be32(&bman->ip_rev_2);
 	char compat[64];

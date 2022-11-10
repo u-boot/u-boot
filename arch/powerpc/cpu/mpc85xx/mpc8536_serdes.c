@@ -89,8 +89,8 @@ int is_serdes_configured(enum srds_prtcl device)
 
 void fsl_serdes_init(void)
 {
-	void *guts = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	void *sd = (void *)CONFIG_SYS_MPC85xx_SERDES2_ADDR;
+	void *guts = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
+	void *sd = (void *)CFG_SYS_MPC85xx_SERDES2_ADDR;
 	u32 pordevsr = in_be32(guts + GUTS_PORDEVSR_OFFS);
 	u32 srds1_io_sel, srds2_io_sel;
 	u32 tmp;

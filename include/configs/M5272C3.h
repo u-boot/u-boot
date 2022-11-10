@@ -77,8 +77,6 @@
 #define CONFIG_SYS_SDRAM_SIZE		4	/* SDRAM size in MB */
 #define CONFIG_SYS_FLASH_BASE		0xffe00000
 
-#define CONFIG_SYS_MONITOR_LEN		0x20000
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

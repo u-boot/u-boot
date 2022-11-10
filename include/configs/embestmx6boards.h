@@ -22,7 +22,7 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR      0
+#define CFG_SYS_FSL_ESDHC_ADDR      0
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
@@ -36,11 +36,11 @@
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* RiOTboard */
 #define CONFIG_FDTFILE	"imx6dl-riotboard.dtb"
-#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_USDHC_NUM	3
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 /* MarSBoard */
 #define CONFIG_FDTFILE	"imx6q-marsboard.dtb"
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_USDHC_NUM	2
 #endif
 
 /* Framebuffer */

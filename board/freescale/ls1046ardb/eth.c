@@ -22,7 +22,7 @@ int board_eth_init(struct bd_info *bis)
 	struct memac_mdio_info tgec_mdio_info;
 	struct mii_dev *dev;
 	u32 srds_s1;
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 
 	srds_s1 = in_be32(&gur->rcwsr[4]) &
 			FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;
@@ -84,7 +84,7 @@ int fdt_update_ethernet_dt(void *blob)
 	int i, prop;
 	int offset, nodeoff;
 	const char *path;
-	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 
 	srds_s1 = in_be32(&gur->rcwsr[4]) &
 			FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;

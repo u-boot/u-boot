@@ -81,7 +81,6 @@
 #define PHYS_FLASH_1			0xc0000000
 /* Flash Base for U-Boot */
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
-#define CONFIG_SYS_MONITOR_LEN		0x40000		/* Reserve 256KiB */
 /* Address and size of Redundant Environment Sector	*/
 
 /*
@@ -97,7 +96,6 @@
  * NAND
  */
 #define CONFIG_MXC_NAND_REGS_BASE	0xd8000000
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0xd8000000
 #define CONFIG_MXC_NAND_HWECC
 

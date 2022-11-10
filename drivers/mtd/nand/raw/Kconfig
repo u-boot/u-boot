@@ -26,6 +26,10 @@ config TPL_SYS_NAND_SELF_INIT
 config TPL_NAND_INIT
 	bool
 
+config SYS_MAX_NAND_DEVICE
+	int "Maximum number of NAND devices to support"
+	default 1
+
 config SYS_NAND_DRIVER_ECC_LAYOUT
 	bool "Omit standard ECC layouts to save space"
 	help
@@ -131,6 +135,10 @@ config NAND_DAVINCI
 	help
 	  Enable this driver for NAND flash controllers available in TI Davinci
 	  and Keystone2 platforms
+
+config SYS_NAND_4BIT_HW_ECC_OOBFIRST
+	bool "Use 4-bit HW ECC with OOB at the front"
+	depends on NAND_DAVINCI
 
 config KEYSTONE_RBL_NAND
 	depends on ARCH_KEYSTONE

@@ -78,8 +78,6 @@
 #define CONFIG_SYS_SDRAM_EMOD		0x40010000
 #define CONFIG_SYS_SDRAM_MODE		0x018D0000
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
@@ -95,7 +93,6 @@
 #endif
 
 #ifdef CONFIG_CMD_NAND
-#	define CONFIG_SYS_MAX_NAND_DEVICE	1
 #	define CONFIG_SYS_NAND_BASE		CONFIG_SYS_CS2_BASE
 #	define CONFIG_SYS_NAND_SIZE		1
 #	define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }

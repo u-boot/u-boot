@@ -49,7 +49,7 @@ int checkboard(void)
 {
 	struct cpu_type *cpu = gd->arch.cpu;
 	static const char *freq[3] = {"100.00MHZ", "125.00MHz", "156.25MHZ"};
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 srds_s1;
 
 	srds_s1 = in_be32(&gur->rcwsr[4]) & FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
@@ -99,7 +99,7 @@ int checkboard(void)
 #ifdef CONFIG_TARGET_T1024RDB
 static void board_mux_lane(void)
 {
-	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t __iomem *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 srds_prtcl_s1;
 	u8 reg = CPLD_READ(misc_ctl_status);
 
@@ -222,7 +222,7 @@ static void fdt_enable_nor(void *blob)
 
 int board_mmc_getcd(struct mmc *mmc)
 {
-	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t __iomem *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 	u32 val = in_be32(&pgpio->gpdat);
 
 	/* GPIO1_14, 0: eMMC, 1: SD/MMC */
@@ -233,7 +233,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_getwp(struct mmc *mmc)
 {
-	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gpio_t __iomem *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
 	u32 val = in_be32(&pgpio->gpdat);
 
 	val &= GPIO1_SD_SEL;
@@ -243,8 +243,8 @@ int board_mmc_getwp(struct mmc *mmc)
 
 static u32 t1023rdb_ctrl(u32 ctrl_type)
 {
-	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-	ccsr_gur_t __iomem  *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gpio_t __iomem *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gur_t __iomem  *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 val;
 	u8 tmp;
 	int bus_num = I2C_PCA6408_BUS_NUM;
@@ -274,7 +274,7 @@ static u32 t1023rdb_ctrl(u32 ctrl_type)
 		setbits_be32(&pgpio->gpdir, GPIO1_SD_SEL);
 		break;
 	case GPIO3_GET_VERSION:
-		pgpio = (ccsr_gpio_t *)(CONFIG_SYS_MPC85xx_GPIO_ADDR
+		pgpio = (ccsr_gpio_t *)(CFG_SYS_MPC85xx_GPIO_ADDR
 			 + GPIO3_OFFSET);
 		val = in_be32(&pgpio->gpdat);
 		val = ((val & GPIO3_BRD_VER_MASK) >> 26) & 0x3;
@@ -323,7 +323,7 @@ static u32 t1023rdb_ctrl(u32 ctrl_type)
 		setbits_be32(&pgpio->gpdir, GPIO1_SD_SEL);
 		break;
 	case GPIO3_GET_VERSION:
-		pgpio = (ccsr_gpio_t *)(CONFIG_SYS_MPC85xx_GPIO_ADDR
+		pgpio = (ccsr_gpio_t *)(CFG_SYS_MPC85xx_GPIO_ADDR
 			 + GPIO3_OFFSET);
 		val = in_be32(&pgpio->gpdat);
 		val = ((val & GPIO3_BRD_VER_MASK) >> 26) & 0x3;

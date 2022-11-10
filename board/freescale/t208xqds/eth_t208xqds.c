@@ -189,10 +189,10 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	const char *phyconn;
 	int off;
 
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_TARGET_T2080QDS
 	serdes_corenet_t *srds_regs =
-		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+		(void *)CFG_SYS_FSL_CORENET_SERDES_ADDR;
 	u32 srds1_pccr1 = in_be32(&srds_regs->srdspccr1);
 #endif
 	u32 srds_s1 = in_be32(&gur->rcwsr[4]) &
@@ -413,7 +413,7 @@ void fdt_fixup_board_enet(void *fdt)
  */
 static void initialize_lane_to_slot(void)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 srds_s1 = in_be32(&gur->rcwsr[4]) &
 				FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
 
@@ -459,7 +459,7 @@ int board_eth_init(struct bd_info *bis)
 	int i, idx, lane, slot, interface;
 	struct memac_mdio_info dtsec_mdio_info;
 	struct memac_mdio_info tgec_mdio_info;
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u32 rcwsr13 = in_be32(&gur->rcwsr[13]);
 	u32 srds_s1;
 

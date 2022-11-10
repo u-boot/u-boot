@@ -13,7 +13,7 @@
 #include "mx6_common.h"
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR      0
+#define CFG_SYS_FSL_ESDHC_ADDR      0
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 #define EMMC_ENV \

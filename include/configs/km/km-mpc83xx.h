@@ -26,12 +26,10 @@
 #define CONFIG_SYS_FLASH_BASE		0xF0000000
 
 /* Reserve 768 kB for Mon */
-#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 
 /*
  * Initial RAM Base Address Setup
  */
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* End of used area in RAM */
 /*
@@ -61,7 +59,6 @@
 
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_NAND_KMETER1
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		CONFIG_SYS_KMBEC_FPGA_BASE
 #endif
 

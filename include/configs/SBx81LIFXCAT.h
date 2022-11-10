@@ -34,8 +34,6 @@
  * U-Boot bootcode configuration
  */
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for monitor */
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

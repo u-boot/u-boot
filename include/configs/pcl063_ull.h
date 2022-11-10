@@ -16,7 +16,7 @@
 /* SPL options */
 #include "imx6_spl.h"
 
-#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CFG_SYS_FSL_USDHC_NUM	2
 
 /* Environment settings */
 
@@ -29,7 +29,7 @@
 
 /* MMC Configs */
 
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* I2C configs */
 
@@ -44,7 +44,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* NAND */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 
 /* USB Configs */

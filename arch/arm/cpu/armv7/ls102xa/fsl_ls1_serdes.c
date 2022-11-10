@@ -39,7 +39,7 @@ int is_serdes_configured(enum srds_prtcl device)
 
 int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u32 cfg = in_be32(&gur->rcwsr[4]);
 	int i;
 
@@ -74,7 +74,7 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 
 u64 serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift)
 {
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);
 	u64 serdes_prtcl_map = 0;
 	u32 cfg;
 	int lane;
@@ -103,14 +103,14 @@ void fsl_serdes_init(void)
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	if (!(serdes1_prtcl_map & (1ULL << NONE)))
 		serdes1_prtcl_map = serdes_init(FSL_SRDS_1,
-					CONFIG_SYS_FSL_SERDES_ADDR,
+					CFG_SYS_FSL_SERDES_ADDR,
 					RCWSR4_SRDS1_PRTCL_MASK,
 					RCWSR4_SRDS1_PRTCL_SHIFT);
 #endif
 #ifdef CONFIG_SYS_FSL_SRDS_2
 	if (!(serdes2_prtcl_map & (1ULL << NONE)))
 		serdes2_prtcl_map = serdes_init(FSL_SRDS_2,
-					CONFIG_SYS_FSL_SERDES_ADDR +
+					CFG_SYS_FSL_SERDES_ADDR +
 					FSL_SRDS_2 * 0x1000,
 					RCWSR4_SRDS2_PRTCL_MASK,
 					RCWSR4_SRDS2_PRTCL_SHIFT);

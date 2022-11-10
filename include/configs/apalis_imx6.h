@@ -22,8 +22,8 @@
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CFG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_USDHC_NUM	3
 
 /* Network */
 #define PHY_ANEG_TIMEOUT		15000 /* PHY needs longer aneg time */

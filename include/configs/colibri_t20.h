@@ -16,7 +16,6 @@
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 /* NAND support */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #define UBOOT_UPDATE \
 	"update_uboot=nand erase.part u-boot && " \

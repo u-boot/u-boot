@@ -35,7 +35,7 @@ ulong flash_get_size (ulong base, int banknum);
 
 int checkboard (void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	char buf[64];
 	int f;
 	int i = env_get_f("serial#", buf, sizeof(buf));
@@ -139,7 +139,7 @@ int misc_init_r (void)
 void local_bus_init (void)
 {
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
-	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_SYS_MPC85xx_ECM_ADDR);
 	sys_info_t sysinfo;
 	uint clkdiv;
 	uint lbc_mhz;
@@ -175,7 +175,7 @@ void local_bus_init (void)
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r (void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 
 	/* set and reset the GPIO pin 2 which will reset the W83782G chip */
 	out_8((unsigned char*)&gur->gpoutdr, 0x3F );

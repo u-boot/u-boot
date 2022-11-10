@@ -28,7 +28,7 @@ phys_size_t get_effective_memsize(void)
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 	struct fsl_ifc ifc = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 
 	console_init_f();

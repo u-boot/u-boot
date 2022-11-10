@@ -64,7 +64,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USDHC1_CD_GPIO	IMX_GPIO_NR(5, 22)
 #define USDHC2_CD_GPIO	IMX_GPIO_NR(4, 12)
 
-static struct fsl_esdhc_cfg usdhc_cfg[CONFIG_SYS_FSL_USDHC_NUM] = {
+static struct fsl_esdhc_cfg usdhc_cfg[CFG_SYS_FSL_USDHC_NUM] = {
 	{USDHC1_BASE_ADDR, 0, 8},
 	{USDHC2_BASE_ADDR, 0, 4},
 	{USDHC3_BASE_ADDR, 0, 4},
@@ -108,7 +108,7 @@ int board_mmc_init(struct bd_info *bis)
 	 * mmc1                    USDHC2
 	 * mmc2                    USDHC3
 	 */
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
+	for (i = 0; i < CFG_SYS_FSL_USDHC_NUM; i++) {
 		switch (i) {
 		case 0:
 			ret = sc_pm_set_resource_power_mode(-1, SC_R_SDHC_0, SC_PM_PW_MODE_ON);

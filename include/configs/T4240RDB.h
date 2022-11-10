@@ -52,7 +52,6 @@
  *  Config the L3 Cache as L3 SRAM
  */
 #define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
-#define CONFIG_SYS_L3_SIZE		(512 << 10)
 #define SPL_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
 
 #define CONFIG_SYS_DCSRBAR		0xf0000000
@@ -75,7 +74,6 @@
 
 /* define to use L1 as initial stack */
 #define CONFIG_L1_INIT_RAM
-#define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe03c000
@@ -86,8 +84,6 @@
 #define CONFIG_SYS_INIT_RAM_SIZE		0x00004000
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -134,12 +130,6 @@
 #define CONFIG_SYS_PCIE4_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE4_MEM_PHYS	0xc60000000ull
 #define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
-
-/*
- * Environment
- */
-#define CONFIG_LOADS_ECHO		/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
  * Miscellaneous configurable options
@@ -243,7 +233,6 @@
 
 #define CONFIG_SYS_NAND_DDR_LAW		11
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #if defined(CONFIG_MTD_RAW_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
@@ -367,7 +356,6 @@
 #define CONFIG_SYS_PMAN
 #define CONFIG_SYS_DPAA_DCE
 #define CONFIG_SYS_DPAA_RMAN
-#define CONFIG_SYS_INTERLAKEN
 #endif /* CONFIG_NOBQFMAN */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -394,7 +382,7 @@
 */
 
 #ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CFG_SYS_FSL_ESDHC_ADDR       CFG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
 

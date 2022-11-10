@@ -29,7 +29,6 @@
 /* NAND support */
 
 /* Max number of NAND devices */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #include "tegra-common-post.h"
 

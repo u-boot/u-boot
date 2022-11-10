@@ -229,13 +229,10 @@
 #define CADMUS_BASE_ADDR_PHYS	CADMUS_BASE_ADDR
 #endif
 
-#define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 /* Serial Port */
 #define CONFIG_SYS_NS16550_SERIAL
@@ -329,13 +326,6 @@
 #define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 #endif	/* CONFIG_TSEC_ENET */
-
-/*
- * Environment
- */
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
  * Miscellaneous configurable options

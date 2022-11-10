@@ -80,7 +80,7 @@ int pfe_eth_board_init(struct udevice *dev)
 	struct mii_dev *bus;
 	struct pfe_mdio_info mac_mdio_info;
 	struct pfe_eth_dev *priv = dev_get_priv(dev);
-	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+	struct ccsr_gur __iomem *gur = (void *)CFG_SYS_FSL_GUTS_ADDR;
 
 	int srds_s1 = in_be32(&gur->rcwsr[4]) &
 			FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;

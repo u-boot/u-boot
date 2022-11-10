@@ -40,10 +40,6 @@
 # define CONFIG_FLASH_SHOW_PROGRESS	10
 #endif
 
-#ifdef CONFIG_NAND_ZYNQ
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-#endif
-
 #ifdef CONFIG_USB_EHCI_ZYNQ
 # define DFU_DEFAULT_POLL_TIMEOUT	300
 # define CONFIG_THOR_RESET_OFF
@@ -198,9 +194,6 @@
 
 
 /* Extend size of kernel image for uncompression */
-
-/* Boot FreeBSD/vxWorks from an ELF image */
-#define CONFIG_SYS_MMC_MAX_DEVICE	1
 
 /* Address in RAM where the parameters must be copied by SPL. */
 

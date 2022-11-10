@@ -142,7 +142,7 @@ int board_eth_init(struct bd_info *bis)
 	if (serdes_get_first_lane(FSL_SRDS_1, SGMII_FM1_DTSEC2) < 0) {
 		/* Enable L2 On MAC2 using SCFG */
 		struct ccsr_scfg *scfg = (struct ccsr_scfg *)
-				CONFIG_SYS_MPC85xx_SCFG;
+				CFG_SYS_MPC85xx_SCFG;
 
 		out_be32(&scfg->esgmiiselcr, in_be32(&scfg->esgmiiselcr) |
 			 (0x80000000));
