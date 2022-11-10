@@ -353,10 +353,14 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-#if defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
+#if defined(ENV_IS_EMBEDDED)
 static int env_mmc_load(void)
 {
-#if !defined(ENV_IS_EMBEDDED)
+	return 0;
+}
+#elif defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
+static int env_mmc_load(void)
+{
 	struct mmc *mmc;
 	u32 offset1, offset2;
 	int read1_fail = 0, read2_fail = 0;
@@ -408,13 +412,11 @@ err:
 	if (ret)
 		env_set_default(errmsg, 0);
 
-#endif
 	return ret;
 }
 #else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
 static int env_mmc_load(void)
 {
-#if !defined(ENV_IS_EMBEDDED)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct mmc *mmc;
 	u32 offset;
@@ -453,7 +455,7 @@ fini:
 err:
 	if (ret)
 		env_set_default(errmsg, 0);
-#endif
+
 	return ret;
 }
 #endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
