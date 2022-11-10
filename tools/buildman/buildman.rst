@@ -3,8 +3,6 @@
 Buildman build tool
 ===================
 
-(Please read 'How to change from MAKEALL' if you are used to that tool)
-
 Quick-start
 -----------
 
@@ -1248,114 +1246,6 @@ This shows that a total of 5 builds were done across all selected boards, it
 took 21 seconds and the builds happened at the rate of 0.24 per second. The
 latter number depends on the speed of your machine and the efficiency of the
 U-Boot build.
-
-
-How to change from MAKEALL
---------------------------
-
-Buildman includes most of the features of MAKEALL and is generally faster
-and easier to use. In particular it builds entire branches: if a particular
-commit introduces an error in a particular board, buildman can easily show
-you this, even if a later commit fixes that error.
-
-The reasons to deprecate MAKEALL are:
-- We don't want to maintain two build systems
-- Buildman is typically faster
-- Buildman has a lot more features
-
-But still, many people will be sad to lose MAKEALL. If you are used to
-MAKEALL, here are a few pointers.
-
-First you need to set up your tool chains - see the 'Setting up' section
-for details. Once you have your required toolchain(s) detected then you are
-ready to go.
-
-To build the current source tree, run buildman without a -b flag:
-
-.. code-block:: bash
-
-   ./tools/buildman/buildman <list of things to build>
-
-This will build the current source tree for the given boards and display
-the results and errors.
-
-However buildman usually works on entire branches, and for that you must
-specify a board flag:
-
-.. code-block:: bash
-
-   ./tools/buildman/buildman -b <branch_name> <list of things to build>
-
-followed by (afterwards, or perhaps concurrently in another terminal):
-
-.. code-block:: bash
-
-   ./tools/buildman/buildman -b <branch_name> -s <list of things to build>
-
-to see the results of the build. Rather than showing you all the output,
-buildman just shows a summary, with red indicating that a commit introduced
-an error and green indicating that a commit fixed an error. Use the -e
-flag to see the full errors and -l to see which boards caused which errors.
-
-If you really want to see build results as they happen, use -v when doing a
-build (and -e to see the errors/warnings too).
-
-You don't need to stick around on that branch while buildman is running. It
-checks out its own copy of the source code, so you can change branches,
-add commits, etc. without affecting the build in progress.
-
-The <list of things to build> can include board names, architectures or the
-like. There are no flags to disambiguate since ambiguities are rare. Using
-the examples from MAKEALL:
-
-Examples::
-
-  - build all Power Architecture boards:
-      MAKEALL -a powerpc
-      MAKEALL --arch powerpc
-      MAKEALL powerpc
-          ** buildman -b <branch> powerpc
-  - build all PowerPC boards manufactured by vendor "esd":
-      MAKEALL -a powerpc -v esd
-          ** buildman -b <branch> esd
-  - build all PowerPC boards manufactured either by "keymile" or "siemens":
-      MAKEALL -a powerpc -v keymile -v siemens
-          ** buildman -b <branch> keymile siemens
-  - build all Freescale boards with MPC83xx CPUs, plus all 4xx boards:
-      MAKEALL -c mpc83xx -v freescale 4xx
-          ** buildman -b <branch> mpc83xx freescale 4xx
-
-Buildman automatically tries to use all the CPUs in your machine. If you
-are building a lot of boards it will use one thread for every CPU core
-it detects in your machine. This is like MAKEALL's BUILD_NBUILDS option.
-You can use the -T flag to change the number of threads. If you are only
-building a few boards, buildman will automatically run make with the -j
-flag to increase the number of concurrent make tasks. It isn't normally
-that helpful to fiddle with this option, but if you use the BUILD_NCPUS
-option in MAKEALL then -j is the equivalent in buildman.
-
-Buildman puts its output in ../<branch_name> by default but you can change
-this with the -o option. Buildman normally does out-of-tree builds: use -i
-to disable that if you really want to. But be careful that once you have
-used -i you pollute buildman's copies of the source tree, and you will need
-to remove the build directory (normally ../<branch_name>) to run buildman
-in normal mode (without -i).
-
-Buildman doesn't keep the output result normally, but use the -k option to
-do this.
-
-Please read 'Theory of Operation' a few times as it will make a lot of
-things clearer.
-
-Some options you might like are::
-
-   -B shows which functions are growing/shrinking in which commit - great
-        for finding code bloat.
-   -S shows image sizes for each commit (just an overall summary)
-   -u shows boards that you haven't built yet
-   --step 0 will build just the upstream commit and the last commit of your
-        branch. This is often a quick sanity check that your branch doesn't
-        break anything. But note this does not check bisectability!
 
 
 Using boards.cfg
