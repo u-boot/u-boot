@@ -253,6 +253,8 @@ class BuilderThread(threading.Thread):
                     args.extend(['-j', str(self.builder.num_jobs)])
                 if self.builder.warnings_as_errors:
                     args.append('KCFLAGS=-Werror')
+                if self.builder.allow_missing:
+                    args.append('BINMAN_ALLOW_MISSING=1')
                 config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))

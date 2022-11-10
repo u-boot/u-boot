@@ -47,6 +47,17 @@ def GetItems(section):
     except:
         raise
 
+def GetGlobalItemValue(name):
+    """Get an item from the 'global' section of the config.
+
+    Args:
+        name: name of item to retrieve
+
+    Returns:
+        str: Value of item, or None if not present
+    """
+    return settings.get('global', name, fallback=None)
+
 def SetItem(section, tag, value):
     """Set an item and write it back to the settings file"""
     global settings

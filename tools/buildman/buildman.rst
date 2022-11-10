@@ -906,6 +906,25 @@ also allows build flags to be passed to 'make'. It consists of several
 sections, with the section name in square brackets. Within each section are
 a set of (tag, value) pairs.
 
+'[global]' section
+    allow-missing
+        Indicates the policy to use for missing blobs. Note that the flags
+        ``--allow-missing`` (``-M``) and ``--no-allow-missing`` (``--no-a``)
+        override these setting.
+
+        always
+           Run with ``-M`` by default.
+
+        multiple
+           Run with ``-M`` if more than one board is being built.
+
+        branch
+           Run with ``-M`` if a branch is being built.
+
+        Note that the last two can be given together::
+
+           allow-missing = multiple branch
+
 '[toolchain]' section
     This lists the available toolchains. The tag here doesn't matter, but
     make sure it is unique. The value is the path to the toolchain. Buildman
@@ -1131,6 +1150,30 @@ not cause the build to fail:
 .. code-block:: bash
 
    buildman -o /tmp/build --board sandbox -wWI
+
+
+Support for binary blobs
+------------------------
+
+U-Boot is moving to using Binman (see :doc:`../develop/package/binman`) for
+dealing with the complexities of packaging U-Boot along with binary files from
+other projects. These are called 'external blobs' by Binman.
+
+Typically a missing external blob causes a build failure. For build testing of
+a lot of boards, or boards for which you do not have the blobs, you can use the
+-M flag to allow missing blobs. This marks the build as if it succeeded,
+although with warnings shown, including 'Some images are invalid'. If any boards
+fail in this way, buildman exits with status 101.
+
+To convert warnings to errors, use -E. To make buildman return success with
+these warnings, use -W.
+
+It is generally safe to default to enabling -M for all runs of buildman, so long
+as you check the exit code. To do this, add::
+
+   allow-missing = "always"
+
+to the top of the buildman_settings_ file.
 
 
 Changing the configuration

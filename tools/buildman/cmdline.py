@@ -75,6 +75,12 @@ def ParseArgs():
           help='List available tool chains (use -v to see probing detail)')
     parser.add_option('-m', '--mrproper', action='store_true',
           default=False, help="Run 'make mrproper before reconfiguring")
+    parser.add_option(
+          '-M', '--allow-missing', action='store_true', default=False,
+          help='Tell binman to allow missing blobs and generate fake ones as needed'),
+    parser.add_option(
+          '--no-allow-missing', action='store_true', default=False,
+          help='Disable telling binman to allow missing blobs'),
     parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
           default=False, help="Do a dry run (describe actions, but do nothing)")
     parser.add_option('-N', '--no-subdirs', action='store_true', dest='no_subdirs',
