@@ -1527,8 +1527,6 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 	}
 
 	ret = eficonfig_set_boot_option(varname, final_dp, final_dp_size, bo->description, tmp);
-	if (ret != EFI_SUCCESS)
-		goto out;
 out:
 	free(tmp);
 	free(bo->optional_data);
