@@ -87,8 +87,6 @@ other = /
 riscv = riscv32
 sh = sh4
 x86 = i386
-blackfin = bfin
-openrisc = or1k
 
 [make-flags]
 # Special flags to pass to 'make' for certain boards, e.g. to pass a test

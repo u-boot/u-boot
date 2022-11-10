@@ -202,8 +202,6 @@ Setting up
    riscv = riscv32
    sh = sh4
    x86: i386
-   blackfin: bfin
-   openrisc: or1k
 
 
    This selects the available toolchain paths. Add the base directory for
@@ -480,21 +478,12 @@ Setting up
    For those not available from kernel.org, download from the following links:
 
    - `Arc Toolchain`_
-   - `Blackfin Toolchain`_
-   - `Nios2 Toolchain`_
-   - `SH Toolchain`_
-
-   Note openrisc kernel.org toolchain is out of date. Download the latest one
-   from `OpenRISC Toolchains`_, e.g. `OpenRISC 4.8.1`_.
 
    Buildman should now be set up to use your new toolchain.
 
    At the time of writing, U-Boot has these architectures:
 
-      arc, arm, blackfin, m68k, microblaze, mips, nios2, openrisc
-      powerpc, sandbox, sh, sparc, x86
-
-   Of these, only arc is not available at kernel.org.
+      arc, arm, m68k, microblaze, mips, nios2, powerpc, sandbox, sh, x86, xtensa
 
 
 How to run it
@@ -1286,11 +1275,6 @@ the build speed by building all commits for a board instead of the other
 way around.
 
 .. _`Arc Toolchain`: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2021.03-release/arc_gnu_2021.03_prebuilt_elf32_le_linux_install.tar.gz
-.. _`Blackfin Toolchain`: http://sourceforge.net/projects/adi-toolchain/files/blackfin-toolchain-elf-gcc-4.5-2014R1_45-RC2.x86_64.tar.bz2
-.. _`Nios2 Toolchain`: http://sourcery.mentor.com/public/gnu_toolchain/nios2-linux-gnu/sourceryg++-2015.11-27-nios2-linux-gnu-i686-pc-linux-gnu.tar.bz2
-.. _`SH Toolchain`: http://sourcery.mentor.com/public/gnu_toolchain/sh-linux-gnu/renesas-4.4-200-sh-linux-gnu-i686-pc-linux-gnu.tar.bz2
-.. _`OpenRISC Toolchains`: http://opencores.org/or1k/OpenRISC_GNU_tool_chain#Prebuilt_versions
-.. _`OpenRISC 4.8.1`: ftp://ocuser:ocuser@openrisc.opencores.org/toolchain/gcc-or1k-elf-4.8.1-x86.tar.bz2
 
 .. sectionauthor:: Simon Glass
 .. sectionauthor:: Copyright (c) 2013 The Chromium OS Authors.
