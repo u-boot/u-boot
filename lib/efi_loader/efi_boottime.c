@@ -2754,7 +2754,7 @@ efi_uninstall_multiple_protocol_interfaces_int(efi_handle_t handle,
 {
 	const efi_guid_t *protocol;
 	void *protocol_interface;
-	efi_status_t ret;
+	efi_status_t ret = EFI_SUCCESS;
 	size_t i = 0;
 	efi_va_list argptr_copy;
 
