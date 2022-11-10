@@ -188,15 +188,19 @@ static int handle_ufi_command(struct sandbox_flash_priv *priv, const void *buff,
 	struct scsi_emul_info *info = &priv->eminfo;
 	const struct scsi_cmd *req = buff;
 	int ret;
+	off_t offset;
 
 	ret = sb_scsi_emul_command(info, req, len);
 	if (!ret) {
 		setup_response(priv);
 	} else if ((ret == SCSI_EMUL_DO_READ || ret == SCSI_EMUL_DO_WRITE) &&
 		   priv->fd != -1) {
-		os_lseek(priv->fd, info->seek_block * info->block_size,
-			 OS_SEEK_SET);
-		setup_response(priv);
+		offset = os_lseek(priv->fd, info->seek_block * info->block_size,
+				  OS_SEEK_SET);
+		if (offset == (off_t)-1)
+			setup_fail_response(priv);
+		else
+			setup_response(priv);
 	} else {
 		setup_fail_response(priv);
 	}
