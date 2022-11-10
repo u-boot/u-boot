@@ -1246,6 +1246,8 @@ You can also replace just a selection of entries::
     $ binman replace -i image.bin "*u-boot*" -I indir
 
 
+.. _`BinmanLogging`:
+
 Logging
 -------
 
@@ -1416,6 +1418,8 @@ what happens in this stage.
 final step.
 
 
+.. _`External tools`:
+
 External tools
 --------------
 
@@ -1436,6 +1440,8 @@ a space-separated list of paths to search, e.g.::
 
    BINMAN_TOOLPATHS="/tools/g12a /tools/tegra" binman ...
 
+
+.. _`External blobs`:
 
 External blobs
 --------------
@@ -1492,6 +1498,30 @@ Binman produces the following exit codes:
     -M is passed to binman, otherwise missing blobs return an exit status of 1.
     Note, if -W is passed as well as -M, then this is converted into a warning
     and will return an exit status of 0 instead.
+
+
+U-Boot environment variables for binman
+---------------------------------------
+
+The U-Boot Makefile supports various environment variables to control binman.
+All of these are set within the Makefile and result in passing various
+environment variables (or make flags) to binman:
+
+BINMAN_DEBUG
+    Enables backtrace debugging by adding a `-D` argument. See
+    :ref:`BinmanLogging`.
+
+BINMAN_INDIRS
+    Sets the search path for input files used by binman by adding one or more
+    `-I` arguments. See :ref:`External blobs`.
+
+BINMAN_TOOLPATHS
+    Sets the search path for external tool used by binman by adding one or more
+    `--toolpath` arguments. See :ref:`External tools`.
+
+BINMAN_VERBOSE
+    Sets the logging verbosity of binman by adding a `-v` argument. See
+    :ref:`BinmanLogging`.
 
 
 Error messages
