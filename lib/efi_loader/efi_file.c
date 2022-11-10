@@ -1098,6 +1098,15 @@ static const struct efi_file_handle efi_file_handle_protocol = {
 /**
  * efi_file_from_path() - open file via device path
  *
+ * The device path @fp consists of the device path of the handle with the
+ * simple file system protocol and one or more file path device path nodes.
+ * The concatenation of all file path names provides the total file path.
+ *
+ * The code starts at the first file path node and tries to open that file or
+ * directory. If there is a succeding file path node, the code opens it relative
+ * to this directory and continues iterating until reaching the last file path
+ * node.
+ *
  * @fp:		device path
  * Return:	EFI_FILE_PROTOCOL for the file or NULL
  */
