@@ -15,6 +15,7 @@
 #include <asm/global_data.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
+#include <linux/bitfield.h>
 #include <dt-bindings/clock/ast2600-clock.h>
 
 #define DDR_PHY_TBL_CHG_ADDR            0xaeeddeea
@@ -935,6 +936,7 @@ static void ast2600_sdrammc_lock(struct dram_info *info)
 static void ast2600_sdrammc_common_init(struct ast2600_sdrammc_regs *regs)
 {
 	int i;
+	u32 reg;
 
 	writel(MCR34_MREQI_DIS | MCR34_RESETN_DIS, &regs->power_ctrl);
 	writel(SDRAM_VIDEO_UNLOCK_KEY, &regs->gm_protection_key);
@@ -968,6 +970,13 @@ static void ast2600_sdrammc_common_init(struct ast2600_sdrammc_regs *regs)
 	/* load controller setting */
 	for (i = 0; i < ARRAY_SIZE(ddr4_ac_timing); ++i)
 		writel(ddr4_ac_timing[i], &regs->ac_timing[i]);
+
+	/* update CL and WL */
+	reg = readl(&regs->ac_timing[1]);
+	reg &= ~(SDRAM_WL_SETTING | SDRAM_CL_SETTING);
+	reg |= FIELD_PREP(SDRAM_WL_SETTING, CONFIG_WL - 5) |
+	       FIELD_PREP(SDRAM_CL_SETTING, CONFIG_RL - 5);
+	writel(reg, &regs->ac_timing[1]);
 
 	writel(DDR4_MR01_MODE, &regs->mr01_mode_setting);
 	writel(DDR4_MR23_MODE, &regs->mr23_mode_setting);
