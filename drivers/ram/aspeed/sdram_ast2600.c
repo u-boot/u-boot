@@ -449,7 +449,7 @@ static void ast2600_sdramphy_kick_training(struct dram_info *info)
 
 	while (1) {
 		data = readl(&regs->phy_ctrl[0]) & SDRAM_PHYCTRL0_INIT;
-		if (~data)
+		if (data == 0)
 			break;
 	}
 }
@@ -983,11 +983,6 @@ static int ast2600_sdrammc_probe(struct udevice *dev)
 	ast2600_sdrammc_common_init(regs);
 L_ast2600_sdramphy_train:
 	ast2600_sdrammc_init_ddr4(priv);
-
-	/* make sure DDR-PHY is ready before access */
-	do {
-		reg = readl(priv->phy_status) & BIT(1);
-	} while (reg == 0);
 
 	if (ast2600_sdramphy_check_status(priv) != 0) {
 		printf("DDR4 PHY training fail, retrain\n");
