@@ -1140,7 +1140,7 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 
 		if (!EFI_DP_TYPE(fp, MEDIA_DEVICE, FILE_PATH)) {
 			printf("bad file path!\n");
-			f->close(f);
+			EFI_CALL(f->close(f));
 			return NULL;
 		}
 
