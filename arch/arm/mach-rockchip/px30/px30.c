@@ -234,6 +234,7 @@ enum {
 int arch_cpu_init(void)
 {
 	static struct px30_grf * const grf = (void *)GRF_BASE;
+	static struct px30_cru * const cru = (void *)CRU_BASE;
 	u32 __maybe_unused val;
 
 #ifdef CONFIG_SPL_BUILD
@@ -284,6 +285,9 @@ int arch_cpu_init(void)
 
 	/* Clear the force_jtag */
 	rk_clrreg(&grf->cpu_con[1], 1 << 7);
+
+	/* Make TSADC and WDT trigger a first global reset */
+	clrsetbits_le32(&cru->glb_rst_con, 0x3, 0x3);
 
 	return 0;
 }
