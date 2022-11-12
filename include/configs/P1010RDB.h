@@ -235,8 +235,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NAND_FTIM3	0x0
 #endif
 
-#define CONFIG_SYS_NAND_DDR_LAW		11
-
 /* Set up IFC registers for boot location NOR/NAND */
 #if defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_NAND_SECBOOT)
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
