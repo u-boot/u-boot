@@ -86,12 +86,6 @@
 /* Watchdog */
 
 /*
- * NAND SPL
- */
-
-#define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
-
-/*
  * Extra Environments
  */
 #define CONFIG_HOSTNAME		"m53menlo"

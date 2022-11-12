@@ -461,6 +461,11 @@ config NAND_MXC
 	  This enables the NAND driver for the NAND flash controller on the
 	  i.MX27 / i.MX31 / i.MX5 processors.
 
+config SYS_NAND_SIZE
+	int "Size of NAND in kilobytes"
+	depends on NAND_MXC && SPL_NAND_SUPPORT
+	default 268435456
+
 config NAND_MXS
 	bool "MXS NAND support"
 	depends on MX23 || MX28 || MX6 || MX7 || IMX8 || IMX8M
