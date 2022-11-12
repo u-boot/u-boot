@@ -41,6 +41,10 @@ config SYS_NAND_USE_FLASH_BBT
 	help
 	  Enable the BBT (Bad Block Table) usage.
 
+config SYS_NAND_NO_SUBPAGE_WRITE
+	bool "Disable subpage write support"
+	depends on NAND_ARASAN || NAND_DAVINCI || NAND_KIRKWOOD
+
 config NAND_ATMEL
 	bool "Support Atmel NAND controller"
 	select SYS_NAND_SELF_INIT

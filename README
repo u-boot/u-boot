@@ -1806,11 +1806,6 @@ Low Level (hardware related) configuration options:
 		If defined, the x86 reset vector code is included. This is not
 		needed when U-Boot is running from Coreboot.
 
-- CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
-		Option to disable subpage write in NAND driver
-		driver that uses this:
-		drivers/mtd/nand/raw/davinci_nand.c
-
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
 
