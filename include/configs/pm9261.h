@@ -130,7 +130,6 @@
 
 /* NAND flash */
 #define CONFIG_SYS_NAND_BASE			0x40000000
-#define CONFIG_SYS_NAND_DBW_8			1
 /* our ALE is AD22 */
 #define CONFIG_SYS_NAND_MASK_ALE		(1 << 22)
 /* our CLE is AD21 */

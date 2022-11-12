@@ -83,6 +83,18 @@ config SPL_GENERATE_ATMEL_PMECC_HEADER
 	help
 	  Generate Programmable Multibit ECC (PMECC) header for SPL image.
 
+choice
+	prompt "NAND bus width (bits)"
+	default SYS_NAND_DBW_8
+
+config SYS_NAND_DBW_8
+	bool "NAND bus width is 8 bits"
+
+config SYS_NAND_DBW_16
+	bool "NAND bus width is 16 bits"
+
+endchoice
+
 endif
 
 config NAND_BRCMNAND
