@@ -81,8 +81,8 @@ unsigned long long get_qixis_addr(void);
 #define QIXIS_SDID_MASK				0x07
 #define QIXIS_ESDHC_NO_ADAPTER			0x7
 
-#define CONFIG_SYS_NAND_BASE			0x530000000ULL
-#define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
+#define CFG_SYS_NAND_BASE			0x530000000ULL
+#define CFG_SYS_NAND_BASE_PHYS		0x30000000
 
 /* MC firmware */
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
@@ -129,8 +129,8 @@ unsigned long long get_qixis_addr(void);
 	" 0x580e00000 \0"
 
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x80400000
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
+#define CFG_SYS_NAND_U_BOOT_DST	0x80400000
+#define CFG_SYS_NAND_U_BOOT_START	CFG_SYS_NAND_U_BOOT_DST
 #endif
 
 #include <asm/arch/soc.h>

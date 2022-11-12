@@ -170,7 +170,7 @@ static u_int32_t nand_davinci_readecc(struct mtd_info *mtd)
 	u_int32_t	ecc = 0;
 
 	ecc = __raw_readl(&(davinci_emif_regs->nandfecc[
-				CONFIG_SYS_NAND_CS - 2]));
+				CFG_SYS_NAND_CS - 2]));
 
 	return ecc;
 }
@@ -183,8 +183,8 @@ static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 	nand_davinci_readecc(mtd);
 
 	val = __raw_readl(&davinci_emif_regs->nandfcr);
-	val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
-	val |= DAVINCI_NANDFCR_1BIT_ECC_START(CONFIG_SYS_NAND_CS);
+	val |= DAVINCI_NANDFCR_NAND_ENABLE(CFG_SYS_NAND_CS);
+	val |= DAVINCI_NANDFCR_1BIT_ECC_START(CFG_SYS_NAND_CS);
 	__raw_writel(val, &davinci_emif_regs->nandfcr);
 }
 
@@ -486,8 +486,8 @@ static void nand_davinci_4bit_enable_hwecc(struct mtd_info *mtd, int mode)
 		 */
 		val = __raw_readl(&davinci_emif_regs->nandfcr);
 		val &= ~DAVINCI_NANDFCR_4BIT_ECC_SEL_MASK;
-		val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
-		val |= DAVINCI_NANDFCR_4BIT_ECC_SEL(CONFIG_SYS_NAND_CS);
+		val |= DAVINCI_NANDFCR_NAND_ENABLE(CFG_SYS_NAND_CS);
+		val |= DAVINCI_NANDFCR_4BIT_ECC_SEL(CFG_SYS_NAND_CS);
 		val |= DAVINCI_NANDFCR_4BIT_ECC_START;
 		__raw_writel(val, &davinci_emif_regs->nandfcr);
 		break;
@@ -794,8 +794,8 @@ static int davinci_nand_probe(struct udevice *dev)
 	struct mtd_info *mtd = nand_to_mtd(nand);
 	int ret;
 
-	nand->IO_ADDR_R = (void __iomem *)CONFIG_SYS_NAND_BASE;
-	nand->IO_ADDR_W = (void __iomem *)CONFIG_SYS_NAND_BASE;
+	nand->IO_ADDR_R = (void __iomem *)CFG_SYS_NAND_BASE;
+	nand->IO_ADDR_W = (void __iomem *)CFG_SYS_NAND_BASE;
 
 	davinci_nand_init(nand);
 

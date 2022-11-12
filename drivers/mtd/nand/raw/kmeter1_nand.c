@@ -10,8 +10,8 @@
 #include <linux/delay.h>
 #include <linux/mtd/rawnand.h>
 
-#define CONFIG_NAND_MODE_REG	(void *)(CONFIG_SYS_NAND_BASE + 0x20000)
-#define CONFIG_NAND_DATA_REG	(void *)(CONFIG_SYS_NAND_BASE + 0x30000)
+#define CONFIG_NAND_MODE_REG	(void *)(CFG_SYS_NAND_BASE + 0x20000)
+#define CONFIG_NAND_DATA_REG	(void *)(CFG_SYS_NAND_BASE + 0x30000)
 
 #define read_mode()	in_8(CONFIG_NAND_MODE_REG)
 #define write_mode(val)	out_8(CONFIG_NAND_MODE_REG, val)

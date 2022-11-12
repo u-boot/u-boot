@@ -812,7 +812,7 @@ void board_nand_init(void)
 		return;
 	}
 
-	nfc->regs = (void __iomem *)CONFIG_SYS_NAND_BASE;
+	nfc->regs = (void __iomem *)CFG_SYS_NAND_BASE;
 	err = vf610_nfc_nand_init(nfc, 0);
 	if (err)
 		printf("VF610 NAND init failed (err %d)\n", err);

@@ -21,11 +21,11 @@
 
 /* NAND Flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
+#define CFG_SYS_NAND_BASE		ATMEL_BASE_CS3
 /* our ALE is AD21 */
-#define CONFIG_SYS_NAND_MASK_ALE	BIT(21)
+#define CFG_SYS_NAND_MASK_ALE	BIT(21)
 /* our CLE is AD22 */
-#define CONFIG_SYS_NAND_MASK_CLE	BIT(22)
+#define CFG_SYS_NAND_MASK_CLE	BIT(22)
 #endif
 
 #endif /* __CONFIG_H */

@@ -166,7 +166,7 @@
 
 #ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND
 /* NAND stuff */
-#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CFG_SYS_NAND_BASE		0x40000000
 #endif
 
 /* USB Configs */

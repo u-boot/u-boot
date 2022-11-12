@@ -18,13 +18,13 @@
 #define MASK_CLE		0x10
 #define MASK_ALE		0x08
 
-#ifdef CONFIG_SYS_NAND_MASK_CLE
+#ifdef CFG_SYS_NAND_MASK_CLE
 #undef MASK_CLE
-#define MASK_CLE CONFIG_SYS_NAND_MASK_CLE
+#define MASK_CLE CFG_SYS_NAND_MASK_CLE
 #endif
-#ifdef CONFIG_SYS_NAND_MASK_ALE
+#ifdef CFG_SYS_NAND_MASK_ALE
 #undef MASK_ALE
-#define MASK_ALE CONFIG_SYS_NAND_MASK_ALE
+#define MASK_ALE CFG_SYS_NAND_MASK_ALE
 #endif
 
 struct davinci_emif_regs {

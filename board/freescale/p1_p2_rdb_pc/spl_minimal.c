@@ -21,9 +21,9 @@ void board_init_f(ulong bootflag)
 	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 
-#if defined(CONFIG_SYS_NAND_BR_PRELIM) && defined(CONFIG_SYS_NAND_OR_PRELIM)
-	set_lbc_br(0, CONFIG_SYS_NAND_BR_PRELIM);
-	set_lbc_or(0, CONFIG_SYS_NAND_OR_PRELIM);
+#if defined(CFG_SYS_NAND_BR_PRELIM) && defined(CFG_SYS_NAND_OR_PRELIM)
+	set_lbc_br(0, CFG_SYS_NAND_BR_PRELIM);
+	set_lbc_or(0, CFG_SYS_NAND_OR_PRELIM);
 #endif
 
 	/* initialize selected port with appropriate baud rate */

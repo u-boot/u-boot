@@ -40,8 +40,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void corvus_request_gpio(void)
 {
-	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand ena");
-	gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand rdy");
+	gpio_request(CFG_SYS_NAND_ENABLE_PIN, "nand ena");
+	gpio_request(CFG_SYS_NAND_READY_PIN, "nand rdy");
 	gpio_request(AT91_PIN_PD7, "d0");
 	gpio_request(AT91_PIN_PD8, "d1");
 	gpio_request(AT91_PIN_PA12, "d2");
@@ -110,8 +110,8 @@ static void corvus_nand_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_PIOA);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_set_gpio_output(CFG_SYS_NAND_ENABLE_PIN, 1);
+	at91_set_gpio_input(CFG_SYS_NAND_READY_PIN, 1);
 }
 
 #if defined(CONFIG_SPL_BUILD)

@@ -11,8 +11,8 @@
 #include <linux/mtd/concat.h>
 #include <linux/mtd/rawnand.h>
 
-#ifndef CONFIG_SYS_NAND_BASE_LIST
-#define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
+#ifndef CFG_SYS_NAND_BASE_LIST
+#define CFG_SYS_NAND_BASE_LIST { CFG_SYS_NAND_BASE }
 #endif
 
 int nand_curr_device = -1;
@@ -21,7 +21,7 @@ static struct mtd_info *nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 
 #if !CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
-static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIST;
+static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CFG_SYS_NAND_BASE_LIST;
 #endif
 
 static char dev_name[CONFIG_SYS_MAX_NAND_DEVICE][8];

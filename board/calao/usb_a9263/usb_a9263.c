@@ -54,12 +54,12 @@ static void usb_a9263_nand_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
 
 	/* Configure RDY/BSY */
-	gpio_request(CONFIG_SYS_NAND_READY_PIN, "NAND ready/busy");
-	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
+	gpio_request(CFG_SYS_NAND_READY_PIN, "NAND ready/busy");
+	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "NAND enable");
-	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_request(CFG_SYS_NAND_ENABLE_PIN, "NAND enable");
+	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 

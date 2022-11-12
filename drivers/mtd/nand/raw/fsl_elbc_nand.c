@@ -819,12 +819,12 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr, struct udevice *dev)
 
 #ifndef CONFIG_NAND_FSL_ELBC_DT
 
-#ifndef CONFIG_SYS_NAND_BASE_LIST
-#define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
+#ifndef CFG_SYS_NAND_BASE_LIST
+#define CFG_SYS_NAND_BASE_LIST { CFG_SYS_NAND_BASE }
 #endif
 
 static unsigned long base_address[CONFIG_SYS_MAX_NAND_DEVICE] =
-	CONFIG_SYS_NAND_BASE_LIST;
+	CFG_SYS_NAND_BASE_LIST;
 
 void board_nand_init(void)
 {

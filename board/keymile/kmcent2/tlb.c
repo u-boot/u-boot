@@ -76,7 +76,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      0, 9, BOOKE_PAGESZ_4M, 1),
 
 	/* *I*G - NAND */
-	SET_TLB_ENTRY(1, CONFIG_SYS_NAND_BASE, CONFIG_SYS_NAND_BASE_PHYS,
+	SET_TLB_ENTRY(1, CFG_SYS_NAND_BASE, CFG_SYS_NAND_BASE_PHYS,
 		      MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		      0, 10, BOOKE_PAGESZ_64K, 1),
 	/* QRIO */

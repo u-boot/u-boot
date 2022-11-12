@@ -65,13 +65,13 @@ static void pm9g45_nand_hw_init(void)
 
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
-#ifdef CONFIG_SYS_NAND_READY_PIN
+#ifdef CFG_SYS_NAND_READY_PIN
 	/* Configure RDY/BSY */
-	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
+	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 #endif
 
 	/* Enable NandFlash */
-	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 

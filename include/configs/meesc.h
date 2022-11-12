@@ -52,11 +52,11 @@
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-# define CONFIG_SYS_NAND_BASE			ATMEL_BASE_CS3 /* 0x40000000 */
-# define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
-# define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-# define CONFIG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PD(15)
-# define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
+# define CFG_SYS_NAND_BASE			ATMEL_BASE_CS3 /* 0x40000000 */
+# define CFG_SYS_NAND_MASK_ALE		(1 << 21)
+# define CFG_SYS_NAND_MASK_CLE		(1 << 22)
+# define CFG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PD(15)
+# define CFG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
 
 /* hw-controller addresses */

@@ -86,7 +86,7 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
 
 /* NAND stuff */
-#define CONFIG_SYS_NAND_BASE           0x40000000
+#define CFG_SYS_NAND_BASE           0x40000000
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 

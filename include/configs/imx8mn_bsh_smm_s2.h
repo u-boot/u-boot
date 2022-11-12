@@ -44,6 +44,6 @@
 
 /* NAND */
 
-#define CONFIG_SYS_NAND_BASE		0x20000000
+#define CFG_SYS_NAND_BASE		0x20000000
 
 #endif /* __IMX8MN_BSH_SMM_S2_H */

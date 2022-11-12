@@ -111,22 +111,22 @@
 
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC
-#define CONFIG_SYS_NAND_BASE		0xffa00000
+#define CFG_SYS_NAND_BASE		0xffa00000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_NAND_BASE_PHYS	0xfffa00000ull
+#define CFG_SYS_NAND_BASE_PHYS	0xfffa00000ull
 #else
-#define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
+#define CFG_SYS_NAND_BASE_PHYS	CFG_SYS_NAND_BASE
 #endif
 
-#define CONFIG_SYS_NAND_BASE_LIST     {CONFIG_SYS_NAND_BASE}
+#define CFG_SYS_NAND_BASE_LIST     {CFG_SYS_NAND_BASE}
 
 /* NAND flash config */
-#define CONFIG_SYS_NAND_BR_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
+#define CFG_SYS_NAND_BR_PRELIM  (BR_PHYS_ADDR(CFG_SYS_NAND_BASE_PHYS) \
 			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
 			       | BR_PS_8	       /* Port Size = 8 bit */ \
 			       | BR_MS_FCM	       /* MSEL = FCM */ \
 			       | BR_V)		       /* valid */
-#define CONFIG_SYS_NAND_OR_PRELIM  (0xFFFC0000	      /* length 256K */ \
+#define CFG_SYS_NAND_OR_PRELIM  (0xFFFC0000	      /* length 256K */ \
 			       | OR_FCM_PGS	       /* Large Page*/ \
 			       | OR_FCM_CSCT \
 			       | OR_FCM_CST \

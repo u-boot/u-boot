@@ -83,7 +83,7 @@
 
 /* NAND */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_SYS_NAND_BASE		0x60000000
+#define CFG_SYS_NAND_BASE		0x60000000
 #endif
 
 /* OCOTP */

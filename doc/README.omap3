@@ -146,11 +146,11 @@ implementation for OMAP3 works for you so the u-boot version should also.
 When you require the SPL to read with BCH8 there are two more configs to
 change:
 
- * CONFIG_SYS_NAND_ECCPOS (must be the same as .eccpos in
+ * CFG_SYS_NAND_ECCPOS (must be the same as .eccpos in
    GPMC_NAND_HW_BCH8_ECC_LAYOUT defined in
    arch/arm/include/asm/arch-omap3/omap_gpmc.h)
- * CONFIG_SYS_NAND_ECCSIZE must be 512
- * CONFIG_SYS_NAND_ECCBYTES must be 13 for this BCH8 setup
+ * CFG_SYS_NAND_ECCSIZE must be 512
+ * CFG_SYS_NAND_ECCBYTES must be 13 for this BCH8 setup
 
 Acknowledgements
 ================

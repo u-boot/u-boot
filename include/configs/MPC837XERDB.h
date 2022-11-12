@@ -141,7 +141,7 @@
 /*
  * NAND Flash on the Local Bus
  */
-#define CONFIG_SYS_NAND_BASE	0xE0600000
+#define CFG_SYS_NAND_BASE	0xE0600000
 
 
 /* Vitesse 7385 */

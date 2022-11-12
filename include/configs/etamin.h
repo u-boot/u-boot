@@ -14,10 +14,10 @@
 
 #include "siemens-am33x-common.h"
 /* NAND specific changes for etamin due to different page size */
-#undef CONFIG_SYS_NAND_ECCPOS
+#undef CFG_SYS_NAND_ECCPOS
 
 #define CONFIG_SYS_ENV_SECT_SIZE       (512 << 10)     /* 512 KiB */
-#define CONFIG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
+#define CFG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
 				10, 11, 12, 13, 14, 15, 16, 17, 18, 19, \
 				20, 21, 22, 23, 24, 25, 26, 27, 28, 29, \
 				30, 31, 32, 33, 34, 35, 36, 37, 38, 39, \
@@ -40,14 +40,14 @@
 			200, 201, 202, 203, 204, 205, 206, 207, 208, 209, \
 			}
 
-#undef CONFIG_SYS_NAND_ECCSIZE
-#undef CONFIG_SYS_NAND_ECCBYTES
-#define CONFIG_SYS_NAND_ECCSIZE 512
-#define CONFIG_SYS_NAND_ECCBYTES 26
+#undef CFG_SYS_NAND_ECCSIZE
+#undef CFG_SYS_NAND_ECCBYTES
+#define CFG_SYS_NAND_ECCSIZE 512
+#define CFG_SYS_NAND_ECCBYTES 26
 
-#define CONFIG_SYS_NAND_BASE2           (0x18000000)    /* physical address */
-#define CONFIG_SYS_NAND_BASE_LIST       {CONFIG_SYS_NAND_BASE, \
-					CONFIG_SYS_NAND_BASE2}
+#define CFG_SYS_NAND_BASE2           (0x18000000)    /* physical address */
+#define CFG_SYS_NAND_BASE_LIST       {CFG_SYS_NAND_BASE, \
+					CFG_SYS_NAND_BASE2}
 
 #define DDR_PLL_FREQ	303
 

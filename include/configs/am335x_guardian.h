@@ -91,7 +91,7 @@
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
 #ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_NAND_ECCPOS  {   2,   3,   4,   5,   6,   7,   8,   9, \
+#define CFG_SYS_NAND_ECCPOS  {   2,   3,   4,   5,   6,   7,   8,   9, \
 			 10,  11,  12,  13,  14,  15,  16,  17,  18,  19, \
 			 20,  21,  22,  23,  24,  25,  26,  27,  28,  29, \
 			 30,  31,  32,  33,  34,  35,  36,  37,  38,  39, \
@@ -113,8 +113,8 @@
 			190, 191, 192, 193, 194, 195, 196, 197, 198, 199, \
 			200, 201, 202, 203, 204, 205, 206, 207, 208, 209, \
 			}
-#define CONFIG_SYS_NAND_ECCSIZE         512
-#define CONFIG_SYS_NAND_ECCBYTES        26
+#define CFG_SYS_NAND_ECCSIZE         512
+#define CFG_SYS_NAND_ECCBYTES        26
 #define MTDIDS_DEFAULT                  "nand0=nand.0"
 
 #endif /* CONFIG_MTD_RAW_NAND */

@@ -72,6 +72,6 @@
 
 /* NAND */
 
-#define CONFIG_SYS_NAND_BASE		0x20000000
+#define CFG_SYS_NAND_BASE		0x20000000
 
 #endif

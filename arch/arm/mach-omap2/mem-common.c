@@ -135,7 +135,7 @@ void set_gpmc_cs0(int flash_type)
 #if defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_CMD_NAND)
 	case MTD_DEV_TYPE_NAND:
 		gpmc_regs = gpmc_regs_nand;
-		base = CONFIG_SYS_NAND_BASE;
+		base = CFG_SYS_NAND_BASE;
 		size = GPMC_SIZE_16M;
 		break;
 #endif

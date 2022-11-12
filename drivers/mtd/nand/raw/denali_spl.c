@@ -25,9 +25,9 @@
 #define BANK(x) ((x) << 24)
 
 static void __iomem *denali_flash_mem =
-			(void __iomem *)CONFIG_SYS_NAND_DATA_BASE;
+			(void __iomem *)CFG_SYS_NAND_DATA_BASE;
 static void __iomem *denali_flash_reg =
-			(void __iomem *)CONFIG_SYS_NAND_REGS_BASE;
+			(void __iomem *)CFG_SYS_NAND_REGS_BASE;
 
 static const int flash_bank;
 static int page_size, oob_size, pages_per_block;

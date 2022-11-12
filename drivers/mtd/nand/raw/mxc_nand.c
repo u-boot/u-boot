@@ -50,7 +50,7 @@ static struct mxc_nand_host *host = &mxc_host;
 
 /* OOB placement block for use with hardware ecc generation */
 #if defined(MXC_NFC_V1)
-#ifndef CONFIG_SYS_NAND_LARGEPAGE
+#ifndef CFG_SYS_NAND_LARGEPAGE
 static struct nand_ecclayout nand_hw_eccoob = {
 	.eccbytes = 5,
 	.eccpos = {6, 7, 8, 9, 10},
@@ -69,7 +69,7 @@ static struct nand_ecclayout nand_hw_eccoob2k = {
 };
 #endif
 #elif defined(MXC_NFC_V2_1) || defined(MXC_NFC_V3_2)
-#ifndef CONFIG_SYS_NAND_LARGEPAGE
+#ifndef CFG_SYS_NAND_LARGEPAGE
 static struct nand_ecclayout nand_hw_eccoob = {
 	.eccbytes = 9,
 	.eccpos = {7, 8, 9, 10, 11, 12, 13, 14, 15},
@@ -1219,7 +1219,7 @@ int board_nand_init(struct nand_chip *this)
 	if (is_16bit_nand())
 		this->options |= NAND_BUSWIDTH_16;
 
-#ifdef CONFIG_SYS_NAND_LARGEPAGE
+#ifdef CFG_SYS_NAND_LARGEPAGE
 	host->pagesize_2k = 1;
 	this->ecc.layout = &nand_hw_eccoob2k;
 #else

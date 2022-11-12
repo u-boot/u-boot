@@ -36,9 +36,9 @@ static void sam9x60ek_nand_hw_init(void)
 	at91_pio3_set_a_periph(AT91_PIO_PORTD, 2, 0);	/* NAND ALE */
 	at91_pio3_set_a_periph(AT91_PIO_PORTD, 3, 0);	/* NAND CLE */
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	at91_set_gpio_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_set_gpio_input(CFG_SYS_NAND_READY_PIN, 1);
 	at91_pio3_set_a_periph(AT91_PIO_PORTD, 6, 1);
 	at91_pio3_set_a_periph(AT91_PIO_PORTD, 7, 1);
 	at91_pio3_set_a_periph(AT91_PIO_PORTD, 8, 1);

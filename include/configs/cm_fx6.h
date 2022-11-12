@@ -128,7 +128,7 @@
 #include <config_distro_bootcmd.h>
 
 /* NAND */
-#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CFG_SYS_NAND_BASE		0x40000000
 /* APBH DMA is required for NAND support */
 
 /* Ethernet */

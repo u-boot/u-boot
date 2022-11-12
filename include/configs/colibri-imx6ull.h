@@ -122,8 +122,8 @@
 
 #ifdef CONFIG_TARGET_COLIBRI_IMX6ULL_NAND
 /* NAND stuff */
-/* used to initialize CONFIG_SYS_NAND_BASE_LIST which is unused */
-#define CONFIG_SYS_NAND_BASE		-1
+/* used to initialize CFG_SYS_NAND_BASE_LIST which is unused */
+#define CFG_SYS_NAND_BASE		-1
 #endif
 
 /* USB Configs */

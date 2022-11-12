@@ -166,7 +166,7 @@
 #ifdef CONFIG_NAND_MXS
 
 /* NAND stuff */
-#define CONFIG_SYS_NAND_BASE           0x20000000
+#define CFG_SYS_NAND_BASE           0x20000000
 #endif /* CONFIG_NAND_MXS */
 
 #endif /* __IMX8MP_RSB3720_H */

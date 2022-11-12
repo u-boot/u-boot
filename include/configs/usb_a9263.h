@@ -33,13 +33,13 @@
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_SYS_NAND_BASE			ATMEL_BASE_CS3
+#define CFG_SYS_NAND_BASE			ATMEL_BASE_CS3
 /* our ALE is AD21 */
-#define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
+#define CFG_SYS_NAND_MASK_ALE		(1 << 21)
 /* our CLE is AD22 */
-#define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-#define CONFIG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PD(15)
-#define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
+#define CFG_SYS_NAND_MASK_CLE		(1 << 22)
+#define CFG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PD(15)
+#define CFG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */

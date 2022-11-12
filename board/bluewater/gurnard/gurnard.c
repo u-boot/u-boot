@@ -100,16 +100,16 @@ static int gurnard_nand_hw_init(void)
 	       AT91_SMC_MODE_TDF_CYCLE(3),
 	       &smc->cs[3].mode);
 
-	ret = gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand_rdy");
+	ret = gpio_request(CFG_SYS_NAND_READY_PIN, "nand_rdy");
 	if (ret)
 		return ret;
-	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
+	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	ret = gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand_ce");
+	ret = gpio_request(CFG_SYS_NAND_ENABLE_PIN, "nand_ce");
 	if (ret)
 		return ret;
-	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 
 	return 0;
 }

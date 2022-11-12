@@ -35,8 +35,8 @@
 /*
  * NAND controller
  */
-#define CONFIG_SYS_NAND_BASE		SLC_NAND_BASE
-#define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
+#define CFG_SYS_NAND_BASE		SLC_NAND_BASE
+#define CFG_SYS_NAND_BASE_LIST	{ CFG_SYS_NAND_BASE }
 
 /*
  * NAND chip timings
@@ -79,10 +79,10 @@
  */
 
 /* U-Boot will be 0x60000 bytes, loaded and run at CONFIG_TEXT_BASE */
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x60000
+#define CFG_SYS_NAND_U_BOOT_SIZE	0x60000
 
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
+#define CFG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
+#define CFG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
 
 /* See common/spl/spl.c  spl_set_header_raw_uboot() */
 

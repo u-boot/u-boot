@@ -58,8 +58,8 @@
 
 /* nand driver parameters */
 #ifdef CONFIG_TARGET_PRESIDIO_ASIC
-	#define CONFIG_SYS_NAND_BASE            CONFIG_SYS_FLASH_BASE
-	#define CONFIG_SYS_NAND_BASE_LIST       { CONFIG_SYS_NAND_BASE }
+	#define CFG_SYS_NAND_BASE            CONFIG_SYS_FLASH_BASE
+	#define CFG_SYS_NAND_BASE_LIST       { CFG_SYS_NAND_BASE }
 #endif
 
 #endif /* __PRESIDIO_ASIC_H */

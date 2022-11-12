@@ -88,8 +88,8 @@ unsigned long long get_qixis_addr(void);
 #define QIXIS_BASE_PHYS_EARLY			0xC000000
 
 
-#define CONFIG_SYS_NAND_BASE			0x530000000ULL
-#define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
+#define CFG_SYS_NAND_BASE			0x530000000ULL
+#define CFG_SYS_NAND_BASE_PHYS		0x30000000
 
 
 /* MC firmware */

@@ -62,12 +62,12 @@
 /* EEPROM definitions */
 
 /* NAND Configuration */
-#define CONFIG_SYS_NAND_MASK_CLE		0x4000
-#define CONFIG_SYS_NAND_MASK_ALE		0x2000
-#define CONFIG_SYS_NAND_CS			2
+#define CFG_SYS_NAND_MASK_CLE		0x4000
+#define CFG_SYS_NAND_MASK_ALE		0x2000
+#define CFG_SYS_NAND_CS			2
 
-#define CONFIG_SYS_NAND_LARGEPAGE
-#define CONFIG_SYS_NAND_BASE_LIST		{ 0x30000000, }
+#define CFG_SYS_NAND_LARGEPAGE
+#define CFG_SYS_NAND_BASE_LIST		{ 0x30000000, }
 
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \

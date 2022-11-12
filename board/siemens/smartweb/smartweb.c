@@ -42,8 +42,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void smartweb_request_gpio(void)
 {
-	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand ena");
-	gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand rdy");
+	gpio_request(CFG_SYS_NAND_ENABLE_PIN, "nand ena");
+	gpio_request(CFG_SYS_NAND_READY_PIN, "nand rdy");
 	gpio_request(AT91_PIN_PA26, "ena PHY");
 }
 
@@ -72,10 +72,10 @@ static void smartweb_nand_hw_init(void)
 		&smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_set_gpio_input(CFG_SYS_NAND_READY_PIN, 1);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	at91_set_gpio_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 
 static void smartweb_macb_hw_init(void)

@@ -14,7 +14,7 @@
 /* NAND support */
 
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
+#define CFG_SYS_NAND_BASE		NFC_BASE_ADDR
 
 /* Dynamic MTD partition support */
 #endif
