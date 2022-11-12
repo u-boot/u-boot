@@ -148,9 +148,21 @@ config NAND_DAVINCI
 	  Enable this driver for NAND flash controllers available in TI Davinci
 	  and Keystone2 platforms
 
+choice
+	prompt "Type of ECC used on NAND"
+	default SYS_NAND_4BIT_HW_ECC_OOBFIRST
+	depends on NAND_DAVINCI
+
+config SYS_NAND_HW_ECC
+	bool "Use 1-bit HW ECC"
+
 config SYS_NAND_4BIT_HW_ECC_OOBFIRST
 	bool "Use 4-bit HW ECC with OOB at the front"
-	depends on NAND_DAVINCI
+
+config SYS_NAND_SOFT_ECC
+	bool "Use software ECC"
+
+endchoice
 
 config KEYSTONE_RBL_NAND
 	depends on ARCH_KEYSTONE

@@ -766,10 +766,7 @@ static void davinci_nand_init(struct nand_chip *nand)
 	nand->ecc.calculate = nand_davinci_calculate_ecc;
 	nand->ecc.correct  = nand_davinci_correct_data;
 	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
-#else
-	nand->ecc.mode = NAND_ECC_SOFT;
-#endif /* CONFIG_SYS_NAND_HW_ECC */
-#ifdef CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
+#elif defined(CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST)
 	nand->ecc.mode = NAND_ECC_HW_OOB_FIRST;
 	nand->ecc.size = 512;
 	nand->ecc.bytes = 10;
@@ -778,6 +775,8 @@ static void davinci_nand_init(struct nand_chip *nand)
 	nand->ecc.correct = nand_davinci_4bit_correct_data;
 	nand->ecc.hwctl = nand_davinci_4bit_enable_hwecc;
 	nand->ecc.layout = &nand_davinci_4bit_layout_oobfirst;
+#elif defined(CONFIG_SYS_NAND_SOFT_ECC)
+	nand->ecc.mode = NAND_ECC_SOFT;
 #endif
 	/* Set address of hardware control function */
 	nand->cmd_ctrl = nand_davinci_hwcontrol;
