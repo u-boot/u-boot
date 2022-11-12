@@ -29,7 +29,6 @@
 /* Mem test settings */
 
 /* NAND Flash */
-#define CONFIG_SYS_NAND_ECC_BASE	ATMEL_BASE_ECC
 #define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
 #define CONFIG_SYS_NAND_MASK_ALE	(1 << 21) /* AD21 */
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22) /* AD22 */

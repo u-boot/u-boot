@@ -1012,13 +1012,13 @@ static int atmel_nand_calculate(struct mtd_info *mtd,
 	unsigned int ecc_value;
 
 	/* get the first 2 ECC bytes */
-	ecc_value = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, PR);
+	ecc_value = ecc_readl(ATMEL_BASE_ECC, PR);
 
 	ecc_code[0] = ecc_value & 0xFF;
 	ecc_code[1] = (ecc_value >> 8) & 0xFF;
 
 	/* get the last 2 ECC bytes */
-	ecc_value = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, NPR) & ATMEL_ECC_NPARITY;
+	ecc_value = ecc_readl(ATMEL_BASE_ECC, NPR) & ATMEL_ECC_NPARITY;
 
 	ecc_code[2] = ecc_value & 0xFF;
 	ecc_code[3] = (ecc_value >> 8) & 0xFF;
@@ -1101,16 +1101,16 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 	unsigned int ecc_word, ecc_bit;
 
 	/* get the status from the Status Register */
-	ecc_status = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, SR);
+	ecc_status = ecc_readl(ATMEL_BASE_ECC, SR);
 
 	/* if there's no error */
 	if (likely(!(ecc_status & ATMEL_ECC_RECERR)))
 		return 0;
 
 	/* get error bit offset (4 bits) */
-	ecc_bit = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, PR) & ATMEL_ECC_BITADDR;
+	ecc_bit = ecc_readl(ATMEL_BASE_ECC, PR) & ATMEL_ECC_BITADDR;
 	/* get word address (12 bits) */
-	ecc_word = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, PR) & ATMEL_ECC_WORDADDR;
+	ecc_word = ecc_readl(ATMEL_BASE_ECC, PR) & ATMEL_ECC_WORDADDR;
 	ecc_word >>= 4;
 
 	/* if there are multiple errors */
@@ -1180,22 +1180,22 @@ int atmel_hwecc_nand_init_param(struct nand_chip *nand, struct mtd_info *mtd)
 		switch (mtd->writesize) {
 		case 512:
 			nand->ecc.layout = &atmel_oobinfo_small;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_528);
 			break;
 		case 1024:
 			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_1056);
 			break;
 		case 2048:
 			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_2112);
 			break;
 		case 4096:
 			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_4224);
 			break;
 		default:
