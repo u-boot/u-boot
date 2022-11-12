@@ -1378,10 +1378,6 @@ The following options need to be configured:
 		CONFIG_SYS_NAND_U_BOOT_START
 		Entry point in loaded image to jump to
 
-		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
-		Define this if you need to first read the OOB and then the
-		data. This is used, for example, on davinci platforms.
-
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
 

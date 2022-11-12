@@ -712,6 +712,11 @@ config SPL_NAND_SIMPLE
 	help
 	  Support for NAND boot using simple NAND drivers that
 	  expose the cmd_ctrl() interface.
+
+config SYS_NAND_HW_ECC_OOBFIRST
+	bool "In SPL, read the OOB first and then the data from NAND"
+	depends on SPL_NAND_SIMPLE
+
 endif
 
 endif   # if NAND
