@@ -26,8 +26,6 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	13
-#define CONFIG_SYS_NAND_MAX_OOBFREE	2
-#define CONFIG_SYS_NAND_MAX_ECCPOS	56
 #endif
 
 /* Environment information */
