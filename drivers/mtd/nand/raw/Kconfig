@@ -168,6 +168,19 @@ config SYS_NAND_SOFT_ECC
 
 endchoice
 
+choice
+	prompt "NAND page size"
+	depends on NAND_DAVINCI
+	default SYS_NAND_PAGE_2K
+
+config SYS_NAND_PAGE_2K
+	bool "Page size is 2K"
+
+config SYS_NAND_PAGE_4K
+	bool "Page size is 4K"
+
+endchoice
+
 config KEYSTONE_RBL_NAND
 	depends on ARCH_KEYSTONE
 	def_bool y
