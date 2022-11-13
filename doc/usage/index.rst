@@ -35,6 +35,7 @@ Shell commands
    cmd/cat
    cmd/cbsysinfo
    cmd/cls
+   cmd/cmp
    cmd/conitrace
    cmd/cyclic
    cmd/dm
