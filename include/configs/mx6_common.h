@@ -21,8 +21,4 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-/* Miscellaneous configurable options */
-
-/* MMC */
-
 #endif
