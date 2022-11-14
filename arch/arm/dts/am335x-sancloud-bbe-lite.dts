@@ -41,7 +41,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		compatible = "micron,spi-authenta";
+		compatible = "micron,spi-authenta", "jedec,spi-nor";
 
 		reg = <0>;
 		spi-max-frequency = <16000000>;
