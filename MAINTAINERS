@@ -495,6 +495,12 @@ F:	arch/arm/mach-exynos/
 F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
 
+ARM SANCLOUD
+M:	Paul Barker <paul.barker@sancloud.com>
+R:	Marc Murphy <marc.murphy@sancloud.com>
+S:	Supported
+F:	arch/arm/dts/am335x-sancloud*
+
 ARM SNAPDRAGON
 M:	Ramon Fried <rfried.dev@gmail.com>
 S:	Maintained
