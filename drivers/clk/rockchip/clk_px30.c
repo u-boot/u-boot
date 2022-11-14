@@ -1415,6 +1415,9 @@ static int px30_clk_enable(struct clk *clk)
 	case SCLK_GMAC_RMII:
 		/* Required to successfully probe the Designware GMAC driver */
 		return 0;
+	case PCLK_WDT_NS:
+		/* Required to successfully probe the Designware watchdog driver */
+		return 0;
 	}
 
 	debug("%s: unsupported clk %ld\n", __func__, clk->id);
