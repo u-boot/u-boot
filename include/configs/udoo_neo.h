@@ -53,16 +53,10 @@
 
 #include <config_distro_bootcmd.h>
 
-/* Miscellaneous configurable options */
-
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
-
-/* PMIC */
-#define CFG_POWER_PFUZE3000_I2C_ADDR	0x08
-#define PFUZE3000_I2C_BUS	0
 
 #endif				/* __CONFIG_H */
