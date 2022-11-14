@@ -120,10 +120,10 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only)
 		int ret;
 
 		ret = bind_drivers_pass(parent, pre_reloc_only);
-		if (!ret)
-			break;
-		if (ret != -EAGAIN && !result)
+		if (!result || result == -EAGAIN)
 			result = ret;
+		if (ret != -EAGAIN)
+			break;
 	}
 
 	return result;
