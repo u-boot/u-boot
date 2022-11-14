@@ -362,7 +362,7 @@ static int i2c_gpio_of_to_plat(struct udevice *dev)
 
 	return 0;
 error:
-	pr_err("Can't get %s gpios! Error: %d", dev->name, ret);
+	pr_err("Can't get %s gpios! Error: %d\n", dev->name, ret);
 	return ret;
 }
 

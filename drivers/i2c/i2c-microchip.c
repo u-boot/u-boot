@@ -2,8 +2,9 @@
 /*
  * Microchip I2C controller driver
  *
- * Copyright (C) 2021 Microchip Technology Inc.
+ * Copyright (C) 2021-2022 Microchip Technology Inc.
  * Padmarao Begari <padmarao.begari@microchip.com>
+ * Conor Dooley <conor.dooley@microchip.com>
  */
 #include <common.h>
 #include <clk.h>
@@ -223,7 +224,7 @@ static void mpfs_i2c_empty_rx(struct mpfs_i2c_bus *bus)
 		bus->msg_len--;
 	}
 
-	if (bus->msg_len == 0) {
+	if (bus->msg_len <= 1) {
 		ctrl = readl(bus->base + MPFS_I2C_CTRL);
 		ctrl &= ~CTRL_AA;
 		writel(ctrl, bus->base + MPFS_I2C_CTRL);
@@ -265,16 +266,27 @@ static int mpfs_i2c_service_handler(struct mpfs_i2c_bus *bus)
 		}
 		break;
 	case STATUS_M_SLAR_ACK:
-		ctrl = readl(bus->base + MPFS_I2C_CTRL);
-		ctrl |= CTRL_AA;
-		writel(ctrl, bus->base + MPFS_I2C_CTRL);
-		if (bus->msg_len == 0) {
+		if (bus->msg_len > 1u) {
+			ctrl = readl(bus->base + MPFS_I2C_CTRL);
+			ctrl |= CTRL_AA;
+			writel(ctrl, bus->base + MPFS_I2C_CTRL);
+		} else if (bus->msg_len == 1u) {
+			ctrl = readl(bus->base + MPFS_I2C_CTRL);
+			ctrl &= ~CTRL_AA;
+			writel(ctrl, bus->base + MPFS_I2C_CTRL);
+		} else {
+			ctrl = readl(bus->base + MPFS_I2C_CTRL);
+			ctrl |= CTRL_AA;
+			writel(ctrl, bus->base + MPFS_I2C_CTRL);
 			/* On the last byte to be transmitted, send STOP */
 			mpfs_i2c_stop(bus);
 			finish = true;
 		}
 		break;
 	case STATUS_M_RX_DATA_ACKED:
+		mpfs_i2c_empty_rx(bus);
+		break;
+	case STATUS_M_RX_DATA_NACKED:
 		mpfs_i2c_empty_rx(bus);
 		if (bus->msg_len == 0) {
 			/* On the last byte to be transmitted, send STOP */
@@ -283,7 +295,6 @@ static int mpfs_i2c_service_handler(struct mpfs_i2c_bus *bus)
 		}
 		break;
 	case STATUS_M_TX_DATA_NACK:
-	case STATUS_M_RX_DATA_NACKED:
 	case STATUS_M_SLAR_NACK:
 	case STATUS_M_SLAW_NACK:
 		bus->msg_err = -ENXIO;
