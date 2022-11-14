@@ -651,7 +651,7 @@ enum gd_flags {
 	 */
 	GD_FLG_FDT_CHANGED = 0x100000,
 	/**
-	 * GD_FLG_CYCLIC_RUNNING: cyclic_run is in progress
+	 * @GD_FLG_CYCLIC_RUNNING: cyclic_run is in progress
 	 */
 	GD_FLG_CYCLIC_RUNNING = 0x200000,
 };
