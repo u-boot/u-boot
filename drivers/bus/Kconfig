@@ -18,6 +18,13 @@ config TI_SYSC
 	  Generic driver for Texas Instruments interconnect target module
 	  found on many TI SoCs.
 
+config SPL_TI_SYSC
+	bool "Support TI sysc interconnect in SPL"
+	depends on SPL_DM && TI_SYSC
+	help
+	  Generic driver for Texas Instruments interconnect target module
+	  found on many TI SoCs.
+
 config UNIPHIER_SYSTEM_BUS
 	bool "UniPhier System Bus driver"
 	depends on ARCH_UNIPHIER
