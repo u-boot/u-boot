@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019 NXP
+ */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	model = "MSC SM2S-IMX8MPLUS";
+	compatible = "avnet,sm2s-imx8mp", "fsl,imx8mp";
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		u-boot,dm-spl;
+	};
+};
+
+&reg_usdhc2_vmmc {
+	u-boot,dm-spl;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&gpio2 {
+	u-boot,dm-spl;
+};
+
+&gpio3 {
+	u-boot,dm-spl;
+};
+
+&i2c1 {
+	u-boot,dm-spl;
+};
+
+&i2c2 {
+	u-boot,dm-spl;
+};
+
+&i2c3 {
+	u-boot,dm-spl;
+};
+
+&i2c4 {
+	u-boot,dm-spl;
+};
+
+&i2c5 {
+	u-boot,dm-spl;
+};
+
+&i2c6 {
+	u-boot,dm-spl;
+};
+
+&pinctrl_i2c6 {
+	u-boot,dm-spl;
+};
+
+&pmic {
+	u-boot,dm-spl;
+};

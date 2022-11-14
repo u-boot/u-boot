@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
 /*
  * Copyright(C) 2019
  * Author(s): Giulio Benetti <giulio.benetti@benettiengineering.com>
@@ -62,6 +62,11 @@
 #define IMXRT1050_CLK_PLL7_USB_HOST		53
 #define IMXRT1050_CLK_LCDIF_PIX			54
 #define IMXRT1050_CLK_USBOH3			55
-#define IMXRT1050_CLK_END			56
+#define IMXRT1050_CLK_IPG_PDOF			56
+#define IMXRT1050_CLK_PER_CLK_SEL		57
+#define IMXRT1050_CLK_PER_PDOF			58
+#define IMXRT1050_CLK_DMA			59
+#define IMXRT1050_CLK_DMA_MUX			60
+#define IMXRT1050_CLK_END			61
 
 #endif /* __DT_BINDINGS_CLOCK_IMXRT1050_H */

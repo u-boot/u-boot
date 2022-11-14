@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
  * Copyright (C) 2019
  * Author(s): Giulio Benetti <giulio.benetti@benettiengineering.com>
@@ -8,53 +8,37 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clock/imxrt1050-clock.h>
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/memory/imxrt-sdram.h>
 
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
 
-	aliases {
-		display0 = &lcdif;
-		gpio0 = &gpio1;
-		gpio1 = &gpio2;
-		gpio2 = &gpio3;
-		gpio3 = &gpio4;
-		gpio4 = &gpio5;
-		mmc0 = &usdhc1;
-		serial0 = &lpuart1;
-		usbphy0 = &usbphy1;
-	};
-
 	clocks {
 		osc: osc {
-			compatible = "fsl,imx-osc", "fixed-clock";
+			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <24000000>;
+		};
+
+		osc3M: osc3M {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <3000000>;
 		};
 	};
 
 	soc {
-		semc: semc@402f0000 {
-			compatible = "fsl,imxrt-semc";
-			reg = <0x402f0000 0x4000>;
-			clocks = <&clks IMXRT1050_CLK_SEMC>;
-			pinctrl-0 = <&pinctrl_semc>;
-			pinctrl-names = "default";
-			status = "okay";
-		};
-
 		lpuart1: serial@40184000 {
-			compatible = "fsl,imxrt-lpuart";
+			compatible = "fsl,imxrt1050-lpuart", "fsl,imx7ulp-lpuart";
 			reg = <0x40184000 0x4000>;
-			interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <20>;
 			clocks = <&clks IMXRT1050_CLK_LPUART1>;
-			clock-names = "per";
+			clock-names = "ipg";
 			status = "disabled";
 		};
 
-		iomuxc: iomuxc@401f8000 {
-			compatible = "fsl,imxrt-iomuxc";
+		iomuxc: pinctrl@401f8000 {
+			compatible = "fsl,imxrt1050-iomuxc";
 			reg = <0x401f8000 0x4000>;
 			fsl,mux_mask = <0x7>;
 		};
@@ -64,31 +48,61 @@
 			reg = <0x400d8000 0x4000>;
 		};
 
-		clks: ccm@400fc000 {
+		clks: clock-controller@400fc000 {
 			compatible = "fsl,imxrt1050-ccm";
 			reg = <0x400fc000 0x4000>;
-			interrupts = <GIC_SPI 95 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <95>, <96>;
+			clocks = <&osc>;
+			clock-names = "osc";
 			#clock-cells = <1>;
+			assigned-clocks = <&clks IMXRT1050_CLK_PLL1_BYPASS>,
+				<&clks IMXRT1050_CLK_PLL1_BYPASS>,
+				<&clks IMXRT1050_CLK_PLL2_BYPASS>,
+				<&clks IMXRT1050_CLK_PLL3_BYPASS>,
+				<&clks IMXRT1050_CLK_PLL3_PFD1_664_62M>,
+				<&clks IMXRT1050_CLK_PLL2_PFD2_396M>;
+			assigned-clock-parents = <&clks IMXRT1050_CLK_PLL1_REF_SEL>,
+				<&clks IMXRT1050_CLK_PLL1_ARM>,
+				<&clks IMXRT1050_CLK_PLL2_SYS>,
+				<&clks IMXRT1050_CLK_PLL3_USB_OTG>,
+				<&clks IMXRT1050_CLK_PLL3_USB_OTG>,
+				<&clks IMXRT1050_CLK_PLL2_SYS>;
 		};
 
-		usdhc1: usdhc@402c0000 {
-			compatible = "fsl,imxrt-usdhc";
-			reg = <0x402c0000 0x10000>;
-			interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clks IMXRT1050_CLK_USDHC1>;
-			clock-names = "per";
+		edma1: dma-controller@400e8000 {
+			#dma-cells = <2>;
+			compatible = "fsl,imx7ulp-edma";
+			reg = <0x400e8000 0x4000>,
+				<0x400ec000 0x4000>;
+			dma-channels = <32>;
+			interrupts = <0>, <1>, <2>, <3>, <4>, <5>, <6>, <7>, <8>,
+				<9>, <10>, <11>, <12>, <13>, <14>, <15>, <16>;
+			clock-names = "dma", "dmamux0";
+			clocks = <&clks IMXRT1050_CLK_DMA>,
+				 <&clks IMXRT1050_CLK_DMA_MUX>;
+		};
+
+		usdhc1: mmc@402c0000 {
+			compatible = "fsl,imxrt1050-usdhc", "fsl,imx6sl-usdhc";
+			reg = <0x402c0000 0x4000>;
+			interrupts = <110>;
+			clocks = <&clks IMXRT1050_CLK_IPG_PDOF>,
+				<&clks IMXRT1050_CLK_OSC>,
+				<&clks IMXRT1050_CLK_USDHC1>;
+			clock-names = "ipg", "ahb", "per";
 			bus-width = <4>;
+			fsl,wp-controller;
+			no-1-8-v;
+			max-frequency = <4000000>;
 			fsl,tuning-start-tap = <20>;
-			fsl,tuning-step= <2>;
+			fsl,tuning-step = <2>;
 			status = "disabled";
 		};
 
 		gpio1: gpio@401b8000 {
-			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
+			compatible = "fsl,imxrt1050-gpio", "fsl,imx35-gpio";
 			reg = <0x401b8000 0x4000>;
-			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <80>, <81>;
 			gpio-controller;
 			#gpio-cells = <2>;
 			interrupt-controller;
@@ -96,10 +110,9 @@
 		};
 
 		gpio2: gpio@401bc000 {
-			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
+			compatible = "fsl,imxrt1050-gpio", "fsl,imx35-gpio";
 			reg = <0x401bc000 0x4000>;
-			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>,
-				<GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <82>, <83>;
 			gpio-controller;
 			#gpio-cells = <2>;
 			interrupt-controller;
@@ -107,10 +120,9 @@
 		};
 
 		gpio3: gpio@401c0000 {
-			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
+			compatible = "fsl,imxrt1050-gpio", "fsl,imx35-gpio";
 			reg = <0x401c0000 0x4000>;
-			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>,
-				<GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <84>, <85>;
 			gpio-controller;
 			#gpio-cells = <2>;
 			interrupt-controller;
@@ -118,10 +130,9 @@
 		};
 
 		gpio4: gpio@401c4000 {
-			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
+			compatible = "fsl,imxrt1050-gpio", "fsl,imx35-gpio";
 			reg = <0x401c4000 0x4000>;
-			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>,
-					<GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <86>, <87>;
 			gpio-controller;
 			#gpio-cells = <2>;
 			interrupt-controller;
@@ -129,60 +140,21 @@
 		};
 
 		gpio5: gpio@400c0000 {
-			compatible = "fsl,imxrt-gpio", "fsl,imx35-gpio";
+			compatible = "fsl,imxrt1050-gpio", "fsl,imx35-gpio";
 			reg = <0x400c0000 0x4000>;
-			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>,
-				<GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <88>, <89>;
 			gpio-controller;
 			#gpio-cells = <2>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
 		};
 
-		lcdif: lcdif@402b8000 {
-			compatible = "fsl,imxrt-lcdif";
-			reg = <0x402b8000 0x4000>;
-			interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clks IMXRT1050_CLK_LCDIF_PIX>,
-				 <&clks IMXRT1050_CLK_LCDIF_APB>;
-			clock-names = "pix", "axi";
-			assigned-clocks = <&clks IMXRT1050_CLK_LCDIF_SEL>;
-			assigned-clock-parents = <&clks IMXRT1050_CLK_PLL5_VIDEO>;
-			status = "disabled";
-		};
-
-		gpt1: gpt1@401ec000 {
-			compatible = "fsl,imxrt-gpt";
+		gpt: timer@401ec000 {
+			compatible = "fsl,imxrt1050-gpt", "fsl,imx6dl-gpt", "fsl,imx6sl-gpt";
 			reg = <0x401ec000 0x4000>;
 			interrupts = <100>;
-			clocks = <&osc>;
-			status = "disabled";
-		};
-
-		usbphy1: usbphy@400d9000 {
-			compatible = "fsl,imxrt-usbphy";
-			reg = <0x400d9000 0x1000>;
-			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
-		};
-
-		usbmisc: usbmisc@402e0800 {
-			#index-cells = <1>;
-			compatible = "fsl,imxrt-usbmisc";
-			reg = <0x402e0800 0x200>;
-			clocks = <&clks IMXRT1050_CLK_USBOH3>;
-		};
-
-		usbotg1: usb@402e0000 {
-			compatible = "fsl,imxrt-usb", "fsl,imx27-usb";
-			reg = <0x402e0000 0x200>;
-			interrupts = <GIC_SPI 113 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clks IMXRT1050_CLK_USBOH3>;
-			fsl,usbphy = <&usbphy1>;
-			fsl,usbmisc = <&usbmisc 0>;
-			ahb-burst-config = <0x0>;
-			tx-burst-size-dword = <0x10>;
-			rx-burst-size-dword = <0x10>;
-			status = "disabled";
+			clocks = <&osc3M>;
+			clock-names = "per";
 		};
 	};
 };

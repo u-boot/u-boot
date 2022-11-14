@@ -7,6 +7,7 @@
 
 #include "dt-bindings/input/input.h"
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/leds/common.h>
 #include "dt-bindings/pwm/pwm.h"
 #include "dt-bindings/usb/pd.h"
 #include "imx8mq.dtsi"
@@ -14,6 +15,7 @@
 / {
 	model = "Purism Librem 5";
 	compatible = "purism,librem5", "fsl,imx8mq";
+	chassis-type = "handset";
 
 	backlight_dsi: backlight-dsi {
 		compatible = "led-backlight";
@@ -36,18 +38,45 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_keys>;
 
-		vol-down {
+		key-vol-down {
 			label = "VOL_DOWN";
 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_VOLUMEDOWN>;
 			debounce-interval = <50>;
+			wakeup-source;
 		};
 
-		vol-up {
+		key-vol-up {
 			label = "VOL_UP";
 			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_VOLUMEUP>;
 			debounce-interval = <50>;
+			wakeup-source;
+		};
+	};
+
+	led-controller {
+		compatible = "pwm-leds";
+
+		led-0 {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_BLUE>;
+			max-brightness = <248>;
+			pwms = <&pwm2 0 50000 0>;
+		};
+
+		led-1 {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			max-brightness = <248>;
+			pwms = <&pwm4 0 50000 0>;
+		};
+
+		led-2 {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_RED>;
+			max-brightness = <248>;
+			pwms = <&pwm3 0 50000 0>;
 		};
 	};
 
@@ -59,6 +88,40 @@
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	/*
+	 * the pinctrl for reg_csi_1v8 and reg_vcam_1v8 is added to the PMIC
+	 * since we can't have it twice in the 2 different regulator nodes.
+	 */
+	reg_csi_1v8: regulator-csi-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "CAMERA_VDDIO_1V8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		vin-supply = <&reg_vdd_3v3>;
+		gpio = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	/* controlled by the CAMERA_POWER_KEY HKS */
+	reg_vcam_1v2: regulator-vcam-1v2 {
+		compatible = "regulator-fixed";
+		regulator-name = "CAMERA_VDDD_1V2";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		vin-supply = <&reg_vdd_1v8>;
+		enable-active-high;
+	};
+
+	reg_vcam_2v8: regulator-vcam-2v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "CAMERA_VDDA_2V8";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		vin-supply = <&reg_vdd_3v3>;
+		gpio = <&gpio1 0 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
@@ -237,8 +300,13 @@
 	cpu-supply = <&buck2_reg>;
 };
 
+&csi1 {
+	status = "okay";
+};
+
 &ddrc {
 	operating-points-v2 = <&ddrc_opp_table>;
+	status = "okay";
 
 	ddrc_opp_table: opp-table {
 		compatible = "operating-points-v2";
@@ -283,14 +351,9 @@
 		};
 
 		partition@30000 {
-			label = "protected1";
-			reg = <0x30000 0x10000>;
+			label = "firmware";
+			reg = <0x30000 0x1d0000>;
 			read-only;
-		};
-
-		partition@40000 {
-			label = "rw";
-			reg = <0x40000 0x1C0000>;
 		};
 	};
 };
@@ -329,12 +392,24 @@
 		>;
 	};
 
+	pinctrl_camera_pwr: camerapwrgrp {
+		fsl,pins = <
+			/* CAMERA_PWR_EN_3V3 */
+			MX8MQ_IOMUXC_GPIO1_IO00_GPIO1_IO0	0x83
+		>;
+	};
+
+	pinctrl_csi1: csi1grp {
+		fsl,pins = <
+			/* CSI1_NRST */
+			MX8MQ_IOMUXC_ENET_RXC_GPIO1_IO25	0x83
+		>;
+	};
+
 	pinctrl_charger_in: chargeringrp {
 		fsl,pins = <
 			/* CHRG_INT */
 			MX8MQ_IOMUXC_NAND_CE2_B_GPIO3_IO3	0x80
-			/* CHG_STATUS_B */
-			MX8MQ_IOMUXC_NAND_ALE_GPIO3_IO0		0x80
 		>;
 	};
 
@@ -698,6 +773,10 @@
 		interrupt-names = "irq";
 
 		connector {
+			compatible = "usb-c-connector";
+			label = "USB-C";
+			data-role = "dual";
+
 			ports {
 				#address-cells = <1>;
 				#size-cells = <0>;
@@ -725,7 +804,7 @@
 		compatible = "rohm,bd71837";
 		reg = <0x4b>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_pmic>;
+		pinctrl-0 = <&pinctrl_pmic>, <&pinctrl_camera_pwr>;
 		clocks = <&pmic_osc>;
 		clock-names = "osc";
 		clock-output-names = "pmic_clk";
@@ -958,6 +1037,31 @@
 		>;
 	};
 
+	camera_front: camera@20 {
+		compatible = "hynix,hi846";
+		reg = <0x20>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_csi1>;
+		clocks = <&clk IMX8MQ_CLK_CLKO2>;
+		assigned-clocks = <&clk IMX8MQ_CLK_CLKO2>;
+		assigned-clock-rates = <25000000>;
+		reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
+		vdda-supply = <&reg_vcam_2v8>;
+		vddd-supply = <&reg_vcam_1v2>;
+		vddio-supply = <&reg_csi_1v8>;
+		rotation = <90>;
+		orientation = <0>;
+
+		port {
+			camera1_ep: endpoint {
+				data-lanes = <1 2>;
+				link-frequencies = /bits/ 64
+					<80000000 200000000 300000000>;
+				remote-endpoint = <&mipi1_sensor_ep>;
+			};
+		};
+	};
+
 	backlight@36 {
 		compatible = "ti,lm36922";
 		reg = <0x36>;
@@ -996,6 +1100,12 @@
 	pinctrl-0 = <&pinctrl_i2c4>;
 	status = "okay";
 
+	vcm@c {
+		compatible = "dongwoon,dw9714";
+		reg = <0x0c>;
+		vcc-supply = <&reg_csi_1v8>;
+	};
+
 	bat: fuel-gauge@36 {
 		compatible = "maxim,max17055";
 		reg = <0x36>;
@@ -1003,6 +1113,7 @@
 		interrupts = <20 IRQ_TYPE_LEVEL_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_gauge>;
+		power-supplies = <&bq25895>;
 		maxim,over-heat-temp = <700>;
 		maxim,over-volt = <4500>;
 		maxim,rsns-microohm = <5000>;
@@ -1019,7 +1130,7 @@
 		ti,precharge-current = <130000>; /* uA */
 		ti,minimum-sys-voltage = <3700000>; /* uV */
 		ti,boost-voltage = <5000000>; /* uV */
-		ti,boost-max-current = <500000>; /* uA */
+		ti,boost-max-current = <1500000>; /* uA */
 		ti,use-vinmin-threshold = <1>; /* enable VINDPM */
 		ti,vinmin-threshold = <3900000>; /* uV */
 		monitored-battery = <&bat>;
@@ -1029,6 +1140,21 @@
 
 &lcdif {
 	status = "okay";
+};
+
+&mipi_csi1 {
+	status = "okay";
+
+	ports {
+		port@0 {
+			reg = <0>;
+
+			mipi1_sensor_ep: endpoint {
+				remote-endpoint = <&camera1_ep>;
+				data-lanes = <1 2>;
+			};
+		};
+	};
 };
 
 &mipi_dsi {
@@ -1174,6 +1300,7 @@
 	#size-cells = <0>;
 	dr_mode = "otg";
 	snps,dis_u3_susphy_quirk;
+	usb-role-switch;
 	status = "okay";
 
 	port@0 {

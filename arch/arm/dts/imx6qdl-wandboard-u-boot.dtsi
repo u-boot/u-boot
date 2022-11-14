@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+
+#include "imx6qdl-u-boot.dtsi"
+
+/ {
+	aliases {
+		mmc0 = &usdhc3;
+	};
+};

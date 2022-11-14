@@ -300,6 +300,14 @@ config PMIC_RN5T567
 	regulators Real-Time Clock and 4 GPIOs. This driver provides
 	register access only.
 
+config SPL_PMIC_RN5T567
+	bool "Enable driver for Ricoh RN5T567 PMIC in SPL"
+	depends on SPL_DM_PMIC
+	---help---
+	The RN5T567 is a PMIC with 4 step-down DC/DC converters, 5 LDO
+	regulators Real-Time Clock and 4 GPIOs. This driver provides
+	register access only.
+
 config PMIC_TPS65090
 	bool "Enable driver for Texas Instruments TPS65090 PMIC"
 	---help---

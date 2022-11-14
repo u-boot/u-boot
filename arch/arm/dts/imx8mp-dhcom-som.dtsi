@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2021-2022 Marek Vasut <marex@denx.de>
  */
@@ -224,10 +224,6 @@
 };
 
 &i2c3 {
-	/*
-	 * iMX8MP 1P33A Errata ERR007805
-	 * I2C is limited to 384 kHz due to SoC bug.
-	 */
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c3>;
@@ -393,10 +389,6 @@
 };
 
 &i2c4 {
-	/*
-	 * iMX8MP 1P33A Errata ERR007805
-	 * I2C is limited to 384 kHz due to SoC bug.
-	 */
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c4>;
@@ -407,10 +399,6 @@
 };
 
 &i2c5 {	/* HDMI EDID bus */
-	/*
-	 * iMX8MP 1P33A Errata ERR007805
-	 * I2C is limited to 384 kHz due to SoC bug.
-	 */
 	clock-frequency = <100000>;
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c5>;
@@ -802,8 +790,8 @@
 
 	pinctrl_i2c5: dhcom-i2c5-grp {
 		fsl,pins = <
-			MX8MP_IOMUXC_HDMI_DDC_SCL__HDMIMIX_HDMI_SCL	0x40000084
-			MX8MP_IOMUXC_HDMI_DDC_SDA__HDMIMIX_HDMI_SDA	0x40000084
+			MX8MP_IOMUXC_HDMI_DDC_SCL__I2C5_SCL		0x40000084
+			MX8MP_IOMUXC_HDMI_DDC_SDA__I2C5_SDA		0x40000084
 		>;
 	};
 
@@ -830,7 +818,7 @@
 	pinctrl_rtc: dhcom-rtc-grp {
 		fsl,pins = <
 			/* RTC_#INT Interrupt */
-			MX8MP_IOMUXC_SPDIF_EXT_CLK__GPIO5_IO05		0x400001c6
+			MX8MP_IOMUXC_SPDIF_EXT_CLK__GPIO5_IO05		0x40000080
 		>;
 	};
 

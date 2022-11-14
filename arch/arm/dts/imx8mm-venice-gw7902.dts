@@ -42,13 +42,13 @@
 	gpio-keys {
 		compatible = "gpio-keys";
 
-		user-pb {
+		key-user-pb {
 			label = "user_pb";
 			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
 			linux,code = <BTN_0>;
 		};
 
-		user-pb1x {
+		key-user-pb1x {
 			label = "user_pb1x";
 			linux,code = <BTN_1>;
 			interrupt-parent = <&gsc>;
@@ -62,14 +62,14 @@
 			interrupts = <1>;
 		};
 
-		eeprom-wp {
+		key-eeprom-wp {
 			label = "eeprom_wp";
 			linux,code = <BTN_3>;
 			interrupt-parent = <&gsc>;
 			interrupts = <2>;
 		};
 
-		tamper {
+		key-tamper {
 			label = "tamper";
 			linux,code = <BTN_4>;
 			interrupt-parent = <&gsc>;
@@ -222,7 +222,6 @@
 		compatible = "microchip,mcp2515";
 		reg = <0>;
 		clocks = <&can20m>;
-		oscillator-frequency = <20000000>;
 		interrupt-parent = <&gpio2>;
 		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
 		spi-max-frequency = <10000000>;
@@ -651,7 +650,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1>, <&pinctrl_uart1_gpio>;
 	rts-gpios = <&gpio4 10 GPIO_ACTIVE_LOW>;
-	cts-gpios = <&gpio4 11 GPIO_ACTIVE_LOW>;
+	cts-gpios = <&gpio4 24 GPIO_ACTIVE_LOW>;
 	uart-has-rtscts;
 	status = "okay";
 };
@@ -742,9 +741,6 @@
 			MX8MM_IOMUXC_GPIO1_IO13_GPIO1_IO13	0x40000041 /* M2_RESET */
 			MX8MM_IOMUXC_NAND_DATA01_GPIO3_IO7	0x40000119 /* M2_OFF# */
 			MX8MM_IOMUXC_GPIO1_IO15_GPIO1_IO15	0x40000159 /* M2_WDIS# */
-			MX8MM_IOMUXC_SAI1_TXD6_GPIO4_IO18       0x40000041 /* LTE_INT */
-			MX8MM_IOMUXC_SAI1_TXD5_GPIO4_IO17       0x40000041 /* LTE_RST# */
-			MX8MM_IOMUXC_SAI1_TXD4_GPIO4_IO16       0x40000041 /* LTE_PWR */
 			MX8MM_IOMUXC_SAI1_TXD2_GPIO4_IO14	0x40000041 /* AMP GPIO1 */
 			MX8MM_IOMUXC_SAI1_TXD0_GPIO4_IO12	0x40000041 /* AMP GPIO2 */
 			MX8MM_IOMUXC_SAI1_TXC_GPIO4_IO11	0x40000041 /* AMP GPIO3 */

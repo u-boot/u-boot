@@ -617,6 +617,10 @@
 	status = "okay";
 };
 
+&pgc_mipi {
+	status = "disabled";
+};
+
 /* off-board RS232 */
 &uart1 {
 	pinctrl-names = "default";

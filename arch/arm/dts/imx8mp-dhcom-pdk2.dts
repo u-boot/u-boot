@@ -17,14 +17,13 @@
 / {
 	model = "DH electronics i.MX8M Plus DHCOM Premium Developer Kit (2)";
 	compatible = "dh,imx8mp-dhcom-pdk2", "dh,imx8mp-dhcom-som",
-	             "fsl,imx8mp";
+		     "fsl,imx8mp";
 
 	chosen {
 		stdout-path = &uart1;
 	};
 
 	gpio-keys {
-		#size-cells = <0>;
 		compatible = "gpio-keys";
 
 		button-0 {
@@ -67,7 +66,7 @@
 	led {
 		compatible = "gpio-leds";
 
-		led-5 {
+		led-0 {
 			color = <LED_COLOR_ID_GREEN>;
 			default-state = "off";
 			function = LED_FUNCTION_INDICATOR;
@@ -76,7 +75,7 @@
 			pinctrl-names = "default";
 		};
 
-		led-6 {
+		led-1 {
 			color = <LED_COLOR_ID_GREEN>;
 			default-state = "off";
 			function = LED_FUNCTION_INDICATOR;
@@ -85,7 +84,7 @@
 			pinctrl-names = "default";
 		};
 
-		led-7 {
+		led-2 {
 			color = <LED_COLOR_ID_GREEN>;
 			default-state = "off";
 			function = LED_FUNCTION_INDICATOR;
@@ -94,7 +93,7 @@
 			pinctrl-names = "default";
 		};
 
-		led-8 {
+		led-3 {
 			color = <LED_COLOR_ID_GREEN>;
 			default-state = "off";
 			function = LED_FUNCTION_INDICATOR;
@@ -123,10 +122,11 @@
 	mdio {
 		ethphypdk: ethernet-phy@7 { /* KSZ 9021 */
 			compatible = "ethernet-phy-ieee802.3-c22";
-			interrupt-parent = <&gpio4>;
-			interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
 			pinctrl-0 = <&pinctrl_ethphy1>;
 			pinctrl-names = "default";
+			interrupt-parent = <&gpio4>;
+			interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+			max-speed = <100>;
 			reg = <7>;
 			reset-assert-us = <1000>;
 			reset-deassert-us = <1000>;
@@ -143,7 +143,6 @@
 			txd2-skew-ps = <0>;
 			txd3-skew-ps = <0>;
 			txen-skew-ps = <0>;
-			max-speed = <100>;
 		};
 	};
 };
@@ -154,4 +153,16 @@
 
 &usb3_1 {
 	fsl,over-current-active-low;
+};
+
+&iomuxc {
+	/*
+	 * GPIO_A,B,C,D are connected to buttons.
+	 * GPIO_E,F,H,I are connected to LEDs.
+	 * GPIO_M is connected to CLKOUT2.
+	 */
+	pinctrl-0 = <&pinctrl_hog_base
+		     &pinctrl_dhcom_g &pinctrl_dhcom_j
+		     &pinctrl_dhcom_k &pinctrl_dhcom_l
+		     &pinctrl_dhcom_int>;
 };

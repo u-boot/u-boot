@@ -3,6 +3,8 @@
  * Copyright 2018, 2021 NXP
  */
 
+#include "imx8qm-u-boot.dtsi"
+
 &{/imx8qm-pm} {
 
 	u-boot,dm-spl;
