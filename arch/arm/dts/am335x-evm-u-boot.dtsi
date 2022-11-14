@@ -6,9 +6,9 @@
 #include "am33xx-u-boot.dtsi"
 
 &l4_per {
-
+	u-boot,dm-pre-reloc;
 	segment@300000 {
-
+		u-boot,dm-pre-reloc;
 		target-module@e000 {
 			u-boot,dm-pre-reloc;
 
@@ -25,4 +25,30 @@
 
 &usb0 {
 	dr_mode = "peripheral";
+};
+
+&i2c0 {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_wkup {
+	u-boot,dm-pre-reloc;
+	segment@200000 {
+		u-boot,dm-pre-reloc;
+		target-module@9000 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+};
+
+&mmc1 {
+	u-boot,dm-pre-reloc;
+};
+
+&mmc2 {
+	u-boot,dm-pre-reloc;
 };
