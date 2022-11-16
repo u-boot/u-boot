@@ -15,6 +15,9 @@ config SYS_NUM_ADDR_MAP
 	help
 	  Sets the number of entries in the virtual-physical mapping table.
 
+config SYS_TIMER_COUNTS_DOWN
+	bool "System timer counts down rathe than up"
+
 config PHYSMEM
 	bool "Access to physical memory region (> 4G)"
 	help
