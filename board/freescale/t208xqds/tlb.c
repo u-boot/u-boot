@@ -43,8 +43,8 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * SRIO_PCIE_BOOT-SLAVE. When slave boot, the address of the
 	 * space is at 0xfff00000, it covered the 0xfffff000.
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR,
-		      CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
+	SET_TLB_ENTRY(1, CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR,
+		      CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_W|MAS2_G,
 		      0, 0, BOOKE_PAGESZ_1M, 1),
 #else
@@ -136,8 +136,8 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * SRIO_PCIE_BOOT-SLAVE. 1M space from 0xffe00000 for
 	 * fetching ucode and ENV from master
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR,
-		      CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
+	SET_TLB_ENTRY(1, CFG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR,
+		      CFG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_G,
 		      0, 18, BOOKE_PAGESZ_1M, 1),
 #endif
