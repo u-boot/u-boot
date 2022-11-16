@@ -1619,7 +1619,7 @@ use the "saveenv" command to store a valid environment.
 - CONFIG_SYS_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.
 
-- CONFIG_NS16550_MIN_FUNCTIONS:
+- CONFIG_SPL_NS16550_MIN_FUNCTIONS:
 		Define this if you desire to only have use of the NS16550_init
 		and NS16550_putc functions for the serial driver located at
 		drivers/serial/ns16550.c.  This option is useful for saving
