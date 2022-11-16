@@ -1098,6 +1098,15 @@ static const struct efi_file_handle efi_file_handle_protocol = {
 /**
  * efi_file_from_path() - open file via device path
  *
+ * The device path @fp consists of the device path of the handle with the
+ * simple file system protocol and one or more file path device path nodes.
+ * The concatenation of all file path names provides the total file path.
+ *
+ * The code starts at the first file path node and tries to open that file or
+ * directory. If there is a succeding file path node, the code opens it relative
+ * to this directory and continues iterating until reaching the last file path
+ * node.
+ *
  * @fp:		device path
  * Return:	EFI_FILE_PROTOCOL for the file or NULL
  */
@@ -1128,16 +1137,27 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 			container_of(fp, struct efi_device_path_file_path, dp);
 		struct efi_file_handle *f2;
 		u16 *filename;
+		size_t filename_sz;
 
 		if (!EFI_DP_TYPE(fp, MEDIA_DEVICE, FILE_PATH)) {
 			printf("bad file path!\n");
-			f->close(f);
+			EFI_CALL(f->close(f));
 			return NULL;
 		}
 
-		filename = u16_strdup(fdp->str);
+		/*
+		 * UEFI specification requires pointers that are passed to
+		 * protocol member functions to be aligned.  So memcpy it
+		 * unconditionally
+		 */
+		if (fdp->dp.length <= offsetof(struct efi_device_path_file_path, str))
+			return NULL;
+		filename_sz = fdp->dp.length -
+			offsetof(struct efi_device_path_file_path, str);
+		filename = malloc(filename_sz);
 		if (!filename)
 			return NULL;
+		memcpy(filename, fdp->str, filename_sz);
 		EFI_CALL(ret = f->open(f, &f2, filename,
 				       EFI_FILE_MODE_READ, 0));
 		free(filename);

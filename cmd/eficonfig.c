@@ -1527,8 +1527,6 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 	}
 
 	ret = eficonfig_set_boot_option(varname, final_dp, final_dp_size, bo->description, tmp);
-	if (ret != EFI_SUCCESS)
-		goto out;
 out:
 	free(tmp);
 	free(bo->optional_data);
@@ -2280,10 +2278,10 @@ efi_status_t eficonfig_delete_invalid_boot_option(struct eficonfig_media_boot_op
 {
 	u32 i, j;
 	efi_uintn_t size;
-	efi_status_t ret;
 	void *load_option;
 	struct efi_load_option lo;
 	u16 varname[] = u"Boot####";
+	efi_status_t ret = EFI_SUCCESS;
 
 	for (i = 0; i <= 0xFFFF; i++) {
 		efi_uintn_t tmp;

@@ -23,26 +23,23 @@ struct host_sb_plat {
 
 /**
  * struct host_ops - operations supported by UCLASS_HOST
- *
- * @attach_file: Attach a new file to a device
- * @detach_file: Detach a file from a device
  */
 struct host_ops {
-	/*
-	 * attach_file() - Attach a new file to the device
+	/**
+	 * @attach_file: - Attach a new file to the device
 	 *
-	 * @dev: Device to update
-	 * @filename: Name of the file, e.g. "/path/to/disk.img"
-	 * Returns: 0 if OK, -EEXIST if a file is already attached, other -ve on
+	 * @attach_file.dev: Device to update
+	 * @attach_file.filename: Name of the file, e.g. "/path/to/disk.img"
+	 * @attach_file.Returns: 0 if OK, -EEXIST if a file is already attached, other -ve on
 	 * other error
 	 */
 	int (*attach_file)(struct udevice *dev, const char *filename);
 
 	/**
-	 * detach_file() - Detach a file from the device
+	 * @detach_file: - Detach a file from the device
 	 *
-	 * @dev: Device to detach from
-	 * Returns: 0 if OK, -ENOENT if no file is attached, other -ve on other
+	 * @detach_file.dev: Device to detach from
+	 * @detach_file.Returns: 0 if OK, -ENOENT if no file is attached, other -ve on other
 	 * error
 	 */
 	 int (*detach_file)(struct udevice *dev);

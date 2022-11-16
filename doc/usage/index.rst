@@ -23,6 +23,7 @@ Shell commands
    cmd/addrmap
    cmd/askenv
    cmd/base
+   cmd/bootd
    cmd/bootdev
    cmd/bootefi
    cmd/bootflow
@@ -34,6 +35,7 @@ Shell commands
    cmd/cat
    cmd/cbsysinfo
    cmd/cls
+   cmd/cmp
    cmd/conitrace
    cmd/cyclic
    cmd/dm
