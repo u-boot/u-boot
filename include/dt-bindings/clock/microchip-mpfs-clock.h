@@ -42,4 +42,7 @@
 #define CLK_ATHENA	31
 #define CLK_CFM		32
 
+#define CLK_RTCREF	33
+#define CLK_MSSPLL	34
+
 #endif	/* _DT_BINDINGS_CLK_MICROCHIP_MPFS_H_ */

@@ -170,6 +170,11 @@
 		};
 	};
 
+	refclk: refclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+	};
+
 	soc {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -225,16 +230,9 @@
 					&cpu4_intc HART_INT_M_EXT &cpu4_intc HART_INT_S_EXT>;
 		};
 
-		refclk: refclk {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <600000000>;
-			clock-output-names = "msspllclk";
-		};
-
 		clkcfg: clkcfg@20002000 {
 			compatible = "microchip,mpfs-clkcfg";
-			reg = <0x0 0x20002000 0x0 0x1000>;
+			reg = <0x0 0x20002000 0x0 0x1000>, <0x0 0x3E001000 0x0 0x1000>;
 			reg-names = "mss_sysreg";
 			clocks = <&refclk>;
 			#clock-cells = <1>;

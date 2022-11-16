@@ -29,12 +29,14 @@
 /**
  * struct mpfs_periph_clock - per instance of peripheral clock
  * @id: index of a peripheral clock
+ * @parent_id: index of the parent clock
  * @name: name of a peripheral clock
  * @shift: shift to a peripheral clock bit field
  * @flags: common clock framework flags
  */
 struct mpfs_periph_clock {
 	unsigned int id;
+	unsigned int parent_id;
 	const char *name;
 	u8 shift;
 	unsigned long flags;
@@ -99,59 +101,66 @@ static int mpfs_periph_clk_disable(struct clk *hw)
 static ulong mpfs_periph_clk_recalc_rate(struct clk *hw)
 {
 	struct mpfs_periph_hw_clock *periph_hw = to_mpfs_periph_clk(hw);
-	void __iomem *base_addr = periph_hw->sys_base;
-	unsigned long rate;
-	u32 val;
 
-	val = readl(base_addr + REG_CLOCK_CONFIG_CR) >> CFG_AHB_SHIFT;
-	val &= clk_div_mask(CFG_WIDTH);
-	rate = periph_hw->prate / (1u << val);
-	hw->rate = rate;
+	return periph_hw->prate;
 
-	return rate;
 }
 
-#define CLK_PERIPH(_id, _name, _shift, _flags) {	\
+#define CLK_PERIPH(_id, _name, _parent_id, _shift, _flags) {	\
 		.periph.id = _id,			\
+		.periph.parent_id = _parent_id,		\
 		.periph.name = _name,			\
 		.periph.shift = _shift,			\
 		.periph.flags = _flags,			\
 	}
 
+/*
+ * Critical clocks:
+ * - CLK_ENVM: reserved by hart software services (hss) superloop monitor/m mode interrupt
+ *   trap handler
+ * - CLK_MMUART0: reserved by the hss
+ * - CLK_DDRC: provides clock to the ddr subsystem
+ * - CLK_RTC: the onboard RTC's AHB bus clock must be kept running as the rtc will stop
+ *   if the AHB interface clock is disabled
+ * - CLK_FICx: these provide the processor side clocks to the "FIC" (Fabric InterConnect)
+ *   clock domain crossers which provide the interface to the FPGA fabric. Disabling them
+ *   causes the FPGA fabric to go into reset.
+ * - CLK_ATHENA: The athena clock is FIC4, which is reserved for the Athena TeraFire.
+ */
+
 static struct mpfs_periph_hw_clock mpfs_periph_clks[] = {
-	CLK_PERIPH(CLK_ENVM, "clk_periph_envm", 0, CLK_IS_CRITICAL),
-	CLK_PERIPH(CLK_MAC0, "clk_periph_mac0", 1, 0),
-	CLK_PERIPH(CLK_MAC1, "clk_periph_mac1", 2, 0),
-	CLK_PERIPH(CLK_MMC, "clk_periph_mmc", 3, 0),
-	CLK_PERIPH(CLK_TIMER, "clk_periph_timer", 4, 0),
-	CLK_PERIPH(CLK_MMUART0, "clk_periph_mmuart0", 5, 0),
-	CLK_PERIPH(CLK_MMUART1, "clk_periph_mmuart1", 6, 0),
-	CLK_PERIPH(CLK_MMUART2, "clk_periph_mmuart2", 7, 0),
-	CLK_PERIPH(CLK_MMUART3, "clk_periph_mmuart3", 8, 0),
-	CLK_PERIPH(CLK_MMUART4, "clk_periph_mmuart4", 9, 0),
-	CLK_PERIPH(CLK_SPI0, "clk_periph_spi0", 10, 0),
-	CLK_PERIPH(CLK_SPI1, "clk_periph_spi1", 11, 0),
-	CLK_PERIPH(CLK_I2C0, "clk_periph_i2c0", 12, 0),
-	CLK_PERIPH(CLK_I2C1, "clk_periph_i2c1", 13, 0),
-	CLK_PERIPH(CLK_CAN0, "clk_periph_can0", 14, 0),
-	CLK_PERIPH(CLK_CAN1, "clk_periph_can1", 15, 0),
-	CLK_PERIPH(CLK_USB, "clk_periph_usb", 16, 0),
-	CLK_PERIPH(CLK_RTC, "clk_periph_rtc", 18, 0),
-	CLK_PERIPH(CLK_QSPI, "clk_periph_qspi", 19, 0),
-	CLK_PERIPH(CLK_GPIO0, "clk_periph_gpio0", 20, 0),
-	CLK_PERIPH(CLK_GPIO1, "clk_periph_gpio1", 21, 0),
-	CLK_PERIPH(CLK_GPIO2, "clk_periph_gpio2", 22, 0),
-	CLK_PERIPH(CLK_DDRC, "clk_periph_ddrc", 23, CLK_IS_CRITICAL),
-	CLK_PERIPH(CLK_FIC0, "clk_periph_fic0", 24, 0),
-	CLK_PERIPH(CLK_FIC1, "clk_periph_fic1", 25, 0),
-	CLK_PERIPH(CLK_FIC2, "clk_periph_fic2", 26, 0),
-	CLK_PERIPH(CLK_FIC3, "clk_periph_fic3", 27, 0),
-	CLK_PERIPH(CLK_ATHENA, "clk_periph_athena", 28, 0),
-	CLK_PERIPH(CLK_CFM, "clk_periph_cfm", 29, 0),
+	CLK_PERIPH(CLK_ENVM, "clk_periph_envm", CLK_AHB, 0, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_MAC0, "clk_periph_mac0", CLK_AHB, 1, 0),
+	CLK_PERIPH(CLK_MAC1, "clk_periph_mac1", CLK_AHB, 2, 0),
+	CLK_PERIPH(CLK_MMC, "clk_periph_mmc", CLK_AHB, 3, 0),
+	CLK_PERIPH(CLK_TIMER, "clk_periph_timer", CLK_RTCREF, 4, 0),
+	CLK_PERIPH(CLK_MMUART0, "clk_periph_mmuart0", CLK_AHB, 5, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_MMUART1, "clk_periph_mmuart1", CLK_AHB, 6, 0),
+	CLK_PERIPH(CLK_MMUART2, "clk_periph_mmuart2", CLK_AHB, 7, 0),
+	CLK_PERIPH(CLK_MMUART3, "clk_periph_mmuart3", CLK_AHB, 8, 0),
+	CLK_PERIPH(CLK_MMUART4, "clk_periph_mmuart4", CLK_AHB, 9, 0),
+	CLK_PERIPH(CLK_SPI0, "clk_periph_spi0", CLK_AHB, 10, 0),
+	CLK_PERIPH(CLK_SPI1, "clk_periph_spi1", CLK_AHB, 11, 0),
+	CLK_PERIPH(CLK_I2C0, "clk_periph_i2c0", CLK_AHB, 12, 0),
+	CLK_PERIPH(CLK_I2C1, "clk_periph_i2c1", CLK_AHB, 13, 0),
+	CLK_PERIPH(CLK_CAN0, "clk_periph_can0", CLK_AHB, 14, 0),
+	CLK_PERIPH(CLK_CAN1, "clk_periph_can1", CLK_AHB, 15, 0),
+	CLK_PERIPH(CLK_USB, "clk_periph_usb", CLK_AHB, 16, 0),
+	CLK_PERIPH(CLK_RTC, "clk_periph_rtc", CLK_AHB, 18, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_QSPI, "clk_periph_qspi", CLK_AHB, 19, 0),
+	CLK_PERIPH(CLK_GPIO0, "clk_periph_gpio0", CLK_AHB, 20, 0),
+	CLK_PERIPH(CLK_GPIO1, "clk_periph_gpio1", CLK_AHB, 21, 0),
+	CLK_PERIPH(CLK_GPIO2, "clk_periph_gpio2", CLK_AHB, 22, 0),
+	CLK_PERIPH(CLK_DDRC, "clk_periph_ddrc", CLK_AHB, 23, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_FIC0, "clk_periph_fic0", CLK_AXI, 24, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_FIC1, "clk_periph_fic1", CLK_AXI, 25, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_FIC2, "clk_periph_fic2", CLK_AXI, 26, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_FIC3, "clk_periph_fic3", CLK_AXI, 27, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_ATHENA, "clk_periph_athena", CLK_AXI, 28, CLK_IS_CRITICAL),
+	CLK_PERIPH(CLK_CFM, "clk_periph_cfm", CLK_AHB, 29, 0),
 };
 
-int mpfs_clk_register_periphs(void __iomem *base, u32 clk_rate,
-			      const char *parent_name)
+int mpfs_clk_register_periphs(void __iomem *base, struct udevice *dev)
 {
 	int ret;
 	int i, id, num_clks;
@@ -160,11 +169,14 @@ int mpfs_clk_register_periphs(void __iomem *base, u32 clk_rate,
 
 	num_clks = ARRAY_SIZE(mpfs_periph_clks);
 	for (i = 0; i < num_clks; i++)  {
+		struct clk parent = { .id = mpfs_periph_clks[i].periph.parent_id };
+
+		clk_request(dev, &parent);
 		hw = &mpfs_periph_clks[i].hw;
 		mpfs_periph_clks[i].sys_base = base;
-		mpfs_periph_clks[i].prate = clk_rate;
+		mpfs_periph_clks[i].prate = clk_get_rate(&parent);
 		name = mpfs_periph_clks[i].periph.name;
-		ret = clk_register(hw, MPFS_PERIPH_CLOCK, name, parent_name);
+		ret = clk_register(hw, MPFS_PERIPH_CLOCK, name, parent.dev->name);
 		if (ret)
 			ERR_PTR(ret);
 		id = mpfs_periph_clks[i].periph.id;

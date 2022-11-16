@@ -54,6 +54,10 @@
 	};
 };
 
+&refclk {
+	clock-frequency = <125000000>;
+};
+
 &uart1 {
 	status = "okay";
 };
