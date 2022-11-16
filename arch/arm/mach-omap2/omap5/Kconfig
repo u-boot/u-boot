@@ -2,6 +2,7 @@ if OMAP54XX
 
 config DRA7XX
 	bool
+	select SYS_OMAP_ABE_SYSCK
 	help
 	  DRA7xx is an OMAP based SOC with Dual Core A-15s.
 
