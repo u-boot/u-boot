@@ -36,7 +36,6 @@
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
-#define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
@@ -280,9 +279,6 @@
 					CONFIG_SYS_QMAN_CENA_SIZE)
 #define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
 #define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
-
-#define CONFIG_SYS_DPAA_FMAN
-#define CONFIG_SYS_DPAA_PME
 
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC1_PHY_ADDR	0x2

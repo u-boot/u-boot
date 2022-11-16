@@ -24,11 +24,7 @@ void get_sys_info(struct sys_info *sys_info)
 /* rcw_tmp is needed to get FMAN clock, or to get cluster group A
  * mux 2 clock for LS1043A/LS1046A.
  */
-#if defined(CONFIG_SYS_DPAA_FMAN) || \
-	    defined(CONFIG_ARCH_LS1046A) || \
-	    defined(CONFIG_ARCH_LS1043A)
-	u32 rcw_tmp;
-#endif
+	__maybe_unused u32 rcw_tmp;
 	struct ccsr_clk *clk = (void *)(CFG_SYS_FSL_CLK_ADDR);
 	unsigned int cpu;
 	const u8 core_cplx_pll[8] = {
@@ -96,7 +92,7 @@ void get_sys_info(struct sys_info *sys_info)
 
 #define HWA_CGA_M1_CLK_SEL	0xe0000000
 #define HWA_CGA_M1_CLK_SHIFT	29
-#ifdef CONFIG_SYS_DPAA_FMAN
+#if defined(CONFIG_SYS_DPAA_FMAN) && !defined(CONFIG_SPL_BUILD)
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
 	switch ((rcw_tmp & HWA_CGA_M1_CLK_SEL) >> HWA_CGA_M1_CLK_SHIFT) {
 	case 2:

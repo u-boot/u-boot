@@ -251,3 +251,6 @@ config QIXIS_I2C_ACCESS
 config HAS_FSL_DR_USB
 	def_bool y
 	depends on USB_EHCI_HCD && PPC
+
+config SYS_DPAA_FMAN
+	bool

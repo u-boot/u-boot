@@ -372,9 +372,6 @@ int get_scl(void);
 #define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
 #define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
 
-#define CONFIG_SYS_DPAA_FMAN
-#define CONFIG_SYS_DPAA_PME
-
 /* Qman / Bman */
 /* RGMII (FM1@DTESC5) is local managemant interface */
 #define CONFIG_SYS_RGMII2_PHY_ADDR             0x11

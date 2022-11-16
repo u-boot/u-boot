@@ -103,7 +103,6 @@
 
 /* FMan ucode */
 #ifndef SPL_NO_FMAN
-#define CONFIG_SYS_DPAA_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 #endif
