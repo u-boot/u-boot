@@ -97,10 +97,4 @@
 
 #endif /* !CONFIG_MTD_RAW_NAND */
 
-/* CPU */
-
-#ifdef CONFIG_SPI_BOOT
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-#endif
-
 #endif	/* ! __CONFIG_PHYCORE_AM335x_R2_H */

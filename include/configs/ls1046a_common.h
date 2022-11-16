@@ -65,11 +65,6 @@
 
 /* I2C */
 
-/* SATA */
-#ifndef SPL_NO_SATA
-#define CONFIG_SYS_SATA				AHCI_BASE_ADDR
-#endif
-
 /* FMan ucode */
 #ifndef SPL_NO_FMAN
 #define CONFIG_SYS_DPAA_FMAN

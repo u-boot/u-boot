@@ -30,8 +30,6 @@
 
 #define CONFIG_FEC_MXC_PHYADDR		0
 
-#define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
-
 #ifdef CONFIG_IMX_HAB
 #define HAB_EXTRA_SETTINGS \
 	"hab_check_addr=" \

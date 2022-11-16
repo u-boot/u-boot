@@ -35,10 +35,6 @@
 #define QSGMII_CARD_PORT4_PHY_ADDR_S2 0xB
 #endif
 
-/* SATA */
-
-#define CONFIG_SYS_SATA				AHCI_BASE_ADDR
-
 /*
  * IFC Definitions
  */

@@ -18,10 +18,6 @@
 /*SPI device */
 #define CFG_SYS_FSL_QSPI_BASE	0x40000000
 
-/* SATA */
-
-#define CONFIG_SYS_SATA				AHCI_BASE_ADDR
-
 /* I2C */
 
 /* GPIO */

@@ -14,11 +14,6 @@
  * Miscellaneous configurable options
  */
 
-/* Environment data setup
-*/
-#define CONFIG_SYS_NVRAM_BASE_ADDR	0xfff88000	/* NVRAM base address */
-#define CONFIG_SYS_NVRAM_SIZE		0x8000		/* NVRAM size */
-
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\

@@ -11,10 +11,6 @@
 /* DDR */
 #define CONFIG_SYS_SDRAM_SIZE		0x40000000
 
-/* SATA */
-
-#define CONFIG_SYS_SATA				AHCI_BASE_ADDR
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\

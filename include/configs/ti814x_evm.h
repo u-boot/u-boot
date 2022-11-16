@@ -84,8 +84,6 @@
 
 /* Defines for SPL */
 
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
  * 64 bytes before this address should be set aside for u-boot.img's

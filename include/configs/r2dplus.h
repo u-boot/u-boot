@@ -18,9 +18,4 @@
 #define CONFIG_SYS_FLASH_BASE		(0xA0000000)
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 
-/*
- * SuperH Clock setting
- */
-#define	CONFIG_SYS_PLL_SETTLING_TIME	100/* in us */
-
 #endif /* __CONFIG_H */

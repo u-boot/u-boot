@@ -72,4 +72,3 @@
  * PAXE on the local bus CS3
  */
 #define CONFIG_SYS_PAXE_BASE		0xA0000000
-#define CONFIG_SYS_PAXE_SIZE		256
