@@ -83,7 +83,4 @@
 
 #define CONFIG_USBD_HS
 
-/* SPL */
-#include "imx7_spl.h"
-
 #endif	/* __CONFIG_H */

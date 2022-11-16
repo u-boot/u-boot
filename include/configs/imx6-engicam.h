@@ -142,9 +142,4 @@
 # define CONFIG_IMX_VIDEO_SKIP
 #endif
 
-/* SPL */
-#ifdef CONFIG_SPL
-# include "imx6_spl.h"
-#endif
-
 #endif /* __IMX6_ENGICAM_CONFIG_H */

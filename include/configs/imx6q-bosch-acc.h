@@ -91,7 +91,6 @@
 
 /* SPL */
 #ifdef CONFIG_SPL
-#include "imx6_spl.h"
 
 #ifdef CONFIG_SPL_BUILD
 #define CFG_SYS_FSL_USDHC_NUM 2

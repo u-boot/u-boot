@@ -10,9 +10,6 @@
 #include <linux/sizes.h>
 #include "mx6_common.h"
 
-/* SPL options */
-#include "imx6_spl.h"
-
 #define CFG_SYS_FSL_USDHC_NUM	1
 
 /* Console configs */

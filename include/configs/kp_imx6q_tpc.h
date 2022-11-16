@@ -12,9 +12,6 @@
 
 #include "mx6_common.h"
 
-/* SPL */
-#include "imx6_spl.h"			/* common IMX6 SPL configuration */
-
 /* Miscellaneous configurable options */
 
 /* FEC ethernet */

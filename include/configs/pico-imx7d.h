@@ -10,14 +10,6 @@
 
 #include "mx7_common.h"
 
-#include "imx7_spl.h"
-
-#ifdef CONFIG_SPL_OS_BOOT
-/* Falcon Mode */
-
-/* Falcon Mode - MMC support: args@1MB kernel@2MB */
-#endif
-
 #define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */

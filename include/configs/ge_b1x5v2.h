@@ -12,8 +12,6 @@
 
 #include "mx6_common.h"
 
-#include "imx6_spl.h"
-
 /* PWM */
 #define CONFIG_IMX6_PWM_PER_CLK		66000000
 

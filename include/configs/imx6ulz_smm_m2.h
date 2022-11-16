@@ -12,9 +12,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-/* SPL options */
-#include "imx6_spl.h"
-
 #define CONFIG_MXC_UART_BASE		UART4_BASE
 
 #ifndef CONFIG_SPL_BUILD

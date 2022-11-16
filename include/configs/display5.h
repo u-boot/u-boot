@@ -34,8 +34,6 @@
 #define CONFIG_SYS_SPI_ARGS_OFFS        0x140000
 #define CONFIG_SYS_SPI_ARGS_SIZE        0x10000
 
-#include "imx6_spl.h"
-
 #define CONFIG_MXC_UART_BASE		UART5_BASE
 
 /* I2C Configs */

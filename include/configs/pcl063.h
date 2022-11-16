@@ -11,9 +11,6 @@
 #include <linux/sizes.h>
 #include "mx6_common.h"
 
-/* SPL options */
-#include "imx6_spl.h"
-
 /*
  * There is a bug in some i.MX6UL processors that results in the initial
  * portion of OCRAM being unavailable when booting from (at least) an SD

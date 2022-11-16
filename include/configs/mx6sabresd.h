@@ -8,10 +8,6 @@
 #ifndef __MX6SABRESD_CONFIG_H
 #define __MX6SABRESD_CONFIG_H
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV		"ttymxc0"
 

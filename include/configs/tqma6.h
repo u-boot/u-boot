@@ -11,13 +11,6 @@
 #include <linux/kconfig.h>
 #include <linux/stringify.h>
 
-/* SPL */
-/* #if defined(CONFIG_SPL_BUILD) */
-/* common IMX6 SPL configuration */
-#include "imx6_spl.h"
-
-/* #endif */
-
 /* place code in last 4 MiB of RAM */
 
 #include "mx6_common.h"

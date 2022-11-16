@@ -15,10 +15,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */

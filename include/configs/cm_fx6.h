@@ -143,9 +143,6 @@
 
 /* misc */
 
-/* SPL */
-#include "imx6_spl.h"
-
 /* Display */
 #define CONFIG_IMX_HDMI
 

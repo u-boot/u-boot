@@ -11,9 +11,6 @@
 #include <linux/sizes.h>
 
 #include "mx6_common.h"
-#ifdef CONFIG_SPL_BUILD
-#include "imx6_spl.h"
-#endif
 
 /* RAM */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

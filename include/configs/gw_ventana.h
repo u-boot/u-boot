@@ -13,7 +13,6 @@
 
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */
 
-#include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 
 /* Serial */

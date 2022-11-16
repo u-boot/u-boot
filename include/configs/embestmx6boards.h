@@ -49,12 +49,6 @@
 
 #include "mx6_common.h"
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-/* RiOTboard */
-
-#endif
-
 /* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
  * 1M script, 1M pxe and the ramdisk at the end */
 #define MEM_LAYOUT_ENV_SETTINGS \

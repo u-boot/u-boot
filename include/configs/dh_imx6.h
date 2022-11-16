@@ -21,9 +21,6 @@
  * 0x12_0000-0x1f_ffff ... UNUSED
  */
 
-/* SPL */
-#include "imx6_spl.h"			/* common IMX6 SPL configuration */
-
 /* Miscellaneous configurable options */
 
 /* MMC Configs */

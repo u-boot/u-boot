@@ -59,7 +59,4 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-/* SPL */
-#include "imx6_spl.h"
-
 #endif /* __IMX6DL_MAMOJ_CONFIG_H */

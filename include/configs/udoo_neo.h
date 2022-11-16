@@ -12,8 +12,6 @@
 
 #include "mx6_common.h"
 
-#include "imx6_spl.h"
-
 /* MMC Configuration */
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 

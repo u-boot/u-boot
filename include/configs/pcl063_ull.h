@@ -13,9 +13,6 @@
 #include <linux/stringify.h>
 #include "mx6_common.h"
 
-/* SPL options */
-#include "imx6_spl.h"
-
 #define CFG_SYS_FSL_USDHC_NUM	2
 
 /* Environment settings */

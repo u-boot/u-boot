@@ -11,10 +11,6 @@
 #define CONFIG_MXC_UART_BASE   UART1_BASE
 #define CONSOLE_DEV            "ttymxc0"
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 #include "mx6_common.h"
 
 /* MMC Configs */

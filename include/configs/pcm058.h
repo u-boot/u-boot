@@ -6,10 +6,6 @@
 #ifndef __PCM058_CONFIG_H
 #define __PCM058_CONFIG_H
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 #include "mx6_common.h"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)

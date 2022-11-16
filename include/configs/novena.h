@@ -34,9 +34,6 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-/* SPL */
-#include "imx6_spl.h"			/* common IMX6 SPL configuration */
-
 /* I2C */
 #define CONFIG_I2C_MULTI_BUS
 

@@ -11,7 +11,6 @@
 /* SPL */
 
 #include "mx6_common.h"
-#include "imx6_spl.h"
 
 #ifdef CONFIG_SERIAL_CONSOLE_UART1
 #if defined(CONFIG_MX6SL)
