@@ -15,7 +15,7 @@
 #define GICR_BASE	0xF9080000
 
 /* Serial setup */
-#define CONFIG_SYS_BAUDRATE_TABLE \
+#define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
 /* GUID for capsule updatable firmware image */

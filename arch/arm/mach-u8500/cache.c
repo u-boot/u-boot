@@ -22,7 +22,7 @@ void enable_caches(void)
 #ifdef CONFIG_SYS_L2_PL310
 void v7_outer_cache_disable(void)
 {
-	struct pl310_regs *const pl310 = (struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+	struct pl310_regs *const pl310 = (struct pl310_regs *)CFG_SYS_PL310_BASE;
 
 	/*
 	 * Linux expects the L2 cache to be turned off by the bootloader.

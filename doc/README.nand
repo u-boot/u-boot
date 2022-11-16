@@ -134,7 +134,7 @@ Configuration Options:
 	chip.IO_ADDR_R = ...;
 	chip.IO_ADDR_W = ...;
 
-	if (nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_CHIPS, NULL))
+	if (nand_scan_ident(mtd, CFG_SYS_MAX_NAND_CHIPS, NULL))
 		error out
 
 	/*

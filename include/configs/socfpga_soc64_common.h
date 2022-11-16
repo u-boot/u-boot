@@ -26,8 +26,8 @@
 /*
  * U-Boot run time memory configurations
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x40000
+#define CFG_SYS_INIT_RAM_ADDR	0xFFE00000
+#define CFG_SYS_INIT_RAM_SIZE	0x40000
 
 /*
  * U-Boot environment configurations

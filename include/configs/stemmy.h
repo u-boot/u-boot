@@ -15,7 +15,7 @@
  */
 
 /* FIXME: This should be loaded from device tree... */
-#define CONFIG_SYS_PL310_BASE		0xa0412000
+#define CFG_SYS_PL310_BASE		0xa0412000
 
 /* Linux does not boot if FDT / initrd is loaded to end of RAM */
 #define BOOT_ENV \

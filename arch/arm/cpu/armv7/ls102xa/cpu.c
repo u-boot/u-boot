@@ -313,9 +313,9 @@ int cpu_eth_init(struct bd_info *bis)
 
 int arch_cpu_init(void)
 {
-	void *epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
+	void *epu_base = (void *)(CFG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
 	void *rcpm2_base =
-		(void *)(CONFIG_SYS_DCSRBAR + DCSR_RCPM2_BLOCK_OFFSET);
+		(void *)(CFG_SYS_DCSRBAR + DCSR_RCPM2_BLOCK_OFFSET);
 	struct ccsr_scfg *scfg = (void *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 state;
 

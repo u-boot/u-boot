@@ -28,7 +28,7 @@
 #endif
 #define CFG_SYS_SDRAM_SIZE		0x10000000	/* 256 MiB */
 
-#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
+#define CFG_SYS_INIT_SP_OFFSET	0x400000
 
 /*
  * Serial driver
@@ -38,9 +38,9 @@
  * Flash configuration
  */
 #ifdef CONFIG_64BIT
-# define CONFIG_SYS_FLASH_BASE		0xffffffffbe000000
+# define CFG_SYS_FLASH_BASE		0xffffffffbe000000
 #else
-# define CONFIG_SYS_FLASH_BASE		0xbe000000
+# define CFG_SYS_FLASH_BASE		0xbe000000
 #endif
 
 /*

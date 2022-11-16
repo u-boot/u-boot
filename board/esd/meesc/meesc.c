@@ -240,7 +240,7 @@ int misc_init_r(void)
 	if (str && (strcmp(str, "4") == 0)) {
 		writel((readl(&pmc->mckr) & ~AT91_PMC_MDIV) |
 			AT91SAM9_PMC_MDIV_4, &pmc->mckr);
-		at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
+		at91_clock_init(CFG_SYS_AT91_MAIN_CLOCK);
 		serial_setbrg();
 		/* Notify the user that the clock is not default */
 		printf("Setting master clock to %s MHz\n",

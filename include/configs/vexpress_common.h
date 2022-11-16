@@ -112,16 +112,16 @@
 #define SCTL_BASE			V2M_SYSCTL
 #define VEXPRESS_FLASHPROG_FLVPPEN	(1 << 0)
 
-#define CONFIG_SYS_TIMER_RATE		1000000
-#define CONFIG_SYS_TIMER_COUNTER	(V2M_TIMER01 + 0x4)
+#define CFG_SYS_TIMER_RATE		1000000
+#define CFG_SYS_TIMER_COUNTER	(V2M_TIMER01 + 0x4)
 
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_CLOCK		24000000
-#define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
-					 (void *)CONFIG_SYS_SERIAL1}
+#define CONFIG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
+					 (void *)CFG_SYS_SERIAL1}
 
-#define CONFIG_SYS_SERIAL0		V2M_UART0
-#define CONFIG_SYS_SERIAL1		V2M_UART1
+#define CFG_SYS_SERIAL0		V2M_UART0
+#define CFG_SYS_SERIAL1		V2M_UART1
 
 /* Miscellaneous configurable options */
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
@@ -135,7 +135,7 @@
 
 /* additions for new relocation code */
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_SIZE		0x1000
+#define CFG_SYS_INIT_RAM_SIZE		0x1000
 
 /* Basic environment settings */
 #define BOOT_TARGET_DEVICES(func) \
@@ -164,7 +164,7 @@
 		"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
 
 /* FLASH and environment organization */
-#define CONFIG_SYS_FLASH_SIZE		0x04000000
+#define CFG_SYS_FLASH_SIZE		0x04000000
 
 /* Timeout values in ticks */
 
@@ -177,6 +177,6 @@
  */
 
 /* Store environment at top of flash */
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ V2M_NOR0, V2M_NOR1 }
+#define CFG_SYS_FLASH_BANKS_LIST	{ V2M_NOR0, V2M_NOR1 }
 
 #endif /* VEXPRESS_COMMON_H */

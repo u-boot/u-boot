@@ -6,7 +6,7 @@
 #define __CONFIG_H
 
 /* Timers for fasp(TIMCLK) */
-#define CONFIG_SYS_TIMERBASE		0x31080000	/* AP Timer 1 (ARM-SP804) */
+#define CFG_SYS_TIMERBASE		0x31080000	/* AP Timer 1 (ARM-SP804) */
 
 /*
  * SDRAM (for initialize)
@@ -28,7 +28,7 @@
  */
 
 /* RTC */
-#define CONFIG_SYS_I2C_RTC_ADDR		0x51
+#define CFG_SYS_I2C_RTC_ADDR		0x51
 
 /* Serial (pl011)       */
 #define UART_CLK			(62500000)
@@ -36,8 +36,8 @@
 #define CONFIG_PL01x_PORTS		{(void *)(0x2a400000)}
 
 /* Support MTD */
-#define CONFIG_SYS_FLASH_BASE		(0x08000000)
-#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
+#define CFG_SYS_FLASH_BASE		(0x08000000)
+#define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE}
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 

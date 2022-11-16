@@ -121,7 +121,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	/* adjust memory start address for LPAE */
 	if (lpae) {
 		start[0] -= CFG_SYS_SDRAM_BASE;
-		start[0] += CONFIG_SYS_LPAE_SDRAM_BASE;
+		start[0] += CFG_SYS_LPAE_SDRAM_BASE;
 	}
 
 	if ((size[0] == 0x80000000) && (ddr3a_size != 0)) {
@@ -175,11 +175,11 @@ void ft_board_setup_ex(void *blob, struct bd_info *bd)
 			if (prop1 && prop2) {
 				initrd_start = __be64_to_cpu(*prop1);
 				initrd_start -= CFG_SYS_SDRAM_BASE;
-				initrd_start += CONFIG_SYS_LPAE_SDRAM_BASE;
+				initrd_start += CFG_SYS_LPAE_SDRAM_BASE;
 				initrd_start = __cpu_to_be64(initrd_start);
 				initrd_end = __be64_to_cpu(*prop2);
 				initrd_end -= CFG_SYS_SDRAM_BASE;
-				initrd_end += CONFIG_SYS_LPAE_SDRAM_BASE;
+				initrd_end += CFG_SYS_LPAE_SDRAM_BASE;
 				initrd_end = __cpu_to_be64(initrd_end);
 
 				err = fdt_delprop(blob, nodeoffset,
@@ -223,7 +223,7 @@ void ft_board_setup_ex(void *blob, struct bd_info *bd)
 			if (size) {
 				*reserve_start -= CFG_SYS_SDRAM_BASE;
 				*reserve_start +=
-					CONFIG_SYS_LPAE_SDRAM_BASE;
+					CFG_SYS_LPAE_SDRAM_BASE;
 				*reserve_start =
 					__cpu_to_be64(*reserve_start);
 			} else {

@@ -20,7 +20,7 @@
 #define GICR_BASE	0xF9060000
 
 /* Serial setup */
-#define CONFIG_SYS_BAUDRATE_TABLE \
+#define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
 #if defined(CONFIG_CMD_DFU)

@@ -62,9 +62,9 @@
  * is known yet.
  * H6 has SRAM A1 at 0x00020000.
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SUNXI_SRAM_ADDRESS
+#define CFG_SYS_INIT_RAM_ADDR	CONFIG_SUNXI_SRAM_ADDRESS
 /* FIXME: this may be larger on some SoCs */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
+#define CFG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
 
 #define PHYS_SDRAM_0			CFG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */

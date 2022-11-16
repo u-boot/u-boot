@@ -128,7 +128,7 @@ bootsect:
 	.Lconf_pair_start:
 
 	.long CONFIG_SYS_CCSRBAR_DEFAULT + CFG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2SRBAR0 /* Address: L2 memory-mapped SRAM base addr 0 */
-	.long CONFIG_SYS_INIT_L2_ADDR
+	.long CFG_SYS_INIT_L2_ADDR
 
 	.long CONFIG_SYS_CCSRBAR_DEFAULT + CFG_SYS_MPC85xx_L2_OFFSET + MPC85xx_L2ERRDIS /* Address: L2 cache error disable */
 	.long MPC85xx_L2ERRDIS_MBECC | MPC85xx_L2ERRDIS_SBECC
@@ -428,12 +428,12 @@ l2_disabled:
 	mtspr	SPRN_BUCSR,r0
 #endif
 
-#if defined(CONFIG_SYS_INIT_DBCR)
+#if defined(CFG_SYS_INIT_DBCR)
 	lis	r1,0xffff
 	ori	r1,r1,0xffff
 	mtspr	DBSR,r1			/* Clear all status bits */
-	lis	r0,CONFIG_SYS_INIT_DBCR@h	/* DBCR0[IDM] must be set */
-	ori	r0,r0,CONFIG_SYS_INIT_DBCR@l
+	lis	r0,CFG_SYS_INIT_DBCR@h	/* DBCR0[IDM] must be set */
+	ori	r0,r0,CFG_SYS_INIT_DBCR@l
 	mtspr	DBCR0,r0
 #endif
 
@@ -573,34 +573,34 @@ nexti:	mflr	r1		/* R1 = our PC */
  * As a general rule, TLB0 is used for short-term TLBs, and TLB1 is used for
  * long-term TLBs, so we use TLB0 here.
  */
-#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS)
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CFG_SYS_CCSRBAR_PHYS)
 
-#if !defined(CONFIG_SYS_CCSRBAR_PHYS_HIGH) || !defined(CONFIG_SYS_CCSRBAR_PHYS_LOW)
-#error "CONFIG_SYS_CCSRBAR_PHYS_HIGH and CONFIG_SYS_CCSRBAR_PHYS_LOW) must be defined."
+#if !defined(CFG_SYS_CCSRBAR_PHYS_HIGH) || !defined(CFG_SYS_CCSRBAR_PHYS_LOW)
+#error "CFG_SYS_CCSRBAR_PHYS_HIGH and CFG_SYS_CCSRBAR_PHYS_LOW) must be defined."
 #endif
 
 create_ccsr_new_tlb:
 	/*
 	 * Create a TLB for the new location of CCSR.  Register R8 is reserved
-	 * for the virtual address of this TLB (CONFIG_SYS_CCSRBAR).
+	 * for the virtual address of this TLB (CFG_SYS_CCSRBAR).
 	 */
-	lis	r8, CONFIG_SYS_CCSRBAR@h
-	ori	r8, r8, CONFIG_SYS_CCSRBAR@l
-	lis	r9, (CONFIG_SYS_CCSRBAR + 0x1000)@h
-	ori	r9, r9, (CONFIG_SYS_CCSRBAR + 0x1000)@l
+	lis	r8, CFG_SYS_CCSRBAR@h
+	ori	r8, r8, CFG_SYS_CCSRBAR@l
+	lis	r9, (CFG_SYS_CCSRBAR + 0x1000)@h
+	ori	r9, r9, (CFG_SYS_CCSRBAR + 0x1000)@l
 	create_tlb0_entry 0, \
 		0, BOOKE_PAGESZ_4K, \
-		CONFIG_SYS_CCSRBAR, MAS2_I|MAS2_G, \
-		CONFIG_SYS_CCSRBAR_PHYS_LOW, MAS3_SW|MAS3_SR, \
-		CONFIG_SYS_CCSRBAR_PHYS_HIGH, r3
+		CFG_SYS_CCSRBAR, MAS2_I|MAS2_G, \
+		CFG_SYS_CCSRBAR_PHYS_LOW, MAS3_SW|MAS3_SR, \
+		CFG_SYS_CCSRBAR_PHYS_HIGH, r3
 	/*
 	 * Create a TLB for the current location of CCSR.  Register R9 is reserved
-	 * for the virtual address of this TLB (CONFIG_SYS_CCSRBAR + 0x1000).
+	 * for the virtual address of this TLB (CFG_SYS_CCSRBAR + 0x1000).
 	 */
 create_ccsr_old_tlb:
 	create_tlb0_entry 1, \
 		0, BOOKE_PAGESZ_4K, \
-		CONFIG_SYS_CCSRBAR + 0x1000, MAS2_I|MAS2_G, \
+		CFG_SYS_CCSRBAR + 0x1000, MAS2_I|MAS2_G, \
 		CONFIG_SYS_CCSRBAR_DEFAULT, MAS3_SW|MAS3_SR, \
 		0, r3 /* The default CCSR address is always a 32-bit number */
 
@@ -634,7 +634,7 @@ infinite_debug_loop:
 
 #ifdef CONFIG_FSL_CORENET
 
-#define CCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)
+#define CCSR_LAWBARH0	(CFG_SYS_CCSRBAR + 0x1000)
 #define LAW_SIZE_4K	0xb
 #define CCSRBAR_LAWAR	(LAW_EN | (0x1e << 20) | LAW_SIZE_4K)
 #define CCSRAR_C	0x80000000	/* Commit */
@@ -644,10 +644,10 @@ create_temp_law:
 	 * On CoreNet systems, we create the temporary LAW using a special LAW
 	 * target ID of 0x1e.  LAWBARH is at offset 0xc00 in CCSR.
 	 */
-	lis     r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
-	ori     r0, r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
-	lis     r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@h
-	ori     r1, r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@l
+	lis     r0, CFG_SYS_CCSRBAR_PHYS_HIGH@h
+	ori     r0, r0, CFG_SYS_CCSRBAR_PHYS_HIGH@l
+	lis     r1, CFG_SYS_CCSRBAR_PHYS_LOW@h
+	ori     r1, r1, CFG_SYS_CCSRBAR_PHYS_LOW@l
 	lis     r2, CCSRBAR_LAWAR@h
 	ori     r2, r2, CCSRBAR_LAWAR@l
 
@@ -683,10 +683,10 @@ read_old_ccsrbar:
 	 * instruction.
 	 */
 write_new_ccsrbar:
-	lis	r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
-	ori	r0, r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
-	lis	r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@h
-	ori	r1, r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@l
+	lis	r0, CFG_SYS_CCSRBAR_PHYS_HIGH@h
+	ori	r0, r0, CFG_SYS_CCSRBAR_PHYS_HIGH@l
+	lis	r1, CFG_SYS_CCSRBAR_PHYS_LOW@h
+	ori	r1, r1, CFG_SYS_CCSRBAR_PHYS_LOW@l
 	lis	r2, CCSRAR_C@h
 	ori	r2, r2, CCSRAR_C@l
 
@@ -723,9 +723,9 @@ write_new_ccsrbar:
 	lwz	r0, 0(r9)
 	isync
 
-/* CONFIG_SYS_CCSRBAR_PHYS right shifted by 12 */
-#define CCSRBAR_PHYS_RS12 ((CONFIG_SYS_CCSRBAR_PHYS_HIGH << 20) | \
-			   (CONFIG_SYS_CCSRBAR_PHYS_LOW >> 12))
+/* CFG_SYS_CCSRBAR_PHYS right shifted by 12 */
+#define CCSRBAR_PHYS_RS12 ((CFG_SYS_CCSRBAR_PHYS_HIGH << 20) | \
+			   (CFG_SYS_CCSRBAR_PHYS_LOW >> 12))
 
 	/* Write the new value to CCSRBAR. */
 	lis	r0, CCSRBAR_PHYS_RS12@h
@@ -752,10 +752,10 @@ write_new_ccsrbar:
 
 	/* Delete the temporary TLBs */
 delete_temp_tlbs:
-	delete_tlb0_entry 0, CONFIG_SYS_CCSRBAR, MAS2_I|MAS2_G, r3
-	delete_tlb0_entry 1, CONFIG_SYS_CCSRBAR + 0x1000, MAS2_I|MAS2_G, r3
+	delete_tlb0_entry 0, CFG_SYS_CCSRBAR, MAS2_I|MAS2_G, r3
+	delete_tlb0_entry 1, CFG_SYS_CCSRBAR + 0x1000, MAS2_I|MAS2_G, r3
 
-#endif /* #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS) */
+#endif /* #if (CONFIG_SYS_CCSRBAR_DEFAULT != CFG_SYS_CCSRBAR_PHYS) */
 
 #if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 create_ccsr_l2_tlb:
@@ -765,14 +765,14 @@ create_ccsr_l2_tlb:
 	 */
 	create_tlb0_entry 0, \
 		0, BOOKE_PAGESZ_4K, \
-		CONFIG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, \
-		CONFIG_SYS_CCSRBAR_PHYS_LOW + 0xC20000, MAS3_SW|MAS3_SR, \
-		CONFIG_SYS_CCSRBAR_PHYS_HIGH, r3
+		CFG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, \
+		CFG_SYS_CCSRBAR_PHYS_LOW + 0xC20000, MAS3_SW|MAS3_SR, \
+		CFG_SYS_CCSRBAR_PHYS_HIGH, r3
 
 enable_l2_cluster_l2:
 	/* enable L2 cache */
-	lis	r3, (CONFIG_SYS_CCSRBAR + 0xC20000)@h
-	ori	r3, r3, (CONFIG_SYS_CCSRBAR + 0xC20000)@l
+	lis	r3, (CFG_SYS_CCSRBAR + 0xC20000)@h
+	ori	r3, r3, (CFG_SYS_CCSRBAR + 0xC20000)@l
 	li	r4, 33	/* stash id */
 	stw	r4, 4(r3)
 	lis	r4, (L2CSR0_L2FI|L2CSR0_L2LFC)@h
@@ -813,7 +813,7 @@ enable_l2_cluster_l2:
 	beq	1b
 
 delete_ccsr_l2_tlb:
-	delete_tlb0_entry 0, CONFIG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, r3
+	delete_tlb0_entry 0, CFG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, r3
 #endif
 
 	/*
@@ -863,7 +863,7 @@ delete_ccsr_l2_tlb:
 	andi.	r1,r3,L1CSR0_DCE@l
 	beq	2b
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
-#define DCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)
+#define DCSR_LAWBARH0	(CFG_SYS_CCSRBAR + 0x1000)
 #define LAW_SIZE_1M	0x13
 #define DCSRBAR_LAWAR	(LAW_EN | (0x1d << 20) | LAW_SIZE_1M)
 
@@ -884,13 +884,13 @@ delete_ccsr_l2_tlb:
 	rlwimi	r0, r8, 16, MAS0_ESEL_MSK
 	lis	r1, FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)@h
 	ori	r1, r1, FSL_BOOKE_MAS1(1, 1, 0, 0, BOOKE_PAGESZ_16M)@l
-	lis	r7, CONFIG_SYS_CCSRBAR@h
-	ori	r7, r7, CONFIG_SYS_CCSRBAR@l
+	lis	r7, CFG_SYS_CCSRBAR@h
+	ori	r7, r7, CFG_SYS_CCSRBAR@l
 	ori	r2, r7, MAS2_I|MAS2_G
-	lis	r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@h
-	ori	r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@l
-	lis	r4, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
-	ori	r4, r4, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	lis	r3, FSL_BOOKE_MAS3(CFG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@h
+	ori	r3, r3, FSL_BOOKE_MAS3(CFG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@l
+	lis	r4, CFG_SYS_CCSRBAR_PHYS_HIGH@h
+	ori	r4, r4, CFG_SYS_CCSRBAR_PHYS_HIGH@l
 	mtspr	MAS0, r0
 	mtspr	MAS1, r1
 	mtspr	MAS2, r2
@@ -1132,7 +1132,7 @@ create_init_ram_area:
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_1M, \
 		CONFIG_VAL(SYS_MONITOR_BASE) & 0xfff00000, MAS2_I|MAS2_G, \
-		CONFIG_SYS_PBI_FLASH_WINDOW & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
+		CFG_SYS_PBI_FLASH_WINDOW & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 
 /*
@@ -1148,7 +1148,7 @@ create_init_ram_area:
 	create_tlb1_entry 15, \
 		1, BOOKE_PAGESZ_1M, \
 		CONFIG_VAL(SYS_MONITOR_BASE) & 0xfff00000, MAS2_I|MAS2_G, \
-		CONFIG_SYS_INIT_L3_ADDR & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
+		CFG_SYS_INIT_L3_ADDR & 0xfff00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 
 #else
@@ -1164,19 +1164,19 @@ create_init_ram_area:
 #endif
 
 	/* create a temp mapping in AS=1 to the stack */
-#if defined(CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW) && \
-    defined(CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH)
+#if defined(CFG_SYS_INIT_RAM_ADDR_PHYS_LOW) && \
+    defined(CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH)
 	create_tlb1_entry 14, \
 		1, BOOKE_PAGESZ_16K, \
-		CONFIG_SYS_INIT_RAM_ADDR, 0, \
-		CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW, MAS3_SX|MAS3_SW|MAS3_SR, \
-		CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH, r6
+		CFG_SYS_INIT_RAM_ADDR, 0, \
+		CFG_SYS_INIT_RAM_ADDR_PHYS_LOW, MAS3_SX|MAS3_SW|MAS3_SR, \
+		CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH, r6
 
 #else
 	create_tlb1_entry 14, \
 		1, BOOKE_PAGESZ_16K, \
-		CONFIG_SYS_INIT_RAM_ADDR, 0, \
-		CONFIG_SYS_INIT_RAM_ADDR, MAS3_SX|MAS3_SW|MAS3_SR, \
+		CFG_SYS_INIT_RAM_ADDR, 0, \
+		CFG_SYS_INIT_RAM_ADDR, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 #endif
 
@@ -1194,8 +1194,8 @@ switch_as:
 
 	/* Allocate Initial RAM in data cache.
 	 */
-	lis	r3,CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r3,r3,CONFIG_SYS_INIT_RAM_ADDR@l
+	lis	r3,CFG_SYS_INIT_RAM_ADDR@h
+	ori	r3,r3,CFG_SYS_INIT_RAM_ADDR@l
 	mfspr	r2, L1CFG0
 	andi.	r2, r2, 0x1ff
 	/* cache size * 1024 / (2 * L1 line size) */
@@ -1230,11 +1230,11 @@ switch_as:
 	.globl	_start_cont
 _start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
-	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR)@h
-	ori	r3,r3,((CONFIG_SYS_INIT_SP_OFFSET-16)&~0xf)@l /* Align to 16 */
+	lis	r3,(CFG_SYS_INIT_RAM_ADDR)@h
+	ori	r3,r3,((CFG_SYS_INIT_SP_OFFSET-16)&~0xf)@l /* Align to 16 */
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
-#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CFG_SYS_INIT_RAM_SIZE
 #error "SYS_MALLOC_F_LEN too large to fit into initial RAM."
 #endif
 
@@ -1243,8 +1243,8 @@ _start_cont:
 #endif
 
 	/* End of RAM */
-	lis	r4,(CONFIG_SYS_INIT_RAM_ADDR)@h
-	ori	r4,r4,(CONFIG_SYS_INIT_RAM_SIZE)@l
+	lis	r4,(CFG_SYS_INIT_RAM_ADDR)@h
+	ori	r4,r4,(CFG_SYS_INIT_RAM_SIZE)@l
 
 	li	r0,0
 
@@ -1826,8 +1826,8 @@ trap_init:
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
-	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR & ~(CONFIG_SYS_CACHELINE_SIZE-1))@h
-	ori	r3,r3,(CONFIG_SYS_INIT_RAM_ADDR & ~(CONFIG_SYS_CACHELINE_SIZE-1))@l
+	lis	r3,(CFG_SYS_INIT_RAM_ADDR & ~(CONFIG_SYS_CACHELINE_SIZE-1))@h
+	ori	r3,r3,(CFG_SYS_INIT_RAM_ADDR & ~(CONFIG_SYS_CACHELINE_SIZE-1))@l
 	mfspr	r4,L1CFG0
 	andi.	r4,r4,0x1ff
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
@@ -1844,8 +1844,8 @@ unlock_ram_in_cache:
 	sync
 
 	/* Invalidate the TLB entries for the cache */
-	lis	r3,CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r3,r3,CONFIG_SYS_INIT_RAM_ADDR@l
+	lis	r3,CFG_SYS_INIT_RAM_ADDR@h
+	ori	r3,r3,CFG_SYS_INIT_RAM_ADDR@l
 	tlbivax	0,r3
 	addi	r3,r3,0x1000
 	tlbivax	0,r3

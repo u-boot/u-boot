@@ -161,8 +161,8 @@ phys_size_t env_get_bootm_mapsize(void)
 		return tmp;
 	}
 
-#if defined(CONFIG_SYS_BOOTMAPSZ)
-	return CONFIG_SYS_BOOTMAPSZ;
+#if defined(CFG_SYS_BOOTMAPSZ)
+	return CFG_SYS_BOOTMAPSZ;
 #else
 	return env_get_bootm_size();
 #endif

@@ -246,7 +246,7 @@ void mem_init(void)
 
 	setting.cr = SDRAM_BASE_CONF;
 	setting.mdr = AT91_SDRAMC_MD_SDRAM;
-	setting.tr = (CONFIG_SYS_MASTER_CLOCK * 7) / 1000000;
+	setting.tr = (CFG_SYS_MASTER_CLOCK * 7) / 1000000;
 
 	/*
 	 * I write here directly in this register, because this

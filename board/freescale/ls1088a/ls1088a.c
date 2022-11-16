@@ -41,8 +41,8 @@ DECLARE_GLOBAL_DATA_PTR;
 struct ifc_regs ifc_cfg_ifc_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
 	{
 		"nor0",
-		CONFIG_SYS_NOR0_CSPR_EARLY,
-		CONFIG_SYS_NOR0_CSPR_EXT,
+		CFG_SYS_NOR0_CSPR_EARLY,
+		CFG_SYS_NOR0_CSPR_EXT,
 		CFG_SYS_NOR_AMASK,
 		CFG_SYS_NOR_CSOR,
 		{
@@ -52,13 +52,13 @@ struct ifc_regs ifc_cfg_ifc_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
 			CFG_SYS_NOR_FTIM3
 		},
 		0,
-		CONFIG_SYS_NOR0_CSPR,
+		CFG_SYS_NOR0_CSPR,
 		0,
 	},
 	{
 		"nor1",
-		CONFIG_SYS_NOR1_CSPR_EARLY,
-		CONFIG_SYS_NOR0_CSPR_EXT,
+		CFG_SYS_NOR1_CSPR_EARLY,
+		CFG_SYS_NOR0_CSPR_EXT,
 		CFG_SYS_NOR_AMASK_EARLY,
 		CFG_SYS_NOR_CSOR,
 		{
@@ -68,7 +68,7 @@ struct ifc_regs ifc_cfg_ifc_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
 			CFG_SYS_NOR_FTIM3
 		},
 		0,
-		CONFIG_SYS_NOR1_CSPR,
+		CFG_SYS_NOR1_CSPR,
 		CFG_SYS_NOR_AMASK,
 	},
 	{
@@ -86,10 +86,10 @@ struct ifc_regs ifc_cfg_ifc_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
 	},
 	{
 		"fpga",
-		CONFIG_SYS_FPGA_CSPR,
-		CONFIG_SYS_FPGA_CSPR_EXT,
+		CFG_SYS_FPGA_CSPR,
+		CFG_SYS_FPGA_CSPR_EXT,
 		SYS_FPGA_AMASK,
-		CONFIG_SYS_FPGA_CSOR,
+		CFG_SYS_FPGA_CSOR,
 		{
 			SYS_FPGA_CS_FTIM0,
 			SYS_FPGA_CS_FTIM1,
@@ -121,10 +121,10 @@ struct ifc_regs ifc_cfg_qspi_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
 	},
 	{
 		"fpga",
-		CONFIG_SYS_FPGA_CSPR,
-		CONFIG_SYS_FPGA_CSPR_EXT,
+		CFG_SYS_FPGA_CSPR,
+		CFG_SYS_FPGA_CSPR_EXT,
 		SYS_FPGA_AMASK,
-		CONFIG_SYS_FPGA_CSOR,
+		CFG_SYS_FPGA_CSOR,
 		{
 			SYS_FPGA_CS_FTIM0,
 			SYS_FPGA_CS_FTIM1,
@@ -746,12 +746,12 @@ int set_serdes_volt(int svdd)
 
 	/* Read the BRDCFG54 via CLPD */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-	ret = i2c_read(CONFIG_SYS_I2C_FPGA_ADDR,
+	ret = i2c_read(CFG_SYS_I2C_FPGA_ADDR,
 		       QIXIS_BRDCFG4_OFFSET, 1, (void *)&brdcfg4, 1);
 #else
 	struct udevice *dev;
 
-	ret = i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_FPGA_ADDR, 1, &dev);
+	ret = i2c_get_chip_for_busnum(0, CFG_SYS_I2C_FPGA_ADDR, 1, &dev);
 	if (!ret)
 		ret = dm_i2c_read(dev, QIXIS_BRDCFG4_OFFSET,
 				  (void *)&brdcfg4, 1);
@@ -766,7 +766,7 @@ int set_serdes_volt(int svdd)
 
 	/* Write to the BRDCFG4 */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-	ret = i2c_write(CONFIG_SYS_I2C_FPGA_ADDR,
+	ret = i2c_write(CFG_SYS_I2C_FPGA_ADDR,
 			QIXIS_BRDCFG4_OFFSET, 1, (void *)&brdcfg4, 1);
 #else
 	ret = dm_i2c_write(dev, QIXIS_BRDCFG4_OFFSET,

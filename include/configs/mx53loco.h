@@ -24,7 +24,7 @@
 /* PMIC Controller */
 #define CONFIG_POWER_FSL
 #define CONFIG_POWER_FSL_MC13892
-#define CONFIG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
+#define CFG_SYS_DIALOG_PMIC_I2C_ADDR	0x48
 #define CFG_SYS_FSL_PMIC_I2C_ADDR	0x8
 
 /* Command definition */
@@ -96,8 +96,8 @@
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
 
 #define CFG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
-#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
-#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+#define CFG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CFG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
 /* Framebuffer and LCD */
 

@@ -20,7 +20,7 @@ static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
 
 unsigned long __weak spl_nor_get_uboot_base(void)
 {
-	return CONFIG_SYS_UBOOT_BASE;
+	return CFG_SYS_UBOOT_BASE;
 }
 
 static int spl_nor_load_image(struct spl_image_info *spl_image,

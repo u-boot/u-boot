@@ -144,9 +144,9 @@
 
 /* **** PISMO SUPPORT *** */
 #if defined(CONFIG_CMD_NAND)
-#define CONFIG_SYS_FLASH_BASE		0x10000000
+#define CFG_SYS_FLASH_BASE		0x10000000
 #endif
 
-#define CONFIG_SYS_FLASH_SIZE		0x4000000
+#define CFG_SYS_FLASH_SIZE		0x4000000
 
 #endif /* __CONFIG_H */

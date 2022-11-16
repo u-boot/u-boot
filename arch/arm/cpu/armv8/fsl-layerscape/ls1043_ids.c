@@ -10,7 +10,7 @@
 #include <fsl_sec.h>
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
-struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
+struct qportal_info qp_info[CFG_SYS_QMAN_NUM_PORTALS] = {
 	SET_QP_INFO(FSL_DPAA1_STREAM_ID_END, 0),
 	SET_QP_INFO(FSL_DPAA1_STREAM_ID_END, 0),
 	SET_QP_INFO(FSL_DPAA1_STREAM_ID_END, 0),

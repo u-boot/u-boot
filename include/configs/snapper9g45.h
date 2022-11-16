@@ -15,16 +15,16 @@
 #include <linux/sizes.h>
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
+#define CFG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768
 
 /* CPU */
 
 /* SDRAM */
 #define CFG_SYS_SDRAM_BASE		ATMEL_BASE_CS6
 #define CFG_SYS_SDRAM_SIZE		(128 * 1024 * 1024) /* 64MB */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
-#define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
+#define CFG_SYS_INIT_RAM_SIZE	0x1000
+#define CFG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
 
 /* Mem test settings */
 

@@ -8,7 +8,7 @@
 
 #define MEM_BASE			0x00500000
 
-#define CONFIG_SYS_LOWMEM_BASE		MEM_BASE
+#define CFG_SYS_LOWMEM_BASE		MEM_BASE
 
 /* Link Definitions */
 
@@ -22,8 +22,8 @@
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			(0x801000000000)
 #define GICR_BASE			(0x801000002000)
-#define CONFIG_SYS_SERIAL0		0x87e024000000
-#define CONFIG_SYS_SERIAL1		0x87e025000000
+#define CFG_SYS_SERIAL0		0x87e024000000
+#define CFG_SYS_SERIAL1		0x87e025000000
 
 /* Miscellaneous configurable options */
 

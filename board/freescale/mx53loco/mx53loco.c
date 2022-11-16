@@ -42,7 +42,7 @@ u32 get_board_rev(void)
 
 	int rev = readl(&fuse->gp[6]);
 
-	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR))
+	if (!i2c_probe(CFG_SYS_DIALOG_PMIC_I2C_ADDR))
 		rev = 0;
 
 	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
@@ -81,7 +81,7 @@ static int power_init(void)
 	int ret;
 	struct pmic *p;
 
-	if (!i2c_probe(CONFIG_SYS_DIALOG_PMIC_I2C_ADDR)) {
+	if (!i2c_probe(CFG_SYS_DIALOG_PMIC_I2C_ADDR)) {
 		ret = pmic_dialog_init(I2C_PMIC);
 		if (ret)
 			return ret;

@@ -10,7 +10,7 @@
 
 /* Onboard devices */
 
-#define CONFIG_SYS_INIT_SP_OFFSET       0x400000
+#define CFG_SYS_INIT_SP_OFFSET       0x400000
 
 #define CFG_SYS_NS16550_CLK		CONFIG_SYS_MIPS_TIMER_FREQ
 

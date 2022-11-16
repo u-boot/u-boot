@@ -109,7 +109,7 @@ struct post_test post_list[] =
 	CONFIG_SYS_POST_RTC
     },
 #endif
-#if CONFIG_POST & CONFIG_SYS_POST_MEMORY
+#if CONFIG_POST & CFG_SYS_POST_MEMORY
     {
 	"Memory test",
 	"memory",
@@ -118,7 +118,7 @@ struct post_test post_list[] =
 	&memory_post_test,
 	NULL,
 	NULL,
-	CONFIG_SYS_POST_MEMORY
+	CFG_SYS_POST_MEMORY
     },
 #endif
 #if CONFIG_POST & CONFIG_SYS_POST_CPU
@@ -286,7 +286,7 @@ struct post_test post_list[] =
 	CONFIG_SYS_POST_FLASH
     },
 #endif
-#if CONFIG_POST & CONFIG_SYS_POST_MEM_REGIONS
+#if CONFIG_POST & CFG_SYS_POST_MEM_REGIONS
     {
 	"Memory regions test",
 	"mem_regions",
@@ -295,7 +295,7 @@ struct post_test post_list[] =
 	&memory_regions_post_test,
 	NULL,
 	NULL,
-	CONFIG_SYS_POST_MEM_REGIONS
+	CFG_SYS_POST_MEM_REGIONS
     },
 #endif
 };

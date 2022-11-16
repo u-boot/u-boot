@@ -97,19 +97,19 @@ static uint	i2c_mm_last_alen;
  * When multiple buses are present, the list is an array of bus-address
  * pairs.  The following macros take care of this */
 
-#if defined(CONFIG_SYS_I2C_NOPROBES)
+#if defined(CFG_SYS_I2C_NOPROBES)
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
 static struct
 {
 	uchar	bus;
 	uchar	addr;
-} i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
+} i2c_no_probes[] = CFG_SYS_I2C_NOPROBES;
 #define GET_BUS_NUM	i2c_get_bus_num()
 #define COMPARE_BUS(b,i)	(i2c_no_probes[(i)].bus == (b))
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)].addr == (a))
 #define NO_PROBE_ADDR(i)	i2c_no_probes[(i)].addr
 #else		/* single bus */
-static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
+static uchar i2c_no_probes[] = CFG_SYS_I2C_NOPROBES;
 #define GET_BUS_NUM	0
 #define COMPARE_BUS(b,i)	((b) == 0)	/* Make compiler happy */
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)] == (a))
@@ -912,7 +912,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 	int j;
 	int addr = -1;
 	int found = 0;
-#if defined(CONFIG_SYS_I2C_NOPROBES)
+#if defined(CFG_SYS_I2C_NOPROBES)
 	int k, skip;
 	unsigned int bus = GET_BUS_NUM;
 #endif	/* NOPROBES */
@@ -932,7 +932,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 		if ((0 <= addr) && (j != addr))
 			continue;
 
-#if defined(CONFIG_SYS_I2C_NOPROBES)
+#if defined(CFG_SYS_I2C_NOPROBES)
 		skip = 0;
 		for (k = 0; k < ARRAY_SIZE(i2c_no_probes); k++) {
 			if (COMPARE_BUS(bus, k) && COMPARE_ADDR(j, k)) {
@@ -955,7 +955,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 	putc ('\n');
 
-#if defined(CONFIG_SYS_I2C_NOPROBES)
+#if defined(CFG_SYS_I2C_NOPROBES)
 	puts ("Excluded chip addresses:");
 	for (k = 0; k < ARRAY_SIZE(i2c_no_probes); k++) {
 		if (COMPARE_BUS(bus,k))
@@ -1702,7 +1702,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 			int j;
 
-			for (j = 0; j < CONFIG_SYS_I2C_MAX_HOPS; j++) {
+			for (j = 0; j < CFG_SYS_I2C_MAX_HOPS; j++) {
 				if (i2c_bus[i].next_hop[j].chip == 0)
 					break;
 				printf("->%s@0x%2x:%d",
@@ -1737,7 +1737,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("Bus %d:\t%s", i, I2C_ADAP_NR(i)->name);
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 			int j;
-			for (j = 0; j < CONFIG_SYS_I2C_MAX_HOPS; j++) {
+			for (j = 0; j < CFG_SYS_I2C_MAX_HOPS; j++) {
 				if (i2c_bus[i].next_hop[j].chip == 0)
 					break;
 				printf("->%s@0x%2x:%d",

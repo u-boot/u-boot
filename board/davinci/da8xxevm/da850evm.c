@@ -371,20 +371,20 @@ int rmii_hw_init(void)
 	/* Set polarity to non-inverted */
 	buf[0] = 0x0;
 	buf[1] = 0x0;
-	ret = i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 4, 1, buf, 2);
+	ret = i2c_write(CFG_SYS_I2C_EXPANDER_ADDR, 4, 1, buf, 2);
 	if (ret) {
 		printf("\nExpander @ 0x%02x write FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
+				CFG_SYS_I2C_EXPANDER_ADDR);
 		return ret;
 	}
 
 	/* Configure P07-P05 as outputs */
 	buf[0] = 0x1f;
 	buf[1] = 0xff;
-	ret = i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 6, 1, buf, 2);
+	ret = i2c_write(CFG_SYS_I2C_EXPANDER_ADDR, 6, 1, buf, 2);
 	if (ret) {
 		printf("\nExpander @ 0x%02x write FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
+				CFG_SYS_I2C_EXPANDER_ADDR);
 	}
 
 	/* For Ethernet RMII selection
@@ -392,16 +392,16 @@ int rmii_hw_init(void)
 	 * P06(SelB)=1
 	 * P05(SelC)=1
 	 */
-	if (i2c_read(CONFIG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
+	if (i2c_read(CFG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
 		printf("\nExpander @ 0x%02x read FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
+				CFG_SYS_I2C_EXPANDER_ADDR);
 	}
 
 	buf[0] &= 0x1f;
 	buf[0] |= (0 << 7) | (1 << 6) | (1 << 5);
-	if (i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
+	if (i2c_write(CFG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
 		printf("\nExpander @ 0x%02x write FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
+				CFG_SYS_I2C_EXPANDER_ADDR);
 	}
 
 	/* Set the output as high */

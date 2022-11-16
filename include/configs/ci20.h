@@ -12,7 +12,7 @@
 /* Memory configuration */
 
 #define CFG_SYS_SDRAM_BASE		0x80000000 /* cached (KSEG0) address */
-#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
+#define CFG_SYS_INIT_SP_OFFSET	0x400000
 
 /* NS16550-ish UARTs */
 #define CFG_SYS_NS16550_CLK		48000000

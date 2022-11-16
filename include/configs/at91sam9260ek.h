@@ -24,8 +24,8 @@
  */
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
+#define CFG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
 
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
@@ -34,11 +34,11 @@
 #define CFG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
 #define CFG_SYS_SDRAM_SIZE		0x04000000
 
-#define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
+#define CFG_SYS_INIT_RAM_SIZE	(16 * 1024)
 #ifdef CONFIG_AT91SAM9XE
-# define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
+# define CFG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
 #else
-# define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM1
+# define CFG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM1
 #endif
 
 /* NAND flash */
@@ -51,6 +51,6 @@
 #endif
 
 /* USB */
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
+#define CFG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
 
 #endif

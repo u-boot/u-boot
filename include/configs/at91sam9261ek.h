@@ -11,16 +11,16 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
+#define CFG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432 MHz crystal */
 
 #include <asm/hardware.h>
 
 /* SDRAM */
 #define CFG_SYS_SDRAM_BASE		0x20000000
 #define CFG_SYS_SDRAM_SIZE		0x04000000
-#define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
-#define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
+#define CFG_SYS_INIT_RAM_SIZE	(16 * 1024)
+#define CFG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
@@ -42,6 +42,6 @@
 #define CONFIG_DM9000_NO_SROM
 
 /* USB */
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9261_UHP_BASE */
+#define CFG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9261_UHP_BASE */
 
 #endif

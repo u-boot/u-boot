@@ -67,9 +67,9 @@ static void fm_init_muram(int fm_idx, void *reg)
 	void *base = reg;
 
 	muram[fm_idx].base = base;
-	muram[fm_idx].size = CONFIG_SYS_FM_MURAM_SIZE;
+	muram[fm_idx].size = CFG_SYS_FM_MURAM_SIZE;
 	muram[fm_idx].alloc = base + FM_MURAM_RES_SIZE;
-	muram[fm_idx].top = base + CONFIG_SYS_FM_MURAM_SIZE;
+	muram[fm_idx].top = base + CFG_SYS_FM_MURAM_SIZE;
 }
 
 /*

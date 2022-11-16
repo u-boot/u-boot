@@ -13,7 +13,7 @@
 #include <configs/exynos4-common.h>
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_PL310_BASE	0x10502000
+#define CFG_SYS_PL310_BASE	0x10502000
 #endif
 
 /* TRATS2 has 4 banks of DRAM */

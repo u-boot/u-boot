@@ -36,6 +36,6 @@ struct gpt_regs *const gpt1_regs_ptr =
 #define GPT_FREE_RUNNING		0xFFFF
 
 /* Timer, HZ specific defines */
-#define CONFIG_SYS_HZ_CLOCK		((27 * 1000 * 1000) / GPT_PRESCALER_128)
+#define CFG_SYS_HZ_CLOCK		((27 * 1000 * 1000) / GPT_PRESCALER_128)
 
 #endif

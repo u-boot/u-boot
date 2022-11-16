@@ -30,10 +30,10 @@
 #define CFG_SYS_FSL_QSPI_BASE	0x20000000
 
 #define CONFIG_VERY_BIG_RAM
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
-#define CFG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_DDR_BLOCK2_BASE	0x8080000000ULL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_BLOCK2_BASE	0x8080000000ULL
 /*
  * SMP Definitinos
  */
@@ -64,18 +64,18 @@
  * 0x5_C000_0000..0x5_ffff_ffff	IFC CS1 1GB (NOR/Promjet)
  *
  * For e.g. NOR flash at CS0 will be mapped to 0x580000000 after relocation.
- * CONFIG_SYS_FLASH_BASE has the final address (core view)
- * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
- * CONFIG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
+ * CFG_SYS_FLASH_BASE has the final address (core view)
+ * CFG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
+ * CFG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
  * CONFIG_TEXT_BASE is linked to 0x30000000 for booting
  */
 
-#define CONFIG_SYS_FLASH_BASE			0x580000000ULL
-#define CONFIG_SYS_FLASH_BASE_PHYS		0x80000000
-#define CONFIG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
+#define CFG_SYS_FLASH_BASE			0x580000000ULL
+#define CFG_SYS_FLASH_BASE_PHYS		0x80000000
+#define CFG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
 
-#define CONFIG_SYS_FLASH1_BASE_PHYS		0xC0000000
-#define CONFIG_SYS_FLASH1_BASE_PHYS_EARLY	0x8000000
+#define CFG_SYS_FLASH1_BASE_PHYS		0xC0000000
+#define CFG_SYS_FLASH1_BASE_PHYS_EARLY	0x8000000
 
 #ifndef __ASSEMBLY__
 unsigned long long get_qixis_addr(void);
@@ -92,12 +92,12 @@ unsigned long long get_qixis_addr(void);
 
 /* MC firmware */
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
-#define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
-#define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
-#define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
-#define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
-#define CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
-#define CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
+#define CFG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
+#define CFG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
+#define CFG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
+#define CFG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
+#define CFG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
+#define CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
 
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux
@@ -107,7 +107,7 @@ unsigned long long get_qixis_addr(void);
  */
 
 #if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
+#define CFG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
 #endif
 
 /* Miscellaneous configurable options */

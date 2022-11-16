@@ -150,7 +150,7 @@ static int at91_slow_clk_enable(struct clk *clk)
 
 static ulong at91_slow_clk_get_rate(struct clk *clk)
 {
-	return CONFIG_SYS_AT91_SLOW_CLOCK;
+	return CFG_SYS_AT91_SLOW_CLOCK;
 }
 
 static struct clk_ops at91_slow_clk_ops = {

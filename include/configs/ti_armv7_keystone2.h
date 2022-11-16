@@ -14,7 +14,7 @@
 /* SoC Configuration */
 
 /* Memory Configuration */
-#define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000
+#define CFG_SYS_LPAE_SDRAM_BASE	0x800000000
 #define CONFIG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
@@ -44,7 +44,7 @@
 #endif
 
 /* SPI Configuration */
-#define CONFIG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
+#define CFG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
 
 /* Keystone net */
 #define CONFIG_KSNET_MAC_ID_BASE		KS2_MAC_ID_BASE_ADDR
@@ -176,9 +176,9 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #ifndef CONFIG_SOC_K2G
-#define CONFIG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
+#define CFG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
 #else
-#define CONFIG_SYS_HZ_CLOCK		get_external_clk(sys_clk)
+#define CFG_SYS_HZ_CLOCK		get_external_clk(sys_clk)
 #endif
 
 #endif /* __CONFIG_KS2_EVM_H */

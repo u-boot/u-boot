@@ -23,7 +23,7 @@
 static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtd_to_nand(mtdinfo);
-	volatile u16 *nCE = (u16 *) CONFIG_SYS_LATCH_ADDR;
+	volatile u16 *nCE = (u16 *) CFG_SYS_LATCH_ADDR;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;

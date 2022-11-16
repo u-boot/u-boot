@@ -193,6 +193,6 @@ int board_mmc_init(struct bd_info *bd)
 
 int board_mmc_getcd(struct mmc *mmc)
 {
-	return !at91_get_pio_value(CONFIG_SYS_MMC_CD_PIN);
+	return !at91_get_pio_value(CFG_SYS_MMC_CD_PIN);
 }
 #endif

@@ -41,6 +41,6 @@
  * Else boot FIT image.
  */
 
-#define CONFIG_SYS_FLASH_BASE		0x0C000000
+#define CFG_SYS_FLASH_BASE		0x0C000000
 
 #endif /* __TOTAL_COMPUTE_H */

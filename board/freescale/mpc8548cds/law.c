@@ -12,7 +12,7 @@
 
 struct law_entry law_table[] = {
 	/* LBC window - maps 256M */
-	SET_LAW(CONFIG_SYS_LBC_SDRAM_BASE_PHYS, LAW_SIZE_256M, LAW_TRGT_IF_LBC),
+	SET_LAW(CFG_SYS_LBC_SDRAM_BASE_PHYS, LAW_SIZE_256M, LAW_TRGT_IF_LBC),
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);

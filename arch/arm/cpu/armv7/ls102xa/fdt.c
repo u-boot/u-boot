@@ -183,7 +183,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 	off = fdt_node_offset_by_compat_reg(blob, FSL_IFC_COMPAT,
-					    CONFIG_SYS_IFC_ADDR);
+					    CFG_SYS_IFC_ADDR);
 	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED);
 #else
 	off = fdt_node_offset_by_compat_reg(blob, FSL_QSPI_COMPAT,

@@ -40,35 +40,35 @@ void init_csm(void)
 {
 	csm_t *csm = (csm_t *)(MMAP_CSM);
 
-#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && \
-	defined(CONFIG_SYS_CS0_CTRL))
-	out_be16(&csm->csar0, CONFIG_SYS_CS0_BASE);
-	out_be32(&csm->csmr0, CONFIG_SYS_CS0_MASK);
-	out_be16(&csm->cscr0, CONFIG_SYS_CS0_CTRL);
-	MCF5307_SP_ERR_FIX(CONFIG_SYS_CS0_BASE, csm->csmr0);
+#if (defined(CFG_SYS_CS0_BASE) && defined(CFG_SYS_CS0_MASK) && \
+	defined(CFG_SYS_CS0_CTRL))
+	out_be16(&csm->csar0, CFG_SYS_CS0_BASE);
+	out_be32(&csm->csmr0, CFG_SYS_CS0_MASK);
+	out_be16(&csm->cscr0, CFG_SYS_CS0_CTRL);
+	MCF5307_SP_ERR_FIX(CFG_SYS_CS0_BASE, csm->csmr0);
 #else
 #warning "Chip Select 0 are not initialized/used"
 #endif
-#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) && \
-	defined(CONFIG_SYS_CS1_CTRL))
-	out_be16(&csm->csar1, CONFIG_SYS_CS1_BASE);
-	out_be32(&csm->csmr1, CONFIG_SYS_CS1_MASK);
-	out_be16(&csm->cscr1, CONFIG_SYS_CS1_CTRL);
-	MCF5307_SP_ERR_FIX(CONFIG_SYS_CS1_BASE, csm->csmr1);
+#if (defined(CFG_SYS_CS1_BASE) && defined(CFG_SYS_CS1_MASK) && \
+	defined(CFG_SYS_CS1_CTRL))
+	out_be16(&csm->csar1, CFG_SYS_CS1_BASE);
+	out_be32(&csm->csmr1, CFG_SYS_CS1_MASK);
+	out_be16(&csm->cscr1, CFG_SYS_CS1_CTRL);
+	MCF5307_SP_ERR_FIX(CFG_SYS_CS1_BASE, csm->csmr1);
 #endif
-#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) && \
-	defined(CONFIG_SYS_CS2_CTRL))
-	out_be16(&csm->csar2, CONFIG_SYS_CS2_BASE);
-	out_be32(&csm->csmr2, CONFIG_SYS_CS2_MASK);
-	out_be16(&csm->cscr2, CONFIG_SYS_CS2_CTRL);
-	MCF5307_SP_ERR_FIX(CONFIG_SYS_CS2_BASE, csm->csmr2);
+#if (defined(CFG_SYS_CS2_BASE) && defined(CFG_SYS_CS2_MASK) && \
+	defined(CFG_SYS_CS2_CTRL))
+	out_be16(&csm->csar2, CFG_SYS_CS2_BASE);
+	out_be32(&csm->csmr2, CFG_SYS_CS2_MASK);
+	out_be16(&csm->cscr2, CFG_SYS_CS2_CTRL);
+	MCF5307_SP_ERR_FIX(CFG_SYS_CS2_BASE, csm->csmr2);
 #endif
-#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) && \
-	defined(CONFIG_SYS_CS3_CTRL))
-	out_be16(&csm->csar3, CONFIG_SYS_CS3_BASE);
-	out_be32(&csm->csmr3, CONFIG_SYS_CS3_MASK);
-	out_be16(&csm->cscr3, CONFIG_SYS_CS3_CTRL);
-	MCF5307_SP_ERR_FIX(CONFIG_SYS_CS3_BASE, csm->csmr3);
+#if (defined(CFG_SYS_CS3_BASE) && defined(CFG_SYS_CS3_MASK) && \
+	defined(CFG_SYS_CS3_CTRL))
+	out_be16(&csm->csar3, CFG_SYS_CS3_BASE);
+	out_be32(&csm->csmr3, CFG_SYS_CS3_MASK);
+	out_be16(&csm->cscr3, CFG_SYS_CS3_CTRL);
+	MCF5307_SP_ERR_FIX(CFG_SYS_CS3_BASE, csm->csmr3);
 #endif
 #if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) && \
 	defined(CONFIG_SYS_CS4_CTRL))

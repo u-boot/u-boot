@@ -75,7 +75,7 @@ http://www.ti.com/tool/TMDXLCDK138
 Davinci special defines
 =======================
 
-CONFIG_SYS_DV_NOR_BOOT_CFG:	AM18xx based boards, booting in NOR Boot mode
+CFG_SYS_DV_NOR_BOOT_CFG:	AM18xx based boards, booting in NOR Boot mode
 				need a "NOR Boot Configuration Word" stored
 				in the NOR Flash. This define adds this.
 				More Info about this, see:

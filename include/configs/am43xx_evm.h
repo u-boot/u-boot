@@ -9,7 +9,7 @@
 #define __CONFIG_AM43XX_EVM_H
 
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
-#define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
+#define CFG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
 #include <asm/arch/omap.h>
 
@@ -25,7 +25,7 @@
 /* SPL defines. */
 
 /* Enabling L2 Cache */
-#define CONFIG_SYS_PL310_BASE	0x48242000
+#define CFG_SYS_PL310_BASE	0x48242000
 
 /*
  * When building U-Boot such that there is no previous loader

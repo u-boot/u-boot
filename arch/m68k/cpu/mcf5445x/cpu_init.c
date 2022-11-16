@@ -29,30 +29,30 @@ void init_fbcs(void)
 	fbcs_t *fbcs __maybe_unused = (fbcs_t *) MMAP_FBCS;
 
 #if !defined(CONFIG_SERIAL_BOOT)
-#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && defined(CONFIG_SYS_CS0_CTRL))
-	out_be32(&fbcs->csar0, CONFIG_SYS_CS0_BASE);
-	out_be32(&fbcs->cscr0, CONFIG_SYS_CS0_CTRL);
-	out_be32(&fbcs->csmr0, CONFIG_SYS_CS0_MASK);
+#if (defined(CFG_SYS_CS0_BASE) && defined(CFG_SYS_CS0_MASK) && defined(CFG_SYS_CS0_CTRL))
+	out_be32(&fbcs->csar0, CFG_SYS_CS0_BASE);
+	out_be32(&fbcs->cscr0, CFG_SYS_CS0_CTRL);
+	out_be32(&fbcs->csmr0, CFG_SYS_CS0_MASK);
 #endif
 #endif
 
-#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) && defined(CONFIG_SYS_CS1_CTRL))
+#if (defined(CFG_SYS_CS1_BASE) && defined(CFG_SYS_CS1_MASK) && defined(CFG_SYS_CS1_CTRL))
 	/* Latch chipselect */
-	out_be32(&fbcs->csar1, CONFIG_SYS_CS1_BASE);
-	out_be32(&fbcs->cscr1, CONFIG_SYS_CS1_CTRL);
-	out_be32(&fbcs->csmr1, CONFIG_SYS_CS1_MASK);
+	out_be32(&fbcs->csar1, CFG_SYS_CS1_BASE);
+	out_be32(&fbcs->cscr1, CFG_SYS_CS1_CTRL);
+	out_be32(&fbcs->csmr1, CFG_SYS_CS1_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) && defined(CONFIG_SYS_CS2_CTRL))
-	out_be32(&fbcs->csar2, CONFIG_SYS_CS2_BASE);
-	out_be32(&fbcs->cscr2, CONFIG_SYS_CS2_CTRL);
-	out_be32(&fbcs->csmr2, CONFIG_SYS_CS2_MASK);
+#if (defined(CFG_SYS_CS2_BASE) && defined(CFG_SYS_CS2_MASK) && defined(CFG_SYS_CS2_CTRL))
+	out_be32(&fbcs->csar2, CFG_SYS_CS2_BASE);
+	out_be32(&fbcs->cscr2, CFG_SYS_CS2_CTRL);
+	out_be32(&fbcs->csmr2, CFG_SYS_CS2_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) && defined(CONFIG_SYS_CS3_CTRL))
-	out_be32(&fbcs->csar3, CONFIG_SYS_CS3_BASE);
-	out_be32(&fbcs->cscr3, CONFIG_SYS_CS3_CTRL);
-	out_be32(&fbcs->csmr3, CONFIG_SYS_CS3_MASK);
+#if (defined(CFG_SYS_CS3_BASE) && defined(CFG_SYS_CS3_MASK) && defined(CFG_SYS_CS3_CTRL))
+	out_be32(&fbcs->csar3, CFG_SYS_CS3_BASE);
+	out_be32(&fbcs->cscr3, CFG_SYS_CS3_CTRL);
+	out_be32(&fbcs->csmr3, CFG_SYS_CS3_MASK);
 #endif
 
 #if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) && defined(CONFIG_SYS_CS4_CTRL))
@@ -208,14 +208,14 @@ void cpu_init_f(void)
 	/* FlexBus Chipselect */
 	init_fbcs();
 
-#ifdef CONFIG_SYS_CS0_BASE
+#ifdef CFG_SYS_CS0_BASE
 	/*
 	 * now the flash base address is no longer at 0 (Newer ColdFire family
 	 * boot at address 0 instead of 0xFFnn_nnnn). The vector table must
 	 * also move to the new location.
 	 */
-	if (CONFIG_SYS_CS0_BASE != 0)
-		setvbr(CONFIG_SYS_CS0_BASE);
+	if (CFG_SYS_CS0_BASE != 0)
+		setvbr(CFG_SYS_CS0_BASE);
 #endif
 
 	icache_enable();

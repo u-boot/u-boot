@@ -21,12 +21,12 @@
 /*===================*/
 
 #if XCHAL_HAVE_PTP_MMU
-#define CONFIG_SYS_MEMORY_BASE		\
+#define CFG_SYS_MEMORY_BASE		\
 	(XCHAL_VECBASE_RESET_VADDR - XCHAL_VECBASE_RESET_PADDR)
-#define CONFIG_SYS_IO_BASE		0xf0000000
+#define CFG_SYS_IO_BASE		0xf0000000
 #else
-#define CONFIG_SYS_MEMORY_BASE		0x60000000
-#define CONFIG_SYS_IO_BASE		0x90000000
+#define CFG_SYS_MEMORY_BASE		0x60000000
+#define CFG_SYS_IO_BASE		0x90000000
 #define CONFIG_MAX_MEM_MAPPED		0x10000000
 #endif
 
@@ -100,16 +100,16 @@
  */
 
 /* FPGA core clock frequency in Hz (also input to UART) */
-#define CONFIG_SYS_FPGAREG_FREQ	IOADDR(0x0D020004)	/* CPU clock frequency*/
+#define CFG_SYS_FPGAREG_FREQ	IOADDR(0x0D020004)	/* CPU clock frequency*/
 
 /*
  * DIP switch (left=sw1=lsb=bit0, right=sw8=msb=bit7; off=0, on=1):
  *   Bits 0..5 set the lower 6 bits of the default ethernet MAC.
  *   Bit 6 is reserved for future use by Tensilica.
- *   Bit 7 maps the first 128KB of ROM address space at CONFIG_SYS_ROM_BASE to
+ *   Bit 7 maps the first 128KB of ROM address space at CFG_SYS_ROM_BASE to
  *   the base of flash * (when on/1) or to the base of RAM (when off/0).
  */
-#define CONFIG_SYS_FPGAREG_DIPSW	IOADDR(0x0D02000C)
+#define CFG_SYS_FPGAREG_DIPSW	IOADDR(0x0D02000C)
 #define FPGAREG_MAC_SHIFT		0	/* Ethernet MAC bits 0..5 */
 #define FPGAREG_MAC_WIDTH		6
 #define FPGAREG_MAC_MASK		0x3f
@@ -120,8 +120,8 @@
 #define FPGAREG_BOOT_FLASH		(1<<FPGAREG_BOOT_SHIFT)
 
 /* Force hard reset of board by writing a code to this register */
-#define CONFIG_SYS_FPGAREG_RESET	IOADDR(0x0D020010) /* Reset board .. */
-#define CONFIG_SYS_FPGAREG_RESET_CODE	0x0000DEAD   /*  by writing this code */
+#define CFG_SYS_FPGAREG_RESET	IOADDR(0x0D020010) /* Reset board .. */
+#define CFG_SYS_FPGAREG_RESET_CODE	0x0000DEAD   /*  by writing this code */
 
 /*====================*/
 /* Serial Driver Info */
@@ -137,25 +137,25 @@
 /*======================*/
 
 #define CONFIG_ETHBASE			00:50:C2:13:6f:00
-#define CONFIG_SYS_ETHOC_BASE		IOADDR(0x0d030000)
-#define CONFIG_SYS_ETHOC_BUFFER_ADDR	IOADDR(0x0D800000)
+#define CFG_SYS_ETHOC_BASE		IOADDR(0x0d030000)
+#define CFG_SYS_ETHOC_BUFFER_ADDR	IOADDR(0x0D800000)
 
 /*=====================*/
 /* Flash & Environment */
 /*=====================*/
 
 #ifdef CONFIG_XTFPGA_LX60
-# define CONFIG_SYS_FLASH_SIZE		0x0040000	/* 4MB */
-# define CONFIG_SYS_FLASH_PARMSECT_SZ	0x2000		/* param size  8KB */
-# define CONFIG_SYS_FLASH_BASE		IOADDR(0x08000000)
+# define CFG_SYS_FLASH_SIZE		0x0040000	/* 4MB */
+# define CFG_SYS_FLASH_PARMSECT_SZ	0x2000		/* param size  8KB */
+# define CFG_SYS_FLASH_BASE		IOADDR(0x08000000)
 #elif defined(CONFIG_XTFPGA_KC705)
-# define CONFIG_SYS_FLASH_SIZE		0x8000000	/* 128MB */
-# define CONFIG_SYS_FLASH_PARMSECT_SZ	0x8000		/* param size 32KB */
-# define CONFIG_SYS_FLASH_BASE		IOADDR(0x00000000)
+# define CFG_SYS_FLASH_SIZE		0x8000000	/* 128MB */
+# define CFG_SYS_FLASH_PARMSECT_SZ	0x8000		/* param size 32KB */
+# define CFG_SYS_FLASH_BASE		IOADDR(0x00000000)
 #else
-# define CONFIG_SYS_FLASH_SIZE		0x1000000	/* 16MB */
-# define CONFIG_SYS_FLASH_PARMSECT_SZ	0x8000		/* param size 32KB */
-# define CONFIG_SYS_FLASH_BASE		IOADDR(0x08000000)
+# define CFG_SYS_FLASH_SIZE		0x1000000	/* 16MB */
+# define CFG_SYS_FLASH_PARMSECT_SZ	0x8000		/* param size 32KB */
+# define CFG_SYS_FLASH_BASE		IOADDR(0x08000000)
 #endif
 
 /*

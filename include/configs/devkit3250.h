@@ -29,8 +29,8 @@
 /*
  * NOR Flash
  */
-#define CONFIG_SYS_FLASH_BASE		EMC_CS0_BASE
-#define CONFIG_SYS_FLASH_SIZE		SZ_4M
+#define CFG_SYS_FLASH_BASE		EMC_CS0_BASE
+#define CFG_SYS_FLASH_SIZE		SZ_4M
 
 /*
  * NAND controller

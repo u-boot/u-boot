@@ -263,7 +263,7 @@ typedef volatile unsigned int   *dv_reg_p;
 /* MSMC segment size shift bits */
 #define KS2_MSMC_SEG_SIZE_SHIFT		12
 #define KS2_MSMC_MAP_SEG_NUM		(2 << (30 - KS2_MSMC_SEG_SIZE_SHIFT))
-#define KS2_MSMC_DST_SEG_BASE		(CONFIG_SYS_LPAE_SDRAM_BASE >> \
+#define KS2_MSMC_DST_SEG_BASE		(CFG_SYS_LPAE_SDRAM_BASE >> \
 					KS2_MSMC_SEG_SIZE_SHIFT)
 
 /* Device speed */

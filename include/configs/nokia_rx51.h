@@ -47,7 +47,7 @@
  */
 #define CFG_SYS_NS16550_COM3		OMAP34XX_UART3
 
-#define CONFIG_SYS_BAUDRATE_TABLE { 4800, 9600, 19200, 38400, 57600, 115200 }
+#define CFG_SYS_BAUDRATE_TABLE { 4800, 9600, 19200, 38400, 57600, 115200 }
 
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
@@ -64,7 +64,7 @@
  * Board ONENAND Info.
  */
 
-#define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
+#define CFG_SYS_ONENAND_BASE		ONENAND_MAP
 
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -150,7 +150,7 @@
  * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
  * This rate is divided by a local divisor.
  */
-#define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
+#define CFG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 
 /*
  * Physical Memory Map
@@ -162,8 +162,8 @@
  */
 
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
-#define CONFIG_SYS_INIT_RAM_SIZE	0x800
+#define CFG_SYS_INIT_RAM_ADDR	0x4020f800
+#define CFG_SYS_INIT_RAM_SIZE	0x800
 
 /*
  * Attached kernel image

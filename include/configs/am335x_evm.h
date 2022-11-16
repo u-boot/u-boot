@@ -205,8 +205,8 @@
  * 0x4C0000 - 0xFFFFFF : Userland (11 MiB + 256 KiB)
  */
 #if defined(CONFIG_NOR)
-#define CONFIG_SYS_FLASH_BASE		(0x08000000)
-#define CONFIG_SYS_FLASH_SIZE		0x01000000
+#define CFG_SYS_FLASH_BASE		(0x08000000)
+#define CFG_SYS_FLASH_SIZE		0x01000000
 #endif  /* NOR support */
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */

@@ -28,9 +28,9 @@
 #define GPT_CLKSRC_IPG_CLK		(1 << 6)
 #define GPT_CLKSRC_IPG_CLK_24M		(5 << 6)
 
-/* If CONFIG_SYS_HZ_CLOCK not specified et's default to 3Mhz */
-#ifndef CONFIG_SYS_HZ_CLOCK
-#define CONFIG_SYS_HZ_CLOCK		3000000
+/* If CFG_SYS_HZ_CLOCK not specified et's default to 3Mhz */
+#ifndef CFG_SYS_HZ_CLOCK
+#define CFG_SYS_HZ_CLOCK		3000000
 #endif
 
 struct imx_gpt_timer_regs {
@@ -60,7 +60,7 @@ static u64 imx_gpt_timer_get_count(struct udevice *dev)
 
 static int imx_gpt_setup(struct imx_gpt_timer_regs *regs, u32 rate)
 {
-	u32 prescaler = (rate / CONFIG_SYS_HZ_CLOCK) - 1;
+	u32 prescaler = (rate / CFG_SYS_HZ_CLOCK) - 1;
 
 	/* Reset the timer */
 	setbits_le32(&regs->cr, GPT_CR_SWR);
@@ -138,7 +138,7 @@ static int imx_gpt_timer_probe(struct udevice *dev)
 		return ret;
 	}
 
-	uc_priv->clock_rate = CONFIG_SYS_HZ_CLOCK;
+	uc_priv->clock_rate = CFG_SYS_HZ_CLOCK;
 
 	return 0;
 }

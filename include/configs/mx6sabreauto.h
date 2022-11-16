@@ -16,7 +16,7 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 #define CONFIG_PCA953X
-#define CONFIG_SYS_I2C_PCA953X_WIDTH	{ {0x30, 8}, {0x32, 8}, {0x34, 8} }
+#define CFG_SYS_I2C_PCA953X_WIDTH	{ {0x30, 8}, {0x32, 8}, {0x34, 8} }
 
 #include "mx6sabre_common.h"
 
@@ -26,7 +26,7 @@
 #endif
 
 #ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
+#define CFG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
 #endif
 
 #define CFG_SYS_FSL_USDHC_NUM	2

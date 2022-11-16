@@ -10,7 +10,7 @@
 #include "ls1088a_common.h"
 
 
-#define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
+#define CFG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
 
 #define QSPI_NOR_BOOTCOMMAND	"run distro_bootcmd"
 #define SD_BOOTCOMMAND		"run distro_bootcmd"

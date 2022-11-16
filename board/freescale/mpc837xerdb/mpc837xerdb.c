@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SYS_DRAM_TEST)
+#if defined(CFG_SYS_DRAM_TEST)
 int
 testdram(void)
 {
@@ -103,25 +103,25 @@ int fixed_sdram(void)
 	im->sysconf.ddrlaw[0].bar = CFG_SYS_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LBLAWAR_EN | (msize_log2 - 1);
 
-	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR_VALUE;
+	im->sysconf.ddrcdr = CFG_SYS_DDRCDR_VALUE;
 	udelay(50000);
 
-	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_SDRAM_CLK_CNTL;
+	im->ddr.sdram_clk_cntl = CFG_SYS_DDR_SDRAM_CLK_CNTL;
 	udelay(1000);
 
-	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
-	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
+	im->ddr.csbnds[0].csbnds = CFG_SYS_DDR_CS0_BNDS;
+	im->ddr.cs_config[0] = CFG_SYS_DDR_CS0_CONFIG;
 	udelay(1000);
 
-	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
-	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
-	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	im->ddr.timing_cfg_0 = CFG_SYS_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CFG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CFG_SYS_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CFG_SYS_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CFG_SYS_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CFG_SYS_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CFG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CFG_SYS_DDR_MODE2;
+	im->ddr.sdram_interval = CFG_SYS_DDR_INTERVAL;
 	sync();
 	udelay(1000);
 

@@ -36,7 +36,7 @@ int dram_init(void)
 	if (!(mbar_readLong(MCFSIM_DCR) & 0x8000)) {
 		u32 RC, temp;
 
-		RC = (CONFIG_SYS_CLK / 1000000) >> 1;
+		RC = (CFG_SYS_CLK / 1000000) >> 1;
 		RC = (RC * 15) >> 4;
 
 		/* Initialize DRAM Control Register: DCR */
@@ -113,7 +113,7 @@ void ide_set_reset(int idereset)
 		mbar2_writeLong(CIM_MISCCR, CIM_MISCCR_CPUEND);
 
 #define CALC_TIMING(t) (t + period - 1) / period
-		period = 1000000000 / (CONFIG_SYS_CLK / 2);	/* period in ns */
+		period = 1000000000 / (CFG_SYS_CLK / 2);	/* period in ns */
 
 		/*ata->ton = CALC_TIMING (180); */
 		out_8(&ata->t1, CALC_TIMING(piotms[2][0]));

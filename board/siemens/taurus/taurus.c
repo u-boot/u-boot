@@ -168,7 +168,7 @@ void sdramc_configure(unsigned int mask)
 	at91_sdram_hw_init();
 	setting.cr = SDRAM_BASE_CONF | mask;
 	setting.mdr = AT91_SDRAMC_MD_SDRAM;
-	setting.tr = (CONFIG_SYS_MASTER_CLOCK * 7) / 1000000;
+	setting.tr = (CFG_SYS_MASTER_CLOCK * 7) / 1000000;
 
 	writel(readl(&ma->ebicsa) | AT91_MATRIX_CS1A_SDRAMC |
 		AT91_MATRIX_VDDIOMSEL_3_3V | AT91_MATRIX_EBI_IOSR_SEL,

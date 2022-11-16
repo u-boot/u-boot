@@ -51,10 +51,10 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 #elif CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	old_bus = i2c_get_bus_num();
-	i2c_set_bus_num(CONFIG_SYS_RTC_BUS_NUM);
+	i2c_set_bus_num(CFG_SYS_RTC_BUS_NUM);
 #else
 	old_bus = I2C_GET_BUS();
-	I2C_SET_BUS(CONFIG_SYS_RTC_BUS_NUM);
+	I2C_SET_BUS(CFG_SYS_RTC_BUS_NUM);
 #endif
 
 	switch (argc) {

@@ -75,7 +75,7 @@ void fdt_fixup_icid(void *blob);
 
 #define SET_USB_ICID(usb_num, compat, streamid) \
 	SET_SCFG_ICID(compat, streamid, usb##usb_num##_icid,\
-		CONFIG_SYS_XHCI_USB##usb_num##_ADDR)
+		CFG_SYS_XHCI_USB##usb_num##_ADDR)
 
 #define SET_SATA_ICID(compat, streamid) \
 	SET_SCFG_ICID(compat, streamid, sata_icid,\
@@ -142,7 +142,7 @@ extern int fman_icid_tbl_sz;
 
 #define SET_USB_ICID(usb_num, compat, streamid) \
 	SET_GUR_ICID(compat, streamid, usb##usb_num##_amqr,\
-		CONFIG_SYS_XHCI_USB##usb_num##_ADDR)
+		CFG_SYS_XHCI_USB##usb_num##_ADDR)
 
 #define SET_SATA_ICID(sata_num, compat, streamid) \
 	SET_GUR_ICID(compat, streamid, sata##sata_num##_amqr, \

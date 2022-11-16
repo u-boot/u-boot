@@ -25,7 +25,7 @@
 /**
  * Platform/Board specific defs
  */
-#define CONFIG_SYS_TIMERBASE    0x4802E000
+#define CFG_SYS_TIMERBASE    0x4802E000
 
 /*
  * NS16550 Configuration

@@ -89,7 +89,7 @@
 						/* on one chip */
 
 #if defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_SYS_FLASH_BASE		NAND_BASE
+#define CFG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
 #endif /* __CONFIG_H */

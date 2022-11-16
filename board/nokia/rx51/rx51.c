@@ -232,7 +232,7 @@ int board_init(void)
 	gpmc_init();
 #if defined(CONFIG_CMD_ONENAND)
 	enable_gpmc_cs_config(gpmc_regs_onenandrx51, &gpmc_cfg->cs[0],
-			      CONFIG_SYS_ONENAND_BASE, GPMC_SIZE_256M);
+			      CFG_SYS_ONENAND_BASE, GPMC_SIZE_256M);
 #endif
 	/* Enable the clks & power */
 	per_clocks_enable();

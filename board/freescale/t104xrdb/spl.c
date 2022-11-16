@@ -46,7 +46,7 @@ void board_init_f(ulong bootflag)
 		porsr1 = in_be32(&gur->porsr1);
 		pinctl = ((porsr1 & ~(FSL_CORENET_CCSR_PORSR1_RCW_MASK))
 			  | 0x24800000);
-		out_be32((unsigned int *)(CONFIG_SYS_DCSRBAR + 0x20000),
+		out_be32((unsigned int *)(CFG_SYS_DCSRBAR + 0x20000),
 			 pinctl);
 	}
 #endif

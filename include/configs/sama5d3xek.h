@@ -27,7 +27,7 @@
 
 /* NOR flash */
 #ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_SYS_FLASH_BASE		0x10000000
+#define CFG_SYS_FLASH_BASE		0x10000000
 #endif
 
 /* SDRAM */

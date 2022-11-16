@@ -88,7 +88,7 @@
  * Boot configuration
  */
 
-#define CONFIG_SYS_ONENAND_BASE		0xE7100000
+#define CFG_SYS_ONENAND_BASE		0xE7100000
 
 /*
  * Ethernet Contoller driver

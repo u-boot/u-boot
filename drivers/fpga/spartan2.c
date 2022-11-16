@@ -21,8 +21,8 @@
 #define CONFIG_FPGA_DELAY()
 #endif
 
-#ifndef CONFIG_SYS_FPGA_WAIT
-#define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
+#ifndef CFG_SYS_FPGA_WAIT
+#define CFG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
 #endif
 
 static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize);
@@ -149,7 +149,7 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		/* Now wait for INIT and BUSY to go high */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to clear.\n");
 				(*fn->abort) (cookie);	/* abort the burn */
 				return FPGA_FAIL;
@@ -182,7 +182,7 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 				CONFIG_FPGA_DELAY ();
 				(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
 
-				if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+				if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 					puts ("** Timeout waiting for BUSY to clear.\n");
 					(*fn->abort) (cookie);	/* abort the burn */
 					return FPGA_FAIL;
@@ -214,7 +214,7 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 			CONFIG_FPGA_DELAY ();
 			(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
 
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for DONE to clear.\n");
 				(*fn->abort) (cookie);	/* abort the burn */
 				ret_val = FPGA_FAIL;
@@ -333,7 +333,7 @@ static int spartan2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		ts = get_timer (0);		/* get current time */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to start.\n");
 				return FPGA_FAIL;
 			}
@@ -347,7 +347,7 @@ static int spartan2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		/* Now wait for INIT to go high */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to clear.\n");
 				return FPGA_FAIL;
 			}
@@ -404,7 +404,7 @@ static int spartan2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 
 			putc ('*');
 
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for DONE to clear.\n");
 				ret_val = FPGA_FAIL;
 				break;

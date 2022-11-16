@@ -37,7 +37,7 @@
 
 #if !defined(CONFIG_ARM64)
 /* Time clock 1MHz */
-#define CONFIG_SYS_TIMER_RATE			1000000
+#define CFG_SYS_TIMER_RATE			1000000
 #endif
 
 #define CFG_SYS_NAND_REGS_BASE			0x68100000
@@ -162,11 +162,11 @@
 	LINUXBOOT_ENV_SETTINGS \
 	BOOTENV
 
-#define CONFIG_SYS_BOOTMAPSZ			0x20000000
+#define CFG_SYS_BOOTMAPSZ			0x20000000
 
 /* only for SPL */
 
 /* subtract sizeof(struct legacy_img_hdr) */
-#define CONFIG_SYS_UBOOT_BASE			(0x130000 - 0x40)
+#define CFG_SYS_UBOOT_BASE			(0x130000 - 0x40)
 
 #endif /* __CONFIG_UNIPHIER_H__ */

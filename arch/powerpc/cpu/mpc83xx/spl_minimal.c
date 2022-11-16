@@ -54,12 +54,12 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.spcr |= SPCR_TBEN;
 
 	/* DDR control driver register */
-#ifdef CONFIG_SYS_DDRCDR
-	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR;
+#ifdef CFG_SYS_DDRCDR
+	im->sysconf.ddrcdr = CFG_SYS_DDRCDR;
 #endif
 	/* Output buffer impedance register */
-#ifdef CONFIG_SYS_OBIR
-	im->sysconf.obir = CONFIG_SYS_OBIR;
+#ifdef CFG_SYS_OBIR
+	im->sysconf.obir = CFG_SYS_OBIR;
 #endif
 
 	/*

@@ -18,19 +18,19 @@
 /* CPU information */
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768	/* slow clock xtal */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	18432000 /* 18.432 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768	/* slow clock xtal */
+#define CFG_SYS_AT91_MAIN_CLOCK	18432000 /* 18.432 MHz crystal */
 
 /* 32kB internal SRAM */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x00300000 /*AT91SAM9XE_SRAM_BASE */
-#define CONFIG_SYS_INIT_RAM_SIZE	(32 << 10)
+#define CFG_SYS_INIT_RAM_ADDR	0x00300000 /*AT91SAM9XE_SRAM_BASE */
+#define CFG_SYS_INIT_RAM_SIZE	(32 << 10)
 
 /* 128MB SDRAM in 1 bank */
 #define CFG_SYS_SDRAM_BASE		0x20000000
 #define CFG_SYS_SDRAM_SIZE		(128 << 20)
 
 /* 512kB on-chip NOR flash */
-# define CONFIG_SYS_FLASH_BASE		0x00200000 /* AT91SAM9XE_FLASH_BASE */
+# define CFG_SYS_FLASH_BASE		0x00200000 /* AT91SAM9XE_FLASH_BASE */
 
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
@@ -53,16 +53,16 @@
 
 /* MMC */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_SYS_MMC_CD_PIN		AT91_PIO_PORTC, 8
+#define CFG_SYS_MMC_CD_PIN		AT91_PIO_PORTC, 8
 #endif
 
 /* RTC */
 #if defined(CONFIG_CMD_DATE) || defined(CONFIG_CMD_SNTP)
-#define CONFIG_SYS_I2C_RTC_ADDR		0x51
+#define CFG_SYS_I2C_RTC_ADDR		0x51
 #endif
 
 /* I2C */
-#define CONFIG_SYS_MAX_I2C_BUS	1
+#define CFG_SYS_MAX_I2C_BUS	1
 
 #define I2C_SOFT_DECLARATIONS
 

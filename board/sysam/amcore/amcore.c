@@ -77,7 +77,7 @@ int dram_init(void)
 	 * DCR
 	 * set proper  RC as per specification
 	 */
-	RC = (CONFIG_SYS_CPU_CLK / 1000000) >> 1;
+	RC = (CFG_SYS_CPU_CLK / 1000000) >> 1;
 	RC = (RC * 15) >> 4;
 
 	/* 0x8000 is the faster option */

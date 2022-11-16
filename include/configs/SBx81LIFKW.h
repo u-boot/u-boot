@@ -12,7 +12,7 @@
 /*
  * NS16550 Configuration
  */
-#define CFG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
+#define CFG_SYS_NS16550_CLK		CFG_SYS_TCLK
 #define CFG_SYS_NS16550_COM1		KW_UART0_BASE
 
 /*
@@ -32,7 +32,7 @@
  * U-Boot bootcode configuration
  */
 
-#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Mem map for Linux*/
+#define CFG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Mem map for Linux*/
 
 /* size in bytes reserved for initial data */
 

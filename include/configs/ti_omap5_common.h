@@ -17,7 +17,7 @@
 #define __CONFIG_TI_OMAP5_COMMON_H
 
 /* Use General purpose timer 1 */
-#define CONFIG_SYS_TIMERBASE		GPT2_BASE
+#define CFG_SYS_TIMERBASE		GPT2_BASE
 
 #include <linux/stringify.h>
 

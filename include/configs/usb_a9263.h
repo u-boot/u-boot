@@ -17,8 +17,8 @@
 #include <asm/hardware.h>
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
+#define CFG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768
 
 /*
  * Hardware drivers
@@ -28,8 +28,8 @@
 #define CFG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
 #define CFG_SYS_SDRAM_SIZE		0x04000000
 
-#define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
-#define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM1
+#define CFG_SYS_INIT_RAM_SIZE	(16 * 1024)
+#define CFG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM1
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

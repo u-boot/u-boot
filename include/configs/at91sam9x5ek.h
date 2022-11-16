@@ -9,8 +9,8 @@
 #define __CONFIG_H__
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
-#define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768
+#define CFG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
 
 /* general purpose I/O */
 
@@ -38,9 +38,9 @@
 
 /* SPL */
 
-#define CONFIG_SYS_MASTER_CLOCK		132096000
-#define CONFIG_SYS_AT91_PLLA		0x20c73f03
-#define CONFIG_SYS_MCKR			0x1301
-#define CONFIG_SYS_MCKR_CSS		0x1302
+#define CFG_SYS_MASTER_CLOCK		132096000
+#define CFG_SYS_AT91_PLLA		0x20c73f03
+#define CFG_SYS_MCKR			0x1301
+#define CFG_SYS_MCKR_CSS		0x1302
 
 #endif

@@ -55,19 +55,19 @@
  * interface etc.
  */
 
-#define CONFIG_SYS_CLK			80000000
-#define CONFIG_SYS_CPU_CLK		(CONFIG_SYS_CLK * 3)
+#define CFG_SYS_CLK			80000000
+#define CFG_SYS_CPU_CLK		(CFG_SYS_CLK * 3)
 #define CFG_SYS_SDRAM_SIZE		32		/* SDRAM size in MB */
 
 /*
  * Define baudrate for UART1 (console output, tftp, ...)
  * default value of CONFIG_BAUDRATE for Sentec board: 19200 baud
- * CONFIG_SYS_BAUDRATE_TABLE defines values that can be selected
+ * CFG_SYS_BAUDRATE_TABLE defines values that can be selected
  * in u-boot command interface
  */
 
-#define CONFIG_SYS_UART_PORT		(2)
-#define CONFIG_SYS_UART2_ALT3_GPIO
+#define CFG_SYS_UART_PORT		(2)
+#define CFG_SYS_UART2_ALT3_GPIO
 
 /*
  * Watchdog configuration; Watchdog is disabled for running from RAM
@@ -125,7 +125,7 @@
  * it needs non-blocking CFI routines.
  */
 
-#define CONFIG_SYS_FPGA_WAIT		1000
+#define CFG_SYS_FPGA_WAIT		1000
 
 /* End of user parameters to be customized */
 
@@ -139,19 +139,19 @@
 
 /* Base register address */
 
-#define CONFIG_SYS_MBAR		0xFC000000	/* Register Base Addrs */
+#define CFG_SYS_MBAR		0xFC000000	/* Register Base Addrs */
 
 /* System Conf. Reg. & System Protection Reg. */
 
-#define CONFIG_SYS_SCR		0x0003;
-#define CONFIG_SYS_SPR		0xffff;
+#define CFG_SYS_SCR		0x0003;
+#define CFG_SYS_SPR		0xffff;
 
 /*
  * Definitions for initial stack pointer and data area (in internal SRAM)
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
-#define CONFIG_SYS_INIT_RAM_SIZE		0x8000
-#define CONFIG_SYS_INIT_RAM_CTRL	0x221
+#define CFG_SYS_INIT_RAM_ADDR	0x80000000
+#define CFG_SYS_INIT_RAM_SIZE		0x8000
+#define CFG_SYS_INIT_RAM_CTRL	0x221
 
 /*
  * Start addresses for the final memory configuration
@@ -170,23 +170,23 @@
  * CS4 - unused
  * CS5 - unused
  */
-#define CONFIG_SYS_CS0_BASE		0
-#define CONFIG_SYS_CS0_MASK		0x00ff0001
-#define CONFIG_SYS_CS0_CTRL		0x00001fc0
+#define CFG_SYS_CS0_BASE		0
+#define CFG_SYS_CS0_MASK		0x00ff0001
+#define CFG_SYS_CS0_CTRL		0x00001fc0
 
-#define CONFIG_SYS_CS1_BASE		0x01000000
-#define CONFIG_SYS_CS1_MASK		0x00ff0001
-#define CONFIG_SYS_CS1_CTRL		0x00001fc0
+#define CFG_SYS_CS1_BASE		0x01000000
+#define CFG_SYS_CS1_MASK		0x00ff0001
+#define CFG_SYS_CS1_CTRL		0x00001fc0
 
-#define CONFIG_SYS_CS2_BASE		0x20000000
-#define CONFIG_SYS_CS2_MASK		0x00ff0001
-#define CONFIG_SYS_CS2_CTRL		0x0000fec0
+#define CFG_SYS_CS2_BASE		0x20000000
+#define CFG_SYS_CS2_MASK		0x00ff0001
+#define CFG_SYS_CS2_CTRL		0x0000fec0
 
-#define CONFIG_SYS_CS3_BASE		0x21000000
-#define CONFIG_SYS_CS3_MASK		0x00ff0001
-#define CONFIG_SYS_CS3_CTRL		0x0000fec0
+#define CFG_SYS_CS3_BASE		0x21000000
+#define CFG_SYS_CS3_MASK		0x00ff0001
+#define CFG_SYS_CS3_CTRL		0x0000fec0
 
-#define CONFIG_SYS_FLASH_BASE		0x00000000
+#define CFG_SYS_FLASH_BASE		0x00000000
 
 /* Reserve 256 kB for Monitor */
 
@@ -195,12 +195,12 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CONFIG_SYS_BOOTMAPSZ		(CFG_SYS_SDRAM_BASE + \
+#define CFG_SYS_BOOTMAPSZ		(CFG_SYS_SDRAM_BASE + \
 						(CFG_SYS_SDRAM_SIZE << 20))
 
 /* FLASH organization */
 
-#define CONFIG_SYS_FLASH_SIZE		0x2000000
+#define CFG_SYS_FLASH_SIZE		0x2000000
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
@@ -208,15 +208,15 @@
 
 /* Cache Configuration */
 
-#define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 8)
-#define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 4)
-#define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINVA)
-#define CONFIG_SYS_CACHE_ACR0		(CFG_SYS_SDRAM_BASE | \
+#define ICACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 8)
+#define DCACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 4)
+#define CFG_SYS_ICACHE_INV		(CF_CACR_CINVA)
+#define CFG_SYS_CACHE_ACR0		(CFG_SYS_SDRAM_BASE | \
 					 CF_ADDRMASK(CFG_SYS_SDRAM_SIZE) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
-#define CONFIG_SYS_CACHE_ICACR		(CF_CACR_EC | CF_CACR_CINVA | \
+#define CFG_SYS_CACHE_ICACR		(CF_CACR_EC | CF_CACR_CINVA | \
 					 CF_CACR_DCM_P)
 
 #endif	/* _CONFIG_ASTRO_MCF5373L_H */

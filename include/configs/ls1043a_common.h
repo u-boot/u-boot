@@ -32,10 +32,10 @@
 /* Link Definitions */
 
 #define CONFIG_VERY_BIG_RAM
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
-#define CFG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_DDR_BLOCK2_BASE      0x880000000ULL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_BLOCK2_BASE      0x880000000ULL
 
 #define CPU_RELEASE_ADDR               secondary_boot_addr
 
@@ -82,14 +82,14 @@
 #if defined(CONFIG_TFABOOT) || \
 	(!defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI))
 /*
- * CONFIG_SYS_FLASH_BASE has the final address (core view)
- * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
- * CONFIG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
+ * CFG_SYS_FLASH_BASE has the final address (core view)
+ * CFG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
+ * CFG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
  * CONFIG_TEXT_BASE is linked to 0x60000000 for booting
  */
-#define CONFIG_SYS_FLASH_BASE			0x60000000
-#define CONFIG_SYS_FLASH_BASE_PHYS		CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
+#define CFG_SYS_FLASH_BASE			0x60000000
+#define CFG_SYS_FLASH_BASE_PHYS		CFG_SYS_FLASH_BASE
+#define CFG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
 
 #ifdef CONFIG_MTD_NOR_FLASH
 #define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
@@ -104,7 +104,7 @@
 /* FMan ucode */
 #ifndef SPL_NO_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_SYS_FM_MURAM_SIZE	0x60000
+#define CFG_SYS_FM_MURAM_SIZE	0x60000
 #endif
 #endif
 

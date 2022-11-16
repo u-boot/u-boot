@@ -63,9 +63,9 @@
  * 0x1E0000 - 0x9E0000 : QSPI.kernel (8MiB)
  * 0x9E0000 - 0x2000000 : USERLAND
  */
-#define CONFIG_SYS_SPI_KERNEL_OFFS	0x1E0000
-#define CONFIG_SYS_SPI_ARGS_OFFS	0x140000
-#define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
+#define CFG_SYS_SPI_KERNEL_OFFS	0x1E0000
+#define CFG_SYS_SPI_ARGS_OFFS	0x140000
+#define CFG_SYS_SPI_ARGS_SIZE	0x80000
 
 /* SPI SPL */
 
@@ -87,8 +87,8 @@
 /* Parallel NOR Support */
 #if defined(CONFIG_NOR)
 /* NOR: device related configs */
-#define CONFIG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
-#define CONFIG_SYS_FLASH_BASE		(0x08000000)
+#define CFG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
+#define CFG_SYS_FLASH_BASE		(0x08000000)
 /* Reduce SPL size by removing unlikey targets */
 #endif  /* NOR support */
 

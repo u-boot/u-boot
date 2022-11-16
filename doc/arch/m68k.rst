@@ -112,16 +112,16 @@ CONFIG_M5272:
 Other options, generally set inside include/configs/<boardname>.h, they may
 apply to one or more cpu for the ColdFire family:
 
-CONFIG_SYS_MBAR:
+CFG_SYS_MBAR:
   defines the base address of the MCF5272 configuration registers
-CONFIG_SYS_SCR:
+CFG_SYS_SCR:
   defines the contents of the System Configuration Register
-CONFIG_SYS_SPR:
+CFG_SYS_SPR:
   defines the contents of the System Protection Register
-CONFIG_SYS_MFD:
+CFG_SYS_MFD:
   defines the PLL Multiplication Factor Divider
   (see table 9-4 of MCF user manual)
-CONFIG_SYS_RFD:
+CFG_SYS_RFD:
   defines the PLL Reduce Frequency Devider
   (see table 9-4 of MCF user manual)
 CONFIG_SYS_CSx_BASE:
@@ -136,9 +136,9 @@ CONFIG_SYS_CSx_RO:
   if set to 0 chip select x is read/write else chip select is read only
 CONFIG_SYS_CSx_WS:
   defines the number of wait states  of chip select x
-CONFIG_SYS_CACHE_ICACR:
+CFG_SYS_CACHE_ICACR:
   cache-related registers config
-CONFIG_SYS_CACHE_DCACR:
+CFG_SYS_CACHE_DCACR:
   cache-related registers config
 CONFIG_SYS_CACHE_ACRX:
   cache-related registers config
@@ -162,7 +162,7 @@ CFG_SYS_SDRAM_EMOD:
   these options are used.
 CONFIG_MCFUART:
   defines enabling of ColdFire UART driver
-CONFIG_SYS_UART_PORT:
+CFG_SYS_UART_PORT:
   defines the UART port to be used (only a single UART can be actually enabled)
-CONFIG_SYS_SBFHDR_SIZE:
+CFG_SYS_SBFHDR_SIZE:
   size of the prepended SBF header, if any

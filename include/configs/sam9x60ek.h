@@ -11,8 +11,8 @@
 #define __CONFIG_H__
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
-#define CONFIG_SYS_AT91_MAIN_CLOCK	24000000	/* 24 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768
+#define CFG_SYS_AT91_MAIN_CLOCK	24000000	/* 24 MHz crystal */
 
 #define CONFIG_USART_BASE   ATMEL_BASE_DBGU
 #define CONFIG_USART_ID     0 /* ignored in arm */

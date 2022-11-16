@@ -761,7 +761,7 @@ int sh_sdhi_init(unsigned long addr, int ch, unsigned long quirks)
 	struct mmc *mmc;
 	struct sh_sdhi_host *host = NULL;
 
-	if (ch >= CONFIG_SYS_SH_SDHI_NR_CHANNEL)
+	if (ch >= CFG_SYS_SH_SDHI_NR_CHANNEL)
 		return -ENODEV;
 
 	host = malloc(sizeof(struct sh_sdhi_host));

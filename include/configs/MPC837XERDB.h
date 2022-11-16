@@ -25,20 +25,20 @@
 */
 
 /* System Clock Configuration Register */
-#define CONFIG_SYS_SCCR_TSEC1CM	1		/* eTSEC1 clock mode (0-3) */
-#define CONFIG_SYS_SCCR_TSEC2CM	1		/* eTSEC2 clock mode (0-3) */
-#define CONFIG_SYS_SCCR_SATACM	SCCR_SATACM_2	/* SATA1-4 clock mode (0-3) */
+#define CFG_SYS_SCCR_TSEC1CM	1		/* eTSEC1 clock mode (0-3) */
+#define CFG_SYS_SCCR_TSEC2CM	1		/* eTSEC2 clock mode (0-3) */
+#define CFG_SYS_SCCR_SATACM	SCCR_SATACM_2	/* SATA1-4 clock mode (0-3) */
 
 /*
  * System IO Config
  */
-#define CONFIG_SYS_SICRH		0x08200000
-#define CONFIG_SYS_SICRL		0x00000000
+#define CFG_SYS_SICRH		0x08200000
+#define CFG_SYS_SICRL		0x00000000
 
 /*
  * Output Buffer Impedance
  */
-#define CONFIG_SYS_OBIR		0x30100000
+#define CFG_SYS_OBIR		0x30100000
 
 /*
  * Device configurations
@@ -60,9 +60,9 @@
  * DDR Setup
  */
 #define CFG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
-#define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	0x03000000
+#define CFG_SYS_DDR_SDRAM_CLK_CNTL	0x03000000
 
-#define CONFIG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
+#define CFG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
 
 #undef CONFIG_NEVER_ASSERT_ODT_TO_CPU	/* Never assert ODT to internal IOs */
 
@@ -70,14 +70,14 @@
  * Manually set up DDR parameters
  */
 #define CFG_SYS_SDRAM_SIZE		0x10000000 /* 256 MiB */
-#define CONFIG_SYS_DDR_CS0_BNDS		0x0000000f
-#define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
+#define CFG_SYS_DDR_CS0_BNDS		0x0000000f
+#define CFG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
 					| CSCONFIG_ODT_WR_ONLY_CURRENT \
 					| CSCONFIG_ROW_BIT_13 \
 					| CSCONFIG_COL_BIT_10)
 
-#define CONFIG_SYS_DDR_TIMING_3	0x00000000
-#define CONFIG_SYS_DDR_TIMING_0	((0 << TIMING_CFG0_RWT_SHIFT) \
+#define CFG_SYS_DDR_TIMING_3	0x00000000
+#define CFG_SYS_DDR_TIMING_0	((0 << TIMING_CFG0_RWT_SHIFT) \
 				| (0 << TIMING_CFG0_WRT_SHIFT) \
 				| (0 << TIMING_CFG0_RRT_SHIFT) \
 				| (0 << TIMING_CFG0_WWT_SHIFT) \
@@ -86,7 +86,7 @@
 				| (8 << TIMING_CFG0_ODT_PD_EXIT_SHIFT) \
 				| (2 << TIMING_CFG0_MRS_CYC_SHIFT))
 				/* 0x00260802 */ /* DDR400 */
-#define CONFIG_SYS_DDR_TIMING_1	((3 << TIMING_CFG1_PRETOACT_SHIFT) \
+#define CFG_SYS_DDR_TIMING_1	((3 << TIMING_CFG1_PRETOACT_SHIFT) \
 				| (9 << TIMING_CFG1_ACTTOPRE_SHIFT) \
 				| (3 << TIMING_CFG1_ACTTORW_SHIFT) \
 				| (7 << TIMING_CFG1_CASLAT_SHIFT) \
@@ -95,7 +95,7 @@
 				| (2 << TIMING_CFG1_ACTTOACT_SHIFT) \
 				| (2 << TIMING_CFG1_WRTORD_SHIFT))
 				/* 0x3937d322 */
-#define CONFIG_SYS_DDR_TIMING_2	((0 << TIMING_CFG2_ADD_LAT_SHIFT) \
+#define CFG_SYS_DDR_TIMING_2	((0 << TIMING_CFG2_ADD_LAT_SHIFT) \
 				| (5 << TIMING_CFG2_CPO_SHIFT) \
 				| (3 << TIMING_CFG2_WR_LAT_DELAY_SHIFT) \
 				| (2 << TIMING_CFG2_RD_TO_PRE_SHIFT) \
@@ -104,23 +104,23 @@
 				| (8 << TIMING_CFG2_FOUR_ACT_SHIFT))
 				/* 0x02984cc8 */
 
-#define CONFIG_SYS_DDR_INTERVAL	((1024 << SDRAM_INTERVAL_REFINT_SHIFT) \
+#define CFG_SYS_DDR_INTERVAL	((1024 << SDRAM_INTERVAL_REFINT_SHIFT) \
 				| (0 << SDRAM_INTERVAL_BSTOPRE_SHIFT))
 				/* 0x06090100 */
 
-#define CONFIG_SYS_DDR_SDRAM_CFG	(SDRAM_CFG_SREN \
+#define CFG_SYS_DDR_SDRAM_CFG	(SDRAM_CFG_SREN \
 					| SDRAM_CFG_SDRAM_TYPE_DDR2)
 					/* 0x43000000 */
-#define CONFIG_SYS_DDR_SDRAM_CFG2	0x00001000 /* 1 posted refresh */
-#define CONFIG_SYS_DDR_MODE		((0x0406 << SDRAM_MODE_ESD_SHIFT) \
+#define CFG_SYS_DDR_SDRAM_CFG2	0x00001000 /* 1 posted refresh */
+#define CFG_SYS_DDR_MODE		((0x0406 << SDRAM_MODE_ESD_SHIFT) \
 					| (0x0442 << SDRAM_MODE_SD_SHIFT))
 					/* 0x04400442 */ /* DDR400 */
-#define CONFIG_SYS_DDR_MODE2		0x00000000
+#define CFG_SYS_DDR_MODE2		0x00000000
 
 /*
  * Memory test
  */
-#undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
+#undef CFG_SYS_DRAM_TEST		/* memory test, takes time */
 
 /*
  * The reserved memory
@@ -129,14 +129,14 @@
 /*
  * Initial RAM Base Address Setup
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
+#define CFG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
+#define CFG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
-#define CONFIG_SYS_FLASH_SIZE		8 /* max FLASH size is 32M */
+#define CFG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
+#define CFG_SYS_FLASH_SIZE		8 /* max FLASH size is 32M */
 
 /*
  * NAND Flash on the Local Bus
@@ -146,14 +146,14 @@
 
 /* Vitesse 7385 */
 
-#define CONFIG_SYS_VSC7385_BASE	0xF0000000
+#define CFG_SYS_VSC7385_BASE	0xF0000000
 
 /*
  * Serial Port
  */
 #define CFG_SYS_NS16550_CLK		get_bus_freq(0)
 
-#define CONFIG_SYS_BAUDRATE_TABLE \
+#define CFG_SYS_BAUDRATE_TABLE \
 		{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CFG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR+0x4500)
@@ -165,13 +165,13 @@
 #define CONFIG_FSL_SERDES2	0xe3100
 
 /* I2C */
-#define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x51} }
+#define CFG_SYS_I2C_NOPROBES		{ {0, 0x51} }
 
 /*
  * Config on-board RTC
  */
 #define CONFIG_RTC_DS1374	/* use ds1374 rtc via i2c */
-#define CONFIG_SYS_I2C_RTC_ADDR	0x68 /* at address 0x68 */
+#define CFG_SYS_I2C_RTC_ADDR	0x68 /* at address 0x68 */
 
 /*
  * General PCI
@@ -198,7 +198,7 @@
 
 #ifdef CONFIG_TSEC1
 #define CONFIG_TSEC1_NAME		"TSEC0"
-#define CONFIG_SYS_TSEC1_OFFSET		0x24000
+#define CFG_SYS_TSEC1_OFFSET		0x24000
 #define TSEC1_PHY_ADDR			2
 #define TSEC1_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC1_PHYIDX			0
@@ -226,7 +226,7 @@
  * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
+#define CFG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
 
 /*
  * Environment Configuration

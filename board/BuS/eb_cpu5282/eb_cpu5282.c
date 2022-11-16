@@ -26,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int checkboard (void)
 {
 	puts("Board: EB+CPU5282 (BuS Elektronik GmbH & Co. KG)\n");
-#if (CONFIG_TEXT_BASE ==  CONFIG_SYS_INT_FLASH_BASE)
+#if (CONFIG_TEXT_BASE ==  CFG_SYS_INT_FLASH_BASE)
 	puts("       Boot from Internal FLASH\n");
 #endif
 	return 0;
@@ -38,7 +38,7 @@ int dram_init(void)
 
 	size = 0;
 	MCFSDRAMC_DCR = MCFSDRAMC_DCR_RTIM_6 |
-			MCFSDRAMC_DCR_RC((15 * CONFIG_SYS_CLK / 1000000) >> 4);
+			MCFSDRAMC_DCR_RC((15 * CFG_SYS_CLK / 1000000) >> 4);
 	asm (" nop");
 #ifdef CFG_SYS_SDRAM_BASE0
 	MCFSDRAMC_DACR0 = MCFSDRAMC_DACR_BASE(CFG_SYS_SDRAM_BASE0)|
@@ -94,7 +94,7 @@ int dram_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SYS_DRAM_TEST)
+#if defined(CFG_SYS_DRAM_TEST)
 int testdram(void)
 {
 	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;

@@ -417,7 +417,7 @@ void print_reginfo(void)
 /* Common ddr init for non-corenet fsl 85xx platforms */
 #ifndef CONFIG_FSL_CORENET
 #if (defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)) && \
-	!defined(CONFIG_SYS_INIT_L2_ADDR)
+	!defined(CFG_SYS_INIT_L2_ADDR)
 int dram_init(void)
 {
 #if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
@@ -486,7 +486,7 @@ int dram_init(void)
 #endif /* CONFIG_SYS_RAMBOOT */
 #endif
 
-#if CONFIG_POST & CONFIG_SYS_POST_MEMORY
+#if CONFIG_POST & CFG_SYS_POST_MEMORY
 
 /* Board-specific functions defined in each board's ddr.c */
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
@@ -591,7 +591,7 @@ static void dump_spd_ddr_reg(void)
 /* invalid the TLBs for DDR and setup new ones to cover p_addr */
 static int reset_tlb(phys_addr_t p_addr, u32 size, phys_addr_t *phys_offset)
 {
-	u32 vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+	u32 vstart = CFG_SYS_DDR_SDRAM_BASE;
 	unsigned long epn;
 	u32 tsize, valid, ptr;
 	int ddr_esel;
@@ -624,8 +624,8 @@ int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
 
 #if !defined(CONFIG_PHYS_64BIT) || \
-    !defined(CONFIG_SYS_INIT_RAM_ADDR_PHYS) || \
-	(CONFIG_SYS_INIT_RAM_ADDR_PHYS < 0x100000000ull)
+    !defined(CFG_SYS_INIT_RAM_ADDR_PHYS) || \
+	(CFG_SYS_INIT_RAM_ADDR_PHYS < 0x100000000ull)
 		test_cap = p_size;
 #else
 		test_cap = gd->ram_size;
@@ -635,7 +635,7 @@ int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 		p_size = min(test_cap - p_addr, CONFIG_MAX_MEM_MAPPED);
 		if (reset_tlb(p_addr, p_size, phys_offset) == -1)
 			return -1;
-		*vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+		*vstart = CFG_SYS_DDR_SDRAM_BASE;
 		*size = (u32) p_size;
 		printf("Testing 0x%08llx - 0x%08llx\n",
 			(u64)(*vstart) + (*phys_offset),
@@ -651,13 +651,13 @@ int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
 	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
 
-	*vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+	*vstart = CFG_SYS_DDR_SDRAM_BASE;
 	*size = (u32) p_size;	/* CONFIG_MAX_MEM_MAPPED < 4G */
 	*phys_offset = 0;
 
 #if !defined(CONFIG_PHYS_64BIT) || \
-    !defined(CONFIG_SYS_INIT_RAM_ADDR_PHYS) || \
-	(CONFIG_SYS_INIT_RAM_ADDR_PHYS < 0x100000000ull)
+    !defined(CFG_SYS_INIT_RAM_ADDR_PHYS) || \
+	(CFG_SYS_INIT_RAM_ADDR_PHYS < 0x100000000ull)
 		if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
 			puts("Cannot test more than ");
 			print_size(CONFIG_MAX_MEM_MAPPED,

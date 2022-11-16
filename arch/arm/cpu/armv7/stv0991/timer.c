@@ -18,7 +18,7 @@ static struct stv0991_cgu_regs *const stv0991_cgu_regs = \
 				(struct stv0991_cgu_regs *) (CGU_BASE_ADDR);
 
 #define READ_TIMER()	(readl(&gpt1_regs_ptr->cnt) & GPT_FREE_RUNNING)
-#define GPT_RESOLUTION	(CONFIG_SYS_HZ_CLOCK / CONFIG_SYS_HZ)
+#define GPT_RESOLUTION	(CFG_SYS_HZ_CLOCK / CONFIG_SYS_HZ)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -67,7 +67,7 @@ void __udelay(unsigned long usec)
 {
 	ulong tmo;
 	ulong start = get_timer_masked();
-	ulong tenudelcnt = CONFIG_SYS_HZ_CLOCK / (1000 * 100);
+	ulong tenudelcnt = CFG_SYS_HZ_CLOCK / (1000 * 100);
 	ulong rndoff;
 
 	rndoff = (usec % 10) ? 1 : 0;

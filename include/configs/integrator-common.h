@@ -6,7 +6,7 @@
  * Common ARM Integrator configuration settings
  */
 
-#define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1 */
+#define CFG_SYS_TIMERBASE		0x13000100	/* Timer1 */
 
 /*
  * The ARM boot monitor initializes the board.
@@ -41,6 +41,6 @@
  * - SIB block
  * - U-Boot environment
  */
-#define CONFIG_SYS_FLASH_BASE		0x24000000
+#define CFG_SYS_FLASH_BASE		0x24000000
 
 /* Timeout values in ticks */

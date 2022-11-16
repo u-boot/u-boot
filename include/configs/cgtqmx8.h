@@ -19,7 +19,7 @@
 
 /* Flat Device Tree Definitions */
 
-#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
+#define CFG_SYS_BOOTMAPSZ		(256 << 20)
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5B010000
 #define USDHC2_BASE_ADDR		0x5B020000

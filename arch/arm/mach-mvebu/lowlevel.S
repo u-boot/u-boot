@@ -35,10 +35,10 @@ ENTRY(arch_very_early_init)
 	 * Disable L2 cache
 	 *
 	 * NOTE: Internal registers are still at address INTREG_BASE_ADDR_REG
-	 *       but CONFIG_SYS_PL310_BASE is already calculated from base
+	 *       but CFG_SYS_PL310_BASE is already calculated from base
 	 *       address SOC_REGS_PHY_BASE.
 	 */
-	ldr	r1, =(CONFIG_SYS_PL310_BASE - SOC_REGS_PHY_BASE + INTREG_BASE_ADDR_REG)
+	ldr	r1, =(CFG_SYS_PL310_BASE - SOC_REGS_PHY_BASE + INTREG_BASE_ADDR_REG)
 	ldr	r0, [r1, #L2X0_CTRL_OFF]
 	bic	r0, #L2X0_CTRL_EN
 	str	r0, [r1, #L2X0_CTRL_OFF]

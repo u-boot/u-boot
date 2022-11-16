@@ -10,8 +10,8 @@
 #define __AT91SAM9N12_CONFIG_H_
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	16000000	/* main clock xtal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
+#define CFG_SYS_AT91_MAIN_CLOCK	16000000	/* main clock xtal */
 
 /* Misc CPU related */
 #define CFG_SYS_SDRAM_BASE		0x20000000
@@ -35,9 +35,9 @@
 
 /* SPL */
 
-#define CONFIG_SYS_MASTER_CLOCK		132096000
-#define CONFIG_SYS_AT91_PLLA		0x20953f03
-#define CONFIG_SYS_MCKR			0x1301
-#define CONFIG_SYS_MCKR_CSS		0x1302
+#define CFG_SYS_MASTER_CLOCK		132096000
+#define CFG_SYS_AT91_PLLA		0x20953f03
+#define CFG_SYS_MCKR			0x1301
+#define CFG_SYS_MCKR_CSS		0x1302
 
 #endif

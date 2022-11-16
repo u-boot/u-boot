@@ -80,7 +80,7 @@
 /* CS2 Base address */
 #define PHYS_FLASH_1			0xc0000000
 /* Flash Base for U-Boot */
-#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
+#define CFG_SYS_FLASH_BASE		PHYS_FLASH_1
 /* Address and size of Redundant Environment Sector	*/
 
 /*

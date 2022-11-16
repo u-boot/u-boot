@@ -244,9 +244,9 @@ int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 {
 	int off;
 	uint32_t ph;
-	phys_addr_t paddr = CONFIG_SYS_CCSRBAR_PHYS + info->compat_offset;
+	phys_addr_t paddr = CFG_SYS_CCSRBAR_PHYS + info->compat_offset;
 #ifndef CONFIG_SYS_FMAN_V3
-	u64 dtsec1_addr = (u64)CONFIG_SYS_CCSRBAR_PHYS +
+	u64 dtsec1_addr = (u64)CFG_SYS_CCSRBAR_PHYS +
 				CFG_SYS_FSL_FM1_DTSEC1_OFFSET;
 #endif
 

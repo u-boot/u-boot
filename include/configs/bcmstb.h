@@ -82,7 +82,7 @@ extern phys_addr_t prior_stage_fdt_address;
  * initramfs images, in which case this limitation is eliminated.
  */
 #define CFG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x100000
+#define CFG_SYS_INIT_RAM_SIZE	0x100000
 
 /*
  * CONFIG_SYS_LOAD_ADDR - 1 MiB.
@@ -102,7 +102,7 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Serial console configuration.
  */
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
+#define CFG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
 					 115200}
 
 /*

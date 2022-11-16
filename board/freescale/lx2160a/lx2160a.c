@@ -57,9 +57,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct pl01x_serial_plat serial0 = {
 #if CONFIG_CONS_INDEX == 0
-	.base = CONFIG_SYS_SERIAL0,
+	.base = CFG_SYS_SERIAL0,
 #elif CONFIG_CONS_INDEX == 1
-	.base = CONFIG_SYS_SERIAL1,
+	.base = CFG_SYS_SERIAL1,
 #else
 #error "Unsupported console index value."
 #endif
@@ -72,7 +72,7 @@ U_BOOT_DRVINFO(nxp_serial0) = {
 };
 
 static struct pl01x_serial_plat serial1 = {
-	.base = CONFIG_SYS_SERIAL1,
+	.base = CFG_SYS_SERIAL1,
 	.type = TYPE_PL011,
 };
 

@@ -21,7 +21,7 @@
 #define CONFIG_USART_ID			30
 
 /* Timer */
-#define CONFIG_SYS_TIMER_COUNTER	0xfc06863c
+#define CFG_SYS_TIMER_COUNTER	0xfc06863c
 
 /* SDRAM */
 #define CFG_SYS_SDRAM_BASE           0x20000000
@@ -31,7 +31,7 @@
 
 #ifdef CONFIG_CMD_MMC
 #define ATMEL_BASE_MMCI			0xfc000000
-#define CONFIG_SYS_MMC_CLK_OD		500000
+#define CFG_SYS_MMC_CLK_OD		500000
 
 /* For generating MMC partitions */
 

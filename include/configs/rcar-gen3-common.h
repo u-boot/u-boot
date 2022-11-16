@@ -18,7 +18,7 @@
 #define GICC_BASE	0xF1020000
 
 /* console */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }
+#define CFG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }
 
 /* PHY needs a longer autoneg timeout */
 #define PHY_ANEG_TIMEOUT		20000

@@ -900,9 +900,9 @@ static const init_fnc_t init_sequence_f[] = {
 	post_init_f,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_SYS_DRAM_TEST)
+#if defined(CFG_SYS_DRAM_TEST)
 	testdram,
-#endif /* CONFIG_SYS_DRAM_TEST */
+#endif /* CFG_SYS_DRAM_TEST */
 	INIT_FUNC_WATCHDOG_RESET
 
 #ifdef CONFIG_POST

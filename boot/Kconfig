@@ -654,7 +654,7 @@ config SYS_MONITOR_BASE
 	default TEXT_BASE
 	help
 	  The physical start address of boot monitor code (which is the same as
-	  CONFIG_TEXT_BASE when linking) and the same as CONFIG_SYS_FLASH_BASE
+	  CONFIG_TEXT_BASE when linking) and the same as CFG_SYS_FLASH_BASE
 	  when booting from flash.
 
 config SPL_SYS_MONITOR_BASE

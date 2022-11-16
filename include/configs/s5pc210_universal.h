@@ -87,7 +87,7 @@
 	"mmcrootpart=3\0" \
 	"opts=always_resume=1"
 
-#define CONFIG_SYS_ONENAND_BASE		0x0C000000
+#define CFG_SYS_ONENAND_BASE		0x0C000000
 
 #ifndef	__ASSEMBLY__
 void universal_spi_scl(int bit);

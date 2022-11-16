@@ -144,14 +144,14 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	}
 #ifdef CONFIG_DEEP_SLEEP
 #ifdef CONFIG_SPL_MMC_BOOT
-	off = fdt_add_mem_rsv(blob, CONFIG_SYS_MMC_U_BOOT_START,
-		CONFIG_SYS_MMC_U_BOOT_SIZE);
+	off = fdt_add_mem_rsv(blob, CFG_SYS_MMC_U_BOOT_START,
+		CFG_SYS_MMC_U_BOOT_SIZE);
 	if (off < 0)
 		printf("Failed to reserve memory for SD deep sleep: %s\n",
 		       fdt_strerror(off));
 #elif defined(CONFIG_SPL_SPI_BOOT)
-	off = fdt_add_mem_rsv(blob, CONFIG_SYS_SPI_FLASH_U_BOOT_START,
-		CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE);
+	off = fdt_add_mem_rsv(blob, CFG_SYS_SPI_FLASH_U_BOOT_START,
+		CFG_SYS_SPI_FLASH_U_BOOT_SIZE);
 	if (off < 0)
 		printf("Failed to reserve memory for SPI deep sleep: %s\n",
 		       fdt_strerror(off));
@@ -448,7 +448,7 @@ void fdt_add_enet_stashing(void *fdt)
 static void ft_fixup_clks(void *blob, const char *compat, u32 offset,
 			  unsigned long freq)
 {
-	phys_addr_t phys = offset + CONFIG_SYS_CCSRBAR_PHYS;
+	phys_addr_t phys = offset + CFG_SYS_CCSRBAR_PHYS;
 	int off = fdt_node_offset_by_compat_reg(blob, compat, phys);
 
 	if (off >= 0) {
@@ -679,17 +679,17 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 
 	ft_fixup_dpaa_clks(blob);
 
-#if defined(CONFIG_SYS_BMAN_MEM_PHYS)
+#if defined(CFG_SYS_BMAN_MEM_PHYS)
 	fdt_portal(blob, "fsl,bman-portal", "bman-portals",
-			(u64)CONFIG_SYS_BMAN_MEM_PHYS,
-			CONFIG_SYS_BMAN_MEM_SIZE);
+			(u64)CFG_SYS_BMAN_MEM_PHYS,
+			CFG_SYS_BMAN_MEM_SIZE);
 	fdt_fixup_bportals(blob);
 #endif
 
-#if defined(CONFIG_SYS_QMAN_MEM_PHYS)
+#if defined(CFG_SYS_QMAN_MEM_PHYS)
 	fdt_portal(blob, "fsl,qman-portal", "qman-portals",
-			(u64)CONFIG_SYS_QMAN_MEM_PHYS,
-			CONFIG_SYS_QMAN_MEM_SIZE);
+			(u64)CFG_SYS_QMAN_MEM_PHYS,
+			CFG_SYS_QMAN_MEM_SIZE);
 
 	fdt_fixup_qportals(blob);
 #endif
@@ -737,7 +737,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
  * beginning of CCSR.
  */
 #define CCSR_VIRT_TO_PHYS(x) \
-	(CONFIG_SYS_CCSRBAR_PHYS + ((x) - CONFIG_SYS_CCSRBAR))
+	(CFG_SYS_CCSRBAR_PHYS + ((x) - CFG_SYS_CCSRBAR))
 
 static void msg(const char *name, uint64_t uaddr, uint64_t daddr)
 {
@@ -783,8 +783,8 @@ int ft_verify_fdt(void *fdt)
 		return 0;
 	}
 
-	if (addr != CONFIG_SYS_CCSRBAR_PHYS) {
-		msg("CCSR", CONFIG_SYS_CCSRBAR_PHYS, addr);
+	if (addr != CFG_SYS_CCSRBAR_PHYS) {
+		msg("CCSR", CFG_SYS_CCSRBAR_PHYS, addr);
 		/* No point in checking anything else */
 		return 0;
 	}
@@ -818,12 +818,12 @@ int ft_verify_fdt(void *fdt)
 	 * the 'reg' property to be wrong, so check it here.  For now, we
 	 * only check for "fsl,elbc" nodes.
 	 */
-#ifdef CONFIG_SYS_LBC_ADDR
+#ifdef CFG_SYS_LBC_ADDR
 	off = fdt_node_offset_by_compatible(fdt, -1, "fsl,elbc");
 	if (off > 0) {
 		const fdt32_t *reg = fdt_getprop(fdt, off, "reg", NULL);
 		if (reg) {
-			uint64_t uaddr = CCSR_VIRT_TO_PHYS(CONFIG_SYS_LBC_ADDR);
+			uint64_t uaddr = CCSR_VIRT_TO_PHYS(CFG_SYS_LBC_ADDR);
 
 			addr = fdt_translate_address(fdt, off, reg);
 			if (uaddr != addr) {

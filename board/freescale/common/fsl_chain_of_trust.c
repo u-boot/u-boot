@@ -43,7 +43,7 @@
 int fsl_check_boot_mode_secure(void)
 {
 	uint32_t val;
-	struct ccsr_sfp_regs *sfp_regs = (void *)(CONFIG_SYS_SFP_ADDR);
+	struct ccsr_sfp_regs *sfp_regs = (void *)(CFG_SYS_SFP_ADDR);
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_DCFG_ADDR);
 
 	val = sfp_in32(&sfp_regs->ospr) & ITS_MASK;

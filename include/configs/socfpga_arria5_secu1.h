@@ -10,7 +10,7 @@
 #include <linux/stringify.h>
 
 /* Eternal oscillator */
-#define CONFIG_SYS_TIMER_RATE	40000000
+#define CFG_SYS_TIMER_RATE	40000000
 
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512MiB on SECU1 */
@@ -21,7 +21,7 @@
  * the last two bytes of the 128 bytes large NVRAM in the
  * RTC which begin at address 0x20
  */
-#define CONFIG_SYS_I2C_RTC_ADDR         0x68
+#define CFG_SYS_I2C_RTC_ADDR         0x68
 
 /* Environment settings */
 

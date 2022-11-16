@@ -248,13 +248,13 @@ unsigned long spl_nor_get_uboot_base(void)
 	int end;
 
 	/* Calculate the image set end,
-	 * if it is less than CONFIG_SYS_UBOOT_BASE(0x8281000),
-	 * we use CONFIG_SYS_UBOOT_BASE
+	 * if it is less than CFG_SYS_UBOOT_BASE(0x8281000),
+	 * we use CFG_SYS_UBOOT_BASE
 	 * Otherwise, use the calculated address
 	 */
 	end = get_imageset_end((void *)NULL, QSPI_NOR_DEV);
-	if (end <= CONFIG_SYS_UBOOT_BASE)
-		end = CONFIG_SYS_UBOOT_BASE;
+	if (end <= CFG_SYS_UBOOT_BASE)
+		end = CFG_SYS_UBOOT_BASE;
 	else
 		end = ROUND(end, SZ_1K);
 

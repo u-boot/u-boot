@@ -86,8 +86,8 @@
 
 /* Physical Memory Map */
 #define CFG_SYS_SDRAM_BASE          MMDC0_ARB_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Environment organization */
 

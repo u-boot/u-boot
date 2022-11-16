@@ -28,8 +28,8 @@
  */
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768	/* 32.768 kHz crystal */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768	/* 32.768 kHz crystal */
+#define CFG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
 
 /* Misc CPU related */
 
@@ -47,8 +47,8 @@
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CFG_SYS_SDRAM_SIZE		PHYS_SDRAM_SIZE
 
-#define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM0
-#define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
+#define CFG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM0
+#define CFG_SYS_INIT_RAM_SIZE	(16 * 1024)
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

@@ -124,6 +124,6 @@
 /* FLASH and environment organization */
 #define CONFIG_MMC_DEFAULT_DEV	0
 
-#define CONFIG_SYS_ONENAND_BASE		0xB0000000
+#define CFG_SYS_ONENAND_BASE		0xB0000000
 
 #endif	/* __CONFIG_H */

@@ -14,7 +14,7 @@
 /* U-Boot */
 
 #if defined(CONFIG_BMIPS_BOOT_RAM)
-#define CONFIG_SYS_INIT_SP_OFFSET	SZ_8K
+#define CFG_SYS_INIT_SP_OFFSET	SZ_8K
 #endif
 
 #endif /* __CONFIG_BMIPS_BCM63268_H */

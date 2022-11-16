@@ -54,14 +54,14 @@ static inline int check_read_ecc(uchar *buf, u32 *eccstat,
 
 static inline struct fsl_ifc_runtime *runtime_regs_address(void)
 {
-	struct fsl_ifc regs = {(void *)CONFIG_SYS_IFC_ADDR, NULL};
+	struct fsl_ifc regs = {(void *)CFG_SYS_IFC_ADDR, NULL};
 	int ver = 0;
 
 	ver = ifc_in32(&regs.gregs->ifc_rev);
 	if (ver >= FSL_IFC_V2_0_0)
-		regs.rregs = (void *)CONFIG_SYS_IFC_ADDR + IFC_RREGS_64KOFFSET;
+		regs.rregs = (void *)CFG_SYS_IFC_ADDR + IFC_RREGS_64KOFFSET;
 	else
-		regs.rregs = (void *)CONFIG_SYS_IFC_ADDR + IFC_RREGS_4KOFFSET;
+		regs.rregs = (void *)CFG_SYS_IFC_ADDR + IFC_RREGS_4KOFFSET;
 
 	return regs.rregs;
 }
@@ -108,7 +108,7 @@ static inline int bad_block(uchar *marker, int port_size)
 
 int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 {
-	struct fsl_ifc_fcm *gregs = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc_fcm *gregs = (void *)CFG_SYS_IFC_ADDR;
 	struct fsl_ifc_runtime *ifc = NULL;
 	uchar *buf = (uchar *)CFG_SYS_NAND_BASE;
 	int page_size;

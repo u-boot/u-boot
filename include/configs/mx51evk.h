@@ -113,12 +113,12 @@
 #define PHYS_SDRAM_1_SIZE	(512 * 1024 * 1024)
 
 #define CFG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
-#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
-#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+#define CFG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CFG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
-#define CONFIG_SYS_DDR_CLKSEL	0
-#define CONFIG_SYS_CLKTL_CBCDR	0x59E35100
-#define CONFIG_SYS_MAIN_PWR_ON
+#define CFG_SYS_DDR_CLKSEL	0
+#define CFG_SYS_CLKTL_CBCDR	0x59E35100
+#define CFG_SYS_MAIN_PWR_ON
 
 /*-----------------------------------------------------------------------
  * environment organization

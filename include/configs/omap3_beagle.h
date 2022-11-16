@@ -20,7 +20,7 @@
 
 /* NAND */
 #if defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_SYS_FLASH_BASE		NAND_BASE
+#define CFG_SYS_FLASH_BASE		NAND_BASE
 #define CFG_SYS_NAND_ECCPOS          {2, 3, 4, 5, 6, 7, 8, 9,\
                                          10, 11, 12, 13}
 #define CFG_SYS_NAND_ECCSIZE         512

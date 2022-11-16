@@ -35,12 +35,12 @@ In addition, the t3corp board defines the routine thusly:
 void flash_cmd_reset(flash_info_t *info)
 {
 	/*
-	 * FLASH at address CONFIG_SYS_FLASH_BASE is a Spansion chip and
+	 * FLASH at address CFG_SYS_FLASH_BASE is a Spansion chip and
 	 * needs the Spansion type reset commands. The other flash chip
 	 * is located behind a FPGA (Xilinx DS617) and needs the Intel type
 	 * reset command.
 	 */
-	if (info->start[0] == CONFIG_SYS_FLASH_BASE)
+	if (info->start[0] == CFG_SYS_FLASH_BASE)
 		flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
 	else
 		flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);

@@ -118,10 +118,10 @@ Kernel.itb			0x01000000	0x08000
 Environment Variables
 ---------------------
 - mcboottimeout: MC boot timeout in milliseconds. If this variable is not defined
-  the value CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS will be assumed.
+  the value CFG_SYS_LS_MC_BOOT_TIMEOUT_MS will be assumed.
 
 - mcmemsize: MC DRAM block size. If this variable is not defined
-  the value CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE will be assumed.
+  the value CFG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE will be assumed.
 
 Booting Linux flavors which do not support 48-bit VA (< Linux 3.18)
 -------------------------------------------------------------------

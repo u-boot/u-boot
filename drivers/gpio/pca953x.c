@@ -14,8 +14,8 @@
 #include <pca953x.h>
 
 /* Default to an address that hopefully won't corrupt other i2c devices */
-#ifndef CONFIG_SYS_I2C_PCA953X_ADDR
-#define CONFIG_SYS_I2C_PCA953X_ADDR	(~0)
+#ifndef CFG_SYS_I2C_PCA953X_ADDR
+#define CFG_SYS_I2C_PCA953X_ADDR	(~0)
 #endif
 
 enum {
@@ -26,14 +26,14 @@ enum {
 	PCA953X_CMD_INVERT,
 };
 
-#ifdef CONFIG_SYS_I2C_PCA953X_WIDTH
+#ifdef CFG_SYS_I2C_PCA953X_WIDTH
 struct pca953x_chip_ngpio {
 	uint8_t chip;
 	uint8_t ngpio;
 };
 
 static struct pca953x_chip_ngpio pca953x_chip_ngpios[] =
-    CONFIG_SYS_I2C_PCA953X_WIDTH;
+    CFG_SYS_I2C_PCA953X_WIDTH;
 
 /*
  * Determine the number of GPIO pins supported. If we don't know we assume
@@ -204,7 +204,7 @@ static struct cmd_tbl cmd_pca953x[] = {
 static int do_pca953x(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	static uint8_t chip = CONFIG_SYS_I2C_PCA953X_ADDR;
+	static uint8_t chip = CFG_SYS_I2C_PCA953X_ADDR;
 	int ret = CMD_RET_USAGE, val;
 	ulong ul_arg2 = 0;
 	ulong ul_arg3 = 0;

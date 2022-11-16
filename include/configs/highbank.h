@@ -6,7 +6,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_BOOTMAPSZ		(16 << 20)
+#define CFG_SYS_BOOTMAPSZ		(16 << 20)
 
 #define CONFIG_PL011_CLOCK		150000000
 

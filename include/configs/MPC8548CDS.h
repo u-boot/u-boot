@@ -28,16 +28,16 @@
  * Only possible on E500 Version 2 or newer cores.
  */
 
-#define CONFIG_SYS_CCSRBAR		0xe0000000
-#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
+#define CFG_SYS_CCSRBAR		0xe0000000
+#define CFG_SYS_CCSRBAR_PHYS_LOW	CFG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
-#define CFG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
@@ -112,32 +112,32 @@
  * 1111 1111 1000 0000 0110 1110 0110 0101 = ff806e65	 ORx
  */
 
-#define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
+#define CFG_SYS_FLASH_BASE		0xff000000	/* start of FLASH 16M */
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_FLASH_BASE_PHYS	0xfff000000ull
+#define CFG_SYS_FLASH_BASE_PHYS	0xfff000000ull
 #else
-#define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
+#define CFG_SYS_FLASH_BASE_PHYS	CFG_SYS_FLASH_BASE
 #endif
 
-#define CONFIG_SYS_FLASH_BANKS_LIST \
-	{CONFIG_SYS_FLASH_BASE_PHYS + 0x800000, CONFIG_SYS_FLASH_BASE_PHYS}
+#define CFG_SYS_FLASH_BANKS_LIST \
+	{CFG_SYS_FLASH_BASE_PHYS + 0x800000, CFG_SYS_FLASH_BASE_PHYS}
 
 #define CONFIG_HWCONFIG			/* enable hwconfig */
 
 /*
  * SDRAM on the Local Bus
  */
-#define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
+#define CFG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_LBC_SDRAM_BASE_PHYS	0xff0000000ull
+#define CFG_SYS_LBC_SDRAM_BASE_PHYS	0xff0000000ull
 #else
-#define CONFIG_SYS_LBC_SDRAM_BASE_PHYS	CONFIG_SYS_LBC_SDRAM_BASE
+#define CFG_SYS_LBC_SDRAM_BASE_PHYS	CFG_SYS_LBC_SDRAM_BASE
 #endif
-#define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
+#define CFG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
 
 /*
  * Base Register 2 and Option Register 2 configure SDRAM.
- * The SDRAM base address, CONFIG_SYS_LBC_SDRAM_BASE, is 0xf0000000.
+ * The SDRAM base address, CFG_SYS_LBC_SDRAM_BASE, is 0xf0000000.
  *
  * For BR2, need:
  *    Base address of 0xf0000000 = BR[0:16] = 1111 0000 0000 0000 0
@@ -149,12 +149,12 @@
  * 0	4    8	  12   16   20	 24   28
  * 1111 0000 0000 0000 0001 1000 0110 0001 = f0001861
  *
- * FIXME: CONFIG_SYS_LBC_SDRAM_BASE should be masked and OR'ed into
+ * FIXME: CFG_SYS_LBC_SDRAM_BASE should be masked and OR'ed into
  * FIXME: the top 17 bits of BR2.
  */
 
 /*
- * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
+ * The SDRAM size in MB, CFG_SYS_LBC_SDRAM_SIZE, is 64.
  *
  * For OR2, need:
  *    64MB mask for AM, OR2[0:7] = 1111 1100
@@ -167,10 +167,10 @@
  * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
  */
 
-#define CONFIG_SYS_LBC_LCRR		0x00030004	/* LB clock ratio reg */
-#define CONFIG_SYS_LBC_LBCR		0x00000000	/* LB config reg */
-#define CONFIG_SYS_LBC_LSRT		0x20000000	/* LB sdram refresh timer */
-#define CONFIG_SYS_LBC_MRTPR		0x00000000	/* LB refresh timer prescal*/
+#define CFG_SYS_LBC_LCRR		0x00030004	/* LB clock ratio reg */
+#define CFG_SYS_LBC_LBCR		0x00000000	/* LB config reg */
+#define CFG_SYS_LBC_LSRT		0x20000000	/* LB sdram refresh timer */
+#define CFG_SYS_LBC_MRTPR		0x00000000	/* LB refresh timer prescal*/
 
 /*
  * Common settings for all Local Bus SDRAM commands.
@@ -178,7 +178,7 @@
  *		    or BSMA1617 (for CPU 1.0) (old)
  * is OR'ed in too.
  */
-#define CONFIG_SYS_LBC_LSDMR_COMMON	( LSDMR_RFCR16		\
+#define CFG_SYS_LBC_LSDMR_COMMON	( LSDMR_RFCR16		\
 				| LSDMR_PRETOACT7	\
 				| LSDMR_ACTTORW7	\
 				| LSDMR_BL8		\
@@ -226,25 +226,25 @@
 #define CADMUS_BASE_ADDR_PHYS	CADMUS_BASE_ADDR
 #endif
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
+#define CFG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
+#define CFG_SYS_INIT_RAM_SIZE	0x4000		/* Size of used area in RAM */
 
-#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CFG_SYS_INIT_SP_OFFSET	(CFG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /* Serial Port */
 #define CFG_SYS_NS16550_CLK		get_bus_freq(0)
 
-#define CONFIG_SYS_BAUDRATE_TABLE \
+#define CFG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
-#define CFG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
-#define CFG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
+#define CFG_SYS_NS16550_COM1	(CFG_SYS_CCSRBAR+0x4500)
+#define CFG_SYS_NS16550_COM2	(CFG_SYS_CCSRBAR+0x4600)
 
 /*
  * I2C
  */
 #if !CONFIG_IS_ENABLED(DM_I2C)
-#define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x69} }
+#define CFG_SYS_I2C_NOPROBES		{ {0, 0x69} }
 #endif
 
 /*
@@ -326,7 +326,7 @@
  * have to be in the first 64 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
+#define CFG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
 
 /*
  * Environment Configuration

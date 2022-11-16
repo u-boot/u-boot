@@ -54,7 +54,7 @@
 
 #define MVEBU_SDRAM_SCRATCH	(MVEBU_REGISTER(0x01504))
 #define MVEBU_L2_CACHE_BASE	(MVEBU_REGISTER(0x08000))
-#define CONFIG_SYS_PL310_BASE	MVEBU_L2_CACHE_BASE
+#define CFG_SYS_PL310_BASE	MVEBU_L2_CACHE_BASE
 #define MVEBU_TWSI_BASE		(MVEBU_REGISTER(0x11000))
 #define MVEBU_TWSI1_BASE	(MVEBU_REGISTER(0x11100))
 #define MVEBU_MPP_BASE		(MVEBU_REGISTER(0x18000))
@@ -146,7 +146,7 @@
 #define BOOT_FROM_UART		0x30
 #define BOOT_FROM_SPI		0x38
 
-#define CONFIG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(20)) ? \
+#define CFG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(20)) ? \
 				 200000000 : 166000000)
 #elif defined(CONFIG_ARMADA_38X)
 /* SAR values for Armada 38x */
@@ -169,7 +169,7 @@
 #define BOOT_FROM_MMC		0x30
 #define BOOT_FROM_MMC_ALT	0x31
 
-#define CONFIG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(15)) ? \
+#define CFG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(15)) ? \
 				 200000000 : 250000000)
 #elif defined(CONFIG_ARMADA_MSYS)
 /* SAR values for MSYS */
@@ -188,7 +188,7 @@
 #define BOOT_FROM_UART		0x2
 #define BOOT_FROM_SPI		0x3
 
-#define CONFIG_SYS_TCLK		200000000	/* 200MHz */
+#define CFG_SYS_TCLK		200000000	/* 200MHz */
 #elif defined(CONFIG_ARMADA_XP)
 /* SAR values for Armada XP */
 #define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18230))
@@ -209,7 +209,7 @@
 #define BOOT_FROM_UART		0x2
 #define BOOT_FROM_SPI		0x3
 
-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
+#define CFG_SYS_TCLK		250000000	/* 250MHz */
 #endif
 
 #endif /* _MVEBU_SOC_H */

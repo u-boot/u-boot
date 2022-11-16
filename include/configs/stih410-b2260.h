@@ -14,7 +14,7 @@
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define PHYS_SDRAM_1_SIZE		0x3E000000
 
-#define CONFIG_SYS_HZ_CLOCK		750000000	/* 750 MHz */
+#define CFG_SYS_HZ_CLOCK		750000000	/* 750 MHz */
 
 /* Environment */
 
@@ -22,7 +22,7 @@
  * For booting Linux, use the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ		SZ_256M
+#define CFG_SYS_BOOTMAPSZ		SZ_256M
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \

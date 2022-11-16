@@ -117,7 +117,7 @@ int misc_init_r(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = i2c_get_chip_for_busnum(bus_num, CONFIG_SYS_I2C_FPGA_ADDR,
+	ret = i2c_get_chip_for_busnum(bus_num, CFG_SYS_I2C_FPGA_ADDR,
 				      1, &dev);
 	if (ret) {
 		printf("%s: Cannot find udev for a bus %d\n", __func__,
@@ -128,7 +128,7 @@ int misc_init_r(void)
 #else
 	i2c_set_bus_num(bus_num);
 
-	i2c_write(CONFIG_SYS_I2C_FPGA_ADDR, 0x5a, 1, &mux_sdhc_cd, 1);
+	i2c_write(CFG_SYS_I2C_FPGA_ADDR, 0x5a, 1, &mux_sdhc_cd, 1);
 #endif
 
 	return 0;

@@ -27,7 +27,7 @@
 # define CFG_SYS_SDRAM_BASE		0x80000000
 #endif
 
-#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
+#define CFG_SYS_INIT_SP_OFFSET	0x400000
 
 /*
  * Console

@@ -6,7 +6,7 @@
 
 #ifndef __CONFIG_STV0991_H
 #define __CONFIG_STV0991_H
-#define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
+#define CFG_SYS_EXCEPTION_VECTORS_HIGH
 
 /* ram memory-related information */
 #define PHYS_SDRAM_1				0x00000000
@@ -16,8 +16,8 @@
 /* user interface */
 
 /* MISC */
-#define CONFIG_SYS_INIT_RAM_SIZE		0x8000
-#define CONFIG_SYS_INIT_RAM_ADDR		0x00190000
+#define CFG_SYS_INIT_RAM_SIZE		0x8000
+#define CFG_SYS_INIT_RAM_ADDR		0x00190000
 /* U-Boot Load Address */
 
 /* Misc configuration */

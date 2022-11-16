@@ -13,7 +13,7 @@
 /*
  * NS16550 Configuration
  */
-#define CFG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
+#define CFG_SYS_NS16550_CLK		CFG_SYS_TCLK
 #if !defined(CONFIG_DM_SERIAL)
 #define CFG_SYS_NS16550_COM1		MV_UART_CONSOLE_BASE
 #endif

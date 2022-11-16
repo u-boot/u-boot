@@ -27,7 +27,7 @@
 /* NS16550 Configuration */
 #define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
 #define CFG_SYS_NS16550_CLK		V_NS16550_CLK
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
+#define CFG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
 					115200}
 
 /* Select serial console configuration */
@@ -46,7 +46,7 @@
  * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
  * This rate is divided by a local divisor.
  */
-#define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
+#define CFG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 
 /* SPL */
 

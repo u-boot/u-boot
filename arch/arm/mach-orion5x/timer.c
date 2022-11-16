@@ -74,7 +74,7 @@ struct orion5x_tmr_registers *orion5x_tmr_regs =
 static inline ulong read_timer(void)
 {
 	return readl(CNTMR_VAL_REG(UBOOT_CNTR))
-	      / (CONFIG_SYS_TCLK / 1000);
+	      / (CFG_SYS_TCLK / 1000);
 }
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -92,7 +92,7 @@ static ulong get_timer_masked(void)
 	} else {
 		/* we have an overflow ... */
 		timestamp += lastdec +
-			(TIMER_LOAD_VAL / (CONFIG_SYS_TCLK / 1000)) - now;
+			(TIMER_LOAD_VAL / (CFG_SYS_TCLK / 1000)) - now;
 	}
 	lastdec = now;
 
@@ -115,7 +115,7 @@ void __udelay(unsigned long usec)
 	ulong delayticks;
 
 	current = uboot_cntr_val();
-	delayticks = (usec * (CONFIG_SYS_TCLK / 1000000));
+	delayticks = (usec * (CFG_SYS_TCLK / 1000000));
 
 	if (current < delayticks) {
 		delayticks -= current;

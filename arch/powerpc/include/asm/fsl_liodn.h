@@ -18,15 +18,15 @@ struct srio_liodn_id_table {
 #define SET_SRIO_LIODN_1(port, idA) \
 	{ .id = { idA }, .num_ids = 1, .portid = port, \
 	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
-		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CFG_SYS_CCSRBAR, \
 	}
 
 #define SET_SRIO_LIODN_2(port, idA, idB) \
 	{ .id = { idA, idB }, .num_ids = 2, .portid = port, \
 	  .reg_offset[0] = offsetof(ccsr_gur_t, rio##port##liodnr) \
-		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CFG_SYS_CCSRBAR, \
 	  .reg_offset[1] = offsetof(ccsr_gur_t, rio##port##maintliodnr) \
-		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
+		+ CFG_SYS_MPC85xx_GUTS_OFFSET + CFG_SYS_CCSRBAR, \
 	}
 
 #define SET_SRIO_LIODN_BASE(port, id_a) \
@@ -70,22 +70,22 @@ extern void fdt_fixup_liodn(void *blob);
 	{ .compat[0] = name1, \
 	  .compat[1] = name2, \
 	  .id = { idA }, .num_ids = 1, \
-	  .reg_offset = off + CONFIG_SYS_CCSRBAR, \
-	  .compat_offset = compatoff + CONFIG_SYS_CCSRBAR_PHYS, \
+	  .reg_offset = off + CFG_SYS_CCSRBAR, \
+	  .compat_offset = compatoff + CFG_SYS_CCSRBAR_PHYS, \
 	}
 
 #define SET_LIODN_ENTRY_1(name, idA, off, compatoff) \
 	{ .compat = name, \
 	  .id = { idA }, .num_ids = 1, \
-	  .reg_offset = off + CONFIG_SYS_CCSRBAR, \
-	  .compat_offset = compatoff + CONFIG_SYS_CCSRBAR_PHYS, \
+	  .reg_offset = off + CFG_SYS_CCSRBAR, \
+	  .compat_offset = compatoff + CFG_SYS_CCSRBAR_PHYS, \
 	}
 
 #define SET_LIODN_ENTRY_2(name, idA, idB, off, compatoff) \
 	{ .compat = name, \
 	  .id = { idA, idB }, .num_ids = 2, \
-	  .reg_offset = off + CONFIG_SYS_CCSRBAR, \
-	  .compat_offset = compatoff + CONFIG_SYS_CCSRBAR_PHYS, \
+	  .reg_offset = off + CFG_SYS_CCSRBAR, \
+	  .compat_offset = compatoff + CFG_SYS_CCSRBAR_PHYS, \
 	}
 
 #define SET_GUTS_LIODN(compat, liodn, name, compatoff) \

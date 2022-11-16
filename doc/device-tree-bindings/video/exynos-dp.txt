@@ -30,9 +30,9 @@ Optional properties:
 		8(WHITE_GRAY_BALCKBAR_64),9(MOBILE_WHITEBAR_32),
 		10(MOBILE_WHITEBAR_64)
 	samsung,h-sync-polarity: Horizontal Sync polarity
-			CONFIG_SYS_LOW if defined, else CONFIG_SYS_HIGH
+			CFG_SYS_LOW if defined, else CONFIG_SYS_HIGH
 	samsung,v-sync-polarity: Vertical Sync polarity
-			CONFIG_SYS_LOW if defined, else CONFIG_SYS_HIGH
+			CFG_SYS_LOW if defined, else CONFIG_SYS_HIGH
 	samsung,interlaced: Progressive if 0, else Interlaced
 	samsung,color-space: input video data format
 		COLOR_RGB = 0, COLOR_YCBCR422 = 1, COLOR_YCBCR444 = 2

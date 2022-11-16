@@ -36,31 +36,31 @@ void init_fbcs(void)
 {
 	fbcs_t *fbcs = (fbcs_t *) (MMAP_FBCS);
 
-#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) \
-     && defined(CONFIG_SYS_CS0_CTRL))
-	out_be32(&fbcs->csar0, CONFIG_SYS_CS0_BASE);
-	out_be32(&fbcs->cscr0, CONFIG_SYS_CS0_CTRL);
-	out_be32(&fbcs->csmr0, CONFIG_SYS_CS0_MASK);
+#if (defined(CFG_SYS_CS0_BASE) && defined(CFG_SYS_CS0_MASK) \
+     && defined(CFG_SYS_CS0_CTRL))
+	out_be32(&fbcs->csar0, CFG_SYS_CS0_BASE);
+	out_be32(&fbcs->cscr0, CFG_SYS_CS0_CTRL);
+	out_be32(&fbcs->csmr0, CFG_SYS_CS0_MASK);
 #else
 #warning "Chip Select 0 are not initialized/used"
 #endif
-#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) \
-     && defined(CONFIG_SYS_CS1_CTRL))
-	out_be32(&fbcs->csar1, CONFIG_SYS_CS1_BASE);
-	out_be32(&fbcs->cscr1, CONFIG_SYS_CS1_CTRL);
-	out_be32(&fbcs->csmr1, CONFIG_SYS_CS1_MASK);
+#if (defined(CFG_SYS_CS1_BASE) && defined(CFG_SYS_CS1_MASK) \
+     && defined(CFG_SYS_CS1_CTRL))
+	out_be32(&fbcs->csar1, CFG_SYS_CS1_BASE);
+	out_be32(&fbcs->cscr1, CFG_SYS_CS1_CTRL);
+	out_be32(&fbcs->csmr1, CFG_SYS_CS1_MASK);
 #endif
-#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) \
-     && defined(CONFIG_SYS_CS2_CTRL))
-	out_be32(&fbcs->csar2, CONFIG_SYS_CS2_BASE);
-	out_be32(&fbcs->cscr2, CONFIG_SYS_CS2_CTRL);
-	out_be32(&fbcs->csmr2, CONFIG_SYS_CS2_MASK);
+#if (defined(CFG_SYS_CS2_BASE) && defined(CFG_SYS_CS2_MASK) \
+     && defined(CFG_SYS_CS2_CTRL))
+	out_be32(&fbcs->csar2, CFG_SYS_CS2_BASE);
+	out_be32(&fbcs->cscr2, CFG_SYS_CS2_CTRL);
+	out_be32(&fbcs->csmr2, CFG_SYS_CS2_MASK);
 #endif
-#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) \
-     && defined(CONFIG_SYS_CS3_CTRL))
-	out_be32(&fbcs->csar3, CONFIG_SYS_CS3_BASE);
-	out_be32(&fbcs->cscr3, CONFIG_SYS_CS3_CTRL);
-	out_be32(&fbcs->csmr3, CONFIG_SYS_CS3_MASK);
+#if (defined(CFG_SYS_CS3_BASE) && defined(CFG_SYS_CS3_MASK) \
+     && defined(CFG_SYS_CS3_CTRL))
+	out_be32(&fbcs->csar3, CFG_SYS_CS3_BASE);
+	out_be32(&fbcs->cscr3, CFG_SYS_CS3_CTRL);
+	out_be32(&fbcs->csmr3, CFG_SYS_CS3_MASK);
 #endif
 #if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) \
      && defined(CONFIG_SYS_CS4_CTRL))
@@ -214,9 +214,9 @@ void cpu_init_f(void)
 	init_fbcs();
 
 #ifdef CONFIG_SYS_I2C_FSL
-	CONFIG_SYS_I2C_PINMUX_REG =
-	    CONFIG_SYS_I2C_PINMUX_REG & CONFIG_SYS_I2C_PINMUX_CLR;
-	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
+	CFG_SYS_I2C_PINMUX_REG =
+	    CFG_SYS_I2C_PINMUX_REG & CFG_SYS_I2C_PINMUX_CLR;
+	CFG_SYS_I2C_PINMUX_REG |= CFG_SYS_I2C_PINMUX_SET;
 #ifdef CONFIG_SYS_I2C2_OFFSET
 	CONFIG_SYS_I2C2_PINMUX_REG &= CONFIG_SYS_I2C2_PINMUX_CLR;
 	CONFIG_SYS_I2C2_PINMUX_REG |= CONFIG_SYS_I2C2_PINMUX_SET;
@@ -335,21 +335,21 @@ void cpu_init_f(void)
 	 * already initialized.
 	 */
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-	sysctrl_t *sysctrl = (sysctrl_t *) (CONFIG_SYS_MBAR);
+	sysctrl_t *sysctrl = (sysctrl_t *) (CFG_SYS_MBAR);
 	gpio_t *gpio = (gpio_t *) (MMAP_GPIO);
 	csctrl_t *csctrl = (csctrl_t *) (MMAP_FBCS);
 
-	out_be16(&sysctrl->sc_scr, CONFIG_SYS_SCR);
-	out_be16(&sysctrl->sc_spr, CONFIG_SYS_SPR);
+	out_be16(&sysctrl->sc_scr, CFG_SYS_SCR);
+	out_be16(&sysctrl->sc_spr, CFG_SYS_SPR);
 
 	/* Setup Ports: */
-	out_be32(&gpio->gpio_pacnt, CONFIG_SYS_PACNT);
-	out_be16(&gpio->gpio_paddr, CONFIG_SYS_PADDR);
-	out_be16(&gpio->gpio_padat, CONFIG_SYS_PADAT);
-	out_be32(&gpio->gpio_pbcnt, CONFIG_SYS_PBCNT);
-	out_be16(&gpio->gpio_pbddr, CONFIG_SYS_PBDDR);
-	out_be16(&gpio->gpio_pbdat, CONFIG_SYS_PBDAT);
-	out_be32(&gpio->gpio_pdcnt, CONFIG_SYS_PDCNT);
+	out_be32(&gpio->gpio_pacnt, CFG_SYS_PACNT);
+	out_be16(&gpio->gpio_paddr, CFG_SYS_PADDR);
+	out_be16(&gpio->gpio_padat, CFG_SYS_PADAT);
+	out_be32(&gpio->gpio_pbcnt, CFG_SYS_PBCNT);
+	out_be16(&gpio->gpio_pbddr, CFG_SYS_PBDDR);
+	out_be16(&gpio->gpio_pbdat, CFG_SYS_PBDAT);
+	out_be32(&gpio->gpio_pdcnt, CFG_SYS_PDCNT);
 
 	/* Memory Controller: */
 	out_be32(&csctrl->cs_br0, CONFIG_SYS_BR0_PRELIM);
@@ -472,8 +472,8 @@ void cpu_init_f(void)
 #endif				/* #ifndef CONFIG_MONITOR_IS_IN_RAM */
 
 #ifdef CONFIG_SYS_I2C_FSL
-	CONFIG_SYS_I2C_PINMUX_REG &= CONFIG_SYS_I2C_PINMUX_CLR;
-	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
+	CFG_SYS_I2C_PINMUX_REG &= CFG_SYS_I2C_PINMUX_CLR;
+	CFG_SYS_I2C_PINMUX_REG |= CFG_SYS_I2C_PINMUX_SET;
 #endif
 
 	/* enable instruction cache now */
@@ -560,8 +560,8 @@ void cpu_init_f(void)
 #ifndef CONFIG_MONITOR_IS_IN_RAM
 	/* Set speed /PLL */
 	MCFCLOCK_SYNCR =
-	    MCFCLOCK_SYNCR_MFD(CONFIG_SYS_MFD) |
-	    MCFCLOCK_SYNCR_RFD(CONFIG_SYS_RFD);
+	    MCFCLOCK_SYNCR_MFD(CFG_SYS_MFD) |
+	    MCFCLOCK_SYNCR_RFD(CFG_SYS_RFD);
 	while (!(MCFCLOCK_SYNSR & MCFCLOCK_SYNSR_LOCK)) ;
 
 	MCFGPIO_PBCDPAR = 0xc0;
@@ -573,17 +573,17 @@ void cpu_init_f(void)
 #ifdef	CONFIG_SYS_PFPAR
 	MCFGPIO_PFPAR = CONFIG_SYS_PFPAR;
 #endif
-#ifdef CONFIG_SYS_PJPAR
-	MCFGPIO_PJPAR = CONFIG_SYS_PJPAR;
+#ifdef CFG_SYS_PJPAR
+	MCFGPIO_PJPAR = CFG_SYS_PJPAR;
 #endif
 #ifdef CONFIG_SYS_PSDPAR
 	MCFGPIO_PSDPAR = CONFIG_SYS_PSDPAR;
 #endif
-#ifdef CONFIG_SYS_PASPAR
-	MCFGPIO_PASPAR = CONFIG_SYS_PASPAR;
+#ifdef CFG_SYS_PASPAR
+	MCFGPIO_PASPAR = CFG_SYS_PASPAR;
 #endif
-#ifdef CONFIG_SYS_PEHLPAR
-	MCFGPIO_PEHLPAR = CONFIG_SYS_PEHLPAR;
+#ifdef CFG_SYS_PEHLPAR
+	MCFGPIO_PEHLPAR = CFG_SYS_PEHLPAR;
 #endif
 #ifdef CONFIG_SYS_PQSPAR
 	MCFGPIO_PQSPAR = CONFIG_SYS_PQSPAR;
@@ -600,15 +600,15 @@ void cpu_init_f(void)
 #ifdef CONFIG_SYS_PTDPAR
 	MCFGPIO_PTDPAR = CONFIG_SYS_PTDPAR;
 #endif
-#ifdef CONFIG_SYS_PUAPAR
-	MCFGPIO_PUAPAR = CONFIG_SYS_PUAPAR;
+#ifdef CFG_SYS_PUAPAR
+	MCFGPIO_PUAPAR = CFG_SYS_PUAPAR;
 #endif
 
 #if defined(CONFIG_SYS_DDRD)
 	MCFGPIO_DDRD = CONFIG_SYS_DDRD;
 #endif
-#ifdef CONFIG_SYS_DDRUA
-	MCFGPIO_DDRUA = CONFIG_SYS_DDRUA;
+#ifdef CFG_SYS_DDRUA
+	MCFGPIO_DDRUA = CFG_SYS_DDRUA;
 #endif
 
 	/* FlexBus Chipselect */
@@ -652,10 +652,10 @@ int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	if (setclear) {
 		MCFGPIO_PASPAR |= 0x0F00;
-		MCFGPIO_PEHLPAR = CONFIG_SYS_PEHLPAR;
+		MCFGPIO_PEHLPAR = CFG_SYS_PEHLPAR;
 	} else {
 		MCFGPIO_PASPAR &= 0xF0FF;
-		MCFGPIO_PEHLPAR &= ~CONFIG_SYS_PEHLPAR;
+		MCFGPIO_PEHLPAR &= ~CFG_SYS_PEHLPAR;
 	}
 	return 0;
 }
@@ -678,12 +678,12 @@ void cpu_init_f(void)
 	 *        which is their primary function.
 	 *        ~Jeremy
 	 */
-	mbar2_writeLong(MCFSIM_GPIO_FUNC, CONFIG_SYS_GPIO_FUNC);
-	mbar2_writeLong(MCFSIM_GPIO1_FUNC, CONFIG_SYS_GPIO1_FUNC);
-	mbar2_writeLong(MCFSIM_GPIO_EN, CONFIG_SYS_GPIO_EN);
-	mbar2_writeLong(MCFSIM_GPIO1_EN, CONFIG_SYS_GPIO1_EN);
-	mbar2_writeLong(MCFSIM_GPIO_OUT, CONFIG_SYS_GPIO_OUT);
-	mbar2_writeLong(MCFSIM_GPIO1_OUT, CONFIG_SYS_GPIO1_OUT);
+	mbar2_writeLong(MCFSIM_GPIO_FUNC, CFG_SYS_GPIO_FUNC);
+	mbar2_writeLong(MCFSIM_GPIO1_FUNC, CFG_SYS_GPIO1_FUNC);
+	mbar2_writeLong(MCFSIM_GPIO_EN, CFG_SYS_GPIO_EN);
+	mbar2_writeLong(MCFSIM_GPIO1_EN, CFG_SYS_GPIO1_EN);
+	mbar2_writeLong(MCFSIM_GPIO_OUT, CFG_SYS_GPIO_OUT);
+	mbar2_writeLong(MCFSIM_GPIO1_OUT, CFG_SYS_GPIO1_OUT);
 
 	/*
 	 *  dBug Compliance:

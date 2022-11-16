@@ -56,8 +56,8 @@ void setup_board_tags(struct tag **in_params)
 	t = (struct tag_mv_uboot *)&params->u;
 
 	t->uboot_version = VER_NUM | syno_board_id();
-	t->tclk = CONFIG_SYS_TCLK;
-	t->sysclk = CONFIG_SYS_TCLK * 2;
+	t->tclk = CFG_SYS_TCLK;
+	t->sysclk = CFG_SYS_TCLK * 2;
 	t->isusbhost = usb_port_modes();
 
 	for (i = 0; i < ETHADDR_MAX; i++) {
