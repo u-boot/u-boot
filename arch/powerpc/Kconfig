@@ -44,6 +44,21 @@ config SYS_INIT_RAM_LOCK
 	bool "Lock some portion of L1 for initial ram stack"
 	depends on MPC83xx || MPC85xx
 
+config SYS_SRIO
+	bool "Serial RapidIO support"
+
+config SRIO1
+	bool "Board has SRIO 1 port available"
+	depends on SYS_SRIO
+
+config SRIO2
+	bool "Board has SRIO 2 port available"
+	depends on SYS_SRIO
+
+config SRIO_PCIE_BOOT_MASTER
+	bool "Board can support master function for Boot from SRIO and PCIE"
+	depends on SYS_SRIO
+
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"
 source "arch/powerpc/cpu/mpc8xx/Kconfig"

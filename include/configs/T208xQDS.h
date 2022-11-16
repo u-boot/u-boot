@@ -14,11 +14,6 @@
 #include <linux/stringify.h>
 
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
-#if defined(CONFIG_ARCH_T2080)
-#define CONFIG_SYS_SRIO		/* Enable Serial RapidIO Support */
-#define CONFIG_SRIO1		/* SRIO port 1 */
-#define CONFIG_SRIO2		/* SRIO port 2 */
-#endif
 
 /* High Level Configuration Options */
 
@@ -52,7 +47,6 @@
 
 #endif /* CONFIG_RAMBOOT_PBL */
 
-#define CONFIG_SRIO_PCIE_BOOT_MASTER
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
 /* Set 1M boot space */
 #define CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR (CONFIG_TEXT_BASE & 0xfff00000)

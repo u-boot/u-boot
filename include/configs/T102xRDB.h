@@ -49,8 +49,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-/* PCIe Boot - Master */
-#define CONFIG_SRIO_PCIE_BOOT_MASTER
 /*
  * for slave u-boot IMAGE instored in master memory space,
  * PHYS must be aligned based on the SIZE

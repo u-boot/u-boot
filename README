@@ -1686,18 +1686,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_OR_TIMING_SDRAM:
 		SDRAM timing
 
-- CONFIG_SYS_SRIO:
-		Chip has SRIO or not
-
-- CONFIG_SRIO1:
-		Board has SRIO 1 port available
-
-- CONFIG_SRIO2:
-		Board has SRIO 2 port available
-
-- CONFIG_SRIO_PCIE_BOOT_MASTER
-		Board can support master function for Boot from SRIO and PCIE
-
 - CONFIG_SYS_SRIOn_MEM_VIRT:
 		Virtual Address of SRIO port 'n' memory region
 
