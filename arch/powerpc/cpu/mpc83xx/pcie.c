@@ -24,13 +24,13 @@ static struct {
 	u32 size;
 } mpc83xx_pcie_cfg_space[] = {
 	{
-		.base = CONFIG_SYS_PCIE1_CFG_BASE,
-		.size = CONFIG_SYS_PCIE1_CFG_SIZE,
+		.base = CFG_SYS_PCIE1_CFG_BASE,
+		.size = CFG_SYS_PCIE1_CFG_SIZE,
 	},
-#if defined(CONFIG_SYS_PCIE2_CFG_BASE) && defined(CONFIG_SYS_PCIE2_CFG_SIZE)
+#if defined(CFG_SYS_PCIE2_CFG_BASE) && defined(CFG_SYS_PCIE2_CFG_SIZE)
 	{
-		.base = CONFIG_SYS_PCIE2_CFG_BASE,
-		.size = CONFIG_SYS_PCIE2_CFG_SIZE,
+		.base = CFG_SYS_PCIE2_CFG_BASE,
+		.size = CFG_SYS_PCIE2_CFG_SIZE,
 	},
 #endif
 };

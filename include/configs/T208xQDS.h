@@ -345,24 +345,24 @@
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */
-#define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
-#define CONFIG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
-#define CONFIG_SYS_PCIE1_IO_VIRT	0xf8000000
-#define CONFIG_SYS_PCIE1_IO_PHYS	0xff8000000ull
+#define CFG_SYS_PCIE1_MEM_VIRT	0x80000000
+#define CFG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
+#define CFG_SYS_PCIE1_IO_VIRT	0xf8000000
+#define CFG_SYS_PCIE1_IO_PHYS	0xff8000000ull
 
 /* controller 2, Slot 2, tgtid 2, Base address 201000 */
-#define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
-#define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
-#define CONFIG_SYS_PCIE2_IO_VIRT	0xf8010000
-#define CONFIG_SYS_PCIE2_IO_PHYS	0xff8010000ull
+#define CFG_SYS_PCIE2_MEM_VIRT	0xa0000000
+#define CFG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
+#define CFG_SYS_PCIE2_IO_VIRT	0xf8010000
+#define CFG_SYS_PCIE2_IO_PHYS	0xff8010000ull
 
 /* controller 3, Slot 1, tgtid 1, Base address 202000 */
-#define CONFIG_SYS_PCIE3_MEM_VIRT	0xb0000000
-#define CONFIG_SYS_PCIE3_MEM_PHYS	0xc30000000ull
+#define CFG_SYS_PCIE3_MEM_VIRT	0xb0000000
+#define CFG_SYS_PCIE3_MEM_PHYS	0xc30000000ull
 
 /* controller 4, Base address 203000 */
-#define CONFIG_SYS_PCIE4_MEM_VIRT       0xc0000000
-#define CONFIG_SYS_PCIE4_MEM_PHYS	0xc40000000ull
+#define CFG_SYS_PCIE4_MEM_VIRT       0xc0000000
+#define CFG_SYS_PCIE4_MEM_PHYS	0xc40000000ull
 
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN

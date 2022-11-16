@@ -346,10 +346,10 @@ int get_scl(void);
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 /* controller 1 */
-#define	CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
-#define	CONFIG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
-#define CONFIG_SYS_PCIE1_IO_VIRT	0xf8000000
-#define CONFIG_SYS_PCIE1_IO_PHYS	0xff8000000ull
+#define	CFG_SYS_PCIE1_MEM_VIRT	0x80000000
+#define	CFG_SYS_PCIE1_MEM_PHYS	0xc00000000ull
+#define CFG_SYS_PCIE1_IO_VIRT	0xf8000000
+#define CFG_SYS_PCIE1_IO_PHYS	0xff8000000ull
 
 #define CONFIG_SYS_BMAN_NUM_PORTALS	10
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000

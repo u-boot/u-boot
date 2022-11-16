@@ -387,7 +387,7 @@ void fdt_fixup_liodn(void *blob)
 	fdt_fixup_liodn_tbl(blob, rman_liodn_tbl, rman_liodn_tbl_sz);
 #endif
 
-	ccsr_pcix_t *pcix = (ccsr_pcix_t *)CONFIG_SYS_PCIE1_ADDR;
+	ccsr_pcix_t *pcix = (ccsr_pcix_t *)CFG_SYS_PCIE1_ADDR;
 	int pci_ver = pcix->ipver1 & 0xffff, liodn_base = 0;
 
 	if (pci_ver >= 0x0204) {

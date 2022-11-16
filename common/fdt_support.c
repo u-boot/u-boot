@@ -739,7 +739,7 @@ int fdt_delete_disabled_nodes(void *blob)
 }
 
 #ifdef CONFIG_PCI
-#define CONFIG_SYS_PCI_NR_INBOUND_WIN 4
+#define CFG_SYS_PCI_NR_INBOUND_WIN 4
 
 #define FDT_PCI_PREFETCH	(0x40000000)
 #define FDT_PCI_MEM32		(0x02000000)
@@ -751,7 +751,7 @@ int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose) {
 	int addrcell, sizecell, len, r;
 	u32 *dma_range;
 	/* sized based on pci addr cells, size-cells, & address-cells */
-	u32 dma_ranges[(3 + 2 + 2) * CONFIG_SYS_PCI_NR_INBOUND_WIN];
+	u32 dma_ranges[(3 + 2 + 2) * CFG_SYS_PCI_NR_INBOUND_WIN];
 
 	addrcell = fdt_getprop_u32_default(blob, "/", "#address-cells", 1);
 	sizecell = fdt_getprop_u32_default(blob, "/", "#size-cells", 1);

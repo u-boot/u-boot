@@ -62,7 +62,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * Entry 4:
 	 * PCI and PCIe MEM	1G	Non-cacheable, guarded
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_MEM_VIRT, CONFIG_SYS_PCI1_MEM_PHYS,
+	SET_TLB_ENTRY(1, CFG_SYS_PCI1_MEM_VIRT, CFG_SYS_PCI1_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 4, BOOKE_PAGESZ_1G, 1),
 
@@ -70,7 +70,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * Entry 5:
 	 * PCI1 IO	1M	Non-cacheable, guarded
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_IO_VIRT, CONFIG_SYS_PCI1_IO_PHYS,
+	SET_TLB_ENTRY(1, CFG_SYS_PCI1_IO_VIRT, CFG_SYS_PCI1_IO_PHYS,
 		      MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 5, BOOKE_PAGESZ_1M, 1),
 
@@ -78,7 +78,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * Entry 6:
 	 * PCIe IO	1M	Non-cacheable, guarded
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_PCIE1_IO_VIRT, CONFIG_SYS_PCIE1_IO_PHYS,
+	SET_TLB_ENTRY(1, CFG_SYS_PCIE1_IO_VIRT, CFG_SYS_PCIE1_IO_PHYS,
 		      MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 6, BOOKE_PAGESZ_1M, 1),
 };

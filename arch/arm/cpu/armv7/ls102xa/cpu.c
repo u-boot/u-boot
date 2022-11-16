@@ -168,18 +168,18 @@ static void mmu_setup(void)
 	/* Level 1 has 512 entries */
 	for (i = 0; i < 512; i++) {
 		/* Mapping for PCIe 1 */
-		if (va_start >= CONFIG_SYS_PCIE1_VIRT_ADDR &&
-		    va_start < (CONFIG_SYS_PCIE1_VIRT_ADDR +
-				 CONFIG_SYS_PCIE_MMAP_SIZE))
+		if (va_start >= CFG_SYS_PCIE1_VIRT_ADDR &&
+		    va_start < (CFG_SYS_PCIE1_VIRT_ADDR +
+				 CFG_SYS_PCIE_MMAP_SIZE))
 			set_pgsection(level1_table, i,
-				      CONFIG_SYS_PCIE1_PHYS_BASE + va_start,
+				      CFG_SYS_PCIE1_PHYS_BASE + va_start,
 				      MT_DEVICE_MEM);
 		/* Mapping for PCIe 2 */
-		else if (va_start >= CONFIG_SYS_PCIE2_VIRT_ADDR &&
-			 va_start < (CONFIG_SYS_PCIE2_VIRT_ADDR +
-				     CONFIG_SYS_PCIE_MMAP_SIZE))
+		else if (va_start >= CFG_SYS_PCIE2_VIRT_ADDR &&
+			 va_start < (CFG_SYS_PCIE2_VIRT_ADDR +
+				     CFG_SYS_PCIE_MMAP_SIZE))
 			set_pgsection(level1_table, i,
-				      CONFIG_SYS_PCIE2_PHYS_BASE + va_start,
+				      CFG_SYS_PCIE2_PHYS_BASE + va_start,
 				      MT_DEVICE_MEM);
 		else
 			set_pgsection(level1_table, i,

@@ -193,35 +193,35 @@ int fsl_pcie_init_board(int busno);
 
 #define SET_STD_PCI_INFO(x, num) \
 {			\
-	x.regs = CONFIG_SYS_PCI##num##_ADDR;	\
-	x.mem_bus = CONFIG_SYS_PCI##num##_MEM_BUS; \
-	x.mem_phys = CONFIG_SYS_PCI##num##_MEM_PHYS; \
-	x.mem_size = CONFIG_SYS_PCI##num##_MEM_SIZE; \
-	x.io_bus = CONFIG_SYS_PCI##num##_IO_BUS; \
-	x.io_phys = CONFIG_SYS_PCI##num##_IO_PHYS; \
-	x.io_size = CONFIG_SYS_PCI##num##_IO_SIZE; \
+	x.regs = CFG_SYS_PCI##num##_ADDR;	\
+	x.mem_bus = CFG_SYS_PCI##num##_MEM_BUS; \
+	x.mem_phys = CFG_SYS_PCI##num##_MEM_PHYS; \
+	x.mem_size = CFG_SYS_PCI##num##_MEM_SIZE; \
+	x.io_bus = CFG_SYS_PCI##num##_IO_BUS; \
+	x.io_phys = CFG_SYS_PCI##num##_IO_PHYS; \
+	x.io_size = CFG_SYS_PCI##num##_IO_SIZE; \
 	x.law = LAW_TRGT_IF_PCI_##num; \
 	x.pci_num = num; \
 }
 
 #define SET_STD_PCIE_INFO(x, num) \
 {			\
-	x.regs = CONFIG_SYS_PCIE##num##_ADDR;	\
-	x.mem_bus = CONFIG_SYS_PCIE##num##_MEM_BUS; \
-	x.mem_phys = CONFIG_SYS_PCIE##num##_MEM_PHYS; \
-	x.mem_size = CONFIG_SYS_PCIE##num##_MEM_SIZE; \
-	x.io_bus = CONFIG_SYS_PCIE##num##_IO_BUS; \
-	x.io_phys = CONFIG_SYS_PCIE##num##_IO_PHYS; \
-	x.io_size = CONFIG_SYS_PCIE##num##_IO_SIZE; \
+	x.regs = CFG_SYS_PCIE##num##_ADDR;	\
+	x.mem_bus = CFG_SYS_PCIE##num##_MEM_BUS; \
+	x.mem_phys = CFG_SYS_PCIE##num##_MEM_PHYS; \
+	x.mem_size = CFG_SYS_PCIE##num##_MEM_SIZE; \
+	x.io_bus = CFG_SYS_PCIE##num##_IO_BUS; \
+	x.io_phys = CFG_SYS_PCIE##num##_IO_PHYS; \
+	x.io_size = CFG_SYS_PCIE##num##_IO_SIZE; \
 	x.law = LAW_TRGT_IF_PCIE_##num; \
 	x.pci_num = num; \
 }
 
 #define __FT_FSL_PCI_SETUP(blob, compat, num) \
-	ft_fsl_pci_setup(blob, compat, CONFIG_SYS_PCI##num##_ADDR)
+	ft_fsl_pci_setup(blob, compat, CFG_SYS_PCI##num##_ADDR)
 
 #define __FT_FSL_PCIE_SETUP(blob, compat, num) \
-	ft_fsl_pci_setup(blob, compat, CONFIG_SYS_PCIE##num##_ADDR)
+	ft_fsl_pci_setup(blob, compat, CFG_SYS_PCIE##num##_ADDR)
 
 #define FT_FSL_PCI1_SETUP __FT_FSL_PCI_SETUP(blob, FSL_PCI_COMPAT, 1)
 #define FT_FSL_PCI2_SETUP __FT_FSL_PCI_SETUP(blob, FSL_PCI_COMPAT, 2)
