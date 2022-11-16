@@ -182,11 +182,11 @@ int cadence_qspi_versal_flash_reset(struct udevice *dev)
 
 	/* set direction as output */
 	writel((readl(BOOT_MODE_DIR) | BIT(FLASH_RESET_GPIO)),
-	       BOOT_MODE_POR_0);
+	       BOOT_MODE_DIR);
 
 	/* Data output enable */
 	writel((readl(BOOT_MODE_OUT) | BIT(FLASH_RESET_GPIO)),
-	       BOOT_MODE_POR_1);
+	       BOOT_MODE_OUT);
 
 	/* IOU SLCR write enable */
 	writel(0, WPROT_PMC_MIO);
