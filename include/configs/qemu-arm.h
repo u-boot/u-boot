@@ -10,7 +10,7 @@
 
 /* Physical memory map */
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 
 /* GUIDs for capsule updatable firmware images */
 #define QEMU_ARM_UBOOT_IMAGE_GUID \

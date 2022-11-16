@@ -60,7 +60,7 @@
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
 #endif
 
-#define CONFIG_SYS_SDRAM_BASE           0x40000000
+#define CFG_SYS_SDRAM_BASE           0x40000000
 
 /* SDRAM configuration */
 #define PHYS_SDRAM                      0x40000000

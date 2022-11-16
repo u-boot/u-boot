@@ -16,7 +16,7 @@
 #include <environment/ti/k3_dfu.h>
 
 /* DDR Configuration */
-#define CONFIG_SYS_SDRAM_BASE1		0x880000000
+#define CFG_SYS_SDRAM_BASE1		0x880000000
 /* FLASH Configuration */
 #define CONFIG_SYS_FLASH_BASE		0x000000000
 

@@ -162,7 +162,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if (is_warm_boot()) {
 		out_be32(&ddr->sdram_cfg_2,
 			 regs->ddr_sdram_cfg_2 & ~SDRAM_CFG2_D_INIT);
-		out_be32(&ddr->init_addr, CONFIG_SYS_SDRAM_BASE);
+		out_be32(&ddr->init_addr, CFG_SYS_SDRAM_BASE);
 		out_be32(&ddr->init_ext_addr, DDR_INIT_ADDR_EXT_UIA);
 
 		/* DRAM VRef will not be trained */

@@ -38,7 +38,7 @@
  * in U-Boot pre-reloc is higher than in SPL.
  */
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /*
  * U-Boot general configurations

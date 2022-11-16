@@ -10,7 +10,7 @@
 
 /* ram memory-related information */
 #define PHYS_SDRAM_1				0x00000000
-#define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE			PHYS_SDRAM_1
 #define PHYS_SDRAM_1_SIZE			0x00198000
 
 /* user interface */

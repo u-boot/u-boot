@@ -31,8 +31,8 @@
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.
  */
-#define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
-#define CONFIG_SYS_SDRAM_SIZE		0x04000000
+#define CFG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
+#define CFG_SYS_SDRAM_SIZE		0x04000000
 
 #define CONFIG_SYS_INIT_RAM_SIZE	(16 * 1024)
 #ifdef CONFIG_AT91SAM9XE

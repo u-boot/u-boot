@@ -86,7 +86,7 @@ int dram_init(void)
 	mbar_writeLong(MCFSIM_DACR0, 0x0000b364);  /* Enable DACR0[IMRS] (bit 6); RE remains enabled */
 	*((volatile unsigned long *) 0x800) = junk; /* Access RAM to initialize the mode register */
 
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE * 1024 * 1024;
 
 	return 0;
 };

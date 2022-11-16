@@ -33,8 +33,8 @@
 /* size of internal SRAM */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_SDRAM_SIZE		0x1000000
+#define CFG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_SIZE		0x1000000
 #define CONFIG_SYS_FLASH_BASE		0xffc00000
 
 /* amcore design has flash data bytes wired swapped */

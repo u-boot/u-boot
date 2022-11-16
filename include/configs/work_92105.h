@@ -16,8 +16,8 @@
 /*
  * Memory configurations
  */
-#define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
-#define CONFIG_SYS_SDRAM_SIZE		SZ_128M
+#define CFG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
+#define CFG_SYS_SDRAM_SIZE		SZ_128M
 
 #define CONFIG_RTC_DS1374
 

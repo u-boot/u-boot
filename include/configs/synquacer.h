@@ -11,7 +11,7 @@
 /*
  * SDRAM (for initialize)
  */
-#define CONFIG_SYS_SDRAM_BASE		(0x80000000)	/* Start address of DDR3 */
+#define CFG_SYS_SDRAM_BASE		(0x80000000)	/* Start address of DDR3 */
 #define PHYS_SDRAM_SIZE			(0x7c000000)	/* Default size (2GB - Secure memory) */
 
 #define CONFIG_VERY_BIG_RAM				/* SynQuacer supports up to 64GB */

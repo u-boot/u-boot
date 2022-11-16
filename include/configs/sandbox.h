@@ -13,8 +13,8 @@
 /* Size of our emulated memory */
 #define SB_CONCAT(x, y) x ## y
 #define SB_TO_UL(s) SB_CONCAT(s, UL)
-#define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_SYS_SDRAM_SIZE \
+#define CFG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_SIZE \
 		(SB_TO_UL(CONFIG_SANDBOX_RAM_SIZE_MB) << 20)
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\

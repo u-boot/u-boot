@@ -166,7 +166,7 @@
 /* Load U-Boot Image From MMC */
 
 /* additions for new relocation code, must added to all boards */
-#define CONFIG_SYS_SDRAM_BASE		0xc0000000
+#define CFG_SYS_SDRAM_BASE		0xc0000000
 
 #include <asm/arch/hardware.h>
 

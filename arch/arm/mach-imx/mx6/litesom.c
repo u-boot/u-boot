@@ -172,7 +172,7 @@ static void spl_dram_init(void)
 	 * Get actual RAM size, so we can adjust DDR row size for <512M
 	 * memories
 	 */
-	ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE, SZ_512M);
+	ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, SZ_512M);
 	if (ram_size < SZ_512M) {
 		mem_ddr.rowaddr = 14;
 		mx6_dram_cfg(&ddr_sysinfo, &mx6_mmcd_calib, &mem_ddr);

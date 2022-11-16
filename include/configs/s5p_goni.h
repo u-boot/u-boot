@@ -14,7 +14,7 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 /* DRAM Base */
-#define CONFIG_SYS_SDRAM_BASE		0x30000000
+#define CFG_SYS_SDRAM_BASE		0x30000000
 
 /* Text Base */
 
@@ -114,7 +114,7 @@
 	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
 
 /* Goni has 3 banks of DRAM, but swap the bank */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */
+#define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */
 #define PHYS_SDRAM_1_SIZE	(80 << 20)		/* 80 MB in Bank #0 */
 #define PHYS_SDRAM_2		0x40000000		/* mDDR DMC1 Bank #1 */
 #define PHYS_SDRAM_2_SIZE	(256 << 20)		/* 256 MB in Bank #1 */

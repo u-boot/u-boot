@@ -13,7 +13,7 @@
 /* Link Definitions */
 
 /* SMP Spin Table Definitions */
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#define CPU_RELEASE_ADDR		(CFG_SYS_SDRAM_BASE + 0x7fff0)
 
 /* PL011 Serial Configuration */
 
@@ -30,7 +30,7 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			(MEM_BASE)	  /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40

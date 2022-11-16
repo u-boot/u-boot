@@ -8,8 +8,8 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_SDRAM_BASE		0x10000000
-#define CONFIG_SYS_SDRAM_SIZE		SZ_16M
+#define CFG_SYS_SDRAM_BASE		0x10000000
+#define CFG_SYS_SDRAM_SIZE		SZ_16M
 
 /*
  * Environment

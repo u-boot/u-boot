@@ -370,7 +370,7 @@ int dram_init_banksize(void)
 
 	/* fall back to default DRAM bank size computation */
 
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
 
 #ifdef CONFIG_PCI
@@ -412,5 +412,5 @@ phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 
 	/* fall back to default usable RAM computation */
 
-	return CONFIG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
+	return CFG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
 }

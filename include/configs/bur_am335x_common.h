@@ -45,7 +45,7 @@
  * always, even when we have more.  We always start at 0x80000000,
  * and we place the initial stack pointer in our SRAM.
  */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily

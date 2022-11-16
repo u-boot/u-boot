@@ -36,7 +36,7 @@
 /** Maximum size of image supported for bootm (and bootable FIT images) */
 
 /** Memory base address */
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_TEXT_BASE
+#define CFG_SYS_SDRAM_BASE		CONFIG_TEXT_BASE
 
 /** Stack starting address */
 

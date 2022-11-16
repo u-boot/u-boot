@@ -185,8 +185,8 @@ void mem_init(void)
 	sdramc_configure(AT91_SDRAMC_NC_10);
 
 	/* Do memtest for 128MB */
-	ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-				CONFIG_SYS_SDRAM_SIZE);
+	ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
+				CFG_SYS_SDRAM_SIZE);
 
 	/*
 	 * If 32MB or 16MB should be supported check also for
@@ -306,7 +306,7 @@ struct at91_udc_data board_udc_data  = {
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 	taurus_request_gpio();
 #ifdef CONFIG_CMD_NAND
@@ -326,8 +326,8 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-				    CONFIG_SYS_SDRAM_SIZE);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
+				    CFG_SYS_SDRAM_SIZE);
 	return 0;
 }
 

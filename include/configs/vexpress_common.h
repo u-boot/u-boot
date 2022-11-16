@@ -135,7 +135,7 @@
 #define PHYS_SDRAM_2_SIZE		0x20000000	/* 512 MB */
 
 /* additions for new relocation code */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_SIZE		0x1000
 
 /* Basic environment settings */

@@ -616,12 +616,12 @@ static int rk3066_dmc_sdram_col_row_detect(struct rk3066_dmc_dram_info *dram, in
 
 	/* Detect col. */
 	for (col = 11; col >= 9; col--) {
-		writel(0, CONFIG_SYS_SDRAM_BASE);
-		addr = CONFIG_SYS_SDRAM_BASE +
+		writel(0, CFG_SYS_SDRAM_BASE);
+		addr = CFG_SYS_SDRAM_BASE +
 		       (1 << (col + sdram_params->ch[channel].bw - 1));
 		writel(TEST_PATTERN, addr);
 		if ((readl(addr) == TEST_PATTERN) &&
-		    (readl(CONFIG_SYS_SDRAM_BASE) == 0))
+		    (readl(CFG_SYS_SDRAM_BASE) == 0))
 			break;
 	}
 	if (col == 8) {
@@ -638,11 +638,11 @@ static int rk3066_dmc_sdram_col_row_detect(struct rk3066_dmc_dram_info *dram, in
 	rk3066_dmc_move_to_access_state(chan);
 	/* Detect row, max 15, min13 for rk3066 */
 	for (row = 16; row >= 13; row--) {
-		writel(0, CONFIG_SYS_SDRAM_BASE);
-		addr = CONFIG_SYS_SDRAM_BASE + (1 << (row + 15 - 1));
+		writel(0, CFG_SYS_SDRAM_BASE);
+		addr = CFG_SYS_SDRAM_BASE + (1 << (row + 15 - 1));
 		writel(TEST_PATTERN, addr);
 		if ((readl(addr) == TEST_PATTERN) &&
-		    (readl(CONFIG_SYS_SDRAM_BASE) == 0))
+		    (readl(CFG_SYS_SDRAM_BASE) == 0))
 			break;
 	}
 	if (row == 12) {
@@ -854,7 +854,7 @@ static int rk3066_dmc_probe(struct udevice *dev)
 		if (ret)
 			return ret;
 	} else {
-		priv->info.base = CONFIG_SYS_SDRAM_BASE;
+		priv->info.base = CFG_SYS_SDRAM_BASE;
 		priv->info.size = rockchip_sdram_size((phys_addr_t)&priv->pmu->sys_reg[2]);
 	}
 

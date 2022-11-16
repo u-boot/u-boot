@@ -424,7 +424,7 @@ int dram_init(void)
 	defined(CONFIG_ARCH_QEMU_E500)
 	gd->ram_size = fsl_ddr_sdram_size();
 #else
-	gd->ram_size = (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = (phys_size_t)CFG_SYS_SDRAM_SIZE * 1024 * 1024;
 #endif
 
 	return 0;

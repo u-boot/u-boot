@@ -56,10 +56,10 @@
 /*
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
+ * Please note that CFG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_SDRAM_SIZE		128	/* SDRAM size in MB */
+#define CFG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_SIZE		128	/* SDRAM size in MB */
 
 #define CONFIG_SYS_DRAM_TEST
 
@@ -75,8 +75,8 @@
  * the maximum mapped by the Linux kernel during initialization ??
  */
 /* Initial Memory map for Linux */
-#define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + \
-					(CONFIG_SYS_SDRAM_SIZE << 20))
+#define CONFIG_SYS_BOOTMAPSZ		(CFG_SYS_SDRAM_BASE + \
+					(CFG_SYS_SDRAM_SIZE << 20))
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
@@ -89,8 +89,8 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - 4)
 #define CONFIG_SYS_ICACHE_INV		(CF_CACR_BCINVA + CF_CACR_ICINVA)
 #define CONFIG_SYS_DCACHE_INV		(CF_CACR_DCINVA)
-#define CONFIG_SYS_CACHE_ACR2		(CONFIG_SYS_SDRAM_BASE | \
-					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+#define CONFIG_SYS_CACHE_ACR2		(CFG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CFG_SYS_SDRAM_SIZE) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
 #define CONFIG_SYS_CACHE_ICACR		(CF_CACR_BEC | CF_CACR_IEC | \
 					 CF_CACR_ICINVA | CF_CACR_EUSP)

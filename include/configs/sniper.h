@@ -32,7 +32,7 @@
  * Memory
  */
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /*
  * I2C

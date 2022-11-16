@@ -459,9 +459,9 @@ static void pcie_dw_set_host_bars(const void *regs_base)
 	}
 
 	/* Set the BAR base and size towards DDR */
-	bar0 = CONFIG_SYS_SDRAM_BASE & ~0xf;
+	bar0 = CFG_SYS_SDRAM_BASE & ~0xf;
 	bar0 |= PCI_BASE_ADDRESS_MEM_TYPE_32;
-	writel(CONFIG_SYS_SDRAM_BASE, regs_base + PCIE_CONFIG_BAR0);
+	writel(CFG_SYS_SDRAM_BASE, regs_base + PCIE_CONFIG_BAR0);
 
 	reg = ((size >> 20) - 1) << 12;
 	writel(size, regs_base + RESIZABLE_BAR_CTL0);

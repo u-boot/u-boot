@@ -26,7 +26,7 @@
 /* Physical Memory Map */
 
 #define PHYS_SDRAM			0x60000000
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \

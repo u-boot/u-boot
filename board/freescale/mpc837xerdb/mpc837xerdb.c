@@ -97,10 +97,10 @@ int dram_init(void)
 int fixed_sdram(void)
 {
 	immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	u32 msize = CONFIG_SYS_SDRAM_SIZE;
+	u32 msize = CFG_SYS_SDRAM_SIZE;
 	u32 msize_log2 = __ilog2(msize);
 
-	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_SDRAM_BASE & 0xfffff000;
+	im->sysconf.ddrlaw[0].bar = CFG_SYS_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LBLAWAR_EN | (msize_log2 - 1);
 
 	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR_VALUE;
@@ -127,7 +127,7 @@ int fixed_sdram(void)
 
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 	udelay(2000);
-	return CONFIG_SYS_SDRAM_SIZE >> 20;
+	return CFG_SYS_SDRAM_SIZE >> 20;
 }
 #endif	/*!CONFIG_SYS_SPD_EEPROM */
 

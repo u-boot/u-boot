@@ -70,22 +70,22 @@
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
+ * Please note that CFG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_SDRAM_SIZE		32	/* SDRAM size in MB */
-#define CONFIG_SYS_SDRAM_CFG1		0x53722730
-#define CONFIG_SYS_SDRAM_CFG2		0x56670000
-#define CONFIG_SYS_SDRAM_CTRL		0xE1092000
-#define CONFIG_SYS_SDRAM_EMOD		0x40010000
-#define CONFIG_SYS_SDRAM_MODE		0x018D0000
+#define CFG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_SIZE		32	/* SDRAM size in MB */
+#define CFG_SYS_SDRAM_CFG1		0x53722730
+#define CFG_SYS_SDRAM_CFG2		0x56670000
+#define CFG_SYS_SDRAM_CTRL		0xE1092000
+#define CFG_SYS_SDRAM_EMOD		0x40010000
+#define CFG_SYS_SDRAM_MODE		0x018D0000
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
+#define CONFIG_SYS_BOOTMAPSZ		(CFG_SYS_SDRAM_BASE + (CFG_SYS_SDRAM_SIZE << 20))
 
 /*-----------------------------------------------------------------------
  * FLASH organization
@@ -117,8 +117,8 @@
 #define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 4)
 #define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINVA)
-#define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
-					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+#define CONFIG_SYS_CACHE_ACR0		(CFG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CFG_SYS_SDRAM_SIZE) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
 #define CONFIG_SYS_CACHE_ICACR		(CF_CACR_EC | CF_CACR_CINVA | \
 					 CF_CACR_DCM_P)

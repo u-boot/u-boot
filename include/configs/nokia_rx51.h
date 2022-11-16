@@ -161,7 +161,7 @@
  * FLASH and environment organization
  */
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
 
@@ -170,7 +170,7 @@
  */
 
 #define SDRAM_SIZE			0x10000000	/* 256 MB */
-#define SDRAM_END			(CONFIG_SYS_SDRAM_BASE + SDRAM_SIZE)
+#define SDRAM_END			(CFG_SYS_SDRAM_BASE + SDRAM_SIZE)
 
 #define IMAGE_MAXSIZE			0x1FF800	/* 2 MB - 2 kB */
 #define KERNEL_OFFSET			0x40000		/* 256 kB */

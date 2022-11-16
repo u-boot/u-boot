@@ -85,8 +85,8 @@ DECLARE_GLOBAL_DATA_PTR;
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size(
-			(void *)CONFIG_SYS_SDRAM_BASE,
-			CONFIG_SYS_SDRAM_SIZE);
+			(void *)CFG_SYS_SDRAM_BASE,
+			CFG_SYS_SDRAM_SIZE);
 	return 0;
 }
 
@@ -135,7 +135,7 @@ int board_init(void)
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
 	/* Set adress of boot parameters. */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 	/* Initialize UARTs and power management. */
 	ethernut5_power_init();
 #ifdef CONFIG_CMD_NAND

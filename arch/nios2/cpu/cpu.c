@@ -73,7 +73,7 @@ static int nios_cpu_setup(void *ctx, struct event *event)
 	if (ret)
 		return ret;
 
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 #ifndef CONFIG_ROM_STUBS
 	copy_exception_trampoline();
 #endif

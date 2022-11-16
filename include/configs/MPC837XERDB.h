@@ -59,7 +59,7 @@
 /*
  * DDR Setup
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
+#define CFG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	0x03000000
 
 #define CONFIG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
@@ -69,7 +69,7 @@
 /*
  * Manually set up DDR parameters
  */
-#define CONFIG_SYS_SDRAM_SIZE		0x10000000 /* 256 MiB */
+#define CFG_SYS_SDRAM_SIZE		0x10000000 /* 256 MiB */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000000f
 #define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN \
 					| CSCONFIG_ODT_WR_ONLY_CURRENT \

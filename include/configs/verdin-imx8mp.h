@@ -69,7 +69,7 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	SZ_512K
 
 /* i.MX 8M Plus supports max. 8GB memory in two albeit concecutive banks */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			(SZ_2G + SZ_1G)
 #define PHYS_SDRAM_2			0x100000000

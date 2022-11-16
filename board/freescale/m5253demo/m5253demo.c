@@ -47,7 +47,7 @@ int dram_init(void)
 		__asm__("nop");
 
 		/* Initialize DMR0 */
-		dramsize = (CONFIG_SYS_SDRAM_SIZE << 20);
+		dramsize = (CFG_SYS_SDRAM_SIZE << 20);
 		temp = (dramsize - 1) & 0xFFFC0000;
 		mbar_writeLong(MCFSIM_DMR0, temp | 1);
 		__asm__("nop");
@@ -57,7 +57,7 @@ int dram_init(void)
 		__asm__("nop");
 
 		/* Write to this block to initiate precharge */
-		*(u32 *) (CONFIG_SYS_SDRAM_BASE) = 0xa5a5a5a5;
+		*(u32 *) (CFG_SYS_SDRAM_BASE) = 0xa5a5a5a5;
 		mb();
 		__asm__("nop");
 
@@ -74,7 +74,7 @@ int dram_init(void)
 			       mbar_readLong(MCFSIM_DACR0) | 0x0040);
 		__asm__("nop");
 
-		*(u32 *) (CONFIG_SYS_SDRAM_BASE + 0x800) = 0xa5a5a5a5;
+		*(u32 *) (CFG_SYS_SDRAM_BASE + 0x800) = 0xa5a5a5a5;
 		mb();
 	}
 

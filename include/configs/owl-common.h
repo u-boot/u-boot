@@ -11,7 +11,7 @@
 #define _OWL_COMMON_CONFIG_H_
 
 /* SDRAM Definitions */
-#define CONFIG_SYS_SDRAM_BASE		0x0
+#define CFG_SYS_SDRAM_BASE		0x0
 
 /* Some commands use this as the default load address */
 

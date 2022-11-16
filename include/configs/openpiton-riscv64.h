@@ -14,7 +14,7 @@
 #include <linux/sizes.h>
 
 /* Environment options */
-#define CONFIG_SYS_SDRAM_BASE 0x80000000
+#define CFG_SYS_SDRAM_BASE 0x80000000
 
 /* ---------------------------------------------------------------------
  * Board boot configuration

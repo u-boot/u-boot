@@ -62,8 +62,8 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_IMMR + 0x2800)
 #define	CONFIG_SYS_INIT_RAM_SIZE	(0x2e00 - 0x2800)
 
-/* RAM configuration (note that CONFIG_SYS_SDRAM_BASE must be zero) */
-#define	CONFIG_SYS_SDRAM_BASE		0x00000000
+/* RAM configuration (note that CFG_SYS_SDRAM_BASE must be zero) */
+#define	CFG_SYS_SDRAM_BASE		0x00000000
 
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		CONFIG_TEXT_BASE

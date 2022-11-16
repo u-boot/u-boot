@@ -29,7 +29,7 @@
  */
 static void __secure ls1_save_ddr_head(void)
 {
-	const char *src = (const char *)CONFIG_SYS_SDRAM_BASE;
+	const char *src = (const char *)CFG_SYS_SDRAM_BASE;
 	char *dest = (char *)(OCRAM_BASE_S_ADDR + OCRAM_S_SIZE - DDR_RESV_LEN);
 	struct ccsr_scfg __iomem *scfg = (void *)CFG_SYS_FSL_SCFG_ADDR;
 	int i;

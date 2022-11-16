@@ -90,8 +90,8 @@ int dram_init(void);
  *
  * If this is not provided, a default implementation will try to set up a
  * single bank. It will do this if CONFIG_NR_DRAM_BANKS and
- * CONFIG_SYS_SDRAM_BASE are set. The bank will have a start address of
- * CONFIG_SYS_SDRAM_BASE and the size will be determined by a call to
+ * CFG_SYS_SDRAM_BASE are set. The bank will have a start address of
+ * CFG_SYS_SDRAM_BASE and the size will be determined by a call to
  * get_effective_memsize().
  *
  * Return: 0 if OK, -ve on error

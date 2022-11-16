@@ -264,7 +264,7 @@ int board_init(void)
 	meesc_ethercat_hw_init();
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_CMD_NAND
 	meesc_nand_hw_init();

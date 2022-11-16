@@ -20,7 +20,7 @@
 #include <configs/exynos5-dt-common.h>
 #include <configs/exynos5-common.h>
 
-#define CONFIG_SYS_SDRAM_BASE	0x20000000
+#define CFG_SYS_SDRAM_BASE	0x20000000
 
 #define CONFIG_POWER_TPS65090_EC
 

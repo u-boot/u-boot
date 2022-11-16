@@ -9,7 +9,7 @@
 #include <asm/arch/soc.h>
 
 /* additions for new ARM relocation support */
-#define CONFIG_SYS_SDRAM_BASE   0x200000000
+#define CFG_SYS_SDRAM_BASE   0x200000000
 
 #define CONFIG_SYS_BAUDRATE_TABLE   { 9600, 19200, 38400, 57600, \
 				      115200, 230400, 460800, 921600 }

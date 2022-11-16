@@ -15,7 +15,7 @@
 /* SPL -> Uboot */
 #define CONFIG_SYS_UBOOT_START		CONFIG_TEXT_BASE
 /* DRAM */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 
 /* Ethernet */
 #define CONFIG_IPADDR			192.168.1.1

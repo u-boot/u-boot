@@ -47,7 +47,7 @@ static void ddrmc_init(void)
 	if (is_warm_boot()) {
 		out_be32(&ddr->sdram_cfg_2,
 			 DDR_SDRAM_CFG_2 & ~SDRAM_CFG2_D_INIT);
-		out_be32(&ddr->init_addr, CONFIG_SYS_SDRAM_BASE);
+		out_be32(&ddr->init_addr, CFG_SYS_SDRAM_BASE);
 		out_be32(&ddr->init_ext_addr, (1 << 31));
 
 		/* DRAM VRef will not be trained */

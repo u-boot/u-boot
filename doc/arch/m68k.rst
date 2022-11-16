@@ -142,21 +142,21 @@ CONFIG_SYS_CACHE_DCACR:
   cache-related registers config
 CONFIG_SYS_CACHE_ACRX:
   cache-related registers config
-CONFIG_SYS_SDRAM_BASE:
+CFG_SYS_SDRAM_BASE:
   SDRAM config for SDRAM controller-specific registers
-CONFIG_SYS_SDRAM_SIZE:
+CFG_SYS_SDRAM_SIZE:
   SDRAM config for SDRAM controller-specific registers
-CONFIG_SYS_SDRAM_BASEX:
+CFG_SYS_SDRAM_BASEX:
   SDRAM config for SDRAM controller-specific registers
-CONFIG_SYS_SDRAM_CFG1:
+CFG_SYS_SDRAM_CFG1:
   SDRAM config for SDRAM controller-specific registers
-CONFIG_SYS_SDRAM_CFG2:
+CFG_SYS_SDRAM_CFG2:
   SDRAM config for SDRAM controller-specific registers
-CONFIG_SYS_SDRAM_CTRL:
+CFG_SYS_SDRAM_CTRL:
   SDRAM config for SDRAM controller-specific registers
-CONFIG_SYS_SDRAM_MODE:
+CFG_SYS_SDRAM_MODE:
   SDRAM config for SDRAM controller-specific registers
-CONFIG_SYS_SDRAM_EMOD:
+CFG_SYS_SDRAM_EMOD:
   SDRAM config for SDRAM controller-specific registers, please
   see arch/m68k/cpu/<specific_cpu>/start.S files to see how
   these options are used.

@@ -24,7 +24,7 @@ int dram_init(void)
 	ddr_init();
 
 	gd->mem_clk = 0;
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE, 0x7b000000);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, 0x7b000000);
 
 	sec_init();
 	debug("PBF relocate done\n");

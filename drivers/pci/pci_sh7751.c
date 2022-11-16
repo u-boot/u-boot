@@ -158,9 +158,9 @@ static int sh7751_pci_probe(struct udevice *dev)
 
 	/* Set up target memory mappings (for external DMA access) */
 	/* Map both P0 and P2 range to Area 3 RAM for ease of use */
-	p4_out(CONFIG_SYS_SDRAM_SIZE - 0x100000, SH7751_PCILSR0);
-	p4_out(CONFIG_SYS_SDRAM_BASE & 0x1FF00000, SH7751_PCILAR0);
-	p4_out(CONFIG_SYS_SDRAM_BASE & 0xFFF00000, SH7751_PCICONF5);
+	p4_out(CFG_SYS_SDRAM_SIZE - 0x100000, SH7751_PCILSR0);
+	p4_out(CFG_SYS_SDRAM_BASE & 0x1FF00000, SH7751_PCILAR0);
+	p4_out(CFG_SYS_SDRAM_BASE & 0xFFF00000, SH7751_PCICONF5);
 
 	p4_out(0, SH7751_PCILSR1);
 	p4_out(0, SH7751_PCILAR1);

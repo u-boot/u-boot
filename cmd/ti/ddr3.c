@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_ARCH_KEYSTONE
 #include <asm/arch/ddr3.h>
-#define DDR_MIN_ADDR		CONFIG_SYS_SDRAM_BASE
+#define DDR_MIN_ADDR		CFG_SYS_SDRAM_BASE
 #define STACKSIZE		(512 << 10)     /* 512 KiB */
 
 #define DDR_REMAP_ADDR		0x80000000
@@ -247,9 +247,9 @@ static int is_addr_valid(u32 addr)
 	/* Check in ecc address range 1 */
 	if (ecc_ctrl & EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK) {
 		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
-				+ CONFIG_SYS_SDRAM_BASE;
+				+ CFG_SYS_SDRAM_BASE;
 		end_addr = (range & EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0xFFFF +
-				CONFIG_SYS_SDRAM_BASE;
+				CFG_SYS_SDRAM_BASE;
 		if ((addr >= start_addr) && (addr <= end_addr))
 			/* addr within ecc address range 1 */
 			return 1;
@@ -259,9 +259,9 @@ static int is_addr_valid(u32 addr)
 	if (ecc_ctrl & EMIF_ECC_REG_ECC_ADDR_RGN_2_EN_MASK) {
 		range = readl(&emif->emif_ecc_address_range_2);
 		start_addr = ((range & EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16)
-				+ CONFIG_SYS_SDRAM_BASE;
+				+ CFG_SYS_SDRAM_BASE;
 		end_addr = (range & EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0xFFFF +
-				CONFIG_SYS_SDRAM_BASE;
+				CFG_SYS_SDRAM_BASE;
 		if ((addr >= start_addr) && (addr <= end_addr))
 			/* addr within ecc address range 2 */
 			return 1;
@@ -309,11 +309,11 @@ static int do_ddr_test(struct cmd_tbl *cmdtp,
 	start_addr = hextoul(argv[2], NULL);
 	end_addr = hextoul(argv[3], NULL);
 
-	if ((start_addr < CONFIG_SYS_SDRAM_BASE) ||
-	    (start_addr > (CONFIG_SYS_SDRAM_BASE +
+	if ((start_addr < CFG_SYS_SDRAM_BASE) ||
+	    (start_addr > (CFG_SYS_SDRAM_BASE +
 	     get_effective_memsize() - 1)) ||
-	    (end_addr < CONFIG_SYS_SDRAM_BASE) ||
-	    (end_addr > (CONFIG_SYS_SDRAM_BASE +
+	    (end_addr < CFG_SYS_SDRAM_BASE) ||
+	    (end_addr > (CFG_SYS_SDRAM_BASE +
 	     get_effective_memsize() - 1)) || (start_addr >= end_addr)) {
 		puts("Invalid start or end address!\n");
 		return cmd_usage(cmdtp);

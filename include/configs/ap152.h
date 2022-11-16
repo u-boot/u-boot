@@ -6,7 +6,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_SDRAM_BASE           0x80000000
+#define CFG_SYS_SDRAM_BASE           0x80000000
 
 #define CONFIG_SYS_INIT_RAM_ADDR        0xbd000000
 #define CONFIG_SYS_INIT_RAM_SIZE        0x2000

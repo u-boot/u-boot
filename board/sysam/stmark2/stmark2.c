@@ -35,7 +35,7 @@ int dram_init(void)
 	 * Serial Boot: The dram is already initialized in start.S
 	 * only require to return DRAM size
 	 */
-	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
+	dramsize = CFG_SYS_SDRAM_SIZE * 0x100000;
 
 	gd->ram_size = dramsize;
 

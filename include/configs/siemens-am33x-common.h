@@ -33,7 +33,7 @@
  /* Physical Memory Map */
 #define PHYS_DRAM_1			0x80000000	/* DRAM Bank #1 */
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_DRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_DRAM_1
  /* Platform/Board specific defs */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 

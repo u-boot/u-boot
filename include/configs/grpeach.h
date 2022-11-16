@@ -13,8 +13,8 @@
 /* Miscellaneous */
 
 /* Internal RAM Size (RZ/A1=3M, RZ/A1M=5M, RZ/A1H=10M) */
-#define CONFIG_SYS_SDRAM_BASE		0x20000000
-#define CONFIG_SYS_SDRAM_SIZE		(10 * 1024 * 1024)
+#define CFG_SYS_SDRAM_BASE		0x20000000
+#define CFG_SYS_SDRAM_SIZE		(10 * 1024 * 1024)
 
 /* Network interface */
 #define CONFIG_SH_ETHER_USE_PORT	0

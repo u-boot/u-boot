@@ -32,8 +32,8 @@
 					arch = "arm";
 					os = "tee";
 					compression = "none";
-					load = <(CONFIG_SYS_SDRAM_BASE + 0x8400000)>;
-					entry = <(CONFIG_SYS_SDRAM_BASE + 0x8400000)>;
+					load = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
+					entry = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
 
 					blob-ext {
 						filename = "tee.bin";

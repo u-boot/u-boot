@@ -62,7 +62,7 @@
  */
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 /*
  * IFC Definitions
@@ -154,7 +154,7 @@
 #define SPD_EEPROM_ADDRESS2	0x54
 #define SPD_EEPROM_ADDRESS3	0x56
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1	/* for p3041/p5010 */
-#define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
+#define CFG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 
 /*
  * IFC Definitions

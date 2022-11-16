@@ -69,10 +69,10 @@
  */
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define SPD_EEPROM_ADDRESS	0x52
-#define CONFIG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
+#define CFG_SYS_SDRAM_SIZE	4096	/* for fixed parameter use */
 
 /*
  * Local Bus Definitions

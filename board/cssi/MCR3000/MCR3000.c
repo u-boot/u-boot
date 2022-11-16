@@ -114,7 +114,7 @@ int dram_init(void)
 	out_be32(&memctl->memc_mcr, 0x80002038);
 	udelay(200);
 
-	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE,
 				    SDRAM_MAX_SIZE);
 
 	return 0;

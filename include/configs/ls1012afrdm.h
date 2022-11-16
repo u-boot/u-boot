@@ -10,7 +10,7 @@
 #include "ls1012a_common.h"
 
 /* DDR */
-#define CONFIG_SYS_SDRAM_SIZE		0x20000000
+#define CFG_SYS_SDRAM_SIZE		0x20000000
 
 #undef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \

@@ -60,7 +60,7 @@ config PCI_MAP_SYSTEM_MEMORY
 	  instead of a physical address (e.g. on MIPS). The PCI core will then remap
 	  the virtual memory base address to a physical address when adding the PCI
 	  region of type PCI_REGION_SYS_MEMORY.
-	  This should only be required on MIPS where CONFIG_SYS_SDRAM_BASE is still
+	  This should only be required on MIPS where CFG_SYS_SDRAM_BASE is still
 	  being used as virtual address.
 
 config PCI_SRIOV

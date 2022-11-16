@@ -22,9 +22,9 @@
  * Memory map
  */
 #ifdef CONFIG_64BIT
-# define CONFIG_SYS_SDRAM_BASE		0xffffffff80000000
+# define CFG_SYS_SDRAM_BASE		0xffffffff80000000
 #else
-# define CONFIG_SYS_SDRAM_BASE		0x80000000
+# define CFG_SYS_SDRAM_BASE		0x80000000
 #endif
 
 #define CONFIG_SYS_INIT_SP_OFFSET	0x400000

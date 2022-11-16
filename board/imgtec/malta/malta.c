@@ -94,7 +94,7 @@ static enum sys_con malta_sys_con(void)
 
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 
 	return 0;
 }

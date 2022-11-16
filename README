@@ -1441,7 +1441,7 @@ Configuration Settings:
 		the RAM base is not zero, or RAM is divided into banks,
 		this variable needs to be recalcuated to get the address.
 
-- CONFIG_SYS_SDRAM_BASE:
+- CFG_SYS_SDRAM_BASE:
 		Physical start address of SDRAM. _Must_ be 0 here.
 
 - CONFIG_SYS_FLASH_BASE:

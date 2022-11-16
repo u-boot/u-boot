@@ -105,7 +105,7 @@ CONFIG_SYS_CSn_BASE	-- defines the Chip Select Base register
 CONFIG_SYS_CSn_MASK	-- defines the Chip Select Mask register
 CONFIG_SYS_CSn_CTRL	-- defines the Chip Select Control register
 
-CONFIG_SYS_SDRAM_BASE	-- defines the DRAM Base
+CFG_SYS_SDRAM_BASE	-- defines the DRAM Base
 
 2. MEMORY MAP UNDER U-BOOT AND LINUX KERNEL
 ===========================================

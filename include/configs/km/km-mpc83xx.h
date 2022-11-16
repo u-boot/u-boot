@@ -7,7 +7,7 @@
 /*
  * DDR Setup
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
+#define CFG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
 
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
 					DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
@@ -17,7 +17,7 @@
 /*
  * Manually set up DDR parameters
  */
-#define CONFIG_SYS_SDRAM_SIZE		0x80000000 /* 2048 MiB */
+#define CFG_SYS_SDRAM_SIZE		0x80000000 /* 2048 MiB */
 
 /*
  * The reserved memory

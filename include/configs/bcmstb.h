@@ -81,7 +81,7 @@ extern phys_addr_t prior_stage_fdt_address;
  * MiB.  However, BOLT can be configured to allow loading larger
  * initramfs images, in which case this limitation is eliminated.
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x100000
 
 /*

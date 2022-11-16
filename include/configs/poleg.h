@@ -11,7 +11,7 @@
 #endif
 
 #define CONFIG_SYS_BOOTMAPSZ            (0x30 << 20)
-#define CONFIG_SYS_SDRAM_BASE           0x0
+#define CFG_SYS_SDRAM_BASE           0x0
 
 /* Default environemnt variables */
 #define CONFIG_SERVERIP                 192.168.0.1

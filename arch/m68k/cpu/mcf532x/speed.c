@@ -239,7 +239,7 @@ int clock_pll(int fsys, int flags)
 	 * software workaround for SDRAM opeartion after exiting LIMP
 	 * mode errata
 	 */
-	out_be32(sdram_workaround, CONFIG_SYS_SDRAM_BASE);
+	out_be32(sdram_workaround, CFG_SYS_SDRAM_BASE);
 #endif
 
 	/* wait for DQS logic to relock */

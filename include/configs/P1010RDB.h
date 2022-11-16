@@ -110,9 +110,9 @@
 #ifndef __ASSEMBLY__
 extern unsigned long get_sdram_size(void);
 #endif
-#define CONFIG_SYS_SDRAM_SIZE		get_sdram_size() /* DDR size */
+#define CFG_SYS_SDRAM_SIZE		get_sdram_size() /* DDR size */
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_SYS_CCSRBAR			0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW		CONFIG_SYS_CCSRBAR

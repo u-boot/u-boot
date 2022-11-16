@@ -144,7 +144,7 @@ static const struct boot_mode board_boot_modes[] = {
 int board_init(void)
 {
 	/* address of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_VIDEO_IPUV3
 	setup_display();

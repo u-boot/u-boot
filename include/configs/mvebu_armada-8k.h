@@ -12,7 +12,7 @@
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /* additions for new ARM relocation support */
-#define CONFIG_SYS_SDRAM_BASE	0x00000000
+#define CFG_SYS_SDRAM_BASE	0x00000000
 
 /* auto boot */
 

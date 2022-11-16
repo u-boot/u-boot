@@ -37,7 +37,7 @@ struct tos_parameter_t {
 
 int dram_init_banksize(void)
 {
-	size_t top = min((unsigned long)(gd->ram_size + CONFIG_SYS_SDRAM_BASE),
+	size_t top = min((unsigned long)(gd->ram_size + CFG_SYS_SDRAM_BASE),
 			 (unsigned long)(gd->ram_top));
 
 #ifdef CONFIG_ARM64
@@ -48,26 +48,26 @@ int dram_init_banksize(void)
 #ifdef CONFIG_SPL_OPTEE_IMAGE
 	struct tos_parameter_t *tos_parameter;
 
-	tos_parameter = (struct tos_parameter_t *)(CONFIG_SYS_SDRAM_BASE +
+	tos_parameter = (struct tos_parameter_t *)(CFG_SYS_SDRAM_BASE +
 			TRUST_PARAMETER_OFFSET);
 
 	if (tos_parameter->tee_mem.flags == 1) {
-		gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 		gd->bd->bi_dram[0].size = tos_parameter->tee_mem.phy_addr
-					- CONFIG_SYS_SDRAM_BASE;
+					- CFG_SYS_SDRAM_BASE;
 		gd->bd->bi_dram[1].start = tos_parameter->tee_mem.phy_addr +
 					tos_parameter->tee_mem.size;
 		gd->bd->bi_dram[1].size = top - gd->bd->bi_dram[1].start;
 	} else {
-		gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 		gd->bd->bi_dram[0].size = 0x8400000;
 		/* Reserve 32M for OPTEE with TA */
-		gd->bd->bi_dram[1].start = CONFIG_SYS_SDRAM_BASE
+		gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE
 					+ gd->bd->bi_dram[0].size + 0x2000000;
 		gd->bd->bi_dram[1].size = top - gd->bd->bi_dram[1].start;
 	}
 #else
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = top - gd->bd->bi_dram[0].start;
 #endif
 #endif
@@ -207,7 +207,7 @@ int dram_init(void)
 
 phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
-	unsigned long top = CONFIG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE;
+	unsigned long top = CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE;
 
 	return (gd->ram_top > top) ? top : gd->ram_top;
 }

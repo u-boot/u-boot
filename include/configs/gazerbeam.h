@@ -12,9 +12,9 @@
 /*
  * DDR Setup
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
-/* TODO: Check: Can this be unified with CONFIG_SYS_SDRAM_BASE? */
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_SDRAM_BASE
+#define CFG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
+/* TODO: Check: Can this be unified with CFG_SYS_SDRAM_BASE? */
+#define CONFIG_SYS_DDR_SDRAM_BASE	CFG_SYS_SDRAM_BASE
 
 /*
  * Memory test

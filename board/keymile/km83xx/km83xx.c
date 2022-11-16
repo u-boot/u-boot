@@ -142,10 +142,10 @@ static int fixed_sdram(void)
 	setbits_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
 
 	disable_addr_trans();
-	msize = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_SDRAM_SIZE);
+	msize = get_ram_size(CFG_SYS_SDRAM_BASE, CFG_SYS_SDRAM_SIZE);
 	enable_addr_trans();
 	msize /= (1024 * 1024);
-	if (CONFIG_SYS_SDRAM_SIZE >> 20 != msize) {
+	if (CFG_SYS_SDRAM_SIZE >> 20 != msize) {
 		for (ddr_size = msize << 20, ddr_size_log2 = 0;
 			(ddr_size > 1);
 			ddr_size = ddr_size >> 1, ddr_size_log2++)
@@ -169,7 +169,7 @@ int dram_init(void)
 		return -ENXIO;
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,
-		CONFIG_SYS_SDRAM_BASE & LAWBAR_BAR);
+		CFG_SYS_SDRAM_BASE & LAWBAR_BAR);
 	msize = fixed_sdram();
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)

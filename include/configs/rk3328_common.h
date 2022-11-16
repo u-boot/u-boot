@@ -11,7 +11,7 @@
 #define CONFIG_IRAM_BASE		0xff090000
 
 /* FAT sd card locations. */
-#define CONFIG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 
 #define ENV_MEM_LAYOUT_SETTINGS \

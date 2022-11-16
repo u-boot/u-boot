@@ -130,5 +130,5 @@
 	"upd=run load update\0"						\
 
 /* additions for new relocation code, must be added to all boards */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #endif /* __IMX27LITE_COMMON_CONFIG_H */

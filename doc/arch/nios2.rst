@@ -96,8 +96,8 @@ to 0xDxxx_xxxx.
 
 .. code-block:: c
 
-   #define CONFIG_SYS_SDRAM_BASE		0xc8000000
-   #define CONFIG_SYS_SDRAM_SIZE		0x08000000
+   #define CFG_SYS_SDRAM_BASE		0xc8000000
+   #define CFG_SYS_SDRAM_SIZE		0x08000000
 
 You will need to change the environment variables location and setting,
 too. You may change other configs to fit your board.

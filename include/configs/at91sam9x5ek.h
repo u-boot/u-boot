@@ -20,8 +20,8 @@
  */
 
 /* SDRAM */
-#define CONFIG_SYS_SDRAM_BASE		0x20000000
-#define CONFIG_SYS_SDRAM_SIZE		0x08000000	/* 128 megs */
+#define CFG_SYS_SDRAM_BASE		0x20000000
+#define CFG_SYS_SDRAM_SIZE		0x08000000	/* 128 megs */
 
 /* DataFlash */
 

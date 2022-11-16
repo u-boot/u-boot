@@ -41,8 +41,8 @@
  * SDRAM: 1 bank, min 32, max 128 MB
  * Initialized before u-boot gets started.
  */
-#define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
-#define CONFIG_SYS_SDRAM_SIZE		(128 * SZ_1M)
+#define CFG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
+#define CFG_SYS_SDRAM_SIZE		(128 * SZ_1M)
 
 /*
  * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,

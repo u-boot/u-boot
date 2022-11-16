@@ -288,7 +288,7 @@ long int spd_sdram()
 	/*
 	 * Set up LAWBAR for all of DDR.
 	 */
-	ecm->bar = CONFIG_SYS_SDRAM_BASE & 0xfffff000;
+	ecm->bar = CFG_SYS_SDRAM_BASE & 0xfffff000;
 	ecm->ar  = (LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & law_size));
 	debug("DDR:bar=0x%08x\n", ecm->bar);
 	debug("DDR:ar=0x%08x\n", ecm->ar);

@@ -46,7 +46,7 @@ int dram_init(void)
 
 	ddr3_size = ddr3_init();
 
-	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
 #if defined(CONFIG_TI_AEMIF)
 	if (!(board_is_k2g_ice() || board_is_k2g_i1()))
@@ -71,7 +71,7 @@ struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 	return 0;
 }
 
@@ -120,7 +120,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	/* adjust memory start address for LPAE */
 	if (lpae) {
-		start[0] -= CONFIG_SYS_SDRAM_BASE;
+		start[0] -= CFG_SYS_SDRAM_BASE;
 		start[0] += CONFIG_SYS_LPAE_SDRAM_BASE;
 	}
 
@@ -174,11 +174,11 @@ void ft_board_setup_ex(void *blob, struct bd_info *bd)
 					    "linux,initrd-end", NULL);
 			if (prop1 && prop2) {
 				initrd_start = __be64_to_cpu(*prop1);
-				initrd_start -= CONFIG_SYS_SDRAM_BASE;
+				initrd_start -= CFG_SYS_SDRAM_BASE;
 				initrd_start += CONFIG_SYS_LPAE_SDRAM_BASE;
 				initrd_start = __cpu_to_be64(initrd_start);
 				initrd_end = __be64_to_cpu(*prop2);
-				initrd_end -= CONFIG_SYS_SDRAM_BASE;
+				initrd_end -= CFG_SYS_SDRAM_BASE;
 				initrd_end += CONFIG_SYS_LPAE_SDRAM_BASE;
 				initrd_end = __cpu_to_be64(initrd_end);
 
@@ -221,7 +221,7 @@ void ft_board_setup_ex(void *blob, struct bd_info *bd)
 			*reserve_start = __cpu_to_be64(*reserve_start);
 			size = __cpu_to_be64(*(reserve_start + 1));
 			if (size) {
-				*reserve_start -= CONFIG_SYS_SDRAM_BASE;
+				*reserve_start -= CFG_SYS_SDRAM_BASE;
 				*reserve_start +=
 					CONFIG_SYS_LPAE_SDRAM_BASE;
 				*reserve_start =

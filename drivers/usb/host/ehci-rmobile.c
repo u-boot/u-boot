@@ -90,7 +90,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	/* AHB-PCI Bridge Communication Registers */
 	writel(AHB_BUS_CTR_INIT, &ahbcom_pci->ahb_bus_ctr);
-	writel((CONFIG_SYS_SDRAM_BASE & 0xf0000000) | PCIAHB_WIN_PREFETCH,
+	writel((CFG_SYS_SDRAM_BASE & 0xf0000000) | PCIAHB_WIN_PREFETCH,
 	       &ahbcom_pci->pciahb_win1_ctr);
 	writel(0xf0000000 | PCIAHB_WIN_PREFETCH,
 	       &ahbcom_pci->pciahb_win2_ctr);
@@ -103,7 +103,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	writel(PCIWIN1_PCICMD | AHB_CFG_AHBPCI,
 	       &ahbcom_pci->ahbpci_win1_ctr);
 	writel(phys_base + AHBPCI_OFFSET, &ahbconf_pci->basead);
-	writel(CONFIG_SYS_SDRAM_BASE & 0xf0000000, &ahbconf_pci->win1_basead);
+	writel(CFG_SYS_SDRAM_BASE & 0xf0000000, &ahbconf_pci->win1_basead);
 	writel(0xf0000000, &ahbconf_pci->win2_basead);
 	writel(SERREN | PERREN | MASTEREN | MEMEN,
 	       &ahbconf_pci->cmnd_sts);

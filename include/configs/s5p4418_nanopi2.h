@@ -18,7 +18,7 @@
 /*-----------------------------------------------------------------------
  *  System memory Configuration
  */
-#define CONFIG_SYS_SDRAM_BASE		0x71000000
+#define CFG_SYS_SDRAM_BASE		0x71000000
 
 /*
  * "(0x40000000 - CONFIG_SYS_RESERVE_MEM_SIZE)" has been used in
@@ -55,7 +55,7 @@
  *        Starting kernel ...
  *        ...
  */
-#define CONFIG_SYS_SDRAM_SIZE		(0xb0000000 - CONFIG_SYS_SDRAM_BASE)
+#define CFG_SYS_SDRAM_SIZE		(0xb0000000 - CFG_SYS_SDRAM_BASE)
 
 #define BMP_LOAD_ADDR			0x78000000
 

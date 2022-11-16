@@ -28,7 +28,7 @@
 	(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)	/* SDRAM Bank #2 */
 #define PHYS_SDRAM_0_SIZE	0x20000000	/* 512 MB */
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512 MB */
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_0
+#define CFG_SYS_SDRAM_BASE	PHYS_SDRAM_0
 
 /*
  * Serial console configuration

@@ -68,6 +68,6 @@
 /* Defines for SPL */
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SYS_SDRAM_SIZE		SZ_2G
+#define CFG_SYS_SDRAM_SIZE		SZ_2G
 
 #endif /* _CONFIG_THEADORABLE_H */

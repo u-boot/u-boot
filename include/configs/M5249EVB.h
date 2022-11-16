@@ -52,10 +52,10 @@
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
+ * Please note that CFG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
+#define CFG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
 #define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE)
 
 #if 0 /* test-only */
@@ -67,7 +67,7 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
+#define CONFIG_SYS_BOOTMAPSZ		(CFG_SYS_SDRAM_BASE + (CFG_SYS_SDRAM_SIZE << 20))
 
 /*-----------------------------------------------------------------------
  * FLASH organization
@@ -90,8 +90,8 @@
 #define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_FLASH_BASE | \
 					 CF_ADDRMASK(2) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
-#define CONFIG_SYS_CACHE_ACR1		(CONFIG_SYS_SDRAM_BASE | \
-					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+#define CONFIG_SYS_CACHE_ACR1		(CFG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CFG_SYS_SDRAM_SIZE) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
 #define CONFIG_SYS_CACHE_ICACR		(CF_CACR_CENB | CF_CACR_CEIB | \
 					 CF_CACR_DBWE)

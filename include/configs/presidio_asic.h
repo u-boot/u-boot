@@ -36,7 +36,7 @@
 #define DDR_BASE			0x00000000
 #define PHYS_SDRAM_1			DDR_BASE
 #define PHYS_SDRAM_1_SIZE		0x80000000 /* 2GB */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Console I/O Buffer Size */
 

@@ -184,7 +184,7 @@ int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
 	/* Define only 1MiB range for mem_regions at the middle of the RAM */
 	/* For 1GiB range mem_regions takes approx. 4min */
-	*vstart = CONFIG_SYS_SDRAM_BASE + (gd->ram_size >> 1);
+	*vstart = CFG_SYS_SDRAM_BASE + (gd->ram_size >> 1);
 	*size = 1 << 20;
 	return 0;
 }

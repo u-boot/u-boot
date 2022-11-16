@@ -57,7 +57,7 @@
 
 #define CONFIG_SYS_CLK			80000000
 #define CONFIG_SYS_CPU_CLK		(CONFIG_SYS_CLK * 3)
-#define CONFIG_SYS_SDRAM_SIZE		32		/* SDRAM size in MB */
+#define CFG_SYS_SDRAM_SIZE		32		/* SDRAM size in MB */
 
 /*
  * Define baudrate for UART1 (console output, tftp, ...)
@@ -158,7 +158,7 @@
  * (Set up by the startup code)
  * for MCF5373, the allowable range is 0x40000000 to 0x7FF00000
  */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 
 /*
  * Chipselect bank definitions
@@ -195,8 +195,8 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + \
-						(CONFIG_SYS_SDRAM_SIZE << 20))
+#define CONFIG_SYS_BOOTMAPSZ		(CFG_SYS_SDRAM_BASE + \
+						(CFG_SYS_SDRAM_SIZE << 20))
 
 /* FLASH organization */
 
@@ -213,8 +213,8 @@
 #define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - 4)
 #define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINVA)
-#define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
-					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+#define CONFIG_SYS_CACHE_ACR0		(CFG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CFG_SYS_SDRAM_SIZE) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
 #define CONFIG_SYS_CACHE_ICACR		(CF_CACR_EC | CF_CACR_CINVA | \
 					 CF_CACR_DCM_P)

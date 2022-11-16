@@ -23,8 +23,8 @@
  */
 
 /* SDRAM */
-#define CONFIG_SYS_SDRAM_BASE		0x20000000
-#define CONFIG_SYS_SDRAM_SIZE		0x10000000	/* 256 megs */
+#define CFG_SYS_SDRAM_BASE		0x20000000
+#define CFG_SYS_SDRAM_SIZE		0x10000000	/* 256 megs */
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

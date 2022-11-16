@@ -23,7 +23,7 @@
 #endif
 
 /* Memory layout */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_TEXT_BASE
 /*
  * The board really has 256M. However, the VC (VideoCore co-processor) shares
@@ -31,7 +31,7 @@
  * smaller amount of RAM is present in order to avoid stomping on the area
  * the VC uses.
  */
-#define CONFIG_SYS_SDRAM_SIZE		SZ_128M
+#define CFG_SYS_SDRAM_SIZE		SZ_128M
 
 /* Devices */
 /* LCD */

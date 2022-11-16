@@ -42,13 +42,13 @@
  */
 #ifdef CONFIG_MACH_SUN9I
 #define SDRAM_OFFSET(x) 0x2##x
-#define CONFIG_SYS_SDRAM_BASE		0x20000000
+#define CFG_SYS_SDRAM_BASE		0x20000000
 #elif defined(CONFIG_MACH_SUNIV)
 #define SDRAM_OFFSET(x) 0x8##x
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #else
 #define SDRAM_OFFSET(x) 0x4##x
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 /* V3s do not have enough memory to place code at 0x4a000000 */
 #endif
 
@@ -66,7 +66,7 @@
 /* FIXME: this may be larger on some SoCs */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
 
-#define PHYS_SDRAM_0			CONFIG_SYS_SDRAM_BASE
+#define PHYS_SDRAM_0			CFG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
 
 /* mmc config */

@@ -14,7 +14,7 @@
  * Miscellaneous configurable options
  */
 
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_BASE		0x00000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"fdt_high=0x20000000\0"					\

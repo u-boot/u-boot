@@ -16,7 +16,7 @@ void construct_pamu_addr_table(struct pamu_addr_tbl *tbl, int *num_entries)
 	int j;
 
 	tbl->start_addr[i] =
-			(uint64_t)virt_to_phys((void *)CONFIG_SYS_SDRAM_BASE);
+			(uint64_t)virt_to_phys((void *)CFG_SYS_SDRAM_BASE);
 	tbl->size[i] = (phys_size_t)(min(gd->ram_size, CONFIG_MAX_MEM_MAPPED));
 	tbl->end_addr[i] = tbl->start_addr[i] +  tbl->size[i] - 1;
 

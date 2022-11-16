@@ -20,8 +20,8 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
 
 /* SDRAM */
-#define CONFIG_SYS_SDRAM_BASE           0x70000000
-#define CONFIG_SYS_SDRAM_SIZE		0x08000000
+#define CFG_SYS_SDRAM_BASE           0x70000000
+#define CFG_SYS_SDRAM_SIZE		0x08000000
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
