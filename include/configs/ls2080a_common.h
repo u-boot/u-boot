@@ -37,7 +37,7 @@
 /* I2C */
 
 /* Serial Port */
-#define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
+#define CFG_SYS_NS16550_CLK          (get_serial_clock())
 
 /*
  * During booting, IFC is mapped at the region of 0x30000000.

@@ -34,13 +34,13 @@
 #define KEYSTONE_SRAM_SCRATCH_SPACE_END		(TI_SRAM_SCRATCH_BOARD_EEPROM_END)
 
 /* UART Configuration */
-#define CONFIG_SYS_NS16550_COM1		KS2_UART0_BASE
-#define CONFIG_SYS_NS16550_COM2		KS2_UART1_BASE
+#define CFG_SYS_NS16550_COM1		KS2_UART0_BASE
+#define CFG_SYS_NS16550_COM2		KS2_UART1_BASE
 
 #ifndef CONFIG_SOC_K2G
-#define CONFIG_SYS_NS16550_CLK		ks_clk_get_rate(KS2_CLK1_6)
+#define CFG_SYS_NS16550_CLK		ks_clk_get_rate(KS2_CLK1_6)
 #else
-#define CONFIG_SYS_NS16550_CLK		ks_clk_get_rate(uart_pll_clk) / 2
+#define CFG_SYS_NS16550_CLK		ks_clk_get_rate(uart_pll_clk) / 2
 #endif
 
 /* SPI Configuration */

@@ -22,8 +22,8 @@
 
 /* Serial SPL */
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL)
-#define CONFIG_SYS_NS16550_CLK		50000000
-#define CONFIG_SYS_NS16550_COM1		0xbe000c00
+#define CFG_SYS_NS16550_CLK		50000000
+#define CFG_SYS_NS16550_COM1		0xbe000c00
 #endif
 
 /* Serial common */

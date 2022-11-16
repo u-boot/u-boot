@@ -17,7 +17,7 @@
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_CLK		48000000
+#define CFG_SYS_NS16550_CLK		48000000
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the

@@ -36,7 +36,7 @@
 /*
  * Serial Driver info
  */
-#define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
+#define CFG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
 
 #define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
 

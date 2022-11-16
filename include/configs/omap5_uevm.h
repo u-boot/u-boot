@@ -28,7 +28,7 @@
 
 #include <configs/ti_omap5_common.h>
 
-#define CONFIG_SYS_NS16550_COM3		UART3_BASE
+#define CFG_SYS_NS16550_COM3		UART3_BASE
 
 /* MMC ENV related defines */
 

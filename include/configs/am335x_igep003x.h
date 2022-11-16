@@ -88,7 +88,7 @@
 			"echo WARNING: Could not determine device tree to use; fi; \0"
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
+#define CFG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
 
 /* Ethernet support */
 

@@ -30,8 +30,8 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550_CLK      (48000000)
-#define CONFIG_SYS_NS16550_COM1     0x48024000  /* Base EVM has UART2 */
+#define CFG_SYS_NS16550_CLK      (48000000)
+#define CFG_SYS_NS16550_COM1     0x48024000  /* Base EVM has UART2 */
 
 /* allow overwriting serial config and ethaddr */
 

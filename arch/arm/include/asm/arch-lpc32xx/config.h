@@ -19,8 +19,8 @@
 #endif
 #endif
 
-#if !defined(CONFIG_SYS_NS16550_CLK)
-#define CONFIG_SYS_NS16550_CLK		13000000
+#if !defined(CFG_SYS_NS16550_CLK)
+#define CFG_SYS_NS16550_CLK		13000000
 #endif
 
 #define CONFIG_SYS_BAUDRATE_TABLE	\

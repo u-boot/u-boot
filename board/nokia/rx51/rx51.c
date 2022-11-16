@@ -795,9 +795,9 @@ U_BOOT_DRVINFOS(rx51_kp) = {
 };
 
 static const struct ns16550_plat rx51_serial = {
-	.base = CONFIG_SYS_NS16550_COM3,
+	.base = CFG_SYS_NS16550_COM3,
 	.reg_shift = 2,
-	.clock = CONFIG_SYS_NS16550_CLK,
+	.clock = CFG_SYS_NS16550_CLK,
 	.fcr = UART_FCR_DEFVAL,
 };
 

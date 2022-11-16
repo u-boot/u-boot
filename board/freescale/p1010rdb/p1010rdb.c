@@ -587,7 +587,7 @@ void fdt_disable_uart1(void *blob)
 	int nodeoff;
 
 	nodeoff = fdt_node_offset_by_compat_reg(blob, "fsl,ns16550",
-					CONFIG_SYS_NS16550_COM2);
+					CFG_SYS_NS16550_COM2);
 
 	if (nodeoff > 0) {
 		fdt_status_disabled(blob, nodeoff);

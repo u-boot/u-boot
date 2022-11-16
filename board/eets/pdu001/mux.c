@@ -92,22 +92,22 @@ void enable_uart5_pin_mux(void)
 void enable_uart_pin_mux(u32 addr)
 {
 	switch (addr) {
-	case CONFIG_SYS_NS16550_COM1:
+	case CFG_SYS_NS16550_COM1:
 		enable_uart0_pin_mux();
 		break;
-	case CONFIG_SYS_NS16550_COM2:
+	case CFG_SYS_NS16550_COM2:
 		enable_uart1_pin_mux();
 		break;
-	case CONFIG_SYS_NS16550_COM3:
+	case CFG_SYS_NS16550_COM3:
 		enable_uart2_pin_mux();
 		break;
-	case CONFIG_SYS_NS16550_COM4:
+	case CFG_SYS_NS16550_COM4:
 		enable_uart3_pin_mux();
 		break;
-	case CONFIG_SYS_NS16550_COM5:
+	case CFG_SYS_NS16550_COM5:
 		enable_uart4_pin_mux();
 		break;
-	case CONFIG_SYS_NS16550_COM6:
+	case CFG_SYS_NS16550_COM6:
 		enable_uart5_pin_mux();
 		break;
 	}

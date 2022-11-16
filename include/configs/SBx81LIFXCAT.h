@@ -12,8 +12,8 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
-#define CONFIG_SYS_NS16550_COM1		KW_UART0_BASE
+#define CFG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
+#define CFG_SYS_NS16550_COM1		KW_UART0_BASE
 
 /*
  * Serial Port configuration

@@ -26,7 +26,7 @@
 
 /* GPIO */
 
-#define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
+#define CFG_SYS_NS16550_CLK          (get_serial_clock())
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128

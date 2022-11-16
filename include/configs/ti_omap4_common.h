@@ -27,9 +27,9 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_SYS_NS16550_CLK		48000000
+#define CFG_SYS_NS16550_CLK		48000000
 #if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_COM3		UART3_BASE
+#define CFG_SYS_NS16550_COM3		UART3_BASE
 #endif
 
 /* TWL6030 */

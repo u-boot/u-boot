@@ -29,7 +29,7 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_SYS_NS16550_CLK		48000000
+#define CFG_SYS_NS16550_CLK		48000000
 
 /*
  * Environment setup

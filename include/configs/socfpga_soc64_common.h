@@ -75,7 +75,7 @@
 /*
  * Serial / UART configurations
  */
-#define CONFIG_SYS_NS16550_CLK		100000000
+#define CFG_SYS_NS16550_CLK		100000000
 
 /*
  * SDMMC configurations

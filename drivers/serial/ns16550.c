@@ -92,8 +92,8 @@ static inline int serial_in_shift(void *addr, int shift)
 
 #if CONFIG_IS_ENABLED(DM_SERIAL)
 
-#ifndef CONFIG_SYS_NS16550_CLK
-#define CONFIG_SYS_NS16550_CLK  0
+#ifndef CFG_SYS_NS16550_CLK
+#define CFG_SYS_NS16550_CLK  0
 #endif
 
 /*
@@ -567,9 +567,9 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 
 	if (!plat->clock)
 		plat->clock = dev_read_u32_default(dev, "clock-frequency",
-						   CONFIG_SYS_NS16550_CLK);
+						   CFG_SYS_NS16550_CLK);
 	if (!plat->clock)
-		plat->clock = CONFIG_SYS_NS16550_CLK;
+		plat->clock = CFG_SYS_NS16550_CLK;
 	if (!plat->clock) {
 		debug("ns16550 clock not defined\n");
 		return -EINVAL;

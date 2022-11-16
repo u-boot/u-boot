@@ -290,8 +290,8 @@ int arch_cpu_init(void)
 	board_gpio_init();
 
 #if !CONFIG_IS_ENABLED(DM_SERIAL)
-	ns16550_init((struct ns16550 *)(CONFIG_SYS_NS16550_COM1),
-		     CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
+	ns16550_init((struct ns16550 *)(CFG_SYS_NS16550_COM1),
+		     CFG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 #endif
 	/*
 	 * Fix Power and Emulation Management Register
@@ -299,7 +299,7 @@ int arch_cpu_init(void)
 	 */
 	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
-#if (CONFIG_SYS_NS16550_COM1 == DAVINCI_UART0_BASE)
+#if (CFG_SYS_NS16550_COM1 == DAVINCI_UART0_BASE)
 	       &davinci_uart0_ctrl_regs->pwremu_mgmt);
 #else
 	       &davinci_uart2_ctrl_regs->pwremu_mgmt);

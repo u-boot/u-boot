@@ -27,7 +27,7 @@
 /*
  * UART configuration
  */
-#define CONFIG_SYS_NS16550_CLK		33330000
+#define CFG_SYS_NS16550_CLK		33330000
 
 /*
  * Ethernet PHY configuration

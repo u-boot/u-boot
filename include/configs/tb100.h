@@ -19,7 +19,7 @@
 /*
  * UART configuration
  */
-#define CONFIG_SYS_NS16550_CLK		166666666
+#define CFG_SYS_NS16550_CLK		166666666
 
 /*
  * Even though the board houses Realtek RTL8211E PHY

@@ -52,7 +52,7 @@
  * TODO: Convert this to a clock driver exists that can give us the UART
  * clock here.
  */
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 #endif
 
 #endif /* _ASM_CONFIG_H_ */

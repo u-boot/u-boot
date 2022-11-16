@@ -26,7 +26,7 @@
 /* 12MB Malloc size */
 
 /* console configuration */
-#define CONFIG_SYS_NS16550_CLK		25000000
+#define CFG_SYS_NS16550_CLK		25000000
 
 /*
  * Increase max uncompressed/gunzip size, keeping size same as EMMC linux

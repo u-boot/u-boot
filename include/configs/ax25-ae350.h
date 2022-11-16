@@ -33,7 +33,7 @@
 /*
  * Serial console configuration
  */
-#define CONFIG_SYS_NS16550_CLK		19660800
+#define CFG_SYS_NS16550_CLK		19660800
 
 /* Init Stack Pointer */
 

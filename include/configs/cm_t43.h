@@ -14,8 +14,8 @@
 #include <asm/arch/omap.h>
 
 /* Serial support */
-#define CONFIG_SYS_NS16550_CLK		48000000
-#define CONFIG_SYS_NS16550_COM1		0x44e09000
+#define CFG_SYS_NS16550_CLK		48000000
+#define CFG_SYS_NS16550_COM1		0x44e09000
 
 /* NAND support */
 #define CFG_SYS_NAND_ECCSIZE		512

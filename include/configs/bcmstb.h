@@ -97,7 +97,7 @@ extern phys_addr_t prior_stage_fdt_address;
  */
 #define V_NS16550_CLK			81000000
 
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
+#define CFG_SYS_NS16550_CLK		V_NS16550_CLK
 
 /*
  * Serial console configuration.

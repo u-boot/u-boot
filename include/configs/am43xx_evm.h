@@ -14,7 +14,7 @@
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_CLK		48000000
+#define CFG_SYS_NS16550_CLK		48000000
 
 /* I2C Configuration */
 
@@ -41,7 +41,7 @@
 #define V_SCLK				(V_OSCK)
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
+#define CFG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */

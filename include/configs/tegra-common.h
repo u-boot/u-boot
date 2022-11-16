@@ -26,7 +26,7 @@
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
+#define CFG_SYS_NS16550_CLK		V_NS16550_CLK
 
 #ifdef CONFIG_ARM64
 #define FDTFILE "nvidia/" CONFIG_DEFAULT_DEVICE_TREE ".dtb"

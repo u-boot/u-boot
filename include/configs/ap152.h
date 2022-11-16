@@ -14,7 +14,7 @@
 /*
  * Serial Port
  */
-#define CONFIG_SYS_NS16550_CLK          25000000
+#define CFG_SYS_NS16550_CLK          25000000
 
 /* Miscellaneous configurable options */
 

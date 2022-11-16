@@ -649,7 +649,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 
 #ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
-		"clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
+		"clock-frequency", CFG_SYS_NS16550_CLK, 1);
 #endif
 
 #ifdef CONFIG_FSL_CORENET
@@ -751,7 +751,7 @@ static void msg(const char *name, uint64_t uaddr, uint64_t daddr)
  * This function compares several CONFIG_xxx macros that contain physical
  * addresses with the corresponding nodes in the device tree, to see if
  * the physical addresses are all correct.  For example, if
- * CONFIG_SYS_NS16550_COM1 is defined, then it contains the virtual address
+ * CFG_SYS_NS16550_COM1 is defined, then it contains the virtual address
  * of the first UART.  We convert this to a physical address and compare
  * that with the physical address of the first ns16550-compatible node
  * in the device tree.  If they don't match, then we display a warning.
@@ -796,15 +796,15 @@ int ft_verify_fdt(void *fdt)
 	 */
 	aliases = fdt_path_offset(fdt, "/aliases");
 	if (aliases > 0) {
-#ifdef CONFIG_SYS_NS16550_COM1
+#ifdef CFG_SYS_NS16550_COM1
 		if (!fdt_verify_alias_address(fdt, aliases, "serial0",
-			CCSR_VIRT_TO_PHYS(CONFIG_SYS_NS16550_COM1)))
+			CCSR_VIRT_TO_PHYS(CFG_SYS_NS16550_COM1)))
 			return 0;
 #endif
 
-#ifdef CONFIG_SYS_NS16550_COM2
+#ifdef CFG_SYS_NS16550_COM2
 		if (!fdt_verify_alias_address(fdt, aliases, "serial1",
-			CCSR_VIRT_TO_PHYS(CONFIG_SYS_NS16550_COM2)))
+			CCSR_VIRT_TO_PHYS(CFG_SYS_NS16550_COM2)))
 			return 0;
 #endif
 	}

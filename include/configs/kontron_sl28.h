@@ -35,7 +35,7 @@
 #define CONFIG_MALLOC_F_ADDR		CFG_SYS_FSL_OCRAM_BASE
 
 /* serial port */
-#define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
+#define CFG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
 /* SPL */
 

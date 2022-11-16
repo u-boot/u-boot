@@ -148,7 +148,7 @@
 /*
  * Serial Port
  */
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 
 /*
  * I2C
