@@ -10,11 +10,6 @@
 
 /* MMC support */
 
-/* SATA support */
-#if defined(CONFIG_SPL_SATA)
-#define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
-#endif
-
 #endif
 
 #endif
