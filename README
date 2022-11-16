@@ -923,7 +923,7 @@ The following options need to be configured:
 		with a list of GPIO LEDs that have inverted polarity.
 
 - I2C Support:
-		CONFIG_SYS_NUM_I2C_BUSES
+		CFG_SYS_NUM_I2C_BUSES
 		Hold the number of i2c buses you want to use.
 
 		CONFIG_SYS_I2C_DIRECT_BUS
@@ -940,7 +940,7 @@ The following options need to be configured:
 		hold a list of buses you want to use, only used if
 		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
 		a board with CONFIG_SYS_I2C_MAX_HOPS = 1 and
-		CONFIG_SYS_NUM_I2C_BUSES = 9:
+		CFG_SYS_NUM_I2C_BUSES = 9:
 
 		 CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP}}, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 1}}}, \

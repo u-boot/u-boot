@@ -26,7 +26,7 @@
 #include <asm/arch/cpu.h>
 #endif
 
-struct fm_muram muram[CONFIG_SYS_NUM_FMAN];
+struct fm_muram muram[CFG_SYS_NUM_FMAN];
 
 void *fm_muram_base(int fm_idx)
 {

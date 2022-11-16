@@ -406,7 +406,7 @@ void get_sys_info(sys_info_t *sys_info)
 		sys_info->freq_fman[0] = sys_info->freq_systembus / 2;
 		break;
 	}
-#if (CONFIG_SYS_NUM_FMAN) == 2
+#if (CFG_SYS_NUM_FMAN) == 2
 #ifdef CONFIG_SYS_FM2_CLK
 #define FM2_CLK_SEL	0x00000038
 #define FM2_CLK_SHIFT	3
@@ -440,7 +440,7 @@ void get_sys_info(sys_info_t *sys_info)
 		break;
 	}
 #endif
-#endif	/* CONFIG_SYS_NUM_FMAN == 2 */
+#endif	/* CFG_SYS_NUM_FMAN == 2 */
 #else
 	sys_info->freq_fman[0] = sys_info->freq_systembus / CONFIG_SYS_FM1_CLK;
 #endif
@@ -491,7 +491,7 @@ void get_sys_info(sys_info_t *sys_info)
 	} else {
 		sys_info->freq_fman[0] = sys_info->freq_systembus / 2;
 	}
-#if (CONFIG_SYS_NUM_FMAN) == 2
+#if (CFG_SYS_NUM_FMAN) == 2
 	if (rcw_tmp & FM2_CLK_SEL) {
 		if (rcw_tmp & HWA_ASYNC_DIV)
 			sys_info->freq_fman[1] = freq_c_pll[HWA_CC_PLL] / 4;

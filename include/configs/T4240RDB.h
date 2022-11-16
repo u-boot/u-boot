@@ -39,7 +39,7 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#define CONFIG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
+#define CFG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
 /*
  * These can be toggled for performance analysis, otherwise use default.

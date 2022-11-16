@@ -167,7 +167,7 @@ static inline void ft_fixup_l3cache(void *blob, int off)
 	cpc_corenet_t *cpc = (void *)CFG_SYS_FSL_CPC_ADDR;
 	u32 cfg0 = in_be32(&cpc->cpccfg0);
 
-	size = CPC_CFG0_SZ_K(cfg0) * 1024 * CONFIG_SYS_NUM_CPC;
+	size = CPC_CFG0_SZ_K(cfg0) * 1024 * CFG_SYS_NUM_CPC;
 	num_ways = CPC_CFG0_NUM_WAYS(cfg0);
 	line_size = CPC_CFG0_LINE_SZ(cfg0);
 	num_sets = size / (line_size * num_ways);
@@ -469,7 +469,7 @@ static void ft_fixup_dpaa_clks(void *blob)
 	ft_fixup_clks(blob, "fsl,fman", CFG_SYS_FSL_FM1_OFFSET,
 			sysinfo.freq_fman[0]);
 
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 	ft_fixup_clks(blob, "fsl,fman", CFG_SYS_FSL_FM2_OFFSET,
 			sysinfo.freq_fman[1]);
 #endif

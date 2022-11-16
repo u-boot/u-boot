@@ -17,7 +17,7 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
+#define CFG_SYS_NUM_CPC	CONFIG_SYS_NUM_DDR_CTLRS
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define RESET_VECTOR_OFFSET		0x27FFC

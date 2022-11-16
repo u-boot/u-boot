@@ -85,7 +85,7 @@ int board_eth_init(struct bd_info *bis)
 		break;
 	}
 
-	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
+	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CFG_SYS_NUM_FM1_DTSEC; i++) {
 		interface = fm_info_get_enet_if(i);
 		switch (interface) {
 		case PHY_INTERFACE_MODE_RGMII:
@@ -112,7 +112,7 @@ int board_eth_init(struct bd_info *bis)
 		}
 	}
 
-	for (i = FM1_10GEC1; i < FM1_10GEC1 + CONFIG_SYS_NUM_FM1_10GEC; i++) {
+	for (i = FM1_10GEC1; i < FM1_10GEC1 + CFG_SYS_NUM_FM1_10GEC; i++) {
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_XGMII:
 			dev = miiphy_get_dev_by_name(DEFAULT_FM_TGEC_MDIO_NAME);

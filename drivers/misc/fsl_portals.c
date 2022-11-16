@@ -257,7 +257,7 @@ defined(CONFIG_ARCH_LS1046A)
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-		for (j = 0; j < CONFIG_SYS_NUM_FMAN; j++) {
+		for (j = 0; j < CFG_SYS_NUM_FMAN; j++) {
 			char name[] = "fman@0";
 
 			name[sizeof(name) - 2] = '0' + j;

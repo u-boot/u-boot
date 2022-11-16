@@ -637,7 +637,7 @@ void i2c_early_init_f(void);
 /* no muxes used bus = i2c adapters */
 #define CONFIG_SYS_I2C_DIRECT_BUS	1
 #define CONFIG_SYS_I2C_MAX_HOPS		0
-#define CONFIG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
+#define CFG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
 #else
 /* we use i2c muxes */
 #undef CONFIG_SYS_I2C_DIRECT_BUS

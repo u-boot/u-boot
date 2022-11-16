@@ -64,7 +64,7 @@ int board_eth_init(struct bd_info *bis)
 	}
 
 	dev = miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME);
-	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++)
+	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CFG_SYS_NUM_FM1_DTSEC; i++)
 		fm_info_set_mdio(i, dev);
 
 	/* 10GBase-R on lane A, MAC 9 */

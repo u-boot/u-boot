@@ -1697,7 +1697,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 #else
 		int i;
 
-		for (i = 0; i < CONFIG_SYS_NUM_I2C_BUSES; i++) {
+		for (i = 0; i < CFG_SYS_NUM_I2C_BUSES; i++) {
 			printf("Bus %d:\t%s", i, I2C_ADAP_NR(i)->name);
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 			int j;
@@ -1730,7 +1730,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 		show_bus(bus);
 #else
-		if (i >= CONFIG_SYS_NUM_I2C_BUSES) {
+		if (i >= CFG_SYS_NUM_I2C_BUSES) {
 			printf("Invalid bus %d\n", i);
 			return -1;
 		}
@@ -1788,7 +1788,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 	} else {
 		bus_no = dectoul(argv[1], NULL);
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-		if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES) {
+		if (bus_no >= CFG_SYS_NUM_I2C_BUSES) {
 			printf("Invalid bus %d\n", bus_no);
 			return -1;
 		}

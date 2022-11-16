@@ -162,7 +162,7 @@ void disable_cpc_sram(void)
 
 	cpc_corenet_t *cpc = (cpc_corenet_t *)CFG_SYS_FSL_CPC_ADDR;
 
-	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
+	for (i = 0; i < CFG_SYS_NUM_CPC; i++, cpc++) {
 		if (in_be32(&cpc->cpcsrcr0) & CPC_SRCR0_SRAMEN) {
 			/* find and disable LAW of SRAM */
 			struct law_entry law = find_law(CONFIG_SYS_INIT_L3_ADDR);
@@ -232,7 +232,7 @@ void enable_cpc(void)
 			have_hwconfig = true;
 	}
 
-	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
+	for (i = 0; i < CFG_SYS_NUM_CPC; i++, cpc++) {
 		if (have_hwconfig) {
 			sprintf(cpc_subarg, "cpc%u", i + 1);
 			cpc_args = hwconfig_sub_f("en_cpc", cpc_subarg, buffer);
@@ -273,7 +273,7 @@ static void invalidate_cpc(void)
 	int i;
 	cpc_corenet_t *cpc = (cpc_corenet_t *)CFG_SYS_FSL_CPC_ADDR;
 
-	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
+	for (i = 0; i < CFG_SYS_NUM_CPC; i++, cpc++) {
 		/* skip CPC when it used as all SRAM */
 		if (in_be32(&cpc->cpcsrcr0) & CPC_SRCR0_SRAMEN)
 			continue;
