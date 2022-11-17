@@ -14,20 +14,20 @@ Description
 -----------
 
 The cmp command is used to compare two memory areas. By default it works on
-four byte tuples. By appending .b, .w, .l, .q the size of the tuples is
-controlled:
+four byte (32-bit) values. By appending .b, .w, .l, .q the size of the
+values is controlled:
 
 cmp.b
-    compare 1 byte tuples
+    compare 1 byte (8-bit) values
 
 cmp.w
-    compare 2 byte tuples
+    compare 2 byte (16-bit) values
 
 cmp.l
-    compare 4 byte tuples
+    compare 4 byte (32-bit) values
 
 cmp.q
-    compare 8 byte tuples
+    compare 8 byte (64-bit) values
 
 The parameters are used as follows:
 
