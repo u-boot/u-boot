@@ -105,7 +105,6 @@ int initr_watchdog(void)
 		init_watchdog_dev(dev);
 	}
 
-	gd->flags |= GD_FLG_WDT_READY;
 	return 0;
 }
 
