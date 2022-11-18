@@ -15,6 +15,6 @@
  * @len:	Length of buffer in bytes
  * @key:	16-byte key to use
  */
-void rc4_encode(unsigned char *buf, unsigned int len, unsigned char key[16]);
+void rc4_encode(unsigned char *buf, unsigned int len, const unsigned char key[16]);
 
 #endif
