@@ -1628,6 +1628,8 @@ static void init_manifest_header(struct manifest_header *hdr, size_t size)
 
 	curr_time = time(NULL);
 	local_time = localtime(&curr_time);
+	assert(local_time != NULL);
+
 	strftime(buffer, sizeof(buffer), "0x%Y%m%d", local_time);
 	hdr->date = strtoul(buffer, NULL, 16);
 
