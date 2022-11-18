@@ -154,7 +154,7 @@ struct spl_params {
 
 static struct spl_params spl_params = { 0 };
 
-static unsigned char rc4_key[16] = {
+static const unsigned char rc4_key[16] = {
 	124, 78, 3, 4, 85, 5, 9, 7,
 	45, 44, 123, 56, 23, 13, 23, 17
 };
