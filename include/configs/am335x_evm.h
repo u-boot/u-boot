@@ -165,9 +165,6 @@
 #define CFG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CFG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
-/* PMIC support */
-#define CONFIG_POWER_TPS65910
-
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 /* NAND: driver related configs */

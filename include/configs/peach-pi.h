@@ -22,8 +22,6 @@
 
 #define CFG_SYS_SDRAM_BASE	0x20000000
 
-#define CONFIG_POWER_TPS65090_EC
-
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
 

@@ -33,6 +33,7 @@ obj-$(CONFIG_PMIC_STPMIC1) += stpmic1.o
 obj-$(CONFIG_PMIC_TPS65217) += pmic_tps65217.o
 obj-$(CONFIG_PMIC_TPS65219) += tps65219.o
 obj-$(CONFIG_PMIC_TPS65941) += tps65941.o
+obj-$(CONFIG_POWER_TPS65218) += pmic_tps65218.o
 
 ifeq ($(CONFIG_$(SPL_)POWER_LEGACY),y)
 obj-$(CONFIG_POWER_LTC3676) += pmic_ltc3676.o
@@ -40,9 +41,9 @@ obj-$(CONFIG_POWER_MUIC_MAX8997) += muic_max8997.o
 obj-$(CONFIG_POWER_PCA9450) += pmic_pca9450.o
 obj-$(CONFIG_POWER_PFUZE100) += pmic_pfuze100.o
 obj-$(CONFIG_POWER_PFUZE3000) += pmic_pfuze3000.o
-obj-$(CONFIG_POWER_TPS62362) += pmic_tps62362.o
-obj-$(CONFIG_POWER_TPS65218) += pmic_tps65218.o
-obj-$(CONFIG_POWER_TPS65910) += pmic_tps65910.o
 obj-$(CONFIG_POWER_HI6553) += pmic_hi6553.o
 obj-$(CONFIG_POWER_MC34VR500) += pmic_mc34vr500.o
 endif
+
+obj-$(CONFIG_$(SPL_)POWER_TPS62362) += pmic_tps62362.o
+obj-$(CONFIG_SPL_POWER_TPS65910) += pmic_tps65910.o

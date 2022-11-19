@@ -79,8 +79,6 @@
 #define V_OSCK				25000000  /* Clock output from T2 */
 #define V_SCLK				V_OSCK
 
-#define CONFIG_POWER_TPS65910
-
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 /* NAND: driver related configs */

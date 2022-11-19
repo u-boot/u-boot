@@ -430,6 +430,10 @@ config PALMAS_POWER
 	bool "Palmas power support"
 	depends on OMAP54XX
 
+config POWER_FSL
+	bool "Power control (legacy) for Freescale / NXP platforms"
+	depends on POWER_LEGACY
+
 config POWER_I2C
 	bool "I2C-based power control for legacy power"
 	depends on POWER_LEGACY
@@ -439,6 +443,10 @@ config POWER_I2C
 
 	  Not to be used for new designs and existing ones should be moved to
 	  the new PMIC interface based on driver model.
+
+config POWER_SPI
+	bool "SPI-based power control for legacy power_fsl driver"
+	depends on POWER_FSL && !POWER_I2C
 
 config SPL_POWER_I2C
 	bool "I2C-based power control for legacy power"
@@ -450,5 +458,18 @@ config SPL_POWER_I2C
 
 	  Not to be used for new designs and existing ones should be moved to
 	  the new PMIC interface based on driver model.
+
+choice
+	prompt "PMIC chip"
+	default POWER_FSL_MC13892
+	depends on POWER_FSL && POWER_I2C
+
+config POWER_FSL_MC13892
+	bool "MC13892"
+
+config POWER_FSL_MC34704
+	bool "MC34704"
+
+endchoice
 
 endif

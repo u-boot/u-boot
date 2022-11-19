@@ -98,7 +98,6 @@
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
 /* FLASH and environment organization */

@@ -16,14 +16,6 @@
 /* NS16550 Configuration */
 #define CFG_SYS_NS16550_CLK		48000000
 
-/* I2C Configuration */
-
-/* Power */
-#define CONFIG_POWER_TPS65218
-#define CONFIG_POWER_TPS62362
-
-/* SPL defines. */
-
 /* Enabling L2 Cache */
 #define CFG_SYS_PL310_BASE	0x48242000
 

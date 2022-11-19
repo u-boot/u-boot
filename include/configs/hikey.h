@@ -13,8 +13,6 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_POWER_HI6553
-
 /* Physical Memory Map */
 
 /* CONFIG_TEXT_BASE needs to align with where ATF loads bl33.bin */

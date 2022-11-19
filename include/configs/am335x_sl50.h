@@ -43,11 +43,4 @@
 #define CFG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
 #define CFG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
-/* PMIC support */
-#define CONFIG_POWER_TPS65910
-
-/* SPL */
-
-/* Network. */
-
 #endif	/* ! __CONFIG_AM335X_SL50_H */

@@ -28,9 +28,6 @@
 					 42, 43, 44, 45, 46, 47, 48, 49, \
 					 50, 51, 52, 53, 54, 55, 56, 57, }
 
-/* Power */
-#define CONFIG_POWER_TPS65218
-
 /* Enabling L2 Cache */
 #define CFG_SYS_PL310_BASE		0x48242000
 

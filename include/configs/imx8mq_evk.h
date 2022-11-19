@@ -18,7 +18,6 @@
 #define CONFIG_MALLOC_F_ADDR		0x182000
 /* For RAW image gives a error info not panic */
 
-#define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR 0x08
 #endif
 
