@@ -196,6 +196,10 @@ config 83XX_PCICLK
 config FSL_ELBC
 	bool
 
+config FSL_SERDES
+	bool "SerDes initialization"
+	depends on !MPC83XX_SERDES
+
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 
