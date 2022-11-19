@@ -18,8 +18,4 @@
 #define CFG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 
-#ifndef SANDBOX_NO_SDL
-#define CONFIG_SANDBOX_SDL
-#endif
-
 #endif
