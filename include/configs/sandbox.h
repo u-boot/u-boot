@@ -6,8 +6,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_IO_TRACE
-
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 
 /* Size of our emulated memory */

@@ -1086,3 +1086,6 @@ config FDT_SIMPLEFB
 	  These functions can be used by board to indicate to the OS
 	  the presence of the simple frame buffer with associated reserved
 	  memory
+
+config IO_TRACE
+	bool
