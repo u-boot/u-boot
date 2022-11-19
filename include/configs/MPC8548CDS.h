@@ -122,8 +122,6 @@
 #define CFG_SYS_FLASH_BANKS_LIST \
 	{CFG_SYS_FLASH_BASE_PHYS + 0x800000, CFG_SYS_FLASH_BASE_PHYS}
 
-#define CONFIG_HWCONFIG			/* enable hwconfig */
-
 /*
  * SDRAM on the Local Bus
  */

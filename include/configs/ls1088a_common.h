@@ -114,7 +114,6 @@ unsigned long long get_qixis_addr(void);
 
 /* Physical Memory Map */
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 #ifndef SPL_NO_ENV

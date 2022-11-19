@@ -107,7 +107,6 @@ unsigned long long get_qixis_addr(void);
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 /* Initial environment variables */

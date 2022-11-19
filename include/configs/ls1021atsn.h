@@ -67,7 +67,6 @@
 /* PCIe */
 #define FSL_PCIE_COMPAT			"fsl,ls1021a-pcie"
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
 
 #define BOOT_TARGET_DEVICES(func) \

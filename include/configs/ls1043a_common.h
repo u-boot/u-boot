@@ -110,7 +110,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 #ifndef SPL_NO_MISC

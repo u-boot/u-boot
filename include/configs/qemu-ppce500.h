@@ -33,8 +33,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
-#define CONFIG_HWCONFIG
-
 #define CFG_SYS_INIT_RAM_ADDR		0x00100000
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0x0
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_LOW	0x00100000

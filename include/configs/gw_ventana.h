@@ -45,7 +45,6 @@
 #define CONFIG_IMX_VIDEO_SKIP
 
 /* Miscellaneous configurable options */
-#define CONFIG_HWCONFIG
 
 /* Memory configuration */
 

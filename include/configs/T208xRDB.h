@@ -211,8 +211,6 @@
 #define CFG_SYS_CS1_FTIM3		CFG_SYS_NAND_FTIM3
 #endif
 
-#define CONFIG_HWCONFIG
-
 /* define to use L1 as initial stack */
 #define CONFIG_L1_INIT_RAM
 #define CFG_SYS_INIT_RAM_ADDR	0xfdd00000 /* Initial L1 address */

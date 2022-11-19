@@ -112,7 +112,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

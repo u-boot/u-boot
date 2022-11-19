@@ -14,8 +14,6 @@
  * High Level Configuration Options
  */
 
-#define CONFIG_HWCONFIG
-
 /*
  * On-board devices
  */

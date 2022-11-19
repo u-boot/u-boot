@@ -34,7 +34,6 @@
 
 /* Physical Memory Map */
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 #define BOOT_TARGET_DEVICES(func) \

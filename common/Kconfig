@@ -676,6 +676,10 @@ config CLOCKS
 	bool "Call set_cpu_clk_info"
 	depends on ARM
 
+config HWCONFIG
+	bool "hwconfig infrastructure"
+	default y if PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
+
 config SYS_FSL_CLK
 	bool
 	depends on ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3 || \

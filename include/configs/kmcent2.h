@@ -309,8 +309,6 @@
 #define CFG_SYS_CS2_FTIM2	SYS_QRIO_FTIM2
 #define CFG_SYS_CS2_FTIM3	SYS_QRIO_FTIM3
 
-#define CONFIG_HWCONFIG
-
 /* define to use L1 as initial stack */
 #define CFG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
