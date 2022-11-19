@@ -140,8 +140,6 @@
 /* Miscellaneous configurable options */
 #define CFG_SYS_BOOTMAPSZ		(256 << 20)
 
-#define CONFIG_LS102XA_STREAM_ID
-
 /* Environment */
 
 #endif

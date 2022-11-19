@@ -2,6 +2,7 @@ config ARCH_LS1021A
 	bool
 	select FSL_DEVICE_DISABLE
 	select FSL_IFC if !QSPI_BOOT && !SD_BOOT_QSPI
+	select LS102XA_STREAM_ID
 	select SYS_FSL_DDR_BE if SYS_FSL_DDR
 	select SYS_FSL_DDR_VER_50 if SYS_FSL_DDR
 	select SYS_FSL_IFC_BE
@@ -36,6 +37,9 @@ config FSL_DEVICE_DISABLE
 
 config LS1_DEEP_SLEEP
 	bool "Deep sleep"
+
+config LS102XA_STREAM_ID
+	bool
 
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for LS102xA"

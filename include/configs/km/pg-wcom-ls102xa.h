@@ -169,12 +169,6 @@
 #define HWCONFIG_BUFFER_SIZE		256
 
 /*
- * Miscellaneous configurable options
- */
-
-#define CONFIG_LS102XA_STREAM_ID
-
-/*
  * Environment
  */
 
