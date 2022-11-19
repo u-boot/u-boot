@@ -125,9 +125,6 @@
 
 /* GPT */
 
-/* Common misc for Samsung */
-#define CONFIG_MISC_COMMON
-
 /* Download menu - definitions for check keys */
 #ifndef __ASSEMBLY__
 

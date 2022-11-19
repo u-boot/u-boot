@@ -143,10 +143,4 @@
 	"kernel_addr_r=0x41000000\0" \
 	BOOTENV
 
-/*
- * Supported Odroid boards: X3, U3
- * TODO: Add Odroid X support
- */
-#define CONFIG_MISC_COMMON
-
 #endif	/* __CONFIG_H */

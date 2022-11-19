@@ -95,9 +95,6 @@ void universal_spi_sda(int bit);
 int universal_spi_read(void);
 #endif
 
-/* Common misc for Samsung */
-#define CONFIG_MISC_COMMON
-
 /* Download menu - definitions for check keys */
 #ifndef __ASSEMBLY__
 

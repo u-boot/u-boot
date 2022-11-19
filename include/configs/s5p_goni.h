@@ -61,8 +61,6 @@
 
 #define COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
 
-#define CONFIG_MISC_COMMON
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x100000;" \
