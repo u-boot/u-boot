@@ -249,6 +249,9 @@ config TARGET_IMX8MM_BEACON
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_IMX8MN_BEACON
 	bool "imx8mn Beacon Embedded devkit"
@@ -256,6 +259,9 @@ config TARGET_IMX8MN_BEACON
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_PHYCORE_IMX8MM
 	bool "PHYTEC PHYCORE i.MX8MM"
