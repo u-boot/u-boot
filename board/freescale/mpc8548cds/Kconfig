@@ -6,6 +6,9 @@ config PCI1
 config FSL_CADMUS
 	def_bool y
 
+config INTERRUPTS
+	def_bool y
+
 config SYS_BOARD
 	default "mpc8548cds"
 

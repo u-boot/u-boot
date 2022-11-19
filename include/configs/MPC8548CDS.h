@@ -13,8 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
-
 #ifndef __ASSEMBLY__
 #include <linux/stringify.h>
 #endif
