@@ -57,7 +57,6 @@
 		{1, {I2C_NULL_HOP} } }
 
 #if defined(CONFIG_CMD_NAND)
-#define CONFIG_NAND_KMETER1
 #define CFG_SYS_NAND_BASE		CFG_SYS_KMBEC_FPGA_BASE
 #endif
 

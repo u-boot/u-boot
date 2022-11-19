@@ -9,8 +9,6 @@
 #define __CONFIG_H
 
 #define CONFIG_HOSTNAME		"kmcoge5ne"
-#define CONFIG_NAND_ECC_BCH
-#define CONFIG_NAND_KMETER1
 #define NAND_MAX_CHIPS				1
 #define CFG_SYS_NAND_BASE CFG_SYS_KMBEC_FPGA_BASE /* PRIO_BASE_ADDRESS */
 

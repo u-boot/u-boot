@@ -34,7 +34,6 @@
  * NAND configuration
  */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_KIRKWOOD
 #define CFG_SYS_NAND_BASE		0xD8000000	/* MV_DEFADR_NANDF */
 #define NAND_ALLOW_ERASE_ALL		1
 #endif

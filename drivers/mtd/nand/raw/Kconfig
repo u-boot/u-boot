@@ -225,6 +225,19 @@ config NAND_FSL_IFC
 	help
 	  Enable the Freescale Integrated Flash Controller NAND driver.
 
+config NAND_KIRKWOOD
+	bool "Support for Kirkwood NAND controller"
+	depends on ARCH_KIRKWOOD
+	default y
+
+config NAND_ECC_BCH
+	bool
+
+config NAND_KMETER1
+	bool "Support KMETER1 NAND controller"
+	depends on VENDOR_KM
+	select NAND_ECC_BCH
+
 config NAND_LPC32XX_MLC
 	bool "Support LPC32XX_MLC controller"
 	select SYS_NAND_SELF_INIT
