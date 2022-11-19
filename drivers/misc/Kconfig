@@ -267,6 +267,10 @@ config DS4510
 	  and a configurable timer for the supervisor function. The device is
 	  connected over I2C.
 
+config FSL_IIM
+	bool "Enable FSL IC Identification Module (IIM) driver"
+	depends on ARCH_MX31 || ARCH_MX5
+
 config FSL_SEC_MON
 	bool "Enable FSL SEC_MON Driver"
 	help

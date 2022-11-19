@@ -80,9 +80,6 @@
 #define CFG_SYS_LDB_CLOCK			33260000
 #define CONFIG_IMX_VIDEO_SKIP
 
-/* IIM Fuses */
-#define CONFIG_FSL_IIM
-
 /* Watchdog */
 
 /*
