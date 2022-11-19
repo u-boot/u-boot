@@ -30,7 +30,6 @@
 #define CFG_SYS_CCSRBAR_PHYS_LOW	CFG_SYS_CCSRBAR
 
 /* DDR Setup */
-#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 

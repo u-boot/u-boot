@@ -37,3 +37,11 @@ config SYS_SPD_BUS_NUM
 
 source "drivers/ddr/altera/Kconfig"
 source "drivers/ddr/imx/Kconfig"
+
+config SPD_EEPROM
+	bool "DDR controller makes use of an SPD EEPROM for JEDEC information"
+	depends on SYS_FSL_DDR || SYS_FSL_MMDC || CONFIG_ARMADA_XP
+	help
+	  Get DDR timing information from an I2C EEPROM. Common with pluggable
+	  memory modules such as SODIMMs. You must define SPD_EEPROM_ADDRESS
+	  to the I2C address of the SPD EEPROM.
