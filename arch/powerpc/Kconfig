@@ -34,6 +34,10 @@ config MPC8xx
 
 endchoice
 
+config FSL_LBC
+	def_bool y
+	depends on (MPC85xx || MPC83xx) && !FSL_IFC
+
 config HIGH_BATS
 	bool "Enable high BAT registers"
 	help
