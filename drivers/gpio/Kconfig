@@ -596,6 +596,11 @@ config ZYNQMP_GPIO_MODEPIN
 	  are accessed using xilinx firmware. In modepin register, [3:0] bits
 	  set direction, [7:4] bits read IO, [11:8] bits set/clear IO.
 
+config SH_GPIO_PFC
+	bool "Pinmuxed GPIO support for SuperH"
+	depends on RCAR_GEN2 && !PINCTRL_PFC
+	default y
+
 config SL28CPLD_GPIO
 	bool "Kontron sl28cpld GPIO driver"
 	depends on DM_GPIO && SL28CPLD
