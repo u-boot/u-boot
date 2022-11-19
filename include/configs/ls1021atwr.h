@@ -160,8 +160,6 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
 
-#define CONFIG_FSL_DEVICE_DISABLE
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \

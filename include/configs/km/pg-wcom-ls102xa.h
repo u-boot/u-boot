@@ -168,7 +168,6 @@
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
-#define CONFIG_FSL_DEVICE_DISABLE
 
 /*
  * Miscellaneous configurable options
