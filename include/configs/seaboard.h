@@ -9,11 +9,6 @@
 
 #include <linux/sizes.h>
 
-/* LP0 suspend / resume */
-#define CONFIG_TEGRA_LP0
-#define CONFIG_TEGRA_PMU
-#define CONFIG_TEGRA_CLOCK_SCALING
-
 #include "tegra20-common.h"
 
 /* High-level configuration options */
