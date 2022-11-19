@@ -17,10 +17,10 @@
 #include <linux/io.h>
 
 #include "ftmac100.h"
-#ifdef CONFIG_DM_ETH
 #include <dm.h>
+
 DECLARE_GLOBAL_DATA_PTR;
-#endif
+
 #define ETH_ZLEN	60
 
 struct ftmac100_data {
@@ -231,92 +231,6 @@ static int _ftmac100_send(struct ftmac100_data *priv, void *packet, int length)
 	return 0;
 }
 
-#ifndef CONFIG_DM_ETH
-/*
- * disable transmitter, receiver
- */
-static void ftmac100_halt(struct eth_device *dev)
-{
-	struct ftmac100_data *priv = dev->priv;
-	return _ftmac100_halt(priv);
-}
-
-static int ftmac100_init(struct eth_device *dev, struct bd_info *bd)
-{
-	struct ftmac100_data *priv = dev->priv;
-	return _ftmac100_init(priv , dev->enetaddr);
-}
-
-static int _ftmac100_recv(struct ftmac100_data *priv)
-{
-	struct ftmac100_rxdes *curr_des;
-	unsigned short len;
-	curr_des = &priv->rxdes[priv->rx_index];
-	len = __ftmac100_recv(priv);
-	if (len) {
-		/* pass the packet up to the protocol layers. */
-		net_process_received_packet((void *)curr_des->rxdes2, len);
-		_ftmac100_free_pkt(priv);
-	}
-	return len ? 1 : 0;
-}
-
-/*
- * Get a data block via Ethernet
- */
-static int ftmac100_recv(struct eth_device *dev)
-{
-	struct ftmac100_data *priv = dev->priv;
-	return _ftmac100_recv(priv);
-}
-
-/*
- * Send a data block via Ethernet
- */
-static int ftmac100_send(struct eth_device *dev, void *packet, int length)
-{
-	struct ftmac100_data *priv = dev->priv;
-	return _ftmac100_send(priv , packet , length);
-}
-
-int ftmac100_initialize (struct bd_info *bd)
-{
-	struct eth_device *dev;
-	struct ftmac100_data *priv;
-	dev = malloc (sizeof *dev);
-	if (!dev) {
-		printf ("%s(): failed to allocate dev\n", __func__);
-		goto out;
-	}
-	/* Transmit and receive descriptors should align to 16 bytes */
-	priv = memalign (16, sizeof (struct ftmac100_data));
-	if (!priv) {
-		printf ("%s(): failed to allocate priv\n", __func__);
-		goto free_dev;
-	}
-	memset (dev, 0, sizeof (*dev));
-	memset (priv, 0, sizeof (*priv));
-
-	strcpy(dev->name, "FTMAC100");
-	dev->iobase	= CONFIG_FTMAC100_BASE;
-	dev->init	= ftmac100_init;
-	dev->halt	= ftmac100_halt;
-	dev->send	= ftmac100_send;
-	dev->recv	= ftmac100_recv;
-	dev->priv	= priv;
-	priv->iobase	= dev->iobase;
-	eth_register (dev);
-
-	return 1;
-
-free_dev:
-	free (dev);
-out:
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_DM_ETH
 static int ftmac100_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
@@ -445,4 +359,3 @@ U_BOOT_DRIVER(ftmac100) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif
