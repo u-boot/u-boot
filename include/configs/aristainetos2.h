@@ -424,8 +424,6 @@
 /* check this console not needed, after test remove it */
 #define CONFIG_IMX_VIDEO_SKIP
 
-#define CONFIG_IMX6_PWM_PER_CLK	66000000
-
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \
 		"sysnum:dw,panel:sw,ipaddr:iw,serverip:iw"
 

@@ -102,9 +102,6 @@
 
 /* FLASH and environment organization */
 
-/* Backlight Control */
-#define CONFIG_IMX6_PWM_PER_CLK 66666000
-
 #define CONFIG_IMX_VIDEO_SKIP
 
 #endif				/* __CONFIG_H */

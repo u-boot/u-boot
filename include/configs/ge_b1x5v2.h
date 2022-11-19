@@ -12,9 +12,6 @@
 
 #include "mx6_common.h"
 
-/* PWM */
-#define CONFIG_IMX6_PWM_PER_CLK		66000000
-
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART3_BASE
 
