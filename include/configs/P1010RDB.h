@@ -173,8 +173,6 @@ extern unsigned long get_sdram_size(void);
 #define CFG_SYS_NAND_BASE_PHYS	CFG_SYS_NAND_BASE
 #endif
 
-#define CONFIG_MTD_PARTITION
-
 #define CFG_SYS_NAND_CSPR	(CSPR_PHYS_ADDR(CFG_SYS_NAND_BASE_PHYS) \
 				| CSPR_PORT_SIZE_8	\
 				| CSPR_MSEL_NAND	\
