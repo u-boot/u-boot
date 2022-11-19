@@ -110,10 +110,6 @@
 /* LPDDR4 board total DDR is 3GB */
 #define PHYS_SDRAM_2_SIZE		0x40000000	/* 1 GB */
 
-#ifndef CONFIG_DM_PCA953X
-#define CONFIG_PCA953X
-#endif
-
 /* Misc configuration */
 
 #endif /* __IMX8QXP_MEK_H */

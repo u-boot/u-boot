@@ -483,8 +483,6 @@ The following options need to be configured:
 		must also be configured. See I2C Support, below.
 
 - GPIO Support:
-		CONFIG_PCA953X		- use NXP's PCA953X series I2C GPIO
-
 		The CFG_SYS_I2C_PCA953X_WIDTH option specifies a list of
 		chip-ngpio pairs that tell the PCA953X driver the number of
 		pins supported by a particular chip.

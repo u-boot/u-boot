@@ -520,6 +520,10 @@ config SPL_DM_PCA953X
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
 
+config PCA953X
+	bool "NXP's PCA953X series I2C GPIO (legacy driver)"
+	depends on !DM_PCA953X
+
 config MPC8XXX_GPIO
 	bool "Freescale MPC8XXX GPIO driver"
 	depends on DM_GPIO
