@@ -11,14 +11,6 @@
 
 /* Basic CPU architecture */
 
-/* UART configuration */
-#if	(CONFIG_CONS_INDEX == 1) || (CONFIG_CONS_INDEX == 2) || \
-	(CONFIG_CONS_INDEX == 7)
-#if !defined(CONFIG_LPC32XX_HSUART)
-#define CONFIG_LPC32XX_HSUART
-#endif
-#endif
-
 #if !defined(CFG_SYS_NS16550_CLK)
 #define CFG_SYS_NS16550_CLK		13000000
 #endif
