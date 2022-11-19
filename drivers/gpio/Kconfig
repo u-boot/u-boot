@@ -169,6 +169,10 @@ config FXL6408_GPIO
 	  This driver supports the Fairchild FXL6408 device. FXL6408 is a
 	  fully configurable 8-bit I2C-controlled GPIO expander.
 
+config HIKEY_GPIO
+	bool "HI6220 GPIO driver"
+	depends on DM_GPIO
+
 config INTEL_BROADWELL_GPIO
 	bool "Intel Broadwell GPIO driver"
 	depends on DM
@@ -374,8 +378,13 @@ config XILINX_GPIO
 	help
 	  This config enable the Xilinx GPIO driver for Microblaze.
 
+config TCA642X
+	bool "TCA642x legacy GPIO driver"
+
 config CMD_TCA642X
 	bool "tca642x - Command to access tca642x state"
+	depends on TCA642X
+	default y
 	help
 	  DEPRECATED - This needs conversion to driver model
 

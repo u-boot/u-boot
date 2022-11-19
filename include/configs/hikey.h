@@ -32,8 +32,6 @@
 #define GICD_BASE			0xf6801000
 #define GICC_BASE			0xf6802000
 
-#define CONFIG_HIKEY_GPIO
-
 /* Initial environment variables */
 
 /*
