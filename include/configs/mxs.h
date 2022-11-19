@@ -86,11 +86,6 @@
 #define CFG_SYS_NAND_BASE		0x60000000
 #endif
 
-/* OCOTP */
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXS_OCOTP
-#endif
-
 /* SPI */
 #ifdef CONFIG_CMD_SPI
 #define CONFIG_SPI_HALF_DUPLEX

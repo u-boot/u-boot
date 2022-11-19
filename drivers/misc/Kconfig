@@ -330,6 +330,14 @@ config MXC_OCOTP
 	  Programmable memory pages that are stored on the some
 	  Freescale i.MX processors.
 
+config MXS_OCOTP
+	bool "Enable MXS OCOTP Driver"
+	depends on ARCH_MX23 || ARCH_MX28
+	help
+	  If you say Y here, you will get support for the One Time
+	  Programmable memory pages that are stored on the
+	  Freescale i.MXS family of processors.
+
 config NPCM_HOST
 	bool "Enable support espi or LPC for Host"
 	depends on REGMAP && SYSCON
