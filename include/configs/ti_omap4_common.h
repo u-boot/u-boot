@@ -32,9 +32,6 @@
 #define CFG_SYS_NS16550_COM3		UART3_BASE
 #endif
 
-/* TWL6030 */
-#define CONFIG_TWL6030_POWER		1
-
 /*
  * Environment setup
  */

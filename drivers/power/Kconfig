@@ -411,6 +411,9 @@ config SY8106A_VOUT1_VOLT
 	is typically used to power the VDD-CPU and should be 1200mV.
 	Values can range from 680mV till 1950mV.
 
+config TPS6586X_POWER
+	bool "Enable legacy driver for TI TPS6586x power management chip"
+
 config TWL4030_POWER
 	depends on OMAP34XX
 	bool "Enable driver for TI TWL4030 power management chip"
@@ -418,6 +421,10 @@ config TWL4030_POWER
 	---help---
 	The TWL4030 in a combination audio CODEC/power management with
 	GPIO and it is commonly used with the OMAP3 family of processors
+
+config TWL6030_POWER
+	depends on OMAP44XX
+	bool "Enable driver for TI TWL6030 power management chip"
 
 config POWER_MT6323
 	bool "Poweroff driver for mediatek mt6323"

@@ -12,7 +12,6 @@
 /* LP0 suspend / resume */
 #define CONFIG_TEGRA_LP0
 #define CONFIG_TEGRA_PMU
-#define CONFIG_TPS6586X_POWER
 #define CONFIG_TEGRA_CLOCK_SCALING
 
 #include "tegra20-common.h"
