@@ -341,7 +341,6 @@ extern unsigned long get_sdram_size(void);
 /* enable read and write access to EEPROM */
 
 /* RTC */
-#define CONFIG_RTC_PT7C4338
 #define CFG_SYS_I2C_RTC_ADDR	0x68
 
 /*

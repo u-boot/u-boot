@@ -311,8 +311,6 @@
 /*
  * RTC configuration
  */
-#define RTC
-#define CONFIG_RTC_DS1337	1
 #define CFG_SYS_I2C_RTC_ADDR	0x68
 
 /*

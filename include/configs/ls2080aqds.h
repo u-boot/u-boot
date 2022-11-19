@@ -227,8 +227,6 @@
 /*
  * RTC configuration
  */
-#define RTC
-#define CONFIG_RTC_DS3231               1
 #define CFG_SYS_I2C_RTC_ADDR         0x68
 
 /* Initial environment variables */

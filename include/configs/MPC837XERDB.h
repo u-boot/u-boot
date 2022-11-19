@@ -167,7 +167,6 @@
 /*
  * Config on-board RTC
  */
-#define CONFIG_RTC_DS1374	/* use ds1374 rtc via i2c */
 #define CFG_SYS_I2C_RTC_ADDR	0x68 /* at address 0x68 */
 
 /*

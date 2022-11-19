@@ -17,11 +17,6 @@
 
 /* UBI and NAND partitioning */
 
-/* RTC */
-#ifdef	CONFIG_CMD_DATE
-#define	CONFIG_RTC_MXS
-#endif
-
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"ubifs_file=filesystem.ubifs\0" \

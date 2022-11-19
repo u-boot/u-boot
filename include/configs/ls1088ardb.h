@@ -186,13 +186,10 @@
 #define I2C_MUX_CH_DEFAULT		0x8
 #define I2C_MUX_CH5			0xD
 
-#ifndef SPL_NO_RTC
 /*
 * RTC configuration
 */
-#define RTC
 #define CFG_SYS_I2C_RTC_ADDR         0x51  /* Channel 3*/
-#endif
 
 #ifndef SPL_NO_ENV
 /* Initial environment variables */

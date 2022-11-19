@@ -150,7 +150,6 @@
  */
 
 #ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_DS1338
 #define CONFIG_I2C_RTC_ADDR		0x68
 #endif
 

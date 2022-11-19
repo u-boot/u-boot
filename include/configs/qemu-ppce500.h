@@ -44,9 +44,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CFG_SYS_INIT_SP_OFFSET	(CFG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
-/* RTC */
-#define CONFIG_RTC_PT7C4338
-
 /*
  * Miscellaneous configurable options
  */

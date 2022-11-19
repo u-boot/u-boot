@@ -46,7 +46,6 @@
 /*
 * RTC configuration
 */
-#define RTC
 #define CFG_SYS_I2C_RTC_ADDR         0x51  /* Channel 3*/
 
 

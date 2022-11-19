@@ -210,11 +210,9 @@
 /*
  * RTC configuration
  */
-#define RTC
 #ifdef CONFIG_TARGET_LS2081ARDB
 #define CFG_SYS_I2C_RTC_ADDR         0x51
 #else
-#define CONFIG_RTC_DS3231               1
 #define CFG_SYS_I2C_RTC_ADDR         0x68
 #endif
 
