@@ -112,6 +112,12 @@ config SIFIVE_OTP
 	  Enable support for reading and writing the eMemory OTP on the
 	  SiFive SoCs.
 
+config SMSC_LPC47M
+	bool "LPC47M SMSC driver"
+
+config SMSC_SIO1007
+	bool "SIO1007 SMSC driver"
+
 config VEXPRESS_CONFIG
 	bool "Enable support for Arm Versatile Express config bus"
 	depends on MISC
