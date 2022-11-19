@@ -44,13 +44,13 @@ static unsigned long gpio_ports[] = {
 	[0] = GPIO1_BASE_ADDR,
 	[1] = GPIO2_BASE_ADDR,
 	[2] = GPIO3_BASE_ADDR,
-#if defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
+#if defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || \
 		defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMXRT1050)
 	[3] = GPIO4_BASE_ADDR,
 #endif
-#if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_MX7) || defined(CONFIG_IMX8M) || \
 		defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMXRT1050)
 	[4] = GPIO5_BASE_ADDR,
@@ -352,12 +352,12 @@ static const struct mxc_gpio_plat mxc_plat[] = {
 	{ 0, (struct gpio_regs *)GPIO1_BASE_ADDR },
 	{ 1, (struct gpio_regs *)GPIO2_BASE_ADDR },
 	{ 2, (struct gpio_regs *)GPIO3_BASE_ADDR },
-#if defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
+#if defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_IMX8M) || defined(CONFIG_ARCH_IMX8)
 	{ 3, (struct gpio_regs *)GPIO4_BASE_ADDR },
 #endif
-#if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_IMX8M) || defined(CONFIG_ARCH_IMX8)
 	{ 4, (struct gpio_regs *)GPIO5_BASE_ADDR },
 #ifndef CONFIG_IMX8M
@@ -376,12 +376,12 @@ U_BOOT_DRVINFOS(mxc_gpios) = {
 	{ "gpio_mxc", &mxc_plat[0] },
 	{ "gpio_mxc", &mxc_plat[1] },
 	{ "gpio_mxc", &mxc_plat[2] },
-#if defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
+#if defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_IMX8M) || defined(CONFIG_ARCH_IMX8)
 	{ "gpio_mxc", &mxc_plat[3] },
 #endif
-#if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6) || \
 		defined(CONFIG_IMX8M) || defined(CONFIG_ARCH_IMX8)
 	{ "gpio_mxc", &mxc_plat[4] },
 #ifndef CONFIG_IMX8M
