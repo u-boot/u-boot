@@ -14,11 +14,6 @@
  * High Level Configuration Options
  */
 
-/*
- * On-board devices
- */
-#define CONFIG_VSC7385_ENET
-
 /* System performance - define the value i.e. CONFIG_SYS_XXX
 */
 

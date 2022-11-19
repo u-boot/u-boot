@@ -13,7 +13,6 @@
 #include <linux/stringify.h>
 
 #if defined(CONFIG_TARGET_P1020RDB_PC)
-#define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0x5c
@@ -43,7 +42,6 @@
  * 011101 800 800 400 667 PCIe-2 Core0 boot; Core1 hold-off
  */
 #if defined(CONFIG_TARGET_P1020RDB_PD)
-#define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0x64
@@ -63,7 +61,6 @@
 #endif
 
 #if defined(CONFIG_TARGET_P2020RDB)
-#define CONFIG_VSC7385_ENET
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0xc8
 #define __SW_BOOT_SPI		0x28
