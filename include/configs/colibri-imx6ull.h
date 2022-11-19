@@ -11,7 +11,6 @@
 #define __COLIBRI_IMX6ULL_CONFIG_H
 
 #include "mx6_common.h"
-#define CONFIG_IOMUX_LPSR
 
 #define PHYS_SDRAM_SIZE			SZ_1G
 

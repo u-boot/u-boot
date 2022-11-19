@@ -168,6 +168,7 @@ config TARGET_COLIBRI_IMX6ULL
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
+	select IOMUX_LPSR
 
 config TARGET_DART_6UL
 	bool "Variscite imx6ULL dart(DART-SOM-6ULL)"
@@ -396,6 +397,7 @@ config TARGET_MX6SLLEVK
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
+	select IOMUX_LPSR
 	imply CMD_DM
 
 config TARGET_MX6SXSABRESD
@@ -464,6 +466,7 @@ config TARGET_MX6ULL_14X14_EVK
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
+	select IOMUX_LPSR
 	imply CMD_DM
 
 config TARGET_MX6ULZ_SMM_M2

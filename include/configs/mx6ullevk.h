@@ -108,8 +108,6 @@
 
 /* environment organization */
 
-#define CONFIG_IOMUX_LPSR
-
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_ENET_DEV		1
 #endif

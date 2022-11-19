@@ -6,6 +6,7 @@ config MX7
 	select ARCH_SUPPORT_PSCI
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select IOMUX_LPSR
 	select ROM_UNIFIED_SECTIONS
 	select SYSCOUNTER_TIMER
 	imply CMD_FUSE

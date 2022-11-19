@@ -1245,6 +1245,7 @@ config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select IOMUX_SHARE_CONF_REG
 	select MACH_IMX
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_MTDPARTS

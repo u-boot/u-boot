@@ -195,3 +195,9 @@ config IMX_CONTAINER_CFG
 	help
 	  This is to specific the cfg file for generating container
 	  image which will be loaded by SPL.
+
+config IOMUX_LPSR
+	bool
+
+config IOMUX_SHARE_CONF_REG
+	bool
