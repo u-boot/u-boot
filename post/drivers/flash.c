@@ -6,7 +6,7 @@
  * Licensed under the GPL-2 or later.
  */
 
-#if CONFIG_POST & CONFIG_SYS_POST_FLASH
+#if CFG_POST & CONFIG_SYS_POST_FLASH
 #include <common.h>
 #include <malloc.h>
 #include <post.h>

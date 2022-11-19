@@ -17,7 +17,7 @@
 #include <asm/io.h>
 #include <post.h>
 
-#if CONFIG_POST & CONFIG_SYS_POST_ECC
+#if CFG_POST & CONFIG_SYS_POST_ECC
 /*
  * We use the RAW I/O accessors where possible in order to
  * achieve performance goal, since the test's execution time

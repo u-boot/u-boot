@@ -138,7 +138,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-#if CONFIG_POST & (CFG_SYS_POST_MEMORY | CFG_SYS_POST_MEM_REGIONS)
+#if CFG_POST & (CFG_SYS_POST_MEMORY | CFG_SYS_POST_MEM_REGIONS)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -535,4 +535,4 @@ int memory_post_test(int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST&(CFG_SYS_POST_MEMORY|CFG_SYS_POST_MEM_REGIONS) */
+#endif /* CFG_POST&(CFG_SYS_POST_MEMORY|CFG_SYS_POST_MEM_REGIONS) */

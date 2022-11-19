@@ -148,7 +148,7 @@
 #define CFG_SYS_INIT_L2CSR0		L2CSR0_L2E
 
 /* POST memory regions test */
-#define CONFIG_POST CFG_SYS_POST_MEM_REGIONS
+#define CFG_POST CFG_SYS_POST_MEM_REGIONS
 
 /*
  *  Config the L3 Cache as L3 SRAM

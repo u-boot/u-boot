@@ -242,11 +242,11 @@ storage server and etc.
 
 All POST-related code will be #ifdef'ed with the CONFIG_POST macro.
 This macro will be defined in the config_<board>.h file for those
-boards that need POST. The CONFIG_POST macro will contain the list of
+boards that need POST. The CFG_POST macro will contain the list of
 POST tests for the board. The macro will have the format of array
 composed of post_test structures:
 
-#define CONFIG_POST \
+#define CFG_POST \
 	{
 		"On-board peripherals test", "board", \
 		"  This test performs full check-up of the " \
@@ -257,7 +257,7 @@ composed of post_test structures:
 
 A new file, post.h, will be created in the include/ directory. This
 file will contain common POST declarations and will define a set of
-macros that will be reused for defining CONFIG_POST. As an example,
+macros that will be reused for defining CFG_POST. As an example,
 the following macro may be defined:
 
 #define POST_CACHE \

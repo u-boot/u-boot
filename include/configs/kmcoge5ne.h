@@ -33,8 +33,8 @@
 	CSCONFIG_COL_BIT_10)
 
 /* enable POST tests */
-#define CONFIG_POST (CFG_SYS_POST_MEMORY|CFG_SYS_POST_MEM_REGIONS)
-#define CONFIG_POST_EXTERNAL_WORD_FUNCS /* use own functions, not generic */
+#define CFG_POST (CFG_SYS_POST_MEMORY|CFG_SYS_POST_MEM_REGIONS)
+#define CFG_POST_EXTERNAL_WORD_FUNCS /* use own functions, not generic */
 #define CPM_POST_WORD_ADDR  CONFIG_SYS_MEMTEST_END
 #define CONFIG_TESTPIN_REG  gprt3	/* for kmcoge5ne */
 #define CONFIG_TESTPIN_MASK 0x20	/* for kmcoge5ne */

@@ -41,7 +41,7 @@
  */
 #define CFG_SYS_INIT_L2CSR0		L2CSR0_L2E
 
-#define CONFIG_POST CFG_SYS_POST_MEMORY	/* test POST memory test */
+#define CFG_POST CFG_SYS_POST_MEMORY	/* test POST memory test */
 
 /*
  *  Config the L3 Cache as L3 SRAM

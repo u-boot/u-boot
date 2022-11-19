@@ -486,7 +486,7 @@ int dram_init(void)
 #endif /* CONFIG_SYS_RAMBOOT */
 #endif
 
-#if CONFIG_POST & CFG_SYS_POST_MEMORY
+#if CFG_POST & CFG_SYS_POST_MEMORY
 
 /* Board-specific functions defined in each board's ddr.c */
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,

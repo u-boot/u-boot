@@ -16,7 +16,7 @@
 
 #if defined(CONFIG_POST)
 
-#ifndef CONFIG_POST_EXTERNAL_WORD_FUNCS
+#ifndef CFG_POST_EXTERNAL_WORD_FUNCS
 #ifdef CONFIG_SYS_POST_WORD_ADDR
 #define _POST_WORD_ADDR	CONFIG_SYS_POST_WORD_ADDR
 #else
@@ -51,7 +51,7 @@ static inline void post_word_store (ulong value)
 extern ulong post_word_load(void);
 extern void post_word_store(ulong value);
 
-#endif /* CONFIG_POST_EXTERNAL_WORD_FUNCS */
+#endif /* CFG_POST_EXTERNAL_WORD_FUNCS */
 #endif /* defined (CONFIG_POST) */
 #endif /* __ASSEMBLY__ */
 
