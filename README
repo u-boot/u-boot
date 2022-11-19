@@ -629,13 +629,6 @@ The following options need to be configured:
 		variable usbtty to be cdc_acm should suffice. The following
 		might be defined in YourBoardName.h
 
-			CONFIG_USB_DEVICE
-			Define this to build a UDC device
-
-			CONFIG_USB_TTY
-			Define this to have a tty type of device available to
-			talk to the UDC device
-
 			CONFIG_USBD_HS
 			Define this to enable the high speed support for usb
 			device and usbtty. If this feature is enabled, a routine
