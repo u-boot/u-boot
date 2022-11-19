@@ -19,8 +19,6 @@
 
 #define CFG_SYS_UART_PORT		(0)
 
-#define CONFIG_WATCHDOG_TIMEOUT 10000	/* timeout in milliseconds */
-
 #undef CONFIG_MONITOR_IS_IN_RAM	/* define if monitor is started from a pre-loader */
 
 /* Configuration for environment

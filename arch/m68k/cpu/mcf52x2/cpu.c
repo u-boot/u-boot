@@ -87,7 +87,7 @@ int watchdog_init(void)
 
 	/* set timeout and enable watchdog */
 	out_be16(&wdt->mr,
-		(CONFIG_WATCHDOG_TIMEOUT * CONFIG_SYS_HZ) / (32768 * 1000) - 1);
+		(CONFIG_WATCHDOG_TIMEOUT_MSECS * CONFIG_SYS_HZ) / (32768 * 1000) - 1);
 
 	/* reset watchdog counter */
 	out_be16(&wdt->sr, 0x5555);
@@ -253,7 +253,7 @@ int watchdog_init(void)
 
 	/* set timeout and enable watchdog */
 	out_be16(&wdt->wdog_wrrr,
-		(CONFIG_WATCHDOG_TIMEOUT * CONFIG_SYS_HZ) / (32768 * 1000) - 1);
+		(CONFIG_WATCHDOG_TIMEOUT_MSECS * CONFIG_SYS_HZ) / (32768 * 1000) - 1);
 
 	/* reset watchdog counter */
 	out_be16(&wdt->wdog_wcr, 0);
@@ -323,7 +323,7 @@ int watchdog_init(void)
 
 	/* set timeout and enable watchdog */
 	out_be16(&wdt->wmr,
-		(CONFIG_WATCHDOG_TIMEOUT * CONFIG_SYS_HZ) / (32768 * 1000) - 1);
+		(CONFIG_WATCHDOG_TIMEOUT_MSECS * CONFIG_SYS_HZ) / (32768 * 1000) - 1);
 
 	/* reset watchdog counter */
 	out_be16(&wdt->wsr, 0x5555);

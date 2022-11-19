@@ -22,8 +22,6 @@
 
 #define CFG_SYS_UART_PORT		(0)
 
-#define CONFIG_WATCHDOG_TIMEOUT	3360	/* timeout in ms, max is 3.36 sec */
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC

@@ -70,16 +70,6 @@
 #define CFG_SYS_UART2_ALT3_GPIO
 
 /*
- * Watchdog configuration; Watchdog is disabled for running from RAM
- * and set to highest possible value else. Beware there is no check
- * in the watchdog code to validate the timeout value set here!
- */
-
-#ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CONFIG_WATCHDOG_TIMEOUT 3355	/* timeout in milliseconds */
-#endif
-
-/*
  * Configuration for environment
  * Environment is located in the last sector of the flash
  */

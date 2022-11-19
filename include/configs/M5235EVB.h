@@ -20,8 +20,6 @@
 
 #define CFG_SYS_UART_PORT		(0)
 
-#define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
-
 /* I2C */
 #define CFG_SYS_I2C_PINMUX_REG	(gpio->par_qspi)
 #define CFG_SYS_I2C_PINMUX_CLR	~(GPIO_PAR_FECI2C_SCL_MASK | GPIO_PAR_FECI2C_SDA_MASK)

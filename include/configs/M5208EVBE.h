@@ -15,8 +15,6 @@
  */
 #define CFG_SYS_UART_PORT		(0)
 
-#define CONFIG_WATCHDOG_TIMEOUT		5000
-
 /* I2C */
 
 #ifdef CONFIG_MCFFEC

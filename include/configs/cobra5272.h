@@ -43,18 +43,6 @@
 #define CFG_SYS_UART_PORT		(0)
 
 /* ---
- * set "#if 0" to "#if 1" if (Hardware)-WATCHDOG should be enabled & change
- * timeout acc. to your needs
- * #define CONFIG_WATCHDOG_TIMEOUT x , x is timeout in milliseconds, e. g. 10000
- * for 10 sec
- * ---
- */
-
-#if 0
-#define CONFIG_WATCHDOG_TIMEOUT 10000	/* timeout in milliseconds */
-#endif
-
-/* ---
  * CONFIG_MONITOR_IS_IN_RAM defines if u-boot is started from a different
  * bootloader residing in flash ('chainloading'); if you want to use
  * chainloading or want to compile a u-boot binary that can be loaded into
