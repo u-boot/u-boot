@@ -82,6 +82,10 @@ config USB_GADGET_BCM_UDC_OTG_PHY
 	help
 	  Enable the Broadcom UDC OTG physical device interface.
 
+config USB_GADGET_AT91
+	bool "Atmel AT91 USB Gadget Controller"
+	depends on ARCH_AT91
+
 config USB_GADGET_DWC2_OTG
 	bool "DesignWare USB2.0 HS OTG controller (gadget mode)"
 	select USB_GADGET_DUALSPEED

@@ -62,10 +62,6 @@
 #endif
 
 #if defined(CONFIG_BOARD_TAURUS)
-/* USB DFU support */
-
-#define CONFIG_USB_GADGET_AT91
-
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 #endif

@@ -64,10 +64,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
-/* USB DFU support */
-
-#define CONFIG_USB_GADGET_AT91
-
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
