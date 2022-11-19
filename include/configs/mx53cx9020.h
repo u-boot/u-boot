@@ -66,7 +66,4 @@
 
 /* environment organization */
 
-/* Framebuffer and LCD */
-#define CONFIG_IMX_VIDEO_SKIP
-
 #endif /* __CONFIG_H */

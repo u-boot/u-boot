@@ -32,8 +32,6 @@
 #define CONFIG_USBD_HS
 
 /* Framebuffer and LCD */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
 
 /* Command definition */
 

@@ -100,8 +100,4 @@
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC_PHYADDR		1
 
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 #endif			       /* __CONFIG_H * */

@@ -102,6 +102,4 @@
 
 /* FLASH and environment organization */
 
-#define CONFIG_IMX_VIDEO_SKIP
-
 #endif				/* __CONFIG_H */

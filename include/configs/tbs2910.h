@@ -20,10 +20,6 @@
 
 #define CFG_SYS_BOOTMAPSZ		0x10000000
 
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 /* PCI */
 #ifdef CONFIG_CMD_PCI
 #define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)

@@ -43,10 +43,6 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #endif
 
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 #include "mx6_common.h"
 
 /* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,

@@ -145,10 +145,6 @@
 
 /* Environment organization */
 
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 #define CONFIG_USBD_HS
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */

@@ -63,10 +63,6 @@
 #define CONFIG_USBD_HS
 #endif
 
-/* Video output */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 /* Extra U-Boot environment. */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"fdt_high=0xffffffff\0"						\

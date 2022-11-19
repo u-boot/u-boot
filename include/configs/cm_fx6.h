@@ -143,9 +143,6 @@
 
 /* misc */
 
-/* Display */
-#define CONFIG_IMX_HDMI
-
 /* EEPROM */
 
 #endif	/* __CONFIG_CM_FX6_H */

@@ -28,9 +28,6 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USBD_HS
 
-/* Video */
-#define CONFIG_IMX_VIDEO_SKIP
-
 /* Memory */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
 

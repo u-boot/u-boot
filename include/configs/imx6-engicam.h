@@ -132,14 +132,4 @@
 /* MTD device */
 #endif
 
-/* Falcon Mode */
-#ifdef CONFIG_SPL_OS_BOOT
-/* MMC support: args@1MB kernel@2MB */
-#endif
-
-/* Framebuffer */
-#ifdef CONFIG_VIDEO_IPUV3
-# define CONFIG_IMX_VIDEO_SKIP
-#endif
-
 #endif /* __IMX6_ENGICAM_CONFIG_H */

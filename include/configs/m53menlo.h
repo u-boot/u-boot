@@ -78,7 +78,6 @@
 
 /* LVDS display */
 #define CFG_SYS_LDB_CLOCK			33260000
-#define CONFIG_IMX_VIDEO_SKIP
 
 /* Watchdog */
 

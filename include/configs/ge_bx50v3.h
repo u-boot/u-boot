@@ -102,8 +102,4 @@
 
 #define CFG_SYS_FSL_USDHC_NUM	3
 
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 #endif	/* __GE_BX50V3_CONFIG_H */
