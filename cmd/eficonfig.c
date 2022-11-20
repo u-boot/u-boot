@@ -756,14 +756,14 @@ out:
 }
 
 /**
- * eficonfig_select_file() - construct the file selection menu
+ * eficonfig_show_file_selection() - construct the file selection menu
  *
  * @file_info:	pointer to the file selection structure
  * @root:	pointer to the file handle
  * Return:	status code
  */
-static efi_status_t eficonfig_select_file(struct eficonfig_select_file_info *file_info,
-					  struct efi_file_handle *root)
+static efi_status_t eficonfig_show_file_selection(struct eficonfig_select_file_info *file_info,
+						  struct efi_file_handle *root)
 {
 	u32 count = 0, i;
 	efi_uintn_t len;
@@ -939,17 +939,6 @@ static efi_status_t eficonfig_boot_edit_save(void *data)
 }
 
 /**
- * eficonfig_process_select_file() - callback function for "Select File" entry
- *
- * @data:	pointer to the data
- * Return:	status code
- */
-efi_status_t eficonfig_process_select_file(void *data)
-{
-	return EFI_SUCCESS;
-}
-
-/**
  * eficonfig_process_clear_file_selection() - callback function for "Clear" entry
  *
  * @data:	pointer to the data
@@ -973,19 +962,19 @@ static struct eficonfig_item select_file_menu_items[] = {
 	{"Quit", eficonfig_process_quit},
 };
 
-
 /**
- * eficonfig_display_select_file_option() - display select file option
+ * eficonfig_process_show_file_option() - display select file option
  *
  * @file_info:	pointer to the file information structure
  * Return:	status code
  */
-efi_status_t eficonfig_display_select_file_option(struct eficonfig_select_file_info *file_info)
+efi_status_t eficonfig_process_show_file_option(void *data)
 {
 	efi_status_t ret;
 	struct efimenu *efi_menu;
 
-	select_file_menu_items[1].data = file_info;
+	select_file_menu_items[0].data = data;
+	select_file_menu_items[1].data = data;
 	efi_menu = eficonfig_create_fixed_menu(select_file_menu_items,
 					       ARRAY_SIZE(select_file_menu_items));
 	if (!efi_menu)
@@ -1001,12 +990,12 @@ efi_status_t eficonfig_display_select_file_option(struct eficonfig_select_file_i
 }
 
 /**
- * eficonfig_select_file_handler() - handle user file selection
+ * eficonfig_process_select_file() - handle user file selection
  *
  * @data:	pointer to the data
  * Return:	status code
  */
-efi_status_t eficonfig_select_file_handler(void *data)
+efi_status_t eficonfig_process_select_file(void *data)
 {
 	size_t len;
 	efi_status_t ret;
@@ -1015,10 +1004,6 @@ efi_status_t eficonfig_select_file_handler(void *data)
 	struct eficonfig_filepath_info *item;
 	struct eficonfig_select_file_info *tmp = NULL;
 	struct eficonfig_select_file_info *file_info = data;
-
-	ret = eficonfig_display_select_file_option(file_info);
-	if (ret != EFI_SUCCESS)
-		return ret;
 
 	tmp = calloc(1, sizeof(struct eficonfig_select_file_info));
 	if (!tmp)
@@ -1046,7 +1031,7 @@ efi_status_t eficonfig_select_file_handler(void *data)
 		if (ret != EFI_SUCCESS)
 			goto out;
 
-		ret = eficonfig_select_file(tmp, root);
+		ret = eficonfig_show_file_selection(tmp, root);
 		if (ret == EFI_ABORTED)
 			continue;
 		if (ret != EFI_SUCCESS)
@@ -1284,7 +1269,7 @@ static efi_status_t prepare_file_selection_entry(struct efimenu *efi_menu, char 
 	utf8_utf16_strcpy(&p, devname);
 	u16_strlcat(file_name, file_info->current_path, len);
 	ret = create_boot_option_entry(efi_menu, title, file_name,
-				       eficonfig_select_file_handler, file_info);
+				       eficonfig_process_show_file_option, file_info);
 out:
 	free(devname);
 	free(file_name);

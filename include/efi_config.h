@@ -89,7 +89,7 @@ void eficonfig_print_msg(char *msg);
 void eficonfig_destroy(struct efimenu *efi_menu);
 efi_status_t eficonfig_process_quit(void *data);
 efi_status_t eficonfig_process_common(struct efimenu *efi_menu, char *menu_header);
-efi_status_t eficonfig_select_file_handler(void *data);
+efi_status_t eficonfig_process_select_file(void *data);
 efi_status_t eficonfig_get_unused_bootoption(u16 *buf,
 					     efi_uintn_t buf_size, u32 *index);
 efi_status_t eficonfig_append_bootorder(u16 index);

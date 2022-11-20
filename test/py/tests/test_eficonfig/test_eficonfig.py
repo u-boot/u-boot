@@ -352,6 +352,7 @@ def test_efi_eficonfig(u_boot_console, efi_eficonfig_data):
         press_up_down_enter_and_wait(0, 1, True, 'Quit')
         press_up_down_enter_and_wait(0, 0, True, 'No block device found!')
         press_escape_key(False)
+        press_escape_key(False)
         check_current_is_maintenance_menu()
         # Return to U-Boot console
         press_escape_key(True)
