@@ -696,14 +696,14 @@ eficonfig_create_file_entry(struct efimenu *efi_menu, u32 count,
 	u32 i, entry_num = 0;
 	struct eficonfig_file_entry_data *info;
 
-	efi_file_setpos_int(f, 0);
+	EFI_CALL(f->setpos(f, 0));
 	/* Read directory and construct menu structure */
 	for (i = 0; i < count; i++) {
 		if (entry_num >= EFICONFIG_ENTRY_NUM_MAX - 1)
 			break;
 
 		len = sizeof(struct efi_file_info) + EFICONFIG_FILE_PATH_BUF_SIZE;
-		ret = efi_file_read_int(f, &len, buf);
+		ret = EFI_CALL(f->read(f, &len, buf));
 		if (ret != EFI_SUCCESS || len == 0)
 			break;
 
@@ -782,7 +782,8 @@ static efi_status_t eficonfig_show_file_selection(struct eficonfig_select_file_i
 		}
 		INIT_LIST_HEAD(&efi_menu->list);
 
-		ret = efi_file_open_int(root, &f, file_info->current_path, EFI_FILE_MODE_READ, 0);
+		ret = EFI_CALL(root->open(root, &f, file_info->current_path,
+					  EFI_FILE_MODE_READ, 0));
 		if (ret != EFI_SUCCESS) {
 			eficonfig_print_msg("Reading volume failed!");
 			free(efi_menu);
@@ -793,7 +794,7 @@ static efi_status_t eficonfig_show_file_selection(struct eficonfig_select_file_i
 		/* Count the number of directory entries */
 		for (;;) {
 			len = sizeof(struct efi_file_info) + EFICONFIG_FILE_PATH_BUF_SIZE;
-			ret = efi_file_read_int(f, &len, buf);
+			ret = EFI_CALL(f->read(f, &len, buf));
 			if (ret != EFI_SUCCESS || len == 0)
 				break;
 
@@ -818,7 +819,7 @@ static efi_status_t eficonfig_show_file_selection(struct eficonfig_select_file_i
 
 		ret = eficonfig_process_common(efi_menu, "  ** Select File **");
 err:
-		efi_file_close_int(f);
+		EFI_CALL(f->close(f));
 		eficonfig_destroy(efi_menu);
 
 		if (tmp_infos) {
@@ -1024,7 +1025,7 @@ efi_status_t eficonfig_process_select_file(void *data)
 		if (!tmp->current_volume)
 			return EFI_INVALID_PARAMETER;
 
-		ret = efi_open_volume_int(tmp->current_volume, &root);
+		ret = EFI_CALL(tmp->current_volume->open_volume(tmp->current_volume, &root));
 		if (ret != EFI_SUCCESS)
 			goto out;
 
