@@ -101,5 +101,9 @@ efi_status_t eficonfig_append_menu_entry(struct efimenu *efi_menu,
 efi_status_t eficonfig_append_quit_entry(struct efimenu *efi_menu);
 struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_volume,
 						     u16 *current_path);
+void *eficonfig_create_fixed_menu(const struct eficonfig_item *items, int count);
+#ifdef CONFIG_EFI_SECURE_BOOT
+efi_status_t eficonfig_process_secure_boot_config(void *data);
+#endif
 
 #endif
