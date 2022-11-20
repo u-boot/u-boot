@@ -263,7 +263,7 @@ efi_status_t eficonfig_process_quit(void *data)
 }
 
 /**
- * append_entry() - append menu item
+ * eficonfig_append_menu_entry() - append menu item
  *
  * @efi_menu:	pointer to the efimenu structure
  * @title:	pointer to the entry title
@@ -271,8 +271,9 @@ efi_status_t eficonfig_process_quit(void *data)
  * @data:	pointer to the data to be passed to each entry callback
  * Return:	status code
  */
-static efi_status_t append_entry(struct efimenu *efi_menu,
-				 char *title, eficonfig_entry_func func, void *data)
+efi_status_t eficonfig_append_menu_entry(struct efimenu *efi_menu,
+					 char *title, eficonfig_entry_func func,
+					 void *data)
 {
 	struct eficonfig_entry *entry;
 
@@ -295,12 +296,12 @@ static efi_status_t append_entry(struct efimenu *efi_menu,
 }
 
 /**
- * append_quit_entry() - append quit entry
+ * eficonfig_append_quit_entry() - append quit entry
  *
  * @efi_menu:	pointer to the efimenu structure
  * Return:	status code
  */
-static efi_status_t append_quit_entry(struct efimenu *efi_menu)
+efi_status_t eficonfig_append_quit_entry(struct efimenu *efi_menu)
 {
 	char *title;
 	efi_status_t ret;
@@ -309,7 +310,7 @@ static efi_status_t append_quit_entry(struct efimenu *efi_menu)
 	if (!title)
 		return EFI_OUT_OF_RESOURCES;
 
-	ret = append_entry(efi_menu, title, eficonfig_process_quit, NULL);
+	ret = eficonfig_append_menu_entry(efi_menu, title, eficonfig_process_quit, NULL);
 	if (ret != EFI_SUCCESS)
 		free(title);
 
@@ -341,7 +342,7 @@ void *eficonfig_create_fixed_menu(const struct eficonfig_item *items, int count)
 		if (!title)
 			goto out;
 
-		ret = append_entry(efi_menu, title, iter->func, iter->data);
+		ret = eficonfig_append_menu_entry(efi_menu, title, iter->func, iter->data);
 		if (ret != EFI_SUCCESS) {
 			free(title);
 			goto out;
@@ -634,14 +635,15 @@ static efi_status_t eficonfig_select_volume(struct eficonfig_select_file_info *f
 		info->v = v;
 		info->dp = device_path;
 		info->file_info = file_info;
-		ret = append_entry(efi_menu, devname, eficonfig_volume_selected, info);
+		ret = eficonfig_append_menu_entry(efi_menu, devname, eficonfig_volume_selected,
+						  info);
 		if (ret != EFI_SUCCESS) {
 			free(info);
 			goto out;
 		}
 	}
 
-	ret = append_quit_entry(efi_menu);
+	ret = eficonfig_append_quit_entry(efi_menu);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -745,8 +747,8 @@ eficonfig_create_file_entry(struct efimenu *efi_menu, u32 count,
 	      (int (*)(const void *, const void *))sort_file);
 
 	for (i = 0; i < entry_num; i++) {
-		ret = append_entry(efi_menu, tmp_infos[i]->file_name,
-				   eficonfig_file_selected, tmp_infos[i]);
+		ret = eficonfig_append_menu_entry(efi_menu, tmp_infos[i]->file_name,
+						  eficonfig_file_selected, tmp_infos[i]);
 		if (ret != EFI_SUCCESS)
 			goto out;
 	}
@@ -815,7 +817,7 @@ static efi_status_t eficonfig_show_file_selection(struct eficonfig_select_file_i
 		if (ret != EFI_SUCCESS)
 			goto err;
 
-		ret = append_quit_entry(efi_menu);
+		ret = eficonfig_append_quit_entry(efi_menu);
 		if (ret != EFI_SUCCESS)
 			goto err;
 
@@ -1206,7 +1208,7 @@ static efi_status_t create_boot_option_entry(struct efimenu *efi_menu, char *tit
 		utf16_utf8_strcpy(&p, val);
 	}
 
-	return append_entry(efi_menu, buf, func, data);
+	return eficonfig_append_menu_entry(efi_menu, buf, func, data);
 }
 
 /**
@@ -1663,7 +1665,7 @@ static efi_status_t eficonfig_add_boot_selection_entry(struct efimenu *efi_menu,
 	utf16_utf8_strcpy(&p, lo.label);
 	info->boot_index = boot_index;
 	info->selected = selected;
-	ret = append_entry(efi_menu, buf, eficonfig_process_boot_selected, info);
+	ret = eficonfig_append_menu_entry(efi_menu, buf, eficonfig_process_boot_selected, info);
 	if (ret != EFI_SUCCESS) {
 		free(load_option);
 		free(info);
@@ -1722,7 +1724,7 @@ static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
 			break;
 	}
 
-	ret = append_quit_entry(efi_menu);
+	ret = eficonfig_append_quit_entry(efi_menu);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
