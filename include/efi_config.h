@@ -99,5 +99,7 @@ efi_status_t eficonfig_append_menu_entry(struct efimenu *efi_menu,
 					 char *title, eficonfig_entry_func func,
 					 void *data);
 efi_status_t eficonfig_append_quit_entry(struct efimenu *efi_menu);
+struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_volume,
+						     u16 *current_path);
 
 #endif

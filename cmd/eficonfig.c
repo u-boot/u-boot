@@ -436,14 +436,15 @@ static efi_status_t eficonfig_volume_selected(void *data)
 }
 
 /**
- * create_selected_device_path() - create device path
+ * eficonfig_create_device_path() - create device path
  *
- * @file_info:	pointer to the selected file information
+ * @dp_volume:	pointer to the volume
+ * @current_path: pointer to the file path u16 string
  * Return:
  * device path or NULL. Caller must free the returned value
  */
-static
-struct efi_device_path *create_selected_device_path(struct eficonfig_select_file_info *file_info)
+struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_volume,
+						     u16 *current_path)
 {
 	char *p;
 	void *buf;
@@ -452,7 +453,7 @@ struct efi_device_path *create_selected_device_path(struct eficonfig_select_file
 	struct efi_device_path_file_path *fp;
 
 	fp_size = sizeof(struct efi_device_path) +
-		  ((u16_strlen(file_info->current_path) + 1) * sizeof(u16));
+		  ((u16_strlen(current_path) + 1) * sizeof(u16));
 	buf = calloc(1, fp_size + sizeof(END));
 	if (!buf)
 		return NULL;
@@ -461,13 +462,13 @@ struct efi_device_path *create_selected_device_path(struct eficonfig_select_file
 	fp->dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE,
 	fp->dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH,
 	fp->dp.length = (u16)fp_size;
-	u16_strcpy(fp->str, file_info->current_path);
+	u16_strcpy(fp->str, current_path);
 
 	p = buf;
 	p += fp_size;
 	*((struct efi_device_path *)p) = END;
 
-	dp = efi_dp_append(file_info->dp_volume, (struct efi_device_path *)buf);
+	dp = efi_dp_append(dp_volume, (struct efi_device_path *)buf);
 	free(buf);
 
 	return dp;
@@ -1472,7 +1473,8 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 	}
 
 	if (bo->initrd_info.dp_volume) {
-		dp = create_selected_device_path(&bo->initrd_info);
+		dp = eficonfig_create_device_path(bo->initrd_info.dp_volume,
+						 bo->initrd_info.current_path);
 		if (!dp) {
 			ret = EFI_OUT_OF_RESOURCES;
 			goto out;
@@ -1481,7 +1483,7 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 		efi_free_pool(dp);
 	}
 
-	dp = create_selected_device_path(&bo->file_info);
+	dp = eficonfig_create_device_path(bo->file_info.dp_volume, bo->file_info.current_path);
 	if (!dp) {
 		ret = EFI_OUT_OF_RESOURCES;
 		goto out;
