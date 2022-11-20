@@ -93,20 +93,14 @@ struct eficonfig_boot_selection_data {
 };
 
 /**
- * struct eficonfig_boot_order - structure to be used to update BootOrder variable
+ * struct eficonfig_boot_order_data - structure to be used to update BootOrder variable
  *
- * @num:		index in the menu entry
- * @description:	pointer to the description string
  * @boot_index:		boot option index
  * @active:		flag to include the boot option into BootOrder variable
- * @list:		list structure
  */
-struct eficonfig_boot_order {
-	u32 num;
-	u16 *description;
+struct eficonfig_boot_order_data {
 	u32 boot_index;
 	bool active;
-	struct list_head list;
 };
 
 /**
@@ -1800,7 +1794,7 @@ static void eficonfig_display_change_boot_order(struct efimenu *efi_menu)
 {
 	bool reverse;
 	struct list_head *pos, *n;
-	struct eficonfig_boot_order *entry;
+	struct eficonfig_entry *entry;
 
 	printf(ANSI_CLEAR_CONSOLE ANSI_CURSOR_POSITION
 	       "\n  ** Change Boot Order **\n"
@@ -1816,7 +1810,7 @@ static void eficonfig_display_change_boot_order(struct efimenu *efi_menu)
 
 	/* draw boot option list */
 	list_for_each_safe(pos, n, &efi_menu->list) {
-		entry = list_entry(pos, struct eficonfig_boot_order, list);
+		entry = list_entry(pos, struct eficonfig_entry, list);
 		reverse = (entry->num == efi_menu->active);
 
 		printf(ANSI_CURSOR_POSITION, entry->num + 4, 7);
@@ -1825,13 +1819,13 @@ static void eficonfig_display_change_boot_order(struct efimenu *efi_menu)
 			puts(ANSI_COLOR_REVERSE);
 
 		if (entry->num < efi_menu->count - 2) {
-			if (entry->active)
+			if (((struct eficonfig_boot_order_data *)entry->data)->active)
 				printf("[*]  ");
 			else
 				printf("[ ]  ");
 		}
 
-		printf("%ls", entry->description);
+		printf("%s", entry->title);
 
 		if (reverse)
 			puts(ANSI_COLOR_RESET);
@@ -1848,9 +1842,8 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 {
 	int esc = 0;
 	struct list_head *pos, *n;
-	struct eficonfig_boot_order *tmp;
 	enum bootmenu_key key = KEY_NONE;
-	struct eficonfig_boot_order *entry;
+	struct eficonfig_entry *entry, *tmp;
 
 	while (1) {
 		bootmenu_loop(NULL, &key, &esc);
@@ -1859,11 +1852,11 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 		case KEY_PLUS:
 			if (efi_menu->active > 0) {
 				list_for_each_safe(pos, n, &efi_menu->list) {
-					entry = list_entry(pos, struct eficonfig_boot_order, list);
+					entry = list_entry(pos, struct eficonfig_entry, list);
 					if (entry->num == efi_menu->active)
 						break;
 				}
-				tmp = list_entry(pos->prev, struct eficonfig_boot_order, list);
+				tmp = list_entry(pos->prev, struct eficonfig_entry, list);
 				entry->num--;
 				tmp->num++;
 				list_del(&tmp->list);
@@ -1877,11 +1870,11 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 		case KEY_MINUS:
 			if (efi_menu->active < efi_menu->count - 3) {
 				list_for_each_safe(pos, n, &efi_menu->list) {
-					entry = list_entry(pos, struct eficonfig_boot_order, list);
+					entry = list_entry(pos, struct eficonfig_entry, list);
 					if (entry->num == efi_menu->active)
 						break;
 				}
-				tmp = list_entry(pos->next, struct eficonfig_boot_order, list);
+				tmp = list_entry(pos->next, struct eficonfig_entry, list);
 				entry->num++;
 				tmp->num--;
 				list_del(&entry->list);
@@ -1907,9 +1900,11 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 		case KEY_SPACE:
 			if (efi_menu->active < efi_menu->count - 2) {
 				list_for_each_safe(pos, n, &efi_menu->list) {
-					entry = list_entry(pos, struct eficonfig_boot_order, list);
+					entry = list_entry(pos, struct eficonfig_entry, list);
 					if (entry->num == efi_menu->active) {
-						entry->active = entry->active ? false : true;
+						struct eficonfig_boot_order_data *data = entry->data;
+
+						data->active = !data->active;
 						return EFI_NOT_READY;
 					}
 				}
@@ -1935,12 +1930,13 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 static efi_status_t eficonfig_add_change_boot_order_entry(struct efimenu *efi_menu,
 							  u32 boot_index, bool active)
 {
+	char *title, *p;
 	efi_status_t ret;
 	efi_uintn_t size;
 	void *load_option;
 	struct efi_load_option lo;
 	u16 varname[] = u"Boot####";
-	struct eficonfig_boot_order *entry;
+	struct eficonfig_boot_order_data *data;
 
 	efi_create_indexed_name(varname, sizeof(varname), "Boot", boot_index);
 	load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
@@ -1948,31 +1944,38 @@ static efi_status_t eficonfig_add_change_boot_order_entry(struct efimenu *efi_me
 		return EFI_SUCCESS;
 
 	ret = efi_deserialize_load_option(&lo, load_option, &size);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	data = calloc(1, sizeof(*data));
+	if (!data) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	title = calloc(1, utf16_utf8_strlen(lo.label) + 1);
+	if (!title) {
+		free(data);
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	p = title;
+	utf16_utf8_strcpy(&p, lo.label);
+
+	data->boot_index = boot_index;
+	data->active = active;
+
+	ret = eficonfig_append_menu_entry(efi_menu, title, NULL, data);
 	if (ret != EFI_SUCCESS) {
-		free(load_option);
-		return ret;
+		free(data);
+		free(title);
+		goto out;
 	}
 
-	entry = calloc(1, sizeof(struct eficonfig_boot_order));
-	if (!entry) {
-		free(load_option);
-		return EFI_OUT_OF_RESOURCES;
-	}
-
-	entry->description = u16_strdup(lo.label);
-	if (!entry->description) {
-		free(load_option);
-		free(entry);
-		return EFI_OUT_OF_RESOURCES;
-	}
-	entry->num = efi_menu->count++;
-	entry->boot_index = boot_index;
-	entry->active = active;
-	list_add_tail(&entry->list, &efi_menu->list);
-
+out:
 	free(load_option);
 
-	return EFI_SUCCESS;
+	return ret;
 }
 
 /**
@@ -1987,8 +1990,8 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 							     u16 *bootorder, efi_uintn_t num)
 {
 	u32 i;
+	char *title;
 	efi_status_t ret;
-	struct eficonfig_boot_order *entry;
 
 	/* list the load option in the order of BootOrder variable */
 	for (i = 0; i < num; i++) {
@@ -2015,27 +2018,25 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 	}
 
 	/* add "Save" and "Quit" entries */
-	entry = calloc(1, sizeof(struct eficonfig_boot_order));
-	if (!entry)
+	title = strdup("Save");
+	if (!title) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	ret = eficonfig_append_menu_entry(efi_menu, title, NULL, NULL);
+	if (ret != EFI_SUCCESS)
 		goto out;
 
-	entry->num = efi_menu->count++;
-	entry->description = u16_strdup(u"Save");
-	list_add_tail(&entry->list, &efi_menu->list);
-
-	entry = calloc(1, sizeof(struct eficonfig_boot_order));
-	if (!entry)
+	ret = eficonfig_append_quit_entry(efi_menu);
+	if (ret != EFI_SUCCESS)
 		goto out;
-
-	entry->num = efi_menu->count++;
-	entry->description = u16_strdup(u"Quit");
-	list_add_tail(&entry->list, &efi_menu->list);
 
 	efi_menu->active = 0;
 
 	return EFI_SUCCESS;
 out:
-	return EFI_OUT_OF_RESOURCES;
+	return ret;
 }
 
 /**
@@ -2051,7 +2052,7 @@ static efi_status_t eficonfig_process_change_boot_order(void *data)
 	efi_status_t ret;
 	efi_uintn_t num, size;
 	struct list_head *pos, *n;
-	struct eficonfig_boot_order *entry;
+	struct eficonfig_entry *entry;
 	struct efimenu *efi_menu;
 
 	efi_menu = calloc(1, sizeof(struct efimenu));
@@ -2082,9 +2083,16 @@ static efi_status_t eficonfig_process_change_boot_order(void *data)
 			/* create new BootOrder  */
 			count = 0;
 			list_for_each_safe(pos, n, &efi_menu->list) {
-				entry = list_entry(pos, struct eficonfig_boot_order, list);
-				if (entry->active)
-					new_bootorder[count++] = entry->boot_index;
+				struct eficonfig_boot_order_data *data;
+
+				entry = list_entry(pos, struct eficonfig_entry, list);
+				/* exit the loop when iteration reaches "Save" */
+				if (!strncmp(entry->title, "Save", strlen("Save")))
+					break;
+
+				data = entry->data;
+				if (data->active)
+					new_bootorder[count++] = data->boot_index;
 			}
 
 			size = count * sizeof(u16);
@@ -2103,15 +2111,12 @@ static efi_status_t eficonfig_process_change_boot_order(void *data)
 		}
 	}
 out:
-	list_for_each_safe(pos, n, &efi_menu->list) {
-		entry = list_entry(pos, struct eficonfig_boot_order, list);
-		list_del(&entry->list);
-		free(entry->description);
-		free(entry);
-	}
-
 	free(bootorder);
-	free(efi_menu);
+	list_for_each_safe(pos, n, &efi_menu->list) {
+		entry = list_entry(pos, struct eficonfig_entry, list);
+		free(entry->data);
+	}
+	eficonfig_destroy(efi_menu);
 
 	/* to stay the parent menu */
 	ret = (ret == EFI_ABORTED) ? EFI_NOT_READY : ret;
