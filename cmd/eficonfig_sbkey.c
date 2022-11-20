@@ -17,6 +17,13 @@
 #include <efi_variable.h>
 #include <crypto/pkcs7_parser.h>
 
+struct eficonfig_sig_data {
+	struct efi_signature_list *esl;
+	struct efi_signature_data *esd;
+	struct list_head list;
+	u16 *varname;
+};
+
 enum efi_sbkey_signature_type {
 	SIG_TYPE_X509 = 0,
 	SIG_TYPE_HASH,
@@ -176,8 +183,236 @@ out:
 	return ret;
 }
 
+/**
+ * eficonfig_process_show_siglist() - show signature list content
+ *
+ * @data:	pointer to the data for each entry
+ * Return:	status code
+ */
+static efi_status_t eficonfig_process_show_siglist(void *data)
+{
+	u32 i;
+	struct eficonfig_sig_data *sg = data;
+
+	puts(ANSI_CURSOR_HIDE);
+	puts(ANSI_CLEAR_CONSOLE);
+	printf(ANSI_CURSOR_POSITION, 1, 1);
+
+	printf("\n  ** Show Signature Database (%ls) **\n\n"
+	       "    Owner GUID:\n"
+	       "      %pUL\n",
+	       sg->varname, sg->esd->signature_owner.b);
+
+	for (i = 0; i < ARRAY_SIZE(sigtype_to_str); i++) {
+		if (!guidcmp(&sg->esl->signature_type, &sigtype_to_str[i].sig_type)) {
+			printf("    Signature Type:\n"
+			       "      %s\n", sigtype_to_str[i].str);
+
+			switch (sigtype_to_str[i].type) {
+			case SIG_TYPE_X509:
+			{
+				struct x509_certificate *cert_tmp;
+
+				cert_tmp = x509_cert_parse(sg->esd->signature_data,
+							   sg->esl->signature_size);
+				printf("    Subject:\n"
+				       "      %s\n"
+				       "    Issuer:\n"
+				       "      %s\n",
+				       cert_tmp->subject, cert_tmp->issuer);
+				break;
+			}
+			case SIG_TYPE_CRL:
+			{
+				u32 hash_size = sg->esl->signature_size - sizeof(efi_guid_t) -
+						sizeof(struct efi_time);
+				struct efi_time *time =
+					(struct efi_time *)((u8 *)sg->esd->signature_data +
+					hash_size);
+
+				printf("    ToBeSignedHash:\n");
+				print_hex_dump("      ", DUMP_PREFIX_NONE, 16, 1,
+					       sg->esd->signature_data, hash_size, false);
+				printf("    TimeOfRevocation:\n"
+				       "      %d-%d-%d %02d:%02d:%02d\n",
+				       time->year, time->month, time->day,
+				       time->hour, time->minute, time->second);
+				break;
+			}
+			case SIG_TYPE_HASH:
+			{
+				u32 hash_size = sg->esl->signature_size - sizeof(efi_guid_t);
+
+				printf("    Hash:\n");
+				print_hex_dump("      ", DUMP_PREFIX_NONE, 16, 1,
+					       sg->esd->signature_data, hash_size, false);
+				break;
+			}
+			default:
+				eficonfig_print_msg("ERROR! Unsupported format.");
+				return EFI_INVALID_PARAMETER;
+			}
+		}
+	}
+
+	while (tstc())
+		getchar();
+
+	printf("\n\n  Press any key to continue");
+	getchar();
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * prepare_signature_list_menu() - create the signature list menu entry
+ *
+ * @efimenu:	pointer to the efimenu structure
+ * @varname:	pointer to the variable name
+ * @db:		pointer to the variable raw data
+ * @db_size:	variable data size
+ * @func:	callback of each entry
+ * Return:	status code
+ */
+static efi_status_t prepare_signature_list_menu(struct efimenu *efi_menu, void *varname,
+						void *db, efi_uintn_t db_size,
+						eficonfig_entry_func func)
+{
+	u32 num = 0;
+	efi_uintn_t size;
+	struct eficonfig_sig_data *sg;
+	struct efi_signature_list *esl;
+	struct efi_signature_data *esd;
+	efi_status_t ret = EFI_SUCCESS;
+
+	INIT_LIST_HEAD(&efi_menu->list);
+
+	esl = db;
+	size = db_size;
+	while (size > 0) {
+		u32 remain;
+
+		esd = (struct efi_signature_data *)((u8 *)esl +
+						    (sizeof(struct efi_signature_list) +
+						    esl->signature_header_size));
+		remain = esl->signature_list_size - sizeof(struct efi_signature_list) -
+			 esl->signature_header_size;
+		for (; remain > 0; remain -= esl->signature_size) {
+			char buf[37];
+			char *title;
+
+			if (num >= EFICONFIG_ENTRY_NUM_MAX - 1) {
+				ret = EFI_OUT_OF_RESOURCES;
+				goto out;
+			}
+
+			sg = calloc(1, sizeof(struct eficonfig_sig_data));
+			if (!sg) {
+				ret = EFI_OUT_OF_RESOURCES;
+				goto err;
+			}
+
+			snprintf(buf, sizeof(buf), "%pUL", &esd->signature_owner);
+			title = strdup(buf);
+			if (!title) {
+				free(sg);
+				ret = EFI_OUT_OF_RESOURCES;
+				goto err;
+			}
+
+			sg->esl = esl;
+			sg->esd = esd;
+			sg->varname = varname;
+			ret = eficonfig_append_menu_entry(efi_menu, title, func, sg);
+			if (ret != EFI_SUCCESS) {
+				free(sg);
+				free(title);
+				goto err;
+			}
+			esd = (struct efi_signature_data *)((u8 *)esd + esl->signature_size);
+			num++;
+		}
+
+		size -= esl->signature_list_size;
+		esl = (struct efi_signature_list *)((u8 *)esl + esl->signature_list_size);
+	}
+out:
+	ret = eficonfig_append_quit_entry(efi_menu);
+err:
+	return ret;
+}
+
+/**
+ * enumerate_and_show_signature_database() - enumerate and show the signature database
+ *
+ * @data:	pointer to the data for each entry
+ * Return:	status code
+ */
+static efi_status_t enumerate_and_show_signature_database(void *varname)
+{
+	void *db;
+	char buf[50];
+	efi_status_t ret;
+	efi_uintn_t db_size;
+	struct efimenu *efi_menu;
+	struct list_head *pos, *n;
+	struct eficonfig_entry *entry;
+
+	db = efi_get_var(varname, efi_auth_var_get_guid(varname), &db_size);
+	if (!db) {
+		eficonfig_print_msg("There is no entry in the signature database.");
+		return EFI_NOT_FOUND;
+	}
+
+	efi_menu = calloc(1, sizeof(struct efimenu));
+	if (!efi_menu) {
+		free(db);
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	ret = prepare_signature_list_menu(efi_menu, varname, db, db_size,
+					  eficonfig_process_show_siglist);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	snprintf(buf, sizeof(buf), "  ** Show Signature Database (%ls) **", (u16 *)varname);
+	ret = eficonfig_process_common(efi_menu, buf);
+out:
+	list_for_each_safe(pos, n, &efi_menu->list) {
+		entry = list_entry(pos, struct eficonfig_entry, list);
+		free(entry->data);
+	}
+	eficonfig_destroy(efi_menu);
+	free(db);
+
+	return ret;
+}
+
+/**
+ * eficonfig_process_show_signature_database() - process show signature database
+ *
+ * @data:	pointer to the data for each entry
+ * Return:	status code
+ */
+static efi_status_t eficonfig_process_show_signature_database(void *data)
+{
+	efi_status_t ret;
+
+	while (1) {
+		ret = enumerate_and_show_signature_database(data);
+		if (ret != EFI_SUCCESS && ret != EFI_NOT_READY)
+			break;
+	}
+
+	/* return to the parent menu */
+	ret = (ret == EFI_ABORTED) ? EFI_NOT_READY : ret;
+
+	return ret;
+}
+
 static struct eficonfig_item key_config_menu_items[] = {
 	{"Enroll New Key", eficonfig_process_enroll_key},
+	{"Show Signature Database", eficonfig_process_show_signature_database},
 	{"Quit", eficonfig_process_quit},
 };
 
