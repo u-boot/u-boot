@@ -9,6 +9,10 @@ on a real N900. It does very little hardware configuration because NOLO has
 already configured the board. It is only needed to enable the internal eMMC
 memory via the twl4030 regulator which is not enabled by NOLO.
 
+.. code-block:: bash
+
+   make CROSS_COMPILE=arm-linux-gnueabi- nokia_rx51_defconfig u-boot.bin
+
 NOLO is expecting a kernel image and will treat any image it finds in
 OneNAND as such. This u-boot is intended to be flashed to the N900 like
 a kernel. In order to transparently boot the original kernel, it will be
@@ -159,6 +163,34 @@ UBIFS support add following lines into file ``configs/nokia_rx51_defconfig``::
     CONFIG_CMD_UBI=y
     CONFIG_CMD_UBIFS=y
     CONFIG_MTD_UBI_BEB_LIMIT=10
+
+Early output
+------------
+
+Early U-Boot output can be enabled on serial console by adding following lines
+into file ``configs/nokia_rx51_defconfig``::
+
+    CONFIG_DEBUG_UART=y
+    CONFIG_DEBUG_UART_OMAP=y
+    CONFIG_DEBUG_UART_SHIFT=2
+    CONFIG_DEBUG_UART_BASE=0x49020000
+    CONFIG_DEBUG_UART_CLOCK=48000000
+
+Note that early output is not available on USB tty console.
+
+Verbose debug output
+--------------------
+
+Verbose debug output with maximal log level can be enabled by adding following
+lines into file ``configs/nokia_rx51_defconfig``::
+
+    CONFIG_DM_DEBUG=y
+    CONFIG_LOG=y
+    CONFIG_LOGLEVEL=9
+    CONFIG_LOG_MAX_LEVEL=9
+    CONFIG_LOG_DEFAULT_LEVEL=9
+
+And compiling U-Boot by additional make parameter ``KCPPFLAGS=-DLOG_DEBUG``.
 
 Run in QEMU
 -----------

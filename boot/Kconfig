@@ -1492,6 +1492,10 @@ config PREBOOT
 	help
 	  This is the default of "preboot" environment variable.
 
+config PREBOOT_DEFINED
+	bool
+	default y if PREBOOT != ""
+
 config DEFAULT_FDT_FILE
 	string "Default fdt file"
 	help

@@ -3,8 +3,6 @@
  * Copyright 2019 Toradex AG
  */
 
-#include "imx8qm-u-boot.dtsi"
-
 &mu {
 	u-boot,dm-pre-proper;
 };

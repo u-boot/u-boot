@@ -62,7 +62,7 @@ const char default_environment[] = {
 #ifdef	CONFIG_SYS_DISABLE_AUTOLOAD
 	"autoload=0\0"
 #endif
-#ifdef	CONFIG_PREBOOT
+#ifdef	CONFIG_PREBOOT_DEFINED
 	"preboot="	CONFIG_PREBOOT			"\0"
 #endif
 #ifdef	CONFIG_ROOTPATH
