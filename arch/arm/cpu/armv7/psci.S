@@ -36,34 +36,32 @@ _psci_vectors:
 	b	default_psci_vector	@ irq
 	b	psci_fiq_enter		@ fiq
 
-ENTRY(psci_fiq_enter)
+WEAK(psci_fiq_enter)
 	movs	pc, lr
 ENDPROC(psci_fiq_enter)
-.weak psci_fiq_enter
 
-ENTRY(default_psci_vector)
+WEAK(default_psci_vector)
 	movs	pc, lr
 ENDPROC(default_psci_vector)
-.weak default_psci_vector
 
-ENTRY(psci_version)
-ENTRY(psci_cpu_suspend)
-ENTRY(psci_cpu_off)
-ENTRY(psci_cpu_on)
-ENTRY(psci_affinity_info)
-ENTRY(psci_migrate)
-ENTRY(psci_migrate_info_type)
-ENTRY(psci_migrate_info_up_cpu)
-ENTRY(psci_system_off)
-ENTRY(psci_system_reset)
-ENTRY(psci_features)
-ENTRY(psci_cpu_freeze)
-ENTRY(psci_cpu_default_suspend)
-ENTRY(psci_node_hw_state)
-ENTRY(psci_system_suspend)
-ENTRY(psci_set_suspend_mode)
-ENTRY(psi_stat_residency)
-ENTRY(psci_stat_count)
+WEAK(psci_version)
+WEAK(psci_cpu_suspend)
+WEAK(psci_cpu_off)
+WEAK(psci_cpu_on)
+WEAK(psci_affinity_info)
+WEAK(psci_migrate)
+WEAK(psci_migrate_info_type)
+WEAK(psci_migrate_info_up_cpu)
+WEAK(psci_system_off)
+WEAK(psci_system_reset)
+WEAK(psci_features)
+WEAK(psci_cpu_freeze)
+WEAK(psci_cpu_default_suspend)
+WEAK(psci_node_hw_state)
+WEAK(psci_system_suspend)
+WEAK(psci_set_suspend_mode)
+WEAK(psi_stat_residency)
+WEAK(psci_stat_count)
 	mov	r0, #ARM_PSCI_RET_NI	@ Return -1 (Not Implemented)
 	mov	pc, lr
 ENDPROC(psci_stat_count)
@@ -84,24 +82,6 @@ ENDPROC(psci_cpu_on)
 ENDPROC(psci_cpu_off)
 ENDPROC(psci_cpu_suspend)
 ENDPROC(psci_version)
-.weak psci_version
-.weak psci_cpu_suspend
-.weak psci_cpu_off
-.weak psci_cpu_on
-.weak psci_affinity_info
-.weak psci_migrate
-.weak psci_migrate_info_type
-.weak psci_migrate_info_up_cpu
-.weak psci_system_off
-.weak psci_system_reset
-.weak psci_features
-.weak psci_cpu_freeze
-.weak psci_cpu_default_suspend
-.weak psci_node_hw_state
-.weak psci_system_suspend
-.weak psci_set_suspend_mode
-.weak psi_stat_residency
-.weak psci_stat_count
 
 _psci_table:
 	.word	ARM_PSCI_FN_CPU_SUSPEND
@@ -179,12 +159,11 @@ _smc_psci:
 	movs	pc, lr			@ Return to the kernel
 
 @ Requires dense and single-cluster CPU ID space
-ENTRY(psci_get_cpu_id)
+WEAK(psci_get_cpu_id)
 	mrc	p15, 0, r0, c0, c0, 5	/* read MPIDR */
 	and	r0, r0, #0xff		/* return CPU ID in cluster */
 	bx	lr
 ENDPROC(psci_get_cpu_id)
-.weak psci_get_cpu_id
 
 /* Imported from Linux kernel */
 ENTRY(psci_v7_flush_dcache_all)
@@ -236,7 +215,7 @@ finished:
 	bx	lr
 ENDPROC(psci_v7_flush_dcache_all)
 
-ENTRY(psci_disable_smp)
+WEAK(psci_disable_smp)
 	mrc	p15, 0, r0, c1, c0, 1		@ ACTLR
 	bic	r0, r0, #(1 << 6)		@ Clear SMP bit
 	mcr	p15, 0, r0, c1, c0, 1		@ ACTLR
@@ -244,16 +223,14 @@ ENTRY(psci_disable_smp)
 	dsb
 	bx	lr
 ENDPROC(psci_disable_smp)
-.weak psci_disable_smp
 
-ENTRY(psci_enable_smp)
+WEAK(psci_enable_smp)
 	mrc	p15, 0, r0, c1, c0, 1		@ ACTLR
 	orr	r0, r0, #(1 << 6)		@ Set SMP bit
 	mcr	p15, 0, r0, c1, c0, 1		@ ACTLR
 	isb
 	bx	lr
 ENDPROC(psci_enable_smp)
-.weak psci_enable_smp
 
 ENTRY(psci_cpu_off_common)
 	push	{lr}
@@ -316,15 +293,13 @@ ENTRY(psci_stack_setup)
 	bx	r6
 ENDPROC(psci_stack_setup)
 
-ENTRY(psci_arch_init)
+WEAK(psci_arch_init)
 	mov	pc, lr
 ENDPROC(psci_arch_init)
-.weak psci_arch_init
 
-ENTRY(psci_arch_cpu_entry)
+WEAK(psci_arch_cpu_entry)
 	mov	pc, lr
 ENDPROC(psci_arch_cpu_entry)
-.weak psci_arch_cpu_entry
 
 ENTRY(psci_cpu_entry)
 	bl	psci_enable_smp
