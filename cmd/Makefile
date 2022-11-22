@@ -66,6 +66,11 @@ obj-$(CONFIG_CMD_EEPROM) += eeprom.o
 obj-$(CONFIG_EFI) += efi.o
 obj-$(CONFIG_CMD_EFIDEBUG) += efidebug.o
 obj-$(CONFIG_CMD_EFICONFIG) += eficonfig.o
+ifdef CONFIG_CMD_EFICONFIG
+ifdef CONFIG_EFI_MM_COMM_TEE
+obj-$(CONFIG_EFI_SECURE_BOOT) += eficonfig_sbkey.o
+endif
+endif
 obj-$(CONFIG_CMD_ELF) += elf.o
 obj-$(CONFIG_CMD_EROFS) += erofs.o
 obj-$(CONFIG_HUSH_PARSER) += exit.o

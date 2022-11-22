@@ -89,10 +89,21 @@ void eficonfig_print_msg(char *msg);
 void eficonfig_destroy(struct efimenu *efi_menu);
 efi_status_t eficonfig_process_quit(void *data);
 efi_status_t eficonfig_process_common(struct efimenu *efi_menu, char *menu_header);
-efi_status_t eficonfig_select_file_handler(void *data);
+efi_status_t eficonfig_process_select_file(void *data);
 efi_status_t eficonfig_get_unused_bootoption(u16 *buf,
 					     efi_uintn_t buf_size, u32 *index);
 efi_status_t eficonfig_append_bootorder(u16 index);
 efi_status_t eficonfig_generate_media_device_boot_option(void);
+
+efi_status_t eficonfig_append_menu_entry(struct efimenu *efi_menu,
+					 char *title, eficonfig_entry_func func,
+					 void *data);
+efi_status_t eficonfig_append_quit_entry(struct efimenu *efi_menu);
+struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_volume,
+						     u16 *current_path);
+void *eficonfig_create_fixed_menu(const struct eficonfig_item *items, int count);
+#ifdef CONFIG_EFI_SECURE_BOOT
+efi_status_t eficonfig_process_secure_boot_config(void *data);
+#endif
 
 #endif

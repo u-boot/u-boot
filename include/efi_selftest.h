@@ -131,7 +131,7 @@ u16 *efi_st_translate_code(u16 code);
  * @buf2:	char string
  * Return:	0 if both buffers contain equivalent strings
  */
-int efi_st_strcmp_16_8(const u16 *buf1, const char *buf2);
+int efi_st_strcmp_16_8(const u16 *buf1, const unsigned char *buf2);
 
 /**
  * efi_st_get_config_table() - get configuration table
