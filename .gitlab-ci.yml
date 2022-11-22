@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: trini/u-boot-gitlab-ci-runner:jammy-20221003-17Oct2022
+image: trini/u-boot-gitlab-ci-runner:jammy-20221101-22Nov2022
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -225,7 +225,7 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
 Run tests for Nokia RX-51 (aka N900):
   stage: testsuites
   script:
-    - export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH;
+    - export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH;
       test/nokia_rx51_test.sh
 
 # Check for any pylint regressions
@@ -256,7 +256,7 @@ sandbox test.py:
 sandbox with clang test.py:
   variables:
     TEST_PY_BD: "sandbox"
-    OVERRIDE: "-O clang-13"
+    OVERRIDE: "-O clang-14"
   <<: *buildman_and_testpy_dfn
 
 sandbox without LTO test.py:

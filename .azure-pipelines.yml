@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20221003-17Oct2022
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20221101-22Nov2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -204,7 +204,7 @@ stages:
       options: $(container_option)
     steps:
       - script: |
-          export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
+          export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
   - job: pylint
@@ -242,7 +242,7 @@ stages:
           TEST_PY_BD: "sandbox"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-13"
+          OVERRIDE: "-O clang-14"
         sandbox_nolto:
           TEST_PY_BD: "sandbox"
           BUILD_ENV: "NO_LTO=1"
@@ -486,7 +486,7 @@ stages:
           OVERRIDE: "-a ASAN"
         sandbox_clang_asan:
           BUILDMAN: "sandbox"
-          OVERRIDE: "-O clang-13 -a ASAN"
+          OVERRIDE: "-O clang-14 -a ASAN"
         samsung_socfpga:
           BUILDMAN: "samsung socfpga"
         sun4i:
