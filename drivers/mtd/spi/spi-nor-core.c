@@ -1600,7 +1600,7 @@ static int sst26_is_unlocked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	ofs -= ofs & (SZ_64K - 1);
 	len = len & (SZ_64K - 1) ? (len & ~(SZ_64K - 1)) + SZ_64K : len;
 
-	return sst26_lock_ctl(nor, ofs, len, SST26_CTL_CHECK);
+	return !sst26_lock_ctl(nor, ofs, len, SST26_CTL_CHECK);
 }
 
 static int sst_write_byteprogram(struct spi_nor *nor, loff_t to, size_t len,
