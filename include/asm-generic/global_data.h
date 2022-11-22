@@ -635,9 +635,9 @@ enum gd_flags {
 	 */
 	GD_FLG_LOG_READY = 0x10000,
 	/**
-	 * @GD_FLG_WDT_READY: watchdog is ready for use
+	 * @GD_FLG_CYCLIC_RUNNING: cyclic_run is in progress
 	 */
-	GD_FLG_WDT_READY = 0x20000,
+	GD_FLG_CYCLIC_RUNNING = 0x20000,
 	/**
 	 * @GD_FLG_SKIP_LL_INIT: don't perform low-level initialization
 	 */
@@ -650,10 +650,6 @@ enum gd_flags {
 	 * @GD_FLG_FDT_CHANGED: Device tree change has been detected by tests
 	 */
 	GD_FLG_FDT_CHANGED = 0x100000,
-	/**
-	 * @GD_FLG_CYCLIC_RUNNING: cyclic_run is in progress
-	 */
-	GD_FLG_CYCLIC_RUNNING = 0x200000,
 };
 
 #endif /* __ASSEMBLY__ */

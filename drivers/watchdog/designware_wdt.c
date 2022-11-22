@@ -72,13 +72,13 @@ static int designware_wdt_reset(struct udevice *dev)
 static int designware_wdt_stop(struct udevice *dev)
 {
 	struct designware_wdt_priv *priv = dev_get_priv(dev);
+	__maybe_unused int ret;
 
 	designware_wdt_reset(dev);
 	writel(0, priv->base + DW_WDT_CR);
 
-        if (CONFIG_IS_ENABLED(DM_RESET)) {
-		int ret;
-
+	if (CONFIG_IS_ENABLED(DM_RESET) &&
+	    ofnode_read_prop(dev_ofnode(dev), "resets", &ret)) {
 		ret = reset_assert_bulk(&priv->resets);
 		if (ret)
 			return ret;
@@ -135,7 +135,8 @@ static int designware_wdt_probe(struct udevice *dev)
 	priv->clk_khz = CONFIG_DW_WDT_CLOCK_KHZ;
 #endif
 
-	if (CONFIG_IS_ENABLED(DM_RESET)) {
+	if (CONFIG_IS_ENABLED(DM_RESET) &&
+	    ofnode_read_prop(dev_ofnode(dev), "resets", &ret)) {
 		ret = reset_get_bulk(dev, &priv->resets);
 		if (ret)
 			goto err;
