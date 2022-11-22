@@ -467,10 +467,6 @@ static int zynqmp_pinconf_set(struct udevice *dev, unsigned int pin,
 				 pin);
 		break;
 	case PIN_CONFIG_BIAS_HIGH_IMPEDANCE:
-		param = PM_PINCTRL_CONFIG_TRI_STATE;
-		arg = PM_PINCTRL_TRI_STATE_ENABLE;
-		ret = zynqmp_pm_pinctrl_set_config(pin, param, arg);
-		break;
 	case PIN_CONFIG_LOW_POWER_MODE:
 		/*
 		 * This cases are mentioned in dts but configurable
@@ -478,11 +474,6 @@ static int zynqmp_pinconf_set(struct udevice *dev, unsigned int pin,
 		 * boot time warnings as of now.
 		 */
 		ret = 0;
-		break;
-	case PIN_CONFIG_OUTPUT_ENABLE:
-		param = PM_PINCTRL_CONFIG_TRI_STATE;
-		arg = PM_PINCTRL_TRI_STATE_DISABLE;
-		ret = zynqmp_pm_pinctrl_set_config(pin, param, arg);
 		break;
 	default:
 		dev_warn(dev, "unsupported configuration parameter '%u'\n",

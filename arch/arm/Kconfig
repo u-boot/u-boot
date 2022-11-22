@@ -1230,7 +1230,7 @@ config ARCH_VERSAL
 	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 config ARCH_VERSAL_NET
-	bool "Support Xilinx Keystone Platform"
+	bool "Support Xilinx Versal NET Platform"
 	select ARM64
 	select CLK
 	select DM

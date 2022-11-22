@@ -32,6 +32,14 @@ config SOC_XILINX_VERSAL
 	  This allows other drivers to verify the SoC familiy & revision using
 	  matching SoC attributes.
 
+config SOC_XILINX_VERSAL_NET
+	bool "Enable SoC Device ID driver for Xilinx Versal NET"
+	depends on SOC_DEVICE && ARCH_VERSAL_NET
+	help
+	  Enable this option to select SoC device id driver for Xilinx Versal NET.
+	  This allows other drivers to verify the SoC familiy & revision using
+	  matching SoC attributes.
+
 source "drivers/soc/ti/Kconfig"
 
 endmenu

@@ -8,3 +8,4 @@ obj-$(CONFIG_SOC_DEVICE_TI_K3) += soc_ti_k3.o
 obj-$(CONFIG_SANDBOX) += soc_sandbox.o
 obj-$(CONFIG_SOC_XILINX_ZYNQMP) += soc_xilinx_zynqmp.o
 obj-$(CONFIG_SOC_XILINX_VERSAL) += soc_xilinx_versal.o
+obj-$(CONFIG_SOC_XILINX_VERSAL_NET) += soc_xilinx_versal_net.o

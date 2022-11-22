@@ -15,6 +15,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/cache.h>
+#include <dm/platdata.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -87,3 +88,7 @@ u64 get_page_table_size(void)
 {
 	return 0x14000;
 }
+
+U_BOOT_DRVINFO(soc_xilinx_versal_net) = {
+	.name = "soc_xilinx_versal_net",
+};
