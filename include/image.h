@@ -229,6 +229,7 @@ enum image_type_t {
 	IH_TYPE_COPRO,			/* Coprocessor Image for remoteproc*/
 	IH_TYPE_SUNXI_EGON,		/* Allwinner eGON Boot Image */
 	IH_TYPE_SUNXI_TOC0,		/* Allwinner TOC0 Boot Image */
+	IH_TYPE_FDT_LEGACY,		/* Binary Flat Device Tree Blob	in a Legacy Image */
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };

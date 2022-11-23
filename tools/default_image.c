@@ -27,7 +27,8 @@ static struct legacy_img_hdr header;
 static int image_check_image_types(uint8_t type)
 {
 	if (((type > IH_TYPE_INVALID) && (type < IH_TYPE_FLATDT)) ||
-	    (type == IH_TYPE_KERNEL_NOLOAD) || (type == IH_TYPE_FIRMWARE_IVT))
+	    (type == IH_TYPE_KERNEL_NOLOAD) || (type == IH_TYPE_FIRMWARE_IVT) ||
+	    (type == IH_TYPE_FDT_LEGACY))
 		return EXIT_SUCCESS;
 	else
 		return EXIT_FAILURE;
@@ -94,6 +95,7 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	uint32_t imagesize;
 	uint32_t ep;
 	uint32_t addr;
+	int type;
 	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)ptr;
 
 	checksum = crc32(0,
@@ -113,6 +115,11 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	else
 		imagesize = sbuf->st_size - sizeof(struct legacy_img_hdr);
 
+	if (params->type == IH_TYPE_FDT_LEGACY)
+		type = IH_TYPE_FLATDT;
+	else
+		type = params->type;
+
 	if (params->os == IH_OS_TEE) {
 		addr = optee_image_get_load_addr(hdr);
 		ep = optee_image_get_entry_point(hdr);
@@ -127,7 +134,7 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	image_set_dcrc(hdr, checksum);
 	image_set_os(hdr, params->os);
 	image_set_arch(hdr, params->arch);
-	image_set_type(hdr, params->type);
+	image_set_type(hdr, type);
 	image_set_comp(hdr, params->comp);
 
 	image_set_name(hdr, params->imagename);
