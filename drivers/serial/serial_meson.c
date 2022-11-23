@@ -7,9 +7,11 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <linux/kernel.h>
 #include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <serial.h>
+#include <clk.h>
 
 struct meson_uart {
 	u32 wfifo;
@@ -17,6 +19,7 @@ struct meson_uart {
 	u32 control;
 	u32 status;
 	u32 misc;
+	u32 reg5; /* New baud control register */
 };
 
 struct meson_serial_plat {
@@ -42,6 +45,35 @@ struct meson_serial_plat {
 #define AML_UART_RX_RST			BIT(23)
 #define AML_UART_CLR_ERR		BIT(24)
 
+/* AML_UART_REG5 bits */
+#define AML_UART_REG5_XTAL_DIV2		BIT(27)
+#define AML_UART_REG5_XTAL_CLK_SEL	BIT(26) /* default 0 (div by 3), 1 for no div */
+#define AML_UART_REG5_USE_XTAL_CLK	BIT(24) /* default 1 (use crystal as clock source) */
+#define AML_UART_REG5_USE_NEW_BAUD	BIT(23) /* default 1 (use new baud rate register) */
+#define AML_UART_REG5_BAUD_MASK		0x7fffff
+
+static u32 meson_calc_baud_divisor(ulong src_rate, u32 baud)
+{
+	/*
+	 * Usually src_rate is 24 MHz (from crystal) as clock source for serial
+	 * device. Since 8 Mb/s is the maximum supported baud rate, use div by 3
+	 * to derive baud rate. This choice is used also in meson_serial_setbrg.
+	 */
+	return DIV_ROUND_CLOSEST(src_rate / 3, baud) - 1;
+}
+
+static void meson_serial_set_baud(struct meson_uart *uart, ulong src_rate, u32 baud)
+{
+	/*
+	 * Set crystal divided by 3 (regardless of device tree clock property)
+	 * as clock source and the corresponding divisor to approximate baud
+	 */
+	u32 divisor = meson_calc_baud_divisor(src_rate, baud);
+	u32 val = AML_UART_REG5_USE_XTAL_CLK | AML_UART_REG5_USE_NEW_BAUD |
+		(divisor & AML_UART_REG5_BAUD_MASK);
+	writel(val, &uart->reg5);
+}
+
 static void meson_serial_init(struct meson_uart *uart)
 {
 	u32 val;
@@ -59,7 +91,14 @@ static int meson_serial_probe(struct udevice *dev)
 {
 	struct meson_serial_plat *plat = dev_get_plat(dev);
 	struct meson_uart *const uart = plat->reg;
+	struct clk per_clk;
+	int ret = clk_get_by_name(dev, "baud", &per_clk);
 
+	if (ret)
+		return ret;
+	ulong rate = clk_get_rate(&per_clk);
+
+	meson_serial_set_baud(uart, rate, CONFIG_BAUDRATE);
 	meson_serial_init(uart);
 
 	return 0;
@@ -111,6 +150,36 @@ static int meson_serial_putc(struct udevice *dev, const char ch)
 	return 0;
 }
 
+static int meson_serial_setbrg(struct udevice *dev, const int baud)
+{
+	/*
+	 * Change device baud rate if baud is reasonable (considering a 23 bit
+	 * counter with an 8 MHz clock input) and the actual baud
+	 * rate is within 2% of the requested value (2% is arbitrary).
+	 */
+	if (baud < 1 || baud > 8000000)
+		return -EINVAL;
+
+	struct meson_serial_plat *const plat = dev_get_plat(dev);
+	struct meson_uart *const uart = plat->reg;
+	struct clk per_clk;
+	int ret = clk_get_by_name(dev, "baud", &per_clk);
+
+	if (ret)
+		return ret;
+	ulong rate = clk_get_rate(&per_clk);
+	u32 divisor = meson_calc_baud_divisor(rate, baud);
+	u32 calc_baud = (rate / 3) / (divisor + 1);
+	u32 calc_err = baud > calc_baud ? baud - calc_baud : calc_baud - baud;
+
+	if (((calc_err * 100) / baud) > 2)
+		return -EINVAL;
+
+	meson_serial_set_baud(uart, rate, baud);
+
+	return 0;
+}
+
 static int meson_serial_pending(struct udevice *dev, bool input)
 {
 	struct meson_serial_plat *plat = dev_get_plat(dev);
@@ -154,6 +223,7 @@ static const struct dm_serial_ops meson_serial_ops = {
 	.putc = meson_serial_putc,
 	.pending = meson_serial_pending,
 	.getc = meson_serial_getc,
+	.setbrg = meson_serial_setbrg,
 };
 
 static const struct udevice_id meson_serial_ids[] = {
