@@ -82,3 +82,12 @@ config CMD_FRU
 	  information present in the device. The FRU Information is used
 	  to primarily to provide "inventory" information about the boards
 	  that the FRU Information Device is located on.
+
+config FRU_SC
+	bool "FRU system controller decoding"
+	help
+	  Xilinx System Controller (SC) FRU format is describing boards from two
+	  angles. One from DUT and then from SC. DUT is default option for
+	  the main CPU. SC behaves more or less as slave and have different ID.
+	  If you build U-Boot for SC you should enable this option to get proper
+	  MAC address.
