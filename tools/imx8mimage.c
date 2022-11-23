@@ -207,6 +207,7 @@ static uint32_t parse_cfg_file(char *name)
 		}
 	}
 
+	fclose(fd);
 	return 0;
 }
 
