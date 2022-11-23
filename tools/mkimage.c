@@ -765,8 +765,8 @@ int main(int argc, char **argv)
 	if (tparams->set_header)
 		tparams->set_header (ptr, &sbuf, ifd, &params);
 	else {
-		fprintf (stderr, "%s: Can't set header for %s: %s\n",
-			params.cmdname, tparams->name, strerror(errno));
+		fprintf (stderr, "%s: Can't set header for %s\n",
+			params.cmdname, tparams->name);
 		exit (EXIT_FAILURE);
 	}
 
