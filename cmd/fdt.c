@@ -60,11 +60,14 @@ static int fdt_value_env_set(const void *nodep, int len,
 		 * Iterate over all members in stringlist and find the one at
 		 * offset $index. If no such index exists, indicate failure.
 		 */
-		for (i = 0; i < len; i += strlen(nodec) + 1) {
-			if (index-- > 0)
+		for (i = 0; i < len; ) {
+			if (index-- > 0) {
+				i += strlen(nodec) + 1;
+				nodec += strlen(nodec) + 1;
 				continue;
+			}
 
-			env_set(var, nodec + i);
+			env_set(var, nodec);
 			return 0;
 		}
 

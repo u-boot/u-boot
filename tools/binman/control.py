@@ -741,8 +741,15 @@ def Binman(args):
                 data = state.GetFdtForEtype('u-boot-dtb').GetContents()
                 elf.UpdateFile(*elf_params, data)
 
+            # This can only be True if -M is provided, since otherwise binman
+            # would have raised an error already
             if invalid:
-                tout.warning("\nSome images are invalid")
+                msg = '\nSome images are invalid'
+                if args.ignore_missing:
+                    tout.warning(msg)
+                else:
+                    tout.error(msg)
+                    return 103
 
             # Use this to debug the time take to pack the image
             #state.TimingShow()

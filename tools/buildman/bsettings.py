@@ -5,6 +5,7 @@ import configparser
 import os
 import io
 
+config_fname = None
 
 def Setup(fname=''):
     """Set up the buildman settings module by reading config files
@@ -46,6 +47,17 @@ def GetItems(section):
     except:
         raise
 
+def GetGlobalItemValue(name):
+    """Get an item from the 'global' section of the config.
+
+    Args:
+        name: name of item to retrieve
+
+    Returns:
+        str: Value of item, or None if not present
+    """
+    return settings.get('global', name, fallback=None)
+
 def SetItem(section, tag, value):
     """Set an item and write it back to the settings file"""
     global settings
@@ -79,13 +91,14 @@ other = /
 [toolchain-prefix]
 # name = path to prefix
 # e.g. x86 = /opt/gcc-4.6.3-nolibc/x86_64-linux/bin/x86_64-linux-
+# arc = /opt/arc/arc_gnu_2021.03_prebuilt_elf32_le_linux_install/bin/arc-elf32-
 
 [toolchain-alias]
 # arch = alias
 # Indicates which toolchain should be used to build for that arch
+riscv = riscv32
+sh = sh4
 x86 = i386
-blackfin = bfin
-openrisc = or1k
 
 [make-flags]
 # Special flags to pass to 'make' for certain boards, e.g. to pass a test

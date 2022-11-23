@@ -505,7 +505,6 @@ be located anywhere in the image. An image header (typically at the start or end
 of the image) can be used to point to the FDT map. See fdtmap and image-header
 entries for more information.
 
-
 Map files
 ---------
 
@@ -1246,6 +1245,8 @@ You can also replace just a selection of entries::
     $ binman replace -i image.bin "*u-boot*" -I indir
 
 
+.. _`BinmanLogging`:
+
 Logging
 -------
 
@@ -1337,6 +1338,305 @@ generated from the source code using:
 
    bintools
 
+Binman commands and arguments
+=============================
+
+Usage::
+
+    binman [-h] [-B BUILD_DIR] [-D] [-H] [--toolpath TOOLPATH] [-T THREADS]
+        [--test-section-timeout] [-v VERBOSITY] [-V]
+        {build,bintool-docs,entry-docs,ls,extract,replace,test,tool} ...
+
+Binman provides the following commands:
+
+- **build** - build images
+- **bintools-docs** - generate documentation about bintools
+- **entry-docs** - generate documentation about entry types
+- **ls** - list an image
+- **extract** - extract files from an image
+- **replace** - replace one or more entries in an image
+- **test** - run tests
+- **tool** - manage bintools
+
+Options:
+
+-h, --help
+    Show help message and exit
+
+-B BUILD_DIR, --build-dir BUILD_DIR
+    Directory containing the build output
+
+-D, --debug
+    Enabling debugging (provides a full traceback on error)
+
+-H, --full-help
+    Display the README file
+
+--toolpath TOOLPATH
+    Add a path to the directories containing tools
+
+-T THREADS, --threads THREADS
+    Number of threads to use (0=single-thread). Note that -T0 is useful for
+    debugging since everything runs in one thread.
+
+-v VERBOSITY, --verbosity VERBOSITY
+    Control verbosity: 0=silent, 1=warnings, 2=notices, 3=info, 4=detail,
+    5=debug
+
+-V, --version
+    Show the binman version
+
+Test options:
+
+--test-section-timeout
+    Use a zero timeout for section multi-threading (for testing)
+
+Commands are described below.
+
+binman build
+------------
+
+This builds one or more images using the provided image description.
+
+Usage::
+
+    binman build [-h] [-a ENTRY_ARG] [-b BOARD] [-d DT] [--fake-dtb]
+        [--fake-ext-blobs] [--force-missing-bintools FORCE_MISSING_BINTOOLS]
+        [-i IMAGE] [-I INDIR] [-m] [-M] [-n] [-O OUTDIR] [-p] [-u]
+        [--update-fdt-in-elf UPDATE_FDT_IN_ELF] [-W]
+
+Options:
+
+-h, --help
+    Show help message and exit
+
+-a ENTRY_ARG, --entry-arg ENTRY_ARG
+    Set argument value `arg=value`. See
+    `Passing command-line arguments to entries`_.
+
+-b BOARD, --board BOARD
+    Board name to build. This can be used instead of `-d`, in which case the
+    file `u-boot.dtb` is used, within the build directory's board subdirectory.
+
+-d DT, --dt DT
+    Configuration file (.dtb) to use. This must have a top-level node called
+    `binman`. See `Image description format`_.
+
+-i IMAGE, --image IMAGE
+    Image filename to build (if not specified, build all)
+
+-I INDIR, --indir INDIR
+    Add a path to the list of directories to use for input files. This can be
+    specified multiple times to add more than one path.
+
+-m, --map
+    Output a map file for each image. See `Map files`_.
+
+-M, --allow-missing
+    Allow external blobs and bintools to be missing. See `External blobs`_.
+
+-n, --no-expanded
+    Don't use 'expanded' versions of entries where available; normally 'u-boot'
+    becomes 'u-boot-expanded', for example. See `Expanded entries`_.
+
+-O OUTDIR, --outdir OUTDIR
+    Path to directory to use for intermediate and output files
+
+-p, --preserve
+    Preserve temporary output directory even if option -O is not given
+
+-u, --update-fdt
+    Update the binman node with offset/size info. See
+    `Access to binman entry offsets at run time (fdt)`_.
+
+--update-fdt-in-elf UPDATE_FDT_IN_ELF
+    Update an ELF file with the output dtb. The argument is a string consisting
+    of four parts, separated by commas. See `Updating an ELF file`_.
+
+-W, --ignore-missing
+    Return success even if there are missing blobs/bintools (requires -M)
+
+Options used only for testing:
+
+--fake-dtb
+    Use fake device tree contents
+
+--fake-ext-blobs
+    Create fake ext blobs with dummy content
+
+--force-missing-bintools FORCE_MISSING_BINTOOLS
+    Comma-separated list of bintools to consider missing
+
+binman bintool-docs
+-------------------
+
+Usage::
+
+    binman bintool-docs [-h]
+
+This outputs documentation for the bintools in rST format. See
+`Bintool Documentation`_.
+
+binman entry-docs
+-----------------
+
+Usage::
+
+    binman entry-docs [-h]
+
+This outputs documentation for the entry types in rST format. See
+`Entry Documentation`_.
+
+binman ls
+---------
+
+Usage::
+
+    binman ls [-h] -i IMAGE [paths ...]
+
+Positional arguments:
+
+paths
+    Paths within file to list (wildcard)
+
+Pptions:
+
+-h, --help
+    show help message and exit
+
+-i IMAGE, --image IMAGE
+    Image filename to list
+
+This lists an image, showing its contents. See `Listing images`_.
+
+binman extract
+--------------
+
+Usage::
+
+    binman extract [-h] [-F FORMAT] -i IMAGE [-f FILENAME] [-O OUTDIR] [-U]
+        [paths ...]
+
+Positional arguments:
+
+Paths
+    Paths within file to extract (wildcard)
+
+Options:
+
+-h, --help
+    show help message and exit
+
+-F FORMAT, --format FORMAT
+    Select an alternative format for extracted data
+
+-i IMAGE, --image IMAGE
+    Image filename to extract
+
+-f FILENAME, --filename FILENAME
+    Output filename to write to
+
+-O OUTDIR, --outdir OUTDIR
+    Path to directory to use for output files
+
+-U, --uncompressed
+    Output raw uncompressed data for compressed entries
+
+This extracts the contents of entries from an image. See
+`Extracting files from images`_.
+
+binman replace
+--------------
+
+Usage::
+
+    binman replace [-h] [-C] -i IMAGE [-f FILENAME] [-F] [-I INDIR] [-m]
+        [paths ...]
+
+Positional arguments:
+
+paths
+    Paths within file to replace (wildcard)
+
+Options:
+
+-h, --help
+    show help message and exit
+
+-C, --compressed
+    Input data is already compressed if needed for the entry
+
+-i IMAGE, --image IMAGE
+    Image filename to update
+
+-f FILENAME, --filename FILENAME
+    Input filename to read from
+
+-F, --fix-size
+    Don't allow entries to be resized
+
+-I INDIR, --indir INDIR
+    Path to directory to use for input files
+
+-m, --map
+    Output a map file for the updated image
+
+This replaces one or more entries in an existing image. See
+`Replacing files in an image`_.
+
+binman test
+-----------
+
+Usage::
+
+    binman test [-h] [-P PROCESSES] [-T] [-X] [tests ...]
+
+Positional arguments:
+
+tests
+    Test names to run (omit for all)
+
+Options:
+
+-h, --help
+    show help message and exit
+
+-P PROCESSES, --processes PROCESSES
+    set number of processes to use for running tests. This defaults to the
+    number of CPUs on the machine
+
+-T, --test-coverage
+    run tests and check for 100% coverage
+
+-X, --test-preserve-dirs
+    Preserve and display test-created input directories; also preserve the
+    output directory if a single test is run (pass test name at the end of the
+    command line
+
+binman tool
+-----------
+
+Usage::
+
+    binman tool [-h] [-l] [-f] [bintools ...]
+
+Positional arguments:
+
+bintools
+    Bintools to process
+
+Options:
+
+-h, --help
+    show help message and exit
+
+-l, --list
+    List all known bintools
+
+-f, --fetch
+    Fetch a bintool from a known location. Use `all` to fetch all and `missing`
+    to fetch any missing tools.
+
 
 Technical details
 =================
@@ -1416,6 +1716,8 @@ what happens in this stage.
 final step.
 
 
+.. _`External tools`:
+
 External tools
 --------------
 
@@ -1436,6 +1738,8 @@ a space-separated list of paths to search, e.g.::
 
    BINMAN_TOOLPATHS="/tools/g12a /tools/tegra" binman ...
 
+
+.. _`External blobs`:
 
 External blobs
 --------------
@@ -1461,6 +1765,10 @@ space-separated list of directories to search for binary blobs::
        odroid-c4/build/board/hardkernel/odroidc4/firmware \
        odroid-c4/build/scp_task" binman ...
 
+Note that binman fails with exit code 103 when there are missing blobs. If you
+wish binman to continue anyway, you can pass `-W` to binman.
+
+
 Code coverage
 -------------
 
@@ -1470,6 +1778,48 @@ implementations target 100% test coverage. Run 'binman test -T' to check this.
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu)::
 
    $ sudo apt-get install python-coverage python3-coverage python-pytest
+
+
+Exit status
+-----------
+
+Binman produces the following exit codes:
+
+0
+    Success
+
+1
+    Any sort of failure - see output for more details
+
+103
+    There are missing external blobs or bintools. This is only returned if
+    -M is passed to binman, otherwise missing blobs return an exit status of 1.
+    Note, if -W is passed as well as -M, then this is converted into a warning
+    and will return an exit status of 0 instead.
+
+
+U-Boot environment variables for binman
+---------------------------------------
+
+The U-Boot Makefile supports various environment variables to control binman.
+All of these are set within the Makefile and result in passing various
+environment variables (or make flags) to binman:
+
+BINMAN_DEBUG
+    Enables backtrace debugging by adding a `-D` argument. See
+    :ref:`BinmanLogging`.
+
+BINMAN_INDIRS
+    Sets the search path for input files used by binman by adding one or more
+    `-I` arguments. See :ref:`External blobs`.
+
+BINMAN_TOOLPATHS
+    Sets the search path for external tool used by binman by adding one or more
+    `--toolpath` arguments. See :ref:`External tools`.
+
+BINMAN_VERBOSE
+    Sets the logging verbosity of binman by adding a `-v` argument. See
+    :ref:`BinmanLogging`.
 
 
 Error messages

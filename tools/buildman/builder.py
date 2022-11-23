@@ -252,7 +252,8 @@ class Builder:
                  mrproper=False, per_board_out_dir=False,
                  config_only=False, squash_config_y=False,
                  warnings_as_errors=False, work_in_output=False,
-                 test_thread_exceptions=False, adjust_cfg=None):
+                 test_thread_exceptions=False, adjust_cfg=None,
+                 allow_missing=False):
         """Create a new Builder object
 
         Args:
@@ -290,6 +291,7 @@ class Builder:
                     ~C to disable C
                     C=val to set the value of C (val must have quotes if C is
                         a string Kconfig
+            allow_missing: Run build with BINMAN_ALLOW_MISSING=1
 
         """
         self.toolchains = toolchains
@@ -327,6 +329,7 @@ class Builder:
         self.config_filenames = BASE_CONFIG_FILENAMES
         self.work_in_output = work_in_output
         self.adjust_cfg = adjust_cfg
+        self.allow_missing = allow_missing
         self._ide = False
 
         if not self.squash_config_y:

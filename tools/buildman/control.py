@@ -111,6 +111,23 @@ def ShowToolchainPrefix(brds, toolchains):
     print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
     return None
 
+def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
+    allow_missing = False
+    am_setting = bsettings.GetGlobalItemValue('allow-missing')
+    if am_setting:
+        if am_setting == 'always':
+            allow_missing = True
+        if 'multiple' in am_setting and num_selected > 1:
+            allow_missing = True
+        if 'branch' in am_setting and has_branch:
+            allow_missing = True
+
+    if opt_allow:
+        allow_missing = True
+    if opt_no_allow:
+        allow_missing = False
+    return allow_missing
+
 def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
                clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -136,8 +153,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
 
     if options.full_help:
         tools.print_full_help(
-            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README')
-        )
+            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
+                         'README.rst'))
         return 0
 
     gitutil.setup()
@@ -305,6 +322,10 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
     if not gnu_make:
         sys.exit('GNU Make not found')
 
+    allow_missing = get_allow_missing(options.allow_missing,
+                                      options.no_allow_missing, len(selected),
+                                      options.branch)
+
     # Create a new builder with the selected options.
     output_dir = options.output_dir
     if options.branch:
@@ -329,7 +350,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             warnings_as_errors=options.warnings_as_errors,
             work_in_output=options.work_in_output,
             test_thread_exceptions=test_thread_exceptions,
-            adjust_cfg=adjust_cfg)
+            adjust_cfg=adjust_cfg,
+            allow_missing=allow_missing)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func

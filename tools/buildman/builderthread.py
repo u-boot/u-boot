@@ -253,6 +253,8 @@ class BuilderThread(threading.Thread):
                     args.extend(['-j', str(self.builder.num_jobs)])
                 if self.builder.warnings_as_errors:
                     args.append('KCFLAGS=-Werror')
+                if self.builder.allow_missing:
+                    args.append('BINMAN_ALLOW_MISSING=1')
                 config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
@@ -288,10 +290,14 @@ class BuilderThread(threading.Thread):
                         args.append('cfg')
                     result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
+                    if (result.return_code == 2 and
+                        ('Some images are invalid' in result.stderr)):
+                        # This is handled later by the check for output in
+                        # stderr
+                        result.return_code = 0
                     if adjust_cfg:
                         errs = cfgutil.check_cfg_file(cfg_file, adjust_cfg)
                         if errs:
-                            print('errs', errs)
                             result.stderr += errs
                             result.return_code = 1
                 result.stderr = result.stderr.replace(src_dir + '/', '')

@@ -14,7 +14,7 @@ Documentation is available via::
 from binman import bintool
 
 # pylint: disable=C0103
-class Bintoolbtool_gzip(bintool.BintoolPacker):
+class Bintoolgzip(bintool.BintoolPacker):
     """Compression/decompression using the gzip algorithm
 
     This bintool supports running `gzip` to compress and decompress data, as
@@ -27,5 +27,5 @@ class Bintoolbtool_gzip(bintool.BintoolPacker):
         man gzip
     """
     def __init__(self, name):
-        super().__init__("gzip", compress_args=[],
+        super().__init__(name, compress_args=[],
                          version_regex=r'gzip ([0-9.]+)')

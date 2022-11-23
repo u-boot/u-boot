@@ -11,3 +11,4 @@ Build U-Boot
    clang
    docker
    tools
+   buildman
