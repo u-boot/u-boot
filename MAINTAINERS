@@ -568,10 +568,9 @@ F:	drivers/spi/stm32_spi.c
 F:	drivers/video/stm32/stm32_ltdc.c
 F:	drivers/watchdog/stm32mp_wdt.c
 F:	include/dt-bindings/clock/stm32fx-clock.h
-F:	include/dt-bindings/clock/stm32mp1-clks.h
-F:	include/dt-bindings/clock/stm32mp1-clksrc.h
+F:	include/dt-bindings/clock/stm32mp*
 F:	include/dt-bindings/pinctrl/stm32-pinfunc.h
-F:	include/dt-bindings/reset/stm32mp1-resets.h
+F:	include/dt-bindings/reset/stm32mp*
 F:	include/stm32_rcc.h
 F:	tools/stm32image.c
 N:	stm
