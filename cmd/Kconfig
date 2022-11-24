@@ -1959,7 +1959,7 @@ config CMD_CONITRACE
 
 config CMD_CLS
 	bool "Enable clear screen command 'cls'"
-	default y if LCD || DM_VIDEO
+	default y if LCD || VIDEO
 	help
 	  Enable the 'cls' command which clears the screen contents
 	  on video frame buffer.
