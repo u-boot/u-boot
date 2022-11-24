@@ -92,6 +92,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&rcc {
+	u-boot,dm-pre-reloc;
+};
+
 &scmi {
 	u-boot,dm-pre-reloc;
 };
