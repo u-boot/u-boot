@@ -59,6 +59,7 @@ static struct sysreset_ops at91_sysreset = {
 static const struct udevice_id a91_sysreset_ids[] = {
 	{ .compatible = "atmel,sama5d3-rstc" },
 	{ .compatible = "microchip,sam9x60-rstc" },
+	{ .compatible = "microchip,sama7g5-rstc" },
 	{ }
 };
 
