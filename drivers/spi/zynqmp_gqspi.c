@@ -662,7 +662,7 @@ static int zynqmp_qspi_start_io(struct zynqmp_qspi_priv *priv,
 static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 				 u32 gen_fifo_cmd, u32 *buf)
 {
-	u32 addr;
+	unsigned long addr;
 	u32 size;
 	u32 actuallen = priv->len;
 	u32 totallen = priv->len;
@@ -678,7 +678,9 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 		totallen -= priv->len; /* Save remaining bytes length to read */
 		actuallen = priv->len; /* Actual number of bytes reading */
 
-		writel((unsigned long)buf, &dma_regs->dmadst);
+		writel(lower_32_bits((unsigned long)buf), &dma_regs->dmadst);
+		writel(upper_32_bits((unsigned long)buf) & GENMASK(11, 0),
+							&dma_regs->dmadstmsb);
 		writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
 		writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
 		addr = (unsigned long)buf;
