@@ -191,7 +191,6 @@ static int ar803x_regs_config(struct phy_device *phydev)
 
 static int ar803x_of_init(struct phy_device *phydev)
 {
-#if defined(CONFIG_DM_ETH)
 	struct ar803x_priv *priv;
 	ofnode node, vddio_reg_node;
 	u32 strength, freq, min_uV, max_uV;
@@ -306,7 +305,6 @@ static int ar803x_of_init(struct phy_device *phydev)
 
 	debug("%s: flags=%x clk_25m_reg=%04x clk_25m_mask=%04x\n", __func__,
 	      priv->flags, priv->clk_25m_reg, priv->clk_25m_mask);
-#endif
 
 	return 0;
 }
