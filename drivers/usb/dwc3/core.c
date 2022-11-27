@@ -28,6 +28,7 @@
 #include <generic-phy.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
+#include <linux/bitfield.h>
 
 #include "core.h"
 #include "gadget.h"
@@ -112,6 +113,28 @@ static void dwc3_frame_length_adjustment(struct dwc3 *dwc, u32 fladj)
 	reg &= ~DWC3_GFLADJ_30MHZ_MASK;
 	reg |= DWC3_GFLADJ_30MHZ_SDBND_SEL | fladj;
 	dwc3_writel(dwc->regs, DWC3_GFLADJ, reg);
+}
+
+/**
+ * dwc3_ref_clk_period - Reference clock period configuration
+ *		Default reference clock period depends on hardware
+ *		configuration. For systems with reference clock that differs
+ *		from the default, this will set clock period in DWC3_GUCTL
+ *		register.
+ * @dwc: Pointer to our controller context structure
+ * @ref_clk_per: reference clock period in ns
+ */
+static void dwc3_ref_clk_period(struct dwc3 *dwc)
+{
+	u32 reg;
+
+	if (dwc->ref_clk_per == 0)
+		return;
+
+	reg = dwc3_readl(dwc->regs, DWC3_GUCTL);
+	reg &= ~DWC3_GUCTL_REFCLKPER_MASK;
+	reg |=  FIELD_PREP(DWC3_GUCTL_REFCLKPER_MASK, dwc->ref_clk_per);
+	dwc3_writel(dwc->regs, DWC3_GUCTL, reg);
 }
 
 /**
@@ -640,6 +663,9 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	/* Adjust Frame Length */
 	dwc3_frame_length_adjustment(dwc, dwc->fladj);
 
+	/* Adjust Reference Clock Period */
+	dwc3_ref_clk_period(dwc);
+
 	dwc3_set_incr_burst_type(dwc);
 
 	return 0;
@@ -1043,6 +1069,7 @@ void dwc3_of_parse(struct dwc3 *dwc)
 		| (dwc->is_utmi_l1_suspend << 4);
 
 	dev_read_u32(dev, "snps,quirk-frame-length-adjustment", &dwc->fladj);
+	dev_read_u32(dev, "snps,ref-clock-period-ns", &dwc->ref_clk_per);
 
 	/*
 	 * Handle property "snps,incr-burst-type-adjustment".
