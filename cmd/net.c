@@ -597,7 +597,6 @@ U_BOOT_CMD(
 
 #endif  /* CONFIG_CMD_LINK_LOCAL */
 
-#ifdef CONFIG_DM_ETH
 static int do_net_list(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	const struct udevice *current = eth_get_dev();
@@ -640,7 +639,6 @@ U_BOOT_CMD(
 	"NET sub-system",
 	"list - list available devices\n"
 );
-#endif // CONFIG_DM_ETH
 
 #if defined(CONFIG_CMD_NCSI)
 static int do_ncsi(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])

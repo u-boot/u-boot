@@ -15,6 +15,10 @@ config DM_ETH
 	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
 
+config SPL_DM_ETH
+	depends on SPL_NET
+	def_bool y
+
 config DM_MDIO
 	bool "Enable Driver Model for MDIO devices"
 	depends on PHYLIB
