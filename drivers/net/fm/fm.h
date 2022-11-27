@@ -57,7 +57,6 @@ struct fm_port_bd {
 #define TxBD_READY		0x8000
 #define TxBD_LAST		BD_LAST
 
-#ifdef CONFIG_DM_ETH
 enum fm_mac_type {
 #ifdef CONFIG_SYS_FMAN_V3
 	FM_MEMAC,
@@ -66,7 +65,6 @@ enum fm_mac_type {
 	FM_TGEC,
 #endif
 };
-#endif
 
 /* Fman ethernet private struct */
 /* Rx/Tx queue descriptor */
@@ -115,9 +113,7 @@ void fman_disable_port(enum fm_port port);
 void fman_enable_port(enum fm_port port);
 int fman_id(struct udevice *dev);
 void *fman_port(struct udevice *dev, int num);
-#ifdef CONFIG_DM_ETH
 void *fman_mdio(struct udevice *dev, enum fm_mac_type type, int num);
-#endif
 
 struct fsl_enet_mac {
 	void *base; /* MAC controller registers base address */
@@ -143,13 +139,9 @@ struct fm_eth {
 	struct mii_dev *bus;
 	struct phy_device *phydev;
 	int phyaddr;
-#ifndef CONFIG_DM_ETH
-	struct eth_device *dev;
-#else
 	enum fm_mac_type mac_type;
 	struct udevice *dev;
 	struct udevice *pcs_mdio;
-#endif
 	int max_rx_len;
 	struct fm_port_global_pram *rx_pram; /* Rx parameter table */
 	struct fm_port_global_pram *tx_pram; /* Tx parameter table */
