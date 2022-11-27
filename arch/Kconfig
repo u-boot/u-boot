@@ -113,7 +113,6 @@ config RISCV
 	select DM
 	select SPL_SEPARATE_BSS if SPL
 	imply DM_SERIAL
-	imply DM_ETH
 	imply DM_EVENT
 	imply DM_MMC
 	imply DM_SPI
@@ -241,7 +240,6 @@ config X86
 	imply CMD_SF
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
-	imply DM_ETH
 	imply DM_EVENT
 	imply DM_GPIO
 	imply DM_KEYBOARD

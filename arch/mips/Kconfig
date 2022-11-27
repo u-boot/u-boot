@@ -19,7 +19,6 @@ config TARGET_MALTA
 	select DM
 	select DM_SERIAL
 	select PCI
-	select DM_ETH
 	select DYNAMIC_IO_PORT_BASE
 	select MIPS_CM
 	select MIPS_INSERT_BOOT_CONFIG
@@ -71,7 +70,6 @@ config ARCH_MTMIPS
 	imply CMD_DM
 	select DISPLAY_CPUINFO
 	select DM
-	imply DM_ETH
 	imply DM_GPIO
 	select DM_RESET
 	select DM_SERIAL
@@ -104,7 +102,6 @@ config ARCH_OCTEON
 	select DISPLAY_CPUINFO
 	select DMA_ADDR_T_64BIT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_SERIAL
@@ -153,7 +150,6 @@ config TARGET_XILFPGA
 	bool "Support Imagination Xilfpga"
 	select HAS_FIXED_TIMER_FREQUENCY
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_SERIAL
 	select SYS_CACHE_SHIFT_4

@@ -55,7 +55,6 @@ config TARGET_DRAGONBOARD845C
 	  - 64GiB UFS drive
 	select MISC_INIT_R
 	select SDM845
-	select DM_ETH if NET
 
 config TARGET_STARQLTECHN
 	bool "Samsung S9 SM-G9600(starqltechn)"
@@ -67,7 +66,6 @@ config TARGET_STARQLTECHN
 	  - 64GiB UFS drive
 	select MISC_INIT_R
 	select SDM845
-	select DM_ETH if NET
 
 config TARGET_QCS404EVB
 	bool "Qualcomm Technologies, Inc. QCS404 EVB"
