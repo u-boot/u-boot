@@ -315,7 +315,6 @@ config PHY_XILINX
 
 config PHY_XILINX_GMII2RGMII
 	bool "Xilinx GMII to RGMII Ethernet PHYs support"
-	depends on DM_ETH
 	help
 	  This adds support for Xilinx GMII to RGMII IP core. This IP acts
 	  as bridge between MAC connected over GMII and external phy that
@@ -336,7 +335,6 @@ config PHY_ETHERNET_ID
 
 config PHY_FIXED
 	bool "Fixed-Link PHY"
-	depends on DM_ETH
 	help
 	  Fixed PHY is used for having a 'fixed-link' to another MAC with a direct
 	  connection (MII, RGMII, ...).
@@ -346,7 +344,6 @@ config PHY_FIXED
 
 config PHY_NCSI
 	bool "NC-SI based PHY"
-	depends on DM_ETH
 
 endif #PHYLIB
 

@@ -1,7 +1,6 @@
 source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
 source "drivers/net/fsl-mc/Kconfig"
-source "drivers/net/bnxt/Kconfig"
 
 config ETH
 	def_bool y
@@ -174,6 +173,8 @@ config BCMGENET
 	select PHYLIB
 	help
 	  This driver supports the BCMGENET Ethernet MAC.
+
+source "drivers/net/bnxt/Kconfig"
 
 config CORTINA_NI_ENET
 	bool "Cortina-Access Ethernet driver"
@@ -721,7 +722,6 @@ config RENESAS_RAVB
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
-	depends on DM_ETH
 	select MII
 	select SYS_DISCOVER_PHY
 	help
