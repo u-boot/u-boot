@@ -263,9 +263,7 @@ struct fec_priv {
 	uint32_t reset_delay;
 	uint32_t reset_post_delay;
 #endif
-#ifdef CONFIG_DM_ETH
 	u32 interface;
-#endif
 	struct clk ipg_clk;
 	struct clk ahb_clk;
 	struct clk clk_enet_out;
