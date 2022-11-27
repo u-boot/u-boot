@@ -22,9 +22,6 @@ struct chip_id {
 };
 
 struct smc911x_priv {
-#ifndef CONFIG_DM_ETH
-	struct eth_device	dev;
-#endif
 	phys_addr_t		iobase;
 	const struct chip_id	*chipid;
 	unsigned char		enetaddr[6];
@@ -382,149 +379,6 @@ static int smc911x_recv_common(struct smc911x_priv *priv, u32 *data)
 	return pktlen;
 }
 
-#ifndef CONFIG_DM_ETH
-
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-/* wrapper for smc911x_eth_phy_read */
-static int smc911x_miiphy_read(struct mii_dev *bus, int phy, int devad,
-			       int reg)
-{
-	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-	u16 val = 0;
-	int ret;
-
-	if (!dev || !priv)
-		return -ENODEV;
-
-	ret = smc911x_eth_phy_read(priv, phy, reg, &val);
-	if (ret < 0)
-		return ret;
-
-	return val;
-}
-
-/* wrapper for smc911x_eth_phy_write */
-static int smc911x_miiphy_write(struct mii_dev *bus, int phy, int devad,
-				int reg, u16 val)
-{
-	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-
-	if (!dev || !priv)
-		return -ENODEV;
-
-	return smc911x_eth_phy_write(priv, phy, reg, val);
-}
-
-static int smc911x_initialize_mii(struct smc911x_priv *priv)
-{
-	struct mii_dev *mdiodev = mdio_alloc();
-	int ret;
-
-	if (!mdiodev)
-		return -ENOMEM;
-
-	strlcpy(mdiodev->name, priv->dev.name, MDIO_NAME_LEN);
-	mdiodev->read = smc911x_miiphy_read;
-	mdiodev->write = smc911x_miiphy_write;
-
-	ret = mdio_register(mdiodev);
-	if (ret < 0) {
-		mdio_free(mdiodev);
-		return ret;
-	}
-
-	return 0;
-}
-#else
-static int smc911x_initialize_mii(struct smc911x_priv *priv)
-{
-	return 0;
-}
-#endif
-
-static int smc911x_init(struct eth_device *dev, struct bd_info *bd)
-{
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-
-	return smc911x_init_common(priv);
-}
-
-static void smc911x_halt(struct eth_device *dev)
-{
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-
-	smc911x_halt_common(priv);
-}
-
-static int smc911x_send(struct eth_device *dev, void *packet, int length)
-{
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-
-	return smc911x_send_common(priv, packet, length);
-}
-
-static int smc911x_recv(struct eth_device *dev)
-{
-	struct smc911x_priv *priv = container_of(dev, struct smc911x_priv, dev);
-	u32 *data = (u32 *)net_rx_packets[0];
-	int ret;
-
-	ret = smc911x_recv_common(priv, data);
-	if (ret)
-		net_process_received_packet(net_rx_packets[0], ret);
-
-	return ret;
-}
-
-int smc911x_initialize(u8 dev_num, phys_addr_t base_addr)
-{
-	struct smc911x_priv *priv;
-	int ret;
-
-	priv = calloc(1, sizeof(*priv));
-	if (!priv)
-		return -ENOMEM;
-
-	priv->iobase = base_addr;
-	priv->dev.iobase = base_addr;
-
-	priv->use_32_bit_io = CONFIG_IS_ENABLED(SMC911X_32_BIT);
-
-	/* Try to detect chip. Will fail if not present. */
-	ret = smc911x_detect_chip(priv);
-	if (ret) {
-		ret = 0;	/* Card not detected is not an error */
-		goto err_detect;
-	}
-
-	if (smc911x_read_mac_address(priv))
-		memcpy(priv->dev.enetaddr, priv->enetaddr, 6);
-
-	priv->dev.init = smc911x_init;
-	priv->dev.halt = smc911x_halt;
-	priv->dev.send = smc911x_send;
-	priv->dev.recv = smc911x_recv;
-	sprintf(priv->dev.name, "%s-%hu", DRIVERNAME, dev_num);
-
-	eth_register(&priv->dev);
-
-	ret = smc911x_initialize_mii(priv);
-	if (ret)
-		goto err_mii;
-
-	return 1;
-
-err_mii:
-	eth_unregister(&priv->dev);
-err_detect:
-	free(priv);
-	return ret;
-}
-
-#else	/* ifdef CONFIG_DM_ETH */
-
 static int smc911x_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
@@ -642,4 +496,3 @@ U_BOOT_DRIVER(smc911x) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif
