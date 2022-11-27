@@ -21,10 +21,6 @@
 #include <linux/list.h>
 #include <malloc.h>
 #include <net.h>
-/* Avoids a compile error since struct eth_device is not defined */
-#ifndef CONFIG_DM_ETH
-#include <netdev.h>
-#endif
 #include <asm/io.h>
 #include <pci.h>
 
@@ -1077,19 +1073,12 @@ typedef enum {
 struct e1000_hw {
 	const char *name;
 	struct list_head list_node;
-#ifndef CONFIG_DM_ETH
-	struct eth_device *nic;
-#endif
 #ifdef CONFIG_E1000_SPI
 	struct spi_slave spi;
 #endif
 	unsigned int cardnum;
 
-#ifdef CONFIG_DM_ETH
 	struct udevice *pdev;
-#else
-	pci_dev_t pdev;
-#endif
 	uint8_t *hw_addr;
 	e1000_mac_type mac_type;
 	e1000_phy_type phy_type;
