@@ -226,13 +226,8 @@ typedef struct rndis_params {
 
 	u32			vendorID;
 	const char		*vendorDescr;
-#ifndef CONFIG_DM_ETH
-	struct eth_device	*dev;
-	int (*ack)(struct eth_device *);
-#else
 	struct udevice		*dev;
 	int (*ack)(struct udevice *);
-#endif
 	struct list_head	resp_queue;
 } rndis_params;
 
@@ -240,15 +235,9 @@ typedef struct rndis_params {
 int  rndis_msg_parser(u8 configNr, u8 *buf);
 enum rndis_state rndis_get_state(int configNr);
 void rndis_deregister(int configNr);
-#ifndef CONFIG_DM_ETH
-int  rndis_register(int (*rndis_control_ack)(struct eth_device *));
-int  rndis_set_param_dev(u8 configNr, struct eth_device *dev, int mtu,
-			 struct net_device_stats *stats, u16 *cdc_filter);
-#else
 int  rndis_register(int (*rndis_control_ack)(struct udevice *));
 int  rndis_set_param_dev(u8 configNr, struct udevice *dev, int mtu,
 			 struct net_device_stats *stats, u16 *cdc_filter);
-#endif
 int  rndis_set_param_vendor(u8 configNr, u32 vendorID,
 			    const char *vendorDescr);
 int  rndis_set_param_medium(u8 configNr, u32 medium, u32 speed);
