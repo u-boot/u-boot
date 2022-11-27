@@ -164,9 +164,7 @@ struct emac_eth_dev {
 	struct mii_dev *bus;
 	struct phy_device *phydev;
 	int link_printed;
-#ifdef CONFIG_DM_ETH
 	uchar rx_buf[EMAC_RX_BUFSIZE];
-#endif
 };
 
 struct emac_rxhdr {
