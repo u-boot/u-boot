@@ -85,11 +85,7 @@ void mii_reset(fec_info_t *info)
 /* send command to phy using mii, wait for result */
 uint mii_send(uint mii_cmd)
 {
-#ifdef CONFIG_DM_ETH
 	struct udevice *dev;
-#else
-	struct eth_device *dev;
-#endif
 	fec_info_t *info;
 	volatile FEC_T *ep;
 	uint mii_reply;
@@ -97,11 +93,7 @@ uint mii_send(uint mii_cmd)
 
 	/* retrieve from register structure */
 	dev = eth_get_dev();
-#ifdef CONFIG_DM_ETH
 	info = dev_get_priv(dev);
-#else
-	info = dev->priv;
-#endif
 
 	ep = (FEC_T *) info->miibase;
 
@@ -202,11 +194,7 @@ int mii_discover_phy(fec_info_t *info)
 
 __weak void mii_init(void)
 {
-#ifdef CONFIG_DM_ETH
 	struct udevice *dev;
-#else
-	struct eth_device *dev;
-#endif
 	fec_info_t *info;
 	volatile FEC_T *fecp;
 	int miispd = 0, i = 0;
@@ -215,11 +203,7 @@ __weak void mii_init(void)
 
 	/* retrieve from register structure */
 	dev = eth_get_dev();
-#ifdef CONFIG_DM_ETH
 	info = dev_get_priv(dev);
-#else
-	info = dev->priv;
-#endif
 
 	fecp = (FEC_T *) info->miibase;
 
