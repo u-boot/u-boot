@@ -141,9 +141,6 @@ static void dwc3_ref_clk_period(struct dwc3 *dwc)
 		if (!rate)
 			return;
 		period = NSEC_PER_SEC / rate;
-	} else if (dwc->ref_clk_per) {
-		period = dwc->ref_clk_per;
-		rate = NSEC_PER_SEC / period;
 	} else {
 		return;
 	}
@@ -1121,7 +1118,6 @@ void dwc3_of_parse(struct dwc3 *dwc)
 		| (dwc->is_utmi_l1_suspend << 4);
 
 	dev_read_u32(dev, "snps,quirk-frame-length-adjustment", &dwc->fladj);
-	dev_read_u32(dev, "snps,ref-clock-period-ns", &dwc->ref_clk_per);
 
 	/*
 	 * Handle property "snps,incr-burst-type-adjustment".
