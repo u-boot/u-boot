@@ -668,6 +668,7 @@ struct dwc3_scratchpad_array {
  * @event_buffer_list: a list of event buffers
  * @gadget: device side representation of the peripheral controller
  * @gadget_driver: pointer to the gadget driver
+ * @ref_clk: reference clock
  * @regs: base address for our registers
  * @regs_size: address space size
  * @nr_scratch: number of scratch buffers
@@ -765,6 +766,8 @@ struct dwc3 {
 
 	struct usb_gadget	gadget;
 	struct usb_gadget_driver *gadget_driver;
+
+	struct clk		*ref_clk;
 
 	void __iomem		*regs;
 	size_t			regs_size;

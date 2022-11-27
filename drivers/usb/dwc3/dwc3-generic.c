@@ -59,12 +59,21 @@ static int dwc3_generic_probe(struct udevice *dev,
 	struct dwc3_generic_plat *plat = dev_get_plat(dev);
 	struct dwc3 *dwc3 = &priv->dwc3;
 	struct dwc3_glue_data *glue = dev_get_plat(dev->parent);
+	int __maybe_unused index;
+	ofnode __maybe_unused node;
 
 	dwc3->dev = dev;
 	dwc3->maximum_speed = plat->maximum_speed;
 	dwc3->dr_mode = plat->dr_mode;
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	dwc3_of_parse(dwc3);
+
+	node = dev_ofnode(dev->parent);
+	index = ofnode_stringlist_search(node, "clock-names", "ref");
+	if (index < 0)
+		index = ofnode_stringlist_search(node, "clock-names", "ref_clk");
+	if (index >= 0)
+		dwc3->ref_clk = &glue->clks.clks[index];
 #endif
 
 	/*
