@@ -346,49 +346,6 @@ int usb_init(void)
 	return usb_started ? 0 : -1;
 }
 
-/*
- * TODO(sjg@chromium.org): Remove this legacy function. At present it is needed
- * to support boards which use driver model for USB but not Ethernet, and want
- * to use USB Ethernet.
- *
- * The #if clause is here to ensure that remains the only case.
- */
-#if !defined(CONFIG_DM_ETH) && defined(CONFIG_USB_HOST_ETHER)
-static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
-{
-	struct usb_device *udev;
-	struct udevice *dev;
-
-	if (!device_active(parent))
-		return NULL;
-	udev = dev_get_parent_priv(parent);
-	if (udev->devnum == devnum)
-		return udev;
-
-	for (device_find_first_child(parent, &dev);
-	     dev;
-	     device_find_next_child(&dev)) {
-		udev = find_child_devnum(dev, devnum);
-		if (udev)
-			return udev;
-	}
-
-	return NULL;
-}
-
-struct usb_device *usb_get_dev_index(struct udevice *bus, int index)
-{
-	struct udevice *dev;
-	int devnum = index + 1; /* Addresses are allocated from 1 on USB */
-
-	device_find_first_child(bus, &dev);
-	if (!dev)
-		return NULL;
-
-	return find_child_devnum(dev, devnum);
-}
-#endif
-
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 {
 	struct usb_plat *plat;
