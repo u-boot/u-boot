@@ -172,11 +172,7 @@ int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 
 static void nc_send_packet(const char *buf, int len)
 {
-#ifdef CONFIG_DM_ETH
 	struct udevice *eth;
-#else
-	struct eth_device *eth;
-#endif
 	int inited = 0;
 	uchar *pkt;
 	uchar *ether;
@@ -298,11 +294,7 @@ static int nc_stdio_getc(struct stdio_dev *dev)
 
 static int nc_stdio_tstc(struct stdio_dev *dev)
 {
-#ifdef CONFIG_DM_ETH
 	struct udevice *eth;
-#else
-	struct eth_device *eth;
-#endif
 
 	if (input_recursion)
 		return 0;
