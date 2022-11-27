@@ -111,22 +111,6 @@
 #define CFG_SYS_PCI1_MEM_PHYS	0x80000000
 #define CFG_SYS_PCI1_IO_PHYS	0xE2000000
 
-#define CONFIG_TSEC1	1
-#define CONFIG_TSEC1_NAME	"TSEC0"
-#define CONFIG_TSEC3	1
-#define CONFIG_TSEC3_NAME	"TSEC1"
-#undef CONFIG_MPC85XX_FEC
-
-#define TSEC1_PHY_ADDR		0
-#define TSEC3_PHY_ADDR		1
-
-#define TSEC1_PHYIDX		0
-#define TSEC3_PHYIDX		0
-#define TSEC1_FLAGS		TSEC_GIGABIT
-#define TSEC3_FLAGS		TSEC_GIGABIT
-
-/* Options are: TSEC[0,1] */
-
 /*
  * Miscellaneous configurable options
  */

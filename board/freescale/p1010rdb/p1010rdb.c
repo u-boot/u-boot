@@ -478,49 +478,6 @@ int checkboard(void)
 	return 0;
 }
 
-#ifndef CONFIG_DM_ETH
-int board_eth_init(struct bd_info *bis)
-{
-#ifdef CONFIG_TSEC_ENET
-	struct fsl_pq_mdio_info mdio_info;
-	struct tsec_info_struct tsec_info[4];
-	struct cpu_type *cpu;
-	int num = 0;
-
-	cpu = gd->arch.cpu;
-
-#ifdef CONFIG_TSEC1
-	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	num++;
-#endif
-#ifdef CONFIG_TSEC2
-	SET_STD_TSEC_INFO(tsec_info[num], 2);
-	num++;
-#endif
-#ifdef CONFIG_TSEC3
-	/* P1014 and it's derivatives do not support eTSEC3 */
-	if (cpu->soc_ver != SVR_P1014) {
-		SET_STD_TSEC_INFO(tsec_info[num], 3);
-		num++;
-	}
-#endif
-	if (!num) {
-		printf("No TSECs initialized\n");
-		return 0;
-	}
-
-	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
-	mdio_info.name = DEFAULT_MII_NAME;
-
-	fsl_pq_mdio_init(bis, &mdio_info);
-
-	tsec_eth_init(bis, tsec_info, num);
-#endif
-
-	return pci_eth_init(bis);
-}
-#endif
-
 #if defined(CONFIG_OF_BOARD_SETUP)
 void fdt_del_flexcan(void *blob)
 {

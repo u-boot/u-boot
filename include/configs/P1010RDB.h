@@ -349,37 +349,6 @@ extern unsigned long get_sdram_size(void);
 /* eSPI - Enhanced SPI */
 #endif
 
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
-#define CONFIG_TSEC1	1
-#define CONFIG_TSEC1_NAME	"eTSEC1"
-#define CONFIG_TSEC2	1
-#define CONFIG_TSEC2_NAME	"eTSEC2"
-#define CONFIG_TSEC3	1
-#define CONFIG_TSEC3_NAME	"eTSEC3"
-
-#define TSEC1_PHY_ADDR		1
-#define TSEC2_PHY_ADDR		0
-#define TSEC3_PHY_ADDR		2
-
-#define TSEC1_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC2_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
-
-#define TSEC1_PHYIDX		0
-#define TSEC2_PHYIDX		0
-#define TSEC3_PHYIDX		0
-
-/* TBI PHY configuration for SGMII mode */
-#define CONFIG_TSEC_TBICR_SETTINGS ( \
-		TBICR_PHY_RESET \
-		| TBICR_ANEG_ENABLE \
-		| TBICR_FULL_DUPLEX \
-		| TBICR_SPEED1_SET \
-		)
-
-#endif	/* CONFIG_TSEC_ENET */
-
 #ifdef CONFIG_MMC
 #define CFG_SYS_FSL_ESDHC_ADDR	CFG_SYS_MPC85xx_ESDHC_ADDR
 #endif
