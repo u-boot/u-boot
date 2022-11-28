@@ -79,6 +79,7 @@ Shell commands
    cmd/ums
    cmd/ut
    cmd/wdt
+   cmd/wget
    cmd/xxd
 
 Booting OS

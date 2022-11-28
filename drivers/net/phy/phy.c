@@ -556,6 +556,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_XILINX
 	phy_xilinx_init();
 #endif
+#ifdef CONFIG_PHY_XWAY
+	phy_xway_init();
+#endif
 #ifdef CONFIG_PHY_MSCC
 	phy_mscc_init();
 #endif

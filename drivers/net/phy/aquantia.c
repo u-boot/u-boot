@@ -136,7 +136,7 @@ static int aquantia_read_fw(u8 **fw_addr, size_t *fw_length)
 
 	*fw_addr = NULL;
 	*fw_length = 0;
-	debug("Loading Acquantia microcode from %s %s\n",
+	debug("Loading Aquantia microcode from %s %s\n",
 	      CONFIG_PHY_AQUANTIA_FW_PART, CONFIG_PHY_AQUANTIA_FW_NAME);
 	ret = fs_set_blk_dev("mmc", CONFIG_PHY_AQUANTIA_FW_PART, FS_TYPE_ANY);
 	if (ret < 0)
@@ -163,7 +163,7 @@ static int aquantia_read_fw(u8 **fw_addr, size_t *fw_length)
 
 	*fw_addr = addr;
 	*fw_length = length;
-	debug("Found Acquantia microcode.\n");
+	debug("Found Aquantia microcode.\n");
 
 cleanup:
 	if (ret < 0) {
@@ -257,7 +257,7 @@ static int aquantia_upload_firmware(struct phy_device *phydev)
 
 	strlcpy(version, (char *)&addr[dram_offset + VERSION_STRING_OFFSET],
 		VERSION_STRING_SIZE);
-	printf("%s loading firmare version '%s'\n", phydev->dev->name, version);
+	printf("%s loading firmware version '%s'\n", phydev->dev->name, version);
 
 	/* stall the microcprocessor */
 	phy_write(phydev, MDIO_MMD_VEND1, UP_CONTROL,
@@ -288,7 +288,7 @@ static int aquantia_upload_firmware(struct phy_device *phydev)
 
 	phy_write(phydev, MDIO_MMD_VEND1, UP_CONTROL, UP_RUN_STALL_OVERRIDE);
 
-	printf("%s firmare loading done.\n", phydev->dev->name);
+	printf("%s firmware loading done.\n", phydev->dev->name);
 done:
 	free(addr);
 	return ret;

@@ -117,6 +117,8 @@
 #if defined(CONFIG_CMD_WOL)
 #include "wol.h"
 #endif
+#include <net/tcp.h>
+#include <net/wget.h>
 
 /** BOOTP EXTENTIONS **/
 
@@ -387,6 +389,8 @@ int net_init(void)
 
 		/* Only need to setup buffer pointers once. */
 		first_call = 0;
+		if (IS_ENABLED(CONFIG_PROT_TCP))
+			tcp_set_tcp_state(TCP_CLOSED);
 	}
 
 	return net_init_loop();
@@ -512,6 +516,11 @@ restart:
 #if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 		case NFS:
 			nfs_start();
+			break;
+#endif
+#if defined(CONFIG_CMD_WGET)
+		case WGET:
+			wget_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_CDP)
@@ -833,6 +842,16 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 				  IPPROTO_UDP, 0, 0, 0);
 }
 
+#if defined(CONFIG_PROT_TCP)
+int net_send_tcp_packet(int payload_len, int dport, int sport, u8 action,
+			u32 tcp_seq_num, u32 tcp_ack_num)
+{
+	return net_send_ip_packet(net_server_ethaddr, net_server_ip, dport,
+				  sport, payload_len, IPPROTO_TCP, action,
+				  tcp_seq_num, tcp_ack_num);
+}
+#endif
+
 int net_send_ip_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 		       int payload_len, int proto, u8 action, u32 tcp_seq_num,
 		       u32 tcp_ack_num)
@@ -864,6 +883,14 @@ int net_send_ip_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 				   payload_len);
 		pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
 		break;
+#if defined(CONFIG_PROT_TCP)
+	case IPPROTO_TCP:
+		pkt_hdr_size = eth_hdr_size
+			+ tcp_set_tcp_header(pkt + eth_hdr_size, dport, sport,
+					     payload_len, action, tcp_seq_num,
+					     tcp_ack_num);
+		break;
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -924,7 +951,11 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	int offset8, start, len, done = 0;
 	u16 ip_off = ntohs(ip->ip_off);
 
-	if (ip->ip_len < IP_MIN_FRAG_DATAGRAM_SIZE)
+	/*
+	 * Calling code already rejected <, but we don't have to deal
+	 * with an IP fragment with no payload.
+	 */
+	if (ntohs(ip->ip_len) <= IP_HDR_SIZE)
 		return NULL;
 
 	/* payload starts after IP header, this fragment is in there */
@@ -933,6 +964,10 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	thisfrag = payload + offset8;
 	start = offset8 * 8;
 	len = ntohs(ip->ip_len) - IP_HDR_SIZE;
+
+	/* All but last fragment must have a multiple-of-8 payload. */
+	if ((len & 7) && (ip_off & IP_FLAGS_MFRAG))
+		return NULL;
 
 	if (start + len > IP_MAXUDP) /* fragment extends too far */
 		return NULL;
@@ -977,10 +1012,14 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	}
 
 	/*
-	 * There is some overlap: fix the hole list. This code doesn't
-	 * deal with a fragment that overlaps with two different holes
-	 * (thus being a superset of a previously-received fragment).
+	 * There is some overlap: fix the hole list. This code deals
+	 * with a fragment that overlaps with two different holes
+	 * (thus being a superset of a previously-received fragment)
+	 * by only using the part of the fragment that fits in the
+	 * first hole.
 	 */
+	if (h->last_byte < start + len)
+		len = h->last_byte - start;
 
 	if ((h >= thisfrag) && (h->last_byte <= start + len)) {
 		/* complete overlap with hole: remove hole */
@@ -1032,8 +1071,8 @@ static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 	if (!done)
 		return NULL;
 
-	localip->ip_len = htons(total_len);
 	*lenp = total_len + IP_HDR_SIZE;
+	localip->ip_len = htons(*lenp);
 	return localip;
 }
 
@@ -1208,9 +1247,9 @@ void net_process_received_packet(uchar *in_packet, int len)
 	case PROT_IP:
 		debug_cond(DEBUG_NET_PKT, "Got IP\n");
 		/* Before we start poking the header, make sure it is there */
-		if (len < IP_UDP_HDR_SIZE) {
+		if (len < IP_HDR_SIZE) {
 			debug("len bad %d < %lu\n", len,
-			      (ulong)IP_UDP_HDR_SIZE);
+			      (ulong)IP_HDR_SIZE);
 			return;
 		}
 		/* Check the packet length */
@@ -1219,6 +1258,10 @@ void net_process_received_packet(uchar *in_packet, int len)
 			return;
 		}
 		len = ntohs(ip->ip_len);
+		if (len < IP_HDR_SIZE) {
+			debug("bad ip->ip_len %d < %d\n", len, (int)IP_HDR_SIZE);
+			return;
+		}
 		debug_cond(DEBUG_NET_PKT, "len=%d, v=%02x\n",
 			   len, ip->ip_hl_v & 0xff);
 
@@ -1226,7 +1269,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 		if ((ip->ip_hl_v & 0xf0) != 0x40)
 			return;
 		/* Can't deal with IP options (headers != 20 bytes) */
-		if ((ip->ip_hl_v & 0x0f) > 0x05)
+		if ((ip->ip_hl_v & 0x0f) != 0x05)
 			return;
 		/* Check the Checksum of the header */
 		if (!ip_checksum_ok((uchar *)ip, IP_HDR_SIZE)) {
@@ -1273,11 +1316,20 @@ void net_process_received_packet(uchar *in_packet, int len)
 		if (ip->ip_p == IPPROTO_ICMP) {
 			receive_icmp(ip, len, src_ip, et);
 			return;
+#if defined(CONFIG_PROT_TCP)
+		} else if (ip->ip_p == IPPROTO_TCP) {
+			debug_cond(DEBUG_DEV_PKT,
+				   "TCP PH (to=%pI4, from=%pI4, len=%d)\n",
+				   &dst_ip, &src_ip, len);
+
+			rxhand_tcp_f((union tcp_build_pkt *)ip, len);
+			return;
+#endif
 		} else if (ip->ip_p != IPPROTO_UDP) {	/* Only UDP packets */
 			return;
 		}
 
-		if (ntohs(ip->udp_len) < UDP_HDR_SIZE || ntohs(ip->udp_len) > ntohs(ip->ip_len))
+		if (ntohs(ip->udp_len) < UDP_HDR_SIZE || ntohs(ip->udp_len) > len - IP_HDR_SIZE)
 			return;
 
 		debug_cond(DEBUG_DEV_PKT,

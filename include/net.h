@@ -365,6 +365,7 @@ struct vlan_ethernet_hdr {
 #define PROT_NCSI	0x88f8		/* NC-SI control packets        */
 
 #define IPPROTO_ICMP	 1	/* Internet Control Message Protocol	*/
+#define IPPROTO_TCP	6	/* Transmission Control Protocol	*/
 #define IPPROTO_UDP	17	/* User Datagram Protocol		*/
 
 /*
@@ -560,7 +561,7 @@ extern int		net_restart_wrap;	/* Tried all network devices */
 
 enum proto_t {
 	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP,
-	TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT, WOL, UDP, NCSI
+	TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT, WOL, UDP, NCSI, WGET
 };
 
 extern char	net_boot_file_name[1024];/* Boot File name */
@@ -690,19 +691,36 @@ static inline void net_send_packet(uchar *pkt, int len)
 	(void) eth_send(pkt, len);
 }
 
-/*
- * Transmit "net_tx_packet" as UDP packet, performing ARP request if needed
- *  (ether will be populated)
+/**
+ * net_send_ip_packet() - Transmit "net_tx_packet" as UDP or TCP packet,
+ *                        send ARP request if needed (ether will be populated)
+ * @ether: Raw packet buffer
+ * @dest: IP address to send the datagram to
+ * @dport: Destination UDP port
+ * @sport: Source UDP port
+ * @payload_len: Length of data after the UDP header
+ * @action: TCP action to be performed
+ * @tcp_seq_num: TCP sequence number of this transmission
+ * @tcp_ack_num: TCP stream acknolegement number
  *
- * @param ether Raw packet buffer
- * @param dest IP address to send the datagram to
- * @param dport Destination UDP port
- * @param sport Source UDP port
- * @param payload_len Length of data after the UDP header
+ * Return: 0 on success, other value on failure
  */
 int net_send_ip_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 		       int payload_len, int proto, u8 action, u32 tcp_seq_num,
 		       u32 tcp_ack_num);
+/**
+ * net_send_tcp_packet() - Transmit TCP packet.
+ * @payload_len: length of payload
+ * @dport: Destination TCP port
+ * @sport: Source TCP port
+ * @action: TCP action to be performed
+ * @tcp_seq_num: TCP sequence number of this transmission
+ * @tcp_ack_num: TCP stream acknolegement number
+ *
+ * Return: 0 on success, other value on failure
+ */
+int net_send_tcp_packet(int payload_len, int dport, int sport, u8 action,
+			u32 tcp_seq_num, u32 tcp_ack_num);
 int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport,
 			int sport, int payload_len);
 
