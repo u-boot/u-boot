@@ -525,9 +525,14 @@ static void mmc_pinmux_setup(int sdc)
 
 int board_mmc_init(struct bd_info *bis)
 {
+	/*
+	 * The BROM always accesses MMC port 0 (typically an SD card), and
+	 * most boards seem to have such a slot. The others haven't reported
+	 * any problem with unconditionally enabling this in the SPL.
+	 */
 	if (!IS_ENABLED(CONFIG_UART0_PORT_F)) {
-		mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
-		if (!sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT))
+		mmc_pinmux_setup(0);
+		if (!sunxi_mmc_init(0))
 			return -1;
 	}
 
