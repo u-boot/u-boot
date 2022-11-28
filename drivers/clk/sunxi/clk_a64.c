@@ -16,6 +16,7 @@
 static const struct ccu_clk_gate a64_gates[] = {
 	[CLK_PLL_PERIPH0]	= GATE(0x028, BIT(31)),
 
+	[CLK_BUS_MIPI_DSI]	= GATE(0x060, BIT(1)),
 	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),
 	[CLK_BUS_MMC1]		= GATE(0x060, BIT(9)),
 	[CLK_BUS_MMC2]		= GATE(0x060, BIT(10)),
@@ -27,6 +28,11 @@ static const struct ccu_clk_gate a64_gates[] = {
 	[CLK_BUS_EHCI1]		= GATE(0x060, BIT(25)),
 	[CLK_BUS_OHCI0]		= GATE(0x060, BIT(28)),
 	[CLK_BUS_OHCI1]		= GATE(0x060, BIT(29)),
+
+	[CLK_BUS_TCON0]		= GATE(0x064, BIT(3)),
+	[CLK_BUS_TCON1]		= GATE(0x064, BIT(4)),
+	[CLK_BUS_HDMI]		= GATE(0x064, BIT(11)),
+	[CLK_BUS_DE]		= GATE(0x064, BIT(12)),
 
 	[CLK_BUS_PIO]		= GATE(0x068, BIT(5)),
 
@@ -48,6 +54,15 @@ static const struct ccu_clk_gate a64_gates[] = {
 	[CLK_USB_HSIC_12M]	= GATE(0x0cc, BIT(11)),
 	[CLK_USB_OHCI0]		= GATE(0x0cc, BIT(16)),
 	[CLK_USB_OHCI1]		= GATE(0x0cc, BIT(17)),
+
+	[CLK_DE]		= GATE(0x104, BIT(31)),
+	[CLK_TCON0]		= GATE(0x118, BIT(31)),
+	[CLK_TCON1]		= GATE(0x11c, BIT(31)),
+
+	[CLK_HDMI]		= GATE(0x150, BIT(31)),
+	[CLK_HDMI_DDC]		= GATE(0x154, BIT(31)),
+
+	[CLK_DSI_DPHY]		= GATE(0x168, BIT(15)),
 };
 
 static const struct ccu_reset a64_resets[] = {
@@ -55,6 +70,7 @@ static const struct ccu_reset a64_resets[] = {
 	[RST_USB_PHY1]          = RESET(0x0cc, BIT(1)),
 	[RST_USB_HSIC]          = RESET(0x0cc, BIT(2)),
 
+	[RST_BUS_MIPI_DSI]	= RESET(0x2c0, BIT(1)),
 	[RST_BUS_MMC0]		= RESET(0x2c0, BIT(8)),
 	[RST_BUS_MMC1]		= RESET(0x2c0, BIT(9)),
 	[RST_BUS_MMC2]		= RESET(0x2c0, BIT(10)),
@@ -66,6 +82,12 @@ static const struct ccu_reset a64_resets[] = {
 	[RST_BUS_EHCI1]         = RESET(0x2c0, BIT(25)),
 	[RST_BUS_OHCI0]         = RESET(0x2c0, BIT(28)),
 	[RST_BUS_OHCI1]         = RESET(0x2c0, BIT(29)),
+
+	[RST_BUS_TCON0]		= RESET(0x2c4, BIT(3)),
+	[RST_BUS_TCON1]		= RESET(0x2c4, BIT(4)),
+	[RST_BUS_HDMI0]		= RESET(0x2c4, BIT(10)),
+	[RST_BUS_HDMI1]		= RESET(0x2c4, BIT(11)),
+	[RST_BUS_DE]		= RESET(0x2c4, BIT(12)),
 
 	[RST_BUS_I2C0]		= RESET(0x2d8, BIT(0)),
 	[RST_BUS_I2C1]		= RESET(0x2d8, BIT(1)),
