@@ -46,9 +46,11 @@
 #define CFG_SYS_INIT_RAM_SIZE	0x80000
 
 
-/* Totally 2GB DDR */
+/* Totally 6GB DDR */
 #define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
-#define PHYS_SDRAM_SIZE			0x80000000
+#define PHYS_SDRAM_SIZE			0xC0000000	/* 3 GB */
+#define PHYS_SDRAM_2			0x100000000
+#define PHYS_SDRAM_2_SIZE		0xC0000000	/* 3 GB */
 
 #endif
