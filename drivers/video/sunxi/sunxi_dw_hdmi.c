@@ -370,14 +370,16 @@ static const struct dm_display_ops sunxi_dw_hdmi_ops = {
 	.mode_valid = sunxi_dw_hdmi_mode_valid,
 };
 
-U_BOOT_DRIVER(sunxi_dw_hdmi) = {
-	.name	= "sunxi_dw_hdmi",
-	.id	= UCLASS_DISPLAY,
-	.ops	= &sunxi_dw_hdmi_ops,
-	.probe	= sunxi_dw_hdmi_probe,
-	.priv_auto	= sizeof(struct sunxi_dw_hdmi_priv),
+static const struct udevice_id sunxi_dw_hdmi_ids[] = {
+	{ .compatible = "allwinner,sun8i-a83t-dw-hdmi" },
+	{ }
 };
 
-U_BOOT_DRVINFO(sunxi_dw_hdmi) = {
-	.name = "sunxi_dw_hdmi"
+U_BOOT_DRIVER(sunxi_dw_hdmi) = {
+	.name		= "sunxi_dw_hdmi",
+	.id		= UCLASS_DISPLAY,
+	.of_match	= sunxi_dw_hdmi_ids,
+	.probe		= sunxi_dw_hdmi_probe,
+	.priv_auto	= sizeof(struct sunxi_dw_hdmi_priv),
+	.ops		= &sunxi_dw_hdmi_ops,
 };
