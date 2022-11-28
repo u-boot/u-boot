@@ -184,10 +184,6 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	return ENVL_UNKNOWN;
 }
 
-#ifdef CONFIG_DM_MMC
-static void mmc_pinmux_setup(int sdc);
-#endif
-
 /* add board specific code here */
 int board_init(void)
 {
