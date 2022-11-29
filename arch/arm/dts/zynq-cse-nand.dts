@@ -86,6 +86,13 @@
 				reg = <0x100 0x100>;
 			};
 		};
+
+		scutimer: timer@f8f00600 {
+			u-boot,dm-pre-reloc;
+			compatible = "arm,cortex-a9-twd-timer";
+			reg = <0xf8f00600 0x20>;
+			clock-frequency = <333333333>;
+		};
 	};
 };
 
