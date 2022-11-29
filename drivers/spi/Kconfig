@@ -461,6 +461,14 @@ config SOFT_SPI
 	 Enable Soft SPI driver. This driver is to use GPIO simulate
 	 the SPI protocol.
 
+config SPI_SN_F_OSPI
+	tristate "Socionext F_OSPI SPI flash controller"
+	depends on SPI_MEM
+	help
+	  This enables support for the Socionext F_OSPI controller
+	  for connecting an SPI flash memory over up to 8-bit wide bus.
+	  It supports indirect access mode only.
+
 config SPI_SUNXI
 	bool "Allwinner SoC SPI controllers"
 	default ARCH_SUNXI
