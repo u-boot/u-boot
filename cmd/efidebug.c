@@ -600,7 +600,7 @@ static int do_efi_show_memmap(struct cmd_tbl *cmdtp, int flag,
 	ret = efi_get_memory_map(&map_size, memmap, NULL, NULL, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		map_size += sizeof(struct efi_mem_desc); /* for my own */
-		ret = efi_allocate_pool(EFI_LOADER_DATA, map_size,
+		ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
 					(void *)&memmap);
 		if (ret != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
