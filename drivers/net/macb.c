@@ -98,6 +98,9 @@ struct macb_dma_desc_64 {
 #define MACB_RX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_RX_RING_SIZE))
 #define MACB_TX_DUMMY_DMA_DESC_SIZE	(DMA_DESC_BYTES(1))
 
+#define DESC_PER_CACHELINE_32	(ARCH_DMA_MINALIGN/sizeof(struct macb_dma_desc))
+#define DESC_PER_CACHELINE_64	(ARCH_DMA_MINALIGN/DMA_DESC_SIZE)
+
 #define RXBUF_FRMLEN_MASK	0x00000fff
 #define TXBUF_FRMLEN_MASK	0x000007ff
 
@@ -401,32 +404,56 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	return 0;
 }
 
+static void reclaim_rx_buffer(struct macb_device *macb,
+			      unsigned int idx)
+{
+	unsigned int mask;
+	unsigned int shift;
+	unsigned int i;
+
+	/*
+	 * There may be multiple descriptors per CPU cacheline,
+	 * so a cache flush would flush the whole line, meaning the content of other descriptors
+	 * in the cacheline would also flush. If one of the other descriptors had been
+	 * written to by the controller, the flush would cause those changes to be lost.
+	 *
+	 * To circumvent this issue, we do the actual freeing only when we need to free
+	 * the last descriptor in the current cacheline. When the current descriptor is the
+	 * last in the cacheline, we free all the descriptors that belong to that cacheline.
+	 */
+	if (macb->config->hw_dma_cap & HW_DMA_CAP_64B) {
+		mask = DESC_PER_CACHELINE_64 - 1;
+		shift = 1;
+	} else {
+		mask = DESC_PER_CACHELINE_32 - 1;
+		shift = 0;
+	}
+
+	/* we exit without freeing if idx is not the last descriptor in the cacheline */
+	if ((idx & mask) != mask)
+		return;
+
+	for (i = idx & (~mask); i <= idx; i++)
+		macb->rx_ring[i << shift].addr &= ~MACB_BIT(RX_USED);
+}
+
 static void reclaim_rx_buffers(struct macb_device *macb,
 			       unsigned int new_tail)
 {
 	unsigned int i;
-	unsigned int count;
 
 	i = macb->rx_tail;
 
 	macb_invalidate_ring_desc(macb, RX);
 	while (i > new_tail) {
-		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
-			count = i * 2;
-		else
-			count = i;
-		macb->rx_ring[count].addr &= ~MACB_BIT(RX_USED);
+		reclaim_rx_buffer(macb, i);
 		i++;
-		if (i > MACB_RX_RING_SIZE)
+		if (i >= MACB_RX_RING_SIZE)
 			i = 0;
 	}
 
 	while (i < new_tail) {
-		if (macb->config->hw_dma_cap & HW_DMA_CAP_64B)
-			count = i * 2;
-		else
-			count = i;
-		macb->rx_ring[count].addr &= ~MACB_BIT(RX_USED);
+		reclaim_rx_buffer(macb, i);
 		i++;
 	}
 

@@ -125,6 +125,19 @@ U_BOOT_CMD(
 );
 #endif
 
+#if defined(CONFIG_CMD_WGET)
+static int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
+{
+	return netboot_common(WGET, cmdtp, argc, argv);
+}
+
+U_BOOT_CMD(
+	wget,   3,      1,      do_wget,
+	"boot image via network using HTTP protocol",
+	"[loadAddress] [[hostIPaddr:]path and image name]"
+);
+#endif
+
 static void netboot_update_env(void)
 {
 	char tmp[22];

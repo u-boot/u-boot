@@ -162,6 +162,7 @@ struct eqos_dma_regs {
 #define EQOS_DMA_SYSBUS_MODE_BLEN4			BIT(1)
 
 #define EQOS_DMA_CH0_CONTROL_DSL_SHIFT			18
+#define EQOS_DMA_CH0_CONTROL_DSL_MASK			0x7
 #define EQOS_DMA_CH0_CONTROL_PBLX8			BIT(16)
 
 #define EQOS_DMA_CH0_TX_CONTROL_TXPBL_SHIFT		16
@@ -264,9 +265,11 @@ struct eqos_priv {
 	struct phy_device *phy;
 	ofnode phy_of_node;
 	u32 max_speed;
-	void *descs;
+	void *tx_descs;
+	void *rx_descs;
 	int tx_desc_idx, rx_desc_idx;
 	unsigned int desc_size;
+	unsigned int desc_per_cacheline;
 	void *tx_dma_buf;
 	void *rx_dma_buf;
 	void *rx_pkt;

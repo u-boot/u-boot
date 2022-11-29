@@ -380,6 +380,7 @@ int phy_teranetics_init(void);
 int phy_ti_init(void);
 int phy_vitesse_init(void);
 int phy_xilinx_init(void);
+int phy_xway_init(void);
 int phy_mscc_init(void);
 int phy_fixed_init(void);
 int phy_ncsi_init(void);

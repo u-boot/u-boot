@@ -557,7 +557,7 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 	struct usb_driver_entry *start, *entry;
 	int n_ents;
 	int ret;
-	char name[30], *str;
+	char name[34], *str;
 	ofnode node = usb_get_ofnode(parent, port);
 
 	*devp = NULL;
