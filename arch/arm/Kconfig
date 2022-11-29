@@ -1302,7 +1302,7 @@ config ARCH_ZYNQMP
 	select DM
 	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART
 	select DM_ETH if NET
-	select DM_MAILBOX
+	imply DM_MAILBOX
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select DM_SPI if SPI
@@ -1319,7 +1319,7 @@ config ARCH_ZYNQMP
 	imply SPL_FIRMWARE if SPL
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
-	select ZYNQMP_IPI
+	imply ZYNQMP_IPI if DM_MAILBOX
 	select SOC_DEVICE
 	imply BOARD_LATE_INIT
 	imply CMD_DM
