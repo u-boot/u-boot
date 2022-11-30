@@ -209,7 +209,7 @@ GUID type
 ~~~~~~~~~
 
 The HSS always picks up HSS payload from a GPT partition with
-GIUD type "21686148-6449-6E6F-744E-656564454649" or sector '0' of the eMMC if no
+GUID type "21686148-6449-6E6F-744E-656564454649" or sector '0' of the eMMC if no
 GPT partition.
 
 Booting
@@ -460,7 +460,7 @@ GUID type
 ~~~~~~~~~
 
 The HSS always picks up the HSS payload from a GPT partition with
-GIUD type "21686148-6449-6E6F-744E-656564454649" or sector '0' of the eMMC if no
+GUID type "21686148-6449-6E6F-744E-656564454649" or sector '0' of the eMMC if no
 GPT partition.
 
 Sample boot log from MPFS Icicle Kit
