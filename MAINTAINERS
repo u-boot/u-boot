@@ -192,6 +192,7 @@ N:	aspeed
 
 ARM BROADCOM BCM283X / BCM27XX
 M:	Matthias Brugger <mbrugger@suse.com>
+M:	Peter Robinson <pbrobinson@gmail.com>
 S:	Maintained
 F:	arch/arm/dts/bcm283*
 F:	arch/arm/mach-bcm283x/
