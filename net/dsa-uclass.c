@@ -142,20 +142,22 @@ static int dsa_port_send(struct udevice *pdev, void *packet, int length)
 	struct dsa_port_pdata *port_pdata;
 	int err;
 
-	if (length + head + tail > PKTSIZE_ALIGN)
-		return -EINVAL;
+	if (ops->xmit) {
+		if (length + head + tail > PKTSIZE_ALIGN)
+			return -EINVAL;
 
-	memset(dsa_packet_tmp, 0, head);
-	memset(dsa_packet_tmp + head + length, 0, tail);
-	memcpy(dsa_packet_tmp + head, packet, length);
-	length += head + tail;
-	/* copy back to preserve original buffer alignment */
-	memcpy(packet, dsa_packet_tmp, length);
+		memset(dsa_packet_tmp, 0, head);
+		memset(dsa_packet_tmp + head + length, 0, tail);
+		memcpy(dsa_packet_tmp + head, packet, length);
+		length += head + tail;
+		/* copy back to preserve original buffer alignment */
+		memcpy(packet, dsa_packet_tmp, length);
 
-	port_pdata = dev_get_parent_plat(pdev);
-	err = ops->xmit(dev, port_pdata->index, packet, length);
-	if (err)
-		return err;
+		port_pdata = dev_get_parent_plat(pdev);
+		err = ops->xmit(dev, port_pdata->index, packet, length);
+		if (err)
+			return err;
+	}
 
 	return eth_get_ops(master)->send(master, packet, length);
 }
@@ -172,7 +174,7 @@ static int dsa_port_recv(struct udevice *pdev, int flags, uchar **packetp)
 	int length, port_index, err;
 
 	length = eth_get_ops(master)->recv(master, flags, packetp);
-	if (length <= 0)
+	if (length <= 0 || !ops->rcv)
 		return length;
 
 	/*
