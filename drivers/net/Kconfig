@@ -473,6 +473,13 @@ config LITEETH
 	help
 	 Driver for the LiteEth Ethernet MAC from LiteX.
 
+config MV88E6XXX
+	bool "Marvell MV88E6xxx Ethernet switch DSA driver"
+	depends on DM_DSA && DM_MDIO
+	help
+	  This driver implements a DSA switch driver for the MV88E6xxx family
+	  of Ethernet switches using the MDIO interface
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on ARCH_KIRKWOOD || ARCH_ORION5X
