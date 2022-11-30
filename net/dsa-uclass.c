@@ -466,7 +466,6 @@ static int dsa_pre_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct dsa_priv *priv = dev_get_uclass_priv(dev);
-	struct dsa_ops *ops = dsa_get_ops(dev);
 	int err;
 
 	priv->num_ports = pdata->num_ports;
@@ -481,6 +480,15 @@ static int dsa_pre_probe(struct udevice *dev)
 					  &priv->master_dev);
 	if (err)
 		return err;
+
+	return 0;
+}
+
+static int dsa_post_probe(struct udevice *dev)
+{
+	struct dsa_priv *priv = dev_get_uclass_priv(dev);
+	struct dsa_ops *ops = dsa_get_ops(dev);
+	int err;
 
 	/* Simulate a probing event for the CPU port */
 	if (ops->port_probe) {
@@ -498,6 +506,7 @@ UCLASS_DRIVER(dsa) = {
 	.name = "dsa",
 	.post_bind = dsa_post_bind,
 	.pre_probe = dsa_pre_probe,
+	.post_probe = dsa_post_probe,
 	.per_device_auto = sizeof(struct dsa_priv),
 	.per_device_plat_auto = sizeof(struct dsa_pdata),
 	.per_child_plat_auto = sizeof(struct dsa_port_pdata),
