@@ -342,6 +342,19 @@ U_BOOT_DRIVER(dsa_port) = {
 	.plat_auto = sizeof(struct eth_pdata),
 };
 
+static int dsa_sanitize_ops(struct udevice *dev)
+{
+	struct dsa_ops *ops = dsa_get_ops(dev);
+
+	if ((!ops->xmit || !ops->rcv) &&
+	    (!ops->port_enable && !ops->port_disable)) {
+		dev_err(dev, "Packets cannot be steered to ports\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 /*
  * This function mostly deals with pulling information out of the device tree
  * into the pdata structure.
@@ -357,6 +370,10 @@ static int dsa_post_bind(struct udevice *dev)
 
 	if (!ofnode_valid(node))
 		return -ENODEV;
+
+	err = dsa_sanitize_ops(dev);
+	if (err)
+		return err;
 
 	pdata->master_node = ofnode_null();
 
