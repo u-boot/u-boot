@@ -20,6 +20,7 @@ obj-$(CONFIG_DM_MDIO)  += mdio-uclass.o
 obj-$(CONFIG_DM_MDIO_MUX) += mdio-mux-uclass.o
 obj-$(CONFIG_NET)      += eth_common.o
 obj-$(CONFIG_CMD_LINK_LOCAL) += link_local.o
+obj-$(CONFIG_IPV6)     += ndisc.o
 obj-$(CONFIG_NET)      += net.o
 obj-$(CONFIG_IPV6)     += net6.o
 obj-$(CONFIG_CMD_NFS)  += nfs.o
