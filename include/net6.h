@@ -174,6 +174,7 @@ extern u32 net_prefix_length;	/* Our prefixlength (0 = unknown) */
 extern struct in6_addr net_server_ip6;	/* Server IPv6 addr (0 = unknown) */
 extern bool use_ip6;
 
+#if IS_ENABLED(CONFIG_IPV6)
 /**
  * string_to_ip6() - Convert IPv6 string addr to inner IPV6 addr format
  *
@@ -193,11 +194,14 @@ extern bool use_ip6;
  * @addr:	converted IPv6 addr
  * Return: 0 if conversion successful, -EINVAL if fail
  */
+int string_to_ip6(const char *s, size_t len, struct in6_addr *addr);
+#else
 static inline int
 string_to_ip6(const char *s, size_t len, struct in6_addr *addr)
 {
 	return -EINVAL;
 }
+#endif
 
 /**
  * ip6_is_unspecified_addr() - Check if IPv6 addr is not set i.e. is zero
