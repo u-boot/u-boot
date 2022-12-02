@@ -55,8 +55,6 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-/* Gadget part */
-#define CONFIG_USBD_HS
 #endif
 
 /* Extra U-Boot environment. */

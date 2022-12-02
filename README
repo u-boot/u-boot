@@ -618,14 +618,6 @@ The following options need to be configured:
 		variable usbtty to be cdc_acm should suffice. The following
 		might be defined in YourBoardName.h
 
-			CONFIG_USBD_HS
-			Define this to enable the high speed support for usb
-			device and usbtty. If this feature is enabled, a routine
-			int is_usbd_high_speed(void)
-			also needs to be defined by the driver to dynamically poll
-			whether the enumeration has succeded at high speed or full
-			speed.
-
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
 		or directly in usbd_vendor_info.h. If you don't define

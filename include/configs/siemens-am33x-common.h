@@ -70,9 +70,6 @@
  * we don't need to do it twice.
  */
 
-/* USB DRACO ID as default */
-#define CONFIG_USBD_HS
-
 /* USB Device Firmware Update support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
