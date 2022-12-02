@@ -43,27 +43,6 @@
 #define CFG_SYS_UART_PORT		(0)
 
 /* ---
- * CONFIG_MONITOR_IS_IN_RAM defines if u-boot is started from a different
- * bootloader residing in flash ('chainloading'); if you want to use
- * chainloading or want to compile a u-boot binary that can be loaded into
- * RAM via BDM set
- *	"#if 0" to "#if 1"
- * You will need a first stage bootloader then, e. g. colilo or a working BDM
- * cable (Background Debug Mode)
- *
- * Setting #if 0: u-boot will start from flash and relocate itself to RAM
- *
- * Please do not forget to modify the setting of CONFIG_TEXT_BASE
- * in board/cobra5272/config.mk accordingly (#if 0: 0xffe00000; #if 1: 0x20000)
- *
- * ---
- */
-
-#if 0
-#define CONFIG_MONITOR_IS_IN_RAM /* monitor is started from a preloader */
-#endif
-
-/* ---
  * Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  * ---

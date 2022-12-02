@@ -38,16 +38,6 @@
 #error No card type defined!
 #endif
 
-/*
- * CONFIG_RAM defines if u-boot is loaded via BDM (or started from
- * a different bootloader that has already performed RAM setup) or
- * started directly from flash, which is the regular case for production
- * boards.
- */
-#ifdef CONFIG_RAM
-#define CONFIG_MONITOR_IS_IN_RAM
-#endif
-
 /* I2C */
 
 /*
@@ -68,21 +58,6 @@
 
 #define CFG_SYS_UART_PORT		(2)
 #define CFG_SYS_UART2_ALT3_GPIO
-
-/*
- * Configuration for environment
- * Environment is located in the last sector of the flash
- */
-
-#ifndef CONFIG_MONITOR_IS_IN_RAM
-#else
-/*
- * environment in RAM - This is used to use a single PC-based application
- * to load an image, load U-Boot, load an environment and then start U-Boot
- * to execute the commands from the environment. Feedback is done via setting
- * and reading memory locations.
- */
-#endif
 
 /* here we put our FPGA configuration... */
 
