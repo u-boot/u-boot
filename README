@@ -1166,13 +1166,6 @@ The following options need to be configured:
 		this is instead controlled by the value of
 		/config/load-environment.
 
-		CONFIG_STANDALONE_LOAD_ADDR
-
-		This option defines a board specific value for the
-		address where standalone program gets loaded, thus
-		overwriting the architecture dependent default
-		settings.
-
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
 		CONFIG_UPDATE_TFTP_CNT_MAX

@@ -3,8 +3,6 @@
 # (C) Copyright 2000-2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
-
 PLATFORM_CPPFLAGS += -fomit-frame-pointer
 PF_CPPFLAGS_X86   := $(call cc-option, -fno-toplevel-reorder, \
 		     $(call cc-option, -fno-unit-at-a-time))

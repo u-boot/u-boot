@@ -6,8 +6,6 @@
 # (C) Copyright 2004 Atmark Techno, Inc.
 # Yasushi SHOJI <yashi@atmark-techno.com>
 
-CONFIG_STANDALONE_LOAD_ADDR ?= 0x80F00000
-
 PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
 PLATFORM_CPPFLAGS += -fdata-sections -ffunction-sections
 

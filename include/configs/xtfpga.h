@@ -53,22 +53,6 @@
 
 /* Memory test is destructive so default must not overlap vectors or U-Boot*/
 
-/* Load address for stand-alone applications.
- * MEMADDR cannot be used here, because the definition needs to be
- * a plain number as it's used as -Ttext argument for ld in standalone
- * example makefile.
- * Handle noMMU vs MMUv2 vs MMUv3 distinction here manually.
- */
-#if XCHAL_HAVE_PTP_MMU
-#if XCHAL_VECBASE_RESET_VADDR == XCHAL_VECBASE_RESET_PADDR
-#define CONFIG_STANDALONE_LOAD_ADDR	0x00800000
-#else
-#define CONFIG_STANDALONE_LOAD_ADDR	0xd0800000
-#endif
-#else
-#define CONFIG_STANDALONE_LOAD_ADDR	0x60800000
-#endif
-
 #if defined(CONFIG_MAX_MEM_MAPPED) && \
 	CONFIG_MAX_MEM_MAPPED < CFG_SYS_SDRAM_SIZE
 #define XTENSA_SYS_TEXT_ADDR		\

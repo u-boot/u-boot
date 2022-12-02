@@ -11,7 +11,6 @@
 #include "mx6_common.h"
 
 /* Miscellaneous configurable options */
-#define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR
 
 /* Physical Memory Map */
 #define CFG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR

@@ -3,7 +3,6 @@
 # (C) Copyright 2000-2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-CONFIG_STANDALONE_LOAD_ADDR ?= 0x8C000000
 ifeq ($(CPU),sh2)
 LDFLAGS_STANDALONE += -EB
 endif
