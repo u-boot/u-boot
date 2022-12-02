@@ -4,6 +4,9 @@ config BOARD_COMMON
 	def_bool y
 	depends on !TARGET_SMDKV310 && !TARGET_ARNDALE
 
+config USB_BOOTING
+	bool
+
 choice
 	prompt "EXYNOS architecture type select"
 	optional
@@ -24,6 +27,7 @@ config ARCH_EXYNOS5
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select SHA_HW_ACCEL
+	select USB_BOOTING
 	imply CMD_HASH
 	imply CRC32_VERIFY
 	imply HASH_VERIFY
