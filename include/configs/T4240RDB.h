@@ -16,7 +16,6 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #ifndef CONFIG_SDCARD
-#define CONFIG_RAMBOOT_TEXT_BASE        CONFIG_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
 #else
 #define RESET_VECTOR_OFFSET		0x27FFC
@@ -60,7 +59,6 @@
 /*
  * DDR Setup
  */
-#define CONFIG_VERY_BIG_RAM
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
@@ -71,7 +69,6 @@
 #define CFG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CFG_SYS_FLASH_BASE)
 
 /* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CFG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe03c000

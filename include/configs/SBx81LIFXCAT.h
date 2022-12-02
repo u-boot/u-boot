@@ -41,14 +41,5 @@
 /* size in bytes reserved for initial data */
 
 #include <asm/arch/config.h>
-/* There is no PHY directly connected so don't ask it for link status */
-
-/*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable a single port */
-#define CONFIG_PHY_BASE_ADR	0x01
-#endif /* CONFIG_CMD_NET */
 
 #endif /* _CONFIG_SBX81LIFXCAT_H */

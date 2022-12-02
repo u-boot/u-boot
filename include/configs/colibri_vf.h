@@ -14,10 +14,6 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-/* NAND support */
-
-#define CONFIG_FDTADDR			0x84000000
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82000000\0" \

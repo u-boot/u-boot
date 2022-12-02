@@ -46,8 +46,4 @@
 
 #endif /* CONFIG_SPL_BUILD */
 
-/* Ethernet driver configuration */
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	1
-
 #endif /* _CONFIG_NSA310S_H */

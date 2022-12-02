@@ -20,9 +20,6 @@
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 
-/* SPI */
-#define CONFIG_SPI_FLASH_SIZE          (4 << 20)
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

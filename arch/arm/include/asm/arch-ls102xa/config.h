@@ -70,7 +70,6 @@
 /* SATA */
 #define AHCI_BASE_ADDR				(CONFIG_SYS_IMMR + 0x02200000)
 #ifdef CONFIG_DDR_SPD
-#define CONFIG_VERY_BIG_RAM
 #define CONFIG_MAX_MEM_MAPPED			((phys_size_t)2 << 30)
 #endif
 

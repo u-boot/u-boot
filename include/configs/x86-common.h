@@ -10,22 +10,6 @@
 #ifndef __CONFIG_X86_COMMON_H
 #define __CONFIG_X86_COMMON_H
 
-/*
- * High Level Configuration Options
- * (easy to change)
- */
-
-/* Generic TPM interfaced through LPC bus */
-#define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
-
-/*-----------------------------------------------------------------------
- * Serial Configuration
- */
-
-/*
- * Miscellaneous configurable options
- */
-
 /*-----------------------------------------------------------------------
  * CPU Features
  */

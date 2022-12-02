@@ -34,9 +34,6 @@
 
 /* FLASH and environment organization */
 
-#define RESERVE_BLOCK_SIZE		(512)
-#define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
-
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_ENV_SROM_BANK		1

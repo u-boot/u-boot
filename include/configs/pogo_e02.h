@@ -23,10 +23,4 @@
 	"bootcmd_usb=usb start; ext2load usb 0:1 0x00800000 /uImage; " \
 	"ext2load usb 0:1 0x01100000 /uInitrd\0"
 
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	0
-
 #endif /* _CONFIG_POGO_E02_H */

@@ -195,12 +195,10 @@
  * Environment Configuration
  */
 
-#define CONFIG_NETDEV		"eth1"
-
-#define CONFIG_FDTFILE		"mpc8379_rdb.dtb"
+#define FDTFILE			"mpc8379_rdb.dtb"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"netdev=" CONFIG_NETDEV "\0"				\
+	"netdev=eth1\0"				\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\
 	"tftpflash=tftp $loadaddr $uboot;"				\
 		"protect off " __stringify(CONFIG_TEXT_BASE)	\
@@ -214,7 +212,7 @@
 		"cmp.b $loadaddr " __stringify(CONFIG_TEXT_BASE)	\
 			" $filesize\0"	\
 	"fdtaddr=780000\0"						\
-	"fdtfile=" CONFIG_FDTFILE "\0"					\
+	"fdtfile=" FDTFILE "\0"					\
 	"ramdiskaddr=1000000\0"						\
 	"ramdiskfile=rootfs.ext2.gz.uboot\0"				\
 	"console=ttyS0\0"						\

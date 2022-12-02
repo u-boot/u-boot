@@ -123,7 +123,6 @@
 #define CFG_SYS_NAND_FTIM3           0x0
 
 #define CFG_SYS_NAND_BASE_LIST	{ CFG_SYS_NAND_BASE }
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #endif
 
 #ifdef CONFIG_NAND_BOOT

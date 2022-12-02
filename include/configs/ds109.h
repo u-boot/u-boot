@@ -35,12 +35,4 @@
 	"ipaddr=192.168.1.5\0"		\
 	"usb0Mode=host\0"
 
-/*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable one port */
-#define CONFIG_PHY_BASE_ADR	8
-#endif /* CONFIG_CMD_NET */
-
 #endif /* _CONFIG_DS109_H */

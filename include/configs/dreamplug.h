@@ -24,10 +24,4 @@
 	"x_bootargs=console=ttyS0,115200\0"	\
 	"x_bootargs_root=root=/dev/sda2 rootdelay=10\0"
 
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_MVGBE_PORTS	{1, 1}	/* enable both ports */
-#define CONFIG_PHY_BASE_ADR	0
-
 #endif /* _CONFIG_DREAMPLUG_H */

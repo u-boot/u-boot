@@ -12,8 +12,6 @@
 #include <configs/exynos5-dt-common.h>
 #include <configs/exynos5-common.h>
 
-#define CONFIG_SMDK5420			/* which is in a SMDK5420 */
-
 #define CFG_SYS_SDRAM_BASE	0x20000000
 
 /* DRAM Memory Banks */

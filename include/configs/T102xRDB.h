@@ -112,7 +112,6 @@
 /*
  * DDR Setup
  */
-#define CONFIG_VERY_BIG_RAM
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 #if defined(CONFIG_TARGET_T1024RDB)
@@ -269,7 +268,6 @@
 #endif
 
 /* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CFG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #ifdef CONFIG_PHYS_64BIT
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf

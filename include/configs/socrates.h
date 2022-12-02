@@ -16,9 +16,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* High Level Configuration Options */
-#define CONFIG_SOCRATES		1
-
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
@@ -55,7 +52,6 @@
 
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
-#define CONFIG_VERY_BIG_RAM
 
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */

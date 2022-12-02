@@ -15,13 +15,6 @@
  */
 
 /*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE_PORTS		{1, 0} /* enable port 0 only */
-#endif
-
-/*
  * Enable GPI0 support
  */
 

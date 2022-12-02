@@ -30,13 +30,4 @@
 /* Needed for SPI NOR booting in SPL */
 #define CONFIG_DM_SEQ_ALIAS		1
 
-/*
- * I2C related stuff
- */
-#ifdef CONFIG_CMD_I2C
-#ifndef CONFIG_SYS_I2C_SOFT
-#define CONFIG_I2C_MVTWSI
-#endif
-#endif
-
 #endif /* __MVEBU_CONFIG_H */

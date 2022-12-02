@@ -144,13 +144,5 @@
 #define CFG_SYS_DDRUA		0x05
 #define CFG_SYS_PJPAR		0xFF
 
-/*-----------------------------------------------------------------------
- * I2C
- */
-
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_I2C_RTC_ADDR		0x68
-#endif
-
 #endif	/* _CONFIG_M5282EVB_H */
 /*---------------------------------------------------------------------*/

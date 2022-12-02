@@ -373,12 +373,6 @@ The following options need to be configured:
 		such as ARM architectural timer initialization.
 
 - Linux Kernel Interface:
-		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
-
-		When transferring memsize parameter to Linux, some versions
-		expect it to be in bytes, others in MB.
-		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
-
 		CONFIG_OF_LIBFDT
 
 		New kernel versions are expecting firmware settings to be
@@ -584,11 +578,6 @@ The following options need to be configured:
 		CONFIG_TPM_TIS_LPC
 		Support for generic parallel port TPM devices. Only one device
 		per system is supported at this time.
-
-			CONFIG_TPM_TIS_BASE_ADDRESS
-			Base address where the generic TPM device is mapped
-			to. Contemporary x86 systems usually map it at
-			0xfed40000.
 
 		CONFIG_TPM
 		Define this to enable the TPM support library which provides

@@ -36,10 +36,4 @@
 	"kernel=/boot/uImage\0" \
 	"bootargs_root=ubi.mtd=root root=ubi0:root rootfstype=ubifs ro\0"
 
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	0
-
 #endif /* _CONFIG_GOFLEXHOME_H */
