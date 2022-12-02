@@ -452,8 +452,7 @@ struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_
 	struct efi_device_path *dp;
 	struct efi_device_path_file_path *fp;
 
-	fp_size = sizeof(struct efi_device_path) +
-		  ((u16_strlen(current_path) + 1) * sizeof(u16));
+	fp_size = sizeof(struct efi_device_path) + u16_strsize(current_path);
 	buf = calloc(1, fp_size + sizeof(END));
 	if (!buf)
 		return NULL;
