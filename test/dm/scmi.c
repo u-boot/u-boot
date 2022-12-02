@@ -6,7 +6,7 @@
  * uclass devices probe when a SCMI server exposes resources.
  *
  * Note in test.dts the protocol@10 node in scmi node. Protocol 0x10 is not
- * implemented in U-Boot SCMI components but the implementation is exepected
+ * implemented in U-Boot SCMI components but the implementation is expected
  * to not complain on unknown protocol IDs, as long as it is not used. Note
  * in test.dts tests that SCMI drivers probing does not fail for such an
  * unknown SCMI protocol ID.

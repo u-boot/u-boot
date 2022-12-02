@@ -17,7 +17,7 @@
 #include <test/test.h>
 #include <test/ut.h>
 
-/* Test if bus childs got probed propperly*/
+/* Test if bus children got probed properly*/
 static int dm_test_spmi_probe(struct unit_test_state *uts)
 {
 	const char *name = "spmi@0";

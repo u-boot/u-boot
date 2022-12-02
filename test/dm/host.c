@@ -132,7 +132,7 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 
 	ut_assertok(run_commandf("host bind fat %s", filename2));
 
-	/* Check it is not removeable (no '-r') */
+	/* Check it is not removable (no '-r') */
 	ut_assertok(uclass_next_device_err(&dev));
 	ut_assertok(blk_get_from_parent(dev, &blk));
 	desc = dev_get_uclass_plat(blk);
