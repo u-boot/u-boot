@@ -704,7 +704,7 @@ config SYS_I2C_BUS_MAX
 	depends on ARCH_OMAP2PLUS || ARCH_SOCFPGA
 	default 2 if TI816X
 	default 3 if OMAP34XX || AM33XX || AM43XX
-	default 4 if ARCH_SOCFPGA || OMAP44XX || TI814X
+	default 4 if ARCH_SOCFPGA || OMAP44XX
 	default 5 if OMAP54XX
 	help
 	  Define the maximum number of available I2C buses.

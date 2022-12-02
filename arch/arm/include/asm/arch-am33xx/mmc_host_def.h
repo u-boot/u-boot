@@ -24,10 +24,7 @@
 #define OMAP_HSMMC1_BASE		0x48060000
 #define OMAP_HSMMC2_BASE		0x481D8000
 
-#if defined(CONFIG_TI814X)
-#undef MMC_CLOCK_REFERENCE
-#define MMC_CLOCK_REFERENCE	192 /* MHz */
-#elif defined(CONFIG_TI816X)
+#if defined(CONFIG_TI816X)
 #undef MMC_CLOCK_REFERENCE
 #define MMC_CLOCK_REFERENCE	48 /* MHz */
 #endif

@@ -44,9 +44,7 @@ struct cm_alwon {
 	unsigned int mmu_clkstctrl;
 	unsigned int mmucfg_clkstctrl;
 	unsigned int ocmc0clkstctrl;
-#if defined(CONFIG_TI814X)
-	unsigned int vcpclkstctrl;
-#elif defined(CONFIG_TI816X)
+#if defined(CONFIG_TI816X)
 	unsigned int ocmc1clkstctrl;
 #endif
 	unsigned int mpuclkstctrl;
@@ -67,16 +65,7 @@ struct cm_alwon {
 	unsigned int gpio1clkctrl;
 	unsigned int i2c0clkctrl;
 	unsigned int i2c1clkctrl;
-#if defined(CONFIG_TI814X)
-	unsigned int mcasp345clkctrl;
-	unsigned int atlclkctrl;
-	unsigned int mlbclkctrl;
-	unsigned int pataclkctrl;
-	unsigned int resv1[1];
-	unsigned int uart3clkctrl;
-	unsigned int uart4clkctrl;
-	unsigned int uart5clkctrl;
-#elif defined(CONFIG_TI816X)
+#if defined(CONFIG_TI816X)
 	unsigned int resv1[1];
 	unsigned int timer1clkctrl;
 	unsigned int timer2clkctrl;
@@ -93,16 +82,12 @@ struct cm_alwon {
 	unsigned int mmudataclkctrl;
 	unsigned int resv2[2];
 	unsigned int mmucfgclkctrl;
-#if defined(CONFIG_TI814X)
-	unsigned int resv3[2];
-#elif defined(CONFIG_TI816X)
+#if defined(CONFIG_TI816X)
 	unsigned int resv3[1];
 	unsigned int sdioclkctrl;
 #endif
 	unsigned int ocmc0clkctrl;
-#if defined(CONFIG_TI814X)
-	unsigned int vcpclkctrl;
-#elif defined(CONFIG_TI816X)
+#if defined(CONFIG_TI816X)
 	unsigned int ocmc1clkctrl;
 #endif
 	unsigned int resv4[2];
@@ -112,9 +97,7 @@ struct cm_alwon {
 	unsigned int ethernet0clkctrl;
 	unsigned int ethernet1clkctrl;
 	unsigned int mpuclkctrl;
-#if defined(CONFIG_TI814X)
-	unsigned int debugssclkctrl;
-#elif defined(CONFIG_TI816X)
+#if defined(CONFIG_TI816X)
 	unsigned int resv6[1];
 #endif
 	unsigned int l3clkctrl;
@@ -126,14 +109,7 @@ struct cm_alwon {
 	unsigned int tptc1clkctrl;
 	unsigned int tptc2clkctrl;
 	unsigned int tptc3clkctrl;
-#if defined(CONFIG_TI814X)
-	unsigned int resv6[4];
-	unsigned int dcan01clkctrl;
-	unsigned int mmchs0clkctrl;
-	unsigned int mmchs1clkctrl;
-	unsigned int mmchs2clkctrl;
-	unsigned int custefuseclkctrl;
-#elif defined(CONFIG_TI816X)
+#if defined(CONFIG_TI816X)
 	unsigned int sr0clkctrl;
 	unsigned int sr1clkctrl;
 #endif

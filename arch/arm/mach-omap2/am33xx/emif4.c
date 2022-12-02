@@ -28,26 +28,6 @@ static struct cm_device_inst *cm_device =
 				(struct cm_device_inst *)CM_DEVICE_INST;
 #endif
 
-#ifdef CONFIG_TI814X
-void config_dmm(const struct dmm_lisa_map_regs *regs)
-{
-	struct dmm_lisa_map_regs *hw_lisa_map_regs =
-				(struct dmm_lisa_map_regs *)DMM_BASE;
-
-	enable_dmm_clocks();
-
-	writel(0, &hw_lisa_map_regs->dmm_lisa_map_3);
-	writel(0, &hw_lisa_map_regs->dmm_lisa_map_2);
-	writel(0, &hw_lisa_map_regs->dmm_lisa_map_1);
-	writel(0, &hw_lisa_map_regs->dmm_lisa_map_0);
-
-	writel(regs->dmm_lisa_map_3, &hw_lisa_map_regs->dmm_lisa_map_3);
-	writel(regs->dmm_lisa_map_2, &hw_lisa_map_regs->dmm_lisa_map_2);
-	writel(regs->dmm_lisa_map_1, &hw_lisa_map_regs->dmm_lisa_map_1);
-	writel(regs->dmm_lisa_map_0, &hw_lisa_map_regs->dmm_lisa_map_0);
-}
-#endif
-
 static void config_vtp(int nr)
 {
 	writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_ENABLE,

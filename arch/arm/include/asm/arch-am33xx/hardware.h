@@ -16,8 +16,6 @@
 #include <asm/arch/hardware_am33xx.h>
 #elif defined(CONFIG_TI816X)
 #include <asm/arch/hardware_ti816x.h>
-#elif defined(CONFIG_TI814X)
-#include <asm/arch/hardware_ti814x.h>
 #elif defined(CONFIG_AM43XX)
 #include <asm/arch/hardware_am43xx.h>
 #endif

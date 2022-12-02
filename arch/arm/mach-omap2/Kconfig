@@ -75,14 +75,6 @@ config OMAP54XX
 	imply SPL_SERIAL
 	imply SYS_I2C_OMAP24XX
 
-config TI814X
-	bool "TI814X SoC"
-	select SPECIFY_CONSOLE_INDEX
-	help
-	  Support for AM335x SOC from Texas Instruments.
-	  The AM335x high performance SOC features a Cortex-A8
-	  ARM core and more.
-
 config TI816X
 	bool "TI816X SoC"
 	select SPECIFY_CONSOLE_INDEX

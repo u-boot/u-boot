@@ -183,7 +183,7 @@ void save_omap_boot_params(void)
 
 	gd->arch.omap_boot_mode = boot_mode;
 
-#if !defined(CONFIG_TI814X) && !defined(CONFIG_TI816X) && \
+#if !defined(CONFIG_TI816X) && \
     !defined(CONFIG_AM33XX) && !defined(CONFIG_AM43XX)
 
 	/* CH flags */

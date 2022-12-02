@@ -20,8 +20,6 @@
 
 #ifdef CONFIG_AM33XX
 #include <asm/arch/mux_am33xx.h>
-#elif defined(CONFIG_TI814X)
-#include <asm/arch/mux_ti814x.h>
 #elif defined(CONFIG_TI816X)
 #include <asm/arch/mux_ti816x.h>
 #elif defined(CONFIG_AM43XX)
