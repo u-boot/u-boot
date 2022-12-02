@@ -192,6 +192,7 @@ N:	aspeed
 
 ARM BROADCOM BCM283X / BCM27XX
 M:	Matthias Brugger <mbrugger@suse.com>
+M:	Peter Robinson <pbrobinson@gmail.com>
 S:	Maintained
 F:	arch/arm/dts/bcm283*
 F:	arch/arm/mach-bcm283x/
@@ -493,6 +494,12 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-samsung.git
 F:	arch/arm/mach-exynos/
 F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
+
+ARM SANCLOUD
+M:	Paul Barker <paul.barker@sancloud.com>
+R:	Marc Murphy <marc.murphy@sancloud.com>
+S:	Supported
+F:	arch/arm/dts/am335x-sancloud*
 
 ARM SNAPDRAGON
 M:	Ramon Fried <rfried.dev@gmail.com>
@@ -854,7 +861,6 @@ F:	cmd/dfu.c
 F:	cmd/usb_*.c
 F:	common/dfu.c
 F:	common/update.c
-F:	common/usb_storage.c
 F:	doc/api/dfu.rst
 F:	doc/usage/dfu.rst
 F:	drivers/dfu/
@@ -1482,6 +1488,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-usb.git
 F:	drivers/usb/
 F:	common/usb.c
 F:	common/usb_kbd.c
+F:	common/usb_storage.c
 F:	include/usb.h
 
 USB xHCI

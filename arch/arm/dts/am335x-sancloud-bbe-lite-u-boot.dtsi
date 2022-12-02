@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2021 SanCloud Ltd
+ */
+
+#include "am335x-sancloud-bbe-u-boot.dtsi"
+
+&l4_wkup {
+	segment@200000 {
+		target-module@0 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&prcm {
+	u-boot,dm-pre-reloc;
+};
+
+&per_cm {
+	u-boot,dm-pre-reloc;
+};
+
+&l4ls_clkctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_per {
+	u-boot,dm-pre-reloc;
+	segment@0 {
+		u-boot,dm-pre-reloc;
+		target-module@30000 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&spi0 {
+	u-boot,dm-pre-reloc;
+	channel@0 {
+		u-boot,dm-pre-reloc;
+	};
+};
