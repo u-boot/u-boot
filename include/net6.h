@@ -195,13 +195,6 @@ extern bool use_ip6;
  * Return: 0 if conversion successful, -EINVAL if fail
  */
 int string_to_ip6(const char *s, size_t len, struct in6_addr *addr);
-#else
-static inline int
-string_to_ip6(const char *s, size_t len, struct in6_addr *addr)
-{
-	return -EINVAL;
-}
-#endif
 
 /**
  * ip6_is_unspecified_addr() - Check if IPv6 addr is not set i.e. is zero
@@ -209,10 +202,7 @@ string_to_ip6(const char *s, size_t len, struct in6_addr *addr)
  * @addr:	IPv6 addr
  * Return:  0 if addr is not set, -1 if is set
  */
-static inline int ip6_is_unspecified_addr(struct in6_addr *addr)
-{
-	return -1;
-}
+int ip6_is_unspecified_addr(struct in6_addr *addr);
 
 /**
  * ip6_is_our_addr() - Check if IPv6 addr belongs to our host addr
@@ -224,10 +214,7 @@ static inline int ip6_is_unspecified_addr(struct in6_addr *addr)
  * @addr:	addr to check
  * Return: 0 if addr is our, -1 otherwise
  */
-static inline int ip6_is_our_addr(struct in6_addr *addr)
-{
-	return -1;
-}
+int ip6_is_our_addr(struct in6_addr *addr);
 
 /**
  * ip6_addr_in_subnet() - Check if two IPv6 addresses are in the same subnet
@@ -237,12 +224,8 @@ static inline int ip6_is_our_addr(struct in6_addr *addr)
  * @prefix_length:	network mask length
  * Return: 0 if two addresses in the same subnet, -1 otherwise
  */
-static inline int
-ip6_addr_in_subnet(struct in6_addr *our_addr, struct in6_addr *neigh_addr,
-		   u32 prefix_length)
-{
-	return -1;
-}
+int ip6_addr_in_subnet(struct in6_addr *our_addr, struct in6_addr *neigh_addr,
+		       u32 prefix_length);
 
 /**
  * ip6_make_lladd() - rMake up IPv6 Link Local address
@@ -250,10 +233,7 @@ ip6_addr_in_subnet(struct in6_addr *our_addr, struct in6_addr *neigh_addr,
  * @lladdr:	formed IPv6 Link Local address
  * @enetaddr:	MAC addr of a device
  */
-static inline void
-ip6_make_lladdr(struct in6_addr *lladdr, unsigned char const enetaddr[6])
-{
-}
+void ip6_make_lladdr(struct in6_addr *lladr, unsigned char const enetaddr[6]);
 
 /**
  * ip6_make_snma() - aMake up Solicited Node Multicast Address from IPv6 addr
@@ -261,10 +241,7 @@ ip6_make_lladdr(struct in6_addr *lladdr, unsigned char const enetaddr[6])
  * @mcast_addr:	formed SNMA addr
  * @ip6_addr:	base IPv6 addr
  */
-static inline void
-ip6_make_snma(struct in6_addr *mcast_addr, struct in6_addr *ip6_addr)
-{
-}
+void ip6_make_snma(struct in6_addr *mcast_addr, struct in6_addr *ip6_addr);
 
 /**
  * ip6_make_mult_ethdstaddr() - Make up IPv6 multicast addr
@@ -272,11 +249,8 @@ ip6_make_snma(struct in6_addr *mcast_addr, struct in6_addr *ip6_addr)
  * @enetaddr:	MAC addr of a device
  * @mcast_addr:	formed IPv6 multicast addr
  */
-static inline void
-ip6_make_mult_ethdstaddr(unsigned char enetaddr[6],
-			 struct in6_addr *mcast_addr)
-{
-}
+void ip6_make_mult_ethdstaddr(unsigned char enetaddr[6],
+			      struct in6_addr *mcast_addr);
 
 /**
  * csum_partial() - Compute an internet checksum
@@ -286,11 +260,7 @@ ip6_make_mult_ethdstaddr(unsigned char enetaddr[6],
  * @sum:	initial sum to be added in
  * Return: internet checksum of the buffer
  */
-static inline unsigned int
-csum_partial(const unsigned char *buff, int len, unsigned int sum)
-{
-	return 0;
-}
+unsigned int csum_partial(const unsigned char *buff, int len, unsigned int sum);
 
 /**
  * csum_ipv6_magic() - Compute checksum of IPv6 "psuedo-header" per RFC2460 section 8.1
@@ -302,13 +272,9 @@ csum_partial(const unsigned char *buff, int len, unsigned int sum)
  * @csum:	upper layer checksum
  * Return: computed checksum
  */
-static inline unsigned short
-csum_ipv6_magic(struct in6_addr *saddr,
-		struct in6_addr *daddr, u16 len,
-		unsigned short proto, unsigned int csum)
-{
-	return 0;
-}
+unsigned short int csum_ipv6_magic(struct in6_addr *saddr,
+				   struct in6_addr *daddr, u16 len,
+				   unsigned short proto, unsigned int csum);
 
 /**
  * ip6_add_hdr() - Make up IPv6 header
@@ -321,12 +287,8 @@ csum_ipv6_magic(struct in6_addr *saddr,
  * @payload_len: payload length
  * Return: IPv6 header length
  */
-static inline unsigned int
-ip6_add_hdr(uchar *xip, struct in6_addr *src, struct in6_addr *dest,
-	    int nextheader, int hoplimit, int payload_len)
-{
-	return 0;
-}
+int ip6_add_hdr(uchar *xip, struct in6_addr *src, struct in6_addr *dest,
+		int nextheader, int hoplimit, int payload_len);
 
 /**
  * net_send_udp_packet6() - Make up UDP packet and send it
@@ -338,12 +300,8 @@ ip6_add_hdr(uchar *xip, struct in6_addr *src, struct in6_addr *dest,
  * @len:	UDP packet length
  * Return: 0 if send successfully, -1 otherwise
  */
-static inline int
-net_send_udp_packet6(uchar *ether, struct in6_addr *dest,
-		     int dport, int sport, int len)
-{
-	return -1;
-}
+int net_send_udp_packet6(uchar *ether, struct in6_addr *dest, int dport,
+			 int sport, int len);
 
 /**
  * net_ip6_handler() - Handle IPv6 packet
@@ -353,12 +311,7 @@ net_send_udp_packet6(uchar *ether, struct in6_addr *dest,
  * @len:	incoming packet len
  * Return: 0 if handle packet successfully, -EINVAL in case of invalid protocol
  */
-static inline int
-net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6,
-		int len)
-{
-	return -EINVAL;
-}
+int net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len);
 
 /**
  * net_copy_ip6() - Copy IPv6 addr
@@ -368,6 +321,86 @@ net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6,
  */
 static inline void net_copy_ip6(void *to, const void *from)
 {
+	memcpy((void *)to, from, sizeof(struct in6_addr));
 }
+#else
+static inline int
+string_to_ip6(const char *s, size_t len, struct in6_addr *addr)
+{
+	return -EINVAL;
+}
+
+static inline int ip6_is_unspecified_addr(struct in6_addr *addr)
+{
+	return -1;
+}
+
+static inline int ip6_is_our_addr(struct in6_addr *addr)
+{
+	return -1;
+}
+
+static inline int
+ip6_addr_in_subnet(struct in6_addr *our_addr, struct in6_addr *neigh_addr,
+		   u32 prefix_length)
+{
+	return -1;
+}
+
+static inline void
+ip6_make_lladdr(struct in6_addr *lladdr, unsigned char const enetaddr[6])
+{
+}
+
+static inline void
+ip6_make_snma(struct in6_addr *mcast_addr, struct in6_addr *ip6_addr)
+{
+}
+
+static inline void
+ip6_make_mult_ethdstaddr(unsigned char enetaddr[6],
+			 struct in6_addr *mcast_addr)
+{
+}
+
+static inline unsigned int
+csum_partial(const unsigned char *buff, int len, unsigned int sum)
+{
+	return 0;
+}
+
+static inline unsigned short
+csum_ipv6_magic(struct in6_addr *saddr,
+		struct in6_addr *daddr, u16 len,
+		unsigned short proto, unsigned int csum)
+{
+	return 0;
+}
+
+static inline unsigned int
+ip6_add_hdr(uchar *xip, struct in6_addr *src, struct in6_addr *dest,
+	    int nextheader, int hoplimit, int payload_len)
+{
+	return 0;
+}
+
+static inline int
+net_send_udp_packet6(uchar *ether, struct in6_addr *dest,
+		     int dport, int sport, int len)
+{
+	return -1;
+}
+
+static inline int
+net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6,
+		int len)
+{
+	return -EINVAL;
+}
+
+static inline void net_copy_ip6(void *to, const void *from)
+{
+}
+#endif
 
 #endif /* __NET6_H__ */
