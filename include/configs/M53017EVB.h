@@ -93,7 +93,6 @@
  * FLASH organization
  */
 #ifdef CONFIG_SYS_FLASH_CFI
-#	define CONFIG_FLASH_SPANSION_S29WS_N	1
 #	define CFG_SYS_FLASH_SIZE		0x1000000	/* Max size that the board might have */
 #endif
 

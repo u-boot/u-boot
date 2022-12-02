@@ -1,5 +1,10 @@
+config FSL_TRUST_ARCH_v1
+	bool
+
 config NXP_ESBC
 	bool "NXP ESBC (secure boot) functionality"
+	select FSL_TRUST_ARCH_v1 if ARCH_P3041 || ARCH_P4080 || \
+		ARCH_P5040 || ARCH_P2041
 	help
 	  Enable Freescale Secure Boot feature. Normally selected by defconfig.
 	  If unsure, do not change.
@@ -10,6 +15,7 @@ menu "Chain of trust / secure boot options"
 config CHAIN_OF_TRUST
 	select FSL_CAAM
 	select ARCH_MISC_INIT
+	select FSL_ISBC_KEY_EXT if (ARM || FSL_CORENET) && !SYS_RAMBOOT
 	select FSL_SEC_MON
 	select SPL_BOARD_INIT if (ARM && SPL)
 	select SPL_HASH if (ARM && SPL)
@@ -40,6 +46,17 @@ config ESBC_ADDR_64BIT
 	depends on ESBC_HDR_LS && FSL_LAYERSCAPE
 	help
 	  For Layerscape based platforms, ESBC image Address in Header is 64bit.
+
+config FSL_ISBC_KEY_EXT
+	bool
+	help
+	  The key used for verification of next level images is picked up from
+	  an Extension Table which has been verified by the ISBC (Internal
+	  Secure boot Code) in boot ROM of the SoC.  The feature is only
+	  applicable in case of NOR boot and is not applicable in case of
+	  RAMBOOT (NAND, SD, SPI).  For Layerscape, this feature is available
+	  for all device if IE Table is copied to XIP memory Also, for
+	  Layerscape, ISBC doesn't verify this table.
 
 config SYS_FSL_SFP_BE
 	def_bool y

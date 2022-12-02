@@ -4,6 +4,9 @@ config BOARD_COMMON
 	def_bool y
 	depends on !TARGET_SMDKV310 && !TARGET_ARNDALE
 
+config SPI_BOOTING
+	bool
+
 config USB_BOOTING
 	bool
 
@@ -27,6 +30,7 @@ config ARCH_EXYNOS5
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select SHA_HW_ACCEL
+	select SPI_BOOTING if EXYNOS5_DT
 	select USB_BOOTING
 	imply CMD_HASH
 	imply CRC32_VERIFY

@@ -6,6 +6,10 @@ config CF_SBF
 config EXTRA_CLOCK
 	def_bool y
 
+config SERIAL_BOOT
+	def_bool y
+	depends on CF_SBF
+
 config SYS_INPUT_CLKSRC
 	hex
 	default 30000000

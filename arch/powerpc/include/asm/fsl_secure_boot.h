@@ -35,24 +35,6 @@
 #define CFG_SYS_INIT_L3_ADDR		0xbff00000
 #endif
 #endif
-
-#if defined(CONFIG_ARCH_P3041)	||	\
-	defined(CONFIG_ARCH_P4080) ||	\
-	defined(CONFIG_ARCH_P5040) ||	\
-	defined(CONFIG_ARCH_P2041)
-	#define	CONFIG_FSL_TRUST_ARCH_v1
-#endif
-
-#if defined(CONFIG_FSL_CORENET) && !defined(CONFIG_SYS_RAMBOOT)
-/* The key used for verification of next level images
- * is picked up from an Extension Table which has
- * been verified by the ISBC (Internal Secure boot Code)
- * in boot ROM of the SoC.
- * The feature is only applicable in case of NOR boot and is
- * not applicable in case of RAMBOOT (NAND, SD, SPI).
- */
-#define CONFIG_FSL_ISBC_KEY_EXT
-#endif
 #endif /* #ifdef CONFIG_NXP_ESBC */
 
 #ifdef CONFIG_CHAIN_OF_TRUST

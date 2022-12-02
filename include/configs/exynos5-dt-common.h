@@ -17,6 +17,5 @@
 
 #define CFG_SYS_SPI_BASE	0x12D30000
 #define FLASH_SIZE		(4 << 20)
-#define CONFIG_SPI_BOOTING
 
 #endif

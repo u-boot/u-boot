@@ -825,8 +825,13 @@ config MMC_MTK
 
 endif
 
+config FSL_SDHC_V2_3
+	bool
+
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
+	select FSL_SDHC_V2_3 if ARCH_P1010 || ARCH_BSC9131 || ARCH_BSC9132 \
+		|| ARCH_C29X
 	help
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.

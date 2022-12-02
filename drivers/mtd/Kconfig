@@ -119,6 +119,13 @@ config SYS_FLASH_EMPTY_INFO
 	bool "Enable displaying empty sectors in flash info"
 	depends on FLASH_CFI_DRIVER
 
+config FLASH_SPANSION_S29WS_N
+	bool "Non-standard s29ws-n MirrorBit flash"
+	depends on FLASH_CFI_DRIVER
+	help
+	  Enable this if the s29ws-n MirrorBit flash has non-standard addresses
+	  for buffered write commands.
+
 config FLASH_CFI_MTD
 	bool "Enable CFI MTD driver"
 	depends on FLASH_CFI_DRIVER
@@ -155,6 +162,18 @@ config SYS_FLASH_CHECKSUM
 	help
 	  If the variable flashchecksum is set in the environment, perform a CRC
 	  of the flash and print the value to console.
+
+config FLASH_VERIFY
+	bool "Compare writes to NOR flash with source location"
+	depends on MTD_NOR_FLASH
+	help
+	  If enabled, the content of the flash (destination) is compared
+	  against the source after the write operation. An error message will
+	  be printed when the contents are not identical.  Please note that
+	  this option is useless in nearly all cases, since such flash
+	  programming errors usually are detected earlier while
+	  unprotecting/erasing/programming. Please only enable this option if
+	  you really know what you are doing.
 
 config ALTERA_QSPI
 	bool "Altera Generic Quad SPI Controller"

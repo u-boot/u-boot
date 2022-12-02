@@ -372,6 +372,7 @@ config FMAN_ENET
 	select SYS_FMAN_V3 if ARCH_B4420 || ARCH_B4860 || ARCH_LS1043A || \
 		ARCH_LS1046A || ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || \
 		ARCH_T2080 || ARCH_T4240
+	select FSL_FM_10GEC_REGULAR_NOTATION if ARCH_T1024
 	help
 	  This driver support the Freescale FMan Ethernet controller
 
@@ -390,6 +391,18 @@ config SYS_FMAN_V3
 	select FSL_MEMAC
 	help
 	  SoC has FMan v3 with mEMAC
+
+config FSL_FM_10GEC_REGULAR_NOTATION
+	bool
+	help
+	  On SoCs T4240, T2080, LS1043A, etc, the notation between 10GEC and
+	  MAC as below:
+		10GEC1->MAC9, 10GEC2->MAC10, 10GEC3->MAC1, 10GEC4->MAC2
+	  While on SoCs T1024, etc, the notation between 10GEC and MAC as below:
+		10GEC1->MAC1, 10GEC2->MAC2
+	  so we introduce CONFIG_FSL_FM_10GEC_REGULAR_NOTATION to identify the
+	  new SoCs on which 10GEC enumeration is consistent with MAC
+	  enumeration.
 
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"

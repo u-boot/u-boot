@@ -25,7 +25,6 @@
 
 /* NOR 16-bit mode */
 #define CFG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
-#define CONFIG_FLASH_VERIFY
 
 /* NOR Flash MTD */
 #define CFG_SYS_FLASH_BANKS_LIST	{ (CFG_SYS_FLASH_BASE) }

@@ -1324,6 +1324,11 @@ config SYS_ULB_CLK
 config SYS_ETVPE_CLK
 	int
 	default 1
+
+config MAX_DSP_CPUS
+	int
+	default 12 if ARCH_B4860
+	default 2 if ARCH_B4420
 endif
 
 config SYS_L2_SIZE_256KB

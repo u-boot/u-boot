@@ -1477,19 +1477,6 @@ Configuration Settings:
 - CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 		Use buffered writes to flash.
 
-- CONFIG_FLASH_SPANSION_S29WS_N
-		s29ws-n MirrorBit flash has non-standard addresses for buffered
-		write commands.
-
-- CONFIG_FLASH_VERIFY
-		If defined, the content of the flash (destination) is compared
-		against the source after the write operation. An error message
-		will be printed when the contents are not identical.
-		Please note that this option is useless in nearly all cases,
-		since such flash programming errors usually are detected earlier
-		while unprotecting/erasing/programming. Please only enable
-		this option if you really know what you are doing.
-
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
 - CONFIG_ENV_FLAGS_LIST_STATIC
 	Enable validation of the values given to environment variables when

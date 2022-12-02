@@ -11,7 +11,6 @@
 #define CONFIG_X86_REFCODE_RUN_ADDR		0
 
 #define VIDEO_IO_OFFSET				0
-#define CONFIG_X86EMU_RAW_IO
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,i8042-kbd,serial\0" \
 					"stdout=vidconsole,serial\0" \
