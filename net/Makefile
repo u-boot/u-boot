@@ -25,6 +25,7 @@ obj-$(CONFIG_NET)      += net.o
 obj-$(CONFIG_IPV6)     += net6.o
 obj-$(CONFIG_CMD_NFS)  += nfs.o
 obj-$(CONFIG_CMD_PING) += ping.o
+obj-$(CONFIG_CMD_PING6) += ping6.o
 obj-$(CONFIG_CMD_PCAP) += pcap.o
 obj-$(CONFIG_CMD_RARP) += rarp.o
 obj-$(CONFIG_CMD_SNTP) += sntp.o

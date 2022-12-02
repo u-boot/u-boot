@@ -403,6 +403,32 @@ U_BOOT_CMD(
 );
 #endif
 
+#if IS_ENABLED(CONFIG_CMD_PING6)
+int do_ping6(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (string_to_ip6(argv[1], strlen(argv[1]), &net_ping_ip6))
+		return CMD_RET_USAGE;
+
+	use_ip6 = true;
+	if (net_loop(PING6) < 0) {
+		use_ip6 = false;
+		printf("ping6 failed; host %pI6c is not alive\n",
+		       &net_ping_ip6);
+		return 1;
+	}
+
+	use_ip6 = false;
+	printf("host %pI6c is alive\n", &net_ping_ip6);
+	return 0;
+}
+
+U_BOOT_CMD(
+	ping6,  2,      1,      do_ping6,
+	"send ICMPv6 ECHO_REQUEST to network host",
+	"pingAddress"
+);
+#endif /* CONFIG_CMD_PING6 */
+
 #if defined(CONFIG_CMD_CDP)
 
 static void cdp_update_env(void)

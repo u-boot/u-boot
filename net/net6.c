@@ -404,6 +404,10 @@ int net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len)
 			return -EINVAL;
 
 		switch (icmp->icmp6_type) {
+		case IPV6_ICMP_ECHO_REQUEST:
+		case IPV6_ICMP_ECHO_REPLY:
+			ping6_receive(et, ip6, len);
+			break;
 		case IPV6_NDISC_NEIGHBOUR_SOLICITATION:
 		case IPV6_NDISC_NEIGHBOUR_ADVERTISEMENT:
 			ndisc_receive(et, ip6, len);

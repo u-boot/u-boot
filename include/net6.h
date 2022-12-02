@@ -172,6 +172,7 @@ extern struct in6_addr net_ip6;	/* Our IPv6 addr (0 = unknown) */
 extern struct in6_addr net_link_local_ip6;	/* Our link local IPv6 addr */
 extern u32 net_prefix_length;	/* Our prefixlength (0 = unknown) */
 extern struct in6_addr net_server_ip6;	/* Server IPv6 addr (0 = unknown) */
+extern struct in6_addr net_ping_ip6; /* the ipv6 address to ping */
 extern bool use_ip6;
 
 #if IS_ENABLED(CONFIG_IPV6)
@@ -402,5 +403,30 @@ static inline void net_copy_ip6(void *to, const void *from)
 {
 }
 #endif
+
+#if IS_ENABLED(CONFIG_CMD_PING6)
+/* Send ping requset */
+void ping6_start(void);
+
+/**
+ * ping6_receive() - Handle reception of ICMPv6 echo request/reply
+ *
+ * @et:		pointer to incoming patcket
+ * @ip6:	pointer to IPv6 protocol
+ * @len:	packet length
+ * Return: 0 if success, -EINVAL in case of failure during reception
+ */
+int ping6_receive(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len);
+#else
+static inline void ping6_start(void)
+{
+}
+
+static inline
+int ping6_receive(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len)
+{
+	return -EINVAL;
+}
+#endif /* CONFIG_CMD_PING6 */
 
 #endif /* __NET6_H__ */

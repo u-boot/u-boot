@@ -525,6 +525,11 @@ restart:
 			ping_start();
 			break;
 #endif
+#if defined(CONFIG_CMD_PING6)
+		case PING6:
+			ping6_start();
+			break;
+#endif
 #if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 		case NFS:
 			nfs_start();
@@ -1429,6 +1434,14 @@ static int net_check_prereq(enum proto_t protocol)
 #if defined(CONFIG_CMD_PING)
 	case PING:
 		if (net_ping_ip.s_addr == 0) {
+			puts("*** ERROR: ping address not given\n");
+			return 1;
+		}
+		goto common;
+#endif
+#if defined(CONFIG_CMD_PING6)
+	case PING6:
+		if (ip6_is_unspecified_addr(&net_ping_ip6)) {
 			puts("*** ERROR: ping address not given\n");
 			return 1;
 		}
