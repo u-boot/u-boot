@@ -75,6 +75,35 @@ static int dm_test_string_to_ip6(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_string_to_ip6, 0);
+
+static int dm_test_csum_ipv6_magic(struct unit_test_state *uts)
+{
+	unsigned short csum = 0xbeef;
+	/* Predefined correct parameters */
+	unsigned short correct_csum = 0xd8ac;
+	struct in6_addr saddr = {.s6_addr32[0] = 0x000080fe,
+				 .s6_addr32[1] = 0x00000000,
+				 .s6_addr32[2] = 0xffe9f242,
+				 .s6_addr32[3] = 0xe8f66dfe};
+	struct in6_addr daddr = {.s6_addr32[0] = 0x000080fe,
+				 .s6_addr32[1] = 0x00000000,
+				 .s6_addr32[2] = 0xffd5b372,
+				 .s6_addr32[3] = 0x3ef692fe};
+	u16 len = 1460;
+	unsigned short proto = 17;
+	unsigned int head_csum = 0x91f0;
+
+	csum = csum_ipv6_magic(&saddr, &daddr, len, proto, head_csum);
+	ut_asserteq(csum, correct_csum);
+
+	/* Broke a parameter */
+	proto--;
+	csum = csum_ipv6_magic(&saddr, &daddr, len, proto, head_csum);
+	ut_assert(csum != correct_csum);
+
+	return 0;
+}
+DM_TEST(dm_test_csum_ipv6_magic, 0);
 #endif
 
 static int dm_test_eth(struct unit_test_state *uts)
