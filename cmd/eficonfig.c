@@ -488,7 +488,7 @@ static efi_status_t eficonfig_file_selected(void *data)
 	if (!info)
 		return EFI_INVALID_PARAMETER;
 
-	if (!strcmp(info->file_name, "..")) {
+	if (!strcmp(info->file_name, "..\\")) {
 		struct eficonfig_filepath_info *iter;
 		struct list_head *pos, *n;
 		int is_last;
