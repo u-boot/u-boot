@@ -891,6 +891,10 @@ config FSL_USDHC
 	help
 	  This enables the Ultra Secured Digital Host Controller enhancements
 
+config FSL_ESDHC_PIN_MUX
+	bool "Perform esdhc device-tree fixup"
+	depends on (FSL_ESDHC || FSL_ESDHC_IMX) && OF_LIBFDT
+
 endmenu
 
 config SYS_FSL_ERRATUM_ESDHC111
