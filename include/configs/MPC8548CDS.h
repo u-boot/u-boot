@@ -26,8 +26,6 @@
 
 /* DDR Setup */
 
-#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
-
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 

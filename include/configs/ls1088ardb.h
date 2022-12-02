@@ -15,7 +15,6 @@
 
 #define COUNTER_FREQUENCY_REAL		25000000	/* 25MHz */
 
-#define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS	0x51
 
 

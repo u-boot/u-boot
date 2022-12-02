@@ -9,12 +9,6 @@
 
 #include "ls1043a_common.h"
 
-/* Physical Memory Map */
-
-#ifndef CONFIG_SPL
-#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-#endif
-
 /*
  * NOR Flash Definitions
  */

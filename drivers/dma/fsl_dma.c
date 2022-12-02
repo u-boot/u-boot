@@ -133,7 +133,7 @@ int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
  */
 #if ((!defined CONFIG_MPC83xx && defined(CONFIG_DDR_ECC) &&	\
 	!defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)))
-void dma_meminit(uint val, uint size)
+void dma_meminit(uint size)
 {
 	uint *p = 0;
 	uint i = 0;
@@ -142,7 +142,7 @@ void dma_meminit(uint val, uint size)
 		if (((uint)p & 0x1f) == 0)
 			ppcDcbz((ulong)p);
 
-		*p = (uint)CONFIG_MEM_INIT_VALUE;
+		*p = (uint)0xDEADBEEF;
 
 		if (((uint)p & 0x1c) == 0x1c)
 			ppcDcbf((ulong)p);

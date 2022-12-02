@@ -13,8 +13,6 @@
 
 #define SPD_EEPROM_ADDRESS		0x51
 
-#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-
 #if defined(CONFIG_QSPI_BOOT)
 #define CFG_SYS_UBOOT_BASE		0x40100000
 #endif

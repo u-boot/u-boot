@@ -60,13 +60,6 @@
 #endif
 
 /*
- * These can be toggled for performance analysis, otherwise use default.
- */
-#ifdef CONFIG_DDR_ECC
-#define CONFIG_MEM_INIT_VALUE		0xdeadbeef
-#endif
-
-/*
  * Config the L3 Cache as L3 SRAM
  */
 #define CFG_SYS_INIT_L3_ADDR		0xFFFC0000

@@ -22,10 +22,6 @@
 #define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
-#ifdef CONFIG_DDR_ECC
-#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-#endif
-
 /*
  * IFC Definitions
  */

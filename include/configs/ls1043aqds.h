@@ -12,10 +12,6 @@
 
 #define SPD_EEPROM_ADDRESS		0x51
 
-#ifdef CONFIG_DDR_ECC
-#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-#endif
-
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
