@@ -37,6 +37,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "omapl138_lcdk"
 
+config NAND_6BYTES_OOB_FREE_10BYTES_ECC
+	def_bool y
+
 endif
 
 source "board/ti/common/Kconfig"

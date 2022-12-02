@@ -16,8 +16,6 @@
 #define CFG_SYS_PL310_BASE		L2_PL310_BASE
 #endif /* !CONFIG_SYS_L2CACHE_OFF */
 
-#define CONFIG_MXC_GPT_HCLK
-
 /* MMC */
 
 /* Boot */

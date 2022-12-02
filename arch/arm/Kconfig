@@ -915,6 +915,7 @@ config ARCH_MX7
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
+	select MXC_GPT_HCLK
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -928,6 +929,7 @@ config ARCH_MX6
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
+	select MXC_GPT_HCLK
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE

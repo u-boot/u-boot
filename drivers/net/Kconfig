@@ -198,6 +198,18 @@ config DRIVER_DM9000
 	help
 	  The Davicom DM9000 parallel bus external ethernet interface chip.
 
+config DM9000_BYTE_SWAPPED
+	bool "Byte swapped access for DM9000"
+	depends on DRIVER_DM9000
+
+config DM9000_NO_SROM
+	bool "No SROM on DM9000"
+	depends on DRIVER_DM9000
+
+config DM9000_USE_16BIT
+	bool "Use 16bit access in DM9000"
+	depends on DRIVER_DM9000
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	select PHYLIB
