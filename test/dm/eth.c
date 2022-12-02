@@ -104,6 +104,31 @@ static int dm_test_csum_ipv6_magic(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_csum_ipv6_magic, 0);
+
+static int dm_test_ip6_addr_in_subnet(struct unit_test_state *uts)
+{
+	struct in6_addr our = {.s6_addr32[0] = 0x000080fe,
+				 .s6_addr32[1] = 0x00000000,
+				 .s6_addr32[2] = 0xffe9f242,
+				 .s6_addr32[3] = 0xe8f66dfe};
+	struct in6_addr neigh1 = {.s6_addr32[0] = 0x000080fe,
+				 .s6_addr32[1] = 0x00000000,
+				 .s6_addr32[2] = 0xffd5b372,
+				 .s6_addr32[3] = 0x3ef692fe};
+	struct in6_addr neigh2 = {.s6_addr32[0] = 0x60480120,
+				 .s6_addr32[1] = 0x00006048,
+				 .s6_addr32[2] = 0x00000000,
+				 .s6_addr32[3] = 0x00008888};
+
+	/* in */
+	ut_assert(ip6_addr_in_subnet(&our, &neigh1, 64));
+	/* outside */
+	ut_assert(!ip6_addr_in_subnet(&our, &neigh2, 64));
+	ut_assert(!ip6_addr_in_subnet(&our, &neigh1, 128));
+
+	return 0;
+}
+DM_TEST(dm_test_ip6_addr_in_subnet, 0);
 #endif
 
 static int dm_test_eth(struct unit_test_state *uts)
