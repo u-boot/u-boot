@@ -15,7 +15,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Medcom-Wide"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTD	/* UARTD: debug UART */
 #define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 /* NAND support */

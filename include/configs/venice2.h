@@ -15,7 +15,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Venice2"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTA
 #define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */

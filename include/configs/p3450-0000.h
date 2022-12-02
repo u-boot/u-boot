@@ -14,7 +14,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA P3450-0000"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTA
 
 /* Only MMC/PXE/DHCP for now, add USB back in later when supported */
 #define BOOT_TARGET_DEVICES(func) \
