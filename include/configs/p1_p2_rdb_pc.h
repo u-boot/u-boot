@@ -441,29 +441,4 @@ RST_PCIE_CMD(pciboot) \
 RST_DEF_CMD(defboot) \
 ""
 
-#define CONFIG_USB_FAT_BOOT	\
-"setenv bootargs root=/dev/ram rw "	\
-"console=$consoledev,$baudrate $othbootargs " \
-"ramdisk_size=$ramdisk_size;"	\
-"usb start;"	\
-"fatload usb 0:2 $loadaddr $bootfile;"	\
-"fatload usb 0:2 $fdtaddr $fdtfile;"	\
-"fatload usb 0:2 $ramdiskaddr $ramdiskfile;"	\
-"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_USB_EXT2_BOOT	\
-"setenv bootargs root=/dev/ram rw "	\
-"console=$consoledev,$baudrate $othbootargs " \
-"ramdisk_size=$ramdisk_size;"	\
-"usb start;"	\
-"ext2load usb 0:4 $loadaddr $bootfile;"	\
-"ext2load usb 0:4 $fdtaddr $fdtfile;" \
-"ext2load usb 0:4 $ramdiskaddr $ramdiskfile;" \
-"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_NORBOOT	\
-"setenv bootargs root=/dev/$jffs2nor rw "	\
-"console=$consoledev,$baudrate rootfstype=jffs2 $othbootargs;"	\
-"bootm $norbootaddr - $norfdtaddr"
-
 #endif /* __CONFIG_H */
