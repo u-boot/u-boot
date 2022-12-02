@@ -149,7 +149,6 @@
  * I2C
  */
 
-#define CONFIG_I2C_MULTI_BUS
 #define CFG_SYS_I2C_MAX_HOPS		1
 #define CFG_SYS_NUM_I2C_BUSES	3
 #define I2C_MUX_PCA_ADDR		0x70

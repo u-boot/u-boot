@@ -33,9 +33,6 @@
 #define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-/* I2C */
-#define CONFIG_I2C_MULTI_BUS
-
 /* I2C EEPROM */
 
 /* MMC Configs */
