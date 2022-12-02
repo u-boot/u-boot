@@ -29,3 +29,51 @@ struct in6_addr net_server_ip6 = ZERO_IPV6_ADDR;
 u32 net_prefix_length;
 
 bool use_ip6;
+
+static int on_ip6addr(const char *name, const char *value, enum env_op op,
+		      int flags)
+{
+	char *mask;
+	size_t len;
+
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	if (op == env_op_delete) {
+		net_prefix_length = 0;
+		net_copy_ip6(&net_ip6, &net_null_addr_ip6);
+		return 0;
+	}
+
+	mask = strchr(value, '/');
+	len = strlen(value);
+
+	if (mask)
+		net_prefix_length = simple_strtoul(value + len, NULL, 10);
+
+	return string_to_ip6(value, len, &net_ip6);
+}
+
+U_BOOT_ENV_CALLBACK(ip6addr, on_ip6addr);
+
+static int on_gatewayip6(const char *name, const char *value, enum env_op op,
+			 int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	return string_to_ip6(value, strlen(value), &net_gateway6);
+}
+
+U_BOOT_ENV_CALLBACK(gatewayip6, on_gatewayip6);
+
+static int on_serverip6(const char *name, const char *value, enum env_op op,
+			int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	return string_to_ip6(value, strlen(value), &net_server_ip6);
+}
+
+U_BOOT_ENV_CALLBACK(serverip6, on_serverip6);
