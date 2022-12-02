@@ -60,4 +60,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
         default "etamin"
 
+config NAND_CS_INIT
+	def_bool y
 endif
