@@ -149,6 +149,24 @@ static int dm_test_ip6_make_snma(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ip6_make_snma, 0);
+
+static int dm_test_ip6_make_lladdr(struct unit_test_state *uts)
+{
+	struct in6_addr generated_lladdr = {0};
+	struct in6_addr correct_lladdr = {
+				 .s6_addr32[0] = 0x000080fe,
+				 .s6_addr32[1] = 0x00000000,
+				 .s6_addr32[2] = 0xffabf33a,
+				 .s6_addr32[3] = 0xfbb352fe};
+	const unsigned char mac[6] = {0x38, 0xf3, 0xab, 0x52, 0xb3, 0xfb};
+
+	ip6_make_lladdr(&generated_lladdr, mac);
+	ut_asserteq_mem(&generated_lladdr, &correct_lladdr,
+			sizeof(struct in6_addr));
+
+	return 0;
+}
+DM_TEST(dm_test_ip6_make_lladdr, UT_TESTF_SCAN_FDT);
 #endif
 
 static int dm_test_eth(struct unit_test_state *uts)
