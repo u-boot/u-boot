@@ -119,9 +119,6 @@
 #define PHYS_SDRAM_3		0x50000000		/* mDDR DMC2 Bank #2 */
 #define PHYS_SDRAM_3_SIZE	(128 << 20)		/* 128 MB in Bank #2 */
 
-/* FLASH and environment organization */
-#define CONFIG_MMC_DEFAULT_DEV	0
-
 #define CFG_SYS_ONENAND_BASE		0xB0000000
 
 #endif	/* __CONFIG_H */
