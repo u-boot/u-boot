@@ -278,11 +278,11 @@ void nand_boot(void)
 	 * U-Boot header is appended at end of U-boot image, so
 	 * calculate U-boot header address using U-boot header size.
 	 */
-#define CONFIG_U_BOOT_HDR_ADDR \
+#define FSL_U_BOOT_HDR_ADDR \
 		((CFG_SYS_NAND_U_BOOT_START + \
 		  CFG_SYS_NAND_U_BOOT_SIZE) - \
-		 CONFIG_U_BOOT_HDR_SIZE)
-	spl_validate_uboot(CONFIG_U_BOOT_HDR_ADDR,
+		 FSL_U_BOOT_HDR_SIZE)
+	spl_validate_uboot(FSL_U_BOOT_HDR_ADDR,
 			   CFG_SYS_NAND_U_BOOT_START);
 	/*
 	 * In case of failure in validation, spl_validate_uboot would

@@ -133,17 +133,4 @@ unsigned long long get_qixis_addr(void);
 	" 0x580e00000 \0"
 #endif
 
-#ifdef CONFIG_SPL
-#ifdef CONFIG_NXP_ESBC
-#define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
-/*
- * HDR would be appended at end of image and copied to DDR along
- * with U-Boot image. Here u-boot max. size is 512K. So if binary
- * size increases then increase this size in case of secure boot as
- * it uses raw u-boot image instead of fit image.
- */
-#endif /* ifdef CONFIG_NXP_ESBC */
-
-#endif
-
 #endif /* __LS1088_COMMON_H */
