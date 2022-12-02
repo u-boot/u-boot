@@ -91,6 +91,8 @@
 #include <image.h>
 #include <log.h>
 #include <net.h>
+#include <net6.h>
+#include <ndisc.h>
 #include <net/fastboot.h>
 #include <net/tftp.h>
 #include <net/ncsi.h>
@@ -343,8 +345,17 @@ void net_auto_load(void)
 
 static int net_init_loop(void)
 {
-	if (eth_get_dev())
+	if (eth_get_dev()) {
 		memcpy(net_ethaddr, eth_get_ethaddr(), 6);
+
+		if (IS_ENABLED(CONFIG_IPV6)) {
+			ip6_make_lladdr(&net_link_local_ip6, net_ethaddr);
+			if (!memcmp(&net_ip6, &net_null_addr_ip6,
+				    sizeof(struct in6_addr)))
+				memcpy(&net_ip6, &net_link_local_ip6,
+				       sizeof(struct in6_addr));
+		}
+	}
 	else
 		/*
 		 * Not ideal, but there's no way to get the actual error, and I
@@ -385,6 +396,7 @@ int net_init(void)
 				(i + 1) * PKTSIZE_ALIGN;
 		}
 		arp_init();
+		ndisc_init();
 		net_clear_handlers();
 
 		/* Only need to setup buffer pointers once. */
@@ -588,6 +600,11 @@ restart:
 		schedule();
 		if (arp_timeout_check() > 0)
 			time_start = get_timer(0);
+
+		if (IS_ENABLED(CONFIG_IPV6)) {
+			if (use_ip6 && (ndisc_timeout_check() > 0))
+				time_start = get_timer(0);
+		}
 
 		/*
 		 *	Check the ethernet for a new packet.  The ethernet
@@ -1243,6 +1260,10 @@ void net_process_received_packet(uchar *in_packet, int len)
 	case PROT_RARP:
 		rarp_receive(ip, len);
 		break;
+#endif
+#if IS_ENABLED(CONFIG_IPV6)
+	case PROT_IP6:
+		net_ip6_handler(et, (struct ip6_hdr *)ip, len);
 #endif
 	case PROT_IP:
 		debug_cond(DEBUG_NET_PKT, "Got IP\n");
