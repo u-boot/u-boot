@@ -1,6 +1,19 @@
 menu "mpc85xx CPU"
 	depends on MPC85xx
 
+config PPC_SPINTABLE_COMPATIBLE
+	depends on MP
+	def_bool y
+	help
+	  To comply with ePAPR 1.1, the spin table has been moved to
+	  cache-enabled memory. Old OS may not work with this change. A patch
+	  is waiting to be accepted for Linux kernel. Other OS needs similar
+	  fix to spin table.  For OSes with old spin table code, we can enable
+	  this temporary fix by setting environmental variable
+	  "spin_table_compat". For new OSes, set "spin_table_compat=no". After
+	  Linux is fixed, we can remove this macro and related code. For now,
+	  it is enabled by default.
+
 config SYS_CPU
 	default "mpc85xx"
 

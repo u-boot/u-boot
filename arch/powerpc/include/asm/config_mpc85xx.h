@@ -8,12 +8,6 @@
 
 /* SoC specific defines for Freescale MPC85xx (PQ3) and QorIQ processors */
 
-/*
- * This macro should be removed when we no longer care about backwards
- * compatibility with older operating systems.
- */
-#define CONFIG_PPC_SPINTABLE_COMPATIBLE
-
 #include <fsl_ddrc_version.h>
 
 #if defined(CONFIG_ARCH_MPC8548)
