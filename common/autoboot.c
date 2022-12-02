@@ -422,7 +422,7 @@ static int abortboot(int bootdelay)
 	return abort;
 }
 
-static void process_fdt_options(const void *blob)
+static void process_fdt_options(void)
 {
 #ifdef CONFIG_TEXT_BASE
 	ulong addr;
@@ -474,7 +474,7 @@ const char *bootdelay_process(void)
 		s = env_get("bootcmd");
 
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
-		process_fdt_options(gd->fdt_blob);
+		process_fdt_options();
 	stored_bootdelay = bootdelay;
 
 	return s;
