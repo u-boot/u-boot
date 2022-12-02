@@ -31,7 +31,6 @@
 
 #if defined(CONFIG_ZYNQMP_USB)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-#define CONFIG_THOR_RESET_OFF
 
 # define PARTS_DEFAULT \
 	"partitions=uuid_disk=${uuid_gpt_disk};" \

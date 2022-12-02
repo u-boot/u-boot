@@ -25,7 +25,6 @@
 
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-#define CONFIG_THOR_RESET_OFF
 #endif
 
 /* Ethernet driver */

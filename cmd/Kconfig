@@ -526,6 +526,10 @@ config CMD_THOR_DOWNLOAD
 	  There is no documentation about this within the U-Boot source code
 	  but you should be able to find something on the interwebs.
 
+config THOR_RESET_OFF
+	bool "thor: Disable reset on completion"
+	depends on CMD_THOR_DOWNLOAD
+
 config CMD_ZBOOT
 	bool "zboot - x86 boot command"
 	help

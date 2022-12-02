@@ -25,7 +25,6 @@
 
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-#define CONFIG_THOR_RESET_OFF
 #define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
 	"setenv dfu_alt_info " \
