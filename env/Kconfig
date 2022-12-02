@@ -78,13 +78,6 @@ config ENV_IS_IN_EEPROM
 	  still be one byte because the extra address bits are hidden
 	  in the chip address.
 
-	  - CONFIG_I2C_ENV_EEPROM_BUS
-	  if you have an Environment on an EEPROM reached over
-	  I2C muxes, you can define here, how to reach this
-	  EEPROM. For example:
-
-	  #define CONFIG_I2C_ENV_EEPROM_BUS	  1
-
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.
 
