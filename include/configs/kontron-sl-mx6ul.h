@@ -23,7 +23,6 @@
 
 /* Board and environment settings */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
-#define CONFIG_HOSTNAME			"kontron-mx6ul"
 
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)

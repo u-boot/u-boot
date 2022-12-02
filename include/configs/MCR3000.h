@@ -52,10 +52,6 @@
 		"${ofl_args}; "						\
 		"bootm ${loadaddr} - 0xf00000\0"
 
-#define CONFIG_IPADDR			192.168.0.3
-#define CONFIG_SERVERIP			192.168.0.1
-#define CONFIG_NETMASK			255.0.0.0
-
 /* Miscellaneous configurable options */
 
 /* Definitions for initial stack pointer and data area (in DPRAM) */

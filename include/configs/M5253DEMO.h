@@ -36,8 +36,6 @@
 		""
 #endif
 
-#define CONFIG_HOSTNAME		"M5253DEMO"
-
 /* I2C */
 #define CFG_SYS_I2C_PINMUX_REG	(*(u32 *) (CFG_SYS_MBAR+0x19C))
 #define CFG_SYS_I2C_PINMUX_CLR	(0xFFFFE7FF)

@@ -27,6 +27,4 @@
 /* LCD */
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 
-#define CONFIG_ROOTPATH         "/tftpboot/opos6ul-root"
-
 #endif /* __OPOS6ULDEV_CONFIG_H */

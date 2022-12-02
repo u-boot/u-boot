@@ -734,38 +734,6 @@ The following options need to be configured:
 		Some PHY like Intel LXT971A need extra delay after
 		command issued before MII status register can be read
 
-- IP address:
-		CONFIG_IPADDR
-
-		Define a default value for the IP address to use for
-		the default Ethernet interface, in case this is not
-		determined through e.g. bootp.
-		(Environment variable "ipaddr")
-
-- Server IP address:
-		CONFIG_SERVERIP
-
-		Defines a default value for the IP address of a TFTP
-		server to contact when using the "tftboot" command.
-		(Environment variable "serverip")
-
-- Gateway IP address:
-		CONFIG_GATEWAYIP
-
-		Defines a default value for the IP address of the
-		default router where packets to other networks are
-		sent to.
-		(Environment variable "gatewayip")
-
-- Subnet mask:
-		CONFIG_NETMASK
-
-		Defines a default value for the subnet mask (or
-		routing prefix) which is used to determine if an IP
-		address belongs to the local subnet or needs to be
-		forwarded through a router.
-		(Environment variable "netmask")
-
 - BOOTP Recovery Mode:
 		CONFIG_BOOTP_RANDOM_DELAY
 

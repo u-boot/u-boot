@@ -8,8 +8,6 @@
 #ifndef __AMCORE_CONFIG_H
 #define __AMCORE_CONFIG_H
 
-#define CONFIG_HOSTNAME			"AMCORE"
-
 #define CFG_SYS_UART_PORT		0
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\

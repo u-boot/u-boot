@@ -396,15 +396,12 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_HOSTNAME		"unknown"
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
 #include "p1_p2_bootsrc.h"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 "netdev=eth0\0"	\
-"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"	\
+"uboot=" CONFIG_UBOOTPATH "\0"	\
 "loadaddr=1000000\0"	\
 "bootfile=uImage\0"	\
 "tftpflash=tftpboot $loadaddr $uboot; "	\

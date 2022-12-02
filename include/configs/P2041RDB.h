@@ -306,8 +306,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_UBOOTPATH	u-boot.bin
 
 #define __USB_PHY_TYPE	utmi
 
@@ -315,7 +313,7 @@
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"bank_intlv=cs0_cs1\0"					\
 	"netdev=eth0\0"						\
-	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"			\
+	"uboot=" CONFIG_UBOOTPATH "\0"			\
 	"ubootaddr=" __stringify(CONFIG_TEXT_BASE) "\0"		\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 	"protect off $ubootaddr +$filesize && "			\

@@ -29,14 +29,6 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text*);
 
-#ifdef CONFIG_MCFFEC
-#	define CONFIG_IPADDR	192.162.1.2
-#	define CONFIG_NETMASK	255.255.255.0
-#	define CONFIG_SERVERIP	192.162.1.1
-#	define CONFIG_GATEWAYIP	192.162.1.1
-#endif				/* CONFIG_MCFFEC */
-
-#define CONFIG_HOSTNAME		"M5282EVB"
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\

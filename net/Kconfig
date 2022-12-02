@@ -174,6 +174,58 @@ config BOOTP_MAX_ROOT_PATH_LEN
 	help
 	  Select maximal length of option 17 root path.
 
+config USE_GATEWAYIP
+	bool "Set a default 'gateway' value in the environment"
+	help
+	  Defines a default value for the IP address of the default router
+	  where packets to other networks are sent to.  (Environment variable
+	  "gatewayip")
+
+config GATEWAYIP
+	string "Value of the default 'gateway' value in the environment"
+	depends on USE_GATEWAYIP
+
+config USE_IPADDR
+	bool "Set a default 'ipaddr' value in the environment"
+	help
+	  Define a default value for the IP address to use for the default
+	  Ethernet interface, in case this is not determined through e.g.
+	  bootp.  (Environment variable "ipaddr")
+
+config IPADDR
+	string "Value of the default 'ipaddr' value in the environment"
+	depends on USE_IPADDR
+
+config USE_NETMASK
+	bool "Set a default 'netmask' value in the environment"
+	help
+	  Defines a default value for the subnet mask (or routing prefix) which
+	  is used to determine if an IP address belongs to the local subnet or
+	  needs to be forwarded through a router.  (Environment variable "netmask")
+
+config NETMASK
+	string "Value of the default 'netmask' value in the environment"
+	depends on USE_NETMASK
+
+config USE_ROOTPATH
+	bool "Set a default 'rootpath' value in the environment"
+
+config ROOTPATH
+	string "Value of the default 'rootpath' value in the environment"
+	depends on USE_ROOTPATH
+	default "/opt/nfsroot"
+
+config USE_SERVERIP
+	bool "Set a default 'serverip' value in the environment"
+	help
+	  Defines a default value for the IP address of a TFTP server to
+	  contact when using the "tftboot" command.  (Environment variable
+	  "serverip")
+
+config SERVERIP
+	string "Value of the default 'serverip' value in the environment"
+	depends on USE_SERVERIP
+
 config PROT_TCP
 	bool "TCP stack"
 	help

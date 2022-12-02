@@ -866,6 +866,16 @@ config ETHPRIME
 	help
 	  The value to set the "ethprime" variable to.
 
+config USE_HOSTNAME
+	bool "Set a default 'hostname' value in the environment"
+	default y if X86
+
+config HOSTNAME
+	string "Value of the default 'hostname' value in the environment"
+	depends on USE_HOSTNAME
+	default "x86" if X86
+	default "unknown"
+
 config VERSION_VARIABLE
 	bool "Add a 'ver' environment variable with the U-Boot version"
 	help

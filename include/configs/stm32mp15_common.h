@@ -24,9 +24,6 @@
 /* NAND support */
 
 /* Ethernet need */
-#ifdef CONFIG_DWC_ETH_QOS
-#define CONFIG_SERVERIP                 192.168.1.1
-#endif
 
 #define STM32MP_FIP_IMAGE_GUID \
 	EFI_GUID(0x19d5df83, 0x11b0, 0x457b, 0xbe, 0x2c, \

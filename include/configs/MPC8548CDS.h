@@ -298,20 +298,10 @@
  * Environment Configuration
  */
 
-#define CONFIG_IPADDR	 192.168.1.253
-
-#define CONFIG_HOSTNAME	 "unknown"
-#define CONFIG_ROOTPATH	 "/nfsroot"
-#define CONFIG_UBOOTPATH	8548cds/u-boot.bin	/* TFTP server */
-
-#define CONFIG_SERVERIP	 192.168.1.1
-#define CONFIG_GATEWAYIP 192.168.1.1
-#define CONFIG_NETMASK	 255.255.255.0
-
 #define	CONFIG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:ecc=off\0"		\
 	"netdev=eth0\0"				\
-	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"	\
+	"uboot=" CONFIG_UBOOTPATH "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot; "	\
 		"protect off " __stringify(CONFIG_TEXT_BASE)	\
 			" +$filesize; "	\

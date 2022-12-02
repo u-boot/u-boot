@@ -26,7 +26,6 @@
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Extra Environment */
-#define CONFIG_HOSTNAME		"xea"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootmode=update\0"						\
