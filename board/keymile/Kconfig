@@ -100,8 +100,7 @@ config KM_MVEXTSW_ADDR
 config KM_IVM_BUS
 	int "IVM I2C Bus"
 	default 0 if ARCH_SOCFPGA
-	default 1 if MPC85xx || ARCH_LS1021A
-	default 2 if MPC83xx
+	default 1 if PPC || ARCH_LS1021A
 	help
 	  Identifier number of I2C bus, where the inventory EEPROM is connected to.
 

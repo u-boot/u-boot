@@ -48,14 +48,6 @@
 
 #define CFG_SYS_FLASH_BANKS_LIST { CFG_SYS_FLASH_BASE }
 
-/* I2C */
-#define CFG_SYS_NUM_I2C_BUSES	4
-#define CFG_SYS_I2C_MAX_HOPS		1
-#define CFG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP} }, \
-		{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
-		{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
-		{1, {I2C_NULL_HOP} } }
-
 #if defined(CONFIG_CMD_NAND)
 #define CFG_SYS_NAND_BASE		CFG_SYS_KMBEC_FPGA_BASE
 #endif
