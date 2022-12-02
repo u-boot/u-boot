@@ -51,7 +51,4 @@
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
-#define CONFIG_UBI_PART			user
-#define CONFIG_UBIFS_VOLUME		user
-
 #endif /* _CONFIG_X530_H */
