@@ -479,6 +479,10 @@ config SYS_NAND_SIZE
 	depends on NAND_MXC && SPL_NAND_SUPPORT
 	default 268435456
 
+config MXC_NAND_HWECC
+	bool "Hardware ECC support in MXC NAND"
+	depends on NAND_MXC
+
 config NAND_MXS
 	bool "MXS NAND support"
 	depends on MX23 || MX28 || MX6 || MX7 || IMX8 || IMX8M
