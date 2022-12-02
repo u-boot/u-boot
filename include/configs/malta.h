@@ -9,7 +9,6 @@
 /*
  * System configuration
  */
-#define CONFIG_MALTA
 
 /*
  * CPU Configuration
