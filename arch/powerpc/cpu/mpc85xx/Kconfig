@@ -1297,6 +1297,9 @@ config SYS_NUM_TLBCAMS
 		Number of TLB CAM entries for Book-E chips. 64 for E500MC,
 		16 for other E500 SoCs.
 
+config L2_CACHE
+	bool "Enable L2 cache support"
+
 if HETROGENOUS_CLUSTERS
 
 config SYS_MAPLE

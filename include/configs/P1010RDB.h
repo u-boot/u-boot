@@ -95,11 +95,6 @@
 #endif
 #endif
 
-/*
- * These can be toggled for performance analysis, otherwise use default.
- */
-#define CONFIG_L2_CACHE			/* toggle L2 cache */
-
 /* DDR Setup */
 #define SPD_EEPROM_ADDRESS		0x52
 
