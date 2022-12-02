@@ -1347,7 +1347,7 @@ config SPL_USB_HOST
 
 config SPL_USB_STORAGE
 	bool "Support loading from USB"
-	depends on SPL_USB_HOST && !(BLK && !DM_USB)
+	depends on SPL_USB_HOST
 	help
 	  Enable support for USB devices in SPL. This allows use of USB
 	  devices such as hard drives and flash drivers for loading U-Boot.
