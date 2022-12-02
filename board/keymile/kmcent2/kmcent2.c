@@ -34,7 +34,7 @@ static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 
 int checkboard(void)
 {
-	printf("Board: Hitachi Power Grids %s\n", KM_BOARD_NAME);
+	printf("Board: Hitachi Power Grids kmcent2\n");
 
 	return 0;
 }
