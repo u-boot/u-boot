@@ -48,9 +48,6 @@
 
 #include <configs/ti_omap5_common.h>
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_HSMMC2_8BIT
-
 /*
  * Default to using SPI for environment, etc.
  * 0x000000 - 0x040000 : QSPI.SPL (256KiB)

@@ -385,6 +385,11 @@ config MMC_OMAP36XX_PINS
 
 	  If unsure, say N.
 
+config HSMMC2_8BIT
+	bool "Enable 8-bit interface for eMMC (interface #2)"
+	depends on MMC_OMAP_HS && (OMAP44XX || OMAP54XX || DRA7XX || AM33XX || \
+		AM43XX || ARCH_KEYSTONE)
+
 config SH_SDHI
 	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"
 	depends on ARCH_RMOBILE

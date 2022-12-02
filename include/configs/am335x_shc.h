@@ -20,8 +20,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_HSMMC2_8BIT
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
