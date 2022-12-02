@@ -30,6 +30,15 @@ config ENV_OVERWRITE
 	  Use this to permit overriding of certain environmental variables
 	  like Ethernet and Serial
 
+config OVERWRITE_ETHADDR_ONCE
+	bool "Enable overwriting ethaddr environment variables once"
+	depends on !ENV_OVERWRITE
+	help
+	  Enable this to allow for the ethaddr environment variables to be
+	  overwritten one time per boot, only. This allows for a default
+	  to be installed in the environment, which can be changed exactly ONCE
+	  by the user.
+
 config ENV_MIN_ENTRIES
 	int "Minimum number of entries in the environment hashtable"
 	default 64

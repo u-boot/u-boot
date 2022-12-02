@@ -20,8 +20,6 @@
 	env/embedded.o(.text*);
 
 #ifdef CONFIG_DRIVER_DM9000
-#	define CONFIG_OVERWRITE_ETHADDR_ONCE
-
 #	define CONFIG_EXTRA_ENV_SETTINGS		\
 		"netdev=eth0\0"				\
 		"inpclk=" __stringify(CONFIG_SYS_INPUT_CLKSRC) "\0"	\

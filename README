@@ -1071,13 +1071,6 @@ The following options need to be configured:
 		completely disabled. Anybody can change or delete
 		these parameters.
 
-		Alternatively, if you define _both_ an ethaddr in the
-		default env _and_ CONFIG_OVERWRITE_ETHADDR_ONCE, a default
-		Ethernet address is installed in the environment,
-		which can be changed exactly ONCE by the user. [The
-		serial# is unaffected by this, i. e. it remains
-		read-only.]
-
 		The same can be accomplished in a more flexible way
 		for any variable by configuring the type of access
 		to allow for those variables in the ".flags" variable

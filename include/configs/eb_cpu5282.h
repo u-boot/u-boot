@@ -42,10 +42,6 @@
  * Network								*
  *----------------------------------------------------------------------*/
 
-#ifdef CONFIG_MCFFEC
-#define CONFIG_OVERWRITE_ETHADDR_ONCE
-#endif
-
 /*-------------------------------------------------------------------------
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)
