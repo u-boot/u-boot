@@ -101,8 +101,6 @@
 #define PIXIS_LBMAP_SHIFT	4
 #define PIXIS_LBMAP_ALTBANK	0x40
 
-#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
-
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC
 #define CFG_SYS_NAND_BASE		0xffa00000

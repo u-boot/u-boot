@@ -77,6 +77,15 @@ config SYS_FLASH_CFI_WIDTH
 	help
 	  This must be kept in sync with the table in include/flash.h
 
+config FLASH_SHOW_PROGRESS
+	int "Print out a countdown durinng writes"
+	depends on FLASH_CFI_DRIVER
+	default 45
+	help
+	  If set to a non-zero value, print out countdown digits and dots.
+	  Recommended value: 45 (9..1) for 80 column displays, 15 (3..1) for 40
+	  column displays.
+
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
 	depends on DM_MTD

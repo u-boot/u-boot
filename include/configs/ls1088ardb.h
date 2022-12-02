@@ -47,8 +47,6 @@
 #define CFG_SYS_IFC_CCR	0x01000000
 
 #ifndef SYS_NO_FLASH
-#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
-
 #define CFG_SYS_FLASH_BANKS_LIST	{ CFG_SYS_FLASH_BASE }
 #endif
 #endif

@@ -58,8 +58,6 @@
 					FTIM2_NOR_TWP(0xb))
 #define CFG_SYS_NOR_FTIM3		0
 
-#define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
-
 #define CFG_SYS_FLASH_BANKS_LIST	{ CFG_SYS_FLASH_BASE_PHYS }
 
 #define CFG_SYS_WRITE_SWAPPED_DATA

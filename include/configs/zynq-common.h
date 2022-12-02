@@ -35,9 +35,6 @@
 /* Ethernet driver */
 
 /* NOR */
-#ifdef CONFIG_MTD_NOR_FLASH
-# define CONFIG_FLASH_SHOW_PROGRESS	10
-#endif
 
 #ifdef CONFIG_USB_EHCI_ZYNQ
 # define DFU_DEFAULT_POLL_TIMEOUT	300

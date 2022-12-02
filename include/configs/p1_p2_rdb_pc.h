@@ -199,7 +199,6 @@
 #define CONFIG_FLASH_OR_PRELIM	0xfc000ff7
 
 #define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE_PHYS}
-#define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
 
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC

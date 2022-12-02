@@ -84,7 +84,6 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_FLASH_SHOW_PROGRESS	45
 
 #define CFG_SYS_FLASH_BASE		CFG_SYS_CS0_BASE
 #define	CFG_SYS_INT_FLASH_BASE	0xF0000000

@@ -1481,11 +1481,6 @@ Configuration Settings:
 		s29ws-n MirrorBit flash has non-standard addresses for buffered
 		write commands.
 
-- CONFIG_FLASH_SHOW_PROGRESS
-		If defined (must be an integer), print out countdown
-		digits and dots.  Recommended value: 45 (9..1) for 80
-		column displays, 15 (3..1) for 40 column displays.
-
 - CONFIG_FLASH_VERIFY
 		If defined, the content of the flash (destination) is compared
 		against the source after the write operation. An error message
