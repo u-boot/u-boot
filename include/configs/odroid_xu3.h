@@ -20,14 +20,6 @@
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
-/* THOR */
-#define CONFIG_G_DNL_THOR_VENDOR_NUM	CONFIG_USB_GADGET_VENDOR_NUM
-#define CONFIG_G_DNL_THOR_PRODUCT_NUM	0x685D
-
-/* UMS */
-#define CONFIG_G_DNL_UMS_VENDOR_NUM	0x0525
-#define CONFIG_G_DNL_UMS_PRODUCT_NUM	0xA4A5
-
 #define CONFIG_DFU_ALT_SYSTEM               \
 	"uImage fat 0 1;"                   \
 	"zImage fat 0 1;"                   \
