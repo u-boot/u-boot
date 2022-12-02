@@ -302,15 +302,6 @@ int cpu_mmc_init(struct bd_info *bis)
 }
 #endif
 
-int cpu_eth_init(struct bd_info *bis)
-{
-#if defined(CONFIG_TSEC_ENET) && !defined(CONFIG_DM_ETH)
-	tsec_standard_init(bis);
-#endif
-
-	return 0;
-}
-
 int arch_cpu_init(void)
 {
 	void *epu_base = (void *)(CFG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);

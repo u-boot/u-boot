@@ -58,8 +58,3 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_SYS_BOOTMAPSZ		(8 << 20)
-
-/*
- * QE UEC ethernet configuration
- */
-#define CONFIG_UEC_ETH

@@ -1058,9 +1058,6 @@ int cpu_eth_init(struct bd_info *bis)
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
 	error = fsl_mc_ldpaa_init(bis);
 #endif
-#ifdef CONFIG_FMAN_ENET
-	fm_standard_init(bis);
-#endif
 	return error;
 }
 
