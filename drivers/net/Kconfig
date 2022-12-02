@@ -709,9 +709,6 @@ config XILINX_AXIMRMAC
 config VSC7385_ENET
 	bool "Vitesse 7385 Switch Firmware Upload driver"
 
-config VSC9953
-	bool "Vitesse VSC9953 L2 Switch driver"
-
 config XILINX_EMACLITE
 	select PHYLIB
 	select MII
