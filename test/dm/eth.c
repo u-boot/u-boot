@@ -13,6 +13,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
+#include <net6.h>
 #include <asm/eth.h>
 #include <dm/test.h>
 #include <dm/device-internal.h>
@@ -21,6 +22,60 @@
 #include <test/ut.h>
 
 #define DM_TEST_ETH_NUM		4
+
+#if IS_ENABLED(CONFIG_IPV6)
+static int dm_test_string_to_ip6(struct unit_test_state *uts)
+{
+	char *str;
+	struct test_ip6_pair {
+		char 		*string_addr;
+		struct in6_addr ip6_addr;
+	};
+
+	struct in6_addr ip6 = {0};
+
+	/* Correct statements */
+	struct test_ip6_pair test_suite[] = {
+		{"2001:db8::0:1234:1", {.s6_addr32[0] = 0xb80d0120,
+					.s6_addr32[1] = 0x00000000,
+					.s6_addr32[2] = 0x00000000,
+					.s6_addr32[3] = 0x01003412}},
+		{"2001:0db8:0000:0000:0000:0000:1234:0001",
+				       {.s6_addr32[0] = 0xb80d0120,
+					.s6_addr32[1] = 0x00000000,
+					.s6_addr32[2] = 0x00000000,
+					.s6_addr32[3] = 0x01003412}},
+		{"::1", 	       {.s6_addr32[0] = 0x00000000,
+					.s6_addr32[1] = 0x00000000,
+					.s6_addr32[2] = 0x00000000,
+					.s6_addr32[3] = 0x01000000}},
+		{"::ffff:192.168.1.1", {.s6_addr32[0] = 0x00000000,
+					.s6_addr32[1] = 0x00000000,
+					.s6_addr32[2] = 0xffff0000,
+					.s6_addr32[3] = 0x0101a8c0}},
+	};
+
+	for (int i = 0; i < ARRAY_SIZE(test_suite); ++i) {
+		ut_assertok(string_to_ip6(test_suite[i].string_addr,
+			    strlen(test_suite[i].string_addr), &ip6));
+		ut_asserteq_mem(&ip6, &test_suite[i].ip6_addr,
+				sizeof(struct in6_addr));
+	}
+
+	/* Incorrect statements */
+	str = "hello:world";
+	ut_assertok(!string_to_ip6(str, strlen(str), &ip6));
+	str = "2001:db8::0::0";
+	ut_assertok(!string_to_ip6(str, strlen(str), &ip6));
+	str = "2001:db8:192.168.1.1::1";
+	ut_assertok(!string_to_ip6(str, strlen(str), &ip6));
+	str = "192.168.1.1";
+	ut_assertok(!string_to_ip6(str, strlen(str), &ip6));
+
+	return 0;
+}
+DM_TEST(dm_test_string_to_ip6, 0);
+#endif
 
 static int dm_test_eth(struct unit_test_state *uts)
 {
