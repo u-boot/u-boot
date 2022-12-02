@@ -129,6 +129,26 @@ static int dm_test_ip6_addr_in_subnet(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ip6_addr_in_subnet, 0);
+
+static int dm_test_ip6_make_snma(struct unit_test_state *uts)
+{
+	struct in6_addr mult = {0};
+	struct in6_addr correct_addr = {
+				 .s6_addr32[0] = 0x000002ff,
+				 .s6_addr32[1] = 0x00000000,
+				 .s6_addr32[2] = 0x01000000,
+				 .s6_addr32[3] = 0xe8f66dff};
+	struct in6_addr addr = { .s6_addr32[0] = 0x000080fe,
+				 .s6_addr32[1] = 0x00000000,
+				 .s6_addr32[2] = 0xffe9f242,
+				 .s6_addr32[3] = 0xe8f66dfe};
+
+	ip6_make_snma(&mult, &addr);
+	ut_asserteq_mem(&mult, &correct_addr, sizeof(struct in6_addr));
+
+	return 0;
+}
+DM_TEST(dm_test_ip6_make_snma, 0);
 #endif
 
 static int dm_test_eth(struct unit_test_state *uts)
