@@ -30,4 +30,11 @@ config DM_REBOOT_MODE_RTC
 		a device in a specific mode by using a register(s) that can be controlled
 		outside U-Boot (e.g. Kernel).
 
+config REBOOT_MODE_NVMEM
+	bool "Use NVMEM reboot mode"
+	depends on DM_REBOOT_MODE && NVMEM
+	help
+	  Use any kind of non-volatile memory (EEPROM, RTC, etc) to control the
+	  reboot mode.
+
 endmenu
