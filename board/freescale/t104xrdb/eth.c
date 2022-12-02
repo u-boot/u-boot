@@ -39,25 +39,6 @@ int board_eth_init(struct bd_info *bis)
 		int idx = i - FM1_DTSEC1;
 
 		switch (fm_info_get_enet_if(i)) {
-#if defined(CONFIG_TARGET_T1040RDB) || defined(CONFIG_TARGET_T1040D4RDB)
-		case PHY_INTERFACE_MODE_SGMII:
-			/* T1040RDB & T1040D4RDB only supports SGMII on
-			 * DTSEC3
-			 */
-			fm_info_set_phy_address(FM1_DTSEC3,
-						CFG_SYS_SGMII1_PHY_ADDR);
-			break;
-#endif
-#ifdef CONFIG_TARGET_T1042RDB
-		case PHY_INTERFACE_MODE_SGMII:
-			/* T1042RDB doesn't supports SGMII on DTSEC1 & DTSEC2 */
-			if ((FM1_DTSEC1 == i) || (FM1_DTSEC2 == i))
-				fm_info_set_phy_address(i, 0);
-			/* T1042RDB only supports SGMII on DTSEC3 */
-			fm_info_set_phy_address(FM1_DTSEC3,
-						CFG_SYS_SGMII1_PHY_ADDR);
-			break;
-#endif
 #ifdef CONFIG_TARGET_T1042D4RDB
 		case PHY_INTERFACE_MODE_SGMII:
 			/* T1042D4RDB supports SGMII on DTSEC1, DTSEC2

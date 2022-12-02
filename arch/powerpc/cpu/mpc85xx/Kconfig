@@ -200,25 +200,8 @@ config TARGET_T1024RDB
 	imply CMD_EEPROM
 	imply PANIC_HANG
 
-config TARGET_T1042RDB
-	bool "Support T1042RDB"
-	select ARCH_T1042
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	select SYS_L3_SIZE_256KB
-
 config TARGET_T1042D4RDB
 	bool "Support T1042D4RDB"
-	select ARCH_T1042
-	select BOARD_LATE_INIT if CHAIN_OF_TRUST
-	select SUPPORT_SPL
-	select PHYS_64BIT
-	select SYS_L3_SIZE_256KB
-	imply PANIC_HANG
-
-config TARGET_T1042RDB_PI
-	bool "Support T1042RDB_PI"
 	select ARCH_T1042
 	select BOARD_LATE_INIT if CHAIN_OF_TRUST
 	select SUPPORT_SPL
