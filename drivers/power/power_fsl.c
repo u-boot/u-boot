@@ -39,7 +39,7 @@ int pmic_init(unsigned char bus)
 
 #if defined(CONFIG_POWER_SPI)
 	p->interface = PMIC_SPI;
-	p->hw.spi.cs = CONFIG_FSL_PMIC_CS;
+	p->hw.spi.cs = CFG_FSL_PMIC_CS;
 	p->hw.spi.clk = CFG_FSL_PMIC_CLK;
 	p->hw.spi.mode = CONFIG_FSL_PMIC_MODE;
 	p->hw.spi.bitlen = CFG_FSL_PMIC_BITLEN;
