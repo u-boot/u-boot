@@ -92,7 +92,7 @@ struct uart_port {
 # define SCIF_ORER 0x0001  /* overrun error bit */
 #elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_RCAR_GEN3) || \
       defined(CONFIG_R7S72100)
-# if defined(CONFIG_SCIF_A)
+# if defined(CFG_SCIF_A)
 #  define SCIF_ORER	0x0200
 # else
 #  define SCIF_ORER	0x0001
@@ -164,7 +164,7 @@ struct uart_port {
 # define SCIF2_TXROOM_MAX 16
 #elif defined(CONFIG_RCAR_GEN2)
 # define SCIF_ERRORS (SCIF_PER | SCIF_FER | SCIF_ER | SCIF_BRK)
-# if defined(CONFIG_SCIF_A)
+# if defined(CFG_SCIF_A)
 #  define SCIF_RFDC_MASK	0x007f
 # else
 #  define SCIF_RFDC_MASK	0x001f
@@ -380,7 +380,7 @@ SCIF_FNS(SCFDR,  0,  0, 0x1C, 16)
 SCIF_FNS(SCSPTR, 0,  0, 0x20, 16)
 SCIF_FNS(DL,     0,  0, 0x30, 16)
 SCIF_FNS(CKS,    0,  0, 0x34, 16)
-#if defined(CONFIG_SCIF_A)
+#if defined(CFG_SCIF_A)
 SCIF_FNS(SCLSR,  0,  0, 0x14, 16)
 #else
 SCIF_FNS(SCLSR,  0,  0, 0x24, 16)
@@ -491,7 +491,7 @@ static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
 #define SCBRR_VALUE(bps, clk) scbrr_calc(port, bps, clk)
 #elif defined(CONFIG_RCAR_GEN2)
 #define DL_VALUE(bps, clk) (clk / bps / 16) /* External Clock */
- #if defined(CONFIG_SCIF_A)
+ #if defined(CFG_SCIF_A)
   #define SCBRR_VALUE(bps, clk) (clk / bps / 16 - 1) /* Internal Clock */
  #else
   #define SCBRR_VALUE(bps, clk) (clk / bps / 32 - 1) /* Internal Clock */

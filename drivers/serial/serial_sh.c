@@ -274,7 +274,7 @@ U_BOOT_DRIVER(serial_sh) = {
 # error "Default SCIF doesn't set....."
 #endif
 
-#if defined(CONFIG_SCIF_A)
+#if defined(CFG_SCIF_A)
 	#define SCIF_BASE_PORT	PORT_SCIFA
 #elif defined(CONFIG_SCI)
 	#define SCIF_BASE_PORT  PORT_SCI

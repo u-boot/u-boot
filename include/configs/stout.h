@@ -23,7 +23,7 @@
 #define RCAR_GEN2_UBOOT_SDRAM_SIZE	(512 * 1024 * 1024)
 
 /* SCIF */
-#define CONFIG_SCIF_A
+#define CFG_SCIF_A
 
 /* SH Ether */
 #define CONFIG_SH_ETHER_USE_PORT	0
