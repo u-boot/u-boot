@@ -196,7 +196,7 @@
 	"kernel_b part 0 8;" \
 	"rootfs partubi 0 10"
 
-#define CONFIG_ENV_SETTINGS_NAND_V1 \
+#define CFG_ENV_SETTINGS_NAND_V1 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"nand_active_ubi_vol_A=rootfs_a\0" \
 	"nand_active_ubi_vol_B=rootfs_b\0" \

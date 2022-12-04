@@ -37,7 +37,7 @@
 	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"splashpos=m,m\0"	\
 	CONFIG_ENV_SETTINGS_V1 \
-	CONFIG_ENV_SETTINGS_NAND_V1 \
+	CFG_ENV_SETTINGS_NAND_V1 \
 	"mmc_dev=0\0" \
 	"mmc_root=/dev/mmcblk0p2 rw\0" \
 	"mmc_root_fs_type=ext4 rootwait\0" \
