@@ -52,7 +52,7 @@
 	"fdt_addr_r=0x89d00000\0"				\
 	"scriptaddr=0x88300000\0"				\
 
-#define CONFIG_LEGACY_BOOTCMD_ENV					\
+#define CFG_LEGACY_BOOTCMD_ENV					\
 	"legacy_bootcmd= "						\
 		"if load mmc 0 ${scriptaddr} uEnv.txt; then "		\
 			"env import -tr ${scriptaddr} ${filesize}; "	\
@@ -71,7 +71,7 @@
 
 #define CFG_EXTRA_ENV_SETTINGS	\
 	MEM_LAYOUT_ENV_SETTINGS		\
-	CONFIG_LEGACY_BOOTCMD_ENV	\
+	CFG_LEGACY_BOOTCMD_ENV	\
 	BOOTENV
 
 #endif	/* __PIC32MZDASK_CONFIG_H */
