@@ -161,7 +161,7 @@ static void secondary_cores_configure(void)
 
 	/* set lowpower flag and address */
 	writel(CPU_RST_FLAG_VAL, CONFIG_LOWPOWER_FLAG);
-	writel((uint32_t)&low_power_start, CONFIG_LOWPOWER_ADDR);
+	writel((uint32_t)&low_power_start, CFG_LOWPOWER_ADDR);
 	writel(CPU_RST_FLAG_VAL, EXYNOS5420_SPARE_BASE);
 	/* Store jump address for power down */
 	writel((uint32_t)&power_down_core, CONFIG_PHY_IRAM_BASE + 0x4);

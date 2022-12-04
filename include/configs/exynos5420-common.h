@@ -16,6 +16,6 @@
  * Low Power settings
  */
 #define CONFIG_LOWPOWER_FLAG		0x02020028
-#define CONFIG_LOWPOWER_ADDR		0x0202002C
+#define CFG_LOWPOWER_ADDR		0x0202002C
 
 #endif	/* __CONFIG_EXYNOS5420_H */
