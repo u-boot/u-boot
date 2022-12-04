@@ -20,6 +20,18 @@ config MTD_UBI
 
 if MTD_UBI
 
+config MTD_UBI_BLOCK
+	def_bool n
+
+config MTD_UBI_MODULE
+	def_bool y
+	help
+	  ubi_init() disables returning error codes when built into the Linux
+	  kernel so that it doesn't hang the Linux kernel boot process.  Since
+	  the U-Boot driver code depends on getting valid error codes from this
+	  function we just tell the UBI layer that we are building as a module
+	  (which only enables the additional error reporting).
+
 config MTD_UBI_WL_THRESHOLD
 	int "UBI wear-leveling threshold"
 	default 4096

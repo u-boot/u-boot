@@ -34,28 +34,6 @@
 
 #include <linux/errno.h>
 
-/* configurable */
-#define CONFIG_MTD_UBI_BEB_RESERVE	1
-
-/* debug options (Linux: drivers/mtd/ubi/Kconfig.debug) */
-#undef CONFIG_MTD_UBI_DEBUG
-#undef CONFIG_MTD_UBI_DEBUG_PARANOID
-#undef CONFIG_MTD_UBI_DEBUG_MSG
-#undef CONFIG_MTD_UBI_DEBUG_MSG_EBA
-#undef CONFIG_MTD_UBI_DEBUG_MSG_WL
-#undef CONFIG_MTD_UBI_DEBUG_MSG_IO
-#undef CONFIG_MTD_UBI_DEBUG_MSG_BLD
-
-#undef CONFIG_MTD_UBI_BLOCK
-
-/* ubi_init() disables returning error codes when built into the Linux
- * kernel so that it doesn't hang the Linux kernel boot process.  Since
- * the U-Boot driver code depends on getting valid error codes from this
- * function we just tell the UBI layer that we are building as a module
- * (which only enables the additional error reporting).
- */
-#define CONFIG_MTD_UBI_MODULE
-
 /* build.c */
 #define get_device(...)
 #define put_device(...)
