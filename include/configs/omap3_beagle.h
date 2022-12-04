@@ -29,7 +29,7 @@
 #endif /* CONFIG_MTD_RAW_NAND */
 
 /* Enable Multi Bus support for I2C */
-#define CONFIG_I2C_MULTI_BUS
+#define CFG_I2C_MULTI_BUS
 
 /* DSS Support */
 

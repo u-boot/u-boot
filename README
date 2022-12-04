@@ -955,7 +955,7 @@ The following options need to be configured:
 		You should define these to the GPIO value as given directly to
 		the generic GPIO functions.
 
-		CONFIG_I2C_MULTI_BUS
+		CFG_I2C_MULTI_BUS
 
 		This option allows the use of multiple I2C buses, each of which
 		must have a controller.	 At any point in time, only one bus is

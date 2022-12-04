@@ -38,7 +38,7 @@
  * I2C
  */
 
-#define CONFIG_I2C_MULTI_BUS
+#define CFG_I2C_MULTI_BUS
 
 /*
  * Input
