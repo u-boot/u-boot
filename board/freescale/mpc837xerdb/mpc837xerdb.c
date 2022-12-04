@@ -206,9 +206,9 @@ int misc_init_r(void)
 {
 	int rc = 0;
 
-#ifdef CONFIG_VSC7385_IMAGE
-	if (vsc7385_upload_firmware((void *) CONFIG_VSC7385_IMAGE,
-		CONFIG_VSC7385_IMAGE_SIZE)) {
+#ifdef CFG_VSC7385_IMAGE
+	if (vsc7385_upload_firmware((void *) CFG_VSC7385_IMAGE,
+		CFG_VSC7385_IMAGE_SIZE)) {
 		puts("Failure uploading VSC7385 microcode.\n");
 		rc = 1;
 	}

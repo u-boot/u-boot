@@ -270,7 +270,7 @@
 #endif
 
 /* The size of the VSC7385 firmware image */
-#define CONFIG_VSC7385_IMAGE_SIZE	8192
+#define CFG_VSC7385_IMAGE_SIZE	8192
 #endif
 
 #ifndef __VSCFW_ADDR

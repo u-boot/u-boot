@@ -42,8 +42,8 @@
 #ifdef CONFIG_VSC7385_ENET
 
 /* The flash address and size of the VSC7385 firmware image */
-#define CONFIG_VSC7385_IMAGE		0xFE7FE000
-#define CONFIG_VSC7385_IMAGE_SIZE	8192
+#define CFG_VSC7385_IMAGE		0xFE7FE000
+#define CFG_VSC7385_IMAGE_SIZE	8192
 
 #endif
 
