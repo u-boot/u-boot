@@ -121,7 +121,9 @@
 #else
 /* If we're not compiling for our target platform, don't generate
    any inline asms.  */
-#  undef CONFIG_VALGRIND
+#  if IS_ENABLED(CONFIG_VALGRIND)
+#    error "Unsupported platform for valgrind"
+#  endif
 #endif
 
 
