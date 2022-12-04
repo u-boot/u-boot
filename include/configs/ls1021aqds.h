@@ -242,7 +242,7 @@
  * MMC
  */
 
-#define CONFIG_SMP_PEN_ADDR		0x01ee0200
+#define CFG_SMP_PEN_ADDR		0x01ee0200
 
 #define HWCONFIG_BUFFER_SIZE		256
 

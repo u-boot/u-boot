@@ -205,11 +205,11 @@ ENTRY(_nonsec_init)
 	bx	lr
 ENDPROC(_nonsec_init)
 
-#ifdef CONFIG_SMP_PEN_ADDR
+#ifdef CFG_SMP_PEN_ADDR
 /* void __weak smp_waitloop(unsigned previous_address); */
 WEAK(smp_waitloop)
 	wfi
-	ldr	r1, =CONFIG_SMP_PEN_ADDR	@ load start address
+	ldr	r1, =CFG_SMP_PEN_ADDR	@ load start address
 	ldr	r1, [r1]
 #ifdef CONFIG_PEN_ADDR_BIG_ENDIAN
 	rev	r1, r1
