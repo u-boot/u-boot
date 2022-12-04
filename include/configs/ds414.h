@@ -17,7 +17,7 @@
  */
 
 /* I2C */
-#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
+#define CFG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

@@ -197,9 +197,9 @@ inline uint calc_tick(uint speed)
 static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
-#ifdef CONFIG_I2C_MVTWSI_BASE0
+#ifdef CFG_I2C_MVTWSI_BASE0
 	case 0:
-		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE0;
+		return (struct mvtwsi_registers *)CFG_I2C_MVTWSI_BASE0;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE1
 	case 1:
@@ -737,7 +737,7 @@ static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 				10000);
 }
 
-#ifdef CONFIG_I2C_MVTWSI_BASE0
+#ifdef CFG_I2C_MVTWSI_BASE0
 U_BOOT_I2C_ADAP_COMPLETE(twsi0, twsi_i2c_init, twsi_i2c_probe,
 			 twsi_i2c_read, twsi_i2c_write,
 			 twsi_i2c_set_bus_speed,

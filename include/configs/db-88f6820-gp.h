@@ -11,7 +11,7 @@
  */
 
 /* I2C */
-#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
+#define CFG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 
 /* Environment in SPI NOR flash */
 
