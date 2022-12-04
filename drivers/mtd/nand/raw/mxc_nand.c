@@ -1172,7 +1172,7 @@ int board_nand_init(struct nand_chip *this)
 	this->write_buf = mxc_nand_write_buf;
 	this->read_buf = mxc_nand_read_buf;
 
-	host->regs = (struct mxc_nand_regs __iomem *)CONFIG_MXC_NAND_REGS_BASE;
+	host->regs = (struct mxc_nand_regs __iomem *)CFG_MXC_NAND_REGS_BASE;
 #ifdef MXC_NFC_V3_2
 	host->ip_regs =
 		(struct mxc_nand_ip_regs __iomem *)CFG_MXC_NAND_IP_REGS_BASE;
