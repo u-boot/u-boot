@@ -31,7 +31,7 @@
  * PMIC
  */
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
-#define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
+#define CFG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
 
