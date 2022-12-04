@@ -32,7 +32,7 @@
 /* Serial (pl011)       */
 #define UART_CLK			(62500000)
 #define CFG_PL011_CLOCK		UART_CLK
-#define CONFIG_PL01x_PORTS		{(void *)(0x2a400000)}
+#define CFG_PL01x_PORTS		{(void *)(0x2a400000)}
 
 /* Support MTD */
 #define CFG_SYS_FLASH_BASE		(0x08000000)

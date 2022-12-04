@@ -117,7 +117,7 @@
 
 /* PL011 Serial Configuration */
 #define CFG_PL011_CLOCK		24000000
-#define CONFIG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
+#define CFG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
 					 (void *)CFG_SYS_SERIAL1}
 
 #define CFG_SYS_SERIAL0		V2M_UART0

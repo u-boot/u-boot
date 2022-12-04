@@ -418,7 +418,7 @@ The following options need to be configured:
 		If you have Amba PrimeCell PL011 UARTs, set this variable to
 		the clock speed of the UARTs.
 
-		CONFIG_PL01x_PORTS
+		CFG_PL01x_PORTS
 
 		If you have Amba PrimeCell PL010 or PL011 UARTs on your board,
 		define this to a list of base addresses for each (supported)

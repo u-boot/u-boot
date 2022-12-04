@@ -78,7 +78,7 @@
  * Conflicts with AUART driver which can be set by board.
  */
 #define CFG_PL011_CLOCK		24000000
-#define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
+#define CFG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 /* Default baudrate can be overridden by board! */
 
 /* NAND */

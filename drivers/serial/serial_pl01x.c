@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_DM_SERIAL
 
-static volatile unsigned char *const port[] = CONFIG_PL01x_PORTS;
+static volatile unsigned char *const port[] = CFG_PL01x_PORTS;
 static enum pl01x_type pl01x_type __section(".data");
 static struct pl01x_regs *base_regs __section(".data");
 #define NUM_PORTS (sizeof(port)/sizeof(port[0]))
