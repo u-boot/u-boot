@@ -443,22 +443,6 @@ def cleanup_headers(configs, args):
                     cleanup_one_header(header_path, patterns, args)
                     cleanup_empty_blocks(header_path, args)
 
-def cleanup_whitelist(configs, args):
-    """Delete config whitelist entries
-
-    Args:
-      configs: A list of CONFIGs to remove.
-      args (Namespace): program arguments
-    """
-    if not confirm(args, 'Clean up whitelist entries?'):
-        return
-
-    lines = read_file(os.path.join('scripts', 'config_whitelist.txt'))
-
-    lines = [x for x in lines if x.strip() not in configs]
-
-    write_file(os.path.join('scripts', 'config_whitelist.txt'), lines)
-
 def find_matching(patterns, line):
     for pat in patterns:
         if pat.search(line):
@@ -1558,14 +1542,10 @@ def do_find_config(config_list):
     """
     all_configs, all_defconfigs, config_db, defconfig_db = read_database()
 
-    # Get the whitelist
-    adhoc_configs = set(read_file('scripts/config_whitelist.txt'))
-
     # Start with all defconfigs
     out = all_defconfigs
 
     # Work through each config in turn
-    adhoc = []
     for item in config_list:
         # Get the real config name and whether we want this config or not
         cfg = item
@@ -1573,10 +1553,6 @@ def do_find_config(config_list):
         if cfg[0] == '~':
             want = False
             cfg = cfg[1:]
-
-        if cfg in adhoc_configs:
-            adhoc.append(cfg)
-            continue
 
         # Search everything that is still in the running. If it has a config
         # that we want, or doesn't have one that we don't, add it into the
@@ -1588,11 +1564,8 @@ def do_find_config(config_list):
             has_cfg = defconfig_matches(config_db[defc], re_match)
             if has_cfg == want:
                 out.add(defc)
-    if adhoc:
-        print(f"Error: Not in Kconfig: %s" % ' '.join(adhoc))
-    else:
-        print(f'{len(out)} matches')
-        print(' '.join(item.split('_defconfig')[0] for item in out))
+    print(f'{len(out)} matches')
+    print(' '.join(item.split('_defconfig')[0] for item in out))
 
 
 def prefix_config(cfg):
@@ -1739,7 +1712,6 @@ doc/develop/moveconfig.rst for documentation.'''
 
     if configs:
         cleanup_headers(configs, args)
-        cleanup_whitelist(configs, args)
         cleanup_readme(configs, args)
 
     if args.commit:
