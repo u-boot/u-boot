@@ -51,7 +51,7 @@ enum {
 #ifdef CONFIG_EXYNOS5420
 
 /* Address for relocating helper code (Last 4 KB of IRAM) */
-#define EXYNOS_RELOCATE_CODE_BASE	(CONFIG_IRAM_TOP - 0x1000)
+#define EXYNOS_RELOCATE_CODE_BASE	(CFG_IRAM_TOP - 0x1000)
 
 /*
  * Power up secondary CPUs.

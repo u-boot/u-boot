@@ -21,7 +21,7 @@ relocate_wait_code:
 	.ltorg
 /*
  * Secondary core waits here until Primary wake it up.
- * Below code is copied to (CONFIG_IRAM_TOP - 0x1000)
+ * Below code is copied to (CFG_IRAM_TOP - 0x1000)
  * This is a workaround code which is supposed to act as a
  * substitute/supplement to the iROM code.
  *
