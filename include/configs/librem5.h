@@ -19,10 +19,6 @@
 
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */
 
-#define CONFIG_POWER_BD71837
-#define CONFIG_POWER_BD71837_I2C_BUS	0
-#define CONFIG_POWER_BD71837_I2C_ADDR	0x4B
-
 #endif /* CONFIG_SPL_BUILD*/
 
 #define CFG_SYS_FSL_USDHC_NUM	2
