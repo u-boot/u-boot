@@ -1066,7 +1066,7 @@ The following options need to be configured:
 		The same can be accomplished in a more flexible way
 		for any variable by configuring the type of access
 		to allow for those variables in the ".flags" variable
-		or define CONFIG_ENV_FLAGS_LIST_STATIC.
+		or define CFG_ENV_FLAGS_LIST_STATIC.
 
 - Protected RAM:
 		CONFIG_PRAM
@@ -1405,7 +1405,7 @@ Configuration Settings:
 		Use buffered writes to flash.
 
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
-- CONFIG_ENV_FLAGS_LIST_STATIC
+- CFG_ENV_FLAGS_LIST_STATIC
 	Enable validation of the values given to environment variables when
 	calling env set.  Variables can be restricted to only decimal,
 	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
@@ -1436,7 +1436,7 @@ Configuration Settings:
 		Define this to a list (string) to define the ".flags"
 		environment variable in the default or embedded environment.
 
-	- CONFIG_ENV_FLAGS_LIST_STATIC
+	- CFG_ENV_FLAGS_LIST_STATIC
 		Define this to a list (string) to define validation that
 		should be done if an entry is not found in the ".flags"
 		environment variable.  To override a setting in the static

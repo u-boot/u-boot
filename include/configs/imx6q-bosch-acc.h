@@ -45,7 +45,7 @@
 	"save_env=env save; env save\0" \
 	"altbootcmd=run handle_ustate; run switch_bootset; run save_env; run bootcmd\0"
 
-#define CONFIG_ENV_FLAGS_LIST_STATIC \
+#define CFG_ENV_FLAGS_LIST_STATIC \
 	"bootset:bw," \
 	"clone_pending:bw," \
 	"endurance_test:bw," \

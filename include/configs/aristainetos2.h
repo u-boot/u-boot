@@ -418,7 +418,7 @@
 
 /* UBI support */
 
-#define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \
+#define CFG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \
 		"sysnum:dw,panel:sw,ipaddr:iw,serverip:iw"
 
 #endif                         /* __ARISTAINETOS2_CONFIG_H */
