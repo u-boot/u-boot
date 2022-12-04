@@ -38,10 +38,6 @@
 
 #ifdef CONFIG_ATMEL_NAND_HW_PMECC
 
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SYS_NAND_ONFI_DETECTION
-#endif
-
 struct atmel_nand_host {
 	struct pmecc_regs __iomem *pmecc;
 	struct pmecc_errloc_regs __iomem *pmerrloc;
