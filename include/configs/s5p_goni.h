@@ -54,7 +54,7 @@
 
 #define COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x100000;" \
 		"onenand write 0x32008000 0x0 0x100000\0" \

@@ -26,7 +26,7 @@
 #define BOOT_SCR_STRING "source ${bootscriptaddr}\0"
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	CFG_DFU_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"bootscr_fitimage_name=bootscr\0" \

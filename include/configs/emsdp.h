@@ -15,7 +15,7 @@
  * Environment
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"upgrade_image=u-boot.bin\0" \
 	"upgrade=emsdp rom unlock && " \
 		"fatload mmc 0 ${loadaddr} ${upgrade_image} && " \

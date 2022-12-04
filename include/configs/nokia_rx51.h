@@ -58,7 +58,7 @@
 #define CFG_SYS_ONENAND_BASE		ONENAND_MAP
 
 /* Environment information */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
 	"stdin=usbtty,serial,keyboard\0" \
 	"stdout=usbtty,serial,vidconsole\0" \

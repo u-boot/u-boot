@@ -50,7 +50,7 @@
 		"bootimg part 0 1;"\
 		"rootfs part 0 2\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	UPDATE_M4_ENV \
 	CONFIG_MFG_ENV_SETTINGS \
 	CFG_DFU_ENV_SETTINGS \

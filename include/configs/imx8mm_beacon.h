@@ -20,7 +20,7 @@
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"script=boot.scr\0" \
 	"image=Image\0" \
 	"console=ttymxc1,115200\0" \

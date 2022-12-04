@@ -291,7 +291,7 @@
  * Environment Configuration
  */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		\
+#define	CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:ecc=off\0"		\
 	"netdev=eth0\0"				\
 	"uboot=" CONFIG_UBOOTPATH "\0"	\

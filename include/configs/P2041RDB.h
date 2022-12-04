@@ -304,7 +304,7 @@
 
 #define __USB_PHY_TYPE	utmi
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"bank_intlv=cs0_cs1\0"					\
 	"netdev=eth0\0"						\

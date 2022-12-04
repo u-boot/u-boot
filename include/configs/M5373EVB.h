@@ -24,7 +24,7 @@
 
 /* I2C */
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"			\
 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"	\
 	"u-boot=u-boot.bin\0"	\

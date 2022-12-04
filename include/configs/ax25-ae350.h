@@ -82,7 +82,7 @@
 	func(RAM, ram, na)
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 				"kernel_addr_r=0x00080000\0" \
 				"pxefile_addr_r=0x01f00000\0" \
 				"scriptaddr=0x01f00000\0" \

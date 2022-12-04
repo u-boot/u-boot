@@ -24,7 +24,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0x6fffffff\0" \
 	"initrd_high=0x6fffffff\0" \
 	"partitions=" PARTS_DEFAULT \

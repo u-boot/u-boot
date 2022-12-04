@@ -49,7 +49,7 @@
 #define NANDARGS ""
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"boot_fdt=try\0" \
 	"bootpart=0:2\0" \

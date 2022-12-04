@@ -45,7 +45,7 @@
 
 /* Update the bootcommand according to our mapping for the VInCo platform */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"kernel_start=0x20000\0" \
 	"kernel_size=0x800000\0" \
 	"mmcblksize=0x200\0" \

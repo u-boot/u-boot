@@ -21,7 +21,7 @@
 	func(MMC, mmc, 0)
 
 #include <config_distro_bootcmd.h>
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0xC0008000\0"		\
 			"fdtfile=stm32h750i-art-pi.dtb\0"	\
 			"fdt_addr_r=0xC0408000\0"		\

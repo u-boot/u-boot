@@ -38,7 +38,7 @@
 #define CFG_SYS_I2C_PINMUX_CLR	(0xFFF0)
 #define CFG_SYS_I2C_PINMUX_SET	(0x000F)
 
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\
 	"uboot=u-boot.bin\0"			\

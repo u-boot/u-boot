@@ -21,7 +21,7 @@
  * Environment Configuration
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS						\
+#define CFG_EXTRA_ENV_SETTINGS						\
 	"netdev=eth1\0"						\
 	"consoledev=ttyS1\0"							\
 	"u-boot=u-boot.bin\0"							\

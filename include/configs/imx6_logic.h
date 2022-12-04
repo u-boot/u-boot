@@ -21,7 +21,7 @@
 /* Ethernet Configs */
 #define CONFIG_FEC_MXC_PHYADDR         0
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"bootm_size=0x10000000\0" \

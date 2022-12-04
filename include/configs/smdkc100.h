@@ -28,7 +28,7 @@
 				" mem=128M " \
 				" " CONFIG_MTDPARTS_DEFAULT
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x40000;" \
 		"onenand write 0x32008000 0x0 0x40000\0" \

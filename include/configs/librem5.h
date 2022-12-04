@@ -62,7 +62,7 @@
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"scriptaddr=0x80000000\0" \
 	"pxefile_addr_r=0x80100000\0" \
 	"kernel_addr_r=0x80800000\0" \

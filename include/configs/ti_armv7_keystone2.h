@@ -106,7 +106,7 @@
 		"rproc load ${dev_pmmc} ${loadaddr} 0x${filesize}; "	\
 		"rproc start ${dev_pmmc}\0"				\
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	ENV_KS2_BOARD_SETTINGS						\
 	DFUARGS								\

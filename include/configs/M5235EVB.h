@@ -27,7 +27,7 @@
 
 /* this must be included AFTER the definition of CONFIG COMMANDS (if any) */
 
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\
 	"u-boot=u-boot.bin\0"			\

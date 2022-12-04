@@ -37,7 +37,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_addr_r=0x75000000\0" \
 	"pxefile_addr_r=0x73000000\0" \
 	"scriptaddr=0x74000000\0" \

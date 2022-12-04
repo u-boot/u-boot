@@ -22,7 +22,7 @@
 	DEFAULT_LINUX_BOOT_ENV
 
 /* Environment information */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \

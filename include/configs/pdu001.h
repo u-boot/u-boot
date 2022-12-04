@@ -32,7 +32,7 @@
 	#define CONSOLE_DEV "ttyO5"
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"fdtfile=am335x-pdu001.dtb\0" \
 	"bootfile=zImage\0" \

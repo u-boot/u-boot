@@ -45,7 +45,7 @@
 	"main_pcba_aux_3=0\0" \
 	"main_pcba_aux_4=0\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	AM335XX_BOARD_FDTFILE \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \

@@ -38,7 +38,7 @@
 	"bootmenu_3=Boot using PICO-Nymph baseboard=" \
 		"setenv baseboard nymph; saveenv; run base_boot\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTMENU_ENV \

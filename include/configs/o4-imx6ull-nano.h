@@ -15,7 +15,7 @@
 #	define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif /* CONFIG_CMD_USB */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"mmcdev=0\0" \
 	"mmcpart=2\0" \
 	"mmcargs=setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcpart} console=ttymxc0,${baudrate} panic=30\0" \

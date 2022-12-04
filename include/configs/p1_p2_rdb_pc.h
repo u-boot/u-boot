@@ -393,7 +393,7 @@
 
 #include "p1_p2_bootsrc.h"
 
-#define	CONFIG_EXTRA_ENV_SETTINGS	\
+#define	CFG_EXTRA_ENV_SETTINGS	\
 "netdev=eth0\0"	\
 "uboot=" CONFIG_UBOOTPATH "\0"	\
 "loadaddr=1000000\0"	\

@@ -244,7 +244,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Default load addresses and names for the different payloads. */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 		"kernel_addr_r=" __stringify(VEXPRESS_KERNEL_ADDR) "\0"	       \
 		"ramdisk_addr_r=" __stringify(VEXPRESS_RAMDISK_ADDR) "\0"      \
 		"pxefile_addr_r=" __stringify(VEXPRESS_PXEFILE_ADDR) "\0"      \

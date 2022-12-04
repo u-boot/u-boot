@@ -72,7 +72,7 @@
 
 #define HWCONFIG_BUFFER_SIZE		256
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 "initrd_high=0xffffffff\0"
 

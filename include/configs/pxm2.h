@@ -28,7 +28,7 @@
 /* Use common default */
 
 /* Default env settings */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"hostname=pxm2\0" \
 	"ubi_off=2048\0"\
 	"nand_img_size=0x500000\0" \

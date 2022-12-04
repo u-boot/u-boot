@@ -41,7 +41,7 @@
 #endif
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"console=ttymxc0,115200\0"	\
 	"fdt_addr=0x18000000\0"		\
 	"fdt_high=0xffffffff\0"		\

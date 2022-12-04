@@ -28,7 +28,7 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"stdin=serial\0" \
 	"stdout=serial\0" \
 	"stderr=serial\0" \

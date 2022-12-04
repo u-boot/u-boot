@@ -33,7 +33,7 @@
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC_PHYADDR		1
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200 quiet\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

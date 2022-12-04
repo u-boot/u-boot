@@ -91,7 +91,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		\
+#define	CFG_EXTRA_ENV_SETTINGS		\
 	"fdt_addr_r=0x9fe00000\0"		\
 	"kernel_addr_r=0x90000000\0"		\
 	"ramdisk_addr_r=0xa0000000\0"		\

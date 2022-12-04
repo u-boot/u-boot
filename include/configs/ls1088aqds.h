@@ -293,8 +293,8 @@
 
 /* Initial environment variables */
 #ifdef CONFIG_NXP_ESBC
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\
@@ -325,8 +325,8 @@
 #define IFC_MC_INIT_CMD				\
 	"fsl_mc start mc 0x580A00000 0x580E00000\0"
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\
@@ -387,8 +387,8 @@
 		"$kernel_size && bootm $kernel_load#$BOARD\0"
 #else
 #if defined(CONFIG_QSPI_BOOT)
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\
@@ -405,8 +405,8 @@
 	"fsl_mc start mc 0x80a00000 0x80e00000\0"	\
 	"mcmemsize=0x70000000 \0"
 #elif defined(CONFIG_SD_BOOT)
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS               \
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS               \
 	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"    \
 	"loadaddr=0x90100000\0"                 \
@@ -423,8 +423,8 @@
 	"fsl_mc start mc 0x80a00000 0x80e00000\0"       \
 	"mcmemsize=0x70000000 \0"
 #else	/* NOR BOOT */
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	COMMON_ENV				\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x90100000\0"			\

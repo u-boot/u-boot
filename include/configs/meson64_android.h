@@ -279,7 +279,7 @@
 		"fi;" \
 	"fi;"
 
-#define CONFIG_EXTRA_ENV_SETTINGS                                     \
+#define CFG_EXTRA_ENV_SETTINGS                                     \
 	EXTRA_ANDROID_ENV_SETTINGS                                    \
 	"partitions=" PARTS_DEFAULT "\0"                              \
 	"mmcdev=2\0"                                                  \

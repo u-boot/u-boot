@@ -71,7 +71,7 @@
 	BOOT_TARGET_DHCP(func)
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \

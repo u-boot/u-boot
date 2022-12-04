@@ -10,7 +10,7 @@
 
 #define CFG_SYS_UART_PORT		0
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"upgrade_uboot=loady; "					\
 		"protect off 0xffc00000 0xffc1ffff; "		\
 		"erase 0xffc00000 0xffc1ffff; "			\

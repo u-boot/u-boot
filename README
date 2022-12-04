@@ -1124,7 +1124,7 @@ The following options need to be configured:
 		symbols.
 
 - Default Environment:
-		CONFIG_EXTRA_ENV_SETTINGS
+		CFG_EXTRA_ENV_SETTINGS
 
 		Define this to contain any number of null terminated
 		strings (variable = value pairs) that will be part of
@@ -1133,7 +1133,7 @@ The following options need to be configured:
 		For example, place something like this in your
 		board's config file:
 
-		#define CONFIG_EXTRA_ENV_SETTINGS \
+		#define CFG_EXTRA_ENV_SETTINGS \
 			"myvar1=value1\0" \
 			"myvar2=value2\0"
 

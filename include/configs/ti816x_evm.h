@@ -12,7 +12,7 @@
 #include <configs/ti_armv7_omap.h>
 #include <asm/arch/omap.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	DEFAULT_LINUX_BOOT_ENV
 
 /* Clock Defines */

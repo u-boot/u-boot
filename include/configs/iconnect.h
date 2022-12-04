@@ -11,7 +11,7 @@
 
 #include "mv-common.h"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"	\
 	"kernel=/boot/uImage\0"			\
 	"bootargs_root=noinitrd ubi.mtd=2 root=ubi0:rootfs rootfstype=ubifs\0"

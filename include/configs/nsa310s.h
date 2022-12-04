@@ -36,7 +36,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \
 	"kernel=/boot/zImage\0" \
 	"fdt=/boot/nsa310s.dtb\0" \

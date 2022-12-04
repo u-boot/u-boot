@@ -13,7 +13,7 @@
 /* Environment is in MMC */
 
 /* Extra Environment */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttyS0\0"						\
 	"baudrate=115200\0"						\
 	"bootscript=boot.scr\0"						\

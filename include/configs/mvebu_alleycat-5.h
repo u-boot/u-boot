@@ -22,7 +22,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS   \
+#define CFG_EXTRA_ENV_SETTINGS   \
 	BOOTENV \
 	"kernel_addr_r=0x202000000\0" \
 	"fdt_addr_r=0x201000000\0"    \

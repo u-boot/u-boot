@@ -27,7 +27,7 @@
 
 /* Extra Environment */
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"bootmode=update\0"						\
 	"bootpri=mmc_mmc\0"						\
 	"bootsec=sf_swu\0"						\

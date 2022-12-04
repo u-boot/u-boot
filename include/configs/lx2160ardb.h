@@ -18,7 +18,7 @@
 #define I2C_EMC2305_PWM		0x80
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	EXTRA_ENV_SETTINGS			\
 	"boot_scripts=lx2160ardb_boot.scr\0"	\
 	"boot_script_hdr=hdr_lx2160ardb_bs.out\0"	\

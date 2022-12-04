@@ -19,7 +19,7 @@ config ENV_SOURCE_FILE
 	  If this CONFIG is empty, U-Boot uses CONFIG SYS_BOARD as a default, if
 	  the file board/<vendor>/<board>/<SYS_BOARD>.env exists. Otherwise the
 	  environment is assumed to come from the ad-hoc
-	  CONFIG_EXTRA_ENV_SETTINGS #define
+	  CFG_EXTRA_ENV_SETTINGS #define
 
 config SAVEENV
 	def_bool y if CMD_SAVEENV
@@ -657,7 +657,7 @@ config USE_DEFAULT_ENV_FILE
 	help
 	  Normally, the default environment is automatically generated
 	  based on the settings of various CONFIG_* options, as well
-	  as the CONFIG_EXTRA_ENV_SETTINGS. By selecting this option,
+	  as the CFG_EXTRA_ENV_SETTINGS. By selecting this option,
 	  you can instead define the entire default environment in an
 	  external file.
 

@@ -45,7 +45,7 @@
 	"bootmenu_2=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx6ul-pico-pi.dtb\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \

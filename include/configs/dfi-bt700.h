@@ -22,8 +22,8 @@
 
 #define VIDEO_IO_OFFSET				0
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"kernel-ver=4.4.0-24\0"					\
 	"boot=zboot 03000000 0 04000000 ${filesize}\0"		\
 	"upd_uboot=usb reset;tftp 100000 dfi/u-boot.rom;"	\

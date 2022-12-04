@@ -54,7 +54,7 @@
 	"params.bin raw 0x38 0x8;" \
 	"/Image.itb ext4 0 2\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
 		"run loaduimage;" \
 		"if run loaddtb; then " \

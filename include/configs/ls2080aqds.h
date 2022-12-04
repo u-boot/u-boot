@@ -226,9 +226,9 @@
 #define CFG_SYS_I2C_RTC_ADDR         0x68
 
 /* Initial environment variables */
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 #ifdef CONFIG_NXP_ESBC
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\
@@ -253,7 +253,7 @@
 #define IFC_MC_INIT_CMD				\
 	"fsl_mc start mc 0x580a00000" \
 	" 0x580e00000 \0"
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"    \
 	"loadaddr=0x80100000\0"                 \
 	"loadaddr_sd=0x90100000\0"                 \
@@ -309,7 +309,7 @@
 	"$kernel_addr_sd $kernel_size_sd && "	\
 	"bootm $load_addr#$BOARD\0"
 #elif defined(CONFIG_SD_BOOT)
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"    \
 	"loadaddr=0x90100000\0"                 \
 	"kernel_addr=0x800\0"                \
@@ -325,7 +325,7 @@
 	"fsl_mc start mc 0x80a00000 0x80e00000\0"       \
 	"mcmemsize=0x70000000 \0"
 #else
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\

@@ -14,10 +14,10 @@
 	"stderr=serial\0"
 
 /*
- * Override CONFIG_EXTRA_ENV_SETTINGS in x86-common.h
+ * Override CFG_EXTRA_ENV_SETTINGS in x86-common.h
  */
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	CONFIG_STD_DEVICES_SETTINGS		\
 	"netdev=eth0\0"				\
 	"consoledev=ttyS0\0"			\

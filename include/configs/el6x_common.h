@@ -23,7 +23,7 @@
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE
 
-#define CONFIG_EXTRA_ENV_SETTINGS                                               \
+#define CFG_EXTRA_ENV_SETTINGS                                               \
 	"board=EL6Q\0"								\
 	"cma_size="__stringify(EL6Q_CMA_SIZE)"\0"                               \
 	"chp_size="__stringify(EL6Q_COHERENT_POOL_SIZE)"\0"                     \

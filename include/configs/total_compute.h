@@ -28,7 +28,7 @@
 #define PHYS_SDRAM_2		0x8080000000
 #define PHYS_SDRAM_2_SIZE	0x180000000
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 				"bootm_size=0x20000000\0"	\
 				"load_addr=0xa0000000\0"	\
 				"kernel_addr_r=0x80080000\0"	\

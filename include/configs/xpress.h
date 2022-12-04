@@ -34,7 +34,7 @@
 #define CONFIG_FEC_ENET_DEV		0
 #define CONFIG_FEC_MXC_PHYADDR          0x0
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc6\0" \

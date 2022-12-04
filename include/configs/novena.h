@@ -58,7 +58,7 @@
 #endif
 
 /* Extra U-Boot environment. */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"fdt_high=0xffffffff\0"						\
 	"initrd_high=0xffffffff\0"					\
 	"consdev=ttymxc1\0"						\

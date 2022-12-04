@@ -12,7 +12,7 @@
 
 #define CONFIG_MXC_UART_BASE		UART1_BASE
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \

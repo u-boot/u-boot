@@ -131,7 +131,7 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Enable in-place RFS with this initrd_high setting.
  */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"fdtsaveaddr=" __stringify(CONFIG_SYS_FDT_SAVE_ADDRESS) "\0"	\
 	"initrd_high=0xffffffff\0"					\
 	"fdt_high=0xffffffff\0"

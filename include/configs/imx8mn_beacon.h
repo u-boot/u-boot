@@ -13,7 +13,7 @@
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"script=boot.scr\0" \
 	"image=Image\0" \
 	"ramdiskimage=rootfs.cpio.uboot\0" \

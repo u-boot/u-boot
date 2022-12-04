@@ -144,8 +144,8 @@
 
 #include <config_distro_bootcmd.h>
 
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#ifndef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"bootm_size=0xa000000\0" \
 	"kernel_addr_r="__stringify(CONFIG_SYS_LOAD_ADDR)"\0" \

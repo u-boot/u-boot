@@ -140,7 +140,7 @@
 	#define EXTRA_ENV_BOOT_LOGO  EXTRA_ENV_DTB_RESERVE
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_high=0xffffffff\0"					\
 	"initrd_high=0xffffffff\0"				\
 	"rootdev=" __stringify(CONFIG_ROOT_DEV) "\0"		\

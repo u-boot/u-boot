@@ -19,9 +19,9 @@
 
 /* Environment settings */
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"tftpdir=" DEF_ENV_TFTPDIR "\0"				\
 	"eth_init=" DEF_ENV_ETH_INIT "\0"			\
 	"ubuntu_part=" __stringify(DEF_ENV_UBUNTU_PART) "\0"	\

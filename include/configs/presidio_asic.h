@@ -54,7 +54,7 @@
 #define GLOBAL_IO_DRIVE_CONTROL_OFFSET          0x4c
 
 /* max command args */
-#define CONFIG_EXTRA_ENV_SETTINGS	"silent=y\0"
+#define CFG_EXTRA_ENV_SETTINGS	"silent=y\0"
 
 /* nand driver parameters */
 #ifdef CONFIG_TARGET_PRESIDIO_ASIC

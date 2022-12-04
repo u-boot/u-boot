@@ -28,7 +28,7 @@
 #define PHYS_SDRAM			0x60000000
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"console=ttyLP0\0" \
 	"fdt_high=0xffffffff\0" \

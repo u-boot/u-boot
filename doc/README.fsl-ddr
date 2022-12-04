@@ -56,8 +56,8 @@ Table of 2-way interleaving modes supported in cpu/8xxx/ddr/
 The ways to configure the ddr interleaving mode
 ==============================================
 1. In board header file(e.g.MPC8572DS.h), add default interleaving setting
-   under "CONFIG_EXTRA_ENV_SETTINGS", like:
-	#define CONFIG_EXTRA_ENV_SETTINGS				\
+   under "CFG_EXTRA_ENV_SETTINGS", like:
+	#define CFG_EXTRA_ENV_SETTINGS				\
 	 "hwconfig=fsl_ddr:ctlr_intlv=bank"			\
 	 ......
 

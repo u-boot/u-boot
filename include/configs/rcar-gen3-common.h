@@ -32,7 +32,7 @@
 
 /* ENV setting */
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"bootm_size=0x10000000\0"
 
 #endif	/* __RCAR_GEN3_COMMON_H */

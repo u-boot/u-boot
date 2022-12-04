@@ -20,7 +20,7 @@
 /* Environment in MMC */
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"scriptaddr=0x14000000\0"	\
 	"fdt_addr_r=0x13000000\0"	\
 	"kernel_addr_r=0x10008000\0"	\

@@ -14,7 +14,7 @@
 #define CFG_SYS_SDRAM_BASE           0x0
 
 /* Default environemnt variables */
-#define CONFIG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80200000\0"   \
+#define CFG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80200000\0"   \
 		"stdin=serial\0"   \
 		"stdout=serial\0"   \
 		"stderr=serial\0"    \

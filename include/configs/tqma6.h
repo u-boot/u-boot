@@ -197,7 +197,7 @@
 /* set to a resonable value, changeable by user */
 #define TQMA6_CMA_SIZE                 160M
 
-#define CONFIG_EXTRA_ENV_SETTINGS                                              \
+#define CFG_EXTRA_ENV_SETTINGS                                              \
 	"board=tqma6\0"                                                        \
 	"uimage=uImage\0"                                                      \
 	"zimage=zImage\0"                                                      \

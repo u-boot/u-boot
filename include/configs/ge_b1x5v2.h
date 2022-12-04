@@ -35,7 +35,7 @@
 #define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Command definition */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"image=/boot/fitImage\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"splash_addr_r=0x20000000\0" \

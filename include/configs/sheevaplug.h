@@ -15,7 +15,7 @@
 /*
  *  Environment variables configurations
  */
-#define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
+#define CFG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
 	"=ttyS0,115200 mtdparts=" CONFIG_MTDPARTS_DEFAULT	\
 	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x400000\0" \
 	"x_bootcmd_usb=usb start\0" \

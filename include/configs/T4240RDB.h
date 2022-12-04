@@ -368,7 +368,7 @@
 #define CTRL_INTLV_PREFERED cacheline
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:"					\
 	"ctlr_intlv=" __stringify(CTRL_INTLV_PREFERED) ","	\
 	"bank_intlv=auto;"					\

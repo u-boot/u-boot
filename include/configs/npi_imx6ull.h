@@ -38,7 +38,7 @@
 
 #define CONFIG_FEC_ENET_DEV		1
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200n8\0" \
 	"image=zImage\0" \
 	"fdtfile=imx6ull-seeed-npi-dev-board.dtb\0" \

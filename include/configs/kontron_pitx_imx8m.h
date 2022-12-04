@@ -50,7 +50,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"image=Image\0" \
 	"console=ttymxc2,115200\0" \
 	"boot_fdt=try\0" \

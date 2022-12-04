@@ -34,7 +34,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\

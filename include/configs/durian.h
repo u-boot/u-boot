@@ -15,7 +15,7 @@
 
 /* BOOT */
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"load_kernel=ext4load scsi 0:1 0x90100000 uImage-2004\0"	\
 	"load_fdt=ext4load scsi 0:1 0x95000000 ft2004-pci-64.dtb\0"\
 	"boot_fdt=bootm 0x90100000 -:- 0x95000000\0"	\

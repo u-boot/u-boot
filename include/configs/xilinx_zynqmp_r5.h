@@ -6,7 +6,7 @@
 #ifndef __CONFIG_ZYNQMP_R5_H
 #define __CONFIG_ZYNQMP_R5_H
 
-#define CONFIG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS
 
 /* Serial drivers */
 /* The following table includes the supported baudrates */

@@ -164,7 +164,7 @@
 		"sf write ${loadaddr} 0x0 ${filesize};" \
 	"fi\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS	  \
+#define CFG_EXTRA_ENV_SETTINGS	  \
 	PARTS_DEFAULT \
 	"gpio_recovery=93\0" \
 	"check_em_pad=gpio input ${gpio_recovery};test $? -eq 0;\0" \

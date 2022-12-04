@@ -94,7 +94,7 @@
 	"done\0"
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"disable_giga=yes\0" \
 	"usb_pgood_delay=2000\0" \
 	"nor_bootdelay=-2\0" \

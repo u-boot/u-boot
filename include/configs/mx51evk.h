@@ -39,7 +39,7 @@
 
 /* Framebuffer and LCD */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"fdt_file=imx51-babbage.dtb\0" \

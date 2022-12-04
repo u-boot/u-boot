@@ -21,7 +21,7 @@
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"som_rev=undefined\0" \
 	"has_emmc=undefined\0" \
 	"fdtfile=undefined\0" \

@@ -28,7 +28,7 @@
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
 /* Default env settings */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"hostname=draco\0" \
 	"ubi_off=2048\0"\
 	"nand_img_size=0x400000\0" \

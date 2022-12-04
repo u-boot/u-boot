@@ -12,7 +12,7 @@
 
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
 /*
  * Use:
@@ -22,7 +22,7 @@
  */
 #define MY_CONFIG_BOOT_MODE	"boot-mode=sd\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	MY_CONFIG_BOOT_MODE \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \

@@ -28,6 +28,6 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS BOOTENV
+#define CFG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif

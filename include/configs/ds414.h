@@ -43,7 +43,7 @@
 
 /* Default Environment */
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"initrd_high=0xffffffff\0"				\
 	"ramdisk_addr_r=0x8000000\0"				\
 	"usb0Mode=host\0usb1Mode=host\0usb2Mode=device\0"	\

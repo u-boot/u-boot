@@ -32,7 +32,7 @@
 	"scriptaddr=0x40000000\0" \
 	"pxefile_addr_r=0x40100000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"image=Image\0" \
 	BOOTENV \
 	"console=ttymxc1,115200\0" \

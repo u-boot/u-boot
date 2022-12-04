@@ -56,7 +56,7 @@
 	"ramdisk_addr_r=0x18400000\0" \
 	"scriptaddr=0x18280000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"boot_file=zImage\0" \
 	"boot_script_dhcp=boot.scr\0" \

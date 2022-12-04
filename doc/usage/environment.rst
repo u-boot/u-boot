@@ -89,7 +89,7 @@ Old-style C environment
 
 Traditionally, the default environment is created in `include/env_default.h`,
 and can be augmented by various `CONFIG` defines. See that file for details. In
-particular you can define `CONFIG_EXTRA_ENV_SETTINGS` in your board file
+particular you can define `CFG_EXTRA_ENV_SETTINGS` in your board file
 to add environment variables.
 
 Board maintainers are encouraged to migrate to the text-based environment as it

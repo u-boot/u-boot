@@ -28,7 +28,7 @@
 	func(MMC, mmc, 0)
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 				"image=Image\0"	\
 				"fdtfile=hi3660-hikey960.dtb\0" \
 				"fdt_addr_r=0x10000000\0" \

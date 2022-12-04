@@ -56,7 +56,7 @@
 		"${fdt_addr};\0" \
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	AHAB_ENV \
 	BOOTENV \
 	CONFIG_MFG_ENV_SETTINGS \

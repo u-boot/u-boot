@@ -72,7 +72,7 @@
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
 
 #if defined(CONFIG_BOARD_AXM)
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:" \
 		"${gatewayip}:${netmask}:${hostname}:${netdev}::off\0" \
 	"addtest=setenv bootargs ${bootargs} loglevel=4 test\0" \

@@ -34,9 +34,9 @@
 	func(PXE, pxe, 0)
 #include <config_distro_bootcmd.h>
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"BOARD=ten64\0"					\
 	"fdt_addr_r=0x90000000\0"		\
 	"fdt_high=0xa0000000\0"			\

@@ -9,7 +9,7 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"sdram_type=SDRAM\0"						\
 	"flash_type=AM29LV160DB\0"					\
 	"loadaddr=0x400000\0"						\

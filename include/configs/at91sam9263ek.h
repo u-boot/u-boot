@@ -36,7 +36,7 @@
 
 /* Address and size of Primary Environment Sector */
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"monitor_base=" __stringify(CONFIG_SYS_MONITOR_BASE) "\0" \
 	"update=" \
 		"protect off ${monitor_base} +${filesize};" \

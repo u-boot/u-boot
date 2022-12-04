@@ -30,7 +30,7 @@
 
 /* Environment information */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"mmcdev=0\0" \
 	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \

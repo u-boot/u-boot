@@ -41,7 +41,7 @@
 
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	NETWORKBOOT \
 	"image=/boot/fitImage\0" \
 	"dev=mmc\0" \

@@ -30,7 +30,7 @@
 	"ramdisk_addr_r=0x46400000\0" \
 	"scriptaddr=0x46000000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"console=ttymxc1,115200\0" \

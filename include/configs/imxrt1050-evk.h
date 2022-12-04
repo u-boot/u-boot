@@ -19,7 +19,7 @@
 					 DMAMEM_SZ_ALL)
 
 #ifdef CONFIG_VIDEO
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 		"stdin=serial\0" \
 		"stdout=serial,vidconsole\0" \
 		"stderr=serial,vidconsole\0"

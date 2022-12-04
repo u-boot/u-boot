@@ -27,7 +27,7 @@
 
 /* Command definition */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"fdt_addr=0x71000000\0" \

@@ -20,7 +20,7 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \

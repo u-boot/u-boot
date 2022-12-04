@@ -24,9 +24,9 @@
 #define CFG_SYS_I2C_PCA953X_ADDR	0x20
 #define CFG_SYS_I2C_PCA953X_WIDTH	{ {0x20, 16} }
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"loadscript=load ${storagetype} ${storagedev} ${loadaddr} ${script};\0" \
 	"loadkernel=load ${storagetype} ${storagedev} ${loadaddr} ${kernel};\0" \

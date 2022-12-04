@@ -72,7 +72,7 @@
 #endif
 
 /* Default environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootconf=conf-imx6q-bosch-acc.dtb\0"\
 	"mmcfit_name=fitImage\0" \
 	"mmcloadfit=ext4load mmc ${mmcdev}:${fitpart} ${fit_addr} ${mmcfit_name}\0" \

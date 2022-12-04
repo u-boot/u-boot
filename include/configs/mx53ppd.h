@@ -35,7 +35,7 @@
 	"nfs=run choose_ip setargs bootargs_nfs; ${getcmd} ${loadaddr} " \
 		"${nfsserver}:${image}; bootm ${loadaddr}\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	PPD_CONFIG_NFS \
 	"image=/boot/fitImage\0" \
 	"dev=mmc\0" \

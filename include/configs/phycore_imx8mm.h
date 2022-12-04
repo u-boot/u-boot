@@ -20,7 +20,7 @@
 /* For RAW image gives a error info not panic */
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"image=Image\0" \
 	"console=ttymxc2,115200\0" \
 	"fdt_addr=0x48000000\0" \

@@ -16,7 +16,7 @@
 
 /* Command definition */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1,115200\0"	\
 	"fdt_addr=0x75000000\0"		\
 	"fdt_high=0xffffffff\0"		\

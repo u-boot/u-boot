@@ -73,7 +73,7 @@
  * Predefined environment variables.
  * Usefull to define some easy to use boot commands.
  */
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define	CFG_EXTRA_ENV_SETTINGS					\
 									\
 	"basicargs=console=ttyS0,115200\0"				\
 									\

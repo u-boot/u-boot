@@ -40,7 +40,7 @@
 	"pxefile_addr_r=0x70800000\0"		\
 	"ramdisk_addr_r=0x73000000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	MEM_LAYOUT_ENV_SETTINGS					\
 	"bootargs_default=root=/dev/mmcblk0p1 rootwait rw\0"	\
 	"fdtfile=imx53-usbarmory.dtb\0"				\

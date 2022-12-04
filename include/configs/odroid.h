@@ -71,7 +71,7 @@
  * 1.  BOOT:  100MiB 2MiB
  * 2.  ROOT:  -
 */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadbootscript=load mmc ${mmcbootdev}:${mmcbootpart} ${scriptaddr} " \
 		"boot.scr\0" \
 	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kernel_addr_r} " \

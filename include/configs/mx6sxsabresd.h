@@ -34,7 +34,7 @@
 #define UPDATE_M4_ENV ""
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	UPDATE_M4_ENV \
 	"script=boot.scr\0" \
 	"image=zImage\0" \

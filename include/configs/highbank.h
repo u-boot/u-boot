@@ -16,7 +16,7 @@
 
 #define CFG_SYS_SDRAM_BASE		0x00000000
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_high=0x20000000\0"					\
 	"initrd_high=0x20000000\0"
 

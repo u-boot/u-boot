@@ -16,8 +16,8 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0)
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"kernel_addr=0x01000000\0"		\

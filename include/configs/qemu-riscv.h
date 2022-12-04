@@ -34,7 +34,7 @@
 #define BOOTENV_DEV_NAME_QEMU(devtypeu, devtypel, instance) \
 	"qemu "
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"kernel_addr_r=0x84000000\0" \

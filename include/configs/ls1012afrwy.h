@@ -25,8 +25,8 @@
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_addr=0x01000000\0"		\
