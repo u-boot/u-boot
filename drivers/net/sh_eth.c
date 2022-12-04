@@ -37,7 +37,7 @@
 # error "Please define CONFIG_SH_ETHER_PHY_ADDR"
 #endif
 
-#if defined(CONFIG_SH_ETHER_CACHE_WRITEBACK) && \
+#if defined(CFG_SH_ETHER_CACHE_WRITEBACK) && \
 	!CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #define flush_cache_wback(addr, len)    \
 		flush_dcache_range((unsigned long)addr, \

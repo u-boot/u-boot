@@ -547,7 +547,7 @@ The following options need to be configured:
 			CONFIG_SH_ETHER_PHY_ADDR
 			Define the ETH PHY's address
 
-			CONFIG_SH_ETHER_CACHE_WRITEBACK
+			CFG_SH_ETHER_CACHE_WRITEBACK
 			If this option is set, the driver enables cache flush.
 
 - TPM Support:
