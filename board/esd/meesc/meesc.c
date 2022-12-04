@@ -163,7 +163,7 @@ int checkboard(void)
 	u_char hw_type;	/* hardware type */
 
 	/* read the "Type" register of the ET1100 controller */
-	hw_type = readb(CONFIG_ET1100_BASE);
+	hw_type = readb(CFG_ET1100_BASE);
 
 	switch (hw_type) {
 	case 0x11:
