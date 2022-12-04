@@ -322,10 +322,7 @@ extern unsigned long get_sdram_size(void);
 
 /* Serial Port */
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
-#define CONFIG_SPL_NS16550_MIN_FUNCTIONS
 
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}

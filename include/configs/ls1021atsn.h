@@ -60,10 +60,6 @@
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 /* Serial Port */
-#define CONFIG_SYS_NS16550_SERIAL
-#ifndef CONFIG_DM_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#endif
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 
 /* I2C */

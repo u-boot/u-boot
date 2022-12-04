@@ -127,8 +127,6 @@
 /* Serial Driver Info */
 /*====================*/
 
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_COM1		IOADDR(0x0D050020) /* Base address */
 
 /* Input clk to NS16550 (in Hz; the SYS_CLK_FREQ is in kHz) */

@@ -26,7 +26,7 @@
 
 #include <linux/types.h>
 
-#ifdef CONFIG_DM_SERIAL
+#if defined(CONFIG_DM_SERIAL) && !defined(CONFIG_SYS_NS16550_REG_SIZE)
 /*
  * For driver model we always use one byte per register, and sort out the
  * differences in the driver

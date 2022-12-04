@@ -19,7 +19,6 @@
 /*
  * UART configuration
  */
-#define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		166666666
 
 /*

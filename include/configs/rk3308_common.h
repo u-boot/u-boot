@@ -8,8 +8,6 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_NS16550_MEM32
-
 #define CONFIG_IRAM_BASE		0xfff80000
 
 #define CONFIG_SYS_SDRAM_BASE		0

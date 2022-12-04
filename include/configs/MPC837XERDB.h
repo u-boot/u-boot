@@ -151,8 +151,6 @@
 /*
  * Serial Port
  */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
 
 #define CONFIG_SYS_BAUDRATE_TABLE \

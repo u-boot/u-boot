@@ -40,8 +40,6 @@
 #define CPU_RELEASE_ADDR               secondary_boot_addr
 
 /* Serial Port */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
 
 /* SD boot SPL */

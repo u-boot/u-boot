@@ -33,10 +33,6 @@
 /*
  * Serial console configuration
  */
-#define CONFIG_SYS_NS16550_SERIAL
-#ifndef CONFIG_DM_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	-4
-#endif
 #define CONFIG_SYS_NS16550_CLK		19660800
 
 /* Init Stack Pointer */

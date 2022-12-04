@@ -8,8 +8,6 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_NS16550_MEM32
-
 /* FIXME: ff020000 is pmu_mem (10k), while ff0e0000 is regular int_mem */
 #define CONFIG_IRAM_BASE		0xff020000
 

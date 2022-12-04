@@ -16,7 +16,6 @@
 #include <linux/stringify.h>
 
 /* Serial & console */
-#define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
 #ifdef CONFIG_MACH_SUNIV
 /* suniv doesn't have apb2 and uart is connected to apb1 */
@@ -25,7 +24,6 @@
 #define CONFIG_SYS_NS16550_CLK		24000000
 #endif
 #ifndef CONFIG_DM_SERIAL
-# define CONFIG_SYS_NS16550_REG_SIZE	-4
 # define CONFIG_SYS_NS16550_COM1		SUNXI_UART0_BASE
 # define CONFIG_SYS_NS16550_COM2		SUNXI_UART1_BASE
 # define CONFIG_SYS_NS16550_COM3		SUNXI_UART2_BASE

@@ -15,7 +15,6 @@
 /*
  * SERIAL
  */
-#define CONFIG_SYS_NS16550_MEM32
 
 /*
  * Flash

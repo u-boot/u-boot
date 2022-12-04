@@ -21,7 +21,6 @@
 /*-----------------------------------------------------------------------
  * Serial Configuration
  */
-#define CONFIG_SYS_NS16550_PORT_MAPPED
 
 /*
  * Miscellaneous configurable options

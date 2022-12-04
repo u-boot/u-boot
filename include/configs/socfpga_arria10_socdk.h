@@ -18,7 +18,6 @@
 /*
  * Serial / UART configurations
  */
-#define CONFIG_SYS_NS16550_MEM32
 #define CONFIG_SYS_BAUDRATE_TABLE {4800, 9600, 19200, 38400, 57600, 115200}
 
 /*

@@ -330,8 +330,6 @@
  * Retain non-DM serial port for debug purposes.
  */
 #if !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0) / 2)
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR + 0x11C500)
 #endif
