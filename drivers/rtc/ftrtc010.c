@@ -82,7 +82,7 @@ int rtc_get(struct rtc_time *tmp)
 
 #ifdef CONFIG_FTRTC010_PCLK
 	now = (ftrtc010_time() + readl(&rtc->record)) / RTC_DIV_COUNT;
-#else /* CONFIG_FTRTC010_EXTCLK */
+#else /* CFG_FTRTC010_EXTCLK */
 	now = ftrtc010_time() + readl(&rtc->record);
 #endif
 
