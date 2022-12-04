@@ -249,10 +249,10 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
-#ifndef CONFIG_QBMAN_CLK_DIV
-#define CONFIG_QBMAN_CLK_DIV	2
+#ifndef CFG_QBMAN_CLK_DIV
+#define CFG_QBMAN_CLK_DIV	2
 #endif
-	sys_info->freq_qman = sys_info->freq_systembus / CONFIG_QBMAN_CLK_DIV;
+	sys_info->freq_qman = sys_info->freq_systembus / CFG_QBMAN_CLK_DIV;
 #endif
 
 #if defined(CONFIG_SYS_MAPLE)
