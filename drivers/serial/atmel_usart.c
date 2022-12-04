@@ -73,7 +73,7 @@ static void atmel_serial_activate(atmel_usart3_t *usart)
 static void atmel_serial_setbrg(void)
 {
 	atmel_serial_setbrg_internal((atmel_usart3_t *)CFG_USART_BASE,
-				     CONFIG_USART_ID, gd->baudrate);
+				     CFG_USART_ID, gd->baudrate);
 }
 
 static int atmel_serial_init(void)

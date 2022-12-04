@@ -29,7 +29,7 @@
 
 /* serial console */
 #define CFG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CFG_USART_ID			ATMEL_ID_SYS
 
 /* SDRAM */
 #define CFG_SYS_SDRAM_BASE           ATMEL_BASE_CS6

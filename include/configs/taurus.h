@@ -35,7 +35,7 @@
 /* Misc CPU related */
 
 #define CFG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CFG_USART_ID			ATMEL_ID_SYS
 
 /*
  * SDRAM: 1 bank, min 32, max 128 MB

@@ -18,7 +18,7 @@
 
 /* serial console */
 #define CFG_USART_BASE		0xfc00c000
-#define CONFIG_USART_ID			30
+#define CFG_USART_ID			30
 
 /* Timer */
 #define CFG_SYS_TIMER_COUNTER	0xfc06863c
