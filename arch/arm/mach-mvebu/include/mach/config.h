@@ -27,7 +27,4 @@
 
 #define MV_UART_CONSOLE_BASE		MVEBU_UART0_BASE
 
-/* Needed for SPI NOR booting in SPL */
-#define CONFIG_DM_SEQ_ALIAS		1
-
 #endif /* __MVEBU_CONFIG_H */

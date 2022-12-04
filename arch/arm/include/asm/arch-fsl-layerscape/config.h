@@ -160,7 +160,6 @@
 
 #elif defined(CONFIG_ARCH_LS1028A)
 #define CFG_SYS_FSL_CLUSTER_CLOCKS		{ 1, 1 }
-#define CONFIG_FSL_TZASC_400
 
 /* TZ Protection Controller Definitions */
 #define TZPC_BASE				0x02200000

@@ -28,12 +28,6 @@
 						  * GD_FLG_FULL_MALLOC_INIT \
 						  * set \
 						  */
-
-
-#if defined(CONFIG_NAND_BOOT)
-#define CONFIG_SPL_NAND_MXS
-#endif
-
 #endif
 
 /* ENET Config */
@@ -158,9 +152,6 @@
 #define FSL_FSPI_FLASH_NUM		1
 #define FSPI0_BASE_ADDR			0x30bb0000
 #define FSPI0_AMBA_BASE			0x0
-#define CONFIG_FSPI_QUAD_SUPPORT
-
-#define CONFIG_SYS_FSL_FSPI_AHB
 #endif
 
 #ifdef CONFIG_NAND_MXS

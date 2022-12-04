@@ -11,7 +11,6 @@
 #include <asm/arch/imx-regs.h>
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SERIAL_LPUART_BASE	0x5a060000
 #define CFG_MALLOC_F_ADDR		0x00120000
 
 #endif

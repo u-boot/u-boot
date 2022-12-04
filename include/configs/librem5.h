@@ -15,12 +15,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
-#ifdef CONFIG_SPL_BUILD
-
-#define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */
-
-#endif /* CONFIG_SPL_BUILD*/
-
 #define CFG_SYS_FSL_USDHC_NUM	2
 
 #define CONSOLE_ON_UART1
