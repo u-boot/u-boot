@@ -357,7 +357,7 @@ void
 init_85xx_watchdog(void)
 {
 	mtspr(SPRN_TCR, (mfspr(SPRN_TCR) & ~WATCHDOG_MASK) |
-	      TCR_WP(CONFIG_WATCHDOG_PRESC) | TCR_WRC(CONFIG_WATCHDOG_RC));
+	      TCR_WP(CFG_WATCHDOG_PRESC) | TCR_WRC(CFG_WATCHDOG_RC));
 }
 
 void
