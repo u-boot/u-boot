@@ -65,7 +65,7 @@ int timer_init(void)
 	struct sctr_regs *sctr = (struct sctr_regs *)SCTR_BASE_ADDR;
 	unsigned long val, freq;
 
-	freq = CONFIG_SC_TIMER_CLK;
+	freq = CFG_SC_TIMER_CLK;
 	asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r" (freq));
 
 	writel(freq, &sctr->cntfid0);
