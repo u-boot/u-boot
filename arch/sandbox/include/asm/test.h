@@ -189,6 +189,16 @@ int sandbox_get_setup_called(struct udevice *dev);
 int sandbox_get_sound_active(struct udevice *dev);
 
 /**
+ * sandbox_get_sound_count() - Read back the count of the sound data so far
+ *
+ * This data is provided to the sandbox driver by the sound play() method.
+ *
+ * @dev: Device to check
+ * Return: count of audio data
+ */
+int sandbox_get_sound_count(struct udevice *dev);
+
+/**
  * sandbox_get_sound_sum() - Read back the sum of the sound data so far
  *
  * This data is provided to the sandbox driver by the sound play() method.
