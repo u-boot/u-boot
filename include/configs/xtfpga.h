@@ -120,7 +120,7 @@
 /* Ethernet Driver Info */
 /*======================*/
 
-#define CONFIG_ETHBASE			00:50:C2:13:6f:00
+#define CFG_ETHBASE			00:50:C2:13:6f:00
 #define CFG_SYS_ETHOC_BASE		IOADDR(0x0d030000)
 #define CFG_SYS_ETHOC_BUFFER_ADDR	IOADDR(0x0D800000)
 
