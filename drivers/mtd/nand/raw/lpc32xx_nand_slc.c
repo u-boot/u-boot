@@ -126,7 +126,7 @@ static void lpc32xx_nand_init(void)
 	       &lpc32xx_nand_slc_regs->icr);
 
 	/* Configure NAND flash timings */
-	writel(TAC_W_RDY(CONFIG_LPC32XX_NAND_SLC_WDR_CLKS) |
+	writel(TAC_W_RDY(CFG_LPC32XX_NAND_SLC_WDR_CLKS) |
 	       TAC_W_WIDTH(hclk / CONFIG_LPC32XX_NAND_SLC_WWIDTH) |
 	       TAC_W_HOLD(hclk / CONFIG_LPC32XX_NAND_SLC_WHOLD) |
 	       TAC_W_SETUP(hclk / CONFIG_LPC32XX_NAND_SLC_WSETUP) |
