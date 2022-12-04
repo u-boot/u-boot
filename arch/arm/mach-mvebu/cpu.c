@@ -195,7 +195,7 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 	int i;
 
 #if defined(CONFIG_ARMADA_375) || defined(CONFIG_ARMADA_MSYS)
-	val = readl(CONFIG_SAR2_REG);	/* SAR - Sample At Reset */
+	val = readl(CFG_SAR2_REG);	/* SAR - Sample At Reset */
 #else
 	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
 #endif
@@ -205,7 +205,7 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 	 * Shift CPU0 clock frequency select bit from SAR2 register
 	 * into correct position
 	 */
-	freq |= ((readl(CONFIG_SAR2_REG) & SAR2_CPU_FREQ_MASK)
+	freq |= ((readl(CFG_SAR2_REG) & SAR2_CPU_FREQ_MASK)
 		 >> SAR2_CPU_FREQ_OFFS) << 3;
 #endif
 	for (i = 0; sar_freq_tab[i].val != 0xff; i++) {
