@@ -14,7 +14,7 @@
 /* Environment compatibility */
 
 /* SH Ether */
-#define CONFIG_SH_ETHER_USE_PORT	0
+#define CFG_SH_ETHER_USE_PORT	0
 #define CFG_SH_ETHER_PHY_ADDR	0x1
 #define CFG_SH_ETHER_PHY_MODE PHY_INTERFACE_MODE_RMII
 #define CFG_SH_ETHER_CACHE_WRITEBACK

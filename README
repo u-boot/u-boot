@@ -541,7 +541,7 @@ The following options need to be configured:
 		CONFIG_SH_ETHER
 		Support for Renesas on-chip Ethernet controller
 
-			CONFIG_SH_ETHER_USE_PORT
+			CFG_SH_ETHER_USE_PORT
 			Define the number of ports to be used
 
 			CFG_SH_ETHER_PHY_ADDR
