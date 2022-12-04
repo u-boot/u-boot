@@ -11,7 +11,7 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Harmony"
+#define CFG_TEGRA_BOARD_STRING	"NVIDIA Harmony"
 
 /* Board-specific serial config */
 
