@@ -302,7 +302,6 @@
  * open - index 2
  * shorted - index 1
  */
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CFG_SYS_NS16550_CLK		get_bus_freq(0)
 
 #define CFG_SYS_BAUDRATE_TABLE	\

@@ -66,8 +66,6 @@
 /*-----------------------------------------------------------------------
  *  High Level System Configuration
  */
-/* Not used: not need IRQ/FIQ stuff */
-#undef  CONFIG_USE_IRQ
 /* decrementer freq: 1ms ticks */
 
 /*-----------------------------------------------------------------------

@@ -309,7 +309,6 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 /* Serial Port */
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CFG_SYS_NS16550_CLK		get_bus_freq(0)
 
 #define CFG_SYS_BAUDRATE_TABLE	\

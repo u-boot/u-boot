@@ -59,12 +59,10 @@
 
 /* Marvell boards specific configurations */
 #if defined(DB_78X60_PCAC)
-#undef CONFIG_SPD_EEPROM
 #define STATIC_TRAINING
 #endif
 
 #if defined(DB_78X60_AMC)
-#undef CONFIG_SPD_EEPROM
 #undef  DRAM_ECC
 #define DRAM_ECC				1
 #endif
