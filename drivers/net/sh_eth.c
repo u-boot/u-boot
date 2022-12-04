@@ -46,7 +46,7 @@
 #define flush_cache_wback(...)
 #endif
 
-#if defined(CONFIG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
+#if defined(CFG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
 #define invalidate_cache(addr, len)		\
 	{	\
 		unsigned long line_size = CFG_SH_ETHER_ALIGNE_SIZE;	\
