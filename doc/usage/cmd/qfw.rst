@@ -31,7 +31,7 @@ kernel_addr
 initrd_addr
     address to which the file specified by the -initrd parameter of QEMU shall
     be loaded. Defaults to environment variable *ramdiskaddr* and further to
-    the value of *CONFIG_RAMDISK_ADDR*.
+    the value of *CFG_RAMDISK_ADDR*.
 
 Examples
 --------
