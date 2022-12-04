@@ -131,7 +131,7 @@ static void lpc32xx_nand_init(void)
 	       TAC_W_HOLD(hclk / CONFIG_LPC32XX_NAND_SLC_WHOLD) |
 	       TAC_W_SETUP(hclk / CONFIG_LPC32XX_NAND_SLC_WSETUP) |
 	       TAC_R_RDY(CFG_LPC32XX_NAND_SLC_RDR_CLKS) |
-	       TAC_R_WIDTH(hclk / CONFIG_LPC32XX_NAND_SLC_RWIDTH) |
+	       TAC_R_WIDTH(hclk / CFG_LPC32XX_NAND_SLC_RWIDTH) |
 	       TAC_R_HOLD(hclk / CFG_LPC32XX_NAND_SLC_RHOLD) |
 	       TAC_R_SETUP(hclk / CFG_LPC32XX_NAND_SLC_RSETUP),
 	       &lpc32xx_nand_slc_regs->tac);
