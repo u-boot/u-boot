@@ -16,7 +16,7 @@
 /* Use BayTrail internal HS UART which is memory-mapped */
 #endif
 
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
+#define CFG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
 

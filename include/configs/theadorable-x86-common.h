@@ -11,7 +11,7 @@
 #ifndef __THEADORABLE_X86_COMMON_H
 #define __THEADORABLE_X86_COMMON_H
 
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
+#define CFG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
 

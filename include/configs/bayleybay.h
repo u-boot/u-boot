@@ -12,7 +12,7 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \
+#define CFG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \
 					"stdout=serial,vidconsole\0" \
 					"stderr=serial,vidconsole\0"
 

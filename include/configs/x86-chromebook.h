@@ -12,7 +12,7 @@
 
 #define VIDEO_IO_OFFSET				0
 
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,i8042-kbd,serial\0" \
+#define CFG_STD_DEVICES_SETTINGS	"stdin=usbkbd,i8042-kbd,serial\0" \
 					"stdout=vidconsole,serial\0" \
 					"stderr=vidconsole,serial\0"
 
