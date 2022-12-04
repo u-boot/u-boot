@@ -64,7 +64,7 @@
 /*
  * L4 Watchdog
  */
-#define CONFIG_DW_WDT_CLOCK_KHZ		25000
+#define CFG_DW_WDT_CLOCK_KHZ		25000
 
 /*
  * NAND Support
