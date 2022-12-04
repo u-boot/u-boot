@@ -67,7 +67,7 @@ void get_sys_info(sys_info_t *sys_info)
 		[14] = 4,	/* CC4 PPL / 4 */
 	};
 	uint i, freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
-#if !defined(CFG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
+#if !defined(CFG_FM_PLAT_CLK_DIV) || !defined(CFG_PME_PLAT_CLK_DIV)
 	uint rcw_tmp;
 #endif
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
@@ -206,7 +206,7 @@ void get_sys_info(sys_info_t *sys_info)
 #define FM1_CLK_SEL	0x1c000000
 #define FM1_CLK_SHIFT	26
 #endif
-#if !defined(CFG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
+#if !defined(CFG_FM_PLAT_CLK_DIV) || !defined(CFG_PME_PLAT_CLK_DIV)
 #if defined(CONFIG_ARCH_T1024)
 	rcw_tmp = in_be32(&gur->rcwsr[15]) - 4;
 #else
@@ -215,7 +215,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #ifdef CONFIG_SYS_DPAA_PME
-#ifndef CONFIG_PME_PLAT_CLK_DIV
+#ifndef CFG_PME_PLAT_CLK_DIV
 	switch ((rcw_tmp & PME_CLK_SEL) >> PME_CLK_SHIFT) {
 	case 1:
 		sys_info->freq_pme = freq_c_pll[CFG_SYS_PME_CLK];
