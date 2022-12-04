@@ -100,7 +100,7 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_ENET_DEV		0
+#define CFG_FEC_ENET_DEV		0
 
 #define CONFIG_FEC_MXC_PHYADDR		0x0
 #endif

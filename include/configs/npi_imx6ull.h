@@ -36,7 +36,7 @@
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #endif
 
-#define CONFIG_FEC_ENET_DEV		1
+#define CFG_FEC_ENET_DEV		1
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200n8\0" \

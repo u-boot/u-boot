@@ -18,7 +18,7 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_ENET_DEV		0
+#define CFG_FEC_ENET_DEV		0
 #endif
 
 /* Environment settings */

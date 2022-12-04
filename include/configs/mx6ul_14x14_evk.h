@@ -121,11 +121,11 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_ENET_DEV		1
+#define CFG_FEC_ENET_DEV		1
 
-#if (CONFIG_FEC_ENET_DEV == 0)
+#if (CFG_FEC_ENET_DEV == 0)
 #define CONFIG_FEC_MXC_PHYADDR          0x2
-#elif (CONFIG_FEC_ENET_DEV == 1)
+#elif (CFG_FEC_ENET_DEV == 1)
 #define CONFIG_FEC_MXC_PHYADDR		0x1
 #endif
 #endif
