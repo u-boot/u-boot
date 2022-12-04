@@ -16,7 +16,7 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* Command definition */
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* Linux only */
 #define CFG_EXTRA_ENV_SETTINGS \

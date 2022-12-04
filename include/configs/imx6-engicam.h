@@ -116,9 +116,9 @@
 /* UART */
 #ifdef CONFIG_MXC_UART
 # ifdef CONFIG_MX6UL
-#  define CONFIG_MXC_UART_BASE		UART1_BASE
+#  define CFG_MXC_UART_BASE		UART1_BASE
 # else
-#  define CONFIG_MXC_UART_BASE		UART4_BASE
+#  define CFG_MXC_UART_BASE		UART4_BASE
 # endif
 #endif
 

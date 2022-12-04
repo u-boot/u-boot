@@ -11,7 +11,7 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	0

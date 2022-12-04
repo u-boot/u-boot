@@ -28,7 +28,7 @@
 #define CFG_SYS_FSL_USDHC_NUM	3
 
 /* UART */
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB

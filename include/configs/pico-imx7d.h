@@ -10,7 +10,7 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
+#define CFG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */
 #define CFG_SYS_FSL_ESDHC_ADDR	0

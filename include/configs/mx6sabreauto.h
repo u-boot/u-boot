@@ -8,7 +8,7 @@
 #ifndef __MX6SABREAUTO_CONFIG_H
 #define __MX6SABREAUTO_CONFIG_H
 
-#define CONFIG_MXC_UART_BASE	UART4_BASE
+#define CFG_MXC_UART_BASE	UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
 
 /* USB Configs */

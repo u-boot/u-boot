@@ -17,7 +17,7 @@
 /* U-Boot general configurations */
 
 /* UART */
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
 /* SD/MMC */
 #define CFG_SYS_FSL_ESDHC_ADDR	0

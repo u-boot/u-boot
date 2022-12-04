@@ -13,7 +13,7 @@
 #define CFG_SYS_FSL_USDHC_NUM	1
 
 /* Console configs */
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR

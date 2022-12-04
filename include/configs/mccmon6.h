@@ -17,7 +17,7 @@
  * mode from SD card (SD2)
  */
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configuration */
 #define CFG_SYS_FSL_USDHC_NUM	2

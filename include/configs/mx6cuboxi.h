@@ -19,7 +19,7 @@
 
 /* Command definition */
 
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"som_rev=undefined\0" \

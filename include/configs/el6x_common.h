@@ -21,7 +21,7 @@
 
 /* Commands */
 
-#define CONFIG_MXC_UART_BASE	UART2_BASE
+#define CFG_MXC_UART_BASE	UART2_BASE
 
 #define CFG_EXTRA_ENV_SETTINGS                                               \
 	"board=EL6Q\0"								\

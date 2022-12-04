@@ -12,7 +12,7 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-#define CONFIG_MXC_UART_BASE		UART4_BASE
+#define CFG_MXC_UART_BASE		UART4_BASE
 
 #ifndef CONFIG_SPL_BUILD
 

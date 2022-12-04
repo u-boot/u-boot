@@ -16,7 +16,7 @@
 #include "mx6_common.h"
 
 /* Serial */
-#define CONFIG_MXC_UART_BASE	       UART2_BASE
+#define CFG_MXC_UART_BASE	       UART2_BASE
 
 /* NAND */
 

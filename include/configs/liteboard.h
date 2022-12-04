@@ -13,7 +13,7 @@
 #include <linux/stringify.h>
 #include "mx6_common.h"
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC

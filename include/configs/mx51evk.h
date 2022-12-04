@@ -18,7 +18,7 @@
  * Hardware drivers
  */
 
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
 /* PMIC Controller */
 #define CFG_FSL_PMIC_BUS	0

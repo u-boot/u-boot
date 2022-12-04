@@ -13,9 +13,9 @@
 #include "mx6_common.h"
 
 /* UART */
-#define CONFIG_MXC_UART_BASE		UART3_BASE
+#define CFG_MXC_UART_BASE		UART3_BASE
 
-#if CONFIG_MXC_UART_BASE == UART2_BASE
+#if CFG_MXC_UART_BASE == UART2_BASE
 /* UART2 requires CONFIG_DEBUG_UART_BASE=0x21e8000 */
 #define CONSOLE_DEVICE "ttymxc1" /* System on Module debug connector */
 #else

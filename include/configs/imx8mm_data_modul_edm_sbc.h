@@ -25,7 +25,7 @@
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x40000000 /* Minimum 1 GiB DDR */
 
-#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
+#define CFG_MXC_UART_BASE		UART3_BASE_ADDR
 
 /* PHY needs a longer autonegotiation timeout after reset */
 #define PHY_ANEG_TIMEOUT		20000

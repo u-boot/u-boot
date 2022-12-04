@@ -194,11 +194,11 @@ static void _mxc_serial_setbrg(struct mxc_uart *base, unsigned long clk,
 
 #if !CONFIG_IS_ENABLED(DM_SERIAL)
 
-#ifndef CONFIG_MXC_UART_BASE
-#error "define CONFIG_MXC_UART_BASE to use the MXC UART driver"
+#ifndef CFG_MXC_UART_BASE
+#error "define CFG_MXC_UART_BASE to use the MXC UART driver"
 #endif
 
-#define mxc_base	((struct mxc_uart *)CONFIG_MXC_UART_BASE)
+#define mxc_base	((struct mxc_uart *)CFG_MXC_UART_BASE)
 
 static void mxc_serial_setbrg(void)
 {

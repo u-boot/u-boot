@@ -26,7 +26,7 @@
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* Serial console */
-#define CONFIG_MXC_UART_BASE		UART4_BASE
+#define CFG_MXC_UART_BASE		UART4_BASE
 
 /* Environment */
 

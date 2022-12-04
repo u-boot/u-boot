@@ -35,7 +35,7 @@
 #include <config_distro_bootcmd.h>
 
 /* UART */
-#define CONFIG_MXC_UART_BASE		UART3_BASE
+#define CFG_MXC_UART_BASE		UART3_BASE
 
 /* MMC */
 

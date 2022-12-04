@@ -8,7 +8,7 @@
 #ifndef __MX6SABRESD_CONFIG_H
 #define __MX6SABRESD_CONFIG_H
 
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV		"ttymxc0"
 
 #include "mx6sabre_common.h"

@@ -12,7 +12,7 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 #ifdef CONFIG_IMX_BOOTAUX
 

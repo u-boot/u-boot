@@ -50,7 +50,7 @@
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 #endif
 
 #endif				/* __CONFIG_H */

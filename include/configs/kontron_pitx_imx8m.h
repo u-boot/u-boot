@@ -67,7 +67,7 @@
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			0xC0000000 /* 3GB DDR */
 
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
+#define CFG_MXC_UART_BASE		UART_BASE_ADDR(3)
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR       0

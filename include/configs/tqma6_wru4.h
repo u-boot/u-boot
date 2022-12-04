@@ -10,7 +10,7 @@
 #define CFG_FEC_MXC_PHYADDR		0x01
 
 /* UART */
-#define CONFIG_MXC_UART_BASE		UART4_BASE
+#define CFG_MXC_UART_BASE		UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
 
 /* Watchdog */

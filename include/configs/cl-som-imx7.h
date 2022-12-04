@@ -10,7 +10,7 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
+#define CFG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 /* Network */
 #define CFG_FEC_MXC_PHYADDR          0
