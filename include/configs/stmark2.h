@@ -36,7 +36,7 @@
 
 /* Input, PCI, Flexbus, and VCO */
 
-#define CONFIG_PRAM			2048	/* 2048 KB */
+#define CFG_PRAM			2048	/* 2048 KB */
 
 #define CFG_SYS_MBAR			0xFC000000
 

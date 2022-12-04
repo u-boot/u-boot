@@ -380,19 +380,19 @@ static int setup_dest_addr(void)
 	return arch_setup_dest_addr();
 }
 
-#ifdef CONFIG_PRAM
+#ifdef CFG_PRAM
 /* reserve protected RAM */
 static int reserve_pram(void)
 {
 	ulong reg;
 
-	reg = env_get_ulong("pram", 10, CONFIG_PRAM);
+	reg = env_get_ulong("pram", 10, CFG_PRAM);
 	gd->relocaddr -= (reg << 10);		/* size is in kB */
 	debug("Reserving %ldk for protected RAM at %08lx\n", reg,
 	      gd->relocaddr);
 	return 0;
 }
-#endif /* CONFIG_PRAM */
+#endif /* CFG_PRAM */
 
 /* Round memory pointer down to next 4 kB limit */
 static int reserve_round_4k(void)
@@ -925,7 +925,7 @@ static const init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_OF_BOARD_FIXUP
 	fix_fdt,
 #endif
-#ifdef CONFIG_PRAM
+#ifdef CFG_PRAM
 	reserve_pram,
 #endif
 	reserve_round_4k,

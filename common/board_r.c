@@ -533,7 +533,7 @@ static int initr_ide(void)
 }
 #endif
 
-#if defined(CONFIG_PRAM)
+#if defined(CFG_PRAM)
 /*
  * Export available size of memory for Linux, taking into account the
  * protected RAM at top of memory
@@ -543,7 +543,7 @@ int initr_mem(void)
 	ulong pram = 0;
 	char memsz[32];
 
-	pram = env_get_ulong("pram", 10, CONFIG_PRAM);
+	pram = env_get_ulong("pram", 10, CFG_PRAM);
 	sprintf(memsz, "%ldk", (long int)((gd->ram_size / 1024) - pram));
 	env_set("mem", memsz);
 
@@ -791,7 +791,7 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 	last_stage_init,
 #endif
-#if defined(CONFIG_PRAM)
+#if defined(CFG_PRAM)
 	initr_mem,
 #endif
 	run_main_loop,

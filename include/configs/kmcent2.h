@@ -170,7 +170,7 @@
 /* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
  * is not valid yet, which is the case for when u-boot copies itself to RAM
  */
-#define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM) >> 10)
+#define CFG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM) >> 10)
 
 /*
  * IFC Definitions

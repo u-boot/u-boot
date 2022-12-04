@@ -1069,11 +1069,11 @@ The following options need to be configured:
 		or define CFG_ENV_FLAGS_LIST_STATIC.
 
 - Protected RAM:
-		CONFIG_PRAM
+		CFG_PRAM
 
 		Define this variable to enable the reservation of
 		"protected RAM", i. e. RAM which is not overwritten
-		by U-Boot. Define CONFIG_PRAM to hold the number of
+		by U-Boot. Define CFG_PRAM to hold the number of
 		kB you want to reserve for pRAM. You can overwrite
 		this default value by defining an environment
 		variable "pram" to the number of kB you want to

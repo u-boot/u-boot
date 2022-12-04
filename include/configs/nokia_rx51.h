@@ -169,6 +169,6 @@
 #define KERNEL_ADDRESS			(SDRAM_END-KERNEL_MAXSIZE)
 
 /* Reserve protected RAM for attached kernel */
-#define CONFIG_PRAM			((KERNEL_MAXSIZE >> 10)+1)
+#define CFG_PRAM			((KERNEL_MAXSIZE >> 10)+1)
 
 #endif /* __CONFIG_H */

@@ -279,7 +279,7 @@
  * firewall violation, we tell u-boot that memory is protected RAM (PRAM)
  */
 #if (CONFIG_TI_SECURE_EMIF_REGION_START == 0)
-#define CONFIG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
+#define CFG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
 #endif
 #else
 /*

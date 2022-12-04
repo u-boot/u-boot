@@ -29,7 +29,7 @@
 	"save\0"				\
 	""
 
-#define CONFIG_PRAM		512	/* 512 KB */
+#define CFG_PRAM		512	/* 512 KB */
 
 #define CFG_SYS_CLK		166666666	/* CPU Core Clock */
 #define CFG_SYS_PLL_ODR	0x36

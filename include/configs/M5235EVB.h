@@ -39,7 +39,7 @@
 	"save\0"				\
 	""
 
-#define CONFIG_PRAM		512	/* 512 KB */
+#define CFG_PRAM		512	/* 512 KB */
 
 #define CFG_SYS_CLK			75000000
 #define CFG_SYS_CPU_CLK		CFG_SYS_CLK * 2

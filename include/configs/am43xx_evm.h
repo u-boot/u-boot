@@ -152,7 +152,7 @@
 
 #if defined(CONFIG_TI_SECURE_DEVICE)
 /* Avoid relocating onto firewalled area at end of DRAM */
-#define CONFIG_PRAM (64 * 1024)
+#define CFG_PRAM (64 * 1024)
 #endif /* CONFIG_TI_SECURE_DEVICE */
 
 #endif	/* __CONFIG_AM43XX_EVM_H */
