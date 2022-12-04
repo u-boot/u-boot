@@ -142,7 +142,7 @@ static void lpc32xx_nand_init(void)
 
 	writel(
 		clkdiv(CONFIG_LPC32XX_NAND_MLC_TCEA_DELAY, 0x03, 24) |
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_BUSY_DELAY, 0x1F, 19) |
+		clkdiv(CFG_LPC32XX_NAND_MLC_BUSY_DELAY, 0x1F, 19) |
 		clkdiv(CONFIG_LPC32XX_NAND_MLC_NAND_TA,    0x07, 16) |
 		clkdiv(CONFIG_LPC32XX_NAND_MLC_RD_HIGH,    0x0F, 12) |
 		clkdiv(CONFIG_LPC32XX_NAND_MLC_RD_LOW,     0x0F, 8) |
