@@ -128,7 +128,7 @@
 	"bootmenu_delay=30\0" \
 	""
 
-#define CONFIG_POSTBOOTMENU \
+#define CFG_POSTBOOTMENU \
 	"echo;" \
 	"echo Extra commands:;" \
 	"echo run sdboot - Boot from SD card slot.;" \
