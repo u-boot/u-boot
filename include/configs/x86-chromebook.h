@@ -8,7 +8,7 @@
 
 #define CFG_X86_MRC_ADDR			0xfffa0000
 #define CFG_X86_REFCODE_ADDR			0xffea0000
-#define CONFIG_X86_REFCODE_RUN_ADDR		0
+#define CFG_X86_REFCODE_RUN_ADDR		0
 
 #define VIDEO_IO_OFFSET				0
 
