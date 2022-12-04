@@ -10,7 +10,7 @@
 
 #define CFG_SYS_HZ_CLOCK		24000000
 
-#define CONFIG_IRAM_BASE		0x10080000
+#define CFG_IRAM_BASE		0x10080000
 
 /* RAW SD card / eMMC locations. */
 

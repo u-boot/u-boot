@@ -9,7 +9,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_IRAM_BASE	0x10080000
+#define CFG_IRAM_BASE	0x10080000
 
 /* spl size 32kb sram - 2kb bootrom */
 

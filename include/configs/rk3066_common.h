@@ -9,7 +9,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_IRAM_BASE		0x10080000
+#define CFG_IRAM_BASE		0x10080000
 
 #define CFG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_BANK_SIZE			(1024UL << 20UL)

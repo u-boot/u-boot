@@ -57,6 +57,6 @@ extern const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1];
 /**
  * Locations of the boot-device identifier in SRAM
  */
-#define BROM_BOOTSOURCE_ID_ADDR   (CONFIG_IRAM_BASE + 0x10)
+#define BROM_BOOTSOURCE_ID_ADDR   (CFG_IRAM_BASE + 0x10)
 
 #endif

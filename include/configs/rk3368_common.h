@@ -14,7 +14,7 @@
 #define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 
-#define CONFIG_IRAM_BASE		0xff8c0000
+#define CFG_IRAM_BASE		0xff8c0000
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \

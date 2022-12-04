@@ -8,7 +8,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_IRAM_BASE		0x10080000
+#define CFG_IRAM_BASE		0x10080000
 
 #define CFG_SYS_TIMER_RATE		(24 * 1000 * 1000)
 /* TIMER1,initialized by ddr initialize code */
