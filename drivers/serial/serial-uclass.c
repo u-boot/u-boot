@@ -526,7 +526,7 @@ static int serial_post_probe(struct udevice *dev)
 		ops->getconfig += gd->reloc_off;
 	if (ops->setconfig)
 		ops->setconfig += gd->reloc_off;
-#if CFG_POST & CONFIG_SYS_POST_UART
+#if CFG_POST & CFG_SYS_POST_UART
 	if (ops->loop)
 		ops->loop += gd->reloc_off;
 #endif
