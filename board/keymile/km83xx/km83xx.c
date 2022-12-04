@@ -217,7 +217,7 @@ int post_hotkeys_pressed(void)
 	struct km_bec_fpga *base =
 		(struct km_bec_fpga *)CFG_SYS_KMBEC_FPGA_BASE;
 	int testpin_reg = in_8(&base->CONFIG_TESTPIN_REG);
-	testpin = (testpin_reg & CONFIG_TESTPIN_MASK) != 0;
+	testpin = (testpin_reg & CFG_TESTPIN_MASK) != 0;
 	debug("post_hotkeys_pressed: %d\n", !testpin);
 	return testpin;
 }
