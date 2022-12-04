@@ -39,7 +39,7 @@
 	"name="PARTS_DATA",size=3000MiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
-#define CONFIG_DFU_ALT \
+#define CFG_DFU_ALT \
 	"u-boot raw 0x80 0x400;" \
 	"/uImage ext4 0 2;" \
 	"/modem.bin ext4 0 2;" \
@@ -98,7 +98,7 @@
 	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \
 	"partitions=" PARTS_DEFAULT \
-	"dfu_alt_info=" CONFIG_DFU_ALT \
+	"dfu_alt_info=" CFG_DFU_ALT \
 	"spladdr=0x40000100\0" \
 	"splsize=0x200\0" \
 	"splfile=falcon.bin\0" \

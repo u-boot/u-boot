@@ -21,7 +21,7 @@
 
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
-#define CONFIG_DFU_ENV_SETTINGS \
+#define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
 		"spl raw 0x2 0x400;" \
 		"u-boot raw 0x8a 0x1000;" \
@@ -47,7 +47,7 @@
 	"fdt_addr_r=0x18000000\0" \
 	"fdt_addr=0x18000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	CONFIG_DFU_ENV_SETTINGS \
+	CFG_DFU_ENV_SETTINGS \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"findfdt="\
 		"if test $baseboard = hobbit && test $board_rev = MX6Q ; then " \

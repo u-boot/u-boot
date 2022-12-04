@@ -16,7 +16,7 @@
 /* MMC Config*/
 #define CFG_SYS_FSL_ESDHC_ADDR       USDHC3_BASE_ADDR
 
-#define CONFIG_DFU_ENV_SETTINGS \
+#define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=boot raw 0x2 0x1000 mmcpart 1\0" \
 
 /* When booting with FIT specify the node entry containing boot.scr */
@@ -27,7 +27,7 @@
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_DFU_ENV_SETTINGS \
+	CFG_DFU_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"bootscr_fitimage_name=bootscr\0" \
 	"script_signed=boot.scr.imx-signed\0" \

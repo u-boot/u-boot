@@ -44,7 +44,7 @@
 	"initrd_high=0xffffffff\0" \
 	"bootcmd_mfg=run mfgtool_args;bootz ${loadaddr} ${initrd_addr} ${fdt_addr};\0" \
 
-#define CONFIG_DFU_ENV_SETTINGS \
+#define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=image raw 0 0x800000;"\
 		"u-boot raw 0 0x4000;"\
 		"bootimg part 0 1;"\
@@ -53,7 +53,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	UPDATE_M4_ENV \
 	CONFIG_MFG_ENV_SETTINGS \
-	CONFIG_DFU_ENV_SETTINGS \
+	CFG_DFU_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \

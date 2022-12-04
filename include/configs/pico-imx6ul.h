@@ -28,7 +28,7 @@
 
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
-#define CONFIG_DFU_ENV_SETTINGS \
+#define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
 		"spl raw 0x2 0x400;" \
 		"u-boot raw 0x8a 0x400;" \
@@ -63,7 +63,7 @@
 	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"mmcautodetect=yes\0" \
-	CONFIG_DFU_ENV_SETTINGS \
+	CFG_DFU_ENV_SETTINGS \
 	"findfdt=" \
 		"if test $fdtfile = ask ; then " \
 			"bootmenu -1; fi;" \
