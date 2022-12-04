@@ -49,7 +49,7 @@
 
 #define KEYSTONE2_EMAC_GIG_ENABLE
 
-#define MAC_ID_BASE_ADDR		CONFIG_KSNET_MAC_ID_BASE
+#define MAC_ID_BASE_ADDR		CFG_KSNET_MAC_ID_BASE
 
 /* MDIO module input frequency */
 #ifdef CONFIG_SOC_K2G
