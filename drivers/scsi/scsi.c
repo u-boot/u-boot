@@ -18,8 +18,8 @@
 #include <dm/uclass-internal.h>
 
 #if !defined(CONFIG_DM_SCSI)
-# ifdef CONFIG_SCSI_DEV_LIST
-#  define SCSI_DEV_LIST CONFIG_SCSI_DEV_LIST
+# ifdef CFG_SCSI_DEV_LIST
+#  define SCSI_DEV_LIST CFG_SCSI_DEV_LIST
 # else
 #  ifdef CONFIG_SATA_ULI5288
 
