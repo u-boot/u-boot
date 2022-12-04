@@ -54,7 +54,7 @@
  * Ethernet on SOC (FEC)
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC_PHYADDR		0x0
+#define CFG_FEC_MXC_PHYADDR		0x0
 #endif
 
 #define CFG_SYS_RTC_BUS_NUM		1 /* I2C2 */

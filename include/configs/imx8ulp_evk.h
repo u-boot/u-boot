@@ -21,7 +21,7 @@
 #if defined(CONFIG_FEC_MXC)
 #define PHY_ANEG_TIMEOUT		20000
 
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CFG_FEC_MXC_PHYADDR		1
 #endif
 
 #ifdef CONFIG_DISTRO_DEFAULTS

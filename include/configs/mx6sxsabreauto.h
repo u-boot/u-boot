@@ -93,7 +93,7 @@
 /* Network */
 
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR          0x0
+#define CFG_FEC_MXC_PHYADDR          0x0
 
 #ifdef CONFIG_CMD_USB
 #define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)

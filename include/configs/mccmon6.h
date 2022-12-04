@@ -31,7 +31,7 @@
 #define CFG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }
 
 /* Ethernet Configuration */
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CFG_FEC_MXC_PHYADDR		1
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200 quiet\0" \

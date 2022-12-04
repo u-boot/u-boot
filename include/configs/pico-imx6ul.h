@@ -15,7 +15,7 @@
 
 /* Network support */
 
-#define CONFIG_FEC_MXC_PHYADDR		0x1
+#define CFG_FEC_MXC_PHYADDR		0x1
 
 #define CONFIG_MXC_UART_BASE		UART6_BASE_ADDR
 

@@ -40,7 +40,7 @@
 /* MMC */
 
 /* Ethernet */
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CFG_FEC_MXC_PHYADDR		1
 
 /* USB */
 #define CONFIG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)

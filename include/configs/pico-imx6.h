@@ -98,6 +98,6 @@
 /* Environment organization */
 
 /* Ethernet Configuration */
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CFG_FEC_MXC_PHYADDR		1
 
 #endif			       /* __CONFIG_H * */

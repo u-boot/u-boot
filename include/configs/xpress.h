@@ -32,7 +32,7 @@
 #define CONFIG_MXC_USB_FLAGS		0
 
 #define CFG_FEC_ENET_DEV		0
-#define CONFIG_FEC_MXC_PHYADDR          0x0
+#define CFG_FEC_MXC_PHYADDR          0x0
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

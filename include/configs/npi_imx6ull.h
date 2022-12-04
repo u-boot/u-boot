@@ -33,7 +33,7 @@
 #define CONFIG_MXC_USB_FLAGS		0
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC_PHYADDR		0x1
+#define CFG_FEC_MXC_PHYADDR		0x1
 #endif
 
 #define CFG_FEC_ENET_DEV		1

@@ -20,7 +20,7 @@
 
 /* ENET1 connects to base board and MUX with ESAI */
 #define CFG_FEC_ENET_DEV		1
-#define CONFIG_FEC_MXC_PHYADDR		0x0
+#define CFG_FEC_MXC_PHYADDR		0x0
 
 /* EEPROM */
 #define  EEPROM_I2C_BUS		0 /* I2C0 */

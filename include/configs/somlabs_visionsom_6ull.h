@@ -66,7 +66,7 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC_PHYADDR		0x1
+#define CFG_FEC_MXC_PHYADDR		0x1
 #endif
 
 #endif

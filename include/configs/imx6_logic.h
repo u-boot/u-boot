@@ -19,7 +19,7 @@
 
 
 /* Ethernet Configs */
-#define CONFIG_FEC_MXC_PHYADDR         0
+#define CFG_FEC_MXC_PHYADDR         0
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

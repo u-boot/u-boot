@@ -1086,8 +1086,8 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 	int addr;
 
 	addr = device_get_phy_addr(priv, dev);
-#ifdef CONFIG_FEC_MXC_PHYADDR
-	addr = CONFIG_FEC_MXC_PHYADDR;
+#ifdef CFG_FEC_MXC_PHYADDR
+	addr = CFG_FEC_MXC_PHYADDR;
 #endif
 
 	phydev = phy_connect(priv->bus, addr, dev, priv->interface);

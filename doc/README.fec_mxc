@@ -18,7 +18,7 @@ CONFIG_PHYLIB
 CONFIG_FEC_MXC_NO_ANEG
 	Relevant only if PHYLIB not used. Skips auto-negotiation restart.
 
-CONFIG_FEC_MXC_PHYADDR
+CFG_FEC_MXC_PHYADDR
 	Optional, selects the exact phy address that should be connected
 	and function fecmxc_initialize will try to initialize it.
 

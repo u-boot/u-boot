@@ -26,7 +26,7 @@
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR      USDHC1_BASE_ADDR
 
-#define CONFIG_FEC_MXC_PHYADDR		0
+#define CFG_FEC_MXC_PHYADDR		0
 
 #ifdef CONFIG_IMX_HAB
 #define HAB_EXTRA_SETTINGS \

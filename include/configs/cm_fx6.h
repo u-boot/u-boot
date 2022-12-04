@@ -132,7 +132,7 @@
 /* APBH DMA is required for NAND support */
 
 /* Ethernet */
-#define CONFIG_FEC_MXC_PHYADDR		0
+#define CFG_FEC_MXC_PHYADDR		0
 
 /* USB */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)

@@ -39,7 +39,7 @@
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_FEC_MXC_PHYADDR          4
+#define CFG_FEC_MXC_PHYADDR          4
 
 #define PHY_ANEG_TIMEOUT 20000
 

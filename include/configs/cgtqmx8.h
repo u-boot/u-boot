@@ -118,6 +118,6 @@
 #define PHYS_SDRAM_2_SIZE		0x100000000	/* 4 GB */
 
 /* Networking */
-#define CONFIG_FEC_MXC_PHYADDR		-1
+#define CFG_FEC_MXC_PHYADDR		-1
 
 #endif /* __CGTQMX8_H */

@@ -13,7 +13,7 @@
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 /* Network */
-#define CONFIG_FEC_MXC_PHYADDR          0
+#define CFG_FEC_MXC_PHYADDR          0
 
 /* ENET1 */
 #define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
