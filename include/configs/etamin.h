@@ -93,8 +93,8 @@
 	"u-boot.env1 mtddev;" \
 	"rootfs mtddevubi" \
 
-#undef CONFIG_ENV_SETTINGS_NAND_V2
-#define CONFIG_ENV_SETTINGS_NAND_V2 \
+#undef CFG_ENV_SETTINGS_NAND_V2
+#define CFG_ENV_SETTINGS_NAND_V2 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
@@ -136,6 +136,6 @@
 	"preboot=draco_led 0\0" \
 	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	CONFIG_ENV_SETTINGS_V2 \
-	CONFIG_ENV_SETTINGS_NAND_V2
+	CFG_ENV_SETTINGS_NAND_V2
 
 #endif	/* ! __CONFIG_ETAMIN_H */

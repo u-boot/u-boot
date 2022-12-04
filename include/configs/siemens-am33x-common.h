@@ -273,7 +273,7 @@
 	"u-boot.env1 part 0 7;" \
 	"rootfs partubi 0 9" \
 
-#define CONFIG_ENV_SETTINGS_NAND_V2 \
+#define CFG_ENV_SETTINGS_NAND_V2 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
