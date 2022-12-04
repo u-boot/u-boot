@@ -52,7 +52,7 @@
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
 /* Set soc_rev, soc_id, board_rev, board_name, fdtfile */
-#define CONFIG_ODROID_REV_AIN		9
+#define CFG_ODROID_REV_AIN		9
 
 /*
  * Need to override existing one (smdk5420) with odroid so set_board_info will
