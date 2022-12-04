@@ -45,7 +45,7 @@
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
 	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
-	CONFIG_ENV_SETTINGS_V2 \
+	CFG_ENV_SETTINGS_V2 \
 	CFG_ENV_SETTINGS_NAND_V2
 
 #endif	/* ! __CONFIG_RASTABAN_H */

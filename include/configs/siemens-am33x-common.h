@@ -306,7 +306,7 @@
 		"bootm ${kloadaddr} - ${loadaddr}\0" \
 	COMMON_ENV_NAND_CMDS
 
-#define CONFIG_ENV_SETTINGS_V2 \
+#define CFG_ENV_SETTINGS_V2 \
 		COMMON_ENV_SETTINGS \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \
