@@ -14,7 +14,7 @@
 
 /* SPL config */
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_MALLOC_F_ADDR		0x00120000
+#define CFG_MALLOC_F_ADDR		0x00120000
 
 #endif /* CONFIG_SPL_BUILD */
 

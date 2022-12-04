@@ -527,8 +527,8 @@ static int spl_common_init(bool setup_malloc)
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	if (setup_malloc) {
-#ifdef CONFIG_MALLOC_F_ADDR
-		gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+#ifdef CFG_MALLOC_F_ADDR
+		gd->malloc_base = CFG_MALLOC_F_ADDR;
 #endif
 		gd->malloc_limit = CONFIG_VAL(SYS_MALLOC_F_LEN);
 		gd->malloc_ptr = 0;
