@@ -78,7 +78,7 @@ static int cpu_run_reference_code(void)
 	int ret, dummy;
 	int size;
 
-	hdr = (struct rmodule_header *)CONFIG_X86_REFCODE_ADDR;
+	hdr = (struct rmodule_header *)CFG_X86_REFCODE_ADDR;
 	debug("Extracting code from rmodule at %p\n", hdr);
 	if (hdr->magic != RMODULE_MAGIC) {
 		debug("Invalid rmodule magic\n");
