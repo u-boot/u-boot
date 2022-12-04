@@ -41,7 +41,7 @@
 	!CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #define flush_cache_wback(addr, len)    \
 		flush_dcache_range((unsigned long)addr, \
-		(unsigned long)(addr + ALIGN(len, CONFIG_SH_ETHER_ALIGNE_SIZE)))
+		(unsigned long)(addr + ALIGN(len, CFG_SH_ETHER_ALIGNE_SIZE)))
 #else
 #define flush_cache_wback(...)
 #endif
@@ -49,7 +49,7 @@
 #if defined(CONFIG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
 #define invalidate_cache(addr, len)		\
 	{	\
-		unsigned long line_size = CONFIG_SH_ETHER_ALIGNE_SIZE;	\
+		unsigned long line_size = CFG_SH_ETHER_ALIGNE_SIZE;	\
 		unsigned long start, end;	\
 		\
 		start = (unsigned long)addr;	\
