@@ -134,7 +134,7 @@
 
 #if defined(CONFIG_ARMADA_375)
 /* SAR values for Armada 375 */
-#define CONFIG_SAR_REG		(MVEBU_REGISTER(0xe8200))
+#define CFG_SAR_REG		(MVEBU_REGISTER(0xe8200))
 #define CFG_SAR2_REG		(MVEBU_REGISTER(0xe8204))
 
 #define SAR_CPU_FREQ_OFFS	17
@@ -146,11 +146,11 @@
 #define BOOT_FROM_UART		0x30
 #define BOOT_FROM_SPI		0x38
 
-#define CFG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(20)) ? \
+#define CFG_SYS_TCLK		((readl(CFG_SAR_REG) & BIT(20)) ? \
 				 200000000 : 166000000)
 #elif defined(CONFIG_ARMADA_38X)
 /* SAR values for Armada 38x */
-#define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18600))
+#define CFG_SAR_REG		(MVEBU_REGISTER(0x18600))
 
 #define SAR_CPU_FREQ_OFFS	10
 #define SAR_CPU_FREQ_MASK	(0x1f << SAR_CPU_FREQ_OFFS)
@@ -169,11 +169,11 @@
 #define BOOT_FROM_MMC		0x30
 #define BOOT_FROM_MMC_ALT	0x31
 
-#define CFG_SYS_TCLK		((readl(CONFIG_SAR_REG) & BIT(15)) ? \
+#define CFG_SYS_TCLK		((readl(CFG_SAR_REG) & BIT(15)) ? \
 				 200000000 : 250000000)
 #elif defined(CONFIG_ARMADA_MSYS)
 /* SAR values for MSYS */
-#define CONFIG_SAR_REG		(MBUS_DFX_BASE  + 0xf8200)
+#define CFG_SAR_REG		(MBUS_DFX_BASE  + 0xf8200)
 #define CFG_SAR2_REG		(MBUS_DFX_BASE  + 0xf8204)
 
 #define SAR_CPU_FREQ_OFFS	18
@@ -191,7 +191,7 @@
 #define CFG_SYS_TCLK		200000000	/* 200MHz */
 #elif defined(CONFIG_ARMADA_XP)
 /* SAR values for Armada XP */
-#define CONFIG_SAR_REG		(MVEBU_REGISTER(0x18230))
+#define CFG_SAR_REG		(MVEBU_REGISTER(0x18230))
 #define CFG_SAR2_REG		(MVEBU_REGISTER(0x18234))
 
 #define SAR_CPU_FREQ_OFFS	21

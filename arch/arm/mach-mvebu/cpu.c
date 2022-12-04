@@ -83,7 +83,7 @@ u32 get_boot_device(void)
 	/*
 	 * Now check the SAR register for the strapped boot-device
 	 */
-	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+	val = readl(CFG_SAR_REG);	/* SAR - Sample At Reset */
 	boot_device = (val & BOOT_DEV_SEL_MASK) >> BOOT_DEV_SEL_OFFS;
 	debug("SAR_REG=0x%08x boot_device=0x%x\n", val, boot_device);
 	switch (boot_device) {
@@ -197,7 +197,7 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 #if defined(CONFIG_ARMADA_375) || defined(CONFIG_ARMADA_MSYS)
 	val = readl(CFG_SAR2_REG);	/* SAR - Sample At Reset */
 #else
-	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+	val = readl(CFG_SAR_REG);	/* SAR - Sample At Reset */
 #endif
 	freq = (val & SAR_CPU_FREQ_MASK) >> SAR_CPU_FREQ_OFFS;
 #if defined(SAR2_CPU_FREQ_MASK)
