@@ -33,7 +33,7 @@
 	"nand_img_size=0x500000\0" \
 	"splashpos=m,m\0" \
 	"optargs=fixrtc --no-log consoleblank=0 \0" \
-	CONFIG_ENV_SETTINGS_V1 \
+	CFG_ENV_SETTINGS_V1 \
 	CFG_ENV_SETTINGS_NAND_V1 \
 	"mmc_dev=0\0" \
 	"mmc_root=/dev/mmcblk0p2 rw\0" \

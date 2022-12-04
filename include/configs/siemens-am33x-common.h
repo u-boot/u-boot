@@ -229,7 +229,7 @@
 		"${nand_img_size}; bootm ${kloadaddr}\0" \
 	COMMON_ENV_NAND_CMDS
 
-#define CONFIG_ENV_SETTINGS_V1 \
+#define CFG_ENV_SETTINGS_V1 \
 		COMMON_ENV_SETTINGS \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \
