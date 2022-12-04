@@ -187,7 +187,7 @@ void board_gpio_init(void)
 	setbits_be32(&pgpio->gpdat, 0x00080000);
 #endif
 
-#ifdef CONFIG_SLIC
+#ifdef CFG_SLIC
 	/* reset SLIC */
 	setbits_be32(&pgpio->gpdir, 0x00040000);
 	setbits_be32(&pgpio->gpdat, 0x00040000);
