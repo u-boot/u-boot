@@ -306,12 +306,12 @@ unsigned int setup_ddr_tlbs_phys(phys_addr_t p_addr,
 	u64 memsize = (u64)memsize_in_meg << 20;
 	u64 size;
 
-	size = min(memsize, (u64)CONFIG_MAX_MEM_MAPPED);
+	size = min(memsize, (u64)CFG_MAX_MEM_MAPPED);
 	size = tlb_map_range(ram_tlb_address, p_addr, size, TLB_MAP_RAM);
 
-	if (size || memsize > CONFIG_MAX_MEM_MAPPED) {
-		print_size(memsize > CONFIG_MAX_MEM_MAPPED ?
-			   memsize - CONFIG_MAX_MEM_MAPPED + size : size,
+	if (size || memsize > CFG_MAX_MEM_MAPPED) {
+		print_size(memsize > CFG_MAX_MEM_MAPPED ?
+			   memsize - CFG_MAX_MEM_MAPPED + size : size,
 			   " of DDR memory left unmapped in U-Boot\n");
 #ifndef CONFIG_SPL_BUILD
 		puts("       ");

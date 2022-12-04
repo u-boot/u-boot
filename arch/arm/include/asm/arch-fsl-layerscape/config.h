@@ -36,7 +36,7 @@
 
 /* DDR */
 #define CFG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
+#define CFG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			0x06000000
@@ -121,7 +121,7 @@
 
 /* DDR */
 #define CFG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
+#define CFG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
 
 /* DCFG - GUR */
 #define CFG_SYS_FSL_OCRAM_BASE	0x18000000 /* initial RAM */
@@ -147,7 +147,7 @@
 
 /* DDR */
 #define CFG_SYS_DDR_BLOCK1_SIZE		((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED			CFG_SYS_DDR_BLOCK1_SIZE
+#define CFG_MAX_MEM_MAPPED			CFG_SYS_DDR_BLOCK1_SIZE
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE				0x06000000
@@ -191,7 +191,7 @@
 
 /* DDR */
 #define CFG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
+#define CFG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
 
 /* SEC */
 
@@ -211,7 +211,7 @@
 #define CFG_SYS_NUM_FM1_DTSEC		7
 #define CFG_SYS_NUM_FM1_10GEC		1
 #define CFG_SYS_DDR_BLOCK1_SIZE		((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED			CFG_SYS_DDR_BLOCK1_SIZE
+#define CFG_MAX_MEM_MAPPED			CFG_SYS_DDR_BLOCK1_SIZE
 
 #define QE_MURAM_SIZE		0x6000UL
 #define MAX_QE_RISC		1
@@ -250,14 +250,14 @@
 #define GICD_BASE		0x01401000
 #define GICC_BASE		0x01402000
 #define CFG_SYS_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
+#define CFG_MAX_MEM_MAPPED		CFG_SYS_DDR_BLOCK1_SIZE
 
 #elif defined(CONFIG_ARCH_LS1046A)
 #define CFG_SYS_NUM_FMAN			1
 #define CFG_SYS_NUM_FM1_DTSEC		8
 #define CFG_SYS_NUM_FM1_10GEC		2
 #define CFG_SYS_DDR_BLOCK1_SIZE  ((phys_size_t)2 << 30)
-#define CONFIG_MAX_MEM_MAPPED           CFG_SYS_DDR_BLOCK1_SIZE
+#define CFG_MAX_MEM_MAPPED           CFG_SYS_DDR_BLOCK1_SIZE
 
 /* SMMU Defintions */
 #define SMMU_BASE		0x09000000

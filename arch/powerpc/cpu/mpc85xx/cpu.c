@@ -616,12 +616,12 @@ static int reset_tlb(phys_addr_t p_addr, u32 size, phys_addr_t *phys_offset)
 /*
  * slide the testing window up to test another area
  * for 32_bit system, the maximum testable memory is limited to
- * CONFIG_MAX_MEM_MAPPED
+ * CFG_MAX_MEM_MAPPED
  */
 int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
 	phys_addr_t test_cap, p_addr;
-	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
+	phys_size_t p_size = min(gd->ram_size, CFG_MAX_MEM_MAPPED);
 
 #if !defined(CONFIG_PHYS_64BIT) || \
     !defined(CFG_SYS_INIT_RAM_ADDR_PHYS) || \
@@ -632,7 +632,7 @@ int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 #endif
 	p_addr = (*vstart) + (*size) + (*phys_offset);
 	if (p_addr < test_cap - 1) {
-		p_size = min(test_cap - p_addr, CONFIG_MAX_MEM_MAPPED);
+		p_size = min(test_cap - p_addr, CFG_MAX_MEM_MAPPED);
 		if (reset_tlb(p_addr, p_size, phys_offset) == -1)
 			return -1;
 		*vstart = CFG_SYS_DDR_SDRAM_BASE;
@@ -649,18 +649,18 @@ int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 /* initialization for testing area */
 int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
-	phys_size_t p_size = min(gd->ram_size, CONFIG_MAX_MEM_MAPPED);
+	phys_size_t p_size = min(gd->ram_size, CFG_MAX_MEM_MAPPED);
 
 	*vstart = CFG_SYS_DDR_SDRAM_BASE;
-	*size = (u32) p_size;	/* CONFIG_MAX_MEM_MAPPED < 4G */
+	*size = (u32) p_size;	/* CFG_MAX_MEM_MAPPED < 4G */
 	*phys_offset = 0;
 
 #if !defined(CONFIG_PHYS_64BIT) || \
     !defined(CFG_SYS_INIT_RAM_ADDR_PHYS) || \
 	(CFG_SYS_INIT_RAM_ADDR_PHYS < 0x100000000ull)
-		if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
+		if (gd->ram_size > CFG_MAX_MEM_MAPPED) {
 			puts("Cannot test more than ");
-			print_size(CONFIG_MAX_MEM_MAPPED,
+			print_size(CFG_MAX_MEM_MAPPED,
 				" without proper 36BIT support.\n");
 		}
 #endif
