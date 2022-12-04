@@ -96,6 +96,10 @@ config FPGA_VIRTEX2
 	  Enable Virtex-II FPGA driver for loading in BIT format. This driver
 	  also supports many newer Xilinx FPGA families.
 
+config SYS_FPGA_CHECK_BUSY
+	bool "Perform busy check during load from FPGA"
+	depends on FPGA_SPARTAN2 || FPGA_SPARTAN3 || FPGA_VIRTEX2
+
 config FPGA_ZYNQPL
 	bool "Enable Xilinx FPGA for Zynq"
 	depends on ARCH_ZYNQ

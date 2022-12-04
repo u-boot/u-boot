@@ -10,8 +10,6 @@
 #include <log.h>
 #include <spartan2.h>		/* Spartan-II device family */
 
-#undef CONFIG_SYS_FPGA_CHECK_BUSY
-
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
  * If there is a need to operate slower, define CONFIG_FPGA_DELAY in

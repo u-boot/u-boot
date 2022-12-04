@@ -21,14 +21,11 @@
 #include <linux/delay.h>
 
 /*
- * If the SelectMap interface can be overrun by the processor, define
- * CONFIG_SYS_FPGA_CHECK_BUSY and/or CONFIG_FPGA_DELAY in the board
+ * If the SelectMap interface can be overrun by the processor, enable
+ * CONFIG_SYS_FPGA_CHECK_BUSY and/or define CONFIG_FPGA_DELAY in the board
  * configuration file and add board-specific support for checking BUSY status.
  * By default, assume that the SelectMap interface cannot be overrun.
  */
-#ifndef CONFIG_SYS_FPGA_CHECK_BUSY
-#undef CONFIG_SYS_FPGA_CHECK_BUSY
-#endif
 
 #ifndef CONFIG_FPGA_DELAY
 #define CONFIG_FPGA_DELAY()
