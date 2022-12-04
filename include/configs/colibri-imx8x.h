@@ -43,7 +43,7 @@
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START ""
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs ${consoleargs} " \
 		"rdinit=/linuxrc g_mass_storage.stall=0 " \
 		"g_mass_storage.removable=1 g_mass_storage.idVendor=0x066F " \
@@ -59,7 +59,7 @@
 #define CFG_EXTRA_ENV_SETTINGS \
 	AHAB_ENV \
 	BOOTENV \
-	CONFIG_MFG_ENV_SETTINGS \
+	CFG_MFG_ENV_SETTINGS \
 	M4_BOOT_ENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"boot_file=Image\0" \

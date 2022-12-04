@@ -33,7 +33,7 @@
 #define MFG_NAND_PARTITION ""
 #endif
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
 		"rdinit=/linuxrc " \
 		"g_mass_storage.stall=0 g_mass_storage.removable=1 " \
@@ -48,7 +48,7 @@
 
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS		\
-	CONFIG_MFG_ENV_SETTINGS \
+	CFG_MFG_ENV_SETTINGS \
 	M4_BOOT_ENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
