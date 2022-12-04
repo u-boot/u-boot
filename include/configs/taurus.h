@@ -34,7 +34,7 @@
 
 /* Misc CPU related */
 
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define CFG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
 /*

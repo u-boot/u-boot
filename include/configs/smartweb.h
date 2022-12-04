@@ -61,7 +61,7 @@
 #define CFG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 
 /* serial console */
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define CFG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* DFU class support */
