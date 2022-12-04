@@ -55,8 +55,6 @@
 
 #define CFG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
 
-#undef CONFIG_NEVER_ASSERT_ODT_TO_CPU	/* Never assert ODT to internal IOs */
-
 /*
  * Manually set up DDR parameters
  */
