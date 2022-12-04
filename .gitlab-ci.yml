@@ -124,31 +124,14 @@ build all other platforms:
         exit $ret;
       fi;
 
-check for migrated symbols in board header:
+check for new CONFIG symbols outside Kconfig:
   stage: testsuites
   script:
-    - KSYMLST=`mktemp`;
-      KUSEDLST=`mktemp`;
-      RET=0;
-      cat `find . -name "Kconfig*"` |
-         sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
-         -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
-         | sort -u > $KSYMLST;
-      for CFG in `find include/configs -name "*.h"`; do
-         (grep '#define[[:blank:]]CONFIG_' $CFG |
-            sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' ;
-            grep '#undef[[:blank:]]CONFIG_' $CFG |
-            sed -n 's/#undef.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p') |
-            sort -u > ${KUSEDLST} || true;
-         NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} |
-            cut -d , -f 3`;
-         if [[ $NUM -ne 0 ]]; then
-            echo "Unmigrated symbols found in $CFG:";
-            comm -12 ${KSYMLST} ${KUSEDLST};
-            RET=1;
-         fi;
-      done;
-      exit $RET
+    - git config --global --add safe.directory "${CI_PROJECT_DIR}"
+    # If grep succeeds and finds a match the test fails as we should
+    # have no matches.
+    - git grep -E '^#[[:blank:]]*(define|undef)[[:blank:]]*CONFIG_'
+        include/configs `find arch -name config.h` && exit 1 || exit 0
 
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)
