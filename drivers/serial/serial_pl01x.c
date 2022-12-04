@@ -27,8 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_DM_SERIAL
-
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 static volatile unsigned char *const port[] = CFG_PL01x_PORTS;
 static enum pl01x_type pl01x_type __section(".data");
 static struct pl01x_regs *base_regs __section(".data");
@@ -186,7 +185,7 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 	return 0;
 }
 
-#ifndef CONFIG_DM_SERIAL
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 static void pl01x_serial_init_baud(int baudrate)
 {
 	int clock = 0;
@@ -273,11 +272,7 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &pl01x_serial_drv;
 }
-
-#endif /* nCONFIG_DM_SERIAL */
-
-#ifdef CONFIG_DM_SERIAL
-
+#else
 int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct pl01x_serial_plat *plat = dev_get_plat(dev);

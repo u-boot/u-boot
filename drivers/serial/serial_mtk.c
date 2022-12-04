@@ -173,8 +173,7 @@ static int _mtk_serial_pending(struct mtk_serial_priv *priv, bool input)
 		return (readl(&priv->regs->lsr) & UART_LSR_THRE) ? 0 : 1;
 }
 
-#if defined(CONFIG_DM_SERIAL) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_DM))
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 static int mtk_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mtk_serial_priv *priv = dev_get_priv(dev);

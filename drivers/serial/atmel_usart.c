@@ -18,7 +18,7 @@
 #include <linux/delay.h>
 
 #include <asm/io.h>
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 #include <asm/arch/atmel_serial.h>
 #endif
 #include <asm/arch/clk.h>
@@ -28,7 +28,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_DM_SERIAL
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 static void atmel_serial_setbrg_internal(atmel_usart3_t *usart, int id,
 					 int baudrate)
 {
@@ -133,9 +133,7 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &atmel_serial_drv;
 }
-#endif
-
-#ifdef CONFIG_DM_SERIAL
+#else
 enum serial_clk_type {
 	CLK_TYPE_NORMAL = 0,
 	CLK_TYPE_DBGU,
