@@ -12,7 +12,7 @@
 
 #include <linux/stringify.h>
 
-#define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
+#define CFG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
 
 #ifdef CONFIG_RAMBOOT_PBL
 #ifndef CONFIG_SDCARD
