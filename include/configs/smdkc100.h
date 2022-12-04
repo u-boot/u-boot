@@ -94,7 +94,7 @@
  * Ethernet Contoller driver
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
+#define CFG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
 #endif /* CONFIG_CMD_NET */
 
 #endif	/* __CONFIG_H */

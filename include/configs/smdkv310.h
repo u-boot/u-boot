@@ -36,7 +36,7 @@
 
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_ENV_SROM_BANK		1
+#define CFG_ENV_SROM_BANK		1
 #endif /*CONFIG_CMD_NET*/
 
 #endif	/* __CONFIG_H */
