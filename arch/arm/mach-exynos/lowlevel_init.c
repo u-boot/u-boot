@@ -73,7 +73,7 @@ static void low_power_start(void)
 
 	reg_val = readl(EXYNOS5420_SPARE_BASE);
 	if (reg_val != CPU_RST_FLAG_VAL) {
-		writel(0x0, CONFIG_LOWPOWER_FLAG);
+		writel(0x0, CFG_LOWPOWER_FLAG);
 		branch_bx(0x0);
 	}
 
@@ -160,7 +160,7 @@ static void secondary_cores_configure(void)
 	writel(0x0, (EXYNOS_RELOCATE_CODE_BASE + 0x1C));
 
 	/* set lowpower flag and address */
-	writel(CPU_RST_FLAG_VAL, CONFIG_LOWPOWER_FLAG);
+	writel(CPU_RST_FLAG_VAL, CFG_LOWPOWER_FLAG);
 	writel((uint32_t)&low_power_start, CFG_LOWPOWER_ADDR);
 	writel(CPU_RST_FLAG_VAL, EXYNOS5420_SPARE_BASE);
 	/* Store jump address for power down */
