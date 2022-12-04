@@ -15,11 +15,11 @@
 
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
- * If there is a need to operate slower, define CONFIG_FPGA_DELAY in
+ * If there is a need to operate slower, define CFG_FPGA_DELAY in
  * the board config file to slow things down.
  */
-#ifndef CONFIG_FPGA_DELAY
-#define CONFIG_FPGA_DELAY()
+#ifndef CFG_FPGA_DELAY
+#define CFG_FPGA_DELAY()
 #endif
 
 #ifndef CFG_SYS_FPGA_WAIT
@@ -129,7 +129,7 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		/* Wait for nSTATUS to be asserted */
 		ts = get_timer(0);		/* get current time */
 		do {
-			CONFIG_FPGA_DELAY();
+			CFG_FPGA_DELAY();
 			if (get_timer(ts) > CFG_SYS_FPGA_WAIT) {
 				/* check the time */
 				puts("** Timeout waiting for STATUS to go high.\n");
@@ -139,7 +139,7 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		} while (!(*fn->status) (cookie));
 
 		/* Get ready for the burn */
-		CONFIG_FPGA_DELAY();
+		CFG_FPGA_DELAY();
 
 		ret = (*fn->write) (buf, bsize, true, cookie);
 		if (ret) {
@@ -151,7 +151,7 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		puts(" OK? ...");
 #endif
 
-		CONFIG_FPGA_DELAY();
+		CFG_FPGA_DELAY();
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc(' ');			/* terminate the dotted line */

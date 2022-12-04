@@ -1018,7 +1018,7 @@ The following options need to be configured:
 		will require a board or device specific function to
 		be written.
 
-		CONFIG_FPGA_DELAY
+		CFG_FPGA_DELAY
 
 		If defined, a function that provides delays in the FPGA
 		configuration driver.
