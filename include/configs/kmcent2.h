@@ -127,7 +127,7 @@
 #define CFG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
 /* Environment in parallel NOR-Flash */
-#define CONFIG_ENV_TOTAL_SIZE		0x040000
+#define CFG_ENV_TOTAL_SIZE		0x040000
 #define ENV_DEL_ADDR		0xebf00000	/*direct for newenv*/
 
 /*
