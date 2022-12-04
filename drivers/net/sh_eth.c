@@ -33,8 +33,8 @@
 #ifndef CONFIG_SH_ETHER_USE_PORT
 # error "Please define CONFIG_SH_ETHER_USE_PORT"
 #endif
-#ifndef CONFIG_SH_ETHER_PHY_ADDR
-# error "Please define CONFIG_SH_ETHER_PHY_ADDR"
+#ifndef CFG_SH_ETHER_PHY_ADDR
+# error "Please define CFG_SH_ETHER_PHY_ADDR"
 #endif
 
 #if defined(CFG_SH_ETHER_CACHE_WRITEBACK) && \
@@ -694,7 +694,7 @@ static int sh_ether_probe(struct udevice *udev)
 	priv->bus = miiphy_get_dev_by_name(udev->name);
 
 	eth->port = CONFIG_SH_ETHER_USE_PORT;
-	eth->port_info[eth->port].phy_addr = CONFIG_SH_ETHER_PHY_ADDR;
+	eth->port_info[eth->port].phy_addr = CFG_SH_ETHER_PHY_ADDR;
 	eth->port_info[eth->port].iobase =
 		(void __iomem *)(uintptr_t)(BASE_IO_ADDR + 0x800 * eth->port);
 

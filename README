@@ -544,7 +544,7 @@ The following options need to be configured:
 			CONFIG_SH_ETHER_USE_PORT
 			Define the number of ports to be used
 
-			CONFIG_SH_ETHER_PHY_ADDR
+			CFG_SH_ETHER_PHY_ADDR
 			Define the ETH PHY's address
 
 			CFG_SH_ETHER_CACHE_WRITEBACK
