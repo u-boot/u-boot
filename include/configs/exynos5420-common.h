@@ -10,7 +10,7 @@
 
 #define CFG_IRAM_TOP			0x02074000
 
-#define CONFIG_PHY_IRAM_BASE		0x02020000
+#define CFG_PHY_IRAM_BASE		0x02020000
 
 /*
  * Low Power settings

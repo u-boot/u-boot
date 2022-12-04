@@ -77,10 +77,10 @@ static void low_power_start(void)
 		branch_bx(0x0);
 	}
 
-	reg_val = readl(CONFIG_PHY_IRAM_BASE + 0x4);
+	reg_val = readl(CFG_PHY_IRAM_BASE + 0x4);
 	if (reg_val != (uint32_t)&low_power_start) {
 		/* Store jump address as low_power_start if not present */
-		writel((uint32_t)&low_power_start, CONFIG_PHY_IRAM_BASE + 0x4);
+		writel((uint32_t)&low_power_start, CFG_PHY_IRAM_BASE + 0x4);
 		dsb();
 		sev();
 	}
@@ -164,7 +164,7 @@ static void secondary_cores_configure(void)
 	writel((uint32_t)&low_power_start, CFG_LOWPOWER_ADDR);
 	writel(CPU_RST_FLAG_VAL, EXYNOS5420_SPARE_BASE);
 	/* Store jump address for power down */
-	writel((uint32_t)&power_down_core, CONFIG_PHY_IRAM_BASE + 0x4);
+	writel((uint32_t)&power_down_core, CFG_PHY_IRAM_BASE + 0x4);
 
 	/* Need all core power down check */
 	dsb();
