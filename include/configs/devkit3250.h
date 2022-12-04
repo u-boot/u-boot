@@ -53,7 +53,7 @@
 /*
  * USB
  */
-#define CONFIG_USB_ISP1301_I2C_ADDR		0x2d
+#define CFG_USB_ISP1301_I2C_ADDR		0x2d
 
 /*
  * U-Boot General Configurations
