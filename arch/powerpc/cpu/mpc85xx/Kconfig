@@ -931,7 +931,7 @@ config ARCH_T4240
 	imply FSL_SATA
 
 config MPC85XX_HAVE_RESET_VECTOR
-	bool "Indicate reset vector at CONFIG_RESET_VECTOR_ADDRESS - 0xffc"
+	bool "Indicate reset vector at CFG_RESET_VECTOR_ADDRESS - 0xffc"
 	depends on MPC85xx
 
 config BTB

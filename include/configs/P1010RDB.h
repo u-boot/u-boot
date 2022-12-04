@@ -24,7 +24,7 @@
 
 #ifdef CONFIG_SPIFLASH
 #ifdef CONFIG_NXP_ESBC
-#define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
+#define CFG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
 #define CFG_SYS_SPI_FLASH_U_BOOT_SIZE	(512 << 10)
 #define CFG_SYS_SPI_FLASH_U_BOOT_DST		(0x11000000)
@@ -52,11 +52,11 @@
 #endif
 
 #ifdef CONFIG_NAND_SECBOOT	/* NAND Boot */
-#define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
+#define CFG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 /* High Level Configuration Options */

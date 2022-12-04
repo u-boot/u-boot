@@ -23,11 +23,11 @@
 		u-boot-dtb-with-ucode {
 			align = <4>;
 		};
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 		powerpc-mpc85xx-bootpg-resetvec {
-			offset = <(CONFIG_RESET_VECTOR_ADDRESS - 0xffc)>;
+			offset = <(CFG_RESET_VECTOR_ADDRESS - 0xffc)>;
 		};
 	};
 };

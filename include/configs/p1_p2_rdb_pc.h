@@ -105,8 +105,8 @@
 #endif /* not CONFIG_TPL_BUILD */
 #endif
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 #define CFG_SYS_CCSRBAR		0xffe00000
