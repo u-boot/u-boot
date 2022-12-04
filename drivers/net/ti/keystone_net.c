@@ -375,7 +375,7 @@ static void keystone2_net_serdes_setup(void)
 			CFG_KSNET_SERDES_LANES_PER_SGMII);
 
 #if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
-	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII2_BASE,
+	ks2_serdes_init(CFG_KSNET_SERDES_SGMII2_BASE,
 			&ks2_serdes_sgmii_156p25mhz,
 			CFG_KSNET_SERDES_LANES_PER_SGMII);
 #endif
