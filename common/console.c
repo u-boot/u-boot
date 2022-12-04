@@ -497,7 +497,7 @@ int serial_printf(const char *fmt, ...)
 
 int fgetc(int file)
 {
-	if (file < MAX_FILES) {
+	if ((unsigned int)file < MAX_FILES) {
 		/*
 		 * Effectively poll for input wherever it may be available.
 		 */
@@ -530,7 +530,7 @@ int fgetc(int file)
 
 int ftstc(int file)
 {
-	if (file < MAX_FILES)
+	if ((unsigned int)file < MAX_FILES)
 		return console_tstc(file);
 
 	return -1;
@@ -538,20 +538,20 @@ int ftstc(int file)
 
 void fputc(int file, const char c)
 {
-	if (file < MAX_FILES)
+	if ((unsigned int)file < MAX_FILES)
 		console_putc(file, c);
 }
 
 void fputs(int file, const char *s)
 {
-	if (file < MAX_FILES)
+	if ((unsigned int)file < MAX_FILES)
 		console_puts(file, s);
 }
 
 #ifdef CONFIG_CONSOLE_FLUSH_SUPPORT
 void fflush(int file)
 {
-	if (file < MAX_FILES)
+	if ((unsigned int)file < MAX_FILES)
 		console_flush(file);
 }
 #endif

@@ -433,25 +433,17 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	int part;
 	struct disk_partition tmpinfo;
 
+	*dev_desc = NULL;
+	memset(info, 0, sizeof(*info));
+
 #if IS_ENABLED(CONFIG_SANDBOX) || IS_ENABLED(CONFIG_SEMIHOSTING)
 	/*
 	 * Special-case a pseudo block device "hostfs", to allow access to the
 	 * host's own filesystem.
 	 */
-	if (0 == strcmp(ifname, "hostfs")) {
-		*dev_desc = NULL;
-		info->start = 0;
-		info->size = 0;
-		info->blksz = 0;
-		info->bootable = 0;
+	if (!strcmp(ifname, "hostfs")) {
 		strcpy((char *)info->type, BOOT_PART_TYPE);
 		strcpy((char *)info->name, "Host filesystem");
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-		info->uuid[0] = 0;
-#endif
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		info->type_guid[0] = 0;
-#endif
 
 		return 0;
 	}
@@ -462,19 +454,14 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	 * Special-case ubi, ubi goes through a mtd, rather than through
 	 * a regular block device.
 	 */
-	if (0 == strcmp(ifname, "ubi")) {
+	if (!strcmp(ifname, "ubi")) {
 		if (!ubifs_is_mounted()) {
 			printf("UBIFS not mounted, use ubifsmount to mount volume first!\n");
 			return -EINVAL;
 		}
 
-		*dev_desc = NULL;
-		memset(info, 0, sizeof(*info));
 		strcpy((char *)info->type, BOOT_PART_TYPE);
 		strcpy((char *)info->name, "UBI");
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-		info->uuid[0] = 0;
-#endif
 		return 0;
 	}
 #endif

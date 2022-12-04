@@ -707,6 +707,7 @@ int algo_to_len(const char *algo);
 
 int efi_link_dev(efi_handle_t handle, struct udevice *dev);
 int efi_unlink_dev(efi_handle_t handle);
+bool efi_varname_is_load_option(u16 *var_name16, int *index);
 
 /**
  * efi_size_in_pages() - convert size in bytes to size in pages
