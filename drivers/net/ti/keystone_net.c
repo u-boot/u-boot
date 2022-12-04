@@ -370,7 +370,7 @@ struct ks2_serdes ks2_serdes_sgmii_156p25mhz = {
 #ifndef CONFIG_SOC_K2G
 static void keystone2_net_serdes_setup(void)
 {
-	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII_BASE,
+	ks2_serdes_init(CFG_KSNET_SERDES_SGMII_BASE,
 			&ks2_serdes_sgmii_156p25mhz,
 			CFG_KSNET_SERDES_LANES_PER_SGMII);
 
