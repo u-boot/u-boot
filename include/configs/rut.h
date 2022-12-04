@@ -19,7 +19,7 @@
 #define DDR_PLL_FREQ	303
 
  /* Physical Memory Map */
-#define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20) /* 256 MiB */
+#define CFG_MAX_RAM_BANK_SIZE	(256 << 20) /* 256 MiB */
 
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14

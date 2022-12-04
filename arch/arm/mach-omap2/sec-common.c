@@ -203,7 +203,7 @@ u32 get_sec_mem_start(void)
 			omap_sdram_size()
 #else
 			get_ram_size((void *)CFG_SYS_SDRAM_BASE,
-				     CONFIG_MAX_RAM_BANK_SIZE)
+				     CFG_MAX_RAM_BANK_SIZE)
 #endif
 			- sec_mem_size));
 	return sec_mem_start;

@@ -25,7 +25,7 @@
 	"led1=64,0,1\0"
 
  /* Physical Memory Map */
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
+#define CFG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
 /* Default env settings */
 #define CFG_EXTRA_ENV_SETTINGS \

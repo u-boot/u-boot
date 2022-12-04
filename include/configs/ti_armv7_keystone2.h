@@ -15,7 +15,7 @@
 
 /* Memory Configuration */
 #define CFG_SYS_LPAE_SDRAM_BASE	0x800000000
-#define CONFIG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
+#define CFG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 #define SPL_MALLOC_F_SIZE	CONFIG_SYS_MALLOC_F_LEN

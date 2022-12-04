@@ -19,7 +19,7 @@
 
 #endif /* CONFIG_DM */
 
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
+#define CFG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
 /* Timer information */
 #define CFG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */

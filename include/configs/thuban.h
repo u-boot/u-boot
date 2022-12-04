@@ -25,7 +25,7 @@
 	"led1=64,0,1\0"
 
  /* Physical Memory Map */
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
+#define CFG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120

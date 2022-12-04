@@ -47,7 +47,7 @@ int dram_init(void)
 	ddr3_size = ddr3_init();
 
 	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE,
-				    CONFIG_MAX_RAM_BANK_SIZE);
+				    CFG_MAX_RAM_BANK_SIZE);
 #if defined(CONFIG_TI_AEMIF)
 	if (!(board_is_k2g_ice() || board_is_k2g_i1()))
 		aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);

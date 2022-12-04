@@ -31,7 +31,7 @@
  */
 #define PHYS_SDRAM_1		DAVINCI_DDR_EMIF_DATA_BASE /* DDR Start */
 #define PHYS_SDRAM_1_SIZE	(64 << 20) /* SDRAM size 64MB */
-#define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
+#define CFG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
 /* memtest start addr */
 
 /* memtest will be run on 16MB */
