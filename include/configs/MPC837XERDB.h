@@ -150,7 +150,7 @@
 
 /* SERDES */
 #define CFG_FSL_SERDES1	0xe3000
-#define CONFIG_FSL_SERDES2	0xe3100
+#define CFG_FSL_SERDES2	0xe3100
 
 /* I2C */
 #define CFG_SYS_I2C_NOPROBES		{ {0, 0x51} }
