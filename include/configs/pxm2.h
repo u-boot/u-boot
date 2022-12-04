@@ -18,7 +18,7 @@
 #define DDR_IOCTRL_VAL		0x18b
 #define DDR_PLL_FREQ		266
 
-#define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+#define CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"button_dfu0=59\0" \
 	"led0=117,0,1\0" \
 
@@ -34,7 +34,7 @@
 	"nand_img_size=0x500000\0" \
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
-	CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"splashpos=m,m\0"	\
 	CONFIG_ENV_SETTINGS_V1 \
 	CONFIG_ENV_SETTINGS_NAND_V1 \

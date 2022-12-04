@@ -19,7 +19,7 @@
 #define BOARD_DFU_BUTTON_GPIO	27	/* Use as default */
 #define GPIO_LAN9303_NRST	88	/* GPIO2_24 = gpio88 */
 
-#define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+#define CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"button_dfu0=27\0" \
 	"led0=103,1,0\0" \
 	"led1=64,0,1\0"
@@ -34,7 +34,7 @@
 	"nand_img_size=0x400000\0" \
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
-	CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	CONFIG_ENV_SETTINGS_V2 \
 	CONFIG_ENV_SETTINGS_NAND_V2
 
