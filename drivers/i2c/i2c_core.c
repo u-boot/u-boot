@@ -33,14 +33,14 @@ struct i2c_adapter *i2c_get_adapter(int index)
 	return i2c_adap_p;
 }
 
-#if !defined(CONFIG_SYS_I2C_DIRECT_BUS)
+#if !defined(CFG_SYS_I2C_DIRECT_BUS)
 struct i2c_bus_hose i2c_bus[CFG_SYS_NUM_I2C_BUSES] =
 			CFG_SYS_I2C_BUSES;
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 /*
  * i2c_mux_set()
  * -------------
@@ -237,7 +237,7 @@ int i2c_set_bus_num(unsigned int bus)
 	if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
 		return 0;
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 	if (bus >= CFG_SYS_NUM_I2C_BUSES)
 		return -1;
 #endif
@@ -249,7 +249,7 @@ int i2c_set_bus_num(unsigned int bus)
 		return -2;
 	}
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 	i2c_mux_disconnect_all();
 #endif
 
@@ -257,7 +257,7 @@ int i2c_set_bus_num(unsigned int bus)
 	if (I2C_ADAP->init_done == 0)
 		i2c_init_bus(bus, I2C_ADAP->speed, I2C_ADAP->slaveaddr);
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 	i2c_mux_set_all();
 #endif
 	return 0;

@@ -843,7 +843,7 @@ The following options need to be configured:
 		CFG_SYS_NUM_I2C_BUSES
 		Hold the number of i2c buses you want to use.
 
-		CONFIG_SYS_I2C_DIRECT_BUS
+		CFG_SYS_I2C_DIRECT_BUS
 		define this, if you don't use i2c muxes on your hardware.
 		if CFG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
 		omit this define.
@@ -855,7 +855,7 @@ The following options need to be configured:
 
 		CFG_SYS_I2C_BUSES
 		hold a list of buses you want to use, only used if
-		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
+		CFG_SYS_I2C_DIRECT_BUS is not defined, for example
 		a board with CFG_SYS_I2C_MAX_HOPS = 1 and
 		CFG_SYS_NUM_I2C_BUSES = 9:
 

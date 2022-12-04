@@ -635,12 +635,12 @@ void i2c_early_init_f(void);
 
 #if !defined(CFG_SYS_I2C_MAX_HOPS)
 /* no muxes used bus = i2c adapters */
-#define CONFIG_SYS_I2C_DIRECT_BUS	1
+#define CFG_SYS_I2C_DIRECT_BUS	1
 #define CFG_SYS_I2C_MAX_HOPS		0
 #define CFG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
 #else
 /* we use i2c muxes */
-#undef CONFIG_SYS_I2C_DIRECT_BUS
+#undef CFG_SYS_I2C_DIRECT_BUS
 #endif
 
 /* define the I2C bus number for RTC and DTT if not already done */
@@ -691,7 +691,7 @@ struct i2c_adapter {
 
 struct i2c_adapter *i2c_get_adapter(int index);
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 struct i2c_mux {
 	int	id;
 	char	name[16];
@@ -720,7 +720,7 @@ extern struct i2c_bus_hose	i2c_bus[];
 #define	I2C_ADAP		I2C_ADAP_NR(gd->cur_i2c_bus)
 #define I2C_ADAP_HWNR		(I2C_ADAP->hwadapnr)
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 #define I2C_MUX_PCA9540_ID	1
 #define I2C_MUX_PCA9540		{I2C_MUX_PCA9540_ID, "PCA9540B"}
 #define I2C_MUX_PCA9542_ID	2
