@@ -76,7 +76,7 @@
 /*-----------------------------------------------------------------------
  * serial console configuration
  */
-#define CONFIG_PL011_CLOCK		50000000
+#define CFG_PL011_CLOCK		50000000
 #define CONFIG_PL01x_PORTS		{(void *)PHY_BASEADDR_UART0, \
 					 (void *)PHY_BASEADDR_UART1, \
 					 (void *)PHY_BASEADDR_UART2, \

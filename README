@@ -413,7 +413,7 @@ The following options need to be configured:
 					controller register space
 
 - Serial Ports:
-		CONFIG_PL011_CLOCK
+		CFG_PL011_CLOCK
 
 		If you have Amba PrimeCell PL011 UARTs, set this variable to
 		the clock speed of the UARTs.

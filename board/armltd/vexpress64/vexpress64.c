@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static const struct pl01x_serial_plat serial_plat = {
 	.base = V2M_UART0,
 	.type = TYPE_PL011,
-	.clock = CONFIG_PL011_CLOCK,
+	.clock = CFG_PL011_CLOCK,
 };
 
 U_BOOT_DRVINFO(vexpress_serials) = {

@@ -193,7 +193,7 @@ static void pl01x_serial_init_baud(int baudrate)
 
 #if defined(CONFIG_PL011_SERIAL)
 	pl01x_type = TYPE_PL011;
-	clock = CONFIG_PL011_CLOCK;
+	clock = CFG_PL011_CLOCK;
 #endif
 	base_regs = (struct pl01x_regs *)port[CONFIG_CONS_INDEX];
 
@@ -343,8 +343,8 @@ static const struct udevice_id pl01x_serial_id[] ={
 	{}
 };
 
-#ifndef CONFIG_PL011_CLOCK
-#define CONFIG_PL011_CLOCK 0
+#ifndef CFG_PL011_CLOCK
+#define CFG_PL011_CLOCK 0
 #endif
 
 int pl01x_serial_of_to_plat(struct udevice *dev)
@@ -359,7 +359,7 @@ int pl01x_serial_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clock = dev_read_u32_default(dev, "clock", CONFIG_PL011_CLOCK);
+	plat->clock = dev_read_u32_default(dev, "clock", CFG_PL011_CLOCK);
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (!ret) {
 		ret = clk_enable(&clk);

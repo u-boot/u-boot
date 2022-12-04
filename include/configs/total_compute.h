@@ -14,7 +14,7 @@
 #define UART0_BASE		0x7ff80000
 
 /* PL011 Serial Configuration */
-#define CONFIG_PL011_CLOCK	7372800
+#define CFG_PL011_CLOCK	7372800
 
 /* Miscellaneous configurable options */
 

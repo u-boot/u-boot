@@ -116,7 +116,7 @@
 #define CFG_SYS_TIMER_COUNTER	(V2M_TIMER01 + 0x4)
 
 /* PL011 Serial Configuration */
-#define CONFIG_PL011_CLOCK		24000000
+#define CFG_PL011_CLOCK		24000000
 #define CONFIG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
 					 (void *)CFG_SYS_SERIAL1}
 

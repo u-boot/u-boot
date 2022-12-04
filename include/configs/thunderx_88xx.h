@@ -17,7 +17,7 @@
 
 /* PL011 Serial Configuration */
 
-#define CONFIG_PL011_CLOCK		24000000
+#define CFG_PL011_CLOCK		24000000
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			(0x801000000000)

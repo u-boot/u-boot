@@ -86,9 +86,9 @@
 
 /* PL011 Serial Configuration */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-#define CONFIG_PL011_CLOCK		7372800
+#define CFG_PL011_CLOCK		7372800
 #else
-#define CONFIG_PL011_CLOCK		24000000
+#define CFG_PL011_CLOCK		24000000
 #endif
 
 /* Physical Memory Map */
