@@ -200,7 +200,7 @@ static int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
 
 	debug("PEI data at %p:\n", pei_data);
 
-	data = (char *)CONFIG_X86_MRC_ADDR;
+	data = (char *)CFG_X86_MRC_ADDR;
 	if (data) {
 		int rv;
 		ulong start;
