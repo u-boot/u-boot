@@ -1847,6 +1847,13 @@ config CMD_PING
 	help
 	  Send ICMP ECHO_REQUEST to network host
 
+config CMD_PING6
+	bool "ping6"
+	depends on IPV6
+	default y if (CMD_PING && IPV6)
+	help
+	  Send ICMPv6 ECHO_REQUEST to network host
+
 config CMD_CDP
 	bool "cdp"
 	help

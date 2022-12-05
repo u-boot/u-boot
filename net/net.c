@@ -91,6 +91,8 @@
 #include <image.h>
 #include <log.h>
 #include <net.h>
+#include <net6.h>
+#include <ndisc.h>
 #include <net/fastboot.h>
 #include <net/tftp.h>
 #include <net/ncsi.h>
@@ -343,8 +345,17 @@ void net_auto_load(void)
 
 static int net_init_loop(void)
 {
-	if (eth_get_dev())
+	if (eth_get_dev()) {
 		memcpy(net_ethaddr, eth_get_ethaddr(), 6);
+
+		if (IS_ENABLED(CONFIG_IPV6)) {
+			ip6_make_lladdr(&net_link_local_ip6, net_ethaddr);
+			if (!memcmp(&net_ip6, &net_null_addr_ip6,
+				    sizeof(struct in6_addr)))
+				memcpy(&net_ip6, &net_link_local_ip6,
+				       sizeof(struct in6_addr));
+		}
+	}
 	else
 		/*
 		 * Not ideal, but there's no way to get the actual error, and I
@@ -385,6 +396,7 @@ int net_init(void)
 				(i + 1) * PKTSIZE_ALIGN;
 		}
 		arp_init();
+		ndisc_init();
 		net_clear_handlers();
 
 		/* Only need to setup buffer pointers once. */
@@ -513,6 +525,11 @@ restart:
 			ping_start();
 			break;
 #endif
+#if defined(CONFIG_CMD_PING6)
+		case PING6:
+			ping6_start();
+			break;
+#endif
 #if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 		case NFS:
 			nfs_start();
@@ -588,6 +605,11 @@ restart:
 		schedule();
 		if (arp_timeout_check() > 0)
 			time_start = get_timer(0);
+
+		if (IS_ENABLED(CONFIG_IPV6)) {
+			if (use_ip6 && (ndisc_timeout_check() > 0))
+				time_start = get_timer(0);
+		}
 
 		/*
 		 *	Check the ethernet for a new packet.  The ethernet
@@ -1244,6 +1266,10 @@ void net_process_received_packet(uchar *in_packet, int len)
 		rarp_receive(ip, len);
 		break;
 #endif
+#if IS_ENABLED(CONFIG_IPV6)
+	case PROT_IP6:
+		net_ip6_handler(et, (struct ip6_hdr *)ip, len);
+#endif
 	case PROT_IP:
 		debug_cond(DEBUG_NET_PKT, "Got IP\n");
 		/* Before we start poking the header, make sure it is there */
@@ -1413,6 +1439,14 @@ static int net_check_prereq(enum proto_t protocol)
 		}
 		goto common;
 #endif
+#if defined(CONFIG_CMD_PING6)
+	case PING6:
+		if (ip6_is_unspecified_addr(&net_ping_ip6)) {
+			puts("*** ERROR: ping address not given\n");
+			return 1;
+		}
+		goto common;
+#endif
 #if defined(CONFIG_CMD_DNS)
 	case DNS:
 		if (net_dns_server.s_addr == 0) {
@@ -1434,7 +1468,14 @@ static int net_check_prereq(enum proto_t protocol)
 		/* Fall through */
 	case TFTPGET:
 	case TFTPPUT:
-		if (net_server_ip.s_addr == 0 && !is_serverip_in_cmd()) {
+		if (IS_ENABLED(CONFIG_IPV6) && use_ip6) {
+			if (!memcmp(&net_server_ip6, &net_null_addr_ip6,
+				    sizeof(struct in6_addr)) &&
+				    !strchr(net_boot_file_name, '[')) {
+				puts("*** ERROR: `serverip6' not set\n");
+				return 1;
+			}
+		} else if (net_server_ip.s_addr == 0 && !is_serverip_in_cmd()) {
 			puts("*** ERROR: `serverip' not set\n");
 			return 1;
 		}
@@ -1447,7 +1488,13 @@ common:
 	case NETCONS:
 	case FASTBOOT:
 	case TFTPSRV:
-		if (net_ip.s_addr == 0) {
+		if (IS_ENABLED(CONFIG_IPV6) && use_ip6) {
+			if (!memcmp(&net_link_local_ip6, &net_null_addr_ip6,
+				    sizeof(struct in6_addr))) {
+				puts("*** ERROR: `ip6addr` not set\n");
+				return 1;
+			}
+		} else if (net_ip.s_addr == 0) {
 			puts("*** ERROR: `ipaddr' not set\n");
 			return 1;
 		}
