@@ -94,7 +94,7 @@
 
 #define GQSPI_BAUD_DIV_SHIFT		2
 #define GQSPI_LPBK_DLY_ADJ_LPBK_SHIFT	5
-#define GQSPI_LPBK_DLY_ADJ_DLY_1	0x2
+#define GQSPI_LPBK_DLY_ADJ_DLY_1	0x1
 #define GQSPI_LPBK_DLY_ADJ_DLY_1_SHIFT	3
 #define GQSPI_LPBK_DLY_ADJ_DLY_0	0x3
 #define GQSPI_USE_DATA_DLY		0x1
@@ -662,7 +662,7 @@ static int zynqmp_qspi_start_io(struct zynqmp_qspi_priv *priv,
 static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 				 u32 gen_fifo_cmd, u32 *buf)
 {
-	u32 addr;
+	unsigned long addr;
 	u32 size;
 	u32 actuallen = priv->len;
 	u32 totallen = priv->len;
@@ -678,7 +678,9 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 		totallen -= priv->len; /* Save remaining bytes length to read */
 		actuallen = priv->len; /* Actual number of bytes reading */
 
-		writel((unsigned long)buf, &dma_regs->dmadst);
+		writel(lower_32_bits((unsigned long)buf), &dma_regs->dmadst);
+		writel(upper_32_bits((unsigned long)buf) & GENMASK(11, 0),
+							&dma_regs->dmadstmsb);
 		writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
 		writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
 		addr = (unsigned long)buf;

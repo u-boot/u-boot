@@ -735,8 +735,7 @@ int cadence_qspi_apb_read_execute(struct cadence_spi_priv *priv,
 	void *buf = op->data.buf.in;
 	size_t len = op->data.nbytes;
 
-	if (CONFIG_IS_ENABLED(ARCH_VERSAL))
-		cadence_qspi_apb_enable_linear_mode(true);
+	cadence_qspi_apb_enable_linear_mode(true);
 
 	if (priv->use_dac_mode && (from + len < priv->ahbsize)) {
 		if (len < 256 ||
@@ -904,9 +903,6 @@ int cadence_qspi_apb_write_execute(struct cadence_spi_priv *priv,
 	u32 to = op->addr.val;
 	const void *buf = op->data.buf.out;
 	size_t len = op->data.nbytes;
-
-	if (CONFIG_IS_ENABLED(ARCH_VERSAL))
-		cadence_qspi_apb_enable_linear_mode(true);
 
 	/*
 	 * Some flashes like the Cypress Semper flash expect a dummy 4-byte
