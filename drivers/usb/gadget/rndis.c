@@ -855,13 +855,16 @@ static int rndis_set_response(int configNr, rndis_set_msg_type *buf)
 	rndis_set_cmplt_type	*resp;
 	rndis_resp_t		*r;
 
+	BufLength = get_unaligned_le32(&buf->InformationBufferLength);
+	BufOffset = get_unaligned_le32(&buf->InformationBufferOffset);
+	if ((BufOffset > RNDIS_MAX_TOTAL_SIZE - 8) ||
+	    (BufLength > RNDIS_MAX_TOTAL_SIZE - 8 - BufOffset))
+		return -EINVAL;
+
 	r = rndis_add_response(configNr, sizeof(rndis_set_cmplt_type));
 	if (!r)
 		return -ENOMEM;
 	resp = (rndis_set_cmplt_type *) r->buf;
-
-	BufLength = get_unaligned_le32(&buf->InformationBufferLength);
-	BufOffset = get_unaligned_le32(&buf->InformationBufferOffset);
 
 #ifdef	VERBOSE
 	debug("%s: Length: %d\n", __func__, BufLength);
