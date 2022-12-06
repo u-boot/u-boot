@@ -207,7 +207,7 @@ ENDPROC(_nonsec_init)
 
 #ifdef CONFIG_SMP_PEN_ADDR
 /* void __weak smp_waitloop(unsigned previous_address); */
-ENTRY(smp_waitloop)
+WEAK(smp_waitloop)
 	wfi
 	ldr	r1, =CONFIG_SMP_PEN_ADDR	@ load start address
 	ldr	r1, [r1]
@@ -219,7 +219,6 @@ ENTRY(smp_waitloop)
 	mov	r0, r1
 	b	_do_nonsec_entry
 ENDPROC(smp_waitloop)
-.weak smp_waitloop
 #endif
 
 	.popsection

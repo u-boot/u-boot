@@ -151,16 +151,14 @@ ENDPROC(c_runtime_cpu_setup)
  * Don't save anything to stack even if compiled with -O0
  *
  *************************************************************************/
-ENTRY(save_boot_params)
+WEAK(save_boot_params)
 	b	save_boot_params_ret		@ back to my caller
 ENDPROC(save_boot_params)
-	.weak	save_boot_params
 
 #ifdef CONFIG_ARMV7_LPAE
-ENTRY(switch_to_hypervisor)
+WEAK(switch_to_hypervisor)
 	b	switch_to_hypervisor_ret
 ENDPROC(switch_to_hypervisor)
-	.weak	switch_to_hypervisor
 #endif
 
 /*************************************************************************

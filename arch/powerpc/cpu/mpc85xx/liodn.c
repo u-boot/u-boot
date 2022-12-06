@@ -337,9 +337,6 @@ static void fdt_fixup_liodn_tbl_fman(void *blob,
 	for (i = 0; i < sz; i++) {
 		int off;
 
-		if (tbl[i].compat == NULL)
-			continue;
-
 		/* Try the new compatible first.
 		 * If the node is missing, try the old.
 		 */

@@ -23,9 +23,8 @@
  */
 
 	.section	.text.relocate_vectors,"ax",%progbits
-	.weak		relocate_vectors
 
-ENTRY(relocate_vectors)
+WEAK(relocate_vectors)
 
 #ifdef CONFIG_CPU_V7M
 	/*
