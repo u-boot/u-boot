@@ -364,13 +364,13 @@
     timer@2a810000 {
         compatible = "arm,armv7-timer-mem";
         reg = <0x0 0x2a810000 0x0 0x10000>;
-        #address-cells = <2>;
-        #size-cells = <2>;
-        ranges;
-        frame@2a830000 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges = <0x0 0x0 0x2a810000 0x30000>;
+        frame@20000 {
             frame-number = <0>;
             interrupts = <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
-            reg = <0x0 0x2a830000 0x0 0x10000>;
+            reg = <0x20000 0x10000>;
         };
     };
 
