@@ -119,7 +119,7 @@ static int rockchip_usb2phy_init(struct phy *phy)
 	int ret;
 
 	ret = clk_enable(&priv->phyclk);
-	if (ret) {
+	if (ret && ret != -ENOSYS) {
 		dev_err(phy->dev, "failed to enable phyclk (ret=%d)\n", ret);
 		return ret;
 	}
