@@ -26,7 +26,7 @@
 #include <post.h>
 #include <i2c.h>
 
-#if CONFIG_POST & CONFIG_SYS_POST_I2C
+#if CFG_POST & CONFIG_SYS_POST_I2C
 
 static int i2c_ignore_device(unsigned int chip)
 {
@@ -94,4 +94,4 @@ int i2c_post_test (int flags)
 #endif
 }
 
-#endif /* CONFIG_POST & CONFIG_SYS_POST_I2C */
+#endif /* CFG_POST & CONFIG_SYS_POST_I2C */

@@ -676,6 +676,10 @@ config CLOCKS
 	bool "Call set_cpu_clk_info"
 	depends on ARM
 
+config HWCONFIG
+	bool "hwconfig infrastructure"
+	default y if PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
+
 config SYS_FSL_CLK
 	bool
 	depends on ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3 || \
@@ -1082,3 +1086,6 @@ config FDT_SIMPLEFB
 	  These functions can be used by board to indicate to the OS
 	  the presence of the simple frame buffer with associated reserved
 	  memory
+
+config IO_TRACE
+	bool

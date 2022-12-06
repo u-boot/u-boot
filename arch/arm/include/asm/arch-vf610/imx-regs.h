@@ -103,9 +103,6 @@
 
 #define QSPI0_AMBA_BASE		0x20000000
 
-/* MUX mode and PAD ctrl are in one register */
-#define CONFIG_IOMUX_SHARE_CONF_REG
-
 #define FEC_QUIRK_ENET_MAC
 #define I2C_QUIRK_REG
 

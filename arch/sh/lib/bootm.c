@@ -88,7 +88,7 @@ int do_bootm_linux(int flag, int argc, char *const argv[],
 		set_sh_linux_param((unsigned long)param + ORIG_ROOT_DEV, 0x0200);
 		set_sh_linux_param((unsigned long)param + LOADER_TYPE, 0x0001);
 		set_sh_linux_param((unsigned long)param + INITRD_START,
-			GET_INITRD_START(images->rd_start, CONFIG_SYS_SDRAM_BASE));
+			GET_INITRD_START(images->rd_start, CFG_SYS_SDRAM_BASE));
 		set_sh_linux_param((unsigned long)param + INITRD_SIZE,
 			images->rd_end - images->rd_start);
 	}

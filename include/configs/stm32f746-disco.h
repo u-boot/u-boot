@@ -10,15 +10,15 @@
 #include <linux/sizes.h>
 
 /* For booting Linux, use the first 6MB of memory */
-#define CONFIG_SYS_BOOTMAPSZ		SZ_4M + SZ_2M
+#define CFG_SYS_BOOTMAPSZ		SZ_4M + SZ_2M
 
-#define CONFIG_SYS_FLASH_BASE		0x08000000
+#define CFG_SYS_FLASH_BASE		0x08000000
 
 /*
  * Configuration of the external SDRAM memory
  */
 
-#define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
+#define CFG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
@@ -33,7 +33,7 @@
 			"ramdisk_addr_r=0xC0438000\0"		\
 			BOOTENV
 
-#define CONFIG_SYS_UBOOT_BASE		(CONFIG_SYS_FLASH_BASE + \
+#define CFG_SYS_UBOOT_BASE		(CFG_SYS_FLASH_BASE + \
 					 CONFIG_SPL_PAD_TO)
 
 /* For splashcreen */

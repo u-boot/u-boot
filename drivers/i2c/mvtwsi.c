@@ -42,7 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif /* CONFIG_DM_I2C */
 
 /*
- * On SUNXI, we get CONFIG_SYS_TCLK from this include, so we want to
+ * On SUNXI, we get CFG_SYS_TCLK from this include, so we want to
  * always have it.
  */
 #if CONFIG_IS_ENABLED(DM_I2C) && defined(CONFIG_ARCH_SUNXI)
@@ -427,9 +427,9 @@ static int twsi_stop(struct mvtwsi_registers *twsi, uint tick)
 static uint twsi_calc_freq(const int n, const int m)
 {
 #ifdef CONFIG_ARCH_SUNXI
-	return CONFIG_SYS_TCLK / (10 * (m + 1) * (1 << n));
+	return CFG_SYS_TCLK / (10 * (m + 1) * (1 << n));
 #else
-	return CONFIG_SYS_TCLK / (10 * (m + 1) * (2 << n));
+	return CFG_SYS_TCLK / (10 * (m + 1) * (2 << n));
 #endif
 }
 

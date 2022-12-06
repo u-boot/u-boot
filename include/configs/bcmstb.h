@@ -81,8 +81,8 @@ extern phys_addr_t prior_stage_fdt_address;
  * MiB.  However, BOLT can be configured to allow loading larger
  * initramfs images, in which case this limitation is eliminated.
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x100000
+#define CFG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_INIT_RAM_SIZE	0x100000
 
 /*
  * CONFIG_SYS_LOAD_ADDR - 1 MiB.
@@ -97,14 +97,12 @@ extern phys_addr_t prior_stage_fdt_address;
  */
 #define V_NS16550_CLK			81000000
 
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
+#define CFG_SYS_NS16550_CLK		V_NS16550_CLK
 
 /*
  * Serial console configuration.
  */
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
+#define CFG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
 					 115200}
 
 /*

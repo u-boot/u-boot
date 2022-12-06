@@ -12,13 +12,6 @@
 #include <linux/sizes.h>
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
-#include "imx6_spl.h"
-
-#ifdef CONFIG_SPL_OS_BOOT
-/* Falcon Mode */
-
-/* Falcon Mode - MMC support: args@1MB kernel@2MB */
-#endif
 
 /* Network support */
 
@@ -98,9 +91,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 #ifdef CONFIG_VIDEO
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR

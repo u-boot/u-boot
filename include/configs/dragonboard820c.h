@@ -19,7 +19,7 @@
 #define PHYS_SDRAM_2			0x100000000
 #define PHYS_SDRAM_2_SIZE		0x5ea4ffff
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 #include <config_distro_bootcmd.h>
 

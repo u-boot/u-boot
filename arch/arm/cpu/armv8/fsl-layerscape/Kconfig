@@ -69,6 +69,7 @@ config ARCH_LS1043A
 	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select SKIP_LOWLEVEL_INIT
+	select SYS_DPAA_FMAN
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -106,6 +107,7 @@ config ARCH_LS1046A
 	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select SKIP_LOWLEVEL_INIT
+	select SYS_DPAA_FMAN
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR

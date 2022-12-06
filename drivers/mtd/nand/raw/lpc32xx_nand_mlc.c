@@ -84,8 +84,8 @@ struct lpc32xx_nand_mlc_registers {
 static struct lpc32xx_nand_mlc_registers __iomem *lpc32xx_nand_mlc_registers
 	= (struct lpc32xx_nand_mlc_registers __iomem *)MLC_NAND_BASE;
 
-#if !defined(CONFIG_SYS_MAX_NAND_CHIPS)
-#define CONFIG_SYS_MAX_NAND_CHIPS	1
+#if !defined(CFG_SYS_MAX_NAND_CHIPS)
+#define CFG_SYS_MAX_NAND_CHIPS	1
 #endif
 
 #define clkdiv(v, w, o) (((1+(clk/v)) & w) << o)
@@ -586,7 +586,7 @@ void board_nand_init(void)
 	lpc32xx_nand_init();
 
 	/* identify chip */
-	ret = nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_CHIPS, NULL);
+	ret = nand_scan_ident(mtd, CFG_SYS_MAX_NAND_CHIPS, NULL);
 	if (ret) {
 		pr_err("nand_scan_ident returned %i", ret);
 		return;

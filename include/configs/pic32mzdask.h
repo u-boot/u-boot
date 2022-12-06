@@ -18,12 +18,12 @@
  * Memory Layout
  */
 /* Initial RAM for temporary stack, global data */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x10000
-#define CONFIG_SYS_INIT_RAM_ADDR	\
-	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_SRAM_SIZE - CONFIG_SYS_INIT_RAM_SIZE)
+#define CFG_SYS_INIT_RAM_SIZE	0x10000
+#define CFG_SYS_INIT_RAM_ADDR	\
+	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_SRAM_SIZE - CFG_SYS_INIT_RAM_SIZE)
 
 /* SDRAM Configuration (for final code, data, stack, heap) */
-#define CONFIG_SYS_SDRAM_BASE		0x88000000
+#define CFG_SYS_SDRAM_BASE		0x88000000
 
 /* Memory Test */
 

@@ -659,7 +659,7 @@ void enable_caches(void)
 void v7_outer_cache_enable(void)
 {
 	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+		(struct pl310_regs *)CFG_SYS_PL310_BASE;
 
 	/* The L2 cache is already disabled at this point */
 
@@ -691,7 +691,7 @@ void v7_outer_cache_enable(void)
 void v7_outer_cache_disable(void)
 {
 	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+		(struct pl310_regs *)CFG_SYS_PL310_BASE;
 
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }

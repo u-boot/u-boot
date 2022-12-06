@@ -13,7 +13,7 @@
  */
 int board_flash_wp_on(void)
 {
-	if (pca953x_get_val(CONFIG_SYS_I2C_PCA953X_ADDR0) &
+	if (pca953x_get_val(CFG_SYS_I2C_PCA953X_ADDR0) &
 			CONFIG_SYS_PCA953X_NVM_WP)
 		return 1;
 
@@ -30,7 +30,7 @@ uint get_board_derivative(void)
 #if defined(CONFIG_MPC85xx)
        volatile ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 #elif defined(CONFIG_MPC86xx)
-       volatile immap_t *immap = (immap_t *)CONFIG_SYS_CCSRBAR;
+       volatile immap_t *immap = (immap_t *)CFG_SYS_CCSRBAR;
        volatile ccsr_gur_t *gur = &immap->im_gur;
 #endif
 

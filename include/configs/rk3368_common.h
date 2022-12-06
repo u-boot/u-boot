@@ -11,7 +11,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 
 #define CONFIG_IRAM_BASE		0xff8c0000

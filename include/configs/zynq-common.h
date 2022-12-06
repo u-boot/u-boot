@@ -11,13 +11,12 @@
 
 /* Cache options */
 #ifndef CONFIG_SYS_L2CACHE_OFF
-# define CONFIG_SYS_PL310_BASE		0xf8f02000
+# define CFG_SYS_PL310_BASE		0xf8f02000
 #endif
 
 #define ZYNQ_SCUTIMER_BASEADDR		0xF8F00600
-#define CONFIG_SYS_TIMERBASE		ZYNQ_SCUTIMER_BASEADDR
-#define CONFIG_SYS_TIMER_COUNTS_DOWN
-#define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMERBASE + 0x4)
+#define CFG_SYS_TIMERBASE		ZYNQ_SCUTIMER_BASEADDR
+#define CFG_SYS_TIMER_COUNTER	(CFG_SYS_TIMERBASE + 0x4)
 
 /* GUIDs for capsule updatable firmware images */
 #define XILINX_BOOT_IMAGE_GUID \
@@ -30,7 +29,7 @@
 
 /* Serial drivers */
 /* The following table includes the supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE  \
+#define CFG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /* Ethernet driver */
@@ -189,8 +188,8 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x2000
+#define CFG_SYS_INIT_RAM_ADDR	0xFFFF0000
+#define CFG_SYS_INIT_RAM_SIZE	0x2000
 
 
 /* Extend size of kernel image for uncompression */
@@ -201,10 +200,10 @@
 
 /* qspi mode is working fine */
 #ifdef CONFIG_ZYNQ_QSPI
-#define CONFIG_SYS_SPI_ARGS_OFFS	0x200000
-#define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
-#define CONFIG_SYS_SPI_KERNEL_OFFS	(CONFIG_SYS_SPI_ARGS_OFFS + \
-					CONFIG_SYS_SPI_ARGS_SIZE)
+#define CFG_SYS_SPI_ARGS_OFFS	0x200000
+#define CFG_SYS_SPI_ARGS_SIZE	0x80000
+#define CFG_SYS_SPI_KERNEL_OFFS	(CFG_SYS_SPI_ARGS_OFFS + \
+					CFG_SYS_SPI_ARGS_SIZE)
 #endif
 
 /* SP location before relocation, must use scratch RAM */

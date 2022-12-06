@@ -11,7 +11,7 @@
 #include <config.h>
 #include <common.h>
 
-struct pl310_regs *const pl310 = (struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+struct pl310_regs *const pl310 = (struct pl310_regs *)CFG_SYS_PL310_BASE;
 
 static void pl310_cache_sync(void)
 {

@@ -1245,6 +1245,7 @@ config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select IOMUX_SHARE_CONF_REG
 	select MACH_IMX
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_MTDPARTS
@@ -2341,6 +2342,7 @@ source "board/hisilicon/poplar/Kconfig"
 source "board/isee/igep003x/Kconfig"
 source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
+source "board/samsung/common/Kconfig"
 source "board/siemens/common/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"

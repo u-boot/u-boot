@@ -146,7 +146,7 @@ int dram_init_banksize(void)
 	dram_init();
 
 	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = gd->ram_size;
 
 	/* Bank 1 declares the memory available in the DDR high region */

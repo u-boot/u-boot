@@ -25,7 +25,7 @@ int dram_init(void)
 {
 	u32 i;
 
-	if (((size_t)preloader_param >= CONFIG_SYS_SDRAM_BASE) &&
+	if (((size_t)preloader_param >= CFG_SYS_SDRAM_BASE) &&
 	    ((size_t)preloader_param % sizeof(size_t) == 0) &&
 	    preloader_param->magic == BOOT_ARGUMENT_MAGIC &&
 	    preloader_param->dram_rank_num <=
@@ -35,7 +35,7 @@ int dram_init(void)
 		for (i = 0; i < preloader_param->dram_rank_num; i++)
 			gd->ram_size += preloader_param->dram_rank_size[i];
 	} else {
-		gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+		gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE,
 					    SZ_2G);
 	}
 

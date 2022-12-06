@@ -14,7 +14,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE, SZ_2G);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, SZ_2G);
 
 	return 0;
 }

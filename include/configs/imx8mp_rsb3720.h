@@ -12,7 +12,7 @@
 #include <asm/arch/imx-regs.h>
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
+#define CFG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 /* GUIDs for capsule updatable firmware images */
 #define IMX8MP_RSB3720A1_4G_FIT_IMAGE_GUID \
@@ -131,12 +131,12 @@
 		"fi;\0"
 
 /* Link Definitions */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x80000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x80000
 
 
 /* Totally 6GB or 4G DDR */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #if defined(CONFIG_TARGET_IMX8MP_RSB3720A1_6G)
 #define PHYS_SDRAM_SIZE			0xC0000000	/* 3 GB */
@@ -166,7 +166,7 @@
 #ifdef CONFIG_NAND_MXS
 
 /* NAND stuff */
-#define CONFIG_SYS_NAND_BASE           0x20000000
+#define CFG_SYS_NAND_BASE           0x20000000
 #endif /* CONFIG_NAND_MXS */
 
 #endif /* __IMX8MP_RSB3720_H */

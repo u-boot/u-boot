@@ -42,7 +42,7 @@ int clk_get(enum davinci_clk_ids id)
 	int pll_out;
 	unsigned int pll_base;
 
-	pll_out = CONFIG_SYS_OSCIN_FREQ;
+	pll_out = CFG_SYS_OSCIN_FREQ;
 
 	if (id == DAVINCI_AUXCLK_CLKID)
 		goto out;

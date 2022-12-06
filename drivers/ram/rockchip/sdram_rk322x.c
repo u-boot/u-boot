@@ -636,12 +636,12 @@ static int dram_cap_detect(struct dram_info *dram,
 		writel(3, &axi_bus->ddrconf);
 	move_to_access_state(dram->chan[0].pctl);
 	for (col = 11; col >= 9; col--) {
-		writel(0, CONFIG_SYS_SDRAM_BASE);
-		addr = CONFIG_SYS_SDRAM_BASE +
+		writel(0, CFG_SYS_SDRAM_BASE);
+		addr = CFG_SYS_SDRAM_BASE +
 			(1 << (col + bw - 1));
 		writel(TEST_PATTEN, addr);
 		if ((readl(addr) == TEST_PATTEN) &&
-		    (readl(CONFIG_SYS_SDRAM_BASE) == 0))
+		    (readl(CFG_SYS_SDRAM_BASE) == 0))
 			break;
 	}
 	if (col == 8) {
@@ -656,11 +656,11 @@ static int dram_cap_detect(struct dram_info *dram,
 
 	/* Detect row*/
 	for (row = 16; row >= 12; row--) {
-		writel(0, CONFIG_SYS_SDRAM_BASE);
-		addr = CONFIG_SYS_SDRAM_BASE + (1u << (row + 11 + 3 - 1));
+		writel(0, CFG_SYS_SDRAM_BASE);
+		addr = CFG_SYS_SDRAM_BASE + (1u << (row + 11 + 3 - 1));
 		writel(TEST_PATTEN, addr);
 		if ((readl(addr) == TEST_PATTEN) &&
-		    (readl(CONFIG_SYS_SDRAM_BASE) == 0))
+		    (readl(CFG_SYS_SDRAM_BASE) == 0))
 			break;
 	}
 	if (row == 11) {
@@ -672,11 +672,11 @@ static int dram_cap_detect(struct dram_info *dram,
 		sdram_params->ch[0].cs0_row = row;
 	}
 	/* cs detect */
-	writel(0, CONFIG_SYS_SDRAM_BASE);
-	writel(TEST_PATTEN, CONFIG_SYS_SDRAM_BASE + (1u << 30));
-	writel(~TEST_PATTEN, CONFIG_SYS_SDRAM_BASE + (1u << 30) + 4);
-	if ((readl(CONFIG_SYS_SDRAM_BASE + (1u << 30)) == TEST_PATTEN) &&
-	    (readl(CONFIG_SYS_SDRAM_BASE) == 0))
+	writel(0, CFG_SYS_SDRAM_BASE);
+	writel(TEST_PATTEN, CFG_SYS_SDRAM_BASE + (1u << 30));
+	writel(~TEST_PATTEN, CFG_SYS_SDRAM_BASE + (1u << 30) + 4);
+	if ((readl(CFG_SYS_SDRAM_BASE + (1u << 30)) == TEST_PATTEN) &&
+	    (readl(CFG_SYS_SDRAM_BASE) == 0))
 		sdram_params->ch[0].rank = 2;
 	else
 		sdram_params->ch[0].rank = 1;
@@ -813,7 +813,7 @@ static int rk322x_dmc_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 #else
-	priv->info.base = CONFIG_SYS_SDRAM_BASE;
+	priv->info.base = CFG_SYS_SDRAM_BASE;
 	priv->info.size = rockchip_sdram_size(
 			(phys_addr_t)&priv->grf->os_reg[2]);
 #endif

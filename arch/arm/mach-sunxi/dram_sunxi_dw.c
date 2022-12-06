@@ -711,7 +711,7 @@ static unsigned long mctl_calc_rank_size(struct rank_para *rank)
  */
 static void mctl_r40_detect_rank_count(struct dram_para *para)
 {
-	ulong rank1_base = (ulong) CONFIG_SYS_SDRAM_BASE +
+	ulong rank1_base = (ulong) CFG_SYS_SDRAM_BASE +
 			   mctl_calc_rank_size(&para->ranks[0]);
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
@@ -744,10 +744,10 @@ static void mctl_r40_detect_rank_count(struct dram_para *para)
 
 static void mctl_auto_detect_dram_size(uint16_t socid, struct dram_para *para)
 {
-	mctl_auto_detect_dram_size_rank(socid, para, (ulong)CONFIG_SYS_SDRAM_BASE, &para->ranks[0]);
+	mctl_auto_detect_dram_size_rank(socid, para, (ulong)CFG_SYS_SDRAM_BASE, &para->ranks[0]);
 
 	if ((socid == SOCID_A64 || socid == SOCID_R40) && para->dual_rank) {
-		mctl_auto_detect_dram_size_rank(socid, para, (ulong)CONFIG_SYS_SDRAM_BASE + mctl_calc_rank_size(&para->ranks[0]), &para->ranks[1]);
+		mctl_auto_detect_dram_size_rank(socid, para, (ulong)CFG_SYS_SDRAM_BASE + mctl_calc_rank_size(&para->ranks[0]), &para->ranks[1]);
 	}
 }
 

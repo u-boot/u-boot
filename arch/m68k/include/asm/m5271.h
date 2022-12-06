@@ -11,12 +11,12 @@
 #ifndef	_MCF5271_H_
 #define	_MCF5271_H_
 
-#define mbar_readLong(x)	*((volatile unsigned long *) (CONFIG_SYS_MBAR + x))
-#define mbar_readShort(x)	*((volatile unsigned short *) (CONFIG_SYS_MBAR + x))
-#define mbar_readByte(x)	*((volatile unsigned char *) (CONFIG_SYS_MBAR + x))
-#define mbar_writeLong(x,y)	*((volatile unsigned long *) (CONFIG_SYS_MBAR + x)) = y
-#define mbar_writeShort(x,y)	*((volatile unsigned short *) (CONFIG_SYS_MBAR + x)) = y
-#define mbar_writeByte(x,y)	*((volatile unsigned char *) (CONFIG_SYS_MBAR + x)) = y
+#define mbar_readLong(x)	*((volatile unsigned long *) (CFG_SYS_MBAR + x))
+#define mbar_readShort(x)	*((volatile unsigned short *) (CFG_SYS_MBAR + x))
+#define mbar_readByte(x)	*((volatile unsigned char *) (CFG_SYS_MBAR + x))
+#define mbar_writeLong(x,y)	*((volatile unsigned long *) (CFG_SYS_MBAR + x)) = y
+#define mbar_writeShort(x,y)	*((volatile unsigned short *) (CFG_SYS_MBAR + x)) = y
+#define mbar_writeByte(x,y)	*((volatile unsigned char *) (CFG_SYS_MBAR + x)) = y
 
 #define MCF_FMPLL_SYNCR				0x120000
 #define MCF_FMPLL_SYNSR				0x120004

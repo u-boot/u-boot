@@ -12,16 +12,11 @@
 
 #include "mx6_common.h"
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 #define CFG_SYS_FSL_USDHC_NUM	2
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* Commands */
@@ -54,9 +49,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE          PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* environment organization */
 

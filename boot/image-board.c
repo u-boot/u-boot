@@ -116,8 +116,8 @@ ulong env_get_bootm_low(void)
 		return tmp;
 	}
 
-#if defined(CONFIG_SYS_SDRAM_BASE)
-	return CONFIG_SYS_SDRAM_BASE;
+#if defined(CFG_SYS_SDRAM_BASE)
+	return CFG_SYS_SDRAM_BASE;
 #elif defined(CONFIG_ARM) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_RISCV)
 	return gd->bd->bi_dram[0].start;
 #else
@@ -161,8 +161,8 @@ phys_size_t env_get_bootm_mapsize(void)
 		return tmp;
 	}
 
-#if defined(CONFIG_SYS_BOOTMAPSZ)
-	return CONFIG_SYS_BOOTMAPSZ;
+#if defined(CFG_SYS_BOOTMAPSZ)
+	return CFG_SYS_BOOTMAPSZ;
 #else
 	return env_get_bootm_size();
 #endif

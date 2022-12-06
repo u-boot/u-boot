@@ -39,7 +39,7 @@ int board_eth_init(struct bd_info *bis)
 	/*
 	 * Program on board RGMII, SGMII PHY addresses.
 	 */
-	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
+	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CFG_SYS_NUM_FM1_DTSEC; i++) {
 		int idx = i - FM1_DTSEC1;
 
 		switch (fm_info_get_enet_if(i)) {
@@ -49,7 +49,7 @@ int board_eth_init(struct bd_info *bis)
 			 * DTSEC3
 			 */
 			fm_info_set_phy_address(FM1_DTSEC3,
-						CONFIG_SYS_SGMII1_PHY_ADDR);
+						CFG_SYS_SGMII1_PHY_ADDR);
 			break;
 #endif
 #ifdef CONFIG_TARGET_T1042RDB
@@ -59,7 +59,7 @@ int board_eth_init(struct bd_info *bis)
 				fm_info_set_phy_address(i, 0);
 			/* T1042RDB only supports SGMII on DTSEC3 */
 			fm_info_set_phy_address(FM1_DTSEC3,
-						CONFIG_SYS_SGMII1_PHY_ADDR);
+						CFG_SYS_SGMII1_PHY_ADDR);
 			break;
 #endif
 #ifdef CONFIG_TARGET_T1042D4RDB
@@ -68,11 +68,11 @@ int board_eth_init(struct bd_info *bis)
 			 *  & DTSEC3
 			 */
 			if (FM1_DTSEC1 == i)
-				phy_addr = CONFIG_SYS_SGMII1_PHY_ADDR;
+				phy_addr = CFG_SYS_SGMII1_PHY_ADDR;
 			if (FM1_DTSEC2 == i)
-				phy_addr = CONFIG_SYS_SGMII2_PHY_ADDR;
+				phy_addr = CFG_SYS_SGMII2_PHY_ADDR;
 			if (FM1_DTSEC3 == i)
-				phy_addr = CONFIG_SYS_SGMII3_PHY_ADDR;
+				phy_addr = CFG_SYS_SGMII3_PHY_ADDR;
 			fm_info_set_phy_address(i, phy_addr);
 			break;
 #endif
@@ -81,9 +81,9 @@ int board_eth_init(struct bd_info *bis)
 		case PHY_INTERFACE_MODE_RGMII_RXID:
 		case PHY_INTERFACE_MODE_RGMII_ID:
 			if (FM1_DTSEC4 == i)
-				phy_addr = CONFIG_SYS_RGMII1_PHY_ADDR;
+				phy_addr = CFG_SYS_RGMII1_PHY_ADDR;
 			if (FM1_DTSEC5 == i)
-				phy_addr = CONFIG_SYS_RGMII2_PHY_ADDR;
+				phy_addr = CFG_SYS_RGMII2_PHY_ADDR;
 			fm_info_set_phy_address(i, phy_addr);
 			break;
 		case PHY_INTERFACE_MODE_QSGMII:
@@ -112,7 +112,7 @@ int board_eth_init(struct bd_info *bis)
 	if (serdes_get_first_lane(FSL_SRDS_1, QSGMII_SW1_A) >= 0) {
 		for (i = 0; i < 4; i++) {
 			bus = miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME);
-			phy_addr = CONFIG_SYS_FM1_QSGMII11_PHY_ADDR + i;
+			phy_addr = CFG_SYS_FM1_QSGMII11_PHY_ADDR + i;
 			phy_int = PHY_INTERFACE_MODE_QSGMII;
 
 			vsc9953_port_info_set_mdio(i, bus);
@@ -124,7 +124,7 @@ int board_eth_init(struct bd_info *bis)
 	if (serdes_get_first_lane(FSL_SRDS_1, QSGMII_SW1_B) >= 0) {
 		for (i = 4; i < 8; i++) {
 			bus = miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME);
-			phy_addr = CONFIG_SYS_FM1_QSGMII21_PHY_ADDR + i - 4;
+			phy_addr = CFG_SYS_FM1_QSGMII21_PHY_ADDR + i - 4;
 			phy_int = PHY_INTERFACE_MODE_QSGMII;
 
 			vsc9953_port_info_set_mdio(i, bus);

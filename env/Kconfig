@@ -140,7 +140,7 @@ config ENV_IS_IN_FLASH
 	   type flash chips the second sector can be used: the offset
 	   for this sector is given here.
 
-	   CONFIG_ENV_OFFSET is used relative to CONFIG_SYS_FLASH_BASE.
+	   CONFIG_ENV_OFFSET is used relative to CFG_SYS_FLASH_BASE.
 
 	  CONFIG_ENV_ADDR:
 

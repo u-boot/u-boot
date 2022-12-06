@@ -53,8 +53,8 @@ c) end executes this code
 d) this initialize CPU, RAM, ... and copy itself to RAM
    (this bin must fit in one page, so board_init_f()
     don;t fit in it ... )
-e) there it copy u-boot to CONFIG_SYS_NAND_U_BOOT_DST and
-   starts this image @ CONFIG_SYS_NAND_U_BOOT_START
+e) there it copy u-boot to CFG_SYS_NAND_U_BOOT_DST and
+   starts this image @ CFG_SYS_NAND_U_BOOT_START
 f) u-boot code steps through board_init_f() and calculates
    the relocation address and copy itself to it
 
@@ -86,8 +86,8 @@ Relocation with SPL (example for the tx25 booting from NAND Flash):
 
 - The First page contains u-boot code from drivers/mtd/nand/raw/mxc_nand_spl.c
   which inits the dram, cpu registers, reloacte itself to CONFIG_SPL_TEXT_BASE	and loads
-  the "real" u-boot to CONFIG_SYS_NAND_U_BOOT_DST and starts execution
-  @CONFIG_SYS_NAND_U_BOOT_START
+  the "real" u-boot to CFG_SYS_NAND_U_BOOT_DST and starts execution
+  @CFG_SYS_NAND_U_BOOT_START
 
 - This u-boot does no RAM init, nor CPU register setup. Just look
   where it has to copy and relocate itself to this address. If

@@ -30,11 +30,9 @@
  */
 
 /* Below values are "dummy" - only to avoid build break */
-#define CONFIG_SYS_SPI_KERNEL_OFFS      0x150000
-#define CONFIG_SYS_SPI_ARGS_OFFS        0x140000
-#define CONFIG_SYS_SPI_ARGS_SIZE        0x10000
-
-#include "imx6_spl.h"
+#define CFG_SYS_SPI_KERNEL_OFFS      0x150000
+#define CFG_SYS_SPI_ARGS_OFFS        0x140000
+#define CFG_SYS_SPI_ARGS_SIZE        0x10000
 
 #define CONFIG_MXC_UART_BASE		UART5_BASE
 
@@ -285,10 +283,10 @@
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* ENV config */
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH

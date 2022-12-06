@@ -79,7 +79,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int dram_init(void)
 {
 	/* use the DDR controllers configured size */
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
 				    (ulong)imx_ddr_size());
 
 	return 0;

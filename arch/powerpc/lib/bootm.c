@@ -126,7 +126,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 
 #ifdef DEBUG
 	if (((u64)bootmap_base + bootm_size) >
-	    (CONFIG_SYS_SDRAM_BASE + (u64)gd->ram_size))
+	    (CFG_SYS_SDRAM_BASE + (u64)gd->ram_size))
 		puts("WARNING: bootm_low + bootm_size exceed total memory\n");
 	if ((bootmap_base + bootm_size) > get_effective_memsize())
 		puts("WARNING: bootm_low + bootm_size exceed eff. memory\n");

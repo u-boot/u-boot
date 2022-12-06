@@ -24,7 +24,7 @@ struct mpu_region_config k3_mpu_regions[16] = {
 	 O_I_WB_RD_WR_ALLOC, REGION_8MB},
 
 	/* U-Boot's code area marking it as WB and Write allocate */
-	{CONFIG_SYS_SDRAM_BASE, REGION_2, XN_DIS, PRIV_RW_USR_RW,
+	{CFG_SYS_SDRAM_BASE, REGION_2, XN_DIS, PRIV_RW_USR_RW,
 	 O_I_WB_RD_WR_ALLOC, REGION_2GB},
 	/* mcu_r5fss0_core0 BTCM area marking it as WB and Write allocate. */
 	{0x41010000, 3, XN_DIS, PRIV_RW_USR_RW, O_I_WB_RD_WR_ALLOC,

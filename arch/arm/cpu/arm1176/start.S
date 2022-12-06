@@ -18,7 +18,7 @@
 #include <linux/linkage.h>
 
 #ifndef CONFIG_SYS_PHY_UBOOT_BASE
-#define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE
+#define CONFIG_SYS_PHY_UBOOT_BASE	CFG_SYS_UBOOT_BASE
 #endif
 
 /*

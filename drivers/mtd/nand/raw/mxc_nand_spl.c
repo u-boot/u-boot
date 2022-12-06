@@ -332,14 +332,14 @@ __used void nand_boot(void)
 	__attribute__((noreturn)) void (*uboot)(void);
 
 	/*
-	 * CONFIG_SYS_NAND_U_BOOT_OFFS and CONFIG_SYS_NAND_U_BOOT_SIZE must
+	 * CONFIG_SYS_NAND_U_BOOT_OFFS and CFG_SYS_NAND_U_BOOT_SIZE must
 	 * be aligned to full pages
 	 */
 	if (!nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-			CONFIG_SYS_NAND_U_BOOT_SIZE,
-			(uchar *)CONFIG_SYS_NAND_U_BOOT_DST)) {
+			CFG_SYS_NAND_U_BOOT_SIZE,
+			(uchar *)CFG_SYS_NAND_U_BOOT_DST)) {
 		/* Copy from NAND successful, start U-Boot */
-		uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
+		uboot = (void *)CFG_SYS_NAND_U_BOOT_START;
 		uboot();
 	} else {
 		/* Unrecoverable error when copying from NAND */

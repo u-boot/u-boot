@@ -13,7 +13,7 @@
 
 /* spl size 32kb sram - 2kb bootrom */
 
-#define CONFIG_SYS_SDRAM_BASE		0x60000000
+#define CFG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0x80000000
 

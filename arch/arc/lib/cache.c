@@ -476,9 +476,9 @@ static void __slc_rgn_op(unsigned long paddr, unsigned long sz, const int op)
 static void arc_ioc_setup(void)
 {
 	/* IOC Aperture start is equal to DDR start */
-	unsigned int ap_base = CONFIG_SYS_SDRAM_BASE;
+	unsigned int ap_base = CFG_SYS_SDRAM_BASE;
 	/* IOC Aperture size is equal to DDR size */
-	long ap_size = CONFIG_SYS_SDRAM_SIZE;
+	long ap_size = CFG_SYS_SDRAM_SIZE;
 
 	/* Unsupported configuration. See [ NOTE 2 ] for more details. */
 	if (!slc_exists())

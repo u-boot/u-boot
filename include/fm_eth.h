@@ -56,7 +56,7 @@ enum fm_eth_type {
 #define CONFIG_SYS_FM1_DTSEC_MDIO_ADDR	(CFG_SYS_FSL_FM1_ADDR + 0xfc000)
 #endif
 #define CONFIG_SYS_FM1_TGEC_MDIO_ADDR	(CFG_SYS_FSL_FM1_ADDR + 0xfd000)
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 #define CONFIG_SYS_FM2_DTSEC_MDIO_ADDR	(CFG_SYS_FSL_FM2_ADDR + 0xfc000)
 #define CONFIG_SYS_FM2_TGEC_MDIO_ADDR	(CFG_SYS_FSL_FM2_ADDR + 0xfd000)
 #endif
@@ -102,7 +102,7 @@ enum fm_eth_type {
 				 offsetof(struct ccsr_fman, memac[n-1]),\
 }
 #else
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 #define FM_TGEC_INFO_INITIALIZER(idx, n) \
 {									\
 	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM2_TGEC_MDIO_ADDR)	\
@@ -131,7 +131,7 @@ enum fm_eth_type {
 #endif
 #endif
 
-#if (CONFIG_SYS_NUM_FM1_10GEC >= 3)
+#if (CFG_SYS_NUM_FM1_10GEC >= 3)
 #define FM_TGEC_INFO_INITIALIZER2(idx, n) \
 {									\
 	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM1_TGEC_MDIO_ADDR)	\

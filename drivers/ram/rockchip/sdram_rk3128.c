@@ -23,7 +23,7 @@ static int rk3128_dmc_probe(struct udevice *dev)
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	debug("%s: grf=%p\n", __func__, priv->grf);
-	priv->info.base = CONFIG_SYS_SDRAM_BASE;
+	priv->info.base = CFG_SYS_SDRAM_BASE;
 	priv->info.size = rockchip_sdram_size(
 				(phys_addr_t)&priv->grf->os_reg[1]);
 

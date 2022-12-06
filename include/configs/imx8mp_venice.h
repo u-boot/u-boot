@@ -9,7 +9,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_UBOOT_BASE	\
+#define CFG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 /* Enable Distro Boot */
@@ -23,10 +23,10 @@
 	"splblk=0x40\0" \
 	BOOTENV
 
-#define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE        SZ_2M
+#define CFG_SYS_INIT_RAM_ADDR        0x40000000
+#define CFG_SYS_INIT_RAM_SIZE        SZ_2M
 
-#define CONFIG_SYS_SDRAM_BASE           0x40000000
+#define CFG_SYS_SDRAM_BASE           0x40000000
 
 /* SDRAM configuration */
 #define PHYS_SDRAM                      0x40000000

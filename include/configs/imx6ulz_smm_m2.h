@@ -12,9 +12,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-/* SPL options */
-#include "imx6_spl.h"
-
 #define CONFIG_MXC_UART_BASE		UART4_BASE
 
 #ifndef CONFIG_SPL_BUILD
@@ -66,12 +63,12 @@
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define PHYS_SDRAM_SIZE			SZ_128M
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* NAND */
 
-#define CONFIG_SYS_NAND_BASE		0x20000000
+#define CFG_SYS_NAND_BASE		0x20000000
 
 #endif

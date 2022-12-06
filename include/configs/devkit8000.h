@@ -100,12 +100,12 @@
 /* Defines for SPL */
 
 /* NAND boot config */
-#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
+#define CFG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
 						10, 11, 12, 13}
 
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	3
 
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
+#define CFG_SYS_NAND_U_BOOT_SIZE	0x200000
 
 #endif /* __CONFIG_H */

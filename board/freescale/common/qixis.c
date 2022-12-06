@@ -29,15 +29,15 @@
 #define QIXIS_RCFG_CTL_RECONFIG_START 0x21
 #endif
 
-#ifdef CONFIG_SYS_I2C_FPGA_ADDR
+#ifdef CFG_SYS_I2C_FPGA_ADDR
 u8 qixis_read_i2c(unsigned int reg)
 {
 #if !CONFIG_IS_ENABLED(DM_I2C)
-	return i2c_reg_read(CONFIG_SYS_I2C_FPGA_ADDR, reg);
+	return i2c_reg_read(CFG_SYS_I2C_FPGA_ADDR, reg);
 #else
 	struct udevice *dev;
 
-	if (i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_FPGA_ADDR, 1, &dev))
+	if (i2c_get_chip_for_busnum(0, CFG_SYS_I2C_FPGA_ADDR, 1, &dev))
 		return 0xff;
 
 	return dm_i2c_reg_read(dev, reg);
@@ -48,11 +48,11 @@ void qixis_write_i2c(unsigned int reg, u8 value)
 {
 	u8 val = value;
 #if !CONFIG_IS_ENABLED(DM_I2C)
-	i2c_reg_write(CONFIG_SYS_I2C_FPGA_ADDR, reg, val);
+	i2c_reg_write(CFG_SYS_I2C_FPGA_ADDR, reg, val);
 #else
 	struct udevice *dev;
 
-	if (!i2c_get_chip_for_busnum(0, CONFIG_SYS_I2C_FPGA_ADDR, 1, &dev))
+	if (!i2c_get_chip_for_busnum(0, CFG_SYS_I2C_FPGA_ADDR, 1, &dev))
 		dm_i2c_reg_write(dev, reg, val);
 #endif
 

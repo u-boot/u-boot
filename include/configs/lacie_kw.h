@@ -31,7 +31,7 @@
 #ifdef CONFIG_CMD_I2C
 /* I2C EEPROM HT24LC04 (512B - 32 pages of 16 Bytes) */
 #if defined(CONFIG_NET2BIG_V2)
-#define CONFIG_SYS_I2C_G762_ADDR		0x3e
+#define CFG_SYS_I2C_G762_ADDR		0x3e
 #endif
 #endif /* CONFIG_CMD_I2C */
 

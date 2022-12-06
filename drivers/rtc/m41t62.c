@@ -319,7 +319,7 @@ int rtc_get(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
 
-	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
+	i2c_read(CFG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
 	m41t62_update_rtc_time(tm, buf);
 
 	return 0;
@@ -329,10 +329,10 @@ int rtc_set(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
 
-	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
+	i2c_read(CFG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
 	m41t62_set_rtc_buf(tm, buf);
 
-	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf,
+	if (i2c_write(CFG_SYS_I2C_RTC_ADDR, 0, 1, buf,
 		      M41T62_DATETIME_REG_SIZE)) {
 		printf("I2C write failed in %s()\n", __func__);
 		return -1;
@@ -349,8 +349,8 @@ void rtc_reset(void)
 	 * M41T82: Make sure HT (Halt Update) bit is cleared.
 	 * This bit is 0 in M41T62 so its save to clear it always.
 	 */
-	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
+	i2c_read(CFG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
 	val &= ~M41T80_ALHOUR_HT;
-	i2c_write(CONFIG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
+	i2c_write(CFG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
 }
 #endif /* CONFIG_DM_RTC */

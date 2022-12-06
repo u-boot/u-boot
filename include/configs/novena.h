@@ -30,12 +30,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
-
-/* SPL */
-#include "imx6_spl.h"			/* common IMX6 SPL configuration */
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* I2C */
 #define CONFIG_I2C_MULTI_BUS
@@ -53,7 +50,6 @@
 #endif
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* UART */
@@ -66,10 +62,6 @@
 /* Gadget part */
 #define CONFIG_USBD_HS
 #endif
-
-/* Video output */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
 
 /* Extra U-Boot environment. */
 #define CONFIG_EXTRA_ENV_SETTINGS					\

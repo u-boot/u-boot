@@ -130,8 +130,8 @@ int board_early_init_f(void)
 
 int board_early_init_r(void)
 {
-#ifdef CONFIG_SYS_FLASH_BASE
-	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
+#ifdef CFG_SYS_FLASH_BASE
+	const unsigned int flashbase = CFG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 	/*
 	 * Remap Boot flash region to caching-inhibited
@@ -150,7 +150,7 @@ int board_early_init_r(void)
 		disable_tlb(flash_esel);
 	}
 
-	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
+	set_tlb(1, flashbase, CFG_SYS_FLASH_BASE_PHYS,
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);
 #endif

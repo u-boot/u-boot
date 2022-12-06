@@ -62,10 +62,10 @@ static void pm9263_nand_hw_init(void)
 		&smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
-	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
+	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 

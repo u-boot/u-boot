@@ -77,10 +77,10 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_SCCR_TSECCM /* all TSEC's clock mode */
 		SCCR_TSECCM |
 #endif
-#ifdef CONFIG_SYS_SCCR_TSEC1CM /* TSEC1 clock mode */
+#ifdef CFG_SYS_SCCR_TSEC1CM /* TSEC1 clock mode */
 		SCCR_TSEC1CM |
 #endif
-#ifdef CONFIG_SYS_SCCR_TSEC2CM /* TSEC2 clock mode */
+#ifdef CFG_SYS_SCCR_TSEC2CM /* TSEC2 clock mode */
 		SCCR_TSEC2CM |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSEC1ON /* TSEC1 clock switch */
@@ -92,10 +92,10 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_SCCR_USBMPHCM /* USB MPH clock mode */
 		SCCR_USBMPHCM |
 #endif
-#ifdef CONFIG_SYS_SCCR_USBDRCM /* USB DR clock mode */
+#ifdef CFG_SYS_SCCR_USBDRCM /* USB DR clock mode */
 		SCCR_USBDRCM |
 #endif
-#ifdef CONFIG_SYS_SCCR_SATACM /* SATA controller clock mode */
+#ifdef CFG_SYS_SCCR_SATACM /* SATA controller clock mode */
 		SCCR_SATACM |
 #endif
 		0;
@@ -115,11 +115,11 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_SCCR_TSECCM /* all TSEC's clock mode */
 		(CONFIG_SYS_SCCR_TSECCM << SCCR_TSECCM_SHIFT) |
 #endif
-#ifdef CONFIG_SYS_SCCR_TSEC1CM /* TSEC1 clock mode */
-		(CONFIG_SYS_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT) |
+#ifdef CFG_SYS_SCCR_TSEC1CM /* TSEC1 clock mode */
+		(CFG_SYS_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT) |
 #endif
-#ifdef CONFIG_SYS_SCCR_TSEC2CM /* TSEC2 clock mode */
-		(CONFIG_SYS_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT) |
+#ifdef CFG_SYS_SCCR_TSEC2CM /* TSEC2 clock mode */
+		(CFG_SYS_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT) |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSEC1ON /* TSEC1 clock switch */
 		(CONFIG_SYS_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT) |
@@ -130,11 +130,11 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_SCCR_USBMPHCM /* USB MPH clock mode */
 		(CONFIG_SYS_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT) |
 #endif
-#ifdef CONFIG_SYS_SCCR_USBDRCM /* USB DR clock mode */
-		(CONFIG_SYS_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT) |
+#ifdef CFG_SYS_SCCR_USBDRCM /* USB DR clock mode */
+		(CFG_SYS_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT) |
 #endif
-#ifdef CONFIG_SYS_SCCR_SATACM /* SATA controller clock mode */
-		(CONFIG_SYS_SCCR_SATACM << SCCR_SATACM_SHIFT) |
+#ifdef CFG_SYS_SCCR_SATACM /* SATA controller clock mode */
+		(CFG_SYS_SCCR_SATACM << SCCR_SATACM_SHIFT) |
 #endif
 		0;
 
@@ -175,26 +175,26 @@ void cpu_init_f (volatile immap_t * im)
 	setbits_be32(&im->sysconf.spcr, SPCR_TBEN);
 
 	/* System General Purpose Register */
-#ifdef CONFIG_SYS_SICRH
+#ifdef CFG_SYS_SICRH
 #if defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_ARCH_MPC8313)
 	/* regarding to MPC34x manual rev.1 bits 28..29 must be preserved */
-	__raw_writel((im->sysconf.sicrh & 0x0000000C) | CONFIG_SYS_SICRH,
+	__raw_writel((im->sysconf.sicrh & 0x0000000C) | CFG_SYS_SICRH,
 		     &im->sysconf.sicrh);
 #else
-	__raw_writel(CONFIG_SYS_SICRH, &im->sysconf.sicrh);
+	__raw_writel(CFG_SYS_SICRH, &im->sysconf.sicrh);
 #endif
 #endif
-#ifdef CONFIG_SYS_SICRL
-	__raw_writel(CONFIG_SYS_SICRL, &im->sysconf.sicrl);
+#ifdef CFG_SYS_SICRL
+	__raw_writel(CFG_SYS_SICRL, &im->sysconf.sicrl);
 #endif
-#ifdef CONFIG_SYS_GPR1
-	__raw_writel(CONFIG_SYS_GPR1, &im->sysconf.gpr1);
+#ifdef CFG_SYS_GPR1
+	__raw_writel(CFG_SYS_GPR1, &im->sysconf.gpr1);
 #endif
-#ifdef CONFIG_SYS_DDRCDR /* DDR control driver register */
-	__raw_writel(CONFIG_SYS_DDRCDR, &im->sysconf.ddrcdr);
+#ifdef CFG_SYS_DDRCDR /* DDR control driver register */
+	__raw_writel(CFG_SYS_DDRCDR, &im->sysconf.ddrcdr);
 #endif
-#ifdef CONFIG_SYS_OBIR /* Output buffer impedance register */
-	__raw_writel(CONFIG_SYS_OBIR, &im->sysconf.obir);
+#ifdef CFG_SYS_OBIR /* Output buffer impedance register */
+	__raw_writel(CFG_SYS_OBIR, &im->sysconf.obir);
 #endif
 
 #if !defined(CONFIG_PINCTRL)

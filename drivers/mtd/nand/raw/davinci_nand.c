@@ -170,7 +170,7 @@ static u_int32_t nand_davinci_readecc(struct mtd_info *mtd)
 	u_int32_t	ecc = 0;
 
 	ecc = __raw_readl(&(davinci_emif_regs->nandfecc[
-				CONFIG_SYS_NAND_CS - 2]));
+				CFG_SYS_NAND_CS - 2]));
 
 	return ecc;
 }
@@ -183,8 +183,8 @@ static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 	nand_davinci_readecc(mtd);
 
 	val = __raw_readl(&davinci_emif_regs->nandfcr);
-	val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
-	val |= DAVINCI_NANDFCR_1BIT_ECC_START(CONFIG_SYS_NAND_CS);
+	val |= DAVINCI_NANDFCR_NAND_ENABLE(CFG_SYS_NAND_CS);
+	val |= DAVINCI_NANDFCR_1BIT_ECC_START(CFG_SYS_NAND_CS);
 	__raw_writel(val, &davinci_emif_regs->nandfcr);
 }
 
@@ -486,8 +486,8 @@ static void nand_davinci_4bit_enable_hwecc(struct mtd_info *mtd, int mode)
 		 */
 		val = __raw_readl(&davinci_emif_regs->nandfcr);
 		val &= ~DAVINCI_NANDFCR_4BIT_ECC_SEL_MASK;
-		val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
-		val |= DAVINCI_NANDFCR_4BIT_ECC_SEL(CONFIG_SYS_NAND_CS);
+		val |= DAVINCI_NANDFCR_NAND_ENABLE(CFG_SYS_NAND_CS);
+		val |= DAVINCI_NANDFCR_4BIT_ECC_SEL(CFG_SYS_NAND_CS);
 		val |= DAVINCI_NANDFCR_4BIT_ECC_START;
 		__raw_writel(val, &davinci_emif_regs->nandfcr);
 		break;
@@ -766,10 +766,7 @@ static void davinci_nand_init(struct nand_chip *nand)
 	nand->ecc.calculate = nand_davinci_calculate_ecc;
 	nand->ecc.correct  = nand_davinci_correct_data;
 	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
-#else
-	nand->ecc.mode = NAND_ECC_SOFT;
-#endif /* CONFIG_SYS_NAND_HW_ECC */
-#ifdef CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
+#elif defined(CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST)
 	nand->ecc.mode = NAND_ECC_HW_OOB_FIRST;
 	nand->ecc.size = 512;
 	nand->ecc.bytes = 10;
@@ -778,6 +775,8 @@ static void davinci_nand_init(struct nand_chip *nand)
 	nand->ecc.correct = nand_davinci_4bit_correct_data;
 	nand->ecc.hwctl = nand_davinci_4bit_enable_hwecc;
 	nand->ecc.layout = &nand_davinci_4bit_layout_oobfirst;
+#elif defined(CONFIG_SYS_NAND_SOFT_ECC)
+	nand->ecc.mode = NAND_ECC_SOFT;
 #endif
 	/* Set address of hardware control function */
 	nand->cmd_ctrl = nand_davinci_hwcontrol;
@@ -795,8 +794,8 @@ static int davinci_nand_probe(struct udevice *dev)
 	struct mtd_info *mtd = nand_to_mtd(nand);
 	int ret;
 
-	nand->IO_ADDR_R = (void __iomem *)CONFIG_SYS_NAND_BASE;
-	nand->IO_ADDR_W = (void __iomem *)CONFIG_SYS_NAND_BASE;
+	nand->IO_ADDR_R = (void __iomem *)CFG_SYS_NAND_BASE;
+	nand->IO_ADDR_W = (void __iomem *)CFG_SYS_NAND_BASE;
 
 	davinci_nand_init(nand);
 

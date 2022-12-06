@@ -66,7 +66,7 @@ int dram_init(void)
 {
 	gd->ram_size = tfa_get_dram_size();
 	if (!gd->ram_size)
-		gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+		gd->ram_size = CFG_SYS_SDRAM_SIZE;
 
 	return 0;
 }
@@ -90,7 +90,7 @@ int dram_init(void)
 	};
 
 	mmdc_init(&mparam);
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();
@@ -117,7 +117,7 @@ int misc_init_r(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = i2c_get_chip_for_busnum(bus_num, CONFIG_SYS_I2C_FPGA_ADDR,
+	ret = i2c_get_chip_for_busnum(bus_num, CFG_SYS_I2C_FPGA_ADDR,
 				      1, &dev);
 	if (ret) {
 		printf("%s: Cannot find udev for a bus %d\n", __func__,
@@ -128,7 +128,7 @@ int misc_init_r(void)
 #else
 	i2c_set_bus_num(bus_num);
 
-	i2c_write(CONFIG_SYS_I2C_FPGA_ADDR, 0x5a, 1, &mux_sdhc_cd, 1);
+	i2c_write(CFG_SYS_I2C_FPGA_ADDR, 0x5a, 1, &mux_sdhc_cd, 1);
 #endif
 
 	return 0;

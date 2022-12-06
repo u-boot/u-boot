@@ -10,7 +10,7 @@
 #include "arm-mpcore.h"
 
 #define PERIPHCLK (50 * 1000 * 1000) /* 50 MHz */
-#define PRESCALER ((PERIPHCLK) / (CONFIG_SYS_TIMER_RATE) - 1)
+#define PRESCALER ((PERIPHCLK) / (CFG_SYS_TIMER_RATE) - 1)
 
 static void *get_global_timer_base(void)
 {

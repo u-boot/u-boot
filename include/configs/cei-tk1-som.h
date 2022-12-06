@@ -20,7 +20,7 @@
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTD
-#define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
+#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 /* SPI */
 #define CONFIG_SPI_FLASH_SIZE		(4 << 20)

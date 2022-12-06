@@ -407,7 +407,7 @@ static int __read_prefetch_aligned(struct nand_chip *chip, uint32_t *buf, int le
 		cnt = PREFETCH_STATUS_FIFO_CNT(cnt);
 
 		for (i = 0; i < cnt / 4; i++) {
-			*buf++ = readl(CONFIG_SYS_NAND_BASE);
+			*buf++ = readl(CFG_SYS_NAND_BASE);
 			len -= 4;
 		}
 	} while (len);

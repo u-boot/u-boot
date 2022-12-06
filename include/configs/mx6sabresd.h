@@ -8,10 +8,6 @@
 #ifndef __MX6SABRESD_CONFIG_H
 #define __MX6SABRESD_CONFIG_H
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV		"ttymxc0"
 
@@ -29,7 +25,6 @@
 #endif
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* USB Configs */

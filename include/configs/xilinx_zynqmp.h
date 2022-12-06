@@ -15,7 +15,7 @@
 #define GICC_BASE	0xF9020000
 
 /* Serial setup */
-#define CONFIG_SYS_BAUDRATE_TABLE \
+#define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
 /* GUIDs for capsule updatable firmware images */
@@ -192,9 +192,9 @@
 #endif
 
 #if defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
-# define CONFIG_SYS_SPI_KERNEL_OFFS	0x80000
-# define CONFIG_SYS_SPI_ARGS_OFFS	0xa0000
-# define CONFIG_SYS_SPI_ARGS_SIZE	0xa0000
+# define CFG_SYS_SPI_KERNEL_OFFS	0x80000
+# define CFG_SYS_SPI_ARGS_OFFS	0xa0000
+# define CFG_SYS_SPI_ARGS_SIZE	0xa0000
 #endif
 
 /* u-boot is like dtb */

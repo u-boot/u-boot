@@ -97,11 +97,11 @@ static int stm32_timer_probe(struct udevice *dev)
 	rate = clk_get_rate(&clk);
 
 	/* we set timer prescaler to obtain a 1MHz timer counter frequency */
-	psc = (rate / CONFIG_SYS_HZ_CLOCK) - 1;
+	psc = (rate / CFG_SYS_HZ_CLOCK) - 1;
 	writel(psc, &regs->psc);
 
 	/* Set timer frequency to 1MHz */
-	uc_priv->clock_rate = CONFIG_SYS_HZ_CLOCK;
+	uc_priv->clock_rate = CFG_SYS_HZ_CLOCK;
 
 	/* Configure timer for auto-reload */
 	setbits_le32(&regs->cr1, CR1_ARPE);

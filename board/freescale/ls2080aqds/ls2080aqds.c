@@ -217,7 +217,7 @@ int board_init(void)
 
 #ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 #if CONFIG_IS_ENABLED(DM_I2C)
-	rtc_enable_32khz_output(0, CONFIG_SYS_I2C_RTC_ADDR);
+	rtc_enable_32khz_output(0, CFG_SYS_I2C_RTC_ADDR);
 #else
 	rtc_enable_32khz_output();
 #endif

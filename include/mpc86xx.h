@@ -16,9 +16,9 @@
  * platform register addresses
  */
 
-#define GUTS_SVR	(CONFIG_SYS_CCSRBAR + 0xE00A4)
-#define MCM_ABCR	(CONFIG_SYS_CCSRBAR + 0x01000)
-#define MCM_DBCR	(CONFIG_SYS_CCSRBAR + 0x01008)
+#define GUTS_SVR	(CFG_SYS_CCSRBAR + 0xE00A4)
+#define MCM_ABCR	(CFG_SYS_CCSRBAR + 0x01000)
+#define MCM_DBCR	(CFG_SYS_CCSRBAR + 0x01008)
 
 /*
  * l2cr values.  Look in config_<BOARD>.h for the actual setup

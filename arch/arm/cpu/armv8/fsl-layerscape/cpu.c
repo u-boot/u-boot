@@ -114,7 +114,7 @@ static struct mm_region early_map[] = {
 	  CONFIG_SYS_FSL_IFC_SIZE1 - CONFIG_SYS_FSL_IFC_SIZE1_1,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE
 	},
-	{ CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FSL_IFC_BASE1,
+	{ CFG_SYS_FLASH_BASE, CONFIG_SYS_FSL_IFC_BASE1,
 	  CONFIG_SYS_FSL_IFC_SIZE1,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE
 	},
@@ -130,9 +130,9 @@ static struct mm_region early_map[] = {
 	  PTE_BLOCK_OUTER_SHARE | PTE_BLOCK_NS
 	},
 #ifdef CONFIG_FSL_IFC
-	/* Map IFC region #2 up to CONFIG_SYS_FLASH_BASE for NAND boot */
+	/* Map IFC region #2 up to CFG_SYS_FLASH_BASE for NAND boot */
 	{ CONFIG_SYS_FSL_IFC_BASE2, CONFIG_SYS_FSL_IFC_BASE2,
-	  CONFIG_SYS_FLASH_BASE - CONFIG_SYS_FSL_IFC_BASE2,
+	  CFG_SYS_FLASH_BASE - CONFIG_SYS_FSL_IFC_BASE2,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE
 	},
 #endif
@@ -257,26 +257,26 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_PCIE1_PHYS_ADDR, CONFIG_SYS_PCIE1_PHYS_ADDR,
-	  CONFIG_SYS_PCIE1_PHYS_SIZE,
+	{ CFG_SYS_PCIE1_PHYS_ADDR, CFG_SYS_PCIE1_PHYS_ADDR,
+	  CFG_SYS_PCIE1_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_PCIE2_PHYS_ADDR, CONFIG_SYS_PCIE2_PHYS_ADDR,
-	  CONFIG_SYS_PCIE2_PHYS_SIZE,
+	{ CFG_SYS_PCIE2_PHYS_ADDR, CFG_SYS_PCIE2_PHYS_ADDR,
+	  CFG_SYS_PCIE2_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-#ifdef CONFIG_SYS_PCIE3_PHYS_ADDR
-	{ CONFIG_SYS_PCIE3_PHYS_ADDR, CONFIG_SYS_PCIE3_PHYS_ADDR,
-	  CONFIG_SYS_PCIE3_PHYS_SIZE,
+#ifdef CFG_SYS_PCIE3_PHYS_ADDR
+	{ CFG_SYS_PCIE3_PHYS_ADDR, CFG_SYS_PCIE3_PHYS_ADDR,
+	  CFG_SYS_PCIE3_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
 #endif
-#ifdef CONFIG_SYS_PCIE4_PHYS_ADDR
-	{ CONFIG_SYS_PCIE4_PHYS_ADDR, CONFIG_SYS_PCIE4_PHYS_ADDR,
-	  CONFIG_SYS_PCIE4_PHYS_SIZE,
+#ifdef CFG_SYS_PCIE4_PHYS_ADDR
+	{ CFG_SYS_PCIE4_PHYS_ADDR, CFG_SYS_PCIE4_PHYS_ADDR,
+	  CFG_SYS_PCIE4_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
@@ -368,19 +368,19 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 	  PTE_BLOCK_OUTER_SHARE | PTE_BLOCK_NS
 	},
-	{ CONFIG_SYS_PCIE1_PHYS_ADDR, CONFIG_SYS_PCIE1_PHYS_ADDR,
-	  CONFIG_SYS_PCIE1_PHYS_SIZE,
+	{ CFG_SYS_PCIE1_PHYS_ADDR, CFG_SYS_PCIE1_PHYS_ADDR,
+	  CFG_SYS_PCIE1_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-	{ CONFIG_SYS_PCIE2_PHYS_ADDR, CONFIG_SYS_PCIE2_PHYS_ADDR,
-	  CONFIG_SYS_PCIE2_PHYS_SIZE,
+	{ CFG_SYS_PCIE2_PHYS_ADDR, CFG_SYS_PCIE2_PHYS_ADDR,
+	  CFG_SYS_PCIE2_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-#ifdef CONFIG_SYS_PCIE3_PHYS_ADDR
-	{ CONFIG_SYS_PCIE3_PHYS_ADDR, CONFIG_SYS_PCIE3_PHYS_ADDR,
-	  CONFIG_SYS_PCIE3_PHYS_SIZE,
+#ifdef CFG_SYS_PCIE3_PHYS_ADDR
+	{ CFG_SYS_PCIE3_PHYS_ADDR, CFG_SYS_PCIE3_PHYS_ADDR,
+	  CFG_SYS_PCIE3_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
@@ -391,7 +391,7 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_OUTER_SHARE | PTE_BLOCK_NS
 	},
 #endif
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	{},	/* space holder for secure mem */
 #endif
 	{},
@@ -445,7 +445,7 @@ static inline void early_mmu_setup(void)
 	if (el == 3)
 		gd->arch.tlb_addr = CFG_SYS_FSL_OCRAM_BASE;
 	else
-		gd->arch.tlb_addr = CONFIG_SYS_DDR_SDRAM_BASE;
+		gd->arch.tlb_addr = CFG_SYS_DDR_SDRAM_BASE;
 	gd->arch.tlb_fillptr = gd->arch.tlb_addr;
 	gd->arch.tlb_size = EARLY_PGTABLE_SIZE;
 
@@ -477,25 +477,25 @@ static void fix_pcie_mmu_map(void)
 	    (ver == SVR_LS2081A) || (ver == SVR_LS2041A)) {
 		for (i = 0; i < ARRAY_SIZE(final_map); i++) {
 			switch (final_map[i].phys) {
-			case CONFIG_SYS_PCIE1_PHYS_ADDR:
+			case CFG_SYS_PCIE1_PHYS_ADDR:
 				final_map[i].phys = 0x2000000000ULL;
 				final_map[i].virt = 0x2000000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
-			case CONFIG_SYS_PCIE2_PHYS_ADDR:
+			case CFG_SYS_PCIE2_PHYS_ADDR:
 				final_map[i].phys = 0x2800000000ULL;
 				final_map[i].virt = 0x2800000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
-#ifdef CONFIG_SYS_PCIE3_PHYS_ADDR
-			case CONFIG_SYS_PCIE3_PHYS_ADDR:
+#ifdef CFG_SYS_PCIE3_PHYS_ADDR
+			case CFG_SYS_PCIE3_PHYS_ADDR:
 				final_map[i].phys = 0x3000000000ULL;
 				final_map[i].virt = 0x3000000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
 #endif
-#ifdef CONFIG_SYS_PCIE4_PHYS_ADDR
-			case CONFIG_SYS_PCIE4_PHYS_ADDR:
+#ifdef CFG_SYS_PCIE4_PHYS_ADDR
+			case CFG_SYS_PCIE4_PHYS_ADDR:
 				final_map[i].phys = 0x3800000000ULL;
 				final_map[i].virt = 0x3800000000ULL;
 				final_map[i].size = 0x800000000ULL;
@@ -568,7 +568,7 @@ static inline void final_mmu_setup(void)
 		}
 	}
 
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
 		if (el == 3) {
 			/*
@@ -580,7 +580,7 @@ static inline void final_mmu_setup(void)
 			gd->arch.tlb_addr = gd->arch.secure_ram & ~0xfff;
 			final_map[index].virt = gd->arch.secure_ram & ~0x3;
 			final_map[index].phys = final_map[index].virt;
-			final_map[index].size = CONFIG_SYS_MEM_RESERVE_SECURE;
+			final_map[index].size = CFG_SYS_MEM_RESERVE_SECURE;
 			final_map[index].attrs = PTE_BLOCK_OUTER_SHARE;
 			gd->arch.secure_ram |= MEM_RESERVE_SECURE_SECURED;
 			tlb_addr_save = gd->arch.tlb_addr;
@@ -1323,10 +1323,10 @@ phys_size_t get_effective_memsize(void)
 		ea_size = gd->ram_size;
 	}
 
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	/* Check if we have enough space for secure memory */
-	if (ea_size > CONFIG_SYS_MEM_RESERVE_SECURE)
-		ea_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+	if (ea_size > CFG_SYS_MEM_RESERVE_SECURE)
+		ea_size -= CFG_SYS_MEM_RESERVE_SECURE;
 	else
 		printf("Error: No enough space for secure memory.\n");
 #endif
@@ -1433,7 +1433,7 @@ int dram_init_banksize(void)
 	 * gd->arch.secure_ram should be done to avoid running it repeatedly.
 	 */
 
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_MAINTAINED) {
 		debug("No need to run again, skip %s\n", __func__);
 
@@ -1441,12 +1441,12 @@ int dram_init_banksize(void)
 	}
 #endif
 
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	if (gd->ram_size > CONFIG_SYS_DDR_BLOCK1_SIZE) {
-		gd->bd->bi_dram[0].size = CONFIG_SYS_DDR_BLOCK1_SIZE;
-		gd->bd->bi_dram[1].start = CONFIG_SYS_DDR_BLOCK2_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+	if (gd->ram_size > CFG_SYS_DDR_BLOCK1_SIZE) {
+		gd->bd->bi_dram[0].size = CFG_SYS_DDR_BLOCK1_SIZE;
+		gd->bd->bi_dram[1].start = CFG_SYS_DDR_BLOCK2_BASE;
 		gd->bd->bi_dram[1].size = gd->ram_size -
-					  CONFIG_SYS_DDR_BLOCK1_SIZE;
+					  CFG_SYS_DDR_BLOCK1_SIZE;
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 		if (gd->bi_dram[1].size > CONFIG_SYS_DDR_BLOCK2_SIZE) {
 			gd->bd->bi_dram[2].start = CONFIG_SYS_DDR_BLOCK3_BASE;
@@ -1458,17 +1458,17 @@ int dram_init_banksize(void)
 	} else {
 		gd->bd->bi_dram[0].size = gd->ram_size;
 	}
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	if (gd->bd->bi_dram[0].size >
-				CONFIG_SYS_MEM_RESERVE_SECURE) {
+				CFG_SYS_MEM_RESERVE_SECURE) {
 		gd->bd->bi_dram[0].size -=
-				CONFIG_SYS_MEM_RESERVE_SECURE;
+				CFG_SYS_MEM_RESERVE_SECURE;
 		gd->arch.secure_ram = gd->bd->bi_dram[0].start +
 				      gd->bd->bi_dram[0].size;
 		gd->arch.secure_ram |= MEM_RESERVE_SECURE_MAINTAINED;
-		gd->ram_size -= CONFIG_SYS_MEM_RESERVE_SECURE;
+		gd->ram_size -= CFG_SYS_MEM_RESERVE_SECURE;
 	}
-#endif	/* CONFIG_SYS_MEM_RESERVE_SECURE */
+#endif	/* CFG_SYS_MEM_RESERVE_SECURE */
 
 #if defined(CONFIG_RESV_RAM) && !defined(CONFIG_SPL_BUILD)
 	/* Assign memory for MC */
@@ -1520,7 +1520,7 @@ int dram_init_banksize(void)
 	}
 #endif
 
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	debug("%s is called. gd->ram_size is reduced to %lu\n",
 	      __func__, (ulong)gd->ram_size);
 #endif
@@ -1571,7 +1571,7 @@ void update_early_mmu_table(void)
 
 	if (gd->ram_size <= CONFIG_SYS_FSL_DRAM_SIZE1) {
 		mmu_change_region_attr(
-					CONFIG_SYS_SDRAM_BASE,
+					CFG_SYS_SDRAM_BASE,
 					gd->ram_size,
 					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
 					PTE_BLOCK_OUTER_SHARE		|
@@ -1579,8 +1579,8 @@ void update_early_mmu_table(void)
 					PTE_TYPE_VALID);
 	} else {
 		mmu_change_region_attr(
-					CONFIG_SYS_SDRAM_BASE,
-					CONFIG_SYS_DDR_BLOCK1_SIZE,
+					CFG_SYS_SDRAM_BASE,
+					CFG_SYS_DDR_BLOCK1_SIZE,
 					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
 					PTE_BLOCK_OUTER_SHARE		|
 					PTE_BLOCK_NS			|
@@ -1589,10 +1589,10 @@ void update_early_mmu_table(void)
 #ifndef CONFIG_SYS_DDR_BLOCK2_SIZE
 #error "Missing CONFIG_SYS_DDR_BLOCK2_SIZE"
 #endif
-		if (gd->ram_size - CONFIG_SYS_DDR_BLOCK1_SIZE >
+		if (gd->ram_size - CFG_SYS_DDR_BLOCK1_SIZE >
 		    CONFIG_SYS_DDR_BLOCK2_SIZE) {
 			mmu_change_region_attr(
-					CONFIG_SYS_DDR_BLOCK2_BASE,
+					CFG_SYS_DDR_BLOCK2_BASE,
 					CONFIG_SYS_DDR_BLOCK2_SIZE,
 					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
 					PTE_BLOCK_OUTER_SHARE		|
@@ -1601,7 +1601,7 @@ void update_early_mmu_table(void)
 			mmu_change_region_attr(
 					CONFIG_SYS_DDR_BLOCK3_BASE,
 					gd->ram_size -
-					CONFIG_SYS_DDR_BLOCK1_SIZE -
+					CFG_SYS_DDR_BLOCK1_SIZE -
 					CONFIG_SYS_DDR_BLOCK2_SIZE,
 					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
 					PTE_BLOCK_OUTER_SHARE		|
@@ -1611,9 +1611,9 @@ void update_early_mmu_table(void)
 #endif
 		{
 			mmu_change_region_attr(
-					CONFIG_SYS_DDR_BLOCK2_BASE,
+					CFG_SYS_DDR_BLOCK2_BASE,
 					gd->ram_size -
-					CONFIG_SYS_DDR_BLOCK1_SIZE,
+					CFG_SYS_DDR_BLOCK1_SIZE,
 					PTE_BLOCK_MEMTYPE(MT_NORMAL)	|
 					PTE_BLOCK_OUTER_SHARE		|
 					PTE_BLOCK_NS			|

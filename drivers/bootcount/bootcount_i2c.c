@@ -17,7 +17,7 @@ void bootcount_store(ulong a)
 
 	buf[0] = BC_MAGIC;
 	buf[1] = (a & 0xff);
-	ret = i2c_write(CONFIG_SYS_I2C_RTC_ADDR, CONFIG_SYS_BOOTCOUNT_ADDR,
+	ret = i2c_write(CFG_SYS_I2C_RTC_ADDR, CONFIG_SYS_BOOTCOUNT_ADDR,
 		  CONFIG_BOOTCOUNT_ALEN, buf, 2);
 	if (ret != 0)
 		puts("Error writing bootcount\n");
@@ -28,7 +28,7 @@ ulong bootcount_load(void)
 	unsigned char buf[3];
 	int ret;
 
-	ret = i2c_read(CONFIG_SYS_I2C_RTC_ADDR, CONFIG_SYS_BOOTCOUNT_ADDR,
+	ret = i2c_read(CFG_SYS_I2C_RTC_ADDR, CONFIG_SYS_BOOTCOUNT_ADDR,
 		       CONFIG_BOOTCOUNT_ALEN, buf, 2);
 	if (ret != 0) {
 		puts("Error loading bootcount\n");

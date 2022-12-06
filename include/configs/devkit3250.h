@@ -15,8 +15,8 @@
 /*
  * Memory configurations
  */
-#define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
-#define CONFIG_SYS_SDRAM_SIZE		SZ_64M
+#define CFG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
+#define CFG_SYS_SDRAM_SIZE		SZ_64M
 
 /*
  * DMA
@@ -29,14 +29,14 @@
 /*
  * NOR Flash
  */
-#define CONFIG_SYS_FLASH_BASE		EMC_CS0_BASE
-#define CONFIG_SYS_FLASH_SIZE		SZ_4M
+#define CFG_SYS_FLASH_BASE		EMC_CS0_BASE
+#define CFG_SYS_FLASH_SIZE		SZ_4M
 
 /*
  * NAND controller
  */
-#define CONFIG_SYS_NAND_BASE		SLC_NAND_BASE
-#define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
+#define CFG_SYS_NAND_BASE		SLC_NAND_BASE
+#define CFG_SYS_NAND_BASE_LIST	{ CFG_SYS_NAND_BASE }
 
 /*
  * NAND chip timings
@@ -79,10 +79,10 @@
  */
 
 /* U-Boot will be 0x60000 bytes, loaded and run at CONFIG_TEXT_BASE */
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x60000
+#define CFG_SYS_NAND_U_BOOT_SIZE	0x60000
 
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
+#define CFG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
+#define CFG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
 
 /* See common/spl/spl.c  spl_set_header_raw_uboot() */
 

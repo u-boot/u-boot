@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Table with supported baudrates (defined in config_xyz.h)
  */
-static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
+static const unsigned long baudrate_table[] = CFG_SYS_BAUDRATE_TABLE;
 
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static int serial_check_stdout(const void *blob, struct udevice **devp)
@@ -526,7 +526,7 @@ static int serial_post_probe(struct udevice *dev)
 		ops->getconfig += gd->reloc_off;
 	if (ops->setconfig)
 		ops->setconfig += gd->reloc_off;
-#if CONFIG_POST & CONFIG_SYS_POST_UART
+#if CFG_POST & CONFIG_SYS_POST_UART
 	if (ops->loop)
 		ops->loop += gd->reloc_off;
 #endif

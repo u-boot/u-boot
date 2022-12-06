@@ -66,10 +66,10 @@ static void pm9261_nand_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
 	/* Configure RDY/BSY */
-	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
+	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 
 	at91_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* NANDOE */
 	at91_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* NANDWE */

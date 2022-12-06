@@ -137,7 +137,7 @@ int misc_init_r (void)
 
 int dram_init (void)
 {
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 #ifdef CONFIG_CM_SPD_DETECT
 	{
 extern void dram_query(void);
@@ -160,12 +160,12 @@ extern void dram_query(void);
 	 *
 	 */
 	sdram_shift = ((cm_reg_sdram & 0x0000001C)/4)%4;
-	gd->ram_size = get_ram_size((long *) CONFIG_SYS_SDRAM_BASE +
+	gd->ram_size = get_ram_size((long *) CFG_SYS_SDRAM_BASE +
 				    REMAPPED_FLASH_SZ,
 				    0x01000000 << sdram_shift);
 	}
 #else
-	gd->ram_size = get_ram_size((long *) CONFIG_SYS_SDRAM_BASE +
+	gd->ram_size = get_ram_size((long *) CFG_SYS_SDRAM_BASE +
 				    REMAPPED_FLASH_SZ,
 				    PHYS_SDRAM_1_SIZE);
 #endif /* CM_SPD_DETECT */

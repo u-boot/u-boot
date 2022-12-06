@@ -28,7 +28,7 @@ int board_early_init_r(void)
 			ICPU_GENERAL_CTRL_IF_SI_OWNER(2));
 
 	/* Address of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE;
 
 	return 0;
 }

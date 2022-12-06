@@ -10,9 +10,6 @@
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
 
-/* SPL options */
-#include "imx6_spl.h"
-
 #define CONFIG_MXC_UART_BASE		MX6UL_UART7_BASE_ADDR
 
 /* MMC Configs */
@@ -24,9 +21,9 @@
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define PHYS_SDRAM_SIZE			(128 << 20)
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* Environment is in stored in the eMMC boot partition */
 

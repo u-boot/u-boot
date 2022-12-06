@@ -251,9 +251,6 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	 * Wake up from sleep if necessary
 	 * Reset PHY, then delay 300ns
 	 */
-#ifdef CONFIG_MX27
-	fec_mdio_write(eth, fec->phy_id, MII_DCOUNTER, 0x00FF);
-#endif
 	fec_mdio_write(eth, fec->phy_id, MII_BMCR, BMCR_RESET);
 	udelay(1000);
 

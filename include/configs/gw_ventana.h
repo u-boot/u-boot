@@ -13,7 +13,6 @@
 
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */
 
-#include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 
 /* Serial */
@@ -31,9 +30,7 @@
 /*
  * PMIC
  */
-#define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
-#define CONFIG_POWER_LTC3676
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
@@ -43,20 +40,15 @@
 #define CONFIG_MXC_USB_FLAGS      0
 #define CONFIG_USBD_HS
 
-/* Framebuffer and LCD */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 /* Miscellaneous configurable options */
-#define CONFIG_HWCONFIG
 
 /* Memory configuration */
 
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
-#define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE          PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /*
  * MTD Command for mtdparts

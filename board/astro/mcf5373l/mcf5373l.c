@@ -39,12 +39,12 @@ int dram_init(void)
 	 * GPIO configuration for bus should be set correctly from reset,
 	 * so we do not care! First, set up address space: at this point,
 	 * we should be running from internal SRAM;
-	 * so use CONFIG_SYS_SDRAM_BASE as the base address for SDRAM,
+	 * so use CFG_SYS_SDRAM_BASE as the base address for SDRAM,
 	 * and do not care where it is
 	 */
-	__raw_writel((CONFIG_SYS_SDRAM_BASE & 0xFFF00000) | 0x00000018,
+	__raw_writel((CFG_SYS_SDRAM_BASE & 0xFFF00000) | 0x00000018,
 			&sdp->cs0);
-	__raw_writel((CONFIG_SYS_SDRAM_BASE & 0xFFF00000) | 0x00000000,
+	__raw_writel((CFG_SYS_SDRAM_BASE & 0xFFF00000) | 0x00000000,
 			&sdp->cs1);
 	/*
 	 * I am not sure from the data sheet, but it seems burst length
@@ -72,7 +72,7 @@ int dram_init(void)
 	 */
 	__raw_writel(0x71462C00, &sdp->ctrl);
 	/* Dummy write to start SDRAM */
-	writel(0, CONFIG_SYS_SDRAM_BASE);
+	writel(0, CFG_SYS_SDRAM_BASE);
 #endif
 
 	/*
@@ -82,8 +82,8 @@ int dram_init(void)
 	 * (Do not rely on the SDCS register(s) being set to 0x00000000
 	 * during reset as stated in the data sheet.)
 	 */
-	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
-				0x80000000 - CONFIG_SYS_SDRAM_BASE);
+	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE,
+				0x80000000 - CFG_SYS_SDRAM_BASE);
 
 	return 0;
 }

@@ -16,7 +16,7 @@
 
 #if defined(CONFIG_POST)
 
-#ifndef CONFIG_POST_EXTERNAL_WORD_FUNCS
+#ifndef CFG_POST_EXTERNAL_WORD_FUNCS
 #ifdef CONFIG_SYS_POST_WORD_ADDR
 #define _POST_WORD_ADDR	CONFIG_SYS_POST_WORD_ADDR
 #else
@@ -51,7 +51,7 @@ static inline void post_word_store (ulong value)
 extern ulong post_word_load(void);
 extern void post_word_store(ulong value);
 
-#endif /* CONFIG_POST_EXTERNAL_WORD_FUNCS */
+#endif /* CFG_POST_EXTERNAL_WORD_FUNCS */
 #endif /* defined (CONFIG_POST) */
 #endif /* __ASSEMBLY__ */
 
@@ -142,7 +142,7 @@ extern int memory_post_test(int flags);
 
 #define CONFIG_SYS_POST_RTC		0x00000001
 #define CONFIG_SYS_POST_WATCHDOG	0x00000002
-#define CONFIG_SYS_POST_MEMORY		0x00000004
+#define CFG_SYS_POST_MEMORY		0x00000004
 #define CONFIG_SYS_POST_CPU		0x00000008
 #define CONFIG_SYS_POST_I2C		0x00000010
 #define CONFIG_SYS_POST_CACHE		0x00000020
@@ -163,7 +163,7 @@ extern int memory_post_test(int flags);
 #define CONFIG_SYS_POST_CODEC		0x00200000
 #define CONFIG_SYS_POST_COPROC		0x00400000
 #define CONFIG_SYS_POST_FLASH		0x00800000
-#define CONFIG_SYS_POST_MEM_REGIONS	0x01000000
+#define CFG_SYS_POST_MEM_REGIONS	0x01000000
 
 #endif /* CONFIG_POST */
 

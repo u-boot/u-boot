@@ -43,8 +43,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 DECLARE_BINMAN_MAGIC_SYM;
 
-#ifndef CONFIG_SYS_UBOOT_START
-#define CONFIG_SYS_UBOOT_START	CONFIG_TEXT_BASE
+#ifndef CFG_SYS_UBOOT_START
+#define CFG_SYS_UBOOT_START	CONFIG_TEXT_BASE
 #endif
 
 u32 *boot_params_ptr = NULL;
@@ -250,7 +250,7 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 		spl_image->entry_point = u_boot_pos;
 		spl_image->load_addr = u_boot_pos;
 	} else {
-		spl_image->entry_point = CONFIG_SYS_UBOOT_START;
+		spl_image->entry_point = CFG_SYS_UBOOT_START;
 		spl_image->load_addr = CONFIG_TEXT_BASE;
 	}
 	spl_image->os = IH_OS_U_BOOT;

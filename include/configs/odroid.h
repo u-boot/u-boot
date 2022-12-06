@@ -14,12 +14,12 @@
 #include <configs/exynos4-common.h>
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_PL310_BASE	0x10502000
+#define CFG_SYS_PL310_BASE	0x10502000
 #endif
 
-#define CONFIG_SYS_SDRAM_BASE	0x40000000
+#define CFG_SYS_SDRAM_BASE	0x40000000
 #define SDRAM_BANK_SIZE		(256 << 20)	/* 256 MB */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
+#define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE
 
 #include <linux/sizes.h>
 
@@ -142,11 +142,5 @@
 	"fdt_addr_r=0x40800000\0" \
 	"kernel_addr_r=0x41000000\0" \
 	BOOTENV
-
-/*
- * Supported Odroid boards: X3, U3
- * TODO: Add Odroid X support
- */
-#define CONFIG_MISC_COMMON
 
 #endif	/* __CONFIG_H */

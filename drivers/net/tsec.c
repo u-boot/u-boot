@@ -764,7 +764,7 @@ static int tsec_initialize(struct bd_info *bis,
 	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
 
 	priv->phyaddr = tsec_info->phyaddr;
-	priv->tbiaddr = CONFIG_SYS_TBIPA_VALUE;
+	priv->tbiaddr = CFG_SYS_TBIPA_VALUE;
 	priv->flags = tsec_info->flags;
 
 	strcpy(dev->name, tsec_info->devname);
@@ -832,7 +832,7 @@ int tsec_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct tsec_private *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
-	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
+	u32 tbiaddr = CFG_SYS_TBIPA_VALUE;
 	struct tsec_data *data;
 	ofnode parent, child;
 	fdt_addr_t reg;

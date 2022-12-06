@@ -78,7 +78,7 @@ void board_init_f(ulong dummy)
 
 phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
-	return CONFIG_SYS_SDRAM_BASE + (256 * 1024 * 1024);
+	return CFG_SYS_SDRAM_BASE + (256 * 1024 * 1024);
 }
 
 int print_cpuinfo(void)

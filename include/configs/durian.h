@@ -11,7 +11,7 @@
 /* Sdram Bank #1 Address */
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_1_SIZE		0x7B000000
-#define CONFIG_SYS_SDRAM_BASE   PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE   PHYS_SDRAM_1
 
 /* BOOT */
 

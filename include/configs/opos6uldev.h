@@ -10,17 +10,13 @@
 
 #include "mx6_common.h"
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 /* Miscellaneous configurable options */
 #define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR
 
 /* Physical Memory Map */
-#define CONFIG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* USB */
 #ifdef CONFIG_USB_EHCI_MX6

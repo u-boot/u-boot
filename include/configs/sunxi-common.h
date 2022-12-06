@@ -16,21 +16,19 @@
 #include <linux/stringify.h>
 
 /* Serial & console */
-#define CONFIG_SYS_NS16550_SERIAL
 /* ns16550 reg in the low bits of cpu reg */
 #ifdef CONFIG_MACH_SUNIV
 /* suniv doesn't have apb2 and uart is connected to apb1 */
-#define CONFIG_SYS_NS16550_CLK		100000000
+#define CFG_SYS_NS16550_CLK		100000000
 #else
-#define CONFIG_SYS_NS16550_CLK		24000000
+#define CFG_SYS_NS16550_CLK		24000000
 #endif
 #ifndef CONFIG_DM_SERIAL
-# define CONFIG_SYS_NS16550_REG_SIZE	-4
-# define CONFIG_SYS_NS16550_COM1		SUNXI_UART0_BASE
-# define CONFIG_SYS_NS16550_COM2		SUNXI_UART1_BASE
-# define CONFIG_SYS_NS16550_COM3		SUNXI_UART2_BASE
-# define CONFIG_SYS_NS16550_COM4		SUNXI_UART3_BASE
-# define CONFIG_SYS_NS16550_COM5		SUNXI_R_UART_BASE
+# define CFG_SYS_NS16550_COM1		SUNXI_UART0_BASE
+# define CFG_SYS_NS16550_COM2		SUNXI_UART1_BASE
+# define CFG_SYS_NS16550_COM3		SUNXI_UART2_BASE
+# define CFG_SYS_NS16550_COM4		SUNXI_UART3_BASE
+# define CFG_SYS_NS16550_COM5		SUNXI_R_UART_BASE
 #endif
 
 /* CPU */
@@ -44,13 +42,13 @@
  */
 #ifdef CONFIG_MACH_SUN9I
 #define SDRAM_OFFSET(x) 0x2##x
-#define CONFIG_SYS_SDRAM_BASE		0x20000000
+#define CFG_SYS_SDRAM_BASE		0x20000000
 #elif defined(CONFIG_MACH_SUNIV)
 #define SDRAM_OFFSET(x) 0x8##x
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #else
 #define SDRAM_OFFSET(x) 0x4##x
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 /* V3s do not have enough memory to place code at 0x4a000000 */
 #endif
 
@@ -64,16 +62,12 @@
  * is known yet.
  * H6 has SRAM A1 at 0x00020000.
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SUNXI_SRAM_ADDRESS
+#define CFG_SYS_INIT_RAM_ADDR	CONFIG_SUNXI_SRAM_ADDRESS
 /* FIXME: this may be larger on some SoCs */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
+#define CFG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
 
-#define PHYS_SDRAM_0			CONFIG_SYS_SDRAM_BASE
+#define PHYS_SDRAM_0			CFG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
-
-#ifdef CONFIG_NAND_SUNXI
-#define CONFIG_SYS_NAND_MAX_ECCPOS 1664
-#endif
 
 /* mmc config */
 #define CONFIG_MMC_SUNXI_SLOT		0

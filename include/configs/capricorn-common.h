@@ -92,7 +92,7 @@
 
 /* On CCP board, USDHC1 is for eMMC */
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 /* DDR3 board total DDR is 1 GB */

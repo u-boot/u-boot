@@ -64,7 +64,7 @@
  * initial stack pointer in our SRAM. Otherwise, we can define
  * CONFIG_NR_DRAM_BANKS before including this file.
  */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /* If DM_I2C, enable non-DM I2C support */
 
@@ -123,7 +123,7 @@
 /* General parts of the framework, required. */
 
 #ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
+#define CFG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
 #endif
 #endif /* !CONFIG_NOR_BOOT */
 

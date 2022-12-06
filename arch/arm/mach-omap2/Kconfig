@@ -144,6 +144,9 @@ config SYS_MPUCLK
 	help
 	  Defines the MPU clock speed (in MHz).
 
+config SYS_OMAP_ABE_SYSCK
+	bool
+
 config TI_SECURE_EMIF_REGION_START
 	hex "Reserved EMIF region start address"
 	depends on TI_SECURE_DEVICE

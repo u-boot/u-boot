@@ -52,7 +52,7 @@ int set_km_env(void)
 	char envval[16];
 	char *p;
 
-	pnvramaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
+	pnvramaddr = CFG_SYS_SDRAM_BASE + gd->ram_size -
 		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM - CONFIG_KM_PNVRAM;
 	sprintf(envval, "0x%x", pnvramaddr);
 	env_set("pnvramaddr", envval);
@@ -65,7 +65,7 @@ int set_km_env(void)
 		CONFIG_KM_PNVRAM) / 0x400;
 	env_set_ulong("pram", pram);
 
-	varaddr = CONFIG_SYS_SDRAM_BASE + gd->ram_size -
+	varaddr = CFG_SYS_SDRAM_BASE + gd->ram_size -
 		CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
 	env_set_hex("varaddr", varaddr);
 	sprintf(envval, "0x%x", varaddr);

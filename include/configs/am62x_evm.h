@@ -13,7 +13,7 @@
 #include <environment/ti/mmc.h>
 
 /* DDR Configuration */
-#define CONFIG_SYS_SDRAM_BASE1		0x880000000
+#define CFG_SYS_SDRAM_BASE1		0x880000000
 
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \

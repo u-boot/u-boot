@@ -1,5 +1,35 @@
 if TARGET_NOKIA_RX51
 
+config USB_DEVICE
+	def_bool y
+	help
+	  Legacy UDC device support
+
+config USB_TTY
+	def_bool y
+	help
+	  Legacy tty type of device available to talk to the UDC device
+
+config USBD_VENDORID
+	hex
+	default 0x0421
+
+config USBD_PRODUCTID_CDCACM
+	hex
+	default 0x01c8
+
+config USBD_PRODUCTID_GSERIAL
+	hex
+	default 0x01c8
+
+config USBD_MANUFACTURER
+	string
+	default "Nokia"
+
+config USBD_PRODUCT_NAME
+	string
+	default "N900 (U-Boot)"
+
 config NR_DRAM_BANKS
 	default 2
 

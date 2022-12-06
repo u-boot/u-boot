@@ -12,11 +12,6 @@
 
 #include "mx6_common.h"
 
-#include "imx6_spl.h"
-
-/* PWM */
-#define CONFIG_IMX6_PWM_PER_CLK		66000000
-
 /* UART */
 #define CONFIG_MXC_UART_BASE		UART3_BASE
 
@@ -33,15 +28,12 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USBD_HS
 
-/* Video */
-#define CONFIG_IMX_VIDEO_SKIP
-
 /* Memory */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE	       PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE	       PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Command definition */
 #define CONFIG_EXTRA_ENV_SETTINGS \

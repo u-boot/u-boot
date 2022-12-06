@@ -16,7 +16,7 @@
 /* input clock of PLL: SMDKC100 has 12MHz input clock */
 
 /* DRAM Base */
-#define CONFIG_SYS_SDRAM_BASE		0x30000000
+#define CFG_SYS_SDRAM_BASE		0x30000000
 
 /* Text Base */
 
@@ -77,7 +77,7 @@
  */
 
 /* SMDKC100 has 1 banks of DRAM, we use only one in U-Boot */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	(128 << 20)	/* 0x8000000, 128 MB Bank #1 */
 
 /*-----------------------------------------------------------------------
@@ -88,7 +88,7 @@
  * Boot configuration
  */
 
-#define CONFIG_SYS_ONENAND_BASE		0xE7100000
+#define CFG_SYS_ONENAND_BASE		0xE7100000
 
 /*
  * Ethernet Contoller driver

@@ -373,7 +373,7 @@ static unsigned int imx8ulp_find_dram_entry_in_mem_map(void)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(imx8ulp_arm64_mem_map); i++)
-		if (imx8ulp_arm64_mem_map[i].phys == CONFIG_SYS_SDRAM_BASE)
+		if (imx8ulp_arm64_mem_map[i].phys == CFG_SYS_SDRAM_BASE)
 			return i;
 
 	hang();	/* Entry not found, this must never happen. */

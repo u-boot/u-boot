@@ -25,7 +25,7 @@ ifdef CONFIG_DM_SERIAL
 obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
 else
 obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
-obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
+obj-$(CONFIG_$(SPL_)SYS_NS16550_SERIAL) += serial_ns16550.o
 endif
 
 obj-$(CONFIG_ALTERA_UART) += altera_uart.o
@@ -38,7 +38,6 @@ obj-$(CONFIG_COREBOOT_SERIAL) += serial_coreboot.o
 obj-$(CONFIG_CORTINA_UART) += serial_cortina.o
 obj-$(CONFIG_DEBUG_SBI_CONSOLE) += serial_sbi.o
 obj-$(CONFIG_EFI_APP) += serial_efi.o
-obj-$(CONFIG_LPC32XX_HSUART) += lpc32xx_hsuart.o
 obj-$(CONFIG_MCFUART) += serial_mcf.o
 obj-$(CONFIG_SYS_NS16550) += ns16550.o
 obj-$(CONFIG_S5P_SERIAL) += serial_s5p.o

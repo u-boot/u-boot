@@ -14,7 +14,7 @@ int onenand_board_init(struct mtd_info *mtd)
 {
 	struct onenand_chip *this = mtd->priv;
 
-	this->base = (void *)CONFIG_SYS_ONENAND_BASE;
+	this->base = (void *)CFG_SYS_ONENAND_BASE;
 	this->options |= ONENAND_RUNTIME_BADBLOCK_CHECK;
 	this->chip_probe = s5pc110_chip_probe;
 

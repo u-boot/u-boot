@@ -8,8 +8,6 @@
  * Author: Li Yang <leoli@freescale.com>
  */
 
-#ifndef CONFIG_MPC83XX_SERDES
-
 #include <config.h>
 #include <common.h>
 #include <asm/io.h>
@@ -151,5 +149,3 @@ void fsl_setup_serdes(u32 offset, char proto, u32 rfcks, char vdd)
 	tmp |= FSL_SRDSRSTCTL_RST;
 	out_be32(regs + FSL_SRDSRSTCTL_OFFS, tmp);
 }
-
-#endif /* !CONFIG_MPC83XX_SERDES */

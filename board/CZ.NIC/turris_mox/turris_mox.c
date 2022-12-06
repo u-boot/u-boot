@@ -139,7 +139,7 @@ int board_fix_fdt(void *blob)
 int board_init(void)
 {
 	/* address of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
 }

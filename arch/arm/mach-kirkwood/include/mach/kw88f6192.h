@@ -15,6 +15,6 @@
 #define KW_REGS_PHY_BASE		KW88F6192_REGS_PHYS_BASE
 
 /* TCLK Core Clock defination */
-#define CONFIG_SYS_TCLK	  166000000 /* 166MHz */
+#define CFG_SYS_TCLK	  166000000 /* 166MHz */
 
 #endif /* _CONFIG_KW88F6192_H */

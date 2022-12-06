@@ -10,15 +10,15 @@
 #include <linux/sizes.h>
 
 /* For booting Linux, use the first 12MB of memory */
-#define CONFIG_SYS_BOOTMAPSZ		SZ_8M + SZ_4M
+#define CFG_SYS_BOOTMAPSZ		SZ_8M + SZ_4M
 
-#define CONFIG_SYS_FLASH_BASE		0x08000000
+#define CFG_SYS_FLASH_BASE		0x08000000
 
 /*
  * Configuration of the external SDRAM memory
  */
 
-#define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
+#define CFG_SYS_HZ_CLOCK		1000000	/* Timer is clocked at 1MHz */
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)

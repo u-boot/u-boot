@@ -899,9 +899,9 @@ struct esdc_regs {
  * Generic timer support
  */
 #ifdef CONFIG_MX31_CLK32
-#define	CONFIG_SYS_TIMER_RATE	CONFIG_MX31_CLK32
+#define	CFG_SYS_TIMER_RATE	CONFIG_MX31_CLK32
 #else
-#define	CONFIG_SYS_TIMER_RATE	32768
+#define	CFG_SYS_TIMER_RATE	32768
 #endif
 
 #endif /* __ASM_ARCH_MX31_IMX_REGS_H */

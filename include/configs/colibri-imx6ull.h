@@ -11,7 +11,6 @@
 #define __COLIBRI_IMX6ULL_CONFIG_H
 
 #include "mx6_common.h"
-#define CONFIG_IOMUX_LPSR
 
 #define PHYS_SDRAM_SIZE			SZ_1G
 
@@ -116,14 +115,14 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 #ifdef CONFIG_TARGET_COLIBRI_IMX6ULL_NAND
 /* NAND stuff */
-/* used to initialize CONFIG_SYS_NAND_BASE_LIST which is unused */
-#define CONFIG_SYS_NAND_BASE		-1
+/* used to initialize CFG_SYS_NAND_BASE_LIST which is unused */
+#define CFG_SYS_NAND_BASE		-1
 #endif
 
 /* USB Configs */

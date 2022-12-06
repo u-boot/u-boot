@@ -448,7 +448,7 @@ int state_init(void)
 {
 	state = &main_state;
 
-	state->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	state->ram_size = CFG_SYS_SDRAM_SIZE;
 	state->ram_buf = os_malloc(state->ram_size);
 	if (!state->ram_buf) {
 		printf("Out of memory\n");

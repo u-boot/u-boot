@@ -9,7 +9,7 @@
 #include "lx2160a_common.h"
 
 /* RTC */
-#define CONFIG_SYS_RTC_BUS_NUM		4
+#define CFG_SYS_RTC_BUS_NUM		4
 
 /* EMC2305 */
 #define I2C_MUX_CH_EMC2305		0x09

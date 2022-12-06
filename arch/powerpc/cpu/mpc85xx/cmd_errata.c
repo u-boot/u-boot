@@ -23,7 +23,7 @@
  */
 static void check_erratum_a4849(uint32_t svr)
 {
-	void __iomem *dcsr = (void *)CONFIG_SYS_DCSRBAR + 0xb0000;
+	void __iomem *dcsr = (void *)CFG_SYS_DCSRBAR + 0xb0000;
 	unsigned int i;
 
 #if defined(CONFIG_ARCH_P2041) || defined(CONFIG_ARCH_P3041)
@@ -120,7 +120,7 @@ static void check_erratum_a4580(uint32_t svr)
  */
 static void check_erratum_a007212(void)
 {
-	u32 __iomem *plldgdcr = (void *)(CONFIG_SYS_DCSRBAR + 0x21c20);
+	u32 __iomem *plldgdcr = (void *)(CFG_SYS_DCSRBAR + 0x21c20);
 
 	if (in_be32(plldgdcr) & 0x1fe) {
 		/* check if PLL ratio is set by workaround */

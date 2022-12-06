@@ -33,8 +33,8 @@
 #endif
 /*---------------------------------------------------------------------*/
 
-#ifndef CONFIG_SYS_I2C_RTC_ADDR
-# define CONFIG_SYS_I2C_RTC_ADDR	0x32
+#ifndef CFG_SYS_I2C_RTC_ADDR
+# define CFG_SYS_I2C_RTC_ADDR	0x32
 #endif
 
 /*
@@ -313,7 +313,7 @@ static int rx8010sj_rtc_reset(DEV_TYPE *dev)
 int rtc_get(struct rtc_time *tm)
 {
 	struct ludevice dev = {
-			.chip = CONFIG_SYS_I2C_RTC_ADDR,
+			.chip = CFG_SYS_I2C_RTC_ADDR,
 	};
 
 	return rx8010sj_rtc_get(&dev, tm);
@@ -322,7 +322,7 @@ int rtc_get(struct rtc_time *tm)
 int rtc_set(struct rtc_time *tm)
 {
 	struct ludevice dev = {
-			.chip = CONFIG_SYS_I2C_RTC_ADDR,
+			.chip = CFG_SYS_I2C_RTC_ADDR,
 	};
 
 	return rx8010sj_rtc_set(&dev, tm);
@@ -331,7 +331,7 @@ int rtc_set(struct rtc_time *tm)
 void rtc_reset(void)
 {
 	struct ludevice dev = {
-			.chip = CONFIG_SYS_I2C_RTC_ADDR,
+			.chip = CFG_SYS_I2C_RTC_ADDR,
 	};
 
 	rx8010sj_rtc_reset(&dev);
@@ -340,7 +340,7 @@ void rtc_reset(void)
 void rtc_init(void)
 {
 	struct ludevice dev = {
-			.chip = CONFIG_SYS_I2C_RTC_ADDR,
+			.chip = CFG_SYS_I2C_RTC_ADDR,
 	};
 
 	rx8010sj_rtc_init(&dev);

@@ -34,8 +34,8 @@ struct i2c_adapter *i2c_get_adapter(int index)
 }
 
 #if !defined(CONFIG_SYS_I2C_DIRECT_BUS)
-struct i2c_bus_hose i2c_bus[CONFIG_SYS_NUM_I2C_BUSES] =
-			CONFIG_SYS_I2C_BUSES;
+struct i2c_bus_hose i2c_bus[CFG_SYS_NUM_I2C_BUSES] =
+			CFG_SYS_I2C_BUSES;
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -114,7 +114,7 @@ static int i2c_mux_set_all(void)
 	/* Connect requested bus if behind muxes */
 	if (i2c_bus_tmp->next_hop[0].chip != 0) {
 		/* Set all muxes along the path to that bus */
-		for (i = 0; i < CONFIG_SYS_I2C_MAX_HOPS; i++) {
+		for (i = 0; i < CFG_SYS_I2C_MAX_HOPS; i++) {
 			int	ret;
 
 			if (i2c_bus_tmp->next_hop[i].chip == 0)
@@ -143,7 +143,7 @@ static int i2c_mux_disconnect_all(void)
 	/* Disconnect current bus (turn off muxes if any) */
 	if ((i2c_bus_tmp->next_hop[0].chip != 0) &&
 	    (I2C_ADAP->init_done != 0)) {
-		i = CONFIG_SYS_I2C_MAX_HOPS;
+		i = CFG_SYS_I2C_MAX_HOPS;
 		do {
 			uint8_t	chip;
 			int ret;
@@ -173,7 +173,7 @@ static int i2c_mux_disconnect_all(void)
  */
 static void i2c_init_bus(unsigned int bus_no, int speed, int slaveaddr)
 {
-	if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES)
+	if (bus_no >= CFG_SYS_NUM_I2C_BUSES)
 		return;
 
 	I2C_ADAP->init(I2C_ADAP, speed, slaveaddr);
@@ -238,7 +238,7 @@ int i2c_set_bus_num(unsigned int bus)
 		return 0;
 
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
-	if (bus >= CONFIG_SYS_NUM_I2C_BUSES)
+	if (bus >= CFG_SYS_NUM_I2C_BUSES)
 		return -1;
 #endif
 

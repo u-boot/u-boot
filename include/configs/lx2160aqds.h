@@ -9,7 +9,7 @@
 #include "lx2160a_common.h"
 
 /* RTC */
-#define CONFIG_SYS_RTC_BUS_NUM		0
+#define CFG_SYS_RTC_BUS_NUM		0
 
 /* MAC/PHY configuration */
 

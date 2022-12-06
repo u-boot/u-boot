@@ -40,7 +40,7 @@ static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 static int piggy_present(void)
 {
 	struct km_bec_fpga __iomem *base =
-		(struct km_bec_fpga __iomem *)CONFIG_SYS_KMBEC_FPGA_BASE;
+		(struct km_bec_fpga __iomem *)CFG_SYS_KMBEC_FPGA_BASE;
 
 	return in_8(&base->bprth) & PIGGY_PRESENT;
 }
@@ -53,7 +53,7 @@ int ethernet_present(void)
 int board_early_init_r(void)
 {
 	struct km_bec_fpga *base =
-		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
+		(struct km_bec_fpga *)CFG_SYS_KMBEC_FPGA_BASE;
 
 #if defined(CONFIG_ARCH_MPC8360)
 	unsigned short	svid;
@@ -126,26 +126,26 @@ static int fixed_sdram(void)
 	u32 ddr_size_log2;
 
 	out_be32(&im->sysconf.ddrlaw[0].ar, (LAWAR_EN | 0x1e));
-	out_be32(&im->ddr.csbnds[0].csbnds, (CONFIG_SYS_DDR_CS0_BNDS) | 0x7f);
-	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CS0_CONFIG);
-	out_be32(&im->ddr.timing_cfg_0, CONFIG_SYS_DDR_TIMING_0);
-	out_be32(&im->ddr.timing_cfg_1, CONFIG_SYS_DDR_TIMING_1);
-	out_be32(&im->ddr.timing_cfg_2, CONFIG_SYS_DDR_TIMING_2);
-	out_be32(&im->ddr.timing_cfg_3, CONFIG_SYS_DDR_TIMING_3);
-	out_be32(&im->ddr.sdram_cfg, CONFIG_SYS_DDR_SDRAM_CFG);
-	out_be32(&im->ddr.sdram_cfg2, CONFIG_SYS_DDR_SDRAM_CFG2);
-	out_be32(&im->ddr.sdram_mode, CONFIG_SYS_DDR_MODE);
-	out_be32(&im->ddr.sdram_mode2, CONFIG_SYS_DDR_MODE2);
-	out_be32(&im->ddr.sdram_interval, CONFIG_SYS_DDR_INTERVAL);
-	out_be32(&im->ddr.sdram_clk_cntl, CONFIG_SYS_DDR_CLK_CNTL);
+	out_be32(&im->ddr.csbnds[0].csbnds, (CFG_SYS_DDR_CS0_BNDS) | 0x7f);
+	out_be32(&im->ddr.cs_config[0], CFG_SYS_DDR_CS0_CONFIG);
+	out_be32(&im->ddr.timing_cfg_0, CFG_SYS_DDR_TIMING_0);
+	out_be32(&im->ddr.timing_cfg_1, CFG_SYS_DDR_TIMING_1);
+	out_be32(&im->ddr.timing_cfg_2, CFG_SYS_DDR_TIMING_2);
+	out_be32(&im->ddr.timing_cfg_3, CFG_SYS_DDR_TIMING_3);
+	out_be32(&im->ddr.sdram_cfg, CFG_SYS_DDR_SDRAM_CFG);
+	out_be32(&im->ddr.sdram_cfg2, CFG_SYS_DDR_SDRAM_CFG2);
+	out_be32(&im->ddr.sdram_mode, CFG_SYS_DDR_MODE);
+	out_be32(&im->ddr.sdram_mode2, CFG_SYS_DDR_MODE2);
+	out_be32(&im->ddr.sdram_interval, CFG_SYS_DDR_INTERVAL);
+	out_be32(&im->ddr.sdram_clk_cntl, CFG_SYS_DDR_CLK_CNTL);
 	udelay(200);
 	setbits_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
 
 	disable_addr_trans();
-	msize = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_SDRAM_SIZE);
+	msize = get_ram_size(CFG_SYS_SDRAM_BASE, CFG_SYS_SDRAM_SIZE);
 	enable_addr_trans();
 	msize /= (1024 * 1024);
-	if (CONFIG_SYS_SDRAM_SIZE >> 20 != msize) {
+	if (CFG_SYS_SDRAM_SIZE >> 20 != msize) {
 		for (ddr_size = msize << 20, ddr_size_log2 = 0;
 			(ddr_size > 1);
 			ddr_size = ddr_size >> 1, ddr_size_log2++)
@@ -169,7 +169,7 @@ int dram_init(void)
 		return -ENXIO;
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,
-		CONFIG_SYS_SDRAM_BASE & LAWBAR_BAR);
+		CFG_SYS_SDRAM_BASE & LAWBAR_BAR);
 	msize = fixed_sdram();
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
@@ -215,7 +215,7 @@ int post_hotkeys_pressed(void)
 {
 	int testpin = 0;
 	struct km_bec_fpga *base =
-		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
+		(struct km_bec_fpga *)CFG_SYS_KMBEC_FPGA_BASE;
 	int testpin_reg = in_8(&base->CONFIG_TESTPIN_REG);
 	testpin = (testpin_reg & CONFIG_TESTPIN_MASK) != 0;
 	debug("post_hotkeys_pressed: %d\n", !testpin);

@@ -99,16 +99,6 @@ Configuration Options:
    CONFIG_CMD_NAND_TORTURE
       Enables the torture command (see description of this command below).
 
-   CONFIG_SYS_NAND_MAX_ECCPOS
-      If specified, overrides the maximum number of ECC bytes
-      supported.  Useful for reducing image size, especially with SPL.
-      This must be at least 48 if nand_base.c is used.
-
-   CONFIG_SYS_NAND_MAX_OOBFREE
-      If specified, overrides the maximum number of free OOB regions
-      supported.  Useful for reducing image size, especially with SPL.
-      This must be at least 2 if nand_base.c is used.
-
    CONFIG_SYS_NAND_MAX_CHIPS
       The maximum number of NAND chips per device to be supported.
 
@@ -144,7 +134,7 @@ Configuration Options:
 	chip.IO_ADDR_R = ...;
 	chip.IO_ADDR_W = ...;
 
-	if (nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_CHIPS, NULL))
+	if (nand_scan_ident(mtd, CFG_SYS_MAX_NAND_CHIPS, NULL))
 		error out
 
 	/*

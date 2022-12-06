@@ -10,14 +10,6 @@
 
 #include "mx7_common.h"
 
-#include "imx7_spl.h"
-
-#ifdef CONFIG_SPL_OS_BOOT
-/* Falcon Mode */
-
-/* Falcon Mode - MMC support: args@1MB kernel@2MB */
-#endif
-
 #define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */
@@ -101,12 +93,11 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE3000
 #define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
 
 /* FLASH and environment organization */

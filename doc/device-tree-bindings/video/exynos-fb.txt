@@ -23,15 +23,15 @@ Board(panel specific):
 	samsung,vl-height: Height of display area in mm
 
 	samsung,vl-clkp: Clock polarity
-		CONFIG_SYS_LOW if defined, else CONFIG_SYS_HIGH
+		CFG_SYS_LOW if defined, else CONFIG_SYS_HIGH
 	samsung,vl-oep: Output Enable polarity
-		CONFIG_SYS_LOW if defined, else CONFIG_SYS_HIGH
+		CFG_SYS_LOW if defined, else CONFIG_SYS_HIGH
 	samsung,vl-hsp: Horizontal Sync polarity
-		CONFIG_SYS_LOW if defined, else CONFIG_SYS_HIGH
+		CFG_SYS_LOW if defined, else CONFIG_SYS_HIGH
 	samsung,vl-vsp: Vertical Sync polarity
-		CONFIG_SYS_LOW if defined, else CONFIG_SYS_HIGH
+		CFG_SYS_LOW if defined, else CONFIG_SYS_HIGH
 	samsung,vl-dp: Data polarity
-		CONFIG_SYS_LOW if defined, else CONFIG_SYS_HIGH
+		CFG_SYS_LOW if defined, else CONFIG_SYS_HIGH
 
 	samsung,vl-cmd-allow-len: Wait end of frame
 	samsung,winid: Window number on which data is to be displayed

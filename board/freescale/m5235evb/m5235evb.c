@@ -44,7 +44,7 @@ int dram_init(void)
 		GPIO_PAR_SDRAM_SRAS | GPIO_PAR_SDRAM_SCKE |
 		GPIO_PAR_SDRAM_SDCS(3));
 
-	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
+	dramsize = CFG_SYS_SDRAM_SIZE * 0x100000;
 	for (i = 0x13; i < 0x20; i++) {
 		if (dramsize == (1 << i))
 			break;
@@ -61,7 +61,7 @@ int dram_init(void)
 
 		/* Initialize DACR0 */
 		out_be32(&sdram->dacr0,
-			SDRAMC_DARCn_BA(CONFIG_SYS_SDRAM_BASE) |
+			SDRAMC_DARCn_BA(CFG_SYS_SDRAM_BASE) |
 			SDRAMC_DARCn_CASL_C1 | SDRAMC_DARCn_CBM_CMD20 |
 			SDRAMC_DARCn_PS_32);
 		asm("nop");
@@ -80,7 +80,7 @@ int dram_init(void)
 		}
 
 		/* Write to this block to initiate precharge */
-		*(u32 *) (CONFIG_SYS_SDRAM_BASE) = 0xA5A59696;
+		*(u32 *) (CFG_SYS_SDRAM_BASE) = 0xA5A59696;
 
 		/*  Set RE (bit 15) in DACR */
 		setbits_be32(&sdram->dacr0, SDRAMC_DARCn_RE);
@@ -95,7 +95,7 @@ int dram_init(void)
 		asm("nop");
 
 		/* Write to the SDRAM Mode Register */
-		*(u32 *) (CONFIG_SYS_SDRAM_BASE + 0x400) = 0xA5A59696;
+		*(u32 *) (CFG_SYS_SDRAM_BASE + 0x400) = 0xA5A59696;
 	}
 
 	gd->ram_size = dramsize;

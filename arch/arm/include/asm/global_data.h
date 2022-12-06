@@ -54,7 +54,7 @@ struct arch_global_data {
 	unsigned long tlb_emerg;
 #endif
 #endif
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 #define MEM_RESERVE_SECURE_SECURED	0x1
 #define MEM_RESERVE_SECURE_MAINTAINED	0x2
 #define MEM_RESERVE_SECURE_ADDR_MASK	(~0x3)

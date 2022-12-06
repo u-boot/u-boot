@@ -47,36 +47,36 @@ void cpu_init_f(void)
 	out_be16(&wdog->cr, 0);
 #endif
 
-	out_be32(&scm->rambar, CONFIG_SYS_INIT_RAM_ADDR | SCM_RAMBAR_BDE);
+	out_be32(&scm->rambar, CFG_SYS_INIT_RAM_ADDR | SCM_RAMBAR_BDE);
 
 	/* Port configuration */
 	out_8(&gpio->par_cs, 0);
 
-#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && defined(CONFIG_SYS_CS0_CTRL))
-	out_be_fbcs_reg(&fbcs->csar0, CONFIG_SYS_CS0_BASE);
-	out_be_fbcs_reg(&fbcs->cscr0, CONFIG_SYS_CS0_CTRL);
-	out_be32(&fbcs->csmr0, CONFIG_SYS_CS0_MASK);
+#if (defined(CFG_SYS_CS0_BASE) && defined(CFG_SYS_CS0_MASK) && defined(CFG_SYS_CS0_CTRL))
+	out_be_fbcs_reg(&fbcs->csar0, CFG_SYS_CS0_BASE);
+	out_be_fbcs_reg(&fbcs->cscr0, CFG_SYS_CS0_CTRL);
+	out_be32(&fbcs->csmr0, CFG_SYS_CS0_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) && defined(CONFIG_SYS_CS1_CTRL))
+#if (defined(CFG_SYS_CS1_BASE) && defined(CFG_SYS_CS1_MASK) && defined(CFG_SYS_CS1_CTRL))
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS_CS1);
-	out_be_fbcs_reg(&fbcs->csar1, CONFIG_SYS_CS1_BASE);
-	out_be_fbcs_reg(&fbcs->cscr1, CONFIG_SYS_CS1_CTRL);
-	out_be32(&fbcs->csmr1, CONFIG_SYS_CS1_MASK);
+	out_be_fbcs_reg(&fbcs->csar1, CFG_SYS_CS1_BASE);
+	out_be_fbcs_reg(&fbcs->cscr1, CFG_SYS_CS1_CTRL);
+	out_be32(&fbcs->csmr1, CFG_SYS_CS1_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) && defined(CONFIG_SYS_CS2_CTRL))
+#if (defined(CFG_SYS_CS2_BASE) && defined(CFG_SYS_CS2_MASK) && defined(CFG_SYS_CS2_CTRL))
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS_CS2);
-	out_be_fbcs_reg(&fbcs->csar2, CONFIG_SYS_CS2_BASE);
-	out_be_fbcs_reg(&fbcs->cscr2, CONFIG_SYS_CS2_CTRL);
-	out_be32(&fbcs->csmr2, CONFIG_SYS_CS2_MASK);
+	out_be_fbcs_reg(&fbcs->csar2, CFG_SYS_CS2_BASE);
+	out_be_fbcs_reg(&fbcs->cscr2, CFG_SYS_CS2_CTRL);
+	out_be32(&fbcs->csmr2, CFG_SYS_CS2_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) && defined(CONFIG_SYS_CS3_CTRL))
+#if (defined(CFG_SYS_CS3_BASE) && defined(CFG_SYS_CS3_MASK) && defined(CFG_SYS_CS3_CTRL))
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS_CS3);
-	out_be_fbcs_reg(&fbcs->csar3, CONFIG_SYS_CS3_BASE);
-	out_be_fbcs_reg(&fbcs->cscr3, CONFIG_SYS_CS3_CTRL);
-	out_be32(&fbcs->csmr3, CONFIG_SYS_CS3_MASK);
+	out_be_fbcs_reg(&fbcs->csar3, CFG_SYS_CS3_BASE);
+	out_be_fbcs_reg(&fbcs->cscr3, CFG_SYS_CS3_CTRL);
+	out_be32(&fbcs->csmr3, CFG_SYS_CS3_MASK);
 #endif
 
 #if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) && defined(CONFIG_SYS_CS4_CTRL))
@@ -108,8 +108,8 @@ void cpu_init_f(void)
 #endif
 
 #ifdef CONFIG_SYS_I2C_FSL
-	CONFIG_SYS_I2C_PINMUX_REG &= CONFIG_SYS_I2C_PINMUX_CLR;
-	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
+	CFG_SYS_I2C_PINMUX_REG &= CFG_SYS_I2C_PINMUX_CLR;
+	CFG_SYS_I2C_PINMUX_REG |= CFG_SYS_I2C_PINMUX_SET;
 #endif
 
 	icache_enable();

@@ -77,7 +77,7 @@ int dram_init(void)
 	 * DCR
 	 * set proper  RC as per specification
 	 */
-	RC = (CONFIG_SYS_CPU_CLK / 1000000) >> 1;
+	RC = (CFG_SYS_CPU_CLK / 1000000) >> 1;
 	RC = (RC * 15) >> 4;
 
 	/* 0x8000 is the faster option */
@@ -88,7 +88,7 @@ int dram_init(void)
 	 */
 	out_be32(&dc->dacr0, 0x00003304);
 
-	dramsize = ((CONFIG_SYS_SDRAM_SIZE)-1) & 0xfffc0000;
+	dramsize = ((CFG_SYS_SDRAM_SIZE)-1) & 0xfffc0000;
 	out_be32(&dc->dmr0,  dramsize|1);
 
 	/* issue a PRECHARGE ALL */
@@ -102,8 +102,8 @@ int dram_init(void)
 	out_be32(&dc->dacr0, 0x0000b344);
 	out_be32((u32 *)0x00000c00, 0xbeaddeed);
 
-	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE,
-				    CONFIG_SYS_SDRAM_SIZE);
+	gd->ram_size = get_ram_size(CFG_SYS_SDRAM_BASE,
+				    CFG_SYS_SDRAM_SIZE);
 
 	return 0;
 }

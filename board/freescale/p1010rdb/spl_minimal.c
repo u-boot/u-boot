@@ -22,9 +22,9 @@ void board_init_f(ulong bootflag)
 	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
 
-#if defined(CONFIG_SYS_NAND_BR_PRELIM) && defined(CONFIG_SYS_NAND_OR_PRELIM)
-	set_lbc_br(0, CONFIG_SYS_NAND_BR_PRELIM);
-	set_lbc_or(0, CONFIG_SYS_NAND_OR_PRELIM);
+#if defined(CFG_SYS_NAND_BR_PRELIM) && defined(CFG_SYS_NAND_OR_PRELIM)
+	set_lbc_br(0, CFG_SYS_NAND_BR_PRELIM);
+	set_lbc_or(0, CFG_SYS_NAND_OR_PRELIM);
 #endif
 
 	/* initialize selected port with appropriate baud rate */
@@ -32,7 +32,7 @@ void board_init_f(ulong bootflag)
 	plat_ratio >>= 1;
 	gd->bus_clk = get_board_sys_clk() * plat_ratio;
 
-	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,
+	ns16550_init((struct ns16550 *)CFG_SYS_NS16550_COM1,
 		     gd->bus_clk / 16 / CONFIG_BAUDRATE);
 
 	puts("\nNAND boot... ");
@@ -54,9 +54,9 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 void putc(char c)
 {
 	if (c == '\n')
-		ns16550_putc((struct ns16550 *)CONFIG_SYS_NS16550_COM1, '\r');
+		ns16550_putc((struct ns16550 *)CFG_SYS_NS16550_COM1, '\r');
 
-	ns16550_putc((struct ns16550 *)CONFIG_SYS_NS16550_COM1, c);
+	ns16550_putc((struct ns16550 *)CFG_SYS_NS16550_COM1, c);
 }
 
 void puts(const char *str)

@@ -427,7 +427,7 @@ int fsmc_nand_init(struct nand_chip *nand)
 	nand->ecc.hwctl = fsmc_enable_hwecc;
 	nand->cmd_ctrl = fsmc_nand_hwcontrol;
 	nand->IO_ADDR_R = nand->IO_ADDR_W =
-		(void  __iomem *)CONFIG_SYS_NAND_BASE;
+		(void  __iomem *)CFG_SYS_NAND_BASE;
 	nand->badblockbits = 7;
 
 	mtd = nand_to_mtd(nand);

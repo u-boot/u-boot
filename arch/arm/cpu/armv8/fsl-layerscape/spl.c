@@ -116,7 +116,7 @@ void board_init_f(ulong dummy)
 #endif
 	dram_init();
 #ifdef CONFIG_SPL_FSL_LS_PPA
-#ifndef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifndef CFG_SYS_MEM_RESERVE_SECURE
 #error Need secure RAM for PPA
 #endif
 	/*

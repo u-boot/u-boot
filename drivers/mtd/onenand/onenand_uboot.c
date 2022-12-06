@@ -35,7 +35,7 @@ void onenand_init(void)
 	/* It's used for some board init required */
 	err = onenand_board_init(&onenand_mtd);
 #else
-	onenand_chip.base = (void *) CONFIG_SYS_ONENAND_BASE;
+	onenand_chip.base = (void *) CFG_SYS_ONENAND_BASE;
 #endif
 
 	if (!err && !(onenand_scan(&onenand_mtd, 1))) {

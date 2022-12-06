@@ -9,7 +9,7 @@
 #define __POMELO_CONFIG_H__
 
 /* SDRAM Bank #1 start address */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /* SIZE of malloc pool */
 

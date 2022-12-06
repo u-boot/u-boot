@@ -8,9 +8,9 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_HZ_CLOCK		24000000
+#define CFG_SYS_HZ_CLOCK		24000000
 
-#define CONFIG_SYS_SDRAM_BASE		0x60000000
+#define CFG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_BANK_SIZE			(512UL << 20UL)
 #define SDRAM_MAX_SIZE                  (CONFIG_NR_DRAM_BANKS * SDRAM_BANK_SIZE)
 

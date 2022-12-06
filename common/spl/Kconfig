@@ -1232,6 +1232,11 @@ config SPL_SATA
 	  expense and power consumption. This enables loading from SATA
 	  using a configured device.
 
+config SYS_SATA_FAT_BOOT_PARTITION
+	int "Partition on the SATA disk to load U-Boot from"
+	depends on SPL_SATA && SPL_FS_FAT
+	default 1
+
 config SPL_SATA_RAW_U_BOOT_USE_SECTOR
 	bool "SATA raw mode: by sector"
 	depends on SPL_SATA

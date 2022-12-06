@@ -198,7 +198,7 @@ static int sec_firmware_load_image(const void *sec_firmware_img,
 		goto out;
 	}
 
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	/*
 	 * The SEC Firmware must be stored in secure memory.
 	 * Append SEC Firmware to secure mmu table.
@@ -211,7 +211,7 @@ static int sec_firmware_load_image(const void *sec_firmware_img,
 	sec_firmware_addr = (gd->arch.secure_ram & MEM_RESERVE_SECURE_ADDR_MASK) +
 			gd->arch.tlb_size;
 #else
-#error "The CONFIG_SYS_MEM_RESERVE_SECURE must be defined when enabled SEC Firmware support"
+#error "The CFG_SYS_MEM_RESERVE_SECURE must be defined when enabled SEC Firmware support"
 #endif
 
 	/* Align SEC Firmware base address to 4K */

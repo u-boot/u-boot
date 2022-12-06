@@ -11,7 +11,7 @@
 #include <asm/global_data.h>
 #include <linux/compiler.h>
 
-#ifndef CONFIG_NS16550_MIN_FUNCTIONS
+#if !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -20,17 +20,17 @@ DECLARE_GLOBAL_DATA_PTR;
 #error	"Invalid console index value."
 #endif
 
-#if CONFIG_CONS_INDEX == 1 && !defined(CONFIG_SYS_NS16550_COM1)
+#if CONFIG_CONS_INDEX == 1 && !defined(CFG_SYS_NS16550_COM1)
 #error	"Console port 1 defined but not configured."
-#elif CONFIG_CONS_INDEX == 2 && !defined(CONFIG_SYS_NS16550_COM2)
+#elif CONFIG_CONS_INDEX == 2 && !defined(CFG_SYS_NS16550_COM2)
 #error	"Console port 2 defined but not configured."
-#elif CONFIG_CONS_INDEX == 3 && !defined(CONFIG_SYS_NS16550_COM3)
+#elif CONFIG_CONS_INDEX == 3 && !defined(CFG_SYS_NS16550_COM3)
 #error	"Console port 3 defined but not configured."
-#elif CONFIG_CONS_INDEX == 4 && !defined(CONFIG_SYS_NS16550_COM4)
+#elif CONFIG_CONS_INDEX == 4 && !defined(CFG_SYS_NS16550_COM4)
 #error	"Console port 4 defined but not configured."
-#elif CONFIG_CONS_INDEX == 5 && !defined(CONFIG_SYS_NS16550_COM5)
+#elif CONFIG_CONS_INDEX == 5 && !defined(CFG_SYS_NS16550_COM5)
 #error	"Console port 5 defined but not configured."
-#elif CONFIG_CONS_INDEX == 6 && !defined(CONFIG_SYS_NS16550_COM6)
+#elif CONFIG_CONS_INDEX == 6 && !defined(CFG_SYS_NS16550_COM6)
 #error	"Console port 6 defined but not configured."
 #endif
 
@@ -38,33 +38,33 @@ DECLARE_GLOBAL_DATA_PTR;
  *	 the array is 0 based.
  */
 static struct ns16550 *serial_ports[6] = {
-#ifdef CONFIG_SYS_NS16550_COM1
-	(struct ns16550 *)CONFIG_SYS_NS16550_COM1,
+#ifdef CFG_SYS_NS16550_COM1
+	(struct ns16550 *)CFG_SYS_NS16550_COM1,
 #else
 	NULL,
 #endif
-#ifdef CONFIG_SYS_NS16550_COM2
-	(struct ns16550 *)CONFIG_SYS_NS16550_COM2,
+#ifdef CFG_SYS_NS16550_COM2
+	(struct ns16550 *)CFG_SYS_NS16550_COM2,
 #else
 	NULL,
 #endif
-#ifdef CONFIG_SYS_NS16550_COM3
-	(struct ns16550 *)CONFIG_SYS_NS16550_COM3,
+#ifdef CFG_SYS_NS16550_COM3
+	(struct ns16550 *)CFG_SYS_NS16550_COM3,
 #else
 	NULL,
 #endif
-#ifdef CONFIG_SYS_NS16550_COM4
-	(struct ns16550 *)CONFIG_SYS_NS16550_COM4,
+#ifdef CFG_SYS_NS16550_COM4
+	(struct ns16550 *)CFG_SYS_NS16550_COM4,
 #else
 	NULL,
 #endif
-#ifdef CONFIG_SYS_NS16550_COM5
-	(struct ns16550 *)CONFIG_SYS_NS16550_COM5,
+#ifdef CFG_SYS_NS16550_COM5
+	(struct ns16550 *)CFG_SYS_NS16550_COM5,
 #else
 	NULL,
 #endif
-#ifdef CONFIG_SYS_NS16550_COM6
-	(struct ns16550 *)CONFIG_SYS_NS16550_COM6
+#ifdef CFG_SYS_NS16550_COM6
+	(struct ns16550 *)CFG_SYS_NS16550_COM6
 #else
 	NULL
 #endif
@@ -78,7 +78,7 @@ static struct ns16550 *serial_ports[6] = {
 	{ \
 		int clock_divisor; \
 		clock_divisor = ns16550_calc_divisor(serial_ports[port-1], \
-				CONFIG_SYS_NS16550_CLK, gd->baudrate); \
+				CFG_SYS_NS16550_CLK, gd->baudrate); \
 		ns16550_init(serial_ports[port - 1], clock_divisor); \
 		return 0 ; \
 	} \
@@ -144,7 +144,7 @@ static void _serial_setbrg(const int port)
 {
 	int clock_divisor;
 
-	clock_divisor = ns16550_calc_divisor(PORT, CONFIG_SYS_NS16550_CLK,
+	clock_divisor = ns16550_calc_divisor(PORT, CFG_SYS_NS16550_CLK,
 					     gd->baudrate);
 	ns16550_reinit(PORT, clock_divisor);
 }
@@ -179,32 +179,32 @@ serial_setbrg_dev(unsigned int dev_index)
 	_serial_setbrg(dev_index);
 }
 
-#if defined(CONFIG_SYS_NS16550_COM1)
+#if defined(CFG_SYS_NS16550_COM1)
 DECLARE_ESERIAL_FUNCTIONS(1);
 struct serial_device eserial1_device =
 	INIT_ESERIAL_STRUCTURE(1, "eserial0");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM2)
+#if defined(CFG_SYS_NS16550_COM2)
 DECLARE_ESERIAL_FUNCTIONS(2);
 struct serial_device eserial2_device =
 	INIT_ESERIAL_STRUCTURE(2, "eserial1");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM3)
+#if defined(CFG_SYS_NS16550_COM3)
 DECLARE_ESERIAL_FUNCTIONS(3);
 struct serial_device eserial3_device =
 	INIT_ESERIAL_STRUCTURE(3, "eserial2");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM4)
+#if defined(CFG_SYS_NS16550_COM4)
 DECLARE_ESERIAL_FUNCTIONS(4);
 struct serial_device eserial4_device =
 	INIT_ESERIAL_STRUCTURE(4, "eserial3");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM5)
+#if defined(CFG_SYS_NS16550_COM5)
 DECLARE_ESERIAL_FUNCTIONS(5);
 struct serial_device eserial5_device =
 	INIT_ESERIAL_STRUCTURE(5, "eserial4");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM6)
+#if defined(CFG_SYS_NS16550_COM6)
 DECLARE_ESERIAL_FUNCTIONS(6);
 struct serial_device eserial6_device =
 	INIT_ESERIAL_STRUCTURE(6, "eserial5");
@@ -231,24 +231,24 @@ __weak struct serial_device *default_serial_console(void)
 
 void ns16550_serial_initialize(void)
 {
-#if defined(CONFIG_SYS_NS16550_COM1)
+#if defined(CFG_SYS_NS16550_COM1)
 	serial_register(&eserial1_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM2)
+#if defined(CFG_SYS_NS16550_COM2)
 	serial_register(&eserial2_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM3)
+#if defined(CFG_SYS_NS16550_COM3)
 	serial_register(&eserial3_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM4)
+#if defined(CFG_SYS_NS16550_COM4)
 	serial_register(&eserial4_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM5)
+#if defined(CFG_SYS_NS16550_COM5)
 	serial_register(&eserial5_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM6)
+#if defined(CFG_SYS_NS16550_COM6)
 	serial_register(&eserial6_device);
 #endif
 }
 
-#endif /* !CONFIG_NS16550_MIN_FUNCTIONS */
+#endif /* !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS) */

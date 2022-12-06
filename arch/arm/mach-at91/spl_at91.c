@@ -101,17 +101,17 @@ void board_init_f(ulong dummy)
 	at91_pllicpr_init(0x00);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
-	at91_plla_init(CONFIG_SYS_AT91_PLLA);
+	at91_plla_init(CFG_SYS_AT91_PLLA);
 
 	/* PCK = PLLA = 2 * MCK */
-	at91_mck_init(CONFIG_SYS_MCKR);
+	at91_mck_init(CFG_SYS_MCKR);
 
 	/* Switch MCK on PLLA output */
-	at91_mck_init(CONFIG_SYS_MCKR_CSS);
+	at91_mck_init(CFG_SYS_MCKR_CSS);
 
-#if defined(CONFIG_SYS_AT91_PLLB)
+#if defined(CFG_SYS_AT91_PLLB)
 	/* Configure PLLB */
-	at91_pllb_init(CONFIG_SYS_AT91_PLLB);
+	at91_pllb_init(CFG_SYS_AT91_PLLB);
 #endif
 
 	/* Enable External Reset */
@@ -120,7 +120,7 @@ void board_init_f(ulong dummy)
 	/* Initialize matrix */
 	matrix_init();
 
-	gd->arch.mck_rate_hz = CONFIG_SYS_MASTER_CLOCK;
+	gd->arch.mck_rate_hz = CFG_SYS_MASTER_CLOCK;
 	/*
 	 * init timer long enough for using in spl.
 	 */

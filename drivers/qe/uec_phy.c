@@ -52,7 +52,7 @@
  *
  * Some boards do not have a PHY for each ethernet port. These ports are known
  * as Fixed PHY (or PHY-less) ports. For such ports, set the appropriate
- * CONFIG_SYS_UECx_PHY_ADDR equal to CONFIG_FIXED_PHY_ADDR (an unused address)
+ * CFG_SYS_UECx_PHY_ADDR equal to CONFIG_FIXED_PHY_ADDR (an unused address)
  * When the drver tries to identify the PHYs, CONFIG_FIXED_PHY will be returned
  * and the driver will search CONFIG_SYS_FIXED_PHY_PORTS to find what network
  * speed and duplex should be for the port.
@@ -61,10 +61,10 @@
  *     #define CONFIG_FIXED_PHY   0xFFFFFFFF
  *     #define CONFIG_SYS_FIXED_PHY_ADDR 0x1E (pick an unused phy address)
  *
- *     #define CONFIG_SYS_UEC1_PHY_ADDR CONFIG_SYS_FIXED_PHY_ADDR
- *     #define CONFIG_SYS_UEC2_PHY_ADDR 0x02
- *     #define CONFIG_SYS_UEC3_PHY_ADDR CONFIG_SYS_FIXED_PHY_ADDR
- *     #define CONFIG_SYS_UEC4_PHY_ADDR 0x04
+ *     #define CFG_SYS_UEC1_PHY_ADDR CONFIG_SYS_FIXED_PHY_ADDR
+ *     #define CFG_SYS_UEC2_PHY_ADDR 0x02
+ *     #define CFG_SYS_UEC3_PHY_ADDR CONFIG_SYS_FIXED_PHY_ADDR
+ *     #define CFG_SYS_UEC4_PHY_ADDR 0x04
  *
  *     #define CONFIG_SYS_FIXED_PHY_PORT(name,speed,duplex) \
  *                 {name, speed, duplex},

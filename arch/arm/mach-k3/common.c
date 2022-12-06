@@ -561,7 +561,7 @@ void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
 void spl_enable_dcache(void)
 {
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	phys_addr_t ram_top = CONFIG_SYS_SDRAM_BASE;
+	phys_addr_t ram_top = CFG_SYS_SDRAM_BASE;
 
 	dram_init();
 

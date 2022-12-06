@@ -828,7 +828,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	}
 
 	/*
-	 * If a platform does not provide CONFIG_SYS_UBOOT_START, U-Boot's
+	 * If a platform does not provide CFG_SYS_UBOOT_START, U-Boot's
 	 * Makefile will set it to 0 and it will end up as the entry point
 	 * here. What it actually means is: use the load address.
 	 */

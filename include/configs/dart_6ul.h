@@ -10,9 +10,6 @@
 #include <linux/stringify.h>
 #include "mx6_common.h"
 
-/* SPL options */
-#include "imx6_spl.h"
-
 /* NAND pin conflicts with usdhc2 */
 #ifdef CONFIG_CMD_NAND
 #define CFG_SYS_FSL_USDHC_NUM        1
@@ -45,9 +42,9 @@
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define PHYS_SDRAM_SIZE			SZ_512M
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* USB Configs */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)

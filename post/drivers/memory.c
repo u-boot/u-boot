@@ -138,7 +138,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-#if CONFIG_POST & (CONFIG_SYS_POST_MEMORY | CONFIG_SYS_POST_MEM_REGIONS)
+#if CFG_POST & (CFG_SYS_POST_MEMORY | CFG_SYS_POST_MEM_REGIONS)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -467,7 +467,7 @@ int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
 	struct bd_info *bd = gd->bd;
 
-	*vstart = CONFIG_SYS_SDRAM_BASE;
+	*vstart = CFG_SYS_SDRAM_BASE;
 	*size = (gd->ram_size >= 256 << 20 ?
 			256 << 20 : gd->ram_size) - (1 << 20);
 
@@ -535,4 +535,4 @@ int memory_post_test(int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST&(CONFIG_SYS_POST_MEMORY|CONFIG_SYS_POST_MEM_REGIONS) */
+#endif /* CFG_POST&(CFG_SYS_POST_MEMORY|CFG_SYS_POST_MEM_REGIONS) */

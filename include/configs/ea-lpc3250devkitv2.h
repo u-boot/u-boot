@@ -13,7 +13,7 @@
 /*
  * RAM
  */
-#define CONFIG_SYS_SDRAM_BASE EMC_DYCS0_BASE
+#define CFG_SYS_SDRAM_BASE EMC_DYCS0_BASE
 
 /*
  * cmd

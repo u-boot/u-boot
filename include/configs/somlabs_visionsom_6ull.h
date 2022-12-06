@@ -13,10 +13,6 @@
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
 
-/* SPL options */
-#include "imx6_spl.h"
-
-
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
@@ -57,9 +53,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* environment organization */
 

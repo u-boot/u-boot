@@ -14,7 +14,6 @@
 
 #ifndef CONFIG_INTERNAL_UART
 /* Use BayTrail internal HS UART which is memory-mapped */
-#undef  CONFIG_SYS_NS16550_PORT_MAPPED
 #endif
 
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \

@@ -385,7 +385,7 @@ static void sunxi_frontend_mode_set(const struct ctfb_res_modes *mode,
 		(struct sunxi_de_fe_reg *)SUNXI_DE_FE0_BASE;
 
 	setbits_le32(&de_fe->bypass, SUNXI_DE_FE_BYPASS_CSC_BYPASS);
-	writel(CONFIG_SYS_SDRAM_BASE + address, &de_fe->ch0_addr);
+	writel(CFG_SYS_SDRAM_BASE + address, &de_fe->ch0_addr);
 	writel(mode->xres * 4, &de_fe->ch0_stride);
 	writel(SUNXI_DE_FE_INPUT_FMT_ARGB8888, &de_fe->input_fmt);
 	writel(SUNXI_DE_FE_OUTPUT_FMT_ARGB8888, &de_fe->output_fmt);
@@ -1222,7 +1222,7 @@ static int sunxi_de_probe(struct udevice *dev)
 			   EFI_RESERVED_MEMORY_TYPE);
 #endif
 
-	fb_dma_addr = sunxi_display->fb_addr - CONFIG_SYS_SDRAM_BASE;
+	fb_dma_addr = sunxi_display->fb_addr - CFG_SYS_SDRAM_BASE;
 	if (overscan_offset) {
 		fb_dma_addr += 0x1000 - (overscan_offset & 0xfff);
 		sunxi_display->fb_addr += ALIGN(overscan_offset, 0x1000);

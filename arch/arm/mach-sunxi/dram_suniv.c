@@ -175,9 +175,9 @@ static int sdr_readpipe_scan(void)
 	u32 k = 0;
 
 	for (k = 0; k < 32; k++)
-		writel(k, CONFIG_SYS_SDRAM_BASE + 4 * k);
+		writel(k, CFG_SYS_SDRAM_BASE + 4 * k);
 	for (k = 0; k < 32; k++) {
-		if (readl(CONFIG_SYS_SDRAM_BASE + 4 * k) != k)
+		if (readl(CFG_SYS_SDRAM_BASE + 4 * k) != k)
 			return 0;
 	}
 	return 1;
@@ -266,11 +266,11 @@ static u32 dram_get_dram_size(struct dram_para *para)
 	dram_para_setup(para);
 	dram_scan_readpipe(para);
 	for (i = 0; i < 32; i++) {
-		*((u8 *)(CONFIG_SYS_SDRAM_BASE + 0x200 + i)) = 0x11;
-		*((u8 *)(CONFIG_SYS_SDRAM_BASE + 0x600 + i)) = 0x22;
+		*((u8 *)(CFG_SYS_SDRAM_BASE + 0x200 + i)) = 0x11;
+		*((u8 *)(CFG_SYS_SDRAM_BASE + 0x600 + i)) = 0x22;
 	}
 	for (i = 0; i < 32; i++) {
-		val1 = *((u8 *)(CONFIG_SYS_SDRAM_BASE + 0x200 + i));
+		val1 = *((u8 *)(CFG_SYS_SDRAM_BASE + 0x200 + i));
 		if (val1 == 0x22)
 			count++;
 	}
@@ -283,11 +283,11 @@ static u32 dram_get_dram_size(struct dram_para *para)
 	para->row_width = rowflag;
 	dram_para_setup(para);
 	if (colflag == 10) {
-		addr1 = CONFIG_SYS_SDRAM_BASE + 0x400000;
-		addr2 = CONFIG_SYS_SDRAM_BASE + 0xc00000;
+		addr1 = CFG_SYS_SDRAM_BASE + 0x400000;
+		addr2 = CFG_SYS_SDRAM_BASE + 0xc00000;
 	} else {
-		addr1 = CONFIG_SYS_SDRAM_BASE + 0x200000;
-		addr2 = CONFIG_SYS_SDRAM_BASE + 0x600000;
+		addr1 = CFG_SYS_SDRAM_BASE + 0x200000;
+		addr2 = CFG_SYS_SDRAM_BASE + 0x600000;
 	}
 	for (i = 0; i < 32; i++) {
 		*((u8 *)(addr1 + i)) = 0x33;
@@ -319,7 +319,7 @@ static u32 dram_get_dram_size(struct dram_para *para)
 
 static void simple_dram_check(void)
 {
-	volatile u32 *dram = (u32 *)CONFIG_SYS_SDRAM_BASE;
+	volatile u32 *dram = (u32 *)CFG_SYS_SDRAM_BASE;
 	int i;
 
 	for (i = 0; i < 0x40; i++)

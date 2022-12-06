@@ -26,7 +26,7 @@ int checkboard (void) {
 	/*
 	 * Set LED on
 	 */
-	val = mbar2_readLong(MCFSIM_GPIO1_OUT) & ~CONFIG_SYS_GPIO1_LED;
+	val = mbar2_readLong(MCFSIM_GPIO1_OUT) & ~CFG_SYS_GPIO1_LED;
 	mbar2_writeLong(MCFSIM_GPIO1_OUT, val);   /* Set LED on */
 
 	return 0;
@@ -42,13 +42,13 @@ int dram_init(void)
 	 *	RC = ([(RefreshTime/#rows) / (1/BusClk)] / 16) - 1
 	 */
 
-#ifdef CONFIG_SYS_FAST_CLK
+#ifdef CFG_SYS_FAST_CLK
 	/*
 	 * Busclk=70MHz, RefreshTime=64ms, #rows=4096 (4K)
 	 * SO=1, NAM=0, COC=0, RTIM=01 (6clk refresh), RC=39
 	 */
 	mbar_writeShort(MCFSIM_DCR, 0x8239);
-#elif CONFIG_SYS_PLL_BYPASS
+#elif CFG_SYS_PLL_BYPASS
 	/*
 	 * Busclk=5.6448MHz, RefreshTime=64ms, #rows=8192 (8K)
 	 * SO=1, NAM=0, COC=0, RTIM=01 (6clk refresh), RC=02
@@ -86,7 +86,7 @@ int dram_init(void)
 	mbar_writeLong(MCFSIM_DACR0, 0x0000b364);  /* Enable DACR0[IMRS] (bit 6); RE remains enabled */
 	*((volatile unsigned long *) 0x800) = junk; /* Access RAM to initialize the mode register */
 
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE * 1024 * 1024;
 
 	return 0;
 };

@@ -85,7 +85,7 @@ int board_init(void)
 #ifdef CONFIG_MACH_TYPE
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
 #endif
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_FACTORYSET
 	factoryset_read_eeprom(FACTORYSET_EEPROM_ADDR);

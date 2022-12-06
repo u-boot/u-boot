@@ -1,7 +1,12 @@
 if OMAP54XX
 
+config IODELAY_RECALIBRATION
+	bool
+
 config DRA7XX
 	bool
+	select IODELAY_RECALIBRATION
+	select SYS_OMAP_ABE_SYSCK
 	help
 	  DRA7xx is an OMAP based SOC with Dual Core A-15s.
 

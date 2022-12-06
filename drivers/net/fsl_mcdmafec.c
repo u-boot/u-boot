@@ -43,11 +43,11 @@ DECLARE_GLOBAL_DATA_PTR;
 static void init_eth_info(struct fec_info_dma *info)
 {
 	/* setup Receive and Transmit buffer descriptor */
-#ifdef CONFIG_SYS_FEC_BUF_USE_SRAM
+#ifdef CFG_SYS_FEC_BUF_USE_SRAM
 	static u32 tmp;
 
 	if (info->index == 0)
-		tmp = CONFIG_SYS_INIT_RAM_ADDR + 0x1000;
+		tmp = CFG_SYS_INIT_RAM_ADDR + 0x1000;
 	else
 		info->rxbd = (cbd_t *)DBUF_LENGTH;
 
@@ -59,7 +59,7 @@ static void init_eth_info(struct fec_info_dma *info)
 	tmp = (u32)info->txbd;
 	info->txbuf =
 	    (char *)((u32)info->txbuf + tmp +
-	    (CONFIG_SYS_TX_ETH_BUFFER * sizeof(cbd_t)));
+	    (CFG_SYS_TX_ETH_BUFFER * sizeof(cbd_t)));
 	tmp = (u32)info->txbuf;
 #else
 	info->rxbd =
@@ -67,7 +67,7 @@ static void init_eth_info(struct fec_info_dma *info)
 			       (PKTBUFSRX * sizeof(cbd_t)));
 	info->txbd =
 	    (cbd_t *)memalign(CONFIG_SYS_CACHELINE_SIZE,
-			       (CONFIG_SYS_TX_ETH_BUFFER * sizeof(cbd_t)));
+			       (CFG_SYS_TX_ETH_BUFFER * sizeof(cbd_t)));
 	info->txbuf =
 	    (char *)memalign(CONFIG_SYS_CACHELINE_SIZE, DBUF_LENGTH);
 #endif
@@ -283,15 +283,15 @@ static int fec_init(struct udevice *dev)
 
 	/* Setup Ethernet Transmitter Buffer Descriptors (13.14.24.19)
 	 * Settings:    Last, Tx CRC */
-	for (i = 0; i < CONFIG_SYS_TX_ETH_BUFFER; i++) {
+	for (i = 0; i < CFG_SYS_TX_ETH_BUFFER; i++) {
 		info->txbd[i].cbd_sc = 0;
 		info->txbd[i].cbd_datlen = 0;
 		info->txbd[i].cbd_bufaddr = (uint) (&info->txbuf[0]);
 	}
-	info->txbd[CONFIG_SYS_TX_ETH_BUFFER - 1].cbd_sc |= BD_ENET_TX_WRAP;
+	info->txbd[CFG_SYS_TX_ETH_BUFFER - 1].cbd_sc |= BD_ENET_TX_WRAP;
 
 	info->used_tbd_idx = 0;
-	info->clean_tbd_num = CONFIG_SYS_TX_ETH_BUFFER;
+	info->clean_tbd_num = CFG_SYS_TX_ETH_BUFFER;
 
 	/* Set Rx FIFO alarm and granularity value */
 	fecp->rfcr = 0x0c000000;
@@ -352,7 +352,7 @@ static int mcdmafec_send(struct udevice *dev, void *packet, int length)
 	miiphy_read(dev->name, info->phy_addr, MII_BMSR, &phy_status);
 
 	/* process all the consumed TBDs */
-	while (info->clean_tbd_num < CONFIG_SYS_TX_ETH_BUFFER) {
+	while (info->clean_tbd_num < CFG_SYS_TX_ETH_BUFFER) {
 		p_used_tbd = &info->txbd[info->used_tbd_idx];
 		if (p_used_tbd->cbd_sc & BD_ENET_TX_READY) {
 #ifdef ET_DEBUG
@@ -363,7 +363,7 @@ static int mcdmafec_send(struct udevice *dev, void *packet, int length)
 		}
 
 		/* clean this buffer descriptor */
-		if (info->used_tbd_idx == (CONFIG_SYS_TX_ETH_BUFFER - 1))
+		if (info->used_tbd_idx == (CFG_SYS_TX_ETH_BUFFER - 1))
 			p_used_tbd->cbd_sc = BD_ENET_TX_WRAP;
 		else
 			p_used_tbd->cbd_sc = 0;
@@ -371,7 +371,7 @@ static int mcdmafec_send(struct udevice *dev, void *packet, int length)
 		/* update some indeces for a correct handling of TBD ring */
 		info->clean_tbd_num++;
 		info->used_tbd_idx = (info->used_tbd_idx + 1)
-			% CONFIG_SYS_TX_ETH_BUFFER;
+			% CFG_SYS_TX_ETH_BUFFER;
 	}
 
 	/* Check for valid length of data. */
@@ -389,7 +389,7 @@ static int mcdmafec_send(struct udevice *dev, void *packet, int length)
 	p_tbd->cbd_datlen = length;
 	p_tbd->cbd_bufaddr = (u32)packet;
 	p_tbd->cbd_sc |= BD_ENET_TX_LAST | BD_ENET_TX_TC | BD_ENET_TX_READY;
-	info->tx_idx = (info->tx_idx + 1) % CONFIG_SYS_TX_ETH_BUFFER;
+	info->tx_idx = (info->tx_idx + 1) % CFG_SYS_TX_ETH_BUFFER;
 
 	/* Enable DMA transmit task */
 	MCD_continDma(info->tx_task);
@@ -524,8 +524,8 @@ static int mcdmafec_probe(struct udevice *dev)
 	if (val)
 		info->tx_init = fdt32_to_cpu(*val);
 
-#ifdef CONFIG_SYS_FEC_BUF_USE_SRAM
-	u32 tmp = CONFIG_SYS_INIT_RAM_ADDR + 0x1000;
+#ifdef CFG_SYS_FEC_BUF_USE_SRAM
+	u32 tmp = CFG_SYS_INIT_RAM_ADDR + 0x1000;
 #endif
 	init_eth_info(info);
 

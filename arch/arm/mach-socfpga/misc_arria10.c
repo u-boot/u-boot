@@ -60,7 +60,7 @@ static Altera_desc altera_fpga[] = {
 
 #if defined(CONFIG_SPL_BUILD)
 static struct pl310_regs *const pl310 =
-	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+	(struct pl310_regs *)CFG_SYS_PL310_BASE;
 static const struct socfpga_noc_fw_ocram *noc_fw_ocram_base =
 	(void *)SOCFPGA_SDR_FIREWALL_OCRAM_ADDRESS;
 
@@ -256,7 +256,7 @@ void dram_bank_mmu_setup(int bank)
 	/* If we're still in OCRAM, don't set the XN bit on it */
 	if (!(gd->flags & GD_FLG_RELOC)) {
 		set_section_dcache(
-			CONFIG_SYS_INIT_RAM_ADDR >> MMU_SECTION_SHIFT,
+			CFG_SYS_INIT_RAM_ADDR >> MMU_SECTION_SHIFT,
 			DCACHE_WRITETHROUGH);
 	}
 

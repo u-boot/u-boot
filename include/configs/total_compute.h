@@ -23,7 +23,7 @@
 /* Top 48MB reserved for secure world use */
 #define DRAM_SEC_SIZE		0x03000000
 #define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
 #define PHYS_SDRAM_2		0x8080000000
 #define PHYS_SDRAM_2_SIZE	0x180000000
@@ -41,6 +41,6 @@
  * Else boot FIT image.
  */
 
-#define CONFIG_SYS_FLASH_BASE		0x0C000000
+#define CFG_SYS_FLASH_BASE		0x0C000000
 
 #endif /* __TOTAL_COMPUTE_H */

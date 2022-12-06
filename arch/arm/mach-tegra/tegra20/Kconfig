@@ -1,5 +1,15 @@
 if TEGRA20
 
+config TEGRA_LP0
+	bool
+	select TEGRA_CLOCK_SCALING
+
+config TEGRA_PMU
+	bool
+
+config TEGRA_CLOCK_SCALING
+	bool
+
 choice
 	prompt "Tegra20 board select"
 	optional
@@ -23,6 +33,8 @@ config TARGET_PLUTUX
 config TARGET_SEABOARD
 	bool "NVIDIA Seaboard"
 	select BOARD_LATE_INIT
+	select TEGRA_LP0
+	select TEGRA_PMU
 
 config TARGET_TEC
 	bool "Avionic Design Tamonten Evaluation Carrier"

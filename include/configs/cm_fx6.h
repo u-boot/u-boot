@@ -21,9 +21,9 @@
 /* RAM */
 #define PHYS_SDRAM_1			MMDC0_ARB_BASE_ADDR
 #define PHYS_SDRAM_2			MMDC1_ARB_BASE_ADDR
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* Serial console */
 #define CONFIG_MXC_UART_BASE		UART4_BASE
@@ -128,7 +128,7 @@
 #include <config_distro_bootcmd.h>
 
 /* NAND */
-#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CFG_SYS_NAND_BASE		0x40000000
 /* APBH DMA is required for NAND support */
 
 /* Ethernet */
@@ -139,15 +139,9 @@
 #define CONFIG_MXC_USB_FLAGS		0
 
 /* Boot */
-#define CONFIG_SYS_BOOTMAPSZ	        (8 << 20)
+#define CFG_SYS_BOOTMAPSZ	        (8 << 20)
 
 /* misc */
-
-/* SPL */
-#include "imx6_spl.h"
-
-/* Display */
-#define CONFIG_IMX_HDMI
 
 /* EEPROM */
 

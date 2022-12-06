@@ -10,7 +10,7 @@
 #include <configs/exynos5420-common.h>
 #include <configs/exynos5-common.h>
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 
 #define TZPC_BASE_OFFSET		0x10000
 
@@ -57,7 +57,6 @@
 	"params.bin raw 0x1880 0x20\0"
 
 /* Enable: board/samsung/common/misc.c to use set_dfu_alt_info() */
-#define CONFIG_MISC_COMMON
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
 /* Set soc_rev, soc_id, board_rev, board_name, fdtfile */

@@ -23,19 +23,19 @@ int get_clocks(void)
 #if defined(CONFIG_M5208)
 	pll_t *pll = (pll_t *) MMAP_PLL;
 
-	out_8(&pll->odr, CONFIG_SYS_PLL_ODR);
-	out_8(&pll->fdr, CONFIG_SYS_PLL_FDR);
+	out_8(&pll->odr, CFG_SYS_PLL_ODR);
+	out_8(&pll->fdr, CFG_SYS_PLL_FDR);
 #endif
 
 #if defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	volatile unsigned long cpll = mbar2_readLong(MCFSIM_PLLCR);
 	unsigned long pllcr;
 
-#ifndef CONFIG_SYS_PLL_BYPASS
+#ifndef CFG_SYS_PLL_BYPASS
 
 #ifdef CONFIG_M5249
 	/* Setup the PLL to run at the specified speed */
-#ifdef CONFIG_SYS_FAST_CLK
+#ifdef CFG_SYS_FAST_CLK
 	pllcr = 0x925a3100;	/* ~140MHz clock (PLL bypass = 0) */
 #else
 	pllcr = 0x135a4140;	/* ~72MHz clock (PLL bypass = 0) */
@@ -43,7 +43,7 @@ int get_clocks(void)
 #endif				/* CONFIG_M5249 */
 
 #ifdef CONFIG_M5253
-	pllcr = CONFIG_SYS_PLLCR;
+	pllcr = CFG_SYS_PLLCR;
 #endif				/* CONFIG_M5253 */
 
 	cpll = cpll & 0xfffffffe;	/* Set PLL bypass mode = 0 (PSTCLK = crystal) */
@@ -52,7 +52,7 @@ int get_clocks(void)
 	pllcr ^= 0x00000001;	/* Set pll bypass to 1 */
 	mbar2_writeLong(MCFSIM_PLLCR, pllcr);	/* Start locking (pll bypass = 1) */
 	udelay(0x20);		/* Wait for a lock ... */
-#endif				/* #ifndef CONFIG_SYS_PLL_BYPASS */
+#endif				/* #ifndef CFG_SYS_PLL_BYPASS */
 
 #endif				/* CONFIG_M5249 || CONFIG_M5253 */
 
@@ -68,7 +68,7 @@ int get_clocks(void)
 		;
 #endif
 
-	gd->cpu_clk = CONFIG_SYS_CLK;
+	gd->cpu_clk = CFG_SYS_CLK;
 #if defined(CONFIG_M5208) || defined(CONFIG_M5249) || defined(CONFIG_M5253) || \
     defined(CONFIG_M5271) || defined(CONFIG_M5275)
 	gd->bus_clk = gd->cpu_clk / 2;

@@ -81,9 +81,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* environment organization */
 
@@ -93,7 +93,7 @@
  */
 #ifdef CONFIG_NAND_MXS
 /* NAND stuff */
-#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CFG_SYS_NAND_BASE		0x40000000
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 #endif

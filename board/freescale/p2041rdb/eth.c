@@ -35,10 +35,10 @@ static u8 lane_to_slot[] = {
 };
 
 static int riser_phy_addr[] = {
-	CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR,
-	CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR,
-	CONFIG_SYS_FM1_DTSEC3_RISER_PHY_ADDR,
-	CONFIG_SYS_FM1_DTSEC4_RISER_PHY_ADDR,
+	CFG_SYS_FM1_DTSEC1_RISER_PHY_ADDR,
+	CFG_SYS_FM1_DTSEC2_RISER_PHY_ADDR,
+	CFG_SYS_FM1_DTSEC3_RISER_PHY_ADDR,
+	CFG_SYS_FM1_DTSEC4_RISER_PHY_ADDR,
 };
 
 /*
@@ -101,12 +101,12 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 		slot = lane_to_slot[lane];
 		if (slot) {
 			sprintf(phy, "phy_sgmii_%x",
-					CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR
+					CFG_SYS_FM1_DTSEC1_RISER_PHY_ADDR
 					+ (port - FM1_DTSEC1));
 			fdt_set_phy_handle(fdt, compat, addr, phy);
 		} else {
 			sprintf(phy, "phy_sgmii_%x",
-					CONFIG_SYS_FM1_DTSEC1_PHY_ADDR
+					CFG_SYS_FM1_DTSEC1_PHY_ADDR
 					+ (port - FM1_DTSEC1));
 			fdt_set_phy_handle(fdt, compat, addr, phy);
 		}
@@ -158,11 +158,11 @@ int board_eth_init(struct bd_info *bis)
 	 * is RGMII, we'll also override its PHY address later. We assume that
 	 * DTSEC4 and DTSEC5 are used for RGMII.
 	 */
-	fm_info_set_phy_address(FM1_DTSEC1, CONFIG_SYS_FM1_DTSEC1_PHY_ADDR);
-	fm_info_set_phy_address(FM1_DTSEC2, CONFIG_SYS_FM1_DTSEC2_PHY_ADDR);
-	fm_info_set_phy_address(FM1_DTSEC3, CONFIG_SYS_FM1_DTSEC3_PHY_ADDR);
+	fm_info_set_phy_address(FM1_DTSEC1, CFG_SYS_FM1_DTSEC1_PHY_ADDR);
+	fm_info_set_phy_address(FM1_DTSEC2, CFG_SYS_FM1_DTSEC2_PHY_ADDR);
+	fm_info_set_phy_address(FM1_DTSEC3, CFG_SYS_FM1_DTSEC3_PHY_ADDR);
 
-	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
+	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CFG_SYS_NUM_FM1_DTSEC; i++) {
 		int idx = i - FM1_DTSEC1;
 
 		switch (fm_info_get_enet_if(i)) {
@@ -180,8 +180,8 @@ int board_eth_init(struct bd_info *bis)
 		case PHY_INTERFACE_MODE_RGMII_ID:
 			/* Only DTSEC4 and DTSEC5 can be routed to RGMII */
 			fm_info_set_phy_address(i, i == FM1_DTSEC5 ?
-					CONFIG_SYS_FM1_DTSEC5_PHY_ADDR :
-					CONFIG_SYS_FM1_DTSEC4_PHY_ADDR);
+					CFG_SYS_FM1_DTSEC5_PHY_ADDR :
+					CFG_SYS_FM1_DTSEC4_PHY_ADDR);
 			break;
 		default:
 			printf("Fman1: DTSEC%u set to unknown interface %i\n",
@@ -198,7 +198,7 @@ int board_eth_init(struct bd_info *bis)
 		slot = lane_to_slot[lane];
 		if (slot)
 			fm_info_set_phy_address(FM1_10GEC1,
-					CONFIG_SYS_FM1_10GEC1_PHY_ADDR);
+					CFG_SYS_FM1_10GEC1_PHY_ADDR);
 	}
 
 	fm_info_set_mdio(FM1_10GEC1,

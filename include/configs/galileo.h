@@ -13,7 +13,6 @@
 #include <configs/x86-common.h>
 
 /* ns16550 UART is memory-mapped in Quark SoC */
-#undef  CONFIG_SYS_NS16550_PORT_MAPPED
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial\0" \
 					"stdout=serial\0" \

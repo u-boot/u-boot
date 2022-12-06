@@ -91,14 +91,6 @@ struct cspi_regs {
 #define MXC_CSPICON_CTL		20 /* inactive state of SCLK */
 #endif
 
-#ifdef CONFIG_MX27
-/* i.MX27 has a completely wrong register layout and register definitions in the
- * datasheet, the correct one is in the Freescale's Linux driver */
-
-#error "i.MX27 CSPI not supported due to drastic differences in register definitions" \
-"See linux mxc_spi driver from Freescale for details."
-#endif
-
 __weak int board_spi_cs_gpio(unsigned bus, unsigned cs)
 {
 	return -1;

@@ -18,6 +18,6 @@
 #define ORION5X_REGS_PHY_BASE		F88F5182_REGS_PHYS_BASE
 
 /* TCLK Core Clock defination */
-#define CONFIG_SYS_TCLK			166000000 /* 166MHz */
+#define CFG_SYS_TCLK			166000000 /* 166MHz */
 
 #endif /* _CONFIG_88F5182_H */

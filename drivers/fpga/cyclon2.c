@@ -22,8 +22,8 @@
 #define CONFIG_FPGA_DELAY()
 #endif
 
-#ifndef CONFIG_SYS_FPGA_WAIT
-#define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ / 10		/* 100 ms */
+#ifndef CFG_SYS_FPGA_WAIT
+#define CFG_SYS_FPGA_WAIT CONFIG_SYS_HZ / 10		/* 100 ms */
 #endif
 
 static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize);
@@ -130,7 +130,7 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		ts = get_timer(0);		/* get current time */
 		do {
 			CONFIG_FPGA_DELAY();
-			if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
+			if (get_timer(ts) > CFG_SYS_FPGA_WAIT) {
 				/* check the time */
 				puts("** Timeout waiting for STATUS to go high.\n");
 				(*fn->abort) (cookie);

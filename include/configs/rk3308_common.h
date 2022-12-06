@@ -8,11 +8,9 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_NS16550_MEM32
-
 #define CONFIG_IRAM_BASE		0xfff80000
 
-#define CONFIG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 #define SDRAM_BANK_SIZE			(2UL << 30)
 

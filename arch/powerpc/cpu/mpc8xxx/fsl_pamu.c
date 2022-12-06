@@ -230,7 +230,7 @@ static int pamu_config_spaace(uint32_t liodn,
 
 int pamu_init(void)
 {
-	u32 base_addr = CONFIG_SYS_PAMU_ADDR;
+	u32 base_addr = CFG_SYS_PAMU_ADDR;
 	struct ccsr_pamu *regs;
 	u32 i = 0;
 	u64 ppaact_phys, ppaact_lim, ppaact_size;
@@ -292,7 +292,7 @@ int pamu_init(void)
 void pamu_enable(void)
 {
 	u32 i = 0;
-	u32 base_addr = CONFIG_SYS_PAMU_ADDR;
+	u32 base_addr = CFG_SYS_PAMU_ADDR;
 	for (i = 0; i < CONFIG_NUM_PAMU; i++) {
 		setbits_be32((void *)base_addr + PAMU_PCR_OFFSET,
 			     PAMU_PCR_PE);
@@ -304,7 +304,7 @@ void pamu_enable(void)
 void pamu_reset(void)
 {
 	u32 i  = 0;
-	u32 base_addr = CONFIG_SYS_PAMU_ADDR;
+	u32 base_addr = CFG_SYS_PAMU_ADDR;
 	struct ccsr_pamu *regs;
 
 	for (i = 0; i < CONFIG_NUM_PAMU; i++) {
@@ -328,7 +328,7 @@ void pamu_reset(void)
 void pamu_disable(void)
 {
 	u32 i  = 0;
-	u32 base_addr = CONFIG_SYS_PAMU_ADDR;
+	u32 base_addr = CFG_SYS_PAMU_ADDR;
 
 
 	for (i = 0; i < CONFIG_NUM_PAMU; i++) {

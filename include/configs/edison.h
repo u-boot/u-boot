@@ -10,6 +10,6 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_STACK_SIZE			(32 * 1024)
+#define CFG_SYS_STACK_SIZE			(32 * 1024)
 
 #endif

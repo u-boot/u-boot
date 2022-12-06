@@ -22,7 +22,7 @@
 
 /*
  * CFG_SYS_FSL_DDR_SDRAM_BASE_PHY is the physical address from the view
- * of DDR controllers. It is the same as CONFIG_SYS_DDR_SDRAM_BASE for
+ * of DDR controllers. It is the same as CFG_SYS_DDR_SDRAM_BASE for
  * all Power SoCs. But it could be different for ARM SoCs. For example,
  * fsl_lsch3 has a mapping mechanism to map DDR memory to ranges (in order) of
  * 0x00_8000_0000 ~ 0x00_ffff_ffff
@@ -30,9 +30,9 @@
  */
 #ifndef CFG_SYS_FSL_DDR_SDRAM_BASE_PHY
 #ifdef CONFIG_MPC83xx
-#define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY CONFIG_SYS_SDRAM_BASE
+#define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY CFG_SYS_SDRAM_BASE
 #else
-#define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY CFG_SYS_DDR_SDRAM_BASE
 #endif
 #endif
 

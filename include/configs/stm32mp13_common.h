@@ -13,13 +13,13 @@
 /*
  * Configuration of the external SRAM memory used by U-Boot
  */
-#define CONFIG_SYS_SDRAM_BASE		STM32_DDR_BASE
+#define CFG_SYS_SDRAM_BASE		STM32_DDR_BASE
 
 /*
  * For booting Linux, use the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ		SZ_256M
+#define CFG_SYS_BOOTMAPSZ		SZ_256M
 
 /* NAND support */
 

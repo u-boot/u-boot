@@ -44,4 +44,4 @@ applications using a linux toolchain (gcc, bash, etc), targeting respectively
 Launch the MSYS2 shell of the MSYS2 environment, and do the following::
 
    $ make tools-only_defconfig
-   $ make tools-only NO_SDL=1
+   $ make tools-only

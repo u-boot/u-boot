@@ -102,7 +102,7 @@ int dram_init(void)
 		else
 			gd->ram_size = SYS_SDRAM_SIZE_512;
 #else
-		gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+		gd->ram_size = CFG_SYS_SDRAM_SIZE;
 #endif
 	}
 	return 0;
@@ -139,7 +139,7 @@ int dram_init(void)
 		gd->ram_size = SYS_SDRAM_SIZE_512;
 	}
 #else
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 #endif
 	mmdc_init(&mparam);
 

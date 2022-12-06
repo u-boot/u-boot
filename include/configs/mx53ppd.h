@@ -87,7 +87,7 @@
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
+#define CFG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR
@@ -96,17 +96,10 @@
 #define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
 
-#define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
-#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
-#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+#define CFG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
+#define CFG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CFG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
 /* FLASH and environment organization */
-
-#define CONFIG_FSL_IIM
-
-/* Backlight Control */
-#define CONFIG_IMX6_PWM_PER_CLK 66666000
-
-#define CONFIG_IMX_VIDEO_SKIP
 
 #endif				/* __CONFIG_H */

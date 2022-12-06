@@ -144,14 +144,14 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	}
 #ifdef CONFIG_DEEP_SLEEP
 #ifdef CONFIG_SPL_MMC_BOOT
-	off = fdt_add_mem_rsv(blob, CONFIG_SYS_MMC_U_BOOT_START,
-		CONFIG_SYS_MMC_U_BOOT_SIZE);
+	off = fdt_add_mem_rsv(blob, CFG_SYS_MMC_U_BOOT_START,
+		CFG_SYS_MMC_U_BOOT_SIZE);
 	if (off < 0)
 		printf("Failed to reserve memory for SD deep sleep: %s\n",
 		       fdt_strerror(off));
 #elif defined(CONFIG_SPL_SPI_BOOT)
-	off = fdt_add_mem_rsv(blob, CONFIG_SYS_SPI_FLASH_U_BOOT_START,
-		CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE);
+	off = fdt_add_mem_rsv(blob, CFG_SYS_SPI_FLASH_U_BOOT_START,
+		CFG_SYS_SPI_FLASH_U_BOOT_SIZE);
 	if (off < 0)
 		printf("Failed to reserve memory for SPI deep sleep: %s\n",
 		       fdt_strerror(off));
@@ -167,7 +167,7 @@ static inline void ft_fixup_l3cache(void *blob, int off)
 	cpc_corenet_t *cpc = (void *)CFG_SYS_FSL_CPC_ADDR;
 	u32 cfg0 = in_be32(&cpc->cpccfg0);
 
-	size = CPC_CFG0_SZ_K(cfg0) * 1024 * CONFIG_SYS_NUM_CPC;
+	size = CPC_CFG0_SZ_K(cfg0) * 1024 * CFG_SYS_NUM_CPC;
 	num_ways = CPC_CFG0_NUM_WAYS(cfg0);
 	line_size = CPC_CFG0_LINE_SZ(cfg0);
 	num_sets = size / (line_size * num_ways);
@@ -448,7 +448,7 @@ void fdt_add_enet_stashing(void *fdt)
 static void ft_fixup_clks(void *blob, const char *compat, u32 offset,
 			  unsigned long freq)
 {
-	phys_addr_t phys = offset + CONFIG_SYS_CCSRBAR_PHYS;
+	phys_addr_t phys = offset + CFG_SYS_CCSRBAR_PHYS;
 	int off = fdt_node_offset_by_compat_reg(blob, compat, phys);
 
 	if (off >= 0) {
@@ -469,7 +469,7 @@ static void ft_fixup_dpaa_clks(void *blob)
 	ft_fixup_clks(blob, "fsl,fman", CFG_SYS_FSL_FM1_OFFSET,
 			sysinfo.freq_fman[0]);
 
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 	ft_fixup_clks(blob, "fsl,fman", CFG_SYS_FSL_FM2_OFFSET,
 			sysinfo.freq_fman[1]);
 #endif
@@ -649,7 +649,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 
 #ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
-		"clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
+		"clock-frequency", CFG_SYS_NS16550_CLK, 1);
 #endif
 
 #ifdef CONFIG_FSL_CORENET
@@ -679,17 +679,17 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 
 	ft_fixup_dpaa_clks(blob);
 
-#if defined(CONFIG_SYS_BMAN_MEM_PHYS)
+#if defined(CFG_SYS_BMAN_MEM_PHYS)
 	fdt_portal(blob, "fsl,bman-portal", "bman-portals",
-			(u64)CONFIG_SYS_BMAN_MEM_PHYS,
-			CONFIG_SYS_BMAN_MEM_SIZE);
+			(u64)CFG_SYS_BMAN_MEM_PHYS,
+			CFG_SYS_BMAN_MEM_SIZE);
 	fdt_fixup_bportals(blob);
 #endif
 
-#if defined(CONFIG_SYS_QMAN_MEM_PHYS)
+#if defined(CFG_SYS_QMAN_MEM_PHYS)
 	fdt_portal(blob, "fsl,qman-portal", "qman-portals",
-			(u64)CONFIG_SYS_QMAN_MEM_PHYS,
-			CONFIG_SYS_QMAN_MEM_SIZE);
+			(u64)CFG_SYS_QMAN_MEM_PHYS,
+			CFG_SYS_QMAN_MEM_SIZE);
 
 	fdt_fixup_qportals(blob);
 #endif
@@ -737,7 +737,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
  * beginning of CCSR.
  */
 #define CCSR_VIRT_TO_PHYS(x) \
-	(CONFIG_SYS_CCSRBAR_PHYS + ((x) - CONFIG_SYS_CCSRBAR))
+	(CFG_SYS_CCSRBAR_PHYS + ((x) - CFG_SYS_CCSRBAR))
 
 static void msg(const char *name, uint64_t uaddr, uint64_t daddr)
 {
@@ -751,7 +751,7 @@ static void msg(const char *name, uint64_t uaddr, uint64_t daddr)
  * This function compares several CONFIG_xxx macros that contain physical
  * addresses with the corresponding nodes in the device tree, to see if
  * the physical addresses are all correct.  For example, if
- * CONFIG_SYS_NS16550_COM1 is defined, then it contains the virtual address
+ * CFG_SYS_NS16550_COM1 is defined, then it contains the virtual address
  * of the first UART.  We convert this to a physical address and compare
  * that with the physical address of the first ns16550-compatible node
  * in the device tree.  If they don't match, then we display a warning.
@@ -783,8 +783,8 @@ int ft_verify_fdt(void *fdt)
 		return 0;
 	}
 
-	if (addr != CONFIG_SYS_CCSRBAR_PHYS) {
-		msg("CCSR", CONFIG_SYS_CCSRBAR_PHYS, addr);
+	if (addr != CFG_SYS_CCSRBAR_PHYS) {
+		msg("CCSR", CFG_SYS_CCSRBAR_PHYS, addr);
 		/* No point in checking anything else */
 		return 0;
 	}
@@ -796,15 +796,15 @@ int ft_verify_fdt(void *fdt)
 	 */
 	aliases = fdt_path_offset(fdt, "/aliases");
 	if (aliases > 0) {
-#ifdef CONFIG_SYS_NS16550_COM1
+#ifdef CFG_SYS_NS16550_COM1
 		if (!fdt_verify_alias_address(fdt, aliases, "serial0",
-			CCSR_VIRT_TO_PHYS(CONFIG_SYS_NS16550_COM1)))
+			CCSR_VIRT_TO_PHYS(CFG_SYS_NS16550_COM1)))
 			return 0;
 #endif
 
-#ifdef CONFIG_SYS_NS16550_COM2
+#ifdef CFG_SYS_NS16550_COM2
 		if (!fdt_verify_alias_address(fdt, aliases, "serial1",
-			CCSR_VIRT_TO_PHYS(CONFIG_SYS_NS16550_COM2)))
+			CCSR_VIRT_TO_PHYS(CFG_SYS_NS16550_COM2)))
 			return 0;
 #endif
 	}
@@ -818,12 +818,12 @@ int ft_verify_fdt(void *fdt)
 	 * the 'reg' property to be wrong, so check it here.  For now, we
 	 * only check for "fsl,elbc" nodes.
 	 */
-#ifdef CONFIG_SYS_LBC_ADDR
+#ifdef CFG_SYS_LBC_ADDR
 	off = fdt_node_offset_by_compatible(fdt, -1, "fsl,elbc");
 	if (off > 0) {
 		const fdt32_t *reg = fdt_getprop(fdt, off, "reg", NULL);
 		if (reg) {
-			uint64_t uaddr = CCSR_VIRT_TO_PHYS(CONFIG_SYS_LBC_ADDR);
+			uint64_t uaddr = CCSR_VIRT_TO_PHYS(CFG_SYS_LBC_ADDR);
 
 			addr = fdt_translate_address(fdt, off, reg);
 			if (uaddr != addr) {

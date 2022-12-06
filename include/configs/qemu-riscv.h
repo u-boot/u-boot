@@ -8,7 +8,7 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
 

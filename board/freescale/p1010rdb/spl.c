@@ -29,7 +29,7 @@ void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CFG_SYS_MPC85xx_GUTS_ADDR;
-	struct fsl_ifc ifc = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
+	struct fsl_ifc ifc = {(void *)CFG_SYS_IFC_ADDR, (void *)NULL};
 
 	console_init_f();
 
@@ -45,7 +45,7 @@ void board_init_f(ulong bootflag)
 	plat_ratio >>= 1;
 	gd->bus_clk = get_board_sys_clk() * plat_ratio;
 
-	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,
+	ns16550_init((struct ns16550 *)CFG_SYS_NS16550_COM1,
 		     gd->bus_clk / 16 / CONFIG_BAUDRATE);
 
 #ifdef CONFIG_SPL_MMC_BOOT

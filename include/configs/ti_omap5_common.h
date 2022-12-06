@@ -17,7 +17,7 @@
 #define __CONFIG_TI_OMAP5_COMMON_H
 
 /* Use General purpose timer 1 */
-#define CONFIG_SYS_TIMERBASE		GPT2_BASE
+#define CFG_SYS_TIMERBASE		GPT2_BASE
 
 #include <linux/stringify.h>
 
@@ -29,11 +29,7 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_SYS_NS16550_CLK		48000000
-#if !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#endif
+#define CFG_SYS_NS16550_CLK		48000000
 
 /*
  * Environment setup

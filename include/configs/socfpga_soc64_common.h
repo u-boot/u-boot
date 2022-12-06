@@ -26,8 +26,8 @@
 /*
  * U-Boot run time memory configurations
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x40000
+#define CFG_SYS_INIT_RAM_ADDR	0xFFE00000
+#define CFG_SYS_INIT_RAM_SIZE	0x40000
 
 /*
  * U-Boot environment configurations
@@ -70,13 +70,12 @@
  */
 #define PHYS_SDRAM_1			0x0
 #define PHYS_SDRAM_1_SIZE		(1 * 1024 * 1024 * 1024)
-#define CONFIG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_BASE		0
 
 /*
  * Serial / UART configurations
  */
-#define CONFIG_SYS_NS16550_CLK		100000000
-#define CONFIG_SYS_NS16550_MEM32
+#define CFG_SYS_NS16550_CLK		100000000
 
 /*
  * SDMMC configurations

@@ -29,6 +29,6 @@
  * Configuration of the external SDRAM memory
  */
 
-#define CONFIG_SYS_UBOOT_START		0x800023FD
+#define CFG_SYS_UBOOT_START		0x800023FD
 
 #endif /* __IMXRT1050_EVK_H */

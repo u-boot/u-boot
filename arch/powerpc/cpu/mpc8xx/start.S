@@ -141,8 +141,8 @@ in_flash:
 	mtspr	DER, r2
 
 	/* set up the stack on top of internal DPRAM */
-	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@h
-	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)@l
+	lis	r3, (CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_SIZE)@h
+	ori	r3, r3, (CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_SIZE)@l
 	stw	r0, -4(r3)
 	stw	r0, -8(r3)
 	addi	r1, r3, -8

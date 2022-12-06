@@ -19,70 +19,70 @@
 
 #ifndef CONFIG_DM_ETH
 struct fm_eth_info fm_info[] = {
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 1)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 1)
 	FM_DTSEC_INFO_INITIALIZER(1, 1),
 #endif
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 2)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 2)
 	FM_DTSEC_INFO_INITIALIZER(1, 2),
 #endif
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 3)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 3)
 	FM_DTSEC_INFO_INITIALIZER(1, 3),
 #endif
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 4)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 4)
 	FM_DTSEC_INFO_INITIALIZER(1, 4),
 #endif
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 5)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 5)
 	FM_DTSEC_INFO_INITIALIZER(1, 5),
 #endif
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 6)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 6)
 	FM_DTSEC_INFO_INITIALIZER(1, 6),
 #endif
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 7)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 7)
 	FM_DTSEC_INFO_INITIALIZER(1, 9),
 #endif
-#if (CONFIG_SYS_NUM_FM1_DTSEC >= 8)
+#if (CFG_SYS_NUM_FM1_DTSEC >= 8)
 	FM_DTSEC_INFO_INITIALIZER(1, 10),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 1)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 1)
 	FM_DTSEC_INFO_INITIALIZER(2, 1),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 2)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 2)
 	FM_DTSEC_INFO_INITIALIZER(2, 2),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 3)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 3)
 	FM_DTSEC_INFO_INITIALIZER(2, 3),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 4)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 4)
 	FM_DTSEC_INFO_INITIALIZER(2, 4),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 5)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 5)
 	FM_DTSEC_INFO_INITIALIZER(2, 5),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 6)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 6)
 	FM_DTSEC_INFO_INITIALIZER(2, 6),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 7)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 7)
 	FM_DTSEC_INFO_INITIALIZER(2, 9),
 #endif
-#if (CONFIG_SYS_NUM_FM2_DTSEC >= 8)
+#if (CFG_SYS_NUM_FM2_DTSEC >= 8)
 	FM_DTSEC_INFO_INITIALIZER(2, 10),
 #endif
-#if (CONFIG_SYS_NUM_FM1_10GEC >= 1)
+#if (CFG_SYS_NUM_FM1_10GEC >= 1)
 	FM_TGEC_INFO_INITIALIZER(1, 1),
 #endif
-#if (CONFIG_SYS_NUM_FM1_10GEC >= 2)
+#if (CFG_SYS_NUM_FM1_10GEC >= 2)
 	FM_TGEC_INFO_INITIALIZER(1, 2),
 #endif
-#if (CONFIG_SYS_NUM_FM1_10GEC >= 3)
+#if (CFG_SYS_NUM_FM1_10GEC >= 3)
 	FM_TGEC_INFO_INITIALIZER2(1, 3),
 #endif
-#if (CONFIG_SYS_NUM_FM1_10GEC >= 4)
+#if (CFG_SYS_NUM_FM1_10GEC >= 4)
 	FM_TGEC_INFO_INITIALIZER2(1, 4),
 #endif
-#if (CONFIG_SYS_NUM_FM2_10GEC >= 1)
+#if (CFG_SYS_NUM_FM2_10GEC >= 1)
 	FM_TGEC_INFO_INITIALIZER(2, 1),
 #endif
-#if (CONFIG_SYS_NUM_FM2_10GEC >= 2)
+#if (CFG_SYS_NUM_FM2_10GEC >= 2)
 	FM_TGEC_INFO_INITIALIZER(2, 2),
 #endif
 };
@@ -101,7 +101,7 @@ int fm_standard_init(struct bd_info *bis)
 			fm_eth_initialize(reg, &fm_info[i]);
 	}
 
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 	reg = (void *)CFG_SYS_FSL_FM2_ADDR;
 	if (fm_init_common(1, reg))
 		return 0;
@@ -244,9 +244,9 @@ int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 {
 	int off;
 	uint32_t ph;
-	phys_addr_t paddr = CONFIG_SYS_CCSRBAR_PHYS + info->compat_offset;
+	phys_addr_t paddr = CFG_SYS_CCSRBAR_PHYS + info->compat_offset;
 #ifndef CONFIG_SYS_FMAN_V3
-	u64 dtsec1_addr = (u64)CONFIG_SYS_CCSRBAR_PHYS +
+	u64 dtsec1_addr = (u64)CFG_SYS_CCSRBAR_PHYS +
 				CFG_SYS_FSL_FM1_DTSEC1_OFFSET;
 #endif
 
@@ -276,7 +276,7 @@ int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	    ((info->port == FM1_10GEC2) && (PORT_IS_ENABLED(FM1_DTSEC10))) ||
 	    ((info->port == FM1_10GEC3) && (PORT_IS_ENABLED(FM1_DTSEC1)))  ||
 	    ((info->port == FM1_10GEC4) && (PORT_IS_ENABLED(FM1_DTSEC2)))
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 										||
 	    ((info->port == FM2_DTSEC9) && (PORT_IS_ENABLED(FM2_10GEC1)))	||
 	    ((info->port == FM2_DTSEC10) && (PORT_IS_ENABLED(FM2_10GEC2)))	||

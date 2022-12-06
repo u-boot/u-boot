@@ -11,8 +11,8 @@
 #include <configs/exynos4-common.h>
 
 /* ORIGEN has 4 bank of DRAM */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
+#define CFG_SYS_SDRAM_BASE		0x40000000
+#define PHYS_SDRAM_1			CFG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
 /* Power Down Modes */

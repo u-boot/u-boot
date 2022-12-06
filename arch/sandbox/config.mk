@@ -8,9 +8,7 @@ SDL_CONFIG ?= sdl2-config
 
 # Define this to avoid linking with SDL, which requires SDL libraries
 # This can solve 'sdl-config: Command not found' errors
-ifneq ($(NO_SDL),)
-PLATFORM_CPPFLAGS += -DSANDBOX_NO_SDL
-else
+ifeq ($(CONFIG_SANDBOX_SDL),y)
 PLATFORM_LIBS += $(shell $(SDL_CONFIG) --libs)
 PLATFORM_CPPFLAGS += $(shell $(SDL_CONFIG) --cflags)
 endif

@@ -14,7 +14,7 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 /* DRAM Base */
-#define CONFIG_SYS_SDRAM_BASE		0x30000000
+#define CFG_SYS_SDRAM_BASE		0x30000000
 
 /* Text Base */
 
@@ -60,8 +60,6 @@
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
 #define COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
-
-#define CONFIG_MISC_COMMON
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
@@ -114,7 +112,7 @@
 	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
 
 /* Goni has 3 banks of DRAM, but swap the bank */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */
+#define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */
 #define PHYS_SDRAM_1_SIZE	(80 << 20)		/* 80 MB in Bank #0 */
 #define PHYS_SDRAM_2		0x40000000		/* mDDR DMC1 Bank #1 */
 #define PHYS_SDRAM_2_SIZE	(256 << 20)		/* 256 MB in Bank #1 */
@@ -124,6 +122,6 @@
 /* FLASH and environment organization */
 #define CONFIG_MMC_DEFAULT_DEV	0
 
-#define CONFIG_SYS_ONENAND_BASE		0xB0000000
+#define CFG_SYS_ONENAND_BASE		0xB0000000
 
 #endif	/* __CONFIG_H */

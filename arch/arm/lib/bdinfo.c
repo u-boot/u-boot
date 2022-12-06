@@ -29,7 +29,7 @@ void arch_print_bdinfo(void)
 	struct bd_info *bd = gd->bd;
 
 	bdinfo_print_num_l("arch_number", bd->bi_arch_number);
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	if (gd->arch.secure_ram & MEM_RESERVE_SECURE_SECURED) {
 		bdinfo_print_num_ll("Secure ram",
 				    gd->arch.secure_ram &

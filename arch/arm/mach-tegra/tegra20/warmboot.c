@@ -23,10 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_TEGRA_CLOCK_SCALING
-#error "You must enable CONFIG_TEGRA_CLOCK_SCALING to use CONFIG_TEGRA_LP0"
-#endif
-
 /*
  * This is the place in SRAM where the SDRAM parameters are stored. There
  * are 4 blocks, one for each RAM code

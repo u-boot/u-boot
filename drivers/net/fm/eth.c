@@ -128,7 +128,7 @@ static void dtsec_init_phy(struct fm_eth *fm_eth)
 	struct dtsec *regs = (struct dtsec *)CFG_SYS_FSL_FM1_DTSEC1_ADDR;
 
 	/* Assign a Physical address to the TBI */
-	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
+	out_be32(&regs->tbipa, CFG_SYS_TBIPA_VALUE);
 #endif
 
 	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII ||

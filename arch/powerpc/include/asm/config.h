@@ -32,14 +32,6 @@
 #define BPTR_VIRT_ADDR	0xfffff000
 #endif
 
-/* Since so many PPC SOCs have a semi-common LBC, define this here */
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) || \
-	defined(CONFIG_MPC83xx)
-#if !defined(CONFIG_FSL_IFC)
-#define CONFIG_FSL_LBC
-#endif
-#endif
-
 /* The TSEC driver uses the PHYLIB infrastructure */
 #if defined(CONFIG_TSEC_ENET) && defined(CONFIG_PHYLIB)
 #include <config_phylib_all_drivers.h>
@@ -52,7 +44,7 @@
  * TODO: Convert this to a clock driver exists that can give us the UART
  * clock here.
  */
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 #endif
 
 #endif /* _ASM_CONFIG_H_ */

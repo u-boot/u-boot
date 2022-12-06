@@ -6,8 +6,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
+#define CFG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
 /* XHCI Support - enabled by default */
 
@@ -56,25 +56,18 @@
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(1u * 1024 * 1024 * 1024)
 
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
 /* Serial Port */
-#define CONFIG_SYS_NS16550_SERIAL
-#ifndef CONFIG_DM_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#endif
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 
 /* I2C */
 
 /* PCIe */
 #define FSL_PCIE_COMPAT			"fsl,ls1021a-pcie"
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
-
-#define CONFIG_FSL_DEVICE_DISABLE
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
@@ -145,9 +138,7 @@
 		"bootm $load_addr#$board\0"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-
-#define CONFIG_LS102XA_STREAM_ID
+#define CFG_SYS_BOOTMAPSZ		(256 << 20)
 
 /* Environment */
 

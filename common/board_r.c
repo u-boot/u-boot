@@ -346,7 +346,7 @@ static int initr_flash(void)
 	 * NOTE: Maybe we should add some schedule()? XXX
 	 */
 	if (env_get_yesno("flashchecksum") == 1) {
-		const uchar *flash_base = (const uchar *)CONFIG_SYS_FLASH_BASE;
+		const uchar *flash_base = (const uchar *)CFG_SYS_FLASH_BASE;
 
 		printf("  CRC: %08X", crc32(0,
 					    flash_base,
@@ -356,8 +356,8 @@ static int initr_flash(void)
 	putc('\n');
 
 	/* update start of FLASH memory    */
-#ifdef CONFIG_SYS_FLASH_BASE
-	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
+#ifdef CFG_SYS_FLASH_BASE
+	bd->bi_flashstart = CFG_SYS_FLASH_BASE;
 #endif
 	/* size of FLASH memory (final value) */
 	bd->bi_flashsize = flash_size;
@@ -370,7 +370,7 @@ static int initr_flash(void)
 #if defined(CONFIG_OXC) || defined(CONFIG_RMU)
 	/* flash mapped at end of memory map */
 	bd->bi_flashoffset = CONFIG_TEXT_BASE + flash_size;
-#elif CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
+#elif CONFIG_SYS_MONITOR_BASE == CFG_SYS_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for monitor */
 #endif
 	return 0;

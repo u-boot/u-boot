@@ -11,7 +11,7 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap-sdm845.h>
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 230400, 460800, 921600 }
+#define CFG_SYS_BAUDRATE_TABLE	{ 115200, 230400, 460800, 921600 }
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x4000000\0"	\

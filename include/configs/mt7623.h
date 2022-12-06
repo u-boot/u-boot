@@ -21,7 +21,7 @@
 #define MMC_SUPPORTS_TUNING
 
 /* DRAM */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /* This is needed for kernel booting */
 #define FDT_HIGH			"0xac000000"

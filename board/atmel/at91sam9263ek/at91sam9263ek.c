@@ -69,10 +69,10 @@ static void at91sam9263ek_nand_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_set_gpio_input(CFG_SYS_NAND_READY_PIN, 1);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	at91_set_gpio_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 
@@ -95,7 +95,7 @@ int board_init(void)
 	/* arch number of AT91SAM9263EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9263EK;
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_CMD_NAND
 	at91sam9263ek_nand_hw_init();
@@ -108,8 +108,8 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-		CONFIG_SYS_SDRAM_SIZE);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
+		CFG_SYS_SDRAM_SIZE);
 
 	return 0;
 }

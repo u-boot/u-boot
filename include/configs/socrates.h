@@ -42,20 +42,19 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache		*/
 
-#define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
+#define CFG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
-#undef	CONFIG_SYS_DRAM_TEST			/* memory test, takes time	*/
+#undef	CFG_SYS_DRAM_TEST			/* memory test, takes time	*/
 
-#define CONFIG_SYS_CCSRBAR		0xE0000000
-#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
+#define CFG_SYS_CCSRBAR		0xE0000000
+#define CFG_SYS_CCSRBAR_PHYS_LOW	CFG_SYS_CCSRBAR
 
 /* DDR Setup */
-#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_SDRAM_BASE	0x00000000
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 #define CONFIG_VERY_BIG_RAM
 
 /* I2C addresses of SPD EEPROMs */
@@ -63,58 +62,54 @@
 
 
 /* Hardcoded values, to use instead of SPD */
-#define CONFIG_SYS_DDR_CS0_BNDS		0x0000000f
-#define CONFIG_SYS_DDR_CS0_CONFIG		0x80010102
-#define CONFIG_SYS_DDR_TIMING_0		0x00260802
-#define CONFIG_SYS_DDR_TIMING_1		0x3935D322
-#define CONFIG_SYS_DDR_TIMING_2		0x14904CC8
-#define CONFIG_SYS_DDR_MODE			0x00480432
-#define CONFIG_SYS_DDR_INTERVAL		0x030C0100
-#define CONFIG_SYS_DDR_CONFIG_2		0x04400000
-#define CONFIG_SYS_DDR_CONFIG			0xC3008000
-#define CONFIG_SYS_DDR_CLK_CONTROL		0x03800000
-#define CONFIG_SYS_SDRAM_SIZE			256 /* in Megs */
+#define CFG_SYS_DDR_CS0_BNDS		0x0000000f
+#define CFG_SYS_DDR_CS0_CONFIG		0x80010102
+#define CFG_SYS_DDR_TIMING_0		0x00260802
+#define CFG_SYS_DDR_TIMING_1		0x3935D322
+#define CFG_SYS_DDR_TIMING_2		0x14904CC8
+#define CFG_SYS_DDR_MODE			0x00480432
+#define CFG_SYS_DDR_INTERVAL		0x030C0100
+#define CFG_SYS_DDR_CONFIG_2		0x04400000
+#define CFG_SYS_DDR_CONFIG			0xC3008000
+#define CFG_SYS_DDR_CLK_CONTROL		0x03800000
+#define CFG_SYS_SDRAM_SIZE			256 /* in Megs */
 
 /*
  * Flash on the LocalBus
  */
-#define CONFIG_SYS_FLASH0		0xFE000000
-#define CONFIG_SYS_FLASH1		0xFC000000
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH1, CONFIG_SYS_FLASH0 }
+#define CFG_SYS_FLASH0		0xFE000000
+#define CFG_SYS_FLASH1		0xFC000000
+#define CFG_SYS_FLASH_BANKS_LIST	{ CFG_SYS_FLASH1, CFG_SYS_FLASH0 }
 
-#define CONFIG_SYS_LBC_FLASH_BASE	CONFIG_SYS_FLASH1	/* Localbus flash start	*/
-#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_LBC_FLASH_BASE /* start of FLASH	*/
+#define CFG_SYS_LBC_FLASH_BASE	CFG_SYS_FLASH1	/* Localbus flash start	*/
+#define CFG_SYS_FLASH_BASE		CFG_SYS_LBC_FLASH_BASE /* start of FLASH	*/
 
-#define CONFIG_SYS_LBC_LCRR		0x00030004    /* LB clock ratio reg	*/
-#define CONFIG_SYS_LBC_LBCR		0x00000000    /* LB config reg		*/
-#define CONFIG_SYS_LBC_LSRT		0x20000000    /* LB sdram refresh timer	*/
-#define CONFIG_SYS_LBC_MRTPR		0x20000000    /* LB refresh timer presc.*/
+#define CFG_SYS_LBC_LCRR		0x00030004    /* LB clock ratio reg	*/
+#define CFG_SYS_LBC_LBCR		0x00000000    /* LB config reg		*/
+#define CFG_SYS_LBC_LSRT		0x20000000    /* LB sdram refresh timer	*/
+#define CFG_SYS_LBC_MRTPR		0x20000000    /* LB refresh timer presc.*/
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address	*/
-#define CONFIG_SYS_INIT_RAM_SIZE	0x4000		/* Size used area in RAM*/
+#define CFG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address	*/
+#define CFG_SYS_INIT_RAM_SIZE	0x4000		/* Size used area in RAM*/
 
-#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CFG_SYS_INIT_SP_OFFSET	(CFG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /* FPGA and NAND */
-#define CONFIG_SYS_FPGA_BASE		0xc0000000
-#define CONFIG_SYS_FPGA_SIZE		0x00100000	/* 1 MB		*/
+#define CFG_SYS_FPGA_BASE		0xc0000000
+#define CFG_SYS_FPGA_SIZE		0x00100000	/* 1 MB		*/
 
-#define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_FPGA_BASE + 0x70)
+#define CFG_SYS_NAND_BASE		(CFG_SYS_FPGA_BASE + 0x70)
 
 /* LIME GDC */
-#define CONFIG_SYS_LIME_BASE		0xc8000000
+#define CFG_SYS_LIME_BASE		0xc8000000
 
 /*
  * General PCI
  * Memory space is mapped 1-1.
  */
 
-#define CONFIG_SYS_PCI1_MEM_BASE	0x80000000
-#define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
-#define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M			*/
-#define CONFIG_SYS_PCI1_IO_BASE	0xE2000000
-#define CONFIG_SYS_PCI1_IO_PHYS	CONFIG_SYS_PCI1_IO_BASE
-#define CONFIG_SYS_PCI1_IO_SIZE	0x01000000	/* 16M			*/
+#define CFG_SYS_PCI1_MEM_PHYS	0x80000000
+#define CFG_SYS_PCI1_IO_PHYS	0xE2000000
 
 #define CONFIG_TSEC1	1
 #define CONFIG_TSEC1_NAME	"TSEC0"
@@ -141,7 +136,7 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux	*/
+#define CFG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux	*/
 
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\

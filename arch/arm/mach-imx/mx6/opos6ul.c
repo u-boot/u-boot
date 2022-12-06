@@ -44,7 +44,7 @@ static int setup_fec(void)
 int board_init(void)
 {
 	/* Address of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_FEC_MXC
 	setup_fec();

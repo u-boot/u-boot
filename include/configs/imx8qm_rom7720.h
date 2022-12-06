@@ -10,7 +10,7 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
+#define CFG_SYS_BOOTMAPSZ		(256 << 20)
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5B010000
 #define USDHC2_BASE_ADDR		0x5B020000
@@ -108,7 +108,7 @@
  */
 #define CFG_SYS_FSL_USDHC_NUM	3
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 #define PHYS_SDRAM_1_SIZE		0x80000000	/* 2 GB */

@@ -8,7 +8,7 @@
 #include <asm/fsl_liodn.h>
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
-struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
+struct qportal_info qp_info[CFG_SYS_QMAN_NUM_PORTALS] = {
 	/* dqrr liodn, frame data liodn, liodn off, sdest */
 	SET_QP_INFO(1, 27, 1, 0),
 	SET_QP_INFO(2, 28, 1, 0),

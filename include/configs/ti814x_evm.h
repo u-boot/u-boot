@@ -69,24 +69,20 @@
 #define PHYS_DRAM_1_SIZE		0x20000000	/* 512MB */
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1024MB */
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /**
  * Platform/Board specific defs
  */
-#define CONFIG_SYS_TIMERBASE		0x4802E000
+#define CFG_SYS_TIMERBASE		0x4802E000
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		(48000000)
-#define CONFIG_SYS_NS16550_COM1		0x48020000	/* Base EVM has UART0 */
+#define CFG_SYS_NS16550_CLK		(48000000)
+#define CFG_SYS_NS16550_COM1		0x48020000	/* Base EVM has UART0 */
 
 /* CPU */
 
 /* Defines for SPL */
-
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM

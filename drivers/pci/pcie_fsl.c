@@ -343,8 +343,8 @@ static int fsl_pcie_setup_outbound_wins(struct fsl_pcie *pcie)
 
 static int fsl_pcie_setup_inbound_wins(struct fsl_pcie *pcie)
 {
-	phys_addr_t phys_start = CONFIG_SYS_PCI_MEMORY_PHYS;
-	pci_addr_t bus_start = CONFIG_SYS_PCI_MEMORY_BUS;
+	phys_addr_t phys_start = CFG_SYS_PCI_MEMORY_PHYS;
+	pci_addr_t bus_start = CFG_SYS_PCI_MEMORY_BUS;
 	u64 sz = min((u64)gd->ram_size, (1ull << 32));
 	pci_size_t pci_sz;
 	int idx;
@@ -367,8 +367,8 @@ static int fsl_pcie_setup_inbound_wins(struct fsl_pcie *pcie)
 		sz = 2ull << __ilog2_u64(sz);
 
 	fsl_pcie_setup_inbound_win(pcie, idx--, true,
-				   CONFIG_SYS_PCI_MEMORY_PHYS,
-				   CONFIG_SYS_PCI_MEMORY_BUS, sz);
+				   CFG_SYS_PCI_MEMORY_PHYS,
+				   CFG_SYS_PCI_MEMORY_BUS, sz);
 #if defined(CONFIG_PHYS_64BIT) && defined(CONFIG_SYS_PCI_64BIT)
 	/*
 	 * On 64-bit capable systems, set up a mapping for all of DRAM
@@ -380,12 +380,12 @@ static int fsl_pcie_setup_inbound_wins(struct fsl_pcie *pcie)
 		pci_sz = 1ull << (__ilog2_u64(gd->ram_size) + 1);
 
 	dev_dbg(pcie->bus, "R64 bus_start: %llx phys_start: %llx size: %llx\n",
-		(u64)CONFIG_SYS_PCI64_MEMORY_BUS,
-		(u64)CONFIG_SYS_PCI_MEMORY_PHYS, (u64)pci_sz);
+		(u64)CFG_SYS_PCI64_MEMORY_BUS,
+		(u64)CFG_SYS_PCI_MEMORY_PHYS, (u64)pci_sz);
 
 	fsl_pcie_setup_inbound_win(pcie, idx--, true,
-				   CONFIG_SYS_PCI_MEMORY_PHYS,
-				   CONFIG_SYS_PCI64_MEMORY_BUS, pci_sz);
+				   CFG_SYS_PCI_MEMORY_PHYS,
+				   CFG_SYS_PCI64_MEMORY_BUS, pci_sz);
 #endif
 
 	return 0;

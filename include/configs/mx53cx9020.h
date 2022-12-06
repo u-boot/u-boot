@@ -60,13 +60,10 @@
 #define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
 
-#define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
-#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
-#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+#define CFG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
+#define CFG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CFG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
 /* environment organization */
-
-/* Framebuffer and LCD */
-#define CONFIG_IMX_VIDEO_SKIP
 
 #endif /* __CONFIG_H */

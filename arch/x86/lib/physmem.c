@@ -144,7 +144,7 @@ static void x86_phys_memset_page(phys_addr_t map_addr, uintptr_t offset, int c,
 
 	/* Make sure the window is below U-Boot. */
 	assert(window + LARGE_PAGE_SIZE <
-	       gd->relocaddr - CONFIG_SYS_MALLOC_LEN - CONFIG_SYS_STACK_SIZE);
+	       gd->relocaddr - CONFIG_SYS_MALLOC_LEN - CFG_SYS_STACK_SIZE);
 	/* Map the page into the window and then memset the appropriate part. */
 	x86_phys_map_page(window, map_addr, 1);
 	memset((void *)(window + offset), c, size);

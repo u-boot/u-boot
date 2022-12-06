@@ -147,8 +147,8 @@ struct cfi_pri_hdr {
 	u8	minor_version;
 } __attribute__((packed));
 
-#ifndef CONFIG_SYS_FLASH_BANKS_LIST
-#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
+#ifndef CFG_SYS_FLASH_BANKS_LIST
+#define CFG_SYS_FLASH_BANKS_LIST { CFG_SYS_FLASH_BASE }
 #endif
 
 /*

@@ -16,14 +16,14 @@
 
 /* SPL */
 
-#define CONFIG_SYS_SPI_KERNEL_OFFS	SZ_1M
-#define CONFIG_SYS_SPI_ARGS_OFFS	SZ_512K
-#define CONFIG_SYS_SPI_ARGS_SIZE	SZ_32K
+#define CFG_SYS_SPI_KERNEL_OFFS	SZ_1M
+#define CFG_SYS_SPI_ARGS_OFFS	SZ_512K
+#define CFG_SYS_SPI_ARGS_SIZE	SZ_32K
 
 /* Memory configuration */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
 #define PHYS_SDRAM_1_SIZE		0x10000000	/* Max 256 MB RAM */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Extra Environment */
 #define CONFIG_HOSTNAME		"xea"

@@ -21,7 +21,6 @@
 /*-----------------------------------------------------------------------
  * Serial Configuration
  */
-#define CONFIG_SYS_NS16550_PORT_MAPPED
 
 /*
  * Miscellaneous configurable options
@@ -31,7 +30,7 @@
  * CPU Features
  */
 
-#define CONFIG_SYS_STACK_SIZE			(32 * 1024)
+#define CFG_SYS_STACK_SIZE			(32 * 1024)
 
 /*-----------------------------------------------------------------------
  * Environment configuration

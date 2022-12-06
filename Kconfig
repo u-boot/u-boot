@@ -264,8 +264,8 @@ config HAS_CUSTOM_SYS_INIT_SP_ADDR
 	default y if TFABOOT
 	help
 	  Typically, we use an initial stack pointer address that is calculated
-	  by taking the statically defined CONFIG_SYS_INIT_RAM_ADDR, adding the
-	  statically defined CONFIG_SYS_INIT_RAM_SIZE and then subtracting the
+	  by taking the statically defined CFG_SYS_INIT_RAM_ADDR, adding the
+	  statically defined CFG_SYS_INIT_RAM_SIZE and then subtracting the
 	  build-time constant of GENERATED_GBL_DATA_SIZE.  On MIPS a different
 	  but statica calculation is performed.  However, some platforms will
 	  take a different approach.  Say Y here to define the address statically
@@ -333,7 +333,7 @@ config SPL_SYS_MALLOC_F_LEN
 	  particular needs this to operate, so that it can allocate the
 	  initial serial device and any others that are needed.
 
-	  It is possible to enable CONFIG_SYS_SPL_MALLOC_START to start a new
+	  It is possible to enable CFG_SYS_SPL_MALLOC_START to start a new
 	  malloc() region in SDRAM once it is inited.
 
 config TPL_SYS_MALLOC_F_LEN

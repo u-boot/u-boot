@@ -20,7 +20,7 @@
 #endif
 
 /* Framebuffer */
-#define CONFIG_SYS_LDB_CLOCK	28341000
+#define CFG_SYS_LDB_CLOCK	28341000
 
 #include "mx6_common.h"
 
@@ -29,8 +29,6 @@
 #define CFG_SYS_FSL_ESDHC_ADDR      USDHC1_BASE_ADDR
 
 #define CONFIG_FEC_MXC_PHYADDR		0
-
-#define CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
 
 #ifdef CONFIG_IMX_HAB
 #define HAB_EXTRA_SETTINGS \
@@ -408,9 +406,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 
@@ -421,12 +419,6 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* UBI support */
-
-/* Framebuffer */
-/* check this console not needed, after test remove it */
-#define CONFIG_IMX_VIDEO_SKIP
-
-#define CONFIG_IMX6_PWM_PER_CLK	66000000
 
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \
 		"sysnum:dw,panel:sw,ipaddr:iw,serverip:iw"

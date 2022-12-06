@@ -31,7 +31,7 @@ int spl_ubi_load_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_ONENAND_SUPPORT
 	case BOOT_DEVICE_ONENAND:
 		info.read = onenand_spl_read_block;
-		info.peb_size = CONFIG_SYS_ONENAND_BLOCK_SIZE;
+		info.peb_size = CFG_SYS_ONENAND_BLOCK_SIZE;
 		break;
 #endif
 	default:
