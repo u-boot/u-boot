@@ -344,7 +344,7 @@
         interrupt-controller;
         interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_LOW>;
 
-        its: gic-its@30020000 {
+        its: msi-controller@30020000 {
             compatible = "arm,gic-v3-its";
             reg = <0x0 0x30020000 0x0 0x20000>;
             #msi-cells = <1>;
@@ -361,7 +361,7 @@
                      <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;   // HYP
     };
 
-    mmio-timer@2a810000 {
+    timer@2a810000 {
         compatible = "arm,armv7-timer-mem";
         reg = <0x0 0x2a810000 0x0 0x10000>;
         #address-cells = <2>;
@@ -398,7 +398,7 @@
         clock-output-names = "apb_pclk";
     };
 
-    soc_uart0: uart@2a400000 {
+    soc_uart0: serial@2a400000 {
         compatible = "arm,pl011", "arm,primecell";
         reg = <0x0 0x2a400000 0x0 0x1000>;
         interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
@@ -406,7 +406,7 @@
         clock-names = "uartclk", "apb_pclk";
     };
 
-    fuart: uart@51040000 {
+    fuart: serial@51040000 {
         compatible = "snps,dw-apb-uart";
         reg = <0x0 0x51040000 0x0 0x1000>;
         interrupts = <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
@@ -523,7 +523,7 @@
         clock-output-names = "sd_sd4clk";
     };
 
-    sdhci: sdhci@52300000 {
+    sdhci: mmc@52300000 {
         compatible = "socionext,synquacer-sdhci", "fujitsu,mb86s70-sdhci-3.0";
         reg = <0 0x52300000 0x0 0x1000>;
         interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_HIGH>,
