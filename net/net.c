@@ -1269,6 +1269,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 #if IS_ENABLED(CONFIG_IPV6)
 	case PROT_IP6:
 		net_ip6_handler(et, (struct ip6_hdr *)ip, len);
+		break;
 #endif
 	case PROT_IP:
 		debug_cond(DEBUG_NET_PKT, "Got IP\n");
