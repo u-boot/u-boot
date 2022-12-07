@@ -425,9 +425,11 @@ cmd_efi_objcopy = $(OBJCOPY) -j .header -j .text -j .sdata -j .data -j \
 $(obj)/%.efi: $(obj)/%_efi.so
 	$(call cmd,efi_objcopy)
 
+KBUILD_EFILDFLAGS = -nostdlib -zexecstack -znocombreloc -znorelro
+KBUILD_EFILDFLAGS += $(call ld-option,--no-warn-rwx-segments)
 quiet_cmd_efi_ld = LD      $@
-cmd_efi_ld = $(LD) -nostdlib -zexecstack -znocombreloc -T $(EFI_LDS_PATH) \
-		-shared -Bsymbolic -znorelro -s $^ -o $@
+cmd_efi_ld = $(LD) $(KBUILD_EFILDFLAGS) -T $(EFI_LDS_PATH) \
+		-shared -Bsymbolic -s $^ -o $@
 
 EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
 
