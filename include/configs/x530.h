@@ -32,8 +32,6 @@
 
 /* SPI NOR flash default params, used by sf commands */
 
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:240M(user),8M(errlog),8M(nand-bbt)"
 #define MTDPARTS_MTDOOPS		"errlog"
 
 /* Partition support */
