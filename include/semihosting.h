@@ -17,6 +17,17 @@
 #define SMH_T32_SVC 0xDFAB
 #define SMH_T32_HLT 0xBABC
 
+/**
+ * smh_trap() - ARCH-specific semihosting call.
+ *
+ * Semihosting library/driver can use this function to do the
+ * actual semihosting calls.
+ *
+ * Return: Error code defined by semihosting spec.
+ */
+
+long smh_trap(unsigned int sysnum, void *addr);
+
 #if CONFIG_IS_ENABLED(SEMIHOSTING_FALLBACK)
 /**
  * semihosting_enabled() - Determine whether semihosting is supported
