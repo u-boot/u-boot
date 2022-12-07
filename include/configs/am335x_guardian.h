@@ -115,7 +115,6 @@
 			}
 #define CFG_SYS_NAND_ECCSIZE         512
 #define CFG_SYS_NAND_ECCBYTES        26
-#define MTDIDS_DEFAULT                  "nand0=nand.0"
 
 #endif /* CONFIG_MTD_RAW_NAND */
 
