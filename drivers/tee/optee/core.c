@@ -834,7 +834,7 @@ static int optee_probe(struct udevice *dev)
 		 */
 		ret = device_bind_driver(dev, "optee-rng", "optee-rng", NULL);
 		if (ret)
-			return ret;
+			dev_warn(dev, "ftpm_tee failed to bind: %d\n", ret);
 	}
 
 	return 0;
