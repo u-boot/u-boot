@@ -475,9 +475,6 @@ ulong bootm_disable_interrupts(void)
 #ifdef CONFIG_NETCONSOLE
 	/* Stop the ethernet stack if NetConsole could have left it up */
 	eth_halt();
-# ifndef CONFIG_DM_ETH
-	eth_unregister(eth_get_dev());
-# endif
 #endif
 
 #if defined(CONFIG_CMD_USB)

@@ -109,11 +109,7 @@ struct eth_dev {
 
 	struct usb_request	*tx_req, *rx_req;
 
-#ifndef CONFIG_DM_ETH
-	struct eth_device	*net;
-#else
 	struct udevice		*net;
-#endif
 	struct net_device_stats	stats;
 	unsigned int		tx_qlen;
 
@@ -140,11 +136,7 @@ struct eth_dev {
 /*-------------------------------------------------------------------------*/
 struct ether_priv {
 	struct eth_dev ethdev;
-#ifndef CONFIG_DM_ETH
-	struct eth_device netdev;
-#else
 	struct udevice *netdev;
-#endif
 	struct usb_gadget_driver eth_driver;
 };
 
@@ -1827,22 +1819,14 @@ static void rndis_control_ack_complete(struct usb_ep *ep,
 
 static char rndis_resp_buf[8] __attribute__((aligned(sizeof(__le32))));
 
-#ifndef CONFIG_DM_ETH
-static int rndis_control_ack(struct eth_device *net)
-#else
 static int rndis_control_ack(struct udevice *net)
-#endif
 {
 	struct ether_priv *priv;
 	struct eth_dev *dev;
 	int length;
 	struct usb_request *resp;
 
-#ifndef CONFIG_DM_ETH
-	priv = (struct ether_priv *)net->priv;
-#else
 	priv = dev_get_priv(net);
-#endif
 	dev = &priv->ethdev;
 	resp = dev->stat_req;
 
@@ -1989,9 +1973,7 @@ static int eth_bind(struct usb_gadget *gadget)
 	int			status = -ENOMEM;
 	int			gcnum;
 	u8			tmp[7];
-#ifdef CONFIG_DM_ETH
 	struct eth_pdata	*pdata = dev_get_plat(l_priv->netdev);
-#endif
 
 	/* these flags are only ever cleared; compiler take note */
 #ifndef	CONFIG_USB_ETH_CDC
@@ -2168,11 +2150,7 @@ autoconf_fail:
 
 
 	/* network device setup */
-#ifndef CONFIG_DM_ETH
-	dev->net = &l_priv->netdev;
-#else
 	dev->net = l_priv->netdev;
-#endif
 
 	dev->cdc = cdc;
 	dev->zlp = zlp;
@@ -2189,13 +2167,8 @@ autoconf_fail:
 	 * host side code for the SAFE thing cares -- its original BLAN
 	 * thing didn't, Sharp never assigned those addresses on Zaurii.
 	 */
-#ifndef CONFIG_DM_ETH
-	get_ether_addr(dev_addr, dev->net->enetaddr);
-	memcpy(tmp, dev->net->enetaddr, sizeof(dev->net->enetaddr));
-#else
 	get_ether_addr(dev_addr, pdata->enetaddr);
 	memcpy(tmp, pdata->enetaddr, sizeof(pdata->enetaddr));
-#endif
 
 	get_ether_addr(host_addr, dev->host_mac);
 
@@ -2256,11 +2229,7 @@ autoconf_fail:
 		status_ep ? " STATUS " : "",
 		status_ep ? status_ep->name : ""
 		);
-#ifndef CONFIG_DM_ETH
-	printf("MAC %pM\n", dev->net->enetaddr);
-#else
 	printf("MAC %pM\n", pdata->enetaddr);
-#endif
 
 	if (cdc || rndis)
 		printf("HOST MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
@@ -2490,71 +2459,6 @@ static void _usb_eth_halt(struct ether_priv *priv)
 	usb_gadget_release(0);
 }
 
-#ifndef CONFIG_DM_ETH
-static int usb_eth_init(struct eth_device *netdev, struct bd_info *bd)
-{
-	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
-
-	return _usb_eth_init(priv);
-}
-
-static int usb_eth_send(struct eth_device *netdev, void *packet, int length)
-{
-	struct ether_priv	*priv = (struct ether_priv *)netdev->priv;
-
-	return _usb_eth_send(priv, packet, length);
-}
-
-static int usb_eth_recv(struct eth_device *netdev)
-{
-	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
-	struct eth_dev *dev = &priv->ethdev;
-	int ret;
-
-	ret = _usb_eth_recv(priv);
-	if (ret) {
-		pr_err("error packet receive\n");
-		return ret;
-	}
-
-	if (!packet_received)
-		return 0;
-
-	if (dev->rx_req) {
-		net_process_received_packet(net_rx_packets[0],
-					    dev->rx_req->length);
-	} else {
-		pr_err("dev->rx_req invalid");
-	}
-	packet_received = 0;
-	rx_submit(dev, dev->rx_req, 0);
-
-	return 0;
-}
-
-void usb_eth_halt(struct eth_device *netdev)
-{
-	struct ether_priv *priv = (struct ether_priv *)netdev->priv;
-
-	_usb_eth_halt(priv);
-}
-
-int usb_eth_initialize(struct bd_info *bi)
-{
-	struct eth_device *netdev = &l_priv->netdev;
-
-	strlcpy(netdev->name, USB_NET_NAME, sizeof(netdev->name));
-
-	netdev->init = usb_eth_init;
-	netdev->send = usb_eth_send;
-	netdev->recv = usb_eth_recv;
-	netdev->halt = usb_eth_halt;
-	netdev->priv = l_priv;
-
-	eth_register(netdev);
-	return 0;
-}
-#else
 static int usb_eth_start(struct udevice *dev)
 {
 	struct ether_priv *priv = dev_get_priv(dev);
@@ -2663,4 +2567,3 @@ U_BOOT_DRIVER(eth_usb) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif /* CONFIG_DM_ETH */

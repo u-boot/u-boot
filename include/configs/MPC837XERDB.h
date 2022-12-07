@@ -41,8 +41,6 @@
 
 #ifdef CONFIG_VSC7385_ENET
 
-#define CONFIG_TSEC2
-
 /* The flash address and size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE		0xFE7FE000
 #define CONFIG_VSC7385_IMAGE_SIZE	8192
@@ -177,31 +175,6 @@
 #define CFG_SYS_PCIE2_CFG_SIZE	0x08000000
 #define CFG_SYS_PCIE2_MEM_PHYS	0xC8000000
 #define CFG_SYS_PCIE2_IO_PHYS	0xD8000000
-
-/*
- * TSEC
- */
-#ifdef CONFIG_TSEC_ENET
-
-#define CONFIG_GMII			/* MII PHY management */
-
-#define CONFIG_TSEC1
-
-#ifdef CONFIG_TSEC1
-#define CONFIG_TSEC1_NAME		"TSEC0"
-#define CFG_SYS_TSEC1_OFFSET		0x24000
-#define TSEC1_PHY_ADDR			2
-#define TSEC1_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC1_PHYIDX			0
-#endif
-
-#ifdef CONFIG_TSEC2
-#define CONFIG_TSEC2_NAME		"TSEC1"
-#define TSEC2_PHY_ADDR			0x1c
-#define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC2_PHYIDX			0
-#endif
-#endif
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC_PIN_MUX

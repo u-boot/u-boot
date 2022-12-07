@@ -68,7 +68,6 @@ static int ksz90xx_startup(struct phy_device *phydev)
 }
 
 /* Common OF config bits for KSZ9021 and KSZ9031 */
-#ifdef CONFIG_DM_ETH
 struct ksz90x1_reg_field {
 	const char	*name;
 	const u8	size;	/* Size of the bitfield, in bits */
@@ -210,23 +209,6 @@ static int ksz9031_center_flp_timing(struct phy_device *phydev)
 	ret = drv->writeext(phydev, 0, 0, MII_KSZ9031_FLP_BURST_TX_HI, 0x6);
 	return ret;
 }
-
-#else /* !CONFIG_DM_ETH */
-static int ksz9021_of_config(struct phy_device *phydev)
-{
-	return 0;
-}
-
-static int ksz9031_of_config(struct phy_device *phydev)
-{
-	return 0;
-}
-
-static int ksz9031_center_flp_timing(struct phy_device *phydev)
-{
-	return 0;
-}
-#endif
 
 /*
  * KSZ9021

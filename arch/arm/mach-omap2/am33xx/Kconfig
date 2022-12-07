@@ -230,7 +230,6 @@ config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
 	select BOARD_LATE_INIT
 	select TI_I2C_BOARD_DETECT
-	imply DM_ETH
 	imply DM_I2C
 	imply DM_SPI
 	imply DM_SPI_FLASH

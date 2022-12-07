@@ -364,56 +364,6 @@ int board_early_init_r(void)
 	return 0;
 }
 
-#ifndef CONFIG_DM_ETH
-int board_eth_init(struct bd_info *bis)
-{
-	struct fsl_pq_mdio_info mdio_info;
-	struct tsec_info_struct tsec_info[4];
-	ccsr_gur_t *gur __attribute__((unused)) =
-		(void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
-	int num = 0;
-
-#ifdef CONFIG_TSEC1
-	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	num++;
-#endif
-#ifdef CONFIG_TSEC2
-	SET_STD_TSEC_INFO(tsec_info[num], 2);
-	if (is_serdes_configured(SGMII_TSEC2)) {
-		printf("eTSEC2 is in sgmii mode.\n");
-		tsec_info[num].flags |= TSEC_SGMII;
-	}
-	num++;
-#endif
-#ifdef CONFIG_TSEC3
-	SET_STD_TSEC_INFO(tsec_info[num], 3);
-	num++;
-#endif
-
-	if (!num) {
-		printf("No TSECs initialized\n");
-		return 0;
-	}
-
-	mdio_info.regs = TSEC_GET_MDIO_REGS_BASE(1);
-	mdio_info.name = DEFAULT_MII_NAME;
-
-	fsl_pq_mdio_init(bis, &mdio_info);
-
-	tsec_eth_init(bis, tsec_info, num);
-
-#if defined(CONFIG_UEC_ETH)
-	/*  QE0 and QE3 need to be exposed for UCC1 and UCC5 Eth mode */
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE0);
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE3);
-
-	uec_standard_init(bis);
-#endif
-
-	return pci_eth_init(bis);
-}
-#endif
-
 #if defined(CONFIG_OF_BOARD_SETUP) || defined(CONFIG_OF_BOARD_FIXUP)
 static void fix_max6370_watchdog(void *blob)
 {

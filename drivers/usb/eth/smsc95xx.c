@@ -143,16 +143,9 @@
 
 #define TURBO_MODE
 
-#ifndef CONFIG_DM_ETH
-/* local vars */
-static int curr_eth_dev; /* index for name of next device detected */
-#endif
-
 /* driver private */
 struct smsc95xx_private {
-#ifdef CONFIG_DM_ETH
 	struct ueth_data ueth;
-#endif
 	size_t rx_urb_size;  /* maximum USB URB size */
 	u32 mac_cr;  /* MAC control register value */
 	int have_hwaddr;  /* 1 if we have a hardware MAC address */
@@ -521,11 +514,6 @@ static int smsc95xx_init_common(struct usb_device *udev, struct ueth_data *dev,
 		debug("timeout waiting for PHY Reset\n");
 		return -ETIMEDOUT;
 	}
-#ifndef CONFIG_DM_ETH
-	if (!priv->have_hwaddr && smsc95xx_init_mac_address(enetaddr, udev) ==
-			0)
-		priv->have_hwaddr = 1;
-#endif
 	if (!priv->have_hwaddr) {
 		puts("Error: SMSC95xx: No MAC address set - set usbethaddr\n");
 		return -EADDRNOTAVAIL;
@@ -712,227 +700,6 @@ static int smsc95xx_send_common(struct ueth_data *dev, void *packet, int length)
 	return err;
 }
 
-#ifndef CONFIG_DM_ETH
-/*
- * Smsc95xx callbacks
- */
-static int smsc95xx_init(struct eth_device *eth, struct bd_info *bd)
-{
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct usb_device *udev = dev->pusb_dev;
-	struct smsc95xx_private *priv =
-		(struct smsc95xx_private *)dev->dev_priv;
-
-	return smsc95xx_init_common(udev, dev, priv, eth->enetaddr);
-}
-
-static int smsc95xx_send(struct eth_device *eth, void *packet, int length)
-{
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-
-	return smsc95xx_send_common(dev, packet, length);
-}
-
-static int smsc95xx_recv(struct eth_device *eth)
-{
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	DEFINE_CACHE_ALIGN_BUFFER(unsigned char, recv_buf, RX_URB_SIZE);
-	unsigned char *buf_ptr;
-	int err;
-	int actual_len;
-	u32 packet_len;
-	int cur_buf_align;
-
-	debug("** %s()\n", __func__);
-	err = usb_bulk_msg(dev->pusb_dev,
-			   usb_rcvbulkpipe(dev->pusb_dev, dev->ep_in),
-			   (void *)recv_buf, RX_URB_SIZE, &actual_len,
-			   USB_BULK_RECV_TIMEOUT);
-	debug("Rx: len = %u, actual = %u, err = %d\n", RX_URB_SIZE,
-	      actual_len, err);
-	if (err != 0) {
-		debug("Rx: failed to receive\n");
-		return -err;
-	}
-	if (actual_len > RX_URB_SIZE) {
-		debug("Rx: received too many bytes %d\n", actual_len);
-		return -ENOSPC;
-	}
-
-	buf_ptr = recv_buf;
-	while (actual_len > 0) {
-		/*
-		 * 1st 4 bytes contain the length of the actual data plus error
-		 * info. Extract data length.
-		 */
-		if (actual_len < sizeof(packet_len)) {
-			debug("Rx: incomplete packet length\n");
-			return -EIO;
-		}
-		memcpy(&packet_len, buf_ptr, sizeof(packet_len));
-		le32_to_cpus(&packet_len);
-		if (packet_len & RX_STS_ES_) {
-			debug("Rx: Error header=%#x", packet_len);
-			return -EIO;
-		}
-		packet_len = ((packet_len & RX_STS_FL_) >> 16);
-
-		if (packet_len > actual_len - sizeof(packet_len)) {
-			debug("Rx: too large packet: %d\n", packet_len);
-			return -EIO;
-		}
-
-		/* Notify net stack */
-		net_process_received_packet(buf_ptr + sizeof(packet_len),
-					    packet_len - 4);
-
-		/* Adjust for next iteration */
-		actual_len -= sizeof(packet_len) + packet_len;
-		buf_ptr += sizeof(packet_len) + packet_len;
-		cur_buf_align = (ulong)buf_ptr - (ulong)recv_buf;
-
-		if (cur_buf_align & 0x03) {
-			int align = 4 - (cur_buf_align & 0x03);
-
-			actual_len -= align;
-			buf_ptr += align;
-		}
-	}
-	return err;
-}
-
-static void smsc95xx_halt(struct eth_device *eth)
-{
-	debug("** %s()\n", __func__);
-}
-
-static int smsc95xx_write_hwaddr(struct eth_device *eth)
-{
-	struct ueth_data *dev = eth->priv;
-	struct usb_device *udev = dev->pusb_dev;
-	struct smsc95xx_private *priv = dev->dev_priv;
-
-	return smsc95xx_write_hwaddr_common(udev, priv, eth->enetaddr);
-}
-
-/*
- * SMSC probing functions
- */
-void smsc95xx_eth_before_probe(void)
-{
-	curr_eth_dev = 0;
-}
-
-struct smsc95xx_dongle {
-	unsigned short vendor;
-	unsigned short product;
-};
-
-static const struct smsc95xx_dongle smsc95xx_dongles[] = {
-	{ 0x0424, 0xec00 },	/* LAN9512/LAN9514 Ethernet */
-	{ 0x0424, 0x9500 },	/* LAN9500 Ethernet */
-	{ 0x0424, 0x9730 },	/* LAN9730 Ethernet (HSIC) */
-	{ 0x0424, 0x9900 },	/* SMSC9500 USB Ethernet Device (SAL10) */
-	{ 0x0424, 0x9e00 },	/* LAN9500A Ethernet */
-	{ 0x0000, 0x0000 }	/* END - Do not remove */
-};
-
-/* Probe to see if a new device is actually an SMSC device */
-int smsc95xx_eth_probe(struct usb_device *dev, unsigned int ifnum,
-		      struct ueth_data *ss)
-{
-	struct usb_interface *iface;
-	struct usb_interface_descriptor *iface_desc;
-	int i;
-
-	/* let's examine the device now */
-	iface = &dev->config.if_desc[ifnum];
-	iface_desc = &dev->config.if_desc[ifnum].desc;
-
-	for (i = 0; smsc95xx_dongles[i].vendor != 0; i++) {
-		if (dev->descriptor.idVendor == smsc95xx_dongles[i].vendor &&
-		    dev->descriptor.idProduct == smsc95xx_dongles[i].product)
-			/* Found a supported dongle */
-			break;
-	}
-	if (smsc95xx_dongles[i].vendor == 0)
-		return 0;
-
-	/* At this point, we know we've got a live one */
-	debug("\n\nUSB Ethernet device detected\n");
-	memset(ss, '\0', sizeof(struct ueth_data));
-
-	/* Initialize the ueth_data structure with some useful info */
-	ss->ifnum = ifnum;
-	ss->pusb_dev = dev;
-	ss->subclass = iface_desc->bInterfaceSubClass;
-	ss->protocol = iface_desc->bInterfaceProtocol;
-
-	/*
-	 * We are expecting a minimum of 3 endpoints - in, out (bulk), and int.
-	 * We will ignore any others.
-	 */
-	for (i = 0; i < iface_desc->bNumEndpoints; i++) {
-		/* is it an BULK endpoint? */
-		if ((iface->ep_desc[i].bmAttributes &
-		     USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_BULK) {
-			if (iface->ep_desc[i].bEndpointAddress & USB_DIR_IN)
-				ss->ep_in =
-					iface->ep_desc[i].bEndpointAddress &
-					USB_ENDPOINT_NUMBER_MASK;
-			else
-				ss->ep_out =
-					iface->ep_desc[i].bEndpointAddress &
-					USB_ENDPOINT_NUMBER_MASK;
-		}
-
-		/* is it an interrupt endpoint? */
-		if ((iface->ep_desc[i].bmAttributes &
-		    USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_INT) {
-			ss->ep_int = iface->ep_desc[i].bEndpointAddress &
-				USB_ENDPOINT_NUMBER_MASK;
-			ss->irqinterval = iface->ep_desc[i].bInterval;
-		}
-	}
-	debug("Endpoints In %d Out %d Int %d\n",
-		  ss->ep_in, ss->ep_out, ss->ep_int);
-
-	/* Do some basic sanity checks, and bail if we find a problem */
-	if (usb_set_interface(dev, iface_desc->bInterfaceNumber, 0) ||
-	    !ss->ep_in || !ss->ep_out || !ss->ep_int) {
-		debug("Problems with device\n");
-		return 0;
-	}
-	dev->privptr = (void *)ss;
-
-	/* alloc driver private */
-	ss->dev_priv = calloc(1, sizeof(struct smsc95xx_private));
-	if (!ss->dev_priv)
-		return 0;
-
-	return 1;
-}
-
-int smsc95xx_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
-				struct eth_device *eth)
-{
-	debug("** %s()\n", __func__);
-	if (!eth) {
-		debug("%s: missing parameter.\n", __func__);
-		return 0;
-	}
-	sprintf(eth->name, "%s%d", SMSC95XX_BASE_NAME, curr_eth_dev++);
-	eth->init = smsc95xx_init;
-	eth->send = smsc95xx_send;
-	eth->recv = smsc95xx_recv;
-	eth->halt = smsc95xx_halt;
-	eth->write_hwaddr = smsc95xx_write_hwaddr;
-	eth->priv = ss;
-	return 1;
-}
-#endif /* !CONFIG_DM_ETH */
-
-#ifdef CONFIG_DM_ETH
 static int smsc95xx_eth_start(struct udevice *dev)
 {
 	struct usb_device *udev = dev_get_parent_priv(dev);
@@ -1077,4 +844,3 @@ static const struct usb_device_id smsc95xx_eth_id_table[] = {
 };
 
 U_BOOT_USB_DEVICE(smsc95xx_eth, smsc95xx_eth_id_table);
-#endif

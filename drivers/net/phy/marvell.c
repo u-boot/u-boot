@@ -104,7 +104,6 @@
 #define MIIM_88E151x_MODE_SGMII		1
 #define MIIM_88E151x_RESET_OFFS		15
 
-#if IS_ENABLED(CONFIG_DM_ETH)
 static int marvell_read_page(struct phy_device *phydev)
 {
 	return phy_read(phydev, MDIO_DEVAD_NONE, MII_MARVELL_PHY_PAGE);
@@ -179,12 +178,6 @@ static int marvell_of_reg_init(struct phy_device *phydev)
 err:
 	return marvell_write_page(phydev, saved_page);
 }
-#else
-static int marvell_of_reg_init(struct phy_device *phydev)
-{
-	return 0;
-}
-#endif /* CONFIG_DM_ETH */
 
 static int m88e1xxx_phy_extread(struct phy_device *phydev, int addr,
 				int devaddr, int regnum)

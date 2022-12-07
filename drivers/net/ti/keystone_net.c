@@ -592,10 +592,8 @@ static int ks2_eth_probe(struct udevice *dev)
 	if (priv->has_mdio) {
 		priv->phydev = phy_connect(priv->mdio_bus, priv->phy_addr,
 					   dev, priv->phy_if);
-#ifdef CONFIG_DM_ETH
-	if (ofnode_valid(priv->phy_ofnode))
-		priv->phydev->node = priv->phy_ofnode;
-#endif
+		if (ofnode_valid(priv->phy_ofnode))
+			priv->phydev->node = priv->phy_ofnode;
 		phy_config(priv->phydev);
 	}
 

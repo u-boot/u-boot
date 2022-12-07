@@ -10,9 +10,7 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <u-boot/crc.h>
-#ifdef CONFIG_DM_ETH
 #include <dm.h>
-#endif
 
 #include "fm.h"
 #include <fsl_qe.h>		/* For struct qe_firmware */
@@ -551,7 +549,6 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 }
 #endif
 
-#ifdef CONFIG_DM_ETH
 struct fman_priv {
 	struct ccsr_fman *reg;
 	unsigned int fman_id;
@@ -626,4 +623,3 @@ U_BOOT_DRIVER(fman) = {
 	.priv_auto	= sizeof(struct fman_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif /* CONFIG_DM_ETH */

@@ -206,27 +206,14 @@ struct eepro100_priv {
 	/* TX descriptor ring pointer */
 	int			tx_next;
 	int			tx_threshold;
-#ifdef CONFIG_DM_ETH
 	struct udevice		*devno;
-#else
-	struct eth_device	dev;
-	pci_dev_t		devno;
-#endif
 	char			*name;
 	void __iomem		*iobase;
 	u8			*enetaddr;
 };
 
-#if defined(CONFIG_DM_ETH)
 #define bus_to_phys(dev, a)	dm_pci_mem_to_phys((dev), (a))
 #define phys_to_bus(dev, a)	dm_pci_phys_to_mem((dev), (a))
-#elif defined(CONFIG_E500)
-#define bus_to_phys(dev, a)	(a)
-#define phys_to_bus(dev, a)	(a)
-#else
-#define bus_to_phys(dev, a)	pci_mem_to_phys((dev), (a))
-#define phys_to_bus(dev, a)	pci_phys_to_mem((dev), (a))
-#endif
 
 static int INW(struct eepro100_priv *priv, u_long addr)
 {
@@ -778,126 +765,6 @@ done:
 	return;
 }
 
-#ifndef CONFIG_DM_ETH
-static int eepro100_init(struct eth_device *dev, struct bd_info *bis)
-{
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
-
-	return eepro100_init_common(priv);
-}
-
-static void eepro100_halt(struct eth_device *dev)
-{
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
-
-	eepro100_halt_common(priv);
-}
-
-static int eepro100_send(struct eth_device *dev, void *packet, int length)
-{
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
-
-	return eepro100_send_common(priv, packet, length);
-}
-
-static int eepro100_recv(struct eth_device *dev)
-{
-	struct eepro100_priv *priv =
-		container_of(dev, struct eepro100_priv, dev);
-	uchar *packet;
-	int ret;
-
-	ret = eepro100_recv_common(priv, &packet);
-	if (ret > 0)
-		net_process_received_packet(packet, ret);
-	if (ret)
-		eepro100_free_pkt_common(priv);
-
-	return ret;
-}
-
-int eepro100_initialize(struct bd_info *bis)
-{
-	struct eepro100_priv *priv;
-	struct eth_device *dev;
-	int card_number = 0;
-	u32 iobase, status;
-	pci_dev_t devno;
-	int idx = 0;
-	int ret;
-
-	while (1) {
-		/* Find PCI device */
-		devno = pci_find_devices(supported, idx++);
-		if (devno < 0)
-			break;
-
-		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &iobase);
-		iobase &= ~0xf;
-
-		debug("eepro100: Intel i82559 PCI EtherExpressPro @0x%x\n",
-		      iobase);
-
-		pci_write_config_dword(devno, PCI_COMMAND,
-				       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-
-		/* Check if I/O accesses and Bus Mastering are enabled. */
-		pci_read_config_dword(devno, PCI_COMMAND, &status);
-		if (!(status & PCI_COMMAND_MEMORY)) {
-			printf("Error: Can not enable MEM access.\n");
-			continue;
-		}
-
-		if (!(status & PCI_COMMAND_MASTER)) {
-			printf("Error: Can not enable Bus Mastering.\n");
-			continue;
-		}
-
-		priv = calloc(1, sizeof(*priv));
-		if (!priv) {
-			printf("eepro100: Can not allocate memory\n");
-			break;
-		}
-		dev = &priv->dev;
-
-		sprintf(dev->name, "i82559#%d", card_number);
-		priv->name = dev->name;
-		/* this have to come before bus_to_phys() */
-		priv->devno = devno;
-		priv->iobase = (void __iomem *)bus_to_phys(devno, iobase);
-		priv->enetaddr = dev->enetaddr;
-
-		dev->init = eepro100_init;
-		dev->halt = eepro100_halt;
-		dev->send = eepro100_send;
-		dev->recv = eepro100_recv;
-
-		eth_register(dev);
-
-		ret = eepro100_initialize_mii(priv);
-		if (ret) {
-			eth_unregister(dev);
-			free(priv);
-			return ret;
-		}
-
-		card_number++;
-
-		/* Set the latency timer for value. */
-		pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x20);
-
-		udelay(10 * 1000);
-
-		eepro100_get_hwaddr(priv);
-	}
-
-	return card_number;
-}
-
-#else	/* DM_ETH */
 static int eepro100_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
@@ -1014,4 +881,3 @@ U_BOOT_DRIVER(eth_eepro100) = {
 };
 
 U_BOOT_PCI_DEVICE(eth_eepro100, supported);
-#endif

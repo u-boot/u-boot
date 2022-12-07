@@ -101,7 +101,6 @@ enum eth_state_t {
 	ETH_STATE_ACTIVE
 };
 
-#ifdef CONFIG_DM_ETH
 /**
  * struct eth_pdata - Platform data for Ethernet MAC controllers
  *
@@ -180,76 +179,6 @@ unsigned char *eth_get_ethaddr(void); /* get the current device MAC */
 int eth_is_active(struct udevice *dev); /* Test device for active state */
 int eth_init_state_only(void); /* Set active state */
 void eth_halt_state_only(void); /* Set passive state */
-#endif
-
-#ifndef CONFIG_DM_ETH
-struct eth_device {
-#define ETH_NAME_LEN 20
-	char name[ETH_NAME_LEN];
-	unsigned char enetaddr[ARP_HLEN];
-	phys_addr_t iobase;
-	int state;
-
-	int (*init)(struct eth_device *eth, struct bd_info *bd);
-	int (*send)(struct eth_device *, void *packet, int length);
-	int (*recv)(struct eth_device *);
-	void (*halt)(struct eth_device *);
-	int (*mcast)(struct eth_device *, const u8 *enetaddr, int join);
-	int (*write_hwaddr)(struct eth_device *eth);
-	struct eth_device *next;
-	int index;
-	void *priv;
-};
-
-int eth_register(struct eth_device *dev);/* Register network device */
-int eth_unregister(struct eth_device *dev);/* Remove network device */
-
-extern struct eth_device *eth_current;
-
-static __always_inline struct eth_device *eth_get_dev(void)
-{
-	return eth_current;
-}
-struct eth_device *eth_get_dev_by_name(const char *devname);
-struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
-
-/* get the current device MAC */
-static inline unsigned char *eth_get_ethaddr(void)
-{
-	if (eth_current)
-		return eth_current->enetaddr;
-	return NULL;
-}
-
-/* Used only when NetConsole is enabled */
-int eth_is_active(struct eth_device *dev); /* Test device for active state */
-/* Set active state */
-static __always_inline int eth_init_state_only(void)
-{
-	eth_get_dev()->state = ETH_STATE_ACTIVE;
-
-	return 0;
-}
-/* Set passive state */
-static __always_inline void eth_halt_state_only(void)
-{
-	eth_get_dev()->state = ETH_STATE_PASSIVE;
-}
-
-/*
- * Set the hardware address for an ethernet interface based on 'eth%daddr'
- * environment variable (or just 'ethaddr' if eth_number is 0).
- * Args:
- *	base_name - base name for device (normally "eth")
- *	eth_number - value of %d (0 for first device of this type)
- * Returns:
- *	0 is success, non-zero is error status from driver.
- */
-int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
-		     int eth_number);
-
-int usb_eth_initialize(struct bd_info *bi);
-#endif
 
 int eth_initialize(void);		/* Initialize network subsystem */
 void eth_try_another(int first_restart);	/* Change the device */

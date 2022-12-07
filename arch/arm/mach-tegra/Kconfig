@@ -44,7 +44,6 @@ config TEGRA_COMMON
 	select BOARD_EARLY_INIT_F
 	select CLK
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_KEYBOARD

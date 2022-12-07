@@ -632,7 +632,6 @@ config ARCH_KIRKWOOD
 config ARCH_MVEBU
 	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
 	select DM
-	select DM_ETH
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
@@ -736,7 +735,6 @@ config ARCH_EXYNOS
 	select DM
 	select DM_GPIO
 	select DM_I2C
-	select DM_ETH
 	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_SPI
@@ -767,7 +765,6 @@ config ARCH_HIGHBANK
 	select CLK
 	select CLK_CCF
 	select AHCI
-	select DM_ETH
 	select PHYS_64BIT
 	select TIMER
 	select SP804_TIMER
@@ -1041,7 +1038,6 @@ config ARCH_APPLE
 config ARCH_OWL
 	bool "Actions Semi OWL SoCs"
 	select DM
-	select DM_ETH
 	select DM_SERIAL
 	select GPIO_EXTRA_HEADER
 	select OWL_SERIAL
@@ -1141,7 +1137,6 @@ config ARCH_SUNXI
 	select CMD_USB if DISTRO_DEFAULTS && USB_HOST
 	select CLK
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C if I2C
 	select DM_SPI if SPI
@@ -1220,7 +1215,6 @@ config ARCH_VERSAL
 	select ARM64
 	select CLK
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select GICV3
@@ -1234,7 +1228,6 @@ config ARCH_VERSAL_NET
 	select ARM64
 	select CLK
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
@@ -1259,7 +1252,6 @@ config ARCH_ZYNQ
 	select CPU_V7A
 	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select DM_SPI
@@ -1289,7 +1281,6 @@ config ARCH_ZYNQMP_R5
 	select CLK
 	select CPU_V7R
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
@@ -1302,7 +1293,6 @@ config ARCH_ZYNQMP
 	select CLK
 	select DM
 	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART
-	select DM_ETH if NET
 	imply DM_MAILBOX
 	select DM_MMC if MMC
 	select DM_SERIAL
@@ -1849,7 +1839,6 @@ config TARGET_SL28
 	select DM_I2C
 	select DM_MMC
 	select DM_SPI_FLASH
-	select DM_ETH
 	select DM_MDIO
 	select PCI
 	select DM_RNG
@@ -1886,7 +1875,6 @@ config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -2072,7 +2060,6 @@ config TARGET_POMELO
 	select SCSI
 	select DM_SCSI
 	select DM_SERIAL
-	select DM_ETH if NET
 	imply CMD_PCI
 	help
 	   Support for pomelo platform.

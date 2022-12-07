@@ -283,33 +283,6 @@
 #endif
 #define CFG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
-#if defined(CONFIG_TSEC_ENET)
-
-#define CONFIG_TSEC1	1
-#define CONFIG_TSEC1_NAME	"eTSEC0"
-#define CONFIG_TSEC2	1
-#define CONFIG_TSEC2_NAME	"eTSEC1"
-#define CONFIG_TSEC3	1
-#define CONFIG_TSEC3_NAME	"eTSEC2"
-#define CONFIG_TSEC4
-#define CONFIG_TSEC4_NAME	"eTSEC3"
-#undef CONFIG_MPC85XX_FEC
-
-#define TSEC1_PHY_ADDR		0
-#define TSEC2_PHY_ADDR		1
-#define TSEC3_PHY_ADDR		2
-#define TSEC4_PHY_ADDR		3
-
-#define TSEC1_PHYIDX		0
-#define TSEC2_PHYIDX		0
-#define TSEC3_PHYIDX		0
-#define TSEC4_PHYIDX		0
-#define TSEC1_FLAGS		TSEC_GIGABIT
-#define TSEC2_FLAGS		TSEC_GIGABIT
-#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
-#endif	/* CONFIG_TSEC_ENET */
-
 /*
  * Miscellaneous configurable options
  */

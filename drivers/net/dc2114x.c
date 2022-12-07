@@ -73,13 +73,7 @@
 
 #define POLL_DEMAND	1
 
-#if defined(CONFIG_DM_ETH)
 #define phys_to_bus(dev, a)	dm_pci_phys_to_mem((dev), (a))
-#elif defined(CONFIG_E500)
-#define phys_to_bus(dev, a)	(a)
-#else
-#define phys_to_bus(dev, a)	pci_phys_to_mem((dev), (a))
-#endif
 
 #define NUM_RX_DESC PKTBUFSRX
 #define NUM_TX_DESC 1			/* Number of TX descriptors   */
@@ -103,12 +97,7 @@ struct dc2114x_priv {
 	int tx_new;	/* TX descriptor ring pointer */
 	char rx_ring_size;
 	char tx_ring_size;
-#ifdef CONFIG_DM_ETH
 	struct udevice		*devno;
-#else
-	struct eth_device	dev;
-	pci_dev_t		devno;
-#endif
 	char			*name;
 	void __iomem		*iobase;
 	u8			*enetaddr;
@@ -479,150 +468,6 @@ static struct pci_device_id supported[] = {
 	{ }
 };
 
-#ifndef CONFIG_DM_ETH
-static int dc21x4x_init(struct eth_device *dev, struct bd_info *bis)
-{
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
-
-	/* Ensure we're not sleeping. */
-	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, WAKEUP);
-
-	return dc21x4x_init_common(priv);
-}
-
-static void dc21x4x_halt(struct eth_device *dev)
-{
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
-
-	dc21x4x_halt_common(priv);
-
-	pci_write_config_byte(priv->devno, PCI_CFDA_PSM, SLEEP);
-}
-
-static int dc21x4x_send(struct eth_device *dev, void *packet, int length)
-{
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
-
-	return dc21x4x_send_common(priv, packet, length);
-}
-
-static int dc21x4x_recv(struct eth_device *dev)
-{
-	struct dc2114x_priv *priv =
-		container_of(dev, struct dc2114x_priv, dev);
-	int length = 0;
-	int ret;
-
-	while (true) {
-		ret = dc21x4x_recv_check(priv);
-		if (!ret)
-			break;
-
-		if (ret > 0) {
-			length = ret;
-			/* Pass the packet up to the protocol layers */
-			net_process_received_packet
-				(net_rx_packets[priv->rx_new], length - 4);
-		}
-
-		/*
-		 * Change buffer ownership for this frame,
-		 * back to the adapter.
-		 */
-		if (ret != -EAGAIN)
-			priv->rx_ring[priv->rx_new].status = cpu_to_le32(R_OWN);
-
-		/* Update entry information. */
-		priv->rx_new = (priv->rx_new + 1) % priv->rx_ring_size;
-	}
-
-	return length;
-}
-
-int dc21x4x_initialize(struct bd_info *bis)
-{
-	struct dc2114x_priv *priv;
-	struct eth_device *dev;
-	unsigned short status;
-	unsigned char timer;
-	unsigned int iobase;
-	int card_number = 0;
-	pci_dev_t devbusfn;
-	int idx = 0;
-
-	while (1) {
-		devbusfn = pci_find_devices(supported, idx++);
-		if (devbusfn == -1)
-			break;
-
-		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-		status |= PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
-		pci_write_config_word(devbusfn, PCI_COMMAND, status);
-
-		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-		if (!(status & PCI_COMMAND_MEMORY)) {
-			printf("Error: Can not enable MEMORY access.\n");
-			continue;
-		}
-
-		if (!(status & PCI_COMMAND_MASTER)) {
-			printf("Error: Can not enable Bus Mastering.\n");
-			continue;
-		}
-
-		/* Check the latency timer for values >= 0x60. */
-		pci_read_config_byte(devbusfn, PCI_LATENCY_TIMER, &timer);
-
-		if (timer < 0x60) {
-			pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER,
-					      0x60);
-		}
-
-		/* read BAR for memory space access */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &iobase);
-		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-		debug("dc21x4x: DEC 21142 PCI Device @0x%x\n", iobase);
-
-		priv = memalign(32, sizeof(*priv));
-		if (!priv) {
-			printf("Can not allocalte memory of dc21x4x\n");
-			break;
-		}
-		memset(priv, 0, sizeof(*priv));
-
-		dev = &priv->dev;
-
-		sprintf(dev->name, "dc21x4x#%d", card_number);
-		priv->devno = devbusfn;
-		priv->name = dev->name;
-		priv->enetaddr = dev->enetaddr;
-
-		dev->iobase = pci_mem_to_phys(devbusfn, iobase);
-		dev->priv = (void *)devbusfn;
-		dev->init = dc21x4x_init;
-		dev->halt = dc21x4x_halt;
-		dev->send = dc21x4x_send;
-		dev->recv = dc21x4x_recv;
-
-		/* Ensure we're not sleeping. */
-		pci_write_config_byte(devbusfn, PCI_CFDA_PSM, WAKEUP);
-
-		udelay(10 * 1000);
-
-		read_hw_addr(priv);
-
-		eth_register(dev);
-
-		card_number++;
-	}
-
-	return card_number;
-}
-
-#else	/* DM_ETH */
 static int dc2114x_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
@@ -756,4 +601,3 @@ U_BOOT_DRIVER(eth_dc2114x) = {
 };
 
 U_BOOT_PCI_DEVICE(eth_dc2114x, supported);
-#endif

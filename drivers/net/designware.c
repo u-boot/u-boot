@@ -34,12 +34,8 @@
 
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
-#ifdef CONFIG_DM_ETH
 	struct dw_eth_dev *priv = dev_get_priv((struct udevice *)bus->priv);
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
-#else
-	struct eth_mac_regs *mac_p = bus->priv;
-#endif
 	ulong start;
 	u16 miiaddr;
 	int timeout = CONFIG_MDIO_TIMEOUT;
@@ -62,12 +58,8 @@ static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 			u16 val)
 {
-#ifdef CONFIG_DM_ETH
 	struct dw_eth_dev *priv = dev_get_priv((struct udevice *)bus->priv);
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
-#else
-	struct eth_mac_regs *mac_p = bus->priv;
-#endif
 	ulong start;
 	u16 miiaddr;
 	int ret = -ETIMEDOUT, timeout = CONFIG_MDIO_TIMEOUT;
@@ -90,7 +82,7 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	return ret;
 }
 
-#if defined(CONFIG_DM_ETH) && CONFIG_IS_ENABLED(DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 static int __dw_mdio_reset(struct udevice *dev)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
@@ -192,7 +184,7 @@ static int dw_mdio_init(const char *name, void *priv)
 	bus->read = dw_mdio_read;
 	bus->write = dw_mdio_write;
 	snprintf(bus->name, sizeof(bus->name), "%s", name);
-#if defined(CONFIG_DM_ETH) && CONFIG_IS_ENABLED(DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	bus->reset = dw_mdio_reset;
 #endif
 
@@ -575,7 +567,7 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 	struct phy_device *phydev;
 	int ret;
 
-#if IS_ENABLED(CONFIG_DM_MDIO) && IS_ENABLED(CONFIG_DM_ETH)
+#if IS_ENABLED(CONFIG_DM_MDIO)
 	phydev = dm_eth_phy_connect(dev);
 	if (!phydev)
 		return -ENODEV;
@@ -605,103 +597,6 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 	return 0;
 }
 
-#ifndef CONFIG_DM_ETH
-static int dw_eth_init(struct eth_device *dev, struct bd_info *bis)
-{
-	int ret;
-
-	ret = designware_eth_init(dev->priv, dev->enetaddr);
-	if (!ret)
-		ret = designware_eth_enable(dev->priv);
-
-	return ret;
-}
-
-static int dw_eth_send(struct eth_device *dev, void *packet, int length)
-{
-	return _dw_eth_send(dev->priv, packet, length);
-}
-
-static int dw_eth_recv(struct eth_device *dev)
-{
-	uchar *packet;
-	int length;
-
-	length = _dw_eth_recv(dev->priv, &packet);
-	if (length == -EAGAIN)
-		return 0;
-	net_process_received_packet(packet, length);
-
-	_dw_free_pkt(dev->priv);
-
-	return 0;
-}
-
-static void dw_eth_halt(struct eth_device *dev)
-{
-	return _dw_eth_halt(dev->priv);
-}
-
-static int dw_write_hwaddr(struct eth_device *dev)
-{
-	return _dw_write_hwaddr(dev->priv, dev->enetaddr);
-}
-
-int designware_initialize(ulong base_addr, u32 interface)
-{
-	struct eth_device *dev;
-	struct dw_eth_dev *priv;
-
-	dev = (struct eth_device *) malloc(sizeof(struct eth_device));
-	if (!dev)
-		return -ENOMEM;
-
-	/*
-	 * Since the priv structure contains the descriptors which need a strict
-	 * buswidth alignment, memalign is used to allocate memory
-	 */
-	priv = (struct dw_eth_dev *) memalign(ARCH_DMA_MINALIGN,
-					      sizeof(struct dw_eth_dev));
-	if (!priv) {
-		free(dev);
-		return -ENOMEM;
-	}
-
-	if ((phys_addr_t)priv + sizeof(*priv) > (1ULL << 32)) {
-		printf("designware: buffers are outside DMA memory\n");
-		return -EINVAL;
-	}
-
-	memset(dev, 0, sizeof(struct eth_device));
-	memset(priv, 0, sizeof(struct dw_eth_dev));
-
-	sprintf(dev->name, "dwmac.%lx", base_addr);
-	dev->iobase = (int)base_addr;
-	dev->priv = priv;
-
-	priv->dev = dev;
-	priv->mac_regs_p = (struct eth_mac_regs *)base_addr;
-	priv->dma_regs_p = (struct eth_dma_regs *)(base_addr +
-			DW_DMA_BASE_OFFSET);
-
-	dev->init = dw_eth_init;
-	dev->send = dw_eth_send;
-	dev->recv = dw_eth_recv;
-	dev->halt = dw_eth_halt;
-	dev->write_hwaddr = dw_write_hwaddr;
-
-	eth_register(dev);
-
-	priv->interface = interface;
-
-	dw_mdio_init(dev->name, priv->mac_regs_p);
-	priv->bus = miiphy_get_dev_by_name(dev->name);
-
-	return dw_phy_init(priv, dev);
-}
-#endif
-
-#ifdef CONFIG_DM_ETH
 static int designware_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -971,4 +866,3 @@ static struct pci_device_id supported[] = {
 };
 
 U_BOOT_PCI_DEVICE(eth_designware, supported);
-#endif

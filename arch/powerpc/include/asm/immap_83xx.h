@@ -873,9 +873,4 @@ struct ccsr_gpio {
 
 #define CFG_SYS_LBC_ADDR (&((immap_t *)CONFIG_SYS_IMMR)->im_lbc)
 
-#define CFG_SYS_TSEC1_OFFSET		0x24000
-#define CFG_SYS_MDIO1_OFFSET		0x24000
-
-#define TSEC_BASE_ADDR		(CONFIG_SYS_IMMR + CFG_SYS_TSEC1_OFFSET)
-#define MDIO_BASE_ADDR		(CONFIG_SYS_IMMR + CFG_SYS_MDIO1_OFFSET)
 #endif				/* __IMMAP_83xx__ */

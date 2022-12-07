@@ -138,12 +138,8 @@ struct phy_device {
 	struct phy_driver *drv;
 	void *priv;
 
-#ifdef CONFIG_DM_ETH
 	struct udevice *dev;
 	ofnode node;
-#else
-	struct eth_device *dev;
-#endif
 
 	/* forced speed & duplex (no autoneg)
 	 * partner speed & duplex & pause (autoneg)
@@ -233,8 +229,6 @@ static inline struct phy_device *fixed_phy_create(ofnode node)
 
 #endif
 
-#ifdef CONFIG_DM_ETH
-
 /**
  * phy_connect_dev() - Associates the given pair of PHY and Ethernet devices
  * @phydev:	PHY device
@@ -293,41 +287,6 @@ static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 	else
 		return dev_ofnode(phydev->dev);
 }
-#else
-
-/**
- * phy_connect_dev() - Associates the given pair of PHY and Ethernet devices
- * @phydev:	PHY device
- * @dev:	Ethernet device
- * @interface:	type of MAC-PHY interface
- */
-void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev,
-		     phy_interface_t interface);
-
-/**
- * phy_connect() - Creates a PHY device for the Ethernet interface
- * Creates a PHY device for the PHY at the given address, if one doesn't exist
- * already, and associates it with the Ethernet device.
- * The function may be called with addr <= 0, in this case addr value is ignored
- * and the bus is scanned to detect a PHY.  Scanning should only be used if only
- * one PHY is expected to be present on the MDIO bus, otherwise it is undefined
- * which PHY is returned.
- *
- * @bus:	MII/MDIO bus that hosts the PHY
- * @addr:	PHY address on MDIO bus
- * @dev:	Ethernet device to associate to the PHY
- * @interface:	type of MAC-PHY interface
- * @return: pointer to phy_device if a PHY is found, or NULL otherwise
- */
-struct phy_device *phy_connect(struct mii_dev *bus, int addr,
-				struct eth_device *dev,
-				phy_interface_t interface);
-
-static inline ofnode phy_get_ofnode(struct phy_device *phydev)
-{
-	return ofnode_null();
-}
-#endif
 
 int phy_read(struct phy_device *phydev, int devad, int regnum);
 int phy_write(struct phy_device *phydev, int devad, int regnum, u16 val);

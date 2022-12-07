@@ -1,7 +1,6 @@
 source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
 source "drivers/net/fsl-mc/Kconfig"
-source "drivers/net/bnxt/Kconfig"
 
 config ETH
 	def_bool y
@@ -15,6 +14,10 @@ config DM_ETH
 	  The eth_*() interface will be implemented by the UCLASS_ETH class
 	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
+
+config SPL_DM_ETH
+	depends on SPL_NET
+	def_bool y
 
 config DM_MDIO
 	bool "Enable Driver Model for MDIO devices"
@@ -174,6 +177,8 @@ config BCMGENET
 	select PHYLIB
 	help
 	  This driver supports the BCMGENET Ethernet MAC.
+
+source "drivers/net/bnxt/Kconfig"
 
 config CORTINA_NI_ENET
 	bool "Cortina-Access Ethernet driver"
@@ -721,7 +726,6 @@ config RENESAS_RAVB
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
-	depends on DM_ETH
 	select MII
 	select SYS_DISCOVER_PHY
 	help
