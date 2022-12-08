@@ -42,3 +42,5 @@ extra-$(CONFIG_EFI) += $(EFI_CRT0) $(EFI_RELOC)
 obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset.o
 obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMMOVE) += memmove.o
 obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy.o
+
+obj-$(CONFIG_$(SPL_TPL_)SEMIHOSTING) += semihosting.o

@@ -111,7 +111,7 @@ config RISCV
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM
-	select SPL_SEPARATE_BSS if SPL
+	imply SPL_SEPARATE_BSS if SPL
 	imply DM_SERIAL
 	imply DM_ETH
 	imply DM_EVENT

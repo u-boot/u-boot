@@ -146,6 +146,8 @@ obj-y += date.o
 obj-y += rtc-lib.o
 obj-$(CONFIG_LIB_ELF) += elf.o
 
+obj-$(CONFIG_$(SPL_TPL_)SEMIHOSTING) += semihosting.o
+
 #
 # Build a fast OID lookup registry from include/linux/oid_registry.h
 #

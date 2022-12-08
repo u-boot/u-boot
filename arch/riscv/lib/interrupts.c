@@ -9,6 +9,7 @@
  * Copyright (C) 2019 Sean Anderson <seanga2@gmail.com>
  */
 
+#include <linux/compat.h>
 #include <common.h>
 #include <efi_loader.h>
 #include <hang.h>
@@ -17,6 +18,7 @@
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <asm/encoding.h>
+#include <semihosting.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -148,6 +150,29 @@ ulong handle_trap(ulong cause, ulong epc, ulong tval, struct pt_regs *regs)
 
 	/* An UEFI application may have changed gd. Restore U-Boot's gd. */
 	efi_restore_gd();
+
+	if (cause == CAUSE_BREAKPOINT &&
+	    CONFIG_IS_ENABLED(SEMIHOSTING_FALLBACK)) {
+		ulong pre_addr = epc - 4, post_addr = epc + 4;
+
+		/* Check for prior and post addresses to be in same page. */
+		if ((pre_addr & ~(PAGE_SIZE - 1)) ==
+			(post_addr & ~(PAGE_SIZE - 1))) {
+			u32 pre = *(u32 *)pre_addr;
+			u32 post = *(u32 *)post_addr;
+
+			/* Check for semihosting, i.e.:
+			 * slli    zero,zero,0x1f
+			 * ebreak
+			 * srai    zero,zero,0x7
+			 */
+			if (pre == 0x01f01013 && post == 0x40705013) {
+				disable_semihosting();
+				epc += 4;
+				return epc;
+			}
+		}
+	}
 
 	is_irq = (cause & MCAUSE_INT);
 	irq = (cause & ~MCAUSE_INT);
