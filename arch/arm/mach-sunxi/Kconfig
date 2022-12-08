@@ -129,6 +129,18 @@ config SUNXI_SRAM_ADDRESS
 	Some newer SoCs map the boot ROM at address 0 instead and move the
 	SRAM to a different address.
 
+config SUNXI_RVBAR_ADDRESS
+	hex
+	depends on ARM64
+	default 0x09010040 if SUN50I_GEN_H6
+	default 0x017000a0
+	---help---
+	The read-only RVBAR system register holds the address of the first
+	instruction to execute after a reset. Allwinner cores provide a
+	writable MMIO backing store for this register, to allow to set the
+	entry point when switching to AArch64. This store is on different
+	addresses, depending on the SoC.
+
 config SUNXI_A64_TIMER_ERRATUM
 	bool
 

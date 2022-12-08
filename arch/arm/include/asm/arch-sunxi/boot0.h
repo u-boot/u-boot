@@ -39,11 +39,8 @@
 	.word	0xf57ff06f	// isb     sy
 	.word	0xe320f003	// wfi
 	.word	0xeafffffd	// b       @wfi
-#ifndef CONFIG_SUN50I_GEN_H6
-	.word	0x017000a0	// writeable RVBAR mapping address
-#else
-	.word	0x09010040	// writeable RVBAR mapping address
-#endif
+
+	.word	CONFIG_SUNXI_RVBAR_ADDRESS	// writable RVBAR mapping addr
 #ifdef CONFIG_SPL_BUILD
 	.word	CONFIG_SPL_TEXT_BASE
 #else
