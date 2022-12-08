@@ -430,6 +430,25 @@ static void verify_image(const struct image_type_params *tparams)
 	(void)close(ifd);
 }
 
+void copy_datafile(int ifd, char *file)
+{
+	if (!file)
+		return;
+	for (;;) {
+		char *sep = strchr(file, ':');
+
+		if (sep) {
+			*sep = '\0';
+			copy_file(ifd, file, 1);
+			*sep++ = ':';
+			file = sep;
+		} else {
+			copy_file(ifd, file, 0);
+			break;
+		}
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int ifd = -1;
@@ -647,21 +666,7 @@ int main(int argc, char **argv)
 					file = NULL;
 				}
 			}
-
-			file = params.datafile;
-
-			for (;;) {
-				char *sep = strchr(file, ':');
-				if (sep) {
-					*sep = '\0';
-					copy_file (ifd, file, 1);
-					*sep++ = ':';
-					file = sep;
-				} else {
-					copy_file (ifd, file, 0);
-					break;
-				}
-			}
+			copy_datafile(ifd, params.datafile);
 		} else if (params.type == IH_TYPE_PBLIMAGE) {
 			/* PBL has special Image format, implements its' own */
 			pbl_load_uboot(ifd, &params);
@@ -760,8 +765,8 @@ int main(int argc, char **argv)
 	if (tparams->set_header)
 		tparams->set_header (ptr, &sbuf, ifd, &params);
 	else {
-		fprintf (stderr, "%s: Can't set header for %s: %s\n",
-			params.cmdname, tparams->name, strerror(errno));
+		fprintf (stderr, "%s: Can't set header for %s\n",
+			params.cmdname, tparams->name);
 		exit (EXIT_FAILURE);
 	}
 

@@ -275,6 +275,10 @@ clean-dirs := lib common
 
 always := $(hostprogs-y)
 
+# Host tool to dump the currently configured default environment,
+# build it on demand, i.e. not add it to 'always'.
+hostprogs-y += printinitialenv
+
 # Generated LCD/video logo
 LOGO_H = $(objtree)/include/bmp_logo.h
 LOGO_DATA_H = $(objtree)/include/bmp_logo_data.h
