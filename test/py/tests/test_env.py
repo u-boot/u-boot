@@ -8,6 +8,7 @@ Test operation of shell commands relating to environment variables.
 
 import os
 import os.path
+import re
 from subprocess import call, CalledProcessError
 import tempfile
 
@@ -172,6 +173,29 @@ def validate_set(state_test_env, var, value):
     # value. printenv does, and hence allows more complete testing.
     response = state_test_env.u_boot_console.run_command('printenv %s' % var)
     assert response == ('%s=%s' % (var, value))
+
+@pytest.mark.boardspec('sandbox')
+def test_env_initial_env_file(u_boot_console):
+    """Test that the u-boot-initial-env make target works"""
+    cons = u_boot_console
+    builddir = 'O=' + cons.config.build_dir
+    envfile = cons.config.build_dir + '/u-boot-initial-env'
+
+    # remove if already exists from an older run
+    try:
+        os.remove(envfile)
+    except:
+        pass
+
+    u_boot_utils.run_and_log(cons, ['make', builddir, 'u-boot-initial-env'])
+
+    assert os.path.exists(envfile)
+
+    # assume that every environment has a board variable, e.g. board=sandbox
+    with open(envfile, 'r') as file:
+        env = file.read()
+    regex = re.compile('board=.+\\n')
+    assert re.search(regex, env)
 
 def test_env_echo_exists(state_test_env):
     """Test echoing a variable that exists."""
