@@ -2,8 +2,8 @@
 /*
  * Cadence DDR Driver
  *
- * Copyright (C) 2012-2021 Cadence Design Systems, Inc.
- * Copyright (C) 2018-2021 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2012-2022 Cadence Design Systems, Inc.
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <errno.h>
@@ -12,14 +12,6 @@
 #include "lpddr4_if.h"
 #include "lpddr4.h"
 #include "lpddr4_structs_if.h"
-
-#ifndef LPDDR4_CUSTOM_TIMEOUT_DELAY
-#define LPDDR4_CUSTOM_TIMEOUT_DELAY 100000000U
-#endif
-
-#ifndef LPDDR4_CPS_NS_DELAY_TIME
-#define LPDDR4_CPS_NS_DELAY_TIME 10000000U
-#endif
 
 static u32 lpddr4_pollphyindepirq(const lpddr4_privatedata *pd, lpddr4_intr_phyindepinterrupt irqbit, u32 delay);
 static u32 lpddr4_pollandackirq(const lpddr4_privatedata *pd);
@@ -51,10 +43,7 @@ static void lpddr4_writelpiwakeuptime(lpddr4_ctlregs *ctlregbase, const lpddr4_l
 static void lpddr4_updatefsp2refrateparams(const lpddr4_privatedata *pd, const u32 *tref, const u32 *tras_max);
 static void lpddr4_updatefsp1refrateparams(const lpddr4_privatedata *pd, const u32 *tref, const u32 *tras_max);
 static void lpddr4_updatefsp0refrateparams(const lpddr4_privatedata *pd, const u32 *tref, const u32 *tras_max);
-#ifdef REG_WRITE_VERIF
 static u32 lpddr4_getphyrwmask(u32 regoffset);
-static u32 lpddr4_verifyregwrite(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regoffset, u32 regvalue);
-#endif
 
 u32 lpddr4_pollctlirq(const lpddr4_privatedata *pd, lpddr4_intr_ctlinterrupt irqbit, u32 delay)
 {
@@ -202,8 +191,6 @@ u32 lpddr4_readreg(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regoff
 	return result;
 }
 
-#ifdef REG_WRITE_VERIF
-
 static u32 lpddr4_getphyrwmask(u32 regoffset)
 {
 	u32 rwmask = 0U;
@@ -231,33 +218,43 @@ static u32 lpddr4_getphyrwmask(u32 regoffset)
 	return rwmask;
 }
 
-static u32 lpddr4_verifyregwrite(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regoffset, u32 regvalue)
+u32 lpddr4_deferredregverify(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regvalues[], u16 regnum[], u16 regcount)
 {
 	u32 result = (u32)0;
+	u32 aindex;
 	u32 regreadval = 0U;
 	u32 rwmask = 0U;
 
-	result = lpddr4_readreg(pd, cpp, regoffset, &regreadval);
+	result = lpddr4_deferredregverifysf(pd, cpp);
 
+	if ((regvalues == (u32 *)NULL) || (regnum == (u16 *)NULL))
+		result = EINVAL;
 	if (result == (u32)0) {
-		switch (cpp) {
-		case LPDDR4_PHY_INDEP_REGS:
-			rwmask = g_lpddr4_pi_rw_mask[regoffset];
-			break;
-		case LPDDR4_PHY_REGS:
-			rwmask = lpddr4_getphyrwmask(regoffset);
-			break;
-		default:
-			rwmask = g_lpddr4_ddr_controller_rw_mask[regoffset];
-			break;
-		}
+		for (aindex = 0; aindex < regcount; aindex++) {
+			result = lpddr4_readreg(pd, cpp, (u32)regnum[aindex], &regreadval);
 
-		if ((rwmask & regreadval) != (regvalue & rwmask))
-			result = EIO;
+			if (result == (u32)0) {
+				switch (cpp) {
+				case LPDDR4_PHY_INDEP_REGS:
+					rwmask = g_lpddr4_pi_rw_mask[(u32)regnum[aindex]];
+					break;
+				case LPDDR4_PHY_REGS:
+					rwmask = lpddr4_getphyrwmask((u32)regnum[aindex]);
+					break;
+				default:
+					rwmask = g_lpddr4_ddr_controller_rw_mask[(u32)regnum[aindex]];
+					break;
+				}
+
+				if ((rwmask & regreadval) != ((u32)(regvalues[aindex]) & rwmask)) {
+					result = EIO;
+					break;
+				}
+			}
+		}
 	}
 	return result;
 }
-#endif
 
 u32 lpddr4_writereg(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regoffset, u32 regvalue)
 {
@@ -284,11 +281,6 @@ u32 lpddr4_writereg(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regof
 				CPS_REG_WRITE(lpddr4_addoffset(&(ctlregbase->DENALI_PI_0), regoffset), regvalue);
 		}
 	}
-#ifdef REG_WRITE_VERIF
-	if (result == (u32)0)
-		result = lpddr4_verifyregwrite(pd, cpp, regoffset, regvalue);
-
-#endif
 
 	return result;
 }
@@ -345,9 +337,6 @@ u32 lpddr4_setmmrregister(const lpddr4_privatedata *pd, u32 writemoderegval, u8 
 				result = (u32)EIO;
 		}
 	}
-
-#ifdef ASILC
-#endif
 
 	return result;
 }

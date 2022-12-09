@@ -2,8 +2,8 @@
 /*
  * Cadence DDR Driver
  *
- * Copyright (C) 2012-2021 Cadence Design Systems, Inc.
- * Copyright (C) 2018-2021 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2012-2022 Cadence Design Systems, Inc.
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef LPDDR4_H
@@ -11,19 +11,13 @@
 
 #include "lpddr4_ctl_regs.h"
 #include "lpddr4_sanity.h"
-#ifdef CONFIG_K3_AM64_DDRSS
-#include "lpddr4_16bit.h"
-#include "lpddr4_16bit_sanity.h"
-#else
-#include "lpddr4_32bit.h"
-#include "lpddr4_32bit_sanity.h"
-#endif
 
-#ifdef REG_WRITE_VERIF
-#include "lpddr4_ctl_regs_rw_masks.h"
-#endif
-#ifdef __cplusplus
-extern "C" {
+#if defined (CONFIG_K3_AM64_DDRSS) || defined (CONFIG_K3_AM62A_DDRSS)
+#include "lpddr4_am6x.h"
+#include "lpddr4_am6x_sanity.h"
+#else
+#include "lpddr4_j721e.h"
+#include "lpddr4_j721e_sanity.h"
 #endif
 
 #define PRODUCT_ID (0x1046U)
@@ -56,6 +50,14 @@ extern "C" {
 #define CDN_TRUE  1U
 #define CDN_FALSE 0U
 
+#ifndef LPDDR4_CUSTOM_TIMEOUT_DELAY
+#define LPDDR4_CUSTOM_TIMEOUT_DELAY 100000000U
+#endif
+
+#ifndef LPDDR4_CPS_NS_DELAY_TIME
+#define LPDDR4_CPS_NS_DELAY_TIME 10000000U
+#endif
+
 void lpddr4_setsettings(lpddr4_ctlregs *ctlregbase, const bool errorfound);
 volatile u32 *lpddr4_addoffset(volatile u32 *addr, u32 regoffset);
 u32 lpddr4_pollctlirq(const lpddr4_privatedata *pd, lpddr4_intr_ctlinterrupt irqbit, u32 delay);
@@ -66,8 +68,5 @@ u32 lpddr4_enablepiinitiator(const lpddr4_privatedata *pd);
 void lpddr4_checkwrlvlerror(lpddr4_ctlregs *ctlregbase, lpddr4_debuginfo *debuginfo, bool *errfoundptr);
 u32 lpddr4_checkmmrreaderror(const lpddr4_privatedata *pd, u64 *mmrvalue, u8 *mrrstatus);
 u32 lpddr4_getdslicemask(u32 dslicenum, u32 arrayoffset);
-#ifdef __cplusplus
-}
-#endif
 
 #endif  /* LPDDR4_H */

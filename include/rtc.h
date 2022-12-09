@@ -15,13 +15,12 @@
 
 #include <bcd.h>
 #include <rtc_def.h>
+#include <linux/errno.h>
 
 typedef int64_t time64_t;
-
-#ifdef CONFIG_DM_RTC
-
 struct udevice;
 
+#if CONFIG_IS_ENABLED(DM_RTC)
 struct rtc_ops {
 	/**
 	 * get() - get the current time
@@ -222,6 +221,33 @@ int rtc_enable_32khz_output(int busnum, int chip_addr);
 #endif
 
 #else
+static inline int dm_rtc_get(struct udevice *dev, struct rtc_time *time)
+{
+	return -ENOSYS;
+}
+
+static inline int dm_rtc_set(struct udevice *dev, struct rtc_time *time)
+{
+	return -ENOSYS;
+}
+
+static inline int dm_rtc_reset(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int dm_rtc_read(struct udevice *dev, unsigned int reg, u8 *buf,
+			      unsigned int len)
+{
+	return -ENOSYS;
+}
+
+static inline int dm_rtc_write(struct udevice *dev, unsigned int reg,
+			       const u8 *buf, unsigned int len)
+{
+	return -ENOSYS;
+}
+
 int rtc_get (struct rtc_time *);
 int rtc_set (struct rtc_time *);
 void rtc_reset (void);

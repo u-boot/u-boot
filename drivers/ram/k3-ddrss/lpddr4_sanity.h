@@ -2,8 +2,8 @@
 /*
  * Cadence DDR Driver
  *
- * Copyright (C) 2012-2021 Cadence Design Systems, Inc.
- * Copyright (C) 2018-2021 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2012-2022 Cadence Design Systems, Inc.
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef LPDDR4_SANITY_H
@@ -12,9 +12,6 @@
 #include <errno.h>
 #include <linux/types.h>
 #include "lpddr4_if.h"
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 static inline u32 lpddr4_configsf(const lpddr4_config *obj);
 static inline u32 lpddr4_privatedatasf(const lpddr4_privatedata *obj);
@@ -37,7 +34,7 @@ static inline u32 lpddr4_sanityfunction23(const lpddr4_privatedata *pd, const lp
 static inline u32 lpddr4_sanityfunction24(const lpddr4_privatedata *pd, const lpddr4_reducmode *mode);
 static inline u32 lpddr4_sanityfunction25(const lpddr4_privatedata *pd, const bool *on_off);
 static inline u32 lpddr4_sanityfunction27(const lpddr4_privatedata *pd, const lpddr4_dbimode *mode);
-static inline u32 lpddr4_sanityfunction28(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *fspnum, const u32 *tref, const u32 *tras_max);
+static inline u32 lpddr4_sanityfunction28(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *fspnum, const u32 *tref_val, const u32 *tras_max_val);
 static inline u32 lpddr4_sanityfunction29(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *fspnum, const u32 *tref, const u32 *tras_max);
 
 #define lpddr4_probesf lpddr4_sanityfunction1
@@ -70,6 +67,7 @@ static inline u32 lpddr4_sanityfunction29(const lpddr4_privatedata *pd, const lp
 #define lpddr4_getrefreshratesf lpddr4_sanityfunction28
 #define lpddr4_setrefreshratesf lpddr4_sanityfunction29
 #define lpddr4_refreshperchipselectsf lpddr4_sanityfunction3
+#define lpddr4_deferredregverifysf lpddr4_sanityfunction5
 
 static inline u32 lpddr4_configsf(const lpddr4_config *obj)
 {
@@ -390,15 +388,15 @@ static inline u32 lpddr4_sanityfunction27(const lpddr4_privatedata *pd, const lp
 	return ret;
 }
 
-static inline u32 lpddr4_sanityfunction28(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *fspnum, const u32 *tref, const u32 *tras_max)
+static inline u32 lpddr4_sanityfunction28(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *fspnum, const u32 *tref_val, const u32 *tras_max_val)
 {
 	u32 ret = 0;
 
 	if (fspnum == NULL) {
 		ret = EINVAL;
-	} else if (tref == NULL) {
+	} else if (tref_val == NULL) {
 		ret = EINVAL;
-	} else if (tras_max == NULL) {
+	} else if (tras_max_val == NULL) {
 		ret = EINVAL;
 	} else if (lpddr4_privatedatasf(pd) == EINVAL) {
 		ret = EINVAL;
@@ -437,9 +435,5 @@ static inline u32 lpddr4_sanityfunction29(const lpddr4_privatedata *pd, const lp
 
 	return ret;
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif  /* LPDDR4_SANITY_H */

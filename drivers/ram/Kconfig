@@ -65,6 +65,7 @@ choice
 	default K3_J721E_DDRSS if SOC_K3_J721E || SOC_K3_J721S2
 	default K3_AM64_DDRSS if SOC_K3_AM642
 	default K3_AM64_DDRSS if SOC_K3_AM625
+	default K3_AM62A_DDRSS if SOC_K3_AM62A7
 
 config K3_J721E_DDRSS
 	bool "Enable J721E DDRSS support"
@@ -85,6 +86,16 @@ config K3_AM64_DDRSS
 	  devices which can be utilized for storing program or data.
 	  Enabling this config adds support for the DDR memory controller
 	  on AM642 family of SoCs.
+
+config K3_AM62A_DDRSS
+	bool "Enable AM62A DDRSS support"
+	help
+	  The AM62A DDR subsystem comprises of a DDR controller, DDR PHY and
+	  wrapper logic to integrate these blocks into once device. The DDR
+	  subsystem is used to provide an interface to external SDRAM devices
+	  which can be utilized for storing programs or any other data.
+	  Enabling this option adds support for the DDR memory controller for
+	  the AM62A family of SoCs.
 
 endchoice
 
