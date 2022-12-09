@@ -270,7 +270,7 @@ static int ast2500_adjust_decoded_size(struct udevice *bus)
 		flashes[cs].ahb_decoded_sz = priv->info->min_decoded_sz;
 
 	/*
-	 * If commnad mode or normal mode is used, the start address of a
+	 * If command mode or normal mode is used, the start address of a
 	 * decoded range should be multiple of its related flash size.
 	 * Namely, the total decoded size from flash 0 to flash N should
 	 * be multiple of the size of flash (N + 1).
@@ -404,7 +404,7 @@ static int ast2600_adjust_decoded_size(struct udevice *bus)
 		flashes[cs].ahb_decoded_sz = 0;
 
 	/*
-	 * If commnad mode or normal mode is used, the start address of a
+	 * If command mode or normal mode is used, the start address of a
 	 * decoded range should be multiple of its related flash size.
 	 * Namely, the total decoded size from flash 0 to flash N should
 	 * be multiple of the size of flash (N + 1).
