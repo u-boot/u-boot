@@ -20,8 +20,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		status = "okay";
-		active_clk_edges;
-		chipselect_num = <1>;
 
 		flash@0 {
 			#address-cells = <1>;
