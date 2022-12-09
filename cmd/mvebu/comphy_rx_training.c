@@ -22,7 +22,7 @@ int mvebu_comphy_rx_training_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (argc != 3) {
 		printf("missing arguments\n");
-		return -1;
+		return CMD_RET_USAGE;
 	}
 
 	cp_index = hextoul(argv[1], NULL);
