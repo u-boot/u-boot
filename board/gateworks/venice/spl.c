@@ -165,9 +165,6 @@ static int power_init_board(void)
 		/* Kernel uses OD/OD freq for SOC */
 		/* To avoid timing risk from SOC to ARM, increase VDD_ARM to OD voltage 0.95v */
 		dm_i2c_reg_write(dev, PCA9450_BUCK2OUT_DVS0, 0x1C);
-
-		/* set WDOG_B_CFG to cold reset */
-		dm_i2c_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
 	}
 
 	else if ((!strncmp(model, "GW7901", 6)) ||
