@@ -6,6 +6,8 @@
  * Copyright (C) 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  */
 
+#define LOG_CATEGORY UCLASS_SPI
+
 #include <common.h>
 #include <console.h>
 #include <malloc.h>
@@ -160,7 +162,7 @@ static int sh_qspi_xfer_common(struct sh_qspi_slave *ss, unsigned int bitlen,
 	}
 
 	if (bitlen % 8) {
-		printf("%s: bitlen is not 8bit alined %d", __func__, bitlen);
+		log_warning("bitlen is not 8bit aligned %d", bitlen);
 		return 1;
 	}
 
