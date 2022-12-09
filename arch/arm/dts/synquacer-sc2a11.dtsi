@@ -497,7 +497,6 @@
         gpio-controller;
         #gpio-cells = <2>;
         clocks = <&clk_apb>;
-        base = <0>;
     };
 
     exiu: interrupt-controller@510c0000 {
