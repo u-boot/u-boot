@@ -5,6 +5,22 @@
 
 #include "imx6ul-u-boot.dtsi"
 
+&soc {
+	u-boot,dm-pre-reloc;
+};
+
+&aips1 {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_uart1 {
+	u-boot,dm-pre-reloc;
+};
+
+&uart1 {
+	u-boot,dm-pre-reloc;
+};
+
 &usdhc1 {
 	u-boot,dm-spl;
 };
