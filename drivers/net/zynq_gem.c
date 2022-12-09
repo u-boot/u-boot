@@ -821,7 +821,8 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII && phy.dev) {
 		if (IS_ENABLED(CONFIG_DM_ETH_PHY)) {
-			if (device_is_compatible(dev, "cdns,zynqmp-gem")) {
+			if (device_is_compatible(dev, "cdns,zynqmp-gem") ||
+			    device_is_compatible(dev, "xlnx,zynqmp-gem")) {
 				ret = gem_zynqmp_set_dynamic_config(dev);
 				if (ret) {
 					dev_err
@@ -922,8 +923,11 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 }
 
 static const struct udevice_id zynq_gem_ids[] = {
+	{ .compatible = "xlnx,versal-gem", .data = RXCLK_EN },
 	{ .compatible = "cdns,versal-gem", .data = RXCLK_EN },
+	{ .compatible = "xlnx,zynqmp-gem" },
 	{ .compatible = "cdns,zynqmp-gem" },
+	{ .compatible = "xlnx,zynq-gem" },
 	{ .compatible = "cdns,zynq-gem" },
 	{ .compatible = "cdns,gem" },
 	{ }
