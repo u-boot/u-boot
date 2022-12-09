@@ -280,10 +280,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 124 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14e8>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		fpd_dma_chan2: dma-controller@fd510000 {
@@ -293,10 +293,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 125 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14e9>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		fpd_dma_chan3: dma-controller@fd520000 {
@@ -306,10 +306,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 126 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14ea>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		fpd_dma_chan4: dma-controller@fd530000 {
@@ -319,10 +319,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 127 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14eb>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		fpd_dma_chan5: dma-controller@fd540000 {
@@ -332,10 +332,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 128 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14ec>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		fpd_dma_chan6: dma-controller@fd550000 {
@@ -345,10 +345,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 129 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14ed>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		fpd_dma_chan7: dma-controller@fd560000 {
@@ -358,10 +358,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 130 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14ee>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		fpd_dma_chan8: dma-controller@fd570000 {
@@ -371,10 +371,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 131 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <128>;
 			iommus = <&smmu 0x14ef>;
 			power-domains = <&zynqmp_firmware PD_GDMA>;
-			#dma-cells = <1>;
 		};
 
 		gic: interrupt-controller@f9010000 {
@@ -411,10 +411,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 77 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x868>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		lpd_dma_chan2: dma-controller@ffa90000 {
@@ -424,10 +424,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 78 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x869>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		lpd_dma_chan3: dma-controller@ffaa0000 {
@@ -437,10 +437,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 79 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x86a>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		lpd_dma_chan4: dma-controller@ffab0000 {
@@ -450,10 +450,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 80 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x86b>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		lpd_dma_chan5: dma-controller@ffac0000 {
@@ -463,10 +463,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 81 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x86c>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		lpd_dma_chan6: dma-controller@ffad0000 {
@@ -476,10 +476,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 82 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x86d>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		lpd_dma_chan7: dma-controller@ffae0000 {
@@ -489,10 +489,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 83 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x86e>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		lpd_dma_chan8: dma-controller@ffaf0000 {
@@ -502,10 +502,10 @@
 			interrupt-parent = <&gic>;
 			interrupts = <0 84 4>;
 			clock-names = "clk_main", "clk_apb";
+			#dma-cells = <1>;
 			xlnx,bus-width = <64>;
 			iommus = <&smmu 0x86f>;
 			power-domains = <&zynqmp_firmware PD_ADMA>;
-			#dma-cells = <1>;
 		};
 
 		mc: memory-controller@fd070000 {
