@@ -349,9 +349,6 @@ static void _lpuart32_serial_putc(struct lpuart_serial_plat *plat,
 	struct lpuart_fsl_reg32 *base = plat->reg;
 	u32 stat;
 
-	if (c == '\n')
-		serial_putc('\r');
-
 	while (true) {
 		lpuart_read32(plat->flags, &base->stat, &stat);
 

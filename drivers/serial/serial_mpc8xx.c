@@ -176,9 +176,6 @@ static int serial_mpc8xx_putc(struct udevice *dev, const char c)
 	cpm8xx_t	__iomem *cpmp = &(im->im_cpm);
 	struct serialbuffer	__iomem *rtx;
 
-	if (c == '\n')
-		serial_mpc8xx_putc(dev, '\r');
-
 	rtx = (struct serialbuffer __iomem *)&cpmp->cp_dpmem[CPM_SERIAL_BASE];
 
 	/* Wait for last character to go. */
