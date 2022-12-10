@@ -178,13 +178,12 @@ static int serial_mpc8xx_putc(struct udevice *dev, const char c)
 
 	rtx = (struct serialbuffer __iomem *)&cpmp->cp_dpmem[CPM_SERIAL_BASE];
 
-	/* Wait for last character to go. */
+	if (in_be16(&rtx->txbd.cbd_sc) & BD_SC_READY)
+		return -EAGAIN;
+
 	out_8(&rtx->txbuf, c);
 	out_be16(&rtx->txbd.cbd_datlen, 1);
 	setbits_be16(&rtx->txbd.cbd_sc, BD_SC_READY);
-
-	while (in_be16(&rtx->txbd.cbd_sc) & BD_SC_READY)
-		schedule();
 
 	return 0;
 }
@@ -199,9 +198,8 @@ static int serial_mpc8xx_getc(struct udevice *dev)
 
 	rtx = (struct serialbuffer __iomem *)&cpmp->cp_dpmem[CPM_SERIAL_BASE];
 
-	/* Wait for character to show up. */
-	while (in_be16(&rtx->rxbd.cbd_sc) & BD_SC_EMPTY)
-		schedule();
+	if (in_be16(&rtx->rxbd.cbd_sc) & BD_SC_EMPTY)
+		return -EAGAIN;
 
 	/* the characters are read one by one,
 	 * use the rxindex to know the next char to deliver
