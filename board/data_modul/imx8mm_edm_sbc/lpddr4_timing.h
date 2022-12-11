@@ -9,6 +9,4 @@
 extern struct dram_timing_info dmo_imx8mm_sbc_dram_timing_16_32;
 extern struct dram_timing_info dmo_imx8mm_sbc_dram_timing_32_32;
 
-u8 dmo_get_memcfg(void);
-
 #endif /* __LPDDR4_TIMING_H__ */
