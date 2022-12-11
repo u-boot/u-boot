@@ -19,12 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int mach_cpu_init(void)
-{
-	icache_enable();
-	return 0;
-}
-
 int board_phys_sdram_size(phys_size_t *size)
 {
 	u8 memcfg = dmo_get_memcfg();
