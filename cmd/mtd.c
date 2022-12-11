@@ -434,18 +434,30 @@ static int do_mtd_erase(struct cmd_tbl *cmdtp, int flag, int argc,
 	erase_op.mtd = mtd;
 	erase_op.addr = off;
 	erase_op.len = mtd->erasesize;
-	erase_op.scrub = scrub;
 
 	while (len) {
-		ret = mtd_erase(mtd, &erase_op);
+		if (!scrub) {
+			ret = mtd_block_isbad(mtd, erase_op.addr);
+			if (ret < 0) {
+				printf("Failed to get bad block at 0x%08llx\n",
+				       erase_op.addr);
+				ret = CMD_RET_FAILURE;
+				goto out_put_mtd;
+			}
 
-		if (ret) {
-			/* Abort if its not a bad block error */
-			if (ret != -EIO)
-				break;
-			printf("Skipping bad block at 0x%08llx\n",
-			       erase_op.addr);
+			if (ret > 0) {
+				printf("Skipping bad block at 0x%08llx\n",
+				       erase_op.addr);
+				ret = 0;
+				len -= mtd->erasesize;
+				erase_op.addr += mtd->erasesize;
+				continue;
+			}
 		}
+
+		ret = mtd_erase(mtd, &erase_op);
+		if (ret && ret != -EIO)
+			break;
 
 		len -= mtd->erasesize;
 		erase_op.addr += mtd->erasesize;
