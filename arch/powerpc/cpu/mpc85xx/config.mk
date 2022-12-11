@@ -6,11 +6,12 @@
 PLATFORM_CPPFLAGS += -msoft-float -mno-string
 PLATFORM_RELFLAGS += -msingle-pic-base -fno-jump-tables
 
-# -mspe=yes is needed to have -mno-spe accepted by a buggy GCC;
+# No SPE instruction when building u-boot
+# (We use all available options to help semi-broken compilers)
 # see "[PATCH,rs6000] make -mno-spe work as expected" on
 # http://gcc.gnu.org/ml/gcc-patches/2008-04/msg00311.html
-PLATFORM_CPPFLAGS += $(call cc-option,-mspe=yes) \
-		   $(call cc-option,-mno-spe)
+PLATFORM_CPPFLAGS += $(call cc-option,-mno-spe) \
+		     $(call cc-option,-mspe=no)
 
 ifdef CONFIG_E6500
 PLATFORM_CPPFLAGS += -mcpu=e6500
