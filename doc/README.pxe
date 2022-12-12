@@ -179,11 +179,19 @@ initrd <path>	    - if this label is chosen, use tftp to retrieve the initrd
 		      at <path>. it will be stored at the address indicated in
 		      the initrd_addr_r environment variable, and that address
 		      will be passed to bootm.
+		      For FIT image, the initrd can be provided with the same value than
+		      kernel, including configuration:
+		        <path>#<conf>[#<extra-conf[#...]]
+		      In this case, kernel_addr_r is passed to bootm.
 
 fdt <path>	    - if this label is chosen, use tftp to retrieve the fdt blob
 		      at <path>. it will be stored at the address indicated in
 		      the fdt_addr_r environment variable, and that address will
 		      be passed to bootm.
+		      For FIT image, the device tree can be provided with the same value
+		      than kernel, including configuration:
+		        <path>#<conf>[#<extra-conf[#...]]
+		      In this case, kernel_addr_r is passed to bootm.
 
 devicetree <path>   - if this label is chosen, use tftp to retrieve the fdt blob
 		      at <path>. it will be stored at the address indicated in

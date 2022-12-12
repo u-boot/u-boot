@@ -3,6 +3,7 @@
 
 /dts-v1/;
 #include "nuvoton-npcm845.dtsi"
+#include "nuvoton-npcm845-pincfg.dtsi"
 
 / {
 	model = "Nuvoton npcm845 Development Board (Device Tree)";
@@ -10,6 +11,15 @@
 
 	aliases {
 		serial0 = &serial0;
+		i2c0 = &i2c0;
+		spi0 = &fiu0;
+		spi1 = &fiu1;
+		spi3 = &fiu3;
+		spi4 = &fiux;
+		spi5 = &spi1;
+		usb0 = &udc0;
+		usb1 = &ehci1;
+		usb2 = &ehci2;
 	};
 
 	chosen {
@@ -19,6 +29,31 @@
 	memory {
 		reg = <0x0 0x0 0x0 0x40000000>;
 	};
+
+	vsbr2: vsbr2 {
+		compatible = "regulator-npcm845";
+		regulator-name = "vr2";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	vsbv8: vsbv8 {
+		compatible = "regulator-npcm845";
+		regulator-name = "v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	vsbv5: vsbv5 {
+		compatible = "regulator-npcm845";
+		regulator-name = "v5";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
 };
 
 &serial0 {
@@ -27,4 +62,98 @@
 
 &watchdog1 {
 	status = "okay";
+};
+
+&fiu0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0cs1_pins>;
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+	spi_flash@1 {
+		compatible = "jedec,spi-nor";
+		reg = <1>;
+		spi-max-frequency = <25000000>;
+	};
+};
+
+&fiu1 {
+	status = "okay";
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+};
+
+&fiu3 {
+	pinctrl-0 = <&spi3_pins>, <&spi3quad_pins>;
+	status = "okay";
+	vqspi-supply = <&vsbv5>;
+	vqspi-microvolt = <3300000>;
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+};
+
+&fiux {
+	nuvoton,spix-mode;
+	status = "okay";
+};
+
+&spi1 {
+	status = "okay";
+};
+
+&usbphy1 {
+	status = "okay";
+};
+
+&usbphy2 {
+	status = "okay";
+};
+
+&usbphy3 {
+	status = "okay";
+};
+
+&udc0 {
+	status = "okay";
+	phys = <&usbphy1 0>;
+};
+
+&sdhci0 {
+	bus-width = <0x8>;
+	status = "okay";
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usbphy2 3>;
+};
+
+&ehci2 {
+	status = "okay";
+	phys = <&usbphy3 4>;
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+&pinctrl {
+        pinctrl-names = "default";
+        pinctrl-0 = <
+		&gspi_pins
+		&vgadig_pins
+		&spix_pins
+		&r1_pins
+		&r1en_pins
+		&r1oen_pins
+	>;
 };

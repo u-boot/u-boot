@@ -17,6 +17,14 @@
 			compatible = "simple-bus";
 		};
 	};
+
+	segment@80000 {
+		/* USB OTG */
+		target-module@2b000 {
+			compatible = "simple-bus";
+		};
+	};
+
 };
 
 &l4_per {
