@@ -128,16 +128,14 @@ int image_source_script(ulong addr, const char *fit_uname)
 		}
 
 		if (!fit_image_check_type (fit_hdr, noffset, IH_TYPE_SCRIPT)) {
-			puts ("Not a image image\n");
+			puts("Not a script image\n");
 			return 1;
 		}
 
 		/* verify integrity */
-		if (verify) {
-			if (!fit_image_verify(fit_hdr, noffset)) {
-				puts ("Bad Data Hash\n");
-				return 1;
-			}
+		if (verify && !fit_image_verify(fit_hdr, noffset)) {
+			puts("Bad Data Hash\n");
+			return 1;
 		}
 
 		/* get script subimage data address and length */
