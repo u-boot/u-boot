@@ -870,7 +870,6 @@
 				interrupts = <0 65 4>, <0 69 4>, <0 75 4>;
 				iommus = <&smmu 0x860>;
 				snps,quirk-frame-length-adjustment = <0x20>;
-				snps,refclk_fladj;
 				clock-names = "ref";
 				snps,enable_guctl1_resume_quirk;
 				snps,enable_guctl1_ipd_quirk;
@@ -902,7 +901,6 @@
 				interrupts = <0 70 4>, <0 74 4>, <0 76 4>;
 				iommus = <&smmu 0x861>;
 				snps,quirk-frame-length-adjustment = <0x20>;
-				snps,refclk_fladj;
 				clock-names = "ref";
 				snps,enable_guctl1_resume_quirk;
 				snps,enable_guctl1_ipd_quirk;
