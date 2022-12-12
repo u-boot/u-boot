@@ -303,8 +303,6 @@
 
 &usb0 { /* USB0 MIO52-63 */
 	status = "okay";
-	xlnx,usb-polarity = <0>;
-	xlnx,usb-reset-mode = <0>;
 };
 
 &dwc3_0 {
