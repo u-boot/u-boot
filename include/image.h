@@ -1259,7 +1259,14 @@ int fit_image_verify_with_data(const void *fit, int image_noffset,
 			       size_t size);
 
 int fit_image_verify(const void *fit, int noffset);
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
 int fit_config_verify(const void *fit, int conf_noffset);
+#else
+static inline int fit_config_verify(const void *fit, int conf_noffset)
+{
+	return 0;
+}
+#endif
 int fit_all_image_verify(const void *fit);
 int fit_config_decrypt(const void *fit, int conf_noffset);
 int fit_image_check_os(const void *fit, int noffset, uint8_t os);
