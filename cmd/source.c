@@ -42,7 +42,7 @@ static const char *get_default_image(const void *fit)
 }
 #endif
 
-int image_source_script(ulong addr, const char *fit_uname)
+int image_source_script(ulong addr, const char *fit_uname, const char *confname)
 {
 	ulong		len;
 #if defined(CONFIG_LEGACY_IMAGE_FORMAT)
@@ -112,19 +112,47 @@ int image_source_script(ulong addr, const char *fit_uname)
 			return 1;
 		}
 
-		if (!fit_uname)
-			fit_uname = get_default_image(fit_hdr);
-
 		if (!fit_uname) {
-			puts("No FIT subimage unit name\n");
-			return 1;
-		}
+			/* If confname is empty, use the default */
+			if (confname && *confname)
+				noffset = fit_conf_get_node(fit_hdr, confname);
+			else
+				noffset = fit_conf_get_node(fit_hdr, NULL);
+			if (noffset < 0) {
+				if (!confname)
+					goto fallback;
+				printf("Could not find config %s\n", confname);
+				return 1;
+			}
 
-		/* get script component image node offset */
-		noffset = fit_image_get_node (fit_hdr, fit_uname);
-		if (noffset < 0) {
-			printf ("Can't find '%s' FIT subimage\n", fit_uname);
-			return 1;
+			if (verify && fit_config_verify(fit_hdr, noffset))
+				return 1;
+
+			noffset = fit_conf_get_prop_node(fit_hdr, noffset,
+							 FIT_SCRIPT_PROP,
+							 IH_PHASE_NONE);
+			if (noffset < 0) {
+				if (!confname)
+					goto fallback;
+				printf("Could not find script in %s\n", confname);
+				return 1;
+			}
+		} else {
+fallback:
+			if (!fit_uname || !*fit_uname)
+				fit_uname = get_default_image(fit_hdr);
+			if (!fit_uname) {
+				puts("No FIT subimage unit name\n");
+				return 1;
+			}
+
+			/* get script component image node offset */
+			noffset = fit_image_get_node(fit_hdr, fit_uname);
+			if (noffset < 0) {
+				printf("Can't find '%s' FIT subimage\n",
+				       fit_uname);
+				return 1;
+			}
 		}
 
 		if (!fit_image_check_type (fit_hdr, noffset, IH_TYPE_SCRIPT)) {
@@ -164,7 +192,7 @@ static int do_source(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	ulong addr;
 	int rcode;
-	const char *fit_uname = NULL;
+	const char *fit_uname = NULL, *confname = NULL;
 
 	/* Find script image */
 	if (argc < 2) {
@@ -175,6 +203,9 @@ static int do_source(struct cmd_tbl *cmdtp, int flag, int argc,
 				      &fit_uname)) {
 		debug("*  source: subimage '%s' from FIT image at 0x%08lx\n",
 		      fit_uname, addr);
+	} else if (fit_parse_conf(argv[1], image_load_addr, &addr, &confname)) {
+		debug("*  source: config '%s' from FIT image at 0x%08lx\n",
+		      confname, addr);
 #endif
 	} else {
 		addr = hextoul(argv[1], NULL);
@@ -182,21 +213,22 @@ static int do_source(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	printf ("## Executing script at %08lx\n", addr);
-	rcode = image_source_script(addr, fit_uname);
+	rcode = image_source_script(addr, fit_uname, confname);
 	return rcode;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
 static char source_help_text[] =
-	"[addr]\n"
-	"\t- run script starting at addr\n"
-	"\t- A valid image header must be present"
 #if defined(CONFIG_FIT)
-	"\n"
-	"For FIT format uImage addr must include subimage\n"
-	"unit name in the form of addr:<subimg_uname>"
+	"[<addr>][:[<image>]|#[<config>]]\n"
+	"\t- Run script starting at addr\n"
+	"\t- A FIT config name or subimage name may be specified with : or #\n"
+	"\t  (like bootm). If the image or config name is omitted, the\n"
+	"\t  default is used.";
+#else
+	"[<addr>]\n"
+	"\t- Run script starting at addr";
 #endif
-	"";
 #endif
 
 U_BOOT_CMD(

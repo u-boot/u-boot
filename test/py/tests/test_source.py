@@ -18,11 +18,20 @@ def test_source(u_boot_console):
     util.run_and_log(cons, (mkimage, '-f', its, fit))
     cons.run_command(f'host load hostfs - $loadaddr {fit}')
 
-    assert '1' in cons.run_command('source')
+    assert '2' in cons.run_command('source')
+    assert '1' in cons.run_command('source :')
     assert '1' in cons.run_command('source :script-1')
     assert '2' in cons.run_command('source :script-2')
     assert 'Fail' in cons.run_command('source :not-a-script || echo Fail')
+    assert '2' in cons.run_command('source \\#')
+    assert '1' in cons.run_command('source \\#conf-1')
+    assert '2' in cons.run_command('source \\#conf-2')
 
     cons.run_command('fdt addr $loadaddr')
+    cons.run_command('fdt rm /configurations default')
+    assert '1' in cons.run_command('source')
+    assert 'Fail' in cons.run_command('source \\# || echo Fail')
+
     cons.run_command('fdt rm /images default')
     assert 'Fail' in cons.run_command('source || echo Fail')
+    assert 'Fail' in cons.run_command('source \\# || echo Fail')
