@@ -99,9 +99,16 @@ int board_late_init(void)
 	if (!of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
 
-	/* Find free buffer in default_environment[] for new variables */
-	while (*ptr != '\0' && *(ptr+1) != '\0') ptr++;
-	ptr += 2;
+	/*
+	 * Find free space for new variables in default_environment[] array.
+	 * Free space is after the last variable, each variable is termined
+	 * by nul byte and after the last variable is additional nul byte.
+	 * Move ptr to the position where new variable can be filled.
+	 */
+	while (*ptr != '\0') {
+		do { ptr++; } while (*ptr != '\0');
+		ptr++;
+	}
 
 	/*
 	 * Ensure that 'env default -a' does not erase permanent MAC addresses
@@ -145,6 +152,13 @@ int board_late_init(void)
 		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin-emmc.dtb");
 	else
 		strcpy(ptr, "fdtfile=marvell/armada-3720-espressobin.dtb");
+	ptr += strlen(ptr) + 1;
+
+	/*
+	 * After the last variable (which is nul term string) append another nul
+	 * byte which terminates the list. So everything after ptr is ignored.
+	 */
+	*ptr = '\0';
 
 	return 0;
 }
