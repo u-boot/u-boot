@@ -21,11 +21,14 @@
 #define SRC_M4_REG_OFFSET		0
 #endif
 
-const __weak struct rproc_att hostmap[] = { };
+__weak const struct rproc_att *imx_bootaux_get_hostmap(void)
+{
+	return NULL;
+}
 
 static const struct rproc_att *get_host_mapping(unsigned long auxcore)
 {
-	const struct rproc_att *mmap = hostmap;
+	const struct rproc_att *mmap = imx_bootaux_get_hostmap();
 
 	while (mmap && mmap->size) {
 		if (mmap->da <= auxcore &&

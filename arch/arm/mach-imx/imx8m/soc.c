@@ -1610,4 +1610,9 @@ const struct rproc_att hostmap[] = {
 	{ 0x40000000, 0x40000000, 0x80000000 },
 	{ /* sentinel */ }
 };
+
+const struct rproc_att *imx_bootaux_get_hostmap(void)
+{
+	return hostmap;
+}
 #endif
