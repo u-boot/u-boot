@@ -48,14 +48,6 @@
 
 #define CFG_SYS_FLASH_BANKS_LIST { CFG_SYS_FLASH_BASE }
 
-/* I2C */
-#define CFG_SYS_NUM_I2C_BUSES	4
-#define CFG_SYS_I2C_MAX_HOPS		1
-#define CFG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP} }, \
-		{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
-		{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
-		{1, {I2C_NULL_HOP} } }
-
 #if defined(CONFIG_CMD_NAND)
 #define CFG_SYS_NAND_BASE		CFG_SYS_KMBEC_FPGA_BASE
 #endif
@@ -66,30 +58,6 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_SYS_BOOTMAPSZ		(8 << 20)
-
-/*
- * Environment
- */
-
-/*
- * Environment Configuration
- */
-#ifndef CONFIG_KM_DEF_ENV		/* if not set by keymile-common.h */
-#define CONFIG_KM_DEF_ENV "km-common=empty\0"
-#endif
-
-#ifndef CONFIG_KM_DEF_ARCH
-#define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
-#endif
-
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_KM_DEF_ENV						 \
-	CONFIG_KM_DEF_ARCH						 \
-	"newenv="							 \
-		"prot off " __stringify(CONFIG_ENV_ADDR) " +0x40000 && " \
-		"era " __stringify(CONFIG_ENV_ADDR) " +0x40000\0"	 \
-	"unlock=yes\0"							 \
-	""
 
 /*
  * QE UEC ethernet configuration

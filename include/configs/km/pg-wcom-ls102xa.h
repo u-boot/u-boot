@@ -6,9 +6,6 @@
 #ifndef __CONFIG_PG_WCOM_LS102XA_H
 #define __CONFIG_PG_WCOM_LS102XA_H
 
-/* include common defines/options for all Keymile boards */
-#include "keymile-common.h"
-
 #define CFG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
@@ -167,68 +164,6 @@
 #define CONFIG_SMP_PEN_ADDR		0x01ee0200
 
 #define HWCONFIG_BUFFER_SIZE		256
-
-/*
- * Environment
- */
-
-#define CONFIG_ENV_TOTAL_SIZE		0x40000
-#define ENV_DEL_ADDR		CONFIG_ENV_ADDR_REDUND  /* direct for newenv */
-
-#ifndef CONFIG_KM_DEF_ENV		/* if not set by keymile-common.h */
-#define CONFIG_KM_DEF_ENV
-#endif
-
-#ifndef CONFIG_KM_DEF_BOOT_ARGS_CPU
-#define CONFIG_KM_DEF_BOOT_ARGS_CPU		""
-#endif
-
-#define CONFIG_KM_DEF_ENV_CPU						\
-	"boot=bootm ${load_addr_r} - ${fdt_addr_r}\0"			\
-	"cramfsloadfdt="						\
-		"cramfsload ${fdt_addr_r} "				\
-		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
-	"u-boot=" CONFIG_HOSTNAME "/u-boot.bin\0"			\
-	"update=protect off " __stringify(CONFIG_SYS_MONITOR_BASE)	\
-		" +${filesize} && "					\
-		"erase " __stringify(CONFIG_SYS_MONITOR_BASE)		\
-		" +${filesize} && "					\
-		"cp.b ${load_addr_r} "					\
-		__stringify(CONFIG_SYS_MONITOR_BASE) " ${filesize} && "	\
-		"protect on " __stringify(CONFIG_SYS_MONITOR_BASE)	\
-		" +${filesize}\0"					\
-	"update-nor=protect off " __stringify(CFG_SYS_FLASH_BASE)	\
-		" +${filesize} && "					\
-		"erase " __stringify(CFG_SYS_FLASH_BASE)		\
-		" +${filesize} && "					\
-		"cp.b ${load_addr_r} "					\
-		__stringify(CFG_SYS_FLASH_BASE) " ${filesize} && "	\
-		"protect on " __stringify(CONFIG_SYS_MONITOR_BASE)	\
-		" +" __stringify(CONFIG_SYS_MONITOR_LEN)"\0"		\
-	"set_fdthigh=true\0"			\
-	"checkfdt=true\0"						\
-	""
-
-#define CONFIG_KM_NEW_ENV						\
-	"newenv=protect off " __stringify(ENV_DEL_ADDR)			\
-		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) " && "		\
-		"erase " __stringify(ENV_DEL_ADDR)			\
-		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) " && "		\
-		"protect on " __stringify(ENV_DEL_ADDR)			\
-		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) "\0"
-
-#define CONFIG_HW_ENV_SETTINGS						\
-	"hwconfig=devdis:esdhc,usb3,usb2,sata,sec,dcu,duart2,qspi,"	\
-			"can1,can2_4,ftm2_8,i2c2_3,sai1_4,lpuart2_6,"	\
-			"asrc,spdif,lpuart1,ftm1\0"
-
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_KM_NEW_ENV						\
-	CONFIG_KM_DEF_ENV						\
-	CONFIG_HW_ENV_SETTINGS						\
-	"EEprom_ivm=pca9547:70:9\0"					\
-	"ethrotate=no\0"						\
-	""
 
 #define CFG_SYS_BOOTMAPSZ	(256 << 20) /* Increase map for Linux */
 

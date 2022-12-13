@@ -21,7 +21,6 @@
  * for your console driver.
  */
 
-#define MTDPARTS_DEFAULT "mtdparts=spi0.0:768K(boot)ro,256K(boot-env),14M(user),1M(errlog)"
 #define MTDPARTS_MTDOOPS "errlog"
 
 /*

@@ -8,18 +8,6 @@
 #ifndef __KMCENT2_H
 #define __KMCENT2_H
 
-#define CONFIG_HOSTNAME		"kmcent2"
-#define KM_BOARD_NAME	CONFIG_HOSTNAME
-
-/*
- * The Linux fsl_fman driver needs to be able to process frames with more
- * than just the VLAN tag (i.e. eDSA tag). It is passed as a kernel boot
- * parameters
- */
-#define CONFIG_KM_DEF_BOOT_ARGS_CPU	"fsl_dpaa_fman.fsl_fm_max_frm=1558"
-
-#include "km/keymile-common.h"
-
 /* Application IFC chip selects */
 #define SYS_LAWAPP_BASE		0xc0000000
 #define SYS_LAWAPP_BASE_PHYS	(0xf00000000ull | SYS_LAWAPP_BASE)
@@ -386,67 +374,5 @@ int get_scl(void);
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial map for Linux*/
-
-/*
- * Environment Configuration
- */
-#ifndef CONFIG_KM_DEF_ENV		/* if not set by keymile-common.h */
-#define CONFIG_KM_DEF_ENV
-#endif
-
-#define __USB_PHY_TYPE	utmi
-
-#define CONFIG_KM_DEF_ENV_CPU						\
-	"boot=bootm ${load_addr_r} - ${fdt_addr_r}\0"			\
-	"cramfsloadfdt="						\
-		"cramfsload ${fdt_addr_r} "				\
-		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
-	"u-boot=" CONFIG_HOSTNAME "/u-boot.bin\0"		\
-	"update=protect off " __stringify(CONFIG_SYS_MONITOR_BASE)	\
-		" +${filesize} && "					\
-		"erase " __stringify(CONFIG_SYS_MONITOR_BASE)		\
-		" +${filesize} && "					\
-		"cp.b ${load_addr_r} "					\
-		__stringify(CONFIG_SYS_MONITOR_BASE) " ${filesize} && "	\
-		"protect on " __stringify(CONFIG_SYS_MONITOR_BASE)	\
-		" +${filesize}\0"					\
-	"update-nor=protect off " __stringify(CFG_SYS_FLASH_BASE)	\
-		" +${filesize} && "					\
-		"erase " __stringify(CFG_SYS_FLASH_BASE)		\
-		" +${filesize} && "					\
-		"cp.b ${load_addr_r} "					\
-		__stringify(CFG_SYS_FLASH_BASE) " ${filesize} && "	\
-		"protect on " __stringify(CONFIG_SYS_MONITOR_BASE)	\
-		" +" __stringify(CONFIG_SYS_MONITOR_LEN) "\0"		\
-	"set_fdthigh=true\0"						\
-	"checkfdt=true\0"						\
-	"fpgacfg=true\0"						\
-	""
-
-#define CONFIG_HW_ENV_SETTINGS						\
-	"hwconfig=fsl_ddr:ctlr_intlv=cacheline\0"			\
-	"usb_phy_type=" __stringify(__USB_PHY_TYPE) "\0"		\
-	"usb_dr_mode=host\0"
-
-#define CONFIG_KM_NEW_ENV						\
-	"newenv=protect off " __stringify(ENV_DEL_ADDR)			\
-		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) " && "		\
-		"erase " __stringify(ENV_DEL_ADDR)			\
-		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) " && "		\
-		"protect on " __stringify(ENV_DEL_ADDR)			\
-		" +" __stringify(CONFIG_ENV_TOTAL_SIZE) "\0"
-
-/* ppc_82xx is the equivalent to ppc_6xx, the generic ppc toolchain */
-#ifndef CONFIG_KM_DEF_ARCH
-#define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
-#endif
-
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_KM_DEF_ENV						\
-	CONFIG_KM_DEF_ARCH						\
-	CONFIG_KM_NEW_ENV						\
-	CONFIG_HW_ENV_SETTINGS						\
-	"EEprom_ivm=pca9547:70:9\0"					\
-	""
 
 #endif	/* __KMCENT2_H */

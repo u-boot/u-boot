@@ -66,9 +66,3 @@
 
 #define CFG_SYS_DDR_TIMING_3			0x00000000
 
-/* EEprom support */
-
-/*
- * PAXE on the local bus CS3
- */
-#define CFG_SYS_PAXE_BASE		0xA0000000

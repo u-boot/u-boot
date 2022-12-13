@@ -3,7 +3,7 @@ CONFIG_SYS_L2_PL310=y
 CONFIG_ARCH_SOCFPGA=y
 CONFIG_SYS_MALLOC_LEN=0x4000000
 CONFIG_SYS_MALLOC_F_LEN=0x800
-CONFIG_ENV_SIZE=0x1000
+CONFIG_ENV_SIZE=0x2000
 CONFIG_ENV_OFFSET=0x100000
 CONFIG_DM_GPIO=y
 CONFIG_DEFAULT_DEVICE_TREE="socfpga_arria5_secu1"
@@ -24,7 +24,6 @@ CONFIG_BOOT_RETRY=y
 CONFIG_BOOT_RETRY_TIME=45
 CONFIG_RESET_TO_RETRY=y
 CONFIG_USE_BOOTARGS=y
-CONFIG_BOOTARGS="console=ttyS0,115200 ubi.fm_autoconvert=1 uio_pdrv_genirq.of_id=\"idq,regbank\""
 CONFIG_BOOTCOMMAND="setenv bootcmd 'bridge enable; if test ${bootnum} = 'b'; then run _fpga_loadsafe; else if test ${bootcount} -eq 4; then echo 'Switching copy...'; setexpr x $bootnum % 2 && setexpr bootnum $x + 1; saveenv; fi; run _fpga_loaduser; fi;echo 'Booting bank $bootnum' && run userload && run userboot;' && setenv altbootcmd 'setenv bootnum b && saveenv && boot;' && saveenv && saveenv && boot;"
 CONFIG_DEFAULT_FDT_FILE="socfpga_arria5_secu1.dtb"
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
@@ -65,6 +64,7 @@ CONFIG_CMD_UBI=y
 # CONFIG_CMD_UBIFS is not set
 # CONFIG_ISO_PARTITION is not set
 # CONFIG_EFI_PARTITION is not set
+CONFIG_ENV_SOURCE_FILE="socfpga_secu"
 CONFIG_ENV_OVERWRITE=y
 CONFIG_ENV_IS_IN_NAND=y
 CONFIG_SYS_REDUNDAND_ENVIRONMENT=y
