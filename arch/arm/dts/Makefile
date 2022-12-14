@@ -170,6 +170,9 @@ dtb-$(CONFIG_ROCKCHIP_RV1108) += \
 	rv1108-elgin-r1.dtb \
 	rv1108-evb.dtb
 
+dtb-$(CONFIG_ROCKCHIP_RV1126) += \
+	rv1126-edgeble-neu2-io.dtb
+
 dtb-$(CONFIG_ARCH_S5P4418) += \
 	s5p4418-nanopi2.dtb
 
