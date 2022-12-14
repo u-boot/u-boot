@@ -1625,7 +1625,7 @@ static void set_ddr_stride(struct rk3399_pmusgrf_regs *pmusgrf, u32 stride)
 	rk_clrsetreg(&pmusgrf->soc_con4, 0x1f << 10, stride << 10);
 }
 
-#if !defined(CONFIG_RAM_RK3399_LPDDR4)
+#if !defined(CONFIG_RAM_ROCKCHIP_LPDDR4)
 static int data_training_first(struct dram_info *dram, u32 channel, u8 rank,
 			       struct rk3399_sdram_params *params)
 {
@@ -2558,8 +2558,7 @@ static int lpddr4_set_rate(struct dram_info *dram,
 
 	return 0;
 }
-
-#endif /* CONFIG_RAM_RK3399_LPDDR4 */
+#endif /* CONFIG_RAM_ROCKCHIP_LPDDR4 */
 
 /* CS0,n=1
  * CS1,n=2
@@ -3059,7 +3058,7 @@ static int conv_of_plat(struct udevice *dev)
 #endif
 
 static const struct sdram_rk3399_ops rk3399_ops = {
-#if !defined(CONFIG_RAM_RK3399_LPDDR4)
+#if !defined(CONFIG_RAM_ROCKCHIP_LPDDR4)
 	.data_training_first = data_training_first,
 	.set_rate_index = switch_to_phy_index1,
 	.modify_param = modify_param,
