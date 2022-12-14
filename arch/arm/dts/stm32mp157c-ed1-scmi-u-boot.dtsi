@@ -3,7 +3,6 @@
  * Copyright : STMicroelectronics 2022
  */
 
-#include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include "stm32mp15-scmi-u-boot.dtsi"
 
 / {
