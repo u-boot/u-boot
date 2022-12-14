@@ -116,7 +116,7 @@ struct sdram_base_params {
 
 void sdram_print_dram_type(unsigned char dramtype);
 void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
-			  struct sdram_base_params *base);
+			  struct sdram_base_params *base, u32 split);
 void sdram_print_stride(unsigned int stride);
 
 void sdram_org_config(struct sdram_cap_info *cap_info,

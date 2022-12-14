@@ -711,7 +711,7 @@ int sdram_init(void)
 	if (ret)
 		goto error;
 
-	sdram_print_ddr_info(&sdram_params->ch.cap_info, &sdram_params->base);
+	sdram_print_ddr_info(&sdram_params->ch.cap_info, &sdram_params->base, 0);
 
 	printascii("out\n");
 	return ret;

@@ -2986,7 +2986,7 @@ static int sdram_init(struct dram_info *dram,
 			continue;
 		}
 
-		sdram_print_ddr_info(cap_info, &params->base);
+		sdram_print_ddr_info(cap_info, &params->base, 0);
 		set_memory_map(chan, channel, params);
 		cap_info->ddrconfig =
 			calculate_ddrconfig(params, channel);

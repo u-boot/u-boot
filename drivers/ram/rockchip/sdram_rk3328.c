@@ -506,7 +506,7 @@ static int sdram_init_detect(struct dram_info *dram,
 		writel(sys_reg3, &dram->grf->os_reg[3]);
 	}
 
-	sdram_print_ddr_info(&sdram_params->ch.cap_info, &sdram_params->base);
+	sdram_print_ddr_info(&sdram_params->ch.cap_info, &sdram_params->base, 0);
 
 	return 0;
 }
