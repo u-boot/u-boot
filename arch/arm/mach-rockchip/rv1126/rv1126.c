@@ -10,6 +10,8 @@
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rv1126.h>
 
+#define FIREWALL_APB_BASE	0xffa60000
+#define FW_DDR_CON_REG		0x80
 #define GRF_BASE		0xFE000000
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
@@ -58,6 +60,16 @@ void board_debug_uart_init(void)
 #ifndef CONFIG_TPL_BUILD
 int arch_cpu_init(void)
 {
+	/**
+	 * Set dram area unsecure in spl
+	 *
+	 * usb & mmc & sfc controllers can read data to dram
+	 * since they are unsecure.
+	 * (Note: only secure-world can access this register)
+	 */
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		writel(0, FIREWALL_APB_BASE + FW_DDR_CON_REG);
+
 	return 0;
 }
 #endif
