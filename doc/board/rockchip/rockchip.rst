@@ -89,6 +89,9 @@ List of mainline supported Rockchip boards:
      - Rockchip Evb-rv1108 (evb-rv1108)
      - Elgin-R1 (elgin-rv1108)
 
+* rv1126
+     - Edgeble Neural Compute Module 2 SoM - Neu2/Neu2k (neu2-io-r1126)
+
 Building
 --------
 
