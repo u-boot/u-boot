@@ -33,7 +33,9 @@ u32 available_harts_lock = 1;
 
 static inline bool supports_extension(char ext)
 {
-#ifdef CONFIG_CPU
+#if CONFIG_IS_ENABLED(RISCV_MMODE)
+	return csr_read(CSR_MISA) & (1 << (ext - 'a'));
+#elif CONFIG_CPU
 	struct udevice *dev;
 	char desc[32];
 	int i;
@@ -58,13 +60,9 @@ static inline bool supports_extension(char ext)
 
 	return false;
 #else  /* !CONFIG_CPU */
-#if CONFIG_IS_ENABLED(RISCV_MMODE)
-	return csr_read(CSR_MISA) & (1 << (ext - 'a'));
-#else  /* !CONFIG_IS_ENABLED(RISCV_MMODE) */
 #warning "There is no way to determine the available extensions in S-mode."
 #warning "Please convert your board to use the RISC-V CPU driver."
 	return false;
-#endif /* CONFIG_IS_ENABLED(RISCV_MMODE) */
 #endif /* CONFIG_CPU */
 }
 
@@ -112,12 +110,14 @@ int riscv_cpu_setup(void *ctx, struct event *event)
 		 * Enable perf counters for cycle, time,
 		 * and instret counters only
 		 */
+		if (supports_extension('u')) {
 #ifdef CONFIG_RISCV_PRIV_1_9
-		csr_write(CSR_MSCOUNTEREN, GENMASK(2, 0));
-		csr_write(CSR_MUCOUNTEREN, GENMASK(2, 0));
+			csr_write(CSR_MSCOUNTEREN, GENMASK(2, 0));
+			csr_write(CSR_MUCOUNTEREN, GENMASK(2, 0));
 #else
-		csr_write(CSR_MCOUNTEREN, GENMASK(2, 0));
+			csr_write(CSR_MCOUNTEREN, GENMASK(2, 0));
 #endif
+		}
 
 		/* Disable paging */
 		if (supports_extension('s'))
