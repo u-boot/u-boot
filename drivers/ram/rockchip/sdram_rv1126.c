@@ -3358,22 +3358,33 @@ static void ddr_set_rate_for_fsp(struct dram_info *dram,
 	if (get_wrlvl_val(dram, sdram_params))
 		printascii("get wrlvl value fail\n");
 
-	printascii("change to: ");
-	printdec(f1);
-	printascii("MHz\n");
+	if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG)) {
+		printascii("change to: ");
+		printdec(f1);
+		printascii("MHz\n");
+	}
 	ddr_set_rate(&dram_info, sdram_params, f1,
 		     sdram_params->base.ddr_freq, 1, 1, 1);
-	printascii("change to: ");
-	printdec(f2);
-	printascii("MHz\n");
+
+	if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG)) {
+		printascii("change to: ");
+		printdec(f2);
+		printascii("MHz\n");
+	}
 	ddr_set_rate(&dram_info, sdram_params, f2, f1, 2, 0, 1);
-	printascii("change to: ");
-	printdec(f3);
-	printascii("MHz\n");
+
+	if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG)) {
+		printascii("change to: ");
+		printdec(f3);
+		printascii("MHz\n");
+	}
 	ddr_set_rate(&dram_info, sdram_params, f3, f2, 3, 1, 1);
-	printascii("change to: ");
-	printdec(f0);
-	printascii("MHz(final freq)\n");
+
+	if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG)) {
+		printascii("change to: ");
+		printdec(f0);
+		printascii("MHz(final freq)\n");
+	}
 	ddr_set_rate(&dram_info, sdram_params, f0, f3, 0, 0, 1);
 }
 
@@ -3465,7 +3476,8 @@ static int rv1126_dmc_init(struct udevice *dev)
 	save_rw_trn_result_to_ddr(&rw_trn_result);
 #endif
 
-	printascii("out\n");
+	if (IS_ENABLED(CONFIG_RAM_ROCKCHIP_DEBUG))
+		printascii("out\n");
 
 	return ret;
 error:
