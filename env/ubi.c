@@ -28,6 +28,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#define ENV_UBI_VOLUME_REDUND CONFIG_ENV_UBI_VOLUME_REDUND
+#else
+#define ENV_UBI_VOLUME_REDUND "invalid"
+#endif
+
 #ifdef CONFIG_CMD_SAVEENV
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 static int env_ubi_save(void)
@@ -177,9 +183,43 @@ static int env_ubi_load(void)
 }
 #endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
 
+static int env_ubi_erase(void)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(char, env_buf, CONFIG_ENV_SIZE);
+	int ret = 0;
+
+	if (ubi_part(CONFIG_ENV_UBI_PART, UBI_VID_OFFSET)) {
+		printf("\n** Cannot find mtd partition \"%s\"\n",
+		       CONFIG_ENV_UBI_PART);
+		return 1;
+	}
+
+	memset(env_buf, 0x0, CONFIG_ENV_SIZE);
+
+	if (ubi_volume_write(CONFIG_ENV_UBI_VOLUME,
+			     (void *)env_buf, CONFIG_ENV_SIZE)) {
+		printf("\n** Unable to erase env to %s:%s **\n",
+		       CONFIG_ENV_UBI_PART,
+		       CONFIG_ENV_UBI_VOLUME);
+		ret = 1;
+	}
+	if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT)) {
+		if (ubi_volume_write(ENV_UBI_VOLUME_REDUND,
+				     (void *)env_buf, CONFIG_ENV_SIZE)) {
+			printf("\n** Unable to erase env to %s:%s **\n",
+			       CONFIG_ENV_UBI_PART,
+			       ENV_UBI_VOLUME_REDUND);
+			ret = 1;
+		}
+	}
+
+	return ret;
+}
+
 U_BOOT_ENV_LOCATION(ubi) = {
 	.location	= ENVL_UBI,
 	ENV_NAME("UBI")
 	.load		= env_ubi_load,
 	.save		= env_save_ptr(env_ubi_save),
+	.erase		= ENV_ERASE_PTR(env_ubi_erase),
 };
