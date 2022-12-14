@@ -1,0 +1,43 @@
+if ROCKCHIP_RV1126
+
+config SOC_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select HAS_CUSTOM_SYS_INIT_SP_ADDR
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xfe020200
+
+config ROCKCHIP_STIMER_BASE
+	default 0xff670020
+
+config SYS_SOC
+	default "rv1126"
+
+config CUSTOM_SYS_INIT_SP_ADDR
+	default 0x800000
+
+config SPL_STACK
+	default 0x600000
+
+config SPL_STACK_R_ADDR
+	default 0x800000
+
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/u-boot-tpl.lds"
+
+config TPL_STACK
+        default 0xff718000
+
+config TPL_SYS_MALLOC_F_LEN
+	default 0x2000
+
+config TPL_TEXT_BASE
+	default 0xff701000
+
+config SYS_MALLOC_F_LEN
+	default 0x2000
+
+config TEXT_BASE
+	default 0x600000
+
+endif
