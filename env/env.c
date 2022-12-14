@@ -311,11 +311,15 @@ int env_erase(void)
 	if (drv) {
 		int ret;
 
-		if (!drv->erase)
+		if (!drv->erase) {
+			printf("not possible\n");
 			return -ENODEV;
+		}
 
-		if (!env_has_inited(drv->location))
+		if (!env_has_inited(drv->location)) {
+			printf("not initialized\n");
 			return -ENODEV;
+		}
 
 		printf("Erasing Environment on %s... ", drv->name);
 		ret = drv->erase();
