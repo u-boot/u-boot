@@ -68,6 +68,15 @@ struct dram_info {
 struct dram_info dram_info;
 
 struct rv1126_sdram_params sdram_configs[] = {
+#if defined(CONFIG_RAM_ROCKCHIP_LPDDR4)
+# include	"sdram-rv1126-lpddr4-detect-328.inc"
+# include	"sdram-rv1126-lpddr4-detect-396.inc"
+# include	"sdram-rv1126-lpddr4-detect-528.inc"
+# include	"sdram-rv1126-lpddr4-detect-664.inc"
+# include	"sdram-rv1126-lpddr4-detect-784.inc"
+# include	"sdram-rv1126-lpddr4-detect-924.inc"
+# include	"sdram-rv1126-lpddr4-detect-1056.inc"
+#else
 # include	"sdram-rv1126-ddr3-detect-328.inc"
 # include	"sdram-rv1126-ddr3-detect-396.inc"
 # include	"sdram-rv1126-ddr3-detect-528.inc"
@@ -75,6 +84,7 @@ struct rv1126_sdram_params sdram_configs[] = {
 # include	"sdram-rv1126-ddr3-detect-784.inc"
 # include	"sdram-rv1126-ddr3-detect-924.inc"
 # include	"sdram-rv1126-ddr3-detect-1056.inc"
+#endif
 };
 
 u32 common_info[] = {
