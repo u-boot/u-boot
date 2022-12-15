@@ -92,7 +92,8 @@ static int bind_service_list(struct udevice *dev, struct tee_shm *service_list, 
 		if (!service)
 			continue;
 
-		ret = device_bind_driver(dev, service->driver_name, service->driver_name, NULL);
+		ret = device_bind_driver_to_node(dev, service->driver_name, service->driver_name,
+						 dev_ofnode(dev), NULL);
 		if (ret) {
 			dev_warn(dev, "%s was not bound: %d, ignored\n", service->driver_name, ret);
 			continue;
@@ -846,7 +847,8 @@ static int optee_probe(struct udevice *dev)
 		 * Discovery of TAs on the TEE bus is not supported in U-Boot:
 		 * only bind the drivers associated to the supported OP-TEE TA
 		 */
-		ret = device_bind_driver(dev, "optee-rng", "optee-rng", NULL);
+		ret = device_bind_driver_to_node(dev, "optee-rng", "optee-rng",
+						 dev_ofnode(dev), NULL);
 		if (ret)
 			dev_warn(dev, "ftpm_tee failed to bind: %d\n", ret);
 	}
