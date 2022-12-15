@@ -31,27 +31,16 @@ static u32 fastboot_bytes_expected;
 static void okay(char *, char *);
 static void getvar(char *, char *);
 static void download(char *, char *);
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void flash(char *, char *);
 static void erase(char *, char *);
-#endif
 static void reboot_bootloader(char *, char *);
 static void reboot_fastbootd(char *, char *);
 static void reboot_recovery(char *, char *);
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 static void oem_format(char *, char *);
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_PARTCONF)
 static void oem_partconf(char *, char *);
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_BOOTBUS)
 static void oem_bootbus(char *, char *);
-#endif
-
-#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
 static void run_ucmd(char *, char *);
 static void run_acmd(char *, char *);
-#endif
 
 static const struct {
 	const char *command;
@@ -65,16 +54,14 @@ static const struct {
 		.command = "download",
 		.dispatch = download
 	},
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	[FASTBOOT_COMMAND_FLASH] =  {
 		.command = "flash",
-		.dispatch = flash
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_FLASH, (flash), (NULL))
 	},
 	[FASTBOOT_COMMAND_ERASE] =  {
 		.command = "erase",
-		.dispatch = erase
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_FLASH, (erase), (NULL))
 	},
-#endif
 	[FASTBOOT_COMMAND_BOOT] =  {
 		.command = "boot",
 		.dispatch = okay
@@ -103,34 +90,26 @@ static const struct {
 		.command = "set_active",
 		.dispatch = okay
 	},
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 	[FASTBOOT_COMMAND_OEM_FORMAT] = {
 		.command = "oem format",
-		.dispatch = oem_format,
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT, (oem_format), (NULL))
 	},
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_PARTCONF)
 	[FASTBOOT_COMMAND_OEM_PARTCONF] = {
 		.command = "oem partconf",
-		.dispatch = oem_partconf,
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_PARTCONF, (oem_partconf), (NULL))
 	},
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_BOOTBUS)
 	[FASTBOOT_COMMAND_OEM_BOOTBUS] = {
 		.command = "oem bootbus",
-		.dispatch = oem_bootbus,
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_BOOTBUS, (oem_bootbus), (NULL))
 	},
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
 	[FASTBOOT_COMMAND_UCMD] = {
 		.command = "UCmd",
-		.dispatch = run_ucmd,
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT, (run_ucmd), (NULL))
 	},
 	[FASTBOOT_COMMAND_ACMD] = {
 		.command = "ACmd",
-		.dispatch = run_acmd,
+		.dispatch = CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT, (run_acmd), (NULL))
 	},
-#endif
 };
 
 /**
@@ -156,7 +135,9 @@ int fastboot_handle_command(char *cmd_string, char *response)
 							response);
 				return i;
 			} else {
-				break;
+				pr_err("command %s not supported.\n", cmd_string);
+				fastboot_fail("Unsupported command", response);
+				return -1;
 			}
 		}
 	}
@@ -299,7 +280,6 @@ void fastboot_data_complete(char *response)
 	fastboot_bytes_received = 0;
 }
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 /**
  * flash() - write the downloaded image to the indicated partition.
  *
@@ -309,16 +289,15 @@ void fastboot_data_complete(char *response)
  * Writes the previously downloaded image to the partition indicated by
  * cmd_parameter. Writes to response.
  */
-static void flash(char *cmd_parameter, char *response)
+static void __maybe_unused flash(char *cmd_parameter, char *response)
 {
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
-	fastboot_mmc_flash_write(cmd_parameter, fastboot_buf_addr, image_size,
-				 response);
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
-	fastboot_nand_flash_write(cmd_parameter, fastboot_buf_addr, image_size,
-				  response);
-#endif
+	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC))
+		fastboot_mmc_flash_write(cmd_parameter, fastboot_buf_addr,
+					 image_size, response);
+
+	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND))
+		fastboot_nand_flash_write(cmd_parameter, fastboot_buf_addr,
+					  image_size, response);
 }
 
 /**
@@ -330,25 +309,22 @@ static void flash(char *cmd_parameter, char *response)
  * Erases the partition indicated by cmd_parameter (clear to 0x00s). Writes
  * to response.
  */
-static void erase(char *cmd_parameter, char *response)
+static void __maybe_unused erase(char *cmd_parameter, char *response)
 {
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
-	fastboot_mmc_erase(cmd_parameter, response);
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
-	fastboot_nand_erase(cmd_parameter, response);
-#endif
-}
-#endif
+	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC))
+		fastboot_mmc_erase(cmd_parameter, response);
 
-#if CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT)
+	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND))
+		fastboot_nand_erase(cmd_parameter, response);
+}
+
 /**
  * run_ucmd() - Execute the UCmd command
  *
  * @cmd_parameter: Pointer to command parameter
  * @response: Pointer to fastboot response buffer
  */
-static void run_ucmd(char *cmd_parameter, char *response)
+static void __maybe_unused run_ucmd(char *cmd_parameter, char *response)
 {
 	if (!cmd_parameter) {
 		pr_err("missing slot suffix\n");
@@ -375,7 +351,7 @@ void fastboot_acmd_complete(void)
  * @cmd_parameter: Pointer to command parameter
  * @response: Pointer to fastboot response buffer
  */
-static void run_acmd(char *cmd_parameter, char *response)
+static void __maybe_unused run_acmd(char *cmd_parameter, char *response)
 {
 	if (!cmd_parameter) {
 		pr_err("missing slot suffix\n");
@@ -392,7 +368,6 @@ static void run_acmd(char *cmd_parameter, char *response)
 	strcpy(g_a_cmd_buff, cmd_parameter);
 	fastboot_okay(NULL, response);
 }
-#endif
 
 /**
  * reboot_bootloader() - Sets reboot bootloader flag.
@@ -436,40 +411,40 @@ static void reboot_recovery(char *cmd_parameter, char *response)
 		fastboot_okay(NULL, response);
 }
 
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_FORMAT)
 /**
  * oem_format() - Execute the OEM format command
  *
  * @cmd_parameter: Pointer to command parameter
  * @response: Pointer to fastboot response buffer
  */
-static void oem_format(char *cmd_parameter, char *response)
+static void __maybe_unused oem_format(char *cmd_parameter, char *response)
 {
 	char cmdbuf[32];
+	const int mmc_dev = config_opt_enabled(CONFIG_FASTBOOT_FLASH_MMC,
+					       CONFIG_FASTBOOT_FLASH_MMC_DEV, -1);
 
 	if (!env_get("partitions")) {
 		fastboot_fail("partitions not set", response);
 	} else {
-		sprintf(cmdbuf, "gpt write mmc %x $partitions",
-			CONFIG_FASTBOOT_FLASH_MMC_DEV);
+		sprintf(cmdbuf, "gpt write mmc %x $partitions", mmc_dev);
 		if (run_command(cmdbuf, 0))
 			fastboot_fail("", response);
 		else
 			fastboot_okay(NULL, response);
 	}
 }
-#endif
 
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_PARTCONF)
 /**
  * oem_partconf() - Execute the OEM partconf command
  *
  * @cmd_parameter: Pointer to command parameter
  * @response: Pointer to fastboot response buffer
  */
-static void oem_partconf(char *cmd_parameter, char *response)
+static void __maybe_unused oem_partconf(char *cmd_parameter, char *response)
 {
 	char cmdbuf[32];
+	const int mmc_dev = config_opt_enabled(CONFIG_FASTBOOT_FLASH_MMC,
+					       CONFIG_FASTBOOT_FLASH_MMC_DEV, -1);
 
 	if (!cmd_parameter) {
 		fastboot_fail("Expected command parameter", response);
@@ -477,26 +452,25 @@ static void oem_partconf(char *cmd_parameter, char *response)
 	}
 
 	/* execute 'mmc partconfg' command with cmd_parameter arguments*/
-	snprintf(cmdbuf, sizeof(cmdbuf), "mmc partconf %x %s 0",
-		 CONFIG_FASTBOOT_FLASH_MMC_DEV, cmd_parameter);
+	snprintf(cmdbuf, sizeof(cmdbuf), "mmc partconf %x %s 0", mmc_dev, cmd_parameter);
 	printf("Execute: %s\n", cmdbuf);
 	if (run_command(cmdbuf, 0))
 		fastboot_fail("Cannot set oem partconf", response);
 	else
 		fastboot_okay(NULL, response);
 }
-#endif
 
-#if CONFIG_IS_ENABLED(FASTBOOT_CMD_OEM_BOOTBUS)
 /**
  * oem_bootbus() - Execute the OEM bootbus command
  *
  * @cmd_parameter: Pointer to command parameter
  * @response: Pointer to fastboot response buffer
  */
-static void oem_bootbus(char *cmd_parameter, char *response)
+static void __maybe_unused oem_bootbus(char *cmd_parameter, char *response)
 {
 	char cmdbuf[32];
+	const int mmc_dev = config_opt_enabled(CONFIG_FASTBOOT_FLASH_MMC,
+					       CONFIG_FASTBOOT_FLASH_MMC_DEV, -1);
 
 	if (!cmd_parameter) {
 		fastboot_fail("Expected command parameter", response);
@@ -504,12 +478,10 @@ static void oem_bootbus(char *cmd_parameter, char *response)
 	}
 
 	/* execute 'mmc bootbus' command with cmd_parameter arguments*/
-	snprintf(cmdbuf, sizeof(cmdbuf), "mmc bootbus %x %s",
-		 CONFIG_FASTBOOT_FLASH_MMC_DEV, cmd_parameter);
+	snprintf(cmdbuf, sizeof(cmdbuf), "mmc bootbus %x %s", mmc_dev, cmd_parameter);
 	printf("Execute: %s\n", cmdbuf);
 	if (run_command(cmdbuf, 0))
 		fastboot_fail("Cannot set oem bootbus", response);
 	else
 		fastboot_okay(NULL, response);
 }
-#endif

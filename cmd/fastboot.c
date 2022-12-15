@@ -19,8 +19,14 @@
 static int do_fastboot_udp(int argc, char *const argv[],
 			   uintptr_t buf_addr, size_t buf_size)
 {
-#if CONFIG_IS_ENABLED(UDP_FUNCTION_FASTBOOT)
-	int err = net_loop(FASTBOOT);
+	int err;
+
+	if (!CONFIG_IS_ENABLED(UDP_FUNCTION_FASTBOOT)) {
+		pr_err("Fastboot UDP not enabled\n");
+		return CMD_RET_FAILURE;
+	}
+
+	err = net_loop(FASTBOOT);
 
 	if (err < 0) {
 		printf("fastboot udp error: %d\n", err);
@@ -28,20 +34,20 @@ static int do_fastboot_udp(int argc, char *const argv[],
 	}
 
 	return CMD_RET_SUCCESS;
-#else
-	pr_err("Fastboot UDP not enabled\n");
-	return CMD_RET_FAILURE;
-#endif
 }
 
 static int do_fastboot_usb(int argc, char *const argv[],
 			   uintptr_t buf_addr, size_t buf_size)
 {
-#if CONFIG_IS_ENABLED(USB_FUNCTION_FASTBOOT)
 	int controller_index;
 	char *usb_controller;
 	char *endp;
 	int ret;
+
+	if (!CONFIG_IS_ENABLED(USB_FUNCTION_FASTBOOT)) {
+		pr_err("Fastboot USB not enabled\n");
+		return CMD_RET_FAILURE;
+	}
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -88,10 +94,6 @@ exit:
 	g_dnl_clear_detach();
 
 	return ret;
-#else
-	pr_err("Fastboot USB not enabled\n");
-	return CMD_RET_FAILURE;
-#endif
 }
 
 static int do_fastboot(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -148,17 +150,12 @@ NXTARG:
 	return do_fastboot_usb(argc, argv, buf_addr, buf_size);
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char fastboot_help_text[] =
+U_BOOT_CMD(
+	fastboot, CONFIG_SYS_MAXARGS, 1, do_fastboot,
+	"run as a fastboot usb or udp device",
 	"[-l addr] [-s size] usb <controller> | udp\n"
 	"\taddr - address of buffer used during data transfers ("
 	__stringify(CONFIG_FASTBOOT_BUF_ADDR) ")\n"
 	"\tsize - size of buffer used during data transfers ("
 	__stringify(CONFIG_FASTBOOT_BUF_SIZE) ")"
-	;
-#endif
-
-U_BOOT_CMD(
-	fastboot, CONFIG_SYS_MAXARGS, 1, do_fastboot,
-	"run as a fastboot usb or udp device", fastboot_help_text
 );
