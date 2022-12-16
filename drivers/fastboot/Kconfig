@@ -80,12 +80,13 @@ config FASTBOOT_FLASH
 	  this to enable the "fastboot flash" command.
 
 config FASTBOOT_UUU_SUPPORT
-	bool "Enable FASTBOOT i.MX UUU special command"
+	bool "Enable UUU support"
 	help
-	  The fastboot protocol includes "UCmd" and "ACmd" command.
-	  Be aware that you provide full access to any U-Boot command,
-	  including working with memory and may open a huge backdoor,
-	  when enabling this option.
+	  This extends the fastboot protocol with the "UCmd" and "ACmd"
+	  commands, which are used by NXP's "universal update utility" (UUU).
+	  These commands allow running any shell command. Do not enable this
+	  feature if you are using verified boot, as it will allow an attacker
+	  to bypass any restrictions you have in place.
 
 choice
 	prompt "Flash provider for FASTBOOT"
@@ -217,6 +218,14 @@ config FASTBOOT_CMD_OEM_BOOTBUS
 	help
 	  Add support for the "oem bootbus" command from a client. This set
 	  the mmc boot configuration for the selecting eMMC device.
+
+config FASTBOOT_OEM_RUN
+	bool "Enable the 'oem run' command"
+	help
+	  This extends the fastboot protocol with an "oem run" command. This
+	  command allows running arbitrary U-Boot shell commands. Do not enable
+	  this feature if you are using verified boot, as it will allow an
+	  attacker to bypass any restrictions you have in place.
 
 endif # FASTBOOT
 
