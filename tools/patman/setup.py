@@ -7,6 +7,6 @@ setup(name='patman',
       scripts=['patman'],
       packages=['patman'],
       package_dir={'patman': ''},
-      package_data={'patman': ['README']},
+      package_data={'patman': ['README.rst']},
       classifiers=['Environment :: Console',
                    'Topic :: Software Development'])
