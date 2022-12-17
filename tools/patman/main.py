@@ -9,7 +9,6 @@
 from argparse import ArgumentParser
 import os
 import re
-import shutil
 import sys
 import traceback
 
@@ -19,7 +18,6 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(our_path, '..'))
 
 # Our modules
-from patman import command
 from patman import control
 from patman import gitutil
 from patman import project
@@ -136,7 +134,6 @@ if not args.debug:
 
 # Run our meagre tests
 if args.cmd == 'test':
-    import doctest
     from patman import func_test
 
     result = test_util.run_test_suites(
@@ -183,7 +180,7 @@ elif args.cmd == 'status':
                                  args.show_comments, args.patchwork_url)
     except Exception as e:
         terminal.tprint('patman: %s: %s' % (type(e).__name__, e),
-                       colour=terminal.Color.RED)
+                        colour=terminal.Color.RED)
         if args.debug:
             print()
             traceback.print_exc()
