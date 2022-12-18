@@ -226,7 +226,7 @@ int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf,
  *
  * @name: Environment variable to get (e.g. "ethaddr")
  * @enetaddr: Place to put MAC address (6 bytes)
- * Return: 0 if OK, 1 on error
+ * Return: 1 if OK, 0 on error
  */
 int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr);
 
@@ -235,7 +235,7 @@ int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr);
  *
  * @name: Environment variable to set (e.g. "ethaddr")
  * @enetaddr: Pointer to MAC address to put into the variable (6 bytes)
- * Return: 0 if OK, 1 on error
+ * Return: 0 if OK, non-zero otherwise
  */
 int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr);
 
