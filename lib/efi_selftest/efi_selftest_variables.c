@@ -141,6 +141,41 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	/* Enumerate variables */
+
+	ret = runtime->get_next_variable_name(NULL, u"efi_st_var1", &guid);
+	if (ret != EFI_INVALID_PARAMETER) {
+		efi_st_error("GetNextVariableName missing parameter check\n");
+		return EFI_ST_FAILURE;
+	}
+
+	len = 24;
+	ret = runtime->get_next_variable_name(&len, NULL, &guid);
+	if (ret != EFI_INVALID_PARAMETER) {
+		efi_st_error("GetNextVariableName missing parameter check\n");
+		return EFI_ST_FAILURE;
+	}
+
+	len = 24;
+	ret = runtime->get_next_variable_name(&len, u"efi_st_var1", NULL);
+	if (ret != EFI_INVALID_PARAMETER) {
+		efi_st_error("GetNextVariableName missing parameter check\n");
+		return EFI_ST_FAILURE;
+	}
+
+	len = 1;
+	ret = runtime->get_next_variable_name(&len, u"", &guid);
+	if (ret != EFI_INVALID_PARAMETER) {
+		efi_st_error("GetNextVariableName missing parameter check\n");
+		return EFI_ST_FAILURE;
+	}
+
+	len = 16;
+	ret = runtime->get_next_variable_name(&len, u"efi_st_var1", &guid);
+	if (ret != EFI_INVALID_PARAMETER) {
+		efi_st_error("GetNextVariableName missing parameter check\n");
+		return EFI_ST_FAILURE;
+	}
+
 	boottime->set_mem(&guid, 16, 0);
 	*varname = 0;
 	flag = 0;
