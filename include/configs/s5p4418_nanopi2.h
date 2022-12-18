@@ -76,11 +76,9 @@
 /*-----------------------------------------------------------------------
  * serial console configuration
  */
-#define CFG_PL011_CLOCK		50000000
-#define CFG_PL01x_PORTS		{(void *)PHY_BASEADDR_UART0, \
-					 (void *)PHY_BASEADDR_UART1, \
-					 (void *)PHY_BASEADDR_UART2, \
-					 (void *)PHY_BASEADDR_UART3}
+
+/* 150MHz is the clock rate set by SPL (uart0) */
+#define CFG_PL011_CLOCK		150000000
 
 /*-----------------------------------------------------------------------
  * BACKLIGHT
