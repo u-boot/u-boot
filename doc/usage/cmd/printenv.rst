@@ -78,7 +78,7 @@ variable and how to specify a vendor GUID:
     =>
 
 Configuration
-=============
+-------------
 
 UEFI variables are only supported if CONFIG_CMD_NVEDIT_EFI=y. The value of UEFI
 variables can only be displayed if CONFIG_HEXDUMP=y.
