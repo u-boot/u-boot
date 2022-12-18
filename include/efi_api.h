@@ -232,7 +232,7 @@ enum efi_reset_type {
 
 #define EFI_CONFORMANCE_PROFILES_TABLE_VERSION 1
 
-#define EFI_CONFORMANCE_PROFILE_EBBR_2_0_GUID \
+#define EFI_CONFORMANCE_PROFILE_EBBR_2_1_GUID \
 	EFI_GUID(0xcce33c35, 0x74ac, 0x4087, 0xbc, 0xe7, \
 		 0x8b, 0x29, 0xb0, 0x2e, 0xeb, 0x27)
 
