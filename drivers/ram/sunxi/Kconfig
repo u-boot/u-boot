@@ -1,0 +1,6 @@
+config DRAM_SUN20I_D1
+	bool
+	depends on ARCH_SUNXI
+	help
+	  This enables support for the DRAM controller driver covering
+	  the Allwinner D1/R528/T113s SoCs.
