@@ -75,9 +75,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
 #endif
 
-/* mmc config */
-#define CONFIG_MMC_SUNXI_SLOT		0
-
 /*
  * Miscellaneous configurable options
  */
