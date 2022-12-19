@@ -34,10 +34,8 @@ skip_smp_setup:
 
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	branch_if_slave x0, 1f
-#ifndef CONFIG_TARGET_VENUS
 	ldr	x0, =GICD_BASE
 	bl	gic_init_secure
-#endif
 1:
 #if defined(CONFIG_GICV3)
 	ldr	x0, =GICR_BASE
