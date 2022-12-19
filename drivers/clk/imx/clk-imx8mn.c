@@ -41,7 +41,7 @@ static const char *imx8mn_enet_timer_sels[] = {"clock-osc-24m", "sys_pll2_100m",
 					       "clk_ext3", "clk_ext4", "video_pll_out", };
 
 static const char *imx8mn_enet_phy_sels[] = {"clock-osc-24m", "sys_pll2_50m", "sys_pll2_125m", "sys_pll2_200m",
-					     "sys_pll2_500m", "video_pll_out", "audio_pll2_out", };
+					     "sys_pll2_500m", "audio_pll1_out", "video_pll_out", "audio_pll2_out", };
 #endif
 
 static const char *imx8mn_nand_usdhc_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m", "sys_pll2_200m",
