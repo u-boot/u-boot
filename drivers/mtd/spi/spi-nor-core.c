@@ -3195,6 +3195,10 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 }
 
 #ifdef CONFIG_SPI_FLASH_SPANSION
+
+/* Use ID byte 4 to distinguish S25FS256T and S25Hx-T */
+#define S25FS256T_ID4	(0x08)
+
 static int s25_mdp_ready(struct spi_nor *nor)
 {
 	u32 addr;
@@ -3234,19 +3238,35 @@ static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
 		     const struct spi_nor_flash_parameter *params)
 {
 	int ret;
-	u8 cfr3v;
+	u8 cr;
 
 #ifdef CONFIG_SPI_FLASH_BAR
 	return -ENOTSUPP; /* Bank Address Register is not supported */
 #endif
 	/*
+	 * S25FS256T has multiple sector architecture options, with selection of
+	 * count and location of 128KB and 64KB sectors. This driver supports
+	 * uniform 128KB only due to complexity of non-uniform layout.
+	 */
+	if (nor->info->id[4] == S25FS256T_ID4) {
+		ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_ARCFN, 8, &cr);
+		if (ret)
+			return ret;
+
+		if (cr) /* Option 0 (ARCFN[7:0] == 0x00) is uniform */
+			return -EOPNOTSUPP;
+
+		return spi_nor_default_setup(nor, info, params);
+	}
+
+	/*
 	 * Read CFR3V to check if uniform sector is selected. If not, assign an
 	 * erase hook that supports non-uniform erase.
 	 */
-	ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_CFR3V, 0, &cfr3v);
+	ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_CFR3V, 0, &cr);
 	if (ret)
 		return ret;
-	if (!(cfr3v & CFR3V_UNHYSA))
+	if (!(cr & CFR3V_UNHYSA))
 		nor->erase = s25_erase_non_uniform;
 
 	/*
@@ -3296,6 +3316,10 @@ static int s25_post_bfpt_fixup(struct spi_nor *nor,
 		nor->addr_mode_nbytes = 4;
 	}
 
+	/* The default address mode in S25FS256T is 4. */
+	if (nor->info->id[4] == S25FS256T_ID4)
+		nor->addr_mode_nbytes = 4;
+
 	/*
 	 * The page_size is set to 512B from BFPT, but it actually depends on
 	 * the configuration register. Look up the CFR3V and determine the
@@ -3321,12 +3345,17 @@ static int s25_post_bfpt_fixup(struct spi_nor *nor,
 static void s25_post_sfdp_fixup(struct spi_nor *nor,
 				struct spi_nor_flash_parameter *params)
 {
-	/* READ_FAST_4B (0Ch) requires mode cycles*/
-	params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
-	/* PP_1_1_4 is not supported */
-	params->hwcaps.mask &= ~SNOR_HWCAPS_PP_1_1_4;
-	/* Use volatile register to enable quad */
-	params->quad_enable = s25_quad_enable;
+	if (nor->info->id[4] == S25FS256T_ID4) {
+		/* PP_1_1_4 is supported */
+		params->hwcaps.mask |= SNOR_HWCAPS_PP_1_1_4;
+	} else {
+		/* READ_FAST_4B (0Ch) requires mode cycles*/
+		params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
+		/* PP_1_1_4 is not supported */
+		params->hwcaps.mask &= ~SNOR_HWCAPS_PP_1_1_4;
+		/* Use volatile register to enable quad */
+		params->quad_enable = s25_quad_enable;
+	}
 }
 
 static struct spi_nor_fixups s25_fixups = {

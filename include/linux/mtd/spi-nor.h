@@ -141,6 +141,7 @@
 #define SPINOR_REG_ADDR_STR1V	0x00800000
 #define SPINOR_REG_ADDR_CFR1V	0x00800002
 #define SPINOR_REG_ADDR_CFR3V	0x00800004
+#define SPINOR_REG_ADDR_ARCFN	0x00000006
 #define CFR3V_UNHYSA		BIT(3)	/* Uniform sectors or not */
 #define CFR3V_PGMBUF		BIT(4)	/* Program buffer size */
 
