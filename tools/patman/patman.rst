@@ -684,6 +684,12 @@ Note that since the test suite depends on data files only available in
 the git checkout, the `test` command is hidden unless `patman` is
 invoked from the U-Boot git repository.
 
+Alternatively, you can run the test suite via Pytest:
+
+.. code-block:: bash
+
+    $ cd tools/patman && pytest
+
 Error handling doesn't always produce friendly error messages - e.g.
 putting an incorrect tag in a commit may provide a confusing message.
 
