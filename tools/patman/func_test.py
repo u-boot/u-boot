@@ -7,6 +7,7 @@
 """Functional tests for checking that patman behaves correctly"""
 
 import os
+import pathlib
 import re
 import shutil
 import sys
@@ -27,6 +28,10 @@ from patman.test_util import capture_sys_output
 
 import pygit2
 from patman import status
+
+
+TEST_DATA_DIR = pathlib.Path(__file__).parent / 'test/'
+
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for checking that patman behaves correctly"""
@@ -57,8 +62,7 @@ class TestFunctional(unittest.TestCase):
         Returns:
             str: Full path to file in the test directory
         """
-        return os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'test', fname)
+        return TEST_DATA_DIR / fname
 
     @classmethod
     def _get_text(cls, fname):
