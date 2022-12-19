@@ -20,6 +20,7 @@ if __name__ == "__main__":
 
 # Our modules
 from patman import control
+from patman import func_test
 from patman import gitutil
 from patman import project
 from patman import settings
@@ -95,9 +96,11 @@ send.add_argument('--smtp-server', type=str,
 
 send.add_argument('patchfiles', nargs='*')
 
-test_parser = subparsers.add_parser('test', help='Run tests')
-test_parser.add_argument('testname', type=str, default=None, nargs='?',
-                         help="Specify the test to run")
+# Only add the 'test' action if the test data files are available.
+if os.path.exists(func_test.TEST_DATA_DIR):
+    test_parser = subparsers.add_parser('test', help='Run tests')
+    test_parser.add_argument('testname', type=str, default=None, nargs='?',
+                             help="Specify the test to run")
 
 status = subparsers.add_parser('status',
                                help='Check status of patches in patchwork')
