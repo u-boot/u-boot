@@ -13,6 +13,10 @@ PLATFORM_RELFLAGS += -msingle-pic-base -fno-jump-tables
 PLATFORM_CPPFLAGS += $(call cc-option,-mno-spe) \
 		     $(call cc-option,-mspe=no)
 
+# No AltiVec or VSX instructions when building u-boot
+PLATFORM_CPPFLAGS += $(call cc-option,-mno-altivec)
+PLATFORM_CPPFLAGS += $(call cc-option,-mno-vsx)
+
 ifdef CONFIG_E6500
 PLATFORM_CPPFLAGS += -mcpu=e6500
 else ifdef CONFIG_E5500
