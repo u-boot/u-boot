@@ -325,7 +325,7 @@ static int state_dfu_idle(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_DNLOAD:
-		if (ctrl->bRequestType == USB_DIR_OUT) {
+		if (!(ctrl->bRequestType & USB_DIR_IN)) {
 			if (len == 0) {
 				f_dfu->dfu_state = DFU_STATE_dfuERROR;
 				value = RET_STALL;
@@ -337,7 +337,7 @@ static int state_dfu_idle(struct f_dfu *f_dfu,
 		}
 		break;
 	case USB_REQ_DFU_UPLOAD:
-		if (ctrl->bRequestType == USB_DIR_IN) {
+		if (ctrl->bRequestType & USB_DIR_IN) {
 			f_dfu->dfu_state = DFU_STATE_dfuUPLOAD_IDLE;
 			f_dfu->blk_seq_num = 0;
 			value = handle_upload(req, len);
@@ -436,7 +436,7 @@ static int state_dfu_dnload_idle(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_DNLOAD:
-		if (ctrl->bRequestType == USB_DIR_OUT) {
+		if (!(ctrl->bRequestType & USB_DIR_IN)) {
 			f_dfu->dfu_state = DFU_STATE_dfuDNLOAD_SYNC;
 			f_dfu->blk_seq_num = w_value;
 			value = handle_dnload(gadget, len);
@@ -527,7 +527,7 @@ static int state_dfu_upload_idle(struct f_dfu *f_dfu,
 
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_UPLOAD:
-		if (ctrl->bRequestType == USB_DIR_IN) {
+		if (ctrl->bRequestType & USB_DIR_IN) {
 			/* state transition if less data then requested */
 			f_dfu->blk_seq_num = w_value;
 			value = handle_upload(req, len);

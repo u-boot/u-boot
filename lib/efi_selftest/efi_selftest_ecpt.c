@@ -10,7 +10,7 @@
 #include <efi_selftest.h>
 
 static const efi_guid_t guid_ecpt = EFI_CONFORMANCE_PROFILES_TABLE_GUID;
-static const efi_guid_t guid_ebbr_2_0 = EFI_CONFORMANCE_PROFILE_EBBR_2_0_GUID;
+static const efi_guid_t guid_ebbr_2_1 = EFI_CONFORMANCE_PROFILE_EBBR_2_1_GUID;
 
 /*
  * ecpt_find_guid() - find GUID in EFI Conformance Profile Table
@@ -53,9 +53,9 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
-	if (CONFIG_IS_ENABLED(EFI_EBBR_2_0_CONFORMANCE)) {
+	if (CONFIG_IS_ENABLED(EFI_EBBR_2_1_CONFORMANCE)) {
 		++expected_entries;
-		if (ecpt_find_guid(ecpt, &guid_ebbr_2_0))
+		if (ecpt_find_guid(ecpt, &guid_ebbr_2_1))
 			return EFI_ST_FAILURE;
 	}
 

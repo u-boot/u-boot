@@ -618,10 +618,7 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	 * Scenario 2: If there is an fdt_addr specified, pass it along to
 	 * bootm, and adjust argc appropriately.
 	 *
-	 * Scenario 3: If there is an fdtcontroladdr specified, pass it along to
-	 * bootm, and adjust argc appropriately.
-	 *
-	 * Scenario 4: fdt blob is not available.
+	 * Scenario 3: fdt blob is not available.
 	 */
 	bootm_argv[3] = env_get("fdt_addr_r");
 
@@ -728,9 +725,6 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 
 	if (!bootm_argv[3])
 		bootm_argv[3] = env_get("fdt_addr");
-
-	if (!bootm_argv[3])
-		bootm_argv[3] = env_get("fdtcontroladdr");
 
 	if (bootm_argv[3]) {
 		if (!bootm_argv[2])

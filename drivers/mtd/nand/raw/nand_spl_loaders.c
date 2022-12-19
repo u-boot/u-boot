@@ -23,7 +23,7 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 				if (unlikely(page_offset)) {
 					memmove(dst, dst + page_offset,
 						CONFIG_SYS_NAND_PAGE_SIZE);
-					dst = (void *)((int)dst - page_offset);
+					dst = (void *)(dst - page_offset);
 					page_offset = 0;
 				}
 				dst += CONFIG_SYS_NAND_PAGE_SIZE;

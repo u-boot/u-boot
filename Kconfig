@@ -586,6 +586,7 @@ config SYS_SRAM_SIZE
 config SYS_MONITOR_LEN
 	int "Maximum size in bytes reserved for U-Boot in memory"
 	default 1048576 if X86
+	default 786432 if ARCH_SUNXI
 	default 0
 	help
 	  Size of memory reserved for monitor code, used to determine

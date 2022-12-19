@@ -73,6 +73,7 @@ Shell commands
    cmd/scp03
    cmd/setexpr
    cmd/size
+   cmd/sound
    cmd/temperature
    cmd/tftpput
    cmd/true
