@@ -55,7 +55,8 @@ parser.add_argument('-H', '--full-help', action='store_true', dest='full_help',
                     default=False, help='Display the README file')
 
 subparsers = parser.add_subparsers(dest='cmd')
-send = subparsers.add_parser('send')
+send = subparsers.add_parser(
+    'send', help='Format, check and email patches (default command)')
 send.add_argument('-i', '--ignore-errors', action='store_true',
        dest='ignore_errors', default=False,
        help='Send patches email even if patch errors are found')
