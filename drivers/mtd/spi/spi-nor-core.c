@@ -3195,7 +3195,7 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 }
 
 #ifdef CONFIG_SPI_FLASH_SPANSION
-static int s25hx_t_mdp_ready(struct spi_nor *nor)
+static int s25_mdp_ready(struct spi_nor *nor)
 {
 	u32 addr;
 	int ret;
@@ -3209,7 +3209,7 @@ static int s25hx_t_mdp_ready(struct spi_nor *nor)
 	return 1;
 }
 
-static int s25hx_t_quad_enable(struct spi_nor *nor)
+static int s25_quad_enable(struct spi_nor *nor)
 {
 	u32 addr;
 	int ret;
@@ -3223,15 +3223,15 @@ static int s25hx_t_quad_enable(struct spi_nor *nor)
 	return 0;
 }
 
-static int s25hx_t_erase_non_uniform(struct spi_nor *nor, loff_t addr)
+static int s25_erase_non_uniform(struct spi_nor *nor, loff_t addr)
 {
 	/* Support 32 x 4KB sectors at bottom */
 	return spansion_erase_non_uniform(nor, addr, SPINOR_OP_BE_4K_4B, 0,
 					  SZ_128K);
 }
 
-static int s25hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
-			 const struct spi_nor_flash_parameter *params)
+static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
+		     const struct spi_nor_flash_parameter *params)
 {
 	int ret;
 	u8 cfr3v;
@@ -3247,27 +3247,27 @@ static int s25hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
 	if (ret)
 		return ret;
 	if (!(cfr3v & CFR3V_UNHYSA))
-		nor->erase = s25hx_t_erase_non_uniform;
+		nor->erase = s25_erase_non_uniform;
 
 	/*
 	 * For the multi-die package parts, the ready() hook is needed to check
 	 * all dies' status via read any register.
 	 */
 	if (nor->mtd.size > SZ_128M)
-		nor->ready = s25hx_t_mdp_ready;
+		nor->ready = s25_mdp_ready;
 
 	return spi_nor_default_setup(nor, info, params);
 }
 
-static void s25hx_t_default_init(struct spi_nor *nor)
+static void s25_default_init(struct spi_nor *nor)
 {
-	nor->setup = s25hx_t_setup;
+	nor->setup = s25_setup;
 }
 
-static int s25hx_t_post_bfpt_fixup(struct spi_nor *nor,
-				   const struct sfdp_parameter_header *header,
-				   const struct sfdp_bfpt *bfpt,
-				   struct spi_nor_flash_parameter *params)
+static int s25_post_bfpt_fixup(struct spi_nor *nor,
+			       const struct sfdp_parameter_header *header,
+			       const struct sfdp_bfpt *bfpt,
+			       struct spi_nor_flash_parameter *params)
 {
 	int ret;
 	u32 addr;
@@ -3318,21 +3318,21 @@ static int s25hx_t_post_bfpt_fixup(struct spi_nor *nor,
 	return 0;
 }
 
-static void s25hx_t_post_sfdp_fixup(struct spi_nor *nor,
-				    struct spi_nor_flash_parameter *params)
+static void s25_post_sfdp_fixup(struct spi_nor *nor,
+				struct spi_nor_flash_parameter *params)
 {
 	/* READ_FAST_4B (0Ch) requires mode cycles*/
 	params->reads[SNOR_CMD_READ_FAST].num_mode_clocks = 8;
 	/* PP_1_1_4 is not supported */
 	params->hwcaps.mask &= ~SNOR_HWCAPS_PP_1_1_4;
 	/* Use volatile register to enable quad */
-	params->quad_enable = s25hx_t_quad_enable;
+	params->quad_enable = s25_quad_enable;
 }
 
-static struct spi_nor_fixups s25hx_t_fixups = {
-	.default_init = s25hx_t_default_init,
-	.post_bfpt = s25hx_t_post_bfpt_fixup,
-	.post_sfdp = s25hx_t_post_sfdp_fixup,
+static struct spi_nor_fixups s25_fixups = {
+	.default_init = s25_default_init,
+	.post_bfpt = s25_post_bfpt_fixup,
+	.post_sfdp = s25_post_sfdp_fixup,
 };
 
 static int s25fl256l_setup(struct spi_nor *nor, const struct flash_info *info,
@@ -3850,7 +3850,7 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 		switch (nor->info->id[1]) {
 		case 0x2a: /* S25HL (QSPI, 3.3V) */
 		case 0x2b: /* S25HS (QSPI, 1.8V) */
-			nor->fixups = &s25hx_t_fixups;
+			nor->fixups = &s25_fixups;
 			break;
 
 #ifdef CONFIG_SPI_FLASH_S28HX_T
