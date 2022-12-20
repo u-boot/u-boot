@@ -4,15 +4,12 @@
 
 try:
     import configparser as ConfigParser
-except:
+except Exception:
     import ConfigParser
 
 import argparse
 import os
 import re
-
-from patman import command
-from patman import tools
 
 """Default settings per-project.
 
@@ -31,6 +28,7 @@ _default_settings = {
         "check_patch": "False",
     },
 }
+
 
 class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     """ConfigParser that handles projects.
@@ -83,8 +81,8 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     def __init__(self, project_name):
         """Construct _ProjectConfigParser.
 
-        In addition to standard SafeConfigParser initialization, this also loads
-        project defaults.
+        In addition to standard SafeConfigParser initialization, this
+        also loads project defaults.
 
         Args:
             project_name: The name of the project.
@@ -155,6 +153,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
         item_dict.update(project_items)
         return {(item, val) for item, val in item_dict.items()}
 
+
 def ReadGitAliases(fname):
     """Read a git alias file. This is in the form used by git:
 
@@ -170,7 +169,7 @@ def ReadGitAliases(fname):
         print("Warning: Cannot find alias file '%s'" % fname)
         return
 
-    re_line = re.compile('alias\s+(\S+)\s+(.*)')
+    re_line = re.compile(r'alias\s+(\S+)\s+(.*)')
     for line in fd.readlines():
         line = line.strip()
         if not line or line[0] == '#':
@@ -190,6 +189,7 @@ def ReadGitAliases(fname):
 
     fd.close()
 
+
 def CreatePatmanConfigFile(gitutil, config_fname):
     """Creates a config file under $(HOME)/.patman if it can't find one.
 
@@ -200,12 +200,12 @@ def CreatePatmanConfigFile(gitutil, config_fname):
         None
     """
     name = gitutil.get_default_user_name()
-    if name == None:
+    if name is None:
         name = input("Enter name: ")
 
     email = gitutil.get_default_user_email()
 
-    if email == None:
+    if email is None:
         email = input("Enter email: ")
 
     try:
@@ -220,7 +220,8 @@ me: %s <%s>
 [bounces]
 nxp = Zhikang Zhang <zhikang.zhang@nxp.com>
 ''' % (name, email), file=f)
-    f.close();
+    f.close()
+
 
 def _UpdateDefaults(main_parser, config):
     """Update the given OptionParser defaults based on config.
@@ -242,8 +243,8 @@ def _UpdateDefaults(main_parser, config):
     # Find all the parsers and subparsers
     parsers = [main_parser]
     parsers += [subparser for action in main_parser._actions
-                  if isinstance(action, argparse._SubParsersAction)
-                  for _, subparser in action.choices.items()]
+                if isinstance(action, argparse._SubParsersAction)
+                for _, subparser in action.choices.items()]
 
     # Collect the defaults from each parser
     defaults = {}
@@ -270,8 +271,9 @@ def _UpdateDefaults(main_parser, config):
     # Set all the defaults and manually propagate them to subparsers
     main_parser.set_defaults(**defaults)
     for parser, pdefs in zip(parsers, parser_defaults):
-        parser.set_defaults(**{ k: v for k, v in defaults.items()
-                                    if k in pdefs })
+        parser.set_defaults(**{k: v for k, v in defaults.items()
+                               if k in pdefs})
+
 
 def _ReadAliasFile(fname):
     """Read in the U-Boot git alias file if it exists.
@@ -298,6 +300,7 @@ def _ReadAliasFile(fname):
         if bad_line:
             print(bad_line)
 
+
 def _ReadBouncesFile(fname):
     """Read in the bounces file if it exists
 
@@ -311,6 +314,7 @@ def _ReadBouncesFile(fname):
                     continue
                 bounces.add(line.strip())
 
+
 def GetItems(config, section):
     """Get the items from a section of the config.
 
@@ -323,10 +327,9 @@ def GetItems(config, section):
     """
     try:
         return config.items(section)
-    except ConfigParser.NoSectionError as e:
+    except ConfigParser.NoSectionError:
         return []
-    except:
-        raise
+
 
 def Setup(gitutil, parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
@@ -357,6 +360,7 @@ def Setup(gitutil, parser, project_name, config_fname=''):
         bounces.add(value)
 
     _UpdateDefaults(parser, config)
+
 
 # These are the aliases we understand, indexed by alias. Each member is a list.
 alias = {}
