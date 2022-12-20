@@ -340,11 +340,15 @@ def Setup(parser, project_name, config_fname=None):
         parser:         The parser to update.
         project_name:   Name of project that we're working on; we'll look
             for sections named "project_section" as well.
-        config_fname:   Config filename to read.
+        config_fname:   Config filename to read.  An error is raised if it
+            does not exist.
     """
     # First read the git alias file if available
     _ReadAliasFile('doc/git-mailrc')
     config = _ProjectConfigParser(project_name)
+
+    if config_fname and not os.path.exists(config_fname):
+        raise Exception(f'provided {config_fname} does not exist')
 
     if not config_fname:
         config_fname = '%s/.patman' % os.getenv('HOME')
