@@ -30,7 +30,7 @@ _default_settings = {
 }
 
 
-class _ProjectConfigParser(ConfigParser.SafeConfigParser):
+class _ProjectConfigParser(ConfigParser.ConfigParser):
     """ConfigParser that handles projects.
 
     There are two main goals of this class:
@@ -81,14 +81,14 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     def __init__(self, project_name):
         """Construct _ProjectConfigParser.
 
-        In addition to standard SafeConfigParser initialization, this
-        also loads project defaults.
+        In addition to standard ConfigParser initialization, this also
+        loads project defaults.
 
         Args:
             project_name: The name of the project.
         """
         self._project_name = project_name
-        ConfigParser.SafeConfigParser.__init__(self)
+        ConfigParser.ConfigParser.__init__(self)
 
         # Update the project settings in the config based on
         # the _default_settings global.
@@ -100,31 +100,31 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
             self.set(project_settings, setting_name, setting_value)
 
     def get(self, section, option, *args, **kwargs):
-        """Extend SafeConfigParser to try project_section before section.
+        """Extend ConfigParser to try project_section before section.
 
         Args:
-            See SafeConfigParser.
+            See ConfigParser.
         Returns:
-            See SafeConfigParser.
+            See ConfigParser.
         """
         try:
-            val = ConfigParser.SafeConfigParser.get(
+            val = ConfigParser.ConfigParser.get(
                 self, "%s_%s" % (self._project_name, section), option,
                 *args, **kwargs
             )
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            val = ConfigParser.SafeConfigParser.get(
+            val = ConfigParser.ConfigParser.get(
                 self, section, option, *args, **kwargs
             )
         return val
 
     def items(self, section, *args, **kwargs):
-        """Extend SafeConfigParser to add project_section to section.
+        """Extend ConfigParser to add project_section to section.
 
         Args:
-            See SafeConfigParser.
+            See ConfigParser.
         Returns:
-            See SafeConfigParser.
+            See ConfigParser.
         """
         project_items = []
         has_project_section = False
@@ -132,7 +132,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
 
         # Get items from the project section
         try:
-            project_items = ConfigParser.SafeConfigParser.items(
+            project_items = ConfigParser.ConfigParser.items(
                 self, "%s_%s" % (self._project_name, section), *args, **kwargs
             )
             has_project_section = True
@@ -141,7 +141,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
 
         # Get top-level items
         try:
-            top_items = ConfigParser.SafeConfigParser.items(
+            top_items = ConfigParser.ConfigParser.items(
                 self, section, *args, **kwargs
             )
         except ConfigParser.NoSectionError:
