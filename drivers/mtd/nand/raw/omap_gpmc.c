@@ -1263,3 +1263,43 @@ int board_nand_init(struct nand_chip *nand)
 }
 
 #endif /* CONFIG_SYS_NAND_SELF_INIT */
+
+#if defined(CONFIG_SPL_NAND_INIT)
+
+/* nand_init() is provided by nand.c */
+
+/* Unselect after operation */
+void nand_deselect(void)
+{
+	struct mtd_info *mtd = nand_to_mtd(nand_chip);
+
+	if (nand_chip->select_chip)
+		nand_chip->select_chip(mtd, -1);
+}
+
+static int nand_is_bad_block(int block)
+{
+	struct mtd_info *mtd = nand_to_mtd(nand_chip);
+
+	loff_t ofs = block * CONFIG_SYS_NAND_BLOCK_SIZE;
+
+	return nand_chip->block_bad(mtd, ofs);
+}
+
+static int nand_read_page(int block, int page, uchar *dst)
+{
+	int page_addr = block * CONFIG_SYS_NAND_PAGE_COUNT + page;
+	loff_t ofs = page_addr * CONFIG_SYS_NAND_PAGE_SIZE;
+	int ret;
+	size_t len = CONFIG_SYS_NAND_PAGE_SIZE;
+	struct mtd_info *mtd = nand_to_mtd(nand_chip);
+
+	ret = nand_read(mtd, ofs, &len, dst);
+	if (ret)
+		printf("nand_read failed %d\n", ret);
+
+	return ret;
+}
+
+#include "nand_spl_loaders.c"
+#endif /* CONFIG_SPL_NAND_INIT */
