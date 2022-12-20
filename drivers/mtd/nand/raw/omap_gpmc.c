@@ -20,7 +20,8 @@
 #include <linux/bch.h>
 #include <linux/compiler.h>
 #include <nand.h>
-#include <linux/mtd/omap_elm.h>
+
+#include "omap_elm.h"
 
 #ifndef GPMC_MAX_CS
 #define GPMC_MAX_CS	4
@@ -1248,6 +1249,15 @@ void board_nand_init(void)
 {
 	struct udevice *dev;
 	int ret;
+
+#ifdef CONFIG_NAND_OMAP_ELM
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+					  DM_DRIVER_GET(gpmc_elm), &dev);
+	if (ret && ret != -ENODEV) {
+		pr_err("%s: Failed to get ELM device: %d\n", __func__, ret);
+		return;
+	}
+#endif
 
 	ret = uclass_get_device_by_driver(UCLASS_MTD,
 					  DM_DRIVER_GET(gpmc_nand), &dev);
