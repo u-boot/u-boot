@@ -7,6 +7,7 @@
 #include <common.h>
 #include <log.h>
 #include <asm/io.h>
+#include <dm/uclass.h>
 #include <linux/errno.h>
 
 #ifdef CONFIG_ARCH_OMAP2PLUS
@@ -1121,7 +1122,7 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
  *   nand_scan about special functionality. See the defines for further
  *   explanation
  */
-int board_nand_init(struct nand_chip *nand)
+int gpmc_nand_init(struct nand_chip *nand)
 {
 	int32_t gpmc_config = 0;
 	int cs = cs_next++;
@@ -1201,3 +1202,64 @@ int board_nand_init(struct nand_chip *nand)
 
 	return 0;
 }
+
+/* First NAND chip for SPL use only */
+static __maybe_unused struct nand_chip *nand_chip;
+
+#if CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
+
+static int gpmc_nand_probe(struct udevice *dev)
+{
+	struct nand_chip *nand = dev_get_priv(dev);
+	struct mtd_info *mtd = nand_to_mtd(nand);
+	int ret;
+
+	gpmc_nand_init(nand);
+
+	ret = nand_scan(mtd, CONFIG_SYS_NAND_MAX_CHIPS);
+	if (ret)
+		return ret;
+
+	ret = nand_register(0, mtd);
+	if (ret)
+		return ret;
+
+	if (!nand_chip)
+		nand_chip = nand;
+
+	return 0;
+}
+
+static const struct udevice_id gpmc_nand_ids[] = {
+	{ .compatible = "ti,am64-nand" },
+	{ .compatible = "ti,omap2-nand" },
+	{ }
+};
+
+U_BOOT_DRIVER(gpmc_nand) = {
+	.name           = "gpmc-nand",
+	.id             = UCLASS_MTD,
+	.of_match       = gpmc_nand_ids,
+	.probe          = gpmc_nand_probe,
+	.priv_auto	= sizeof(struct nand_chip),
+};
+
+void board_nand_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+					  DM_DRIVER_GET(gpmc_nand), &dev);
+	if (ret && ret != -ENODEV)
+		pr_err("%s: Failed to get GPMC device: %d\n", __func__, ret);
+}
+
+#else
+
+int board_nand_init(struct nand_chip *nand)
+{
+	return gpmc_nand_init(nand);
+}
+
+#endif /* CONFIG_SYS_NAND_SELF_INIT */
