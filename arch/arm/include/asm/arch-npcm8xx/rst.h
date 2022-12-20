@@ -16,7 +16,7 @@
 #define SW1RST		BIT(28)
 #define SW2RST		BIT(27)
 #define SW3RST		BIT(26)
-#define SW4RST		BIT(25)
+#define TIPRST		BIT(25)
 #define WD1RST		BIT(24)
 #define WD2RST		BIT(23)
 #define RST_STS_MASK	GENMASK(31, 23)
