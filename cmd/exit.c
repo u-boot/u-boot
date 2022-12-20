@@ -10,10 +10,13 @@
 static int do_exit(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
-	if (argc > 1)
-		return dectoul(argv[1], NULL);
+	int r;
 
-	return 0;
+	r = 0;
+	if (argc > 1)
+		r = simple_strtoul(argv[1], NULL, 10);
+
+	return -r - 2;
 }
 
 U_BOOT_CMD(
