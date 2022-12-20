@@ -333,19 +333,20 @@ def GetItems(config, section):
         return []
 
 
-def Setup(parser, project_name, config_fname=''):
+def Setup(parser, project_name, config_fname=None):
     """Set up the settings module by reading config files.
 
     Args:
-        parser:         The parser to update
+        parser:         The parser to update.
         project_name:   Name of project that we're working on; we'll look
             for sections named "project_section" as well.
-        config_fname:   Config filename to read ('' for default)
+        config_fname:   Config filename to read.
     """
     # First read the git alias file if available
     _ReadAliasFile('doc/git-mailrc')
     config = _ProjectConfigParser(project_name)
-    if config_fname == '':
+
+    if not config_fname:
         config_fname = '%s/.patman' % os.getenv('HOME')
 
     if not os.path.exists(config_fname):
