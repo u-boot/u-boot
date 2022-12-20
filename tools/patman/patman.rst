@@ -74,7 +74,7 @@ out where to send patches pretty well.
 During the first run patman creates a config file for you by taking the default
 user name and email address from the global .gitconfig file.
 
-To add your own, create a file ~/.patman like this::
+To add your own, create a file `~/.patman` like this::
 
     # patman alias file
 
@@ -84,6 +84,12 @@ To add your own, create a file ~/.patman like this::
     u-boot: U-Boot Mailing List <u-boot@lists.denx.de>
     wolfgang: Wolfgang Denk <wd@denx.de>
     others: Mike Frysinger <vapier@gentoo.org>, Fred Bloggs <f.bloggs@napier.net>
+
+Patman will also look for a `.patman` configuration file at the root
+of the current project git repository, which makes it possible to
+override the `project` settings variable or anything else in a
+project-specific way. The values of this "local" configuration file
+take precedence over those of the "global" one.
 
 Aliases are recursive.
 

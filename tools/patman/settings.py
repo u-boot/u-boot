@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2011 The Chromium OS Authors.
+# Copyright (c) 2022 Maxim Cournoyer <maxim.cournoyer@savoirfairelinux.com>
 #
 
 try:
@@ -336,6 +337,12 @@ def GetItems(config, section):
 def Setup(parser, project_name, config_fname=None):
     """Set up the settings module by reading config files.
 
+    Unless `config_fname` is specified, a `.patman` config file local
+    to the git repository is consulted, followed by the global
+    `$HOME/.patman`. If none exists, the later is created. Values
+    defined in the local config file take precedence over those
+    defined in the global one.
+
     Args:
         parser:         The parser to update.
         project_name:   Name of project that we're working on; we'll look
@@ -352,12 +359,21 @@ def Setup(parser, project_name, config_fname=None):
 
     if not config_fname:
         config_fname = '%s/.patman' % os.getenv('HOME')
+    has_config = os.path.exists(config_fname)
 
-    if not os.path.exists(config_fname):
-        print("No config file found ~/.patman\nCreating one...\n")
+    git_local_config_fname = os.path.join(gitutil.get_top_level(), '.patman')
+    has_git_local_config = os.path.exists(git_local_config_fname)
+
+    # Read the git local config last, so that its values override
+    # those of the global config, if any.
+    if has_config:
+        config.read(config_fname)
+    if has_git_local_config:
+        config.read(git_local_config_fname)
+
+    if not (has_config or has_git_local_config):
+        print("No config file found.\nCreating ~/.patman...\n")
         CreatePatmanConfigFile(config_fname)
-
-    config.read(config_fname)
 
     for name, value in GetItems(config, 'alias'):
         alias[name] = value.split(',')
