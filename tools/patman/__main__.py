@@ -21,7 +21,6 @@ if __name__ == "__main__":
 # Our modules
 from patman import control
 from patman import func_test
-from patman import gitutil
 from patman import project
 from patman import settings
 from patman import terminal
@@ -118,7 +117,7 @@ status.add_argument('-f', '--force', action='store_true',
 argv = sys.argv[1:]
 args, rest = parser.parse_known_args(argv)
 if hasattr(args, 'project'):
-    settings.Setup(gitutil, parser, args.project, '')
+    settings.Setup(parser, args.project, '')
     args, rest = parser.parse_known_args(argv)
 
 # If we have a command, it is safe to parse all arguments

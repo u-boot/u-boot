@@ -11,6 +11,8 @@ import argparse
 import os
 import re
 
+from patman import gitutil
+
 """Default settings per-project.
 
 These are used by _ProjectConfigParser.  Settings names should match
@@ -190,7 +192,7 @@ def ReadGitAliases(fname):
     fd.close()
 
 
-def CreatePatmanConfigFile(gitutil, config_fname):
+def CreatePatmanConfigFile(config_fname):
     """Creates a config file under $(HOME)/.patman if it can't find one.
 
     Args:
@@ -331,7 +333,7 @@ def GetItems(config, section):
         return []
 
 
-def Setup(gitutil, parser, project_name, config_fname=''):
+def Setup(parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
 
     Args:
@@ -348,7 +350,7 @@ def Setup(gitutil, parser, project_name, config_fname=''):
 
     if not os.path.exists(config_fname):
         print("No config file found ~/.patman\nCreating one...\n")
-        CreatePatmanConfigFile(gitutil, config_fname)
+        CreatePatmanConfigFile(config_fname)
 
     config.read(config_fname)
 
