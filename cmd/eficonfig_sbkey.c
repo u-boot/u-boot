@@ -73,6 +73,28 @@ static bool file_have_auth_header(void *buf, efi_uintn_t size)
 }
 
 /**
+ * file_is_null_key() - check the file is an authenticated and signed null key
+ *
+ * @auth:	pointer to the file
+ * @size:	file size
+ * @null_key:	pointer to store the result
+ * Return:	status code
+ */
+static efi_status_t file_is_null_key(struct efi_variable_authentication_2 *auth,
+				     efi_uintn_t size, bool *null_key)
+{
+	efi_uintn_t auth_size =
+		sizeof(auth->time_stamp) + auth->auth_info.hdr.dwLength;
+
+	if (size < auth_size)
+		return EFI_INVALID_PARAMETER;
+
+	*null_key = (size == auth_size);
+
+	return EFI_SUCCESS;
+}
+
+/**
  * eficonfig_process_enroll_key() - enroll key into signature database
  *
  * @data:	pointer to the data for each entry
@@ -84,6 +106,7 @@ static efi_status_t eficonfig_process_enroll_key(void *data)
 	char *buf = NULL;
 	efi_uintn_t size;
 	efi_status_t ret;
+	bool null_key = false;
 	struct efi_file_handle *f = NULL;
 	struct efi_device_path *full_dp = NULL;
 	struct eficonfig_select_file_info file_info;
@@ -149,13 +172,24 @@ static efi_status_t eficonfig_process_enroll_key(void *data)
 		goto out;
 	}
 
+	ret = file_is_null_key((struct efi_variable_authentication_2 *)buf,
+			       size, &null_key);
+	if (ret != EFI_SUCCESS) {
+		eficonfig_print_msg("ERROR! Invalid file format.");
+		goto out;
+	}
+
 	attr = EFI_VARIABLE_NON_VOLATILE |
 	       EFI_VARIABLE_BOOTSERVICE_ACCESS |
 	       EFI_VARIABLE_RUNTIME_ACCESS |
 	       EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
 
-	/* PK can enroll only one certificate */
-	if (u16_strcmp(data, u"PK")) {
+	/*
+	 * PK can enroll only one certificate.
+	 * The signed null key is used to clear KEK, db and dbx.
+	 * EFI_VARIABLE_APPEND_WRITE attribute must not be set in these cases.
+	 */
+	if (u16_strcmp(data, u"PK") && !null_key) {
 		efi_uintn_t db_size = 0;
 
 		/* check the variable exists. If exists, add APPEND_WRITE attribute */

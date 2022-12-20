@@ -223,3 +223,37 @@ bool efi_varname_is_load_option(u16 *var_name16, int *index)
 
 	return false;
 }
+
+/**
+ * efi_next_variable_name() - get next variable name
+ *
+ * This function is a wrapper of efi_get_next_variable_name_int().
+ * If efi_get_next_variable_name_int() returns EFI_BUFFER_TOO_SMALL,
+ * @size and @buf are updated by new buffer size and realloced buffer.
+ *
+ * @size:	pointer to the buffer size
+ * @buf:	pointer to the buffer
+ * @guid:	pointer to the guid
+ * Return:	status code
+ */
+efi_status_t efi_next_variable_name(efi_uintn_t *size, u16 **buf, efi_guid_t *guid)
+{
+	u16 *p;
+	efi_status_t ret;
+	efi_uintn_t buf_size = *size;
+
+	ret = efi_get_next_variable_name_int(&buf_size, *buf, guid);
+	if (ret == EFI_NOT_FOUND)
+		return ret;
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		p = realloc(*buf, buf_size);
+		if (!p)
+			return EFI_OUT_OF_RESOURCES;
+
+		*buf = p;
+		*size = buf_size;
+		ret = efi_get_next_variable_name_int(&buf_size, *buf, guid);
+	}
+
+	return ret;
+}

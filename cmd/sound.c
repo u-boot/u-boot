@@ -39,26 +39,39 @@ static int do_play(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret = 0;
 	int msec = 1000;
 	int freq = 400;
-
-	if (argc > 1)
-		msec = dectoul(argv[1], NULL);
-	if (argc > 2)
-		freq = dectoul(argv[2], NULL);
+	bool first = true;
 
 	ret = uclass_first_device_err(UCLASS_SOUND, &dev);
-	if (!ret)
+	if (ret)
+		goto err;
+	--argc;
+	++argv;
+	while (argc || first) {
+		first = false;
+		if (argc && *argv[0] != '-') {
+			msec = dectoul(argv[0], NULL);
+			--argc;
+			++argv;
+		}
+		if (argc && *argv[0] != '-') {
+			freq = dectoul(argv[0], NULL);
+			--argc;
+			++argv;
+		}
 		ret = sound_beep(dev, msec, freq);
-	if (ret) {
-		printf("Sound device failed to play (err=%d)\n", ret);
-		return CMD_RET_FAILURE;
+		if (ret)
+			goto err;
 	}
-
 	return 0;
+
+err:
+	printf("Sound device failed to play (err=%d)\n", ret);
+	return CMD_RET_FAILURE;
 }
 
 static struct cmd_tbl cmd_sound_sub[] = {
 	U_BOOT_CMD_MKENT(init, 0, 1, do_init, "", ""),
-	U_BOOT_CMD_MKENT(play, 2, 1, do_play, "", ""),
+	U_BOOT_CMD_MKENT(play, INT_MAX, 1, do_play, "", ""),
 };
 
 /* process sound command */
@@ -83,8 +96,10 @@ static int do_sound(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(
-	sound, 4, 1, do_sound,
+	sound, INT_MAX, 1, do_sound,
 	"sound sub-system",
 	"init - initialise the sound driver\n"
-	"sound play [len [freq]] - play a sound for len ms at freq Hz\n"
+	"sound play [[[-q|-s] len [freq]] ...] - play sounds\n"
+	"  len - duration in ms\n"
+	"  freq - frequency in Hz\n"
 );

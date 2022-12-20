@@ -10,12 +10,12 @@ Synopsis
 ::
 
     sound init
-    sound play [len [freq]]
+    sound play [[len freq] ...] [len [freq]]
 
 Description
 -----------
 
-The *sound* command is used to play a beep sound.
+The *sound* command is used to play one or multiple beep sounds.
 
 sound init
     initializes the sound driver.
@@ -29,6 +29,25 @@ len
 
 freq
     frequency of the sound in Hz, defaults to 400 Hz
+
+Examples
+--------
+
+Beep at 400 Hz for 1000 ms::
+
+    sound play
+
+Beep at 400 Hz for 600 ms::
+
+    sound play 600
+
+Beep at 500 Hz for 600 ms::
+
+    sound play 600 500
+
+Play melody::
+
+    sound play 500 1047 500 880 500 0 500 1047 500 880 500 0 500 784 500 698 500 784 1000 698
 
 Configuration
 -------------
