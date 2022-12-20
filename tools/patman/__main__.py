@@ -21,6 +21,7 @@ if __name__ == "__main__":
 # Our modules
 from patman import control
 from patman import func_test
+from patman import gitutil
 from patman import project
 from patman import settings
 from patman import terminal
@@ -64,6 +65,12 @@ send.add_argument('-l', '--limit-cc', dest='limit', type=int, default=None,
 send.add_argument('-m', '--no-maintainers', action='store_false',
        dest='add_maintainers', default=True,
        help="Don't cc the file maintainers automatically")
+send.add_argument(
+    '--get-maintainer-script', dest='get_maintainer_script', type=str,
+    action='store',
+    default=os.path.join(gitutil.get_top_level(), 'scripts',
+                         'get_maintainer.pl') + ' --norolestats',
+    help='File name of the get_maintainer.pl (or compatible) script.')
 send.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a dry run (create but don't email patches)")
 send.add_argument('-r', '--in-reply-to', type=str, action='store',

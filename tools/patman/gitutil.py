@@ -433,7 +433,7 @@ def check_suppress_cc_config():
 
 def email_patches(series, cover_fname, args, dry_run, warn_on_error, cc_fname,
                   self_only=False, alias=None, in_reply_to=None, thread=False,
-                  smtp_server=None):
+                  smtp_server=None, get_maintainer_script=None):
     """Email a patch series.
 
     Args:
@@ -450,6 +450,7 @@ def email_patches(series, cover_fname, args, dry_run, warn_on_error, cc_fname,
         thread: True to add --thread to git send-email (make
             all patches reply to cover-letter or first patch in series)
         smtp_server: SMTP server to use to send patches
+        get_maintainer_script: File name of script to get maintainers emails
 
     Returns:
         Git command that was/would be run
