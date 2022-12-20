@@ -126,3 +126,25 @@
 		};
 	};
 };
+
+&cpsw3g {
+	reg = <0x0 0x8000000 0x0 0x200000>,
+	      <0x0 0x43000200 0x0 0x8>;
+	reg-names = "cpsw_nuss", "mac_efuse";
+	/delete-property/ ranges;
+	u-boot,dm-spl;
+
+	cpsw-phy-sel@04044 {
+		compatible = "ti,am64-phy-gmii-sel";
+		reg = <0x0 0x00104044 0x0 0x8>;
+		u-boot,dm-spl;
+	};
+};
+
+&cpsw_port1 {
+	u-boot,dm-spl;
+};
+
+&cpsw_port2 {
+	status = "disabled";
+};
