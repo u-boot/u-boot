@@ -81,14 +81,15 @@ static void outf(int level, const char *fmt, ...)
 static void usage(void)
 {
 	fprintf(stderr,
-		"Usage: proftool -cds -v3 <cmd> <profdata>\n"
+		"Usage: proftool [-cmtv] <cmd> <profdata>\n"
 		"\n"
 		"Commands\n"
 		"   dump-ftrace\t\tDump out textual data in ftrace format\n"
 		"\n"
 		"Options:\n"
+		"   -c <cfg>\tSpecific config file\n"
 		"   -m <map>\tSpecify Systen.map file\n"
-		"   -t <trace>\tSpecific trace data file (from U-Boot)\n"
+		"   -t <fname>\tSpecify trace data file (from U-Boot 'trace calls')\n"
 		"   -v <0-4>\tSpecify verbosity\n");
 	exit(EXIT_FAILURE);
 }
@@ -562,23 +563,23 @@ static int prof_tool(int argc, char *const argv[],
 int main(int argc, char *argv[])
 {
 	const char *map_fname = "System.map";
-	const char *prof_fname = NULL;
-	const char *trace_config_fname = NULL;
+	const char *trace_fname = NULL;
+	const char *config_fname = NULL;
 	int opt;
 
 	verbose = 2;
-	while ((opt = getopt(argc, argv, "m:p:t:v:")) != -1) {
+	while ((opt = getopt(argc, argv, "c:m:t:v:")) != -1) {
 		switch (opt) {
+		case 'c':
+			config_fname = optarg;
+			break;
+
 		case 'm':
 			map_fname = optarg;
 			break;
 
-		case 'p':
-			prof_fname = optarg;
-			break;
-
 		case 't':
-			trace_config_fname = optarg;
+			trace_fname = optarg;
 			break;
 
 		case 'v':
@@ -594,6 +595,5 @@ int main(int argc, char *argv[])
 		usage();
 
 	debug("Debug enabled\n");
-	return prof_tool(argc, argv, prof_fname, map_fname,
-			 trace_config_fname);
+	return prof_tool(argc, argv, trace_fname, map_fname, config_fname);
 }
