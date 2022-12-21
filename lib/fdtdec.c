@@ -586,24 +586,12 @@ int fdtdec_get_chosen_node(const void *blob, const char *name)
 	return fdt_path_offset(blob, prop);
 }
 
-int fdtdec_check_fdt(void)
-{
-	/*
-	 * We must have an FDT, but we cannot panic() yet since the console
-	 * is not ready. So for now, just assert(). Boards which need an early
-	 * FDT (prior to console ready) will need to make their own
-	 * arrangements and do their own checks.
-	 */
-	assert(!fdtdec_prepare_fdt());
-	return 0;
-}
-
 /*
  * This function is a little odd in that it accesses global data. At some
  * point if the architecture board.c files merge this will make more sense.
  * Even now, it is common code.
  */
-int fdtdec_prepare_fdt(void)
+static int fdtdec_prepare_fdt(void)
 {
 	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
 	    fdt_check_header(gd->fdt_blob)) {
@@ -622,6 +610,18 @@ int fdtdec_prepare_fdt(void)
 #endif
 		return -1;
 	}
+	return 0;
+}
+
+int fdtdec_check_fdt(void)
+{
+	/*
+	 * We must have an FDT, but we cannot panic() yet since the console
+	 * is not ready. So for now, just assert(). Boards which need an early
+	 * FDT (prior to console ready) will need to make their own
+	 * arrangements and do their own checks.
+	 */
+	assert(!fdtdec_prepare_fdt());
 	return 0;
 }
 
