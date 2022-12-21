@@ -590,23 +590,23 @@ int fdtdec_get_chosen_node(const void *blob, const char *name)
 /**
  * fdtdec_prepare_fdt() - Check we have a valid fdt available to control U-Boot
  *
+ * @blob: Blob to check
+ *
  * If not, a message is printed to the console if the console is ready.
  *
  * Return: 0 if all ok, -ENOENT if not
  */
-static int fdtdec_prepare_fdt(void)
+static int fdtdec_prepare_fdt(const void *blob)
 {
-	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
-	    fdt_check_header(gd->fdt_blob)) {
+	if (!blob || ((uintptr_t)blob & 3) || fdt_check_header(blob)) {
 		if (spl_phase() <= PHASE_SPL) {
 			puts("Missing DTB\n");
 		} else {
 			printf("No valid device tree binary found at %p\n",
-			       gd->fdt_blob);
-			if (_DEBUG && gd->fdt_blob) {
-				printf("fdt_blob=%p\n", gd->fdt_blob);
-			print_buffer((ulong)gd->fdt_blob, gd->fdt_blob, 4,
-				     32, 0);
+			       blob);
+			if (_DEBUG && blob) {
+				printf("fdt_blob=%p\n", blob);
+				print_buffer((ulong)blob, blob, 4, 32, 0);
 			}
 		}
 		return -ENOENT;
@@ -623,7 +623,7 @@ int fdtdec_check_fdt(void)
 	 * FDT (prior to console ready) will need to make their own
 	 * arrangements and do their own checks.
 	 */
-	assert(!fdtdec_prepare_fdt());
+	assert(!fdtdec_prepare_fdt(gd->fdt_blob));
 	return 0;
 }
 
@@ -1668,7 +1668,7 @@ int fdtdec_setup(void)
 	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT))
 		setup_multi_dtb_fit();
 
-	ret = fdtdec_prepare_fdt();
+	ret = fdtdec_prepare_fdt(gd->fdt_blob);
 	if (!ret)
 		ret = fdtdec_board_setup(gd->fdt_blob);
 	oftree_reset();
@@ -1700,7 +1700,7 @@ int fdtdec_resetup(int *rescan)
 
 		*rescan = 1;
 		gd->fdt_blob = fdt_blob;
-		return fdtdec_prepare_fdt();
+		return fdtdec_prepare_fdt(fdt_blob);
 	}
 
 	/*
