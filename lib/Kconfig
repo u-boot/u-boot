@@ -316,7 +316,7 @@ config BITREVERSE
 config TRACE
 	bool "Support for tracing of function calls and timing"
 	imply CMD_TRACE
-	select TIMER_EARLY
+	imply TIMER_EARLY
 	help
 	  Enables function tracing within U-Boot. This allows recording of call
 	  traces including timing information. The command can write data to
