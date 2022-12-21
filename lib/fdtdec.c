@@ -13,6 +13,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
+#include <spl.h>
 #include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -586,30 +587,31 @@ int fdtdec_get_chosen_node(const void *blob, const char *name)
 	return fdt_path_offset(blob, prop);
 }
 
-/*
- * This function is a little odd in that it accesses global data. At some
- * point if the architecture board.c files merge this will make more sense.
- * Even now, it is common code.
+/**
+ * fdtdec_prepare_fdt() - Check we have a valid fdt available to control U-Boot
+ *
+ * If not, a message is printed to the console if the console is ready.
+ *
+ * Return: 0 if all ok, -ENOENT if not
  */
 static int fdtdec_prepare_fdt(void)
 {
 	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
 	    fdt_check_header(gd->fdt_blob)) {
-#ifdef CONFIG_SPL_BUILD
-		puts("Missing DTB\n");
-#else
-		printf("No valid device tree binary found at %p\n",
-		       gd->fdt_blob);
-# ifdef DEBUG
-		if (gd->fdt_blob) {
-			printf("fdt_blob=%p\n", gd->fdt_blob);
+		if (spl_phase() <= PHASE_SPL) {
+			puts("Missing DTB\n");
+		} else {
+			printf("No valid device tree binary found at %p\n",
+			       gd->fdt_blob);
+			if (_DEBUG && gd->fdt_blob) {
+				printf("fdt_blob=%p\n", gd->fdt_blob);
 			print_buffer((ulong)gd->fdt_blob, gd->fdt_blob, 4,
 				     32, 0);
+			}
 		}
-# endif
-#endif
-		return -1;
+		return -ENOENT;
 	}
+
 	return 0;
 }
 
