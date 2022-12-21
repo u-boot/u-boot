@@ -40,7 +40,8 @@ struct trace_hdr {
 	int max_depth;
 };
 
-static struct trace_hdr *hdr;	/* Pointer to start of trace buffer */
+/* Pointer to start of trace buffer */
+static struct trace_hdr *hdr __section(".data");
 
 static inline uintptr_t __attribute__((no_instrument_function))
 		func_ptr_to_num(void *func_ptr)
