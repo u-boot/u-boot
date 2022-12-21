@@ -1231,6 +1231,29 @@ static void *fdt_find_separate(void)
 #else
 	/* FDT is at end of image */
 	fdt_blob = (ulong *)&_end;
+
+	if (_DEBUG && !fdtdec_prepare_fdt(fdt_blob)) {
+		int stack_ptr;
+		const void *top = fdt_blob + fdt_totalsize(fdt_blob);
+
+		/*
+		 * Perform a sanity check on the memory layout. If this fails,
+		 * it indicates that the device tree is positioned above the
+		 * global data pointer or the stack pointer. This should not
+		 * happen.
+		 *
+		 * If this fails, check that SYS_INIT_SP_ADDR has enough space
+		 * below it for SYS_MALLOC_F_LEN and global_data, as well as the
+		 * stack, without overwriting the device tree or U-Boot itself.
+		 * Since the device tree is sitting at _end (the start of the
+		 * BSS region), we need the top of the device tree to be below
+		 * any memory allocated by board_init_f_alloc_reserve().
+		 */
+		if (top > (void *)gd || top > (void *)&stack_ptr) {
+			printf("FDT %p gd %p\n", fdt_blob, gd);
+			panic("FDT overlap");
+		}
+	}
 #endif
 
 	return fdt_blob;
