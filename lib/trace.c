@@ -68,7 +68,7 @@ static volatile gd_t *trace_gd;
 /**
  * trace_save_gd() - save the value of the gd register
  */
-static void __attribute__((no_instrument_function)) trace_save_gd(void)
+static void notrace trace_save_gd(void)
 {
 	trace_gd = gd;
 }
@@ -81,7 +81,7 @@ static void __attribute__((no_instrument_function)) trace_save_gd(void)
  * have to set the gd register to the U-Boot value when entering a trace
  * point and set it back to the application value when exiting the trace point.
  */
-static void __attribute__((no_instrument_function)) trace_swap_gd(void)
+static void notrace trace_swap_gd(void)
 {
 	volatile gd_t *temp_gd = trace_gd;
 
@@ -91,18 +91,17 @@ static void __attribute__((no_instrument_function)) trace_swap_gd(void)
 
 #else
 
-static void __attribute__((no_instrument_function)) trace_save_gd(void)
+static void notrace trace_save_gd(void)
 {
 }
 
-static void __attribute__((no_instrument_function)) trace_swap_gd(void)
+static void notrace trace_swap_gd(void)
 {
 }
 
 #endif
 
-static void __attribute__((no_instrument_function)) add_ftrace(void *func_ptr,
-				void *caller, ulong flags)
+static void notrace add_ftrace(void *func_ptr, void *caller, ulong flags)
 {
 	if (hdr->depth > hdr->depth_limit) {
 		hdr->ftrace_too_deep_count++;
@@ -118,7 +117,7 @@ static void __attribute__((no_instrument_function)) add_ftrace(void *func_ptr,
 	hdr->ftrace_count++;
 }
 
-static void __attribute__((no_instrument_function)) add_textbase(void)
+static void notrace add_textbase(void)
 {
 	if (hdr->ftrace_count < hdr->ftrace_size) {
 		struct trace_call *rec = &hdr->ftrace[hdr->ftrace_count];
@@ -139,8 +138,7 @@ static void __attribute__((no_instrument_function)) add_textbase(void)
  * @func_ptr:	pointer to function being entered
  * @caller:	pointer to function which called this function
  */
-void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
-		void *func_ptr, void *caller)
+void notrace __cyg_profile_func_enter(void *func_ptr, void *caller)
 {
 	if (trace_enabled) {
 		int func;
@@ -167,8 +165,7 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
  * @func_ptr:	pointer to function being entered
  * @caller:	pointer to function which called this function
  */
-void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
-		void *func_ptr, void *caller)
+void notrace __cyg_profile_func_exit(void *func_ptr, void *caller)
 {
 	if (trace_enabled) {
 		trace_swap_gd();
@@ -327,7 +324,7 @@ void trace_print_stats(void)
 	puts(" calls not traced due to depth\n");
 }
 
-void __attribute__((no_instrument_function)) trace_set_enabled(int enabled)
+void notrace trace_set_enabled(int enabled)
 {
 	trace_enabled = enabled != 0;
 }
@@ -339,8 +336,7 @@ void __attribute__((no_instrument_function)) trace_set_enabled(int enabled)
  * @buff_size:	Size of trace buffer
  * Return:	0 if ok
  */
-int __attribute__((no_instrument_function)) trace_init(void *buff,
-		size_t buff_size)
+int notrace trace_init(void *buff, size_t buff_size)
 {
 	ulong func_count = gd->mon_len / FUNC_SITE_SIZE;
 	size_t needed;
@@ -404,7 +400,7 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
  *
  * Return:	0 if ok, -ENOSPC if not enough memory is available
  */
-int __attribute__((no_instrument_function)) trace_early_init(void)
+int notrace trace_early_init(void)
 {
 	ulong func_count = gd->mon_len / FUNC_SITE_SIZE;
 	size_t buff_size = CONFIG_TRACE_EARLY_SIZE;
