@@ -23,15 +23,19 @@ struct orion_timer_priv {
 
 #define MVEBU_TIMER_FIXED_RATE_25MHZ	25000000
 
-static bool early_init_done __section(".data") = false;
+static bool early_init_done(void *base)
+{
+	if (readl(base + TIMER_CTRL) & TIMER0_EN)
+		return true;
+	return false;
+}
 
 /* Common functions for early (boot) and DM based timer */
 static void orion_timer_init(void *base, enum input_clock_type type)
 {
 	/* Only init the timer once */
-	if (early_init_done)
+	if (early_init_done(base))
 		return;
-	early_init_done = true;
 
 	writel(~0, base + TIMER0_VAL);
 	writel(~0, base + TIMER0_RELOAD);
