@@ -3,7 +3,7 @@
 Release Statistics for U-Boot v2010.09
 ======================================
 
-* Processed 402 csets from 100 developers
+* Processed 402 changesets from 100 developers
 
 * 31 employers found
 

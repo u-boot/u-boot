@@ -3,7 +3,7 @@
 Release Statistics for U-Boot v2010.12
 ======================================
 
-* Processed 777 csets from 111 developers
+* Processed 777 changesets from 111 developers
 
 * 31 employers found
 
