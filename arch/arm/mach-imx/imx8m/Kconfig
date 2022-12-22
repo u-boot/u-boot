@@ -27,6 +27,14 @@ config IMX8MP
 config SYS_SOC
 	default "imx8m"
 
+config SYS_HAS_ARMV8_SECURE_BASE
+	bool "Enable secure address for PSCI image"
+	depends on ARMV8_PSCI
+	help
+	  PSCI image can be re-located to secure RAM.
+	  If enabled, please also define the value for ARMV8_SECURE_BASE,
+	  for i.MX8M, it could be some address in OCRAM.
+
 choice
 	prompt "NXP i.MX8M board select"
 	optional
