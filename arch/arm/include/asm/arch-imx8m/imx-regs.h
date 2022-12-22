@@ -91,6 +91,10 @@
 #define IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK 0x70000
 #define FEC_QUIRK_ENET_MAC
 
+#ifdef CONFIG_ARMV8_PSCI	/* Final jump location */
+#define CPU_RELEASE_ADDR               0x900000
+#endif
+
 #define CAAM_ARB_BASE_ADDR              (0x00100000)
 #define CAAM_ARB_END_ADDR               (0x00107FFF)
 #define CAAM_IPS_BASE_ADDR              (0x30900000)
