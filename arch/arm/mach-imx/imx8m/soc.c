@@ -561,6 +561,29 @@ static void imx8m_setup_snvs(void)
 	writel(0xffffffff, SNVS_BASE_ADDR + SNVS_LPSR);
 }
 
+static void imx8m_setup_csu_tzasc(void)
+{
+	const uintptr_t tzasc_base[4] = {
+		0x301f0000, 0x301f0000, 0x301f0000, 0x301f0000
+	};
+	int i, j;
+
+	if (!IS_ENABLED(CONFIG_ARMV8_PSCI))
+		return;
+
+	/* CSU */
+	for (i = 0; i < 64; i++)
+		writel(0x00ff00ff, (void *)CSU_BASE_ADDR + (4 * i));
+
+	/* TZASC */
+	for (j = 0; j < 4; j++) {
+		writel(0x77777777, (void *)(tzasc_base[j]));
+		writel(0x77777777, (void *)(tzasc_base[j]) + 0x4);
+		for (i = 0; i <= 0x10; i += 4)
+			writel(0, (void *)(tzasc_base[j]) + 0x40 + i);
+	}
+}
+
 int arch_cpu_init(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -612,6 +635,8 @@ int arch_cpu_init(void)
 	}
 
 	imx8m_setup_snvs();
+
+	imx8m_setup_csu_tzasc();
 
 	return 0;
 }
