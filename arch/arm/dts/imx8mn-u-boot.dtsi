@@ -163,6 +163,7 @@
 					};
 				};
 
+#ifndef CONFIG_ARMV8_PSCI
 				atf {
 					arch = "arm64";
 					compression = "none";
@@ -176,6 +177,7 @@
 						type = "atf-bl31";
 					};
 				};
+#endif
 
 				binman_fip: fip {
 					arch = "arm64";
@@ -204,7 +206,9 @@
 					description = "NAME";
 					fdt = "fdt-SEQ";
 					firmware = "uboot";
+#ifndef CONFIG_ARMV8_PSCI
 					loadables = "atf";
+#endif
 				};
 			};
 		};
