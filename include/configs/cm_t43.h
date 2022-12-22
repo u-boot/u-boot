@@ -36,8 +36,6 @@
  * we don't need to do it twice.
  */
 
-#define CONFIG_HSMMC2_8BIT
-
 #include <configs/ti_armv7_omap.h>
 
 #define V_OSCK				24000000  /* Clock output from T2 */

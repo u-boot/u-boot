@@ -37,7 +37,6 @@
 #define SPI_MTD_PARTS KEYSTONE_SPI0_MTD_PARTS
 
 /* Network */
-#define CONFIG_KSNET_NETCP_V1_0
 #define CONFIG_KSNET_CPSW_NUM_PORTS	5
 
 #endif /* __CONFIG_K2HK_EVM_H */

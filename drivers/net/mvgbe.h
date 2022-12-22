@@ -11,13 +11,6 @@
 #ifndef __MVGBE_H__
 #define __MVGBE_H__
 
-/* PHY_BASE_ADR is board specific and can be configured */
-#if defined (CONFIG_PHY_BASE_ADR)
-#define PHY_BASE_ADR		CONFIG_PHY_BASE_ADR
-#else
-#define PHY_BASE_ADR		0x08	/* default phy base addr */
-#endif
-
 /* Constants */
 #define INT_CAUSE_UNMASK_ALL		0x0007ffff
 #define INT_CAUSE_UNMASK_ALL_EXT	0x0011ffff

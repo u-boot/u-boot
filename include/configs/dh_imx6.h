@@ -38,10 +38,6 @@
 /* USB Gadget (DFU, UMS) */
 #if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-
-/* USB IDs */
-#define CONFIG_G_DNL_UMS_VENDOR_NUM	0x0525
-#define CONFIG_G_DNL_UMS_PRODUCT_NUM	0xA4A5
 #endif
 #endif
 

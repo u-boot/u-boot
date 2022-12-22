@@ -28,7 +28,6 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* Linux boot */
-#define CONFIG_HOSTNAME		"usbarmory"
 
 #define BOOT_TARGET_DEVICES(func) func(MMC, mmc, 0)
 

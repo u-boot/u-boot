@@ -24,13 +24,6 @@
 /* USB Composite download gadget - g_dnl */
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
-/* USB Samsung's IDs */
-
-#define CONFIG_G_DNL_THOR_VENDOR_NUM 0x04E8
-#define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
-#define CONFIG_G_DNL_UMS_VENDOR_NUM 0x0525
-#define CONFIG_G_DNL_UMS_PRODUCT_NUM 0xA4A5
-
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
 
 /* partitions definitions */
@@ -118,9 +111,6 @@
 #define PHYS_SDRAM_2_SIZE	(256 << 20)		/* 256 MB in Bank #1 */
 #define PHYS_SDRAM_3		0x50000000		/* mDDR DMC2 Bank #2 */
 #define PHYS_SDRAM_3_SIZE	(128 << 20)		/* 128 MB in Bank #2 */
-
-/* FLASH and environment organization */
-#define CONFIG_MMC_DEFAULT_DEV	0
 
 #define CFG_SYS_ONENAND_BASE		0xB0000000
 

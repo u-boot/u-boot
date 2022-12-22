@@ -25,16 +25,8 @@
 /* Host */
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-/* Client */
-#define CONFIG_USBD_HS
 
 /* Command definition */
-
-#undef CONFIG_IPADDR
-#define CONFIG_IPADDR			192.168.10.2
-#define CONFIG_NETMASK			255.255.255.0
-#undef CONFIG_SERVERIP
-#define CONFIG_SERVERIP			192.168.10.1
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \

@@ -86,9 +86,4 @@
 #define CFG_SYS_NAND_BASE		0x60000000
 #endif
 
-/* SPI */
-#ifdef CONFIG_CMD_SPI
-#define CONFIG_SPI_HALF_DUPLEX
-#endif
-
 #endif	/* __CONFIGS_MXS_H__ */

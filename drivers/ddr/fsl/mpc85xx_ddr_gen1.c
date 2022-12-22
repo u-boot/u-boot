@@ -73,7 +73,7 @@ ddr_enable_ecc(unsigned int dram_size)
 	struct ccsr_ddr __iomem *ddr =
 		(struct ccsr_ddr __iomem *)(CFG_SYS_FSL_DDR_ADDR);
 
-	dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
+	dma_meminit(dram_size);
 
 	/*
 	 * Enable errors for ECC.

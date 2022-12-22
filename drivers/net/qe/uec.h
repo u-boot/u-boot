@@ -689,5 +689,4 @@ struct uec_priv {
 
 int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info);
 int uec_eth_init(struct bd_info *bis, struct uec_inf *uecs, int num);
-int uec_standard_init(struct bd_info *bis);
 #endif /* __UEC_H__ */

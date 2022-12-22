@@ -13,7 +13,6 @@
 /* Booting Linux */
 
 /* Extra Environment */
-#define CONFIG_HOSTNAME			"socfpga_vining_fpga"
 
 /*
  * Active LOW GPIO buttons:

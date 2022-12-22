@@ -55,10 +55,6 @@
  * Environment Configuration
  */
 
-/* TODO: Turn into string option and migrate to Kconfig */
-#define CONFIG_HOSTNAME		"gazerbeam"
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"consoledev=ttyS1\0"						\

@@ -12,10 +12,6 @@
 
 #define SPD_EEPROM_ADDRESS		0x51
 
-#ifdef CONFIG_DDR_ECC
-#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-#endif
-
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define RGMII_PHY1_ADDR		0x1
 #define RGMII_PHY2_ADDR		0x2
@@ -41,10 +37,6 @@
 #define CFG_SYS_FLASH_BASE			0x60000000
 #define CFG_SYS_FLASH_BASE_PHYS		CFG_SYS_FLASH_BASE
 #define CFG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
-
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
-#endif
 #endif
 
 /* LPUART */
@@ -127,7 +119,6 @@
 #define CFG_SYS_NAND_FTIM3           0x0
 
 #define CFG_SYS_NAND_BASE_LIST	{ CFG_SYS_NAND_BASE }
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #endif
 
 #ifdef CONFIG_NAND_BOOT

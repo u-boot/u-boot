@@ -9,21 +9,6 @@
 
 #ifdef CONFIG_CHAIN_OF_TRUST
 #ifndef CONFIG_SPL_BUILD
-#ifndef CONFIG_SYS_RAMBOOT
-/* The key used for verification of next level images
- * is picked up from an Extension Table which has
- * been verified by the ISBC (Internal Secure boot Code)
- * in boot ROM of the SoC.
- * The feature is only applicable in case of NOR boot and is
- * not applicable in case of RAMBOOT (NAND, SD, SPI).
- * For LS, this feature is available for all device if IE Table
- * is copied to XIP memory
- * Also, for LS, ISBC doesn't verify this table.
- */
-#define CONFIG_FSL_ISBC_KEY_EXT
-
-#endif
-
 #ifdef CONFIG_FSL_LS_PPA
 /* Define the key hash here if SRK used for signing PPA image is
  * different from SRK hash put in SFP used for U-Boot.

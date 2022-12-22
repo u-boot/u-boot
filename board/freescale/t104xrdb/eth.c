@@ -22,10 +22,6 @@ int board_eth_init(struct bd_info *bis)
 	struct memac_mdio_info memac_mdio_info;
 	unsigned int i;
 	int phy_addr = 0;
-#ifdef CONFIG_VSC9953
-	phy_interface_t phy_int;
-	struct mii_dev *bus;
-#endif
 
 	printf("Initializing Fman\n");
 
@@ -43,25 +39,6 @@ int board_eth_init(struct bd_info *bis)
 		int idx = i - FM1_DTSEC1;
 
 		switch (fm_info_get_enet_if(i)) {
-#if defined(CONFIG_TARGET_T1040RDB) || defined(CONFIG_TARGET_T1040D4RDB)
-		case PHY_INTERFACE_MODE_SGMII:
-			/* T1040RDB & T1040D4RDB only supports SGMII on
-			 * DTSEC3
-			 */
-			fm_info_set_phy_address(FM1_DTSEC3,
-						CFG_SYS_SGMII1_PHY_ADDR);
-			break;
-#endif
-#ifdef CONFIG_TARGET_T1042RDB
-		case PHY_INTERFACE_MODE_SGMII:
-			/* T1042RDB doesn't supports SGMII on DTSEC1 & DTSEC2 */
-			if ((FM1_DTSEC1 == i) || (FM1_DTSEC2 == i))
-				fm_info_set_phy_address(i, 0);
-			/* T1042RDB only supports SGMII on DTSEC3 */
-			fm_info_set_phy_address(FM1_DTSEC3,
-						CFG_SYS_SGMII1_PHY_ADDR);
-			break;
-#endif
 #ifdef CONFIG_TARGET_T1042D4RDB
 		case PHY_INTERFACE_MODE_SGMII:
 			/* T1042D4RDB supports SGMII on DTSEC1, DTSEC2
@@ -107,48 +84,6 @@ int board_eth_init(struct bd_info *bis)
 							DEFAULT_FM_MDIO_NAME));
 	}
 
-#ifdef CONFIG_VSC9953
-	/* SerDes configured for QSGMII */
-	if (serdes_get_first_lane(FSL_SRDS_1, QSGMII_SW1_A) >= 0) {
-		for (i = 0; i < 4; i++) {
-			bus = miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME);
-			phy_addr = CFG_SYS_FM1_QSGMII11_PHY_ADDR + i;
-			phy_int = PHY_INTERFACE_MODE_QSGMII;
-
-			vsc9953_port_info_set_mdio(i, bus);
-			vsc9953_port_info_set_phy_address(i, phy_addr);
-			vsc9953_port_info_set_phy_int(i, phy_int);
-			vsc9953_port_enable(i);
-		}
-	}
-	if (serdes_get_first_lane(FSL_SRDS_1, QSGMII_SW1_B) >= 0) {
-		for (i = 4; i < 8; i++) {
-			bus = miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME);
-			phy_addr = CFG_SYS_FM1_QSGMII21_PHY_ADDR + i - 4;
-			phy_int = PHY_INTERFACE_MODE_QSGMII;
-
-			vsc9953_port_info_set_mdio(i, bus);
-			vsc9953_port_info_set_phy_address(i, phy_addr);
-			vsc9953_port_info_set_phy_int(i, phy_int);
-			vsc9953_port_enable(i);
-		}
-	}
-
-	/* Connect DTSEC1 to L2 switch if it doesn't have a PHY */
-	if (serdes_get_first_lane(FSL_SRDS_1, SGMII_FM1_DTSEC1) < 0)
-		vsc9953_port_enable(8);
-
-	/* Connect DTSEC2 to L2 switch if it doesn't have a PHY */
-	if (serdes_get_first_lane(FSL_SRDS_1, SGMII_FM1_DTSEC2) < 0) {
-		/* Enable L2 On MAC2 using SCFG */
-		struct ccsr_scfg *scfg = (struct ccsr_scfg *)
-				CFG_SYS_MPC85xx_SCFG;
-
-		out_be32(&scfg->esgmiiselcr, in_be32(&scfg->esgmiiselcr) |
-			 (0x80000000));
-		vsc9953_port_enable(9);
-	}
-#endif
 
 	cpu_eth_init(bis);
 #endif

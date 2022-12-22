@@ -198,6 +198,18 @@ config DRIVER_DM9000
 	help
 	  The Davicom DM9000 parallel bus external ethernet interface chip.
 
+config DM9000_BYTE_SWAPPED
+	bool "Byte swapped access for DM9000"
+	depends on DRIVER_DM9000
+
+config DM9000_NO_SROM
+	bool "No SROM on DM9000"
+	depends on DRIVER_DM9000
+
+config DM9000_USE_16BIT
+	bool "Use 16bit access in DM9000"
+	depends on DRIVER_DM9000
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	select PHYLIB
@@ -360,6 +372,7 @@ config FMAN_ENET
 	select SYS_FMAN_V3 if ARCH_B4420 || ARCH_B4860 || ARCH_LS1043A || \
 		ARCH_LS1046A || ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || \
 		ARCH_T2080 || ARCH_T4240
+	select FSL_FM_10GEC_REGULAR_NOTATION if ARCH_T1024
 	help
 	  This driver support the Freescale FMan Ethernet controller
 
@@ -378,6 +391,18 @@ config SYS_FMAN_V3
 	select FSL_MEMAC
 	help
 	  SoC has FMan v3 with mEMAC
+
+config FSL_FM_10GEC_REGULAR_NOTATION
+	bool
+	help
+	  On SoCs T4240, T2080, LS1043A, etc, the notation between 10GEC and
+	  MAC as below:
+		10GEC1->MAC9, 10GEC2->MAC10, 10GEC3->MAC1, 10GEC4->MAC2
+	  While on SoCs T1024, etc, the notation between 10GEC and MAC as below:
+		10GEC1->MAC1, 10GEC2->MAC2
+	  so we introduce CONFIG_FSL_FM_10GEC_REGULAR_NOTATION to identify the
+	  new SoCs on which 10GEC enumeration is consistent with MAC
+	  enumeration.
 
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"
@@ -683,9 +708,6 @@ config XILINX_AXIMRMAC
 
 config VSC7385_ENET
 	bool "Vitesse 7385 Switch Firmware Upload driver"
-
-config VSC9953
-	bool "Vitesse VSC9953 L2 Switch driver"
 
 config XILINX_EMACLITE
 	select PHYLIB

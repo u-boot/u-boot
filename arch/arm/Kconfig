@@ -915,6 +915,7 @@ config ARCH_MX7
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
+	select MXC_GPT_HCLK
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -928,6 +929,7 @@ config ARCH_MX6
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
+	select MXC_GPT_HCLK
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -1597,6 +1599,7 @@ config TARGET_LS1021AQDS
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select LS1_DEEP_SLEEP
+	select PEN_ADDR_BIG_ENDIAN
 	select SUPPORT_SPL
 	select SYS_FSL_DDR
 	select FSL_DDR_INTERACTIVE
@@ -1615,6 +1618,7 @@ config TARGET_LS1021ATWR
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select LS1_DEEP_SLEEP
+	select PEN_ADDR_BIG_ENDIAN
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if FSL_DSPI || FSL_QSPI
 	select GPIO_EXTRA_HEADER
@@ -1679,6 +1683,7 @@ config TARGET_LS1021AIOT
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select PEN_ADDR_BIG_ENDIAN
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if FSL_DSPI || FSL_QSPI
 	select GPIO_EXTRA_HEADER

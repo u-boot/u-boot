@@ -21,10 +21,6 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #endif
 
-#define CONFIG_IPADDR			192.168.10.2
-#define CONFIG_NETMASK			255.255.255.0
-#define CONFIG_SERVERIP			192.168.10.1
-
 #if defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
 #define UBOOT_UPDATE \
 	"uboot_hwpart=1\0" \
@@ -173,7 +169,5 @@
 
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-
-#define CONFIG_USBD_HS
 
 #endif

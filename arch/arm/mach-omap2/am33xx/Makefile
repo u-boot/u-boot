@@ -3,7 +3,6 @@
 # Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
 
 obj-$(CONFIG_AM33XX)	+= clock_am33xx.o
-obj-$(CONFIG_TI814X)	+= clock_ti814x.o
 obj-$(CONFIG_AM43XX)	+= clock_am43xx.o
 
 ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX),)

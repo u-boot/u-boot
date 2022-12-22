@@ -15,11 +15,6 @@
 				      115200, 230400, 460800, 921600 }
 
 /* Default Env vars */
-#define CONFIG_IPADDR           0.0.0.0 /* In order to cause an error */
-#define CONFIG_SERVERIP         0.0.0.0 /* In order to cause an error */
-#define CONFIG_NETMASK          255.255.255.0
-#define CONFIG_GATEWAYIP        0.0.0.0
-#define CONFIG_ROOTPATH                 "/srv/nfs/" /* Default Dir for NFS */
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \

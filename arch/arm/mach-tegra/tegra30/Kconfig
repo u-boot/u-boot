@@ -1,5 +1,11 @@
 if TEGRA30
 
+config TEGRA_VDD_CORE_TPS62361B_SET3
+	bool
+
+config TEGRA_VDD_CORE_TPS62366A_SET1
+	bool
+
 choice
 	prompt "Tegra30 board select"
 	optional
@@ -11,10 +17,12 @@ config TARGET_APALIS_T30
 config TARGET_BEAVER
 	bool "NVIDIA Tegra30 Beaver evaluation board"
 	select BOARD_LATE_INIT
+	select TEGRA_VDD_CORE_TPS62366A_SET1
 
 config TARGET_CARDHU
 	bool "NVIDIA Tegra30 Cardhu evaluation board"
 	select BOARD_LATE_INIT
+	select TEGRA_VDD_CORE_TPS62361B_SET3
 
 config TARGET_COLIBRI_T30
 	bool "Toradex Colibri T30 board"

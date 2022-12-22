@@ -9,12 +9,6 @@
 
 #include "ls1043a_common.h"
 
-/* Physical Memory Map */
-
-#ifndef CONFIG_SPL
-#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
-#endif
-
 /*
  * NOR Flash Definitions
  */
@@ -82,7 +76,6 @@
 #define CFG_SYS_NAND_FTIM3		0x0
 
 #define CFG_SYS_NAND_BASE_LIST	{ CFG_SYS_NAND_BASE }
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 
 #ifdef CONFIG_NAND_BOOT
 #define CFG_SYS_NAND_U_BOOT_SIZE	(1024 << 10)

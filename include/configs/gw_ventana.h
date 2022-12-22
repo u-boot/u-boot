@@ -38,7 +38,6 @@
 /* USB Configs */
 #define CONFIG_MXC_USB_PORTSC     (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS      0
-#define CONFIG_USBD_HS
 
 /* Miscellaneous configurable options */
 
@@ -57,7 +56,5 @@
 /* Persistent Environment Config */
 
 /* Environment */
-#define CONFIG_IPADDR             192.168.1.1
-#define CONFIG_SERVERIP           192.168.1.146
 
 #endif			       /* __CONFIG_H */

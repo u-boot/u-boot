@@ -29,7 +29,6 @@
 /* Link Definitions */
 #define CFG_SYS_FSL_QSPI_BASE	0x20000000
 
-#define CONFIG_VERY_BIG_RAM
 #define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
@@ -132,19 +131,6 @@ unsigned long long get_qixis_addr(void);
 	"console=ttyAMA0,38400n8\0"		\
 	"mcinitcmd=fsl_mc start mc 0x580a00000"	\
 	" 0x580e00000 \0"
-#endif
-
-#ifdef CONFIG_SPL
-#ifdef CONFIG_NXP_ESBC
-#define CONFIG_U_BOOT_HDR_SIZE		(16 << 10)
-/*
- * HDR would be appended at end of image and copied to DDR along
- * with U-Boot image. Here u-boot max. size is 512K. So if binary
- * size increases then increase this size in case of secure boot as
- * it uses raw u-boot image instead of fit image.
- */
-#endif /* ifdef CONFIG_NXP_ESBC */
-
 #endif
 
 #endif /* __LS1088_COMMON_H */

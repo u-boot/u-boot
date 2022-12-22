@@ -46,10 +46,6 @@
 /*
  * Network Configuration
  */
-#define CONFIG_SERVERIP			192.168.11.1
-#define CONFIG_IPADDR			192.168.11.10
-#define CONFIG_GATEWAYIP		192.168.11.1
-#define CONFIG_NETMASK			255.255.255.0
 
 #if defined(CONFIG_ARM64)
 /* ARM Trusted Firmware */
@@ -61,8 +57,6 @@
 	"second_image=u-boot-spl.bin\0" \
 	"third_image=u-boot.bin\0"
 #endif
-
-#define CONFIG_ROOTPATH			"/nfs/root/path"
 
 #ifdef CONFIG_FIT
 #define KERNEL_ADDR_R_OFFSET		"0x05100000"

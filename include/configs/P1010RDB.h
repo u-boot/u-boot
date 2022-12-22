@@ -24,7 +24,6 @@
 
 #ifdef CONFIG_SPIFLASH
 #ifdef CONFIG_NXP_ESBC
-#define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
 #define CFG_SYS_SPI_FLASH_U_BOOT_SIZE	(512 << 10)
@@ -96,15 +95,8 @@
 #endif
 #endif
 
-/*
- * These can be toggled for performance analysis, otherwise use default.
- */
-#define CONFIG_L2_CACHE			/* toggle L2 cache */
-
 /* DDR Setup */
 #define SPD_EEPROM_ADDRESS		0x52
-
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_sdram_size(void);
@@ -161,7 +153,6 @@ extern unsigned long get_sdram_size(void);
 #define CFG_SYS_NOR_FTIM3	0x0
 
 #define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE_PHYS}
-#define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
 
 /* CFI for NOR Flash */
 
@@ -381,13 +372,10 @@ extern unsigned long get_sdram_size(void);
  * Environment Configuration
  */
 
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_UBOOTPATH	u-boot.bin/* U-Boot image on TFTP server */
-
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=" __stringify(CONFIG_DEF_HWCONFIG)  "\0"	\
 	"netdev=eth0\0"						\
-	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"uboot=" CONFIG_UBOOTPATH "\0"		\
 	"loadaddr=1000000\0"			\
 	"consoledev=ttyS0\0"				\
 	"ramdiskaddr=2000000\0"			\

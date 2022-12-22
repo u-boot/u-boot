@@ -17,8 +17,6 @@
 
 /* commands to include */
 
-#define CONFIG_ROOTPATH		"/opt/eldk"
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -71,9 +69,6 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-
-/* USB DRACO ID as default */
-#define CONFIG_USBD_HS
 
 /* USB Device Firmware Update support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000

@@ -70,7 +70,6 @@ int sh_eth_initialize(struct bd_info *bis);
 int skge_initialize(struct bd_info *bis);
 int smc91111_initialize(u8 dev_num, phys_addr_t base_addr);
 int smc911x_initialize(u8 dev_num, phys_addr_t base_addr);
-int uec_standard_init(struct bd_info *bis);
 int uli526x_initialize(struct bd_info *bis);
 int armada100_fec_register(unsigned long base_addr);
 

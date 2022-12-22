@@ -12,7 +12,6 @@
 #define __CONFIG_H
 
 #ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #endif
 
@@ -46,10 +45,9 @@
 /*
  *  Config the L3 Cache as L3 SRAM
  */
-#define CFG_SYS_INIT_L3_ADDR		CONFIG_RAMBOOT_TEXT_BASE
+#define CFG_SYS_INIT_L3_ADDR		CONFIG_TEXT_BASE
 #ifdef CONFIG_PHYS_64BIT
-#define CFG_SYS_INIT_L3_ADDR_PHYS	(0xf00000000ull | \
-		CONFIG_RAMBOOT_TEXT_BASE)
+#define CFG_SYS_INIT_L3_ADDR_PHYS	(0xf00000000ull | CONFIG_TEXT_BASE)
 #else
 #define CFG_SYS_INIT_L3_ADDR_PHYS	CFG_SYS_INIT_L3_ADDR
 #endif
@@ -62,7 +60,6 @@
 /*
  * DDR Setup
  */
-#define CONFIG_VERY_BIG_RAM
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
@@ -88,7 +85,6 @@
 #define CFG_SYS_FLASH_BASE_PHYS	CFG_SYS_FLASH_BASE
 #endif
 
-#define CONFIG_FSL_CPLD
 #define CPLD_BASE		0xffdf0000	/* CPLD registers */
 #ifdef CONFIG_PHYS_64BIT
 #define CPLD_BASE_PHYS		0xfffdf0000ull
@@ -100,8 +96,6 @@
 #define PIXIS_LBMAP_MASK	0xf0
 #define PIXIS_LBMAP_SHIFT	4
 #define PIXIS_LBMAP_ALTBANK	0x40
-
-#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC
@@ -133,7 +127,6 @@
 #define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE_PHYS + 0x8000000}
 
 /* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CFG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
 #ifdef CONFIG_PHYS_64BIT
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0xf
@@ -308,8 +301,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_UBOOTPATH	u-boot.bin
 
 #define __USB_PHY_TYPE	utmi
 
@@ -317,7 +308,7 @@
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"bank_intlv=cs0_cs1\0"					\
 	"netdev=eth0\0"						\
-	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"			\
+	"uboot=" CONFIG_UBOOTPATH "\0"			\
 	"ubootaddr=" __stringify(CONFIG_TEXT_BASE) "\0"		\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 	"protect off $ubootaddr +$filesize && "			\

@@ -48,7 +48,6 @@
 #define CONFIG_MXC_NAND_REGS_BASE	NFC_BASE_ADDR_AXI
 #define CONFIG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
 #define CFG_SYS_NAND_LARGEPAGE
-#define CONFIG_MXC_NAND_HWECC
 #endif
 
 /*
@@ -84,7 +83,6 @@
 /*
  * Extra Environments
  */
-#define CONFIG_HOSTNAME		"m53menlo"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttymxc0\0"						\

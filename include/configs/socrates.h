@@ -16,9 +16,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* High Level Configuration Options */
-#define CONFIG_SOCRATES		1
-
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
@@ -37,11 +34,6 @@
  * in the README.mpc85xxads.
  */
 
-/*
- * These can be toggled for performance analysis, otherwise use default.
- */
-#define CONFIG_L2_CACHE			/* toggle L2 cache		*/
-
 #define CFG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
 #undef	CFG_SYS_DRAM_TEST			/* memory test, takes time	*/
@@ -50,12 +42,8 @@
 #define CFG_SYS_CCSRBAR_PHYS_LOW	CFG_SYS_CCSRBAR
 
 /* DDR Setup */
-
-#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
-
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
-#define CONFIG_VERY_BIG_RAM
 
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */

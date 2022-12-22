@@ -17,7 +17,6 @@
 					"stderr=serial\0"
 
 #define VIDEO_IO_OFFSET				0
-#define CONFIG_X86EMU_RAW_IO
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS				\

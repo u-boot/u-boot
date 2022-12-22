@@ -374,45 +374,12 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 
 static struct mv_i2c *base_glob;
 
-#ifdef CONFIG_I2C_MULTI_BUS
-static unsigned long i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
-static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
-static unsigned int current_bus;
-
-int i2c_set_bus_num(unsigned int bus)
-{
-	if ((bus < 0) || (bus >= CONFIG_MV_I2C_NUM)) {
-		printf("Bad bus: %d\n", bus);
-		return -1;
-	}
-
-	base_glob = (struct mv_i2c *)i2c_regs[bus];
-	current_bus = bus;
-
-	if (!bus_initialized[current_bus]) {
-		bus_initialized[current_bus] = 1;
-	}
-
-	return 0;
-}
-
-unsigned int i2c_get_bus_num(void)
-{
-	return current_bus;
-}
-#endif
-
 /* API Functions */
 void i2c_init(int speed, int slaveaddr)
 {
 	u32 val;
 
-#ifdef CONFIG_I2C_MULTI_BUS
-	current_bus = 0;
-	base_glob = (struct mv_i2c *)i2c_regs[current_bus];
-#else
 	base_glob = (struct mv_i2c *)CONFIG_MV_I2C_REG;
-#endif
 
 	if (speed > I2C_SPEED_STANDARD_RATE)
 		val = ICR_FM;

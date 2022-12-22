@@ -77,21 +77,16 @@ in dir ./u-boot-x-x-x/
 
 please first check:
 
-	in ./include/configs/cobra5272.h
+	in ./configs/cobra5272_defconfig
 
-		CONFIG_MONITOR_IS_IN_RAM has to be undefined, e. g. as follows:
-
-		#if 0
-			#define CONFIG_MONITOR_IS_IN_RAM
-			/* define if monitor is started from a pre-loader */
-		#endif
+		CONFIG_MONITOR_IS_IN_RAM has to be not present in the file
 
 	=> u-boot as single bootloader starting from flash
 
 
-	in board/cobra5272/config.mk CONFIG_TEXT_BASE should be
+	in configs/cobra5272_defconfig CONFIG_TEXT_BASE should be
 
-		CONFIG_TEXT_BASE = 0xffe00000
+		CONFIG_TEXT_BASE=0xffe00000
 
 	=> linking address for u-boot as single bootloader stored in flash
 
@@ -115,22 +110,18 @@ in dir ./u-boot-x-x-x/
 	host> make distclean
 
 please modify the settings:
+	in ./configs/cobra5272_defconfig
 
-	in ./include/configs/cobra5272.h
+		CONFIG_MONITOR_IS_IN_RAM now has to be enabled, e. g. as follows:
 
-		CONFIG_MONITOR_IS_IN_RAM now has to be defined, e. g. as follows:
-
-		#if 1
-			#define CONFIG_MONITOR_IS_IN_RAM
-			/*define if monitor is started from a pre-loader */
-		#endif
+		CONFIG_MONITOR_IS_IN_RAM=y
 
 	=> u-boot as RAM version, chainloaded by another bootloader or using bdm cable
 
 
-	in board/cobra5272/config.mk CONFIG_TEXT_BASE should be
+	in configs/cobra5272_defconfig CONFIG_TEXT_BASE should be
 
-		CONFIG_TEXT_BASE = 0x00020000
+		CONFIG_TEXT_BASE=0x00020000
 
 	=> target linking address for RAM
 

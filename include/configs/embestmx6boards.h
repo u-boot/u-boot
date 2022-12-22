@@ -35,11 +35,11 @@
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* RiOTboard */
-#define CONFIG_FDTFILE	"imx6dl-riotboard.dtb"
+#define FDTFILE	"imx6dl-riotboard.dtb"
 #define CFG_SYS_FSL_USDHC_NUM	3
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 /* MarSBoard */
-#define CONFIG_FDTFILE	"imx6q-marsboard.dtb"
+#define FDTFILE	"imx6q-marsboard.dtb"
 #define CFG_SYS_FSL_USDHC_NUM	2
 #endif
 
@@ -79,7 +79,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
-	"fdtfile=" CONFIG_FDTFILE "\0" \
+	"fdtfile=" FDTFILE "\0" \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	BOOTENV
 

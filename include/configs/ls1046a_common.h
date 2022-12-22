@@ -31,7 +31,6 @@
 
 /* Link Definitions */
 
-#define CONFIG_VERY_BIG_RAM
 #define CFG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
@@ -41,19 +40,6 @@
 
 /* Serial Port */
 #define CFG_SYS_NS16550_CLK          (get_serial_clock())
-
-/* SD boot SPL */
-#ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_NXP_ESBC
-#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
-/*
- * HDR would be appended at end of image and copied to DDR along
- * with U-Boot image. Here u-boot max. size is 512K. So if binary
- * size increases then increase this size in case of secure boot as
- * it uses raw u-boot image instead of fit image.
- */
-#endif /* ifdef CONFIG_NXP_ESBC */
-#endif
 
 /* NAND SPL */
 #ifdef CONFIG_NAND_BOOT

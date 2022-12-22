@@ -25,7 +25,6 @@
  */
 
 /* Booting Linux */
-#define CONFIG_HOSTNAME			"novena"
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
@@ -33,9 +32,6 @@
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
-
-/* I2C */
-#define CONFIG_I2C_MULTI_BUS
 
 /* I2C EEPROM */
 
@@ -59,8 +55,6 @@
 #ifdef CONFIG_CMD_USB
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
-/* Gadget part */
-#define CONFIG_USBD_HS
 #endif
 
 /* Extra U-Boot environment. */

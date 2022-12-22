@@ -109,11 +109,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-/*
- * These can be toggled for performance analysis, otherwise use default.
- */
-#define CONFIG_L2_CACHE
-
 #define CFG_SYS_CCSRBAR		0xffe00000
 #define CFG_SYS_CCSRBAR_PHYS_LOW	CFG_SYS_CCSRBAR
 
@@ -199,7 +194,6 @@
 #define CONFIG_FLASH_OR_PRELIM	0xfc000ff7
 
 #define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE_PHYS}
-#define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
 
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC
@@ -397,15 +391,12 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_HOSTNAME		"unknown"
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 
 #include "p1_p2_bootsrc.h"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 "netdev=eth0\0"	\
-"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"	\
+"uboot=" CONFIG_UBOOTPATH "\0"	\
 "loadaddr=1000000\0"	\
 "bootfile=uImage\0"	\
 "tftpflash=tftpboot $loadaddr $uboot; "	\
@@ -440,30 +431,5 @@ RST_NAND_CMD(nandboot) \
 RST_PCIE_CMD(pciboot) \
 RST_DEF_CMD(defboot) \
 ""
-
-#define CONFIG_USB_FAT_BOOT	\
-"setenv bootargs root=/dev/ram rw "	\
-"console=$consoledev,$baudrate $othbootargs " \
-"ramdisk_size=$ramdisk_size;"	\
-"usb start;"	\
-"fatload usb 0:2 $loadaddr $bootfile;"	\
-"fatload usb 0:2 $fdtaddr $fdtfile;"	\
-"fatload usb 0:2 $ramdiskaddr $ramdiskfile;"	\
-"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_USB_EXT2_BOOT	\
-"setenv bootargs root=/dev/ram rw "	\
-"console=$consoledev,$baudrate $othbootargs " \
-"ramdisk_size=$ramdisk_size;"	\
-"usb start;"	\
-"ext2load usb 0:4 $loadaddr $bootfile;"	\
-"ext2load usb 0:4 $fdtaddr $fdtfile;" \
-"ext2load usb 0:4 $ramdiskaddr $ramdiskfile;" \
-"bootm $loadaddr $ramdiskaddr $fdtaddr"
-
-#define CONFIG_NORBOOT	\
-"setenv bootargs root=/dev/$jffs2nor rw "	\
-"console=$consoledev,$baudrate rootfstype=jffs2 $othbootargs;"	\
-"bootm $norbootaddr - $norfdtaddr"
 
 #endif /* __CONFIG_H */

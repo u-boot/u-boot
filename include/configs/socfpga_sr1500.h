@@ -11,14 +11,8 @@
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SR1500 */
 
 /* Ethernet on SoC (EMAC) */
-#define CONFIG_PHY_INTERFACE_MODE	PHY_INTERFACE_MODE_RGMII
 /* The PHY is autodetected, so no MII PHY address is needed here */
 #define PHY_ANEG_TIMEOUT	8000
-
-/* Enable SPI NOR flash reset, needed for SPI booting */
-#define CONFIG_SPI_N25Q256A_RESET
-
-/* Environment setting for SPI flash */
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

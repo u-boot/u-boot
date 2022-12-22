@@ -13,12 +13,6 @@
 #define CFG_SYS_UBOOT_BASE \
 		(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
-#ifdef CONFIG_SPL_BUILD
-
-#define CONFIG_POWER_PCA9450
-
-#endif
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=Image\0" \
 	"console=ttymxc0,115200\0" \

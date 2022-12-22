@@ -33,17 +33,17 @@
 	#define _DEVDISR_SRIO2 FSL_CORENET_DEVDISR_SRIO2
 #endif
 	#define _DEVDISR_RMU   FSL_CORENET_DEVDISR_RMU
-	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
+	#define CFG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
 #elif defined(CONFIG_MPC85xx)
 	#define _DEVDISR_SRIO1 MPC85xx_DEVDISR_SRIO
 	#define _DEVDISR_SRIO2 MPC85xx_DEVDISR_SRIO
 	#define _DEVDISR_RMU   MPC85xx_DEVDISR_RMSG
-	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
+	#define CFG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
 #elif defined(CONFIG_MPC86xx)
 	#define _DEVDISR_SRIO1 MPC86xx_DEVDISR_SRIO
 	#define _DEVDISR_SRIO2 MPC86xx_DEVDISR_SRIO
 	#define _DEVDISR_RMU   MPC86xx_DEVDISR_RMSG
-	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR \
+	#define CFG_SYS_MPC8xxx_GUTS_ADDR \
 		(&((immap_t *)CONFIG_SYS_IMMR)->im_gur)
 #else
 #error "No defines for DEVDISR_SRIO"
@@ -230,7 +230,7 @@ host_ok:
 
 void srio_init(void)
 {
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC8xxx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC8xxx_GUTS_ADDR;
 	int srio1_used = 0, srio2_used = 0;
 	u32 *devdisr;
 

@@ -11,7 +11,6 @@ obj-$(CONFIG_$(SPL_TPL_)ENV_SUPPORT) += flags.o
 ifndef CONFIG_SPL_BUILD
 obj-y += callback.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
-extra-$(CONFIG_ENV_IS_EMBEDDED) += embedded.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += embedded.o
 extra-$(CONFIG_ENV_IS_IN_FLASH) += embedded.o
 obj-$(CONFIG_ENV_IS_IN_NVRAM) += embedded.o

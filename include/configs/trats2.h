@@ -81,7 +81,7 @@
 		"${kernelname}\0" \
 	"loaddtb=ext4load mmc ${mmcdev}:${mmcbootpart} ${fdtaddr} " \
 		"${fdtfile}\0" \
-	"mmcdev=" __stringify(CONFIG_MMC_DEFAULT_DEV) "\0" \
+	"mmcdev=0\0" \
 	"mmcbootpart=2\0" \
 	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \

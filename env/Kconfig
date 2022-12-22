@@ -30,6 +30,15 @@ config ENV_OVERWRITE
 	  Use this to permit overriding of certain environmental variables
 	  like Ethernet and Serial
 
+config OVERWRITE_ETHADDR_ONCE
+	bool "Enable overwriting ethaddr environment variables once"
+	depends on !ENV_OVERWRITE
+	help
+	  Enable this to allow for the ethaddr environment variables to be
+	  overwritten one time per boot, only. This allows for a default
+	  to be installed in the environment, which can be changed exactly ONCE
+	  by the user.
+
 config ENV_MIN_ENTRIES
 	int "Minimum number of entries in the environment hashtable"
 	default 64
@@ -77,13 +86,6 @@ config ENV_IS_IN_EEPROM
 	  Note that we consider the length of the address field to
 	  still be one byte because the extra address bits are hidden
 	  in the chip address.
-
-	  - CONFIG_I2C_ENV_EEPROM_BUS
-	  if you have an Environment on an EEPROM reached over
-	  I2C muxes, you can define here, how to reach this
-	  EEPROM. For example:
-
-	  #define CONFIG_I2C_ENV_EEPROM_BUS	  1
 
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.
@@ -865,6 +867,16 @@ config ETHPRIME
 	depends on USE_ETHPRIME
 	help
 	  The value to set the "ethprime" variable to.
+
+config USE_HOSTNAME
+	bool "Set a default 'hostname' value in the environment"
+	default y if X86
+
+config HOSTNAME
+	string "Value of the default 'hostname' value in the environment"
+	depends on USE_HOSTNAME
+	default "x86" if X86
+	default "unknown"
 
 config VERSION_VARIABLE
 	bool "Add a 'ver' environment variable with the U-Boot version"

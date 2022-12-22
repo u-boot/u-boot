@@ -39,9 +39,6 @@
 
 /* USB device */
 
-/* Ethernet Hardware */
-#define CONFIG_MACB_SEARCH_PHY
-
 #ifdef CONFIG_SPI_BOOT
 /* bootstrap + u-boot + env + linux in serial flash */
 /* Use our own mapping for the VInCo platform */

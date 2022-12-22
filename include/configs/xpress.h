@@ -34,9 +34,6 @@
 #define CONFIG_FEC_ENET_DEV		0
 #define CONFIG_FEC_MXC_PHYADDR          0x0
 
-#define CONFIG_UBOOT_SECTOR_START	0x2
-#define CONFIG_UBOOT_SECTOR_COUNT	0x3fe
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -75,8 +72,8 @@
 			"bootz; " \
 		"fi;\0" \
 	"uboot=ccv/u-boot.imx\0"					\
-	"uboot_start="__stringify(CONFIG_UBOOT_SECTOR_START)"\0"	\
-	"uboot_size="__stringify(CONFIG_UBOOT_SECTOR_COUNT)"\0"		\
+	"uboot_start=0x2\0"						\
+	"uboot_size=0x3fe\0"						\
 	"update_uboot=if tftp ${uboot}; then "				\
 		"if itest ${filesize} > 0; then "			\
 			"mmc dev 0 1;"					\

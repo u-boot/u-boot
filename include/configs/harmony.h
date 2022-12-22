@@ -14,7 +14,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Harmony"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTD
 
 /* UARTD: keyboard satellite board UART, default */
 #define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE

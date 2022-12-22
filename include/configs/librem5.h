@@ -27,8 +27,6 @@
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 
-#define CONFIG_USBD_HS
-
 #define CONSOLE_ON_UART1
 
 #ifdef CONSOLE_ON_UART1

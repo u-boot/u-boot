@@ -8,8 +8,6 @@
 #ifndef __STMARK2_CONFIG_H
 #define __STMARK2_CONFIG_H
 
-#define CONFIG_HOSTNAME			"stmark2"
-
 #define CFG_SYS_UART_PORT		0
 
 #define LDS_BOARD_TEXT						\
@@ -62,10 +60,6 @@
 #define CFG_SYS_SDRAM_SIZE		128	/* SDRAM size in MB */
 
 #define CFG_SYS_DRAM_TEST
-
-#if defined(CONFIG_CF_SBF)
-#define CONFIG_SERIAL_BOOT
-#endif
 
 /* Reserve 256 kB for Monitor */
 

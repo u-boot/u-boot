@@ -49,9 +49,6 @@
 */
 #define CFG_SYS_FLASH_BANKS_SIZES {0x4000000}
 
-/* max number of sectors on one chip */
-#define CONFIG_FLASH_SECTOR_SIZE	(0x10000*2)
-
 /* environments */
 
 /* SPI FLASH */

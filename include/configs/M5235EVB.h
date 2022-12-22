@@ -26,14 +26,7 @@
 #define CFG_SYS_I2C_PINMUX_SET	(GPIO_PAR_FECI2C_SCL_I2CSCL | GPIO_PAR_FECI2C_SDA_I2CSDA)
 
 /* this must be included AFTER the definition of CONFIG COMMANDS (if any) */
-#ifdef CONFIG_MCFFEC
-#	define CONFIG_IPADDR	192.162.1.2
-#	define CONFIG_NETMASK	255.255.255.0
-#	define CONFIG_SERVERIP	192.162.1.1
-#	define CONFIG_GATEWAYIP	192.162.1.1
-#endif				/* FEC_ENET */
 
-#define CONFIG_HOSTNAME		"M5235EVB"
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\

@@ -68,4 +68,16 @@ source "arch/powerpc/cpu/mpc85xx/Kconfig"
 source "arch/powerpc/cpu/mpc8xx/Kconfig"
 source "arch/powerpc/lib/Kconfig"
 
+config USE_UBOOTPATH
+	bool "Set a default 'uboot' value in the environment"
+	help
+	  Many default environment scripts will check the "uboot" variable
+	  to determine the name of the file to load via tftp that will then
+	  be written to flash.
+
+config UBOOTPATH
+	string "Value of the default 'uboot' value in the environment"
+	depends on USE_UBOOTPATH
+	default "u-boot.bin"
+
 endmenu

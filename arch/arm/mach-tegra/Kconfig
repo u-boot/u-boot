@@ -177,6 +177,29 @@ source "arch/arm/mach-tegra/tegra124/Kconfig"
 source "arch/arm/mach-tegra/tegra210/Kconfig"
 source "arch/arm/mach-tegra/tegra186/Kconfig"
 
+config TEGRA_SPI
+	def_bool y
+	depends on TEGRA20_SFLASH || TEGRA20_SLINK || TEGRA114_SPI
+
+choice
+	prompt "UART to use for console"
+	depends on TEGRA_PINCTRL
+	default TEGRA_ENABLE_UARTA
+
+config TEGRA_ENABLE_UARTA
+	bool "Use UARTA"
+
+config TEGRA_ENABLE_UARTB
+	bool "Use UARTB"
+
+config TEGRA_ENABLE_UARTC
+	bool "Use UARTC"
+
+config TEGRA_ENABLE_UARTD
+	bool "Use UARTD"
+
+endchoice
+
 config TEGRA_GPU
 	bool "Enable setting up the GPU"
 	depends on TEGRA124 || TEGRA210

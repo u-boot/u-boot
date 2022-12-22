@@ -14,9 +14,6 @@
 #define USDHC2_BASE_ADDR		0x5b020000
 
 /* Networking */
-#define CONFIG_IPADDR			192.168.10.2
-#define CONFIG_NETMASK			255.255.255.0
-#define CONFIG_SERVERIP			192.168.10.1
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"fdt_addr_r=0x84000000\0" \

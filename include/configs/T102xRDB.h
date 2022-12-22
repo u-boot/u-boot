@@ -94,9 +94,6 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CFG_SYS_INIT_L2CSR0		L2CSR0_L2E
-#ifdef CONFIG_DDR_ECC
-#define CONFIG_MEM_INIT_VALUE		0xdeadbeef
-#endif
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -112,7 +109,6 @@
 /*
  * DDR Setup
  */
-#define CONFIG_VERY_BIG_RAM
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 #if defined(CONFIG_TARGET_T1024RDB)
@@ -157,8 +153,6 @@
 				FTIM2_NOR_TWPH(0x0E) | \
 				FTIM2_NOR_TWP(0x1c))
 #define CFG_SYS_NOR_FTIM3	0x0
-
-#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
 #define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE_PHYS}
 
@@ -271,7 +265,6 @@
 #endif
 
 /* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CFG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #ifdef CONFIG_PHYS_64BIT
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
@@ -423,8 +416,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */
 #define __USB_PHY_TYPE		utmi
 
 #ifdef CONFIG_ARCH_T1024
@@ -443,7 +434,7 @@
 	ARCH_EXTRA_ENV_SETTINGS					\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"  \
-	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"uboot=" CONFIG_UBOOTPATH "\0"		\
 	"ubootaddr=" __stringify(CONFIG_TEXT_BASE) "\0"	\
 	"bootargs=root=/dev/ram rw console=ttyS0,115200\0" \
 	"netdev=eth0\0"						\

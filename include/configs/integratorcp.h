@@ -19,9 +19,6 @@
 /* Integrator CP-specific configuration */
 #define CFG_SYS_HZ_CLOCK		1000000	/* Timer 1 is clocked at 1Mhz */
 
-#define CONFIG_SERVERIP 192.168.1.100
-#define CONFIG_IPADDR 192.168.1.104
-
 /*
  * Miscellaneous configurable options
  */

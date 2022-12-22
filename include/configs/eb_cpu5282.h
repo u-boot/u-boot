@@ -14,8 +14,6 @@
 
 #define CFG_SYS_UART_PORT		(0)
 
-#undef	CONFIG_MONITOR_IS_IN_RAM		/* starts uboot direct */
-
 /*----------------------------------------------------------------------*
  * Options								*
  *----------------------------------------------------------------------*/
@@ -43,10 +41,6 @@
 /*----------------------------------------------------------------------*
  * Network								*
  *----------------------------------------------------------------------*/
-
-#ifdef CONFIG_MCFFEC
-#define CONFIG_OVERWRITE_ETHADDR_ONCE
-#endif
 
 /*-------------------------------------------------------------------------
  * Low Level Configuration Settings
@@ -84,7 +78,6 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_FLASH_SHOW_PROGRESS	45
 
 #define CFG_SYS_FLASH_BASE		CFG_SYS_CS0_BASE
 #define	CFG_SYS_INT_FLASH_BASE	0xF0000000
@@ -144,14 +137,6 @@
 #define CFG_SYS_PUAPAR		0x0F
 #define CFG_SYS_DDRUA		0x05
 #define CFG_SYS_PJPAR		0xFF
-
-/*-----------------------------------------------------------------------
- * I2C
- */
-
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_I2C_RTC_ADDR		0x68
-#endif
 
 #endif	/* _CONFIG_M5282EVB_H */
 /*---------------------------------------------------------------------*/

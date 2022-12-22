@@ -11,8 +11,6 @@
 #include "tegra20-common.h"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTA
-#define CONFIG_TEGRA_UARTA_SDIO1
 #define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 /* NAND support */

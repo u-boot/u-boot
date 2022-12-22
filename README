@@ -373,12 +373,6 @@ The following options need to be configured:
 		such as ARM architectural timer initialization.
 
 - Linux Kernel Interface:
-		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
-
-		When transferring memsize parameter to Linux, some versions
-		expect it to be in bytes, others in MB.
-		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
-
 		CONFIG_OF_LIBFDT
 
 		New kernel versions are expecting firmware settings to be
@@ -585,11 +579,6 @@ The following options need to be configured:
 		Support for generic parallel port TPM devices. Only one device
 		per system is supported at this time.
 
-			CONFIG_TPM_TIS_BASE_ADDRESS
-			Base address where the generic TPM device is mapped
-			to. Contemporary x86 systems usually map it at
-			0xfed40000.
-
 		CONFIG_TPM
 		Define this to enable the TPM support library which provides
 		functional interfaces to some TPM commands.
@@ -628,14 +617,6 @@ The following options need to be configured:
 		else if using cdc_acm, simply setting the environment
 		variable usbtty to be cdc_acm should suffice. The following
 		might be defined in YourBoardName.h
-
-			CONFIG_USBD_HS
-			Define this to enable the high speed support for usb
-			device and usbtty. If this feature is enabled, a routine
-			int is_usbd_high_speed(void)
-			also needs to be defined by the driver to dynamically poll
-			whether the enumeration has succeded at high speed or full
-			speed.
 
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
@@ -733,38 +714,6 @@ The following options need to be configured:
 
 		Some PHY like Intel LXT971A need extra delay after
 		command issued before MII status register can be read
-
-- IP address:
-		CONFIG_IPADDR
-
-		Define a default value for the IP address to use for
-		the default Ethernet interface, in case this is not
-		determined through e.g. bootp.
-		(Environment variable "ipaddr")
-
-- Server IP address:
-		CONFIG_SERVERIP
-
-		Defines a default value for the IP address of a TFTP
-		server to contact when using the "tftboot" command.
-		(Environment variable "serverip")
-
-- Gateway IP address:
-		CONFIG_GATEWAYIP
-
-		Defines a default value for the IP address of the
-		default router where packets to other networks are
-		sent to.
-		(Environment variable "gatewayip")
-
-- Subnet mask:
-		CONFIG_NETMASK
-
-		Defines a default value for the subnet mask (or
-		routing prefix) which is used to determine if an IP
-		address belongs to the local subnet or needs to be
-		forwarded through a router.
-		(Environment variable "netmask")
 
 - BOOTP Recovery Mode:
 		CONFIG_BOOTP_RANDOM_DELAY
@@ -1016,20 +965,12 @@ The following options need to be configured:
 		CFG_SYS_I2C_NOPROBES
 
 		This option specifies a list of I2C devices that will be skipped
-		when the 'i2c probe' command is issued.	 If CONFIG_I2C_MULTI_BUS
-		is set, specify a list of bus-device pairs.  Otherwise, specify
-		a 1D array of device addresses
+		when the 'i2c probe' command is issued.
 
 		e.g.
-			#undef	CONFIG_I2C_MULTI_BUS
 			#define CFG_SYS_I2C_NOPROBES {0x50,0x68}
 
 		will skip addresses 0x50 and 0x68 on a board with one I2C bus
-
-			#define CONFIG_I2C_MULTI_BUS
-			#define CFG_SYS_I2C_NOPROBES	{{0,0x50},{0,0x68},{1,0x54}}
-
-		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
 
 		CFG_SYS_RTC_BUS_NUM
 
@@ -1121,13 +1062,6 @@ The following options need to be configured:
 		file, the write protection for vendor parameters is
 		completely disabled. Anybody can change or delete
 		these parameters.
-
-		Alternatively, if you define _both_ an ethaddr in the
-		default env _and_ CONFIG_OVERWRITE_ETHADDR_ONCE, a default
-		Ethernet address is installed in the environment,
-		which can be changed exactly ONCE by the user. [The
-		serial# is unaffected by this, i. e. it remains
-		read-only.]
 
 		The same can be accomplished in a more flexible way
 		for any variable by configuring the type of access
@@ -1223,13 +1157,6 @@ The following options need to be configured:
 		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
 		this is instead controlled by the value of
 		/config/load-environment.
-
-		CONFIG_STANDALONE_LOAD_ADDR
-
-		This option defines a board specific value for the
-		address where standalone program gets loaded, thus
-		overwriting the architecture dependent default
-		settings.
 
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
@@ -1477,24 +1404,6 @@ Configuration Settings:
 - CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 		Use buffered writes to flash.
 
-- CONFIG_FLASH_SPANSION_S29WS_N
-		s29ws-n MirrorBit flash has non-standard addresses for buffered
-		write commands.
-
-- CONFIG_FLASH_SHOW_PROGRESS
-		If defined (must be an integer), print out countdown
-		digits and dots.  Recommended value: 45 (9..1) for 80
-		column displays, 15 (3..1) for 40 column displays.
-
-- CONFIG_FLASH_VERIFY
-		If defined, the content of the flash (destination) is compared
-		against the source after the write operation. An error message
-		will be printed when the contents are not identical.
-		Please note that this option is useless in nearly all cases,
-		since such flash programming errors usually are detected earlier
-		while unprotecting/erasing/programming. Please only enable
-		this option if you really know what you are doing.
-
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
 - CONFIG_ENV_FLAGS_LIST_STATIC
 	Enable validation of the values given to environment variables when
@@ -1541,11 +1450,6 @@ Configuration Settings:
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
 following configurations:
-
-- CONFIG_BUILD_ENVCRC:
-
-	Builds up envcrc with the target environment so that external utils
-	may easily extract it and embed it in final U-Boot images.
 
 BE CAREFUL! The first access to the environment happens quite early
 in U-Boot initialization (when we try to get the setting of for the

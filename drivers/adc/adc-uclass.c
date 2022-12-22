@@ -22,7 +22,7 @@
 #define CHECK_MASK			(!CHECK_NUMBER)
 
 /* TODO: add support for timer uclass (for early calls) */
-#ifdef CONFIG_SANDBOX_ARCH
+#ifdef CONFIG_SANDBOX
 #define sdelay(x)	udelay(x)
 #else
 extern void sdelay(unsigned long loops);

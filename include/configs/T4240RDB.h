@@ -16,7 +16,6 @@
 
 #ifdef CONFIG_RAMBOOT_PBL
 #ifndef CONFIG_SDCARD
-#define CONFIG_RAMBOOT_TEXT_BASE        CONFIG_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
 #else
 #define RESET_VECTOR_OFFSET		0x27FFC
@@ -42,13 +41,6 @@
 #define CFG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
 /*
- * These can be toggled for performance analysis, otherwise use default.
- */
-#ifdef CONFIG_DDR_ECC
-#define CONFIG_MEM_INIT_VALUE		0xdeadbeef
-#endif
-
-/*
  *  Config the L3 Cache as L3 SRAM
  */
 #define CFG_SYS_INIT_L3_ADDR		0xFFFC0000
@@ -60,7 +52,6 @@
 /*
  * DDR Setup
  */
-#define CONFIG_VERY_BIG_RAM
 #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
 #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
@@ -71,7 +62,6 @@
 #define CFG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CFG_SYS_FLASH_BASE)
 
 /* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CFG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
 #define CFG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe03c000
@@ -138,8 +128,6 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_ROOTPATH		"/opt/nfsroot"
-#define CONFIG_UBOOTPATH	"u-boot.bin"	/* U-Boot image on TFTP server*/
 
 #define HVBOOT					\
 	"setenv bootargs config-addr=0x60000000; "	\
@@ -183,8 +171,6 @@
 				FTIM2_NOR_TWPH(0x0E) | \
 				FTIM2_NOR_TWP(0x1c))
 #define CFG_SYS_NOR_FTIM3	0x0
-
-#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
 #define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE_PHYS \
 					+ 0x8000000, CFG_SYS_FLASH_BASE_PHYS}
@@ -388,7 +374,7 @@
 	"bank_intlv=auto;"					\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
-	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"uboot=" CONFIG_UBOOTPATH "\0"		\
 	"ubootaddr=" __stringify(CONFIG_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
 	"protect off $ubootaddr +$filesize && "			\

@@ -10,6 +10,12 @@ config TEGRA_PMU
 config TEGRA_CLOCK_SCALING
 	bool
 
+config TEGRA_UARTA_GPU
+	bool
+
+config TEGRA_UARTA_SDIO1
+	bool
+
 choice
 	prompt "Tegra20 board select"
 	optional
@@ -43,6 +49,7 @@ config TARGET_TEC
 config TARGET_TRIMSLICE
 	bool "Compulab TrimSlice board"
 	select BOARD_LATE_INIT
+	select TEGRA_UARTA_GPU
 
 config TARGET_VENTANA
 	bool "NVIDIA Tegra20 Ventana evaluation board"
@@ -51,6 +58,7 @@ config TARGET_VENTANA
 config TARGET_COLIBRI_T20
 	bool "Toradex Colibri T20 board"
 	select BOARD_LATE_INIT
+	select TEGRA_UARTA_SDIO1
 
 endchoice
 

@@ -51,6 +51,9 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
+config PEN_ADDR_BIG_ENDIAN
+	bool
+
 config SYS_CCI400_OFFSET
 	hex "Offset for CCI400 base"
 	depends on SYS_FSL_HAS_CCI400

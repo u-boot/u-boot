@@ -36,9 +36,6 @@
 
 #define CONFIG_MXC_UART_BASE		UART5_BASE
 
-/* I2C Configs */
-#define CONFIG_I2C_MULTI_BUS
-
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 #define CFG_SYS_FSL_USDHC_NUM	2
@@ -278,8 +275,6 @@
 	"\0" \
 
 /* Miscellaneous configurable options */
-
-#define CONFIG_STANDALONE_LOAD_ADDR	0x10001000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

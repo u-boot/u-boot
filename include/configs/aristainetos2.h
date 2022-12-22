@@ -11,8 +11,6 @@
 #ifndef __ARISTAINETOS2_CONFIG_H
 #define __ARISTAINETOS2_CONFIG_H
 
-#define CONFIG_HOSTNAME		"aristainetos2"
-
 #if (CONFIG_SYS_BOARD_VERSION == 5)
 #define CONSOLE_DEV	"ttymxc1"
 #elif (CONFIG_SYS_BOARD_VERSION == 6)

@@ -416,6 +416,9 @@ config POWER_HI6553
 config POWER_LTC3676
 	bool "Enable legacy driver for LTC3676 PMIC"
 
+config POWER_PCA9450
+	bool "Enable legacy driver for PCA9450 PMIC"
+
 config POWER_PFUZE100
 	bool "Enable legacy driver for PFUZE100 PMIC"
 

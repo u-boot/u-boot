@@ -19,9 +19,6 @@
 #define CONFIG_MALLOC_F_ADDR				0x184000
 /* For RAW image gives a error info not panic */
 
-#define CONFIG_POWER_PCA9450
-
-#define CONFIG_SYS_I2C
 #endif /* CONFIG_SPL_BUILD */
 
 #define MEM_LAYOUT_ENV_SETTINGS \

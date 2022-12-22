@@ -10,16 +10,6 @@
 
 #define CONFIG_IRAM_BASE		0xff8c0000
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_TPL_BOOTROM_SUPPORT)
-#else
-/*  BSS setup */
-#endif
-
-/* MMC/SD IP block */
-#define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
-
-/* RAW SD card / eMMC locations. */
-
 /* FAT sd card locations. */
 #define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xf8000000

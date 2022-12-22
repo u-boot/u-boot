@@ -14,7 +14,6 @@
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk()/4)
 
-#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #define SPD_EEPROM_ADDRESS		0x51
 
 
@@ -62,8 +61,6 @@
 #define CFG_SYS_IFC_CCR	0x01000000
 
 #ifndef SYS_NO_FLASH
-#define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
-
 #define CFG_SYS_FLASH_BANKS_LIST	{ CFG_SYS_FLASH_BASE,\
 					 CFG_SYS_FLASH_BASE + 0x40000000}
 #endif
@@ -99,7 +96,6 @@
 #define CFG_SYS_NAND_FTIM3		0x0
 
 #define CFG_SYS_NAND_BASE_LIST	{ CFG_SYS_NAND_BASE }
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 
 #define CFG_SYS_I2C_FPGA_ADDR	0x66
 #define QIXIS_LBMAP_SWITCH		6

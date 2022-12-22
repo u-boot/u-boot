@@ -15,11 +15,7 @@
 #define CONFIG_TEGRA_BOARD_STRING	"Google/NVIDIA Nyan-big"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTA
 #define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
-
-/* SPI */
-#define CONFIG_SPI_FLASH_SIZE          (4 << 20)
 
 #include "tegra-common-post.h"
 

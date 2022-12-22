@@ -20,14 +20,6 @@
 	env/embedded.o(.text*);
 
 #ifdef CONFIG_DRIVER_DM9000
-#	define CONFIG_DM9000_BASE	(CFG_SYS_CS1_BASE | 0x300)
-#	define DM9000_IO		CONFIG_DM9000_BASE
-#	define DM9000_DATA		(CONFIG_DM9000_BASE + 4)
-#	undef CONFIG_DM9000_DEBUG
-#	define CONFIG_DM9000_BYTE_SWAPPED
-
-#	define CONFIG_OVERWRITE_ETHADDR_ONCE
-
 #	define CONFIG_EXTRA_ENV_SETTINGS		\
 		"netdev=eth0\0"				\
 		"inpclk=" __stringify(CONFIG_SYS_INPUT_CLKSRC) "\0"	\
@@ -41,8 +33,6 @@
 		"save\0"				\
 		""
 #endif
-
-#define CONFIG_HOSTNAME		"M5253DEMO"
 
 /* I2C */
 #define CFG_SYS_I2C_PINMUX_REG	(*(u32 *) (CFG_SYS_MBAR+0x19C))

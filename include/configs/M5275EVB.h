@@ -38,10 +38,6 @@
 #define CFG_SYS_I2C_PINMUX_CLR	(0xFFF0)
 #define CFG_SYS_I2C_PINMUX_SET	(0x000F)
 
-#ifdef CONFIG_MCFFEC
-#	define CONFIG_OVERWRITE_ETHADDR_ONCE
-#endif				/* FEC_ENET */
-
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\

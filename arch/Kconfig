@@ -380,6 +380,10 @@ config SYS_IMMR
 	  Address for the Internal Memory-Mapped Registers (IMMR) window used
 	  to configure the features of many Freescale / NXP SoCs.
 
+config MONITOR_IS_IN_RAM
+	bool "U-Boot is loaded in to RAM by a pre-loader"
+	depends on M68K || NIOS2
+
 config SKIP_LOWLEVEL_INIT
 	bool "Skip the calls to certain low level initialization functions"
 	depends on ARM || MIPS || RISCV

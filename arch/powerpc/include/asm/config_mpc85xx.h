@@ -8,12 +8,6 @@
 
 /* SoC specific defines for Freescale MPC85xx (PQ3) and QorIQ processors */
 
-/*
- * This macro should be removed when we no longer care about backwards
- * compatibility with older operating systems.
- */
-#define CONFIG_PPC_SPINTABLE_COMPATIBLE
-
 #include <fsl_ddrc_version.h>
 
 #if defined(CONFIG_ARCH_MPC8548)
@@ -23,7 +17,6 @@
 #define CFG_SYS_FSL_SRIO_MSG_UNIT_NUM	2
 
 #elif defined(CONFIG_ARCH_P1010)
-#define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	4
 
 #elif defined(CONFIG_ARCH_P1021)
@@ -93,11 +86,9 @@
 #define CFG_SYS_FSL_CORENET_SNOOPVEC_COREONLY 0xf0000000
 
 #elif defined(CONFIG_ARCH_BSC9131)
-#define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	3
 
 #elif defined(CONFIG_ARCH_BSC9132)
-#define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	3
 
 #elif defined(CONFIG_ARCH_T4240)
@@ -136,8 +127,6 @@
 #define CFG_SYS_FM_MURAM_SIZE	0x60000
 
 #ifdef CONFIG_ARCH_B4860
-#define CONFIG_MAX_DSP_CPUS		12
-#define CONFIG_NUM_DSP_CPUS		6
 #define CFG_SYS_FSL_CLUSTER_CLOCKS	{ 1, 4, 4, 4 }
 #define CFG_SYS_NUM_FM1_DTSEC	6
 #define CFG_SYS_NUM_FM1_10GEC	2
@@ -145,7 +134,6 @@
 #define CFG_SYS_FSL_SRIO_OB_WIN_NUM	9
 #define CFG_SYS_FSL_SRIO_IB_WIN_NUM	5
 #else
-#define CONFIG_MAX_DSP_CPUS		2
 #define CFG_SYS_FSL_CLUSTER_CLOCKS	{ 1, 4 }
 #define CFG_SYS_NUM_FM1_DTSEC	4
 #define CFG_SYS_NUM_FM1_10GEC	0
@@ -173,7 +161,6 @@
 #define CFG_SYS_NUM_FMAN		1
 #define CFG_SYS_NUM_FM1_DTSEC	4
 #define CFG_SYS_NUM_FM1_10GEC	1
-#define CONFIG_FSL_FM_10GEC_REGULAR_NOTATION
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	8
 #define CFG_SYS_FM1_CLK		0
 #define CONFIG_QBMAN_CLK_DIV		1
@@ -204,7 +191,6 @@
 
 
 #elif defined(CONFIG_ARCH_C29X)
-#define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	8
 #define CFG_SYS_FSL_SEC_IDX_OFFSET	0x20000
 

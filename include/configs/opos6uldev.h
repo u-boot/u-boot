@@ -11,7 +11,6 @@
 #include "mx6_common.h"
 
 /* Miscellaneous configurable options */
-#define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR
 
 /* Physical Memory Map */
 #define CFG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
@@ -26,7 +25,5 @@
 
 /* LCD */
 #define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
-
-#define CONFIG_ROOTPATH         "/tftpboot/opos6ul-root"
 
 #endif /* __OPOS6ULDEV_CONFIG_H */

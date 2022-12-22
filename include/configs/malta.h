@@ -9,9 +9,6 @@
 /*
  * System configuration
  */
-#define CONFIG_MALTA
-
-#define CONFIG_MEMSIZE_IN_BYTES
 
 /*
  * CPU Configuration

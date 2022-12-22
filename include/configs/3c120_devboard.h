@@ -28,6 +28,5 @@
  */
 #define CFG_SYS_SDRAM_BASE		0xD0000000
 #define CFG_SYS_SDRAM_SIZE		0x08000000
-#define CONFIG_MONITOR_IS_IN_RAM
 
 #endif /* __CONFIG_H */

@@ -14,7 +14,6 @@
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA P3450-0000"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTA
 
 /* Only MMC/PXE/DHCP for now, add USB back in later when supported */
 #define BOOT_TARGET_DEVICES(func) \
@@ -22,9 +21,6 @@
 	func(MMC, mmc, 0) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
-
-/* Environment at end of QSPI, in the VER partition */
-#define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"preboot=if test -e mmc 1:1 /u-boot-preboot.scr; then " \
