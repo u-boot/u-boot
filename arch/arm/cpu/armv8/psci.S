@@ -81,6 +81,7 @@ PSCI_DEFAULT(psci_node_hw_state_64)
 PSCI_DEFAULT(psci_system_suspend_64)
 PSCI_DEFAULT(psci_stat_residency_64)
 PSCI_DEFAULT(psci_stat_count_64)
+PSCI_DEFAULT(psci_system_reset2_64)
 
 .align 3
 _psci_64_table:
@@ -94,6 +95,7 @@ PSCI_TABLE(ARM_PSCI_1_0_FN64_NODE_HW_STATE, psci_node_hw_state_64)
 PSCI_TABLE(ARM_PSCI_1_0_FN64_SYSTEM_SUSPEND, psci_system_suspend_64)
 PSCI_TABLE(ARM_PSCI_1_0_FN64_STAT_RESIDENCY, psci_stat_residency_64)
 PSCI_TABLE(ARM_PSCI_1_0_FN64_STAT_COUNT, psci_stat_count_64)
+PSCI_TABLE(ARM_PSCI_1_1_FN64_SYSTEM_RESET2, psci_system_reset2_64)
 PSCI_TABLE(0, 0)
 
 .macro	psci_enter
