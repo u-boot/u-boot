@@ -22,6 +22,7 @@
 #include <linux/bitops.h>
 #endif
 
+#define ARM_PSCI_VER_1_1		(0x00010001)
 #define ARM_PSCI_VER_1_0		(0x00010000)
 #define ARM_PSCI_VER_0_2		(0x00000002)
 
