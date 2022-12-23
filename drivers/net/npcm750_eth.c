@@ -710,12 +710,12 @@ static int npcm750_eth_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->phy_interface = -1;
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode", NULL);
+
 	if (phy_mode)
-		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
-	if (pdata->phy_interface == -1) {
-		printf("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		pdata->phy_interface = dev_read_phy_mode(dev);
+
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
-	}
 
 	pdata->max_speed = 0;
 	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);

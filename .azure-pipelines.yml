@@ -447,6 +447,8 @@ stages:
       matrix:
         arc_microblaze_xtensa:
           BUILDMAN: "arc microblaze xtensa"
+        amlogic:
+          BUILDMAN: "amlogic"
         arm11_arm7_arm920t_arm946es:
           BUILDMAN: "arm11 arm7 arm920t arm946es"
         arm926ejs:
@@ -476,9 +478,9 @@ stages:
         imx6:
           BUILDMAN: "mx6 -x boundary,engicam,freescale,technexion,toradex"
         imx:
-          BUILDMAN: "mx -x mx6,freescale,technexion,toradex"
-        imx8:
-          BUILDMAN: "imx8"
+          BUILDMAN: "mx -x mx6,imx8,freescale,technexion,toradex"
+        imx8_imx9:
+          BUILDMAN: "imx8 imx9"
         keystone2_keystone3:
           BUILDMAN: "k2 k3"
         sandbox_asan:
@@ -532,7 +534,7 @@ stages:
         uniphier:
           BUILDMAN: "uniphier"
         aarch64_catch_all:
-          BUILDMAN: "aarch64 -x bcm,imx8,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
+          BUILDMAN: "aarch64 -x amlogic,bcm,imx8,imx9,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
         rockchip:
           BUILDMAN: "rk"
         renesas:

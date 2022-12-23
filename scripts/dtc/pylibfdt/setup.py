@@ -22,9 +22,13 @@ allows this script to be run stand-alone, e.g.:
 
 from setuptools import setup, Extension
 from setuptools.command.build_py import build_py as _build_py
+from setuptools.extern.packaging import version
 import os
 import re
 import sys
+
+# Disable version normalization
+version.Version = version.LegacyVersion
 
 srcdir = os.path.dirname(__file__)
 
