@@ -8,12 +8,12 @@
 #ifndef __MX6SABREAUTO_CONFIG_H
 #define __MX6SABREAUTO_CONFIG_H
 
-#define CONFIG_MXC_UART_BASE	UART4_BASE
+#define CFG_MXC_UART_BASE	UART4_BASE
 #define CONSOLE_DEV		"ttymxc3"
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 #define CFG_SYS_I2C_PCA953X_WIDTH	{ {0x30, 8}, {0x32, 8}, {0x34, 8} }
 
@@ -36,6 +36,6 @@
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+#define CFG_POWER_PFUZE100_I2C_ADDR	0x08
 
 #endif                         /* __MX6SABREAUTO_CONFIG_H */

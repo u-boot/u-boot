@@ -19,7 +19,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"kernel_addr_r=0x84000000\0" \
 	"fdt_addr_r=0x88000000\0" \

@@ -13,7 +13,7 @@
 #define LDS_BOARD_TEXT						\
 	board/sysam/stmark2/sbf_dram_init.o (.text*)
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"kern_size=0x700000\0"					\
 	"loadaddr=0x40001000\0"					\
 		"-(rootfs)\0"					\
@@ -36,7 +36,7 @@
 
 /* Input, PCI, Flexbus, and VCO */
 
-#define CONFIG_PRAM			2048	/* 2048 KB */
+#define CFG_PRAM			2048	/* 2048 KB */
 
 #define CFG_SYS_MBAR			0xFC000000
 

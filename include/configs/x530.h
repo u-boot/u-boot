@@ -14,7 +14,7 @@
  * NS16550 Configuration
  */
 #define CFG_SYS_NS16550_CLK		CFG_SYS_TCLK
-#if !defined(CONFIG_DM_SERIAL)
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #define CFG_SYS_NS16550_COM1		MV_UART_CONSOLE_BASE
 #endif
 
@@ -47,7 +47,7 @@
 #include <asm/arch/config.h>
 
 /* Keep device tree and initrd in low memory so the kernel can access them */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 

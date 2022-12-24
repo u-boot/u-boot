@@ -10,23 +10,23 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
+#define CFG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
 /* Network */
-#define CONFIG_FEC_MXC_PHYADDR          0
+#define CFG_FEC_MXC_PHYADDR          0
 
 /* ENET1 */
 #define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
+#define CFG_POWER_PFUZE3000_I2C_ADDR	0x08
 
 #define CFG_SYS_I2C_PCA953X_ADDR	0x20
 #define CFG_SYS_I2C_PCA953X_WIDTH	{ {0x20, 16} }
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"loadscript=load ${storagetype} ${storagedev} ${loadaddr} ${script};\0" \
 	"loadkernel=load ${storagetype} ${storagedev} ${loadaddr} ${kernel};\0" \
@@ -96,7 +96,7 @@
 #endif
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS   0
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS   0
 
 #endif	/* __CONFIG_H */

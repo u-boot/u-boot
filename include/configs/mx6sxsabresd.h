@@ -12,7 +12,7 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 #ifdef CONFIG_IMX_BOOTAUX
 
@@ -34,7 +34,7 @@
 #define UPDATE_M4_ENV ""
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	UPDATE_M4_ENV \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -115,16 +115,16 @@
 
 /* Network */
 
-#define CONFIG_FEC_MXC_PHYADDR          0x1
+#define CFG_FEC_MXC_PHYADDR          0x1
 
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS   0
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS   0
 #endif
 
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(2, 0)
-#define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(2, 1)
+#define CFG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(2, 0)
+#define CFG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(2, 1)
 #endif
 
 #define MXS_LCDIF_BASE MX6SX_LCDIF1_BASE_ADDR

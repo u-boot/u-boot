@@ -553,6 +553,9 @@ config ARM64_SUPPORT_AARCH32
 	help
 	  This ARM64 system supports AArch32 execution state.
 
+config IPROC
+	bool
+
 config S5P
 	def_bool y if ARCH_EXYNOS || ARCH_S5PC1XX
 
@@ -658,6 +661,7 @@ config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select IPROC
 	imply BCM_SF2_ETH
 	imply BCM_SF2_ETH_GMAC
 	imply CMD_HASH

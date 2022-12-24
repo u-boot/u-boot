@@ -42,7 +42,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Extra environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	ENV_MEM_LAYOUT_SETTINGS		\
 	BOOTENV
 

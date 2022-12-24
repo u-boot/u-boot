@@ -51,7 +51,7 @@
 	"name_fs=arago-base-tisdk-image-k2g-evm.cpio\0"
 
 /* Network */
-#define CONFIG_KSNET_CPSW_NUM_PORTS	2
+#define CFG_KSNET_CPSW_NUM_PORTS	2
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
 #define SPI_MTD_PARTS	KEYSTONE_SPI1_MTD_PARTS

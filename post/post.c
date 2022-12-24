@@ -16,7 +16,7 @@
 #include <post.h>
 #include <asm/global_data.h>
 
-#ifdef CONFIG_SYS_POST_HOTKEYS_GPIO
+#ifdef CFG_SYS_POST_HOTKEYS_GPIO
 #include <asm/gpio.h>
 #endif
 
@@ -55,9 +55,9 @@ int post_init_f(void)
  */
 __weak int post_hotkeys_pressed(void)
 {
-#ifdef CONFIG_SYS_POST_HOTKEYS_GPIO
+#ifdef CFG_SYS_POST_HOTKEYS_GPIO
 	int ret;
-	unsigned gpio = CONFIG_SYS_POST_HOTKEYS_GPIO;
+	unsigned gpio = CFG_SYS_POST_HOTKEYS_GPIO;
 
 	ret = gpio_request(gpio, "hotkeys");
 	if (ret) {

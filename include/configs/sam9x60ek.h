@@ -14,8 +14,8 @@
 #define CFG_SYS_AT91_SLOW_CLOCK	32768
 #define CFG_SYS_AT91_MAIN_CLOCK	24000000	/* 24 MHz crystal */
 
-#define CONFIG_USART_BASE   ATMEL_BASE_DBGU
-#define CONFIG_USART_ID     0 /* ignored in arm */
+#define CFG_USART_BASE   ATMEL_BASE_DBGU
+#define CFG_USART_ID     0 /* ignored in arm */
 
 /*
  * define CONFIG_USB_EHCI_HCD to enable USB Hi-Speed (aka 2.0)

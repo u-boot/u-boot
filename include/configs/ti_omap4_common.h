@@ -28,7 +28,7 @@
  * Hardware drivers
  */
 #define CFG_SYS_NS16550_CLK		48000000
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #define CFG_SYS_NS16550_COM3		UART3_BASE
 #endif
 
@@ -58,7 +58,7 @@
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \

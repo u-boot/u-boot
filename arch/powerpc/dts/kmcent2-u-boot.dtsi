@@ -91,7 +91,7 @@
 			align = <256>;
 		};
 		powerpc-mpc85xx-bootpg-resetvec {
-			offset = <(CONFIG_RESET_VECTOR_ADDRESS - 0xffc)>;
+			offset = <(CFG_RESET_VECTOR_ADDRESS - 0xffc)>;
 		};
 	};
 };

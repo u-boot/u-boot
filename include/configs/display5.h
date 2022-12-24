@@ -34,7 +34,7 @@
 #define CFG_SYS_SPI_ARGS_OFFS        0x140000
 #define CFG_SYS_SPI_ARGS_SIZE        0x10000
 
-#define CONFIG_MXC_UART_BASE		UART5_BASE
+#define CFG_MXC_UART_BASE		UART5_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
@@ -164,7 +164,7 @@
 		"sf write ${loadaddr} 0x0 ${filesize};" \
 	"fi\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS	  \
+#define CFG_EXTRA_ENV_SETTINGS	  \
 	PARTS_DEFAULT \
 	"gpio_recovery=93\0" \
 	"check_em_pad=gpio input ${gpio_recovery};test $? -eq 0;\0" \
@@ -288,5 +288,5 @@
 /* The 0x120000 value corresponds to above SPI-NOR memory MAP */
 #endif
 
-#define CONFIG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif /* __CONFIG_H */

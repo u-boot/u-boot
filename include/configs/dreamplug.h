@@ -17,7 +17,7 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"x_bootcmd_ethernet=ping 192.168.2.1\0"	\
 	"x_bootcmd_usb=usb start\0"	\
 	"x_bootcmd_kernel=fatload usb 0 0x6400000 uImage\0" \

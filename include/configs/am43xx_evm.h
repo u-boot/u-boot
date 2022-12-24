@@ -8,7 +8,7 @@
 #ifndef __CONFIG_AM43XX_EVM_H
 #define __CONFIG_AM43XX_EVM_H
 
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
+#define CFG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
 #define CFG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
 #include <asm/arch/omap.h>
@@ -66,7 +66,7 @@
 #ifndef CONFIG_SPL_BUILD
 #include <environment/ti/dfu.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"fdtfile=undefined\0" \
 	"finduuid=part uuid mmc 0:2 uuid\0" \
@@ -152,7 +152,7 @@
 
 #if defined(CONFIG_TI_SECURE_DEVICE)
 /* Avoid relocating onto firewalled area at end of DRAM */
-#define CONFIG_PRAM (64 * 1024)
+#define CFG_PRAM (64 * 1024)
 #endif /* CONFIG_TI_SECURE_DEVICE */
 
 #endif	/* __CONFIG_AM43XX_EVM_H */

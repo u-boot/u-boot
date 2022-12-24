@@ -9,7 +9,7 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_IRAM_BASE	0x10080000
+#define CFG_IRAM_BASE	0x10080000
 
 /* spl size 32kb sram - 2kb bootrom */
 
@@ -31,7 +31,7 @@
 
 /* Linux fails to load the fdt if it's loaded above 256M on a Rock board,
  * so limit the fdt reallocation to that */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdt_high=0x6fffffff\0" \
 	"initrd_high=0x6fffffff\0" \

@@ -34,8 +34,8 @@
 
 /* Misc CPU related */
 
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CFG_USART_BASE		ATMEL_BASE_DBGU
+#define CFG_USART_ID			ATMEL_ID_SYS
 
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
@@ -72,7 +72,7 @@
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
 
 #if defined(CONFIG_BOARD_AXM)
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:" \
 		"${gatewayip}:${netmask}:${hostname}:${netdev}::off\0" \
 	"addtest=setenv bootargs ${bootargs} loglevel=4 test\0" \

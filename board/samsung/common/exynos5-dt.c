@@ -179,9 +179,9 @@ char *get_dfu_alt_boot(char *interface, char *devstr)
 		return NULL;
 
 	if (IS_SD(mmc))
-		alt_boot = CONFIG_DFU_ALT_BOOT_SD;
+		alt_boot = CFG_DFU_ALT_BOOT_SD;
 	else
-		alt_boot = CONFIG_DFU_ALT_BOOT_EMMC;
+		alt_boot = CFG_DFU_ALT_BOOT_EMMC;
 
 	return alt_boot;
 }

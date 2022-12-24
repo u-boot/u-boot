@@ -20,7 +20,7 @@
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
 
-#define CONFIG_DFU_ALT_SYSTEM               \
+#define CFG_DFU_ALT_SYSTEM               \
 	"uImage fat 0 1;"                   \
 	"zImage fat 0 1;"                   \
 	"Image.itb fat 0 1;"                \
@@ -34,14 +34,14 @@
 	"boot part 0 1;"                    \
 	"root part 0 2\0"
 
-#define CONFIG_DFU_ALT_BOOT_EMMC           \
+#define CFG_DFU_ALT_BOOT_EMMC           \
 	"u-boot raw 0x3e 0x800 mmcpart 1;" \
 	"bl1 raw 0x0 0x1e mmcpart 1;"      \
 	"bl2 raw 0x1e 0x1d mmcpart 1;"     \
 	"tzsw raw 0x83e 0x200 mmcpart 1;"  \
 	"params.bin raw 0x1880 0x20\0"
 
-#define CONFIG_DFU_ALT_BOOT_SD   \
+#define CFG_DFU_ALT_BOOT_SD   \
 	"u-boot raw 0x3f 0x800;" \
 	"bl1 raw 0x1 0x1e;"      \
 	"bl2 raw 0x1f 0x1d;"     \
@@ -49,10 +49,10 @@
 	"params.bin raw 0x1880 0x20\0"
 
 /* Enable: board/samsung/common/misc.c to use set_dfu_alt_info() */
-#define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
+#define CFG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
 /* Set soc_rev, soc_id, board_rev, board_name, fdtfile */
-#define CONFIG_ODROID_REV_AIN		9
+#define CFG_ODROID_REV_AIN		9
 
 /*
  * Need to override existing one (smdk5420) with odroid so set_board_info will
@@ -60,8 +60,8 @@
  */
 
 /* Define new extra env settings, including DFU settings */
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS \
 	EXYNOS_DEVICE_SETTINGS \
 	EXYNOS_FDTFILE_SETTING \
 	MEM_LAYOUT_ENV_SETTINGS \
@@ -75,7 +75,7 @@
 	"mmcrootdev=0\0" \
 	"mmcbootpart=1\0" \
 	"mmcrootpart=2\0" \
-	"dfu_alt_system="CONFIG_DFU_ALT_SYSTEM \
+	"dfu_alt_system="CFG_DFU_ALT_SYSTEM \
 	"dfu_alt_info=Autoset by THOR/DFU command run.\0"
 
 #endif	/* __CONFIG_H */

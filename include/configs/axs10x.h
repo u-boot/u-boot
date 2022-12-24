@@ -39,7 +39,7 @@
 /*
  * Environment settings
  */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"upgrade=if mmc rescan && " \
 		"fatload mmc 0:1 ${loadaddr} u-boot-update.img && " \
 		"iminfo ${loadaddr} && source ${loadaddr}; then; else echo " \

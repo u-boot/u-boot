@@ -11,7 +11,7 @@
 
 #define CFG_SYS_HZ_CLOCK		24000000
 
-#define CONFIG_IRAM_BASE		0xff700000
+#define CFG_IRAM_BASE		0xff700000
 
 /* RAW SD card / eMMC locations. */
 
@@ -30,7 +30,7 @@
 
 /* Linux fails to load the fdt if it's loaded above 256M on a Rock 2 board, so
  * limit the fdt reallocation to that */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0x0fffffff\0" \
 	"initrd_high=0x0fffffff\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \

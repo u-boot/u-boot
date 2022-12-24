@@ -167,7 +167,7 @@ void sdram_init(void)
 
 	/* Detect memory physically present */
 	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
-				    CONFIG_MAX_RAM_BANK_SIZE);
+				    CFG_MAX_RAM_BANK_SIZE);
 
 	/* Reconfigure memory for actual detected size */
 	switch (gd->ram_size) {

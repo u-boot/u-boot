@@ -41,7 +41,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SET_DFU_ALT_INFO
 void set_dfu_alt_info(char *interface, char *devstr)
 {
-	size_t buf_size = CONFIG_SET_DFU_ALT_BUF_LEN;
+	size_t buf_size = CFG_SET_DFU_ALT_BUF_LEN;
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, buf_size);
 	char *alt_info = "Settings not found!";
 	char *status = "error!\n";

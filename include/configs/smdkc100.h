@@ -28,7 +28,7 @@
 				" mem=128M " \
 				" " CONFIG_MTDPARTS_DEFAULT
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x40000;" \
 		"onenand write 0x32008000 0x0 0x40000\0" \
@@ -94,7 +94,7 @@
  * Ethernet Contoller driver
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
+#define CFG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
 #endif /* CONFIG_CMD_NET */
 
 #endif	/* __CONFIG_H */

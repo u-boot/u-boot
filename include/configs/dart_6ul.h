@@ -18,7 +18,7 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_ENET_DEV		0
+#define CFG_FEC_ENET_DEV		0
 #endif
 
 /* Environment settings */
@@ -28,7 +28,7 @@
 #define MMC_ROOTFS_PART			2
 
 /* Console configs */
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 
@@ -47,8 +47,8 @@
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 
 #define ENV_MMC \
 	"mmcdev=" __stringify(MMC_ROOTFS_DEV) "\0" \
@@ -68,7 +68,7 @@
 	"mmc_mmc_fit=run mmcloadfit;run mmcargs addcon; bootm ${fit_addr}\0" \
 
 /* Default environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"console=ttymxc0,115200n8\0" \
 	"addcon=setenv bootargs ${bootargs} console=${console},${baudrate}\0" \

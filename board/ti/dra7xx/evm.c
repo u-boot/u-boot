@@ -277,13 +277,13 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	case DRA752_ES2_0:
 		switch (emif_nr) {
 		case 1:
-			if (ram_size > CONFIG_MAX_MEM_MAPPED)
+			if (ram_size > CFG_MAX_MEM_MAPPED)
 				*regs = &emif1_ddr3_532_mhz_1cs_2G;
 			else
 				*regs = &emif1_ddr3_532_mhz_1cs;
 			break;
 		case 2:
-			if (ram_size > CONFIG_MAX_MEM_MAPPED)
+			if (ram_size > CFG_MAX_MEM_MAPPED)
 				*regs = &emif2_ddr3_532_mhz_1cs_2G;
 			else
 				*regs = &emif2_ddr3_532_mhz_1cs;
@@ -301,7 +301,7 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	case DRA722_ES1_0:
 	case DRA722_ES2_0:
 	case DRA722_ES2_1:
-		if (ram_size < CONFIG_MAX_MEM_MAPPED)
+		if (ram_size < CFG_MAX_MEM_MAPPED)
 			*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra_es1;
 		else
 			*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra_es2;
@@ -360,7 +360,7 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
 	case DRA752_ES2_0:
-		if (ram_size > CONFIG_MAX_MEM_MAPPED)
+		if (ram_size > CFG_MAX_MEM_MAPPED)
 			*dmm_lisa_regs = &lisa_map_dra7_2GB;
 		else
 			*dmm_lisa_regs = &lisa_map_dra7_1536MB;
@@ -369,7 +369,7 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 	case DRA722_ES2_0:
 	case DRA722_ES2_1:
 	default:
-		if (ram_size < CONFIG_MAX_MEM_MAPPED)
+		if (ram_size < CFG_MAX_MEM_MAPPED)
 			*dmm_lisa_regs = &lisa_map_2G_x_2;
 		else
 			*dmm_lisa_regs = &lisa_map_2G_x_4;
@@ -644,9 +644,9 @@ int dram_init_banksize(void)
 
 	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
-	if (ram_size > CONFIG_MAX_MEM_MAPPED) {
+	if (ram_size > CFG_MAX_MEM_MAPPED) {
 		gd->bd->bi_dram[1].start = 0x200000000;
-		gd->bd->bi_dram[1].size = ram_size - CONFIG_MAX_MEM_MAPPED;
+		gd->bd->bi_dram[1].size = ram_size - CFG_MAX_MEM_MAPPED;
 	}
 
 	return 0;

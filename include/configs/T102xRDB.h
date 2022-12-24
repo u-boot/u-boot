@@ -28,7 +28,7 @@
 #endif
 
 #ifdef CONFIG_SPIFLASH
-#define CONFIG_RESET_VECTOR_ADDRESS		0x30000FFC
+#define CFG_RESET_VECTOR_ADDRESS		0x30000FFC
 #define CFG_SYS_SPI_FLASH_U_BOOT_SIZE	(768 << 10)
 #define CFG_SYS_SPI_FLASH_U_BOOT_DST		(0x30000000)
 #define CFG_SYS_SPI_FLASH_U_BOOT_START	(0x30000000)
@@ -36,7 +36,7 @@
 #endif
 
 #ifdef CONFIG_SDCARD
-#define CONFIG_RESET_VECTOR_ADDRESS	0x30000FFC
+#define CFG_RESET_VECTOR_ADDRESS	0x30000FFC
 #define CFG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CFG_SYS_MMC_U_BOOT_DST	(0x30000000)
 #define CFG_SYS_MMC_U_BOOT_START	(0x30000000)
@@ -45,8 +45,8 @@
 
 #endif /* CONFIG_RAMBOOT_PBL */
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 /*
@@ -87,7 +87,7 @@
 #define CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR (CONFIG_TEXT_BASE & 0xfff00000)
 #define CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS	\
 		(0x300000000ull | CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR)
-#define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
+#define CFG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 
 /*
@@ -430,7 +430,7 @@
 	"fdtfile=t1023rdb/t1023rdb.dtb\0"
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	ARCH_EXTRA_ENV_SETTINGS					\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"  \

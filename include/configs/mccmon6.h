@@ -17,7 +17,7 @@
  * mode from SD card (SD2)
  */
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configuration */
 #define CFG_SYS_FSL_USDHC_NUM	2
@@ -31,9 +31,9 @@
 #define CFG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }
 
 /* Ethernet Configuration */
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CFG_FEC_MXC_PHYADDR		1
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200 quiet\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

@@ -112,10 +112,10 @@ int checkboard(void)
 }
 #endif
 
-#ifdef CONFIG_SMP_PEN_ADDR
+#ifdef CFG_SMP_PEN_ADDR
 void smp_set_core_boot_addr(unsigned long addr, int corenr)
 {
-	writel(addr, CONFIG_SMP_PEN_ADDR);
+	writel(addr, CFG_SMP_PEN_ADDR);
 
 	/* make sure this write is really executed */
 	__asm__ volatile ("dsb\n");

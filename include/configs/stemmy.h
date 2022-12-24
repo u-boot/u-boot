@@ -38,7 +38,7 @@
 #define BOOTCMD_ENV \
 	"fastbootcmd=echo '*** FASTBOOT MODE ***'; fastboot usb 0\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOT_ENV \
 	CONSOLE_ENV \
 	FASTBOOT_ENV \

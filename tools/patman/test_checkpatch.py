@@ -396,7 +396,7 @@ index 0000000..2234c87
         """Test for enabling/disabling commands using preprocesor"""
         pm = PatchMaker()
         pm.add_line('common/main.c', '#undef CONFIG_CMD_WHICH')
-        self.check_single_message(pm, 'DEFINE_CONFIG_CMD', 'error')
+        self.check_single_message(pm, 'DEFINE_CONFIG_SYM', 'error')
 
     def test_barred_include_in_hdr(self):
         """Test for using a barred include in a header file"""

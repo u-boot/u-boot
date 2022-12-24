@@ -24,17 +24,17 @@ static void smc9115_pre_init(void)
 	u32 smc_bw_conf, smc_bc_conf;
 
 	/* gpio configuration GPK0CON */
-	gpio_cfg_pin(EXYNOS4_GPIO_Y00 + CONFIG_ENV_SROM_BANK, S5P_GPIO_FUNC(2));
+	gpio_cfg_pin(EXYNOS4_GPIO_Y00 + CFG_ENV_SROM_BANK, S5P_GPIO_FUNC(2));
 
 	/* Ethernet needs bus width of 16 bits */
-	smc_bw_conf = SROMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK);
+	smc_bw_conf = SROMC_DATA16_WIDTH(CFG_ENV_SROM_BANK);
 	smc_bc_conf = SROMC_BC_TACS(0x0F) | SROMC_BC_TCOS(0x0F)
 			| SROMC_BC_TACC(0x0F) | SROMC_BC_TCOH(0x0F)
 			| SROMC_BC_TAH(0x0F)  | SROMC_BC_TACP(0x0F)
 			| SROMC_BC_PMC(0x0F);
 
 	/* Select and configure the SROMC bank */
-	s5p_config_sromc(CONFIG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
+	s5p_config_sromc(CFG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
 }
 
 int board_init(void)

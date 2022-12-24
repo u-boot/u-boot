@@ -3,30 +3,15 @@
 # (C) Copyright 2006-2009
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifdef CONFIG_SPL_BUILD
-
-ifeq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)DM_SERIAL),yy)
+ifeq ($(CONFIG_$(SPL_TPL_)DM_SERIAL),y)
 obj-y += serial-uclass.o
 else
 obj-y += serial.o
 endif
 
-else
-
-ifdef CONFIG_DM_SERIAL
-obj-y += serial-uclass.o
-else
-obj-y += serial.o
-endif
-
-endif
-
-ifdef CONFIG_DM_SERIAL
 obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
-else
 obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_$(SPL_)SYS_NS16550_SERIAL) += serial_ns16550.o
-endif
 
 obj-$(CONFIG_ALTERA_UART) += altera_uart.o
 obj-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o

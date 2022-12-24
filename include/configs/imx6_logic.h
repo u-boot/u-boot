@@ -8,7 +8,7 @@
 #ifndef __IMX6LOGIC_CONFIG_H
 #define __IMX6LOGIC_CONFIG_H
 
-#define CONFIG_MXC_UART_BASE   UART1_BASE
+#define CFG_MXC_UART_BASE   UART1_BASE
 #define CONSOLE_DEV            "ttymxc0"
 
 #include "mx6_common.h"
@@ -19,9 +19,9 @@
 
 
 /* Ethernet Configs */
-#define CONFIG_FEC_MXC_PHYADDR         0
+#define CFG_FEC_MXC_PHYADDR         0
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"bootm_size=0x10000000\0" \
@@ -117,8 +117,8 @@
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 #endif
 
 /* Falcon Mode */

@@ -21,7 +21,7 @@
 
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_FEC_MXC_PHYADDR          0
+#define CFG_FEC_MXC_PHYADDR          0
 
 /* I2C Configs */
 
@@ -44,7 +44,7 @@
 	"rdaddr=0x84080000\0" \
 	"ramdisk_addr_r=0x84080000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \

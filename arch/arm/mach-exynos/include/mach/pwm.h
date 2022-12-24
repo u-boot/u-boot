@@ -49,6 +49,11 @@ struct s5p_timer {
 	unsigned int	tcnto4;
 	unsigned int	tintcstat;
 };
+
+int s5p_pwm_init (int pwm_id, int div, int invert);
+int s5p_pwm_config (int pwm_id, int duty_ns, int period_ns);
+int s5p_pwm_enable (int pwm_id);
+void s5p_pwm_disable (int pwm_id);
 #endif	/* __ASSEMBLY__ */
 
 #endif

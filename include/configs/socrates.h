@@ -111,7 +111,7 @@
 #define CFG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux	*/
 
 
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define	CFG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"consdev=ttyS0\0"						\
 	"uboot_file=/home/tftp/syscon3/u-boot.bin\0"			\

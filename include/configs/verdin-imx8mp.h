@@ -16,7 +16,7 @@
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
 
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR				0x184000
+#define CFG_MALLOC_F_ADDR				0x184000
 /* For RAW image gives a error info not panic */
 
 #endif /* CONFIG_SPL_BUILD */
@@ -43,7 +43,7 @@
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"bootcmd_mfg=fastboot 0\0" \

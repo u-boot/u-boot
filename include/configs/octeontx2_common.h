@@ -15,7 +15,7 @@
 /** Stack starting address */
 
 /** Extra environment settings */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 					"loadaddr=20080000\0"	\
 					"ethrotate=yes\0"
 

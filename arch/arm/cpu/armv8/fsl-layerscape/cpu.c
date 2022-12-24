@@ -1308,13 +1308,13 @@ phys_size_t get_effective_memsize(void)
 	 * allocated from first region. If the memory extends to  the second
 	 * region (or the third region if applicable), Management Complex (MC)
 	 * memory should be put into the highest region, i.e. the end of DDR
-	 * memory. CONFIG_MAX_MEM_MAPPED is set to the size of first region so
+	 * memory. CFG_MAX_MEM_MAPPED is set to the size of first region so
 	 * U-Boot doesn't relocate itself into higher address. Should DDR be
 	 * configured to skip the first region, this function needs to be
 	 * adjusted.
 	 */
-	if (gd->ram_size > CONFIG_MAX_MEM_MAPPED) {
-		ea_size = CONFIG_MAX_MEM_MAPPED;
+	if (gd->ram_size > CFG_MAX_MEM_MAPPED) {
+		ea_size = CFG_MAX_MEM_MAPPED;
 		rem = gd->ram_size - ea_size;
 	} else {
 		ea_size = gd->ram_size;

@@ -11,18 +11,18 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MXC_UART_BASE	       UART2_BASE
+#define CFG_MXC_UART_BASE	       UART2_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR      0
 #define CFG_SYS_FSL_USDHC_NUM       2
 
 #define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR		6
+#define CFG_FEC_MXC_PHYADDR		6
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 #ifdef CONFIG_CMD_MMC
 #define DISTRO_BOOT_DEV_MMC(func) func(MMC, mmc, 0) func(MMC, mmc, 1)
@@ -64,7 +64,7 @@
 #include <config_distro_bootcmd.h>
 #include <linux/stringify.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

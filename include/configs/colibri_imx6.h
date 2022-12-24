@@ -15,7 +15,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
@@ -23,8 +23,8 @@
 
 /* USB Configs */
 /* Host */
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 
 /* Command definition */
 
@@ -56,7 +56,7 @@
 	"ramdisk_addr_r=0x18400000\0" \
 	"scriptaddr=0x18280000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"boot_file=zImage\0" \
 	"boot_script_dhcp=boot.scr\0" \

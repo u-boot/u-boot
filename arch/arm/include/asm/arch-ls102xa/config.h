@@ -70,7 +70,7 @@
 /* SATA */
 #define AHCI_BASE_ADDR				(CONFIG_SYS_IMMR + 0x02200000)
 #ifdef CONFIG_DDR_SPD
-#define CONFIG_MAX_MEM_MAPPED			((phys_size_t)2 << 30)
+#define CFG_MAX_MEM_MAPPED			((phys_size_t)2 << 30)
 #endif
 
 #define DCU_LAYER_MAX_NUM			16

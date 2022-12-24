@@ -56,7 +56,7 @@
 #define BOARD_DFU_BUTTON_GPIO	27
 #define GPIO_LAN9303_NRST	88	/* GPIO2_24 = gpio88 */
 /* In dfu mode keep led1 on */
-#define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+#define CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"button_dfu0=27\0" \
 	"button_dfu1=87\0" \
 	"led0=3,0,1\0" \
@@ -67,7 +67,7 @@
 	"led5=63,0,1\0"
 
 /* Physical Memory Map */
-#define CONFIG_MAX_RAM_BANK_SIZE       (1024 << 20)    /* 1GB */
+#define CFG_MAX_RAM_BANK_SIZE       (1024 << 20)    /* 1GB */
 
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
@@ -93,8 +93,8 @@
 	"u-boot.env1 mtddev;" \
 	"rootfs mtddevubi" \
 
-#undef CONFIG_ENV_SETTINGS_NAND_V2
-#define CONFIG_ENV_SETTINGS_NAND_V2 \
+#undef CFG_ENV_SETTINGS_NAND_V2
+#define CFG_ENV_SETTINGS_NAND_V2 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
@@ -128,14 +128,14 @@
 	COMMON_ENV_NAND_CMDS
 
 /* Default env settings */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"hostname=etamin\0" \
 	"ubi_off=4096\0"\
 	"nand_img_size=0x400000\0" \
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
-	CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
-	CONFIG_ENV_SETTINGS_V2 \
-	CONFIG_ENV_SETTINGS_NAND_V2
+	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	CFG_ENV_SETTINGS_V2 \
+	CFG_ENV_SETTINGS_NAND_V2
 
 #endif	/* ! __CONFIG_ETAMIN_H */

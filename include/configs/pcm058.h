@@ -39,7 +39,7 @@
 	"nandloadfit=ubi part rootfs;ubi readvol ${loadaddr} fit\0" \
 	"nandboot=run nandloadfit;run nandargs;bootm ${loadaddr}\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x30000000\0" \
 	"optargs=rw rootwait\0" \
 	ENV_MMC \

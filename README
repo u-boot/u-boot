@@ -413,12 +413,12 @@ The following options need to be configured:
 					controller register space
 
 - Serial Ports:
-		CONFIG_PL011_CLOCK
+		CFG_PL011_CLOCK
 
 		If you have Amba PrimeCell PL011 UARTs, set this variable to
 		the clock speed of the UARTs.
 
-		CONFIG_PL01x_PORTS
+		CFG_PL01x_PORTS
 
 		If you have Amba PrimeCell PL010 or PL011 UARTs on your board,
 		define this to a list of base addresses for each (supported)
@@ -541,13 +541,13 @@ The following options need to be configured:
 		CONFIG_SH_ETHER
 		Support for Renesas on-chip Ethernet controller
 
-			CONFIG_SH_ETHER_USE_PORT
+			CFG_SH_ETHER_USE_PORT
 			Define the number of ports to be used
 
-			CONFIG_SH_ETHER_PHY_ADDR
+			CFG_SH_ETHER_PHY_ADDR
 			Define the ETH PHY's address
 
-			CONFIG_SH_ETHER_CACHE_WRITEBACK
+			CFG_SH_ETHER_CACHE_WRITEBACK
 			If this option is set, the driver enables cache flush.
 
 - TPM Support:
@@ -843,7 +843,7 @@ The following options need to be configured:
 		CFG_SYS_NUM_I2C_BUSES
 		Hold the number of i2c buses you want to use.
 
-		CONFIG_SYS_I2C_DIRECT_BUS
+		CFG_SYS_I2C_DIRECT_BUS
 		define this, if you don't use i2c muxes on your hardware.
 		if CFG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
 		omit this define.
@@ -855,7 +855,7 @@ The following options need to be configured:
 
 		CFG_SYS_I2C_BUSES
 		hold a list of buses you want to use, only used if
-		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
+		CFG_SYS_I2C_DIRECT_BUS is not defined, for example
 		a board with CFG_SYS_I2C_MAX_HOPS = 1 and
 		CFG_SYS_NUM_I2C_BUSES = 9:
 
@@ -955,7 +955,7 @@ The following options need to be configured:
 		You should define these to the GPIO value as given directly to
 		the generic GPIO functions.
 
-		CONFIG_I2C_MULTI_BUS
+		CFG_I2C_MULTI_BUS
 
 		This option allows the use of multiple I2C buses, each of which
 		must have a controller.	 At any point in time, only one bus is
@@ -1018,7 +1018,7 @@ The following options need to be configured:
 		will require a board or device specific function to
 		be written.
 
-		CONFIG_FPGA_DELAY
+		CFG_FPGA_DELAY
 
 		If defined, a function that provides delays in the FPGA
 		configuration driver.
@@ -1066,14 +1066,14 @@ The following options need to be configured:
 		The same can be accomplished in a more flexible way
 		for any variable by configuring the type of access
 		to allow for those variables in the ".flags" variable
-		or define CONFIG_ENV_FLAGS_LIST_STATIC.
+		or define CFG_ENV_FLAGS_LIST_STATIC.
 
 - Protected RAM:
-		CONFIG_PRAM
+		CFG_PRAM
 
 		Define this variable to enable the reservation of
 		"protected RAM", i. e. RAM which is not overwritten
-		by U-Boot. Define CONFIG_PRAM to hold the number of
+		by U-Boot. Define CFG_PRAM to hold the number of
 		kB you want to reserve for pRAM. You can overwrite
 		this default value by defining an environment
 		variable "pram" to the number of kB you want to
@@ -1124,7 +1124,7 @@ The following options need to be configured:
 		symbols.
 
 - Default Environment:
-		CONFIG_EXTRA_ENV_SETTINGS
+		CFG_EXTRA_ENV_SETTINGS
 
 		Define this to contain any number of null terminated
 		strings (variable = value pairs) that will be part of
@@ -1133,7 +1133,7 @@ The following options need to be configured:
 		For example, place something like this in your
 		board's config file:
 
-		#define CONFIG_EXTRA_ENV_SETTINGS \
+		#define CFG_EXTRA_ENV_SETTINGS \
 			"myvar1=value1\0" \
 			"myvar2=value2\0"
 
@@ -1405,7 +1405,7 @@ Configuration Settings:
 		Use buffered writes to flash.
 
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
-- CONFIG_ENV_FLAGS_LIST_STATIC
+- CFG_ENV_FLAGS_LIST_STATIC
 	Enable validation of the values given to environment variables when
 	calling env set.  Variables can be restricted to only decimal,
 	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
@@ -1436,7 +1436,7 @@ Configuration Settings:
 		Define this to a list (string) to define the ".flags"
 		environment variable in the default or embedded environment.
 
-	- CONFIG_ENV_FLAGS_LIST_STATIC
+	- CFG_ENV_FLAGS_LIST_STATIC
 		Define this to a list (string) to define validation that
 		should be done if an entry is not found in the ".flags"
 		environment variable.  To override a setting in the static

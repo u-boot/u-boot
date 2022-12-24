@@ -61,8 +61,8 @@
 #define CFG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 
 /* serial console */
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CFG_USART_BASE		ATMEL_BASE_DBGU
+#define CFG_USART_ID			ATMEL_ID_SYS
 
 /* DFU class support */
 #define DFU_MANIFEST_POLL_TIMEOUT	25000
@@ -73,7 +73,7 @@
  * Predefined environment variables.
  * Usefull to define some easy to use boot commands.
  */
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#define	CFG_EXTRA_ENV_SETTINGS					\
 									\
 	"basicargs=console=ttyS0,115200\0"				\
 									\

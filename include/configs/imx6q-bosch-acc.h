@@ -45,7 +45,7 @@
 	"save_env=env save; env save\0" \
 	"altbootcmd=run handle_ustate; run switch_bootset; run save_env; run bootcmd\0"
 
-#define CONFIG_ENV_FLAGS_LIST_STATIC \
+#define CFG_ENV_FLAGS_LIST_STATIC \
 	"bootset:bw," \
 	"clone_pending:bw," \
 	"endurance_test:bw," \
@@ -72,7 +72,7 @@
 #endif
 
 /* Default environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootconf=conf-imx6q-bosch-acc.dtb\0"\
 	"mmcfit_name=fitImage\0" \
 	"mmcloadfit=ext4load mmc ${mmcdev}:${fitpart} ${fit_addr} ${mmcfit_name}\0" \
@@ -110,7 +110,7 @@
 #endif
 #endif
 
-#define CONFIG_MXC_USB_PORTSC            (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS             0
+#define CFG_MXC_USB_PORTSC            (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS             0
 
 #endif /* __IMX6Q_ACC_H */

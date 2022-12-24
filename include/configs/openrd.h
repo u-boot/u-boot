@@ -27,7 +27,7 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console=ttyS0,115200 " \
+#define CFG_EXTRA_ENV_SETTINGS	"x_bootargs=console=ttyS0,115200 " \
 	CONFIG_MTDPARTS_DEFAULT " rw ubi.mtd=2,2048\0" \
 	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x300000\0"	\
 	"x_bootcmd_usb=usb start\0"					\

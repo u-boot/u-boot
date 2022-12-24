@@ -14,7 +14,7 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_MXC_UART_BASE UART2_BASE
+#define CFG_MXC_UART_BASE UART2_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
@@ -23,9 +23,9 @@
 
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORT	1
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CFG_MXC_USB_PORT	1
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 /* Command definition */
 
@@ -37,7 +37,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_addr_r=0x75000000\0" \
 	"pxefile_addr_r=0x73000000\0" \
 	"scriptaddr=0x74000000\0" \

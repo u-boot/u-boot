@@ -39,13 +39,13 @@
 
 
 /* Serial Port */
-#define CONFIG_PL011_CLOCK		(get_bus_freq(0) / 4)
+#define CFG_PL011_CLOCK		(get_bus_freq(0) / 4)
 #define CFG_SYS_SERIAL0		0x21c0000
 #define CFG_SYS_SERIAL1		0x21d0000
 #define CFG_SYS_SERIAL2		0x21e0000
 #define CFG_SYS_SERIAL3		0x21f0000
 /*below might needs to be removed*/
-#define CONFIG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
+#define CFG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
 					(void *)CFG_SYS_SERIAL1, \
 					(void *)CFG_SYS_SERIAL2, \
 					(void *)CFG_SYS_SERIAL3 }

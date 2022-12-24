@@ -168,9 +168,6 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_SERIAL
 	default y
 
-config TPL_LDSCRIPT
-	default "arch/arm/mach-rockchip/u-boot-tpl.lds"
-
 config TPL_STACK
         default 0xff718000
 

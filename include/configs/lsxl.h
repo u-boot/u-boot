@@ -22,7 +22,7 @@
 /*
  * Default environment variables
  */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"bootsource=legacy\0"						\
 	"hdpart=0:1\0"							\
 	"kernel_addr_r=0x00800000\0"					\

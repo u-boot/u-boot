@@ -12,7 +12,7 @@
 #include <configs/zynq-common.h>
 
 /* Undef unneeded configs */
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
 #undef CFG_SYS_INIT_RAM_ADDR
 #undef CFG_SYS_INIT_RAM_SIZE

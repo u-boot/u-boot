@@ -86,7 +86,7 @@
 		"run boot_common\0"
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_addr_r_offset=0x05100000\0" \
 	"kernel_addr_r_offset=" KERNEL_ADDR_R_OFFSET "\0" \
 	"ramdisk_addr_r_offset=0x06000000\0" \

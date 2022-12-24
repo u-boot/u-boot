@@ -31,7 +31,7 @@
 /*
  * Serial Driver
  */
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /*
  * MMC Driver
@@ -45,8 +45,8 @@
  */
 #ifdef CONFIG_CMD_NAND
 #define CFG_SYS_NAND_BASE		NFC_BASE_ADDR_AXI
-#define CONFIG_MXC_NAND_REGS_BASE	NFC_BASE_ADDR_AXI
-#define CONFIG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
+#define CFG_MXC_NAND_REGS_BASE	NFC_BASE_ADDR_AXI
+#define CFG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
 #define CFG_SYS_NAND_LARGEPAGE
 #endif
 
@@ -54,7 +54,7 @@
  * Ethernet on SOC (FEC)
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC_PHYADDR		0x0
+#define CFG_FEC_MXC_PHYADDR		0x0
 #endif
 
 #define CFG_SYS_RTC_BUS_NUM		1 /* I2C2 */
@@ -70,9 +70,9 @@
  * USB
  */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORT		1
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORT		1
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 #endif
 
 /* LVDS display */
@@ -84,7 +84,7 @@
  * Extra Environments
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttymxc0\0"						\
 	"baudrate=115200\0"						\
 	"bootscript=boot.scr\0"						\

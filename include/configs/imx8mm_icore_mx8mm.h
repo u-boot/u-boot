@@ -15,7 +15,7 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-# define CONFIG_MALLOC_F_ADDR		0x930000
+# define CFG_MALLOC_F_ADDR		0x930000
 /* For RAW image gives a error info not panic */
 #endif /* CONFIG_SPL_BUILD */
 
@@ -30,7 +30,7 @@
 	"ramdisk_addr_r=0x46400000\0" \
 	"scriptaddr=0x46000000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"console=ttymxc1,115200\0" \

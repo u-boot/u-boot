@@ -53,37 +53,18 @@ stages:
             -j$(sysctl -n hw.logicalcpu)
         displayName: 'Perform tools-only build'
 
-  - job: check_for_migrated_symbols_in_board_header
-    displayName: 'Check for migrated symbols in board header'
+  - job: check_for_new_CONFIG_symbols_outside_Kconfig
+    displayName: 'Check for new CONFIG symbols outside Kconfig'
     pool:
       vmImage: $(ubuntu_vm)
     container:
       image: $(ci_runner_image)
       options: $(container_option)
     steps:
-      - script: |
-          KSYMLST=`mktemp`
-          KUSEDLST=`mktemp`
-          RET=0
-          cat `find . -name "Kconfig*"` | \
-             sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
-             -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
-             | sort -u > $KSYMLST
-          for CFG in `find include/configs -name "*.h"`; do
-             (grep '#define[[:blank:]]CONFIG_' $CFG | \
-                sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' ; \
-                grep '#undef[[:blank:]]CONFIG_' $CFG | \
-                sed -n 's/#undef.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p') | \
-                sort -u > ${KUSEDLST} || true
-             NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} | \
-                cut -d , -f 3`
-             if [[ $NUM -ne 0 ]]; then
-                echo "Unmigrated symbols found in $CFG:"
-                comm -12 ${KSYMLST} ${KUSEDLST}
-                RET=1
-             fi
-          done
-          exit $RET
+      # If grep succeeds and finds a match the test fails as we should
+      # have no matches.
+      - script: git grep -E '^#[[:blank:]]*(define|undef)[[:blank:]]*CONFIG_'
+                  include/configs `find arch -name config.h` && exit 1 || exit 0
 
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'

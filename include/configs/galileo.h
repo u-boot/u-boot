@@ -14,7 +14,7 @@
 
 /* ns16550 UART is memory-mapped in Quark SoC */
 
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial\0" \
+#define CFG_STD_DEVICES_SETTINGS	"stdin=serial\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
 

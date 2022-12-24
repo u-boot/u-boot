@@ -2630,10 +2630,10 @@ sub u_boot_line {
 		     "strl$1 is preferred over strn$1 because it always produces a nul-terminated string\n" . $herecurr);
 	}
 
-	# use defconfig to manage CONFIG_CMD options
-	if ($line =~ /\+\s*#\s*(define|undef)\s+(CONFIG_CMD\w*)\b/) {
-		ERROR("DEFINE_CONFIG_CMD",
-		      "All commands are managed by Kconfig\n" . $herecurr);
+	# use Kconfig for all CONFIG symbols
+	if ($line =~ /\+\s*#\s*(define|undef)\s+(CONFIG_\w*)\b/) {
+		ERROR("DEFINE_CONFIG_SYM",
+		      "All CONFIG symbols are managed by Kconfig\n" . $herecurr);
 	}
 
 	# Don't put common.h and dm.h in header files

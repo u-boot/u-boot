@@ -9,7 +9,7 @@
 #include <linux/stringify.h>
 
 #if (defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
-#define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
+#define CFG_SC_TIMER_CLK 8000000 /* 8Mhz */
 #else
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CFG_SYS_PL310_BASE	L2_PL310_BASE

@@ -8,7 +8,7 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_IRAM_BASE		0xff8c0000
+#define CFG_IRAM_BASE		0xff8c0000
 
 /* FAT sd card locations. */
 #define CFG_SYS_SDRAM_BASE		0
@@ -50,7 +50,7 @@
 
 #include <config_distro_bootcmd.h>
 #include <environment/distro/sf.h>
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \

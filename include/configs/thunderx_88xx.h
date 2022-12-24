@@ -17,7 +17,7 @@
 
 /* PL011 Serial Configuration */
 
-#define CONFIG_PL011_CLOCK		24000000
+#define CFG_PL011_CLOCK		24000000
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			(0x801000000000)
@@ -35,7 +35,7 @@
 /* Initial environment variables */
 #define UBOOT_IMG_HEAD_SIZE		0x40
 /* C80000 - 0x40 */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 					"kernel_addr=08007ffc0\0"	\
 					"fdt_addr=0x94C00000\0"		\
 					"fdt_high=0x9fffffff\0"

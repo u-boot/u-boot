@@ -24,7 +24,7 @@
 
 #ifdef CONFIG_SPIFLASH
 #ifdef CONFIG_NXP_ESBC
-#define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
+#define CFG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
 #define CFG_SYS_SPI_FLASH_U_BOOT_SIZE	(512 << 10)
 #define CFG_SYS_SPI_FLASH_U_BOOT_DST		(0x11000000)
@@ -52,11 +52,11 @@
 #endif
 
 #ifdef CONFIG_NAND_SECBOOT	/* NAND Boot */
-#define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
+#define CFG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 /* High Level Configuration Options */
@@ -309,7 +309,6 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 /* Serial Port */
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CFG_SYS_NS16550_CLK		get_bus_freq(0)
 
 #define CFG_SYS_BAUDRATE_TABLE	\
@@ -372,7 +371,7 @@ extern unsigned long get_sdram_size(void);
  * Environment Configuration
  */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=" __stringify(CONFIG_DEF_HWCONFIG)  "\0"	\
 	"netdev=eth0\0"						\
 	"uboot=" CONFIG_UBOOTPATH "\0"		\

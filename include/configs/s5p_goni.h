@@ -35,7 +35,7 @@
 #define PARTS_CSC			"csc"
 #define PARTS_UMS			"ums"
 
-#define CONFIG_DFU_ALT \
+#define CFG_DFU_ALT \
 	"u-boot raw 0x80 0x400;" \
 	"uImage ext4 0 2;" \
 	"exynos3-goni.dtb ext4 0 2;" \
@@ -54,7 +54,7 @@
 
 #define COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x100000;" \
 		"onenand write 0x32008000 0x0 0x100000\0" \
@@ -102,7 +102,7 @@
 	"ubiblock=8\0" \
 	"ubi=enabled\0" \
 	"opts=always_resume=1\0" \
-	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
+	"dfu_alt_info=" CFG_DFU_ALT "\0"
 
 /* Goni has 3 banks of DRAM, but swap the bank */
 #define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */

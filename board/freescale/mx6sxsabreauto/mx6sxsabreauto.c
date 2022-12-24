@@ -104,7 +104,7 @@ int board_eth_init(struct bd_info *bis)
 	setup_fec();
 
 	ret = fecmxc_initialize_multi(bis, 1,
-		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
+		CFG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
 	if (ret)
 		printf("FEC%d MXC: %s:failed\n", 1, __func__);
 

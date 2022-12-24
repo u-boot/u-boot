@@ -76,8 +76,8 @@
 
 #include <config_distro_bootcmd.h>
 
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#ifndef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS \
 	"unlock=yes\0"\
 	"nor0=flash-0\0"\
 	"mtdparts=mtdparts=flash-0:"\

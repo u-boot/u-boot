@@ -35,7 +35,7 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootargs=console=ttyS0,115200\0" \
 	"autostart=no\0"
 

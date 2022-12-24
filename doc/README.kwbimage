@@ -42,7 +42,7 @@ Board specific configuration file specifications:
 	kwbimage.cfg.  The name can be set as part of the full path
 	to the file using CONFIG_SYS_KWD_CONFIG (probably in
 	include/configs/<yourboard>.h).   The path should look like:
-	$(CONFIG_BOARDDIR)/<yourkwbimagename>.cfg
+	$(CFG_BOARDDIR)/<yourkwbimagename>.cfg
 2. This file can have empty lines and lines starting with "#" as first
 	character to put comments
 3. This file can have configuration command lines as mentioned below,

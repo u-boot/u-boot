@@ -52,12 +52,12 @@
 /* SATA */
 #define SCSI_VEND_ID 0x1b4b
 #define SCSI_DEV_ID  0x9170
-#define CONFIG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
+#define CFG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
 
 /* Initial environment variables */
 #ifndef SPL_NO_ENV
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"board=ls1028ardb\0"			\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"ramdisk_addr=0x800000\0"		\

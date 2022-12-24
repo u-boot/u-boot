@@ -13,7 +13,7 @@
 
 #include <linux/stringify.h>
 
-#define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
+#define CFG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 
 /* High Level Configuration Options */
 
@@ -30,7 +30,7 @@
 #endif
 
 #ifdef CONFIG_SPIFLASH
-#define        CONFIG_RESET_VECTOR_ADDRESS             0x200FFC
+#define        CFG_RESET_VECTOR_ADDRESS             0x200FFC
 #define CFG_SYS_SPI_FLASH_U_BOOT_SIZE       (768 << 10)
 #define CFG_SYS_SPI_FLASH_U_BOOT_DST                (0x00200000)
 #define CFG_SYS_SPI_FLASH_U_BOOT_START      (0x00200000)
@@ -38,7 +38,7 @@
 #endif
 
 #ifdef CONFIG_SDCARD
-#define        CONFIG_RESET_VECTOR_ADDRESS             0x200FFC
+#define        CFG_RESET_VECTOR_ADDRESS             0x200FFC
 #define CFG_SYS_MMC_U_BOOT_SIZE     (768 << 10)
 #define CFG_SYS_MMC_U_BOOT_DST      (0x00200000)
 #define CFG_SYS_MMC_U_BOOT_START    (0x00200000)
@@ -52,11 +52,11 @@
 #define CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR (CONFIG_TEXT_BASE & 0xfff00000)
 #define CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS \
 		(0x300000000ull | CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR)
-#define CONFIG_RESET_VECTOR_ADDRESS 0xfffffffc
+#define CFG_RESET_VECTOR_ADDRESS 0xfffffffc
 #endif
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 /*
@@ -379,7 +379,7 @@
 
 #define __USB_PHY_TYPE		utmi
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:"					\
 	"ctlr_intlv=" __stringify(CTRL_INTLV_PREFERED) ","	\
 	"bank_intlv=auto;"					\

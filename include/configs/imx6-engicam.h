@@ -24,7 +24,7 @@
 #endif
 
 /* Default environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"splashpos=m,m\0" \
 	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
@@ -116,9 +116,9 @@
 /* UART */
 #ifdef CONFIG_MXC_UART
 # ifdef CONFIG_MX6UL
-#  define CONFIG_MXC_UART_BASE		UART1_BASE
+#  define CFG_MXC_UART_BASE		UART1_BASE
 # else
-#  define CONFIG_MXC_UART_BASE		UART4_BASE
+#  define CFG_MXC_UART_BASE		UART4_BASE
 # endif
 #endif
 

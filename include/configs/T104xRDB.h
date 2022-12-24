@@ -29,7 +29,7 @@
 #endif
 
 #ifdef CONFIG_SPIFLASH
-#define	CONFIG_RESET_VECTOR_ADDRESS		0x30000FFC
+#define	CFG_RESET_VECTOR_ADDRESS		0x30000FFC
 #define CFG_SYS_SPI_FLASH_U_BOOT_SIZE	(768 << 10)
 #define CFG_SYS_SPI_FLASH_U_BOOT_DST		(0x30000000)
 #define CFG_SYS_SPI_FLASH_U_BOOT_START	(0x30000000)
@@ -37,7 +37,7 @@
 #endif
 
 #ifdef CONFIG_SDCARD
-#define	CONFIG_RESET_VECTOR_ADDRESS		0x30000FFC
+#define	CFG_RESET_VECTOR_ADDRESS		0x30000FFC
 #define CFG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CFG_SYS_MMC_U_BOOT_DST	(0x30000000)
 #define CFG_SYS_MMC_U_BOOT_START	(0x30000000)
@@ -48,8 +48,8 @@
 
 /* High Level Configuration Options */
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 #define CFG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
@@ -370,7 +370,7 @@
 #define FDTFILE		"t1042rdb/t1042d4rdb.dtb"
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:bank_intlv=cs0_cs1;"			\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
 	"usb2:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\

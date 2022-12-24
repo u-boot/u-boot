@@ -14,13 +14,13 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x930000
+#define CFG_MALLOC_F_ADDR		0x930000
 /* For RAW image gives a error info not panic */
 
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"script=boot.scr\0" \
 	"image=Image\0" \
 	"console=ttymxc1,115200\0" \

@@ -43,6 +43,6 @@
 #endif
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 
 #endif

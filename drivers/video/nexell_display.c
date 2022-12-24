@@ -560,7 +560,7 @@ static int nx_display_bind(struct udevice *dev)
 	/* Datasheet S5p4418:
 	 *   Resolution up to 2048 x 1280, up to 12 Bit per color (HDMI)
 	 * Actual (max.) size is 0x1000000 because in U-Boot nanopi2-2016.01
-	 * "#define CONFIG_FB_ADDR  0x77000000" and next address is
+	 * "#define CFG_FB_ADDR  0x77000000" and next address is
 	 * "#define BMP_LOAD_ADDR  0x78000000"
 	 */
 	plat->size = 0x1000000;

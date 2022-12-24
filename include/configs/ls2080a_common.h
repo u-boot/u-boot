@@ -109,7 +109,7 @@ unsigned long long get_qixis_addr(void);
 #define HWCONFIG_BUFFER_SIZE		128
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\

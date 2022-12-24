@@ -39,10 +39,10 @@ int pmic_init(unsigned char bus)
 
 #if defined(CONFIG_POWER_SPI)
 	p->interface = PMIC_SPI;
-	p->hw.spi.cs = CONFIG_FSL_PMIC_CS;
-	p->hw.spi.clk = CONFIG_FSL_PMIC_CLK;
-	p->hw.spi.mode = CONFIG_FSL_PMIC_MODE;
-	p->hw.spi.bitlen = CONFIG_FSL_PMIC_BITLEN;
+	p->hw.spi.cs = CFG_FSL_PMIC_CS;
+	p->hw.spi.clk = CFG_FSL_PMIC_CLK;
+	p->hw.spi.mode = CFG_FSL_PMIC_MODE;
+	p->hw.spi.bitlen = CFG_FSL_PMIC_BITLEN;
 	p->hw.spi.flags = SPI_XFER_BEGIN | SPI_XFER_END;
 	p->hw.spi.prepare_tx = pmic_spi_prepare_tx;
 #elif defined(CONFIG_POWER_I2C)

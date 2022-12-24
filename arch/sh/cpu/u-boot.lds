@@ -35,7 +35,7 @@ SECTIONS
 	.text :
 	{
 		KEEP(*/start.o		(.text))
-		KEEP(CONFIG_BOARDDIR/lowlevel_init.o	(.text .spiboot1.text))
+		KEEP(CFG_BOARDDIR/lowlevel_init.o	(.text .spiboot1.text))
 		KEEP(*(.spiboot2.text))
 		. = ALIGN(8192);
 #ifdef CONFIG_ENV_IS_IN_FLASH

@@ -38,7 +38,7 @@
 #endif /* CONFIG_MTD_RAW_NAND */
 
 /* Environment information */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
 	"fdtfile=am3517-evm.dtb\0" \

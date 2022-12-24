@@ -17,13 +17,13 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+#define CFG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* Commands */
 
-#define CONFIG_MXC_UART_BASE	UART2_BASE
+#define CFG_MXC_UART_BASE	UART2_BASE
 
-#define CONFIG_EXTRA_ENV_SETTINGS                                               \
+#define CFG_EXTRA_ENV_SETTINGS                                               \
 	"board=EL6Q\0"								\
 	"cma_size="__stringify(EL6Q_CMA_SIZE)"\0"                               \
 	"chp_size="__stringify(EL6Q_COHERENT_POOL_SIZE)"\0"                     \

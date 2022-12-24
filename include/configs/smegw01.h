@@ -17,7 +17,7 @@
 /* MMC Config*/
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
 	"fdtfile=imx7d-smegw01.dtb\0" \

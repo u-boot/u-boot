@@ -41,7 +41,7 @@
 
 /* Environment settings */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS	\
+#define	CFG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:00:00:00:00:00\0" \
 	"serial=0\0" \
 	"stdout=serial_atmel\0" \

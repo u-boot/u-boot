@@ -29,7 +29,7 @@
 /* boot command, including the target-defined one if any */
 
 /* Extra env settings (including the target-defined ones if any) */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	PCM052_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

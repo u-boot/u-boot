@@ -247,7 +247,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \
@@ -279,7 +279,7 @@
  * firewall violation, we tell u-boot that memory is protected RAM (PRAM)
  */
 #if (CONFIG_TI_SECURE_EMIF_REGION_START == 0)
-#define CONFIG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
+#define CFG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
 #endif
 #else
 /*

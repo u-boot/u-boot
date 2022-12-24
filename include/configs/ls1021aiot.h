@@ -61,18 +61,18 @@
 #ifndef PCI_DEVICE_ID_FREESCALE_AHCI
 #define PCI_DEVICE_ID_FREESCALE_AHCI	0x0440
 #endif
-#define CONFIG_SCSI_DEV_LIST		{PCI_VENDOR_ID_FREESCALE, \
+#define CFG_SCSI_DEV_LIST		{PCI_VENDOR_ID_FREESCALE, \
 	PCI_DEVICE_ID_FREESCALE_AHCI}
 
 /* SPI */
 
 #define FSL_PCIE_COMPAT		"fsl,ls1021a-pcie"
 
-#define CONFIG_SMP_PEN_ADDR		0x01ee0200
+#define CFG_SMP_PEN_ADDR		0x01ee0200
 
 #define HWCONFIG_BUFFER_SIZE		256
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 "initrd_high=0xffffffff\0"
 

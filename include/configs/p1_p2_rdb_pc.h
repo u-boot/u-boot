@@ -13,7 +13,7 @@
 #include <linux/stringify.h>
 
 #if defined(CONFIG_TARGET_P1020RDB_PC)
-#define CONFIG_SLIC
+#define CFG_SLIC
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0x5c
 #define __SW_BOOT_SPI		0x1c
@@ -42,7 +42,7 @@
  * 011101 800 800 400 667 PCIe-2 Core0 boot; Core1 hold-off
  */
 #if defined(CONFIG_TARGET_P1020RDB_PD)
-#define CONFIG_SLIC
+#define CFG_SLIC
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0x64
 #define __SW_BOOT_SPI		0x34
@@ -105,8 +105,8 @@
 #endif /* not CONFIG_TPL_BUILD */
 #endif
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 #define CFG_SYS_CCSRBAR		0xffe00000
@@ -188,10 +188,10 @@
 #define CFG_SYS_FLASH_BASE_PHYS	CFG_SYS_FLASH_BASE
 #endif
 
-#define CONFIG_FLASH_BR_PRELIM (BR_PHYS_ADDR(CFG_SYS_FLASH_BASE_PHYS) \
+#define CFG_FLASH_BR_PRELIM (BR_PHYS_ADDR(CFG_SYS_FLASH_BASE_PHYS) \
 	| BR_PS_16 | BR_V)
 
-#define CONFIG_FLASH_OR_PRELIM	0xfc000ff7
+#define CFG_FLASH_OR_PRELIM	0xfc000ff7
 
 #define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE_PHYS}
 
@@ -270,7 +270,7 @@
 #endif
 
 /* The size of the VSC7385 firmware image */
-#define CONFIG_VSC7385_IMAGE_SIZE	8192
+#define CFG_VSC7385_IMAGE_SIZE	8192
 #endif
 
 #ifndef __VSCFW_ADDR
@@ -302,7 +302,6 @@
  * open - index 2
  * shorted - index 1
  */
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CFG_SYS_NS16550_CLK		get_bus_freq(0)
 
 #define CFG_SYS_BAUDRATE_TABLE	\
@@ -394,7 +393,7 @@
 
 #include "p1_p2_bootsrc.h"
 
-#define	CONFIG_EXTRA_ENV_SETTINGS	\
+#define	CFG_EXTRA_ENV_SETTINGS	\
 "netdev=eth0\0"	\
 "uboot=" CONFIG_UBOOTPATH "\0"	\
 "loadaddr=1000000\0"	\

@@ -14,7 +14,7 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x930000
+#define CFG_MALLOC_F_ADDR		0x930000
 #endif
 
 /* Enable Distro Boot */
@@ -25,7 +25,7 @@
 	func(USB, usb, 1) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"splblk=0x42\0" \
 	BOOTENV
 

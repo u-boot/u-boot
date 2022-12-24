@@ -12,7 +12,7 @@
 #include "tegra210-common.h"
 
 /* High-level configuration options */
-#define CONFIG_TEGRA_BOARD_STRING	"NVIDIA P2371-0000"
+#define CFG_TEGRA_BOARD_STRING	"NVIDIA P2371-0000"
 
 /* Board-specific serial config */
 

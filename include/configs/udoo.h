@@ -10,12 +10,12 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MXC_UART_BASE		UART2_BASE
+#define CFG_MXC_UART_BASE		UART2_BASE
 
 /* MMC Configuration */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1,115200\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

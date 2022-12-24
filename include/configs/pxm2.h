@@ -18,26 +18,26 @@
 #define DDR_IOCTRL_VAL		0x18b
 #define DDR_PLL_FREQ		266
 
-#define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+#define CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"button_dfu0=59\0" \
 	"led0=117,0,1\0" \
 
  /* Physical Memory Map */
-#define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 1GB */
+#define CFG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 1GB */
 
 /* Use common default */
 
 /* Default env settings */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"hostname=pxm2\0" \
 	"ubi_off=2048\0"\
 	"nand_img_size=0x500000\0" \
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
-	CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"splashpos=m,m\0"	\
-	CONFIG_ENV_SETTINGS_V1 \
-	CONFIG_ENV_SETTINGS_NAND_V1 \
+	CFG_ENV_SETTINGS_V1 \
+	CFG_ENV_SETTINGS_NAND_V1 \
 	"mmc_dev=0\0" \
 	"mmc_root=/dev/mmcblk0p2 rw\0" \
 	"mmc_root_fs_type=ext4 rootwait\0" \

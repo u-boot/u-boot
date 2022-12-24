@@ -66,8 +66,6 @@
 /*-----------------------------------------------------------------------
  *  High Level System Configuration
  */
-/* Not used: not need IRQ/FIQ stuff */
-#undef  CONFIG_USE_IRQ
 /* decrementer freq: 1ms ticks */
 
 /*-----------------------------------------------------------------------
@@ -78,8 +76,8 @@
 /*-----------------------------------------------------------------------
  * serial console configuration
  */
-#define CONFIG_PL011_CLOCK		50000000
-#define CONFIG_PL01x_PORTS		{(void *)PHY_BASEADDR_UART0, \
+#define CFG_PL011_CLOCK		50000000
+#define CFG_PL01x_PORTS		{(void *)PHY_BASEADDR_UART0, \
 					 (void *)PHY_BASEADDR_UART1, \
 					 (void *)PHY_BASEADDR_UART2, \
 					 (void *)PHY_BASEADDR_UART3}
@@ -142,7 +140,7 @@
 	#define EXTRA_ENV_BOOT_LOGO  EXTRA_ENV_DTB_RESERVE
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_high=0xffffffff\0"					\
 	"initrd_high=0xffffffff\0"				\
 	"rootdev=" __stringify(CONFIG_ROOT_DEV) "\0"		\

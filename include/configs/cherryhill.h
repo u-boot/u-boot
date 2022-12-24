@@ -8,7 +8,7 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=usbkbd,serial\0" \
+#define CFG_STD_DEVICES_SETTINGS	"stdin=usbkbd,serial\0" \
 					"stdout=vidconsole,serial\0" \
 					"stderr=vidconsole,serial\0"
 

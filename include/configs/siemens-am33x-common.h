@@ -196,7 +196,7 @@
 	"kernel_b part 0 8;" \
 	"rootfs partubi 0 10"
 
-#define CONFIG_ENV_SETTINGS_NAND_V1 \
+#define CFG_ENV_SETTINGS_NAND_V1 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"nand_active_ubi_vol_A=rootfs_a\0" \
 	"nand_active_ubi_vol_B=rootfs_b\0" \
@@ -229,7 +229,7 @@
 		"${nand_img_size}; bootm ${kloadaddr}\0" \
 	COMMON_ENV_NAND_CMDS
 
-#define CONFIG_ENV_SETTINGS_V1 \
+#define CFG_ENV_SETTINGS_V1 \
 		COMMON_ENV_SETTINGS \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \
@@ -273,7 +273,7 @@
 	"u-boot.env1 part 0 7;" \
 	"rootfs partubi 0 9" \
 
-#define CONFIG_ENV_SETTINGS_NAND_V2 \
+#define CFG_ENV_SETTINGS_NAND_V2 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
@@ -306,7 +306,7 @@
 		"bootm ${kloadaddr} - ${loadaddr}\0" \
 	COMMON_ENV_NAND_CMDS
 
-#define CONFIG_ENV_SETTINGS_V2 \
+#define CFG_ENV_SETTINGS_V2 \
 		COMMON_ENV_SETTINGS \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \

@@ -11,7 +11,7 @@
 #ifndef __THEADORABLE_X86_COMMON_H
 #define __THEADORABLE_X86_COMMON_H
 
-#define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
+#define CFG_STD_DEVICES_SETTINGS     "stdin=serial\0" \
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
@@ -19,9 +19,9 @@
 
 /* Environment settings */
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"tftpdir=" DEF_ENV_TFTPDIR "\0"				\
 	"eth_init=" DEF_ENV_ETH_INIT "\0"			\
 	"ubuntu_part=" __stringify(DEF_ENV_UBUNTU_PART) "\0"	\

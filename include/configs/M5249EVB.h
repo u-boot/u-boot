@@ -57,7 +57,7 @@
 #define CFG_SYS_FLASH_BASE		(CFG_SYS_CS0_BASE)
 
 #if 0 /* test-only */
-#define CONFIG_PRAM		512 /* test-only for SDRAM problem!!!!!!!!!!!!!!!!!!!! */
+#define CFG_PRAM		512 /* test-only for SDRAM problem!!!!!!!!!!!!!!!!!!!! */
 #endif
 
 /*

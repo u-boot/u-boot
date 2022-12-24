@@ -116,8 +116,8 @@
 #define CFG_SYS_TIMER_COUNTER	(V2M_TIMER01 + 0x4)
 
 /* PL011 Serial Configuration */
-#define CONFIG_PL011_CLOCK		24000000
-#define CONFIG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
+#define CFG_PL011_CLOCK		24000000
+#define CFG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
 					 (void *)CFG_SYS_SERIAL1}
 
 #define CFG_SYS_SERIAL0		V2M_UART0
@@ -145,7 +145,7 @@
         func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
                 "kernel_addr_r=0x60100000\0" \
                 "fdt_addr_r=0x60000000\0" \
                 "bootargs=console=tty0 console=ttyAMA0,38400n8\0" \

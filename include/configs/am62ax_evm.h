@@ -56,7 +56,7 @@
 	"partitions=" PARTS_DEFAULT
 
 /* Incorporate settings into the U-Boot environment */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_AM62A7_BOARD_SETTINGS					\

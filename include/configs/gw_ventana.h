@@ -16,7 +16,7 @@
 #include "mx6_common.h"
 
 /* Serial */
-#define CONFIG_MXC_UART_BASE	       UART2_BASE
+#define CFG_MXC_UART_BASE	       UART2_BASE
 
 /* NAND */
 
@@ -30,14 +30,14 @@
 /*
  * PMIC
  */
-#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
-#define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
+#define CFG_POWER_PFUZE100_I2C_ADDR	0x08
+#define CFG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC     (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS      0
+#define CFG_MXC_USB_PORTSC     (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS      0
 
 /* Miscellaneous configurable options */
 

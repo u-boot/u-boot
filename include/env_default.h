@@ -118,8 +118,8 @@ const char default_environment[] = {
 	/* This is created in the Makefile */
 	CONFIG_EXTRA_ENV_TEXT
 #endif
-#ifdef	CONFIG_EXTRA_ENV_SETTINGS
-	CONFIG_EXTRA_ENV_SETTINGS
+#ifdef	CFG_EXTRA_ENV_SETTINGS
+	CFG_EXTRA_ENV_SETTINGS
 #endif
 	"\0"
 #else /* CONFIG_USE_DEFAULT_ENV_FILE */

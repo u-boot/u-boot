@@ -187,7 +187,7 @@ void board_gpio_init(void)
 	setbits_be32(&pgpio->gpdat, 0x00080000);
 #endif
 
-#ifdef CONFIG_SLIC
+#ifdef CFG_SLIC
 	/* reset SLIC */
 	setbits_be32(&pgpio->gpdir, 0x00040000);
 	setbits_be32(&pgpio->gpdat, 0x00040000);
@@ -355,7 +355,7 @@ int board_early_init_r(void)
 		vscfw_addr = hextoul(tmp, NULL);
 		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
 		if (vsc7385_upload_firmware((void *)vscfw_addr,
-					    CONFIG_VSC7385_IMAGE_SIZE))
+					    CFG_VSC7385_IMAGE_SIZE))
 			puts("Failure uploading VSC7385 microcode.\n");
 	} else {
 		puts("No address specified for VSC7385 microcode.\n");

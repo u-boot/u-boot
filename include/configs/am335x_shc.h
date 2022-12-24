@@ -21,7 +21,7 @@
 #define V_SCLK				(V_OSCK)
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"kloadaddr=0x84000000\0" \
 	"fdtaddr=0x85000000\0" \

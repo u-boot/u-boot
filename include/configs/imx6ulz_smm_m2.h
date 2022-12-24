@@ -12,7 +12,7 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-#define CONFIG_MXC_UART_BASE		UART4_BASE
+#define CFG_MXC_UART_BASE		UART4_BASE
 
 #ifndef CONFIG_SPL_BUILD
 
@@ -54,7 +54,7 @@
 	#devtypel #instance " "
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	NANDARGS \
 	BOOTENV

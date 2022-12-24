@@ -11,7 +11,7 @@
 #include "tegra210-common.h"
 
 /* High-level configuration options */
-#define CONFIG_TEGRA_BOARD_STRING	"NVIDIA P3450-0000"
+#define CFG_TEGRA_BOARD_STRING	"NVIDIA P3450-0000"
 
 /* Board-specific serial config */
 

@@ -26,7 +26,7 @@
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR      USDHC1_BASE_ADDR
 
-#define CONFIG_FEC_MXC_PHYADDR		0
+#define CFG_FEC_MXC_PHYADDR		0
 
 #ifdef CONFIG_IMX_HAB
 #define HAB_EXTRA_SETTINGS \
@@ -94,7 +94,7 @@
 	"done\0"
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"disable_giga=yes\0" \
 	"usb_pgood_delay=2000\0" \
 	"nor_bootdelay=-2\0" \
@@ -413,12 +413,12 @@
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 /* UBI support */
 
-#define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \
+#define CFG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \
 		"sysnum:dw,panel:sw,ipaddr:iw,serverip:iw"
 
 #endif                         /* __ARISTAINETOS2_CONFIG_H */

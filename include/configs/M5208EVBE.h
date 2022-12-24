@@ -17,7 +17,7 @@
 
 /* I2C */
 
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=40010000\0"			\
 	"u-boot=u-boot.bin\0"			\
@@ -29,7 +29,7 @@
 	"save\0"				\
 	""
 
-#define CONFIG_PRAM		512	/* 512 KB */
+#define CFG_PRAM		512	/* 512 KB */
 
 #define CFG_SYS_CLK		166666666	/* CPU Core Clock */
 #define CFG_SYS_PLL_ODR	0x36

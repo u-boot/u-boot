@@ -12,9 +12,9 @@
 #include <asm/arch/imx-regs.h>
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORT	1
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CFG_MXC_USB_PORT	1
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 /* Command definition */
 
@@ -35,7 +35,7 @@
 	"nfs=run choose_ip setargs bootargs_nfs; ${getcmd} ${loadaddr} " \
 		"${nfsserver}:${image}; bootm ${loadaddr}\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	PPD_CONFIG_NFS \
 	"image=/boot/fitImage\0" \
 	"dev=mmc\0" \

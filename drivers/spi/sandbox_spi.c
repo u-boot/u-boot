@@ -24,10 +24,6 @@
 #include <dm/acpi.h>
 #include <dm/device-internal.h>
 
-#ifndef CONFIG_SPI_IDLE_VAL
-# define CONFIG_SPI_IDLE_VAL 0xFF
-#endif
-
 /**
  * struct sandbox_spi_priv - Sandbox SPI private data
  *

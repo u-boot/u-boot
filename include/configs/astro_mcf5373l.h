@@ -71,7 +71,7 @@
  * u-boot: 'set' command
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS			\
+#define CFG_EXTRA_ENV_SETTINGS			\
 	"loaderversion=11\0"				\
 	"card_id="__stringify(ASTRO_ID)"\0"			\
 	"alterafile=0\0"				\

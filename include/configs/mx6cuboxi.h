@@ -15,13 +15,13 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* USB */
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 /* Command definition */
 
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"som_rev=undefined\0" \
 	"has_emmc=undefined\0" \
 	"fdtfile=undefined\0" \

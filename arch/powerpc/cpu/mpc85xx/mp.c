@@ -193,8 +193,8 @@ u32 determine_mp_bootpg(unsigned int *pagesize)
 
 
 	/* use last 4K of mapped memory */
-	bootpg = ((gd->ram_size > CONFIG_MAX_MEM_MAPPED) ?
-		CONFIG_MAX_MEM_MAPPED : gd->ram_size) +
+	bootpg = ((gd->ram_size > CFG_MAX_MEM_MAPPED) ?
+		CFG_MAX_MEM_MAPPED : gd->ram_size) +
 		CFG_SYS_SDRAM_BASE - 4096;
 	if (pagesize)
 		*pagesize = 4096;

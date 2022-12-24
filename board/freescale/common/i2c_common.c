@@ -9,7 +9,7 @@
 #include <i2c.h>
 #include "i2c_common.h"
 
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 
 /* If DM is in use, retrieve the chip for the specified bus number */
 int fsl_i2c_get_device(int address, int bus, DEVICE_HANDLE_T *dev)

@@ -64,7 +64,7 @@ static void serial_device_init(void)
 
 	/* set clock   */
 	clk_disable(clk);
-	clk_set_rate(clk, CONFIG_PL011_CLOCK);
+	clk_set_rate(clk, CFG_PL011_CLOCK);
 	clk_enable(clk);
 }
 #endif

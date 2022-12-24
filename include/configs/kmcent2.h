@@ -122,12 +122,12 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_RESET_VECTOR_ADDRESS	0xebfffffc
+#define CFG_RESET_VECTOR_ADDRESS	0xebfffffc
 
 #define CFG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
 
 /* Environment in parallel NOR-Flash */
-#define CONFIG_ENV_TOTAL_SIZE		0x040000
+#define CFG_ENV_TOTAL_SIZE		0x040000
 #define ENV_DEL_ADDR		0xebf00000	/*direct for newenv*/
 
 /*
@@ -170,7 +170,7 @@
 /* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
  * is not valid yet, which is the case for when u-boot copies itself to RAM
  */
-#define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM) >> 10)
+#define CFG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM) >> 10)
 
 /*
  * IFC Definitions
@@ -314,7 +314,7 @@
  * shorted - index 1
  * Retain non-DM serial port for debug purposes.
  */
-#if !defined(CONFIG_DM_SERIAL)
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #define CFG_SYS_NS16550_CLK		(get_bus_freq(0) / 2)
 #define CFG_SYS_NS16550_COM1	(CFG_SYS_CCSRBAR + 0x11C500)
 #endif
@@ -364,8 +364,8 @@ int get_scl(void);
 /*
  * Hardware Watchdog
  */
-#define CONFIG_WATCHDOG_PRESC 34	/* wdog prescaler 2^(64-34) ~10min */
-#define CONFIG_WATCHDOG_RC WRC_CHIP	/* reset chip on watchdog event */
+#define CFG_WATCHDOG_PRESC 34	/* wdog prescaler 2^(64-34) ~10min */
+#define CFG_WATCHDOG_RC WRC_CHIP	/* reset chip on watchdog event */
 
 /*
  * For booting Linux, the board info and command line data

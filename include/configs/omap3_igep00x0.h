@@ -59,7 +59,7 @@
 		"if test ${fdtfile} = ''; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_FINDFDT \
 	ENV_DEVICE_SETTINGS \
 	MEM_LAYOUT_SETTINGS \

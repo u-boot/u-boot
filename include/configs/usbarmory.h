@@ -17,15 +17,15 @@
 /* U-Boot general configurations */
 
 /* UART */
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
 /* SD/MMC */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
 /* USB */
-#define CONFIG_MXC_USB_PORT	1
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CFG_MXC_USB_PORT	1
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 /* Linux boot */
 
@@ -40,7 +40,7 @@
 	"pxefile_addr_r=0x70800000\0"		\
 	"ramdisk_addr_r=0x73000000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	MEM_LAYOUT_ENV_SETTINGS					\
 	"bootargs_default=root=/dev/mmcblk0p1 rootwait rw\0"	\
 	"fdtfile=imx53-usbarmory.dtb\0"				\

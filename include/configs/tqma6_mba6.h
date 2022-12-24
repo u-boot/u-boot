@@ -9,9 +9,9 @@
 #ifndef __CONFIG_TQMA6_MBA6_H
 #define __CONFIG_TQMA6_MBA6_H
 
-#define CONFIG_FEC_MXC_PHYADDR		0x03
+#define CFG_FEC_MXC_PHYADDR		0x03
 
-#define CONFIG_MXC_UART_BASE		UART2_BASE
+#define CFG_MXC_UART_BASE		UART2_BASE
 #define CONSOLE_DEV		"ttymxc1"
 
 #endif /* __CONFIG_TQMA6_MBA6_H */

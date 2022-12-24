@@ -58,7 +58,7 @@
 #define CFG_SYS_ONENAND_BASE		ONENAND_MAP
 
 /* Environment information */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
 	"stdin=usbtty,serial,keyboard\0" \
 	"stdout=usbtty,serial,vidconsole\0" \
@@ -128,7 +128,7 @@
 	"bootmenu_delay=30\0" \
 	""
 
-#define CONFIG_POSTBOOTMENU \
+#define CFG_POSTBOOTMENU \
 	"echo;" \
 	"echo Extra commands:;" \
 	"echo run sdboot - Boot from SD card slot.;" \
@@ -169,6 +169,6 @@
 #define KERNEL_ADDRESS			(SDRAM_END-KERNEL_MAXSIZE)
 
 /* Reserve protected RAM for attached kernel */
-#define CONFIG_PRAM			((KERNEL_MAXSIZE >> 10)+1)
+#define CFG_PRAM			((KERNEL_MAXSIZE >> 10)+1)
 
 #endif /* __CONFIG_H */

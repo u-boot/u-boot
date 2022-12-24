@@ -42,8 +42,8 @@
 #ifdef CONFIG_VSC7385_ENET
 
 /* The flash address and size of the VSC7385 firmware image */
-#define CONFIG_VSC7385_IMAGE		0xFE7FE000
-#define CONFIG_VSC7385_IMAGE_SIZE	8192
+#define CFG_VSC7385_IMAGE		0xFE7FE000
+#define CFG_VSC7385_IMAGE_SIZE	8192
 
 #endif
 
@@ -54,8 +54,6 @@
 #define CFG_SYS_DDR_SDRAM_CLK_CNTL	0x03000000
 
 #define CFG_SYS_DDRCDR_VALUE	(DDRCDR_DHC_EN | DDRCDR_ODT | DDRCDR_Q_DRN)
-
-#undef CONFIG_NEVER_ASSERT_ODT_TO_CPU	/* Never assert ODT to internal IOs */
 
 /*
  * Manually set up DDR parameters
@@ -151,8 +149,8 @@
 #define CFG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
 
 /* SERDES */
-#define CONFIG_FSL_SERDES1	0xe3000
-#define CONFIG_FSL_SERDES2	0xe3100
+#define CFG_FSL_SERDES1	0xe3000
+#define CFG_FSL_SERDES2	0xe3100
 
 /* I2C */
 #define CFG_SYS_I2C_NOPROBES		{ {0, 0x51} }
@@ -197,7 +195,7 @@
 
 #define FDTFILE			"mpc8379_rdb.dtb"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"netdev=eth1\0"				\
 	"uboot=" CONFIG_UBOOTPATH "\0"					\
 	"tftpflash=tftp $loadaddr $uboot;"				\

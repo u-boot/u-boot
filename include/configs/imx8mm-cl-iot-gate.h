@@ -16,7 +16,7 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x912000
+#define CFG_MALLOC_F_ADDR		0x912000
 /* For RAW image gives a error info not panic */
 
 #endif
@@ -63,7 +63,7 @@
 	BOOT_TARGET_DHCP(func)
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
@@ -136,9 +136,9 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_FEC_MXC_PHYADDR		0
+#define CFG_FEC_MXC_PHYADDR		0
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #endif /*__IMX8MM_CL_IOT_GATE_H*/

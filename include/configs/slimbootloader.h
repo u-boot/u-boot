@@ -8,17 +8,17 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_STD_DEVICES_SETTINGS		\
+#define CFG_STD_DEVICES_SETTINGS		\
 	"stdin=serial,i8042-kbd,usbkbd\0"	\
 	"stdout=serial\0"			\
 	"stderr=serial\0"
 
 /*
- * Override CONFIG_EXTRA_ENV_SETTINGS in x86-common.h
+ * Override CFG_EXTRA_ENV_SETTINGS in x86-common.h
  */
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	CONFIG_STD_DEVICES_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
+	CFG_STD_DEVICES_SETTINGS		\
 	"netdev=eth0\0"				\
 	"consoledev=ttyS0\0"			\
 	"ramdiskaddr=0x4000000\0"		\

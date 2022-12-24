@@ -29,7 +29,7 @@
 	func(USB, usb, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0x40000000\0"		\
 			"fdtfile=stih410-b2260.dtb\0"		\
 			"fdt_addr_r=0x47000000\0"		\

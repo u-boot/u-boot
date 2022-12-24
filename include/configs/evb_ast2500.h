@@ -14,7 +14,7 @@
 #define CFG_SYS_UBOOT_BASE		CONFIG_TEXT_BASE
 
 /* Misc */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	""
 
 #endif	/* __CONFIG_H */

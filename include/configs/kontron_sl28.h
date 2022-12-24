@@ -28,7 +28,7 @@
 /* generic timer */
 
 /* early heap for SPL DM */
-#define CONFIG_MALLOC_F_ADDR		CFG_SYS_FSL_OCRAM_BASE
+#define CFG_MALLOC_F_ADDR		CFG_SYS_FSL_OCRAM_BASE
 
 /* serial port */
 #define CFG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
@@ -61,7 +61,7 @@
 	func(PXE, pxe, 0)
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"env_addr=0x203e0004\0" \
 	"envload=env import -d -b ${env_addr}\0" \
 	"install_rcw=source 20200000\0" \

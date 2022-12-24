@@ -577,8 +577,8 @@ cleanup:
 		free(command);
 	}
 
-#ifdef CONFIG_POSTBOOTMENU
-	run_command(CONFIG_POSTBOOTMENU, 0);
+#ifdef CFG_POSTBOOTMENU
+	run_command(CFG_POSTBOOTMENU, 0);
 #endif
 
 	if (efi_ret != EFI_SUCCESS || cmd_ret != CMD_RET_SUCCESS)

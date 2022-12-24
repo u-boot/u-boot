@@ -25,8 +25,8 @@
 /* Board and environment settings */
 
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 #endif
 
 /* GUID for capsule updatable firmware image */
@@ -46,9 +46,9 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x930000
+#define CFG_MALLOC_F_ADDR		0x930000
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS BOOTENV
+#define CFG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif /* __KONTRON_MX8MM_CONFIG_H */

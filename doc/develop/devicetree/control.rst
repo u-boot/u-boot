@@ -135,7 +135,7 @@ control the boot process of Linux with bootm/bootz commands.
 
 To use this, put something like this in your board header file::
 
-   #define CONFIG_EXTRA_ENV_SETTINGS	"fdtcontroladdr=10000\0"
+   #define CFG_EXTRA_ENV_SETTINGS	"fdtcontroladdr=10000\0"
 
 Build:
 

@@ -48,7 +48,7 @@
 
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_ENV_SROM_BANK		1
+#define CFG_ENV_SROM_BANK		1
 #endif /*CONFIG_CMD_NET*/
 
 /* Enable Time Command */
@@ -91,7 +91,7 @@
 #define EXYNOS_FDTFILE_SETTING
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	EXYNOS_DEVICE_SETTINGS \
 	EXYNOS_FDTFILE_SETTING \
 	MEM_LAYOUT_ENV_SETTINGS \

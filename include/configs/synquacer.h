@@ -14,7 +14,7 @@
 #define CFG_SYS_SDRAM_BASE		(0x80000000)	/* Start address of DDR3 */
 #define PHYS_SDRAM_SIZE			(0x7c000000)	/* Default size (2GB - Secure memory) */
 
-#define CONFIG_MAX_MEM_MAPPED		PHYS_SDRAM_SIZE
+#define CFG_MAX_MEM_MAPPED		PHYS_SDRAM_SIZE
 
 #define SQ_DRAMINFO_BASE		(0x2e00ffc0)	/* DRAM info from TF-A */
 
@@ -31,8 +31,8 @@
 
 /* Serial (pl011)       */
 #define UART_CLK			(62500000)
-#define CONFIG_PL011_CLOCK		UART_CLK
-#define CONFIG_PL01x_PORTS		{(void *)(0x2a400000)}
+#define CFG_PL011_CLOCK		UART_CLK
+#define CFG_PL01x_PORTS		{(void *)(0x2a400000)}
 
 /* Support MTD */
 #define CFG_SYS_FLASH_BASE		(0x08000000)
@@ -91,7 +91,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		\
+#define	CFG_EXTRA_ENV_SETTINGS		\
 	"fdt_addr_r=0x9fe00000\0"		\
 	"kernel_addr_r=0x90000000\0"		\
 	"ramdisk_addr_r=0xa0000000\0"		\

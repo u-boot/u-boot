@@ -28,7 +28,7 @@
 #define PHYS_SDRAM_SIZE			SZ_1G
 #define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttyLP0\0" \

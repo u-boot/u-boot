@@ -80,9 +80,9 @@ static void bd_backlight_on(void)
 
 #elif defined(BACKLIGHT_CH)
 	/* pwm backlight ON: HIGH, ON: LOW */
-	pwm_init(BACKLIGHT_CH,
+	s5p_pwm_init(BACKLIGHT_CH,
 		 BACKLIGHT_DIV, BACKLIGHT_INV);
-	pwm_config(BACKLIGHT_CH,
+	s5p_pwm_config(BACKLIGHT_CH,
 		   TO_DUTY_NS(BACKLIGHT_DUTY, BACKLIGHT_HZ),
 		   TO_PERIOD_NS(BACKLIGHT_HZ));
 #endif

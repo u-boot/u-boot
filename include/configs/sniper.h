@@ -38,7 +38,7 @@
  * I2C
  */
 
-#define CONFIG_I2C_MULTI_BUS
+#define CFG_I2C_MULTI_BUS
 
 /*
  * Input
@@ -62,7 +62,7 @@
  * Environment
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"kernel_addr_r=0x82000000\0" \
 	"loadaddr=0x82000000\0" \
 	"fdt_addr_r=0x88000000\0" \

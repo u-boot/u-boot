@@ -29,7 +29,7 @@
 #endif /* CONFIG_MTD_RAW_NAND */
 
 /* Enable Multi Bus support for I2C */
-#define CONFIG_I2C_MULTI_BUS
+#define CFG_I2C_MULTI_BUS
 
 /* DSS Support */
 
@@ -73,7 +73,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdt_high=0xffffffff\0" \

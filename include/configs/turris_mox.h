@@ -35,7 +35,7 @@
 	"lzmadec 0x5000000 0x5800000 && "				\
 	"bootm 0x5800000"
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_addr=0x4c00000\0"					\
 	"scriptaddr=0x4d00000\0"				\
 	"pxefile_addr_r=0x4e00000\0"				\

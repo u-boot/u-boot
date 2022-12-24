@@ -21,7 +21,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"scriptaddr=0x40000000\0" \
 	BOOTENV
 

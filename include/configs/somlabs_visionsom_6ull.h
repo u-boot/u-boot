@@ -20,7 +20,7 @@
 #define CFG_SYS_FSL_USDHC_NUM	1
 #endif /* CONFIG_FSL_USDHC */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"console=ttymxc0\0" \
 	"initrd_addr=0x86800000\0" \
@@ -61,12 +61,12 @@
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS   0
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS   0
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC_PHYADDR		0x1
+#define CFG_FEC_MXC_PHYADDR		0x1
 #endif
 
 #endif

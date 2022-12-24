@@ -9,7 +9,7 @@
 #include "rockchip-common.h"
 
 /* FIXME: ff020000 is pmu_mem (10k), while ff0e0000 is regular int_mem */
-#define CONFIG_IRAM_BASE		0xff020000
+#define CFG_IRAM_BASE		0xff020000
 
 #define GICD_BASE			0xff131000
 #define GICC_BASE			0xff132000
@@ -27,7 +27,7 @@
 	"ramdisk_addr_r=0x0a200000\0"
 
 #include <config_distro_bootcmd.h>
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \

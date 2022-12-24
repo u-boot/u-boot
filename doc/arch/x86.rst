@@ -355,8 +355,8 @@ environment variables if you add this to minnowmax.h:
 		"ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic; " \
 		"run boot"
 
-	#undef CONFIG_EXTRA_ENV_SETTINGS
-	#define CONFIG_EXTRA_ENV_SETTINGS "boot=zboot 03000000 0 04000000 ${filesize}"
+	#undef CFG_EXTRA_ENV_SETTINGS
+	#define CFG_EXTRA_ENV_SETTINGS "boot=zboot 03000000 0 04000000 ${filesize}"
 
 and change CONFIG_BOOTARGS value in configs/minnowmax_defconfig to::
 

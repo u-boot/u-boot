@@ -26,7 +26,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x95000000\0" \
 	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \

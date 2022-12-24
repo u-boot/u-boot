@@ -458,7 +458,7 @@ void default_serial_puts(const char *s)
 		dev->putc(*s++);
 }
 
-#if CFG_POST & CONFIG_SYS_POST_UART
+#if CFG_POST & CFG_SYS_POST_UART
 static const int bauds[] = CFG_SYS_BAUDRATE_TABLE;
 
 /**

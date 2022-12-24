@@ -37,7 +37,7 @@
 	"name=loader2,size=4MB,type=${type_guid_gpt_loader2};" \
 	"name=system,size=-,bootable,type=${type_guid_gpt_system};"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"kernel_addr_r=0x84000000\0" \

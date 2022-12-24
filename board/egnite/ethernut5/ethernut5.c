@@ -160,7 +160,7 @@ int board_eth_init(struct bd_info *bis)
 	/* Set peripheral pins. */
 	at91_macb_hw_init();
 	/* Basic EMAC initialization. */
-	if (macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC0, CONFIG_PHY_ID))
+	if (macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC0, CFG_PHY_ID))
 		return -1;
 	/*
 	 * Early board revisions have a pull-down at the PHY's MODE0

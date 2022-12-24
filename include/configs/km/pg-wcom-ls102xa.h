@@ -9,7 +9,7 @@
 #define CFG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
-#define CONFIG_PRAM			((CONFIG_KM_PNVRAM + \
+#define CFG_PRAM			((CONFIG_KM_PNVRAM + \
 					  CONFIG_KM_PHRAM + \
 					  CONFIG_KM_RESERVED_PRAM) >> 10)
 
@@ -158,7 +158,7 @@
 					{1, {I2C_NULL_HOP}                 }, \
 				}
 
-#define CONFIG_SMP_PEN_ADDR		0x01ee0200
+#define CFG_SMP_PEN_ADDR		0x01ee0200
 
 #define HWCONFIG_BUFFER_SIZE		256
 

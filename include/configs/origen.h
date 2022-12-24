@@ -23,7 +23,7 @@
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x40007000\0" \
 	"rdaddr=0x48000000\0" \
 	"kerneladdr=0x40007000\0" \

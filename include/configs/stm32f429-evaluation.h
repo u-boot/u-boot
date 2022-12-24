@@ -24,7 +24,7 @@
 	func(MMC, mmc, 0)
 
 #include <config_distro_bootcmd.h>
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0x00008000\0"		\
 			"fdtfile=stm32429i-eval.dtb\0"	\
 			"fdt_addr_r=0x00408000\0"		\

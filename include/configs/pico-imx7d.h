@@ -10,12 +10,12 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
+#define CFG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_DFU_ENV_SETTINGS \
+#define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
 		"spl raw 0x2 0x400;" \
 		"u-boot raw 0x8a 0x1000;" \
@@ -51,7 +51,7 @@
 	BOOTENV
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"splashpos=m,m\0" \
 	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
@@ -67,7 +67,7 @@
 	"ramdisk_addr_r=0x83000000\0" \
 	"ramdiskaddr=0x83000000\0" \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
-	CONFIG_DFU_ENV_SETTINGS \
+	CFG_DFU_ENV_SETTINGS \
 	"findfdt=" \
 		"if test $fdtfile = ask ; then " \
 			"bootmenu -1; fi;" \
@@ -98,7 +98,7 @@
 #define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
+#define CFG_POWER_PFUZE3000_I2C_ADDR	0x08
 
 /* FLASH and environment organization */
 
@@ -107,7 +107,7 @@
 #define CFG_SYS_FSL_USDHC_NUM		2
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS			0
+#define CFG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS			0
 
 #endif

@@ -791,8 +791,8 @@ void setup_pmic(void)
 	i2c_set_bus_num(i2c_pmic);
 
 	/* configure PFUZE100 PMIC */
-	if (!i2c_probe(CONFIG_POWER_PFUZE100_I2C_ADDR)) {
-		debug("probed PFUZE100@0x%x\n", CONFIG_POWER_PFUZE100_I2C_ADDR);
+	if (!i2c_probe(CFG_POWER_PFUZE100_I2C_ADDR)) {
+		debug("probed PFUZE100@0x%x\n", CFG_POWER_PFUZE100_I2C_ADDR);
 		power_pfuze100_init(i2c_pmic);
 		p = pmic_get("PFUZE100");
 		if (p && !pmic_probe(p)) {
@@ -851,8 +851,8 @@ void setup_pmic(void)
 	}
 
 	/* configure LTC3676 PMIC */
-	else if (!i2c_probe(CONFIG_POWER_LTC3676_I2C_ADDR)) {
-		debug("probed LTC3676@0x%x\n", CONFIG_POWER_LTC3676_I2C_ADDR);
+	else if (!i2c_probe(CFG_POWER_LTC3676_I2C_ADDR)) {
+		debug("probed LTC3676@0x%x\n", CFG_POWER_LTC3676_I2C_ADDR);
 		power_ltc3676_init(i2c_pmic);
 		p = pmic_get("LTC3676_PMIC");
 		if (!p || pmic_probe(p))

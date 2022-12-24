@@ -13,9 +13,9 @@
 #include "mx6_common.h"
 
 /* UART */
-#define CONFIG_MXC_UART_BASE		UART3_BASE
+#define CFG_MXC_UART_BASE		UART3_BASE
 
-#if CONFIG_MXC_UART_BASE == UART2_BASE
+#if CFG_MXC_UART_BASE == UART2_BASE
 /* UART2 requires CONFIG_DEBUG_UART_BASE=0x21e8000 */
 #define CONSOLE_DEVICE "ttymxc1" /* System on Module debug connector */
 #else
@@ -24,8 +24,8 @@
 #endif
 
 /* USB */
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 
 /* Memory */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
@@ -35,7 +35,7 @@
 #define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Command definition */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"image=/boot/fitImage\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"splash_addr_r=0x20000000\0" \

@@ -30,26 +30,26 @@
 
 #include "sh_eth.h"
 
-#ifndef CONFIG_SH_ETHER_USE_PORT
-# error "Please define CONFIG_SH_ETHER_USE_PORT"
+#ifndef CFG_SH_ETHER_USE_PORT
+# error "Please define CFG_SH_ETHER_USE_PORT"
 #endif
-#ifndef CONFIG_SH_ETHER_PHY_ADDR
-# error "Please define CONFIG_SH_ETHER_PHY_ADDR"
+#ifndef CFG_SH_ETHER_PHY_ADDR
+# error "Please define CFG_SH_ETHER_PHY_ADDR"
 #endif
 
-#if defined(CONFIG_SH_ETHER_CACHE_WRITEBACK) && \
+#if defined(CFG_SH_ETHER_CACHE_WRITEBACK) && \
 	!CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #define flush_cache_wback(addr, len)    \
 		flush_dcache_range((unsigned long)addr, \
-		(unsigned long)(addr + ALIGN(len, CONFIG_SH_ETHER_ALIGNE_SIZE)))
+		(unsigned long)(addr + ALIGN(len, CFG_SH_ETHER_ALIGNE_SIZE)))
 #else
 #define flush_cache_wback(...)
 #endif
 
-#if defined(CONFIG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
+#if defined(CFG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
 #define invalidate_cache(addr, len)		\
 	{	\
-		unsigned long line_size = CONFIG_SH_ETHER_ALIGNE_SIZE;	\
+		unsigned long line_size = CFG_SH_ETHER_ALIGNE_SIZE;	\
 		unsigned long start, end;	\
 		\
 		start = (unsigned long)addr;	\
@@ -693,8 +693,8 @@ static int sh_ether_probe(struct udevice *udev)
 
 	priv->bus = miiphy_get_dev_by_name(udev->name);
 
-	eth->port = CONFIG_SH_ETHER_USE_PORT;
-	eth->port_info[eth->port].phy_addr = CONFIG_SH_ETHER_PHY_ADDR;
+	eth->port = CFG_SH_ETHER_USE_PORT;
+	eth->port_info[eth->port].phy_addr = CFG_SH_ETHER_PHY_ADDR;
 	eth->port_info[eth->port].iobase =
 		(void __iomem *)(uintptr_t)(BASE_IO_ADDR + 0x800 * eth->port);
 

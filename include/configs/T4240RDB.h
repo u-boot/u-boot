@@ -12,17 +12,17 @@
 
 #include <linux/stringify.h>
 
-#define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
+#define CFG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
 
 #ifdef CONFIG_RAMBOOT_PBL
 #ifndef CONFIG_SDCARD
-#define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
+#define CFG_RESET_VECTOR_ADDRESS     0xfffffffc
 #else
 #define RESET_VECTOR_OFFSET		0x27FFC
 #define BOOT_PAGE_OFFSET		0x27000
 
 #ifdef	CONFIG_SDCARD
-#define CONFIG_RESET_VECTOR_ADDRESS	0x200FFC
+#define CFG_RESET_VECTOR_ADDRESS	0x200FFC
 #define CFG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CFG_SYS_MMC_U_BOOT_DST	0x00200000
 #define CFG_SYS_MMC_U_BOOT_START	0x00200000
@@ -34,8 +34,8 @@
 
 /* High Level Configuration Options */
 
-#ifndef CONFIG_RESET_VECTOR_ADDRESS
-#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
+#ifndef CFG_RESET_VECTOR_ADDRESS
+#define CFG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 #define CFG_SYS_NUM_CPC		CONFIG_SYS_NUM_DDR_CTLRS
@@ -368,7 +368,7 @@
 #define CTRL_INTLV_PREFERED cacheline
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:"					\
 	"ctlr_intlv=" __stringify(CTRL_INTLV_PREFERED) ","	\
 	"bank_intlv=auto;"					\

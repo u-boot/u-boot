@@ -28,8 +28,8 @@
 #define CFG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
 
 /* serial console */
-#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
-#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CFG_USART_BASE		ATMEL_BASE_DBGU
+#define CFG_USART_ID			ATMEL_ID_SYS
 
 /* SDRAM */
 #define CFG_SYS_SDRAM_BASE           ATMEL_BASE_CS6

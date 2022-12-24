@@ -29,14 +29,14 @@
 		)
 
 /* By default force the TBI PHY into 1000Mbps full duplex when in SGMII mode */
-#ifndef CONFIG_TSEC_TBICR_SETTINGS
-#define CONFIG_TSEC_TBICR_SETTINGS ( \
+#ifndef CFG_TSEC_TBICR_SETTINGS
+#define CFG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \
 		| TBICR_ANEG_ENABLE \
 		| TBICR_FULL_DUPLEX \
 		| TBICR_SPEED1_SET \
 		)
-#endif /* CONFIG_TSEC_TBICR_SETTINGS */
+#endif /* CFG_TSEC_TBICR_SETTINGS */
 
 /* Configure the TBI for SGMII operation */
 static void tsec_configure_serdes(struct tsec_private *priv)
@@ -50,7 +50,7 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 	tsec_local_mdio_write(priv->phyregs_sgmii, in_be32(&priv->regs->tbipa),
 			      0, TBI_TBICON, TBICON_CLK_SELECT);
 	tsec_local_mdio_write(priv->phyregs_sgmii, in_be32(&priv->regs->tbipa),
-			      0, TBI_CR, CONFIG_TSEC_TBICR_SETTINGS);
+			      0, TBI_CR, CFG_TSEC_TBICR_SETTINGS);
 }
 
 /* the 'way' for ethernet-CRC-32. Spliced in from Linux lib/crc32.c

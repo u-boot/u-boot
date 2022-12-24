@@ -31,7 +31,7 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \
 	"kernel=/boot/uImage\0" \
 	"bootargs_root=ubi.mtd=root root=ubi0:root rootfstype=ubifs ro\0"

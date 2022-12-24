@@ -17,8 +17,8 @@
 /* The value in the common file is too far away for the VInCo platform */
 
 /* serial console */
-#define CONFIG_USART_BASE		0xfc00c000
-#define CONFIG_USART_ID			30
+#define CFG_USART_BASE		0xfc00c000
+#define CFG_USART_ID			30
 
 /* Timer */
 #define CFG_SYS_TIMER_COUNTER	0xfc06863c
@@ -45,7 +45,7 @@
 
 /* Update the bootcommand according to our mapping for the VInCo platform */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"kernel_start=0x20000\0" \
 	"kernel_size=0x800000\0" \
 	"mmcblksize=0x200\0" \

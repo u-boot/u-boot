@@ -135,7 +135,7 @@
 	"fdtoverlay_addr_r=" __FDTOVERLAY_ADDR_R "\0" \
 	"ramdisk_addr_r=" __RAMDISK_ADDR_R "\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	STM32MP_MEM_LAYOUT \
 	STM32MP_BOOTCMD \
 	STM32MP_PARTS_DEFAULT \

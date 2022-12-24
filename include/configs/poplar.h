@@ -31,7 +31,7 @@
 					func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 			"loader_mmc_blknum=0x0\0"			\
 			"loader_mmc_nblks=0x780\0"			\
 			"env_mmc_blknum=0xf80\0"			\

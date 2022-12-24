@@ -132,7 +132,7 @@ static int designware_wdt_probe(struct udevice *dev)
 		goto err;
 	}
 #else
-	priv->clk_khz = CONFIG_DW_WDT_CLOCK_KHZ;
+	priv->clk_khz = CFG_DW_WDT_CLOCK_KHZ;
 #endif
 
 	if (CONFIG_IS_ENABLED(DM_RESET) &&

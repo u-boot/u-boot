@@ -29,6 +29,7 @@ config ARCH_LS1028A
 	select ESBC_HDR_LS if CHAIN_OF_TRUST
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select FSL_TZASC_400
 	select GICV3
 	select NXP_LSCH3_2
 	select SYS_FSL_HAS_CCI400

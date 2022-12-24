@@ -12,14 +12,14 @@
 #include <configs/ti_armv7_omap.h>
 #include <asm/arch/omap.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	DEFAULT_LINUX_BOOT_ENV
 
 /* Clock Defines */
 #define V_OSCK          24000000    /* Clock output from T2 */
 #define V_SCLK          (V_OSCK >> 1)
 
-#define CONFIG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2048MB */
+#define CFG_MAX_RAM_BANK_SIZE	(2048 << 20)	/* 2048MB */
 #define CFG_SYS_SDRAM_BASE		0x80000000
 
 /**

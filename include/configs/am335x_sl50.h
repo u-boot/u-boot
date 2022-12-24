@@ -30,7 +30,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	AM335XX_BOARD_FDTFILE \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV

@@ -60,6 +60,6 @@
 #endif
 
 /* hw-controller addresses */
-#define CONFIG_ET1100_BASE		0x70000000
+#define CFG_ET1100_BASE		0x70000000
 
 #endif
