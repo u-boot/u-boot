@@ -68,7 +68,22 @@
 
 #define ROM_ENTENDED_BOOT_DATA_INFO		0x43c3f1e0
 
-/* Use Last 2K as Scratch pad */
+#define K3_BOOT_PARAM_TABLE_INDEX_OCRAM         0x7000F290
+
+/*
+ * During the boot process ROM will kill anything that writes to OCSRAM.
+ * This means the wakeup SPL cannot use this region during boot. To
+ * complicate things, TIFS will set a firewall between HSM RAM and the
+ * main domain.
+ *
+ * So, during the wakeup SPL, we will need to store the EEPROM data
+ * somewhere in HSM RAM, and the main domain's SPL will need to store it
+ * somewhere in OCSRAM
+ */
+#ifdef CONFIG_CPU_V7R
+#define TI_SRAM_SCRATCH_BOARD_EEPROM_START	0x43c30000
+#else
 #define TI_SRAM_SCRATCH_BOARD_EEPROM_START	0x70000001
+#endif /* CONFIG_CPU_V7R */
 
 #endif /* __ASM_ARCH_AM62A_HARDWARE_H */
