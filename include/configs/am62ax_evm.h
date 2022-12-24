@@ -59,9 +59,14 @@
 	EXTRA_ENV_AM62A7_BOARD_SETTINGS_MMC				\
 	"bootcmd_ti_mmc="						\
 		"run findfdt; run envboot; run init_mmc;"		\
-		"run get_kern_mmc; run get_fdt_mmc;"			\
-		"run get_overlay_mmc;"					\
-		"run run_kern;\0"
+		"if test ${boot_fit} -eq 1; then;"			\
+			"run get_fit_mmc; run get_overlaystring;"	\
+			"run run_fit;"					\
+		"else;"							\
+			"run get_kern_mmc; run get_fdt_mmc;"		\
+			"run get_overlay_mmc;"				\
+			"run run_kern;"					\
+		"fi;\0"
 
 #define BOOTENV_DEV_NAME_TI_MMC(devtyeu, devtypel, instance)		\
 	"ti_mmc "
