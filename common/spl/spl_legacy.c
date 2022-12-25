@@ -106,7 +106,7 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 		 * is set
 		 */
 		if (spl_image->flags & SPL_COPY_PAYLOAD_ONLY)
-			dataptr += sizeof(hdr);
+			dataptr += sizeof(*hdr);
 
 		load->read(load, dataptr, spl_image->size,
 			   (void *)(unsigned long)spl_image->load_addr);
@@ -116,7 +116,7 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 		lzma_len = LZMA_LEN;
 
 		/* dataptr points to compressed payload  */
-		dataptr = offset + sizeof(hdr);
+		dataptr = offset + sizeof(*hdr);
 
 		debug("LZMA: Decompressing %08lx to %08lx\n",
 		      dataptr, spl_image->load_addr);

@@ -197,7 +197,7 @@ config NAND_LPC32XX_SLC
 
 config NAND_OMAP_GPMC
 	bool "Support OMAP GPMC NAND controller"
-	depends on ARCH_OMAP2PLUS
+	depends on ARCH_OMAP2PLUS || ARCH_KEYSTONE || ARCH_K3
 	help
 	  Enables omap_gpmc.c driver for OMAPx and AMxxxx platforms.
 	  GPMC controller is used for parallel NAND flash devices, and can

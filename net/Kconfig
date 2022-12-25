@@ -190,6 +190,16 @@ config PROT_TCP_SACK
 	  This option should be turn on if you want to achieve the fastest
 	  file transfer possible.
 
+config IPV6
+	bool "IPv6 support"
+	help
+	  Enable IPv6 support. It includes Neighbour Discovery protocol, ICMPv6
+	  and auxiliary stuff to make it work. Since it is enabled u-boot
+	  network subsystem can get and handle incoming packets and send packets
+	  through IPv6 network. It allows to use environment variables such as
+	  ip6addr, serverip6. If a u-boot command is capable to parse an IPv6
+	  address and find it, it will force using IPv6 in the network stack.
+
 endif   # if NET
 
 config SYS_RX_ETH_BUFFER

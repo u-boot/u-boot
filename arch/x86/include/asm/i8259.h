@@ -7,7 +7,7 @@
 /* i8259.h i8259 PIC Registers */
 
 #ifndef _ASMI386_I8259_H_
-#define _ASMI386_I8959_H_
+#define _ASMI386_I8259_H_
 
 /* PIC I/O mapped registers */
 #define IRR		0x0	/* Interrupt Request Register */
@@ -73,4 +73,4 @@
 
 int i8259_init(void);
 
-#endif /* _ASMI386_I8959_H_ */
+#endif /* _ASMI386_I8259_H_ */

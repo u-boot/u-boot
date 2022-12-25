@@ -495,7 +495,7 @@ static inline int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr,
 }
 #endif
 
-#ifdef CONFIG_DFU_VIRT
+#if CONFIG_IS_ENABLED(DFU_VIRT)
 int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
 			 char **argv, int argc);
 int dfu_write_medium_virt(struct dfu_entity *dfu, u64 offset,

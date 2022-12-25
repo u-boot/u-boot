@@ -315,7 +315,7 @@ int reserve_arch(void)
 		if (IS_ENABLED(CONFIG_HAVE_FSP)) {
 			/*
 			 * Save stack address to CMOS so that at next S3 boot,
-			 * we can use it as the stack address for fsp_contiue()
+			 * we can use it as the stack address for fsp_continue()
 			 */
 			fsp_save_s3_stack();
 		}

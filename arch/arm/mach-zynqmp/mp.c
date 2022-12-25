@@ -42,6 +42,9 @@
 
 #define ZYNQMP_MAX_CORES	6
 
+#define ZYNQMP_RPU0_USE_MASK BIT(1)
+#define ZYNQMP_RPU1_USE_MASK BIT(2)
+
 int is_core_valid(unsigned int core)
 {
 	if (core < ZYNQMP_MAX_CORES)
@@ -250,6 +253,27 @@ void initialize_tcm(bool mode)
 	}
 }
 
+static void mark_r5_used(u32 nr, u8 mode)
+{
+	u32 mask = 0;
+
+	if (mode == LOCK) {
+		mask = ZYNQMP_RPU0_USE_MASK | ZYNQMP_RPU1_USE_MASK;
+	} else {
+		switch (nr) {
+		case ZYNQMP_CORE_RPU0:
+			mask = ZYNQMP_RPU0_USE_MASK;
+			break;
+		case ZYNQMP_CORE_RPU1:
+			mask = ZYNQMP_RPU1_USE_MASK;
+			break;
+		default:
+			return;
+		}
+	}
+	zynqmp_mmio_write((ulong)&pmu_base->gen_storage4, mask, mask);
+}
+
 int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	if (nr <= ZYNQMP_CORE_APU3) {
@@ -305,6 +329,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 			write_tcm_boot_trampoline(boot_addr_uniq);
 			dcache_enable();
 			set_r5_halt_mode(nr, RELEASE, LOCK);
+			mark_r5_used(nr, LOCK);
 		} else if (!strncmp(argv[1], "split", 5)) {
 			printf("R5 split mode\n");
 			set_r5_reset(nr, SPLIT);
@@ -317,6 +342,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 			write_tcm_boot_trampoline(boot_addr_uniq);
 			dcache_enable();
 			set_r5_halt_mode(nr, RELEASE, SPLIT);
+			mark_r5_used(nr, SPLIT);
 		} else {
 			printf("Unsupported mode\n");
 			return 1;

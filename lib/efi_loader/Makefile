@@ -12,12 +12,18 @@ ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
 CFLAGS_efi_boottime.o += \
   -DFW_VERSION="0x$(VERSION)" \
   -DFW_PATCHLEVEL="0x$(PATCHLEVEL)"
+CFLAGS_boothart.o := $(CFLAGS_EFI) -Os -ffreestanding
+CFLAGS_REMOVE_boothart.o := $(CFLAGS_NON_EFI)
 CFLAGS_helloworld.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI)
 CFLAGS_dtbdump.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_dtbdump.o := $(CFLAGS_NON_EFI)
 CFLAGS_initrddump.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_initrddump.o := $(CFLAGS_NON_EFI)
+
+ifdef CONFIG_RISCV
+always += boothart.efi
+endif
 
 ifneq ($(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
 always += helloworld.efi

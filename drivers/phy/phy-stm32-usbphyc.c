@@ -375,7 +375,7 @@ static int stm32_usbphyc_phy_power_off(struct phy *phy)
 		return 0;
 
 	if (usbphyc_phy->vbus) {
-		ret = regulator_set_enable(usbphyc_phy->vbus, false);
+		ret = regulator_set_enable_if_allowed(usbphyc_phy->vbus, false);
 		if (ret)
 			return ret;
 	}

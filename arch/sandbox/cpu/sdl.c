@@ -441,7 +441,6 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 {
 	struct buf_info *buf;
 	int avail;
-	bool have_data = false;
 	int i;
 
 	for (i = 0; i < 2; i++) {
@@ -453,10 +452,9 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 		}
 		if (avail > len)
 			avail = len;
-		have_data = true;
 
-		SDL_MixAudio(stream, buf->data + buf->pos, avail,
-			     SDL_MIX_MAXVOLUME);
+		memcpy(stream, buf->data + buf->pos, avail);
+		stream += avail;
 		buf->pos += avail;
 		len -= avail;
 
@@ -466,7 +464,8 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 		else
 			break;
 	}
-	sdl.stopping = !have_data;
+	memset(stream, 0, len);
+	sdl.stopping = !!len;
 }
 
 int sandbox_sdl_sound_init(int rate, int channels)
@@ -484,7 +483,7 @@ int sandbox_sdl_sound_init(int rate, int channels)
 	wanted.freq = rate;
 	wanted.format = AUDIO_S16;
 	wanted.channels = channels;
-	wanted.samples = 1024;  /* Good low-latency value for callback */
+	wanted.samples = 960;  /* Good low-latency value for callback */
 	wanted.callback = sandbox_sdl_fill_audio;
 	wanted.userdata = NULL;
 

@@ -691,7 +691,7 @@ config SPL_FS_FAT
 
 config SPL_FS_LOAD_PAYLOAD_NAME
 	string "File to load for U-Boot from the filesystem"
-	depends on SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS
+	depends on SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS || SPL_SEMIHOSTING
 	default "tispl.bin" if SYS_K3_SPL_ATF
 	default "u-boot.itb" if SPL_LOAD_FIT
 	default "u-boot.img"
@@ -1481,6 +1481,7 @@ config SPL_AM33XX_ENABLE_RTC32K_OSC
 config SPL_OPTEE_IMAGE
 	bool "Support OP-TEE Trusted OS image in SPL"
 	depends on ARM
+	depends on SPL_LOAD_FIT || SPL_LOAD_FIT_FULL
 	help
 	  OP-TEE is an open source Trusted OS which is loaded by SPL.
 	  More detail at: https://github.com/OP-TEE/optee_os

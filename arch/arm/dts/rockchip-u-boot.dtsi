@@ -11,7 +11,7 @@
 	};
 };
 
-#ifdef CONFIG_SPL
+#ifdef CONFIG_TPL
 &binman {
 	simple-bin {
 		filename = "u-boot-rockchip.bin";

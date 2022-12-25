@@ -190,3 +190,70 @@ int efi_unlink_dev(efi_handle_t handle)
 
 	return 0;
 }
+
+static int u16_tohex(u16 c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+
+	/* not hexadecimal */
+	return -1;
+}
+
+bool efi_varname_is_load_option(u16 *var_name16, int *index)
+{
+	int id, i, digit;
+
+	if (memcmp(var_name16, u"Boot", 8))
+		return false;
+
+	for (id = 0, i = 0; i < 4; i++) {
+		digit = u16_tohex(var_name16[4 + i]);
+		if (digit < 0)
+			break;
+		id = (id << 4) + digit;
+	}
+	if (i == 4 && !var_name16[8]) {
+		if (index)
+			*index = id;
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * efi_next_variable_name() - get next variable name
+ *
+ * This function is a wrapper of efi_get_next_variable_name_int().
+ * If efi_get_next_variable_name_int() returns EFI_BUFFER_TOO_SMALL,
+ * @size and @buf are updated by new buffer size and realloced buffer.
+ *
+ * @size:	pointer to the buffer size
+ * @buf:	pointer to the buffer
+ * @guid:	pointer to the guid
+ * Return:	status code
+ */
+efi_status_t efi_next_variable_name(efi_uintn_t *size, u16 **buf, efi_guid_t *guid)
+{
+	u16 *p;
+	efi_status_t ret;
+	efi_uintn_t buf_size = *size;
+
+	ret = efi_get_next_variable_name_int(&buf_size, *buf, guid);
+	if (ret == EFI_NOT_FOUND)
+		return ret;
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		p = realloc(*buf, buf_size);
+		if (!p)
+			return EFI_OUT_OF_RESOURCES;
+
+		*buf = p;
+		*size = buf_size;
+		ret = efi_get_next_variable_name_int(&buf_size, *buf, guid);
+	}
+
+	return ret;
+}

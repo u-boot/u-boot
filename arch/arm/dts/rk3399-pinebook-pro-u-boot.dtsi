@@ -20,14 +20,6 @@
 	rockchip,panel = <&edp_panel>;
 };
 
-&i2c0 {
-	u-boot,dm-pre-reloc;
-};
-
-&rk808 {
-	u-boot,dm-pre-reloc;
-};
-
 &sdhci {
 	max-frequency = <25000000>;
 	u-boot,dm-pre-reloc;

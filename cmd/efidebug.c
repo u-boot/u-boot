@@ -600,7 +600,7 @@ static int do_efi_show_memmap(struct cmd_tbl *cmdtp, int flag,
 	ret = efi_get_memory_map(&map_size, memmap, NULL, NULL, NULL);
 	if (ret == EFI_BUFFER_TOO_SMALL) {
 		map_size += sizeof(struct efi_mem_desc); /* for my own */
-		ret = efi_allocate_pool(EFI_LOADER_DATA, map_size,
+		ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
 					(void *)&memmap);
 		if (ret != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
@@ -1010,17 +1010,6 @@ static void show_efi_boot_opt(u16 *varname16)
 	}
 }
 
-static int u16_tohex(u16 c)
-{
-	if (c >= '0' && c <= '9')
-		return c - '0';
-	if (c >= 'A' && c <= 'F')
-		return c - 'A' + 10;
-
-	/* not hexadecimal */
-	return -1;
-}
-
 /**
  * show_efi_boot_dump() - dump all UEFI load options
  *
@@ -1041,7 +1030,6 @@ static int do_efi_boot_dump(struct cmd_tbl *cmdtp, int flag,
 	u16 *var_name16, *p;
 	efi_uintn_t buf_size, size;
 	efi_guid_t guid;
-	int id, i, digit;
 	efi_status_t ret;
 
 	if (argc > 1)
@@ -1074,16 +1062,7 @@ static int do_efi_boot_dump(struct cmd_tbl *cmdtp, int flag,
 			return CMD_RET_FAILURE;
 		}
 
-		if (memcmp(var_name16, u"Boot", 8))
-			continue;
-
-		for (id = 0, i = 0; i < 4; i++) {
-			digit = u16_tohex(var_name16[4 + i]);
-			if (digit < 0)
-				break;
-			id = (id << 4) + digit;
-		}
-		if (i == 4 && !var_name16[8])
+		if (efi_varname_is_load_option(var_name16, NULL))
 			show_efi_boot_opt(var_name16);
 	}
 

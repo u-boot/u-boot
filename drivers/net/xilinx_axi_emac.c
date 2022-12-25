@@ -109,6 +109,7 @@ struct axidma_plat {
 	struct eth_pdata eth_pdata;
 	struct axidma_reg *dmatx;
 	struct axidma_reg *dmarx;
+	int pcsaddr;
 	int phyaddr;
 	u8 eth_hasnobuf;
 	int phy_of_handle;
@@ -119,6 +120,7 @@ struct axidma_plat {
 struct axidma_priv {
 	struct axidma_reg *dmatx;
 	struct axidma_reg *dmarx;
+	int pcsaddr;
 	int phyaddr;
 	struct axi_regs *iobase;
 	phy_interface_t interface;
@@ -301,6 +303,13 @@ static int axiemac_phy_init(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_DM_ETH_PHY))
 		priv->phyaddr = eth_phy_get_addr(dev);
 
+	/*
+	 * Set address of PCS/PMA PHY to the one pointed by phy-handle for
+	 * backward compatibility.
+	 */
+	if (priv->phyaddr != -1 && priv->pcsaddr == 0)
+		priv->pcsaddr = priv->phyaddr;
+
 	if (priv->phyaddr == -1) {
 		/* Detect the PHY address */
 		for (i = 31; i >= 0; i--) {
@@ -333,6 +342,45 @@ static int axiemac_phy_init(struct udevice *dev)
 	return 0;
 }
 
+static int pcs_pma_startup(struct axidma_priv *priv)
+{
+	u32 rc, retry_cnt = 0;
+	u16 mii_reg;
+
+	rc = phyread(priv, priv->pcsaddr, MII_BMCR, &mii_reg);
+	if (rc)
+		goto failed_mdio;
+
+	if (!(mii_reg & BMCR_ANENABLE)) {
+		mii_reg |= BMCR_ANENABLE;
+		if (phywrite(priv, priv->pcsaddr, MII_BMCR, mii_reg))
+			goto failed_mdio;
+	}
+
+	/*
+	 * Check the internal PHY status and warn user if the link between it
+	 * and the external PHY is not obtained.
+	 */
+	debug("axiemac: waiting for link status of the PCS/PMA PHY");
+	while (retry_cnt * 10 < PHY_ANEG_TIMEOUT) {
+		rc = phyread(priv, priv->pcsaddr, MII_BMSR, &mii_reg);
+		if ((mii_reg & BMSR_LSTATUS) && mii_reg != 0xffff && !rc) {
+			debug(".Done\n");
+			return 0;
+		}
+		if ((retry_cnt++ % 10) == 0)
+			debug(".");
+		mdelay(10);
+	}
+	debug("\n");
+	printf("axiemac: Warning, PCS/PMA PHY@%d is not ready, link is down\n",
+	       priv->pcsaddr);
+	return 1;
+failed_mdio:
+	printf("axiemac: MDIO to the PCS/PMA PHY has failed\n");
+	return 1;
+}
+
 /* Setting axi emac and phy to proper setting */
 static int setup_phy(struct udevice *dev)
 {
@@ -348,12 +396,12 @@ static int setup_phy(struct udevice *dev)
 		 * after DMA and ethernet resets and hence
 		 * check and clear if set.
 		 */
-		ret = phyread(priv, priv->phyaddr, MII_BMCR, &temp);
+		ret = phyread(priv, priv->pcsaddr, MII_BMCR, &temp);
 		if (ret)
 			return 0;
 		if (temp & BMCR_ISOLATE) {
 			temp &= ~BMCR_ISOLATE;
-			ret = phywrite(priv, priv->phyaddr, MII_BMCR, temp);
+			ret = phywrite(priv, priv->pcsaddr, MII_BMCR, temp);
 			if (ret)
 				return 0;
 		}
@@ -363,6 +411,11 @@ static int setup_phy(struct udevice *dev)
 		printf("axiemac: could not initialize PHY %s\n",
 		       phydev->dev->name);
 		return 0;
+	}
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII ||
+	    priv->interface == PHY_INTERFACE_MODE_1000BASEX) {
+		if (pcs_pma_startup(priv))
+			return 0;
 	}
 	if (!phydev->link) {
 		printf("%s: No link.\n", phydev->dev->name);
@@ -784,6 +837,7 @@ static int axi_emac_probe(struct udevice *dev)
 
 	if (priv->mactype == EMAC_1G) {
 		priv->eth_hasnobuf = plat->eth_hasnobuf;
+		priv->pcsaddr = plat->pcsaddr;
 		priv->phyaddr = plat->phyaddr;
 		priv->phy_of_handle = plat->phy_of_handle;
 		priv->interface = pdata->phy_interface;
@@ -861,6 +915,8 @@ static int axi_emac_of_to_plat(struct udevice *dev)
 
 	if (plat->mactype == EMAC_1G) {
 		plat->phyaddr = -1;
+		/* PHYAD 0 always redirects to the PCS/PMA PHY */
+		plat->pcsaddr = 0;
 
 		offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
 					       "phy-handle");
@@ -878,6 +934,16 @@ static int axi_emac_of_to_plat(struct udevice *dev)
 
 		plat->eth_hasnobuf = fdtdec_get_bool(gd->fdt_blob, node,
 						     "xlnx,eth-hasnobuf");
+
+		if (pdata->phy_interface == PHY_INTERFACE_MODE_SGMII ||
+		    pdata->phy_interface == PHY_INTERFACE_MODE_1000BASEX) {
+			offset = fdtdec_lookup_phandle(gd->fdt_blob, node,
+						       "pcs-handle");
+			if (offset > 0) {
+				plat->pcsaddr = fdtdec_get_int(gd->fdt_blob,
+							       offset, "reg", -1);
+			}
+		}
 	}
 
 	return 0;

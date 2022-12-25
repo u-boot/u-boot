@@ -67,6 +67,17 @@ static int unicode_test_u16_strlen(struct unit_test_state *uts)
 }
 UNICODE_TEST(unicode_test_u16_strlen);
 
+static int unicode_test_u16_strnlen(struct unit_test_state *uts)
+{
+	ut_asserteq(0, u16_strnlen(c1, 0));
+	ut_asserteq(4, u16_strnlen(c1, 4));
+	ut_asserteq(6, u16_strnlen(c1, 6));
+	ut_asserteq(6, u16_strnlen(c1, 7));
+
+	return 0;
+}
+UNICODE_TEST(unicode_test_u16_strnlen);
+
 static int unicode_test_u16_strdup(struct unit_test_state *uts)
 {
 	u16 *copy = u16_strdup(c4);

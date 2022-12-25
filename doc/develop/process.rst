@@ -165,8 +165,8 @@ document.
   <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#using-reported-by-tested-by-reviewed-by-suggested-by-and-fixes>`_
   and similar additional tags.
 
-* Reviewed-by: The patch has been reviewed and found acceptible according to
-  the `Reveiwer's statement of oversight
+* Reviewed-by: The patch has been reviewed and found acceptable according to
+  the `Reviewer's statement of oversight
   <https://www.kernel.org/doc/html/latest/process/submitting-patches.html#reviewer-s-statement-of-oversight>`_.
   A *Reviewed-by:* tag is a statement of opinion that the patch is an
   appropriate modification of the code without any remaining serious technical
@@ -193,8 +193,8 @@ document.
 
 * Cc: If a person should have the opportunity to comment on a patch, you may
   optionally add a *Cc:* tag to the patch. Git tools (git send-email) will then
-  automatically arrange that they receives a copy of the patch when you submit it
-  to the mainling list. This is the only tag which might be added without an
+  automatically arrange that they receives a copy of the patch when you submit
+  it to the mailing list. This is the only tag which might be added without an
   explicit action by the person it names. This tag documents that potentially
   interested parties have been included in the discussion.
   For example, when your change affects a specific board or driver, then makes
@@ -209,7 +209,7 @@ like this:
 #. The responsible custodian inspects this patch, especially for:
 
    #. The commit message is useful, descriptive and makes correct and
-      appropraite usage of required *git tags*.
+      appropriate usage of required *git tags*.
 
    #. :doc:`codingstyle`
 
@@ -251,7 +251,7 @@ like this:
    workflows and environments however.
 
 #. Although a custodian is supposed to perform their own tests it is a
-   well-known and accepted fact that they needs help from other developers who
+   well-known and accepted fact that they need help from other developers who
    - for example - have access to the required hardware or other relevant
    environments.  Custodians are expected to ask for assistance with testing
    when required.

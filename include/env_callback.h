@@ -51,6 +51,15 @@
 #define NET_CALLBACKS
 #endif
 
+#ifdef CONFIG_IPV6
+#define NET6_CALLBACKS \
+	"ip6addr:ip6addr," \
+	"serverip6:serverip6," \
+	"gatewayip6:gatewayip6,"
+#else
+#define NET6_CALLBACKS
+#endif
+
 #ifdef CONFIG_BOOTSTD
 #define BOOTSTD_CALLBACK	"bootmeths:bootmeths,"
 #else
@@ -65,6 +74,7 @@
 	ENV_DOT_ESCAPE ENV_FLAGS_VAR ":flags," \
 	"baudrate:baudrate," \
 	NET_CALLBACKS \
+	NET6_CALLBACKS \
 	BOOTSTD_CALLBACK \
 	"loadaddr:loadaddr," \
 	SILENT_CALLBACK \

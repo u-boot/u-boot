@@ -384,8 +384,8 @@ config EFI_ECPT
 	help
 	  Enabling this option created the ECPT UEFI table.
 
-config EFI_EBBR_2_0_CONFORMANCE
-	bool "Add the EBBRv2.0 conformance entry to the ECPT table"
+config EFI_EBBR_2_1_CONFORMANCE
+	bool "Add the EBBRv2.1 conformance entry to the ECPT table"
 	depends on EFI_ECPT
 	depends on EFI_LOADER_HII
 	depends on EFI_RISCV_BOOT_PROTOCOL || !RISCV
@@ -393,7 +393,7 @@ config EFI_EBBR_2_0_CONFORMANCE
 	depends on EFI_UNICODE_COLLATION_PROTOCOL2
 	default y
 	help
-	  Enabling this option adds the EBBRv2.0 conformance entry to the ECPT UEFI table.
+	  Enabling this option adds the EBBRv2.1 conformance entry to the ECPT UEFI table.
 
 config EFI_RISCV_BOOT_PROTOCOL
 	bool "RISCV_EFI_BOOT_PROTOCOL support"

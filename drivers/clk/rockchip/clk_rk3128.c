@@ -438,7 +438,7 @@ static ulong rk3128_vop_set_clk(struct rk3128_cru *cru, ulong clk_id, uint hz)
 			     VIO1_SEL_GPLL << VIO1_PLL_SHIFT |
 			     (src_clk_div - 1) << VIO1_DIV_SHIFT);
 		break;
-	case DCLK_LCDC:
+	case DCLK_VOP:
 		if (pll_para_config(hz, &cpll_config))
 			return -1;
 		rkclk_set_pll(cru, CLK_CODEC, &cpll_config);
@@ -471,7 +471,7 @@ static ulong rk3128_vop_get_rate(struct rk3128_cru *cru, ulong clk_id)
 		div = (con >> 8) & 0x1f;
 		parent = GPLL_HZ;
 		break;
-	case DCLK_LCDC:
+	case DCLK_VOP:
 		con = readl(&cru->cru_clksel_con[27]);
 		div = (con >> 8) & 0xfff;
 		parent = rkclk_pll_get_rate(cru, CLK_CODEC);
@@ -497,7 +497,7 @@ static ulong rk3128_clk_get_rate(struct clk *clk)
 		return rk3128_peri_get_pclk(priv->cru, clk->id);
 	case SCLK_SARADC:
 		return rk3128_saradc_get_clk(priv->cru);
-	case DCLK_LCDC:
+	case DCLK_VOP:
 	case ACLK_VIO0:
 	case ACLK_VIO1:
 		return rk3128_vop_get_rate(priv->cru, clk->id);
@@ -515,7 +515,7 @@ static ulong rk3128_clk_set_rate(struct clk *clk, ulong rate)
 	switch (clk->id) {
 	case 0 ... 63:
 		return 0;
-	case DCLK_LCDC:
+	case DCLK_VOP:
 	case ACLK_VIO0:
 	case ACLK_VIO1:
 		new_rate = rk3128_vop_set_clk(priv->cru,

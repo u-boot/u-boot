@@ -452,8 +452,7 @@ struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_
 	struct efi_device_path *dp;
 	struct efi_device_path_file_path *fp;
 
-	fp_size = sizeof(struct efi_device_path) +
-		  ((u16_strlen(current_path) + 1) * sizeof(u16));
+	fp_size = sizeof(struct efi_device_path) + u16_strsize(current_path);
 	buf = calloc(1, fp_size + sizeof(END));
 	if (!buf)
 		return NULL;
@@ -488,7 +487,7 @@ static efi_status_t eficonfig_file_selected(void *data)
 	if (!info)
 		return EFI_INVALID_PARAMETER;
 
-	if (!strcmp(info->file_name, "..")) {
+	if (!strcmp(info->file_name, "..\\")) {
 		struct eficonfig_filepath_info *iter;
 		struct list_head *pos, *n;
 		int is_last;
@@ -1684,7 +1683,8 @@ static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
 	u32 i;
 	u16 *bootorder;
 	efi_status_t ret;
-	efi_uintn_t num, size;
+	u16 *var_name16 = NULL;
+	efi_uintn_t num, size, buf_size;
 	struct efimenu *efi_menu;
 	struct list_head *pos, *n;
 	struct eficonfig_entry *entry;
@@ -1708,14 +1708,31 @@ static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
 	}
 
 	/* list the remaining load option not included in the BootOrder */
-	for (i = 0; i <= 0xFFFF; i++) {
-		/* If the index is included in the BootOrder, skip it */
-		if (search_bootorder(bootorder, num, i, NULL))
-			continue;
+	buf_size = 128;
+	var_name16 = malloc(buf_size);
+	if (!var_name16)
+		return EFI_OUT_OF_RESOURCES;
 
-		ret = eficonfig_add_boot_selection_entry(efi_menu, i, selected);
+	var_name16[0] = 0;
+	for (;;) {
+		int index;
+		efi_guid_t guid;
+
+		ret = efi_next_variable_name(&buf_size, &var_name16, &guid);
+		if (ret == EFI_NOT_FOUND)
+			break;
 		if (ret != EFI_SUCCESS)
 			goto out;
+
+		if (efi_varname_is_load_option(var_name16, &index)) {
+			/* If the index is included in the BootOrder, skip it */
+			if (search_bootorder(bootorder, num, index, NULL))
+				continue;
+
+			ret = eficonfig_add_boot_selection_entry(efi_menu, index, selected);
+			if (ret != EFI_SUCCESS)
+				goto out;
+		}
 
 		if (efi_menu->count >= EFICONFIG_ENTRY_NUM_MAX - 1)
 			break;
@@ -1732,6 +1749,8 @@ out:
 		free(entry->data);
 	}
 	eficonfig_destroy(efi_menu);
+
+	free(var_name16);
 
 	return ret;
 }
@@ -1995,6 +2014,8 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 	u32 i;
 	char *title;
 	efi_status_t ret;
+	u16 *var_name16 = NULL;
+	efi_uintn_t size, buf_size;
 
 	/* list the load option in the order of BootOrder variable */
 	for (i = 0; i < num; i++) {
@@ -2007,17 +2028,35 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 	}
 
 	/* list the remaining load option not included in the BootOrder */
-	for (i = 0; i < 0xFFFF; i++) {
+	buf_size = 128;
+	var_name16 = malloc(buf_size);
+	if (!var_name16)
+		return EFI_OUT_OF_RESOURCES;
+
+	var_name16[0] = 0;
+	for (;;) {
+		int index;
+		efi_guid_t guid;
+
 		if (efi_menu->count >= EFICONFIG_ENTRY_NUM_MAX - 2)
 			break;
 
-		/* If the index is included in the BootOrder, skip it */
-		if (search_bootorder(bootorder, num, i, NULL))
-			continue;
-
-		ret = eficonfig_add_change_boot_order_entry(efi_menu, i, false);
+		size = buf_size;
+		ret = efi_next_variable_name(&buf_size, &var_name16, &guid);
+		if (ret == EFI_NOT_FOUND)
+			break;
 		if (ret != EFI_SUCCESS)
 			goto out;
+
+		if (efi_varname_is_load_option(var_name16, &index)) {
+			/* If the index is included in the BootOrder, skip it */
+			if (search_bootorder(bootorder, num, index, NULL))
+				continue;
+
+			ret = eficonfig_add_change_boot_order_entry(efi_menu, index, false);
+			if (ret != EFI_SUCCESS)
+				goto out;
+		}
 	}
 
 	/* add "Save" and "Quit" entries */
@@ -2036,9 +2075,9 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 		goto out;
 
 	efi_menu->active = 0;
-
-	return EFI_SUCCESS;
 out:
+	free(var_name16);
+
 	return ret;
 }
 
@@ -2271,17 +2310,43 @@ out:
 efi_status_t eficonfig_delete_invalid_boot_option(struct eficonfig_media_boot_option *opt,
 						  efi_status_t count)
 {
-	u32 i, j;
 	efi_uintn_t size;
 	void *load_option;
+	u32 i, list_size = 0;
 	struct efi_load_option lo;
+	u16 *var_name16 = NULL;
 	u16 varname[] = u"Boot####";
 	efi_status_t ret = EFI_SUCCESS;
+	u16 *delete_index_list = NULL, *p;
+	efi_uintn_t buf_size;
 
-	for (i = 0; i <= 0xFFFF; i++) {
+	buf_size = 128;
+	var_name16 = malloc(buf_size);
+	if (!var_name16)
+		return EFI_OUT_OF_RESOURCES;
+
+	var_name16[0] = 0;
+	for (;;) {
+		int index;
+		efi_guid_t guid;
 		efi_uintn_t tmp;
 
-		efi_create_indexed_name(varname, sizeof(varname), "Boot", i);
+		ret = efi_next_variable_name(&buf_size, &var_name16, &guid);
+		if (ret == EFI_NOT_FOUND) {
+			/*
+			 * EFI_NOT_FOUND indicates we retrieved all EFI variables.
+			 * This should be treated as success.
+			 */
+			ret = EFI_SUCCESS;
+			break;
+		}
+		if (ret != EFI_SUCCESS)
+			goto out;
+
+		if (!efi_varname_is_load_option(var_name16, &index))
+			continue;
+
+		efi_create_indexed_name(varname, sizeof(varname), "Boot", index);
 		load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
 		if (!load_option)
 			continue;
@@ -2291,30 +2356,47 @@ efi_status_t eficonfig_delete_invalid_boot_option(struct eficonfig_media_boot_op
 		if (ret != EFI_SUCCESS)
 			goto next;
 
-		if (size >= sizeof(efi_guid_bootmenu_auto_generated)) {
-			if (guidcmp(lo.optional_data, &efi_guid_bootmenu_auto_generated) == 0) {
-				for (j = 0; j < count; j++) {
-					if (opt[j].size == tmp &&
-					    memcmp(opt[j].lo, load_option, tmp) == 0) {
-						opt[j].exist = true;
-						break;
-					}
+		if (size >= sizeof(efi_guid_bootmenu_auto_generated) &&
+		    !guidcmp(lo.optional_data, &efi_guid_bootmenu_auto_generated)) {
+			for (i = 0; i < count; i++) {
+				if (opt[i].size == tmp &&
+				    memcmp(opt[i].lo, load_option, tmp) == 0) {
+					opt[i].exist = true;
+					break;
 				}
+			}
 
-				if (j == count) {
-					ret = delete_boot_option(i);
-					if (ret != EFI_SUCCESS) {
-						free(load_option);
-						goto out;
-					}
+			/*
+			 * The entire list of variables must be retrieved by
+			 * efi_get_next_variable_name_int() before deleting the invalid
+			 * boot option, just save the index here.
+			 */
+			if (i == count) {
+				p = realloc(delete_index_list, sizeof(u32) *
+					    (list_size + 1));
+				if (!p) {
+					ret = EFI_OUT_OF_RESOURCES;
+					goto out;
 				}
+				delete_index_list = p;
+				delete_index_list[list_size++] = index;
 			}
 		}
 next:
 		free(load_option);
 	}
 
+	/* delete all invalid boot options */
+	for (i = 0; i < list_size; i++) {
+		ret = delete_boot_option(delete_index_list[i]);
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
+
 out:
+	free(var_name16);
+	free(delete_index_list);
+
 	return ret;
 }
 

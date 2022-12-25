@@ -239,8 +239,12 @@ static int fru_parse_multirec(unsigned long addr)
 
 		if (mrc.rec_type == FRU_MULTIREC_TYPE_OEM) {
 			struct fru_multirec_mac *mac = (void *)addr + hdr_len;
+			u32 type = FRU_DUT_MACID;
 
-			if (mac->ver == FRU_DUT_MACID) {
+			if (CONFIG_IS_ENABLED(FRU_SC))
+				type = FRU_SC_MACID;
+
+			if (mac->ver == type) {
 				mac_len = mrc.len - FRU_MULTIREC_MAC_OFFSET;
 				memcpy(&fru_data.mac.macid, mac->macid, mac_len);
 			}

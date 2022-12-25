@@ -20,8 +20,8 @@ LWN article `How to Get Your Change Into the Linux Kernel
 Using patman
 ------------
 
-You can use a tool called patman to prepare, check and sent patches. It creates
-change logs, cover letters and patch notes. It also simplified the process of
+You can use a tool called patman to prepare, check and send patches. It creates
+change logs, cover letters and patch notes. It also simplifies the process of
 sending multiple versions of a series.
 
 See more details at :doc:`patman`.
@@ -41,7 +41,7 @@ General Patch Submission Rules
   past commits might have input to your change, so also CC them if you think
   they may have feedback.
 
-* Patches should always contain exactly one complete logical change, i. e.
+* Patches should always contain exactly one complete logical change, i.e.
 
    * Changes that contain different, unrelated modifications shall be submitted
      as *separate* patches, one patch per changeset.
@@ -68,7 +68,7 @@ General Patch Submission Rules
      as such -- that *precedes* your substantive patch.
 
    * For minor modifications (e.g. changed arguments of a function call),
-     adhere to the present codingstyle of the module. Relating checkpatch
+     adhere to the present coding style of the module. Relating checkpatch
      warnings can be ignored in this case. A respective note in the commit or
      cover letter why they are ignored is desired.
 
@@ -93,7 +93,7 @@ General Patch Submission Rules
   visible as headline of your commit message. Make sure the subject does not
   exceed 60 characters or so.
 
-* The start of the subject should be a meaningfull tag (arm:, ppc:, tegra:,
+* The start of the subject should be a meaningful tag (arm:, ppc:, tegra:,
   net:, ext2:, etc)
 
 * Include the string "PATCH" in the Subject: line of your message, e. g.
@@ -247,14 +247,14 @@ When re-posting such a new version of your patch(es), please always make sure
 to observe the following rules.
 
 * Make an appropriate note that this is a re-submission in the subject line,
-  eg. "[PATCH v2] Add support for feature X". ``git format-patch
+  e.g. "[PATCH v2] Add support for feature X". ``git format-patch
   --subject-prefix="PATCH v2"`` can be used in this case (see the example
   below).
 
-* Please make sure to keep a "change log", i. e. a description of what you have
+* Please make sure to keep a "change log", i.e. a description of what you have
   changed compared to previous versions of this patch. This change log should
   be added below the "---" line in the patch, which starts the "comment
-  section", i. e. which contains text that does not get included into the
+  section", i.e. which contains text that does not get included into the
   actual commit message.
   Note: it is *not* sufficient to provide a change log in some cover letter
   that gets sent as a separate message with the patch series. The reason is
@@ -312,7 +312,7 @@ Notes
 2. All code must follow the :doc:`codingstyle` requirements.
 
 3. Before sending the patch, you *must* run some form of local testing.
-   Submitting a patch that does not build or function correct is a mistake. For
+   Submitting a patch that does not build or function correctly is a mistake. For
    non-trivial patches, either building a number of platforms locally or making
    use of :doc:`ci_testing` is strongly encouraged in order to avoid problems
    that can be found when attempting to merge the patch.

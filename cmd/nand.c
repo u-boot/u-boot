@@ -417,12 +417,14 @@ static void nand_print_and_set_info(int idx)
 		printf("%dx ", chip->numchips);
 	printf("%s, sector size %u KiB\n",
 	       mtd->name, mtd->erasesize >> 10);
-	printf("  Page size   %8d b\n", mtd->writesize);
-	printf("  OOB size    %8d b\n", mtd->oobsize);
-	printf("  Erase size  %8d b\n", mtd->erasesize);
-	printf("  subpagesize %8d b\n", chip->subpagesize);
-	printf("  options     0x%08x\n", chip->options);
-	printf("  bbt options 0x%08x\n", chip->bbt_options);
+	printf("  Page size     %8d b\n", mtd->writesize);
+	printf("  OOB size      %8d b\n", mtd->oobsize);
+	printf("  Erase size    %8d b\n", mtd->erasesize);
+	printf("  ecc strength  %8d bits\n", mtd->ecc_strength);
+	printf("  ecc step size %8d b\n", mtd->ecc_step_size);
+	printf("  subpagesize   %8d b\n", chip->subpagesize);
+	printf("  options       0x%08x\n", chip->options);
+	printf("  bbt options   0x%08x\n", chip->bbt_options);
 
 	/* Set geometry info */
 	env_set_hex("nand_writesize", mtd->writesize);

@@ -71,6 +71,53 @@ config HAVE_PRIVATE_LIBGCC
 config LIB_UUID
 	bool
 
+config SEMIHOSTING
+	bool "Support semihosting"
+	depends on ARM || RISCV
+	help
+	  Semihosting is a method for a target to communicate with a host
+	  debugger. It uses special instructions which the debugger will trap
+	  on and interpret. This allows U-Boot to read/write files, print to
+	  the console, and execute arbitrary commands on the host system.
+
+	  Enabling this option will add support for reading and writing files
+	  on the host system. If you don't have a debugger attached then trying
+	  to do this will likely cause U-Boot to hang. Say 'n' if you are unsure.
+
+config SEMIHOSTING_FALLBACK
+	bool "Recover gracefully when semihosting fails"
+	depends on SEMIHOSTING && (ARM64 || RISCV)
+	default y
+	help
+	  Normally, if U-Boot makes a semihosting call and no debugger is
+	  attached, then it will panic due to a synchronous abort
+	  exception. This config adds an exception handler which will allow
+	  U-Boot to recover. Say 'y' if unsure.
+
+config SPL_SEMIHOSTING
+	bool "Support semihosting in SPL"
+	depends on SPL && (ARM || RISCV)
+	help
+	  Semihosting is a method for a target to communicate with a host
+	  debugger. It uses special instructions which the debugger will trap
+	  on and interpret. This allows U-Boot to read/write files, print to
+	  the console, and execute arbitrary commands on the host system.
+
+	  Enabling this option will add support for reading and writing files
+	  on the host system. If you don't have a debugger attached then trying
+	  to do this will likely cause U-Boot to hang. Say 'n' if you are unsure.
+
+config SPL_SEMIHOSTING_FALLBACK
+	bool "Recover gracefully when semihosting fails in SPL"
+	depends on SPL_SEMIHOSTING && (ARM64 || RISCV)
+	select ARMV8_SPL_EXCEPTION_VECTORS if ARM64
+	default y
+	help
+	  Normally, if U-Boot makes a semihosting call and no debugger is
+	  attached, then it will panic due to a synchronous abort
+	  exception. This config adds an exception handler which will allow
+	  U-Boot to recover. Say 'y' if unsure.
+
 config PRINTF
 	bool
 	default y

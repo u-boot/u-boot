@@ -186,6 +186,7 @@ static int ftpm_tee_probe(struct udevice *dev)
 
 	/* Open a session with the fTPM TA */
 	memset(&sess_arg, 0, sizeof(sess_arg));
+	sess_arg.clnt_login = TEE_LOGIN_REE_KERNEL;
 	tee_optee_ta_uuid_to_octets(sess_arg.uuid, &uuid);
 
 	rc = tee_open_session(context->tee_dev, &sess_arg, 0, NULL);

@@ -268,7 +268,8 @@ const efi_guid_t *efi_auth_var_get_guid(const u16 *name);
  * efi_get_next_variable_name_mem() - Runtime common code across efi variable
  *                                    implementations for GetNextVariable()
  *                                    from the cached memory copy
- * @variable_name_size:	size of variable_name buffer in byte
+ *
+ * @variable_name_size:	size of variable_name buffer in bytes
  * @variable_name:	name of uefi variable's name in u16
  * @vendor:		vendor's guid
  *
