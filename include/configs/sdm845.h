@@ -16,8 +16,9 @@
 #define CFG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x4000000\0"	\
 	"bootm_low=0x80000000\0"	\
-	"stdout=vidconsole\0"	\
-	"stderr=vidconsole\0"	\
+	"stdin=serial\0"	\
+	"stdout=serial,vidconsole\0"	\
+	"stderr=serial,vidconsole\0"	\
 	"preboot=source $prevbl_initrd_start_addr:prebootscript\0" \
 	"bootcmd=source $prevbl_initrd_start_addr:bootscript\0"
 
