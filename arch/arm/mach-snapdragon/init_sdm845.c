@@ -78,5 +78,23 @@ __weak int misc_init_r(void)
 		env_set("key_power", "0");
 	}
 
+	/*
+	 * search for kaslr address, set by primary bootloader by searching first
+	 * 0x100 relocated bytes at u-boot's initial load address range
+	 */
+	uintptr_t start = gd->ram_base;
+	uintptr_t end = start + 0x800000;
+	u8 *addr = (u8 *)start;
+	phys_addr_t *relocaddr = (phys_addr_t *)gd->relocaddr;
+	u32 block_size = 0x1000;
+
+	while (memcmp(addr, relocaddr, 0x100) && (uintptr_t)addr < end)
+		addr += block_size;
+
+	if ((uintptr_t)addr >= end)
+		printf("KASLR not found in range 0x%lx - 0x%lx", start, end);
+	else
+		env_set_addr("KASLR", addr);
+
 	return 0;
 }
