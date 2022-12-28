@@ -724,16 +724,19 @@ config RAMBOOT_PBL
 	  For more details refer to doc/README.pblimage
 
 choice
-	prompt "Freescale PBL load location"
+	prompt "Freescale PBL (or predecessor) load location"
 	depends on RAMBOOT_PBL || ((TARGET_P1010RDB_PA || TARGET_P1010RDB_PB \
 		|| TARGET_P1020RDB_PC || TARGET_P1020RDB_PD || TARGET_P2020RDB) \
 		&& !CMD_NAND)
 
 config SDCARD
-	bool "Freescale PBL is found on SD card"
+	bool "Freescale PBL (or similar) is found on SD card"
 
 config SPIFLASH
-	bool "Freescale PBL is found on SPI flash"
+	bool "Freescale PBL (or similar) is found on SPI flash"
+
+config NO_PBL
+	bool "Freescale PBL (or similar) is not used in this case"
 
 endchoice
 
