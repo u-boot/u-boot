@@ -350,6 +350,15 @@ static int run_test_internal(struct unit_test_state *uts, char *name,
 			buf->orig_size) == 0);
 	errcheck(((char *)buf->uncompressed_buf)[buf->orig_size] == 'A');
 
+	/* Uncompresses with trailing garbage in input buffer. */
+	memset(buf->uncompressed_buf, 'A', TEST_BUFFER_SIZE);
+	errcheck(uncompress(uts, buf->compressed_buf, buf->compressed_size + 4,
+			    buf->uncompressed_buf, buf->uncompressed_size,
+			    &buf->uncompressed_size) == 0);
+	errcheck(buf->uncompressed_size == buf->orig_size);
+	errcheck(memcmp(buf->orig_buf, buf->uncompressed_buf,
+			buf->orig_size) == 0);
+
 	/* Make sure compression does not over-run. */
 	memset(buf->compare_buf, 'A', TEST_BUFFER_SIZE);
 	ret = compress(uts, buf->orig_buf, buf->orig_size,
