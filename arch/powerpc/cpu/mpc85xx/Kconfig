@@ -72,6 +72,7 @@ choice
 config TARGET_SOCRATES
 	bool "Support socrates"
 	select ARCH_MPC8544
+	select BINMAN
 
 config TARGET_P3041DS
 	bool "Support P3041DS"
