@@ -321,51 +321,48 @@ static int run_test_internal(struct unit_test_state *uts, char *name,
 	/* Compress works as expected. */
 	printf("\torig_size:%lu\n", buf->orig_size);
 	memset(buf->compressed_buf, 'A', TEST_BUFFER_SIZE);
-	errcheck(compress(uts, buf->orig_buf, buf->orig_size,
+	ut_assertok(compress(uts, buf->orig_buf, buf->orig_size,
 			  buf->compressed_buf, buf->compressed_size,
-			  &buf->compressed_size) == 0);
+			  &buf->compressed_size));
 	printf("\tcompressed_size:%lu\n", buf->compressed_size);
-	errcheck(buf->compressed_size > 0);
-	errcheck(buf->compressed_size < buf->orig_size);
-	errcheck(((char *)buf->compressed_buf)[buf->compressed_size - 1] !=
-			'A');
-	errcheck(((char *)buf->compressed_buf)[buf->compressed_size] == 'A');
+	ut_assert(buf->compressed_size > 0);
+	ut_assert(buf->compressed_size < buf->orig_size);
+	ut_assert(((char *)buf->compressed_buf)[buf->compressed_size - 1]
+			!= 'A');
+	ut_asserteq(((char *)buf->compressed_buf)[buf->compressed_size], 'A');
 
 	/* Uncompresses with space remaining. */
-	errcheck(uncompress(uts, buf->compressed_buf, buf->compressed_size,
+	ut_assertok(uncompress(uts, buf->compressed_buf, buf->compressed_size,
 			    buf->uncompressed_buf, buf->uncompressed_size,
-			    &buf->uncompressed_size) == 0);
+			    &buf->uncompressed_size));
 	printf("\tuncompressed_size:%lu\n", buf->uncompressed_size);
-	errcheck(buf->uncompressed_size == buf->orig_size);
-	errcheck(memcmp(buf->orig_buf, buf->uncompressed_buf,
-			buf->orig_size) == 0);
+	ut_asserteq(buf->uncompressed_size, buf->orig_size);
+	ut_asserteq_mem(buf->orig_buf, buf->uncompressed_buf, buf->orig_size);
 
 	/* Uncompresses with exactly the right size output buffer. */
 	memset(buf->uncompressed_buf, 'A', TEST_BUFFER_SIZE);
-	errcheck(uncompress(uts, buf->compressed_buf, buf->compressed_size,
+	ut_assertok(uncompress(uts, buf->compressed_buf, buf->compressed_size,
 			    buf->uncompressed_buf, buf->orig_size,
-			    &buf->uncompressed_size) == 0);
-	errcheck(buf->uncompressed_size == buf->orig_size);
-	errcheck(memcmp(buf->orig_buf, buf->uncompressed_buf,
-			buf->orig_size) == 0);
-	errcheck(((char *)buf->uncompressed_buf)[buf->orig_size] == 'A');
+			    &buf->uncompressed_size));
+	ut_asserteq(buf->uncompressed_size, buf->orig_size);
+	ut_asserteq_mem(buf->orig_buf, buf->uncompressed_buf, buf->orig_size);
+	ut_asserteq(((char *)buf->uncompressed_buf)[buf->orig_size], 'A');
 
 	/* Uncompresses with trailing garbage in input buffer. */
 	memset(buf->uncompressed_buf, 'A', TEST_BUFFER_SIZE);
-	errcheck(uncompress(uts, buf->compressed_buf, buf->compressed_size + 4,
+	ut_assertok(uncompress(uts, buf->compressed_buf, buf->compressed_size + 4,
 			    buf->uncompressed_buf, buf->uncompressed_size,
-			    &buf->uncompressed_size) == 0);
-	errcheck(buf->uncompressed_size == buf->orig_size);
-	errcheck(memcmp(buf->orig_buf, buf->uncompressed_buf,
-			buf->orig_size) == 0);
+			    &buf->uncompressed_size));
+	ut_asserteq(buf->uncompressed_size, buf->orig_size);
+	ut_asserteq_mem(buf->orig_buf, buf->uncompressed_buf, buf->orig_size);
 
 	/* Make sure compression does not over-run. */
 	memset(buf->compare_buf, 'A', TEST_BUFFER_SIZE);
 	ret = compress(uts, buf->orig_buf, buf->orig_size,
 		       buf->compare_buf, buf->compressed_size - 1,
 		       NULL);
-	errcheck(((char *)buf->compare_buf)[buf->compressed_size] == 'A');
-	errcheck(ret != 0);
+	ut_asserteq(((char *)buf->compare_buf)[buf->compressed_size], 'A');
+	ut_assert(ret != 0);
 	printf("\tcompress does not overrun\n");
 
 	/* Make sure decompression does not over-run. */
@@ -373,15 +370,12 @@ static int run_test_internal(struct unit_test_state *uts, char *name,
 	ret = uncompress(uts, buf->compressed_buf, buf->compressed_size,
 			 buf->compare_buf, buf->uncompressed_size - 1,
 			 NULL);
-	errcheck(((char *)buf->compare_buf)[buf->uncompressed_size - 1] == 'A');
-	errcheck(ret != 0);
+	ut_asserteq(((char *)buf->compare_buf)[buf->uncompressed_size - 1], 'A');
+	ut_assert(ret != 0);
 	printf("\tuncompress does not overrun\n");
 
 	/* Got here, everything is fine. */
-	ret = 0;
-
-out:
-	return ret;
+	return 0;
 }
 
 static int run_test(struct unit_test_state *uts, char *name,
