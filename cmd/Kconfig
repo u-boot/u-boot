@@ -1814,7 +1814,7 @@ config SYS_DISABLE_AUTOLOAD
 
 config CMD_WGET
 	bool "wget"
-	select TCP
+	select PROT_TCP
 	help
 	  wget is a simple command to download kernel, or other files,
 	  from a http server over TCP.
