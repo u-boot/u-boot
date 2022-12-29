@@ -146,9 +146,7 @@ efi_status_t __efi_runtime efi_var_mem_ins(
 
 	var = (struct efi_var_entry *)
 	      ((uintptr_t)efi_var_buf + efi_var_buf->length);
-	for (var_name_len = 0; variable_name[var_name_len]; ++var_name_len)
-		;
-	++var_name_len;
+	var_name_len = u16_strlen(variable_name) + 1;
 	data = var->name + var_name_len;
 
 	if ((uintptr_t)data - (uintptr_t)efi_var_buf + size1 + size2 >
