@@ -5,6 +5,7 @@
  */
 #include <common.h>
 #include <env.h>
+#include <fs_loader.h>
 #include <image.h>
 #include <malloc.h>
 #include <asm/io.h>
@@ -452,7 +453,29 @@ int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 {
 	int rc;
-#if defined(CONFIG_SYS_QE_FMAN_FW_IN_NOR)
+#if defined(CONFIG_SYS_QE_FMAN_FW_IN_FS)
+	struct udevice *fs_loader;
+	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
+
+	if (!addr)
+		return -ENOMEM;
+
+	rc = get_fs_loader(&fs_loader);
+	if (rc) {
+		debug("could not get fs loader: %d\n", rc);
+		return rc;
+	}
+
+	if (!firmware_name)
+		firmware_name = "fman.itb";
+
+	rc = request_firmware_into_buf(fs_loader, firmware_name, addr,
+				       CONFIG_SYS_QE_FMAN_FW_LENGTH, 0);
+	if (rc < 0) {
+		debug("could not request %s: %d\n", firmware_name, rc);
+		return rc;
+	}
+#elif defined(CONFIG_SYS_QE_FMAN_FW_IN_NOR)
 	void *addr = (void *)CONFIG_SYS_FMAN_FW_ADDR;
 #elif defined(CONFIG_SYS_QE_FMAN_FW_IN_NAND)
 	size_t fw_length = CONFIG_SYS_QE_FMAN_FW_LENGTH;

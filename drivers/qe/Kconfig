@@ -27,6 +27,10 @@ choice
 	depends on FMAN_ENET || QE
 	default SYS_QE_FMAN_FW_IN_ROM
 
+config SYS_QE_FMAN_FW_IN_FS
+	depends on FS_LOADER && FMAN_ENET
+	bool "Filesystem"
+
 config SYS_QE_FMAN_FW_IN_NOR
 	bool "NOR flash"
 
