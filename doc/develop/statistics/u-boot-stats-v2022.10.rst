@@ -3,7 +3,7 @@
 Release Statistics for U-Boot v2022.10
 ======================================
 
-* Processed 1521 csets from 151 developers
+* Processed 1521 changesets from 151 developers
 
 * 25 employers found
 

@@ -1,8 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 .. sectionauthor:: Vignesh Raghavendra <vigneshr@ti.com>
 
-Texas Instruments AM62 Platforms
-================================
+AM62 Platforms
+===============
 
 Introduction:
 -------------

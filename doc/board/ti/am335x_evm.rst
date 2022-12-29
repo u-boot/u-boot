@@ -1,8 +1,11 @@
 .. SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 .. sectionauthor:: Tom Rini <trini@konsulko.com>
 
+AM335x Generation
+=================
+
 Summary
-=======
+-------
 
 This document covers various features of the `am335x_evm` default
 configuration, some of the related defconfigs, and how to enable hardware

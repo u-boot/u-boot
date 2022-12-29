@@ -780,7 +780,7 @@ get_package_list_handle(const struct efi_hii_database_protocol *this,
 		}
 	}
 
-	return EFI_EXIT(EFI_NOT_FOUND);
+	return EFI_EXIT(EFI_INVALID_PARAMETER);
 }
 
 const struct efi_hii_database_protocol efi_hii_database = {

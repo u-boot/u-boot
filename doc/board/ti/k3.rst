@@ -1,0 +1,274 @@
+.. SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
+.. sectionauthor:: Bryan Brattlof <bb@ti.com>
+
+K3 Generation
+=============
+
+Summary
+-------
+
+Texas Instrument's K3 family of SoCs utilize a heterogeneous multicore
+and highly integrated device architecture targeted to maximize
+performance and power efficiency for a wide range of industrial,
+automotive and other broad market segments.
+
+Typically the processing cores and the peripherals for these devices are
+partitioned into three functional domains to provide ultra-low power
+modes as well as accommodating application and industrial safety systems
+on the same SoC.  These functional domains are typically called the:
+
+* Wakeup (WKUP) domain
+* Micro-controller (MCU) domain
+* Main domain
+
+For a more detailed view of what peripherals are attached to each
+domain, consult the device specific documentation.
+
+K3 Based SoCs
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   j721e_evm
+   am62x_sk
+
+Boot Flow Overview
+------------------
+
+For all K3 SoCs the first core started will be inside the Security
+Management Subsystem (SMS) which will secure the device and start a core
+in the wakeup domain to run the ROM code. ROM will then initialize the
+boot media needed to load the binaries packaged inside `tiboot3.bin`,
+including a 32bit U-Boot SPL, (called the wakup SPL) that ROM will jump
+to after it has finished loading everything into internal SRAM.
+
+.. code-block:: text
+
+   |  WKUP Domain
+    ROM -> WKUP SPL ->
+
+The wakeup SPL, running on a wakeup domain core, will initialize DDR and
+any peripherals needed load the larger binaries inside the `tispl.bin`
+into DDR.  Once loaded the wakeup SPL will start one of the 'big'
+application cores inside the main domain to initialize the main domain,
+starting with ARM Trusted Firmware (ATF), before moving on to start
+OPTEE and the main domain's U-Boot SPL.
+
+.. code-block:: text
+
+   |  WKUP Domain   | Main Domain ->
+    ROM -> WKUP SPL -> ATF -> OPTEE -> Main SPL
+
+The main domain's SPL, running on a 64bit application core, has
+virtually unlimited space (billions of bytes now that DDR is working) to
+initialize even more peripherals needed to load in the `u-boot.img`
+which loads more firmware into the micro-controller & wakeup domains and
+finally prepare the main domain to run Linux.
+
+.. code-block:: text
+
+   |  WKUP Domain   | Main Domain ->
+    ROM -> WKUP SPL -> ATF -> OPTEE -> Main SPL -> UBoot -> Linux
+
+This is the typical boot flow for all K3 based SoCs, however this flow
+offers quite a lot in the terms of flexibility, especially on High
+Security (HS) SoCs.
+
+Boot Flow Variations
+^^^^^^^^^^^^^^^^^^^^
+
+All K3 SoCs will generally use the above boot flow with two main
+differences depending on the capabilities of the boot ROM and the number
+of cores inside the device. These differences split the bootflow into
+essentially 4 unique but very similar flows:
+
+* Split binary with a combined firmware: (eg: AM65)
+* Combined binary with a combined firmware: (eg: AM64)
+* Split binary with a split firmware: (eg: J721E)
+* Combined binary with a split firmware: (eg: AM62)
+
+For devices that utilize the split binary approach, ROM is not capable
+of loading the firmware into the SoC requiring the wakeup domain's
+U-Boot SPL to load the firmware.
+
+Devices with a split firmware will have two firmwares loaded into the
+device at different times during the bootup process. TI's Foundational
+Security (TIFS), needed to operate the Security Management Subsystem,
+will either be loaded by ROM or the WKUP U-Boot SPL, then once the
+wakeup U-Boot SPL has completed, the second Device Management (DM)
+firmware can be loaded on the now free core in the wakeup domain.
+
+For more information on the bootup process of your SoC, consult the
+device specific boot flow documentation.
+
+Software Sources
+----------------
+
+All scripts and code needed to build the `tiboot3.bin`, `tispl.bin` and
+`u-boot.img` for all K3 SoCs can be located at the following places
+online
+
+* **Das U-Boot**
+
+  | **source:** https://source.denx.de/u-boot/u-boot.git
+  | **branch:** master
+
+* **K3 Image Gen**
+
+  | **source:** https://git.ti.com/git/k3-image-gen/k3-image-gen.git
+  | **branch:** master
+
+* **ARM Trusted Firmware (ATF)**
+
+  | **source:** https://github.com/ARM-software/arm-trusted-firmware.git
+  | **branch:** master
+
+* **Open Portable Trusted Execution Environment (OPTEE)**
+
+  | **source:** https://github.com/OP-TEE/optee_os.git
+  | **branch:** master
+
+* **TI Firmware (TIFS, DM, DSMC)**
+
+  | **source:** https://git.ti.com/git/processor-firmware/ti-linux-firmware.git
+  | **branch:** ti-linux-firmware
+
+* **TI's Security Development Tools**
+
+  | **source:** https://git.ti.com/git/security-development-tools/core-secdev-k3.git
+  | **branch:** master
+
+Build Procedure
+---------------
+
+Depending on the specifics of your device, you will need three or more
+binaries to boot your SoC.
+
+* `tiboot3.bin` (bootloader for the wakeup domain)
+* `tispl.bin` (bootloader for the main domain)
+* `u-boot.img`
+
+During the bootup process, both the 32bit wakeup domain and the 64bit
+main domains will be involved. This means everything inside the
+`tiboot3.bin` running in the wakeup domain will need to be compiled for
+32bit cores and most binaries in the `tispl.bin` will need to be
+compiled for 64bit main domain CPU cores.
+
+All of that to say you will need both a 32bit and 64bit cross compiler
+(assuming you're using an x86 desktop)
+
+.. code-block:: bash
+
+   export CC32=arm-linux-gnueabihf-
+   export CC64=aarch64-linux-gnu-
+
+Building tiboot3.bin
+^^^^^^^^^^^^^^^^^^^^^
+
+1. To generate the U-Boot SPL for the wakeup domain, use the following
+   commands, substituting :code:`{SOC}` for the name of your device (eg:
+   am62x)
+
+.. code-block:: bash
+
+   # inside u-boot source
+   make ARCH=arm O=build/wkup CROSS_COMPILE=$CC32 {SOC}_evm_r5_defconfig
+   make ARCH=arm O=build/wkup CROSS_COMPILE=$CC32
+
+2. Next we will use the K3 Image Gen scripts to package the various
+   firmware and the wakeup UBoot SPL into the final `tiboot3.bin`
+   binary. (or the `sysfw.itb` if your device uses the split binary
+   flow)
+
+.. code-block:: bash
+
+   # inside k3-image-gen source
+   make CROSS_COMPILE=$CC32 SOC={SOC} SOC_TYPE={hs,gp} \
+        TI_SECURE_DEV_PKG=<path/to/securit-development-tools> \
+        SYSFW_PATH=<path/to/ti-sysfw/ti-fs-firmware-{SOC}-{hs|gp}.bin> \
+        SYSFW_HS_INNER_CERT_PATH=<path/to/ti-sysfw/ti-fs-firmware-{SOC}-hs-cert.bin
+
+For devices that use the *combined binary flow*, you will also need to
+supply the location of the SPL we created in step 1 above, so it can be
+packaged into the final `tiboot3.bin`.
+
+.. code-block:: bash
+
+   SBL=<path/to/wakeup/u-boot-spl.bin>
+
+At this point you should have all the needed binaries to boot the wakeup
+domain of your K3 SoC.
+
+**Combined Binary Boot Flow** (eg: am62x, am64x, ... )
+
+   `k3-image-gen/tiboot3-{SOC}-{hs,gp}-evm.bin`
+
+**Split Binary Boot Flow** (eg: j721e, am65x)
+
+   | `u-boot/build/wkup/tiboot3.bin`
+   | `k3-image-gen/sysfw-{SOC}-evm.bin`
+
+.. note ::
+
+   It's important to rename the generated `tiboot3.bin` and `sysfw.itb`
+   to match exactly `tiboot3.bin` and `sysfw.itb` as ROM and the wakeup
+   UBoot SPL will only look for and load the files with these names.
+
+Building tispl.bin
+^^^^^^^^^^^^^^^^^^^
+
+The `tispl.bin` is a standard fitImage combining the firmware need for
+the main domain to function properly as well as Device Management (DM)
+firmware if your device using a split firmware.
+
+3. We will first need ATF, as it's the first thing to run on the 'big'
+   application cores on the main domain.
+
+.. code-block:: bash
+
+   # inside arm-trusted-firmware source
+   make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 \
+        TARGET_BOARD={lite|generic} \
+        SPD=opteed \
+
+Typically all `j7*` devices will use `TARGET_BOARD=generic` while all
+Sitara (`am6*`) devices use the `lite` option.
+
+4. The Open Portable Trusted Execution Environment (OPTEE) is designed
+   to run as a companion to a non-secure Linux kernel for Cortex-A cores
+   using the TrustZone technology built into the core.
+
+.. code-block:: bash
+
+   # inside optee_os source
+   make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 \
+        PLATFORM=k3 CFG_ARM64_core=y
+
+5. Finally, after ATF has initialized the main domain and OPTEE has
+   finished, we can jump back into U-Boot again, this time running on a
+   64bit core in the main domain.
+
+.. code-block:: bash
+
+   # inside u-boot source
+   make ARCH=arm O=build/main CROSS_COMPILE=$CC64 {SOC}_evm_a{53,72}_defconfig
+   make ARCH=arm O=build/main CROSS_COMPILE=$CC64 \
+        ATF=<path/to/atf/bl31.bin \
+        TEE=<path/to/optee/tee-pager_v2.bin
+
+If your device uses a split firmware, you will also need to supply the
+path to the Device Management (DM) Firmware to be included in the final
+`tispl.bin` binary
+
+.. code-block:: bash
+
+   DM=<path/to/ti-linux-firmware/ti-dm/ipc_echo_testb_mcu1_0_release_strip.xer5f>
+
+At this point you should have every binary needed initialize both the
+wakeup and main domain and to boot to the U-Boot prompt
+
+**Main Domain Bootloader**
+
+   | `u-boot/build/main/tispl.bin`
+   | `u-boot/build/main/u-boot.img`

@@ -7,6 +7,7 @@ Synopsis
 --------
 
 ::
+
     wget address [[hostIPaddr:]path]
 
 Description
@@ -52,8 +53,8 @@ Configuration
 
 The command is only available if CONFIG_CMD_WGET=y.
 
-CONFIG_PROT_TCP_SACK can be turned on for the TCP SACK options. This will
-help increasing the downloading speed.
+TCP Selective Acknowledgments can be enabled via CONFIG_PROT_TCP_SACK=y.
+This will improve the download speed.
 
 Return value
 ------------

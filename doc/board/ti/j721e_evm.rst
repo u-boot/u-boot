@@ -1,8 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 .. sectionauthor:: Lokesh Vutla <lokeshvutla@ti.com>
 
-Texas Instruments K3 Platforms
-==============================
+J721E Platforms
+===============
 
 Introduction:
 -------------

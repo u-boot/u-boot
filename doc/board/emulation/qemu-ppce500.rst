@@ -7,7 +7,7 @@ QEMU PPC E500
 QEMU for PPC supports a special 'ppce500' machine designed for emulation and
 virtualization purposes. This document describes how to run U-Boot under it.
 
-The QEMU ppce500 machine models a generic PowerPC E500 virtual machine with
+The QEMU ppce500 machine models a generic PowerPC e500 virtual machine with
 support for the VirtIO standard networking device connected to the built-in
 PCI host controller. Some common devices in the CCSBAR space are modeled,
 including MPIC, 16550A UART devices, GPIO, I2C and PCI host controller with
@@ -39,6 +39,7 @@ embedded DTB created by QEMU reflects the new setting.
 Both qemu-system-ppc and qemu-system-ppc64 provide emulation for the following
 32-bit PowerPC CPUs:
 
+* e500v1
 * e500v2
 * e500mc
 
@@ -61,8 +62,9 @@ When U-Boot boots, you will notice the following::
 This is because we only specified a core name to QEMU and it does not have a
 meaningful SVR value which represents an actual SoC that integrates such core.
 You can specify a real world SoC device that QEMU has built-in support but all
-these SoCs are e500v2 based MPC85xx series, hence you cannot test anything
-built for P4080 (e500mc), P5020 (e5500) and T2080 (e6500).
+these SoCs are e500v1/e500v2 based MPC85xx series, hence you cannot test anything
+built for P10xx/P2010/P2020 (e500v2), P204x/P304x/P40xx (e500mc), P50xx/T10xx (e5500)
+and T208x/T4080/T4160/T4240 (e6500).
 
 By default a VirtIO standard PCI networking device is connected as an ethernet
 interface at PCI address 0.1.0, but we can switch that to an e1000 NIC by::
