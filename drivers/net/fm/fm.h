@@ -106,7 +106,7 @@ struct fm_port_global_pram {
 
 void *fm_muram_alloc(int fm_idx, size_t size, ulong align);
 void *fm_muram_base(int fm_idx);
-int fm_init_common(int index, struct ccsr_fman *reg);
+int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name);
 int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info);
 phy_interface_t fman_port_enet_if(enum fm_port port);
 void fman_disable_port(enum fm_port port);

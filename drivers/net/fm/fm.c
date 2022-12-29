@@ -8,6 +8,7 @@
 #include <image.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <dm/device_compat.h>
 #include <linux/errno.h>
 #include <u-boot/crc.h>
 #include <dm.h>
@@ -353,7 +354,7 @@ static void fm_init_qmi(struct fm_qmi_common *qmi)
 
 /* Init common part of FM, index is fm num# like fm as above */
 #ifdef CONFIG_TFABOOT
-int fm_init_common(int index, struct ccsr_fman *reg)
+int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 {
 	int rc;
 	void *addr = NULL;
@@ -448,7 +449,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	return fm_init_bmi(index, &reg->fm_bmi_common);
 }
 #else
-int fm_init_common(int index, struct ccsr_fman *reg)
+int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 {
 	int rc;
 #if defined(CONFIG_SYS_QE_FMAN_FW_IN_NOR)
@@ -561,6 +562,8 @@ static const struct udevice_id fman_ids[] = {
 
 static int fman_probe(struct udevice *dev)
 {
+	const char *firmware_name = NULL;
+	int ret;
 	struct fman_priv *priv = dev_get_priv(dev);
 
 	priv->reg = (struct ccsr_fman *)(uintptr_t)dev_read_addr(dev);
@@ -570,7 +573,13 @@ static int fman_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	return fm_init_common(priv->fman_id, priv->reg);
+	ret = dev_read_string_index(dev, "firmware-name", 0, &firmware_name);
+	if (ret && ret != -EINVAL) {
+		dev_dbg(dev, "Could not read firmware-name\n");
+		return ret;
+	}
+
+	return fm_init_common(priv->fman_id, priv->reg, firmware_name);
 }
 
 static int fman_remove(struct udevice *dev)
