@@ -52,4 +52,16 @@ struct device_plat {
 int request_firmware_into_buf(struct udevice *dev,
 			      const char *name,
 			      void *buf, size_t size, u32 offset);
+
+/**
+ * get_fs_loader() - Get the chosen filesystem loader
+ * @dev: Where to store the device
+ *
+ * This gets a filesystem loader device based on the value of
+ * /chosen/firmware-loader. If no such property exists, it returns a
+ * firmware loader which is configured by environmental variables.
+ *
+ * Return: 0 on success, negative value on error
+ */
+int get_fs_loader(struct udevice **dev);
 #endif

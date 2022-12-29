@@ -777,42 +777,20 @@ int socfpga_loadfs(fpga_fs_info *fpga_fsinfo, const void *buf, size_t bsize,
 {
 	struct fpga_loadfs_info fpga_loadfs;
 	struct udevice *dev;
-	int status, ret, size;
+	int status, ret;
 	u32 buffer = (uintptr_t)buf;
 	size_t buffer_sizebytes = bsize;
 	size_t buffer_sizebytes_ori = bsize;
 	size_t total_sizeof_image = 0;
 	ofnode node;
-	const fdt32_t *phandle_p;
-	u32 phandle;
 
 	node = get_fpga_mgr_ofnode(ofnode_null());
-
-	if (ofnode_valid(node)) {
-		phandle_p = ofnode_get_property(node, "firmware-loader", &size);
-		if (!phandle_p) {
-			node = ofnode_path("/chosen");
-			if (!ofnode_valid(node)) {
-				debug("FPGA: /chosen node was not found.\n");
-				return -ENOENT;
-			}
-
-			phandle_p = ofnode_get_property(node, "firmware-loader",
-						       &size);
-			if (!phandle_p) {
-				debug("FPGA: firmware-loader property was not");
-				debug(" found.\n");
-				return -ENOENT;
-			}
-		}
-	} else {
+	if (!ofnode_valid(node)) {
 		debug("FPGA: FPGA manager node was not found.\n");
 		return -ENOENT;
 	}
 
-	phandle = fdt32_to_cpu(*phandle_p);
-	ret = uclass_get_device_by_phandle_id(UCLASS_FS_FIRMWARE_LOADER,
-					     phandle, &dev);
+	ret = get_fs_loader(&dev);
 	if (ret)
 		return ret;
 

@@ -181,7 +181,7 @@ int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
 	if (!*loadaddr)
 		return 0;
 
-	if (!uclass_get_device(UCLASS_FS_FIRMWARE_LOADER, 0, &fsdev)) {
+	if (!get_fs_loader(&fsdev)) {
 		size = request_firmware_into_buf(fsdev, name, (void *)*loadaddr,
 						 0, 0);
 	}
