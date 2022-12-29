@@ -135,6 +135,7 @@ config SATA_MV
 
 config SATA_SIL
 	bool "Enable Silicon Image SIL3131 / SIL3132 / SIL3124 SATA driver support"
+	depends on PCI
 	select AHCI
 	select LIBATA
 	help
