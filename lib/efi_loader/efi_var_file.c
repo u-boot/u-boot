@@ -176,7 +176,7 @@ efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
 		data = var->name + u16_strlen(var->name) + 1;
 
 		/*
-		 * Secure boot related and non-volatile variables shall only be
+		 * Secure boot related and volatile variables shall only be
 		 * restored from U-Boot's preseed.
 		 */
 		if (!safe &&
