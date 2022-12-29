@@ -624,6 +624,31 @@ static int unicode_test_utf_to_upper(struct unit_test_state *uts)
 }
 UNICODE_TEST(unicode_test_utf_to_upper);
 
+static int unicode_test_u16_strcasecmp(struct unit_test_state *uts)
+{
+	ut_assert(u16_strcasecmp(u"abcd", u"abcd") == 0);
+	ut_assert(u16_strcasecmp(u"aBcd", u"abcd") == 0);
+	ut_assert(u16_strcasecmp(u"abcd", u"abCd") == 0);
+	ut_assert(u16_strcasecmp(u"abcdE", u"abcd") > 0);
+	ut_assert(u16_strcasecmp(u"abcd", u"abcdE") < 0);
+	ut_assert(u16_strcasecmp(u"abcE", u"abcd") > 0);
+	ut_assert(u16_strcasecmp(u"abcd", u"abcE") < 0);
+	ut_assert(u16_strcasecmp(u"abcd", u"abcd") == 0);
+	ut_assert(u16_strcasecmp(u"abcd", u"abcd") == 0);
+	if (CONFIG_IS_ENABLED(EFI_UNICODE_CAPITALIZATION)) {
+		/* Cyrillic letters */
+		ut_assert(u16_strcasecmp(u"\x043a\x043d\x0438\x0433\x0430",
+					 u"\x041a\x041d\x0418\x0413\x0410") == 0);
+		ut_assert(u16_strcasecmp(u"\x043a\x043d\x0438\x0433\x0430",
+					 u"\x041a\x041d\x0418\x0413\x0411") < 0);
+		ut_assert(u16_strcasecmp(u"\x043a\x043d\x0438\x0433\x0431",
+					 u"\x041a\x041d\x0418\x0413\x0410") > 0);
+	}
+
+	return 0;
+}
+UNICODE_TEST(unicode_test_u16_strcasecmp);
+
 static int unicode_test_u16_strncmp(struct unit_test_state *uts)
 {
 	ut_assert(u16_strncmp(u"abc", u"abc", 3) == 0);
