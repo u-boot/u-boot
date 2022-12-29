@@ -1108,10 +1108,13 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
 	/* ignore an error */
 	EFI_CALL((*dirh->close)(dirh));
 
-	/* in ascii order */
-	/* FIXME: u16 version of strcasecmp */
+	/*
+	 * Capsule files are applied in case insensitive alphabetic order
+	 *
+	 * TODO: special handling of rightmost period
+	 */
 	qsort(tmp_files, count, sizeof(*tmp_files),
-	      (int (*)(const void *, const void *))strcasecmp);
+	      (int (*)(const void *, const void *))u16_strcasecmp);
 	*files = tmp_files;
 	*num = count;
 	ret = EFI_SUCCESS;
