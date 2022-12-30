@@ -384,9 +384,11 @@ config MONITOR_IS_IN_RAM
 	bool "U-Boot is loaded in to RAM by a pre-loader"
 	depends on M68K || NIOS2
 
-config SKIP_LOWLEVEL_INIT
-	bool "Skip the calls to certain low level initialization functions"
+menu "Skipping low level initialization functions"
 	depends on ARM || MIPS || RISCV
+
+config SKIP_LOWLEVEL_INIT
+	bool "Skip calls to certain low level initialization functions"
 	help
 	  If enabled, then certain low level initializations (like setting up
 	  the memory controller) are omitted and/or U-Boot does not relocate
@@ -396,8 +398,8 @@ config SKIP_LOWLEVEL_INIT
 	  debugger which performs these initializations itself.
 
 config SPL_SKIP_LOWLEVEL_INIT
-	bool "Skip the calls to certain low level initialization functions"
-	depends on SPL && (ARM || MIPS || RISCV)
+	bool "Skip calls to certain low level initialization functions in SPL"
+	depends on SPL
 	help
 	  If enabled, then certain low level initializations (like setting up
 	  the memory controller) are omitted and/or U-Boot does not relocate
@@ -407,7 +409,7 @@ config SPL_SKIP_LOWLEVEL_INIT
 	  debugger which performs these initializations itself.
 
 config TPL_SKIP_LOWLEVEL_INIT
-	bool "Skip the calls to certain low level initialization functions"
+	bool "Skip calls to certain low level initialization functions in TPL"
 	depends on SPL && ARM
 	help
 	  If enabled, then certain low level initializations (like setting up
@@ -418,7 +420,7 @@ config TPL_SKIP_LOWLEVEL_INIT
 	  debugger which performs these initializations itself.
 
 config SKIP_LOWLEVEL_INIT_ONLY
-	bool "Skip the call to lowlevel_init during early boot ONLY"
+	bool "Skip call to lowlevel_init during early boot ONLY"
 	depends on ARM
 	help
 	  This allows just the call to lowlevel_init() to be skipped. The
@@ -426,7 +428,7 @@ config SKIP_LOWLEVEL_INIT_ONLY
 	  performed.
 
 config SPL_SKIP_LOWLEVEL_INIT_ONLY
-	bool "Skip the call to lowlevel_init during early boot ONLY"
+	bool "Skip call to lowlevel_init during early SPL boot ONLY"
 	depends on SPL && ARM
 	help
 	  This allows just the call to lowlevel_init() to be skipped. The
@@ -434,12 +436,14 @@ config SPL_SKIP_LOWLEVEL_INIT_ONLY
 	  performed.
 
 config TPL_SKIP_LOWLEVEL_INIT_ONLY
-	bool "Skip the call to lowlevel_init during early boot ONLY"
+	bool "Skip call to lowlevel_init during early TPL boot ONLY"
 	depends on TPL && ARM
 	help
 	  This allows just the call to lowlevel_init() to be skipped. The
 	  normal CP15 init (such as enabling the instruction cache) is still
 	  performed.
+
+endmenu
 
 config SYS_HAS_NONCACHED_MEMORY
 	bool "Enable reserving a non-cached memory area for drivers"
