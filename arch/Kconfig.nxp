@@ -1,3 +1,5 @@
+menu "Functionality shared between NXP SoCs"
+
 config FSL_TRUST_ARCH_v1
 	bool
 
@@ -142,8 +144,6 @@ config KEY_REVOCATION
 
 endmenu
 
-comment "Other functionality shared between NXP SoCs"
-
 config DEEP_SLEEP
 	bool "Enable SoC deep sleep feature"
 	depends on ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || ARCH_LS1021A
@@ -271,3 +271,5 @@ config HAS_FSL_DR_USB
 
 config SYS_DPAA_FMAN
 	bool
+
+endmenu
