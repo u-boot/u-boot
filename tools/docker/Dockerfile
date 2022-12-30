@@ -109,6 +109,7 @@ RUN apt-get update && apt-get install -y \
 	srecord \
 	sudo \
 	swig \
+	texinfo \
 	util-linux \
 	uuid-dev \
 	virtualenv \
