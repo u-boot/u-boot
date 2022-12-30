@@ -3,7 +3,7 @@
 Release Statistics for U-Boot v2020.07
 ======================================
 
-* Processed 1918 csets from 203 developers
+* Processed 1918 changesets from 203 developers
 
 * 32 employers found
 

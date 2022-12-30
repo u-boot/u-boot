@@ -10,7 +10,6 @@ CONFIG_SYS_INIT_RAM_LOCK=y
 CONFIG_TARGET_P1010RDB_PB=y
 CONFIG_MPC85XX_HAVE_RESET_VECTOR=y
 CONFIG_ENABLE_36BIT_PHYS=y
-CONFIG_SYS_MPC85XX_NO_RESETVEC=y
 CONFIG_PCIE1=y
 CONFIG_PCIE2=y
 CONFIG_SYS_MONITOR_LEN=786432
@@ -18,7 +17,7 @@ CONFIG_FIT=y
 CONFIG_FIT_VERBOSE=y
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_OF_STDOUT_VIA_ALIAS=y
-CONFIG_FSL_FIXED_MMC_LOCATION=y
+CONFIG_NO_PBL=y
 CONFIG_BOOTDELAY=10
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs root=/dev/ram rw console=$consoledev,$baudrate $othbootargs ramdisk_size=$ramdisk_size;tftp $ramdiskaddr $ramdiskfile;tftp $loadaddr $bootfile;tftp $fdtaddr $fdtfile;bootm $loadaddr $ramdiskaddr $fdtaddr"

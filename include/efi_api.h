@@ -21,7 +21,7 @@
 #include <pe.h>
 
 /* UEFI spec version 2.9 */
-#define EFI_SPECIFICATION_VERSION (2 << 16 | 90)
+#define EFI_SPECIFICATION_VERSION (2 << 16 | 100)
 
 /* Types and defines for EFI CreateEvent */
 enum efi_timer_delay {

@@ -1459,14 +1459,14 @@ config SYS_FSL_USB_DUAL_PHY_ENABLE
 
 config SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up"
-	depends on MPC85xx
+	depends on MPC85xx && !MPC85XX_HAVE_RESET_VECTOR
 	help
 	  If this variable is specified, the section .resetvec is not kept and
 	  the section .bootpg is placed in the previous 4k of the .text section.
 
 config SPL_SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up, in SPL"
-	depends on MPC85xx && SPL
+	depends on MPC85xx && SPL && !MPC85XX_HAVE_RESET_VECTOR
 	help
 	  If this variable is specified, the section .resetvec is not kept and
 	  the section .bootpg is placed in the previous 4k of the .text section,
@@ -1474,7 +1474,7 @@ config SPL_SYS_MPC85XX_NO_RESETVEC
 
 config TPL_SYS_MPC85XX_NO_RESETVEC
 	bool "Discard resetvec section and move bootpg section up, in TPL"
-	depends on MPC85xx && TPL
+	depends on MPC85xx && TPL && !MPC85XX_HAVE_RESET_VECTOR
 	help
 	  If this variable is specified, the section .resetvec is not kept and
 	  the section .bootpg is placed in the previous 4k of the .text section,

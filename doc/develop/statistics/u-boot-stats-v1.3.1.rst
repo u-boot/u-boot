@@ -3,7 +3,7 @@
 Release Statistics for U-Boot v1.3.1
 ====================================
 
-* Processed 40 csets from 5 developers
+* Processed 40 changesets from 5 developers
 
 * 5 employers found
 

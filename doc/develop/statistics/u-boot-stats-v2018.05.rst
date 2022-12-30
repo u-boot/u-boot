@@ -3,7 +3,7 @@
 Release Statistics for U-Boot v2018.05
 ======================================
 
-* Processed 977 csets from 128 developers
+* Processed 977 changesets from 128 developers
 
 * 26 employers found
 

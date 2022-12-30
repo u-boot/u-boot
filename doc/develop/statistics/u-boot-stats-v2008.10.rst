@@ -3,7 +3,7 @@
 Release Statistics for U-Boot v2008.10
 ======================================
 
-* Processed 2498 csets from 174 developers
+* Processed 2498 changesets from 174 developers
 
 * 85 employers found
 

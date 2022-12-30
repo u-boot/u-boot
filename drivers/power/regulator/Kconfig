@@ -128,6 +128,14 @@ config DM_REGULATOR_MAX77686
 	features for REGULATOR MAX77686. The driver implements get/set api for:
 	value, enable and mode.
 
+config DM_REGULATOR_NPCM8XX
+	bool "Enable Driver Model for NPCM8xx voltage supply"
+	depends on DM_REGULATOR && ARCH_NPCM8XX
+	help
+	  Enable support for configuring voltage supply on NPCM8XX SoC. The
+	  voltage supplies support two voltage levels and the driver implements
+	  get/set api for setting the value.
+
 config DM_REGULATOR_FAN53555
 	bool "Enable Driver Model for REGULATOR FAN53555"
 	depends on DM_PMIC_FAN53555
