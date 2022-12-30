@@ -12,6 +12,19 @@ config KW88F6281
 config SHEEVA_88SV131
 	bool
 
+config KIRKWOOD_COMMON
+	bool
+	select DM_SERIAL
+
+config HAS_CUSTOM_SYS_INIT_SP_ADDR
+        bool "Use a custom location for the initial stack pointer address"
+        default y
+
+config CUSTOM_SYS_INIT_SP_ADDR
+        hex "Static location for the initial stack pointer"
+        depends on HAS_CUSTOM_SYS_INIT_SP_ADDR
+        default 0x5ff000
+
 choice
 	prompt "Marvell Kirkwood board select"
 	optional
@@ -25,6 +38,7 @@ config TARGET_DREAMPLUG
 	bool "DreamPlug Board"
 	select KW88F6281
 	select SHEEVA_88SV131
+	select KIRKWOOD_COMMON
 
 config TARGET_DS109
 	bool "Synology DS109"
@@ -40,6 +54,7 @@ config TARGET_SHEEVAPLUG
 	bool "SheevaPlug Board"
 	select FEROCEON_88FR131
 	select KW88F6281
+	select KIRKWOOD_COMMON
 
 config TARGET_LSXL
 	bool "lsxl Board"
@@ -47,16 +62,19 @@ config TARGET_LSXL
 	select KW88F6281
 	select BOARD_EARLY_INIT_R
 	select MISC_INIT_R
+	select KIRKWOOD_COMMON
 
 config TARGET_POGO_E02
 	bool "pogo_e02 Board"
 	select FEROCEON_88FR131
 	select KW88F6281
+	select KIRKWOOD_COMMON
 
 config TARGET_POGO_V4
 	bool "Pogoplug V4 Board"
 	select FEROCEON_88FR131
 	select KW88F6192
+	select KIRKWOOD_COMMON
 
 config TARGET_DNS325
 	bool "dns325 Board"
@@ -67,6 +85,7 @@ config TARGET_ICONNECT
 	bool "iconnect Board"
 	select FEROCEON_88FR131
 	select KW88F6281
+	select KIRKWOOD_COMMON
 
 config TARGET_KM_KIRKWOOD
 	bool "KM Kirkwood Board"
@@ -92,11 +111,13 @@ config TARGET_DOCKSTAR
 	bool "Dockstar Board"
 	select FEROCEON_88FR131
 	select KW88F6281
+	select KIRKWOOD_COMMON
 
 config TARGET_GOFLEXHOME
 	bool "GoFlex Home Board"
 	select FEROCEON_88FR131
 	select KW88F6281
+	select KIRKWOOD_COMMON
 
 config TARGET_NAS220
 	bool "BlackArmor NAS220"
@@ -107,6 +128,7 @@ config TARGET_NSA310S
 	bool "Zyxel NSA310S"
 	select FEROCEON_88FR131
 	select KW88F6192
+	select KIRKWOOD_COMMON
 
 config TARGET_SBx81LIFKW
 	bool "Allied Telesis SBx81GS24/SBx81GT40/SBx81XS6/SBx81XS16"
