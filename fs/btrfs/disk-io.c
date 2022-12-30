@@ -541,34 +541,39 @@ struct extent_buffer* read_tree_block(struct btrfs_fs_info *fs_info, u64 bytenr,
 int read_extent_data(struct btrfs_fs_info *fs_info, char *data, u64 logical,
 		     u64 *len, int mirror)
 {
-	u64 offset = 0;
+	u64 orig_len = *len;
+	u64 cur = logical;
 	struct btrfs_multi_bio *multi = NULL;
 	struct btrfs_device *device;
 	int ret = 0;
-	u64 max_len = *len;
 
-	ret = btrfs_map_block(fs_info, READ, logical, len, &multi, mirror,
-			      NULL);
-	if (ret) {
-		fprintf(stderr, "Couldn't map the block %llu\n",
-				logical + offset);
-		goto err;
-	}
-	device = multi->stripes[0].dev;
+	while (cur < logical + orig_len) {
+		u64 cur_len = logical + orig_len - cur;
 
-	if (*len > max_len)
-		*len = max_len;
-	if (!device->desc || !device->part) {
-		ret = -EIO;
-		goto err;
-	}
-
-	ret = __btrfs_devread(device->desc, device->part, data, *len,
-			      multi->stripes[0].physical);
-	if (ret != *len)
-		ret = -EIO;
-	else
+		ret = btrfs_map_block(fs_info, READ, cur, &cur_len, &multi,
+				      mirror, NULL);
+		if (ret) {
+			error("Couldn't map the block %llu", cur);
+			goto err;
+		}
+		device = multi->stripes[0].dev;
+		if (!device->desc || !device->part) {
+			error("devid %llu is missing", device->devid);
+			ret = -EIO;
+			goto err;
+		}
+		ret = __btrfs_devread(device->desc, device->part,
+				data + (cur - logical), cur_len,
+				multi->stripes[0].physical);
+		if (ret != cur_len) {
+			error("read failed on devid %llu physical %llu",
+			      device->devid, multi->stripes[0].physical);
+			ret = -EIO;
+			goto err;
+		}
+		cur += cur_len;
 		ret = 0;
+	}
 err:
 	kfree(multi);
 	return ret;
