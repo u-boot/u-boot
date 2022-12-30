@@ -76,8 +76,8 @@ stages:
     steps:
       - script: cppcheck -j$(nproc) --force --quiet --inline-suppr .
 
-  - job: htmldocs
-    displayName: 'Build HTML documentation'
+  - job: docs
+    displayName: 'Build documentation'
     pool:
       vmImage: $(ubuntu_vm)
     container:
@@ -89,6 +89,7 @@ stages:
           . /tmp/venvhtml/bin/activate
           pip install -r doc/sphinx/requirements.txt
           make htmldocs
+          make infodocs
 
   - job: todo
     displayName: 'Search for TODO within source tree'
