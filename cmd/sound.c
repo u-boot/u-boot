@@ -48,12 +48,12 @@ static int do_play(struct cmd_tbl *cmdtp, int flag, int argc,
 	++argv;
 	while (argc || first) {
 		first = false;
-		if (argc && *argv[0] != '-') {
+		if (argc) {
 			msec = dectoul(argv[0], NULL);
 			--argc;
 			++argv;
 		}
-		if (argc && *argv[0] != '-') {
+		if (argc) {
 			freq = dectoul(argv[0], NULL);
 			--argc;
 			++argv;
