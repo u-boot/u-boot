@@ -39,6 +39,13 @@ config TARGET_PINEBOOK_PRO_RK3399
 	  with 4Gb RAM, onboard eMMC, USB-C, a USB3 and USB2 port,
 	  1920*1080 screen and all the usual laptop features.
 
+config TARGET_PINEPHONE_PRO_RK3399
+	bool "PinePhone Pro"
+	help
+	  PinePhone Pro is a phone based on a variant of the Rockchip
+	  rk3399 SoC with 4Gb RAM, onboard eMMC, USB-C, headphone jack,
+	  720x1440 screen and a Quectel 4G/LTE modem.
+
 config TARGET_PUMA_RK3399
 	bool "Theobroma Systems RK3399-Q7 (Puma)"
 	help
@@ -165,6 +172,7 @@ endif # BOOTCOUNT_LIMIT
 source "board/firefly/roc-pc-rk3399/Kconfig"
 source "board/google/gru/Kconfig"
 source "board/pine64/pinebook-pro-rk3399/Kconfig"
+source "board/pine64/pinephone-pro-rk3399/Kconfig"
 source "board/pine64/rockpro64_rk3399/Kconfig"
 source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
