@@ -25,7 +25,7 @@ pe_header:
 	.long	IMAGE_NT_SIGNATURE		/* 'PE' */
 coff_header:
 	.short	IMAGE_FILE_MACHINE_ARM64	/* AArch64 */
-	.short	2				/* nr_sections */
+	.short	3				/* nr_sections */
 	.long	0				/* TimeDateStamp */
 	.long	0				/* PointerToSymbolTable */
 	.long	0				/* NumberOfSymbols */
@@ -40,7 +40,7 @@ optional_header:
 	.short	IMAGE_NT_OPTIONAL_HDR64_MAGIC	/* PE32+ format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
-	.long	_edata - _start			/* SizeOfCode */
+	.long	_etext - _start			/* SizeOfCode */
 	.long	0				/* SizeOfInitializedData */
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - ImageBase		/* AddressOfEntryPoint */
@@ -48,7 +48,7 @@ optional_header:
 
 extra_header_fields:
 	.quad	0				/* ImageBase */
-	.long	0x200				/* SectionAlignment */
+	.long	0x1000				/* SectionAlignment */
 	.long	0x200				/* FileAlignment */
 	.short	0				/* MajorOperatingSystemVersion */
 	.short	0				/* MinorOperatingSystemVersion */
@@ -100,25 +100,46 @@ section_table:
 	.long	0			/* PointerToLineNumbers */
 	.short	0			/* NumberOfRelocations */
 	.short	0			/* NumberOfLineNumbers */
-	.long	0x42100040		/* Characteristics (section flags) */
-
+	/* Characteristics (section flags) */
+	.long	(IMAGE_SCN_MEM_READ | \
+		 IMAGE_SCN_MEM_DISCARDABLE | \
+		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
 	.ascii	".text"
 	.byte	0
 	.byte	0
 	.byte	0			/* end of 0 padding of section name */
-	.long	_edata - _start		/* VirtualSize */
+	.long	_etext - _start		/* VirtualSize */
 	.long	_start - ImageBase	/* VirtualAddress */
-	.long	_edata - _start		/* SizeOfRawData */
+	.long	_etext - _start		/* SizeOfRawData */
 	.long	_start - ImageBase	/* PointerToRawData */
+	.long	0			/* PointerToRelocations */
+	.long	0			/* PointerToLineNumbers */
+	.short	0			/* NumberOfRelocations */
+	.short	0			/* NumberOfLineNumbers */
+	/* Characteristics (section flags) */
+	.long	(IMAGE_SCN_MEM_READ | \
+		 IMAGE_SCN_MEM_EXECUTE | \
+		 IMAGE_SCN_CNT_CODE)
 
-	.long	0		/* PointerToRelocations (0 for executables) */
-	.long	0		/* PointerToLineNumbers (0 for executables) */
-	.short	0		/* NumberOfRelocations  (0 for executables) */
-	.short	0		/* NumberOfLineNumbers  (0 for executables) */
-	.long	0xe0500020	/* Characteristics (section flags) */
+	.ascii	".data"
+	.byte	0
+	.byte	0
+	.byte	0			/* end of 0 padding of section name */
+	.long	_data_size		/* VirtualSize */
+	.long	_data - ImageBase	/* VirtualAddress */
+	.long	_data_size		/* SizeOfRawData */
+	.long	_data - ImageBase	/* PointerToRawData */
+	.long	0			/* PointerToRelocations */
+	.long	0			/* PointerToLineNumbers */
+	.short	0			/* NumberOfRelocations */
+	.short	0			/* NumberOfLineNumbers */
+	/* Characteristics (section flags) */
+	.long	(IMAGE_SCN_MEM_WRITE | \
+		 IMAGE_SCN_MEM_READ | \
+		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
-	.align		9
+	.align		12
 _start:
 	stp		x29, x30, [sp, #-32]!
 	mov		x29, sp
