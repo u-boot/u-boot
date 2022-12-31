@@ -23,6 +23,9 @@ obj-$(CONFIG_RAM_SIFIVE) += sifive/
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_STARFIVE_DDR) += starfive/
 endif
+
+obj-$(CONFIG_DRAM_SUN20I_D1) += sunxi/
+
 obj-$(CONFIG_ARCH_OCTEON) += octeon/
 
 obj-$(CONFIG_ARCH_RMOBILE) += renesas/
