@@ -711,15 +711,23 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 
 /**
  * image_source_script() - Execute a script
+ * @addr: Address of script
+ * @fit_uname: FIT subimage name
+ * @confname: FIT config name. The subimage is chosen based on FIT_SCRIPT_PROP.
  *
  * Executes a U-Boot script at a particular address in memory. The script should
  * have a header (FIT or legacy) with the script type (IH_TYPE_SCRIPT).
  *
- * @addr: Address of script
- * @fit_uname: FIT subimage name
+ * If @fit_uname is the empty string, then the default image is used. If
+ * @confname is the empty string, the default config is used. If @confname and
+ * @fit_uname are both non-%NULL, then @confname is ignored. If @confname and
+ * @fit_uname are both %NULL, then first the default config is tried, and then
+ * the default image.
+ *
  * Return: result code (enum command_ret_t)
  */
-int image_source_script(ulong addr, const char *fit_uname);
+int image_source_script(ulong addr, const char *fit_uname,
+			const char *confname);
 
 /**
  * fit_get_node_from_config() - Look up an image a FIT by type
@@ -1032,6 +1040,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 #define FIT_FPGA_PROP		"fpga"
 #define FIT_FIRMWARE_PROP	"firmware"
 #define FIT_STANDALONE_PROP	"standalone"
+#define FIT_SCRIPT_PROP		"script"
 #define FIT_PHASE_PROP		"phase"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
@@ -1259,7 +1268,14 @@ int fit_image_verify_with_data(const void *fit, int image_noffset,
 			       size_t size);
 
 int fit_image_verify(const void *fit, int noffset);
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
 int fit_config_verify(const void *fit, int conf_noffset);
+#else
+static inline int fit_config_verify(const void *fit, int conf_noffset)
+{
+	return 0;
+}
+#endif
 int fit_all_image_verify(const void *fit);
 int fit_config_decrypt(const void *fit, int conf_noffset);
 int fit_image_check_os(const void *fit, int noffset, uint8_t os);
