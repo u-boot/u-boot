@@ -343,27 +343,27 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	ulong size;
 
 	if (argc < 3)
-		return -1;
+		return CMD_RET_USAGE;
 
 	if (mtd_arg_off(argv[1], &dev, &offset, &len, &maxsize,
 			MTD_DEV_TYPE_NOR, flash->size))
-		return -1;
+		return CMD_RET_FAILURE;
 
 	ret = sf_parse_len_arg(argv[2], &size);
 	if (ret != 1)
-		return -1;
+		return CMD_RET_USAGE;
 
 	/* Consistency checking */
 	if (offset + size > flash->size) {
 		printf("ERROR: attempting %s past flash size (%#x)\n",
 		       argv[0], flash->size);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (flash->flash_is_unlocked &&
 	    !flash->flash_is_unlocked(flash, offset, len)) {
 		printf("ERROR: flash area is locked\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	ret = spi_flash_erase(flash, offset, size);
@@ -373,7 +373,7 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	else
 		printf("OK\n");
 
-	return ret == 0 ? 0 : 1;
+	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
 
 static int do_spi_protect(int argc, char *const argv[])
