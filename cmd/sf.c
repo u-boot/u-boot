@@ -579,21 +579,19 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* need at least two arguments */
 	if (argc < 2)
-		goto usage;
+		return CMD_RET_USAGE;
 
 	cmd = argv[1];
 	--argc;
 	++argv;
 
-	if (strcmp(cmd, "probe") == 0) {
-		ret = do_spi_flash_probe(argc, argv);
-		goto done;
-	}
+	if (strcmp(cmd, "probe") == 0)
+		return do_spi_flash_probe(argc, argv);
 
 	/* The remaining commands require a selected device */
 	if (!flash) {
 		puts("No SPI flash selected. Please run `sf probe'\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (strcmp(cmd, "read") == 0 || strcmp(cmd, "write") == 0 ||
@@ -606,14 +604,9 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 	else if (IS_ENABLED(CONFIG_CMD_SF_TEST) && !strcmp(cmd, "test"))
 		ret = do_spi_flash_test(argc, argv);
 	else
-		ret = -1;
+		ret = CMD_RET_USAGE;
 
-done:
-	if (ret != -1)
-		return ret;
-
-usage:
-	return CMD_RET_USAGE;
+	return ret;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
