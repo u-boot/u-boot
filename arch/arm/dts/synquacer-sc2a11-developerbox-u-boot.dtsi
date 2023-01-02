@@ -20,10 +20,8 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		status = "okay";
-		active_clk_edges;
-		chipselect_num = <1>;
 
-		spi-flash@0 {
+		flash@0 {
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "jedec,spi-nor";

@@ -167,4 +167,44 @@
 		reg = <0xc0010000 0xf000>;
 		u-boot,dm-pre-reloc;
 	};
+
+	uart0:uart@c00a1000 {
+		compatible = "nexell,s5p4418-pl011", "arm,primecell";
+		reg = <0xc00a1000 0x1000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&uart0_rx>, <&uart0_tx>;
+		status = "disabled";
+	};
+
+	uart1:uart@c00a0000 {
+		compatible = "nexell,s5p4418-pl011", "arm,primecell";
+		reg = <0xc00a0000 0x1000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&uart1_rx>, <&uart1_tx>;
+		status = "disabled";
+	};
+
+	uart2:uart@c00a2000 {
+		compatible = "nexell,s5p4418-pl011", "arm,primecell";
+		reg = <0xc00a2000 0x1000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&uart2_rx>, <&uart2_tx>;
+		status = "disabled";
+	};
+
+	uart3:uart@c00a3000 {
+		compatible = "nexell,s5p4418-pl011", "arm,primecell";
+		reg = <0xc00a3000 0x1000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&uart3_rx>, <&uart3_tx>;
+		status = "disabled";
+	};
+
+	uart4:uart@c006d000 {
+		compatible = "nexell,s5p4418-pl011", "arm,primecell";
+		reg = <0xc006d000 0x1000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&uart4_rx>, <&uart4_tx>;
+		status = "disabled";
+	};
 };

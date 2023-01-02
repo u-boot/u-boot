@@ -18,7 +18,7 @@
         compatible = "gpio-keys";
         interrupt-parent = <&exiu>;
 
-        power {
+        power-button {
             label = "Power Button";
             linux,code = <KEY_POWER>;
             interrupts = <GIC_SPI 120 IRQ_TYPE_EDGE_FALLING>;

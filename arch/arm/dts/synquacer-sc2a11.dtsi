@@ -41,168 +41,168 @@
 
         CPU0: cpu@0 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x0>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU1: cpu@1 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x1>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU2: cpu@100 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x100>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU3: cpu@101 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x101>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU4: cpu@200 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x200>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU5: cpu@201 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x201>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU6: cpu@300 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x300>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU7: cpu@301 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x301>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU8: cpu@400 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x400>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU9: cpu@401 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x401>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU10: cpu@500 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x500>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU11: cpu@501 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x501>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU12: cpu@600 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x600>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU13: cpu@601 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x601>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU14: cpu@700 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x700>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU15: cpu@701 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x701>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU16: cpu@800 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x800>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU17: cpu@801 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x801>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU18: cpu@900 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x900>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU19: cpu@901 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0x901>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU20: cpu@a00 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0xa00>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU21: cpu@a01 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0xa01>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU22: cpu@b00 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0xb00>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
         };
         CPU23: cpu@b01 {
             device_type = "cpu";
-            compatible = "arm,cortex-a53","arm,armv8";
+            compatible = "arm,cortex-a53";
             reg = <0xb01>;
             enable-method = "psci";
             cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
@@ -309,7 +309,7 @@
     };
 
     idle-states {
-        entry-method = "arm,psci";
+        entry-method = "psci";
 
         CPU_SLEEP_0: cpu-sleep-0 {
             compatible = "arm,idle-state";
@@ -344,7 +344,7 @@
         interrupt-controller;
         interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_LOW>;
 
-        its: gic-its@30020000 {
+        its: msi-controller@30020000 {
             compatible = "arm,gic-v3-its";
             reg = <0x0 0x30020000 0x0 0x20000>;
             #msi-cells = <1>;
@@ -361,16 +361,16 @@
                      <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;   // HYP
     };
 
-    mmio-timer@2a810000 {
+    timer@2a810000 {
         compatible = "arm,armv7-timer-mem";
         reg = <0x0 0x2a810000 0x0 0x10000>;
-        #address-cells = <2>;
-        #size-cells = <2>;
-        ranges;
-        frame@2a830000 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges = <0x0 0x0 0x2a810000 0x30000>;
+        frame@20000 {
             frame-number = <0>;
             interrupts = <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
-            reg = <0x0 0x2a830000 0x0 0x10000>;
+            reg = <0x20000 0x10000>;
         };
     };
 
@@ -398,7 +398,7 @@
         clock-output-names = "apb_pclk";
     };
 
-    soc_uart0: uart@2a400000 {
+    soc_uart0: serial@2a400000 {
         compatible = "arm,pl011", "arm,primecell";
         reg = <0x0 0x2a400000 0x0 0x1000>;
         interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
@@ -406,7 +406,7 @@
         clock-names = "uartclk", "apb_pclk";
     };
 
-    fuart: uart@51040000 {
+    fuart: serial@51040000 {
         compatible = "snps,dw-apb-uart";
         reg = <0x0 0x51040000 0x0 0x1000>;
         interrupts = <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
@@ -497,7 +497,6 @@
         gpio-controller;
         #gpio-cells = <2>;
         clocks = <&clk_apb>;
-        base = <0>;
     };
 
     exiu: interrupt-controller@510c0000 {
@@ -523,7 +522,7 @@
         clock-output-names = "sd_sd4clk";
     };
 
-    sdhci: sdhci@52300000 {
+    sdhci: mmc@52300000 {
         compatible = "socionext,synquacer-sdhci", "fujitsu,mb86s70-sdhci-3.0";
         reg = <0 0x52300000 0x0 0x1000>;
         interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_HIGH>,

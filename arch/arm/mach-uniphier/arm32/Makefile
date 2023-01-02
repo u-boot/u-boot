@@ -8,5 +8,3 @@ obj-y += late_lowlevel_init.o
 obj-y += cache-uniphier.o
 obj-$(CONFIG_ARMV7_PSCI) += psci.o psci_smp.o
 endif
-
-obj-y += timer.o

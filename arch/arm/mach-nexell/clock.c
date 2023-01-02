@@ -856,7 +856,7 @@ void __init clk_init(void)
 		}
 
 		/* prevent uart clock disable for low step debug message */
-		#ifndef CONFIG_DEBUG_NX_UART
+		#ifndef CONFIG_DEBUG_UART
 		if (peri->dev_name) {
 			#ifdef CONFIG_BACKLIGHT_PWM
 			if (!strcmp(peri->dev_name, DEV_NAME_PWM))

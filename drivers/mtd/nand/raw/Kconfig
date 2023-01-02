@@ -197,6 +197,7 @@ config NAND_DENALI
 config NAND_DENALI_DT
 	bool "Support Denali NAND controller as a DT device"
 	select NAND_DENALI
+	select SPL_SYS_NAND_SELF_INIT
 	depends on OF_CONTROL && DM_MTD
 	help
 	  Enable the driver for NAND flash on platforms using a Denali NAND

@@ -36,8 +36,7 @@
 	BOOT_TARGET_DEVICE_USB(func)
 
 #if !defined(CONFIG_ARM64)
-/* Time clock 1MHz */
-#define CFG_SYS_TIMER_RATE			1000000
+#define CFG_SYS_HZ_CLOCK			50000000
 #endif
 
 #define CFG_SYS_NAND_REGS_BASE			0x68100000

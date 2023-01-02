@@ -260,4 +260,13 @@ config RTC_ZYNQMP
 	  Say "yes" here to support the on chip real time clock
 	  present on Xilinx ZynqMP SoC.
 
+config RTC_HT1380
+	bool "Enable Holtek HT1380/HT1381 RTC driver"
+	depends on DM_RTC && DM_GPIO
+	help
+	  Say "yes" here to get support for Holtek HT1380/HT1381
+	  Serial Timekeeper IC which provides seconds, minutes, hours,
+	  day of the week, date, month and year information. It is to be
+	  connected via 3 GPIO pins which work as reset, clock, and data.
+
 endmenu

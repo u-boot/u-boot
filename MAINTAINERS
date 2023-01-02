@@ -436,6 +436,7 @@ F:	drivers/gpio/nx_gpio.c
 F:	drivers/i2c/nx_i2c.c
 F:	drivers/mmc/nexell_dw_mmc_dm.c
 F:	drivers/pinctrl/nexell/
+F:	drivers/serial/serial_s5p4418_pl011.c
 F:	drivers/video/nexell/
 F:	drivers/video/nexell_display.c
 F:	include/configs/s5p4418_nanopi2.h

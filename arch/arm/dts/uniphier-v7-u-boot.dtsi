@@ -2,6 +2,10 @@
 	soc {
 		u-boot,dm-pre-reloc;
 
+		timer@60000200 {
+			u-boot,dm-pre-reloc;
+		};
+
 		serial@54006800 {
 			u-boot,dm-pre-reloc;
 		};
