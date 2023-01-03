@@ -938,7 +938,7 @@ static int mxc_i2c_probe(struct udevice *bus)
 	 * we can set pinmux here in probe function.
 	 */
 
-	debug("i2c : controller bus %d at %lu , speed %d: ",
+	debug("i2c : controller bus %d at 0x%lx , speed %d: ",
 	      dev_seq(bus), i2c_bus->base,
 	      i2c_bus->speed);
 
