@@ -502,7 +502,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_IPG_CLK:
 		return get_ipg_clk();
 	case MXC_I2C_CLK:
-		return get_root_clk(I2C1_CLK_ROOT);
+		return 60000000;
 	case MXC_UART_CLK:
 		return get_root_clk(UART1_CLK_ROOT);
 	case MXC_CSPI_CLK:
