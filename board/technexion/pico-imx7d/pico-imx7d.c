@@ -13,10 +13,8 @@
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <common.h>
-#include <i2c.h>
 #include <miiphy.h>
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
@@ -26,27 +24,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_DSE_3P3V_49OHM | \
 	PAD_CTL_PUS_PU100KOHM | PAD_CTL_HYS)
-
-#define I2C_PAD_CTRL    (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU100KOHM)
-
-#ifdef CONFIG_SYS_I2C_MXC
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-
-/* I2C4 for PMIC */
-static struct i2c_pads_info i2c_pad_info4 = {
-	.scl = {
-		.i2c_mode = MX7D_PAD_SAI1_RX_SYNC__I2C4_SCL | PC,
-		.gpio_mode = MX7D_PAD_SAI1_RX_SYNC__GPIO6_IO16 | PC,
-		.gp = IMX_GPIO_NR(6, 16),
-	},
-	.sda = {
-		.i2c_mode = MX7D_PAD_SAI1_RX_BCLK__I2C4_SDA | PC,
-		.gpio_mode = MX7D_PAD_SAI1_RX_BCLK__GPIO6_IO17 | PC,
-		.gp = IMX_GPIO_NR(6, 17),
-	},
-};
-#endif
 
 int dram_init(void)
 {
@@ -60,50 +37,43 @@ int dram_init(void)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(POWER_LEGACY)
-#define I2C_PMIC	3
+#if CONFIG_IS_ENABLED(DM_PMIC)
 int power_init_board(void)
 {
-	struct pmic *p;
+	struct udevice *dev;
+	int reg, rev_id;
 	int ret;
-	unsigned int reg, rev_id;
 
-	ret = power_pfuze3000_init(I2C_PMIC);
-	if (ret)
+	ret = pmic_get("pfuze3000@8", &dev);
+	if (ret == -ENODEV)
+		return 0;
+	if (ret != 0)
 		return ret;
 
-	p = pmic_get("PFUZE3000");
-	ret = pmic_probe(p);
-	if (ret) {
-		printf("Warning:  Cannot find PMIC PFUZE3000\n");
-		printf("\tPower consumption is not optimized.\n");
-		return 0;
-	}
-
-	pmic_reg_read(p, PFUZE3000_DEVICEID, &reg);
-	pmic_reg_read(p, PFUZE3000_REVID, &rev_id);
-	printf("PMIC:  PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", reg, rev_id);
+	reg = pmic_reg_read(dev, PFUZE3000_DEVICEID);
+	rev_id = pmic_reg_read(dev, PFUZE3000_REVID);
+	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", reg, rev_id);
 
 	/* disable Low Power Mode during standby mode */
-	pmic_reg_read(p, PFUZE3000_LDOGCTL, &reg);
+	reg = pmic_reg_read(dev, PFUZE3000_LDOGCTL);
 	reg |= 0x1;
-	pmic_reg_write(p, PFUZE3000_LDOGCTL, reg);
+	pmic_reg_write(dev, PFUZE3000_LDOGCTL, reg);
 
 	/* SW1A/1B mode set to APS/APS */
 	reg = 0x8;
-	pmic_reg_write(p, PFUZE3000_SW1AMODE, reg);
-	pmic_reg_write(p, PFUZE3000_SW1BMODE, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1AMODE, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1BMODE, reg);
 
 	/* SW1A/1B standby voltage set to 1.025V */
 	reg = 0xd;
-	pmic_reg_write(p, PFUZE3000_SW1ASTBY, reg);
-	pmic_reg_write(p, PFUZE3000_SW1BSTBY, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1ASTBY, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1BSTBY, reg);
 
 	/* decrease SW1B normal voltage to 0.975V */
-	pmic_reg_read(p, PFUZE3000_SW1BVOLT, &reg);
+	reg = pmic_reg_read(dev, PFUZE3000_SW1BVOLT);
 	reg &= ~0x1f;
 	reg |= PFUZE3000_SW1AB_SETP(975);
-	pmic_reg_write(p, PFUZE3000_SW1BVOLT, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1BVOLT, reg);
 
 	return 0;
 }
@@ -167,10 +137,6 @@ static void setup_iomux_uart(void)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-
-#ifdef CONFIG_SYS_I2C_MXC
-	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info4);
-#endif
 
 	return 0;
 }
