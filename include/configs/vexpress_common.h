@@ -147,6 +147,7 @@
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+                "loadaddr=0x60100000\0" \
                 "kernel_addr_r=0x60100000\0" \
                 "fdt_addr_r=0x60000000\0" \
                 "bootargs=console=tty0 console=ttyAMA0,38400n8\0" \
