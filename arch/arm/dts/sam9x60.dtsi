@@ -69,6 +69,24 @@
 		#size-cells = <1>;
 		ranges;
 
+		usb1: usb@600000 {
+			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
+			reg = <0x00600000 0x100000>;
+			clocks = <&pmc PMC_TYPE_PERIPHERAL 22>, <&pmc PMC_TYPE_PERIPHERAL 22>, <&pmc PMC_TYPE_SYSTEM 21>;
+			clock-names = "ohci_clk", "hclk", "uhpck";
+			status = "disabled";
+		};
+
+		usb2: usb@700000 {
+			compatible = "atmel,at91sam9g45-ehci", "usb-ehci";
+			reg = <0x00700000 0x100000>;
+			clocks = <&pmc PMC_TYPE_CORE 8>, <&pmc PMC_TYPE_PERIPHERAL 22>;
+			clock-names = "usb_clk", "ehci_clk";
+			assigned-clocks = <&pmc PMC_TYPE_CORE 8>;
+			assigned-clock-rates = <480000000>;
+			status = "disabled";
+		};
+
 		ebi: ebi@10000000 {
 			compatible = "microchip,sam9x60-ebi";
 			#address-cells = <2>;
