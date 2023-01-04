@@ -25,7 +25,7 @@ config SPL_TEXT_BASE
 	default 0x800000
 
 config SPL_OPENSBI_LOAD_ADDR
-	default 0x01000000
+	default 0x00000000
 
 config SYS_FDT_BASE
 	hex
