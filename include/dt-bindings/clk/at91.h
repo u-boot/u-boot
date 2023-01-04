@@ -18,5 +18,10 @@
 #define PMC_TYPE_PERIPHERAL	3
 #define PMC_TYPE_GCK		4
 #define PMC_TYPE_SLOW		5
+#define USB_UTMI		6
+
+#define USB_UTMI1		0
+#define USB_UTMI2		1
+#define USB_UTMI3		2
 
 #endif
