@@ -143,7 +143,32 @@
 					pinmux = <PIN_PC9__GPIO>;
 					bias-pull-up;
 				};
+
+				pinctrl_usb_default: usb_default {
+					pinmux = <PIN_PA10__GPIO>;
+					bias-disable;
+				};
+
+				pinctrl_usba_vbus: usba_vbus {
+					pinmux = <PIN_PA16__GPIO>;
+					bias-disable;
+				};
 			};
 		};
 	};
+};
+
+&usb1 {
+	num-ports = <3>;
+	atmel,vbus-gpio = <0
+			   &pioA PIN_PA10 GPIO_ACTIVE_HIGH
+			   0
+			  >;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb_default>;
+	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
 };
