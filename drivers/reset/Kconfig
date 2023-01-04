@@ -211,4 +211,12 @@ config RESET_DRA7
 	help
 	  Support for TI DRA7-RESET subsystem. Basic Assert/Deassert
 	  is supported.
+
+config RESET_AT91
+	bool "Enable support for Microchip/Atmel Reset Controller driver"
+	depends on DM_RESET && ARCH_AT91
+	help
+	  This enables the Reset Controller driver support for Microchip/Atmel
+	  SoCs. Mainly used to expose assert/deassert methods to other drivers
+	  that require it.
 endmenu
