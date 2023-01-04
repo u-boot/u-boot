@@ -9,6 +9,7 @@
 /* void *memcpy(void *, const void *, size_t) */
 ENTRY(__memcpy)
 WEAK(memcpy)
+	beq	a0, a1, .copy_end
 	/* Save for return value */
 	mv	t6, a0
 
@@ -121,6 +122,7 @@ WEAK(memcpy)
 2:
 
 	mv	a0, t6
+.copy_end:
 	ret
 
 .Lmisaligned_word_copy:
