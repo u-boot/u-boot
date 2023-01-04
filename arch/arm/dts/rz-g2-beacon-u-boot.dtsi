@@ -45,7 +45,6 @@
 };
 
 &rpc {
-	compatible = "renesas,rcar-gen3-rpc";
 	pinctrl-0 = <&qspi_pins>;
 	pinctrl-names = "default";
 	num-cs = <1>;
