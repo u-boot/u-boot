@@ -12,3 +12,4 @@ Build U-Boot
    docker
    tools
    buildman
+   documentation

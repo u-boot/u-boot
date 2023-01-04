@@ -3956,8 +3956,11 @@ efi_status_t efi_initialize_system_table(void)
 	 * These entries will be set to NULL in ExitBootServices(). To avoid
 	 * relocation in SetVirtualAddressMap(), set them dynamically.
 	 */
+	systab.con_in_handle = efi_root;
 	systab.con_in = &efi_con_in;
+	systab.con_out_handle = efi_root;
 	systab.con_out = &efi_con_out;
+	systab.stderr_handle = efi_root;
 	systab.std_err = &efi_con_out;
 	systab.boottime = &efi_boot_services;
 
