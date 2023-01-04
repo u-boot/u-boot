@@ -5,3 +5,4 @@
 
 obj-y	:= cpu.o
 obj-y	+= cache.o
+obj-y	+= spl.o
