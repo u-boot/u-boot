@@ -20,15 +20,11 @@ allows this script to be run stand-alone, e.g.:
     ./pylibfdt/setup.py install [--prefix=...]
 """
 
-from setuptools import setup, Extension
+from setuptools import setup, Extension, sic
 from setuptools.command.build_py import build_py as _build_py
-from setuptools.extern.packaging import version
 import os
 import re
 import sys
-
-# Disable version normalization
-version.Version = version.LegacyVersion
 
 srcdir = os.path.dirname(__file__)
 
@@ -141,7 +137,7 @@ class build_py(_build_py):
 
 setup(
     name='libfdt',
-    version=version,
+    version=sic(version),
     cmdclass = {'build_py' : build_py},
     author='Simon Glass',
     author_email='sjg@chromium.org',
