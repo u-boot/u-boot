@@ -526,7 +526,6 @@ static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpc_addr)
 	return 0;
 }
 
-
 static int mc_fixup_dpl(u64 dpl_addr)
 {
 	void *blob = (void *)dpl_addr;
@@ -697,7 +696,6 @@ static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
 	} else {
 		printf("SUCCESS\n");
 	}
-
 
 	*final_reg_gsr = reg_gsr;
 	return 0;
