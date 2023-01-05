@@ -484,7 +484,7 @@
 				"${prefix}${boot_syslinux_conf}; then "   \
 			"echo Found ${prefix}${boot_syslinux_conf}; "     \
 			"run boot_extlinux; "                             \
-			"echo SCRIPT FAILED: continuing...; "             \
+			"echo EXTLINUX FAILED: continuing...; "           \
 		"fi\0"                                                    \
 	\
 	"boot_a_script="                                                  \
