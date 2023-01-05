@@ -1038,7 +1038,7 @@ static int dpio_init(void)
 	}
 
 #ifdef DEBUG
-	printf("Init: DPIO id=0x%d\n", dflt_dpio->dpio_id);
+	printf("Init: DPIO.%d\n", dflt_dpio->dpio_id);
 #endif
 	err = dpio_enable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	if (err < 0) {
@@ -1107,7 +1107,7 @@ static int dpio_exit(void)
 	}
 
 #ifdef DEBUG
-	printf("Exit: DPIO id=0x%d\n", dflt_dpio->dpio_id);
+	printf("Exit: DPIO.%d\n", dflt_dpio->dpio_id);
 #endif
 
 	if (dflt_dpio)
@@ -1312,7 +1312,7 @@ static int dpbp_init(void)
 	}
 
 #ifdef DEBUG
-	printf("Init: DPBP id=0x%x\n", dflt_dpbp->dpbp_attr.id);
+	printf("Init: DPBP.%d\n", dflt_dpbp->dpbp_attr.id);
 #endif
 
 	err = dpbp_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpbp->dpbp_handle);
@@ -1351,7 +1351,7 @@ static int dpbp_exit(void)
 	}
 
 #ifdef DEBUG
-	printf("Exit: DPBP id=0x%d\n", dflt_dpbp->dpbp_attr.id);
+	printf("Exit: DPBP.%d\n", dflt_dpbp->dpbp_attr.id);
 #endif
 
 	if (dflt_dpbp)
@@ -1422,7 +1422,7 @@ static int dpni_init(void)
 	}
 
 #ifdef DEBUG
-	printf("Init: DPNI id=0x%d\n", dflt_dpni->dpni_id);
+	printf("Init: DPNI.%d\n", dflt_dpni->dpni_id);
 #endif
 	err = dpni_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 	if (err < 0) {
@@ -1459,7 +1459,7 @@ static int dpni_exit(void)
 	}
 
 #ifdef DEBUG
-	printf("Exit: DPNI id=0x%d\n", dflt_dpni->dpni_id);
+	printf("Exit: DPNI.%d\n", dflt_dpni->dpni_id);
 #endif
 
 	if (dflt_dpni)
