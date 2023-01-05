@@ -1796,7 +1796,6 @@ static void mc_dump_log(void)
 	if (size > bytes_end) {
 		print_k_bytes(cur_ptr, &bytes_end);
 
-		cur_ptr = buf;
 		size -= bytes_end;
 	}
 
