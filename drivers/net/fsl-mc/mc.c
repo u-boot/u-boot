@@ -812,7 +812,7 @@ int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr)
 	 * Initialize the global default MC portal
 	 * And check that the MC firmware is responding portal commands:
 	 */
-	root_mc_io = (struct fsl_mc_io *)calloc(sizeof(struct fsl_mc_io), 1);
+	root_mc_io = calloc(sizeof(struct fsl_mc_io), 1);
 	if (!root_mc_io) {
 		printf(" No memory: calloc() failed\n");
 		return -ENOMEM;
@@ -979,8 +979,7 @@ static int dpio_init(void)
 	int err = 0;
 	uint16_t major_ver, minor_ver;
 
-	dflt_dpio = (struct fsl_dpio_obj *)calloc(
-					sizeof(struct fsl_dpio_obj), 1);
+	dflt_dpio = calloc(sizeof(struct fsl_dpio_obj), 1);
 	if (!dflt_dpio) {
 		printf("No memory: calloc() failed\n");
 		err = -ENOMEM;
@@ -1168,7 +1167,7 @@ static int dprc_init(void)
 		goto err_create;
 	}
 
-	dflt_mc_io = (struct fsl_mc_io *)calloc(sizeof(struct fsl_mc_io), 1);
+	dflt_mc_io = calloc(sizeof(struct fsl_mc_io), 1);
 	if (!dflt_mc_io) {
 		err  = -ENOMEM;
 		printf(" No memory: calloc() failed\n");
@@ -1250,8 +1249,7 @@ static int dpbp_init(void)
 	struct dpbp_cfg dpbp_cfg;
 	uint16_t major_ver, minor_ver;
 
-	dflt_dpbp = (struct fsl_dpbp_obj *)calloc(
-					sizeof(struct fsl_dpbp_obj), 1);
+	dflt_dpbp = calloc(sizeof(struct fsl_dpbp_obj), 1);
 	if (!dflt_dpbp) {
 		printf("No memory: calloc() failed\n");
 		err = -ENOMEM;
@@ -1369,8 +1367,7 @@ static int dpni_init(void)
 	struct dpni_cfg dpni_cfg;
 	uint16_t major_ver, minor_ver;
 
-	dflt_dpni = (struct fsl_dpni_obj *)calloc(
-					sizeof(struct fsl_dpni_obj), 1);
+	dflt_dpni = calloc(sizeof(struct fsl_dpni_obj), 1);
 	if (!dflt_dpni) {
 		printf("No memory: calloc() failed\n");
 		err = -ENOMEM;
