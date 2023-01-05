@@ -593,6 +593,14 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			      ntohs(*(__be16 *)pkt),
 			      (ushort)(tftp_cur_block + 1));
 			/*
+			 * Only ACK if the block count received is greater than
+			 * the expected block count, otherwise skip ACK.
+			 * (required to properly handle the server retransmitting
+			 *  the window)
+			 */
+			if ((ushort)(tftp_cur_block + 1) - (short)(ntohs(*(__be16 *)pkt)) > 0)
+				break;
+			/*
 			 * If one packet is dropped most likely
 			 * all other buffers in the window
 			 * that will arrive will cause a sending NACK.
