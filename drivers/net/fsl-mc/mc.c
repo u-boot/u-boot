@@ -356,8 +356,7 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 	if (noff < 0) {
 		err = fdt_increase_size(blob, 200);
 		if (err) {
-			printf("fdt_increase_size: err=%s\n",
-				fdt_strerror(err));
+			printf("fdt_increase_size: err=%s\n", fdt_strerror(err));
 			return err;
 		}
 
@@ -373,7 +372,7 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 					    "link_type", link_type_mode);
 		if (err) {
 			printf("fdt_appendprop_string: err=%s\n",
-				fdt_strerror(err));
+			       fdt_strerror(err));
 			return err;
 		}
 	}
@@ -1158,10 +1157,9 @@ static int dprc_init(void)
 	cfg.icid = DPRC_GET_ICID_FROM_POOL;
 	cfg.portal_id = DPRC_GET_PORTAL_ID_FROM_POOL;
 	err = dprc_create_container(root_mc_io, MC_CMD_NO_FLAGS,
-			root_dprc_handle,
-			&cfg,
-			&child_dprc_id,
-			&mc_portal_offset);
+				    root_dprc_handle, &cfg,
+				    &child_dprc_id,
+				    &mc_portal_offset);
 	if (err < 0) {
 		printf("dprc_create_container() failed: %d\n", err);
 		goto err_create;
