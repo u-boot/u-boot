@@ -1961,7 +1961,6 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 	default:
 		printf("Invalid option: %s\n", argv[1]);
 		goto usage;
-		break;
 	}
 	return err;
  usage:
