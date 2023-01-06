@@ -11,14 +11,20 @@
 #include <bootflow.h>
 #include <bootmeth.h>
 #include <bootstd.h>
+#include <cli.h>
 #include <dm.h>
 #ifdef CONFIG_SANDBOX
 #include <asm/test.h>
 #endif
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
+extern U_BOOT_DRIVER(bootmeth_script);
 
 static int inject_response(struct unit_test_state *uts)
 {
@@ -462,3 +468,48 @@ static int bootflow_cmd_boot(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_cmd_boot, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check 'bootflow menu' to select a bootflow */
+static int bootflow_cmd_menu(struct unit_test_state *uts)
+{
+	static const char *order[] = {"mmc2", "mmc1", "mmc4", NULL};
+	struct udevice *dev, *bootstd;
+	struct bootstd_priv *std;
+	const char **old_order;
+	char prev[3];
+	ofnode node;
+
+	/* Enable the mmc4 node since we need a second bootflow */
+	node = ofnode_path("/mmc4");
+	ut_assertok(lists_bind_fdt(gd->dm_root, node, &dev, NULL, false));
+
+	/* Enable the script bootmeth too */
+	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_script),
+				"bootmeth_script", 0, ofnode_null(), &dev));
+
+	/* Change the order to include mmc4 */
+	std = dev_get_priv(bootstd);
+	old_order = std->bootdev_order;
+	std->bootdev_order = order;
+
+	console_record_reset_enable();
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+
+	/* Restore the order used by the device tree */
+	std->bootdev_order = old_order;
+
+	/* Add keypresses to move to and select the second one in the list */
+	prev[0] = CTL_CH('n');
+	prev[1] = '\r';
+	prev[2] = '\0';
+	ut_asserteq(2, console_in_puts(prev));
+
+	ut_assertok(run_command("bootflow menu", 0));
+	ut_assert_nextline("Selected: Armbian");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmd_menu, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
