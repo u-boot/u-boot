@@ -127,7 +127,7 @@ static int dm_test_blk_devnum(struct unit_test_state *uts)
 
 	/*
 	 * Probe the devices, with the first one being probed last. This is the
-	 * one with no alias / sequence numnber.
+	 * one with no alias / sequence number.
 	 */
 	ut_assertok(uclass_get_device(UCLASS_MMC, 1, &dev));
 	ut_assertok(uclass_get_device(UCLASS_MMC, 2, &dev));

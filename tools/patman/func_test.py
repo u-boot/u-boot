@@ -6,7 +6,9 @@
 
 """Functional tests for checking that patman behaves correctly"""
 
+import contextlib
 import os
+import pathlib
 import re
 import shutil
 import sys
@@ -27,6 +29,21 @@ from patman.test_util import capture_sys_output
 
 import pygit2
 from patman import status
+
+PATMAN_DIR = pathlib.Path(__file__).parent
+TEST_DATA_DIR = PATMAN_DIR / 'test/'
+
+
+@contextlib.contextmanager
+def directory_excursion(directory):
+    """Change directory to `directory` for a limited to the context block."""
+    current = os.getcwd()
+    try:
+        os.chdir(directory)
+        yield
+    finally:
+        os.chdir(current)
+
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for checking that patman behaves correctly"""
@@ -57,8 +74,7 @@ class TestFunctional(unittest.TestCase):
         Returns:
             str: Full path to file in the test directory
         """
-        return os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'test', fname)
+        return TEST_DATA_DIR / fname
 
     @classmethod
     def _get_text(cls, fname):
@@ -200,6 +216,8 @@ class TestFunctional(unittest.TestCase):
         text = self._get_text('test01.txt')
         series = patchstream.get_metadata_for_test(text)
         cover_fname, args = self._create_patches_for_test(series)
+        get_maintainer_script = str(pathlib.Path(__file__).parent.parent.parent
+                                    / 'get_maintainer.pl') + ' --norolestats'
         with capture_sys_output() as out:
             patchstream.fix_patches(series, args)
             if cover_fname and series.get('cover'):
@@ -207,7 +225,7 @@ class TestFunctional(unittest.TestCase):
             series.DoChecks()
             cc_file = series.MakeCcFile(process_tags, cover_fname,
                                         not ignore_bad_tags, add_maintainers,
-                                        None)
+                                        None, get_maintainer_script)
             cmd = gitutil.email_patches(
                 series, cover_fname, args, dry_run, not ignore_bad_tags,
                 cc_file, in_reply_to=in_reply_to, thread=None)
@@ -501,6 +519,37 @@ complicated as possible''')
             self.assertEqual(2, len(patch_files))
         finally:
             os.chdir(orig_dir)
+
+    def test_custom_get_maintainer_script(self):
+        """Validate that a custom get_maintainer script gets used."""
+        self.make_git_tree()
+        with directory_excursion(self.gitdir):
+            # Setup git.
+            os.environ['GIT_CONFIG_GLOBAL'] = '/dev/null'
+            os.environ['GIT_CONFIG_SYSTEM'] = '/dev/null'
+            tools.run('git', 'config', 'user.name', 'Dummy')
+            tools.run('git', 'config', 'user.email', 'dumdum@dummy.com')
+            tools.run('git', 'branch', 'upstream')
+            tools.run('git', 'branch', '--set-upstream-to=upstream')
+            tools.run('git', 'add', '.')
+            tools.run('git', 'commit', '-m', 'new commit')
+
+            # Setup patman configuration.
+            with open('.patman', 'w', buffering=1) as f:
+                f.write('[settings]\n'
+                        'get_maintainer_script: dummy-script.sh\n'
+                        'check_patch: False\n')
+            with open('dummy-script.sh', 'w', buffering=1) as f:
+                f.write('#!/usr/bin/env python\n'
+                        'print("hello@there.com")\n')
+            os.chmod('dummy-script.sh', 0x555)
+
+            # Finally, do the test
+            with capture_sys_output():
+                output = tools.run(PATMAN_DIR / 'patman', '--dry-run')
+                # Assert the email address is part of the dry-run
+                # output.
+                self.assertIn('hello@there.com', output)
 
     def test_tags(self):
         """Test collection of tags in a patchstream"""

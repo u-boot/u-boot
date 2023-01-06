@@ -46,7 +46,7 @@ static int dm_test_button_gpio(struct unit_test_state *uts)
 	struct udevice *dev, *gpio;
 
 	/*
-	 * Check that we can manipulate an BUTTON. BUTTON 1 is connected to GPIO
+	 * Check that we can manipulate a BUTTON. BUTTON 1 is connected to GPIO
 	 * bank gpio_a, offset 3.
 	 */
 	ut_assertok(uclass_get_device(UCLASS_BUTTON, 1, &dev));
@@ -64,7 +64,7 @@ static int dm_test_button_gpio(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_button_gpio, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
-/* Test obtaining an BUTTON by label */
+/* Test obtaining a BUTTON by label */
 static int dm_test_button_label(struct unit_test_state *uts)
 {
 	struct udevice *dev, *cmp;

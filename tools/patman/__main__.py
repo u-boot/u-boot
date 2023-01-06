@@ -7,9 +7,9 @@
 """See README for more information"""
 
 from argparse import ArgumentParser
+import importlib.resources
 import os
 import re
-import shutil
 import sys
 import traceback
 
@@ -19,8 +19,8 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(our_path, '..'))
 
 # Our modules
-from patman import command
 from patman import control
+from patman import func_test
 from patman import gitutil
 from patman import project
 from patman import settings
@@ -55,7 +55,8 @@ parser.add_argument('-H', '--full-help', action='store_true', dest='full_help',
                     default=False, help='Display the README file')
 
 subparsers = parser.add_subparsers(dest='cmd')
-send = subparsers.add_parser('send')
+send = subparsers.add_parser(
+    'send', help='Format, check and email patches (default command)')
 send.add_argument('-i', '--ignore-errors', action='store_true',
        dest='ignore_errors', default=False,
        help='Send patches email even if patch errors are found')
@@ -64,6 +65,12 @@ send.add_argument('-l', '--limit-cc', dest='limit', type=int, default=None,
 send.add_argument('-m', '--no-maintainers', action='store_false',
        dest='add_maintainers', default=True,
        help="Don't cc the file maintainers automatically")
+send.add_argument(
+    '--get-maintainer-script', dest='get_maintainer_script', type=str,
+    action='store',
+    default=os.path.join(gitutil.get_top_level(), 'scripts',
+                         'get_maintainer.pl') + ' --norolestats',
+    help='File name of the get_maintainer.pl (or compatible) script.')
 send.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a dry run (create but don't email patches)")
 send.add_argument('-r', '--in-reply-to', type=str, action='store',
@@ -96,9 +103,11 @@ send.add_argument('--smtp-server', type=str,
 
 send.add_argument('patchfiles', nargs='*')
 
-test_parser = subparsers.add_parser('test', help='Run tests')
-test_parser.add_argument('testname', type=str, default=None, nargs='?',
-                         help="Specify the test to run")
+# Only add the 'test' action if the test data files are available.
+if os.path.exists(func_test.TEST_DATA_DIR):
+    test_parser = subparsers.add_parser('test', help='Run tests')
+    test_parser.add_argument('testname', type=str, default=None, nargs='?',
+                             help="Specify the test to run")
 
 status = subparsers.add_parser('status',
                                help='Check status of patches in patchwork')
@@ -115,7 +124,7 @@ status.add_argument('-f', '--force', action='store_true',
 argv = sys.argv[1:]
 args, rest = parser.parse_known_args(argv)
 if hasattr(args, 'project'):
-    settings.Setup(gitutil, parser, args.project, '')
+    settings.Setup(parser, args.project)
     args, rest = parser.parse_known_args(argv)
 
 # If we have a command, it is safe to parse all arguments
@@ -136,7 +145,6 @@ if not args.debug:
 
 # Run our meagre tests
 if args.cmd == 'test':
-    import doctest
     from patman import func_test
 
     result = test_util.run_test_suites(
@@ -163,11 +171,8 @@ elif args.cmd == 'send':
         fd.close()
 
     elif args.full_help:
-        tools.print_full_help(
-            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                         'README.rst')
-        )
-
+        with importlib.resources.path('patman', 'README.rst') as readme:
+            tools.print_full_help(str(readme))
     else:
         # If we are not processing tags, no need to warning about bad ones
         if not args.process_tags:
@@ -183,7 +188,7 @@ elif args.cmd == 'status':
                                  args.show_comments, args.patchwork_url)
     except Exception as e:
         terminal.tprint('patman: %s: %s' % (type(e).__name__, e),
-                       colour=terminal.Color.RED)
+                        colour=terminal.Color.RED)
         if args.debug:
             print()
             traceback.print_exc()
