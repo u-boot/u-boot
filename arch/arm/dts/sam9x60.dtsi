@@ -69,6 +69,50 @@
 		#size-cells = <1>;
 		ranges;
 
+		usb1: usb@600000 {
+			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
+			reg = <0x00600000 0x100000>;
+			clocks = <&pmc PMC_TYPE_PERIPHERAL 22>, <&pmc PMC_TYPE_PERIPHERAL 22>, <&pmc PMC_TYPE_SYSTEM 21>;
+			clock-names = "ohci_clk", "hclk", "uhpck";
+			status = "disabled";
+		};
+
+		usb2: usb@700000 {
+			compatible = "atmel,at91sam9g45-ehci", "usb-ehci";
+			reg = <0x00700000 0x100000>;
+			clocks = <&pmc PMC_TYPE_CORE 8>, <&pmc PMC_TYPE_PERIPHERAL 22>;
+			clock-names = "usb_clk", "ehci_clk";
+			assigned-clocks = <&pmc PMC_TYPE_CORE 8>;
+			assigned-clock-rates = <480000000>;
+			status = "disabled";
+		};
+
+		ebi: ebi@10000000 {
+			compatible = "microchip,sam9x60-ebi";
+			#address-cells = <2>;
+			#size-cells = <1>;
+			atmel,smc = <&smc>;
+			microchip,sfr = <&sfr>;
+			reg = <0x10000000 0x60000000>;
+			ranges = <0x0 0x0 0x10000000 0x10000000
+				  0x1 0x0 0x20000000 0x10000000
+				  0x2 0x0 0x30000000 0x10000000
+				  0x3 0x0 0x40000000 0x10000000
+				  0x4 0x0 0x50000000 0x10000000
+				  0x5 0x0 0x60000000 0x10000000>;
+			clocks = <&pmc PMC_TYPE_CORE 11>;
+			status = "disabled";
+
+			nand_controller: nand-controller {
+				compatible = "microchip,sam9x60-nand-controller";
+				ecc-engine = <&pmecc>;
+				#address-cells = <2>;
+				#size-cells = <1>;
+				ranges;
+				status = "disabled";
+			};
+		};
+
 		sdhci0: sdhci-host@80000000 {
 			compatible = "microchip,sam9x60-sdhci";
 			reg = <0x80000000 0x300>;
@@ -80,6 +124,19 @@
 			bus-width = <4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_sdhci0>;
+		};
+
+		sdhci1: sdhci-host@90000000 {
+			compatible = "microchip,sam9x60-sdhci";
+			reg = <0x90000000 0x300>;
+			clocks = <&pmc PMC_TYPE_PERIPHERAL 26>, <&pmc PMC_TYPE_GCK 26>;
+			clock-names = "hclock", "multclk";
+			assigned-clocks = <&pmc PMC_TYPE_GCK 26>;
+			assigned-clock-rates = <100000000>;
+			assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* ID_PLL_A_DIV */
+			bus-width = <4>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_sdhci1>;
 		};
 
 		apb {
@@ -117,6 +174,11 @@
 				clock-names = "hclk", "pclk";
 				clocks = <&pmc PMC_TYPE_PERIPHERAL 24>, <&pmc PMC_TYPE_PERIPHERAL 24>;
 				status = "disabled";
+			};
+
+			sfr: sfr@f8050000 {
+				compatible = "microchip,sam9x60-sfr", "syscon";
+				reg = <0xf8050000 0x100>;
 			};
 
 			dbgu: serial@fffff200 {
@@ -180,6 +242,29 @@
 							 (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)>;	/* PA20 DAT3 periph A with pullup */
 					};
 				};
+
+				sdhci1 {
+					pinctrl_sdhci1: sdhci1 {
+						atmel,pins =
+							<AT91_PIOA 13 AT91_PERIPH_B (AT91_PINCTRL_DRIVE_STRENGTH_HI)				/* PA13 CK periph B */
+							 AT91_PIOA 12 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA12 CMD periph B with pullup */
+							 AT91_PIOA 11 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA11 DAT0 periph B with pullup */
+							 AT91_PIOA  2 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA2 DAT1 periph B with pullup */
+							 AT91_PIOA  3 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA3 DAT2 periph B with pullup */
+							 AT91_PIOA  4 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)>;	/* PA4 DAT3 periph B with pullup */
+					};
+				};
+			};
+
+			pmecc: ecc-engine@ffffe000 {
+				compatible = "microchip,sam9x60-pmecc", "atmel,at91sam9g45-pmecc";
+				reg = <0xffffe000 0x300>,
+				      <0xffffe600 0x100>;
+			};
+
+			smc: smc@ffffea00 {
+				compatible = "microchip,sam9x60-smc", "atmel,at91sam9260-smc", "syscon";
+				reg = <0xffffea00 0x100>;
 			};
 
 			pioA: gpio@fffff400 {
