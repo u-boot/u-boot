@@ -93,6 +93,7 @@ SCP_DATA              = b'scp'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
 ENV_DATA              = b'var1=1\nvar2="2"'
+TI_UNSECURE_DATA      = b'this is some unsecure data'
 PRE_LOAD_MAGIC        = b'UBSH'
 PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
 PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
@@ -211,6 +212,7 @@ class TestFunctional(unittest.TestCase):
                                       TEST_FDT2_DATA)
 
         TestFunctional._MakeInputFile('env.txt', ENV_DATA)
+        TestFunctional._MakeInputFile('ti_unsecure.bin', TI_UNSECURE_DATA)
 
         # ELF file with two sections in different parts of memory, used for both
         # ATF and OP_TEE
@@ -5530,6 +5532,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(
             "Node '/binman/fit': subnode 'configurations/@config-SEQ': Unknown directive 'fit,config'",
             err)
+
+    def testPackTisecure(self):
+        """Test that an image with a TI secured binary can be created"""
+        data = self._DoReadFile('187_ti_secure.dts')
+	    securedata = tools.ReadFile('ti_unsecure.bin_HS')
+	    self.assertEquals(data, securedata)
 
 
     def testFitSplitElfMissing(self):

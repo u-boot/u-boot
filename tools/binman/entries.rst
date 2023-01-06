@@ -2192,3 +2192,18 @@ may be used instead.
 
 
 
+Entry: ti-secure: Entry containing a Secured binary blob
+--------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of file to sign and read into entry
+
+Texas Instruments High-Security (HS) devices need secure binaries to be
+provided. This entry uses an external tool to append a x509 certificate
+to the file provided in the filename property and places it in the entry.
+
+The path for the external tool is fetched from TI_SECURE_DEV_PKG
+environment variable.
+
+
+
