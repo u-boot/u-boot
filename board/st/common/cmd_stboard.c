@@ -2,8 +2,8 @@
 /*
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  *
- * the st command stboard supports the STMicroelectronics board identification
- * saved in OTP 59.
+ * the command stboard supports the STMicroelectronics board identification
+ * saved in OTP_BOARD.
  *
  * The ST product codification have several element
  * - "Commercial Product Name" (CPN): type of product board (DKX, EVX)
@@ -18,7 +18,7 @@
  * - Finished Good = EVA32MP157A1$AU1
  *
  * Both information are written on board and these information are also saved
- * in OTP59, with:
+ * in OTP_BOARD (59 for STM32MP15x or 60 for STM32MP13x), with:
  * bit [31:16] (hex) => Board id, MBxxxx
  * bit [15:12] (dec) => Variant CPN (1....15)
  * bit [11:8]  (dec) => Revision board (index with A = 1, Z = 26)
@@ -49,6 +49,7 @@ static bool check_stboard(u16 board)
 		0x1298,
 		0x1341,
 		0x1497,
+		0x1635,
 	};
 
 	for (i = 0; i < ARRAY_SIZE(st_board_id); i++)
