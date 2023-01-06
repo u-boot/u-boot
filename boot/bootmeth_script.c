@@ -35,6 +35,36 @@ static int script_check(struct udevice *dev, struct bootflow_iter *iter)
 	return 0;
 }
 
+/**
+ * script_fill_info() - Decode the U-Boot script to find out distro info
+ *
+ * @bflow: Bootflow to process
+ * @return 0 if OK, -ve on error
+ */
+static int script_fill_info(struct bootflow *bflow)
+{
+	char *name = NULL;
+	char *data;
+	uint len;
+	int ret;
+
+	log_debug("parsing bflow file size %x\n", bflow->size);
+
+	ret = image_locate_script(bflow->buf, bflow->size, NULL, NULL, &data, &len);
+	if (!ret) {
+		if (strstr(data, "armbianEnv"))
+			name = "Armbian";
+	}
+
+	if (name) {
+		bflow->os_name = strdup(name);
+		if (!bflow->os_name)
+			return log_msg_ret("os", -ENOMEM);
+	}
+
+	return 0;
+}
+
 static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
@@ -74,6 +104,10 @@ static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	ret = bootmeth_alloc_file(bflow, 0x10000, 1);
 	if (ret)
 		return log_msg_ret("read", ret);
+
+	ret = script_fill_info(bflow);
+	if (ret)
+		return log_msg_ret("inf", ret);
 
 	return 0;
 }

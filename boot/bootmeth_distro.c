@@ -66,6 +66,38 @@ static int distro_check(struct udevice *dev, struct bootflow_iter *iter)
 	return 0;
 }
 
+/**
+ * distro_fill_info() - Decode the extlinux file to find out distro info
+ *
+ * @bflow: Bootflow to process
+ * @return 0 if OK, -ve on error
+ */
+static int distro_fill_info(struct bootflow *bflow)
+{
+	struct membuff mb;
+	char line[200];
+	char *data;
+	int len;
+
+	log_debug("parsing bflow file size %x\n", bflow->size);
+	membuff_init(&mb, bflow->buf, bflow->size);
+	membuff_putraw(&mb, bflow->size, true, &data);
+	while (len = membuff_readline(&mb, line, sizeof(line) - 1, ' '), len) {
+		char *tok, *p = line;
+
+		tok = strsep(&p, " ");
+		if (p) {
+			if (!strcmp("label", tok)) {
+				bflow->os_name = strdup(p);
+				if (!bflow->os_name)
+					return log_msg_ret("os", -ENOMEM);
+			}
+		}
+	}
+
+	return 0;
+}
+
 static int distro_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc;
@@ -98,6 +130,10 @@ static int distro_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	ret = bootmeth_alloc_file(bflow, 0x10000, 1);
 	if (ret)
 		return log_msg_ret("read", ret);
+
+	ret = distro_fill_info(bflow);
+	if (ret)
+		return log_msg_ret("inf", ret);
 
 	return 0;
 }

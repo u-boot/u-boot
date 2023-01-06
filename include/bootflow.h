@@ -52,6 +52,8 @@ enum bootflow_state_t {
  * @buf: Bootflow file contents (allocated)
  * @size: Size of bootflow file in bytes
  * @err: Error number received (0 if OK)
+ * @os_name: Name of the OS / distro being booted, or NULL if not known
+ *	(allocated)
  */
 struct bootflow {
 	struct list_head bm_node;
@@ -68,6 +70,7 @@ struct bootflow {
 	char *buf;
 	int size;
 	int err;
+	char *os_name;
 };
 
 /**
