@@ -42,6 +42,7 @@ struct bootmenu_data {
 	struct bootmenu_entry *first;	/* first menu entry */
 };
 
+/** enum bootmenu_key - keys that can be returned by the bootmenu */
 enum bootmenu_key {
 	KEY_NONE = 0,
 	KEY_UP,
@@ -53,8 +54,49 @@ enum bootmenu_key {
 	KEY_SPACE,
 };
 
+/**
+ * bootmenu_autoboot_loop() - handle autobooting if no key is pressed
+ *
+ * This shows a prompt to allow the user to press a key to interrupt auto boot
+ * of the first menu option.
+ *
+ * It then waits for the required time (menu->delay in seconds) for a key to be
+ * pressed. If nothing is pressed in that time, @key returns KEY_SELECT
+ * indicating that the current option should be chosen.
+ *
+ * @menu: Menu being processed
+ * @key: Returns the code for the key the user pressed:
+ *	enter: KEY_SELECT
+ *	Ctrl-C: KEY_QUIT
+ *	anything else: KEY_NONE
+ * @esc: Set to 1 if the escape key is pressed, otherwise not updated
+ */
 void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 			    enum bootmenu_key *key, int *esc);
+
+/**
+ * bootmenu_loop() - handle waiting for a keypress when autoboot is disabled
+ *
+ * This is used when the menu delay is negative, indicating that the delay has
+ * elapsed, or there was no delay to begin with.
+ *
+ * It reads a character and processes it, returning a menu-key code if a
+ * character is recognised
+ *
+ * @menu: Menu being processed
+ * @key: Returns the code for the key the user pressed:
+ *	enter: KEY_SELECT
+ *	Ctrl-C: KEY_QUIT
+ *	Up arrow: KEY_UP
+ *	Down arrow: KEY_DOWN
+ *	Escape (by itself): KEY_QUIT
+ *	Plus: KEY_PLUS
+ *	Minus: KEY_MINUS
+ *	Space: KEY_SPACE
+ * @esc: On input, a non-zero value indicates that an escape sequence has
+ *	resulted in that many characters so far. On exit this is updated to the
+ *	new number of characters
+ */
 void bootmenu_loop(struct bootmenu_data *menu,
 		   enum bootmenu_key *key, int *esc);
 
