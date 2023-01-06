@@ -248,7 +248,7 @@ void video_bmp_get_info(void *bmp_image, ulong *widthp, ulong *heightp,
  *		  that direction
  *		- if a coordinate is -ve then it will be offset to the
  *		  left/top of the centre by that many pixels
- *		- if a coordinate is positive it will be used unchnaged.
+ *		- if a coordinate is positive it will be used unchanged.
  * Return: 0 if OK, -ve on error
  */
 int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
