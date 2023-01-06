@@ -8,6 +8,7 @@
 #include <console.h>
 #include <log.h>
 #include <misc.h>
+#include <asm/arch/bsec.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 
@@ -83,9 +84,6 @@ static u32 get_otp_close_mask(void)
 	if (IS_ENABLED(CONFIG_STM32MP15x))
 		return STM32_OTP_STM32MP15x_CLOSE_MASK;
 }
-
-#define BSEC_LOCK_ERROR			(-1)
-#define BSEC_LOCK_PERM			BIT(0)
 
 static int get_misc_dev(struct udevice **dev)
 {

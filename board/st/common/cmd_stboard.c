@@ -34,6 +34,7 @@
 #include <command.h>
 #include <console.h>
 #include <misc.h>
+#include <asm/arch/bsec.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 
@@ -109,7 +110,7 @@ static int do_stboard(struct cmd_tbl *cmdtp, int flag, int argc,
 		else
 			display_stboard(otp);
 		printf("      OTP %d %s locked !\n", BSEC_OTP_BOARD,
-		       lock == 1 ? "" : "NOT");
+		       lock & BSEC_LOCK_PERM ? "" : "NOT");
 		return CMD_RET_SUCCESS;
 	}
 
@@ -178,7 +179,7 @@ static int do_stboard(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	/* write persistent lock */
-	otp = 1;
+	otp = BSEC_LOCK_PERM;
 	ret = misc_write(dev, STM32_BSEC_LOCK(BSEC_OTP_BOARD),
 			 &otp, sizeof(otp));
 	if (ret != sizeof(otp)) {
