@@ -32,6 +32,17 @@ class Entry_ti_secure(Entry):
         self.sw_rev = fdt_util.GetInt(self._node, 'sw-rev')
         self.cert3 = fdt_util.GetBool(self._node, 'sysfw-cert', False)
         self.secure = fdt_util.GetBool(self._node, 'secure', False)
+        self.combined = fdt_util.GetBool(self._node, 'combined', False)
+        self.split_dm = fdt_util.GetBool(self._node, 'split-dm', False)
+        self.sysfw_filename = fdt_util.GetString(self._node, 'sysfw-filename')
+        self.sysfw_load_addr = fdt_util.GetInt(self._node, 'sysfw-load')
+        self.sysfw_data_filename = fdt_util.GetString(self._node, 'sysfw-data-filename')
+        self.sysfw_data_load_addr = fdt_util.GetInt(self._node, 'sysfw-data-load')
+        self.sysfw_inner_cert = fdt_util.GetString(self._node, 'sysfw-inner-cert', "")
+        self.dm_data_filename = fdt_util.GetString(self._node, 'dm-data-filename')
+        self.dm_data_load_addr = fdt_util.GetInt(self._node, 'dm-data-load')
+        self.sysfw_inner_cert_filename = fdt_util.GetString(self._node, 'sysfw-inner-cert-filename')
+        self.sysfw_inner_cert_load_addr = fdt_util.GetInt(self._node, 'sysfw-inner-cert-load')
         self.toolpresent = False
         if not self.filename:
             self.Raise("ti_secure must have a 'filename' property")
@@ -48,6 +59,8 @@ class Entry_ti_secure(Entry):
             self.core = "m3"
         elif self.secure == True:
             self.tool = self.toolspath + "/scripts/secure-binary-image.sh"
+        elif self.combined:
+            self.tool = self.toolspath + "/scripts/gen_x509_combined_cert.sh"
         else:
             self.tool = self.toolspath + "/scripts/gen_x509_cert.sh"
         self.toolpresent = os.path.exists(self.tool)
@@ -84,6 +97,21 @@ class Entry_ti_secure(Entry):
             args = [
                 input_fname, output_fname,
             ]
+        elif self.combined:
+            args = [
+                '-b', input_fname,
+                '-l', hex(self.load_addr),
+                '-s', self.sysfw_filename,
+                '-m', hex(self.sysfw_load_addr),
+                '-c', self.sysfw_inner_cert,
+                '-d', self.sysfw_data_filename,
+                '-n', hex(self.sysfw_data_load_addr),
+                '-k', self.key,
+                '-r', str(self.sw_rev),
+                '-o', output_fname,
+            ]
+            if self.split_dm:
+                args.extend(['-t', self.dm_data_filename, '-y', hex(self.dm_data_load_addr)])
         else:
             args = [
                 '-c', str(self.core),
