@@ -9,6 +9,9 @@
 
 #include <linux/list.h>
 
+struct bootstd_priv;
+struct expo;
+
 /**
  * enum bootflow_state_t - states that a particular bootflow can be in
  *
@@ -335,5 +338,25 @@ int bootflow_iter_uses_network(const struct bootflow_iter *iter);
  * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. MMC)
  */
 int bootflow_iter_uses_system(const struct bootflow_iter *iter);
+
+/**
+ * bootflow_menu_new() - Create a new bootflow menu
+ *
+ * @expp: Returns the expo created
+ * Returns 0 on success, -ve on error
+ */
+int bootflow_menu_new(struct expo **expp);
+
+/**
+ * bootflow_menu_run() - Create and run a menu of available bootflows
+ *
+ * @std: Bootstd information
+ * @text_mode: Uses a text-based menu suitable for a serial port
+ * @bflowp: Returns chosen bootflow (set to NULL if nothing is chosen)
+ * @return 0 if an option was chosen, -EAGAIN if nothing was chosen, -ve on
+ * error
+ */
+int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
+		      struct bootflow **bflowp);
 
 #endif
