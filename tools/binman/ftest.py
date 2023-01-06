@@ -5539,6 +5539,16 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 	    securedata = tools.ReadFile('ti_unsecure.bin_HS')
 	    self.assertEquals(data, securedata)
 
+    def testExtblobOptional(self):
+        """Test an image with an external blob that is optional"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            data = self._DoReadFile('266_blob_ext_opt.dts')
+        self.assertEqual(REFCODE_DATA, data)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs but is still functional: missing")
+
 
     def testFitSplitElfMissing(self):
         """Test an split-elf FIT with a missing ELF file"""
