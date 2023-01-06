@@ -14,12 +14,14 @@
  *
  * @esc_len: Number of escape characters read so far
  * @esc_save: Escape characters collected so far
- * @emit_upto: Next character to emit from esc_save (0 if not emitting)
+ * @emit_upto: Next index to emit from esc_save
+ * @emitting: true if emitting from esc_save
  */
 struct cli_ch_state {
 	int esc_len;
 	char esc_save[8];
 	int emit_upto;
+	bool emitting;
 };
 
 /**

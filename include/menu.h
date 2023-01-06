@@ -6,6 +6,7 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
+struct cli_ch_state;
 struct menu;
 
 struct menu *menu_create(char *title, int timeout, int prompt,
@@ -71,7 +72,8 @@ enum bootmenu_key {
  *	Ctrl-C: KEY_QUIT
  *	anything else: KEY_NONE
  */
-enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu, int *esc);
+enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu,
+					 struct cli_ch_state *cch);
 
 /**
  * bootmenu_loop() - handle waiting for a keypress when autoboot is disabled
@@ -96,6 +98,7 @@ enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu, int *esc);
  *	Minus: BKEY_MINUS
  *	Space: BKEY_SPACE
  */
-enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu, int *esc);
+enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
+				struct cli_ch_state *cch);
 
 #endif /* __MENU_H__ */

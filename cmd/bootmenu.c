@@ -4,6 +4,7 @@
  */
 
 #include <charset.h>
+#include <cli.h>
 #include <common.h>
 #include <command.h>
 #include <ansi.h>
@@ -84,19 +85,21 @@ static void bootmenu_print_entry(void *data)
 
 static char *bootmenu_choice_entry(void *data)
 {
+	struct cli_ch_state s_cch, *cch = &s_cch;
 	struct bootmenu_data *menu = data;
 	struct bootmenu_entry *iter;
 	enum bootmenu_key key = BKEY_NONE;
-	int esc = 0;
 	int i;
+
+	cli_ch_init(cch);
 
 	while (1) {
 		if (menu->delay >= 0) {
 			/* Autoboot was not stopped */
-			key = bootmenu_autoboot_loop(menu, &esc);
+			key = bootmenu_autoboot_loop(menu, cch);
 		} else {
 			/* Some key was pressed, so autoboot was stopped */
-			key = bootmenu_loop(menu, &esc);
+			key = bootmenu_loop(menu, cch);
 		}
 
 		switch (key) {

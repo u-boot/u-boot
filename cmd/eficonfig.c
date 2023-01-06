@@ -6,6 +6,7 @@
  */
 
 #include <ansi.h>
+#include <cli.h>
 #include <common.h>
 #include <charset.h>
 #include <efi_loader.h>
@@ -184,14 +185,16 @@ static void eficonfig_display_statusline(struct menu *m)
  */
 static char *eficonfig_choice_entry(void *data)
 {
-	int esc = 0;
+	struct cli_ch_state s_cch, *cch = &s_cch;
 	struct list_head *pos, *n;
 	struct eficonfig_entry *entry;
 	enum bootmenu_key key = BKEY_NONE;
 	struct efimenu *efi_menu = data;
 
+	cli_ch_init(cch);
+
 	while (1) {
-		key = bootmenu_loop((struct bootmenu_data *)efi_menu, &esc);
+		key = bootmenu_loop((struct bootmenu_data *)efi_menu, cch);
 
 		switch (key) {
 		case BKEY_UP:
@@ -1862,13 +1865,14 @@ static void eficonfig_display_change_boot_order(struct efimenu *efi_menu)
  */
 static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 {
-	int esc = 0;
+	struct cli_ch_state s_cch, *cch = &s_cch;
 	struct list_head *pos, *n;
 	enum bootmenu_key key = BKEY_NONE;
 	struct eficonfig_entry *entry, *tmp;
 
+	cli_ch_init(cch);
 	while (1) {
-		key = bootmenu_loop(NULL, &esc);
+		key = bootmenu_loop(NULL, cch);
 
 		switch (key) {
 		case BKEY_PLUS:

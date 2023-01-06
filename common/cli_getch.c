@@ -140,10 +140,11 @@ int cli_ch_process(struct cli_ch_state *cch, int ichar)
 	 * sequence
 	 */
 	if (!ichar) {
-		if (cch->emit_upto) {
+		if (cch->emitting) {
 			if (cch->emit_upto < cch->esc_len)
 				return cch->esc_save[cch->emit_upto++];
 			cch->emit_upto = 0;
+			cch->emitting = false;
 		}
 		return 0;
 	} else if (ichar == -ETIMEDOUT) {
@@ -174,18 +175,21 @@ int cli_ch_process(struct cli_ch_state *cch, int ichar)
 		case ESC_SAVE:
 			/* save this character and return nothing */
 			cch->esc_save[cch->esc_len++] = ichar;
-			return 0;
+			ichar = 0;
+			break;
 		case ESC_REJECT:
 			/*
 			 * invalid escape sequence, start returning the
 			 * characters in it
 			 */
 			cch->esc_save[cch->esc_len++] = ichar;
-			return cch->esc_save[cch->emit_upto++];
+			ichar = cch->esc_save[cch->emit_upto++];
+			cch->emitting = true;
+			break;
 		case ESC_CONVERTED:
 			/* valid escape sequence, return the resulting char */
 			cch->esc_len = 0;
-			return ichar;
+			break;
 		}
 	}
 
