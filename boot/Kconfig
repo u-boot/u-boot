@@ -557,6 +557,18 @@ config VPL_BOOTMETH_VBE_SIMPLE_FW
 
 endif # BOOTMETH_VBE
 
+config EXPO
+	bool "Support for expos - groups of scenes displaying a UI"
+	default y if BOOTMETH_VBE
+	help
+	  An expo is a way of presenting and collecting information from the
+	  user. It consists of a collection of 'scenes' of which only one is
+	  presented at a time. An expo is typically used to show a boot menu
+	  and allow settings to be changed.
+
+	  The expo can be presented in graphics form using a vidconsole, or in
+	  text form on a serial console.
+
 config BOOTMETH_SANDBOX
 	def_bool y
 	depends on SANDBOX
