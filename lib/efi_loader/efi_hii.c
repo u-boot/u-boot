@@ -758,6 +758,9 @@ set_keyboard_layout(const struct efi_hii_database_protocol *this,
 {
 	EFI_ENTRY("%p, %pUs", this, key_guid);
 
+	if (!key_guid)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
 	return EFI_EXIT(EFI_NOT_FOUND);
 }
 
