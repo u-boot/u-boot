@@ -468,8 +468,6 @@ static int stm32mp_bsec_write_lock(struct udevice *dev, u32 val, u32 otp)
 	plat = dev_get_plat(dev);
 
 	return bsec_permanent_lock_otp(dev, plat->base, otp);
-
-	return -EINVAL;
 }
 
 static int stm32mp_bsec_read(struct udevice *dev, int offset,
@@ -608,7 +606,7 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.id = UCLASS_MISC,
 	.of_match = stm32mp_bsec_ids,
 	.of_to_plat = stm32mp_bsec_of_to_plat,
-	.plat_auto	= sizeof(struct stm32mp_bsec_plat),
+	.plat_auto = sizeof(struct stm32mp_bsec_plat),
 	.ops = &stm32mp_bsec_ops,
 	.probe = stm32mp_bsec_probe,
 };
