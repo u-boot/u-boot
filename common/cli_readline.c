@@ -62,7 +62,6 @@ static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
 
 #define putnstr(str, n)	printf("%.*s", (int)n, str)
 
-#define CTL_CH(c)		((c) - 'a' + 1)
 #define CTL_BACKSPACE		('\b')
 #define DEL			((char)255)
 #define DEL7			((char)127)
@@ -252,156 +251,53 @@ static void cread_add_str(char *str, int strsize, int insert,
 static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		int timeout)
 {
+	struct cli_ch_state s_cch, *cch = &s_cch;
 	unsigned long num = 0;
 	unsigned long eol_num = 0;
 	unsigned long wlen;
 	char ichar;
 	int insert = 1;
-	int esc_len = 0;
-	char esc_save[8];
 	int init_len = strlen(buf);
 	int first = 1;
+
+	cli_ch_init(cch);
 
 	if (init_len)
 		cread_add_str(buf, init_len, 1, &num, &eol_num, buf, *len);
 
 	while (1) {
-		if (bootretry_tstc_timeout())
-			return -2;	/* timed out */
-		if (first && timeout) {
-			uint64_t etime = endtick(timeout);
+		/* Check for saved characters */
+		ichar = cli_ch_process(cch, 0);
 
-			while (!tstc()) {	/* while no incoming data */
-				if (get_ticks() >= etime)
-					return -2;	/* timed out */
-				schedule();
+		if (!ichar) {
+			if (bootretry_tstc_timeout())
+				return -2;	/* timed out */
+			if (first && timeout) {
+				u64 etime = endtick(timeout);
+
+				while (!tstc()) {	/* while no incoming data */
+					if (get_ticks() >= etime)
+						return -2;	/* timed out */
+					schedule();
+				}
+				first = 0;
 			}
-			first = 0;
+
+			ichar = getcmd_getch();
 		}
 
-		ichar = getcmd_getch();
+		ichar = cli_ch_process(cch, ichar);
 
 		/* ichar=0x0 when error occurs in U-Boot getc */
 		if (!ichar)
 			continue;
 
-		if ((ichar == '\n') || (ichar == '\r')) {
+		if (ichar == '\n') {
 			putc('\n');
 			break;
 		}
 
-		/*
-		 * handle standard linux xterm esc sequences for arrow key, etc.
-		 */
-		if (esc_len != 0) {
-			enum { ESC_REJECT, ESC_SAVE, ESC_CONVERTED } act = ESC_REJECT;
-
-			if (esc_len == 1) {
-				if (ichar == '[' || ichar == 'O')
-					act = ESC_SAVE;
-			} else if (esc_len == 2) {
-				switch (ichar) {
-				case 'D':	/* <- key */
-					ichar = CTL_CH('b');
-					act = ESC_CONVERTED;
-					break;	/* pass off to ^B handler */
-				case 'C':	/* -> key */
-					ichar = CTL_CH('f');
-					act = ESC_CONVERTED;
-					break;	/* pass off to ^F handler */
-				case 'H':	/* Home key */
-					ichar = CTL_CH('a');
-					act = ESC_CONVERTED;
-					break;	/* pass off to ^A handler */
-				case 'F':	/* End key */
-					ichar = CTL_CH('e');
-					act = ESC_CONVERTED;
-					break;	/* pass off to ^E handler */
-				case 'A':	/* up arrow */
-					ichar = CTL_CH('p');
-					act = ESC_CONVERTED;
-					break;	/* pass off to ^P handler */
-				case 'B':	/* down arrow */
-					ichar = CTL_CH('n');
-					act = ESC_CONVERTED;
-					break;	/* pass off to ^N handler */
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '7':
-				case '8':
-					if (esc_save[1] == '[') {
-						/* see if next character is ~ */
-						act = ESC_SAVE;
-					}
-					break;
-				}
-			} else if (esc_len == 3) {
-				switch (ichar) {
-				case '~':
-					switch (esc_save[2]) {
-					case '3':	/* Delete key */
-						ichar = CTL_CH('d');
-						act = ESC_CONVERTED;
-						break;	/* pass to ^D handler */
-					case '1':	/* Home key */
-					case '7':
-						ichar = CTL_CH('a');
-						act = ESC_CONVERTED;
-						break;	/* pass to ^A handler */
-					case '4':	/* End key */
-					case '8':
-						ichar = CTL_CH('e');
-						act = ESC_CONVERTED;
-						break;	/* pass to ^E handler */
-					}
-					break;
-				case '0':
-					if (esc_save[2] == '2')
-						act = ESC_SAVE;
-					break;
-				}
-			} else if (esc_len == 4) {
-				switch (ichar) {
-				case '0':
-				case '1':
-					act = ESC_SAVE;
-					break;		/* bracketed paste */
-				}
-			} else if (esc_len == 5) {
-				if (ichar == '~') {	/* bracketed paste */
-					ichar = 0;
-					act = ESC_CONVERTED;
-				}
-			}
-			switch (act) {
-			case ESC_SAVE:
-				esc_save[esc_len++] = ichar;
-				continue;
-			case ESC_REJECT:
-				esc_save[esc_len++] = ichar;
-				cread_add_str(esc_save, esc_len, insert,
-					      &num, &eol_num, buf, *len);
-				esc_len = 0;
-				continue;
-			case ESC_CONVERTED:
-				esc_len = 0;
-				break;
-			}
-		}
-
 		switch (ichar) {
-		case 0x1b:
-			if (esc_len == 0) {
-				esc_save[esc_len] = ichar;
-				esc_len = 1;
-			} else {
-				puts("impossible condition #876\n");
-				esc_len = 0;
-			}
-			break;
-
 		case CTL_CH('a'):
 			BEGINNING_OF_LINE();
 			break;
@@ -469,8 +365,6 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		case CTL_CH('n'):
 		{
 			char *hline;
-
-			esc_len = 0;
 
 			if (ichar == CTL_CH('p'))
 				hline = hist_prev();
