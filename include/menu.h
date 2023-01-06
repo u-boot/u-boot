@@ -65,14 +65,13 @@ enum bootmenu_key {
  * indicating that the current option should be chosen.
  *
  * @menu: Menu being processed
- * @key: Returns the code for the key the user pressed:
+ * @esc: Set to 1 if the escape key is pressed, otherwise not updated
+ * Returns: code for the key the user pressed:
  *	enter: KEY_SELECT
  *	Ctrl-C: KEY_QUIT
  *	anything else: KEY_NONE
- * @esc: Set to 1 if the escape key is pressed, otherwise not updated
  */
-void bootmenu_autoboot_loop(struct bootmenu_data *menu,
-			    enum bootmenu_key *key, int *esc);
+enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu, int *esc);
 
 /**
  * bootmenu_loop() - handle waiting for a keypress when autoboot is disabled

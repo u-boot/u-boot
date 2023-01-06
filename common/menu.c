@@ -425,9 +425,9 @@ int menu_destroy(struct menu *m)
 	return 1;
 }
 
-void bootmenu_autoboot_loop(struct bootmenu_data *menu,
-			    enum bootmenu_key *key, int *esc)
+enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu, int *esc)
 {
+	enum bootmenu_key key = BKEY_NONE;
 	int i, c;
 
 	while (menu->delay > 0) {
@@ -446,16 +446,16 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 			switch (c) {
 			case '\e':
 				*esc = 1;
-				*key = BKEY_NONE;
+				key = BKEY_NONE;
 				break;
 			case '\r':
-				*key = BKEY_SELECT;
+				key = BKEY_SELECT;
 				break;
 			case 0x3: /* ^C */
-				*key = BKEY_QUIT;
+				key = BKEY_QUIT;
 				break;
 			default:
-				*key = BKEY_NONE;
+				key = BKEY_NONE;
 				break;
 			}
 
@@ -471,7 +471,9 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 	printf(ANSI_CURSOR_POSITION ANSI_CLEAR_LINE, menu->count + 5, 1);
 
 	if (menu->delay == 0)
-		*key = BKEY_SELECT;
+		key = BKEY_SELECT;
+
+	return key;
 }
 
 void bootmenu_loop(struct bootmenu_data *menu,

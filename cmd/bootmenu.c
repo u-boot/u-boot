@@ -93,7 +93,7 @@ static char *bootmenu_choice_entry(void *data)
 	while (1) {
 		if (menu->delay >= 0) {
 			/* Autoboot was not stopped */
-			bootmenu_autoboot_loop(menu, &key, &esc);
+			key = bootmenu_autoboot_loop(menu, &esc);
 		} else {
 			/* Some key was pressed, so autoboot was stopped */
 			bootmenu_loop(menu, &key, &esc);
