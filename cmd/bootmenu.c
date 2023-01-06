@@ -96,7 +96,7 @@ static char *bootmenu_choice_entry(void *data)
 			key = bootmenu_autoboot_loop(menu, &esc);
 		} else {
 			/* Some key was pressed, so autoboot was stopped */
-			bootmenu_loop(menu, &key, &esc);
+			key = bootmenu_loop(menu, &esc);
 		}
 
 		switch (key) {

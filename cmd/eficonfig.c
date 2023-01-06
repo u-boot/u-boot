@@ -191,7 +191,7 @@ static char *eficonfig_choice_entry(void *data)
 	struct efimenu *efi_menu = data;
 
 	while (1) {
-		bootmenu_loop((struct bootmenu_data *)efi_menu, &key, &esc);
+		key = bootmenu_loop((struct bootmenu_data *)efi_menu, &esc);
 
 		switch (key) {
 		case BKEY_UP:
@@ -1868,7 +1868,7 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 	struct eficonfig_entry *entry, *tmp;
 
 	while (1) {
-		bootmenu_loop(NULL, &key, &esc);
+		key = bootmenu_loop(NULL, &esc);
 
 		switch (key) {
 		case BKEY_PLUS:

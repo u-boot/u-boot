@@ -476,9 +476,9 @@ enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu, int *esc)
 	return key;
 }
 
-void bootmenu_loop(struct bootmenu_data *menu,
-		   enum bootmenu_key *key, int *esc)
+enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu, int *esc)
 {
+	enum bootmenu_key key = BKEY_NONE;
 	int c;
 
 	if (*esc == 1) {
@@ -505,17 +505,17 @@ void bootmenu_loop(struct bootmenu_data *menu,
 		/* First char of ANSI escape sequence '\e' */
 		if (c == '\e') {
 			*esc = 1;
-			*key = BKEY_NONE;
+			key = BKEY_NONE;
 		}
 		break;
 	case 1:
 		/* Second char of ANSI '[' */
 		if (c == '[') {
 			*esc = 2;
-			*key = BKEY_NONE;
+			key = BKEY_NONE;
 		} else {
 		/* Alone ESC key was pressed */
-			*key = BKEY_QUIT;
+			key = BKEY_QUIT;
 			*esc = (c == '\e') ? 1 : 0;
 		}
 		break;
@@ -524,7 +524,7 @@ void bootmenu_loop(struct bootmenu_data *menu,
 		/* Third char of ANSI (number '1') - optional */
 		if (*esc == 2 && c == '1') {
 			*esc = 3;
-			*key = BKEY_NONE;
+			key = BKEY_NONE;
 			break;
 		}
 
@@ -532,31 +532,33 @@ void bootmenu_loop(struct bootmenu_data *menu,
 
 		/* ANSI 'A' - key up was pressed */
 		if (c == 'A')
-			*key = BKEY_UP;
+			key = BKEY_UP;
 		/* ANSI 'B' - key down was pressed */
 		else if (c == 'B')
-			*key = BKEY_DOWN;
+			key = BKEY_DOWN;
 		/* other key was pressed */
 		else
-			*key = BKEY_NONE;
+			key = BKEY_NONE;
 
 		break;
 	}
 
 	/* enter key was pressed */
 	if (c == '\r')
-		*key = BKEY_SELECT;
+		key = BKEY_SELECT;
 
 	/* ^C was pressed */
 	if (c == 0x3)
-		*key = BKEY_QUIT;
+		key = BKEY_QUIT;
 
 	if (c == '+')
-		*key = BKEY_PLUS;
+		key = BKEY_PLUS;
 
 	if (c == '-')
-		*key = BKEY_MINUS;
+		key = BKEY_MINUS;
 
 	if (c == ' ')
-		*key = BKEY_SPACE;
+		key = BKEY_SPACE;
+
+	return key;
 }

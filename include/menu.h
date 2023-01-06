@@ -83,7 +83,10 @@ enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu, int *esc);
  * character is recognised
  *
  * @menu: Menu being processed
- * @key: Returns the code for the key the user pressed:
+ * @esc: On input, a non-zero value indicates that an escape sequence has
+ *	resulted in that many characters so far. On exit this is updated to the
+ *	new number of characters
+ * Returns: code for the key the user pressed:
  *	enter: BKEY_SELECT
  *	Ctrl-C: BKEY_QUIT
  *	Up arrow: BKEY_UP
@@ -92,11 +95,7 @@ enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu, int *esc);
  *	Plus: BKEY_PLUS
  *	Minus: BKEY_MINUS
  *	Space: BKEY_SPACE
- * @esc: On input, a non-zero value indicates that an escape sequence has
- *	resulted in that many characters so far. On exit this is updated to the
- *	new number of characters
  */
-void bootmenu_loop(struct bootmenu_data *menu,
-		   enum bootmenu_key *key, int *esc);
+enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu, int *esc);
 
 #endif /* __MENU_H__ */
