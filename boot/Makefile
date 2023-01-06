@@ -47,6 +47,8 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_LOAD_FIT) += common_fit.o
 endif
 
+obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE) += expo.o scene.o scene_menu.o
+
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE) += vbe.o vbe_request.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE_SIMPLE) += vbe_simple.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_VBE_SIMPLE_FW) += vbe_simple_fw.o
