@@ -56,6 +56,18 @@ INPUTS-y	+= pm-cfg.bin
 INPUTS-y	+= rm-cfg.bin
 INPUTS-y	+= sec-cfg.bin
 
+combined-sysfw-cfg.bin: board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin
+	$(PYTHON3) $(srctree)/tools/k3_sysfw_boardcfg_blob_creator.py -b $(O)/board-cfg.bin -s $(O)/sec-cfg.bin -p $(O)/pm-cfg.bin -r $(O)/rm-cfg.bin -o $(O)/$(@)
+INPUTS-y	+= combined-sysfw-cfg.bin
+
+combined-tifs-cfg.bin: board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin
+	$(PYTHON3) $(srctree)/tools/k3_sysfw_boardcfg_blob_creator.py -b $(O)/board-cfg.bin -s $(O)/sec-cfg.bin -p $(O)/pm-cfg.bin -r $(O)/rm-cfg.bin -o $(O)/$(@)
+INPUTS-y	+= combined-tifs-cfg.bin
+
+combined-dm-cfg.bin: pm-cfg.bin rm-cfg.bin
+	$(PYTHON3) $(srctree)/tools/k3_sysfw_boardcfg_blob_creator.py -p $(O)/pm-cfg.bin -r $(O)/rm-cfg.bin -o $(O)/$(@)
+INPUTS-y	+= combined-dm-cfg.bin
+
 endif
 
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
