@@ -483,26 +483,11 @@ enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu,
 	return key;
 }
 
-enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
-				struct cli_ch_state *cch)
+enum bootmenu_key bootmenu_conv_key(int ichar)
 {
-	enum bootmenu_key key = BKEY_NONE;
-	int c;
+	enum bootmenu_key key;
 
-	c = cli_ch_process(cch, 0);
-	if (!c) {
-		while (!c && !tstc()) {
-			schedule();
-			mdelay(10);
-			c = cli_ch_process(cch, -ETIMEDOUT);
-		}
-		if (!c) {
-			c = getchar();
-			c = cli_ch_process(cch, c);
-		}
-	}
-
-	switch (c) {
+	switch (ichar) {
 	case '\n':
 		/* enter key was pressed */
 		key = BKEY_SELECT;
@@ -527,7 +512,34 @@ enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
 	case ' ':
 		key = BKEY_SPACE;
 		break;
+	default:
+		key = BKEY_NONE;
+		break;
 	}
+
+	return key;
+}
+
+enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
+				struct cli_ch_state *cch)
+{
+	enum bootmenu_key key;
+	int c;
+
+	c = cli_ch_process(cch, 0);
+	if (!c) {
+		while (!c && !tstc()) {
+			schedule();
+			mdelay(10);
+			c = cli_ch_process(cch, -ETIMEDOUT);
+		}
+		if (!c) {
+			c = getchar();
+			c = cli_ch_process(cch, c);
+		}
+	}
+
+	key = bootmenu_conv_key(c);
 
 	return key;
 }

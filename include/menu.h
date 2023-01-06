@@ -53,6 +53,8 @@ enum bootmenu_key {
 	BKEY_PLUS,
 	BKEY_MINUS,
 	BKEY_SPACE,
+
+	BKEY_COUNT,
 };
 
 /**
@@ -100,5 +102,13 @@ enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu,
  */
 enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
 				struct cli_ch_state *cch);
+
+/**
+ * bootmenu_conv_key() - Convert a U-Boot keypress into a menu key
+ *
+ * @ichar: Keypress to convert (ASCII, including control characters)
+ * Returns: Menu key that corresponds to @ichar, or BKEY_NONE if none
+ */
+enum bootmenu_key bootmenu_conv_key(int ichar);
 
 #endif /* __MENU_H__ */
