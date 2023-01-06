@@ -971,3 +971,162 @@ void genimg_print_time(time_t timestamp)
 	       tm.tm_year, tm.tm_mon, tm.tm_mday,
 	       tm.tm_hour, tm.tm_min, tm.tm_sec);
 }
+
+/**
+ * get_default_image() - Return default property from /images
+ *
+ * Return: Pointer to value of default property (or NULL)
+ */
+static const char *get_default_image(const void *fit)
+{
+	int images_noffset;
+
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0)
+		return NULL;
+
+	return fdt_getprop(fit, images_noffset, FIT_DEFAULT_PROP, NULL);
+}
+
+int image_locate_script(void *buf, int size, const char *fit_uname,
+			const char *confname, char **datap, uint *lenp)
+{
+	const struct legacy_img_hdr *hdr;
+	const void *fit_data;
+	const void *fit_hdr;
+	size_t fit_len;
+	int noffset;
+	int verify;
+	ulong len;
+	u32 *data;
+
+	verify = env_get_yesno("verify");
+
+	switch (genimg_get_format(buf)) {
+	case IMAGE_FORMAT_LEGACY:
+		if (IS_ENABLED(CONFIG_LEGACY_IMAGE_FORMAT)) {
+			hdr = buf;
+
+			if (!image_check_magic(hdr)) {
+				puts("Bad magic number\n");
+				return 1;
+			}
+
+			if (!image_check_hcrc(hdr)) {
+				puts("Bad header crc\n");
+				return 1;
+			}
+
+			if (verify) {
+				if (!image_check_dcrc(hdr)) {
+					puts("Bad data crc\n");
+					return 1;
+				}
+			}
+
+			if (!image_check_type(hdr, IH_TYPE_SCRIPT)) {
+				puts("Bad image type\n");
+				return 1;
+			}
+
+			/* get length of script */
+			data = (u32 *)image_get_data(hdr);
+
+			len = uimage_to_cpu(*data);
+			if (!len) {
+				puts("Empty Script\n");
+				return 1;
+			}
+
+			/*
+			 * scripts are just multi-image files with one
+			 * component, so seek past the zero-terminated sequence
+			 * of image lengths to get to the actual image data
+			 */
+			while (*data++);
+		}
+		break;
+	case IMAGE_FORMAT_FIT:
+		if (IS_ENABLED(CONFIG_FIT)) {
+			fit_hdr = buf;
+			if (fit_check_format(fit_hdr, IMAGE_SIZE_INVAL)) {
+				puts("Bad FIT image format\n");
+				return 1;
+			}
+
+			if (!fit_uname) {
+				/* If confname is empty, use the default */
+				if (confname && *confname)
+					noffset = fit_conf_get_node(fit_hdr, confname);
+				else
+					noffset = fit_conf_get_node(fit_hdr, NULL);
+				if (noffset < 0) {
+					if (!confname)
+						goto fallback;
+					printf("Could not find config %s\n", confname);
+					return 1;
+				}
+
+				if (verify && fit_config_verify(fit_hdr, noffset))
+					return 1;
+
+				noffset = fit_conf_get_prop_node(fit_hdr,
+								 noffset,
+								 FIT_SCRIPT_PROP,
+								 IH_PHASE_NONE);
+				if (noffset < 0) {
+					if (!confname)
+						goto fallback;
+					printf("Could not find script in %s\n", confname);
+					return 1;
+				}
+			} else {
+fallback:
+				if (!fit_uname || !*fit_uname)
+					fit_uname = get_default_image(fit_hdr);
+				if (!fit_uname) {
+					puts("No FIT subimage unit name\n");
+					return 1;
+				}
+
+				/* get script component image node offset */
+				noffset = fit_image_get_node(fit_hdr, fit_uname);
+				if (noffset < 0) {
+					printf("Can't find '%s' FIT subimage\n",
+					       fit_uname);
+					return 1;
+				}
+			}
+
+			if (!fit_image_check_type(fit_hdr, noffset,
+						  IH_TYPE_SCRIPT)) {
+				puts("Not a image image\n");
+				return 1;
+			}
+
+			/* verify integrity */
+			if (verify && !fit_image_verify(fit_hdr, noffset)) {
+				puts("Bad Data Hash\n");
+				return 1;
+			}
+
+			/* get script subimage data address and length */
+			if (fit_image_get_data(fit_hdr, noffset, &fit_data, &fit_len)) {
+				puts("Could not find script subimage data\n");
+				return 1;
+			}
+
+			data = (u32 *)fit_data;
+			len = (ulong)fit_len;
+		}
+		break;
+	default:
+		puts("Wrong image format for \"source\" command\n");
+		return -EPERM;
+	}
+
+	*datap = (char *)data;
+	*lenp = len;
+
+	return 0;
+}

@@ -710,26 +710,6 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
 
 /**
- * image_source_script() - Execute a script
- * @addr: Address of script
- * @fit_uname: FIT subimage name
- * @confname: FIT config name. The subimage is chosen based on FIT_SCRIPT_PROP.
- *
- * Executes a U-Boot script at a particular address in memory. The script should
- * have a header (FIT or legacy) with the script type (IH_TYPE_SCRIPT).
- *
- * If @fit_uname is the empty string, then the default image is used. If
- * @confname is the empty string, the default config is used. If @confname and
- * @fit_uname are both non-%NULL, then @confname is ignored. If @confname and
- * @fit_uname are both %NULL, then first the default config is tried, and then
- * the default image.
- *
- * Return: result code (enum command_ret_t)
- */
-int image_source_script(ulong addr, const char *fit_uname,
-			const char *confname);
-
-/**
  * image_locate_script() - Locate the raw script in an image
  *
  * @buf: Address of image

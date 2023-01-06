@@ -13,7 +13,9 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
+#include <image.h>
 #include <log.h>
+#include <mapmem.h>
 #include <asm/global_data.h>
 #include <linux/ctype.h>
 
@@ -653,4 +655,21 @@ int cmd_process_error(struct cmd_tbl *cmdtp, int err)
 	}
 
 	return CMD_RET_SUCCESS;
+}
+
+int cmd_source_script(ulong addr, const char *fit_uname, const char *confname)
+{
+	char *data;
+	void *buf;
+	uint len;
+	int ret;
+
+	buf = map_sysmem(addr, 0);
+	ret = image_locate_script(buf, 0, fit_uname, confname, &data, &len);
+	unmap_sysmem(buf);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	debug("** Script length: %d\n", len);
+	return run_command_list(data, len, 0);
 }

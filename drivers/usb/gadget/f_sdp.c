@@ -868,7 +868,7 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 			jump_to_image_no_args(&spl_image);
 #else
 			/* In U-Boot, allow jumps to scripts */
-			image_source_script(sdp_func->jmp_address, NULL, NULL);
+			cmd_source_script(sdp_func->jmp_address, NULL, NULL);
 #endif
 		}
 

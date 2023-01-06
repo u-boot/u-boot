@@ -154,7 +154,7 @@ static int do_stm32prog(struct cmd_tbl *cmdtp, int flag, int argc,
 			do_bootz(cmdtp, 0, 4, bootm_argv);
 	}
 	if (data->script)
-		image_source_script(data->script, NULL, NULL);
+		cmd_source_script(data->script, NULL, NULL);
 
 	if (reset) {
 		puts("Reset...\n");

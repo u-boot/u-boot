@@ -101,7 +101,7 @@ static int script_boot(struct udevice *dev, struct bootflow *bflow)
 	log_debug("mmc_bootdev: %s\n", env_get("mmc_bootdev"));
 
 	addr = map_to_sysmem(bflow->buf);
-	ret = image_source_script(addr, NULL, NULL);
+	ret = cmd_source_script(addr, NULL, NULL);
 	if (ret)
 		return log_msg_ret("boot", ret);
 
