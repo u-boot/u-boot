@@ -24,6 +24,7 @@ config TARGET_J721E_R5_EVM
 	select RAM
 	select SPL_RAM
 	select K3_DDRSS
+	select BINMAN
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 
