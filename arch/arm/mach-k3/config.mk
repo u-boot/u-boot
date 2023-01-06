@@ -47,7 +47,12 @@ O ?= .
 # for J721E
 ifdef CONFIG_BINMAN
 
+ifndef CONFIG_TARGET_J7200_R5_EVM
 CONFIG_YAML = $(srctree)/board/ti/$(BOARD)/config.yaml
+else
+CONFIG_YAML = $(srctree)/board/ti/$(BOARD)/config_j7200.yaml
+endif
+
 SCHEMA_YAML = $(srctree)/board/ti/common/schema.yaml
 board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin:
 	$(PYTHON3) $(srctree)/tools/tibcfg_gen.py -c $(CONFIG_YAML) -s $(SCHEMA_YAML) -o $(O)
