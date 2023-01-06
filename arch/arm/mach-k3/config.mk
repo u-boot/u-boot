@@ -39,6 +39,25 @@ $(warning "WARNING: Software revision file not found. Default may not work on HS
 endif
 endif
 
+O ?= .
+
+# Board config binary artifacts necessary for packaging of tiboot3.bin
+# and sysfw.itb by binman, currently for general purpose devices and
+# devices that require sysfw.itb in ROM boot image. Currently set up
+# for J721E
+ifdef CONFIG_BINMAN
+
+CONFIG_YAML = $(srctree)/board/ti/$(BOARD)/config.yaml
+SCHEMA_YAML = $(srctree)/board/ti/common/schema.yaml
+board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin:
+	$(PYTHON3) $(srctree)/tools/tibcfg_gen.py -c $(CONFIG_YAML) -s $(SCHEMA_YAML) -o $(O)
+INPUTS-y	+= board-cfg.bin
+INPUTS-y	+= pm-cfg.bin
+INPUTS-y	+= rm-cfg.bin
+INPUTS-y	+= sec-cfg.bin
+
+endif
+
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
 ifdef CONFIG_CPU_V7R
