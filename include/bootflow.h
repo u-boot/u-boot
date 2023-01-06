@@ -7,6 +7,7 @@
 #ifndef __bootflow_h
 #define __bootflow_h
 
+#include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
 struct bootstd_priv;
@@ -346,6 +347,15 @@ int bootflow_iter_uses_system(const struct bootflow_iter *iter);
  * Returns 0 on success, -ve on error
  */
 int bootflow_menu_new(struct expo **expp);
+
+/**
+ * bootflow_menu_apply_theme() - Apply a theme to a bootmenu
+ *
+ * @exp: Expo to update
+ * @node: Node containing the theme information
+ * Returns 0 on success, -ve on error
+ */
+int bootflow_menu_apply_theme(struct expo *exp, ofnode node);
 
 /**
  * bootflow_menu_run() - Create and run a menu of available bootflows

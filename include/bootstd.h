@@ -9,6 +9,8 @@
 #ifndef __bootstd_h
 #define __bootstd_h
 
+#include <dm/ofnode_decl.h>
+
 struct udevice;
 
 /**
@@ -27,6 +29,7 @@ struct udevice;
  * @bootmeth_count: Number of bootmeth devices in @bootmeth_order
  * @bootmeth_order: List of bootmeth devices to use, in order, NULL-terminated
  * @vbe_bootmeth: Currently selected VBE bootmeth, NULL if none
+ * @theme: Node containing the theme information
  */
 struct bootstd_priv {
 	const char **prefixes;
@@ -37,6 +40,7 @@ struct bootstd_priv {
 	int bootmeth_count;
 	struct udevice **bootmeth_order;
 	struct udevice *vbe_bootmeth;
+	ofnode theme;
 };
 
 /**
