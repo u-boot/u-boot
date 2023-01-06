@@ -446,16 +446,16 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 			switch (c) {
 			case '\e':
 				*esc = 1;
-				*key = KEY_NONE;
+				*key = BKEY_NONE;
 				break;
 			case '\r':
-				*key = KEY_SELECT;
+				*key = BKEY_SELECT;
 				break;
 			case 0x3: /* ^C */
-				*key = KEY_QUIT;
+				*key = BKEY_QUIT;
 				break;
 			default:
-				*key = KEY_NONE;
+				*key = BKEY_NONE;
 				break;
 			}
 
@@ -471,7 +471,7 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 	printf(ANSI_CURSOR_POSITION ANSI_CLEAR_LINE, menu->count + 5, 1);
 
 	if (menu->delay == 0)
-		*key = KEY_SELECT;
+		*key = BKEY_SELECT;
 }
 
 void bootmenu_loop(struct bootmenu_data *menu,
@@ -503,17 +503,17 @@ void bootmenu_loop(struct bootmenu_data *menu,
 		/* First char of ANSI escape sequence '\e' */
 		if (c == '\e') {
 			*esc = 1;
-			*key = KEY_NONE;
+			*key = BKEY_NONE;
 		}
 		break;
 	case 1:
 		/* Second char of ANSI '[' */
 		if (c == '[') {
 			*esc = 2;
-			*key = KEY_NONE;
+			*key = BKEY_NONE;
 		} else {
 		/* Alone ESC key was pressed */
-			*key = KEY_QUIT;
+			*key = BKEY_QUIT;
 			*esc = (c == '\e') ? 1 : 0;
 		}
 		break;
@@ -522,7 +522,7 @@ void bootmenu_loop(struct bootmenu_data *menu,
 		/* Third char of ANSI (number '1') - optional */
 		if (*esc == 2 && c == '1') {
 			*esc = 3;
-			*key = KEY_NONE;
+			*key = BKEY_NONE;
 			break;
 		}
 
@@ -530,31 +530,31 @@ void bootmenu_loop(struct bootmenu_data *menu,
 
 		/* ANSI 'A' - key up was pressed */
 		if (c == 'A')
-			*key = KEY_UP;
+			*key = BKEY_UP;
 		/* ANSI 'B' - key down was pressed */
 		else if (c == 'B')
-			*key = KEY_DOWN;
+			*key = BKEY_DOWN;
 		/* other key was pressed */
 		else
-			*key = KEY_NONE;
+			*key = BKEY_NONE;
 
 		break;
 	}
 
 	/* enter key was pressed */
 	if (c == '\r')
-		*key = KEY_SELECT;
+		*key = BKEY_SELECT;
 
 	/* ^C was pressed */
 	if (c == 0x3)
-		*key = KEY_QUIT;
+		*key = BKEY_QUIT;
 
 	if (c == '+')
-		*key = KEY_PLUS;
+		*key = BKEY_PLUS;
 
 	if (c == '-')
-		*key = KEY_MINUS;
+		*key = BKEY_MINUS;
 
 	if (c == ' ')
-		*key = KEY_SPACE;
+		*key = BKEY_SPACE;
 }

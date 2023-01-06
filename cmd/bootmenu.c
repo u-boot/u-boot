@@ -86,7 +86,7 @@ static char *bootmenu_choice_entry(void *data)
 {
 	struct bootmenu_data *menu = data;
 	struct bootmenu_entry *iter;
-	enum bootmenu_key key = KEY_NONE;
+	enum bootmenu_key key = BKEY_NONE;
 	int esc = 0;
 	int i;
 
@@ -100,22 +100,22 @@ static char *bootmenu_choice_entry(void *data)
 		}
 
 		switch (key) {
-		case KEY_UP:
+		case BKEY_UP:
 			if (menu->active > 0)
 				--menu->active;
 			/* no menu key selected, regenerate menu */
 			return NULL;
-		case KEY_DOWN:
+		case BKEY_DOWN:
 			if (menu->active < menu->count - 1)
 				++menu->active;
 			/* no menu key selected, regenerate menu */
 			return NULL;
-		case KEY_SELECT:
+		case BKEY_SELECT:
 			iter = menu->first;
 			for (i = 0; i < menu->active; ++i)
 				iter = iter->next;
 			return iter->key;
-		case KEY_QUIT:
+		case BKEY_QUIT:
 			/* Quit by choosing the last entry - U-Boot console */
 			iter = menu->first;
 			while (iter->next)

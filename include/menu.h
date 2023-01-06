@@ -44,14 +44,14 @@ struct bootmenu_data {
 
 /** enum bootmenu_key - keys that can be returned by the bootmenu */
 enum bootmenu_key {
-	KEY_NONE = 0,
-	KEY_UP,
-	KEY_DOWN,
-	KEY_SELECT,
-	KEY_QUIT,
-	KEY_PLUS,
-	KEY_MINUS,
-	KEY_SPACE,
+	BKEY_NONE = 0,
+	BKEY_UP,
+	BKEY_DOWN,
+	BKEY_SELECT,
+	BKEY_QUIT,
+	BKEY_PLUS,
+	BKEY_MINUS,
+	BKEY_SPACE,
 };
 
 /**
@@ -85,14 +85,14 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
  *
  * @menu: Menu being processed
  * @key: Returns the code for the key the user pressed:
- *	enter: KEY_SELECT
- *	Ctrl-C: KEY_QUIT
- *	Up arrow: KEY_UP
- *	Down arrow: KEY_DOWN
- *	Escape (by itself): KEY_QUIT
- *	Plus: KEY_PLUS
- *	Minus: KEY_MINUS
- *	Space: KEY_SPACE
+ *	enter: BKEY_SELECT
+ *	Ctrl-C: BKEY_QUIT
+ *	Up arrow: BKEY_UP
+ *	Down arrow: BKEY_DOWN
+ *	Escape (by itself): BKEY_QUIT
+ *	Plus: BKEY_PLUS
+ *	Minus: BKEY_MINUS
+ *	Space: BKEY_SPACE
  * @esc: On input, a non-zero value indicates that an escape sequence has
  *	resulted in that many characters so far. On exit this is updated to the
  *	new number of characters

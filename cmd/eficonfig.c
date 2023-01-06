@@ -187,31 +187,31 @@ static char *eficonfig_choice_entry(void *data)
 	int esc = 0;
 	struct list_head *pos, *n;
 	struct eficonfig_entry *entry;
-	enum bootmenu_key key = KEY_NONE;
+	enum bootmenu_key key = BKEY_NONE;
 	struct efimenu *efi_menu = data;
 
 	while (1) {
 		bootmenu_loop((struct bootmenu_data *)efi_menu, &key, &esc);
 
 		switch (key) {
-		case KEY_UP:
+		case BKEY_UP:
 			if (efi_menu->active > 0)
 				--efi_menu->active;
 			/* no menu key selected, regenerate menu */
 			return NULL;
-		case KEY_DOWN:
+		case BKEY_DOWN:
 			if (efi_menu->active < efi_menu->count - 1)
 				++efi_menu->active;
 			/* no menu key selected, regenerate menu */
 			return NULL;
-		case KEY_SELECT:
+		case BKEY_SELECT:
 			list_for_each_safe(pos, n, &efi_menu->list) {
 				entry = list_entry(pos, struct eficonfig_entry, list);
 				if (entry->num == efi_menu->active)
 					return entry->key;
 			}
 			break;
-		case KEY_QUIT:
+		case BKEY_QUIT:
 			/* Quit by choosing the last entry */
 			entry = list_last_entry(&efi_menu->list, struct eficonfig_entry, list);
 			return entry->key;
@@ -1864,14 +1864,14 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 {
 	int esc = 0;
 	struct list_head *pos, *n;
-	enum bootmenu_key key = KEY_NONE;
+	enum bootmenu_key key = BKEY_NONE;
 	struct eficonfig_entry *entry, *tmp;
 
 	while (1) {
 		bootmenu_loop(NULL, &key, &esc);
 
 		switch (key) {
-		case KEY_PLUS:
+		case BKEY_PLUS:
 			if (efi_menu->active > 0) {
 				list_for_each_safe(pos, n, &efi_menu->list) {
 					entry = list_entry(pos, struct eficonfig_entry, list);
@@ -1885,11 +1885,11 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 				list_add(&tmp->list, &entry->list);
 			}
 			fallthrough;
-		case KEY_UP:
+		case BKEY_UP:
 			if (efi_menu->active > 0)
 				--efi_menu->active;
 			return EFI_NOT_READY;
-		case KEY_MINUS:
+		case BKEY_MINUS:
 			if (efi_menu->active < efi_menu->count - 3) {
 				list_for_each_safe(pos, n, &efi_menu->list) {
 					entry = list_entry(pos, struct eficonfig_entry, list);
@@ -1905,11 +1905,11 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 				++efi_menu->active;
 			}
 			return EFI_NOT_READY;
-		case KEY_DOWN:
+		case BKEY_DOWN:
 			if (efi_menu->active < efi_menu->count - 1)
 				++efi_menu->active;
 			return EFI_NOT_READY;
-		case KEY_SELECT:
+		case BKEY_SELECT:
 			/* "Save" */
 			if (efi_menu->active == efi_menu->count - 2)
 				return EFI_SUCCESS;
@@ -1919,7 +1919,7 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 				return EFI_ABORTED;
 
 			break;
-		case KEY_SPACE:
+		case BKEY_SPACE:
 			if (efi_menu->active < efi_menu->count - 2) {
 				list_for_each_safe(pos, n, &efi_menu->list) {
 					entry = list_entry(pos, struct eficonfig_entry, list);
@@ -1932,7 +1932,7 @@ static efi_status_t eficonfig_choice_change_boot_order(struct efimenu *efi_menu)
 				}
 			}
 			break;
-		case KEY_QUIT:
+		case BKEY_QUIT:
 			return EFI_ABORTED;
 		default:
 			/* Pressed key is not valid, no need to regenerate the menu */
