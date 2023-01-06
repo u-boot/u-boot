@@ -543,22 +543,31 @@ enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu, int *esc)
 		break;
 	}
 
-	/* enter key was pressed */
-	if (c == '\r')
+	switch (c) {
+	case '\r':
+		/* enter key was pressed */
 		key = BKEY_SELECT;
-
-	/* ^C was pressed */
-	if (c == 0x3)
+		break;
+	case CTL_CH('c'):
+		/* ^C was pressed */
 		key = BKEY_QUIT;
-
-	if (c == '+')
+		break;
+	case CTL_CH('p'):
+		key = BKEY_UP;
+		break;
+	case CTL_CH('n'):
+		key = BKEY_DOWN;
+		break;
+	case '+':
 		key = BKEY_PLUS;
-
-	if (c == '-')
+		break;
+	case '-':
 		key = BKEY_MINUS;
-
-	if (c == ' ')
+		break;
+	case ' ':
 		key = BKEY_SPACE;
+		break;
+	}
 
 	return key;
 }
