@@ -616,7 +616,10 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	 * Scenario 2: If there is an fdt_addr specified, pass it along to
 	 * bootm, and adjust argc appropriately.
 	 *
-	 * Scenario 3: fdt blob is not available.
+	 * Scenario 3: If there is an fdtcontroladdr specified, pass it along to
+	 * bootm, and adjust argc appropriately, unless the image type is fitImage.
+	 *
+	 * Scenario 4: fdt blob is not available.
 	 */
 	bootm_argv[3] = env_get("fdt_addr_r");
 
@@ -721,14 +724,18 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	if (!bootm_argv[3])
 		bootm_argv[3] = env_get("fdt_addr");
 
+	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
+	buf = map_sysmem(kernel_addr_r, 0);
+
+	if (!bootm_argv[3] && genimg_get_format(buf) != IMAGE_FORMAT_FIT)
+		bootm_argv[3] = env_get("fdtcontroladdr");
+
 	if (bootm_argv[3]) {
 		if (!bootm_argv[2])
 			bootm_argv[2] = "-";
 		bootm_argc = 4;
 	}
 
-	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
-	buf = map_sysmem(kernel_addr_r, 0);
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
             IS_ENABLED(CONFIG_CMD_BOOTM))
