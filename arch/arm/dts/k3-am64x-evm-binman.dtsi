@@ -1,0 +1,440 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+
+#include <config.h>
+
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+#ifdef CONFIG_TARGET_AM642_R5_EVM
+
+&binman {
+	ti-sci-cert {
+		filename = "ti-sci-cert.bin";
+		ti-sci-firmware-am64x-hs-cert.bin {
+			filename = "ti-sci-firmware-am64x-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	ti-sci-enc {
+		filename = "ti-sci-enc.bin";
+		ti-sci-firmware-am64x-hs-enc.bin {
+			filename = "ti-sci-firmware-am64x-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	tiboot3 {
+		filename = "tiboot3.bin";
+		ti-secure {
+			combined;
+			filename = "spl/u-boot-spl.bin";
+			load = <0x70000000>;
+			sysfw-filename = "ti-sci-enc.bin";
+			sysfw-load = <0x44000>;
+			sysfw-inner-cert = "ti-sci-cert.bin";
+			sysfw-data-filename = "combined-sysfw-cfg.bin";
+			sysfw-data-load = <0x7b000>;
+			key = "/keys/custMpk.pem";
+			swrev = <1>;
+		};
+	};
+};
+
+&binman {
+	ti-sci-gp {
+		filename = "ti-sci-gp.bin";
+		ti-sci-firmware-am64x-gp.bin {
+			filename = "ti-sci-firmware-am64x-gp.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	tiboot3_unsigned {
+		filename = "tiboot3.bin_unsigned";
+		ti-secure {
+			combined;
+			filename = "spl/u-boot-spl.bin";
+			load = <0x70000000>;
+			sysfw-filename = "ti-sci-gp.bin";
+			sysfw-load = <0x44000>;
+			sysfw-data-filename = "combined-sysfw-cfg.bin";
+			sysfw-data-load = <0x7b000>;
+			swrev = <CONFIG_K3_X509_SWRV>;
+		};
+	};
+};
+
+#endif
+
+#ifdef CONFIG_TARGET_AM642_A53_EVM
+
+#define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
+#define SPL_AM642_EVM_DTB "spl/dts/k3-am642-evm.dtb"
+#define SPL_AM642_SK_DTB "spl/dts/k3-am642-sk.dtb"
+
+#define UBOOT_NODTB "u-boot-nodtb.bin"
+#define AM642_EVM_DTB "arch/arm/dts/k3-am642-evm.dtb"
+#define AM642_SK_DTB "arch/arm/dts/k3-am642-sk.dtb"
+
+&binman {
+	ti-spl {
+		filename = "tispl.bin";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf-bl31 {
+					};
+				};
+
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee-os {
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					ti-secure {
+						filename = SPL_NODTB;
+						secure;
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am642-evm";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						filename = SPL_AM642_EVM_DTB;
+						secure;
+					};
+				};
+
+				fdt-1 {
+					description = "k3-am642-sk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						filename = SPL_AM642_SK_DTB;
+						secure;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-evm";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+
+				conf-1 {
+					description = "k3-am642-sk";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-1";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot {
+		filename = "u-boot.img";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for AM64 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					ti-secure {
+						filename = UBOOT_NODTB;
+						secure;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am642-evm";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						filename = AM642_EVM_DTB;
+						secure;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-1 {
+					description = "k3-am642-sk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						filename = AM642_SK_DTB;
+						secure;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-evm";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+
+				conf-1 {
+					description = "k3-am642-sk";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-1";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	ti-spl_unsigned {
+		filename = "tispl.bin_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf-bl31 {
+					};
+				};
+
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee-os {
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					blob {
+						filename = "spl/u-boot-spl-nodtb.bin";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am642-evm";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = SPL_AM642_EVM_DTB;
+					};
+				};
+
+				fdt-1 {
+					description = "k3-am642-sk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = SPL_AM642_SK_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-evm";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+
+				conf-1 {
+					description = "k3-am642-sk";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-1";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot_unsigned {
+		filename = "u-boot.img_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for AM64 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					blob {
+						filename = UBOOT_NODTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-1 {
+					description = "k3-am642-evm";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = AM642_EVM_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-2 {
+					description = "k3-am642-sk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = AM642_SK_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-1";
+
+				conf-1 {
+					description = "k3-am642-evm";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-1";
+				};
+
+				conf-2 {
+					description = "k3-am642-sk";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-2";
+				};
+			};
+		};
+	};
+};
+#endif
