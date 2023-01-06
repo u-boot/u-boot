@@ -24,7 +24,6 @@
 #include <asm/byteorder.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_FIT)
 /**
  * get_default_image() - Return default property from /images
  *
@@ -40,149 +39,165 @@ static const char *get_default_image(const void *fit)
 
 	return fdt_getprop(fit, images_noffset, FIT_DEFAULT_PROP, NULL);
 }
-#endif
 
-int image_source_script(ulong addr, const char *fit_uname, const char *confname)
+int image_locate_script(void *buf, int size, const char *fit_uname,
+			const char *confname, char **datap, uint *lenp)
 {
 	ulong		len;
-#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	const struct legacy_img_hdr *hdr;
-#endif
 	u32		*data;
 	int		verify;
-	void *buf;
-#if defined(CONFIG_FIT)
 	const void*	fit_hdr;
 	int		noffset;
 	const void	*fit_data;
 	size_t		fit_len;
-#endif
 
 	verify = env_get_yesno("verify");
 
-	buf = map_sysmem(addr, 0);
 	switch (genimg_get_format(buf)) {
-#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
-		hdr = buf;
+		if (IS_ENABLED(CONFIG_LEGACY_IMAGE_FORMAT)) {
+			hdr = buf;
 
-		if (!image_check_magic (hdr)) {
-			puts ("Bad magic number\n");
-			return 1;
-		}
-
-		if (!image_check_hcrc (hdr)) {
-			puts ("Bad header crc\n");
-			return 1;
-		}
-
-		if (verify) {
-			if (!image_check_dcrc (hdr)) {
-				puts ("Bad data crc\n");
+			if (!image_check_magic(hdr)) {
+				puts("Bad magic number\n");
 				return 1;
 			}
+
+			if (!image_check_hcrc(hdr)) {
+				puts("Bad header crc\n");
+				return 1;
+			}
+
+			if (verify) {
+				if (!image_check_dcrc(hdr)) {
+					puts("Bad data crc\n");
+					return 1;
+				}
+			}
+
+			if (!image_check_type(hdr, IH_TYPE_SCRIPT)) {
+				puts("Bad image type\n");
+				return 1;
+			}
+
+			/* get length of script */
+			data = (u32 *)image_get_data(hdr);
+
+			len = uimage_to_cpu(*data);
+			if (!len) {
+				puts("Empty Script\n");
+				return 1;
+			}
+
+			/*
+			 * scripts are just multi-image files with one
+			 * component, so seek past the zero-terminated sequence
+			 * of image lengths to get to the actual image data
+			 */
+			while (*data++);
 		}
-
-		if (!image_check_type (hdr, IH_TYPE_SCRIPT)) {
-			puts ("Bad image type\n");
-			return 1;
-		}
-
-		/* get length of script */
-		data = (u32 *)image_get_data (hdr);
-
-		if ((len = uimage_to_cpu (*data)) == 0) {
-			puts ("Empty Script\n");
-			return 1;
-		}
-
-		/*
-		 * scripts are just multi-image files with one component, seek
-		 * past the zero-terminated sequence of image lengths to get
-		 * to the actual image data
-		 */
-		while (*data++);
 		break;
-#endif
-#if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_hdr = buf;
-		if (fit_check_format(fit_hdr, IMAGE_SIZE_INVAL)) {
-			puts ("Bad FIT image format\n");
-			return 1;
-		}
-
-		if (!fit_uname) {
-			/* If confname is empty, use the default */
-			if (confname && *confname)
-				noffset = fit_conf_get_node(fit_hdr, confname);
-			else
-				noffset = fit_conf_get_node(fit_hdr, NULL);
-			if (noffset < 0) {
-				if (!confname)
-					goto fallback;
-				printf("Could not find config %s\n", confname);
+		if (IS_ENABLED(CONFIG_FIT)) {
+			fit_hdr = buf;
+			if (fit_check_format(fit_hdr, IMAGE_SIZE_INVAL)) {
+				puts("Bad FIT image format\n");
 				return 1;
 			}
 
-			if (verify && fit_config_verify(fit_hdr, noffset))
-				return 1;
-
-			noffset = fit_conf_get_prop_node(fit_hdr, noffset,
-							 FIT_SCRIPT_PROP,
-							 IH_PHASE_NONE);
-			if (noffset < 0) {
-				if (!confname)
-					goto fallback;
-				printf("Could not find script in %s\n", confname);
-				return 1;
-			}
-		} else {
-fallback:
-			if (!fit_uname || !*fit_uname)
-				fit_uname = get_default_image(fit_hdr);
 			if (!fit_uname) {
-				puts("No FIT subimage unit name\n");
+				/* If confname is empty, use the default */
+				if (confname && *confname)
+					noffset = fit_conf_get_node(fit_hdr, confname);
+				else
+					noffset = fit_conf_get_node(fit_hdr, NULL);
+				if (noffset < 0) {
+					if (!confname)
+						goto fallback;
+					printf("Could not find config %s\n", confname);
+					return 1;
+				}
+
+				if (verify && fit_config_verify(fit_hdr, noffset))
+					return 1;
+
+				noffset = fit_conf_get_prop_node(fit_hdr,
+								 noffset,
+								 FIT_SCRIPT_PROP,
+								 IH_PHASE_NONE);
+				if (noffset < 0) {
+					if (!confname)
+						goto fallback;
+					printf("Could not find script in %s\n", confname);
+					return 1;
+				}
+			} else {
+fallback:
+				if (!fit_uname || !*fit_uname)
+					fit_uname = get_default_image(fit_hdr);
+				if (!fit_uname) {
+					puts("No FIT subimage unit name\n");
+					return 1;
+				}
+
+				/* get script component image node offset */
+				noffset = fit_image_get_node(fit_hdr, fit_uname);
+				if (noffset < 0) {
+					printf("Can't find '%s' FIT subimage\n",
+					      fit_uname);
+					return 1;
+				}
+			}
+
+			if (!fit_image_check_type(fit_hdr, noffset,
+						  IH_TYPE_SCRIPT)) {
+				puts("Not a image image\n");
 				return 1;
 			}
 
-			/* get script component image node offset */
-			noffset = fit_image_get_node(fit_hdr, fit_uname);
-			if (noffset < 0) {
-				printf("Can't find '%s' FIT subimage\n",
-				       fit_uname);
+			/* verify integrity */
+			if (verify && !fit_image_verify(fit_hdr, noffset)) {
+				puts("Bad Data Hash\n");
 				return 1;
 			}
-		}
 
-		if (!fit_image_check_type (fit_hdr, noffset, IH_TYPE_SCRIPT)) {
-			puts("Not a script image\n");
-			return 1;
-		}
+			/* get script subimage data address and length */
+			if (fit_image_get_data(fit_hdr, noffset, &fit_data, &fit_len)) {
+				puts("Could not find script subimage data\n");
+				return 1;
+			}
 
-		/* verify integrity */
-		if (verify && !fit_image_verify(fit_hdr, noffset)) {
-			puts("Bad Data Hash\n");
-			return 1;
+			data = (u32 *)fit_data;
+			len = (ulong)fit_len;
 		}
-
-		/* get script subimage data address and length */
-		if (fit_image_get_data (fit_hdr, noffset, &fit_data, &fit_len)) {
-			puts ("Could not find script subimage data\n");
-			return 1;
-		}
-
-		data = (u32 *)fit_data;
-		len = (ulong)fit_len;
 		break;
-#endif
 	default:
-		puts ("Wrong image format for \"source\" command\n");
-		return 1;
+		puts("Wrong image format for \"source\" command\n");
+		return -EPERM;
 	}
 
-	debug("** Script length: %ld\n", len);
-	return run_command_list((char *)data, len, 0);
+	*datap = (char *)data;
+	*lenp = len;
+
+	return 0;
+}
+
+int image_source_script(ulong addr, const char *fit_uname, const char *confname)
+{
+	char *data;
+	void *buf;
+	uint len;
+	int ret;
+
+	buf = map_sysmem(addr, 0);
+	ret = image_locate_script(buf, 0, fit_uname, confname, &data, &len);
+	unmap_sysmem(buf);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	debug("** Script length: %d\n", len);
+	return run_command_list(data, len, 0);
 }
 
 /**************************************************/
