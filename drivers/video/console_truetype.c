@@ -595,7 +595,7 @@ void vidconsole_list_fonts(void)
 }
 
 /**
- * vidconsole_add_metrics() - Add a new font/size combination
+ * truetype_add_metrics() - Add a new font/size combination
  *
  * @dev:	Video console device to update
  * @font_name:	Name of font
@@ -604,8 +604,8 @@ void vidconsole_list_fonts(void)
  * @return 0 if OK, -EPERM if stbtt failed, -E2BIG if the the metrics table is
  *	full
  */
-static int vidconsole_add_metrics(struct udevice *dev, const char *font_name,
-				  uint font_size, const void *font_data)
+static int truetype_add_metrics(struct udevice *dev, const char *font_name,
+				uint font_size, const void *font_data)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met;
@@ -693,7 +693,7 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 				    !strcmp(name, tab->name)) {
 					int ret;
 
-					ret = vidconsole_add_metrics(dev,
+					ret = truetype_add_metrics(dev,
 						tab->name, size, tab->begin);
 					if (ret < 0)
 						return log_msg_ret("add", ret);
@@ -745,7 +745,7 @@ static int console_truetype_probe(struct udevice *dev)
 		return -EBFONT;
 	}
 
-	ret = vidconsole_add_metrics(dev, tab->name, font_size, tab->begin);
+	ret = truetype_add_metrics(dev, tab->name, font_size, tab->begin);
 	if (ret < 0)
 		return log_msg_ret("add", ret);
 	priv->cur_met = &priv->metrics[ret];
