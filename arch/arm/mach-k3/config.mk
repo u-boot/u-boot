@@ -85,6 +85,7 @@ ifeq ($(CONFIG_SOC_K3_J721E),)
 export DM := /dev/null
 endif
 
+ifndef CONFIG_BINMAN
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 SPL_ITS := u-boot-spl-k3_HS.its
 $(SPL_ITS): export IS_HS=1
@@ -92,6 +93,7 @@ INPUTS-y	+= tispl.bin_HS
 else
 SPL_ITS := u-boot-spl-k3.its
 INPUTS-y	+= tispl.bin
+endif
 endif
 
 ifeq ($(CONFIG_SPL_OF_LIST),)
