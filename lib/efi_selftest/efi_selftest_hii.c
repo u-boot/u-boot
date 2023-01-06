@@ -564,7 +564,19 @@ out:
  */
 static int test_hii_database_set_keyboard_layout(void)
 {
+	efi_status_t ret;
+
 	PRINT_TESTNAME;
+
+	/* Invalid key guid. */
+	ret = hii_database_protocol->set_keyboard_layout(
+			hii_database_protocol, NULL);
+	if (ret != EFI_INVALID_PARAMETER) {
+		efi_st_error("set_keyboard_layout returned %u not invalid\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
+	}
+
 	/* set_keyboard_layout() not implemented yet */
 	return EFI_ST_SUCCESS;
 }
