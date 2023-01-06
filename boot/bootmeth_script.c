@@ -109,6 +109,10 @@ static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret)
 		return log_msg_ret("inf", ret);
 
+	ret = bootmeth_alloc_other(bflow, "boot.bmp", &bflow->logo,
+				   &bflow->logo_size);
+	/* ignore error */
+
 	return 0;
 }
 

@@ -49,6 +49,8 @@ enum bootflow_state_t {
  * @state: Current state (enum bootflow_state_t)
  * @subdir: Subdirectory to fetch files from (with trailing /), or NULL if none
  * @fname: Filename of bootflow file (allocated)
+ * @logo: Logo to display for this bootflow (BMP format)
+ * @logo_size: Size of the logo in bytes
  * @buf: Bootflow file contents (allocated)
  * @size: Size of bootflow file in bytes
  * @err: Error number received (0 if OK)
@@ -67,6 +69,8 @@ struct bootflow {
 	enum bootflow_state_t state;
 	char *subdir;
 	char *fname;
+	void *logo;
+	uint logo_size;
 	char *buf;
 	int size;
 	int err;

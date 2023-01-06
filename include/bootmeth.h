@@ -266,6 +266,22 @@ int bootmeth_try_file(struct bootflow *bflow, struct blk_desc *desc,
 int bootmeth_alloc_file(struct bootflow *bflow, uint size_limit, uint align);
 
 /**
+ * bootmeth_alloc_other() - Allocate and read a file for a bootflow
+ *
+ * This reads an arbitrary file in the same directory as the bootflow,
+ * allocating memory for it. The buffer is one byte larger than the file length,
+ * so that it can be nul-terminated.
+ *
+ * @bflow: Information about file to read
+ * @fname: Filename to read from (within bootflow->subdir)
+ * @bufp: Returns a pointer to the allocated buffer
+ * @sizep: Returns the size of the buffer
+ * Return: 0 if OK,  -ENOMEM if out of memory, other -ve on other error
+ */
+int bootmeth_alloc_other(struct bootflow *bflow, const char *fname,
+			 void **bufp, uint *sizep);
+
+/**
  * bootmeth_common_read_file() - Common handler for reading a file
  *
  * Reads a named file from the same location as the bootflow file.

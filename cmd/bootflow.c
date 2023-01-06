@@ -338,6 +338,12 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("Buffer:    %lx\n", (ulong)map_to_sysmem(bflow->buf));
 	printf("Size:      %x (%d bytes)\n", bflow->size, bflow->size);
 	printf("OS:        %s\n", bflow->os_name ? bflow->os_name : "(none)");
+	printf("Logo:      %s\n", bflow->logo ?
+	       simple_xtoa((ulong)map_to_sysmem(bflow->logo)) : "(none)");
+	if (bflow->logo) {
+		printf("Logo size: %x (%d bytes)\n", bflow->logo_size,
+		       bflow->logo_size);
+	}
 	printf("Error:     %d\n", bflow->err);
 	if (dump && bflow->buf) {
 		/* Set some sort of maximum on the size */
