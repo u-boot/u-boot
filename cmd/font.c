@@ -15,7 +15,11 @@
 static int do_font_list(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
-	vidconsole_list_fonts();
+	struct udevice *dev;
+
+	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
+		return CMD_RET_FAILURE;
+	vidconsole_list_fonts(dev);
 
 	return 0;
 }
@@ -47,6 +51,7 @@ static int do_font_select(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_font_size(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
+	const char *font_name;
 	struct udevice *dev;
 	uint size;
 	int ret;
@@ -56,9 +61,11 @@ static int do_font_size(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev))
 		return CMD_RET_FAILURE;
+	font_name = vidconsole_get_font_size(dev, &size);
 
 	size = dectoul(argv[1], NULL);
-	ret = vidconsole_select_font(dev, NULL, size);
+
+	ret = vidconsole_select_font(dev, font_name, size);
 	if (ret) {
 		printf("Failed (error %d)\n", ret);
 		return CMD_RET_FAILURE;

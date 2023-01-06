@@ -33,7 +33,7 @@ static int font_test_base(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_asserteq_str("nimbus_sans_l_regular",
-			vidconsole_get_font(dev, &size));
+			vidconsole_get_font_size(dev, &size));
 	ut_asserteq(18, size);
 
 	max_metrics = 1;
@@ -53,14 +53,14 @@ static int font_test_base(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_asserteq_str("cantoraone_regular",
-			vidconsole_get_font(dev, &size));
+			vidconsole_get_font_size(dev, &size));
 	ut_asserteq(40, size);
 
 	ut_assertok(run_command("font size 30", 0));
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_asserteq_str("cantoraone_regular",
-			vidconsole_get_font(dev, &size));
+			vidconsole_get_font_size(dev, &size));
 	ut_asserteq(30, size);
 
 	return 0;
