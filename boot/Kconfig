@@ -282,7 +282,7 @@ config SPL_FIT_SOURCE
 config USE_SPL_FIT_GENERATOR
 	bool "Use a script to generate the .its script"
 	depends on SPL_FIT
-	default y if !ARCH_SUNXI && !RISCV
+	default y if SPL_FIT && ARCH_ZYNQMP
 
 config SPL_FIT_GENERATOR
 	string ".its file generator script for U-Boot FIT image"
