@@ -737,6 +737,40 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 }
 
 /**
+ * efi_get_memory_map_alloc() - allocate map describing memory usage
+ *
+ * The caller is responsible for calling FreePool() if the call succeeds.
+ *
+ * @memory_map		buffer to which the memory map is written
+ * @map_size		size of the memory map
+ * Return:		status code
+ */
+efi_status_t efi_get_memory_map_alloc(efi_uintn_t *map_size,
+				      struct efi_mem_desc **memory_map)
+{
+	efi_status_t ret;
+
+	*memory_map = NULL;
+	*map_size = 0;
+	ret = efi_get_memory_map(map_size, *memory_map, NULL, NULL, NULL);
+	if (ret == EFI_BUFFER_TOO_SMALL) {
+		*map_size += sizeof(struct efi_mem_desc); /* for the map */
+		ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, *map_size,
+					(void **)memory_map);
+		if (ret != EFI_SUCCESS)
+			return ret;
+		ret = efi_get_memory_map(map_size, *memory_map,
+					 NULL, NULL, NULL);
+		if (ret != EFI_SUCCESS) {
+			efi_free_pool(*memory_map);
+			*memory_map = NULL;
+		}
+	}
+
+	return ret;
+}
+
+/**
  * efi_add_conventional_memory_map() - add a RAM memory area to the map
  *
  * @ram_start:		start address of a RAM memory area

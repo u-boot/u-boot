@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#include <efi_loader.h>
 #include <image.h>
+#include <mapmem.h>
 #include <lmb.h>
 #include <log.h>
 #include <malloc.h>
@@ -153,6 +155,37 @@ void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align)
 	}
 }
 
+/**
+ * efi_lmb_reserve() - add reservations for EFI memory
+ *
+ * Add reservations for all EFI memory areas that are not
+ * EFI_CONVENTIONAL_MEMORY.
+ *
+ * @lmb:	lmb environment
+ * Return:	0 on success, 1 on failure
+ */
+static __maybe_unused int efi_lmb_reserve(struct lmb *lmb)
+{
+	struct efi_mem_desc *memmap = NULL, *map;
+	efi_uintn_t i, map_size = 0;
+	efi_status_t ret;
+
+	ret = efi_get_memory_map_alloc(&map_size, &memmap);
+	if (ret != EFI_SUCCESS)
+		return 1;
+
+	for (i = 0, map = memmap; i < map_size / sizeof(*map); ++map, ++i) {
+		if (map->type != EFI_CONVENTIONAL_MEMORY)
+			lmb_reserve(lmb,
+				    map_to_sysmem((void *)(uintptr_t)
+						  map->physical_start),
+				    map->num_pages * EFI_PAGE_SIZE);
+	}
+	efi_free_pool(memmap);
+
+	return 0;
+}
+
 static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
 {
 	arch_lmb_reserve(lmb);
@@ -160,6 +193,9 @@ static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && fdt_blob)
 		boot_fdt_add_mem_rsv_regions(lmb, fdt_blob);
+
+	if (CONFIG_IS_ENABLED(EFI_LOADER))
+		efi_lmb_reserve(lmb);
 }
 
 /* Initialize the struct, add memory and call arch/board reserve functions */

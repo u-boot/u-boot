@@ -736,6 +736,9 @@ efi_status_t efi_allocate_pool(enum efi_memory_type pool_type,
 			       efi_uintn_t size, void **buffer);
 /* EFI pool memory free function. */
 efi_status_t efi_free_pool(void *buffer);
+/* Allocate and retrieve EFI memory map */
+efi_status_t efi_get_memory_map_alloc(efi_uintn_t *map_size,
+				      struct efi_mem_desc **memory_map);
 /* Returns the EFI memory map */
 efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				struct efi_mem_desc *memory_map,

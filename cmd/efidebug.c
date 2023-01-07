@@ -591,25 +591,15 @@ static void print_memory_attributes(u64 attributes)
 static int do_efi_show_memmap(struct cmd_tbl *cmdtp, int flag,
 			      int argc, char *const argv[])
 {
-	struct efi_mem_desc *memmap = NULL, *map;
-	efi_uintn_t map_size = 0;
+	struct efi_mem_desc *memmap, *map;
+	efi_uintn_t map_size;
 	const char *type;
 	int i;
 	efi_status_t ret;
 
-	ret = efi_get_memory_map(&map_size, memmap, NULL, NULL, NULL);
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		map_size += sizeof(struct efi_mem_desc); /* for my own */
-		ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
-					(void *)&memmap);
-		if (ret != EFI_SUCCESS)
-			return CMD_RET_FAILURE;
-		ret = efi_get_memory_map(&map_size, memmap, NULL, NULL, NULL);
-	}
-	if (ret != EFI_SUCCESS) {
-		efi_free_pool(memmap);
+	ret = efi_get_memory_map_alloc(&map_size, &memmap);
+	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
-	}
 
 	printf("Type             Start%.*s End%.*s Attributes\n",
 	       EFI_PHYS_ADDR_WIDTH - 5, spc, EFI_PHYS_ADDR_WIDTH - 3, spc);
