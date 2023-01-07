@@ -579,11 +579,17 @@ class Entry_fit(Entry_section):
         def _gen_node(base_node, node, depth, in_images, entry):
             """Generate nodes from a template
 
-            This creates one node for each member of self._fdts using the
-            provided template. If a property value contains 'NAME' it is
-            replaced with the filename of the FDT. If a property value contains
-            SEQ it is replaced with the node sequence number, where 1 is the
-            first.
+            This creates one or more nodes depending on the fit,operation being
+            used.
+
+            For OP_GEN_FDT_NODES it creates one node for each member of
+            self._fdts using the provided template. If a property value contains
+            'NAME' it is replaced with the filename of the FDT. If a property
+            value contains SEQ it is replaced with the node sequence number,
+            where 1 is the first.
+
+            For OP_SPLIT_ELF it emits one node for each section in the ELF file.
+            If the file is missing, nothing is generated.
 
             Args:
                 base_node (Node): Base Node of the FIT (with 'description'
