@@ -421,6 +421,7 @@ static int fastboot_tx_write_str(const char *buffer)
 
 static void compl_do_reset(struct usb_ep *ep, struct usb_request *req)
 {
+	g_dnl_unregister();
 	do_reset(NULL, 0, 0, NULL);
 }
 
@@ -542,7 +543,6 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		case FASTBOOT_COMMAND_REBOOT_FASTBOOTD:
 		case FASTBOOT_COMMAND_REBOOT_RECOVERY:
 			fastboot_func->in_req->complete = compl_do_reset;
-			g_dnl_trigger_detach();
 			break;
 		case FASTBOOT_COMMAND_ACMD:
 			if (CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT))
