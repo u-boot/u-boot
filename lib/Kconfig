@@ -422,6 +422,7 @@ config TPM
 config SPL_TPM
 	bool "Trusted Platform Module (TPM) Support in SPL"
 	depends on SPL_DM
+	imply SPL_CRC8
 	help
 	  This enables support for TPMs which can be used to provide security
 	  features for your board. The TPM can be connected via LPC or I2C
@@ -616,6 +617,23 @@ config SPL_MD5
 	  data. It has a number of vulnerabilities which preclude its use in
 	  security applications, but it can be useful for providing a quick
 	  checksum of a block of data.
+
+config CRC8
+	def_bool y
+	help
+	  Enables CRC8 support in U-Boot. This is normally required. CRC8 is
+	  a simple and fast checksumming algorithm which does a bytewise
+	  checksum with feedback to produce an 8-bit result. The code is small
+	  and it does not require a lookup table (unlike CRC32).
+
+config SPL_CRC8
+	bool "Support CRC8 in SPL"
+	depends on SPL
+	help
+	  Enables CRC8 support in SPL. This is not normally required. CRC8 is
+	  a simple and fast checksumming algorithm which does a bytewise
+	  checksum with feedback to produce an 8-bit result. The code is small
+	  and it does not require a lookup table (unlike CRC32).
 
 config CRC32
 	def_bool y
