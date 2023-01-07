@@ -836,6 +836,11 @@ name-prefix:
     renamed to 'ro-u-boot' and 'rw-u-boot'. This can be useful to
     distinguish binaries with otherwise identical names.
 
+filename:
+    This allows the contents of the section to be written to a file in the
+    output directory. This can sometimes be useful to use the data in one
+    section in different image, since there is currently no way to share data
+    beteen images other than through files.
 
 Image Properties
 ----------------

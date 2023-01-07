@@ -94,9 +94,6 @@ class Image(section.Entry_section):
 
     def ReadNode(self):
         super().ReadNode()
-        filename = fdt_util.GetString(self._node, 'filename')
-        if filename:
-            self._filename = filename
         self.allow_repack = fdt_util.GetBool(self._node, 'allow-repack')
         self._symlink = fdt_util.GetString(self._node, 'symlink')
 

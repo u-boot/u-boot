@@ -6077,5 +6077,19 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'Cannot write symbols to an ELF file without Python elftools',
             str(exc.exception))
 
+    def testSectionFilename(self):
+        """Check writing of section contents to a file"""
+        data = self._DoReadFile('261_section_fname.dts')
+        expected = (b'&&' + U_BOOT_DATA + b'&&&' +
+                    tools.get_bytes(ord('!'), 7) +
+                    U_BOOT_DATA + tools.get_bytes(ord('&'), 12))
+        self.assertEqual(expected, data)
+
+        sect_fname = tools.get_output_filename('outfile.bin')
+        self.assertTrue(os.path.exists(sect_fname))
+        sect_data = tools.read_file(sect_fname)
+        self.assertEqual(U_BOOT_DATA, sect_data)
+
+
 if __name__ == "__main__":
     unittest.main()

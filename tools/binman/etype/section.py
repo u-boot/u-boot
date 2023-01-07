@@ -144,6 +144,10 @@ class Entry_section(Entry):
         be written at offset 4 in the image file, since the first 16 bytes are
         skipped when writing.
 
+    filename
+        filename to write the unpadded section contents to within the output
+        directory (None to skip this).
+
     Since a section is also an entry, it inherits all the properies of entries
     too.
 
@@ -163,6 +167,7 @@ class Entry_section(Entry):
         self._skip_at_start = None
         self._end_4gb = False
         self._ignore_missing = False
+        self._filename = None
 
     def ReadNode(self):
         """Read properties from the section node"""
@@ -183,6 +188,8 @@ class Entry_section(Entry):
                 self._skip_at_start = 0
         self._name_prefix = fdt_util.GetString(self._node, 'name-prefix')
         self.align_default = fdt_util.GetInt(self._node, 'align-default', 0)
+        self._filename = fdt_util.GetString(self._node, 'filename',
+                                            self._filename)
 
         self.ReadEntries()
 
@@ -348,7 +355,8 @@ class Entry_section(Entry):
         """Get the contents of an entry
 
         This builds the contents of the section, stores this as the contents of
-        the section and returns it
+        the section and returns it. If the section has a filename, the data is
+        written there also.
 
         Args:
             required: True if the data must be present, False if it is OK to
@@ -363,6 +371,8 @@ class Entry_section(Entry):
         if data is None:
             return None
         self.SetContents(data)
+        if self._filename:
+            tools.write_file(tools.get_output_filename(self._filename), data)
         return data
 
     def GetOffsets(self):
