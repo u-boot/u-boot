@@ -1578,11 +1578,7 @@ This is the U-Boot binary, containing relocation information to allow it
 to relocate itself at runtime. The binary typically includes a device tree
 blob at the end of it.
 
-U-Boot can access binman symbols at runtime. See:
-
-    'Access to binman entry offsets at run time (fdt)'
-
-in the binman README for more information.
+U-Boot can access binman symbols at runtime. See :ref:`binman_fdt`.
 
 Note that this entry is automatically replaced with u-boot-expanded unless
 --no-expanded is used or the node has a 'no-expanded' property.
@@ -1712,9 +1708,7 @@ not relocatable so must be loaded to the correct address in SRAM, or written
 to run from the correct address if direct flash execution is possible (e.g.
 on x86 devices).
 
-SPL can access binman symbols at runtime. See:
-
-    'Access to binman entry offsets at run time (symbols)'
+SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
 in the binman README for more information.
 
@@ -1817,9 +1811,7 @@ entry after this one, or use a u-boot-spl entry instead' which normally
 expands to a section containing u-boot-spl-dtb, u-boot-spl-bss-pad and
 u-boot-spl-dtb
 
-SPL can access binman symbols at runtime. See:
-
-    'Access to binman entry offsets at run time (symbols)'
+SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
 in the binman README for more information.
 
@@ -1855,9 +1847,7 @@ loader. Note that SPL is not relocatable so must be loaded to the correct
 address in SRAM, or written to run from the correct address if direct
 flash execution is possible (e.g. on x86 devices).
 
-SPL can access binman symbols at runtime. See:
-
-    'Access to binman entry offsets at run time (symbols)'
+SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
 in the binman README for more information.
 
@@ -1972,9 +1962,7 @@ entry after this one, or use a u-boot-tpl entry instead, which normally
 expands to a section containing u-boot-tpl-dtb, u-boot-tpl-bss-pad and
 u-boot-tpl-dtb
 
-TPL can access binman symbols at runtime. See:
-
-    'Access to binman entry offsets at run time (symbols)'
+TPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
 in the binman README for more information.
 
@@ -2060,9 +2048,7 @@ loader. Note that VPL is not relocatable so must be loaded to the correct
 address in SRAM, or written to run from the correct address if direct
 flash execution is possible (e.g. on x86 devices).
 
-SPL can access binman symbols at runtime. See:
-
-    'Access to binman entry offsets at run time (symbols)'
+SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
 in the binman README for more information.
 
@@ -2162,11 +2148,7 @@ entry after this one, or use a u_boot_vpl entry instead, which normally
 expands to a section containing u-boot-vpl-dtb, u-boot-vpl-bss-pad and
 u-boot-vpl-dtb
 
-VPL can access binman symbols at runtime. See:
-
-    'Access to binman entry offsets at run time (symbols)'
-
-in the binman README for more information.
+VPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
 The ELF file 'vpl/u-boot-vpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the VPL binary.

@@ -487,6 +487,7 @@ For x86 devices (with the end-at-4gb property) this base address is not added
 since it is assumed that images are XIP and the offsets already include the
 address.
 
+.. _binman_fdt:
 
 Access to binman entry offsets at run time (fdt)
 ------------------------------------------------

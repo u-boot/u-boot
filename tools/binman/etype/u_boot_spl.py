@@ -21,9 +21,7 @@ class Entry_u_boot_spl(Entry_blob):
     to run from the correct address if direct flash execution is possible (e.g.
     on x86 devices).
 
-    SPL can access binman symbols at runtime. See:
-
-        'Access to binman entry offsets at run time (symbols)'
+    SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
     in the binman README for more information.
 
