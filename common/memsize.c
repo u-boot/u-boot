@@ -96,6 +96,7 @@ phys_size_t __weak get_effective_memsize(void)
 {
 	phys_size_t ram_size = gd->ram_size;
 
+#ifdef CONFIG_MPC85xx
 	/*
 	 * Check for overflow and limit ram size to some representable value.
 	 * It is required that ram_base + ram_size must be representable by
@@ -105,6 +106,7 @@ phys_size_t __weak get_effective_memsize(void)
 	 */
 	if (gd->ram_base + ram_size < gd->ram_base)
 		ram_size = ((phys_size_t)~0xfffULL) - gd->ram_base;
+#endif
 
 #ifndef CONFIG_MAX_MEM_MAPPED
 	return ram_size;
