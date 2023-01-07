@@ -863,7 +863,8 @@ class Entry_section(Entry):
     def CheckMissing(self, missing_list):
         """Check if any entries in this section have missing external blobs
 
-        If there are missing blobs, the entries are added to the list
+        If there are missing (non-optional) blobs, the entries are added to the
+        list
 
         Args:
             missing_list: List of Entry objects to be added to
@@ -881,6 +882,17 @@ class Entry_section(Entry):
         """
         for entry in self._entries.values():
             entry.CheckFakedBlobs(faked_blobs_list)
+
+    def CheckOptional(self, optional_list):
+        """Check the section for missing but optional external blobs
+
+        If there are missing (optional) blobs, the entries are added to the list
+
+        Args:
+            optional_list (list): List of Entry objects to be added to
+        """
+        for entry in self._entries.values():
+            entry.CheckOptional(optional_list)
 
     def check_missing_bintools(self, missing_list):
         """Check if any entries in this section have missing bintools

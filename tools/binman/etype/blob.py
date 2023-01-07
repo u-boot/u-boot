@@ -39,7 +39,7 @@ class Entry_blob(Entry):
     def ObtainContents(self, fake_size=0):
         self._filename = self.GetDefaultFilename()
         self._pathname = tools.get_input_filename(self._filename,
-            self.external and self.section.GetAllowMissing())
+            self.external and (self.optional or self.section.GetAllowMissing()))
         # Allow the file to be missing
         if not self._pathname:
             self._pathname, faked = self.check_fake_fname(self._filename,

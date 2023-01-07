@@ -392,8 +392,8 @@ class Entry_fit(Entry_section):
 
         _add_entries(self._node, 0, self._node)
 
-        # Keep a copy of all entries, including generator entries, since these
-        # removed from self._entries later.
+        # Keep a copy of all entries, including generator entries, since those
+        # are removed from self._entries later.
         self._priv_entries = dict(self._entries)
 
     def BuildSectionData(self, required):
@@ -602,14 +602,15 @@ class Entry_fit(Entry_section):
                 # Entry_section.ObtainContents() either returns True or
                 # raises an exception.
                 data = None
-                missing_list = []
+                missing_opt_list = []
                 entry.ObtainContents()
                 entry.Pack(0)
-                entry.CheckMissing(missing_list)
+                entry.CheckMissing(missing_opt_list)
+                entry.CheckOptional(missing_opt_list)
 
                 # If any pieces are missing, skip this. The missing entries will
                 # show an error
-                if not missing_list:
+                if not missing_opt_list:
                     segs = entry.read_elf_segments()
                     if segs:
                         segments, entry_addr = segs

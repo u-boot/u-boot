@@ -690,6 +690,15 @@ no-expanded:
     `no-expanded` property disables this just for a single entry. Put the
     `no-expanded` boolean property in the node to select this behaviour.
 
+optional:
+    External blobs are normally required to be present for the image to be
+    built (but see `External blobs`_). This properly allows an entry to be
+    optional, so that when it is cannot be found, this problem is ignored and
+    an empty file is used for this blob. This should be used only when the blob
+    is entirely optional and is not needed for correct operation of the image.
+    Note that missing, optional blobs do not produce a non-zero exit code from
+    binman, although it does show a warning about the missing external blob.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 
