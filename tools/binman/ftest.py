@@ -112,6 +112,8 @@ REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 # Supported compression bintools
 COMP_BINTOOLS = ['bzip2', 'gzip', 'lz4', 'lzma_alone', 'lzop', 'xz', 'zstd']
 
+TEE_ADDR = 0x5678
+
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
 
@@ -218,6 +220,9 @@ class TestFunctional(unittest.TestCase):
             tools.read_file(cls.ElfTestFile('elf_sections')))
         TestFunctional._MakeInputFile('tee.elf',
             tools.read_file(cls.ElfTestFile('elf_sections')))
+
+        # Newer OP_TEE file in v1 binary format
+        cls.make_tee_bin('tee.bin')
 
         cls.comp_bintools = {}
         for name in COMP_BINTOOLS:
@@ -643,6 +648,14 @@ class TestFunctional(unittest.TestCase):
     @classmethod
     def ElfTestFile(cls, fname):
         return os.path.join(cls._elf_testdir, fname)
+
+    @classmethod
+    def make_tee_bin(cls, fname, paged_sz=0, extra_data=b''):
+        init_sz, start_hi, start_lo, dummy = (len(U_BOOT_DATA), 0, TEE_ADDR, 0)
+        data = b'OPTE\x01xxx' + struct.pack('<5I', init_sz, start_hi, start_lo,
+                                            dummy, paged_sz) + U_BOOT_DATA
+        data += extra_data
+        TestFunctional._MakeInputFile(fname, data)
 
     def AssertInList(self, grep_list, target):
         """Assert that at least one of a list of things is in a target
@@ -6094,6 +6107,76 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Check handling of absent entries"""
         data = self._DoReadFile('262_absent.dts')
         self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+
+    def testPackTeeOsOptional(self):
+        """Test that an image with an optional TEE binary can be created"""
+        entry_args = {
+            'tee-os-path': 'tee.elf',
+        }
+        data = self._DoReadFileDtb('263_tee_os_opt.dts',
+                                   entry_args=entry_args)[0]
+        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+
+    def checkFitTee(self, dts, tee_fname):
+        """Check that a tee-os entry works and returns data
+
+        Args:
+            dts (str): Device tree filename to use
+            tee_fname (str): filename containing tee-os
+
+        Returns:
+            bytes: Image contents
+        """
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'tee-os-path': tee_fname,
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        data = self._DoReadFileDtb(dts, entry_args=entry_args,
+                                   extra_indirs=[test_subdir])[0]
+        return data
+
+    def testFitTeeOsOptionalFit(self):
+        """Test an image with a FIT with an optional OP-TEE binary"""
+        data = self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bin')
+
+        # There should be only one node, holding the data set up in SetUpClass()
+        # for tee.bin
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+        node = dtb.GetNode('/images/tee-1')
+        self.assertEqual(TEE_ADDR,
+                         fdt_util.fdt32_to_cpu(node.props['load'].value))
+        self.assertEqual(TEE_ADDR,
+                         fdt_util.fdt32_to_cpu(node.props['entry'].value))
+        self.assertEqual(U_BOOT_DATA, node.props['data'].bytes)
+
+    def testFitTeeOsOptionalFitBad(self):
+        """Test an image with a FIT with an optional OP-TEE binary"""
+        with self.assertRaises(ValueError) as exc:
+            self.checkFitTee('265_tee_os_opt_fit_bad.dts', 'tee.bin')
+        self.assertIn(
+            "Node '/binman/fit': subnode 'images/@tee-SEQ': Failed to read ELF file: Magic number does not match",
+            str(exc.exception))
+
+    def testFitTeeOsBad(self):
+        """Test an OP-TEE binary with wrong formats"""
+        self.make_tee_bin('tee.bad1', 123)
+        with self.assertRaises(ValueError) as exc:
+            self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bad1')
+        self.assertIn(
+            "Node '/binman/fit/images/@tee-SEQ/tee-os': OP-TEE paged mode not supported",
+            str(exc.exception))
+
+        self.make_tee_bin('tee.bad2', 0, b'extra data')
+        with self.assertRaises(ValueError) as exc:
+            self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bad2')
+        self.assertIn(
+            "Node '/binman/fit/images/@tee-SEQ/tee-os': Invalid OP-TEE file: size mismatch (expected 0x4, have 0xe)",
+            str(exc.exception))
 
 
 if __name__ == "__main__":

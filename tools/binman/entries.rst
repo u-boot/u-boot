@@ -1508,11 +1508,46 @@ Entry: tee-os: Entry containing an OP-TEE Trusted OS (TEE) blob
 
 Properties / Entry arguments:
     - tee-os-path: Filename of file to read into entry. This is typically
-        called tee-pager.bin
+        called tee.bin or tee.elf
 
 This entry holds the run-time firmware, typically started by U-Boot SPL.
 See the U-Boot README for your architecture or board for how to use it. See
 https://github.com/OP-TEE/optee_os for more information about OP-TEE.
+
+Note that if the file is in ELF format, it must go in a FIT. In that case,
+this entry will mark itself as absent, providing the data only through the
+read_elf_segments() method.
+
+Marking this entry as absent means that it if is used in the wrong context
+it can be automatically dropped. Thus it is possible to add an OP-TEE entry
+like this::
+
+    binman {
+        tee-os {
+        };
+    };
+
+and pass either an ELF or plain binary in with -a tee-os-path <filename>
+and have binman do the right thing:
+
+   - include the entry if tee.bin is provided and it does NOT have the v1
+     header
+   - drop it otherwise
+
+When used within a FIT, we can do::
+
+    binman {
+        fit {
+            tee-os {
+            };
+        };
+    };
+
+which will split the ELF into separate nodes for each segment, if an ELF
+file is provided (see :ref:`etype_fit`), or produce a single node if the
+OP-TEE binary v1 format is provided (see optee_doc_) .
+
+.. _optee_doc: https://optee.readthedocs.io/en/latest/architecture/core.html#partitioning-of-the-binary
 
 
 

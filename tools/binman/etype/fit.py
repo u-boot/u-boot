@@ -540,41 +540,35 @@ class Entry_fit(Entry_section):
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
-        def _gen_split_elf(base_node, node, elf_data, missing):
+        def _gen_split_elf(base_node, node, segments, entry_addr):
             """Add nodes for the ELF file, one per group of contiguous segments
 
             Args:
                 base_node (Node): Template node from the binman definition
                 node (Node): Node to replace (in the FIT being built)
-                data (bytes): ELF-format data to process (may be empty)
-                missing (bool): True if any of the data is missing
-
+                segments (list): list of segments, each:
+                    int: Segment number (0 = first)
+                    int: Start address of segment in memory
+                    bytes: Contents of segment
+                entry_addr (int): entry address of ELF file
             """
-            # If any pieces are missing, skip this. The missing entries will
-            # show an error
-            if not missing:
-                try:
-                    segments, entry = elf.read_loadable_segments(elf_data)
-                except ValueError as exc:
-                    self._raise_subnode(node,
-                                        f'Failed to read ELF file: {str(exc)}')
-                for (seq, start, data) in segments:
-                    node_name = node.name[1:].replace('SEQ', str(seq + 1))
-                    with fsw.add_node(node_name):
-                        loadables.append(node_name)
-                        for pname, prop in node.props.items():
-                            if not pname.startswith('fit,'):
-                                fsw.property(pname, prop.bytes)
-                            elif pname == 'fit,load':
-                                fsw.property_u32('load', start)
-                            elif pname == 'fit,entry':
-                                if seq == 0:
-                                    fsw.property_u32('entry', entry)
-                            elif pname == 'fit,data':
-                                fsw.property('data', bytes(data))
-                            elif pname != 'fit,operation':
-                                self._raise_subnode(
-                                    node, f"Unknown directive '{pname}'")
+            for (seq, start, data) in segments:
+                node_name = node.name[1:].replace('SEQ', str(seq + 1))
+                with fsw.add_node(node_name):
+                    loadables.append(node_name)
+                    for pname, prop in node.props.items():
+                        if not pname.startswith('fit,'):
+                            fsw.property(pname, prop.bytes)
+                        elif pname == 'fit,load':
+                            fsw.property_u32('load', start)
+                        elif pname == 'fit,entry':
+                            if seq == 0:
+                                fsw.property_u32('entry', entry_addr)
+                        elif pname == 'fit,data':
+                            fsw.property('data', bytes(data))
+                        elif pname != 'fit,operation':
+                            self._raise_subnode(
+                                node, f"Unknown directive '{pname}'")
 
         def _gen_node(base_node, node, depth, in_images, entry):
             """Generate nodes from a template
@@ -598,6 +592,8 @@ class Entry_fit(Entry_section):
                 depth (int): Current node depth (0 is the base 'fit' node)
                 in_images (bool): True if this is inside the 'images' node, so
                     that 'data' properties should be generated
+                entry (entry_Section): Entry for the section containing the
+                    contents of this node
             """
             oper = self._get_operation(base_node, node)
             if oper == OP_GEN_FDT_NODES:
@@ -609,10 +605,24 @@ class Entry_fit(Entry_section):
                 missing_list = []
                 entry.ObtainContents()
                 entry.Pack(0)
-                data = entry.GetData()
                 entry.CheckMissing(missing_list)
 
-                _gen_split_elf(base_node, node, data, bool(missing_list))
+                # If any pieces are missing, skip this. The missing entries will
+                # show an error
+                if not missing_list:
+                    segs = entry.read_elf_segments()
+                    if segs:
+                        segments, entry_addr = segs
+                    else:
+                        elf_data = entry.GetData()
+                        try:
+                            segments, entry_addr = (
+                                    elf.read_loadable_segments(elf_data))
+                        except ValueError as exc:
+                            self._raise_subnode(
+                                node, f'Failed to read ELF file: {str(exc)}')
+
+                    _gen_split_elf(base_node, node, segments, entry_addr)
 
         def _add_node(base_node, depth, node):
             """Add nodes to the output FIT

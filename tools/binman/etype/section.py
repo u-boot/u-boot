@@ -948,3 +948,12 @@ class Entry_section(Entry):
         super().AddBintools(btools)
         for entry in self._entries.values():
             entry.AddBintools(btools)
+
+    def read_elf_segments(self):
+        entries = self.GetEntries()
+
+        # If the section only has one entry, see if it can provide ELF segments
+        if len(entries) == 1:
+            for entry in entries.values():
+                return entry.read_elf_segments()
+        return None
