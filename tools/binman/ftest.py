@@ -6090,6 +6090,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         sect_data = tools.read_file(sect_fname)
         self.assertEqual(U_BOOT_DATA, sect_data)
 
+    def testAbsent(self):
+        """Check handling of absent entries"""
+        data = self._DoReadFile('262_absent.dts')
+        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+
 
 if __name__ == "__main__":
     unittest.main()

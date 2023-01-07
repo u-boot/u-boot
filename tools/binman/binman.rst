@@ -1013,6 +1013,28 @@ For the BSS case, a 'spl-bss-pad' entry arg controls whether it is present. All
 entry args are provided by the U-Boot Makefile.
 
 
+Optional entries
+----------------
+
+Some entries need to exist only if certain conditions are met. For example, an
+entry may want to appear in the image only if a file has a particular format.
+Obviously the entry must exist in the image description for it to be processed
+at all, so a way needs to be found to have the entry remove itself.
+
+To handle this, when entry.ObtainContents() is called, the entry can call
+entry.mark_absent() to mark itself as absent, passing a suitable message as the
+reason.
+
+Any absent entries are dropped immediately after ObtainContents() has been
+called on all entries.
+
+It is not possible for an entry to mark itself absent at any other point in the
+processing. It must happen in the ObtainContents() method.
+
+The effect is as if the entry had never been present at all, since the image
+is packed without it and it disappears from the list of entries.
+
+
 Compression
 -----------
 

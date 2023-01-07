@@ -91,6 +91,10 @@ class Entry(object):
             file, or is a binary file produced from an ELF file
         auto_write_symbols (bool): True to write ELF symbols into this entry's
             contents
+        absent (bool): True if this entry is absent. This can be controlled by
+            the entry itself, allowing it to vanish in certain circumstances.
+            An absent entry is removed during processing so that it does not
+            appear in the map
     """
     fake_dir = None
 
@@ -133,6 +137,7 @@ class Entry(object):
         self.comp_bintool = None
         self.elf_fname = None
         self.auto_write_symbols = auto_write_symbols
+        self.absent = False
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -1281,3 +1286,7 @@ features to produce new behaviours.
                 not_present.append(prop)
         if not_present:
             self.Raise(f"'{self.etype}' entry is missing properties: {' '.join(not_present)}")
+
+    def mark_absent(self, msg):
+        tout.info("Entry '%s' marked absent: %s" % (self._node.path, msg))
+        self.absent = True
