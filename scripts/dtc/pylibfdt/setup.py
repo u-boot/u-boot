@@ -20,11 +20,16 @@ allows this script to be run stand-alone, e.g.:
     ./pylibfdt/setup.py install [--prefix=...]
 """
 
-from setuptools import setup, Extension, sic
+from setuptools import setup, Extension
 from setuptools.command.build_py import build_py as _build_py
 import os
 import re
 import sys
+
+try:
+    from setuptools import sic
+except ImportError:
+    pass
 
 srcdir = os.path.dirname(__file__)
 
@@ -113,7 +118,10 @@ progname = sys.argv[0]
 files = os.environ.get('SOURCES', '').split()
 cflags = os.environ.get('CPPFLAGS', '').split()
 objdir = os.environ.get('OBJDIR')
-version = os.environ.get('VERSION')
+try:
+    version = sic(os.environ.get('VERSION'))
+except:
+    version = os.environ.get('VERSION')
 swig_opts = os.environ.get('SWIG_OPTS', '').split()
 
 # If we were called directly rather than through our Makefile (which is often
@@ -137,7 +145,7 @@ class build_py(_build_py):
 
 setup(
     name='libfdt',
-    version=sic(version),
+    version=version,
     cmdclass = {'build_py' : build_py},
     author='Simon Glass',
     author_email='sjg@chromium.org',
