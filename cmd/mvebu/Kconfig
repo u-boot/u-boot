@@ -60,6 +60,7 @@ endchoice
 
 config MVEBU_UBOOT_DFLT_NAME
 	string "Default image name for bubt command"
+	default BUILD_TARGET if ARMADA_32BIT && BUILD_TARGET != ""
 	default "flash-image.bin"
 	help
 	  This option should contain a default file name to be used with
