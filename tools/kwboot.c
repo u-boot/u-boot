@@ -1780,6 +1780,47 @@ kwboot_img_is_secure(void *img)
 	return 0;
 }
 
+static int
+kwboot_img_has_ddr_init(void *img)
+{
+	const struct register_set_hdr_v1 *rhdr;
+	const struct main_hdr_v0 *hdr0;
+	struct opt_hdr_v1 *ohdr;
+	u32 ohdrsz;
+	int last;
+
+	/*
+	 * kwbimage v0 image headers contain DDR init code either in
+	 * extension header or in binary code header.
+	 */
+	if (kwbimage_version(img) == 0) {
+		hdr0 = img;
+		return hdr0->ext || hdr0->bin;
+	}
+
+	/*
+	 * kwbimage v1 image headers contain DDR init code either in binary
+	 * code header or in a register set list header with SDRAM_SETUP.
+	 */
+	for_each_opt_hdr_v1 (ohdr, img) {
+		if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE)
+			return 1;
+		if (ohdr->headertype == OPT_HDR_V1_REGISTER_TYPE) {
+			rhdr = (const struct register_set_hdr_v1 *)ohdr;
+			ohdrsz = opt_hdr_v1_size(ohdr);
+			if (ohdrsz >= sizeof(*ohdr) + sizeof(rhdr->data[0].last_entry)) {
+				ohdrsz -= sizeof(*ohdr) + sizeof(rhdr->data[0].last_entry);
+				last = ohdrsz / sizeof(rhdr->data[0].entry);
+				if (rhdr->data[last].last_entry.delay ==
+				    REGISTER_SET_HDR_OPT_DELAY_SDRAM_SETUP)
+					return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
 static void *
 kwboot_img_grow_data_right(void *img, size_t *size, size_t grow)
 {
@@ -2009,6 +2050,13 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 			goto err;
 		}
 		kwboot_img_grow_data_right(img, size, sizeof(uint32_t));
+	}
+
+	if (!kwboot_img_has_ddr_init(img) &&
+	    (le32_to_cpu(hdr->destaddr) < 0x40000000 ||
+	     le32_to_cpu(hdr->destaddr) + le32_to_cpu(hdr->blocksize) > 0x40034000)) {
+		fprintf(stderr, "Image does not contain DDR init code needed for UART booting\n");
+		goto err;
 	}
 
 	is_secure = kwboot_img_is_secure(img);
