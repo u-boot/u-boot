@@ -1929,6 +1929,12 @@ static void kwbimage_print_header(const void *ptr)
 
 	printf("Data Size:    ");
 	genimg_print_size(le32_to_cpu(mhdr->blocksize) - sizeof(uint32_t));
+	printf("Data Offset:  ");
+	if (mhdr->blockid == IBR_HDR_SATA_ID)
+		printf("%u Sector%s (LBA)\n", le32_to_cpu(mhdr->srcaddr),
+		       le32_to_cpu(mhdr->srcaddr) != 1 ? "s" : "");
+	else
+		genimg_print_size(le32_to_cpu(mhdr->srcaddr));
 	printf("Load Address: %08x\n", le32_to_cpu(mhdr->destaddr));
 	printf("Entry Point:  %08x\n", le32_to_cpu(mhdr->execaddr));
 }
