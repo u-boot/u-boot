@@ -2148,6 +2148,7 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 	struct ext_hdr_v0 *ehdr0;
 	struct bin_hdr_v0 *bhdr0;
 	struct opt_hdr_v1 *ohdr;
+	int regset_count;
 	int params_count;
 	unsigned offset;
 	int is_v0_ext;
@@ -2232,18 +2233,20 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 			cur_idx++;
 		} else if (ohdr->headertype == OPT_HDR_V1_REGISTER_TYPE) {
 			regset_hdr = (struct register_set_hdr_v1 *)ohdr;
-			for (i = 0;
-			     i < opt_hdr_v1_size(ohdr) - sizeof(struct opt_hdr_v1) -
-				 sizeof(regset_hdr->data[0].last_entry);
-			     i++)
+			if (opt_hdr_v1_size(ohdr) > sizeof(*ohdr))
+				regset_count = (opt_hdr_v1_size(ohdr) - sizeof(*ohdr)) /
+					       sizeof(regset_hdr->data[0].entry);
+			else
+				regset_count = 0;
+			for (i = 0; i < regset_count; i++)
 				fprintf(f, "DATA 0x%08x 0x%08x\n",
 					le32_to_cpu(regset_hdr->data[i].entry.address),
 					le32_to_cpu(regset_hdr->data[i].entry.value));
-			if (opt_hdr_v1_size(ohdr) - sizeof(struct opt_hdr_v1) >=
-			    sizeof(regset_hdr->data[0].last_entry)) {
-				if (regset_hdr->data[0].last_entry.delay)
+			if (regset_count > 0) {
+				if (regset_hdr->data[regset_count-1].last_entry.delay !=
+				    REGISTER_SET_HDR_OPT_DELAY_SDRAM_SETUP)
 					fprintf(f, "DATA_DELAY %u\n",
-						(unsigned)regset_hdr->data[0].last_entry.delay);
+						(unsigned)regset_hdr->data[regset_count-1].last_entry.delay);
 				else
 					fprintf(f, "DATA_DELAY SDRAM_SETUP\n");
 			}
