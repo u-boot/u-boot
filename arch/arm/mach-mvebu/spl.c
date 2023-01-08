@@ -196,14 +196,6 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 		spl_image->offset *= 512;
 	}
 
-	/*
-	 * For SDIO (eMMC) srcaddr is specified in number of sectors.
-	 * This expects that sector size is 512 bytes and recalculates
-	 * data offset to bytes.
-	 */
-	if (IS_ENABLED(CONFIG_SPL_MMC) && mhdr->blockid == IBR_HDR_SDIO_ID)
-		spl_image->offset *= 512;
-
 	if (spl_image->offset % 4 != 0) {
 		printf("ERROR: Wrong srcaddr (0x%08x) in kwbimage\n",
 		       spl_image->offset);
