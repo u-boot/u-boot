@@ -15,6 +15,12 @@
  *   Processor, and High-Definition Video Decoder: Functional Specifications"
  *   August 3, 2011. Chapter 5 "BootROM Firmware"
  *   https://web.archive.org/web/20120130172443/https://www.marvell.com/application-processors/armada-500/assets/Armada-510-Functional-Spec.pdf
+ * - "88F6665, 88F6660, 88F6658, 88F6655, 88F6655F, 88F6650, 88F6650F, 88F6610,
+ *   and 88F6610F Avanta LP Family Integrated Single/Dual CPU Ecosystem for
+ *   Gateway (GW), Home Gateway Unit (HGU), and Single Family Unit (SFU)
+ *   Functional Specifications" Doc. No. MV-S108952-00, Rev. A. November 7, 2013.
+ *   Chapter 7 "Boot Flow"
+ *   CONFIDENTIAL, no public documentation available
  * - "88F6710, 88F6707, and 88F6W11: ARMADA(R) 370 SoC: Functional Specifications"
  *   May 26, 2014. Chapter 6 "BootROM Firmware".
  *   https://web.archive.org/web/20140617183701/https://www.marvell.com/embedded-processors/armada-300/assets/ARMADA370-FunctionalSpec-datasheet.pdf
@@ -22,6 +28,15 @@
  *   Multi-Core ARMv7 Based SoC Processors: Functional Specifications"
  *   May 29, 2014. Chapter 6 "BootROM Firmware".
  *   https://web.archive.org/web/20180829171131/https://www.marvell.com/embedded-processors/armada-xp/assets/ARMADA-XP-Functional-SpecDatasheet.pdf
+ * - "BobCat2 Control and Management Subsystem Functional Specifications"
+ *   Doc. No. MV-S109400-00, Rev. A. December 4, 2014.
+ *   Chapter 1.6 BootROM Firmware
+ *   CONFIDENTIAL, no public documentation available
+ * - "AlleyCat3 and PONCat3 Highly Integrated 1/10 Gigabit Ethernet Switch
+ *   Control and Management Subsystem: Functional Specifications"
+ *   Doc. No. MV-S109693-00, Rev. A. May 20, 2014.
+ *   Chapter 1.6 BootROM Firmware
+ *   CONFIDENTIAL, no public documentation available
  * - "ARMADA(R) 375 Value-Performance Dual Core CPU System on Chip: Functional
  *   Specifications" Doc. No. MV-S109377-00, Rev. A. September 18, 2013.
  *   Chapter 7 "Boot Sequence"
@@ -35,6 +50,10 @@
  *   System on Chip Functional Specifications" Doc. No. MV-S109896-00, Rev. B.
  *   December 22, 2015. Chapter 7 "Boot Flow"
  *   CONFIDENTIAL, no public documentation available
+ * - "Marvell boot image parser", Marvell U-Boot 2013.01, version 18.06. September 17, 2015.
+ *   https://github.com/MarvellEmbeddedProcessors/u-boot-marvell/blob/u-boot-2013.01-armada-18.06/tools/marvell/doimage_mv/hdrparser.c
+ * - "Marvell doimage Tool", Marvell U-Boot 2013.01, version 18.06. August 30, 2015.
+ *   https://github.com/MarvellEmbeddedProcessors/u-boot-marvell/blob/u-boot-2013.01-armada-18.06/tools/marvell/doimage_mv/doimage.c
  */
 
 #include "kwbimage.h"
