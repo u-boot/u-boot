@@ -2185,7 +2185,7 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 	if (mhdr->blockid == IBR_HDR_NAND_ID)
 		fprintf(f, "NAND_PAGE_SIZE 0x%x\n", (unsigned)le16_to_cpu(mhdr->nandpagesize));
 
-	if (version != 0 && mhdr->blockid == IBR_HDR_NAND_ID) {
+	if (mhdr->blockid == IBR_HDR_NAND_ID && (version != 0 || is_v0_ext || mhdr->nandblocksize != 0)) {
 		if (mhdr->nandblocksize != 0) /* block size explicitly set in 64 kB unit */
 			fprintf(f, "NAND_BLKSZ 0x%x\n", (unsigned)mhdr->nandblocksize * 64*1024);
 		else if (le16_to_cpu(mhdr->nandpagesize) > 512)
