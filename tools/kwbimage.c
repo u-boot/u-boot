@@ -1928,9 +1928,9 @@ static void kwbimage_print_header(const void *ptr)
 	}
 
 	printf("Data Size:    ");
-	genimg_print_size(mhdr->blocksize - sizeof(uint32_t));
-	printf("Load Address: %08x\n", mhdr->destaddr);
-	printf("Entry Point:  %08x\n", mhdr->execaddr);
+	genimg_print_size(le32_to_cpu(mhdr->blocksize) - sizeof(uint32_t));
+	printf("Load Address: %08x\n", le32_to_cpu(mhdr->destaddr));
+	printf("Entry Point:  %08x\n", le32_to_cpu(mhdr->execaddr));
 }
 
 static int kwbimage_check_image_types(uint8_t type)
