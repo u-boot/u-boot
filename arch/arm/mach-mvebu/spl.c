@@ -41,6 +41,12 @@
  * kwbimage main header.
  */
 #ifdef CONFIG_SPL_MMC
+#ifdef CONFIG_SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+#error CONFIG_SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG is unsupported
+#endif
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+#error CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION is unsupported
+#endif
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 #error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is unsupported
 #endif
@@ -98,7 +104,7 @@ struct kwbimage_main_hdr_v1 {
 #ifdef CONFIG_SPL_MMC
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
-	return MMCSD_MODE_RAW;
+	return MMCSD_MODE_EMMCBOOT;
 }
 #endif
 
