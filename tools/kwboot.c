@@ -1990,8 +1990,18 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize))
 		goto err;
 
-	if (kwboot_img_csum32(img) != *kwboot_img_csum32_ptr(img))
-		goto err;
+	/*
+	 * The 32-bit data checksum is optional for UART image. If it is not
+	 * present (checksum detected as invalid) then grow data part of the
+	 * image for the checksum, so it can be inserted there.
+	 */
+	if (kwboot_img_csum32(img) != *kwboot_img_csum32_ptr(img)) {
+		if (hdr->blockid != IBR_HDR_UART_ID) {
+			fprintf(stderr, "Image has invalid data checksum\n");
+			goto err;
+		}
+		kwboot_img_grow_data_right(img, size, sizeof(uint32_t));
+	}
 
 	is_secure = kwboot_img_is_secure(img);
 
@@ -2256,6 +2266,7 @@ main(int argc, char **argv)
 				 KWBOOT_XM_BLKSZ +
 				 sizeof(kwboot_baud_code) +
 				 sizeof(kwboot_baud_code_data_jump) +
+				 sizeof(uint32_t) +
 				 KWBOOT_XM_BLKSZ;
 
 	if (imgpath) {
