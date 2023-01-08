@@ -1914,9 +1914,9 @@ static void kwbimage_print_header(const void *ptr)
 			printf("BIN Img Size: ");
 			genimg_print_size(opt_hdr_v1_size(ohdr) - 12 -
 					  4 * ohdr->data[0]);
-			printf("BIN Img Offs: %08x\n",
-				(unsigned)((uint8_t *)ohdr - (uint8_t *)mhdr) +
-				8 + 4 * ohdr->data[0]);
+			printf("BIN Img Offs: ");
+			genimg_print_size(((uint8_t *)ohdr - (uint8_t *)mhdr) +
+					  8 + 4 * ohdr->data[0]);
 		}
 	}
 
