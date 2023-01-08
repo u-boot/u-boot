@@ -1939,6 +1939,7 @@ static int
 kwboot_img_patch(void *img, size_t *size, int baudrate)
 {
 	struct main_hdr_v1 *hdr;
+	struct opt_hdr_v1 *ohdr;
 	uint32_t srcaddr;
 	uint8_t csum;
 	size_t hdrsz;
@@ -1989,6 +1990,13 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	if (hdrsz > le32_to_cpu(hdr->srcaddr) ||
 	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize))
 		goto err;
+
+	for_each_opt_hdr_v1 (ohdr, hdr) {
+		if (!opt_hdr_v1_valid_size(ohdr, (const uint8_t *)hdr + hdrsz)) {
+			fprintf(stderr, "Invalid optional image header\n");
+			goto err;
+		}
+	}
 
 	/*
 	 * The 32-bit data checksum is optional for UART image. If it is not
