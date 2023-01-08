@@ -905,12 +905,12 @@ static int check_image_header(void)
 	u32 offset, size;
 	const struct a38x_main_hdr_v1 *hdr =
 		(struct a38x_main_hdr_v1 *)get_load_addr();
-	const size_t image_size = a38x_header_size(hdr);
+	const size_t hdr_size = a38x_header_size(hdr);
 
-	if (!image_size)
+	if (!hdr_size)
 		return -ENOEXEC;
 
-	checksum = image_checksum8(hdr, image_size);
+	checksum = image_checksum8(hdr, hdr_size);
 	checksum -= hdr->checksum;
 	if (checksum != hdr->checksum) {
 		printf("Error: Bad A38x image header checksum. 0x%x != 0x%x\n",
@@ -944,7 +944,7 @@ static int check_image_header(void)
 #if defined(CONFIG_ARMADA_38X)
 static int a38x_image_is_secure(const struct a38x_main_hdr_v1 *hdr)
 {
-	u32 image_size = a38x_header_size(hdr);
+	const size_t hdr_size = a38x_header_size(hdr);
 	struct a38x_opt_hdr_v1 *ohdr;
 	u32 ohdr_size;
 
@@ -965,7 +965,7 @@ static int a38x_image_is_secure(const struct a38x_main_hdr_v1 *hdr)
 			break;
 
 		ohdr = (struct a38x_opt_hdr_v1 *)((u8 *)ohdr + ohdr_size);
-		if ((u8 *)ohdr >= (u8 *)hdr + image_size)
+		if ((u8 *)ohdr >= (u8 *)hdr + hdr_size)
 			break;
 	} while (1);
 
