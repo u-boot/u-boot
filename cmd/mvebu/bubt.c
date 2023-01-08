@@ -747,9 +747,6 @@ static int check_image_header(void)
 		offset *= 512;
 	}
 
-	if (hdr->blockid == 0xAE) /* SDIO id */
-		offset *= 512;
-
 	if (offset % 4 != 0 || size < 4 || size % 4 != 0) {
 		printf("Error: Bad A38x image blocksize.\n");
 		return -ENOEXEC;
