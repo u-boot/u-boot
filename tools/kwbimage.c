@@ -1021,15 +1021,6 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	if (main_hdr->blockid == IBR_HDR_SATA_ID)
 		main_hdr->srcaddr = cpu_to_le32(headersz / 512 + 1);
 
-	/*
-	 * For SDIO srcaddr is specified in number of sectors starting from
-	 * sector 0. The main header is stored at sector number 0.
-	 * This expects sector size to be 512 bytes.
-	 * Header size is already aligned.
-	 */
-	if (main_hdr->blockid == IBR_HDR_SDIO_ID)
-		main_hdr->srcaddr = cpu_to_le32(headersz / 512);
-
 	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
 	if (main_hdr->blockid == IBR_HDR_PEX_ID)
 		main_hdr->srcaddr = cpu_to_le32(0xFFFFFFFF);
@@ -1477,15 +1468,6 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 	 */
 	if (main_hdr->blockid == IBR_HDR_SATA_ID)
 		main_hdr->srcaddr = cpu_to_le32(headersz / 512 + 1);
-
-	/*
-	 * For SDIO srcaddr is specified in number of sectors starting from
-	 * sector 0. The main header is stored at sector number 0.
-	 * This expects sector size to be 512 bytes.
-	 * Header size is already aligned.
-	 */
-	if (main_hdr->blockid == IBR_HDR_SDIO_ID)
-		main_hdr->srcaddr = cpu_to_le32(headersz / 512);
 
 	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
 	if (main_hdr->blockid == IBR_HDR_PEX_ID)
@@ -2040,14 +2022,6 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 	}
 
 	/*
-	 * For SDIO srcaddr is specified in number of sectors.
-	 * This expects that sector size is 512 bytes and recalculates
-	 * data offset to bytes.
-	 */
-	if (blockid == IBR_HDR_SDIO_ID)
-		offset *= 512;
-
-	/*
 	 * For PCIe srcaddr is always set to 0xFFFFFFFF.
 	 * This expects that data starts after all headers.
 	 */
@@ -2407,9 +2381,6 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 			offset -= 1;
 			offset *= 512;
 		}
-
-		if (mhdr->blockid == IBR_HDR_SDIO_ID)
-			offset *= 512;
 
 		if (mhdr->blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
 			offset = header_size;
