@@ -169,9 +169,7 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 	}
 
 	if (IS_ENABLED(CONFIG_SPL_MMC) &&
-	    (bootdev->boot_device == BOOT_DEVICE_MMC1 ||
-	     bootdev->boot_device == BOOT_DEVICE_MMC2 ||
-	     bootdev->boot_device == BOOT_DEVICE_MMC2_2) &&
+	    (bootdev->boot_device == BOOT_DEVICE_MMC1) &&
 	    mhdr->blockid != IBR_HDR_SDIO_ID) {
 		printf("ERROR: Wrong blockid (0x%x) in SDIO kwbimage\n",
 		       mhdr->blockid);
