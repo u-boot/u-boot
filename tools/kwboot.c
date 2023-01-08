@@ -1894,10 +1894,6 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 		hdr->srcaddr = cpu_to_le32((srcaddr - 1) * 512);
 		break;
 
-	case IBR_HDR_SDIO_ID:
-		hdr->srcaddr = cpu_to_le32(srcaddr * 512);
-		break;
-
 	case IBR_HDR_PEX_ID:
 		if (srcaddr == 0xFFFFFFFF)
 			hdr->srcaddr = cpu_to_le32(hdrsz);
