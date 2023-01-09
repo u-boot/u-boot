@@ -8,8 +8,7 @@
 
 #include "rockchip-common.h"
 
-/* FIXME: ff020000 is pmu_mem (10k), while ff0e0000 is regular int_mem */
-#define CFG_IRAM_BASE		0xff020000
+#define CFG_IRAM_BASE		0xff0e0000
 
 #define GICD_BASE			0xff131000
 #define GICC_BASE			0xff132000
