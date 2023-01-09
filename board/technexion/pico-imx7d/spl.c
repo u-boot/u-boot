@@ -61,6 +61,8 @@ static struct ddrc ddrc_regs_val = {
 	.dramtmg0	= 0x09081109,
 	.addrmap0	= 0x0000001f,
 	.addrmap1	= 0x00080808,
+	.addrmap2	= 0x00000000,
+	.addrmap3	= 0x00000000,
 	.addrmap4	= 0x00000f0f,
 	.addrmap5	= 0x07070707,
 	.addrmap6	= 0x0f0f0707,
@@ -100,17 +102,39 @@ static void gpr_init(void)
 	writel(0x4F400005, &gpr_regs->gpr[1]);
 }
 
+/**********************************************
+* Revision Detection
+*
+* DDR_TYPE_DET_1   DDR_TYPE_DET_2
+*   GPIO_1           GPIO_2
+*     0                1           2GB DDR3
+*     0                0           1GB DDR3
+*     1                0           512MB DDR3
+***********************************************/
 static bool is_1g(void)
 {
 	gpio_direction_input(IMX_GPIO_NR(1, 12));
 	return !gpio_get_value(IMX_GPIO_NR(1, 12));
 }
 
+static bool is_2g(void)
+{
+	gpio_direction_input(IMX_GPIO_NR(1, 13));
+	return gpio_get_value(IMX_GPIO_NR(1, 13));
+}
+
 static void ddr_init(void)
 {
-	if (is_1g())
-		ddrc_regs_val.addrmap6	= 0x0f070707;
-
+	if (is_1g()) {
+		if (is_2g()) {
+			ddrc_regs_val.addrmap0	= 0x0000001f;
+			ddrc_regs_val.addrmap1	= 0x00181818;
+			ddrc_regs_val.addrmap4	= 0x00000f0f;
+			ddrc_regs_val.addrmap5	= 0x04040404;
+			ddrc_regs_val.addrmap6	= 0x04040404;
+		} else
+			ddrc_regs_val.addrmap6	= 0x0f070707;
+	}
 	mx7_dram_cfg(&ddrc_regs_val, &ddrc_mp_val, &ddr_phy_regs_val,
 		     &calib_param);
 }
