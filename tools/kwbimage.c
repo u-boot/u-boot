@@ -1009,8 +1009,6 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	e = image_find_option(IMAGE_CFG_NAND_BADBLK_LOCATION);
 	if (e)
 		main_hdr->nandbadblklocation = e->nandbadblklocation;
-	main_hdr->checksum = image_checksum8(image,
-					     sizeof(struct main_hdr_v0));
 
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
@@ -1048,6 +1046,9 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 		ext_hdr->checksum = image_checksum8(ext_hdr,
 						    sizeof(struct ext_hdr_v0));
 	}
+
+	main_hdr->checksum = image_checksum8(image,
+					     sizeof(struct main_hdr_v0));
 
 	*imagesz = headersz;
 	return image;
