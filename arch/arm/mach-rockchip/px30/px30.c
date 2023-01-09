@@ -301,8 +301,18 @@ void board_debug_uart_init(void)
 	CONFIG_DEBUG_UART_BASE == 0xff030000)
 	static struct px30_pmugrf * const pmugrf = (void *)PMUGRF_BASE;
 #endif
+#if !defined(CONFIG_DEBUG_UART_BASE) || \
+	(CONFIG_DEBUG_UART_BASE != 0xff158000 && \
+	 CONFIG_DEBUG_UART_BASE != 0xff168000 && \
+	 CONFIG_DEBUG_UART_BASE != 0xff178000 && \
+	 CONFIG_DEBUG_UART_BASE != 0xff030000) || \
+	(defined(CONFIG_DEBUG_UART_BASE) && \
+	 (CONFIG_DEBUG_UART_BASE == 0xff158000 || \
+	  CONFIG_DEBUG_UART_BASE == 0xff168000 || \
+	  CONFIG_DEBUG_UART_BASE == 0xff178000))
 	static struct px30_grf * const grf = (void *)GRF_BASE;
 	static struct px30_cru * const cru = (void *)CRU_BASE;
+#endif
 #if defined(CONFIG_DEBUG_UART_BASE) && CONFIG_DEBUG_UART_BASE == 0xff030000
 	static struct px30_pmucru * const pmucru = (void *)PMUCRU_BASE;
 #endif
