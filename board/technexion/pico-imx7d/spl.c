@@ -106,18 +106,19 @@ static void gpr_init(void)
 * Revision Detection
 *
 * DDR_TYPE_DET_1   DDR_TYPE_DET_2
-*   GPIO_1           GPIO_2
-*     0                1           2GB DDR3
-*     0                0           1GB DDR3
-*     1                0           512MB DDR3
+*   GPIO1_12         GPIO1_13
+*     0                0          1GB DDR3
+*     0                1          2GB DDR3
+*     1                0          512MB DDR3
+*
 ***********************************************/
-static bool is_1g(void)
+static bool is_gpio1_12_low(void)
 {
 	gpio_direction_input(IMX_GPIO_NR(1, 12));
 	return !gpio_get_value(IMX_GPIO_NR(1, 12));
 }
 
-static bool is_2g(void)
+static bool is_gpio1_13_high(void)
 {
 	gpio_direction_input(IMX_GPIO_NR(1, 13));
 	return gpio_get_value(IMX_GPIO_NR(1, 13));
@@ -125,8 +126,8 @@ static bool is_2g(void)
 
 static void ddr_init(void)
 {
-	if (is_1g()) {
-		if (is_2g()) {
+	if (is_gpio1_12_low()) {
+		if (is_gpio1_13_high()) {
 			ddrc_regs_val.addrmap0	= 0x0000001f;
 			ddrc_regs_val.addrmap1	= 0x00181818;
 			ddrc_regs_val.addrmap4	= 0x00000f0f;
