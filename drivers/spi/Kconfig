@@ -429,6 +429,16 @@ config SANDBOX_SPI
 		};
 	  };
 
+config SANDBOX_SPI_MAX_BUS
+	int
+	depends on SANDBOX
+	default 1
+
+config SANDBOX_SPI_MAX_CS
+	int
+	depends on SANDBOX
+	default 10
+
 config SPI_ASPEED_SMC
 	bool "ASPEED SPI flash controller driver"
 	depends on DM_SPI && SPI_MEM

@@ -12,15 +12,11 @@
 #include "tegra210-common.h"
 
 /* High-level configuration options */
-#define CONFIG_TEGRA_BOARD_STRING	"NVIDIA P2371-0000"
+#define CFG_TEGRA_BOARD_STRING	"NVIDIA P2371-0000"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTA
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
-
-/* SPI */
-#define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
 #include "tegra-common-post.h"
 

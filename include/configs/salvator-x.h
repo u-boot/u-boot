@@ -13,8 +13,7 @@
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 
-#define CONFIG_FLASH_SHOW_PROGRESS	45
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ 0x08000000 }
-#define CONFIG_SYS_WRITE_SWAPPED_DATA
+#define CFG_SYS_FLASH_BANKS_LIST	{ 0x08000000 }
+#define CFG_SYS_WRITE_SWAPPED_DATA
 
 #endif /* __SALVATOR_X_H */

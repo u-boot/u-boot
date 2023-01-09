@@ -14,13 +14,13 @@
   #define HWCONFIG_BUFFER_SIZE 256
 #endif
 
-#ifndef CONFIG_MAX_MEM_MAPPED
+#ifndef CFG_MAX_MEM_MAPPED
 #if	defined(CONFIG_E500)		|| \
 	defined(CONFIG_MPC86xx)		|| \
 	defined(CONFIG_E300)
-#define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
+#define CFG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
 #else
-#define CONFIG_MAX_MEM_MAPPED	(256 << 20)
+#define CFG_MAX_MEM_MAPPED	(256 << 20)
 #endif
 #endif
 
@@ -30,14 +30,6 @@
  */
 #if (defined(CONFIG_E500) && defined(CONFIG_MP))
 #define BPTR_VIRT_ADDR	0xfffff000
-#endif
-
-/* Since so many PPC SOCs have a semi-common LBC, define this here */
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) || \
-	defined(CONFIG_MPC83xx)
-#if !defined(CONFIG_FSL_IFC)
-#define CONFIG_FSL_LBC
-#endif
 #endif
 
 /* The TSEC driver uses the PHYLIB infrastructure */
@@ -52,7 +44,7 @@
  * TODO: Convert this to a clock driver exists that can give us the UART
  * clock here.
  */
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 #endif
 
 #endif /* _ASM_CONFIG_H_ */

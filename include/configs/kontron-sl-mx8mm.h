@@ -17,17 +17,16 @@
 /* RAM */
 #define PHYS_SDRAM			DDR_CSD1_BASE_ADDR
 #define PHYS_SDRAM_SIZE			(SZ_4G)
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x200000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x200000
 
 /* Board and environment settings */
-#define CONFIG_HOSTNAME			"kontron-mx8mm"
 
 #ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 #endif
 
 /* GUID for capsule updatable firmware image */
@@ -47,9 +46,9 @@
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x930000
+#define CFG_MALLOC_F_ADDR		0x930000
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS BOOTENV
+#define CFG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif /* __KONTRON_MX8MM_CONFIG_H */

@@ -642,9 +642,7 @@ struct r8152 {
 
 	u8 version;
 
-#ifdef CONFIG_DM_ETH
 	struct ueth_data ueth;
-#endif
 };
 
 int generic_ocp_write(struct r8152 *tp, u16 index, u16 byteen,

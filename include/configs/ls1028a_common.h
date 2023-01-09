@@ -12,11 +12,10 @@
 
 /* Link Definitions */
 
-#define CONFIG_VERY_BIG_RAM
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_DDR_BLOCK2_BASE	0x2080000000ULL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_BLOCK2_BASE	0x2080000000ULL
 
 /*
  * SMP Definitinos
@@ -28,15 +27,12 @@
 /* I2C */
 
 /* Serial Port */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE     1
-#define CONFIG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
+#define CFG_SYS_NS16550_CLK          (get_bus_freq(0) / 2)
 
 /* Miscellaneous configurable options */
 
 /* Physical Memory Map */
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 #define BOOT_TARGET_DEVICES(func) \

@@ -75,9 +75,6 @@ struct dm9000_priv {
 	void (*outblk)(struct dm9000_priv *db, void *data_ptr, int count);
 	void (*inblk)(struct dm9000_priv *db, void *data_ptr, int count);
 	void (*rx_status)(struct dm9000_priv *db, u16 *rxstatus, u16 *rxlen);
-#ifndef CONFIG_DM_ETH
-	struct eth_device dev;
-#endif
 	void __iomem *base_io;
 	void __iomem *base_data;
 };
@@ -572,68 +569,6 @@ static void dm9000_get_enetaddr(struct dm9000_priv *db, u8 *enetaddr)
 static void dm9000_get_enetaddr(struct dm9000_priv *db, u8 *enetaddr) {}
 #endif
 
-#ifndef CONFIG_DM_ETH
-static int dm9000_init(struct eth_device *dev, struct bd_info *bd)
-{
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
-
-	return dm9000_init_common(db, dev->enetaddr);
-}
-
-static void dm9000_halt(struct eth_device *dev)
-{
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
-
-	dm9000_halt_common(db);
-}
-
-static int dm9000_send(struct eth_device *dev, void *packet, int length)
-{
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
-
-	return dm9000_send_common(db, packet, length);
-}
-
-static int dm9000_recv(struct eth_device *dev)
-{
-	struct dm9000_priv *db = container_of(dev, struct dm9000_priv, dev);
-	int ret;
-
-	ret = dm9000_recv_common(db, net_rx_packets[0]);
-	if (ret > 0)
-		net_process_received_packet(net_rx_packets[0], ret);
-
-	return ret;
-}
-
-int dm9000_initialize(struct bd_info *bis)
-{
-	struct dm9000_priv *priv;
-	struct eth_device *dev;
-
-	priv = calloc(1, sizeof(*priv));
-	if (!priv)
-		return -ENOMEM;
-
-	dev = &priv->dev;
-
-	priv->base_io = (void __iomem *)DM9000_IO;
-	priv->base_data = (void __iomem *)DM9000_DATA;
-
-	/* Load MAC address from EEPROM */
-	dm9000_get_enetaddr(priv, dev->enetaddr);
-
-	dev->init = dm9000_init;
-	dev->halt = dm9000_halt;
-	dev->send = dm9000_send;
-	dev->recv = dm9000_recv;
-	strcpy(dev->name, "dm9000");
-
-	eth_register(&priv->dev);
-
-	return 0;
-}
-#else	/* ifdef CONFIG_DM_ETH */
 static int dm9000_start(struct udevice *dev)
 {
 	struct dm9000_priv *db = dev_get_priv(dev);
@@ -746,4 +681,3 @@ U_BOOT_DRIVER(dm9000) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif

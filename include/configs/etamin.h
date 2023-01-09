@@ -14,10 +14,10 @@
 
 #include "siemens-am33x-common.h"
 /* NAND specific changes for etamin due to different page size */
-#undef CONFIG_SYS_NAND_ECCPOS
+#undef CFG_SYS_NAND_ECCPOS
 
-#define CONFIG_SYS_ENV_SECT_SIZE       (512 << 10)     /* 512 KiB */
-#define CONFIG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
+#define CFG_SYS_ENV_SECT_SIZE       (512 << 10)     /* 512 KiB */
+#define CFG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
 				10, 11, 12, 13, 14, 15, 16, 17, 18, 19, \
 				20, 21, 22, 23, 24, 25, 26, 27, 28, 29, \
 				30, 31, 32, 33, 34, 35, 36, 37, 38, 39, \
@@ -40,14 +40,14 @@
 			200, 201, 202, 203, 204, 205, 206, 207, 208, 209, \
 			}
 
-#undef CONFIG_SYS_NAND_ECCSIZE
-#undef CONFIG_SYS_NAND_ECCBYTES
-#define CONFIG_SYS_NAND_ECCSIZE 512
-#define CONFIG_SYS_NAND_ECCBYTES 26
+#undef CFG_SYS_NAND_ECCSIZE
+#undef CFG_SYS_NAND_ECCBYTES
+#define CFG_SYS_NAND_ECCSIZE 512
+#define CFG_SYS_NAND_ECCBYTES 26
 
-#define CONFIG_SYS_NAND_BASE2           (0x18000000)    /* physical address */
-#define CONFIG_SYS_NAND_BASE_LIST       {CONFIG_SYS_NAND_BASE, \
-					CONFIG_SYS_NAND_BASE2}
+#define CFG_SYS_NAND_BASE2           (0x18000000)    /* physical address */
+#define CFG_SYS_NAND_BASE_LIST       {CFG_SYS_NAND_BASE, \
+					CFG_SYS_NAND_BASE2}
 
 #define DDR_PLL_FREQ	303
 
@@ -56,7 +56,7 @@
 #define BOARD_DFU_BUTTON_GPIO	27
 #define GPIO_LAN9303_NRST	88	/* GPIO2_24 = gpio88 */
 /* In dfu mode keep led1 on */
-#define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+#define CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"button_dfu0=27\0" \
 	"button_dfu1=87\0" \
 	"led0=3,0,1\0" \
@@ -67,7 +67,7 @@
 	"led5=63,0,1\0"
 
 /* Physical Memory Map */
-#define CONFIG_MAX_RAM_BANK_SIZE       (1024 << 20)    /* 1GB */
+#define CFG_MAX_RAM_BANK_SIZE       (1024 << 20)    /* 1GB */
 
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
@@ -93,8 +93,8 @@
 	"u-boot.env1 mtddev;" \
 	"rootfs mtddevubi" \
 
-#undef CONFIG_ENV_SETTINGS_NAND_V2
-#define CONFIG_ENV_SETTINGS_NAND_V2 \
+#undef CFG_ENV_SETTINGS_NAND_V2
+#define CFG_ENV_SETTINGS_NAND_V2 \
 	"nand_active_ubi_vol=rootfs_a\0" \
 	"rootfs_name=rootfs\0" \
 	"kernel_name=uImage\0"\
@@ -127,25 +127,15 @@
 		"bootm ${kloadaddr} - ${loadaddr}\0" \
 	COMMON_ENV_NAND_CMDS
 
-#ifndef CONFIG_SPL_BUILD
-
-#define CONFIG_NAND_CS_INIT
-#define ETAMIN_NAND_GPMC_CONFIG1	0x00000800
-#define ETAMIN_NAND_GPMC_CONFIG2	0x001e1e00
-#define ETAMIN_NAND_GPMC_CONFIG3	0x001e1e00
-#define ETAMIN_NAND_GPMC_CONFIG4	0x16051807
-#define ETAMIN_NAND_GPMC_CONFIG5	0x00151e1e
-#define ETAMIN_NAND_GPMC_CONFIG6	0x16000f80
-
 /* Default env settings */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"hostname=etamin\0" \
 	"ubi_off=4096\0"\
 	"nand_img_size=0x400000\0" \
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
-	CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
-	CONFIG_ENV_SETTINGS_V2 \
-	CONFIG_ENV_SETTINGS_NAND_V2
-#endif	/* CONFIG_SPL_BUILD */
+	CFG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	CFG_ENV_SETTINGS_V2 \
+	CFG_ENV_SETTINGS_NAND_V2
+
 #endif	/* ! __CONFIG_ETAMIN_H */

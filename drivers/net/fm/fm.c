@@ -10,9 +10,7 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <u-boot/crc.h>
-#ifdef CONFIG_DM_ETH
 #include <dm.h>
-#endif
 
 #include "fm.h"
 #include <fsl_qe.h>		/* For struct qe_firmware */
@@ -26,7 +24,7 @@
 #include <asm/arch/cpu.h>
 #endif
 
-struct fm_muram muram[CONFIG_SYS_NUM_FMAN];
+struct fm_muram muram[CFG_SYS_NUM_FMAN];
 
 void *fm_muram_base(int fm_idx)
 {
@@ -67,9 +65,9 @@ static void fm_init_muram(int fm_idx, void *reg)
 	void *base = reg;
 
 	muram[fm_idx].base = base;
-	muram[fm_idx].size = CONFIG_SYS_FM_MURAM_SIZE;
+	muram[fm_idx].size = CFG_SYS_FM_MURAM_SIZE;
 	muram[fm_idx].alloc = base + FM_MURAM_RES_SIZE;
-	muram[fm_idx].top = base + CONFIG_SYS_FM_MURAM_SIZE;
+	muram[fm_idx].top = base + CFG_SYS_FM_MURAM_SIZE;
 }
 
 /*
@@ -551,7 +549,6 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 }
 #endif
 
-#ifdef CONFIG_DM_ETH
 struct fman_priv {
 	struct ccsr_fman *reg;
 	unsigned int fman_id;
@@ -626,4 +623,3 @@ U_BOOT_DRIVER(fman) = {
 	.priv_auto	= sizeof(struct fman_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif /* CONFIG_DM_ETH */

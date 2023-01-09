@@ -449,7 +449,7 @@ int board_init(void)
 	if (read_eeprom() < 0)
 		puts("EEPROM Content Invalid.\n");
 
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 #if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif

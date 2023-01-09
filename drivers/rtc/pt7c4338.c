@@ -53,12 +53,12 @@
 /****** Helper functions ****************************************/
 static u8 rtc_read(u8 reg)
 {
-	return i2c_reg_read(CONFIG_SYS_I2C_RTC_ADDR, reg);
+	return i2c_reg_read(CFG_SYS_I2C_RTC_ADDR, reg);
 }
 
 static void rtc_write(u8 reg, u8 val)
 {
-	i2c_reg_write(CONFIG_SYS_I2C_RTC_ADDR, reg, val);
+	i2c_reg_write(CFG_SYS_I2C_RTC_ADDR, reg, val);
 }
 /****************************************************************/
 

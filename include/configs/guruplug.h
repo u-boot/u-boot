@@ -23,19 +23,11 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"				\
 	"mtdids=nand0=orion_nand\0"					\
 	"kernel=/boot/zImage\0"						\
 	"fdt=/boot/guruplug-server-plus.dtb\0"				\
 	"bootargs_root=ubi.mtd=2 root=ubi0:rootfs rootfstype=ubifs rw\0"
-
-/*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE_PORTS	{1, 1}	/* enable both ports */
-#define CONFIG_PHY_BASE_ADR	0
-#endif /* CONFIG_CMD_NET */
 
 #endif /* _CONFIG_GURUPLUG_H */

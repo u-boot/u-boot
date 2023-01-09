@@ -242,11 +242,11 @@ storage server and etc.
 
 All POST-related code will be #ifdef'ed with the CONFIG_POST macro.
 This macro will be defined in the config_<board>.h file for those
-boards that need POST. The CONFIG_POST macro will contain the list of
+boards that need POST. The CFG_POST macro will contain the list of
 POST tests for the board. The macro will have the format of array
 composed of post_test structures:
 
-#define CONFIG_POST \
+#define CFG_POST \
 	{
 		"On-board peripherals test", "board", \
 		"  This test performs full check-up of the " \
@@ -257,7 +257,7 @@ composed of post_test structures:
 
 A new file, post.h, will be created in the include/ directory. This
 file will contain common POST declarations and will define a set of
-macros that will be reused for defining CONFIG_POST. As an example,
+macros that will be reused for defining CFG_POST. As an example,
 the following macro may be defined:
 
 #define POST_CACHE \
@@ -649,15 +649,15 @@ not need any modifications for porting them to another board/CPU.
 
 For verifying the I2C bus, a full I2C bus scanning will be performed
 using the i2c_probe() routine. If a board defines
-CONFIG_SYS_POST_I2C_ADDRS the I2C test will pass if all devices
-listed in CONFIG_SYS_POST_I2C_ADDRS are found, and no additional
-devices are detected.  If CONFIG_SYS_POST_I2C_ADDRS is not defined
+CFG_SYS_POST_I2C_ADDRS the I2C test will pass if all devices
+listed in CFG_SYS_POST_I2C_ADDRS are found, and no additional
+devices are detected.  If CFG_SYS_POST_I2C_ADDRS is not defined
 the test will pass if any I2C device is found.
 
-The CONFIG_SYS_POST_I2C_IGNORES define can be used to list I2C
+The CFG_SYS_POST_I2C_IGNORES define can be used to list I2C
 devices which may or may not be present when using
-CONFIG_SYS_POST_I2C_ADDRS.  The I2C POST test will pass regardless
-if the devices in CONFIG_SYS_POST_I2C_IGNORES are found or not.
+CFG_SYS_POST_I2C_ADDRS.  The I2C POST test will pass regardless
+if the devices in CFG_SYS_POST_I2C_IGNORES are found or not.
 This is useful in cases when I2C devices are optional (eg on a
 daughtercard that may or may not be present) or not critical
 to board operation.

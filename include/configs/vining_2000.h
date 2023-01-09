@@ -10,10 +10,6 @@
 
 #include "mx6_common.h"
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
@@ -27,35 +23,34 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* MMC Configuration */
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC4_BASE_ADDR
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE100
-#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+#define CFG_POWER_PFUZE100_I2C_ADDR	0x08
 
 /* Network */
-#define CONFIG_FEC_MXC_PHYADDR          0x0
+#define CFG_FEC_MXC_PHYADDR          0x0
 
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS   0
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS   0
 
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(4, 6)
+#define CFG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(4, 6)
 #endif
 
-#define CONFIG_IMX6_PWM_PER_CLK 66000000
+#define CFG_IMX6_PWM_PER_CLK 66000000
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 /* 0=user, 1=boot0, 2=boot1, * 4..7=general0..3. */
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 #endif
 
 #endif				/* __CONFIG_H */

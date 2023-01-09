@@ -8,11 +8,9 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_SYS_NS16550_MEM32
+#define CFG_IRAM_BASE		0xfff80000
 
-#define CONFIG_IRAM_BASE		0xfff80000
-
-#define CONFIG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xff000000
 #define SDRAM_BANK_SIZE			(2UL << 30)
 
@@ -24,7 +22,7 @@
 	"ramdisk_addr_r=0x04000000\0"
 
 #include <config_distro_bootcmd.h>
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"partitions=" PARTS_DEFAULT \
 	ROCKCHIP_DEVICE_SETTINGS \

@@ -33,9 +33,6 @@
  */
 
 #include <net.h>
-#ifndef CONFIG_DM_ETH
-#include <netdev.h>
-#endif
 #include <malloc.h>
 #include <miiphy.h>
 
@@ -131,21 +128,16 @@ struct macb_device {
 	unsigned long		dummy_desc_dma;
 
 	const struct device	*dev;
-#ifndef CONFIG_DM_ETH
-	struct eth_device	netdev;
-#endif
 	unsigned short		phy_addr;
 	struct mii_dev		*bus;
 #ifdef CONFIG_PHYLIB
 	struct phy_device	*phydev;
 #endif
 
-#ifdef CONFIG_DM_ETH
 #ifdef CONFIG_CLK
 	unsigned long		pclk_rate;
 #endif
 	phy_interface_t		phy_interface;
-#endif
 };
 
 struct macb_usrio_cfg {
@@ -163,10 +155,6 @@ struct macb_config {
 	int			(*clk_init)(struct udevice *dev, ulong rate);
 	const struct macb_usrio_cfg	*usrio;
 };
-
-#ifndef CONFIG_DM_ETH
-#define to_macb(_nd) container_of(_nd, struct macb_device, netdev)
-#endif
 
 static int macb_is_gem(struct macb_device *macb)
 {
@@ -258,13 +246,8 @@ void __weak arch_get_mdio_control(const char *name)
 int macb_miiphy_read(struct mii_dev *bus, int phy_adr, int devad, int reg)
 {
 	u16 value = 0;
-#ifdef CONFIG_DM_ETH
 	struct udevice *dev = eth_get_dev_by_name(bus->name);
 	struct macb_device *macb = dev_get_priv(dev);
-#else
-	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	struct macb_device *macb = to_macb(dev);
-#endif
 
 	arch_get_mdio_control(bus->name);
 	value = macb_mdio_read(macb, phy_adr, reg);
@@ -275,13 +258,8 @@ int macb_miiphy_read(struct mii_dev *bus, int phy_adr, int devad, int reg)
 int macb_miiphy_write(struct mii_dev *bus, int phy_adr, int devad, int reg,
 		      u16 value)
 {
-#ifdef CONFIG_DM_ETH
 	struct udevice *dev = eth_get_dev_by_name(bus->name);
 	struct macb_device *macb = dev_get_priv(dev);
-#else
-	struct eth_device *dev = eth_get_dev_by_name(bus->name);
-	struct macb_device *macb = to_macb(dev);
-#endif
 
 	arch_get_mdio_control(bus->name);
 	macb_mdio_write(macb, phy_adr, reg, value);
@@ -598,7 +576,6 @@ static int macb_phy_find(struct macb_device *macb, const char *name)
  * Returns 0 when operation success and negative errno number
  * when operation failed.
  */
-#ifdef CONFIG_DM_ETH
 static int macb_sifive_clk_init(struct udevice *dev, ulong rate)
 {
 	void *gemgxl_regs;
@@ -678,22 +655,10 @@ int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
 
 	return 0;
 }
-#else
-int __weak macb_linkspd_cb(void *regs, unsigned int speed)
-{
-	return 0;
-}
-#endif
 
-#ifdef CONFIG_DM_ETH
 static int macb_phy_init(struct udevice *dev, const char *name)
-#else
-static int macb_phy_init(struct macb_device *macb, const char *name)
-#endif
 {
-#ifdef CONFIG_DM_ETH
 	struct macb_device *macb = dev_get_priv(dev);
-#endif
 	u32 ncfgr;
 	u16 phy_id, status, adv, lpa;
 	int media, speed, duplex;
@@ -714,14 +679,8 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 	}
 
 #ifdef CONFIG_PHYLIB
-#ifdef CONFIG_DM_ETH
 	macb->phydev = phy_connect(macb->bus, macb->phy_addr, dev,
 			     macb->phy_interface);
-#else
-	/* need to consider other phy interface mode */
-	macb->phydev = phy_connect(macb->bus, macb->phy_addr, &macb->netdev,
-			     PHY_INTERFACE_MODE_RGMII);
-#endif
 	if (!macb->phydev) {
 		printf("phy_connect failed\n");
 		return -ENODEV;
@@ -778,11 +737,7 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 
 			macb_writel(macb, NCFGR, ncfgr);
 
-#ifdef CONFIG_DM_ETH
 			ret = macb_linkspd_cb(dev, _1000BASET);
-#else
-			ret = macb_linkspd_cb(macb->regs, _1000BASET);
-#endif
 			if (ret)
 				return ret;
 
@@ -807,17 +762,9 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD) | GEM_BIT(GBE));
 	if (speed) {
 		ncfgr |= MACB_BIT(SPD);
-#ifdef CONFIG_DM_ETH
 		ret = macb_linkspd_cb(dev, _100BASET);
-#else
-		ret = macb_linkspd_cb(macb->regs, _100BASET);
-#endif
 	} else {
-#ifdef CONFIG_DM_ETH
 		ret = macb_linkspd_cb(dev, _10BASET);
-#else
-		ret = macb_linkspd_cb(macb->regs, _10BASET);
-#endif
 	}
 
 	if (ret)
@@ -891,16 +838,10 @@ static void gmac_configure_dma(struct macb_device *macb)
 	gem_writel(macb, DMACFG, dmacfg);
 }
 
-#ifdef CONFIG_DM_ETH
 static int _macb_init(struct udevice *dev, const char *name)
-#else
-static int _macb_init(struct macb_device *macb, const char *name)
-#endif
 {
-#ifdef CONFIG_DM_ETH
 	struct macb_device *macb = dev_get_priv(dev);
 	unsigned int val = 0;
-#endif
 	unsigned long paddr;
 	int ret;
 	int i;
@@ -969,7 +910,6 @@ static int _macb_init(struct macb_device *macb, const char *name)
 		 * When the GMAC IP without GE feature, this bit is used
 		 * to select interface between RMII and MII.
 		 */
-#ifdef CONFIG_DM_ETH
 		if (macb->phy_interface == PHY_INTERFACE_MODE_RGMII ||
 		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_ID ||
 		    macb->phy_interface == PHY_INTERFACE_MODE_RGMII_RXID ||
@@ -991,16 +931,8 @@ static int _macb_init(struct macb_device *macb, const char *name)
 			ncfgr |= GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL);
 			macb_writel(macb, NCFGR, ncfgr);
 		}
-#else
-#if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
-		gem_writel(macb, USRIO, macb->config->usrio->rgmii);
-#else
-		gem_writel(macb, USRIO, 0);
-#endif
-#endif
 	} else {
 	/* choose RMII or MII mode. This depends on the board */
-#ifdef CONFIG_DM_ETH
 #ifdef CONFIG_AT91FAMILY
 		if (macb->phy_interface == PHY_INTERFACE_MODE_RMII) {
 			macb_writel(macb, USRIO,
@@ -1015,29 +947,9 @@ static int _macb_init(struct macb_device *macb, const char *name)
 		else
 			macb_writel(macb, USRIO, macb->config->usrio->mii);
 #endif
-#else
-#ifdef CONFIG_RMII
-#ifdef CONFIG_AT91FAMILY
-	macb_writel(macb, USRIO, macb->config->usrio->rmii |
-		    macb->config->usrio->clken);
-#else
-	macb_writel(macb, USRIO, 0);
-#endif
-#else
-#ifdef CONFIG_AT91FAMILY
-	macb_writel(macb, USRIO, macb->config->usrio->clken);
-#else
-	macb_writel(macb, USRIO, macb->config->usrio->mii);
-#endif
-#endif /* CONFIG_RMII */
-#endif
 	}
 
-#ifdef CONFIG_DM_ETH
 	ret = macb_phy_init(dev, name);
-#else
-	ret = macb_phy_init(macb, name);
-#endif
 	if (ret)
 		return ret;
 
@@ -1081,7 +993,7 @@ static int _macb_write_hwaddr(struct macb_device *macb, unsigned char *enetaddr)
 static u32 macb_mdc_clk_div(int id, struct macb_device *macb)
 {
 	u32 config;
-#if defined(CONFIG_DM_ETH) && defined(CONFIG_CLK)
+#if defined(CONFIG_CLK)
 	unsigned long macb_hz = macb->pclk_rate;
 #else
 	unsigned long macb_hz = get_macb_pclk_rate(id);
@@ -1103,7 +1015,7 @@ static u32 gem_mdc_clk_div(int id, struct macb_device *macb)
 {
 	u32 config;
 
-#if defined(CONFIG_DM_ETH) && defined(CONFIG_CLK)
+#if defined(CONFIG_CLK)
 	unsigned long macb_hz = macb->pclk_rate;
 #else
 	unsigned long macb_hz = get_macb_pclk_rate(id);
@@ -1181,106 +1093,6 @@ static void _macb_eth_initialize(struct macb_device *macb)
 
 	macb_writel(macb, NCFGR, ncfgr);
 }
-
-#ifndef CONFIG_DM_ETH
-static int macb_send(struct eth_device *netdev, void *packet, int length)
-{
-	struct macb_device *macb = to_macb(netdev);
-
-	return _macb_send(macb, netdev->name, packet, length);
-}
-
-static int macb_recv(struct eth_device *netdev)
-{
-	struct macb_device *macb = to_macb(netdev);
-	uchar *packet;
-	int length;
-
-	macb->wrapped = false;
-	for (;;) {
-		macb->next_rx_tail = macb->rx_tail;
-		length = _macb_recv(macb, &packet);
-		if (length >= 0) {
-			net_process_received_packet(packet, length);
-			reclaim_rx_buffers(macb, macb->next_rx_tail);
-		} else {
-			return length;
-		}
-	}
-}
-
-static int macb_init(struct eth_device *netdev, struct bd_info *bd)
-{
-	struct macb_device *macb = to_macb(netdev);
-
-	return _macb_init(macb, netdev->name);
-}
-
-static void macb_halt(struct eth_device *netdev)
-{
-	struct macb_device *macb = to_macb(netdev);
-
-	return _macb_halt(macb);
-}
-
-static int macb_write_hwaddr(struct eth_device *netdev)
-{
-	struct macb_device *macb = to_macb(netdev);
-
-	return _macb_write_hwaddr(macb, netdev->enetaddr);
-}
-
-int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
-{
-	struct macb_device *macb;
-	struct eth_device *netdev;
-
-	macb = malloc(sizeof(struct macb_device));
-	if (!macb) {
-		printf("Error: Failed to allocate memory for MACB%d\n", id);
-		return -1;
-	}
-	memset(macb, 0, sizeof(struct macb_device));
-
-	netdev = &macb->netdev;
-
-	macb->regs = regs;
-	macb->phy_addr = phy_addr;
-
-	if (macb_is_gem(macb))
-		sprintf(netdev->name, "gmac%d", id);
-	else
-		sprintf(netdev->name, "macb%d", id);
-
-	netdev->init = macb_init;
-	netdev->halt = macb_halt;
-	netdev->send = macb_send;
-	netdev->recv = macb_recv;
-	netdev->write_hwaddr = macb_write_hwaddr;
-
-	_macb_eth_initialize(macb);
-
-	eth_register(netdev);
-
-#if defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	int retval;
-	struct mii_dev *mdiodev = mdio_alloc();
-	if (!mdiodev)
-		return -ENOMEM;
-	strlcpy(mdiodev->name, netdev->name, MDIO_NAME_LEN);
-	mdiodev->read = macb_miiphy_read;
-	mdiodev->write = macb_miiphy_write;
-
-	retval = mdio_register(mdiodev);
-	if (retval < 0)
-		return retval;
-	macb->bus = miiphy_get_dev_by_name(netdev->name);
-#endif
-	return 0;
-}
-#endif /* !CONFIG_DM_ETH */
-
-#ifdef CONFIG_DM_ETH
 
 static int macb_start(struct udevice *dev)
 {
@@ -1535,6 +1347,4 @@ U_BOOT_DRIVER(eth_macb) = {
 	.priv_auto	= sizeof(struct macb_device),
 	.plat_auto	= sizeof(struct eth_pdata),
 };
-#endif
-
 #endif

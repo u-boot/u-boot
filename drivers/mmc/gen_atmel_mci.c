@@ -24,8 +24,8 @@
 #include <asm/arch/hardware.h>
 #include "atmel_mci.h"
 
-#ifndef CONFIG_SYS_MMC_CLK_OD
-# define CONFIG_SYS_MMC_CLK_OD	150000
+#ifndef CFG_SYS_MMC_CLK_OD
+# define CFG_SYS_MMC_CLK_OD	150000
 #endif
 
 #define MMC_DEFAULT_BLKLEN	512
@@ -448,9 +448,9 @@ static int mci_init(struct mmc *mmc)
 
 	/* Set default clocks and blocklen */
 #ifdef CONFIG_DM_MMC
-	mci_set_mode(dev, CONFIG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
+	mci_set_mode(dev, CFG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
 #else
-	mci_set_mode(mmc, CONFIG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
+	mci_set_mode(mmc, CFG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
 #endif
 
 	return 0;

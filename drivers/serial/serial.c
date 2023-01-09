@@ -22,7 +22,7 @@ static struct serial_device *serial_current;
 /*
  * Table with supported baudrates (defined in config_xyz.h)
  */
-static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
+static const unsigned long baudrate_table[] = CFG_SYS_BAUDRATE_TABLE;
 
 /**
  * serial_null() - Void registration routine of a serial driver
@@ -458,8 +458,8 @@ void default_serial_puts(const char *s)
 		dev->putc(*s++);
 }
 
-#if CONFIG_POST & CONFIG_SYS_POST_UART
-static const int bauds[] = CONFIG_SYS_BAUDRATE_TABLE;
+#if CFG_POST & CFG_SYS_POST_UART
+static const int bauds[] = CFG_SYS_BAUDRATE_TABLE;
 
 /**
  * uart_post_test() - Test the currently selected serial port using POST

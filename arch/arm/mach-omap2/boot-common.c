@@ -15,6 +15,7 @@
 #include <spl.h>
 #include <asm/global_data.h>
 #include <asm/omap_common.h>
+#include <asm/omap_sec_common.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
@@ -22,6 +23,7 @@
 #include <scsi.h>
 #include <i2c.h>
 #include <remoteproc.h>
+#include <image.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -181,7 +183,7 @@ void save_omap_boot_params(void)
 
 	gd->arch.omap_boot_mode = boot_mode;
 
-#if !defined(CONFIG_TI814X) && !defined(CONFIG_TI816X) && \
+#if !defined(CONFIG_TI816X) && \
     !defined(CONFIG_AM33XX) && !defined(CONFIG_AM43XX)
 
 	/* CH flags */
@@ -330,4 +332,18 @@ void arch_preboot_os(void)
 {
 	ahci_reset((void __iomem *)DWC_AHSATA_BASE);
 }
+#endif
+
+#ifdef CONFIG_TI_SECURE_DEVICE
+void board_fit_image_post_process(const void *fit, int node, void **p_image,
+				  size_t *p_size)
+{
+	secure_boot_verify_image(p_image, p_size);
+}
+
+static void tee_image_process(ulong tee_image, size_t tee_size)
+{
+	secure_tee_install((u32)tee_image);
+}
+U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_TEE, tee_image_process);
 #endif

@@ -9,19 +9,16 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_UBOOT_BASE	\
+#define CFG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
 
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR				0x184000
+#define CFG_MALLOC_F_ADDR				0x184000
 /* For RAW image gives a error info not panic */
 
-#define CONFIG_POWER_PCA9450
-
-#define CONFIG_SYS_I2C
 #endif /* CONFIG_SPL_BUILD */
 
 #define MEM_LAYOUT_ENV_SETTINGS \
@@ -46,7 +43,7 @@
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"bootcmd_mfg=fastboot 0\0" \
@@ -65,11 +62,11 @@
 		"${blkcnt} / 0x200; mmc dev 2 1; mmc write ${loadaddr} 0x0 " \
 		"${blkcnt}; fi\0"
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	SZ_512K
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	SZ_512K
 
 /* i.MX 8M Plus supports max. 8GB memory in two albeit concecutive banks */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			(SZ_2G + SZ_1G)
 #define PHYS_SDRAM_2			0x100000000

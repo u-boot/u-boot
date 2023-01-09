@@ -11,17 +11,17 @@
 #include <linux/sizes.h>
 
 /* For booting Linux, use the first 16MB of memory */
-#define CONFIG_SYS_BOOTMAPSZ		(SZ_16M + SZ_8M)
+#define CFG_SYS_BOOTMAPSZ		(SZ_16M + SZ_8M)
 
-#define CONFIG_SYS_FLASH_BASE		0x90000000
+#define CFG_SYS_FLASH_BASE		0x90000000
 
-#define CONFIG_SYS_HZ_CLOCK		1000000
+#define CFG_SYS_HZ_CLOCK		1000000
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
 #include <config_distro_bootcmd.h>
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0xC0008000\0"		\
 			"fdtfile=stm32h750i-art-pi.dtb\0"	\
 			"fdt_addr_r=0xC0408000\0"		\

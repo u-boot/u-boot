@@ -62,7 +62,7 @@
 #include <environment/ti/dfu.h>
 #include <environment/ti/mmc.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"bootfile=zImage\0" \
@@ -79,12 +79,10 @@
 #define V_OSCK				25000000  /* Clock output from T2 */
 #define V_SCLK				V_OSCK
 
-#define CONFIG_POWER_TPS65910
-
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 /* NAND: driver related configs */
-#define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
+#define CFG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
 					 18, 19, 20, 21, 22, 23, 24, 25, \
 					 26, 27, 28, 29, 30, 31, 32, 33, \
@@ -92,15 +90,9 @@
 					 42, 43, 44, 45, 46, 47, 48, 49, \
 					 50, 51, 52, 53, 54, 55, 56, 57, }
 
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	14
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	14
 
 #endif /* !CONFIG_MTD_RAW_NAND */
-
-/* CPU */
-
-#ifdef CONFIG_SPI_BOOT
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-#endif
 
 #endif	/* ! __CONFIG_PHYCORE_AM335x_R2_H */

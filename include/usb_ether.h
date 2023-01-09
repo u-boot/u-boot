@@ -8,19 +8,13 @@
 
 #include <net.h>
 
-/* TODO(sjg@chromium.org): Remove @pusb_dev when all boards use CONFIG_DM_ETH */
+/* TODO(sjg@chromium.org): Remove @pusb_dev now that all boards use CONFIG_DM_ETH */
 struct ueth_data {
 	/* eth info */
-#ifdef CONFIG_DM_ETH
 	uint8_t *rxbuf;
 	int rxsize;
 	int rxlen;			/* Total bytes available in rxbuf */
 	int rxptr;			/* Current position in rxbuf */
-#else
-	struct eth_device eth_dev;	/* used with eth_register */
-	/* driver private */
-	void *dev_priv;
-#endif
 	int phy_id;			/* mii phy id */
 
 	/* usb info */
@@ -34,7 +28,6 @@ struct ueth_data {
 	unsigned char	irqinterval;	/* Intervall for IRQ Pipe */
 };
 
-#ifdef CONFIG_DM_ETH
 /**
  * usb_ether_register() - register a new USB ethernet device
  *
@@ -92,40 +85,5 @@ int usb_ether_get_rx_bytes(struct ueth_data *ueth, uint8_t **ptrp);
  * @num_bytes:	Number of bytes to skip, or -1 to skip all bytes
  */
 void usb_ether_advance_rxbuf(struct ueth_data *ueth, int num_bytes);
-#else
-/*
- * Function definitions for each USB ethernet driver go here
- * (declaration is unconditional, compilation is conditional)
- */
-void asix_eth_before_probe(void);
-int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
-		      struct ueth_data *ss);
-int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
-		      struct eth_device *eth);
-
-void ax88179_eth_before_probe(void);
-int ax88179_eth_probe(struct usb_device *dev, unsigned int ifnum,
-		      struct ueth_data *ss);
-int ax88179_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
-		      struct eth_device *eth);
-
-void mcs7830_eth_before_probe(void);
-int mcs7830_eth_probe(struct usb_device *dev, unsigned int ifnum,
-		      struct ueth_data *ss);
-int mcs7830_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
-			 struct eth_device *eth);
-
-void smsc95xx_eth_before_probe(void);
-int smsc95xx_eth_probe(struct usb_device *dev, unsigned int ifnum,
-			struct ueth_data *ss);
-int smsc95xx_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
-			struct eth_device *eth);
-
-void r8152_eth_before_probe(void);
-int r8152_eth_probe(struct usb_device *dev, unsigned int ifnum,
-		    struct ueth_data *ss);
-int r8152_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
-		       struct eth_device *eth);
-#endif
 
 #endif /* __USB_ETHER_H__ */

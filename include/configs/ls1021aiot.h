@@ -7,8 +7,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
+#define CFG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
 /*
  * DDR: 800 MHz ( 1600 MT/s data rate )
@@ -41,15 +41,13 @@
 #define SDRAM_CFG2_FRC_SR		0x80000000
 #define SDRAM_CFG_BI			0x00000001
 
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 
 /*
  * Serial Port
  */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 
 /*
  * I2C
@@ -63,52 +61,25 @@
 #ifndef PCI_DEVICE_ID_FREESCALE_AHCI
 #define PCI_DEVICE_ID_FREESCALE_AHCI	0x0440
 #endif
-#define CONFIG_SCSI_DEV_LIST		{PCI_VENDOR_ID_FREESCALE, \
+#define CFG_SCSI_DEV_LIST		{PCI_VENDOR_ID_FREESCALE, \
 	PCI_DEVICE_ID_FREESCALE_AHCI}
 
 /* SPI */
 
-/*
- * eTSEC
- */
-
-#ifdef CONFIG_TSEC_ENET
-#define CONFIG_MII_DEFAULT_TSEC		1
-#define CONFIG_TSEC1			1
-#define CONFIG_TSEC1_NAME		"eTSEC1"
-#define CONFIG_TSEC2			1
-#define CONFIG_TSEC2_NAME		"eTSEC2"
-
-#define TSEC1_PHY_ADDR			1
-#define TSEC2_PHY_ADDR			3
-
-#define TSEC1_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-
-#define TSEC1_PHYIDX			0
-#define TSEC2_PHYIDX			0
-#endif
-
 #define FSL_PCIE_COMPAT		"fsl,ls1021a-pcie"
 
-#define CONFIG_PEN_ADDR_BIG_ENDIAN
-#define CONFIG_SMP_PEN_ADDR		0x01ee0200
+#define CFG_SMP_PEN_ADDR		0x01ee0200
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
 
-#define CONFIG_FSL_DEVICE_DISABLE
-
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 "initrd_high=0xffffffff\0"
 
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-
-#define CONFIG_LS102XA_STREAM_ID
+#define CFG_SYS_BOOTMAPSZ		(256 << 20)
 
 #include <asm/fsl_secure_boot.h>
 

@@ -8,9 +8,7 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_SMSC_SIO1007
-
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd,usbkbd\0" \
+#define CFG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd,usbkbd\0" \
 					"stdout=serial,vga\0" \
 					"stderr=serial,vga\0"
 

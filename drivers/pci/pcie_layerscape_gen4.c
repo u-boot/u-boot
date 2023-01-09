@@ -333,7 +333,7 @@ static void ls_pcie_g4_ep_setup_wins(struct ls_pcie_g4 *pcie, int pf)
 	if ((!pcie->sriov_support && pf > LS_G4_PF0) || pf > LS_G4_PF1)
 		return;
 
-	phys = CONFIG_SYS_PCI_EP_MEMORY_BASE + PCIE_BAR_SIZE * 4 * pf;
+	phys = CFG_SYS_PCI_EP_MEMORY_BASE + PCIE_BAR_SIZE * 4 * pf;
 	for (bar = 0; bar < PF_BAR_NUM; bar++) {
 		ls_pcie_g4_ep_inbound_win_set(pcie, pf, bar, phys);
 		phys += PCIE_BAR_SIZE;
@@ -342,8 +342,8 @@ static void ls_pcie_g4_ep_setup_wins(struct ls_pcie_g4 *pcie, int pf)
 	/* OUTBOUND: map MEM */
 	ls_pcie_g4_outbound_win_set(pcie, pf, PAB_AXI_TYPE_MEM,
 				    pcie->cfg_res.start +
-				    CONFIG_SYS_PCI_MEMORY_SIZE * pf, 0x0,
-				    CONFIG_SYS_PCI_MEMORY_SIZE);
+				    CFG_SYS_PCI_MEMORY_SIZE * pf, 0x0,
+				    CFG_SYS_PCI_MEMORY_SIZE);
 
 	val = ccsr_readl(pcie, PAB_AXI_AMAP_PCI_HDR_PARAM(pf));
 	val &= ~FUNC_NUM_PCIE_MASK;

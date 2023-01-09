@@ -56,11 +56,8 @@ To run sandbox U-Boot use something like::
 
 Note: If you get errors about 'sdl-config: Command not found' you may need to
 install libsdl2.0-dev or similar to get SDL support. Alternatively you can
-build sandbox without SDL (i.e. no display/keyboard support) by removing
-the CONFIG_SANDBOX_SDL line in include/configs/sandbox.h or using::
-
-   make sandbox_defconfig all NO_SDL=1
-   ./u-boot
+build sandbox without SDL (i.e. no display/keyboard support) by disabling
+CONFIG_SANDBOX_SDL in the .config file.
 
 U-Boot will start on your computer, showing a sandbox emulation of the serial
 console::
@@ -84,7 +81,7 @@ To exit, type 'poweroff' or press Ctrl-C.
 Console / LCD support
 ---------------------
 
-Assuming that CONFIG_SANDBOX_SDL is defined when building, you can run the
+Assuming that CONFIG_SANDBOX_SDL is enabled when building, you can run the
 sandbox with LCD and keyboard emulation, using something like::
 
    ./u-boot -d u-boot.dtb -l
@@ -618,7 +615,7 @@ Addr      Config                     Usage
 =======   ========================   ===============================
       0   CONFIG_SYS_FDT_LOAD_ADDR   Device tree
    c000   CONFIG_BLOBLIST_ADDR       Blob list
-  10000   CONFIG_MALLOC_F_ADDR       Early memory allocation
+  10000   CFG_MALLOC_F_ADDR          Early memory allocation
   f0000   CONFIG_PRE_CON_BUF_ADDR    Pre-console buffer
  100000   CONFIG_TRACE_EARLY_ADDR    Early trace buffer (if enabled). Also used
                                      as the SPL load buffer in spl_test_load().

@@ -61,7 +61,7 @@ static void dp_ddr_restore(void)
 
 	/* get the address of ddr date from SPARECR3 */
 	src = (u64 *)in_le32(&scfg->sparecr[2]);
-	dst = (u64 *)CONFIG_SYS_SDRAM_BASE;
+	dst = (u64 *)CFG_SYS_SDRAM_BASE;
 
 	for (i = 0; i < DDR_BUFF_LEN / 8; i++)
 		*dst++ = *src++;

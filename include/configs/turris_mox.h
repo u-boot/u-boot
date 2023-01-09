@@ -8,8 +8,8 @@
 #ifndef _CONFIG_TURRIS_MOX_H
 #define _CONFIG_TURRIS_MOX_H
 
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 300, 600, 1200, 1800, 2400, 4800, \
+#define CFG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_BAUDRATE_TABLE	{ 300, 600, 1200, 1800, 2400, 4800, \
 					  9600, 19200, 38400, 57600, 115200, \
 					  230400, 460800, 500000, 576000, \
 					  921600, 1000000, 1152000, 1500000, \
@@ -35,7 +35,7 @@
 	"lzmadec 0x5000000 0x5800000 && "				\
 	"bootm 0x5800000"
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_addr=0x4c00000\0"					\
 	"scriptaddr=0x4d00000\0"				\
 	"pxefile_addr_r=0x4e00000\0"				\

@@ -54,7 +54,7 @@ static int mc_memset_resv_ram;
 static struct mc_version mc_ver_info;
 static int mc_boot_status = -1;
 static int mc_dpl_applied = -1;
-#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+#ifdef CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
 static int mc_aiop_applied = -1;
 #endif
 struct fsl_mc_io *root_mc_io = NULL;
@@ -165,21 +165,12 @@ enum mc_fixup_type {
 };
 
 static int mc_fixup_mac_addr(void *blob, int nodeoffset,
-#ifdef CONFIG_DM_ETH
 			     const char *propname, struct udevice *eth_dev,
-#else
-			     const char *propname, struct eth_device *eth_dev,
-#endif
 			     enum mc_fixup_type type)
 {
-#ifdef CONFIG_DM_ETH
 	struct eth_pdata *plat = dev_get_plat(eth_dev);
 	unsigned char *enetaddr = plat->enetaddr;
 	int eth_index = dev_seq(eth_dev);
-#else
-	unsigned char *enetaddr = eth_dev->enetaddr;
-	int eth_index = eth_dev->index;
-#endif
 	int err = 0, len = 0, size, i;
 	unsigned char env_enetaddr[ARP_HLEN];
 	unsigned int enetaddr_32[ARP_HLEN];
@@ -252,11 +243,7 @@ const char *dpl_get_connection_endpoint(void *blob, char *endpoint)
 }
 
 static int mc_fixup_dpl_mac_addr(void *blob, int dpmac_id,
-#ifdef CONFIG_DM_ETH
 				 struct udevice *eth_dev)
-#else
-				 struct eth_device *eth_dev)
-#endif
 {
 	int objoff = fdt_path_offset(blob, "/objects");
 	int dpmacoff = -1, dpnioff = -1;
@@ -355,11 +342,7 @@ void fdt_fsl_mc_fixup_iommu_map_entry(void *blob)
 }
 
 static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
-#ifdef CONFIG_DM_ETH
 				 struct udevice *eth_dev)
-#else
-				 struct eth_device *eth_dev)
-#endif
 {
 	int nodeoffset = fdt_path_offset(blob, "/board_info/ports"), noff;
 	int err = 0;
@@ -402,12 +385,8 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 static int mc_fixup_mac_addrs(void *blob, enum mc_fixup_type type)
 {
 	int i, err = 0, ret = 0;
-#ifdef CONFIG_DM_ETH
 #define ETH_NAME_LEN 20
 	struct udevice *eth_dev;
-#else
-	struct eth_device *eth_dev;
-#endif
 	char ethname[ETH_NAME_LEN];
 
 	for (i = WRIOP1_DPMAC1; i < NUM_WRIOP_PORTS; i++) {
@@ -500,13 +479,13 @@ static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpc_addr)
 	int dpc_size;
 #endif
 
-#ifdef CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET
-	BUILD_BUG_ON((CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET & 0x3) != 0 ||
-		     CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET > 0xffffffff);
+#ifdef CFG_SYS_LS_MC_DRAM_DPC_OFFSET
+	BUILD_BUG_ON((CFG_SYS_LS_MC_DRAM_DPC_OFFSET & 0x3) != 0 ||
+		     CFG_SYS_LS_MC_DRAM_DPC_OFFSET > 0xffffffff);
 
-	mc_dpc_offset = CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET;
+	mc_dpc_offset = CFG_SYS_LS_MC_DRAM_DPC_OFFSET;
 #else
-#error "CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET not defined"
+#error "CFG_SYS_LS_MC_DRAM_DPC_OFFSET not defined"
 #endif
 
 	/*
@@ -531,7 +510,7 @@ static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpc_addr)
 	}
 
 	dpc_size = fdt_totalsize(dpc_fdt_hdr);
-	if (dpc_size > CONFIG_SYS_LS_MC_DPC_MAX_LENGTH) {
+	if (dpc_size > CFG_SYS_LS_MC_DPC_MAX_LENGTH) {
 		printf("\nfsl-mc: ERROR: Bad DPC image (too large: %d)\n",
 		       dpc_size);
 		return -EINVAL;
@@ -576,13 +555,13 @@ static int load_mc_dpl(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpl_addr)
 	int dpl_size;
 #endif
 
-#ifdef CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET
-	BUILD_BUG_ON((CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET & 0x3) != 0 ||
-		     CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET > 0xffffffff);
+#ifdef CFG_SYS_LS_MC_DRAM_DPL_OFFSET
+	BUILD_BUG_ON((CFG_SYS_LS_MC_DRAM_DPL_OFFSET & 0x3) != 0 ||
+		     CFG_SYS_LS_MC_DRAM_DPL_OFFSET > 0xffffffff);
 
-	mc_dpl_offset = CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET;
+	mc_dpl_offset = CFG_SYS_LS_MC_DRAM_DPL_OFFSET;
 #else
-#error "CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET not defined"
+#error "CFG_SYS_LS_MC_DRAM_DPL_OFFSET not defined"
 #endif
 
 	/*
@@ -603,7 +582,7 @@ static int load_mc_dpl(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpl_addr)
 	}
 
 	dpl_size = fdt_totalsize(dpl_fdt_hdr);
-	if (dpl_size > CONFIG_SYS_LS_MC_DPL_MAX_LENGTH) {
+	if (dpl_size > CFG_SYS_LS_MC_DPL_MAX_LENGTH) {
 		printf("\nfsl-mc: ERROR: Bad DPL image (too large: %d)\n",
 		       dpl_size);
 		return -EINVAL;
@@ -624,7 +603,7 @@ static int load_mc_dpl(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpl_addr)
  */
 static unsigned long get_mc_boot_timeout_ms(void)
 {
-	unsigned long timeout_ms = CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS;
+	unsigned long timeout_ms = CFG_SYS_LS_MC_BOOT_TIMEOUT_MS;
 
 	char *timeout_ms_env_var = env_get(MC_BOOT_TIMEOUT_ENV_VAR);
 
@@ -636,14 +615,14 @@ static unsigned long get_mc_boot_timeout_ms(void)
 			       "\' environment variable: %lu\n",
 			       timeout_ms);
 
-			timeout_ms = CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS;
+			timeout_ms = CFG_SYS_LS_MC_BOOT_TIMEOUT_MS;
 		}
 	}
 
 	return timeout_ms;
 }
 
-#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+#ifdef CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
 
 __weak bool soc_has_aiop(void)
 {
@@ -666,12 +645,12 @@ static int load_mc_aiop_img(u64 aiop_fw_addr)
 
 #ifdef CONFIG_SYS_LS_MC_DPC_IN_DDR
 	printf("MC AIOP is preloaded to %#llx\n", mc_ram_addr +
-	       CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET);
+	       CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET);
 #else
 	aiop_img = (void *)aiop_fw_addr;
 	mc_copy_image("MC AIOP image",
-		      (u64)aiop_img, CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH,
-		      mc_ram_addr + CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET);
+		      (u64)aiop_img, CFG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH,
+		      mc_ram_addr + CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET);
 #endif
 	mc_aiop_applied = 0;
 
@@ -896,7 +875,7 @@ int get_mc_boot_status(void)
 	return mc_boot_status;
 }
 
-#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+#ifdef CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
 int get_aiop_apply_status(void)
 {
 	return mc_aiop_applied;
@@ -938,14 +917,14 @@ u64 mc_get_dram_addr(void)
  */
 unsigned long mc_get_dram_block_size(void)
 {
-	unsigned long dram_block_size = CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
+	unsigned long dram_block_size = CFG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
 
 	char *dram_block_size_env_var = env_get(MC_MEM_SIZE_ENV_VAR);
 
 	if (dram_block_size_env_var) {
 		dram_block_size = hextoul(dram_block_size_env_var, NULL);
 
-		if (dram_block_size < CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE) {
+		if (dram_block_size < CFG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE) {
 			printf("fsl-mc: WARNING: Invalid value for \'"
 			       MC_MEM_SIZE_ENV_VAR
 			       "\' environment variable: %lu\n",
@@ -1838,7 +1817,7 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 	case 's': {
 			char sub_cmd;
 			u64 mc_fw_addr, mc_dpc_addr;
-#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+#ifdef CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
 			u64 aiop_fw_addr;
 #endif
 			if (argc < 3)
@@ -1864,7 +1843,7 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 					err = mc_init_object();
 				break;
 
-#ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
+#ifdef CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET
 			case 'a':
 				if (argc < 4)
 					goto usage;

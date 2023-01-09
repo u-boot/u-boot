@@ -11,16 +11,15 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Harmony"
+#define CFG_TEGRA_BOARD_STRING	"NVIDIA Harmony"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTD
 
 /* UARTD: keyboard satellite board UART, default */
-#define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
+#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 #ifdef CONFIG_TEGRA_ENABLE_UARTA
 /* UARTA: debug board UART */
-#define CONFIG_SYS_NS16550_COM2		NV_PA_APB_UARTA_BASE
+#define CFG_SYS_NS16550_COM2		NV_PA_APB_UARTA_BASE
 #endif
 
 /* NAND support */

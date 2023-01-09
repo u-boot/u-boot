@@ -68,8 +68,37 @@ config RTC_DS1307
 	bool "Enable DS1307 driver"
 	depends on DM_RTC
 	help
-	  Support for Dallas Semiconductor (now Maxim) DS1307 and DS1338/9 and
+	  Support for Dallas Semiconductor (now Maxim) DS1307 and DS1339 and
 	  compatible Real Time Clock devices.
+
+config RTC_DS1337
+	bool "Enable DS1337 driver"
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS1337/8/9 compatible
+	  Real Time Clock devices.
+
+config RTC_DS1337_NOOSC
+	bool "Enable support for no oscillator output in DS1337 driver"
+	depends on RTC_DS1337
+
+config RTC_DS1338
+	bool "Enable DS1338 driver"
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS1338 and compatible
+	  Real Time Clock devices.
+
+config RTC_DS1374
+	bool "Enable DS1374 driver"
+	depends on !DM_RTC
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS1374 and compatible
+	  Real Time Clock devices.
+
+config RTC_DS3231
+	bool "Enable DS3231 driver"
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS3231 compatible
+	  Real Time Clock devices.
 
 config RTC_DS3232
 	bool "Enable DS3232 driver"
@@ -110,6 +139,9 @@ config RTC_PCF8563
 	help
 	  If you say yes here you get support for the Philips PCF8563 RTC
 	  and compatible chips.
+
+config RTC_PT7C4338
+	bool "Enable Pericom Technology PT7C4338 RTC driver"
 
 config RTC_RV3028
 	bool "Enable RV3028 driver"
@@ -169,6 +201,10 @@ config RTC_S35392A
 	help
 	  Enable s35392a driver which provides rtc get and set function.
 
+config RTC_MC13XXX
+	bool "Enable MC13XXX RTC driver"
+	depends on !DM_RTC
+
 config RTC_MC146818
 	bool "Enable MC146818 driver"
 	help
@@ -184,6 +220,10 @@ config MCFRTC
 config SYS_MCFRTC_BASE
 	hex "Base address for RTC in immap.h"
 	depends on MCFRTC
+
+config RTC_MXS
+	bool "Enable i.MXS RTC driver"
+	depends on ARCH_MX23 || ARCH_MX28
 
 config RTC_M41T62
 	bool "Enable M41T62 driver"
@@ -219,5 +259,14 @@ config RTC_ZYNQMP
 	help
 	  Say "yes" here to support the on chip real time clock
 	  present on Xilinx ZynqMP SoC.
+
+config RTC_HT1380
+	bool "Enable Holtek HT1380/HT1381 RTC driver"
+	depends on DM_RTC && DM_GPIO
+	help
+	  Say "yes" here to get support for Holtek HT1380/HT1381
+	  Serial Timekeeper IC which provides seconds, minutes, hours,
+	  day of the week, date, month and year information. It is to be
+	  connected via 3 GPIO pins which work as reset, clock, and data.
 
 endmenu

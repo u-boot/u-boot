@@ -13,17 +13,14 @@
 #include <linux/stringify.h>
 #include "mx6_common.h"
 
-/* SPL options */
-#include "imx6_spl.h"
-
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
@@ -90,22 +87,22 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* FLASH and environment organization */
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS   0
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS   0
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_ENET_DEV		0
+#define CFG_FEC_ENET_DEV		0
 
-#define CONFIG_FEC_MXC_PHYADDR		0x0
+#define CFG_FEC_MXC_PHYADDR		0x0
 #endif
 
 #endif

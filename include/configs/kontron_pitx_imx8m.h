@@ -13,20 +13,18 @@
 		 0x40, 0xd4, 0x5c, 0xca, 0x13, 0x99)
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_SPL_PTE_RAM_BASE     0x41580000
 
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x182000
+#define CFG_MALLOC_F_ADDR		0x182000
 /* For RAW image gives a error info not panic */
 
 
-#define CONFIG_POWER_PFUZE100
-#define CONFIG_POWER_PFUZE100_I2C_ADDR  0x08
+#define CFG_POWER_PFUZE100_I2C_ADDR  0x08
 #endif
 
 /* ENET1 Config */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_FEC_MXC_PHYADDR          0
+#define CFG_FEC_MXC_PHYADDR          0
 
 #define PHY_ANEG_TIMEOUT		20000
 
@@ -51,7 +49,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"image=Image\0" \
 	"console=ttymxc2,115200\0" \
 	"boot_fdt=try\0" \
@@ -61,14 +59,14 @@
 	BOOTENV
 
 
-#define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE        0x80000
+#define CFG_SYS_INIT_RAM_ADDR        0x40000000
+#define CFG_SYS_INIT_RAM_SIZE        0x80000
 
-#define CONFIG_SYS_SDRAM_BASE           0x40000000
+#define CFG_SYS_SDRAM_BASE           0x40000000
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			0xC0000000 /* 3GB DDR */
 
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(3)
+#define CFG_MXC_UART_BASE		UART_BASE_ADDR(3)
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR       0

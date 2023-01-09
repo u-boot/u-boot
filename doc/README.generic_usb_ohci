@@ -11,7 +11,7 @@ Configuration options
 
 	CONFIG_USB_OHCI_NEW: enable the new OHCI driver
 
-	CONFIG_SYS_USB_OHCI_REGS_BASE: defines the base address of the OHCI
+	CFG_SYS_USB_OHCI_REGS_BASE: defines the base address of the OHCI
 				registers
 
 	CONFIG_SYS_USB_OHCI_SLOT_NAME: slot name

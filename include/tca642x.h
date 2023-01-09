@@ -41,13 +41,13 @@ enum {
 #define TCA642X_DIR_IN		1
 
 /* Default to an address that hopefully won't corrupt other i2c devices */
-#ifndef CONFIG_SYS_I2C_TCA642X_ADDR
-#define CONFIG_SYS_I2C_TCA642X_ADDR	(~0)
+#ifndef CFG_SYS_I2C_TCA642X_ADDR
+#define CFG_SYS_I2C_TCA642X_ADDR	(~0)
 #endif
 
 /* Default to an address that hopefully won't corrupt other i2c devices */
-#ifndef CONFIG_SYS_I2C_TCA642X_BUS_NUM
-#define CONFIG_SYS_I2C_TCA642X_BUS_NUM	(0)
+#ifndef CFG_SYS_I2C_TCA642X_BUS_NUM
+#define CFG_SYS_I2C_TCA642X_BUS_NUM	(0)
 #endif
 
 struct tca642x_bank_info {

@@ -29,13 +29,13 @@ board_early_init_f(void)
 int
 board_init(void)
 {
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x2000;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x2000;
 	return 0;
 }
 
 int
 dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE, SZ_64M);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, SZ_64M);
 	return 0;
 }

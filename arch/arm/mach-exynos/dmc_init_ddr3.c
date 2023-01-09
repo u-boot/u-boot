@@ -236,7 +236,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
  * better have similar timings, since there's only a single adjustment that is
  * shared by both chips).
  */
-const unsigned int test_addr = CONFIG_SYS_SDRAM_BASE;
+const unsigned int test_addr = CFG_SYS_SDRAM_BASE;
 
 /* Test pattern with which RAM will be tested */
 static const unsigned int test_pattern[] = {

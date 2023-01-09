@@ -14,12 +14,12 @@
 #include <configs/exynos4-common.h>
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_PL310_BASE	0x10502000
+#define CFG_SYS_PL310_BASE	0x10502000
 #endif
 
-#define CONFIG_SYS_SDRAM_BASE	0x40000000
+#define CFG_SYS_SDRAM_BASE	0x40000000
 #define SDRAM_BANK_SIZE		(256 << 20)	/* 256 MB */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
+#define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE
 
 #include <linux/sizes.h>
 
@@ -27,7 +27,7 @@
 #define PARTS_BOOT		"boot"
 #define PARTS_ROOT		"platform"
 
-#define CONFIG_DFU_ALT \
+#define CFG_DFU_ALT \
 	"uImage fat 0 1;" \
 	"zImage fat 0 1;" \
 	"Image.itb fat 0 1;" \
@@ -37,15 +37,15 @@
 	""PARTS_BOOT" part 0 1;" \
 	""PARTS_ROOT" part 0 2\0" \
 
-#define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
+#define CFG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
-#define CONFIG_DFU_ALT_BOOT_EMMC \
+#define CFG_DFU_ALT_BOOT_EMMC \
 	"u-boot raw 0x3e 0x800 mmcpart 1;" \
 	"bl1 raw 0x0 0x1e mmcpart 1;" \
 	"bl2 raw 0x1e 0x1d mmcpart 1;" \
 	"tzsw raw 0x83e 0x138 mmcpart 1\0"
 
-#define CONFIG_DFU_ALT_BOOT_SD \
+#define CFG_DFU_ALT_BOOT_SD \
 	"u-boot raw 0x3f 0x800;" \
 	"bl1 raw 0x1 0x1e;" \
 	"bl2 raw 0x1f 0x1d;" \
@@ -71,7 +71,7 @@
  * 1.  BOOT:  100MiB 2MiB
  * 2.  ROOT:  -
 */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadbootscript=load mmc ${mmcbootdev}:${mmcbootpart} ${scriptaddr} " \
 		"boot.scr\0" \
 	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kernel_addr_r} " \
@@ -132,7 +132,7 @@
 	"mmcbootpart=1\0" \
 	"mmcrootdev=0\0" \
 	"mmcrootpart=2\0" \
-	"dfu_alt_system="CONFIG_DFU_ALT \
+	"dfu_alt_system="CFG_DFU_ALT \
 	"dfu_alt_info=Please reset the board\0" \
 	"consoleon=set console console=ttySAC1,115200n8; save; reset\0" \
 	"consoleoff=set console console=ram; save; reset\0" \
@@ -142,11 +142,5 @@
 	"fdt_addr_r=0x40800000\0" \
 	"kernel_addr_r=0x41000000\0" \
 	BOOTENV
-
-/*
- * Supported Odroid boards: X3, U3
- * TODO: Add Odroid X support
- */
-#define CONFIG_MISC_COMMON
 
 #endif	/* __CONFIG_H */

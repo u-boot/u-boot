@@ -10,9 +10,9 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"epdc_waveform=epdc_splash.bin\0" \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -82,9 +82,9 @@
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define PHYS_SDRAM_SIZE			SZ_2G
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* Environment organization */
 
@@ -92,11 +92,9 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC1_BASE_ADDR
 #define CFG_SYS_FSL_USDHC_NUM	3
 
-#define CONFIG_IOMUX_LPSR
-
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif
 
 #include <linux/stringify.h>

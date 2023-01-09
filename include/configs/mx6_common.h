@@ -9,14 +9,13 @@
 #include <linux/stringify.h>
 
 #if (defined(CONFIG_MX6UL) || defined(CONFIG_MX6ULL))
-#define CONFIG_SC_TIMER_CLK 8000000 /* 8Mhz */
+#define CFG_SC_TIMER_CLK 8000000 /* 8Mhz */
 #else
 #ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_PL310_BASE	L2_PL310_BASE
+#define CFG_SYS_PL310_BASE	L2_PL310_BASE
 #endif
 
 #endif
-#define CONFIG_MXC_GPT_HCLK
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>

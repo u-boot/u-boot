@@ -83,7 +83,7 @@ u32 get_boot_device(void)
 	/*
 	 * Now check the SAR register for the strapped boot-device
 	 */
-	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+	val = readl(CFG_SAR_REG);	/* SAR - Sample At Reset */
 	boot_device = (val & BOOT_DEV_SEL_MASK) >> BOOT_DEV_SEL_OFFS;
 	debug("SAR_REG=0x%08x boot_device=0x%x\n", val, boot_device);
 	switch (boot_device) {
@@ -195,9 +195,9 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 	int i;
 
 #if defined(CONFIG_ARMADA_375) || defined(CONFIG_ARMADA_MSYS)
-	val = readl(CONFIG_SAR2_REG);	/* SAR - Sample At Reset */
+	val = readl(CFG_SAR2_REG);	/* SAR - Sample At Reset */
 #else
-	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
+	val = readl(CFG_SAR_REG);	/* SAR - Sample At Reset */
 #endif
 	freq = (val & SAR_CPU_FREQ_MASK) >> SAR_CPU_FREQ_OFFS;
 #if defined(SAR2_CPU_FREQ_MASK)
@@ -205,7 +205,7 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 	 * Shift CPU0 clock frequency select bit from SAR2 register
 	 * into correct position
 	 */
-	freq |= ((readl(CONFIG_SAR2_REG) & SAR2_CPU_FREQ_MASK)
+	freq |= ((readl(CFG_SAR2_REG) & SAR2_CPU_FREQ_MASK)
 		 >> SAR2_CPU_FREQ_OFFS) << 3;
 #endif
 	for (i = 0; sar_freq_tab[i].val != 0xff; i++) {
@@ -659,7 +659,7 @@ void enable_caches(void)
 void v7_outer_cache_enable(void)
 {
 	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+		(struct pl310_regs *)CFG_SYS_PL310_BASE;
 
 	/* The L2 cache is already disabled at this point */
 
@@ -691,7 +691,7 @@ void v7_outer_cache_enable(void)
 void v7_outer_cache_disable(void)
 {
 	struct pl310_regs *const pl310 =
-		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+		(struct pl310_regs *)CFG_SYS_PL310_BASE;
 
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }

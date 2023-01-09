@@ -9,9 +9,7 @@
 
 #include "mx6_common.h"
 
-#include "imx6_spl.h"
-
-#define CONFIG_SYS_UBOOT_BASE (CONFIG_SYS_FLASH_BASE + 0x80000)
+#define CFG_SYS_UBOOT_BASE (CFG_SYS_FLASH_BASE + 0x80000)
 
 /*
  * Below defines are set but NOT really used since we by
@@ -19,24 +17,23 @@
  * mode from SD card (SD2)
  */
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configuration */
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
 /* NOR 16-bit mode */
-#define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
-#define CONFIG_FLASH_VERIFY
+#define CFG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
 
 /* NOR Flash MTD */
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ (CONFIG_SYS_FLASH_BASE) }
-#define CONFIG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }
+#define CFG_SYS_FLASH_BANKS_LIST	{ (CFG_SYS_FLASH_BASE) }
+#define CFG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }
 
 /* Ethernet Configuration */
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CFG_FEC_MXC_PHYADDR		1
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200 quiet\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -118,7 +115,7 @@
 	"nor_img_addr=0x11000000\0" \
 	"nor_img_file=core-image-lwn-mccmon6.nor\0" \
 	"emmc_img_file=core-image-lwn-mccmon6.ext4\0" \
-	"nor_bank_start=" __stringify(CONFIG_SYS_FLASH_BASE) "\0" \
+	"nor_bank_start=" __stringify(CFG_SYS_FLASH_BASE) "\0" \
 	"nor_img_size=0x02000000\0" \
 	"factory_script_file=factory.scr\0" \
 	"factory_load_script=" \
@@ -216,9 +213,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* Environment organization */
 

@@ -40,7 +40,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	BOOTENV								\
 	EXTRA_ENV_IOT2050_BOARD_SETTINGS

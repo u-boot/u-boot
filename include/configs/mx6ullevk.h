@@ -16,7 +16,7 @@
 
 #define PHYS_SDRAM_SIZE	SZ_512M
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC
@@ -24,7 +24,7 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
@@ -102,16 +102,14 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* environment organization */
 
-#define CONFIG_IOMUX_LPSR
-
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_ENET_DEV		1
+#define CFG_FEC_ENET_DEV		1
 #endif
 
 #endif

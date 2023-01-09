@@ -14,7 +14,7 @@ struct serial_device {
 	int	(*tstc)(void);
 	void	(*putc)(const char c);
 	void	(*puts)(const char *s);
-#if CONFIG_POST & CONFIG_SYS_POST_UART
+#if CFG_POST & CFG_SYS_POST_UART
 	void	(*loop)(int);
 #endif
 	struct serial_device	*next;
@@ -242,7 +242,7 @@ struct dm_serial_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*clear)(struct udevice *dev);
-#if CONFIG_POST & CONFIG_SYS_POST_UART
+#if CFG_POST & CFG_SYS_POST_UART
 	/**
 	 * loop() - Control serial device loopback mode
 	 *

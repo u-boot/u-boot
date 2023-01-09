@@ -7,11 +7,11 @@
 
 #include <linux/stringify.h>
 
-#if !defined(CONFIG_SYS_SPD_BUS_NUM) || !defined(CONFIG_SYS_I2C_PCA9557_ADDR)
-#error "CONFIG_SYS_SPD_BUS_NUM and CONFIG_SYS_I2C_PCA9557_ADDR are required"
+#if !defined(CONFIG_SYS_SPD_BUS_NUM) || !defined(CFG_SYS_I2C_PCA9557_ADDR)
+#error "CONFIG_SYS_SPD_BUS_NUM and CFG_SYS_I2C_PCA9557_ADDR are required"
 #endif
 
-#define __BOOTSRC_CMD(src, msk) i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 1 src 1; i2c mw CONFIG_SYS_I2C_PCA9557_ADDR 3 msk 1
+#define __BOOTSRC_CMD(src, msk) i2c dev CONFIG_SYS_SPD_BUS_NUM; i2c mw CFG_SYS_I2C_PCA9557_ADDR 1 src 1; i2c mw CFG_SYS_I2C_PCA9557_ADDR 3 msk 1
 
 #define __VAR_CMD(var, cmd) __stringify(var=cmd\0)
 #define __VAR_CMD_RST(var, cmd) __VAR_CMD(var, cmd; reset)

@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static const struct pl01x_serial_plat serial_plat = {
 	.base = V2M_UART0,
 	.type = TYPE_PL011,
-	.clock = CONFIG_PL011_CLOCK,
+	.clock = CFG_PL011_CLOCK,
 };
 
 U_BOOT_DRVINFO(vexpress_serials) = {
@@ -108,7 +108,7 @@ unsigned long __section(".data") prior_stage_fdt_address[2];
 #define JUNO_FLASH_SEC_SIZE	(256 * 1024)
 static phys_addr_t find_dtb_in_nor_flash(const char *partname)
 {
-	phys_addr_t sector = CONFIG_SYS_FLASH_BASE;
+	phys_addr_t sector = CFG_SYS_FLASH_BASE;
 	int i;
 
 	for (i = 0;
@@ -140,7 +140,7 @@ static phys_addr_t find_dtb_in_nor_flash(const char *partname)
 			imginfo = sector + JUNO_FLASH_SEC_SIZE - 0x30 - reg;
 			reg = readl(imginfo + 0x54);
 
-			return CONFIG_SYS_FLASH_BASE +
+			return CFG_SYS_FLASH_BASE +
 			       reg * JUNO_FLASH_SEC_SIZE;
 		}
 	}

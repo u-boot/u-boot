@@ -348,7 +348,7 @@ static int dm_test_gpio_phandles(struct unit_test_state *uts)
 	ut_asserteq(-ENOENT, gpio_request_by_name(dev, "test-gpios", 5, &desc,
 						  0));
 
-	/* Last GPIO is ignord as it comes after <0> */
+	/* Last GPIO is ignored as it comes after <0> */
 	ut_asserteq(3, gpio_request_list_by_name(dev, "test-gpios", desc_list,
 						 ARRAY_SIZE(desc_list), 0));
 	ut_asserteq(-EBUSY, gpio_request_list_by_name(dev, "test-gpios",
@@ -377,7 +377,7 @@ static int dm_test_gpio_phandles(struct unit_test_state *uts)
 	ut_asserteq(6, gpio_request_list_by_name(dev, "test2-gpios", desc_list,
 						 ARRAY_SIZE(desc_list), 0));
 
-	/* This was set to output previously but flags resetted to 0 = INPUT */
+	/* This was set to output previously but flags reset to 0 = INPUT */
 	ut_asserteq(0, sandbox_gpio_get_flags(gpio_a, 1));
 	ut_asserteq(GPIOF_INPUT, gpio_get_function(gpio_a, 1, NULL));
 

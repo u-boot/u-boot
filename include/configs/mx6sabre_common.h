@@ -35,7 +35,7 @@
 #define EMMC_ENV ""
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"fdtfile=undefined\0" \
@@ -139,16 +139,10 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE          PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Environment organization */
-
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
-#define CONFIG_USBD_HS
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */

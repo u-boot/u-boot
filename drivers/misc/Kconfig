@@ -112,6 +112,12 @@ config SIFIVE_OTP
 	  Enable support for reading and writing the eMemory OTP on the
 	  SiFive SoCs.
 
+config SMSC_LPC47M
+	bool "LPC47M SMSC driver"
+
+config SMSC_SIO1007
+	bool "SIO1007 SMSC driver"
+
 config VEXPRESS_CONFIG
 	bool "Enable support for Arm Versatile Express config bus"
 	depends on MISC
@@ -267,6 +273,10 @@ config DS4510
 	  and a configurable timer for the supervisor function. The device is
 	  connected over I2C.
 
+config FSL_IIM
+	bool "Enable FSL IC Identification Module (IIM) driver"
+	depends on ARCH_MX31 || ARCH_MX5
+
 config FSL_SEC_MON
 	bool "Enable FSL SEC_MON Driver"
 	help
@@ -325,6 +335,14 @@ config MXC_OCOTP
 	  If you say Y here, you will get support for the One Time
 	  Programmable memory pages that are stored on the some
 	  Freescale i.MX processors.
+
+config MXS_OCOTP
+	bool "Enable MXS OCOTP Driver"
+	depends on ARCH_MX23 || ARCH_MX28
+	help
+	  If you say Y here, you will get support for the One Time
+	  Programmable memory pages that are stored on the
+	  Freescale i.MXS family of processors.
 
 config NPCM_HOST
 	bool "Enable support espi or LPC for Host"

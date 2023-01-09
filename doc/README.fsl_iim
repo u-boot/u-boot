@@ -45,4 +45,4 @@ Fuse operations:
 Configuration:
 
    CONFIG_FSL_IIM
-      Define this to enable the fsl_iim driver.
+      Enable this to enable the fsl_iim driver.

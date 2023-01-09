@@ -10,7 +10,7 @@
 #include "ls1012a_common.h"
 
 /* DDR */
-#define CONFIG_SYS_SDRAM_SIZE		0x40000000
+#define CFG_SYS_SDRAM_SIZE		0x40000000
 
 /*
  * I2C IO expander
@@ -36,8 +36,8 @@
 #define __PHY_ETH2_MASK		0xFB
 #define __PHY_ETH1_MASK		0xFD
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_addr=0x01000000\0"		\

@@ -17,22 +17,20 @@
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND
 						  /* NAND devices */
-#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, \
+#define CFG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, \
 					 13, 14, 16, 17, 18, 19, 20, 21, 22, \
 					 23, 24, 25, 26, 27, 28, 30, 31, 32, \
 					 33, 34, 35, 36, 37, 38, 39, 40, 41, \
 					 42, 44, 45, 46, 47, 48, 49, 50, 51, \
 					 52, 53, 54, 55, 56}
 
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	13
-#define CONFIG_SYS_NAND_MAX_OOBFREE	2
-#define CONFIG_SYS_NAND_MAX_ECCPOS	56
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	13
 #endif
 
 /* Environment information */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"mmcdev=0\0" \
 	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
@@ -146,9 +144,9 @@
 
 /* **** PISMO SUPPORT *** */
 #if defined(CONFIG_CMD_NAND)
-#define CONFIG_SYS_FLASH_BASE		0x10000000
+#define CFG_SYS_FLASH_BASE		0x10000000
 #endif
 
-#define CONFIG_SYS_FLASH_SIZE		0x4000000
+#define CFG_SYS_FLASH_SIZE		0x4000000
 
 #endif /* __CONFIG_H */

@@ -10,7 +10,7 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_UBOOT_BASE	\
+#define CFG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #define BOOT_TARGET_DEVICES(func) \
@@ -32,7 +32,7 @@
 	"scriptaddr=0x40000000\0" \
 	"pxefile_addr_r=0x40100000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"image=Image\0" \
 	BOOTENV \
 	"console=ttymxc1,115200\0" \
@@ -45,11 +45,11 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE        0x200000
+#define CFG_SYS_INIT_RAM_ADDR        0x40000000
+#define CFG_SYS_INIT_RAM_SIZE        0x200000
 
 
-#define CONFIG_SYS_SDRAM_BASE           0x40000000
+#define CFG_SYS_SDRAM_BASE           0x40000000
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
 

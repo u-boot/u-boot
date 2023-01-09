@@ -79,10 +79,6 @@ struct cpsw_slave_regs {
 	u32	tx_pri_map;
 #ifdef CONFIG_AM33XX
 	u32	gap_thresh;
-#elif defined(CONFIG_TI814X)
-	u32	ts_ctl;
-	u32	ts_seq_ltype;
-	u32	ts_vlan;
 #endif
 	u32	sa_lo;
 	u32	sa_hi;
@@ -200,11 +196,7 @@ struct cpdma_chan {
 				((priv)->data)->slaves; slave++)
 
 struct cpsw_priv {
-#ifdef CONFIG_DM_ETH
 	struct udevice			*dev;
-#else
-	struct eth_device		*dev;
-#endif
 	struct cpsw_platform_data	*data;
 	int				host_port;
 
@@ -455,15 +447,10 @@ static inline void setbit_and_wait_for_clear32(void *addr)
 static void cpsw_set_slave_mac(struct cpsw_slave *slave,
 			       struct cpsw_priv *priv)
 {
-#ifdef CONFIG_DM_ETH
 	struct eth_pdata *pdata = dev_get_plat(priv->dev);
 
 	writel(mac_hi(pdata->enetaddr), &slave->regs->sa_hi);
 	writel(mac_lo(pdata->enetaddr), &slave->regs->sa_lo);
-#else
-	__raw_writel(mac_hi(priv->dev->enetaddr), &slave->regs->sa_hi);
-	__raw_writel(mac_lo(priv->dev->enetaddr), &slave->regs->sa_lo);
-#endif
 }
 
 static int cpsw_slave_update_link(struct cpsw_slave *slave,
@@ -856,21 +843,13 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 		ret = phy_set_supported(phydev, slave->data->max_speed);
 		if (ret)
 			return ret;
-#if CONFIG_IS_ENABLED(DM_ETH)
 		dev_dbg(priv->dev, "Port %u speed forced to %uMbit\n",
 			slave->slave_num + 1, slave->data->max_speed);
-#else
-		log_debug("%s: Port %u speed forced to %uMbit\n",
-			  priv->dev->name, slave->slave_num + 1,
-			  slave->data->max_speed);
-#endif
 	}
 	phydev->advertising = phydev->supported;
 
-#ifdef CONFIG_DM_ETH
 	if (ofnode_valid(slave->data->phy_of_handle))
 		phydev->node = slave->data->phy_of_handle;
-#endif
 
 	priv->phydev = phydev;
 	phy_config(phydev);
@@ -935,84 +914,6 @@ int _cpsw_register(struct cpsw_priv *priv)
 	return 0;
 }
 
-#ifndef CONFIG_DM_ETH
-static int cpsw_init(struct eth_device *dev, struct bd_info *bis)
-{
-	struct cpsw_priv	*priv = dev->priv;
-
-	return _cpsw_init(priv, dev->enetaddr);
-}
-
-static void cpsw_halt(struct eth_device *dev)
-{
-	struct cpsw_priv *priv = dev->priv;
-
-	return _cpsw_halt(priv);
-}
-
-static int cpsw_send(struct eth_device *dev, void *packet, int length)
-{
-	struct cpsw_priv	*priv = dev->priv;
-
-	return _cpsw_send(priv, packet, length);
-}
-
-static int cpsw_recv(struct eth_device *dev)
-{
-	struct cpsw_priv *priv = dev->priv;
-	uchar *pkt = NULL;
-	int len;
-
-	len = _cpsw_recv(priv, &pkt);
-
-	if (len > 0) {
-		net_process_received_packet(pkt, len);
-		cpdma_submit(priv, &priv->rx_chan, pkt, PKTSIZE);
-	}
-
-	return len;
-}
-
-int cpsw_register(struct cpsw_platform_data *data)
-{
-	struct cpsw_priv	*priv;
-	struct eth_device	*dev;
-	int ret;
-
-	dev = calloc(sizeof(*dev), 1);
-	if (!dev)
-		return -ENOMEM;
-
-	priv = calloc(sizeof(*priv), 1);
-	if (!priv) {
-		free(dev);
-		return -ENOMEM;
-	}
-
-	priv->dev = dev;
-	priv->data = data;
-
-	strcpy(dev->name, "cpsw");
-	dev->iobase	= 0;
-	dev->init	= cpsw_init;
-	dev->halt	= cpsw_halt;
-	dev->send	= cpsw_send;
-	dev->recv	= cpsw_recv;
-	dev->priv	= priv;
-
-	eth_register(dev);
-
-	ret = _cpsw_register(priv);
-	if (ret < 0) {
-		eth_unregister(dev);
-		free(dev);
-		free(priv);
-		return ret;
-	}
-
-	return 1;
-}
-#else
 static int cpsw_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -1380,4 +1281,3 @@ U_BOOT_DRIVER(eth_cpsw) = {
 	.priv_auto	= sizeof(struct cpsw_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA | DM_FLAG_PRE_RELOC,
 };
-#endif /* CONFIG_DM_ETH */

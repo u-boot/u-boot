@@ -11,23 +11,17 @@
 
 #include "mx6_common.h"
 
-#include "imx6_spl.h"
-
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 /* USB */
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 /* Command definition */
 
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"som_rev=undefined\0" \
 	"has_emmc=undefined\0" \
 	"fdtfile=undefined\0" \
@@ -87,9 +81,9 @@
 #include <config_distro_bootcmd.h>
 
 /* Physical Memory Map */
-#define CONFIG_SYS_SDRAM_BASE          MMDC0_ARB_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE          MMDC0_ARB_BASE_ADDR
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Environment organization */
 

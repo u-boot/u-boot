@@ -10,16 +10,14 @@
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>
 
-#define CONFIG_SYS_FLASH_BASE		0x20000000
+#define CFG_SYS_FLASH_BASE		0x20000000
 
 /* DDR */
-#define CONFIG_VERY_BIG_RAM
-#define CONFIG_SYS_DDR_SDRAM_BASE		0x80000000UL
+#define CFG_SYS_DDR_SDRAM_BASE		0x80000000UL
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
-#define CONFIG_SYS_DDR_BLOCK2_BASE		0x2080000000ULL
-#define CONFIG_SYS_SDRAM_SIZE			0x200000000UL
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_MEM_INIT_VALUE		0xdeadbeef
+#define CFG_SYS_DDR_BLOCK2_BASE		0x2080000000ULL
+#define CFG_SYS_SDRAM_SIZE			0x200000000UL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
 #define SPD_EEPROM_ADDRESS1		0x51
 #define SPD_EEPROM_ADDRESS2		0x52
 #define SPD_EEPROM_ADDRESS3		0x53
@@ -41,23 +39,23 @@
 
 
 /* Serial Port */
-#define CONFIG_PL011_CLOCK		(get_bus_freq(0) / 4)
-#define CONFIG_SYS_SERIAL0		0x21c0000
-#define CONFIG_SYS_SERIAL1		0x21d0000
-#define CONFIG_SYS_SERIAL2		0x21e0000
-#define CONFIG_SYS_SERIAL3		0x21f0000
+#define CFG_PL011_CLOCK		(get_bus_freq(0) / 4)
+#define CFG_SYS_SERIAL0		0x21c0000
+#define CFG_SYS_SERIAL1		0x21d0000
+#define CFG_SYS_SERIAL2		0x21e0000
+#define CFG_SYS_SERIAL3		0x21f0000
 /*below might needs to be removed*/
-#define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
-					(void *)CONFIG_SYS_SERIAL1, \
-					(void *)CONFIG_SYS_SERIAL2, \
-					(void *)CONFIG_SYS_SERIAL3 }
+#define CFG_PL01x_PORTS		{(void *)CFG_SYS_SERIAL0, \
+					(void *)CFG_SYS_SERIAL1, \
+					(void *)CFG_SYS_SERIAL2, \
+					(void *)CFG_SYS_SERIAL3 }
 
 /* MC firmware */
-#define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH		0x20000
-#define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET	0x00F00000
-#define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH		0x20000
-#define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET	0x00F20000
-#define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS	5000
+#define CFG_SYS_LS_MC_DPC_MAX_LENGTH		0x20000
+#define CFG_SYS_LS_MC_DRAM_DPC_OFFSET	0x00F00000
+#define CFG_SYS_LS_MC_DPL_MAX_LENGTH		0x20000
+#define CFG_SYS_LS_MC_DRAM_DPL_OFFSET	0x00F20000
+#define CFG_SYS_LS_MC_BOOT_TIMEOUT_MS	5000
 
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux
@@ -66,7 +64,7 @@
  * 512MB aligned, so the min size to hide is 512MB.
  */
 #ifdef CONFIG_FSL_MC_ENET
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(256UL * 1024 * 1024)
+#define CFG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(256UL * 1024 * 1024)
 #endif
 
 /* I2C bus multiplexer */
@@ -74,17 +72,15 @@
 #define I2C_MUX_CH_DEFAULT		0x8
 
 /* RTC */
-#define RTC
-#define CONFIG_SYS_I2C_RTC_ADDR		0x51  /* Channel 3*/
+#define CFG_SYS_I2C_RTC_ADDR		0x51  /* Channel 3*/
 
 /* Qixis */
-#define CONFIG_SYS_I2C_FPGA_ADDR		0x66
+#define CFG_SYS_I2C_FPGA_ADDR		0x66
 
 /* USB */
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 /* Initial environment variables */

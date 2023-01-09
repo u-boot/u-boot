@@ -633,19 +633,19 @@ void i2c_early_init_f(void);
  */
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
-#if !defined(CONFIG_SYS_I2C_MAX_HOPS)
+#if !defined(CFG_SYS_I2C_MAX_HOPS)
 /* no muxes used bus = i2c adapters */
-#define CONFIG_SYS_I2C_DIRECT_BUS	1
-#define CONFIG_SYS_I2C_MAX_HOPS		0
-#define CONFIG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
+#define CFG_SYS_I2C_DIRECT_BUS	1
+#define CFG_SYS_I2C_MAX_HOPS		0
+#define CFG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
 #else
 /* we use i2c muxes */
-#undef CONFIG_SYS_I2C_DIRECT_BUS
+#undef CFG_SYS_I2C_DIRECT_BUS
 #endif
 
 /* define the I2C bus number for RTC and DTT if not already done */
-#if !defined(CONFIG_SYS_RTC_BUS_NUM)
-#define CONFIG_SYS_RTC_BUS_NUM		0
+#if !defined(CFG_SYS_RTC_BUS_NUM)
+#define CFG_SYS_RTC_BUS_NUM		0
 #endif
 
 struct i2c_adapter {
@@ -691,7 +691,7 @@ struct i2c_adapter {
 
 struct i2c_adapter *i2c_get_adapter(int index);
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 struct i2c_mux {
 	int	id;
 	char	name[16];
@@ -705,7 +705,7 @@ struct i2c_next_hop {
 
 struct i2c_bus_hose {
 	int	adapter;
-	struct i2c_next_hop	next_hop[CONFIG_SYS_I2C_MAX_HOPS];
+	struct i2c_next_hop	next_hop[CFG_SYS_I2C_MAX_HOPS];
 };
 #define I2C_NULL_HOP	{{-1, ""}, 0, 0}
 extern struct i2c_bus_hose	i2c_bus[];
@@ -720,7 +720,7 @@ extern struct i2c_bus_hose	i2c_bus[];
 #define	I2C_ADAP		I2C_ADAP_NR(gd->cur_i2c_bus)
 #define I2C_ADAP_HWNR		(I2C_ADAP->hwadapnr)
 
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 #define I2C_MUX_PCA9540_ID	1
 #define I2C_MUX_PCA9540		{I2C_MUX_PCA9540_ID, "PCA9540B"}
 #define I2C_MUX_PCA9542_ID	2
@@ -930,13 +930,13 @@ unsigned int i2c_get_bus_speed(void);
  * only for backwardcompatibility, should go away if we switched
  * completely to new multibus support.
  */
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
-# if !defined(CONFIG_SYS_MAX_I2C_BUS)
-#  define CONFIG_SYS_MAX_I2C_BUS		2
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CFG_I2C_MULTI_BUS)
+# if !defined(CFG_SYS_MAX_I2C_BUS)
+#  define CFG_SYS_MAX_I2C_BUS		2
 # endif
 # define I2C_MULTI_BUS				1
 #else
-# define CONFIG_SYS_MAX_I2C_BUS		1
+# define CFG_SYS_MAX_I2C_BUS		1
 # define I2C_MULTI_BUS				0
 #endif
 

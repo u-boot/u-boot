@@ -13,8 +13,7 @@
 #include "tegra124-common.h"
 
 /* Board-specific serial config */
-#define CONFIG_TEGRA_ENABLE_UARTA
-#define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
+#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define FDT_MODULE			"apalis-v1.2"
 #define FDT_MODULE_V1_0			"apalis"
@@ -32,12 +31,6 @@
 	func(USB, usb, 0) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
-
-#undef CONFIG_IPADDR
-#define CONFIG_IPADDR		192.168.10.2
-#define CONFIG_NETMASK		255.255.255.0
-#undef CONFIG_SERVERIP
-#define CONFIG_SERVERIP		192.168.10.1
 
 #define DFU_ALT_EMMC_INFO	"apalis-tk1.img raw 0x0 0x500 mmcpart 1; " \
 				"boot part 0 1 mmcpart 0; " \

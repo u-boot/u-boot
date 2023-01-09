@@ -16,7 +16,7 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_STACKBASE	0x83800000	/* 56MB */
+#define CFG_STACKBASE	0x83800000	/* 56MB */
 
 /*
  * Memory layout for where various images get loaded by boot scripts:

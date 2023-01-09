@@ -13,31 +13,24 @@
 /* General configuration */
 
 /* Physical Memory Map */
-#define CONFIG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
+#define CFG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
-#define CONFIG_SYS_BOOTMAPSZ		0x10000000
-
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
+#define CFG_SYS_BOOTMAPSZ		0x10000000
 
 /* PCI */
 #ifdef CONFIG_CMD_PCI
-#define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
+#define CFG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
 #endif
 
 /* USB */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#ifdef CONFIG_CMD_USB_MASS_STORAGE
-#define CONFIG_USBD_HS
-#endif /* CONFIG_CMD_USB_MASS_STORAGE */
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif /* CONFIG_CMD_USB      */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"bootargs_mmc1=console=ttymxc0,115200 di0_primary console=tty1\0" \
 	"bootargs_mmc2=video=mxcfb0:dev=hdmi,1920x1080M@60 " \

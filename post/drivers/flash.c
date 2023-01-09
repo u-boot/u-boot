@@ -6,7 +6,7 @@
  * Licensed under the GPL-2 or later.
  */
 
-#if CONFIG_POST & CONFIG_SYS_POST_FLASH
+#if CFG_POST & CFG_SYS_POST_FLASH
 #include <common.h>
 #include <malloc.h>
 #include <post.h>
@@ -23,10 +23,10 @@
  *  - better seed pattern than 0x00..0xff
  */
 
-#ifndef CONFIG_SYS_POST_FLASH_NUM
-# define CONFIG_SYS_POST_FLASH_NUM 0
+#ifndef CFG_SYS_POST_FLASH_NUM
+# define CFG_SYS_POST_FLASH_NUM 0
 #endif
-#if CONFIG_SYS_POST_FLASH_START >= CONFIG_SYS_POST_FLASH_END
+#if CFG_SYS_POST_FLASH_START >= CFG_SYS_POST_FLASH_END
 # error "invalid flash block start/end"
 #endif
 
@@ -59,9 +59,9 @@ int flash_post_test(int flags)
 
 	len = 0;
 	src = NULL;
-	info = &flash_info[CONFIG_SYS_POST_FLASH_NUM];
-	n_start = CONFIG_SYS_POST_FLASH_START;
-	n_end = CONFIG_SYS_POST_FLASH_END;
+	info = &flash_info[CFG_SYS_POST_FLASH_NUM];
+	n_start = CFG_SYS_POST_FLASH_START;
+	n_end = CFG_SYS_POST_FLASH_END;
 
 	for (n = n_start; n < n_end; ++n) {
 		ulong s_start, s_len, s_off;

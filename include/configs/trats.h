@@ -12,12 +12,12 @@
 #include <configs/exynos4-common.h>
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_PL310_BASE	0x10502000
+#define CFG_SYS_PL310_BASE	0x10502000
 #endif
 
 /* TRATS has 4 banks of DRAM */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
+#define CFG_SYS_SDRAM_BASE		0x40000000
+#define PHYS_SDRAM_1			CFG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
 /* Tizen - partitions definitions */
@@ -39,7 +39,7 @@
 	"name="PARTS_DATA",size=3000MiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
-#define CONFIG_DFU_ALT \
+#define CFG_DFU_ALT \
 	"u-boot raw 0x80 0x400;" \
 	"/uImage ext4 0 2;" \
 	"/modem.bin ext4 0 2;" \
@@ -54,7 +54,7 @@
 	"params.bin raw 0x38 0x8;" \
 	"/Image.itb ext4 0 2\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
 		"run loaduimage;" \
 		"if run loaddtb; then " \
@@ -98,7 +98,7 @@
 	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \
 	"partitions=" PARTS_DEFAULT \
-	"dfu_alt_info=" CONFIG_DFU_ALT \
+	"dfu_alt_info=" CFG_DFU_ALT \
 	"spladdr=0x40000100\0" \
 	"splsize=0x200\0" \
 	"splfile=falcon.bin\0" \
@@ -124,9 +124,6 @@
 /* Falcon mode definitions */
 
 /* GPT */
-
-/* Common misc for Samsung */
-#define CONFIG_MISC_COMMON
 
 /* Download menu - definitions for check keys */
 #ifndef __ASSEMBLY__

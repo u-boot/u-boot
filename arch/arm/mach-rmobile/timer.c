@@ -40,8 +40,8 @@ static u64 get_time_us(void)
 {
 	u64 timer = get_cpu_global_timer();
 
-	timer = ((timer << 2) + (CLK2MHZ(CONFIG_SYS_CPU_CLK) >> 1));
-	do_div(timer, CLK2MHZ(CONFIG_SYS_CPU_CLK));
+	timer = ((timer << 2) + (CLK2MHZ(CFG_SYS_CPU_CLK) >> 1));
+	do_div(timer, CLK2MHZ(CFG_SYS_CPU_CLK));
 	return timer;
 }
 
@@ -65,7 +65,7 @@ void __udelay(unsigned long usec)
 	u64 wait;
 
 	start = get_cpu_global_timer();
-	wait = (u64)((usec * CLK2MHZ(CONFIG_SYS_CPU_CLK)) >> 2);
+	wait = (u64)((usec * CLK2MHZ(CFG_SYS_CPU_CLK)) >> 2);
 	do {
 		current = get_cpu_global_timer();
 	} while ((current - start) < wait);
@@ -83,5 +83,5 @@ unsigned long long get_ticks(void)
 
 ulong get_tbclk(void)
 {
-	return (ulong)(CONFIG_SYS_CPU_CLK >> 2);
+	return (ulong)(CFG_SYS_CPU_CLK >> 2);
 }

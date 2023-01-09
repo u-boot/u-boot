@@ -10,16 +10,7 @@
 
 #include "exynos-common.h"
 
-/* SD/MMC configuration */
-#define CONFIG_MMC_DEFAULT_DEV	0
-
 #define DFU_DEFAULT_POLL_TIMEOUT 300
-
-/* USB Samsung's IDs */
-#define CONFIG_G_DNL_THOR_VENDOR_NUM 0x04E8
-#define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
-#define CONFIG_G_DNL_UMS_VENDOR_NUM 0x0525
-#define CONFIG_G_DNL_UMS_PRODUCT_NUM 0xA4A5
 
 /* Common environment variables */
 #define ENV_ITB \

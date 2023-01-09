@@ -9,7 +9,7 @@
 #define __NXP_I2C_COMMON_H__
 
 /* Common functionality shared by the I2C drivers for VID and the mux. */
-#ifdef CONFIG_DM_I2C
+#if CONFIG_IS_ENABLED(DM_I2C)
 #define DEVICE_HANDLE_T struct udevice *
 
 #define I2C_READ(dev, register, data, length) \

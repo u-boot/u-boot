@@ -62,6 +62,8 @@ source "drivers/mailbox/Kconfig"
 
 source "drivers/memory/Kconfig"
 
+source "drivers/mfd/Kconfig"
+
 source "drivers/misc/Kconfig"
 
 source "drivers/mmc/Kconfig"

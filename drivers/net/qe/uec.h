@@ -605,10 +605,10 @@ enum uec_num_of_threads {
 #define STD_UEC_INFO(num) \
 {			\
 	.uf_info		= {	\
-		.ucc_num	= CONFIG_SYS_UEC##num##_UCC_NUM,\
-		.rx_clock	= CONFIG_SYS_UEC##num##_RX_CLK,	\
-		.tx_clock	= CONFIG_SYS_UEC##num##_TX_CLK,	\
-		.eth_type	= CONFIG_SYS_UEC##num##_ETH_TYPE,\
+		.ucc_num	= CFG_SYS_UEC##num##_UCC_NUM,\
+		.rx_clock	= CFG_SYS_UEC##num##_RX_CLK,	\
+		.tx_clock	= CFG_SYS_UEC##num##_TX_CLK,	\
+		.eth_type	= CFG_SYS_UEC##num##_ETH_TYPE,\
 	},	\
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,	\
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,	\
@@ -616,9 +616,9 @@ enum uec_num_of_threads {
 	.risc_rx		= QE_RISC_ALLOCATION_RISC1_AND_RISC2, \
 	.tx_bd_ring_len		= 16,	\
 	.rx_bd_ring_len		= 16,	\
-	.phy_address		= CONFIG_SYS_UEC##num##_PHY_ADDR, \
-	.enet_interface_type	= CONFIG_SYS_UEC##num##_INTERFACE_TYPE, \
-	.speed			= CONFIG_SYS_UEC##num##_INTERFACE_SPEED, \
+	.phy_address		= CFG_SYS_UEC##num##_PHY_ADDR, \
+	.enet_interface_type	= CFG_SYS_UEC##num##_INTERFACE_TYPE, \
+	.speed			= CFG_SYS_UEC##num##_INTERFACE_SPEED, \
 }
 
 struct uec_inf {
@@ -689,5 +689,4 @@ struct uec_priv {
 
 int uec_initialize(struct bd_info *bis, struct uec_inf *uec_info);
 int uec_eth_init(struct bd_info *bis, struct uec_inf *uecs, int num);
-int uec_standard_init(struct bd_info *bis);
 #endif /* __UEC_H__ */

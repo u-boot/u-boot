@@ -809,21 +809,6 @@ struct dm_usb_ops {
 #define usb_get_emul_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
 
 /**
- * usb_get_dev_index() - look up a device index number
- *
- * Look up devices using their index number (starting at 0). This works since
- * in U-Boot device addresses are allocated starting at 1 with no gaps.
- *
- * TODO(sjg@chromium.org): Remove this function when usb_ether.c is modified
- * to work better with driver model.
- *
- * @bus:	USB bus to check
- * @index:	Index number of device to find (0=first). This is just the
- *		device address less 1.
- */
-struct usb_device *usb_get_dev_index(struct udevice *bus, int index);
-
-/**
  * usb_setup_device() - set up a device ready for use
  *
  * @dev:	USB device pointer. This need not be a real device - it is

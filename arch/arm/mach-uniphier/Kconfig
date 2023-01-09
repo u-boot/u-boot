@@ -12,6 +12,7 @@ config ARCH_UNIPHIER_V7_MULTI
 	select ARMV7_NONSEC
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
+	select ARM_GLOBAL_TIMER if TIMER
 
 config ARCH_UNIPHIER_V8_MULTI
 	bool "UniPhier V8 SoCs"

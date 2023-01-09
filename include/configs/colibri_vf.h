@@ -14,14 +14,6 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-/* NAND support */
-
-#define CONFIG_IPADDR		192.168.10.2
-#define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_SERVERIP		192.168.10.1
-
-#define CONFIG_FDTADDR			0x84000000
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82000000\0" \
@@ -55,7 +47,7 @@
 
 #define DFU_ALT_NAND_INFO "vf-bcb part 0,1;u-boot part 0,2;ubi part 0,4"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	UBI_BOOTCMD \
@@ -85,9 +77,9 @@
 #define PHYS_SDRAM			(0x80000000)
 #define PHYS_SDRAM_SIZE			(256 * SZ_1M)
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* USB Host Support */
 

@@ -42,7 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif /* CONFIG_DM_I2C */
 
 /*
- * On SUNXI, we get CONFIG_SYS_TCLK from this include, so we want to
+ * On SUNXI, we get CFG_SYS_TCLK from this include, so we want to
  * always have it.
  */
 #if CONFIG_IS_ENABLED(DM_I2C) && defined(CONFIG_ARCH_SUNXI)
@@ -197,13 +197,13 @@ inline uint calc_tick(uint speed)
 static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 {
 	switch (adap->hwadapnr) {
-#ifdef CONFIG_I2C_MVTWSI_BASE0
+#ifdef CFG_I2C_MVTWSI_BASE0
 	case 0:
-		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE0;
+		return (struct mvtwsi_registers *)CFG_I2C_MVTWSI_BASE0;
 #endif
-#ifdef CONFIG_I2C_MVTWSI_BASE1
+#ifdef CFG_I2C_MVTWSI_BASE1
 	case 1:
-		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE1;
+		return (struct mvtwsi_registers *)CFG_I2C_MVTWSI_BASE1;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE2
 	case 2:
@@ -427,9 +427,9 @@ static int twsi_stop(struct mvtwsi_registers *twsi, uint tick)
 static uint twsi_calc_freq(const int n, const int m)
 {
 #ifdef CONFIG_ARCH_SUNXI
-	return CONFIG_SYS_TCLK / (10 * (m + 1) * (1 << n));
+	return CFG_SYS_TCLK / (10 * (m + 1) * (1 << n));
 #else
-	return CONFIG_SYS_TCLK / (10 * (m + 1) * (2 << n));
+	return CFG_SYS_TCLK / (10 * (m + 1) * (2 << n));
 #endif
 }
 
@@ -737,13 +737,13 @@ static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 				10000);
 }
 
-#ifdef CONFIG_I2C_MVTWSI_BASE0
+#ifdef CFG_I2C_MVTWSI_BASE0
 U_BOOT_I2C_ADAP_COMPLETE(twsi0, twsi_i2c_init, twsi_i2c_probe,
 			 twsi_i2c_read, twsi_i2c_write,
 			 twsi_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 0)
 #endif
-#ifdef CONFIG_I2C_MVTWSI_BASE1
+#ifdef CFG_I2C_MVTWSI_BASE1
 U_BOOT_I2C_ADAP_COMPLETE(twsi1, twsi_i2c_init, twsi_i2c_probe,
 			 twsi_i2c_read, twsi_i2c_write,
 			 twsi_i2c_set_bus_speed,

@@ -27,7 +27,7 @@ phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	if (gd->ram_top < CONFIG_SYS_SDRAM_BASE) {
+	if (gd->ram_top < CFG_SYS_SDRAM_BASE) {
 		/* 2GB wrapped around to 0 */
 		return CKSEG0ADDR(256 << 20);
 	}

@@ -16,7 +16,7 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_STACKBASE	0x03800000	/* 56MB */
+#define CFG_STACKBASE	0x03800000	/* 56MB */
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

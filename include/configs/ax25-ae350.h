@@ -28,33 +28,26 @@
 	(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)	/* SDRAM Bank #2 */
 #define PHYS_SDRAM_0_SIZE	0x20000000	/* 512 MB */
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512 MB */
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_0
+#define CFG_SYS_SDRAM_BASE	PHYS_SDRAM_0
 
 /*
  * Serial console configuration
  */
-#define CONFIG_SYS_NS16550_SERIAL
-#ifndef CONFIG_DM_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	-4
-#endif
-#define CONFIG_SYS_NS16550_CLK		19660800
+#define CFG_SYS_NS16550_CLK		19660800
 
 /* Init Stack Pointer */
 
 /* support JEDEC */
 #define PHYS_FLASH_1			0x88000000	/* BANK 0 */
-#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1, }
+#define CFG_SYS_FLASH_BASE		PHYS_FLASH_1
+#define CFG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1, }
 
 /* max number of memory banks */
 /*
  * There are 4 banks supported for this Controller,
  * but we have only 1 bank connected to flash on board
 */
-#define CONFIG_SYS_FLASH_BANKS_SIZES {0x4000000}
-
-/* max number of sectors on one chip */
-#define CONFIG_FLASH_SECTOR_SIZE	(0x10000*2)
+#define CFG_SYS_FLASH_BANKS_SIZES {0x4000000}
 
 /* environments */
 
@@ -67,7 +60,7 @@
  */
 
 /* Initial Memory map for Linux*/
-#define CONFIG_SYS_BOOTMAPSZ	(64 << 20)
+#define CFG_SYS_BOOTMAPSZ	(64 << 20)
 /* Increase max gunzip size */
 
 /* Support autoboot from RAM (kernel image is loaded via debug port) */
@@ -89,7 +82,7 @@
 	func(RAM, ram, na)
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 				"kernel_addr_r=0x00080000\0" \
 				"pxefile_addr_r=0x01f00000\0" \
 				"scriptaddr=0x01f00000\0" \

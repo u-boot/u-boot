@@ -15,7 +15,7 @@
 #define GICC_BASE	0xF9020000
 
 /* Serial setup */
-#define CONFIG_SYS_BAUDRATE_TABLE \
+#define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
 /* GUIDs for capsule updatable firmware images */
@@ -31,7 +31,6 @@
 
 #if defined(CONFIG_ZYNQMP_USB)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-#define CONFIG_THOR_RESET_OFF
 
 # define PARTS_DEFAULT \
 	"partitions=uuid_disk=${uuid_gpt_disk};" \
@@ -174,16 +173,16 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#ifndef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV
 #endif
 
 /* SPL can't handle all huge variables - define just DFU */
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
-#undef CONFIG_EXTRA_ENV_SETTINGS
-# define CONFIG_EXTRA_ENV_SETTINGS \
+#undef CFG_EXTRA_ENV_SETTINGS
+# define CFG_EXTRA_ENV_SETTINGS \
 	"dfu_alt_info_ram=uboot.bin ram 0x8000000 0x1000000;" \
 			  "atf-uboot.ub ram 0x10000000 0x1000000;" \
 			  "Image ram 0x80000 0x3f80000;" \
@@ -192,9 +191,9 @@
 #endif
 
 #if defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
-# define CONFIG_SYS_SPI_KERNEL_OFFS	0x80000
-# define CONFIG_SYS_SPI_ARGS_OFFS	0xa0000
-# define CONFIG_SYS_SPI_ARGS_SIZE	0xa0000
+# define CFG_SYS_SPI_KERNEL_OFFS	0x80000
+# define CFG_SYS_SPI_ARGS_OFFS	0xa0000
+# define CFG_SYS_SPI_ARGS_SIZE	0xa0000
 #endif
 
 /* u-boot is like dtb */

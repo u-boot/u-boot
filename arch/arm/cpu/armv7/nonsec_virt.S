@@ -112,8 +112,8 @@ ENTRY(_do_nonsec_entry)
 ENDPROC(_do_nonsec_entry)
 
 .macro get_cbar_addr	addr
-#ifdef CONFIG_ARM_GIC_BASE_ADDRESS
-	ldr	\addr, =CONFIG_ARM_GIC_BASE_ADDRESS
+#ifdef CFG_ARM_GIC_BASE_ADDRESS
+	ldr	\addr, =CFG_ARM_GIC_BASE_ADDRESS
 #else
 	mrc	p15, 4, \addr, c15, c0, 0	@ read CBAR
 	bfc	\addr, #0, #15			@ clear reserved bits
@@ -205,11 +205,11 @@ ENTRY(_nonsec_init)
 	bx	lr
 ENDPROC(_nonsec_init)
 
-#ifdef CONFIG_SMP_PEN_ADDR
+#ifdef CFG_SMP_PEN_ADDR
 /* void __weak smp_waitloop(unsigned previous_address); */
-ENTRY(smp_waitloop)
+WEAK(smp_waitloop)
 	wfi
-	ldr	r1, =CONFIG_SMP_PEN_ADDR	@ load start address
+	ldr	r1, =CFG_SMP_PEN_ADDR	@ load start address
 	ldr	r1, [r1]
 #ifdef CONFIG_PEN_ADDR_BIG_ENDIAN
 	rev	r1, r1
@@ -219,7 +219,6 @@ ENTRY(smp_waitloop)
 	mov	r0, r1
 	b	_do_nonsec_entry
 ENDPROC(smp_waitloop)
-.weak smp_waitloop
 #endif
 
 	.popsection

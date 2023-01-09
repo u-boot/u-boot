@@ -14,13 +14,13 @@
 #include <linux/sizes.h>
 
 /* Environment options */
-#define CONFIG_SYS_SDRAM_BASE 0x80000000
+#define CFG_SYS_SDRAM_BASE 0x80000000
 
 /* ---------------------------------------------------------------------
  * Board boot configuration
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_addr_r=0x86000000\0" \
 	"kernel_addr_r=0x80200000\0" \
 	"image=boot/Image\0" \

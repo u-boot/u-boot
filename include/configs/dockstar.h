@@ -22,16 +22,10 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \
 	"kernel=/boot/uImage\0" \
 	"initrd=/boot/uInitrd\0" \
 	"bootargs_root=ubi.mtd=1 root=ubi0:root rootfstype=ubifs ro\0"
-
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	0
 
 #endif /* _CONFIG_DOCKSTAR_H */

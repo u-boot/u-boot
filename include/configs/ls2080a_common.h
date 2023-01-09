@@ -16,11 +16,10 @@
 
 /* Link Definitions */
 
-#define CONFIG_VERY_BIG_RAM
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000UL
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000UL
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_DDR_BLOCK2_BASE	0x8080000000ULL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_BLOCK2_BASE	0x8080000000ULL
 
 /*
  * SMP Definitinos
@@ -37,9 +36,7 @@
 /* I2C */
 
 /* Serial Port */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE     1
-#define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
+#define CFG_SYS_NS16550_CLK          (get_serial_clock())
 
 /*
  * During booting, IFC is mapped at the region of 0x30000000.
@@ -58,18 +55,18 @@
  * 0x5_C000_0000..0x5_ffff_ffff	IFC CS1 1GB (NOR/Promjet)
  *
  * For e.g. NOR flash at CS0 will be mapped to 0x580000000 after relocation.
- * CONFIG_SYS_FLASH_BASE has the final address (core view)
- * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
- * CONFIG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
+ * CFG_SYS_FLASH_BASE has the final address (core view)
+ * CFG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
+ * CFG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
  * CONFIG_TEXT_BASE is linked to 0x30000000 for booting
  */
 
-#define CONFIG_SYS_FLASH_BASE			0x580000000ULL
-#define CONFIG_SYS_FLASH_BASE_PHYS		0x80000000
-#define CONFIG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
+#define CFG_SYS_FLASH_BASE			0x580000000ULL
+#define CFG_SYS_FLASH_BASE_PHYS		0x80000000
+#define CFG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
 
-#define CONFIG_SYS_FLASH1_BASE_PHYS		0xC0000000
-#define CONFIG_SYS_FLASH1_BASE_PHYS_EARLY	0x8000000
+#define CFG_SYS_FLASH1_BASE_PHYS		0xC0000000
+#define CFG_SYS_FLASH1_BASE_PHYS_EARLY	0x8000000
 
 #ifndef __ASSEMBLY__
 unsigned long long get_qixis_addr(void);
@@ -81,18 +78,18 @@ unsigned long long get_qixis_addr(void);
 #define QIXIS_SDID_MASK				0x07
 #define QIXIS_ESDHC_NO_ADAPTER			0x7
 
-#define CONFIG_SYS_NAND_BASE			0x530000000ULL
-#define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
+#define CFG_SYS_NAND_BASE			0x530000000ULL
+#define CFG_SYS_NAND_BASE_PHYS		0x30000000
 
 /* MC firmware */
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
-#define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
-#define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
-#define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
-#define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
+#define CFG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
+#define CFG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
+#define CFG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
+#define CFG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
 /* For LS2085A */
-#define CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
-#define CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
+#define CFG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
+#define CFG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
 
 /*
  * Carve out a DDR region which will not be used by u-boot/Linux
@@ -101,7 +98,7 @@ unsigned long long get_qixis_addr(void);
  * 512MB aligned, so the min size to hide is 512MB.
  */
 #ifdef CONFIG_FSL_MC_ENET
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
+#define CFG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
 #endif
 
 /* Miscellaneous configurable options */
@@ -109,11 +106,10 @@ unsigned long long get_qixis_addr(void);
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\
@@ -129,8 +125,8 @@ unsigned long long get_qixis_addr(void);
 	" 0x580e00000 \0"
 
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x80400000
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
+#define CFG_SYS_NAND_U_BOOT_DST	0x80400000
+#define CFG_SYS_NAND_U_BOOT_START	CFG_SYS_NAND_U_BOOT_DST
 #endif
 
 #include <asm/arch/soc.h>

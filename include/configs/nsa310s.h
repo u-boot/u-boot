@@ -36,7 +36,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0" \
 	"kernel=/boot/zImage\0" \
 	"fdt=/boot/nsa310s.dtb\0" \
@@ -45,9 +45,5 @@
 	BOOTENV
 
 #endif /* CONFIG_SPL_BUILD */
-
-/* Ethernet driver configuration */
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	1
 
 #endif /* _CONFIG_NSA310S_H */

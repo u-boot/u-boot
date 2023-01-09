@@ -46,8 +46,8 @@ static int nand_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 #endif
 {
 	fsl_lbc_t *regs = LBC_BASE_ADDR;
-	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
-	const int large = CONFIG_SYS_NAND_OR_PRELIM & OR_FCM_PGS;
+	uchar *buf = (uchar *)CFG_SYS_NAND_BASE;
+	const int large = CFG_SYS_NAND_OR_PRELIM & OR_FCM_PGS;
 	const int block_shift = large ? 17 : 14;
 	const int block_size = 1 << block_shift;
 	const int page_size = large ? 2048 : 512;
@@ -143,8 +143,8 @@ void nand_boot(void)
 	 * Load U-Boot image from NAND into RAM
 	 */
 	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-			    CONFIG_SYS_NAND_U_BOOT_SIZE,
-			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
+			    CFG_SYS_NAND_U_BOOT_SIZE,
+			    (void *)CFG_SYS_NAND_U_BOOT_DST);
 
 #ifdef CONFIG_NAND_ENV_DST
 	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
@@ -161,13 +161,13 @@ void nand_boot(void)
 	 * Clean d-cache and invalidate i-cache, to
 	 * make sure that no stale data is executed.
 	 */
-	flush_cache(CONFIG_SYS_NAND_U_BOOT_DST, CONFIG_SYS_NAND_U_BOOT_SIZE);
+	flush_cache(CFG_SYS_NAND_U_BOOT_DST, CFG_SYS_NAND_U_BOOT_SIZE);
 #endif
 
 	puts("transfering control\n");
 	/*
 	 * Jump to U-Boot image
 	 */
-	uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
+	uboot = (void *)CFG_SYS_NAND_U_BOOT_START;
 	(*uboot)();
 }

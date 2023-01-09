@@ -27,9 +27,9 @@ void puts(const char *str)
 void putc(char c)
 {
 	if (c == '\n')
-		ns16550_putc((struct ns16550 *)(CONFIG_SYS_NS16550_COM1), '\r');
+		ns16550_putc((struct ns16550 *)(CFG_SYS_NS16550_COM1), '\r');
 
-	ns16550_putc((struct ns16550 *)(CONFIG_SYS_NS16550_COM1), c);
+	ns16550_putc((struct ns16550 *)(CFG_SYS_NS16550_COM1), c);
 }
 #endif /* CONFIG_SPL_LIBCOMMON_SUPPORT */
 

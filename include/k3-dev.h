@@ -79,6 +79,7 @@ extern const struct ti_k3_pd_platdata j721e_pd_platdata;
 extern const struct ti_k3_pd_platdata j7200_pd_platdata;
 extern const struct ti_k3_pd_platdata j721s2_pd_platdata;
 extern const struct ti_k3_pd_platdata am62x_pd_platdata;
+extern const struct ti_k3_pd_platdata am62ax_pd_platdata;
 
 u8 ti_pd_state(struct ti_pd *pd);
 u8 lpsc_get_state(struct ti_lpsc *lpsc);

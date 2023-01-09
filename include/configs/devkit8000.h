@@ -16,24 +16,13 @@
 
 #include <configs/ti_omap3_common.h>
 
-/* Hardware drivers */
-/* DM9000 */
-#define	CONFIG_DM9000_BASE		0x2c000000
-#define	DM9000_IO			CONFIG_DM9000_BASE
-#define	DM9000_DATA			(CONFIG_DM9000_BASE + 0x400)
-#define	CONFIG_DM9000_USE_16BIT		1
-#define CONFIG_DM9000_NO_SROM		1
-#undef	CONFIG_DM9000_DEBUG
-
-/* TWL4030 */
-
 /* BOOTP/DHCP options */
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV
 
 /* Environment information */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
@@ -100,12 +89,12 @@
 /* Defines for SPL */
 
 /* NAND boot config */
-#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
+#define CFG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9,\
 						10, 11, 12, 13}
 
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	3
 
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
+#define CFG_SYS_NAND_U_BOOT_SIZE	0x200000
 
 #endif /* __CONFIG_H */

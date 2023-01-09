@@ -27,7 +27,7 @@
 
 #define PCIECAR			0x000010
 #define PCIECCTLR		0x000018
-#define  CONFIG_SEND_ENABLE	BIT(31)
+#define SEND_ENABLE		BIT(31)
 #define  TYPE0			(0 << 8)
 #define  TYPE1			BIT(8)
 #define PCIECDR			0x000020
@@ -170,9 +170,9 @@ static int rcar_pcie_config_access(const struct udevice *udev,
 
 	/* Enable the configuration access */
 	if (!PCI_BUS(bdf))
-		writel(CONFIG_SEND_ENABLE | TYPE0, priv->regs + PCIECCTLR);
+		writel(SEND_ENABLE | TYPE0, priv->regs + PCIECCTLR);
 	else
-		writel(CONFIG_SEND_ENABLE | TYPE1, priv->regs + PCIECCTLR);
+		writel(SEND_ENABLE | TYPE1, priv->regs + PCIECCTLR);
 
 	/* Check for errors */
 	if (readl(priv->regs + PCIEERRFR) & UNSUPPORTED_REQUEST)

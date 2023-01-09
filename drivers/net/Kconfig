@@ -1,7 +1,6 @@
 source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
 source "drivers/net/fsl-mc/Kconfig"
-source "drivers/net/bnxt/Kconfig"
 
 config ETH
 	def_bool y
@@ -15,6 +14,10 @@ config DM_ETH
 	  The eth_*() interface will be implemented by the UCLASS_ETH class
 	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
+
+config SPL_DM_ETH
+	depends on SPL_NET
+	def_bool y
 
 config DM_MDIO
 	bool "Enable Driver Model for MDIO devices"
@@ -175,6 +178,8 @@ config BCMGENET
 	help
 	  This driver supports the BCMGENET Ethernet MAC.
 
+source "drivers/net/bnxt/Kconfig"
+
 config CORTINA_NI_ENET
 	bool "Cortina-Access Ethernet driver"
 	depends on CORTINA_PLATFORM
@@ -192,6 +197,18 @@ config DRIVER_DM9000
 	bool "Davicom DM9000 controller driver"
 	help
 	  The Davicom DM9000 parallel bus external ethernet interface chip.
+
+config DM9000_BYTE_SWAPPED
+	bool "Byte swapped access for DM9000"
+	depends on DRIVER_DM9000
+
+config DM9000_NO_SROM
+	bool "No SROM on DM9000"
+	depends on DRIVER_DM9000
+
+config DM9000_USE_16BIT
+	bool "Use 16bit access in DM9000"
+	depends on DRIVER_DM9000
 
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
@@ -355,6 +372,7 @@ config FMAN_ENET
 	select SYS_FMAN_V3 if ARCH_B4420 || ARCH_B4860 || ARCH_LS1043A || \
 		ARCH_LS1046A || ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || \
 		ARCH_T2080 || ARCH_T4240
+	select FSL_FM_10GEC_REGULAR_NOTATION if ARCH_T1024
 	help
 	  This driver support the Freescale FMan Ethernet controller
 
@@ -373,6 +391,18 @@ config SYS_FMAN_V3
 	select FSL_MEMAC
 	help
 	  SoC has FMan v3 with mEMAC
+
+config FSL_FM_10GEC_REGULAR_NOTATION
+	bool
+	help
+	  On SoCs T4240, T2080, LS1043A, etc, the notation between 10GEC and
+	  MAC as below:
+		10GEC1->MAC9, 10GEC2->MAC10, 10GEC3->MAC1, 10GEC4->MAC2
+	  While on SoCs T1024, etc, the notation between 10GEC and MAC as below:
+		10GEC1->MAC1, 10GEC2->MAC2
+	  so we introduce CONFIG_FSL_FM_10GEC_REGULAR_NOTATION to identify the
+	  new SoCs on which 10GEC enumeration is consistent with MAC
+	  enumeration.
 
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"
@@ -676,6 +706,9 @@ config XILINX_AXIMRMAC
 	  rates from 10GE to 100GE. This could be present in some of the Xilinx
 	  Versal designs.
 
+config VSC7385_ENET
+	bool "Vitesse 7385 Switch Firmware Upload driver"
+
 config XILINX_EMACLITE
 	select PHYLIB
 	select MII
@@ -715,7 +748,6 @@ config RENESAS_RAVB
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
-	depends on DM_ETH
 	select MII
 	select SYS_DISCOVER_PHY
 	help

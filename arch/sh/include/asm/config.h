@@ -9,8 +9,7 @@
 #include <asm/processor.h>
 
 /* Timer */
-#define CONFIG_SYS_TIMER_COUNTS_DOWN
-#define CONFIG_SYS_TIMER_COUNTER	(TMU_BASE + 0xc)	/* TCNT0 */
-#define CONFIG_SYS_TIMER_RATE		(get_board_sys_clk() / 4)
+#define CFG_SYS_TIMER_COUNTER	(TMU_BASE + 0xc)	/* TCNT0 */
+#define CFG_SYS_TIMER_RATE		(get_board_sys_clk() / 4)
 
 #endif

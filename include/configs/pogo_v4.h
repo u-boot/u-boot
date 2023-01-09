@@ -61,18 +61,12 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	LOAD_ADDRESS_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"console=ttyS0,115200\0" \
 	BOOTENV
 #endif /* CONFIG_SPL_BUILD */
-
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	0
 
 #endif /* _CONFIG_POGO_V4_H */

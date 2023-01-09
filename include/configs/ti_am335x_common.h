@@ -11,19 +11,13 @@
 #ifndef __CONFIG_TI_AM335X_COMMON_H__
 #define __CONFIG_TI_AM335X_COMMON_H__
 
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
-#define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
+#define CFG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
+#define CFG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_NS16550_SERIAL
-#ifndef CONFIG_DM_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#endif
-#endif
-#define CONFIG_SYS_NS16550_CLK		48000000
+#define CFG_SYS_NS16550_CLK		48000000
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the

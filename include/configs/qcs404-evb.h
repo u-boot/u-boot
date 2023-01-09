@@ -11,9 +11,9 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap-qcs404.h>
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 230400, 460800, 921600 }
+#define CFG_SYS_BAUDRATE_TABLE	{ 115200, 230400, 460800, 921600 }
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x5000000\0"	\
 	"bootm_low=0x80000000\0"	\
 	"bootcmd=bootm $prevbl_initrd_start_addr\0"

@@ -17,17 +17,17 @@
 /*
  * SoC Configuration
  */
-#define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
-#define CONFIG_SYS_OSCIN_FREQ		24000000
-#define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
-#define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
+#define CFG_SYS_EXCEPTION_VECTORS_HIGH
+#define CFG_SYS_OSCIN_FREQ		24000000
+#define CFG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
+#define CFG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 
 /*
  * Memory Info
  */
 #define PHYS_SDRAM_1		DAVINCI_DDR_EMIF_DATA_BASE /* DDR Start */
 #define PHYS_SDRAM_1_SIZE	(64 << 20) /* SDRAM size 64MB */
-#define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
+#define CFG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
 
 /* memtest start addr */
 
@@ -36,10 +36,9 @@
 /*
  * Serial Driver info
  */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
+#define CFG_SYS_NS16550_CLK	clk_get(DAVINCI_UART2_CLKID)
 
-#define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
+#define CFG_SYS_SPI_CLK		clk_get(DAVINCI_SPI0_CLKID)
 
 /*
  * U-Boot general configuration
@@ -49,9 +48,7 @@
  * Linux Information
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
-#define CONFIG_HWCONFIG		/* enable hwconfig */
-#define CONFIG_SETUP_INITRD_TAG
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootenvfile=uEnv.txt\0" \
 	"fdtfile=da850-lego-ev3.dtb\0" \
 	"memsize=64M\0" \
@@ -86,7 +83,7 @@
 	"bootscript=source ${bootscraddr}\0"
 
 /* additions for new relocation code, must added to all boards */
-#define CONFIG_SYS_SDRAM_BASE		0xc0000000
+#define CFG_SYS_SDRAM_BASE		0xc0000000
 
 #include <asm/arch/hardware.h>
 

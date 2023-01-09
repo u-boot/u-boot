@@ -25,7 +25,7 @@
 	};
 
 	memory {
-		reg = <0 CONFIG_SYS_SDRAM_SIZE>;
+		reg = <0 CFG_SYS_SDRAM_SIZE>;
 	};
 
 	reserved-memory {

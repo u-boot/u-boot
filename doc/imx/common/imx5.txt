@@ -16,7 +16,7 @@ i.MX5x SoCs.
     of frequency deviation), avoiding system failure, or at least decreasing
     the likelihood of system failure.
 
-1.2 CONFIG_SYS_MAIN_PWR_ON: Trigger MAIN_PWR_ON upon startup.
+1.2 CFG_SYS_MAIN_PWR_ON: Trigger MAIN_PWR_ON upon startup.
     This option should be enabled for boards having a SYS_ON_OFF_CTL signal
     connected to GPIO1[23] and triggering the MAIN_PWR_ON signal like in the
     reference designs.

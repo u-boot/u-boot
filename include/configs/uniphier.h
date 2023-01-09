@@ -36,20 +36,15 @@
 	BOOT_TARGET_DEVICE_USB(func)
 
 #if !defined(CONFIG_ARM64)
-/* Time clock 1MHz */
-#define CONFIG_SYS_TIMER_RATE			1000000
+#define CFG_SYS_HZ_CLOCK			50000000
 #endif
 
-#define CONFIG_SYS_NAND_REGS_BASE			0x68100000
-#define CONFIG_SYS_NAND_DATA_BASE			0x68000000
+#define CFG_SYS_NAND_REGS_BASE			0x68100000
+#define CFG_SYS_NAND_DATA_BASE			0x68000000
 
 /*
  * Network Configuration
  */
-#define CONFIG_SERVERIP			192.168.11.1
-#define CONFIG_IPADDR			192.168.11.10
-#define CONFIG_GATEWAYIP		192.168.11.1
-#define CONFIG_NETMASK			255.255.255.0
 
 #if defined(CONFIG_ARM64)
 /* ARM Trusted Firmware */
@@ -61,8 +56,6 @@
 	"second_image=u-boot-spl.bin\0" \
 	"third_image=u-boot.bin\0"
 #endif
-
-#define CONFIG_ROOTPATH			"/nfs/root/path"
 
 #ifdef CONFIG_FIT
 #define KERNEL_ADDR_R_OFFSET		"0x05100000"
@@ -92,7 +85,7 @@
 		"run boot_common\0"
 #endif
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_addr_r_offset=0x05100000\0" \
 	"kernel_addr_r_offset=" KERNEL_ADDR_R_OFFSET "\0" \
 	"ramdisk_addr_r_offset=0x06000000\0" \
@@ -162,11 +155,11 @@
 	LINUXBOOT_ENV_SETTINGS \
 	BOOTENV
 
-#define CONFIG_SYS_BOOTMAPSZ			0x20000000
+#define CFG_SYS_BOOTMAPSZ			0x20000000
 
 /* only for SPL */
 
 /* subtract sizeof(struct legacy_img_hdr) */
-#define CONFIG_SYS_UBOOT_BASE			(0x130000 - 0x40)
+#define CFG_SYS_UBOOT_BASE			(0x130000 - 0x40)
 
 #endif /* __CONFIG_UNIPHIER_H__ */

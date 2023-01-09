@@ -385,6 +385,11 @@ config MMC_OMAP36XX_PINS
 
 	  If unsure, say N.
 
+config HSMMC2_8BIT
+	bool "Enable 8-bit interface for eMMC (interface #2)"
+	depends on MMC_OMAP_HS && (OMAP44XX || OMAP54XX || DRA7XX || AM33XX || \
+		AM43XX || ARCH_KEYSTONE)
+
 config SH_SDHI
 	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"
 	depends on ARCH_RMOBILE
@@ -820,8 +825,13 @@ config MMC_MTK
 
 endif
 
+config FSL_SDHC_V2_3
+	bool
+
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
+	select FSL_SDHC_V2_3 if ARCH_P1010 || ARCH_BSC9131 || ARCH_BSC9132 \
+		|| ARCH_C29X
 	help
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
@@ -880,6 +890,10 @@ config FSL_USDHC
 	select FSL_ESDHC_IMX
 	help
 	  This enables the Ultra Secured Digital Host Controller enhancements
+
+config FSL_ESDHC_PIN_MUX
+	bool "Perform esdhc device-tree fixup"
+	depends on (FSL_ESDHC || FSL_ESDHC_IMX) && OF_LIBFDT
 
 endmenu
 

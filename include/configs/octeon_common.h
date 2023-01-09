@@ -8,12 +8,12 @@
 #define __OCTEON_COMMON_H__
 
 #if defined(CONFIG_RAM_OCTEON)
-#define CONFIG_SYS_INIT_SP_OFFSET	0x20180000
+#define CFG_SYS_INIT_SP_OFFSET	0x20180000
 #else
 /* No DDR init -> run in L2 cache with limited resources */
-#define CONFIG_SYS_INIT_SP_OFFSET	0x00180000
+#define CFG_SYS_INIT_SP_OFFSET	0x00180000
 #endif
 
-#define CONFIG_SYS_SDRAM_BASE		0xffffffff80000000
+#define CFG_SYS_SDRAM_BASE		0xffffffff80000000
 
 #endif /* __OCTEON_COMMON_H__ */

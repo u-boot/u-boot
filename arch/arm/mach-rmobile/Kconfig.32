@@ -8,6 +8,7 @@ config RCAR_GEN2
 	bool "Renesas RCar Gen2"
 	select PHY
 	select PHY_RCAR_GEN2
+	select TMU_TIMER
 
 config R8A7740
 	bool "Renesas SoC R8A7740"
@@ -120,6 +121,9 @@ config TARGET_STOUT
 	imply CMD_DM
 
 endchoice
+
+config TMU_TIMER
+	bool
 
 config SYS_SOC
 	default "rmobile"

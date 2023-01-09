@@ -8,9 +8,9 @@
 
 #include "rcar-gen3-common.h"
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"usb_pgood_delay=2000\0"	\
 	"script=boot.scr\0" \
 	"image=Image\0" \

@@ -20,12 +20,11 @@
 #define GICR_BASE	0xF9060000
 
 /* Serial setup */
-#define CONFIG_SYS_BAUDRATE_TABLE \
+#define CFG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
 #if defined(CONFIG_CMD_DFU)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-#define CONFIG_THOR_RESET_OFF
 #define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
 	"setenv dfu_alt_info " \
@@ -124,8 +123,8 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#ifndef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV \
 	DFU_ALT_INFO

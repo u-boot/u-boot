@@ -1,3 +1,8 @@
+config POST
+	bool "Power On Self Test support"
+	help
+	  See doc/README.POST for more details
+
 menuconfig UNIT_TEST
 	bool "Unit tests"
 	help

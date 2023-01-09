@@ -35,20 +35,8 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootargs=console=ttyS0,115200\0" \
 	"autostart=no\0"
-
-/*
- * Ethernet Driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE_PORTS {1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR 8
-#endif /* CONFIG_CMD_NET */
-
-/*
- * EFI partition
- */
 
 #endif /* _CONFIG_NAS220_H */

@@ -17,15 +17,15 @@
 
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
- * If there is a need to operate slower, define CONFIG_FPGA_DELAY in
+ * If there is a need to operate slower, define CFG_FPGA_DELAY in
  * the board config file to slow things down.
  */
-#ifndef CONFIG_FPGA_DELAY
-#define CONFIG_FPGA_DELAY()
+#ifndef CFG_FPGA_DELAY
+#define CFG_FPGA_DELAY()
 #endif
 
-#ifndef CONFIG_SYS_FPGA_WAIT
-#define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/10		/* 100 ms */
+#ifndef CFG_SYS_FPGA_WAIT
+#define CFG_SYS_FPGA_WAIT CONFIG_SYS_HZ/10		/* 100 ms */
 #endif
 
 static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize);
@@ -137,8 +137,8 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		/* Wait for nSTATUS to be released (i.e. deasserted) */
 		ts = get_timer (0);		/* get current time */
 		do {
-			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			CFG_FPGA_DELAY ();
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for STATUS to go high.\n");
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
@@ -147,7 +147,7 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		} while ((*fn->status) (cookie));
 
 		/* Get ready for the burn */
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 
 		/* Load the data */
 		while (bytecount < bsize) {
@@ -172,13 +172,13 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 			do {
 				/* Deassert the clock */
 				(*fn->clk) (false, true, cookie);
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				/* Write data */
 				(*fn->data) ((val & 0x01), true, cookie);
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				/* Assert the clock */
 				(*fn->clk) (true, true, cookie);
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				val >>= 1;
 				i --;
 			} while (i > 0);
@@ -189,7 +189,7 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 #endif
 		}
 
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc (' ');			/* terminate the dotted line */
@@ -210,9 +210,9 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 	 */
 
 	for (i = 0; i < 12; i++) {
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 		(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 		(*fn->clk) (false, true, cookie);	/* Deassert the clock pin */
 	}
 

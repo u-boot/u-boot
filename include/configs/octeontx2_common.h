@@ -10,12 +10,12 @@
 /** Maximum size of image supported for bootm (and bootable FIT images) */
 
 /** Memory base address */
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_TEXT_BASE
+#define CFG_SYS_SDRAM_BASE		CONFIG_TEXT_BASE
 
 /** Stack starting address */
 
 /** Extra environment settings */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 					"loadaddr=20080000\0"	\
 					"ethrotate=yes\0"
 

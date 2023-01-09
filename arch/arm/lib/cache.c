@@ -152,7 +152,7 @@ __weak int arm_reserve_mmu(void)
 	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
 	      gd->arch.tlb_addr + gd->arch.tlb_size);
 
-#ifdef CONFIG_SYS_MEM_RESERVE_SECURE
+#ifdef CFG_SYS_MEM_RESERVE_SECURE
 	/*
 	 * Record allocated tlb_addr in case gd->tlb_addr to be overwritten
 	 * with location within secure ram.

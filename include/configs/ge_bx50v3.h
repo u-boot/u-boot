@@ -41,7 +41,7 @@
 
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	NETWORKBOOT \
 	"image=/boot/fitImage\0" \
 	"dev=mmc\0" \
@@ -92,20 +92,14 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
+#define CFG_SYS_BOOTMAPSZ (256 << 20)     /* 256M */
 
-#define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE          PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* environment organization */
 
 #define CFG_SYS_FSL_USDHC_NUM	3
-
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
-#define CONFIG_IMX6_PWM_PER_CLK	66000000
 
 #endif	/* __GE_BX50V3_CONFIG_H */

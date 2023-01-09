@@ -180,24 +180,6 @@ void watchdog_reset (void)
 }
 #endif
 
-#ifndef CONFIG_DM_ETH
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-int cpu_eth_init(struct bd_info *bis)
-{
-#if defined(CONFIG_UEC_ETH)
-	uec_standard_init(bis);
-#endif
-
-#if defined(CONFIG_TSEC_ENET)
-	tsec_standard_init(bis);
-#endif
-	return 0;
-}
-#endif /* !CONFIG_DM_ETH */
-
 /*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()

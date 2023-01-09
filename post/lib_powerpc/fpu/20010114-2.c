@@ -13,7 +13,7 @@
 
 GNU_FPOST_ATTR
 
-#if CONFIG_POST & CONFIG_SYS_POST_FPU
+#if CFG_POST & CFG_SYS_POST_FPU
 
 static float rintf (float x)
 {
@@ -45,4 +45,4 @@ int fpu_post_test_math2 (void)
 	return 0;
 }
 
-#endif /* CONFIG_POST & CONFIG_SYS_POST_FPU */
+#endif /* CFG_POST & CFG_SYS_POST_FPU */

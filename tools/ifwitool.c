@@ -1441,23 +1441,20 @@ static void bpdt_fixup_write_buffer(struct buffer *buf)
 
 	size_t offset = 0;
 
-	offset = fix_member(&h->signature, offset, sizeof(h->signature));
-	offset = fix_member(&h->descriptor_count, offset,
-			    sizeof(h->descriptor_count));
-	offset = fix_member(&h->bpdt_version, offset, sizeof(h->bpdt_version));
-	offset = fix_member(&h->xor_redundant_block, offset,
-			    sizeof(h->xor_redundant_block));
-	offset = fix_member(&h->ifwi_version, offset, sizeof(h->ifwi_version));
-	offset = fix_member(&h->fit_tool_version, offset,
-			    sizeof(h->fit_tool_version));
+	offset = fix_member(&s, offset, sizeof(h->signature));
+	offset = fix_member(&s, offset, sizeof(h->descriptor_count));
+	offset = fix_member(&s, offset, sizeof(h->bpdt_version));
+	offset = fix_member(&s, offset, sizeof(h->xor_redundant_block));
+	offset = fix_member(&s, offset, sizeof(h->ifwi_version));
+	offset = fix_member(&s, offset, sizeof(h->fit_tool_version));
 
 	uint32_t i;
 
 	for (i = 0; i < count; i++) {
-		offset = fix_member(&e[i].type, offset, sizeof(e[i].type));
-		offset = fix_member(&e[i].flags, offset, sizeof(e[i].flags));
-		offset = fix_member(&e[i].offset, offset, sizeof(e[i].offset));
-		offset = fix_member(&e[i].size, offset, sizeof(e[i].size));
+		offset = fix_member(&s, offset, sizeof(e[i].type));
+		offset = fix_member(&s, offset, sizeof(e[i].flags));
+		offset = fix_member(&s, offset, sizeof(e[i].offset));
+		offset = fix_member(&s, offset, sizeof(e[i].size));
 	}
 }
 
@@ -1628,6 +1625,8 @@ static void init_manifest_header(struct manifest_header *hdr, size_t size)
 
 	curr_time = time(NULL);
 	local_time = localtime(&curr_time);
+	assert(local_time != NULL);
+
 	strftime(buffer, sizeof(buffer), "0x%Y%m%d", local_time);
 	hdr->date = strtoul(buffer, NULL, 16);
 
@@ -1655,24 +1654,21 @@ static void subpart_dir_fixup_write_buffer(struct buffer *buf)
 	size_t count = h->num_entries;
 	size_t offset = 0;
 
-	offset = fix_member(&h->marker, offset, sizeof(h->marker));
-	offset = fix_member(&h->num_entries, offset, sizeof(h->num_entries));
-	offset = fix_member(&h->header_version, offset,
-			    sizeof(h->header_version));
-	offset = fix_member(&h->entry_version, offset,
-			    sizeof(h->entry_version));
-	offset = fix_member(&h->header_length, offset,
-			    sizeof(h->header_length));
-	offset = fix_member(&h->checksum, offset, sizeof(h->checksum));
+	offset = fix_member(&s, offset, sizeof(h->marker));
+	offset = fix_member(&s, offset, sizeof(h->num_entries));
+	offset = fix_member(&s, offset, sizeof(h->header_version));
+	offset = fix_member(&s, offset, sizeof(h->entry_version));
+	offset = fix_member(&s, offset, sizeof(h->header_length));
+	offset = fix_member(&s, offset, sizeof(h->checksum));
 	offset += sizeof(h->name);
 
 	uint32_t i;
 
 	for (i = 0; i < count; i++) {
 		offset += sizeof(e[i].name);
-		offset = fix_member(&e[i].offset, offset, sizeof(e[i].offset));
-		offset = fix_member(&e[i].length, offset, sizeof(e[i].length));
-		offset = fix_member(&e[i].rsvd, offset, sizeof(e[i].rsvd));
+		offset = fix_member(&s, offset, sizeof(e[i].offset));
+		offset = fix_member(&s, offset, sizeof(e[i].length));
+		offset = fix_member(&s, offset, sizeof(e[i].rsvd));
 	}
 }
 

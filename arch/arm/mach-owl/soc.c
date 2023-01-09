@@ -50,7 +50,7 @@ int dram_init(void)
 /* This is called after dram_init() so use get_ram_size result */
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = gd->ram_size;
 
 	return 0;

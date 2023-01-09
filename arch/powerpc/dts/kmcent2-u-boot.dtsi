@@ -74,24 +74,6 @@
 		compatible = "fsl,pcie-t104x";
 		law_trgt_if = <0>;
 	};
-
-	binman {
-		filename = "u-boot.bin";
-		skip-at-start = <CONFIG_TEXT_BASE>;
-		sort-by-offset;
-		pad-byte = <0xff>;
-		size = <CONFIG_SYS_MONITOR_LEN>;
-
-		u-boot-with-ucode-ptr {
-			offset = <CONFIG_TEXT_BASE>;
-			optional-ucode;
-		};
-
-		u-boot-dtb-with-ucode {
-			align = <256>;
-		};
-		powerpc-mpc85xx-bootpg-resetvec {
-			offset = <(CONFIG_RESET_VECTOR_ADDRESS - 0xffc)>;
-		};
-	};
 };
+
+#include "u-boot.dtsi"

@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20221003-17Oct2022
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20221101-22Nov2022
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -30,7 +30,7 @@ stages:
           %CD:~0,2%\msys64\usr\bin\bash -lc "pacman --noconfirm --needed -Sy make gcc bison flex diffutils openssl-devel libgnutls-devel libutil-linux-devel"
         displayName: 'Install Toolchain'
       - script: |
-          echo make tools-only_defconfig tools-only NO_SDL=1 > build-tools.sh
+          echo make tools-only_defconfig tools-only > build-tools.sh
           %CD:~0,2%\msys64\usr\bin\bash -lc "bash build-tools.sh"
         displayName: 'Build Host Tools'
         env:
@@ -47,43 +47,24 @@ stages:
       - script: brew install make ossp-uuid
         displayName: Brew install dependencies
       - script: |
-          gmake tools-only_config tools-only NO_SDL=1 \
+          gmake tools-only_config tools-only \
             HOSTCFLAGS="-I/usr/local/opt/openssl@1.1/include" \
             HOSTLDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
             -j$(sysctl -n hw.logicalcpu)
         displayName: 'Perform tools-only build'
 
-  - job: check_for_migrated_symbols_in_board_header
-    displayName: 'Check for migrated symbols in board header'
+  - job: check_for_new_CONFIG_symbols_outside_Kconfig
+    displayName: 'Check for new CONFIG symbols outside Kconfig'
     pool:
       vmImage: $(ubuntu_vm)
     container:
       image: $(ci_runner_image)
       options: $(container_option)
     steps:
-      - script: |
-          KSYMLST=`mktemp`
-          KUSEDLST=`mktemp`
-          RET=0
-          cat `find . -name "Kconfig*"` | \
-             sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
-             -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p' \
-             | sort -u > $KSYMLST
-          for CFG in `find include/configs -name "*.h"`; do
-             (grep '#define[[:blank:]]CONFIG_' $CFG | \
-                sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' ; \
-                grep '#undef[[:blank:]]CONFIG_' $CFG | \
-                sed -n 's/#undef.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p') | \
-                sort -u > ${KUSEDLST} || true
-             NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} | \
-                cut -d , -f 3`
-             if [[ $NUM -ne 0 ]]; then
-                echo "Unmigrated symbols found in $CFG:"
-                comm -12 ${KSYMLST} ${KUSEDLST}
-                RET=1
-             fi
-          done
-          exit $RET
+      # If grep succeeds and finds a match the test fails as we should
+      # have no matches.
+      - script: git grep -E '^#[[:blank:]]*(define|undef)[[:blank:]]*CONFIG_'
+                  include/configs `find arch -name config.h` && exit 1 || exit 0
 
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'
@@ -204,7 +185,7 @@ stages:
       options: $(container_option)
     steps:
       - script: |
-          export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
+          export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
   - job: pylint
@@ -242,7 +223,7 @@ stages:
           TEST_PY_BD: "sandbox"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-13"
+          OVERRIDE: "-O clang-14"
         sandbox_nolto:
           TEST_PY_BD: "sandbox"
           BUILD_ENV: "NO_LTO=1"
@@ -488,7 +469,7 @@ stages:
           OVERRIDE: "-a ASAN"
         sandbox_clang_asan:
           BUILDMAN: "sandbox"
-          OVERRIDE: "-O clang-13 -a ASAN"
+          OVERRIDE: "-O clang-14 -a ASAN"
         samsung_socfpga:
           BUILDMAN: "samsung socfpga"
         sun4i:

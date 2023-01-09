@@ -191,7 +191,7 @@ static int rcar_gen2_pci_probe(struct udevice *dev)
 
 	/* AHB-PCI Bridge Communication Registers */
 	writel(RCAR_AHB_BUS_MODE, priv->cfg_base + RCAR_AHB_BUS_CTR_REG);
-	writel((CONFIG_SYS_SDRAM_BASE & 0xf0000000) | RCAR_PCIAHB_PREFETCH16,
+	writel((CFG_SYS_SDRAM_BASE & 0xf0000000) | RCAR_PCIAHB_PREFETCH16,
 	       priv->cfg_base + RCAR_PCIAHB_WIN1_CTR_REG);
 	writel(0xf0000000 | RCAR_PCIAHB_PREFETCH16,
 	       priv->cfg_base + RCAR_PCIAHB_WIN2_CTR_REG);
@@ -204,7 +204,7 @@ static int rcar_gen2_pci_probe(struct udevice *dev)
 	/* PCI Configuration Registers for AHBPCI */
 	devad = setup_bus_address(dev, PCI_BDF(0, 0, 0), 0);
 	writel(priv->cfg_base + 0x800, devad + PCI_BASE_ADDRESS_0);
-	writel(CONFIG_SYS_SDRAM_BASE & 0xf0000000, devad + PCI_BASE_ADDRESS_1);
+	writel(CFG_SYS_SDRAM_BASE & 0xf0000000, devad + PCI_BASE_ADDRESS_1);
 	writel(0xf0000000, devad + PCI_BASE_ADDRESS_2);
 	writel(PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER |
 	       PCI_COMMAND_PARITY | PCI_COMMAND_SERR,

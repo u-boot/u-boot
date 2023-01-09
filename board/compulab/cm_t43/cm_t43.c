@@ -45,7 +45,7 @@ int power_init_board(void)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 	gpmc_init();
 	set_i2c_pin_mux();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);

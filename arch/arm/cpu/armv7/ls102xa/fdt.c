@@ -125,7 +125,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 
 #ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "fsl,16550-FIFO64",
-			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
+			       "clock-frequency", CFG_SYS_NS16550_CLK, 1);
 #endif
 
 	sysclk_path = fdt_get_alias(blob, "sysclk");
@@ -183,7 +183,7 @@ void ft_cpu_setup(void *blob, struct bd_info *bd)
 
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 	off = fdt_node_offset_by_compat_reg(blob, FSL_IFC_COMPAT,
-					    CONFIG_SYS_IFC_ADDR);
+					    CFG_SYS_IFC_ADDR);
 	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED);
 #else
 	off = fdt_node_offset_by_compat_reg(blob, FSL_QSPI_COMPAT,

@@ -19,10 +19,10 @@
 #define FAR_END_DIMM_ADDR		0x50
 #define MAX_DIMM_ADDR			0x60
 
-#ifndef CONFIG_SYS_SDRAM_SIZE
+#ifndef CFG_SYS_SDRAM_SIZE
 #define SDRAM_CS_SIZE			0xFFFFFFF
 #else
-#define SDRAM_CS_SIZE			((CONFIG_SYS_SDRAM_SIZE >> 10) - 1)
+#define SDRAM_CS_SIZE			((CFG_SYS_SDRAM_SIZE >> 10) - 1)
 #endif
 #define SDRAM_CS_BASE			0x0
 #define SDRAM_DIMM_SIZE			0x80000000

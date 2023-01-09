@@ -10,9 +10,9 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
+#define CFG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
+#undef CFG_EXTRA_ENV_SETTINGS
 
 /*
  * Use:
@@ -22,7 +22,7 @@
  */
 #define MY_CONFIG_BOOT_MODE	"boot-mode=sd\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	MY_CONFIG_BOOT_MODE \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
@@ -69,9 +69,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM					MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* MMC Config*/
 #define CFG_SYS_FSL_ESDHC_ADDR       USDHC1_BASE_ADDR
@@ -79,11 +79,6 @@
 
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-
-#define CONFIG_USBD_HS
-
-/* SPL */
-#include "imx7_spl.h"
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #endif	/* __CONFIG_H */

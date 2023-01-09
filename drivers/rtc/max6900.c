@@ -16,20 +16,20 @@
 #include <i2c.h>
 #include <linux/delay.h>
 
-#ifndef	CONFIG_SYS_I2C_RTC_ADDR
-#define	CONFIG_SYS_I2C_RTC_ADDR	0x50
+#ifndef	CFG_SYS_I2C_RTC_ADDR
+#define	CFG_SYS_I2C_RTC_ADDR	0x50
 #endif
 
 /* ------------------------------------------------------------------------- */
 
 static uchar rtc_read (uchar reg)
 {
-	return (i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg));
+	return (i2c_reg_read (CFG_SYS_I2C_RTC_ADDR, reg));
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
-	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
+	i2c_reg_write (CFG_SYS_I2C_RTC_ADDR, reg, val);
 	udelay(2500);
 }
 

@@ -18,19 +18,11 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=console=ttyS0,115200\0"				\
 	"kernel=/boot/zImage\0"						\
 	"fdt=/boot/ib62x0.dtb\0"					\
 	"bootargs_root=ubi.mtd=2 root=ubi0:rootfs rootfstype=ubifs rw\0"
-
-/*
- * Ethernet driver configuration
- */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	0
-#endif /* CONFIG_CMD_NET */
 
 /*
  * SATA driver configuration

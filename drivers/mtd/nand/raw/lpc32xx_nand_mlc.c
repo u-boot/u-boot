@@ -84,8 +84,8 @@ struct lpc32xx_nand_mlc_registers {
 static struct lpc32xx_nand_mlc_registers __iomem *lpc32xx_nand_mlc_registers
 	= (struct lpc32xx_nand_mlc_registers __iomem *)MLC_NAND_BASE;
 
-#if !defined(CONFIG_SYS_MAX_NAND_CHIPS)
-#define CONFIG_SYS_MAX_NAND_CHIPS	1
+#if !defined(CFG_SYS_MAX_NAND_CHIPS)
+#define CFG_SYS_MAX_NAND_CHIPS	1
 #endif
 
 #define clkdiv(v, w, o) (((1+(clk/v)) & w) << o)
@@ -141,13 +141,13 @@ static void lpc32xx_nand_init(void)
 	clk = get_hclk_clk_rate();
 
 	writel(
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_TCEA_DELAY, 0x03, 24) |
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_BUSY_DELAY, 0x1F, 19) |
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_NAND_TA,    0x07, 16) |
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_RD_HIGH,    0x0F, 12) |
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_RD_LOW,     0x0F, 8) |
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_WR_HIGH,    0x0F, 4) |
-		clkdiv(CONFIG_LPC32XX_NAND_MLC_WR_LOW,     0x0F, 0),
+		clkdiv(CFG_LPC32XX_NAND_MLC_TCEA_DELAY, 0x03, 24) |
+		clkdiv(CFG_LPC32XX_NAND_MLC_BUSY_DELAY, 0x1F, 19) |
+		clkdiv(CFG_LPC32XX_NAND_MLC_NAND_TA,    0x07, 16) |
+		clkdiv(CFG_LPC32XX_NAND_MLC_RD_HIGH,    0x0F, 12) |
+		clkdiv(CFG_LPC32XX_NAND_MLC_RD_LOW,     0x0F, 8) |
+		clkdiv(CFG_LPC32XX_NAND_MLC_WR_HIGH,    0x0F, 4) |
+		clkdiv(CFG_LPC32XX_NAND_MLC_WR_LOW,     0x0F, 0),
 		&lpc32xx_nand_mlc_registers->time_reg);
 }
 
@@ -586,7 +586,7 @@ void board_nand_init(void)
 	lpc32xx_nand_init();
 
 	/* identify chip */
-	ret = nand_scan_ident(mtd, CONFIG_SYS_MAX_NAND_CHIPS, NULL);
+	ret = nand_scan_ident(mtd, CFG_SYS_MAX_NAND_CHIPS, NULL);
 	if (ret) {
 		pr_err("nand_scan_ident returned %i", ret);
 		return;

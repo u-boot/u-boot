@@ -15,11 +15,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-#endif
-
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	0
@@ -30,22 +26,12 @@
 
 /* USB Configs */
 /* Host */
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
-/* Client */
-#define CONFIG_USBD_HS
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 
 /* Framebuffer and LCD */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
 
 /* Command definition */
-
-#undef CONFIG_IPADDR
-#define CONFIG_IPADDR			192.168.10.2
-#define CONFIG_NETMASK			255.255.255.0
-#undef CONFIG_SERVERIP
-#define CONFIG_SERVERIP			192.168.10.1
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
@@ -76,7 +62,7 @@
 	"ramdisk_addr_r=0x18400000\0" \
 	"scriptaddr=0x18280000\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"boot_file=zImage\0" \
 	"boot_script_dhcp=boot.scr\0" \
@@ -110,8 +96,8 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 #endif	/* __CONFIG_H */

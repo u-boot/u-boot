@@ -53,7 +53,7 @@
  * AMD/Spansion Application Note: Migration from Single-byte to Three-byte
  *   Device IDs, Publication Number 25538 Revision A, November 8, 2001
  *
- * Define CONFIG_SYS_WRITE_SWAPPED_DATA, if you have to swap the Bytes between
+ * Define CFG_SYS_WRITE_SWAPPED_DATA, if you have to swap the Bytes between
  * reading and writing ... (yes there is such a Hardware).
  */
 
@@ -119,14 +119,14 @@ phys_addr_t cfi_flash_bank_addr(int i)
 #else
 __weak phys_addr_t cfi_flash_bank_addr(int i)
 {
-	return ((phys_addr_t [])CONFIG_SYS_FLASH_BANKS_LIST)[i];
+	return ((phys_addr_t [])CFG_SYS_FLASH_BANKS_LIST)[i];
 }
 #endif
 
 __weak unsigned long cfi_flash_bank_size(int i)
 {
-#ifdef CONFIG_SYS_FLASH_BANKS_SIZES
-	return ((unsigned long [])CONFIG_SYS_FLASH_BANKS_SIZES)[i];
+#ifdef CFG_SYS_FLASH_BANKS_SIZES
+	return ((unsigned long [])CFG_SYS_FLASH_BANKS_SIZES)[i];
 #else
 	return 0;
 #endif
@@ -178,7 +178,7 @@ __maybe_weak u64 flash_read64(void *addr)
  */
 #if defined(CONFIG_ENV_IS_IN_FLASH) || defined(CONFIG_ENV_ADDR_REDUND) || \
 	(defined(CONFIG_SYS_MONITOR_BASE) && \
-	(CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE))
+	(CONFIG_SYS_MONITOR_BASE >= CFG_SYS_FLASH_BASE))
 static flash_info_t *flash_get_info(ulong base)
 {
 	int i;
@@ -227,7 +227,7 @@ static void flash_make_cmd(flash_info_t *info, u32 cmd, void *cmdbuf)
 	int i;
 	int cword_offset;
 	int cp_offset;
-#if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_SYS_WRITE_SWAPPED_DATA)
 	u32 cmd_le = cpu_to_le32(cmd);
 #endif
 	uchar val;
@@ -235,7 +235,7 @@ static void flash_make_cmd(flash_info_t *info, u32 cmd, void *cmdbuf)
 
 	for (i = info->portwidth; i > 0; i--) {
 		cword_offset = (info->portwidth - i) % info->chipwidth;
-#if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_SYS_WRITE_SWAPPED_DATA)
 		cp_offset = info->portwidth - i;
 		val = *((uchar *)&cmd_le + cword_offset);
 #else
@@ -292,7 +292,7 @@ static inline uchar flash_read_uchar(flash_info_t *info, uint offset)
 	uchar retval;
 
 	cp = flash_map(info, 0, offset);
-#if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_SYS_WRITE_SWAPPED_DATA)
 	retval = flash_read8(cp);
 #else
 	retval = flash_read8(cp + info->portwidth - 1);
@@ -335,7 +335,7 @@ static ulong flash_read_long (flash_info_t *info, flash_sect_t sect,
 	for (x = 0; x < 4 * info->portwidth; x++)
 		debug("addr[%x] = 0x%x\n", x, flash_read8(addr + x));
 #endif
-#if defined(__LITTLE_ENDIAN) || defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) || defined(CFG_SYS_WRITE_SWAPPED_DATA)
 	retval = ((flash_read8(addr) << 16) |
 		  (flash_read8(addr + info->portwidth) << 24) |
 		  (flash_read8(addr + 2 * info->portwidth)) |
@@ -580,7 +580,7 @@ static int flash_status_check(flash_info_t *info, flash_sect_t sector,
 #endif
 
 	/* Wait for command completion */
-#ifdef CONFIG_SYS_LOW_RES_TIMER
+#ifdef CFG_SYS_LOW_RES_TIMER
 	reset_timer();
 #endif
 	start = get_timer(0);
@@ -673,7 +673,7 @@ static int flash_status_poll(flash_info_t *info, void *src, void *dst,
 #endif
 
 	/* Wait for command completion */
-#ifdef CONFIG_SYS_LOW_RES_TIMER
+#ifdef CFG_SYS_LOW_RES_TIMER
 	reset_timer();
 #endif
 	start = get_timer(0);
@@ -713,7 +713,7 @@ static int flash_status_poll(flash_info_t *info, void *src, void *dst,
  */
 static void flash_add_byte(flash_info_t *info, cfiword_t *cword, uchar c)
 {
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_SYS_WRITE_SWAPPED_DATA)
 	unsigned short	w;
 	unsigned int	l;
 	unsigned long long ll;
@@ -724,7 +724,7 @@ static void flash_add_byte(flash_info_t *info, cfiword_t *cword, uchar c)
 		cword->w8 = c;
 		break;
 	case FLASH_CFI_16BIT:
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_SYS_WRITE_SWAPPED_DATA)
 		w = c;
 		w <<= 8;
 		cword->w16 = (cword->w16 >> 8) | w;
@@ -733,7 +733,7 @@ static void flash_add_byte(flash_info_t *info, cfiword_t *cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_32BIT:
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_SYS_WRITE_SWAPPED_DATA)
 		l = c;
 		l <<= 24;
 		cword->w32 = (cword->w32 >> 8) | l;
@@ -742,7 +742,7 @@ static void flash_add_byte(flash_info_t *info, cfiword_t *cword, uchar c)
 #endif
 		break;
 	case FLASH_CFI_64BIT:
-#if defined(__LITTLE_ENDIAN) && !defined(CONFIG_SYS_WRITE_SWAPPED_DATA)
+#if defined(__LITTLE_ENDIAN) && !defined(CFG_SYS_WRITE_SWAPPED_DATA)
 		ll = c;
 		ll <<= 56;
 		cword->w64 = (cword->w64 >> 8) | ll;
@@ -1292,7 +1292,7 @@ void flash_print_info(flash_info_t *info)
  * effect updates to digit and dots.  Repeated code is nasty too, so
  * we define it once here.
  */
-#ifdef CONFIG_FLASH_SHOW_PROGRESS
+#if CONFIG_FLASH_SHOW_PROGRESS
 #define FLASH_SHOW_PROGRESS(scale, dots, digit, dots_sub) \
 	if (flash_verbose) { \
 		dots -= dots_sub; \
@@ -1325,7 +1325,7 @@ int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 #ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 	int buffered_size;
 #endif
-#ifdef CONFIG_FLASH_SHOW_PROGRESS
+#if CONFIG_FLASH_SHOW_PROGRESS
 	int digit = CONFIG_FLASH_SHOW_PROGRESS;
 	int scale = 0;
 	int dots  = 0;
@@ -2359,7 +2359,7 @@ static void flash_protect_default(void)
 
 	/* Monitor protection ON by default */
 #if defined(CONFIG_SYS_MONITOR_BASE) && \
-	(CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE) && \
+	(CONFIG_SYS_MONITOR_BASE >= CFG_SYS_FLASH_BASE) && \
 	(!defined(CONFIG_MONITOR_IS_IN_RAM))
 	flash_protect(FLAG_PROTECT_SET,
 		      CONFIG_SYS_MONITOR_BASE,

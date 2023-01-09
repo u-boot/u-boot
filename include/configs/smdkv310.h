@@ -11,7 +11,7 @@
 #include "exynos4-common.h"
 
 /* High Level Configuration Options */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 
 /* Handling Sleep Mode*/
 #define S5P_CHECK_SLEEP			0x00000BAD
@@ -23,26 +23,20 @@
 
 /* SMDKV310 has 4 bank of DRAM */
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
+#define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_1_SIZE	SDRAM_BANK_SIZE
-#define PHYS_SDRAM_2		(CONFIG_SYS_SDRAM_BASE + SDRAM_BANK_SIZE)
+#define PHYS_SDRAM_2		(CFG_SYS_SDRAM_BASE + SDRAM_BANK_SIZE)
 #define PHYS_SDRAM_2_SIZE	SDRAM_BANK_SIZE
-#define PHYS_SDRAM_3		(CONFIG_SYS_SDRAM_BASE + (2 * SDRAM_BANK_SIZE))
+#define PHYS_SDRAM_3		(CFG_SYS_SDRAM_BASE + (2 * SDRAM_BANK_SIZE))
 #define PHYS_SDRAM_3_SIZE	SDRAM_BANK_SIZE
-#define PHYS_SDRAM_4		(CONFIG_SYS_SDRAM_BASE + (3 * SDRAM_BANK_SIZE))
+#define PHYS_SDRAM_4		(CFG_SYS_SDRAM_BASE + (3 * SDRAM_BANK_SIZE))
 #define PHYS_SDRAM_4_SIZE	SDRAM_BANK_SIZE
 
 /* FLASH and environment organization */
 
-/* MIU (Memory Interleaving Unit) */
-#define CONFIG_MIU_2BIT_INTERLEAVED
-
-#define RESERVE_BLOCK_SIZE		(512)
-#define BL1_SIZE			(16 << 10) /*16 K reserved for BL1*/
-
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_ENV_SROM_BANK		1
+#define CFG_ENV_SROM_BANK		1
 #endif /*CONFIG_CMD_NET*/
 
 #endif	/* __CONFIG_H */

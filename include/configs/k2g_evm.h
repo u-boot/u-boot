@@ -50,13 +50,8 @@
 	"get_mon_mmc=load mmc ${bootpart} ${addr_mon} ${bootdir}/${name_mon}\0"\
 	"name_fs=arago-base-tisdk-image-k2g-evm.cpio\0"
 
-/* NAND Configuration */
-#define CONFIG_SYS_NAND_PAGE_2K
-
 /* Network */
-#define CONFIG_KSNET_NETCP_V1_5
-#define CONFIG_KSNET_CPSW_NUM_PORTS	2
-#define CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
+#define CFG_KSNET_CPSW_NUM_PORTS	2
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
 #define SPI_MTD_PARTS	KEYSTONE_SPI1_MTD_PARTS

@@ -31,11 +31,6 @@
 #include <asm/arch/clock.h>
 #include "octeontx_bch.h"
 
-#ifdef DEBUG
-# undef CONFIG_LOGLEVEL
-# define CONFIG_LOGLEVEL 8
-#endif
-
 /*
  * The NDF_CMD queue takes commands between 16 - 128 bit.
  * All commands must be 16 bit aligned and are little endian.

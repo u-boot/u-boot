@@ -76,7 +76,7 @@ unsigned long notrace timer_early_get_rate(void)
 	if (IS_ENABLED(CONFIG_ARCH_MVEBU))
 		return MVEBU_TIMER_FIXED_RATE_25MHZ;
 	else
-		return CONFIG_SYS_TCLK;
+		return CFG_SYS_TCLK;
 }
 
 /**
@@ -121,7 +121,7 @@ static int orion_timer_probe(struct udevice *dev)
 	if (type == INPUT_CLOCK_25MHZ)
 		uc_priv->clock_rate = MVEBU_TIMER_FIXED_RATE_25MHZ;
 	else
-		uc_priv->clock_rate = CONFIG_SYS_TCLK;
+		uc_priv->clock_rate = CFG_SYS_TCLK;
 	orion_timer_init(priv->base, type);
 
 	return 0;

@@ -10,7 +10,7 @@
 static u32 get_sec_mon_state(void)
 {
 	struct ccsr_sec_mon_regs *sec_mon_regs = (void *)
-						(CONFIG_SYS_SEC_MON_ADDR);
+						(CFG_SYS_SEC_MON_ADDR);
 	return sec_mon_in32(&sec_mon_regs->hp_stat) & HPSR_SSM_ST_MASK;
 }
 
@@ -19,7 +19,7 @@ static int set_sec_mon_state_non_sec(void)
 	u32 sts;
 	int timeout = 10;
 	struct ccsr_sec_mon_regs *sec_mon_regs = (void *)
-						(CONFIG_SYS_SEC_MON_ADDR);
+						(CFG_SYS_SEC_MON_ADDR);
 
 	sts = get_sec_mon_state();
 
@@ -120,7 +120,7 @@ static int set_sec_mon_state_soft_fail(void)
 	u32 sts;
 	int timeout = 10;
 	struct ccsr_sec_mon_regs *sec_mon_regs = (void *)
-						(CONFIG_SYS_SEC_MON_ADDR);
+						(CFG_SYS_SEC_MON_ADDR);
 
 	printf("SEC_MON state transitioning to Soft Fail.\n");
 	sec_mon_setbits32(&sec_mon_regs->hp_com, HPCOMR_SW_FSV);

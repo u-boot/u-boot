@@ -26,8 +26,8 @@
 /*
  * U-Boot run time memory configurations
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x40000
+#define CFG_SYS_INIT_RAM_ADDR	0xFFE00000
+#define CFG_SYS_INIT_RAM_SIZE	0x40000
 
 /*
  * U-Boot environment configurations
@@ -36,7 +36,7 @@
 /*
  * Environment variable
  */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"bootfile=" CONFIG_BOOTFILE "\0" \
 	"fdt_addr=8000000\0" \
@@ -70,13 +70,12 @@
  */
 #define PHYS_SDRAM_1			0x0
 #define PHYS_SDRAM_1_SIZE		(1 * 1024 * 1024 * 1024)
-#define CONFIG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_BASE		0
 
 /*
  * Serial / UART configurations
  */
-#define CONFIG_SYS_NS16550_CLK		100000000
-#define CONFIG_SYS_NS16550_MEM32
+#define CFG_SYS_NS16550_CLK		100000000
 
 /*
  * SDMMC configurations
@@ -91,10 +90,10 @@
 #ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
 #ifndef __ASSEMBLY__
 unsigned int cm_get_l4_sys_free_clk_hz(void);
-#define CONFIG_DW_WDT_CLOCK_KHZ		(cm_get_l4_sys_free_clk_hz() / 1000)
+#define CFG_DW_WDT_CLOCK_KHZ		(cm_get_l4_sys_free_clk_hz() / 1000)
 #endif
 #else
-#define CONFIG_DW_WDT_CLOCK_KHZ		100000
+#define CFG_DW_WDT_CLOCK_KHZ		100000
 #endif
 
 /*

@@ -11,11 +11,11 @@
 /* Sdram Bank #1 Address */
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_1_SIZE		0x7B000000
-#define CONFIG_SYS_SDRAM_BASE   PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE   PHYS_SDRAM_1
 
 /* BOOT */
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"load_kernel=ext4load scsi 0:1 0x90100000 uImage-2004\0"	\
 	"load_fdt=ext4load scsi 0:1 0x95000000 ft2004-pci-64.dtb\0"\
 	"boot_fdt=bootm 0x90100000 -:- 0x95000000\0"	\

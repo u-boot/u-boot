@@ -62,7 +62,7 @@ static void trap_init(ulong value) {
 
 int arch_initr_trap(void)
 {
-	trap_init(CONFIG_SYS_SDRAM_BASE);
+	trap_init(CFG_SYS_SDRAM_BASE);
 
 	return 0;
 }

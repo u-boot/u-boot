@@ -37,34 +37,34 @@ void cpu_init_f(void)
 	out_be32(&scm1->pacrf, 0);
 	out_be32(&scm1->pacrg, 0);
 
-#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) \
-     && defined(CONFIG_SYS_CS0_CTRL))
+#if (defined(CFG_SYS_CS0_BASE) && defined(CFG_SYS_CS0_MASK) \
+     && defined(CFG_SYS_CS0_CTRL))
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS0_CS0);
-	out_be32(&fbcs->csar0, CONFIG_SYS_CS0_BASE);
-	out_be32(&fbcs->cscr0, CONFIG_SYS_CS0_CTRL);
-	out_be32(&fbcs->csmr0, CONFIG_SYS_CS0_MASK);
+	out_be32(&fbcs->csar0, CFG_SYS_CS0_BASE);
+	out_be32(&fbcs->cscr0, CFG_SYS_CS0_CTRL);
+	out_be32(&fbcs->csmr0, CFG_SYS_CS0_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) \
-     && defined(CONFIG_SYS_CS1_CTRL))
+#if (defined(CFG_SYS_CS1_BASE) && defined(CFG_SYS_CS1_MASK) \
+     && defined(CFG_SYS_CS1_CTRL))
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS1_CS1);
-	out_be32(&fbcs->csar1, CONFIG_SYS_CS1_BASE);
-	out_be32(&fbcs->cscr1, CONFIG_SYS_CS1_CTRL);
-	out_be32(&fbcs->csmr1, CONFIG_SYS_CS1_MASK);
+	out_be32(&fbcs->csar1, CFG_SYS_CS1_BASE);
+	out_be32(&fbcs->cscr1, CFG_SYS_CS1_CTRL);
+	out_be32(&fbcs->csmr1, CFG_SYS_CS1_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) \
-     && defined(CONFIG_SYS_CS2_CTRL))
-	out_be32(&fbcs->csar2, CONFIG_SYS_CS2_BASE);
-	out_be32(&fbcs->cscr2, CONFIG_SYS_CS2_CTRL);
-	out_be32(&fbcs->csmr2, CONFIG_SYS_CS2_MASK);
+#if (defined(CFG_SYS_CS2_BASE) && defined(CFG_SYS_CS2_MASK) \
+     && defined(CFG_SYS_CS2_CTRL))
+	out_be32(&fbcs->csar2, CFG_SYS_CS2_BASE);
+	out_be32(&fbcs->cscr2, CFG_SYS_CS2_CTRL);
+	out_be32(&fbcs->csmr2, CFG_SYS_CS2_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) \
-     && defined(CONFIG_SYS_CS3_CTRL))
-	out_be32(&fbcs->csar3, CONFIG_SYS_CS3_BASE);
-	out_be32(&fbcs->cscr3, CONFIG_SYS_CS3_CTRL);
-	out_be32(&fbcs->csmr3, CONFIG_SYS_CS3_MASK);
+#if (defined(CFG_SYS_CS3_BASE) && defined(CFG_SYS_CS3_MASK) \
+     && defined(CFG_SYS_CS3_CTRL))
+	out_be32(&fbcs->csar3, CFG_SYS_CS3_BASE);
+	out_be32(&fbcs->cscr3, CFG_SYS_CS3_CTRL);
+	out_be32(&fbcs->csmr3, CFG_SYS_CS3_MASK);
 #endif
 
 #if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) \
@@ -102,8 +102,8 @@ int cpu_init_r(void)
 	rtc_t *rtc = (rtc_t *) (CONFIG_SYS_MCFRTC_BASE);
 	rtcex_t *rtcex = (rtcex_t *) &rtc->extended;
 
-	out_be32(&rtcex->gocu, CONFIG_SYS_RTC_CNT);
-	out_be32(&rtcex->gocl, CONFIG_SYS_RTC_SETUP);
+	out_be32(&rtcex->gocu, CFG_SYS_RTC_CNT);
+	out_be32(&rtcex->gocl, CFG_SYS_RTC_SETUP);
 
 #endif
 #ifdef CONFIG_MCFFEC
@@ -236,36 +236,36 @@ void cpu_init_f(void)
 	/* Port configuration */
 	out_8(&gpio->par_cs, 0);
 
-#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) \
-     && defined(CONFIG_SYS_CS0_CTRL))
-	out_be32(&fbcs->csar0, CONFIG_SYS_CS0_BASE);
-	out_be32(&fbcs->cscr0, CONFIG_SYS_CS0_CTRL);
-	out_be32(&fbcs->csmr0, CONFIG_SYS_CS0_MASK);
+#if (defined(CFG_SYS_CS0_BASE) && defined(CFG_SYS_CS0_MASK) \
+     && defined(CFG_SYS_CS0_CTRL))
+	out_be32(&fbcs->csar0, CFG_SYS_CS0_BASE);
+	out_be32(&fbcs->cscr0, CFG_SYS_CS0_CTRL);
+	out_be32(&fbcs->csmr0, CFG_SYS_CS0_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) \
-     && defined(CONFIG_SYS_CS1_CTRL))
+#if (defined(CFG_SYS_CS1_BASE) && defined(CFG_SYS_CS1_MASK) \
+     && defined(CFG_SYS_CS1_CTRL))
 	/* Latch chipselect */
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS1);
-	out_be32(&fbcs->csar1, CONFIG_SYS_CS1_BASE);
-	out_be32(&fbcs->cscr1, CONFIG_SYS_CS1_CTRL);
-	out_be32(&fbcs->csmr1, CONFIG_SYS_CS1_MASK);
+	out_be32(&fbcs->csar1, CFG_SYS_CS1_BASE);
+	out_be32(&fbcs->cscr1, CFG_SYS_CS1_CTRL);
+	out_be32(&fbcs->csmr1, CFG_SYS_CS1_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) \
-     && defined(CONFIG_SYS_CS2_CTRL))
+#if (defined(CFG_SYS_CS2_BASE) && defined(CFG_SYS_CS2_MASK) \
+     && defined(CFG_SYS_CS2_CTRL))
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS2);
-	out_be32(&fbcs->csar2, CONFIG_SYS_CS2_BASE);
-	out_be32(&fbcs->cscr2, CONFIG_SYS_CS2_CTRL);
-	out_be32(&fbcs->csmr2, CONFIG_SYS_CS2_MASK);
+	out_be32(&fbcs->csar2, CFG_SYS_CS2_BASE);
+	out_be32(&fbcs->cscr2, CFG_SYS_CS2_CTRL);
+	out_be32(&fbcs->csmr2, CFG_SYS_CS2_MASK);
 #endif
 
-#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) \
-     && defined(CONFIG_SYS_CS3_CTRL))
+#if (defined(CFG_SYS_CS3_BASE) && defined(CFG_SYS_CS3_MASK) \
+     && defined(CFG_SYS_CS3_CTRL))
 	setbits_8(&gpio->par_cs, GPIO_PAR_CS3);
-	out_be32(&fbcs->csar3, CONFIG_SYS_CS3_BASE);
-	out_be32(&fbcs->cscr3, CONFIG_SYS_CS3_CTRL);
-	out_be32(&fbcs->csmr3, CONFIG_SYS_CS3_MASK);
+	out_be32(&fbcs->csar3, CFG_SYS_CS3_BASE);
+	out_be32(&fbcs->cscr3, CFG_SYS_CS3_CTRL);
+	out_be32(&fbcs->csmr3, CFG_SYS_CS3_MASK);
 #endif
 
 #if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) \
@@ -327,7 +327,7 @@ void uart_port_conf(int port)
 		clrbits_8(&gpio->par_feci2c, 0x00ff);
 		setbits_8(&gpio->par_feci2c,
 			GPIO_PAR_FECI2C_SCL_UTXD2 | GPIO_PAR_FECI2C_SDA_URXD2);
-#elif defined(CONFIG_SYS_UART2_ALT3_GPIO)
+#elif defined(CFG_SYS_UART2_ALT3_GPIO)
 		clrbits_be16(&gpio->par_ssi, 0x0f00);
 		setbits_be16(&gpio->par_ssi,
 			GPIO_PAR_SSI_RXD(2) | GPIO_PAR_SSI_TXD(2));

@@ -169,6 +169,10 @@ config FXL6408_GPIO
 	  This driver supports the Fairchild FXL6408 device. FXL6408 is a
 	  fully configurable 8-bit I2C-controlled GPIO expander.
 
+config HIKEY_GPIO
+	bool "HI6220 GPIO driver"
+	depends on DM_GPIO
+
 config INTEL_BROADWELL_GPIO
 	bool "Intel Broadwell GPIO driver"
 	depends on DM
@@ -374,8 +378,13 @@ config XILINX_GPIO
 	help
 	  This config enable the Xilinx GPIO driver for Microblaze.
 
+config TCA642X
+	bool "TCA642x legacy GPIO driver"
+
 config CMD_TCA642X
 	bool "tca642x - Command to access tca642x state"
+	depends on TCA642X
+	default y
 	help
 	  DEPRECATED - This needs conversion to driver model
 
@@ -511,6 +520,10 @@ config SPL_DM_PCA953X
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
 
+config PCA953X
+	bool "NXP's PCA953X series I2C GPIO (legacy driver)"
+	depends on !DM_PCA953X
+
 config MPC8XXX_GPIO
 	bool "Freescale MPC8XXX GPIO driver"
 	depends on DM_GPIO
@@ -582,6 +595,11 @@ config ZYNQMP_GPIO_MODEPIN
 	  driver will set and get the status of PS_MODE pins. These modepins
 	  are accessed using xilinx firmware. In modepin register, [3:0] bits
 	  set direction, [7:4] bits read IO, [11:8] bits set/clear IO.
+
+config SH_GPIO_PFC
+	bool "Pinmuxed GPIO support for SuperH"
+	depends on RCAR_GEN2 && !PINCTRL_PFC
+	default y
 
 config SL28CPLD_GPIO
 	bool "Kontron sl28cpld GPIO driver"

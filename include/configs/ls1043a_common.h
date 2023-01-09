@@ -31,50 +31,20 @@
 
 /* Link Definitions */
 
-#define CONFIG_VERY_BIG_RAM
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_DDR_BLOCK2_BASE      0x880000000ULL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_BLOCK2_BASE      0x880000000ULL
 
 #define CPU_RELEASE_ADDR               secondary_boot_addr
 
 /* Serial Port */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
-
-/* SD boot SPL */
-#ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_NXP_ESBC
-#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
-/*
- * HDR would be appended at end of image and copied to DDR along
- * with U-Boot image. Here u-boot max. size is 512K. So if binary
- * size increases then increase this size in case of secure boot as
- * it uses raw u-boot image instead of fit image.
- */
-#endif /* ifdef CONFIG_NXP_ESBC */
-#endif
+#define CFG_SYS_NS16550_CLK          (get_serial_clock())
 
 /* NAND SPL */
 #ifdef CONFIG_NAND_BOOT
-#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
-
-#ifdef CONFIG_NXP_ESBC
-#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
-#endif /* ifdef CONFIG_NXP_ESBC */
-
-#ifdef CONFIG_U_BOOT_HDR_SIZE
-/*
- * HDR would be appended at end of image and copied to DDR along
- * with U-Boot image. Here u-boot max. size is 512K. So if binary
- * size increases then increase this size in case of secure boot as
- * it uses raw u-boot image instead of fit image.
- */
-#endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
-
+#define CFG_SYS_NAND_U_BOOT_DST	CONFIG_TEXT_BASE
+#define CFG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
 #endif
 
 /* GPIO */
@@ -84,18 +54,14 @@
 #if defined(CONFIG_TFABOOT) || \
 	(!defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI))
 /*
- * CONFIG_SYS_FLASH_BASE has the final address (core view)
- * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
- * CONFIG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
+ * CFG_SYS_FLASH_BASE has the final address (core view)
+ * CFG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
+ * CFG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
  * CONFIG_TEXT_BASE is linked to 0x60000000 for booting
  */
-#define CONFIG_SYS_FLASH_BASE			0x60000000
-#define CONFIG_SYS_FLASH_BASE_PHYS		CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
-
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
-#endif
+#define CFG_SYS_FLASH_BASE			0x60000000
+#define CFG_SYS_FLASH_BASE_PHYS		CFG_SYS_FLASH_BASE
+#define CFG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
 #endif
 #endif
 
@@ -105,15 +71,13 @@
 
 /* FMan ucode */
 #ifndef SPL_NO_FMAN
-#define CONFIG_SYS_DPAA_FMAN
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_SYS_FM_MURAM_SIZE	0x60000
+#define CFG_SYS_FM_MURAM_SIZE	0x60000
 #endif
 #endif
 
 /* Miscellaneous configurable options */
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 #ifndef SPL_NO_MISC
@@ -124,7 +88,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\

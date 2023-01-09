@@ -11,17 +11,10 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
-
-#ifdef CONFIG_SPL_BUILD
-/*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
-
-#define CONFIG_POWER_PCA9450
-
-#endif
+#define CFG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_FEC_MXC_PHYADDR          1
+#define CFG_FEC_MXC_PHYADDR          1
 
 #define DWC_NET_PHYADDR			1
 
@@ -36,7 +29,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
@@ -52,11 +45,11 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x80000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x80000
 
 /* Totally 2GB DDR */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000
 

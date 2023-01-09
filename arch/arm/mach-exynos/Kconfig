@@ -4,6 +4,12 @@ config BOARD_COMMON
 	def_bool y
 	depends on !TARGET_SMDKV310 && !TARGET_ARNDALE
 
+config SPI_BOOTING
+	bool
+
+config USB_BOOTING
+	bool
+
 choice
 	prompt "EXYNOS architecture type select"
 	optional
@@ -24,6 +30,8 @@ config ARCH_EXYNOS5
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select SHA_HW_ACCEL
+	select SPI_BOOTING if EXYNOS5_DT
+	select USB_BOOTING
 	imply CMD_HASH
 	imply CRC32_VERIFY
 	imply HASH_VERIFY
@@ -67,10 +75,12 @@ config TARGET_SMDKV310
 	select SUPPORT_SPL
 
 config TARGET_TRATS
+	select MISC_COMMON
 	bool "Exynos4210 Trats board"
 
 config TARGET_S5PC210_UNIVERSAL
 	bool "EXYNOS4210 Universal C210 board"
+	select MISC_COMMON
 
 config TARGET_ORIGEN
 	bool "Exynos4412 Origen board"
@@ -79,9 +89,11 @@ config TARGET_ORIGEN
 
 config TARGET_TRATS2
 	bool "Exynos4412 Trat2 board"
+	select MISC_COMMON
 
 config TARGET_ODROID
 	bool "Exynos4412 Odroid board"
+	select MISC_COMMON
 
 endchoice
 endif
@@ -113,6 +125,7 @@ config TARGET_ODROID_XU3
 	bool "Exynos5422 Odroid board"
 	select EXYNOS5_DT
 	select EXYNOS5420
+	select MISC_COMMON
 	select OF_CONTROL
 
 config TARGET_ARNDALE

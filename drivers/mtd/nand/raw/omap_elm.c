@@ -15,8 +15,13 @@
 #include <common.h>
 #include <asm/io.h>
 #include <linux/errno.h>
-#include <linux/mtd/omap_elm.h>
 #include <asm/arch/hardware.h>
+
+#include <dm.h>
+#include <linux/ioport.h>
+#include <linux/io.h>
+
+#include "omap_elm.h"
 
 #define DRIVER_NAME		"omap-elm"
 #define ELM_DEFAULT_POLY (0)
@@ -180,6 +185,7 @@ void elm_reset(void)
 		;
 }
 
+#ifdef ELM_BASE
 /**
  * elm_init - Initialize ELM module
  *
@@ -191,3 +197,33 @@ void elm_init(void)
 	elm_cfg = (struct elm *)ELM_BASE;
 	elm_reset();
 }
+#endif
+
+#if CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
+
+static int elm_probe(struct udevice *dev)
+{
+#ifndef ELM_BASE
+	struct resource res;
+
+	dev_read_resource(dev, 0, &res);
+	elm_cfg = devm_ioremap(dev, res.start, resource_size(&res));
+	elm_reset();
+#endif
+
+	return 0;
+}
+
+static const struct udevice_id elm_ids[] = {
+	{ .compatible = "ti,am3352-elm" },
+	{ .compatible = "ti,am64-elm" },
+	{ }
+};
+
+U_BOOT_DRIVER(gpmc_elm) = {
+	.name           = DRIVER_NAME,
+	.id             = UCLASS_MTD,
+	.of_match       = elm_ids,
+	.probe          = elm_probe,
+};
+#endif /* CONFIG_SYS_NAND_SELF_INIT */

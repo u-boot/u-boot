@@ -113,7 +113,6 @@ config RISCV
 	select DM
 	imply SPL_SEPARATE_BSS if SPL
 	imply DM_SERIAL
-	imply DM_ETH
 	imply DM_EVENT
 	imply DM_MMC
 	imply DM_SPI
@@ -146,6 +145,7 @@ config SANDBOX
 	select DM_SPI
 	select DM_SPI_FLASH
 	select GZIP_COMPRESSED
+	select IO_TRACE
 	select LZO
 	select OF_BOARD_SETUP
 	select PCI_ENDPOINT
@@ -240,7 +240,6 @@ config X86
 	imply CMD_SF
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
-	imply DM_ETH
 	imply DM_EVENT
 	imply DM_GPIO
 	imply DM_KEYBOARD
@@ -380,6 +379,10 @@ config SYS_IMMR
 	help
 	  Address for the Internal Memory-Mapped Registers (IMMR) window used
 	  to configure the features of many Freescale / NXP SoCs.
+
+config MONITOR_IS_IN_RAM
+	bool "U-Boot is loaded in to RAM by a pre-loader"
+	depends on M68K || NIOS2
 
 config SKIP_LOWLEVEL_INIT
 	bool "Skip the calls to certain low level initialization functions"

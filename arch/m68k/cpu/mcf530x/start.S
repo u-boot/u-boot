@@ -39,7 +39,7 @@ _vectors:
 /* Flash offset is 0 until we setup CS0 */
 .long	0x00000000
 #if defined(CONFIG_M5307) && \
-	   (CONFIG_TEXT_BASE == CONFIG_SYS_INT_FLASH_BASE)
+	   (CONFIG_TEXT_BASE == CFG_SYS_INT_FLASH_BASE)
 .long	_start - CONFIG_TEXT_BASE
 #else
 .long	_START
@@ -92,10 +92,10 @@ _start:
 	move.w	#0x2700,%sr
 
 	/* set MBAR address + valid flag */
-	move.l	#(CONFIG_SYS_MBAR + 1), %d0
+	move.l	#(CFG_SYS_MBAR + 1), %d0
 	move.c	%d0, %MBAR
 
-	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + 1), %d0
+	move.l	#(CFG_SYS_INIT_RAM_ADDR + 1), %d0
 	move.c	%d0, %RAMBAR
 
 	/* DS 4.8.2 (Cache Organization) invalidate and disable cache */
@@ -110,7 +110,7 @@ _start:
 	 * therefore no VBR to set
 	 */
 #if !defined(CONFIG_MONITOR_IS_IN_RAM)
-	move.l	#CONFIG_SYS_FLASH_BASE, %d0
+	move.l	#CFG_SYS_FLASH_BASE, %d0
 	movec	%d0, %VBR
 #endif
 
@@ -125,7 +125,7 @@ _start:
 	move.l	#__got_start, %a5
 
 	/* setup stack initially on top of internal static ram  */
-	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE), %sp
+	move.l	#(CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_SIZE), %sp
 
 	/*
 	 * if configured, malloc_f arena will be reserved first,

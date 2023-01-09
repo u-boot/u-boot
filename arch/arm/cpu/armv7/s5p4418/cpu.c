@@ -13,10 +13,8 @@
 #include <asm/io.h>
 #include <asm/arch/nexell.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/reset.h>
 #include <asm/arch/tieoff.h>
 #include <cpu_func.h>
-#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -45,38 +43,11 @@ static void cpu_soc_init(void)
 	nx_tieoff_set(NX_TIEOFF_CORTEXA9MP_TOP_QUADL2C_L2RET1N_1, 1);
 }
 
-#ifdef CONFIG_PL011_SERIAL
-static void serial_device_init(void)
-{
-	char dev[10];
-	int id;
-
-	sprintf(dev, "nx-uart.%d", CONFIG_CONS_INDEX);
-	id = RESET_ID_UART0 + CONFIG_CONS_INDEX;
-
-	struct clk *clk = clk_get((const char *)dev);
-
-	/* reset control: Low active ___|---   */
-	nx_rstcon_setrst(id, RSTCON_ASSERT);
-	udelay(10);
-	nx_rstcon_setrst(id, RSTCON_NEGATE);
-	udelay(10);
-
-	/* set clock   */
-	clk_disable(clk);
-	clk_set_rate(clk, CONFIG_PL011_CLOCK);
-	clk_enable(clk);
-}
-#endif
-
 int arch_cpu_init(void)
 {
 	flush_dcache_all();
 	cpu_soc_init();
 	clk_init();
-
-	if (IS_ENABLED(CONFIG_PL011_SERIAL))
-		serial_device_init();
 
 	return 0;
 }

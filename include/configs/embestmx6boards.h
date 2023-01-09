@@ -12,14 +12,14 @@
 #ifndef __RIOTBOARD_CONFIG_H
 #define __RIOTBOARD_CONFIG_H
 
-#define CONFIG_MXC_UART_BASE		UART2_BASE
+#define CFG_MXC_UART_BASE		UART2_BASE
 #define CONSOLE_DEV		"ttymxc1"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR      0
@@ -27,33 +27,23 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE          PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Environment organization */
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* RiOTboard */
-#define CONFIG_FDTFILE	"imx6dl-riotboard.dtb"
+#define FDTFILE	"imx6dl-riotboard.dtb"
 #define CFG_SYS_FSL_USDHC_NUM	3
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 /* MarSBoard */
-#define CONFIG_FDTFILE	"imx6q-marsboard.dtb"
+#define FDTFILE	"imx6q-marsboard.dtb"
 #define CFG_SYS_FSL_USDHC_NUM	2
 #endif
 
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
-
 #include "mx6_common.h"
-
-#ifdef CONFIG_SPL
-#include "imx6_spl.h"
-/* RiOTboard */
-
-#endif
 
 /* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
  * 1M script, 1M pxe and the ramdisk at the end */
@@ -86,10 +76,10 @@
 	CONSOLE_STDIN_SETTINGS \
 	CONSOLE_STDOUT_SETTINGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
-	"fdtfile=" CONFIG_FDTFILE "\0" \
+	"fdtfile=" FDTFILE "\0" \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	BOOTENV
 

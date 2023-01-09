@@ -16,9 +16,9 @@
 #define PHYS_SDRAM_1			0x00000000
 #define PHYS_SDRAM_1_SIZE		0xC0000000
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CFG_SYS_INIT_RAM_SIZE	0x1000
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE			0xe82b1000
@@ -28,7 +28,7 @@
 	func(MMC, mmc, 0)
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 				"image=Image\0"	\
 				"fdtfile=hi3660-hikey960.dtb\0" \
 				"fdt_addr_r=0x10000000\0" \

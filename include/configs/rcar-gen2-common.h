@@ -10,20 +10,14 @@
 
 #include <asm/arch/rmobile.h>
 
-#ifndef CONFIG_PINCTRL_PFC
-#define CONFIG_SH_GPIO_PFC
-#endif
-
 /* console */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 38400, 115200 }
+#define CFG_SYS_BAUDRATE_TABLE	{ 38400, 115200 }
 
-#define CONFIG_SYS_SDRAM_BASE		(RCAR_GEN2_SDRAM_BASE)
-#define CONFIG_SYS_SDRAM_SIZE		(RCAR_GEN2_UBOOT_SDRAM_SIZE)
+#define CFG_SYS_SDRAM_BASE		(RCAR_GEN2_SDRAM_BASE)
+#define CFG_SYS_SDRAM_SIZE		(RCAR_GEN2_UBOOT_SDRAM_SIZE)
 
 /* Timer */
-#define CONFIG_TMU_TIMER
-#define CONFIG_SYS_TIMER_COUNTS_DOWN
-#define CONFIG_SYS_TIMER_COUNTER	(TMU_BASE + 0xc)	/* TCNT0 */
-#define CONFIG_SYS_TIMER_RATE		(get_board_sys_clk() / 8)
+#define CFG_SYS_TIMER_COUNTER	(TMU_BASE + 0xc)	/* TCNT0 */
+#define CFG_SYS_TIMER_RATE		(get_board_sys_clk() / 8)
 
 #endif	/* __RCAR_GEN2_COMMON_H */

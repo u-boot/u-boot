@@ -6,13 +6,13 @@
 #ifndef __CONFIG_ARBEL_H
 #define __CONFIG_ARBEL_H
 
-#define CONFIG_SYS_SDRAM_BASE		0x0
-#define CONFIG_SYS_BOOTMAPSZ		(20 << 20)
-#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_INIT_RAM_SIZE	0x8000
+#define CFG_SYS_SDRAM_BASE		0x0
+#define CFG_SYS_BOOTMAPSZ		(20 << 20)
+#define CFG_SYS_INIT_RAM_ADDR	CFG_SYS_SDRAM_BASE
+#define CFG_SYS_INIT_RAM_SIZE	0x8000
 
 /* Default environemnt variables */
-#define CONFIG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80200000\0"   \
+#define CFG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80200000\0"   \
 		"stdin=serial\0"   \
 		"stdout=serial\0"   \
 		"stderr=serial\0"    \

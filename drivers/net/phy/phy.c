@@ -689,9 +689,7 @@ struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 	dev->link = 0;
 	dev->interface = PHY_INTERFACE_MODE_NA;
 
-#ifdef CONFIG_DM_ETH
 	dev->node = ofnode_null();
-#endif
 
 	dev->autoneg = AUTONEG_ENABLE;
 
@@ -922,13 +920,8 @@ struct phy_device *phy_find_by_mask(struct mii_dev *bus, uint phy_mask)
 	return get_phy_device_by_mask(bus, phy_mask);
 }
 
-#ifdef CONFIG_DM_ETH
 void phy_connect_dev(struct phy_device *phydev, struct udevice *dev,
 		     phy_interface_t interface)
-#else
-void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev,
-		     phy_interface_t interface)
-#endif
 {
 	/* Soft Reset the PHY */
 	phy_reset(phydev);
@@ -1011,15 +1004,9 @@ static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 }
 #endif
 
-#ifdef CONFIG_DM_ETH
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 			       struct udevice *dev,
 			       phy_interface_t interface)
-#else
-struct phy_device *phy_connect(struct mii_dev *bus, int addr,
-			       struct eth_device *dev,
-			       phy_interface_t interface)
-#endif
 {
 	struct phy_device *phydev = NULL;
 	uint mask = (addr >= 0) ? (1 << addr) : 0xffffffff;

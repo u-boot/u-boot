@@ -124,25 +124,25 @@ void set_gpmc_cs0(int flash_type)
 #if defined(CONFIG_NOR)
 	case MTD_DEV_TYPE_NOR:
 		gpmc_regs = gpmc_regs_nor;
-		base = CONFIG_SYS_FLASH_BASE;
-		size = (CONFIG_SYS_FLASH_SIZE > 0x08000000) ? GPMC_SIZE_256M :
-		      ((CONFIG_SYS_FLASH_SIZE > 0x04000000) ? GPMC_SIZE_128M :
-		      ((CONFIG_SYS_FLASH_SIZE > 0x02000000) ? GPMC_SIZE_64M  :
-		      ((CONFIG_SYS_FLASH_SIZE > 0x01000000) ? GPMC_SIZE_32M  :
+		base = CFG_SYS_FLASH_BASE;
+		size = (CFG_SYS_FLASH_SIZE > 0x08000000) ? GPMC_SIZE_256M :
+		      ((CFG_SYS_FLASH_SIZE > 0x04000000) ? GPMC_SIZE_128M :
+		      ((CFG_SYS_FLASH_SIZE > 0x02000000) ? GPMC_SIZE_64M  :
+		      ((CFG_SYS_FLASH_SIZE > 0x01000000) ? GPMC_SIZE_32M  :
 		                                              GPMC_SIZE_16M)));
 		break;
 #endif
 #if defined(CONFIG_MTD_RAW_NAND) || defined(CONFIG_CMD_NAND)
 	case MTD_DEV_TYPE_NAND:
 		gpmc_regs = gpmc_regs_nand;
-		base = CONFIG_SYS_NAND_BASE;
+		base = CFG_SYS_NAND_BASE;
 		size = GPMC_SIZE_16M;
 		break;
 #endif
 #if defined(CONFIG_CMD_ONENAND)
 	case MTD_DEV_TYPE_ONENAND:
 		gpmc_regs = gpmc_regs_onenand;
-		base = CONFIG_SYS_ONENAND_BASE;
+		base = CFG_SYS_ONENAND_BASE;
 		size = GPMC_SIZE_128M;
 		break;
 #endif

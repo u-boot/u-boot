@@ -54,7 +54,7 @@ int board_init(void)
 	int i = 0, rc;
 	struct udevice *dev;
 
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 	while (1) {
 		rc = uclass_get_device(UCLASS_MISC, i++, &dev);

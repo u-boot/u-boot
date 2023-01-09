@@ -11,8 +11,7 @@
 #include <asm/arch/imx-regs.h>
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SERIAL_LPUART_BASE	0x5a060000
-#define CONFIG_MALLOC_F_ADDR		0x00120000
+#define CFG_MALLOC_F_ADDR		0x00120000
 
 #endif
 
@@ -23,7 +22,7 @@
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	AHAB_ENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
@@ -103,7 +102,7 @@
 
 /* On LPDDR4 board, USDHC1 is for eMMC, USDHC2 is for SD on CPU board */
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 #define PHYS_SDRAM_1_SIZE		0x80000000	/* 2 GB */

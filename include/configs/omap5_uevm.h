@@ -28,17 +28,13 @@
 
 #include <configs/ti_omap5_common.h>
 
-#define CONFIG_SYS_NS16550_COM3		UART3_BASE
+#define CFG_SYS_NS16550_COM3		UART3_BASE
 
 /* MMC ENV related defines */
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_HSMMC2_8BIT
-
 /* Required support for the TCA642X GPIO we have on the uEVM */
-#define CONFIG_TCA642X
-#define CONFIG_SYS_I2C_TCA642X_BUS_NUM 4
-#define CONFIG_SYS_I2C_TCA642X_ADDR 0x22
+#define CFG_SYS_I2C_TCA642X_BUS_NUM 4
+#define CFG_SYS_I2C_TCA642X_ADDR 0x22
 
 /* Enabled commands */
 

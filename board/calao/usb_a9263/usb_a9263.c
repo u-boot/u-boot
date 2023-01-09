@@ -54,12 +54,12 @@ static void usb_a9263_nand_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_PIOCDE);
 
 	/* Configure RDY/BSY */
-	gpio_request(CONFIG_SYS_NAND_READY_PIN, "NAND ready/busy");
-	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
+	gpio_request(CFG_SYS_NAND_READY_PIN, "NAND ready/busy");
+	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "NAND enable");
-	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_request(CFG_SYS_NAND_ENABLE_PIN, "NAND enable");
+	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 
@@ -95,7 +95,7 @@ static void usb_a9263_macb_hw_init(void)
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_CMD_NAND
 	usb_a9263_nand_hw_init();
@@ -111,8 +111,8 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-				    CONFIG_SYS_SDRAM_SIZE);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
+				    CFG_SYS_SDRAM_SIZE);
 	return 0;
 }
 

@@ -251,9 +251,6 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	 * Wake up from sleep if necessary
 	 * Reset PHY, then delay 300ns
 	 */
-#ifdef CONFIG_MX27
-	fec_mdio_write(eth, fec->phy_id, MII_DCOUNTER, 0x00FF);
-#endif
 	fec_mdio_write(eth, fec->phy_id, MII_BMCR, BMCR_RESET);
 	udelay(1000);
 
@@ -271,7 +268,6 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	return ret;
 }
 
-#ifndef CONFIG_FEC_FIXED_SPEED
 static int miiphy_wait_aneg(struct eth_device *dev)
 {
 	uint32_t start;
@@ -297,7 +293,6 @@ static int miiphy_wait_aneg(struct eth_device *dev)
 
 	return 0;
 }
-#endif /* CONFIG_FEC_FIXED_SPEED */
 #endif
 
 static int fec_rx_task_enable(struct fec_priv *fec)
@@ -539,8 +534,6 @@ static int fec_open(struct udevice *dev)
 		}
 		speed = fec->phydev->speed;
 	}
-#elif CONFIG_FEC_FIXED_SPEED
-	speed = CONFIG_FEC_FIXED_SPEED;
 #else
 	miiphy_wait_aneg(edev);
 	speed = miiphy_speed(edev->name, fec->phy_id);
@@ -1093,8 +1086,8 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 	int addr;
 
 	addr = device_get_phy_addr(priv, dev);
-#ifdef CONFIG_FEC_MXC_PHYADDR
-	addr = CONFIG_FEC_MXC_PHYADDR;
+#ifdef CFG_FEC_MXC_PHYADDR
+	addr = CFG_FEC_MXC_PHYADDR;
 #endif
 
 	phydev = phy_connect(priv->bus, addr, dev, priv->interface);

@@ -27,9 +27,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_DM_SERIAL
-
-static volatile unsigned char *const port[] = CONFIG_PL01x_PORTS;
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
+static volatile unsigned char *const port[] = CFG_PL01x_PORTS;
 static enum pl01x_type pl01x_type __section(".data");
 static struct pl01x_regs *base_regs __section(".data");
 #define NUM_PORTS (sizeof(port)/sizeof(port[0]))
@@ -186,14 +185,14 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 	return 0;
 }
 
-#ifndef CONFIG_DM_SERIAL
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 static void pl01x_serial_init_baud(int baudrate)
 {
 	int clock = 0;
 
 #if defined(CONFIG_PL011_SERIAL)
 	pl01x_type = TYPE_PL011;
-	clock = CONFIG_PL011_CLOCK;
+	clock = CFG_PL011_CLOCK;
 #endif
 	base_regs = (struct pl01x_regs *)port[CONFIG_CONS_INDEX];
 
@@ -273,11 +272,7 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &pl01x_serial_drv;
 }
-
-#endif /* nCONFIG_DM_SERIAL */
-
-#ifdef CONFIG_DM_SERIAL
-
+#else
 int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct pl01x_serial_plat *plat = dev_get_plat(dev);
@@ -343,8 +338,8 @@ static const struct udevice_id pl01x_serial_id[] ={
 	{}
 };
 
-#ifndef CONFIG_PL011_CLOCK
-#define CONFIG_PL011_CLOCK 0
+#ifndef CFG_PL011_CLOCK
+#define CFG_PL011_CLOCK 0
 #endif
 
 int pl01x_serial_of_to_plat(struct udevice *dev)
@@ -359,7 +354,7 @@ int pl01x_serial_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clock = dev_read_u32_default(dev, "clock", CONFIG_PL011_CLOCK);
+	plat->clock = dev_read_u32_default(dev, "clock", CFG_PL011_CLOCK);
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (!ret) {
 		ret = clk_enable(&clk);

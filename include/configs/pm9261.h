@@ -22,47 +22,47 @@
 #define MASTER_PLL_DIV		15
 #define MASTER_PLL_MUL		162
 #define MAIN_PLL_DIV		2
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
+#define CFG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
+#define CFG_SYS_AT91_MAIN_CLOCK	18432000
 
 /* clocks */
 /* CKGR_MOR - enable main osc. */
-#define CONFIG_SYS_MOR_VAL						\
+#define CFG_SYS_MOR_VAL						\
 		(AT91_PMC_MOR_MOSCEN |					\
 		 (255 << 8))		/* Main Oscillator Start-up Time */
-#define CONFIG_SYS_PLLAR_VAL						\
+#define CFG_SYS_PLLAR_VAL						\
 		(AT91_PMC_PLLAR_29 | /* Bit 29 must be 1 when prog */ \
 		 AT91_PMC_PLLXR_OUT(3) |						\
 		 ((MASTER_PLL_MUL - 1) << 16) | (MASTER_PLL_DIV))
 
 /* PCK/2 = MCK Master Clock from PLLA */
-#define	CONFIG_SYS_MCKR1_VAL		\
+#define	CFG_SYS_MCKR1_VAL		\
 		(AT91_PMC_MCKR_CSS_SLOW |	\
 		 AT91_PMC_MCKR_PRES_1 |	\
 		 AT91_PMC_MCKR_MDIV_2)
 
 /* PCK/2 = MCK Master Clock from PLLA */
-#define	CONFIG_SYS_MCKR2_VAL		\
+#define	CFG_SYS_MCKR2_VAL		\
 		(AT91_PMC_MCKR_CSS_PLLA |	\
 		 AT91_PMC_MCKR_PRES_1 |	\
 		 AT91_PMC_MCKR_MDIV_2)
 
 /* define PDC[31:16] as DATA[31:16] */
-#define CONFIG_SYS_PIOC_PDR_VAL1	0xFFFF0000
+#define CFG_SYS_PIOC_PDR_VAL1	0xFFFF0000
 /* no pull-up for D[31:16] */
-#define CONFIG_SYS_PIOC_PPUDR_VAL	0xFFFF0000
+#define CFG_SYS_PIOC_PPUDR_VAL	0xFFFF0000
 
 /* EBI_CSA, no pull-ups for D[15:0], CS1 SDRAM, CS3 NAND Flash */
-#define CONFIG_SYS_MATRIX_EBICSA_VAL		\
+#define CFG_SYS_MATRIX_EBICSA_VAL		\
 	(AT91_MATRIX_CSA_DBPUC | AT91_MATRIX_CSA_EBI_CS1A)
 
 /* SDRAM */
 /* SDRAMC_MR Mode register */
-#define CONFIG_SYS_SDRC_MR_VAL1		AT91_SDRAMC_MODE_NORMAL
+#define CFG_SYS_SDRC_MR_VAL1		AT91_SDRAMC_MODE_NORMAL
 /* SDRAMC_TR - Refresh Timer register */
-#define CONFIG_SYS_SDRC_TR_VAL1		0x13C
+#define CFG_SYS_SDRC_TR_VAL1		0x13C
 /* SDRAMC_CR - Configuration register*/
-#define CONFIG_SYS_SDRC_CR_VAL							\
+#define CFG_SYS_SDRC_CR_VAL							\
 		(AT91_SDRAMC_NC_9 |						\
 		 AT91_SDRAMC_NR_13 |						\
 		 AT91_SDRAMC_NB_4 |						\
@@ -76,49 +76,49 @@
 		 (1 << 28))		/* Exit Self Refresh to Active Delay */
 
 /* Memory Device Register -> SDRAM */
-#define CONFIG_SYS_SDRC_MDR_VAL		AT91_SDRAMC_MD_SDRAM
-#define CONFIG_SYS_SDRC_MR_VAL2		AT91_SDRAMC_MODE_PRECHARGE
-#define CONFIG_SYS_SDRAM_VAL1		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRC_MR_VAL3		AT91_SDRAMC_MODE_REFRESH
-#define CONFIG_SYS_SDRAM_VAL2		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRAM_VAL3		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRAM_VAL4		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRAM_VAL5		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRAM_VAL6		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRAM_VAL7		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRAM_VAL8		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRAM_VAL9		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRC_MR_VAL4		AT91_SDRAMC_MODE_LMR
-#define CONFIG_SYS_SDRAM_VAL10		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRC_MR_VAL5		AT91_SDRAMC_MODE_NORMAL
-#define CONFIG_SYS_SDRAM_VAL11		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRC_TR_VAL2		1200		/* SDRAM_TR */
-#define CONFIG_SYS_SDRAM_VAL12		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRC_MDR_VAL		AT91_SDRAMC_MD_SDRAM
+#define CFG_SYS_SDRC_MR_VAL2		AT91_SDRAMC_MODE_PRECHARGE
+#define CFG_SYS_SDRAM_VAL1		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRC_MR_VAL3		AT91_SDRAMC_MODE_REFRESH
+#define CFG_SYS_SDRAM_VAL2		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRAM_VAL3		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRAM_VAL4		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRAM_VAL5		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRAM_VAL6		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRAM_VAL7		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRAM_VAL8		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRAM_VAL9		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRC_MR_VAL4		AT91_SDRAMC_MODE_LMR
+#define CFG_SYS_SDRAM_VAL10		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRC_MR_VAL5		AT91_SDRAMC_MODE_NORMAL
+#define CFG_SYS_SDRAM_VAL11		0		/* SDRAM_BASE */
+#define CFG_SYS_SDRC_TR_VAL2		1200		/* SDRAM_TR */
+#define CFG_SYS_SDRAM_VAL12		0		/* SDRAM_BASE */
 
 /* setup SMC0, CS0 (NOR Flash) - 16-bit, 15 WS */
-#define CONFIG_SYS_SMC0_SETUP0_VAL					\
+#define CFG_SYS_SMC0_SETUP0_VAL					\
 		(AT91_SMC_SETUP_NWE(10) | AT91_SMC_SETUP_NCS_WR(10) |	\
 		 AT91_SMC_SETUP_NRD(10) | AT91_SMC_SETUP_NCS_RD(10))
-#define CONFIG_SYS_SMC0_PULSE0_VAL					\
+#define CFG_SYS_SMC0_PULSE0_VAL					\
 		(AT91_SMC_PULSE_NWE(11) | AT91_SMC_PULSE_NCS_WR(11) |	\
 		 AT91_SMC_PULSE_NRD(11) | AT91_SMC_PULSE_NCS_RD(11))
-#define CONFIG_SYS_SMC0_CYCLE0_VAL	\
+#define CFG_SYS_SMC0_CYCLE0_VAL	\
 		(AT91_SMC_CYCLE_NWE(22) | AT91_SMC_CYCLE_NRD(22))
-#define CONFIG_SYS_SMC0_MODE0_VAL				\
+#define CFG_SYS_SMC0_MODE0_VAL				\
 		(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |	\
 		 AT91_SMC_MODE_DBW_16 |				\
 		 AT91_SMC_MODE_TDF |				\
 		 AT91_SMC_MODE_TDF_CYCLE(6))
 
 /* user reset enable */
-#define CONFIG_SYS_RSTC_RMR_VAL			\
+#define CFG_SYS_RSTC_RMR_VAL			\
 		(AT91_RSTC_KEY |		\
 		AT91_RSTC_CR_PROCRST |		\
 		AT91_RSTC_MR_ERSTL(1) |	\
 		AT91_RSTC_MR_ERSTL(2))
 
 /* Disable Watchdog */
-#define CONFIG_SYS_WDTC_WDMR_VAL				\
+#define CFG_SYS_WDTC_WDMR_VAL				\
 		(AT91_WDT_MR_WDIDLEHLT | AT91_WDT_MR_WDDBGHLT |	\
 		 AT91_WDT_MR_WDV(0xfff) |					\
 		 AT91_WDT_MR_WDDIS |				\
@@ -129,23 +129,22 @@
 #define PHYS_SDRAM_SIZE				0x04000000	/* 64 megs */
 
 /* NAND flash */
-#define CONFIG_SYS_NAND_BASE			0x40000000
-#define CONFIG_SYS_NAND_DBW_8			1
+#define CFG_SYS_NAND_BASE			0x40000000
 /* our ALE is AD22 */
-#define CONFIG_SYS_NAND_MASK_ALE		(1 << 22)
+#define CFG_SYS_NAND_MASK_ALE		(1 << 22)
 /* our CLE is AD21 */
-#define CONFIG_SYS_NAND_MASK_CLE		(1 << 21)
-#define CONFIG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PC(14)
-#define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(16)
+#define CFG_SYS_NAND_MASK_CLE		(1 << 21)
+#define CFG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PC(14)
+#define CFG_SYS_NAND_READY_PIN		GPIO_PIN_PA(16)
 
 /* NOR flash */
 #define PHYS_FLASH_1				0x10000000
-#define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
+#define CFG_SYS_FLASH_BASE			PHYS_FLASH_1
 
 /* USB */
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000
+#define CFG_SYS_USB_OHCI_REGS_BASE		0x00500000
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"partition=nand0,0\0"					\
 	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "		\
@@ -161,6 +160,6 @@
 	"flashboot=run ramargs;run addip;bootm 0x10050000\0"	\
 	""
 
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
+#define CFG_SYS_SDRAM_BASE	PHYS_SDRAM
 
 #endif

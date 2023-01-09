@@ -10,7 +10,7 @@
 #ifndef __CONFIG_SYZYGY_HUB_H
 #define __CONFIG_SYZYGY_HUB_H
 
-#define CONFIG_EXTRA_ENV_SETTINGS       \
+#define CFG_EXTRA_ENV_SETTINGS       \
 	"fit_image=fit.itb\0"		\
 	"bitstream_image=download.bit\0"    \
 	"loadbit_addr=0x1000000\0"      \

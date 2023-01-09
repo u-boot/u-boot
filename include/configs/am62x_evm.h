@@ -13,7 +13,7 @@
 #include <environment/ti/mmc.h>
 
 /* DDR Configuration */
-#define CONFIG_SYS_SDRAM_BASE1		0x880000000
+#define CFG_SYS_SDRAM_BASE1		0x880000000
 
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \
@@ -55,7 +55,7 @@
 	"partitions=" PARTS_DEFAULT
 
 /* Incorporate settings into the U-Boot environment */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_AM625_BOARD_SETTINGS					\

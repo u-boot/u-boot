@@ -6,7 +6,6 @@ config KM_ENABLE_FULL_DM_DTS_SUPPORT
 	default y
 	select CMD_DM
 	select DM
-	select DM_ETH
 	select DM_MDIO
 	select DM_SERIAL
 	select OF_CONTROL

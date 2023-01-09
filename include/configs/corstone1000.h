@@ -16,13 +16,13 @@
 
 #define V2M_BASE		0x80000000
 
-#define CONFIG_PL011_CLOCK	50000000
+#define CFG_PL011_CLOCK	50000000
 
 /* Physical Memory Map */
 #define PHYS_SDRAM_1		(V2M_BASE)
 #define PHYS_SDRAM_1_SIZE	0x80000000
 
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0)

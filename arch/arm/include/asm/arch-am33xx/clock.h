@@ -13,7 +13,7 @@
 #include <asm/arch/clocks_am33xx.h>
 #include <asm/arch/hardware.h>
 
-#if defined(CONFIG_TI816X) || defined(CONFIG_TI814X)
+#if defined(CONFIG_TI816X)
 #include <asm/arch/clock_ti81xx.h>
 #endif
 

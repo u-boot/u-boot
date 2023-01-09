@@ -16,22 +16,22 @@ void construct_pamu_addr_table(struct pamu_addr_tbl *tbl, int *num_entries)
 	int j;
 
 	tbl->start_addr[i] =
-			(uint64_t)virt_to_phys((void *)CONFIG_SYS_SDRAM_BASE);
-	tbl->size[i] = (phys_size_t)(min(gd->ram_size, CONFIG_MAX_MEM_MAPPED));
+			(uint64_t)virt_to_phys((void *)CFG_SYS_SDRAM_BASE);
+	tbl->size[i] = (phys_size_t)(min(gd->ram_size, CFG_MAX_MEM_MAPPED));
 	tbl->end_addr[i] = tbl->start_addr[i] +  tbl->size[i] - 1;
 
 	i++;
-#ifdef CONFIG_SYS_FLASH_BASE_PHYS
+#ifdef CFG_SYS_FLASH_BASE_PHYS
 	tbl->start_addr[i] =
-		(uint64_t)virt_to_phys((void *)CONFIG_SYS_FLASH_BASE_PHYS);
+		(uint64_t)virt_to_phys((void *)CFG_SYS_FLASH_BASE_PHYS);
 	tbl->size[i] = 256 * 1024 * 1024; /* 256MB flash */
 	tbl->end_addr[i] = tbl->start_addr[i] +  tbl->size[i] - 1;
 
 	i++;
 #endif
-#if (defined(CONFIG_SPL_BUILD) && (CONFIG_SYS_INIT_L3_VADDR))
+#if (defined(CONFIG_SPL_BUILD) && (CFG_SYS_INIT_L3_VADDR))
 	tbl->start_addr[i] =
-		(uint64_t)virt_to_phys((void *)CONFIG_SYS_INIT_L3_VADDR);
+		(uint64_t)virt_to_phys((void *)CFG_SYS_INIT_L3_VADDR);
 	tbl->size[i] = 256 * 1024; /* 256K CPC flash */
 	tbl->end_addr[i] = tbl->start_addr[i] +  tbl->size[i] - 1;
 

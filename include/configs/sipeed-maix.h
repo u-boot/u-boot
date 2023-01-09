@@ -8,11 +8,11 @@
 
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_SDRAM_BASE 0x80000000
-#define CONFIG_SYS_SDRAM_SIZE SZ_8M
+#define CFG_SYS_SDRAM_BASE 0x80000000
+#define CFG_SYS_SDRAM_SIZE SZ_8M
 
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#ifndef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80060000\0" \
 	"fdt_addr_r=0x80400000\0" \
 	"scriptaddr=0x80020000\0" \

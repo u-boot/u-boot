@@ -27,7 +27,7 @@ skip_smp_setup:
 
 #if defined(CONFIG_SOC_CA8277B)
 	/* Enable CPU Timer */
-	ldr x0, =CONFIG_SYS_TIMER_BASE
+	ldr x0, =CFG_SYS_TIMER_BASE
 	mov x1, #1
 	str w1, [x0]
 #endif

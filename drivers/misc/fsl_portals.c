@@ -20,25 +20,25 @@
 #endif
 #include <fsl_qbman.h>
 
-#define MAX_BPORTALS (CONFIG_SYS_BMAN_CINH_SIZE / CONFIG_SYS_BMAN_SP_CINH_SIZE)
-#define MAX_QPORTALS (CONFIG_SYS_QMAN_CINH_SIZE / CONFIG_SYS_QMAN_SP_CINH_SIZE)
+#define MAX_BPORTALS (CFG_SYS_BMAN_CINH_SIZE / CFG_SYS_BMAN_SP_CINH_SIZE)
+#define MAX_QPORTALS (CFG_SYS_QMAN_CINH_SIZE / CFG_SYS_QMAN_SP_CINH_SIZE)
 void setup_qbman_portals(void)
 {
-	void __iomem *bpaddr = (void *)CONFIG_SYS_BMAN_CINH_BASE +
-				CONFIG_SYS_BMAN_SWP_ISDR_REG;
-	void __iomem *qpaddr = (void *)CONFIG_SYS_QMAN_CINH_BASE +
-				CONFIG_SYS_QMAN_SWP_ISDR_REG;
+	void __iomem *bpaddr = (void *)CFG_SYS_BMAN_CINH_BASE +
+				CFG_SYS_BMAN_SWP_ISDR_REG;
+	void __iomem *qpaddr = (void *)CFG_SYS_QMAN_CINH_BASE +
+				CFG_SYS_QMAN_SWP_ISDR_REG;
 	struct ccsr_qman *qman = (void *)CFG_SYS_FSL_QMAN_ADDR;
 
 	/* Set the Qman initiator BAR to match the LAW (for DQRR stashing) */
 #ifdef CONFIG_PHYS_64BIT
-	out_be32(&qman->qcsp_bare, (u32)(CONFIG_SYS_QMAN_MEM_PHYS >> 32));
+	out_be32(&qman->qcsp_bare, (u32)(CFG_SYS_QMAN_MEM_PHYS >> 32));
 #endif
-	out_be32(&qman->qcsp_bar, (u32)CONFIG_SYS_QMAN_MEM_PHYS);
+	out_be32(&qman->qcsp_bar, (u32)CFG_SYS_QMAN_MEM_PHYS);
 #ifdef CONFIG_FSL_CORENET
 	int i;
 
-	for (i = 0; i < CONFIG_SYS_QMAN_NUM_PORTALS; i++) {
+	for (i = 0; i < CFG_SYS_QMAN_NUM_PORTALS; i++) {
 		u8 sdest = qp_info[i].sdest;
 		u16 fliodn = qp_info[i].fliodn;
 		u16 dliodn = qp_info[i].dliodn;
@@ -53,7 +53,7 @@ void setup_qbman_portals(void)
 #if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	int i;
 
-	for (i = 0; i < CONFIG_SYS_QMAN_NUM_PORTALS; i++) {
+	for (i = 0; i < CFG_SYS_QMAN_NUM_PORTALS; i++) {
 		u8 sdest = qp_info[i].sdest;
 		u16 ficid = qp_info[i].ficid;
 		u16 dicid = qp_info[i].dicid;
@@ -68,10 +68,10 @@ void setup_qbman_portals(void)
 #endif
 
 	/* Change default state of BMan ISDR portals to all 1s */
-	inhibit_portals(bpaddr, CONFIG_SYS_BMAN_NUM_PORTALS, MAX_BPORTALS,
-			CONFIG_SYS_BMAN_SP_CINH_SIZE);
-	inhibit_portals(qpaddr, CONFIG_SYS_QMAN_NUM_PORTALS, MAX_QPORTALS,
-			CONFIG_SYS_QMAN_SP_CINH_SIZE);
+	inhibit_portals(bpaddr, CFG_SYS_BMAN_NUM_PORTALS, MAX_BPORTALS,
+			CFG_SYS_BMAN_SP_CINH_SIZE);
+	inhibit_portals(qpaddr, CFG_SYS_QMAN_NUM_PORTALS, MAX_QPORTALS,
+			CFG_SYS_QMAN_SP_CINH_SIZE);
 }
 
 void inhibit_portals(void __iomem *addr, int max_portals,
@@ -257,7 +257,7 @@ defined(CONFIG_ARCH_LS1046A)
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-		for (j = 0; j < CONFIG_SYS_NUM_FMAN; j++) {
+		for (j = 0; j < CFG_SYS_NUM_FMAN; j++) {
 			char name[] = "fman@0";
 
 			name[sizeof(name) - 2] = '0' + j;

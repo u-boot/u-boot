@@ -67,7 +67,7 @@ MMC_TGTS \
 
 #define LOAD_OFFSET(x)			0x8##x
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 BUR_COMMON_ENV \
 "verify=no\0" \
 "scraddr=" __stringify(LOAD_OFFSET(0000000)) "\0" \

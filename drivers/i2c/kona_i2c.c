@@ -129,7 +129,7 @@ struct bcm_kona_i2c_dev {
 #define DEF_DEVICE(num) \
 {(void *)CONFIG_SYS_I2C_BASE##num, DEF_SPD, &std_cfg_table[DEF_SPD_ENUM]}
 
-static struct bcm_kona_i2c_dev g_i2c_devs[CONFIG_SYS_MAX_I2C_BUS] = {
+static struct bcm_kona_i2c_dev g_i2c_devs[CFG_SYS_MAX_I2C_BUS] = {
 #ifdef CONFIG_SYS_I2C_BASE0
 	DEF_DEVICE(0),
 #endif

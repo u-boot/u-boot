@@ -10,14 +10,14 @@
 #include "ls1012a_common.h"
 
 /* DDR */
-#define CONFIG_SYS_SDRAM_SIZE		0x40000000
+#define CFG_SYS_SDRAM_SIZE		0x40000000
 
 /*
  * QIXIS Definitions
  */
 
 #ifdef CONFIG_FSL_QIXIS
-#define CONFIG_SYS_I2C_FPGA_ADDR	0x66
+#define CFG_SYS_I2C_FPGA_ADDR	0x66
 #define QIXIS_LBMAP_BRDCFG_REG		0x04
 #define QIXIS_LBMAP_SWITCH		6
 #define QIXIS_LBMAP_MASK		0x08
@@ -46,8 +46,7 @@
 /*
 * RTC configuration
 */
-#define RTC
-#define CONFIG_SYS_I2C_RTC_ADDR         0x51  /* Channel 3*/
+#define CFG_SYS_I2C_RTC_ADDR         0x51  /* Channel 3*/
 
 
 /* Voltage monitor on channel 2*/
@@ -56,8 +55,8 @@
 #define I2C_VOL_MONITOR_BUS_V_OVF      0x1
 #define I2C_VOL_MONITOR_BUS_V_SHIFT    3
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"kernel_addr=0x01000000\0"		\
 	"kernelheader_addr=0x600000\0"		\

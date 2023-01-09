@@ -83,7 +83,7 @@ config BOOTCOUNT_I2C
 	bool "Boot counter on I2C device"
 	help
 	  Enable support for the bootcounter on an i2c (like RTC) device.
-	  CONFIG_SYS_I2C_RTC_ADDR = i2c chip address
+	  CFG_SYS_I2C_RTC_ADDR = i2c chip address
 	  CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
 	                              the bootcounter.
 

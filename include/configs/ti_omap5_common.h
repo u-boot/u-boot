@@ -17,7 +17,7 @@
 #define __CONFIG_TI_OMAP5_COMMON_H
 
 /* Use General purpose timer 1 */
-#define CONFIG_SYS_TIMERBASE		GPT2_BASE
+#define CFG_SYS_TIMERBASE		GPT2_BASE
 
 #include <linux/stringify.h>
 
@@ -29,11 +29,7 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_SYS_NS16550_CLK		48000000
-#if !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#endif
+#define CFG_SYS_NS16550_CLK		48000000
 
 /*
  * Environment setup
@@ -251,7 +247,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \
@@ -283,7 +279,7 @@
  * firewall violation, we tell u-boot that memory is protected RAM (PRAM)
  */
 #if (CONFIG_TI_SECURE_EMIF_REGION_START == 0)
-#define CONFIG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
+#define CFG_PRAM (CONFIG_TI_SECURE_EMIF_TOTAL_REGION_SIZE) >> 10
 #endif
 #else
 /*

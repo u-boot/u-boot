@@ -15,8 +15,8 @@
 #include <clk.h>
 #include <linux/err.h>
 
-#ifndef CONFIG_SYS_NS16550_CLK
-#define CONFIG_SYS_NS16550_CLK  0
+#ifndef CFG_SYS_NS16550_CLK
+#define CFG_SYS_NS16550_CLK  0
 #endif
 
 #ifdef CONFIG_DEBUG_UART_OMAP
@@ -128,7 +128,7 @@ static int omap_serial_of_to_plat(struct udevice *dev)
 
 	if (!plat->clock)
 		plat->clock = dev_read_u32_default(dev, "clock-frequency",
-						   CONFIG_SYS_NS16550_CLK);
+						   CFG_SYS_NS16550_CLK);
 	if (!plat->clock) {
 		debug("omap serial clock not defined\n");
 		return -EINVAL;

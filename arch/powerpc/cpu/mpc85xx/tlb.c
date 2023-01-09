@@ -302,16 +302,16 @@ uint64_t tlb_map_range(ulong v_addr, phys_addr_t p_addr, uint64_t size,
 unsigned int setup_ddr_tlbs_phys(phys_addr_t p_addr,
 				 unsigned int memsize_in_meg)
 {
-	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
+	unsigned int ram_tlb_address = (unsigned int)CFG_SYS_DDR_SDRAM_BASE;
 	u64 memsize = (u64)memsize_in_meg << 20;
 	u64 size;
 
-	size = min(memsize, (u64)CONFIG_MAX_MEM_MAPPED);
+	size = min(memsize, (u64)CFG_MAX_MEM_MAPPED);
 	size = tlb_map_range(ram_tlb_address, p_addr, size, TLB_MAP_RAM);
 
-	if (size || memsize > CONFIG_MAX_MEM_MAPPED) {
-		print_size(memsize > CONFIG_MAX_MEM_MAPPED ?
-			   memsize - CONFIG_MAX_MEM_MAPPED + size : size,
+	if (size || memsize > CFG_MAX_MEM_MAPPED) {
+		print_size(memsize > CFG_MAX_MEM_MAPPED ?
+			   memsize - CFG_MAX_MEM_MAPPED + size : size,
 			   " of DDR memory left unmapped in U-Boot\n");
 #ifndef CONFIG_SPL_BUILD
 		puts("       ");
@@ -324,13 +324,13 @@ unsigned int setup_ddr_tlbs_phys(phys_addr_t p_addr,
 unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 {
 	return
-		setup_ddr_tlbs_phys(CONFIG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
+		setup_ddr_tlbs_phys(CFG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
 }
 
 /* Invalidate the DDR TLBs for the requested size */
 void clear_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 {
-	u32 vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+	u32 vstart = CFG_SYS_DDR_SDRAM_BASE;
 	unsigned long epn;
 	u32 tsize, valid, ptr;
 	phys_addr_t rpn = 0;
@@ -351,7 +351,7 @@ void clear_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 
 void clear_ddr_tlbs(unsigned int memsize_in_meg)
 {
-	clear_ddr_tlbs_phys(CONFIG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
+	clear_ddr_tlbs_phys(CFG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
 }
 
 

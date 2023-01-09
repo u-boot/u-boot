@@ -309,42 +309,42 @@ void init_laws(void)
 	 */
 	switch ((bootloc & FSL_CORENET_RCWSR6_BOOT_LOC) >> 23) {
 	case 0x0: /* boot from PCIE1 */
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_PCIE_1);
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_PCIE_1);
 		break;
 	case 0x1: /* boot from PCIE2 */
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_PCIE_2);
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_PCIE_2);
 		break;
 	case 0x2: /* boot from PCIE3 */
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_PCIE_3);
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_PCIE_3);
 		break;
 	case 0x8: /* boot from SRIO1 */
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_RIO_1);
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_RIO_1);
 		break;
 	case 0x9: /* boot from SRIO2 */
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_SLAVE_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_RIO_2);
-		set_next_law(CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
+		set_next_law(CFG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
 				LAW_SIZE_1M,
 				LAW_TRGT_IF_RIO_2);
 		break;

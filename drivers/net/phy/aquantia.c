@@ -338,7 +338,6 @@ static int aquantia_set_proto(struct phy_device *phydev,
 
 static int aquantia_dts_config(struct phy_device *phydev)
 {
-#ifdef CONFIG_DM_ETH
 	ofnode node = phydev->node;
 	u32 prop;
 	u16 reg;
@@ -374,7 +373,6 @@ static int aquantia_dts_config(struct phy_device *phydev)
 			  (u16)(prop << 1));
 	}
 
-#endif
 	return 0;
 }
 

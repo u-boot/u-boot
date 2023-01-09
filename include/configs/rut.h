@@ -19,7 +19,7 @@
 #define DDR_PLL_FREQ	303
 
  /* Physical Memory Map */
-#define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20) /* 256 MiB */
+#define CFG_MAX_RAM_BANK_SIZE	(256 << 20) /* 256 MiB */
 
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14
@@ -27,14 +27,14 @@
 /* Use common default */
 
 /* Default env settings */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"hostname=rut\0" \
 	"ubi_off=2048\0"\
 	"nand_img_size=0x500000\0" \
 	"splashpos=m,m\0" \
 	"optargs=fixrtc --no-log consoleblank=0 \0" \
-	CONFIG_ENV_SETTINGS_V1 \
-	CONFIG_ENV_SETTINGS_NAND_V1 \
+	CFG_ENV_SETTINGS_V1 \
+	CFG_ENV_SETTINGS_NAND_V1 \
 	"mmc_dev=0\0" \
 	"mmc_root=/dev/mmcblk0p2 rw\0" \
 	"mmc_root_fs_type=ext4 rootwait\0" \

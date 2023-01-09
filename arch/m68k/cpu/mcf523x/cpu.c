@@ -92,7 +92,7 @@ int watchdog_init(void)
 	u32 wdog_module = 0;
 
 	/* set timeout and enable watchdog */
-	wdog_module = ((CONFIG_SYS_CLK / CONFIG_SYS_HZ) * CONFIG_WATCHDOG_TIMEOUT);
+	wdog_module = ((CFG_SYS_CLK / CONFIG_SYS_HZ) * CONFIG_WATCHDOG_TIMEOUT_MSECS);
 	wdog_module |= (wdog_module / 8192);
 	out_be16(&wdp->mr, wdog_module);
 

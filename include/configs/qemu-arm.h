@@ -10,7 +10,7 @@
 
 /* Physical memory map */
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 
 /* GUIDs for capsule updatable firmware images */
 #define QEMU_ARM_UBOOT_IMAGE_GUID \
@@ -76,7 +76,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_addr=0x40000000\0" \

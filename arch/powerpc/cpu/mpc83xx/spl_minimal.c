@@ -54,12 +54,12 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.spcr |= SPCR_TBEN;
 
 	/* DDR control driver register */
-#ifdef CONFIG_SYS_DDRCDR
-	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR;
+#ifdef CFG_SYS_DDRCDR
+	im->sysconf.ddrcdr = CFG_SYS_DDRCDR;
 #endif
 	/* Output buffer impedance register */
-#ifdef CONFIG_SYS_OBIR
-	im->sysconf.obir = CONFIG_SYS_OBIR;
+#ifdef CFG_SYS_OBIR
+	im->sysconf.obir = CFG_SYS_OBIR;
 #endif
 
 	/*
@@ -71,16 +71,16 @@ void cpu_init_f (volatile immap_t * im)
 	 * has been determined
 	 */
 
-#if defined(CONFIG_SYS_NAND_BR_PRELIM)  \
-	&& defined(CONFIG_SYS_NAND_OR_PRELIM) \
+#if defined(CFG_SYS_NAND_BR_PRELIM)  \
+	&& defined(CFG_SYS_NAND_OR_PRELIM) \
 	&& defined(CONFIG_SYS_NAND_LBLAWBAR_PRELIM) \
 	&& defined(CONFIG_SYS_NAND_LBLAWAR_PRELIM)
-	set_lbc_br(0, CONFIG_SYS_NAND_BR_PRELIM);
-	set_lbc_or(0, CONFIG_SYS_NAND_OR_PRELIM);
+	set_lbc_br(0, CFG_SYS_NAND_BR_PRELIM);
+	set_lbc_or(0, CFG_SYS_NAND_OR_PRELIM);
 	im->sysconf.lblaw[0].bar = CONFIG_SYS_NAND_LBLAWBAR_PRELIM;
 	im->sysconf.lblaw[0].ar = CONFIG_SYS_NAND_LBLAWAR_PRELIM;
 #else
-#error CONFIG_SYS_NAND_BR_PRELIM, CONFIG_SYS_NAND_OR_PRELIM, CONFIG_SYS_NAND_LBLAWBAR_PRELIM & CONFIG_SYS_NAND_LBLAWAR_PRELIM must be defined
+#error CFG_SYS_NAND_BR_PRELIM, CFG_SYS_NAND_OR_PRELIM, CONFIG_SYS_NAND_LBLAWBAR_PRELIM & CONFIG_SYS_NAND_LBLAWAR_PRELIM must be defined
 #endif
 }
 

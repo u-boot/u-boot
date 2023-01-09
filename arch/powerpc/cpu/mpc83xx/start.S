@@ -246,7 +246,7 @@ in_flash:
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CONFIG_SYS_INIT_RAM_SIZE
+#if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CFG_SYS_INIT_RAM_SIZE
 #error "SYS_MALLOC_F_LEN too large to fit into initial RAM."
 #endif
 
@@ -486,7 +486,7 @@ init_e300_core: /* time t 10 */
 #if defined(CONFIG_WATCHDOG)
 	/* Initialise the Watchdog values and reset it (if req) */
 	/*------------------------------------------------------*/
-	lis r4, CONFIG_SYS_WATCHDOG_VALUE
+	lis r4, CFG_SYS_WATCHDOG_VALUE
 	ori r4, r4, (SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR)
 	stw r4, SWCRR(r3)
 
@@ -1048,10 +1048,10 @@ trap_init:
 lock_ram_in_cache:
 	/* Allocate Initial RAM in data cache.
 	 */
-	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
-	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
-		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
+	lis	r3, (CFG_SYS_INIT_RAM_ADDR & ~31)@h
+	ori	r3, r3, (CFG_SYS_INIT_RAM_ADDR & ~31)@l
+	li	r4, ((CFG_SYS_INIT_RAM_SIZE & ~31) + \
+		     (CFG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:
 	dcbz	r0, r3
@@ -1070,10 +1070,10 @@ lock_ram_in_cache:
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
-	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
-	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
-		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
+	lis	r3, (CFG_SYS_INIT_RAM_ADDR & ~31)@h
+	ori	r3, r3, (CFG_SYS_INIT_RAM_ADDR & ~31)@l
+	li	r4, ((CFG_SYS_INIT_RAM_SIZE & ~31) + \
+		     (CFG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:	icbi	r0, r3
 	dcbi	r0, r3
@@ -1122,14 +1122,14 @@ map_flash_by_law1:
 	 * LBIU Local Access Widow 0 will not cover this memory space.  So, we
 	 * need another window to map in it.
 	 */
-	lis r4, (CONFIG_SYS_FLASH_BASE)@h
-	ori r4, r4, (CONFIG_SYS_FLASH_BASE)@l
-	stw r4, LBLAWBAR1(r3) /* LBLAWBAR1 <= CONFIG_SYS_FLASH_BASE */
+	lis r4, (CFG_SYS_FLASH_BASE)@h
+	ori r4, r4, (CFG_SYS_FLASH_BASE)@l
+	stw r4, LBLAWBAR1(r3) /* LBLAWBAR1 <= CFG_SYS_FLASH_BASE */
 
-	/* Store 0x80000012 + log2(CONFIG_SYS_FLASH_SIZE) into LBLAWAR1 */
+	/* Store 0x80000012 + log2(CFG_SYS_FLASH_SIZE) into LBLAWAR1 */
 	lis r4, (0x80000012)@h
 	ori r4, r4, (0x80000012)@l
-	li r5, CONFIG_SYS_FLASH_SIZE
+	li r5, CFG_SYS_FLASH_SIZE
 1:	srawi. r5, r5, 1	/* r5 = r5 >> 1 */
 	addi r4, r4, 1
 	bne 1b
@@ -1150,24 +1150,24 @@ remap_flash_by_law0:
 	lwz r4, BR0(r3)
 	li  r5, 0x7FFF
 	and r4, r4, r5
-	lis r5, (CONFIG_SYS_FLASH_BASE & 0xFFFF8000)@h
-	ori r5, r5, (CONFIG_SYS_FLASH_BASE & 0xFFFF8000)@l
+	lis r5, (CFG_SYS_FLASH_BASE & 0xFFFF8000)@h
+	ori r5, r5, (CFG_SYS_FLASH_BASE & 0xFFFF8000)@l
 	or  r5, r5, r4
-	stw r5, BR0(r3) /* r5 <= (CONFIG_SYS_FLASH_BASE & 0xFFFF8000) | (BR0 & 0x00007FFF) */
+	stw r5, BR0(r3) /* r5 <= (CFG_SYS_FLASH_BASE & 0xFFFF8000) | (BR0 & 0x00007FFF) */
 
 	lwz r4, OR0(r3)
-	lis r5, ~((CONFIG_SYS_FLASH_SIZE << 4) - 1)
+	lis r5, ~((CFG_SYS_FLASH_SIZE << 4) - 1)
 	or r4, r4, r5
 	stw r4, OR0(r3)
 
-	lis r4, (CONFIG_SYS_FLASH_BASE)@h
-	ori r4, r4, (CONFIG_SYS_FLASH_BASE)@l
-	stw r4, LBLAWBAR0(r3) /* LBLAWBAR0 <= CONFIG_SYS_FLASH_BASE */
+	lis r4, (CFG_SYS_FLASH_BASE)@h
+	ori r4, r4, (CFG_SYS_FLASH_BASE)@l
+	stw r4, LBLAWBAR0(r3) /* LBLAWBAR0 <= CFG_SYS_FLASH_BASE */
 
-	/* Store 0x80000012 + log2(CONFIG_SYS_FLASH_SIZE) into LBLAWAR0 */
+	/* Store 0x80000012 + log2(CFG_SYS_FLASH_SIZE) into LBLAWAR0 */
 	lis r4, (0x80000012)@h
 	ori r4, r4, (0x80000012)@l
-	li r5, CONFIG_SYS_FLASH_SIZE
+	li r5, CFG_SYS_FLASH_SIZE
 1:	srawi. r5, r5, 1 /* r5 = r5 >> 1 */
 	addi r4, r4, 1
 	bne 1b

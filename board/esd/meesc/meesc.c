@@ -84,10 +84,10 @@ static void meesc_nand_hw_init(void)
 		&smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
-	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
+	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif /* CONFIG_CMD_NAND */
 
@@ -163,7 +163,7 @@ int checkboard(void)
 	u_char hw_type;	/* hardware type */
 
 	/* read the "Type" register of the ET1100 controller */
-	hw_type = readb(CONFIG_ET1100_BASE);
+	hw_type = readb(CFG_ET1100_BASE);
 
 	switch (hw_type) {
 	case 0x11:
@@ -240,7 +240,7 @@ int misc_init_r(void)
 	if (str && (strcmp(str, "4") == 0)) {
 		writel((readl(&pmc->mckr) & ~AT91_PMC_MDIV) |
 			AT91SAM9_PMC_MDIV_4, &pmc->mckr);
-		at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
+		at91_clock_init(CFG_SYS_AT91_MAIN_CLOCK);
 		serial_setbrg();
 		/* Notify the user that the clock is not default */
 		printf("Setting master clock to %s MHz\n",
@@ -264,7 +264,7 @@ int board_init(void)
 	meesc_ethercat_hw_init();
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_CMD_NAND
 	meesc_nand_hw_init();

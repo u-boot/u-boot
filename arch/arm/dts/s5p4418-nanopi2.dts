@@ -25,6 +25,7 @@
 		i2c0 = "/i2c@c00a4000";
 		i2c1 = "/i2c@c00a5000";
 		i2c2 = "/i2c@c00a6000";
+		serial0 = "/uart@c00a1000";
 	};
 
 	mmc0:mmc@c0062000 {
@@ -106,5 +107,10 @@
 				pixel_byte = <4>;
 			};
 		};
+	};
+
+	uart0:uart@c00a1000 {
+		skip-init;
+		status = "okay";
 	};
 };

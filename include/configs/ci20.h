@@ -11,17 +11,10 @@
 
 /* Memory configuration */
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000 /* cached (KSEG0) address */
-#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
+#define CFG_SYS_SDRAM_BASE		0x80000000 /* cached (KSEG0) address */
+#define CFG_SYS_INIT_SP_OFFSET	0x400000
 
 /* NS16550-ish UARTs */
-#define CONFIG_SYS_NS16550_CLK		48000000
-
-/* Ethernet: davicom DM9000 */
-#define CONFIG_DM9000_BASE		0xb6000000
-#define DM9000_IO			CONFIG_DM9000_BASE
-#define DM9000_DATA			(CONFIG_DM9000_BASE + 2)
-
-/* Miscellaneous configuration options */
+#define CFG_SYS_NS16550_CLK		48000000
 
 #endif /* __CONFIG_CI20_H__ */

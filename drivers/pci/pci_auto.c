@@ -16,9 +16,9 @@
 #include <time.h>
 #include "pci_internal.h"
 
-/* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
-#ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE
-#define CONFIG_SYS_PCI_CACHE_LINE_SIZE	8
+/* the user can define CFG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
+#ifndef CFG_SYS_PCI_CACHE_LINE_SIZE
+#define CFG_SYS_PCI_CACHE_LINE_SIZE	8
 #endif
 
 static void dm_pciauto_setup_device(struct udevice *dev,
@@ -178,7 +178,7 @@ static void dm_pciauto_setup_device(struct udevice *dev,
 
 	dm_pci_write_config16(dev, PCI_COMMAND, cmdstat);
 	dm_pci_write_config8(dev, PCI_CACHE_LINE_SIZE,
-			     CONFIG_SYS_PCI_CACHE_LINE_SIZE);
+			     CFG_SYS_PCI_CACHE_LINE_SIZE);
 	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x80);
 }
 

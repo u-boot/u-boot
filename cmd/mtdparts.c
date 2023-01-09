@@ -111,20 +111,17 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MTD_WRITEABLE_CMD		1
 
 /* default values for mtdids and mtdparts variables */
-#if !defined(MTDIDS_DEFAULT)
 #ifdef CONFIG_MTDIDS_DEFAULT
 #define MTDIDS_DEFAULT CONFIG_MTDIDS_DEFAULT
 #else
 #define MTDIDS_DEFAULT NULL
 #endif
-#endif
-#if !defined(MTDPARTS_DEFAULT)
 #ifdef CONFIG_MTDPARTS_DEFAULT
 #define MTDPARTS_DEFAULT CONFIG_MTDPARTS_DEFAULT
 #else
 #define MTDPARTS_DEFAULT NULL
 #endif
-#endif
+
 #if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
 extern void board_mtdparts_default(const char **mtdids, const char **mtdparts);
 #endif

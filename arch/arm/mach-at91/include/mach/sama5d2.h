@@ -238,7 +238,7 @@
 #define cpu_is_sama5d2	_cpu_is_sama5d2
 
 /* PIT Timer(PIT_PIIR) */
-#define CONFIG_SYS_TIMER_COUNTER	0xf804803c
+#define CFG_SYS_TIMER_COUNTER	0xf804803c
 
 #ifndef __ASSEMBLY__
 unsigned int get_chip_id(void);

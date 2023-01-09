@@ -7,12 +7,11 @@
 
 #include <common.h>
 #include <errno.h>
-#include <pwm.h>
 #include <asm/io.h>
 #include <asm/arch/pwm.h>
 #include <asm/arch/clk.h>
 
-int pwm_enable(int pwm_id)
+int s5p_pwm_enable(int pwm_id)
 {
 	const struct s5p_timer *pwm =
 #if defined(CONFIG_ARCH_NEXELL)
@@ -30,7 +29,7 @@ int pwm_enable(int pwm_id)
 	return 0;
 }
 
-void pwm_disable(int pwm_id)
+void s5p_pwm_disable(int pwm_id)
 {
 	const struct s5p_timer *pwm =
 #if defined(CONFIG_ARCH_NEXELL)
@@ -92,7 +91,7 @@ static unsigned long pwm_calc_tin(int pwm_id, unsigned long freq)
 
 #define NS_IN_SEC 1000000000UL
 
-int pwm_config(int pwm_id, int duty_ns, int period_ns)
+int s5p_pwm_config(int pwm_id, int duty_ns, int period_ns)
 {
 	const struct s5p_timer *pwm =
 #if defined(CONFIG_ARCH_NEXELL)
@@ -157,7 +156,7 @@ int pwm_config(int pwm_id, int duty_ns, int period_ns)
 	return 0;
 }
 
-int pwm_init(int pwm_id, int div, int invert)
+int s5p_pwm_init(int pwm_id, int div, int invert)
 {
 	u32 val;
 	const struct s5p_timer *pwm =
@@ -219,7 +218,7 @@ int pwm_init(int pwm_id, int div, int invert)
 		val |= TCON_INVERTER(pwm_id);
 	writel(val, &pwm->tcon);
 
-	pwm_enable(pwm_id);
+	s5p_pwm_enable(pwm_id);
 
 	return 0;
 }

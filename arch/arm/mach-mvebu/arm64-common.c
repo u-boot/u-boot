@@ -32,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
-	unsigned long top = CONFIG_SYS_SDRAM_BASE + min(gd->ram_size, USABLE_RAM_SIZE);
+	unsigned long top = CFG_SYS_SDRAM_BASE + min(gd->ram_size, USABLE_RAM_SIZE);
 
 	return (gd->ram_top > top) ? top : gd->ram_top;
 }

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 Socionext Inc.
+ * Copyright (C) 2017-2021 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ *   Author: Dai Okamura <dai.okamura@socionext.com>
  */
 
 #include <common.h>
@@ -9,6 +10,21 @@
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"
+
+static const struct uniphier_pinctrl_pin uniphier_pxs3_pins[] = {
+	UNIPHIER_PINCTRL_PIN(62, "RGMII0_TXCLK", 28, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(63, "RGMII0_TXD0", 29, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(64, "RGMII0_TXD1", 30, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(65, "RGMII0_TXD2", 31, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(66, "RGMII0_TXD3", 32, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(67, "RGMII0_TXCTL", 33, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(78, "RGMII1_TXCLK", 44, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(79, "RGMII1_TXD0", 45, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(80, "RGMII1_TXD1", 46, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(81, "RGMII1_TXD2", 47, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(82, "RGMII1_TXD3", 48, UNIPHIER_PIN_DRV_2BIT),
+	UNIPHIER_PINCTRL_PIN(83, "RGMII1_TXCTL", 49, UNIPHIER_PIN_DRV_2BIT),
+};
 
 static const unsigned emmc_pins[] = {31, 32, 33, 34, 35, 36, 37, 38};
 static const int emmc_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -121,6 +137,8 @@ static const char * const uniphier_pxs3_functions[] = {
 };
 
 static struct uniphier_pinctrl_socdata uniphier_pxs3_pinctrl_socdata = {
+	.pins = uniphier_pxs3_pins,
+	.pins_count = ARRAY_SIZE(uniphier_pxs3_pins),
 	.groups = uniphier_pxs3_groups,
 	.groups_count = ARRAY_SIZE(uniphier_pxs3_groups),
 	.functions = uniphier_pxs3_functions,

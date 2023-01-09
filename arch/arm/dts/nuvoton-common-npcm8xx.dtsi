@@ -4,6 +4,7 @@
 #include <dt-bindings/clock/nuvoton,npcm845-clk.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	#address-cells = <2>;
@@ -60,6 +61,70 @@
 			reg = <0x0 0xf0801000 0x0 0x1000>;
 		};
 
+		sdhci0: sdhci@f0842000 {
+			compatible = "nuvoton,npcm845-sdhci";
+			reg = <0x0 0xf0842000 0x0 0x100>;
+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+			clocks =  <&clk NPCM8XX_CLK_AHB>;
+			clock-names = "clk_mmc";
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc8_pins
+				     &mmc_pins>;
+			status = "disabled";
+		};
+
+		fiu0: spi@fb000000 {
+			compatible = "nuvoton,npcm845-fiu";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0xfb000000 0x0 0x1000>,
+			<0x0 0x80000000 0x0 0x10000000>;
+			reg-names = "control", "memory";
+			clocks = <&clk NPCM8XX_CLK_SPI0>;
+			clock-names = "clk_ahb";
+			status = "disabled";
+		};
+
+		fiu1: spi@fb002000 {
+			compatible = "nuvoton,npcm845-fiu";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0xfb002000 0x0 0x1000>,
+			<0x0 0x90000000 0x0 0x4000000>;
+			reg-names = "control", "memory";
+			clocks = <&clk NPCM8XX_CLK_SPI1>;
+			clock-names = "clk_spi1";
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi1_pins>;
+			status = "disabled";
+		};
+
+		fiu3: spi@c0000000 {
+			compatible = "nuvoton,npcm845-fiu";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0xc0000000 0x0 0x1000>,
+			<0x0 0xA0000000 0x0 0x20000000>;
+			reg-names = "control", "memory";
+			clocks = <&clk NPCM8XX_CLK_SPI3>;
+			clock-names = "clk_spi3";
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi3_pins>;
+			status = "disabled";
+		};
+
+		fiux: spi@fb001000 {
+			compatible = "nuvoton,npcm845-fiu";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x0 0xfb001000 0x0 0x1000>,
+			<0x0 0xf8000000 0x0 0x2000000>;
+			reg-names = "control", "memory";
+			clocks = <&clk NPCM8XX_CLK_SPIX>;
+			clock-names = "clk_ahb";
+			status = "disabled";
+		};
+
 		apb {
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -67,6 +132,19 @@
 			interrupt-parent = <&gic>;
 			ranges = <0x0 0x0 0xf0000000 0x00300000>,
 				<0xfff00000 0x0 0xfff00000 0x00016000>;
+
+			spi1: spi@201000 {
+				compatible = "nuvoton,npcm845-pspi";
+				reg = <0x201000 0x1000>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&pspi_pins>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&clk NPCM8XX_CLK_APB5>;
+				clock-names = "clk_apb5";
+				status = "disabled";
+			};
 
 			timer0: timer@8000 {
 				compatible = "nuvoton,npcm845-timer";
@@ -164,6 +242,20 @@
 				status = "disabled";
 				clocks = <&clk NPCM8XX_CLK_REFCLK>;
 				syscon = <&gcr>;
+			};
+
+			i2c0: i2c@80000 {
+				compatible = "nuvoton,npcm845-i2c";
+				reg = <0x80000 0x1000>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				clocks = <&clk NPCM8XX_CLK_APB2>;
+				clock-frequency = <100000>;
+				interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&smb0_pins>;
+				syscon = <&gcr>;
+				status = "disabled";
 			};
 		};
 	};

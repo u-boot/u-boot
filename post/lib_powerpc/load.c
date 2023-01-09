@@ -28,7 +28,7 @@
 #include <post.h>
 #include "cpu_asm.h"
 
-#if CONFIG_POST & CONFIG_SYS_POST_CPU
+#if CFG_POST & CFG_SYS_POST_CPU
 
 extern void cpu_post_exec_22w (ulong *code, ulong *op1, ulong op2, ulong *op3);
 extern void cpu_post_exec_21w (ulong *code, ulong *op1, ulong *op2);

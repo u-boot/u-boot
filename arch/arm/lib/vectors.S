@@ -83,8 +83,8 @@
  */
 
 _start:
-#ifdef CONFIG_SYS_DV_NOR_BOOT_CFG
-	.word	CONFIG_SYS_DV_NOR_BOOT_CFG
+#ifdef CFG_SYS_DV_NOR_BOOT_CFG
+	.word	CFG_SYS_DV_NOR_BOOT_CFG
 #endif
 	ARM_VECTORS
 #endif /* !defined(CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK) */

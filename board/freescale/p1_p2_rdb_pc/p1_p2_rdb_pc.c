@@ -90,20 +90,20 @@ void board_reset_prepare(void)
 	 * This ensures that external watchdog does not trigger
 	 * another reset or possible infinite reset loop.
 	 */
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	out_8(&cpld_data->wd_cfg, CPLD_WD_CFG);
 	in_8(&cpld_data->wd_cfg); /* Read back to sync write */
 }
 
 void board_reset_last(void)
 {
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	out_8(&cpld_data->system_rst, 1);
 }
 
 void board_cpld_init(void)
 {
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	u8 prev_wd_cfg = in_8(&cpld_data->wd_cfg);
 
 	out_8(&cpld_data->wd_cfg, CPLD_WD_CFG);
@@ -187,7 +187,7 @@ void board_gpio_init(void)
 	setbits_be32(&pgpio->gpdat, 0x00080000);
 #endif
 
-#ifdef CONFIG_SLIC
+#ifdef CFG_SLIC
 	/* reset SLIC */
 	setbits_be32(&pgpio->gpdir, 0x00040000);
 	setbits_be32(&pgpio->gpdat, 0x00040000);
@@ -226,7 +226,7 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	u8 in, out, invert, io_config, val;
 	int bus_num = CONFIG_SYS_SPD_BUS_NUM;
@@ -246,7 +246,7 @@ int checkboard(void)
 	struct udevice *dev;
 	int ret;
 
-	ret = i2c_get_chip_for_busnum(bus_num, CONFIG_SYS_I2C_PCA9557_ADDR,
+	ret = i2c_get_chip_for_busnum(bus_num, CFG_SYS_I2C_PCA9557_ADDR,
 				      1, &dev);
 	if (ret) {
 		printf("%s: Cannot find udev for a bus %d\n", __func__,
@@ -264,10 +264,10 @@ int checkboard(void)
 	#else /* Non DM I2C support - will be removed */
 	i2c_set_bus_num(bus_num);
 
-	if (i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 0, 1, &in, 1) < 0 ||
-	    i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 1, 1, &out, 1) < 0 ||
-	    i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 2, 1, &invert, 1) < 0 ||
-	    i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 3, 1, &io_config, 1) < 0) {
+	if (i2c_read(CFG_SYS_I2C_PCA9557_ADDR, 0, 1, &in, 1) < 0 ||
+	    i2c_read(CFG_SYS_I2C_PCA9557_ADDR, 1, 1, &out, 1) < 0 ||
+	    i2c_read(CFG_SYS_I2C_PCA9557_ADDR, 2, 1, &invert, 1) < 0 ||
+	    i2c_read(CFG_SYS_I2C_PCA9557_ADDR, 3, 1, &io_config, 1) < 0) {
 		printf("Error reading i2c boot information!\n");
 		return 0; /* Don't want to hang() on this error */
 	}
@@ -319,7 +319,7 @@ int checkboard(void)
 
 int board_early_init_r(void)
 {
-	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
+	const unsigned int flashbase = CFG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 #ifdef CONFIG_VSC7385_ENET
 	unsigned int vscfw_addr;
@@ -344,7 +344,7 @@ int board_early_init_r(void)
 		disable_tlb(flash_esel);
 	}
 
-	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS, /* tlb, epn, rpn */
+	set_tlb(1, flashbase, CFG_SYS_FLASH_BASE_PHYS, /* tlb, epn, rpn */
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,/* perms, wimge */
 		0, flash_esel, BOOKE_PAGESZ_64M, 1);/* ts, esel, tsize, iprot */
 
@@ -355,7 +355,7 @@ int board_early_init_r(void)
 		vscfw_addr = hextoul(tmp, NULL);
 		printf("uploading VSC7385 microcode from %x\n", vscfw_addr);
 		if (vsc7385_upload_firmware((void *)vscfw_addr,
-					    CONFIG_VSC7385_IMAGE_SIZE))
+					    CFG_VSC7385_IMAGE_SIZE))
 			puts("Failure uploading VSC7385 microcode.\n");
 	} else {
 		puts("No address specified for VSC7385 microcode.\n");
@@ -363,56 +363,6 @@ int board_early_init_r(void)
 #endif
 	return 0;
 }
-
-#ifndef CONFIG_DM_ETH
-int board_eth_init(struct bd_info *bis)
-{
-	struct fsl_pq_mdio_info mdio_info;
-	struct tsec_info_struct tsec_info[4];
-	ccsr_gur_t *gur __attribute__((unused)) =
-		(void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
-	int num = 0;
-
-#ifdef CONFIG_TSEC1
-	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	num++;
-#endif
-#ifdef CONFIG_TSEC2
-	SET_STD_TSEC_INFO(tsec_info[num], 2);
-	if (is_serdes_configured(SGMII_TSEC2)) {
-		printf("eTSEC2 is in sgmii mode.\n");
-		tsec_info[num].flags |= TSEC_SGMII;
-	}
-	num++;
-#endif
-#ifdef CONFIG_TSEC3
-	SET_STD_TSEC_INFO(tsec_info[num], 3);
-	num++;
-#endif
-
-	if (!num) {
-		printf("No TSECs initialized\n");
-		return 0;
-	}
-
-	mdio_info.regs = TSEC_GET_MDIO_REGS_BASE(1);
-	mdio_info.name = DEFAULT_MII_NAME;
-
-	fsl_pq_mdio_init(bis, &mdio_info);
-
-	tsec_eth_init(bis, tsec_info, num);
-
-#if defined(CONFIG_UEC_ETH)
-	/*  QE0 and QE3 need to be exposed for UCC1 and UCC5 Eth mode */
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE0);
-	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_QE3);
-
-	uec_standard_init(bis);
-#endif
-
-	return pci_eth_init(bis);
-}
-#endif
 
 #if defined(CONFIG_OF_BOARD_SETUP) || defined(CONFIG_OF_BOARD_FIXUP)
 static void fix_max6370_watchdog(void *blob)

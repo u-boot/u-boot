@@ -592,7 +592,7 @@ static int dm_test_fdt_translation(struct unit_test_state *uts)
 	ut_asserteq_str("dev@2,200", dev->name);
 	ut_asserteq(0xA000, dev_read_addr(dev));
 
-	/* No translation for busses with #size-cells == 0 */
+	/* No translation for buses with #size-cells == 0 */
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 3, &dev));
 	ut_asserteq_str("dev@42", dev->name);
 	ut_asserteq(0x42, dev_read_addr(dev));

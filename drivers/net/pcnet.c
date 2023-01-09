@@ -83,13 +83,8 @@ struct pcnet_priv {
 	/* Receive Buffer space */
 	unsigned char rx_buf[RX_RING_SIZE][PKT_BUF_SZ + 4];
 	struct pcnet_uncached_priv *uc;
-#ifdef CONFIG_DM_ETH
 	struct udevice *dev;
 	const char *name;
-#else
-	pci_dev_t dev;
-	char *name;
-#endif
 	void __iomem *iobase;
 	u8 *enetaddr;
 	u16 status;
@@ -142,11 +137,7 @@ static inline pci_addr_t pcnet_virt_to_mem(struct pcnet_priv *lp, void *addr)
 {
 	void *virt_addr = addr;
 
-#ifdef CONFIG_DM_ETH
 	return dm_pci_virt_to_mem(lp->dev, virt_addr);
-#else
-	return pci_virt_to_mem(lp->dev, virt_addr);
-#endif
 }
 
 static struct pci_device_id supported[] = {
@@ -457,132 +448,6 @@ static void pcnet_halt_common(struct pcnet_priv *lp)
 		printf("%s: TIMEOUT: controller reset failed\n", lp->name);
 }
 
-#ifndef CONFIG_DM_ETH
-static int pcnet_init(struct eth_device *dev, struct bd_info *bis)
-{
-	struct pcnet_priv *lp = dev->priv;
-
-	return pcnet_init_common(lp);
-}
-
-static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
-{
-	struct pcnet_priv *lp = dev->priv;
-
-	return pcnet_send_common(lp, packet, pkt_len);
-}
-
-static int pcnet_recv(struct eth_device *dev)
-{
-	struct pcnet_priv *lp = dev->priv;
-	uchar *packet;
-	int ret;
-
-	ret = pcnet_recv_common(lp, &packet);
-	if (ret > 0)
-		net_process_received_packet(packet, ret);
-	if (ret)
-		pcnet_free_pkt_common(lp, ret);
-
-	return ret;
-}
-
-static void pcnet_halt(struct eth_device *dev)
-{
-	struct pcnet_priv *lp = dev->priv;
-
-	pcnet_halt_common(lp);
-}
-
-int pcnet_initialize(struct bd_info *bis)
-{
-	pci_dev_t devbusfn;
-	struct eth_device *dev;
-	struct pcnet_priv *lp;
-	u16 command, status;
-	int dev_nr = 0;
-	u32 bar;
-
-	PCNET_DEBUG1("\n%s...\n", __func__);
-
-	for (dev_nr = 0; ; dev_nr++) {
-		/*
-		 * Find the PCnet PCI device(s).
-		 */
-		devbusfn = pci_find_devices(supported, dev_nr);
-		if (devbusfn < 0)
-			break;
-
-		/*
-		 * Allocate and pre-fill the device structure.
-		 */
-		dev = calloc(1, sizeof(*dev));
-		if (!dev) {
-			printf("pcnet: Can not allocate memory\n");
-			break;
-		}
-
-		/*
-		 * We only maintain one structure because the drivers will
-		 * never be used concurrently. In 32bit mode the RX and TX
-		 * ring entries must be aligned on 16-byte boundaries.
-		 */
-		lp = malloc_cache_aligned(sizeof(*lp));
-		lp->uc = map_physmem((phys_addr_t)&lp->ucp,
-				     sizeof(lp->ucp), MAP_NOCACHE);
-		lp->dev = devbusfn;
-		flush_dcache_range((unsigned long)lp,
-				   (unsigned long)lp + sizeof(*lp));
-		dev->priv = lp;
-		sprintf(dev->name, "pcnet#%d", dev_nr);
-		lp->name = dev->name;
-		lp->enetaddr = dev->enetaddr;
-
-		/*
-		 * Setup the PCI device.
-		 */
-		pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_1, &bar);
-		lp->iobase = (void *)(pci_mem_to_phys(devbusfn, bar) & ~0xf);
-
-		PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%p: ",
-			     lp->name, devbusfn, lp->iobase);
-
-		command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
-		pci_write_config_word(devbusfn, PCI_COMMAND, command);
-		pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-		if ((status & command) != command) {
-			printf("%s: Couldn't enable IO access or Bus Mastering\n",
-			       lp->name);
-			free(dev);
-			continue;
-		}
-
-		pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x40);
-
-		/*
-		 * Probe the PCnet chip.
-		 */
-		if (pcnet_probe_common(lp) < 0) {
-			free(dev);
-			continue;
-		}
-
-		/*
-		 * Setup device structure and register the driver.
-		 */
-		dev->init = pcnet_init;
-		dev->halt = pcnet_halt;
-		dev->send = pcnet_send;
-		dev->recv = pcnet_recv;
-
-		eth_register(dev);
-	}
-
-	udelay(10 * 1000);
-
-	return dev_nr;
-}
-#else /* DM_ETH */
 static int pcnet_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
@@ -695,4 +560,3 @@ U_BOOT_DRIVER(eth_pcnet) = {
 };
 
 U_BOOT_PCI_DEVICE(eth_pcnet, supported);
-#endif

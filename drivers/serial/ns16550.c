@@ -92,8 +92,8 @@ static inline int serial_in_shift(void *addr, int shift)
 
 #if CONFIG_IS_ENABLED(DM_SERIAL)
 
-#ifndef CONFIG_SYS_NS16550_CLK
-#define CONFIG_SYS_NS16550_CLK  0
+#ifndef CFG_SYS_NS16550_CLK
+#define CFG_SYS_NS16550_CLK  0
 #endif
 
 /*
@@ -272,7 +272,7 @@ void ns16550_init(struct ns16550 *com_port, int baud_divisor)
 #endif
 }
 
-#ifndef CONFIG_NS16550_MIN_FUNCTIONS
+#if !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS)
 void ns16550_reinit(struct ns16550 *com_port, int baud_divisor)
 {
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
@@ -281,7 +281,7 @@ void ns16550_reinit(struct ns16550 *com_port, int baud_divisor)
 	serial_out(ns16550_getfcr(com_port), &com_port->fcr);
 	ns16550_setbrg(com_port, baud_divisor);
 }
-#endif /* CONFIG_NS16550_MIN_FUNCTIONS */
+#endif /* !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS) */
 
 void ns16550_putc(struct ns16550 *com_port, char c)
 {
@@ -299,7 +299,7 @@ void ns16550_putc(struct ns16550 *com_port, char c)
 		schedule();
 }
 
-#ifndef CONFIG_NS16550_MIN_FUNCTIONS
+#if !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS)
 char ns16550_getc(struct ns16550 *com_port)
 {
 	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0) {
@@ -317,7 +317,7 @@ int ns16550_tstc(struct ns16550 *com_port)
 	return (serial_in(&com_port->lsr) & UART_LSR_DR) != 0;
 }
 
-#endif /* CONFIG_NS16550_MIN_FUNCTIONS */
+#endif /* !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS) */
 
 #ifdef CONFIG_DEBUG_UART_NS16550
 
@@ -567,9 +567,9 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 
 	if (!plat->clock)
 		plat->clock = dev_read_u32_default(dev, "clock-frequency",
-						   CONFIG_SYS_NS16550_CLK);
+						   CFG_SYS_NS16550_CLK);
 	if (!plat->clock)
-		plat->clock = CONFIG_SYS_NS16550_CLK;
+		plat->clock = CFG_SYS_NS16550_CLK;
 	if (!plat->clock) {
 		debug("ns16550 clock not defined\n");
 		return -EINVAL;

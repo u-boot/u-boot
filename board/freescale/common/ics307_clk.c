@@ -50,7 +50,7 @@ static u8 ics307_s_to_od[] = {
  */
 unsigned long ics307_sysclk_calculator(unsigned long out_freq)
 {
-	const unsigned long input_freq = CONFIG_ICS307_REFCLK_HZ;
+	const unsigned long input_freq = CFG_ICS307_REFCLK_HZ;
 	unsigned long vdw, rdw, odp, s_vdw = 0, s_rdw = 0, s_odp = 0, od;
 	unsigned long tmp_out, diff, result = 0;
 	int found = 0;
@@ -101,7 +101,7 @@ unsigned long ics307_sysclk_calculator(unsigned long out_freq)
  */
 static unsigned long ics307_clk_freq(u8 cw0, u8 cw1, u8 cw2)
 {
-	const unsigned long input_freq = CONFIG_ICS307_REFCLK_HZ;
+	const unsigned long input_freq = CFG_ICS307_REFCLK_HZ;
 	unsigned long vdw = ((cw1 << 1) & 0x1FE) + ((cw2 >> 7) & 1);
 	unsigned long rdw = cw2 & 0x7F;
 	unsigned long od = ics307_s_to_od[cw0 & 0x7];

@@ -11,8 +11,8 @@
 /*
  * Default environment settings
  */
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS                                       \
+#undef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS                                       \
 	"netdev=eth0\0"                                                 \
 	"ipaddr=172.16.12.50\0"                                         \
 	"serverip=172.16.12.69\0"					\

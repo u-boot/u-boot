@@ -17,7 +17,7 @@
 #define PHYS_SDRAM_1			0x80000000
 /* Note: 8 MiB (0x86000000 - 0x86800000) are reserved for tz/smem/hyp/rmtfs/rfsa */
 #define PHYS_SDRAM_1_SIZE		SZ_1G
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
 #define BOOT_TARGET_DEVICES(func) \
@@ -28,6 +28,6 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS BOOTENV
+#define CFG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif

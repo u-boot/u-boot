@@ -10,27 +10,20 @@
 #include <asm/arch/stream_id_lsch2.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000
 #define CFG_SYS_FSL_DDR_SDRAM_BASE_PHY	0
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_DDR_BLOCK2_BASE     0x880000000ULL
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_BLOCK2_BASE     0x880000000ULL
 
 /*SPI device */
 #define CFG_SYS_FSL_QSPI_BASE	0x40000000
-
-/* SATA */
-
-#define CONFIG_SYS_SATA				AHCI_BASE_ADDR
 
 /* I2C */
 
 /* GPIO */
 
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE     1
-#define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
+#define CFG_SYS_NS16550_CLK          (get_serial_clock())
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
 #define BOOT_TARGET_DEVICES(func) \
@@ -41,7 +34,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"verify=no\0"				\
 	"loadaddr=0x80100000\0"			\
 	"kernel_addr=0x100000\0"		\

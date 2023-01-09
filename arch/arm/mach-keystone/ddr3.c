@@ -318,7 +318,7 @@ void ddr3_init_ecc(u32 base, u32 ddr3_size)
 	}
 
 	ddr3_ecc_init_range(base);
-	ddr3_reset_data(CONFIG_SYS_SDRAM_BASE, ddr3_size);
+	ddr3_reset_data(CFG_SYS_SDRAM_BASE, ddr3_size);
 
 	/* mapping DDR3 ECC system interrupt from CIC2 to GIC */
 #if defined(CONFIG_SOC_K2HK) || defined(CONFIG_SOC_K2L)

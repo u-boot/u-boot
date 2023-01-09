@@ -168,18 +168,18 @@ static void mmu_setup(void)
 	/* Level 1 has 512 entries */
 	for (i = 0; i < 512; i++) {
 		/* Mapping for PCIe 1 */
-		if (va_start >= CONFIG_SYS_PCIE1_VIRT_ADDR &&
-		    va_start < (CONFIG_SYS_PCIE1_VIRT_ADDR +
-				 CONFIG_SYS_PCIE_MMAP_SIZE))
+		if (va_start >= CFG_SYS_PCIE1_VIRT_ADDR &&
+		    va_start < (CFG_SYS_PCIE1_VIRT_ADDR +
+				 CFG_SYS_PCIE_MMAP_SIZE))
 			set_pgsection(level1_table, i,
-				      CONFIG_SYS_PCIE1_PHYS_BASE + va_start,
+				      CFG_SYS_PCIE1_PHYS_BASE + va_start,
 				      MT_DEVICE_MEM);
 		/* Mapping for PCIe 2 */
-		else if (va_start >= CONFIG_SYS_PCIE2_VIRT_ADDR &&
-			 va_start < (CONFIG_SYS_PCIE2_VIRT_ADDR +
-				     CONFIG_SYS_PCIE_MMAP_SIZE))
+		else if (va_start >= CFG_SYS_PCIE2_VIRT_ADDR &&
+			 va_start < (CFG_SYS_PCIE2_VIRT_ADDR +
+				     CFG_SYS_PCIE_MMAP_SIZE))
 			set_pgsection(level1_table, i,
-				      CONFIG_SYS_PCIE2_PHYS_BASE + va_start,
+				      CFG_SYS_PCIE2_PHYS_BASE + va_start,
 				      MT_DEVICE_MEM);
 		else
 			set_pgsection(level1_table, i,
@@ -302,20 +302,11 @@ int cpu_mmc_init(struct bd_info *bis)
 }
 #endif
 
-int cpu_eth_init(struct bd_info *bis)
-{
-#if defined(CONFIG_TSEC_ENET) && !defined(CONFIG_DM_ETH)
-	tsec_standard_init(bis);
-#endif
-
-	return 0;
-}
-
 int arch_cpu_init(void)
 {
-	void *epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
+	void *epu_base = (void *)(CFG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
 	void *rcpm2_base =
-		(void *)(CONFIG_SYS_DCSRBAR + DCSR_RCPM2_BLOCK_OFFSET);
+		(void *)(CFG_SYS_DCSRBAR + DCSR_RCPM2_BLOCK_OFFSET);
 	struct ccsr_scfg *scfg = (void *)CFG_SYS_FSL_SCFG_ADDR;
 	u32 state;
 

@@ -9,7 +9,7 @@
 #define __POMELO_CONFIG_H__
 
 /* SDRAM Bank #1 start address */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /* SIZE of malloc pool */
 
@@ -21,7 +21,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"image=Image\0" \
 	BOOTENV \
 	"scriptaddr=0x90100000\0" \

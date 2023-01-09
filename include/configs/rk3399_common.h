@@ -8,20 +8,10 @@
 
 #include "rockchip-common.h"
 
-#define CONFIG_IRAM_BASE		0xff8c0000
-
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_TPL_BOOTROM_SUPPORT)
-#else
-/*  BSS setup */
-#endif
-
-/* MMC/SD IP block */
-#define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
-
-/* RAW SD card / eMMC locations. */
+#define CFG_IRAM_BASE		0xff8c0000
 
 /* FAT sd card locations. */
-#define CONFIG_SYS_SDRAM_BASE		0
+#define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xf8000000
 
 #define ROCKPI_4B_IDBLOADER_IMAGE_GUID \
@@ -60,7 +50,7 @@
 
 #include <config_distro_bootcmd.h>
 #include <environment/distro/sf.h>
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \

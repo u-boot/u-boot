@@ -838,7 +838,7 @@ static void ast2600_sdrammc_calc_size(struct dram_info *info)
 	u32 test_pattern = 0xdeadbeef;
 	u32 cap_param = SDRAM_CONF_CAP_2048M;
 	u32 refresh_timing_param = DDR4_TRFC;
-	const u32 write_addr_base = CONFIG_SYS_SDRAM_BASE + write_test_offset;
+	const u32 write_addr_base = CFG_SYS_SDRAM_BASE + write_test_offset;
 
 	for (ram_size = SDRAM_MAX_SIZE; ram_size > SDRAM_MIN_SIZE;
 	     ram_size >>= 1) {
@@ -866,7 +866,7 @@ static void ast2600_sdrammc_calc_size(struct dram_info *info)
 			((refresh_timing_param & SDRAM_AC_TRFC_MASK)
 			 << SDRAM_AC_TRFC_SHIFT));
 
-	info->info.base = CONFIG_SYS_SDRAM_BASE;
+	info->info.base = CFG_SYS_SDRAM_BASE;
 	info->info.size = ram_size - ast2600_sdrammc_get_vga_mem_size(info);
 
 	clrsetbits_le32(&info->regs->config, SDRAM_CONF_CAP_MASK,
@@ -1015,7 +1015,7 @@ static void ast2600_sdrammc_update_size(struct dram_info *info)
 		break;
 	}
 
-	info->info.base = CONFIG_SYS_SDRAM_BASE;
+	info->info.base = CFG_SYS_SDRAM_BASE;
 	info->info.size = ram_size - ast2600_sdrammc_get_vga_mem_size(info);
 
 	if (0 == (conf & SDRAM_CONF_ECC_SETUP))

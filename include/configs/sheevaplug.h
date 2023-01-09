@@ -15,16 +15,10 @@
 /*
  *  Environment variables configurations
  */
-#define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
+#define CFG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
 	"=ttyS0,115200 mtdparts=" CONFIG_MTDPARTS_DEFAULT	\
 	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x400000\0" \
 	"x_bootcmd_usb=usb start\0" \
 	"x_bootargs_root=root=/dev/mtdblock3 rw rootfstype=jffs2\0"
-
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
-#define CONFIG_PHY_BASE_ADR	0
 
 #endif /* _CONFIG_SHEEVAPLUG_H */

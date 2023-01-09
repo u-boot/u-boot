@@ -2687,7 +2687,7 @@ static int octeon_ddr_probe(struct udevice *dev)
 	if (!mem_mbytes)
 		return -ENODEV;
 
-	priv->info.base = CONFIG_SYS_SDRAM_BASE;
+	priv->info.base = CFG_SYS_SDRAM_BASE;
 	priv->info.size = MB(mem_mbytes);
 
 	/*

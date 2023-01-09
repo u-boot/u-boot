@@ -393,10 +393,43 @@ config PMIC_TPS65217
 	only, and you can enable the regulator/charger drivers separately if
 	required.
 
+config POWER_TPS65218
+	bool "Enable legacy driver for TPS65218 PMIC"
+
+config POWER_TPS62362
+	bool "Enable legacy driver for TPS62362 PMIC"
+
+config SPL_POWER_TPS62362
+	bool "Enable legacy driver for TPS62362 PMIC in SPL"
+	default y if POWER_TPS62362
+	depends on SPL
+
+config SPL_POWER_TPS65910
+	bool "Enable legacy driver for TPS65910 PMIC in SPL"
+	depends on SPL
+
+if POWER_LEGACY || SPL_POWER_LEGACY
+
+config POWER_HI6553
+	bool "Enable legacy driver for HI6553 PMIC"
+
+config POWER_LTC3676
+	bool "Enable legacy driver for LTC3676 PMIC"
+
+config POWER_PCA9450
+	bool "Enable legacy driver for PCA9450 PMIC"
+
+config POWER_PFUZE100
+	bool "Enable legacy driver for PFUZE100 PMIC"
+
+config POWER_PFUZE3000
+	bool "Enable legacy driver for PFUZE3000 PMIC"
+
 config POWER_MC34VR500
 	bool "Enable driver for Freescale MC34VR500 PMIC"
-	depends on !DM_PMIC
 	---help---
 	The MC34VR500 is used in conjunction with the FSL T1 and LS1 series
 	SoC. It provides 4 buck DC-DC convertors and 5 LDOs, and it is accessed
 	via an I2C interface.
+
+endif

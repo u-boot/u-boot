@@ -5,6 +5,7 @@
  */
 
 #include <config.h>
+#include <linux/linkage.h>
 
 kernoffs:		/* offset of kernel image from this address */
 	.word . - CONFIG_TEXT_BASE - KERNEL_OFFSET
@@ -29,8 +30,7 @@ z_magic:		/* LINUX_ARM_ZIMAGE_MAGIC */
  * Description: Copy attached kernel to address KERNEL_ADDRESS
  */
 
-.global save_boot_params
-save_boot_params:
+ENTRY(save_boot_params)
 
 /*
  * Copy valid attached kernel to absolute address KERNEL_ADDRESS
@@ -93,3 +93,5 @@ skip_copy:
 
 	/* Returns */
 	b	save_boot_params_ret
+
+ENDPROC(save_boot_params)

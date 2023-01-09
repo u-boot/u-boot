@@ -32,7 +32,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct davinci_timer * const timer =
-	(struct davinci_timer *)CONFIG_SYS_TIMERBASE;
+	(struct davinci_timer *)CFG_SYS_TIMERBASE;
 
 #define TIMER_LOAD_VAL	0xffffffff
 
@@ -47,7 +47,7 @@ int timer_init(void)
 	writel(0x0, &timer->tim34);
 	writel(TIMER_LOAD_VAL, &timer->prd34);
 	writel(2 << 22, &timer->tcr);
-	gd->arch.timer_rate_hz = CONFIG_SYS_HZ_CLOCK / TIM_CLK_DIV;
+	gd->arch.timer_rate_hz = CFG_SYS_HZ_CLOCK / TIM_CLK_DIV;
 	gd->arch.timer_reset_value = 0;
 
 	return(0);

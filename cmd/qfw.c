@@ -130,8 +130,8 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 	env = env_get("ramdiskaddr");
 	initrd_addr = env ?
 		(void *)hextoul(env, NULL) :
-#ifdef CONFIG_RAMDISK_ADDR
-		(void *)CONFIG_RAMDISK_ADDR;
+#ifdef CFG_RAMDISK_ADDR
+		(void *)CFG_RAMDISK_ADDR;
 #else
 		NULL;
 #endif

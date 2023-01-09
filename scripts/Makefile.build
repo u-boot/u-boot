@@ -48,7 +48,6 @@ subdir-ccflags-y :=
 # Modified for U-Boot
 -include include/config/auto.conf
 -include $(prefix)/include/autoconf.mk
-include scripts/Makefile.uncmd_spl
 
 include scripts/Kbuild.include
 

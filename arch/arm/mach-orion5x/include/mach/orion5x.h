@@ -53,7 +53,7 @@
 #define MVCPU_WIN_ENABLE	ORION5X_WIN_ENABLE
 #define MVCPU_WIN_DISABLE	ORION5X_WIN_DISABLE
 
-#define CONFIG_MAX_RAM_BANK_SIZE		(64*1024*1024)
+#define CFG_MAX_RAM_BANK_SIZE		(64*1024*1024)
 
 /* include here SoC variants. 5181, 5281, 6183 should go here when
    adding support for them, and this comment should then be updated. */

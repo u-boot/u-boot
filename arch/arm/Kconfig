@@ -553,6 +553,9 @@ config ARM64_SUPPORT_AARCH32
 	help
 	  This ARM64 system supports AArch32 execution state.
 
+config IPROC
+	bool
+
 config S5P
 	def_bool y if ARCH_EXYNOS || ARCH_S5PC1XX
 
@@ -586,7 +589,6 @@ config ARCH_KIRKWOOD
 config ARCH_MVEBU
 	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
 	select DM
-	select DM_ETH
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
@@ -659,6 +661,7 @@ config TARGET_BCMCYGNUS
 	bool "Support bcmcygnus"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select IPROC
 	imply BCM_SF2_ETH
 	imply BCM_SF2_ETH_GMAC
 	imply CMD_HASH
@@ -690,7 +693,6 @@ config ARCH_EXYNOS
 	select DM
 	select DM_GPIO
 	select DM_I2C
-	select DM_ETH
 	select DM_KEYBOARD
 	select DM_SERIAL
 	select DM_SPI
@@ -721,7 +723,6 @@ config ARCH_HIGHBANK
 	select CLK
 	select CLK_CCF
 	select AHCI
-	select DM_ETH
 	select PHYS_64BIT
 	select TIMER
 	select SP804_TIMER
@@ -918,6 +919,7 @@ config ARCH_MX7
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
+	select MXC_GPT_HCLK
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -931,6 +933,7 @@ config ARCH_MX6
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
+	select MXC_GPT_HCLK
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
@@ -995,7 +998,6 @@ config ARCH_APPLE
 config ARCH_OWL
 	bool "Actions Semi OWL SoCs"
 	select DM
-	select DM_ETH
 	select DM_SERIAL
 	select GPIO_EXTRA_HEADER
 	select OWL_SERIAL
@@ -1095,7 +1097,6 @@ config ARCH_SUNXI
 	select CMD_USB if DISTRO_DEFAULTS && USB_HOST
 	select CLK
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C if I2C
 	select DM_SPI if SPI
@@ -1174,7 +1175,6 @@ config ARCH_VERSAL
 	select ARM64
 	select CLK
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select GICV3
@@ -1188,7 +1188,6 @@ config ARCH_VERSAL_NET
 	select ARM64
 	select CLK
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
@@ -1199,6 +1198,7 @@ config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
+	select IOMUX_SHARE_CONF_REG
 	select MACH_IMX
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_MTDPARTS
@@ -1212,7 +1212,6 @@ config ARCH_ZYNQ
 	select CPU_V7A
 	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select DM_SPI
@@ -1242,7 +1241,6 @@ config ARCH_ZYNQMP_R5
 	select CLK
 	select CPU_V7R
 	select DM
-	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
@@ -1255,7 +1253,6 @@ config ARCH_ZYNQMP
 	select CLK
 	select DM
 	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART
-	select DM_ETH if NET
 	imply DM_MAILBOX
 	select DM_MMC if MMC
 	select DM_SERIAL
@@ -1606,6 +1603,7 @@ config TARGET_LS1021AQDS
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select LS1_DEEP_SLEEP
+	select PEN_ADDR_BIG_ENDIAN
 	select SUPPORT_SPL
 	select SYS_FSL_DDR
 	select FSL_DDR_INTERACTIVE
@@ -1624,6 +1622,7 @@ config TARGET_LS1021ATWR
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select LS1_DEEP_SLEEP
+	select PEN_ADDR_BIG_ENDIAN
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if FSL_DSPI || FSL_QSPI
 	select GPIO_EXTRA_HEADER
@@ -1688,6 +1687,7 @@ config TARGET_LS1021AIOT
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select PEN_ADDR_BIG_ENDIAN
 	select SUPPORT_SPL
 	select DM_SPI_FLASH if FSL_DSPI || FSL_QSPI
 	select GPIO_EXTRA_HEADER
@@ -1802,7 +1802,6 @@ config TARGET_SL28
 	select DM_I2C
 	select DM_MMC
 	select DM_SPI_FLASH
-	select DM_ETH
 	select DM_MDIO
 	select PCI
 	select DM_RNG
@@ -1839,7 +1838,6 @@ config ARCH_UNIPHIER
 	bool "Socionext UniPhier SoCs"
 	select BOARD_LATE_INIT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -2025,7 +2023,6 @@ config TARGET_POMELO
 	select SCSI
 	select DM_SCSI
 	select DM_SERIAL
-	select DM_ETH if NET
 	imply CMD_PCI
 	help
 	   Support for pomelo platform.
@@ -2295,6 +2292,7 @@ source "board/hisilicon/poplar/Kconfig"
 source "board/isee/igep003x/Kconfig"
 source "board/kontron/sl28/Kconfig"
 source "board/myir/mys_6ulx/Kconfig"
+source "board/samsung/common/Kconfig"
 source "board/siemens/common/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"

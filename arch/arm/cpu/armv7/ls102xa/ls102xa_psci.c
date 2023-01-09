@@ -29,7 +29,7 @@
  */
 static void __secure ls1_save_ddr_head(void)
 {
-	const char *src = (const char *)CONFIG_SYS_SDRAM_BASE;
+	const char *src = (const char *)CFG_SYS_SDRAM_BASE;
 	char *dest = (char *)(OCRAM_BASE_S_ADDR + OCRAM_S_SIZE - DDR_RESV_LEN);
 	struct ccsr_scfg __iomem *scfg = (void *)CFG_SYS_FSL_SCFG_ADDR;
 	int i;
@@ -42,7 +42,7 @@ static void __secure ls1_save_ddr_head(void)
 
 static void __secure ls1_fsm_setup(void)
 {
-	void *dcsr_epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
+	void *dcsr_epu_base = (void *)(CFG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
 	void *dcsr_rcpm_base = (void *)SYS_FSL_DCSR_RCPM_ADDR;
 
 	out_be32(dcsr_rcpm_base + DCSR_RCPM_CSTTACR0, 0x00001001);
@@ -118,7 +118,7 @@ static void __secure ls1_delay(unsigned int loop)
 
 static void __secure ls1_start_fsm(void)
 {
-	void *dcsr_epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
+	void *dcsr_epu_base = (void *)(CFG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
 	void *ccsr_gic_base = (void *)SYS_FSL_GIC_ADDR;
 	struct ccsr_scfg __iomem *scfg = (void *)CFG_SYS_FSL_SCFG_ADDR;
 	struct ccsr_ddr __iomem *ddr = (void *)CFG_SYS_FSL_DDR_ADDR;

@@ -17,17 +17,11 @@
  * Default environment variables
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"x_bootcmd_ethernet=ping 192.168.2.1\0"	\
 	"x_bootcmd_usb=usb start\0"	\
 	"x_bootcmd_kernel=fatload usb 0 0x6400000 uImage\0" \
 	"x_bootargs=console=ttyS0,115200\0"	\
 	"x_bootargs_root=root=/dev/sda2 rootdelay=10\0"
-
-/*
- * Ethernet Driver configuration
- */
-#define CONFIG_MVGBE_PORTS	{1, 1}	/* enable both ports */
-#define CONFIG_PHY_BASE_ADR	0
 
 #endif /* _CONFIG_DREAMPLUG_H */

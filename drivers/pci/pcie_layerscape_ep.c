@@ -72,7 +72,7 @@ static void ls_pcie_ep_setup_atu(struct ls_pcie_ep *pcie_ep, u32 pf)
 	u32 vf_flag = 0;
 	u64 phys = 0;
 
-	phys = CONFIG_SYS_PCI_EP_MEMORY_BASE + pf * SZ_64M;
+	phys = CFG_SYS_PCI_EP_MEMORY_BASE + pf * SZ_64M;
 
 	phys = ALIGN(phys, PCIE_BAR0_SIZE);
 	/* ATU 0 : INBOUND : map BAR0 */
@@ -117,8 +117,8 @@ static void ls_pcie_ep_setup_atu(struct ls_pcie_ep *pcie_ep, u32 pf)
 	/* ATU: OUTBOUND : map MEM */
 	ls_pcie_atu_outbound_set(pcie, pf, PCIE_ATU_TYPE_MEM,
 				 (u64)pcie_ep->addr_res.start +
-				 pf * CONFIG_SYS_PCI_MEMORY_SIZE,
-				 0, CONFIG_SYS_PCI_MEMORY_SIZE);
+				 pf * CFG_SYS_PCI_MEMORY_SIZE,
+				 0, CFG_SYS_PCI_MEMORY_SIZE);
 }
 
 /* BAR0 and BAR1 are 32bit BAR2 and BAR4 are 64bit */

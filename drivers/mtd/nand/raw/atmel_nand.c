@@ -38,10 +38,6 @@
 
 #ifdef CONFIG_ATMEL_NAND_HW_PMECC
 
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_SYS_NAND_ONFI_DETECTION
-#endif
-
 struct atmel_nand_host {
 	struct pmecc_regs __iomem *pmecc;
 	struct pmecc_errloc_regs __iomem *pmerrloc;
@@ -1012,13 +1008,13 @@ static int atmel_nand_calculate(struct mtd_info *mtd,
 	unsigned int ecc_value;
 
 	/* get the first 2 ECC bytes */
-	ecc_value = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, PR);
+	ecc_value = ecc_readl(ATMEL_BASE_ECC, PR);
 
 	ecc_code[0] = ecc_value & 0xFF;
 	ecc_code[1] = (ecc_value >> 8) & 0xFF;
 
 	/* get the last 2 ECC bytes */
-	ecc_value = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, NPR) & ATMEL_ECC_NPARITY;
+	ecc_value = ecc_readl(ATMEL_BASE_ECC, NPR) & ATMEL_ECC_NPARITY;
 
 	ecc_code[2] = ecc_value & 0xFF;
 	ecc_code[3] = (ecc_value >> 8) & 0xFF;
@@ -1101,16 +1097,16 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 	unsigned int ecc_word, ecc_bit;
 
 	/* get the status from the Status Register */
-	ecc_status = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, SR);
+	ecc_status = ecc_readl(ATMEL_BASE_ECC, SR);
 
 	/* if there's no error */
 	if (likely(!(ecc_status & ATMEL_ECC_RECERR)))
 		return 0;
 
 	/* get error bit offset (4 bits) */
-	ecc_bit = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, PR) & ATMEL_ECC_BITADDR;
+	ecc_bit = ecc_readl(ATMEL_BASE_ECC, PR) & ATMEL_ECC_BITADDR;
 	/* get word address (12 bits) */
-	ecc_word = ecc_readl(CONFIG_SYS_NAND_ECC_BASE, PR) & ATMEL_ECC_WORDADDR;
+	ecc_word = ecc_readl(ATMEL_BASE_ECC, PR) & ATMEL_ECC_WORDADDR;
 	ecc_word >>= 4;
 
 	/* if there are multiple errors */
@@ -1180,22 +1176,22 @@ int atmel_hwecc_nand_init_param(struct nand_chip *nand, struct mtd_info *mtd)
 		switch (mtd->writesize) {
 		case 512:
 			nand->ecc.layout = &atmel_oobinfo_small;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_528);
 			break;
 		case 1024:
 			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_1056);
 			break;
 		case 2048:
 			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_2112);
 			break;
 		case 4096:
 			nand->ecc.layout = &atmel_oobinfo_large;
-			ecc_writel(CONFIG_SYS_NAND_ECC_BASE, MR,
+			ecc_writel(ATMEL_BASE_ECC, MR,
 					ATMEL_ECC_PAGESIZE_4224);
 			break;
 		default:
@@ -1227,16 +1223,16 @@ static void at91_nand_hwcontrol(struct mtd_info *mtd,
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
-		IO_ADDR_W &= ~(CONFIG_SYS_NAND_MASK_ALE
-			     | CONFIG_SYS_NAND_MASK_CLE);
+		IO_ADDR_W &= ~(CFG_SYS_NAND_MASK_ALE
+			     | CFG_SYS_NAND_MASK_CLE);
 
 		if (ctrl & NAND_CLE)
-			IO_ADDR_W |= CONFIG_SYS_NAND_MASK_CLE;
+			IO_ADDR_W |= CFG_SYS_NAND_MASK_CLE;
 		if (ctrl & NAND_ALE)
-			IO_ADDR_W |= CONFIG_SYS_NAND_MASK_ALE;
+			IO_ADDR_W |= CFG_SYS_NAND_MASK_ALE;
 
-#ifdef CONFIG_SYS_NAND_ENABLE_PIN
-		at91_set_gpio_value(CONFIG_SYS_NAND_ENABLE_PIN,
+#ifdef CFG_SYS_NAND_ENABLE_PIN
+		at91_set_gpio_value(CFG_SYS_NAND_ENABLE_PIN,
 				    !(ctrl & NAND_NCE));
 #endif
 		this->IO_ADDR_W = (void *) IO_ADDR_W;
@@ -1246,10 +1242,10 @@ static void at91_nand_hwcontrol(struct mtd_info *mtd,
 		writeb(cmd, this->IO_ADDR_W);
 }
 
-#ifdef CONFIG_SYS_NAND_READY_PIN
+#ifdef CFG_SYS_NAND_READY_PIN
 static int at91_nand_ready(struct mtd_info *mtd)
 {
-	return at91_get_gpio_value(CONFIG_SYS_NAND_READY_PIN);
+	return at91_get_gpio_value(CFG_SYS_NAND_READY_PIN);
 }
 #endif
 
@@ -1314,10 +1310,10 @@ static int nand_is_bad_block(int block)
 }
 
 #ifdef CONFIG_SPL_NAND_ECC
-static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
+static int nand_ecc_pos[] = CFG_SYS_NAND_ECCPOS;
 #define ECCSTEPS (CONFIG_SYS_NAND_PAGE_SIZE / \
-		  CONFIG_SYS_NAND_ECCSIZE)
-#define ECCTOTAL (ECCSTEPS * CONFIG_SYS_NAND_ECCBYTES)
+		  CFG_SYS_NAND_ECCSIZE)
+#define ECCTOTAL (ECCSTEPS * CFG_SYS_NAND_ECCBYTES)
 
 static int nand_read_page(int block, int page, void *dst)
 {
@@ -1325,8 +1321,8 @@ static int nand_read_page(int block, int page, void *dst)
 	u_char ecc_calc[ECCTOTAL];
 	u_char ecc_code[ECCTOTAL];
 	u_char oob_data[CONFIG_SYS_NAND_OOBSIZE];
-	int eccsize = CONFIG_SYS_NAND_ECCSIZE;
-	int eccbytes = CONFIG_SYS_NAND_ECCBYTES;
+	int eccsize = CFG_SYS_NAND_ECCSIZE;
+	int eccbytes = CFG_SYS_NAND_ECCBYTES;
 	int eccsteps = ECCSTEPS;
 	int i;
 	uint8_t *p = dst;
@@ -1415,7 +1411,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->read_buf = nand_read_buf;
 #endif
 	nand->cmd_ctrl = at91_nand_hwcontrol;
-#ifdef CONFIG_SYS_NAND_READY_PIN
+#ifdef CFG_SYS_NAND_READY_PIN
 	nand->dev_ready = at91_nand_ready;
 #else
 	nand->dev_ready = at91_nand_wait_ready;
@@ -1439,8 +1435,8 @@ void nand_init(void)
 	mtd = nand_to_mtd(&nand_chip);
 	mtd->writesize = CONFIG_SYS_NAND_PAGE_SIZE;
 	mtd->oobsize = CONFIG_SYS_NAND_OOBSIZE;
-	nand_chip.IO_ADDR_R = (void __iomem *)CONFIG_SYS_NAND_BASE;
-	nand_chip.IO_ADDR_W = (void __iomem *)CONFIG_SYS_NAND_BASE;
+	nand_chip.IO_ADDR_R = (void __iomem *)CFG_SYS_NAND_BASE;
+	nand_chip.IO_ADDR_W = (void __iomem *)CFG_SYS_NAND_BASE;
 	board_nand_init(&nand_chip);
 
 #ifdef CONFIG_SPL_NAND_ECC
@@ -1464,11 +1460,11 @@ void nand_deselect(void)
 
 #else
 
-#ifndef CONFIG_SYS_NAND_BASE_LIST
-#define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
+#ifndef CFG_SYS_NAND_BASE_LIST
+#define CFG_SYS_NAND_BASE_LIST { CFG_SYS_NAND_BASE }
 #endif
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
-static ulong base_addr[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIST;
+static ulong base_addr[CONFIG_SYS_MAX_NAND_DEVICE] = CFG_SYS_NAND_BASE_LIST;
 
 int atmel_nand_chip_init(int devnum, ulong base_addr)
 {
@@ -1487,7 +1483,7 @@ int atmel_nand_chip_init(int devnum, ulong base_addr)
 	nand->options = NAND_BUSWIDTH_16;
 #endif
 	nand->cmd_ctrl = at91_nand_hwcontrol;
-#ifdef CONFIG_SYS_NAND_READY_PIN
+#ifdef CFG_SYS_NAND_READY_PIN
 	nand->dev_ready = at91_nand_ready;
 #endif
 	nand->chip_delay = 75;

@@ -11,10 +11,10 @@
 /* USB */
 
 /* RTC */
-#define CONFIG_SYS_RTC_BUS_NUM		0
+#define CFG_SYS_RTC_BUS_NUM		0
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	EXTRA_ENV_SETTINGS			\
 	"boot_scripts=lx2162aqds_boot.scr\0"	\
 	"boot_script_hdr=hdr_lx2162aqds_bs.out\0"	\

@@ -131,7 +131,7 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 	 * follows:
 	 * SPI actual frequency = core_clk / (SPR * (2 ^ SPPR))
 	 */
-	divider = DIV_ROUND_UP(CONFIG_SYS_TCLK, hz);
+	divider = DIV_ROUND_UP(CFG_SYS_TCLK, hz);
 	if (divider < 16) {
 		/* This is the easy case, divider is less than 16 */
 		spr = divider;
@@ -205,7 +205,7 @@ static void mvebu_spi_50mhz_ac_timing_erratum(struct udevice *bus, uint mode)
 	data = readl(&reg->timing1);
 	data &= ~KW_SPI_TMISO_SAMPLE_MASK;
 
-	if (CONFIG_SYS_TCLK == 250000000 &&
+	if (CFG_SYS_TCLK == 250000000 &&
 	    mode & SPI_CPOL &&
 	    mode & SPI_CPHA)
 		data |= KW_SPI_TMISO_SAMPLE_2;

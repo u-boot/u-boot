@@ -13,9 +13,9 @@
  */
 
 /* additions for new ARM relocation support */
-#define CONFIG_SYS_SDRAM_BASE	0x00000000
+#define CFG_SYS_SDRAM_BASE	0x00000000
 
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 300, 600, 1200, 1800, 2400, 4800, \
+#define CFG_SYS_BAUDRATE_TABLE	{ 300, 600, 1200, 1800, 2400, 4800, \
 					  9600, 19200, 38400, 57600, 115200, \
 					  230400, 460800, 500000, 576000, \
 					  921600, 1000000, 1152000, 1500000, \
@@ -89,7 +89,7 @@
 	""
 
 /* fdt_addr and kernel_addr are needed for existing distribution boot scripts */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"scriptaddr=0x6d00000\0"	\
 	"pxefile_addr_r=0x6e00000\0"	\
 	"fdt_addr=0x6f00000\0"		\

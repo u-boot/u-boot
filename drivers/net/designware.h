@@ -233,9 +233,6 @@ struct dw_eth_dev {
 
 	struct eth_mac_regs *mac_regs_p;
 	struct eth_dma_regs *dma_regs_p;
-#ifndef CONFIG_DM_ETH
-	struct eth_device *dev;
-#endif
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc reset_gpio;
 #endif
@@ -248,7 +245,6 @@ struct dw_eth_dev {
 	struct mii_dev *bus;
 };
 
-#ifdef CONFIG_DM_ETH
 int designware_eth_of_to_plat(struct udevice *dev);
 int designware_eth_probe(struct udevice *dev);
 extern const struct eth_ops designware_eth_ops;
@@ -266,6 +262,5 @@ int designware_eth_free_pkt(struct udevice *dev, uchar *packet,
 				   int length);
 void designware_eth_stop(struct udevice *dev);
 int designware_eth_write_hwaddr(struct udevice *dev);
-#endif
 
 #endif

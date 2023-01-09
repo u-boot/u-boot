@@ -154,7 +154,29 @@
 						 <PIN_PA13__SDMMC0_CD>;
 					bias-disable;
 				};
+
+				pinctrl_usb_default: usb_default {
+					pinmux = <PIN_PC17__GPIO>;
+					bias-disable;
+				};
+
+				pinctrl_usba_vbus: usba_vbus {
+					pinmux = <PIN_PD23__GPIO>;
+					bias-disable;
+				};
 			};
 		};
 	};
+};
+
+&usb1 {
+	num-ports = <3>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb_default>;
+	status = "okay";
+};
+
+&usb2 {
+	phy_type = "hsic";
+	status = "okay";
 };

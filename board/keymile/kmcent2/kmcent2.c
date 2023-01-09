@@ -34,7 +34,7 @@ static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 
 int checkboard(void)
 {
-	printf("Board: Hitachi Power Grids %s\n", KM_BOARD_NAME);
+	printf("Board: Hitachi Power Grids kmcent2\n");
 
 	return 0;
 }
@@ -44,7 +44,7 @@ int checkboard(void)
 
 int board_early_init_f(void)
 {
-	struct fsl_ifc ifc = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
+	struct fsl_ifc ifc = {(void *)CFG_SYS_IFC_ADDR, (void *)NULL};
 	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
 	bool cpuwd_flag = false;
 
@@ -141,7 +141,7 @@ int board_early_init_r(void)
 {
 	int ret = 0;
 
-	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
+	const unsigned int flashbase = CFG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 
 	/*
@@ -162,7 +162,7 @@ int board_early_init_r(void)
 		disable_tlb(flash_esel);
 	}
 
-	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
+	set_tlb(1, flashbase, CFG_SYS_FLASH_BASE_PHYS,
 		MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);
 

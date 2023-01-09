@@ -8,7 +8,7 @@
 #include <asm/fsl_liodn.h>
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
-struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
+struct qportal_info qp_info[CFG_SYS_QMAN_NUM_PORTALS] = {
 	/* dqrr liodn, frame data liodn, liodn off, sdest */
 	SET_QP_INFO(1, 27, 1, 0),
 	SET_QP_INFO(2, 28, 1, 0),
@@ -122,7 +122,7 @@ struct fman_liodn_id_table fman1_liodn_tbl[] = {
 	SET_FMAN_RX_10G_LIODN(1, 1, 95),
 };
 int fman1_liodn_tbl_sz = ARRAY_SIZE(fman1_liodn_tbl);
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 struct fman_liodn_id_table fman2_liodn_tbl[] = {
 	SET_FMAN_RX_1G_LIODN(2, 0, 88),
 	SET_FMAN_RX_1G_LIODN(2, 1, 89),
@@ -175,7 +175,7 @@ struct liodn_id_table liodn_bases[] = {
 	[FSL_HW_PORTAL_SEC]  = SET_LIODN_BASE_2(462, 558),
 #ifdef CONFIG_SYS_DPAA_FMAN
 	[FSL_HW_PORTAL_FMAN1] = SET_LIODN_BASE_1(973),
-#if (CONFIG_SYS_NUM_FMAN == 2)
+#if (CFG_SYS_NUM_FMAN == 2)
 	[FSL_HW_PORTAL_FMAN2] = SET_LIODN_BASE_1(1069),
 #endif
 #endif

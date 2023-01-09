@@ -11,12 +11,12 @@
 #include <asm/arch/imx-regs.h>
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_SYS_UBOOT_BASE	\
+#define CFG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x912000
+#define CFG_MALLOC_F_ADDR		0x912000
 /* For RAW image gives a error info not panic */
 
 #endif
@@ -63,7 +63,7 @@
 	BOOT_TARGET_DHCP(func)
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
@@ -123,11 +123,11 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x80000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x80000
 
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
 
@@ -136,9 +136,9 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_FEC_MXC_PHYADDR		0
+#define CFG_FEC_MXC_PHYADDR		0
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #endif /*__IMX8MM_CL_IOT_GATE_H*/

@@ -14,7 +14,7 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 /* DRAM Base */
-#define CONFIG_SYS_SDRAM_BASE		0x30000000
+#define CFG_SYS_SDRAM_BASE		0x30000000
 
 /* Text Base */
 
@@ -23,13 +23,6 @@
 
 /* USB Composite download gadget - g_dnl */
 #define DFU_DEFAULT_POLL_TIMEOUT 300
-
-/* USB Samsung's IDs */
-
-#define CONFIG_G_DNL_THOR_VENDOR_NUM 0x04E8
-#define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
-#define CONFIG_G_DNL_UMS_VENDOR_NUM 0x0525
-#define CONFIG_G_DNL_UMS_PRODUCT_NUM 0xA4A5
 
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
 
@@ -42,7 +35,7 @@
 #define PARTS_CSC			"csc"
 #define PARTS_UMS			"ums"
 
-#define CONFIG_DFU_ALT \
+#define CFG_DFU_ALT \
 	"u-boot raw 0x80 0x400;" \
 	"uImage ext4 0 2;" \
 	"exynos3-goni.dtb ext4 0 2;" \
@@ -61,9 +54,7 @@
 
 #define COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
 
-#define CONFIG_MISC_COMMON
-
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x100000;" \
 		"onenand write 0x32008000 0x0 0x100000\0" \
@@ -111,19 +102,16 @@
 	"ubiblock=8\0" \
 	"ubi=enabled\0" \
 	"opts=always_resume=1\0" \
-	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
+	"dfu_alt_info=" CFG_DFU_ALT "\0"
 
 /* Goni has 3 banks of DRAM, but swap the bank */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */
+#define PHYS_SDRAM_1		CFG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */
 #define PHYS_SDRAM_1_SIZE	(80 << 20)		/* 80 MB in Bank #0 */
 #define PHYS_SDRAM_2		0x40000000		/* mDDR DMC1 Bank #1 */
 #define PHYS_SDRAM_2_SIZE	(256 << 20)		/* 256 MB in Bank #1 */
 #define PHYS_SDRAM_3		0x50000000		/* mDDR DMC2 Bank #2 */
 #define PHYS_SDRAM_3_SIZE	(128 << 20)		/* 128 MB in Bank #2 */
 
-/* FLASH and environment organization */
-#define CONFIG_MMC_DEFAULT_DEV	0
-
-#define CONFIG_SYS_ONENAND_BASE		0xB0000000
+#define CFG_SYS_ONENAND_BASE		0xB0000000
 
 #endif	/* __CONFIG_H */

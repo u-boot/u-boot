@@ -34,39 +34,39 @@ DECLARE_GLOBAL_DATA_PTR;
 static long fixed_sdram(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 msize = CONFIG_SYS_SDRAM_SIZE;
+	u32 msize = CFG_SYS_SDRAM_SIZE;
 	u32 msize_log2 = __ilog2(msize);
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,
-		 CONFIG_SYS_SDRAM_BASE  & 0xfffff000);
+		 CFG_SYS_SDRAM_BASE  & 0xfffff000);
 	out_be32(&im->sysconf.ddrlaw[0].ar, LBLAWAR_EN | (msize_log2 - 1));
-	out_be32(&im->sysconf.ddrcdr, CONFIG_SYS_DDRCDR_VALUE);
+	out_be32(&im->sysconf.ddrcdr, CFG_SYS_DDRCDR_VALUE);
 
 	out_be32(&im->ddr.csbnds[0].csbnds, (msize - 1) >> 24);
-	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CS0_CONFIG);
+	out_be32(&im->ddr.cs_config[0], CFG_SYS_DDR_CS0_CONFIG);
 
 	/* Currently we use only one CS, so disable the other bank. */
 	out_be32(&im->ddr.cs_config[1], 0);
 
-	out_be32(&im->ddr.sdram_clk_cntl, CONFIG_SYS_DDR_SDRAM_CLK_CNTL);
-	out_be32(&im->ddr.timing_cfg_3, CONFIG_SYS_DDR_TIMING_3);
-	out_be32(&im->ddr.timing_cfg_1, CONFIG_SYS_DDR_TIMING_1);
-	out_be32(&im->ddr.timing_cfg_2, CONFIG_SYS_DDR_TIMING_2);
-	out_be32(&im->ddr.timing_cfg_0, CONFIG_SYS_DDR_TIMING_0);
+	out_be32(&im->ddr.sdram_clk_cntl, CFG_SYS_DDR_SDRAM_CLK_CNTL);
+	out_be32(&im->ddr.timing_cfg_3, CFG_SYS_DDR_TIMING_3);
+	out_be32(&im->ddr.timing_cfg_1, CFG_SYS_DDR_TIMING_1);
+	out_be32(&im->ddr.timing_cfg_2, CFG_SYS_DDR_TIMING_2);
+	out_be32(&im->ddr.timing_cfg_0, CFG_SYS_DDR_TIMING_0);
 
-	out_be32(&im->ddr.sdram_cfg, CONFIG_SYS_DDR_SDRAM_CFG);
-	out_be32(&im->ddr.sdram_cfg2, CONFIG_SYS_DDR_SDRAM_CFG2);
-	out_be32(&im->ddr.sdram_mode, CONFIG_SYS_DDR_MODE);
-	out_be32(&im->ddr.sdram_mode2, CONFIG_SYS_DDR_MODE2);
+	out_be32(&im->ddr.sdram_cfg, CFG_SYS_DDR_SDRAM_CFG);
+	out_be32(&im->ddr.sdram_cfg2, CFG_SYS_DDR_SDRAM_CFG2);
+	out_be32(&im->ddr.sdram_mode, CFG_SYS_DDR_MODE);
+	out_be32(&im->ddr.sdram_mode2, CFG_SYS_DDR_MODE2);
 
-	out_be32(&im->ddr.sdram_interval, CONFIG_SYS_DDR_INTERVAL);
+	out_be32(&im->ddr.sdram_interval, CFG_SYS_DDR_INTERVAL);
 	sync();
 
 	/* enable DDR controller */
 	setbits_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
 	sync();
 
-	return get_ram_size(CONFIG_SYS_SDRAM_BASE, msize);
+	return get_ram_size(CFG_SYS_SDRAM_BASE, msize);
 }
 
 int dram_init(void)

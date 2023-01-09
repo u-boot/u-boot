@@ -14,13 +14,9 @@
 #include <environment/ti/dfu.h>
 #include <linux/sizes.h>
 
-#define CONFIG_IODELAY_RECALIBRATION
-
-#define CONFIG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
-#define CONFIG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
-#define CONFIG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
-
-#define CONFIG_SYS_OMAP_ABE_SYSCK
+#define CFG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
+#define CFG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
+#define CFG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
 
 #ifndef CONFIG_SPL_BUILD
 #define DFUARGS \
@@ -39,9 +35,6 @@
 
 #include <configs/ti_omap5_common.h>
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_HSMMC2_8BIT
-
 /* CPSW Ethernet */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs longer aneg time at 1G */
 
@@ -55,9 +48,9 @@
  * 0x1E0000 - 0x9E0000 : QSPI.kernel (8MiB)
  * 0x9E0000 - 0x2000000 : USERLAND
  */
-#define CONFIG_SYS_SPI_KERNEL_OFFS      0x1E0000
-#define CONFIG_SYS_SPI_ARGS_OFFS        0x140000
-#define CONFIG_SYS_SPI_ARGS_SIZE        0x80000
+#define CFG_SYS_SPI_KERNEL_OFFS      0x1E0000
+#define CFG_SYS_SPI_ARGS_OFFS        0x140000
+#define CFG_SYS_SPI_ARGS_SIZE        0x80000
 
 /* SPI SPL */
 

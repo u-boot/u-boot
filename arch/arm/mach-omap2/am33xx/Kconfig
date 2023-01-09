@@ -8,16 +8,6 @@ config TARGET_TI816X_EVM
 
 endif
 
-if TI814X
-
-config TARGET_TI814X_EVM
-	bool "Support ti814x_evm"
-	help
-	  This option specifies support for the TI8148
-	  EVM development platform.
-
-endif
-
 if AM33XX
 
 config AM33XX_CHILISOM
@@ -230,7 +220,6 @@ config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
 	select BOARD_LATE_INIT
 	select TI_I2C_BOARD_DETECT
-	imply DM_ETH
 	imply DM_I2C
 	imply DM_SPI
 	imply DM_SPI_FLASH

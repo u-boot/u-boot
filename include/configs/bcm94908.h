@@ -6,6 +6,6 @@
 #ifndef __BCM94908_H
 #define __BCM94908_H
 
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_BASE		0x00000000
 
 #endif

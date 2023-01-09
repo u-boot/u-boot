@@ -23,13 +23,13 @@
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CONFIG_ENV_ADDR
-#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
+#  define CONFIG_ENV_ADDR	(CFG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
 # ifndef  CONFIG_ENV_OFFSET
-#  define CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
+#  define CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CFG_SYS_FLASH_BASE)
 # endif
 # if !defined(CONFIG_ENV_ADDR_REDUND) && defined(CONFIG_ENV_OFFSET_REDUND)
-#  define CONFIG_ENV_ADDR_REDUND	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
+#  define CONFIG_ENV_ADDR_REDUND	(CFG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
 # endif
 # ifndef  CONFIG_ENV_SIZE
 #  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
@@ -40,10 +40,6 @@
 # endif
 #endif	/* CONFIG_ENV_IS_IN_FLASH */
 
-#if defined(ENV_IS_EMBEDDED) && !defined(CONFIG_BUILD_ENVCRC)
-# define CONFIG_BUILD_ENVCRC
-#endif
-
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
 #else
@@ -53,17 +49,17 @@
 #define ENV_SIZE (CONFIG_ENV_SIZE - ENV_HEADER_SIZE)
 
 
-#ifdef CONFIG_BUILD_ENVCRC
+#ifdef ENV_IS_EMBEDDED
 # include <env_internal.h>
 extern unsigned int env_size;
 extern env_t embedded_environment;
-#endif	/* CONFIG_BUILD_ENVCRC */
+#endif	/* ENV_IS_EMBEDDED */
 
 extern uint32_t crc32(uint32_t, const unsigned char *, unsigned int);
 
 int main (int argc, char **argv)
 {
-#ifdef CONFIG_BUILD_ENVCRC
+#ifdef ENV_IS_EMBEDDED
 	unsigned char pad = 0x00;
 	uint32_t crc;
 	unsigned char *envptr = (unsigned char *)&embedded_environment,

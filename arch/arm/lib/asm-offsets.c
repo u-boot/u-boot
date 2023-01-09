@@ -15,8 +15,7 @@
 #include <linux/kbuild.h>
 #include <linux/arm-smccc.h>
 
-#if defined(CONFIG_MX27) \
-	|| defined(CONFIG_MX51) || defined(CONFIG_MX53)
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #include <asm/arch/imx-regs.h>
 #endif
 
@@ -34,32 +33,6 @@ int main(void)
 	 * It means their offset addresses are referenced only from assembly
 	 * code. Is it better to define the macros directly in headers?
 	 */
-
-#if defined(CONFIG_MX27)
-	DEFINE(AIPI1_PSR0, IMX_AIPI1_BASE + offsetof(struct aipi_regs, psr0));
-	DEFINE(AIPI1_PSR1, IMX_AIPI1_BASE + offsetof(struct aipi_regs, psr1));
-	DEFINE(AIPI2_PSR0, IMX_AIPI2_BASE + offsetof(struct aipi_regs, psr0));
-	DEFINE(AIPI2_PSR1, IMX_AIPI2_BASE + offsetof(struct aipi_regs, psr1));
-
-	DEFINE(CSCR, IMX_PLL_BASE + offsetof(struct pll_regs, cscr));
-	DEFINE(MPCTL0, IMX_PLL_BASE + offsetof(struct pll_regs, mpctl0));
-	DEFINE(SPCTL0, IMX_PLL_BASE + offsetof(struct pll_regs, spctl0));
-	DEFINE(PCDR0, IMX_PLL_BASE + offsetof(struct pll_regs, pcdr0));
-	DEFINE(PCDR1, IMX_PLL_BASE + offsetof(struct pll_regs, pcdr1));
-	DEFINE(PCCR0, IMX_PLL_BASE + offsetof(struct pll_regs, pccr0));
-	DEFINE(PCCR1, IMX_PLL_BASE + offsetof(struct pll_regs, pccr1));
-
-	DEFINE(ESDCTL0_ROF, offsetof(struct esdramc_regs, esdctl0));
-	DEFINE(ESDCFG0_ROF, offsetof(struct esdramc_regs, esdcfg0));
-	DEFINE(ESDCTL1_ROF, offsetof(struct esdramc_regs, esdctl1));
-	DEFINE(ESDCFG1_ROF, offsetof(struct esdramc_regs, esdcfg1));
-	DEFINE(ESDMISC_ROF, offsetof(struct esdramc_regs, esdmisc));
-
-	DEFINE(GPCR, IMX_SYSTEM_CTL_BASE +
-		offsetof(struct system_control_regs, gpcr));
-	DEFINE(FMCR, IMX_SYSTEM_CTL_BASE +
-		offsetof(struct system_control_regs, fmcr));
-#endif
 
 #if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 	/* Round up to make sure size gives nice stack alignment */

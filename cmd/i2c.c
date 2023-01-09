@@ -97,19 +97,19 @@ static uint	i2c_mm_last_alen;
  * When multiple buses are present, the list is an array of bus-address
  * pairs.  The following macros take care of this */
 
-#if defined(CONFIG_SYS_I2C_NOPROBES)
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS)
+#if defined(CFG_SYS_I2C_NOPROBES)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 static struct
 {
 	uchar	bus;
 	uchar	addr;
-} i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
+} i2c_no_probes[] = CFG_SYS_I2C_NOPROBES;
 #define GET_BUS_NUM	i2c_get_bus_num()
 #define COMPARE_BUS(b,i)	(i2c_no_probes[(i)].bus == (b))
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)].addr == (a))
 #define NO_PROBE_ADDR(i)	i2c_no_probes[(i)].addr
 #else		/* single bus */
-static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
+static uchar i2c_no_probes[] = CFG_SYS_I2C_NOPROBES;
 #define GET_BUS_NUM	0
 #define COMPARE_BUS(b,i)	((b) == 0)	/* Make compiler happy */
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)] == (a))
@@ -912,7 +912,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 	int j;
 	int addr = -1;
 	int found = 0;
-#if defined(CONFIG_SYS_I2C_NOPROBES)
+#if defined(CFG_SYS_I2C_NOPROBES)
 	int k, skip;
 	unsigned int bus = GET_BUS_NUM;
 #endif	/* NOPROBES */
@@ -932,7 +932,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 		if ((0 <= addr) && (j != addr))
 			continue;
 
-#if defined(CONFIG_SYS_I2C_NOPROBES)
+#if defined(CFG_SYS_I2C_NOPROBES)
 		skip = 0;
 		for (k = 0; k < ARRAY_SIZE(i2c_no_probes); k++) {
 			if (COMPARE_BUS(bus, k) && COMPARE_ADDR(j, k)) {
@@ -955,7 +955,7 @@ static int do_i2c_probe(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 	putc ('\n');
 
-#if defined(CONFIG_SYS_I2C_NOPROBES)
+#if defined(CFG_SYS_I2C_NOPROBES)
 	puts ("Excluded chip addresses:");
 	for (k = 0; k < ARRAY_SIZE(i2c_no_probes); k++) {
 		if (COMPARE_BUS(bus,k))
@@ -1697,12 +1697,12 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 #else
 		int i;
 
-		for (i = 0; i < CONFIG_SYS_NUM_I2C_BUSES; i++) {
+		for (i = 0; i < CFG_SYS_NUM_I2C_BUSES; i++) {
 			printf("Bus %d:\t%s", i, I2C_ADAP_NR(i)->name);
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 			int j;
 
-			for (j = 0; j < CONFIG_SYS_I2C_MAX_HOPS; j++) {
+			for (j = 0; j < CFG_SYS_I2C_MAX_HOPS; j++) {
 				if (i2c_bus[i].next_hop[j].chip == 0)
 					break;
 				printf("->%s@0x%2x:%d",
@@ -1730,14 +1730,14 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 		show_bus(bus);
 #else
-		if (i >= CONFIG_SYS_NUM_I2C_BUSES) {
+		if (i >= CFG_SYS_NUM_I2C_BUSES) {
 			printf("Invalid bus %d\n", i);
 			return -1;
 		}
 		printf("Bus %d:\t%s", i, I2C_ADAP_NR(i)->name);
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#ifndef CFG_SYS_I2C_DIRECT_BUS
 			int j;
-			for (j = 0; j < CONFIG_SYS_I2C_MAX_HOPS; j++) {
+			for (j = 0; j < CFG_SYS_I2C_MAX_HOPS; j++) {
 				if (i2c_bus[i].next_hop[j].chip == 0)
 					break;
 				printf("->%s@0x%2x:%d",
@@ -1764,8 +1764,7 @@ static int do_i2c_show_bus(struct cmd_tbl *cmdtp, int flag, int argc,
  * Returns zero on success, CMD_RET_USAGE in case of misuse and negative
  * on error.
  */
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CONFIG_I2C_MULTI_BUS) || \
-		CONFIG_IS_ENABLED(DM_I2C)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
 static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
@@ -1788,7 +1787,7 @@ static int do_i2c_bus_num(struct cmd_tbl *cmdtp, int flag, int argc,
 	} else {
 		bus_no = dectoul(argv[1], NULL);
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-		if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES) {
+		if (bus_no >= CFG_SYS_NUM_I2C_BUSES) {
 			printf("Invalid bus %d\n", bus_no);
 			return -1;
 		}
@@ -1915,10 +1914,9 @@ static struct cmd_tbl cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(bus, 1, 1, do_i2c_show_bus, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(crc32, 3, 1, do_i2c_crc, "", ""),
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || \
-	defined(CONFIG_I2C_MULTI_BUS) || CONFIG_IS_ENABLED(DM_I2C)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
 	U_BOOT_CMD_MKENT(dev, 1, 1, do_i2c_bus_num, "", ""),
-#endif  /* CONFIG_I2C_MULTI_BUS */
+#endif
 #if defined(CONFIG_I2C_EDID)
 	U_BOOT_CMD_MKENT(edid, 1, 1, do_edid, "", ""),
 #endif  /* CONFIG_I2C_EDID */
@@ -1992,10 +1990,9 @@ static char i2c_help_text[] =
 	"i2c " /* That's the prefix for the crc32 command below. */
 #endif
 	"crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || \
-	defined(CONFIG_I2C_MULTI_BUS) || CONFIG_IS_ENABLED(DM_I2C)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
 	"i2c dev [dev] - show or set current I2C bus\n"
-#endif  /* CONFIG_I2C_MULTI_BUS */
+#endif
 #if defined(CONFIG_I2C_EDID)
 	"i2c edid chip - print EDID configuration information\n"
 #endif  /* CONFIG_I2C_EDID */

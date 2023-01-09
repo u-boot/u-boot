@@ -82,7 +82,7 @@ int onenand_board_init(struct mtd_info *mtd)
 {
 	if (gpmc_cs0_flash == MTD_DEV_TYPE_ONENAND) {
 		struct onenand_chip *this = mtd->priv;
-		this->base = (void *)CONFIG_SYS_ONENAND_BASE;
+		this->base = (void *)CFG_SYS_ONENAND_BASE;
 		return 0;
 	}
 	return 1;

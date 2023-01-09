@@ -14,10 +14,10 @@
 #include <linux/stringify.h>
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
+#define CFG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_FEC_MXC_PHYADDR          1
+#define CFG_FEC_MXC_PHYADDR          1
 #define PHY_ANEG_TIMEOUT 20000
 #endif
 
@@ -30,7 +30,7 @@
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
@@ -46,16 +46,16 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x80000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x80000
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
 #define PHYS_SDRAM_2			0xc0000000
 #define PHYS_SDRAM_2_SIZE		0x0
 
-#define CONFIG_MXC_UART_BASE		UART2_BASE_ADDR
+#define CFG_MXC_UART_BASE		UART2_BASE_ADDR
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0

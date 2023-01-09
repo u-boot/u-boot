@@ -15,16 +15,16 @@
 #define UBOOT_ITB_OFFSET_FSPI  \
 	(UBOOT_ITB_OFFSET + FSPI_CONF_BLOCK_SIZE)
 #ifdef CONFIG_FSPI_CONF_HEADER
-#define CONFIG_SYS_UBOOT_BASE  \
+#define CFG_SYS_UBOOT_BASE  \
 	(QSPI0_AMBA_BASE + UBOOT_ITB_OFFSET_FSPI)
 #else
-#define CONFIG_SYS_UBOOT_BASE	\
+#define CFG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x930000
+#define CFG_MALLOC_F_ADDR		0x930000
 /* For RAW image gives a error info not panic */
 
 #endif
@@ -37,7 +37,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
 	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
@@ -53,14 +53,14 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_RAM_ADDR        0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE        0x200000
+#define CFG_SYS_INIT_RAM_ADDR        0x40000000
+#define CFG_SYS_INIT_RAM_SIZE        0x200000
 
 
-#define CONFIG_SYS_SDRAM_BASE           0x40000000
+#define CFG_SYS_SDRAM_BASE           0x40000000
 #define PHYS_SDRAM                      0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */
 
-#define CONFIG_FEC_MXC_PHYADDR          0
+#define CFG_FEC_MXC_PHYADDR          0
 
 #endif

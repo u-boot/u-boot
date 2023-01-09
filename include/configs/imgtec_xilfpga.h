@@ -21,8 +21,8 @@
  */
 
 /* SDRAM Configuration (for final code, data, stack, heap) */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
-#define CONFIG_SYS_SDRAM_SIZE		0x08000000	/* 128 Mbytes */
+#define CFG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_SIZE		0x08000000	/* 128 Mbytes */
 
 /*----------------------------------------------------------------------
  * Commands

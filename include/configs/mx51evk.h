@@ -17,19 +17,15 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_FSL_IIM
 
-#define CONFIG_MXC_UART_BASE	UART1_BASE
+#define CFG_MXC_UART_BASE	UART1_BASE
 
 /* PMIC Controller */
-#define CONFIG_POWER_SPI
-#define CONFIG_POWER_FSL
-#define CONFIG_FSL_PMIC_BUS	0
-#define CONFIG_FSL_PMIC_CS	0
-#define CONFIG_FSL_PMIC_CLK	2500000
-#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
-#define CONFIG_FSL_PMIC_BITLEN	32
-#define CONFIG_RTC_MC13XXX
+#define CFG_FSL_PMIC_BUS	0
+#define CFG_FSL_PMIC_CS	0
+#define CFG_FSL_PMIC_CLK	2500000
+#define CFG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
+#define CFG_FSL_PMIC_BITLEN	32
 
 /*
  * MMC Configs
@@ -37,13 +33,13 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORT	1
-#define CONFIG_MXC_USB_PORTSC	PORT_PTS_ULPI
-#define CONFIG_MXC_USB_FLAGS	MXC_EHCI_POWER_PINS_ENABLED
+#define CFG_MXC_USB_PORT	1
+#define CFG_MXC_USB_PORTSC	PORT_PTS_ULPI
+#define CFG_MXC_USB_FLAGS	MXC_EHCI_POWER_PINS_ENABLED
 
 /* Framebuffer and LCD */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"fdt_file=imx51-babbage.dtb\0" \
@@ -112,13 +108,13 @@
 #define PHYS_SDRAM_1		CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE	(512 * 1024 * 1024)
 
-#define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
-#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
-#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+#define CFG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
+#define CFG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CFG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
-#define CONFIG_SYS_DDR_CLKSEL	0
-#define CONFIG_SYS_CLKTL_CBCDR	0x59E35100
-#define CONFIG_SYS_MAIN_PWR_ON
+#define CFG_SYS_DDR_CLKSEL	0
+#define CFG_SYS_CLKTL_CBCDR	0x59E35100
+#define CFG_SYS_MAIN_PWR_ON
 
 /*-----------------------------------------------------------------------
  * environment organization

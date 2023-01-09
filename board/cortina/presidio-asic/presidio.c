@@ -84,7 +84,7 @@ int board_init(void)
 	unsigned int reg_data, jtag_id;
 
 	/* Enable timer */
-	writel(1, CONFIG_SYS_TIMER_BASE);
+	writel(1, CFG_SYS_TIMER_BASE);
 
 	/* Enable snoop in CCI400 slave port#4 */
 	writel(3, 0xF5595000);

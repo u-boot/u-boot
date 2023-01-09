@@ -258,6 +258,7 @@ static struct pxe_label *label_create(void)
 static void label_destroy(struct pxe_label *label)
 {
 	free(label->name);
+	free(label->kernel_label);
 	free(label->kernel);
 	free(label->config);
 	free(label->append);
@@ -521,28 +522,44 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		return 1;
 	}
 
-	if (label->initrd) {
-		ulong size;
+	if (get_relfile_envaddr(ctx, label->kernel, "kernel_addr_r",
+				NULL) < 0) {
+		printf("Skipping %s for failure retrieving kernel\n",
+		       label->name);
+		return 1;
+	}
 
+	kernel_addr = env_get("kernel_addr_r");
+	/* for FIT, append the configuration identifier */
+	if (label->config) {
+		int len = strlen(kernel_addr) + strlen(label->config) + 1;
+
+		fit_addr = malloc(len);
+		if (!fit_addr) {
+			printf("malloc fail (FIT address)\n");
+			return 1;
+		}
+		snprintf(fit_addr, len, "%s%s", kernel_addr, label->config);
+		kernel_addr = fit_addr;
+	}
+
+	/* For FIT, the label can be identical to kernel one */
+	if (label->initrd && !strcmp(label->kernel_label, label->initrd)) {
+		initrd_addr_str =  kernel_addr;
+	} else if (label->initrd) {
+		ulong size;
 		if (get_relfile_envaddr(ctx, label->initrd, "ramdisk_addr_r",
 					&size) < 0) {
 			printf("Skipping %s for failure retrieving initrd\n",
 			       label->name);
-			return 1;
+			goto cleanup;
 		}
 
 		initrd_addr_str = env_get("ramdisk_addr_r");
 		size = snprintf(initrd_str, sizeof(initrd_str), "%s:%lx",
 				initrd_addr_str, size);
 		if (size >= sizeof(initrd_str))
-			return 1;
-	}
-
-	if (get_relfile_envaddr(ctx, label->kernel, "kernel_addr_r",
-				NULL) < 0) {
-		printf("Skipping %s for failure retrieving kernel\n",
-		       label->name);
-		return 1;
+			goto cleanup;
 	}
 
 	if (label->ipappend & 0x1) {
@@ -572,7 +589,7 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 			       strlen(label->append ?: ""),
 			       strlen(ip_str), strlen(mac_str),
 			       sizeof(bootargs));
-			return 1;
+			goto cleanup;
 		}
 
 		if (label->append)
@@ -585,21 +602,6 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 					  sizeof(finalbootargs));
 		env_set("bootargs", finalbootargs);
 		printf("append: %s\n", finalbootargs);
-	}
-
-	kernel_addr = env_get("kernel_addr_r");
-
-	/* for FIT, append the configuration identifier */
-	if (label->config) {
-		int len = strlen(kernel_addr) + strlen(label->config) + 1;
-
-		fit_addr = malloc(len);
-		if (!fit_addr) {
-			printf("malloc fail (FIT address)\n");
-			return 1;
-		}
-		snprintf(fit_addr, len, "%s%s", kernel_addr, label->config);
-		kernel_addr = fit_addr;
 	}
 
 	/*
@@ -623,8 +625,11 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	 */
 	bootm_argv[3] = env_get("fdt_addr_r");
 
+	/* For FIT, the label can be identical to kernel one */
+	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
+		bootm_argv[3] = kernel_addr;
 	/* if fdt label is defined then get fdt from server */
-	if (bootm_argv[3]) {
+	} else if (bootm_argv[3]) {
 		char *fdtfile = NULL;
 		char *fdtfilefree = NULL;
 
@@ -1166,15 +1171,19 @@ static int parse_label_kernel(char **c, struct pxe_label *label)
 	if (err < 0)
 		return err;
 
+	/* copy the kernel label to compare with FDT / INITRD when FIT is used */
+	label->kernel_label = strdup(label->kernel);
+	if (!label->kernel_label)
+		return -ENOMEM;
+
 	s = strstr(label->kernel, "#");
 	if (!s)
 		return 1;
 
-	label->config = malloc(strlen(s) + 1);
+	label->config = strdup(s);
 	if (!label->config)
 		return -ENOMEM;
 
-	strcpy(label->config, s);
 	*s = 0;
 
 	return 1;
@@ -1360,7 +1369,10 @@ static int parse_pxefile_top(struct pxe_context *ctx, char *p, unsigned long bas
 			break;
 
 		case T_PROMPT:
-			eol_or_eof(&p);
+			err = parse_integer(&p, &cfg->prompt);
+			// Do not fail if prompt configuration is undefined
+			if (err <  0)
+				eol_or_eof(&p);
 			break;
 
 		case T_EOL:

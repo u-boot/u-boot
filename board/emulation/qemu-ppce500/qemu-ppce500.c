@@ -41,7 +41,7 @@ static void *get_fdt_virt(void)
 	if (gd->flags & GD_FLG_RELOC)
 		return (void *)gd->fdt_blob;
 	else
-		return (void *)CONFIG_SYS_TMPVIRT;
+		return (void *)CFG_SYS_TMPVIRT;
 }
 
 static uint64_t get_fdt_phys(void)
@@ -163,7 +163,7 @@ int misc_init_r(void)
 	 * U-Boot is relocated to RAM already, let's delete the temporary FDT
 	 * virtual-physical mapping that was used in the pre-relocation phase.
 	 */
-	disable_tlb(find_tlb_idx((void *)CONFIG_SYS_TMPVIRT, 1));
+	disable_tlb(find_tlb_idx((void *)CFG_SYS_TMPVIRT, 1));
 
 	/*
 	 * Detect the presence of the platform bus node, and
@@ -248,7 +248,7 @@ void init_tlbs(void)
 	init_used_tlb_cams();
 
 	/* Create a dynamic AS=0 CCSRBAR mapping */
-	assert(!tlb_map_range(CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
+	assert(!tlb_map_range(CFG_SYS_CCSRBAR, CFG_SYS_CCSRBAR_PHYS,
 			      1024 * 1024, TLB_MAP_IO));
 
 	/* Create a RAM map that spans all accessible RAM */
@@ -343,7 +343,7 @@ void *board_fdt_blob_setup(int *err)
 	return get_fdt_virt();
 }
 
-/* See CONFIG_SYS_NS16550_CLK in arch/powerpc/include/asm/config.h */
+/* See CFG_SYS_NS16550_CLK in arch/powerpc/include/asm/config.h */
 int get_serial_clock(void)
 {
 	return get_bus_freq(0);

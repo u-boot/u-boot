@@ -19,14 +19,14 @@
 #define PHYS_SDRAM_2			0x100000000
 #define PHYS_SDRAM_2_SIZE		0x5ea4ffff
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 #include <config_distro_bootcmd.h>
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x95000000\0" \
 	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \

@@ -18,7 +18,7 @@
 /*-----------------------------------------------------------------------
  *  System memory Configuration
  */
-#define CONFIG_SYS_SDRAM_BASE		0x71000000
+#define CFG_SYS_SDRAM_BASE		0x71000000
 
 /*
  * "(0x40000000 - CONFIG_SYS_RESERVE_MEM_SIZE)" has been used in
@@ -55,7 +55,7 @@
  *        Starting kernel ...
  *        ...
  */
-#define CONFIG_SYS_SDRAM_SIZE		(0xb0000000 - CONFIG_SYS_SDRAM_BASE)
+#define CFG_SYS_SDRAM_SIZE		(0xb0000000 - CFG_SYS_SDRAM_BASE)
 
 #define BMP_LOAD_ADDR			0x78000000
 
@@ -66,8 +66,6 @@
 /*-----------------------------------------------------------------------
  *  High Level System Configuration
  */
-/* Not used: not need IRQ/FIQ stuff */
-#undef  CONFIG_USE_IRQ
 /* decrementer freq: 1ms ticks */
 
 /*-----------------------------------------------------------------------
@@ -78,11 +76,9 @@
 /*-----------------------------------------------------------------------
  * serial console configuration
  */
-#define CONFIG_PL011_CLOCK		50000000
-#define CONFIG_PL01x_PORTS		{(void *)PHY_BASEADDR_UART0, \
-					 (void *)PHY_BASEADDR_UART1, \
-					 (void *)PHY_BASEADDR_UART2, \
-					 (void *)PHY_BASEADDR_UART3}
+
+/* 150MHz is the clock rate set by SPL (uart0) */
+#define CFG_PL011_CLOCK		150000000
 
 /*-----------------------------------------------------------------------
  * BACKLIGHT
@@ -142,7 +138,7 @@
 	#define EXTRA_ENV_BOOT_LOGO  EXTRA_ENV_DTB_RESERVE
 #endif
 
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"fdt_high=0xffffffff\0"					\
 	"initrd_high=0xffffffff\0"				\
 	"rootdev=" __stringify(CONFIG_ROOT_DEV) "\0"		\

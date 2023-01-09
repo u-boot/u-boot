@@ -131,7 +131,7 @@ int watchdog_init(void)
 	u32 wdog_module = 0;
 
 	/* set timeout and enable watchdog */
-	wdog_module = ((CONFIG_SYS_CLK / 1000) * CONFIG_WATCHDOG_TIMEOUT);
+	wdog_module = ((CFG_SYS_CLK / 1000) * CONFIG_WATCHDOG_TIMEOUT_MSECS);
 #ifdef CONFIG_M5329
 	out_be16(&wdp->mr, wdog_module / 8192);
 #else

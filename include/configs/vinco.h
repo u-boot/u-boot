@@ -17,21 +17,21 @@
 /* The value in the common file is too far away for the VInCo platform */
 
 /* serial console */
-#define CONFIG_USART_BASE		0xfc00c000
-#define CONFIG_USART_ID			30
+#define CFG_USART_BASE		0xfc00c000
+#define CFG_USART_ID			30
 
 /* Timer */
-#define CONFIG_SYS_TIMER_COUNTER	0xfc06863c
+#define CFG_SYS_TIMER_COUNTER	0xfc06863c
 
 /* SDRAM */
-#define CONFIG_SYS_SDRAM_BASE           0x20000000
-#define CONFIG_SYS_SDRAM_SIZE		0x4000000
+#define CFG_SYS_SDRAM_BASE           0x20000000
+#define CFG_SYS_SDRAM_SIZE		0x4000000
 
 /* MMC */
 
 #ifdef CONFIG_CMD_MMC
 #define ATMEL_BASE_MMCI			0xfc000000
-#define CONFIG_SYS_MMC_CLK_OD		500000
+#define CFG_SYS_MMC_CLK_OD		500000
 
 /* For generating MMC partitions */
 
@@ -39,16 +39,13 @@
 
 /* USB device */
 
-/* Ethernet Hardware */
-#define CONFIG_MACB_SEARCH_PHY
-
 #ifdef CONFIG_SPI_BOOT
 /* bootstrap + u-boot + env + linux in serial flash */
 /* Use our own mapping for the VInCo platform */
 
 /* Update the bootcommand according to our mapping for the VInCo platform */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"kernel_start=0x20000\0" \
 	"kernel_size=0x800000\0" \
 	"mmcblksize=0x200\0" \

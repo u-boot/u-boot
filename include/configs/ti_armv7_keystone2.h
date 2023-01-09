@@ -14,8 +14,8 @@
 /* SoC Configuration */
 
 /* Memory Configuration */
-#define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000
-#define CONFIG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
+#define CFG_SYS_LPAE_SDRAM_BASE	0x800000000
+#define CFG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 #define SPL_MALLOC_F_SIZE	CONFIG_SYS_MALLOC_F_LEN
@@ -34,41 +34,34 @@
 #define KEYSTONE_SRAM_SCRATCH_SPACE_END		(TI_SRAM_SCRATCH_BOARD_EEPROM_END)
 
 /* UART Configuration */
-#define CONFIG_SYS_NS16550_MEM32
-#define CONFIG_SYS_NS16550_COM1		KS2_UART0_BASE
-#define CONFIG_SYS_NS16550_COM2		KS2_UART1_BASE
+#define CFG_SYS_NS16550_COM1		KS2_UART0_BASE
+#define CFG_SYS_NS16550_COM2		KS2_UART1_BASE
 
 #ifndef CONFIG_SOC_K2G
-#define CONFIG_SYS_NS16550_CLK		ks_clk_get_rate(KS2_CLK1_6)
+#define CFG_SYS_NS16550_CLK		ks_clk_get_rate(KS2_CLK1_6)
 #else
-#define CONFIG_SYS_NS16550_CLK		ks_clk_get_rate(uart_pll_clk) / 2
+#define CFG_SYS_NS16550_CLK		ks_clk_get_rate(uart_pll_clk) / 2
 #endif
 
 /* SPI Configuration */
-#define CONFIG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
-
-/* Network Configuration */
-#define CONFIG_SYS_SGMII_REFCLK_MHZ	312
-#define CONFIG_SYS_SGMII_LINERATE_MHZ	1250
-#define CONFIG_SYS_SGMII_RATESCALE	2
+#define CFG_SYS_SPI_CLK		ks_clk_get_rate(KS2_CLK1_6)
 
 /* Keystone net */
-#define CONFIG_KSNET_MAC_ID_BASE		KS2_MAC_ID_BASE_ADDR
-#define CONFIG_KSNET_NETCP_BASE			KS2_NETCP_BASE
-#define CONFIG_KSNET_SERDES_SGMII_BASE		KS2_SGMII_SERDES_BASE
-#define CONFIG_KSNET_SERDES_SGMII2_BASE		KS2_SGMII_SERDES2_BASE
-#define CONFIG_KSNET_SERDES_LANES_PER_SGMII	KS2_LANES_PER_SGMII_SERDES
+#define CFG_KSNET_MAC_ID_BASE		KS2_MAC_ID_BASE_ADDR
+#define CFG_KSNET_NETCP_BASE			KS2_NETCP_BASE
+#define CFG_KSNET_SERDES_SGMII_BASE		KS2_SGMII_SERDES_BASE
+#define CFG_KSNET_SERDES_SGMII2_BASE		KS2_SGMII_SERDES2_BASE
+#define CFG_KSNET_SERDES_LANES_PER_SGMII	KS2_LANES_PER_SGMII_SERDES
 
 /* EEPROM definitions */
 
 /* NAND Configuration */
-#define CONFIG_SYS_NAND_MASK_CLE		0x4000
-#define CONFIG_SYS_NAND_MASK_ALE		0x2000
-#define CONFIG_SYS_NAND_CS			2
+#define CFG_SYS_NAND_MASK_CLE		0x4000
+#define CFG_SYS_NAND_MASK_ALE		0x2000
+#define CFG_SYS_NAND_CS			2
 
-#define CONFIG_SYS_NAND_LARGEPAGE
-#define CONFIG_SYS_NAND_BASE_LIST		{ 0x30000000, }
-#define CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
+#define CFG_SYS_NAND_LARGEPAGE
+#define CFG_SYS_NAND_BASE_LIST		{ 0x30000000, }
 
 #define DFU_ALT_INFO_MMC \
 	"dfu_alt_info_mmc=" \
@@ -113,7 +106,7 @@
 		"rproc load ${dev_pmmc} ${loadaddr} 0x${filesize}; "	\
 		"rproc start ${dev_pmmc}\0"				\
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	ENV_KS2_BOARD_SETTINGS						\
 	DFUARGS								\
@@ -183,9 +176,9 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #ifndef CONFIG_SOC_K2G
-#define CONFIG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
+#define CFG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
 #else
-#define CONFIG_SYS_HZ_CLOCK		get_external_clk(sys_clk)
+#define CFG_SYS_HZ_CLOCK		get_external_clk(sys_clk)
 #endif
 
 #endif /* __CONFIG_KS2_EVM_H */

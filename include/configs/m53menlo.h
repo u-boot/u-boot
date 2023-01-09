@@ -20,9 +20,9 @@
 #define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
 
-#define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
-#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
-#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+#define CFG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
+#define CFG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CFG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
 
 /*
  * U-Boot general configurations
@@ -31,7 +31,7 @@
 /*
  * Serial Driver
  */
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /*
  * MMC Driver
@@ -44,59 +44,47 @@
  * NAND
  */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR_AXI
-#define CONFIG_MXC_NAND_REGS_BASE	NFC_BASE_ADDR_AXI
-#define CONFIG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
-#define CONFIG_SYS_NAND_LARGEPAGE
-#define CONFIG_MXC_NAND_HWECC
+#define CFG_SYS_NAND_BASE		NFC_BASE_ADDR_AXI
+#define CFG_MXC_NAND_REGS_BASE	NFC_BASE_ADDR_AXI
+#define CFG_MXC_NAND_IP_REGS_BASE	NFC_BASE_ADDR
+#define CFG_SYS_NAND_LARGEPAGE
 #endif
 
 /*
  * Ethernet on SOC (FEC)
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC_PHYADDR		0x0
+#define CFG_FEC_MXC_PHYADDR		0x0
 #endif
 
-#define CONFIG_SYS_RTC_BUS_NUM		1 /* I2C2 */
+#define CFG_SYS_RTC_BUS_NUM		1 /* I2C2 */
 
 /*
  * RTC
  */
 #ifdef CONFIG_CMD_DATE
-#define CONFIG_SYS_I2C_RTC_ADDR		0x68
+#define CFG_SYS_I2C_RTC_ADDR		0x68
 #endif
 
 /*
  * USB
  */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORT		1
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORT		1
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 #endif
 
 /* LVDS display */
-#define CONFIG_SYS_LDB_CLOCK			33260000
-#define CONFIG_IMX_VIDEO_SKIP
-
-/* IIM Fuses */
-#define CONFIG_FSL_IIM
+#define CFG_SYS_LDB_CLOCK			33260000
 
 /* Watchdog */
 
 /*
- * NAND SPL
- */
-
-#define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
-
-/*
  * Extra Environments
  */
-#define CONFIG_HOSTNAME		"m53menlo"
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttymxc0\0"						\
 	"baudrate=115200\0"						\
 	"bootscript=boot.scr\0"						\

@@ -34,7 +34,6 @@ config KM_PHRAM
 
 config KM_RESERVED_PRAM
 	hex "Reserved RAM"
-	default 0x801000 if ARCH_KIRKWOOD
 	default 0x0 if MPC83xx
 	default 0x1000 if MPC85xx || ARCH_LS1021A
 	depends on !ARCH_SOCFPGA
@@ -77,21 +76,9 @@ config SYS_CLIPS_BASE
 	help
 	  IFC Base Address for CLIPS FPGA.
 
-config KM_CONSOLE_TTY
-	string "KM Console"
-	default "ttyS0"
-	help
-	  TTY console to use on board.
-
-config KM_DEF_NETDEV
-	string "Default Netdevice"
-	default "eth0"
-	help
-	  Default netdevice for debug interface
-
 config KM_COMMON_ETH_INIT
 	bool "Common Ethernet Initialization"
-	default y if ARCH_KIRKWOOD || MPC83xx
+	default y if MPC83xx
 	default n if MPC85xx || ARCH_SOCFPGA || ARCH_LS1021A
 	help
 	  Use the Ethernet initialization implemented in common code that
@@ -113,8 +100,7 @@ config KM_MVEXTSW_ADDR
 config KM_IVM_BUS
 	int "IVM I2C Bus"
 	default 0 if ARCH_SOCFPGA
-	default 1 if ARCH_KIRKWOOD || MPC85xx || ARCH_LS1021A
-	default 2 if MPC83xx
+	default 1 if PPC || ARCH_LS1021A
 	help
 	  Identifier number of I2C bus, where the inventory EEPROM is connected to.
 

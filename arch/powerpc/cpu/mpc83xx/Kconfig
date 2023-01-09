@@ -196,6 +196,13 @@ config 83XX_PCICLK
 config FSL_ELBC
 	bool
 
+config FSL_SERDES
+	bool "SerDes initialization"
+	depends on !MPC83XX_SERDES
+
+config NEVER_ASSERT_ODT_TO_CPU
+	bool "Never assert ODT to internal IOs"
+
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
 

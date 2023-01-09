@@ -720,36 +720,74 @@ config PIC32_SERIAL
 	help
 	  Support for the UART found on Microchip PIC32 SoC's.
 
+config SYS_NS16550_SERIAL
+	bool "NS16550 UART or compatible legacy driver"
+	depends on !DM_SERIAL
+	select SYS_NS16550
+
+config SPL_SYS_NS16550_SERIAL
+	bool "NS16550 UART or compatible legacy driver in SPL"
+	depends on SPL && !SPL_DM_SERIAL
+	default y if SYS_NS16550_SERIAL || ARCH_SUNXI || ARCH_OMAP2PLUS
+	select SYS_NS16550
+
 config SYS_NS16550
 	bool "NS16550 UART or compatible"
 	help
 	  Support NS16550 UART or compatible. This can be enabled in the
 	  device tree with the correct input clock frequency. If the input
 	  clock frequency is not defined in the device tree, the macro
-	  CONFIG_SYS_NS16550_CLK defined in a legacy board header file will
+	  CFG_SYS_NS16550_CLK defined in a legacy board header file will
 	  be used. It can be a constant or a function to get clock, eg,
 	  get_serial_clock().
 
 config NS16550_DYNAMIC
 	bool "Allow NS16550 to be configured at runtime"
+	depends on SYS_NS16550
 	default y if SYS_COREBOOT || SYS_SLIMBOOTLOADER
 	help
 	  Enable this option to allow device-tree control of the driver.
 
 	  Normally this driver is controlled by the following options:
 
-	  CONFIG_SYS_NS16550_PORT_MAPPED - indicates that port I/O is used for
-	     access. If not enabled, then the UART is memory-mapped.
-	  CONFIG_SYS_NS16550_MEM32 - if memory-mapped, indicates that 32-bit
-	     access should be used (instead of 8-bit)
-	  CONFIG_SYS_NS16550_REG_SIZE - indicates register width and also
-	     endianness. If positive, big-endian access is used. If negative,
-	     little-endian is used.
-
 	  It is not a good practice for a driver to be statically configured,
 	  since it prevents the same driver being used for different types of
 	  UARTs in a system. This option avoids this problem at the cost of a
 	  slightly increased code size.
+
+config SYS_NS16550_MEM32
+	bool "If memory-mapped, 32bit access is needed for ns16550 register access"
+	depends on SYS_NS16550
+	help
+	  If enabled, if memory-mapped, indicates that 32-bit access should be
+	  used (instead of 8-bit) for register access.
+
+config SYS_NS16550_PORT_MAPPED
+	bool "Port I/O is used for ns16550 register access"
+	depends on SYS_NS16550
+	help
+	  If enabled, port I/O is used for ns16550 register access. If not
+	  enabled, then the UART is memory-mapped.
+
+config SYS_NS16550_REG_SIZE
+	int "ns16550 register width and endianness"
+	depends on SYS_NS16550_SERIAL || SPL_SYS_NS16550_SERIAL
+	range -4 4
+	default -4 if ARCH_OMAP2PLUS || ARCH_SUNXI
+	default 1
+	help
+	  Indicates register width and also endianness. If positive, big-endian
+	  access is used. If negative, little-endian is used.
+
+config SPL_NS16550_MIN_FUNCTIONS
+	bool "Only provide NS16550_init and NS16550_putc in SPL"
+	depends on SPL_SYS_NS16550_SERIAL && PPC
+	help
+	  Enable this if you desire to only have use of the NS16550_init and
+	  NS16550_putc functions for the serial driver located at
+	  drivers/serial/ns16550.c.  This option is useful for saving space for
+	  already greatly restricted images, including but not limited to
+	  NAND_SPL configurations.
 
 config INTEL_MID_SERIAL
 	bool "Intel MID platform UART support"
@@ -788,6 +826,15 @@ config S5P_SERIAL
 	default y
 	help
 	  Select this to enable Samsung S5P UART support.
+
+config S5P4418_PL011_SERIAL
+	bool "Extended PL011 driver for S5P4418"
+	depends on DM_SERIAL && PL01X_SERIAL && ARCH_NEXELL
+	default y
+	help
+	  Select this to enable support of the PL011 UARTs in the S5P4418 SOC.
+	  With this driver the UART-clocks are set to the appropriate rate
+	  (if not 'skip-init').
 
 config SANDBOX_SERIAL
 	bool "Sandbox UART support"

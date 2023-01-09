@@ -17,11 +17,7 @@
  * (easy to change)
  */
 
-#define CONFIG_SYS_UART_PORT		(0)
-
-#define CONFIG_WATCHDOG_TIMEOUT 10000	/* timeout in milliseconds */
-
-#undef CONFIG_MONITOR_IS_IN_RAM	/* define if monitor is started from a pre-loader */
+#define CFG_SYS_UART_PORT		(0)
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
@@ -31,15 +27,7 @@
 	. = DEFINED(env_offset) ? env_offset : .; \
 	env/embedded.o(.text);
 
-#ifdef CONFIG_MCFFEC
-#	define CONFIG_IPADDR	192.162.1.2
-#	define CONFIG_NETMASK	255.255.255.0
-#	define CONFIG_SERVERIP	192.162.1.1
-#	define CONFIG_GATEWAYIP	192.162.1.1
-#endif				/* CONFIG_MCFFEC */
-
-#define CONFIG_HOSTNAME		"M5272C3"
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\
 	"u-boot=u-boot.bin\0"			\
@@ -51,59 +39,59 @@
 	"save\0"				\
 	""
 
-#define CONFIG_SYS_CLK			66000000
+#define CFG_SYS_CLK			66000000
 
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)
  * You should know what you are doing if you make changes here.
  */
-#define CONFIG_SYS_MBAR		0x10000000	/* Register Base Addrs */
-#define CONFIG_SYS_SCR			0x0003
-#define CONFIG_SYS_SPR			0xffff
+#define CFG_SYS_MBAR		0x10000000	/* Register Base Addrs */
+#define CFG_SYS_SCR			0x0003
+#define CFG_SYS_SPR			0xffff
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000	/* Size of used area in internal SRAM    */
+#define CFG_SYS_INIT_RAM_ADDR	0x20000000
+#define CFG_SYS_INIT_RAM_SIZE	0x1000	/* Size of used area in internal SRAM    */
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
+ * Please note that CFG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_SDRAM_SIZE		4	/* SDRAM size in MB */
-#define CONFIG_SYS_FLASH_BASE		0xffe00000
+#define CFG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_SIZE		4	/* SDRAM size in MB */
+#define CFG_SYS_FLASH_BASE		0xffe00000
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
+#define CFG_SYS_BOOTMAPSZ		(CFG_SYS_SDRAM_BASE + (CFG_SYS_SDRAM_SIZE << 20))
 
 /*
  * FLASH organization
  */
 #ifdef CONFIG_SYS_FLASH_CFI
-#	define CONFIG_SYS_FLASH_SIZE		0x800000	/* Max size that the board might have */
+#	define CFG_SYS_FLASH_SIZE		0x800000	/* Max size that the board might have */
 #endif
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
 
-#define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 8)
-#define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 4)
-#define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINV | CF_CACR_INVI)
-#define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
-					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+#define ICACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 8)
+#define DCACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 4)
+#define CFG_SYS_ICACHE_INV		(CF_CACR_CINV | CF_CACR_INVI)
+#define CFG_SYS_CACHE_ACR0		(CFG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CFG_SYS_SDRAM_SIZE) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
-#define CONFIG_SYS_CACHE_ICACR		(CF_CACR_CENB | CF_CACR_CINV | \
+#define CFG_SYS_CACHE_ICACR		(CF_CACR_CENB | CF_CACR_CINV | \
 					 CF_CACR_DISD | CF_CACR_INVI | \
 					 CF_CACR_CEIB | CF_CACR_DCM | \
 					 CF_CACR_EUSP)
@@ -111,11 +99,11 @@
 /*-----------------------------------------------------------------------
  * Port configuration
  */
-#define CONFIG_SYS_PACNT		0x00000000
-#define CONFIG_SYS_PADDR		0x0000
-#define CONFIG_SYS_PADAT		0x0000
-#define CONFIG_SYS_PBCNT		0x55554155	/* Ethernet/UART configuration */
-#define CONFIG_SYS_PBDDR		0x0000
-#define CONFIG_SYS_PBDAT		0x0000
-#define CONFIG_SYS_PDCNT		0x00000000
+#define CFG_SYS_PACNT		0x00000000
+#define CFG_SYS_PADDR		0x0000
+#define CFG_SYS_PADAT		0x0000
+#define CFG_SYS_PBCNT		0x55554155	/* Ethernet/UART configuration */
+#define CFG_SYS_PBDDR		0x0000
+#define CFG_SYS_PBDAT		0x0000
+#define CFG_SYS_PDCNT		0x00000000
 #endif				/* _M5272C3_H */

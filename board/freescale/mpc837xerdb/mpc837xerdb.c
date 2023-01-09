@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SYS_DRAM_TEST)
+#if defined(CFG_SYS_DRAM_TEST)
 int
 testdram(void)
 {
@@ -97,37 +97,37 @@ int dram_init(void)
 int fixed_sdram(void)
 {
 	immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	u32 msize = CONFIG_SYS_SDRAM_SIZE;
+	u32 msize = CFG_SYS_SDRAM_SIZE;
 	u32 msize_log2 = __ilog2(msize);
 
-	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_SDRAM_BASE & 0xfffff000;
+	im->sysconf.ddrlaw[0].bar = CFG_SYS_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LBLAWAR_EN | (msize_log2 - 1);
 
-	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR_VALUE;
+	im->sysconf.ddrcdr = CFG_SYS_DDRCDR_VALUE;
 	udelay(50000);
 
-	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_SDRAM_CLK_CNTL;
+	im->ddr.sdram_clk_cntl = CFG_SYS_DDR_SDRAM_CLK_CNTL;
 	udelay(1000);
 
-	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
-	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
+	im->ddr.csbnds[0].csbnds = CFG_SYS_DDR_CS0_BNDS;
+	im->ddr.cs_config[0] = CFG_SYS_DDR_CS0_CONFIG;
 	udelay(1000);
 
-	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
-	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
-	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	im->ddr.timing_cfg_0 = CFG_SYS_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CFG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CFG_SYS_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CFG_SYS_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CFG_SYS_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CFG_SYS_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CFG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CFG_SYS_DDR_MODE2;
+	im->ddr.sdram_interval = CFG_SYS_DDR_INTERVAL;
 	sync();
 	udelay(1000);
 
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 	udelay(2000);
-	return CONFIG_SYS_SDRAM_SIZE >> 20;
+	return CFG_SYS_SDRAM_SIZE >> 20;
 }
 #endif	/*!CONFIG_SYS_SPD_EEPROM */
 
@@ -146,19 +146,19 @@ int board_early_init_f(void)
 	/* we check only part num, and don't look for CPU revisions */
 	switch (PARTID_NO_E(spridr)) {
 	case SPR_8377:
-		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+		fsl_setup_serdes(CFG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
+		fsl_setup_serdes(CFG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	case SPR_8378:
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
+		fsl_setup_serdes(CFG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	case SPR_8379:
-		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+		fsl_setup_serdes(CFG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_SATA,
+		fsl_setup_serdes(CFG_FSL_SERDES2, FSL_SERDES_PROTO_SATA,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	default:
@@ -206,9 +206,9 @@ int misc_init_r(void)
 {
 	int rc = 0;
 
-#ifdef CONFIG_VSC7385_IMAGE
-	if (vsc7385_upload_firmware((void *) CONFIG_VSC7385_IMAGE,
-		CONFIG_VSC7385_IMAGE_SIZE)) {
+#ifdef CFG_VSC7385_IMAGE
+	if (vsc7385_upload_firmware((void *) CFG_VSC7385_IMAGE,
+		CFG_VSC7385_IMAGE_SIZE)) {
 		puts("Failure uploading VSC7385 microcode.\n");
 		rc = 1;
 	}

@@ -21,17 +21,14 @@
 #include <linux/delay.h>
 
 /*
- * If the SelectMap interface can be overrun by the processor, define
- * CONFIG_SYS_FPGA_CHECK_BUSY and/or CONFIG_FPGA_DELAY in the board
+ * If the SelectMap interface can be overrun by the processor, enable
+ * CONFIG_SYS_FPGA_CHECK_BUSY and/or define CFG_FPGA_DELAY in the board
  * configuration file and add board-specific support for checking BUSY status.
  * By default, assume that the SelectMap interface cannot be overrun.
  */
-#ifndef CONFIG_SYS_FPGA_CHECK_BUSY
-#undef CONFIG_SYS_FPGA_CHECK_BUSY
-#endif
 
-#ifndef CONFIG_FPGA_DELAY
-#define CONFIG_FPGA_DELAY()
+#ifndef CFG_FPGA_DELAY
+#define CFG_FPGA_DELAY()
 #endif
 
 /*
@@ -49,8 +46,8 @@
  * which yields 11.44 mS.  So let's make it bigger in order to handle
  * an XC2V1000, if anyone can ever get ahold of one.
  */
-#ifndef CONFIG_SYS_FPGA_WAIT_INIT
-#define CONFIG_SYS_FPGA_WAIT_INIT	CONFIG_SYS_HZ / 2	/* 500 ms */
+#ifndef CFG_SYS_FPGA_WAIT_INIT
+#define CFG_SYS_FPGA_WAIT_INIT	CONFIG_SYS_HZ / 2	/* 500 ms */
 #endif
 
 /*
@@ -58,15 +55,15 @@
  * This is normally not necessary since for most reasonable configuration
  * clock frequencies (i.e. 66 MHz or less), BUSY monitoring is unnecessary.
  */
-#ifndef CONFIG_SYS_FPGA_WAIT_BUSY
-#define CONFIG_SYS_FPGA_WAIT_BUSY	CONFIG_SYS_HZ / 200	/* 5 ms*/
+#ifndef CFG_SYS_FPGA_WAIT_BUSY
+#define CFG_SYS_FPGA_WAIT_BUSY	CONFIG_SYS_HZ / 200	/* 5 ms*/
 #endif
 
 /* Default timeout for waiting for FPGA to enter operational mode after
  * configuration data has been written.
  */
-#ifndef	CONFIG_SYS_FPGA_WAIT_CONFIG
-#define CONFIG_SYS_FPGA_WAIT_CONFIG	CONFIG_SYS_HZ / 5	/* 200 ms */
+#ifndef	CFG_SYS_FPGA_WAIT_CONFIG
+#define CFG_SYS_FPGA_WAIT_CONFIG	CONFIG_SYS_HZ / 5	/* 200 ms */
 #endif
 
 static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize);
@@ -190,16 +187,16 @@ static int virtex2_slave_pre(xilinx_virtex2_slave_fns *fn, int cookie)
 	udelay(10);
 	ts = get_timer(0);
 	do {
-		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
+		if (get_timer(ts) > CFG_SYS_FPGA_WAIT_INIT) {
 			printf("%s:%d: ** Timeout after %d ticks waiting for INIT to assert.\n",
-			       __func__, __LINE__, CONFIG_SYS_FPGA_WAIT_INIT);
+			       __func__, __LINE__, CFG_SYS_FPGA_WAIT_INIT);
 			(*fn->abort)(cookie);
 			return FPGA_FAIL;
 		}
 	} while (!(*fn->init)(cookie));
 
 	(*fn->pgm)(false, true, cookie);
-	CONFIG_FPGA_DELAY();
+	CFG_FPGA_DELAY();
 	if (fn->clk)
 		(*fn->clk)(true, true, cookie);
 
@@ -208,10 +205,10 @@ static int virtex2_slave_pre(xilinx_virtex2_slave_fns *fn, int cookie)
 	 */
 	ts = get_timer(0);
 	do {
-		CONFIG_FPGA_DELAY();
-		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
+		CFG_FPGA_DELAY();
+		if (get_timer(ts) > CFG_SYS_FPGA_WAIT_INIT) {
 			printf("%s:%d: ** Timeout after %d ticks waiting for INIT to deassert.\n",
-			       __func__, __LINE__, CONFIG_SYS_FPGA_WAIT_INIT);
+			       __func__, __LINE__, CFG_SYS_FPGA_WAIT_INIT);
 			(*fn->abort)(cookie);
 			return FPGA_FAIL;
 		}
@@ -236,7 +233,7 @@ static int virtex2_slave_post(xilinx_virtex2_slave_fns *fn,
 	/*
 	 * Finished writing the data; deassert FPGA CS_B and WRITE_B signals.
 	 */
-	CONFIG_FPGA_DELAY();
+	CFG_FPGA_DELAY();
 	if (fn->cs)
 		(*fn->cs)(false, true, cookie);
 	if (fn->wr)
@@ -260,9 +257,9 @@ static int virtex2_slave_post(xilinx_virtex2_slave_fns *fn,
 				break;
 		}
 
-		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_CONFIG) {
+		if (get_timer(ts) > CFG_SYS_FPGA_WAIT_CONFIG) {
 			printf("%s:%d: ** Timeout after %d ticks waiting for DONE to assert and INIT to deassert\n",
-			       __func__, __LINE__, CONFIG_SYS_FPGA_WAIT_CONFIG);
+			       __func__, __LINE__, CFG_SYS_FPGA_WAIT_CONFIG);
 			(*fn->abort)(cookie);
 			ret_val = FPGA_FAIL;
 			break;
@@ -272,9 +269,9 @@ static int virtex2_slave_post(xilinx_virtex2_slave_fns *fn,
 			(*fn->wbulkdata)(&dummy, 1, true, cookie);
 		} else {
 			(*fn->wdata)(0xff, true, cookie);
-			CONFIG_FPGA_DELAY();
+			CFG_FPGA_DELAY();
 			(*fn->clk)(false, true, cookie);
-			CONFIG_FPGA_DELAY();
+			CFG_FPGA_DELAY();
 			(*fn->clk)(true, true, cookie);
 		}
 	}
@@ -338,22 +335,22 @@ static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
 #endif
 
 		(*fn->wdata)(data[bytecount++], true, cookie);
-		CONFIG_FPGA_DELAY();
+		CFG_FPGA_DELAY();
 
 		/*
 		 * Cycle the clock pin
 		 */
 		(*fn->clk)(false, true, cookie);
-		CONFIG_FPGA_DELAY();
+		CFG_FPGA_DELAY();
 		(*fn->clk)(true, true, cookie);
 
 #ifdef CONFIG_SYS_FPGA_CHECK_BUSY
 		ts = get_timer(0);
 		while ((*fn->busy)(cookie)) {
-			if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_BUSY) {
+			if (get_timer(ts) > CFG_SYS_FPGA_WAIT_BUSY) {
 				printf("%s:%d: ** Timeout after %d ticks waiting for BUSY to deassert\n",
 				       __func__, __LINE__,
-				       CONFIG_SYS_FPGA_WAIT_BUSY);
+				       CFG_SYS_FPGA_WAIT_BUSY);
 				(*fn->abort)(cookie);
 				return FPGA_FAIL;
 			}
@@ -475,9 +472,9 @@ static int virtex2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 			for (bit = 7; bit >= 0; --bit) {
 				unsigned char curr_bit = (curr_data >> bit) & 1;
 				(*fn->wdata)(curr_bit, true, cookie);
-				CONFIG_FPGA_DELAY();
+				CFG_FPGA_DELAY();
 				(*fn->clk)(false, true, cookie);
-				CONFIG_FPGA_DELAY();
+				CFG_FPGA_DELAY();
 				(*fn->clk)(true, true, cookie);
 			}
 

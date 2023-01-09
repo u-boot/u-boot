@@ -60,13 +60,13 @@ phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 int dram_init_banksize(void)
 {
 	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = 0x7fffffff;
 	gd->ram_size = 0x80000000;
 
 #ifdef CONFIG_PHYS_64BIT
 	/* Bank 1 declares the memory available in the DDR high region */
-	gd->bd->bi_dram[1].start = CONFIG_SYS_SDRAM_BASE1;
+	gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
 	gd->bd->bi_dram[1].size = 0x37fffffff;
 	gd->ram_size = 0x400000000;
 #endif

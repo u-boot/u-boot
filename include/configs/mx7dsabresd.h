@@ -32,7 +32,7 @@
 #define UPDATE_M4_ENV ""
 #endif
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
 		"rdinit=/linuxrc " \
 		"g_mass_storage.stall=0 g_mass_storage.removable=1 " \
@@ -44,16 +44,16 @@
 	"initrd_high=0xffffffff\0" \
 	"bootcmd_mfg=run mfgtool_args;bootz ${loadaddr} ${initrd_addr} ${fdt_addr};\0" \
 
-#define CONFIG_DFU_ENV_SETTINGS \
+#define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=image raw 0 0x800000;"\
 		"u-boot raw 0 0x4000;"\
 		"bootimg part 0 1;"\
 		"rootfs part 0 2\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	UPDATE_M4_ENV \
-	CONFIG_MFG_ENV_SETTINGS \
-	CONFIG_DFU_ENV_SETTINGS \
+	CFG_MFG_ENV_SETTINGS \
+	CFG_DFU_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
@@ -81,9 +81,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* environment organization */
 
@@ -93,14 +93,12 @@
  */
 #ifdef CONFIG_NAND_MXS
 /* NAND stuff */
-#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CFG_SYS_NAND_BASE		0x40000000
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 #endif
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-
-#define CONFIG_USBD_HS
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #endif	/* __CONFIG_H */

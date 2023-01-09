@@ -46,7 +46,7 @@ void s_init(void) {
 int board_init(void)
 {
 	/* Address of boot parameters for ATAG (if ATAG is used) */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
 }

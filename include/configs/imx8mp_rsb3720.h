@@ -12,7 +12,7 @@
 #include <asm/arch/imx-regs.h>
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
+#define CFG_SYS_UBOOT_BASE	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 /* GUIDs for capsule updatable firmware images */
 #define IMX8MP_RSB3720A1_4G_FIT_IMAGE_GUID \
@@ -24,22 +24,16 @@
 		 0x5f, 0xd3, 0x6b, 0x9b, 0xe5, 0xb9)
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_MALLOC_F_ADDR		0x184000 /* malloc f used before \
+#define CFG_MALLOC_F_ADDR		0x184000 /* malloc f used before \
 						  * GD_FLG_FULL_MALLOC_INIT \
 						  * set \
 						  */
-
-
-#if defined(CONFIG_NAND_BOOT)
-#define CONFIG_SPL_NAND_MXS
-#endif
-
 #endif
 
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_FEC_MXC_PHYADDR          4
+#define CFG_FEC_MXC_PHYADDR          4
 
 #define PHY_ANEG_TIMEOUT 20000
 
@@ -71,7 +65,7 @@
 	BOOT_TARGET_DHCP(func)
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
+#define CFG_EXTRA_ENV_SETTINGS		\
 	BOOTENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
@@ -131,12 +125,12 @@
 		"fi;\0"
 
 /* Link Definitions */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x80000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x80000
 
 
 /* Totally 6GB or 4G DDR */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #if defined(CONFIG_TARGET_IMX8MP_RSB3720A1_6G)
 #define PHYS_SDRAM_SIZE			0xC0000000	/* 3 GB */
@@ -148,7 +142,7 @@
 #define PHYS_SDRAM_2_SIZE		0x80000000	/* 2 GB */
 #endif
 
-#define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
+#define CFG_MXC_UART_BASE		UART3_BASE_ADDR
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
@@ -158,15 +152,12 @@
 #define FSL_FSPI_FLASH_NUM		1
 #define FSPI0_BASE_ADDR			0x30bb0000
 #define FSPI0_AMBA_BASE			0x0
-#define CONFIG_FSPI_QUAD_SUPPORT
-
-#define CONFIG_SYS_FSL_FSPI_AHB
 #endif
 
 #ifdef CONFIG_NAND_MXS
 
 /* NAND stuff */
-#define CONFIG_SYS_NAND_BASE           0x20000000
+#define CFG_SYS_NAND_BASE           0x20000000
 #endif /* CONFIG_NAND_MXS */
 
 #endif /* __IMX8MP_RSB3720_H */

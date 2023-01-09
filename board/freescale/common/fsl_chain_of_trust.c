@@ -43,7 +43,7 @@
 int fsl_check_boot_mode_secure(void)
 {
 	uint32_t val;
-	struct ccsr_sfp_regs *sfp_regs = (void *)(CONFIG_SYS_SFP_ADDR);
+	struct ccsr_sfp_regs *sfp_regs = (void *)(CFG_SYS_SFP_ADDR);
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_DCFG_ADDR);
 
 	val = sfp_in32(&sfp_regs->ospr) & ITS_MASK;
@@ -143,7 +143,7 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 		(image_entry_noargs_t)(unsigned long)spl_image->entry_point;
 
 	hdr_addr = (spl_image->entry_point + spl_image->size -
-			CONFIG_U_BOOT_HDR_SIZE);
+			FSL_U_BOOT_HDR_SIZE);
 	spl_validate_uboot(hdr_addr, (uintptr_t)spl_image->entry_point);
 	/*
 	 * In case of failure in validation, spl_validate_uboot would

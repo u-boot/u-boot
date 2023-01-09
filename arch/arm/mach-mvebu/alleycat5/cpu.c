@@ -21,8 +21,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct mm_region ac5_mem_map[] = {
 	{
 		/* RAM */
-		.phys = CONFIG_SYS_SDRAM_BASE,
-		.virt = CONFIG_SYS_SDRAM_BASE,
+		.phys = CFG_SYS_SDRAM_BASE,
+		.virt = CFG_SYS_SDRAM_BASE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	},
@@ -102,7 +102,7 @@ int alleycat5_dram_init_banksize(void)
 	/*
 	 * Config single DRAM bank
 	 */
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = gd->ram_size;
 
 	return 0;

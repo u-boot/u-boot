@@ -13,17 +13,12 @@
 /* Memory configuration */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* Max 1 GB RAM */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* UBI and NAND partitioning */
 
-/* RTC */
-#ifdef	CONFIG_CMD_DATE
-#define	CONFIG_RTC_MXS
-#endif
-
 /* Extra Environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"ubifs_file=filesystem.ubifs\0" \
 	"update_nand_full_filename=u-boot.nand\0" \
 	"update_nand_firmware_filename=u-boot.sb\0"	\

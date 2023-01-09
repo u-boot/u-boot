@@ -11,21 +11,20 @@
 
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
-#define CONFIG_SYS_SPL_PTE_RAM_BASE	0x41580000
 
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
-#define CONFIG_MALLOC_F_ADDR		0x182000
+#define CFG_MALLOC_F_ADDR		0x182000
 /* For RAW image gives a error info not panic */
 #endif
 
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CFG_FEC_MXC_PHYADDR		1
 #endif
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"script=boot.scr\0"						\
 	"image=Image\0"							\
 	"console=ttymxc0,115200\0"					\
@@ -63,15 +62,15 @@
 
 /* Link Definitions */
 
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x80000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x80000
 
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x80000000	/* 2 GiB DDR */
 
-#define CONFIG_MXC_UART_BASE		UART_BASE_ADDR(1)
+#define CFG_MXC_UART_BASE		UART_BASE_ADDR(1)
 
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0

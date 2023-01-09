@@ -2,21 +2,19 @@
 # Copyright (c) 2011 The Chromium OS Authors.
 #
 
-import re
 import os
-import subprocess
 import sys
 
 from patman import command
 from patman import settings
 from patman import terminal
-from patman import tools
 
 # True to use --no-decorate - we check this in setup()
 use_no_decorate = True
 
+
 def log_cmd(commit_range, git_dir=None, oneline=False, reverse=False,
-           count=None):
+            count=None):
     """Create a command to perform a 'git log'
 
     Args:
@@ -49,6 +47,7 @@ def log_cmd(commit_range, git_dir=None, oneline=False, reverse=False,
     cmd.append('--')
     return cmd
 
+
 def count_commits_to_branch(branch):
     """Returns number of commits between HEAD and the tracking branch.
 
@@ -68,12 +67,13 @@ def count_commits_to_branch(branch):
         rev_range = '@{upstream}..'
     pipe = [log_cmd(rev_range, oneline=True)]
     result = command.run_pipe(pipe, capture=True, capture_stderr=True,
-                             oneline=True, raise_on_error=False)
+                              oneline=True, raise_on_error=False)
     if result.return_code:
         raise ValueError('Failed to determine upstream: %s' %
                          result.stderr.strip())
     patch_count = len(result.stdout.splitlines())
     return patch_count
+
 
 def name_revision(commit_hash):
     """Gets the revision name for a commit
@@ -90,6 +90,7 @@ def name_revision(commit_hash):
     # We expect a commit, a space, then a revision name
     name = stdout.split(' ')[1].strip()
     return name
+
 
 def guess_upstream(git_dir, branch):
     """Tries to guess the upstream for a branch
@@ -109,7 +110,7 @@ def guess_upstream(git_dir, branch):
     """
     pipe = [log_cmd(branch, git_dir=git_dir, oneline=True, count=100)]
     result = command.run_pipe(pipe, capture=True, capture_stderr=True,
-                             raise_on_error=False)
+                              raise_on_error=False)
     if result.return_code:
         return None, "Branch '%s' not found" % branch
     for line in result.stdout.splitlines()[1:]:
@@ -120,6 +121,7 @@ def guess_upstream(git_dir, branch):
                 name = name[8:]
             return name, "Guessing upstream as '%s'" % name
     return None, "Cannot find a suitable upstream for branch '%s'" % branch
+
 
 def get_upstream(git_dir, branch):
     """Returns the name of the upstream for a branch
@@ -135,10 +137,10 @@ def get_upstream(git_dir, branch):
     """
     try:
         remote = command.output_one_line('git', '--git-dir', git_dir, 'config',
-                                       'branch.%s.remote' % branch)
+                                         'branch.%s.remote' % branch)
         merge = command.output_one_line('git', '--git-dir', git_dir, 'config',
-                                      'branch.%s.merge' % branch)
-    except:
+                                        'branch.%s.merge' % branch)
+    except Exception:
         upstream, msg = guess_upstream(git_dir, branch)
         return upstream, msg
 
@@ -149,7 +151,8 @@ def get_upstream(git_dir, branch):
         return '%s/%s' % (remote, leaf), None
     else:
         raise ValueError("Cannot determine upstream branch for branch "
-                "'%s' remote='%s', merge='%s'" % (branch, remote, merge))
+                         "'%s' remote='%s', merge='%s'"
+                         % (branch, remote, merge))
 
 
 def get_range_in_branch(git_dir, branch, include_upstream=False):
@@ -168,6 +171,7 @@ def get_range_in_branch(git_dir, branch, include_upstream=False):
     rstr = '%s%s..%s' % (upstream, '~' if include_upstream else '', branch)
     return rstr, msg
 
+
 def count_commits_in_range(git_dir, range_expr):
     """Returns the number of commits in the given range.
 
@@ -180,11 +184,12 @@ def count_commits_in_range(git_dir, range_expr):
     """
     pipe = [log_cmd(range_expr, git_dir=git_dir, oneline=True)]
     result = command.run_pipe(pipe, capture=True, capture_stderr=True,
-                             raise_on_error=False)
+                              raise_on_error=False)
     if result.return_code:
         return None, "Range '%s' not found or is invalid" % range_expr
     patch_count = len(result.stdout.splitlines())
     return patch_count, None
+
 
 def count_commits_in_branch(git_dir, branch, include_upstream=False):
     """Returns the number of commits in the given branch.
@@ -201,6 +206,7 @@ def count_commits_in_branch(git_dir, branch, include_upstream=False):
         return None, msg
     return count_commits_in_range(git_dir, range_expr)
 
+
 def count_commits(commit_range):
     """Returns the number of commits in the given range.
 
@@ -214,6 +220,7 @@ def count_commits(commit_range):
     stdout = command.run_pipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
     return patch_count
+
 
 def checkout(commit_hash, git_dir=None, work_tree=None, force=False):
     """Checkout the selected commit for this build
@@ -231,9 +238,10 @@ def checkout(commit_hash, git_dir=None, work_tree=None, force=False):
         pipe.append('-f')
     pipe.append(commit_hash)
     result = command.run_pipe([pipe], capture=True, raise_on_error=False,
-                             capture_stderr=True)
+                              capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git checkout (%s): %s' % (pipe, result.stderr))
+
 
 def clone(git_dir, output_dir):
     """Checkout the selected commit for this build
@@ -243,9 +251,10 @@ def clone(git_dir, output_dir):
     """
     pipe = ['git', 'clone', git_dir, '.']
     result = command.run_pipe([pipe], capture=True, cwd=output_dir,
-                             capture_stderr=True)
+                              capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git clone: %s' % result.stderr)
+
 
 def fetch(git_dir=None, work_tree=None):
     """Fetch from the origin repo
@@ -263,6 +272,7 @@ def fetch(git_dir=None, work_tree=None):
     if result.return_code != 0:
         raise OSError('git fetch: %s' % result.stderr)
 
+
 def check_worktree_is_available(git_dir):
     """Check if git-worktree functionality is available
 
@@ -274,8 +284,9 @@ def check_worktree_is_available(git_dir):
     """
     pipe = ['git', '--git-dir', git_dir, 'worktree', 'list']
     result = command.run_pipe([pipe], capture=True, capture_stderr=True,
-                             raise_on_error=False)
+                              raise_on_error=False)
     return result.return_code == 0
+
 
 def add_worktree(git_dir, output_dir, commit_hash=None):
     """Create and checkout a new git worktree for this build
@@ -290,9 +301,10 @@ def add_worktree(git_dir, output_dir, commit_hash=None):
     if commit_hash:
         pipe.append(commit_hash)
     result = command.run_pipe([pipe], capture=True, cwd=output_dir,
-                             capture_stderr=True)
+                              capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git worktree add: %s' % result.stderr)
+
 
 def prune_worktrees(git_dir):
     """Remove administrative files for deleted worktrees
@@ -305,7 +317,8 @@ def prune_worktrees(git_dir):
     if result.return_code != 0:
         raise OSError('git worktree prune: %s' % result.stderr)
 
-def create_patches(branch, start, count, ignore_binary, series, signoff = True):
+
+def create_patches(branch, start, count, ignore_binary, series, signoff=True):
     """Create a series of patches from the top of the current branch.
 
     The patch files are written to the current directory using
@@ -321,9 +334,7 @@ def create_patches(branch, start, count, ignore_binary, series, signoff = True):
         Filename of cover letter (None if none)
         List of filenames of patch files
     """
-    if series.get('version'):
-        version = '%s ' % series['version']
-    cmd = ['git', 'format-patch', '-M' ]
+    cmd = ['git', 'format-patch', '-M']
     if signoff:
         cmd.append('--signoff')
     if ignore_binary:
@@ -341,9 +352,10 @@ def create_patches(branch, start, count, ignore_binary, series, signoff = True):
 
     # We have an extra file if there is a cover letter
     if series.get('cover'):
-       return files[0], files[1:]
+        return files[0], files[1:]
     else:
-       return None, files
+        return None, files
+
 
 def build_email_list(in_list, tag=None, alias=None, warn_on_error=True):
     """Build a list of email addresses based on an input list.
@@ -385,11 +397,12 @@ def build_email_list(in_list, tag=None, alias=None, warn_on_error=True):
         raw += lookup_email(item, alias, warn_on_error=warn_on_error)
     result = []
     for item in raw:
-        if not item in result:
+        if item not in result:
             result.append(item)
     if tag:
         return ['%s %s%s%s' % (tag, quote, email, quote) for email in result]
     return result
+
 
 def check_suppress_cc_config():
     """Check if sendemail.suppresscc is configured correctly.
@@ -397,28 +410,30 @@ def check_suppress_cc_config():
     Returns:
         True if the option is configured correctly, False otherwise.
     """
-    suppresscc = command.output_one_line('git', 'config', 'sendemail.suppresscc',
-                                       raise_on_error=False)
+    suppresscc = command.output_one_line(
+        'git', 'config', 'sendemail.suppresscc', raise_on_error=False)
 
     # Other settings should be fine.
     if suppresscc == 'all' or suppresscc == 'cccmd':
         col = terminal.Color()
 
         print((col.build(col.RED, "error") +
-            ": git config sendemail.suppresscc set to %s\n"  % (suppresscc)) +
-            "  patman needs --cc-cmd to be run to set the cc list.\n" +
-            "  Please run:\n" +
-            "    git config --unset sendemail.suppresscc\n" +
-            "  Or read the man page:\n" +
-            "    git send-email --help\n" +
-            "  and set an option that runs --cc-cmd\n")
+               ": git config sendemail.suppresscc set to %s\n"
+               % (suppresscc)) +
+              "  patman needs --cc-cmd to be run to set the cc list.\n" +
+              "  Please run:\n" +
+              "    git config --unset sendemail.suppresscc\n" +
+              "  Or read the man page:\n" +
+              "    git send-email --help\n" +
+              "  and set an option that runs --cc-cmd\n")
         return False
 
     return True
 
+
 def email_patches(series, cover_fname, args, dry_run, warn_on_error, cc_fname,
-        self_only=False, alias=None, in_reply_to=None, thread=False,
-        smtp_server=None):
+                  self_only=False, alias=None, in_reply_to=None, thread=False,
+                  smtp_server=None, get_maintainer_script=None):
     """Email a patch series.
 
     Args:
@@ -435,6 +450,7 @@ def email_patches(series, cover_fname, args, dry_run, warn_on_error, cc_fname,
         thread: True to add --thread to git send-email (make
             all patches reply to cover-letter or first patch in series)
         smtp_server: SMTP server to use to send patches
+        get_maintainer_script: File name of script to get maintainers emails
 
     Returns:
         Git command that was/would be run
@@ -487,9 +503,10 @@ send --cc-cmd cc-fname" cover p1 p2'
                   "git config sendemail.to u-boot@lists.denx.de")
             return
     cc = build_email_list(list(set(series.get('cc')) - set(series.get('to'))),
-                        '--cc', alias, warn_on_error)
+                          '--cc', alias, warn_on_error)
     if self_only:
-        to = build_email_list([os.getenv('USER')], '--to', alias, warn_on_error)
+        to = build_email_list([os.getenv('USER')], '--to',
+                              alias, warn_on_error)
         cc = []
     cmd = ['git', 'send-email', '--annotate']
     if smtp_server:
@@ -565,7 +582,7 @@ def lookup_email(lookup_name, alias=None, warn_on_error=True, level=0):
     if not alias:
         alias = settings.alias
     lookup_name = lookup_name.strip()
-    if '@' in lookup_name: # Perhaps a real email address
+    if '@' in lookup_name:      # Perhaps a real email address
         return [lookup_name]
 
     lookup_name = lookup_name.lower()
@@ -581,7 +598,7 @@ def lookup_email(lookup_name, alias=None, warn_on_error=True, level=0):
             return out_list
 
     if lookup_name:
-        if not lookup_name in alias:
+        if lookup_name not in alias:
             msg = "Alias '%s' not found" % lookup_name
             if warn_on_error:
                 print(col.build(col.RED, msg))
@@ -589,10 +606,11 @@ def lookup_email(lookup_name, alias=None, warn_on_error=True, level=0):
         for item in alias[lookup_name]:
             todo = lookup_email(item, alias, warn_on_error, level + 1)
             for new_item in todo:
-                if not new_item in out_list:
+                if new_item not in out_list:
                     out_list.append(new_item)
 
     return out_list
+
 
 def get_top_level():
     """Return name of top-level directory for this git repo.
@@ -608,6 +626,7 @@ def get_top_level():
     """
     return command.output_one_line('git', 'rev-parse', '--show-toplevel')
 
+
 def get_alias_file():
     """Gets the name of the git alias file.
 
@@ -615,7 +634,7 @@ def get_alias_file():
         Filename of git alias file, or None if none
     """
     fname = command.output_one_line('git', 'config', 'sendemail.aliasesfile',
-            raise_on_error=False)
+                                    raise_on_error=False)
     if not fname:
         return None
 
@@ -624,6 +643,7 @@ def get_alias_file():
         return fname
 
     return os.path.join(get_top_level(), fname)
+
 
 def get_default_user_name():
     """Gets the user.name from .gitconfig file.
@@ -634,6 +654,7 @@ def get_default_user_name():
     uname = command.output_one_line('git', 'config', '--global', 'user.name')
     return uname
 
+
 def get_default_user_email():
     """Gets the user.email from the global .gitconfig file.
 
@@ -643,16 +664,18 @@ def get_default_user_email():
     uemail = command.output_one_line('git', 'config', '--global', 'user.email')
     return uemail
 
+
 def get_default_subject_prefix():
     """Gets the format.subjectprefix from local .git/config file.
 
     Returns:
         Subject prefix found in local .git/config file, or None if none
     """
-    sub_prefix = command.output_one_line('git', 'config', 'format.subjectprefix',
-                 raise_on_error=False)
+    sub_prefix = command.output_one_line(
+        'git', 'config', 'format.subjectprefix', raise_on_error=False)
 
     return sub_prefix
+
 
 def setup():
     """Set up git utils, by reading the alias files."""
@@ -666,6 +689,7 @@ def setup():
     use_no_decorate = (command.run_pipe([cmd], raise_on_error=False)
                        .return_code == 0)
 
+
 def get_head():
     """Get the hash of the current HEAD
 
@@ -673,6 +697,7 @@ def get_head():
         Hash of HEAD
     """
     return command.output_one_line('git', 'show', '-s', '--pretty=format:%H')
+
 
 if __name__ == "__main__":
     import doctest

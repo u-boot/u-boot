@@ -15,27 +15,25 @@
 #include <linux/sizes.h>
 
 /* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
-#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
+#define CFG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
+#define CFG_SYS_AT91_SLOW_CLOCK	32768
 
 /* CPU */
 
 /* SDRAM */
-#define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS6
-#define CONFIG_SYS_SDRAM_SIZE		(128 * 1024 * 1024) /* 64MB */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
-#define CONFIG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
+#define CFG_SYS_SDRAM_BASE		ATMEL_BASE_CS6
+#define CFG_SYS_SDRAM_SIZE		(128 * 1024 * 1024) /* 64MB */
+#define CFG_SYS_INIT_RAM_SIZE	0x1000
+#define CFG_SYS_INIT_RAM_ADDR	ATMEL_BASE_SRAM
 
 /* Mem test settings */
 
 /* NAND Flash */
-#define CONFIG_SYS_NAND_ECC_BASE	ATMEL_BASE_ECC
-#define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
-#define CONFIG_SYS_NAND_DBW_8
-#define CONFIG_SYS_NAND_MASK_ALE	(1 << 21) /* AD21 */
-#define CONFIG_SYS_NAND_MASK_CLE	(1 << 22) /* AD22 */
-#define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
-#define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC8
+#define CFG_SYS_NAND_BASE		ATMEL_BASE_CS3
+#define CFG_SYS_NAND_MASK_ALE	(1 << 21) /* AD21 */
+#define CFG_SYS_NAND_MASK_CLE	(1 << 22) /* AD22 */
+#define CFG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
+#define CFG_SYS_NAND_READY_PIN	AT91_PIN_PC8
 
 /* UARTs/Serial console */
 
@@ -43,7 +41,7 @@
 
 /* Environment settings */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS	\
+#define	CFG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:00:00:00:00:00\0" \
 	"serial=0\0" \
 	"stdout=serial_atmel\0" \

@@ -938,7 +938,7 @@ static void set_ddr_sdram_cfg_2(const unsigned int ctrl_num,
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/* Use the DDR controller to auto initialize memory. */
 	d_init = popts->ecc_init_using_memctl;
-	ddr->ddr_data_init = CONFIG_MEM_INIT_VALUE;
+	ddr->ddr_data_init = 0xDEADBEEF;
 	debug("DDR: ddr_data_init = 0x%08x\n", ddr->ddr_data_init);
 #else
 	/* Memory will be initialized via DMA, or not at all. */
@@ -1842,19 +1842,6 @@ static void set_ddr_sdram_mode(const unsigned int ctrl_num,
 }
 #endif
 
-/* DDR SDRAM Data Initialization (DDR_DATA_INIT) */
-static void set_ddr_data_init(fsl_ddr_cfg_regs_t *ddr)
-{
-	unsigned int init_value;	/* Initialization value */
-
-#ifdef CONFIG_MEM_INIT_VALUE
-	init_value = CONFIG_MEM_INIT_VALUE;
-#else
-	init_value = 0xDEADBEEF;
-#endif
-	ddr->ddr_data_init = init_value;
-}
-
 /*
  * DDR SDRAM Clock Control (DDR_SDRAM_CLK_CNTL)
  * The old controller on the 8540/60 doesn't have this register.
@@ -2537,7 +2524,7 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	set_ddr_sdram_rcw(ctrl_num, ddr, popts, common_dimm);
 
 	set_ddr_sdram_interval(ctrl_num, ddr, popts, common_dimm);
-	set_ddr_data_init(ddr);
+	ddr->ddr_data_init = 0xDEADBEEF;
 	set_ddr_sdram_clk_cntl(ddr, popts);
 	set_ddr_init_addr(ddr);
 	set_ddr_init_ext_addr(ddr);

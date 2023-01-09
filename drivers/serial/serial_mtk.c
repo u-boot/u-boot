@@ -173,8 +173,7 @@ static int _mtk_serial_pending(struct mtk_serial_priv *priv, bool input)
 		return (readl(&priv->regs->lsr) & UART_LSR_THRE) ? 0 : 1;
 }
 
-#if defined(CONFIG_DM_SERIAL) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_DM))
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 static int mtk_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct mtk_serial_priv *priv = dev_get_priv(dev);
@@ -284,8 +283,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DECLARE_HSUART_PRIV(port) \
 	static struct mtk_serial_priv mtk_hsuart##port = { \
-	.regs = (struct mtk_serial_regs *)CONFIG_SYS_NS16550_COM##port, \
-	.fixed_clk_rate = CONFIG_SYS_NS16550_CLK \
+	.regs = (struct mtk_serial_regs *)CFG_SYS_NS16550_COM##port, \
+	.fixed_clk_rate = CFG_SYS_NS16550_CLK \
 };
 
 #define DECLARE_HSUART_FUNCTIONS(port) \
@@ -356,36 +355,36 @@ DECLARE_GLOBAL_DATA_PTR;
 #error	"Invalid console index value."
 #endif
 
-#if CONFIG_CONS_INDEX == 1 && !defined(CONFIG_SYS_NS16550_COM1)
+#if CONFIG_CONS_INDEX == 1 && !defined(CFG_SYS_NS16550_COM1)
 #error	"Console port 1 defined but not configured."
-#elif CONFIG_CONS_INDEX == 2 && !defined(CONFIG_SYS_NS16550_COM2)
+#elif CONFIG_CONS_INDEX == 2 && !defined(CFG_SYS_NS16550_COM2)
 #error	"Console port 2 defined but not configured."
-#elif CONFIG_CONS_INDEX == 3 && !defined(CONFIG_SYS_NS16550_COM3)
+#elif CONFIG_CONS_INDEX == 3 && !defined(CFG_SYS_NS16550_COM3)
 #error	"Console port 3 defined but not configured."
-#elif CONFIG_CONS_INDEX == 4 && !defined(CONFIG_SYS_NS16550_COM4)
+#elif CONFIG_CONS_INDEX == 4 && !defined(CFG_SYS_NS16550_COM4)
 #error	"Console port 4 defined but not configured."
-#elif CONFIG_CONS_INDEX == 5 && !defined(CONFIG_SYS_NS16550_COM5)
+#elif CONFIG_CONS_INDEX == 5 && !defined(CFG_SYS_NS16550_COM5)
 #error	"Console port 5 defined but not configured."
-#elif CONFIG_CONS_INDEX == 6 && !defined(CONFIG_SYS_NS16550_COM6)
+#elif CONFIG_CONS_INDEX == 6 && !defined(CFG_SYS_NS16550_COM6)
 #error	"Console port 6 defined but not configured."
 #endif
 
-#if defined(CONFIG_SYS_NS16550_COM1)
+#if defined(CFG_SYS_NS16550_COM1)
 DECLARE_HSUART(1, "mtk-hsuart0");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM2)
+#if defined(CFG_SYS_NS16550_COM2)
 DECLARE_HSUART(2, "mtk-hsuart1");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM3)
+#if defined(CFG_SYS_NS16550_COM3)
 DECLARE_HSUART(3, "mtk-hsuart2");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM4)
+#if defined(CFG_SYS_NS16550_COM4)
 DECLARE_HSUART(4, "mtk-hsuart3");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM5)
+#if defined(CFG_SYS_NS16550_COM5)
 DECLARE_HSUART(5, "mtk-hsuart4");
 #endif
-#if defined(CONFIG_SYS_NS16550_COM6)
+#if defined(CFG_SYS_NS16550_COM6)
 DECLARE_HSUART(6, "mtk-hsuart5");
 #endif
 
@@ -410,22 +409,22 @@ __weak struct serial_device *default_serial_console(void)
 
 void mtk_serial_initialize(void)
 {
-#if defined(CONFIG_SYS_NS16550_COM1)
+#if defined(CFG_SYS_NS16550_COM1)
 	serial_register(&mtk_hsuart1_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM2)
+#if defined(CFG_SYS_NS16550_COM2)
 	serial_register(&mtk_hsuart2_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM3)
+#if defined(CFG_SYS_NS16550_COM3)
 	serial_register(&mtk_hsuart3_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM4)
+#if defined(CFG_SYS_NS16550_COM4)
 	serial_register(&mtk_hsuart4_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM5)
+#if defined(CFG_SYS_NS16550_COM5)
 	serial_register(&mtk_hsuart5_device);
 #endif
-#if defined(CONFIG_SYS_NS16550_COM6)
+#if defined(CFG_SYS_NS16550_COM6)
 	serial_register(&mtk_hsuart6_device);
 #endif
 }

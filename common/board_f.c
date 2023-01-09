@@ -329,12 +329,12 @@ __weak int mach_cpu_init(void)
 /* Get the top of usable RAM */
 __weak phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
-#if defined(CONFIG_SYS_SDRAM_BASE) && CONFIG_SYS_SDRAM_BASE > 0
+#if defined(CFG_SYS_SDRAM_BASE) && CFG_SYS_SDRAM_BASE > 0
 	/*
 	 * Detect whether we have so much RAM that it goes past the end of our
 	 * 32-bit address space. If so, clip the usable RAM so it doesn't.
 	 */
-	if (gd->ram_top < CONFIG_SYS_SDRAM_BASE)
+	if (gd->ram_top < CFG_SYS_SDRAM_BASE)
 		/*
 		 * Will wrap back to top of 32-bit space when reservations
 		 * are made.
@@ -369,8 +369,8 @@ static int setup_dest_addr(void)
 	 */
 	gd->ram_size -= CONFIG_SYS_MEM_TOP_HIDE;
 #endif
-#ifdef CONFIG_SYS_SDRAM_BASE
-	gd->ram_base = CONFIG_SYS_SDRAM_BASE;
+#ifdef CFG_SYS_SDRAM_BASE
+	gd->ram_base = CFG_SYS_SDRAM_BASE;
 #endif
 	gd->ram_top = gd->ram_base + get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
@@ -380,19 +380,19 @@ static int setup_dest_addr(void)
 	return arch_setup_dest_addr();
 }
 
-#ifdef CONFIG_PRAM
+#ifdef CFG_PRAM
 /* reserve protected RAM */
 static int reserve_pram(void)
 {
 	ulong reg;
 
-	reg = env_get_ulong("pram", 10, CONFIG_PRAM);
+	reg = env_get_ulong("pram", 10, CFG_PRAM);
 	gd->relocaddr -= (reg << 10);		/* size is in kB */
 	debug("Reserving %ldk for protected RAM at %08lx\n", reg,
 	      gd->relocaddr);
 	return 0;
 }
-#endif /* CONFIG_PRAM */
+#endif /* CFG_PRAM */
 
 /* Round memory pointer down to next 4 kB limit */
 static int reserve_round_4k(void)
@@ -900,9 +900,9 @@ static const init_fnc_t init_sequence_f[] = {
 	post_init_f,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_SYS_DRAM_TEST)
+#if defined(CFG_SYS_DRAM_TEST)
 	testdram,
-#endif /* CONFIG_SYS_DRAM_TEST */
+#endif /* CFG_SYS_DRAM_TEST */
 	INIT_FUNC_WATCHDOG_RESET
 
 #ifdef CONFIG_POST
@@ -925,7 +925,7 @@ static const init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_OF_BOARD_FIXUP
 	fix_fdt,
 #endif
-#ifdef CONFIG_PRAM
+#ifdef CFG_PRAM
 	reserve_pram,
 #endif
 	reserve_round_4k,

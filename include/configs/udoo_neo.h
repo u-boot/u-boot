@@ -12,16 +12,14 @@
 
 #include "mx6_common.h"
 
-#include "imx6_spl.h"
-
 /* MMC Configuration */
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
 /* Command definition */
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* Linux only */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -59,13 +57,12 @@
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* PMIC */
-#define CONFIG_POWER_PFUZE3000
-#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
+#define CFG_POWER_PFUZE3000_I2C_ADDR	0x08
 #define PFUZE3000_I2C_BUS	0
 
 #endif				/* __CONFIG_H */

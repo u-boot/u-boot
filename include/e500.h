@@ -19,7 +19,7 @@ typedef struct
 	unsigned long freq_localbus;
 	unsigned long freq_qe;
 #ifdef CONFIG_SYS_DPAA_FMAN
-	unsigned long freq_fman[CONFIG_SYS_NUM_FMAN];
+	unsigned long freq_fman[CFG_SYS_NUM_FMAN];
 #endif
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	unsigned long freq_qman;

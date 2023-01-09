@@ -24,7 +24,7 @@
 #endif
 
 /* Default environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"splashpos=m,m\0" \
 	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
@@ -109,16 +109,16 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* UART */
 #ifdef CONFIG_MXC_UART
 # ifdef CONFIG_MX6UL
-#  define CONFIG_MXC_UART_BASE		UART1_BASE
+#  define CFG_MXC_UART_BASE		UART1_BASE
 # else
-#  define CONFIG_MXC_UART_BASE		UART4_BASE
+#  define CFG_MXC_UART_BASE		UART4_BASE
 # endif
 #endif
 
@@ -126,25 +126,10 @@
 
 /* NAND */
 #ifdef CONFIG_NAND_MXS
-# define CONFIG_SYS_NAND_BASE		0x40000000
-# define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
+# define CFG_SYS_NAND_BASE		0x40000000
+# define CFG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
 
 /* MTD device */
-#endif
-
-/* Falcon Mode */
-#ifdef CONFIG_SPL_OS_BOOT
-/* MMC support: args@1MB kernel@2MB */
-#endif
-
-/* Framebuffer */
-#ifdef CONFIG_VIDEO_IPUV3
-# define CONFIG_IMX_VIDEO_SKIP
-#endif
-
-/* SPL */
-#ifdef CONFIG_SPL
-# include "imx6_spl.h"
 #endif
 
 #endif /* __IMX6_ENGICAM_CONFIG_H */

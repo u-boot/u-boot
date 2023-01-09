@@ -11,13 +11,6 @@
 #include <linux/kconfig.h>
 #include <linux/stringify.h>
 
-/* SPL */
-/* #if defined(CONFIG_SPL_BUILD) */
-/* common IMX6 SPL configuration */
-#include "imx6_spl.h"
-
-/* #endif */
-
 /* place code in last 4 MiB of RAM */
 
 #include "mx6_common.h"
@@ -35,11 +28,10 @@
 #define TQMA6_SPI_FLASH_SECTOR_SIZE	SZ_64K
 
 /* I2C Configs */
-#define CONFIG_I2C_MULTI_BUS
+#define CFG_I2C_MULTI_BUS
 
 #if !defined(CONFIG_DM_PMIC)
-#define CONFIG_POWER_PFUZE100
-#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+#define CFG_POWER_PFUZE100_I2C_ADDR	0x08
 #define TQMA6_PFUZE100_I2C_BUS		2
 #endif
 
@@ -47,7 +39,7 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #if defined(CONFIG_TQMA6X_MMC_BOOT)
 
@@ -205,7 +197,7 @@
 /* set to a resonable value, changeable by user */
 #define TQMA6_CMA_SIZE                 160M
 
-#define CONFIG_EXTRA_ENV_SETTINGS                                              \
+#define CFG_EXTRA_ENV_SETTINGS                                              \
 	"board=tqma6\0"                                                        \
 	"uimage=uImage\0"                                                      \
 	"zimage=zImage\0"                                                      \
@@ -275,9 +267,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /*
  * All the defines above are for the TQMa6 SoM

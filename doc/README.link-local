@@ -51,7 +51,7 @@ by env variables.  It depends on CONFIG_CMD_LINK_LOCAL, CONFIG_CMD_DHCP,
 and CONFIG_BOOTP_MAY_FAIL.
 If both fail or are disabled, static settings are used.
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"ipconfigcmd=if test \\\"$dhcpenabled\\\" -ne 0;"		\
 		"then "							\
 			"dhcpfail=0;dhcp || dhcpfail=1;"		\

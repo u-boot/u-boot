@@ -20,7 +20,7 @@
 #include <post.h>
 #include <asm/mmu.h>
 
-#if CONFIG_POST & CONFIG_SYS_POST_CPU
+#if CFG_POST & CFG_SYS_POST_CPU
 
 extern int cpu_post_test_cmp (void);
 extern int cpu_post_test_cmpi (void);
@@ -118,4 +118,4 @@ int cpu_post_test (int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST & CONFIG_SYS_POST_CPU */
+#endif /* CFG_POST & CFG_SYS_POST_CPU */

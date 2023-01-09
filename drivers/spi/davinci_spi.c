@@ -225,7 +225,7 @@ static int __davinci_spi_claim_bus(struct davinci_spi_slave *ds, int cs)
 		SPIPC0_DOFUN_MASK | SPIPC0_DIFUN_MASK), &ds->regs->pc0);
 
 	/* setup format */
-	scalar = ((CONFIG_SYS_SPI_CLK / ds->freq) - 1) & 0xFF;
+	scalar = ((CFG_SYS_SPI_CLK / ds->freq) - 1) & 0xFF;
 
 	/*
 	 * Use following format:
@@ -314,7 +314,7 @@ static int davinci_spi_set_speed(struct udevice *bus, uint max_hz)
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
 	debug("%s speed %u\n", __func__, max_hz);
-	if (max_hz > CONFIG_SYS_SPI_CLK / 2)
+	if (max_hz > CFG_SYS_SPI_CLK / 2)
 		return -EINVAL;
 
 	ds->freq = max_hz;

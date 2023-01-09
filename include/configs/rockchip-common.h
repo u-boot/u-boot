@@ -7,8 +7,6 @@
 #define _ROCKCHIP_COMMON_H_
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_NS16550_MEM32
-
 /* ((CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR - 64) * 512) */
 
 #ifndef CONFIG_SPL_BUILD

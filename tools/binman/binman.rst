@@ -298,7 +298,7 @@ C preprocessor::
 
     #ifdef CONFIG_HAVE_MRC
         intel-mrc {
-                offset = <CONFIG_X86_MRC_ADDR>;
+                offset = <CFG_X86_MRC_ADDR>;
         };
     #endif
 

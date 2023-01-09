@@ -10,19 +10,17 @@
 #include <log.h>
 #include <spartan2.h>		/* Spartan-II device family */
 
-#undef CONFIG_SYS_FPGA_CHECK_BUSY
-
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
- * If there is a need to operate slower, define CONFIG_FPGA_DELAY in
+ * If there is a need to operate slower, define CFG_FPGA_DELAY in
  * the board config file to slow things down.
  */
-#ifndef CONFIG_FPGA_DELAY
-#define CONFIG_FPGA_DELAY()
+#ifndef CFG_FPGA_DELAY
+#define CFG_FPGA_DELAY()
 #endif
 
-#ifndef CONFIG_SYS_FPGA_WAIT
-#define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
+#ifndef CFG_SYS_FPGA_WAIT
+#define CFG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
 #endif
 
 static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize);
@@ -142,14 +140,14 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		(*fn->pgm) (true, true, cookie);	/* Assert the program, commit */
 
 		/* Get ready for the burn */
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 		(*fn->pgm) (false, true, cookie);	/* Deassert the program, commit */
 
 		ts = get_timer (0);		/* get current time */
 		/* Now wait for INIT and BUSY to go high */
 		do {
-			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			CFG_FPGA_DELAY ();
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to clear.\n");
 				(*fn->abort) (cookie);	/* abort the burn */
 				return FPGA_FAIL;
@@ -166,9 +164,9 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 			/* XXX - Check the error bit? */
 
 			(*fn->wdata) (data[bytecount++], true, cookie); /* write the data */
-			CONFIG_FPGA_DELAY ();
+			CFG_FPGA_DELAY ();
 			(*fn->clk) (false, true, cookie);	/* Deassert the clock pin */
-			CONFIG_FPGA_DELAY ();
+			CFG_FPGA_DELAY ();
 			(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
 
 #ifdef CONFIG_SYS_FPGA_CHECK_BUSY
@@ -177,12 +175,12 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 				/* XXX - we should have a check in here somewhere to
 				 * make sure we aren't busy forever... */
 
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				(*fn->clk) (false, true, cookie);	/* Deassert the clock pin */
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
 
-				if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+				if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 					puts ("** Timeout waiting for BUSY to clear.\n");
 					(*fn->abort) (cookie);	/* abort the burn */
 					return FPGA_FAIL;
@@ -196,7 +194,7 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 #endif
 		}
 
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 		(*fn->cs) (false, true, cookie);	/* Deassert the chip select */
 		(*fn->wr) (false, true, cookie);	/* Deassert the write pin */
 
@@ -209,12 +207,12 @@ static int spartan2_sp_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		ret_val = FPGA_SUCCESS;
 		while ((*fn->done) (cookie) == FPGA_FAIL) {
 
-			CONFIG_FPGA_DELAY ();
+			CFG_FPGA_DELAY ();
 			(*fn->clk) (false, true, cookie);	/* Deassert the clock pin */
-			CONFIG_FPGA_DELAY ();
+			CFG_FPGA_DELAY ();
 			(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
 
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for DONE to clear.\n");
 				(*fn->abort) (cookie);	/* abort the burn */
 				ret_val = FPGA_FAIL;
@@ -332,22 +330,22 @@ static int spartan2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		/* Wait for INIT state (init low)                            */
 		ts = get_timer (0);		/* get current time */
 		do {
-			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			CFG_FPGA_DELAY ();
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to start.\n");
 				return FPGA_FAIL;
 			}
 		} while (!(*fn->init) (cookie));
 
 		/* Get ready for the burn */
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 		(*fn->pgm) (false, true, cookie);	/* Deassert the program, commit */
 
 		ts = get_timer (0);		/* get current time */
 		/* Now wait for INIT to go high */
 		do {
-			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			CFG_FPGA_DELAY ();
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to clear.\n");
 				return FPGA_FAIL;
 			}
@@ -367,13 +365,13 @@ static int spartan2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 			do {
 				/* Deassert the clock */
 				(*fn->clk) (false, true, cookie);
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				/* Write data */
 				(*fn->wr) ((val & 0x80), true, cookie);
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				/* Assert the clock */
 				(*fn->clk) (true, true, cookie);
-				CONFIG_FPGA_DELAY ();
+				CFG_FPGA_DELAY ();
 				val <<= 1;
 				i --;
 			} while (i > 0);
@@ -384,7 +382,7 @@ static int spartan2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 #endif
 		}
 
-		CONFIG_FPGA_DELAY ();
+		CFG_FPGA_DELAY ();
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');			/* terminate the dotted line */
@@ -397,14 +395,14 @@ static int spartan2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 
 		while (! (*fn->done) (cookie)) {
 
-			CONFIG_FPGA_DELAY ();
+			CFG_FPGA_DELAY ();
 			(*fn->clk) (false, true, cookie);	/* Deassert the clock pin */
-			CONFIG_FPGA_DELAY ();
+			CFG_FPGA_DELAY ();
 			(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
 
 			putc ('*');
 
-			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CFG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for DONE to clear.\n");
 				ret_val = FPGA_FAIL;
 				break;

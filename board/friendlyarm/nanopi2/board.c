@@ -80,9 +80,9 @@ static void bd_backlight_on(void)
 
 #elif defined(BACKLIGHT_CH)
 	/* pwm backlight ON: HIGH, ON: LOW */
-	pwm_init(BACKLIGHT_CH,
+	s5p_pwm_init(BACKLIGHT_CH,
 		 BACKLIGHT_DIV, BACKLIGHT_INV);
-	pwm_config(BACKLIGHT_CH,
+	s5p_pwm_config(BACKLIGHT_CH,
 		   TO_DUTY_NS(BACKLIGHT_DUTY, BACKLIGHT_HZ),
 		   TO_PERIOD_NS(BACKLIGHT_HZ));
 #endif
@@ -507,7 +507,7 @@ int splash_screen_prepare(void)
 /* u-boot dram initialize */
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 	return 0;
 }
 
@@ -518,10 +518,10 @@ int dram_init_banksize(void)
 	unsigned int reg_val = readl(SCR_USER_SIG6_READ);
 
 	/* set global data memory */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x00000100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x00000100;
 
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size  = CONFIG_SYS_SDRAM_SIZE;
+	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size  = CFG_SYS_SDRAM_SIZE;
 
 	/* Number of Row: 14 bits */
 	if ((reg_val >> 28) == 14)

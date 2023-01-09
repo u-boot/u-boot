@@ -8,28 +8,16 @@
 #ifndef __CONFIG_AM43XX_EVM_H
 #define __CONFIG_AM43XX_EVM_H
 
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
-#define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
+#define CFG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
+#define CFG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
 #include <asm/arch/omap.h>
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_CLK		48000000
-#if !defined(CONFIG_SPL_DM) || !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_REG_SIZE    (-4)
-#define CONFIG_SYS_NS16550_SERIAL
-#endif
-
-/* I2C Configuration */
-
-/* Power */
-#define CONFIG_POWER_TPS65218
-#define CONFIG_POWER_TPS62362
-
-/* SPL defines. */
+#define CFG_SYS_NS16550_CLK		48000000
 
 /* Enabling L2 Cache */
-#define CONFIG_SYS_PL310_BASE	0x48242000
+#define CFG_SYS_PL310_BASE	0x48242000
 
 /*
  * When building U-Boot such that there is no previous loader
@@ -45,7 +33,7 @@
 #define V_SCLK				(V_OSCK)
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
+#define CFG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 
 #ifndef CONFIG_SPL_BUILD
 /* USB Device Firmware Update support */
@@ -78,7 +66,7 @@
 #ifndef CONFIG_SPL_BUILD
 #include <environment/ti/dfu.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"fdtfile=undefined\0" \
 	"finduuid=part uuid mmc 0:2 uuid\0" \
@@ -120,7 +108,7 @@
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 /* NAND: driver related configs */
-#define CONFIG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
+#define CFG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
 				10, 11, 12, 13, 14, 15, 16, 17, 18, 19, \
 				20, 21, 22, 23, 24, 25, 26, 27, 28, 29, \
 				30, 31, 32, 33, 34, 35, 36, 37, 38, 39, \
@@ -142,8 +130,8 @@
 			190, 191, 192, 193, 194, 195, 196, 197, 198, 199, \
 			200, 201, 202, 203, 204, 205, 206, 207, 208, 209, \
 			}
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	26
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	26
 #define NANDARGS \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
@@ -164,7 +152,7 @@
 
 #if defined(CONFIG_TI_SECURE_DEVICE)
 /* Avoid relocating onto firewalled area at end of DRAM */
-#define CONFIG_PRAM (64 * 1024)
+#define CFG_PRAM (64 * 1024)
 #endif /* CONFIG_TI_SECURE_DEVICE */
 
 #endif	/* __CONFIG_AM43XX_EVM_H */

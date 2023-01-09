@@ -16,16 +16,16 @@
 #include <environment/ti/k3_dfu.h>
 
 /* DDR Configuration */
-#define CONFIG_SYS_SDRAM_BASE1		0x880000000
+#define CFG_SYS_SDRAM_BASE1		0x880000000
 /* FLASH Configuration */
-#define CONFIG_SYS_FLASH_BASE		0x000000000
+#define CFG_SYS_FLASH_BASE		0x000000000
 
 /* SPL Loader Configuration */
 #if defined(CONFIG_TARGET_J721E_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
-#define CONFIG_SYS_UBOOT_BASE		0x50280000
+#define CFG_SYS_UBOOT_BASE		0x50280000
 /* Image load address in RAM for DFU boot*/
 #else
-#define CONFIG_SYS_UBOOT_BASE		0x50080000
+#define CFG_SYS_UBOOT_BASE		0x50080000
 #endif
 
 /* HyperFlash related configuration */
@@ -170,7 +170,7 @@
 #include <config_distro_bootcmd.h>
 
 /* Incorporate settings into the U-Boot environment */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_FIT_TI_ARGS						\

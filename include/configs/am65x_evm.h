@@ -15,7 +15,7 @@
 #include <environment/ti/k3_dfu.h>
 
 /* DDR Configuration */
-#define CONFIG_SYS_SDRAM_BASE1		0x880000000
+#define CFG_SYS_SDRAM_BASE1		0x880000000
 
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \
@@ -88,7 +88,7 @@
 #endif
 
 /* Incorporate settings into the U-Boot environment */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	DEFAULT_MMC_TI_ARGS						\
 	DEFAULT_FIT_TI_ARGS						\

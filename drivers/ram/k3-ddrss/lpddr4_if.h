@@ -2,8 +2,8 @@
 /*
  * Cadence DDR Driver
  *
- * Copyright (C) 2012-2021 Cadence Design Systems, Inc.
- * Copyright (C) 2018-2021 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2012-2022 Cadence Design Systems, Inc.
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef LPDDR4_IF_H
@@ -11,9 +11,11 @@
 
 #include <linux/types.h>
 #ifdef CONFIG_K3_AM64_DDRSS
-#include <lpddr4_16bit_if.h>
+#include <lpddr4_am64_if.h>
+#elif CONFIG_K3_AM62A_DDRSS
+#include <lpddr4_am62a_if.h>
 #else
-#include <lpddr4_32bit_if.h>
+#include <lpddr4_j721e_if.h>
 #endif
 
 typedef struct lpddr4_config_s lpddr4_config;
@@ -140,5 +142,7 @@ u32 lpddr4_getrefreshrate(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *
 u32 lpddr4_setrefreshrate(const lpddr4_privatedata *pd, const lpddr4_ctlfspnum *fspnum, const u32 *tref, const u32 *tras_max);
 
 u32 lpddr4_refreshperchipselect(const lpddr4_privatedata *pd, const u32 trefinterval);
+
+u32 lpddr4_deferredregverify(const lpddr4_privatedata *pd, lpddr4_regblock cpp, u32 regvalues[], u16 regnum[], u16 regcount);
 
 #endif  /* LPDDR4_IF_H */

@@ -185,9 +185,9 @@ static int da850_ddr_setup(void)
 		setbits_le32(&davinci_syscfg1_regs->vtpio_ctl, VTP_POWERDWN);
 	}
 	setbits_le32(&davinci_syscfg1_regs->vtpio_ctl, VTP_IOPWRDWN);
-	writel(CONFIG_SYS_DA850_DDR2_DDRPHYCR, &dv_ddr2_regs_ctrl->ddrphycr);
+	writel(CFG_SYS_DA850_DDR2_DDRPHYCR, &dv_ddr2_regs_ctrl->ddrphycr);
 
-	if (CONFIG_SYS_DA850_DDR2_SDBCR & (1 << DV_DDR_SDCR_DDR2EN_SHIFT)) {
+	if (CFG_SYS_DA850_DDR2_SDBCR & (1 << DV_DDR_SDCR_DDR2EN_SHIFT)) {
 		/* DDR2 */
 		clrbits_le32(&davinci_syscfg1_regs->ddr_slew,
 			(1 << DDR_SLEW_DDR_PDENA_BIT) |
@@ -211,19 +211,19 @@ static int da850_ddr_setup(void)
 	 * At the same time, set the TIMUNLOCK bit to allow changing
 	 * the timing registers
 	 */
-	tmp = CONFIG_SYS_DA850_DDR2_SDBCR;
+	tmp = CFG_SYS_DA850_DDR2_SDBCR;
 	tmp &= ~DV_DDR_BOOTUNLOCK;
 	tmp |= DV_DDR_TIMUNLOCK;
 	writel(tmp, &dv_ddr2_regs_ctrl->sdbcr);
 
 	/* write memory configuration and timing */
-	if (!(CONFIG_SYS_DA850_DDR2_SDBCR & (1 << DV_DDR_SDCR_DDR2EN_SHIFT))) {
+	if (!(CFG_SYS_DA850_DDR2_SDBCR & (1 << DV_DDR_SDCR_DDR2EN_SHIFT))) {
 		/* MOBILE DDR only*/
-		writel(CONFIG_SYS_DA850_DDR2_SDBCR2,
+		writel(CFG_SYS_DA850_DDR2_SDBCR2,
 			&dv_ddr2_regs_ctrl->sdbcr2);
 	}
-	writel(CONFIG_SYS_DA850_DDR2_SDTIMR, &dv_ddr2_regs_ctrl->sdtimr);
-	writel(CONFIG_SYS_DA850_DDR2_SDTIMR2, &dv_ddr2_regs_ctrl->sdtimr2);
+	writel(CFG_SYS_DA850_DDR2_SDTIMR, &dv_ddr2_regs_ctrl->sdtimr);
+	writel(CFG_SYS_DA850_DDR2_SDTIMR2, &dv_ddr2_regs_ctrl->sdtimr2);
 
 	/* clear the TIMUNLOCK bit and write the value of the CL field */
 	tmp &= ~DV_DDR_TIMUNLOCK;
@@ -233,7 +233,7 @@ static int da850_ddr_setup(void)
 	 * LPMODEN and MCLKSTOPEN must be set!
 	 * Without this bits set, PSC don;t switch states !!
 	 */
-	writel(CONFIG_SYS_DA850_DDR2_SDRCR |
+	writel(CFG_SYS_DA850_DDR2_SDRCR |
 		(1 << DV_DDR_SRCR_LPMODEN_SHIFT) |
 		(1 << DV_DDR_SRCR_MCLKSTOPEN_SHIFT),
 		&dv_ddr2_regs_ctrl->sdrcr);
@@ -246,7 +246,7 @@ static int da850_ddr_setup(void)
 	/* disable self refresh */
 	clrbits_le32(&dv_ddr2_regs_ctrl->sdrcr,
 		DV_DDR_SDRCR_LPMODEN | DV_DDR_SDRCR_MCLKSTOPEN);
-	writel(CONFIG_SYS_DA850_DDR2_PBBPR, &dv_ddr2_regs_ctrl->pbbpr);
+	writel(CFG_SYS_DA850_DDR2_PBBPR, &dv_ddr2_regs_ctrl->pbbpr);
 
 	return 0;
 }
@@ -265,7 +265,7 @@ int arch_cpu_init(void)
 	writel(DV_SYSCFG_KICK1_UNLOCK, &davinci_syscfg_regs->kick1);
 
 	dv_maskbits(&davinci_syscfg_regs->suspsrc,
-		CONFIG_SYS_DA850_SYSCFG_SUSPSRC);
+		CFG_SYS_DA850_SYSCFG_SUSPSRC);
 
 	/* configure pinmux settings */
 	if (davinci_configure_pin_mux_items(pinmuxes, pinmuxes_size))
@@ -273,8 +273,8 @@ int arch_cpu_init(void)
 
 #if defined(CONFIG_SYS_DA850_PLL_INIT)
 	/* PLL setup */
-	da850_pll_init(davinci_pllc0_regs, CONFIG_SYS_DA850_PLL0_PLLM);
-	da850_pll_init(davinci_pllc1_regs, CONFIG_SYS_DA850_PLL1_PLLM);
+	da850_pll_init(davinci_pllc0_regs, CFG_SYS_DA850_PLL0_PLLM);
+	da850_pll_init(davinci_pllc1_regs, CFG_SYS_DA850_PLL1_PLLM);
 #endif
 	/* setup CSn config */
 #if defined(CONFIG_SYS_DA850_CS2CFG)
@@ -290,8 +290,8 @@ int arch_cpu_init(void)
 	board_gpio_init();
 
 #if !CONFIG_IS_ENABLED(DM_SERIAL)
-	ns16550_init((struct ns16550 *)(CONFIG_SYS_NS16550_COM1),
-		     CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
+	ns16550_init((struct ns16550 *)(CFG_SYS_NS16550_COM1),
+		     CFG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 #endif
 	/*
 	 * Fix Power and Emulation Management Register
@@ -299,7 +299,7 @@ int arch_cpu_init(void)
 	 */
 	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
-#if (CONFIG_SYS_NS16550_COM1 == DAVINCI_UART0_BASE)
+#if (CFG_SYS_NS16550_COM1 == DAVINCI_UART0_BASE)
 	       &davinci_uart0_ctrl_regs->pwremu_mgmt);
 #else
 	       &davinci_uart2_ctrl_regs->pwremu_mgmt);

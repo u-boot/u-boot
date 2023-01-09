@@ -33,17 +33,17 @@
 	#define _DEVDISR_SRIO2 FSL_CORENET_DEVDISR_SRIO2
 #endif
 	#define _DEVDISR_RMU   FSL_CORENET_DEVDISR_RMU
-	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
+	#define CFG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
 #elif defined(CONFIG_MPC85xx)
 	#define _DEVDISR_SRIO1 MPC85xx_DEVDISR_SRIO
 	#define _DEVDISR_SRIO2 MPC85xx_DEVDISR_SRIO
 	#define _DEVDISR_RMU   MPC85xx_DEVDISR_RMSG
-	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
+	#define CFG_SYS_MPC8xxx_GUTS_ADDR CFG_SYS_MPC85xx_GUTS_ADDR
 #elif defined(CONFIG_MPC86xx)
 	#define _DEVDISR_SRIO1 MPC86xx_DEVDISR_SRIO
 	#define _DEVDISR_SRIO2 MPC86xx_DEVDISR_SRIO
 	#define _DEVDISR_RMU   MPC86xx_DEVDISR_RMSG
-	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR \
+	#define CFG_SYS_MPC8xxx_GUTS_ADDR \
 		(&((immap_t *)CONFIG_SYS_IMMR)->im_gur)
 #else
 #error "No defines for DEVDISR_SRIO"
@@ -230,7 +230,7 @@ host_ok:
 
 void srio_init(void)
 {
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC8xxx_GUTS_ADDR;
+	ccsr_gur_t *gur = (void *)CFG_SYS_MPC8xxx_GUTS_ADDR;
 	int srio1_used = 0, srio2_used = 0;
 	u32 *devdisr;
 
@@ -240,8 +240,8 @@ void srio_init(void)
 	devdisr = &gur->devdisr;
 #endif
 	if (is_serdes_configured(SRIO1)) {
-		set_next_law(CONFIG_SYS_SRIO1_MEM_PHYS,
-				law_size_bits(CONFIG_SYS_SRIO1_MEM_SIZE),
+		set_next_law(CFG_SYS_SRIO1_MEM_PHYS,
+				law_size_bits(CFG_SYS_SRIO1_MEM_SIZE),
 				LAW_TRGT_IF_RIO_1);
 		srio1_used = 1;
 #ifdef CONFIG_SYS_FSL_ERRATUM_SRIO_A004034
@@ -256,8 +256,8 @@ void srio_init(void)
 
 #ifdef CONFIG_SRIO2
 	if (is_serdes_configured(SRIO2)) {
-		set_next_law(CONFIG_SYS_SRIO2_MEM_PHYS,
-				law_size_bits(CONFIG_SYS_SRIO2_MEM_SIZE),
+		set_next_law(CFG_SYS_SRIO2_MEM_PHYS,
+				law_size_bits(CFG_SYS_SRIO2_MEM_SIZE),
 				LAW_TRGT_IF_RIO_2);
 		srio2_used = 1;
 #ifdef CONFIG_SYS_FSL_ERRATUM_SRIO_A004034
@@ -301,44 +301,44 @@ void srio_boot_master(int port)
 	/* configure inbound window for slave's u-boot image */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
-			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1,
-			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+			(u64)CFG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CFG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1,
+			CFG_SRIO_PCIE_BOOT_IMAGE_SIZE);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwtar,
-			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
+			CFG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwbar,
-			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1 >> 12);
+			CFG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1 >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[0].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE));
+			| atmu_size_mask(CFG_SRIO_PCIE_BOOT_IMAGE_SIZE));
 
 	/* configure inbound window for slave's u-boot image */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's image; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
-			(u64)CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2,
-			CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE);
+			(u64)CFG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS,
+			(u64)CFG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2,
+			CFG_SRIO_PCIE_BOOT_IMAGE_SIZE);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwtar,
-			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
+			CFG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwbar,
-			CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2 >> 12);
+			CFG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2 >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[1].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE));
+			| atmu_size_mask(CFG_SRIO_PCIE_BOOT_IMAGE_SIZE));
 
 	/* configure inbound window for slave's ucode and ENV */
 	debug("SRIOBOOT - MASTER: Inbound window for slave's ucode and ENV; "
 			"Local = 0x%llx, Srio = 0x%llx, Size = 0x%x\n",
-			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS,
-			(u64)CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS,
-			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE);
+			(u64)CFG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS,
+			(u64)CFG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS,
+			CFG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwtar,
-			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS >> 12);
+			CFG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwbar,
-			CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS >> 12);
+			CFG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS >> 12);
 	out_be32((void *)&srio->atmu.port[port - 1].inbw[2].riwar,
 			SRIO_IB_ATMU_AR
-			| atmu_size_mask(CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE));
+			| atmu_size_mask(CFG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE));
 }
 
 void srio_boot_master_release_slave(int port)
@@ -368,11 +368,11 @@ void srio_boot_master_release_slave(int port)
 			if (port - 1)
 				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[1].rowbar,
-					CONFIG_SYS_SRIO2_MEM_PHYS >> 12);
+					CFG_SYS_SRIO2_MEM_PHYS >> 12);
 			else
 				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[1].rowbar,
-					CONFIG_SYS_SRIO1_MEM_PHYS >> 12);
+					CFG_SYS_SRIO1_MEM_PHYS >> 12);
 			out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[1].rowar,
 					SRIO_OB_ATMU_AR_MAINT
@@ -390,12 +390,12 @@ void srio_boot_master_release_slave(int port)
 			if (port - 1)
 				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[2].rowbar,
-					(CONFIG_SYS_SRIO2_MEM_PHYS
+					(CFG_SYS_SRIO2_MEM_PHYS
 					+ SRIO_MAINT_WIN_SIZE) >> 12);
 			else
 				out_be32((void *)&srio->atmu.port[port - 1]
 					.outbw[2].rowbar,
-					(CONFIG_SYS_SRIO1_MEM_PHYS
+					(CFG_SYS_SRIO1_MEM_PHYS
 					+ SRIO_MAINT_WIN_SIZE) >> 12);
 			out_be32((void *)&srio->atmu.port[port - 1]
 				.outbw[2].rowar,
@@ -407,10 +407,10 @@ void srio_boot_master_release_slave(int port)
 			 * by the maint-outbound window
 			 */
 			if (port - 1) {
-				out_be32((void *)CONFIG_SYS_SRIO2_MEM_VIRT
+				out_be32((void *)CFG_SYS_SRIO2_MEM_VIRT
 					+ SRIO_LCSBA1CSR_OFFSET,
 					SRIO_LCSBA1CSR);
-				while (in_be32((void *)CONFIG_SYS_SRIO2_MEM_VIRT
+				while (in_be32((void *)CFG_SYS_SRIO2_MEM_VIRT
 					+ SRIO_LCSBA1CSR_OFFSET)
 					!= SRIO_LCSBA1CSR)
 					;
@@ -418,15 +418,15 @@ void srio_boot_master_release_slave(int port)
 				 * And then set the BRR register
 				 * to release slave core
 				 */
-				out_be32((void *)CONFIG_SYS_SRIO2_MEM_VIRT
+				out_be32((void *)CFG_SYS_SRIO2_MEM_VIRT
 					+ SRIO_MAINT_WIN_SIZE
-					+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET,
-					CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK);
+					+ CFG_SRIO_PCIE_BOOT_BRR_OFFSET,
+					CFG_SRIO_PCIE_BOOT_RELEASE_MASK);
 			} else {
-				out_be32((void *)CONFIG_SYS_SRIO1_MEM_VIRT
+				out_be32((void *)CFG_SYS_SRIO1_MEM_VIRT
 					+ SRIO_LCSBA1CSR_OFFSET,
 					SRIO_LCSBA1CSR);
-				while (in_be32((void *)CONFIG_SYS_SRIO1_MEM_VIRT
+				while (in_be32((void *)CFG_SYS_SRIO1_MEM_VIRT
 					+ SRIO_LCSBA1CSR_OFFSET)
 					!= SRIO_LCSBA1CSR)
 					;
@@ -434,10 +434,10 @@ void srio_boot_master_release_slave(int port)
 				 * And then set the BRR register
 				 * to release slave core
 				 */
-				out_be32((void *)CONFIG_SYS_SRIO1_MEM_VIRT
+				out_be32((void *)CFG_SYS_SRIO1_MEM_VIRT
 					+ SRIO_MAINT_WIN_SIZE
-					+ CONFIG_SRIO_PCIE_BOOT_BRR_OFFSET,
-					CONFIG_SRIO_PCIE_BOOT_RELEASE_MASK);
+					+ CFG_SRIO_PCIE_BOOT_BRR_OFFSET,
+					CFG_SRIO_PCIE_BOOT_RELEASE_MASK);
 			}
 			debug("SRIOBOOT - MASTER: "
 					"Release slave successfully! Now the slave should start up!\n");

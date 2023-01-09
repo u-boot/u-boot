@@ -113,7 +113,7 @@ int dram_init(void)
 {
 	gd->ram_size = tfa_get_dram_size();
 	if (!gd->ram_size)
-		gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+		gd->ram_size = CFG_SYS_SDRAM_SIZE;
 
 	return 0;
 }
@@ -140,7 +140,7 @@ int dram_init(void)
 	mmdc_init(&mparam);
 #endif
 
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();

@@ -19,56 +19,6 @@
 
 #define TSEC_MDIO_REGS_OFFSET	0x520
 
-#ifndef CONFIG_DM_ETH
-
-#ifdef CONFIG_ARCH_LS1021A
-#define TSEC_SIZE		0x40000
-#define TSEC_MDIO_OFFSET	0x40000
-#else
-#define TSEC_SIZE		0x01000
-#define TSEC_MDIO_OFFSET	0x01000
-#endif
-
-#define CONFIG_SYS_MDIO_BASE_ADDR (MDIO_BASE_ADDR + TSEC_MDIO_REGS_OFFSET)
-
-#define TSEC_GET_REGS(num, offset) \
-	(struct tsec __iomem *)\
-	(TSEC_BASE_ADDR + (((num) - 1) * (offset)))
-
-#define TSEC_GET_REGS_BASE(num) \
-	TSEC_GET_REGS((num), TSEC_SIZE)
-
-#define TSEC_GET_MDIO_REGS(num, offset) \
-	(struct tsec_mii_mng __iomem *)\
-	(CONFIG_SYS_MDIO_BASE_ADDR  + ((num) - 1) * (offset))
-
-#define TSEC_GET_MDIO_REGS_BASE(num) \
-	TSEC_GET_MDIO_REGS((num), TSEC_MDIO_OFFSET)
-
-#define DEFAULT_MII_NAME "FSL_MDIO"
-
-#define STD_TSEC_INFO(num) \
-{			\
-	.regs = TSEC_GET_REGS_BASE(num), \
-	.miiregs_sgmii = TSEC_GET_MDIO_REGS_BASE(num), \
-	.devname = CONFIG_TSEC##num##_NAME, \
-	.phyaddr = TSEC##num##_PHY_ADDR, \
-	.flags = TSEC##num##_FLAGS, \
-	.mii_devname = DEFAULT_MII_NAME \
-}
-
-#define SET_STD_TSEC_INFO(x, num) \
-{			\
-	x.regs = TSEC_GET_REGS_BASE(num); \
-	x.miiregs_sgmii = TSEC_GET_MDIO_REGS_BASE(num); \
-	x.devname = CONFIG_TSEC##num##_NAME; \
-	x.phyaddr = TSEC##num##_PHY_ADDR; \
-	x.flags = TSEC##num##_FLAGS;\
-	x.mii_devname = DEFAULT_MII_NAME;\
-}
-
-#endif /* CONFIG_DM_ETH */
-
 #define MAC_ADDR_LEN		6
 
 /* #define TSEC_TIMEOUT	1000000 */
@@ -124,8 +74,8 @@
 
 #define RCTRL_PROM		0x00000008
 
-#ifndef CONFIG_SYS_TBIPA_VALUE
-# define CONFIG_SYS_TBIPA_VALUE	0x1f
+#ifndef CFG_SYS_TBIPA_VALUE
+# define CFG_SYS_TBIPA_VALUE	0x1f
 #endif
 
 #define MRBLR_INIT_SETTINGS	PKTSIZE_ALIGN
@@ -414,11 +364,7 @@ struct tsec_private {
 	u32 flags;
 	uint rx_idx;	/* index of the current RX buffer */
 	uint tx_idx;	/* index of the current TX buffer */
-#ifndef CONFIG_DM_ETH
-	struct eth_device *dev;
-#else
 	struct udevice *dev;
-#endif
 };
 
 struct tsec_info_struct {
@@ -430,11 +376,5 @@ struct tsec_info_struct {
 	unsigned int phyaddr;
 	u32 flags;
 };
-
-#ifndef CONFIG_DM_ETH
-int tsec_standard_init(struct bd_info *bis);
-int tsec_eth_init(struct bd_info *bis, struct tsec_info_struct *tsec_info,
-		  int num);
-#endif
 
 #endif /* __TSEC_H */

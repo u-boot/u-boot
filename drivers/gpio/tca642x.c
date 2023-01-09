@@ -52,7 +52,7 @@ static int tca642x_reg_write(uchar chip, uint8_t addr,
 	int ret;
 
 	org_bus_num = i2c_get_bus_num();
-	i2c_set_bus_num(CONFIG_SYS_I2C_TCA642X_BUS_NUM);
+	i2c_set_bus_num(CFG_SYS_I2C_TCA642X_BUS_NUM);
 
 	if (i2c_read(chip, addr, 1, (uint8_t *)&valw, 1)) {
 		printf("Could not read before writing\n");
@@ -76,7 +76,7 @@ static int tca642x_reg_read(uchar chip, uint8_t addr, uint8_t *data)
 	int ret = 0;
 
 	org_bus_num = i2c_get_bus_num();
-	i2c_set_bus_num(CONFIG_SYS_I2C_TCA642X_BUS_NUM);
+	i2c_set_bus_num(CFG_SYS_I2C_TCA642X_BUS_NUM);
 	if (i2c_read(chip, addr, 1, (u8 *)&valw, 1)) {
 		ret = -1;
 		goto error;
@@ -242,7 +242,7 @@ static struct cmd_tbl cmd_tca642x[] = {
 static int do_tca642x(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	static uchar chip = CONFIG_SYS_I2C_TCA642X_ADDR;
+	static uchar chip = CFG_SYS_I2C_TCA642X_ADDR;
 	int ret = CMD_RET_USAGE, val;
 	int gpio_bank = 0;
 	uint8_t bank_shift;

@@ -12,7 +12,7 @@
 #define __CONFIG_TI_OMAP4_COMMON_H
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_PL310_BASE	0x48242000
+#define CFG_SYS_PL310_BASE	0x48242000
 #endif
 
 /* Get CPU defs */
@@ -20,22 +20,17 @@
 #include <asm/arch/omap.h>
 
 /* Use General purpose timer 1 */
-#define CONFIG_SYS_TIMERBASE		GPT2_BASE
+#define CFG_SYS_TIMERBASE		GPT2_BASE
 
 #include <configs/ti_armv7_omap.h>
 
 /*
  * Hardware drivers
  */
-#define CONFIG_SYS_NS16550_CLK		48000000
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_DM_SERIAL)
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_COM3		UART3_BASE
+#define CFG_SYS_NS16550_CLK		48000000
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
+#define CFG_SYS_NS16550_COM3		UART3_BASE
 #endif
-
-/* TWL6030 */
-#define CONFIG_TWL6030_POWER		1
 
 /*
  * Environment setup
@@ -63,7 +58,7 @@
 #include <config_distro_bootcmd.h>
 #include <environment/ti/mmc.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \

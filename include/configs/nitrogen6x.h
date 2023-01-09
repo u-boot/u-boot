@@ -11,24 +11,18 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_USBD_HS
-
-#define CONFIG_MXC_UART_BASE	       UART2_BASE
+#define CFG_MXC_UART_BASE	       UART2_BASE
 
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR      0
 #define CFG_SYS_FSL_USDHC_NUM       2
 
 #define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_MXC_PHYADDR		6
+#define CFG_FEC_MXC_PHYADDR		6
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS	0
-
-/* Framebuffer and LCD */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
+#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS	0
 
 #ifdef CONFIG_CMD_MMC
 #define DISTRO_BOOT_DEV_MMC(func) func(MMC, mmc, 0) func(MMC, mmc, 1)
@@ -70,7 +64,7 @@
 #include <config_distro_bootcmd.h>
 #include <linux/stringify.h>
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc1\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
@@ -90,9 +84,9 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE	       PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE	       PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
 /* Environment organization */
 

@@ -11,14 +11,14 @@
 #include <asm/arch/imx-regs.h>
 
 /* Link Definitions */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x200000
+#define CFG_SYS_INIT_RAM_ADDR	0x40000000
+#define CFG_SYS_INIT_RAM_SIZE	0x200000
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
 #define PHYS_SDRAM_SIZE			0x20000000 /* Minimum 512 MiB DDR */
 
-#define CONFIG_MXC_UART_BASE		UART1_BASE_ADDR
+#define CFG_MXC_UART_BASE		UART1_BASE_ADDR
 
 /* PHY needs a longer autonegotiation timeout after reset */
 #define PHY_ANEG_TIMEOUT		20000
@@ -28,7 +28,7 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd=run bootcmd ; reset\0"				\
 	"bootlimit=3\0"							\
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"		\

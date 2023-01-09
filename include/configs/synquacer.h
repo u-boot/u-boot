@@ -6,16 +6,15 @@
 #define __CONFIG_H
 
 /* Timers for fasp(TIMCLK) */
-#define CONFIG_SYS_TIMERBASE		0x31080000	/* AP Timer 1 (ARM-SP804) */
+#define CFG_SYS_TIMERBASE		0x31080000	/* AP Timer 1 (ARM-SP804) */
 
 /*
  * SDRAM (for initialize)
  */
-#define CONFIG_SYS_SDRAM_BASE		(0x80000000)	/* Start address of DDR3 */
+#define CFG_SYS_SDRAM_BASE		(0x80000000)	/* Start address of DDR3 */
 #define PHYS_SDRAM_SIZE			(0x7c000000)	/* Default size (2GB - Secure memory) */
 
-#define CONFIG_VERY_BIG_RAM				/* SynQuacer supports up to 64GB */
-#define CONFIG_MAX_MEM_MAPPED		PHYS_SDRAM_SIZE
+#define CFG_MAX_MEM_MAPPED		PHYS_SDRAM_SIZE
 
 #define SQ_DRAMINFO_BASE		(0x2e00ffc0)	/* DRAM info from TF-A */
 
@@ -28,16 +27,16 @@
  */
 
 /* RTC */
-#define CONFIG_SYS_I2C_RTC_ADDR		0x51
+#define CFG_SYS_I2C_RTC_ADDR		0x51
 
 /* Serial (pl011)       */
 #define UART_CLK			(62500000)
-#define CONFIG_PL011_CLOCK		UART_CLK
-#define CONFIG_PL01x_PORTS		{(void *)(0x2a400000)}
+#define CFG_PL011_CLOCK		UART_CLK
+#define CFG_PL01x_PORTS		{(void *)(0x2a400000)}
 
 /* Support MTD */
-#define CONFIG_SYS_FLASH_BASE		(0x08000000)
-#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
+#define CFG_SYS_FLASH_BASE		(0x08000000)
+#define CFG_SYS_FLASH_BANKS_LIST	{CFG_SYS_FLASH_BASE}
 
 /* Since U-Boot 64bit PCIe support is limited, disable 64bit MMIO support */
 
@@ -92,7 +91,7 @@
 
 #include <config_distro_bootcmd.h>
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		\
+#define	CFG_EXTRA_ENV_SETTINGS		\
 	"fdt_addr_r=0x9fe00000\0"		\
 	"kernel_addr_r=0x90000000\0"		\
 	"ramdisk_addr_r=0xa0000000\0"		\

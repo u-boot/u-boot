@@ -12,7 +12,7 @@
 
 #include <configs/xilinx_zynqmp_mini.h>
 
-#define CONFIG_SYS_SDRAM_SIZE	0x1000000
-#define CONFIG_SYS_SDRAM_BASE	0x0
+#define CFG_SYS_SDRAM_SIZE	0x1000000
+#define CFG_SYS_SDRAM_BASE	0x0
 
 #endif /* __CONFIG_ZYNQMP_MINI_NAND_H */

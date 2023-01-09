@@ -8,11 +8,9 @@
 #ifndef __AMCORE_CONFIG_H
 #define __AMCORE_CONFIG_H
 
-#define CONFIG_HOSTNAME			"AMCORE"
+#define CFG_SYS_UART_PORT		0
 
-#define CONFIG_SYS_UART_PORT		0
-
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS				\
 	"upgrade_uboot=loady; "					\
 		"protect off 0xffc00000 0xffc1ffff; "		\
 		"erase 0xffc00000 0xffc1ffff; "			\
@@ -24,21 +22,21 @@
 		"erase 0xfff00000 0xffffffff; "			\
 		"cp.b 0x20000 0xfff00000 ${filesize}\0"
 
-#define CONFIG_SYS_CLK			45000000
-#define CONFIG_SYS_CPU_CLK		(CONFIG_SYS_CLK * 2)
+#define CFG_SYS_CLK			45000000
+#define CFG_SYS_CPU_CLK		(CFG_SYS_CLK * 2)
 /* Register Base Addrs */
-#define CONFIG_SYS_MBAR			0x10000000
+#define CFG_SYS_MBAR			0x10000000
 /* Definitions for initial stack pointer and data area (in DPRAM) */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
+#define CFG_SYS_INIT_RAM_ADDR	0x20000000
 /* size of internal SRAM */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CFG_SYS_INIT_RAM_SIZE	0x1000
 
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_SDRAM_SIZE		0x1000000
-#define CONFIG_SYS_FLASH_BASE		0xffc00000
+#define CFG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_SIZE		0x1000000
+#define CFG_SYS_FLASH_BASE		0xffc00000
 
 /* amcore design has flash data bytes wired swapped */
-#define CONFIG_SYS_WRITE_SWAPPED_DATA
+#define CFG_SYS_WRITE_SWAPPED_DATA
 /* reserve 128-4KB */
 
 #define LDS_BOARD_TEXT \
@@ -46,7 +44,7 @@
 	env/embedded.o(.text*);
 
 /* memory map space for linux boot data */
-#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)
+#define CFG_SYS_BOOTMAPSZ		(8 << 20)
 
 /*
  * Cache Configuration
@@ -56,25 +54,25 @@
  * sdram - single region - no masks
  */
 
-#define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 8)
-#define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 4)
-#define CONFIG_SYS_ICACHE_INV           (CF_CACR_CINVA)
-#define CONFIG_SYS_CACHE_ACR0		(CF_ACR_CM_WT | CF_ACR_SM_ALL | \
+#define ICACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 8)
+#define DCACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 4)
+#define CFG_SYS_ICACHE_INV           (CF_CACR_CINVA)
+#define CFG_SYS_CACHE_ACR0		(CF_ACR_CM_WT | CF_ACR_SM_ALL | \
 					 CF_ACR_EN)
-#define CONFIG_SYS_CACHE_ICACR		(CF_CACR_DCM_P | CF_CACR_ESB | \
+#define CFG_SYS_CACHE_ICACR		(CF_CACR_DCM_P | CF_CACR_ESB | \
 					 CF_CACR_EC)
 
 /* CS0 - AMD Flash, address 0xffc00000 */
-#define	CONFIG_SYS_CS0_BASE		(CONFIG_SYS_FLASH_BASE>>16)
+#define	CFG_SYS_CS0_BASE		(CFG_SYS_FLASH_BASE>>16)
 /* 4MB, AA=0,V=1  C/I BIT for errata */
-#define	CONFIG_SYS_CS0_MASK		0x003f0001
+#define	CFG_SYS_CS0_MASK		0x003f0001
 /* WS=10, AA=1, PS=16bit (10) */
-#define	CONFIG_SYS_CS0_CTRL		0x1980
+#define	CFG_SYS_CS0_CTRL		0x1980
 /* CS1 - DM9000 Ethernet Controller, address 0x30000000 */
-#define CONFIG_SYS_CS1_BASE		0x3000
-#define CONFIG_SYS_CS1_MASK		0x00070001
-#define CONFIG_SYS_CS1_CTRL		0x0100
+#define CFG_SYS_CS1_BASE		0x3000
+#define CFG_SYS_CS1_MASK		0x00070001
+#define CFG_SYS_CS1_CTRL		0x0100
 
 #endif  /* __AMCORE_CONFIG_H */

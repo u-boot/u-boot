@@ -54,14 +54,14 @@ static inline int check_read_ecc(uchar *buf, u32 *eccstat,
 
 static inline struct fsl_ifc_runtime *runtime_regs_address(void)
 {
-	struct fsl_ifc regs = {(void *)CONFIG_SYS_IFC_ADDR, NULL};
+	struct fsl_ifc regs = {(void *)CFG_SYS_IFC_ADDR, NULL};
 	int ver = 0;
 
 	ver = ifc_in32(&regs.gregs->ifc_rev);
 	if (ver >= FSL_IFC_V2_0_0)
-		regs.rregs = (void *)CONFIG_SYS_IFC_ADDR + IFC_RREGS_64KOFFSET;
+		regs.rregs = (void *)CFG_SYS_IFC_ADDR + IFC_RREGS_64KOFFSET;
 	else
-		regs.rregs = (void *)CONFIG_SYS_IFC_ADDR + IFC_RREGS_4KOFFSET;
+		regs.rregs = (void *)CFG_SYS_IFC_ADDR + IFC_RREGS_4KOFFSET;
 
 	return regs.rregs;
 }
@@ -108,9 +108,9 @@ static inline int bad_block(uchar *marker, int port_size)
 
 int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 {
-	struct fsl_ifc_fcm *gregs = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc_fcm *gregs = (void *)CFG_SYS_IFC_ADDR;
 	struct fsl_ifc_runtime *ifc = NULL;
-	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
+	uchar *buf = (uchar *)CFG_SYS_NAND_BASE;
 	int page_size;
 	int port_size;
 	int pages_per_blk;
@@ -129,8 +129,8 @@ int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 	ifc = runtime_regs_address();
 
 	/* Get NAND Flash configuration */
-	csor = CONFIG_SYS_NAND_CSOR;
-	cspr = CONFIG_SYS_NAND_CSPR;
+	csor = CFG_SYS_NAND_CSOR;
+	cspr = CFG_SYS_NAND_CSPR;
 
 	port_size = (cspr & CSPR_PORT_SIZE_16) ? 16 : 8;
 
@@ -250,8 +250,8 @@ void nand_boot(void)
 	 * Load U-Boot image from NAND into RAM
 	 */
 	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-			    CONFIG_SYS_NAND_U_BOOT_SIZE,
-			    (uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
+			    CFG_SYS_NAND_U_BOOT_SIZE,
+			    (uchar *)CFG_SYS_NAND_U_BOOT_DST);
 
 #ifdef CONFIG_NAND_ENV_DST
 	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
@@ -270,7 +270,7 @@ void nand_boot(void)
 	 * Clean d-cache and invalidate i-cache, to
 	 * make sure that no stale data is executed.
 	 */
-	flush_cache(CONFIG_SYS_NAND_U_BOOT_DST, CONFIG_SYS_NAND_U_BOOT_SIZE);
+	flush_cache(CFG_SYS_NAND_U_BOOT_DST, CFG_SYS_NAND_U_BOOT_SIZE);
 #endif
 
 #ifdef CONFIG_CHAIN_OF_TRUST
@@ -278,12 +278,12 @@ void nand_boot(void)
 	 * U-Boot header is appended at end of U-boot image, so
 	 * calculate U-boot header address using U-boot header size.
 	 */
-#define CONFIG_U_BOOT_HDR_ADDR \
-		((CONFIG_SYS_NAND_U_BOOT_START + \
-		  CONFIG_SYS_NAND_U_BOOT_SIZE) - \
-		 CONFIG_U_BOOT_HDR_SIZE)
-	spl_validate_uboot(CONFIG_U_BOOT_HDR_ADDR,
-			   CONFIG_SYS_NAND_U_BOOT_START);
+#define FSL_U_BOOT_HDR_ADDR \
+		((CFG_SYS_NAND_U_BOOT_START + \
+		  CFG_SYS_NAND_U_BOOT_SIZE) - \
+		 FSL_U_BOOT_HDR_SIZE)
+	spl_validate_uboot(FSL_U_BOOT_HDR_ADDR,
+			   CFG_SYS_NAND_U_BOOT_START);
 	/*
 	 * In case of failure in validation, spl_validate_uboot would
 	 * not return back in case of Production environment with ITS=1.
@@ -293,7 +293,7 @@ void nand_boot(void)
 	 */
 #endif
 
-	uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
+	uboot = (void *)CFG_SYS_NAND_U_BOOT_START;
 	uboot();
 }
 

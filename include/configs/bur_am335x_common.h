@@ -14,17 +14,15 @@
 
 /* legacy #defines for non DM bur-board */
 #ifndef CONFIG_DM
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		(48000000)
-#define CONFIG_SYS_NS16550_COM1		0x44e09000
+#define CFG_SYS_NS16550_CLK		(48000000)
+#define CFG_SYS_NS16550_COM1		0x44e09000
 
 #endif /* CONFIG_DM */
 
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
+#define CFG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 
 /* Timer information */
-#define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
+#define CFG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
 #include <asm/arch/omap.h>
 
@@ -47,7 +45,7 @@
  * always, even when we have more.  We always start at 0x80000000,
  * and we place the initial stack pointer in our SRAM.
  */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily

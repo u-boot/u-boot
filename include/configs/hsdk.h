@@ -20,16 +20,14 @@
  * Memory configuration
  */
 
-#define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
-#define CONFIG_SYS_SDRAM_SIZE		SZ_1G
+#define CFG_SYS_DDR_SDRAM_BASE	0x80000000
+#define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_SDRAM_SIZE		SZ_1G
 
 /*
  * UART configuration
  */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_CLK		33330000
-#define CONFIG_SYS_NS16550_MEM32
+#define CFG_SYS_NS16550_CLK		33330000
 
 /*
  * Ethernet PHY configuration
@@ -38,7 +36,7 @@
 /*
  * Environment settings
  */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"upgrade=if mmc rescan && " \
 		"fatload mmc 0:1 ${loadaddr} u-boot-update.scr && " \
 		"iminfo ${loadaddr} && source ${loadaddr}; then; else echo " \

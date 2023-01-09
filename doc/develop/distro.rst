@@ -214,7 +214,7 @@ Required Environment Variables
 
 The U-Boot "syslinux" and "pxe boot" commands require a number of environment
 variables be set. Default values for these variables are often hard-coded into
-CONFIG_EXTRA_ENV_SETTINGS in the board's U-Boot configuration file, so that
+CFG_EXTRA_ENV_SETTINGS in the board's U-Boot configuration file, so that
 the user doesn't have to configure them.
 
 fdt_addr:

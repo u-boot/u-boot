@@ -10,7 +10,7 @@
 
 #include <configs/exynos7420-common.h>
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CFG_SYS_SDRAM_BASE		0x40000000
 
 /* DRAM Memory Banks */
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */

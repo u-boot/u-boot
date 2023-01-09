@@ -89,7 +89,7 @@ Old-style C environment
 
 Traditionally, the default environment is created in `include/env_default.h`,
 and can be augmented by various `CONFIG` defines. See that file for details. In
-particular you can define `CONFIG_EXTRA_ENV_SETTINGS` in your board file
+particular you can define `CFG_EXTRA_ENV_SETTINGS` in your board file
 to add environment variables.
 
 Board maintainers are encouraged to migrate to the text-based environment as it
@@ -162,7 +162,7 @@ bootm_low
     for use by the bootm command. See also "bootm_size"
     environment variable. Address defined by "bootm_low" is
     also the base of the initial memory mapping for the Linux
-    kernel -- see the description of CONFIG_SYS_BOOTMAPSZ and
+    kernel -- see the description of CFG_SYS_BOOTMAPSZ and
     bootm_mapsize.
 
 bootm_mapsize
@@ -170,7 +170,7 @@ bootm_mapsize
     This variable is given as a hexadecimal number and it
     defines the size of the memory region starting at base
     address bootm_low that is accessible by the Linux kernel
-    during early boot.  If unset, CONFIG_SYS_BOOTMAPSZ is used
+    during early boot.  If unset, CFG_SYS_BOOTMAPSZ is used
     as the default value if it is defined, and bootm_size is
     used otherwise.
 
@@ -228,7 +228,7 @@ initrd_high
     is usually what you want since it allows for
     maximum initrd size. If for some reason you want to
     make sure that the initrd image is loaded below the
-    CONFIG_SYS_BOOTMAPSZ limit, you can set this environment
+    CFG_SYS_BOOTMAPSZ limit, you can set this environment
     variable to a value of "no" or "off" or "0".
     Alternatively, you can set it to a maximum upper
     address to use (U-Boot will still check that it

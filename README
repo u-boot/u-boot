@@ -341,7 +341,7 @@ The following options need to be configured:
 
 		CFG_SYS_FSL_DDR_SDRAM_BASE_PHY
 		Physical address from the view of DDR controllers. It is the
-		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
+		same as CFG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.
 
 - MIPS CPU options:
@@ -352,7 +352,7 @@ The following options need to be configured:
 		be swapped if a flash programmer is used.
 
 - ARM options:
-		CONFIG_SYS_EXCEPTION_VECTORS_HIGH
+		CFG_SYS_EXCEPTION_VECTORS_HIGH
 
 		Select high exception vectors of the ARM core, e.g., do not
 		clear the V bit of the c1 register of CP15.
@@ -373,12 +373,6 @@ The following options need to be configured:
 		such as ARM architectural timer initialization.
 
 - Linux Kernel Interface:
-		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
-
-		When transferring memsize parameter to Linux, some versions
-		expect it to be in bytes, others in MB.
-		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
-
 		CONFIG_OF_LIBFDT
 
 		New kernel versions are expecting firmware settings to be
@@ -415,16 +409,16 @@ The following options need to be configured:
 		the defaults discussed just above.
 
 - Cache Configuration for ARM:
-		CONFIG_SYS_PL310_BASE - Physical base address of PL310
+		CFG_SYS_PL310_BASE - Physical base address of PL310
 					controller register space
 
 - Serial Ports:
-		CONFIG_PL011_CLOCK
+		CFG_PL011_CLOCK
 
 		If you have Amba PrimeCell PL011 UARTs, set this variable to
 		the clock speed of the UARTs.
 
-		CONFIG_PL01x_PORTS
+		CFG_PL01x_PORTS
 
 		If you have Amba PrimeCell PL010 or PL011 UARTs on your board,
 		define this to a list of base addresses for each (supported)
@@ -460,33 +454,8 @@ The following options need to be configured:
 		to 0 disables calling WATCHDOG_RESET() from the timer
 		interrupt.
 
-- Real-Time Clock:
-
-		When CONFIG_CMD_DATE is selected, the type of the RTC
-		has to be selected, too. Define exactly one of the
-		following options:
-
-		CONFIG_RTC_PCF8563	- use Philips PCF8563 RTC
-		CONFIG_RTC_MC13XXX	- use MC13783 or MC13892 RTC
-		CONFIG_RTC_MC146818	- use MC146818 RTC
-		CONFIG_RTC_DS1307	- use Maxim, Inc. DS1307 RTC
-		CONFIG_RTC_DS1337	- use Maxim, Inc. DS1337 RTC
-		CONFIG_RTC_DS1338	- use Maxim, Inc. DS1338 RTC
-		CONFIG_RTC_DS1339	- use Maxim, Inc. DS1339 RTC
-		CONFIG_RTC_DS164x	- use Dallas DS164x RTC
-		CONFIG_RTC_ISL1208	- use Intersil ISL1208 RTC
-		CONFIG_RTC_MAX6900	- use Maxim, Inc. MAX6900 RTC
-		CONFIG_RTC_DS1337_NOOSC	- Turn off the OSC output for DS1337
-		CONFIG_SYS_RV3029_TCR	- enable trickle charger on
-					  RV3029 RTC.
-
-		Note that if the RTC uses I2C, then the I2C interface
-		must also be configured. See I2C Support, below.
-
 - GPIO Support:
-		CONFIG_PCA953X		- use NXP's PCA953X series I2C GPIO
-
-		The CONFIG_SYS_I2C_PCA953X_WIDTH option specifies a list of
+		The CFG_SYS_I2C_PCA953X_WIDTH option specifies a list of
 		chip-ngpio pairs that tell the PCA953X driver the number of
 		pins supported by a particular chip.
 
@@ -572,13 +541,13 @@ The following options need to be configured:
 		CONFIG_SH_ETHER
 		Support for Renesas on-chip Ethernet controller
 
-			CONFIG_SH_ETHER_USE_PORT
+			CFG_SH_ETHER_USE_PORT
 			Define the number of ports to be used
 
-			CONFIG_SH_ETHER_PHY_ADDR
+			CFG_SH_ETHER_PHY_ADDR
 			Define the ETH PHY's address
 
-			CONFIG_SH_ETHER_CACHE_WRITEBACK
+			CFG_SH_ETHER_CACHE_WRITEBACK
 			If this option is set, the driver enables cache flush.
 
 - TPM Support:
@@ -609,11 +578,6 @@ The following options need to be configured:
 		CONFIG_TPM_TIS_LPC
 		Support for generic parallel port TPM devices. Only one device
 		per system is supported at this time.
-
-			CONFIG_TPM_TIS_BASE_ADDRESS
-			Base address where the generic TPM device is mapped
-			to. Contemporary x86 systems usually map it at
-			0xfed40000.
 
 		CONFIG_TPM
 		Define this to enable the TPM support library which provides
@@ -653,21 +617,6 @@ The following options need to be configured:
 		else if using cdc_acm, simply setting the environment
 		variable usbtty to be cdc_acm should suffice. The following
 		might be defined in YourBoardName.h
-
-			CONFIG_USB_DEVICE
-			Define this to build a UDC device
-
-			CONFIG_USB_TTY
-			Define this to have a tty type of device available to
-			talk to the UDC device
-
-			CONFIG_USBD_HS
-			Define this to enable the high speed support for usb
-			device and usbtty. If this feature is enabled, a routine
-			int is_usbd_high_speed(void)
-			also needs to be defined by the driver to dynamically poll
-			whether the enumeration has succeded at high speed or full
-			speed.
 
 		If you have a USB-IF assigned VendorID then you may wish to
 		define your own vendor specific values either in BoardName.h
@@ -765,38 +714,6 @@ The following options need to be configured:
 
 		Some PHY like Intel LXT971A need extra delay after
 		command issued before MII status register can be read
-
-- IP address:
-		CONFIG_IPADDR
-
-		Define a default value for the IP address to use for
-		the default Ethernet interface, in case this is not
-		determined through e.g. bootp.
-		(Environment variable "ipaddr")
-
-- Server IP address:
-		CONFIG_SERVERIP
-
-		Defines a default value for the IP address of a TFTP
-		server to contact when using the "tftboot" command.
-		(Environment variable "serverip")
-
-- Gateway IP address:
-		CONFIG_GATEWAYIP
-
-		Defines a default value for the IP address of the
-		default router where packets to other networks are
-		sent to.
-		(Environment variable "gatewayip")
-
-- Subnet mask:
-		CONFIG_NETMASK
-
-		Defines a default value for the subnet mask (or
-		routing prefix) which is used to determine if an IP
-		address belongs to the local subnet or needs to be
-		forwarded through a router.
-		(Environment variable "netmask")
 
 - BOOTP Recovery Mode:
 		CONFIG_BOOTP_RANDOM_DELAY
@@ -923,26 +840,26 @@ The following options need to be configured:
 		with a list of GPIO LEDs that have inverted polarity.
 
 - I2C Support:
-		CONFIG_SYS_NUM_I2C_BUSES
+		CFG_SYS_NUM_I2C_BUSES
 		Hold the number of i2c buses you want to use.
 
-		CONFIG_SYS_I2C_DIRECT_BUS
+		CFG_SYS_I2C_DIRECT_BUS
 		define this, if you don't use i2c muxes on your hardware.
-		if CONFIG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
+		if CFG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
 		omit this define.
 
-		CONFIG_SYS_I2C_MAX_HOPS
+		CFG_SYS_I2C_MAX_HOPS
 		define how many muxes are maximal consecutively connected
 		on one i2c bus. If you not use i2c muxes, omit this
 		define.
 
-		CONFIG_SYS_I2C_BUSES
+		CFG_SYS_I2C_BUSES
 		hold a list of buses you want to use, only used if
-		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
-		a board with CONFIG_SYS_I2C_MAX_HOPS = 1 and
-		CONFIG_SYS_NUM_I2C_BUSES = 9:
+		CFG_SYS_I2C_DIRECT_BUS is not defined, for example
+		a board with CFG_SYS_I2C_MAX_HOPS = 1 and
+		CFG_SYS_NUM_I2C_BUSES = 9:
 
-		 CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP}}, \
+		 CFG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP}}, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 1}}}, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 2}}}, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 3}}}, \
@@ -1038,32 +955,24 @@ The following options need to be configured:
 		You should define these to the GPIO value as given directly to
 		the generic GPIO functions.
 
-		CONFIG_I2C_MULTI_BUS
+		CFG_I2C_MULTI_BUS
 
 		This option allows the use of multiple I2C buses, each of which
 		must have a controller.	 At any point in time, only one bus is
 		active.	 To switch to a different bus, use the 'i2c dev' command.
 		Note that bus numbering is zero-based.
 
-		CONFIG_SYS_I2C_NOPROBES
+		CFG_SYS_I2C_NOPROBES
 
 		This option specifies a list of I2C devices that will be skipped
-		when the 'i2c probe' command is issued.	 If CONFIG_I2C_MULTI_BUS
-		is set, specify a list of bus-device pairs.  Otherwise, specify
-		a 1D array of device addresses
+		when the 'i2c probe' command is issued.
 
 		e.g.
-			#undef	CONFIG_I2C_MULTI_BUS
-			#define CONFIG_SYS_I2C_NOPROBES {0x50,0x68}
+			#define CFG_SYS_I2C_NOPROBES {0x50,0x68}
 
 		will skip addresses 0x50 and 0x68 on a board with one I2C bus
 
-			#define CONFIG_I2C_MULTI_BUS
-			#define CONFIG_SYS_I2C_NOPROBES	{{0,0x50},{0,0x68},{1,0x54}}
-
-		will skip addresses 0x50 and 0x68 on bus 0 and address 0x54 on bus 1
-
-		CONFIG_SYS_RTC_BUS_NUM
+		CFG_SYS_RTC_BUS_NUM
 
 		If defined, then this indicates the I2C bus number for the RTC.
 		If not defined, then U-Boot assumes that RTC is on I2C bus 0.
@@ -1109,7 +1018,7 @@ The following options need to be configured:
 		will require a board or device specific function to
 		be written.
 
-		CONFIG_FPGA_DELAY
+		CFG_FPGA_DELAY
 
 		If defined, a function that provides delays in the FPGA
 		configuration driver.
@@ -1121,19 +1030,19 @@ The following options need to be configured:
 		configuration if the INIT_B line goes low (which
 		indicated a CRC error).
 
-		CONFIG_SYS_FPGA_WAIT_INIT
+		CFG_SYS_FPGA_WAIT_INIT
 
 		Maximum time to wait for the INIT_B line to de-assert
 		after PROB_B has been de-asserted during a Virtex II
 		FPGA configuration sequence. The default time is 500
 		ms.
 
-		CONFIG_SYS_FPGA_WAIT_BUSY
+		CFG_SYS_FPGA_WAIT_BUSY
 
 		Maximum time to wait for BUSY to de-assert during
 		Virtex II FPGA configuration. The default is 5 ms.
 
-		CONFIG_SYS_FPGA_WAIT_CONFIG
+		CFG_SYS_FPGA_WAIT_CONFIG
 
 		Time to wait after FPGA configuration. The default is
 		200 ms.
@@ -1154,24 +1063,17 @@ The following options need to be configured:
 		completely disabled. Anybody can change or delete
 		these parameters.
 
-		Alternatively, if you define _both_ an ethaddr in the
-		default env _and_ CONFIG_OVERWRITE_ETHADDR_ONCE, a default
-		Ethernet address is installed in the environment,
-		which can be changed exactly ONCE by the user. [The
-		serial# is unaffected by this, i. e. it remains
-		read-only.]
-
 		The same can be accomplished in a more flexible way
 		for any variable by configuring the type of access
 		to allow for those variables in the ".flags" variable
-		or define CONFIG_ENV_FLAGS_LIST_STATIC.
+		or define CFG_ENV_FLAGS_LIST_STATIC.
 
 - Protected RAM:
-		CONFIG_PRAM
+		CFG_PRAM
 
 		Define this variable to enable the reservation of
 		"protected RAM", i. e. RAM which is not overwritten
-		by U-Boot. Define CONFIG_PRAM to hold the number of
+		by U-Boot. Define CFG_PRAM to hold the number of
 		kB you want to reserve for pRAM. You can overwrite
 		this default value by defining an environment
 		variable "pram" to the number of kB you want to
@@ -1222,7 +1124,7 @@ The following options need to be configured:
 		symbols.
 
 - Default Environment:
-		CONFIG_EXTRA_ENV_SETTINGS
+		CFG_EXTRA_ENV_SETTINGS
 
 		Define this to contain any number of null terminated
 		strings (variable = value pairs) that will be part of
@@ -1231,7 +1133,7 @@ The following options need to be configured:
 		For example, place something like this in your
 		board's config file:
 
-		#define CONFIG_EXTRA_ENV_SETTINGS \
+		#define CFG_EXTRA_ENV_SETTINGS \
 			"myvar1=value1\0" \
 			"myvar2=value2\0"
 
@@ -1255,13 +1157,6 @@ The following options need to be configured:
 		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
 		this is instead controlled by the value of
 		/config/load-environment.
-
-		CONFIG_STANDALONE_LOAD_ADDR
-
-		This option defines a board specific value for the
-		address where standalone program gets loaded, thus
-		overwriting the architecture dependent default
-		settings.
 
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
@@ -1364,23 +1259,19 @@ The following options need to be configured:
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
 		CONFIG_SYS_NAND_BLOCK_SIZE, CONFIG_SYS_NAND_BAD_BLOCK_POS,
-		CONFIG_SYS_NAND_ECCPOS, CONFIG_SYS_NAND_ECCSIZE,
-		CONFIG_SYS_NAND_ECCBYTES
+		CFG_SYS_NAND_ECCPOS, CFG_SYS_NAND_ECCSIZE,
+		CFG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
 		to read U-Boot
 
-		CONFIG_SYS_NAND_U_BOOT_DST
+		CFG_SYS_NAND_U_BOOT_DST
 		Location in memory to load U-Boot to
 
-		CONFIG_SYS_NAND_U_BOOT_SIZE
+		CFG_SYS_NAND_U_BOOT_SIZE
 		Size of image to load
 
-		CONFIG_SYS_NAND_U_BOOT_START
+		CFG_SYS_NAND_U_BOOT_START
 		Entry point in loaded image to jump to
-
-		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
-		Define this if you need to first read the OOB and then the
-		data. This is used, for example, on davinci platforms.
 
 		CONFIG_SPL_RAM_DEVICE
 		Support for running image already present in ram, in SPL binary
@@ -1434,22 +1325,22 @@ Configuration Settings:
 - CONFIG_SYS_PROMPT:	This is what U-Boot prints on the console to
 		prompt for user input.
 
-- CONFIG_SYS_BAUDRATE_TABLE:
+- CFG_SYS_BAUDRATE_TABLE:
 		List of legal baudrate settings for this board.
 
-- CONFIG_SYS_MEM_RESERVE_SECURE
+- CFG_SYS_MEM_RESERVE_SECURE
 		Only implemented for ARMv8 for now.
-		If defined, the size of CONFIG_SYS_MEM_RESERVE_SECURE memory
+		If defined, the size of CFG_SYS_MEM_RESERVE_SECURE memory
 		is substracted from total RAM and won't be reported to OS.
 		This memory can be used as secure memory. A variable
 		gd->arch.secure_ram is used to track the location. In systems
 		the RAM base is not zero, or RAM is divided into banks,
 		this variable needs to be recalcuated to get the address.
 
-- CONFIG_SYS_SDRAM_BASE:
+- CFG_SYS_SDRAM_BASE:
 		Physical start address of SDRAM. _Must_ be 0 here.
 
-- CONFIG_SYS_FLASH_BASE:
+- CFG_SYS_FLASH_BASE:
 		Physical start address of Flash memory.
 
 - CONFIG_SYS_MALLOC_LEN:
@@ -1473,16 +1364,16 @@ Configuration Settings:
 		boards which do not use the full malloc in SPL (which is
 		enabled with CONFIG_SYS_SPL_MALLOC).
 
-- CONFIG_SYS_BOOTMAPSZ:
+- CFG_SYS_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of
 		the Linux kernel; all data that must be processed by
 		the Linux kernel (bd_info, boot arguments, FDT blob if
 		used) must be put below this limit, unless "bootm_low"
 		environment variable is defined and non-zero. In such case
 		all data for the Linux kernel must be between "bootm_low"
-		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.	 The environment
+		and "bootm_low" + CFG_SYS_BOOTMAPSZ.	 The environment
 		variable "bootm_mapsize" will override the value of
-		CONFIG_SYS_BOOTMAPSZ.  If CONFIG_SYS_BOOTMAPSZ is undefined,
+		CFG_SYS_BOOTMAPSZ.  If CFG_SYS_BOOTMAPSZ is undefined,
 		then the value in "bootm_size" will be used instead.
 
 - CONFIG_SYS_BOOT_GET_CMDLINE:
@@ -1513,26 +1404,8 @@ Configuration Settings:
 - CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 		Use buffered writes to flash.
 
-- CONFIG_FLASH_SPANSION_S29WS_N
-		s29ws-n MirrorBit flash has non-standard addresses for buffered
-		write commands.
-
-- CONFIG_FLASH_SHOW_PROGRESS
-		If defined (must be an integer), print out countdown
-		digits and dots.  Recommended value: 45 (9..1) for 80
-		column displays, 15 (3..1) for 40 column displays.
-
-- CONFIG_FLASH_VERIFY
-		If defined, the content of the flash (destination) is compared
-		against the source after the write operation. An error message
-		will be printed when the contents are not identical.
-		Please note that this option is useless in nearly all cases,
-		since such flash programming errors usually are detected earlier
-		while unprotecting/erasing/programming. Please only enable
-		this option if you really know what you are doing.
-
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
-- CONFIG_ENV_FLAGS_LIST_STATIC
+- CFG_ENV_FLAGS_LIST_STATIC
 	Enable validation of the values given to environment variables when
 	calling env set.  Variables can be restricted to only decimal,
 	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
@@ -1563,7 +1436,7 @@ Configuration Settings:
 		Define this to a list (string) to define the ".flags"
 		environment variable in the default or embedded environment.
 
-	- CONFIG_ENV_FLAGS_LIST_STATIC
+	- CFG_ENV_FLAGS_LIST_STATIC
 		Define this to a list (string) to define validation that
 		should be done if an entry is not found in the ".flags"
 		environment variable.  To override a setting in the static
@@ -1577,11 +1450,6 @@ Configuration Settings:
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
 following configurations:
-
-- CONFIG_BUILD_ENVCRC:
-
-	Builds up envcrc with the target environment so that external utils
-	may easily extract it and embed it in final U-Boot images.
 
 BE CAREFUL! The first access to the environment happens quite early
 in U-Boot initialization (when we try to get the setting of for the
@@ -1623,13 +1491,6 @@ use the "saveenv" command to store a valid environment.
 - CONFIG_SYS_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.
 
-- CONFIG_NS16550_MIN_FUNCTIONS:
-		Define this if you desire to only have use of the NS16550_init
-		and NS16550_putc functions for the serial driver located at
-		drivers/serial/ns16550.c.  This option is useful for saving
-		space for already greatly restricted images, including but not
-		limited to NAND_SPL configurations.
-
 - CONFIG_DISPLAY_BOARDINFO
 		Display information about the board that U-Boot is running on
 		when U-Boot starts up. The board function checkboard() is called
@@ -1650,11 +1511,11 @@ Low Level (hardware related) configuration options:
 		Default (power-on reset) physical address of CCSR on Freescale
 		PowerPC SOCs.
 
-- CONFIG_SYS_CCSRBAR:
+- CFG_SYS_CCSRBAR:
 		Virtual address of CCSR.  On a 32-bit build, this is typically
 		the same value as CONFIG_SYS_CCSRBAR_DEFAULT.
 
-- CONFIG_SYS_CCSRBAR_PHYS:
+- CFG_SYS_CCSRBAR_PHYS:
 		Physical address of CCSR.  CCSR can be relocated to a new
 		physical address, if desired.  In this case, this macro should
 		be set to that address.	 Otherwise, it should be set to the
@@ -1662,17 +1523,17 @@ Low Level (hardware related) configuration options:
 		is typically relocated on 36-bit builds.  It is recommended
 		that this macro be defined via the _HIGH and _LOW macros:
 
-		#define CONFIG_SYS_CCSRBAR_PHYS ((CONFIG_SYS_CCSRBAR_PHYS_HIGH
-			* 1ull) << 32 | CONFIG_SYS_CCSRBAR_PHYS_LOW)
+		#define CFG_SYS_CCSRBAR_PHYS ((CFG_SYS_CCSRBAR_PHYS_HIGH
+			* 1ull) << 32 | CFG_SYS_CCSRBAR_PHYS_LOW)
 
-- CONFIG_SYS_CCSRBAR_PHYS_HIGH:
-		Bits 33-36 of CONFIG_SYS_CCSRBAR_PHYS.	This value is typically
+- CFG_SYS_CCSRBAR_PHYS_HIGH:
+		Bits 33-36 of CFG_SYS_CCSRBAR_PHYS.	This value is typically
 		either 0 (32-bit build) or 0xF (36-bit build).	This macro is
 		used in assembly code, so it must not contain typecasts or
 		integer size suffixes (e.g. "ULL").
 
-- CONFIG_SYS_CCSRBAR_PHYS_LOW:
-		Lower 32-bits of CONFIG_SYS_CCSRBAR_PHYS.  This macro is
+- CFG_SYS_CCSRBAR_PHYS_LOW:
+		Lower 32-bits of CFG_SYS_CCSRBAR_PHYS.  This macro is
 		used in assembly code, so it must not contain typecasts or
 		integer size suffixes (e.g. "ULL").
 
@@ -1680,7 +1541,7 @@ Low Level (hardware related) configuration options:
 		DO NOT CHANGE unless you know exactly what you're
 		doing! (11-4) [MPC8xx systems only]
 
-- CONFIG_SYS_INIT_RAM_ADDR:
+- CFG_SYS_INIT_RAM_ADDR:
 
 		Start address of memory area that can be used for
 		initial data and stack; please note that this must be
@@ -1697,18 +1558,6 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SYS_OR_TIMING_SDRAM:
 		SDRAM timing
-
-- CONFIG_SYS_SRIO:
-		Chip has SRIO or not
-
-- CONFIG_SRIO1:
-		Board has SRIO 1 port available
-
-- CONFIG_SRIO2:
-		Board has SRIO 2 port available
-
-- CONFIG_SRIO_PCIE_BOOT_MASTER
-		Board can support master function for Boot from SRIO and PCIE
 
 - CONFIG_SYS_SRIOn_MEM_VIRT:
 		Virtual Address of SRIO port 'n' memory region
@@ -1730,13 +1579,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_NDFC_EBC0_CFG
 		Sets the EBC0_CFG register for the NDFC. If not defined
 		a default value will be used.
-
-- CONFIG_SPD_EEPROM
-		Get DDR timing information from an I2C EEPROM. Common
-		with pluggable memory modules such as SODIMMs
-
-  SPD_EEPROM_ADDRESS
-		I2C address of the SPD EEPROM
 
 - CONFIG_SYS_SPD_BUS_NUM
 		If SPD EEPROM is on an I2C bus other than the first
@@ -1809,11 +1651,6 @@ Low Level (hardware related) configuration options:
 - CONFIG_X86_RESET_VECTOR
 		If defined, the x86 reset vector code is included. This is not
 		needed when U-Boot is running from Coreboot.
-
-- CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
-		Option to disable subpage write in NAND driver
-		driver that uses this:
-		drivers/mtd/nand/raw/davinci_nand.c
 
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
@@ -2766,7 +2603,7 @@ locked as (mis-) used as memory, etc.
 	cause you grief during the initial boot! It is frequently not
 	used.
 
-	CONFIG_SYS_INIT_RAM_ADDR should be somewhere that won't interfere
+	CFG_SYS_INIT_RAM_ADDR should be somewhere that won't interfere
 	with your processor/board/system design. The default value
 	you will find in any recent u-boot distribution in
 	walnut.h should work for you. I'd set it to a value larger

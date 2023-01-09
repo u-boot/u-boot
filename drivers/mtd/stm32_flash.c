@@ -39,7 +39,7 @@ unsigned long flash_init(void)
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		flash_info[i].flash_id = FLASH_STM32;
 		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
-		flash_info[i].start[0] = CONFIG_SYS_FLASH_BASE + (i << 20);
+		flash_info[i].start[0] = CFG_SYS_FLASH_BASE + (i << 20);
 		flash_info[i].size = sect_sz_kb[0];
 		for (j = 1; j < CONFIG_SYS_MAX_FLASH_SECT; j++) {
 			flash_info[i].start[j] = flash_info[i].start[j - 1]

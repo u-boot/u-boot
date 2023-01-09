@@ -801,7 +801,7 @@ void init_final_memctl_regs(void);
 #define IFC_RREGS_64KOFFSET	(64*1024)
 
 #define IFC_FCM_BASE_ADDR \
-	((struct fsl_ifc_fcm *)CONFIG_SYS_IFC_ADDR)
+	((struct fsl_ifc_fcm *)CFG_SYS_IFC_ADDR)
 
 #define get_ifc_cspr_ext(i)	\
 		(ifc_in32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr_ext))

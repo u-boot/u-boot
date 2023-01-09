@@ -115,7 +115,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 	return 0;
 }
 
@@ -173,7 +173,7 @@ int board_late_init(void)
 int init_addr_map(void)
 {
 	if (IS_ENABLED(CONFIG_ADDR_MAP))
-		addrmap_set_entry(0, 0, CONFIG_SYS_SDRAM_SIZE, 0);
+		addrmap_set_entry(0, 0, CFG_SYS_SDRAM_SIZE, 0);
 
 	return 0;
 }

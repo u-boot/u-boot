@@ -41,8 +41,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void taurus_request_gpio(void)
 {
-	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand ena");
-	gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand rdy");
+	gpio_request(CFG_SYS_NAND_ENABLE_PIN, "nand ena");
+	gpio_request(CFG_SYS_NAND_READY_PIN, "nand rdy");
 	gpio_request(AT91_PIN_PA25, "ena PHY");
 }
 
@@ -73,10 +73,10 @@ static void taurus_nand_hw_init(void)
 	       &smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_set_gpio_input(CFG_SYS_NAND_READY_PIN, 1);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	at91_set_gpio_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 
 #if defined(CONFIG_SPL_BUILD)
@@ -149,7 +149,7 @@ void spl_board_init(void)
 		} else {
 			puts("erase spi flash sector 0\n");
 			spi_flash_erase(flash, 0,
-					CONFIG_SYS_NAND_U_BOOT_SIZE);
+					CFG_SYS_NAND_U_BOOT_SIZE);
 		}
 	}
 }
@@ -168,7 +168,7 @@ void sdramc_configure(unsigned int mask)
 	at91_sdram_hw_init();
 	setting.cr = SDRAM_BASE_CONF | mask;
 	setting.mdr = AT91_SDRAMC_MD_SDRAM;
-	setting.tr = (CONFIG_SYS_MASTER_CLOCK * 7) / 1000000;
+	setting.tr = (CFG_SYS_MASTER_CLOCK * 7) / 1000000;
 
 	writel(readl(&ma->ebicsa) | AT91_MATRIX_CS1A_SDRAMC |
 		AT91_MATRIX_VDDIOMSEL_3_3V | AT91_MATRIX_EBI_IOSR_SEL,
@@ -185,8 +185,8 @@ void mem_init(void)
 	sdramc_configure(AT91_SDRAMC_NC_10);
 
 	/* Do memtest for 128MB */
-	ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-				CONFIG_SYS_SDRAM_SIZE);
+	ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
+				CFG_SYS_SDRAM_SIZE);
 
 	/*
 	 * If 32MB or 16MB should be supported check also for
@@ -306,7 +306,7 @@ struct at91_udc_data board_udc_data  = {
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 	taurus_request_gpio();
 #ifdef CONFIG_CMD_NAND
@@ -326,8 +326,8 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-				    CONFIG_SYS_SDRAM_SIZE);
+	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE,
+				    CFG_SYS_SDRAM_SIZE);
 	return 0;
 }
 

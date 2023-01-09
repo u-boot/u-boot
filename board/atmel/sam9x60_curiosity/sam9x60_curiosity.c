@@ -25,6 +25,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void at91_prepare_cpu_var(void);
 
+static void board_leds_init(void)
+{
+	at91_set_pio_output(AT91_PIO_PORTD, 17, 0);	/* LED RED */
+	at91_set_pio_output(AT91_PIO_PORTD, 19, 0);	/* LED GREEN */
+	at91_set_pio_output(AT91_PIO_PORTD, 21, 1);	/* LED BLUE */
+}
+
 int board_late_init(void)
 {
 	at91_prepare_cpu_var();
@@ -62,6 +69,9 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
+
+	board_leds_init();
+
 	return 0;
 }
 

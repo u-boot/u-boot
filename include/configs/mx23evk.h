@@ -13,10 +13,10 @@
 /* Memory configuration */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
 #define PHYS_SDRAM_1_SIZE		0x08000000	/* Max 128 MB RAM */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Extra Environments */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"update_sd_firmware_filename=u-boot.sd\0" \
 	"update_sd_firmware="		/* Update the SD firmware partition */ \
 		"if mmc rescan ; then "	\

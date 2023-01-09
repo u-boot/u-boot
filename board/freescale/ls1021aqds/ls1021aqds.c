@@ -196,7 +196,7 @@ void board_init_f(ulong dummy)
 	porsr1 = in_be32(&gur->porsr1);
 	pinctl = ((porsr1 & ~(DCFG_CCSR_PORSR1_RCW_MASK)) |
 		 DCFG_CCSR_PORSR1_RCW_SRC_I2C);
-	out_be32((unsigned int *)(CONFIG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_PORCR1),
+	out_be32((unsigned int *)(CFG_SYS_DCSR_DCFG_ADDR + DCFG_DCSR_PORCR1),
 		 pinctl);
 #endif
 

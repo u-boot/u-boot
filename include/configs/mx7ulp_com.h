@@ -18,7 +18,7 @@
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR			WDG1_RBASE
 
-#define CONFIG_SYS_HZ_CLOCK		1000000 /* Fixed at 1MHz from TSTMR */
+#define CFG_SYS_HZ_CLOCK		1000000 /* Fixed at 1MHz from TSTMR */
 
 /* UART */
 #define LPUART_BASE			LPUART4_RBASE
@@ -26,9 +26,9 @@
 /* Physical Memory Map */
 
 #define PHYS_SDRAM			0x60000000
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"console=ttyLP0\0" \
 	"fdt_high=0xffffffff\0" \
@@ -48,8 +48,8 @@
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"fi;\0" \
 
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	SZ_256K
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	SZ_256K
 
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif	/* __CONFIG_H */

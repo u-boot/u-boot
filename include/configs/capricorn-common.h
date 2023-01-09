@@ -14,13 +14,13 @@
 
 /* SPL config */
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_MALLOC_F_ADDR		0x00120000
+#define CFG_MALLOC_F_ADDR		0x00120000
 
 #endif /* CONFIG_SPL_BUILD */
 
 /* ENET1 connects to base board and MUX with ESAI */
-#define CONFIG_FEC_ENET_DEV		1
-#define CONFIG_FEC_MXC_PHYADDR		0x0
+#define CFG_FEC_ENET_DEV		1
+#define CFG_FEC_MXC_PHYADDR		0x0
 
 /* EEPROM */
 #define  EEPROM_I2C_BUS		0 /* I2C0 */
@@ -60,15 +60,15 @@
 			"${loadaddr} ${m4_0_image}\0" \
 	"m4boot_0=run loadm4image_0; dcache flush; bootaux ${loadaddr} 0\0" \
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	MFG_ENV_SETTINGS_DEFAULT \
 	"initrd_addr=0x83100000\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"emmc_dev=0\0"
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_MFG_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
+	CFG_MFG_ENV_SETTINGS \
 	M4_BOOT_ENV \
 	AHAB_ENV \
 	ENV_COMMON \
@@ -92,7 +92,7 @@
 
 /* On CCP board, USDHC1 is for eMMC */
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 /* DDR3 board total DDR is 1 GB */

@@ -276,8 +276,8 @@ __secondary_start_page:
 	mtspr	SPRN_L2CSR1,r3
 #endif
 
-	lis	r3,CONFIG_SYS_INIT_L2CSR0@h
-	ori	r3,r3,CONFIG_SYS_INIT_L2CSR0@l
+	lis	r3,CFG_SYS_INIT_L2CSR0@h
+	ori	r3,r3,CFG_SYS_INIT_L2CSR0@l
 	mtspr	SPRN_L2CSR0,r3
 	isync
 2:

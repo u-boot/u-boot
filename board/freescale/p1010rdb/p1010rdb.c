@@ -83,7 +83,7 @@ struct cpld_data {
 int board_early_init_f(void)
 {
 	ccsr_gpio_t *pgpio = (void *)(CFG_SYS_MPC85xx_GPIO_ADDR);
-	struct fsl_ifc ifc = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
+	struct fsl_ifc ifc = {(void *)CFG_SYS_IFC_ADDR, (void *)NULL};
 	/* Clock configuration to access CPLD using IFC(GPCM) */
 	setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
 	/*
@@ -97,7 +97,7 @@ int board_early_init_f(void)
 
 int board_early_init_r(void)
 {
-	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
+	const unsigned int flashbase = CFG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 
 	/*
@@ -118,12 +118,12 @@ int board_early_init_r(void)
 		disable_tlb(flash_esel);
 	}
 
-	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
+	set_tlb(1, flashbase, CFG_SYS_FLASH_BASE_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, flash_esel, BOOKE_PAGESZ_16M, 1);
 
 	set_tlb(1, flashbase + 0x1000000,
-			CONFIG_SYS_FLASH_BASE_PHYS + 0x1000000,
+			CFG_SYS_FLASH_BASE_PHYS + 0x1000000,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, flash_esel+1, BOOKE_PAGESZ_16M, 1);
 	return 0;
@@ -138,7 +138,7 @@ int config_board_mux(int ctrl_type)
 	struct udevice *dev;
 	int ret;
 #if defined(CONFIG_TARGET_P1010RDB_PA)
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 
 	ret = i2c_get_chip_for_busnum(I2C_PCA9557_BUS_NUM,
 				      I2C_PCA9557_ADDR1, 1, &dev);
@@ -254,7 +254,7 @@ int config_board_mux(int ctrl_type)
 #endif
 #else
 #if defined(CONFIG_TARGET_P1010RDB_PA)
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 
 	switch (ctrl_type) {
 	case MUX_TYPE_IFC:
@@ -404,7 +404,7 @@ int i2c_pca9557_read(int type)
 int checkboard(void)
 {
 	struct cpu_type *cpu;
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	u8 val;
 
 	cpu = gd->arch.cpu;
@@ -478,49 +478,6 @@ int checkboard(void)
 	return 0;
 }
 
-#ifndef CONFIG_DM_ETH
-int board_eth_init(struct bd_info *bis)
-{
-#ifdef CONFIG_TSEC_ENET
-	struct fsl_pq_mdio_info mdio_info;
-	struct tsec_info_struct tsec_info[4];
-	struct cpu_type *cpu;
-	int num = 0;
-
-	cpu = gd->arch.cpu;
-
-#ifdef CONFIG_TSEC1
-	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	num++;
-#endif
-#ifdef CONFIG_TSEC2
-	SET_STD_TSEC_INFO(tsec_info[num], 2);
-	num++;
-#endif
-#ifdef CONFIG_TSEC3
-	/* P1014 and it's derivatives do not support eTSEC3 */
-	if (cpu->soc_ver != SVR_P1014) {
-		SET_STD_TSEC_INFO(tsec_info[num], 3);
-		num++;
-	}
-#endif
-	if (!num) {
-		printf("No TSECs initialized\n");
-		return 0;
-	}
-
-	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
-	mdio_info.name = DEFAULT_MII_NAME;
-
-	fsl_pq_mdio_init(bis, &mdio_info);
-
-	tsec_eth_init(bis, tsec_info, num);
-#endif
-
-	return pci_eth_init(bis);
-}
-#endif
-
 #if defined(CONFIG_OF_BOARD_SETUP)
 void fdt_del_flexcan(void *blob)
 {
@@ -587,7 +544,7 @@ void fdt_disable_uart1(void *blob)
 	int nodeoff;
 
 	nodeoff = fdt_node_offset_by_compat_reg(blob, "fsl,ns16550",
-					CONFIG_SYS_NS16550_COM2);
+					CFG_SYS_NS16550_COM2);
 
 	if (nodeoff > 0) {
 		fdt_status_disabled(blob, nodeoff);

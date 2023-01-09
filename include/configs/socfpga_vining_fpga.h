@@ -13,7 +13,6 @@
 /* Booting Linux */
 
 /* Extra Environment */
-#define CONFIG_HOSTNAME			"socfpga_vining_fpga"
 
 /*
  * Active LOW GPIO buttons:
@@ -28,7 +27,7 @@
  *                            Linux system after 5 seconds
  */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
 	"consdev=ttyS0\0"						\
 	"baudrate=115200\0"						\

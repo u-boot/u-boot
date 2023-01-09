@@ -84,7 +84,7 @@ static struct nand_ecclayout lpc32xx_nand_oob_16 = {
 };
 
 #if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
-#define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
+#define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CFG_SYS_NAND_ECCSIZE)
 
 /*
  * DMA Descriptors
@@ -126,14 +126,14 @@ static void lpc32xx_nand_init(void)
 	       &lpc32xx_nand_slc_regs->icr);
 
 	/* Configure NAND flash timings */
-	writel(TAC_W_RDY(CONFIG_LPC32XX_NAND_SLC_WDR_CLKS) |
-	       TAC_W_WIDTH(hclk / CONFIG_LPC32XX_NAND_SLC_WWIDTH) |
-	       TAC_W_HOLD(hclk / CONFIG_LPC32XX_NAND_SLC_WHOLD) |
-	       TAC_W_SETUP(hclk / CONFIG_LPC32XX_NAND_SLC_WSETUP) |
-	       TAC_R_RDY(CONFIG_LPC32XX_NAND_SLC_RDR_CLKS) |
-	       TAC_R_WIDTH(hclk / CONFIG_LPC32XX_NAND_SLC_RWIDTH) |
-	       TAC_R_HOLD(hclk / CONFIG_LPC32XX_NAND_SLC_RHOLD) |
-	       TAC_R_SETUP(hclk / CONFIG_LPC32XX_NAND_SLC_RSETUP),
+	writel(TAC_W_RDY(CFG_LPC32XX_NAND_SLC_WDR_CLKS) |
+	       TAC_W_WIDTH(hclk / CFG_LPC32XX_NAND_SLC_WWIDTH) |
+	       TAC_W_HOLD(hclk / CFG_LPC32XX_NAND_SLC_WHOLD) |
+	       TAC_W_SETUP(hclk / CFG_LPC32XX_NAND_SLC_WSETUP) |
+	       TAC_R_RDY(CFG_LPC32XX_NAND_SLC_RDR_CLKS) |
+	       TAC_R_WIDTH(hclk / CFG_LPC32XX_NAND_SLC_RWIDTH) |
+	       TAC_R_HOLD(hclk / CFG_LPC32XX_NAND_SLC_RHOLD) |
+	       TAC_R_SETUP(hclk / CFG_LPC32XX_NAND_SLC_RSETUP),
 	       &lpc32xx_nand_slc_regs->tac);
 }
 
@@ -187,7 +187,7 @@ static void lpc32xx_nand_dma_configure(struct nand_chip *chip,
 			DMAC_CHAN_DEST_AHB1;
 
 	/* CTRL descriptor entry for reading/writing Data */
-	ctrl = (CONFIG_SYS_NAND_ECCSIZE / 4) |
+	ctrl = (CFG_SYS_NAND_ECCSIZE / 4) |
 			DMAC_CHAN_SRC_BURST_4 |
 			DMAC_CHAN_DEST_BURST_4 |
 			DMAC_CHAN_SRC_WIDTH_32 |
@@ -241,7 +241,7 @@ static void lpc32xx_nand_dma_configure(struct nand_chip *chip,
 	 * 2. X'fer 64 bytes of Spare area from Flash to Memory.
 	 */
 
-	for (i = 0; i < size/CONFIG_SYS_NAND_ECCSIZE; i++) {
+	for (i = 0; i < size/CFG_SYS_NAND_ECCSIZE; i++) {
 		dmalist_cur = &dmalist[i * 2];
 		dmalist_cur_ecc = &dmalist[(i * 2) + 1];
 
@@ -337,9 +337,9 @@ static void lpc32xx_nand_xfer(struct mtd_info *mtd, const u8 *buf,
 static u32 slc_ecc_copy_to_buffer(u8 *spare, const u32 *ecc, int count)
 {
 	int i;
-	for (i = 0; i < (count * CONFIG_SYS_NAND_ECCBYTES);
-	     i += CONFIG_SYS_NAND_ECCBYTES) {
-		u32 ce = ecc[i / CONFIG_SYS_NAND_ECCBYTES];
+	for (i = 0; i < (count * CFG_SYS_NAND_ECCBYTES);
+	     i += CFG_SYS_NAND_ECCBYTES) {
+		u32 ce = ecc[i / CFG_SYS_NAND_ECCBYTES];
 		ce = ~(ce << 2) & 0xFFFFFF;
 		spare[i+2] = (u8)(ce & 0xFF); ce >>= 8;
 		spare[i+1] = (u8)(ce & 0xFF); ce >>= 8;
@@ -386,9 +386,9 @@ int lpc32xx_correct_data(struct mtd_info *mtd, u_char *dat,
 	u16 data_offset = 0;
 
 	for (i = 0 ; i < ECCSTEPS ; i++) {
-		r += CONFIG_SYS_NAND_ECCBYTES;
-		c += CONFIG_SYS_NAND_ECCBYTES;
-		data_offset += CONFIG_SYS_NAND_ECCSIZE;
+		r += CFG_SYS_NAND_ECCBYTES;
+		c += CFG_SYS_NAND_ECCBYTES;
+		data_offset += CFG_SYS_NAND_ECCSIZE;
 
 		ret1 = nand_correct_data(mtd, dat + data_offset, r, c);
 		if (ret1 < 0)
@@ -568,8 +568,8 @@ int board_nand_init(struct nand_chip *lpc32xx_chip)
 	 * These values are predefined
 	 * for both small and large page NAND flash devices.
 	 */
-	lpc32xx_chip->ecc.size     = CONFIG_SYS_NAND_ECCSIZE;
-	lpc32xx_chip->ecc.bytes    = CONFIG_SYS_NAND_ECCBYTES;
+	lpc32xx_chip->ecc.size     = CFG_SYS_NAND_ECCSIZE;
+	lpc32xx_chip->ecc.bytes    = CFG_SYS_NAND_ECCBYTES;
 	lpc32xx_chip->ecc.strength = 1;
 
 	if (CONFIG_SYS_NAND_PAGE_SIZE != NAND_LARGE_BLOCK_PAGE_SIZE)

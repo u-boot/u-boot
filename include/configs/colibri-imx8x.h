@@ -14,10 +14,6 @@
 #define USDHC1_BASE_ADDR		0x5b010000
 #define USDHC2_BASE_ADDR		0x5b020000
 
-#define CONFIG_IPADDR			192.168.10.2
-#define CONFIG_NETMASK			255.255.255.0
-#define CONFIG_SERVERIP			192.168.10.1
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=0x81000000\0" \
@@ -47,7 +43,7 @@
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START ""
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs ${consoleargs} " \
 		"rdinit=/linuxrc g_mass_storage.stall=0 " \
 		"g_mass_storage.removable=1 g_mass_storage.idVendor=0x066F " \
@@ -60,10 +56,10 @@
 		"${fdt_addr};\0" \
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	AHAB_ENV \
 	BOOTENV \
-	CONFIG_MFG_ENV_SETTINGS \
+	CFG_MFG_ENV_SETTINGS \
 	M4_BOOT_ENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"boot_file=Image\0" \
@@ -96,7 +92,7 @@
 /* On Colibri iMX8X USDHC1 is eMMC, USDHC2 is 4-bit SD */
 #define CFG_SYS_FSL_USDHC_NUM	2
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 #define PHYS_SDRAM_1_SIZE		SZ_2G		/* 2 GB */

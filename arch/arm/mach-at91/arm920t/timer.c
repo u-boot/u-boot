@@ -27,7 +27,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* the number of clocks per CONFIG_SYS_HZ */
-#define TIMER_LOAD_VAL (CONFIG_SYS_HZ_CLOCK/CONFIG_SYS_HZ)
+#define TIMER_LOAD_VAL (CFG_SYS_HZ_CLOCK/CONFIG_SYS_HZ)
 
 int timer_init(void)
 {
@@ -92,7 +92,7 @@ void __udelay(unsigned long usec)
 	u32 endtime;
 	signed long diff;
 
-	tmo = CONFIG_SYS_HZ_CLOCK / 1000;
+	tmo = CFG_SYS_HZ_CLOCK / 1000;
 	tmo *= usec;
 	tmo /= 1000;
 

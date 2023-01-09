@@ -13,10 +13,8 @@
 
 /* uart */
 /* The following table includes the supported baudrates */
-# define CONFIG_SYS_BAUDRATE_TABLE \
+# define CFG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
-
-#define	CONFIG_HOSTNAME		"microblaze-generic"
 
 /* architecture dependent code */
 #if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
@@ -78,8 +76,8 @@
 
 #include <config_distro_bootcmd.h>
 
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#ifndef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS \
 	"unlock=yes\0"\
 	"nor0=flash-0\0"\
 	"mtdparts=mtdparts=flash-0:"\
@@ -95,6 +93,6 @@
 
 /* SPL part */
 
-#define CONFIG_SYS_UBOOT_BASE		CONFIG_TEXT_BASE
+#define CFG_SYS_UBOOT_BASE		CONFIG_TEXT_BASE
 
 #endif	/* __CONFIG_H */

@@ -103,11 +103,11 @@ void lbc_sdram_init(void)
 
 	uint idx;
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
-	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
+	uint *sdram_addr = (uint *)CFG_SYS_LBC_SDRAM_BASE;
 	uint lsdmr_common;
 
 	puts("LBC SDRAM: ");
-	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
+	print_size(CFG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
 		   "\n");
 
 	/*
@@ -115,17 +115,17 @@ void lbc_sdram_init(void)
 	 */
 	set_lbc_or(2, CONFIG_SYS_OR2_PRELIM);
 	set_lbc_br(2, CONFIG_SYS_BR2_PRELIM);
-	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
+	lbc->lbcr = CFG_SYS_LBC_LBCR;
 	asm("msync");
 
-	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
-	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
+	lbc->lsrt = CFG_SYS_LBC_LSRT;
+	lbc->mrtpr = CFG_SYS_LBC_MRTPR;
 	asm("msync");
 
 	/*
 	 * MPC8548 uses "new" 15-16 style addressing.
 	 */
-	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
+	lsdmr_common = CFG_SYS_LBC_LSDMR_COMMON;
 	lsdmr_common |= LSDMR_BSMA1516;
 
 	/*
@@ -168,85 +168,3 @@ void lbc_sdram_init(void)
 
 #endif	/* enable SDRAM init */
 }
-
-#ifndef CONFIG_DM_ETH
-static void configure_rgmii(void)
-{
-	unsigned short temp;
-
-	/* Change the resistors for the PHY */
-	/* This is needed to get the RGMII working for the 1.3+
-	 * CDS cards */
-	if (get_board_version() ==  0x13) {
-		miiphy_write(DEFAULT_MII_NAME,
-				TSEC1_PHY_ADDR, 29, 18);
-
-		miiphy_read(DEFAULT_MII_NAME,
-				TSEC1_PHY_ADDR, 30, &temp);
-
-		temp = (temp & 0xf03f);
-		temp |= 2 << 9;		/* 36 ohm */
-		temp |= 2 << 6;		/* 39 ohm */
-
-		miiphy_write(DEFAULT_MII_NAME,
-				TSEC1_PHY_ADDR, 30, temp);
-
-		miiphy_write(DEFAULT_MII_NAME,
-				TSEC1_PHY_ADDR, 29, 3);
-
-		miiphy_write(DEFAULT_MII_NAME,
-				TSEC1_PHY_ADDR, 30, 0x8000);
-	}
-
-	return;
-}
-
-int board_eth_init(struct bd_info *bis)
-{
-#ifdef CONFIG_TSEC_ENET
-	struct fsl_pq_mdio_info mdio_info;
-	struct tsec_info_struct tsec_info[4];
-	int num = 0;
-
-#ifdef CONFIG_TSEC1
-	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	num++;
-#endif
-#ifdef CONFIG_TSEC2
-	SET_STD_TSEC_INFO(tsec_info[num], 2);
-	num++;
-#endif
-#ifdef CONFIG_TSEC3
-	/* initialize TSEC3 only if Carrier is 1.3 or above on CDS */
-	if (get_board_version() >= 0x13) {
-		SET_STD_TSEC_INFO(tsec_info[num], 3);
-		tsec_info[num].interface = PHY_INTERFACE_MODE_RGMII_ID;
-		num++;
-	}
-#endif
-#ifdef CONFIG_TSEC4
-	/* initialize TSEC4 only if Carrier is 1.3 or above on CDS */
-	if (get_board_version() >= 0x13) {
-		SET_STD_TSEC_INFO(tsec_info[num], 4);
-		tsec_info[num].interface = PHY_INTERFACE_MODE_RGMII_ID;
-		num++;
-	}
-#endif
-
-	if (!num) {
-		printf("No TSECs initialized\n");
-
-		return 0;
-	}
-
-	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
-	mdio_info.name = DEFAULT_MII_NAME;
-	fsl_pq_mdio_init(bis, &mdio_info);
-
-	tsec_eth_init(bis, tsec_info, num);
-	configure_rgmii();
-#endif
-
-	return pci_eth_init(bis);
-}
-#endif

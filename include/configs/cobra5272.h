@@ -29,51 +29,18 @@
  * ---
  */
 
-#define CONFIG_SYS_CLK			66000000
-#define CONFIG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
+#define CFG_SYS_CLK			66000000
+#define CFG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
 
 /* ---
  * Define baudrate for UART1 (console output, tftp, ...)
  * default value of CONFIG_BAUDRATE for Sentec board: 19200 baud
- * CONFIG_SYS_BAUDRATE_TABLE defines values that can be selected in u-boot command
+ * CFG_SYS_BAUDRATE_TABLE defines values that can be selected in u-boot command
  * interface
  * ---
  */
 
-#define CONFIG_SYS_UART_PORT		(0)
-
-/* ---
- * set "#if 0" to "#if 1" if (Hardware)-WATCHDOG should be enabled & change
- * timeout acc. to your needs
- * #define CONFIG_WATCHDOG_TIMEOUT x , x is timeout in milliseconds, e. g. 10000
- * for 10 sec
- * ---
- */
-
-#if 0
-#define CONFIG_WATCHDOG_TIMEOUT 10000	/* timeout in milliseconds */
-#endif
-
-/* ---
- * CONFIG_MONITOR_IS_IN_RAM defines if u-boot is started from a different
- * bootloader residing in flash ('chainloading'); if you want to use
- * chainloading or want to compile a u-boot binary that can be loaded into
- * RAM via BDM set
- *	"#if 0" to "#if 1"
- * You will need a first stage bootloader then, e. g. colilo or a working BDM
- * cable (Background Debug Mode)
- *
- * Setting #if 0: u-boot will start from flash and relocate itself to RAM
- *
- * Please do not forget to modify the setting of CONFIG_TEXT_BASE
- * in board/cobra5272/config.mk accordingly (#if 0: 0xffe00000; #if 1: 0x20000)
- *
- * ---
- */
-
-#if 0
-#define CONFIG_MONITOR_IS_IN_RAM /* monitor is started from a preloader */
-#endif
+#define CFG_SYS_UART_PORT		(0)
 
 /* ---
  * Configuration for environment
@@ -103,9 +70,6 @@ enter a valid image address in flash */
 
 /* User network settings */
 
-#define CONFIG_IPADDR 192.168.100.2		/* default board IP address */
-#define CONFIG_SERVERIP 192.168.100.1	/* default tftp server IP address */
-
 #endif
 
 /*---*/
@@ -133,28 +97,28 @@ enter a valid image address in flash */
  * ---
  */
 
-#define CONFIG_SYS_MBAR		0x10000000	/* Register Base Addrs */
+#define CFG_SYS_MBAR		0x10000000	/* Register Base Addrs */
 
 /* ---
  * System Conf. Reg. & System Protection Reg.
  * ---
  */
 
-#define CONFIG_SYS_SCR			0x0003
-#define CONFIG_SYS_SPR			0xffff
+#define CFG_SYS_SCR			0x0003
+#define CFG_SYS_SPR			0xffff
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in internal SRAM)
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x1000	/* Size of used area in internal SRAM	*/
+#define CFG_SYS_INIT_RAM_ADDR	0x20000000
+#define CFG_SYS_INIT_RAM_SIZE	0x1000	/* Size of used area in internal SRAM	*/
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
+ * Please note that CFG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CFG_SYS_SDRAM_BASE		0x00000000
 
 /*
  *-------------------------------------------------------------------------
@@ -162,34 +126,34 @@ enter a valid image address in flash */
  *-----------------------------------------------------------------------
  */
 
-/* #define CONFIG_SYS_SDRAM_SIZE		16 */
+/* #define CFG_SYS_SDRAM_SIZE		16 */
 
 /*
  *-----------------------------------------------------------------------
  */
 
-#define CONFIG_SYS_FLASH_BASE		0xffe00000
+#define CFG_SYS_FLASH_BASE		0xffe00000
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CFG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
 
-#define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 8)
-#define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - 4)
-#define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINV | CF_CACR_INVI)
-#define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
-					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+#define ICACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 8)
+#define DCACHE_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
+					 CFG_SYS_INIT_RAM_SIZE - 4)
+#define CFG_SYS_ICACHE_INV		(CF_CACR_CINV | CF_CACR_INVI)
+#define CFG_SYS_CACHE_ACR0		(CFG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CFG_SYS_SDRAM_SIZE) | \
 					 CF_ACR_EN | CF_ACR_SM_ALL)
-#define CONFIG_SYS_CACHE_ICACR		(CF_CACR_CENB | CF_CACR_CINV | \
+#define CFG_SYS_CACHE_ICACR		(CF_CACR_CENB | CF_CACR_CINV | \
 					 CF_CACR_DISD | CF_CACR_INVI | \
 					 CF_CACR_CEIB | CF_CACR_DCM | \
 					 CF_CACR_EUSP)
@@ -209,15 +173,15 @@ enter a valid image address in flash */
 /*-----------------------------------------------------------------------
  * Port configuration (GPIO)
  */
-#define CONFIG_SYS_PACNT		0x00000000		/* PortA control reg.: All pins are external
+#define CFG_SYS_PACNT		0x00000000		/* PortA control reg.: All pins are external
 GPIO*/
-#define CONFIG_SYS_PADDR		0x00FF			/* PortA direction reg.: PA7 to PA0 are outputs
+#define CFG_SYS_PADDR		0x00FF			/* PortA direction reg.: PA7 to PA0 are outputs
 (1^=output, 0^=input) */
-#define CONFIG_SYS_PADAT		LED_STAT_0		/* PortA value reg.: Turn all LED off */
-#define CONFIG_SYS_PBCNT		0x55554155		/* PortB control reg.: Ethernet/UART
+#define CFG_SYS_PADAT		LED_STAT_0		/* PortA value reg.: Turn all LED off */
+#define CFG_SYS_PBCNT		0x55554155		/* PortB control reg.: Ethernet/UART
 configuration */
-#define CONFIG_SYS_PBDDR		0x0000			/* PortB direction: All pins configured as inputs */
-#define CONFIG_SYS_PBDAT		0x0000			/* PortB value reg. */
-#define CONFIG_SYS_PDCNT		0x00000000		/* PortD control reg. */
+#define CFG_SYS_PBDDR		0x0000			/* PortB direction: All pins configured as inputs */
+#define CFG_SYS_PBDAT		0x0000			/* PortB value reg. */
+#define CFG_SYS_PDCNT		0x00000000		/* PortD control reg. */
 
 #endif	/* _CONFIG_COBRA5272_H */

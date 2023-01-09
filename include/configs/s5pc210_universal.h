@@ -14,8 +14,8 @@
 /* Keep L2 Cache Disabled */
 
 /* Universal has 2 banks of DRAM */
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
+#define CFG_SYS_SDRAM_BASE		0x40000000
+#define PHYS_SDRAM_1			CFG_SYS_SDRAM_BASE
 
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
@@ -29,7 +29,7 @@
 				",100M(swap)"\
 				",-(UMS)\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x100000;" \
 		"onenand write 0x42008000 0x0 0x100000\0" \
@@ -87,16 +87,13 @@
 	"mmcrootpart=3\0" \
 	"opts=always_resume=1"
 
-#define CONFIG_SYS_ONENAND_BASE		0x0C000000
+#define CFG_SYS_ONENAND_BASE		0x0C000000
 
 #ifndef	__ASSEMBLY__
 void universal_spi_scl(int bit);
 void universal_spi_sda(int bit);
 int universal_spi_read(void);
 #endif
-
-/* Common misc for Samsung */
-#define CONFIG_MISC_COMMON
 
 /* Download menu - definitions for check keys */
 #ifndef __ASSEMBLY__

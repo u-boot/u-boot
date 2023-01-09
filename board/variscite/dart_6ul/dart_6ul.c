@@ -147,7 +147,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #ifdef CONFIG_FEC_MXC
-	setup_fec(CONFIG_FEC_ENET_DEV);
+	setup_fec(CFG_FEC_ENET_DEV);
 #endif
 
 #ifdef CONFIG_NAND_MXS

@@ -13,7 +13,7 @@
  */
 
 /* I2C */
-#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
+#define CFG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
 
 /* USB/EHCI configuration */
 
@@ -44,8 +44,5 @@
 
 /* SPL */
 /* Defines for SPL */
-
-/* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
-#define CONFIG_SPD_EEPROM		0x4e
 
 #endif /* _CONFIG_DB_MV7846MP_GP_H */

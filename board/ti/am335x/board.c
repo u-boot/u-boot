@@ -33,7 +33,6 @@
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <asm/omap_common.h>
-#include <asm/omap_sec_common.h>
 #include <asm/omap_mmc.h>
 #include <i2c.h>
 #include <miiphy.h>
@@ -704,7 +703,7 @@ int board_init(void)
 	hw_watchdog_init();
 #endif
 
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 #if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 	gpmc_init();
 #endif
@@ -980,14 +979,6 @@ int board_fit_config_name_match(const char *name)
 		}
 	}
 	return -1;
-}
-#endif
-
-#ifdef CONFIG_TI_SECURE_DEVICE
-void board_fit_image_post_process(const void *fit, int node, void **p_image,
-				  size_t *p_size)
-{
-	secure_boot_verify_image(p_image, p_size);
 }
 #endif
 

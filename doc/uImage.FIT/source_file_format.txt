@@ -247,6 +247,7 @@ o config-1
   |- kernel = "kernel sub-node unit name"
   |- fdt = "fdt sub-node unit-name" [, "fdt overlay sub-node unit-name", ...]
   |- loadables = "loadables sub-node unit-name"
+  |- script = "
   |- compatible = "vendor,board-style device tree compatible string"
 
 
@@ -268,6 +269,8 @@ o config-1
     of strings. U-Boot will load each binary at its given start-address and
     may optionally invoke additional post-processing steps on this binary based
     on its component image node type.
+  - script : The image to use when loading a U-Boot script (for use with the
+    source command).
   - compatible : The root compatible string of the U-Boot device tree that
     this configuration shall automatically match when CONFIG_FIT_BEST_MATCH is
     enabled. If this property is not provided, the compatible string will be

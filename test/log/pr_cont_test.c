@@ -16,9 +16,6 @@
 
 #define BUFFSIZE 64
 
-#undef CONFIG_LOGLEVEL
-#define CONFIG_LOGLEVEL 4
-
 DECLARE_GLOBAL_DATA_PTR;
 
 static int log_test_pr_cont(struct unit_test_state *uts)

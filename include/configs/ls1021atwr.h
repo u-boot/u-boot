@@ -7,8 +7,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
+#define CFG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
 
 #define DDR_SDRAM_CFG			0x470c0008
 #define DDR_CS0_BNDS			0x008000bf
@@ -37,119 +37,94 @@
 #define SDRAM_CFG2_FRC_SR		0x80000000
 #define SDRAM_CFG_BI			0x00000001
 
-#ifdef CONFIG_SD_BOOT
-#ifdef CONFIG_NXP_ESBC
-/*
- * HDR would be appended at end of image and copied to DDR along
- * with U-Boot image.
- */
-#define CONFIG_U_BOOT_HDR_SIZE				(16 << 10)
-#endif /* ifdef CONFIG_NXP_ESBC */
-
-#ifdef CONFIG_U_BOOT_HDR_SIZE
-/*
- * HDR would be appended at end of image and copied to DDR along
- * with U-Boot image. Here u-boot max. size is 512K. So if binary
- * size increases then increase this size in case of secure boot as
- * it uses raw u-boot image instead of fit image.
- */
-#endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
-#endif
-
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(1u * 1024 * 1024 * 1024)
 
-#define CONFIG_SYS_DDR_SDRAM_BASE      0x80000000UL
-#define CONFIG_SYS_SDRAM_BASE          CONFIG_SYS_DDR_SDRAM_BASE
+#define CFG_SYS_DDR_SDRAM_BASE      0x80000000UL
+#define CFG_SYS_SDRAM_BASE          CFG_SYS_DDR_SDRAM_BASE
 
 /*
  * IFC Definitions
  */
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_SYS_FLASH_BASE		0x60000000
-#define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
+#define CFG_SYS_FLASH_BASE		0x60000000
+#define CFG_SYS_FLASH_BASE_PHYS	CFG_SYS_FLASH_BASE
 
-#define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
-#define CONFIG_SYS_NOR0_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | \
+#define CFG_SYS_NOR0_CSPR_EXT	(0x0)
+#define CFG_SYS_NOR0_CSPR	(CSPR_PHYS_ADDR(CFG_SYS_FLASH_BASE_PHYS) | \
 				CSPR_PORT_SIZE_16 | \
 				CSPR_MSEL_NOR | \
 				CSPR_V)
-#define CONFIG_SYS_NOR_AMASK		IFC_AMASK(128 * 1024 * 1024)
+#define CFG_SYS_NOR_AMASK		IFC_AMASK(128 * 1024 * 1024)
 
 /* NOR Flash Timing Params */
-#define CONFIG_SYS_NOR_CSOR		(CSOR_NOR_ADM_SHIFT(4) | \
+#define CFG_SYS_NOR_CSOR		(CSOR_NOR_ADM_SHIFT(4) | \
 					CSOR_NOR_TRHZ_80)
-#define CONFIG_SYS_NOR_FTIM0		(FTIM0_NOR_TACSE(0x4) | \
+#define CFG_SYS_NOR_FTIM0		(FTIM0_NOR_TACSE(0x4) | \
 					FTIM0_NOR_TEADC(0x5) | \
 					FTIM0_NOR_TAVDS(0x0) | \
 					FTIM0_NOR_TEAHC(0x5))
-#define CONFIG_SYS_NOR_FTIM1		(FTIM1_NOR_TACO(0x35) | \
+#define CFG_SYS_NOR_FTIM1		(FTIM1_NOR_TACO(0x35) | \
 					FTIM1_NOR_TRAD_NOR(0x1A) | \
 					FTIM1_NOR_TSEQRAD_NOR(0x13))
-#define CONFIG_SYS_NOR_FTIM2		(FTIM2_NOR_TCS(0x4) | \
+#define CFG_SYS_NOR_FTIM2		(FTIM2_NOR_TCS(0x4) | \
 					FTIM2_NOR_TCH(0x4) | \
 					FTIM2_NOR_TWP(0x1c) | \
 					FTIM2_NOR_TWPH(0x0e))
-#define CONFIG_SYS_NOR_FTIM3		0
+#define CFG_SYS_NOR_FTIM3		0
 
-#define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
+#define CFG_SYS_FLASH_BANKS_LIST	{ CFG_SYS_FLASH_BASE_PHYS }
 
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE_PHYS }
-
-#define CONFIG_SYS_WRITE_SWAPPED_DATA
+#define CFG_SYS_WRITE_SWAPPED_DATA
 #endif
 
 /* CPLD */
 
-#define CONFIG_SYS_CPLD_BASE	0x7fb00000
-#define CPLD_BASE_PHYS		CONFIG_SYS_CPLD_BASE
+#define CFG_SYS_CPLD_BASE	0x7fb00000
+#define CPLD_BASE_PHYS		CFG_SYS_CPLD_BASE
 
-#define CONFIG_SYS_FPGA_CSPR_EXT        (0x0)
-#define CONFIG_SYS_FPGA_CSPR		(CSPR_PHYS_ADDR(CPLD_BASE_PHYS) | \
+#define CFG_SYS_FPGA_CSPR_EXT        (0x0)
+#define CFG_SYS_FPGA_CSPR		(CSPR_PHYS_ADDR(CPLD_BASE_PHYS) | \
 					CSPR_PORT_SIZE_8 | \
 					CSPR_MSEL_GPCM | \
 					CSPR_V)
-#define CONFIG_SYS_FPGA_AMASK		IFC_AMASK(64 * 1024)
-#define CONFIG_SYS_FPGA_CSOR		(CSOR_NOR_ADM_SHIFT(4) | \
+#define CFG_SYS_FPGA_AMASK		IFC_AMASK(64 * 1024)
+#define CFG_SYS_FPGA_CSOR		(CSOR_NOR_ADM_SHIFT(4) | \
 					CSOR_NOR_NOR_MODE_AVD_NOR | \
 					CSOR_NOR_TRHZ_80)
 
 /* CPLD Timing parameters for IFC GPCM */
-#define CONFIG_SYS_FPGA_FTIM0		(FTIM0_GPCM_TACSE(0xf) | \
+#define CFG_SYS_FPGA_FTIM0		(FTIM0_GPCM_TACSE(0xf) | \
 					FTIM0_GPCM_TEADC(0xf) | \
 					FTIM0_GPCM_TEAHC(0xf))
-#define CONFIG_SYS_FPGA_FTIM1		(FTIM1_GPCM_TACO(0xff) | \
+#define CFG_SYS_FPGA_FTIM1		(FTIM1_GPCM_TACO(0xff) | \
 					FTIM1_GPCM_TRAD(0x3f))
-#define CONFIG_SYS_FPGA_FTIM2		(FTIM2_GPCM_TCS(0xf) | \
+#define CFG_SYS_FPGA_FTIM2		(FTIM2_GPCM_TCS(0xf) | \
 					FTIM2_GPCM_TCH(0xf) | \
 					FTIM2_GPCM_TWP(0xff))
-#define CONFIG_SYS_FPGA_FTIM3           0x0
-#define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT
-#define CONFIG_SYS_CSPR0		CONFIG_SYS_NOR0_CSPR
-#define CONFIG_SYS_AMASK0		CONFIG_SYS_NOR_AMASK
-#define CONFIG_SYS_CSOR0		CONFIG_SYS_NOR_CSOR
-#define CONFIG_SYS_CS0_FTIM0		CONFIG_SYS_NOR_FTIM0
-#define CONFIG_SYS_CS0_FTIM1		CONFIG_SYS_NOR_FTIM1
-#define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NOR_FTIM2
-#define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NOR_FTIM3
-#define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_FPGA_CSPR_EXT
-#define CONFIG_SYS_CSPR1		CONFIG_SYS_FPGA_CSPR
-#define CONFIG_SYS_AMASK1		CONFIG_SYS_FPGA_AMASK
-#define CONFIG_SYS_CSOR1		CONFIG_SYS_FPGA_CSOR
-#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_FPGA_FTIM0
-#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_FPGA_FTIM1
-#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_FPGA_FTIM2
-#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_FPGA_FTIM3
+#define CFG_SYS_FPGA_FTIM3           0x0
+#define CFG_SYS_CSPR0_EXT		CFG_SYS_NOR0_CSPR_EXT
+#define CFG_SYS_CSPR0		CFG_SYS_NOR0_CSPR
+#define CFG_SYS_AMASK0		CFG_SYS_NOR_AMASK
+#define CFG_SYS_CSOR0		CFG_SYS_NOR_CSOR
+#define CFG_SYS_CS0_FTIM0		CFG_SYS_NOR_FTIM0
+#define CFG_SYS_CS0_FTIM1		CFG_SYS_NOR_FTIM1
+#define CFG_SYS_CS0_FTIM2		CFG_SYS_NOR_FTIM2
+#define CFG_SYS_CS0_FTIM3		CFG_SYS_NOR_FTIM3
+#define CFG_SYS_CSPR1_EXT		CFG_SYS_FPGA_CSPR_EXT
+#define CFG_SYS_CSPR1		CFG_SYS_FPGA_CSPR
+#define CFG_SYS_AMASK1		CFG_SYS_FPGA_AMASK
+#define CFG_SYS_CSOR1		CFG_SYS_FPGA_CSOR
+#define CFG_SYS_CS1_FTIM0		CFG_SYS_FPGA_FTIM0
+#define CFG_SYS_CS1_FTIM1		CFG_SYS_FPGA_FTIM1
+#define CFG_SYS_CS1_FTIM2		CFG_SYS_FPGA_FTIM2
+#define CFG_SYS_CS1_FTIM3		CFG_SYS_FPGA_FTIM3
 
 /*
  * Serial Port
  */
 #ifndef CONFIG_LPUART
-#define CONFIG_SYS_NS16550_SERIAL
-#ifndef CONFIG_DM_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#endif
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 #endif
 
 /*
@@ -158,13 +133,9 @@
 
 /* GPIO */
 
-#define CONFIG_PEN_ADDR_BIG_ENDIAN
-#define CONFIG_SMP_PEN_ADDR		0x01ee0200
+#define CFG_SMP_PEN_ADDR		0x01ee0200
 
-#define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		256
-
-#define CONFIG_FSL_DEVICE_DISABLE
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
@@ -173,7 +144,7 @@
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_LPUART
-#define CONFIG_EXTRA_ENV_SETTINGS       \
+#define CFG_EXTRA_ENV_SETTINGS       \
 	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200 "	\
 		"cma=64M@0x0-0xb0000000\0" \
 	"initrd_high=0xffffffff\0"      \
@@ -229,7 +200,7 @@
 		"cp.b $kernel_addr $load_addr "		\
 		"$kernel_size && bootm $load_addr#$board\0"
 #else
-#define CONFIG_EXTRA_ENV_SETTINGS	\
+#define CFG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200 "	\
 		"cma=64M@0x0-0xb0000000\0" \
 	"initrd_high=0xffffffff\0"      \
@@ -302,9 +273,7 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
-
-#define CONFIG_LS102XA_STREAM_ID
+#define CFG_SYS_BOOTMAPSZ		(256 << 20)
 
 /*
  * Environment

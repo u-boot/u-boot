@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Table with supported baudrates (defined in config_xyz.h)
  */
-static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
+static const unsigned long baudrate_table[] = CFG_SYS_BAUDRATE_TABLE;
 
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static int serial_check_stdout(const void *blob, struct udevice **devp)
@@ -407,7 +407,7 @@ void serial_stdio_init(void)
 {
 }
 
-#if defined(CONFIG_DM_STDIO)
+#if CONFIG_IS_ENABLED(DM_STDIO)
 
 #if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
@@ -505,7 +505,7 @@ U_BOOT_ENV_CALLBACK(baudrate, on_baudrate);
 static int serial_post_probe(struct udevice *dev)
 {
 	struct dm_serial_ops *ops = serial_get_ops(dev);
-#ifdef CONFIG_DM_STDIO
+#if CONFIG_IS_ENABLED(DM_STDIO)
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 	struct stdio_dev sdev;
 #endif
@@ -526,7 +526,7 @@ static int serial_post_probe(struct udevice *dev)
 		ops->getconfig += gd->reloc_off;
 	if (ops->setconfig)
 		ops->setconfig += gd->reloc_off;
-#if CONFIG_POST & CONFIG_SYS_POST_UART
+#if CFG_POST & CFG_SYS_POST_UART
 	if (ops->loop)
 		ops->loop += gd->reloc_off;
 #endif
@@ -540,7 +540,7 @@ static int serial_post_probe(struct udevice *dev)
 			return ret;
 	}
 
-#ifdef CONFIG_DM_STDIO
+#if CONFIG_IS_ENABLED(DM_STDIO)
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 	memset(&sdev, '\0', sizeof(sdev));

@@ -25,7 +25,7 @@
 		"nand read ${loadaddr} NAND.kernel; " \
 		"bootz ${loadaddr} - ${fdt_addr}\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"fdt_addr=0x87800000\0" \
 	"boot_fdt=try\0" \
@@ -97,18 +97,18 @@
 	NANDARGS
 
 /* NS16550 Configuration */
-#define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
-#define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
-#define CONFIG_SYS_NS16550_COM3		0x48024000	/* UART2 */
-#define CONFIG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
-#define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
-#define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
+#define CFG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
+#define CFG_SYS_NS16550_COM2		0x48022000	/* UART1 */
+#define CFG_SYS_NS16550_COM3		0x48024000	/* UART2 */
+#define CFG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
+#define CFG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
+#define CFG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 
 /* SPL */
 
 /* NAND: device related configs */
 /* NAND: driver related configs */
-#define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
+#define CFG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
 					 18, 19, 20, 21, 22, 23, 24, 25, \
 					 26, 27, 28, 29, 30, 31, 32, 33, \
@@ -116,7 +116,7 @@
 					 42, 43, 44, 45, 46, 47, 48, 49, \
 					 50, 51, 52, 53, 54, 55, 56, 57, }
 
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	14
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	14
 
 #endif	/* ! __CONFIG_CHILIBOARD_H */

@@ -9,14 +9,14 @@
 #include <linux/sizes.h>
 
 /* RAM */
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 
 /* U-Boot */
 
 #if defined(CONFIG_BMIPS_BOOT_RAM)
-#define CONFIG_SYS_INIT_SP_OFFSET	SZ_8K
+#define CFG_SYS_INIT_SP_OFFSET	SZ_8K
 #endif
 
-#define CONFIG_SYS_FLASH_BASE			0xbfc00000
+#define CFG_SYS_FLASH_BASE			0xbfc00000
 
 #endif /* __CONFIG_BMIPS_BCM6338_H */

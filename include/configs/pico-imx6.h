@@ -10,26 +10,18 @@
 
 #include "mx6_common.h"
 
-#include "imx6_spl.h"
-
-#ifdef CONFIG_SPL_OS_BOOT
-/* Falcon Mode */
-
-/* Falcon Mode - MMC support: args@1MB kernel@2MB */
-#endif
-
-#define CONFIG_MXC_UART_BASE		UART1_BASE
+#define CFG_MXC_UART_BASE		UART1_BASE
 
 /* MMC Configuration */
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
 
 /* USB Configs */
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
+#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS		0
 
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
-#define CONFIG_DFU_ENV_SETTINGS \
+#define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
 		"spl raw 0x2 0x400;" \
 		"u-boot raw 0x8a 0x1000;" \
@@ -46,7 +38,7 @@
 	"bootmenu_3=Boot using PICO-Nymph baseboard=" \
 		"setenv baseboard nymph; saveenv; run base_boot\0" \
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	BOOTMENU_ENV \
@@ -55,7 +47,7 @@
 	"fdt_addr_r=0x18000000\0" \
 	"fdt_addr=0x18000000\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	CONFIG_DFU_ENV_SETTINGS \
+	CFG_DFU_ENV_SETTINGS \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"findfdt="\
 		"if test $baseboard = hobbit && test $board_rev = MX6Q ; then " \
@@ -99,17 +91,13 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* Environment organization */
 
 /* Ethernet Configuration */
-#define CONFIG_FEC_MXC_PHYADDR		1
-
-/* Framebuffer */
-#define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
+#define CFG_FEC_MXC_PHYADDR		1
 
 #endif			       /* __CONFIG_H * */

@@ -46,7 +46,7 @@ void board_init_f(ulong bootflag)
 		porsr1 = in_be32(&gur->porsr1);
 		pinctl = ((porsr1 & ~(FSL_CORENET_CCSR_PORSR1_RCW_MASK))
 			  | 0x24800000);
-		out_be32((unsigned int *)(CONFIG_SYS_DCSRBAR + 0x20000),
+		out_be32((unsigned int *)(CFG_SYS_DCSRBAR + 0x20000),
 			 pinctl);
 	}
 #endif
@@ -72,7 +72,7 @@ void board_init_f(ulong bootflag)
 	plat_ratio = (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
 	uart_clk = sys_clk * plat_ratio / 2;
 
-	ns16550_init((struct ns16550 *)CONFIG_SYS_NS16550_COM1,
+	ns16550_init((struct ns16550 *)CFG_SYS_NS16550_COM1,
 		     uart_clk / 16 / CONFIG_BAUDRATE);
 
 	relocate_code(CONFIG_SPL_RELOC_STACK, (gd_t *)CONFIG_SPL_GD_ADDR, 0x0);

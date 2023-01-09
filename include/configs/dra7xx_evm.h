@@ -13,10 +13,7 @@
 
 #include <environment/ti/dfu.h>
 
-#define CONFIG_IODELAY_RECALIBRATION
-
-#define CONFIG_VERY_BIG_RAM
-#define CONFIG_MAX_MEM_MAPPED		0x80000000
+#define CFG_MAX_MEM_MAPPED		0x80000000
 
 #ifndef CONFIG_QSPI_BOOT
 /* MMC ENV related defines */
@@ -27,11 +24,9 @@
 #elif (CONFIG_CONS_INDEX == 3)
 #define CONSOLEDEV			"ttyS2"
 #endif
-#define CONFIG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
-#define CONFIG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
-#define CONFIG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
-
-#define CONFIG_SYS_OMAP_ABE_SYSCK
+#define CFG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
+#define CFG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
+#define CFG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
 
 #ifndef CONFIG_SPL_BUILD
 #define DFUARGS \
@@ -52,9 +47,6 @@
 
 #include <configs/ti_omap5_common.h>
 
-/* Enhance our eMMC support / experience. */
-#define CONFIG_HSMMC2_8BIT
-
 /*
  * Default to using SPI for environment, etc.
  * 0x000000 - 0x040000 : QSPI.SPL (256KiB)
@@ -65,9 +57,9 @@
  * 0x1E0000 - 0x9E0000 : QSPI.kernel (8MiB)
  * 0x9E0000 - 0x2000000 : USERLAND
  */
-#define CONFIG_SYS_SPI_KERNEL_OFFS	0x1E0000
-#define CONFIG_SYS_SPI_ARGS_OFFS	0x140000
-#define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
+#define CFG_SYS_SPI_KERNEL_OFFS	0x1E0000
+#define CFG_SYS_SPI_ARGS_OFFS	0x140000
+#define CFG_SYS_SPI_ARGS_SIZE	0x80000
 
 /* SPI SPL */
 
@@ -75,22 +67,22 @@
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 /* NAND: driver related configs */
-#define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
+#define CFG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
 					 18, 19, 20, 21, 22, 23, 24, 25, \
 					 26, 27, 28, 29, 30, 31, 32, 33, \
 					 34, 35, 36, 37, 38, 39, 40, 41, \
 					 42, 43, 44, 45, 46, 47, 48, 49, \
 					 50, 51, 52, 53, 54, 55, 56, 57, }
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	14
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	14
 #endif /* !CONFIG_MTD_RAW_NAND */
 
 /* Parallel NOR Support */
 #if defined(CONFIG_NOR)
 /* NOR: device related configs */
-#define CONFIG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
-#define CONFIG_SYS_FLASH_BASE		(0x08000000)
+#define CFG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
+#define CFG_SYS_FLASH_BASE		(0x08000000)
 /* Reduce SPL size by removing unlikey targets */
 #endif  /* NOR support */
 

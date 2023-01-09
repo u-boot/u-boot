@@ -761,10 +761,10 @@ KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
 # change __FILE__ to the relative path from the srctree
 KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
 
-KBUILD_CFLAGS	+= -g
+KBUILD_CFLAGS	+= -gdwarf-4
 # $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
-KBUILD_AFLAGS	+= -g
+KBUILD_AFLAGS	+= -gdwarf-4
 
 # Report stack usage if supported
 # ARC tools based on GCC 7.1 has an issue with stack usage
@@ -805,6 +805,8 @@ include scripts/Makefile.extrawarn
 KBUILD_CPPFLAGS += $(KCPPFLAGS)
 KBUILD_AFLAGS += $(KAFLAGS)
 KBUILD_CFLAGS += $(KCFLAGS)
+
+KBUILD_LDFLAGS  += $(call ld-option,--no-warn-rwx-segments)
 
 KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
 
@@ -1073,10 +1075,6 @@ cmd_lzma = lzma -c -z -k -9 $< > $@
 
 cfg: u-boot.cfg
 
-quiet_cmd_cfgcheck = CFGCHK  $2
-cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
-		$(srctree)/scripts/config_whitelist.txt $(srctree)
-
 quiet_cmd_ofcheck = OFCHK   $2
 cmd_ofcheck = $(srctree)/scripts/check-of.sh $2 \
 		$(srctree)/scripts/of_allowlist.txt
@@ -1138,16 +1136,12 @@ endif
 	$(call deprecated,CONFIG_WDT,DM watchdog,v2019.10,\
 		$(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG))
 	$(call deprecated,CONFIG_DM_I2C,I2C drivers,v2022.04,$(CONFIG_SYS_I2C_LEGACY))
-	@# CONFIG_SYS_TIMER_RATE has brackets in it for some boards which
+	@# CFG_SYS_TIMER_RATE has brackets in it for some boards which
 	@# confuses this rule. Use if() to send just a single character which
 	@# is enable to tell 'deprecated' that one of these symbols exists
-	$(call deprecated,CONFIG_TIMER,Timer drivers,v2023.01,$(if $(strip $(CONFIG_SYS_TIMER_RATE)$(CONFIG_SYS_TIMER_COUNTER)),x))
+	$(call deprecated,CONFIG_TIMER,Timer drivers,v2023.01,$(if $(strip $(CFG_SYS_TIMER_RATE)$(CFG_SYS_TIMER_COUNTER)),x))
 	$(call deprecated,CONFIG_DM_SERIAL,Serial drivers,v2023.04,$(CONFIG_SERIAL))
 	$(call deprecated,CONFIG_DM_SCSI,SCSI drivers,v2023.04,$(CONFIG_SCSI))
-	@# Check that this build does not use CONFIG options that we do not
-	@# know about unless they are in Kconfig. All the existing CONFIG
-	@# options are whitelisted, so new ones should not be added.
-	$(call cmd,cfgcheck,u-boot.cfg)
 	@# Check that this build does not override OF_HAS_PRIOR_STAGE by
 	@# disabling OF_BOARD.
 	$(call cmd,ofcheck,$(KCONFIG_CONFIG))
@@ -1361,8 +1355,8 @@ u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
 # U-Boot entry point, needed for booting of full-blown U-Boot
 # from the SPL U-Boot version.
 #
-ifndef CONFIG_SYS_UBOOT_START
-CONFIG_SYS_UBOOT_START := $(CONFIG_TEXT_BASE)
+ifndef CFG_SYS_UBOOT_START
+CFG_SYS_UBOOT_START := $(CONFIG_TEXT_BASE)
 endif
 
 # Boards with more complex image requirements can provide an .its source file
@@ -1387,7 +1381,7 @@ endif
 
 ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
-	-a $(CONFIG_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-a $(CONFIG_TEXT_BASE) -e $(CFG_SYS_UBOOT_START) \
 	-p $(CONFIG_FIT_EXTERNAL_OFFSET) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" -E \
 	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(DEVICE_TREE))) \
@@ -1395,10 +1389,10 @@ MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	$(patsubst %,-b arch/$(ARCH)/dts/%.dtbo,$(subst ",,$(CONFIG_OF_OVERLAY_LIST)))
 else
 MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
-	-a $(CONFIG_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-a $(CONFIG_TEXT_BASE) -e $(CFG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
 MKIMAGEFLAGS_u-boot-ivt.img = -A $(ARCH) -T firmware_ivt -C none -O u-boot \
-	-a $(CONFIG_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-a $(CONFIG_TEXT_BASE) -e $(CFG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
 u-boot-ivt.img: MKIMAGEOUTPUT = u-boot-ivt.img.log
 endif
@@ -1429,7 +1423,7 @@ MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 UBOOT_BIN := u-boot.bin
 
 MKIMAGEFLAGS_u-boot-lzma.img = -A $(ARCH) -T standalone -C lzma -O u-boot \
-	-a $(CONFIG_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-a $(CONFIG_TEXT_BASE) -e $(CFG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
 
 u-boot.bin.lzma: u-boot.bin FORCE
@@ -2439,11 +2433,13 @@ endif
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
 
 quiet_cmd_genenv = GENENV  $@
-cmd_genenv = $(OBJCOPY) --dump-section .rodata.default_environment=$@ env/common.o; \
-	sed --in-place -e 's/\x00/\x0A/g' $@; sed --in-place -e '/^\s*$$/d' $@; \
-	sort --field-separator== -k1,1 --stable $@ -o $@
+cmd_genenv = \
+	$(objtree)/tools/printinitialenv | \
+	sed -e '/^\s*$$/d' | \
+	sort --field-separator== -k1,1 --stable -o $@
 
-u-boot-initial-env: u-boot.bin
+u-boot-initial-env: $(env_h) FORCE
+	$(Q)$(MAKE) $(build)=tools $(objtree)/tools/printinitialenv
 	$(call if_changed,genenv)
 
 # Consistency checks

@@ -13,10 +13,6 @@
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
 
-/* SPL options */
-#include "imx6_spl.h"
-
-
 /* MMC Configs */
 #ifdef CONFIG_FSL_USDHC
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
@@ -24,7 +20,7 @@
 #define CFG_SYS_FSL_USDHC_NUM	1
 #endif /* CONFIG_FSL_USDHC */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"console=ttymxc0\0" \
 	"initrd_addr=0x86800000\0" \
@@ -57,20 +53,20 @@
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
-#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CFG_SYS_SDRAM_BASE		PHYS_SDRAM
+#define CFG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CFG_SYS_INIT_RAM_SIZE	IRAM_SIZE
 
 /* environment organization */
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB
-#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS   0
+#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CFG_MXC_USB_FLAGS   0
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC_PHYADDR		0x1
+#define CFG_FEC_MXC_PHYADDR		0x1
 #endif
 
 #endif

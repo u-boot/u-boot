@@ -12,14 +12,13 @@
 #include <asm/arch/imx-regs.h>
 
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SERIAL_LPUART_BASE	0x5a060000
-#define CONFIG_MALLOC_F_ADDR		0x00120000
+#define CFG_MALLOC_F_ADDR		0x00120000
 
 #endif
 
 /* Flat Device Tree Definitions */
 
-#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
+#define CFG_SYS_BOOTMAPSZ		(256 << 20)
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 #define USDHC1_BASE_ADDR		0x5B010000
 #define USDHC2_BASE_ADDR		0x5B020000
@@ -42,7 +41,7 @@
 #define FEC0_RESET IMX_GPIO_NR(2, 5)
 #define FEC0_PDOMAIN "conn_enet0"
 
-#define CONFIG_MFG_ENV_SETTINGS \
+#define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs console=${console},${baudrate} " \
 		"rdinit=/linuxrc " \
 		"g_mass_storage.stall=0 g_mass_storage.removable=1 " \
@@ -55,8 +54,8 @@
 	"bootcmd_mfg=run mfgtool_args;booti ${loadaddr} ${initrd_addr} ${fdt_addr};\0" \
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS		\
-	CONFIG_MFG_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS		\
+	CFG_MFG_ENV_SETTINGS \
 	M4_BOOT_ENV \
 	"script=boot.scr\0" \
 	"image=Image\0" \
@@ -111,13 +110,13 @@
 
 #define CFG_SYS_FSL_USDHC_NUM	3
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
 #define PHYS_SDRAM_1_SIZE		0x80000000	/* 2 GB */
 #define PHYS_SDRAM_2_SIZE		0x100000000	/* 4 GB */
 
 /* Networking */
-#define CONFIG_FEC_MXC_PHYADDR		-1
+#define CFG_FEC_MXC_PHYADDR		-1
 
 #endif /* __CGTQMX8_H */

@@ -16,18 +16,16 @@
 
 /* Board NAND Info. */
 #ifdef CONFIG_MTD_RAW_NAND
-#define CONFIG_SYS_NAND_ECCPOS		{ 2,  3,  4,  5,  6,  7,  8,  9, 10, \
+#define CFG_SYS_NAND_ECCPOS		{ 2,  3,  4,  5,  6,  7,  8,  9, 10, \
 					 11, 12, 13, 14, 16, 17, 18, 19, 20, \
 					 21, 22, 23, 24, 25, 26, 27, 28, 30, \
 					 31, 32, 33, 34, 35, 36, 37, 38, 39, \
 					 40, 41, 42, 44, 45, 46, 47, 48, 49, \
 					 50, 51, 52, 53, 54, 55, 56 }
 
-#define CONFIG_SYS_NAND_ECCSIZE		512
-#define CONFIG_SYS_NAND_ECCBYTES	13
-#define CONFIG_SYS_NAND_MAX_OOBFREE	2
-#define CONFIG_SYS_NAND_MAX_ECCPOS	56
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
+#define CFG_SYS_NAND_ECCSIZE		512
+#define CFG_SYS_NAND_ECCBYTES	13
+#define CFG_SYS_NAND_U_BOOT_START	CONFIG_TEXT_BASE
 /* NAND block size is 128 KiB.  Synchronize these values with
  * corresponding Device Tree entries in Linux:
  *  MLO(SPL)             4 * NAND_BLOCK_SIZE = 512 KiB  @ 0x000000
@@ -40,7 +38,7 @@
 #endif /* CONFIG_MTD_RAW_NAND */
 
 /* Environment information */
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CFG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
 	"fdtfile=am3517-evm.dtb\0" \
@@ -91,7 +89,7 @@
 						/* on one chip */
 
 #if defined(CONFIG_MTD_RAW_NAND)
-#define CONFIG_SYS_FLASH_BASE		NAND_BASE
+#define CFG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
 #endif /* __CONFIG_H */

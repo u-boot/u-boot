@@ -12,14 +12,14 @@
 	{ .compat = name, \
 	  .id = { idA }, .num_ids = 1, \
 	  .reg_offset = off + CONFIG_SYS_IMMR, \
-	  .compat_offset = compatoff + CONFIG_SYS_CCSRBAR_PHYS, \
+	  .compat_offset = compatoff + CFG_SYS_CCSRBAR_PHYS, \
 	}
 
 #define SET_LIODN_ENTRY_2(name, idA, idB, off, compatoff) \
 	{ .compat = name, \
 	  .id = { idA, idB }, .num_ids = 2, \
 	  .reg_offset = off + CONFIG_SYS_IMMR, \
-	  .compat_offset = compatoff + CONFIG_SYS_CCSRBAR_PHYS, \
+	  .compat_offset = compatoff + CFG_SYS_CCSRBAR_PHYS, \
 	}
 
 /*

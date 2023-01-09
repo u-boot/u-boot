@@ -29,6 +29,7 @@ config ARCH_LS1028A
 	select ESBC_HDR_LS if CHAIN_OF_TRUST
 	select FSL_LAYERSCAPE
 	select FSL_LSCH3
+	select FSL_TZASC_400
 	select GICV3
 	select NXP_LSCH3_2
 	select SYS_FSL_HAS_CCI400
@@ -69,6 +70,7 @@ config ARCH_LS1043A
 	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select SKIP_LOWLEVEL_INIT
+	select SYS_DPAA_FMAN
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
@@ -106,6 +108,7 @@ config ARCH_LS1046A
 	select GICV2
 	select HAS_FSL_XHCI_USB if USB_HOST
 	select SKIP_LOWLEVEL_INIT
+	select SYS_DPAA_FMAN
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
 	select SYS_FSL_DDR

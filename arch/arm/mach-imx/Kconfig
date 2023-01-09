@@ -18,6 +18,9 @@ config SYSCOUNTER_TIMER
 config GPT_TIMER
 	bool
 
+config MXC_GPT_HCLK
+	bool
+
 config IMX_RDC
 	bool "i.MX Resource domain controller driver"
 	depends on ARCH_MX6 || ARCH_MX7
@@ -195,3 +198,9 @@ config IMX_CONTAINER_CFG
 	help
 	  This is to specific the cfg file for generating container
 	  image which will be loaded by SPL.
+
+config IOMUX_LPSR
+	bool
+
+config IOMUX_SHARE_CONF_REG
+	bool

@@ -168,12 +168,12 @@ config TARGET_COLIBRI_IMX6ULL
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
+	select IOMUX_LPSR
 
 config TARGET_DART_6UL
 	bool "Variscite imx6ULL dart(DART-SOM-6ULL)"
 	depends on MX6ULL
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -196,7 +196,6 @@ config TARGET_DISPLAY5
 	bool "LWN DISPLAY5 board"
 	depends on MX6Q
 	select DM
-	select DM_ETH
 	select DM_I2C
 	select DM_MMC
 	select DM_SPI
@@ -244,7 +243,6 @@ config TARGET_KONTRON_MX6UL
 config TARGET_KOSAGI_NOVENA
 	bool "Kosagi Novena"
 	select BOARD_LATE_INIT
-	select DM_ETH
 	select DM_GPIO
 	select DM_MMC
 	select PCI
@@ -260,7 +258,6 @@ config TARGET_MCCMON6
 	select SUPPORT_SPL
 	select DM
 	select DM_GPIO
-	select DM_ETH
 	select DM_SERIAL
 	select DM_I2C
 	select DM_SPI
@@ -279,7 +276,6 @@ config TARGET_MX6LOGICPD
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -300,7 +296,6 @@ config TARGET_MX6DL_MAMOJ
 	bool "Support BTicino Mamoj"
 	depends on MX6QDL
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -333,7 +328,6 @@ config TARGET_MX6Q_ENGICAM
 	depends on MX6QDL
 	select BOARD_LATE_INIT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -354,7 +348,6 @@ config TARGET_MX6Q_ACC
 	select OF_CONTROL
 	select SPL_OF_LIBFDT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -396,6 +389,7 @@ config TARGET_MX6SLLEVK
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
+	select IOMUX_LPSR
 	imply CMD_DM
 
 config TARGET_MX6SXSABRESD
@@ -445,7 +439,6 @@ config TARGET_MX6UL_ENGICAM
 	depends on MX6UL
 	select BOARD_LATE_INIT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -464,6 +457,7 @@ config TARGET_MX6ULL_14X14_EVK
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
+	select IOMUX_LPSR
 	imply CMD_DM
 
 config TARGET_MX6ULZ_SMM_M2
@@ -481,7 +475,6 @@ config TARGET_MYS_6ULX
 	bool "MYiR MYS-6ULX"
 	depends on MX6ULL
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -501,7 +494,6 @@ config TARGET_NPI_IMX6ULL
 	bool "Seeed NPI-IMX6ULL"
 	depends on MX6ULL
 	select DM
-	select DM_ETH
 	select DM_MMC
 	select DM_GPIO
 	select DM_SERIAL
@@ -549,7 +541,6 @@ config TARGET_PCL063
 	bool "PHYTEC PCL063 (phyCORE-i.MX6UL)"
 	depends on MX6UL
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -561,7 +552,6 @@ config TARGET_PCL063_ULL
 	bool "PHYTEC PCL063 (phyCORE-i.MX6ULL)"
 	depends on MX6ULL
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC
@@ -574,7 +564,6 @@ config TARGET_SOMLABS_VISIONSOM_6ULL
 	depends on MX6ULL
 	select BOARD_LATE_INIT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_MMC
 	select DM_SERIAL
@@ -594,7 +583,6 @@ config TARGET_KP_IMX6Q_TPC
 	select SPL_DM if SPL
 	select DM_THERMAL
 	select DM_MMC
-	select DM_ETH
 	select DM_REGULATOR
 	select SPL_DM_REGULATOR if SPL
 	select DM_SERIAL
@@ -658,7 +646,6 @@ config TARGET_BRPPT2
 	select OF_CONTROL
 	select SPL_OF_LIBFDT
 	select DM
-	select DM_ETH
 	select DM_GPIO
 	select DM_I2C
 	select DM_MMC

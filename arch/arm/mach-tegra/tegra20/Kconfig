@@ -1,5 +1,21 @@
 if TEGRA20
 
+config TEGRA_LP0
+	bool
+	select TEGRA_CLOCK_SCALING
+
+config TEGRA_PMU
+	bool
+
+config TEGRA_CLOCK_SCALING
+	bool
+
+config TEGRA_UARTA_GPU
+	bool
+
+config TEGRA_UARTA_SDIO1
+	bool
+
 choice
 	prompt "Tegra20 board select"
 	optional
@@ -23,6 +39,8 @@ config TARGET_PLUTUX
 config TARGET_SEABOARD
 	bool "NVIDIA Seaboard"
 	select BOARD_LATE_INIT
+	select TEGRA_LP0
+	select TEGRA_PMU
 
 config TARGET_TEC
 	bool "Avionic Design Tamonten Evaluation Carrier"
@@ -31,6 +49,7 @@ config TARGET_TEC
 config TARGET_TRIMSLICE
 	bool "Compulab TrimSlice board"
 	select BOARD_LATE_INIT
+	select TEGRA_UARTA_GPU
 
 config TARGET_VENTANA
 	bool "NVIDIA Tegra20 Ventana evaluation board"
@@ -39,6 +58,7 @@ config TARGET_VENTANA
 config TARGET_COLIBRI_T20
 	bool "Toradex Colibri T20 board"
 	select BOARD_LATE_INIT
+	select TEGRA_UARTA_SDIO1
 
 endchoice
 

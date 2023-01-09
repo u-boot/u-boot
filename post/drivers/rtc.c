@@ -26,7 +26,7 @@
 #include <post.h>
 #include <rtc.h>
 
-#if CONFIG_POST & CONFIG_SYS_POST_RTC
+#if CFG_POST & CFG_SYS_POST_RTC
 
 static int rtc_post_skip (ulong * diff)
 {
@@ -189,4 +189,4 @@ int rtc_post_test (int flags)
 	return 0;
 }
 
-#endif /* CONFIG_POST & CONFIG_SYS_POST_RTC */
+#endif /* CFG_POST & CFG_SYS_POST_RTC */

@@ -67,7 +67,35 @@
 
 #define ATMEL_BASE_PIT64BC	ATMEL_BASE_PIT64B0
 
+/* SAMA7G5 series chip id definitions */
+#define ARCH_ID_SAMA7G5		0x80162100
+#define ARCH_EXID_SAMA7G51	0x00000003
+#define ARCH_EXID_SAMA7G52	0x00000002
+#define ARCH_EXID_SAMA7G53	0x00000001
+#define ARCH_EXID_SAMA7G54	0x00000000
+#define ARCH_EXID_SAMA7G54_D1G	0x00000018
+#define ARCH_EXID_SAMA7G54_D2G	0x00000020
+#define ARCH_EXID_SAMA7G54_D4G	0x00000028
+
+#define cpu_is_sama7g5()	(get_chip_id() == ARCH_ID_SAMA7G5)
+#define cpu_is_sama7g51()	(cpu_is_sama7g5() && \
+		(get_extension_chip_id() == ARCH_EXID_SAMA7G51))
+#define cpu_is_sama7g52()	(cpu_is_sama7g5() && \
+		(get_extension_chip_id() == ARCH_EXID_SAMA7G52))
+#define cpu_is_sama7g53()	(cpu_is_sama7g5() && \
+		(get_extension_chip_id() == ARCH_EXID_SAMA7G53))
+#define cpu_is_sama7g54()	(cpu_is_sama7g5() && \
+		(get_extension_chip_id() == ARCH_EXID_SAMA7G54))
+#define cpu_is_sama7g54d1g()	(cpu_is_sama7g5() && \
+		(get_extension_chip_id() == ARCH_EXID_SAMA7G54_D1G))
+#define cpu_is_sama7g54d2g()	(cpu_is_sama7g5() && \
+		(get_extension_chip_id() == ARCH_EXID_SAMA7G54_D2G))
+#define cpu_is_sama7g54d4g()	(cpu_is_sama7g5() && \
+		(get_extension_chip_id() == ARCH_EXID_SAMA7G54_D4G))
+
 #ifndef __ASSEMBLY__
+unsigned int get_chip_id(void);
+unsigned int get_extension_chip_id(void);
 char *get_cpu_name(void);
 #endif
 
