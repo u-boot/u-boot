@@ -53,7 +53,7 @@ static const char bzip2_compressed[] =
 	"\xe1\xf0\x9d\xa4\x15\x8b\xb8\xc6\x93\xdc\x3d\xd9\x3c\x22\x55\xef"
 	"\xfb\xbb\x2a\xd3\x87\xa2\x8b\x04\xd9\x19\xf8\xe2\xfd\x4f\xdb\x1a"
 	"\x07\xc8\x60\xa3\x3f\xf8\xbb\x92\x29\xc2\x84\x87\x2b\x1e\xe8\x48";
-static const unsigned long bzip2_compressed_size = 240;
+static const unsigned long bzip2_compressed_size = sizeof(bzip2_compressed) - 1;
 
 /* lzma -z -c /tmp/plain.txt > /tmp/plain.lzma */
 static const char lzma_compressed[] =
@@ -72,7 +72,7 @@ static const char lzma_compressed[] =
 	"\x6b\x85\x40\x08\x1f\xdf\x26\x25\x3b\x72\x44\xb0\xb8\x21\x2f\xb3"
 	"\xd7\x9b\x24\x30\x78\x26\x44\x07\xc3\x33\xd1\x4d\x03\x1b\xe1\xff"
 	"\xfd\xf5\x50\x8d\xca";
-static const unsigned long lzma_compressed_size = 229;
+static const unsigned long lzma_compressed_size = sizeof(lzma_compressed) - 1;
 
 /* lzop -c /tmp/plain.txt > /tmp/plain.lzo */
 static const char lzo_compressed[] =
@@ -97,7 +97,7 @@ static const char lzo_compressed[] =
 	"\x6c\x79\x20\x69\x6e\x20\x74\x68\x65\x20\x66\x61\x63\x65\x20\x6f"
 	"\x66\x20\x73\x68\x6f\x72\x74\x20\x74\x65\x78\x74\x0a\x6d\x65\x73"
 	"\x73\x61\x67\x65\x73\x2e\x0a\x11\x00\x00\x00\x00\x00\x00";
-static const unsigned long lzo_compressed_size = 334;
+static const unsigned long lzo_compressed_size = sizeof(lzo_compressed) - 1;
 
 /* lz4 -z /tmp/plain.txt > /tmp/plain.lz4 */
 static const char lz4_compressed[] =
@@ -119,7 +119,7 @@ static const char lz4_compressed[] =
 	"\x6c\x79\x4e\x00\x30\x61\x63\x65\x27\x01\x01\x95\x00\x01\x2d\x01"
 	"\xb0\x0a\x6d\x65\x73\x73\x61\x67\x65\x73\x2e\x0a\x00\x00\x00\x00"
 	"\x9d\x12\x8c\x9d";
-static const unsigned long lz4_compressed_size = 276;
+static const unsigned long lz4_compressed_size = sizeof(lz4_compressed) - 1;
 
 
 #define TEST_BUFFER_SIZE	512
