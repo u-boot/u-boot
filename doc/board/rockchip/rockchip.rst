@@ -27,6 +27,7 @@ List of mainline supported Rockchip boards:
      - Engicam PX30.Core C.TOUCH 2.0 10.1 (px30-core-ctouch2-of10-px30)
      - Engicam PX30.Core EDIMM2.2 Starter Kit (px30-core-edimm2.2-px30)
      - Firefly Core-PX30-JD4 (firefly-px30)
+     - Theobroma Systems PX30-µQ7 SoM - Ringneck (ringneck-px30)
 * rk3036
      - Rockchip Evb-RK3036 (evb-rk3036)
      - Kylin (kylin_rk3036)

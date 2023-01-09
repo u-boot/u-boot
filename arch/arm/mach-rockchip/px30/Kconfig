@@ -35,6 +35,30 @@ config TARGET_PX30_CORE
 	  * PX30.Core needs to mount on top of C.TOUCH 2.0 carrier with pluged
             10.1" OF for creating complete PX30.Core C.TOUCH 2.0 10.1" Open Frame.
 
+config TARGET_RINGNECK_PX30
+	bool "Theobroma Systems PX30-µQ7 (Ringneck)"
+	help
+	  The PX30-uQ7 (Ringneck) SoM is a µQseven-compatible (40mmx70mm,
+          MXM-230 connector) system-on-module from Theobroma Systems[1],
+	  featuring the Rockchip PX30.
+
+	  It provides the following feature set:
+	    * up to 4GB DDR4
+	    * up to 128GB on-module eMMC (with 8-bit 1.8V interface)
+	    * SD card (on a baseboard) via edge connector
+	    * Fast Ethernet with on-module TI DP83825I PHY
+	    * MIPI-DSI/LVDS
+	    * MIPI-CSI
+	    * USB
+	      - 1x USB 2.0 dual-role
+	      - 3x USB 2.0 host
+	    * on-module companion controller (STM32 Cortex-M0 or ATtiny), implementing:
+	      - low-power RTC functionality (ISL1208 emulation)
+	      - fan controller (AMC6821 emulation)
+	      - USB<->CAN bridge controller (STM32 only)
+	    * on-module Espressif ESP32 for Bluetooth + 2.4GHz WiFi
+	    * on-module NXP SE05x Secure Element
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xff010200
 
@@ -71,5 +95,6 @@ config DEBUG_UART_CHANNEL
 source "board/engicam/px30_core/Kconfig"
 source "board/hardkernel/odroid_go2/Kconfig"
 source "board/rockchip/evb_px30/Kconfig"
+source "board/theobroma-systems/ringneck_px30/Kconfig"
 
 endif
