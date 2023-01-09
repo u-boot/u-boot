@@ -181,7 +181,7 @@ If that fails it will then try to boot from several interfaces using
 'distro_bootcmd': It will first try to boot from the microSD slot, then the
 SD slot, then the internal eMMC, then the SATA interface and finally the USB
 interface. For more information on how to configure your distribution to boot,
-see 'README.distro'.
+see 'doc/develop/distro.rst'.
 
 Links:
 ------

@@ -177,7 +177,7 @@ To restore GUID partition table one needs to:
      "name=u-boot,size=60MiB;name=boot,size=60Mib,bootable;name=rootfs,size=0"
    It can be used to locate bootable disks with command
    "part list <interface> <dev> -bootable <varname>",
-   please check out doc/README.distro for use.
+   please check out doc/develop/distro.rst for use.
 
 2. Define 'CONFIG_EFI_PARTITION' and 'CONFIG_CMD_GPT'
 

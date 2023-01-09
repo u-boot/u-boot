@@ -336,7 +336,7 @@ Deployment for Distro Boot
 --------------------------
 
 UniPhier SoC family boot the kernel in a generic manner as described in
-doc/README.distro .
+doc/develop/distro.rst.
 
 To boot the kernel, you need to deploy necesssary components to a file
 system on one of your block devices (eMMC, NAND, USB drive, etc.).
