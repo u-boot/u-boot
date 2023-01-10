@@ -244,6 +244,13 @@ config ENV_IS_IN_MMC
 	  This value is also in units of bytes, but must also be aligned to
 	  an MMC sector boundary.
 
+	  CONFIG_ENV_MMC_USE_DT (optional):
+
+	  These define forces the configuration by the config node in device
+	  tree with partition name: "u-boot,mmc-env-partition" or with
+	  offset: "u-boot,mmc-env-offset", "u-boot,mmc-env-offset-redundant".
+	  CONFIG_ENV_OFFSET and CONFIG_ENV_OFFSET_REDUND are not used.
+
 config ENV_IS_IN_NAND
 	bool "Environment in a NAND device"
 	depends on !CHAIN_OF_TRUST
@@ -651,6 +658,15 @@ config SYS_MMC_ENV_PART
 	  defined partition table but instead if we are in the user area, which is
 	  partition 0 or the first boot partition, which is 1 or some other defined
 	  partition.
+
+config ENV_MMC_USE_DT
+	bool "Read partition name and offset in DT"
+	depends on ENV_IS_IN_MMC && OF_CONTROL
+	help
+	  Only use the device tree to get the environment location in MMC
+	  device, with partition name or with offset.
+	  The 2 defines CONFIG_ENV_OFFSET, CONFIG_ENV_OFFSET_REDUND
+	  are not used as fallback.
 
 config USE_DEFAULT_ENV_FILE
 	bool "Create default environment from file"
