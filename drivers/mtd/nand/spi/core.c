@@ -327,6 +327,13 @@ static int spinand_write_to_cache_op(struct spinand_device *spinand,
 	u16 column = 0;
 	int ret;
 
+	/*
+	 * Looks like PROGRAM LOAD (AKA write cache) does not necessarily reset
+	 * the cache content to 0xFF (depends on vendor implementation), so we
+	 * must fill the page cache entirely even if we only want to program
+	 * the data portion of the page, otherwise we might corrupt the BBM or
+	 * user data previously programmed in OOB area.
+	 */
 	memset(spinand->databuf, 0xff,
 	       nanddev_page_size(nand) +
 	       nanddev_per_page_oobsize(nand));
@@ -599,12 +606,12 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
 		if (ret == -EBADMSG) {
 			ecc_failed = true;
 			mtd->ecc_stats.failed++;
-			ret = 0;
 		} else {
 			mtd->ecc_stats.corrected += ret;
 			max_bitflips = max_t(unsigned int, max_bitflips, ret);
 		}
 
+		ret = 0;
 		ops->retlen += iter.req.datalen;
 		ops->oobretlen += iter.req.ooblen;
 	}
@@ -670,16 +677,9 @@ static bool spinand_isbad(struct nand_device *nand, const struct nand_pos *pos)
 		.oobbuf.in = marker,
 		.mode = MTD_OPS_RAW,
 	};
-	int ret;
 
-	ret = spinand_select_target(spinand, pos->target);
-	if (ret)
-		return ret;
-
-	ret = spinand_read_page(spinand, &req, false);
-	if (ret)
-		return ret;
-
+	spinand_select_target(spinand, pos->target);
+	spinand_read_page(spinand, &req, false);
 	if (marker[0] != 0xff || marker[1] != 0xff)
 		return true;
 
@@ -720,6 +720,10 @@ static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
 	int ret;
 
 	ret = spinand_select_target(spinand, pos->target);
+	if (ret)
+		return ret;
+
+	ret = spinand_write_enable_op(spinand);
 	if (ret)
 		return ret;
 
