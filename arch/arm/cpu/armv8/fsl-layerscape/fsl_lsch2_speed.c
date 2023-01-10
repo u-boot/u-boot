@@ -48,10 +48,11 @@ void get_sys_info(struct sys_info *sys_info)
 	unsigned long cluster_clk;
 
 	sys_info->freq_systembus = sysclk;
-#ifndef CONFIG_CLUSTER_CLK_FREQ
-#define CONFIG_CLUSTER_CLK_FREQ	get_board_sys_clk()
-#endif
+#ifdef CONFIG_CLUSTER_CLK_FREQ
 	cluster_clk = CONFIG_CLUSTER_CLK_FREQ;
+#else
+	cluster_clk = get_board_sys_clk();
+#endif
 
 #if defined(CONFIG_DYNAMIC_DDR_CLK_FREQ) || defined(CONFIG_STATIC_DDR_CLK_FREQ)
 	sys_info->freq_ddrbus = get_board_ddr_clk();
