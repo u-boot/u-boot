@@ -339,6 +339,11 @@ config MVEBU_SPL_BOOT_DEVICE_SPI
 	imply SPL_SPI
 	select SPL_BOOTROM_SUPPORT
 
+config MVEBU_SPL_BOOT_DEVICE_NAND
+	bool "NAND flash (SPI or parallel)"
+	select MTD_RAW_NAND
+	select SPL_BOOTROM_SUPPORT
+
 config MVEBU_SPL_BOOT_DEVICE_MMC
 	bool "SDIO/MMC card"
 	imply ENV_IS_IN_MMC
@@ -363,6 +368,14 @@ config MVEBU_SPL_BOOT_DEVICE_UART
 	select SPL_BOOTROM_SUPPORT
 
 endchoice
+
+config MVEBU_SPL_NAND_BADBLK_LOCATION
+	hex "NAND Bad block indicator location"
+	depends on MVEBU_SPL_BOOT_DEVICE_NAND
+	range 0x0 0x1
+	help
+	  Value 0x0 = SLC flash = BBI at page 0 or page 1
+	  Value 0x1 = MLC flash = BBI at last page in the block
 
 config MVEBU_EFUSE
 	bool "Enable eFuse support"
