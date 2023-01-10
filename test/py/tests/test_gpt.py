@@ -136,6 +136,29 @@ def test_gpt_save_guid(state_disk_image, u_boot_console):
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_part_type_uuid(state_disk_image, u_boot_console):
+    """Test the gpt partittion type UUID command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('part type host 0:1')
+    assert '0fc63daf-8483-4772-8e79-3d69d8477de4' in output
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_part_type_save_uuid(state_disk_image, u_boot_console):
+    """Test the gpt partittion type to save UUID into a string."""
+
+    if u_boot_console.config.buildconfig.get('config_cmd_gpt', 'n') != 'y':
+        pytest.skip('gpt command not supported')
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('part type host 0:1 newguid')
+    output = u_boot_console.run_command('printenv newguid')
+    assert '0fc63daf-8483-4772-8e79-3d69d8477de4' in output
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
 @pytest.mark.buildconfigspec('cmd_gpt_rename')
 @pytest.mark.buildconfigspec('cmd_part')
 @pytest.mark.requiredtool('sgdisk')
