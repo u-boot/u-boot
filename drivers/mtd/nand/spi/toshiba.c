@@ -7,13 +7,13 @@
  */
 
 #ifndef __UBOOT__
-#include <malloc.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
 #endif
 #include <linux/bug.h>
 #include <linux/mtd/spinand.h>
 
+/* Kioxia is new name of Toshiba memory. */
 #define SPINAND_MFR_TOSHIBA		0x98
 #define TOSH_STATUS_ECC_HAS_BITFLIPS_T	(3 << 4)
 
@@ -31,7 +31,7 @@ static SPINAND_OP_VARIANTS(update_cache_x4_variants,
 		SPINAND_PROG_LOAD_X4(false, 0, NULL, 0),
 		SPINAND_PROG_LOAD(false, 0, NULL, 0));
 
-/**
+/*
  * Backward compatibility for 1st generation Serial NAND devices
  * which don't support Quad Program Load operation.
  */
@@ -42,7 +42,7 @@ static SPINAND_OP_VARIANTS(update_cache_variants,
 		SPINAND_PROG_LOAD(false, 0, NULL, 0));
 
 static int tx58cxgxsxraix_ooblayout_ecc(struct mtd_info *mtd, int section,
-				     struct mtd_oob_region *region)
+					struct mtd_oob_region *region)
 {
 	if (section > 0)
 		return -ERANGE;
@@ -54,7 +54,7 @@ static int tx58cxgxsxraix_ooblayout_ecc(struct mtd_info *mtd, int section,
 }
 
 static int tx58cxgxsxraix_ooblayout_free(struct mtd_info *mtd, int section,
-				      struct mtd_oob_region *region)
+					 struct mtd_oob_region *region)
 {
 	if (section > 0)
 		return -ERANGE;
@@ -72,7 +72,7 @@ static const struct mtd_ooblayout_ops tx58cxgxsxraix_ooblayout = {
 };
 
 static int tx58cxgxsxraix_ecc_get_status(struct spinand_device *spinand,
-				      u8 status)
+					 u8 status)
 {
 	struct nand_device *nand = spinand_to_nand(spinand);
 	u8 mbf = 0;
@@ -113,7 +113,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 3.3V 1Gb (1st generation) */
 	SPINAND_INFO("TC58CVG0S3HRAIG",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xC2),
-		     NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 1024, 20, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -124,7 +124,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 3.3V 2Gb (1st generation) */
 	SPINAND_INFO("TC58CVG1S3HRAIG",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xCB),
-		     NAND_MEMORG(1, 2048, 128, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -135,7 +135,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 3.3V 4Gb (1st generation) */
 	SPINAND_INFO("TC58CVG2S0HRAIG",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xCD),
-		     NAND_MEMORG(1, 4096, 256, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 4096, 256, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -146,7 +146,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 1.8V 1Gb (1st generation) */
 	SPINAND_INFO("TC58CYG0S3HRAIG",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xB2),
-		     NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 1024, 20, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -157,7 +157,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 1.8V 2Gb (1st generation) */
 	SPINAND_INFO("TC58CYG1S3HRAIG",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xBB),
-		     NAND_MEMORG(1, 2048, 128, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -168,7 +168,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 1.8V 4Gb (1st generation) */
 	SPINAND_INFO("TC58CYG2S0HRAIG",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xBD),
-		     NAND_MEMORG(1, 4096, 256, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 4096, 256, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
@@ -184,7 +184,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 3.3V 1Gb (2nd generation) */
 	SPINAND_INFO("TC58CVG0S3HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xE2),
-		     NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 1024, 20, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
@@ -195,7 +195,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 3.3V 2Gb (2nd generation) */
 	SPINAND_INFO("TC58CVG1S3HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xEB),
-		     NAND_MEMORG(1, 2048, 128, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
@@ -206,7 +206,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 3.3V 4Gb (2nd generation) */
 	SPINAND_INFO("TC58CVG2S0HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xED),
-		     NAND_MEMORG(1, 4096, 256, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 4096, 256, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
@@ -217,7 +217,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 3.3V 8Gb (2nd generation) */
 	SPINAND_INFO("TH58CVG3S0HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xE4),
-		     NAND_MEMORG(1, 4096, 256, 64, 4096, 1, 1, 1),
+		     NAND_MEMORG(1, 4096, 256, 64, 4096, 80, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
@@ -228,7 +228,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 1.8V 1Gb (2nd generation) */
 	SPINAND_INFO("TC58CYG0S3HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xD2),
-		     NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 1024, 20, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
@@ -239,7 +239,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 1.8V 2Gb (2nd generation) */
 	SPINAND_INFO("TC58CYG1S3HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xDB),
-		     NAND_MEMORG(1, 2048, 128, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 128, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
@@ -250,7 +250,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 1.8V 4Gb (2nd generation) */
 	SPINAND_INFO("TC58CYG2S0HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xDD),
-		     NAND_MEMORG(1, 4096, 256, 64, 2048, 1, 1, 1),
+		     NAND_MEMORG(1, 4096, 256, 64, 2048, 40, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
@@ -261,7 +261,7 @@ static const struct spinand_info toshiba_spinand_table[] = {
 	/* 1.8V 8Gb (2nd generation) */
 	SPINAND_INFO("TH58CYG3S0HRAIJ",
 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0xD4),
-		     NAND_MEMORG(1, 4096, 256, 64, 4096, 1, 1, 1),
+		     NAND_MEMORG(1, 4096, 256, 64, 4096, 80, 1, 1, 1),
 		     NAND_ECCREQ(8, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_x4_variants,
