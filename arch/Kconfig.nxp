@@ -256,6 +256,20 @@ config SYS_FSL_ESDHC_BE
 config SYS_FSL_IFC_BE
 	bool
 
+config SYS_FSL_IFC_BANK_COUNT
+	int "Maximum banks of Integrated flash controller"
+	depends on ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A || \
+		ARCH_LS1088A || ARCH_LS1021A || ARCH_B4860 || ARCH_B4420 || \
+		ARCH_T4240 || ARCH_T1040 || ARCH_T1042 || ARCH_T1024 || \
+		ARCH_T2080 || ARCH_C29X || ARCH_P1010 || ARCH_BSC9131 || \
+		ARCH_BSC9132
+	default 3 if ARCH_BSC9131 || ARCH_BSC9132
+	default 4 if ARCH_LS1043A || ARCH_LS1046A || ARCH_B4860 || \
+			ARCH_B4420 || ARCH_P1010
+	default 8 if ARCH_LS2080A || ARCH_LS1088A || ARCH_LS1021A || \
+			ARCH_T4240 || ARCH_T1040 || ARCH_T1042 || \
+			ARCH_T1024 || ARCH_T2080 || ARCH_C29X
+
 config FSL_QIXIS
 	bool "Enable QIXIS support"
 	depends on PPC || ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3

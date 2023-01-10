@@ -20,10 +20,6 @@
 #include <linux/errno.h>
 #include <fsl_ifc.h>
 
-#ifndef CONFIG_SYS_FSL_IFC_BANK_COUNT
-#define CONFIG_SYS_FSL_IFC_BANK_COUNT	4
-#endif
-
 #define MAX_BANKS	CONFIG_SYS_FSL_IFC_BANK_COUNT
 #define ERR_BYTE	0xFF /* Value returned for read bytes
 				when read failed */
