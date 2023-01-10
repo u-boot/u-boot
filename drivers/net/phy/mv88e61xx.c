@@ -167,14 +167,6 @@
 #error Define CONFIG_MV88E61XX_CPU_PORT to the port the CPU is attached to
 #endif
 
-/*
- *  These are ports without PHYs that may be wired directly
- * to other serdes interfaces
- */
-#ifndef CONFIG_MV88E61XX_FIXED_PORTS
-#define CONFIG_MV88E61XX_FIXED_PORTS 0
-#endif
-
 /* ID register values for different switch models */
 #define PORT_SWITCH_ID_6020		0x0200
 #define PORT_SWITCH_ID_6070		0x0700
