@@ -50,13 +50,12 @@ compute_dimm_parameters(const unsigned int ctrl_num,
  *
  * All data structures have to be on the stack
  */
-#define CONFIG_SYS_DIMM_SLOTS_PER_CTLR CONFIG_DIMM_SLOTS_PER_CTLR
 
 typedef struct {
 	generic_spd_eeprom_t
-	   spd_installed_dimms[CONFIG_SYS_NUM_DDR_CTLRS][CONFIG_SYS_DIMM_SLOTS_PER_CTLR];
+	   spd_installed_dimms[CONFIG_SYS_NUM_DDR_CTLRS][CONFIG_DIMM_SLOTS_PER_CTLR];
 	struct dimm_params_s
-	   dimm_params[CONFIG_SYS_NUM_DDR_CTLRS][CONFIG_SYS_DIMM_SLOTS_PER_CTLR];
+	   dimm_params[CONFIG_SYS_NUM_DDR_CTLRS][CONFIG_DIMM_SLOTS_PER_CTLR];
 	memctl_options_t memctl_opts[CONFIG_SYS_NUM_DDR_CTLRS];
 	common_timing_params_t common_timing_params[CONFIG_SYS_NUM_DDR_CTLRS];
 	fsl_ddr_cfg_regs_t fsl_ddr_config_reg[CONFIG_SYS_NUM_DDR_CTLRS];

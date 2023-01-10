@@ -86,13 +86,7 @@ static bool fm_debug;
 #endif
 #else
 #ifdef CONFIG_MTD_UBI_FASTMAP
-#if !defined(CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT)
-#define CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT 0
-#endif
 static bool fm_autoconvert = CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT;
-#if !defined(CONFIG_MTD_UBI_FM_DEBUG)
-#define CONFIG_MTD_UBI_FM_DEBUG 0
-#endif
 static bool fm_debug = CONFIG_MTD_UBI_FM_DEBUG;
 #endif
 #endif

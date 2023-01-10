@@ -19,11 +19,6 @@
 #include <video_font.h>		/* Bitmap font for code page 437 */
 #include <linux/ctype.h>
 
-/* By default we scroll by a single line */
-#ifndef CONFIG_CONSOLE_SCROLL_LINES
-#define CONFIG_CONSOLE_SCROLL_LINES 1
-#endif
-
 int vidconsole_putc_xy(struct udevice *dev, uint x, uint y, char ch)
 {
 	struct vidconsole_ops *ops = vidconsole_get_ops(dev);

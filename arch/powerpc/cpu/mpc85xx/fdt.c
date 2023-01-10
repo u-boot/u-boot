@@ -92,7 +92,6 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	}
 
 #if defined(T1040_TDM_QUIRK_CCSR_BASE)
-#define	CONFIG_MEM_HOLE_16M	0x1000000
 	/*
 	 * Extract hwconfig from environment.
 	 * Search for tdm entry in hwconfig.
@@ -103,8 +102,7 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 
 	/* Reserve the memory hole created by TDM LAW, so OSes dont use it */
 	if (tdm_hwconfig_enabled) {
-		off = fdt_add_mem_rsv(blob, T1040_TDM_QUIRK_CCSR_BASE,
-				      CONFIG_MEM_HOLE_16M);
+		off = fdt_add_mem_rsv(blob, T1040_TDM_QUIRK_CCSR_BASE, SZ_16);
 		if (off < 0)
 			printf("Failed  to reserve memory for tdm: %s\n",
 			       fdt_strerror(off));

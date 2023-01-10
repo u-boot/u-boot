@@ -6,10 +6,6 @@
 
 #include <edid.h>
 
-#ifndef CONFIG_SYS_DEFAULT_VIDEO_MODE
-#define CONFIG_SYS_DEFAULT_VIDEO_MODE	0x301
-#endif
-
 /* Some mode definitions */
 #define FB_SYNC_HOR_HIGH_ACT	1	/* horizontal sync high active	*/
 #define FB_SYNC_VERT_HIGH_ACT	2	/* vertical sync high active	*/

@@ -168,9 +168,7 @@ struct descriptor {		/* A generic descriptor. */
 	unsigned char params[0];
 };
 
-#define CONFIG_SYS_CMD_EL		0x8000
 #define CONFIG_SYS_CMD_SUSPEND		0x4000
-#define CONFIG_SYS_CMD_INT		0x2000
 #define CONFIG_SYS_CMD_IAS		0x0001	/* individual address setup */
 #define CONFIG_SYS_CMD_CONFIGURE	0x0002	/* configure */
 

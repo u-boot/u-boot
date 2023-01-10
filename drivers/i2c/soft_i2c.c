@@ -88,13 +88,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #  define I2C_SOFT_DECLARATIONS
 #endif
 
-#if !defined(CONFIG_SYS_I2C_SOFT_SPEED)
-#define CONFIG_SYS_I2C_SOFT_SPEED CONFIG_SYS_I2C_SPEED
-#endif
-#if !defined(CONFIG_SYS_I2C_SOFT_SLAVE)
-#define CONFIG_SYS_I2C_SOFT_SLAVE CONFIG_SYS_I2C_SLAVE
-#endif
-
 /*-----------------------------------------------------------------------
  * Definitions
  */

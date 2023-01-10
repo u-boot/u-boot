@@ -13,7 +13,6 @@
 #include <asm/immap_520x.h>
 #include <asm/m520x.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x4000))
 
 /* Timer */
@@ -36,7 +35,6 @@
 #include <asm/immap_5235.h>
 #include <asm/m5235.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x40))
 
 /* Timer */
@@ -104,7 +102,6 @@
 #include <asm/immap_5271.h>
 #include <asm/m5271.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x40))
 
 /* Timer */
@@ -127,7 +124,6 @@
 #include <asm/immap_5272.h>
 #include <asm/m5272.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x40))
 
 #define CONFIG_SYS_INTR_BASE		(MMAP_INTC)
@@ -150,8 +146,6 @@
 #include <asm/immap_5275.h>
 #include <asm/m5275.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
-#define CONFIG_SYS_FEC1_IOBASE		(MMAP_FEC1)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x40))
 
 #define CONFIG_SYS_INTR_BASE		(MMAP_INTC0)
@@ -174,7 +168,6 @@
 #include <asm/immap_5282.h>
 #include <asm/m5282.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x40))
 
 #define CONFIG_SYS_INTR_BASE		(MMAP_INTC0)
@@ -221,8 +214,6 @@
 #include <asm/immap_5301x.h>
 #include <asm/m5301x.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
-#define CONFIG_SYS_FEC1_IOBASE		(MMAP_FEC1)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x4000))
 
 /* Timer */
@@ -245,7 +236,6 @@
 #include <asm/immap_5329.h>
 #include <asm/m5329.h>
 
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x4000))
 
 /* Timer */
@@ -267,9 +257,6 @@
 #if defined(CONFIG_M54418)
 #include <asm/immap_5441x.h>
 #include <asm/m5441x.h>
-
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
-#define CONFIG_SYS_FEC1_IOBASE		(MMAP_FEC1)
 
 #if (CFG_SYS_UART_PORT < 4)
 #define CONFIG_SYS_UART_BASE		(MMAP_UART0 + \
@@ -303,9 +290,6 @@
 #include <asm/m547x_8x.h>
 
 #ifdef CONFIG_FSLDMAFEC
-#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
-#define CONFIG_SYS_FEC1_IOBASE		(MMAP_FEC1)
-
 #define FEC0_RX_TASK		0
 #define FEC0_TX_TASK		1
 #define FEC0_RX_PRIORITY	6

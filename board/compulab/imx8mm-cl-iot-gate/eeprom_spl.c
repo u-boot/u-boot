@@ -13,7 +13,6 @@
 #ifdef CONFIG_SPL_BUILD
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR_P1	0x51
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
 static iomux_v3_cfg_t const eeprom_pads[] = {
 	IMX8MQ_PAD_GPIO1_IO13__GPIO1_IO13 | MUX_PAD_CTRL(NO_PAD_CTRL),
