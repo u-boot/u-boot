@@ -30,6 +30,7 @@ config WATCHDOG_TIMEOUT_MSECS
 	default 128000 if ARCH_MX7 || ARCH_VF610
 	default 30000 if ARCH_SOCFPGA
 	default 16000 if ARCH_SUNXI
+	default 5376 if ULP_WATCHDOG
 	default 60000
 	help
 	  Watchdog timeout in msec
