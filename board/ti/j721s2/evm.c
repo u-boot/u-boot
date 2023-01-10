@@ -72,16 +72,6 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_LOAD_FIT
-int board_fit_config_name_match(const char *name)
-{
-	if (!strcmp(name, "k3-j721s2-common-proc-board"))
-		return 0;
-
-	return -1;
-}
-#endif
-
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
@@ -110,6 +100,9 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 int do_board_detect(void)
 {
 	int ret;
+
+	if (board_ti_was_eeprom_read())
+		return 0;
 
 	ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
 					 CONFIG_EEPROM_CHIP_ADDRESS);
@@ -176,6 +169,28 @@ static void setup_serial(void)
 
 	snprintf(serial_string, sizeof(serial_string), "%016lx", board_serial);
 	env_set("serial#", serial_string);
+}
+#endif
+
+/*
+ * This function chooses the right dtb based on the board name read from
+ * EEPROM if the EEPROM is programmed. Also, by default the boot chooses
+ * the EVM DTB if there is no EEPROM is programmed or not detected.
+ */
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	bool eeprom_read = board_ti_was_eeprom_read();
+
+	if (!eeprom_read || board_is_j721s2_som()) {
+		if (!strcmp(name, "k3-j721s2-common-proc-board"))
+			return 0;
+	} else if (!eeprom_read || board_is_am68_sk_som()) {
+		if (!strcmp(name, "k3-am68-sk-base-board"))
+			return 0;
+	}
+
+	return -1;
 }
 #endif
 
